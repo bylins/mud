@@ -1121,9 +1121,9 @@ int shutting_down(void) {
 			sprintf(buf, "ОСТАНОВКА через ");
 		}
 		if (wait < 60)
-			sprintf(buf + strlen(buf), "%d %s.\r\n", wait, desc_count(wait, WHAT_SEC));
+			sprintf(buf + strlen(buf), "%d %s.\r\n", wait, GetDeclensionInNumber(wait, EWhat::kSec));
 		else
-			sprintf(buf + strlen(buf), "%d %s.\r\n", wait / 60, desc_count(wait / 60, WHAT_MINu));
+			sprintf(buf + strlen(buf), "%d %s.\r\n", wait / 60, GetDeclensionInNumber(wait / 60, EWhat::kMinU));
 		send_to_all(buf);
 		lastmessage = time(nullptr);
 		// на десятой секунде засейвим нужное нам в сислог

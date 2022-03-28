@@ -755,7 +755,7 @@ void print_identify(CharData *ch, const ObjData *obj) {
 		auto i = obj->get_activator();
 		if (i.second > 0) {
 			snprintf(buf_2, sizeof(buf_2), " (активно %d %s)",
-					 i.second, desc_count(i.second, WHAT_OBJECT));
+					 i.second, GetDeclensionInNumber(i.second, EWhat::kObject));
 		}
 
 		snprintf(buf_, sizeof(buf_), "Свойства набора%s: %sсправка %s%s\r\n",
@@ -938,10 +938,10 @@ std::string print_activ_help(const SetNode &set) {
 				PrinSetClasses(i.second.prof, prof_list);
 			}
 			snprintf(buf_, sizeof(buf_), "%d %s (%s)\r\n",
-					 i.first, desc_count(i.first, WHAT_OBJECT), prof_list.c_str());
+					 i.first, GetDeclensionInNumber(i.first, EWhat::kObject), prof_list.c_str());
 		} else {
 			snprintf(buf_, sizeof(buf_), "%d %s\r\n",
-					 i.first, desc_count(i.first, WHAT_OBJECT));
+					 i.first, GetDeclensionInNumber(i.first, EWhat::kObject));
 		}
 		out += buf_;
 		// аффекты

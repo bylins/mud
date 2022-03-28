@@ -346,8 +346,8 @@ void send(CharData *ch, CharData *mailman, long vict_uid, char *arg) {
 
 	if (!send_buffer.empty()) {
 		snprintf(buf, sizeof(buf), "с вас удержано %d %s и еще %d %s зарезервировано на 3 дня хранения.\r\n",
-				 send_cost_buffer, desc_count(send_cost_buffer, WHAT_MONEYa),
-				 send_reserved_buffer, desc_count(send_reserved_buffer, WHAT_MONEYa));
+				 send_cost_buffer, GetDeclensionInNumber(send_cost_buffer, EWhat::kMoneyA),
+				 send_reserved_buffer, GetDeclensionInNumber(send_reserved_buffer, EWhat::kMoneyA));
 		send_buffer += buf;
 		send_to_char(send_buffer.c_str(), ch);
 
@@ -376,7 +376,7 @@ void print_sending_stuff(CharData *ch) {
 				money += it3->money_;
 			}
 			out << CCNRM(ch, C_NRM)
-				<< money << " " << desc_count(money, WHAT_MONEYa) << " зарезервировано на 3 дня хранения.\r\n";
+				<< money << " " << GetDeclensionInNumber(money, EWhat::kMoneyA) << " зарезервировано на 3 дня хранения.\r\n";
 		}
 	}
 	if (print)
@@ -438,7 +438,7 @@ void return_money(std::string const &name, int money, bool add) {
 		if (add) {
 			vict->add_bank(money);
 			send_to_char(vict, "%sВы получили %d %s банковским переводом от почтовой службы%s.\r\n",
-						 CCWHT(vict, C_NRM), money, desc_count(money, WHAT_MONEYu), CCNRM(vict, C_NRM));
+						 CCWHT(vict, C_NRM), money, GetDeclensionInNumber(money, EWhat::kMoneyU), CCNRM(vict, C_NRM));
 		}
 	} else {
 		vict = new Player; // TODO: переделать на стек

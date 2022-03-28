@@ -108,7 +108,7 @@ std::string print_spell_str(CharData *ch, int spell, int timer) {
 								 % CCGRN(ch, C_NRM)
 								 % get_poison_by_spell(spell)
 								 % timer
-								 % desc_count(timer, WHAT_MINu)
+								 % GetDeclensionInNumber(timer, EWhat::kMinU)
 								 % CCNRM(ch, C_NRM));
 			break;
 

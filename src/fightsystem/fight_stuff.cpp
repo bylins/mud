@@ -391,7 +391,7 @@ void die(CharData *ch, CharData *killer) {
 					/ (3 + MIN(3, GET_REAL_REMORT(ch) / 5));
 			gain_exp(ch, -dec_exp);
 			dec_exp = char_exp - GET_EXP(ch);
-			sprintf(buf, "Вы потеряли %ld %s опыта.\r\n", dec_exp, desc_count(dec_exp, WHAT_POINT));
+			sprintf(buf, "Вы потеряли %ld %s опыта.\r\n", dec_exp, GetDeclensionInNumber(dec_exp, EWhat::kPoint));
 			send_to_char(buf, ch);
 		}
 
@@ -917,7 +917,7 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 		}
 
 		exp = MIN(max_exp_gain_pc(ch), exp);
-		send_to_char(ch, "Ваш опыт повысился на %d %s.\r\n", exp, desc_count(exp, WHAT_POINT));
+		send_to_char(ch, "Ваш опыт повысился на %d %s.\r\n", exp, GetDeclensionInNumber(exp, EWhat::kPoint));
 	} else if (exp == 1) {
 		send_to_char("Ваш опыт повысился всего лишь на маленькую единичку.\r\n", ch);
 	}

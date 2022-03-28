@@ -1238,7 +1238,7 @@ void identify(CharData *ch, const ObjData *obj) {
 
 	snprintf(buf_, sizeof(buf_), "Может вместить зелья: %s%d %s%s\r\n",
 			 CCCYN(ch, C_NRM),
-			 volume, desc_count(volume, WHAT_GULP),
+			 volume, GetDeclensionInNumber(volume, EWhat::kGulp),
 			 CCNRM(ch, C_NRM));
 	out += buf_;
 
@@ -1249,13 +1249,13 @@ void identify(CharData *ch, const ObjData *obj) {
 			if (IS_IMMORTAL(ch)) {
 				snprintf(buf_, sizeof(buf_), "Содержит %d %s %s (VNUM: %d).\r\n",
 						 amount,
-						 desc_count(amount, WHAT_GULP),
+						 GetDeclensionInNumber(amount, EWhat::kGulp),
 						 drinks[GET_OBJ_VAL(obj, 2)],
 						 obj->get_value(ObjVal::EValueKey::POTION_PROTO_VNUM));
 			} else {
 				snprintf(buf_, sizeof(buf_), "Содержит %d %s %s.\r\n",
 						 amount,
-						 desc_count(amount, WHAT_GULP),
+						 GetDeclensionInNumber(amount, EWhat::kGulp),
 						 drinks[GET_OBJ_VAL(obj, 2)]);
 			}
 			out += buf_;

@@ -1089,10 +1089,10 @@ void Clan::HouseInfo(CharData *ch) {
 		   << " Это очень круто :), но ничего вам не дает.\r\n"
 		   << "Ваша дружина имеет " << this->get_rep() << " очков репутации.\r\n"
 		   << "В хранилище замка может храниться до " << this->ChestMaxObjects()
-		   << " " << desc_count(this->ChestMaxObjects(), WHAT_OBJu)
+		   << " " << GetDeclensionInNumber(this->ChestMaxObjects(), EWhat::kObjU)
 		   << " с общим весом не более чем " << this->ChestMaxWeight() << "\r\n"
 		   << "В хранилище ингредиентов может храниться до " << this->ingr_chest_max_objects()
-		   << " " << desc_count(this->ingr_chest_max_objects(), WHAT_OBJu)
+		   << " " << GetDeclensionInNumber(this->ingr_chest_max_objects(), EWhat::kObjU)
 		   << ".\r\n";
 
 	// инфа о банке и хранилище
@@ -1102,25 +1102,25 @@ void Clan::HouseInfo(CharData *ch) {
 	int total_tax = cost + ingr_cost + options_tax;
 
 	buffer << "В хранилище вашей дружины " << this->chest_objcount << " "
-		   << desc_count(this->chest_objcount, WHAT_OBJECT)
+		   << GetDeclensionInNumber(this->chest_objcount, EWhat::kObject)
 		   << " общим весом в " << this->chest_weight
-		   << " (" << cost << " " << desc_count(cost, WHAT_MONEYa) << " в день).\r\n"
+		   << " (" << cost << " " << GetDeclensionInNumber(cost, EWhat::kMoneyA) << " в день).\r\n"
 		   << "В хранилище ингредиентов " << ingr_chest_objcount_ << " "
-		   << desc_count(ingr_chest_objcount_, WHAT_OBJECT)
-		   << " (" << ingr_cost << " " << desc_count(ingr_cost, WHAT_MONEYa) << " в день).\r\n\r\n"
+		   << GetDeclensionInNumber(ingr_chest_objcount_, EWhat::kObject)
+		   << " (" << ingr_cost << " " << GetDeclensionInNumber(ingr_cost, EWhat::kMoneyA) << " в день).\r\n\r\n"
 		   << "Состояние казны: " << this->bank << " "
-		   << desc_count(this->bank, WHAT_MONEYa) << ".\r\n"
+		   << GetDeclensionInNumber(this->bank, EWhat::kMoneyA) << ".\r\n"
 		   << "Расходы на инфраструктуру замка: " << options_tax << " "
-		   << desc_count(options_tax, WHAT_MONEYa)
-		   << " в день, Общие расходы: " << total_tax << " "
-		   << desc_count(total_tax, WHAT_MONEYa) << " в день.\r\n";
+		   << GetDeclensionInNumber(options_tax, EWhat::kMoneyA)
+		<< " в день, Общие расходы: " << total_tax << " "
+		<< GetDeclensionInNumber(total_tax, EWhat::kMoneyA) << " в день.\r\n";
 
 	if (total_tax <= 0) {
 		buffer << "Ваших денег хватит на нереальное количество дней.\r\n";
 	} else {
 		buffer << "Ваших денег хватит примерно на "
 			   << bank / total_tax << " "
-			   << desc_count(bank / total_tax, WHAT_DAY) << ".\r\n";
+			   << GetDeclensionInNumber(bank / total_tax, EWhat::kDay) << ".\r\n";
 	}
 	buffer << "Налог для ратников дружины: " << get_gold_tax_pct() << "%\r\n";
 
@@ -2926,7 +2926,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 			extract_obj(obj);
 			ch->add_gold(gold);
 			send_to_char(ch, "Вам это не положено! Вы вновь обрели %ld %s.\r\n",
-						 gold, desc_count(gold, WHAT_MONEYu));
+						 gold, GetDeclensionInNumber(gold, EWhat::kMoneyU));
 			return true;
 		}
 		// здесь и далее: в случае переполнения  - кладем сколько можем, остальное возвращаем чару
@@ -2941,14 +2941,14 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 			send_to_char(ch,
 						 "Вам удалось вложить в казну дружины только %ld %s.\r\n",
 						 over,
-						 desc_count(over, WHAT_MONEYu));
+						 GetDeclensionInNumber(over, EWhat::kMoneyU));
 			return true;
 		}
 		CLAN(ch)->bank += gold;
 		CLAN(ch)->m_members.add_money(GET_UNIQUE(ch), gold);
 		obj_from_char(obj);
 		extract_obj(obj);
-		send_to_char(ch, "Вы вложили в казну дружины %ld %s.\r\n", gold, desc_count(gold, WHAT_MONEYu));
+		send_to_char(ch, "Вы вложили в казну дружины %ld %s.\r\n", gold, GetDeclensionInNumber(gold, EWhat::kMoneyU));
 
 	} else if (obj->has_flag(EObjFlag::kNodrop)
 		|| obj->has_flag(EObjFlag::kZonedacay)
@@ -3283,7 +3283,7 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 		send_to_char(ch,
 					 "На счету вашей дружины ровно %ld %s.\r\n",
 					 CLAN(ch)->bank,
-					 desc_count(CLAN(ch)->bank, WHAT_MONEYa));
+					 GetDeclensionInNumber(CLAN(ch)->bank, EWhat::kMoneyA));
 		return true;
 
 	} else if (CompareParam(buffer2, "вложить") || CompareParam(buffer2, "deposit")) {
@@ -3313,21 +3313,22 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 			send_to_char(ch,
 						 "Вам удалось вложить в казну дружины только %ld %s.\r\n",
 						 over,
-						 desc_count(over, WHAT_MONEYu));
+						 GetDeclensionInNumber(over, EWhat::kMoneyU));
 			act("$n произвел$g финансовую операцию.", true, ch, nullptr, nullptr, kToRoom);
 			std::string log_text = boost::str(boost::format("%s вложил%s в казну %ld %s\r\n")
 												  % GET_NAME(ch) % GET_CH_SUF_1(ch) % over
-												  % desc_count(over, WHAT_MONEYu));
+												  % GetDeclensionInNumber(over, EWhat::kMoneyU));
 			CLAN(ch)->chest_log.add(log_text);
 			return true;
 		}
 		ch->remove_gold(gold);
 		CLAN(ch)->bank += gold;
 		CLAN(ch)->m_members.add_money(GET_UNIQUE(ch), gold);
-		send_to_char(ch, "Вы вложили %ld %s.\r\n", gold, desc_count(gold, WHAT_MONEYu));
+		send_to_char(ch, "Вы вложили %ld %s.\r\n", gold, GetDeclensionInNumber(gold, EWhat::kMoneyU));
 		act("$n произвел$g финансовую операцию.", true, ch, 0, nullptr, kToRoom);
 		std::string log_text = boost::str(boost::format("%s вложил%s в казну %ld %s\r\n")
-											  % GET_NAME(ch) % GET_CH_SUF_1(ch) % gold % desc_count(gold, WHAT_MONEYu));
+											  % GET_NAME(ch) % GET_CH_SUF_1(ch) % gold % GetDeclensionInNumber(gold,
+																											   EWhat::kMoneyU));
 		CLAN(ch)->chest_log.add(log_text);
 		return true;
 
@@ -3354,21 +3355,22 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 			ch->add_gold(over);
 			CLAN(ch)->bank -= over;
 			CLAN(ch)->m_members.sub_money(GET_UNIQUE(ch), over);
-			send_to_char(ch, "Вам удалось снять только %ld %s.\r\n", over, desc_count(over, WHAT_MONEYu));
+			send_to_char(ch, "Вам удалось снять только %ld %s.\r\n", over, GetDeclensionInNumber(over, EWhat::kMoneyU));
 			act("$n произвел$g финансовую операцию.", true, ch, 0, nullptr, kToRoom);
 			std::string log_text = boost::str(boost::format("%s получил%s из казны %ld %s\r\n")
 												  % GET_NAME(ch) % GET_CH_SUF_1(ch) % over
-												  % desc_count(over, WHAT_MONEYu));
+												  % GetDeclensionInNumber(over, EWhat::kMoneyU));
 			CLAN(ch)->chest_log.add(log_text);
 			return true;
 		}
 		CLAN(ch)->bank -= gold;
 		CLAN(ch)->m_members.sub_money(GET_UNIQUE(ch), gold);
 		ch->add_gold(gold);
-		send_to_char(ch, "Вы сняли %ld %s.\r\n", gold, desc_count(gold, WHAT_MONEYu));
+		send_to_char(ch, "Вы сняли %ld %s.\r\n", gold, GetDeclensionInNumber(gold, EWhat::kMoneyU));
 		act("$n произвел$g финансовую операцию.", true, ch, nullptr, nullptr, kToRoom);
 		std::string log_text = boost::str(boost::format("%s получил%s из казны %ld %s\r\n")
-											  % GET_NAME(ch) % GET_CH_SUF_1(ch) % gold % desc_count(gold, WHAT_MONEYu));
+											  % GET_NAME(ch) % GET_CH_SUF_1(ch) % gold % GetDeclensionInNumber(gold,
+																											   EWhat::kMoneyU));
 		CLAN(ch)->chest_log.add(log_text);
 		return true;
 	} else
@@ -4288,7 +4290,7 @@ void DoStoreHouse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 								 "%sЗа информацию о предмете с вашего банковского счета сняли %d %s%s\r\n",
 								 CCIGRN(ch, C_NRM),
 								 CHEST_IDENT_PAY,
-								 desc_count(CHEST_IDENT_PAY, WHAT_MONEYu),
+								 GetDeclensionInNumber(CHEST_IDENT_PAY, EWhat::kMoneyU),
 								 CCNRM(ch, C_NRM));
 					return;
 				}
@@ -4638,7 +4640,7 @@ bool Clan::ChestShow(ObjData *obj, CharData *ch) {
 					 "Всего вещей: %d, Рента в день: %d %s\r\n\r\n",
 					 CLAN(ch)->chest_objcount,
 					 cost,
-					 desc_count(cost, WHAT_MONEYa));
+					 GetDeclensionInNumber(cost, EWhat::kMoneyA));
 		list_obj_to_char(obj->get_contains(), ch, 1, 3);
 	} else {
 		send_to_char("Не на что тут глазеть, пусто, вот те крест.\r\n",
@@ -4850,7 +4852,8 @@ void do_clanstuff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (cnt) {
-		sprintf(buf2, "\r\nЭкипировка обошлась вам в %d %s.", gold_total, desc_count(gold_total, WHAT_MONEYu));
+		sprintf(buf2, "\r\nЭкипировка обошлась вам в %d %s.", gold_total,
+				GetDeclensionInNumber(gold_total, EWhat::kMoneyU));
 		act("\r\n$n закрыл$g крышку сундука", false, ch, 0, 0, kToRoom);
 		act(buf2, false, ch, 0, 0, kToChar);
 	} else {
@@ -5244,7 +5247,7 @@ bool Clan::put_ingr_chest(CharData *ch, ObjData *obj, ObjData *chest) {
 			obj_from_char(obj);
 			extract_obj(obj);
 			ch->add_gold(howmany);
-			send_to_char(ch, "Вы вновь обрели %d %s.\r\n", howmany, desc_count(howmany, WHAT_MONEYu));
+			send_to_char(ch, "Вы вновь обрели %d %s.\r\n", howmany, GetDeclensionInNumber(howmany, EWhat::kMoneyU));
 		}
 	} else if (obj->has_flag(EObjFlag::kNodrop)
 		|| obj->has_flag(EObjFlag::kZonedacay)
@@ -5300,7 +5303,7 @@ bool ClanSystem::show_ingr_chest(ObjData *obj, CharData *ch) {
 		int cost = CLAN(ch)->ingr_chest_tax();
 		send_to_char(ch, "Всего вещей: %d/%d, Рента в день: %d %s\r\n\r\n",
 					 CLAN(ch)->get_ingr_chest_objcount(), CLAN(ch)->ingr_chest_max_objects(),
-					 cost, desc_count(cost, WHAT_MONEYa));
+					 cost, GetDeclensionInNumber(cost, EWhat::kMoneyA));
 		list_obj_to_char(obj->get_contains(), ch, 1, 4);
 	} else {
 		send_to_char("Не на что тут глазеть, пусто, вот те крест.\r\n", ch);
@@ -5503,15 +5506,15 @@ long do_gold_tax(CharData *ch, long gold) {
 			|| tax % 10 == 0) {
 			send_to_char(ch,
 						 "%ld %s было немедленно отправлено в казну вашей дружины.\r\n",
-						 tax, desc_count(tax, WHAT_MONEYa));
+						 tax, GetDeclensionInNumber(tax, EWhat::kMoneyA));
 		} else if (tax % 10 == 1) {
 			send_to_char(ch,
 						 "%ld %s была немедленно отправлена в казну вашей дружины.\r\n",
-						 tax, desc_count(tax, WHAT_MONEYa));
+						 tax, GetDeclensionInNumber(tax, EWhat::kMoneyA));
 		} else {
 			send_to_char(ch,
 						 "%ld %s были немедленно отправлены в казну вашей дружины.\r\n",
-						 tax, desc_count(tax, WHAT_MONEYa));
+						 tax, GetDeclensionInNumber(tax, EWhat::kMoneyA));
 		}
 		// 1 куну за транзакцию, если сумма налога позволяет
 		const long real_tax = tax > 1 ? tax - 1 : tax;

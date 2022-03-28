@@ -1051,46 +1051,49 @@ bool CAN_CARRY_OBJ(const CharData *ch, const ObjData *obj);
 bool ignores(CharData *, CharData *, unsigned int);
 
 // PADS for something ***************************************************
-const char *desc_count(long how_many, int of_what);
-#define WHAT_DAY    0
-#define WHAT_HOUR    1
-#define WHAT_YEAR    2
-#define WHAT_POINT    3
-#define WHAT_MINa    4
-#define WHAT_MINu    5
-#define WHAT_MONEYa    6
-#define WHAT_MONEYu    7
-#define WHAT_THINGa    8
-#define WHAT_THINGu    9
-#define WHAT_LEVEL    10
-#define WHAT_MOVEa    11
-#define WHAT_MOVEu    12
-#define WHAT_ONEa    13
-#define WHAT_ONEu    14
-#define WHAT_SEC    15
-#define WHAT_DEGREE    16
-#define WHAT_ROW    17
-#define WHAT_OBJECT    18
-#define WHAT_OBJu    19
-#define WHAT_REMORT    20
-#define WHAT_WEEK    21
-#define WHAT_MONTH    22
-#define WHAT_WEEKu    23
-#define WHAT_GLORY    24
-#define WHAT_GLORYu    25
-#define WHAT_PEOPLE    26
-#define WHAT_STR    27
-#define WHAT_GULP    28
-#define WHAT_TORC    29
-#define WHAT_TGOLD        30
-#define WHAT_TSILVER    31
-#define WHAT_TBRONZE    32
-#define WHAT_TORCu        33
-#define WHAT_TGOLDu        34
-#define WHAT_TSILVERu    35
-#define WHAT_TBRONZEu    36
-#define WHAT_ICEu        37
-#define WHAT_NOGATAu        38
+enum class EWhat : int  {
+	kDay,
+	kHour,
+	kYear,
+	kPoint,
+	kMinA,
+	kMinU,
+	kMoneyA,
+	kMoneyU,
+	kThingA,
+	kThingU,
+	kLvl,
+	kMoveA,
+	kMoveU,
+	kOneA,
+	kOneU,
+	kSec,
+	kDegree,
+	kRow,
+	kObject,
+	kObjU,
+	kRemort,
+	kWeek,
+	kMonth,
+	kWeekU,
+	kGlory,
+	kGloryU,
+	kPeople,
+	kStr,
+	kGulp,
+	kTorc,
+	kGoldTorc,
+	kSilverTorc,
+	kBronzeTorc,
+	kTorcU,
+	kGoldTorcU,
+	kSilverTorcU,
+	kBronzeTorcU,
+	kIceU,
+	kNogataU
+};
+
+const char *GetDeclensionInNumber(long amount, EWhat of_what);
 
 #undef AW_HIDE // конфликтует с winuser.h
 // some awaking cases

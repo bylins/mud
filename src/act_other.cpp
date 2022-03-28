@@ -166,9 +166,10 @@ void do_quit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			send_to_char(ch,
 						 "За вещи в хранилище придется заплатить %ld %s в день.\r\n",
 						 depot_cost,
-						 desc_count(depot_cost, WHAT_MONEYu));
+						 GetDeclensionInNumber(depot_cost, EWhat::kMoneyU));
 			long deadline = ((ch->get_gold() + ch->get_bank()) / depot_cost);
-			send_to_char(ch, "Твоих денег хватит на %ld %s.\r\n", deadline, desc_count(deadline, WHAT_DAY));
+			send_to_char(ch, "Твоих денег хватит на %ld %s.\r\n", deadline,
+						 GetDeclensionInNumber(deadline, EWhat::kDay));
 		}
 		Depot::exit_char(ch);
 		Clan::clan_invoice(ch, false);
@@ -624,7 +625,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 				if (gold > 0) {
 					if (gold > 1) {
 						sprintf(buf, "УР-Р-Р-А! Вы таки сперли %d %s.\r\n",
-								gold, desc_count(gold, WHAT_MONEYu));
+								gold, GetDeclensionInNumber(gold, EWhat::kMoneyU));
 						send_to_char(buf, ch);
 					} else {
 						send_to_char("УРА-А-А ! Вы сперли :) 1 (одну) куну :(.\r\n", ch);
@@ -1430,12 +1431,12 @@ void do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, int cur
 
 	one_argument(argument, buf);
 
-	int what_currency;
+	EWhat what_currency;
 
 	switch (currency) {
-		case currency::ICE : what_currency = WHAT_ICEu;
+		case currency::ICE : what_currency = EWhat::kIceU;
 			break;
-		default : what_currency = WHAT_MONEYu;
+		default : what_currency = EWhat::kMoneyU;
 			break;
 	}
 
@@ -1484,7 +1485,7 @@ void do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, int cur
 		}
 
 		sprintf(buf, "%s разделил%s %d %s; вам досталось %d.\r\n",
-				GET_NAME(ch), GET_CH_SUF_1(ch), amount, desc_count(amount, what_currency), share);
+				GET_NAME(ch), GET_CH_SUF_1(ch), amount, GetDeclensionInNumber(amount, what_currency), share);
 		if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP) && IN_ROOM(k) == ch->in_room && !k->is_npc() && k != ch) {
 			send_to_char(buf, k);
 			switch (currency) {
@@ -1513,11 +1514,11 @@ void do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, int cur
 			}
 		}
 		sprintf(buf, "Вы разделили %d %s на %d  -  по %d каждому.\r\n",
-				amount, desc_count(amount, what_currency), num, share);
+				amount, GetDeclensionInNumber(amount, what_currency), num, share);
 		if (rest) {
 			sprintf(buf + strlen(buf),
 					"Как истинный еврей вы оставили %d %s (которые не смогли разделить нацело) себе.\r\n",
-					rest, desc_count(rest, what_currency));
+					rest, GetDeclensionInNumber(rest, what_currency));
 		}
 
 		send_to_char(buf, ch);
@@ -1913,7 +1914,7 @@ void setNotifyEchange(CharData *ch, char *argument) {
 		send_to_char(ch,
 					 "Вам будут приходить уведомления о продаже с базара ваших лотов стоимостью не менее чем %ld %s.\r\n",
 					 size,
-					 desc_count(size, WHAT_MONEYa));
+					 GetDeclensionInNumber(size, EWhat::kMoneyA));
 		NOTIFY_EXCH_PRICE(ch) = size;
 		ch->save_char();
 	} else if (size >= 0 && size < 100) {

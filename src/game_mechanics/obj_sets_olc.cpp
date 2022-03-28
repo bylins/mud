@@ -976,10 +976,10 @@ void sedit::parse_activ_add(CharData *ch, const char *arg) {
 	auto i = olc_set.activ_list.find(num);
 	if (i != olc_set.activ_list.end()) {
 		send_to_char(ch, "В наборе уже есть активатор на %d %s.\r\n",
-					 num, desc_count(num, WHAT_OBJECT));
+					 num, GetDeclensionInNumber(num, EWhat::kObject));
 	} else {
 		send_to_char(ch, "Активатор на %d %s добавлен в набор.\r\n",
-					 num, desc_count(num, WHAT_OBJECT));
+					 num, GetDeclensionInNumber(num, EWhat::kObject));
 		ActivNode node;
 		// GCC 4.4
 		//olc_set.activ_list.emplace(num, node);
@@ -1505,7 +1505,7 @@ void sedit::parse_activ_change(CharData *ch, const char *arg) {
 	} else if (olc_set.activ_list.find(num) != olc_set.activ_list.end()) {
 		send_to_char(ch,
 					 "Набор уже содержит активатор на %d %s.\r\n",
-					 num, desc_count(num, WHAT_OBJECT));
+					 num, GetDeclensionInNumber(num, EWhat::kObject));
 	} else {
 		ActivNode activ;
 		auto i = olc_set.activ_list.find(activ_edit);
@@ -1518,7 +1518,7 @@ void sedit::parse_activ_change(CharData *ch, const char *arg) {
 		//olc_set.activ_list.emplace(num, activ);
 		olc_set.activ_list.insert(std::make_pair(num, activ));
 		send_to_char(ch, "Активатор на %d %s добавлен в набор.\r\n",
-					 num, desc_count(num, WHAT_OBJECT));
+					 num, GetDeclensionInNumber(num, EWhat::kObject));
 	}
 	show_activ_edit(ch);
 }

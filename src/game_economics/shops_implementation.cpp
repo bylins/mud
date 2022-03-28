@@ -428,15 +428,15 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 
 		tell_to_char(keeper, ch, buf);
 	}
-	auto suffix = desc_count(total_money, WHAT_MONEYu);
+	auto suffix = GetDeclensionInNumber(total_money, EWhat::kMoneyU);
 	if (currency == "лед")
-		suffix = desc_count(total_money, WHAT_ICEu);
+		suffix = GetDeclensionInNumber(total_money, EWhat::kIceU);
 	if (currency == "слава")
-		suffix = desc_count(total_money, WHAT_GLORYu);
+		suffix = GetDeclensionInNumber(total_money, EWhat::kGloryU);
 	if (currency == "гривны")
-		suffix = desc_count(total_money, WHAT_TORCu);
+		suffix = GetDeclensionInNumber(total_money, EWhat::kTorcU);
 	if (currency == "ногаты")
-		suffix = desc_count(total_money, WHAT_NOGATAu);
+		suffix = GetDeclensionInNumber(total_money, EWhat::kNogataU);
 
 	snprintf(buf, kMaxStringLength, "Это будет стоить %d %s.", total_money, suffix);
 	tell_to_char(keeper, ch, buf);
@@ -925,7 +925,7 @@ void shop_node::process_ident(CharData *ch, CharData *keeper, char *argument, co
 		} else {
 			snprintf(buf, kMaxStringLength,
 					 "Эта услуга будет стоить %d %s.", IDENTIFY_COST,
-					 desc_count(IDENTIFY_COST, WHAT_MONEYu));
+					 GetDeclensionInNumber(IDENTIFY_COST, EWhat::kMoneyU));
 			tell_to_char(keeper, ch, buf);
 
 			send_to_char(ch, "Характеристики предмета: %s\r\n", GET_OBJ_PNAME(ident_obj, 0).c_str());
@@ -1134,7 +1134,8 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 	}
 
 	std::string price_to_show =
-		boost::lexical_cast<std::string>(buy_price) + " " + std::string(desc_count(buy_price, WHAT_MONEYu));
+		boost::lexical_cast<std::string>(buy_price) + " " + std::string(GetDeclensionInNumber(buy_price,
+																							  EWhat::kMoneyU));
 
 	if (cmd == "Оценить") {
 		if (bloody::is_bloody(obj)) {
@@ -1229,7 +1230,8 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 		}
 
 		tell_to_char(keeper, ch, ("Починка " + std::string(GET_OBJ_PNAME(obj, 1)) + " обойдется в "
-			+ boost::lexical_cast<std::string>(repair_price) + " " + desc_count(repair_price, WHAT_MONEYu)).c_str());
+			+ boost::lexical_cast<std::string>(repair_price) + " " + GetDeclensionInNumber(repair_price,
+																						   EWhat::kMoneyU)).c_str());
 
 		if (!IS_GOD(ch) && repair_price > ch->get_gold()) {
 			act("А вот их у тебя как-раз то и нет.", false, ch, 0, 0, kToChar);

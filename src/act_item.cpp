@@ -677,7 +677,7 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 	}
 
 	if (curr_type == currency::ICE) {
-		sprintf(buf, "Это составило %d %s.\r\n", value, desc_count(value, WHAT_ICEu));
+		sprintf(buf, "Это составило %d %s.\r\n", value, GetDeclensionInNumber(value, EWhat::kIceU));
 		send_to_char(buf, ch);
 		ch->add_ice_currency(value);
 		//Делить лед ВСЕГДА!
@@ -696,7 +696,7 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 		return;
 	}
 */
-	sprintf(buf, "Это составило %d %s.\r\n", value, desc_count(value, WHAT_MONEYu));
+	sprintf(buf, "Это составило %d %s.\r\n", value, GetDeclensionInNumber(value, EWhat::kMoneyU));
 	send_to_char(buf, ch);
 
 	// все, что делится на группу - идет через налог (из кошельков не делится)
@@ -711,7 +711,7 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 				ch->get_name().c_str(),
 				GET_ROOM_VNUM(ch->in_room),
 				value,
-				desc_count(value, WHAT_MONEYu));
+				GetDeclensionInNumber(value, EWhat::kMoneyU));
 		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 		char local_buf[256];
 		sprintf(local_buf, "%d", value);
@@ -720,13 +720,15 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 		// лут кошелька с баблом
 		// налогом не облагается, т.к. уже все уплочено
 		// на данном этапе cont уже не содержит владельца
-		sprintf(buf, "%s взял деньги из кошелька: %d  %s.", ch->get_name().c_str(), value, desc_count(value, WHAT_MONEYu));
+		sprintf(buf, "%s взял деньги из кошелька: %d  %s.", ch->get_name().c_str(), value,
+				GetDeclensionInNumber(value, EWhat::kMoneyU));
 		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 		ch->add_gold(value);
 	} else if ((cont && IS_MOB_CORPSE(cont)) || GET_OBJ_VNUM(obj) != -1) {
 		// лут из трупа моба или из предметов-денег с внумом
 		// (предметы-награды в зонах) - снимаем клан-налог
-		sprintf(buf, "%s заработал %d  %s.", ch->get_name().c_str(), value, desc_count(value, WHAT_MONEYu));
+		sprintf(buf, "%s заработал %d  %s.", ch->get_name().c_str(), value,
+				GetDeclensionInNumber(value, EWhat::kMoneyU));
 		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 		ch->add_gold(value, true, true);
 	} else {
@@ -735,7 +737,7 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 				ch->get_name().c_str(),
 				GET_ROOM_VNUM(ch->in_room),
 				value,
-				desc_count(value, WHAT_MONEYu));
+				GetDeclensionInNumber(value, EWhat::kMoneyU));
 		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 		ch->add_gold(value);
 	}
@@ -1108,13 +1110,13 @@ void perform_drop_gold(CharData *ch, int amount) {
 		// Если этот моб трупа не оставит, то не выводить сообщение иначе ужасно коряво смотрится в бою и в тригах
 		if (!ch->is_npc() || !MOB_FLAGGED(ch, MOB_CORPSE)) {
 			send_to_char(ch, "Вы бросили %d %s на землю.\r\n",
-						 amount, desc_count(amount, WHAT_MONEYu));
+						 amount, GetDeclensionInNumber(amount, EWhat::kMoneyU));
 			sprintf(buf,
 					"<%s> {%d} выбросил %d %s на землю.",
 					ch->get_name().c_str(),
 					GET_ROOM_VNUM(ch->in_room),
 					amount,
-					desc_count(amount, WHAT_MONEYu));
+					GetDeclensionInNumber(amount, EWhat::kMoneyU));
 			mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 			sprintf(buf, "$n бросил$g %s на землю.", money_desc(amount, 3));
 			act(buf, true, ch, 0, 0, kToRoom | kToArenaListen);
@@ -1301,7 +1303,7 @@ void perform_give_gold(CharData *ch, CharData *vict, int amount) {
 		return;
 	}
 	send_to_char(OK, ch);
-	sprintf(buf, "$n дал$g вам %d %s.", amount, desc_count(amount, WHAT_MONEYu));
+	sprintf(buf, "$n дал$g вам %d %s.", amount, GetDeclensionInNumber(amount, EWhat::kMoneyU));
 	act(buf, false, ch, 0, vict, kToVict);
 	sprintf(buf, "$n дал$g %s $N2.", money_desc(amount, 3));
 	act(buf, true, ch, 0, vict, kToNotVict | kToArenaListen);
@@ -1341,12 +1343,12 @@ void perform_give_nogat(CharData *ch, CharData *vict, int amount) {
 		return;
 	}
 	send_to_char(OK, ch);
-	sprintf(buf, "$n дал$g вам %d %s.", amount, desc_count(amount, WHAT_NOGATAu));
+	sprintf(buf, "$n дал$g вам %d %s.", amount, GetDeclensionInNumber(amount, EWhat::kNogataU));
 	act(buf, false, ch, 0, vict, kToVict);
 	if (amount > 4)
-		sprintf(buf, "$n дал$g много %s $N2.", desc_count(amount, WHAT_NOGATAu));
+		sprintf(buf, "$n дал$g много %s $N2.", GetDeclensionInNumber(amount, EWhat::kNogataU));
 	else
-		sprintf(buf, "$n дал$g %s $N2.", desc_count(amount, WHAT_NOGATAu));
+		sprintf(buf, "$n дал$g %s $N2.", GetDeclensionInNumber(amount, EWhat::kNogataU));
 	act(buf, true, ch, 0, vict, kToNotVict | kToArenaListen);
 	if (ch->is_npc() || !IS_IMPL(ch)) {
 		ch->sub_nogata(amount);

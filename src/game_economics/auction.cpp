@@ -82,7 +82,7 @@ void showlots(CharData *ch) {
 
 		sprintf(tmpbuf, "Аукцион : лот %2d - %s%s%s - ставка %d %s, попытка %d, владелец %s.\r\n",
 				i, CCIYEL(ch, C_NRM), obj->get_PName(0).c_str(), CCNRM(ch, C_NRM),
-				GET_LOT(i)->cost, desc_count(GET_LOT(i)->cost, WHAT_MONEYa),
+				GET_LOT(i)->cost, GetDeclensionInNumber(GET_LOT(i)->cost, EWhat::kMoneyA),
 				GET_LOT(i)->tact < 0 ? 1 : GET_LOT(i)->tact + 1, GET_NAME(sch));
 
 		if (GET_LOT(i)->prefect && GET_LOT(i)->prefect_unique == GET_UNIQUE(ch)) {
@@ -193,14 +193,15 @@ bool auction_drive(CharData *ch, char *argument) {
 
 			if (tch) {
 				sprintf(tmpbuf, "Вы выставили на аукцион $O3 за %d %s (для %s)",
-						value, desc_count(value, WHAT_MONEYu), GET_PAD(tch, 1));
+						value, GetDeclensionInNumber(value, EWhat::kMoneyU), GET_PAD(tch, 1));
 			} else {
-				sprintf(tmpbuf, "Вы выставили на аукцион $O3 за %d %s", value, desc_count(value, WHAT_MONEYu));
+				sprintf(tmpbuf, "Вы выставили на аукцион $O3 за %d %s", value,
+						GetDeclensionInNumber(value, EWhat::kMoneyU));
 			}
 			act(tmpbuf, false, ch, 0, obj, kToChar);
 			sprintf(tmpbuf,
 					"Аукцион : новый лот %d - %s - начальная ставка %d %s. \r\n",
-					lot, obj->get_PName(0).c_str(), value, desc_count(value, WHAT_MONEYa));
+					lot, obj->get_PName(0).c_str(), value, GetDeclensionInNumber(value, EWhat::kMoneyA));
 			message_auction(tmpbuf, nullptr);
 			SetWait(ch, 1, false);
 			return true;
@@ -274,7 +275,7 @@ bool auction_drive(CharData *ch, char *argument) {
 			GET_LOT(lot)->buyer = ch;
 			GET_LOT(lot)->buyer_unique = GET_UNIQUE(ch);
 			sprintf(tmpbuf, "Хорошо, вы согласны заплатить %d %s за %s (лот %d).\r\n",
-					value, desc_count(value, WHAT_MONEYu), GET_LOT(lot)->item->get_PName(3).c_str(), lot);
+					value, GetDeclensionInNumber(value, EWhat::kMoneyU), GET_LOT(lot)->item->get_PName(3).c_str(), lot);
 			send_to_char(tmpbuf, ch);
 			sprintf(tmpbuf,
 					"Принята ставка %s на лот %d(%s) %d %s.\r\n",
@@ -282,10 +283,10 @@ bool auction_drive(CharData *ch, char *argument) {
 					lot,
 					GET_LOT(lot)->item->get_PName(0).c_str(),
 					value,
-					desc_count(value, WHAT_MONEYa));
+					GetDeclensionInNumber(value, EWhat::kMoneyA));
 			send_to_char(tmpbuf, GET_LOT(lot)->seller);
 			sprintf(tmpbuf, "Аукцион : лот %d(%s) - новая ставка %d %s.", lot,
-					GET_LOT(lot)->item->get_PName(0).c_str(), value, desc_count(value, WHAT_MONEYa));
+					GET_LOT(lot)->item->get_PName(0).c_str(), value, GetDeclensionInNumber(value, EWhat::kMoneyA));
 			message_auction(tmpbuf, nullptr);
 			SetWait(ch, 1, false);
 			return true;
@@ -314,7 +315,7 @@ bool auction_drive(CharData *ch, char *argument) {
 			if (GET_LOT(lot)->tact < kMaxAuctionTactBuy) {
 				sprintf(whom, "Аукцион : лот %d(%s) продан с аукциона за %d %s.",
 						lot, GET_LOT(lot)->item->get_PName(0).c_str(), GET_LOT(lot)->cost,
-						desc_count(GET_LOT(lot)->cost, WHAT_MONEYu));
+						GetDeclensionInNumber(GET_LOT(lot)->cost, EWhat::kMoneyU));
 				GET_LOT(lot)->tact = kMaxAuctionTactBuy;
 			} else
 				*whom = '\0';
@@ -458,7 +459,7 @@ bool auction_drive(CharData *ch, char *argument) {
 						 "\r\n%sЗа информацию о предмете с вашего счета сняли %d %s%s\r\n",
 						 CCIGRN(ch, C_NRM),
 						 AUCTION_IDENT_PAY,
-						 desc_count(AUCTION_IDENT_PAY, WHAT_MONEYu),
+						 GetDeclensionInNumber(AUCTION_IDENT_PAY, EWhat::kMoneyU),
 						 CCNRM(ch, C_NRM));
 
 			return true;
@@ -806,7 +807,7 @@ void tact_auction(void) {
 		if (++GET_LOT(i)->tact < kMaxAuctionTactBuy) {
 			sprintf(tmpbuf, "Аукцион : лот %d(%s), %d %s, %s", i,
 					GET_LOT(i)->item->get_PName(0).c_str(), GET_LOT(i)->cost,
-					desc_count(GET_LOT(i)->cost, WHAT_MONEYa), tact_message[GET_LOT(i)->tact]);
+					GetDeclensionInNumber(GET_LOT(i)->cost, EWhat::kMoneyA), tact_message[GET_LOT(i)->tact]);
 			message_auction(tmpbuf, nullptr);
 			continue;
 		} else if (GET_LOT(i)->tact < kMaxAuctionTact) {
@@ -820,7 +821,7 @@ void tact_auction(void) {
 			if (!GET_LOT(i)->prefect) {
 				sprintf(tmpbuf, "Аукцион : лот %d(%s), %d %s - ПРОДАНО.",
 						i, GET_LOT(i)->item->get_PName(0).c_str(), GET_LOT(i)->cost,
-						desc_count(GET_LOT(i)->cost, WHAT_MONEYa));
+						GetDeclensionInNumber(GET_LOT(i)->cost, EWhat::kMoneyA));
 				message_auction(tmpbuf, nullptr);
 				GET_LOT(i)->prefect = GET_LOT(i)->buyer;
 				GET_LOT(i)->prefect_unique = GET_LOT(i)->buyer_unique;

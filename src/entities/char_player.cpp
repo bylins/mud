@@ -215,7 +215,8 @@ void Player::sub_nogata(int value) {
 
 void Player::add_nogata(int value) {
 	this->nogata += value;
-	send_to_char(this, "Вы получили %ld %s.\r\n", static_cast<long>(value), desc_count(value, WHAT_NOGATAu));
+	send_to_char(this, "Вы получили %ld %s.\r\n", static_cast<long>(value),
+				 GetDeclensionInNumber(value, EWhat::kNogataU));
 
 }
 
@@ -226,10 +227,10 @@ void Player::add_hryvn(int value) {
 	} else if ((this->get_hryvn() + value) > cap_hryvn) {
 		value = cap_hryvn - this->get_hryvn();
 		send_to_char(this, "Вы получили только %ld %s, так как в вашу копилку больше не лезет...\r\n",
-					 static_cast<long>(value), desc_count(value, WHAT_TORCu));
+					 static_cast<long>(value), GetDeclensionInNumber(value, EWhat::kTorcU));
 	} else if (value > 0) {
 		send_to_char(this, "Вы получили %ld %s.\r\n",
-					 static_cast<long>(value), desc_count(value, WHAT_TORCu));
+					 static_cast<long>(value), GetDeclensionInNumber(value, EWhat::kTorcU));
 	} else if (value == 0) {
 		return;
 	}

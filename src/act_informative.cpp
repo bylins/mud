@@ -306,28 +306,28 @@ char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear) {
 				sprintf(out_str + strlen(out_str),
 						"Можно использовать как щит (требуется %d %s).\r\n",
 						need_str,
-						desc_count(need_str, WHAT_STR));
+						GetDeclensionInNumber(need_str, EWhat::kStr));
 			}
 			if (CAN_WEAR(obj, EWearFlag::kWield)) {
 				need_str = MAX(0, calc_str_req(GET_OBJ_WEIGHT(obj), STR_WIELD_W));
 				sprintf(out_str + strlen(out_str),
 						"Можно взять в правую руку (требуется %d %s).\r\n",
 						need_str,
-						desc_count(need_str, WHAT_STR));
+						GetDeclensionInNumber(need_str, EWhat::kStr));
 			}
 			if (CAN_WEAR(obj, EWearFlag::kHold)) {
 				need_str = MAX(0, calc_str_req(GET_OBJ_WEIGHT(obj), STR_HOLD_W));
 				sprintf(out_str + strlen(out_str),
 						"Можно взять в левую руку (требуется %d %s).\r\n",
 						need_str,
-						desc_count(need_str, WHAT_STR));
+						GetDeclensionInNumber(need_str, EWhat::kStr));
 			}
 			if (CAN_WEAR(obj, EWearFlag::kBoth)) {
 				need_str = MAX(0, calc_str_req(GET_OBJ_WEIGHT(obj), STR_BOTH_W));
 				sprintf(out_str + strlen(out_str),
 						"Можно взять в обе руки (требуется %d %s).\r\n",
 						need_str,
-						desc_count(need_str, WHAT_STR));
+						GetDeclensionInNumber(need_str, EWhat::kStr));
 			}
 		} else {
 			if (CAN_WEAR(obj, EWearFlag::kShield)) {
@@ -522,7 +522,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 					sprintf(buf2, " (погас%s)", GET_OBJ_SUF_4(object));
 				else
 					sprintf(buf2, " (%d %s)",
-							GET_OBJ_VAL(object, 2), desc_count(GET_OBJ_VAL(object, 2), WHAT_HOUR));
+							GET_OBJ_VAL(object, 2), GetDeclensionInNumber(GET_OBJ_VAL(object, 2), EWhat::kHour));
 			} else {
 				if (object->timed_spell().is_spell_poisoned() != -1) {
 					sprintf(buf2, " %s*%s%s", CCGRN(ch, C_NRM),
@@ -558,7 +558,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 					sprintf(buf2, "\r\n%s погас%s.", obj_name.c_str(), GET_OBJ_SUF_4(object));
 				} else {
 					sprintf(buf2, "\r\n%s будет светить %d %s.", obj_name.c_str(), GET_OBJ_VAL(object, 2),
-							desc_count(GET_OBJ_VAL(object, 2), WHAT_HOUR));
+							GetDeclensionInNumber(GET_OBJ_VAL(object, 2), EWhat::kHour));
 				}
 			} else if (GET_OBJ_CUR(object) < GET_OBJ_MAX(object)) {
 				sprintf(buf2, "\r\n%s %s.", obj_name.c_str(), diag_obj_to_char(ch, object, 2));
@@ -602,13 +602,13 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 		if (show_state == 3) {
 			sprintf(buf + strlen(buf), " [%d %s]\r\n",
 					GET_OBJ_RENTEQ(object) * kClanStorehouseCoeff / 100,
-					desc_count(GET_OBJ_RENTEQ(object) * kClanStorehouseCoeff / 100, WHAT_MONEYa));
+					GetDeclensionInNumber(GET_OBJ_RENTEQ(object) * kClanStorehouseCoeff / 100, EWhat::kMoneyA));
 			return buf;
 		}
 			// ингры
 		else if (show_state == 4) {
 			sprintf(buf + strlen(buf), " [%d %s]\r\n", GET_OBJ_RENT(object),
-					desc_count(GET_OBJ_RENT(object), WHAT_MONEYa));
+					GetDeclensionInNumber(GET_OBJ_RENT(object), EWhat::kMoneyA));
 			return buf;
 		}
 	}
@@ -879,8 +879,8 @@ void look_at_char(CharData *i, CharData *ch) {
 				if (aff->type == kSpellCharm) {
 					sprintf(buf,
 							IS_POLY(i) ? "$n будут слушаться вас еще %d %s." : "$n будет слушаться вас еще %d %s.",
-							aff->duration / 2,
-							desc_count(aff->duration / 2, 1));
+							aff->duration/2,
+							GetDeclensionInNumber(aff->duration/2, EWhat::kHour));
 					act(buf, false, i, nullptr, ch, kToVict);
 					break;
 				}
@@ -1681,7 +1681,7 @@ void print_zone_info(CharData *ch) {
 	if (zone->group > 1) {
 		delim = put_delim(out, delim);
 		out << "групповая на " << zone->group
-			<< " " << desc_count(zone->group, WHAT_PEOPLE);
+			<< " " << GetDeclensionInNumber(zone->group, EWhat::kPeople);
 	}
 	if (delim) {
 		out << ")";
@@ -2696,7 +2696,7 @@ void do_gold(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	else if (ch->get_gold() == 1)
 		send_to_char("У вас есть всего лишь одна куна.\r\n", ch);
 	else {
-		sprintf(buf, "У Вас есть %ld %s.\r\n", ch->get_gold(), desc_count(ch->get_gold(), WHAT_MONEYa));
+		sprintf(buf, "У Вас есть %ld %s.\r\n", ch->get_gold(), GetDeclensionInNumber(ch->get_gold(), EWhat::kMoneyA));
 		send_to_char(buf, ch);
 	}
 }
@@ -2969,7 +2969,7 @@ void do_weather(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 				(weather_info.change >=
 					0 ? "Атмосферное давление повышается." : "Атмосферное давление понижается."));
 		sprintf(buf + strlen(buf), "На дворе %d %s.\r\n",
-				weather_info.temperature, desc_count(weather_info.temperature, WHAT_DEGREE));
+				weather_info.temperature, GetDeclensionInNumber(weather_info.temperature, EWhat::kDegree));
 
 		if (IS_SET(weather_info.weather_type, kWeatherBigwind))
 			strcat(buf, "Сильный ветер.\r\n");
@@ -4080,7 +4080,7 @@ void do_affects(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 			? sprintf(buf2,
 					  "(%d %s)",
 					  (mod + 1) / kSecsPerMudHour + 1,
-					  desc_count((mod + 1) / kSecsPerMudHour + 1, WHAT_HOUR))
+					  GetDeclensionInNumber((mod + 1) / kSecsPerMudHour + 1, EWhat::kHour))
 			: sprintf(buf2, "(менее часа)");
 			snprintf(buf, kMaxStringLength, "%s%s%-21s %-12s%s ",
 					 *sp_name == '!' ? "Состояние  : " : "Заклинание : ",
@@ -4127,7 +4127,7 @@ void do_affects(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 				? sprintf(buf2,
 						  "(%d %s)",
 						  (mod + 1) / kSecsPerMudHour + 1,
-						  desc_count((mod + 1) / kSecsPerMudHour + 1, WHAT_HOUR))
+						  GetDeclensionInNumber((mod + 1) / kSecsPerMudHour + 1, EWhat::kHour))
 				: sprintf(buf2, "(менее часа)");
 				snprintf(buf,
 						 kMaxStringLength,

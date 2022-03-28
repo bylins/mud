@@ -1479,7 +1479,7 @@ int horse_keeper(CharData *ch, void *me, int cmd, char *argument) {
 			return (true);
 		}
 		sprintf(buf, "$N сказал$G : \"Я продам тебе скакуна за %d %s.\"",
-				HORSE_COST, desc_count(HORSE_COST, WHAT_MONEYa));
+				HORSE_COST, GetDeclensionInNumber(HORSE_COST, EWhat::kMoneyA));
 		act(buf, false, ch, 0, victim, kToChar);
 		return (true);
 	}
@@ -2856,7 +2856,7 @@ int bank(CharData *ch, void * /*me*/, int cmd, char *argument) {
 	if (CMD_IS("balance") || CMD_IS("баланс") || CMD_IS("сальдо")) {
 		if (ch->get_bank() > 0)
 			sprintf(buf, "У вас на счету %ld %s.\r\n",
-					ch->get_bank(), desc_count(ch->get_bank(), WHAT_MONEYa));
+					ch->get_bank(), GetDeclensionInNumber(ch->get_bank(), EWhat::kMoneyA));
 		else
 			sprintf(buf, "У вас нет денег.\r\n");
 		send_to_char(buf, ch);
@@ -2872,7 +2872,7 @@ int bank(CharData *ch, void * /*me*/, int cmd, char *argument) {
 		}
 		ch->remove_gold(amount, false);
 		ch->add_bank(amount, false);
-		sprintf(buf, "Вы вложили %d %s.\r\n", amount, desc_count(amount, WHAT_MONEYu));
+		sprintf(buf, "Вы вложили %d %s.\r\n", amount, GetDeclensionInNumber(amount, EWhat::kMoneyU));
 		send_to_char(buf, ch);
 		act("$n произвел$g финансовую операцию.", true, ch, nullptr, nullptr, kToRoom);
 		return (1);
@@ -2887,7 +2887,7 @@ int bank(CharData *ch, void * /*me*/, int cmd, char *argument) {
 		}
 		ch->add_gold(amount, false);
 		ch->remove_bank(amount, false);
-		sprintf(buf, "Вы сняли %d %s.\r\n", amount, desc_count(amount, WHAT_MONEYu));
+		sprintf(buf, "Вы сняли %d %s.\r\n", amount, GetDeclensionInNumber(amount, EWhat::kMoneyU));
 		send_to_char(buf, ch);
 		act("$n произвел$g финансовую операцию.", true, ch, nullptr, nullptr, kToRoom);
 		return (1);

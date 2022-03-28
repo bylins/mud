@@ -183,7 +183,7 @@ void add_glory(long uid, int amount) {
 	if (d) {
 		send_to_char(d->character.get(), "%sВы заслужили %d %s постоянной славы!%s\r\n",
 					 CCGRN(d->character, C_NRM),
-					 amount, desc_count(amount, WHAT_POINT),
+					 amount, GetDeclensionInNumber(amount, EWhat::kPoint),
 					 CCNRM(d->character, C_NRM));
 	}
 	save();

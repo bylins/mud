@@ -90,7 +90,8 @@ void doBring(CharData *ch, CharData *boss, unsigned int pos, char *bank) {
 
 		if ((!isname(bank, "банк bank") && cost > ch->get_gold()) ||
 			(isname(bank, "банк bank") && cost > ch->get_bank())) {
-			sprintf(buf, "Мои услуги стоят %d %s - это тебе не по карману.", cost, desc_count(cost, WHAT_MONEYu));
+			sprintf(buf, "Мои услуги стоят %d %s - это тебе не по карману.", cost,
+					GetDeclensionInNumber(cost, EWhat::kMoneyU));
 			tell_to_char(boss, ch, buf);
 			return;
 		}

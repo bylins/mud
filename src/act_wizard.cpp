@@ -2784,7 +2784,7 @@ void do_wizlock(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			break;
 		default:
 			sprintf(buf, "Только игроки %d %s и выше могут %s войти в игру.\r\n",
-					circle_restrict, desc_count(circle_restrict, WHAT_LEVEL), when);
+					circle_restrict, GetDeclensionInNumber(circle_restrict, EWhat::kLvl), when);
 			break;
 	}
 	send_to_char(buf, ch);

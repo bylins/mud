@@ -782,7 +782,7 @@ void print_obj(std::stringstream &i_out, std::stringstream &s_out,
 		out << " [" << count << "]";
 	}
 	out << " [" << get_object_low_rent(obj) << " "
-		<< desc_count(get_object_low_rent(obj), WHAT_MONEYa) << "]\r\n";
+		<< GetDeclensionInNumber(get_object_low_rent(obj), EWhat::kMoneyA) << "]\r\n";
 }
 
 // * Расчет кол-ва слотов под шмотки в персональном хранилище с учетом профы чара.
@@ -840,10 +840,10 @@ std::string print_obj_list(CharData *ch, ObjListType &cont) {
 	std::stringstream head;
 	head << CCWHT(ch, C_NRM)
 		 << "Ваше персональное хранилище. Рента в день: "
-		 << rent_per_day << " " << desc_count(rent_per_day, WHAT_MONEYa);
+		 << rent_per_day << " " << GetDeclensionInNumber(rent_per_day, EWhat::kMoneyA);
 	if (rent_per_day) {
 		head << ", денег хватит на " << expired
-			 << " " << desc_count(expired, WHAT_DAY);
+			 << " " << GetDeclensionInNumber(expired, EWhat::kDay);
 	}
 	head << ".\r\n"
 		 << "Заполненность отделения для вещей: "
@@ -926,7 +926,7 @@ void put_gold_chest(CharData *ch, const ObjData::shared_ptr &obj) {
 	ch->add_bank(gold);
 	obj_from_char(obj.get());
 	extract_obj(obj.get());
-	send_to_char(ch, "Вы вложили %ld %s.\r\n", gold, desc_count(gold, WHAT_MONEYu));
+	send_to_char(ch, "Вы вложили %ld %s.\r\n", gold, GetDeclensionInNumber(gold, EWhat::kMoneyU));
 }
 
 /**
@@ -1290,7 +1290,7 @@ void enter_char(CharData *ch) {
 		if (it->second.money_spend > 0) {
 			send_to_char(ch, "%sХранилище: за время вашего отсутствия удержано %ld %s.%s\r\n\r\n",
 						 CCWHT(ch, C_NRM), it->second.money_spend,
-						 desc_count(it->second.money_spend, WHAT_MONEYa), CCNRM(ch, C_NRM));
+						 GetDeclensionInNumber(it->second.money_spend, EWhat::kMoneyA), CCNRM(ch, C_NRM));
 
 			long rest = ch->remove_both_gold(it->second.money_spend);
 			if (rest > 0) {

@@ -1818,11 +1818,11 @@ int Crash_load(CharData *ch) {
 				RENTCODE(index) ==
 					RENT_TIMEDOUT ?
 				"Вас пришлось тащить до кровати, за это постой был дороже.\r\n"
-								  : "", cost, desc_count(cost, WHAT_MONEYu),
+								  : "", cost, GetDeclensionInNumber(cost, EWhat::kMoneyU),
 				SAVEINFO(index)->rent.net_cost_per_diem,
-				desc_count(SAVEINFO(index)->rent.net_cost_per_diem,
-						   WHAT_MONEYa), ch->get_gold() + ch->get_bank(),
-				desc_count(ch->get_gold() + ch->get_bank(), WHAT_MONEYa), CCNRM(ch, C_NRM));
+				GetDeclensionInNumber(SAVEINFO(index)->rent.net_cost_per_diem,
+									  EWhat::kMoneyA), ch->get_gold() + ch->get_bank(),
+				GetDeclensionInNumber(ch->get_gold() + ch->get_bank(), EWhat::kMoneyA), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 		sprintf(buf, "%s: rented equipment lost (no $).", GET_NAME(ch));
 		mudlog(buf, LGH, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
@@ -1840,9 +1840,9 @@ int Crash_load(CharData *ch) {
 					RENTCODE(index) ==
 						RENT_TIMEDOUT ?
 					"Вас пришлось тащить до кровати, за это постой был дороже.\r\n"
-									  : "", cost, desc_count(cost, WHAT_MONEYu),
+									  : "", cost, GetDeclensionInNumber(cost, EWhat::kMoneyU),
 					SAVEINFO(index)->rent.net_cost_per_diem,
-					desc_count(SAVEINFO(index)->rent.net_cost_per_diem, WHAT_MONEYa), CCNRM(ch, C_NRM));
+					GetDeclensionInNumber(SAVEINFO(index)->rent.net_cost_per_diem, EWhat::kMoneyA), CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
 		}
 		ch->remove_both_gold(cost);
@@ -2454,13 +2454,14 @@ void Crash_rent_deadline(CharData *ch, CharData *recep, long cost) {
 	long depot_cost = static_cast<long>(Depot::get_total_cost_per_day(ch));
 	if (depot_cost) {
 		send_to_char(ch, "\"За вещи в хранилище придется доплатить %ld %s.\"\r\n",
-					 depot_cost, desc_count(depot_cost, WHAT_MONEYu));
+					 depot_cost, GetDeclensionInNumber(depot_cost, EWhat::kMoneyU));
 		cost += depot_cost;
 	}
 
-	send_to_char(ch, "\"Постой обойдется тебе в %ld %s.\"\r\n", cost, desc_count(cost, WHAT_MONEYu));
+	send_to_char(ch, "\"Постой обойдется тебе в %ld %s.\"\r\n", cost, GetDeclensionInNumber(cost, EWhat::kMoneyU));
 	rent_deadline = ((ch->get_gold() + ch->get_bank()) / cost);
-	send_to_char(ch, "\"Твоих денег хватит на %ld %s.\"\r\n", rent_deadline, desc_count(rent_deadline, WHAT_DAY));
+	send_to_char(ch, "\"Твоих денег хватит на %ld %s.\"\r\n", rent_deadline,
+				 GetDeclensionInNumber(rent_deadline, EWhat::kDay));
 }
 
 int Crash_report_unrentables(CharData *ch, CharData *recep, ObjData *obj) {
@@ -2517,7 +2518,8 @@ void Crash_report_rent_item(CharData *ch,
 				recursive ? "" : CCWHT(ch, C_SPR),
 				(equip ? GET_OBJ_RENTEQ(obj) * count : GET_OBJ_RENT(obj)) *
 					factor * count,
-				desc_count((equip ? GET_OBJ_RENTEQ(obj) * count : GET_OBJ_RENT(obj)) * factor * count, WHAT_MONEYa),
+				GetDeclensionInNumber((equip ? GET_OBJ_RENTEQ(obj) * count : GET_OBJ_RENT(obj)) * factor * count,
+									  EWhat::kMoneyA),
 				bf, OBJN(obj, ch, 3),
 				count > 1 ? bf2 : "",
 				recursive ? "" : CCNRM(ch, C_SPR));
@@ -2559,7 +2561,7 @@ void Crash_report_rent(CharData *ch, CharData *recep, ObjData *obj, int *cost,
 						factor,
 						desc_count((equip ? GET_OBJ_RENTEQ(obj) :
 									GET_OBJ_RENT(obj)) * factor,
-								   WHAT_MONEYa), bf, OBJN(obj, ch, 3),
+								   EWhat::MONEYa), bf, OBJN(obj, ch, 3),
 						recursive ? "" : CCNRM(ch, C_SPR));
 				act(buf, false, recep, 0, ch, TO_VICT);
 			}*/
@@ -2686,12 +2688,12 @@ int Crash_offer_rent(CharData *ch, CharData *receptionist, int rentshow, int fac
 		if (min_rent_cost(ch) > 0) {
 			sprintf(buf,
 					"$n сказал$g вам : \"И еще %d %s мне на сбитень с медовухой :)\"",
-					min_rent_cost(ch) * factor, desc_count(min_rent_cost(ch) * factor, WHAT_MONEYu));
+					min_rent_cost(ch) * factor, GetDeclensionInNumber(min_rent_cost(ch) * factor, EWhat::kMoneyU));
 			act(buf, false, receptionist, 0, ch, kToVict);
 		}
 
 		sprintf(buf, "$n сказал$g вам : \"В сумме это составит %d %s %s.\"",
-				*totalcost, desc_count(*totalcost, WHAT_MONEYu),
+				*totalcost, GetDeclensionInNumber(*totalcost, EWhat::kMoneyU),
 				(factor == RENT_FACTOR ? "в день " : ""));
 		act(buf, false, receptionist, 0, ch, kToVict);
 
@@ -2773,11 +2775,11 @@ int gen_receptionist(CharData *ch, CharData *recep, int cmd, char * /*arg*/, int
 			if (mode == RENT_FACTOR)
 				sprintf(buf,
 						"$n сказал$g вам : \"Дневной постой обойдется тебе в! %d %s.\"",
-						cost, desc_count(cost, WHAT_MONEYu));
+						cost, GetDeclensionInNumber(cost, EWhat::kMoneyU));
 			else if (mode == CRYO_FACTOR)
 				sprintf(buf,
 						"$n сказал$g вам : \"Дневной постой обойдется тебе в %d %s (за пользование холодильником :)\"",
-						cost, desc_count(cost, WHAT_MONEYu));
+						cost, GetDeclensionInNumber(cost, EWhat::kMoneyU));
 			act(buf, false, recep, 0, ch, kToVict);
 
 			if (cost > ch->get_gold() + ch->get_bank()) {

@@ -70,7 +70,7 @@ void TopPlayer::PrintPlayersChart(CharData *ch) {
 		table
 			<< it.second.begin()->name_
 			<< it.second.begin()->remort_
-			<< desc_count(it.second.begin()->remort_, WHAT_REMORT)
+			<< GetDeclensionInNumber(it.second.begin()->remort_, EWhat::kRemort)
 			<< MUD::Classes()[it.first].GetName() << fort::endr;
 	}
 	table_wrapper::DecorateNoBorderTable(ch, table);
@@ -86,7 +86,7 @@ void TopPlayer::PrintClassChart(CharData *ch, ECharClass id) {
 		table
 			<< it.name_
 			<< it.remort_
-			<< desc_count(it.remort_, WHAT_REMORT) << fort::endr;
+			<< GetDeclensionInNumber(it.remort_, EWhat::kRemort) << fort::endr;
 
 		if (table.row_count() >= kPlayerChartSize) {
 			break;

@@ -222,7 +222,7 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (!*arg || times == 0) {
 			const auto cost = calc_hire_price(ch, helpee);
 			sprintf(buf, "$n сказал$g вам : \"Один час моих услуг стоит %ld %s\".\r\n",
-					cost, desc_count(cost, WHAT_MONEYu));
+					cost, GetDeclensionInNumber(cost, EWhat::kMoneyU));
 			act(buf, false, helpee, 0, ch, kToVict | kToNotDeaf);
 			return;
 		}
@@ -244,7 +244,8 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			(isname(isbank, "банк bank") && cost > ch->get_bank())) {
 			sprintf(buf,
 					"$n сказал$g вам : \" Мои услуги за %d %s стоят %ld %s - это тебе не по карману.\"",
-					times, desc_count(times, WHAT_HOUR), cost, desc_count(cost, WHAT_MONEYu));
+					times,
+					GetDeclensionInNumber(times, EWhat::kHour), cost, GetDeclensionInNumber(cost, EWhat::kMoneyU));
 			act(buf, false, helpee, 0, ch, kToVict | kToNotDeaf);
 			return;
 		}

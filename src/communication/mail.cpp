@@ -208,7 +208,7 @@ void postmaster_send_mail(CharData *ch, CharData *mailman, int/* cmd*/, char *ar
 	if (ch->get_gold() < cost) {
 		sprintf(buf, "$n сказал$g вам, 'Письмо стоит %d %s.'\r\n"
 					 "$n сказал$g вам, '...которых у вас просто-напросто нет.'",
-				STAMP_PRICE, desc_count(STAMP_PRICE, WHAT_MONEYu));
+				STAMP_PRICE, GetDeclensionInNumber(STAMP_PRICE, EWhat::kMoneyU));
 		act(buf, false, mailman, 0, ch, kToVict);
 		return;
 	}
@@ -221,7 +221,7 @@ void postmaster_send_mail(CharData *ch, CharData *mailman, int/* cmd*/, char *ar
 		sprintf(buf,
 				"$n сказал$g вам, 'Отлично, с вас %d %s почтового сбора.'\r\n"
 				"$n сказал$g вам, 'Можете писать, (/s saves /h for help)'",
-				STAMP_PRICE, desc_count(STAMP_PRICE, WHAT_MONEYa));
+				STAMP_PRICE, GetDeclensionInNumber(STAMP_PRICE, EWhat::kMoneyA));
 	}
 
 	act(buf, false, mailman, 0, ch, kToVict);

@@ -1016,7 +1016,7 @@ void equip_char(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip
 			send_to_char(master, "Для использования %s требуется %d %s.\r\n",
 						 GET_OBJ_PNAME(obj, 1).c_str(),
 						 obj->get_auto_mort_req(),
-						 desc_count(obj->get_auto_mort_req(), WHAT_REMORT));
+						 GetDeclensionInNumber(obj->get_auto_mort_req(), EWhat::kRemort));
 			act("$n попытал$u использовать $o3, но у н$s ничего не получилось.", false, ch, obj, nullptr, kToRoom);
 			if (!obj->get_carried_by()) {
 				obj_to_char(obj, ch);

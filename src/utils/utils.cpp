@@ -788,31 +788,68 @@ void format_text(const utils::AbstractStringWriter::shared_ptr &writer,
 	writer->set_string(formatted);
 }
 
-const char *some_pads[3][39] =
-	{
-		{"дней", "часов", "лет", "очков", "минут", "минут", "кун", "кун", "штук", "штук", "уровней", "верст", "верст",
-		 "единиц", "единиц", "секунд", "градусов", "строк", "предметов", "предметов", "перевоплощений", "недель",
-		 "месяцев", "недель", "славы", "славы", "человек", "силы", "глотков", "гривен", "золотых", "серебряных",
-		 "бронзовых", "гривен", "золотых", "серебряных", "бронзовых", "искристых снежинок", "ногат"},
-		{"день", "час", "год", "очко", "минута", "минуту", "куна", "куну", "штука", "штуку", "уровень", "верста",
-		 "версту", "единица", "единицу", "секунду", "градус", "строка", "предмет", "предмета", "перевоплощение",
-		 "неделя", "месяц", "неделю", "слава", "славу", "человек", "сила", "глоток", "гривна", "золотая", "серебряная",
-		 "бронзовая", "гривну", "золотую", "серебряную", "бронзовую", "искристую снежинку", "ногату"},
-		{"дня", "часа", "года", "очка", "минуты", "минуты", "куны", "куны", "штуки", "штуки", "уровня", "версты",
-		 "версты", "единицы", "единицы", "секунды", "градуса", "строки", "предмета", "предметов", "перевоплощения",
-		 "недели", "месяца", "недели", "славы", "славы", "человека", "силы", "глотка", "гривны", "золотые",
-		 "серебряные", "бронзовые", "гривны", "золотые", "серебряные", "бронзовые", "искристые снежинки", "ногаты"}
+/*
+\todo Переделать в нормальный вид с библиотекой склонений/спряжений или хотя бы полным списом падежей с индексацией через ECases.
+*/
+using SomePads = std::array<std::string, 3>;
+using SomePadsMap = std::unordered_map<EWhat, SomePads>;
+
+const char *GetDeclensionInNumber(long amount, EWhat of_what) {
+	static const SomePadsMap things_cases = {
+		{EWhat::kDay, {"дней", "день", "дня"}},
+		{EWhat::kHour, {"часов", "час", "часа"}},
+		{EWhat::kYear, {"лет", "год", "года"}},
+		{EWhat::kPoint, {"очков", "очко", "очка"}},
+		{EWhat::kMinA, {"минут", "минута", "минуты"}},
+		{EWhat::kMinU, {"минут", "минуту", "минуты"}},
+		{EWhat::kMoneyA, {"кун", "куна", "куны"}},
+		{EWhat::kMoneyU, {"кун", "куну", "куны"}},
+		{EWhat::kThingA, {"штук", "штука", "штуки"}},
+		{EWhat::kThingU, {"штук", "штуку", "штуки"}},
+		{EWhat::kLvl, {"уровней", "уровень", "уровня"}},
+		{EWhat::kMoveA, {"верст", "верста", "версты"}},
+		{EWhat::kMoveU, {"верст", "версту", "версты"}},
+		{EWhat::kOneA, {"единиц", "единица", "единицы"}},
+		{EWhat::kOneU, {"единиц", "единицу", "единицы"}},
+		{EWhat::kSec, {"секунд", "секунду", "секунды"}},
+		{EWhat::kDegree, {"градусов", "градус", "градуса"}},
+		{EWhat::kRow, {"строк", "строка", "строки"}},
+		{EWhat::kObject, {"предметов", "предмет", "предмета"}},
+		{EWhat::kObjU, {"предметов", "предмета", "предметов"}},
+		{EWhat::kRemort, {"перевоплощений", "перевоплощение", "перевоплощения"}},
+		{EWhat::kWeek, {"недель", "неделя", "недели"}},
+		{EWhat::kMonth, {"месяцев", "месяц", "месяца"}},
+		{EWhat::kWeekU, {"недель", "неделю", "недели"}},
+		{EWhat::kGlory, {"славы", "слава", "славы"}},
+		{EWhat::kGloryU, {"славы", "славу", "славы"}},
+		{EWhat::kPeople, {"человек", "человек", "человека"}},
+		{EWhat::kStr, {"силы", "сила", "силы"}},
+		{EWhat::kGulp, {"глотков", "глоток", "глотка"}},
+		{EWhat::kTorc, {"гривен", "гривна", "гривны"}},
+		{EWhat::kGoldTorc, {"золотых", "золотая", "золотые"}},
+		{EWhat::kSilverTorc, {"серебряных", "серебряная", "серебряные"}},
+		{EWhat::kBronzeTorc, {"бронзовых", "бронзовая", "бронзовые"}},
+		{EWhat::kTorcU, {"гривен", "гривну", "гривны"}},
+		{EWhat::kGoldTorcU, {"золотых", "золотую", "золотые"}},
+		{EWhat::kSilverTorcU, {"серебряных", "серебряную", "серебряные"}},
+		{EWhat::kBronzeTorcU, {"бронзовых", "бронзовую", "бронзовые"}},
+		{EWhat::kIceU, {"искристых снежинок", "искристую снежинку", "искристые снежинки"}},
+		{EWhat::kNogataU, {"ногат", "ногату", "ногаты"}}
 	};
 
-const char *desc_count(long how_many, int of_what) {
-	if (how_many < 0)
-		how_many = -how_many;
-	if ((how_many % 100 >= 11 && how_many % 100 <= 14) || how_many % 10 >= 5 || how_many % 10 == 0)
-		return some_pads[0][of_what];
-	if (how_many % 10 == 1)
-		return some_pads[1][of_what];
-	else
-		return some_pads[2][of_what];
+	if (amount < 0) {
+		amount = -amount;
+	}
+
+	if ((amount % 100 >= 11 && amount % 100 <= 14) || amount % 10 >= 5 || amount % 10 == 0) {
+		return things_cases.at(of_what)[0].c_str();
+	}
+
+	if (amount % 10 == 1) {
+		return things_cases.at(of_what)[1].c_str();
+	} else {
+		return things_cases.at(of_what)[2].c_str();
+	}
 }
 
 int check_moves(CharData *ch, int how_moves) {
@@ -1287,39 +1324,39 @@ std::string time_format(int in_timer, int flag) {
 	int one = 0, two = 0;
 
 	if (timer < 60)
-		out << timer << " " << desc_count(in_timer, flag ? WHAT_MINu : WHAT_MINa);
+		out << timer << " " << GetDeclensionInNumber(in_timer, flag ? EWhat::kMinU : EWhat::kMinA);
 	else if (timer < 1440) {
 		sprintf(buffer, "%.1f", timer / 60);
 		sscanf(buffer, "%d.%d", &one, &two);
 		out << one;
 		if (two)
-			out << "." << two << " " << desc_count(two, WHAT_HOUR);
+			out << "." << two << " " << GetDeclensionInNumber(two, EWhat::kHour);
 		else
-			out << " " << desc_count(one, WHAT_HOUR);
+			out << " " << GetDeclensionInNumber(one, EWhat::kHour);
 	} else if (timer < 10080) {
 		sprintf(buffer, "%.1f", timer / 1440);
 		sscanf(buffer, "%d.%d", &one, &two);
 		out << one;
 		if (two)
-			out << "." << two << " " << desc_count(two, WHAT_DAY);
+			out << "." << two << " " << GetDeclensionInNumber(two, EWhat::kDay);
 		else
-			out << " " << desc_count(one, WHAT_DAY);
+			out << " " << GetDeclensionInNumber(one, EWhat::kDay);
 	} else if (timer < 44640) {
 		sprintf(buffer, "%.1f", timer / 10080);
 		sscanf(buffer, "%d.%d", &one, &two);
 		out << one;
 		if (two)
-			out << "." << two << " " << desc_count(two, WHAT_WEEK);
+			out << "." << two << " " << GetDeclensionInNumber(two, EWhat::kWeek);
 		else
-			out << " " << desc_count(one, flag ? WHAT_WEEKu : WHAT_WEEK);
+			out << " " << GetDeclensionInNumber(one, flag ? EWhat::kWeekU : EWhat::kWeek);
 	} else {
 		sprintf(buffer, "%.1f", timer / 44640);
 		sscanf(buffer, "%d.%d", &one, &two);
 		out << one;
 		if (two)
-			out << "." << two << " " << desc_count(two, WHAT_MONTH);
+			out << "." << two << " " << GetDeclensionInNumber(two, EWhat::kMonth);
 		else
-			out << " " << desc_count(one, WHAT_MONTH);
+			out << " " << GetDeclensionInNumber(one, EWhat::kMonth);
 	}
 	return out.str();
 }
@@ -1855,7 +1892,7 @@ void message_str_need(CharData *ch, ObjData *obj, int type) {
 			return;
 	}
 	send_to_char(ch, "Для этого требуется %d %s.\r\n",
-				 need_str, desc_count(need_str, WHAT_STR));
+				 need_str, GetDeclensionInNumber(need_str, EWhat::kStr));
 }
 
 bool GetAffectNumByName(const std::string &affName, EAffectFlag &result) {

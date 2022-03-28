@@ -741,7 +741,7 @@ std::string CObjectPrototype::item_count_message(int num, int pad) {
 	std::stringstream out;
 	out << get_PName(pad);
 	if (num > 1) {
-		out << " (x " << num << " " << desc_count(num, WHAT_THINGa) << ")";
+		out << " (x " << num << " " << GetDeclensionInNumber(num, EWhat::kThingA) << ")";
 	}
 	return out.str();
 }

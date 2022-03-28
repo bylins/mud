@@ -2317,12 +2317,12 @@ void find_replacement(void *go,
 				c->set_hryvn(MAX(0, gm_char_field(c, field, subfield, c->get_hryvn())));
 				value = c->get_hryvn() - before;
 				sprintf(buf, "<%s> {%d} получил триггером %d %s. [Trigger: %s, Vnum: %d]",
-					GET_PAD(c, 0),
-					GET_ROOM_VNUM(c->in_room),
-					value,
-					desc_count(value, WHAT_TORCu),
-					GET_TRIG_NAME(trig),
-					GET_TRIG_VNUM(trig));
+						GET_PAD(c, 0),
+						GET_ROOM_VNUM(c->in_room),
+						value,
+						GetDeclensionInNumber(value, EWhat::kTorcU),
+						GET_TRIG_NAME(trig),
+						GET_TRIG_VNUM(trig));
 				mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 			} else
 				sprintf(str, "%d", c->get_hryvn());
@@ -2367,11 +2367,12 @@ void find_replacement(void *go,
 								}
 							}
 							sprintf(buf, "Вы разделили %d %s на %d  -  по %d каждому.\r\n",
-									val, desc_count(val, WHAT_NOGATAu), num, share);
+									val, GetDeclensionInNumber(val, EWhat::kNogataU), num, share);
 							send_to_char(buf, c);
 							if (rest > 0) {
 								send_to_char(c, "Как истинный еврей вы оставили %d %s (которые не смогли разделить нацело) себе.\r\n",
-										rest, desc_count(rest, WHAT_NOGATAu));
+											 rest,
+											 GetDeclensionInNumber(rest, EWhat::kNogataU));
 							}
 							c->add_nogata(share+rest);
 						}
@@ -2391,13 +2392,13 @@ void find_replacement(void *go,
 				c->set_gold(MAX(0, gm_char_field(c, field, subfield, c->get_gold())));
 				value = c->get_gold() - before;
 				sprintf(buf,
-					"<%s> {%d} получил триггером %d %s. [Trigger: %s, Vnum: %d]",
-					GET_PAD(c, 0),
-					GET_ROOM_VNUM(c->in_room),
-					value,
-					desc_count(value, WHAT_MONEYu),
-					GET_TRIG_NAME(trig),
-					GET_TRIG_VNUM(trig));
+						"<%s> {%d} получил триггером %d %s. [Trigger: %s, Vnum: %d]",
+						GET_PAD(c, 0),
+						GET_ROOM_VNUM(c->in_room),
+						value,
+						GetDeclensionInNumber(value, EWhat::kMoneyU),
+						GET_TRIG_NAME(trig),
+						GET_TRIG_VNUM(trig));
 				mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 				// клан-налог
 				const long diff = c->get_gold() - before;
