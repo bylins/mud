@@ -244,7 +244,7 @@ int npc_track(CharData *ch) {
 
 CharData *selectRandomSkirmisherFromGroup(CharData *leader) {
 	ActionTargeting::FriendsRosterType roster{leader};
-	auto isSkirmisher = [](CharData *ch) { return PRF_FLAGGED(ch, PRF_SKIRMISHER); };
+	auto isSkirmisher = [](CharData *ch) { return GR_FLAGGED(ch, EPrf::kSkirmisher); };
 	int skirmishers = roster.count(isSkirmisher);
 	if (skirmishers == 0 || skirmishers == roster.amount()) {
 		return nullptr;
@@ -296,7 +296,7 @@ CharData *find_best_stupidmob_victim(CharData *ch, int extmode) {
 	for (const auto vict : world[ch->in_room]->people) {
 		if ((IS_NPC(vict) && !IS_SET(extmode, CHECK_OPPONENT) && !IS_CHARMICE(vict))
 			|| (IS_CHARMICE(vict) && !vict->get_fighting()) // чармиса агрим только если он уже с кем-то сражается
-			|| PRF_FLAGGED(vict, PRF_NOHASSLE)
+			|| GR_FLAGGED(vict, EPrf::kNohassle)
 			|| !MAY_SEE(ch, ch, vict)
 			|| (IS_SET(extmode, CHECK_OPPONENT) && ch != vict->get_fighting())
 			|| (!may_kill_here(ch, vict, NoArgument) && !IS_SET(extmode, GUARD_ATTACK)))//старжники агрят в мирках
@@ -472,7 +472,7 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 		if ((IS_NPC(vict) && !IS_CHARMICE(vict))
 			|| (IS_CHARMICE(vict) && !vict->get_fighting()
 				&& find_master_charmice(vict)) // чармиса агрим только если нет хозяина в руме.
-			|| PRF_FLAGGED(vict, PRF_NOHASSLE)
+			|| GR_FLAGGED(vict, EPrf::kNohassle)
 			|| !MAY_SEE(ch, ch, vict) // если не видим цель,
 			|| (IS_SET(extmode, CHECK_OPPONENT) && ch != vict->get_fighting())
 			|| (!may_kill_here(ch, vict, NoArgument) && !IS_SET(extmode, GUARD_ATTACK)))//старжники агрят в мирках
@@ -775,7 +775,7 @@ void do_aggressive_mob(CharData *ch, int check_sneak) {
 			const auto vict = *vict_i;
 
 			if (IS_NPC(vict)
-				|| PRF_FLAGGED(vict, PRF_NOHASSLE)) {
+				|| GR_FLAGGED(vict, EPrf::kNohassle)) {
 				continue;
 			}
 			for (MemoryRecord *names = MEMORY(ch); names && !victim; names = names->next) {
@@ -1266,7 +1266,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 				|| GET_SPELL_MEM(ch, kSpellRelocate) > 0); names = names->next) {
 				for (const auto &vict : character_list) {
 					if (names->id == GET_IDNUM(vict)
-						&& CAN_SEE(ch, vict) && !PRF_FLAGGED(vict, PRF_NOHASSLE)) {
+						&& CAN_SEE(ch, vict) && !GR_FLAGGED(vict, EPrf::kNohassle)) {
 						if (GET_SPELL_MEM(ch, kSpellSummon) > 0) {
 							CastSpell(ch.get(), vict.get(), 0, 0, kSpellSummon, kSpellSummon);
 
@@ -1300,7 +1300,7 @@ void mobRemember(CharData *ch, CharData *victim) {
 
 	if (!IS_NPC(ch) ||
 		IS_NPC(victim) ||
-		PRF_FLAGGED(victim, PRF_NOHASSLE) ||
+		GR_FLAGGED(victim, EPrf::kNohassle) ||
 		!MOB_FLAGGED(ch, MOB_MEMORY) ||
 		AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;

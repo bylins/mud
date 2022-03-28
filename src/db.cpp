@@ -1149,7 +1149,7 @@ void do_reboot(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		load_mobraces();
 	else if (!str_cmp(arg, "morphs"))
 		load_morphs();
-	else if (!str_cmp(arg, "depot") && PRF_FLAGGED(ch, PRF_CODERINFO)) {
+	else if (!str_cmp(arg, "depot") && GR_FLAGGED(ch, EPrf::kCoderinfo)) {
 		skip_spaces(&argument);
 		if (*argument) {
 			long uid = GetUniqueByName(std::string(argument));
@@ -1173,7 +1173,7 @@ void do_reboot(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (!str_cmp(arg, "celebrates")) {
 		//Celebrates::load(XMLLoad(LIB_MISC CELEBRATES_FILE, CELEBRATES_MAIN_TAG, CELEBRATES_ERROR_STR));
 		Celebrates::load();
-	} else if (!str_cmp(arg, "setsdrop") && PRF_FLAGGED(ch, PRF_CODERINFO)) {
+	} else if (!str_cmp(arg, "setsdrop") && GR_FLAGGED(ch, EPrf::kCoderinfo)) {
 		skip_spaces(&argument);
 		if (*argument && is_number(argument)) {
 			SetsDrop::reload(atoi(argument));
@@ -2459,7 +2459,7 @@ void boot_db(void) {
 
 	boot_profiler.next_step("Initializing DT list");
 	log("Init DeathTrap list.");
-	DeathTrap::load();
+	deathtrap::load();
 
 	boot_profiler.next_step("Loading titles list");
 	log("Load Title list.");
@@ -2763,13 +2763,13 @@ void GameLoader::prepare_global_structures(const EBootType mode, const int rec_c
 
 // * Проверки всяких несочетаемых флагов на комнатах.
 void check_room_flags(int rnum) {
-	if (DeathTrap::is_slow_dt(rnum)) {
+	if (deathtrap::IsSlowDeathtrap(rnum)) {
 		// снятие номагик и прочих флагов, запрещающих чару выбраться из комнаты без выходов при наличии медленного дт
-		GET_ROOM(rnum)->unset_flag(ROOM_NOMAGIC);
-		GET_ROOM(rnum)->unset_flag(ROOM_NOTELEPORTOUT);
-		GET_ROOM(rnum)->unset_flag(ROOM_NOSUMMON);
+		world[rnum]->unset_flag(ROOM_NOMAGIC);
+		world[rnum]->unset_flag(ROOM_NOTELEPORTOUT);
+		world[rnum]->unset_flag(ROOM_NOSUMMON);
 	}
-	if (GET_ROOM(rnum)->get_flag(ROOM_HOUSE)
+	if (world[rnum]->get_flag(ROOM_HOUSE)
 		&& (SECT(rnum) == kSectMountain || SECT(rnum) == kSectHills)) {
 		// шоб в замках умные не копали
 		SECT(rnum) = kSectInside;
@@ -5041,7 +5041,7 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		send_to_char("ЧАВО???\r\n", ch);
 		return;
 	}
-	if (Remort::need_torc(ch) && !PRF_FLAGGED(ch, PRF_CAN_REMORT)) {
+	if (Remort::need_torc(ch) && !GR_FLAGGED(ch, EPrf::kCanRemort)) {
 		send_to_char(ch,
 					 "Вы должны подтвердить свои заслуги, пожертвовав Богам достаточное количество гривен.\r\n"
 					 "%s\r\n", Remort::WHERE_TO_REMORT_STR.c_str());
@@ -5147,16 +5147,16 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	GET_WIMP_LEV(ch) = 0;
 	GET_AC(ch) = 100;
 	GET_LOADROOM(ch) = calc_loadroom(ch, place_of_destination);
-	PRF_FLAGS(ch).unset(PRF_SUMMONABLE);
-	PRF_FLAGS(ch).unset(PRF_AWAKE);
-	PRF_FLAGS(ch).unset(PRF_PUNCTUAL);
-	PRF_FLAGS(ch).unset(PRF_POWERATTACK);
-	PRF_FLAGS(ch).unset(PRF_GREATPOWERATTACK);
-	PRF_FLAGS(ch).unset(PRF_AWAKE);
-	PRF_FLAGS(ch).unset(PRF_IRON_WIND);
-	PRF_FLAGS(ch).unset(PRF_DOUBLE_THROW);
-	PRF_FLAGS(ch).unset(PRF_TRIPLE_THROW);
-	PRF_FLAGS(ch).unset(PRF_SHADOW_THROW);
+	GR_FLAGS(ch).unset(EPrf::KSummonable);
+	GR_FLAGS(ch).unset(EPrf::kAwake);
+	GR_FLAGS(ch).unset(EPrf::kPunctual);
+	GR_FLAGS(ch).unset(EPrf::kPowerAttack);
+	GR_FLAGS(ch).unset(EPrf::kGreatPowerAttack);
+	GR_FLAGS(ch).unset(EPrf::kAwake);
+	GR_FLAGS(ch).unset(EPrf::kIronWind);
+	GR_FLAGS(ch).unset(EPrf::kDoubleThrow);
+	GR_FLAGS(ch).unset(EPrf::kTripleThrow);
+	GR_FLAGS(ch).unset(EPrf::kShadowThrow);
 	// Убираем все заученные порталы
 	check_portals(ch);
 	if (ch->get_protecting()) {
@@ -5208,7 +5208,7 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	remove_rune_label(ch);
 
 	// сброс всего, связанного с гривнами (замакс сохраняем)
-	PRF_FLAGS(ch).unset(PRF_CAN_REMORT);
+	GR_FLAGS(ch).unset(EPrf::kCanRemort);
 	ch->set_ext_money(ExtMoney::kTorcGold, 0);
 	ch->set_ext_money(ExtMoney::kTorcSilver, 0);
 	ch->set_ext_money(ExtMoney::kTorcBronze, 0);
@@ -5762,9 +5762,9 @@ void set_flag(CharData *ch) {
 	utils::ConvertToLow(mail);
 	auto i = std::find(block_list.begin(), block_list.end(), mail);
 	if (i != block_list.end()) {
-		PRF_FLAGS(ch).set(PRF_IGVA_PRONA);
+		GR_FLAGS(ch).set(EPrf::kStopOfftop);
 	} else {
-		PRF_FLAGS(ch).unset(PRF_IGVA_PRONA);
+		GR_FLAGS(ch).unset(EPrf::kStopOfftop);
 	}
 }
 

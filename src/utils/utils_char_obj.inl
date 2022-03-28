@@ -29,7 +29,7 @@ inline bool CAN_SEE_OBJ(const CharData *sub, const ObjData *obj) {
 				|| obj->get_in_obj()->get_carried_by() == sub))
 		|| MORT_CAN_SEE_OBJ(sub, obj)
 		|| (!IS_NPC(sub)
-			&& PRF_FLAGGED((sub), PRF_HOLYLIGHT)));
+			&& GR_FLAGGED((sub), EPrf::kHolylight)));
 }
 
 inline const char *OBJN(const ObjData *obj, const CharData *vict, const size_t pad) {

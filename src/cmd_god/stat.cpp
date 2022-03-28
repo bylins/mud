@@ -53,7 +53,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	struct Follower *fol;
 	char tmpbuf[128];
 	buf[0] = 0;
-	int god_level = PRF_FLAGGED(ch, PRF_CODERINFO) ? kLvlImplementator : GetRealLevel(ch);
+	int god_level = GR_FLAGGED(ch, EPrf::kCoderinfo) ? kLvlImplementator : GetRealLevel(ch);
 	int k_room = -1;
 	if (!virt && (god_level == kLvlImplementator || (god_level == kLvlGreatGod && !IS_NPC(k)))) {
 		k_room = GET_ROOM_VNUM(IN_ROOM(k));
@@ -588,7 +588,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	ObjVnum rnum, vnum;
 	ObjData *j2;
 	long int li;
-	bool is_grgod = (IS_GRGOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO)) ? true : false;
+	bool is_grgod = (IS_GRGOD(ch) || GR_FLAGGED(ch, EPrf::kCoderinfo)) ? true : false;
 
 	vnum = GET_OBJ_VNUM(j);
 	rnum = GET_OBJ_RNUM(j);
@@ -1133,7 +1133,7 @@ void do_stat(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	int level = PRF_FLAGGED(ch, PRF_CODERINFO) ? kLvlImplementator : GetRealLevel(ch);
+	int level = GR_FLAGGED(ch, EPrf::kCoderinfo) ? kLvlImplementator : GetRealLevel(ch);
 
 	if (utils::IsAbbrev(buf1, "room") && level >= kLvlBuilder) {
 		int vnum, rnum = kNowhere;

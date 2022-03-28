@@ -9,13 +9,13 @@
 #include "sysdep.h"
 #include "structs/structs.h"
 
-namespace SpamSystem {
+namespace antispam {
 
-const int MIN_OFFTOP_LVL = 6;
-enum { OFFTOP_MODE };
+const int kMinOfftopLvl = 6;
+enum { kOfftopMode };
 bool check(CharData *ch, int mode);
 
-} // SpamSystem
+} // antispam
 
 
 #endif // SPAM_HPP_INCLUDED

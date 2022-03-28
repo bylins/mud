@@ -383,7 +383,7 @@ void do_named(CharData *ch, char *argument, int cmd, int subcmd) {
 							sprintf(buf1, "%6d) %s",
 									obj_proto[r_num]->get_vnum(),
 									colored_name(obj_proto[r_num]->get_short_description().c_str(), -32));
-							if (IS_GRGOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO)) {
+							if (IS_GRGOD(ch) || GR_FLAGGED(ch, EPrf::kCoderinfo)) {
 								snprintf(buf2, kMaxStringLength, "%s Игра:%d Пост:%d Владелец:%-16s e-mail:&S%s&s\r\n", buf1,
 										 obj_proto.CountInWorld(r_num), obj_proto.stored(r_num),
 										 GetNameByUnique(it->second->uid, false).c_str(), it->second->mail.c_str());

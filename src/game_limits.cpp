@@ -578,7 +578,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 	} else if (!RegisterSystem::is_registered(i.get()) && i->desc && STATE(i->desc) == CON_PLAYING) {
 		if (restore != r_unreg_start_room
 			&& !NORENTABLE(i)
-			&& !DeathTrap::is_slow_dt(IN_ROOM(i))
+			&& !deathtrap::IsSlowDeathtrap(IN_ROOM(i))
 			&& !check_dupes_host(i->desc, 1)) {
 			if (IN_ROOM(i) == STRANGE_ROOM) {
 				i->set_was_in_room(r_unreg_start_room);
@@ -1125,8 +1125,8 @@ void room_point_update() {
 		}
 		if (world[count]->ices)
 			if (!--world[count]->ices) {
-				GET_ROOM(count)->unset_flag(ROOM_ICEDEATH);
-				DeathTrap::remove(world[count]);
+				world[count]->unset_flag(ROOM_ICEDEATH);
+				deathtrap::remove(world[count]);
 			}
 
 		world[count]->glight = MAX(0, world[count]->glight);
@@ -1231,7 +1231,7 @@ void clan_chest_invoice(ObjData *j) {
 		if (d->character
 			&& STATE(d) == CON_PLAYING
 			&& !AFF_FLAGGED(d->character, EAffectFlag::AFF_DEAFNESS)
-			&& PRF_FLAGGED(d->character, PRF_DECAY_MODE)
+			&& GR_FLAGGED(d->character, EPrf::kDecayMode)
 			&& CLAN(d->character)
 			&& CLAN(d->character)->GetRent() == room) {
 			send_to_char(d->character.get(), "[Хранилище]: %s'%s%s рассыпал%s в прах'%s\r\n",
@@ -1741,7 +1741,7 @@ void point_update() {
 
 		if (!IS_NPC(i)
 			&& GetRealLevel(i) < idle_max_level
-			&& !PRF_FLAGGED(i, PRF_CODERINFO)) {
+			&& !GR_FLAGGED(i, EPrf::kCoderinfo)) {
 			check_idling(i);
 		}
 	});

@@ -1077,7 +1077,7 @@ void print_one_line(CharData *ch, CharData *k, int leader, int header) {
 				CCNRM(ch, C_NRM));
 
 		sprintf(buf + strlen(buf), "%5s|", leader ? "Лидер" : "");
-		ok = PRF_FLAGGED(k, PRF_SKIRMISHER);
+		ok = GR_FLAGGED(k, EPrf::kSkirmisher);
 		sprintf(buf + strlen(buf),
 				"%s%-14s%s|",
 				ok ? CCGRN(ch, C_NRM) : CCNRM(ch, C_NRM),
@@ -1149,7 +1149,7 @@ void print_group(CharData *ch) {
 		send_to_char("Но вы же не член (в лучшем смысле этого слова) группы!\r\n", ch);
 		return;
 	}
-	if (PRF_FLAGGED(ch, PRF_SHOWGROUP)) {
+	if (GR_FLAGGED(ch, EPrf::kShowGroup)) {
 		for (g = k->followers, cfound = 0; g; g = g->next) {
 			for (f = g->ch->followers; f; f = f->next) {
 				if (!(AFF_FLAGGED(f->ch, EAffectFlag::AFF_CHARM)
@@ -1164,7 +1164,7 @@ void print_group(CharData *ch) {
 				}
 
 				// shapirus: при включенном режиме не показываем клонов и хранителей
-				if (PRF_FLAGGED(ch, PRF_NOCLONES)
+				if (GR_FLAGGED(ch, EPrf::kNoClones)
 					&& IS_NPC(f->ch)
 					&& (MOB_FLAGGED(f->ch, MOB_CLONE)
 						|| GET_MOB_VNUM(f->ch) == kMobKeeper)) {
@@ -1185,7 +1185,7 @@ void print_group(CharData *ch) {
 				}
 
 				// shapirus: при включенном режиме не показываем клонов и хранителей
-				if (PRF_FLAGGED(ch, PRF_NOCLONES)
+				if (GR_FLAGGED(ch, EPrf::kNoClones)
 					&& IS_NPC(g->ch)
 					&& (MOB_FLAGGED(g->ch, MOB_CLONE)
 						|| GET_MOB_VNUM(g->ch) == kMobKeeper)) {
@@ -1586,29 +1586,29 @@ void do_wimpy(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void set_display_bits(CharData *ch, bool flag) {
 	if (flag) {
-		PRF_FLAGS(ch).set(PRF_DISPHP);
-		PRF_FLAGS(ch).set(PRF_DISPMANA);
-		PRF_FLAGS(ch).set(PRF_DISPMOVE);
-		PRF_FLAGS(ch).set(PRF_DISPEXITS);
-		PRF_FLAGS(ch).set(PRF_DISPGOLD);
-		PRF_FLAGS(ch).set(PRF_DISPLEVEL);
-		PRF_FLAGS(ch).set(PRF_DISPEXP);
-		PRF_FLAGS(ch).set(PRF_DISPFIGHT);
-		PRF_FLAGS(ch).set(PRF_DISP_COOLDOWNS);
+		GR_FLAGS(ch).set(EPrf::kDispHp);
+		GR_FLAGS(ch).set(EPrf::kDispMana);
+		GR_FLAGS(ch).set(EPrf::kDispMove);
+		GR_FLAGS(ch).set(EPrf::kDispExits);
+		GR_FLAGS(ch).set(EPrf::kDispMoney);
+		GR_FLAGS(ch).set(EPrf::kDispLvl);
+		GR_FLAGS(ch).set(EPrf::kDispExp);
+		GR_FLAGS(ch).set(EPrf::kDispFight);
+		GR_FLAGS(ch).set(EPrf::kDispCooldowns);
 		if (!IS_IMMORTAL(ch)) {
-			PRF_FLAGS(ch).set(PRF_DISP_TIMED);
+			GR_FLAGS(ch).set(EPrf::kDispTimed);
 		}
 	} else {
-		PRF_FLAGS(ch).unset(PRF_DISPHP);
-		PRF_FLAGS(ch).unset(PRF_DISPMANA);
-		PRF_FLAGS(ch).unset(PRF_DISPMOVE);
-		PRF_FLAGS(ch).unset(PRF_DISPEXITS);
-		PRF_FLAGS(ch).unset(PRF_DISPGOLD);
-		PRF_FLAGS(ch).unset(PRF_DISPLEVEL);
-		PRF_FLAGS(ch).unset(PRF_DISPEXP);
-		PRF_FLAGS(ch).unset(PRF_DISPFIGHT);
-		PRF_FLAGS(ch).unset(PRF_DISP_TIMED);
-		PRF_FLAGS(ch).unset(PRF_DISP_COOLDOWNS);
+		GR_FLAGS(ch).unset(EPrf::kDispHp);
+		GR_FLAGS(ch).unset(EPrf::kDispMana);
+		GR_FLAGS(ch).unset(EPrf::kDispMove);
+		GR_FLAGS(ch).unset(EPrf::kDispExits);
+		GR_FLAGS(ch).unset(EPrf::kDispMoney);
+		GR_FLAGS(ch).unset(EPrf::kDispLvl);
+		GR_FLAGS(ch).unset(EPrf::kDispExp);
+		GR_FLAGS(ch).unset(EPrf::kDispFight);
+		GR_FLAGS(ch).unset(EPrf::kDispTimed);
+		GR_FLAGS(ch).unset(EPrf::kDispCooldowns);
 	}
 }
 
@@ -1642,34 +1642,34 @@ void do_display(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		for (size_t i = 0; i < len; i++) {
 			switch (LOWER(argument[i])) {
 				case 'h':
-				case 'ж': PRF_FLAGS(ch).set(PRF_DISPHP);
+				case 'ж': GR_FLAGS(ch).set(EPrf::kDispHp);
 					break;
 				case 'w':
-				case 'з': PRF_FLAGS(ch).set(PRF_DISPMANA);
+				case 'з': GR_FLAGS(ch).set(EPrf::kDispMana);
 					break;
 				case 'm':
-				case 'э': PRF_FLAGS(ch).set(PRF_DISPMOVE);
+				case 'э': GR_FLAGS(ch).set(EPrf::kDispMove);
 					break;
 				case 'e':
-				case 'в': PRF_FLAGS(ch).set(PRF_DISPEXITS);
+				case 'в': GR_FLAGS(ch).set(EPrf::kDispExits);
 					break;
 				case 'g':
-				case 'д': PRF_FLAGS(ch).set(PRF_DISPGOLD);
+				case 'д': GR_FLAGS(ch).set(EPrf::kDispMoney);
 					break;
 				case 'l':
-				case 'у': PRF_FLAGS(ch).set(PRF_DISPLEVEL);
+				case 'у': GR_FLAGS(ch).set(EPrf::kDispLvl);
 					break;
 				case 'x':
-				case 'о': PRF_FLAGS(ch).set(PRF_DISPEXP);
+				case 'о': GR_FLAGS(ch).set(EPrf::kDispExp);
 					break;
 				case 'б':
-				case 'f': PRF_FLAGS(ch).set(PRF_DISPFIGHT);
+				case 'f': GR_FLAGS(ch).set(EPrf::kDispFight);
 					break;
 				case 'п':
-				case 't': PRF_FLAGS(ch).set(PRF_DISP_TIMED);
+				case 't': GR_FLAGS(ch).set(EPrf::kDispTimed);
 					break;
 				case 'к':
-				case 'c': PRF_FLAGS(ch).set(PRF_DISP_COOLDOWNS);
+				case 'c': GR_FLAGS(ch).set(EPrf::kDispCooldowns);
 					break;
 				case ' ': break;
 				default: send_to_char(DISPLAY_HELP, ch);
@@ -1879,22 +1879,22 @@ void set_autoloot_mode(CharData *ch, char *argument) {
 
 	skip_spaces(&argument);
 	if (!*argument) {
-		if (PRF_TOG_CHK(ch, PRF_AUTOLOOT)) {
-			send_to_char(PRF_FLAGGED(ch, PRF_NOINGR_LOOT) ? message_no_ingr : message_on, ch);
+		if (PRF_TOG_CHK(ch, EPrf::kAutoloot)) {
+			send_to_char(GR_FLAGGED(ch, EPrf::kNoIngrLoot) ? message_no_ingr : message_on, ch);
 		} else {
 			send_to_char(message_off, ch);
 		}
 	} else if (utils::IsAbbrev(argument, "все")) {
-		PRF_FLAGS(ch).set(PRF_AUTOLOOT);
-		PRF_FLAGS(ch).unset(PRF_NOINGR_LOOT);
+		GR_FLAGS(ch).set(EPrf::kAutoloot);
+		GR_FLAGS(ch).unset(EPrf::kNoIngrLoot);
 		send_to_char(message_on, ch);
 	} else if (utils::IsAbbrev(argument, "ингредиенты")) {
-		PRF_FLAGS(ch).set(PRF_AUTOLOOT);
-		PRF_FLAGS(ch).set(PRF_NOINGR_LOOT);
+		GR_FLAGS(ch).set(EPrf::kAutoloot);
+		GR_FLAGS(ch).set(EPrf::kNoIngrLoot);
 		send_to_char(message_no_ingr, ch);
 	} else if (utils::IsAbbrev(argument, "нет")) {
-		PRF_FLAGS(ch).unset(PRF_AUTOLOOT);
-		PRF_FLAGS(ch).unset(PRF_NOINGR_LOOT);
+		GR_FLAGS(ch).unset(EPrf::kAutoloot);
+		GR_FLAGS(ch).unset(EPrf::kNoIngrLoot);
 		send_to_char(message_off, ch);
 	} else {
 		send_to_char("Формат команды: режим автограбеж <без-параметров|все|ингредиенты|нет>\r\n", ch);
@@ -2048,35 +2048,35 @@ void do_gen_tog(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 
 	switch (subcmd) {
-		case SCMD_NOSUMMON: result = PRF_TOG_CHK(ch, PRF_SUMMONABLE);
+		case SCMD_NOSUMMON: result = PRF_TOG_CHK(ch, EPrf::KSummonable);
 			break;
-		case SCMD_NOHASSLE: result = PRF_TOG_CHK(ch, PRF_NOHASSLE);
+		case SCMD_NOHASSLE: result = PRF_TOG_CHK(ch, EPrf::kNohassle);
 			break;
-		case SCMD_BRIEF: result = PRF_TOG_CHK(ch, PRF_BRIEF);
+		case SCMD_BRIEF: result = PRF_TOG_CHK(ch, EPrf::kBrief);
 			break;
-		case SCMD_COMPACT: result = PRF_TOG_CHK(ch, PRF_COMPACT);
+		case SCMD_COMPACT: result = PRF_TOG_CHK(ch, EPrf::kCompact);
 			break;
-		case SCMD_NOTELL: result = PRF_TOG_CHK(ch, PRF_NOTELL);
+		case SCMD_NOTELL: result = PRF_TOG_CHK(ch, EPrf::kNoTell);
 			break;
-		case SCMD_NOAUCTION: result = PRF_TOG_CHK(ch, PRF_NOAUCT);
+		case SCMD_NOAUCTION: result = PRF_TOG_CHK(ch, EPrf::kNoAuction);
 			break;
-		case SCMD_NOHOLLER: result = PRF_TOG_CHK(ch, PRF_NOHOLLER);
+		case SCMD_NOHOLLER: result = PRF_TOG_CHK(ch, EPrf::kNoHoller);
 			break;
-		case SCMD_NOGOSSIP: result = PRF_TOG_CHK(ch, PRF_NOGOSS);
+		case SCMD_NOGOSSIP: result = PRF_TOG_CHK(ch, EPrf::kNoGossip);
 			break;
-		case SCMD_NOSHOUT: result = PRF_TOG_CHK(ch, PRF_NOSHOUT);
+		case SCMD_NOSHOUT: result = PRF_TOG_CHK(ch, EPrf::kNoShout);
 			break;
-		case SCMD_NOGRATZ: result = PRF_TOG_CHK(ch, PRF_NOGOSS);
+		case SCMD_NOGRATZ: result = PRF_TOG_CHK(ch, EPrf::kNoGossip);
 			break;
-		case SCMD_NOWIZ: result = PRF_TOG_CHK(ch, PRF_NOWIZ);
+		case SCMD_NOWIZ: result = PRF_TOG_CHK(ch, EPrf::kNoWiz);
 			break;
-		case SCMD_QUEST: result = PRF_TOG_CHK(ch, PRF_QUEST);
+		case SCMD_QUEST: result = PRF_TOG_CHK(ch, EPrf::kQuest);
 			break;
-		case SCMD_ROOMFLAGS: result = PRF_TOG_CHK(ch, PRF_ROOMFLAGS);
+		case SCMD_ROOMFLAGS: result = PRF_TOG_CHK(ch, EPrf::kRoomFlags);
 			break;
-		case SCMD_NOREPEAT: result = PRF_TOG_CHK(ch, PRF_NOREPEAT);
+		case SCMD_NOREPEAT: result = PRF_TOG_CHK(ch, EPrf::kNoRepeat);
 			break;
-		case SCMD_HOLYLIGHT: result = PRF_TOG_CHK(ch, PRF_HOLYLIGHT);
+		case SCMD_HOLYLIGHT: result = PRF_TOG_CHK(ch, EPrf::kHolylight);
 			break;
 		case SCMD_SLOWNS: result = (nameserver_is_slow = !nameserver_is_slow);
 			break;
@@ -2085,13 +2085,13 @@ void do_gen_tog(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 				send_to_char("Скриптерам запрещено видеть автовыходы.\r\n", ch);
 				return;
 			}
-			result = PRF_TOG_CHK(ch, PRF_AUTOEXIT);
+			result = PRF_TOG_CHK(ch, EPrf::kAutoexit);
 			break;
-		case SCMD_CODERINFO: result = PRF_TOG_CHK(ch, PRF_CODERINFO);
+		case SCMD_CODERINFO: result = PRF_TOG_CHK(ch, EPrf::kCoderinfo);
 			break;
-		case SCMD_AUTOMEM: result = PRF_TOG_CHK(ch, PRF_AUTOMEM);
+		case SCMD_AUTOMEM: result = PRF_TOG_CHK(ch, EPrf::kAutomem);
 			break;
-		case SCMD_SDEMIGOD: result = PRF_TOG_CHK(ch, PRF_SDEMIGOD);
+		case SCMD_SDEMIGOD: result = PRF_TOG_CHK(ch, EPrf::kDemigodChat);
 			break;
 		case SCMD_BLIND: break;
 		case SCMD_MAPPER:
@@ -2099,16 +2099,16 @@ void do_gen_tog(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 				send_to_char("Скриптерам запрещено видеть vnum комнаты.\r\n", ch);
 				return;
 			}
-			result = PRF_TOG_CHK(ch, PRF_MAPPER);
+			result = PRF_TOG_CHK(ch, EPrf::kMapper);
 			break;
 		case SCMD_TESTER:
 			//if (GET_GOD_FLAG(ch, GF_TESTER))
 			//{
-			result = PRF_TOG_CHK(ch, PRF_TESTER);
+			result = PRF_TOG_CHK(ch, EPrf::kTester);
 			//return;
 			//}
 			break;
-		case SCMD_IPCONTROL: result = PRF_TOG_CHK(ch, PRF_IPCONTROL);
+		case SCMD_IPCONTROL: result = PRF_TOG_CHK(ch, EPrf::kIpControl);
 			break;
 #if defined(HAVE_ZLIB)
 		case SCMD_COMPRESS: result = toggle_compression(ch->desc);
@@ -2118,25 +2118,25 @@ void do_gen_tog(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 				send_to_char("Compression not supported.\r\n", ch);
 				return;
 #endif
-		case SCMD_GOAHEAD: result = PRF_TOG_CHK(ch, PRF_GOAHEAD);
+		case SCMD_GOAHEAD: result = PRF_TOG_CHK(ch, EPrf::kGoAhead);
 			break;
-		case SCMD_SHOWGROUP: result = PRF_TOG_CHK(ch, PRF_SHOWGROUP);
+		case SCMD_SHOWGROUP: result = PRF_TOG_CHK(ch, EPrf::kShowGroup);
 			break;
-		case SCMD_AUTOASSIST: result = PRF_TOG_CHK(ch, PRF_AUTOASSIST);
+		case SCMD_AUTOASSIST: result = PRF_TOG_CHK(ch, EPrf::kAutoassist);
 			break;
 		case SCMD_AUTOLOOT: set_autoloot_mode(ch, argument);
 			return;
-		case SCMD_AUTOSPLIT: result = PRF_TOG_CHK(ch, PRF_AUTOSPLIT);
+		case SCMD_AUTOSPLIT: result = PRF_TOG_CHK(ch, EPrf::kAutosplit);
 			break;
-		case SCMD_AUTOMONEY: result = PRF_TOG_CHK(ch, PRF_AUTOMONEY);
+		case SCMD_AUTOMONEY: result = PRF_TOG_CHK(ch, EPrf::kAutomoney);
 			break;
-		case SCMD_NOARENA: result = PRF_TOG_CHK(ch, PRF_NOARENA);
+		case SCMD_NOARENA: result = PRF_TOG_CHK(ch, EPrf::kNoArena);
 			break;
-		case SCMD_NOEXCHANGE: result = PRF_TOG_CHK(ch, PRF_NOEXCHANGE);
+		case SCMD_NOEXCHANGE: result = PRF_TOG_CHK(ch, EPrf::kNoExchange);
 			break;
-		case SCMD_NOCLONES: result = PRF_TOG_CHK(ch, PRF_NOCLONES);
+		case SCMD_NOCLONES: result = PRF_TOG_CHK(ch, EPrf::kNoClones);
 			break;
-		case SCMD_NOINVISTELL: result = PRF_TOG_CHK(ch, PRF_NOINVISTELL);
+		case SCMD_NOINVISTELL: result = PRF_TOG_CHK(ch, EPrf::kNoInvistell);
 			break;
 		case SCMD_LENGTH: SetScreen(ch, argument, 0);
 			return;
@@ -2147,28 +2147,28 @@ void do_gen_tog(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		case SCMD_SCREEN: SetScreen(ch, argument, 2);
 			return;
 			break;
-		case SCMD_NEWS_MODE: result = PRF_TOG_CHK(ch, PRF_NEWS_MODE);
+		case SCMD_NEWS_MODE: result = PRF_TOG_CHK(ch, EPrf::kNewsMode);
 			break;
-		case SCMD_BOARD_MODE: result = PRF_TOG_CHK(ch, PRF_BOARD_MODE);
+		case SCMD_BOARD_MODE: result = PRF_TOG_CHK(ch, EPrf::kBoardMode);
 			break;
 		case SCMD_CHEST_MODE: {
 			std::string buffer = argument;
 			SetChestMode(ch, buffer);
 			break;
 		}
-		case SCMD_PKL_MODE: result = PRF_TOG_CHK(ch, PRF_PKL_MODE);
+		case SCMD_PKL_MODE: result = PRF_TOG_CHK(ch, EPrf::kPklMode);
 			break;
-		case SCMD_POLIT_MODE: result = PRF_TOG_CHK(ch, PRF_POLIT_MODE);
+		case SCMD_POLIT_MODE: result = PRF_TOG_CHK(ch, EPrf::kPolitMode);
 			break;
-		case SCMD_PKFORMAT_MODE: result = PRF_TOG_CHK(ch, PRF_PKFORMAT_MODE);
+		case SCMD_PKFORMAT_MODE: result = PRF_TOG_CHK(ch, EPrf::kPkFormatMode);
 			break;
-		case SCMD_WORKMATE_MODE: result = PRF_TOG_CHK(ch, PRF_WORKMATE_MODE);
+		case SCMD_WORKMATE_MODE: result = PRF_TOG_CHK(ch, EPrf::kClanmembersMode);
 			break;
-		case SCMD_OFFTOP_MODE: result = PRF_TOG_CHK(ch, PRF_OFFTOP_MODE);
+		case SCMD_OFFTOP_MODE: result = PRF_TOG_CHK(ch, EPrf::kOfftopMode);
 			break;
-		case SCMD_ANTIDC_MODE: result = PRF_TOG_CHK(ch, PRF_ANTIDC_MODE);
+		case SCMD_ANTIDC_MODE: result = PRF_TOG_CHK(ch, EPrf::kAntiDcMode);
 			break;
-		case SCMD_NOINGR_MODE: result = PRF_TOG_CHK(ch, PRF_NOINGR_MODE);
+		case SCMD_NOINGR_MODE: result = PRF_TOG_CHK(ch, EPrf::kNoIngrMode);
 			break;
 		case SCMD_REMEMBER: {
 			skip_spaces(&argument);
@@ -2192,20 +2192,20 @@ void do_gen_tog(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			return;
 		}
 		case SCMD_DRAW_MAP: {
-			if (PRF_FLAGGED(ch, PRF_BLIND)) {
+			if (GR_FLAGGED(ch, EPrf::kBlindMode)) {
 				send_to_char("В режиме слепого игрока карта недоступна.\r\n", ch);
 				return;
 			}
-			result = PRF_TOG_CHK(ch, PRF_DRAW_MAP);
+			result = PRF_TOG_CHK(ch, EPrf::kDrawMap);
 			break;
 		}
-		case SCMD_ENTER_ZONE: result = PRF_TOG_CHK(ch, PRF_ENTER_ZONE);
+		case SCMD_ENTER_ZONE: result = PRF_TOG_CHK(ch, EPrf::kShowZoneNameOnEnter);
 			break;
-		case SCMD_MISPRINT: result = PRF_TOG_CHK(ch, PRF_MISPRINT);
+		case SCMD_MISPRINT: result = PRF_TOG_CHK(ch, EPrf::kShowUnread);
 			break;
-		case SCMD_BRIEF_SHIELDS: result = PRF_TOG_CHK(ch, PRF_BRIEF_SHIELDS);
+		case SCMD_BRIEF_SHIELDS: result = PRF_TOG_CHK(ch, EPrf::kBriefShields);
 			break;
-		case SCMD_AUTO_NOSUMMON: result = PRF_TOG_CHK(ch, PRF_AUTO_NOSUMMON);
+		case SCMD_AUTO_NOSUMMON: result = PRF_TOG_CHK(ch, EPrf::kAutonosummon);
 			break;
 		default: send_to_char(ch, "Введите параметр режима полностью.\r\n");
 //		log("SYSERR: Unknown subcmd %d in do_gen_toggle.", subcmd);
@@ -2386,7 +2386,7 @@ void perform_beep(CharData *ch, CharData *vict) {
 	act(buf, false, ch, nullptr, vict, kToVict | kToSleep);
 	send_to_char(CCNRM(vict, C_NRM), vict);
 
-	if (PRF_FLAGGED(ch, PRF_NOREPEAT))
+	if (GR_FLAGGED(ch, EPrf::kNoRepeat))
 		send_to_char(OK, ch);
 	else {
 		send_to_char(CCRED(ch, C_CMP), ch);
@@ -2407,7 +2407,7 @@ void do_beep(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char(NOPERSON, ch);
 	else if (ch == vict)
 		send_to_char("\007\007Вы вызвали себя!\r\n", ch);
-	else if (PRF_FLAGGED(ch, PRF_NOTELL))
+	else if (GR_FLAGGED(ch, EPrf::kNoTell))
 		send_to_char("Вы не можете пищать в режиме обращения.\r\n", ch);
 	else if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF))
 		send_to_char("Стены заглушили ваш писк.\r\n", ch);

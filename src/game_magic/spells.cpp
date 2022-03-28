@@ -317,8 +317,8 @@ void SpellTeleport(int /* level */, CharData *ch, CharData */*victim*/, ObjData 
 }
 
 void CheckAutoNosummon(CharData *ch) {
-	if (PRF_FLAGGED(ch, PRF_AUTO_NOSUMMON) && PRF_FLAGGED(ch, PRF_SUMMONABLE)) {
-		PRF_FLAGS(ch).unset(PRF_SUMMONABLE);
+	if (GR_FLAGGED(ch, EPrf::kAutonosummon) && GR_FLAGGED(ch, EPrf::KSummonable)) {
+		GR_FLAGS(ch).unset(EPrf::KSummonable);
 		send_to_char("Режим автопризыв: вы защищены от призыва.\r\n", ch);
 	}
 }
@@ -389,7 +389,7 @@ void SpellPortal(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 
 	if (victim == nullptr)
 		return;
-	if (GetRealLevel(victim) > GetRealLevel(ch) && !PRF_FLAGGED(victim, PRF_SUMMONABLE) && !same_group(ch, victim)) {
+	if (GetRealLevel(victim) > GetRealLevel(ch) && !GR_FLAGGED(victim, EPrf::KSummonable) && !same_group(ch, victim)) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
@@ -448,7 +448,7 @@ void SpellPortal(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(victim, GF_GODSCURSE)
 		// раньше было <= PK_ACTION_REVENGE, что вызывало абьюз при пенте на чара на арене,
 		// или пенте кидаемой с арены т.к. в данном случае использовалось PK_ACTION_NO которое меньше PK_ACTION_REVENGE
-		|| pkPortal || ((!IS_NPC(victim) || IS_CHARMICE(ch)) && PRF_FLAGGED(victim, PRF_SUMMONABLE))
+		|| pkPortal || ((!IS_NPC(victim) || IS_CHARMICE(ch)) && GR_FLAGGED(victim, EPrf::KSummonable))
 		|| same_group(ch, victim)) {
 		if (pkPortal) {
 			pk_increment_revenge(ch, victim);
@@ -538,7 +538,7 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 				send_to_char(SUMMON_FAIL3, ch);
 				return;
 			}
-			if (!PRF_FLAGGED(victim, PRF_SUMMONABLE) && !same_group(ch, victim)) {
+			if (!GR_FLAGGED(victim, EPrf::KSummonable) && !same_group(ch, victim)) {
 				send_to_char(SUMMON_FAIL2, ch);
 				return;
 			}
@@ -1376,7 +1376,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 //Eli закончили раздеваться.
 			MOB_FLAGS(victim).unset(MOB_AGGRESSIVE);
 			MOB_FLAGS(victim).unset(MOB_SPEC);
-			PRF_FLAGS(victim).unset(PRF_PUNCTUAL);
+			GR_FLAGS(victim).unset(EPrf::kPunctual);
 // shapirus: !train для чармисов
 			MOB_FLAGS(victim).set(MOB_NOTRAIN);
 			victim->set_skill(ESkill::kPunctual, 0);
@@ -2009,7 +2009,7 @@ void SpellFear(int/* level*/, CharData *ch, CharData *victim, ObjData* /*obj*/) 
 	}
 	if (!IS_NPC(ch) && (GetRealLevel(ch) > 10))
 		modi += (GetRealLevel(ch) - 10);
-	if (PRF_FLAGGED(ch, PRF_AWAKE))
+	if (GR_FLAGGED(ch, EPrf::kAwake))
 		modi = modi - 50;
 	if (AFF_FLAGGED(victim, EAffectFlag::AFF_BLESS))
 		modi -= 25;
@@ -2029,7 +2029,7 @@ void SpellEnergydrain(int/* level*/, CharData *ch, CharData *victim, ObjData* /*
 	}
 	if (!IS_NPC(ch) && (GetRealLevel(ch) > 10))
 		modi += (GetRealLevel(ch) - 10);
-	if (PRF_FLAGGED(ch, PRF_AWAKE))
+	if (GR_FLAGGED(ch, EPrf::kAwake))
 		modi = modi - 50;
 
 	if (ch == victim || !CalcGeneralSaving(ch, victim, ESaving::kWill, CALC_SUCCESS(modi, 33))) {
@@ -2290,7 +2290,7 @@ void SpellSummonAngel(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData
 	SET_SPELL(mob, kSpellHeal, floorf(base_heal + additional_heal_for_charisma * eff_cha));
 
 	if (mob->get_skill(ESkill::kAwake)) {
-		PRF_FLAGS(mob).set(PRF_AWAKE);
+		GR_FLAGS(mob).set(EPrf::kAwake);
 	}
 
 	GET_LIKES(mob) = 100;
@@ -2378,7 +2378,7 @@ void SpellMentalShadow(int/* level*/, CharData *ch, CharData* /*victim*/, ObjDat
 		affect_to_char(mob, af);
 	}
 	if (mob->get_skill(ESkill::kAwake)) {
-		PRF_FLAGS(mob).set(PRF_AWAKE);
+		GR_FLAGS(mob).set(EPrf::kAwake);
 	}
 	mob->set_level(GetRealLevel(ch));
 	MOB_FLAGS(mob).set(MOB_CORPSE);
@@ -3554,7 +3554,7 @@ int CheckRecipeItems(CharData *ch, int spellnum, int spelltype, int extract, con
 				sprintf(buf + strlen(buf),
 						"котор%s вспыхнул%s ярким светом.%s",
 						num > 1 ? "ые" : GET_OBJ_SUF_3(objo), num > 1 ? "и" : GET_OBJ_SUF_1(objo),
-						PRF_FLAGGED(ch, PRF_COMPACT) ? "" : "\r\n");
+						GR_FLAGGED(ch, EPrf::kCompact) ? "" : "\r\n");
 				act(buf, false, ch, nullptr, nullptr, kToChar);
 				act("$n сложил$g руны, которые вспыхнули ярким пламенем.",
 					true, ch, nullptr, nullptr, kToRoom);

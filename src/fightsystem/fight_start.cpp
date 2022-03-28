@@ -153,7 +153,7 @@ void do_kill(CharData *ch, char *argument, int cmd, int subcmd) {
 		send_to_char("Вы мазохист... :(\r\n", ch);
 		return;
 	};
-	if (IS_IMPL(vict) || PRF_FLAGGED(vict, PRF_CODERINFO)) {
+	if (IS_IMPL(vict) || GR_FLAGGED(vict, EPrf::kCoderinfo)) {
 		send_to_char("А если он вас чайником долбанет? Думай, Господи, думай!\r\n", ch);
 	} else {
 		act("Вы обратили $N3 в прах! Взглядом! Одним!", false, ch, 0, vict, kToChar);

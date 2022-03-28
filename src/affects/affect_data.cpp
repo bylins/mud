@@ -197,7 +197,7 @@ void player_affect_update() {
 		// добавлялись в чар-лист в начало списка и идут до самого чара
 		if (i->purged()
 			|| IS_NPC(i)
-			|| DeathTrap::tunnel_damage(i.get())) {
+			|| deathtrap::tunnel_damage(i.get())) {
 			return;
 		}
 
@@ -374,7 +374,7 @@ void mobile_affect_update() {
 				}
 			}
 
-			if (DeathTrap::check_death_trap(i.get())) {
+			if (deathtrap::check_death_trap(i.get())) {
 				return;
 			}
 

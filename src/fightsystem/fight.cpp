@@ -65,7 +65,7 @@ void go_autoassist(CharData *ch) {
 
 	buf2[0] = '\0';
 	for (k = ch_lider->followers; k; k = k->next) {
-		if (PRF_FLAGGED(k->ch, PRF_AUTOASSIST) &&
+		if (GR_FLAGGED(k->ch, EPrf::kAutoassist) &&
 			(IN_ROOM(k->ch) == IN_ROOM(ch)) && !k->ch->get_fighting() &&
 			(GET_POS(k->ch) == EPosition::kStand) && !CHECK_WAIT(k->ch)) {
 			// Здесь проверяем на кастеров
@@ -220,19 +220,19 @@ void set_fighting(CharData *ch, CharData *vict) {
 		}
 	}
 	if (!IS_NPC(ch) && (!ch->get_skill(ESkill::kAwake))) {
-		PRF_FLAGS(ch).unset(PRF_AWAKE);
+		GR_FLAGS(ch).unset(EPrf::kAwake);
 	}
 
 	if (!IS_NPC(ch) && (!ch->get_skill(ESkill::kPunctual))) {
-		PRF_FLAGS(ch).unset(PRF_PUNCTUAL);
+		GR_FLAGS(ch).unset(EPrf::kPunctual);
 	}
 
 	// Set combat style
 	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_COURAGE) && !AFF_FLAGGED(ch, EAffectFlag::AFF_DRUNKED)
 		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_ABSTINENT)) {
-		if (PRF_FLAGGED(ch, PRF_PUNCTUAL))
+		if (GR_FLAGGED(ch, EPrf::kPunctual))
 			SET_AF_BATTLE(ch, kEafPunctual);
-		else if (PRF_FLAGGED(ch, PRF_AWAKE))
+		else if (GR_FLAGGED(ch, EPrf::kAwake))
 			SET_AF_BATTLE(ch, kEafAwake);
 	}
 
@@ -295,8 +295,8 @@ void stop_fighting(CharData *ch, int switch_others) {
 
 		update_pos(ch);
 		// проверка скилла "железный ветер" - снимаем флаг по окончанию боя
-		if ((ch->get_fighting() == nullptr) && PRF_FLAGS(ch).get(PRF_IRON_WIND)) {
-			PRF_FLAGS(ch).unset(PRF_IRON_WIND);
+		if ((ch->get_fighting() == nullptr) && GR_FLAGS(ch).get(EPrf::kIronWind)) {
+			GR_FLAGS(ch).unset(EPrf::kIronWind);
 			if (GET_POS(ch) > EPosition::kIncap) {
 				send_to_char("Безумие боя отпустило вас, и враз навалилась усталость...\r\n", ch);
 				act("$n шумно выдохнул$g и остановил$u, переводя дух после боя.",
@@ -831,7 +831,7 @@ CharData *find_target(CharData *ch) {
 		if ((IS_NPC(vict) && !IS_CHARMICE(vict))
 			|| (IS_CHARMICE(vict) && !vict->get_fighting()
 				&& find_master_charmice(vict)) // чармиса агрим только если нет хозяина в руме.
-			|| PRF_FLAGGED(vict, PRF_NOHASSLE)
+			|| GR_FLAGGED(vict, EPrf::kNohassle)
 			|| !MAY_SEE(ch, ch, vict)) {
 			continue;
 		}
@@ -1213,7 +1213,7 @@ void check_mob_helpers() {
 			|| AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
 			|| AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE)
 			|| AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)
-			|| PRF_FLAGGED(ch->get_fighting(), PRF_NOHASSLE)) {
+			|| GR_FLAGGED(ch->get_fighting(), EPrf::kNohassle)) {
 			continue;
 		}
 		summon_mob_helpers(ch);

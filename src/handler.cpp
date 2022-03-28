@@ -361,7 +361,7 @@ void char_to_room(CharData *ch, RoomRnum room) {
 	EXTRA_FLAGS(ch).unset(EXTRA_FAILHIDE);
 	EXTRA_FLAGS(ch).unset(EXTRA_FAILSNEAK);
 	EXTRA_FLAGS(ch).unset(EXTRA_FAILCAMOUFLAGE);
-	if (PRF_FLAGGED(ch, PRF_CODERINFO)) {
+	if (GR_FLAGGED(ch, EPrf::kCoderinfo)) {
 		sprintf(buf,
 				"%sКомната=%s%d %sСвет=%s%d %sОсвещ=%s%d %sКостер=%s%d %sЛед=%s%d "
 				"%sТьма=%s%d %sСолнце=%s%d %sНебо=%s%d %sЛуна=%s%d%s.\r\n",
@@ -393,7 +393,7 @@ void char_to_room(CharData *ch, RoomRnum room) {
 
 	// report room changing
 	if (ch->desc) {
-		if (!(IS_DARK(ch->in_room) && !PRF_FLAGGED(ch, PRF_HOLYLIGHT)))
+		if (!(IS_DARK(ch->in_room) && !GR_FLAGGED(ch, EPrf::kHolylight)))
 			ch->desc->msdp_report("ROOM");
 	}
 
@@ -427,7 +427,7 @@ void char_flee_to_room(CharData *ch, RoomRnum room) {
 	EXTRA_FLAGS(ch).unset(EXTRA_FAILHIDE);
 	EXTRA_FLAGS(ch).unset(EXTRA_FAILSNEAK);
 	EXTRA_FLAGS(ch).unset(EXTRA_FAILCAMOUFLAGE);
-	if (PRF_FLAGGED(ch, PRF_CODERINFO)) {
+	if (GR_FLAGGED(ch, EPrf::kCoderinfo)) {
 		sprintf(buf,
 				"%sКомната=%s%d %sСвет=%s%d %sОсвещ=%s%d %sКостер=%s%d %sЛед=%s%d "
 				"%sТьма=%s%d %sСолнце=%s%d %sНебо=%s%d %sЛуна=%s%d%s.\r\n",
@@ -460,7 +460,7 @@ void char_flee_to_room(CharData *ch, RoomRnum room) {
 	// небольшой перегиб. когда сбегаешь то ты теряешься в ориентации а тут нате все видно
 //	if (ch->desc)
 //	{
-//		if (!(IS_DARK(ch->in_room) && !PRF_FLAGGED(ch, PRF_HOLYLIGHT)))
+//		if (!(IS_DARK(ch->in_room) && !EPrf::FLAGGED(ch, EPrf::HOLYLIGHT)))
 //			ch->desc->msdp_report("ROOM");
 //	}
 
@@ -2809,7 +2809,7 @@ int get_player_charms(CharData *ch, int spellnum) {
 		r_hp *= remort_coeff;
 	}
 
-	if (PRF_FLAGGED(ch, PRF_TESTER))
+	if (GR_FLAGGED(ch, EPrf::kTester))
 		send_to_char(ch, "&Gget_player_charms Расчет чарма r_hp = %f \r\n&n", r_hp);
 	return (int) r_hp;
 }

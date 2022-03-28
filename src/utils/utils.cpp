@@ -1615,7 +1615,7 @@ void add(int zone_vnum, long exp) {
 }
 
 void print_gain(CharData *ch) {
-	if (!PRF_FLAGGED(ch, PRF_CODERINFO)) {
+	if (!GR_FLAGGED(ch, EPrf::kCoderinfo)) {
 		send_to_char(ch, "Пока в разработке.\r\n");
 		return;
 	}
@@ -1974,7 +1974,7 @@ size_t strlen_no_colors(const char *str) {
 // Симуляция телла от моба
 void tell_to_char(CharData *keeper, CharData *ch, const char *arg) {
 	char local_buf[kMaxInputLength];
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS) || PRF_FLAGGED(ch, PRF_NOTELL)) {
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS) || GR_FLAGGED(ch, EPrf::kNoTell)) {
 		sprintf(local_buf, "жестами показал$g на свой рот и уши. Ну его, болезного ..");
 		do_echo(keeper, local_buf, 0, SCMD_EMOTE);
 		return;

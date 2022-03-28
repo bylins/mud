@@ -1268,11 +1268,11 @@ void message_exchange(char *message, CharData *ch, ExchangeItem *j) {
 		if (STATE(i) == CON_PLAYING
 			&& (!ch || i != ch->desc)
 			&& i->character
-			&& !PRF_FLAGGED(i->character, PRF_NOEXCHANGE)
+			&& !GR_FLAGGED(i->character, EPrf::kNoExchange)
 			&& !PLR_FLAGGED(i->character, PLR_WRITING)
 			&& !ROOM_FLAGGED(IN_ROOM(i->character), ROOM_SOUNDPROOF)
 			&& GET_POS(i->character) > EPosition::kSleep) {
-			if (!PRF_FLAGGED(i->character, PRF_NOINGR_MODE)
+			if (!GR_FLAGGED(i->character, EPrf::kNoIngrMode)
 				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ObjData::ITEM_INGREDIENT
 					|| GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ObjData::ITEM_MING)) {
 				continue;

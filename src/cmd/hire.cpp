@@ -150,7 +150,7 @@ int get_reformed_charmice_hp(CharData *ch, CharData *victim, int spellnum) {
 			((1 - eff_cha + (int) eff_cha) * cha_app[(int) eff_cha].dam_to_hit_rate);
 	}
 
-	if (PRF_FLAGGED(ch, PRF_TESTER))
+	if (GR_FLAGGED(ch, EPrf::kTester))
 		send_to_char(ch, "&Gget_reformed_charmice_hp Расчет чарма r_hp = %f \r\n&n", r_hp);
 	return (int) r_hp;
 }
@@ -317,7 +317,7 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 			MOB_FLAGS(helpee).unset(MOB_AGGRESSIVE);
 			MOB_FLAGS(helpee).unset(MOB_SPEC);
-			PRF_FLAGS(helpee).unset(PRF_PUNCTUAL);
+			GR_FLAGS(helpee).unset(EPrf::kPunctual);
 			MOB_FLAGS(helpee).set(MOB_NOTRAIN);
 			helpee->set_skill(ESkill::kPunctual, 0);
 			ch->updateCharmee(GET_MOB_VNUM(helpee), cost);

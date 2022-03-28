@@ -136,8 +136,8 @@ void do_style(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!*arg) {
 		send_to_char(ch, "Вы сражаетесь %s стилем.\r\n",
-					 PRF_FLAGS(ch).get(PRF_PUNCTUAL) ? "точным" : PRF_FLAGS(ch).get(PRF_AWAKE) ? "осторожным"
-																							   : "обычным");
+					 GR_FLAGS(ch).get(EPrf::kPunctual) ? "точным" : GR_FLAGS(ch).get(EPrf::kAwake) ? "осторожным"
+																								   : "обычным");
 		return;
 	}
 	if (TryFlipActivatedFeature(ch, argument)) {
@@ -156,14 +156,14 @@ void do_style(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	switch (tp) {
 		case 0:
 		case 1:
-		case 2:PRF_FLAGS(ch).unset(PRF_PUNCTUAL);
-			PRF_FLAGS(ch).unset(PRF_AWAKE);
+		case 2:GR_FLAGS(ch).unset(EPrf::kPunctual);
+			GR_FLAGS(ch).unset(EPrf::kAwake);
 
 			if (tp == 1) {
-				PRF_FLAGS(ch).set(PRF_PUNCTUAL);
+				GR_FLAGS(ch).set(EPrf::kPunctual);
 			}
 			if (tp == 2) {
-				PRF_FLAGS(ch).set(PRF_AWAKE);
+				GR_FLAGS(ch).set(EPrf::kAwake);
 			}
 
 			if (ch->get_fighting() && !(AFF_FLAGGED(ch, EAffectFlag::AFF_COURAGE) ||

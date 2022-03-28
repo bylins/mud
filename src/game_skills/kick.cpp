@@ -23,7 +23,7 @@ void go_kick(CharData *ch, CharData *vict) {
 	vict = TryToFindProtector(vict, ch);
 
 	bool success = false;
-	if (PRF_FLAGGED(ch, PRF_TESTER)) {
+	if (GR_FLAGGED(ch, EPrf::kTester)) {
 		SkillRollResult result = MakeSkillTest(ch, ESkill::kKick, vict);
 		success = result.success;
 	} else {

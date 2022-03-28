@@ -157,7 +157,7 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 				save = 1;
 				number = atoi(buf2) * 100;
 			}
-		} else if (subcmd == SCMD_OLC_ZEDIT && (GetRealLevel(ch) >= kLvlBuilder || PRF_FLAGGED(ch, PRF_CODERINFO))) {
+		} else if (subcmd == SCMD_OLC_ZEDIT && (GetRealLevel(ch) >= kLvlBuilder || GR_FLAGGED(ch, EPrf::kCoderinfo))) {
 			send_to_char("Создание новых зон отключено.\r\n", ch);
 			return;
 			/*

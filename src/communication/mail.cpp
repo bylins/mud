@@ -161,7 +161,7 @@ void postmaster_send_mail(CharData *ch, CharData *mailman, int/* cmd*/, char *ar
 	int cost;
 	char buf[256];
 
-	IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO) ? cost = 0 : cost = STAMP_PRICE;
+	IS_IMMORTAL(ch) || GR_FLAGGED(ch, EPrf::kCoderinfo) ? cost = 0 : cost = STAMP_PRICE;
 
 	if (GetRealLevel(ch) < MIN_MAIL_LEVEL) {
 		sprintf(buf,

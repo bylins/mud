@@ -19,7 +19,7 @@ void go_bash(CharData *ch, CharData *vict) {
 		return;
 	};
 
-	if (PRF_FLAGS(ch).get(PRF_IRON_WIND)) {
+	if (GR_FLAGS(ch).get(EPrf::kIronWind)) {
 		send_to_char("Вы не можете применять этот прием в таком состоянии!\r\n", ch);
 		return;
 	}
@@ -72,7 +72,7 @@ void go_bash(CharData *ch, CharData *vict) {
 		if ((GET_AF_BATTLE(vict, kEafBlock)
 			|| (can_use_feat(vict, DEFENDER_FEAT)
 				&& GET_EQ(vict, kShield)
-				&& PRF_FLAGGED(vict, PRF_AWAKE)
+				&& GR_FLAGGED(vict, EPrf::kAwake)
 				&& vict->get_skill(ESkill::kAwake)
 				&& vict->get_skill(ESkill::kShieldBlock)
 				&& GET_POS(vict) > EPosition::kSit))

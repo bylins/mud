@@ -1017,7 +1017,7 @@ void do_map(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch)) {
 		return;
 	}
-	if (PRF_FLAGGED(ch, PRF_BLIND)) {
+	if (GR_FLAGGED(ch, EPrf::kBlindMode)) {
 		send_to_char("В режиме слепого игрока карта недоступна.\r\n", ch);
 		return;
 	} else if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {

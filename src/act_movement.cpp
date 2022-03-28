@@ -81,8 +81,8 @@ int check_death_ice(int room, CharData * /*ch*/) {
 
 		world[room]->weather.icelevel = 0;
 		world[room]->ices = 2;
-		GET_ROOM(room)->set_flag(ROOM_ICEDEATH);
-		DeathTrap::add(world[room]);
+		world[room]->set_flag(ROOM_ICEDEATH);
+		deathtrap::add(world[room]);
 	} else {
 		return (false);
 	}
@@ -343,7 +343,7 @@ int legal_dir(CharData *ch, int dir, int need_specials_check, int show_msg) {
 	}
 
 	// не пускать в ванрумы после пк, если его там прибьет сразу
-	if (DeathTrap::check_tunnel_death(ch, EXIT(ch, dir)->to_room())) {
+	if (deathtrap::check_tunnel_death(ch, EXIT(ch, dir)->to_room())) {
 		if (show_msg) {
 			send_to_char("В связи с боевыми действиями эвакуация временно прекращена.\r\n", ch);
 		}
@@ -730,7 +730,7 @@ int do_simple_move(CharData *ch, int dir, int need_specials_check, CharData *lea
 		char_to_room(horse, go_to);
 	}
 
-	if (PRF_FLAGGED(ch, PRF_BLIND)) {
+	if (GR_FLAGGED(ch, EPrf::kBlindMode)) {
 		for (int i = 0; i < kDirMaxNumber; i++) {
 			if (CAN_GO(ch, i)
 				|| (EXIT(ch, i)
@@ -792,7 +792,7 @@ int do_simple_move(CharData *ch, int dir, int need_specials_check, CharData *lea
 	if (!IS_NPC(ch))
 		room_affect_process_on_entry(ch, ch->in_room);
 
-	if (DeathTrap::check_death_trap(ch)) {
+	if (deathtrap::check_death_trap(ch)) {
 		if (horse) {
 			extract_char(horse, false);
 		}
@@ -803,7 +803,7 @@ int do_simple_move(CharData *ch, int dir, int need_specials_check, CharData *lea
 		return (false);
 	}
 
-	if (DeathTrap::tunnel_damage(ch)) {
+	if (deathtrap::tunnel_damage(ch)) {
 		return (false);
 	}
 
@@ -1518,7 +1518,7 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					return;
 				}
 				// не пускать в ванрумы после пк, если его там прибьет сразу
-				if (DeathTrap::check_tunnel_death(ch, door)) {
+				if (deathtrap::check_tunnel_death(ch, door)) {
 					send_to_char("В связи с боевыми действиями эвакуация временно прекращена.\r\n", ch);
 					return;
 				}

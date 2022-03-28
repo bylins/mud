@@ -651,7 +651,7 @@ int other_pc_in_group(CharData *ch) {
 }
 
 void split_or_clan_tax(CharData *ch, long amount) {
-	if (IS_AFFECTED(ch, AFF_GROUP) && (other_pc_in_group(ch) > 0) && PRF_FLAGGED(ch, PRF_AUTOSPLIT)) {
+	if (IS_AFFECTED(ch, AFF_GROUP) && (other_pc_in_group(ch) > 0) && GR_FLAGGED(ch, EPrf::kAutosplit)) {
 		char buf_[kMaxInputLength];
 		snprintf(buf_, sizeof(buf_), "%ld", amount);
 		do_split(ch, buf_, 0, 0);
@@ -701,7 +701,7 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 
 	// все, что делится на группу - идет через налог (из кошельков не делится)
 	if (IS_AFFECTED(ch, AFF_GROUP) && other_pc_in_group(ch) > 0
-		&& PRF_FLAGGED(ch, PRF_AUTOSPLIT)
+		&& GR_FLAGGED(ch, EPrf::kAutosplit)
 		&& (!cont || !system_obj::is_purse(cont))) {
 		// добавляем бабло, пишем в лог, клан-налог снимаем
 		// только по факту деления на группу в do_split()
@@ -821,7 +821,7 @@ void get_from_container(CharData *ch, ObjData *cont, char *arg, int mode, int ho
 				if (autoloot
 					&& (GET_OBJ_TYPE(obj) == ObjData::ITEM_INGREDIENT
 						|| GET_OBJ_TYPE(obj) == ObjData::ITEM_MING)
-					&& PRF_FLAGGED(ch, PRF_NOINGR_LOOT)) {
+					&& GR_FLAGGED(ch, EPrf::kNoIngrLoot)) {
 					continue;
 				}
 				found = 1;
@@ -2611,7 +2611,7 @@ void do_extinguish(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (aff_i != room->affected.end()
 				&& (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_MAGIC)
 					|| IS_IMMORTAL(ch)
-					|| PRF_FLAGGED(ch, PRF_CODERINFO))) {
+					|| GR_FLAGGED(ch, EPrf::kCoderinfo))) {
 				send_to_char("Шаркнув несколько раз по земле, вы стерли светящуюся надпись.\r\n", ch);
 				act("$n шаркнул$g несколько раз по светящимся рунам, полностью их уничтожив.",
 					false,
@@ -2701,7 +2701,7 @@ void do_firstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			&& can_use_feat(ch, HEALER_FEAT))) {
 		need = true;
 		if (success) {
-			if (!PRF_FLAGGED(ch, PRF_TESTER)) {
+			if (!GR_FLAGGED(ch, EPrf::kTester)) {
 				int dif = GET_REAL_MAX_HIT(vict) - GET_HIT(vict);
 				int add = MIN(dif, (dif * (prob - percent) / 100) + 1);
 				GET_HIT(vict) += add;
@@ -2717,7 +2717,7 @@ void do_firstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	int count = 0;
-	if (PRF_FLAGGED(ch, PRF_TESTER)) {
+	if (GR_FLAGGED(ch, EPrf::kTester)) {
 		count = (GET_SKILL(ch, ESkill::kFirstAid) - 20) / 30;
 		send_to_char(ch, "Снимаю %d аффектов\r\n", count);
 

@@ -12,8 +12,6 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-/*#include "interpreter.h"
-#include "constants.h"*/
 #include "handler.h"
 #include "utils/random.h"
 #include "structs/global_objects.h"
@@ -41,8 +39,8 @@ struct bfs_queue_struct {
 #define EDGE_WORLD  2
 
 // Utility macros
-#define MARK(room)    (GET_ROOM(room)->set_flag(ROOM_BFS_MARK))
-#define UNMARK(room)    (GET_ROOM(room)->unset_flag(ROOM_BFS_MARK))
+#define MARK(room)    (world[room]->set_flag(ROOM_BFS_MARK))
+#define UNMARK(room)    (world[room]->unset_flag(ROOM_BFS_MARK))
 #define IS_MARKED(room)    (ROOM_FLAGGED(room, ROOM_BFS_MARK))
 #define TOROOM(x, y)    (world[(x)]->dir_option[(y)]->to_room())
 #define IS_CLOSED(x, y)    (EXIT_FLAGGED(world[(x)]->dir_option[(y)], EX_CLOSED))

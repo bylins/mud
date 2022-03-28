@@ -475,7 +475,7 @@ void message_auction(char *message, CharData *ch) {
 		if (STATE(i) == CON_PLAYING &&
 			(!ch || i != ch->desc) &&
 			i->character &&
-			!PRF_FLAGGED(i->character, PRF_NOAUCT) &&
+			!GR_FLAGGED(i->character, EPrf::kNoAuction) &&
 			!PLR_FLAGGED(i->character, PLR_WRITING) &&
 			!ROOM_FLAGGED(IN_ROOM(i->character), ROOM_SOUNDPROOF) && GET_POS(i->character) > EPosition::kSleep) {
 			if (COLOR_LEV(i->character) >= C_NRM) {

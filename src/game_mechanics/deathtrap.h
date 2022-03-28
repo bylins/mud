@@ -15,7 +15,7 @@ struct RoomData;    // forward declaration to avoid inclusion of room.hpp and an
 * Список слоу-дт (включая проваливание под лед), чтобы не гонять каждые 2 секунды по 64к комнатам.
 * Добавлние/удаление при ребуте, правке в олц и проваливанию под лед
 */
-namespace DeathTrap {
+namespace deathtrap {
 
 // Инициализация списка при загрузке мада или редактирования комнат в олц
 void load();
@@ -28,7 +28,7 @@ void activity();
 // Обработка обычных дт
 int check_death_trap(CharData *ch);
 // Проверка комнаты на принадлежность к медленным дт
-bool is_slow_dt(int rnum);
+bool IsSlowDeathtrap(int rnum);
 // \return true - чара может сразу убить при входе в ванрум
 bool check_tunnel_death(CharData *ch, int room_rnum);
 // Дамаг чаров с бд в ван-румах, \return true - чара убили

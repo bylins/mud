@@ -685,7 +685,7 @@ void init() {
 
 // проверка, мешает ли что-то чару уйти в реморт
 bool can_remort_now(CharData *ch) {
-	if (PRF_FLAGGED(ch, PRF_CAN_REMORT) || !need_torc(ch)) {
+	if (GR_FLAGGED(ch, EPrf::kCanRemort) || !need_torc(ch)) {
 		return true;
 	}
 	return false;
@@ -765,7 +765,7 @@ namespace {
 void donat_torc(CharData *ch, const std::string &mob_name, unsigned type, int amount) {
 	const int balance = ch->get_ext_money(type) - amount;
 	ch->set_ext_money(type, balance);
-	PRF_FLAGS(ch).set(PRF_CAN_REMORT);
+	GR_FLAGS(ch).set(EPrf::kCanRemort);
 
 	send_to_char(ch, "Вы пожертвовали %d %s %s.\r\n",
 				 amount, desc_count(amount, type_list[type].DESC_MESSAGE_NUM),
@@ -838,7 +838,7 @@ int torc(CharData *ch, void *me, int cmd, char * /*argument*/) {
 			// от чара для реморта ничего не требуется
 			send_to_char(
 				"Вам не нужно подтверждать свое право на перевоплощение, просто наберите 'перевоплотиться'.\r\n", ch);
-		} else if (PRF_FLAGGED(ch, PRF_CAN_REMORT)) {
+		} else if (GR_FLAGGED(ch, EPrf::kCanRemort)) {
 			// чар на этом морте уже жертвовал необходимое кол-во гривен
 			if (GET_GOD_FLAG(ch, GF_REMORT)) {
 				send_to_char(

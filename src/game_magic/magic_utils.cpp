@@ -86,7 +86,7 @@ void SaySpell(CharData *ch, int spellnum, CharData *tch, ObjData *tobj) {
 		}
 	} else {
 		//если включен режим без повторов (подавление ехо) не показываем
-		if (PRF_FLAGGED(ch, PRF_NOREPEAT)) {
+		if (GR_FLAGGED(ch, EPrf::kNoRepeat)) {
 			if (!ch->get_fighting()) //если персонаж не в бою, шлем строчку, если в бою ничего не шлем
 				send_to_char(OK, ch);
 		} else {
@@ -644,7 +644,7 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, int s
 		GET_SPELL_MEM(ch, spell_subst) = 0;
 	}
 	// если включен автомем
-	if (!IS_NPC(ch) && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, PRF_AUTOMEM)) {
+	if (!IS_NPC(ch) && !IS_IMMORTAL(ch) && GR_FLAGGED(ch, EPrf::kAutomem)) {
 		MemQ_remember(ch, spell_subst);
 	}
 	// если НПЦ - уменьшаем его макс.количество кастуемых спеллов

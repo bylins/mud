@@ -251,9 +251,9 @@ void redit_save_internally(DescriptorData *d) {
 	// а вот в случае удаления надо будет обновлять указатели для списка слоу-дт и врат
 	if (ROOM_FLAGGED(room_num, ROOM_SLOWDEATH)
 		|| ROOM_FLAGGED(room_num, ROOM_ICEDEATH)) {
-		DeathTrap::add(world[room_num]);
+		deathtrap::add(world[room_num]);
 	} else {
-		DeathTrap::remove(world[room_num]);
+		deathtrap::remove(world[room_num]);
 	}
 
 	// Настало время добавить триггеры

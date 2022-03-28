@@ -143,7 +143,7 @@ void do_cast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		if (GET_SPELL_MEM(ch, spell_subst)) {
 			GET_SPELL_MEM(ch, spell_subst)--;
 		}
-		if (!IS_NPC(ch) && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, PRF_AUTOMEM))
+		if (!IS_NPC(ch) && !IS_IMMORTAL(ch) && GR_FLAGGED(ch, EPrf::kAutomem))
 			MemQ_remember(ch, spell_subst);
 		//log("[DO_CAST->AFFECT_TOTAL] Start");
 		affect_total(ch);

@@ -70,7 +70,7 @@ int compute_armor_class(CharData *ch) {
 		armorclass -= (240 * ((GET_REAL_MAX_HIT(ch) / 2) - GET_HIT(ch)) / GET_REAL_MAX_HIT(ch));
 	}
 
-	if (PRF_FLAGS(ch).get(PRF_IRON_WIND)) {
+	if (GR_FLAGS(ch).get(EPrf::kIronWind)) {
 		armorclass += ch->get_skill(ESkill::kIronwind) / 2;
 	}
 
@@ -1754,7 +1754,7 @@ void Damage::dam_message(CharData *ch, CharData *victim) const {
 
 	// damage message to damager
 	send_to_char(ch, "%s", dam ? "&Y&q" : "&y&q");
-	if (!brief_shields_.empty() && PRF_FLAGGED(ch, PRF_BRIEF_SHIELDS)) {
+	if (!brief_shields_.empty() && GR_FLAGGED(ch, EPrf::kBriefShields)) {
 		char buf_[kMaxInputLength];
 		snprintf(buf_, sizeof(buf_), "%s%s",
 				 replace_string(dam_weapons[dam_msgnum].to_char,
@@ -1770,7 +1770,7 @@ void Damage::dam_message(CharData *ch, CharData *victim) const {
 
 	// damage message to damagee
 	send_to_char("&R&q", victim);
-	if (!brief_shields_.empty() && PRF_FLAGGED(victim, PRF_BRIEF_SHIELDS)) {
+	if (!brief_shields_.empty() && GR_FLAGGED(victim, EPrf::kBriefShields)) {
 		char buf_[kMaxInputLength];
 		snprintf(buf_, sizeof(buf_), "%s%s",
 				 replace_string(dam_weapons[dam_msgnum].to_victim,
@@ -1932,7 +1932,7 @@ void Damage::armor_dam_reduce(CharData *victim) {
 		if (!flags[fight::kCritHit] && !flags[fight::kIgnoreArmor]) {
 			// 50 брони = 50% снижение дамага
 			int max_armour = 50;
-			if (can_use_feat(victim, IMPREGNABLE_FEAT) && PRF_FLAGS(victim).get(PRF_AWAKE)) {
+			if (can_use_feat(victim, IMPREGNABLE_FEAT) && GR_FLAGS(victim).get(EPrf::kAwake)) {
 				// непробиваемый в осторожке - до 75 брони
 				max_armour = 75;
 			}
@@ -1960,7 +1960,7 @@ bool Damage::dam_absorb(CharData *ch, CharData *victim) {
 		// шансы поглощения: непробиваемый в осторожке 15%, остальные 10%
 		int chance = 10 + GET_REAL_REMORT(victim) / 3;
 		if (can_use_feat(victim, IMPREGNABLE_FEAT)
-			&& PRF_FLAGS(victim).get(PRF_AWAKE)) {
+			&& GR_FLAGS(victim).get(EPrf::kAwake)) {
 			chance += 5;
 		}
 		// физ урон - прямое вычитание из дамага
@@ -2159,7 +2159,7 @@ void Damage::process_death(CharData *ch, CharData *victim) {
 	// в файл пишутся все смерти чаров
 	// если чар убит палачем то тоже не спамим
 
-	if (!IS_NPC(victim) && !(killer && PRF_FLAGGED(killer, PRF_EXECUTOR))) {
+	if (!IS_NPC(victim) && !(killer && GR_FLAGGED(killer, EPrf::kExecutor))) {
 		update_pk_logs(ch, victim);
 
 		for (const auto &ch_vict : world[ch->in_room]->people) {
@@ -3014,13 +3014,13 @@ void HitData::calc_base_hr(CharData *ch) {
 	}
 
 	// Учет мощной и прицельной атаки
-	if (PRF_FLAGGED(ch, PRF_POWERATTACK) && can_use_feat(ch, POWER_ATTACK_FEAT)) {
+	if (GR_FLAGGED(ch, EPrf::kPowerAttack) && can_use_feat(ch, POWER_ATTACK_FEAT)) {
 		calc_thaco += 2;
-	} else if (PRF_FLAGGED(ch, PRF_GREATPOWERATTACK) && can_use_feat(ch, GREAT_POWER_ATTACK_FEAT)) {
+	} else if (GR_FLAGGED(ch, EPrf::kGreatPowerAttack) && can_use_feat(ch, GREAT_POWER_ATTACK_FEAT)) {
 		calc_thaco += 4;
-	} else if (PRF_FLAGGED(ch, PRF_AIMINGATTACK) && can_use_feat(ch, AIMING_ATTACK_FEAT)) {
+	} else if (GR_FLAGGED(ch, EPrf::kAimingAttack) && can_use_feat(ch, AIMING_ATTACK_FEAT)) {
 		calc_thaco -= 2;
-	} else if (PRF_FLAGGED(ch, PRF_GREATAIMINGATTACK) && can_use_feat(ch, GREAT_AIMING_ATTACK_FEAT)) {
+	} else if (GR_FLAGGED(ch, EPrf::kGreatAimingAttack) && can_use_feat(ch, GREAT_AIMING_ATTACK_FEAT)) {
 		calc_thaco -= 4;
 	}
 
@@ -3372,7 +3372,7 @@ void HitData::calc_crit_chance(CharData *ch) {
 	}
 }
 int HitData::calc_damage(CharData *ch, bool need_dice) {
-	if (PRF_FLAGGED(ch, PRF_EXECUTOR)) {
+	if (GR_FLAGGED(ch, EPrf::kExecutor)) {
 		send_to_char(ch, "&YСкилл: %s. Дамага без бонусов == %d&n\r\n", MUD::Skills()[weap_skill].GetName(), dam);
 	}
 	if (ch->get_skill(weap_skill) == 0) {
@@ -3383,20 +3383,20 @@ int HitData::calc_damage(CharData *ch, bool need_dice) {
 	}
 	if (ch->get_skill(weap_skill) >= 60) { //от уровня скилла
 		dam += ((ch->get_skill(weap_skill) - 50) / 10);
-		if (PRF_FLAGGED(ch, PRF_EXECUTOR))
+		if (GR_FLAGGED(ch, EPrf::kExecutor))
 			send_to_char(ch, "&YДамага с уровнем скилла == %d&n\r\n", dam);
 	}
 	// Учет мощной и прицельной атаки
-	if (PRF_FLAGGED(ch, PRF_POWERATTACK) && can_use_feat(ch, POWER_ATTACK_FEAT)) {
+	if (GR_FLAGGED(ch, EPrf::kPowerAttack) && can_use_feat(ch, POWER_ATTACK_FEAT)) {
 		dam += 5;
-	} else if (PRF_FLAGGED(ch, PRF_GREATPOWERATTACK) && can_use_feat(ch, GREAT_POWER_ATTACK_FEAT)) {
+	} else if (GR_FLAGGED(ch, EPrf::kGreatPowerAttack) && can_use_feat(ch, GREAT_POWER_ATTACK_FEAT)) {
 		dam += 10;
-	} else if (PRF_FLAGGED(ch, PRF_AIMINGATTACK) && can_use_feat(ch, AIMING_ATTACK_FEAT)) {
+	} else if (GR_FLAGGED(ch, EPrf::kAimingAttack) && can_use_feat(ch, AIMING_ATTACK_FEAT)) {
 		dam -= 5;
-	} else if (PRF_FLAGGED(ch, PRF_GREATAIMINGATTACK) && can_use_feat(ch, GREAT_AIMING_ATTACK_FEAT)) {
+	} else if (GR_FLAGGED(ch, EPrf::kGreatAimingAttack) && can_use_feat(ch, GREAT_AIMING_ATTACK_FEAT)) {
 		dam -= 10;
 	}
-	if (PRF_FLAGGED(ch, PRF_EXECUTOR))
+	if (GR_FLAGGED(ch, EPrf::kExecutor))
 		send_to_char(ch, "&YДамага с учетом перков мощная-улучш == %d&n\r\n", dam);
 	// courage
 	if (affected_by_spell(ch, kSpellCourage)) {
@@ -3404,7 +3404,7 @@ int HitData::calc_damage(CharData *ch, bool need_dice) {
 		int prob = CalcCurrentSkill(ch, ESkill::kCourage, ch);
 		if (prob > range) {
 			dam += ((ch->get_skill(ESkill::kCourage) + 19) / 20);
-		if (PRF_FLAGGED(ch, PRF_EXECUTOR))
+		if (GR_FLAGGED(ch, EPrf::kExecutor))
 			send_to_char(ch, "&YДамага с бухлом == %d&n\r\n", dam);
 		}
 	}
@@ -3418,11 +3418,11 @@ int HitData::calc_damage(CharData *ch, bool need_dice) {
 	// обработка по факту попадания
 	if (skill_num < ESkill::kIncorrect) {
 		dam += GetAutoattackDamroll(ch, ch->get_skill(weap_skill));
-	if (PRF_FLAGGED(ch, PRF_EXECUTOR))
+	if (GR_FLAGGED(ch, EPrf::kExecutor))
 		send_to_char(ch, "&YДамага +дамролы автоатаки == %d&n\r\n", dam);
 	} else {
 		dam += GetRealDamroll(ch);
-		if (PRF_FLAGGED(ch, PRF_EXECUTOR))
+		if (GR_FLAGGED(ch, EPrf::kExecutor))
 			send_to_char(ch, "&YДамага +дамролы скилла== %d&n\r\n", dam);
 	}
 	if (can_use_feat(ch, SHOT_FINESSE_FEAT)) {
@@ -3430,16 +3430,16 @@ int HitData::calc_damage(CharData *ch, bool need_dice) {
 	} else {
 		dam += str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
 	}
-	if (PRF_FLAGGED(ch, PRF_EXECUTOR))
+	if (GR_FLAGGED(ch, EPrf::kExecutor))
 		send_to_char(ch, "&YДамага с бонусами от силы или ловкости == %d str_bonus == %d str == %d&n\r\n", dam, str_bonus(GET_REAL_STR(ch), STR_TO_DAM), GET_REAL_STR(ch));
 	// оружие/руки и модификаторы урона скилов, с ними связанных
 	if (wielded && GET_OBJ_TYPE(wielded) == ObjData::ITEM_WEAPON) {
 		add_weapon_damage(ch, need_dice);
-		if (PRF_FLAGGED(ch, PRF_EXECUTOR))
+		if (GR_FLAGGED(ch, EPrf::kExecutor))
 			send_to_char(ch, "&YДамага +кубики оружия дамага == %d вооружен %s vnum %d&n\r\n", dam, GET_OBJ_PNAME(wielded,1).c_str(), GET_OBJ_VNUM(wielded));
 		if (GET_EQ(ch, EEquipPos::kBoths) && weap_skill != ESkill::kBows) { //двуруч множим на 2
 			dam *= 2;
-		if (PRF_FLAGGED(ch, PRF_EXECUTOR))
+		if (GR_FLAGGED(ch, EPrf::kExecutor))
 			send_to_char(ch, "&YДамага двуручем множим на 2 == %d&n\r\n", dam);
 		}
 		// скрытый удар
@@ -3457,27 +3457,27 @@ int HitData::calc_damage(CharData *ch, bool need_dice) {
 			} else {
 				dam += round_dam * MIN(3, ROUND_COUNTER(ch));
 			}
-			if (PRF_FLAGGED(ch, PRF_EXECUTOR))
+			if (GR_FLAGGED(ch, EPrf::kExecutor))
 				send_to_char(ch, "&YДамага от скрытого удара == %d&n\r\n", dam);
 		}
 	} else {
 		add_hand_damage(ch, need_dice);
-		if (PRF_FLAGGED(ch, PRF_EXECUTOR))
+		if (GR_FLAGGED(ch, EPrf::kExecutor))
 			send_to_char(ch, "&YДамага руками == %d&n\r\n", dam);
 	}
-	if (PRF_FLAGGED(ch, PRF_EXECUTOR))
+	if (GR_FLAGGED(ch, EPrf::kExecutor))
 		send_to_char(ch, "&YДамага после расчета руки или оружия == %d&n\r\n", dam);
 
 	if (GET_AF_BATTLE(ch, kEafIronWind)) {
 		dam += ch->get_skill(ESkill::kIronwind) / 2;
-		if (PRF_FLAGGED(ch, PRF_EXECUTOR))
+		if (GR_FLAGGED(ch, EPrf::kExecutor))
 			send_to_char(ch, "&YДамага после расчета железного ветра == %d&n\r\n", dam);
 	}
 
 	if (affected_by_spell(ch, kSpellBerserk)) {
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_BERSERK)) {
 			dam = (dam * MAX(150, 150 + GetRealLevel(ch) + RollDices(0, GET_REAL_REMORT(ch)) * 2)) / 100;
-			if (PRF_FLAGGED(ch, PRF_EXECUTOR))
+			if (GR_FLAGGED(ch, EPrf::kExecutor))
 				send_to_char(ch, "&YДамага с учетом берсерка== %d&n\r\n", dam);
 		}
 	}
@@ -3487,7 +3487,7 @@ int HitData::calc_damage(CharData *ch, bool need_dice) {
 
 	if (GET_SKILL(ch, ESkill::kRiding) > 100 && ch->ahorse()) {
 		dam *= 1 + (GET_SKILL(ch, ESkill::kRiding) - 100) / 500.0; // на лошадке до +20%
-		if (PRF_FLAGGED(ch, PRF_EXECUTOR))
+		if (GR_FLAGGED(ch, EPrf::kExecutor))
 			send_to_char(ch, "&YДамага с учетом лошади (при скилле 200 +20 процентов)== %d&n\r\n", dam);
 	}
 
@@ -3500,12 +3500,12 @@ int HitData::calc_damage(CharData *ch, bool need_dice) {
 			tmp = dam * (ch->add_abils.percent_physdam_add / 2.0 / 100.0);
 			dam += tmp;
 		}
-		if (PRF_FLAGGED(ch, PRF_EXECUTOR))
+		if (GR_FLAGGED(ch, EPrf::kExecutor))
 			send_to_char(ch, "&YДамага c + процентами дамаги== %d, добавили = %d процентов &n\r\n", dam, tmp);
 	}
 	//режем дамаг от голода
 	dam *= ch->get_cond_penalty(P_DAMROLL);
-	if (PRF_FLAGGED(ch, PRF_EXECUTOR))
+	if (GR_FLAGGED(ch, EPrf::kExecutor))
 		send_to_char(ch, "&YДамага с бонусами итого == %d&n\r\n", dam);
 	return dam;
 
@@ -3843,7 +3843,7 @@ void performIronWindAttacks(CharData *ch, fight::AttackType weapon) {
 	первая дополнительная атака левой начинает наноситься сразу, но не более чем с 80% вероятностью
 	вторая дополнительная атака левей начинает наноситься с 170%+ скилла, но не более чем с 30% вероятности
 	*/
-	if (PRF_FLAGS(ch).get(PRF_IRON_WIND)) {
+	if (GR_FLAGS(ch).get(EPrf::kIronWind)) {
 		percent = ch->get_skill(ESkill::kIronwind);
 		moves = GET_MAX_MOVE(ch) / (6 + MAX(10, percent) / 10);
 		prob = GET_AF_BATTLE(ch, kEafIronWind);

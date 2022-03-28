@@ -325,7 +325,7 @@ Heartbeat::steps_t &pulse_steps() {
 		Heartbeat::PulseStep("Death trap activity",
 							 2 * kPassesPerSec,
 							 0,
-							 std::make_shared<SimpleCall>(DeathTrap::activity)),
+							 std::make_shared<SimpleCall>(deathtrap::activity)),
 		Heartbeat::PulseStep("Underwater check", 2 * kPassesPerSec, 0, std::make_shared<SimpleCall>(underwater_check)),
 		Heartbeat::PulseStep("Clan system: check player in house",
 							 2 * kPassesPerSec,

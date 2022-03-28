@@ -233,7 +233,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			strcpy(classname, "      -      ");
 		}
 
-		if (GetRealLevel(ch) < kLvlImplementator && !PRF_FLAGGED(ch, PRF_CODERINFO)) {
+		if (GetRealLevel(ch) < kLvlImplementator && !GR_FLAGGED(ch, EPrf::kCoderinfo)) {
 			strcpy(classname, "      -      ");
 		}
 

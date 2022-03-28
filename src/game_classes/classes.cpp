@@ -1139,9 +1139,9 @@ void check_max_hp(CharData *ch) {
 
 // * Обработка событий при левел-апе.
 void levelup_events(CharData *ch) {
-	if (SpamSystem::MIN_OFFTOP_LVL == GetRealLevel(ch)
+	if (antispam::kMinOfftopLvl == GetRealLevel(ch)
 		&& !ch->get_disposable_flag(DIS_OFFTOP_MESSAGE)) {
-		PRF_FLAGS(ch).set(PRF_OFFTOP_MODE);
+		GR_FLAGS(ch).set(EPrf::kOfftopMode);
 		ch->set_disposable_flag(DIS_OFFTOP_MESSAGE);
 		send_to_char(ch,
 					 "%sТеперь вы можете пользоваться каналом оффтоп ('справка оффтоп').%s\r\n",
@@ -1192,7 +1192,7 @@ void advance_level(CharData *ch) {
 		for (i = 0; i < 3; i++) {
 			GET_COND(ch, i) = (char) -1;
 		}
-		PRF_FLAGS(ch).set(PRF_HOLYLIGHT);
+		GR_FLAGS(ch).set(EPrf::kHolylight);
 	}
 
 	TopPlayer::Refresh(ch);
@@ -1229,7 +1229,7 @@ void decrease_level(CharData *ch) {
 
 	GET_WIMP_LEV(ch) = MAX(0, MIN(GET_WIMP_LEV(ch), GET_REAL_MAX_HIT(ch) / 2));
 	if (!IS_IMMORTAL(ch)) {
-		PRF_FLAGS(ch).unset(PRF_HOLYLIGHT);
+		GR_FLAGS(ch).unset(EPrf::kHolylight);
 	}
 
 	TopPlayer::Refresh(ch);

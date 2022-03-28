@@ -224,7 +224,7 @@ struct brief_shields {
 	CharData *vict;
 	WeapForAct weap;
 	std::string add;
-	// флаг отражаемого дамага, который надо глушить в режиме PRF_BRIEF_SHIELDS
+	// флаг отражаемого дамага, который надо глушить в режиме EPrf::BRIEF_SHIELDS
 	bool reflect;
 
  private:
@@ -239,9 +239,9 @@ brief_shields::brief_shields(CharData *ch_, CharData *vict_, const WeapForAct &w
 void brief_shields::act_to_char(const char *msg) {
 	if (!reflect
 		|| (reflect
-			&& !PRF_FLAGGED(ch, PRF_BRIEF_SHIELDS))) {
+			&& !GR_FLAGGED(ch, EPrf::kBriefShields))) {
 		if (!add.empty()
-			&& PRF_FLAGGED(ch, PRF_BRIEF_SHIELDS)) {
+			&& GR_FLAGGED(ch, EPrf::kBriefShields)) {
 			act_add(msg, kToChar);
 		} else {
 			act_no_add(msg, kToChar);
@@ -252,9 +252,9 @@ void brief_shields::act_to_char(const char *msg) {
 void brief_shields::act_to_vict(const char *msg) {
 	if (!reflect
 		|| (reflect
-			&& !PRF_FLAGGED(vict, PRF_BRIEF_SHIELDS))) {
+			&& !GR_FLAGGED(vict, EPrf::kBriefShields))) {
 		if (!add.empty()
-			&& PRF_FLAGGED(vict, PRF_BRIEF_SHIELDS)) {
+			&& GR_FLAGGED(vict, EPrf::kBriefShields)) {
 			act_add(msg, kToVict | kToSleep);
 		} else {
 			act_no_add(msg, kToVict | kToSleep);
@@ -580,7 +580,7 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 			if (GET_POS(vict) < EPosition::kFight && GET_POS(vict) >= EPosition::kSleep) {
 				rate -= 20;
 			}
-			if (PRF_FLAGGED(vict, PRF_AWAKE)) {
+			if (GR_FLAGGED(vict, EPrf::kAwake)) {
 				rate -= CalculateSkillAwakeModifier(ch, vict);
 			}
 			break;
@@ -596,7 +596,7 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		case ESkill::kKick: {
 			//rate += size_app[GET_POS_SIZE(vict)].interpolate;
 			rate += GET_REAL_CON(vict);
-			if (PRF_FLAGGED(vict, PRF_AWAKE)) {
+			if (GR_FLAGGED(vict, EPrf::kAwake)) {
 				rate += CalculateSkillAwakeModifier(ch, vict);
 			}
 			break;
@@ -642,7 +642,7 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 			rate -= dex_bonus(GET_REAL_STR(ch));
 			if (GET_EQ(vict, EEquipPos::kBoths))
 				rate -= 10;
-			if (PRF_FLAGGED(vict, PRF_AWAKE))
+			if (GR_FLAGGED(vict, EPrf::kAwake))
 				rate -= CalculateSkillAwakeModifier(ch, vict);
 			break;
 		}
@@ -661,7 +661,7 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		case ESkill::kUndercut: {
 			if (AWAKE(vict) || AFF_FLAGGED(vict, EAffectFlag::AFF_AWARNESS) || MOB_FLAGGED(vict, MOB_AWAKE))
 				rate -= 20;
-			if (PRF_FLAGGED(vict, PRF_AWAKE))
+			if (GR_FLAGGED(vict, EPrf::kAwake))
 				rate -= CalculateSkillAwakeModifier(ch, vict);
 			break;
 		}
@@ -697,14 +697,14 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kStrangle: {
-			if (CAN_SEE(ch, vict) && PRF_FLAGGED(vict, PRF_AWAKE)) {
+			if (CAN_SEE(ch, vict) && GR_FLAGGED(vict, EPrf::kAwake)) {
 				rate -= CalculateSkillAwakeModifier(ch, vict);
 			}
 			break;
 		}
 
 		case ESkill::kStun: {
-			if (PRF_FLAGGED(vict, PRF_AWAKE))
+			if (GR_FLAGGED(vict, EPrf::kAwake))
 				rate -= CalculateSkillAwakeModifier(ch, vict);
 			break;
 		}
@@ -777,7 +777,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 			parameter_bonus += dex_bonus(GET_REAL_DEX(ch));
 			bonus = size + (GET_EQ(ch, EEquipPos::kShield) ?
 							weapon_app[MIN(35, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield))))].bashing : 0);
-			if (PRF_FLAGGED(ch, PRF_AWAKE)) {
+			if (GR_FLAGGED(ch, EPrf::kAwake)) {
 				bonus = -50;
 			}
 			break;
@@ -1273,7 +1273,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 				if (GET_POS(vict) < EPosition::kFight && GET_POS(vict) > EPosition::kSleep) {
 					victim_modi -= 20;
 				}
-				if (PRF_FLAGGED(vict, PRF_AWAKE)) {
+				if (GR_FLAGGED(vict, EPrf::kAwake)) {
 					victim_modi -= CalculateSkillAwakeModifier(ch, vict);
 				}
 			}
@@ -1316,7 +1316,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 			if (vict) {
 				victim_modi += size_app[GET_POS_SIZE(vict)].interpolate;
 				victim_modi -= GET_REAL_CON(vict);
-				if (PRF_FLAGGED(vict, PRF_AWAKE)) {
+				if (GR_FLAGGED(vict, EPrf::kAwake)) {
 					victim_modi -= CalculateSkillAwakeModifier(ch, vict);
 				}
 			}
@@ -1488,7 +1488,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 				victim_modi -= dex_bonus(GET_REAL_STR(ch));
 				if (GET_EQ(vict, EEquipPos::kBoths))
 					victim_modi -= 10;
-				if (PRF_FLAGGED(vict, PRF_AWAKE))
+				if (GR_FLAGGED(vict, EPrf::kAwake))
 					victim_modi -= CalculateSkillAwakeModifier(ch, vict);
 			}
 			break;
@@ -1559,7 +1559,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 					bonus -= 50;
 				if (AWAKE(vict) || AFF_FLAGGED(vict, EAffectFlag::AFF_AWARNESS) || MOB_FLAGGED(vict, MOB_AWAKE))
 					victim_modi -= 20;
-				if (PRF_FLAGGED(vict, PRF_AWAKE))
+				if (GR_FLAGGED(vict, EPrf::kAwake))
 					victim_modi -= CalculateSkillAwakeModifier(ch, vict);
 			}
 			break;
@@ -1694,7 +1694,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 			} else {
 				if (!CAN_SEE(ch, vict))
 					bonus += (base_percent + bonus) / 5;
-				if (PRF_FLAGGED(vict, PRF_AWAKE))
+				if (GR_FLAGGED(vict, EPrf::kAwake))
 					victim_modi -= CalculateSkillAwakeModifier(ch, vict);
 			}
 			break;
@@ -1715,7 +1715,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 				bonus +=
 					weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kBoths))].shocking;
 
-			if (PRF_FLAGGED(vict, PRF_AWAKE))
+			if (GR_FLAGGED(vict, EPrf::kAwake))
 				victim_modi -= CalculateSkillAwakeModifier(ch, vict);
 			break;
 		}
@@ -1736,7 +1736,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 	auto percent = base_percent + bonus + victim_sav + victim_modi/2;
 	total_percent = std::clamp(percent, 0, MUD::Skills()[skill_id].cap);
 
-	if (PRF_FLAGGED(ch, PRF_AWAKE) && (skill_id == ESkill::kBash)) {
+	if (GR_FLAGGED(ch, EPrf::kAwake) && (skill_id == ESkill::kBash)) {
 		total_percent /= 2;
 	}
 

@@ -371,7 +371,7 @@ const char *function_bits[] = {"!север",
 							   "\n"
 };
 
-// PRF_x
+// EPrf::x
 const char *preference_bits[] = {"краткий",
 								 "сжатый",
 								 "!орать",

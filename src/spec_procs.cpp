@@ -282,7 +282,7 @@ void list_feats(CharData *ch, CharData *vict, bool all_feats) {
 				case SKIRMISHER_FEAT:
 				case DOUBLE_THROW_FEAT:
 				case TRIPLE_THROW_FEAT:
-					if (PRF_FLAGGED(ch, GetPrfWithFeatNumber(sortpos)))
+					if (GR_FLAGGED(ch, GetPrfWithFeatNumber(sortpos)))
 						sprintf(buf, "[-%s*%s-] ", CCIGRN(vict, C_NRM), CCNRM(vict, C_NRM));
 					else
 						sprintf(buf, "[-:-] ");
@@ -2240,7 +2240,7 @@ int do_npc_steal(CharData *ch, CharData *victim) {
 	if (!CAN_SEE(ch, victim))
 		return (false);
 
-	if (AWAKE(victim) && (number(0, MAX(0, GetRealLevel(ch) - int_app[GET_REAL_INT(victim)].observation)) == 0)) {
+	if (AWAKE(victim) && (number(0, std::max(0, GetRealLevel(ch) - int_app[GET_REAL_INT(victim)].observation)) == 0)) {
 		act("Вы обнаружили руку $n1 в своем кармане.", false, ch, 0, victim, kToVict);
 		act("$n пытал$u обокрасть $N3.", true, ch, 0, victim, kToNotVict);
 	} else        // Steal some gold coins

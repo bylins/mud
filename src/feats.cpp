@@ -1232,7 +1232,7 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	act("$n принял$u делать какие-то пассы и что-то бормотать в сторону $N3.", false, ch, nullptr, follower, kToRoom);
 
 	GET_SPELL_MEM(ch, spellnum)--;
-	if (!IS_NPC(ch) && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, PRF_AUTOMEM))
+	if (!IS_NPC(ch) && !IS_IMMORTAL(ch) && GR_FLAGGED(ch, EPrf::kAutomem))
 		MemQ_remember(ch, spellnum);
 
 	if (!IS_SET(SpINFO.routines, kMagDamage) || !SpINFO.violent ||
@@ -1351,7 +1351,7 @@ bool TryFlipActivatedFeature(CharData *ch, char *argument) {
 	if (!CheckAccessActivatedFeat(ch, featureNum)) {
 		return true;
 	};
-	if (PRF_FLAGGED(ch, GetPrfWithFeatNumber(featureNum))) {
+	if (GR_FLAGGED(ch, GetPrfWithFeatNumber(featureNum))) {
 		DeactivateFeature(ch, featureNum);
 	} else {
 		ActivateFeat(ch, featureNum);
@@ -1363,25 +1363,25 @@ bool TryFlipActivatedFeature(CharData *ch, char *argument) {
 
 void ActivateFeat(CharData *ch, int feat_num) {
 	switch (feat_num) {
-		case POWER_ATTACK_FEAT: PRF_FLAGS(ch).unset(PRF_AIMINGATTACK);
-			PRF_FLAGS(ch).unset(PRF_GREATAIMINGATTACK);
-			PRF_FLAGS(ch).unset(PRF_GREATPOWERATTACK);
-			PRF_FLAGS(ch).set(PRF_POWERATTACK);
+		case POWER_ATTACK_FEAT: GR_FLAGS(ch).unset(EPrf::kAimingAttack);
+			GR_FLAGS(ch).unset(EPrf::kGreatAimingAttack);
+			GR_FLAGS(ch).unset(EPrf::kGreatPowerAttack);
+			GR_FLAGS(ch).set(EPrf::kPowerAttack);
 			break;
-		case GREAT_POWER_ATTACK_FEAT: PRF_FLAGS(ch).unset(PRF_POWERATTACK);
-			PRF_FLAGS(ch).unset(PRF_AIMINGATTACK);
-			PRF_FLAGS(ch).unset(PRF_GREATAIMINGATTACK);
-			PRF_FLAGS(ch).set(PRF_GREATPOWERATTACK);
+		case GREAT_POWER_ATTACK_FEAT: GR_FLAGS(ch).unset(EPrf::kPowerAttack);
+			GR_FLAGS(ch).unset(EPrf::kAimingAttack);
+			GR_FLAGS(ch).unset(EPrf::kGreatAimingAttack);
+			GR_FLAGS(ch).set(EPrf::kGreatPowerAttack);
 			break;
-		case AIMING_ATTACK_FEAT: PRF_FLAGS(ch).unset(PRF_POWERATTACK);
-			PRF_FLAGS(ch).unset(PRF_GREATAIMINGATTACK);
-			PRF_FLAGS(ch).unset(PRF_GREATPOWERATTACK);
-			PRF_FLAGS(ch).set(PRF_AIMINGATTACK);
+		case AIMING_ATTACK_FEAT: GR_FLAGS(ch).unset(EPrf::kPowerAttack);
+			GR_FLAGS(ch).unset(EPrf::kGreatAimingAttack);
+			GR_FLAGS(ch).unset(EPrf::kGreatPowerAttack);
+			GR_FLAGS(ch).set(EPrf::kAimingAttack);
 			break;
-		case GREAT_AIMING_ATTACK_FEAT: PRF_FLAGS(ch).unset(PRF_POWERATTACK);
-			PRF_FLAGS(ch).unset(PRF_AIMINGATTACK);
-			PRF_FLAGS(ch).unset(PRF_GREATPOWERATTACK);
-			PRF_FLAGS(ch).set(PRF_GREATAIMINGATTACK);
+		case GREAT_AIMING_ATTACK_FEAT: GR_FLAGS(ch).unset(EPrf::kPowerAttack);
+			GR_FLAGS(ch).unset(EPrf::kAimingAttack);
+			GR_FLAGS(ch).unset(EPrf::kGreatPowerAttack);
+			GR_FLAGS(ch).set(EPrf::kGreatAimingAttack);
 			break;
 		case SKIRMISHER_FEAT:
 			if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)) {
@@ -1390,19 +1390,19 @@ void ActivateFeat(CharData *ch, int feat_num) {
 							 ch->get_name().c_str());
 				return;
 			}
-			if (PRF_FLAGGED(ch, PRF_SKIRMISHER)) {
+			if (GR_FLAGGED(ch, EPrf::kSkirmisher)) {
 				send_to_char("Вы уже стоите в передовом строю.\r\n", ch);
 				return;
 			}
-			PRF_FLAGS(ch).set(PRF_SKIRMISHER);
+			GR_FLAGS(ch).set(EPrf::kSkirmisher);
 			send_to_char("Вы протиснулись вперед и встали в строй.\r\n", ch);
 			act("$n0 протиснул$u вперед и встал$g в строй.", false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 			break;
-		case DOUBLE_THROW_FEAT: PRF_FLAGS(ch).unset(PRF_TRIPLE_THROW);
-			PRF_FLAGS(ch).set(PRF_DOUBLE_THROW);
+		case DOUBLE_THROW_FEAT: GR_FLAGS(ch).unset(EPrf::kTripleThrow);
+			GR_FLAGS(ch).set(EPrf::kDoubleThrow);
 			break;
-		case TRIPLE_THROW_FEAT: PRF_FLAGS(ch).unset(PRF_DOUBLE_THROW);
-			PRF_FLAGS(ch).set(PRF_TRIPLE_THROW);
+		case TRIPLE_THROW_FEAT: GR_FLAGS(ch).unset(EPrf::kDoubleThrow);
+			GR_FLAGS(ch).set(EPrf::kTripleThrow);
 			break;
 		default: break;
 	}
@@ -1415,24 +1415,24 @@ void ActivateFeat(CharData *ch, int feat_num) {
 
 void DeactivateFeature(CharData *ch, int feat_num) {
 	switch (feat_num) {
-		case POWER_ATTACK_FEAT: PRF_FLAGS(ch).unset(PRF_POWERATTACK);
+		case POWER_ATTACK_FEAT: GR_FLAGS(ch).unset(EPrf::kPowerAttack);
 			break;
-		case GREAT_POWER_ATTACK_FEAT: PRF_FLAGS(ch).unset(PRF_GREATPOWERATTACK);
+		case GREAT_POWER_ATTACK_FEAT: GR_FLAGS(ch).unset(EPrf::kGreatPowerAttack);
 			break;
-		case AIMING_ATTACK_FEAT: PRF_FLAGS(ch).unset(PRF_AIMINGATTACK);
+		case AIMING_ATTACK_FEAT: GR_FLAGS(ch).unset(EPrf::kAimingAttack);
 			break;
-		case GREAT_AIMING_ATTACK_FEAT: PRF_FLAGS(ch).unset(PRF_GREATAIMINGATTACK);
+		case GREAT_AIMING_ATTACK_FEAT: GR_FLAGS(ch).unset(EPrf::kGreatAimingAttack);
 			break;
-		case SKIRMISHER_FEAT: PRF_FLAGS(ch).unset(PRF_SKIRMISHER);
+		case SKIRMISHER_FEAT: GR_FLAGS(ch).unset(EPrf::kSkirmisher);
 			if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)) {
 				send_to_char("Вы решили, что в обозе вам будет спокойней.\r\n", ch);
 				act("$n0 тактически отступил$g в тыл отряда.",
 					false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 			}
 			break;
-		case DOUBLE_THROW_FEAT: PRF_FLAGS(ch).unset(PRF_DOUBLE_THROW);
+		case DOUBLE_THROW_FEAT: GR_FLAGS(ch).unset(EPrf::kDoubleThrow);
 			break;
-		case TRIPLE_THROW_FEAT: PRF_FLAGS(ch).unset(PRF_TRIPLE_THROW);
+		case TRIPLE_THROW_FEAT: GR_FLAGS(ch).unset(EPrf::kTripleThrow);
 			break;
 		default: break;
 	}
@@ -1466,24 +1466,24 @@ int GetFeatureNum(char *feat_name) {
 */
 Bitvector GetPrfWithFeatNumber(int feat_num) {
 	switch (feat_num) {
-		case POWER_ATTACK_FEAT: return PRF_POWERATTACK;
+		case POWER_ATTACK_FEAT: return EPrf::kPowerAttack;
 			break;
-		case GREAT_POWER_ATTACK_FEAT: return PRF_GREATPOWERATTACK;
+		case GREAT_POWER_ATTACK_FEAT: return EPrf::kGreatPowerAttack;
 			break;
-		case AIMING_ATTACK_FEAT: return PRF_AIMINGATTACK;
+		case AIMING_ATTACK_FEAT: return EPrf::kAimingAttack;
 			break;
-		case GREAT_AIMING_ATTACK_FEAT: return PRF_GREATAIMINGATTACK;
+		case GREAT_AIMING_ATTACK_FEAT: return EPrf::kGreatAimingAttack;
 			break;
-		case SKIRMISHER_FEAT: return PRF_SKIRMISHER;
+		case SKIRMISHER_FEAT: return EPrf::kSkirmisher;
 			break;
-		case DOUBLE_THROW_FEAT: return PRF_DOUBLE_THROW;
+		case DOUBLE_THROW_FEAT: return EPrf::kDoubleThrow;
 			break;
-		case TRIPLE_THROW_FEAT: return PRF_TRIPLE_THROW;
+		case TRIPLE_THROW_FEAT: return EPrf::kTripleThrow;
 			break;
 		default: break;
 	}
 
-	return PRF_POWERATTACK;
+	return EPrf::kPowerAttack;
 }
 
 /*
@@ -1494,7 +1494,7 @@ Bitvector GetPrfWithFeatNumber(int feat_num) {
 */
 int CalcRollBonusOfGroupFormation(CharData *ch, CharData * /* enemy */) {
 	ActionTargeting::FriendsRosterType roster{ch};
-	int skirmishers = roster.count([](CharData *ch) { return PRF_FLAGGED(ch, PRF_SKIRMISHER); });
+	int skirmishers = roster.count([](CharData *ch) { return GR_FLAGGED(ch, EPrf::kSkirmisher); });
 	int uncoveredSquadMembers = roster.amount() - skirmishers;
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
 		return (skirmishers * 2 - uncoveredSquadMembers) * abilities::kCircumstanceFactor - 40;

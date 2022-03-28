@@ -126,11 +126,11 @@ void go_throw(CharData *ch, CharData *victim) {
 	}
 
 	// TODO: Возможно, стоит добавить простой тест на добавление целей.
-	int victims_amount = 1 + PRF_FLAGGED(ch, PRF_DOUBLE_THROW) + 2 * PRF_FLAGGED(ch, PRF_TRIPLE_THROW);
+	int victims_amount = 1 + GR_FLAGGED(ch, EPrf::kDoubleThrow) + 2 * GR_FLAGGED(ch, EPrf::kTripleThrow);
 
 	int technique_id = THROW_WEAPON_FEAT;
 	fight::DmgType dmg_type = fight::kPhysDmg;
-	if (PRF_FLAGGED(ch, PRF_SHADOW_THROW)) {
+	if (GR_FLAGGED(ch, EPrf::kShadowThrow)) {
 		send_to_char("Рукоять оружия в вашей руке налилась неестественным холодом.\r\n", ch);
 		act("Оружие в руках $n1 окружила призрачная дымка.",
 			true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
@@ -140,7 +140,7 @@ void go_throw(CharData *ch, CharData *victim) {
 		timed.feat = SHADOW_THROW_FEAT;
 		timed.time = 6;
 		ImposeTimedFeat(ch, &timed);
-		PRF_FLAGS(ch).unset(PRF_SHADOW_THROW);
+		GR_FLAGS(ch).unset(EPrf::kShadowThrow);
 	}
 	AbilitySystem::TechniqueRoll roll;
 	Damage damage(SkillDmg(ESkill::kThrow), fight::kZeroDmg, dmg_type, nullptr); //х3 как тут с оружием
@@ -207,7 +207,7 @@ void do_throw(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			send_to_char("Не стоит так часто беспокоить тёмные силы.\r\n", ch);
 			return;
 		}
-		PRF_FLAGS(ch).set(PRF_SHADOW_THROW);
+		GR_FLAGS(ch).set(EPrf::kShadowThrow);
 	};
 
 	if (IS_IMPL(ch) || !ch->get_fighting()) {

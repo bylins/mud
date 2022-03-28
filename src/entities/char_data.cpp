@@ -838,7 +838,7 @@ bool IS_POLY(const CharData *ch) {
 bool IMM_CAN_SEE(const CharData *sub, const CharData *obj) {
 	return MORT_CAN_SEE(sub, obj)
 		|| (!IS_NPC(sub)
-			&& PRF_FLAGGED(sub, PRF_HOLYLIGHT));
+			&& GR_FLAGGED(sub, EPrf::kHolylight));
 }
 
 bool CAN_SEE(const CharData *sub, const CharData *obj) {
@@ -1594,7 +1594,7 @@ std::string CharData::only_title_noclan() {
 std::string CharData::clan_for_title() {
 	std::string result = std::string();
 
-	bool imm = IS_IMMORTAL(this) || PRF_FLAGGED(this, PRF_CODERINFO);
+	bool imm = IS_IMMORTAL(this) || GR_FLAGGED(this, EPrf::kCoderinfo);
 
 	if (CLAN(this) && !imm)
 		result = result + "(" + GET_CLAN_STATUS(this) + ")";
@@ -1704,7 +1704,7 @@ void CharData::msdp_report(const std::string &name) {
 
 void CharData::removeGroupFlags() {
 	AFF_FLAGS(this).unset(EAffectFlag::AFF_GROUP);
-	PRF_FLAGS(this).unset(PRF_SKIRMISHER);
+	GR_FLAGS(this).unset(EPrf::kSkirmisher);
 }
 
 void CharData::add_follower(CharData *ch) {
@@ -2027,10 +2027,10 @@ void CharData::send_to_TC(bool to_impl, bool to_tester, bool to_coder, const cha
 		(IS_IMPL(this) || (IS_CHARMICE(this) && IS_IMPL(this->get_master()))))
 		needSend = true;
 	if (!needSend && to_coder &&
-		(PRF_FLAGGED(this, PRF_CODERINFO) || (IS_CHARMICE(this) && (PRF_FLAGGED(this->get_master(), PRF_CODERINFO)))))
+		(GR_FLAGGED(this, EPrf::kCoderinfo) || (IS_CHARMICE(this) && (GR_FLAGGED(this->get_master(), EPrf::kCoderinfo)))))
 		needSend = true;
 	if (!needSend && to_tester &&
-		(PRF_FLAGGED(this, PRF_TESTER) || (IS_CHARMICE(this) && (PRF_FLAGGED(this->get_master(), PRF_TESTER)))))
+		(GR_FLAGGED(this, EPrf::kTester) || (IS_CHARMICE(this) && (GR_FLAGGED(this->get_master(), EPrf::kTester)))))
 		needSend = true;
 	if (!needSend)
 		return;

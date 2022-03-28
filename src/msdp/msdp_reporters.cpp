@@ -83,7 +83,7 @@ void RoomReporter::get(Variable::shared_ptr &response) {
 
 bool RoomReporter::blockReport() const {
 	bool nomapper = true;
-	const auto blind = (PRF_FLAGGED(descriptor()->character, PRF_BLIND)) //В режиме слепого игрока карта недоступна
+	const auto blind = (GR_FLAGGED(descriptor()->character, EPrf::kBlindMode)) //В режиме слепого игрока карта недоступна
 		|| (AFF_FLAGGED((descriptor()->character), EAffectFlag::AFF_BLIND));  //Слепому карта не поможет!
 	const auto cannot_see_in_dark = (is_dark(IN_ROOM(descriptor()->character)) && !CAN_SEE_IN_DARK(descriptor()->character));
 	if (descriptor()->character->in_room != kNowhere)
@@ -160,7 +160,7 @@ void GroupReporter::append_char(const std::shared_ptr<ArrayValue> &group,
 								const CharData *ch,
 								const CharData *character,
 								const bool leader) {
-	if (PRF_FLAGGED(ch, PRF_NOCLONES)
+	if (GR_FLAGGED(ch, EPrf::kNoClones)
 		&& IS_NPC(character)
 		&& (MOB_FLAGGED(character, MOB_CLONE)
 			|| GET_MOB_VNUM(character) == kMobKeeper)) {

@@ -22,8 +22,8 @@
 #include "utils/utils_char_obj.inl"
 
 // extern variables
-extern DescriptorData *descriptor_list;
-extern TimeInfoData time_info;
+/*extern DescriptorData *descriptor_list;
+extern TimeInfoData time_info;*/
 
 // local functions
 void perform_tell(CharData *ch, CharData *vict, char *arg);
@@ -75,7 +75,7 @@ void do_say(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			act(buf, false, ch, 0, to, kToVict | DG_NO_TRIG | kToNotDeaf);
 		}
 
-		if (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_NOREPEAT)) {
+		if (!IS_NPC(ch) && GR_FLAGGED(ch, EPrf::kNoRepeat)) {
 			send_to_char(OK, ch);
 		} else {
 			delete_doubledollar(argument);
@@ -157,7 +157,7 @@ void do_gsay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		}
 
-		if (PRF_FLAGGED(ch, PRF_NOREPEAT))
+		if (GR_FLAGGED(ch, EPrf::kNoRepeat))
 			send_to_char(OK, ch);
 		else {
 			sprintf(buf, "Вы сообщили группе : '%s'\r\n", argument);
@@ -181,10 +181,10 @@ bool tell_can_see(CharData *ch, CharData *vict) {
 void perform_tell(CharData *ch, CharData *vict, char *arg) {
 // shapirus: не позволим телять, если жертва не видит и включила
 // соответствующий режим; имморталы могут телять всегда
-	if (PRF_FLAGGED(vict, PRF_NOINVISTELL)
+	if (GR_FLAGGED(vict, EPrf::kNoInvistell)
 		&& !CAN_SEE(vict, ch)
 		&& GetRealLevel(ch) < kLvlImmortal
-		&& !PRF_FLAGGED(ch, PRF_CODERINFO)) {
+		&& !GR_FLAGGED(ch, EPrf::kCoderinfo)) {
 		act("$N не любит разговаривать с теми, кого не видит.", false, ch, 0, vict, kToChar | kToSleep);
 		return;
 	}
@@ -207,7 +207,7 @@ void perform_tell(CharData *ch, CharData *vict, char *arg) {
 		vict->remember_add(buf, Remember::PERSONAL);
 	}
 
-	if (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_NOREPEAT)) {
+	if (!IS_NPC(ch) && GR_FLAGGED(ch, EPrf::kNoRepeat)) {
 		send_to_char(OK, ch);
 	} else {
 		snprintf(buf, kMaxStringLength, "%sВы сказали %s : '%s'%s\r\n", CCICYN(ch, C_NRM),
@@ -239,13 +239,13 @@ int is_tell_ok(CharData *ch, CharData *vict) {
 		return (false);
 	}
 
-	if (IS_GOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
+	if (IS_GOD(ch) || GR_FLAGGED(ch, EPrf::kCoderinfo))
 		return (true);
 
 	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF))
 		send_to_char(SOUNDPROOF, ch);
 	else if ((!IS_NPC(vict) &&
-		(PRF_FLAGGED(vict, PRF_NOTELL) || ignores(vict, ch, IGNORE_TELL))) ||
+		(GR_FLAGGED(vict, EPrf::kNoTell) || ignores(vict, ch, IGNORE_TELL))) ||
 		ROOM_FLAGGED(vict->in_room, ROOM_SOUNDPROOF))
 		act("$N не сможет вас услышать.", false, ch, 0, vict, kToChar | kToSleep);
 	else if (GET_POS(vict) < EPosition::kRest || AFF_FLAGGED(vict, EAffectFlag::AFF_DEAFNESS))
@@ -288,7 +288,7 @@ void do_tell(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (IS_NPC(vict))
 		send_to_char(NOPERSON, ch);
 	else if (is_tell_ok(ch, vict)) {
-		if (PRF_FLAGGED(ch, PRF_NOTELL))
+		if (GR_FLAGGED(ch, EPrf::kNoTell))
 			send_to_char("Ответить вам не смогут!\r\n", ch);
 		perform_tell(ch, vict, buf2);
 	}
@@ -399,7 +399,7 @@ void do_spec_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 //		sprintf(buf, "$n %s$g %s : '%s'", action_plur, vict2, buf2);
 		act(buffer.str().c_str(), false, ch, 0, vict, kToVict | kToNotDeaf);
 
-		if (PRF_FLAGGED(ch, PRF_NOREPEAT))
+		if (GR_FLAGGED(ch, EPrf::kNoRepeat))
 			send_to_char(OK, ch);
 		else {
 			std::stringstream buffer;
@@ -535,7 +535,7 @@ void do_page(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 		if ((vict = get_char_vis(ch, arg, FIND_CHAR_WORLD)) != nullptr) {
 			act(buffer.str().c_str(), false, ch, 0, vict, kToVict);
-			if (PRF_FLAGGED(ch, PRF_NOREPEAT))
+			if (GR_FLAGGED(ch, EPrf::kNoRepeat))
 				send_to_char(OK, ch);
 			else
 				act(buffer.str().c_str(), false, ch, 0, vict, kToChar);
@@ -585,7 +585,7 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			 "заорал$g",
 			 4,
 			 25,
-			 PRF_NOHOLLER},
+			 EPrf::kNoHoller},
 
 			{"Вам запрещено кричать.\r\n",    // shout
 			 "кричать",
@@ -595,7 +595,7 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			 "закричал$g",
 			 2,
 			 10,
-			 PRF_NOSHOUT},
+			 EPrf::kNoShout},
 
 			{"Вам недозволено болтать.\r\n",    // gossip
 			 "болтать",
@@ -605,7 +605,7 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			 "заметил$g",
 			 3,
 			 15,
-			 PRF_NOGOSS},
+			 EPrf::kNoGossip},
 
 			{"Вам не к лицу торговаться.\r\n",    // auction
 			 "торговать",
@@ -615,7 +615,7 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			 "вступил$g в торг",
 			 2,
 			 0,
-			 PRF_NOAUCT},
+			 EPrf::kNoAuction},
 		};
 
 	// to keep pets, etc from being ordered to shout
@@ -652,7 +652,7 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	// make sure the char is on the channel
-	if (PRF_FLAGGED(ch, com_msgs[subcmd].noflag)) {
+	if (GR_FLAGGED(ch, com_msgs[subcmd].noflag)) {
 		send_to_char(com_msgs[subcmd].no_channel, ch);
 		return;
 	}
@@ -719,7 +719,7 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			return;
 		}
 		*/
-		if (PRF_FLAGGED(ch, PRF_NOREPEAT))
+		if (GR_FLAGGED(ch, EPrf::kNoRepeat))
 			send_to_char(OK, ch);
 		else {
 			if (COLOR_LEV(ch) >= C_CMP) {
@@ -775,7 +775,7 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	// now send all the strings out
 	for (i = descriptor_list; i; i = i->next) {
 		if (STATE(i) == CON_PLAYING && i != ch->desc && i->character &&
-			!PRF_FLAGGED(i->character, com_msgs[subcmd].noflag) &&
+			!GR_FLAGGED(i->character, com_msgs[subcmd].noflag) &&
 			!PLR_FLAGGED(i->character, PLR_WRITING) &&
 			!ROOM_FLAGGED(i->character->in_room, ROOM_SOUNDPROOF) && GET_POS(i->character) > EPosition::kSleep) {
 			if (ignores(i->character.get(), ch, ign_flag)) {
@@ -867,7 +867,7 @@ void do_pray_gods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char(buf, ch);
 		return;
 	}
-	if (PRF_FLAGGED(ch, PRF_NOREPEAT))
+	if (GR_FLAGGED(ch, EPrf::kNoRepeat))
 		send_to_char(OK, ch);
 	else {
 		if (IS_NPC(ch))
@@ -919,7 +919,7 @@ void do_pray_gods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 * Канал оффтоп. Не виден иммам, всегда видно кто говорит, вкл/выкл режим оффтоп.
 */
 void do_offtop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch) || GetRealLevel(ch) >= kLvlImmortal || PRF_FLAGGED(ch, PRF_IGVA_PRONA)) {
+	if (IS_NPC(ch) || GetRealLevel(ch) >= kLvlImmortal || GR_FLAGGED(ch, EPrf::kStopOfftop)) {
 		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
@@ -933,12 +933,12 @@ void do_offtop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char(SOUNDPROOF, ch);
 		return;
 	}
-	if (GetRealLevel(ch) < SpamSystem::MIN_OFFTOP_LVL && !GET_REAL_REMORT(ch)) {
+	if (GetRealLevel(ch) < antispam::kMinOfftopLvl && !GET_REAL_REMORT(ch)) {
 		send_to_char(ch, "Вам стоит достичь хотя бы %d уровня, чтобы вы могли оффтопить.\r\n",
-					 SpamSystem::MIN_OFFTOP_LVL);
+					 antispam::kMinOfftopLvl);
 		return;
 	}
-	if (!PRF_FLAGGED(ch, PRF_OFFTOP_MODE)) {
+	if (!GR_FLAGGED(ch, EPrf::kOfftopMode)) {
 		send_to_char("Вы вне видимости канала.\r\n", ch);
 		return;
 	}
@@ -953,7 +953,7 @@ void do_offtop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	// эта проверка должна идти последней и послее нее мессага полюбому идет в эфир
-	if (!SpamSystem::check(ch, SpamSystem::OFFTOP_MODE)) {
+	if (!antispam::check(ch, antispam::kOfftopMode)) {
 		return;
 	}
 	ch->set_last_tell(argument);
@@ -967,10 +967,10 @@ void do_offtop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (STATE(i) == CON_PLAYING
 			&& i->character
 			&& (GetRealLevel(i->character) < kLvlImmortal || IS_IMPL(i->character))
-			&& PRF_FLAGGED(i->character, PRF_OFFTOP_MODE)
-			&& !PRF_FLAGGED(i->character, PRF_IGVA_PRONA)
+			&& GR_FLAGGED(i->character, EPrf::kOfftopMode)
+			&& !GR_FLAGGED(i->character, EPrf::kStopOfftop)
 			&& !ignores(i->character.get(), ch, IGNORE_OFFTOP)) {
-			send_to_char(i->character.get(), "%s%s%s", CCCYN(i->character, C_NRM), buf, CCNRM(i->character, C_NRM));
+			send_to_char(i->character.get(), "%s%s%s", KCYN, buf, KNRM);
 			i->character->remember_add(buf1, Remember::ALL);
 		}
 	}

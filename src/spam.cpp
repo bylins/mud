@@ -7,7 +7,7 @@
 #include "utils/logger.h"
 #include "entities/char_data.h"
 
-using namespace SpamSystem;
+using namespace antispam;
 
 namespace {
 
@@ -65,7 +65,7 @@ int check_list(const UidListType & /*list*/, long uid) {
 
 int add_message(int mode, long uid) {
 	switch (mode) {
-		case OFFTOP_MODE: {
+		case antispam::kOfftopMode: {
 			int flag = check_list(offtop_list, uid);
 			if (NORMAL_FLAG == flag) {
 				add_to_list(offtop_list, uid);
@@ -83,7 +83,7 @@ int add_message(int mode, long uid) {
 
 } // namespace
 
-namespace SpamSystem {
+namespace antispam {
 
 bool check(CharData *ch, int mode) {
 	int flag = add_message(mode, GET_UNIQUE(ch));

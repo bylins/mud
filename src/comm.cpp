@@ -1652,21 +1652,21 @@ char *make_prompt(DescriptorData *d) {
 			count += sprintf(prompt + count, "i%d ", GET_INVIS_LEV(d->character));
 
 		// Hits state
-		if (PRF_FLAGGED(d->character, PRF_DISPHP)) {
+		if (GR_FLAGGED(d->character, EPrf::kDispHp)) {
 			count +=
 				sprintf(prompt + count, "%s",
 						color_value(d->character.get(), GET_HIT(d->character), GET_REAL_MAX_HIT(d->character)));
 			count += sprintf(prompt + count, "%dH%s ", GET_HIT(d->character), CCNRM(d->character, C_NRM));
 		}
 		// Moves state
-		if (PRF_FLAGGED(d->character, PRF_DISPMOVE)) {
+		if (GR_FLAGGED(d->character, EPrf::kDispMove)) {
 			count +=
 				sprintf(prompt + count, "%s",
 						color_value(d->character.get(), GET_MOVE(d->character), GET_REAL_MAX_MOVE(d->character)));
 			count += sprintf(prompt + count, "%dM%s ", GET_MOVE(d->character), CCNRM(d->character, C_NRM));
 		}
 		// Mana state
-		if (PRF_FLAGGED(d->character, PRF_DISPMANA)
+		if (GR_FLAGGED(d->character, EPrf::kDispMana)
 			&& IS_MANA_CASTER(d->character)) {
 			perc = (100 * GET_MANA_STORED(d->character)) / GET_MAX_MANA((d->character).get());
 			count +=
@@ -1675,9 +1675,9 @@ char *make_prompt(DescriptorData *d) {
 						GET_MANA_STORED(d->character), CCNRM(d->character, C_NRM));
 		}
 		// Expirience
-		// if (PRF_FLAGGED(d->character, PRF_DISPEXP))
+		// if (EPrf::FLAGGED(d->character, EPrf::DISPEXP))
 		//    count += sprintf(prompt + count, "%ldx ", GET_EXP(d->character));
-		if (PRF_FLAGGED(d->character, PRF_DISPEXP)) {
+		if (GR_FLAGGED(d->character, EPrf::kDispExp)) {
 			if (IS_IMMORTAL(d->character))
 				count += sprintf(prompt + count, "??? ");
 			else
@@ -1686,7 +1686,7 @@ char *make_prompt(DescriptorData *d) {
 										   GetRealLevel(d->character) + 1) - GET_EXP(d->character));
 		}
 		// Mem Info
-		if (PRF_FLAGGED(d->character, PRF_DISPMANA)
+		if (GR_FLAGGED(d->character, EPrf::kDispMana)
 			&& !IS_MANA_CASTER(d->character)) {
 			if (!MEMQUEUE_EMPTY(d->character)) {
 				door = mana_gain(d->character.get());
@@ -1703,7 +1703,7 @@ char *make_prompt(DescriptorData *d) {
 				count += sprintf(prompt + count, "Зауч:0 ");
 		}
 		// Cooldowns
-		if (PRF_FLAGGED(d->character, PRF_DISP_COOLDOWNS)) {
+		if (GR_FLAGGED(d->character, EPrf::kDispCooldowns)) {
 			// И вся эта дичь потому, что процелура составления промпта не является членом player, как дОлжно,
 			// потому мы не можем просто пройтись по списку _имеющихся у игрока_ скиллов
 			// у кого руки дойдут - может переделать на метод класса...
@@ -1721,7 +1721,7 @@ char *make_prompt(DescriptorData *d) {
 			}
 		}
 		// Заряды и таймеры умений
-		if (PRF_FLAGGED(d->character, PRF_DISP_TIMED)) {
+		if (GR_FLAGGED(d->character, EPrf::kDispTimed)) {
 			if (d->character->get_skill(ESkill::kIdentify))
 				count += sprintf(prompt + count, "Пз:%d ", IsTimedBySkill(d->character.get(), ESkill::kIdentify));
 			if (d->character->get_skill(ESkill::kHangovering))
@@ -1772,13 +1772,13 @@ char *make_prompt(DescriptorData *d) {
 			|| IN_ROOM(d->character) != IN_ROOM(d->character->get_fighting()))    // SHOW NON COMBAT INFO
 		{
 
-			if (PRF_FLAGGED(d->character, PRF_DISPLEVEL))
+			if (GR_FLAGGED(d->character, EPrf::kDispLvl))
 				count += sprintf(prompt + count, "%dL ", GetRealLevel(d->character));
 
-			if (PRF_FLAGGED(d->character, PRF_DISPGOLD))
+			if (GR_FLAGGED(d->character, EPrf::kDispMoney))
 				count += sprintf(prompt + count, "%ldG ", d->character->get_gold());
 
-			if (PRF_FLAGGED(d->character, PRF_DISPEXITS)) {
+			if (GR_FLAGGED(d->character, EPrf::kDispExits)) {
 				count += sprintf(prompt + count, "Вых:");
 				if (!AFF_FLAGGED(d->character, EAffectFlag::AFF_BLIND)) {
 					for (door = 0; door < kDirMaxNumber; door++) {
@@ -1793,7 +1793,7 @@ char *make_prompt(DescriptorData *d) {
 				}
 			}
 		} else {
-			if (PRF_FLAGGED(d->character, PRF_DISPFIGHT)) {
+			if (GR_FLAGGED(d->character, EPrf::kDispFight)) {
 				count += sprintf(prompt + count, "%s", show_state(d->character.get(), d->character.get()));
 			}
 
@@ -2287,10 +2287,10 @@ int process_output(DescriptorData *t) {
 	}
 
 	// add the extra CRLF if the person isn't in compact mode
-	if (STATE(t) == CON_PLAYING && t->character && !IS_NPC(t->character) && !PRF_FLAGGED(t->character, PRF_COMPACT)) {
+	if (STATE(t) == CON_PLAYING && t->character && !IS_NPC(t->character) && !GR_FLAGGED(t->character, EPrf::kCompact)) {
 		strcat(i, "\r\n");
 	} else if (STATE(t) == CON_PLAYING && t->character && !IS_NPC(t->character)
-		&& PRF_FLAGGED(t->character, PRF_COMPACT)) {
+		&& GR_FLAGGED(t->character, EPrf::kCompact)) {
 		// added by WorM (Видолюб)
 		//фикс сжатого режима добавляет в конец строки \r\n если его там нету, чтобы промпт был всегда на след. строке
 		for (size_t c = strlen(i) - 1; c > 0; c--) {
@@ -2339,7 +2339,7 @@ int process_output(DescriptorData *t) {
 	else
 		offset = 2;
 
-	if (t->character && PRF_FLAGGED(t->character, PRF_GOAHEAD))
+	if (t->character && GR_FLAGGED(t->character, EPrf::kGoAhead))
 		strncat(o, str_goahead, kMaxPromptLength);
 
 	if (!write_to_descriptor_with_options(t, o + offset, strlen(o + offset), result)) {
@@ -3103,7 +3103,7 @@ void close_socket(DescriptorData * d, int direct)
 
 		if (STATE(d) == CON_PLAYING || STATE(d) == CON_DISCONNECT) {
 			act("$n потерял$g связь.", true, d->character.get(), 0, 0, kToRoom | kToArenaListen);
-			if (d->character->get_fighting() && PRF_FLAGGED(d->character, PRF_ANTIDC_MODE)) {
+			if (d->character->get_fighting() && GR_FLAGGED(d->character, EPrf::kAntiDcMode)) {
 				snprintf(buf2, sizeof(buf2), "зачитать свиток.возврата");
 				command_interpreter(d->character.get(), buf2);
 			}
@@ -3804,8 +3804,8 @@ void act(const char *str,
 			&& ch->in_room != kNowhere
 			&& (!check_deaf || !AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS))
 			&& (!check_nodeaf || AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS))
-			&& (!to_brief_shields || PRF_FLAGGED(ch, PRF_BRIEF_SHIELDS))
-			&& (!to_no_brief_shields || !PRF_FLAGGED(ch, PRF_BRIEF_SHIELDS))) {
+			&& (!to_brief_shields || GR_FLAGGED(ch, EPrf::kBriefShields))
+			&& (!to_no_brief_shields || !GR_FLAGGED(ch, EPrf::kBriefShields))) {
 			perform_act(str, ch, obj, vict_obj, ch, kick_type);
 		}
 		return;
@@ -3818,8 +3818,8 @@ void act(const char *str,
 			&& IN_ROOM(to) != kNowhere
 			&& (!check_deaf || !AFF_FLAGGED(to, EAffectFlag::AFF_DEAFNESS))
 			&& (!check_nodeaf || AFF_FLAGGED(to, EAffectFlag::AFF_DEAFNESS))
-			&& (!to_brief_shields || PRF_FLAGGED(to, PRF_BRIEF_SHIELDS))
-			&& (!to_no_brief_shields || !PRF_FLAGGED(to, PRF_BRIEF_SHIELDS))) {
+			&& (!to_brief_shields || GR_FLAGGED(to, EPrf::kBriefShields))
+			&& (!to_no_brief_shields || !GR_FLAGGED(to, EPrf::kBriefShields))) {
 			perform_act(str, ch, obj, vict_obj, to, kick_type);
 		}
 
@@ -3857,14 +3857,14 @@ void act(const char *str,
 				continue;
 			if (check_nodeaf && !AFF_FLAGGED(to, EAffectFlag::AFF_DEAFNESS))
 				continue;
-			if (to_brief_shields && !PRF_FLAGGED(to, PRF_BRIEF_SHIELDS))
+			if (to_brief_shields && !GR_FLAGGED(to, EPrf::kBriefShields))
 				continue;
-			if (to_no_brief_shields && PRF_FLAGGED(to, PRF_BRIEF_SHIELDS))
+			if (to_no_brief_shields && GR_FLAGGED(to, EPrf::kBriefShields))
 				continue;
 			if (type == kToRoomSensors && !AFF_FLAGGED(to, EAffectFlag::AFF_SENSE_LIFE)
-				&& (IS_NPC(to) || !PRF_FLAGGED(to, PRF_HOLYLIGHT)))
+				&& (IS_NPC(to) || !GR_FLAGGED(to, EPrf::kHolylight)))
 				continue;
-			if (type == kToRoomSensors && PRF_FLAGGED(to, PRF_HOLYLIGHT)) {
+			if (type == kToRoomSensors && GR_FLAGGED(to, EPrf::kHolylight)) {
 				std::string buffer = str;
 				if (!IS_MALE(ch)) {
 					boost::replace_first(buffer, "ся", GET_CH_SUF_2(ch));

@@ -34,7 +34,7 @@ int Account::zero_hryvn(CharData *ch, int val) {
 
 		const auto &player = player_table[get_ptable_by_unique(plr)];
 		if (zone_lvl <= 12 && (player.level + player.remorts / 5 >= 20)) {
-			if (PRF_FLAGGED(ch, PRF_TESTER)) {
+			if (GR_FLAGGED(ch, EPrf::kTester)) {
 				send_to_char(ch,
 							 "У чара %s в расчете %d гривен, тут будет 0, левел %d морты %d обнуляем!!!\r\n",
 							 player.name(),

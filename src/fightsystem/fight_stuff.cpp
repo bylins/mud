@@ -380,7 +380,7 @@ void die(CharData *ch, CharData *killer) {
 		if (!(IS_NPC(ch)
 			|| IS_IMMORTAL(ch)
 			|| GET_GOD_FLAG(ch, GF_GODSLIKE)
-			|| (killer && PRF_FLAGGED(killer, PRF_EXECUTOR))))//если убил не палач
+			|| (killer && GR_FLAGGED(killer, EPrf::kExecutor))))//если убил не палач
 		{
 			if (!NORENTABLE(ch))
 				dec_exp =
@@ -429,7 +429,7 @@ void forget_all_spells(CharData *ch) {
 	int slotn;
 
 	for (int i = 0; i <= kSpellCount; i++) {
-		if (PRF_FLAGGED(ch, PRF_AUTOMEM) && ch->real_abils.SplMem[i]) {
+		if (GR_FLAGGED(ch, EPrf::kAutomem) && ch->real_abils.SplMem[i]) {
 			slotn = spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;
 			for (unsigned j = 0; (slots[slotn] > 0 && j < ch->real_abils.SplMem[i]); ++j, --slots[slotn]) {
 				ch->MemQueue.total += mag_manacost(ch, i);
@@ -499,7 +499,7 @@ void death_cry(CharData *ch, CharData *killer) {
 void arena_kill(CharData *ch, CharData *killer) {
 	make_arena_corpse(ch, killer);
 	//Если убил палач то все деньги перекачивают к нему
-	if (killer && PRF_FLAGGED(killer, PRF_EXECUTOR)) {
+	if (killer && GR_FLAGGED(killer, EPrf::kExecutor)) {
 		killer->set_gold(ch->get_gold() + killer->get_gold());
 		ch->set_gold(0);
 	}
@@ -552,7 +552,7 @@ void auto_loot(CharData *ch, CharData *killer, ObjData *corpse, int local_gold) 
 
 	if (IS_NPC(ch)
 		&& !IS_NPC(killer)
-		&& PRF_FLAGGED(killer, PRF_AUTOLOOT)
+		&& GR_FLAGGED(killer, EPrf::kAutoloot)
 		&& (corpse != nullptr)
 		&& can_loot(killer)) {
 		sprintf(obj, "all");
@@ -560,7 +560,7 @@ void auto_loot(CharData *ch, CharData *killer, ObjData *corpse, int local_gold) 
 	} else if (IS_NPC(ch)
 		&& !IS_NPC(killer)
 		&& local_gold
-		&& PRF_FLAGGED(killer, PRF_AUTOMONEY)
+		&& GR_FLAGGED(killer, EPrf::kAutomoney)
 		&& (corpse != nullptr)
 		&& can_loot(killer)) {
 		sprintf(obj, "all.coin");
@@ -573,7 +573,7 @@ void auto_loot(CharData *ch, CharData *killer, ObjData *corpse, int local_gold) 
 		&& (corpse != nullptr)
 		&& killer->has_master()
 		&& killer->in_room == killer->get_master()->in_room
-		&& PRF_FLAGGED(killer->get_master(), PRF_AUTOLOOT)
+		&& GR_FLAGGED(killer->get_master(), EPrf::kAutoloot)
 		&& can_loot(killer->get_master())) {
 		sprintf(obj, "all");
 		get_from_container(killer->get_master(), corpse, obj, FIND_OBJ_INV, 1, true);
@@ -586,7 +586,7 @@ void auto_loot(CharData *ch, CharData *killer, ObjData *corpse, int local_gold) 
 		&& (corpse != nullptr)
 		&& killer->has_master()
 		&& killer->in_room == killer->get_master()->in_room
-		&& PRF_FLAGGED(killer->get_master(), PRF_AUTOMONEY)
+		&& GR_FLAGGED(killer->get_master(), EPrf::kAutomoney)
 		&& can_loot(killer->get_master())) {
 		sprintf(obj, "all.coin");
 		get_from_container(killer->get_master(), corpse, obj, FIND_OBJ_INV, 1, false);

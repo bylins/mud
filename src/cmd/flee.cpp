@@ -22,7 +22,7 @@ void go_flee(CharData *ch) {
 	}
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_NOFLEE) || AFF_FLAGGED(ch, EAffectFlag::AFF_LACKY)
-		|| PRF_FLAGS(ch).get(PRF_IRON_WIND)) {
+		|| GR_FLAGS(ch).get(EPrf::kIronWind)) {
 		send_to_char("Невидимые оковы мешают вам сбежать.\r\n", ch);
 		return;
 	}
@@ -82,7 +82,7 @@ void go_dir_flee(CharData *ch, int direction) {
 	}
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_NOFLEE) || AFF_FLAGGED(ch, EAffectFlag::AFF_LACKY)
-		|| PRF_FLAGS(ch).get(PRF_IRON_WIND)) {
+		|| GR_FLAGS(ch).get(EPrf::kIronWind)) {
 		send_to_char("Невидимые оковы мешают вам сбежать.\r\n", ch);
 		return;
 	}

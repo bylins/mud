@@ -13,7 +13,7 @@ void do_retreat(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 		return;
 	}
 
-	if (PRF_FLAGS(ch).get(PRF_IRON_WIND) || AFF_FLAGGED(ch, EAffectFlag::AFF_LACKY)) {
+	if (GR_FLAGS(ch).get(EPrf::kIronWind) || AFF_FLAGGED(ch, EAffectFlag::AFF_LACKY)) {
 		send_to_char("Вы не желаете отступать, не расправившись со всеми врагами!\r\n", ch);
 		return;
 	}

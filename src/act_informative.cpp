@@ -479,7 +479,7 @@ std::string char_get_custom_label(ObjData *obj, CharData *ch) {
 // mode 1 show_state 3 для хранилище (4 - хранилище ингров)
 const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_state, int how) {
 	*buf = '\0';
-	if ((mode < 5) && PRF_FLAGGED(ch, PRF_ROOMFLAGS))
+	if ((mode < 5) && GR_FLAGGED(ch, EPrf::kRoomFlags))
 		sprintf(buf, "[%5d] ", GET_OBJ_VNUM(object));
 
 	if (mode == 0
@@ -1058,7 +1058,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		&& !AFF_FLAGGED(i, EAffectFlag::AFF_CHARM)
 		&& !IS_HORSE(i)) {
 		*buf = '\0';
-		if (PRF_FLAGGED(ch, PRF_ROOMFLAGS)) {
+		if (GR_FLAGGED(ch, EPrf::kRoomFlags)) {
 			sprintf(buf, "[%5d] ", GET_MOB_VNUM(i));
 		}
 
@@ -1462,7 +1462,7 @@ void do_exits(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	*buf = '\0';
 	*buf2 = '\0';
 
-	if (PRF_FLAGGED(ch, PRF_BLIND)) {
+	if (GR_FLAGGED(ch, EPrf::kBlindMode)) {
 		do_blind_exits(ch);
 		return;
 	}
@@ -1481,7 +1481,7 @@ void do_exits(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 					strcat(buf2, "слишком темно\r\n");
 				else {
 					const RoomRnum rnum_exit_room = EXIT(ch, door)->to_room();
-					if (PRF_FLAGGED(ch, PRF_MAPPER) && !PLR_FLAGGED(ch, PLR_SCRIPTWRITER)
+					if (GR_FLAGGED(ch, EPrf::kMapper) && !PLR_FLAGGED(ch, PLR_SCRIPTWRITER)
 						&& !ROOM_FLAGGED(rnum_exit_room, ROOM_NOMAPPER)) {
 						sprintf(buf2 + strlen(buf2), "[%5d] %s", GET_ROOM_VNUM(rnum_exit_room), world[rnum_exit_room]->name);
 					} else {
@@ -1519,7 +1519,7 @@ void do_blind_exits(CharData *ch) {
 					strcat(buf2, "слишком темно");
 				else {
 					const RoomRnum rnum_exit_room = EXIT(ch, door)->to_room();
-					if (PRF_FLAGGED(ch, PRF_MAPPER) && !PLR_FLAGGED(ch, PLR_SCRIPTWRITER)
+					if (GR_FLAGGED(ch, EPrf::kMapper) && !PLR_FLAGGED(ch, PLR_SCRIPTWRITER)
 						&& !ROOM_FLAGGED(rnum_exit_room, ROOM_NOMAPPER)) {
 						sprintf(buf2 + strlen(buf2), "[%d] %s", GET_ROOM_VNUM(rnum_exit_room), world[rnum_exit_room]->name);
 					} else {
@@ -1819,7 +1819,7 @@ void look_at_room(CharData *ch, int ignore_brief) {
 		return;
 	}
 
-	if (PRF_FLAGGED(ch, PRF_DRAW_MAP) && !PRF_FLAGGED(ch, PRF_BLIND)) {
+	if (GR_FLAGGED(ch, EPrf::kDrawMap) && !GR_FLAGGED(ch, EPrf::kBlindMode)) {
 		MapSystem::print_map(ch);
 	} else if (ch->desc->snoop_by
 		&& ch->desc->snoop_by->snoop_with_map
@@ -1829,20 +1829,20 @@ void look_at_room(CharData *ch, int ignore_brief) {
 
 	send_to_char(CCICYN(ch, C_NRM), ch);
 
-	if (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_ROOMFLAGS)) {
+	if (!IS_NPC(ch) && GR_FLAGGED(ch, EPrf::kRoomFlags)) {
 		// иммам рандомная * во флагах ломает мапер грят
 		const bool has_flag = ROOM_FLAGGED(ch->in_room, ROOM_BFS_MARK) ? true : false;
-		GET_ROOM(ch->in_room)->unset_flag(ROOM_BFS_MARK);
+		world[ch->in_room]->unset_flag(ROOM_BFS_MARK);
 
-		GET_ROOM(ch->in_room)->flags_sprint(buf, ";");
+		world[ch->in_room]->flags_sprint(buf, ";");
 		snprintf(buf2, kMaxStringLength, "[%5d] %s [%s]", GET_ROOM_VNUM(ch->in_room), world[ch->in_room]->name, buf);
 		send_to_char(buf2, ch);
 
 		if (has_flag) {
-			GET_ROOM(ch->in_room)->set_flag(ROOM_BFS_MARK);
+			world[ch->in_room]->set_flag(ROOM_BFS_MARK);
 		}
 	} else {
-		if (PRF_FLAGGED(ch, PRF_MAPPER) && !PLR_FLAGGED(ch, PLR_SCRIPTWRITER)
+		if (GR_FLAGGED(ch, EPrf::kMapper) && !PLR_FLAGGED(ch, PLR_SCRIPTWRITER)
 			&& !ROOM_FLAGGED(ch->in_room, ROOM_NOMAPPER)) {
 			sprintf(buf2, "%s [%d]", world[ch->in_room]->name, GET_ROOM_VNUM(ch->in_room));
 			send_to_char(buf2, ch);
@@ -1853,14 +1853,14 @@ void look_at_room(CharData *ch, int ignore_brief) {
 	send_to_char(CCNRM(ch, C_NRM), ch);
 	send_to_char("\r\n", ch);
 
-	if (IS_DARK(ch->in_room) && !PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
+	if (IS_DARK(ch->in_room) && !GR_FLAGGED(ch, EPrf::kHolylight)) {
 		send_to_char("Слишком темно...\r\n", ch);
-	} else if ((!IS_NPC(ch) && !PRF_FLAGGED(ch, PRF_BRIEF)) || ignore_brief || ROOM_FLAGGED(ch->in_room, ROOM_DEATH)) {
+	} else if ((!IS_NPC(ch) && !GR_FLAGGED(ch, EPrf::kBrief)) || ignore_brief || ROOM_FLAGGED(ch->in_room, ROOM_DEATH)) {
 		show_extend_room(RoomDescription::show_desc(world[ch->in_room]->description_num).c_str(), ch);
 	}
 
 	// autoexits
-	if (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_AUTOEXIT) && !PLR_FLAGGED(ch, PLR_SCRIPTWRITER)) {
+	if (!IS_NPC(ch) && GR_FLAGGED(ch, EPrf::kAutoexit) && !PLR_FLAGGED(ch, PLR_SCRIPTWRITER)) {
 		do_auto_exits(ch);
 	}
 
@@ -1952,7 +1952,7 @@ void look_at_room(CharData *ch, int ignore_brief) {
 	if (!IS_NPC(ch)) {
 		ZoneRnum inroom = world[ch->in_room]->zone_rn;
 		if (zone_table[world[ch->get_from_room()]->zone_rn].vnum != zone_table[inroom].vnum) {
-			if (PRF_FLAGGED(ch, PRF_ENTER_ZONE))
+			if (GR_FLAGGED(ch, EPrf::kShowZoneNameOnEnter))
 				print_zone_info(ch);
 			if ((ch->get_level() < kLvlImmortal) && !ch->get_master())
 				++zone_table[inroom].traffic;
@@ -2270,7 +2270,7 @@ const char *diag_liquid_timer(const ObjData *obj) {
 //buf это буфер в который дописывать инфу, в нем уже может быть что-то иначе надо перед вызовом присвоить *buf='\0'
 void obj_info(CharData *ch, ObjData *obj, char buf[kMaxStringLength]) {
 	int j;
-	if (can_use_feat(ch, SKILLED_TRADER_FEAT) || PRF_FLAGGED(ch, PRF_HOLYLIGHT) || ch->get_skill(ESkill::kJewelry)) {
+	if (can_use_feat(ch, SKILLED_TRADER_FEAT) || GR_FLAGGED(ch, EPrf::kHolylight) || ch->get_skill(ESkill::kJewelry)) {
 		sprintf(buf + strlen(buf), "Материал : %s", CCCYN(ch, C_NRM));
 		sprinttype(obj->get_material(), material_name, buf + strlen(buf));
 		sprintf(buf + strlen(buf), "\r\n%s", CCNRM(ch, C_NRM));
@@ -2278,7 +2278,7 @@ void obj_info(CharData *ch, ObjData *obj, char buf[kMaxStringLength]) {
 
 	if (GET_OBJ_TYPE(obj) == ObjData::ITEM_MING
 		&& (can_use_feat(ch, BREW_POTION_FEAT)
-			|| PRF_FLAGGED(ch, PRF_HOLYLIGHT))) {
+			|| GR_FLAGGED(ch, EPrf::kHolylight))) {
 		for (j = 0; imtypes[j].id != GET_OBJ_VAL(obj, IM_TYPE_SLOT) && j <= top_imtypes;) {
 			j++;
 		}
@@ -2303,7 +2303,7 @@ void obj_info(CharData *ch, ObjData *obj, char buf[kMaxStringLength]) {
 		}
 	}
 
-	//|| PRF_FLAGGED(ch, PRF_HOLYLIGHT)
+	//|| EPrf::FLAGGED(ch, EPrf::HOLYLIGHT)
 	if (can_use_feat(ch, MASTER_JEWELER_FEAT)) {
 		sprintf(buf + strlen(buf), "Слоты : %s", CCCYN(ch, C_NRM));
 		if (obj->has_flag(EObjFlag::kHasThreeSlots)) {
@@ -3048,7 +3048,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			high = kLvlImplementator;
 			strcpy(buf, buf1);
 		} else if (a_isdigit(*arg)) {
-			if (IS_GOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
+			if (IS_GOD(ch) || GR_FLAGGED(ch, EPrf::kCoderinfo))
 				sscanf(arg, "%d-%d", &low, &high);
 			strcpy(buf, buf1);
 		} else if (*arg == '-') {
@@ -3056,33 +3056,33 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			switch (mode) {
 				case 'b':
 				case 'и':
-					if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_DEMIGOD) || PRF_FLAGGED(ch, PRF_CODERINFO))
+					if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_DEMIGOD) || GR_FLAGGED(ch, EPrf::kCoderinfo))
 						showname = true;
 					strcpy(buf, buf1);
 					break;
 				case 'z':
-					if (IS_GOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
+					if (IS_GOD(ch) || GR_FLAGGED(ch, EPrf::kCoderinfo))
 						localwho = true;
 					strcpy(buf, buf1);
 					break;
 				case 's':
-					if (IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
+					if (IS_IMMORTAL(ch) || GR_FLAGGED(ch, EPrf::kCoderinfo))
 						short_list = true;
 					strcpy(buf, buf1);
 					break;
 				case 'l': half_chop(buf1, arg, buf);
-					if (IS_GOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
+					if (IS_GOD(ch) || GR_FLAGGED(ch, EPrf::kCoderinfo))
 						sscanf(arg, "%d-%d", &low, &high);
 					break;
 				case 'n': half_chop(buf1, name_search, buf);
 					break;
 				case 'r':
-					if (IS_GOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
+					if (IS_GOD(ch) || GR_FLAGGED(ch, EPrf::kCoderinfo))
 						who_room = true;
 					strcpy(buf, buf1);
 					break;
 				case 'c': half_chop(buf1, arg, buf);
-					if (IS_GOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO)) {
+					if (IS_GOD(ch) || GR_FLAGGED(ch, EPrf::kCoderinfo)) {
 /*						const size_t len = strlen(arg);
 						for (size_t i = 0; i < len; i++) {
 							showclass |= FindCharClassMask(arg[i]);
@@ -3093,7 +3093,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				case 'h':
 				case '?':
 				default:
-					if (IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
+					if (IS_IMMORTAL(ch) || GR_FLAGGED(ch, EPrf::kCoderinfo))
 						send_to_char(IMM_WHO_FORMAT, ch);
 					else
 						send_to_char(MORT_WHO_FORMAT, ch);
@@ -3155,7 +3155,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			continue;
 		}
 		if (PLR_FLAGGED(tch, PLR_NAMED) && NAME_DURATION(tch)
-			&& !IS_IMMORTAL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO)
+			&& !IS_IMMORTAL(ch) && !GR_FLAGGED(ch, EPrf::kCoderinfo)
 			&& ch != tch.get()) {
 			continue;
 		}
@@ -3165,7 +3165,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (short_list) {
 			char tmp[kMaxInputLength];
 			snprintf(tmp, sizeof(tmp), "%s%s%s", CCPK(ch, C_NRM, tch), GET_NAME(tch), CCNRM(ch, C_NRM));
-			if (IS_IMPL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO)) {
+			if (IS_IMPL(ch) || GR_FLAGGED(ch, EPrf::kCoderinfo)) {
 				sprintf(buf, "%s[%2d %s] %-30s%s",
 						IS_GOD(tch) ? CCWHT(ch, C_SPR) : "",
 						GetRealLevel(tch), MUD::Classes()[tch->get_class()].GetCName(),
@@ -3177,7 +3177,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		} else {
 			if (IS_IMPL(ch)
-				|| PRF_FLAGGED(ch, PRF_CODERINFO)) {
+				|| GR_FLAGGED(ch, EPrf::kCoderinfo)) {
 				sprintf(buf, "%s[%2d %2d %s(%5d)] %s%s%s%s",
 						IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "",
 						GetRealLevel(tch),
@@ -3206,9 +3206,9 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			else if (PLR_FLAGGED(tch, PLR_WRITING))
 				strcat(buf, " (пишет)");
 
-			if (PRF_FLAGGED(tch, PRF_NOHOLLER))
+			if (GR_FLAGGED(tch, EPrf::kNoHoller))
 				sprintf(buf + strlen(buf), " (глух%s)", GET_CH_SUF_1(tch));
-			if (PRF_FLAGGED(tch, PRF_NOTELL))
+			if (GR_FLAGGED(tch, EPrf::kNoTell))
 				sprintf(buf + strlen(buf), " (занят%s)", GET_CH_SUF_6(tch));
 			if (PLR_FLAGGED(tch, PLR_MUTE))
 				sprintf(buf + strlen(buf), " (молчит)");
@@ -3230,10 +3230,10 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			if ((GetRealLevel(ch) == kLvlImplementator) && (NORENTABLE(tch)))
 				sprintf(buf + strlen(buf), " &R(В КРОВИ)&n");
-			else if ((IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO)) && NAME_BAD(tch)) {
+			else if ((IS_IMMORTAL(ch) || GR_FLAGGED(ch, EPrf::kCoderinfo)) && NAME_BAD(tch)) {
 				sprintf(buf + strlen(buf), " &Wзапрет %s!&n", get_name_by_id(NAME_ID_GOD(tch)));
 			}
-			if (IS_GOD(ch) && (GET_GOD_FLAG(tch, GF_TESTER) || PRF_FLAGGED(tch, PRF_TESTER)))
+			if (IS_GOD(ch) && (GET_GOD_FLAG(tch, GF_TESTER) || GR_FLAGGED(tch, EPrf::kTester)))
 				sprintf(buf + strlen(buf), " &G(ТЕСТЕР!)&n");
 			if (IS_GOD(ch) && (PLR_FLAGGED(tch, PLR_AUTOBOT)))
 				sprintf(buf + strlen(buf), " &G(БОТ!)&n");
@@ -3248,7 +3248,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				imms += "\r\n";
 			}
 		} else if (GET_GOD_FLAG(tch, GF_DEMIGOD)
-			&& (IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO) || GET_GOD_FLAG(tch, GF_DEMIGOD))) {
+			&& (IS_IMMORTAL(ch) || GR_FLAGGED(ch, EPrf::kCoderinfo) || GET_GOD_FLAG(tch, GF_DEMIGOD))) {
 			demigods_num++;
 			demigods += buf;
 			if (!short_list || !(demigods_num % 4)) {
@@ -3639,7 +3639,7 @@ bool print_imm_where_obj(CharData *ch, char *arg, int num) {
 
 	int tmp_num = num;
 	if (IS_GOD(ch)
-		|| PRF_FLAGGED(ch, PRF_CODERINFO)) {
+		|| GR_FLAGGED(ch, EPrf::kCoderinfo)) {
 		tmp_num = Clan::print_imm_where_obj(ch, arg, tmp_num);
 		tmp_num = Depot::print_imm_where_obj(ch, arg, tmp_num);
 		tmp_num = Parcel::print_imm_where_obj(ch, arg, tmp_num);
@@ -3659,7 +3659,7 @@ void perform_immort_where(CharData *ch, char *arg) {
 	int num = 1, found = 0;
 
 	if (!*arg) {
-		if (GetRealLevel(ch) < kLvlImplementator && !PRF_FLAGGED(ch, PRF_CODERINFO)) {
+		if (GetRealLevel(ch) < kLvlImplementator && !GR_FLAGGED(ch, EPrf::kCoderinfo)) {
 			send_to_char("Где КТО конкретно?", ch);
 		} else {
 			send_to_char("ИГРОКИ\r\n------\r\n", ch);
@@ -3711,7 +3711,7 @@ void perform_immort_where(CharData *ch, char *arg) {
 void do_where(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, arg);
 
-	if (IS_GRGOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
+	if (IS_GRGOD(ch) || GR_FLAGGED(ch, EPrf::kCoderinfo))
 		perform_immort_where(ch, arg);
 	else
 		perform_mortal_where(ch, arg);
@@ -3816,7 +3816,7 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	else
 		sprintf(buf2, "%-3d", GET_WIMP_LEV(ch));
 
-	if (GetRealLevel(ch) >= kLvlImmortal || PRF_FLAGGED(ch, PRF_CODERINFO)) {
+	if (GetRealLevel(ch) >= kLvlImmortal || GR_FLAGGED(ch, EPrf::kCoderinfo)) {
 		snprintf(buf, kMaxStringLength,
 				 " Нет агров     : %-3s     "
 				 " Супервидение  : %-3s     "
@@ -3825,13 +3825,13 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 				 " Замедление    : %-3s     "
 				 " Кодер         : %-3s \r\n"
 				 " Опечатки      : %-3s \r\n",
-				 ONOFF(PRF_FLAGGED(ch, PRF_NOHASSLE)),
-				 ONOFF(PRF_FLAGGED(ch, PRF_HOLYLIGHT)),
-				 ONOFF(PRF_FLAGGED(ch, PRF_ROOMFLAGS)),
-				 ONOFF(PRF_FLAGGED(ch, PRF_NOWIZ)),
+				 ONOFF(GR_FLAGGED(ch, EPrf::kNohassle)),
+				 ONOFF(GR_FLAGGED(ch, EPrf::kHolylight)),
+				 ONOFF(GR_FLAGGED(ch, EPrf::kRoomFlags)),
+				 ONOFF(GR_FLAGGED(ch, EPrf::kNoWiz)),
 				 ONOFF(nameserver_is_slow),
-				 ONOFF(PRF_FLAGGED(ch, PRF_CODERINFO)),
-				 ONOFF(PRF_FLAGGED(ch, PRF_MISPRINT)));
+				 ONOFF(GR_FLAGGED(ch, EPrf::kCoderinfo)),
+				 ONOFF(GR_FLAGGED(ch, EPrf::kShowUnread)));
 		send_to_char(buf, ch);
 	}
 
@@ -3872,27 +3872,27 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			 " Потеря связи  : %-3s     "
 			 " Ингредиенты   : %-3s     "
 			 " Вспомнить     : %-3u \r\n",
-			 ONOFF(PRF_FLAGGED(ch, PRF_AUTOEXIT)),
-			 ONOFF(PRF_FLAGGED(ch, PRF_BRIEF)),
-			 ONOFF(PRF_FLAGGED(ch, PRF_COMPACT)),
-			 YESNO(!PRF_FLAGGED(ch, PRF_NOREPEAT)),
-			 ONOFF(!PRF_FLAGGED(ch, PRF_NOTELL)),
+			 ONOFF(GR_FLAGGED(ch, EPrf::kAutoexit)),
+			 ONOFF(GR_FLAGGED(ch, EPrf::kBrief)),
+			 ONOFF(GR_FLAGGED(ch, EPrf::kCompact)),
+			 YESNO(!GR_FLAGGED(ch, EPrf::kNoRepeat)),
+			 ONOFF(!GR_FLAGGED(ch, EPrf::kNoTell)),
 			 ctypes[COLOR_LEV(ch)],
-			 PRF_FLAGGED(ch, PRF_NOINVISTELL) ? "нельзя" : "можно",
-			 ONOFF(!PRF_FLAGGED(ch, PRF_NOGOSS)),
-			 ONOFF(!PRF_FLAGGED(ch, PRF_NOHOLLER)),
-			 ONOFF(!PRF_FLAGGED(ch, PRF_NOAUCT)),
-			 ONOFF(!PRF_FLAGGED(ch, PRF_NOEXCHANGE)),
-			 ONOFF(PRF_FLAGGED(ch, PRF_AUTOMEM)),
-			 ONOFF(PRF_FLAGGED(ch, PRF_SUMMONABLE)),
-			 ONOFF(PRF_FLAGGED(ch, PRF_GOAHEAD)),
-			 PRF_FLAGGED(ch, PRF_SHOWGROUP) ? "полный" : "краткий",
-			 ONOFF(PRF_FLAGGED(ch, PRF_NOCLONES)),
-			 ONOFF(PRF_FLAGGED(ch, PRF_AUTOASSIST)),
-			 ONOFF(PRF_FLAGGED(ch, PRF_AUTOSPLIT)),
-			 PRF_FLAGGED(ch, PRF_AUTOLOOT) ? PRF_FLAGGED(ch, PRF_NOINGR_LOOT) ? "NO-INGR" : "ALL    " : "OFF    ",
-			 ONOFF(PRF_FLAGGED(ch, PRF_AUTOMONEY)),
-			 ONOFF(!PRF_FLAGGED(ch, PRF_NOARENA)),
+			 GR_FLAGGED(ch, EPrf::kNoInvistell) ? "нельзя" : "можно",
+			 ONOFF(!GR_FLAGGED(ch, EPrf::kNoGossip)),
+			 ONOFF(!GR_FLAGGED(ch, EPrf::kNoHoller)),
+			 ONOFF(!GR_FLAGGED(ch, EPrf::kNoAuction)),
+			 ONOFF(!GR_FLAGGED(ch, EPrf::kNoExchange)),
+			 ONOFF(GR_FLAGGED(ch, EPrf::kAutomem)),
+			 ONOFF(GR_FLAGGED(ch, EPrf::KSummonable)),
+			 ONOFF(GR_FLAGGED(ch, EPrf::kGoAhead)),
+			 GR_FLAGGED(ch, EPrf::kShowGroup) ? "полный" : "краткий",
+			 ONOFF(GR_FLAGGED(ch, EPrf::kNoClones)),
+			 ONOFF(GR_FLAGGED(ch, EPrf::kAutoassist)),
+			 ONOFF(GR_FLAGGED(ch, EPrf::kAutosplit)),
+			 GR_FLAGGED(ch, EPrf::kAutoloot) ? GR_FLAGGED(ch, EPrf::kNoIngrLoot) ? "NO-INGR" : "ALL    " : "OFF    ",
+			 ONOFF(GR_FLAGGED(ch, EPrf::kAutomoney)),
+			 ONOFF(!GR_FLAGGED(ch, EPrf::kNoArena)),
 			 buf2,
 			 STRING_LENGTH(ch),
 			 STRING_WIDTH(ch),
@@ -3901,16 +3901,16 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 #else
 		"N/A",
 #endif
-			 PRF_FLAGGED(ch, PRF_NEWS_MODE) ? "доска" : "лента",
-			 ONOFF(PRF_FLAGGED(ch, PRF_BOARD_MODE)),
+			 GR_FLAGGED(ch, EPrf::kNewsMode) ? "доска" : "лента",
+			 ONOFF(GR_FLAGGED(ch, EPrf::kBoardMode)),
 			 GetChestMode(ch).c_str(),
-			 ONOFF(PRF_FLAGGED(ch, PRF_PKL_MODE)),
-			 ONOFF(PRF_FLAGGED(ch, PRF_POLIT_MODE)),
-			 PRF_FLAGGED(ch, PRF_PKFORMAT_MODE) ? "краткий" : "полный",
-			 ONOFF(PRF_FLAGGED(ch, PRF_WORKMATE_MODE)),
-			 ONOFF(PRF_FLAGGED(ch, PRF_OFFTOP_MODE)),
-			 ONOFF(PRF_FLAGGED(ch, PRF_ANTIDC_MODE)),
-			 ONOFF(PRF_FLAGGED(ch, PRF_NOINGR_MODE)),
+			 ONOFF(GR_FLAGGED(ch, EPrf::kPklMode)),
+			 ONOFF(GR_FLAGGED(ch, EPrf::kPolitMode)),
+			 GR_FLAGGED(ch, EPrf::kPkFormatMode) ? "краткий" : "полный",
+			 ONOFF(GR_FLAGGED(ch, EPrf::kClanmembersMode)),
+			 ONOFF(GR_FLAGGED(ch, EPrf::kOfftopMode)),
+			 ONOFF(GR_FLAGGED(ch, EPrf::kAntiDcMode)),
+			 ONOFF(GR_FLAGGED(ch, EPrf::kNoIngrMode)),
 			 ch->remember_get_num());
 	send_to_char(buf, ch);
 	if (NOTIFY_EXCH_PRICE(ch) > 0) {
@@ -3926,15 +3926,15 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			 " Автопризыв    : %-5s   "
 			 " Маппер        : %-3s   \r\n"
 			 " Контроль IP   : %-6s  ",
-			 ONOFF(PRF_FLAGGED(ch, PRF_DRAW_MAP)),
-			 ONOFF(PRF_FLAGGED(ch, PRF_ENTER_ZONE)),
-			 (PRF_FLAGGED(ch, PRF_BRIEF_SHIELDS) ? "краткий" : "полный"),
-			 ONOFF(PRF_FLAGGED(ch, PRF_AUTO_NOSUMMON)),
-			 ONOFF(PRF_FLAGGED(ch, PRF_MAPPER)),
-			 ONOFF(PRF_FLAGGED(ch, PRF_IPCONTROL)));
+			 ONOFF(GR_FLAGGED(ch, EPrf::kDrawMap)),
+			 ONOFF(GR_FLAGGED(ch, EPrf::kShowZoneNameOnEnter)),
+			 (GR_FLAGGED(ch, EPrf::kBriefShields) ? "краткий" : "полный"),
+			 ONOFF(GR_FLAGGED(ch, EPrf::kAutonosummon)),
+			 ONOFF(GR_FLAGGED(ch, EPrf::kMapper)),
+			 ONOFF(GR_FLAGGED(ch, EPrf::kIpControl)));
 	send_to_char(buf, ch);
 	if (GET_GOD_FLAG(ch, GF_TESTER))
-		sprintf(buf, " Тестер        : %-3s\r\n", ONOFF(PRF_FLAGGED(ch, PRF_TESTER)));
+		sprintf(buf, " Тестер        : %-3s\r\n", ONOFF(GR_FLAGGED(ch, EPrf::kTester)));
 	else
 		sprintf(buf, "\r\n");
 	send_to_char(buf, ch);
@@ -3949,7 +3949,7 @@ void do_zone(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 	print_zone_info(ch);
 
-	if ((IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
+	if ((IS_IMMORTAL(ch) || GR_FLAGGED(ch, EPrf::kCoderinfo))
 		&& zone_table[world[ch->in_room]->zone_rn].comment) {
 		send_to_char(ch, "Комментарий: %s.\r\n",
 					 zone_table[world[ch->in_room]->zone_rn].comment);

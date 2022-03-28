@@ -433,35 +433,33 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
 
 #define MOB_FLAGS(ch)  ((ch)->char_specials.saved.act)
 #define PLR_FLAGS(ch)  ((ch)->char_specials.saved.act)
-#define PRF_FLAGS(ch)  ((ch)->player_specials->saved.pref)
+#define GR_FLAGS(ch)  ((ch)->player_specials->saved.pref)
 #define NPC_FLAGS(ch)  ((ch)->mob_specials.npc_flags)
 #define ROOM_AFF_FLAGS(room)  ((room)->affected_by)
 #define EXTRA_FLAGS(ch) ((ch)->Temporary)
-#define GET_ROOM(loc) (world[(loc)])
-#define DESC_FLAGS(d)   ((d)->options)
 #define SPELL_ROUTINES(spl) (spell_info[spl].routines)
 
 // See http://www.circlemud.org/~greerga/todo.009 to eliminate MOB_ISNPC.
 #define IS_NPC(ch)           ((ch)->is_npc())
-#define IS_MOB(ch)          (IS_NPC(ch) && ch->get_rnum() >= 0)
+#define IS_MOB(ch)          ((ch)->is_npc() && (ch)->get_rnum() >= 0)
 
-#define MOB_FLAGGED(ch, flag)   (IS_NPC(ch) && MOB_FLAGS(ch).get(flag))
-#define PLR_FLAGGED(ch, flag)   (!IS_NPC(ch) && PLR_FLAGS(ch).get(flag))
-#define PRF_FLAGGED(ch, flag)   (PRF_FLAGS(ch).get(flag))
+#define MOB_FLAGGED(ch, flag)   ((ch)->is_npc() && MOB_FLAGS(ch).get(flag))
+#define PLR_FLAGGED(ch, flag)   (!(ch)->is_npc() && PLR_FLAGS(ch).get(flag))
+#define GR_FLAGGED(ch, flag)   (GR_FLAGS(ch).get(flag))
 #define NPC_FLAGGED(ch, flag)   (NPC_FLAGS(ch).get(flag))
 #define EXTRA_FLAGGED(ch, flag) (EXTRA_FLAGS(ch).get(flag))
-#define ROOM_FLAGGED(loc, flag) (GET_ROOM((loc))->get_flag(flag))
+#define ROOM_FLAGGED(loc, flag) (world[(loc)]->get_flag(flag))
 #define ROOM_AFFECTED(loc, flag) (ROOM_AFF_FLAGS((world[(loc)])).get(flag))
 #define EXIT_FLAGGED(exit, flag)     (IS_SET((exit)->exit_info, (flag)))
 #define OBJVAL_FLAGGED(obj, flag)    (IS_SET(GET_OBJ_VAL((obj), 1), (flag)))
-#define OBJWEAR_FLAGGED(obj, mask)   (obj->get_wear_mask(mask))
+#define OBJWEAR_FLAGGED(obj, mask)   ((obj)->get_wear_mask(mask))
 #define HAS_SPELL_ROUTINE(spl, flag) (IS_SET(SPELL_ROUTINES(spl), (flag)))
 
 // IS_AFFECTED for backwards compatibility
 #define IS_AFFECTED(ch, skill) (AFF_FLAGGED(ch, EAffectFlag::skill))
 
 #define PLR_TOG_CHK(ch, flag) (PLR_FLAGS(ch).toggle(flag))
-#define PRF_TOG_CHK(ch, flag) (PRF_FLAGS(ch).toggle(flag))
+#define PRF_TOG_CHK(ch, flag) (GR_FLAGS(ch).toggle(flag))
 
 // room utils ***********************************************************
 #define SECT(room)   (world[(room)]->sector_type)
@@ -503,7 +501,7 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
 #define CHECK_AGRO(ch)        ((ch)->CheckAggressive)
 #define WAITLESS(ch)          (IS_IMMORTAL(ch))
 #define PUNCTUAL_WAITLESS(ch)          (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE))
-#define IS_CODER(ch)    (GetRealLevel(ch) < kLvlImmortal && PRF_FLAGGED(ch, PRF_CODERINFO))
+#define IS_CODER(ch)    (GetRealLevel(ch) < kLvlImmortal && GR_FLAGGED(ch, EPrf::kCoderinfo))
 #define IS_COLORED(ch)    (pk_count (ch))
 #define MAX_PORTALS(ch)  ((GetRealLevel(ch)/3)+GET_REAL_REMORT(ch))
 
@@ -747,7 +745,7 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_LASTROOM(ch)    ((ch)->mob_specials.LastRoom)
 
 #define CAN_SEE_IN_DARK(ch) \
-   (AFF_FLAGGED(ch, EAffectFlag::AFF_INFRAVISION) || (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_HOLYLIGHT)))
+   (AFF_FLAGGED(ch, EAffectFlag::AFF_INFRAVISION) || (!IS_NPC(ch) && GR_FLAGGED(ch, EPrf::kHolylight)))
 
 #define IS_GOOD(ch)          (GET_ALIGNMENT(ch) >= ALIG_GOOD_MORE)
 #define IS_EVIL(ch)          (GET_ALIGNMENT(ch) <= ALIG_EVIL_LESS)
@@ -979,17 +977,12 @@ inline T VPOSI(const T val, const T min, const T max) {
                 )
 
 #define IMM_CAN_SEE_CHAR(sub, obj) \
-        (MORT_CAN_SEE_CHAR(sub, obj) || (!IS_NPC(sub) && PRF_FLAGGED(sub, PRF_HOLYLIGHT)))
+        (MORT_CAN_SEE_CHAR(sub, obj) || (!IS_NPC(sub) && GR_FLAGGED(sub, EPrf::kHolylight)))
 
 #define CAN_SEE_CHAR(sub, obj) (IS_CODER(sub) || SELF(sub, obj) || \
         ((GetRealLevel(sub) >= (IS_NPC(obj) ? 0 : GET_INVIS_LEV(obj))) && \
          IMM_CAN_SEE_CHAR(sub, obj)))
 // End of CAN_SEE
-
-// Is anyone carrying this object and if so, are they visible?
-#define CAN_SEE_OBJ_CARRIER(sub, obj) \
-  ((!obj->carried_by || CAN_SEE(sub, obj->carried_by)) && \
-   (!obj->worn_by    || CAN_SEE(sub, obj->worn_by)))
 
 #define GET_PAD_PERS(pad) ((pad) == 5 ? "ком-то" :\
                            (pad) == 4 ? "кем-то" :\

@@ -137,7 +137,7 @@ int CalculateSaving(CharData *killer, CharData *victim, ESaving saving, int ext_
 		}
 	}
 	// Учет осторожного стиля
-	if (PRF_FLAGGED(victim, PRF_AWAKE)) {
+	if (GR_FLAGGED(victim, EPrf::kAwake)) {
 		if (can_use_feat(victim, IMPREGNABLE_FEAT)) {
 			save -= MAX(0, victim->get_skill(ESkill::kAwake) - 80) / 2;
 			temp_awake_mod = MAX(0, victim->get_skill(ESkill::kAwake) - 80) / 2;
@@ -364,7 +364,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 		if (can_use_feat(ch, MAGICAL_INSTINCT_FEAT) && !IS_NPC(victim)) {
 			modi -= 30; // на игрока бонуса + каст нет
 		}
-		if (PRF_FLAGGED(ch, PRF_AWAKE) && !IS_NPC(victim))
+		if (GR_FLAGGED(ch, EPrf::kAwake) && !IS_NPC(victim))
 			modi = modi - 50; // на игрока бонуса + каст нет
 	}
 	if (!IS_NPC(ch) && (GetRealLevel(ch) > 10))
@@ -1175,7 +1175,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 
 	}
 
-	if (PRF_FLAGGED(ch, PRF_AWAKE) && !IS_NPC(victim)) {
+	if (GR_FLAGGED(ch, EPrf::kAwake) && !IS_NPC(victim)) {
 		modi = modi - 50;
 	}
 
@@ -3304,7 +3304,7 @@ int mag_summons(int level, CharData *ch, ObjData *obj, int spellnum, int savetyp
 
 		GET_MAX_HIT(mob) = GET_HIT(mob) = 300 + number(modifier * 12, modifier * 16);
 		mob->set_skill(ESkill::kAwake, 50 + modifier * 2);
-		PRF_FLAGS(mob).set(PRF_AWAKE);
+		GR_FLAGS(mob).set(EPrf::kAwake);
 	}
 	MOB_FLAGS(mob).set(MOB_NOTRAIN);
 	// А надо ли это вообще делать???
@@ -4452,7 +4452,7 @@ int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, int spellnum
 				int tax = CASTER_CAST_SUCCESS * castDecay * (targetsCounter - mag_messages[msgIndex].freeTargets);
 				GET_CAST_SUCCESS(ch) = MAX(-200, CASTER_CAST_SUCCESS - tax);
 				level = MAX(1, level - levelDecay);
-				if (PRF_FLAGGED(ch, PRF_TESTER)) {
+				if (GR_FLAGGED(ch, EPrf::kTester)) {
 					send_to_char(ch,
 								 "&GМакс. целей: %d, Каст: %d, Уровень заклинания: %d.&n\r\n",
 								 targetsAmount,
