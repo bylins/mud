@@ -375,8 +375,8 @@ int interpolate(int min_value, int pulse) {
 void beat_punish(const CharData::shared_ptr &i) {
 	int restore;
 	// Проверяем на выпуск чара из кутузки
-	if (PLR_FLAGGED(i, PLR_HELLED) && HELL_DURATION(i) && HELL_DURATION(i) <= time(nullptr)) {
-		restore = PLR_TOG_CHK(i, PLR_HELLED);
+	if (PLR_FLAGGED(i, EPlrFlag::kHelled) && HELL_DURATION(i) && HELL_DURATION(i) <= time(nullptr)) {
+		restore = PLR_TOG_CHK(i, EPlrFlag::kHelled);
 		if (HELL_REASON(i))
 			free(HELL_REASON(i));
 		HELL_REASON(i) = 0;
@@ -399,10 +399,10 @@ void beat_punish(const CharData::shared_ptr &i) {
 		act("Насвистывая \"От звонка до звонка...\", $n появил$u в центре комнаты.", false, i.get(), 0, 0, kToRoom);
 	}
 
-	if (PLR_FLAGGED(i, PLR_NAMED)
+	if (PLR_FLAGGED(i, EPlrFlag::kNameDenied)
 		&& NAME_DURATION(i)
 		&& NAME_DURATION(i) <= time(nullptr)) {
-		restore = PLR_TOG_CHK(i, PLR_NAMED);
+		restore = PLR_TOG_CHK(i, EPlrFlag::kNameDenied);
 		if (NAME_REASON(i)) {
 			free(NAME_REASON(i));
 		}
@@ -432,10 +432,10 @@ void beat_punish(const CharData::shared_ptr &i) {
 		act("С ревом \"Имья, сестра, имья...\", $n появил$u в центре комнаты.", false, i.get(), 0, 0, kToRoom);
 	}
 
-	if (PLR_FLAGGED(i, PLR_MUTE)
+	if (PLR_FLAGGED(i, EPlrFlag::kMuted)
 		&& MUTE_DURATION(i) != 0
 		&& MUTE_DURATION(i) <= time(nullptr)) {
-		restore = PLR_TOG_CHK(i, PLR_MUTE);
+		restore = PLR_TOG_CHK(i, EPlrFlag::kMuted);
 		if (MUTE_REASON(i))
 			free(MUTE_REASON(i));
 		MUTE_REASON(i) = 0;
@@ -445,10 +445,10 @@ void beat_punish(const CharData::shared_ptr &i) {
 		send_to_char("Вы можете орать.\r\n", i.get());
 	}
 
-	if (PLR_FLAGGED(i, PLR_DUMB)
+	if (PLR_FLAGGED(i, EPlrFlag::kDumbed)
 		&& DUMB_DURATION(i) != 0
 		&& DUMB_DURATION(i) <= time(nullptr)) {
-		restore = PLR_TOG_CHK(i, PLR_DUMB);
+		restore = PLR_TOG_CHK(i, EPlrFlag::kDumbed);
 		if (DUMB_REASON(i))
 			free(DUMB_REASON(i));
 		DUMB_REASON(i) = 0;
@@ -458,10 +458,10 @@ void beat_punish(const CharData::shared_ptr &i) {
 		send_to_char("Вы можете говорить.\r\n", i.get());
 	}
 
-	if (!PLR_FLAGGED(i, PLR_REGISTERED)
+	if (!PLR_FLAGGED(i, EPlrFlag::kRegistred)
 		&& UNREG_DURATION(i) != 0
 		&& UNREG_DURATION(i) <= time(nullptr)) {
-		restore = PLR_TOG_CHK(i, PLR_REGISTERED);
+		restore = PLR_TOG_CHK(i, EPlrFlag::kRegistred);
 		if (UNREG_REASON(i))
 			free(UNREG_REASON(i));
 		UNREG_REASON(i) = 0;
@@ -509,10 +509,10 @@ void beat_punish(const CharData::shared_ptr &i) {
 		send_to_char("Боги более не в обиде на вас.\r\n", i.get());
 	}
 
-	if (PLR_FLAGGED(i, PLR_FROZEN)
+	if (PLR_FLAGGED(i, EPlrFlag::kFrozen)
 		&& FREEZE_DURATION(i) != 0
 		&& FREEZE_DURATION(i) <= time(nullptr)) {
-		restore = PLR_TOG_CHK(i, PLR_FROZEN);
+		restore = PLR_TOG_CHK(i, EPlrFlag::kFrozen);
 		if (FREEZE_REASON(i)) {
 			free(FREEZE_REASON(i));
 		}
@@ -546,7 +546,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 		restore = IN_ROOM(i);
 	}
 
-	if (PLR_FLAGGED(i, PLR_HELLED)) {
+	if (PLR_FLAGGED(i, EPlrFlag::kHelled)) {
 		if (restore != r_helled_start_room) {
 			if (IN_ROOM(i) == STRANGE_ROOM) {
 				i->set_was_in_room(r_helled_start_room);
@@ -561,7 +561,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 				i->set_was_in_room(kNowhere);
 			}
 		}
-	} else if (PLR_FLAGGED(i, PLR_NAMED)) {
+	} else if (PLR_FLAGGED(i, EPlrFlag::kNameDenied)) {
 		if (restore != r_named_start_room) {
 			if (IN_ROOM(i) == STRANGE_ROOM) {
 				i->set_was_in_room(r_named_start_room);
@@ -912,7 +912,7 @@ void gain_condition(CharData *ch, unsigned condition, int value) {
 		GET_DRUNK_STATE(ch) = 0;
 	}
 
-	if (PLR_FLAGGED(ch, PLR_WRITING))
+	if (PLR_FLAGGED(ch, EPlrFlag::kWriting))
 		return;
 
 	int cond_value = GET_COND(ch, condition);
@@ -1073,7 +1073,7 @@ void hour_update(void) {
 	DescriptorData *i;
 
 	for (i = descriptor_list; i; i = i->next) {
-		if (STATE(i) != CON_PLAYING || i->character == nullptr || PLR_FLAGGED(i->character, PLR_WRITING))
+		if (STATE(i) != CON_PLAYING || i->character == nullptr || PLR_FLAGGED(i->character, EPlrFlag::kWriting))
 			continue;
 		sprintf(buf, "%sМинул час.%s\r\n", CCIRED(i->character, C_NRM), CCNRM(i->character, C_NRM));
 		SEND_TO_Q(buf, i);

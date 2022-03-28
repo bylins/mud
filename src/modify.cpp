@@ -118,7 +118,7 @@ void smash_tilde(char *str) {
 void string_write(DescriptorData *d, const utils::AbstractStringWriter::shared_ptr &writer,
 				  size_t len, int mailto, void *data) {
 	if (d->character && !d->character->is_npc()) {
-		PLR_FLAGS(d->character).set(PLR_WRITING);
+		PLR_FLAGS(d->character).set(EPlrFlag::kWriting);
 	}
 
 	if (data) {
@@ -553,7 +553,7 @@ void string_add(DescriptorData *d, char *str) {
 #endif
 
 	// почту логировать как-то не оно
-	if (d->character && !PLR_FLAGGED(d->character, PLR_MAILING))
+	if (d->character && !PLR_FLAGGED(d->character, EPlrFlag::kMailing))
 		log("[SA] <%s> adds string '%s'", GET_NAME(d->character), str);
 
 	smash_tilde(str);
@@ -787,7 +787,7 @@ void string_add(DescriptorData *d, char *str) {
 				d->writer.reset();
 			}
 			d->connected = CON_PLAYING;
-		} else if (!d->connected && (PLR_FLAGGED(d->character, PLR_MAILING))) {
+		} else if (!d->connected && (PLR_FLAGGED(d->character, EPlrFlag::kMailing))) {
 			if ((terminator == 1) && d->writer->get_string()) {
 				mail::add(d->mail_to, d->character->get_uid(), d->writer->get_string());
 				SEND_TO_Q("Ближайшей оказией я отправлю ваше письмо адресату!\r\n", d);
@@ -832,9 +832,9 @@ void string_add(DescriptorData *d, char *str) {
 		}
 
 		if (d->character && !d->character->is_npc()) {
-			PLR_FLAGS(d->character).unset(PLR_WRITING);
+			PLR_FLAGS(d->character).unset(EPlrFlag::kWriting);
 
-			PLR_FLAGS(d->character).unset(PLR_MAILING);
+			PLR_FLAGS(d->character).unset(EPlrFlag::kMailing);
 		}
 		if (d->backstr) {
 			free(d->backstr);

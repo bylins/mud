@@ -691,28 +691,28 @@ void Player::save_char() {
 	PRF_FLAGS(this).tascii(4, buf);
 	fprintf(saved, "Pref: %s\n", buf);
 
-	if (MUTE_DURATION(this) > 0 && PLR_FLAGGED(this, PLR_MUTE))
+	if (MUTE_DURATION(this) > 0 && PLR_FLAGGED(this, EPlrFlag::kMuted))
 		fprintf(saved,
 				"PMut: %ld %d %ld %s~\n",
 				MUTE_DURATION(this),
 				GET_MUTE_LEV(this),
 				MUTE_GODID(this),
 				MUTE_REASON(this));
-	if (NAME_DURATION(this) > 0 && PLR_FLAGGED(this, PLR_NAMED))
+	if (NAME_DURATION(this) > 0 && PLR_FLAGGED(this, EPlrFlag::kNameDenied))
 		fprintf(saved,
 				"PNam: %ld %d %ld %s~\n",
 				NAME_DURATION(this),
 				GET_NAME_LEV(this),
 				NAME_GODID(this),
 				NAME_REASON(this));
-	if (DUMB_DURATION(this) > 0 && PLR_FLAGGED(this, PLR_DUMB))
+	if (DUMB_DURATION(this) > 0 && PLR_FLAGGED(this, EPlrFlag::kDumbed))
 		fprintf(saved,
 				"PDum: %ld %d %ld %s~\n",
 				DUMB_DURATION(this),
 				GET_DUMB_LEV(this),
 				DUMB_GODID(this),
 				DUMB_REASON(this));
-	if (HELL_DURATION(this) > 0 && PLR_FLAGGED(this, PLR_HELLED))
+	if (HELL_DURATION(this) > 0 && PLR_FLAGGED(this, EPlrFlag::kHelled))
 		fprintf(saved,
 				"PHel: %ld %d %ld %s~\n",
 				HELL_DURATION(this),
@@ -726,7 +726,7 @@ void Player::save_char() {
 				GET_GCURSE_LEV(this),
 				GCURSE_GODID(this),
 				GCURSE_REASON(this));
-	if (FREEZE_DURATION(this) > 0 && PLR_FLAGGED(this, PLR_FROZEN))
+	if (FREEZE_DURATION(this) > 0 && PLR_FLAGGED(this, EPlrFlag::kFrozen))
 		fprintf(saved,
 				"PFrz: %ld %d %ld %s~\n",
 				FREEZE_DURATION(this),
@@ -959,7 +959,7 @@ void Player::save_char() {
 // при включенном флаге файл читается только до поля Rebt, все остальные поля пропускаются
 // поэтому при каких-то изменениях в entrycount, must_be_deleted и TopPlayer::Refresh следует
 // убедиться, что изменный код работает с действительно проинициализированными полями персонажа
-// на данный момент это: PLR_FLAGS, GET_CLASS, GET_EXP, GET_IDNUM, LAST_LOGON, GetRealLevel, GET_NAME, GET_REAL_REMORT, GET_UNIQUE, GET_EMAIL
+// на данный момент это: EPlrFlag::FLAGS, GET_CLASS, GET_EXP, GET_IDNUM, LAST_LOGON, GetRealLevel, GET_NAME, GET_REAL_REMORT, GET_UNIQUE, GET_EMAIL
 // * \param reboot - по дефолту = false
 int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*= true*/) {
 	int id, num = 0, num2 = 0, num3 = 0, num4 = 0, num5 = 0, num6 = 0, i;

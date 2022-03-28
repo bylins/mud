@@ -2805,7 +2805,7 @@ int gen_receptionist(CharData *ch, CharData *recep, int cmd, char * /*arg*/, int
 				"Вы потеряли связь с окружающими вас...", false, recep, 0, ch, kToVict);
 			Crash_cryosave(ch, cost);
 			sprintf(buf, "%s has cryo-rented.", GET_NAME(ch));
-			PLR_FLAGS(ch).set(PLR_CRYO);
+			PLR_FLAGS(ch).set(EPlrFlag::kCryo);
 		}
 
 		mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
@@ -2866,7 +2866,7 @@ void Crash_frac_save_all(int frac_part) {
 		if ((STATE(d) == CON_PLAYING) && !d->character->is_npc() && GET_ACTIVITY(d->character) == frac_part) {
 			Crash_crashsave(d->character.get());
 			d->character->save_char();
-			PLR_FLAGS(d->character).unset(PLR_CRASH);
+			PLR_FLAGS(d->character).unset(EPlrFlag::kCrashSave);
 		}
 	}
 }
@@ -2874,10 +2874,10 @@ void Crash_frac_save_all(int frac_part) {
 void Crash_save_all(void) {
 	DescriptorData *d;
 	for (d = descriptor_list; d; d = d->next) {
-		if ((STATE(d) == CON_PLAYING) && PLR_FLAGGED(d->character, PLR_CRASH)) {
+		if ((STATE(d) == CON_PLAYING) && PLR_FLAGGED(d->character, EPlrFlag::kCrashSave)) {
 			Crash_crashsave(d->character.get());
 			d->character->save_char();
-			PLR_FLAGS(d->character).unset(PLR_CRASH);
+			PLR_FLAGS(d->character).unset(EPlrFlag::kCrashSave);
 		}
 	}
 }
@@ -2893,7 +2893,7 @@ void Crash_save_all_rent(void) {
 		if (!ch->is_npc()) {
 			save_char_objects(ch.get(), RENT_FORCED, 0);
 			log("Saving char: %s", GET_NAME(ch));
-			PLR_FLAGS(ch).unset(PLR_CRASH);
+			PLR_FLAGS(ch).unset(EPlrFlag::kCrashSave);
 			//AFF_FLAGS(ch.get()).unset(EAffectFlag::AFF_GROUP);
 			(ch.get())->removeGroupFlags();
 			AFF_FLAGS(ch.get()).unset(EAffectFlag::AFF_HORSE);

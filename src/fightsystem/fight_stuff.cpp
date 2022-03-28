@@ -512,7 +512,7 @@ void arena_kill(CharData *ch, CharData *killer) {
 		to_room = Clan::CloseRent(to_room);
 	}
 	if (to_room == kNowhere) {
-		PLR_FLAGS(ch).set(PLR_HELLED);
+		PLR_FLAGS(ch).set(EPlrFlag::kHelled);
 		HELL_DURATION(ch) = time(nullptr) + 6;
 		to_room = r_helled_start_room;
 	}

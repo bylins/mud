@@ -1176,7 +1176,7 @@ void remove_freeze(long uid) {
 void check_freeze(CharData *ch) {
 	auto it = glory_list.find(GET_UNIQUE(ch));
 	if (it != glory_list.end())
-		it->second->freeze = PLR_FLAGGED(ch, PLR_FROZEN) ? true : false;
+		it->second->freeze = PLR_FLAGGED(ch, EPlrFlag::kFrozen) ? true : false;
 }
 
 void set_stats(CharData *ch) {

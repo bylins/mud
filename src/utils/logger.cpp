@@ -271,7 +271,7 @@ void mudlog(const char *str, LogMode type, int level, EOutputStream channel, int
 			continue;
 		if (GetRealLevel(i->character) < level && !PRF_FLAGGED(i->character, EPrf::kCoderinfo))
 			continue;
-		if (PLR_FLAGGED(i->character, PLR_WRITING) || PLR_FLAGGED(i->character, PLR_FROZEN))
+		if (PLR_FLAGGED(i->character, EPlrFlag::kWriting) || PLR_FLAGGED(i->character, EPlrFlag::kFrozen))
 			continue;
 
 		send_to_char(CCGRN(i->character, C_NRM), i->character.get());

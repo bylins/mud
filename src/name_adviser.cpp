@@ -116,7 +116,7 @@ void NameAdviser::init()
 
 		Player tmp_player;
 		const int char_i = load_char(char_name.c_str(), &tmp_player);
-		if (char_i > -1 && !PLR_FLAGGED(&tmp_player, PLR_DELETED)) {
+		if (char_i > -1 && !PLR_FLAGGED(&tmp_player, EPlrFlag::kDeleted)) {
 			// char exists and not deleted - skip name
 			remove(char_name);
 			continue;

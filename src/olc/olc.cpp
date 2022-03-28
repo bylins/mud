@@ -325,7 +325,7 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 	}
 	act("$n по локоть запустил$g руки в глубины Мира и начал$g что-то со скрежетом там поворачивать.",
 		true, d->character.get(), 0, 0, kToRoom);
-	PLR_FLAGS(ch).set(PLR_WRITING);
+	PLR_FLAGS(ch).set(EPlrFlag::kWriting);
 }
 
 // ------------------------------------------------------------
@@ -496,7 +496,7 @@ void cleanup_olc(DescriptorData *d, byte cleanup_type) {
 
 		// Restore descriptor playing status.
 		if (d->character) {
-			PLR_FLAGS(d->character).unset(PLR_WRITING);
+			PLR_FLAGS(d->character).unset(EPlrFlag::kWriting);
 			STATE(d) = CON_PLAYING;
 			act("$n закончил$g работу и удовлетворенно посмотрел$g в развороченные недра Мироздания.",
 				true, d->character.get(), 0, 0, kToRoom);

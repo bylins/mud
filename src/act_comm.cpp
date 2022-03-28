@@ -56,7 +56,7 @@ void do_say(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!ch->is_npc() && PLR_FLAGGED(ch, PLR_DUMB)) {
+	if (!ch->is_npc() && PLR_FLAGGED(ch, EPlrFlag::kDumbed)) {
 		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
 		return;
 	}
@@ -97,7 +97,7 @@ void do_gsay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!ch->is_npc() && PLR_FLAGGED(ch, PLR_DUMB)) {
+	if (!ch->is_npc() && PLR_FLAGGED(ch, EPlrFlag::kDumbed)) {
 		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
 		return;
 	}
@@ -227,14 +227,14 @@ int is_tell_ok(CharData *ch, CharData *vict) {
 	if (ch == vict) {
 		send_to_char("Вы начали потихоньку разговаривать с самим собой.\r\n", ch);
 		return (false);
-	} else if (!ch->is_npc() && PLR_FLAGGED(ch, PLR_DUMB)) {
+	} else if (!ch->is_npc() && PLR_FLAGGED(ch, EPlrFlag::kDumbed)) {
 		send_to_char("Вам запрещено обращаться к другим игрокам.\r\n", ch);
 		return (false);
 	} else if (!vict->is_npc() && !vict->desc)    // linkless
 	{
 		act("$N потерял$G связь в этот момент.", false, ch, 0, vict, kToChar | kToSleep);
 		return (false);
-	} else if (PLR_FLAGGED(vict, PLR_WRITING)) {
+	} else if (PLR_FLAGGED(vict, EPlrFlag::kWriting)) {
 		act("$N пишет сообщение - повторите попозже.", false, ch, 0, vict, kToChar | kToSleep);
 		return (false);
 	}
@@ -303,7 +303,7 @@ void do_reply(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!ch->is_npc() && PLR_FLAGGED(ch, PLR_DUMB)) {
+	if (!ch->is_npc() && PLR_FLAGGED(ch, EPlrFlag::kDumbed)) {
 		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
 		return;
 	}
@@ -357,7 +357,7 @@ void do_spec_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
-	if (!ch->is_npc() && PLR_FLAGGED(ch, PLR_DUMB)) {
+	if (!ch->is_npc() && PLR_FLAGGED(ch, EPlrFlag::kDumbed)) {
 		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
 		return;
 	}
@@ -628,12 +628,12 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
-	if (!ch->is_npc() && PLR_FLAGGED(ch, PLR_DUMB)) {
+	if (!ch->is_npc() && PLR_FLAGGED(ch, EPlrFlag::kDumbed)) {
 		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
 		return;
 	}
 
-	if (PLR_FLAGGED(ch, PLR_MUTE) && subcmd != SCMD_AUCTION) {
+	if (PLR_FLAGGED(ch, EPlrFlag::kMuted) && subcmd != SCMD_AUCTION) {
 		send_to_char(com_msgs[subcmd].muted_msg, ch);
 		return;
 	}
@@ -740,12 +740,12 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			case SCMD_SHOUT: ign_flag = IGNORE_SHOUT;
 				break;
 			case SCMD_GOSSIP:
-				if (PLR_FLAGGED(ch, PLR_SPAMMER))
+				if (PLR_FLAGGED(ch, EPlrFlag::kSpamer))
 					return;
 				ign_flag = IGNORE_GOSSIP;
 				break;
 			case SCMD_HOLLER:
-				if (PLR_FLAGGED(ch, PLR_SPAMMER))
+				if (PLR_FLAGGED(ch, EPlrFlag::kSpamer))
 					return;
 				ign_flag = IGNORE_HOLLER;
 				break;
@@ -776,7 +776,7 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	for (i = descriptor_list; i; i = i->next) {
 		if (STATE(i) == CON_PLAYING && i != ch->desc && i->character &&
 			!PRF_FLAGS(i->character).get(com_msgs[subcmd].noflag) &&
-			!PLR_FLAGGED(i->character, PLR_WRITING) &&
+			!PLR_FLAGGED(i->character, EPlrFlag::kWriting) &&
 			!ROOM_FLAGGED(i->character->in_room, ROOM_SOUNDPROOF) && GET_POS(i->character) > EPosition::kSleep) {
 			if (ignores(i->character.get(), ch, ign_flag)) {
 				continue;
@@ -820,7 +820,7 @@ void do_mobshout(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	for (i = descriptor_list; i; i = i->next) {
 		if (STATE(i) == CON_PLAYING
 			&& i->character
-			&& !PLR_FLAGGED(i->character, PLR_WRITING)
+			&& !PLR_FLAGGED(i->character, EPlrFlag::kWriting)
 			&& GET_POS(i->character) > EPosition::kSleep) {
 			if (COLOR_LEV(i->character) >= C_NRM) {
 				send_to_char(KIYEL, i->character.get());
@@ -842,7 +842,7 @@ void do_pray_gods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	skip_spaces(&argument);
 
-	if (!ch->is_npc() && (PLR_FLAGGED(ch, PLR_DUMB) || PLR_FLAGGED(ch, PLR_MUTE))) {
+	if (!ch->is_npc() && (PLR_FLAGGED(ch, EPlrFlag::kDumbed) || PLR_FLAGGED(ch, EPlrFlag::kMuted))) {
 		send_to_char("Вам запрещено обращаться к Богам, вероятно, вы их замучили...\r\n", ch);
 		return;
 	}
@@ -924,7 +924,7 @@ void do_offtop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (PLR_FLAGGED(ch, PLR_DUMB) || PLR_FLAGGED(ch, PLR_MUTE)) {
+	if (PLR_FLAGGED(ch, EPlrFlag::kDumbed) || PLR_FLAGGED(ch, EPlrFlag::kMuted)) {
 		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
 		return;
 	}
@@ -957,7 +957,7 @@ void do_offtop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	ch->set_last_tell(argument);
-	if (PLR_FLAGGED(ch, PLR_SPAMMER)) // а вот фиг, еще проверка :)
+	if (PLR_FLAGGED(ch, EPlrFlag::kSpamer)) // а вот фиг, еще проверка :)
 		return;
 	snprintf(buf, kMaxStringLength, "[оффтоп] %s : '%s'\r\n", GET_NAME(ch), argument);
 	snprintf(buf1, kMaxStringLength, "&c%s&n", buf);

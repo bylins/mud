@@ -949,8 +949,8 @@ int perform_move(CharData *ch, int dir, int need_specials_check, int checkmob, C
 					&& !GET_MOB_HOLD(k->ch)
 					&& AWAKE(k->ch)
 					&& (k->ch->is_npc()
-						|| (!PLR_FLAGGED(k->ch, PLR_MAILING)
-							&& !PLR_FLAGGED(k->ch, PLR_WRITING)))
+						|| (!PLR_FLAGGED(k->ch, EPlrFlag::kMailing)
+							&& !PLR_FLAGGED(k->ch, EPlrFlag::kWriting)))
 					&& (!IS_HORSE(k->ch)
 						|| !AFF_FLAGGED(k->ch, EAffectFlag::AFF_TETHERED))) {
 					if (GET_POS(k->ch) < EPosition::kStand) {

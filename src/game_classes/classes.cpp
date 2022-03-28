@@ -1127,7 +1127,7 @@ void do_start(CharData *ch, int newbie) {
 	// проставим кличи
 	init_warcry(ch);
 	if (siteok_everyone) {
-		PLR_FLAGS(ch).set(PLR_SITEOK);
+		PLR_FLAGS(ch).set(EPlrFlag::kSiteOk);
 	}
 }
 
@@ -1309,7 +1309,7 @@ int invalid_anti_class(CharData *ch, const ObjData *obj) {
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_SMITH) && IS_VIGILANT(ch))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MERCHANT) && IS_MERCHANT(ch))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_DRUID) && IS_MAGUS(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_KILLER) && PLR_FLAGGED(ch, PLR_KILLER))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_KILLER) && PLR_FLAGGED(ch, EPlrFlag::kKiller))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_BD) && check_agrobd(ch))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_COLORED) && IS_COLORED(ch))) {
 		return (true);
@@ -1349,7 +1349,7 @@ int invalid_no_class(CharData *ch, const ObjData *obj) {
 		|| (IS_OBJ_NO(obj, ENoFlag::kVigilant) && IS_VIGILANT(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::kMerchant) && IS_MERCHANT(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::kMagus) && IS_MAGUS(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::kKiller) && PLR_FLAGGED(ch, PLR_KILLER))
+		|| (IS_OBJ_NO(obj, ENoFlag::kKiller) && PLR_FLAGGED(ch, EPlrFlag::kKiller))
 		|| (IS_OBJ_NO(obj, ENoFlag::kBattle) && check_agrobd(ch))
 		|| (!IS_VIGILANT(ch) && (obj->has_flag(EObjFlag::kSharpen) || obj->has_flag(EObjFlag::kArmored)))
 		|| (IS_OBJ_NO(obj, ENoFlag::kColored) && IS_COLORED(ch))) {

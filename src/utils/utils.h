@@ -1129,7 +1129,7 @@ size_t strlen_no_colors(const char *str);
 
 #define SENDOK(ch)   (((ch)->desc || SCRIPT_CHECK((ch), MTRIG_ACT)) && \
                (to_sleeping || AWAKE(ch)) && \
-                     !PLR_FLAGGED((ch), PLR_WRITING))
+                     !PLR_FLAGGED((ch), EPlrFlag::kWriting))
 
 extern const bool a_isspace_table[];
 inline bool a_isspace(const unsigned char c) {

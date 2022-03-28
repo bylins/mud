@@ -121,36 +121,36 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		if (k->player_specials->saved.telegram_id != 0)
 			send_to_char(ch, "Подключен Телеграм, chat_id: %lu\r\n", k->player_specials->saved.telegram_id);
 
-		if (PLR_FLAGGED(k, PLR_FROZEN) && FREEZE_DURATION(k)) {
+		if (PLR_FLAGGED(k, EPlrFlag::kFrozen) && FREEZE_DURATION(k)) {
 			sprintf(buf, "Заморожен : %ld час [%s].\r\n",
 					static_cast<long>((FREEZE_DURATION(k) - time(nullptr)) / 3600),
 					FREEZE_REASON(k) ? FREEZE_REASON(k) : "-");
 			send_to_char(buf, ch);
 		}
-		if (PLR_FLAGGED(k, PLR_HELLED) && HELL_DURATION(k)) {
+		if (PLR_FLAGGED(k, EPlrFlag::kHelled) && HELL_DURATION(k)) {
 			sprintf(buf, "Находится в темнице : %ld час [%s].\r\n",
 					static_cast<long>((HELL_DURATION(k) - time(nullptr)) / 3600),
 					HELL_REASON(k) ? HELL_REASON(k) : "-");
 			send_to_char(buf, ch);
 		}
-		if (PLR_FLAGGED(k, PLR_NAMED) && NAME_DURATION(k)) {
+		if (PLR_FLAGGED(k, EPlrFlag::kNameDenied) && NAME_DURATION(k)) {
 			sprintf(buf, "Находится в комнате имени : %ld час.\r\n",
 					static_cast<long>((NAME_DURATION(k) - time(nullptr)) / 3600));
 			send_to_char(buf, ch);
 		}
-		if (PLR_FLAGGED(k, PLR_MUTE) && MUTE_DURATION(k)) {
+		if (PLR_FLAGGED(k, EPlrFlag::kMuted) && MUTE_DURATION(k)) {
 			sprintf(buf, "Будет молчать : %ld час [%s].\r\n",
 					static_cast<long>((MUTE_DURATION(k) - time(nullptr)) / 3600),
 					MUTE_REASON(k) ? MUTE_REASON(k) : "-");
 			send_to_char(buf, ch);
 		}
-		if (PLR_FLAGGED(k, PLR_DUMB) && DUMB_DURATION(k)) {
+		if (PLR_FLAGGED(k, EPlrFlag::kDumbed) && DUMB_DURATION(k)) {
 			sprintf(buf, "Будет нем : %ld мин [%s].\r\n",
 					static_cast<long>((DUMB_DURATION(k) - time(nullptr)) / 60),
 					DUMB_REASON(k) ? DUMB_REASON(k) : "-");
 			send_to_char(buf, ch);
 		}
-		if (!PLR_FLAGGED(k, PLR_REGISTERED) && UNREG_DURATION(k)) {
+		if (!PLR_FLAGGED(k, EPlrFlag::kRegistred) && UNREG_DURATION(k)) {
 			sprintf(buf, "Не будет зарегистрирован : %ld час [%s].\r\n",
 					static_cast<long>((UNREG_DURATION(k) - time(nullptr)) / 3600),
 					UNREG_REASON(k) ? UNREG_REASON(k) : "-");

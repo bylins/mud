@@ -1199,7 +1199,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			strcat(buf1, "(под седлом) ");
 		CAP(buf1);
 	} else {
-		sprintf(buf1, "%s%s ", i->get_morphed_title().c_str(), PLR_FLAGGED(i, PLR_KILLER) ? " <ДУШЕГУБ>" : "");
+		sprintf(buf1, "%s%s ", i->get_morphed_title().c_str(), PLR_FLAGGED(i, EPlrFlag::kKiller) ? " <ДУШЕГУБ>" : "");
 	}
 
 	sprintf(buf, "%s%s", AFF_FLAGGED(i, EAffectFlag::AFF_CHARM) ? "*" : "", buf1);
@@ -1211,7 +1211,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		sprintf(buf + strlen(buf), "(замаскировал%s) ", GET_CH_SUF_2(i));
 	if (!i->is_npc() && !i->desc)
 		sprintf(buf + strlen(buf), "(потерял%s связь) ", GET_CH_SUF_1(i));
-	if (!i->is_npc() && PLR_FLAGGED(i, PLR_WRITING))
+	if (!i->is_npc() && PLR_FLAGGED(i, EPlrFlag::kWriting))
 		strcat(buf, "(пишет) ");
 
 	if (GET_POS(i) != EPosition::kFight) {
@@ -1481,7 +1481,7 @@ void do_exits(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 					strcat(buf2, "слишком темно\r\n");
 				else {
 					const RoomRnum rnum_exit_room = EXIT(ch, door)->to_room();
-					if (PRF_FLAGGED(ch, EPrf::kMapper) && !PLR_FLAGGED(ch, PLR_SCRIPTWRITER)
+					if (PRF_FLAGGED(ch, EPrf::kMapper) && !PLR_FLAGGED(ch, EPlrFlag::kScriptWriter)
 						&& !ROOM_FLAGGED(rnum_exit_room, ROOM_NOMAPPER)) {
 						sprintf(buf2 + strlen(buf2), "[%5d] %s", GET_ROOM_VNUM(rnum_exit_room), world[rnum_exit_room]->name);
 					} else {
@@ -1519,7 +1519,7 @@ void do_blind_exits(CharData *ch) {
 					strcat(buf2, "слишком темно");
 				else {
 					const RoomRnum rnum_exit_room = EXIT(ch, door)->to_room();
-					if (PRF_FLAGGED(ch, EPrf::kMapper) && !PLR_FLAGGED(ch, PLR_SCRIPTWRITER)
+					if (PRF_FLAGGED(ch, EPrf::kMapper) && !PLR_FLAGGED(ch, EPlrFlag::kScriptWriter)
 						&& !ROOM_FLAGGED(rnum_exit_room, ROOM_NOMAPPER)) {
 						sprintf(buf2 + strlen(buf2), "[%d] %s", GET_ROOM_VNUM(rnum_exit_room), world[rnum_exit_room]->name);
 					} else {
@@ -1842,7 +1842,7 @@ void look_at_room(CharData *ch, int ignore_brief) {
 			world[ch->in_room]->set_flag(ROOM_BFS_MARK);
 		}
 	} else {
-		if (PRF_FLAGGED(ch, EPrf::kMapper) && !PLR_FLAGGED(ch, PLR_SCRIPTWRITER)
+		if (PRF_FLAGGED(ch, EPrf::kMapper) && !PLR_FLAGGED(ch, EPlrFlag::kScriptWriter)
 			&& !ROOM_FLAGGED(ch->in_room, ROOM_NOMAPPER)) {
 			sprintf(buf2, "%s [%d]", world[ch->in_room]->name, GET_ROOM_VNUM(ch->in_room));
 			send_to_char(buf2, ch);
@@ -1860,7 +1860,7 @@ void look_at_room(CharData *ch, int ignore_brief) {
 	}
 
 	// autoexits
-	if (!ch->is_npc() && PRF_FLAGGED(ch, EPrf::kAutoexit) && !PLR_FLAGGED(ch, PLR_SCRIPTWRITER)) {
+	if (!ch->is_npc() && PRF_FLAGGED(ch, EPrf::kAutoexit) && !PLR_FLAGGED(ch, EPlrFlag::kScriptWriter)) {
 		do_auto_exits(ch);
 	}
 
@@ -3154,7 +3154,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (showname && !(!NAME_GOD(tch) && GetRealLevel(tch) <= kNameLevel)) {
 			continue;
 		}
-		if (PLR_FLAGGED(tch, PLR_NAMED) && NAME_DURATION(tch)
+		if (PLR_FLAGGED(tch, EPlrFlag::kNameDenied) && NAME_DURATION(tch)
 			&& !IS_IMMORTAL(ch) && !PRF_FLAGGED(ch, EPrf::kCoderinfo)
 			&& ch != tch.get()) {
 			continue;
@@ -3201,20 +3201,20 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (AFF_FLAGGED(tch, EAffectFlag::AFF_CAMOUFLAGE))
 				strcat(buf, " (маскируется)");
 
-			if (PLR_FLAGGED(tch, PLR_MAILING))
+			if (PLR_FLAGGED(tch, EPlrFlag::kMailing))
 				strcat(buf, " (отправляет письмо)");
-			else if (PLR_FLAGGED(tch, PLR_WRITING))
+			else if (PLR_FLAGGED(tch, EPlrFlag::kWriting))
 				strcat(buf, " (пишет)");
 
 			if (PRF_FLAGGED(tch, EPrf::kNoHoller))
 				sprintf(buf + strlen(buf), " (глух%s)", GET_CH_SUF_1(tch));
 			if (PRF_FLAGGED(tch, EPrf::kNoTell))
 				sprintf(buf + strlen(buf), " (занят%s)", GET_CH_SUF_6(tch));
-			if (PLR_FLAGGED(tch, PLR_MUTE))
+			if (PLR_FLAGGED(tch, EPlrFlag::kMuted))
 				sprintf(buf + strlen(buf), " (молчит)");
-			if (PLR_FLAGGED(tch, PLR_DUMB))
+			if (PLR_FLAGGED(tch, EPlrFlag::kDumbed))
 				sprintf(buf + strlen(buf), " (нем%s)", GET_CH_SUF_6(tch));
-			if (PLR_FLAGGED(tch, PLR_KILLER) == PLR_KILLER)
+			if (PLR_FLAGGED(tch, EPlrFlag::kKiller) == EPlrFlag::kKiller)
 				sprintf(buf + strlen(buf), "&R (ДУШЕГУБ)&n");
 			if ((IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_DEMIGOD)) && !NAME_GOD(tch)
 				&& GetRealLevel(tch) <= kNameLevel) {
@@ -3235,7 +3235,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			if (IS_GOD(ch) && (GET_GOD_FLAG(tch, GF_TESTER) || PRF_FLAGGED(tch, EPrf::kTester)))
 				sprintf(buf + strlen(buf), " &G(ТЕСТЕР!)&n");
-			if (IS_GOD(ch) && (PLR_FLAGGED(tch, PLR_AUTOBOT)))
+			if (IS_GOD(ch) && (PLR_FLAGGED(tch, EPlrFlag::kAutobot)))
 				sprintf(buf + strlen(buf), " &G(БОТ!)&n");
 			if (IS_IMMORTAL(tch))
 				strcat(buf, CCNRM(ch, C_SPR));

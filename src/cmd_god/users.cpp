@@ -194,7 +194,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (!CAN_SEE(ch, character) || GetRealLevel(character) < low || GetRealLevel(character) > high) {
 				continue;
 			}
-			if (outlaws && !PLR_FLAGGED((ch), PLR_KILLER)) {
+			if (outlaws && !PLR_FLAGGED((ch), EPlrFlag::kKiller)) {
 				continue;
 			}
 			if (showclass != ECharClass::kUndefined && showclass != character->get_class()) {

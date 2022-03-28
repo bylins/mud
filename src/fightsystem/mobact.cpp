@@ -1385,7 +1385,7 @@ bool guardian_attack(CharData *ch, CharData *vict) {
 	tmp_guard = guardian_list[GET_MOB_VNUM(ch)];
 
 	if ((tmp_guard.agro_all_agressors && AGRESSOR(vict)) ||
-		(tmp_guard.agro_killers && PLR_FLAGGED(vict, PLR_KILLER)))
+		(tmp_guard.agro_killers && PLR_FLAGGED(vict, EPlrFlag::kKiller)))
 		return true;
 
 	if (CLAN(vict)) {

@@ -1248,7 +1248,7 @@ void command_interpreter(CharData *ch, char *argument) {
 
 	if (((!ch->is_npc()
 		&& (GET_FREEZE_LEV(ch) > GetRealLevel(ch))
-		&& (PLR_FLAGGED(ch, PLR_FROZEN)))
+		&& (PLR_FLAGGED(ch, EPlrFlag::kFrozen)))
 		|| GET_MOB_HOLD(ch)
 		|| AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
 		|| AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT))
@@ -1929,8 +1929,8 @@ int perform_dupe_check(DescriptorData *d) {
 	d->character->desc = d;
 	d->original = nullptr;
 	d->character->char_specials.timer = 0;
-	PLR_FLAGS(d->character).unset(PLR_MAILING);
-	PLR_FLAGS(d->character).unset(PLR_WRITING);
+	PLR_FLAGS(d->character).unset(EPlrFlag::kMailing);
+	PLR_FLAGS(d->character).unset(EPlrFlag::kWriting);
 	STATE(d) = CON_PLAYING;
 
 	switch (mode) {
@@ -2145,7 +2145,7 @@ void do_entergame(DescriptorData *d) {
 	}
 
 	if (GetRealLevel(d->character) < kLvlImplementator) {
-		if (PLR_FLAGGED(d->character, PLR_INVSTART)) {
+		if (PLR_FLAGGED(d->character, EPlrFlag::kInvStart)) {
 			SET_INVIS_LEV(d->character, kLvlImmortal);
 		}
 		if (GET_INVIS_LEV(d->character) > GetRealLevel(d->character)) {
@@ -2185,11 +2185,11 @@ void do_entergame(DescriptorData *d) {
 	 * We have to place the character in a room before equipping them
 	 * or equip_char() will gripe about the person in kNowhere.
 	 */
-	if (PLR_FLAGGED(d->character, PLR_HELLED))
+	if (PLR_FLAGGED(d->character, EPlrFlag::kHelled))
 		load_room = r_helled_start_room;
-	else if (PLR_FLAGGED(d->character, PLR_NAMED))
+	else if (PLR_FLAGGED(d->character, EPlrFlag::kNameDenied))
 		load_room = r_named_start_room;
-	else if (PLR_FLAGGED(d->character, PLR_FROZEN))
+	else if (PLR_FLAGGED(d->character, EPlrFlag::kFrozen))
 		load_room = r_frozen_start_room;
 	else if (!check_dupes_host(d))
 		load_room = r_unreg_start_room;
@@ -2461,7 +2461,7 @@ void DoAfterPassword(DescriptorData *d) {
 	GET_BAD_PWS(d->character) = 0;
 	d->bad_pws = 0;
 
-	if (ban->is_banned(d->host) == BanList::BAN_SELECT && !PLR_FLAGGED(d->character, PLR_SITEOK)) {
+	if (ban->is_banned(d->host) == BanList::BAN_SELECT && !PLR_FLAGGED(d->character, EPlrFlag::kSiteOk)) {
 		SEND_TO_Q("Извините, вы не можете выбрать этого игрока с данного IP!\r\n", d);
 		STATE(d) = CON_CLOSE;
 		sprintf(buf, "Connection attempt for %s denied from %s", GET_NAME(d->character), d->host);
@@ -2899,10 +2899,10 @@ void nanny(DescriptorData *d, char *arg) {
 						return;
 					}
 
-					if (PLR_FLAGGED(d->character, PLR_DELETED)
+					if (PLR_FLAGGED(d->character, EPlrFlag::kDeleted)
 						|| !Password::compare_password(d->character.get(), pwd_pwd)) {
 						SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
-						if (!PLR_FLAGGED(d->character, PLR_DELETED)) {
+						if (!PLR_FLAGGED(d->character, EPlrFlag::kDeleted)) {
 							sprintf(buf, "Bad PW: %s [%s]", GET_NAME(d->character), d->host);
 							mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
 						}
@@ -2911,9 +2911,9 @@ void nanny(DescriptorData *d, char *arg) {
 						return;
 					}
 
-					PLR_FLAGS(d->character).unset(PLR_MAILING);
-					PLR_FLAGS(d->character).unset(PLR_WRITING);
-					PLR_FLAGS(d->character).unset(PLR_CRYO);
+					PLR_FLAGS(d->character).unset(EPlrFlag::kMailing);
+					PLR_FLAGS(d->character).unset(EPlrFlag::kWriting);
+					PLR_FLAGS(d->character).unset(EPlrFlag::kCryo);
 					d->character->set_pfilepos(player_i);
 					GET_ID(d->character) = GET_IDNUM(d->character);
 					DoAfterPassword(d);
@@ -2946,7 +2946,7 @@ void nanny(DescriptorData *d, char *arg) {
 				if (player_i > -1) {
 					d->character->set_pfilepos(player_i);
 					if (PLR_FLAGGED(d->character,
-									PLR_DELETED))    // We get a false positive from the original deleted character.
+									 EPlrFlag::kDeleted))    // We get a false positive from the original deleted character.
 					{
 						d->character.reset();
 
@@ -2980,9 +2980,9 @@ void nanny(DescriptorData *d, char *arg) {
 							return;
 						}
 
-						PLR_FLAGS(d->character).unset(PLR_MAILING);
-						PLR_FLAGS(d->character).unset(PLR_WRITING);
-						PLR_FLAGS(d->character).unset(PLR_CRYO);
+						PLR_FLAGS(d->character).unset(EPlrFlag::kMailing);
+						PLR_FLAGS(d->character).unset(EPlrFlag::kWriting);
+						PLR_FLAGS(d->character).unset(EPlrFlag::kCryo);
 						SEND_TO_Q("Персонаж с таким именем уже существует. Введите пароль : ", d);
 						d->idle_tics = 0;
 						STATE(d) = CON_PASSWORD;
@@ -3088,7 +3088,7 @@ void nanny(DescriptorData *d, char *arg) {
 			player_i = load_char(tmp_name, d->character.get());
 			is_player_deleted = false;
 			if (player_i > -1) {
-				is_player_deleted = PLR_FLAGGED(d->character, PLR_DELETED);
+				is_player_deleted = PLR_FLAGGED(d->character, EPlrFlag::kDeleted);
 				if (is_player_deleted) {
 					d->character.reset();
 					CreateChar(d);
@@ -3510,7 +3510,7 @@ void nanny(DescriptorData *d, char *arg) {
 
 					if (GET_REAL_REMORT(d->character) == 0
 						&& GetRealLevel(d->character) <= 25
-						&& !PLR_FLAGS(d->character).get(PLR_NODELETE)) {
+						&& !PLR_FLAGS(d->character).get(EPlrFlag::kNoDelete)) {
 						int timeout = -1;
 						for (int ci = 0; GetRealLevel(d->character) > pclean_criteria[ci].level; ci++) {
 							//if (GetRealLevel(d->character) == pclean_criteria[ci].level)
@@ -3577,8 +3577,8 @@ void nanny(DescriptorData *d, char *arg) {
 						break;
 					}
 
-					if (PLR_FLAGGED(d->character, PLR_HELLED)
-						|| PLR_FLAGGED(d->character, PLR_FROZEN)) {
+					if (PLR_FLAGGED(d->character, EPlrFlag::kHelled)
+						|| PLR_FLAGGED(d->character, EPlrFlag::kFrozen)) {
 						SEND_TO_Q("\r\nВы находитесь в АДУ!!! Амнистии подобным образом не будет.\r\n", d);
 						SEND_TO_Q(MENU, d);
 						break;
@@ -3662,7 +3662,7 @@ void nanny(DescriptorData *d, char *arg) {
 				|| !strcmp(arg, "YES")
 				|| !strcmp(arg, "да")
 				|| !strcmp(arg, "ДА")) {
-				if (PLR_FLAGGED(d->character, PLR_FROZEN)) {
+				if (PLR_FLAGGED(d->character, EPlrFlag::kFrozen)) {
 					SEND_TO_Q("Вы решились на суицид, но Боги остановили вас.\r\n", d);
 					SEND_TO_Q("Персонаж не удален.\r\n", d);
 					STATE(d) = CON_CLOSE;

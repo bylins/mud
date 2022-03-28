@@ -5184,11 +5184,11 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 	do_start(ch, false);
 	ch->save_char();
-	if (PLR_FLAGGED(ch, PLR_HELLED))
+	if (PLR_FLAGGED(ch, EPlrFlag::kHelled))
 		load_room = r_helled_start_room;
-	else if (PLR_FLAGGED(ch, PLR_NAMED))
+	else if (PLR_FLAGGED(ch, EPlrFlag::kNameDenied))
 		load_room = r_named_start_room;
-	else if (PLR_FLAGGED(ch, PLR_FROZEN))
+	else if (PLR_FLAGGED(ch, EPlrFlag::kFrozen))
 		load_room = r_frozen_start_room;
 	else {
 		if ((load_room = GET_LOADROOM(ch)) == kNowhere)
@@ -5204,7 +5204,7 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	char_from_room(ch);
 	char_to_room(ch, load_room);
 	look_at_room(ch, 0);
-	PLR_FLAGS(ch).set(PLR_NODELETE);
+	PLR_FLAGS(ch).set(EPlrFlag::kNoDelete);
 	remove_rune_label(ch);
 
 	// сброс всего, связанного с гривнами (замакс сохраняем)
@@ -5270,11 +5270,11 @@ MobRnum real_mobile(MobVnum vnum) {
 int must_be_deleted(CharData *short_ch) {
 	int ci, timeout;
 
-	if (PLR_FLAGS(short_ch).get(PLR_NODELETE)) {
+	if (PLR_FLAGS(short_ch).get(EPlrFlag::kNoDelete)) {
 		return 0;
 	}
 
-	if (PLR_FLAGS(short_ch).get(PLR_DELETED)) {
+	if (PLR_FLAGS(short_ch).get(EPlrFlag::kDeleted)) {
 		return 1;
 	}
 
@@ -5329,7 +5329,7 @@ void entrycount(char *name, const bool find_id /*= true*/) {
 				element.remorts = short_ch->get_remort();
 				element.timer = nullptr;
 				element.plr_class = short_ch->get_class();
-				if (PLR_FLAGS(short_ch).get(PLR_DELETED)) {
+				if (PLR_FLAGS(short_ch).get(EPlrFlag::kDeleted)) {
 					element.last_logon = -1;
 					element.activity = -1;
 				} else {
@@ -5470,7 +5470,7 @@ void delete_char(const char *name) {
 	int id = load_char(name, st);
 
 	if (id >= 0) {
-		PLR_FLAGS(st).set(PLR_DELETED);
+		PLR_FLAGS(st).set(EPlrFlag::kDeleted);
 		NewNames::remove(st);
 		if (NAME_FINE(st)) {
 			player_table.name_adviser().add(GET_NAME(st));

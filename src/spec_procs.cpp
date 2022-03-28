@@ -1506,7 +1506,7 @@ int horse_keeper(CharData *ch, void *me, int cmd, char *argument) {
 		sprintf(buf, "$N оседлал$G %s и отдал$G %s $n2.", GET_PAD(horse, 3), HSHR(horse));
 		act(buf, false, ch, 0, victim, kToRoom);
 		ch->remove_gold(HORSE_COST);
-		PLR_FLAGS(ch).set(PLR_CRASH);
+		PLR_FLAGS(ch).set(EPlrFlag::kCrashSave);
 		return (true);
 	}
 
@@ -1537,7 +1537,7 @@ int horse_keeper(CharData *ch, void *me, int cmd, char *argument) {
 		act(buf, false, ch, 0, victim, kToRoom);
 		extract_char(horse, false);
 		ch->add_gold((HORSE_COST >> 1));
-		PLR_FLAGS(ch).set(PLR_CRASH);
+		PLR_FLAGS(ch).set(EPlrFlag::kCrashSave);
 		return (true);
 	}
 
@@ -2730,7 +2730,7 @@ int cityguard(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 	evil = 0;
 
 	for (const auto tch : world[ch->in_room]->people) {
-		if (!tch->is_npc() && CAN_SEE(ch, tch) && PLR_FLAGGED(tch, PLR_KILLER)) {
+		if (!tch->is_npc() && CAN_SEE(ch, tch) && PLR_FLAGGED(tch, EPlrFlag::kKiller)) {
 			act("$n screams 'HEY!!!  You're one of those PLAYER KILLERS!!!!!!'", false, ch, 0, 0, kToRoom);
 			hit(ch, tch, ESkill::kUndefined, fight::kMainHand);
 
@@ -2739,7 +2739,7 @@ int cityguard(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 	}
 
 	for (const auto tch : world[ch->in_room]->people) {
-		if (!tch->is_npc() && CAN_SEE(ch, tch) && PLR_FLAGGED(tch, PLR_THIEF)) {
+		if (!tch->is_npc() && CAN_SEE(ch, tch) && PLR_FLAGGED(tch, EPlrFlag::kBurglar)) {
 			act("$n screams 'HEY!!!  You're one of those PLAYER THIEVES!!!!!!'", false, ch, 0, 0, kToRoom);
 			hit(ch, tch, ESkill::kUndefined, fight::kMainHand);
 

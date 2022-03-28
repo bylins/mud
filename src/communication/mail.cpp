@@ -226,7 +226,7 @@ void postmaster_send_mail(CharData *ch, CharData *mailman, int/* cmd*/, char *ar
 
 	act(buf, false, mailman, 0, ch, kToVict);
 	ch->remove_gold(cost);
-	PLR_FLAGS(ch).set(PLR_MAILING);    // string_write() sets writing.
+	PLR_FLAGS(ch).set(EPlrFlag::kMailing);    // string_write() sets writing.
 
 	// Start writing!
 	utils::AbstractStringWriter::shared_ptr writer(new utils::StdStringWriter());

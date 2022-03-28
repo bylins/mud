@@ -683,7 +683,7 @@ void obj_to_char(ObjData *object, CharData *ch) {
 		}
 		// set flag for crash-save system, but not on mobs!
 		if (!ch->is_npc()) {
-			PLR_FLAGS(ch).set(PLR_CRASH);
+			PLR_FLAGS(ch).set(EPlrFlag::kCrashSave);
 		}
 	} else
 		log("SYSERR: NULL obj (%p) or char (%p) passed to obj_to_char.", object, ch);
@@ -699,7 +699,7 @@ void obj_from_char(ObjData *object) {
 
 	// set flag for crash-save system, but not on mobs!
 	if (!object->get_carried_by()->is_npc()) {
-		PLR_FLAGS(object->get_carried_by()).set(PLR_CRASH);
+		PLR_FLAGS(object->get_carried_by()).set(EPlrFlag::kCrashSave);
 		log("obj_from_char: %s -> %d", object->get_carried_by()->get_name().c_str(), GET_OBJ_VNUM(object));
 	}
 

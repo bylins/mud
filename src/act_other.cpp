@@ -2082,7 +2082,7 @@ void do_gen_tog(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		case SCMD_SLOWNS: result = (nameserver_is_slow = !nameserver_is_slow);
 			break;
 		case SCMD_AUTOEXIT:
-			if (PLR_FLAGGED(ch, PLR_SCRIPTWRITER)) {
+			if (PLR_FLAGGED(ch, EPlrFlag::kScriptWriter)) {
 				send_to_char("Скриптерам запрещено видеть автовыходы.\r\n", ch);
 				return;
 			}
@@ -2096,7 +2096,7 @@ void do_gen_tog(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			break;
 		case SCMD_BLIND: break;
 		case SCMD_MAPPER:
-			if (PLR_FLAGGED(ch, PLR_SCRIPTWRITER)) {
+			if (PLR_FLAGGED(ch, EPlrFlag::kScriptWriter)) {
 				send_to_char("Скриптерам запрещено видеть vnum комнаты.\r\n", ch);
 				return;
 			}
@@ -2414,7 +2414,7 @@ void do_beep(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Стены заглушили ваш писк.\r\n", ch);
 	else if (!vict->is_npc() && !vict->desc)    // linkless
 		act("$N потерял связь.", false, ch, nullptr, vict, kToChar | kToSleep);
-	else if (PLR_FLAGGED(vict, PLR_WRITING))
+	else if (PLR_FLAGGED(vict, EPlrFlag::kWriting))
 		act("$N пишет сейчас; Попищите позже.", false, ch, nullptr, vict, kToChar | kToSleep);
 	else
 		perform_beep(ch, vict);

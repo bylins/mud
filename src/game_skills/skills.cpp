@@ -500,7 +500,7 @@ int SendSkillMessages(int dam, CharData *ch, CharData *vict, int attacktype, std
 				brief.reflect = true;
 			}
 
-			if (!vict->is_npc() && (GetRealLevel(vict) >= kLvlImmortal) && !PLR_FLAGGED((ch), PLR_WRITING)) {
+			if (!vict->is_npc() && (GetRealLevel(vict) >= kLvlImmortal) && !PLR_FLAGGED((ch), EPlrFlag::kWriting)) {
 				switch (attacktype) {
 					case to_underlying(ESkill::kBackstab) + kTypeHit:
 					case to_underlying(ESkill::kThrow) + kTypeHit:

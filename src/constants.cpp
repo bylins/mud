@@ -207,7 +207,7 @@ const char *resistance_types[] = {"Защита от стихии огня",
 								  "\n"
 };
 
-// PLR_x
+// EPlrFlag::x
 const char *player_bits[] =
 	{
 		"убийца",

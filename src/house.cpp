@@ -1507,7 +1507,7 @@ void Clan::CharToChannel(CharData *ch, std::string text, int subcmd) {
 		return;
 	}
 
-	if (!ch->is_npc() && PLR_FLAGGED(ch, PLR_DUMB)) {
+	if (!ch->is_npc() && PLR_FLAGGED(ch, EPlrFlag::kDumbed)) {
 		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
 		return;
 	}
@@ -1637,7 +1637,7 @@ void DoClanChannel(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 		// ограничения на клан-канал не канают на любое звание, если это БОГ
 		if (!IS_IMMORTAL(ch)
-			&& (!(CLAN(ch))->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_CHANNEL] || PLR_FLAGGED(ch, PLR_DUMB))) {
+			&& (!(CLAN(ch))->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_CHANNEL] || PLR_FLAGGED(ch, EPlrFlag::kDumbed))) {
 			send_to_char("Вы не можете пользоваться каналом дружины.\r\n", ch);
 			return;
 		}
@@ -1740,7 +1740,7 @@ void DoClanList(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 												   : (*clan)->ranks_female[CLAN_MEMBER(it)->rank_num])
 				% CCPK(ch, C_NRM, it) % (it)->noclan_title()
 				% CCNRM(ch, C_NRM) % CCIRED(ch, C_NRM)
-				% (PLR_FLAGGED(it, PLR_KILLER) ? "(ДУШЕГУБ)" : "")
+				% (PLR_FLAGGED(it, EPlrFlag::kKiller) ? "(ДУШЕГУБ)" : "")
 				% CCNRM(ch, C_NRM);
 		}
 	}
@@ -1758,7 +1758,7 @@ void DoClanList(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					buffer2 << memberFormat % (*clan_i)->ranks[CLAN_MEMBER(it)->rank_num]
 						% CCPK(ch, C_NRM, it) % it->noclan_title()
 						% CCNRM(ch, C_NRM) % CCIRED(ch, C_NRM)
-						% (PLR_FLAGGED(it, PLR_KILLER) ? "(ДУШЕГУБ)" : "")
+						% (PLR_FLAGGED(it, EPlrFlag::kKiller) ? "(ДУШЕГУБ)" : "")
 						% CCNRM(ch, C_NRM);
 				}
 			}

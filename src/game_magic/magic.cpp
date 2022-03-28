@@ -208,7 +208,7 @@ int multi_cast_say(CharData *ch) {
 }
 
 void show_spell_off(int aff, CharData *ch) {
-	if (!ch->is_npc() && PLR_FLAGGED(ch, PLR_WRITING))
+	if (!ch->is_npc() && PLR_FLAGGED(ch, EPlrFlag::kWriting))
 		return;
 
 	// TODO:" refactor and replace int aff by ESpell

@@ -27,8 +27,8 @@ void TopPlayer::Remove(CharData *short_ch) {
 // подробности в комментарии к load_char_ascii
 void TopPlayer::Refresh(CharData *short_ch, bool reboot) {
 	if (short_ch->is_npc()
-		|| PLR_FLAGS(short_ch).get(PLR_FROZEN)
-		|| PLR_FLAGS(short_ch).get(PLR_DELETED)
+		|| PLR_FLAGS(short_ch).get(EPlrFlag::kFrozen)
+		|| PLR_FLAGS(short_ch).get(EPlrFlag::kDeleted)
 		|| IS_IMMORTAL(short_ch)) {
 		return;
 	}

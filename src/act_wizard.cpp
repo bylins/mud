@@ -465,11 +465,11 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 
 		switch (punish) {
 			case SCMD_MUTE:
-				if (!PLR_FLAGGED(vict, PLR_MUTE)) {
+				if (!PLR_FLAGGED(vict, EPlrFlag::kMuted)) {
 					send_to_char("Ваша жертва и так может кричать.\r\n", ch);
 					return (0);
 				};
-				PLR_FLAGS(vict).unset(PLR_MUTE);
+				PLR_FLAGS(vict).unset(EPlrFlag::kMuted);
 
 				sprintf(buf, "Mute OFF for %s by %s.", GET_NAME(vict), GET_NAME(ch));
 				mudlog(buf, DEF, MAX(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
@@ -484,11 +484,11 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				sprintf(buf2, "$n2 вернулся голос.");
 				break;
 			case SCMD_FREEZE:
-				if (!PLR_FLAGGED(vict, PLR_FROZEN)) {
+				if (!PLR_FLAGGED(vict, EPlrFlag::kFrozen)) {
 					send_to_char("Ваша жертва уже разморожена.\r\n", ch);
 					return (0);
 				};
-				PLR_FLAGS(vict).unset(PLR_FROZEN);
+				PLR_FLAGS(vict).unset(EPlrFlag::kFrozen);
 				Glory::remove_freeze(GET_UNIQUE(vict));
 
 				sprintf(buf, "Freeze OFF for %s by %s.", GET_NAME(vict), GET_NAME(ch));
@@ -529,11 +529,11 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				break;
 
 			case SCMD_DUMB:
-				if (!PLR_FLAGGED(vict, PLR_DUMB)) {
+				if (!PLR_FLAGGED(vict, EPlrFlag::kDumbed)) {
 					send_to_char("Ваша жертва и так может издавать звуки.\r\n", ch);
 					return (0);
 				};
-				PLR_FLAGS(vict).unset(PLR_DUMB);
+				PLR_FLAGS(vict).unset(EPlrFlag::kDumbed);
 
 				sprintf(buf, "Dumb OFF for %s by %s.", GET_NAME(vict), GET_NAME(ch));
 				mudlog(buf, DEF, MAX(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
@@ -550,11 +550,11 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				break;
 
 			case SCMD_HELL:
-				if (!PLR_FLAGGED(vict, PLR_HELLED)) {
+				if (!PLR_FLAGGED(vict, EPlrFlag::kHelled)) {
 					send_to_char("Ваша жертва и так на свободе.\r\n", ch);
 					return (0);
 				};
-				PLR_FLAGS(vict).unset(PLR_HELLED);
+				PLR_FLAGS(vict).unset(EPlrFlag::kHelled);
 
 				sprintf(buf, "%s removed FROM hell by %s.", GET_NAME(vict), GET_NAME(ch));
 				mudlog(buf, DEF, MAX(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
@@ -591,11 +591,11 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 
 			case SCMD_NAME:
 
-				if (!PLR_FLAGGED(vict, PLR_NAMED)) {
+				if (!PLR_FLAGGED(vict, EPlrFlag::kNameDenied)) {
 					send_to_char("Вашей жертвы там нет.\r\n", ch);
 					return (0);
 				};
-				PLR_FLAGS(vict).unset(PLR_NAMED);
+				PLR_FLAGS(vict).unset(EPlrFlag::kNameDenied);
 
 				sprintf(buf, "%s removed FROM name room by %s.", GET_NAME(vict), GET_NAME(ch));
 				mudlog(buf, DEF, MAX(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
@@ -631,7 +631,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 
 			case SCMD_REGISTER:
 				// Регистриуем чара
-				if (PLR_FLAGGED(vict, PLR_REGISTERED)) {
+				if (PLR_FLAGGED(vict, EPlrFlag::kRegistred)) {
 					send_to_char("Вашей жертва уже зарегистрирована.\r\n", ch);
 					return (0);
 				};
@@ -670,7 +670,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				sprintf(buf2, "$n появил$u в центре комнаты, с гордостью показывая всем штампик регистрации!");
 				break;
 			case SCMD_UNREGISTER:
-				if (!PLR_FLAGGED(vict, PLR_REGISTERED)) {
+				if (!PLR_FLAGGED(vict, EPlrFlag::kRegistred)) {
 					send_to_char("Ваша цель и так не зарегистрирована.\r\n", ch);
 					return (0);
 				};
@@ -725,7 +725,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 		pundata->reason = str_dup(buf);
 
 		switch (punish) {
-			case SCMD_MUTE: PLR_FLAGS(vict).set(PLR_MUTE);
+			case SCMD_MUTE: PLR_FLAGS(vict).set(EPlrFlag::kMuted);
 				pundata->duration = (times > 0) ? time(nullptr) + times * 60 * 60 : MAX_TIME;
 
 				sprintf(buf, "Mute ON for %s by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
@@ -742,7 +742,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 
 				break;
 
-			case SCMD_FREEZE: PLR_FLAGS(vict).set(PLR_FROZEN);
+			case SCMD_FREEZE: PLR_FLAGS(vict).set(EPlrFlag::kFrozen);
 				Glory::set_freeze(GET_UNIQUE(vict));
 				pundata->duration = (times > 0) ? time(nullptr) + times * 60 * 60 : MAX_TIME;
 
@@ -765,7 +765,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				};
 				break;
 
-			case SCMD_DUMB: PLR_FLAGS(vict).set(PLR_DUMB);
+			case SCMD_DUMB: PLR_FLAGS(vict).set(EPlrFlag::kDumbed);
 				pundata->duration = (times > 0) ? time(nullptr) + times * 60 : MAX_TIME;
 
 				sprintf(buf, "Dumb ON for %s by %s(%ldm).", GET_NAME(vict), GET_NAME(ch), times);
@@ -780,7 +780,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 
 				sprintf(buf2, "$n дал$g обет молчания.");
 				break;
-			case SCMD_HELL: PLR_FLAGS(vict).set(PLR_HELLED);
+			case SCMD_HELL: PLR_FLAGS(vict).set(EPlrFlag::kHelled);
 
 				pundata->duration = (times > 0) ? time(nullptr) + times * 60 * 60 : MAX_TIME;
 
@@ -805,7 +805,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				sprintf(buf2, "$n водворен$a в темницу!");
 				break;
 
-			case SCMD_NAME: PLR_FLAGS(vict).set(PLR_NAMED);
+			case SCMD_NAME: PLR_FLAGS(vict).set(EPlrFlag::kNameDenied);
 
 				pundata->duration = (times > 0) ? time(nullptr) + times * 60 * 60 : MAX_TIME;
 
@@ -1264,7 +1264,7 @@ void do_setall(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_echo(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
-	if (PLR_FLAGGED(ch, PLR_DUMB)) {
+	if (PLR_FLAGGED(ch, EPlrFlag::kDumbed)) {
 		send_to_char("Вы не в состоянии что-либо продемонстрировать окружающим.\r\n", ch);
 		return;
 	}
@@ -1277,7 +1277,7 @@ void do_echo(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		if (subcmd == SCMD_EMOTE) {
 			// added by Pereplut
 			if (ch->is_npc() && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
-				if PLR_FLAGGED(ch->get_master(), PLR_DUMB) {
+				if PLR_FLAGGED(ch->get_master(), EPlrFlag::kDumbed) {
 					// shapirus: правильно пишется не "так-же", а "так же".
 					// и запятая пропущена была :-P.
 					send_to_char("Ваши последователи так же немы, как и вы!\r\n", ch->get_master());
@@ -2048,32 +2048,32 @@ char *show_pun_time(int time) {
 }
 //выводим наказания для чара
 void show_pun(CharData *vict, char *buf) {
-	if (PLR_FLAGGED(vict, PLR_FROZEN)
+	if (PLR_FLAGGED(vict, EPlrFlag::kFrozen)
 		&& FREEZE_DURATION(vict))
 		sprintf(buf + strlen(buf), "FREEZE : %s [%s].\r\n",
 				show_pun_time(FREEZE_DURATION(vict) - time(nullptr)),
 				FREEZE_REASON(vict) ? FREEZE_REASON(vict)
 									: "-");
 
-	if (PLR_FLAGGED(vict, PLR_MUTE)
+	if (PLR_FLAGGED(vict, EPlrFlag::kMuted)
 		&& MUTE_DURATION(vict))
 		sprintf(buf + strlen(buf), "MUTE   : %s [%s].\r\n",
 				show_pun_time(MUTE_DURATION(vict) - time(nullptr)),
 				MUTE_REASON(vict) ? MUTE_REASON(vict) : "-");
 
-	if (PLR_FLAGGED(vict, PLR_DUMB)
+	if (PLR_FLAGGED(vict, EPlrFlag::kDumbed)
 		&& DUMB_DURATION(vict))
 		sprintf(buf + strlen(buf), "DUMB   : %s [%s].\r\n",
 				show_pun_time(DUMB_DURATION(vict) - time(nullptr)),
 				DUMB_REASON(vict) ? DUMB_REASON(vict) : "-");
 
-	if (PLR_FLAGGED(vict, PLR_HELLED)
+	if (PLR_FLAGGED(vict, EPlrFlag::kHelled)
 		&& HELL_DURATION(vict))
 		sprintf(buf + strlen(buf), "HELL   : %s [%s].\r\n",
 				show_pun_time(HELL_DURATION(vict) - time(nullptr)),
 				HELL_REASON(vict) ? HELL_REASON(vict) : "-");
 
-	if (!PLR_FLAGGED(vict, PLR_REGISTERED)
+	if (!PLR_FLAGGED(vict, EPlrFlag::kRegistred)
 		&& UNREG_DURATION(vict))
 		sprintf(buf + strlen(buf), "UNREG  : %s [%s].\r\n",
 				show_pun_time(UNREG_DURATION(vict) - time(nullptr)),
@@ -2926,8 +2926,8 @@ void do_sdemigod(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if ((GET_GOD_FLAG(d->character, GF_DEMIGOD)) || (GetRealLevel(d->character) == kLvlImplementator)) {
 				// Проверяем пишет ли чар или отправляет письмо
 				// А так же на реж сдемигод
-				if ((!PLR_FLAGGED(d->character, PLR_WRITING)) &&
-					(!PLR_FLAGGED(d->character, PLR_MAILING)) &&
+				if ((!PLR_FLAGGED(d->character, EPlrFlag::kWriting)) &&
+					(!PLR_FLAGGED(d->character, EPlrFlag::kMailing)) &&
 					(!PLR_FLAGGED(d->character, EPrf::kDemigodChat))) {
 					d->character->remember_add(buf1, Remember::ALL);
 					send_to_char(buf1, d->character.get());
@@ -2989,9 +2989,9 @@ void do_wiznet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						bookmark1 = true;
 					}
 					sprintf(buf1 + strlen(buf1), "  %s", GET_NAME(d->character));
-					if (PLR_FLAGGED(d->character, PLR_WRITING))
+					if (PLR_FLAGGED(d->character, EPlrFlag::kWriting))
 						strcat(buf1, " (пишет)\r\n");
-					else if (PLR_FLAGGED(d->character, PLR_MAILING))
+					else if (PLR_FLAGGED(d->character, EPlrFlag::kMailing))
 						strcat(buf1, " (пишет письмо)\r\n");
 					else
 						strcat(buf1, "\r\n");
@@ -3046,8 +3046,8 @@ void do_wiznet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			((GetRealLevel(d->character) >= level) ||    // уровень равным или выше level
 				(GET_GOD_FLAG(d->character, GF_DEMIGOD) && level == 31)) &&    // демигоды видят 31 канал
 			(!PRF_FLAGGED(d->character, EPrf::kNoWiz)) &&    // игрок с режимом NOWIZ не видит имм канала
-			(!PLR_FLAGGED(d->character, PLR_WRITING)) &&    // пишущий не видит имм канала
-			(!PLR_FLAGGED(d->character, PLR_MAILING)))    // отправляющий письмо не видит имм канала
+			(!PLR_FLAGGED(d->character, EPlrFlag::kWriting)) &&    // пишущий не видит имм канала
+			(!PLR_FLAGGED(d->character, EPlrFlag::kMailing)))    // отправляющий письмо не видит имм канала
 		{
 			// отправляем сообщение чару
 			snprintf(buf2, kMaxStringLength, "%s%s%s",
@@ -3141,7 +3141,7 @@ void do_wizutil(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 						vict->get_inborn_dex(), vict->get_inborn_con(), vict->get_inborn_cha());
 				send_to_char(buf, ch);
 				break;
-			case SCMD_NOTITLE: result = PLR_TOG_CHK(vict, PLR_NOTITLE);
+			case SCMD_NOTITLE: result = PLR_TOG_CHK(vict, EPlrFlag::kNoTitle);
 				sprintf(buf, "(GC) Notitle %s for %s by %s.", ONOFF(result), GET_NAME(vict), GET_NAME(ch));
 				mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("Notitle %s for %s by %s.", ONOFF(result), GET_NAME(vict), GET_NAME(ch));
@@ -3666,31 +3666,31 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				if (!CAN_SEE(ch, d->character) || IN_ROOM(d->character) == kNowhere)
 					continue;
 				buf[0] = 0;
-				if (PLR_FLAGGED(d->character, PLR_FROZEN)
+				if (PLR_FLAGGED(d->character, EPlrFlag::kFrozen)
 					&& FREEZE_DURATION(d->character))
 					sprintf(buf + strlen(buf), "Заморожен : %ld час [%s].\r\n",
 							static_cast<long>((FREEZE_DURATION(d->character) - time(nullptr)) / 3600),
 							FREEZE_REASON(d->character) ? FREEZE_REASON(d->character) : "-");
 
-				if (PLR_FLAGGED(d->character, PLR_MUTE)
+				if (PLR_FLAGGED(d->character, EPlrFlag::kMuted)
 					&& MUTE_DURATION(d->character))
 					sprintf(buf + strlen(buf), "Будет молчать : %ld час [%s].\r\n",
 							static_cast<long>((MUTE_DURATION(d->character) - time(nullptr)) / 3600),
 							MUTE_REASON(d->character) ? MUTE_REASON(d->character) : "-");
 
-				if (PLR_FLAGGED(d->character, PLR_DUMB)
+				if (PLR_FLAGGED(d->character, EPlrFlag::kDumbed)
 					&& DUMB_DURATION(d->character))
 					sprintf(buf + strlen(buf), "Будет нем : %ld час [%s].\r\n",
 							static_cast<long>((DUMB_DURATION(d->character) - time(nullptr)) / 3600),
 							DUMB_REASON(d->character) ? DUMB_REASON(d->character) : "-");
 
-				if (PLR_FLAGGED(d->character, PLR_HELLED)
+				if (PLR_FLAGGED(d->character, EPlrFlag::kHelled)
 					&& HELL_DURATION(d->character))
 					sprintf(buf + strlen(buf), "Будет в аду : %ld час [%s].\r\n",
 							static_cast<long>((HELL_DURATION(d->character) - time(nullptr)) / 3600),
 							HELL_REASON(d->character) ? HELL_REASON(d->character) : "-");
 
-				if (!PLR_FLAGGED(d->character, PLR_REGISTERED)
+				if (!PLR_FLAGGED(d->character, EPlrFlag::kRegistred)
 					&& UNREG_DURATION(d->character)) {
 					sprintf(buf + strlen(buf), "Не сможет заходить с одного IP : %ld час [%s].\r\n",
 							static_cast<long>((UNREG_DURATION(d->character) - time(nullptr)) / 3600),
@@ -4000,7 +4000,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 	switch (mode) {
 		case 0: SET_OR_REMOVE(on, off, PRF_FLAGS(vict), EPrf::kBrief);
 			break;
-		case 1: SET_OR_REMOVE(on, off, PLR_FLAGS(vict), PLR_INVSTART);
+		case 1: SET_OR_REMOVE(on, off, PLR_FLAGS(vict), EPlrFlag::kInvStart);
 			break;
 		case 2: SET_OR_REMOVE(on, off, PRF_FLAGS(vict), EPrf::KSummonable);
 			sprintf(output, "Возможность призыва %s для %s.\r\n", ONOFF(!on), GET_PAD(vict, 1));
@@ -4110,7 +4110,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			}
 			break;
 		}
-		case 25: SET_OR_REMOVE(on, off, PLR_FLAGS(vict), PLR_THIEF);
+		case 25: SET_OR_REMOVE(on, off, PLR_FLAGS(vict), EPlrFlag::kBurglar);
 			break;
 		case 26:
 			if (!PRF_FLAGGED(ch, EPrf::kCoderinfo)
@@ -4133,17 +4133,17 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			break;
 		case 28: SET_OR_REMOVE(on, off, PRF_FLAGS(vict), EPrf::kRoomFlags);
 			break;
-		case 29: SET_OR_REMOVE(on, off, PLR_FLAGS(vict), PLR_SITEOK);
+		case 29: SET_OR_REMOVE(on, off, PLR_FLAGS(vict), EPlrFlag::kSiteOk);
 			break;
 		case 30:
 			if (IS_IMPL(vict) || PRF_FLAGGED(vict, EPrf::kCoderinfo)) {
 				send_to_char("Истинные боги вечны!\r\n", ch);
 				return 0;
 			}
-			SET_OR_REMOVE(on, off, PLR_FLAGS(vict), PLR_DELETED);
-			if (PLR_FLAGS(vict).get(PLR_DELETED)) {
-				if (PLR_FLAGS(vict).get(PLR_NODELETE)) {
-					PLR_FLAGS(vict).unset(PLR_NODELETE);
+			SET_OR_REMOVE(on, off, PLR_FLAGS(vict), EPlrFlag::kDeleted);
+			if (PLR_FLAGS(vict).get(EPlrFlag::kDeleted)) {
+				if (PLR_FLAGS(vict).get(EPlrFlag::kNoDelete)) {
+					PLR_FLAGS(vict).unset(EPlrFlag::kNoDelete);
 					send_to_char("NODELETE flag also removed.\r\n", ch);
 				}
 			}
@@ -4215,7 +4215,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			add_karma(vict, buf, GET_NAME(ch));
 			sprintf(output, "Пароль изменен на '%s'.", val_arg);
 			break;
-		case 37: SET_OR_REMOVE(on, off, PLR_FLAGS(vict), PLR_NODELETE);
+		case 37: SET_OR_REMOVE(on, off, PLR_FLAGS(vict), EPlrFlag::kNoDelete);
 			break;
 		case 38:
 			if ((i = search_block(val_arg, genders, false)) < 0) {
@@ -4315,7 +4315,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 					return (0);
 				}
 
-				if ((get_id_by_name(npad[0]) >= 0) && !PLR_FLAGS(vict).get(PLR_DELETED)) {
+				if ((get_id_by_name(npad[0]) >= 0) && !PLR_FLAGS(vict).get(EPlrFlag::kDeleted)) {
 					send_to_char("Это имя совпадает с именем другого персонажа.\r\n"
 								 "Для исключения различного рода недоразумений имя отклонено.\r\n", ch);
 					return (0);
@@ -4327,8 +4327,8 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				if (ptnum < 0)
 					return (0);
 
-				if (!PLR_FLAGS(vict).get(PLR_FROZEN)
-					&& !PLR_FLAGS(vict).get(PLR_DELETED)
+				if (!PLR_FLAGS(vict).get(EPlrFlag::kFrozen)
+					&& !PLR_FLAGS(vict).get(EPlrFlag::kDeleted)
 					&& !IS_IMMORTAL(vict)) {
 					TopPlayer::Remove(vict);
 				}
@@ -4342,8 +4342,8 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				vict->set_name(npad[0]);
 				add_karma(vict, buf, GET_NAME(ch));
 
-				if (!PLR_FLAGS(vict).get(PLR_FROZEN)
-					&& !PLR_FLAGS(vict).get(PLR_DELETED)
+				if (!PLR_FLAGS(vict).get(EPlrFlag::kFrozen)
+					&& !PLR_FLAGS(vict).get(EPlrFlag::kDeleted)
 					&& !IS_IMMORTAL(vict)) {
 					TopPlayer::Refresh(vict);
 				}
@@ -4351,7 +4351,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				player_table.set_name(ptnum, npad[0]);
 
 				return_code = 2;
-				PLR_FLAGS(vict).set(PLR_CRASH);
+				PLR_FLAGS(vict).set(EPlrFlag::kCrashSave);
 			}
 			break;
 
@@ -4540,7 +4540,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			break;
 
 		case 58: // Снятие или постановка флага !ДУШЕГУБ! только для имплементоров
-			SET_OR_REMOVE(on, off, PLR_FLAGS(vict), PLR_KILLER);
+			SET_OR_REMOVE(on, off, PLR_FLAGS(vict), EPlrFlag::kKiller);
 			break;
 		case 59: // флаг реморта
 			if (value > 1 && value < 75) {
@@ -4569,7 +4569,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			break;
 		case 61: // флаг автобота
 		{
-			SET_OR_REMOVE(on, off, PLR_FLAGS(vict), PLR_AUTOBOT);
+			SET_OR_REMOVE(on, off, PLR_FLAGS(vict), EPlrFlag::kAutobot);
 			break;
 		}
 		case 62: vict->set_hryvn(value);
@@ -4577,13 +4577,13 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 		case 63: // флаг скриптера
 			sprintf(buf, "%s", GET_NAME(ch));
 			if (!str_cmp(val_arg, "off") || !str_cmp(val_arg, "выкл")) {
-				PLR_FLAGS(vict).unset(PLR_SCRIPTWRITER);
+				PLR_FLAGS(vict).unset(EPlrFlag::kScriptWriter);
 				add_karma(vict, "Снятие флага скриптера", buf);
 				sprintf(buf, "%s убрал флаг скриптера для игрока %s", GET_NAME(ch), GET_NAME(vict));
 				mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
 				return (1);
 			} else if (!str_cmp(val_arg, "on") || !str_cmp(val_arg, "вкл")) {
-				PLR_FLAGS(vict).set(PLR_SCRIPTWRITER);
+				PLR_FLAGS(vict).set(EPlrFlag::kScriptWriter);
 				add_karma(vict, "Установка флага скриптера", buf);
 				sprintf(buf, "%s установил  флаг скриптера для игрока %s", GET_NAME(ch), GET_NAME(vict));
 				mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
@@ -4595,7 +4595,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			break;
 		case 64: // флаг спамера
 		{
-			SET_OR_REMOVE(on, off, PLR_FLAGS(vict), PLR_SPAMMER);
+			SET_OR_REMOVE(on, off, PLR_FLAGS(vict), EPlrFlag::kSpamer);
 			break;
 		}
 		case 65: { // спрятать отображение славы

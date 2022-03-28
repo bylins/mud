@@ -66,7 +66,7 @@ DescriptorData *send_result_message(long unique, bool action);
 void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->is_npc()) return;
 
-	if (!privilege::CheckFlag(ch, privilege::kTitle) && PLR_FLAGGED(ch, PLR_NOTITLE)) {
+	if (!privilege::CheckFlag(ch, privilege::kTitle) && PLR_FLAGGED(ch, EPlrFlag::kNoTitle)) {
 		send_to_char("Вам запрещена работа с титулами.\r\n", ch);
 		return;
 	}
@@ -113,7 +113,7 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 	if (CompareParam(buffer2, "установить")) {
 		boost::trim(buffer);
 		if (buffer.size() > MAX_TITLE_LENGTH) {
-			if (PLR_FLAGGED(ch, PLR_NOTITLE)) {
+			if (PLR_FLAGGED(ch, EPlrFlag::kNoTitle)) {
 				send_to_char(ch, "Вам запрещено устанавливать самому себе титул.\r\n");
 				return;
 			}

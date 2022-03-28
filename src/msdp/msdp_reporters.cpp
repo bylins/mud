@@ -88,7 +88,7 @@ bool RoomReporter::blockReport() const {
 	const auto cannot_see_in_dark = (is_dark(IN_ROOM(descriptor()->character)) && !CAN_SEE_IN_DARK(descriptor()->character));
 	if (descriptor()->character->in_room != kNowhere)
 		nomapper = ROOM_FLAGGED(descriptor()->character->in_room, ROOM_NOMAPPER);
-	const auto scriptwriter = PLR_FLAGGED(descriptor()->character, PLR_SCRIPTWRITER); // скриптеру не шлем
+	const auto scriptwriter = PLR_FLAGGED(descriptor()->character, EPlrFlag::kScriptWriter); // скриптеру не шлем
 
 	return blind || cannot_see_in_dark || scriptwriter || nomapper;
 }

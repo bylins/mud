@@ -857,10 +857,10 @@ std::bitset<ACCESS_NUM> Static::get_access(CharData *ch, const Board::shared_ptr
 
 	// категории граждан, которые писать могут только на клан-доски
 	if (!IS_IMMORTAL(ch)
-		&& (PLR_FLAGGED(ch, PLR_HELLED)
-			|| PLR_FLAGGED(ch, PLR_NAMED)
-			|| PLR_FLAGGED(ch, PLR_DUMB)
-			|| PLR_FLAGGED(ch, PLR_MUTE)
+		&& (PLR_FLAGGED(ch, EPlrFlag::kHelled)
+			|| PLR_FLAGGED(ch, EPlrFlag::kNameDenied)
+			|| PLR_FLAGGED(ch, EPlrFlag::kDumbed)
+			|| PLR_FLAGGED(ch, EPlrFlag::kMuted)
 			|| lvl_no_write(ch))
 		&& (board->get_type() != CLAN_BOARD && board->get_type() != CLANNEWS_BOARD)) {
 		access.reset(ACCESS_CAN_WRITE);

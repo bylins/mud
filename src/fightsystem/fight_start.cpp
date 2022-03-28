@@ -28,7 +28,7 @@ int set_hit(CharData *ch, CharData *victim) {
 		}
 		STATE(victim->desc) = CON_PLAYING;
 		if (!victim->is_npc()) {
-			PLR_FLAGS(victim).unset(PLR_WRITING);
+			PLR_FLAGS(victim).unset(EPlrFlag::kWriting);
 		}
 		if (victim->desc->backstr) {
 			free(victim->desc->backstr);

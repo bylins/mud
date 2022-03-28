@@ -332,7 +332,7 @@ void PrintRentableInfo(CharData *ch, std::ostringstream &out) {
 		} else {
 			out << rent_time << " " << GetDeclensionInNumber(rent_time, EWhat::kSec) << "." << KNRM << std::endl;
 		}
-	} else if ((ch->in_room != kNowhere) && ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) && !PLR_FLAGGED(ch, PLR_KILLER)) {
+	} else if ((ch->in_room != kNowhere) && ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) && !PLR_FLAGGED(ch, EPlrFlag::kKiller)) {
 		out << InfoStrPrefix(ch) << KIGRN << "Тут вы чувствуете себя в безопасности." << KNRM << std::endl;
 	}
 }
@@ -414,25 +414,25 @@ void PrintPunishmentsInfo(CharData *ch, std::ostringstream &out) {
 
 	ScorePunishmentInfo punish_info{ch};
 
-	punish_info.SetFInfo(PLR_HELLED, &ch->player_specials->phell);
+	punish_info.SetFInfo(EPlrFlag::kHelled, &ch->player_specials->phell);
 	if (IsPunished(punish_info)) {
 		punish_info.msg = "Вам предстоит провести в темнице еще ";
 		PrintSinglePunishmentInfo(punish_info, out);
 	}
 
-	punish_info.SetFInfo(PLR_FROZEN, &ch->player_specials->pfreeze);
+	punish_info.SetFInfo(EPlrFlag::kFrozen, &ch->player_specials->pfreeze);
 	if (IsPunished(punish_info)) {
 		punish_info.msg = "Вы будете заморожены еще ";
 		PrintSinglePunishmentInfo(punish_info, out);
 	}
 
-	punish_info.SetFInfo(PLR_MUTE, &ch->player_specials->pmute);
+	punish_info.SetFInfo(EPlrFlag::kMuted, &ch->player_specials->pmute);
 	if (IsPunished(punish_info)) {
 		punish_info.msg = "Вы не сможете кричать еще ";
 		PrintSinglePunishmentInfo(punish_info, out);
 	}
 
-	punish_info.SetFInfo(PLR_DUMB, &ch->player_specials->pdumb);
+	punish_info.SetFInfo(EPlrFlag::kDumbed, &ch->player_specials->pdumb);
 	if (IsPunished(punish_info)) {
 		punish_info.msg = "Вы будете молчать еще ";
 		PrintSinglePunishmentInfo(punish_info, out);
@@ -454,7 +454,7 @@ void PrintPunishmentsInfo(CharData *ch, std::ostringstream &out) {
 	 * персонаж НЕ наказан. Было бы разумнее ставить новым персонажам по умолчанию флаг unreg и снимать его при
 	 * регистрации, но увы.
 	 */
-	if (!PLR_FLAGGED(ch, PLR_REGISTERED) && UNREG_DURATION(ch) != 0 && UNREG_DURATION(ch) > time(nullptr)) {
+	if (!PLR_FLAGGED(ch, EPlrFlag::kRegistred) && UNREG_DURATION(ch) != 0 && UNREG_DURATION(ch) > time(nullptr)) {
 		punish_info.punish = &ch->player_specials->punreg;
 		punish_info.msg = "Вы не сможете входить с одного IP еще ";
 		PrintSinglePunishmentInfo(punish_info, out);
@@ -848,7 +848,7 @@ void PrintScoreBase(CharData *ch) {
 				"%sВ связи с боевыми действиями вы не можете уйти на постой.%s\r\n",
 				CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
-	} else if ((ch->in_room != kNowhere) && ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) && !PLR_FLAGGED(ch, PLR_KILLER)) {
+	} else if ((ch->in_room != kNowhere) && ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) && !PLR_FLAGGED(ch, EPlrFlag::kKiller)) {
 		sprintf(buf, "%sТут вы чувствуете себя в безопасности.%s\r\n", CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 	}
@@ -872,7 +872,7 @@ void PrintScoreBase(CharData *ch) {
 		send_to_char(buf, ch);
 	}
 
-	if (PLR_FLAGGED(ch, PLR_HELLED) && HELL_DURATION(ch) && HELL_DURATION(ch) > time(nullptr)) {
+	if (PLR_FLAGGED(ch, EPlrFlag::kHelled) && HELL_DURATION(ch) && HELL_DURATION(ch) > time(nullptr)) {
 		const int hrs = (HELL_DURATION(ch) - time(nullptr)) / 3600;
 		const int mins = ((HELL_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
 		sprintf(buf,
@@ -882,7 +882,7 @@ void PrintScoreBase(CharData *ch) {
 				HELL_REASON(ch) ? HELL_REASON(ch) : "-");
 		send_to_char(buf, ch);
 	}
-	if (PLR_FLAGGED(ch, PLR_MUTE) && MUTE_DURATION(ch) != 0 && MUTE_DURATION(ch) > time(nullptr)) {
+	if (PLR_FLAGGED(ch, EPlrFlag::kMuted) && MUTE_DURATION(ch) != 0 && MUTE_DURATION(ch) > time(nullptr)) {
 		const int hrs = (MUTE_DURATION(ch) - time(nullptr)) / 3600;
 		const int mins = ((MUTE_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
 		sprintf(buf, "Вы не сможете кричать еще %d %s %d %s [%s].\r\n",
@@ -890,7 +890,7 @@ void PrintScoreBase(CharData *ch) {
 				mins, GetDeclensionInNumber(mins, EWhat::kMinU), MUTE_REASON(ch) ? MUTE_REASON(ch) : "-");
 		send_to_char(buf, ch);
 	}
-	if (PLR_FLAGGED(ch, PLR_DUMB) && DUMB_DURATION(ch) != 0 && DUMB_DURATION(ch) > time(nullptr)) {
+	if (PLR_FLAGGED(ch, EPlrFlag::kDumbed) && DUMB_DURATION(ch) != 0 && DUMB_DURATION(ch) > time(nullptr)) {
 		const int hrs = (DUMB_DURATION(ch) - time(nullptr)) / 3600;
 		const int mins = ((DUMB_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
 		sprintf(buf, "Вы будете молчать еще %d %s %d %s [%s].\r\n",
@@ -898,7 +898,7 @@ void PrintScoreBase(CharData *ch) {
 				mins, GetDeclensionInNumber(mins, EWhat::kMinU), DUMB_REASON(ch) ? DUMB_REASON(ch) : "-");
 		send_to_char(buf, ch);
 	}
-	if (PLR_FLAGGED(ch, PLR_FROZEN) && FREEZE_DURATION(ch) != 0 && FREEZE_DURATION(ch) > time(nullptr)) {
+	if (PLR_FLAGGED(ch, EPlrFlag::kFrozen) && FREEZE_DURATION(ch) != 0 && FREEZE_DURATION(ch) > time(nullptr)) {
 		const int hrs = (FREEZE_DURATION(ch) - time(nullptr)) / 3600;
 		const int mins = ((FREEZE_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
 		sprintf(buf, "Вы будете заморожены еще %d %s %d %s [%s].\r\n",
@@ -907,7 +907,7 @@ void PrintScoreBase(CharData *ch) {
 		send_to_char(buf, ch);
 	}
 
-	if (!PLR_FLAGGED(ch, PLR_REGISTERED) && UNREG_DURATION(ch) != 0 && UNREG_DURATION(ch) > time(nullptr)) {
+	if (!PLR_FLAGGED(ch, EPlrFlag::kRegistred) && UNREG_DURATION(ch) != 0 && UNREG_DURATION(ch) > time(nullptr)) {
 		const int hrs = (UNREG_DURATION(ch) - time(nullptr)) / 3600;
 		const int mins = ((UNREG_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
 		sprintf(buf, "Вы не сможете заходить с одного IP еще %d %s %d %s [%s].\r\n",

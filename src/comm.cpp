@@ -3082,7 +3082,7 @@ void close_socket(DescriptorData * d, int direct)
 	if (d->character) {
 		// Plug memory leak, from Eric Green.
 		if (!d->character->is_npc()
-			&& (PLR_FLAGGED(d->character, PLR_MAILING)
+			&& (PLR_FLAGGED(d->character, EPlrFlag::kMailing)
 				|| STATE(d) == CON_WRITEBOARD
 				|| STATE(d) == CON_WRITE_MOD)
 			&& d->writer) {
@@ -3753,7 +3753,7 @@ void perform_act(const char *orig,
 // moved this to utils.h --- mah
 #ifndef SENDOK
 #define SENDOK(ch)	((ch)->desc && (to_sleeping || AWAKE(ch)) && \
-			(ch->is_npc() || !PLR_FLAGGED((ch), PLR_WRITING)))
+			(ch->is_npc() || !EPlrFlag::FLAGGED((ch), EPlrFlag::WRITING)))
 #endif
 
 void act(const char *str,

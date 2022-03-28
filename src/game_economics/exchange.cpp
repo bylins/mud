@@ -114,12 +114,12 @@ int exchange(CharData *ch, void * /*me*/, int cmd, char *argument) {
 			send_to_char("Вы немы, как рыба об лед.\r\n", ch);
 			return 1;
 		}
-		if (!ch->is_npc() && PLR_FLAGGED(ch, PLR_DUMB)) {
+		if (!ch->is_npc() && PLR_FLAGGED(ch, EPlrFlag::kDumbed)) {
 			send_to_char("Вам запрещено общаться с торговцами!\r\n", ch);
 			return 1;
 		}
 		/*
-				if (PLR_FLAGGED(ch, PLR_MUTE)) {
+				if (EPlrFlag::FLAGGED(ch, EPlrFlag::MUTE)) {
 					send_to_char("Вам не к лицу торговаться.\r\n", ch);
 					return 1;
 				}
@@ -1271,7 +1271,7 @@ void message_exchange(char *message, CharData *ch, ExchangeItem *j) {
 			&& (!ch || i != ch->desc)
 			&& i->character
 			&& !PRF_FLAGGED(i->character, EPrf::kNoExchange)
-			&& !PLR_FLAGGED(i->character, PLR_WRITING)
+			&& !PLR_FLAGGED(i->character, EPlrFlag::kWriting)
 			&& !ROOM_FLAGGED(IN_ROOM(i->character), ROOM_SOUNDPROOF)
 			&& GET_POS(i->character) > EPosition::kSleep) {
 			if (!PRF_FLAGGED(i->character, EPrf::kNoIngrMode)

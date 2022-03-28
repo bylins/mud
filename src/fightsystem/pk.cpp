@@ -116,7 +116,7 @@ void pk_check_spamm(CharData *ch) {
 		act("Боги прокляли тот день, когда ты появился на свет!", false, ch, 0, 0, kToChar);
 	}
 	if (pk_player_count(ch) >= KillerPK) {
-		PLR_FLAGS(ch).set(PLR_KILLER);
+		PLR_FLAGS(ch).set(EPlrFlag::kKiller);
 	}
 }
 
@@ -537,7 +537,7 @@ int pk_action_type(CharData *agressor, CharData *victim) {
 			&& (ROOM_FLAGGED(agressor->in_room, ROOM_NOBATTLE) || ROOM_FLAGGED(victim->in_room, ROOM_NOBATTLE))))
 		return PK_ACTION_NO;
 
-	if (PLR_FLAGGED(victim, PLR_KILLER) || (AGRO(victim) && NORENTABLE(victim)))
+	if (PLR_FLAGGED(victim, EPlrFlag::kKiller) || (AGRO(victim) && NORENTABLE(victim)))
 		return PK_ACTION_FIGHT;
 
 	for (pk = agressor->pk_list; pk; pk = pk->next) {
@@ -842,7 +842,7 @@ void save_pkills(CharData *ch, FILE *saved) {
 	struct PK_Memory_type *pk, *tpk;
 
 	fprintf(saved, "Pkil:\n");
-	for (pk = ch->pk_list; pk && !PLR_FLAGGED(ch, PLR_DELETED);) {
+	for (pk = ch->pk_list; pk && !PLR_FLAGGED(ch, EPlrFlag::kDeleted);) {
 		if (pk->kill_num > 0 && correct_unique(pk->unique)) {
 			if (pk->revenge_num >= MAX_REVENGE && pk->battle_exp <= time(nullptr)) {
 				CharData *result = nullptr;
@@ -1152,7 +1152,7 @@ void bloody::handle_corpse(ObjData *corpse, CharData *ch, CharData *killer) {
 		&& ch != killer
 		&& !ch->is_npc()
 		&& !killer->is_npc()
-		&& !PLR_FLAGGED(ch, PLR_KILLER)
+		&& !PLR_FLAGGED(ch, EPlrFlag::kKiller)
 		&& !AGRO(ch)
 		&& !IS_GOD(killer)) {
 		//Проверим, может у killer есть месть на ch

@@ -228,31 +228,33 @@ extern const religion_names_t religion_name;
 /**
  *	Player flags: used by char_data.char_specials.act
  */
-constexpr Bitvector PLR_KILLER = 1 << 0;            // Player is a player-killer     //
-constexpr Bitvector PLR_THIEF = 1 << 1;            // Player is a player-thief      //
-constexpr Bitvector PLR_FROZEN = 1 << 2;            // Player is frozen        //
-constexpr Bitvector PLR_DONTSET = 1 << 3;            // Don't EVER set (ISNPC bit)  //
-constexpr Bitvector PLR_WRITING = 1 << 4;            // Player writing (board/mail/olc)  //
-constexpr Bitvector PLR_MAILING = 1 << 5;            // Player is writing mail     //
-constexpr Bitvector PLR_CRASH = 1 << 6;            // Player needs to be crash-saved   //
-constexpr Bitvector PLR_SITEOK = 1 << 7;            // Player has been site-cleared  //
-constexpr Bitvector PLR_MUTE = 1 << 8;            // Player not allowed to shout/goss/auct  //
-constexpr Bitvector PLR_NOTITLE = 1 << 9;            // Player not allowed to set title  //
-constexpr Bitvector PLR_DELETED = 1 << 10;        // Player deleted - space reusable  //
-constexpr Bitvector PLR_LOADROOM = 1 << 11;        // Player uses nonstandard loadroom  (не используется) //
-constexpr Bitvector PLR_AUTOBOT = 1 << 12;        // Player автоматический игрок //
-constexpr Bitvector PLR_NODELETE = 1 << 13;        // Player shouldn't be deleted //
-constexpr Bitvector PLR_INVSTART = 1 << 14;        // Player should enter game wizinvis //
-constexpr Bitvector PLR_CRYO = 1 << 15;            // Player is cryo-saved (purge prog)   //
-constexpr Bitvector PLR_HELLED = 1 << 16;            // Player is in Hell //
-constexpr Bitvector PLR_NAMED = 1 << 17;            // Player is in Names Room //
-constexpr Bitvector PLR_REGISTERED = 1 << 18;
-constexpr Bitvector PLR_DUMB = 1 << 19;            // Player is not allowed to tell/emote/social //
-constexpr Bitvector PLR_SCRIPTWRITER = 1 << 20;   // скриптер
-constexpr Bitvector PLR_SPAMMER = 1 << 21;        // спаммер
+ enum EPlrFlag : Bitvector {
+	kKiller = 1 << 0,            // Player is a player-killer     //
+	kBurglar = 1 << 1,            // Player is a player-thief. Назван так, потому что конфликтует с константой класса //
+	kFrozen = 1 << 2,            // Player is frozen        //
+	kDontSet = 1 << 3,            // Don't EVER set (ISNPC bit)  //
+	kWriting = 1 << 4,            // Player writing (board/mail/olc)  //
+	kMailing = 1 << 5,            // Player is writing mail     //
+	kCrashSave = 1 << 6,            // Player needs to be crash-saved   //
+	kSiteOk = 1 << 7,            // Player has been site-cleared  //
+	kMuted = 1 << 8,            // Player not allowed to shout/goss/auct  //
+	kNoTitle = 1 << 9,            // Player not allowed to set title  //
+	kDeleted = 1 << 10,        // Player deleted - space reusable  //
+	kLoadroom = 1 << 11,        // Player uses nonstandard loadroom  (не используется) //
+	kAutobot = 1 << 12,        // Player автоматический игрок //
+	kNoDelete = 1 << 13,        // Player shouldn't be deleted //
+	kInvStart = 1 << 14,        // Player should enter game wizinvis //
+	kCryo = 1 << 15,            // Player is cryo-saved (purge prog)   //
+	kHelled = 1 << 16,            // Player is in Hell //
+	kNameDenied = 1 << 17,            // Player is in Names Room //
+	kRegistred = 1 << 18,
+	kDumbed = 1 << 19,            // Player is not allowed to tell/emote/social //
+	kScriptWriter = 1 << 20,   // скриптер
+	kSpamer = 1 << 21,        // спаммер
 // свободно
-constexpr Bitvector PLR_DELETE = 1 << 28;            // RESERVED - ONLY INTERNALLY (MOB_DELETE) //
-constexpr Bitvector PLR_FREE = 1 << 29;            // RESERVED - ONLY INTERBALLY (MOB_FREE)//
+	kDelete = 1 << 28,            // RESERVED - ONLY INTERNALLY (MOB_DELETE) //
+	kFree = 1 << 29,            // RESERVED - ONLY INTERBALLY (MOB_FREE)//
+};
 
 /**
  *	Gods flags.
@@ -498,7 +500,6 @@ constexpr Bitvector ROOM_NOBATTLE = kIntOne | (1 << 9);
 constexpr Bitvector ROOM_QUEST = kIntOne | (1 << 10);
 constexpr Bitvector ROOM_LIGHT = kIntOne | (1 << 11);
 constexpr Bitvector ROOM_NOMAPPER = kIntOne | (1 << 12);  //нет внумов комнат
-
 
 constexpr Bitvector ROOM_NOITEM = kIntTwo | (1 << 0);    // Передача вещей в комнате запрещена
 constexpr Bitvector ROOM_ARENA_DOMINATION = kIntTwo | (1 << 1); // комната арены доминирования
