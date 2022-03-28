@@ -35,7 +35,7 @@ time_t spell_left_time(CharData *ch, int spellnum) {
 void update_times() {
 	time_t now = time(0);
 	for (const auto &ch : character_list) {
-		if (IS_NPC(ch)
+		if (ch->is_npc()
 			|| IS_IMMORTAL(ch)) {
 			continue;
 		}

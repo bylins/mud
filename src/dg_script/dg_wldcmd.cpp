@@ -296,7 +296,7 @@ void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 		for (auto ch_i = next_ch; ch_i != people_copy.end(); ch_i = next_ch) {
 			const auto ch = *ch_i;
 			++next_ch;
-			if (IS_NPC(ch) && !IS_CHARMICE(ch))
+			if (ch->is_npc() && !IS_CHARMICE(ch))
 				continue;
 			char_from_room(ch);
 			char_to_room(ch, target);
@@ -353,7 +353,7 @@ void do_wforce(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 		//const auto people_copy = room->people;
 		//for (const auto ch : people_copy)
 		//{
-		//	if (IS_NPC(ch)
+		//	if (ch->is_npc()
 		//		|| GetRealLevel(ch) < kLevelImmortal)
 		//	{
 		//		command_interpreter(ch, line);
@@ -362,13 +362,13 @@ void do_wforce(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else {
 		const auto ch = get_char_by_room(room, arg1);
 		if (ch) {
-			if (!IS_NPC(ch)) {
+			if (!ch->is_npc()) {
 				if ((!ch->desc)) {
 					return;
 				}
 			}
 
-			if (IS_NPC(ch)) {
+			if (ch->is_npc()) {
 				if (mob_script_command_interpreter(ch, line)) {
 					wld_log(room, "Mob trigger commands in wforce. Please rewrite trigger.");
 					return;
@@ -429,7 +429,7 @@ void do_wpurge(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!IS_NPC(ch)) {
+	if (!ch->is_npc()) {
 		wld_log(room, "wpurge: purging a PC");
 		return;
 	}
@@ -522,7 +522,7 @@ void do_wdamage(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 		update_pos(ch);
 		char_dam_message(dam, ch, ch, 0);
 		if (GET_POS(ch) == EPosition::kDead) {
-			if (!IS_NPC(ch)) {
+			if (!ch->is_npc()) {
 				sprintf(buf2, "%s killed by wdamage at %s [%d]", GET_NAME(ch),
 						ch->in_room == kNowhere ? "kNowhere" : world[ch->in_room]->name, GET_ROOM_VNUM(ch->in_room));
 				mudlog(buf2, BRF, kLvlBuilder, SYSLOG, true);

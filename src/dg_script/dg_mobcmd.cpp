@@ -443,7 +443,7 @@ void do_mpurge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!IS_NPC(victim)) {
+	if (!victim->is_npc()) {
 		mob_log(ch, "mpurge: purging a PC");
 		return;
 	}
@@ -560,7 +560,7 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			char_from_room(vict);
 			char_to_room(vict, target);
 			// переделать чтоб чары смотрели в клетку после переноса, походу еще один цикл крутить, ну и мутево будет
-			if (!IS_NPC(vict))
+			if (!vict->is_npc())
 				look_at_room(vict, true);
 		}
 	} else if (!str_cmp(arg1, "allchar") || !str_cmp(arg1, "всечары")) {
@@ -574,7 +574,7 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				mob_log(ch, "mteleport transports allchar from kNowhere");
 				return;
 			}
-			if (IS_NPC(vict) && !IS_CHARMICE(vict))
+			if (vict->is_npc() && !IS_CHARMICE(vict))
 				continue;
 			char_from_room(vict);
 			char_to_room(vict, target);
@@ -615,7 +615,7 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (!str_cmp(argument, "followers") && vict->followers) {
 			Follower *ft;
 			for (ft = vict->followers; ft; ft = ft->next) {
-				if (IN_ROOM(ft->ch) == from_room && IS_NPC(ft->ch)) {
+				if (IN_ROOM(ft->ch) == from_room && ft->ch->is_npc()) {
 					char_from_room(ft->ch);
 					char_to_room(ft->ch, target);
 				}
@@ -667,7 +667,7 @@ void do_mforce(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!IS_NPC(victim)) {
+	if (!victim->is_npc()) {
 		if ((!victim->desc)) {
 			return;
 		}
@@ -678,7 +678,7 @@ void do_mforce(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (IS_NPC(victim)) {
+	if (victim->is_npc()) {
 		if (mob_script_command_interpreter(victim, argument)) {
 			mob_log(ch, "Mob trigger commands in mforce. Please rewrite trigger.");
 			return;
@@ -1362,7 +1362,7 @@ void do_mdamage(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		update_pos(victim);
 		char_dam_message(dam, victim, victim, 0);
 		if (GET_POS(victim) == EPosition::kDead) {
-			if (!IS_NPC(victim)) {
+			if (!victim->is_npc()) {
 				sprintf(buf2,
 						"%s killed by mobdamage at %s [%d]",
 						GET_NAME(victim),

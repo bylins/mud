@@ -83,7 +83,7 @@ void RoomReporter::get(Variable::shared_ptr &response) {
 
 bool RoomReporter::blockReport() const {
 	bool nomapper = true;
-	const auto blind = (GR_FLAGGED(descriptor()->character, EPrf::kBlindMode)) //В режиме слепого игрока карта недоступна
+	const auto blind = (PRF_FLAGGED(descriptor()->character, EPrf::kBlindMode)) //В режиме слепого игрока карта недоступна
 		|| (AFF_FLAGGED((descriptor()->character), EAffectFlag::AFF_BLIND));  //Слепому карта не поможет!
 	const auto cannot_see_in_dark = (is_dark(IN_ROOM(descriptor()->character)) && !CAN_SEE_IN_DARK(descriptor()->character));
 	if (descriptor()->character->in_room != kNowhere)
@@ -160,8 +160,8 @@ void GroupReporter::append_char(const std::shared_ptr<ArrayValue> &group,
 								const CharData *ch,
 								const CharData *character,
 								const bool leader) {
-	if (GR_FLAGGED(ch, EPrf::kNoClones)
-		&& IS_NPC(character)
+	if (PRF_FLAGGED(ch, EPrf::kNoClones)
+		&& character->is_npc()
 		&& (MOB_FLAGGED(character, MOB_CLONE)
 			|| GET_MOB_VNUM(character) == kMobKeeper)) {
 		return;
@@ -209,11 +209,11 @@ void GroupReporter::append_char(const std::shared_ptr<ArrayValue> &group,
 		affects += "Л";
 	}
 
-	if (!IS_NPC(character) && character->ahorse()) {
+	if (!character->is_npc() && character->ahorse()) {
 		affects += "В";
 	}
 
-	if (IS_NPC(character)
+	if (character->is_npc()
 		&& character->low_charm()) {
 		affects += "Т";
 	}
@@ -221,7 +221,7 @@ void GroupReporter::append_char(const std::shared_ptr<ArrayValue> &group,
 	descriptor()->string_to_client_encoding(affects.c_str(), buffer);
 	member->add(std::make_shared<Variable>("AFFECTS", std::make_shared<StringValue>(buffer)));
 
-	const auto leader_value = leader ? "leader" : (IS_NPC(character) ? "npc" : "pc");
+	const auto leader_value = leader ? "leader" : (character->is_npc() ? "npc" : "pc");
 	member->add(std::make_shared<Variable>("ROLE", std::make_shared<StringValue>(leader_value)));
 
 	char position[kMaxInputLength];
@@ -235,7 +235,7 @@ void GroupReporter::append_char(const std::shared_ptr<ArrayValue> &group,
 int GroupReporter::get_mem(const CharData *character) const {
 	int result = 0;
 	int div = 0;
-	if (!IS_NPC(character)
+	if (!character->is_npc()
 		&& ((!IS_MANA_CASTER(character) && !MEMQUEUE_EMPTY(character))
 			|| (IS_MANA_CASTER(character) && GET_MANA_STORED(character) < GET_MAX_MANA(character)))) {
 		div = mana_gain(character);

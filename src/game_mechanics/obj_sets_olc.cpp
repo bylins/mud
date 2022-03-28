@@ -1636,7 +1636,7 @@ const char *SEDIT_HELP =
 
 /// иммский sedit, см. SEDIT_HELP
 void do_sedit(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch)) {
+	if (ch->is_npc()) {
 		return;
 	}
 

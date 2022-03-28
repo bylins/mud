@@ -73,7 +73,7 @@ int CalcAntiSavings(CharData *ch) {
 	else
 		modi = GET_CAST_SUCCESS(ch);
 	modi += MAX(0, MIN(20, (int) ((GET_REAL_WIS(ch) - 23) * 3 / 2)));
-	if (!IS_NPC(ch)) {
+	if (!ch->is_npc()) {
 		modi *= ch->get_cond_penalty(P_CAST);
 	}
 //  log("[EXT_APPLY] Name==%s modi==%d",GET_NAME(ch), modi);
@@ -91,7 +91,7 @@ int CalculateSaving(CharData *killer, CharData *victim, ESaving saving, int ext_
 	int save;
 	int class_sav = GET_CLASS(victim);
 
-	if (IS_NPC(victim)) {
+	if (victim->is_npc()) {
 		class_sav = ECharClass::kMob;    // неизвестный класс моба
 	} else {
 		if (class_sav < 0 || class_sav >= kNumPlayerClasses)
@@ -137,7 +137,7 @@ int CalculateSaving(CharData *killer, CharData *victim, ESaving saving, int ext_
 		}
 	}
 	// Учет осторожного стиля
-	if (GR_FLAGGED(victim, EPrf::kAwake)) {
+	if (PRF_FLAGGED(victim, EPrf::kAwake)) {
 		if (can_use_feat(victim, IMPREGNABLE_FEAT)) {
 			save -= MAX(0, victim->get_skill(ESkill::kAwake) - 80) / 2;
 			temp_awake_mod = MAX(0, victim->get_skill(ESkill::kAwake) - 80) / 2;
@@ -155,7 +155,7 @@ int CalculateSaving(CharData *killer, CharData *victim, ESaving saving, int ext_
 		save -= 50;
 	else if (GET_GOD_FLAG(victim, GF_GODSCURSE))
 		save += 50;
-	if (IS_NPC(victim) && !IS_NPC(killer)) {
+	if (victim->is_npc() && !killer->is_npc()) {
 		killer->send_to_TC(false, true, true, "SAVING: Caster==%s  Mob==%s vnum==%d Level==%d base_save==%d stat_bonus==%d awake_bonus==%d save_ext==%d +cast==%d result==%d new_random==%d\r\n",
 			GET_NAME(killer),
 			GET_NAME(victim),
@@ -195,7 +195,7 @@ int CalcGeneralSaving(CharData *killer, CharData *victim, ESaving type, int ext_
 }
 
 int multi_cast_say(CharData *ch) {
-	if (!IS_NPC(ch))
+	if (!ch->is_npc())
 		return 1;
 	switch (GET_RACE(ch)) {
 		case ENpcRace::kBoggart:
@@ -208,7 +208,7 @@ int multi_cast_say(CharData *ch) {
 }
 
 void show_spell_off(int aff, CharData *ch) {
-	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_WRITING))
+	if (!ch->is_npc() && PLR_FLAGGED(ch, PLR_WRITING))
 		return;
 
 	// TODO:" refactor and replace int aff by ESpell
@@ -270,7 +270,7 @@ float func_koef_modif(int spellnum, int percent) {
 int magic_skill_damage_calc(CharData *ch, CharData *victim, int spellnum, int dam) {
 	auto skill_id = GetMagicSkillId(spellnum);
 	if (MUD::Skills().IsValid(skill_id)) {
-		if (IS_NPC(ch)) {
+		if (ch->is_npc()) {
 			victim->send_to_TC(false, true, true,"&CВраг: %s.МагДамага магии %d&n\r\n", GET_NAME(ch), dam);
 			dam += (int) dam * ((GET_REAL_WIS(ch) - 22) * 5) / 100.0;
 //			send_to_char(victim, "&CМагДамага магии с мудростью %d&n\r\n", dam);
@@ -287,8 +287,8 @@ int magic_skill_damage_calc(CharData *ch, CharData *victim, int spellnum, int da
 		dam = (int) dam * tmp;
 //		send_to_char(ch, "&CМагДамага магии с мудростью %d, бонус %f &n\r\n", dam, tmp);
 	}
-	if (!IS_NPC(ch)) {
-		dam = (IS_NPC(victim) ? MIN(dam, 6 * GET_REAL_MAX_HIT(ch)) : MIN(dam, 2 * GET_REAL_MAX_HIT(ch)));
+	if (!ch->is_npc()) {
+		dam = (victim->is_npc() ? MIN(dam, 6 * GET_REAL_MAX_HIT(ch)) : MIN(dam, 2 * GET_REAL_MAX_HIT(ch)));
 	}
 	ch->send_to_TC(false, true, true,"&CЦель: %s. МагДамага магии с умением  и мудростью %d&n\r\n", GET_NAME(victim), dam);
 	return (dam);
@@ -323,7 +323,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 			}
 		} else {
 			if (ch != victim && spellnum <= kSpellCount && IS_GOD(victim)
-				&& (IS_NPC(ch) || GetRealLevel(victim) > GetRealLevel(ch))) {
+				&& (ch->is_npc() || GetRealLevel(victim) > GetRealLevel(ch))) {
 				act("Звуковой барьер $N1 отразил ваш крик!", false, ch, nullptr, victim, kToChar);
 				act("Звуковой барьер $N1 отразил крик $n1!", false, ch, nullptr, victim, kToNotVict);
 				act("Ваш звуковой барьер отразил крик $n1!", false, ch, nullptr, victim, kToVict);
@@ -358,16 +358,16 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 
 	if (ch != victim) {
 		modi = CalcAntiSavings(ch);
-		if (can_use_feat(ch, RELATED_TO_MAGIC_FEAT) && !IS_NPC(victim)) {
+		if (can_use_feat(ch, RELATED_TO_MAGIC_FEAT) && !victim->is_npc()) {
 			modi -= 80; // на игрока бонуса + каст нет
 		}
-		if (can_use_feat(ch, MAGICAL_INSTINCT_FEAT) && !IS_NPC(victim)) {
+		if (can_use_feat(ch, MAGICAL_INSTINCT_FEAT) && !victim->is_npc()) {
 			modi -= 30; // на игрока бонуса + каст нет
 		}
-		if (GR_FLAGGED(ch, EPrf::kAwake) && !IS_NPC(victim))
+		if (PRF_FLAGGED(ch, EPrf::kAwake) && !victim->is_npc())
 			modi = modi - 50; // на игрока бонуса + каст нет
 	}
-	if (!IS_NPC(ch) && (GetRealLevel(ch) > 10))
+	if (!ch->is_npc() && (GetRealLevel(ch) > 10))
 		modi += (GetRealLevel(ch) - 10);
 
 	// вводим переменную-модификатор владения школы магии	
@@ -402,7 +402,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 			// нейтрал
 		case kSpellAcid: savetype = ESaving::kReflex;
 			obj = nullptr;
-			if (IS_NPC(victim)) {
+			if (victim->is_npc()) {
 				rand = number(1, 50);
 				if (rand <= EEquipPos::kBoths) {
 					obj = GET_EQ(victim, rand);
@@ -602,7 +602,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 			// мин 16+120 среднее 32+150 макс 38+180
 			// ВОЗДУХ, ареа
 		case kSpellArmageddon: savetype = ESaving::kWill;
-			if (!(IS_NPC(ch))) {
+			if (!(ch->is_npc())) {
 				ndice = 10 + ((GET_REAL_REMORT(ch) / 3) - 4);
 				sdice = level / 9;
 				adice = level * (number(4, 6));
@@ -710,7 +710,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 		case kSpellAcidBreath:
 		case kSpellLightingBreath:
 		case kSpellGasBreath: savetype = ESaving::kStability;
-			if (!IS_NPC(ch))
+			if (!ch->is_npc())
 				return (0);
 			ndice = ch->mob_specials.damnodice;
 			sdice = ch->mob_specials.damsizedice;
@@ -768,7 +768,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 		// вихрь
 		// мин 16+35 среднее 176+40  макс 336+40
 		case kSpellWhirlwind: savetype = ESaving::kReflex;
-			if (!(IS_NPC(ch))) {
+			if (!(ch->is_npc())) {
 				ndice = 10 + ((GET_REAL_REMORT(ch) / 3) - 4);	//16
 				sdice = 18 + (3 - (30 - level) / 3);			//21
 				adice = (level + GET_REAL_REMORT(ch) - 25) * (number(1, 3));	//35..40..45
@@ -821,7 +821,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 					affect_from_char(victim, kSpellEviless);
 				} else {
 					dam = MAX(1, GET_HIT(victim) + 1);
-					if (IS_NPC(victim))
+					if (victim->is_npc())
 						dam += 99;    // чтобы насмерть
 				}
 			} else {
@@ -857,7 +857,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 		case kSpellArrowsEarth:
 		case kSpellArrowsAir:
 		case kSpellArrowsDeath:
-			if (!(IS_NPC(ch))) {
+			if (!(ch->is_npc())) {
 				act("Ваша магическая стрела поразила $N1.", false, ch, nullptr, victim, kToChar);
 				act("Магическая стрела $n1 поразила $N1.", false, ch, nullptr, victim, kToNotVict);
 				act("Магическая стрела настигла вас.", false, ch, nullptr, victim, kToVict);
@@ -876,7 +876,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 
 	if (!dam && !no_savings) {
 		double koeff = 1;
-		if (IS_NPC(victim)) {
+		if (victim->is_npc()) {
 			if (NPC_FLAGGED(victim, NPC_FIRECREATURE)) {
 				if (IS_SET(SpINFO.spell_class, kTypeFire))
 					koeff /= 2;
@@ -906,7 +906,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 		dam = complex_spell_modifier(ch, spellnum, GAPPLY_SPELL_EFFECT, dam);
 //		send_to_char(ch, "&CМагДамага магии %d &n\r\n", dam);
 
-		if (can_use_feat(ch, POWER_MAGIC_FEAT) && IS_NPC(victim)) {
+		if (can_use_feat(ch, POWER_MAGIC_FEAT) && victim->is_npc()) {
 			dam += (int) dam * 0.5;
 		}
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_DATURA_POISON))
@@ -933,7 +933,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 	}
 
 	//Голодный кастер меньше дамажит!
-	if (!IS_NPC(ch))
+	if (!ch->is_npc())
 		dam *= ch->get_cond_penalty(P_DAMROLL);
 
 	if (number(1, 100) <= MIN(75, GET_MR(victim)))
@@ -949,7 +949,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 			dmg.ch_start_pos = ch_start_pos;
 			dmg.victim_start_pos = victim_start_pos;
 
-			if (can_use_feat(ch, POWER_MAGIC_FEAT) && IS_NPC(victim)) {
+			if (can_use_feat(ch, POWER_MAGIC_FEAT) && victim->is_npc()) {
 				dmg.flags.set(fight::kIgnoreAbsorbe);
 			}
 			// отражение магии в кастующего
@@ -969,7 +969,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 
 int CalcDuration(CharData *ch, int cnst, int level, int level_divisor, int min, int max) {
 	int result = 0;
-	if (IS_NPC(ch)) {
+	if (ch->is_npc()) {
 		result = cnst;
 		if (level > 0 && level_divisor > 0)
 			level = level / level_divisor;
@@ -1118,7 +1118,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 				&& (ch->in_room == IN_ROOM(victim)) //зеркало сработает только если оба в одной комнате
 				&& number(1, 100) < (GetRealLevel(victim) / 3))
 				|| (IS_GOD(victim)
-					&& (IS_NPC(ch)
+					&& (ch->is_npc()
 						|| GetRealLevel(victim) > (GetRealLevel(ch)))))) {
 			act("Магическое зеркало $N1 отразило вашу магию!", false, ch, nullptr, victim, kToChar);
 			act("Магическое зеркало $N1 отразило магию $n1!", false, ch, nullptr, victim, kToNotVict);
@@ -1128,7 +1128,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 		}
 	} else {
 		if (ch != victim && SpINFO.violent && IS_GOD(victim)
-			&& (IS_NPC(ch) || GetRealLevel(victim) > (GetRealLevel(ch) + GET_REAL_REMORT(ch) / 2))) {
+			&& (ch->is_npc() || GetRealLevel(victim) > (GetRealLevel(ch) + GET_REAL_REMORT(ch) / 2))) {
 			act("Звуковой барьер $N1 отразил ваш крик!", false, ch, nullptr, victim, kToChar);
 			act("Звуковой барьер $N1 отразил крик $n1!", false, ch, nullptr, victim, kToNotVict);
 			act("Ваш звуковой барьер отразил крик $n1!", false, ch, nullptr, victim, kToVict);
@@ -1166,16 +1166,16 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 	// decrease modi for failing, increese fo success
 	if (ch != victim) {
 		modi = CalcAntiSavings(ch);
-		if (can_use_feat(ch, RELATED_TO_MAGIC_FEAT) && !IS_NPC(victim)) {
+		if (can_use_feat(ch, RELATED_TO_MAGIC_FEAT) && !victim->is_npc()) {
 			modi -= 80; //бонуса на непись нету
 		}
-		if (can_use_feat(ch, MAGICAL_INSTINCT_FEAT) && !IS_NPC(victim)) {
+		if (can_use_feat(ch, MAGICAL_INSTINCT_FEAT) && !victim->is_npc()) {
 			modi -= 30; //бонуса на непись нету
 		}
 
 	}
 
-	if (GR_FLAGGED(ch, EPrf::kAwake) && !IS_NPC(victim)) {
+	if (PRF_FLAGGED(ch, EPrf::kAwake) && !victim->is_npc()) {
 		modi = modi - 50;
 	}
 
@@ -1226,7 +1226,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 				af[0].modifier = -1 * ((level / 6 + GET_REAL_REMORT(ch) / 2));
 			else
 				af[0].modifier = -2 * ((level / 6 + GET_REAL_REMORT(ch) / 2));
-			if (IS_NPC(ch) && level >= (kLvlImmortal))
+			if (ch->is_npc() && level >= (kLvlImmortal))
 				af[0].modifier += (kLvlImmortal - level - 1);    //1 str per mob level above 30
 			af[0].battleflag = kAfBattledec;
 			accum_duration = true;
@@ -1266,7 +1266,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 				affect_from_char(victim, kSpellFireShield);
 			af[0].bitvector = to_underlying(EAffectFlag::AFF_AIRSHIELD);
 			af[0].battleflag = kAfBattledec;
-			if (IS_NPC(victim) || victim == ch)
+			if (victim->is_npc() || victim == ch)
 				af[0].duration = CalcDuration(victim, 10 + GET_REAL_REMORT(ch), 0, 0, 0, 0) * koef_duration;
 			else
 				af[0].duration = CalcDuration(victim, 4 + GET_REAL_REMORT(ch), 0, 0, 0, 0) * koef_duration;
@@ -1281,7 +1281,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 				affect_from_char(victim, kSpellAirShield);
 			af[0].bitvector = to_underlying(EAffectFlag::AFF_FIRESHIELD);
 			af[0].battleflag = kAfBattledec;
-			if (IS_NPC(victim) || victim == ch)
+			if (victim->is_npc() || victim == ch)
 				af[0].duration = CalcDuration(victim, 10 + GET_REAL_REMORT(ch), 0, 0, 0, 0) * koef_duration;
 			else
 				af[0].duration = CalcDuration(victim, 4 + GET_REAL_REMORT(ch), 0, 0, 0, 0) * koef_duration;
@@ -1296,7 +1296,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 				affect_from_char(victim, kSpellAirShield);
 			af[0].bitvector = to_underlying(EAffectFlag::AFF_ICESHIELD);
 			af[0].battleflag = kAfBattledec;
-			if (IS_NPC(victim) || victim == ch)
+			if (victim->is_npc() || victim == ch)
 				af[0].duration = CalcDuration(victim, 10 + GET_REAL_REMORT(ch), 0, 0, 0, 0) * koef_duration;
 			else
 				af[0].duration = CalcDuration(victim, 4 + GET_REAL_REMORT(ch), 0, 0, 0, 0) * koef_duration;
@@ -1556,7 +1556,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 
 		case kSpellGroupPrismaticAura:
 		case kSpellPrismaticAura:
-			if (!IS_NPC(ch) && !same_group(ch, victim)) {
+			if (!ch->is_npc() && !same_group(ch, victim)) {
 				send_to_char("Только на себя или одногруппника!\r\n", ch);
 				return 0;
 			}
@@ -1712,7 +1712,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 				af[2].location = APPLY_CAST_SUCCESS;
 				af[2].duration = af[0].duration;
 				af[2].modifier = -(level / 3 + GET_REAL_REMORT(ch));
-				if (IS_NPC(ch) && level >= (kLvlImmortal))
+				if (ch->is_npc() && level >= (kLvlImmortal))
 					af[2].modifier += (kLvlImmortal - level - 1);    //1 cast per mob level above 30
 				af[2].bitvector = to_underlying(EAffectFlag::AFF_CURSE);
 			}
@@ -1893,7 +1893,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 
 		case kSpellProtectFromEvil:
 		case kSpellGroupProtectFromEvil:
-			if (!IS_NPC(ch) && !same_group(ch, victim)) {
+			if (!ch->is_npc() && !same_group(ch, victim)) {
 				send_to_char("Только на себя или одногруппника!\r\n", ch);
 				return 0;
 			}
@@ -1915,7 +1915,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 
 		case kSpellGroupSanctuary:
 		case kSpellSanctuary:
-			if (!IS_NPC(ch) && !same_group(ch, victim)) {
+			if (!ch->is_npc() && !same_group(ch, victim)) {
 				send_to_char("Только на себя или одногруппника!\r\n", ch);
 				return 0;
 			}
@@ -2217,7 +2217,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 			break;
 
 		case kSpellLight:
-			if (!IS_NPC(ch) && !same_group(ch, victim)) {
+			if (!ch->is_npc() && !same_group(ch, victim)) {
 				send_to_char("Только на себя или одногруппника!\r\n", ch);
 				return 0;
 			}
@@ -2229,7 +2229,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 			break;
 
 		case kSpellDarkness:
-			if (!IS_NPC(ch) && !same_group(ch, victim)) {
+			if (!ch->is_npc() && !same_group(ch, victim)) {
 				send_to_char("Только на себя или одногруппника!\r\n", ch);
 				return 0;
 			}
@@ -2248,7 +2248,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 			break;
 
 		case kSpellEviless:
-			if (!IS_NPC(victim) || victim->get_master() != ch || !MOB_FLAGGED(victim, MOB_CORPSE)) {
+			if (!victim->is_npc() || victim->get_master() != ch || !MOB_FLAGGED(victim, MOB_CORPSE)) {
 				//тихо уходим, т.к. заклинание массовое
 				break;
 			}
@@ -2317,7 +2317,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 					to_room = "$n0 оглох$q!";
 					to_vict = "Вы оглохли.";
 
-					if ((IS_NPC(victim)
+					if ((victim->is_npc()
 						&& AFF_FLAGGED(victim, static_cast<EAffectFlag>(af[0].bitvector)))
 						|| (ch != victim
 							&& affected_by_spell(victim, kSpellDeafness))) {
@@ -2371,7 +2371,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 						 (MIN(29, GetRealLevel(ch)) - MIN(24, GetRealLevel(victim)) +
 							 GET_REAL_REMORT(ch) / 3) * GET_MAX_HIT(victim) / 100);
 			af[0].bitvector = to_underlying(EAffectFlag::AFF_CRYING);
-			if (IS_NPC(victim)) {
+			if (victim->is_npc()) {
 				af[1].location = APPLY_LIKES;
 				af[1].duration = ApplyResist(victim, GetResistType(spellnum),
 											 CalcDuration(victim, 5, 0, 0, 0, 0));
@@ -2420,7 +2420,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 
 		case kSpellPeaceful: {
 			if (AFF_FLAGGED(victim, EAffectFlag::AFF_PEACEFUL)
-				|| (IS_NPC(victim) && !AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM)) ||
+				|| (victim->is_npc() && !AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM)) ||
 				(ch != victim && CalcGeneralSaving(ch, victim, savetype, modi))) {
 				send_to_char(NOEFFECT, ch);
 				success = false;
@@ -2822,7 +2822,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 
 	//проверка на обкаст мобов, имеющих от рождения встроенный аффкект
 	//чтобы этот аффект не очистился, при спадении спелла
-	if (IS_NPC(victim) && success) {
+	if (victim->is_npc() && success) {
 		for (i = 0; i < kMaxSpellAffects && success; ++i) {
 			if (AFF_FLAGGED(&mob_proto[victim->get_rnum()], static_cast<EAffectFlag>(af[i].bitvector))) {
 				if (ch->in_room == IN_ROOM(victim)) {
@@ -3304,7 +3304,7 @@ int mag_summons(int level, CharData *ch, ObjData *obj, int spellnum, int savetyp
 
 		GET_MAX_HIT(mob) = GET_HIT(mob) = 300 + number(modifier * 12, modifier * 16);
 		mob->set_skill(ESkill::kAwake, 50 + modifier * 2);
-		GR_FLAGS(mob).set(EPrf::kAwake);
+		PRF_FLAGS(mob).set(EPrf::kAwake);
 	}
 	MOB_FLAGS(mob).set(MOB_NOTRAIN);
 	// А надо ли это вообще делать???
@@ -3365,7 +3365,7 @@ int CastToPoints(int level, CharData *ch, CharData *victim, int spellnum, ESavin
 			break;
 		case kSpellEviless:
 			//лечим только умертвия-чармисы
-			if (!IS_NPC(victim) || victim->get_master() != ch || !MOB_FLAGGED(victim, MOB_CORPSE))
+			if (!victim->is_npc() || victim->get_master() != ch || !MOB_FLAGGED(victim, MOB_CORPSE))
 				return 1;
 			//при рекасте - не лечим
 			if (AFF_FLAGGED(ch, EAffectFlag::AFF_EVILESS)) {
@@ -3466,7 +3466,7 @@ int CastUnaffects(int/* level*/, CharData *ch, CharData *victim, int spellnum, E
 			to_vict = "К вам вернулась способность слышать.";
 			break;
 		case kSpellDispellMagic:
-			if (!IS_NPC(ch)
+			if (!ch->is_npc()
 				&& !same_group(ch, victim)) {
 				send_to_char("Только на себя или одногруппника!\r\n", ch);
 
@@ -3887,16 +3887,16 @@ void ReactToCast(CharData *victim, CharData *caster, int spellnum) {
 		|| IS_HORSE(victim))
 		return;
 
-	if (IS_NPC(caster)
+	if (caster->is_npc()
 		&& GET_MOB_RNUM(caster) == real_mobile(DG_CASTER_PROXY))
 		return;
 
 	if (CAN_SEE(victim, caster) && MAY_ATTACK(victim) && IN_ROOM(victim) == IN_ROOM(caster)) {
-		if (IS_NPC(victim))
+		if (victim->is_npc())
 			attack_best(victim, caster);
 		else
 			hit(victim, caster, ESkill::kUndefined, fight::kMainHand);
-	} else if (CAN_SEE(victim, caster) && !IS_NPC(caster) && IS_NPC(victim) && MOB_FLAGGED(victim, MOB_MEMORY)) {
+	} else if (CAN_SEE(victim, caster) && !caster->is_npc() && victim->is_npc() && MOB_FLAGGED(victim, MOB_MEMORY)) {
 		mobRemember(victim, caster);
 	}
 
@@ -3930,7 +3930,7 @@ int CastToSingleTarget(int level, CharData *caster, CharData *cvict, ObjData *ov
 	//и чтоб сделать по человечески надо треть пары модулей перелопатить
 	if (cvict && (caster != cvict))
 		if (IS_GOD(cvict) || (((GetRealLevel(cvict) / 2) > (GetRealLevel(caster) + (GET_REAL_REMORT(caster) / 2)))
-			&& !IS_NPC(caster))) // при разнице уровня более чем в 2 раза закл фэйл
+			&& !caster->is_npc())) // при разнице уровня более чем в 2 раза закл фэйл
 		{
 			send_to_char(NOEFFECT, caster);
 			return (-1);
@@ -4446,13 +4446,13 @@ int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, int spellnum
 		if (ch->purged()) {
 			return 1;
 		}
-		if (!IS_NPC(ch)) {
+		if (!ch->is_npc()) {
 			++targetsCounter;
 			if (targetsCounter > mag_messages[msgIndex].freeTargets) {
 				int tax = CASTER_CAST_SUCCESS * castDecay * (targetsCounter - mag_messages[msgIndex].freeTargets);
 				GET_CAST_SUCCESS(ch) = MAX(-200, CASTER_CAST_SUCCESS - tax);
 				level = MAX(1, level - levelDecay);
-				if (GR_FLAGGED(ch, EPrf::kTester)) {
+				if (PRF_FLAGGED(ch, EPrf::kTester)) {
 					send_to_char(ch,
 								 "&GМакс. целей: %d, Каст: %d, Уровень заклинания: %d.&n\r\n",
 								 targetsAmount,

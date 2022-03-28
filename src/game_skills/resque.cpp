@@ -109,15 +109,15 @@ void do_rescue(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (IS_NPC(vict)
-		&& (!IS_NPC(enemy)
+	if (vict->is_npc()
+		&& (!enemy->is_npc()
 			|| (AFF_FLAGGED(enemy, EAffectFlag::AFF_CHARM)
 				&& enemy->has_master()
-				&& !IS_NPC(enemy->get_master())))
-		&& (!IS_NPC(ch)
+				&& !enemy->get_master()->is_npc()))
+		&& (!ch->is_npc()
 			|| (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 				&& ch->has_master()
-				&& !IS_NPC(ch->get_master())))) {
+				&& !ch->get_master()->is_npc()))) {
 		send_to_char("Вы пытаетесь спасти чужого противника.\r\n", ch);
 		return;
 	}

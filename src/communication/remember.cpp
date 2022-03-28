@@ -190,7 +190,7 @@ unsigned int CharRemember::get_num_str() const {
 void do_remember_char(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg[kMaxInputLength];
 
-	if (IS_NPC(ch))
+	if (ch->is_npc())
 		return;
 
 	// Если без аргумента - выдает личные теллы
@@ -202,13 +202,13 @@ void do_remember_char(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	argument = one_argument(argument, arg);
 
 	if (utils::IsAbbrev(arg, "воззвать")) {
-		if (IS_IMMORTAL(ch) || GR_FLAGGED(ch, EPrf::kCoderinfo)) {
+		if (IS_IMMORTAL(ch) || PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
 			send_to_char(ch->remember_get(Remember::PRAY), ch);
 		} else {
 			send_to_char(ch->remember_get(Remember::PRAY_PERSONAL), ch);
 		}
 	} else if ((GetRealLevel(ch) < kLvlImmortal || IS_IMPL(ch)) && utils::IsAbbrev(arg, "оффтоп")) {
-		if (!GR_FLAGGED(ch, EPrf::kStopOfftop)) {
+		if (!PRF_FLAGGED(ch, EPrf::kStopOfftop)) {
 			send_to_char(ch->remember_get(Remember::OFFTOP), ch);
 		} else {
 			send_to_char(ch, "Вам нечего вспомнить.\r\n");

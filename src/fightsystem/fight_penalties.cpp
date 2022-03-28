@@ -3,7 +3,7 @@
 #include "entities/char_data.h"
 
 int GroupPenaltyCalculator::get() const {
-	const bool leader_is_npc = IS_NPC(m_leader);
+	const bool leader_is_npc = m_leader->is_npc();
 	const bool leader_in_group = AFF_FLAGGED(m_leader, EAffectFlag::AFF_GROUP);
 	const bool leader_is_in_room = leader_in_group
 		&& m_leader->in_room == IN_ROOM(m_killer);
@@ -16,7 +16,7 @@ int GroupPenaltyCalculator::get() const {
 	}
 
 	for (auto f = m_leader->followers; f; f = f->next) {
-		const bool follower_is_npc = IS_NPC(f->ch);
+		const bool follower_is_npc = f->ch->is_npc();
 		const bool follower_is_in_room = AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
 			&& f->ch->in_room == IN_ROOM(m_killer);
 
@@ -41,7 +41,7 @@ bool GroupPenaltyCalculator::penalty_by_leader(const CharData *player, int &pena
 	const int player_class = static_cast<int>(GET_CLASS(player));
 	const int player_level = GetRealLevel(player);
 
-	if (IS_NPC(player)) {
+	if (player->is_npc()) {
 		log("LOGIC ERROR: try to get penalty for NPC [%s], VNum: %d\n",
 			player->get_name().c_str(),
 			GET_MOB_VNUM(player));

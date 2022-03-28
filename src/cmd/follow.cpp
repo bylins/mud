@@ -77,7 +77,7 @@ bool stop_follower(CharData *ch, int mode) {
 			stop_fighting(ch, true);
 		}
 
-		if (IS_NPC(ch)) {
+		if (ch->is_npc()) {
 			if (MOB_FLAGGED(ch, MOB_CORPSE)) {
 				act("Налетевший ветер развеял $n3, не оставив и следа.", true, ch, 0, 0, kToRoom | kToArenaListen);
 				GET_LASTROOM(ch) = GET_ROOM_VNUM(ch->in_room);
@@ -90,7 +90,7 @@ bool stop_follower(CharData *ch, int mode) {
 			}
 		}
 	}
-	if (IS_NPC(ch) && MOB_FLAGGED(ch, MOB_PLAYER_SUMMON)) { // фул рестор моба (Кудояр)
+	if (ch->is_npc() && MOB_FLAGGED(ch, MOB_PLAYER_SUMMON)) { // фул рестор моба (Кудояр)
 		act("Магия подпитующая $n3 развеялась, и $n0 вернул$u в норму.", true, ch, 0, 0, kToRoom | kToArenaListen);
 		ch->restore_npc();
 			// сначало бросаем лишнее
@@ -117,7 +117,7 @@ bool stop_follower(CharData *ch, int mode) {
 	}
 	
 	 
-	if (IS_NPC(ch)
+	if (ch->is_npc()
 		//&& !MOB_FLAGGED(ch, MOB_PLAYER_SUMMON)    //Не ресетим флаги, если моб призван игроком
 		&& (i = GET_MOB_RNUM(ch)) >= 0) {
 		MOB_FLAGS(ch) = MOB_FLAGS(mob_proto + i);
@@ -166,7 +166,7 @@ void do_follow(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	struct Follower *f;
 	one_argument(argument, smallBuf);
 
-	if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && ch->get_fighting())
+	if (ch->is_npc() && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && ch->get_fighting())
 		return;
 	if (*smallBuf) {
 		if (!str_cmp(smallBuf, "я") || !str_cmp(smallBuf, "self") || !str_cmp(smallBuf, "me")) {

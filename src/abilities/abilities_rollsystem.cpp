@@ -29,7 +29,7 @@ void AbilityRoll::PerformAbilityTest() {
 	int difficulty = actor_rating_ - target_rating;
 	int roll_result = difficulty - roll;
 	ProcessingResult(roll_result, roll);
-	if (GR_FLAGGED(actor_, EPrf::kTester)) {
+	if (PRF_FLAGGED(actor_, EPrf::kTester)) {
 		send_to_char(actor_,
 					 "&CНавык: %s, Рейтинг навыка: %d, Рейтинг цели: %d, Сложность: %d Бросок d100: %d, Итог: %d (%s)&n\r\n",
 					 ability_->name,

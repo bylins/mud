@@ -98,7 +98,7 @@ const int MAX_MAIL_SIZE = 32768;
 //* routines.  Written by Jeremy Elson (jelson@circlemud.org)    *
 //****************************************************************
 int postmaster(CharData *ch, void *me, int cmd, char *argument) {
-	if (!ch->desc || IS_NPC(ch))
+	if (!ch->desc || ch->is_npc())
 		return (0);    // so mobs don't get caught here
 
 	if (!(CMD_IS("mail") || CMD_IS("check") || CMD_IS("receive")
@@ -161,7 +161,7 @@ void postmaster_send_mail(CharData *ch, CharData *mailman, int/* cmd*/, char *ar
 	int cost;
 	char buf[256];
 
-	IS_IMMORTAL(ch) || GR_FLAGGED(ch, EPrf::kCoderinfo) ? cost = 0 : cost = STAMP_PRICE;
+	IS_IMMORTAL(ch) || PRF_FLAGGED(ch, EPrf::kCoderinfo) ? cost = 0 : cost = STAMP_PRICE;
 
 	if (GetRealLevel(ch) < MIN_MAIL_LEVEL) {
 		sprintf(buf,

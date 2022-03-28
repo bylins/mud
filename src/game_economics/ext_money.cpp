@@ -405,7 +405,7 @@ bool has_connected_bosses(CharData *ch) {
 	// если в комнате есть другие живые боссы
 	for (const auto i : world[ch->in_room]->people) {
 		if (i != ch
-			&& IS_NPC(i)
+			&& i->is_npc()
 			&& !IS_CHARMICE(i)
 			&& i->get_role(MOB_ROLE_BOSS)) {
 			return true;
@@ -414,7 +414,7 @@ bool has_connected_bosses(CharData *ch) {
 	// если у данного моба есть живые последователи-боссы
 	for (Follower *i = ch->followers; i; i = i->next) {
 		if (i->ch != ch
-			&& IS_NPC(i->ch)
+			&& i->ch->is_npc()
 			&& !IS_CHARMICE(i->ch)
 			&& i->ch->get_master() == ch
 			&& i->ch->get_role(MOB_ROLE_BOSS)) {
@@ -582,7 +582,7 @@ void drop_torc(CharData *mob) {
 	for (Follower *f = leader->followers; f; f = f->next) {
 		if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
 			&& f->ch->in_room == IN_ROOM(mob)
-			&& !IS_NPC(f->ch)) {
+			&& !f->ch->is_npc()) {
 			++members;
 		}
 	}
@@ -603,7 +603,7 @@ void drop_torc(CharData *mob) {
 	for (Follower *f = leader->followers; f; f = f->next) {
 		if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
 			&& f->ch->in_room == IN_ROOM(mob)
-			&& !IS_NPC(f->ch)
+			&& !f->ch->is_npc()
 			&& GET_GOD_FLAG(f->ch, GF_REMORT)
 			&& mob->get_attacker(f->ch, ATTACKER_ROUNDS) >= damager.second / 2) {
 			gain_torc(f->ch, drop);
@@ -685,7 +685,7 @@ void init() {
 
 // проверка, мешает ли что-то чару уйти в реморт
 bool can_remort_now(CharData *ch) {
-	if (GR_FLAGGED(ch, EPrf::kCanRemort) || !need_torc(ch)) {
+	if (PRF_FLAGGED(ch, EPrf::kCanRemort) || !need_torc(ch)) {
 		return true;
 	}
 	return false;
@@ -765,7 +765,7 @@ namespace {
 void donat_torc(CharData *ch, const std::string &mob_name, unsigned type, int amount) {
 	const int balance = ch->get_ext_money(type) - amount;
 	ch->set_ext_money(type, balance);
-	GR_FLAGS(ch).set(EPrf::kCanRemort);
+	PRF_FLAGS(ch).set(EPrf::kCanRemort);
 
 	send_to_char(ch, "Вы пожертвовали %d %s %s.\r\n",
 				 amount, desc_count(amount, type_list[type].DESC_MESSAGE_NUM),
@@ -810,7 +810,7 @@ void message_low_torc(CharData *ch, unsigned type, int amount, const char *add_t
 
 // глашатаи
 int torc(CharData *ch, void *me, int cmd, char * /*argument*/) {
-	if (!ch->desc || IS_NPC(ch)) {
+	if (!ch->desc || ch->is_npc()) {
 		return 0;
 	}
 	if (CMD_IS("менять") || CMD_IS("обмен") || CMD_IS("обменять")) {
@@ -838,7 +838,7 @@ int torc(CharData *ch, void *me, int cmd, char * /*argument*/) {
 			// от чара для реморта ничего не требуется
 			send_to_char(
 				"Вам не нужно подтверждать свое право на перевоплощение, просто наберите 'перевоплотиться'.\r\n", ch);
-		} else if (GR_FLAGGED(ch, EPrf::kCanRemort)) {
+		} else if (PRF_FLAGGED(ch, EPrf::kCanRemort)) {
 			// чар на этом морте уже жертвовал необходимое кол-во гривен
 			if (GET_GOD_FLAG(ch, GF_REMORT)) {
 				send_to_char(

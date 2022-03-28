@@ -48,7 +48,7 @@ void go_strangle(CharData *ch, CharData *vict) {
 	} else {
 		Affect<EApplyLocation> af;
 		af.type = kSpellStrangle;
-		af.duration = IS_NPC(vict) ? 8 : 15;
+		af.duration = vict->is_npc() ? 8 : 15;
 		af.modifier = 0;
 		af.location = APPLY_NONE;
 		af.battleflag = kAfSameTime;
@@ -57,7 +57,7 @@ void go_strangle(CharData *ch, CharData *vict) {
 
 		int dam =
 			(GET_MAX_HIT(vict) * GaussIntNumber((300 + 5 * ch->get_skill(ESkill::kStrangle)) / 70, 7.0, 1, 30)) / 100;
-		dam = (IS_NPC(vict) ? MIN(dam, 6 * GET_MAX_HIT(ch)) : MIN(dam, 2 * GET_MAX_HIT(ch)));
+		dam = (vict->is_npc() ? MIN(dam, 6 * GET_MAX_HIT(ch)) : MIN(dam, 2 * GET_MAX_HIT(ch)));
 		Damage dmg(SkillDmg(ESkill::kStrangle), dam, fight::kPhysDmg, nullptr);
 		dmg.flags.set(fight::kIgnoreArmor);
 		dmg.Process(ch, vict);

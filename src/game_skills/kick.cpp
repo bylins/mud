@@ -23,7 +23,7 @@ void go_kick(CharData *ch, CharData *vict) {
 	vict = TryToFindProtector(vict, ch);
 
 	bool success = false;
-	if (GR_FLAGGED(ch, EPrf::kTester)) {
+	if (PRF_FLAGGED(ch, EPrf::kTester)) {
 		SkillRollResult result = MakeSkillTest(ch, ESkill::kKick, vict);
 		success = result.success;
 	} else {
@@ -50,7 +50,7 @@ void go_kick(CharData *ch, CharData *vict) {
 		cooldown = 2;
 	} else {
 		int dam = str_bonus(GET_REAL_STR(ch), STR_TO_DAM) + GetRealDamroll(ch) + GetRealLevel(ch) / 6;
-		if (!IS_NPC(ch) || (IS_NPC(ch) && GET_EQ(ch, EEquipPos::kFeet))) {
+		if (!ch->is_npc() || (ch->is_npc() && GET_EQ(ch, EEquipPos::kFeet))) {
 			int modi = MAX(0, (ch->get_skill(ESkill::kKick) + 4) / 5);
 			dam += number(0, modi * 2);
 			modi = 5 * (10 + (GET_EQ(ch, EEquipPos::kFeet) ? GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kFeet)) : 0));
@@ -117,12 +117,12 @@ void go_kick(CharData *ch, CharData *vict) {
 				}
 			} else if (number(1, 1000) < (ch->get_skill(ESkill::kRiding) / 2)) {
 				dam *= 2;
-				if (!IS_NPC(ch))
+				if (!ch->is_npc())
 					send_to_char("Вы привстали на стременах.\r\n", ch);
 			}
 
 			if (to_char) {
-				if (!IS_NPC(ch)) {
+				if (!ch->is_npc()) {
 					sprintf(buf, "&G&q%s&Q&n", to_char);
 					act(buf, false, ch, nullptr, vict, kToChar);
 					sprintf(buf, "%s", to_room);
@@ -130,7 +130,7 @@ void go_kick(CharData *ch, CharData *vict) {
 				}
 			}
 			if (to_vict) {
-				if (!IS_NPC(vict)) {
+				if (!vict->is_npc()) {
 					sprintf(buf, "&R&q%s&Q&n", to_vict);
 					act(buf, false, ch, nullptr, vict, kToVict);
 				}

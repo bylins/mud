@@ -841,7 +841,7 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 			break;
 	}
 
-	if (IS_NPC(ch) || !ch->get_skill(skill_id)) {
+	if (ch->is_npc() || !ch->get_skill(skill_id)) {
 		send_to_char("Вас этому никто не научил.\r\n", ch);
 		return;
 	}
@@ -1218,7 +1218,7 @@ int MakeRecept::can_make(CharData *ch) {
 	if (locked)
 		return (false);
 	// Сделать проверку наличия скилла у игрока.
-	if (IS_NPC(ch) || !ch->get_skill(skill)) {
+	if (ch->is_npc() || !ch->get_skill(skill)) {
 		return (false);
 	}
 	// Делаем проверку может ли чар сделать предмет такого типа
@@ -1579,7 +1579,7 @@ int MakeRecept::make(CharData *ch) {
 	int dam = 0;
 	bool make_fail;
 	// 1. Проверить есть ли скилл у чара
-	if (IS_NPC(ch) || !ch->get_skill(skill)) {
+	if (ch->is_npc() || !ch->get_skill(skill)) {
 		send_to_char("Странно что вам вообще пришло в голову cделать это.\r\n", ch);
 		return (false);
 	}
@@ -1878,7 +1878,7 @@ int MakeRecept::make(CharData *ch) {
 			char_dam_message(dam, ch, ch, 0);
 			if (GET_POS(ch) == EPosition::kDead) {
 				// Убился веником.
-				if (!IS_NPC(ch)) {
+				if (!ch->is_npc()) {
 					sprintf(tmpbuf, "%s killed by a crafting at %s",
 							GET_NAME(ch),
 							ch->in_room == kNowhere ? "kNowhere" : world[ch->in_room]->name);

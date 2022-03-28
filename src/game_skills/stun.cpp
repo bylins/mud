@@ -21,15 +21,15 @@ void do_stun(CharData *ch, char *argument, int, int) {
 		send_to_char("Вы привстали на стременах и поняли: 'лошадь украли!!!'\r\n", ch);
 		return;
 	}
-	if ((GET_SKILL(ch, ESkill::kRiding) < 151) && (!IS_NPC(ch))) {
+	if ((GET_SKILL(ch, ESkill::kRiding) < 151) && (!ch->is_npc())) {
 		send_to_char("Вы слишком неуверенно управляете лошадью, чтоб на ней пытаться ошеломить противника.\r\n", ch);
 		return;
 	}
-	if (IsTimedBySkill(ch, ESkill::kStun) && (!IS_NPC(ch))) {
+	if (IsTimedBySkill(ch, ESkill::kStun) && (!ch->is_npc())) {
 		send_to_char("Ваш грозный вид не испугает даже мышь, попробуйте ошеломить попозже.\r\n", ch);
 		return;
 	}
-	if (!IS_NPC(ch) && !(GET_EQ(ch, EEquipPos::kWield) || GET_EQ(ch, EEquipPos::kBoths))) {
+	if (!ch->is_npc() && !(GET_EQ(ch, EEquipPos::kWield) || GET_EQ(ch, EEquipPos::kBoths))) {
 		send_to_char("Вы должны держать оружие в основной руке.\r\n", ch);
 		return;
 	}

@@ -360,7 +360,7 @@ using namespace ShopExt;
 
 int shop_ext(CharData *ch, void *me, int cmd, char *argument) {
 	if (!ch->desc
-		|| IS_NPC(ch)) {
+		|| ch->is_npc()) {
 		return 0;
 	}
 

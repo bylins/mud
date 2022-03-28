@@ -282,7 +282,7 @@ void list_feats(CharData *ch, CharData *vict, bool all_feats) {
 				case SKIRMISHER_FEAT:
 				case DOUBLE_THROW_FEAT:
 				case TRIPLE_THROW_FEAT:
-					if (GR_FLAGGED(ch, GetPrfWithFeatNumber(sortpos)))
+					if (PRF_FLAGGED(ch, GetPrfWithFeatNumber(sortpos)))
 						sprintf(buf, "[-%s*%s-] ", CCIGRN(vict, C_NRM), CCNRM(vict, C_NRM));
 					else
 						sprintf(buf, "[-:-] ");
@@ -840,7 +840,7 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 	int command = 0, gcount = 0, info_num = 0, found = false, sfound = false, i, bits;
 	CharData *victim = (CharData *) me;
 
-	if (IS_NPC(ch)) {
+	if (ch->is_npc()) {
 		return 0;
 	}
 
@@ -1135,7 +1135,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 	int command = 0, gcount = 0, info_num = 0, found = false, sfound = false, i, bits;
 	CharData *victim = (CharData *) me;
 
-	if (IS_NPC(ch)) {
+	if (ch->is_npc()) {
 		return 0;
 	}
 
@@ -1459,7 +1459,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 int horse_keeper(CharData *ch, void *me, int cmd, char *argument) {
 	CharData *victim = (CharData *) me, *horse = nullptr;
 
-	if (IS_NPC(ch))
+	if (ch->is_npc())
 		return (0);
 
 	if (!CMD_IS("лошадь") && !CMD_IS("horse"))
@@ -2231,7 +2231,7 @@ int do_npc_steal(CharData *ch, CharData *victim) {
 	if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL))
 		return (false);
 
-	if (IS_NPC(victim) || IS_SHOPKEEPER(ch) || victim->get_fighting())
+	if (victim->is_npc() || IS_SHOPKEEPER(ch) || victim->get_fighting())
 		return (false);
 
 	if (GetRealLevel(victim) >= kLvlImmortal)
@@ -2275,7 +2275,7 @@ int npc_steal(CharData *ch) {
 		return (false);
 
 	for (const auto cons : world[ch->in_room]->people) {
-		if (!IS_NPC(cons)
+		if (!cons->is_npc()
 			&& !IS_IMMORTAL(cons)
 			&& (number(0, GET_REAL_INT(ch)) > 10)) {
 			return (do_npc_steal(ch, cons));
@@ -2323,7 +2323,7 @@ void npc_group(CharData *ch) {
 
 	// Find leader
 	for (const auto vict : world[ch->in_room]->people) {
-		if (!IS_NPC(vict)
+		if (!vict->is_npc()
 			|| GET_DEST(vict) != GET_DEST(ch)
 			|| zone != ZONE(vict)
 			|| group != GROUP(vict)
@@ -2355,7 +2355,7 @@ void npc_group(CharData *ch) {
 
 	// Assign leader
 	for (const auto vict : world[ch->in_room]->people) {
-		if (!IS_NPC(vict)
+		if (!vict->is_npc()
 			|| GET_DEST(vict) != GET_DEST(ch)
 			|| zone != ZONE(vict)
 			|| group != GROUP(vict)
@@ -2383,7 +2383,7 @@ void npc_groupbattle(CharData *ch) {
 	struct Follower *k;
 	CharData *tch, *helper;
 
-	if (!IS_NPC(ch)
+	if (!ch->is_npc()
 		|| !ch->get_fighting()
 		|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 		|| !ch->has_master()
@@ -2398,7 +2398,7 @@ void npc_groupbattle(CharData *ch) {
 		helper = tch ? tch : k->ch;
 		if (ch->in_room == IN_ROOM(helper)
 			&& !helper->get_fighting()
-			&& !IS_NPC(helper)
+			&& !helper->is_npc()
 			&& GET_POS(helper) > EPosition::kStun) {
 			GET_POS(helper) = EPosition::kStand;
 			set_fighting(helper, ch->get_fighting());
@@ -2546,7 +2546,7 @@ return (false);
 
 	for (const auto cons : world[ch->in_room]->people)
 	{
-		if (!IS_NPC(cons)
+		if (!cons->is_npc()->is_npc()
 			&& GetRealLevel(cons) < kLevelImmortal
 			&& !number(0, 4))
 		{
@@ -2653,7 +2653,7 @@ int guild_guard(CharData *ch, void *me, int cmd, char * /*argument*/) {
 		return (false);
 
 	for (i = 0; guild_info[i][0] != -1; i++) {
-		if ((IS_NPC(ch) || GET_CLASS(ch) != guild_info[i][0]) &&
+		if ((ch->is_npc() || GET_CLASS(ch) != guild_info[i][0]) &&
 			GET_ROOM_VNUM(ch->in_room) == guild_info[i][1] && cmd == guild_info[i][2]) {
 			send_to_char(buf, ch);
 			act(buf2, false, ch, 0, 0, kToRoom);
@@ -2730,7 +2730,7 @@ int cityguard(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 	evil = 0;
 
 	for (const auto tch : world[ch->in_room]->people) {
-		if (!IS_NPC(tch) && CAN_SEE(ch, tch) && PLR_FLAGGED(tch, PLR_KILLER)) {
+		if (!tch->is_npc() && CAN_SEE(ch, tch) && PLR_FLAGGED(tch, PLR_KILLER)) {
 			act("$n screams 'HEY!!!  You're one of those PLAYER KILLERS!!!!!!'", false, ch, 0, 0, kToRoom);
 			hit(ch, tch, ESkill::kUndefined, fight::kMainHand);
 
@@ -2739,7 +2739,7 @@ int cityguard(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 	}
 
 	for (const auto tch : world[ch->in_room]->people) {
-		if (!IS_NPC(tch) && CAN_SEE(ch, tch) && PLR_FLAGGED(tch, PLR_THIEF)) {
+		if (!tch->is_npc() && CAN_SEE(ch, tch) && PLR_FLAGGED(tch, PLR_THIEF)) {
 			act("$n screams 'HEY!!!  You're one of those PLAYER THIEVES!!!!!!'", false, ch, 0, 0, kToRoom);
 			hit(ch, tch, ESkill::kUndefined, fight::kMainHand);
 
@@ -2749,7 +2749,7 @@ int cityguard(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 
 	for (const auto tch : world[ch->in_room]->people) {
 		if (CAN_SEE(ch, tch) && tch->get_fighting()) {
-			if ((GET_ALIGNMENT(tch) < max_evil) && (IS_NPC(tch) || IS_NPC(tch->get_fighting()))) {
+			if ((GET_ALIGNMENT(tch) < max_evil) && (tch->is_npc() || tch->get_fighting()->is_npc())) {
 				max_evil = GET_ALIGNMENT(tch);
 				evil = tch;
 			}
@@ -2832,7 +2832,7 @@ int pet_shops(CharData *ch, void * /*me*/, int cmd, char *argument) {
 
 CharData *get_player_of_name(const char *name) {
 	for (const auto &i : character_list) {
-		if (IS_NPC(i)) {
+		if (i->is_npc()) {
 			continue;
 		}
 

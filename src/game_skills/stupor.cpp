@@ -14,7 +14,7 @@ void go_stupor(CharData *ch, CharData *victim) {
 		return;
 	}
 
-	if (GR_FLAGS(ch).get(EPrf::kIronWind)) {
+	if (PRF_FLAGS(ch).get(EPrf::kIronWind)) {
 		send_to_char("Вы не можете применять этот прием в таком состоянии!\r\n", ch);
 		return;
 	}

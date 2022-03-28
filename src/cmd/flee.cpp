@@ -22,7 +22,7 @@ void go_flee(CharData *ch) {
 	}
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_NOFLEE) || AFF_FLAGGED(ch, EAffectFlag::AFF_LACKY)
-		|| GR_FLAGS(ch).get(EPrf::kIronWind)) {
+		|| PRF_FLAGS(ch).get(EPrf::kIronWind)) {
 		send_to_char("Невидимые оковы мешают вам сбежать.\r\n", ch);
 		return;
 	}
@@ -63,7 +63,7 @@ void go_flee(CharData *ch) {
 				act("Верн$W $N вынес$Q вас из боя.", false, ch, 0, ch->get_horse(), kToChar);
 			}
 
-			if (was_fighting && !IS_NPC(ch)) {
+			if (was_fighting && !ch->is_npc()) {
 				reduce_exp_after_flee(ch, was_fighting, was_in);
 			}
 		} else {
@@ -82,7 +82,7 @@ void go_dir_flee(CharData *ch, int direction) {
 	}
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_NOFLEE) || AFF_FLAGGED(ch, EAffectFlag::AFF_LACKY)
-		|| GR_FLAGS(ch).get(EPrf::kIronWind)) {
+		|| PRF_FLAGS(ch).get(EPrf::kIronWind)) {
 		send_to_char("Невидимые оковы мешают вам сбежать.\r\n", ch);
 		return;
 	}
@@ -100,7 +100,7 @@ void go_dir_flee(CharData *ch, int direction) {
 
 			act("$n запаниковал$g и попытал$u убежать.", false, ch, 0, 0, kToRoom | kToArenaListen);
 			send_to_char("Вы быстро убежали с поля битвы.\r\n", ch);
-			if (was_fighting && !IS_NPC(ch)) {
+			if (was_fighting && !ch->is_npc()) {
 				reduce_exp_after_flee(ch, was_fighting, was_in);
 			}
 

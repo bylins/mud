@@ -2266,7 +2266,7 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 	struct SaveRentInfo rent;
 	int j, num = 0, iplayer = -1, cost;
 
-	if (IS_NPC(ch))
+	if (ch->is_npc())
 		return false;
 
 	if ((iplayer = GET_INDEX(ch)) < 0) {
@@ -2719,7 +2719,7 @@ int gen_receptionist(CharData *ch, CharData *recep, int cmd, char * /*arg*/, int
 	RoomRnum save_room;
 	int cost, rentshow = true;
 
-	if (!ch->desc || IS_NPC(ch))
+	if (!ch->desc || ch->is_npc())
 		return (false);
 
 	if (!cmd && !number(0, 5))
@@ -2861,7 +2861,7 @@ void Crash_frac_save_all(int frac_part) {
 	DescriptorData *d;
 
 	for (d = descriptor_list; d; d = d->next) {
-		if ((STATE(d) == CON_PLAYING) && !IS_NPC(d->character) && GET_ACTIVITY(d->character) == frac_part) {
+		if ((STATE(d) == CON_PLAYING) && !d->character->is_npc() && GET_ACTIVITY(d->character) == frac_part) {
 			Crash_crashsave(d->character.get());
 			d->character->save_char();
 			PLR_FLAGS(d->character).unset(PLR_CRASH);
@@ -2888,7 +2888,7 @@ void Crash_save_all_rent(void) {
 	// свои грязные денежки.
 
 	character_list.foreach_on_copy([&](const auto &ch) {
-		if (!IS_NPC(ch)) {
+		if (!ch->is_npc()) {
 			save_char_objects(ch.get(), RENT_FORCED, 0);
 			log("Saving char: %s", GET_NAME(ch));
 			PLR_FLAGS(ch).unset(PLR_CRASH);

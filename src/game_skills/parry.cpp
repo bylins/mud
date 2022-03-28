@@ -16,7 +16,7 @@ void go_multyparry(CharData *ch) {
 }
 
 void do_multyparry(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch) || !ch->get_skill(ESkill::kMultiparry)) {
+	if (ch->is_npc() || !ch->get_skill(ESkill::kMultiparry)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -30,7 +30,7 @@ void do_multyparry(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 	}
 
 	ObjData *primary = GET_EQ(ch, EEquipPos::kWield), *offhand = GET_EQ(ch, EEquipPos::kHold);
-	if (!(IS_NPC(ch)
+	if (!(ch->is_npc()
 		|| (primary
 			&& GET_OBJ_TYPE(primary) == ObjData::ITEM_WEAPON
 			&& offhand
@@ -59,7 +59,7 @@ void go_parry(CharData *ch) {
 }
 
 void do_parry(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch) || !ch->get_skill(ESkill::kParry)) {
+	if (ch->is_npc() || !ch->get_skill(ESkill::kParry)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}

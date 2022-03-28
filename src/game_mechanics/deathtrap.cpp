@@ -61,7 +61,7 @@ void deathtrap::activity() {
 	for (auto it = room_list.cbegin(); it != room_list.cend(); ++it) {
 		const auto people = (*it)->people; // make copy of people in the room
 		for (const auto i : people) {
-			if (i->purged() || IS_NPC(i)) {
+			if (i->purged() || i->is_npc()) {
 				continue;
 			}
 			std::string name = i->get_name_str();
@@ -99,13 +99,13 @@ void deathtrap::log_death_trap(CharData *ch) {
 
 // * Попадание в обычное дт.
 int deathtrap::check_death_trap(CharData *ch) {
-	if (ch->in_room != kNowhere && !GR_FLAGGED(ch, EPrf::kCoderinfo)) {
+	if (ch->in_room != kNowhere && !PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
 		if ((ROOM_FLAGGED(ch->in_room, ROOM_DEATH)
 			&& !IS_IMMORTAL(ch))
-			|| (real_sector(ch->in_room) == kSectOnlyFlying && !IS_NPC(ch)
+			|| (real_sector(ch->in_room) == kSectOnlyFlying && !ch->is_npc()
 				&& !IS_GOD(ch)
 				&& !AFF_FLAGGED(ch, EAffectFlag::AFF_FLY))
-			|| (real_sector(ch->in_room) == kSectWaterNoswim && !IS_NPC(ch)
+			|| (real_sector(ch->in_room) == kSectWaterNoswim && !ch->is_npc()
 				&& !IS_GOD(ch)
 				&& !has_boat(ch))) {
 			ObjData *corpse;
@@ -153,7 +153,7 @@ bool deathtrap::IsSlowDeathtrap(int rnum) {
 /// \return если > 0, то величину дамага,
 /// иначе - чара в tunnel_damage() не дамагнет
 int calc_tunnel_dmg(CharData *ch, int room_rnum) {
-	if (!IS_NPC(ch)
+	if (!ch->is_npc()
 		&& !IS_IMMORTAL(ch)
 		&& NORENTABLE(ch)
 		&& ROOM_FLAGGED(room_rnum, ROOM_TUNNEL)) {

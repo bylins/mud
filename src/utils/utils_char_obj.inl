@@ -28,8 +28,8 @@ inline bool CAN_SEE_OBJ(const CharData *sub, const ObjData *obj) {
 			&& (obj->get_in_obj()->get_worn_by() == sub
 				|| obj->get_in_obj()->get_carried_by() == sub))
 		|| MORT_CAN_SEE_OBJ(sub, obj)
-		|| (!IS_NPC(sub)
-			&& GR_FLAGGED((sub), EPrf::kHolylight)));
+		|| (!sub->is_npc()
+			&& PRF_FLAGGED((sub), EPrf::kHolylight)));
 }
 
 inline const char *OBJN(const ObjData *obj, const CharData *vict, const size_t pad) {
@@ -48,7 +48,7 @@ inline bool CAN_GET_OBJ(const CharData *ch, const ObjData *obj) {
 	return (CAN_WEAR(obj, EWearFlag::kTake)
 		&& CAN_CARRY_OBJ(ch, obj)
 		&& CAN_SEE_OBJ(ch, obj))
-		&& !(IS_NPC(ch)
+		&& !(ch->is_npc()
 			&& obj->has_flag(EObjFlag::kBloody));
 }
 

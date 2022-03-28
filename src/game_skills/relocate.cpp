@@ -39,12 +39,12 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (IS_NPC(victim)) {
+	if (victim->is_npc()) {
 		send_to_char("Попытка перемещения не удалась.\r\n", ch);
 		return;
 	}
 
-	if (GetRealLevel(victim) > GetRealLevel(ch) && !GR_FLAGGED(victim, EPrf::KSummonable) && !same_group(ch, victim)) {
+	if (GetRealLevel(victim) > GetRealLevel(ch) && !PRF_FLAGGED(victim, EPrf::KSummonable) && !same_group(ch, victim)) {
 		send_to_char("Попытка перемещения не удалась.\r\n", ch);
 		return;
 	}
@@ -96,7 +96,7 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char_to_room(ch, fnd_room);
 	ch->dismount();
 	act("$n медленно появил$u откуда-то.", true, ch, nullptr, nullptr, kToRoom);
-	if (!(GR_FLAGGED(victim, EPrf::KSummonable) || same_group(ch, victim) || IS_IMMORTAL(ch)
+	if (!(PRF_FLAGGED(victim, EPrf::KSummonable) || same_group(ch, victim) || IS_IMMORTAL(ch)
 		|| ROOM_FLAGGED(fnd_room, ROOM_ARENA))) {
 		send_to_char(ch, "%sВаш поступок был расценен как потенциально агрессивный.%s\r\n",
 					 CCIRED(ch, C_NRM), CCINRM(ch, C_NRM));

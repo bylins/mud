@@ -1141,7 +1141,7 @@ void check_max_hp(CharData *ch) {
 void levelup_events(CharData *ch) {
 	if (antispam::kMinOfftopLvl == GetRealLevel(ch)
 		&& !ch->get_disposable_flag(DIS_OFFTOP_MESSAGE)) {
-		GR_FLAGS(ch).set(EPrf::kOfftopMode);
+		PRF_FLAGS(ch).set(EPrf::kOfftopMode);
 		ch->set_disposable_flag(DIS_OFFTOP_MESSAGE);
 		send_to_char(ch,
 					 "%sТеперь вы можете пользоваться каналом оффтоп ('справка оффтоп').%s\r\n",
@@ -1192,7 +1192,7 @@ void advance_level(CharData *ch) {
 		for (i = 0; i < 3; i++) {
 			GET_COND(ch, i) = (char) -1;
 		}
-		GR_FLAGS(ch).set(EPrf::kHolylight);
+		PRF_FLAGS(ch).set(EPrf::kHolylight);
 	}
 
 	TopPlayer::Refresh(ch);
@@ -1229,7 +1229,7 @@ void decrease_level(CharData *ch) {
 
 	GET_WIMP_LEV(ch) = MAX(0, MIN(GET_WIMP_LEV(ch), GET_REAL_MAX_HIT(ch) / 2));
 	if (!IS_IMMORTAL(ch)) {
-		GR_FLAGS(ch).unset(EPrf::kHolylight);
+		PRF_FLAGS(ch).unset(EPrf::kHolylight);
 	}
 
 	TopPlayer::Refresh(ch);
@@ -1252,7 +1252,7 @@ int invalid_unique(CharData *ch, const ObjData *obj) {
 	}
 	if (!ch
 		|| !obj
-		|| (IS_NPC(ch)
+		|| (ch->is_npc()
 			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		|| IS_IMMORTAL(ch)
 		|| obj->get_owner() == 0
@@ -1282,7 +1282,7 @@ int invalid_anti_class(CharData *ch, const ObjData *obj) {
 		&& AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
 		return (true);
 	}
-	if ((IS_NPC(ch) || WAITLESS(ch)) && !IS_CHARMICE(ch)) {
+	if ((ch->is_npc() || WAITLESS(ch)) && !IS_CHARMICE(ch)) {
 		return (false);
 	}
 	if ((IS_OBJ_ANTI(obj, EAntiFlag::kNoPkClan) && char_to_pk_clan(ch))) {
@@ -1324,7 +1324,7 @@ int invalid_no_class(CharData *ch, const ObjData *obj) {
 	}
 
 	if (!IS_CHARMICE(ch)
-		&& (IS_NPC(ch)
+		&& (ch->is_npc()
 			|| WAITLESS(ch))) {
 		return false;
 	}

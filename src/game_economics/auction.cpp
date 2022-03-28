@@ -404,7 +404,7 @@ bool auction_drive(CharData *ch, char *argument) {
 				strcat(buf, buf2);
 				strcat(buf, "\n");
 			}
-			if ((!IS_NPC(ch) && invalid_align(ch, obj))
+			if ((!ch->is_npc() && invalid_align(ch, obj))
 				|| invalid_no_class(ch, obj)) {
 				sprintf(buf2, "Вы не сможете пользоваться этой вещью.");
 				strcat(buf, buf2);
@@ -475,7 +475,7 @@ void message_auction(char *message, CharData *ch) {
 		if (STATE(i) == CON_PLAYING &&
 			(!ch || i != ch->desc) &&
 			i->character &&
-			!GR_FLAGGED(i->character, EPrf::kNoAuction) &&
+			!PRF_FLAGGED(i->character, EPrf::kNoAuction) &&
 			!PLR_FLAGGED(i->character, PLR_WRITING) &&
 			!ROOM_FLAGGED(IN_ROOM(i->character), ROOM_SOUNDPROOF) && GET_POS(i->character) > EPosition::kSleep) {
 			if (COLOR_LEV(i->character) >= C_NRM) {

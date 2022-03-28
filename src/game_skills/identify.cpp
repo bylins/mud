@@ -10,7 +10,7 @@ void do_identify(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	struct TimedSkill timed;
 	int k, level = 0;
 
-	if (IS_NPC(ch) || ch->get_skill(ESkill::kIdentify) <= 0) {
+	if (ch->is_npc() || ch->get_skill(ESkill::kIdentify) <= 0) {
 		send_to_char("Вам стоит сначала этому научиться.\r\n", ch);
 		return;
 	}

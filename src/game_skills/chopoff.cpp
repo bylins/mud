@@ -15,7 +15,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (GR_FLAGS(ch).get(EPrf::kIronWind)) {
+	if (PRF_FLAGS(ch).get(EPrf::kIronWind)) {
 		send_to_char("Вы не можете применять этот прием в таком состоянии!\r\n", ch);
 		return;
 	}
@@ -102,7 +102,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 	}
 
 	appear(ch);
-	if (IS_NPC(vict) && CAN_SEE(vict, ch) && vict->have_mind() && vict->get_wait() <= 0) {
+	if (vict->is_npc() && CAN_SEE(vict, ch) && vict->have_mind() && vict->get_wait() <= 0) {
 		set_hit(vict, ch);
 	}
 
@@ -148,7 +148,7 @@ void do_chopoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (IS_IMPL(ch) || !ch->get_fighting())
 		go_chopoff(ch, vict);
 	else if (IsHaveNoExtraAttack(ch)) {
-		if (!IS_NPC(ch))
+		if (!ch->is_npc())
 			act("Хорошо. Вы попытаетесь подсечь $N3.", false, ch, nullptr, vict, kToChar);
 		ch->set_extra_attack(kExtraAttackUndercut, vict);
 	}

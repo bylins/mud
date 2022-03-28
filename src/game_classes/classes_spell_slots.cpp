@@ -1163,7 +1163,7 @@ MaxClassSlot max_slots;
 int slot_for_char(CharData *ch, int slot_num) {
 	int wis_is = -1, wis_line, wis_block;
 
-	if (slot_num < 1 || slot_num > kMaxSlot || GetRealLevel(ch) < 1 || IS_NPC(ch)) {
+	if (slot_num < 1 || slot_num > kMaxSlot || GetRealLevel(ch) < 1 || ch->is_npc()) {
 		return -1;
 	}
 

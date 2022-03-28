@@ -257,7 +257,7 @@ CharData *get_random_pc_group(CharData *ch) {
 		k = ch;
 	}
 	for (Follower *i = k->followers; i; i = i->next) {
-		if (!IS_NPC(k) && !IS_CHARMICE(i->ch) && (k != i->ch) && (k->in_room == i->ch->in_room)) {
+		if (!k->is_npc() && !IS_CHARMICE(i->ch) && (k != i->ch) && (k->in_room == i->ch->in_room)) {
 			tmp_list.push_back(i->ch);
 		}
 	}
@@ -623,7 +623,7 @@ int get_filename(const char *orig_name, char *filename, int mode) {
 int num_pc_in_room(RoomData *room) {
 	int i = 0;
 	for (const auto ch : room->people) {
-		if (!IS_NPC(ch)) {
+		if (!ch->is_npc()) {
 			i++;
 		}
 	}
@@ -873,7 +873,7 @@ const char *desc_count(long how_many, int of_what) {
 }
 
 int check_moves(CharData *ch, int how_moves) {
-	if (IS_IMMORTAL(ch) || IS_NPC(ch))
+	if (IS_IMMORTAL(ch) || ch->is_npc())
 		return (true);
 	if (GET_MOVE(ch) < how_moves) {
 		send_to_char("Вы слишком устали.\r\n", ch);
@@ -948,9 +948,9 @@ bool same_group(CharData *ch, CharData *tch) {
 		return false;
 
 	// Добавлены проверки чтобы не любой заследовавшийся моб считался согруппником (Купала)
-	if (IS_NPC(ch)
+	if (ch->is_npc()
 		&& ch->has_master()
-		&& !IS_NPC(ch->get_master())
+		&& !ch->get_master()->is_npc()
 		&& (IS_HORSE(ch)
 			|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 			|| MOB_FLAGGED(ch, MOB_ANGEL)
@@ -958,9 +958,9 @@ bool same_group(CharData *ch, CharData *tch) {
 		ch = ch->get_master();
 	}
 
-	if (IS_NPC(tch)
+	if (tch->is_npc()
 		&& tch->has_master()
-		&& !IS_NPC(tch->get_master())
+		&& !tch->get_master()->is_npc()
 		&& (IS_HORSE(tch)
 			|| AFF_FLAGGED(tch, EAffectFlag::AFF_CHARM)
 			|| MOB_FLAGGED(tch, MOB_ANGEL)
@@ -969,7 +969,7 @@ bool same_group(CharData *ch, CharData *tch) {
 	}
 
 	// NPC's always in same group
-	if ((IS_NPC(ch) && IS_NPC(tch))
+	if ((ch->is_npc() && tch->is_npc())
 		|| ch == tch) {
 		return true;
 	}
@@ -1000,7 +1000,7 @@ bool is_rent(RoomRnum room) {
 	}
 	// комната без рентера в ней
 	for (const auto ch : world[room]->people) {
-		if (IS_NPC(ch)
+		if (ch->is_npc()
 			&& IS_RENTKEEPER(ch)) {
 			return true;
 		}
@@ -1011,7 +1011,7 @@ bool is_rent(RoomRnum room) {
 // Проверка является комната почтой.
 int is_post(RoomRnum room) {
 	for (const auto ch : world[room]->people) {
-		if (IS_NPC(ch)
+		if (ch->is_npc()
 			&& IS_POSTKEEPER(ch)) {
 			return (true);
 		}
@@ -1253,7 +1253,7 @@ void can_carry_obj(CharData *ch, ObjData *obj) {
  */
 bool CAN_CARRY_OBJ(const CharData *ch, const ObjData *obj) {
 	// для анлимного лута мобами из трупов
-	if (IS_NPC(ch) && !IS_CHARMICE(ch)) {
+	if (ch->is_npc() && !IS_CHARMICE(ch)) {
 		return true;
 	}
 
@@ -1267,7 +1267,7 @@ bool CAN_CARRY_OBJ(const CharData *ch, const ObjData *obj) {
 
 // shapirus: проверка, игнорирет ли чар who чара whom
 bool ignores(CharData *who, CharData *whom, unsigned int flag) {
-	if (IS_NPC(who)) return false;
+	if (who->is_npc()) return false;
 
 	long ign_id;
 
@@ -1277,7 +1277,7 @@ bool ignores(CharData *who, CharData *whom, unsigned int flag) {
 	}
 
 // чармисы игнорируемого хозяина тоже должны быть проигнорированы
-	if (IS_NPC(whom)
+	if (whom->is_npc()
 		&& AFF_FLAGGED(whom, EAffectFlag::AFF_CHARM)) {
 		return ignores(who, whom->get_master(), flag);
 	}
@@ -1615,7 +1615,7 @@ void add(int zone_vnum, long exp) {
 }
 
 void print_gain(CharData *ch) {
-	if (!GR_FLAGGED(ch, EPrf::kCoderinfo)) {
+	if (!PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
 		send_to_char(ch, "Пока в разработке.\r\n");
 		return;
 	}
@@ -1974,7 +1974,7 @@ size_t strlen_no_colors(const char *str) {
 // Симуляция телла от моба
 void tell_to_char(CharData *keeper, CharData *ch, const char *arg) {
 	char local_buf[kMaxInputLength];
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS) || GR_FLAGGED(ch, EPrf::kNoTell)) {
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS) || PRF_FLAGGED(ch, EPrf::kNoTell)) {
 		sprintf(local_buf, "жестами показал$g на свой рот и уши. Ну его, болезного ..");
 		do_echo(keeper, local_buf, 0, SCMD_EMOTE);
 		return;
@@ -2042,7 +2042,7 @@ void sanity_check(void) {
 
 int GetRealLevel(const CharData *ch) {
 
-	if (IS_NPC(ch)) {
+	if (ch->is_npc()) {
 		return std::clamp(ch->get_level() + ch->get_level_add(), 1, kMaxMobLevel);
 	}
 

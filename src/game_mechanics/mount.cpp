@@ -20,7 +20,7 @@ void make_horse(CharData *horse, CharData *ch) {
 void do_horseon(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *horse;
 
-	if (IS_NPC(ch))
+	if (ch->is_npc())
 		return;
 
 	if (!ch->get_horse()) {
@@ -70,7 +70,7 @@ void do_horseon(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 void do_horseoff(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	CharData *horse;
 
-	if (IS_NPC(ch))
+	if (ch->is_npc())
 		return;
 	if (!(horse = ch->get_horse())) {
 		send_to_char("У вас нет скакуна.\r\n", ch);
@@ -88,7 +88,7 @@ void do_horseoff(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 void do_horseget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *horse;
 
-	if (IS_NPC(ch))
+	if (ch->is_npc())
 		return;
 
 	if (!ch->get_horse()) {
@@ -127,7 +127,7 @@ void do_horseget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 void do_horseput(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *horse;
 
-	if (IS_NPC(ch))
+	if (ch->is_npc())
 		return;
 	if (!ch->get_horse()) {
 		send_to_char("У вас нет скакуна.\r\n", ch);
@@ -164,7 +164,7 @@ void do_horseput(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 void do_horsetake(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *horse = nullptr;
 
-	if (IS_NPC(ch))
+	if (ch->is_npc())
 		return;
 
 	if (ch->get_horse()) {
@@ -185,7 +185,7 @@ void do_horsetake(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (horse == nullptr) {
 		send_to_char(NOPERSON, ch);
 		return;
-	} else if (!IS_NPC(horse)) {
+	} else if (!horse->is_npc()) {
 		send_to_char("Господи, не чуди...\r\n", ch);
 		return;
 	}
@@ -221,7 +221,7 @@ void do_horsetake(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 void do_givehorse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *horse, *victim;
 
-	if (IS_NPC(ch))
+	if (ch->is_npc())
 		return;
 
 	if (!(horse = ch->get_horse())) {
@@ -240,7 +240,7 @@ void do_givehorse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!(victim = get_char_vis(ch, arg, FIND_CHAR_ROOM))) {
 		send_to_char("Вам некому передать скакуна.\r\n", ch);
 		return;
-	} else if (IS_NPC(victim)) {
+	} else if (victim->is_npc()) {
 		send_to_char("Он и без этого обойдется.\r\n", ch);
 		return;
 	}
@@ -268,7 +268,7 @@ void do_givehorse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 void do_stophorse(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	CharData *horse;
 
-	if (IS_NPC(ch))
+	if (ch->is_npc())
 		return;
 
 	if (!(horse = ch->get_horse())) {

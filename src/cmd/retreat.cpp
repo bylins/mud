@@ -3,7 +3,7 @@
 
 // ***************** STOPFIGHT
 void do_retreat(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (!ch->get_fighting() || IS_NPC(ch)) {
+	if (!ch->get_fighting() || ch->is_npc()) {
 		send_to_char("Но вы же ни с кем не сражаетесь.\r\n", ch);
 		return;
 	}
@@ -13,7 +13,7 @@ void do_retreat(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 		return;
 	}
 
-	if (GR_FLAGS(ch).get(EPrf::kIronWind) || AFF_FLAGGED(ch, EAffectFlag::AFF_LACKY)) {
+	if (PRF_FLAGS(ch).get(EPrf::kIronWind) || AFF_FLAGGED(ch, EAffectFlag::AFF_LACKY)) {
 		send_to_char("Вы не желаете отступать, не расправившись со всеми врагами!\r\n", ch);
 		return;
 	}

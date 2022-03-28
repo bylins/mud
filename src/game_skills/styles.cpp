@@ -21,7 +21,7 @@ void go_touch(CharData *ch, CharData *vict) {
 }
 
 void do_touch(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch) || !ch->get_skill(ESkill::kIntercept)) {
+	if (ch->is_npc() || !ch->get_skill(ESkill::kIntercept)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -31,7 +31,7 @@ void do_touch(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	};
 
 	ObjData *primary = GET_EQ(ch, EEquipPos::kWield) ? GET_EQ(ch, EEquipPos::kWield) : GET_EQ(ch, EEquipPos::kBoths);
-	if (!(IS_IMMORTAL(ch) || IS_NPC(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE) || !primary)) {
+	if (!(IS_IMMORTAL(ch) || ch->is_npc() || GET_GOD_FLAG(ch, GF_GODSLIKE) || !primary)) {
 		send_to_char("У вас заняты руки.\r\n", ch);
 		return;
 	}
@@ -92,7 +92,7 @@ void go_deviate(CharData *ch) {
 }
 
 void do_deviate(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch) || !ch->get_skill(ESkill::kDodge)) {
+	if (ch->is_npc() || !ch->get_skill(ESkill::kDodge)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -136,8 +136,8 @@ void do_style(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!*arg) {
 		send_to_char(ch, "Вы сражаетесь %s стилем.\r\n",
-					 GR_FLAGS(ch).get(EPrf::kPunctual) ? "точным" : GR_FLAGS(ch).get(EPrf::kAwake) ? "осторожным"
-																								   : "обычным");
+					 PRF_FLAGS(ch).get(EPrf::kPunctual) ? "точным" : PRF_FLAGS(ch).get(EPrf::kAwake) ? "осторожным"
+																									 : "обычным");
 		return;
 	}
 	if (TryFlipActivatedFeature(ch, argument)) {
@@ -156,14 +156,14 @@ void do_style(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	switch (tp) {
 		case 0:
 		case 1:
-		case 2:GR_FLAGS(ch).unset(EPrf::kPunctual);
-			GR_FLAGS(ch).unset(EPrf::kAwake);
+		case 2:PRF_FLAGS(ch).unset(EPrf::kPunctual);
+			PRF_FLAGS(ch).unset(EPrf::kAwake);
 
 			if (tp == 1) {
-				GR_FLAGS(ch).set(EPrf::kPunctual);
+				PRF_FLAGS(ch).set(EPrf::kPunctual);
 			}
 			if (tp == 2) {
-				GR_FLAGS(ch).set(EPrf::kAwake);
+				PRF_FLAGS(ch).set(EPrf::kAwake);
 			}
 
 			if (ch->get_fighting() && !(AFF_FLAGGED(ch, EAffectFlag::AFF_COURAGE) ||

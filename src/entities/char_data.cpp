@@ -109,7 +109,7 @@ bool CharData::in_used_zone() const {
 //вычисление штрафов за голод и жажду
 //P_DAMROLL, P_HITROLL, P_CAST, P_MEM_GAIN, P_MOVE_GAIN, P_HIT_GAIN
 float CharData::get_cond_penalty(int type) const {
-	if (IS_NPC(this)) return 1;
+	if (this->is_npc()) return 1;
 	if (!(GET_COND_M(this, FULL) || GET_COND_M(this, THIRST))) return 1;
 
 	float penalty = 0;
@@ -410,7 +410,7 @@ void CharData::purge() {
 	int i, id = -1;
 	struct alias_data *a;
 
-	if (!IS_NPC(this) && !get_name().empty()) {
+	if (!this->is_npc() && !get_name().empty()) {
 		id = get_ptable_by_name(GET_NAME(this));
 		if (id >= 0) {
 			player_table[id].level = GetRealLevel(this);
@@ -419,8 +419,8 @@ void CharData::purge() {
 		}
 	}
 
-	if (!IS_NPC(this) || (IS_NPC(this) && GET_MOB_RNUM(this) == -1)) {
-		if (IS_NPC(this) && this->mob_specials.Questor)
+	if (!this->is_npc() || (this->is_npc() && GET_MOB_RNUM(this) == -1)) {
+		if (this->is_npc() && this->mob_specials.Questor)
 			free(this->mob_specials.Questor);
 
 		pk_free_list(this);
@@ -503,7 +503,7 @@ void CharData::purge() {
 
 		this->player_specials.reset();
 
-		if (IS_NPC(this)) {
+		if (this->is_npc()) {
 			log("SYSERR: Mob %s (#%d) had player_specials allocated!", GET_NAME(this), GET_MOB_VNUM(this));
 		}
 	}
@@ -532,7 +532,7 @@ int CharData::get_skill(const ESkill skill_num) const {
 // всем остальным -- не более 5% с шмотки
 int CharData::get_equipped_skill(const ESkill skill_num) const {
 	int skill = 0;
-	bool is_native = IS_NPC(this) || MUD::Classes()[chclass_].HasSkill(skill_num);
+	bool is_native = this->is_npc() || MUD::Classes()[chclass_].HasSkill(skill_num);
 	for (auto i : equipment) {
 		if (i) {
 			if (is_native) {
@@ -753,7 +753,7 @@ ObjData *CharData::get_cast_obj() const {
 }
 
 bool IS_CHARMICE(const CharData *ch) {
-	return IS_NPC(ch)
+	return ch->is_npc()
 		&& (AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)
 			|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM));
 }
@@ -775,13 +775,13 @@ bool MAY_SEE(const CharData *ch, const CharData *sub, const CharData *obj) {
 }
 
 bool IS_HORSE(const CharData *ch) {
-	return IS_NPC(ch)
+	return ch->is_npc()
 		&& ch->has_master()
 		&& AFF_FLAGGED(ch, EAffectFlag::AFF_HORSE);
 }
 
 bool IS_MORTIFIER(const CharData *ch) {
-	return IS_NPC(ch)
+	return ch->is_npc()
 		&& ch->has_master()
 		&& MOB_FLAGGED(ch, MOB_CORPSE);
 }
@@ -810,10 +810,10 @@ bool OK_GAIN_EXP(const CharData *ch, const CharData *victim) {
 		&& (NAME_FINE(ch)
 			|| !(GetRealLevel(ch) == NAME_LEVEL))
 		&& !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
-		&& IS_NPC(victim)
+		&& victim->is_npc()
 		&& (GET_EXP(victim) > 0)
-		&& (!IS_NPC(victim)
-			|| !IS_NPC(ch)
+		&& (!victim->is_npc()
+			|| !ch->is_npc()
 			|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		&& !IS_HORSE(victim)
 		&& !ROOM_FLAGGED(ch->in_room, ROOM_ARENA_DOMINATION);
@@ -837,13 +837,13 @@ bool IS_POLY(const CharData *ch) {
 
 bool IMM_CAN_SEE(const CharData *sub, const CharData *obj) {
 	return MORT_CAN_SEE(sub, obj)
-		|| (!IS_NPC(sub)
-			&& GR_FLAGGED(sub, EPrf::kHolylight));
+		|| (!sub->is_npc()
+			&& PRF_FLAGGED(sub, EPrf::kHolylight));
 }
 
 bool CAN_SEE(const CharData *sub, const CharData *obj) {
 	return SELF(sub, obj)
-		|| ((GetRealLevel(sub) >= (IS_NPC(obj) ? 0 : GET_INVIS_LEV(obj)))
+		|| ((GetRealLevel(sub) >= (obj->is_npc() ? 0 : GET_INVIS_LEV(obj)))
 			&& IMM_CAN_SEE(sub, obj));
 }
 
@@ -905,18 +905,18 @@ bool CharData::purged() const {
 }
 
 const std::string &CharData::get_name_str() const {
-	if (IS_NPC(this)) {
+	if (this->is_npc()) {
 		return short_descr_;
 	}
 	return name_;
 }
 
 const std::string &CharData::get_name() const {
-	return IS_NPC(this) ? get_npc_name() : get_pc_name();
+	return this->is_npc() ? get_npc_name() : get_pc_name();
 }
 
 void CharData::set_name(const char *name) {
-	if (IS_NPC(this)) {
+	if (this->is_npc()) {
 		set_npc_name(name);
 	} else {
 		set_pc_name(name);
@@ -993,7 +993,7 @@ int CharData::get_level_add() const {
 }
 
 void CharData::set_level(int level) {
-	if (IS_NPC(this)) {
+	if (this->is_npc()) {
 		level_ = std::clamp(level, kMinCharLevel, kMaxMobLevel);
 	} else {
 		level_ = std::clamp(level, kMinCharLevel, kLvlImplementator);
@@ -1218,7 +1218,7 @@ void CharData::set_gold(long num, bool need_log) {
 	}
 	num = MAX(0, MIN(kMaxMoneyKept, num));
 
-	if (need_log && !IS_NPC(this)) {
+	if (need_log && !this->is_npc()) {
 		long change = num - get_gold();
 		if (change > 0) {
 			log("Gold: %s add %ld", get_name().c_str(), change);
@@ -1242,7 +1242,7 @@ void CharData::set_bank(long num, bool need_log) {
 	}
 	num = MAX(0, MIN(kMaxMoneyKept, num));
 
-	if (need_log && !IS_NPC(this)) {
+	if (need_log && !this->is_npc()) {
 		long change = num - get_bank();
 		if (change > 0) {
 			log("Gold: %s add %ld", get_name().c_str(), change);
@@ -1504,7 +1504,7 @@ void CharData::clear_add_apply_affects() {
 ///////////////////////////////////////////////////////////////////////////////
 int CharData::get_zone_group() const {
 	const auto rnum = get_rnum();
-	if (IS_NPC(this)
+	if (this->is_npc()
 		&& rnum >= 0
 		&& mob_index[rnum].zone >= 0) {
 		const auto zone = mob_index[rnum].zone;
@@ -1594,7 +1594,7 @@ std::string CharData::only_title_noclan() {
 std::string CharData::clan_for_title() {
 	std::string result = std::string();
 
-	bool imm = IS_IMMORTAL(this) || GR_FLAGGED(this, EPrf::kCoderinfo);
+	bool imm = IS_IMMORTAL(this) || PRF_FLAGGED(this, EPrf::kCoderinfo);
 
 	if (CLAN(this) && !imm)
 		result = result + "(" + GET_CLAN_STATUS(this) + ")";
@@ -1704,12 +1704,12 @@ void CharData::msdp_report(const std::string &name) {
 
 void CharData::removeGroupFlags() {
 	AFF_FLAGS(this).unset(EAffectFlag::AFF_GROUP);
-	GR_FLAGS(this).unset(EPrf::kSkirmisher);
+	PRF_FLAGS(this).unset(EPrf::kSkirmisher);
 }
 
 void CharData::add_follower(CharData *ch) {
 
-	if (IS_NPC(ch) && MOB_FLAGGED(ch, MOB_NOGROUP))
+	if (ch->is_npc() && MOB_FLAGGED(ch, MOB_NOGROUP))
 		return;
 	add_follower_silently(ch);
 
@@ -1774,7 +1774,7 @@ const CharData::role_t &CharData::get_role_bits() const {
 // добавляет указанного ch чара в список атакующих босса с параметром type
 // или обновляет его данные в этом списке
 void CharData::add_attacker(CharData *ch, unsigned type, int num) {
-	if (!IS_NPC(this) || IS_NPC(ch) || !get_role(MOB_ROLE_BOSS)) {
+	if (!this->is_npc() || ch->is_npc() || !get_role(MOB_ROLE_BOSS)) {
 		return;
 	}
 
@@ -1806,7 +1806,7 @@ void CharData::add_attacker(CharData *ch, unsigned type, int num) {
 // возвращает количественный параметр по флагу type указанного ch чара
 // из списка атакующих данного босса
 int CharData::get_attacker(CharData *ch, unsigned type) const {
-	if (!IS_NPC(this) || IS_NPC(ch) || !get_role(MOB_ROLE_BOSS)) {
+	if (!this->is_npc() || ch->is_npc() || !get_role(MOB_ROLE_BOSS)) {
 		return -1;
 	}
 	auto i = attackers_.find(ch->get_uid());
@@ -1824,13 +1824,13 @@ int CharData::get_attacker(CharData *ch, unsigned type) const {
 std::pair<int /* uid */, int /* rounds */> CharData::get_max_damager_in_room() const {
 	std::pair<int, int> damager(-1, 0);
 
-	if (!IS_NPC(this) || !get_role(MOB_ROLE_BOSS)) {
+	if (!this->is_npc() || !get_role(MOB_ROLE_BOSS)) {
 		return damager;
 	}
 
 	int max_dmg = 0;
 	for (const auto i : world[this->in_room]->people) {
-		if (!IS_NPC(i) && i->desc) {
+		if (!i->is_npc() && i->desc) {
 			auto it = attackers_.find(i->get_uid());
 			if (it != attackers_.end()) {
 				if (it->second.damage > max_dmg) {
@@ -1861,7 +1861,7 @@ void CharData::restore_mob() {
 }
 // Кудояр 
 void CharData::restore_npc() {
-	if(!IS_NPC(this)) return;
+	if(!this->is_npc()) return;
 	
 	attackers_.clear();
 	auto proto = (&mob_proto[GET_MOB_RNUM(this)]);
@@ -2020,17 +2020,17 @@ void CharData::send_to_TC(bool to_impl, bool to_tester, bool to_coder, const cha
 		return;
 	}
 	if ((IS_CHARMICE(this) && this->get_master()->is_npc()) //если это чармис у нпц
-		|| (IS_NPC(this) && !IS_CHARMICE(this))) //просто непись
+		|| (this->is_npc() && !IS_CHARMICE(this))) //просто непись
 		return;
 
 	if (to_impl &&
 		(IS_IMPL(this) || (IS_CHARMICE(this) && IS_IMPL(this->get_master()))))
 		needSend = true;
 	if (!needSend && to_coder &&
-		(GR_FLAGGED(this, EPrf::kCoderinfo) || (IS_CHARMICE(this) && (GR_FLAGGED(this->get_master(), EPrf::kCoderinfo)))))
+		(PRF_FLAGGED(this, EPrf::kCoderinfo) || (IS_CHARMICE(this) && (PRF_FLAGGED(this->get_master(), EPrf::kCoderinfo)))))
 		needSend = true;
 	if (!needSend && to_tester &&
-		(GR_FLAGGED(this, EPrf::kTester) || (IS_CHARMICE(this) && (GR_FLAGGED(this->get_master(), EPrf::kTester)))))
+		(PRF_FLAGGED(this, EPrf::kTester) || (IS_CHARMICE(this) && (PRF_FLAGGED(this->get_master(), EPrf::kTester)))))
 		needSend = true;
 	if (!needSend)
 		return;
@@ -2060,12 +2060,12 @@ bool CharData::have_mind() const {
 bool CharData::has_horse(bool same_room) const {
 	struct Follower *f;
 
-	if (IS_NPC(this)) {
+	if (this->is_npc()) {
 		return false;
 	}
 
 	for (f = this->followers; f; f = f->next) {
-		if (IS_NPC(f->ch) && AFF_FLAGGED(f->ch, EAffectFlag::AFF_HORSE)
+		if (f->ch->is_npc() && AFF_FLAGGED(f->ch, EAffectFlag::AFF_HORSE)
 			&& (!same_room || this->in_room == IN_ROOM(f->ch))) {
 			return true;
 		}
@@ -2111,7 +2111,7 @@ bool CharData::drop_from_horse() {
 void CharData::dismount() {
 	if (!this->ahorse() || this->get_horse() == nullptr)
 		return;
-	if (!IS_NPC(this) && this->has_horse(true)) {
+	if (!this->is_npc() && this->has_horse(true)) {
 		AFF_FLAGS(this).unset(EAffectFlag::AFF_HORSE);
 	}
 	act("Вы слезли со спины $N1.", false, this, 0, this->get_horse(), kToChar);
@@ -2121,11 +2121,11 @@ void CharData::dismount() {
 CharData *CharData::get_horse() {
 	struct Follower *f;
 
-	if (IS_NPC(this))
+	if (this->is_npc())
 		return nullptr;
 
 	for (f = this->followers; f; f = f->next) {
-		if (IS_NPC(f->ch) && AFF_FLAGGED(f->ch, EAffectFlag::AFF_HORSE)) {
+		if (f->ch->is_npc() && AFF_FLAGGED(f->ch, EAffectFlag::AFF_HORSE)) {
 			return (f->ch);
 		}
 	}

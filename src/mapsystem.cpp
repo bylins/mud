@@ -302,10 +302,10 @@ void draw_mobs(const CharData *ch, int room_rnum, int next_y, int next_x) {
 			if (tch == ch) {
 				continue;
 			}
-			if (IS_NPC(tch) && !ch->map_check_option(MAP_MODE_MOBS)) {
+			if (tch->is_npc() && !ch->map_check_option(MAP_MODE_MOBS)) {
 				continue;
 			}
-			if (!IS_NPC(tch) && !ch->map_check_option(MAP_MODE_PLAYERS)) {
+			if (!tch->is_npc() && !ch->map_check_option(MAP_MODE_PLAYERS)) {
 				continue;
 			}
 			if (HERE(tch)
@@ -1014,10 +1014,10 @@ void Options::text_olc(CharData *ch, const char *arg) {
 } // namespace MapSystem
 
 void do_map(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch)) {
+	if (ch->is_npc()) {
 		return;
 	}
-	if (GR_FLAGGED(ch, EPrf::kBlindMode)) {
+	if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {
 		send_to_char("В режиме слепого игрока карта недоступна.\r\n", ch);
 		return;
 	} else if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {

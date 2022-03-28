@@ -840,7 +840,7 @@ bool Clan::MayEnter(CharData *ch, RoomRnum room, bool mode) {
 		|| IS_GRGOD(ch)
 		|| !ROOM_FLAGGED(room, ROOM_HOUSE)
 		|| clan->entranceMode
-		|| GR_FLAGGED(ch, EPrf::kCoderinfo)) {
+		|| PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
 		return true;
 	}
 
@@ -910,7 +910,7 @@ const char *HOUSE_FORMAT[] =
 
 // обработка клановых привилегий (команда house)
 void DoHouse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch))
+	if (ch->is_npc())
 		return;
 
 	std::string buffer = argument, buffer2;
@@ -1219,7 +1219,7 @@ void Clan::HouseAdd(CharData *ch, std::string &buffer) {
 		return;
 	}
 
-	if (GR_FLAGGED(d->character, EPrf::kCoderinfo) || (GetRealLevel(d->character) >= kLvlGod)) {
+	if (PRF_FLAGGED(d->character, EPrf::kCoderinfo) || (GetRealLevel(d->character) >= kLvlGod)) {
 		send_to_char("Вы не можете приписать этого игрока.\r\n", ch);
 		return;
 	}
@@ -1507,7 +1507,7 @@ void Clan::CharToChannel(CharData *ch, std::string text, int subcmd) {
 		return;
 	}
 
-	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB)) {
+	if (!ch->is_npc() && PLR_FLAGGED(ch, PLR_DUMB)) {
 		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
 		return;
 	}
@@ -1599,7 +1599,7 @@ void Clan::CharToChannel(CharData *ch, std::string text, int subcmd) {
 // клановые БОГи ниже 34 не могут говорить другим дружинам, и им и остальным спокойнее
 // для канала союзников нужен обоюдный альянс дружин
 void DoClanChannel(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
-	if (IS_NPC(ch))
+	if (ch->is_npc())
 		return;
 
 	std::string buffer = argument;
@@ -1648,7 +1648,7 @@ void DoClanChannel(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 // список зарегестрированных дружин с их онлайновым составом (опционально)
 void DoClanList(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch)) {
+	if (ch->is_npc()) {
 		return;
 	}
 
@@ -1719,7 +1719,7 @@ void DoClanList(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			&& CLAN(d->character)
 			&& CAN_SEE_CHAR(ch, d->character)
 			&& !IS_IMMORTAL(d->character)
-			&& !GR_FLAGGED(d->character, EPrf::kCoderinfo)
+			&& !PRF_FLAGGED(d->character, EPrf::kCoderinfo)
 			&& (all || CLAN(d->character) == *clan)) {
 			temp_list.push_back(d->character);
 		}
@@ -1835,7 +1835,7 @@ bool char_to_pk_clan(CharData *ch) {
 
 //Polud будем показывать всем происходящие войны
 void DoShowWars(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch)) return;
+	if (ch->is_npc()) return;
 	std::string buffer = argument;
 	boost::trim_if(buffer, boost::is_any_of(std::string(" \'")));
 
@@ -1884,7 +1884,7 @@ void DoShowWars(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 //-Polud
 
 void do_show_alliance(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch)) return;
+	if (ch->is_npc()) return;
 	std::string buffer = argument;
 	boost::trim_if(buffer, boost::is_any_of(std::string(" \'")));
 
@@ -1934,7 +1934,7 @@ void do_show_alliance(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 // выводим информацию об отношениях дружин между собой
 void DoShowPolitics(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch) || !CLAN(ch)) {
+	if (ch->is_npc() || !CLAN(ch)) {
 		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
@@ -2003,7 +2003,7 @@ void Clan::ManagePolitics(CharData *ch, std::string &buffer) {
 		for (d = descriptor_list; d; d = d->next) {
 			if (d->character
 				&& STATE(d) == CON_PLAYING
-				&& GR_FLAGGED(d->character, EPrf::kPolitMode)) {
+				&& PRF_FLAGGED(d->character, EPrf::kPolitMode)) {
 				if (CLAN(d->character) == *vict) {
 					send_to_char(d->character.get(), "%sДружина %s заключила с вашей дружиной нейтралитет!%s\r\n",
 								 CCWHT(d->character, C_NRM), this->abbrev.c_str(), CCNRM(d->character, C_NRM));
@@ -2014,7 +2014,7 @@ void Clan::ManagePolitics(CharData *ch, std::string &buffer) {
 			}
 		}
 
-		if (!GR_FLAGGED(ch, EPrf::kPolitMode)) // а то сам может не увидеть нафик
+		if (!PRF_FLAGGED(ch, EPrf::kPolitMode)) // а то сам может не увидеть нафик
 		{
 			send_to_char(ch, "%sВаша дружина заключила с дружиной %s нейтралитет!%s\r\n",
 						 CCWHT(ch, C_NRM), (*vict)->abbrev.c_str(), CCNRM(ch, C_NRM));
@@ -2032,7 +2032,7 @@ void Clan::ManagePolitics(CharData *ch, std::string &buffer) {
 		for (d = descriptor_list; d; d = d->next) {
 			if (d->character
 				&& STATE(d) == CON_PLAYING
-				&& GR_FLAGGED(d->character, EPrf::kPolitMode)) {
+				&& PRF_FLAGGED(d->character, EPrf::kPolitMode)) {
 				if (CLAN(d->character) == *vict) {
 					send_to_char(d->character.get(),
 								 "%sДружина %s объявила вашей дружине войну!%s\r\n",
@@ -2049,7 +2049,7 @@ void Clan::ManagePolitics(CharData *ch, std::string &buffer) {
 			}
 		}
 
-		if (!GR_FLAGGED(ch, EPrf::kPolitMode)) {
+		if (!PRF_FLAGGED(ch, EPrf::kPolitMode)) {
 			send_to_char(ch,
 						 "%sВаша дружина объявила дружине %s войну!%s\r\n",
 						 CCIRED(ch, C_NRM),
@@ -2067,7 +2067,7 @@ void Clan::ManagePolitics(CharData *ch, std::string &buffer) {
 
 		// тож самое
 		for (d = descriptor_list; d; d = d->next) {
-			if (d->character && STATE(d) == CON_PLAYING && GR_FLAGGED(d->character, EPrf::kPolitMode)) {
+			if (d->character && STATE(d) == CON_PLAYING && PRF_FLAGGED(d->character, EPrf::kPolitMode)) {
 				if (CLAN(d->character) == *vict) {
 					send_to_char(d->character.get(),
 								 "%sДружина %s заключила с вашей дружиной альянс!%s\r\n",
@@ -2084,7 +2084,7 @@ void Clan::ManagePolitics(CharData *ch, std::string &buffer) {
 			}
 		}
 
-		if (!GR_FLAGGED(ch, EPrf::kPolitMode)) {
+		if (!PRF_FLAGGED(ch, EPrf::kPolitMode)) {
 			send_to_char(ch, "%sВаша дружина заключила альянс с дружиной %s!%s\r\n",
 						 CCGRN(ch, C_NRM), (*vict)->abbrev.c_str(), CCNRM(ch, C_NRM));
 		}
@@ -2204,7 +2204,7 @@ void Clan::hcontrol_rank(CharData *ch, std::string &text) {
 * \param text - число последних месяцев, если пустая строка - 0 (только текущий месяц).
 */
 void Clan::hcontrol_exphistory(CharData *ch, std::string &text) {
-	if (!GR_FLAGGED(ch, EPrf::kCoderinfo)) {
+	if (!PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
 		send_to_char(HCONTROL_FORMAT, ch);
 		return;
 	}
@@ -2232,7 +2232,7 @@ void Clan::hcontrol_exphistory(CharData *ch, std::string &text) {
 }
 
 void Clan::hcontrol_set_ingr_chest(CharData *ch, std::string &text) {
-	if (!GR_FLAGGED(ch, EPrf::kCoderinfo) || !IS_IMPL(ch)) {
+	if (!PRF_FLAGGED(ch, EPrf::kCoderinfo) || !IS_IMPL(ch)) {
 		send_to_char(HCONTROL_FORMAT, ch);
 		return;
 	}
@@ -2305,7 +2305,7 @@ void Clan::hcontrol_set_ingr_chest(CharData *ch, std::string &text) {
 
 // божественный hcontrol
 void DoHcontrol(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch))
+	if (ch->is_npc())
 		return;
 
 	std::string buffer = argument, buffer2;
@@ -2586,7 +2586,7 @@ void Clan::DestroyClan(Clan::shared_ptr clan) {
 
 // ктодружина (список соклановцев, находящихся онлайн)
 void DoWhoClan(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch) || !CLAN(ch)) {
+	if (ch->is_npc() || !CLAN(ch)) {
 		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
@@ -2620,7 +2620,7 @@ const char *CLAN_PKLIST_FORMAT[] =
 */
 bool check_online_state(long uid) {
 	for (const auto &tch : character_list) {
-		if (IS_NPC(tch)
+		if (tch->is_npc()
 			|| GET_UNIQUE(tch) != uid
 			|| (!tch->desc && !NORENTABLE(tch))) {
 			continue;
@@ -2636,7 +2636,7 @@ void print_pkl(CharData *ch, std::ostringstream &stream, ClanPkList::const_itera
 	static char timeBuf[11];
 	static boost::format frmt("%s [%s] :: %s\r\n%s\r\n\r\n");
 
-	if (GR_FLAGGED(ch, EPrf::kPkFormatMode))
+	if (PRF_FLAGGED(ch, EPrf::kPkFormatMode))
 		stream << it->second->victimName << " : " << it->second->text << "\n";
 	else {
 		strftime(timeBuf, sizeof(timeBuf), "%d/%m/%Y", localtime(&(it->second->time)));
@@ -2646,7 +2646,7 @@ void print_pkl(CharData *ch, std::ostringstream &stream, ClanPkList::const_itera
 
 // пкл/дрл
 void DoClanPkList(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
-	if (IS_NPC(ch) || !CLAN(ch)) {
+	if (ch->is_npc() || !CLAN(ch)) {
 		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
@@ -2664,7 +2664,7 @@ void DoClanPkList(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		ClanPkList::const_iterator it;
 		// вобщем чтобы словить чаров, находящихся в лд - придется гонять по чарактер-листу
 		for (const auto &tch : character_list) {
-			if (IS_NPC(tch))
+			if (tch->is_npc())
 				continue;
 			// пкл
 			if (!subcmd) {
@@ -2766,7 +2766,7 @@ void DoClanPkList(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			CLAN(ch)->frList[unique] = tempRecord;
 
 		DescriptorData *d = DescByUID(unique);
-		if (d && GR_FLAGGED(d->character, EPrf::kPklMode)) {
+		if (d && PRF_FLAGGED(d->character, EPrf::kPklMode)) {
 			if (!subcmd) {
 				send_to_char(d->character.get(),
 							 "%sДружина '%s' добавила вас в список своих врагов!%s\r\n",
@@ -2843,7 +2843,7 @@ void DoClanPkList(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			send_to_char("Запись удалена.\r\n", ch);
 			DescriptorData *d;
 			if ((d = DescByUID(unique))
-				&& GR_FLAGGED(d->character, EPrf::kPklMode)) {
+				&& PRF_FLAGGED(d->character, EPrf::kPklMode)) {
 				if (!subcmd) {
 					send_to_char(d->character.get(),
 								 "%sДружина '%s' удалила вас из списка своих врагов!%s\r\n",
@@ -2911,7 +2911,7 @@ void DoClanPkList(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 // кладем в сундук (при наличии привилегии)
 // если предмет - деньги, то автоматом идут в клан-казну, контейнеры только пустые
 bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
-	const bool prohibited = IS_NPC(ch) || !CLAN(ch)
+	const bool prohibited = ch->is_npc() || !CLAN(ch)
 		|| real_room(CLAN(ch)->chest_room) != ch->in_room
 		|| !CLAN(ch)->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_CHEST_PUT];
 	if (prohibited) {
@@ -2994,7 +2994,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 				&& !AFF_FLAGGED(d->character, EAffectFlag::AFF_DEAFNESS)
 				&& CLAN(d->character)
 				&& CLAN(d->character) == CLAN(ch)
-				&& GR_FLAGGED(d->character, EPrf::kTakeMode)) {
+				&& PRF_FLAGGED(d->character, EPrf::kTakeMode)) {
 				send_to_char(d->character.get(), "[Хранилище]: %s'%s сдал%s %s%s.'%s\r\n",
 							 CCIRED(d->character, C_NRM), GET_NAME(ch), GET_CH_SUF_1(ch),
 							 obj->get_PName(3).c_str(),
@@ -3003,7 +3003,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 			}
 		}
 
-		if (!GR_FLAGGED(ch, EPrf::kDecayMode)) {
+		if (!PRF_FLAGGED(ch, EPrf::kDecayMode)) {
 			act("Вы положили $o3 в $O3.", false, ch, obj, chest, kToChar);
 		}
 
@@ -3015,7 +3015,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 
 // берем из клан-сундука (при наличии привилегии)
 bool Clan::TakeChest(CharData *ch, ObjData *obj, ObjData *chest) {
-	if (IS_NPC(ch)
+	if (ch->is_npc()
 		|| !CLAN(ch)
 		|| real_room(CLAN(ch)->chest_room) != ch->in_room
 		|| !CLAN(ch)->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_CHEST_TAKE]) {
@@ -3040,7 +3040,7 @@ bool Clan::TakeChest(CharData *ch, ObjData *obj, ObjData *chest) {
 				&& !AFF_FLAGGED(d->character, EAffectFlag::AFF_DEAFNESS)
 				&& CLAN(d->character)
 				&& CLAN(d->character) == CLAN(ch)
-				&& GR_FLAGGED(d->character, EPrf::kTakeMode)) {
+				&& PRF_FLAGGED(d->character, EPrf::kTakeMode)) {
 				send_to_char(d->character.get(), "[Хранилище]: %s'%s забрал%s %s%s.'%s\r\n",
 							 CCIRED(d->character, C_NRM), GET_NAME(ch), GET_CH_SUF_1(ch),
 							 obj->get_PName(3).c_str(),
@@ -3049,7 +3049,7 @@ bool Clan::TakeChest(CharData *ch, ObjData *obj, ObjData *chest) {
 			}
 		}
 
-		if (!GR_FLAGGED(ch, EPrf::kTakeMode)) {
+		if (!PRF_FLAGGED(ch, EPrf::kTakeMode)) {
 			act("Вы взяли $o3 из $O1.", false, ch, obj, chest, kToChar);
 		}
 		CLAN(ch)->chest_objcount--;
@@ -3273,7 +3273,7 @@ void Clan::load_mod() {
 // казна дружины... команды теже самые с приставкой 'казна' в начале
 // смотреть/вкладывать могут все, снимать по привилегии, висит на стандартных банкирах
 bool Clan::BankManage(CharData *ch, char *arg) {
-	if (IS_NPC(ch) || !CLAN(ch) || GetRealLevel(ch) >= kLvlImmortal)
+	if (ch->is_npc() || !CLAN(ch) || GetRealLevel(ch) >= kLvlImmortal)
 		return false;
 
 	std::string buffer = arg, buffer2;
@@ -4225,7 +4225,7 @@ void Clan::hcon_owner(CharData *ch, std::string &text) {
 }
 
 void Clan::CheckPkList(CharData *ch) {
-	if (IS_NPC(ch))
+	if (ch->is_npc())
 		return;
 	ClanPkList::iterator it;
 	for (ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan) {
@@ -4246,7 +4246,7 @@ void Clan::CheckPkList(CharData *ch) {
 
 // вобщем это копи-паст из биржи + флаги
 void DoStoreHouse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch) || !CLAN(ch)) {
+	if (ch->is_npc() || !CLAN(ch)) {
 		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
@@ -4724,7 +4724,7 @@ void Clan::SyncTopExp() {
 
 // установка режима оповещения об изменениях в хранилище
 void SetChestMode(CharData *ch, std::string &buffer) {
-	if (IS_NPC(ch))
+	if (ch->is_npc())
 		return;
 	if (!CLAN(ch)) {
 		send_to_char("Для начала обзаведитесь дружиной.\r\n", ch);
@@ -4733,20 +4733,20 @@ void SetChestMode(CharData *ch, std::string &buffer) {
 
 	boost::trim_if(buffer, boost::is_any_of(std::string(" \'")));
 	if (CompareParam(buffer, "нет")) {
-		GR_FLAGS(ch).unset(EPrf::kDecayMode);
-		GR_FLAGS(ch).unset(EPrf::kTakeMode);
+		PRF_FLAGS(ch).unset(EPrf::kDecayMode);
+		PRF_FLAGS(ch).unset(EPrf::kTakeMode);
 		send_to_char("Ладушки.\r\n", ch);
 	} else if (CompareParam(buffer, "рассыпание")) {
-		GR_FLAGS(ch).set(EPrf::kDecayMode);
-		GR_FLAGS(ch).unset(EPrf::kTakeMode);
+		PRF_FLAGS(ch).set(EPrf::kDecayMode);
+		PRF_FLAGS(ch).unset(EPrf::kTakeMode);
 		send_to_char("Ладушки.\r\n", ch);
 	} else if (CompareParam(buffer, "изменение")) {
-		GR_FLAGS(ch).unset(EPrf::kDecayMode);
-		GR_FLAGS(ch).set(EPrf::kTakeMode);
+		PRF_FLAGS(ch).unset(EPrf::kDecayMode);
+		PRF_FLAGS(ch).set(EPrf::kTakeMode);
 		send_to_char("Ладушки.\r\n", ch);
 	} else if (CompareParam(buffer, "полный")) {
-		GR_FLAGS(ch).set(EPrf::kDecayMode);
-		GR_FLAGS(ch).set(EPrf::kTakeMode);
+		PRF_FLAGS(ch).set(EPrf::kDecayMode);
+		PRF_FLAGS(ch).set(EPrf::kTakeMode);
 		send_to_char("Ладушки.\r\n", ch);
 	} else {
 		send_to_char("Задается режим оповещения об изменениях в хранилище дружины.\r\n"
@@ -4761,12 +4761,12 @@ void SetChestMode(CharData *ch, std::string &buffer) {
 
 // шоб не засорять в режиме, а выдать строку сразу
 std::string GetChestMode(CharData *ch) {
-	if (GR_FLAGGED(ch, EPrf::kDecayMode)) {
-		if (GR_FLAGGED(ch, EPrf::kTakeMode))
+	if (PRF_FLAGGED(ch, EPrf::kDecayMode)) {
+		if (PRF_FLAGGED(ch, EPrf::kTakeMode))
 			return "полный";
 		else
 			return "рассыпание";
-	} else if (GR_FLAGGED(ch, EPrf::kTakeMode))
+	} else if (PRF_FLAGGED(ch, EPrf::kTakeMode))
 		return "изменение";
 	else
 		return "выкл";
@@ -4938,7 +4938,7 @@ bool ClanSystem::is_ingr_chest(ObjData *obj) {
 * \param enter 1 - вход чара, 0 - выход.
 */
 void Clan::clan_invoice(CharData *ch, bool enter) {
-	if (IS_NPC(ch) || !CLAN(ch)) {
+	if (ch->is_npc() || !CLAN(ch)) {
 		return;
 	}
 
@@ -4947,7 +4947,7 @@ void Clan::clan_invoice(CharData *ch, bool enter) {
 			&& d->character.get() != ch
 			&& STATE(d) == CON_PLAYING
 			&& CLAN(d->character) == CLAN(ch)
-			&& GR_FLAGGED(d->character, EPrf::kClanmembersMode)) {
+			&& PRF_FLAGGED(d->character, EPrf::kClanmembersMode)) {
 			if (enter) {
 				send_to_char(d->character.get(), "%sДружинни%s %s вош%s в мир.%s\r\n",
 							 CCINRM(d->character, C_NRM), IS_MALE(ch) ? "к" : "ца", GET_NAME(ch),
@@ -5028,7 +5028,7 @@ int Clan::print_spell_locate_object(CharData *ch, int count, std::string name) {
 
 int Clan::GetClanWars(CharData *ch) {
 	int result = 0, p1 = 0;
-	if (IS_NPC(ch) || !CLAN(ch)) {
+	if (ch->is_npc() || !CLAN(ch)) {
 		return false;
 	}
 
@@ -5227,7 +5227,7 @@ void ClanSystem::save_ingr_chests() {
 }
 
 bool Clan::put_ingr_chest(CharData *ch, ObjData *obj, ObjData *chest) {
-	if (IS_NPC(ch)
+	if (ch->is_npc()
 		|| !CLAN(ch)
 		|| CLAN(ch)->GetRent() / 100 != GET_ROOM_VNUM(ch->in_room) / 100) {
 		send_to_char("Не имеете таких правов!\r\n", ch);
@@ -5273,7 +5273,7 @@ bool Clan::put_ingr_chest(CharData *ch, ObjData *obj, ObjData *chest) {
 }
 
 bool Clan::take_ingr_chest(CharData *ch, ObjData *obj, ObjData *chest) {
-	if (IS_NPC(ch) || !CLAN(ch)
+	if (ch->is_npc() || !CLAN(ch)
 		|| CLAN(ch)->GetRent() / 100 != GET_ROOM_VNUM(ch->in_room) / 100) {
 		send_to_char("Не имеете таких правов!\r\n", ch);
 		return false;
@@ -5585,7 +5585,7 @@ bool CHECK_CUSTOM_LABEL_CORE(const ObjData *obj, const CharData *ch) {
 bool CHECK_CUSTOM_LABEL(const char *arg, const ObjData *obj, const CharData *ch) {
 	return obj->get_custom_label()
 		&& obj->get_custom_label()->label_text
-		&& (IS_NPC(ch)
+		&& (ch->is_npc()
 			? ((IS_CHARMICE(ch) && ch->has_master())
 			   ? CHECK_CUSTOM_LABEL_CORE(obj, ch->get_master())
 			   : 0)
@@ -5596,7 +5596,7 @@ bool CHECK_CUSTOM_LABEL(const char *arg, const ObjData *obj, const CharData *ch)
 bool AUTH_CUSTOM_LABEL(const ObjData *obj, const CharData *ch) {
 	return obj->get_custom_label()
 		&& obj->get_custom_label()->label_text
-		&& (IS_NPC(ch)
+		&& (ch->is_npc()
 			? ((IS_CHARMICE(ch) && ch->has_master())
 			   ? CHECK_CUSTOM_LABEL_CORE(obj, ch->get_master())
 			   : 0)

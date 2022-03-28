@@ -198,7 +198,7 @@ void do_oforce(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 			const auto people_copy = world[room]->people;
 			for (const auto ch : people_copy)
 			{
-				if (IS_NPC(ch)
+				if (ch->is_npc()
 					|| GetRealLevel(ch) < kLevelImmortal)
 				{
 					command_interpreter(ch, line);
@@ -208,13 +208,13 @@ void do_oforce(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else {
 		if ((ch = get_char_by_obj(obj, arg1))) {
 			// если чар в ЛД
-			if (!IS_NPC(ch)) {
+			if (!ch->is_npc()) {
 				if (!ch->desc) {
 					return;
 				}
 			}
 
-			if (IS_NPC(ch)) {
+			if (ch->is_npc()) {
 				if (mob_script_command_interpreter(ch, line)) {
 					obj_log(obj, "Mob trigger commands in oforce. Please rewrite trigger.");
 					return;
@@ -356,7 +356,7 @@ void do_opurge(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!IS_NPC(ch)) {
+	if (!ch->is_npc()) {
 		obj_log(obj, "opurge: purging a PC");
 		return;
 	}
@@ -428,7 +428,7 @@ void do_oteleport(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 				obj_log(obj, "oteleport transports allchar from kNowhere");
 				return;
 			}
-			if (IS_NPC(ch) && !IS_CHARMICE(ch))
+			if (ch->is_npc() && !IS_CHARMICE(ch))
 				continue;
 			char_from_room(ch);
 			char_to_room(ch, target);
@@ -522,7 +522,7 @@ void ApplyDamage(CharData* target, int damage) {
 	update_pos(target);
 	char_dam_message(damage, target, target, 0);
 	if (GET_POS(target) == EPosition::kDead) {
-		if (!IS_NPC(target)) {
+		if (!target->is_npc()) {
 			sprintf(buf2, "%s killed by odamage at %s [%d]", GET_NAME(target),
 					target->in_room == kNowhere ? "NOWHERE" : world[target->in_room]->name, GET_ROOM_VNUM(target->in_room));
 			mudlog(buf2, BRF, kLvlBuilder, SYSLOG, true);

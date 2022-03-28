@@ -150,13 +150,13 @@ int get_reformed_charmice_hp(CharData *ch, CharData *victim, int spellnum) {
 			((1 - eff_cha + (int) eff_cha) * cha_app[(int) eff_cha].dam_to_hit_rate);
 	}
 
-	if (GR_FLAGGED(ch, EPrf::kTester))
+	if (PRF_FLAGGED(ch, EPrf::kTester))
 		send_to_char(ch, "&Gget_reformed_charmice_hp Расчет чарма r_hp = %f \r\n&n", r_hp);
 	return (int) r_hp;
 }
 
 void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch)
+	if (ch->is_npc()
 		|| (!WAITLESS(ch) && !can_use_feat(ch, EMPLOYER_FEAT))) {
 		send_to_char("Вам недоступно это!\r\n", ch);
 		return;
@@ -195,7 +195,7 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (helpee == ch)
 		send_to_char("И как вы это представляете - нанять самого себя?\r\n", ch);
-	else if (!IS_NPC(helpee))
+	else if (!helpee->is_npc())
 		send_to_char("Вы не можете нанять реального игрока!\r\n", ch);
 	else if (!NPC_FLAGGED(helpee, NPC_HELPED))
 		act("$N не нанимается!", false, ch, 0, helpee, kToChar);
@@ -303,7 +303,7 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		sprintf(buf, "$n сказал$g вам : \"Приказывай, %s!\"", IS_FEMALE(ch) ? "хозяйка" : "хозяин");
 		act(buf, false, helpee, 0, ch, kToVict | kToNotDeaf);
 
-		if (IS_NPC(helpee)) {
+		if (helpee->is_npc()) {
 			for (auto i = 0; i < EEquipPos::kNumEquipPos; i++) {
 				if (GET_EQ(helpee, i)) {
 					if (!remove_otrigger(GET_EQ(helpee, i), helpee))
@@ -317,7 +317,7 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 			MOB_FLAGS(helpee).unset(MOB_AGGRESSIVE);
 			MOB_FLAGS(helpee).unset(MOB_SPEC);
-			GR_FLAGS(helpee).unset(EPrf::kPunctual);
+			PRF_FLAGS(helpee).unset(EPrf::kPunctual);
 			MOB_FLAGS(helpee).set(MOB_NOTRAIN);
 			helpee->set_skill(ESkill::kPunctual, 0);
 			ch->updateCharmee(GET_MOB_VNUM(helpee), cost);
@@ -329,7 +329,7 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_freehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch)
+	if (ch->is_npc()
 		|| (!WAITLESS(ch) && !can_use_feat(ch, EMPLOYER_FEAT))) {
 		send_to_char("Вам недоступно это!\r\n", ch);
 		return;

@@ -827,7 +827,7 @@ const int moon_modifiers[28] = {-10, -9, -7, -5, -3, 0, 0, 0, 0, 0, 0, 0, 1, 5, 
 
 int day_spell_modifier(CharData *ch, int/* spellnum*/, int type, int value) {
 	int modi = value;
-	if (IS_NPC(ch) || ch->in_room == kNowhere)
+	if (ch->is_npc() || ch->in_room == kNowhere)
 		return (modi);
 	switch (type) {
 		case GAPPLY_SPELL_SUCCESS: modi = modi * (100 + moon_modifiers[weather_info.moon_day]) / 100;
@@ -842,11 +842,11 @@ int day_spell_modifier(CharData *ch, int/* spellnum*/, int type, int value) {
 int weather_spell_modifier(CharData *ch, int spellnum, int type, int value) {
 	int modi = value, sky = weather_info.sky, season = weather_info.season;
 
-	if (IS_NPC(ch) ||
+	if (ch->is_npc() ||
 		ch->in_room == kNowhere ||
 		SECT(ch->in_room) == kSectInside ||
 		SECT(ch->in_room) == kSectCity ||
-		ROOM_FLAGGED(ch->in_room, ROOM_INDOORS) || ROOM_FLAGGED(ch->in_room, ROOM_NOWEATHER) || IS_NPC(ch))
+		ROOM_FLAGGED(ch->in_room, ROOM_INDOORS) || ROOM_FLAGGED(ch->in_room, ROOM_NOWEATHER) || ch->is_npc())
 		return (modi);
 
 	sky = GET_ROOM_SKY(ch->in_room);
@@ -915,7 +915,7 @@ int day_skill_modifier(CharData * /*ch*/, ESkill/* skillnum*/, int/* type*/, int
 int weather_skill_modifier(CharData *ch, ESkill skillnum, int type, int value) {
 	int modi = value, sky = weather_info.sky;
 
-	if (IS_NPC(ch) ||
+	if (ch->is_npc() ||
 		SECT(ch->in_room) == kSectInside ||
 		SECT(ch->in_room) == kSectCity ||
 		ROOM_FLAGGED(ch->in_room, ROOM_INDOORS) || ROOM_FLAGGED(ch->in_room, ROOM_NOWEATHER))

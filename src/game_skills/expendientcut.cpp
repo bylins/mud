@@ -114,7 +114,7 @@ void SetExtraAttackCut(CharData *ch, CharData *victim) {
 
 void DoExpedientCut(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 
-	if (IS_NPC(ch) || (!can_use_feat(ch, EXPEDIENT_CUT_FEAT) && !IS_IMPL(ch))) {
+	if (ch->is_npc() || (!can_use_feat(ch, EXPEDIENT_CUT_FEAT) && !IS_IMPL(ch))) {
 		send_to_char("Вы не владеете таким приемом.\r\n", ch);
 		return;
 	}

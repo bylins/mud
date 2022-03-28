@@ -83,7 +83,7 @@ const char *ac_text[] =
 void DoScore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	skip_spaces(&argument);
 
-	if (IS_NPC(ch))
+	if (ch->is_npc())
 		return;
 
 	if (utils::IsAbbrev(argument, "все") || utils::IsAbbrev(argument, "all")) {
@@ -184,7 +184,7 @@ void PrintScoreList(CharData *ch) {
 		send_to_char(ch, "Ваша позиция: %s", GetPositionStr(ch));
 	else
 		send_to_char(ch, "Ваша позиция: Вы верхом на %s.\r\n", GET_PAD(ch->get_horse(), 5));
-	if (GR_FLAGGED(ch, EPrf::KSummonable))
+	if (PRF_FLAGGED(ch, EPrf::KSummonable))
 		send_to_char(ch, "Вы можете быть призваны.\r\n");
 	else
 		send_to_char(ch, "Вы защищены от призыва.\r\n");
@@ -222,7 +222,7 @@ void PrintScoreList(CharData *ch) {
 const std::string &InfoStrPrefix(CharData *ch) {
 	static const std::string cyan_star{KICYN " * " KNRM};
 	static const std::string space_str{" "};
-	if (GR_FLAGGED(ch, EPrf::kBlindMode)) {
+	if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {
 		return space_str;
 	} else {
 		return cyan_star;
@@ -279,7 +279,7 @@ void PrintNameStatusInfo(CharData *ch, std::ostringstream &out) {
 }
 
 void PrintSummonableInfo(CharData *ch, std::ostringstream &out) {
-	if (GR_FLAGGED(ch, EPrf::KSummonable)) {
+	if (PRF_FLAGGED(ch, EPrf::KSummonable)) {
 		out << InfoStrPrefix(ch) << KIYEL << "Вы можете быть призваны." << KNRM << std::endl;
 	} else {
 		out << InfoStrPrefix(ch) << "Вы защищены от призыва." << std::endl;
@@ -300,7 +300,7 @@ void PrintExpTaxInfo(CharData *ch, std::ostringstream &out) {
 }
 
 void PrintBlindModeInfo(CharData *ch, std::ostringstream &out) {
-	if (GR_FLAGGED(ch, EPrf::kBlindMode)) {
+	if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {
 		out << InfoStrPrefix(ch) << "Режим слепого игрока включен." << std::endl;
 	}
 }
@@ -611,7 +611,7 @@ void PrintSelfHitrollInfo(CharData *ch, std::ostringstream &out) {
 }
 
 void PrintTesterModeInfo(CharData *ch, std::ostringstream &out) {
-	if (GR_FLAGGED(ch, EPrf::kTester)) {
+	if (PRF_FLAGGED(ch, EPrf::kTester)) {
 		out << InfoStrPrefix(ch) << KICYN << "Включен режим тестирования." << KNRM << std::endl;
 		PrintSelfHitrollInfo(ch, out);
 	}
@@ -742,7 +742,7 @@ void PrintScoreBase(CharData *ch) {
 	}
 	sprintf(buf + strlen(buf), "Ваш опыт - %ld %s. ", GET_EXP(ch), desc_count(GET_EXP(ch), WHAT_POINT));
 	if (GetRealLevel(ch) < kLvlImmortal) {
-		if (GR_FLAGGED(ch, EPrf::kBlindMode)) {
+		if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {
 			sprintf(buf + strlen(buf), "\r\n");
 		}
 		sprintf(buf + strlen(buf),
@@ -826,7 +826,7 @@ void PrintScoreBase(CharData *ch) {
 	   (ch)->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, "\r\n");
 	   strcat(buf,buf2);
 	 */
-	if (GR_FLAGGED(ch, EPrf::KSummonable))
+	if (PRF_FLAGGED(ch, EPrf::KSummonable))
 		strcat(buf, "Вы можете быть призваны.\r\n");
 
 	if (ch->has_horse(false)) {
@@ -1017,16 +1017,16 @@ int CalcHitroll(CharData *ch) {
 		hr += str_bonus(GET_REAL_STR(ch), STR_TO_HIT);
 	}
 	hr += GET_REAL_HR(ch) - thaco(static_cast<int>(GET_CLASS(ch)), GetRealLevel(ch));
-	if (GR_FLAGGED(ch, EPrf::kPowerAttack)) {
+	if (PRF_FLAGGED(ch, EPrf::kPowerAttack)) {
 		hr -= 2;
 	}
-	if (GR_FLAGGED(ch, EPrf::kGreatPowerAttack)) {
+	if (PRF_FLAGGED(ch, EPrf::kGreatPowerAttack)) {
 		hr -= 4;
 	}
-	if (GR_FLAGGED(ch, EPrf::kAimingAttack)) {
+	if (PRF_FLAGGED(ch, EPrf::kAimingAttack)) {
 		hr += 2;
 	}
-	if (GR_FLAGGED(ch, EPrf::kGreatAimingAttack)) {
+	if (PRF_FLAGGED(ch, EPrf::kGreatAimingAttack)) {
 		hr += 4;
 	}
 	hr -= (ch->ahorse() ? (10 - GET_SKILL(ch, ESkill::kRiding) / 20) : 0);

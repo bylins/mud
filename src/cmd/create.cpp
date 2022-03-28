@@ -10,7 +10,7 @@ void do_create(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	char *s;
 	int spellnum, itemnum = 0;
 
-	if (IS_NPC(ch))
+	if (ch->is_npc())
 		return;
 
 	// get: blank, spell name, target name

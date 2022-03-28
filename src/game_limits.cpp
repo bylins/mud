@@ -148,7 +148,7 @@ int mana_gain(const CharData *ch) {
 	int gain = 0, restore = int_app[GET_REAL_INT(ch)].mana_per_tic, percent = 100;
 	int stopmem = false;
 
-	if (IS_NPC(ch)) {
+	if (ch->is_npc()) {
 		gain = GetRealLevel(ch);
 	} else {
 		if (!ch->desc || STATE(ch->desc) != CON_PLAYING)
@@ -219,7 +219,7 @@ int mana_gain(const CharData *ch) {
 		percent += GET_MANAREG(ch);
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_POISON) && percent > 0)
 		percent /= 4;
-	if (!IS_NPC(ch))
+	if (!ch->is_npc())
 		percent *= ch->get_cond_penalty(P_MEM_GAIN);
 	percent = MAX(0, MIN(1000, percent));
 	gain = gain * percent / 100;
@@ -231,7 +231,7 @@ int mana_gain(const CharData::shared_ptr &ch) { return mana_gain(ch.get()); }
 int hit_gain(CharData *ch) {
 	int gain = 0, restore = MAX(10, GET_REAL_CON(ch) * 3 / 2), percent = 100;
 
-	if (IS_NPC(ch))
+	if (ch->is_npc())
 		gain = GetRealLevel(ch) + GET_REAL_CON(ch);
 	else {
 		if (!ch->desc || STATE(ch->desc) != CON_PLAYING)
@@ -279,11 +279,11 @@ int hit_gain(CharData *ch) {
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_POISON) && percent > 0)
 		percent /= 4;
 
-	if (!IS_NPC(ch))
+	if (!ch->is_npc())
 		percent *= ch->get_cond_penalty(P_HIT_GAIN);
 	percent = MAX(0, MIN(250, percent));
 	gain = gain * percent / 100;
-	if (!IS_NPC(ch)) {
+	if (!ch->is_npc()) {
 		if (GET_POS(ch) == EPosition::kIncap || GET_POS(ch) == EPosition::kPerish)
 			gain = 0;
 	}
@@ -295,7 +295,7 @@ int hit_gain(const CharData::shared_ptr &ch) { return hit_gain(ch.get()); }
 int move_gain(CharData *ch) {
 	int gain = 0, restore = GET_REAL_CON(ch) / 2, percent = 100;
 
-	if (IS_NPC(ch))
+	if (ch->is_npc())
 		gain = GetRealLevel(ch);
 	else {
 		if (!ch->desc || STATE(ch->desc) != CON_PLAYING)
@@ -337,7 +337,7 @@ int move_gain(CharData *ch) {
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_POISON) && percent > 0)
 		percent /= 4;
 
-	if (!IS_NPC(ch))
+	if (!ch->is_npc())
 		percent *= ch->get_cond_penalty(P_HIT_GAIN);
 	percent = MAX(0, MIN(250, percent));
 	gain = gain * percent / 100;
@@ -623,7 +623,7 @@ void beat_points_update(int pulse) {
 
 	// only for PC's
 	character_list.foreach_on_copy([&](const auto &i) {
-		if (IS_NPC(i))
+		if (i->is_npc())
 			return;
 
 		if (IN_ROOM(i) == kNowhere) {
@@ -759,7 +759,7 @@ void gain_exp(CharData *ch, int gain) {
 	int num_levels = 0;
 	char buf[128];
 
-	if (IS_NPC(ch)) {
+	if (ch->is_npc()) {
 		ch->set_exp(ch->get_exp() + gain);
 		return;
 	} else {
@@ -767,7 +767,7 @@ void gain_exp(CharData *ch, int gain) {
 		ZoneExpStat::add(zone_table[world[ch->in_room]->zone_rn].vnum, gain);
 	}
 
-	if (!IS_NPC(ch) && ((GetRealLevel(ch) < 1 || GetRealLevel(ch) >= kLvlImmortal)))
+	if (!ch->is_npc() && ((GetRealLevel(ch) < 1 || GetRealLevel(ch) >= kLvlImmortal)))
 		return;
 
 	if (gain > 0 && GetRealLevel(ch) < kLvlImmortal) {
@@ -841,7 +841,7 @@ void gain_exp_regardless(CharData *ch, int gain) {
 	int num_levels = 0;
 
 	ch->set_exp(ch->get_exp() + gain);
-	if (!IS_NPC(ch)) {
+	if (!ch->is_npc()) {
 		if (gain > 0) {
 			while (GetRealLevel(ch) < kLvlImplementator && GET_EXP(ch) >= level_exp(ch, GetRealLevel(ch) + 1)) {
 				ch->set_level(ch->get_level() + 1);
@@ -893,7 +893,7 @@ void gain_condition(CharData *ch, unsigned condition, int value) {
 		return;
 	}
 
-	if (IS_NPC(ch) || GET_COND(ch, condition) == -1) {
+	if (ch->is_npc() || GET_COND(ch, condition) == -1) {
 		return;
 	}
 
@@ -1231,7 +1231,7 @@ void clan_chest_invoice(ObjData *j) {
 		if (d->character
 			&& STATE(d) == CON_PLAYING
 			&& !AFF_FLAGGED(d->character, EAffectFlag::AFF_DEAFNESS)
-			&& GR_FLAGGED(d->character, EPrf::kDecayMode)
+			&& PRF_FLAGGED(d->character, EPrf::kDecayMode)
 			&& CLAN(d->character)
 			&& CLAN(d->character)->GetRent() == room) {
 			send_to_char(d->character.get(), "[Хранилище]: %s'%s%s рассыпал%s в прах'%s\r\n",
@@ -1574,7 +1574,7 @@ void point_update() {
 	for (const auto &character : character_list) {
 		const auto i = character.get();
 
-		if (IS_NPC(i)) {
+		if (i->is_npc()) {
 			i->inc_restore_timer(kSecsPerMudHour);
 		}
 
@@ -1587,7 +1587,7 @@ void point_update() {
 			act("$n попытал$u очнуться, но снова заснул$a и упал$a наземь.", true, i, 0, 0, kToRoom);
 		}
 
-		if (!IS_NPC(i)) {
+		if (!i->is_npc()) {
 			gain_condition(i, DRUNK, -1);
 
 			if (average_day_temp() < -20) {
@@ -1613,7 +1613,7 @@ void point_update() {
 
 		if (GET_POS(i) >= EPosition::kStun)    // Restore hit points
 		{
-			if (IS_NPC(i)
+			if (i->is_npc()
 				|| !UPDATE_PC_ON_BEAT) {
 				const int count = hit_gain(i);
 				if (GET_HIT(i) < GET_REAL_MAX_HIT(i)) {
@@ -1622,7 +1622,7 @@ void point_update() {
 			}
 
 			// Restore mobs
-			if (IS_NPC(i)
+			if (i->is_npc()
 				&& !i->get_fighting())    // Restore horse
 			{
 				if (IS_HORSE(i)) {
@@ -1710,7 +1710,7 @@ void point_update() {
 			}
 
 			// Restore moves
-			if (IS_NPC(i)
+			if (i->is_npc()
 				|| !UPDATE_PC_ON_BEAT) {
 				if (GET_MOVE(i) < GET_REAL_MAX_MOVE(i)) {
 					GET_MOVE(i) = MIN(GET_MOVE(i) + move_gain(i), GET_REAL_MAX_MOVE(i));
@@ -1739,9 +1739,9 @@ void point_update() {
 
 		update_char_objects(i);
 
-		if (!IS_NPC(i)
+		if (!i->is_npc()
 			&& GetRealLevel(i) < idle_max_level
-			&& !GR_FLAGGED(i, EPrf::kCoderinfo)) {
+			&& !PRF_FLAGGED(i, EPrf::kCoderinfo)) {
 			check_idling(i);
 		}
 	});

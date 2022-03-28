@@ -642,7 +642,7 @@ int other_pc_in_group(CharData *ch) {
 	CharData *k = ch->has_master() ? ch->get_master() : ch;
 	for (Follower *f = k->followers; f; f = f->next) {
 		if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
-			&& !IS_NPC(f->ch)
+			&& !f->ch->is_npc()
 			&& IN_ROOM(f->ch) == ch->in_room) {
 			++num;
 		}
@@ -651,7 +651,7 @@ int other_pc_in_group(CharData *ch) {
 }
 
 void split_or_clan_tax(CharData *ch, long amount) {
-	if (IS_AFFECTED(ch, AFF_GROUP) && (other_pc_in_group(ch) > 0) && GR_FLAGGED(ch, EPrf::kAutosplit)) {
+	if (IS_AFFECTED(ch, AFF_GROUP) && (other_pc_in_group(ch) > 0) && PRF_FLAGGED(ch, EPrf::kAutosplit)) {
 		char buf_[kMaxInputLength];
 		snprintf(buf_, sizeof(buf_), "%ld", amount);
 		do_split(ch, buf_, 0, 0);
@@ -701,7 +701,7 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 
 	// все, что делится на группу - идет через налог (из кошельков не делится)
 	if (IS_AFFECTED(ch, AFF_GROUP) && other_pc_in_group(ch) > 0
-		&& GR_FLAGGED(ch, EPrf::kAutosplit)
+		&& PRF_FLAGGED(ch, EPrf::kAutosplit)
 		&& (!cont || !system_obj::is_purse(cont))) {
 		// добавляем бабло, пишем в лог, клан-налог снимаем
 		// только по факту деления на группу в do_split()
@@ -821,7 +821,7 @@ void get_from_container(CharData *ch, ObjData *cont, char *arg, int mode, int ho
 				if (autoloot
 					&& (GET_OBJ_TYPE(obj) == ObjData::ITEM_INGREDIENT
 						|| GET_OBJ_TYPE(obj) == ObjData::ITEM_MING)
-					&& GR_FLAGGED(ch, EPrf::kNoIngrLoot)) {
+					&& PRF_FLAGGED(ch, EPrf::kNoIngrLoot)) {
 					continue;
 				}
 				found = 1;
@@ -1106,7 +1106,7 @@ void perform_drop_gold(CharData *ch, int amount) {
 		}
 
 		// Если этот моб трупа не оставит, то не выводить сообщение иначе ужасно коряво смотрится в бою и в тригах
-		if (!IS_NPC(ch) || !MOB_FLAGGED(ch, MOB_CORPSE)) {
+		if (!ch->is_npc() || !MOB_FLAGGED(ch, MOB_CORPSE)) {
 			send_to_char(ch, "Вы бросили %d %s на землю.\r\n",
 						 amount, desc_count(amount, WHAT_MONEYu));
 			sprintf(buf,
@@ -1265,7 +1265,7 @@ void perform_give(CharData *ch, CharData *vict, ObjData *obj) {
 	// передача объектов-денег и кошельков
 	get_check_money(vict, obj, 0);
 
-	if (!IS_NPC(ch) && !IS_NPC(vict)) {
+	if (!ch->is_npc() && !vict->is_npc()) {
 		ObjSaveSync::add(ch->get_uid(), vict->get_uid(), ObjSaveSync::CHAR_SAVE);
 	}
 }
@@ -1292,7 +1292,7 @@ void perform_give_gold(CharData *ch, CharData *vict, int amount) {
 		send_to_char("Ха-ха-ха (3 раза)...\r\n", ch);
 		return;
 	}
-	if (ch->get_gold() < amount && (IS_NPC(ch) || !IS_IMPL(ch))) {
+	if (ch->get_gold() < amount && (ch->is_npc() || !IS_IMPL(ch))) {
 		send_to_char("И откуда вы их взять собираетесь?\r\n", ch);
 		return;
 	}
@@ -1305,7 +1305,7 @@ void perform_give_gold(CharData *ch, CharData *vict, int amount) {
 	act(buf, false, ch, 0, vict, kToVict);
 	sprintf(buf, "$n дал$g %s $N2.", money_desc(amount, 3));
 	act(buf, true, ch, 0, vict, kToNotVict | kToArenaListen);
-	if (!(IS_NPC(ch) || IS_NPC(vict))) {
+	if (!(ch->is_npc() || vict->is_npc())) {
 		sprintf(buf,
 				"<%s> {%d} передал %d кун при личной встрече c %s.",
 				ch->get_name().c_str(),
@@ -1314,11 +1314,11 @@ void perform_give_gold(CharData *ch, CharData *vict, int amount) {
 				GET_PAD(vict, 4));
 		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 	}
-	if (IS_NPC(ch) || !IS_IMPL(ch)) {
+	if (ch->is_npc() || !IS_IMPL(ch)) {
 		ch->remove_gold(amount);
 	}
 	// если денег дает моб - снимаем клан-налог
-	if (IS_NPC(ch) && !IS_CHARMICE(ch)) {
+	if (ch->is_npc() && !IS_CHARMICE(ch)) {
 		vict->add_gold(amount);
 		split_or_clan_tax(vict, amount);
 	} else {
@@ -1332,7 +1332,7 @@ void perform_give_nogat(CharData *ch, CharData *vict, int amount) {
 		send_to_char("Ха-ха-ха (3 раза)...\r\n", ch);
 		return;
 	}
-	if (ch->get_nogata() < amount && (IS_NPC(ch) || !IS_IMPL(ch))) {
+	if (ch->get_nogata() < amount && (ch->is_npc() || !IS_IMPL(ch))) {
 		send_to_char("И откуда ты их взять собирался?\r\n", ch);
 		return;
 	}
@@ -1348,7 +1348,7 @@ void perform_give_nogat(CharData *ch, CharData *vict, int amount) {
 	else
 		sprintf(buf, "$n дал$g %s $N2.", desc_count(amount, WHAT_NOGATAu));
 	act(buf, true, ch, 0, vict, kToNotVict | kToArenaListen);
-	if (IS_NPC(ch) || !IS_IMPL(ch)) {
+	if (ch->is_npc() || !IS_IMPL(ch)) {
 		ch->sub_nogata(amount);
 	}
 	vict->add_nogata(amount);
@@ -1507,13 +1507,13 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			return;
 		}
 	}
-	if (!IS_NPC(ch)
+	if (!ch->is_npc()
 		&& subcmd == SCMD_DEVOUR) {
 		send_to_char("Вы же не зверь какой, пожирать трупы!\r\n", ch);
 		return;
 	}
 
-	if (IS_NPC(ch))        // Cannot use GET_COND() on mobs.
+	if (ch->is_npc())        // Cannot use GET_COND() on mobs.
 		return;
 
 	if (!*arg) {
@@ -1900,7 +1900,7 @@ void do_wear(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	two_arguments(argument, arg1, arg2);
 
-	if (IS_NPC(ch)
+	if (ch->is_npc()
 		&& AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 		&& (!NPC_FLAGGED(ch, NPC_ARMORING)
 			|| MOB_FLAGGED(ch, MOB_RESURRECTED))) {
@@ -1964,7 +1964,7 @@ void do_wield(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	ObjData *obj;
 	int wear;
 
-	if (IS_NPC(ch) && (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
+	if (ch->is_npc() && (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 		&& (!NPC_FLAGGED(ch, NPC_WIELDING) || MOB_FLAGGED(ch, MOB_RESURRECTED))))
 		return;
 
@@ -1985,7 +1985,7 @@ void do_wield(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			send_to_char("Вы не можете вооружиться этим.\r\n", ch);
 		} else if (GET_OBJ_TYPE(obj) != ObjData::ITEM_WEAPON) {
 			send_to_char("Это не оружие.\r\n", ch);
-		} else if (IS_NPC(ch)
+		} else if (ch->is_npc()
 			&& AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 			&& MOB_FLAGGED(ch, MOB_CORPSE)) {
 			send_to_char("Ожившие трупы не могут вооружаться.\r\n", ch);
@@ -2045,7 +2045,7 @@ void do_grab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	ObjData *obj;
 	one_argument(argument, arg);
 
-	if (IS_NPC(ch) && !NPC_FLAGGED(ch, NPC_WIELDING))
+	if (ch->is_npc() && !NPC_FLAGGED(ch, NPC_WIELDING))
 		return;
 
 	if (ch->is_morphed()) {
@@ -2079,7 +2079,7 @@ void do_grab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 			}
 
-			if (IS_NPC(ch)
+			if (ch->is_npc()
 				&& AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 				&& MOB_FLAGGED(ch, MOB_CORPSE)) {
 				send_to_char("Ожившие трупы не могут вооружаться.\r\n", ch);
@@ -2554,7 +2554,7 @@ void do_extinguish(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			"\n"
 		};
 
-	if (IS_NPC(ch)) {
+	if (ch->is_npc()) {
 		return;
 	}
 
@@ -2611,7 +2611,7 @@ void do_extinguish(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (aff_i != room->affected.end()
 				&& (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_MAGIC)
 					|| IS_IMMORTAL(ch)
-					|| GR_FLAGGED(ch, EPrf::kCoderinfo))) {
+					|| PRF_FLAGGED(ch, EPrf::kCoderinfo))) {
 				send_to_char("Шаркнув несколько раз по земле, вы стерли светящуюся надпись.\r\n", ch);
 				act("$n шаркнул$g несколько раз по светящимся рунам, полностью их уничтожив.",
 					false,
@@ -2677,7 +2677,7 @@ void do_firstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act("$N сражается, $M не до ваших телячьих нежностей.", false, ch, 0, vict, kToChar);
 		return;
 	}
-	if (IS_NPC(vict) && !IS_CHARMICE(vict)) {
+	if (vict->is_npc() && !IS_CHARMICE(vict)) {
 		send_to_char("Вы не красный крест лечить всех подряд.\r\n", ch);
 		return;
 	}
@@ -2701,7 +2701,7 @@ void do_firstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			&& can_use_feat(ch, HEALER_FEAT))) {
 		need = true;
 		if (success) {
-			if (!GR_FLAGGED(ch, EPrf::kTester)) {
+			if (!PRF_FLAGGED(ch, EPrf::kTester)) {
 				int dif = GET_REAL_MAX_HIT(vict) - GET_HIT(vict);
 				int add = MIN(dif, (dif * (prob - percent) / 100) + 1);
 				GET_HIT(vict) += add;
@@ -2717,7 +2717,7 @@ void do_firstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	int count = 0;
-	if (GR_FLAGGED(ch, EPrf::kTester)) {
+	if (PRF_FLAGGED(ch, EPrf::kTester)) {
 		count = (GET_SKILL(ch, ESkill::kFirstAid) - 20) / 30;
 		send_to_char(ch, "Снимаю %d аффектов\r\n", count);
 
@@ -3184,7 +3184,7 @@ void do_custom_label(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 	char *objname = nullptr;
 	char *labels = nullptr;
 
-	if (IS_NPC(ch))
+	if (ch->is_npc())
 		return;
 
 	half_chop(argument, arg1, arg2);

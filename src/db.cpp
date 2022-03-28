@@ -1149,7 +1149,7 @@ void do_reboot(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		load_mobraces();
 	else if (!str_cmp(arg, "morphs"))
 		load_morphs();
-	else if (!str_cmp(arg, "depot") && GR_FLAGGED(ch, EPrf::kCoderinfo)) {
+	else if (!str_cmp(arg, "depot") && PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
 		skip_spaces(&argument);
 		if (*argument) {
 			long uid = GetUniqueByName(std::string(argument));
@@ -1173,7 +1173,7 @@ void do_reboot(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (!str_cmp(arg, "celebrates")) {
 		//Celebrates::load(XMLLoad(LIB_MISC CELEBRATES_FILE, CELEBRATES_MAIN_TAG, CELEBRATES_ERROR_STR));
 		Celebrates::load();
-	} else if (!str_cmp(arg, "setsdrop") && GR_FLAGGED(ch, EPrf::kCoderinfo)) {
+	} else if (!str_cmp(arg, "setsdrop") && PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
 		skip_spaces(&argument);
 		if (*argument && is_number(argument)) {
 			SetsDrop::reload(atoi(argument));
@@ -3723,7 +3723,7 @@ bool can_be_reset(ZoneRnum zone) {
 }
 
 void paste_mob(CharData *ch, RoomRnum room) {
-	if (!IS_NPC(ch) || ch->get_fighting() || GET_POS(ch) < EPosition::kStun)
+	if (!ch->is_npc() || ch->get_fighting() || GET_POS(ch) < EPosition::kStun)
 		return;
 	if (IS_CHARMICE(ch)
 		|| AFF_FLAGGED(ch, EAffectFlag::AFF_HORSE)
@@ -4293,14 +4293,14 @@ void ZoneReset::reset_zone_essential() {
 					leader = nullptr;
 					if (ZCMD.arg1 >= FIRST_ROOM && ZCMD.arg1 <= top_of_world) {
 						for (const auto ch : world[ZCMD.arg1]->people) {
-							if (IS_NPC(ch) && GET_MOB_RNUM(ch) == ZCMD.arg2) {
+							if (ch->is_npc() && GET_MOB_RNUM(ch) == ZCMD.arg2) {
 								leader = ch;
 							}
 						}
 
 						if (leader) {
 							for (const auto ch : world[ZCMD.arg1]->people) {
-								if (IS_NPC(ch)
+								if (ch->is_npc()
 									&& GET_MOB_RNUM(ch) == ZCMD.arg3
 									&& leader != ch
 									&& !ch->makes_loop(leader)) {
@@ -4746,7 +4746,7 @@ bool is_empty(ZoneRnum zone_nr) {
 	for (; rnum_start <= rnum_stop; rnum_start++) {
 // num_pc_in_room() использовать нельзя, т.к. считает вместе с иммами.
 		for (const auto c : world[rnum_start]->people) {
-			if (!IS_NPC(c) && (GetRealLevel(c) < kLvlImmortal)) {
+			if (!c->is_npc() && (GetRealLevel(c) < kLvlImmortal)) {
 				return false;
 			}
 		}
@@ -5033,7 +5033,7 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	int i, place_of_destination, load_room = kNowhere;
 	const char *remort_msg2 = "$n вспыхнул$g ослепительным пламенем и пропал$g!\r\n";
 
-	if (IS_NPC(ch) || IS_IMMORTAL(ch)) {
+	if (ch->is_npc() || IS_IMMORTAL(ch)) {
 		send_to_char("Вам это, похоже, совсем ни к чему.\r\n", ch);
 		return;
 	}
@@ -5041,7 +5041,7 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		send_to_char("ЧАВО???\r\n", ch);
 		return;
 	}
-	if (Remort::need_torc(ch) && !GR_FLAGGED(ch, EPrf::kCanRemort)) {
+	if (Remort::need_torc(ch) && !PRF_FLAGGED(ch, EPrf::kCanRemort)) {
 		send_to_char(ch,
 					 "Вы должны подтвердить свои заслуги, пожертвовав Богам достаточное количество гривен.\r\n"
 					 "%s\r\n", Remort::WHERE_TO_REMORT_STR.c_str());
@@ -5147,16 +5147,16 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	GET_WIMP_LEV(ch) = 0;
 	GET_AC(ch) = 100;
 	GET_LOADROOM(ch) = calc_loadroom(ch, place_of_destination);
-	GR_FLAGS(ch).unset(EPrf::KSummonable);
-	GR_FLAGS(ch).unset(EPrf::kAwake);
-	GR_FLAGS(ch).unset(EPrf::kPunctual);
-	GR_FLAGS(ch).unset(EPrf::kPowerAttack);
-	GR_FLAGS(ch).unset(EPrf::kGreatPowerAttack);
-	GR_FLAGS(ch).unset(EPrf::kAwake);
-	GR_FLAGS(ch).unset(EPrf::kIronWind);
-	GR_FLAGS(ch).unset(EPrf::kDoubleThrow);
-	GR_FLAGS(ch).unset(EPrf::kTripleThrow);
-	GR_FLAGS(ch).unset(EPrf::kShadowThrow);
+	PRF_FLAGS(ch).unset(EPrf::KSummonable);
+	PRF_FLAGS(ch).unset(EPrf::kAwake);
+	PRF_FLAGS(ch).unset(EPrf::kPunctual);
+	PRF_FLAGS(ch).unset(EPrf::kPowerAttack);
+	PRF_FLAGS(ch).unset(EPrf::kGreatPowerAttack);
+	PRF_FLAGS(ch).unset(EPrf::kAwake);
+	PRF_FLAGS(ch).unset(EPrf::kIronWind);
+	PRF_FLAGS(ch).unset(EPrf::kDoubleThrow);
+	PRF_FLAGS(ch).unset(EPrf::kTripleThrow);
+	PRF_FLAGS(ch).unset(EPrf::kShadowThrow);
 	// Убираем все заученные порталы
 	check_portals(ch);
 	if (ch->get_protecting()) {
@@ -5208,7 +5208,7 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	remove_rune_label(ch);
 
 	// сброс всего, связанного с гривнами (замакс сохраняем)
-	GR_FLAGS(ch).unset(EPrf::kCanRemort);
+	PRF_FLAGS(ch).unset(EPrf::kCanRemort);
 	ch->set_ext_money(ExtMoney::kTorcGold, 0);
 	ch->set_ext_money(ExtMoney::kTorcSilver, 0);
 	ch->set_ext_money(ExtMoney::kTorcBronze, 0);
@@ -5762,9 +5762,9 @@ void set_flag(CharData *ch) {
 	utils::ConvertToLow(mail);
 	auto i = std::find(block_list.begin(), block_list.end(), mail);
 	if (i != block_list.end()) {
-		GR_FLAGS(ch).set(EPrf::kStopOfftop);
+		PRF_FLAGS(ch).set(EPrf::kStopOfftop);
 	} else {
-		GR_FLAGS(ch).unset(EPrf::kStopOfftop);
+		PRF_FLAGS(ch).unset(EPrf::kStopOfftop);
 	}
 }
 

@@ -301,7 +301,7 @@ int cast_potion(CharData *ch, ObjData *jar) {
 
 int do_drink_check(CharData *ch, ObjData *jar) {
 	//Проверка в бою?
-	if (GR_FLAGS(ch).get(EPrf::kIronWind)) {
+	if (PRF_FLAGS(ch).get(EPrf::kIronWind)) {
 		send_to_char("Не стоит отвлекаться в бою!\r\n", ch);
 		return 0;
 	}
@@ -501,7 +501,7 @@ void do_drink(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	int amount;
 
 	//мобы не пьют
-	if (IS_NPC(ch))
+	if (ch->is_npc())
 		return;
 
 	one_argument(argument, arg);
@@ -599,7 +599,7 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int amount, weight, prob, percent, duration;
 	int on_ground = 0;
 
-	if (IS_NPC(ch))        // Cannot use GET_COND() on mobs. //
+	if (ch->is_npc())        // Cannot use GET_COND() on mobs. //
 		return;
 
 	if (ch->get_fighting()) {

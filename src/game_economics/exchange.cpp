@@ -108,13 +108,13 @@ char info_message[] = ("базар выставить <предмет> <цена
 
 int exchange(CharData *ch, void * /*me*/, int cmd, char *argument) {
 	if (CMD_IS("exchange") || CMD_IS("базар")) {
-		if (IS_NPC(ch))
+		if (ch->is_npc())
 			return 0;
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)) {
 			send_to_char("Вы немы, как рыба об лед.\r\n", ch);
 			return 1;
 		}
-		if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB)) {
+		if (!ch->is_npc() && PLR_FLAGGED(ch, PLR_DUMB)) {
 			send_to_char("Вам запрещено общаться с торговцами!\r\n", ch);
 			return 1;
 		}
@@ -544,7 +544,7 @@ int exchange_identify(CharData *ch, char *arg) {
 
 CharData *get_char_by_id(int id) {
 	for (const auto &i : character_list) {
-		if (!IS_NPC(i) && GET_IDNUM(i) == id) {
+		if (!i->is_npc() && GET_IDNUM(i) == id) {
 			return i.get();
 		}
 	}
@@ -1268,11 +1268,11 @@ void message_exchange(char *message, CharData *ch, ExchangeItem *j) {
 		if (STATE(i) == CON_PLAYING
 			&& (!ch || i != ch->desc)
 			&& i->character
-			&& !GR_FLAGGED(i->character, EPrf::kNoExchange)
+			&& !PRF_FLAGGED(i->character, EPrf::kNoExchange)
 			&& !PLR_FLAGGED(i->character, PLR_WRITING)
 			&& !ROOM_FLAGGED(IN_ROOM(i->character), ROOM_SOUNDPROOF)
 			&& GET_POS(i->character) > EPosition::kSleep) {
-			if (!GR_FLAGGED(i->character, EPrf::kNoIngrMode)
+			if (!PRF_FLAGGED(i->character, EPrf::kNoIngrMode)
 				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ObjData::ITEM_INGREDIENT
 					|| GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ObjData::ITEM_MING)) {
 				continue;
@@ -1536,7 +1536,7 @@ void do_exchange(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	char *arg = str_dup(argument);
 	argument = one_argument(argument, arg1);
 
-	if (IS_NPC(ch)) {
+	if (ch->is_npc()) {
 		send_to_char("Торговать?! Да вы же не человек!\r\n", ch);
 	} else if ((utils::IsAbbrev(arg1, "выставить") || utils::IsAbbrev(arg1, "exhibit")
 		|| utils::IsAbbrev(arg1, "цена") || utils::IsAbbrev(arg1, "cost")

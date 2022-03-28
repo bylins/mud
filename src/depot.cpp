@@ -887,7 +887,7 @@ DepotListType::iterator create_depot(long uid, CharData *ch = 0) {
 
 // * Выводим персональное хранилище вместо просмотра контейнера.
 void show_depot(CharData *ch) {
-	if (IS_NPC(ch)) return;
+	if (ch->is_npc()) return;
 
 #ifndef TEST_BUILD
 	if (IS_IMMORTAL(ch) && !IS_IMPL(ch)) {
@@ -971,7 +971,7 @@ unsigned count_inrg(const ObjListType &cont) {
 
 // * Кладем шмотку в хранилище (мобов посылаем лесом), деньги автоматом на счет в банке.
 bool put_depot(CharData *ch, const ObjData::shared_ptr &obj) {
-	if (IS_NPC(ch)) return 0;
+	if (ch->is_npc()) return 0;
 
 #ifndef TEST_BUILD
 	if (IS_IMMORTAL(ch) && !IS_IMPL(ch)) {
@@ -1042,7 +1042,7 @@ bool put_depot(CharData *ch, const ObjData::shared_ptr &obj) {
 
 // * Взятие чего-то из персонального хранилища.
 void take_depot(CharData *vict, char *arg, int howmany) {
-	if (IS_NPC(vict)) return;
+	if (vict->is_npc()) return;
 
 #ifndef TEST_BUILD
 	if (IS_IMMORTAL(vict) && !IS_IMPL(vict)) {

@@ -281,7 +281,7 @@ bool IsAbleToDoPrivilege(CharData *ch, const std::string &cmd_name, int cmd_numb
 	if (check_level && !mode && cmd_info[cmd_number].minimum_level < kLvlImmortal
 		&& GetRealLevel(ch) >= cmd_info[cmd_number].minimum_level)
 		return true;
-	if (IS_NPC(ch)) return false;
+	if (ch->is_npc()) return false;
 #ifdef TEST_BUILD
 	if (IS_IMMORTAL(ch))
 		return true;

@@ -65,7 +65,7 @@ void go_autoassist(CharData *ch) {
 
 	buf2[0] = '\0';
 	for (k = ch_lider->followers; k; k = k->next) {
-		if (GR_FLAGGED(k->ch, EPrf::kAutoassist) &&
+		if (PRF_FLAGGED(k->ch, EPrf::kAutoassist) &&
 			(IN_ROOM(k->ch) == IN_ROOM(ch)) && !k->ch->get_fighting() &&
 			(GET_POS(k->ch) == EPosition::kStand) && !CHECK_WAIT(k->ch)) {
 			// Здесь проверяем на кастеров
@@ -123,7 +123,7 @@ void set_battle_pos(CharData *ch) {
 			if (GET_WAIT(ch) <= 0 &&
 				!GET_MOB_HOLD(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP)
 				&& !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
-				if (IS_NPC(ch)) {
+				if (ch->is_npc()) {
 					act("$n поднял$u.", false, ch, 0, 0, kToRoom | kToArenaListen);
 					GET_POS(ch) = EPosition::kFight;
 				} else if (GET_POS(ch) == EPosition::kSleep) {
@@ -149,7 +149,7 @@ void restore_battle_pos(CharData *ch) {
 		case EPosition::kRest:
 		case EPosition::kSit:
 		case EPosition::kSleep:
-			if (IS_NPC(ch) &&
+			if (ch->is_npc() &&
 				GET_WAIT(ch) <= 0 &&
 				!GET_MOB_HOLD(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP)
 				&& !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
@@ -175,7 +175,7 @@ void set_fighting(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if ((IS_NPC(ch) && MOB_FLAGGED(ch, MOB_NOFIGHT)) || (IS_NPC(vict) && MOB_FLAGGED(vict, MOB_NOFIGHT)))
+	if ((ch->is_npc() && MOB_FLAGGED(ch, MOB_NOFIGHT)) || (vict->is_npc() && MOB_FLAGGED(vict, MOB_NOFIGHT)))
 		return;
 
 	// if (AFF_FLAGGED(ch,AFF_STOPFIGHT))
@@ -212,27 +212,27 @@ void set_fighting(CharData *ch, CharData *vict) {
 	// если до начала боя на мобе есть лаг, то мы его выравниваем до целых
 	// раундов в большую сторону (для подножки, должно давать чару зазор в две
 	// секунды после подножки, чтобы моб всеравно встал только на 3й раунд)
-	if (IS_NPC(ch) && GET_WAIT(ch) > 0) {
+	if (ch->is_npc() && GET_WAIT(ch) > 0) {
 //		div_t tmp = div(static_cast<const int>(ch->get_wait()), static_cast<const int>(kPulseViolence));
 		auto tmp = div(ch->get_wait(), kPulseViolence);
 		if (tmp.rem > 0) {
 			WAIT_STATE(ch, (tmp.quot + 1) * kPulseViolence);
 		}
 	}
-	if (!IS_NPC(ch) && (!ch->get_skill(ESkill::kAwake))) {
-		GR_FLAGS(ch).unset(EPrf::kAwake);
+	if (!ch->is_npc() && (!ch->get_skill(ESkill::kAwake))) {
+		PRF_FLAGS(ch).unset(EPrf::kAwake);
 	}
 
-	if (!IS_NPC(ch) && (!ch->get_skill(ESkill::kPunctual))) {
-		GR_FLAGS(ch).unset(EPrf::kPunctual);
+	if (!ch->is_npc() && (!ch->get_skill(ESkill::kPunctual))) {
+		PRF_FLAGS(ch).unset(EPrf::kPunctual);
 	}
 
 	// Set combat style
 	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_COURAGE) && !AFF_FLAGGED(ch, EAffectFlag::AFF_DRUNKED)
 		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_ABSTINENT)) {
-		if (GR_FLAGGED(ch, EPrf::kPunctual))
+		if (PRF_FLAGGED(ch, EPrf::kPunctual))
 			SET_AF_BATTLE(ch, kEafPunctual);
-		else if (GR_FLAGGED(ch, EPrf::kAwake))
+		else if (PRF_FLAGGED(ch, EPrf::kAwake))
 			SET_AF_BATTLE(ch, kEafAwake);
 	}
 
@@ -295,8 +295,8 @@ void stop_fighting(CharData *ch, int switch_others) {
 
 		update_pos(ch);
 		// проверка скилла "железный ветер" - снимаем флаг по окончанию боя
-		if ((ch->get_fighting() == nullptr) && GR_FLAGS(ch).get(EPrf::kIronWind)) {
-			GR_FLAGS(ch).unset(EPrf::kIronWind);
+		if ((ch->get_fighting() == nullptr) && PRF_FLAGS(ch).get(EPrf::kIronWind)) {
+			PRF_FLAGS(ch).unset(EPrf::kIronWind);
 			if (GET_POS(ch) > EPosition::kIncap) {
 				send_to_char("Безумие боя отпустило вас, и враз навалилась усталость...\r\n", ch);
 				act("$n шумно выдохнул$g и остановил$u, переводя дух после боя.",
@@ -358,11 +358,11 @@ int in_same_battle(CharData *npc, CharData *pc, int opponent) {
 
 		ch_master = ch->has_master() ? ch->get_master() : ch;
 		ch_friend_npc = (ch_master == npc_master) ||
-			(IS_NPC(ch) && IS_NPC(npc) &&
+			(ch->is_npc() && npc->is_npc() &&
 				!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && !AFF_FLAGGED(npc, EAffectFlag::AFF_CHARM) &&
 				!AFF_FLAGGED(ch, EAffectFlag::AFF_HORSE) && !AFF_FLAGGED(npc, EAffectFlag::AFF_HORSE));
 		ch_friend_pc = (ch_master == pc_master) ||
-			(IS_NPC(ch) && IS_NPC(pc) &&
+			(ch->is_npc() && pc->is_npc() &&
 				!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && !AFF_FLAGGED(pc, EAffectFlag::AFF_CHARM) &&
 				!AFF_FLAGGED(ch, EAffectFlag::AFF_HORSE) && !AFF_FLAGGED(pc, EAffectFlag::AFF_HORSE));
 		if (ch->get_fighting() == pc && ch_friend_npc)    // Friend NPC fight PC - opponent
@@ -376,11 +376,11 @@ int in_same_battle(CharData *npc, CharData *pc, int opponent) {
 		vict = ch->get_fighting();
 		vict_master = vict->has_master() ? vict->get_master() : vict;
 		vict_friend_npc = (vict_master == npc_master) ||
-			(IS_NPC(vict) && IS_NPC(npc) &&
+			(vict->is_npc() && npc->is_npc() &&
 				!AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) && !AFF_FLAGGED(npc, EAffectFlag::AFF_CHARM) &&
 				!AFF_FLAGGED(vict, EAffectFlag::AFF_HORSE) && !AFF_FLAGGED(npc, EAffectFlag::AFF_HORSE));
 		vict_friend_pc = (vict_master == pc_master) ||
-			(IS_NPC(vict) && IS_NPC(pc) &&
+			(vict->is_npc() && pc->is_npc() &&
 				!AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) && !AFF_FLAGGED(pc, EAffectFlag::AFF_CHARM) &&
 				!AFF_FLAGGED(vict, EAffectFlag::AFF_HORSE) && !AFF_FLAGGED(pc, EAffectFlag::AFF_HORSE));
 		if (ch_friend_npc && vict_friend_pc)
@@ -424,11 +424,11 @@ CharData *find_friend_cure(CharData *caster, int spellnum) {
 	}
 
 	for (const auto vict : world[IN_ROOM(caster)]->people) {
-		if (!IS_NPC(vict)
+		if (!vict->is_npc()
 			|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
 			|| ((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST) || MOB_FLAGGED(vict, MOB_PLAYER_SUMMON)) // (Кудояр)
 				&& vict->has_master()
-				&& !IS_NPC(vict->get_master()))
+				&& !vict->get_master()->is_npc())
 			|| !CAN_SEE(caster, vict)) {
 			continue;
 		}
@@ -496,11 +496,11 @@ CharData *find_friend(CharData *caster, int spellnum) {
 
 	if (!AFF_USED.empty()) {
 		for (const auto vict : world[IN_ROOM(caster)]->people) {
-			if (!IS_NPC(vict)
+			if (!vict->is_npc()
 				|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
 				|| ((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST) || MOB_FLAGGED(vict, MOB_PLAYER_SUMMON)) // (Кудояр)
 					&& vict->get_master()
-					&& !IS_NPC(vict->get_master()))
+					&& !vict->get_master()->is_npc())
 				|| !CAN_SEE(caster, vict)) {
 				continue;
 			}
@@ -571,10 +571,10 @@ CharData *find_caster(CharData *caster, int spellnum) {
 
 	if (!AFF_USED.empty()) {
 		for (const auto vict : world[IN_ROOM(caster)]->people) {
-			if (!IS_NPC(vict)
+			if (!vict->is_npc()
 				|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
 				|| ((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST) || MOB_FLAGGED(vict, MOB_PLAYER_SUMMON)) // (Кудояр)
-					&& (vict->get_master() && !IS_NPC(vict->get_master())))
+					&& (vict->get_master() && !vict->get_master()->is_npc()))
 				|| !CAN_SEE(caster, vict)) {
 				continue;
 			}
@@ -655,11 +655,11 @@ CharData *find_affectee(CharData *caster, int spellnum) {
 
 	if (GET_REAL_INT(caster) > number(5, 15)) {
 		for (const auto vict : world[IN_ROOM(caster)]->people) {
-			if (!IS_NPC(vict)
+			if (!vict->is_npc()
 				|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
 				|| ((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST) || MOB_FLAGGED(vict, MOB_PLAYER_SUMMON)) // (Кудояр)
 					&& vict->has_master()
-					&& !IS_NPC(vict->get_master()))
+					&& !vict->get_master()->is_npc())
 				|| !CAN_SEE(caster, vict)) {
 				continue;
 			}
@@ -706,11 +706,11 @@ CharData *find_opp_affectee(CharData *caster, int spellnum) {
 
 	if (GET_REAL_INT(caster) > number(10, 20)) {
 		for (const auto vict : world[caster->in_room]->people) {
-			if ((IS_NPC(vict)
+			if ((vict->is_npc()
 				&& !((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST) || MOB_FLAGGED(vict, MOB_PLAYER_SUMMON) // (Кудояр)
 					|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM))
 					&& vict->has_master()
-					&& !IS_NPC(vict->get_master())))
+					&& !vict->get_master()->is_npc()))
 				|| !CAN_SEE(caster, vict)) {
 				continue;
 			}
@@ -743,10 +743,10 @@ CharData *find_opp_caster(CharData *caster) {
 	int vict_val = 0;
 
 	for (const auto vict : world[IN_ROOM(caster)]->people) {
-		if (IS_NPC(vict)
+		if (vict->is_npc()
 			&& !((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST) || MOB_FLAGGED(vict, MOB_PLAYER_SUMMON)) // Кудояр
 				&& vict->has_master()
-				&& !IS_NPC(vict->get_master()))) {
+				&& !vict->get_master()->is_npc())) {
 			continue;
 		}
 		if ((!vict->get_fighting()
@@ -770,12 +770,12 @@ CharData *find_damagee(CharData *caster) {
 
 	if (GET_REAL_INT(caster) > number(10, 20)) {
 		for (const auto vict : world[IN_ROOM(caster)]->people) {
-			if ((IS_NPC(vict)
+			if ((vict->is_npc()
 				&& !((MOB_FLAGGED(vict, MOB_ANGEL)
 					|| MOB_FLAGGED(vict, MOB_GHOST)
 					|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM))
 					&& vict->has_master()
-					&& !IS_NPC(vict->get_master())))
+					&& !vict->get_master()->is_npc()))
 				|| !CAN_SEE(caster, vict)) {
 				continue;
 			}
@@ -822,16 +822,16 @@ CharData *find_target(CharData *ch) {
 		return nullptr;
 	}
 
-	if (IS_CASTER(currentVictim) && !IS_NPC(currentVictim)) {
+	if (IS_CASTER(currentVictim) && !currentVictim->is_npc()) {
 		return currentVictim;
 	}
 
 	// проходим по всем чарам в комнате
 	for (const auto vict : world[ch->in_room]->people) {
-		if ((IS_NPC(vict) && !IS_CHARMICE(vict))
+		if ((vict->is_npc() && !IS_CHARMICE(vict))
 			|| (IS_CHARMICE(vict) && !vict->get_fighting()
 				&& find_master_charmice(vict)) // чармиса агрим только если нет хозяина в руме.
-			|| GR_FLAGGED(vict, EPrf::kNohassle)
+			|| PRF_FLAGGED(vict, EPrf::kNohassle)
 			|| !MAY_SEE(ch, ch, vict)) {
 			continue;
 		}
@@ -920,11 +920,11 @@ CharData *find_minhp(CharData *caster) {
 
 	if (GET_REAL_INT(caster) > number(10, 20)) {
 		for (const auto vict : world[IN_ROOM(caster)]->people) {
-			if ((IS_NPC(vict)
+			if ((vict->is_npc()
 				&& !((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST) || MOB_FLAGGED(vict, MOB_PLAYER_SUMMON) // (Кудояр)
 					|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM))
 					&& vict->has_master()
-					&& !IS_NPC(vict->get_master())))
+					&& !vict->get_master()->is_npc()))
 				|| !CAN_SEE(caster, vict)) {
 				continue;
 			}
@@ -1162,7 +1162,7 @@ void summon_mob_helpers(CharData *ch) {
 		// Start_fight_mtrigger using inside this loop
 		// So we have to iterate on copy list
 		character_list.foreach_on_copy([&](const CharData::shared_ptr &vict) {
-			if (!IS_NPC(vict)
+			if (!vict->is_npc()
 				|| GET_MOB_VNUM(vict) != helpee->mob_vnum
 				|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 				|| AFF_FLAGGED(vict, EAffectFlag::AFF_HOLD)
@@ -1205,7 +1205,7 @@ void check_mob_helpers() {
 			continue;
 		}
 		if (GET_MOB_HOLD(ch)
-			|| !IS_NPC(ch)
+			|| !ch->is_npc()
 			|| GET_WAIT(ch) > 0
 			|| GET_POS(ch) < EPosition::kFight
 			|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
@@ -1213,7 +1213,7 @@ void check_mob_helpers() {
 			|| AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
 			|| AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE)
 			|| AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)
-			|| GR_FLAGGED(ch->get_fighting(), EPrf::kNohassle)) {
+			|| PRF_FLAGGED(ch->get_fighting(), EPrf::kNohassle)) {
 			continue;
 		}
 		summon_mob_helpers(ch);
@@ -1249,7 +1249,7 @@ void try_angel_rescue(CharData *ch) {
 }
 
 void stand_up_or_sit(CharData *ch) {
-	if (IS_NPC(ch)) {
+	if (ch->is_npc()) {
 		act("$n поднял$u.", true, ch, 0, 0, kToRoom | kToArenaListen);
 		GET_POS(ch) = EPosition::kFight;
 	} else if (GET_POS(ch) == EPosition::kSleep) {
@@ -1317,7 +1317,7 @@ int calc_initiative(CharData *ch, bool mode) {
 
 	initiative += GET_INITIATIVE(ch);
 
-	if (!IS_NPC(ch)) {
+	if (!ch->is_npc()) {
 		switch (IS_CARRYING_W(ch) * 10 / MAX(1, CAN_CARRY_W(ch))) {
 			case 10:
 			case 9:
@@ -1358,7 +1358,7 @@ void using_charmice_skills(CharData *ch) {
 	const bool charmice_wielded_for_throw = (GET_EQ(ch, EEquipPos::kWield) && wielded->has_flag(EObjFlag::kThrowing)); // Кудояр
 	const int do_this = number(0, 100);
 	const bool do_skill_without_command = GET_LIKES(ch) >= do_this;
-	CharData *master = (ch->get_master() && !IS_NPC(ch->get_master())) ? ch->get_master() : nullptr;
+	CharData *master = (ch->get_master() && !ch->get_master()->is_npc()) ? ch->get_master() : nullptr;
 
 	if (charmice_wielded_for_stupor && ch->get_skill(ESkill::kOverwhelm) > 0) { // оглушить
 		const bool skill_ready = ch->getSkillCooldown(ESkill::kGlobalCooldown) <= 0 && ch->getSkillCooldown(ESkill::kOverwhelm) <= 0;
@@ -1492,7 +1492,7 @@ void using_mob_skills(CharData *ch) {
 			int i = 0;
 			// Цель выбираем по рандому
 			for (const auto vict : world[ch->in_room]->people) {
-				if (!IS_NPC(vict)) {
+				if (!vict->is_npc()) {
 					i++;
 				}
 			}
@@ -1501,7 +1501,7 @@ void using_mob_skills(CharData *ch) {
 			if (i > 0) {
 				i = number(1, i);
 				for (const auto vict : world[ch->in_room]->people) {
-					if (!IS_NPC(vict)) {
+					if (!vict->is_npc()) {
 						i--;
 						caster = vict;
 					}
@@ -1526,19 +1526,19 @@ void using_mob_skills(CharData *ch) {
 			for (const auto attacker : world[ch->in_room]->people) {
 				CharData *vict = attacker->get_fighting();    // выяснение жертвы
 				if (!vict    // жертвы нет
-					|| (!IS_NPC(vict) // жертва - не моб
+					|| (!vict->is_npc() // жертва - не моб
 						|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
 						|| AFF_FLAGGED(vict, EAffectFlag::AFF_HELPER))
-					|| (IS_NPC(attacker)
+					|| (attacker->is_npc()
 						&& !(AFF_FLAGGED(attacker, EAffectFlag::AFF_CHARM)
 							&& attacker->has_master()
-							&& !IS_NPC(attacker->get_master()))
+							&& !attacker->get_master()->is_npc())
 						&& !(MOB_FLAGGED(attacker, MOB_GHOST)
 							&& attacker->has_master()
-							&& !IS_NPC(attacker->get_master()))
+							&& !attacker->get_master()->is_npc())
 						&& !(MOB_FLAGGED(attacker, MOB_ANGEL)
 							&& attacker->has_master()
-							&& !IS_NPC(attacker->get_master())))
+							&& !attacker->get_master()->is_npc()))
 					|| !CAN_SEE(ch, vict) // не видно, кого нужно спасать
 					|| ch == vict) // себя спасать не нужно
 				{
@@ -1581,7 +1581,7 @@ void using_mob_skills(CharData *ch) {
 				caster = find_target(ch);
 				damager = find_target(ch);
 				for (const auto vict : world[ch->in_room]->people) {
-					if ((IS_NPC(vict) && !AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM))
+					if ((vict->is_npc() && !AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM))
 						|| !vict->get_fighting()) {
 						continue;
 					}
@@ -1678,7 +1678,7 @@ void using_mob_skills(CharData *ch) {
 
 void add_attackers_round(CharData *ch) {
 	for (const auto i : world[ch->in_room]->people) {
-		if (!IS_NPC(i) && i->desc) {
+		if (!i->is_npc() && i->desc) {
 			ch->add_attacker(i, ATTACKER_ROUNDS, 1);
 		}
 	}
@@ -1718,7 +1718,7 @@ void update_round_affs() {
 
 		battle_affect_update(ch);
 
-		if (IS_NPC(ch) && !IS_CHARMICE(ch)) {
+		if (ch->is_npc() && !IS_CHARMICE(ch)) {
 			add_attackers_round(ch);
 		}
 	}
@@ -1789,7 +1789,7 @@ void process_npc_attack(CharData *ch) {
 
 	bool no_extra_attack = IS_SET(trigger_code, kNoExtraAttack);
 	if ((AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(ch, MOB_ANGEL))
-		&& ch->has_master() && ch->in_room == IN_ROOM(ch->get_master())  // && !IS_NPC(ch->master)
+		&& ch->has_master() && ch->in_room == IN_ROOM(ch->get_master())  // && !ch->master->is_npc()
 		&& AWAKE(ch) && MAY_ACT(ch) && GET_POS(ch) >= EPosition::kFight) {
 		// сначала мытаемся спасти
 		if (CAN_SEE(ch, ch->get_master()) && AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)) {
@@ -1996,7 +1996,7 @@ bool stuff_before_round(CharData *ch) {
 	}
 
 	// For NPC without lags and charms make it likes
-	if (IS_NPC(ch) && MAY_LIKES(ch))    // Get weapon from room
+	if (ch->is_npc() && MAY_LIKES(ch))    // Get weapon from room
 	{
 		//edited by WorM 2010.09.03 добавил немного логики мобам в бою если
 		// у моба есть что-то в инве то он может
@@ -2093,7 +2093,7 @@ void perform_violence() {
 				continue;
 			}
 			//* выполнение атак в раунде
-			if (IS_NPC(ch)) {
+			if (ch->is_npc()) {
 				process_npc_attack(ch);
 			} else {
 				process_player_attack(ch, min_init);
@@ -2137,7 +2137,7 @@ int check_agro_follower(CharData *ch, CharData *victim) {
 	}
 
 // translating pointers from charimces to their leaders
-	if (IS_NPC(ch)
+	if (ch->is_npc()
 		&& ch->has_master()
 		&& (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 			|| MOB_FLAGGED(ch, MOB_ANGEL)
@@ -2146,7 +2146,7 @@ int check_agro_follower(CharData *ch, CharData *victim) {
 		ch = ch->get_master();
 	}
 
-	if (IS_NPC(victim)
+	if (victim->is_npc()
 		&& victim->has_master()
 		&& (AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM)
 			|| MOB_FLAGGED(victim, MOB_ANGEL)
@@ -2159,7 +2159,7 @@ int check_agro_follower(CharData *ch, CharData *victim) {
 	vleader = victim;
 // finding leaders
 	while (cleader->has_master()) {
-		if (IS_NPC(cleader)
+		if (cleader->is_npc()
 			&& !AFF_FLAGGED(cleader, EAffectFlag::AFF_CHARM)
 			&& !(MOB_FLAGGED(cleader, MOB_ANGEL) || MOB_FLAGGED(cleader, MOB_GHOST))
 			&& !IS_HORSE(cleader)) {
@@ -2169,7 +2169,7 @@ int check_agro_follower(CharData *ch, CharData *victim) {
 	}
 
 	while (vleader->has_master()) {
-		if (IS_NPC(vleader)
+		if (vleader->is_npc()
 			&& !AFF_FLAGGED(vleader, EAffectFlag::AFF_CHARM)
 			&& !(MOB_FLAGGED(vleader, MOB_ANGEL) || MOB_FLAGGED(vleader, MOB_GHOST))
 			&& !IS_HORSE(vleader)) {
@@ -2187,12 +2187,12 @@ int check_agro_follower(CharData *ch, CharData *victim) {
 	while (ch->has_master()
 		&& ch->get_master()->has_master()) {
 		if (!AFF_FLAGGED(ch->get_master(), EAffectFlag::AFF_GROUP)
-			&& !IS_NPC(ch->get_master())) {
+			&& !ch->get_master()->is_npc()) {
 			ch = ch->get_master();
 			continue;
-		} else if (IS_NPC(ch->get_master())
+		} else if (ch->get_master()->is_npc()
 			&& !AFF_FLAGGED(ch->get_master()->get_master(), EAffectFlag::AFF_GROUP)
-			&& !IS_NPC(ch->get_master()->get_master())
+			&& !ch->get_master()->get_master()->is_npc()
 			&& ch->get_master()->get_master()->get_master()) {
 			ch = ch->get_master()->get_master();
 			continue;
@@ -2206,12 +2206,12 @@ int check_agro_follower(CharData *ch, CharData *victim) {
 	while (victim->has_master()
 		&& victim->get_master()->has_master()) {
 		if (!AFF_FLAGGED(victim->get_master(), EAffectFlag::AFF_GROUP)
-			&& !IS_NPC(victim->get_master())) {
+			&& !victim->get_master()->is_npc()) {
 			victim = victim->get_master();
 			continue;
-		} else if (IS_NPC(victim->get_master())
+		} else if (victim->get_master()->is_npc()
 			&& !AFF_FLAGGED(victim->get_master()->get_master(), EAffectFlag::AFF_GROUP)
-			&& !IS_NPC(victim->get_master()->get_master())
+			&& !victim->get_master()->get_master()->is_npc()
 			&& victim->get_master()->get_master()->has_master()) {
 			victim = victim->get_master()->get_master();
 			continue;
@@ -2236,7 +2236,7 @@ int calc_leadership(CharData *ch) {
 	int prob, percent;
 	CharData *leader = 0;
 
-	if (IS_NPC(ch)
+	if (ch->is_npc()
 		|| !AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)
 		|| (!ch->has_master()
 			&& !ch->followers)) {

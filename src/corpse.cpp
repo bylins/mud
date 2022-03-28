@@ -323,7 +323,7 @@ bool check_mob(ObjData *corpse, CharData *mob) {
 			&& (i->day_start <= day && i->day_end >= day)            // временной промежуток
 			&& (!NPC_FLAGGED(mob, NPC_FREEDROP))  //не падают из фридропа
 			&& (!mob->has_master()
-				|| IS_NPC(mob->get_master()))) // не чармис
+				|| mob->get_master()->is_npc())) // не чармис
 
 		{
 			++(i->mobs);
@@ -386,11 +386,11 @@ void make_arena_corpse(CharData *ch, CharData *killer) {
 	corpse->set_extra_flag(EObjFlag::kNodonate);
 	corpse->set_extra_flag(EObjFlag::kNosell);
 	corpse->set_val(0, 0);    // You can't store stuff in a corpse
-	corpse->set_val(2, IS_NPC(ch) ? GET_MOB_VNUM(ch) : -1);
+	corpse->set_val(2, ch->is_npc() ? GET_MOB_VNUM(ch) : -1);
 	corpse->set_val(3, 1);    // corpse identifier
 	corpse->set_weight(GET_WEIGHT(ch));
 	corpse->set_rent_off(100000);
-	if (IS_NPC(ch) && !IS_CHARMICE(ch)) {
+	if (ch->is_npc() && !IS_CHARMICE(ch)) {
 		corpse->set_timer(5);
 	} else {
 		corpse->set_timer(0);
@@ -412,7 +412,7 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 	ObjData *o;
 	int i;
 
-	if (IS_NPC(ch) && MOB_FLAGGED(ch, MOB_CORPSE))
+	if (ch->is_npc() && MOB_FLAGGED(ch, MOB_CORPSE))
 		return nullptr;
 	auto corpse = world_objects.create_blank();
 	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
@@ -441,11 +441,11 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 	corpse->set_extra_flag(EObjFlag::kNosell);
 	corpse->set_extra_flag(EObjFlag::kNorent);
 	corpse->set_val(0, 0);    // You can't store stuff in a corpse
-	corpse->set_val(2, IS_NPC(ch) ? GET_MOB_VNUM(ch) : -1);
+	corpse->set_val(2, ch->is_npc() ? GET_MOB_VNUM(ch) : -1);
 	corpse->set_val(3, ObjData::CORPSE_INDICATOR);    // corpse identifier
 	corpse->set_rent_off(100000);
 
-	if (IS_NPC(ch) && !IS_CHARMICE(ch)) {
+	if (ch->is_npc() && !IS_CHARMICE(ch)) {
 		corpse->set_timer(max_npc_corpse_time * 2);
 	} else {
 		corpse->set_timer(max_pc_corpse_time * 2);
@@ -473,7 +473,7 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 	// transfer gold
 	// following 'if' clause added to fix gold duplication loophole
 	if (ch->get_gold() > 0) {
-		if (IS_NPC(ch)) {
+		if (ch->is_npc()) {
 			const auto money = create_money(ch->get_gold());
 			obj_to_obj(money.get(), corpse.get());
 		} else {
@@ -500,7 +500,7 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 	IS_CARRYING_W(ch) = 0;
 
 	//Polud привязываем загрузку ингров к расе (типу) моба
-	if (IS_NPC(ch) && GET_RACE(ch) > ENpcRace::kBasic && !NPC_FLAGGED(ch, NPC_NOINGRDROP)
+	if (ch->is_npc() && GET_RACE(ch) > ENpcRace::kBasic && !NPC_FLAGGED(ch, NPC_NOINGRDROP)
 		&& !ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)) {
 		ObjData *ingr = try_make_ingr(ch, 1000);
 		if (ingr) {
@@ -514,7 +514,7 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 
 	// если чармис убит палачом или на арене(и владелец не в бд) то труп попадает не в клетку а в инвентарь к владельцу чармиса
 	if (IS_CHARMICE(ch) && !MOB_FLAGGED(ch, MOB_CORPSE)
-		&& ((killer && GR_FLAGGED(killer, EPrf::kExecutor)) || (ROOM_FLAGGED(ch->in_room, ROOM_ARENA) && !NORENTABLE(ch->get_master())))) {
+		&& ((killer && PRF_FLAGGED(killer, EPrf::kExecutor)) || (ROOM_FLAGGED(ch->in_room, ROOM_ARENA) && !NORENTABLE(ch->get_master())))) {
 		if (ch->has_master()) {
 				obj_to_char(corpse.get(), ch->get_master());
 		}

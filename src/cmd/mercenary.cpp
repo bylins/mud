@@ -168,7 +168,7 @@ unsigned int getPos(char *arg, CharData *ch, CharData *boss) {
 }
 
 int mercenary(CharData *ch, void * /*me*/, int cmd, char *argument) {
-	if (!ch || !ch->desc || IS_NPC(ch))
+	if (!ch || !ch->desc || ch->is_npc())
 		return 0;
 	if (!(CMD_IS("наемник") || CMD_IS("mercenary")))
 		return 0;

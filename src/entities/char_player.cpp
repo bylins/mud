@@ -395,7 +395,7 @@ void Player::save_char() {
 	struct CharacterPortal *prt;
 	int tmp = time(0) - this->player_data.time.logon;
 
-	if (IS_NPC(this) || this->get_pfilepos() < 0)
+	if (this->is_npc() || this->get_pfilepos() < 0)
 		return;
 	if (this->account == nullptr) {
 		this->account = Account::get_account(GET_EMAIL(this));
@@ -687,7 +687,7 @@ void Player::save_char() {
 	fprintf(saved, "DrSt: %d\n", GET_DRUNK_STATE(this));
 	fprintf(saved, "Olc : %d\n", GET_OLC_ZONE(this));
 	*buf = '\0';
-	GR_FLAGS(this).tascii(4, buf);
+	PRF_FLAGS(this).tascii(4, buf);
 	fprintf(saved, "Pref: %s\n", buf);
 
 	if (MUTE_DURATION(this) > 0 && PLR_FLAGGED(this, PLR_MUTE))
@@ -1233,7 +1233,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	GET_COND(this, THIRST) = kNormCondition;
 	GET_WEIGHT(this) = 50;
 	GET_WIMP_LEV(this) = 0;
-	GR_FLAGS(this).from_string("");    // suspicious line: we should clear flags.. Loading from "" does not clear flags.
+	PRF_FLAGS(this).from_string("");    // suspicious line: we should clear flags.. Loading from "" does not clear flags.
 	AFF_FLAGS(this).from_string("");    // suspicious line: we should clear flags.. Loading from "" does not clear flags.
 	GET_PORTALS(this) = nullptr;
 	EXCHANGE_FILTER(this) = nullptr;
@@ -1606,7 +1606,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 				else if (!strcmp(tag, "PfOt"))
 					POOFOUT(this) = str_dup(line);
 				else if (!strcmp(tag, "Pref")) {
-					GR_FLAGS(this).from_string(line);
+					PRF_FLAGS(this).from_string(line);
 				} else if (!strcmp(tag, "Pkil")) {
 					do {
 						if (!fbgetline(fl, line))
@@ -1880,7 +1880,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 			default: sprintf(buf, "SYSERR: Unknown tag %s in pfile %s", tag, name);
 		}
 	}
-	GR_FLAGS(this).set(EPrf::kColor2); //всегда цвет полный
+	PRF_FLAGS(this).set(EPrf::kColor2); //всегда цвет полный
 	// initialization for imms
 	if (GetRealLevel(this) >= kLvlImmortal) {
 		set_god_skills(this);

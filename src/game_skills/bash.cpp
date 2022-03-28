@@ -13,13 +13,13 @@ void go_bash(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (!(IS_NPC(ch) || GET_EQ(ch, kShield) || IS_IMMORTAL(ch) || GET_MOB_HOLD(vict)
+	if (!(ch->is_npc() || GET_EQ(ch, kShield) || IS_IMMORTAL(ch) || GET_MOB_HOLD(vict)
 		|| GET_GOD_FLAG(vict, GF_GODSCURSE))) {
 		send_to_char("Вы не можете сделать этого без щита.\r\n", ch);
 		return;
 	};
 
-	if (GR_FLAGS(ch).get(EPrf::kIronWind)) {
+	if (PRF_FLAGS(ch).get(EPrf::kIronWind)) {
 		send_to_char("Вы не можете применять этот прием в таком состоянии!\r\n", ch);
 		return;
 	}
@@ -72,7 +72,7 @@ void go_bash(CharData *ch, CharData *vict) {
 		if ((GET_AF_BATTLE(vict, kEafBlock)
 			|| (can_use_feat(vict, DEFENDER_FEAT)
 				&& GET_EQ(vict, kShield)
-				&& GR_FLAGGED(vict, EPrf::kAwake)
+				&& PRF_FLAGGED(vict, EPrf::kAwake)
 				&& vict->get_skill(ESkill::kAwake)
 				&& vict->get_skill(ESkill::kShieldBlock)
 				&& GET_POS(vict) > EPosition::kSit))
@@ -81,7 +81,7 @@ void go_bash(CharData *ch, CharData *vict) {
 			&& !AFF_FLAGGED(vict, EAffectFlag::AFF_STOPLEFT)
 			&& GET_WAIT(vict) <= 0
 			&& GET_MOB_HOLD(vict) == 0) {
-			if (!(GET_EQ(vict, kShield) || IS_NPC(vict) || IS_IMMORTAL(vict) || GET_GOD_FLAG(vict, GF_GODSLIKE)))
+			if (!(GET_EQ(vict, kShield) || vict->is_npc() || IS_IMMORTAL(vict) || GET_GOD_FLAG(vict, GF_GODSLIKE)))
 				send_to_char("У вас нечем отразить атаку противника.\r\n", vict);
 			else {
 				int range, prob2;
@@ -131,7 +131,7 @@ void go_bash(CharData *ch, CharData *vict) {
 }
 
 void do_bash(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if ((IS_NPC(ch) && (!AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER))) || !ch->get_skill(ESkill::kBash)) {
+	if ((ch->is_npc() && (!AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER))) || !ch->get_skill(ESkill::kBash)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -164,7 +164,7 @@ void do_bash(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (IS_IMPL(ch) || !ch->get_fighting()) {
 		go_bash(ch, vict);
 	} else if (IsHaveNoExtraAttack(ch)) {
-		if (!IS_NPC(ch))
+		if (!ch->is_npc())
 			act("Хорошо. Вы попытаетесь сбить $N3.", false, ch, nullptr, vict, kToChar);
 		ch->set_extra_attack(kExtraAttackBash, vict);
 	}

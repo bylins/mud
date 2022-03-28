@@ -65,7 +65,7 @@ void drop_obj_on_zreset(CharData *ch, ObjData *obj, bool inv, bool zone_reset);
 int extra_aggressive(CharData *ch, CharData *victim) {
 	int time_ok = false, no_time = true, month_ok = false, no_month = true, agro = false;
 
-	if (!IS_NPC(ch))
+	if (!ch->is_npc())
 		return (false);
 
 	if (MOB_FLAGGED(ch, MOB_AGGRESSIVE))
@@ -74,22 +74,22 @@ int extra_aggressive(CharData *ch, CharData *victim) {
 	if (MOB_FLAGGED(ch, MOB_GUARDIAN) && guardian_attack(ch, victim))
 		return (true);
 
-	if (victim && MOB_FLAGGED(ch, MOB_AGGRMONO) && !IS_NPC(victim) && GET_RELIGION(victim) == kReligionMono)
+	if (victim && MOB_FLAGGED(ch, MOB_AGGRMONO) && !victim->is_npc() && GET_RELIGION(victim) == kReligionMono)
 		agro = true;
 
-	if (victim && MOB_FLAGGED(ch, MOB_AGGRPOLY) && !IS_NPC(victim) && GET_RELIGION(victim) == kReligionPoly)
+	if (victim && MOB_FLAGGED(ch, MOB_AGGRPOLY) && !victim->is_npc() && GET_RELIGION(victim) == kReligionPoly)
 		agro = true;
 
 //Пока что убрал обработку флагов, тем более что персов кроме русичей и нет
 //Поскольку расы и рода убраны из кода то так вот в лоб этот флаг не сделать,
 //надо или по названию расы смотреть или еще что придумывать
-	/*if (victim && MOB_FLAGGED(ch, MOB_AGGR_RUSICHI) && !IS_NPC(victim) && GET_KIN(victim) == KIN_RUSICHI)
+	/*if (victim && MOB_FLAGGED(ch, MOB_AGGR_RUSICHI) && !victim->is_npc() && GET_KIN(victim) == KIN_RUSICHI)
 		agro = true;
 
-	if (victim && MOB_FLAGGED(ch, MOB_AGGR_VIKINGI) && !IS_NPC(victim) && GET_KIN(victim) == KIN_VIKINGI)
+	if (victim && MOB_FLAGGED(ch, MOB_AGGR_VIKINGI) && !victim->is_npc() && GET_KIN(victim) == KIN_VIKINGI)
 		agro = true;
 
-	if (victim && MOB_FLAGGED(ch, MOB_AGGR_STEPNYAKI) && !IS_NPC(victim) && GET_KIN(victim) == KIN_STEPNYAKI)
+	if (victim && MOB_FLAGGED(ch, MOB_AGGR_STEPNYAKI) && !victim->is_npc() && GET_KIN(victim) == KIN_STEPNYAKI)
 		agro = true; */
 
 	if (MOB_FLAGGED(ch, MOB_AGGR_DAY)) {
@@ -244,7 +244,7 @@ int npc_track(CharData *ch) {
 
 CharData *selectRandomSkirmisherFromGroup(CharData *leader) {
 	ActionTargeting::FriendsRosterType roster{leader};
-	auto isSkirmisher = [](CharData *ch) { return GR_FLAGGED(ch, EPrf::kSkirmisher); };
+	auto isSkirmisher = [](CharData *ch) { return PRF_FLAGGED(ch, EPrf::kSkirmisher); };
 	int skirmishers = roster.count(isSkirmisher);
 	if (skirmishers == 0 || skirmishers == roster.amount()) {
 		return nullptr;
@@ -294,9 +294,9 @@ CharData *find_best_stupidmob_victim(CharData *ch, int extmode) {
 	victim = ch->get_fighting();
 
 	for (const auto vict : world[ch->in_room]->people) {
-		if ((IS_NPC(vict) && !IS_SET(extmode, CHECK_OPPONENT) && !IS_CHARMICE(vict))
+		if ((vict->is_npc() && !IS_SET(extmode, CHECK_OPPONENT) && !IS_CHARMICE(vict))
 			|| (IS_CHARMICE(vict) && !vict->get_fighting()) // чармиса агрим только если он уже с кем-то сражается
-			|| GR_FLAGGED(vict, EPrf::kNohassle)
+			|| PRF_FLAGGED(vict, EPrf::kNohassle)
 			|| !MAY_SEE(ch, ch, vict)
 			|| (IS_SET(extmode, CHECK_OPPONENT) && ch != vict->get_fighting())
 			|| (!may_kill_here(ch, vict, NoArgument) && !IS_SET(extmode, GUARD_ATTACK)))//старжники агрят в мирках
@@ -318,7 +318,7 @@ CharData *find_best_stupidmob_victim(CharData *ch, int extmode) {
 		if (IS_SET(extmode, KILL_FIGHTING)
 			&& vict->get_fighting()
 			&& vict->get_fighting() != ch
-			&& IS_NPC(vict->get_fighting())
+			&& vict->get_fighting()->is_npc()
 			&& !AFF_FLAGGED(vict->get_fighting(), EAffectFlag::AFF_CHARM)
 			&& SAME_ALIGN(ch, vict->get_fighting())) {
 			kill_this = true;
@@ -421,13 +421,13 @@ CharData *find_best_stupidmob_victim(CharData *ch, int extmode) {
 		best = min_hp ? min_hp : (caster ? caster : (min_lvl ? min_lvl : (use_light ? use_light : victim)));
 
 	if (best && !ch->get_fighting() && MOB_FLAGGED(ch, MOB_AGGRMONO) &&
-		!IS_NPC(best) && GET_RELIGION(best) == kReligionMono) {
+		!best->is_npc() && GET_RELIGION(best) == kReligionMono) {
 		act("$n закричал$g: 'Умри, христианская собака!' и набросил$u на вас.", false, ch, nullptr, best, kToVict);
 		act("$n закричал$g: 'Умри, христианская собака!' и набросил$u на $N3.", false, ch, nullptr, best, kToNotVict);
 	}
 
 	if (best && !ch->get_fighting() && MOB_FLAGGED(ch, MOB_AGGRPOLY) &&
-		!IS_NPC(best) && GET_RELIGION(best) == kReligionPoly) {
+		!best->is_npc() && GET_RELIGION(best) == kReligionPoly) {
 		act("$n закричал$g: 'Умри, грязный язычник!' и набросил$u на вас.", false, ch, nullptr, best, kToVict);
 		act("$n закричал$g: 'Умри, грязный язычник!' и набросил$u на $N3.", false, ch, nullptr, best, kToNotVict);
 	}
@@ -461,7 +461,7 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 	}
 
 	currentVictim = ch->get_fighting();
-	if (currentVictim && !IS_NPC(currentVictim)) {
+	if (currentVictim && !currentVictim->is_npc()) {
 		if (IS_CASTER(currentVictim)) {
 			return currentVictim;
 		}
@@ -469,10 +469,10 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 
 	// проходим по всем чарам в комнате
 	for (const auto vict : world[ch->in_room]->people) {
-		if ((IS_NPC(vict) && !IS_CHARMICE(vict))
+		if ((vict->is_npc() && !IS_CHARMICE(vict))
 			|| (IS_CHARMICE(vict) && !vict->get_fighting()
 				&& find_master_charmice(vict)) // чармиса агрим только если нет хозяина в руме.
-			|| GR_FLAGGED(vict, EPrf::kNohassle)
+			|| PRF_FLAGGED(vict, EPrf::kNohassle)
 			|| !MAY_SEE(ch, ch, vict) // если не видим цель,
 			|| (IS_SET(extmode, CHECK_OPPONENT) && ch != vict->get_fighting())
 			|| (!may_kill_here(ch, vict, NoArgument) && !IS_SET(extmode, GUARD_ATTACK)))//старжники агрят в мирках
@@ -491,7 +491,7 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 		// Mobile helpers... //ассист
 		if ((vict->get_fighting())
 			&& (vict->get_fighting() != ch)
-			&& (IS_NPC(vict->get_fighting()))
+			&& vict->get_fighting()->is_npc()
 			&& (!AFF_FLAGGED(vict->get_fighting(), EAffectFlag::AFF_CHARM))) {
 			kill_this = true;
 		} else {
@@ -644,14 +644,14 @@ int perform_best_mob_attack(CharData *ch, int extmode) {
 				false, ch, nullptr, best, kToRoom);
 		}
 
-		if (!IS_NPC(best)) {
+		if (!best->is_npc()) {
 			struct Follower *f;
 			// поиск клонов и отработка атаки в клона персонажа
 			for (f = best->followers; f; f = f->next)
 				if (MOB_FLAGGED(f->ch, MOB_CLONE))
 					clone_number++;
 			for (f = best->followers; f; f = f->next)
-				if (IS_NPC(f->ch) && MOB_FLAGGED(f->ch, MOB_CLONE)
+				if (f->ch->is_npc() && MOB_FLAGGED(f->ch, MOB_CLONE)
 					&& IN_ROOM(f->ch) == IN_ROOM(best)) {
 					if (number(0, clone_number) == 1)
 						break;
@@ -682,7 +682,7 @@ int perform_best_horde_attack(CharData *ch, int extmode) {
 	}
 
 	for (const auto vict : world[ch->in_room]->people) {
-		if (!IS_NPC(vict) || !MAY_SEE(ch, ch, vict) || MOB_FLAGGED(vict, MOB_PROTECT)) {
+		if (!vict->is_npc() || !MAY_SEE(ch, ch, vict) || MOB_FLAGGED(vict, MOB_PROTECT)) {
 			continue;
 		}
 
@@ -730,7 +730,7 @@ int perform_mob_switch(CharData *ch) {
 }
 
 void do_aggressive_mob(CharData *ch, int check_sneak) {
-	if (!ch || ch->in_room == kNowhere || !IS_NPC(ch) || !MAY_ATTACK(ch) || AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
+	if (!ch || ch->in_room == kNowhere || !ch->is_npc() || !MAY_ATTACK(ch) || AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
 		return;
 	}
 
@@ -774,8 +774,8 @@ void do_aggressive_mob(CharData *ch, int check_sneak) {
 		for (auto vict_i = people_copy.begin(); vict_i != people_copy.end() && !victim; ++vict_i) {
 			const auto vict = *vict_i;
 
-			if (IS_NPC(vict)
-				|| GR_FLAGGED(vict, EPrf::kNohassle)) {
+			if (vict->is_npc()
+				|| PRF_FLAGGED(vict, EPrf::kNohassle)) {
 				continue;
 			}
 			for (MemoryRecord *names = MEMORY(ch); names && !victim; names = names->next) {
@@ -860,12 +860,12 @@ void do_aggressive_room(CharData *ch, int check_sneak) {
  * \return true - можно войти, false - нельзя
  */
 bool allow_enter(RoomData *room, CharData *ch) {
-	if (!IS_NPC(ch) || !GET_MOB_SPEC(ch)) {
+	if (!ch->is_npc() || !GET_MOB_SPEC(ch)) {
 		return true;
 	}
 
 	for (const auto vict : room->people) {
-		if (IS_NPC(vict)
+		if (vict->is_npc()
 			&& GET_MOB_SPEC(vict) == GET_MOB_SPEC(ch)) {
 			return false;
 		}
@@ -1055,7 +1055,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 				return;        // Mob is under attack
 			}
 
-			if (!IS_NPC(vict)
+			if (!vict->is_npc()
 				&& CAN_SEE(ch, vict)) {
 				max = true;
 			}
@@ -1191,7 +1191,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 
 				const auto room = world[rdata->to_room()];
 				for (auto first : room->people) {
-					if (IS_NPC(first)
+					if (first->is_npc()
 						&& !AFF_FLAGGED(first, EAffectFlag::AFF_CHARM)
 						&& !IS_HORSE(first)
 						&& CAN_SEE(ch, first)
@@ -1266,7 +1266,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 				|| GET_SPELL_MEM(ch, kSpellRelocate) > 0); names = names->next) {
 				for (const auto &vict : character_list) {
 					if (names->id == GET_IDNUM(vict)
-						&& CAN_SEE(ch, vict) && !GR_FLAGGED(vict, EPrf::kNohassle)) {
+						&& CAN_SEE(ch, vict) && !PRF_FLAGGED(vict, EPrf::kNohassle)) {
 						if (GET_SPELL_MEM(ch, kSpellSummon) > 0) {
 							CastSpell(ch.get(), vict.get(), 0, 0, kSpellSummon, kSpellSummon);
 
@@ -1298,9 +1298,9 @@ void mobRemember(CharData *ch, CharData *victim) {
 	MemoryRecord *tmp;
 	bool present = false;
 
-	if (!IS_NPC(ch) ||
-		IS_NPC(victim) ||
-		GR_FLAGGED(victim, EPrf::kNohassle) ||
+	if (!ch->is_npc() ||
+		victim->is_npc() ||
+		PRF_FLAGGED(victim, EPrf::kNohassle) ||
 		!MOB_FLAGGED(ch, MOB_MEMORY) ||
 		AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
@@ -1375,7 +1375,7 @@ bool guardian_attack(CharData *ch, CharData *vict) {
 	struct mob_guardian tmp_guard;
 	int num_wars_vict = 0;
 
-	if (!IS_NPC(ch) || !vict || !MOB_FLAGGED(ch, MOB_GUARDIAN))
+	if (!ch->is_npc() || !vict || !MOB_FLAGGED(ch, MOB_GUARDIAN))
 		return false;
 //на всякий случай проверим, а вдруг моб да подевался куда из списка...
 	auto it = guardian_list.find(GET_MOB_VNUM(ch));

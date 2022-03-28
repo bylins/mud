@@ -60,7 +60,7 @@ void go_disarm(CharData *ch, CharData *vict) {
 					 GET_PAD(ch, 1), wielded->get_PName(3).c_str(), char_get_custom_label(wielded, vict).c_str());
 		act("$n ловко выбил$g $o3 из рук $N1.", true, ch, wielded, vict, kToNotVict | kToArenaListen);
 		unequip_char(vict, pos, CharEquipFlags());
-		SetSkillCooldown(ch, ESkill::kGlobalCooldown, IS_NPC(vict) ? 1 : 2);
+		SetSkillCooldown(ch, ESkill::kGlobalCooldown, vict->is_npc() ? 1 : 2);
 		prob = 2;
 
 		if (ROOM_FLAGGED(IN_ROOM(vict), ROOM_ARENA) || (!IS_MOB(vict)) || vict->has_master()) {
@@ -72,7 +72,7 @@ void go_disarm(CharData *ch, CharData *vict) {
 	}
 
 	appear(ch);
-	if (IS_NPC(vict) && CAN_SEE(vict, ch) && vict->have_mind() && GET_WAIT(ch) <= 0) {
+	if (vict->is_npc() && CAN_SEE(vict, ch) && vict->have_mind() && GET_WAIT(ch) <= 0) {
 		set_hit(vict, ch);
 	}
 	SetSkillCooldown(ch, ESkill::kDisarm, prob);
@@ -80,7 +80,7 @@ void go_disarm(CharData *ch, CharData *vict) {
 }
 
 void do_disarm(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch) || !ch->get_skill(ESkill::kDisarm)) {
+	if (ch->is_npc() || !ch->get_skill(ESkill::kDisarm)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}

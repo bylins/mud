@@ -27,7 +27,7 @@ int set_hit(CharData *ch, CharData *victim) {
 			victim->desc->writer->clear();
 		}
 		STATE(victim->desc) = CON_PLAYING;
-		if (!IS_NPC(victim)) {
+		if (!victim->is_npc()) {
 			PLR_FLAGS(victim).unset(PLR_WRITING);
 		}
 		if (victim->desc->backstr) {
@@ -67,11 +67,11 @@ int set_hit(CharData *ch, CharData *victim) {
 	}
 
 	if (MOB_FLAGGED(ch, MOB_MEMORY) && GET_WAIT(ch) > 0) {
-		if (!IS_NPC(victim)) {
+		if (!victim->is_npc()) {
 			mobRemember(ch, victim);
 		} else if (AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM)
 			&& victim->has_master()
-			&& !IS_NPC(victim->get_master())) {
+			&& !victim->get_master()->is_npc()) {
 			if (MOB_FLAGGED(victim, MOB_CLONE)) {
 				mobRemember(ch, victim->get_master());
 			} else if (ch->isInSameRoom(victim->get_master()) && CAN_SEE(ch, victim->get_master())) {
@@ -153,7 +153,7 @@ void do_kill(CharData *ch, char *argument, int cmd, int subcmd) {
 		send_to_char("Вы мазохист... :(\r\n", ch);
 		return;
 	};
-	if (IS_IMPL(vict) || GR_FLAGGED(vict, EPrf::kCoderinfo)) {
+	if (IS_IMPL(vict) || PRF_FLAGGED(vict, EPrf::kCoderinfo)) {
 		send_to_char("А если он вас чайником долбанет? Думай, Господи, думай!\r\n", ch);
 	} else {
 		act("Вы обратили $N3 в прах! Взглядом! Одним!", false, ch, 0, vict, kToChar);

@@ -14,7 +14,7 @@ void go_mighthit(CharData *ch, CharData *victim) {
 		return;
 	}
 
-	if (GR_FLAGS(ch).get(EPrf::kIronWind)) {
+	if (PRF_FLAGS(ch).get(EPrf::kIronWind)) {
 		send_to_char("Вы не можете применять этот прием в таком состоянии!\r\n", ch);
 		return;
 	}
@@ -67,11 +67,11 @@ void do_mighthit(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (GET_AF_BATTLE(ch, kEafTouch)) {
-		if (!IS_NPC(ch))
+		if (!ch->is_npc())
 			send_to_char("Невозможно. Вы сосредоточены на захвате противника.\r\n", ch);
 		return;
 	}
-	if (!IS_NPC(ch) && !IS_IMMORTAL(ch)
+	if (!ch->is_npc() && !IS_IMMORTAL(ch)
 		&& (GET_EQ(ch, EEquipPos::kBoths)
 			|| GET_EQ(ch, EEquipPos::kWield)
 			|| GET_EQ(ch, EEquipPos::kHold)

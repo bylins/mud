@@ -63,7 +63,7 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 
 	argument = two_arguments(argument, arg1, arg2);
 
-	if (IS_NPC(ch) || !ch->get_skill(ESkill::kJewelry)) {
+	if (ch->is_npc() || !ch->get_skill(ESkill::kJewelry)) {
 		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}

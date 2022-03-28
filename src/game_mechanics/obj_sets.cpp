@@ -133,7 +133,7 @@ bool is_duplicate(int set_uid, int vnum) {
 
 void update_char_sets() {
 	for (const auto &ch : character_list) {
-		if (!IS_NPC(ch)
+		if (!ch->is_npc()
 			|| IS_CHARMICE(ch)) {
 			ch->obj_bonus().update(ch.get());
 		}
@@ -1087,11 +1087,11 @@ void WornSets::check(CharData *ch) {
 				// i->obj_list.size() - одето на чаре
 				if (k.first > i.obj_list.size()) {
 					continue;
-				} else if (!IS_NPC(ch)
+				} else if (!ch->is_npc()
 					&& prof_bit < k.second.prof.size()
 					&& !k.second.prof.test(prof_bit)) {
 					continue;
-				} else if (IS_NPC(ch)
+				} else if (ch->is_npc()
 					&& (!k.second.prof.all() && !k.second.npc)) {
 					continue;
 				}
@@ -1269,7 +1269,7 @@ bool is_set_item(ObjData *obj) {
 
 /// иммский slist
 void do_slist(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch)) {
+	if (ch->is_npc()) {
 		return;
 	}
 	obj_sets::do_slist(ch);

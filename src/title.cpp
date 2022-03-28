@@ -64,7 +64,7 @@ DescriptorData *send_result_message(long unique, bool action);
 
 // * Команда титул, title. ACMD(do_title), для игроков и для иммов все одной командой.
 void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch)) return;
+	if (ch->is_npc()) return;
 
 	if (!privilege::CheckFlag(ch, privilege::kTitle) && PLR_FLAGGED(ch, PLR_NOTITLE)) {
 		send_to_char("Вам запрещена работа с титулами.\r\n", ch);
@@ -90,7 +90,7 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 				send_to_char("Нет такого игрока.\r\n", ch);
 				return;
 			}
-			if (GetRealLevel(vict) >= kLvlImmortal || GR_FLAGGED(vict, EPrf::kCoderinfo)) {
+			if (GetRealLevel(vict) >= kLvlImmortal || PRF_FLAGGED(vict, EPrf::kCoderinfo)) {
 				send_to_char("Вы не можете сделать этого.\r\n", ch);
 				return;
 			}

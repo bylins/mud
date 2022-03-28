@@ -91,14 +91,14 @@ bool weap_poison_vict(CharData *ch, CharData *vict, int spell_num) {
 		// скилл * 0.05 на чаров и + 5 на мобов. 4-10% и 9-15% (80-200 скила)
 		int percent = 0;
 		if (ch->get_skill(ESkill::kPoisoning) >= 80) {
-			percent = (ch->get_skill(ESkill::kPoisoning) * 5 / 100) + (IS_NPC(vict) ? 5 : 0);
+			percent = (ch->get_skill(ESkill::kPoisoning) * 5 / 100) + (vict->is_npc() ? 5 : 0);
 		}
 		// -дамаг физ.атак и скиллы
 		af[0].location = APPLY_BELENA_POISON;
 		af[0].modifier = percent;
 
 		// скилл * 0.05 + 5 на чаров и + 10 на мобов. 5.5-15% и 10.5-20% (10-200 скила)
-		percent = (ch->get_skill(ESkill::kPoisoning) * 5 / 100) + (IS_NPC(vict) ? 10 : 5);
+		percent = (ch->get_skill(ESkill::kPoisoning) * 5 / 100) + (vict->is_npc() ? 10 : 5);
 		// -хитролы
 		int remove_hit = GET_REAL_HR(vict) * (percent / 100);
 		af[1].location = APPLY_HITROLL;
@@ -137,13 +137,13 @@ bool weap_poison_vict(CharData *ch, CharData *vict, int spell_num) {
 		// скилл * 0.05 на чаров и + 5 на мобов. 4-10% и 9-15% (80-200 скила)
 		int percent = 0;
 		if (ch->get_skill(ESkill::kPoisoning) >= 80)
-			percent = (ch->get_skill(ESkill::kPoisoning) * 5 / 100) + (IS_NPC(vict) ? 5 : 0);
+			percent = (ch->get_skill(ESkill::kPoisoning) * 5 / 100) + (vict->is_npc() ? 5 : 0);
 		// -дамаг заклов и скиллы
 		af[0].location = APPLY_DATURA_POISON;
 		af[0].modifier = percent;
 
 		// скилл * 0.05 + 5 на чаров и + 10 на мобов. 5.5-15% и 10.5-20% (10-200 скила)
-		percent = (ch->get_skill(ESkill::kPoisoning) * 5 / 100) + (IS_NPC(vict) ? 10 : 5);
+		percent = (ch->get_skill(ESkill::kPoisoning) * 5 / 100) + (vict->is_npc() ? 10 : 5);
 		// -каст
 		int remove_cast = GET_CAST_SUCCESS(vict) * (percent / 100);
 		af[1].location = APPLY_CAST_SUCCESS;
@@ -421,9 +421,9 @@ bool check_poison(int spell) {
 int processPoisonDamage(CharData *ch, const Affect<EApplyLocation>::shared_ptr &af) {
 	int result = 0;
 	if (af->location == APPLY_POISON) {
-		int poison_dmg = GET_POISON(ch) * (IS_NPC(ch) ? 4 : 5);
+		int poison_dmg = GET_POISON(ch) * (ch->is_npc() ? 4 : 5);
 		// мобов яд ядит на тике, а чаров каждый батл тик соответсвенно если это не моб надо делить на 30 или тип того
-		if (!IS_NPC(ch))
+		if (!ch->is_npc())
 			poison_dmg = poison_dmg / 30;
 		//poison_dmg = interpolate(poison_dmg, 2); // И как оно должно работать чото нифига не понял, понял только что оно не работает
 		Damage dmg(SpellDmg(kSpellPoison), poison_dmg, fight::kUndefDmg);

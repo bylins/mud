@@ -252,7 +252,7 @@ AbilitiesInfo::AbilitiesInfoBuilder::AbilitiesInfoBuilder() {
 			};
 		circumstance_handlers_register_[ECirumstance::kVictimAwake] =
 			[](CharData * /* ch */, CharData *victim) -> bool {
-				return GR_FLAGGED(victim, EPrf::kAwake);
+				return PRF_FLAGGED(victim, EPrf::kAwake);
 			};
 		circumstance_handlers_register_[ECirumstance::kVictimHold] =
 			[](CharData * /* ch */, CharData *victim) -> bool {

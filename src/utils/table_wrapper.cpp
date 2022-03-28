@@ -11,7 +11,7 @@ namespace table_wrapper {
 const int kDefaultLeftTableMargin = 1;	// Отступ таблицы от левого края окна
 
 void DecorateSimpleTable(CharData *ch, fort::char_table &table) {
-	if (GR_FLAGGED(ch, EPrf::kBlindMode)) {
+	if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {
 		table.set_border_style(FT_EMPTY2_STYLE);
 	} else {
 		table.set_border_style(FT_BASIC_STYLE);
@@ -20,7 +20,7 @@ void DecorateSimpleTable(CharData *ch, fort::char_table &table) {
 }
 
 void DecorateNoBorderTable(CharData *ch, fort::char_table &table) {
-	if (GR_FLAGGED(ch, EPrf::kBlindMode)) {
+	if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {
 		table.set_border_style(FT_EMPTY2_STYLE);
 	} else {
 		table.set_border_style(FT_EMPTY_STYLE);
@@ -29,7 +29,7 @@ void DecorateNoBorderTable(CharData *ch, fort::char_table &table) {
 }
 
 void DecorateServiceTable(CharData *ch, fort::char_table &table) {
-	if (GR_FLAGGED(ch, EPrf::kBlindMode)) {
+	if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {
 		table.set_border_style(FT_EMPTY2_STYLE);
 	} else {
 		table.set_border_style(FT_PLAIN_STYLE);
@@ -43,7 +43,7 @@ void DecorateServiceTable(CharData *ch, fort::char_table &table) {
 }
 
 void DecorateCuteTable(CharData *ch, fort::char_table &table) {
-	if (GR_FLAGGED(ch, EPrf::kBlindMode)) {
+	if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {
 		table.set_border_style(FT_EMPTY2_STYLE);
 	} else {
 		table.set_border_style(FT_BASIC_STYLE);
@@ -79,7 +79,7 @@ void DecorateCuteTable(CharData *ch, fort::char_table &table) {
 }
 
 void DecorateZebraTable(CharData *ch, fort::char_table &table, fort::color color) {
-	if (GR_FLAGGED(ch, EPrf::kBlindMode)) {
+	if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {
 		table.set_border_style(FT_EMPTY2_STYLE);
 	} else {
 		table.set_border_style(FT_SIMPLE_STYLE);
@@ -93,7 +93,7 @@ void DecorateZebraTable(CharData *ch, fort::char_table &table, fort::color color
 }
 
 void DecorateZebraTextTable(CharData *ch, fort::char_table &table, fort::color color) {
-	if (GR_FLAGGED(ch, EPrf::kBlindMode)) {
+	if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {
 		table.set_border_style(FT_EMPTY2_STYLE);
 	} else {
 		table.set_border_style(FT_SIMPLE_STYLE);

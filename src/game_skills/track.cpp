@@ -54,7 +54,7 @@ int go_track(CharData *ch, CharData *victim, const ESkill skill_no) {
 	if_sense = (skill_no == ESkill::kSense) ? 100 : 0;
 	percent = number(0, MUD::Skills()[skill_no].difficulty - if_sense);
 	//current_skillpercent = GET_SKILL(ch, ESkill::kSense);
-	if ((!IS_NPC(victim)) && (!IS_GOD(ch)) && (!IS_NPC(ch))) //Если цель чар и ищет не бог
+	if ((!victim->is_npc()) && (!IS_GOD(ch)) && (!ch->is_npc())) //Если цель чар и ищет не бог
 	{
 		percent = MIN(99, number(0, GET_REAL_REMORT(victim)) + percent);
 	}
@@ -78,7 +78,7 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char name[kMaxInputLength];
 
 	// The character must have the track skill.
-	if (IS_NPC(ch) || !ch->get_skill(ESkill::kTrack)) {
+	if (ch->is_npc() || !ch->get_skill(ESkill::kTrack)) {
 		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -195,7 +195,7 @@ void do_hidetrack(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 	struct TrackData *track[kDirMaxNumber + 1], *temp;
 	int percent, prob, i, croom, found = false, dir, rdir;
 
-	if (IS_NPC(ch) || !ch->get_skill(ESkill::kHideTrack)) {
+	if (ch->is_npc() || !ch->get_skill(ESkill::kHideTrack)) {
 		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}

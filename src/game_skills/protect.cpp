@@ -32,7 +32,7 @@ void do_protect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (IS_NPC(ch) || !ch->get_skill(ESkill::kProtect)) {
+	if (ch->is_npc() || !ch->get_skill(ESkill::kProtect)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -65,15 +65,15 @@ void do_protect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	}
 
-	if (IS_NPC(vict) && tch
-		&& (!IS_NPC(tch)
+	if (vict->is_npc() && tch
+		&& (!tch->is_npc()
 			|| (AFF_FLAGGED(tch, EAffectFlag::AFF_CHARM)
 				&& tch->has_master()
-				&& !IS_NPC(tch->get_master())))
-		&& (!IS_NPC(ch)
+				&& !tch->get_master()->is_npc()))
+		&& (!ch->is_npc()
 			|| (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 				&& ch->has_master()
-				&& !IS_NPC(ch->get_master())))) {
+				&& !ch->get_master()->is_npc()))) {
 		send_to_char("Вы пытаетесь прикрыть чужого противника.\r\n", ch);
 		return;
 	}

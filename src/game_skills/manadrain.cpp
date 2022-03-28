@@ -14,7 +14,7 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	one_argument(argument, arg);
 
-	if (IS_NPC(ch) || !ch->get_skill(ESkill::kJinx)) {
+	if (ch->is_npc() || !ch->get_skill(ESkill::kJinx)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -40,7 +40,7 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!IS_NPC(vict)) {
+	if (!vict->is_npc()) {
 		send_to_char("На живом человеке? Креста не вас нет!\r\n", ch);
 		return;
 	}

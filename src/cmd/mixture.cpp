@@ -7,7 +7,7 @@
 #include "game_magic/spells_info.h"
 
 void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
-	if (IS_NPC(ch))
+	if (ch->is_npc())
 		return;
 	if (IS_IMMORTAL(ch) && !privilege::CheckFlag(ch, privilege::kUseSkills)) {
 		send_to_char("Не положено...\r\n", ch);

@@ -8,7 +8,7 @@
 void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int spellnum, cnt;
 
-	if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (ch->is_npc() && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	if (!ch->get_skill(ESkill::kWarcry)) {

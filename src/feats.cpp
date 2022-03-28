@@ -718,7 +718,7 @@ bool can_use_feat(const CharData *ch, int feat) {
 	if ((feat == INCORRECT_FEAT) || !HAVE_FEAT(ch, feat)) {
 		return false;
 	};
-	if (IS_NPC(ch)) {
+	if (ch->is_npc()) {
 		return true;
 	};
 	if (NUM_LEV_FEAT(ch) < feat_info[feat].slot[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) {
@@ -979,7 +979,7 @@ void CheckBerserk(CharData *ch) {
 		af.location = APPLY_NONE;
 		af.battleflag = 0;
 
-		prob = IS_NPC(ch) ? 601 : (751 - GetRealLevel(ch) * 5);
+		prob = ch->is_npc() ? 601 : (751 - GetRealLevel(ch) * 5);
 		if (number(1, 1000) < prob) {
 			af.bitvector = to_underlying(EAffectFlag::AFF_BERSERK);
 			act("Вас обуяла предсмертная ярость!", false, ch, nullptr, nullptr, kToChar);
@@ -998,7 +998,7 @@ void CheckBerserk(CharData *ch) {
 void do_lightwalk(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	struct TimedFeat timed;
 
-	if (IS_NPC(ch) || !can_use_feat(ch, LIGHT_WALK_FEAT)) {
+	if (ch->is_npc() || !can_use_feat(ch, LIGHT_WALK_FEAT)) {
 		send_to_char("Вы не можете этого.\r\n", ch);
 		return;
 	}
@@ -1149,7 +1149,7 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	struct TimedFeat timed;
 
-	if (!IS_IMPL(ch) && (IS_NPC(ch) || !can_use_feat(ch, SPELL_CAPABLE_FEAT))) {
+	if (!IS_IMPL(ch) && (ch->is_npc() || !can_use_feat(ch, SPELL_CAPABLE_FEAT))) {
 		send_to_char("Вы не столь могущественны.\r\n", ch);
 		return;
 	}
@@ -1162,7 +1162,7 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	char *s;
 	int spellnum;
 
-	if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (ch->is_npc() && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)) {
@@ -1189,7 +1189,7 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if ((!IS_SET(GET_SPELL_TYPE(ch, spellnum), kSpellTemp | kSpellKnow) ||
 		GET_REAL_REMORT(ch) < MIN_CAST_REM(SpINFO, ch)) &&
-		(GetRealLevel(ch) < kLvlGreatGod) && (!IS_NPC(ch))) {
+		(GetRealLevel(ch) < kLvlGreatGod) && (!ch->is_npc())) {
 		if (GetRealLevel(ch) < MIN_CAST_LEV(SpINFO, ch)
 			|| GET_REAL_REMORT(ch) < MIN_CAST_REM(SpINFO, ch)
 			|| slot_for_char(ch, SpINFO.slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0) {
@@ -1232,7 +1232,7 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	act("$n принял$u делать какие-то пассы и что-то бормотать в сторону $N3.", false, ch, nullptr, follower, kToRoom);
 
 	GET_SPELL_MEM(ch, spellnum)--;
-	if (!IS_NPC(ch) && !IS_IMMORTAL(ch) && GR_FLAGGED(ch, EPrf::kAutomem))
+	if (!ch->is_npc() && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, EPrf::kAutomem))
 		MemQ_remember(ch, spellnum);
 
 	if (!IS_SET(SpINFO.routines, kMagDamage) || !SpINFO.violent ||
@@ -1351,7 +1351,7 @@ bool TryFlipActivatedFeature(CharData *ch, char *argument) {
 	if (!CheckAccessActivatedFeat(ch, featureNum)) {
 		return true;
 	};
-	if (GR_FLAGGED(ch, GetPrfWithFeatNumber(featureNum))) {
+	if (PRF_FLAGGED(ch, GetPrfWithFeatNumber(featureNum))) {
 		DeactivateFeature(ch, featureNum);
 	} else {
 		ActivateFeat(ch, featureNum);
@@ -1363,25 +1363,25 @@ bool TryFlipActivatedFeature(CharData *ch, char *argument) {
 
 void ActivateFeat(CharData *ch, int feat_num) {
 	switch (feat_num) {
-		case POWER_ATTACK_FEAT: GR_FLAGS(ch).unset(EPrf::kAimingAttack);
-			GR_FLAGS(ch).unset(EPrf::kGreatAimingAttack);
-			GR_FLAGS(ch).unset(EPrf::kGreatPowerAttack);
-			GR_FLAGS(ch).set(EPrf::kPowerAttack);
+		case POWER_ATTACK_FEAT: PRF_FLAGS(ch).unset(EPrf::kAimingAttack);
+			PRF_FLAGS(ch).unset(EPrf::kGreatAimingAttack);
+			PRF_FLAGS(ch).unset(EPrf::kGreatPowerAttack);
+			PRF_FLAGS(ch).set(EPrf::kPowerAttack);
 			break;
-		case GREAT_POWER_ATTACK_FEAT: GR_FLAGS(ch).unset(EPrf::kPowerAttack);
-			GR_FLAGS(ch).unset(EPrf::kAimingAttack);
-			GR_FLAGS(ch).unset(EPrf::kGreatAimingAttack);
-			GR_FLAGS(ch).set(EPrf::kGreatPowerAttack);
+		case GREAT_POWER_ATTACK_FEAT: PRF_FLAGS(ch).unset(EPrf::kPowerAttack);
+			PRF_FLAGS(ch).unset(EPrf::kAimingAttack);
+			PRF_FLAGS(ch).unset(EPrf::kGreatAimingAttack);
+			PRF_FLAGS(ch).set(EPrf::kGreatPowerAttack);
 			break;
-		case AIMING_ATTACK_FEAT: GR_FLAGS(ch).unset(EPrf::kPowerAttack);
-			GR_FLAGS(ch).unset(EPrf::kGreatAimingAttack);
-			GR_FLAGS(ch).unset(EPrf::kGreatPowerAttack);
-			GR_FLAGS(ch).set(EPrf::kAimingAttack);
+		case AIMING_ATTACK_FEAT: PRF_FLAGS(ch).unset(EPrf::kPowerAttack);
+			PRF_FLAGS(ch).unset(EPrf::kGreatAimingAttack);
+			PRF_FLAGS(ch).unset(EPrf::kGreatPowerAttack);
+			PRF_FLAGS(ch).set(EPrf::kAimingAttack);
 			break;
-		case GREAT_AIMING_ATTACK_FEAT: GR_FLAGS(ch).unset(EPrf::kPowerAttack);
-			GR_FLAGS(ch).unset(EPrf::kAimingAttack);
-			GR_FLAGS(ch).unset(EPrf::kGreatPowerAttack);
-			GR_FLAGS(ch).set(EPrf::kGreatAimingAttack);
+		case GREAT_AIMING_ATTACK_FEAT: PRF_FLAGS(ch).unset(EPrf::kPowerAttack);
+			PRF_FLAGS(ch).unset(EPrf::kAimingAttack);
+			PRF_FLAGS(ch).unset(EPrf::kGreatPowerAttack);
+			PRF_FLAGS(ch).set(EPrf::kGreatAimingAttack);
 			break;
 		case SKIRMISHER_FEAT:
 			if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)) {
@@ -1390,19 +1390,19 @@ void ActivateFeat(CharData *ch, int feat_num) {
 							 ch->get_name().c_str());
 				return;
 			}
-			if (GR_FLAGGED(ch, EPrf::kSkirmisher)) {
+			if (PRF_FLAGGED(ch, EPrf::kSkirmisher)) {
 				send_to_char("Вы уже стоите в передовом строю.\r\n", ch);
 				return;
 			}
-			GR_FLAGS(ch).set(EPrf::kSkirmisher);
+			PRF_FLAGS(ch).set(EPrf::kSkirmisher);
 			send_to_char("Вы протиснулись вперед и встали в строй.\r\n", ch);
 			act("$n0 протиснул$u вперед и встал$g в строй.", false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 			break;
-		case DOUBLE_THROW_FEAT: GR_FLAGS(ch).unset(EPrf::kTripleThrow);
-			GR_FLAGS(ch).set(EPrf::kDoubleThrow);
+		case DOUBLE_THROW_FEAT: PRF_FLAGS(ch).unset(EPrf::kTripleThrow);
+			PRF_FLAGS(ch).set(EPrf::kDoubleThrow);
 			break;
-		case TRIPLE_THROW_FEAT: GR_FLAGS(ch).unset(EPrf::kDoubleThrow);
-			GR_FLAGS(ch).set(EPrf::kTripleThrow);
+		case TRIPLE_THROW_FEAT: PRF_FLAGS(ch).unset(EPrf::kDoubleThrow);
+			PRF_FLAGS(ch).set(EPrf::kTripleThrow);
 			break;
 		default: break;
 	}
@@ -1415,24 +1415,24 @@ void ActivateFeat(CharData *ch, int feat_num) {
 
 void DeactivateFeature(CharData *ch, int feat_num) {
 	switch (feat_num) {
-		case POWER_ATTACK_FEAT: GR_FLAGS(ch).unset(EPrf::kPowerAttack);
+		case POWER_ATTACK_FEAT: PRF_FLAGS(ch).unset(EPrf::kPowerAttack);
 			break;
-		case GREAT_POWER_ATTACK_FEAT: GR_FLAGS(ch).unset(EPrf::kGreatPowerAttack);
+		case GREAT_POWER_ATTACK_FEAT: PRF_FLAGS(ch).unset(EPrf::kGreatPowerAttack);
 			break;
-		case AIMING_ATTACK_FEAT: GR_FLAGS(ch).unset(EPrf::kAimingAttack);
+		case AIMING_ATTACK_FEAT: PRF_FLAGS(ch).unset(EPrf::kAimingAttack);
 			break;
-		case GREAT_AIMING_ATTACK_FEAT: GR_FLAGS(ch).unset(EPrf::kGreatAimingAttack);
+		case GREAT_AIMING_ATTACK_FEAT: PRF_FLAGS(ch).unset(EPrf::kGreatAimingAttack);
 			break;
-		case SKIRMISHER_FEAT: GR_FLAGS(ch).unset(EPrf::kSkirmisher);
+		case SKIRMISHER_FEAT: PRF_FLAGS(ch).unset(EPrf::kSkirmisher);
 			if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)) {
 				send_to_char("Вы решили, что в обозе вам будет спокойней.\r\n", ch);
 				act("$n0 тактически отступил$g в тыл отряда.",
 					false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 			}
 			break;
-		case DOUBLE_THROW_FEAT: GR_FLAGS(ch).unset(EPrf::kDoubleThrow);
+		case DOUBLE_THROW_FEAT: PRF_FLAGS(ch).unset(EPrf::kDoubleThrow);
 			break;
-		case TRIPLE_THROW_FEAT: GR_FLAGS(ch).unset(EPrf::kTripleThrow);
+		case TRIPLE_THROW_FEAT: PRF_FLAGS(ch).unset(EPrf::kTripleThrow);
 			break;
 		default: break;
 	}
@@ -1494,7 +1494,7 @@ Bitvector GetPrfWithFeatNumber(int feat_num) {
 */
 int CalcRollBonusOfGroupFormation(CharData *ch, CharData * /* enemy */) {
 	ActionTargeting::FriendsRosterType roster{ch};
-	int skirmishers = roster.count([](CharData *ch) { return GR_FLAGGED(ch, EPrf::kSkirmisher); });
+	int skirmishers = roster.count([](CharData *ch) { return PRF_FLAGGED(ch, EPrf::kSkirmisher); });
 	int uncoveredSquadMembers = roster.amount() - skirmishers;
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
 		return (skirmishers * 2 - uncoveredSquadMembers) * abilities::kCircumstanceFactor - 40;
