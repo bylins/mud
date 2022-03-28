@@ -1015,35 +1015,35 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 	Bitvector mode_flags{0};
 	if (!CAN_SEE(ch, i)) {
 		mode_flags =
-			check_awake(i, ACHECK_AFFECTS | ACHECK_LIGHT | ACHECK_HUMMING | ACHECK_GLOWING | ACHECK_WEIGHT);
+			check_awake(i, kAcheckAffects | kAcheckLight | kAcheckHumming | kAcheckGlowing | kAcheckWeight);
 		*buf = 0;
-		if (IS_SET(mode_flags, ACHECK_AFFECTS)) {
-			REMOVE_BIT(mode_flags, ACHECK_AFFECTS);
+		if (IS_SET(mode_flags, kAcheckAffects)) {
+			REMOVE_BIT(mode_flags, kAcheckAffects);
 			sprintf(buf + strlen(buf), "магический ореол%s", mode_flags ? ", " : " ");
 		}
-		if (IS_SET(mode_flags, ACHECK_LIGHT)) {
-			REMOVE_BIT(mode_flags, ACHECK_LIGHT);
+		if (IS_SET(mode_flags, kAcheckLight)) {
+			REMOVE_BIT(mode_flags, kAcheckLight);
 			sprintf(buf + strlen(buf), "яркий свет%s", mode_flags ? ", " : " ");
 		}
-		if (IS_SET(mode_flags, ACHECK_GLOWING)
-			&& IS_SET(mode_flags, ACHECK_HUMMING)
+		if (IS_SET(mode_flags, kAcheckGlowing)
+			&& IS_SET(mode_flags, kAcheckHumming)
 			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS)) {
-			REMOVE_BIT(mode_flags, ACHECK_GLOWING);
-			REMOVE_BIT(mode_flags, ACHECK_HUMMING);
+			REMOVE_BIT(mode_flags, kAcheckGlowing);
+			REMOVE_BIT(mode_flags, kAcheckHumming);
 			sprintf(buf + strlen(buf), "шум и блеск экипировки%s", mode_flags ? ", " : " ");
 		}
-		if (IS_SET(mode_flags, ACHECK_GLOWING)) {
-			REMOVE_BIT(mode_flags, ACHECK_GLOWING);
+		if (IS_SET(mode_flags, kAcheckGlowing)) {
+			REMOVE_BIT(mode_flags, kAcheckGlowing);
 			sprintf(buf + strlen(buf), "блеск экипировки%s", mode_flags ? ", " : " ");
 		}
-		if (IS_SET(mode_flags, ACHECK_HUMMING)
+		if (IS_SET(mode_flags, kAcheckHumming)
 			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS)) {
-			REMOVE_BIT(mode_flags, ACHECK_HUMMING);
+			REMOVE_BIT(mode_flags, kAcheckHumming);
 			sprintf(buf + strlen(buf), "шум экипировки%s", mode_flags ? ", " : " ");
 		}
-		if (IS_SET(mode_flags, ACHECK_WEIGHT)
+		if (IS_SET(mode_flags, kAcheckWeight)
 			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS)) {
-			REMOVE_BIT(mode_flags, ACHECK_WEIGHT);
+			REMOVE_BIT(mode_flags, kAcheckWeight);
 			sprintf(buf + strlen(buf), "бряцание металла%s", mode_flags ? ", " : " ");
 		}
 		strcat(buf, "выдает чье-то присутствие.\r\n");
@@ -1409,7 +1409,7 @@ void list_char_to_char(const RoomData::people_t &list, CharData *ch) {
 		if (ch != i) {
 			if (HERE(i) && (GET_RACE(i) != ENpcRace::kConstruct)
 				&& (CAN_SEE(ch, i)
-					|| awaking(i, AW_HIDE | AW_INVIS | AW_CAMOUFLAGE))) {
+					|| awaking(i, kAwHide | kAwInvis | kAwCamouflage))) {
 				ListOneChar(i, ch, ESkill::kAny);
 			} else if (is_dark(i->in_room)
 				&& i->in_room == ch->in_room
@@ -3151,7 +3151,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (showclass != ECharClass::kUndefined && showclass != tch->get_class()) {
 			continue;
 		}
-		if (showname && !(!NAME_GOD(tch) && GetRealLevel(tch) <= NAME_LEVEL)) {
+		if (showname && !(!NAME_GOD(tch) && GetRealLevel(tch) <= kNameLevel)) {
 			continue;
 		}
 		if (PLR_FLAGGED(tch, PLR_NAMED) && NAME_DURATION(tch)
@@ -3217,7 +3217,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (PLR_FLAGGED(tch, PLR_KILLER) == PLR_KILLER)
 				sprintf(buf + strlen(buf), "&R (ДУШЕГУБ)&n");
 			if ((IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_DEMIGOD)) && !NAME_GOD(tch)
-				&& GetRealLevel(tch) <= NAME_LEVEL) {
+				&& GetRealLevel(tch) <= kNameLevel) {
 				sprintf(buf + strlen(buf), " &W!НЕ ОДОБРЕНО!&n");
 				if (showname) {
 					sprintf(buf + strlen(buf),

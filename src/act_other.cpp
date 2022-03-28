@@ -236,30 +236,30 @@ int check_awake(CharData *ch, int what) {
 	int i, retval = 0, wgt = 0;
 
 	if (!IS_GOD(ch)) {
-		if (IS_SET(what, ACHECK_AFFECTS)
+		if (IS_SET(what, kAcheckAffects)
 			&& (AFF_FLAGGED(ch, EAffectFlag::AFF_STAIRS) || AFF_FLAGGED(ch, EAffectFlag::AFF_SANCTUARY)))
-			SET_BIT(retval, ACHECK_AFFECTS);
+			SET_BIT(retval, kAcheckAffects);
 
-		if (IS_SET(what, ACHECK_LIGHT) &&
+		if (IS_SET(what, kAcheckLight) &&
 			IS_DEFAULTDARK(ch->in_room)
 			&& (AFF_FLAGGED(ch, EAffectFlag::AFF_SINGLELIGHT) || AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYLIGHT)))
-			SET_BIT(retval, ACHECK_LIGHT);
+			SET_BIT(retval, kAcheckLight);
 
 		for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
 			if (!GET_EQ(ch, i))
 				continue;
 
-			if (IS_SET(what, ACHECK_HUMMING) && GET_EQ(ch, i)->has_flag(EObjFlag::kHum))
-				SET_BIT(retval, ACHECK_HUMMING);
+			if (IS_SET(what, kAcheckHumming) && GET_EQ(ch, i)->has_flag(EObjFlag::kHum))
+				SET_BIT(retval, kAcheckHumming);
 
-			if (IS_SET(what, ACHECK_GLOWING) && GET_EQ(ch, i)->has_flag(EObjFlag::kGlow))
-				SET_BIT(retval, ACHECK_GLOWING);
+			if (IS_SET(what, kAcheckGlowing) && GET_EQ(ch, i)->has_flag(EObjFlag::kGlow))
+				SET_BIT(retval, kAcheckGlowing);
 
-			if (IS_SET(what, ACHECK_LIGHT)
+			if (IS_SET(what, kAcheckLight)
 				&& IS_DEFAULTDARK(ch->in_room)
 				&& GET_OBJ_TYPE(GET_EQ(ch, i)) == ObjData::ITEM_LIGHT
 				&& GET_OBJ_VAL(GET_EQ(ch, i), 2)) {
-				SET_BIT(retval, ACHECK_LIGHT);
+				SET_BIT(retval, kAcheckLight);
 			}
 
 			if (ObjSystem::is_armor_type(GET_EQ(ch, i))
@@ -268,8 +268,8 @@ int check_awake(CharData *ch, int what) {
 			}
 		}
 
-		if (IS_SET(what, ACHECK_WEIGHT) && wgt > GET_REAL_STR(ch) * 2)
-			SET_BIT(retval, ACHECK_WEIGHT);
+		if (IS_SET(what, kAcheckWeight) && wgt > GET_REAL_STR(ch) * 2)
+			SET_BIT(retval, kAcheckWeight);
 	}
 	return (retval);
 }
@@ -277,8 +277,8 @@ int check_awake(CharData *ch, int what) {
 int awake_hide(CharData *ch) {
 	if (IS_GOD(ch))
 		return (false);
-	return check_awake(ch, ACHECK_AFFECTS | ACHECK_LIGHT | ACHECK_HUMMING
-		| ACHECK_GLOWING | ACHECK_WEIGHT);
+	return check_awake(ch, kAcheckAffects | kAcheckLight | kAcheckHumming
+		| kAcheckGlowing | kAcheckWeight);
 }
 
 int awake_sneak(CharData *ch) {
@@ -288,8 +288,8 @@ int awake_sneak(CharData *ch) {
 int awake_invis(CharData *ch) {
 	if (IS_GOD(ch))
 		return (false);
-	return check_awake(ch, ACHECK_AFFECTS | ACHECK_LIGHT | ACHECK_HUMMING
-		| ACHECK_GLOWING);
+	return check_awake(ch, kAcheckAffects | kAcheckLight | kAcheckHumming
+		| kAcheckGlowing);
 }
 
 int awake_camouflage(CharData *ch) {
@@ -299,13 +299,13 @@ int awake_camouflage(CharData *ch) {
 int awaking(CharData *ch, int mode) {
 	if (IS_GOD(ch))
 		return (false);
-	if (IS_SET(mode, AW_HIDE) && awake_hide(ch))
+	if (IS_SET(mode, kAwHide) && awake_hide(ch))
 		return (true);
-	if (IS_SET(mode, AW_INVIS) && awake_invis(ch))
+	if (IS_SET(mode, kAwInvis) && awake_invis(ch))
 		return (true);
-	if (IS_SET(mode, AW_CAMOUFLAGE) && awake_camouflage(ch))
+	if (IS_SET(mode, kAwCamouflage) && awake_camouflage(ch))
 		return (true);
-	if (IS_SET(mode, AW_SNEAK) && awake_sneak(ch))
+	if (IS_SET(mode, kAwSneak) && awake_sneak(ch))
 		return (true);
 	return (false);
 }

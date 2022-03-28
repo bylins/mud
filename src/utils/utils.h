@@ -627,12 +627,12 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_NDD(ch) ((ch)->mob_specials.damnodice)
 #define GET_SDD(ch) ((ch)->mob_specials.damsizedice)
 
-#define ALIG_EVIL_LESS     (-300)
-#define ALIG_GOOD_MORE     300
+const int kAligEvilLess = -300;
+const int kAligGoodMore = 300;
 
 #define GET_ALIGNMENT(ch)     ((ch)->char_specials.saved.alignment)
 
-#define NAME_LEVEL 5
+const int kNameLevel = 5;
 #define NAME_FINE(ch)          (NAME_GOD(ch)>1000)
 #define NAME_BAD(ch)           (NAME_GOD(ch)<1000 && NAME_GOD(ch))
 
@@ -730,8 +730,8 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define CAN_SEE_IN_DARK(ch) \
    (AFF_FLAGGED(ch, EAffectFlag::AFF_INFRAVISION) || (!(ch)->is_npc() && PRF_FLAGGED(ch, EPrf::kHolylight)))
 
-#define IS_GOOD(ch)          (GET_ALIGNMENT(ch) >= ALIG_GOOD_MORE)
-#define IS_EVIL(ch)          (GET_ALIGNMENT(ch) <= ALIG_EVIL_LESS)
+#define IS_GOOD(ch)          (GET_ALIGNMENT(ch) >= kAligGoodMore)
+#define IS_EVIL(ch)          (GET_ALIGNMENT(ch) <= kAligEvilLess)
 
 /*
 #define SAME_ALIGN(ch,vict)  ((IS_GOOD(ch) && IS_GOOD(vict)) ||\
@@ -1095,18 +1095,18 @@ enum class EWhat : int  {
 
 const char *GetDeclensionInNumber(long amount, EWhat of_what);
 
-#undef AW_HIDE // конфликтует с winuser.h
+//#undef AW_HIDE // конфликтует с winuser.h
 // some awaking cases
-#define AW_HIDE       (1 << 0)
-#define AW_INVIS      (1 << 1)
-#define AW_CAMOUFLAGE (1 << 2)
-#define AW_SNEAK      (1 << 3)
+const int kAwHide = 1 << 0;
+const int kAwInvis = 1 << 1;
+const int kAwCamouflage = 1 << 2;
+const int kAwSneak = 1 << 3;
 
-#define ACHECK_AFFECTS (1 << 0)
-#define ACHECK_LIGHT   (1 << 1)
-#define ACHECK_HUMMING (1 << 2)
-#define ACHECK_GLOWING (1 << 3)
-#define ACHECK_WEIGHT  (1 << 4)
+const int kAcheckAffects = 1 << 0;
+const int kAcheckLight = 1 << 1;
+const int kAcheckHumming = 1 << 2;
+const int kAcheckGlowing = 1 << 3;
+const int kAcheckWeight = 1 << 4;
 
 int check_awake(CharData *ch, int what);
 int awake_hide(CharData *ch);

@@ -808,7 +808,7 @@ bool AWAKE(const CharData *ch) {
 bool OK_GAIN_EXP(const CharData *ch, const CharData *victim) {
 	return !NAME_BAD(ch)
 		&& (NAME_FINE(ch)
-			|| !(GetRealLevel(ch) == NAME_LEVEL))
+			|| !(GetRealLevel(ch) == kNameLevel))
 		&& !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
 		&& victim->is_npc()
 		&& (GET_EXP(victim) > 0)

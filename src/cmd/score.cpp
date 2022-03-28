@@ -203,7 +203,7 @@ void PrintScoreList(CharData *ch) {
 			*buf2 = '\0';
 		}
 	}
-	if (!NAME_GOD(ch) && GetRealLevel(ch) <= NAME_LEVEL) {
+	if (!NAME_GOD(ch) && GetRealLevel(ch) <= kNameLevel) {
 		send_to_char(ch, "ВНИМАНИЕ! ваше имя не одобрил никто из богов!\r\n");
 		send_to_char(ch, "Cкоро вы прекратите получать опыт, обратитесь к богам для одобрения имени.\r\n");
 	} else if (NAME_BAD(ch)) {
@@ -271,7 +271,7 @@ void PrintGloryInfo(CharData *ch, std::ostringstream &out) {
 }
 
 void PrintNameStatusInfo(CharData *ch, std::ostringstream &out) {
-	if (!NAME_GOD(ch) && GetRealLevel(ch) <= NAME_LEVEL) {
+	if (!NAME_GOD(ch) && GetRealLevel(ch) <= kNameLevel) {
 		out << InfoStrPrefix(ch) << KIRED << "ВНИМАНИЕ! " << KNRM
 			<< "ваше имя не одобрил никто из богов!" << std::endl;
 		out << InfoStrPrefix(ch) << KIRED << "ВНИМАНИЕ! " << KNRM
