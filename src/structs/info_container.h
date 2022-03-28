@@ -94,6 +94,7 @@ class InfoContainer {
 			return *(items_->at(id));
 		} catch (const std::out_of_range &) {
 			err_log("Incorrect id (%d) passed into %s.", to_underlying(id), typeid(this).name());
+//			log("Incorrect id (%d) passed into %s.", to_underlying(id), typeid(this).name());
 			return *(items_->at(E::kUndefined));
 		}
 	};

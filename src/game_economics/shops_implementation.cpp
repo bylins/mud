@@ -368,9 +368,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 				if (ObjData::ITEM_BOOK == GET_OBJ_TYPE(obj)) {
 					obj->set_extra_flag(EExtraFlag::ITEM_NO_FAIL);
 				}
-
 				// снятие и логирование славы
-				obj->set_owner(GET_UNIQUE(ch));
 				GloryConst::add_total_spent(price);
 				GloryConst::remove_glory(GET_UNIQUE(ch), price);
 				GloryConst::transfer_log("%s bought %s for %ld const glory",

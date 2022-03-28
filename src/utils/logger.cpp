@@ -211,7 +211,7 @@ void err_log(const char *format, ...) {
 	vsnprintf(buf_ + cnt, sizeof(buf_) - cnt, format, args);
 	va_end(args);
 
-	mudlog(buf_, DEF, kLvlImmortal, SYSLOG, true);
+	mudlog(buf_, LGH, kLvlImmortal, SYSLOG, true);
 }
 
 void ip_log(const char *ip) {
