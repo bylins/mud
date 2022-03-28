@@ -108,7 +108,7 @@ void show_wizdom(CharData *ch, int bitset) {
 			slots[i] = 0;
 		}
 
-		if (!MEMQUEUE_EMPTY(ch)) {
+		if (!ch->mem_queue.Empty()) {
 			unsigned char cnt[kSpellCount + 1];
 			memset(cnt, 0, kSpellCount + 1);
 			timestr[0] = 0;
@@ -116,7 +116,7 @@ void show_wizdom(CharData *ch, int bitset) {
 				int div, min, sec;
 				div = mana_gain(ch);
 				if (div > 0) {
-					sec = MAX(0, 1 + GET_MEM_CURRENT(ch) - GET_MEM_COMPLETED(ch));    // sec/div -- время мема в мин
+					sec = std::max(0, 1 + GET_MEM_CURRENT(ch) - ch->mem_queue.stored);    // sec/div -- время мема в мин
 					sec = sec * 60 / div;    // время мема в сек
 					min = sec / 60;
 					sec %= 60;
@@ -129,11 +129,11 @@ void show_wizdom(CharData *ch, int bitset) {
 				}
 			}
 
-			for (q = ch->MemQueue.queue; q; q = q->link) {
+			for (q = ch->mem_queue.queue; q; q = q->link) {
 				++cnt[q->spellnum];
 			}
 
-			for (q = ch->MemQueue.queue; q; q = q->link) {
+			for (q = ch->mem_queue.queue; q; q = q->link) {
 				i = q->spellnum;
 				if (cnt[i] == 0)
 					continue;
@@ -142,7 +142,7 @@ void show_wizdom(CharData *ch, int bitset) {
 										   "%2s|[%2d] %-26s%5s|",
 										   slots[slot_num] % 80 <
 											   10 ? "\r\n" : "  ", cnt[i],
-										   spell_info[i].name, q == ch->MemQueue.queue ? timestr : "");
+										   spell_info[i].name, q == ch->mem_queue.queue ? timestr : "");
 				cnt[i] = 0;
 			}
 

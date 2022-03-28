@@ -439,8 +439,6 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
 #define EXTRA_FLAGS(ch) ((ch)->Temporary)
 #define SPELL_ROUTINES(spl) (spell_info[spl].routines)
 
-// See http://www.circlemud.org/~greerga/todo.009 to eliminate MOB_ISNPC.
-#define IS_NPC(ch)           ((ch)->is_npc())
 #define IS_MOB(ch)          ((ch)->is_npc() && (ch)->get_rnum() >= 0)
 
 #define MOB_FLAGGED(ch, flag)   ((ch)->is_npc() && MOB_FLAGS(ch).get(flag))
@@ -485,15 +483,10 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
 #define GET_REAL_AGE(ch) (age(ch)->year + GET_AGE_ADD(ch))
 #define GET_PC_NAME(ch) ((ch)->get_pc_name().c_str())
 #define GET_NAME(ch)    ((ch)->get_name().c_str())
-#define GET_HELPER(ch)  ((ch)->helpers)
 #define GET_TITLE(ch)   ((ch)->player_data.title)
 #define GET_MAX_MANA(ch)      (mana[MIN(50, GET_REAL_WIS(ch))])
 #define GET_MANA_COST(ch, spellnum)      mag_manacost(ch,spellnum)
-#define GET_MANA_STORED(ch)   ((ch)->MemQueue.stored)
-#define GET_MEM_COMPLETED(ch) ((ch)->MemQueue.stored)
-#define GET_MEM_CURRENT(ch)   (MEMQUEUE_EMPTY(ch)?0:mag_manacost(ch,(ch)->MemQueue.queue->spellnum))
-#define GET_MEM_TOTAL(ch)     ((ch)->MemQueue.total)
-#define MEMQUEUE_EMPTY(ch)    ((ch)->MemQueue.queue == nullptr)
+#define GET_MEM_CURRENT(ch)   (((ch)->mem_queue.queue == nullptr) ? 0 : mag_manacost(ch,(ch)->mem_queue.queue->spellnum))
 #define INITIATIVE(ch)        ((ch)->Initiative)
 #define BATTLECNTR(ch)        ((ch)->BattleCounter)
 #define ROUND_COUNTER(ch)     ((ch)->round_counter)

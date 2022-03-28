@@ -119,7 +119,7 @@ void PrintScoreList(CharData *ch) {
 				 GET_MOVE(ch), GET_REAL_MAX_MOVE(ch), desc_count(GET_MOVE(ch), WHAT_MOVEu));
 	if (IS_MANA_CASTER(ch)) {
 		send_to_char(ch, "Ваша магическая энергия %d(%d) и вы восстанавливаете %d в сек.\r\n",
-					 GET_MANA_STORED(ch), GET_MAX_MANA(ch), mana_gain(ch));
+					 ch->mem_queue.stored, GET_MAX_MANA(ch), mana_gain(ch));
 	}
 	send_to_char(ch, "Ваша сила: %d(%d), ловкость: %d(%d), телосложение: %d(%d), ум: %d(%d), мудрость: %d(%d), обаяние: %d(%d).\r\n",
 				 ch->get_str(), GET_REAL_STR(ch),
@@ -519,7 +519,7 @@ int PrintBaseStatsToTable(CharData *ch, fort::char_table &table, std::size_t col
 	table[++row][col] = "Выносливость";	table[row][col + 1] = std::to_string(GET_MOVE(ch)) + "(" + std::to_string(GET_REAL_MAX_MOVE(ch)) + ")";
 	table[++row][col] = "Восст. сил";	table[row][col + 1] = "+" + std::to_string(GET_MOVEREG(ch)) + "% (" + std::to_string(move_gain(ch)) + ")";
 	if (IS_MANA_CASTER(ch)) {
-		table[++row][col] = "Мана"; 		table[row][col + 1] = std::to_string(GET_MANA_STORED(ch)) + "(" + std::to_string(GET_MAX_MANA(ch)) + ")";
+		table[++row][col] = "Мана"; 		table[row][col + 1] = std::to_string(ch->mem_queue.stored) + "(" + std::to_string(GET_MAX_MANA(ch)) + ")";
 		table[++row][col] = "Восст. маны";	table[row][col + 1] = "+" + std::to_string(mana_gain(ch)) + " сек.";
 	}
 
@@ -545,7 +545,7 @@ int PrintSecondaryStatsToTable(CharData *ch, fort::char_table &table, std::size_
 	table[++row][col] = "Колдовство";	table[row][col + 1] = std::to_string(CalcAntiSavings(ch));
 	table[++row][col] = "Запоминание";	table[row][col + 1] = std::to_string(std::lround(GET_MANAREG(ch)*ch->get_cond_penalty(P_CAST)));
 	table[++row][col] = "Удача";		table[row][col + 1] = std::to_string(ch->calc_morale());
-	table[++row][col] = "Маг. урон %";		table[row][col + 1] = std::to_string(ch->add_abils.percent_magdam_add + ch->obj_bonus().calc_mage_dmg(100));
+	table[++row][col] = "Маг. урон %";	table[row][col + 1] = std::to_string(ch->add_abils.percent_magdam_add + ch->obj_bonus().calc_mage_dmg(100));
 	table[++row][col] = "Физ. урон %";	table[row][col + 1] = std::to_string(ch->add_abils.percent_physdam_add + ch->obj_bonus().calc_phys_dmg(100));
 	table[++row][col] = "Инициатива";	table[row][col + 1] = std::to_string(calc_initiative(ch, false));
 	table[++row][col] = "Спас-броски:";	table[row][col + 1] = " ";
@@ -696,7 +696,7 @@ void PrintScoreBase(CharData *ch) {
 	if (IS_MANA_CASTER(ch)) {
 		sprintf(buf + strlen(buf),
 				"Ваша магическая энергия %d(%d) и вы восстанавливаете %d в сек.\r\n",
-				GET_MANA_STORED(ch), GET_MAX_MANA(ch), mana_gain(ch));
+				ch->mem_queue.stored, GET_MAX_MANA(ch), mana_gain(ch));
 	}
 
 	sprintf(buf + strlen(buf),

@@ -2867,16 +2867,16 @@ int mag_manacost(const CharData *ch, int spellnum) {
 }
 
 void MemQ_init(CharData *ch) {
-	ch->MemQueue.stored = 0;
-	ch->MemQueue.total = 0;
-	ch->MemQueue.queue = nullptr;
+	ch->mem_queue.stored = 0;
+	ch->mem_queue.total = 0;
+	ch->mem_queue.queue = nullptr;
 }
 
 void MemQ_flush(CharData *ch) {
 	struct SpellMemQueueItem *i;
-	while (ch->MemQueue.queue) {
-		i = ch->MemQueue.queue;
-		ch->MemQueue.queue = i->link;
+	while (ch->mem_queue.queue) {
+		i = ch->mem_queue.queue;
+		ch->mem_queue.queue = i->link;
 		free(i);
 	}
 	MemQ_init(ch);
@@ -2885,14 +2885,14 @@ void MemQ_flush(CharData *ch) {
 int MemQ_learn(CharData *ch) {
 	int num;
 	struct SpellMemQueueItem *i;
-	if (ch->MemQueue.queue == nullptr)
+	if (ch->mem_queue.queue == nullptr)
 		return 0;
 	num = GET_MEM_CURRENT(ch);
-	ch->MemQueue.stored -= num;
-	ch->MemQueue.total -= num;
-	num = ch->MemQueue.queue->spellnum;
-	i = ch->MemQueue.queue;
-	ch->MemQueue.queue = i->link;
+	ch->mem_queue.stored -= num;
+	ch->mem_queue.total -= num;
+	num = ch->mem_queue.queue->spellnum;
+	i = ch->mem_queue.queue;
+	ch->mem_queue.queue = i->link;
 	free(i);
 	sprintf(buf, "Вы выучили заклинание \"%s%s%s\".\r\n",
 			CCICYN(ch, C_NRM), spell_info[num].name, CCNRM(ch, C_NRM));
@@ -2903,7 +2903,7 @@ int MemQ_learn(CharData *ch) {
 void MemQ_remember(CharData *ch, int num) {
 	int *slots;
 	int slotcnt, slotn;
-	struct SpellMemQueueItem *i, **pi = &ch->MemQueue.queue;
+	struct SpellMemQueueItem *i, **pi = &ch->mem_queue.queue;
 
 	// проверить количество слотов
 	slots = MemQ_slots(ch);
@@ -2924,7 +2924,7 @@ void MemQ_remember(CharData *ch, int num) {
 				CCIMAG(ch, C_NRM), spell_info[num].name, CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
 
-	ch->MemQueue.total += mag_manacost(ch, num);
+	ch->mem_queue.total += mag_manacost(ch, num);
 	while (*pi)
 		pi = &((*pi)->link);
 	CREATE(i, 1);
@@ -2936,7 +2936,7 @@ void MemQ_remember(CharData *ch, int num) {
 void MemQ_forget(CharData *ch, int num) {
 	struct SpellMemQueueItem **q = nullptr, **i;
 
-	for (i = &ch->MemQueue.queue; *i; i = &(i[0]->link)) {
+	for (i = &ch->mem_queue.queue; *i; i = &(i[0]->link)) {
 		if (i[0]->spellnum == num)
 			q = i;
 	}
@@ -2945,9 +2945,9 @@ void MemQ_forget(CharData *ch, int num) {
 		send_to_char("Вы и не собирались заучить это заклинание.\r\n", ch);
 	} else {
 		struct SpellMemQueueItem *ptr;
-		if (q == &ch->MemQueue.queue)
-			GET_MEM_COMPLETED(ch) = 0;
-		GET_MEM_TOTAL(ch) = MAX(0, GET_MEM_TOTAL(ch) - mag_manacost(ch, num));
+		if (q == &ch->mem_queue.queue)
+			ch->mem_queue.stored = 0;
+		ch->mem_queue.total = std::max(0, ch->mem_queue.total - mag_manacost(ch, num));
 		ptr = q[0];
 		q[0] = q[0]->link;
 		free(ptr);
@@ -2986,7 +2986,7 @@ int *MemQ_slots(CharData *ch) {
 
 	}
 
-	for (q = &ch->MemQueue.queue; q[0];) {
+	for (q = &ch->mem_queue.queue; q[0];) {
 		sloti = spell_info[q[0]->spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;
 		if (sloti >= 0 && sloti <= 10) {
 			--slots[sloti];
@@ -2995,9 +2995,9 @@ int *MemQ_slots(CharData *ch) {
 				&& MIN_CAST_REM(spell_info[q[0]->spellnum], ch) <= GET_REAL_REMORT(ch)) {
 				q = &(q[0]->link);
 			} else {
-				if (q == &ch->MemQueue.queue)
-					GET_MEM_COMPLETED(ch) = 0;
-				GET_MEM_TOTAL(ch) = MAX(0, GET_MEM_TOTAL(ch) - mag_manacost(ch, q[0]->spellnum));
+				if (q == &ch->mem_queue.queue)
+					ch->mem_queue.stored = 0;
+				ch->mem_queue.total = std::max(0, ch->mem_queue.total - mag_manacost(ch, q[0]->spellnum));
 				++slots[sloti];
 				qt = q[0];
 				q[0] = q[0]->link;

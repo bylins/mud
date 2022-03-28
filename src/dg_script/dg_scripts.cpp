@@ -2187,9 +2187,9 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "mana")) {
 			if (*subfield) {
 				if (!c->is_npc())
-					GET_MANA_STORED(c) = MAX(0, gm_char_field(c, field, subfield, (long) GET_MANA_STORED(c)));
+					c->mem_queue.stored = std::max(0L, gm_char_field(c, field, subfield, (long) c->mem_queue.stored));
 			} else
-				sprintf(str, "%d", GET_MANA_STORED(c));
+				sprintf(str, "%d", c->mem_queue.stored);
 		} else if (!str_cmp(field, "maxmana")) {
 			sprintf(str, "%d", GET_MAX_MANA(c));
 		} else if (!str_cmp(field, "domination_kill")) {

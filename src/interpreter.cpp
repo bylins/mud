@@ -2367,7 +2367,7 @@ void do_entergame(DescriptorData *d) {
 		PRF_FLAGS(d->character).set(EPrf::kBoardMode);
 		d->character->set_last_exchange(time(nullptr));
 		do_start(d->character.get(), true);
-		GET_MANA_STORED(d->character) = 0;
+		d->character->mem_queue.stored = 0;
 		send_to_char(START_MESSG, d->character.get());
 	}
 

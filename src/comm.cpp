@@ -1668,11 +1668,11 @@ char *make_prompt(DescriptorData *d) {
 		// Mana state
 		if (PRF_FLAGGED(d->character, EPrf::kDispMana)
 			&& IS_MANA_CASTER(d->character)) {
-			perc = (100 * GET_MANA_STORED(d->character)) / GET_MAX_MANA((d->character).get());
+			perc = (100 * d->character->mem_queue.stored) / GET_MAX_MANA((d->character).get());
 			count +=
 				sprintf(prompt + count, "%s%dз%s ",
 						CCMANA(d->character, C_NRM, perc),
-						GET_MANA_STORED(d->character), CCNRM(d->character, C_NRM));
+						d->character->mem_queue.stored, CCNRM(d->character, C_NRM));
 		}
 		// Expirience
 		// if (EPrf::FLAGGED(d->character, EPrf::DISPEXP))
@@ -1688,11 +1688,11 @@ char *make_prompt(DescriptorData *d) {
 		// Mem Info
 		if (PRF_FLAGGED(d->character, EPrf::kDispMana)
 			&& !IS_MANA_CASTER(d->character)) {
-			if (!MEMQUEUE_EMPTY(d->character)) {
+			if (!d->character->mem_queue.Empty()) {
 				door = mana_gain(d->character.get());
 				if (door) {
 					sec_hp =
-						MAX(0, 1 + GET_MEM_TOTAL(d->character) - GET_MEM_COMPLETED(d->character));
+						std::max(0, 1 + d->character->mem_queue.total - d->character->mem_queue.stored);
 					sec_hp = sec_hp * 60 / door;
 					ch_hp = sec_hp / 60;
 					sec_hp %= 60;

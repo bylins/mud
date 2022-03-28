@@ -576,9 +576,9 @@ class CharacterWrapper : public Wrapper<CharacterData> {
 		GET_HIT(vict) = GET_REAL_MAX_HIT(vict);
 		GET_MOVE(vict) = GET_REAL_MAX_MOVE(vict);
 		if (IS_MANA_CASTER(vict)) {
-			GET_MANA_STORED(vict) = GET_MAX_MANA(vict);
+			vict->mem_queue.stored = GET_MAX_MANA(vict);
 		} else {
-			GET_MEM_COMPLETED(vict) = GET_MEM_TOTAL(vict);
+			vict->mem_queue.stored = vict->mem_queue.total;
 		}
 	}
 

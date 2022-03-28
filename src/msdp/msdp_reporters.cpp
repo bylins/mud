@@ -148,7 +148,7 @@ void StateReporter::get(Variable::shared_ptr &response) {
 										  std::make_shared<StringValue>(current_move)));
 
 	if (IS_MANA_CASTER(descriptor()->character)) {
-		const auto current_mana = std::to_string(GET_MANA_STORED(descriptor()->character));
+		const auto current_mana = std::to_string(descriptor()->character->mem_queue.stored);
 		state->add(std::make_shared<Variable>("CURRENT_MANA",
 											  std::make_shared<StringValue>(current_mana)));
 	}
@@ -236,15 +236,15 @@ int GroupReporter::get_mem(const CharData *character) const {
 	int result = 0;
 	int div = 0;
 	if (!character->is_npc()
-		&& ((!IS_MANA_CASTER(character) && !MEMQUEUE_EMPTY(character))
-			|| (IS_MANA_CASTER(character) && GET_MANA_STORED(character) < GET_MAX_MANA(character)))) {
+		&& ((!IS_MANA_CASTER(character) && !character->mem_queue.Empty())
+			|| (IS_MANA_CASTER(character) && character->mem_queue.stored < GET_MAX_MANA(character)))) {
 		div = mana_gain(character);
 		if (div > 0) {
 			if (!IS_MANA_CASTER(character)) {
-				result = MAX(0, 1 + GET_MEM_TOTAL(character) - GET_MEM_COMPLETED(character));
+				result = std::max(0, 1 + character->mem_queue.total - character->mem_queue.stored);
 				result = result * 60 / div;
 			} else {
-				result = MAX(0, 1 + GET_MAX_MANA(character) - GET_MANA_STORED(character));
+				result = std::max(0, 1 + GET_MAX_MANA(character) - character->mem_queue.stored);
 				result = result / div;
 			}
 		} else {

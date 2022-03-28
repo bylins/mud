@@ -1157,7 +1157,7 @@ void mob_casting(CharData *ch) {
 #define    MAY_ACT(ch)    (!(AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT) || AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT) || GET_MOB_HOLD(ch) || GET_WAIT(ch)))
 
 void summon_mob_helpers(CharData *ch) {
-	for (struct Helper *helpee = GET_HELPER(ch);
+	for (struct Helper *helpee = ch->helpers;
 		 helpee; helpee = helpee->next) {
 		// Start_fight_mtrigger using inside this loop
 		// So we have to iterate on copy list

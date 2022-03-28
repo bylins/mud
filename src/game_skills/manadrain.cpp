@@ -63,9 +63,9 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	Damage manadrainDamage(SkillDmg(ESkill::kJinx), fight::kZeroDmg, fight::kMagicDmg, nullptr);
 	manadrainDamage.magic_type = kTypeDark;
 	if (percent <= prob) {
-		skill = MAX(10, skill - 10 * MAX(0, GetRealLevel(ch) - GetRealLevel(vict)));
-		drained_mana = (GET_MAX_MANA(ch) - GET_MANA_STORED(ch)) * skill / 100;
-		GET_MANA_STORED(ch) = MIN(GET_MAX_MANA(ch), GET_MANA_STORED(ch) + drained_mana);
+		skill = std::max(10, skill - 10 * std::max(0, GetRealLevel(ch) - GetRealLevel(vict)));
+		drained_mana = (GET_MAX_MANA(ch) - ch->mem_queue.stored) * skill / 100;
+		ch->mem_queue.stored = std::min(GET_MAX_MANA(ch), ch->mem_queue.stored + drained_mana);
 		manadrainDamage.dam = 10;
 	}
 	manadrainDamage.Process(ch, vict);

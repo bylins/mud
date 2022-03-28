@@ -91,11 +91,11 @@ void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			return;
 		}
 
-		if (GET_MANA_STORED(ch) < GET_MANA_COST(ch, spellnum)) {
+		if (ch->mem_queue.stored < GET_MANA_COST(ch, spellnum)) {
 			send_to_char("У вас маловато магической энергии!\r\n", ch);
 			return;
 		} else {
-			GET_MANA_STORED(ch) = GET_MANA_STORED(ch) - GET_MANA_COST(ch, spellnum);
+			ch->mem_queue.stored = ch->mem_queue.stored - GET_MANA_COST(ch, spellnum);
 		}
 	}
 

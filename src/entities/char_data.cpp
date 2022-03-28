@@ -377,7 +377,7 @@ void CharData::zero_init() {
 		i = nullptr;
 	}
 
-	memset(&MemQueue, 0, sizeof(spell_mem_queue));
+	memset(&mem_queue, 0, sizeof(SpellMemQueue));
 	memset(&Temporary, 0, sizeof(FlagData));
 	memset(&BattleAffects, 0, sizeof(FlagData));
 	char_specials.position = EPosition::kStand;

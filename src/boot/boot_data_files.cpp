@@ -1135,8 +1135,8 @@ void MobileFile::parse_simple_mob(int i, int nr) {
 
 	// max hit = 0 is a flag that H, M, V is xdy+z
 	GET_MAX_HIT(mob_proto + i) = 0;
-	GET_MEM_TOTAL(mob_proto + i) = t[3];
-	GET_MEM_COMPLETED(mob_proto + i) = t[4];
+	(mob_proto + i)->mem_queue.total = t[3];
+	(mob_proto + i)->mem_queue.stored = t[4];
 	mob_proto[i].points.hit = t[5];
 
 	mob_proto[i].points.move = 100;
@@ -1448,8 +1448,8 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 	CASE("Helper") {
 		CREATE(helper, 1);
 		helper->mob_vnum = num_arg;
-		helper->next = GET_HELPER(mob_proto + i);
-		GET_HELPER(mob_proto + i) = helper;
+		helper->next = (mob_proto + i)->helpers;
+		(mob_proto + i)->helpers = helper;
 	}
 
 	CASE("Role") {

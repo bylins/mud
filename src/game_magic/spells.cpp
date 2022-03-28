@@ -1350,8 +1350,8 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 
 		}
 
-		if (GET_HELPER(victim)) {
-			GET_HELPER(victim) = nullptr;
+		if (victim->helpers) {
+			victim->helpers = nullptr;
 		}
 
 		act("$n покорил$g ваше сердце настолько, что вы готовы на все ради н$s.",

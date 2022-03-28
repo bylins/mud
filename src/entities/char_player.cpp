@@ -624,7 +624,7 @@ void Player::save_char() {
 	// Мемящиеся спелы
 	if (GetRealLevel(this) < kLvlImmortal) {
 		fprintf(saved, "SpTM:\n");
-		for (struct SpellMemQueueItem *qi = this->MemQueue.queue; qi != nullptr; qi = qi->link)
+		for (struct SpellMemQueueItem *qi = this->mem_queue.queue; qi != nullptr; qi = qi->link)
 			fprintf(saved, "%d\n", qi->spellnum);
 		fprintf(saved, "0\n");
 	}
@@ -650,7 +650,7 @@ void Player::save_char() {
 	fprintf(saved, "Hry : %d\n", this->get_hryvn());
 	fprintf(saved, "Tglo: %ld\n", static_cast<long int>(this->getGloryRespecTime()));
 	fprintf(saved, "Hit : %d/%d\n", GET_HIT(this), GET_MAX_HIT(this));
-	fprintf(saved, "Mana: %d/%d\n", GET_MEM_COMPLETED(this), GET_MEM_TOTAL(this));
+	fprintf(saved, "Mana: %d/%d\n", this->mem_queue.stored, (this)->mem_queue.total);
 	fprintf(saved, "Move: %d/%d\n", GET_MOVE(this), GET_MAX_MOVE(this));
 	fprintf(saved, "Gold: %ld\n", get_gold());
 	fprintf(saved, "Bank: %ld\n", get_bank());
@@ -1145,8 +1145,8 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	this->char_specials.carry_weight = 0;
 	this->char_specials.carry_items = 0;
 	this->real_abils.armor = 100;
-	GET_MEM_TOTAL(this) = 0;
-	GET_MEM_COMPLETED(this) = 0;
+	this->mem_queue.total = 0;
+	this->mem_queue.stored = 0;
 	MemQ_init(this);
 
 	GET_AC(this) = 10;
@@ -1545,8 +1545,8 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 			case 'M':
 				if (!strcmp(tag, "Mana")) {
 					sscanf(line, "%d/%d", &num, &num2);
-					GET_MEM_COMPLETED(this) = num;
-					GET_MEM_TOTAL(this) = num2;
+					this->mem_queue.stored = num;
+					this->mem_queue.total = num2;
 				} else if (!strcmp(tag, "Map ")) {
 					std::string str(line);
 					std::bitset<MapSystem::TOTAL_MAP_OPTIONS> tmp(str);
@@ -1795,7 +1795,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 							GET_SPELL_MEM(this, num) = num2;
 					} while (num != 0);
 				} else if (!strcmp(tag, "SpTM")) {
-					struct SpellMemQueueItem *qi_cur, **qi = &MemQueue.queue;
+					struct SpellMemQueueItem *qi_cur, **qi = &mem_queue.queue;
 					while (*qi)
 						qi = &((*qi)->link);
 					do {

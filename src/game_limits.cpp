@@ -108,7 +108,7 @@ void handle_recall_spells(CharData *ch) {
 		int slot_to_restore = aff->modifier++;
 
 		bool found_spells = false;
-		struct SpellMemQueueItem *next = nullptr, *prev = nullptr, *i = ch->MemQueue.queue;
+		struct SpellMemQueueItem *next = nullptr, *prev = nullptr, *i = ch->mem_queue.queue;
 		while (i) {
 			next = i->link;
 			if (spell_info[i->spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] == slot_to_restore) {
@@ -117,11 +117,11 @@ void handle_recall_spells(CharData *ch) {
 					found_spells = true;
 				}
 				if (prev) prev->link = next;
-				if (i == ch->MemQueue.queue) {
-					ch->MemQueue.queue = next;
-					GET_MEM_COMPLETED(ch) = 0;
+				if (i == ch->mem_queue.queue) {
+					ch->mem_queue.queue = next;
+					ch->mem_queue.stored = 0;
 				}
-				GET_MEM_TOTAL(ch) = MAX(0, GET_MEM_TOTAL(ch) - mag_manacost(ch, i->spellnum));
+				ch->mem_queue.total = std::max(0, ch->mem_queue.total - mag_manacost(ch, i->spellnum));
 				sprintf(buf, "Вы вспомнили заклинание \"%s%s%s\".\r\n",
 						CCICYN(ch, C_NRM), spell_info[i->spellnum].name, CCNRM(ch, C_NRM));
 				send_to_char(buf, ch);
@@ -672,30 +672,24 @@ void beat_points_update(int pulse) {
 			GET_HIT(i) = MIN(GET_HIT(i) + restore, GET_REAL_MAX_HIT(i));
 		}
 
-		// Проверка аффекта !исступление!. Поместил именно здесь,
-		// но если кто найдет более подходящее место переносите =)
-		//Gorrah: перенес в handler::affect_total
-		//check_berserk(i);
-
 		// Restore PC caster mem
-		if (!IS_MANA_CASTER(i) && !MEMQUEUE_EMPTY(i)) {
+		if (!IS_MANA_CASTER(i) && !i->mem_queue.Empty()) {
 			restore = mana_gain(i);
 			restore = interpolate(restore, pulse);
-			GET_MEM_COMPLETED(i) += restore;
+			i->mem_queue.stored += restore;
 
 			if (AFF_FLAGGED(i, EAffectFlag::AFF_RECALL_SPELLS)) {
 				handle_recall_spells(i.get());
 			}
 
-			while (GET_MEM_COMPLETED(i) > GET_MEM_CURRENT(i.get())
-				&& !MEMQUEUE_EMPTY(i)) {
+			while (i->mem_queue.stored > GET_MEM_CURRENT(i.get()) && !i->mem_queue.Empty()) {
 				int spellnum;
 				spellnum = MemQ_learn(i);
 				GET_SPELL_MEM(i, spellnum)++;
 				GET_CASTER(i) += spell_info[spellnum].danger;
 			}
 
-			if (MEMQUEUE_EMPTY(i)) {
+			if (i->mem_queue.Empty()) {
 				if (GET_RELIGION(i) == kReligionMono) {
 					send_to_char("Наконец ваши занятия окончены. Вы с улыбкой захлопнули свой часослов.\r\n", i.get());
 					act("Окончив занятия, $n с улыбкой захлопнул$g часослов.", false, i.get(), 0, 0, kToRoom);
@@ -706,22 +700,22 @@ void beat_points_update(int pulse) {
 			}
 		}
 
-		if (!IS_MANA_CASTER(i) && MEMQUEUE_EMPTY(i)) {
-			GET_MEM_TOTAL(i) = 0;
-			GET_MEM_COMPLETED(i) = 0;
+		if (!IS_MANA_CASTER(i) && i->mem_queue.Empty()) {
+			i->mem_queue.total = 0;
+			i->mem_queue.stored = 0;
 		}
 
 		// Гейн маны у волхвов
-		if (IS_MANA_CASTER(i) && GET_MANA_STORED(i) < GET_MAX_MANA(i.get())) {
-			GET_MANA_STORED(i) += mana_gain(i);
-			if (GET_MANA_STORED(i) >= GET_MAX_MANA(i.get())) {
-				GET_MANA_STORED(i) = GET_MAX_MANA(i.get());
+		if (IS_MANA_CASTER(i) && i->mem_queue.stored < GET_MAX_MANA(i.get())) {
+			i->mem_queue.stored += mana_gain(i);
+			if (i->mem_queue.stored >= GET_MAX_MANA(i.get())) {
+				i->mem_queue.stored = GET_MAX_MANA(i.get());
 				send_to_char("Ваша магическая энергия полностью восстановилась\r\n", i.get());
 			}
 		}
 
-		if (IS_MANA_CASTER(i) && GET_MANA_STORED(i) > GET_MAX_MANA(i.get())) {
-			GET_MANA_STORED(i) = GET_MAX_MANA(i.get());
+		if (IS_MANA_CASTER(i) && i->mem_queue.stored > GET_MAX_MANA(i.get())) {
+			i->mem_queue.stored = GET_MAX_MANA(i.get());
 		}
 
 		// Restore moves

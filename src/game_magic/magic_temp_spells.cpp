@@ -54,11 +54,11 @@ void update_char_times(CharData *ch, time_t now) {
 			//Если заклинание за это время не стало постоянным, то удалим из мема
 			if (!IS_SET(GET_SPELL_TYPE(ch, it->first), kSpellKnow)) {
 				//Удаляем из мема
-				for (i = &ch->MemQueue.queue; *i;) {
+				for (i = &ch->mem_queue.queue; *i;) {
 					if (i[0]->spellnum == it->first) {
-						if (i == &ch->MemQueue.queue)
-							GET_MEM_COMPLETED(ch) = 0;
-						GET_MEM_TOTAL(ch) = MAX(0, GET_MEM_TOTAL(ch) - mag_manacost(ch, it->first));
+						if (i == &ch->mem_queue.queue)
+							ch->mem_queue.stored = 0;
+						ch->mem_queue.total = std::max(0, ch->mem_queue.total - mag_manacost(ch, it->first));
 						ptr = i[0];
 						i[0] = i[0]->link;
 						free(ptr);

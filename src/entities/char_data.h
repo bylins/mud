@@ -179,10 +179,12 @@ struct mob_special_data {
 };
 
 // очередь запоминания заклинаний
-struct spell_mem_queue {
+struct SpellMemQueue {
 	struct SpellMemQueueItem *queue;
 	int stored;        // накоплено манны
 	int total;            // полное время мема всей очереди
+
+	[[nodiscard]] bool Empty() const { return queue == nullptr; };
 };
 
 // Structure used for extra_attack - bash, kick, diasrm, chopoff, etc
@@ -807,7 +809,7 @@ class CharData : public ProtectedCharData {
 	//отладочные сообщения имморталу/тестеру/кодеру
 	void send_to_TC(bool to_impl, bool to_tester, bool to_coder, const char *msg, ...);
 
-	struct spell_mem_queue MemQueue;        // очередь изучаемых заклинаний
+	struct SpellMemQueue mem_queue;        // очередь изучаемых заклинаний
 
 	int CasterLevel;
 	int DamageLevel;

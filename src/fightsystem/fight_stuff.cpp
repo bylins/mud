@@ -414,14 +414,14 @@ void die(CharData *ch, CharData *killer) {
 void forget_all_spells(CharData *ch) {
 	using PlayerClass::slot_for_char;
 
-	GET_MEM_COMPLETED(ch) = 0;
+	ch->mem_queue.stored = 0;
 	int slots[kMaxSlot];
 	int max_slot = 0;
 	for (unsigned i = 0; i < kMaxSlot; ++i) {
 		slots[i] = slot_for_char(ch, i + 1);
 		if (slots[i]) max_slot = i + 1;
 	}
-	struct SpellMemQueueItem *qi_cur, **qi = &ch->MemQueue.queue;
+	struct SpellMemQueueItem *qi_cur, **qi = &ch->mem_queue.queue;
 	while (*qi) {
 		--slots[spell_info[(*(qi))->spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1];
 		qi = &((*qi)->link);
@@ -432,7 +432,7 @@ void forget_all_spells(CharData *ch) {
 		if (PRF_FLAGGED(ch, EPrf::kAutomem) && ch->real_abils.SplMem[i]) {
 			slotn = spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;
 			for (unsigned j = 0; (slots[slotn] > 0 && j < ch->real_abils.SplMem[i]); ++j, --slots[slotn]) {
-				ch->MemQueue.total += mag_manacost(ch, i);
+				ch->mem_queue.total += mag_manacost(ch, i);
 				CREATE(qi_cur, 1);
 				*qi = qi_cur;
 				qi_cur->spellnum = i;
