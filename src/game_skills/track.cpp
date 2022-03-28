@@ -46,7 +46,7 @@ int go_track(CharData *ch, CharData *victim, const ESkill skill_no) {
 	int if_sense;
 
 	if (AFF_FLAGGED(victim, EAffectFlag::AFF_NOTRACK) && (skill_no != ESkill::kSense)) {
-		return BFS_ERROR;
+		return kBfsError;
 	}
 	// 101 is a complete failure, no matter what the proficiency.
 	//Временная затычка. Перевести на резисты

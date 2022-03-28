@@ -245,30 +245,6 @@ int get_virtual_race(CharData *mob) {
 	return -1;
 }
 
-CharData *get_random_pc_group(CharData *ch) {
-	std::vector<CharData *> tmp_list;
-	CharData *victim;
-	CharData *k;
-	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
-		return nullptr;
-	if (ch->has_master()) {
-		k = ch->get_master();
-	} else {
-		k = ch;
-	}
-	for (Follower *i = k->followers; i; i = i->next) {
-		if (!k->is_npc() && !IS_CHARMICE(i->ch) && (k != i->ch) && (k->in_room == i->ch->in_room)) {
-			tmp_list.push_back(i->ch);
-		}
-	}
-	if (tmp_list.empty()) {
-		return nullptr;
-	}
-	tmp_list.push_back(k); // засунем в список лидера
-	victim = tmp_list.at(number(0, tmp_list.size() - 1));
-	return victim;
-}
-
 /*
  * str_cmp: a case-insensitive version of strcmp().
  * Returns: 0 if equal, > 0 if arg1 > arg2, or < 0 if arg1 < arg2.
@@ -466,10 +442,10 @@ TimeInfoData *real_time_passed(time_t t2, time_t t1) {
 
 	secs = (long) (t2 - t1);
 
-	now.hours = (secs / SECS_PER_REAL_HOUR) % 24;    // 0..23 hours //
-	secs -= SECS_PER_REAL_HOUR * now.hours;
+	now.hours = (secs / kSecsPerRealHour) % 24;    // 0..23 hours //
+	secs -= kSecsPerRealHour * now.hours;
 
-	now.day = (secs / SECS_PER_REAL_DAY);    // 0..34 days  //
+	now.day = (secs / kSecsPerRealDay);    // 0..34 days  //
 	// secs -= SECS_PER_REAL_DAY * now.day; - Not used. //
 
 	now.month = -1;
@@ -629,39 +605,6 @@ int num_pc_in_room(RoomData *room) {
 	}
 
 	return i;
-}
-
-/*
- * This function (derived from basic fork(); abort(); idea by Erwin S.
- * Andreasen) causes your MUD to dump core (assuming you can) but
- * continue running.  The core dump will allow post-mortem debugging
- * that is less severe than assert();  Don't call this directly as
- * core_dump_unix() but as simply 'core_dump()' so that it will be
- * excluded from systems not supporting them. (e.g. Windows '95).
- *
- * You still want to call abort() or exit(1) for
- * non-recoverable errors, of course...
- *
- * XXX: Wonder if flushing streams includes sockets?
- */
-void core_dump_real(const char *who, int line) {
-	log("SYSERR: Assertion failed at %s:%d!", who, line);
-
-#if defined(CIRCLE_UNIX)
-	// These would be duplicated otherwise...
-	fflush(stdout);
-	fflush(stderr);
-	for (int i = 0; i < 1 + LAST_LOG; ++i) {
-		fflush(runtime_config.logs(static_cast<EOutputStream>(i)).handle());
-	}
-
-	/*
-	 * Kill the child so the debugger or script doesn't think the MUD
-	 * crashed.  The 'autorun' script would otherwise run it again.
-	 */
-	if (fork() == 0)
-		abort();
-#endif
 }
 
 void koi_to_win(char *str, int size) {

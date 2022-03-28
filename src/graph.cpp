@@ -83,11 +83,11 @@ int find_first_step(RoomRnum src, RoomRnum target, CharData *ch) {
 
 	if (src < FIRST_ROOM || src > top_of_world || target < FIRST_ROOM || target > top_of_world) {
 		log("SYSERR: Illegal value %d or %d passed to find_first_step. (%s)", src, target, __FILE__);
-		return (BFS_ERROR);
+		return (kBfsError);
 	}
 
 	if (src == target)
-		return (BFS_ALREADY_THERE);
+		return (kBfsAlreadyThere);
 
 	// clear marks first, some OLC systems will save the mark.
 	if (ch->is_npc()) {
@@ -155,7 +155,7 @@ int find_first_step(RoomRnum src, RoomRnum target, CharData *ch) {
 	bfs_queue.clear();
 	sprintf(buf, "Mob (mob: %s vnum: %d) can't find path.", GET_NAME(ch), GET_MOB_VNUM(ch));
 	mudlog(buf, NRM, -1, ERRLOG, true);
-	return (BFS_NO_PATH);
+	return (kBfsNoPath);
 }
 
 int go_sense(CharData *ch, CharData *victim) {
@@ -219,11 +219,11 @@ void do_sense(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	dir = go_sense(ch, vict);
 
 	switch (dir) {
-		case BFS_ERROR: strcpy(buf, "Хммм... Ваше чувство подвело вас.");
+		case kBfsError: strcpy(buf, "Хммм... Ваше чувство подвело вас.");
 			break;
-		case BFS_ALREADY_THERE: strcpy(buf, "Вы же в одной комнате с $N4!");
+		case kBfsAlreadyThere: strcpy(buf, "Вы же в одной комнате с $N4!");
 			break;
-		case BFS_NO_PATH: strcpy(buf, "Ваши чувства молчат.");
+		case kBfsNoPath: strcpy(buf, "Ваши чувства молчат.");
 			break;
 		default:        // Success!
 			ImproveSkill(ch, ESkill::kSense, true, vict);

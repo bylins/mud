@@ -1411,7 +1411,7 @@ void list_char_to_char(const RoomData::people_t &list, CharData *ch) {
 				&& (CAN_SEE(ch, i)
 					|| awaking(i, AW_HIDE | AW_INVIS | AW_CAMOUFLAGE))) {
 				ListOneChar(i, ch, ESkill::kAny);
-			} else if (IS_DARK(i->in_room)
+			} else if (is_dark(i->in_room)
 				&& i->in_room == ch->in_room
 				&& !CAN_SEE_IN_DARK(ch)
 				&& AFF_FLAGGED(i, EAffectFlag::AFF_INFRAVISION)) {

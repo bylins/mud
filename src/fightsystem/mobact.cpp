@@ -203,7 +203,7 @@ int check_room_tracks(const RoomRnum room, const long victim_id) {
 		}
 	}
 
-	return BFS_ERROR;
+	return kBfsError;
 }
 
 int find_door(CharData *ch, const bool track_method) {
@@ -225,7 +225,7 @@ int find_door(CharData *ch, const bool track_method) {
 									  ? check_room_tracks(ch->in_room, GET_IDNUM(vict))
 									  : go_track(ch, vict.get(), ESkill::kTrack);
 
-					if (BFS_ERROR != door) {
+					if (kBfsError != door) {
 						return door;
 					}
 				}
@@ -233,7 +233,7 @@ int find_door(CharData *ch, const bool track_method) {
 		}
 	}
 
-	return BFS_ERROR;
+	return kBfsError;
 }
 
 int npc_track(CharData *ch) {
@@ -1168,7 +1168,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 			affect_total(ch.get());
 		}
 
-		door = BFS_ERROR;
+		door = kBfsError;
 
 		// Helpers go to some dest
 		if (MOB_FLAGGED(ch, MOB_HELPER)
@@ -1208,26 +1208,26 @@ void mobile_activity(int activity_level, int missed_pulses) {
 			}
 
 			if (!found) {
-				door = BFS_ERROR;
+				door = kBfsError;
 			}
 		}
 
 		if (GET_DEST(ch) != kNowhere
 			&& GET_POS(ch) > EPosition::kFight
-			&& door == BFS_ERROR) {
+			&& door == kBfsError) {
 			npc_group(ch.get());
 			door = npc_walk(ch.get());
 		}
 
-		if (MEMORY(ch) && door == BFS_ERROR && GET_POS(ch) > EPosition::kFight && ch->get_skill(ESkill::kTrack))
+		if (MEMORY(ch) && door == kBfsError && GET_POS(ch) > EPosition::kFight && ch->get_skill(ESkill::kTrack))
 			door = npc_track(ch.get());
 
-		if (door == BFS_ALREADY_THERE) {
+		if (door == kBfsAlreadyThere) {
 			do_aggressive_mob(ch.get(), false);
 			return;
 		}
 
-		if (door == BFS_ERROR) {
+		if (door == kBfsError) {
 			door = number(0, 18);
 		}
 

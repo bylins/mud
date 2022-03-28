@@ -78,7 +78,7 @@ struct DescriptorData;
 //	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false
 //};
 
-#define not_null(ptr, str) (ptr && *ptr) ? ptr : str ? str : "undefined"
+#define not_null(ptr, str) ((ptr) && *(ptr)) ? (ptr) : (str) ? (str) : "undefined"
 
 inline const char *not_empty(const std::string &s) {
 	return s.empty() ? "undefined" : s.c_str();
@@ -111,7 +111,6 @@ extern int class_stats_limit[kNumPlayerClasses][6];
 
 // public functions in utils.cpp
 CharData *find_char(long n);
-CharData *get_random_pc_group(CharData *ch);
 char *rustime(const struct tm *timeptr);
 char *str_dup(const char *source);
 char *str_add(char *dst, const char *src);
@@ -132,7 +131,6 @@ int get_line(FILE *fl, char *buf);
 int get_filename(const char *orig_name, char *filename, int mode);
 TimeInfoData *age(const CharData *ch);
 int num_pc_in_room(RoomData *room);
-void core_dump_real(const char *, int);
 int replace_str(const utils::AbstractStringWriter::shared_ptr &writer,
 				const char *pattern,
 				const char *replacement,
@@ -179,7 +177,6 @@ template<typename T> inline std::string to_string(const T &t) {
 };
 
 extern bool is_dark(RoomRnum room);
-#define core_dump()     core_dump_real(__FILE__, __LINE__)
 extern const char *ACTNULL;
 
 #define CHECK_NULL(pointer, expression) \
@@ -258,15 +255,14 @@ const int kShareDepotFile = 7;
 const int kPurgeDepotFile = 8;
 
 // breadth-first searching //
-#define BFS_ERROR        (-1)
-#define BFS_ALREADY_THERE  (-2)
-#define BFS_NO_PATH         (-3)
+const int kBfsError = -1;
+const int kBfsAlreadyThere = -2;
+const int kBfsNoPath = -3;
 
 // real-life time (remember Real Life?)
-#define SECS_PER_REAL_MIN  60
-#define SECS_PER_REAL_HOUR (60*SECS_PER_REAL_MIN)
-#define SECS_PER_REAL_DAY  (24*SECS_PER_REAL_HOUR)
-#define SECS_PER_REAL_YEAR (365*SECS_PER_REAL_DAY)
+const int kSecsPerRealMin = 60;
+constexpr int kSecsPerRealHour = 60*kSecsPerRealMin;
+constexpr int kSecsPerRealDay = 24*kSecsPerRealHour;
 
 int GetRealLevel(const CharData *ch);
 int GetRealLevel(const std::shared_ptr<CharData> *ch);
@@ -304,8 +300,6 @@ extern int mercenary(CharData *, void *, int, char *);
 
 #define LOWER(c)   (a_lcc(c))
 #define UPPER(c)   (a_ucc(c))
-#define LATIN(c)   (a_lat(c))
-
 #define ISNEWL(ch) ((ch) == '\n' || (ch) == '\r')
 
 // memory utils *********************************************************
@@ -542,7 +536,7 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
 //Polud
 #define NOTIFY_EXCH_PRICE(ch)  ((ch)->player_specials->saved.ntfyExchangePrice)
 
-#define POSI(val)      ((val < 50) ? ((val > 0) ? val : 1) : 50)
+#define POSI(val)      (((val) < 50) ? (((val) > 0) ? (val) : 1) : 50)
 
 template<typename T>
 inline T VPOSI(const T val, const T min, const T max) {
@@ -628,15 +622,11 @@ inline T VPOSI(const T val, const T min, const T max) {
 // Макросы доступа к полям параметров комнат
 #define GET_ROOM_BASE_POISON(room) ((room)->base_property.poison)
 #define GET_ROOM_ADD_POISON(room) ((room)->add_property.poison)
-#define GET_ROOM_POISON(room) (GET_ROOM_BASE_POISON(room)+GET_ROOM_ADD_POISON(room))
 
 // Получение кубиков урона - работает только для мобов!
 #define GET_NDD(ch) ((ch)->mob_specials.damnodice)
 #define GET_SDD(ch) ((ch)->mob_specials.damsizedice)
 
-#define ALIG_NEUT 0
-#define ALIG_GOOD 1
-#define ALIG_EVIL 2
 #define ALIG_EVIL_LESS     (-300)
 #define ALIG_GOOD_MORE     300
 
@@ -738,11 +728,11 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_LASTROOM(ch)    ((ch)->mob_specials.LastRoom)
 
 #define CAN_SEE_IN_DARK(ch) \
-   (AFF_FLAGGED(ch, EAffectFlag::AFF_INFRAVISION) || (!ch->is_npc() && PRF_FLAGGED(ch, EPrf::kHolylight)))
+   (AFF_FLAGGED(ch, EAffectFlag::AFF_INFRAVISION) || (!(ch)->is_npc() && PRF_FLAGGED(ch, EPrf::kHolylight)))
 
 #define IS_GOOD(ch)          (GET_ALIGNMENT(ch) >= ALIG_GOOD_MORE)
 #define IS_EVIL(ch)          (GET_ALIGNMENT(ch) <= ALIG_EVIL_LESS)
-#define IS_NEUTRAL(ch)        (!IS_GOOD(ch) && !IS_EVIL(ch))
+
 /*
 #define SAME_ALIGN(ch,vict)  ((IS_GOOD(ch) && IS_GOOD(vict)) ||\
                               (IS_EVIL(ch) && IS_EVIL(vict)) ||\
@@ -882,13 +872,12 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_CH_POLY_1(ch) (IS_POLY(ch) ? "те" : "")
 
 #define GET_OBJ_POLY_1(ch, obj) ((GET_OBJ_SEX(obj) == ESex::kPoly) ? "ят" : "ит")
-#define GET_OBJ_VIS_POLY_1(ch, obj) (!CAN_SEE_OBJ(ch,obj) ? "ит" : (GET_OBJ_SEX(obj) == ESex::kPoly) ? "ят" : "ит")
 
 #define PUNCTUAL_WAIT_STATE(ch, cycle) do { GET_PUNCTUAL_WAIT_STATE(ch) = (cycle); } while(0)
 #define CHECK_WAIT(ch)        ((ch)->get_wait() > 0)
 #define GET_WAIT(ch)          (ch)->get_wait()
 #define GET_PUNCTUAL_WAIT(ch)          GET_PUNCTUAL_WAIT_STATE(ch)
-#define GET_MOB_SILENCE(ch)  (AFF_FLAGGED((ch),AFF_SILENCE) ? 1 : 0)
+
 // New, preferred macro
 #define GET_PUNCTUAL_WAIT_STATE(ch)    ((ch)->punctual_wait)
 
@@ -911,7 +900,6 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_OBJ_ANTI(obj)       ((obj)->get_anti_flags())
 #define GET_OBJ_NO(obj)         ((obj)->get_no_flags())
 #define GET_OBJ_ACT(obj)        ((obj)->get_action_description())
-#define GET_OBJ_POS(obj)        ((obj)->get_worn_on())
 #define GET_OBJ_TYPE(obj)       ((obj)->get_type())
 #define GET_OBJ_COST(obj)       ((obj)->get_cost())
 #define GET_OBJ_RENT(obj)       ((obj)->get_rent_off())
@@ -933,24 +921,17 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_OBJ_RNUM(obj)  ((obj)->get_rnum())
 
 #define OBJ_GET_LASTROOM(obj) ((obj)->get_room_was_in())
-#define OBJ_WHERE(obj) ((obj)->get_worn_by() ? IN_ROOM(obj->get_worn_by()) : \
-                        (obj)->get_carried_by() ? IN_ROOM(obj->get_carried_by()) : (obj)->get_in_room())
+#define OBJ_WHERE(obj) ((obj)->get_worn_by() ? IN_ROOM((obj)->get_worn_by()) : \
+                        (obj)->get_carried_by() ? IN_ROOM((obj)->get_carried_by()) : (obj)->get_in_room())
 #define IS_OBJ_ANTI(obj, stat) ((obj)->has_anti_flag(stat))
 #define IS_OBJ_NO(obj, stat) ((obj)->has_no_flag(stat))
-#define IS_OBJ_AFF(obj, stat) (obj->get_affect(stat))
+#define IS_OBJ_AFF(obj, stat) ((obj)->get_affect(stat))
 
 #define IS_CORPSE(obj)     (GET_OBJ_TYPE(obj) == ObjData::ITEM_CONTAINER && \
                GET_OBJ_VAL((obj), 3) == ObjData::CORPSE_INDICATOR)
 #define IS_MOB_CORPSE(obj) (IS_CORPSE(obj) &&  GET_OBJ_VAL((obj), 2) != -1)
 
 // compound utilities and other macros *********************************
-
-/*
- * Used to compute CircleMUD version. To see if the code running is newer
- * than 3.0pl13, you would use: #if _CIRCLEMUD > CIRCLEMUD_VERSION(3,0,13)
- */
-#define CIRCLEMUD_VERSION(major, minor, patchlevel) \
-   (((major) << 16) + ((minor) << 8) + (patchlevel))
 
 #define HSHR(ch) (ESex::kNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "его": (IS_FEMALE(ch) ? "ее" : "их")) :"его")
 #define HSSH(ch) (ESex::kNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "он": (IS_FEMALE(ch) ? "она" : "они")) :"оно")
@@ -1002,12 +983,12 @@ inline T VPOSI(const T val, const T min, const T max) {
                            (!(obj)->get_PName(pad).empty()) ? (obj)->get_PName(pad).c_str() : (obj)->get_short_description().c_str() \
                            : GET_PAD_OBJ(pad))
 
-#define EXITDATA(room, door) ((room >= 0 && room <= top_of_world) ? \
-                             world[room]->dir_option[door] : nullptr)
+#define EXITDATA(room, door) (((room) >= 0 && (room) <= top_of_world) ? \
+                             world[(room)]->dir_option[(door)] : nullptr)
 
 #define EXIT(ch, door)  (world[(ch)->in_room]->dir_option[door])
 
-#define CAN_GO(ch, door) (ch?((EXIT(ch,door) && \
+#define CAN_GO(ch, door) ((ch)?((EXIT(ch,door) && \
           (EXIT(ch,door)->to_room() != kNowhere) && \
           !IS_SET(EXIT(ch, door)->exit_info, EX_CLOSED))):0)
 

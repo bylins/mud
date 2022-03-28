@@ -2192,17 +2192,17 @@ int npc_battle_scavenge(CharData *ch) {
 }
 
 int npc_walk(CharData *ch) {
-	int rnum, door = BFS_ERROR;
+	int rnum, door = kBfsError;
 
 	if (ch->in_room == kNowhere)
-		return (BFS_ERROR);
+		return (kBfsError);
 
 	if (GET_DEST(ch) == kNowhere || (rnum = real_room(GET_DEST(ch))) == kNowhere)
-		return (BFS_ERROR);
+		return (kBfsError);
 
 	if (ch->in_room == rnum) {
 		if (ch->mob_specials.dest_count == 1)
-			return (BFS_ALREADY_THERE);
+			return (kBfsAlreadyThere);
 		if (ch->mob_specials.dest_pos == ch->mob_specials.dest_count - 1 && ch->mob_specials.dest_dir >= 0)
 			ch->mob_specials.dest_dir = -1;
 		if (!ch->mob_specials.dest_pos && ch->mob_specials.dest_dir < 0)
@@ -2210,7 +2210,7 @@ int npc_walk(CharData *ch) {
 		ch->mob_specials.dest_pos += ch->mob_specials.dest_dir >= 0 ? 1 : -1;
 		if (((rnum = real_room(GET_DEST(ch))) == kNowhere)
 			|| rnum == ch->in_room)
-			return (BFS_ERROR);
+			return (kBfsError);
 		else
 			return (npc_walk(ch));
 	}

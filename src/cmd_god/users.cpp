@@ -251,7 +251,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			&& STATE(d) == CON_PLAYING
 			&& !IS_GOD(d->character)) {
 			sprintf(idletime, "%-3d", d->character->char_specials.timer *
-				kSecsPerMudHour / SECS_PER_REAL_MIN);
+				kSecsPerMudHour / kSecsPerRealMin);
 		} else {
 			strcpy(idletime, "   ");
 		}

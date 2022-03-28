@@ -5290,7 +5290,7 @@ int must_be_deleted(CharData *short_ch) {
 		}
 	}
 	if (timeout >= 0) {
-		timeout *= SECS_PER_REAL_DAY;
+		timeout *= kSecsPerRealDay;
 		if ((time(0) - LAST_LOGON(short_ch)) > timeout) {
 			return (1);
 		}

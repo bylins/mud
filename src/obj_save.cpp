@@ -1587,11 +1587,11 @@ void Crash_timer_obj(const std::size_t index, long time) {
 	timer_dec = time - SAVEINFO(index)->rent.time;
 
 	//удаляем просроченные файлы ренты
-	if (rentcode == RENT_RENTED && timer_dec > rent_file_timeout * SECS_PER_REAL_DAY) {
+	if (rentcode == RENT_RENTED && timer_dec > rent_file_timeout * kSecsPerRealDay) {
 		Crash_clear_objects(index);
 		log("[TO] Deleting %s's rent info - time outed.", name);
 		return;
-	} else if (rentcode != RENT_CRYO && timer_dec > crash_file_timeout * SECS_PER_REAL_DAY) {
+	} else if (rentcode != RENT_CRYO && timer_dec > crash_file_timeout * kSecsPerRealDay) {
 		Crash_clear_objects(index);
 		strcpy(buf, "");
 		switch (rentcode) {
@@ -1657,7 +1657,7 @@ void Crash_list_objects(CharData *ch, int index) {
 		return;
 
 	timer_dec = time(0) - SAVEINFO(index)->rent.time;
-	num_of_days = (float) timer_dec / SECS_PER_REAL_DAY;
+	num_of_days = (float) timer_dec / kSecsPerRealDay;
 	timer_dec = (timer_dec / kSecsPerMudHour) + (timer_dec % kSecsPerMudHour ? 1 : 0);
 
 	strcpy(buf, "Код ренты - ");
@@ -1785,7 +1785,7 @@ int Crash_load(CharData *ch) {
 	mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 
 	//Деньги за постой
-	num_of_days = (float) (time(0) - SAVEINFO(index)->rent.time) / SECS_PER_REAL_DAY;
+	num_of_days = (float) (time(0) - SAVEINFO(index)->rent.time) / kSecsPerRealDay;
 	sprintf(buf, "%s was %1.2f days in rent.", GET_NAME(ch), num_of_days);
 	mudlog(buf, LGH, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 	cost = (int) (SAVEINFO(index)->rent.net_cost_per_diem * num_of_days);
@@ -1803,7 +1803,7 @@ int Crash_load(CharData *ch) {
 	// end by WorM
 	// Бесплатная рента, если выйти в течение 2 часов после ребута или креша
 	if (((RENTCODE(index) == RENT_CRASH || RENTCODE(index) == RENT_FORCED)
-		&& SAVEINFO(index)->rent.time + free_crashrent_period * SECS_PER_REAL_HOUR > time(0)) || free_rent) {
+		&& SAVEINFO(index)->rent.time + free_crashrent_period * kSecsPerRealHour > time(0)) || free_rent) {
 		sprintf(buf, "%s** На сей раз постой был бесплатным **%s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 		sprintf(buf, "%s entering game, free crashrent.", GET_NAME(ch));
