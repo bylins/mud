@@ -33,7 +33,7 @@
 
 #include <chrono>
 //#include <string>
-
+extern int max_exp_gain_pc(CharData *ch);
 constexpr long long kPulsesPerMudHour = SECS_PER_MUD_HOUR*kPassesPerSec;
 
 inline bool IS_CHARMED(CharData* ch) {return (IS_HORSE(ch) || AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM));};
@@ -2461,6 +2461,8 @@ void find_replacement(void *go,
 				} else
 					sprintf(str, "%ld", GET_EXP(c));
 			}
+		} else if (!str_cmp(field, "max_gain_exp")) {
+			sprintf(str, "%d", max_exp_gain_pc(c));
 		} else if (!str_cmp(field, "sex"))
 			sprintf(str, "%d", (int) GET_SEX(c));
 		else if (!str_cmp(field, "clan")) {
