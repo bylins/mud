@@ -338,13 +338,12 @@ void do_showzonestats(CharData *ch, char *argument, int, int) {
 	send_to_char(ch,
 				 "Статистика с %sДля создания новой таблицы введите команду 'очистить'.\r\n",
 				 asctime(localtime(&zones_stat_date)));
-	for (auto & i : zone_table) {
-		sprintf(buf,
-				"Zone: %5d, count_reset с ребута: %3d, посещено: %5d, назвение зоны: %s",
-				i.vnum,
-				i.count_reset,
-				i.traffic,
-				i.name);
+	for (ZoneRnum i = 0; i < static_cast<ZoneRnum>(zone_table.size()); i++) {
+		sprintf(buf, "Zone: %5d, count_reset с ребута: %3d, посещено: %5d, назвение зоны: %s",
+				zone_table[i].vnum,
+				zone_table[i].count_reset,
+				zone_table[i].traffic,
+				zone_table[i].name);
 		buffer += std::string(buf) + "\r\n";
 	}
 	page_string(ch->desc, buffer);
