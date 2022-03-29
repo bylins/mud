@@ -104,7 +104,7 @@ int deathtrap::check_death_trap(CharData *ch) {
 			&& !IS_IMMORTAL(ch))
 			|| (real_sector(ch->in_room) == kSectOnlyFlying && !ch->is_npc()
 				&& !IS_GOD(ch)
-				&& !AFF_FLAGGED(ch, EAffectFlag::AFF_FLY))
+				&& !AFF_FLAGGED(ch, EAffect::kFly))
 			|| (real_sector(ch->in_room) == kSectWaterNoswim && !ch->is_npc()
 				&& !IS_GOD(ch)
 				&& !has_boat(ch))) {

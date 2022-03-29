@@ -150,11 +150,11 @@ void AnimalMorph::SetChar(CharData *ch) {
 	ch_ = ch;
 };
 
-bool AnimalMorph::isAffected(const EAffectFlag flag) const {
+bool AnimalMorph::isAffected(const EAffect flag) const {
 	return affects_.find(flag) != affects_.end();
 }
 
-void AnimalMorph::AddAffect(const EAffectFlag flag) {
+void AnimalMorph::AddAffect(const EAffect flag) {
 	if (affects_.find(flag) == affects_.end()) {
 		affects_.insert(flag);
 	}
@@ -336,7 +336,7 @@ void load_morphs() {
 		}
 
 		for (pugi::xml_node aff = affectsList.child("affect"); aff; aff = aff.next_sibling("affect")) {
-			EAffectFlag affNum;
+			EAffect affNum;
 			const bool found = GetAffectNumByName(aff.child_value(), affNum);
 			if (found) {
 				affs.insert(affNum);

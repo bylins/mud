@@ -70,14 +70,14 @@ void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 			af1.duration = CalcDuration(target, 3, 0, 0, 0, 0);
 			af1.modifier = MAX(1, roll.GetSuccessDegree() * 2);
 			af1.location = APPLY_DAMROLL;
-			af1.bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
+			af1.bitvector = to_underlying(EAffect::kNoFlee);
 			af1.battleflag = 0;
 			Affect<EApplyLocation> af2;
 			af2.type = kSpellCourage;
 			af2.duration = CalcDuration(target, 3, 0, 0, 0, 0);
 			af2.modifier = MAX(1, 25 + roll.GetSuccessDegree() * 5);
 			af2.location = APPLY_HITREG;
-			af2.bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
+			af2.bitvector = to_underlying(EAffect::kNoFlee);
 			af2.battleflag = 0;
 			affect_join(target, af1, true, false, true, false);
 			affect_join(target, af2, true, false, true, false);

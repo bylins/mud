@@ -228,7 +228,7 @@ void SpellRecall(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 	}
 
 	if (!IS_GOD(ch)
-		&& (ROOM_FLAGGED(IN_ROOM(victim), ROOM_NOTELEPORTOUT) || AFF_FLAGGED(victim, EAffectFlag::AFF_NOTELEPORT))) {
+		&& (ROOM_FLAGGED(IN_ROOM(victim), ROOM_NOTELEPORTOUT) || AFF_FLAGGED(victim, EAffect::kNoTeleport))) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
@@ -293,7 +293,7 @@ void SpellTeleport(int /* level */, CharData *ch, CharData */*victim*/, ObjData 
 	RoomRnum in_room = ch->in_room, fnd_room = kNowhere;
 	RoomRnum rnum_start, rnum_stop;
 
-	if (!IS_GOD(ch) && (ROOM_FLAGGED(in_room, ROOM_NOTELEPORTOUT) || AFF_FLAGGED(ch, EAffectFlag::AFF_NOTELEPORT))) {
+	if (!IS_GOD(ch) && (ROOM_FLAGGED(in_room, ROOM_NOTELEPORTOUT) || AFF_FLAGGED(ch, EAffect::kNoTeleport))) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
@@ -335,7 +335,7 @@ void SpellRelocate(int/* level*/, CharData *ch, CharData *victim, ObjData* /* ob
 			return;
 		}
 
-		if (AFF_FLAGGED(ch, EAffectFlag::AFF_NOTELEPORT)) {
+		if (AFF_FLAGGED(ch, EAffect::kNoTeleport)) {
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
@@ -396,7 +396,7 @@ void SpellPortal(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 	// пентить чаров <=10 уровня, нельзя так-же нельзя пентать иммов
 	if (!IS_GOD(ch)) {
 		if ((!victim->is_npc() && GetRealLevel(victim) <= 10 && GET_REAL_REMORT(ch) < 9) || IS_IMMORTAL(victim)
-			|| AFF_FLAGGED(victim, EAffectFlag::AFF_NOTELEPORT)) {
+			|| AFF_FLAGGED(victim, EAffect::kNoTeleport)) {
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
@@ -534,7 +534,7 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 
 	if (!IS_IMMORTAL(ch)) {
 		if (!ch->is_npc() || IS_CHARMICE(ch)) {
-			if (AFF_FLAGGED(ch, EAffectFlag::AFF_SHIELD)) {
+			if (AFF_FLAGGED(ch, EAffect::kShield)) {
 				send_to_char(SUMMON_FAIL3, ch);
 				return;
 			}
@@ -582,14 +582,14 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 			if (ROOM_FLAGGED(vic_room, ROOM_NOSUMMON)
 				|| ROOM_FLAGGED(vic_room, ROOM_GODROOM)
 				|| !Clan::MayEnter(ch, vic_room, HCE_PORTAL)
-				|| AFF_FLAGGED(victim, EAffectFlag::AFF_NOTELEPORT)
+				|| AFF_FLAGGED(victim, EAffect::kNoTeleport)
 				|| (!same_group(ch, victim)
 					&& (ROOM_FLAGGED(vic_room, ROOM_TUNNEL) || ROOM_FLAGGED(vic_room, ROOM_ARENA)))) {
 				send_to_char(SUMMON_FAIL, ch);
 				return;
 			}
 		} else {
-			if (ROOM_FLAGGED(vic_room, ROOM_NOSUMMON) || AFF_FLAGGED(victim, EAffectFlag::AFF_NOTELEPORT)) {
+			if (ROOM_FLAGGED(vic_room, ROOM_NOSUMMON) || AFF_FLAGGED(victim, EAffect::kNoTeleport)) {
 				send_to_char(SUMMON_FAIL, ch);
 				return;
 			}
@@ -614,7 +614,7 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 	for (k = victim->followers; k; k = k_next) {
 		k_next = k->next;
 		if (IN_ROOM(k->ch) == vic_room) {
-			if (AFF_FLAGGED(k->ch, EAffectFlag::AFF_CHARM)) {
+			if (AFF_FLAGGED(k->ch, EAffect::kCharmed)) {
 				if (!k->ch->get_fighting()) {
 					act("$n растворил$u на ваших глазах.",
 						true, k->ch, nullptr, nullptr, kToRoom | kToArenaListen);
@@ -836,7 +836,7 @@ int CheckCharmices(CharData *ch, CharData *victim, int spellnum) {
 	bool undead_in_group = false, living_in_group = false;
 
 	for (k = ch->followers; k; k = k->next) {
-		if (AFF_FLAGGED(k->ch, EAffectFlag::AFF_CHARM)
+		if (AFF_FLAGGED(k->ch, EAffect::kCharmed)
 			&& k->ch->get_master() == ch) {
 			cha_summ++;
 			//hp_summ += GET_REAL_MAX_HIT(k->ch);
@@ -896,15 +896,15 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 		if (!pk_agro_action(ch, victim))
 			return;
 	} else if (!IS_IMMORTAL(ch)
-		&& (AFF_FLAGGED(victim, EAffectFlag::AFF_SANCTUARY) || MOB_FLAGGED(victim, EMobFlag::kProtect)))
+		&& (AFF_FLAGGED(victim, EAffect::kSanctuary) || MOB_FLAGGED(victim, EMobFlag::kProtect)))
 		send_to_char("Ваша жертва освящена Богами!\r\n", ch);
-	else if (!IS_IMMORTAL(ch) && (AFF_FLAGGED(victim, EAffectFlag::AFF_SHIELD) || MOB_FLAGGED(victim, EMobFlag::kProtect)))
+	else if (!IS_IMMORTAL(ch) && (AFF_FLAGGED(victim, EAffect::kShield) || MOB_FLAGGED(victim, EMobFlag::kProtect)))
 		send_to_char("Ваша жертва защищена Богами!\r\n", ch);
 	else if (!IS_IMMORTAL(ch) && MOB_FLAGGED(victim, EMobFlag::kNoCharm))
 		send_to_char("Ваша жертва устойчива к этому!\r\n", ch);
-	else if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	else if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		send_to_char("Вы сами очарованы кем-то и не можете иметь последователей.\r\n", ch);
-	else if (AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM)
+	else if (AFF_FLAGGED(victim, EAffect::kCharmed)
 		|| MOB_FLAGGED(victim, EMobFlag::kAgressive)
 		|| MOB_FLAGGED(victim, EMobFlag::kAgressiveMono)
 		|| MOB_FLAGGED(victim, EMobFlag::kAgressivePoly)
@@ -957,7 +957,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 
 		af.modifier = 0;
 		af.location = APPLY_NONE;
-		af.bitvector = to_underlying(EAffectFlag::AFF_CHARM);
+		af.bitvector = to_underlying(EAffect::kCharmed);
 		af.battleflag = 0;
 		affect_to_char(victim, af);
 		// резервируем место под фит (Кудояр)
@@ -979,7 +979,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 			ch->send_to_TC(false, true, false, "Владение скилом: %d.\r\n", k_skills);
 			// === Формируем новые статы ===
 			// Устанавливаем на виктим флаг маг-сумон (маг-зверь)
-			af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
+			af.bitvector = to_underlying(EAffect::kHelper);
 			affect_to_char(victim, af);
 			MOB_FLAGS(victim).set(EMobFlag::kSummoned);
 			// Модифицируем имя в зависимости от хари
@@ -1117,36 +1117,36 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 
 			// простые аффекты
 			if (r_cha > 25)  {
-				af.bitvector = to_underlying(EAffectFlag::AFF_INFRAVISION);
+				af.bitvector = to_underlying(EAffect::kInfravision);
 				affect_to_char(victim, af);
 			} 
 			 if (r_cha >= 30) {
-				af.bitvector = to_underlying(EAffectFlag::AFF_DETECT_INVIS);
+				af.bitvector = to_underlying(EAffect::kDetectInvisible);
 				affect_to_char(victim, af);
 			} 
 			if (r_cha >= 35) {
-				af.bitvector = to_underlying(EAffectFlag::AFF_FLY);
+				af.bitvector = to_underlying(EAffect::kFly);
 				affect_to_char(victim, af);
 			} 
 			if (r_cha >= 39) {	
-				af.bitvector = to_underlying(EAffectFlag::AFF_STONEHAND);
+				af.bitvector = to_underlying(EAffect::kStoneHands);
 				affect_to_char(victim, af);
 			}
 			
 			// расщет крутых маг аффектов
 			if (r_cha > 56) {
-				af.bitvector = to_underlying(EAffectFlag::AFF_SHADOW_CLOAK);
+				af.bitvector = to_underlying(EAffect::kShadowCloak);
 				affect_to_char(victim, af);
 			} 
 			
 			if ((r_cha > 65) && (r_cha < 74)) {
-				af.bitvector = to_underlying(EAffectFlag::AFF_FIRESHIELD);
+				af.bitvector = to_underlying(EAffect::kFireShield);
 			} else if ((r_cha >= 74) && (r_cha < 82)){
-				af.bitvector = to_underlying(EAffectFlag::AFF_AIRSHIELD);
+				af.bitvector = to_underlying(EAffect::kAirShield);
 			} else if (r_cha >= 82) {
-				af.bitvector = to_underlying(EAffectFlag::AFF_ICESHIELD);
+				af.bitvector = to_underlying(EAffect::kIceShield);
 				affect_to_char(victim, af);
-				af.bitvector = to_underlying(EAffectFlag::AFF_BROKEN_CHAINS);
+				af.bitvector = to_underlying(EAffect::kBrokenChains);
 			}
 			affect_to_char(victim, af);
 			
@@ -1255,7 +1255,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 				SET_FEAT(victim, THIEVES_STRIKE_FEAT);
 				SET_FEAT(victim, BOWS_MASTER_FEAT);
 				if (floorf(r_cha*0.8 + perc/5.0) > number(1, 150)) {
-					af.bitvector = to_underlying(EAffectFlag::AFF_CLOUD_OF_ARROWS);
+					af.bitvector = to_underlying(EAffect::kCloudOfArrows);
 					act("&YВокруг когтей $N1 засияли яркие магические всполохи.&n\n",
 						false, ch, nullptr, victim, kToChar);
 					affect_to_char(victim, af);
@@ -2010,7 +2010,7 @@ void SpellFear(int/* level*/, CharData *ch, CharData *victim, ObjData* /*obj*/) 
 		modi += (GetRealLevel(ch) - 10);
 	if (PRF_FLAGGED(ch, EPrf::kAwake))
 		modi = modi - 50;
-	if (AFF_FLAGGED(victim, EAffectFlag::AFF_BLESS))
+	if (AFF_FLAGGED(victim, EAffect::kBless))
 		modi -= 25;
 
 	if (!MOB_FLAGGED(victim, EMobFlag::kNoFear) && !CalcGeneralSaving(ch, victim, ESaving::kWill, modi))
@@ -2075,7 +2075,7 @@ void SpellSacrifice(int/* level*/, CharData *ch, CharData *victim, ObjData* /*ob
 	if (!ch->is_npc()) {
 		for (f = ch->followers; f; f = f->next) {
 			if (f->ch->is_npc()
-				&& AFF_FLAGGED(f->ch, EAffectFlag::AFF_CHARM)
+				&& AFF_FLAGGED(f->ch, EAffect::kCharmed)
 				&& MOB_FLAGGED(f->ch, EMobFlag::kCorpse)
 				&& ch->in_room == IN_ROOM(f->ch)) {
 				do_sacrifice(f->ch, dam);
@@ -2186,16 +2186,16 @@ void SpellSummonAngel(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData
 	af.modifier = 0;
 	af.location = EApplyLocation::APPLY_NONE;
 	af.battleflag = 0;
-	af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
+	af.bitvector = to_underlying(EAffect::kHelper);
 	affect_to_char(mob, af);
 
-	af.bitvector = to_underlying(EAffectFlag::AFF_FLY);
+	af.bitvector = to_underlying(EAffect::kFly);
 	affect_to_char(mob, af);
 
-	af.bitvector = to_underlying(EAffectFlag::AFF_INFRAVISION);
+	af.bitvector = to_underlying(EAffect::kInfravision);
 	affect_to_char(mob, af);
 
-	af.bitvector = to_underlying(EAffectFlag::AFF_SANCTUARY);
+	af.bitvector = to_underlying(EAffect::kSanctuary);
 	affect_to_char(mob, af);
 
 	//Set shields
@@ -2203,15 +2203,15 @@ void SpellSummonAngel(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData
 	float additional_shields_for_charisma = 0.0454; // 0.72 shield at 16 charisma, 1 shield at 23 charisma. 45 for 2 shields
 	int count_shields = base_shields + floorf(eff_cha * additional_shields_for_charisma);
 	if (count_shields > 0) {
-		af.bitvector = to_underlying(EAffectFlag::AFF_AIRSHIELD);
+		af.bitvector = to_underlying(EAffect::kAirShield);
 		affect_to_char(mob, af);
 	}
 	if (count_shields > 1) {
-		af.bitvector = to_underlying(EAffectFlag::AFF_ICESHIELD);
+		af.bitvector = to_underlying(EAffect::kIceShield);
 		affect_to_char(mob, af);
 	}
 	if (count_shields > 2) {
-		af.bitvector = to_underlying(EAffectFlag::AFF_FIRESHIELD);
+		af.bitvector = to_underlying(EAffect::kFireShield);
 		affect_to_char(mob, af);
 	}
 
@@ -2349,7 +2349,7 @@ void SpellMentalShadow(int/* level*/, CharData *ch, CharData* /*victim*/, ObjDat
 	af.duration = CalcDuration(mob, 5 + (int) VPOSI<float>((get_effective_int(ch) - 16.0) / 2, 0, 50), 0, 0, 0, 0);
 	af.modifier = 0;
 	af.location = APPLY_NONE;
-	af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
+	af.bitvector = to_underlying(EAffect::kHelper);
 	af.battleflag = 0;
 	affect_to_char(mob, af);
 	
@@ -2361,19 +2361,19 @@ void SpellMentalShadow(int/* level*/, CharData *ch, CharData* /*victim*/, ObjDat
      	SET_SPELL(mob, kSpellRemoveSilence, 1);
 	} else if (eff_int >= 32 && eff_int < 38) {
 		SET_SPELL(mob, kSpellRemoveSilence, 1);
-		af.bitvector = to_underlying(EAffectFlag::AFF_SHADOW_CLOAK);
+		af.bitvector = to_underlying(EAffect::kShadowCloak);
 		affect_to_char(mob, af);
 
 	} else if(eff_int >= 38 && eff_int < 44) {
 		SET_SPELL(mob, kSpellRemoveSilence, 2);
-		af.bitvector = to_underlying(EAffectFlag::AFF_SHADOW_CLOAK);
+		af.bitvector = to_underlying(EAffect::kShadowCloak);
 		affect_to_char(mob, af);
 		
 	} else if(eff_int >= 44) {
 		SET_SPELL(mob, kSpellRemoveSilence, 3);
-		af.bitvector = to_underlying(EAffectFlag::AFF_SHADOW_CLOAK);
+		af.bitvector = to_underlying(EAffect::kShadowCloak);
 		affect_to_char(mob, af);
-		af.bitvector = to_underlying(EAffectFlag::AFF_BROKEN_CHAINS);
+		af.bitvector = to_underlying(EAffect::kBrokenChains);
 		affect_to_char(mob, af);
 	}
 	if (mob->get_skill(ESkill::kAwake)) {

@@ -568,7 +568,7 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 	switch (skill_id) {
 
 		case ESkill::kBackstab: {
-			if ((GET_POS(vict) >= EPosition::kFight) && AFF_FLAGGED(vict, EAffectFlag::AFF_AWARNESS)) {
+			if ((GET_POS(vict) >= EPosition::kFight) && AFF_FLAGGED(vict, EAffect::kAwarness)) {
 				rate += 30;
 			}
 			rate += GET_REAL_DEX(vict);
@@ -659,7 +659,7 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kUndercut: {
-			if (AWAKE(vict) || AFF_FLAGGED(vict, EAffectFlag::AFF_AWARNESS) || MOB_FLAGGED(vict, EMobFlag::kMobAwake))
+			if (AWAKE(vict) || AFF_FLAGGED(vict, EAffect::kAwarness) || MOB_FLAGGED(vict, EMobFlag::kMobAwake))
 				rate -= 20;
 			if (PRF_FLAGGED(vict, EPrf::kAwake))
 				rate -= CalculateSkillAwakeModifier(ch, vict);
@@ -810,7 +810,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 				base_percent = 0;
 			} else {
 				parameter_bonus += GET_REAL_STR(ch);
-				if (AFF_FLAGGED(vict, EAffectFlag::AFF_HOLD)) {
+				if (AFF_FLAGGED(vict, EAffect::kHold)) {
 					bonus += 50;
 				}
 			}
@@ -856,7 +856,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 				if (!CAN_SEE(vict, ch))
 					bonus += 25;
 				if (AWAKE(vict)) {
-					if (AFF_FLAGGED(vict, EAffectFlag::AFF_AWARNESS))
+					if (AFF_FLAGGED(vict, EAffect::kAwarness))
 						bonus -= 30;
 				}
 			}
@@ -1109,7 +1109,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		default: break;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_NOOB_REGEN)) {
+	if (AFF_FLAGGED(ch, EAffect::kNoobRegen)) {
 		bonus += 5;
 	}
 
@@ -1127,7 +1127,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 ELuckTestResult MakeLuckTest(CharData *ch, CharData *vict) {
 	int luck = ch->calc_morale();
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS)) {
+	if (AFF_FLAGGED(ch, EAffect::kDeafness)) {
 		luck -= 20;
 	}
 	if (vict && can_use_feat(vict, SPIRIT_WARRIOR_FEAT)) {
@@ -1253,7 +1253,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 				if (GET_POS(vict) < EPosition::kFight) {
 					bonus += (20 * (EPosition::kFight - GET_POS(vict)));
-				} else if (AFF_FLAGGED(vict, EAffectFlag::AFF_AWARNESS)) {
+				} else if (AFF_FLAGGED(vict, EAffect::kAwarness)) {
 					victim_modi -= 30;
 				}
 				victim_modi += size_app[GET_POS_SIZE(vict)].ac;
@@ -1377,7 +1377,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 					bonus += 25;
 				if (AWAKE(vict)) {
 					victim_modi -= int_app[GET_REAL_INT(vict)].observation;
-					if (AFF_FLAGGED(vict, EAffectFlag::AFF_AWARNESS))
+					if (AFF_FLAGGED(vict, EAffect::kAwarness))
 						bonus -= 30;
 				}
 			}
@@ -1557,7 +1557,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 					bonus += 10;
 				if (GET_POS(vict) < EPosition::kSit)
 					bonus -= 50;
-				if (AWAKE(vict) || AFF_FLAGGED(vict, EAffectFlag::AFF_AWARNESS) || MOB_FLAGGED(vict, EMobFlag::kMobAwake))
+				if (AWAKE(vict) || AFF_FLAGGED(vict, EAffect::kAwarness) || MOB_FLAGGED(vict, EMobFlag::kMobAwake))
 					victim_modi -= 20;
 				if (PRF_FLAGGED(vict, EPrf::kAwake))
 					victim_modi -= CalculateSkillAwakeModifier(ch, vict);
@@ -1791,7 +1791,7 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 
 	// Если чар нуб, то до 50% скиллы качаются гораздо быстрее
 	int INT_PLAYER = (ch->get_trained_skill(skill) < 51
-		&& (AFF_FLAGGED(ch, EAffectFlag::AFF_NOOB_REGEN))) ? 50 : GET_REAL_INT(ch);
+		&& (AFF_FLAGGED(ch, EAffect::kNoobRegen))) ? 50 : GET_REAL_INT(ch);
 
 	int div = int_app[INT_PLAYER].improve;
 	if ((ch)->get_class() >= ECharClass::kFirst && (ch)->get_class() <= ECharClass::kLast) {
@@ -1833,7 +1833,7 @@ void TrainSkill(CharData *ch, const ESkill skill, bool success, CharData *vict) 
 				|| (vict->is_npc()
 					&& !MOB_FLAGGED(vict, EMobFlag::kProtect)
 					&& !MOB_FLAGGED(vict, EMobFlag::kNoSkillTrain)
-					&& !AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
+					&& !AFF_FLAGGED(vict, EAffect::kCharmed)
 					&& !IS_HORSE(vict)))) {
 			ImproveSkill(ch, skill, success, vict);
 		}

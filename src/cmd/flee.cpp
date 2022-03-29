@@ -17,11 +17,11 @@ void reduce_exp_after_flee(CharData *ch, CharData *victim, RoomRnum room) {
 
 // ********************* FLEE PROCEDURE
 void go_flee(CharData *ch) {
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD) || GET_WAIT(ch) > 0) {
+	if (AFF_FLAGGED(ch, EAffect::kHold) || GET_WAIT(ch) > 0) {
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_NOFLEE) || AFF_FLAGGED(ch, EAffectFlag::AFF_LACKY)
+	if (AFF_FLAGGED(ch, EAffect::kNoFlee) || AFF_FLAGGED(ch, EAffect::kLacky)
 		|| PRF_FLAGS(ch).get(EPrf::kIronWind)) {
 		send_to_char("Невидимые оковы мешают вам сбежать.\r\n", ch);
 		return;
@@ -81,7 +81,7 @@ void go_dir_flee(CharData *ch, int direction) {
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_NOFLEE) || AFF_FLAGGED(ch, EAffectFlag::AFF_LACKY)
+	if (AFF_FLAGGED(ch, EAffect::kNoFlee) || AFF_FLAGGED(ch, EAffect::kLacky)
 		|| PRF_FLAGS(ch).get(EPrf::kIronWind)) {
 		send_to_char("Невидимые оковы мешают вам сбежать.\r\n", ch);
 		return;

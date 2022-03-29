@@ -157,7 +157,7 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND) && !IS_IMMORTAL(ch)) {
+	if (AFF_FLAGGED(ch, EAffect::kBlind) && !IS_IMMORTAL(ch)) {
 		send_to_char("Вы слепы и не видите где копать.\r\n", ch);
 		return;
 	}

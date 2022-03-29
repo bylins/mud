@@ -15,101 +15,102 @@ constexpr Bitvector kAfDeadkeep = 1 << 1;
 constexpr Bitvector kAfPulsedec = 1 << 2;
 constexpr Bitvector kAfSameTime = 1 << 3; // тикает раз в две секунды или во время раунда в бою (чтобы не между раундами)
 
-// Affect bits: used in char_data.char_specials.saved.affected_by //
-// WARNING: In the world files, NEVER set the bits marked "R" ("Reserved") //
-enum class EAffectFlag : Bitvector {
-	AFF_BLIND = 1u << 0,                    ///< (R) Char is blind
-	AFF_INVISIBLE = 1u << 1,                ///< Char is invisible
-	AFF_DETECT_ALIGN = 1u << 2,                ///< Char is sensitive to align
-	AFF_DETECT_INVIS = 1u << 3,                ///< Char can see invis entities
-	AFF_DETECT_MAGIC = 1u << 4,                ///< Char is sensitive to magic
-	AFF_SENSE_LIFE = 1u << 5,                ///< Char can sense hidden life
-	AFF_WATERWALK = 1u << 6,                ///< Char can walk on water
-	AFF_SANCTUARY = 1u << 7,                ///< Char protected by sanct.
-	AFF_GROUP = 1u << 8,                    ///< (R) Char is grouped
-	AFF_CURSE = 1u << 9,                    ///< Char is cursed
-	AFF_INFRAVISION = 1u << 10,                ///< Char can see in dark
-	AFF_POISON = 1u << 11,                    ///< (R) Char is poisoned
-	AFF_PROTECT_EVIL = 1u << 12,            ///< Char protected from evil
-	AFF_PROTECT_GOOD = 1u << 13,            ///< Char protected from good
-	AFF_SLEEP = 1u << 14,                    ///< (R) Char magically asleep
-	AFF_NOTRACK = 1u << 15,                    ///< Char can't be tracked
-	AFF_TETHERED = 1u << 16,                ///< Room for future expansion
-	AFF_BLESS = 1u << 17,                    ///< Room for future expansion
-	AFF_SNEAK = 1u << 18,                    ///< Char can move quietly
-	AFF_HIDE = 1u << 19,                    ///< Char is hidden
-	AFF_COURAGE = 1u << 20,                    ///< Room for future expansion
-	AFF_CHARM = 1u << 21,                    ///< Char is charmed
-	AFF_HOLD = 1u << 22,
-	AFF_FLY = 1u << 23,
-	AFF_SILENCE = 1u << 24,
-	AFF_AWARNESS = 1u << 25,
-	AFF_BLINK = 1u << 26,
-	AFF_HORSE = 1u << 27,                    ///< NPC - is horse, PC - is horsed
-	AFF_NOFLEE = 1u << 28,
-	AFF_SINGLELIGHT = 1u << 29,
-	AFF_HOLYLIGHT = kIntOne | (1u << 0),
-	AFF_HOLYDARK = kIntOne | (1u << 1),
-	AFF_DETECT_POISON = kIntOne | (1u << 2),
-	AFF_DRUNKED = kIntOne | (1u << 3),
-	AFF_ABSTINENT = kIntOne | (1u << 4),
-	AFF_STOPRIGHT = kIntOne | (1u << 5),
-	AFF_STOPLEFT = kIntOne | (1u << 6),
-	AFF_STOPFIGHT = kIntOne | (1u << 7),
-	AFF_HAEMORRAGIA = kIntOne | (1u << 8),
-	AFF_CAMOUFLAGE = kIntOne | (1u << 9),
-	AFF_WATERBREATH = kIntOne | (1u << 10),
-	AFF_SLOW = kIntOne | (1u << 11),
-	AFF_HASTE = kIntOne | (1u << 12),
-	AFF_SHIELD = kIntOne | (1u << 13),
-	AFF_AIRSHIELD = kIntOne | (1u << 14),
-	AFF_FIRESHIELD = kIntOne | (1u << 15),
-	AFF_ICESHIELD = kIntOne | (1u << 16),
-	AFF_MAGICGLASS = kIntOne | (1u << 17),
-	AFF_STAIRS = kIntOne | (1u << 18),
-	AFF_STONEHAND = kIntOne | (1u << 19),
-	AFF_PRISMATICAURA = kIntOne | (1u << 20),
-	AFF_HELPER = kIntOne | (1u << 21),
-	AFF_EVILESS = kIntOne | (1u << 22),
-	AFF_AIRAURA = kIntOne | (1u << 23),
-	AFF_FIREAURA = kIntOne | (1u << 24),
-	AFF_ICEAURA = kIntOne | (1u << 25),
-	AFF_DEAFNESS = kIntOne | (1u << 26),
-	AFF_CRYING = kIntOne | (1u << 27),
-	AFF_PEACEFUL = kIntOne | (1u << 28),
-	AFF_MAGICSTOPFIGHT = kIntOne | (1u << 29),
-	AFF_BERSERK = kIntTwo | (1u << 0),
-	AFF_LIGHT_WALK = kIntTwo | (1u << 1),
-	AFF_BROKEN_CHAINS = kIntTwo | (1u << 2),
-	AFF_CLOUD_OF_ARROWS = kIntTwo | (1u << 3),
-	AFF_SHADOW_CLOAK = kIntTwo | (1u << 4),
-	AFF_GLITTERDUST = kIntTwo | (1u << 5),
-	AFF_AFFRIGHT = kIntTwo | (1u << 6),
-	AFF_SCOPOLIA_POISON = kIntTwo | (1u << 7),
-	AFF_DATURA_POISON = kIntTwo | (1u << 8),
-	AFF_SKILLS_REDUCE = kIntTwo | (1u << 9),
-	AFF_NOT_SWITCH = kIntTwo | (1u << 10),
-	AFF_BELENA_POISON = kIntTwo | (1u << 11),
-	AFF_NOTELEPORT = kIntTwo | (1u << 12),
-	AFF_LACKY = kIntTwo | (1u << 13),
-	AFF_BANDAGE = kIntTwo | (1u << 14),
-	AFF_NO_BANDAGE = kIntTwo | (1u << 15),
-	AFF_MORPH = kIntTwo | (1u << 16),
-	AFF_STRANGLED = kIntTwo | (1u << 17),
-	AFF_RECALL_SPELLS = kIntTwo | (1u << 18),
-	AFF_NOOB_REGEN = kIntTwo | (1u << 19),
-	AFF_VAMPIRE = kIntTwo | (1u << 20),
-	AFF_EXPEDIENT = kIntTwo | (1u << 21), // не используется, можно переименовать и использовать
-	AFF_COMMANDER = kIntTwo | (1u << 22),
-	AFF_EARTHAURA = kIntTwo | (1u << 23),
+/**
+ * Affect bits: used in char_data.char_specials.saved.affected_by //
+ */
+enum class EAffect : Bitvector {
+	kBlind = 1u << 0,                    ///< (R) Char is blind
+	kInvisible = 1u << 1,                ///< Char is invisible
+	kDetectAlign = 1u << 2,                ///< Char is sensitive to align
+	kDetectInvisible = 1u << 3,                ///< Char can see invis entities
+	kDetectMagic = 1u << 4,                ///< Char is sensitive to magic
+	kDetectLife = 1u << 5,                ///< Char can sense hidden life
+	kWaterWalk = 1u << 6,                ///< Char can walk on water
+	kSanctuary = 1u << 7,                ///< Char protected by sanct.
+	kGroup = 1u << 8,                    ///< (R) Char is grouped
+	kCurse = 1u << 9,                    ///< Char is cursed
+	kInfravision = 1u << 10,                ///< Char can see in dark
+	kPoisoned = 1u << 11,                    ///< (R) Char is poisoned
+	kProtectedFromEvil = 1u << 12,            ///< Char protected from evil
+	kProtectedFromGood = 1u << 13,            ///< Char protected from good
+	kSleep = 1u << 14,                    ///< (R) Char magically asleep
+	kNoTrack = 1u << 15,                    ///< Char can't be tracked
+	kTethered = 1u << 16,                ///< Room for future expansion
+	kBless = 1u << 17,                    ///< Room for future expansion
+	kSneak = 1u << 18,                    ///< Char can move quietly
+	kHide = 1u << 19,                    ///< Char is hidden
+	kCourage = 1u << 20,                    ///< Room for future expansion
+	kCharmed = 1u << 21,                    ///< Char is charmed
+	kHold = 1u << 22,
+	kFly = 1u << 23,
+	kSilence = 1u << 24,
+	kAwarness = 1u << 25,
+	kBlink = 1u << 26,
+	kHorse = 1u << 27,                    ///< NPC - is horse, PC - is horsed
+	kNoFlee = 1u << 28,
+	kSingleLight = 1u << 29,
+	kHolyLight = kIntOne | (1u << 0),
+	kHolyDark = kIntOne | (1u << 1),
+	kDetectPoison = kIntOne | (1u << 2),
+	kDrunked = kIntOne | (1u << 3),
+	kAbstinent = kIntOne | (1u << 4),
+	kStopRight = kIntOne | (1u << 5),
+	kStopLeft = kIntOne | (1u << 6),
+	kStopFight = kIntOne | (1u << 7),
+	kHaemorrhage = kIntOne | (1u << 8),
+	kDisguise = kIntOne | (1u << 9),
+	kWaterBreath = kIntOne | (1u << 10),
+	kSlow = kIntOne | (1u << 11),
+	kHaste = kIntOne | (1u << 12),
+	kShield = kIntOne | (1u << 13),
+	kAirShield = kIntOne | (1u << 14),
+	kFireShield = kIntOne | (1u << 15),
+	kIceShield = kIntOne | (1u << 16),
+	kMagicGlass = kIntOne | (1u << 17),
+	kStairs = kIntOne | (1u << 18),
+	kStoneHands = kIntOne | (1u << 19),
+	kPrismaticAura = kIntOne | (1u << 20),
+	kHelper = kIntOne | (1u << 21),
+	kForcesOfEvil = kIntOne | (1u << 22),
+	kAitAura = kIntOne | (1u << 23),
+	kFireAura = kIntOne | (1u << 24),
+	kIceAura = kIntOne | (1u << 25),
+	kDeafness = kIntOne | (1u << 26),
+	kCrying = kIntOne | (1u << 27),
+	kPeaceful = kIntOne | (1u << 28),
+	kMagicStopFight = kIntOne | (1u << 29),
+	kBerserk = kIntTwo | (1u << 0),
+	kLightWalk = kIntTwo | (1u << 1),
+	kBrokenChains = kIntTwo | (1u << 2),
+	kCloudOfArrows = kIntTwo | (1u << 3),
+	kShadowCloak = kIntTwo | (1u << 4),
+	kGlitterDust = kIntTwo | (1u << 5),
+	kAffright = kIntTwo | (1u << 6),
+	kScopolaPoison = kIntTwo | (1u << 7),
+	kDaturaPoison = kIntTwo | (1u << 8),
+	kSkillReduce = kIntTwo | (1u << 9),
+	kNoBattleSwitch = kIntTwo | (1u << 10),
+	kBelenaPoison = kIntTwo | (1u << 11),
+	kNoTeleport = kIntTwo | (1u << 12),
+	kLacky = kIntTwo | (1u << 13),
+	kBandage = kIntTwo | (1u << 14),
+	kCannotBeBandaged = kIntTwo | (1u << 15),
+	kMorphing = kIntTwo | (1u << 16),
+	kStrangled = kIntTwo | (1u << 17),
+	kMemorizeSpells = kIntTwo | (1u << 18),
+	kNoobRegen = kIntTwo | (1u << 19),
+	kVampirism = kIntTwo | (1u << 20),
+	kExpediend = kIntTwo | (1u << 21), // не используется, можно переименовать и использовать
+	kCommander = kIntTwo | (1u << 22),
+	kEarthAura = kIntTwo | (1u << 23),
 };
 
 template<>
-const std::string &NAME_BY_ITEM<EAffectFlag>(EAffectFlag item);
+const std::string &NAME_BY_ITEM<EAffect>(EAffect item);
 template<>
-EAffectFlag ITEM_BY_NAME<EAffectFlag>(const std::string &name);
+EAffect ITEM_BY_NAME<EAffect>(const std::string &name);
 
-typedef std::list<EAffectFlag> affects_list_t;
+typedef std::list<EAffect> affects_list_t;
 
 
 enum class EWeaponAffectFlag : Bitvector {

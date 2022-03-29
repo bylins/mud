@@ -22,7 +22,7 @@
 
 extern std::vector<RandomObj> random_objs;
 extern void set_obj_eff(ObjData *itemobj, const EApplyLocation type, int mod);
-extern void set_obj_aff(ObjData *itemobj, const EAffectFlag bitv);
+extern void set_obj_aff(ObjData *itemobj, const EAffect bitv);
 extern int planebit(const char *str, int *plane, int *bit);
 
 void LoadRandomObj(ObjData *obj) {

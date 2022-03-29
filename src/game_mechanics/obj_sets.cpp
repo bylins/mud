@@ -1233,11 +1233,11 @@ void activ_sum::apply_affects(CharData *ch) const {
 	for (const auto &j : weapon_affect) {
 		if (j.aff_bitvector != 0
 			&& affects.get(j.aff_pos)) {
-			affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(j.aff_bitvector), true);
+			affect_modify(ch, APPLY_NONE, 0, static_cast<EAffect>(j.aff_bitvector), true);
 		}
 	}
 	for (auto &&i : apply) {
-		affect_modify(ch, i.location, i.modifier, static_cast<EAffectFlag>(0), true);
+		affect_modify(ch, i.location, i.modifier, static_cast<EAffect>(0), true);
 	}
 }
 

@@ -54,7 +54,7 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			send_to_char("Попытка перемещения не удалась.\r\n", ch);
 			return;
 		}
-		if (AFF_FLAGGED(ch, EAffectFlag::AFF_NOTELEPORT)) {
+		if (AFF_FLAGGED(ch, EAffect::kNoTeleport)) {
 			send_to_char("Попытка перемещения не удалась.\r\n", ch);
 			return;
 		}
@@ -105,7 +105,7 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		WAIT_STATE(ch, 3 * kPulseViolence);
 		Affect<EApplyLocation> af;
 		af.duration = CalcDuration(ch, 3, 0, 0, 0, 0);
-		af.bitvector = to_underlying(EAffectFlag::AFF_NOTELEPORT);
+		af.bitvector = to_underlying(EAffect::kNoTeleport);
 		af.battleflag = kAfPulsedec;
 		affect_to_char(ch, af);
 	} else {

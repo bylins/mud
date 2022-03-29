@@ -30,7 +30,7 @@ typedef std::unordered_map<ESkill, int> MorphSkillsList;
 
 class IMorph {
  public:
-	typedef std::set<EAffectFlag> affects_list_t;
+	typedef std::set<EAffect> affects_list_t;
 
 	IMorph() {};
 	virtual ~IMorph() {};
@@ -43,7 +43,7 @@ class IMorph {
 	virtual void SetAbilsParams(short/* toStr*/, short/* toDex*/, short/* toCon*/, short/* toInt*/, short/* toCha*/) {};
 	virtual void SetChar(CharData * /*ch*/) {};
 	virtual std::string CoverDesc() { return ""; };
-	virtual bool isAffected(const EAffectFlag/* flag*/) const { return false; }
+	virtual bool isAffected(const EAffect/* flag*/) const { return false; }
 	virtual const affects_list_t &GetAffects();
 	virtual std::string GetMessageToRoom() { return std::string(); }
 	virtual std::string GetMessageToChar() { return std::string(); }
@@ -147,8 +147,8 @@ class AnimalMorph : public IMorph {
 		toCha_ = toCha;
 		toInt_ = toInt;
 	};
-	bool isAffected(const EAffectFlag flag) const;
-	void AddAffect(const EAffectFlag flag);
+	bool isAffected(const EAffect flag) const;
+	void AddAffect(const EAffect flag);
 	const affects_list_t &GetAffects();
 	void SetAffects(const affects_list_t &);
 	void SetMessages(const std::string &toRoom, const std::string &toChar) {

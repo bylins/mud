@@ -25,7 +25,7 @@
 std::string print_obj_affects(const obj_affected_type &affect);
 void print_obj_affects(CharData *ch, const obj_affected_type &affect);
 void set_obj_eff(ObjData *itemobj, EApplyLocation type, int mod);
-void set_obj_aff(ObjData *itemobj, EAffectFlag bitv);
+void set_obj_aff(ObjData *itemobj, EAffect bitv);
 
 /// Чуть более гибкий, но не менее упоротый аналог GET_OBJ_VAL полей
 /// Если поле нужно сохранять в обж-файл - вписываем в TextId::init_obj_vals()

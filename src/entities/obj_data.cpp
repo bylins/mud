@@ -19,7 +19,7 @@
 
 extern void get_from_container(CharData *ch, ObjData *cont, char *arg, int mode, int amount, bool autoloot);
 void set_obj_eff(ObjData *itemobj, EApplyLocation type, int mod);
-void set_obj_aff(ObjData *itemobj, EAffectFlag bitv);
+void set_obj_aff(ObjData *itemobj, EAffect bitv);
 extern void extract_trigger(Trigger *trig);
 
 id_to_set_info_map ObjData::set_table;
@@ -452,10 +452,10 @@ void ObjData::set_enchant(int skill) {
 }
 
 void ObjData::set_enchant(int skill, ObjData *obj) {
-	const auto negative_list = make_array<EAffectFlag>(
-		EAffectFlag::AFF_CURSE, EAffectFlag::AFF_SLEEP, EAffectFlag::AFF_HOLD,
-		EAffectFlag::AFF_SILENCE, EAffectFlag::AFF_CRYING, EAffectFlag::AFF_BLIND,
-		EAffectFlag::AFF_SLOW);
+	const auto negative_list = make_array<EAffect>(
+		EAffect::kCurse, EAffect::kSleep, EAffect::kHold,
+		EAffect::kSilence, EAffect::kCrying, EAffect::kBlind,
+		EAffect::kSlow);
 
 	//накидываем хитрол и дамрол
 	set_enchant(skill);
@@ -812,7 +812,7 @@ void CObjectPrototype::set_ex_description(const char *keyword, const char *descr
 	m_ex_description = d;
 }
 
-void set_obj_aff(ObjData *itemobj, const EAffectFlag bitv) {
+void set_obj_aff(ObjData *itemobj, const EAffect bitv) {
 	for (const auto &i : weapon_affect) {
 		if (i.aff_bitvector == static_cast<Bitvector>(bitv)) {
 			SET_OBJ_AFF(itemobj, to_underlying(i.aff_pos));

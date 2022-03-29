@@ -70,7 +70,7 @@ void battle_affect_update(CharData *ch);
 void mobile_affect_update();
 
 void affect_total(CharData *ch);
-void affect_modify(CharData *ch, byte loc, int mod, EAffectFlag bitv, bool add);
+void affect_modify(CharData *ch, byte loc, int mod, EAffect bitv, bool add);
 void affect_to_char(CharData *ch, const Affect<EApplyLocation> &af);
 void affect_from_char(CharData *ch, int type);
 bool affected_by_spell(CharData *ch, int type);

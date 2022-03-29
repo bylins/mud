@@ -98,7 +98,7 @@ void check_light(CharData *ch, int was_equip, int was_single, int was_holylight,
 	}
 
 	// Singlelight affect
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SINGLELIGHT)) {
+	if (AFF_FLAGGED(ch, EAffect::kSingleLight)) {
 		if (was_single == LIGHT_NO)
 			world[ch->in_room]->light = MAX(0, world[ch->in_room]->light + koef);
 	} else {
@@ -107,7 +107,7 @@ void check_light(CharData *ch, int was_equip, int was_single, int was_holylight,
 	}
 
 	// Holylight affect
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYLIGHT)) {
+	if (AFF_FLAGGED(ch, EAffect::kHolyLight)) {
 		if (was_holylight == LIGHT_NO)
 			world[ch->in_room]->glight = MAX(0, world[ch->in_room]->glight + koef);
 	} else {
@@ -122,7 +122,7 @@ void check_light(CharData *ch, int was_equip, int was_single, int was_holylight,
 	}*/
 
 	// Holydark affect
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYDARK))    // if (IS_IMMORTAL(ch))
+	if (AFF_FLAGGED(ch, EAffect::kHolyDark))    // if (IS_IMMORTAL(ch))
 	{
 		/*if (IS_IMMORTAL(ch))
 			send_to_char("HOLYDARK ON\r\n",ch);*/
@@ -314,7 +314,7 @@ void room_affect_process_on_entry(CharData *ch, RoomRnum room) {
 		CharData *caster = find_char((*affect_on_room)->caster_id);
 		// если не в гопе, и не слепой
 		if (!same_group(ch, caster)
-			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)){
+			&& !AFF_FLAGGED(ch, EAffect::kBlind)){
 			// отсекаем всяких непонятных личностей типо двойников и проч. (Кудояр)
 			if  ((GET_MOB_VNUM(ch) >= 3000 && GET_MOB_VNUM(ch) < 4000) || GET_MOB_VNUM(ch) == 108 ) return;
 			if (ch->has_master()
@@ -789,7 +789,7 @@ void wear_message(CharData *ch, ObjData *obj, int position) {
 
 	act(wear_messages[position][1], false, ch, obj, nullptr, kToChar);
 	act(wear_messages[position][0],
-		ch->is_npc() && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) ? false : true,
+		ch->is_npc() && !AFF_FLAGGED(ch, EAffect::kCharmed) ? false : true,
 		ch, obj, nullptr, kToRoom | kToArenaListen);
 }
 
@@ -834,7 +834,7 @@ unsigned int activate_stuff(CharData *ch, ObjData *obj, id_to_set_info_map::cons
 							affect_modify(ch,
 										  GET_EQ(ch, pos)->get_affected(i).location,
 										  GET_EQ(ch, pos)->get_affected(i).modifier,
-										  static_cast<EAffectFlag>(0),
+										  static_cast<EAffect>(0),
 										  false);
 						}
 
@@ -844,7 +844,7 @@ unsigned int activate_stuff(CharData *ch, ObjData *obj, id_to_set_info_map::cons
 									|| !IS_OBJ_AFF(GET_EQ(ch, pos), i.aff_pos)) {
 									continue;
 								}
-								affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(i.aff_bitvector), false);
+								affect_modify(ch, APPLY_NONE, 0, static_cast<EAffect>(i.aff_bitvector), false);
 							}
 						}
 					}
@@ -855,13 +855,13 @@ unsigned int activate_stuff(CharData *ch, ObjData *obj, id_to_set_info_map::cons
 					if (show_msg) {
 						act(act_msg.substr(0, delim).c_str(), false, ch, GET_EQ(ch, pos), nullptr, kToChar);
 						act(act_msg.erase(0, delim + 1).c_str(),
-							ch->is_npc() && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) ? false : true,
+							ch->is_npc() && !AFF_FLAGGED(ch, EAffect::kCharmed) ? false : true,
 							ch, GET_EQ(ch, pos), nullptr, kToRoom);
 					}
 
 					for (int i = 0; i < kMaxObjAffect; i++) {
 						affect_modify(ch, GET_EQ(ch, pos)->get_affected(i).location,
-									  GET_EQ(ch, pos)->get_affected(i).modifier, static_cast<EAffectFlag>(0), true);
+									  GET_EQ(ch, pos)->get_affected(i).modifier, static_cast<EAffect>(0), true);
 					}
 
 					if (ch->in_room != kNowhere) {
@@ -891,7 +891,7 @@ unsigned int activate_stuff(CharData *ch, ObjData *obj, id_to_set_info_map::cons
 					affect_modify(ch,
 								  obj->get_affected(i).location,
 								  obj->get_affected(i).modifier,
-								  static_cast<EAffectFlag>(0),
+								  static_cast<EAffect>(0),
 								  true);
 				}
 
@@ -950,9 +950,9 @@ bool check_armor_type(CharData *ch, ObjData *obj) {
 }
 
 void equip_char(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_flags) {
-	int was_lgt = AFF_FLAGGED(ch, EAffectFlag::AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO,
-		was_hlgt = AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO,
-		was_hdrk = AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO,
+	int was_lgt = AFF_FLAGGED(ch, EAffect::kSingleLight) ? LIGHT_YES : LIGHT_NO,
+		was_hlgt = AFF_FLAGGED(ch, EAffect::kHolyLight) ? LIGHT_YES : LIGHT_NO,
+		was_hdrk = AFF_FLAGGED(ch, EAffect::kHolyDark) ? LIGHT_YES : LIGHT_NO,
 		was_lamp = false;
 
 	const bool no_cast = equip_flags.test(CharEquipFlag::no_cast);
@@ -998,7 +998,7 @@ void equip_char(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip
 
 	if ((!ch->is_npc() && invalid_align(ch, obj))
 		|| invalid_no_class(ch, obj)
-		|| (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
+		|| (AFF_FLAGGED(ch, EAffect::kCharmed)
 			&& (obj->has_flag(EObjFlag::kSharpen)
 				|| obj->has_flag(EObjFlag::kArmored)))) {
 		act("$o0 явно не предназначен$A для вас.", false, ch, obj, nullptr, kToChar);
@@ -1075,7 +1075,7 @@ void equip_char(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip
 			affect_modify(ch,
 						  obj->get_affected(j).location,
 						  obj->get_affected(j).modifier,
-						  static_cast<EAffectFlag>(0),
+						  static_cast<EAffect>(0),
 						  true);
 		}
 
@@ -1149,7 +1149,7 @@ unsigned int deactivate_stuff(CharData *ch, ObjData *obj, id_to_set_info_map::co
 								affect_modify(ch,
 											  GET_EQ(ch, pos)->get_affected(i).location,
 											  GET_EQ(ch, pos)->get_affected(i).modifier,
-											  static_cast<EAffectFlag>(0),
+											  static_cast<EAffect>(0),
 											  false);
 							}
 
@@ -1159,7 +1159,7 @@ unsigned int deactivate_stuff(CharData *ch, ObjData *obj, id_to_set_info_map::co
 										|| !IS_OBJ_AFF(GET_EQ(ch, pos), i.aff_pos)) {
 										continue;
 									}
-									affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(i.aff_bitvector), false);
+									affect_modify(ch, APPLY_NONE, 0, static_cast<EAffect>(i.aff_bitvector), false);
 								}
 							}
 
@@ -1169,7 +1169,7 @@ unsigned int deactivate_stuff(CharData *ch, ObjData *obj, id_to_set_info_map::co
 							if (show_msg) {
 								act(act_msg.substr(0, delim).c_str(), false, ch, GET_EQ(ch, pos), nullptr, kToChar);
 								act(act_msg.erase(0, delim + 1).c_str(),
-									ch->is_npc() && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) ? false : true,
+									ch->is_npc() && !AFF_FLAGGED(ch, EAffect::kCharmed) ? false : true,
 									ch, GET_EQ(ch, pos), nullptr, kToRoom);
 							}
 
@@ -1177,7 +1177,7 @@ unsigned int deactivate_stuff(CharData *ch, ObjData *obj, id_to_set_info_map::co
 								affect_modify(ch,
 											  GET_EQ(ch, pos)->get_affected(i).location,
 											  GET_EQ(ch, pos)->get_affected(i).modifier,
-											  static_cast<EAffectFlag>(0),
+											  static_cast<EAffect>(0),
 											  true);
 							}
 
@@ -1187,7 +1187,7 @@ unsigned int deactivate_stuff(CharData *ch, ObjData *obj, id_to_set_info_map::co
 										|| !IS_OBJ_AFF(GET_EQ(ch, pos), i.aff_pos)) {
 										continue;
 									}
-									affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(i.aff_bitvector), true);
+									affect_modify(ch, APPLY_NONE, 0, static_cast<EAffect>(i.aff_bitvector), true);
 								}
 							}
 
@@ -1197,7 +1197,7 @@ unsigned int deactivate_stuff(CharData *ch, ObjData *obj, id_to_set_info_map::co
 
 					for (int i = 0; i < kMaxObjAffect; i++) {
 						affect_modify(ch, GET_EQ(ch, pos)->get_affected(i).location,
-									  GET_EQ(ch, pos)->get_affected(i).modifier, static_cast<EAffectFlag>(0), false);
+									  GET_EQ(ch, pos)->get_affected(i).modifier, static_cast<EAffect>(0), false);
 					}
 
 					if (ch->in_room != kNowhere) {
@@ -1206,7 +1206,7 @@ unsigned int deactivate_stuff(CharData *ch, ObjData *obj, id_to_set_info_map::co
 								|| !IS_OBJ_AFF(GET_EQ(ch, pos), i.aff_pos)) {
 								continue;
 							}
-							affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(i.aff_bitvector), false);
+							affect_modify(ch, APPLY_NONE, 0, static_cast<EAffect>(i.aff_bitvector), false);
 						}
 					}
 
@@ -1216,7 +1216,7 @@ unsigned int deactivate_stuff(CharData *ch, ObjData *obj, id_to_set_info_map::co
 					if (show_msg) {
 						act(deact_msg.substr(0, delim).c_str(), false, ch, GET_EQ(ch, pos), nullptr, kToChar);
 						act(deact_msg.erase(0, delim + 1).c_str(),
-							ch->is_npc() && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) ? false : true,
+							ch->is_npc() && !AFF_FLAGGED(ch, EAffect::kCharmed) ? false : true,
 							ch, GET_EQ(ch, pos), nullptr, kToRoom);
 					}
 
@@ -1225,7 +1225,7 @@ unsigned int deactivate_stuff(CharData *ch, ObjData *obj, id_to_set_info_map::co
 							affect_modify(ch,
 										  GET_EQ(ch, pos)->get_affected(i).location,
 										  GET_EQ(ch, pos)->get_affected(i).modifier,
-										  static_cast<EAffectFlag>(0),
+										  static_cast<EAffect>(0),
 										  true);
 						}
 
@@ -1235,7 +1235,7 @@ unsigned int deactivate_stuff(CharData *ch, ObjData *obj, id_to_set_info_map::co
 									!IS_OBJ_AFF(GET_EQ(ch, pos), i.aff_pos)) {
 									continue;
 								}
-								affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(i.aff_bitvector), true);
+								affect_modify(ch, APPLY_NONE, 0, static_cast<EAffect>(i.aff_bitvector), true);
 							}
 						}
 					}
@@ -1249,7 +1249,7 @@ unsigned int deactivate_stuff(CharData *ch, ObjData *obj, id_to_set_info_map::co
 					affect_modify(ch,
 								  obj->get_affected(i).location,
 								  obj->get_affected(i).modifier,
-								  static_cast<EAffectFlag>(0),
+								  static_cast<EAffect>(0),
 								  false);
 				}
 
@@ -1259,7 +1259,7 @@ unsigned int deactivate_stuff(CharData *ch, ObjData *obj, id_to_set_info_map::co
 							|| !IS_OBJ_AFF(obj, i.aff_pos)) {
 							continue;
 						}
-						affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(i.aff_bitvector), false);
+						affect_modify(ch, APPLY_NONE, 0, static_cast<EAffect>(i.aff_bitvector), false);
 					}
 				}
 
@@ -1276,9 +1276,9 @@ unsigned int deactivate_stuff(CharData *ch, ObjData *obj, id_to_set_info_map::co
 }
 
 ObjData *unequip_char(CharData *ch, int pos, const CharEquipFlags& equip_flags) {
-	int was_lgt = AFF_FLAGGED(ch, EAffectFlag::AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO,
-		was_hlgt = AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO,
-		was_hdrk = AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO, was_lamp = false;
+	int was_lgt = AFF_FLAGGED(ch, EAffect::kSingleLight) ? LIGHT_YES : LIGHT_NO,
+		was_hlgt = AFF_FLAGGED(ch, EAffect::kHolyLight) ? LIGHT_YES : LIGHT_NO,
+		was_hdrk = AFF_FLAGGED(ch, EAffect::kHolyDark) ? LIGHT_YES : LIGHT_NO, was_lamp = false;
 
 	const bool skip_total = equip_flags.test(CharEquipFlag::skip_total);
 	const bool show_msg = equip_flags.test(CharEquipFlag::show_msg);
@@ -1312,7 +1312,7 @@ ObjData *unequip_char(CharData *ch, int pos, const CharEquipFlags& equip_flags) 
 			affect_modify(ch,
 						  obj->get_affected(j).location,
 						  obj->get_affected(j).modifier,
-						  static_cast<EAffectFlag>(0),
+						  static_cast<EAffect>(0),
 						  false);
 		}
 
@@ -1322,10 +1322,10 @@ ObjData *unequip_char(CharData *ch, int pos, const CharEquipFlags& equip_flags) 
 					continue;
 				}
 				if (ch->is_npc()
-					&& AFF_FLAGGED(&mob_proto[GET_MOB_RNUM(ch)], static_cast<EAffectFlag>(j.aff_bitvector))) {
+					&& AFF_FLAGGED(&mob_proto[GET_MOB_RNUM(ch)], static_cast<EAffect>(j.aff_bitvector))) {
 					continue;
 				}
-				affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(j.aff_bitvector), false);
+				affect_modify(ch, APPLY_NONE, 0, static_cast<EAffect>(j.aff_bitvector), false);
 			}
 		}
 
@@ -1916,7 +1916,7 @@ void extract_char(CharData *ch, int clear_objs, bool zone_reset) {
 	if (!ch->is_npc()
 		&& !ch->has_master()
 		&& ch->followers
-		&& AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)) {
+		&& AFF_FLAGGED(ch, EAffect::kGroup)) {
 //		log("[Extract char] Change group leader");
 		change_leader(ch, nullptr);
 	} else if (ch->is_npc()
@@ -3015,7 +3015,7 @@ int *MemQ_slots(CharData *ch) {
 int equip_in_metall(CharData *ch) {
 	int i, wgt = 0;
 
-	if (ch->is_npc() && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (ch->is_npc() && !AFF_FLAGGED(ch, EAffect::kCharmed))
 		return (false);
 	if (IS_GOD(ch))
 		return (false);
@@ -3035,15 +3035,15 @@ int equip_in_metall(CharData *ch) {
 }
 
 bool IsAwakeOthers(CharData *ch) {
-	if ((ch->is_npc() && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) || IS_GOD(ch)) {
+	if ((ch->is_npc() && !AFF_FLAGGED(ch, EAffect::kCharmed)) || IS_GOD(ch)) {
 		return false;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STAIRS)
-		|| AFF_FLAGGED(ch, EAffectFlag::AFF_SANCTUARY)
-		|| AFF_FLAGGED(ch, EAffectFlag::AFF_GLITTERDUST)
-		|| AFF_FLAGGED(ch, EAffectFlag::AFF_SINGLELIGHT)
-		|| AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYLIGHT)) {
+	if (AFF_FLAGGED(ch, EAffect::kStairs)
+		|| AFF_FLAGGED(ch, EAffect::kSanctuary)
+		|| AFF_FLAGGED(ch, EAffect::kGlitterDust)
+		|| AFF_FLAGGED(ch, EAffect::kSingleLight)
+		|| AFF_FLAGGED(ch, EAffect::kHolyLight)) {
 		return true;
 	}
 

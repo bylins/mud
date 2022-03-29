@@ -62,7 +62,7 @@ bool weap_poison_vict(CharData *ch, CharData *vict, int spell_num) {
 		af.location = APPLY_ACONITUM_POISON;
 		af.duration = 7;
 		af.modifier = GetRealLevel(ch) / 2 + 5;
-		af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
+		af.bitvector = to_underlying(EAffect::kPoisoned);
 		af.battleflag = kAfSameTime;
 		if (poison_affect_join(vict, af)) {
 			vict->Poisoner = GET_ID(ch);
@@ -76,7 +76,7 @@ bool weap_poison_vict(CharData *ch, CharData *vict, int spell_num) {
 		af.location = APPLY_SCOPOLIA_POISON;
 		af.duration = 7;
 		af.modifier = 5;
-		af.bitvector = to_underlying(EAffectFlag::AFF_POISON) | to_underlying(EAffectFlag::AFF_SCOPOLIA_POISON);
+		af.bitvector = to_underlying(EAffect::kPoisoned) | to_underlying(EAffect::kScopolaPoison);
 		af.battleflag = kAfSameTime;
 		if (poison_affect_join(vict, af)) {
 			vict->Poisoner = GET_ID(ch);
@@ -112,10 +112,10 @@ bool weap_poison_vict(CharData *ch, CharData *vict, int spell_num) {
 		for (auto & i : af) {
 			i.type = kSpellBelenaPoison;
 			i.duration = 7;
-			i.bitvector = to_underlying(EAffectFlag::AFF_POISON)
-				| to_underlying(EAffectFlag::AFF_BELENA_POISON)
-				| to_underlying(EAffectFlag::AFF_SKILLS_REDUCE)
-				| to_underlying(EAffectFlag::AFF_NOT_SWITCH);
+			i.bitvector = to_underlying(EAffect::kPoisoned)
+				| to_underlying(EAffect::kBelenaPoison)
+				| to_underlying(EAffect::kSkillReduce)
+				| to_underlying(EAffect::kNoBattleSwitch);
 			i.battleflag = kAfSameTime;
 
 			if (!poison_affect_join(vict, i)) {
@@ -157,10 +157,10 @@ bool weap_poison_vict(CharData *ch, CharData *vict, int spell_num) {
 		for (auto & i : af) {
 			i.type = kSpellDaturaPoison;
 			i.duration = 7;
-			i.bitvector = to_underlying(EAffectFlag::AFF_POISON)
-				| to_underlying(EAffectFlag::AFF_DATURA_POISON)
-				| to_underlying(EAffectFlag::AFF_SKILLS_REDUCE)
-				| to_underlying(EAffectFlag::AFF_NOT_SWITCH);
+			i.bitvector = to_underlying(EAffect::kPoisoned)
+				| to_underlying(EAffect::kDaturaPoison)
+				| to_underlying(EAffect::kSkillReduce)
+				| to_underlying(EAffect::kNoBattleSwitch);
 			i.battleflag = kAfSameTime;
 
 			if (!poison_affect_join(vict, i)) {
@@ -212,7 +212,7 @@ void weap_crit_poison(CharData *ch, CharData *vict, int/* spell_num*/) {
 				af.type = kSpellPoison;
 				af.duration = 30;
 				af.modifier = -GetRealLevel(ch) / 6;
-				af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
+				af.bitvector = to_underlying(EAffect::kPoisoned);
 				af.battleflag = kAfSameTime;
 
 				for (int i = APPLY_STR; i <= APPLY_CHA; i++) {
@@ -232,7 +232,7 @@ void weap_crit_poison(CharData *ch, CharData *vict, int/* spell_num*/) {
 				af.duration = 30;
 				af.location = APPLY_SAVING_REFLEX;
 				af.modifier = GetRealLevel(ch) / 6; //Polud с плюсом, поскольку здесь чем больше - тем хуже
-				af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
+				af.bitvector = to_underlying(EAffect::kPoisoned);
 				af.battleflag = kAfSameTime;
 				affect_join(vict, af, false, false, false, false);
 				send_to_char(ch, "%sОт действия вашего яда %s стал%s хуже реагировать на движения противников!%s\r\n",
@@ -247,7 +247,7 @@ void weap_crit_poison(CharData *ch, CharData *vict, int/* spell_num*/) {
 				af.duration = 30;
 				af.location = APPLY_INITIATIVE;
 				af.modifier = -GetRealLevel(ch) / 6;
-				af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
+				af.bitvector = to_underlying(EAffect::kPoisoned);
 				af.battleflag = kAfSameTime;
 				affect_join(vict, af, false, false, false, false);
 				send_to_char(ch, "%sОт действия вашего яда %s стал%s заметно медленнее двигаться!%s\r\n",
@@ -263,7 +263,7 @@ void weap_crit_poison(CharData *ch, CharData *vict, int/* spell_num*/) {
 				af.duration = 30;
 				af.location = APPLY_RESIST_VITALITY;
 				af.modifier = -GetRealLevel(ch) / 6;
-				af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
+				af.bitvector = to_underlying(EAffect::kPoisoned);
 				af.battleflag = kAfSameTime;
 				affect_join(vict, af, false, false, false, false);
 				send_to_char(ch, "%sОт действия вашего яда %s стал%s хуже переносить повреждения!%s\r\n",
@@ -288,28 +288,28 @@ void poison_victim(CharData *ch, CharData *vict, int modifier) {
 	af[0].location = APPLY_STR;
 	af[0].duration = CalcDuration(vict, 0, std::max(2, GetRealLevel(ch) - GetRealLevel(vict)), 2, 0, 1);
 	af[0].modifier = -std::min(2, (modifier + 29) / 40);
-	af[0].bitvector = to_underlying(EAffectFlag::AFF_POISON);
+	af[0].bitvector = to_underlying(EAffect::kPoisoned);
 	af[0].battleflag = kAfSameTime;
 	// change damroll
 	af[1].type = kSpellPoison;
 	af[1].location = APPLY_DAMROLL;
 	af[1].duration = af[0].duration;
 	af[1].modifier = -std::min(2, (modifier + 29) / 30);
-	af[1].bitvector = to_underlying(EAffectFlag::AFF_POISON);
+	af[1].bitvector = to_underlying(EAffect::kPoisoned);
 	af[1].battleflag = kAfSameTime;
 	// change hitroll
 	af[2].type = kSpellPoison;
 	af[2].location = APPLY_HITROLL;
 	af[2].duration = af[0].duration;
 	af[2].modifier = -std::min(2, (modifier + 19) / 20);
-	af[2].bitvector = to_underlying(EAffectFlag::AFF_POISON);
+	af[2].bitvector = to_underlying(EAffect::kPoisoned);
 	af[2].battleflag = kAfSameTime;
 	// change poison level
 	af[3].type = kSpellPoison;
 	af[3].location = APPLY_POISON;
 	af[3].duration = af[0].duration;
 	af[3].modifier = GetRealLevel(ch);
-	af[3].bitvector = to_underlying(EAffectFlag::AFF_POISON);
+	af[3].bitvector = to_underlying(EAffect::kPoisoned);
 	af[3].battleflag = kAfSameTime;
 
 	for (auto & i : af) {
@@ -330,7 +330,7 @@ void try_weap_poison(CharData *ch, CharData *vict, int spell_num) {
 	}
 
 	if (number(1, 200) <= 25
-		|| (!GET_AF_BATTLE(vict, kEafFirstPoison) && !AFF_FLAGGED(vict, EAffectFlag::AFF_POISON))) {
+		|| (!GET_AF_BATTLE(vict, kEafFirstPoison) && !AFF_FLAGGED(vict, EAffect::kPoisoned))) {
 		ImproveSkill(ch, ESkill::kPoisoning, true, vict);
 		if (weap_poison_vict(ch, vict, spell_num)) {
 			if (spell_num == kSpellAconitumPoison) {

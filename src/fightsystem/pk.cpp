@@ -125,7 +125,7 @@ void pk_translate_pair(CharData **pkiller, CharData **pvictim) {
 	if (pkiller != nullptr && pkiller[0] != nullptr && !pkiller[0]->purged()) {
 		if (pkiller[0]->is_npc()
 			&& pkiller[0]->has_master()
-			&& AFF_FLAGGED(pkiller[0], EAffectFlag::AFF_CHARM)
+			&& AFF_FLAGGED(pkiller[0], EAffect::kCharmed)
 			&& IN_ROOM(pkiller[0]) == IN_ROOM(pkiller[0]->get_master())) {
 			pkiller[0] = pkiller[0]->get_master();
 		}
@@ -133,7 +133,7 @@ void pk_translate_pair(CharData **pkiller, CharData **pvictim) {
 	if (pvictim != nullptr && pvictim[0] != nullptr && !pvictim[0]->purged()) {
 		if (pvictim[0]->is_npc()
 			&& pvictim[0]->has_master()
-			&& (AFF_FLAGGED(pvictim[0], EAffectFlag::AFF_CHARM)
+			&& (AFF_FLAGGED(pvictim[0], EAffect::kCharmed)
 				|| IS_HORSE(pvictim[0]))) {
 			if (IN_ROOM(pvictim[0]) == IN_ROOM(pvictim[0]->get_master())) {
 				if (HERE(pvictim[0]->get_master()))
@@ -335,7 +335,7 @@ int pk_increment_revenge(CharData *agressor, CharData *victim) {
 }
 
 void pk_increment_gkill(CharData *agressor, CharData *victim) {
-	if (!AFF_FLAGGED(victim, EAffectFlag::AFF_GROUP)) {
+	if (!AFF_FLAGGED(victim, EAffect::kGroup)) {
 		pk_increment_kill(agressor, victim, true, false);
 		return;
 	}
@@ -349,13 +349,13 @@ void pk_increment_gkill(CharData *agressor, CharData *victim) {
 
 	leader = victim->has_master() ? victim->get_master() : victim;
 
-	if (AFF_FLAGGED(leader, EAffectFlag::AFF_GROUP)
+	if (AFF_FLAGGED(leader, EAffect::kGroup)
 		&& IN_ROOM(leader) == IN_ROOM(victim)
 		&& pk_action_type(agressor, leader) > PK_ACTION_FIGHT) {
 		pk_increment_kill(agressor, leader, leader == victim, has_clanmember);
 	}
 	for (f = leader->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+		if (AFF_FLAGGED(f->ch, EAffect::kGroup)
 			&& IN_ROOM(f->ch) == IN_ROOM(victim)
 			&& pk_action_type(agressor, f->ch) > PK_ACTION_FIGHT) {
 			pk_increment_kill(agressor, f->ch, f->ch == victim, has_clanmember);
@@ -1024,7 +1024,7 @@ bool has_clan_members_in_group(CharData *ch) {
 		return true;
 	} else {
 		for (f = leader->followers; f; f = f->next) {
-			if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP) && IN_ROOM(f->ch) == ch->in_room
+			if (AFF_FLAGGED(f->ch, EAffect::kGroup) && IN_ROOM(f->ch) == ch->in_room
 				&& CLAN(f->ch)) {
 				return true;
 			}

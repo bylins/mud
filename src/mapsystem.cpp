@@ -508,7 +508,7 @@ void draw_room(CharData *ch, const RoomData *room, int cur_depth, int y, int x) 
 			}
 			// можно задохнуться
 			if (next_room->sector_type == kSectUnderwater) {
-				if (!AFF_FLAGGED(ch, EAffectFlag::AFF_WATERBREATH)) {
+				if (!AFF_FLAGGED(ch, EAffect::kWaterBreath)) {
 					check_position_and_put_on_screen(next_y, next_x, SCREEN_WATER_RED, cur_depth, i);
 				} else {
 					check_position_and_put_on_screen(next_y, next_x, SCREEN_WATER, cur_depth, i);
@@ -516,7 +516,7 @@ void draw_room(CharData *ch, const RoomData *room, int cur_depth, int y, int x) 
 			}
 			// Флай-дт
 			if (next_room->sector_type == kSectOnlyFlying) {
-				if (!AFF_FLAGGED(ch, EAffectFlag::AFF_FLY)) {
+				if (!AFF_FLAGGED(ch, EAffect::kFly)) {
 					check_position_and_put_on_screen(next_y, next_x, SCREEN_FLYING_RED, cur_depth, i);
 				} else {
 					check_position_and_put_on_screen(next_y, next_x, SCREEN_FLYING, cur_depth, i);
@@ -1020,7 +1020,7 @@ void do_map(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {
 		send_to_char("В режиме слепого игрока карта недоступна.\r\n", ch);
 		return;
-	} else if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
+	} else if (AFF_FLAGGED(ch, EAffect::kBlind)) {
 		send_to_char("Слепому карта не поможет!\r\n", ch);
 		return;
 	} else if (is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !can_use_feat(ch, DARK_READING_FEAT)) {

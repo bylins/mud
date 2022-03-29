@@ -1642,7 +1642,7 @@ const char *pray_whom[] = {"Яриле",
 // Fields : whom location modifier bitvector battleflag
 std::vector<pray_affect_type> pray_affect =
 	{
-		{0, APPLY_NONE, 0, to_underlying(EAffectFlag::AFF_INFRAVISION), 0},    // Ярило
+		{0, APPLY_NONE, 0, to_underlying(EAffect::kInfravision), 0},    // Ярило
 		{1, APPLY_HITREG, 50, 0, 0},    // Мокошь
 		{2, APPLY_STR, 1, 0, 0},    // Перун
 		{3, APPLY_DEX, 1, 0, 0},    // Велес

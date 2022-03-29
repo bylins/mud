@@ -1437,7 +1437,7 @@ void Clan::GodToChannel(CharData *ch, std::string text, int subcmd) {
 					&& ch != d->character.get()
 					&& STATE(d) == CON_PLAYING
 					&& CLAN(d->character).get() == this
-					&& !AFF_FLAGGED(d->character, EAffectFlag::AFF_DEAFNESS)) {
+					&& !AFF_FLAGGED(d->character, EAffect::kDeafness)) {
 					send_to_char(d->character.get(), "%s ВАШЕЙ ДРУЖИНЕ: %s'%s'%s\r\n",
 								 GET_NAME(ch), CCIRED(d->character, C_NRM), text.c_str(), CCNRM(d->character, C_NRM));
 				}
@@ -1458,7 +1458,7 @@ void Clan::GodToChannel(CharData *ch, std::string text, int subcmd) {
 				if (d->character
 					&& CLAN(d->character)
 					&& STATE(d) == CON_PLAYING
-					&& !AFF_FLAGGED(d->character, EAffectFlag::AFF_DEAFNESS)
+					&& !AFF_FLAGGED(d->character, EAffect::kDeafness)
 					&& d->character.get() != ch) {
 					if (CheckPolitics(CLAN(d->character)->GetRent()) == POLITICS_ALLIANCE
 						|| CLAN(d->character).get() == this) {
@@ -1501,8 +1501,8 @@ void Clan::CharToChannel(CharData *ch, std::string text, int subcmd) {
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE)
-		|| AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)) {
+	if (AFF_FLAGGED(ch, EAffect::kSilence)
+		|| AFF_FLAGGED(ch, EAffect::kStrangled)) {
 		send_to_char(SIELENCE, ch);
 		return;
 	}
@@ -1524,7 +1524,7 @@ void Clan::CharToChannel(CharData *ch, std::string text, int subcmd) {
 					&& d->character.get() != ch
 					&& STATE(d) == CON_PLAYING
 					&& CLAN(d->character) == CLAN(ch)
-					&& !AFF_FLAGGED(d->character, EAffectFlag::AFF_DEAFNESS)
+					&& !AFF_FLAGGED(d->character, EAffect::kDeafness)
 					&& !ignores(d->character.get(), ch, EIgnore::kClan)) {
 					snprintf(buf, kMaxStringLength, "%s дружине: %s'%s'.%s\r\n",
 							 GET_NAME(ch), CCIRED(d->character, C_NRM), text.c_str(), CCNRM(d->character, C_NRM));
@@ -1561,7 +1561,7 @@ void Clan::CharToChannel(CharData *ch, std::string text, int subcmd) {
 					&& CLAN(d->character)
 					&& STATE(d) == CON_PLAYING
 					&& d->character.get() != ch
-					&& !AFF_FLAGGED(d->character, EAffectFlag::AFF_DEAFNESS)
+					&& !AFF_FLAGGED(d->character, EAffect::kDeafness)
 					&& !ignores(d->character.get(), ch, EIgnore::kAlliance)) {
 					if (CLAN(ch)->CheckPolitics(CLAN(d->character)->GetRent()) == POLITICS_ALLIANCE
 						|| CLAN(ch) == CLAN(d->character)) {
@@ -2991,7 +2991,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 		for (DescriptorData *d = descriptor_list; d; d = d->next) {
 			if (d->character
 				&& STATE(d) == CON_PLAYING
-				&& !AFF_FLAGGED(d->character, EAffectFlag::AFF_DEAFNESS)
+				&& !AFF_FLAGGED(d->character, EAffect::kDeafness)
 				&& CLAN(d->character)
 				&& CLAN(d->character) == CLAN(ch)
 				&& PRF_FLAGGED(d->character, EPrf::kTakeMode)) {
@@ -3037,7 +3037,7 @@ bool Clan::TakeChest(CharData *ch, ObjData *obj, ObjData *chest) {
 		for (DescriptorData *d = descriptor_list; d; d = d->next) {
 			if (d->character
 				&& STATE(d) == CON_PLAYING
-				&& !AFF_FLAGGED(d->character, EAffectFlag::AFF_DEAFNESS)
+				&& !AFF_FLAGGED(d->character, EAffect::kDeafness)
 				&& CLAN(d->character)
 				&& CLAN(d->character) == CLAN(ch)
 				&& PRF_FLAGGED(d->character, EPrf::kTakeMode)) {
@@ -4070,7 +4070,7 @@ void Clan::ClanAddMember(CharData *ch, int rank) {
 		if (d->character
 			&& CLAN(d->character)
 			&& STATE(d) == CON_PLAYING
-			&& !AFF_FLAGGED(d->character, EAffectFlag::AFF_DEAFNESS)
+			&& !AFF_FLAGGED(d->character, EAffect::kDeafness)
 			&& this->GetRent() == CLAN(d->character)->GetRent()
 			&& ch != d->character.get()) {
 			send_to_char(d->character.get(),
@@ -4588,7 +4588,7 @@ void Clan::ChestInvoice() {
 
 		for (DescriptorData *d = descriptor_list; d; d = d->next) {
 			if (d->character && STATE(d) == CON_PLAYING
-				&& !AFF_FLAGGED(d->character, EAffectFlag::AFF_DEAFNESS)
+				&& !AFF_FLAGGED(d->character, EAffect::kDeafness)
 				&& CLAN(d->character)
 				&& CLAN(d->character) == *clan) {
 				send_to_char(d->character.get(),
@@ -4669,7 +4669,7 @@ void Clan::SetClanExp(CharData *ch, int add) {
 		this->clan_level++;
 		for (DescriptorData *d = descriptor_list; d; d = d->next) {
 			if (d->character && STATE(d) == CON_PLAYING
-				&& !AFF_FLAGGED(d->character, EAffectFlag::AFF_DEAFNESS)
+				&& !AFF_FLAGGED(d->character, EAffect::kDeafness)
 				&& CLAN(d->character)
 				&& CLAN(d->character)->GetRent() == this->rent) {
 				send_to_char(d->character.get(),
@@ -4682,7 +4682,7 @@ void Clan::SetClanExp(CharData *ch, int add) {
 		this->clan_level--;
 		for (DescriptorData *d = descriptor_list; d; d = d->next) {
 			if (d->character && STATE(d) == CON_PLAYING
-				&& !AFF_FLAGGED(d->character, EAffectFlag::AFF_DEAFNESS)
+				&& !AFF_FLAGGED(d->character, EAffect::kDeafness)
 				&& CLAN(d->character)
 				&& CLAN(d->character)->GetRent() == this->rent) {
 				send_to_char(d->character.get(),

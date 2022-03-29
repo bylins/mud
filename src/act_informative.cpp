@@ -575,19 +575,19 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 			strcat(buf, buf2);
 		}
 		if (object->has_flag(EObjFlag::kBless)
-			&& AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_ALIGN))
+			&& AFF_FLAGGED(ch, EAffect::kDetectAlign))
 			strcat(buf, " ..голубая аура!");
 		if (object->has_flag(EObjFlag::kMagic)
-			&& AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_MAGIC))
+			&& AFF_FLAGGED(ch, EAffect::kDetectMagic))
 			strcat(buf, " ..желтая аура!");
 		if (object->has_flag(EObjFlag::kPoisoned)
-			&& AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_POISON)) {
+			&& AFF_FLAGGED(ch, EAffect::kDetectPoison)) {
 			sprintf(buf2, "..отравлен%s!", GET_OBJ_SUF_6(object));
 			strcat(buf, buf2);
 		}
 		if (object->has_flag(EObjFlag::kGlow))
 			strcat(buf, " ..блестит!");
-		if (object->has_flag(EObjFlag::kHum) && !AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS))
+		if (object->has_flag(EObjFlag::kHum) && !AFF_FLAGGED(ch, EAffect::kDeafness))
 			strcat(buf, " ..шумит!");
 		if (object->has_flag(EObjFlag::kFire))
 			strcat(buf, " ..горит!");
@@ -766,8 +766,8 @@ void diag_char_to_char(CharData *i, CharData *ch) {
 	else
 		strcat(buf, IS_POLY(i) ? ", сидят верхом." : ", сидит верхом.");
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_POISON))
-		if (AFF_FLAGGED(i, EAffectFlag::AFF_POISON)) {
+	if (AFF_FLAGGED(ch, EAffect::kDetectPoison))
+		if (AFF_FLAGGED(i, EAffect::kPoisoned)) {
 			sprintf(buf2, " (отравлен%s)", GET_CH_SUF_6(i));
 			strcat(buf, buf2);
 		}
@@ -870,7 +870,7 @@ void look_at_char(CharData *i, CharData *ch) {
 	} else
 		act("\r\nНичего необычного в $n5 вы не заметили.", false, i, nullptr, ch, kToVict);
 
-	if (AFF_FLAGGED(i, EAffectFlag::AFF_CHARM)
+	if (AFF_FLAGGED(i, EAffect::kCharmed)
 		&& i->get_master() == ch) {
 		if (i->low_charm()) {
 			act("$n скоро перестанет следовать за вами.", false, i, nullptr, ch, kToVict);
@@ -1027,7 +1027,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		}
 		if (IS_SET(mode_flags, kAcheckGlowing)
 			&& IS_SET(mode_flags, kAcheckHumming)
-			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS)) {
+			&& !AFF_FLAGGED(ch, EAffect::kDeafness)) {
 			REMOVE_BIT(mode_flags, kAcheckGlowing);
 			REMOVE_BIT(mode_flags, kAcheckHumming);
 			sprintf(buf + strlen(buf), "шум и блеск экипировки%s", mode_flags ? ", " : " ");
@@ -1037,12 +1037,12 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			sprintf(buf + strlen(buf), "блеск экипировки%s", mode_flags ? ", " : " ");
 		}
 		if (IS_SET(mode_flags, kAcheckHumming)
-			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS)) {
+			&& !AFF_FLAGGED(ch, EAffect::kDeafness)) {
 			REMOVE_BIT(mode_flags, kAcheckHumming);
 			sprintf(buf + strlen(buf), "шум экипировки%s", mode_flags ? ", " : " ");
 		}
 		if (IS_SET(mode_flags, kAcheckWeight)
-			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS)) {
+			&& !AFF_FLAGGED(ch, EAffect::kDeafness)) {
 			REMOVE_BIT(mode_flags, kAcheckWeight);
 			sprintf(buf + strlen(buf), "бряцание металла%s", mode_flags ? ", " : " ");
 		}
@@ -1055,20 +1055,20 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		&& !i->player_data.long_descr.empty()
 		&& GET_POS(i) == GET_DEFAULT_POS(i)
 		&& ch->in_room == i->in_room
-		&& !AFF_FLAGGED(i, EAffectFlag::AFF_CHARM)
+		&& !AFF_FLAGGED(i, EAffect::kCharmed)
 		&& !IS_HORSE(i)) {
 		*buf = '\0';
 		if (PRF_FLAGGED(ch, EPrf::kRoomFlags)) {
 			sprintf(buf, "[%5d] ", GET_MOB_VNUM(i));
 		}
 
-		if (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_MAGIC)
-			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_ALIGN)) {
-			if (AFF_FLAGGED(i, EAffectFlag::AFF_EVILESS)) {
+		if (AFF_FLAGGED(ch, EAffect::kDetectMagic)
+			&& !AFF_FLAGGED(ch, EAffect::kDetectAlign)) {
+			if (AFF_FLAGGED(i, EAffect::kForcesOfEvil)) {
 				strcat(buf, "(черная аура) ");
 			}
 		}
-		if (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_ALIGN)) {
+		if (AFF_FLAGGED(ch, EAffect::kDetectAlign)) {
 			if (i->is_npc()) {
 				if (NPC_FLAGGED(i, ENpcFlag::kAirCreature))
 					sprintf(buf + strlen(buf), "%s(аура воздуха)%s ",
@@ -1084,29 +1084,29 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 							CCIGRN(ch, C_CMP), CCIRED(ch, C_CMP));
 			}
 		}
-		if (AFF_FLAGGED(i, EAffectFlag::AFF_INVISIBLE))
+		if (AFF_FLAGGED(i, EAffect::kInvisible))
 			sprintf(buf + strlen(buf), "(невидим%s) ", GET_CH_SUF_6(i));
-		if (AFF_FLAGGED(i, EAffectFlag::AFF_HIDE))
+		if (AFF_FLAGGED(i, EAffect::kHide))
 			sprintf(buf + strlen(buf), "(спрятал%s) ", GET_CH_SUF_2(i));
-		if (AFF_FLAGGED(i, EAffectFlag::AFF_CAMOUFLAGE))
+		if (AFF_FLAGGED(i, EAffect::kDisguise))
 			sprintf(buf + strlen(buf), "(замаскировал%s) ", GET_CH_SUF_2(i));
-		if (AFF_FLAGGED(i, EAffectFlag::AFF_FLY))
+		if (AFF_FLAGGED(i, EAffect::kFly))
 			strcat(buf, IS_POLY(i) ? "(летят) " : "(летит) ");
-		if (AFF_FLAGGED(i, EAffectFlag::AFF_HORSE))
+		if (AFF_FLAGGED(i, EAffect::kHorse))
 			strcat(buf, "(под седлом) ");
 
 		strcat(buf, i->player_data.long_descr.c_str());
 		send_to_char(buf, ch);
 
 		*aura_txt = '\0';
-		if (AFF_FLAGGED(i, EAffectFlag::AFF_SHIELD)) {
+		if (AFF_FLAGGED(i, EAffect::kShield)) {
 			strcat(aura_txt, "...окутан");
 			strcat(aura_txt, GET_CH_SUF_6(i));
 			strcat(aura_txt, " сверкающим коконом ");
 		}
-		if (AFF_FLAGGED(i, EAffectFlag::AFF_SANCTUARY))
+		if (AFF_FLAGGED(i, EAffect::kSanctuary))
 			strcat(aura_txt, IS_POLY(i) ? "...светятся ярким сиянием " : "...светится ярким сиянием ");
-		else if (AFF_FLAGGED(i, EAffectFlag::AFF_PRISMATICAURA))
+		else if (AFF_FLAGGED(i, EAffect::kPrismaticAura))
 			strcat(aura_txt, IS_POLY(i) ? "...переливаются всеми цветами " : "...переливается всеми цветами ");
 		act(aura_txt, false, i, nullptr, ch, kToVict);
 
@@ -1114,18 +1114,18 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		n = 0;
 		strcat(aura_txt, "...окружен");
 		strcat(aura_txt, GET_CH_SUF_6(i));
-		if (AFF_FLAGGED(i, EAffectFlag::AFF_AIRSHIELD)) {
+		if (AFF_FLAGGED(i, EAffect::kAirShield)) {
 			strcat(aura_txt, " воздушным");
 			n++;
 		}
-		if (AFF_FLAGGED(i, EAffectFlag::AFF_FIRESHIELD)) {
+		if (AFF_FLAGGED(i, EAffect::kFireShield)) {
 			if (n > 0)
 				strcat(aura_txt, ", огненным");
 			else
 				strcat(aura_txt, " огненным");
 			n++;
 		}
-		if (AFF_FLAGGED(i, EAffectFlag::AFF_ICESHIELD)) {
+		if (AFF_FLAGGED(i, EAffect::kIceShield)) {
 			if (n > 0)
 				strcat(aura_txt, ", ледяным");
 			else
@@ -1139,25 +1139,25 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		if (n > 0)
 			act(aura_txt, false, i, nullptr, ch, kToVict);
 
-		if (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_MAGIC)) {
+		if (AFF_FLAGGED(ch, EAffect::kDetectMagic)) {
 			*aura_txt = '\0';
 			n = 0;
 			strcat(aura_txt, "...");
-			if (AFF_FLAGGED(i, EAffectFlag::AFF_MAGICGLASS)) {
+			if (AFF_FLAGGED(i, EAffect::kMagicGlass)) {
 				if (n > 0)
 					strcat(aura_txt, ", серебристая");
 				else
 					strcat(aura_txt, "серебристая");
 				n++;
 			}
-			if (AFF_FLAGGED(i, EAffectFlag::AFF_BROKEN_CHAINS)) {
+			if (AFF_FLAGGED(i, EAffect::kBrokenChains)) {
 				if (n > 0)
 					strcat(aura_txt, ", ярко-синяя");
 				else
 					strcat(aura_txt, "ярко-синяя");
 				n++;
 			}
-			if (AFF_FLAGGED(i, EAffectFlag::AFF_EVILESS)) {
+			if (AFF_FLAGGED(i, EAffect::kForcesOfEvil)) {
 				if (n > 0)
 					strcat(aura_txt, ", черная");
 				else
@@ -1173,17 +1173,17 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 				act(aura_txt, false, i, nullptr, ch, kToVict);
 		}
 		*aura_txt = '\0';
-		if (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_MAGIC)) {
-			if (AFF_FLAGGED(i, EAffectFlag::AFF_HOLD))
+		if (AFF_FLAGGED(ch, EAffect::kDetectMagic)) {
+			if (AFF_FLAGGED(i, EAffect::kHold))
 				strcat(aura_txt, "...парализован$a");
-			if (AFF_FLAGGED(i, EAffectFlag::AFF_SILENCE))
+			if (AFF_FLAGGED(i, EAffect::kSilence))
 				strcat(aura_txt, "...нем$a");
 		}
-		if (AFF_FLAGGED(i, EAffectFlag::AFF_BLIND))
+		if (AFF_FLAGGED(i, EAffect::kBlind))
 			strcat(aura_txt, "...слеп$a");
-		if (AFF_FLAGGED(i, EAffectFlag::AFF_DEAFNESS))
+		if (AFF_FLAGGED(i, EAffect::kDeafness))
 			strcat(aura_txt, "...глух$a");
-		if (AFF_FLAGGED(i, EAffectFlag::AFF_STRANGLED))
+		if (AFF_FLAGGED(i, EAffect::kStrangled))
 			strcat(aura_txt, "...задыхается.");
 
 		if (*aura_txt)
@@ -1195,19 +1195,19 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 	if (i->is_npc()) {
 		strcpy(buf1, i->get_npc_name().c_str());
 		strcat(buf1, " ");
-		if (AFF_FLAGGED(i, EAffectFlag::AFF_HORSE))
+		if (AFF_FLAGGED(i, EAffect::kHorse))
 			strcat(buf1, "(под седлом) ");
 		CAP(buf1);
 	} else {
 		sprintf(buf1, "%s%s ", i->get_morphed_title().c_str(), PLR_FLAGGED(i, EPlrFlag::kKiller) ? " <ДУШЕГУБ>" : "");
 	}
 
-	sprintf(buf, "%s%s", AFF_FLAGGED(i, EAffectFlag::AFF_CHARM) ? "*" : "", buf1);
-	if (AFF_FLAGGED(i, EAffectFlag::AFF_INVISIBLE))
+	sprintf(buf, "%s%s", AFF_FLAGGED(i, EAffect::kCharmed) ? "*" : "", buf1);
+	if (AFF_FLAGGED(i, EAffect::kInvisible))
 		sprintf(buf + strlen(buf), "(невидим%s) ", GET_CH_SUF_6(i));
-	if (AFF_FLAGGED(i, EAffectFlag::AFF_HIDE))
+	if (AFF_FLAGGED(i, EAffect::kHide))
 		sprintf(buf + strlen(buf), "(спрятал%s) ", GET_CH_SUF_2(i));
-	if (AFF_FLAGGED(i, EAffectFlag::AFF_CAMOUFLAGE))
+	if (AFF_FLAGGED(i, EAffect::kDisguise))
 		sprintf(buf + strlen(buf), "(замаскировал%s) ", GET_CH_SUF_2(i));
 	if (!i->is_npc() && !i->desc)
 		sprintf(buf + strlen(buf), "(потерял%s связь) ", GET_CH_SUF_1(i));
@@ -1219,24 +1219,24 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			CharData *horse = i->get_horse();
 			if (horse) {
 				const char *msg =
-					AFF_FLAGGED(horse, EAffectFlag::AFF_FLY) ? "летает" : "сидит";
+					AFF_FLAGGED(horse, EAffect::kFly) ? "летает" : "сидит";
 				sprintf(buf + strlen(buf), "%s здесь верхом на %s. ",
 						msg, PERS(horse, ch, 5));
 			}
-		} else if (IS_HORSE(i) && AFF_FLAGGED(i, EAffectFlag::AFF_TETHERED))
+		} else if (IS_HORSE(i) && AFF_FLAGGED(i, EAffect::kTethered))
 			sprintf(buf + strlen(buf), "привязан%s здесь. ", GET_CH_SUF_6(i));
 		else if ((sector = real_sector(i->in_room)) == kSectOnlyFlying)
 			strcat(buf, IS_POLY(i) ? "летают здесь. " : "летает здесь. ");
 		else if (sector == kSectUnderwater)
 			strcat(buf, IS_POLY(i) ? "плавают здесь. " : "плавает здесь. ");
-		else if (GET_POS(i) > EPosition::kSleep && AFF_FLAGGED(i, EAffectFlag::AFF_FLY))
+		else if (GET_POS(i) > EPosition::kSleep && AFF_FLAGGED(i, EAffect::kFly))
 			strcat(buf, IS_POLY(i) ? "летают здесь. " : "летает здесь. ");
 		else if (sector == kSectWaterSwim || sector == kSectWaterNoswim)
 			strcat(buf, IS_POLY(i) ? "плавают здесь. " : "плавает здесь. ");
 		else
 			strcat(buf,
 				   IS_POLY(i) ? poly_positions[static_cast<int>(GET_POS(i))] : positions[static_cast<int>(GET_POS(i))]);
-		if (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_MAGIC) && i->is_npc() && affected_by_spell(i, kSpellCapable))
+		if (AFF_FLAGGED(ch, EAffect::kDetectMagic) && i->is_npc() && affected_by_spell(i, kSpellCapable))
 			sprintf(buf + strlen(buf), "(аура магии) ");
 	} else {
 		if (i->get_fighting()) {
@@ -1261,28 +1261,28 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		}
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_MAGIC)
-		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_ALIGN)) {
-		if (AFF_FLAGGED(i, EAffectFlag::AFF_EVILESS))
+	if (AFF_FLAGGED(ch, EAffect::kDetectMagic)
+		&& !AFF_FLAGGED(ch, EAffect::kDetectAlign)) {
+		if (AFF_FLAGGED(i, EAffect::kForcesOfEvil))
 			strcat(buf, "(черная аура) ");
 	}
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_ALIGN)) {
+	if (AFF_FLAGGED(ch, EAffect::kDetectAlign)) {
 		if (i->is_npc()) {
 			if (IS_EVIL(i)) {
-				if (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_MAGIC)
-					&& AFF_FLAGGED(i, EAffectFlag::AFF_EVILESS))
+				if (AFF_FLAGGED(ch, EAffect::kDetectMagic)
+					&& AFF_FLAGGED(i, EAffect::kForcesOfEvil))
 					strcat(buf, "(иссиня-черная аура) ");
 				else
 					strcat(buf, "(темная аура) ");
 			} else if (IS_GOOD(i)) {
-				if (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_MAGIC)
-					&& AFF_FLAGGED(i, EAffectFlag::AFF_EVILESS))
+				if (AFF_FLAGGED(ch, EAffect::kDetectMagic)
+					&& AFF_FLAGGED(i, EAffect::kForcesOfEvil))
 					strcat(buf, "(серая аура) ");
 				else
 					strcat(buf, "(светлая аура) ");
 			} else {
-				if (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_MAGIC)
-					&& AFF_FLAGGED(i, EAffectFlag::AFF_EVILESS))
+				if (AFF_FLAGGED(ch, EAffect::kDetectMagic)
+					&& AFF_FLAGGED(i, EAffect::kForcesOfEvil))
 					strcat(buf, "(черная аура) ");
 			}
 		} else {
@@ -1291,22 +1291,22 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			strcat(buf, " ");
 		}
 	}
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_POISON))
-		if (AFF_FLAGGED(i, EAffectFlag::AFF_POISON))
+	if (AFF_FLAGGED(ch, EAffect::kDetectPoison))
+		if (AFF_FLAGGED(i, EAffect::kPoisoned))
 			sprintf(buf + strlen(buf), "(отравлен%s) ", GET_CH_SUF_6(i));
 
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 
 	*aura_txt = '\0';
-	if (AFF_FLAGGED(i, EAffectFlag::AFF_SHIELD)) {
+	if (AFF_FLAGGED(i, EAffect::kShield)) {
 		strcat(aura_txt, "...окутан");
 		strcat(aura_txt, GET_CH_SUF_6(i));
 		strcat(aura_txt, " сверкающим коконом ");
 	}
-	if (AFF_FLAGGED(i, EAffectFlag::AFF_SANCTUARY))
+	if (AFF_FLAGGED(i, EAffect::kSanctuary))
 		strcat(aura_txt, IS_POLY(i) ? "...светятся ярким сиянием " : "...светится ярким сиянием ");
-	else if (AFF_FLAGGED(i, EAffectFlag::AFF_PRISMATICAURA))
+	else if (AFF_FLAGGED(i, EAffect::kPrismaticAura))
 		strcat(aura_txt, IS_POLY(i) ? "...переливаются всеми цветами " : "...переливается всеми цветами ");
 	act(aura_txt, false, i, nullptr, ch, kToVict);
 
@@ -1314,18 +1314,18 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 	n = 0;
 	strcat(aura_txt, "...окружен");
 	strcat(aura_txt, GET_CH_SUF_6(i));
-	if (AFF_FLAGGED(i, EAffectFlag::AFF_AIRSHIELD)) {
+	if (AFF_FLAGGED(i, EAffect::kAirShield)) {
 		strcat(aura_txt, " воздушным");
 		n++;
 	}
-	if (AFF_FLAGGED(i, EAffectFlag::AFF_FIRESHIELD)) {
+	if (AFF_FLAGGED(i, EAffect::kFireShield)) {
 		if (n > 0)
 			strcat(aura_txt, ", огненным");
 		else
 			strcat(aura_txt, " огненным");
 		n++;
 	}
-	if (AFF_FLAGGED(i, EAffectFlag::AFF_ICESHIELD)) {
+	if (AFF_FLAGGED(i, EAffect::kIceShield)) {
 		if (n > 0)
 			strcat(aura_txt, ", ледяным");
 		else
@@ -1338,25 +1338,25 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		strcat(aura_txt, " щитами ");
 	if (n > 0)
 		act(aura_txt, false, i, nullptr, ch, kToVict);
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_ALIGN)) {
+	if (AFF_FLAGGED(ch, EAffect::kDetectAlign)) {
 		*aura_txt = '\0';
-		if (AFF_FLAGGED(i, EAffectFlag::AFF_COMMANDER))
+		if (AFF_FLAGGED(i, EAffect::kCommander))
 			strcat(aura_txt, "... реет стяг над головой ");
 		if (*aura_txt)
 			act(aura_txt, false, i, nullptr, ch, kToVict);
 	}
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_MAGIC)) {
+	if (AFF_FLAGGED(ch, EAffect::kDetectMagic)) {
 		*aura_txt = '\0';
 		n = 0;
 		strcat(aura_txt, " ..");
-		if (AFF_FLAGGED(i, EAffectFlag::AFF_MAGICGLASS)) {
+		if (AFF_FLAGGED(i, EAffect::kMagicGlass)) {
 			if (n > 0)
 				strcat(aura_txt, ", серебристая");
 			else
 				strcat(aura_txt, "серебристая");
 			n++;
 		}
-		if (AFF_FLAGGED(i, EAffectFlag::AFF_BROKEN_CHAINS)) {
+		if (AFF_FLAGGED(i, EAffect::kBrokenChains)) {
 			if (n > 0)
 				strcat(aura_txt, ", ярко-синяя");
 			else
@@ -1372,17 +1372,17 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			act(aura_txt, false, i, nullptr, ch, kToVict);
 	}
 	*aura_txt = '\0';
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_MAGIC)) {
-		if (AFF_FLAGGED(i, EAffectFlag::AFF_HOLD))
+	if (AFF_FLAGGED(ch, EAffect::kDetectMagic)) {
+		if (AFF_FLAGGED(i, EAffect::kHold))
 			strcat(aura_txt, " ...парализован$a");
-		if (AFF_FLAGGED(i, EAffectFlag::AFF_SILENCE))
+		if (AFF_FLAGGED(i, EAffect::kSilence))
 			strcat(aura_txt, " ...нем$a");
 	}
-	if (AFF_FLAGGED(i, EAffectFlag::AFF_BLIND))
+	if (AFF_FLAGGED(i, EAffect::kBlind))
 		strcat(aura_txt, " ...слеп$a");
-	if (AFF_FLAGGED(i, EAffectFlag::AFF_DEAFNESS))
+	if (AFF_FLAGGED(i, EAffect::kDeafness))
 		strcat(aura_txt, " ...глух$a");
-	if (AFF_FLAGGED(i, EAffectFlag::AFF_STRANGLED))
+	if (AFF_FLAGGED(i, EAffect::kStrangled))
 		strcat(aura_txt, " ...задыхается");
 	if (*aura_txt)
 		act(aura_txt, false, i, nullptr, ch, kToVict);
@@ -1414,7 +1414,7 @@ void list_char_to_char(const RoomData::people_t &list, CharData *ch) {
 			} else if (is_dark(i->in_room)
 				&& i->in_room == ch->in_room
 				&& !CAN_SEE_IN_DARK(ch)
-				&& AFF_FLAGGED(i, EAffectFlag::AFF_INFRAVISION)) {
+				&& AFF_FLAGGED(i, EAffect::kInfravision)) {
 				send_to_char("Пара светящихся глаз смотрит на вас.\r\n", ch);
 			}
 		}
@@ -1466,7 +1466,7 @@ void do_exits(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		do_blind_exits(ch);
 		return;
 	}
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
+	if (AFF_FLAGGED(ch, EAffect::kBlind)) {
 		send_to_char("Вы слепы, как котенок!\r\n", ch);
 		return;
 	}
@@ -1504,7 +1504,7 @@ void do_blind_exits(CharData *ch) {
 	*buf = '\0';
 	*buf2 = '\0';
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
+	if (AFF_FLAGGED(ch, EAffect::kBlind)) {
 		send_to_char("Вы слепы, как котенок!\r\n", ch);
 		return;
 	}
@@ -1812,7 +1812,7 @@ void look_at_room(CharData *ch, int ignore_brief) {
 		send_to_char("Слишком темно...\r\n", ch);
 		show_glow_objs(ch);
 		return;
-	} else if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
+	} else if (AFF_FLAGGED(ch, EAffect::kBlind)) {
 		send_to_char("Вы все еще слепы...\r\n", ch);
 		return;
 	} else if (GET_POS(ch) < EPosition::kSleep) {
@@ -1865,7 +1865,7 @@ void look_at_room(CharData *ch, int ignore_brief) {
 	}
 
 	// Отображаем аффекты комнаты. После автовыходов чтобы не ломать популярный маппер.
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_MAGIC) || IS_IMMORTAL(ch)) {
+	if (AFF_FLAGGED(ch, EAffect::kDetectMagic) || IS_IMMORTAL(ch)) {
 		show_room_affects(ch, room_aff_invis_bits, room_self_aff_invis_bits);
 	} else {
 		show_room_affects(ch, room_aff_visib_bits, room_aff_visib_bits);
@@ -2041,7 +2041,7 @@ void hear_in_direction(CharData *ch, int dir, int info_is) {
 	int fight_count = 0;
 	string tmpstr;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS)) {
+	if (AFF_FLAGGED(ch, EAffect::kDeafness)) {
 		send_to_char("Вы забыли, что вы глухи?\r\n", ch);
 		return;
 	}
@@ -2069,7 +2069,7 @@ void hear_in_direction(CharData *ch, int dir, int info_is) {
 			}
 
 			if ((probe >= percent
-				|| ((!AFF_FLAGGED(tch, EAffectFlag::AFF_SNEAK) || !AFF_FLAGGED(tch, EAffectFlag::AFF_HIDE))
+				|| ((!AFF_FLAGGED(tch, EAffect::kSneak) || !AFF_FLAGGED(tch, EAffect::kHide))
 					&& (probe > percent * 2)))
 				&& (percent < 100 || IS_IMMORTAL(ch))
 				&& !fight_count) {
@@ -2238,7 +2238,7 @@ char *daig_filling_drink(const ObjData *obj, const CharData *ch) {
 			return buf1;
 		}
 		else {
-				const char *msg = AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_POISON) && obj->get_val(3) == 1 ? " *отравленной*" : "";
+				const char *msg = AFF_FLAGGED(ch, EAffect::kDetectPoison) && obj->get_val(3) == 1 ? " *отравленной*" : "";
 				int amt = (GET_OBJ_VAL(obj, 1) * 5) / GET_OBJ_VAL(obj, 0);
 				sprinttype(GET_OBJ_VAL(obj, 2), color_liquid, tmp);
 				snprintf(buf1, kMaxStringLength,
@@ -2494,12 +2494,12 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 }
 
 void skip_hide_on_look(CharData *ch) {
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE) &&
+	if (AFF_FLAGGED(ch, EAffect::kHide) &&
 		((!ch->get_skill(ESkill::kPry) ||
 			((number(1, 100) -
 				CalcCurrentSkill(ch, ESkill::kPry, nullptr) - 2 * (ch->get_wis() - 9)) > 0)))) {
 		affect_from_char(ch, kSpellHide);
-		if (!AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE)) {
+		if (!AFF_FLAGGED(ch, EAffect::kHide)) {
 			send_to_char("Вы прекратили прятаться.\r\n", ch);
 			act("$n прекратил$g прятаться.", false, ch, nullptr, nullptr, kToRoom);
 		}
@@ -2515,7 +2515,7 @@ void do_look(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	if (GET_POS(ch) < EPosition::kSleep) {
 		send_to_char("Виделся часто сон беспокойный...\r\n", ch);
-	} else if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
+	} else if (AFF_FLAGGED(ch, EAffect::kBlind)) {
 		send_to_char("Вы ослеплены!\r\n", ch);
 	} else if (is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch)) {
 		if (GetRealLevel(ch) > 30) {
@@ -2577,7 +2577,7 @@ void do_sides(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 	if (GET_POS(ch) <= EPosition::kSleep)
 		send_to_char("Виделся часто сон беспокойный...\r\n", ch);
-	else if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND))
+	else if (AFF_FLAGGED(ch, EAffect::kBlind))
 		send_to_char("Вы ослеплены!\r\n", ch);
 	else {
 		skip_hide_on_look(ch);
@@ -2598,7 +2598,7 @@ void do_looking(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 		send_to_char("Белый Ангел возник перед вами, маняще помахивая крыльями.\r\n", ch);
 	if (GET_POS(ch) == EPosition::kSleep)
 		send_to_char("Виделся часто сон беспокойный...\r\n", ch);
-	else if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND))
+	else if (AFF_FLAGGED(ch, EAffect::kBlind))
 		send_to_char("Вы ослеплены!\r\n", ch);
 	else if (ch->get_skill(ESkill::kLooking)) {
 		if (check_moves(ch, LOOKING_MOVES)) {
@@ -2618,7 +2618,7 @@ void do_hearing(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	if (!ch->desc)
 		return;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS)) {
+	if (AFF_FLAGGED(ch, EAffect::kDeafness)) {
 		send_to_char("Вы глухи и все равно ничего не услышите.\r\n", ch);
 		return;
 	}
@@ -2648,7 +2648,7 @@ void do_examine(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (GET_POS(ch) < EPosition::kSleep) {
 		send_to_char("Виделся часто сон беспокойный...\r\n", ch);
 		return;
-	} else if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
+	} else if (AFF_FLAGGED(ch, EAffect::kBlind)) {
 		send_to_char("Вы ослеплены!\r\n", ch);
 		return;
 	}
@@ -3194,11 +3194,11 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 			if (GET_INVIS_LEV(tch))
 				sprintf(buf + strlen(buf), " (i%d)", GET_INVIS_LEV(tch));
-			else if (AFF_FLAGGED(tch, EAffectFlag::AFF_INVISIBLE))
+			else if (AFF_FLAGGED(tch, EAffect::kInvisible))
 				sprintf(buf + strlen(buf), " (невидим%s)", GET_CH_SUF_6(tch));
-			if (AFF_FLAGGED(tch, EAffectFlag::AFF_HIDE))
+			if (AFF_FLAGGED(tch, EAffect::kHide))
 				strcat(buf, " (прячется)");
-			if (AFF_FLAGGED(tch, EAffectFlag::AFF_CAMOUFLAGE))
+			if (AFF_FLAGGED(tch, EAffect::kDisguise))
 				strcat(buf, " (маскируется)");
 
 			if (PLR_FLAGGED(tch, EPlrFlag::kMailing))
@@ -3943,7 +3943,7 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 void do_zone(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (ch->desc
 		&& !(IS_DARK(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !can_use_feat(ch, DARK_READING_FEAT))
-		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
+		&& !AFF_FLAGGED(ch, EAffect::kBlind)) {
 		MapSystem::print_map(ch);
 	}
 
@@ -4042,9 +4042,9 @@ void do_commands(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	send_to_char(buf, ch);
 }
 
-std::array<EAffectFlag, 3> hiding = {EAffectFlag::AFF_SNEAK,
-									 EAffectFlag::AFF_HIDE,
-									 EAffectFlag::AFF_CAMOUFLAGE};
+std::array<EAffect, 3> hiding = {EAffect::kSneak,
+								 EAffect::kHide,
+								 EAffect::kDisguise};
 
 void do_affects(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	char sp_name[kMaxStringLength];

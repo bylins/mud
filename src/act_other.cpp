@@ -115,10 +115,10 @@ void do_antigods(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Оно вам надо?\r\n", ch);
 		return;
 	}
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SHIELD)) {
+	if (AFF_FLAGGED(ch, EAffect::kShield)) {
 		if (affected_by_spell(ch, kSpellGodsShield))
 			affect_from_char(ch, kSpellGodsShield);
-		AFF_FLAGS(ch).unset(EAffectFlag::AFF_SHIELD);
+		AFF_FLAGS(ch).unset(EAffect::kShield);
 		send_to_char("Голубой кокон вокруг вашего тела угас.\r\n", ch);
 		act("&W$n отринул$g защиту, дарованную богами.&n", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 	} else
@@ -145,7 +145,7 @@ void do_quit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		else
 			send_to_char("Сдалась салага? Не выйдет...", ch);
 		return;
-	} else if (AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP)) {
+	} else if (AFF_FLAGGED(ch, EAffect::kSleep)) {
 		return;
 	} else if (*argument) {
 		send_to_char("Если вы хотите выйти из игры с потерей всех вещей, то просто наберите 'конец'.\r\n", ch);
@@ -237,12 +237,12 @@ int check_awake(CharData *ch, int what) {
 
 	if (!IS_GOD(ch)) {
 		if (IS_SET(what, kAcheckAffects)
-			&& (AFF_FLAGGED(ch, EAffectFlag::AFF_STAIRS) || AFF_FLAGGED(ch, EAffectFlag::AFF_SANCTUARY)))
+			&& (AFF_FLAGGED(ch, EAffect::kStairs) || AFF_FLAGGED(ch, EAffect::kSanctuary)))
 			SET_BIT(retval, kAcheckAffects);
 
 		if (IS_SET(what, kAcheckLight) &&
 			IS_DEFAULTDARK(ch->in_room)
-			&& (AFF_FLAGGED(ch, EAffectFlag::AFF_SINGLELIGHT) || AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYLIGHT)))
+			&& (AFF_FLAGGED(ch, EAffect::kSingleLight) || AFF_FLAGGED(ch, EAffect::kHolyLight)))
 			SET_BIT(retval, kAcheckLight);
 
 		for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
@@ -313,7 +313,7 @@ int awaking(CharData *ch, int mode) {
 int char_humming(CharData *ch) {
 	int i;
 
-	if (ch->is_npc() && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (ch->is_npc() && !AFF_FLAGGED(ch, EAffect::kCharmed))
 		return (false);
 
 	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
@@ -362,7 +362,7 @@ void do_sneak(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (percent > prob) {
 		af.bitvector = 0;
 	} else {
-		af.bitvector = to_underlying(EAffectFlag::AFF_SNEAK);
+		af.bitvector = to_underlying(EAffect::kSneak);
 	}
 
 	affect_to_char(ch, af);
@@ -416,7 +416,7 @@ void do_camouflage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 	if (percent > prob) {
 		af.bitvector = 0;
 	} else {
-		af.bitvector = to_underlying(EAffectFlag::AFF_CAMOUFLAGE);
+		af.bitvector = to_underlying(EAffect::kDisguise);
 	}
 
 	affect_to_char(ch, af);
@@ -447,7 +447,7 @@ void do_hide(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
+	if (AFF_FLAGGED(ch, EAffect::kBlind)) {
 		send_to_char("Вы слепы и не видите куда прятаться.\r\n", ch);
 		return;
 	}
@@ -472,7 +472,7 @@ void do_hide(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (percent > prob) {
 		af.bitvector = 0;
 	} else {
-		af.bitvector = to_underlying(EAffectFlag::AFF_HIDE);
+		af.bitvector = to_underlying(EAffect::kHide);
 	}
 
 	affect_to_char(ch, af);
@@ -499,7 +499,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 	// 101% is a complete failure
 	percent = number(1, MUD::Skills()[ESkill::kSteal].difficulty);
 
-	if (WAITLESS(ch) || (GET_POS(vict) <= EPosition::kSleep && !AFF_FLAGGED(vict, EAffectFlag::AFF_SLEEP)))
+	if (WAITLESS(ch) || (GET_POS(vict) <= EPosition::kSleep && !AFF_FLAGGED(vict, EAffect::kSleep)))
 		success = 1;    // ALWAYS SUCCESS, unless heavy object.
 
 	if (!AWAKE(vict))    // Easier to steal from sleeping people.
@@ -561,13 +561,13 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 			percent += GET_OBJ_WEIGHT(obj);    // Make heavy harder
 			prob = CalcCurrentSkill(ch, ESkill::kSteal, vict);
 
-			if (AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE))
+			if (AFF_FLAGGED(ch, EAffect::kHide))
 				prob += 5;
-			if (!WAITLESS(ch) && AFF_FLAGGED(vict, EAffectFlag::AFF_SLEEP))
+			if (!WAITLESS(ch) && AFF_FLAGGED(vict, EAffect::kSleep))
 				prob = 0;
 			if (percent > prob && !success) {
 				ohoh = true;
-				if (AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE)) {
+				if (AFF_FLAGGED(ch, EAffect::kHide)) {
 					affect_from_char(ch, kSpellHide);
 					send_to_char("Вы прекратили прятаться.\r\n", ch);
 					act("$n прекратил$g прятаться.", false, ch, nullptr, nullptr, kToRoom);
@@ -594,13 +594,13 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 	} else        // Steal some coins
 	{
 		prob = CalcCurrentSkill(ch, ESkill::kSteal, vict);
-		if (AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE))
+		if (AFF_FLAGGED(ch, EAffect::kHide))
 			prob += 5;
-		if (!WAITLESS(ch) && AFF_FLAGGED(vict, EAffectFlag::AFF_SLEEP))
+		if (!WAITLESS(ch) && AFF_FLAGGED(vict, EAffect::kSleep))
 			prob = 0;
 		if (percent > prob && !success) {
 			ohoh = true;
-			if (AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE)) {
+			if (AFF_FLAGGED(ch, EAffect::kHide)) {
 				affect_from_char(ch, kSpellHide);
 				send_to_char("Вы прекратили прятаться.\r\n", ch);
 				act("$n прекратил$g прятаться.", false, ch, nullptr, nullptr, kToRoom);
@@ -682,7 +682,7 @@ void do_steal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Воровать у своих? Это мерзко...\r\n", ch);
 		return;
 	}
-	if (vict->is_npc() && (MOB_FLAGGED(vict, EMobFlag::kNoFight) || AFF_FLAGGED(vict, EAffectFlag::AFF_SHIELD)
+	if (vict->is_npc() && (MOB_FLAGGED(vict, EMobFlag::kNoFight) || AFF_FLAGGED(vict, EAffect::kShield)
 		|| MOB_FLAGGED(vict, EMobFlag::kProtect))
 		&& !(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike))) {
 		send_to_char("А ежели поймают? Посодют ведь!\r\nПодумав так, вы отказались от сего намеренья.\r\n", ch);
@@ -744,10 +744,10 @@ void do_visible(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_INVISIBLE)
-		|| AFF_FLAGGED(ch, EAffectFlag::AFF_CAMOUFLAGE)
-		|| AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE)
-		|| AFF_FLAGGED(ch, EAffectFlag::AFF_SNEAK)) {
+	if (AFF_FLAGGED(ch, EAffect::kInvisible)
+		|| AFF_FLAGGED(ch, EAffect::kDisguise)
+		|| AFF_FLAGGED(ch, EAffect::kHide)
+		|| AFF_FLAGGED(ch, EAffect::kSneak)) {
 		appear(ch);
 		send_to_char("Вы перестали быть невидимым.\r\n", ch);
 	} else
@@ -782,25 +782,25 @@ void do_courage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	af[0].duration = CalcDuration(ch, dur, 0, 0, 0, 0);
 	af[0].modifier = 40;
 	af[0].location = APPLY_AC;
-	af[0].bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
+	af[0].bitvector = to_underlying(EAffect::kNoFlee);
 	af[0].battleflag = 0;
 	af[1].type = kSpellCourage;
 	af[1].duration = CalcDuration(ch, dur, 0, 0, 0, 0);
 	af[1].modifier = MAX(1, prob);
 	af[1].location = APPLY_DAMROLL;
-	af[1].bitvector = to_underlying(EAffectFlag::AFF_COURAGE);
+	af[1].bitvector = to_underlying(EAffect::kCourage);
 	af[1].battleflag = 0;
 	af[2].type = kSpellCourage;
 	af[2].duration = CalcDuration(ch, dur, 0, 0, 0, 0);
 	af[2].modifier = MAX(1, prob * 7);
 	af[2].location = APPLY_ABSORBE;
-	af[2].bitvector = to_underlying(EAffectFlag::AFF_COURAGE);
+	af[2].bitvector = to_underlying(EAffect::kCourage);
 	af[2].battleflag = 0;
 	af[3].type = kSpellCourage;
 	af[3].duration = CalcDuration(ch, dur, 0, 0, 0, 0);
 	af[3].modifier = 50;
 	af[3].location = APPLY_HITREG;
-	af[3].bitvector = to_underlying(EAffectFlag::AFF_COURAGE);
+	af[3].bitvector = to_underlying(EAffect::kCourage);
 	af[3].battleflag = 0;
 
 	for (i = 0; i < 4; i++) {
@@ -826,7 +826,7 @@ int max_group_size(CharData *ch) {
 
 bool is_group_member(CharData *ch, CharData *vict) {
 	if (vict->is_npc()
-		|| !AFF_FLAGGED(vict, EAffectFlag::AFF_GROUP)
+		|| !AFF_FLAGGED(vict, EAffect::kGroup)
 		|| vict->get_master() != ch) {
 		return false;
 	} else {
@@ -835,15 +835,15 @@ bool is_group_member(CharData *ch, CharData *vict) {
 }
 
 int perform_group(CharData *ch, CharData *vict) {
-	if (AFF_FLAGGED(vict, EAffectFlag::AFF_GROUP)
-		|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
+	if (AFF_FLAGGED(vict, EAffect::kGroup)
+		|| AFF_FLAGGED(vict, EAffect::kCharmed)
 		|| MOB_FLAGGED(vict, EMobFlag::kTutelar)
 		|| MOB_FLAGGED(vict, EMobFlag::kMentalShadow)
 		|| IS_HORSE(vict)) {
 		return (false);
 	}
 
-	AFF_FLAGS(vict).set(EAffectFlag::AFF_GROUP);
+	AFF_FLAGS(vict).set(EAffect::kGroup);
 	if (ch != vict) {
 		act("$N принят$A в члены вашего кружка (тьфу-ты, группы :).", false, ch, nullptr, vict, kToChar);
 		act("Вы приняты в группу $n1.", false, ch, nullptr, vict, kToVict);
@@ -993,16 +993,16 @@ void print_one_line(CharData *ch, CharData *k, int leader, int header) {
 
 		sprintf(buf + strlen(buf), " %s%s%s%s%s%s%s%s%s%s%s%s%s |",
 				CCIRED(ch, C_NRM),
-				AFF_FLAGGED(k, EAffectFlag::AFF_SANCTUARY) ? "О" : (AFF_FLAGGED(k, EAffectFlag::AFF_PRISMATICAURA) ? "П"
-																												   : " "),
+				AFF_FLAGGED(k, EAffect::kSanctuary) ? "О" : (AFF_FLAGGED(k, EAffect::kPrismaticAura) ? "П"
+																									 : " "),
 				CCGRN(ch, C_NRM),
-				AFF_FLAGGED(k, EAffectFlag::AFF_WATERBREATH) ? "Д" : " ", CCICYN(ch, C_NRM),
-				AFF_FLAGGED(k, EAffectFlag::AFF_INVISIBLE) ? "Н" : " ", CCIYEL(ch, C_NRM),
-				(AFF_FLAGGED(k, EAffectFlag::AFF_SINGLELIGHT)
-					|| AFF_FLAGGED(k, EAffectFlag::AFF_HOLYLIGHT)
+				AFF_FLAGGED(k, EAffect::kWaterBreath) ? "Д" : " ", CCICYN(ch, C_NRM),
+				AFF_FLAGGED(k, EAffect::kInvisible) ? "Н" : " ", CCIYEL(ch, C_NRM),
+				(AFF_FLAGGED(k, EAffect::kSingleLight)
+					|| AFF_FLAGGED(k, EAffect::kHolyLight)
 					|| (GET_EQ(k, EEquipPos::kLight)
 						&& GET_OBJ_VAL(GET_EQ(k, EEquipPos::kLight), 2))) ? "С" : " ",
-				CCIBLU(ch, C_NRM), AFF_FLAGGED(k, EAffectFlag::AFF_FLY) ? "Л" : " ", CCYEL(ch, C_NRM),
+				CCIBLU(ch, C_NRM), AFF_FLAGGED(k, EAffect::kFly) ? "Л" : " ", CCYEL(ch, C_NRM),
 				k->low_charm() ? "Т" : " ", CCNRM(ch, C_NRM));
 
 		sprintf(buf + strlen(buf), "%-15s", POS_STATE[(int) GET_POS(k)]);
@@ -1055,24 +1055,24 @@ void print_one_line(CharData *ch, CharData *k, int leader, int header) {
 		sprintf(buf + strlen(buf),
 				" %s%s%s%s%s%s%s%s%s%s%s%s%s |",
 				CCIRED(ch, C_NRM),
-				AFF_FLAGGED(k, EAffectFlag::AFF_SANCTUARY) ? "О" : (AFF_FLAGGED(k, EAffectFlag::AFF_PRISMATICAURA)
+				AFF_FLAGGED(k, EAffect::kSanctuary) ? "О" : (AFF_FLAGGED(k, EAffect::kPrismaticAura)
 																	? "П" : " "),
 				CCGRN(ch,
 					  C_NRM),
-				AFF_FLAGGED(k, EAffectFlag::AFF_WATERBREATH) ? "Д" : " ",
+				AFF_FLAGGED(k, EAffect::kWaterBreath) ? "Д" : " ",
 				CCICYN(ch,
 					   C_NRM),
-				AFF_FLAGGED(k, EAffectFlag::AFF_INVISIBLE) ? "Н" : " ",
+				AFF_FLAGGED(k, EAffect::kInvisible) ? "Н" : " ",
 				CCIYEL(ch, C_NRM),
-				(AFF_FLAGGED(k, EAffectFlag::AFF_SINGLELIGHT)
-					|| AFF_FLAGGED(k, EAffectFlag::AFF_HOLYLIGHT)
+				(AFF_FLAGGED(k, EAffect::kSingleLight)
+					|| AFF_FLAGGED(k, EAffect::kHolyLight)
 					|| (GET_EQ(k, EEquipPos::kLight)
 						&&
 							GET_OBJ_VAL(GET_EQ
 										(k, EEquipPos::kLight),
 										2))) ? "С" : " ",
 				CCIBLU(ch, C_NRM),
-				AFF_FLAGGED(k, EAffectFlag::AFF_FLY) ? "Л" : " ",
+				AFF_FLAGGED(k, EAffect::kFly) ? "Л" : " ",
 				CCYEL(ch, C_NRM),
 				k->ahorse() ? "В" : " ",
 				CCNRM(ch, C_NRM));
@@ -1094,15 +1094,15 @@ void print_list_group(CharData *ch) {
 	struct Follower *f;
 	int count = 1;
 	k = (ch->has_master() ? ch->get_master() : ch);
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)) {
+	if (AFF_FLAGGED(ch, EAffect::kGroup)) {
 		send_to_char("Ваша группа состоит из:\r\n", ch);
-		if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP)) {
+		if (AFF_FLAGGED(k, EAffect::kGroup)) {
 			sprintf(buf1, "Лидер: %s\r\n", GET_NAME(k));
 			send_to_char(buf1, ch);
 		}
 
 		for (f = k->followers; f; f = f->next) {
-			if (!AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)) {
+			if (!AFF_FLAGGED(f->ch, EAffect::kGroup)) {
 				continue;
 			}
 			sprintf(buf1, "%d. Согруппник: %s\r\n", count, GET_NAME(f->ch));
@@ -1123,14 +1123,14 @@ void print_group(CharData *ch) {
 	if (!ch->is_npc())
 		ch->desc->msdp_report(msdp::constants::GROUP);
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)) {
+	if (AFF_FLAGGED(ch, EAffect::kGroup)) {
 		send_to_char("Ваша группа состоит из:\r\n", ch);
-		if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP)) {
+		if (AFF_FLAGGED(k, EAffect::kGroup)) {
 			print_one_line(ch, k, true, gfound++);
 		}
 
 		for (f = k->followers; f; f = f->next) {
-			if (!AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)) {
+			if (!AFF_FLAGGED(f->ch, EAffect::kGroup)) {
 				continue;
 			}
 			print_one_line(ch, f->ch, false, gfound++);
@@ -1138,7 +1138,7 @@ void print_group(CharData *ch) {
 	}
 
 	for (f = ch->followers; f; f = f->next) {
-		if (!(AFF_FLAGGED(f->ch, EAffectFlag::AFF_CHARM)
+		if (!(AFF_FLAGGED(f->ch, EAffect::kCharmed)
 			|| MOB_FLAGGED(f->ch, EMobFlag::kTutelar) || MOB_FLAGGED(f->ch, EMobFlag::kMentalShadow))) {
 			continue;
 		}
@@ -1153,14 +1153,14 @@ void print_group(CharData *ch) {
 	if (PRF_FLAGGED(ch, EPrf::kShowGroup)) {
 		for (g = k->followers, cfound = 0; g; g = g->next) {
 			for (f = g->ch->followers; f; f = f->next) {
-				if (!(AFF_FLAGGED(f->ch, EAffectFlag::AFF_CHARM)
+				if (!(AFF_FLAGGED(f->ch, EAffect::kCharmed)
 					|| MOB_FLAGGED(f->ch, EMobFlag::kTutelar) || MOB_FLAGGED(f->ch, EMobFlag::kMentalShadow))
-					|| !AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)) {
+					|| !AFF_FLAGGED(ch, EAffect::kGroup)) {
 					continue;
 				}
 
 				if (f->ch->get_master() == ch
-					|| !AFF_FLAGGED(f->ch->get_master(), EAffectFlag::AFF_GROUP)) {
+					|| !AFF_FLAGGED(f->ch->get_master(), EAffect::kGroup)) {
 					continue;
 				}
 
@@ -1179,9 +1179,9 @@ void print_group(CharData *ch) {
 			}
 
 			if (ch->has_master()) {
-				if (!(AFF_FLAGGED(g->ch, EAffectFlag::AFF_CHARM)
+				if (!(AFF_FLAGGED(g->ch, EAffect::kCharmed)
 					|| MOB_FLAGGED(g->ch, EMobFlag::kTutelar) || MOB_FLAGGED(g->ch, EMobFlag::kMentalShadow))
-					|| !AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)) {
+					|| !AFF_FLAGGED(ch, EAffect::kGroup)) {
 					continue;
 				}
 
@@ -1238,7 +1238,7 @@ void do_group(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 // вычисляем количество последователей
 	for (f_number = 0, f = ch->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)) {
+		if (AFF_FLAGGED(f->ch, EAffect::kGroup)) {
 			f_number++;
 		}
 	}
@@ -1266,7 +1266,7 @@ void do_group(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (vict
 			&& vict->is_npc()
 			&& MOB_FLAGGED(vict, EMobFlag::kClone)
-			&& AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
+			&& AFF_FLAGGED(vict, EAffect::kCharmed)
 			&& vict->has_master()
 			&& !vict->get_master()->is_npc()) {
 			if (CAN_SEE(ch, vict->get_master())) {
@@ -1283,7 +1283,7 @@ void do_group(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		} else if (vict == ch) {
 			send_to_char("Вы и так лидер группы...\r\n", ch);
 			return;
-		} else if (!AFF_FLAGGED(vict, EAffectFlag::AFF_GROUP)
+		} else if (!AFF_FLAGGED(vict, EAffect::kGroup)
 			|| vict->get_master() != ch) {
 			send_to_char(ch, "%s не является членом вашей группы.\r\n", GET_NAME(vict));
 			return;
@@ -1297,8 +1297,8 @@ void do_group(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if ((vict->get_master() != ch) && (vict != ch)) {
 		act("$N2 нужно следовать за вами, чтобы стать членом вашей группы.", false, ch, nullptr, vict, kToChar);
 	} else {
-		if (!AFF_FLAGGED(vict, EAffectFlag::AFF_GROUP)) {
-			if (AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(vict, EMobFlag::kTutelar)
+		if (!AFF_FLAGGED(vict, EAffect::kGroup)) {
+			if (AFF_FLAGGED(vict, EAffect::kCharmed) || MOB_FLAGGED(vict, EMobFlag::kTutelar)
 				|| MOB_FLAGGED(vict, EMobFlag::kMentalShadow) || IS_HORSE(vict)) {
 				send_to_char("Только равноправные персонажи могут быть включены в группу.\r\n", ch);
 				send_to_char("Только равноправные персонажи могут быть включены в группу.\r\n", vict);
@@ -1326,7 +1326,7 @@ void do_ungroup(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, buf);
 
 	if (ch->has_master()
-		|| !(AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))) {
+		|| !(AFF_FLAGGED(ch, EAffect::kGroup))) {
 		send_to_char("Вы же не лидер группы!\r\n", ch);
 		return;
 	}
@@ -1335,18 +1335,18 @@ void do_ungroup(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		sprintf(buf2, "Вы исключены из группы %s.\r\n", GET_PAD(ch, 1));
 		for (f = ch->followers; f; f = next_fol) {
 			next_fol = f->next;
-			if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)) {
+			if (AFF_FLAGGED(f->ch, EAffect::kGroup)) {
 				//AFF_FLAGS(f->ch).unset(EAffectFlag::AFF_GROUP);
 				f->ch->removeGroupFlags();
 				send_to_char(buf2, f->ch);
-				if (!AFF_FLAGGED(f->ch, EAffectFlag::AFF_CHARM)
+				if (!AFF_FLAGGED(f->ch, EAffect::kCharmed)
 					&& !(f->ch->is_npc()
-						&& AFF_FLAGGED(f->ch, EAffectFlag::AFF_HORSE))) {
+						&& AFF_FLAGGED(f->ch, EAffect::kHorse))) {
 					stop_follower(f->ch, kSfEmpty);
 				}
 			}
 		}
-		AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
+		AFF_FLAGS(ch).unset(EAffect::kGroup);
 		ch->removeGroupFlags();
 		send_to_char("Вы распустили группу.\r\n", ch);
 		return;
@@ -1355,7 +1355,7 @@ void do_ungroup(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		next_fol = f->next;
 		tch = f->ch;
 		if (isname(buf, tch->get_pc_name())
-			&& !AFF_FLAGGED(tch, EAffectFlag::AFF_CHARM)
+			&& !AFF_FLAGGED(tch, EAffect::kCharmed)
 			&& !IS_HORSE(tch)) {
 			//AFF_FLAGS(tch).unset(EAffectFlag::AFF_GROUP);
 			tch->removeGroupFlags();
@@ -1373,7 +1373,7 @@ void do_report(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	CharData *k;
 	struct Follower *f;
 
-	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
+	if (!AFF_FLAGGED(ch, EAffect::kGroup) && !AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		send_to_char("И перед кем вы отчитываетесь?\r\n", ch);
 		return;
 	}
@@ -1383,7 +1383,7 @@ void do_report(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 				GET_HIT(ch), GET_REAL_MAX_HIT(ch),
 				GET_MOVE(ch), GET_REAL_MAX_MOVE(ch),
 				ch->mem_queue.stored, GET_MAX_MANA(ch));
-	} else if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
+	} else if (AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		int loyalty = 0;
 		for (const auto &aff : ch->affected) {
 			if (aff->type == kSpellCharm) {
@@ -1405,14 +1405,14 @@ void do_report(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	CAP(buf);
 	k = ch->has_master() ? ch->get_master() : ch;
 	for (f = k->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+		if (AFF_FLAGGED(f->ch, EAffect::kGroup)
 			&& f->ch != ch
-			&& !AFF_FLAGGED(f->ch, EAffectFlag::AFF_DEAFNESS)) {
+			&& !AFF_FLAGGED(f->ch, EAffect::kDeafness)) {
 			send_to_char(buf, f->ch);
 		}
 	}
 
-	if (k != ch && !AFF_FLAGGED(k, EAffectFlag::AFF_DEAFNESS)) {
+	if (k != ch && !AFF_FLAGGED(k, EAffect::kDeafness)) {
 		send_to_char(buf, k);
 	}
 	send_to_char("Вы доложили о состоянии всем членам вашей группы.\r\n", ch);
@@ -1453,7 +1453,7 @@ void do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, int cur
 		}
 		k = ch->has_master() ? ch->get_master() : ch;
 
-		if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP)
+		if (AFF_FLAGGED(k, EAffect::kGroup)
 			&& (k->in_room == ch->in_room)) {
 			num = 1;
 		} else {
@@ -1461,14 +1461,14 @@ void do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, int cur
 		}
 
 		for (f = k->followers; f; f = f->next) {
-			if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+			if (AFF_FLAGGED(f->ch, EAffect::kGroup)
 				&& !f->ch->is_npc()
 				&& IN_ROOM(f->ch) == ch->in_room) {
 				num++;
 			}
 		}
 
-		if (num && AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)) {
+		if (num && AFF_FLAGGED(ch, EAffect::kGroup)) {
 			share = amount / num;
 			rest = amount % num;
 		} else {
@@ -1486,7 +1486,7 @@ void do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, int cur
 
 		sprintf(buf, "%s разделил%s %d %s; вам досталось %d.\r\n",
 				GET_NAME(ch), GET_CH_SUF_1(ch), amount, GetDeclensionInNumber(amount, what_currency), share);
-		if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP) && IN_ROOM(k) == ch->in_room && !k->is_npc() && k != ch) {
+		if (AFF_FLAGGED(k, EAffect::kGroup) && IN_ROOM(k) == ch->in_room && !k->is_npc() && k != ch) {
 			send_to_char(buf, k);
 			switch (currency) {
 				case currency::ICE : {
@@ -1500,7 +1500,7 @@ void do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, int cur
 			}
 		}
 		for (f = k->followers; f; f = f->next) {
-			if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+			if (AFF_FLAGGED(f->ch, EAffect::kGroup)
 				&& !f->ch->is_npc()
 				&& IN_ROOM(f->ch) == ch->in_room
 				&& f->ch != ch) {
@@ -2434,11 +2434,11 @@ void do_bandage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 		send_to_char("Вы не можете перевязывать раны во время боя!\r\n", ch);
 		return;
 	}
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BANDAGE)) {
+	if (AFF_FLAGGED(ch, EAffect::kBandage)) {
 		send_to_char("Вы и так уже занимаетесь перевязкой!\r\n", ch);
 		return;
 	}
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_NO_BANDAGE)) {
+	if (AFF_FLAGGED(ch, EAffect::kCannotBeBandaged)) {
 		send_to_char("Вы не можете перевязывать свои раны чаще раза в минуту!\r\n", ch);
 		return;
 	}
@@ -2463,14 +2463,14 @@ void do_bandage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	af.location = APPLY_NONE;
 	af.modifier = GET_OBJ_VAL(bandage, 0);
 	af.duration = CalcDuration(ch, 10, 0, 0, 0, 0);
-	af.bitvector = to_underlying(EAffectFlag::AFF_BANDAGE);
+	af.bitvector = to_underlying(EAffect::kBandage);
 	af.battleflag = kAfPulsedec;
 	affect_join(ch, af, false, false, false, false);
 
 	af.type = kSpellNoBandage;
 	af.location = APPLY_NONE;
 	af.duration = CalcDuration(ch, 60, 0, 0, 0, 0);
-	af.bitvector = to_underlying(EAffectFlag::AFF_NO_BANDAGE);
+	af.bitvector = to_underlying(EAffect::kCannotBeBandaged);
 	af.battleflag = kAfPulsedec;
 	affect_join(ch, af, false, false, false, false);
 
@@ -2518,16 +2518,16 @@ bool is_dark(RoomRnum room) {
 		if (is_wear_light(tmp_ch))
 			coef += 1.0;
 		// если на чаре аффект свет
-		if (AFF_FLAGGED(tmp_ch, EAffectFlag::AFF_SINGLELIGHT))
+		if (AFF_FLAGGED(tmp_ch, EAffect::kSingleLight))
 			coef += 3.0;
 		// освещение перекрывает 1 тьму!
-		if (AFF_FLAGGED(tmp_ch, EAffectFlag::AFF_HOLYLIGHT))
+		if (AFF_FLAGGED(tmp_ch, EAffect::kHolyLight))
 			coef += 9.0;
 		// Санка. Логично, что если чар светится ярким сиянием, то это сияние распространяется на комнату
-		if (AFF_FLAGGED(tmp_ch, EAffectFlag::AFF_SANCTUARY))
+		if (AFF_FLAGGED(tmp_ch, EAffect::kSanctuary))
 			coef += 1.0;
 		// Тьма. Сразу фигачим коэф 6.
-		if (AFF_FLAGGED(tmp_ch, EAffectFlag::AFF_HOLYDARK))
+		if (AFF_FLAGGED(tmp_ch, EAffect::kHolyDark))
 			coef -= 6.0;
 	}
 

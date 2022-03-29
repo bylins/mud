@@ -58,7 +58,7 @@ constexpr Bitvector kMaskCaster = kMaskMage | kMaskSorcerer | kMaskMagus;
 constexpr Bitvector kMaskFighter = kMaskThief | kMaskWarrior | kMaskAssasine | kMaskGuard | kMaskPaladine | kMaskRanger | kMaskVigilant;
 
 struct CLassExtraAffects {
-	EAffectFlag affect;
+	EAffect affect;
 	bool set_or_clear;
 };
 

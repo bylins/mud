@@ -5,7 +5,7 @@
 
 // ******************* BLOCK PROCEDURES
 void go_block(CharData *ch) {
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPLEFT)) {
+	if (AFF_FLAGGED(ch, EAffect::kStopLeft)) {
 		send_to_char("Ваша рука парализована.\r\n", ch);
 		return;
 	}

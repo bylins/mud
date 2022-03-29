@@ -52,7 +52,7 @@ void do_backstab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) || IsUnableToAct(ch)) {
+	if (AFF_FLAGGED(ch, EAffect::kStopRight) || IsUnableToAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
@@ -107,7 +107,7 @@ void go_backstab(CharData *ch, CharData *vict) {
 			prob = prob * (GET_REAL_DEX(ch) + 50) / 100;
 		}
 
-		if (AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE)) {
+		if (AFF_FLAGGED(ch, EAffect::kHide)) {
 			prob += 5;
 		}
 		if (GET_MOB_HOLD(vict)) {

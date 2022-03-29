@@ -68,26 +68,26 @@ void go_kick(CharData *ch, CharData *vict) {
 				switch (number(0, (ch->get_skill(ESkill::kKick) - 150) / 10)) {
 					case 0:
 					case 1:
-						if (!AFF_FLAGGED(vict, EAffectFlag::AFF_STOPRIGHT)) {
+						if (!AFF_FLAGGED(vict, EAffect::kStopRight)) {
 							to_char = "Каблук вашего сапога надолго запомнится $N2, если конечно он выживет.";
 							to_vict = "Мощный удар ноги $n1 изуродовал вам правую руку.";
 							to_room = "След сапога $n1 надолго запомнится $N2, если конечно он$Q выживет.";
 							af.type = kSpellBattle;
-							af.bitvector = to_underlying(EAffectFlag::AFF_STOPRIGHT);
+							af.bitvector = to_underlying(EAffect::kStopRight);
 							af.duration = CalcDuration(vict, 3 + GET_REAL_REMORT(ch) / 4, 0, 0, 0, 0);
 							af.battleflag = kAfBattledec | kAfPulsedec;
-						} else if (!AFF_FLAGGED(vict, EAffectFlag::AFF_STOPLEFT)) {
+						} else if (!AFF_FLAGGED(vict, EAffect::kStopLeft)) {
 							to_char = "Каблук вашего сапога надолго запомнится $N2, если конечно он выживет.";
 							to_vict = "Мощный удар ноги $n1 изуродовал вам левую руку.";
 							to_room = "След сапога $n1 надолго запомнится $N2, если конечно он выживет.";
-							af.bitvector = to_underlying(EAffectFlag::AFF_STOPLEFT);
+							af.bitvector = to_underlying(EAffect::kStopLeft);
 							af.duration = CalcDuration(vict, 3 + GET_REAL_REMORT(ch) / 4, 0, 0, 0, 0);
 							af.battleflag = kAfBattledec | kAfPulsedec;
 						} else {
 							to_char = "Каблук вашего сапога надолго запомнится $N2, $M теперь даже бить вас нечем.";
 							to_vict = "Мощный удар ноги $n1 вывел вас из строя.";
 							to_room = "Каблук сапога $n1 надолго запомнится $N2, $M теперь даже биться нечем.";
-							af.bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
+							af.bitvector = to_underlying(EAffect::kStopFight);
 							af.duration = CalcDuration(vict, 3 + GET_REAL_REMORT(ch) / 4, 0, 0, 0, 0);
 							af.battleflag = kAfBattledec | kAfPulsedec;
 						}
@@ -98,7 +98,7 @@ void go_kick(CharData *ch, CharData *vict) {
 						to_vict = "Мощный удар ноги $n1 попал вам точно в челюсть, заставив вас замолчать.";
 						to_room = "Сильно пнув ногой в челюсть $N3, $n заставил$q $S замолчать.";
 						af.type = kSpellBattle;
-						af.bitvector = to_underlying(EAffectFlag::AFF_SILENCE);
+						af.bitvector = to_underlying(EAffect::kSilence);
 						af.duration = CalcDuration(vict, 3 + GET_REAL_REMORT(ch) / 5, 0, 0, 0, 0);
 						af.battleflag = kAfBattledec | kAfPulsedec;
 						dam *= 2;

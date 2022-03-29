@@ -174,7 +174,7 @@ int mana_gain(const CharData *ch) {
 	if (world[ch->in_room]->fires)
 		percent += MAX(100, 10 + (world[ch->in_room]->fires * 5) * 2);
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS))
+	if (AFF_FLAGGED(ch, EAffect::kDeafness))
 		percent += 15;
 
 	// Skill/Spell calculations
@@ -207,9 +207,9 @@ int mana_gain(const CharData *ch) {
 		}
 
 	if (!IS_MANA_CASTER(ch) &&
-		(AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD) ||
-			AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND) ||
-			AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP) ||
+		(AFF_FLAGGED(ch, EAffect::kHold) ||
+			AFF_FLAGGED(ch, EAffect::kBlind) ||
+			AFF_FLAGGED(ch, EAffect::kSleep) ||
 			((ch->in_room != kNowhere) && IS_DARK(ch->in_room) && !can_use_feat(ch, DARK_READING_FEAT)))) {
 		stopmem = true;
 		percent = 0;
@@ -217,7 +217,7 @@ int mana_gain(const CharData *ch) {
 
 	if (!IS_MANA_CASTER(ch))
 		percent += GET_MANAREG(ch);
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_POISON) && percent > 0)
+	if (AFF_FLAGGED(ch, EAffect::kPoisoned) && percent > 0)
 		percent /= 4;
 	if (!ch->is_npc())
 		percent *= ch->get_cond_penalty(P_MEM_GAIN);
@@ -237,7 +237,7 @@ int hit_gain(CharData *ch) {
 		if (!ch->desc || STATE(ch->desc) != CON_PLAYING)
 			return (0);
 
-		if (!AFF_FLAGGED(ch, EAffectFlag::AFF_NOOB_REGEN)) {
+		if (!AFF_FLAGGED(ch, EAffect::kNoobRegen)) {
 			gain = graf(age(ch)->year, restore - 3, restore, restore, restore - 2,
 						restore - 3, restore - 5, restore - 7);
 		} else {
@@ -276,7 +276,7 @@ int hit_gain(CharData *ch) {
 	percent += GET_HITREG(ch);
 
 	// TODO: перевоткнуть на apply_аффект
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_POISON) && percent > 0)
+	if (AFF_FLAGGED(ch, EAffect::kPoisoned) && percent > 0)
 		percent /= 4;
 
 	if (!ch->is_npc())
@@ -334,7 +334,7 @@ int move_gain(CharData *ch) {
 	}
 
 	percent += GET_MOVEREG(ch);
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_POISON) && percent > 0)
+	if (AFF_FLAGGED(ch, EAffect::kPoisoned) && percent > 0)
 		percent /= 4;
 
 	if (!ch->is_npc())
@@ -659,7 +659,7 @@ void beat_points_update(int pulse) {
 		restore = hit_gain(i);
 		restore = interpolate(restore, pulse);
 
-		if (AFF_FLAGGED(i, EAffectFlag::AFF_BANDAGE)) {
+		if (AFF_FLAGGED(i, EAffect::kBandage)) {
 			for (const auto &aff : i->affected) {
 				if (aff->type == kSpellBandage) {
 					restore += MIN(GET_REAL_MAX_HIT(i) / 10, aff->modifier);
@@ -678,7 +678,7 @@ void beat_points_update(int pulse) {
 			restore = interpolate(restore, pulse);
 			i->mem_queue.stored += restore;
 
-			if (AFF_FLAGGED(i, EAffectFlag::AFF_RECALL_SPELLS)) {
+			if (AFF_FLAGGED(i, EAffect::kMemorizeSpells)) {
 				handle_recall_spells(i.get());
 			}
 
@@ -964,7 +964,7 @@ void underwater_check() {
 		if (d->character
 			&& SECT(d->character->in_room) == kSectUnderwater
 			&& !IS_GOD(d->character)
-			&& !AFF_FLAGGED(d->character, EAffectFlag::AFF_WATERBREATH)) {
+			&& !AFF_FLAGGED(d->character, EAffect::kWaterBreath)) {
 			sprintf(buf, "Player %s died under water (room %d)",
 					GET_NAME(d->character), GET_ROOM_VNUM(d->character->in_room));
 
@@ -1224,7 +1224,7 @@ void clan_chest_invoice(ObjData *j) {
 	for (DescriptorData *d = descriptor_list; d; d = d->next) {
 		if (d->character
 			&& STATE(d) == CON_PLAYING
-			&& !AFF_FLAGGED(d->character, EAffectFlag::AFF_DEAFNESS)
+			&& !AFF_FLAGGED(d->character, EAffect::kDeafness)
 			&& PRF_FLAGGED(d->character, EPrf::kDecayMode)
 			&& CLAN(d->character)
 			&& CLAN(d->character)->GetRent() == room) {
@@ -1574,7 +1574,7 @@ void point_update() {
 
 		/* Если чар или моб попытался проснуться а на нем аффект сон,
 		то он снова должен валиться в сон */
-		if (AFF_FLAGGED(i, EAffectFlag::AFF_SLEEP)
+		if (AFF_FLAGGED(i, EAffect::kSleep)
 			&& GET_POS(i) > EPosition::kSleep) {
 			GET_POS(i) = EPosition::kSleep;
 			send_to_char("Вы попытались очнуться, но снова заснули и упали наземь.\r\n", i);

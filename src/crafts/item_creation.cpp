@@ -1407,15 +1407,15 @@ float MakeRecept::count_mort_requred(ObjData *obj) {
 	// аффекты AFF_x через weapon_affect
 	for (const auto &m : weapon_affect) {
 		if (IS_OBJ_AFF(obj, m.aff_pos)) {
-			if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_AIRSHIELD) {
+			if (static_cast<EAffect>(m.aff_bitvector) == EAffect::kAirShield) {
 				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
-			} else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_FIRESHIELD) {
+			} else if (static_cast<EAffect>(m.aff_bitvector) == EAffect::kFireShield) {
 				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
-			} else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_ICESHIELD) {
+			} else if (static_cast<EAffect>(m.aff_bitvector) == EAffect::kIceShield) {
 				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
-			} else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_MAGICGLASS) {
+			} else if (static_cast<EAffect>(m.aff_bitvector) == EAffect::kMagicGlass) {
 				total_weight += pow(AFF_MAGICGLASS_MOD, SQRT_MOD);
-			} else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_BLINK) {
+			} else if (static_cast<EAffect>(m.aff_bitvector) == EAffect::kBlink) {
 				total_weight += pow(AFF_BLINK_MOD, SQRT_MOD);
 			}
 		}

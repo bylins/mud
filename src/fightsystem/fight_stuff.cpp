@@ -48,7 +48,7 @@ void process_mobmax(CharData *ch, CharData *killer) {
 
 	CharData *master = nullptr;
 	if (killer->is_npc()
-		&& (AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM)
+		&& (AFF_FLAGGED(killer, EAffect::kCharmed)
 			|| MOB_FLAGGED(killer, EMobFlag::kTutelar)
 			|| MOB_FLAGGED(killer, EMobFlag::kMentalShadow))
 		&& killer->has_master()) {
@@ -60,7 +60,7 @@ void process_mobmax(CharData *ch, CharData *killer) {
 	// На этот момент master - PC
 	if (master) {
 		int cnt = 0;
-		if (AFF_FLAGGED(master, EAffectFlag::AFF_GROUP)) {
+		if (AFF_FLAGGED(master, EAffect::kGroup)) {
 
 			// master - член группы, переходим на лидера группы
 			if (master->has_master()) {
@@ -76,8 +76,8 @@ void process_mobmax(CharData *ch, CharData *killer) {
 			}
 
 			for (struct Follower *f = master->followers; f; f = f->next) {
-				if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)) ++total_group_members;
-				if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+				if (AFF_FLAGGED(f->ch, EAffect::kGroup)) ++total_group_members;
+				if (AFF_FLAGGED(f->ch, EAffect::kGroup)
 					&& IN_ROOM(f->ch) == IN_ROOM(killer)) {
 					++cnt;
 					if (leader_partner) {
@@ -109,7 +109,7 @@ void process_mobmax(CharData *ch, CharData *killer) {
 				members_to_mobmax.push_back(master);
 			}
 			for (struct Follower *f = master->followers; f; f = f->next) {
-				if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+				if (AFF_FLAGGED(f->ch, EAffect::kGroup)
 					&& IN_ROOM(f->ch) == IN_ROOM(killer)) {
 					members_to_mobmax.push_back(f->ch);
 				}
@@ -128,7 +128,7 @@ void process_mobmax(CharData *ch, CharData *killer) {
 			auto n = number(0, cnt);
 			int i = 0;
 			for (struct Follower *f = master->followers; f && i < n; f = f->next) {
-				if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+				if (AFF_FLAGGED(f->ch, EAffect::kGroup)
 					&& IN_ROOM(f->ch) == IN_ROOM(killer)) {
 					++i;
 					master = f->ch;
@@ -223,7 +223,7 @@ void update_leadership(CharData *ch, CharData *killer) {
 	if (ch->is_npc() && killer) // Убили моба
 	{
 		if (!killer->is_npc() // Убил загрупленный чар
-			&& AFF_FLAGGED(killer, EAffectFlag::AFF_GROUP)
+			&& AFF_FLAGGED(killer, EAffect::kGroup)
 			&& killer->has_master()
 			&& killer->get_master()->get_skill(ESkill::kLeadership) > 0
 			&& IN_ROOM(killer) == IN_ROOM(killer->get_master())) {
@@ -231,7 +231,7 @@ void update_leadership(CharData *ch, CharData *killer) {
 		} else if (killer->is_npc() // Убил чармис загрупленного чара
 			&& IS_CHARMICE(killer)
 			&& killer->has_master()
-			&& AFF_FLAGGED(killer->get_master(), EAffectFlag::AFF_GROUP)) {
+			&& AFF_FLAGGED(killer->get_master(), EAffect::kGroup)) {
 			if (killer->get_master()->has_master() // Владелец чармиса НЕ лидер
 				&& killer->get_master()->get_master()->get_skill(ESkill::kLeadership) > 0
 				&& IN_ROOM(killer) == IN_ROOM(killer->get_master())
@@ -245,7 +245,7 @@ void update_leadership(CharData *ch, CharData *killer) {
 	if (!ch->is_npc() // Член группы убит мобом
 		&& killer
 		&& killer->is_npc()
-		&& AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)
+		&& AFF_FLAGGED(ch, EAffect::kGroup)
 		&& ch->has_master()
 		&& ch->in_room == IN_ROOM(ch->get_master())
 		&& ch->get_master()->get_inborn_skill(ESkill::kLeadership) > 1) {
@@ -449,7 +449,7 @@ void forget_all_spells(CharData *ch) {
 		af.modifier = 1; // номер круга, который восстанавливаем
 		//добавим 1 проход про запас, иначе неуспевает отмемиться последний круг -- аффект спадает раньше
 		af.duration = CalcDuration(ch, max_slot * RECALL_SPELLS_INTERVAL + kSecsPerPlayerAffect, 0, 0, 0, 0);
-		af.bitvector = to_underlying(EAffectFlag::AFF_RECALL_SPELLS);
+		af.bitvector = to_underlying(EAffect::kMemorizeSpells);
 		af.battleflag = kAfPulsedec | kAfDeadkeep;
 		affect_join(ch, af, false, false, false, false);
 	}
@@ -461,8 +461,8 @@ int can_loot(CharData *ch) {
 	if (ch != nullptr) {
 		if (!ch->is_npc()
 			&& GET_MOB_HOLD(ch) == 0 // если под холдом
-			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT) // парализован точкой
-			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)    // слеп
+			&& !AFF_FLAGGED(ch, EAffect::kStopFight) // парализован точкой
+			&& !AFF_FLAGGED(ch, EAffect::kBlind)    // слеп
 			&& (GET_POS(ch) >= EPosition::kRest)) // мертв, умирает, без сознания, спит
 		{
 			return true;
@@ -544,7 +544,7 @@ void auto_loot(CharData *ch, CharData *killer, ObjData *corpse, int local_gold) 
 	if (IS_DARK(IN_ROOM(killer))
 		&& !can_use_feat(killer, DARK_READING_FEAT)
 		&& !(killer->is_npc()
-			&& AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM)
+			&& AFF_FLAGGED(killer, EAffect::kCharmed)
 			&& killer->has_master()
 			&& can_use_feat(killer->get_master(), DARK_READING_FEAT))) {
 		return;
@@ -567,7 +567,7 @@ void auto_loot(CharData *ch, CharData *killer, ObjData *corpse, int local_gold) 
 		get_from_container(killer, corpse, obj, FIND_OBJ_INV, 1, false);
 	} else if (ch->is_npc()
 		&& killer->is_npc()
-		&& (AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM)
+		&& (AFF_FLAGGED(killer, EAffect::kCharmed)
 			|| MOB_FLAGGED(killer, EMobFlag::kTutelar)
 			|| MOB_FLAGGED(killer, EMobFlag::kMentalShadow))
 		&& (corpse != nullptr)
@@ -580,7 +580,7 @@ void auto_loot(CharData *ch, CharData *killer, ObjData *corpse, int local_gold) 
 	} else if (ch->is_npc()
 		&& killer->is_npc()
 		&& local_gold
-		&& (AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM)
+		&& (AFF_FLAGGED(killer, EAffect::kCharmed)
 			|| MOB_FLAGGED(killer, EMobFlag::kTutelar)
 			|| MOB_FLAGGED(killer, EMobFlag::kMentalShadow))
 		&& (corpse != nullptr)
@@ -978,7 +978,7 @@ void group_gain(CharData *killer, CharData *victim) {
 	}
 
 	// k - подозрение на лидера группы
-	const bool leader_inroom = AFF_FLAGGED(leader, EAffectFlag::AFF_GROUP)
+	const bool leader_inroom = AFF_FLAGGED(leader, EAffect::kGroup)
 		&& leader->in_room == IN_ROOM(killer);
 
 	// Количество согрупников в комнате
@@ -991,8 +991,8 @@ void group_gain(CharData *killer, CharData *victim) {
 
 	// Вычисляем максимальный уровень в группе
 	for (f = leader->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)) ++total_group_members;
-		if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+		if (AFF_FLAGGED(f->ch, EAffect::kGroup)) ++total_group_members;
+		if (AFF_FLAGGED(f->ch, EAffect::kGroup)
 			&& f->ch->in_room == IN_ROOM(killer)) {
 			// если в группе наем, то режим опыт всей группе
 			// дабы наема не выгодно было бы брать в группу
@@ -1049,7 +1049,7 @@ void group_gain(CharData *killer, CharData *victim) {
 	}
 
 	for (f = leader->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+		if (AFF_FLAGGED(f->ch, EAffect::kGroup)
 			&& f->ch->in_room == IN_ROOM(killer)) {
 			perform_group_gain(f->ch, victim, inroom_members, koef);
 		}
@@ -1064,7 +1064,7 @@ void gain_battle_exp(CharData *ch, CharData *victim, int dam) {
 	// если цель не нпс то тоже не даем экспы
 	if (!victim->is_npc()) { return; }
 	// если цель под чармом не даем экспу
-	if (AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM)) { return; }
+	if (AFF_FLAGGED(victim, EAffect::kCharmed)) { return; }
 
 	// получение игроками экспы
 	if (!ch->is_npc() && OK_GAIN_EXP(ch, victim)) {
@@ -1081,7 +1081,7 @@ void gain_battle_exp(CharData *ch, CharData *victim, int dam) {
 
 
 	// перенаправляем батлэкспу чармиса в хозяина, цифры те же что и у файтеров.
-	if (ch->is_npc() && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
+	if (ch->is_npc() && AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		CharData *master = ch->get_master();
 		// проверяем что есть мастер и он может получать экспу с данной цели
 		if (master && OK_GAIN_EXP(master, victim)) {
@@ -1162,7 +1162,7 @@ void alt_equip(CharData *ch, int pos, int dam, int chance) {
 			pos = EEquipPos::kHold;
 	}
 
-	if (pos <= 0 || pos > EEquipPos::kBoths || !GET_EQ(ch, pos) || dam < 0 || AFF_FLAGGED(ch, EAffectFlag::AFF_SHIELD))
+	if (pos <= 0 || pos > EEquipPos::kBoths || !GET_EQ(ch, pos) || dam < 0 || AFF_FLAGGED(ch, EAffect::kShield))
 		return; // Добавил: под "зб" не убивается стаф (Купала)
 	alterate_object(GET_EQ(ch, pos), dam, chance);
 }
@@ -1301,30 +1301,30 @@ void char_dam_message(int dam, CharData *ch, CharData *victim, bool noflee) {
  */
 void Damage::post_init_shields(CharData *victim) {
 	if (victim->is_npc() && !IS_CHARMICE(victim)) {
-		if (AFF_FLAGGED(victim, EAffectFlag::AFF_FIRESHIELD)) {
+		if (AFF_FLAGGED(victim, EAffect::kFireShield)) {
 			flags.set(fight::kVictimFireShield);
 		}
 
-		if (AFF_FLAGGED(victim, EAffectFlag::AFF_ICESHIELD)) {
+		if (AFF_FLAGGED(victim, EAffect::kIceShield)) {
 			flags.set(fight::kVictimIceShield);
 		}
 
-		if (AFF_FLAGGED(victim, EAffectFlag::AFF_AIRSHIELD)) {
+		if (AFF_FLAGGED(victim, EAffect::kAirShield)) {
 			flags.set(fight::kVictimAirShield);
 		}
 	} else {
 		enum { FIRESHIELD, ICESHIELD, AIRSHIELD };
 		std::vector<int> shields;
 
-		if (AFF_FLAGGED(victim, EAffectFlag::AFF_FIRESHIELD)) {
+		if (AFF_FLAGGED(victim, EAffect::kFireShield)) {
 			shields.push_back(FIRESHIELD);
 		}
 
-		if (AFF_FLAGGED(victim, EAffectFlag::AFF_AIRSHIELD)) {
+		if (AFF_FLAGGED(victim, EAffect::kAirShield)) {
 			shields.push_back(AIRSHIELD);
 		}
 
-		if (AFF_FLAGGED(victim, EAffectFlag::AFF_ICESHIELD)) {
+		if (AFF_FLAGGED(victim, EAffect::kIceShield)) {
 			shields.push_back(ICESHIELD);
 		}
 

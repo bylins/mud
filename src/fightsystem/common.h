@@ -4,7 +4,7 @@
 #include "entities/char_data.h"
 
 inline bool IsUnableToAct(CharData *ch) {
-	return (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT) || AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT));
+	return (AFF_FLAGGED(ch, EAffect::kStopFight) || AFF_FLAGGED(ch, EAffect::kMagicStopFight));
 }
 
 int IsHaveNoExtraAttack(CharData *ch);

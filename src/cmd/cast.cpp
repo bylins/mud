@@ -21,10 +21,10 @@ void do_cast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	char *s, *t;
 	int i, spellnum, spell_subst, target = 0;
 
-	if (ch->is_npc() && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (ch->is_npc() && AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)) {
+	if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
 		send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
 		return;
 	}

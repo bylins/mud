@@ -126,7 +126,7 @@ void do_mportal(CharData *mob, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 // prints the argument to all the rooms aroud the mobile
 void do_masound(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	if (!*argument) {
@@ -160,7 +160,7 @@ void do_mkill(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	one_argument(argument, arg);
@@ -187,8 +187,7 @@ void do_mkill(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (IS_AFFECTED(ch, AFF_CHARM)
-		&& ch->get_master() == victim) {
+	if (AFF_FLAGGED(ch, EAffect::kCharmed) && ch->get_master() == victim) {
 		mob_log(ch, "mkill: charmed mob attacking master");
 		return;
 	}
@@ -212,7 +211,7 @@ void do_mjunk(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	ObjData *obj;
 	ObjData *obj_next;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	one_argument(argument, arg);
@@ -254,7 +253,7 @@ void do_mechoaround(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *victim;
 	char *p;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	p = one_argument(argument, arg);
@@ -293,7 +292,7 @@ void do_msend(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *victim;
 	char *p;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	p = one_argument(argument, arg);
@@ -330,7 +329,7 @@ void do_msend(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 void do_mecho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char *p;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	if (!*argument) {
@@ -359,7 +358,7 @@ void do_mload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int number = 0;
 	CharData *mob;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
+	if (AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		mob_log(ch, "mload: попытка почармленным мобом загрузать моба/предмет.");
 		return;
 	}
@@ -420,7 +419,7 @@ void do_mpurge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *victim;
 	ObjData *obj;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	one_argument(argument, arg);
@@ -461,7 +460,7 @@ void do_mgoto(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg[kMaxInputLength];
 	int location;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	one_argument(argument, arg);
@@ -492,7 +491,7 @@ void do_mat(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int location;
 	int original;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	argument = one_argument(argument, arg);
@@ -528,7 +527,7 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *vict, *horse;
 	RoomRnum from_room;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 	char *textstr = argument;
 	argument = two_arguments(argument, arg1, arg2);
@@ -638,7 +637,7 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 void do_mforce(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg[kMaxInputLength];
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	argument = one_argument(argument, arg);
@@ -699,7 +698,7 @@ void do_mexp(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	mob_log(ch, "WARNING: mexp command is depracated! Use: %actor.exp(amount-to-add)%");
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	if (ch->desc && (GetRealLevel(ch->desc->original) < kLvlImplementator))
@@ -735,7 +734,7 @@ void do_mgold(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	mob_log(ch, "WARNING: mgold command is depracated! Use: %actor.gold(amount-to-add)%");
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	two_arguments(argument, name, amount);
@@ -776,7 +775,7 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int keep_hp = 1;    // new mob keeps the old mob's hp/max hp/exp
 	int pos;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	if (ch->desc) {
@@ -894,7 +893,7 @@ void do_mdoor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			"\n"
 		};
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	argument = two_arguments(argument, target, direction);
@@ -981,7 +980,7 @@ void do_mfeatturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char name[kMaxInputLength], featname[kMaxInputLength], amount[kMaxInputLength], *pos;
 	int featnum = 0, featdiff = 0;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	one_argument(two_arguments(argument, name, featname), amount);
@@ -1034,7 +1033,7 @@ void do_mskillturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int recipenum = 0;
 	int skilldiff = 0;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
+	if (AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		return;
 	}
 
@@ -1095,7 +1094,7 @@ void do_mskilladd(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int recipenum = 0;
 	int skilldiff = 0;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
+	if (AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		return;
 	}
 
@@ -1140,7 +1139,7 @@ void do_mspellturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char name[kMaxInputLength], skillname[kMaxInputLength], amount[kMaxInputLength];
 	int skillnum = 0, skilldiff = 0;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
+	if (AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		return;
 	}
 
@@ -1166,7 +1165,7 @@ void do_mspellturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	if (*name == UID_CHAR) {
@@ -1189,7 +1188,7 @@ void do_mspellturntemp(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 	char name[kMaxInputLength], spellname[kMaxInputLength], amount[kMaxInputLength];
 	int spellnum = 0, spelltime = 0;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
+	if (AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		return;
 	}
 
@@ -1233,7 +1232,7 @@ void do_mspelladd(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char name[kMaxInputLength], skillname[kMaxInputLength], amount[kMaxInputLength];
 	int skillnum = 0, skilldiff = 0;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	one_argument(two_arguments(argument, name, skillname), amount);
@@ -1270,7 +1269,7 @@ void do_mspellitem(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char name[kMaxInputLength], spellname[kMaxInputLength], type[kMaxInputLength], turn[kMaxInputLength];
 	int spellnum = 0, spelldiff = 0, spell = 0;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
+	if (AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		return;
 	}
 
@@ -1329,7 +1328,7 @@ void do_mdamage(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char name[kMaxInputLength], amount[kMaxInputLength];
 	int dam = 0;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
+	if (AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		return;
 	}
 
@@ -1456,8 +1455,8 @@ bool mob_script_command_interpreter(CharData *ch, char *argument) {
 	if (!SCRIPT_CHECK(ch, MTRIG_DAMAGE)) {
 		if (!mob_cmd_info[cmd].use_in_lag && 
 				(GET_MOB_HOLD(ch)
-				|| AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
-				|| AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT))) {
+				|| AFF_FLAGGED(ch, EAffect::kStopFight)
+				|| AFF_FLAGGED(ch, EAffect::kMagicStopFight))) {
 		return false;
 		}
 	}

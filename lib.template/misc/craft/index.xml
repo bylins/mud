@@ -317,7 +317,7 @@
 				<extraflag>kNodisarm</extraflag>
 				<extraflag>kNodonate</extraflag>
 				<extraflag>kSwimming</extraflag>
-				<extraflag>kFlying</extraflag>
+				<extraflag>kFly</extraflag>
 				<extraflag>kHasThreeSlots</extraflag>
 				<extraflag>kNodecay</extraflag>
 			</extraflags>

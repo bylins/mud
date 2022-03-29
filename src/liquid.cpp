@@ -259,13 +259,13 @@ void do_drink_poison(CharData *ch, ObjData *jar, int amount) {
 		af.duration = CalcDuration(ch, amount == 0 ? 3 : amount == 1 ? amount : amount * 3, 0, 0, 0, 0);
 		af.modifier = -2;
 		af.location = APPLY_STR;
-		af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
+		af.bitvector = to_underlying(EAffect::kPoisoned);
 		af.battleflag = kAfSameTime;
 		affect_join(ch, af, false, false, false, false);
 		af.type = kSpellPoison;
 		af.modifier = amount == 0 ? GetRealLevel(ch) * 3 : amount * 3;
 		af.location = APPLY_POISON;
-		af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
+		af.bitvector = to_underlying(EAffect::kPoisoned);
 		af.battleflag = kAfSameTime;
 		affect_join(ch, af, false, false, false, false);
 		ch->Poisoner = 0;
@@ -320,7 +320,7 @@ int do_drink_check(CharData *ch, ObjData *jar) {
 	}
 
 	// Если удушение - пить нельзя
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)) {
+	if (AFF_FLAGGED(ch, EAffect::kStrangled)) {
 		send_to_char("Да вам сейчас и глоток воздуха не проглотить!\r\n", ch);
 		return 0;
 	}
@@ -408,7 +408,7 @@ int do_drink_check_conditions(CharData *ch, ObjData *jar, int amount) {
 	// Если жидкость с градусом
 	if (drink_aff[GET_OBJ_VAL(jar, 2)][DRUNK] > 0) {
 		// Если у чара бадун - пусть похмеляется, бухать нельзя
-		if (AFF_FLAGGED(ch, EAffectFlag::AFF_ABSTINENT)) {
+		if (AFF_FLAGGED(ch, EAffect::kAbstinent)) {
 			if (GET_SKILL(ch, ESkill::kHangovering) > 0) {//если опохмел есть
 				send_to_char(
 					"Вас передернуло от одной мысли о том что бы выпить.\r\nПохоже, вам стоит опохмелиться.\r\n",
@@ -463,7 +463,7 @@ void do_drink_drunk(CharData *ch, ObjData *jar, int amount) {
 		if (can_use_feat(ch, DRUNKARD_FEAT))
 			duration += duration / 2;
 
-		if (!AFF_FLAGGED(ch, EAffectFlag::AFF_ABSTINENT)
+		if (!AFF_FLAGGED(ch, EAffect::kAbstinent)
 			&& GET_DRUNK_STATE(ch) < kMaxCondition
 			&& GET_DRUNK_STATE(ch) == GET_COND(ch, DRUNK)) {
 			send_to_char("Винные пары ударили вам в голову.\r\n", ch);
@@ -473,7 +473,7 @@ void do_drink_drunk(CharData *ch, ObjData *jar, int amount) {
 			af.duration = CalcDuration(ch, duration, 0, 0, 0, 0);
 			af.modifier = -20;
 			af.location = APPLY_AC;
-			af.bitvector = to_underlying(EAffectFlag::AFF_DRUNKED);
+			af.bitvector = to_underlying(EAffect::kDrunked);
 			af.battleflag = 0;
 			affect_join(ch, af, false, false, false, false);
 			// **** Decrease HR ***** //
@@ -481,7 +481,7 @@ void do_drink_drunk(CharData *ch, ObjData *jar, int amount) {
 			af.duration = CalcDuration(ch, duration, 0, 0, 0, 0);
 			af.modifier = -2;
 			af.location = APPLY_HITROLL;
-			af.bitvector = to_underlying(EAffectFlag::AFF_DRUNKED);
+			af.bitvector = to_underlying(EAffect::kDrunked);
 			af.battleflag = 0;
 			affect_join(ch, af, false, false, false, false);
 			// **** Increase DR ***** //
@@ -489,7 +489,7 @@ void do_drink_drunk(CharData *ch, ObjData *jar, int amount) {
 			af.duration = CalcDuration(ch, duration, 0, 0, 0, 0);
 			af.modifier = (GetRealLevel(ch) + 4) / 5;
 			af.location = APPLY_DAMROLL;
-			af.bitvector = to_underlying(EAffectFlag::AFF_DRUNKED);
+			af.bitvector = to_underlying(EAffect::kDrunked);
 			af.battleflag = 0;
 			affect_join(ch, af, false, false, false, false);
 		}
@@ -607,12 +607,12 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DRUNKED)) {
+	if (AFF_FLAGGED(ch, EAffect::kDrunked)) {
 		send_to_char("Вы хотите испортить себе весь кураж?\r\n" "Это не есть по русски!\r\n", ch);
 		return;
 	}
 
-	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_ABSTINENT) && GET_COND(ch, DRUNK) < kDrunked) {
+	if (!AFF_FLAGGED(ch, EAffect::kAbstinent) && GET_COND(ch, DRUNK) < kDrunked) {
 		send_to_char("Не стоит делать этого на трезвую голову.\r\n", ch);
 		return;
 	}
@@ -706,19 +706,19 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		af[0].duration = CalcDuration(ch, duration, 0, 0, 0, 0);
 		af[0].modifier = 0;
 		af[0].location = APPLY_DAMROLL;
-		af[0].bitvector = to_underlying(EAffectFlag::AFF_ABSTINENT);
+		af[0].bitvector = to_underlying(EAffect::kAbstinent);
 		af[0].battleflag = 0;
 		af[1].type = kSpellAbstinent;
 		af[1].duration = CalcDuration(ch, duration, 0, 0, 0, 0);
 		af[1].modifier = 0;
 		af[1].location = APPLY_HITROLL;
-		af[1].bitvector = to_underlying(EAffectFlag::AFF_ABSTINENT);
+		af[1].bitvector = to_underlying(EAffect::kAbstinent);
 		af[1].battleflag = 0;
 		af[2].type = kSpellAbstinent;
 		af[2].duration = CalcDuration(ch, duration, 0, 0, 0, 0);
 		af[2].modifier = 0;
 		af[2].location = APPLY_AC;
-		af[2].bitvector = to_underlying(EAffectFlag::AFF_ABSTINENT);
+		af[2].bitvector = to_underlying(EAffect::kAbstinent);
 		af[2].battleflag = 0;
 		switch (number(0, ch->get_skill(ESkill::kHangovering) / 20)) {
 			case 0:

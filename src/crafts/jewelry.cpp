@@ -75,7 +75,7 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		}
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
+	if (AFF_FLAGGED(ch, EAffect::kBlind)) {
 		send_to_char("Вы слепы!\r\n", ch);
 		return;
 	}
@@ -242,7 +242,7 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 				set_obj_eff(itemobj, static_cast<EApplyLocation>(tmp_bit), tmp_qty);
 				break;
 			case 2: 
-				set_obj_aff(itemobj, static_cast<EAffectFlag>(tmp_bit));
+				set_obj_aff(itemobj, static_cast<EAffect>(tmp_bit));
 				break;
 			case 3: 
 				itemobj->set_extra_flag(static_cast<EObjFlag>(tmp_bit));

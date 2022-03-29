@@ -8,16 +8,16 @@
 
 inline bool INVIS_OK_OBJ(const CharData *sub, const ObjData *obj) {
 	return !obj->has_flag(EObjFlag::kInvisible)
-		|| AFF_FLAGGED(sub, EAffectFlag::AFF_DETECT_INVIS);
+		|| AFF_FLAGGED(sub, EAffect::kDetectInvisible);
 }
 
 inline bool MORT_CAN_SEE_OBJ(const CharData *sub, const ObjData *obj) {
 	return INVIS_OK_OBJ(sub, obj)
-		&& !AFF_FLAGGED(sub, EAffectFlag::AFF_BLIND)
+		&& !AFF_FLAGGED(sub, EAffect::kBlind)
 		&& (IS_LIGHT(obj->get_in_room())
 			|| obj->has_flag(EObjFlag::kGlow)
 			|| (IS_CORPSE(obj)
-				&& AFF_FLAGGED(sub, EAffectFlag::AFF_INFRAVISION))
+				&& AFF_FLAGGED(sub, EAffect::kInfravision))
 			|| can_use_feat(sub, DARK_READING_FEAT));
 }
 

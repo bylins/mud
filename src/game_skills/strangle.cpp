@@ -11,7 +11,7 @@
 #include "structs/global_objects.h"
 
 void go_strangle(CharData *ch, CharData *vict) {
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) || IsUnableToAct(ch)) {
+	if (AFF_FLAGGED(ch, EAffect::kStopRight) || IsUnableToAct(ch)) {
 		send_to_char("Сейчас у вас не получится выполнить этот прием.\r\n", ch);
 		return;
 	}
@@ -52,7 +52,7 @@ void go_strangle(CharData *ch, CharData *vict) {
 		af.modifier = 0;
 		af.location = APPLY_NONE;
 		af.battleflag = kAfSameTime;
-		af.bitvector = to_underlying(EAffectFlag::AFF_STRANGLED);
+		af.bitvector = to_underlying(EAffect::kStrangled);
 		affect_to_char(vict, af);
 
 		int dam =
@@ -104,7 +104,7 @@ void do_strangle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (AFF_FLAGGED(vict, EAffectFlag::AFF_STRANGLED)) {
+	if (AFF_FLAGGED(vict, EAffect::kStrangled)) {
 		send_to_char("Ваша жертва хватается руками за горло - не подобраться!\r\n", ch);
 		return;
 	}

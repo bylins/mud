@@ -932,7 +932,7 @@ bool same_group(CharData *ch, CharData *tch) {
 		&& ch->has_master()
 		&& !ch->get_master()->is_npc()
 		&& (IS_HORSE(ch)
-			|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
+			|| AFF_FLAGGED(ch, EAffect::kCharmed)
 			|| MOB_FLAGGED(ch, EMobFlag::kTutelar)
 			|| MOB_FLAGGED(ch, EMobFlag::kMentalShadow))) {
 		ch = ch->get_master();
@@ -942,7 +942,7 @@ bool same_group(CharData *ch, CharData *tch) {
 		&& tch->has_master()
 		&& !tch->get_master()->is_npc()
 		&& (IS_HORSE(tch)
-			|| AFF_FLAGGED(tch, EAffectFlag::AFF_CHARM)
+			|| AFF_FLAGGED(tch, EAffect::kCharmed)
 			|| MOB_FLAGGED(tch, EMobFlag::kTutelar)
 			|| MOB_FLAGGED(tch, EMobFlag::kMentalShadow))) {
 		tch = tch->get_master();
@@ -954,8 +954,8 @@ bool same_group(CharData *ch, CharData *tch) {
 		return true;
 	}
 
-	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)
-		|| !AFF_FLAGGED(tch, EAffectFlag::AFF_GROUP)) {
+	if (!AFF_FLAGGED(ch, EAffect::kGroup)
+		|| !AFF_FLAGGED(tch, EAffect::kGroup)) {
 		return false;
 	}
 
@@ -1258,7 +1258,7 @@ bool ignores(CharData *who, CharData *whom, unsigned int flag) {
 
 // чармисы игнорируемого хозяина тоже должны быть проигнорированы
 	if (whom->is_npc()
-		&& AFF_FLAGGED(whom, EAffectFlag::AFF_CHARM)) {
+		&& AFF_FLAGGED(whom, EAffect::kCharmed)) {
 		return ignores(who, whom->get_master(), flag);
 	}
 
@@ -1895,12 +1895,12 @@ void message_str_need(CharData *ch, ObjData *obj, int type) {
 				 need_str, GetDeclensionInNumber(need_str, EWhat::kStr));
 }
 
-bool GetAffectNumByName(const std::string &affName, EAffectFlag &result) {
+bool GetAffectNumByName(const std::string &affName, EAffect &result) {
 	int base = 0, offset = 0, counter = 0;
 	bool endOfArray = false;
 	while (!endOfArray) {
 		if (affName == std::string(affected_bits[counter])) {
-			result = static_cast<EAffectFlag>((base << 30) | (1 << offset));
+			result = static_cast<EAffect>((base << 30) | (1 << offset));
 			return true;
 		}
 		offset++;
@@ -1954,7 +1954,7 @@ size_t strlen_no_colors(const char *str) {
 // Симуляция телла от моба
 void tell_to_char(CharData *keeper, CharData *ch, const char *arg) {
 	char local_buf[kMaxInputLength];
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS) || PRF_FLAGGED(ch, EPrf::kNoTell)) {
+	if (AFF_FLAGGED(ch, EAffect::kDeafness) || PRF_FLAGGED(ch, EPrf::kNoTell)) {
 		sprintf(local_buf, "жестами показал$g на свой рот и уши. Ну его, болезного ..");
 		do_echo(keeper, local_buf, 0, SCMD_EMOTE);
 		return;

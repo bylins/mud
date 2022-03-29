@@ -154,7 +154,7 @@ void cut_one_word(std::string &str, std::string &word);
 size_t strl_cpy(char *dst, const char *src, size_t siz);
 
 
-extern bool GetAffectNumByName(const std::string &affName, EAffectFlag &result);
+extern bool GetAffectNumByName(const std::string &affName, EAffect &result);
 void tell_to_char(CharData *keeper, CharData *ch, const char *arg);
 bool is_head(std::string name);
 /*
@@ -447,9 +447,6 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
 #define OBJWEAR_FLAGGED(obj, mask)   ((obj)->get_wear_mask(mask))
 #define HAS_SPELL_ROUTINE(spl, flag) (IS_SET(SPELL_ROUTINES(spl), (flag)))
 
-// IS_AFFECTED for backwards compatibility
-#define IS_AFFECTED(ch, skill) (AFF_FLAGGED(ch, EAffectFlag::skill))
-
 #define PLR_TOG_CHK(ch, flag) (PLR_FLAGS(ch).toggle(flag))
 #define PRF_TOG_CHK(ch, flag) (PRF_FLAGS(ch).toggle(flag))
 
@@ -728,7 +725,7 @@ const int kNameLevel = 5;
 #define GET_LASTROOM(ch)    ((ch)->mob_specials.LastRoom)
 
 #define CAN_SEE_IN_DARK(ch) \
-   (AFF_FLAGGED(ch, EAffectFlag::AFF_INFRAVISION) || (!(ch)->is_npc() && PRF_FLAGGED(ch, EPrf::kHolylight)))
+   (AFF_FLAGGED(ch, EAffect::kInfravision) || (!(ch)->is_npc() && PRF_FLAGGED(ch, EPrf::kHolylight)))
 
 #define IS_GOOD(ch)          (GET_ALIGNMENT(ch) >= kAligGoodMore)
 #define IS_EVIL(ch)          (GET_ALIGNMENT(ch) <= kAligEvilLess)

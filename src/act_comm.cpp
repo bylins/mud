@@ -51,7 +51,7 @@ void do_ignore(CharData *ch, char *argument, int cmd, int subcmd);
 void do_say(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	skip_spaces(&argument);
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)) {
+	if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
 		send_to_char(SIELENCE, ch);
 		return;
 	}
@@ -91,8 +91,8 @@ void do_gsay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *k;
 	struct Follower *f;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE)
-		|| AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)) {
+	if (AFF_FLAGGED(ch, EAffect::kSilence)
+		|| AFF_FLAGGED(ch, EAffect::kStrangled)) {
 		send_to_char(SIELENCE, ch);
 		return;
 	}
@@ -104,7 +104,7 @@ void do_gsay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	skip_spaces(&argument);
 
-	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)) {
+	if (!AFF_FLAGGED(ch, EAffect::kGroup)) {
 		send_to_char("Вы не являетесь членом группы!\r\n", ch);
 		return;
 	}
@@ -120,12 +120,12 @@ void do_gsay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		sprintf(buf, "$n сообщил$g группе : '%s'", argument);
 
-		if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP)
+		if (AFF_FLAGGED(k, EAffect::kGroup)
 			&& k != ch
 			&& !ignores(k, ch, EIgnore::kGroup)) {
 			act(buf, false, ch, 0, k, kToVict | kToSleep | kToNotDeaf);
 			// added by WorM  групптелы 2010.10.13
-			if (!AFF_FLAGGED(k, EAffectFlag::AFF_DEAFNESS)
+			if (!AFF_FLAGGED(k, EAffect::kDeafness)
 				&& GET_POS(k) > EPosition::kDead) {
 				sprintf(buf1,
 						"%s сообщил%s группе : '%s'\r\n",
@@ -138,12 +138,12 @@ void do_gsay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			//end by WorM
 		}
 		for (f = k->followers; f; f = f->next) {
-			if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+			if (AFF_FLAGGED(f->ch, EAffect::kGroup)
 				&& (f->ch != ch)
 				&& !ignores(f->ch, ch, EIgnore::kGroup)) {
 				act(buf, false, ch, 0, f->ch, kToVict | kToSleep | kToNotDeaf);
 				// added by WorM  групптелы 2010.10.13
-				if (!AFF_FLAGGED(f->ch, EAffectFlag::AFF_DEAFNESS)
+				if (!AFF_FLAGGED(f->ch, EAffect::kDeafness)
 					&& GET_POS(f->ch) > EPosition::kDead) {
 					sprintf(buf1,
 							"%s сообщил%s группе : '%s'\r\n",
@@ -248,7 +248,7 @@ int is_tell_ok(CharData *ch, CharData *vict) {
 		(PRF_FLAGGED(vict, EPrf::kNoTell) || ignores(vict, ch, EIgnore::kTell))) ||
 		ROOM_FLAGGED(vict->in_room, ROOM_SOUNDPROOF))
 		act("$N не сможет вас услышать.", false, ch, 0, vict, kToChar | kToSleep);
-	else if (GET_POS(vict) < EPosition::kRest || AFF_FLAGGED(vict, EAffectFlag::AFF_DEAFNESS))
+	else if (GET_POS(vict) < EPosition::kRest || AFF_FLAGGED(vict, EAffect::kDeafness))
 		act("$N вас не услышит.", false, ch, 0, vict, kToChar | kToSleep);
 	else
 		return (true);
@@ -263,10 +263,10 @@ int is_tell_ok(CharData *ch, CharData *vict) {
 void do_tell(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *vict = nullptr;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)) {
+	if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
 		send_to_char(SIELENCE, ch);
 		return;
 	}
@@ -298,7 +298,7 @@ void do_reply(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->is_npc())
 		return;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)) {
+	if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
 		send_to_char(SIELENCE, ch);
 		return;
 	}
@@ -352,7 +352,7 @@ void do_spec_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	const char *action_sing, *action_plur, *action_others, *vict1, *vict2;
 	char vict3[kMaxInputLength];
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)) {
+	if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
 		send_to_char(SIELENCE, ch);
 		return;
 	}
@@ -620,10 +620,10 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	// to keep pets, etc from being ordered to shout
 //  if (!ch->desc)
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)) {
+	if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
 		send_to_char(SIELENCE, ch);
 		return;
 	}
@@ -810,7 +810,7 @@ void do_mobshout(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	// to keep pets, etc from being ordered to shout
 	if (!(ch->is_npc() || WAITLESS(ch)))
 		return;
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	skip_spaces(&argument); //убираем пробел в начале сообщения

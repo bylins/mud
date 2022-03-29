@@ -216,7 +216,7 @@ void CharData::set_abstinent() {
 
 	Affect<EApplyLocation> af;
 	af.type = kSpellAbstinent;
-	af.bitvector = to_underlying(EAffectFlag::AFF_ABSTINENT);
+	af.bitvector = to_underlying(EAffect::kAbstinent);
 	af.duration = duration;
 
 	af.location = APPLY_AC;
@@ -233,9 +233,9 @@ void CharData::set_abstinent() {
 }
 
 void CharData::affect_remove(const char_affects_list_t::iterator &affect_i) {
-	int was_lgt = AFF_FLAGGED(this, EAffectFlag::AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO;
-	long was_hlgt = AFF_FLAGGED(this, EAffectFlag::AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO;
-	long was_hdrk = AFF_FLAGGED(this, EAffectFlag::AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO;
+	int was_lgt = AFF_FLAGGED(this, EAffect::kSingleLight) ? LIGHT_YES : LIGHT_NO;
+	long was_hlgt = AFF_FLAGGED(this, EAffect::kHolyLight) ? LIGHT_YES : LIGHT_NO;
+	long was_hdrk = AFF_FLAGGED(this, EAffect::kHolyDark) ? LIGHT_YES : LIGHT_NO;
 
 	if (affected.empty()) {
 		log("SYSERR: affect_remove(%s) when no affects...", GET_NAME(this));
@@ -243,7 +243,7 @@ void CharData::affect_remove(const char_affects_list_t::iterator &affect_i) {
 	}
 
 	const auto af = *affect_i;
-	affect_modify(this, af->location, af->modifier, static_cast<EAffectFlag>(af->bitvector), false);
+	affect_modify(this, af->location, af->modifier, static_cast<EAffect>(af->bitvector), false);
 	if (af->type == kSpellAbstinent) {
 		if (player_specials) {
 			GET_DRUNK_STATE(this) = GET_COND(this, DRUNK) = MIN(GET_COND(this, DRUNK), kDrunked - 1);
@@ -521,7 +521,7 @@ void CharData::purge() {
 // * Скилл с учетом всех плюсов и минусов от шмоток/яда.
 int CharData::get_skill(const ESkill skill_num) const {
 	int skill = get_trained_skill(skill_num) + get_equipped_skill(skill_num);
-	if (AFF_FLAGGED(this, EAffectFlag::AFF_SKILLS_REDUCE)) {
+	if (AFF_FLAGGED(this, EAffect::kSkillReduce)) {
 		skill -= skill * GET_POISON(this) / 100;
 	}
 	return std::clamp(skill, 0, MUD::Skills()[skill_num].cap);
@@ -754,30 +754,30 @@ ObjData *CharData::get_cast_obj() const {
 
 bool IS_CHARMICE(const CharData *ch) {
 	return ch->is_npc()
-		&& (AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)
-			|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM));
+		&& (AFF_FLAGGED(ch, EAffect::kHelper)
+			|| AFF_FLAGGED(ch, EAffect::kCharmed));
 }
 
 bool MORT_CAN_SEE(const CharData *sub, const CharData *obj) {
 	return HERE(obj)
 		&& INVIS_OK(sub, obj)
 		&& (IS_LIGHT((obj)->in_room)
-			|| AFF_FLAGGED((sub), EAffectFlag::AFF_INFRAVISION));
+			|| AFF_FLAGGED((sub), EAffect::kInfravision));
 }
 
 bool MAY_SEE(const CharData *ch, const CharData *sub, const CharData *obj) {
 	return !(GET_INVIS_LEV(ch) > 30)
-		&& !AFF_FLAGGED(sub, EAffectFlag::AFF_BLIND)
+		&& !AFF_FLAGGED(sub, EAffect::kBlind)
 		&& (!IS_DARK(sub->in_room)
-			|| AFF_FLAGGED(sub, EAffectFlag::AFF_INFRAVISION))
-		&& (!AFF_FLAGGED(obj, EAffectFlag::AFF_INVISIBLE)
-			|| AFF_FLAGGED(sub, EAffectFlag::AFF_DETECT_INVIS));
+			|| AFF_FLAGGED(sub, EAffect::kInfravision))
+		&& (!AFF_FLAGGED(obj, EAffect::kInvisible)
+			|| AFF_FLAGGED(sub, EAffect::kDetectInvisible));
 }
 
 bool IS_HORSE(const CharData *ch) {
 	return ch->is_npc()
 		&& ch->has_master()
-		&& AFF_FLAGGED(ch, EAffectFlag::AFF_HORSE);
+		&& AFF_FLAGGED(ch, EAffect::kHorse);
 }
 
 bool IS_MORTIFIER(const CharData *ch) {
@@ -787,12 +787,12 @@ bool IS_MORTIFIER(const CharData *ch) {
 }
 
 bool MAY_ATTACK(const CharData *sub) {
-	return (!AFF_FLAGGED((sub), EAffectFlag::AFF_CHARM)
+	return (!AFF_FLAGGED((sub), EAffect::kCharmed)
 		&& !IS_HORSE((sub))
-		&& !AFF_FLAGGED((sub), EAffectFlag::AFF_STOPFIGHT)
-		&& !AFF_FLAGGED((sub), EAffectFlag::AFF_MAGICSTOPFIGHT)
-		&& !AFF_FLAGGED((sub), EAffectFlag::AFF_HOLD)
-		&& !AFF_FLAGGED((sub), EAffectFlag::AFF_SLEEP)
+		&& !AFF_FLAGGED((sub), EAffect::kStopFight)
+		&& !AFF_FLAGGED((sub), EAffect::kMagicStopFight)
+		&& !AFF_FLAGGED((sub), EAffect::kHold)
+		&& !AFF_FLAGGED((sub), EAffect::kSleep)
 		&& !MOB_FLAGGED((sub), EMobFlag::kNoFight)
 		&& GET_WAIT(sub) <= 0
 		&& !sub->get_fighting()
@@ -801,7 +801,7 @@ bool MAY_ATTACK(const CharData *sub) {
 
 bool AWAKE(const CharData *ch) {
 	return GET_POS(ch) > EPosition::kSleep
-		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP);
+		&& !AFF_FLAGGED(ch, EAffect::kSleep);
 }
 
 //Вы уверены,что функцияам расчете опыта самое место в классе персонажа?
@@ -814,7 +814,7 @@ bool OK_GAIN_EXP(const CharData *ch, const CharData *victim) {
 		&& (GET_EXP(victim) > 0)
 		&& (!victim->is_npc()
 			|| !ch->is_npc()
-			|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+			|| AFF_FLAGGED(ch, EAffect::kCharmed))
 		&& !IS_HORSE(victim)
 		&& !ROOM_FLAGGED(ch->in_room, ROOM_ARENA_DOMINATION);
 }
@@ -1659,14 +1659,14 @@ void CharData::reset_morph() {
 };
 
 bool CharData::is_morphed() const {
-	return current_morph_->Name() != "Обычная" || AFF_FLAGGED(this, EAffectFlag::AFF_MORPH);
+	return current_morph_->Name() != "Обычная" || AFF_FLAGGED(this, EAffect::kMorphing);
 };
 
 void CharData::set_normal_morph() {
 	current_morph_ = GetNormalMorphNew(this);
 }
 
-bool CharData::isAffected(const EAffectFlag flag) const {
+bool CharData::isAffected(const EAffect flag) const {
 	return current_morph_->isAffected(flag);
 }
 
@@ -1703,7 +1703,7 @@ void CharData::msdp_report(const std::string &name) {
 }
 
 void CharData::removeGroupFlags() {
-	AFF_FLAGS(this).unset(EAffectFlag::AFF_GROUP);
+	AFF_FLAGS(this).unset(EAffect::kGroup);
 	PRF_FLAGS(this).unset(EPrf::kSkirmisher);
 }
 
@@ -2052,7 +2052,7 @@ void CharData::send_to_TC(bool to_impl, bool to_tester, bool to_coder, const cha
 }
 
 bool CharData::have_mind() const {
-	if (!AFF_FLAGGED(this, EAffectFlag::AFF_CHARM) && !IS_HORSE(this))
+	if (!AFF_FLAGGED(this, EAffect::kCharmed) && !IS_HORSE(this))
 		return true;
 	return false;
 }
@@ -2065,7 +2065,7 @@ bool CharData::has_horse(bool same_room) const {
 	}
 
 	for (f = this->followers; f; f = f->next) {
-		if (f->ch->is_npc() && AFF_FLAGGED(f->ch, EAffectFlag::AFF_HORSE)
+		if (f->ch->is_npc() && AFF_FLAGGED(f->ch, EAffect::kHorse)
 			&& (!same_room || this->in_room == IN_ROOM(f->ch))) {
 			return true;
 		}
@@ -2074,7 +2074,7 @@ bool CharData::has_horse(bool same_room) const {
 }
 // персонаж на лошади?
 bool CharData::ahorse() const {
-	return AFF_FLAGGED(this, EAffectFlag::AFF_HORSE) && this->has_horse(true);
+	return AFF_FLAGGED(this, EAffect::kHorse) && this->has_horse(true);
 }
 
 bool CharData::isHorsePrevents() {
@@ -2101,7 +2101,7 @@ bool CharData::drop_from_horse() {
 		return false;
 	sprintf(buf, "%s свалил%s со своего скакуна.", GET_PAD(plr, 0), GET_CH_SUF_2(plr));
 	act(buf, false, plr, 0, 0, kToRoom | kToArenaListen);
-	AFF_FLAGS(plr).unset(EAffectFlag::AFF_HORSE);
+	AFF_FLAGS(plr).unset(EAffect::kHorse);
 	WAIT_STATE(this, 3 * kPulseViolence);
 	if (GET_POS(plr) > EPosition::kSit)
 		GET_POS(plr) = EPosition::kSit;
@@ -2112,7 +2112,7 @@ void CharData::dismount() {
 	if (!this->ahorse() || this->get_horse() == nullptr)
 		return;
 	if (!this->is_npc() && this->has_horse(true)) {
-		AFF_FLAGS(this).unset(EAffectFlag::AFF_HORSE);
+		AFF_FLAGS(this).unset(EAffect::kHorse);
 	}
 	act("Вы слезли со спины $N1.", false, this, 0, this->get_horse(), kToChar);
 	act("$n соскочил$g с $N1.", false, this, 0, this->get_horse(), kToRoom | kToArenaListen);
@@ -2125,7 +2125,7 @@ CharData *CharData::get_horse() {
 		return nullptr;
 
 	for (f = this->followers; f; f = f->next) {
-		if (f->ch->is_npc() && AFF_FLAGGED(f->ch, EAffectFlag::AFF_HORSE)) {
+		if (f->ch->is_npc() && AFF_FLAGGED(f->ch, EAffect::kHorse)) {
 			return (f->ch);
 		}
 	}

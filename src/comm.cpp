@@ -1780,7 +1780,7 @@ char *make_prompt(DescriptorData *d) {
 
 			if (PRF_FLAGGED(d->character, EPrf::kDispExits)) {
 				count += sprintf(prompt + count, "Вых:");
-				if (!AFF_FLAGGED(d->character, EAffectFlag::AFF_BLIND)) {
+				if (!AFF_FLAGGED(d->character, EAffect::kBlind)) {
 					for (door = 0; door < kDirMaxNumber; door++) {
 						if (EXIT(d->character, door)
 							&& EXIT(d->character, door)->to_room() != kNowhere
@@ -3417,7 +3417,7 @@ void send_to_outdoor(const char *messg, int control) {
 			|| (IS_SET(control, SUN_CONTROL)
 				&& room != kNowhere
 				&& SECT(room) != kSectUnderwater
-				&& !AFF_FLAGGED(i->character, EAffectFlag::AFF_BLIND))
+				&& !AFF_FLAGGED(i->character, EAffect::kBlind))
 			|| (IS_SET(control, WEATHER_CONTROL)
 				&& room != kNowhere
 				&& SECT(room) != kSectUnderwater
@@ -3803,8 +3803,8 @@ void act(const char *str,
 		if (ch
 			&& SENDOK(ch)
 			&& ch->in_room != kNowhere
-			&& (!check_deaf || !AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS))
-			&& (!check_nodeaf || AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS))
+			&& (!check_deaf || !AFF_FLAGGED(ch, EAffect::kDeafness))
+			&& (!check_nodeaf || AFF_FLAGGED(ch, EAffect::kDeafness))
 			&& (!to_brief_shields || PRF_FLAGGED(ch, EPrf::kBriefShields))
 			&& (!to_no_brief_shields || !PRF_FLAGGED(ch, EPrf::kBriefShields))) {
 			perform_act(str, ch, obj, vict_obj, ch, kick_type);
@@ -3817,8 +3817,8 @@ void act(const char *str,
 		if (to != nullptr
 			&& SENDOK(to)
 			&& IN_ROOM(to) != kNowhere
-			&& (!check_deaf || !AFF_FLAGGED(to, EAffectFlag::AFF_DEAFNESS))
-			&& (!check_nodeaf || AFF_FLAGGED(to, EAffectFlag::AFF_DEAFNESS))
+			&& (!check_deaf || !AFF_FLAGGED(to, EAffect::kDeafness))
+			&& (!check_nodeaf || AFF_FLAGGED(to, EAffect::kDeafness))
 			&& (!to_brief_shields || PRF_FLAGGED(to, EPrf::kBriefShields))
 			&& (!to_no_brief_shields || !PRF_FLAGGED(to, EPrf::kBriefShields))) {
 			perform_act(str, ch, obj, vict_obj, to, kick_type);
@@ -3854,15 +3854,15 @@ void act(const char *str,
 				continue;
 			if ((type != kToRoom && type != kToRoomSensors) && to == vict_obj)
 				continue;
-			if (check_deaf && AFF_FLAGGED(to, EAffectFlag::AFF_DEAFNESS))
+			if (check_deaf && AFF_FLAGGED(to, EAffect::kDeafness))
 				continue;
-			if (check_nodeaf && !AFF_FLAGGED(to, EAffectFlag::AFF_DEAFNESS))
+			if (check_nodeaf && !AFF_FLAGGED(to, EAffect::kDeafness))
 				continue;
 			if (to_brief_shields && !PRF_FLAGGED(to, EPrf::kBriefShields))
 				continue;
 			if (to_no_brief_shields && PRF_FLAGGED(to, EPrf::kBriefShields))
 				continue;
-			if (type == kToRoomSensors && !AFF_FLAGGED(to, EAffectFlag::AFF_SENSE_LIFE)
+			if (type == kToRoomSensors && !AFF_FLAGGED(to, EAffect::kDetectLife)
 				&& (to->is_npc() || !PRF_FLAGGED(to, EPrf::kHolylight)))
 				continue;
 			if (type == kToRoomSensors && PRF_FLAGGED(to, EPrf::kHolylight)) {

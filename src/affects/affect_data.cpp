@@ -56,7 +56,7 @@ int apply_ac(CharData *ch, int eq_pos) {
 			break;        // all others 10% //
 	}
 
-	if (ch->is_npc() && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (ch->is_npc() && !AFF_FLAGGED(ch, EAffect::kCharmed))
 		factor *= MOB_AC_MULT;
 
 	return (factor * GET_OBJ_VAL(GET_EQ(ch, eq_pos), 0));
@@ -85,7 +85,7 @@ int apply_armour(CharData *ch, int eq_pos) {
 			break;        // all others 10% //
 	}
 
-	if (ch->is_npc() && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (ch->is_npc() && !AFF_FLAGGED(ch, EAffect::kCharmed))
 		factor *= MOB_ARMOUR_MULT;
 
 	// чтобы не плюсовать левую броню на стафе с текущей прочностью выше максимальной
@@ -100,23 +100,23 @@ int apply_armour(CharData *ch, int eq_pos) {
 // Теперь аффект регенерация новичка держится 3 реморта, с каждыи ремортом все слабее и слабее
 void apply_natural_affects(CharData *ch) {
 	if (GET_REAL_REMORT(ch) <= 3 && !IS_IMMORTAL(ch)) {
-		affect_modify(ch, APPLY_HITREG, 60 - (GET_REAL_REMORT(ch) * 10), EAffectFlag::AFF_NOOB_REGEN, true);
-		affect_modify(ch, APPLY_MOVEREG, 100, EAffectFlag::AFF_NOOB_REGEN, true);
-		affect_modify(ch, APPLY_MANAREG, 100 - (GET_REAL_REMORT(ch) * 20), EAffectFlag::AFF_NOOB_REGEN, true);
+		affect_modify(ch, APPLY_HITREG, 60 - (GET_REAL_REMORT(ch) * 10), EAffect::kNoobRegen, true);
+		affect_modify(ch, APPLY_MOVEREG, 100, EAffect::kNoobRegen, true);
+		affect_modify(ch, APPLY_MANAREG, 100 - (GET_REAL_REMORT(ch) * 20), EAffect::kNoobRegen, true);
 	}
 }
 
-std::array<EAffectFlag, 2> char_saved_aff =
+std::array<EAffect, 2> char_saved_aff =
 	{
-		EAffectFlag::AFF_GROUP,
-		EAffectFlag::AFF_HORSE
+		EAffect::kGroup,
+		EAffect::kHorse
 	};
 
-std::array<EAffectFlag, 3> char_stealth_aff =
+std::array<EAffect, 3> char_stealth_aff =
 	{
-		EAffectFlag::AFF_HIDE,
-		EAffectFlag::AFF_SNEAK,
-		EAffectFlag::AFF_CAMOUFLAGE
+		EAffect::kHide,
+		EAffect::kSneak,
+		EAffect::kDisguise
 	};
 
 template<>
@@ -228,9 +228,9 @@ void player_affect_update() {
 							//чтобы не выдавалось, "что теперь вы можете сражаться",
 							//хотя на самом деле не можете :)
 							if (!(affect->type == kSpellMagicBattle
-								&& AFF_FLAGGED(i, EAffectFlag::AFF_STOPFIGHT))) {
+								&& AFF_FLAGGED(i, EAffect::kStopFight))) {
 								if (!(affect->type == kSpellBattle
-									&& AFF_FLAGGED(i, EAffectFlag::AFF_MAGICSTOPFIGHT))) {
+									&& AFF_FLAGGED(i, EAffect::kMagicStopFight))) {
 									show_spell_off(affect->type, i.get());
 								}
 							}
@@ -339,7 +339,7 @@ void mobile_affect_update() {
 								&& affect->type <= kSpellCount) {
 								show_spell_off(affect->type, i.get());
 								if (affect->type == kSpellCharm
-									|| affect->bitvector == to_underlying(EAffectFlag::AFF_CHARM)) {
+									|| affect->bitvector == to_underlying(EAffect::kCharmed)) {
 									was_charmed = true;
 								}
 							}
@@ -468,7 +468,7 @@ void affect_total(CharData *ch) {
 			}
 			// Update weapon applies
 			for (int j = 0; j < kMaxObjAffect; j++) {
-				affect_modify(ch, GET_EQ(ch, i)->get_affected(j).location, GET_EQ(ch, i)->get_affected(j).modifier, static_cast<EAffectFlag>(0), true);
+				affect_modify(ch, GET_EQ(ch, i)->get_affected(j).location, GET_EQ(ch, i)->get_affected(j).modifier, static_cast<EAffect>(0), true);
 			}
 			// Update weapon bitvectors
 			for (const auto &j : weapon_affect) {
@@ -476,7 +476,7 @@ void affect_total(CharData *ch) {
 				if (j.aff_bitvector == 0 || !IS_OBJ_AFF(obj, j.aff_pos)) {
 					continue;
 				}
-				affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(j.aff_bitvector), true);
+				affect_modify(ch, APPLY_NONE, 0, static_cast<EAffect>(j.aff_bitvector), true);
 			}
 		}
 	}
@@ -493,7 +493,7 @@ void affect_total(CharData *ch) {
 				affect_modify(ch,
 							  feat_info[i].affected[j].location,
 							  feat_info[i].affected[j].modifier,
-							  static_cast<EAffectFlag>(0),
+							  static_cast<EAffect>(0),
 							  true);
 			}
 		}
@@ -505,26 +505,26 @@ void affect_total(CharData *ch) {
 			affect_modify(ch,
 						  feat_info[IMPREGNABLE_FEAT].affected[j].location,
 						  MIN(9, feat_info[IMPREGNABLE_FEAT].affected[j].modifier * GET_REAL_REMORT(ch)),
-						  static_cast<EAffectFlag>(0),
+						  static_cast<EAffect>(0),
 						  true);
 		}
 	}
 
 	// Обработка изворотливости (с) Числобог
 	if (can_use_feat(ch, DODGER_FEAT)) {
-		affect_modify(ch, APPLY_SAVING_REFLEX, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), static_cast<EAffectFlag>(0), true);
-		affect_modify(ch, APPLY_SAVING_WILL, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), static_cast<EAffectFlag>(0), true);
-		affect_modify(ch, APPLY_SAVING_STABILITY, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), static_cast<EAffectFlag>(0), true);
-		affect_modify(ch, APPLY_SAVING_CRITICAL, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), static_cast<EAffectFlag>(0), true);
+		affect_modify(ch, APPLY_SAVING_REFLEX, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), static_cast<EAffect>(0), true);
+		affect_modify(ch, APPLY_SAVING_WILL, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), static_cast<EAffect>(0), true);
+		affect_modify(ch, APPLY_SAVING_STABILITY, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), static_cast<EAffect>(0), true);
+		affect_modify(ch, APPLY_SAVING_CRITICAL, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), static_cast<EAffect>(0), true);
 	}
 
 	// Обработка "выносливости" и "богатырского здоровья
 	// Знаю, что кривовато, придумаете, как лучше - делайте
 	if (!ch->is_npc()) {
 		if (can_use_feat(ch, ENDURANCE_FEAT))
-			affect_modify(ch, APPLY_MOVE, GetRealLevel(ch) * 2, static_cast<EAffectFlag>(0), true);
+			affect_modify(ch, APPLY_MOVE, GetRealLevel(ch) * 2, static_cast<EAffect>(0), true);
 		if (can_use_feat(ch, SPLENDID_HEALTH_FEAT))
-			affect_modify(ch, APPLY_HIT, GetRealLevel(ch) * 2, static_cast<EAffectFlag>(0), true);
+			affect_modify(ch, APPLY_HIT, GetRealLevel(ch) * 2, static_cast<EAffect>(0), true);
 		if (NORENTABLE(ch) == 0 && !domination) // мы не на новой арене и не ПК
 			GloryConst::apply_modifiers(ch);
 		apply_natural_affects(ch);
@@ -532,7 +532,7 @@ void affect_total(CharData *ch) {
 
 	// move affect modifiers
 	for (const auto &af : ch->affected) {
-		affect_modify(ch, af->location, af->modifier, static_cast<EAffectFlag>(af->bitvector), true);
+		affect_modify(ch, af->location, af->modifier, static_cast<EAffect>(af->bitvector), true);
 	}
 
 	// move race and class modifiers
@@ -549,7 +549,7 @@ void affect_total(CharData *ch) {
 			ch->set_dex_add(ch->get_dex_add() - wdex);
 		}
 		GET_DR_ADD(ch) += extra_damroll((int) GET_CLASS(ch), GetRealLevel(ch));
-		if (!AFF_FLAGGED(ch, EAffectFlag::AFF_NOOB_REGEN)) {
+		if (!AFF_FLAGGED(ch, EAffect::kNoobRegen)) {
 			GET_HITREG(ch) += (GetRealLevel(ch) + 4) / 5 * 10;
 		}
 		if (can_use_feat(ch, DARKREGEN_FEAT)) {
@@ -564,10 +564,10 @@ void affect_total(CharData *ch) {
 		}
 
 		if (!WAITLESS(ch) && ch->ahorse()) {
-			AFF_FLAGS(ch).unset(EAffectFlag::AFF_HIDE);
-			AFF_FLAGS(ch).unset(EAffectFlag::AFF_SNEAK);
-			AFF_FLAGS(ch).unset(EAffectFlag::AFF_CAMOUFLAGE);
-			AFF_FLAGS(ch).unset(EAffectFlag::AFF_INVISIBLE);
+			AFF_FLAGS(ch).unset(EAffect::kHide);
+			AFF_FLAGS(ch).unset(EAffect::kSneak);
+			AFF_FLAGS(ch).unset(EAffect::kDisguise);
+			AFF_FLAGS(ch).unset(EAffect::kInvisible);
 		}
 	}
 
@@ -665,10 +665,10 @@ void affect_total(CharData *ch) {
 	}
 	CheckBerserk(ch);
 	if (ch->get_fighting() || affected_by_spell(ch, kSpellGlitterDust)) {
-		AFF_FLAGS(ch).unset(EAffectFlag::AFF_HIDE);
-		AFF_FLAGS(ch).unset(EAffectFlag::AFF_SNEAK);
-		AFF_FLAGS(ch).unset(EAffectFlag::AFF_CAMOUFLAGE);
-		AFF_FLAGS(ch).unset(EAffectFlag::AFF_INVISIBLE);
+		AFF_FLAGS(ch).unset(EAffect::kHide);
+		AFF_FLAGS(ch).unset(EAffect::kSneak);
+		AFF_FLAGS(ch).unset(EAffect::kDisguise);
+		AFF_FLAGS(ch).unset(EAffect::kInvisible);
 	}
 }
 
@@ -715,9 +715,9 @@ void affect_join(CharData *ch,
 /* Insert an affect_type in a char_data structure
    Automatically sets appropriate bits and apply's */
 void affect_to_char(CharData *ch, const Affect<EApplyLocation> &af) {
-	long was_lgt = AFF_FLAGGED(ch, EAffectFlag::AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO;
-	long was_hlgt = AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO;
-	long was_hdrk = AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO;
+	long was_lgt = AFF_FLAGGED(ch, EAffect::kSingleLight) ? LIGHT_YES : LIGHT_NO;
+	long was_hlgt = AFF_FLAGGED(ch, EAffect::kHolyLight) ? LIGHT_YES : LIGHT_NO;
+	long was_hdrk = AFF_FLAGGED(ch, EAffect::kHolyDark) ? LIGHT_YES : LIGHT_NO;
 
 	Affect<EApplyLocation>::shared_ptr affected_alloc(new Affect<EApplyLocation>(af));
 
@@ -725,13 +725,13 @@ void affect_to_char(CharData *ch, const Affect<EApplyLocation> &af) {
 
 	AFF_FLAGS(ch) += af.aff;
 	if (af.bitvector)
-		affect_modify(ch, af.location, af.modifier, static_cast<EAffectFlag>(af.bitvector), true);
+		affect_modify(ch, af.location, af.modifier, static_cast<EAffect>(af.bitvector), true);
 	//log("[AFFECT_TO_CHAR->AFFECT_TOTAL] Start");
 	affect_total(ch);
 	check_light(ch, LIGHT_UNDEF, was_lgt, was_hlgt, was_hdrk, 1);
 }
 
-void affect_modify(CharData *ch, byte loc, int mod, const EAffectFlag bitv, bool add) {
+void affect_modify(CharData *ch, byte loc, int mod, const EAffect bitv, bool add) {
 	if (add) {
 		AFF_FLAGS(ch).set(bitv);
 	} else {
@@ -866,8 +866,8 @@ void reset_affects(CharData *ch) {
 
 	for (auto af = naf; af != ch->affected.end(); af = naf) {
 		++naf;
-		if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) 
-			|| AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER))
+		if (AFF_FLAGGED(ch, EAffect::kCharmed)
+			|| AFF_FLAGGED(ch, EAffect::kHelper))
 			continue;
 		const auto &affect = *af;
 		if (!IS_SET(affect->battleflag, kAfDeadkeep)) {

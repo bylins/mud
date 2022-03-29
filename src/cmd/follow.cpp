@@ -64,14 +64,14 @@ bool stop_follower(CharData *ch, int mode) {
 	//AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
 	ch->removeGroupFlags();
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-		|| AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)
+	if (AFF_FLAGGED(ch, EAffect::kCharmed)
+		|| AFF_FLAGGED(ch, EAffect::kHelper)
 		|| IS_SET(mode, kSfCharmlost)) {
 		if (affected_by_spell(ch, kSpellCharm)) {
 			affect_from_char(ch, kSpellCharm);
 		}
 		EXTRACT_TIMER(ch) = 5;
-		AFF_FLAGS(ch).unset(EAffectFlag::AFF_CHARM);
+		AFF_FLAGS(ch).unset(EAffect::kCharmed);
 
 		if (ch->get_fighting()) {
 			stop_fighting(ch, true);
@@ -85,8 +85,8 @@ bool stop_follower(CharData *ch, int mode) {
 				ch->set_gold(0);
 				extract_char(ch, false);
 				return (true);
-			} else if (AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)) {
-				AFF_FLAGS(ch).unset(EAffectFlag::AFF_HELPER);
+			} else if (AFF_FLAGGED(ch, EAffect::kHelper)) {
+				AFF_FLAGS(ch).unset(EAffect::kHelper);
 			}
 		}
 	}
@@ -136,7 +136,7 @@ bool die_follower(CharData *ch) {
 	}
 
 	if (ch->ahorse()) {
-		AFF_FLAGS(ch).unset(EAffectFlag::AFF_HORSE);
+		AFF_FLAGS(ch).unset(EAffect::kHorse);
 	}
 
 	for (k = ch->followers; k; k = j) {
@@ -166,7 +166,7 @@ void do_follow(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	struct Follower *f;
 	one_argument(argument, smallBuf);
 
-	if (ch->is_npc() && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && ch->get_fighting())
+	if (ch->is_npc() && AFF_FLAGGED(ch, EAffect::kCharmed) && ch->get_fighting())
 		return;
 	if (*smallBuf) {
 		if (!str_cmp(smallBuf, "я") || !str_cmp(smallBuf, "self") || !str_cmp(smallBuf, "me")) {
@@ -191,7 +191,7 @@ void do_follow(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
+	if (AFF_FLAGGED(ch, EAffect::kCharmed)
 		&& ch->has_master()) {
 		act("Но вы можете следовать только за $N4!", false, ch, 0, ch->get_master(), kToChar);
 	} else        // Not Charmed follow person

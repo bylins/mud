@@ -17,7 +17,7 @@ void do_order(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Вы прокляты Богами и никто не слушается вас!\r\n", ch);
 		return;
 	}
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)) {
+	if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
 		send_to_char("Вы не в состоянии приказывать сейчас.\r\n", ch);
 		return;
 	}
@@ -34,7 +34,7 @@ void do_order(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 		}
 
-		if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
+		if (AFF_FLAGGED(ch, EAffect::kCharmed)) {
 			send_to_char("В таком состоянии вы не можете сами отдавать приказы.\r\n", ch);
 			return;
 		}
@@ -48,8 +48,8 @@ void do_order(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			act("$n отдал$g приказ $N2.", false, ch, 0, vict, kToRoom | kToNotDeaf);
 
 			if (vict->get_master() != ch
-				|| !(AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) || AFF_FLAGGED(vict, EAffectFlag::AFF_HELPER))
-				|| AFF_FLAGGED(vict, EAffectFlag::AFF_DEAFNESS)) {
+				|| !(AFF_FLAGGED(vict, EAffect::kCharmed) || AFF_FLAGGED(vict, EAffect::kHelper))
+				|| AFF_FLAGGED(vict, EAffect::kDeafness)) {
 				if (!IS_POLY(vict)) {
 					act("$n безразлично смотрит по сторонам.", false, vict, 0, 0, kToRoom);
 				} else {
@@ -77,8 +77,8 @@ void do_order(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					continue;
 				}
 
-				if ((AFF_FLAGGED(follower, EAffectFlag::AFF_CHARM) || AFF_FLAGGED(follower, EAffectFlag::AFF_HELPER))
-					&& !AFF_FLAGGED(follower, EAffectFlag::AFF_DEAFNESS)) {
+				if ((AFF_FLAGGED(follower, EAffect::kCharmed) || AFF_FLAGGED(follower, EAffect::kHelper))
+					&& !AFF_FLAGGED(follower, EAffect::kDeafness)) {
 					found = true;
 					if (follower->get_wait() <= 0) {
 						command_interpreter(follower, message);

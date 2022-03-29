@@ -233,10 +233,10 @@ AbilitiesInfo::AbilitiesInfoBuilder::AbilitiesInfoBuilder() {
 			};
 		circumstance_handlers_register_[ECirumstance::kDrawingAttention] =
 			[](CharData *ch, CharData */* victim */) -> bool {
-				return (AFF_FLAGGED(ch, EAffectFlag::AFF_STAIRS)
-					|| AFF_FLAGGED(ch, EAffectFlag::AFF_SANCTUARY)
-					|| AFF_FLAGGED(ch, EAffectFlag::AFF_SINGLELIGHT)
-					|| AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYLIGHT));
+				return (AFF_FLAGGED(ch, EAffect::kStairs)
+					|| AFF_FLAGGED(ch, EAffect::kSanctuary)
+					|| AFF_FLAGGED(ch, EAffect::kSingleLight)
+					|| AFF_FLAGGED(ch, EAffect::kHolyLight));
 			};
 		circumstance_handlers_register_[ECirumstance::kAmbushAttack] =
 			[](CharData *ch, CharData *victim) -> bool {
@@ -248,7 +248,7 @@ AbilitiesInfo::AbilitiesInfoBuilder::AbilitiesInfoBuilder() {
 			};
 		circumstance_handlers_register_[ECirumstance::kVictimAwareness] =
 			[](CharData * /* ch */, CharData *victim) -> bool {
-				return AFF_FLAGGED(victim, EAffectFlag::AFF_AWARNESS);
+				return AFF_FLAGGED(victim, EAffect::kAwarness);
 			};
 		circumstance_handlers_register_[ECirumstance::kVictimAwake] =
 			[](CharData * /* ch */, CharData *victim) -> bool {
@@ -256,7 +256,7 @@ AbilitiesInfo::AbilitiesInfoBuilder::AbilitiesInfoBuilder() {
 			};
 		circumstance_handlers_register_[ECirumstance::kVictimHold] =
 			[](CharData * /* ch */, CharData *victim) -> bool {
-				return AFF_FLAGGED(victim, EAffectFlag::AFF_HOLD);
+				return AFF_FLAGGED(victim, EAffect::kHold);
 			};
 		circumstance_handlers_register_[ECirumstance::kVictimSleep] =
 			[](CharData * /* ch */, CharData *victim) -> bool {

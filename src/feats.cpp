@@ -546,7 +546,7 @@ void InitFeatures() {
 	feat_info[EXPEDIENT_CUT_FEAT].CalcSituationalRollBonus =
 		([](CharData */*ch*/, CharData * enemy) -> int {
 			int bonus{0};
-			if (AFF_FLAGGED(enemy, EAffectFlag::AFF_BLIND)) {
+			if (AFF_FLAGGED(enemy, EAffect::kBlind)) {
 				bonus += 40;
 			}
 			if (GET_POS(enemy) < EPosition::kFight) {
@@ -604,7 +604,7 @@ void InitFeatures() {
 		});
 	feat_info[THROW_WEAPON_FEAT].CalcSituationalRollBonus =
 		([](CharData *ch, CharData * /* enemy */) -> int {
-			if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
+			if (AFF_FLAGGED(ch, EAffect::kBlind)) {
 				return -60;
 			}
 			return 0;
@@ -635,7 +635,7 @@ void InitFeatures() {
 	feat_info[SHADOW_THROW_FEAT].uses_weapon_skill = false;
 	feat_info[SHADOW_THROW_FEAT].CalcSituationalRollBonus =
 		([](CharData *ch, CharData * /* enemy */) -> int {
-			if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
+			if (AFF_FLAGGED(ch, EAffect::kBlind)) {
 				return -60;
 			}
 			return 0;
@@ -759,8 +759,8 @@ bool can_use_feat(const CharData *ch, int feat) {
 			// Костыльный блок работы скирмишера где не нужно
 			// Svent TODO Для абилок не забыть реализовать провкрку состояния персонажа
 		case SKIRMISHER_FEAT:
-			return !(AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
-				|| AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT)
+			return !(AFF_FLAGGED(ch, EAffect::kStopFight)
+				|| AFF_FLAGGED(ch, EAffect::kMagicStopFight)
 				|| GET_POS(ch) < EPosition::kFight);
 			break;
 		default: return true;
@@ -965,7 +965,7 @@ void CheckBerserk(CharData *ch) {
 	}
 
 	if (can_use_feat(ch, BERSERK_FEAT) && ch->get_fighting() &&
-		!IsTimed(ch, BERSERK_FEAT) && !AFF_FLAGGED(ch, EAffectFlag::AFF_BERSERK)
+		!IsTimed(ch, BERSERK_FEAT) && !AFF_FLAGGED(ch, EAffect::kBerserk)
 		&& (GET_HIT(ch) < GET_REAL_MAX_HIT(ch) / 4)) {
 		CharData *vict = ch->get_fighting();
 		timed.feat = BERSERK_FEAT;
@@ -981,7 +981,7 @@ void CheckBerserk(CharData *ch) {
 
 		prob = ch->is_npc() ? 601 : (751 - GetRealLevel(ch) * 5);
 		if (number(1, 1000) < prob) {
-			af.bitvector = to_underlying(EAffectFlag::AFF_BERSERK);
+			af.bitvector = to_underlying(EAffect::kBerserk);
 			act("Вас обуяла предсмертная ярость!", false, ch, nullptr, nullptr, kToChar);
 			act("$n0 исступленно взвыл$g и бросил$u на противника!", false, ch, nullptr, vict, kToNotVict);
 			act("$n0 исступленно взвыл$g и бросил$u на вас!", false, ch, nullptr, vict, kToVict);
@@ -1034,7 +1034,7 @@ void do_lightwalk(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 		af.bitvector = 0;
 		send_to_char("Вам не хватает ловкости...\r\n", ch);
 	} else {
-		af.bitvector = to_underlying(EAffectFlag::AFF_LIGHT_WALK);
+		af.bitvector = to_underlying(EAffect::kLightWalk);
 		send_to_char("Ваши шаги стали легче перышка.\r\n", ch);
 	}
 	affect_to_char(ch, af);
@@ -1162,10 +1162,10 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	char *s;
 	int spellnum;
 
-	if (ch->is_npc() && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (ch->is_npc() && AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)) {
+	if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
 		send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
 		return;
 	}
@@ -1209,7 +1209,7 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	Follower *k;
 	CharData *follower = nullptr;
 	for (k = ch->followers; k; k = k->next) {
-		if (AFF_FLAGGED(k->ch, EAffectFlag::AFF_CHARM)
+		if (AFF_FLAGGED(k->ch, EAffect::kCharmed)
 			&& k->ch->get_master() == ch
 			&& MOB_FLAGGED(k->ch, EMobFlag::kClone)
 			&& !affected_by_spell(k->ch, kSpellCapable)
@@ -1384,7 +1384,7 @@ void ActivateFeat(CharData *ch, int feat_num) {
 			PRF_FLAGS(ch).set(EPrf::kGreatAimingAttack);
 			break;
 		case SKIRMISHER_FEAT:
-			if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)) {
+			if (!AFF_FLAGGED(ch, EAffect::kGroup)) {
 				send_to_char(ch,
 							 "Голос десятника Никифора вдруг рявкнул: \"%s, тюрюхайло! 'В шеренгу по одному' иначе сполняется!\"\r\n",
 							 ch->get_name().c_str());
@@ -1424,7 +1424,7 @@ void DeactivateFeature(CharData *ch, int feat_num) {
 		case GREAT_AIMING_ATTACK_FEAT: PRF_FLAGS(ch).unset(EPrf::kGreatAimingAttack);
 			break;
 		case SKIRMISHER_FEAT: PRF_FLAGS(ch).unset(EPrf::kSkirmisher);
-			if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)) {
+			if (AFF_FLAGGED(ch, EAffect::kGroup)) {
 				send_to_char("Вы решили, что в обозе вам будет спокойней.\r\n", ch);
 				act("$n0 тактически отступил$g в тыл отряда.",
 					false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
@@ -1496,7 +1496,7 @@ int CalcRollBonusOfGroupFormation(CharData *ch, CharData * /* enemy */) {
 	ActionTargeting::FriendsRosterType roster{ch};
 	int skirmishers = roster.count([](CharData *ch) { return PRF_FLAGGED(ch, EPrf::kSkirmisher); });
 	int uncoveredSquadMembers = roster.amount() - skirmishers;
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
+	if (AFF_FLAGGED(ch, EAffect::kBlind)) {
 		return (skirmishers * 2 - uncoveredSquadMembers) * abilities::kCircumstanceFactor - 40;
 	};
 	return (skirmishers * 2 - uncoveredSquadMembers) * abilities::kCircumstanceFactor;

@@ -67,11 +67,11 @@ void do_protect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (vict->is_npc() && tch
 		&& (!tch->is_npc()
-			|| (AFF_FLAGGED(tch, EAffectFlag::AFF_CHARM)
+			|| (AFF_FLAGGED(tch, EAffect::kCharmed)
 				&& tch->has_master()
 				&& !tch->get_master()->is_npc()))
 		&& (!ch->is_npc()
-			|| (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
+			|| (AFF_FLAGGED(ch, EAffect::kCharmed)
 				&& ch->has_master()
 				&& !ch->get_master()->is_npc()))) {
 		send_to_char("Вы пытаетесь прикрыть чужого противника.\r\n", ch);
@@ -97,9 +97,9 @@ CharData *TryToFindProtector(CharData *victim, CharData *ch) {
 
 	for (const auto vict : world[IN_ROOM(victim)]->people) {
 		if (vict->get_protecting() == victim
-			&& !AFF_FLAGGED(vict, EAffectFlag::AFF_STOPFIGHT)
-			&& !AFF_FLAGGED(vict, EAffectFlag::AFF_MAGICSTOPFIGHT)
-			&& !AFF_FLAGGED(vict, EAffectFlag::AFF_BLIND)
+			&& !AFF_FLAGGED(vict, EAffect::kStopFight)
+			&& !AFF_FLAGGED(vict, EAffect::kMagicStopFight)
+			&& !AFF_FLAGGED(vict, EAffect::kBlind)
 			&& !GET_MOB_HOLD(vict)
 			&& GET_POS(vict) >= EPosition::kFight) {
 			if (vict == ch) {
@@ -115,7 +115,7 @@ CharData *TryToFindProtector(CharData *victim, CharData *ch) {
 				WAIT_STATE(vict, kPulseViolence);
 				Affect<EApplyLocation> af;
 				af.type = kSpellBattle;
-				af.bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
+				af.bitvector = to_underlying(EAffect::kStopFight);
 				af.location = EApplyLocation::APPLY_NONE;
 				af.modifier = 0;
 				af.duration = CalcDuration(vict, 1, 0, 0, 0, 0);

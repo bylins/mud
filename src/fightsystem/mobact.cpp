@@ -241,7 +241,7 @@ CharData *selectRandomSkirmisherFromGroup(CharData *leader) {
 }
 
 CharData *selectVictimDependingOnGroupFormation(CharData *assaulter, CharData *initialVictim) {
-	if ((initialVictim == nullptr) || !AFF_FLAGGED(initialVictim, EAffectFlag::AFF_GROUP) || MOB_FLAGGED(assaulter, EMobFlag::kIgnoresFormation)) {
+	if ((initialVictim == nullptr) || !AFF_FLAGGED(initialVictim, EAffect::kGroup) || MOB_FLAGGED(assaulter, EMobFlag::kIgnoresFormation)) {
 		return initialVictim;
 	}
 
@@ -307,7 +307,7 @@ CharData *find_best_stupidmob_victim(CharData *ch, int extmode) {
 			&& vict->get_fighting()
 			&& vict->get_fighting() != ch
 			&& vict->get_fighting()->is_npc()
-			&& !AFF_FLAGGED(vict->get_fighting(), EAffectFlag::AFF_CHARM)
+			&& !AFF_FLAGGED(vict->get_fighting(), EAffect::kCharmed)
 			&& SAME_ALIGN(ch, vict->get_fighting())) {
 			kill_this = true;
 		} else {
@@ -322,23 +322,23 @@ CharData *find_best_stupidmob_victim(CharData *ch, int extmode) {
 		if (IS_SET(extmode, SKIP_SNEAKING)) {
 			skip_sneaking(vict, ch);
 			if ((EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK))) {
-				AFF_FLAGS(vict).unset(EAffectFlag::AFF_SNEAK);
+				AFF_FLAGS(vict).unset(EAffect::kSneak);
 			}
-			if (AFF_FLAGGED(vict, EAffectFlag::AFF_SNEAK))
+			if (AFF_FLAGGED(vict, EAffect::kSneak))
 				continue;
 		}
 
 		if (IS_SET(extmode, SKIP_HIDING)) {
 			skip_hiding(vict, ch);
 			if (EXTRA_FLAGGED(vict, EXTRA_FAILHIDE)) {
-				AFF_FLAGS(vict).unset(EAffectFlag::AFF_HIDE);
+				AFF_FLAGS(vict).unset(EAffect::kHide);
 			}
 		}
 
 		if (IS_SET(extmode, SKIP_CAMOUFLAGE)) {
 			skip_camouflage(vict, ch);
 			if (EXTRA_FLAGGED(vict, EXTRA_FAILCAMOUFLAGE)) {
-				AFF_FLAGS(vict).unset(EAffectFlag::AFF_CAMOUFLAGE);
+				AFF_FLAGS(vict).unset(EAffect::kDisguise);
 			}
 		}
 
@@ -371,9 +371,9 @@ CharData *find_best_stupidmob_victim(CharData *ch, int extmode) {
 		if (IS_DEFAULTDARK(ch->in_room)
 			&& ((GET_EQ(vict, ObjData::ITEM_LIGHT)
 				&& GET_OBJ_VAL(GET_EQ(vict, ObjData::ITEM_LIGHT), 2))
-				|| (!AFF_FLAGGED(vict, EAffectFlag::AFF_HOLYDARK)
-					&& (AFF_FLAGGED(vict, EAffectFlag::AFF_SINGLELIGHT)
-						|| AFF_FLAGGED(vict, EAffectFlag::AFF_HOLYLIGHT))))
+				|| (!AFF_FLAGGED(vict, EAffect::kHolyDark)
+					&& (AFF_FLAGGED(vict, EAffect::kSingleLight)
+						|| AFF_FLAGGED(vict, EAffect::kHolyLight))))
 			&& (!use_light
 				|| GET_REAL_CHA(use_light) > GET_REAL_CHA(vict))) {
 			use_light = vict;
@@ -480,7 +480,7 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 		if ((vict->get_fighting())
 			&& (vict->get_fighting() != ch)
 			&& vict->get_fighting()->is_npc()
-			&& (!AFF_FLAGGED(vict->get_fighting(), EAffectFlag::AFF_CHARM))) {
+			&& (!AFF_FLAGGED(vict->get_fighting(), EAffect::kCharmed))) {
 			kill_this = true;
 		} else {
 			// ... but no aggressive for this char
@@ -492,10 +492,10 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 		if (IS_SET(extmode, SKIP_SNEAKING)) {
 			skip_sneaking(vict, ch);
 			if (EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK)) {
-				AFF_FLAGS(vict).unset(EAffectFlag::AFF_SNEAK);
+				AFF_FLAGS(vict).unset(EAffect::kSneak);
 			}
 
-			if (AFF_FLAGGED(vict, EAffectFlag::AFF_SNEAK)) {
+			if (AFF_FLAGGED(vict, EAffect::kSneak)) {
 				continue;
 			}
 		}
@@ -503,14 +503,14 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 		if (IS_SET(extmode, SKIP_HIDING)) {
 			skip_hiding(vict, ch);
 			if (EXTRA_FLAGGED(vict, EXTRA_FAILHIDE)) {
-				AFF_FLAGS(vict).unset(EAffectFlag::AFF_HIDE);
+				AFF_FLAGS(vict).unset(EAffect::kHide);
 			}
 		}
 
 		if (IS_SET(extmode, SKIP_CAMOUFLAGE)) {
 			skip_camouflage(vict, ch);
 			if (EXTRA_FLAGGED(vict, EXTRA_FAILCAMOUFLAGE)) {
-				AFF_FLAGS(vict).unset(EAffectFlag::AFF_CAMOUFLAGE);
+				AFF_FLAGS(vict).unset(EAffect::kDisguise);
 			}
 		}
 		if (!CAN_SEE(ch, vict))
@@ -718,7 +718,7 @@ int perform_mob_switch(CharData *ch) {
 }
 
 void do_aggressive_mob(CharData *ch, int check_sneak) {
-	if (!ch || ch->in_room == kNowhere || !ch->is_npc() || !MAY_ATTACK(ch) || AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
+	if (!ch || ch->in_room == kNowhere || !ch->is_npc() || !MAY_ATTACK(ch) || AFF_FLAGGED(ch, EAffect::kBlind)) {
 		return;
 	}
 
@@ -774,18 +774,18 @@ void do_aggressive_mob(CharData *ch, int check_sneak) {
 					if (check_sneak) {
 						skip_sneaking(vict, ch);
 						if (EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK)) {
-							AFF_FLAGS(vict).unset(EAffectFlag::AFF_SNEAK);
+							AFF_FLAGS(vict).unset(EAffect::kSneak);
 						}
-						if (AFF_FLAGGED(vict, EAffectFlag::AFF_SNEAK))
+						if (AFF_FLAGGED(vict, EAffect::kSneak))
 							continue;
 					}
 					skip_hiding(vict, ch);
 					if (EXTRA_FLAGGED(vict, EXTRA_FAILHIDE)) {
-						AFF_FLAGS(vict).unset(EAffectFlag::AFF_HIDE);
+						AFF_FLAGS(vict).unset(EAffect::kHide);
 					}
 					skip_camouflage(vict, ch);
 					if (EXTRA_FLAGGED(vict, EXTRA_FAILCAMOUFLAGE)) {
-						AFF_FLAGS(vict).unset(EAffectFlag::AFF_CAMOUFLAGE);
+						AFF_FLAGS(vict).unset(EAffect::kDisguise);
 					}
 					if (CAN_SEE(ch, vict)) {
 						victim = vict;
@@ -984,7 +984,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 			}
 		}
 		// Extract free horses
-		if (AFF_FLAGGED(ch, EAffectFlag::AFF_HORSE)
+		if (AFF_FLAGGED(ch, EAffect::kHorse)
 			&& MOB_FLAGGED(ch, EMobFlag::kMounting)
 			&& !ch->has_master()) // если скакун, под седлом но нет хозяина
 		{
@@ -1009,9 +1009,9 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		if (ch->get_fighting() ||
 			GET_POS(ch) <= EPosition::kStun ||
 			GET_WAIT(ch) > 0 ||
-			AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) ||
-			AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD) || AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT) ||
-			AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT) || AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP)) {
+			AFF_FLAGGED(ch, EAffect::kCharmed) ||
+			AFF_FLAGGED(ch, EAffect::kHold) || AFF_FLAGGED(ch, EAffect::kMagicStopFight) ||
+			AFF_FLAGGED(ch, EAffect::kStopFight) || AFF_FLAGGED(ch, EAffect::kSleep)) {
 			return;
 		}
 
@@ -1130,27 +1130,27 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		npc_armor(ch.get());
 
 		if (GET_POS(ch) == EPosition::kStand && NPC_FLAGGED(ch, ENpcFlag::kInvis)) {
-			ch->set_affect(EAffectFlag::AFF_INVISIBLE);
+			ch->set_affect(EAffect::kInvisible);
 		}
 
 		if (GET_POS(ch) == EPosition::kStand && NPC_FLAGGED(ch, ENpcFlag::kMoveFly)) {
-			ch->set_affect(EAffectFlag::AFF_FLY);
+			ch->set_affect(EAffect::kFly);
 		}
 
 		if (GET_POS(ch) == EPosition::kStand && NPC_FLAGGED(ch, ENpcFlag::kSneaking)) {
 			if (CalcCurrentSkill(ch.get(), ESkill::kSneak, 0) >= number(0, 100)) {
-				ch->set_affect(EAffectFlag::AFF_SNEAK);
+				ch->set_affect(EAffect::kSneak);
 			} else {
-				ch->remove_affect(EAffectFlag::AFF_SNEAK);
+				ch->remove_affect(EAffect::kSneak);
 			}
 			affect_total(ch.get());
 		}
 
 		if (GET_POS(ch) == EPosition::kStand && NPC_FLAGGED(ch, ENpcFlag::kDisguising)) {
 			if (CalcCurrentSkill(ch.get(), ESkill::kDisguise, 0) >= number(0, 100)) {
-				ch->set_affect(EAffectFlag::AFF_CAMOUFLAGE);
+				ch->set_affect(EAffect::kDisguise);
 			} else {
-				ch->remove_affect(EAffectFlag::AFF_CAMOUFLAGE);
+				ch->remove_affect(EAffect::kDisguise);
 			}
 
 			affect_total(ch.get());
@@ -1161,7 +1161,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		// Helpers go to some dest
 		if (MOB_FLAGGED(ch, EMobFlag::kHelper)
 			&& !MOB_FLAGGED(ch, EMobFlag::kSentinel)
-			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)
+			&& !AFF_FLAGGED(ch, EAffect::kBlind)
 			&& !ch->has_master()
 			&& GET_POS(ch) == EPosition::kStand) {
 			for (found = false, door = 0; door < kDirMaxNumber; door++) {
@@ -1180,7 +1180,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 				const auto room = world[rdata->to_room()];
 				for (auto first : room->people) {
 					if (first->is_npc()
-						&& !AFF_FLAGGED(first, EAffectFlag::AFF_CHARM)
+						&& !AFF_FLAGGED(first, EAffect::kCharmed)
 						&& !IS_HORSE(first)
 						&& CAN_SEE(ch, first)
 						&& first->get_fighting()
@@ -1247,7 +1247,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		if (MOB_FLAGGED(ch, EMobFlag::kMemory)
 			&& MEMORY(ch)
 			&& GET_POS(ch) > EPosition::kSleep
-			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)
+			&& !AFF_FLAGGED(ch, EAffect::kBlind)
 			&& !ch->get_fighting()) {
 			// Find memory in world
 			for (auto names = MEMORY(ch); names && (GET_SPELL_MEM(ch, kSpellSummon) > 0
@@ -1290,7 +1290,7 @@ void mobRemember(CharData *ch, CharData *victim) {
 		victim->is_npc() ||
 		PRF_FLAGGED(victim, EPrf::kNohassle) ||
 		!MOB_FLAGGED(ch, EMobFlag::kMemory) ||
-		AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+		AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	for (tmp = MEMORY(ch); tmp && !present; tmp = tmp->next)
@@ -1320,7 +1320,7 @@ void mobForget(CharData *ch, CharData *victim) {
 	MemoryRecord *curr, *prev = nullptr;
 
 	// Момент спорный, но думаю, что так правильнее
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	if (!(curr = MEMORY(ch)))

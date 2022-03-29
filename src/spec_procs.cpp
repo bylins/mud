@@ -2138,7 +2138,7 @@ void npc_light(CharData *ch) {
 	if (GET_REAL_INT(ch) < 10 || IS_SHOPKEEPER(ch))
 		return;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_INFRAVISION))
+	if (AFF_FLAGGED(ch, EAffect::kInfravision))
 		return;
 
 	if ((obj = GET_EQ(ch, EEquipPos::kLight)) && (GET_OBJ_VAL(obj, 2) == 0 || !IS_DARK(ch->in_room))) {
@@ -2310,7 +2310,7 @@ void npc_group(CharData *ch) {
 	}
 
 	if (leader
-		&& (AFF_FLAGGED(leader, EAffectFlag::AFF_CHARM)
+		&& (AFF_FLAGGED(leader, EAffect::kCharmed)
 			|| GET_POS(leader) < EPosition::kSleep)) {
 		leader = nullptr;
 	}
@@ -2328,7 +2328,7 @@ void npc_group(CharData *ch) {
 			|| zone != ZONE(vict)
 			|| group != GROUP(vict)
 			|| MOB_FLAGGED(vict, EMobFlag::kNoGroup)
-			|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
+			|| AFF_FLAGGED(vict, EAffect::kCharmed)
 			|| GET_POS(vict) < EPosition::kSleep) {
 			continue;
 		}
@@ -2359,13 +2359,13 @@ void npc_group(CharData *ch) {
 			|| GET_DEST(vict) != GET_DEST(ch)
 			|| zone != ZONE(vict)
 			|| group != GROUP(vict)
-			|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
+			|| AFF_FLAGGED(vict, EAffect::kCharmed)
 			|| GET_POS(vict) < EPosition::kSleep) {
 			continue;
 		}
 
 		if (vict == leader) {
-			AFF_FLAGS(vict).set(EAffectFlag::AFF_GROUP);
+			AFF_FLAGS(vict).set(EAffect::kGroup);
 			continue;
 		}
 
@@ -2375,7 +2375,7 @@ void npc_group(CharData *ch) {
 			stop_follower(vict, kSfEmpty);
 			leader->add_follower(vict);
 		}
-		AFF_FLAGS(vict).set(EAffectFlag::AFF_GROUP);
+		AFF_FLAGS(vict).set(EAffect::kGroup);
 	}
 }
 
@@ -2385,7 +2385,7 @@ void npc_groupbattle(CharData *ch) {
 
 	if (!ch->is_npc()
 		|| !ch->get_fighting()
-		|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
+		|| AFF_FLAGGED(ch, EAffect::kCharmed)
 		|| !ch->has_master()
 		|| ch->in_room == kNowhere
 		|| !ch->followers) {
@@ -2645,8 +2645,8 @@ int guild_guard(CharData *ch, void *me, int cmd, char * /*argument*/) {
 	const char *buf = "Охранник остановил вас, преградив дорогу.\r\n";
 	const char *buf2 = "Охранник остановил $n, преградив $m дорогу.";
 
-	if (!IS_MOVE(cmd) || AFF_FLAGGED(guard, EAffectFlag::AFF_BLIND)
-		|| AFF_FLAGGED(guard, EAffectFlag::AFF_HOLD))
+	if (!IS_MOVE(cmd) || AFF_FLAGGED(guard, EAffect::kBlind)
+		|| AFF_FLAGGED(guard, EAffect::kHold))
 		return (false);
 
 	if (GetRealLevel(ch) >= kLvlImmortal)
@@ -2799,7 +2799,7 @@ int pet_shops(CharData *ch, void * /*me*/, int cmd, char *argument) {
 
 		pet = read_mobile(GET_MOB_RNUM(pet), REAL);
 		pet->set_exp(0);
-		AFF_FLAGS(pet).set(EAffectFlag::AFF_CHARM);
+		AFF_FLAGS(pet).set(EAffect::kCharmed);
 
 		if (*pet_name) {
 			sprintf(buf, "%s %s", pet->get_pc_name().c_str(), pet_name);

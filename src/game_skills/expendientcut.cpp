@@ -11,7 +11,7 @@
 void ApplyNoFleeAffect(CharData *ch, int duration) {
 	Affect<EApplyLocation> noflee;
 	noflee.type = kSpellBattle;
-	noflee.bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
+	noflee.bitvector = to_underlying(EAffect::kNoFlee);
 	noflee.location = EApplyLocation::APPLY_NONE;
 	noflee.modifier = 0;
 	noflee.duration = CalcDuration(ch, duration, 0, 0, 0, 0);;
@@ -27,7 +27,7 @@ void PerformCutSuccess(AbilitySystem::TechniqueRoll &roll) {
 		true, roll.GetActor(), nullptr, roll.GetRival(), kToNotVict | kToArenaListen);
 	Affect<EApplyLocation> cut;
 	cut.type = kSpellBattle;
-	cut.bitvector = to_underlying(EAffectFlag::AFF_HAEMORRAGIA);
+	cut.bitvector = to_underlying(EAffect::kHaemorrhage);
 	cut.location = EApplyLocation::APPLY_RESIST_VITALITY;
 	cut.modifier = -std::min(25, number(1, roll.GetActorRating())/12) - (roll.IsCriticalSuccess() ? 10 : 0);
 	cut.duration = CalcDuration(roll.GetActor(), 3*number(2, 4), 0, 0, 0, 0);;
@@ -129,7 +129,7 @@ void DoExpedientCut(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) || IsUnableToAct(ch)) {
+	if (AFF_FLAGGED(ch, EAffect::kStopRight) || IsUnableToAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}

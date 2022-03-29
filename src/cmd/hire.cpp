@@ -11,7 +11,7 @@ constexpr long MAX_HIRE_PRICE = LONG_MAX / (MAX_HIRE_TIME + 1);
 float get_damage_per_round(CharData *victim) {
 	float dam_per_attack = GET_DR(victim) + str_bonus(victim->get_str(), STR_TO_DAM)
 		+ victim->mob_specials.damnodice * (victim->mob_specials.damsizedice + 1) / 2.0
-		+ (AFF_FLAGGED(victim, EAffectFlag::AFF_CLOUD_OF_ARROWS) ? 14 : 0);
+		+ (AFF_FLAGGED(victim, EAffect::kCloudOfArrows) ? 14 : 0);
 	int num_attacks = 1 + victim->mob_specials.ExtraAttack
 		+ (victim->get_skill(ESkill::kAddshot) ? 2 : 0);
 
@@ -167,7 +167,7 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!*arg) {
 		Follower *k;
 		for (k = ch->followers; k; k = k->next) {
-			if (AFF_FLAGGED(k->ch, EAffectFlag::AFF_HELPER) && AFF_FLAGGED(k->ch, EAffectFlag::AFF_CHARM)) {
+			if (AFF_FLAGGED(k->ch, EAffect::kHelper) && AFF_FLAGGED(k->ch, EAffect::kCharmed)) {
 				break;
 			}
 		}
@@ -188,7 +188,7 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	Follower *k;
 	for (k = ch->followers; k; k = k->next) {
-		if (AFF_FLAGGED(k->ch, EAffectFlag::AFF_HELPER) && AFF_FLAGGED(k->ch, EAffectFlag::AFF_CHARM)) {
+		if (AFF_FLAGGED(k->ch, EAffect::kHelper) && AFF_FLAGGED(k->ch, EAffect::kCharmed)) {
 			break;
 		}
 	}
@@ -199,9 +199,9 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Вы не можете нанять реального игрока!\r\n", ch);
 	else if (!NPC_FLAGGED(helpee, ENpcFlag::kHelped))
 		act("$N не нанимается!", false, ch, 0, helpee, kToChar);
-	else if (AFF_FLAGGED(helpee, EAffectFlag::AFF_CHARM) && (!k || (k && helpee != k->ch)))
+	else if (AFF_FLAGGED(helpee, EAffect::kCharmed) && (!k || (k && helpee != k->ch)))
 		act("$N под чьим-то контролем.", false, ch, 0, helpee, kToChar);
-	else if (AFF_FLAGGED(helpee, EAffectFlag::AFF_DEAFNESS))
+	else if (AFF_FLAGGED(helpee, EAffect::kDeafness))
 		act("$N не слышит вас.", false, ch, 0, helpee, kToChar);
 	else if (IS_HORSE(helpee))
 		send_to_char("Это боевой скакун, а не хухры-мухры.\r\n", ch);
@@ -290,14 +290,14 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		af.type = kSpellCharm;
 		af.modifier = 0;
 		af.location = APPLY_NONE;
-		af.bitvector = to_underlying(EAffectFlag::AFF_CHARM);
+		af.bitvector = to_underlying(EAffect::kCharmed);
 		af.battleflag = 0;
 		affect_to_char(helpee, af);
 
 		af.type = kSpellCharm;
 		af.modifier = 0;
 		af.location = APPLY_NONE;
-		af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
+		af.bitvector = to_underlying(EAffect::kHelper);
 		af.battleflag = 0;
 		affect_to_char(helpee, af);
 
@@ -338,8 +338,8 @@ void do_freehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd
 
 	Follower *k;
 	for (k = ch->followers; k; k = k->next) {
-		if (AFF_FLAGGED(k->ch, EAffectFlag::AFF_HELPER)
-			&& AFF_FLAGGED(k->ch, EAffectFlag::AFF_CHARM)) {
+		if (AFF_FLAGGED(k->ch, EAffect::kHelper)
+			&& AFF_FLAGGED(k->ch, EAffect::kCharmed)) {
 			break;
 		}
 	}

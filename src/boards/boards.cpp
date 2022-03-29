@@ -147,7 +147,7 @@ void DoBoard(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
+	if (AFF_FLAGGED(ch, EAffect::kBlind)) {
 		send_to_char("Вы ослеплены!\r\n", ch);
 		return;
 	}

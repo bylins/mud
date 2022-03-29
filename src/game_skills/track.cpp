@@ -45,7 +45,7 @@ int go_track(CharData *ch, CharData *victim, const ESkill skill_no) {
 	int percent, dir;
 	int if_sense;
 
-	if (AFF_FLAGGED(victim, EAffectFlag::AFF_NOTRACK) && (skill_no != ESkill::kSense)) {
+	if (AFF_FLAGGED(victim, EAffect::kNoTrack) && (skill_no != ESkill::kSense)) {
 		return kBfsError;
 	}
 	// 101 is a complete failure, no matter what the proficiency.
@@ -83,7 +83,7 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
+	if (AFF_FLAGGED(ch, EAffect::kBlind)) {
 		send_to_char("Вы слепы как крот.\r\n", ch);
 		return;
 	}

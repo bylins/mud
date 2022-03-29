@@ -219,7 +219,7 @@ void random_mtrigger(CharData *ch) {
 	}
 
 	if (!SCRIPT_CHECK(ch, MTRIG_RANDOM)
-		|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
+		|| AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		return;
 	}
 
@@ -464,7 +464,7 @@ void speech_mtrigger(CharData *actor, char *str) {
 	for (const auto ch : people_copy) {
 		if ((SCRIPT_CHECK(ch, MTRIG_SPEECH)
 			&& AWAKE(ch)
-			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS)
+			&& !AFF_FLAGGED(ch, EAffect::kDeafness)
 			&& CAN_START_MTRIG(ch)
 			&& (actor != ch))
 			&& !GET_INVIS_LEV(actor)) {
@@ -650,7 +650,7 @@ int death_mtrigger(CharData *ch, CharData *actor) {
 	char buf[kMaxInputLength];
 
 	if (!SCRIPT_CHECK(ch, MTRIG_DEATH)
-		|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
+		|| AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		return 1;
 	}
 

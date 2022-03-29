@@ -1276,7 +1276,7 @@ void do_echo(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	} else {
 		if (subcmd == SCMD_EMOTE) {
 			// added by Pereplut
-			if (ch->is_npc() && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
+			if (ch->is_npc() && AFF_FLAGGED(ch, EAffect::kCharmed)) {
 				if PLR_FLAGGED(ch->get_master(), EPlrFlag::kDumbed) {
 					// shapirus: правильно пишется не "так-же", а "так же".
 					// и запятая пропущена была :-P.
@@ -2583,8 +2583,8 @@ void do_restore(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 void perform_immort_vis(CharData *ch) {
 	if (GET_INVIS_LEV(ch) == 0 &&
-		!AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE) && !AFF_FLAGGED(ch, EAffectFlag::AFF_INVISIBLE)
-		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_CAMOUFLAGE)) {
+		!AFF_FLAGGED(ch, EAffect::kHide) && !AFF_FLAGGED(ch, EAffect::kInvisible)
+		&& !AFF_FLAGGED(ch, EAffect::kDisguise)) {
 		send_to_char("Ну вот вас и заметили. Стало ли вам легче от этого?\r\n", ch);
 		return;
 	}

@@ -166,8 +166,8 @@ void do_style(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				PRF_FLAGS(ch).set(EPrf::kAwake);
 			}
 
-			if (ch->get_fighting() && !(AFF_FLAGGED(ch, EAffectFlag::AFF_COURAGE) ||
-				AFF_FLAGGED(ch, EAffectFlag::AFF_DRUNKED) || AFF_FLAGGED(ch, EAffectFlag::AFF_ABSTINENT))) {
+			if (ch->get_fighting() && !(AFF_FLAGGED(ch, EAffect::kCourage) ||
+				AFF_FLAGGED(ch, EAffect::kDrunked) || AFF_FLAGGED(ch, EAffect::kAbstinent))) {
 				CLR_AF_BATTLE(ch, kEafPunctual);
 				CLR_AF_BATTLE(ch, kEafAwake);
 				if (tp == 1)

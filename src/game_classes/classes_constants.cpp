@@ -9,21 +9,21 @@
 #include "classes_constants.h"
 
 const ClassApplies::ExtraAffectsVector ClericAffects = {};
-const ClassApplies::ExtraAffectsVector MageAffects = {{EAffectFlag::AFF_INFRAVISION, true}};
+const ClassApplies::ExtraAffectsVector MageAffects = {{EAffect::kInfravision, true}};
 const ClassApplies::ExtraAffectsVector ThiefAffects = {
-	{EAffectFlag::AFF_INFRAVISION, true},
-	{EAffectFlag::AFF_SENSE_LIFE, true},
-	{EAffectFlag::AFF_BLINK, true}};
+	{EAffect::kInfravision, true},
+	{EAffect::kDetectLife, true},
+	{EAffect::kBlink, true}};
 const ClassApplies::ExtraAffectsVector WarriorAffects = {};
-const ClassApplies::ExtraAffectsVector AssasineAffects = {{EAffectFlag::AFF_INFRAVISION, true}};
+const ClassApplies::ExtraAffectsVector AssasineAffects = {{EAffect::kInfravision, true}};
 const ClassApplies::ExtraAffectsVector GuardAffects = {};
 const ClassApplies::ExtraAffectsVector DefenderAffects = {};
 const ClassApplies::ExtraAffectsVector CharmerAffects = {};
-const ClassApplies::ExtraAffectsVector NecromancerAffects = {{EAffectFlag::AFF_INFRAVISION, true}};
+const ClassApplies::ExtraAffectsVector NecromancerAffects = {{EAffect::kInfravision, true}};
 const ClassApplies::ExtraAffectsVector PaladineAffects = {};
 const ClassApplies::ExtraAffectsVector RangerAffects = {
-	{EAffectFlag::AFF_INFRAVISION, true},
-	{EAffectFlag::AFF_SENSE_LIFE, true}};
+	{EAffect::kInfravision, true},
+	{EAffect::kDetectLife, true}};
 const ClassApplies::ExtraAffectsVector SmithAffects = {};
 const ClassApplies::ExtraAffectsVector MerchantAffects = {};
 const ClassApplies::ExtraAffectsVector DruidAffects = {};

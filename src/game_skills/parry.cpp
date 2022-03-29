@@ -6,7 +6,7 @@
 
 // **************** MULTYPARRY PROCEDURES
 void go_multyparry(CharData *ch) {
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) || AFF_FLAGGED(ch, EAffectFlag::AFF_STOPLEFT) || IsUnableToAct(ch)) {
+	if (AFF_FLAGGED(ch, EAffect::kStopRight) || AFF_FLAGGED(ch, EAffect::kStopLeft) || IsUnableToAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
@@ -49,7 +49,7 @@ void do_multyparry(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 
 // **************** PARRY PROCEDURES
 void go_parry(CharData *ch) {
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) || AFF_FLAGGED(ch, EAffectFlag::AFF_STOPLEFT) || IsUnableToAct(ch)) {
+	if (AFF_FLAGGED(ch, EAffect::kStopRight) || AFF_FLAGGED(ch, EAffect::kStopLeft) || IsUnableToAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}

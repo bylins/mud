@@ -36,7 +36,7 @@
 
 constexpr long long kPulsesPerMudHour = kSecsPerMudHour*kPassesPerSec;
 
-inline bool IS_CHARMED(CharData* ch) {return (IS_HORSE(ch) || AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM));};
+inline bool IS_CHARMED(CharData* ch) {return (IS_HORSE(ch) || AFF_FLAGGED(ch, EAffect::kCharmed));};
 
 // Вывод сообщений о неверных управляющих конструкциях DGScript
 #define DG_CODE_ANALYZE
@@ -2138,7 +2138,7 @@ void find_replacement(void *go,
 				} else if (GET_CLASS(c) == 0 || GET_CLASS(c) == 13)//Клер или волхв может использовать покровительство
 				{
 					can_use = 1;
-				} else if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP)) {
+				} else if (AFF_FLAGGED(k, EAffect::kGroup)) {
 					if (!k->is_npc()
 						&& (GET_CLASS(k) == 8
 							|| GET_CLASS(k) == 13) //чернок или волхв может использовать ужи на согруппов
@@ -2149,7 +2149,7 @@ void find_replacement(void *go,
 					if (!can_use) {
 						for (f = k->followers; f; f = f->next) {
 							if (f->ch->is_npc()
-								|| !AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)) {
+								|| !AFF_FLAGGED(f->ch, EAffect::kGroup)) {
 								continue;
 							}
 							if ((GET_CLASS(f->ch) == 8
@@ -2344,13 +2344,13 @@ void find_replacement(void *go,
 					val = atoi(subfield + 1);
 					if (val > 1) {
 						k = c->has_master() ? c->get_master() : c;
-						if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP) && (k->in_room == c->in_room)) {
+						if (AFF_FLAGGED(k, EAffect::kGroup) && (k->in_room == c->in_room)) {
 							num = 1;
 						} else {
 							num = 0;
 						}
 						for (auto f = k->followers; f; f = f->next) {
-							if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+							if (AFF_FLAGGED(f->ch, EAffect::kGroup)
 									&& !f->ch->is_npc() && IN_ROOM(f->ch) == c->in_room) {
 								num++;
 							}
@@ -2358,10 +2358,10 @@ void find_replacement(void *go,
 						if (num > 1) {
 							int share = val / num;
 							int rest = val % num;
-							if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP) && IN_ROOM(k) == c->in_room && !k->is_npc() && k != c)
+							if (AFF_FLAGGED(k, EAffect::kGroup) && IN_ROOM(k) == c->in_room && !k->is_npc() && k != c)
 								k->add_nogata(share);
 							for (auto f = k->followers; f; f = f->next) {
-								if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+								if (AFF_FLAGGED(f->ch, EAffect::kGroup)
 										&& !f->ch->is_npc() && IN_ROOM(f->ch) == c->in_room && f->ch != c) {
 									f->ch->add_nogata(share);
 								}
@@ -2835,7 +2835,7 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "group")) {
 			CharData *l;
 			struct Follower *f;
-			if (!AFF_FLAGGED(c, EAffectFlag::AFF_GROUP)) {
+			if (!AFF_FLAGGED(c, EAffect::kGroup)) {
 				return;
 			}
 			l = c->get_master();
@@ -2845,7 +2845,7 @@ void find_replacement(void *go,
 			// l - лидер группы
 			sprintf(str + strlen(str), "%c%ld ", uid_type, GET_ID(l));
 			for (f = l->followers; f; f = f->next) {
-				if (!AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)) {
+				if (!AFF_FLAGGED(f->ch, EAffect::kGroup)) {
 					continue;
 				}
 				sprintf(str + strlen(str), "%c%ld ", uid_type, GET_ID(f->ch));

@@ -641,7 +641,7 @@ int other_pc_in_group(CharData *ch) {
 	int num = 0;
 	CharData *k = ch->has_master() ? ch->get_master() : ch;
 	for (Follower *f = k->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+		if (AFF_FLAGGED(f->ch, EAffect::kGroup)
 			&& !f->ch->is_npc()
 			&& IN_ROOM(f->ch) == ch->in_room) {
 			++num;
@@ -651,7 +651,8 @@ int other_pc_in_group(CharData *ch) {
 }
 
 void split_or_clan_tax(CharData *ch, long amount) {
-	if (IS_AFFECTED(ch, AFF_GROUP) && (other_pc_in_group(ch) > 0) && PRF_FLAGGED(ch, EPrf::kAutosplit)) {
+	if (AFF_FLAGGED(ch, EAffect::kGroup) && (other_pc_in_group(ch) > 0) &&
+		PRF_FLAGGED(ch, EPrf::kAutosplit)) {
 		char buf_[kMaxInputLength];
 		snprintf(buf_, sizeof(buf_), "%ld", amount);
 		do_split(ch, buf_, 0, 0);
@@ -681,7 +682,7 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 		send_to_char(buf, ch);
 		ch->add_ice_currency(value);
 		//Делить лед ВСЕГДА!
-		if (IS_AFFECTED(ch, AFF_GROUP) && other_pc_in_group(ch) > 0) {
+		if (AFF_FLAGGED(ch, EAffect::kGroup) && other_pc_in_group(ch) > 0) {
 			char local_buf[256];
 			sprintf(local_buf, "%d", value);
 			do_split(ch, local_buf, 0, 0, curr_type);
@@ -700,9 +701,8 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 	send_to_char(buf, ch);
 
 	// все, что делится на группу - идет через налог (из кошельков не делится)
-	if (IS_AFFECTED(ch, AFF_GROUP) && other_pc_in_group(ch) > 0
-		&& PRF_FLAGGED(ch, EPrf::kAutosplit)
-		&& (!cont || !system_obj::is_purse(cont))) {
+	if (AFF_FLAGGED(ch, EAffect::kGroup) && other_pc_in_group(ch) > 0 &&
+		PRF_FLAGGED(ch, EPrf::kAutosplit) && (!cont || !system_obj::is_purse(cont))) {
 		// добавляем бабло, пишем в лог, клан-налог снимаем
 		// только по факту деления на группу в do_split()
 		ch->add_gold(value);
@@ -1601,14 +1601,14 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		af.duration = CalcDuration(ch, amount == 1 ? amount : amount * 2, 0, 0, 0, 0);
 		af.modifier = 0;
 		af.location = APPLY_STR;
-		af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
+		af.bitvector = to_underlying(EAffect::kPoisoned);
 		af.battleflag = kAfSameTime;
 		affect_join(ch, af, false, false, false, false);
 		af.type = kSpellPoison;
 		af.duration = CalcDuration(ch, amount == 1 ? amount : amount * 2, 0, 0, 0, 0);
 		af.modifier = amount * 3;
 		af.location = APPLY_POISON;
-		af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
+		af.bitvector = to_underlying(EAffect::kPoisoned);
 		af.battleflag = kAfSameTime;
 		affect_join(ch, af, false, false, false, false);
 		ch->Poisoner = 0;
@@ -1903,7 +1903,7 @@ void do_wear(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	two_arguments(argument, arg1, arg2);
 
 	if (ch->is_npc()
-		&& AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
+		&& AFF_FLAGGED(ch, EAffect::kCharmed)
 		&& (!NPC_FLAGGED(ch, ENpcFlag::kArmoring)
 			|| MOB_FLAGGED(ch, EMobFlag::kResurrected))) {
 		return;
@@ -1966,7 +1966,7 @@ void do_wield(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	ObjData *obj;
 	int wear;
 
-	if (ch->is_npc() && (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
+	if (ch->is_npc() && (AFF_FLAGGED(ch, EAffect::kCharmed)
 		&& (!NPC_FLAGGED(ch, ENpcFlag::kWielding) || MOB_FLAGGED(ch, EMobFlag::kResurrected))))
 		return;
 
@@ -1988,7 +1988,7 @@ void do_wield(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		} else if (GET_OBJ_TYPE(obj) != ObjData::ITEM_WEAPON) {
 			send_to_char("Это не оружие.\r\n", ch);
 		} else if (ch->is_npc()
-			&& AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
+			&& AFF_FLAGGED(ch, EAffect::kCharmed)
 			&& MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
 			send_to_char("Ожившие трупы не могут вооружаться.\r\n", ch);
 		} else {
@@ -2082,7 +2082,7 @@ void do_grab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 
 			if (ch->is_npc()
-				&& AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
+				&& AFF_FLAGGED(ch, EAffect::kCharmed)
 				&& MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
 				send_to_char("Ожившие трупы не могут вооружаться.\r\n", ch);
 				return;
@@ -2503,7 +2503,7 @@ void do_fire(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
+	if (AFF_FLAGGED(ch, EAffect::kBlind)) {
 		send_to_char("Вы ничего не видите!\r\n", ch);
 		return;
 	}
@@ -2611,7 +2611,7 @@ void do_extinguish(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 
 			if (aff_i != room->affected.end()
-				&& (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_MAGIC)
+				&& (AFF_FLAGGED(ch, EAffect::kDetectMagic)
 					|| IS_IMMORTAL(ch)
 					|| PRF_FLAGGED(ch, EPrf::kCoderinfo))) {
 				send_to_char("Шаркнув несколько раз по земле, вы стерли светящуюся надпись.\r\n", ch);
@@ -3096,7 +3096,7 @@ void feed_charmice(CharData *ch, char *arg) {
 	}
 
 	for (k = ch->get_master()->followers; k; k = k->next) {
-		if (AFF_FLAGGED(k->ch, EAffectFlag::AFF_CHARM)
+		if (AFF_FLAGGED(k->ch, EAffect::kCharmed)
 			&& k->ch->get_master() == ch->get_master()) {
 			reformed_hp_summ += get_reformed_charmice_hp(ch->get_master(), k->ch, kSpellAnimateDead);
 		}
@@ -3146,7 +3146,7 @@ void feed_charmice(CharData *ch, char *arg) {
 	af.duration = MIN(max_charm_duration, (int) (mob_level * max_charm_duration / 30));
 	af.modifier = 0;
 	af.location = EApplyLocation::APPLY_NONE;
-	af.bitvector = to_underlying(EAffectFlag::AFF_CHARM);
+	af.bitvector = to_underlying(EAffect::kCharmed);
 	af.battleflag = 0;
 
 	affect_join_fspell(ch, af);

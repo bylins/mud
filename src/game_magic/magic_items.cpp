@@ -125,11 +125,11 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 			break;
 
 		case ObjData::ITEM_SCROLL:
-			if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)) {
+			if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
 				send_to_char("Вы немы, как рыба.\r\n", ch);
 				return;
 			}
-			if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
+			if (AFF_FLAGGED(ch, EAffect::kBlind)) {
 				send_to_char("Вы ослеплены.\r\n", ch);
 				return;
 			}
@@ -168,7 +168,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 			break;
 
 		case ObjData::ITEM_POTION:
-			if (AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)) {
+			if (AFF_FLAGGED(ch, EAffect::kStrangled)) {
 				send_to_char("Да вам сейчас и глоток воздуха не проглотить!\r\n", ch);
 				return;
 			}

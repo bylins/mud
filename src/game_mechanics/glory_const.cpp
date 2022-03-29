@@ -1085,7 +1085,7 @@ void apply_modifiers(CharData *ch) {
 			default: break;
 		}
 		if (location) {
-			affect_modify(ch, location, i->second * stat_multi(i->first), static_cast<EAffectFlag>(0), add);
+			affect_modify(ch, location, i->second * stat_multi(i->first), static_cast<EAffect>(0), add);
 		}
 	}
 }

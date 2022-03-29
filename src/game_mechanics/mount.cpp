@@ -7,14 +7,14 @@
 #include "handler.h"
 
 void make_horse(CharData *horse, CharData *ch) {
-	AFF_FLAGS(horse).set(EAffectFlag::AFF_HORSE);
+	AFF_FLAGS(horse).set(EAffect::kHorse);
 	ch->add_follower(horse);
 	MOB_FLAGS(horse).unset(EMobFlag::kWimpy);
 	MOB_FLAGS(horse).unset(EMobFlag::kSentinel);
 	MOB_FLAGS(horse).unset(EMobFlag::kHelper);
 	MOB_FLAGS(horse).unset(EMobFlag::kAgressive);
 	MOB_FLAGS(horse).unset(EMobFlag::kMounting);
-	AFF_FLAGS(horse).unset(EAffectFlag::AFF_TETHERED);
+	AFF_FLAGS(horse).unset(EAffect::kTethered);
 }
 
 void do_horseon(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -49,7 +49,7 @@ void do_horseon(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Это не ваш скакун.\r\n", ch);
 	else if (GET_POS(horse) < EPosition::kFight)
 		act("$N не сможет вас нести в таком состоянии.", false, ch, 0, horse, kToChar);
-	else if (AFF_FLAGGED(horse, EAffectFlag::AFF_TETHERED))
+	else if (AFF_FLAGGED(horse, EAffect::kTethered))
 		act("Вам стоит отвязать $N3.", false, ch, 0, horse, kToChar);
 		//чтоб не вскакивали в ванрумах
 	else if (ROOM_FLAGGED(ch->in_room, ROOM_TUNNEL))
@@ -63,7 +63,7 @@ void do_horseon(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			affect_from_char(ch, kSpellCamouflage);
 		act("Вы взобрались на спину $N1.", false, ch, 0, horse, kToChar);
 		act("$n вскочил$g на $N3.", false, ch, 0, horse, kToRoom | kToArenaListen);
-		AFF_FLAGS(ch).set(EAffectFlag::AFF_HORSE);
+		AFF_FLAGS(ch).set(EAffect::kHorse);
 	}
 }
 
@@ -115,12 +115,12 @@ void do_horseget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Это не скакун.\r\n", ch);
 	else if (horse->get_master() != ch)
 		send_to_char("Это не ваш скакун.\r\n", ch);
-	else if (!AFF_FLAGGED(horse, EAffectFlag::AFF_TETHERED))
+	else if (!AFF_FLAGGED(horse, EAffect::kTethered))
 		act("А $N и не привязан$A.", false, ch, 0, horse, kToChar);
 	else {
 		act("Вы отвязали $N3.", false, ch, 0, horse, kToChar);
 		act("$n отвязал$g $N3.", false, ch, 0, horse, kToRoom | kToArenaListen);
-		AFF_FLAGS(horse).unset(EAffectFlag::AFF_TETHERED);
+		AFF_FLAGS(horse).unset(EAffect::kTethered);
 	}
 }
 
@@ -152,12 +152,12 @@ void do_horseput(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Это не скакун.\r\n", ch);
 	else if (horse->get_master() != ch)
 		send_to_char("Это не ваш скакун.\r\n", ch);
-	else if (AFF_FLAGGED(horse, EAffectFlag::AFF_TETHERED))
+	else if (AFF_FLAGGED(horse, EAffect::kTethered))
 		act("А $N уже и так привязан$A.", false, ch, 0, horse, kToChar);
 	else {
 		act("Вы привязали $N3.", false, ch, 0, horse, kToChar);
 		act("$n привязал$g $N3.", false, ch, 0, horse, kToRoom | kToArenaListen);
-		AFF_FLAGS(horse).set(EAffectFlag::AFF_TETHERED);
+		AFF_FLAGS(horse).set(EAffect::kTethered);
 	}
 }
 
@@ -193,7 +193,7 @@ void do_horsetake(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else if (!IS_GOD(ch)
 		&& !MOB_FLAGGED(horse, EMobFlag::kMounting)
 		&& !(horse->has_master()
-			&& AFF_FLAGGED(horse, EAffectFlag::AFF_HORSE))) {
+			&& AFF_FLAGGED(horse, EAffect::kHorse))) {
 		act("Вы не сможете оседлать $N3.", false, ch, 0, horse, kToChar);
 		return;
 	} else if (ch->get_horse()) {
@@ -252,7 +252,7 @@ void do_givehorse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Вам стоит слезть со скакуна.\r\n", ch);
 		return;
 	}
-	if (AFF_FLAGGED(horse, EAffectFlag::AFF_TETHERED)) {
+	if (AFF_FLAGGED(horse, EAffect::kTethered)) {
 		send_to_char("Вам стоит прежде отвязать своего скакуна.\r\n", ch);
 		return;
 	}
@@ -283,7 +283,7 @@ void do_stophorse(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 		send_to_char("Вам стоит слезть со скакуна.\r\n", ch);
 		return;
 	}
-	if (AFF_FLAGGED(horse, EAffectFlag::AFF_TETHERED)) {
+	if (AFF_FLAGGED(horse, EAffect::kTethered)) {
 		send_to_char("Вам стоит прежде отвязать своего скакуна.\r\n", ch);
 		return;
 	}

@@ -35,7 +35,7 @@ const std::string &NAME_BY_ITEM(ESex item);
  * ========================================================================================
  */
 
-/*
+/**
  * Character positions.
  */
 enum class EPosition {

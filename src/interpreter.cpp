@@ -1103,7 +1103,7 @@ void check_hiding_cmd(CharData *ch, int percent) {
 	int remove_hide = false;
 	if (affected_by_spell(ch, kSpellHide)) {
 		if (percent == -2) {
-			if (AFF_FLAGGED(ch, EAffectFlag::AFF_SNEAK)) {
+			if (AFF_FLAGGED(ch, EAffect::kSneak)) {
 				remove_hide = number(1, MUD::Skills()[ESkill::kSneak].difficulty) >
 					CalcCurrentSkill(ch, ESkill::kSneak, nullptr);
 			} else {
@@ -1119,7 +1119,7 @@ void check_hiding_cmd(CharData *ch, int percent) {
 
 		if (remove_hide) {
 			affect_from_char(ch, kSpellHide);
-			if (!AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE)) {
+			if (!AFF_FLAGGED(ch, EAffect::kHide)) {
 				send_to_char("Вы прекратили прятаться.\r\n", ch);
 				act("$n прекратил$g прятаться.", false, ch, nullptr, nullptr, kToRoom);
 			}
@@ -1202,8 +1202,8 @@ void command_interpreter(CharData *ch, char *argument) {
 	if (!ch->is_npc()
 		&& !GET_INVIS_LEV(ch)
 		&& !GET_MOB_HOLD(ch)
-		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
-		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT)
+		&& !AFF_FLAGGED(ch, EAffect::kStopFight)
+		&& !AFF_FLAGGED(ch, EAffect::kMagicStopFight)
 		&& !(IS_GOD(ch) && !strcmp(arg, "invis")))  // let immortals switch to wizinvis to avoid broken command triggers
 	{
 		int cont;    // continue the command checks
@@ -1250,8 +1250,8 @@ void command_interpreter(CharData *ch, char *argument) {
 		&& (GET_FREEZE_LEV(ch) > GetRealLevel(ch))
 		&& (PLR_FLAGGED(ch, EPlrFlag::kFrozen)))
 		|| GET_MOB_HOLD(ch)
-		|| AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
-		|| AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT))
+		|| AFF_FLAGGED(ch, EAffect::kStopFight)
+		|| AFF_FLAGGED(ch, EAffect::kMagicStopFight))
 		&& !check_frozen_cmd(ch, cmd)) {
 		send_to_char("Вы попытались, но не смогли сдвинуться с места...\r\n", ch);
 		return;
@@ -2325,8 +2325,8 @@ void do_entergame(DescriptorData *d) {
 	Temporary_Spells::update_char_times(d->character.get(), time(nullptr));
 
 	// Карачун. Редкая бага. Сбрасываем явно не нужные аффекты.
-	d->character->remove_affect(EAffectFlag::AFF_GROUP);
-	d->character->remove_affect(EAffectFlag::AFF_HORSE);
+	d->character->remove_affect(EAffect::kGroup);
+	d->character->remove_affect(EAffect::kHorse);
 
 	// изменяем порталы
 	check_portals(d->character.get());

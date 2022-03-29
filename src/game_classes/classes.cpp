@@ -1253,7 +1253,7 @@ int invalid_unique(CharData *ch, const ObjData *obj) {
 	if (!ch
 		|| !obj
 		|| (ch->is_npc()
-			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+			&& !AFF_FLAGGED(ch, EAffect::kCharmed))
 		|| IS_IMMORTAL(ch)
 		|| obj->get_owner() == 0
 		|| obj->get_owner() == GET_UNIQUE(ch)) {
@@ -1279,7 +1279,7 @@ int invalid_anti_class(CharData *ch, const ObjData *obj) {
 		}
 	}
 	if (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMICE)
-		&& AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
+		&& AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		return (true);
 	}
 	if ((ch->is_npc() || WAITLESS(ch)) && !IS_CHARMICE(ch)) {
@@ -1319,7 +1319,7 @@ int invalid_anti_class(CharData *ch, const ObjData *obj) {
 
 int invalid_no_class(CharData *ch, const ObjData *obj) {
 	if (IS_OBJ_NO(obj, ENoFlag::kCharmice)
-		&& AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
+		&& AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		return true;
 	}
 

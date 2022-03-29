@@ -8,7 +8,7 @@
 
 // ************************* BASH PROCEDURES
 void go_bash(CharData *ch, CharData *vict) {
-	if (IsUnableToAct(ch) || AFF_FLAGGED(ch, EAffectFlag::AFF_STOPLEFT)) {
+	if (IsUnableToAct(ch) || AFF_FLAGGED(ch, EAffect::kStopLeft)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
@@ -76,9 +76,9 @@ void go_bash(CharData *ch, CharData *vict) {
 				&& vict->get_skill(ESkill::kAwake)
 				&& vict->get_skill(ESkill::kShieldBlock)
 				&& GET_POS(vict) > EPosition::kSit))
-			&& !AFF_FLAGGED(vict, EAffectFlag::AFF_STOPFIGHT)
-			&& !AFF_FLAGGED(vict, EAffectFlag::AFF_MAGICSTOPFIGHT)
-			&& !AFF_FLAGGED(vict, EAffectFlag::AFF_STOPLEFT)
+			&& !AFF_FLAGGED(vict, EAffect::kStopFight)
+			&& !AFF_FLAGGED(vict, EAffect::kMagicStopFight)
+			&& !AFF_FLAGGED(vict, EAffect::kStopLeft)
 			&& GET_WAIT(vict) <= 0
 			&& GET_MOB_HOLD(vict) == 0) {
 			if (!(GET_EQ(vict, kShield) || vict->is_npc() || IS_IMMORTAL(vict) || GET_GOD_FLAG(vict, EGf::kGodsLike)))
@@ -119,7 +119,7 @@ void go_bash(CharData *ch, CharData *vict) {
 		dmg.flags.set(fight::kNoFleeDmg);
 		dam = dmg.Process(ch, vict);
 
-		if (dam > 0 || (dam == 0 && AFF_FLAGGED(vict, EAffectFlag::AFF_SHIELD))) {
+		if (dam > 0 || (dam == 0 && AFF_FLAGGED(vict, EAffect::kShield))) {
 			prob = 2;
 			if (!vict->drop_from_horse()) {
 				GET_POS(vict) = EPosition::kSit;
@@ -131,7 +131,7 @@ void go_bash(CharData *ch, CharData *vict) {
 }
 
 void do_bash(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if ((ch->is_npc() && (!AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER))) || !ch->get_skill(ESkill::kBash)) {
+	if ((ch->is_npc() && (!AFF_FLAGGED(ch, EAffect::kHelper))) || !ch->get_skill(ESkill::kBash)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}

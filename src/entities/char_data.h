@@ -590,7 +590,7 @@ class CharData : public ProtectedCharData {
 	std::string get_morph_desc() const;
 	int get_inborn_skill(const ESkill skill_num);
 	void set_morphed_skill(const ESkill skill_num, int percent);
-	bool isAffected(const EAffectFlag flag) const;
+	bool isAffected(const EAffect flag) const;
 	const IMorph::affects_list_t &GetMorphAffects();
 
 	void set_who_mana(unsigned int);
@@ -893,12 +893,12 @@ inline FlagData &AFF_FLAGS(CharData *ch) { return ch->char_specials.saved.affect
 inline const FlagData &AFF_FLAGS(const CharData *ch) { return ch->char_specials.saved.affected_by; }
 inline const FlagData &AFF_FLAGS(const CharData::shared_ptr &ch) { return ch->char_specials.saved.affected_by; }
 
-inline bool AFF_FLAGGED(const CharData *ch, const EAffectFlag flag) {
+inline bool AFF_FLAGGED(const CharData *ch, const EAffect flag) {
 	return AFF_FLAGS(ch).get(flag)
 		|| ch->isAffected(flag);
 }
 
-inline bool AFF_FLAGGED(const CharData::shared_ptr &ch, const EAffectFlag flag) {
+inline bool AFF_FLAGGED(const CharData::shared_ptr &ch, const EAffect flag) {
 	return AFF_FLAGS(ch).get(flag)
 		|| ch->isAffected(flag);
 }
@@ -907,16 +907,16 @@ bool IS_CHARMICE(const CharData *ch);
 inline bool IS_CHARMICE(const CharData::shared_ptr &ch) { return IS_CHARMICE(ch.get()); }
 
 inline bool IS_FLY(const CharData *ch) {
-	return AFF_FLAGGED(ch, EAffectFlag::AFF_FLY);
+	return AFF_FLAGGED(ch, EAffect::kFly);
 }
 
 inline bool INVIS_OK(const CharData *sub, const CharData *obj) {
-	return !AFF_FLAGGED(sub, EAffectFlag::AFF_BLIND)
-		&& ((!AFF_FLAGGED(obj, EAffectFlag::AFF_INVISIBLE)
-			|| AFF_FLAGGED(sub, EAffectFlag::AFF_DETECT_INVIS))
-			&& ((!AFF_FLAGGED(obj, EAffectFlag::AFF_HIDE)
-				&& !AFF_FLAGGED(obj, EAffectFlag::AFF_CAMOUFLAGE))
-				|| AFF_FLAGGED(sub, EAffectFlag::AFF_SENSE_LIFE)));
+	return !AFF_FLAGGED(sub, EAffect::kBlind)
+		&& ((!AFF_FLAGGED(obj, EAffect::kInvisible)
+			|| AFF_FLAGGED(sub, EAffect::kDetectInvisible))
+			&& ((!AFF_FLAGGED(obj, EAffect::kHide)
+				&& !AFF_FLAGGED(obj, EAffect::kDisguise))
+				|| AFF_FLAGGED(sub, EAffect::kDetectLife)));
 }
 
 inline bool INVIS_OK(const CharData *sub, const CharData::shared_ptr &obj) { return INVIS_OK(sub, obj.get()); }
@@ -946,7 +946,7 @@ bool MAY_ATTACK(const CharData *sub);
 inline bool MAY_ATTACK(const CharData::shared_ptr &sub) { return MAY_ATTACK(sub.get()); }
 
 inline bool GET_MOB_HOLD(const CharData *ch) {
-	return AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD);
+	return AFF_FLAGGED(ch, EAffect::kHold);
 }
 
 bool AWAKE(const CharData *ch);
@@ -955,7 +955,7 @@ inline bool AWAKE(const CharData::shared_ptr &ch) { return AWAKE(ch.get()); }
 // Polud условие для проверки перед запуском всех mob-триггеров КРОМЕ death, random и global
 //пока здесь только чарм, как и было раньше
 inline bool CAN_START_MTRIG(const CharData *ch) {
-	return !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM);
+	return !AFF_FLAGGED(ch, EAffect::kCharmed);
 }
 //-Polud
 

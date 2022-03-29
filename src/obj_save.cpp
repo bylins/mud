@@ -2896,7 +2896,7 @@ void Crash_save_all_rent(void) {
 			PLR_FLAGS(ch).unset(EPlrFlag::kCrashSave);
 			//AFF_FLAGS(ch.get()).unset(EAffectFlag::AFF_GROUP);
 			(ch.get())->removeGroupFlags();
-			AFF_FLAGS(ch.get()).unset(EAffectFlag::AFF_HORSE);
+			AFF_FLAGS(ch.get()).unset(EAffect::kHorse);
 			extract_char(ch.get(), false);
 		}
 	});

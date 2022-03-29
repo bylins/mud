@@ -103,7 +103,7 @@ void update_pos(CharData *victim) {
 	else
 		GET_POS(victim) = EPosition::kStun;
 
-	if (AFF_FLAGGED(victim, EAffectFlag::AFF_SLEEP) && GET_POS(victim) != EPosition::kSleep)
+	if (AFF_FLAGGED(victim, EAffect::kSleep) && GET_POS(victim) != EPosition::kSleep)
 		affect_from_char(victim, kSpellSleep);
 
 	// поплохело седоку или лошади - сбрасываем седока
@@ -121,8 +121,8 @@ void set_battle_pos(CharData *ch) {
 		case EPosition::kSit:
 		case EPosition::kSleep:
 			if (GET_WAIT(ch) <= 0 &&
-				!GET_MOB_HOLD(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP)
-				&& !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
+				!GET_MOB_HOLD(ch) && !AFF_FLAGGED(ch, EAffect::kSleep)
+				&& !AFF_FLAGGED(ch, EAffect::kCharmed)) {
 				if (ch->is_npc()) {
 					act("$n поднял$u.", false, ch, 0, 0, kToRoom | kToArenaListen);
 					GET_POS(ch) = EPosition::kFight;
@@ -151,8 +151,8 @@ void restore_battle_pos(CharData *ch) {
 		case EPosition::kSleep:
 			if (ch->is_npc() &&
 				GET_WAIT(ch) <= 0 &&
-				!GET_MOB_HOLD(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP)
-				&& !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
+				!GET_MOB_HOLD(ch) && !AFF_FLAGGED(ch, EAffect::kSleep)
+				&& !AFF_FLAGGED(ch, EAffect::kCharmed)) {
 				act("$n поднял$u.", false, ch, 0, 0, kToRoom | kToArenaListen);
 				GET_POS(ch) = EPosition::kStand;
 			}
@@ -160,7 +160,7 @@ void restore_battle_pos(CharData *ch) {
 		default:
 			break;
 	}
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP))
+	if (AFF_FLAGGED(ch, EAffect::kSleep))
 		GET_POS(ch) = EPosition::kSleep;
 }
 
@@ -181,11 +181,11 @@ void set_fighting(CharData *ch, CharData *vict) {
 	// if (AFF_FLAGGED(ch,AFF_STOPFIGHT))
 	//    return;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BANDAGE)) {
+	if (AFF_FLAGGED(ch, EAffect::kBandage)) {
 		send_to_char("Перевязка была прервана!\r\n", ch);
 		affect_from_char(ch, kSpellBandage);
 	}
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_RECALL_SPELLS)) {
+	if (AFF_FLAGGED(ch, EAffect::kMemorizeSpells)) {
 		send_to_char("Вы забыли о концентрации и ринулись в бой!\r\n", ch);
 		affect_from_char(ch, kSpellRecallSpells);
 	}
@@ -193,7 +193,7 @@ void set_fighting(CharData *ch, CharData *vict) {
 	ch->next_fighting = combat_list;
 	combat_list = ch;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP))
+	if (AFF_FLAGGED(ch, EAffect::kSleep))
 		affect_from_char(ch, kSpellSleep);
 
 	ch->set_fighting(vict);
@@ -228,8 +228,8 @@ void set_fighting(CharData *ch, CharData *vict) {
 	}
 
 	// Set combat style
-	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_COURAGE) && !AFF_FLAGGED(ch, EAffectFlag::AFF_DRUNKED)
-		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_ABSTINENT)) {
+	if (!AFF_FLAGGED(ch, EAffect::kCourage) && !AFF_FLAGGED(ch, EAffect::kDrunked)
+		&& !AFF_FLAGGED(ch, EAffect::kAbstinent)) {
 		if (PRF_FLAGGED(ch, EPrf::kPunctual))
 			SET_AF_BATTLE(ch, kEafPunctual);
 		else if (PRF_FLAGGED(ch, EPrf::kAwake))
@@ -311,15 +311,15 @@ void stop_fighting(CharData *ch, int switch_others) {
 }
 
 int GET_MAXDAMAGE(CharData *ch) {
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD))
+	if (AFF_FLAGGED(ch, EAffect::kHold))
 		return 0;
 	else
 		return GET_DAMAGE(ch);
 }
 
 int GET_MAXCASTER(CharData *ch) {
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD) || AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE)
-		|| AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)
+	if (AFF_FLAGGED(ch, EAffect::kHold) || AFF_FLAGGED(ch, EAffect::kSilence)
+		|| AFF_FLAGGED(ch, EAffect::kStrangled)
 		|| GET_WAIT(ch) > 0)
 		return 0;
 	else
@@ -343,7 +343,7 @@ int in_same_battle(CharData *npc, CharData *pc, int opponent) {
 		return (opponent);
 	if (npc->get_fighting() && npc->get_fighting() == pc->get_fighting())
 		return (!opponent);    // Fight same victim - friend
-	if (AFF_FLAGGED(pc, EAffectFlag::AFF_HORSE) || AFF_FLAGGED(pc, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(pc, EAffect::kHorse) || AFF_FLAGGED(pc, EAffect::kCharmed))
 		return (opponent);
 
 	npc_master = npc->has_master() ? npc->get_master() : npc;
@@ -359,12 +359,12 @@ int in_same_battle(CharData *npc, CharData *pc, int opponent) {
 		ch_master = ch->has_master() ? ch->get_master() : ch;
 		ch_friend_npc = (ch_master == npc_master) ||
 			(ch->is_npc() && npc->is_npc() &&
-				!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && !AFF_FLAGGED(npc, EAffectFlag::AFF_CHARM) &&
-				!AFF_FLAGGED(ch, EAffectFlag::AFF_HORSE) && !AFF_FLAGGED(npc, EAffectFlag::AFF_HORSE));
+				!AFF_FLAGGED(ch, EAffect::kCharmed) && !AFF_FLAGGED(npc, EAffect::kCharmed) &&
+				!AFF_FLAGGED(ch, EAffect::kHorse) && !AFF_FLAGGED(npc, EAffect::kHorse));
 		ch_friend_pc = (ch_master == pc_master) ||
 			(ch->is_npc() && pc->is_npc() &&
-				!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && !AFF_FLAGGED(pc, EAffectFlag::AFF_CHARM) &&
-				!AFF_FLAGGED(ch, EAffectFlag::AFF_HORSE) && !AFF_FLAGGED(pc, EAffectFlag::AFF_HORSE));
+				!AFF_FLAGGED(ch, EAffect::kCharmed) && !AFF_FLAGGED(pc, EAffect::kCharmed) &&
+				!AFF_FLAGGED(ch, EAffect::kHorse) && !AFF_FLAGGED(pc, EAffect::kHorse));
 		if (ch->get_fighting() == pc && ch_friend_npc)    // Friend NPC fight PC - opponent
 			return (opponent);
 		if (pc->get_fighting() == ch && ch_friend_npc)    // PC fight friend NPC - opponent
@@ -377,12 +377,12 @@ int in_same_battle(CharData *npc, CharData *pc, int opponent) {
 		vict_master = vict->has_master() ? vict->get_master() : vict;
 		vict_friend_npc = (vict_master == npc_master) ||
 			(vict->is_npc() && npc->is_npc() &&
-				!AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) && !AFF_FLAGGED(npc, EAffectFlag::AFF_CHARM) &&
-				!AFF_FLAGGED(vict, EAffectFlag::AFF_HORSE) && !AFF_FLAGGED(npc, EAffectFlag::AFF_HORSE));
+				!AFF_FLAGGED(vict, EAffect::kCharmed) && !AFF_FLAGGED(npc, EAffect::kCharmed) &&
+				!AFF_FLAGGED(vict, EAffect::kHorse) && !AFF_FLAGGED(npc, EAffect::kHorse));
 		vict_friend_pc = (vict_master == pc_master) ||
 			(vict->is_npc() && pc->is_npc() &&
-				!AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) && !AFF_FLAGGED(pc, EAffectFlag::AFF_CHARM) &&
-				!AFF_FLAGGED(vict, EAffectFlag::AFF_HORSE) && !AFF_FLAGGED(pc, EAffectFlag::AFF_HORSE));
+				!AFF_FLAGGED(vict, EAffect::kCharmed) && !AFF_FLAGGED(pc, EAffect::kCharmed) &&
+				!AFF_FLAGGED(vict, EAffect::kHorse) && !AFF_FLAGGED(pc, EAffect::kHorse));
 		if (ch_friend_npc && vict_friend_pc)
 			return (opponent);    // Friend NPC fight friend PC - opponent
 		if (ch_friend_pc && vict_friend_npc)
@@ -408,9 +408,9 @@ CharData *find_friend_cure(CharData *caster, int spellnum) {
 			break;
 	}
 
-	if ((AFF_FLAGGED(caster, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(caster, EMobFlag::kTutelar)
+	if ((AFF_FLAGGED(caster, EAffect::kCharmed) || MOB_FLAGGED(caster, EMobFlag::kTutelar)
 		|| MOB_FLAGGED(caster, EMobFlag::kMentalShadow) || MOB_FLAGGED(caster, EMobFlag::kSummoned)) // (Кудояр)
-		&& AFF_FLAGGED(caster, EAffectFlag::AFF_HELPER)) {
+		&& AFF_FLAGGED(caster, EAffect::kHelper)) {
 		if (GET_HP_PERC(caster) < AFF_USED) {
 			return caster;
 		} else if (caster->has_master()
@@ -425,7 +425,7 @@ CharData *find_friend_cure(CharData *caster, int spellnum) {
 
 	for (const auto vict : world[IN_ROOM(caster)]->people) {
 		if (!vict->is_npc()
-			|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
+			|| AFF_FLAGGED(vict, EAffect::kCharmed)
 			|| ((MOB_FLAGGED(vict, EMobFlag::kTutelar) || MOB_FLAGGED(vict, EMobFlag::kMentalShadow) || MOB_FLAGGED(vict, EMobFlag::kSummoned)) // (Кудояр)
 				&& vict->has_master()
 				&& !vict->get_master()->is_npc())
@@ -453,32 +453,32 @@ CharData *find_friend(CharData *caster, int spellnum) {
 	int vict_val = 0, spellreal = -1;
 	affects_list_t AFF_USED;
 	switch (spellnum) {
-		case kSpellCureBlind: AFF_USED.push_back(EAffectFlag::AFF_BLIND);
+		case kSpellCureBlind: AFF_USED.push_back(EAffect::kBlind);
 			break;
 
-		case kSpellRemovePoison: AFF_USED.push_back(EAffectFlag::AFF_POISON);
-			AFF_USED.push_back(EAffectFlag::AFF_SCOPOLIA_POISON);
-			AFF_USED.push_back(EAffectFlag::AFF_BELENA_POISON);
-			AFF_USED.push_back(EAffectFlag::AFF_DATURA_POISON);
+		case kSpellRemovePoison: AFF_USED.push_back(EAffect::kPoisoned);
+			AFF_USED.push_back(EAffect::kScopolaPoison);
+			AFF_USED.push_back(EAffect::kBelenaPoison);
+			AFF_USED.push_back(EAffect::kDaturaPoison);
 			break;
 
-		case kSpellRemoveHold: AFF_USED.push_back(EAffectFlag::AFF_HOLD);
+		case kSpellRemoveHold: AFF_USED.push_back(EAffect::kHold);
 			break;
 
-		case kSpellRemoveCurse: AFF_USED.push_back(EAffectFlag::AFF_CURSE);
+		case kSpellRemoveCurse: AFF_USED.push_back(EAffect::kCurse);
 			break;
 
-		case kSpellRemoveSilence: AFF_USED.push_back(EAffectFlag::AFF_SILENCE);
+		case kSpellRemoveSilence: AFF_USED.push_back(EAffect::kSilence);
 			break;
 			
-		case kSpellRemoveDeafness: AFF_USED.push_back(EAffectFlag::AFF_DEAFNESS);
+		case kSpellRemoveDeafness: AFF_USED.push_back(EAffect::kDeafness);
 			break;
 
 		case kSpellCureFever: spellreal = kSpellFever;
 			break;
 	}
-	if (AFF_FLAGGED(caster, EAffectFlag::AFF_HELPER)
-		&& (AFF_FLAGGED(caster, EAffectFlag::AFF_CHARM)
+	if (AFF_FLAGGED(caster, EAffect::kHelper)
+		&& (AFF_FLAGGED(caster, EAffect::kCharmed)
 			|| MOB_FLAGGED(caster, EMobFlag::kTutelar) || MOB_FLAGGED(caster, EMobFlag::kMentalShadow) || MOB_FLAGGED(caster, EMobFlag::kSummoned))) { //(Кудояр)
 		if (caster->has_any_affect(AFF_USED)
 			|| affected_by_spell(caster, spellreal)) {
@@ -497,7 +497,7 @@ CharData *find_friend(CharData *caster, int spellnum) {
 	if (!AFF_USED.empty()) {
 		for (const auto vict : world[IN_ROOM(caster)]->people) {
 			if (!vict->is_npc()
-				|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
+				|| AFF_FLAGGED(vict, EAffect::kCharmed)
 				|| ((MOB_FLAGGED(vict, EMobFlag::kTutelar) || MOB_FLAGGED(vict, EMobFlag::kMentalShadow) || MOB_FLAGGED(vict, EMobFlag::kSummoned)) // (Кудояр)
 					&& vict->get_master()
 					&& !vict->get_master()->is_npc())
@@ -533,27 +533,27 @@ CharData *find_caster(CharData *caster, int spellnum) {
 	int vict_val = 0, spellreal = -1;
 	affects_list_t AFF_USED;
 	switch (spellnum) {
-		case kSpellCureBlind: AFF_USED.push_back(EAffectFlag::AFF_BLIND);
+		case kSpellCureBlind: AFF_USED.push_back(EAffect::kBlind);
 			break;
-		case kSpellRemovePoison: AFF_USED.push_back(EAffectFlag::AFF_POISON);
-			AFF_USED.push_back(EAffectFlag::AFF_SCOPOLIA_POISON);
-			AFF_USED.push_back(EAffectFlag::AFF_BELENA_POISON);
-			AFF_USED.push_back(EAffectFlag::AFF_DATURA_POISON);
+		case kSpellRemovePoison: AFF_USED.push_back(EAffect::kPoisoned);
+			AFF_USED.push_back(EAffect::kScopolaPoison);
+			AFF_USED.push_back(EAffect::kBelenaPoison);
+			AFF_USED.push_back(EAffect::kDaturaPoison);
 			break;
-		case kSpellRemoveHold: AFF_USED.push_back(EAffectFlag::AFF_HOLD);
+		case kSpellRemoveHold: AFF_USED.push_back(EAffect::kHold);
 			break;
-		case kSpellRemoveCurse: AFF_USED.push_back(EAffectFlag::AFF_CURSE);
+		case kSpellRemoveCurse: AFF_USED.push_back(EAffect::kCurse);
 			break;
-		case kSpellRemoveSilence: AFF_USED.push_back(EAffectFlag::AFF_SILENCE);
+		case kSpellRemoveSilence: AFF_USED.push_back(EAffect::kSilence);
 			break;
-		case kSpellRemoveDeafness: AFF_USED.push_back(EAffectFlag::AFF_DEAFNESS);
+		case kSpellRemoveDeafness: AFF_USED.push_back(EAffect::kDeafness);
 			break;
 		case kSpellCureFever: spellreal = kSpellFever;
 			break;
 	}
 
-	if (AFF_FLAGGED(caster, EAffectFlag::AFF_HELPER)
-		&& (AFF_FLAGGED(caster, EAffectFlag::AFF_CHARM)
+	if (AFF_FLAGGED(caster, EAffect::kHelper)
+		&& (AFF_FLAGGED(caster, EAffect::kCharmed)
 			|| MOB_FLAGGED(caster, EMobFlag::kTutelar) || MOB_FLAGGED(caster, EMobFlag::kMentalShadow) || MOB_FLAGGED(caster, EMobFlag::kSummoned))) { // (Кудояр)
 		if (caster->has_any_affect(AFF_USED)
 			|| affected_by_spell(caster, spellreal)) {
@@ -572,7 +572,7 @@ CharData *find_caster(CharData *caster, int spellnum) {
 	if (!AFF_USED.empty()) {
 		for (const auto vict : world[IN_ROOM(caster)]->people) {
 			if (!vict->is_npc()
-				|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
+				|| AFF_FLAGGED(vict, EAffect::kCharmed)
 				|| ((MOB_FLAGGED(vict, EMobFlag::kTutelar) || MOB_FLAGGED(vict, EMobFlag::kMentalShadow) || MOB_FLAGGED(vict, EMobFlag::kSummoned)) // (Кудояр)
 					&& (vict->get_master() && !vict->get_master()->is_npc()))
 				|| !CAN_SEE(caster, vict)) {
@@ -639,8 +639,8 @@ CharData *find_affectee(CharData *caster, int spellnum) {
 	else if (spellreal == kSpellSnakeEyes)
 		spellreal = kSpellDetectPoison;
 
-	if ((AFF_FLAGGED(caster, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(caster, EMobFlag::kTutelar)
-		|| MOB_FLAGGED(caster, EMobFlag::kMentalShadow) || MOB_FLAGGED(caster, EMobFlag::kSummoned)) && AFF_FLAGGED(caster, EAffectFlag::AFF_HELPER)) { // (Кудояр)
+	if ((AFF_FLAGGED(caster, EAffect::kCharmed) || MOB_FLAGGED(caster, EMobFlag::kTutelar)
+		|| MOB_FLAGGED(caster, EMobFlag::kMentalShadow) || MOB_FLAGGED(caster, EMobFlag::kSummoned)) && AFF_FLAGGED(caster, EAffect::kHelper)) { // (Кудояр)
 		if (!affected_by_spell(caster, spellreal)) {
 			return caster;
 		} else if (caster->has_master()
@@ -656,7 +656,7 @@ CharData *find_affectee(CharData *caster, int spellnum) {
 	if (GET_REAL_INT(caster) > number(5, 15)) {
 		for (const auto vict : world[IN_ROOM(caster)]->people) {
 			if (!vict->is_npc()
-				|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
+				|| AFF_FLAGGED(vict, EAffect::kCharmed)
 				|| ((MOB_FLAGGED(vict, EMobFlag::kTutelar) || MOB_FLAGGED(vict, EMobFlag::kMentalShadow) || MOB_FLAGGED(vict, EMobFlag::kSummoned)) // (Кудояр)
 					&& vict->has_master()
 					&& !vict->get_master()->is_npc())
@@ -665,7 +665,7 @@ CharData *find_affectee(CharData *caster, int spellnum) {
 			}
 
 			if (!vict->get_fighting()
-				|| AFF_FLAGGED(vict, EAffectFlag::AFF_HOLD)
+				|| AFF_FLAGGED(vict, EAffect::kHold)
 				|| affected_by_spell(vict, spellreal)) {
 				continue;
 			}
@@ -708,7 +708,7 @@ CharData *find_opp_affectee(CharData *caster, int spellnum) {
 		for (const auto vict : world[caster->in_room]->people) {
 			if ((vict->is_npc()
 				&& !((MOB_FLAGGED(vict, EMobFlag::kTutelar) || MOB_FLAGGED(vict, EMobFlag::kMentalShadow) || MOB_FLAGGED(vict, EMobFlag::kSummoned) // (Кудояр)
-					|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM))
+					|| AFF_FLAGGED(vict, EAffect::kCharmed))
 					&& vict->has_master()
 					&& !vict->get_master()->is_npc()))
 				|| !CAN_SEE(caster, vict)) {
@@ -718,7 +718,7 @@ CharData *find_opp_affectee(CharData *caster, int spellnum) {
 			if ((!vict->get_fighting()
 				&& (GET_REAL_INT(caster) < number(20, 27)
 					|| !in_same_battle(caster, vict, true)))
-				|| AFF_FLAGGED(vict, EAffectFlag::AFF_HOLD)
+				|| AFF_FLAGGED(vict, EAffect::kHold)
 				|| affected_by_spell(vict, spellreal)) {
 				continue;
 			}
@@ -752,8 +752,8 @@ CharData *find_opp_caster(CharData *caster) {
 		if ((!vict->get_fighting()
 			&& (GET_REAL_INT(caster) < number(15, 25)
 				|| !in_same_battle(caster, vict, true)))
-			|| AFF_FLAGGED(vict, EAffectFlag::AFF_HOLD) || AFF_FLAGGED(vict, EAffectFlag::AFF_SILENCE)
-			|| AFF_FLAGGED(vict, EAffectFlag::AFF_STRANGLED)
+			|| AFF_FLAGGED(vict, EAffect::kHold) || AFF_FLAGGED(vict, EAffect::kSilence)
+			|| AFF_FLAGGED(vict, EAffect::kStrangled)
 			|| (!CAN_SEE(caster, vict) && caster->get_fighting() != vict))
 			continue;
 		if (vict_val < GET_MAXCASTER(vict)) {
@@ -773,7 +773,7 @@ CharData *find_damagee(CharData *caster) {
 			if ((vict->is_npc()
 				&& !((MOB_FLAGGED(vict, EMobFlag::kTutelar)
 					|| MOB_FLAGGED(vict, EMobFlag::kMentalShadow)
-					|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM))
+					|| AFF_FLAGGED(vict, EAffect::kCharmed))
 					&& vict->has_master()
 					&& !vict->get_master()->is_npc()))
 				|| !CAN_SEE(caster, vict)) {
@@ -783,7 +783,7 @@ CharData *find_damagee(CharData *caster) {
 			if ((!vict->get_fighting()
 				&& (GET_REAL_INT(caster) < number(20, 27)
 					|| !in_same_battle(caster, vict, true)))
-				|| AFF_FLAGGED(vict, EAffectFlag::AFF_HOLD)) {
+				|| AFF_FLAGGED(vict, EAffect::kHold)) {
 				continue;
 			}
 
@@ -922,7 +922,7 @@ CharData *find_minhp(CharData *caster) {
 		for (const auto vict : world[IN_ROOM(caster)]->people) {
 			if ((vict->is_npc()
 				&& !((MOB_FLAGGED(vict, EMobFlag::kTutelar) || MOB_FLAGGED(vict, EMobFlag::kMentalShadow) || MOB_FLAGGED(vict, EMobFlag::kSummoned) // (Кудояр)
-					|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM))
+					|| AFF_FLAGGED(vict, EAffect::kCharmed))
 					&& vict->has_master()
 					&& !vict->get_master()->is_npc()))
 				|| !CAN_SEE(caster, vict)) {
@@ -979,10 +979,10 @@ void mob_casting(CharData *ch) {
 	int spellnum, spells = 0, sp_num;
 	ObjData *item;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-		|| AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD)
-		|| AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE)
-		|| AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)
+	if (AFF_FLAGGED(ch, EAffect::kCharmed)
+		|| AFF_FLAGGED(ch, EAffect::kHold)
+		|| AFF_FLAGGED(ch, EAffect::kSilence)
+		|| AFF_FLAGGED(ch, EAffect::kStrangled)
 		|| GET_WAIT(ch) > 0)
 		return;
 
@@ -1075,16 +1075,16 @@ void mob_casting(CharData *ch) {
 			//         spell_name(spellnum), sp_num, spells);
 			// act(buf,false,ch,0,ch->get_fighting(),TO_VICT);
 			if (spell_info[spellnum].routines & kNpcDamagePcMinhp) {
-				if (!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+				if (!AFF_FLAGGED(ch, EAffect::kCharmed))
 					victim = find_target(ch);
 			} else if (spell_info[spellnum].routines & kNpcDamagePc) {
-				if (!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+				if (!AFF_FLAGGED(ch, EAffect::kCharmed))
 					victim = find_target(ch);
 			} else if (spell_info[spellnum].routines & kNpcAffectPcCaster) {
-				if (!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+				if (!AFF_FLAGGED(ch, EAffect::kCharmed))
 					victim = find_opp_caster(ch);
 			} else if (spell_info[spellnum].routines & kNpcAffectPc) {
-				if (!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+				if (!AFF_FLAGGED(ch, EAffect::kCharmed))
 					victim = find_opp_affectee(ch, spellnum);
 			} else if (spell_info[spellnum].routines & kNpcAffectNpc)
 				victim = find_affectee(ch, spellnum);
@@ -1102,7 +1102,7 @@ void mob_casting(CharData *ch) {
 	if (spellnum && victim)    // Is this object spell ?
 	{
 		item = ch->carrying;
-		while (!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
+		while (!AFF_FLAGGED(ch, EAffect::kCharmed)
 			&& !(MOB_FLAGGED(ch, EMobFlag::kTutelar) || MOB_FLAGGED(ch, EMobFlag::kMentalShadow))
 			&& item
 			&& GET_RACE(ch) == ENpcRace::kHuman) {
@@ -1151,10 +1151,10 @@ void mob_casting(CharData *ch) {
 	}
 }
 
-#define  MAY_LIKES(ch)   ((!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) || AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)) && \
+#define  MAY_LIKES(ch)   ((!AFF_FLAGGED(ch, EAffect::kCharmed) || AFF_FLAGGED(ch, EAffect::kHelper)) && \
                           AWAKE(ch) && GET_WAIT(ch) <= 0)
 
-#define    MAY_ACT(ch)    (!(AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT) || AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT) || GET_MOB_HOLD(ch) || GET_WAIT(ch)))
+#define    MAY_ACT(ch)    (!(AFF_FLAGGED(ch, EAffect::kStopFight) || AFF_FLAGGED(ch, EAffect::kMagicStopFight) || GET_MOB_HOLD(ch) || GET_WAIT(ch)))
 
 void summon_mob_helpers(CharData *ch) {
 	for (struct Helper *helpee = ch->helpers;
@@ -1164,10 +1164,10 @@ void summon_mob_helpers(CharData *ch) {
 		character_list.foreach_on_copy([&](const CharData::shared_ptr &vict) {
 			if (!vict->is_npc()
 				|| GET_MOB_VNUM(vict) != helpee->mob_vnum
-				|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-				|| AFF_FLAGGED(vict, EAffectFlag::AFF_HOLD)
-				|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
-				|| AFF_FLAGGED(vict, EAffectFlag::AFF_BLIND)
+				|| AFF_FLAGGED(ch, EAffect::kCharmed)
+				|| AFF_FLAGGED(vict, EAffect::kHold)
+				|| AFF_FLAGGED(vict, EAffect::kCharmed)
+				|| AFF_FLAGGED(vict, EAffect::kBlind)
 				|| GET_WAIT(vict) > 0
 				|| GET_POS(vict) < EPosition::kStand
 				|| IN_ROOM(vict) == kNowhere
@@ -1208,11 +1208,11 @@ void check_mob_helpers() {
 			|| !ch->is_npc()
 			|| GET_WAIT(ch) > 0
 			|| GET_POS(ch) < EPosition::kFight
-			|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-			|| AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT)
-			|| AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
-			|| AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE)
-			|| AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)
+			|| AFF_FLAGGED(ch, EAffect::kCharmed)
+			|| AFF_FLAGGED(ch, EAffect::kMagicStopFight)
+			|| AFF_FLAGGED(ch, EAffect::kStopFight)
+			|| AFF_FLAGGED(ch, EAffect::kSilence)
+			|| AFF_FLAGGED(ch, EAffect::kStrangled)
 			|| PRF_FLAGGED(ch->get_fighting(), EPrf::kNohassle)) {
 			continue;
 		}
@@ -1225,7 +1225,7 @@ void try_angel_rescue(CharData *ch) {
 
 	for (k = ch->followers; k; k = k_next) {
 		k_next = k->next;
-		if (AFF_FLAGGED(k->ch, EAffectFlag::AFF_HELPER)
+		if (AFF_FLAGGED(k->ch, EAffect::kHelper)
 			&& MOB_FLAGGED(k->ch, EMobFlag::kTutelar)
 			&& !k->ch->get_fighting()
 			&& IN_ROOM(k->ch) == ch->in_room
@@ -1334,9 +1334,9 @@ int calc_initiative(CharData *ch, bool mode) {
 		initiative -= 2;
 	if (GET_AF_BATTLE(ch, kEafPunctual))
 		initiative -= 1;
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SLOW))
+	if (AFF_FLAGGED(ch, EAffect::kSlow))
 		initiative -= 10;
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_HASTE))
+	if (AFF_FLAGGED(ch, EAffect::kHaste))
 		initiative += 10;
 	if (GET_WAIT(ch) > 0)
 		initiative -= 1;
@@ -1527,10 +1527,10 @@ void using_mob_skills(CharData *ch) {
 				CharData *vict = attacker->get_fighting();    // выяснение жертвы
 				if (!vict    // жертвы нет
 					|| (!vict->is_npc() // жертва - не моб
-						|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
-						|| AFF_FLAGGED(vict, EAffectFlag::AFF_HELPER))
+						|| AFF_FLAGGED(vict, EAffect::kCharmed)
+						|| AFF_FLAGGED(vict, EAffect::kHelper))
 					|| (attacker->is_npc()
-						&& !(AFF_FLAGGED(attacker, EAffectFlag::AFF_CHARM)
+						&& !(AFF_FLAGGED(attacker, EAffect::kCharmed)
 							&& attacker->has_master()
 							&& !attacker->get_master()->is_npc())
 						&& !(MOB_FLAGGED(attacker, EMobFlag::kMentalShadow)
@@ -1581,15 +1581,15 @@ void using_mob_skills(CharData *ch) {
 				caster = find_target(ch);
 				damager = find_target(ch);
 				for (const auto vict : world[ch->in_room]->people) {
-					if ((vict->is_npc() && !AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM))
+					if ((vict->is_npc() && !AFF_FLAGGED(vict, EAffect::kCharmed))
 						|| !vict->get_fighting()) {
 						continue;
 					}
-					if ((AFF_FLAGGED(vict, EAffectFlag::AFF_HOLD) && GET_POS(vict) < EPosition::kFight)
+					if ((AFF_FLAGGED(vict, EAffect::kHold) && GET_POS(vict) < EPosition::kFight)
 						|| (IS_CASTER(vict)
-							&& (AFF_FLAGGED(vict, EAffectFlag::AFF_HOLD)
-								|| AFF_FLAGGED(vict, EAffectFlag::AFF_SILENCE)
-								|| AFF_FLAGGED(vict, EAffectFlag::AFF_STRANGLED)
+							&& (AFF_FLAGGED(vict, EAffect::kHold)
+								|| AFF_FLAGGED(vict, EAffect::kSilence)
+								|| AFF_FLAGGED(vict, EAffect::kStrangled)
 								|| GET_WAIT(vict) > 0))) {
 						continue;
 					}
@@ -1767,8 +1767,8 @@ void process_npc_attack(CharData *ch) {
 
 	// переключение
 	if (MAY_LIKES(ch)
-		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_NOT_SWITCH)
+		&& !AFF_FLAGGED(ch, EAffect::kCharmed)
+		&& !AFF_FLAGGED(ch, EAffect::kNoBattleSwitch)
 		&& GET_REAL_INT(ch) > number(15, 25)) {
 		perform_mob_switch(ch);
 	}
@@ -1779,20 +1779,20 @@ void process_npc_attack(CharData *ch) {
 
 	if (!ch->get_fighting()
 		|| ch->in_room != IN_ROOM(ch->get_fighting())
-		|| AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD)
+		|| AFF_FLAGGED(ch, EAffect::kHold)
 			// mob_casting мог от зеркала отразиться
-		|| AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
+		|| AFF_FLAGGED(ch, EAffect::kStopFight)
 		|| !AWAKE(ch)
-		|| AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT)) {
+		|| AFF_FLAGGED(ch, EAffect::kMagicStopFight)) {
 		return;
 	}
 
 	bool no_extra_attack = IS_SET(trigger_code, kNoExtraAttack);
-	if ((AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(ch, EMobFlag::kTutelar))
+	if ((AFF_FLAGGED(ch, EAffect::kCharmed) || MOB_FLAGGED(ch, EMobFlag::kTutelar))
 		&& ch->has_master() && ch->in_room == IN_ROOM(ch->get_master())  // && !ch->master->is_npc()
 		&& AWAKE(ch) && MAY_ACT(ch) && GET_POS(ch) >= EPosition::kFight) {
 		// сначала мытаемся спасти
-		if (CAN_SEE(ch, ch->get_master()) && AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)) {
+		if (CAN_SEE(ch, ch->get_master()) && AFF_FLAGGED(ch, EAffect::kHelper)) {
 			for (const auto vict : world[ch->in_room]->people) {
 				if (vict->get_fighting() == ch->get_master()
 					&& vict != ch && vict != ch->get_master()) {
@@ -1814,11 +1814,11 @@ void process_npc_attack(CharData *ch) {
 				ch->set_extra_attack(kExtraAttackUnused, 0);
 			}
 		}
-		if (!extra_attack_used && AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)) {
+		if (!extra_attack_used && AFF_FLAGGED(ch, EAffect::kHelper)) {
 			// теперь чармис использует свои скилы
 			using_charmice_skills(ch);
 		}
-	} else if (!no_extra_attack && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
+	} else if (!no_extra_attack && !AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		//* применение скилов
 		using_mob_skills(ch);
 	}
@@ -1828,13 +1828,13 @@ void process_npc_attack(CharData *ch) {
 	}
 
 	//**** удар основным оружием или рукой
-	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) && !IS_SET(trigger_code, kNoRightHandAttack)) {
+	if (!AFF_FLAGGED(ch, EAffect::kStopRight) && !IS_SET(trigger_code, kNoRightHandAttack)) {
 		exthit(ch, ESkill::kUndefined, fight::AttackType::kMainHand);
 	}
 
 	//**** экстраатаки мобов. Первая - оффхэнд
 	for (int i = 1; i <= ch->mob_specials.ExtraAttack; i++) {
-		if (i == 1 && (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPLEFT) || IS_SET(trigger_code, kNoLeftHandAttack))) {
+		if (i == 1 && (AFF_FLAGGED(ch, EAffect::kStopLeft) || IS_SET(trigger_code, kNoLeftHandAttack))) {
 			continue;
 		}
 		// если хп пробиты - уходим
@@ -1861,7 +1861,7 @@ void process_player_attack(CharData *ch, int min_init) {
 
 	//* каст заклинания
 	if (ch->get_cast_spell() && GET_WAIT(ch) <= 0 && !IS_SET(trigger_code, kNoCastMagic)) {
-		if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)) {
+		if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
 			send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
 			ch->set_cast(0, 0, 0, 0, 0);
 		} else {
@@ -1901,7 +1901,7 @@ void process_player_attack(CharData *ch, int min_init) {
 
 	//**** удар основным оружием или рукой
 	if (GET_AF_BATTLE(ch, kEafFirst)) {
-		if (!IS_SET(trigger_code, kNoRightHandAttack) && !AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT)
+		if (!IS_SET(trigger_code, kNoRightHandAttack) && !AFF_FLAGGED(ch, EAffect::kStopRight)
 			&& (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike) || !GET_AF_BATTLE(ch, kEafUsedright))) {
 			//Знаю, выглядит страшно, но зато в hit()
 			//можно будет узнать применялось ли оглушить
@@ -1935,7 +1935,7 @@ void process_player_attack(CharData *ch, int min_init) {
 	if (!IS_SET(trigger_code, kNoLeftHandAttack) && GET_EQ(ch, EEquipPos::kHold)
 		&& GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kHold)) == ObjData::ITEM_WEAPON
 		&& GET_AF_BATTLE(ch, kEafSecond)
-		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_STOPLEFT)
+		&& !AFF_FLAGGED(ch, EAffect::kStopLeft)
 		&& (IS_IMMORTAL(ch)
 			|| GET_GOD_FLAG(ch, EGf::kGodsLike)
 			|| ch->get_skill(ESkill::kSideAttack) > number(1, 101))) {
@@ -1949,7 +1949,7 @@ void process_player_attack(CharData *ch, int min_init) {
 		//**** удар второй рукой если она свободна и умение позволяет
 	else if (!IS_SET(trigger_code, kNoLeftHandAttack) && !GET_EQ(ch, EEquipPos::kHold)
 		&& !GET_EQ(ch, EEquipPos::kLight) && !GET_EQ(ch, EEquipPos::kShield) && !GET_EQ(ch, EEquipPos::kBoths)
-		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_STOPLEFT) && GET_AF_BATTLE(ch, kEafSecond)
+		&& !AFF_FLAGGED(ch, EAffect::kStopLeft) && GET_AF_BATTLE(ch, kEafSecond)
 		&& ch->get_skill(ESkill::kLeftHit)) {
 		if (IS_IMMORTAL(ch) || !GET_AF_BATTLE(ch, kEafUsedleft)) {
 			exthit(ch, ESkill::kUndefined, fight::AttackType::kOffHand);
@@ -1980,8 +1980,8 @@ bool stuff_before_round(CharData *ch) {
 		return false;
 
 	if (GET_MOB_HOLD(ch)
-		|| AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
-		|| AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT)) {
+		|| AFF_FLAGGED(ch, EAffect::kStopFight)
+		|| AFF_FLAGGED(ch, EAffect::kMagicStopFight)) {
 		try_angel_rescue(ch);
 		return false;
 	}
@@ -1991,7 +1991,7 @@ bool stuff_before_round(CharData *ch) {
 		&& GET_POS(ch) > EPosition::kStun
 		&& GET_WAIT(ch) <= 0
 		&& !GET_MOB_HOLD(ch)
-		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP)) {
+		&& !AFF_FLAGGED(ch, EAffect::kSleep)) {
 		stand_up_or_sit(ch);
 	}
 
@@ -2001,7 +2001,7 @@ bool stuff_before_round(CharData *ch) {
 		//edited by WorM 2010.09.03 добавил немного логики мобам в бою если
 		// у моба есть что-то в инве то он может
 		//переодется в это что-то если посчитает что это что-то ему лучше подходит
-		if (!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
+		if (!AFF_FLAGGED(ch, EAffect::kCharmed)) {
 			//Чото бред какой-то был, одевались мобы только сразу после того как слутили
 			npc_battle_scavenge(ch);//лутим стаф
 			if (ch->carrying)//и если есть что-то в инве то вооружаемся, одеваемся
@@ -2041,7 +2041,7 @@ void perform_violence() {
 		if (ch->desc) {
 			msdp_report_chars.insert(ch);
 		} else if (ch->has_master()
-			&& (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
+			&& (AFF_FLAGGED(ch, EAffect::kCharmed)
 				|| MOB_FLAGGED(ch, EMobFlag::kTutelar)
 				|| MOB_FLAGGED(ch, EMobFlag::kMentalShadow))) {
 			auto master = ch->get_master();
@@ -2078,9 +2078,9 @@ void perform_violence() {
 			}
 
 			// If mob cast 'hold' when initiative setted
-			if (AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD)
-				|| AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT)
-				|| AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
+			if (AFF_FLAGGED(ch, EAffect::kHold)
+				|| AFF_FLAGGED(ch, EAffect::kMagicStopFight)
+				|| AFF_FLAGGED(ch, EAffect::kStopFight)
 				|| !AWAKE(ch)) {
 				continue;
 			}
@@ -2139,7 +2139,7 @@ int check_agro_follower(CharData *ch, CharData *victim) {
 // translating pointers from charimces to their leaders
 	if (ch->is_npc()
 		&& ch->has_master()
-		&& (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
+		&& (AFF_FLAGGED(ch, EAffect::kCharmed)
 			|| MOB_FLAGGED(ch, EMobFlag::kTutelar)
 			|| MOB_FLAGGED(ch, EMobFlag::kMentalShadow)
 			|| IS_HORSE(ch))) {
@@ -2148,7 +2148,7 @@ int check_agro_follower(CharData *ch, CharData *victim) {
 
 	if (victim->is_npc()
 		&& victim->has_master()
-		&& (AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM)
+		&& (AFF_FLAGGED(victim, EAffect::kCharmed)
 			|| MOB_FLAGGED(victim, EMobFlag::kTutelar)
 			|| MOB_FLAGGED(victim, EMobFlag::kMentalShadow)
 			|| IS_HORSE(victim))) {
@@ -2160,7 +2160,7 @@ int check_agro_follower(CharData *ch, CharData *victim) {
 // finding leaders
 	while (cleader->has_master()) {
 		if (cleader->is_npc()
-			&& !AFF_FLAGGED(cleader, EAffectFlag::AFF_CHARM)
+			&& !AFF_FLAGGED(cleader, EAffect::kCharmed)
 			&& !(MOB_FLAGGED(cleader, EMobFlag::kTutelar) || MOB_FLAGGED(cleader, EMobFlag::kMentalShadow))
 			&& !IS_HORSE(cleader)) {
 			break;
@@ -2170,7 +2170,7 @@ int check_agro_follower(CharData *ch, CharData *victim) {
 
 	while (vleader->has_master()) {
 		if (vleader->is_npc()
-			&& !AFF_FLAGGED(vleader, EAffectFlag::AFF_CHARM)
+			&& !AFF_FLAGGED(vleader, EAffect::kCharmed)
 			&& !(MOB_FLAGGED(vleader, EMobFlag::kTutelar) || MOB_FLAGGED(vleader, EMobFlag::kMentalShadow))
 			&& !IS_HORSE(vleader)) {
 			break;
@@ -2186,12 +2186,12 @@ int check_agro_follower(CharData *ch, CharData *victim) {
 // it cannot be a charmice
 	while (ch->has_master()
 		&& ch->get_master()->has_master()) {
-		if (!AFF_FLAGGED(ch->get_master(), EAffectFlag::AFF_GROUP)
+		if (!AFF_FLAGGED(ch->get_master(), EAffect::kGroup)
 			&& !ch->get_master()->is_npc()) {
 			ch = ch->get_master();
 			continue;
 		} else if (ch->get_master()->is_npc()
-			&& !AFF_FLAGGED(ch->get_master()->get_master(), EAffectFlag::AFF_GROUP)
+			&& !AFF_FLAGGED(ch->get_master()->get_master(), EAffect::kGroup)
 			&& !ch->get_master()->get_master()->is_npc()
 			&& ch->get_master()->get_master()->get_master()) {
 			ch = ch->get_master()->get_master();
@@ -2205,12 +2205,12 @@ int check_agro_follower(CharData *ch, CharData *victim) {
 // it cannot be a charmice
 	while (victim->has_master()
 		&& victim->get_master()->has_master()) {
-		if (!AFF_FLAGGED(victim->get_master(), EAffectFlag::AFF_GROUP)
+		if (!AFF_FLAGGED(victim->get_master(), EAffect::kGroup)
 			&& !victim->get_master()->is_npc()) {
 			victim = victim->get_master();
 			continue;
 		} else if (victim->get_master()->is_npc()
-			&& !AFF_FLAGGED(victim->get_master()->get_master(), EAffectFlag::AFF_GROUP)
+			&& !AFF_FLAGGED(victim->get_master()->get_master(), EAffect::kGroup)
 			&& !victim->get_master()->get_master()->is_npc()
 			&& victim->get_master()->get_master()->has_master()) {
 			victim = victim->get_master()->get_master();
@@ -2219,12 +2219,12 @@ int check_agro_follower(CharData *ch, CharData *victim) {
 			break;
 		}
 	}
-	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)
+	if (!AFF_FLAGGED(ch, EAffect::kGroup)
 		|| cleader == victim) {
 		stop_follower(ch, kSfEmpty);
 		return_value |= 1;
 	}
-	if (!AFF_FLAGGED(victim, EAffectFlag::AFF_GROUP)
+	if (!AFF_FLAGGED(victim, EAffect::kGroup)
 		|| vleader == ch) {
 		stop_follower(victim, kSfEmpty);
 		return_value |= 2;
@@ -2237,7 +2237,7 @@ int calc_leadership(CharData *ch) {
 	CharData *leader = 0;
 
 	if (ch->is_npc()
-		|| !AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)
+		|| !AFF_FLAGGED(ch, EAffect::kGroup)
 		|| (!ch->has_master()
 			&& !ch->followers)) {
 		return false;

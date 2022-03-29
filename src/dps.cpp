@@ -169,7 +169,7 @@ void Dps::PrintStats(CharData *ch, CharData *coder) {
 		coder = ch;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)) {
+	if (AFF_FLAGGED(ch, EAffect::kGroup)) {
 		tmp_total_dmg = 0;
 		CharData *leader = ch->has_master() ? ch->get_master() : ch;
 		leader->dps_print_group_stats(ch, coder);
@@ -237,7 +237,7 @@ void Dps::PrintGroupStats(CharData *ch, CharData *coder) {
 	for (Follower *f = leader->followers; f; f = f->next) {
 		if (f->ch
 			&& !f->ch->is_npc()
-			&& AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)) {
+			&& AFF_FLAGGED(f->ch, EAffect::kGroup)) {
 			AddTmpGroupList(f->ch);
 		}
 	}
@@ -418,13 +418,13 @@ void PlayerDpsNode::print_group_charm_stats(CharData *ch) const {
 void check_round(CharData *ch) {
 	if (!ch->is_npc()) {
 		ch->dps_end_round(DpsSystem::PERS_DPS);
-		if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)) {
+		if (AFF_FLAGGED(ch, EAffect::kGroup)) {
 			CharData *leader = ch->has_master() ? ch->get_master() : ch;
 			leader->dps_end_round(DpsSystem::GROUP_DPS, ch);
 		}
 	} else if (IS_CHARMICE(ch) && ch->has_master()) {
 		ch->get_master()->dps_end_round(DpsSystem::PERS_CHARM_DPS, ch);
-		if (AFF_FLAGGED(ch->get_master(), EAffectFlag::AFF_GROUP)) {
+		if (AFF_FLAGGED(ch->get_master(), EAffect::kGroup)) {
 			CharData *leader = ch->get_master()->has_master() ? ch->get_master()->get_master() : ch->get_master();
 			leader->dps_end_round(DpsSystem::GROUP_CHARM_DPS, ch);
 		}
@@ -463,7 +463,7 @@ void do_dmeter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			ch->dps_clear(DpsSystem::PERS_DPS);
 			send_to_char("Персональная статистика очищена.\r\n", ch);
 		} else if (isname(name, "группа")) {
-			if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)) {
+			if (!AFF_FLAGGED(ch, EAffect::kGroup)) {
 				send_to_char("Вы не состоите в группе.\r\n", ch);
 				return;
 			}

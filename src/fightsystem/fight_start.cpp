@@ -69,7 +69,7 @@ int set_hit(CharData *ch, CharData *victim) {
 	if (MOB_FLAGGED(ch, EMobFlag::kMemory) && GET_WAIT(ch) > 0) {
 		if (!victim->is_npc()) {
 			mobRemember(ch, victim);
-		} else if (AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM)
+		} else if (AFF_FLAGGED(victim, EAffect::kCharmed)
 			&& victim->has_master()
 			&& !victim->get_master()->is_npc()) {
 			if (MOB_FLAGGED(victim, EMobFlag::kClone)) {
@@ -81,7 +81,7 @@ int set_hit(CharData *ch, CharData *victim) {
 		return (false);
 	}
 	hit(ch, victim, ESkill::kUndefined,
-		AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) ? fight::kOffHand : fight::kMainHand);
+		AFF_FLAGGED(ch, EAffect::kStopRight) ? fight::kOffHand : fight::kMainHand);
 	SetWait(ch, 2, true);
 	//ch->setSkillCooldown(kGlobalCooldown, 2);
 	return (true);
@@ -107,7 +107,7 @@ void do_hit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (!may_kill_here(ch, vict, argument)) {
 		return;
 	}
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && (ch->get_master() == vict)) {
+	if (AFF_FLAGGED(ch, EAffect::kCharmed) && (ch->get_master() == vict)) {
 		act("$N слишком дорог для вас, чтобы бить $S.", false, ch, 0, vict, kToChar);
 		return;
 	}

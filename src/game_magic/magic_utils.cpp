@@ -130,7 +130,7 @@ void SaySpell(CharData *ch, int spellnum, CharData *tch, ObjData *tobj) {
 			|| i == tch
 			|| !i->desc
 			|| !AWAKE(i)
-			|| AFF_FLAGGED(i, EAffectFlag::AFF_DEAFNESS)) {
+			|| AFF_FLAGGED(i, EAffect::kDeafness)) {
 			continue;
 		}
 
@@ -146,7 +146,7 @@ void SaySpell(CharData *ch, int spellnum, CharData *tch, ObjData *tobj) {
 	if (tch != nullptr
 		&& tch != ch
 		&& IN_ROOM(tch) == ch->in_room
-		&& !AFF_FLAGGED(tch, EAffectFlag::AFF_DEAFNESS)) {
+		&& !AFF_FLAGGED(tch, EAffect::kDeafness)) {
 		if (SpINFO.violent) {
 			sprintf(buf1, damagee_vict,
 					IS_SET(GET_SPELL_TYPE(tch, spellnum), kSpellKnow | kSpellTemp) ? GetSpellName(spellnum) : buf);
@@ -574,7 +574,7 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, int s
 		return (0);
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && ch->get_master() == tch) {
+	if (AFF_FLAGGED(ch, EAffect::kCharmed) && ch->get_master() == tch) {
 		send_to_char("Вы не посмеете поднять руку на вашего повелителя!\r\n", ch);
 		return (0);
 	}
@@ -607,7 +607,7 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, int s
 		}
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_PEACEFUL)) {
+	if (AFF_FLAGGED(ch, EAffect::kPeaceful)) {
 		ignore = IS_SET(SpINFO.targets, kTarIgnore) ||
 			IS_SET(SpINFO.routines, kMagMasses) || IS_SET(SpINFO.routines, kMagGroups);
 		if (ignore) { // индивидуальная цель

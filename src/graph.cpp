@@ -188,7 +188,7 @@ void do_sense(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
+	if (AFF_FLAGGED(ch, EAffect::kBlind)) {
 		send_to_char("Вы слепы как крот.\r\n", ch);
 		return;
 	}
@@ -210,7 +210,7 @@ void do_sense(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	// We can't track the victim.
 	//Старый комментарий. Раньше было много !трека, теперь его мало
-	if (AFF_FLAGGED(vict, EAffectFlag::AFF_NOTRACK)) {
+	if (AFF_FLAGGED(vict, EAffect::kNoTrack)) {
 		send_to_char("Ваши чувства молчат.\r\n", ch);
 		return;
 	}

@@ -111,11 +111,11 @@ void do_rescue(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (vict->is_npc()
 		&& (!enemy->is_npc()
-			|| (AFF_FLAGGED(enemy, EAffectFlag::AFF_CHARM)
+			|| (AFF_FLAGGED(enemy, EAffect::kCharmed)
 				&& enemy->has_master()
 				&& !enemy->get_master()->is_npc()))
 		&& (!ch->is_npc()
-			|| (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
+			|| (AFF_FLAGGED(ch, EAffect::kCharmed)
 				&& ch->has_master()
 				&& !ch->get_master()->is_npc()))) {
 		send_to_char("Вы пытаетесь спасти чужого противника.\r\n", ch);
@@ -124,10 +124,10 @@ void do_rescue(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	// Двойники и прочие очарки не в группе с тем, кого собираются спасать:
 	// Если тот, кто собирается спасать - "чармис" и у него существует хозяин
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && ch->has_master()) {
+	if (AFF_FLAGGED(ch, EAffect::kCharmed) && ch->has_master()) {
 		// Если спасаем "чармиса", то проверять надо на нахождение в одной
 		// группе хозянина спасющего и спасаемого.
-		if (AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
+		if (AFF_FLAGGED(vict, EAffect::kCharmed)
 			&& vict->has_master()
 			&& !same_group(vict->get_master(), ch->get_master())) {
 			act("Спасали бы вы лучше другов своих.", false, ch, 0, vict, kToChar);

@@ -574,13 +574,13 @@ void drop_torc(CharData *mob) {
 		return;
 	}
 
-	CharData *leader = (d->character->has_master() && AFF_FLAGGED(d->character, EAffectFlag::AFF_GROUP))
+	CharData *leader = (d->character->has_master() && AFF_FLAGGED(d->character, EAffect::kGroup))
 						? d->character->get_master()
 						: d->character.get();
 
 	int members = 1;
 	for (Follower *f = leader->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+		if (AFF_FLAGGED(f->ch, EAffect::kGroup)
 			&& f->ch->in_room == IN_ROOM(mob)
 			&& !f->ch->is_npc()) {
 			++members;
@@ -601,7 +601,7 @@ void drop_torc(CharData *mob) {
 	}
 
 	for (Follower *f = leader->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+		if (AFF_FLAGGED(f->ch, EAffect::kGroup)
 			&& f->ch->in_room == IN_ROOM(mob)
 			&& !f->ch->is_npc()
 			&& GET_GOD_FLAG(f->ch, EGf::kRemort)
