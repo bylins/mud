@@ -1129,15 +1129,15 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		npc_wield(ch.get());
 		npc_armor(ch.get());
 
-		if (GET_POS(ch) == EPosition::kStand && NPC_FLAGGED(ch, NPC_INVIS)) {
+		if (GET_POS(ch) == EPosition::kStand && NPC_FLAGGED(ch, ENpcFlag::kInvis)) {
 			ch->set_affect(EAffectFlag::AFF_INVISIBLE);
 		}
 
-		if (GET_POS(ch) == EPosition::kStand && NPC_FLAGGED(ch, NPC_MOVEFLY)) {
+		if (GET_POS(ch) == EPosition::kStand && NPC_FLAGGED(ch, ENpcFlag::kMoveFly)) {
 			ch->set_affect(EAffectFlag::AFF_FLY);
 		}
 
-		if (GET_POS(ch) == EPosition::kStand && NPC_FLAGGED(ch, NPC_SNEAK)) {
+		if (GET_POS(ch) == EPosition::kStand && NPC_FLAGGED(ch, ENpcFlag::kSneaking)) {
 			if (CalcCurrentSkill(ch.get(), ESkill::kSneak, 0) >= number(0, 100)) {
 				ch->set_affect(EAffectFlag::AFF_SNEAK);
 			} else {
@@ -1146,7 +1146,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 			affect_total(ch.get());
 		}
 
-		if (GET_POS(ch) == EPosition::kStand && NPC_FLAGGED(ch, NPC_CAMOUFLAGE)) {
+		if (GET_POS(ch) == EPosition::kStand && NPC_FLAGGED(ch, ENpcFlag::kDisguising)) {
 			if (CalcCurrentSkill(ch.get(), ESkill::kDisguise, 0) >= number(0, 100)) {
 				ch->set_affect(EAffectFlag::AFF_CAMOUFLAGE);
 			} else {

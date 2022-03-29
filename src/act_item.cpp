@@ -1227,7 +1227,7 @@ void perform_give(CharData *ch, CharData *vict, ObjData *obj) {
 		act("Неведомая сила помешала вам сделать это!", false, ch, 0, 0, kToChar);
 		return;
 	}
-	if (NPC_FLAGGED(vict, NPC_NOTAKEITEMS)) {
+	if (NPC_FLAGGED(vict, ENpcFlag::kNoTakeItems)) {
 		act("$N не нуждается в ваших подачках, своего барахла навалом.", false, ch, 0, vict, kToChar);
 		return;
 	}
@@ -1904,7 +1904,7 @@ void do_wear(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (ch->is_npc()
 		&& AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-		&& (!NPC_FLAGGED(ch, NPC_ARMORING)
+		&& (!NPC_FLAGGED(ch, ENpcFlag::kArmoring)
 			|| MOB_FLAGGED(ch, EMobFlag::kResurrected))) {
 		return;
 	}
@@ -1967,7 +1967,7 @@ void do_wield(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int wear;
 
 	if (ch->is_npc() && (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-		&& (!NPC_FLAGGED(ch, NPC_WIELDING) || MOB_FLAGGED(ch, EMobFlag::kResurrected))))
+		&& (!NPC_FLAGGED(ch, ENpcFlag::kWielding) || MOB_FLAGGED(ch, EMobFlag::kResurrected))))
 		return;
 
 	if (ch->is_morphed()) {
@@ -2047,7 +2047,7 @@ void do_grab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	ObjData *obj;
 	one_argument(argument, arg);
 
-	if (ch->is_npc() && !NPC_FLAGGED(ch, NPC_WIELDING))
+	if (ch->is_npc() && !NPC_FLAGGED(ch, ENpcFlag::kWielding))
 		return;
 
 	if (ch->is_morphed()) {

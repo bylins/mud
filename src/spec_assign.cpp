@@ -204,7 +204,7 @@ void clear_mob_charm(CharData *mob) {
 		MOB_FLAGS(mob).unset(EMobFlag::kMounting);
 		MOB_FLAGS(mob).set(EMobFlag::kNoCharm);
 		MOB_FLAGS(mob).set(EMobFlag::kNoResurrection);
-		NPC_FLAGS(mob).unset(NPC_HELPED);
+		NPC_FLAGS(mob).unset(ENpcFlag::kHelped);
 	} else {
 		log("SYSERROR: mob = %s (%s:%d)",
 			mob ? (mob->purged() ? "purged" : "true") : "false",

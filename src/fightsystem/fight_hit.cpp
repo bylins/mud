@@ -2848,7 +2848,7 @@ int HitData::extdamage(CharData *ch, CharData *victim) {
 		//* травящий ядом моб //
 	else if (dam
 		&& ch->is_npc()
-		&& NPC_FLAGGED(ch, NPC_POISON)
+		&& NPC_FLAGGED(ch, ENpcFlag::kToxic)
 		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 		&& GET_WAIT(ch) <= 0
 		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_POISON)

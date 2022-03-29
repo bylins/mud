@@ -321,7 +321,7 @@ bool check_mob(ObjData *corpse, CharData *mob) {
 				|| (GET_RACE(mob) == i->race_mob)
 				|| (get_virtual_race(mob) == i->race_mob))        // совпадает раса или для всех
 			&& (i->day_start <= day && i->day_end >= day)            // временной промежуток
-			&& (!NPC_FLAGGED(mob, NPC_FREEDROP))  //не падают из фридропа
+			&& (!NPC_FLAGGED(mob, ENpcFlag::kFreeDrop))  //не падают из фридропа
 			&& (!mob->has_master()
 				|| mob->get_master()->is_npc())) // не чармис
 
@@ -500,7 +500,7 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 	IS_CARRYING_W(ch) = 0;
 
 	//Polud привязываем загрузку ингров к расе (типу) моба
-	if (ch->is_npc() && GET_RACE(ch) > ENpcRace::kBasic && !NPC_FLAGGED(ch, NPC_NOINGRDROP)
+	if (ch->is_npc() && GET_RACE(ch) > ENpcRace::kBasic && !NPC_FLAGGED(ch, ENpcFlag::kNoIngrDrop)
 		&& !ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)) {
 		ObjData *ingr = try_make_ingr(ch, 1000);
 		if (ingr) {

@@ -319,8 +319,8 @@ enum ENpcRace : int {
 /**
  * Virtual NPC races
  */
-const int NPC_BOSS = 200;
-const int NPC_UNIQUE = 201;
+const int kNpcBoss = 200;
+const int kNpcUnique = 201;
 
 /**
  * Mobile flags: used by char_data.char_specials.act
@@ -405,34 +405,39 @@ enum EMobFlag : Bitvector {
 	kIgnoresFormation = kIntTwo | (1 << 22)
 };
 
-constexpr Bitvector NPC_NORTH = 1 << 0;
-constexpr Bitvector NPC_EAST = 1 << 1;
-constexpr Bitvector NPC_SOUTH = 1 << 2;
-constexpr Bitvector NPC_WEST = 1 << 3;
-constexpr Bitvector NPC_UP = 1 << 4;
-constexpr Bitvector NPC_DOWN = 1 << 5;
-constexpr Bitvector NPC_POISON = 1 << 6;
-constexpr Bitvector NPC_INVIS = 1 << 7;
-constexpr Bitvector NPC_SNEAK = 1 << 8;
-constexpr Bitvector NPC_CAMOUFLAGE = 1 << 9;
-constexpr Bitvector NPC_MOVEFLY = 1 << 11;
-constexpr Bitvector NPC_MOVECREEP = 1 << 12;
-constexpr Bitvector NPC_MOVEJUMP = 1 << 13;
-constexpr Bitvector NPC_MOVESWIM = 1 << 14;
-constexpr Bitvector NPC_MOVERUN = 1 << 15;
-constexpr Bitvector NPC_AIRCREATURE = 1 << 20;
-constexpr Bitvector NPC_WATERCREATURE = 1 << 21;
-constexpr Bitvector NPC_EARTHCREATURE = 1 << 22;
-constexpr Bitvector NPC_FIRECREATURE = 1 << 23;
-constexpr Bitvector NPC_HELPED = 1 << 24;
-constexpr Bitvector NPC_FREEDROP = 1 << 25;
-constexpr Bitvector NPC_NOINGRDROP = 1 << 26;
+/**
+ * NPC's flags used by CharData.mob_specials.npc_flags
+ */
+enum ENpcFlag : Bitvector {
+	kBlockNorth = 1 << 0,
+	kBlockEast = 1 << 1,
+	kBlockSouth = 1 << 2,
+	kBlockWest = 1 << 3,
+	kBlockUp = 1 << 4,
+	kBlockDown = 1 << 5,
+	kToxic = 1 << 6,
+	kInvis = 1 << 7,
+	kSneaking = 1 << 8,
+	kDisguising = 1 << 9,
+	kMoveFly = 1 << 11,
+	kMoveCreep = 1 << 12,
+	kMoveJump = 1 << 13,
+	kMoveSwim = 1 << 14,
+	kMoveRun = 1 << 15,
+	kAirCreature = 1 << 20,
+	kWaterCreature = 1 << 21,
+	kEarthCreature = 1 << 22,
+	kFireCreature = 1 << 23,
+	kHelped = 1 << 24,
+	kFreeDrop = 1 << 25,
+	kNoIngrDrop = 1 << 26,
 
-constexpr Bitvector NPC_STEALING = kIntOne | (1 << 0);
-constexpr Bitvector NPC_WIELDING = kIntOne | (1 << 1);
-constexpr Bitvector NPC_ARMORING = kIntOne | (1 << 2);
-constexpr Bitvector NPC_USELIGHT = kIntOne | (1 << 3);
-constexpr Bitvector NPC_NOTAKEITEMS = kIntOne | (1 << 4);
+	kStealing = kIntOne | (1 << 0),
+	kWielding = kIntOne | (1 << 1),
+	kArmoring = kIntOne | (1 << 2),
+	kUsingLight = kIntOne | (1 << 3),
+	kNoTakeItems = kIntOne | (1 << 4)
+};
 
 /*
  * ========================================================================================

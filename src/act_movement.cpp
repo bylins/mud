@@ -666,20 +666,20 @@ int do_simple_move(CharData *ch, int dir, int need_specials_check, CharData *lea
 	if (!invis && !is_horse) {
 		if (is_flee)
 			strcpy(smallBuf, "сбежал$g");
-		else if (ch->is_npc() && NPC_FLAGGED(ch, NPC_MOVERUN))
+		else if (ch->is_npc() && NPC_FLAGGED(ch, ENpcFlag::kMoveRun))
 			strcpy(smallBuf, "убежал$g");
 		else if ((!use_horse && AFF_FLAGGED(ch, EAffectFlag::AFF_FLY))
-			|| (ch->is_npc() && NPC_FLAGGED(ch, NPC_MOVEFLY))) {
+			|| (ch->is_npc() && NPC_FLAGGED(ch, ENpcFlag::kMoveFly))) {
 			strcpy(smallBuf, "улетел$g");
 		} else if (ch->is_npc()
-			&& NPC_FLAGGED(ch, NPC_MOVESWIM)
+			&& NPC_FLAGGED(ch, ENpcFlag::kMoveSwim)
 			&& (real_sector(was_in) == kSectWaterSwim
 				|| real_sector(was_in) == kSectWaterNoswim
 				|| real_sector(was_in) == kSectUnderwater)) {
 			strcpy(smallBuf, "уплыл$g");
-		} else if (ch->is_npc() && NPC_FLAGGED(ch, NPC_MOVEJUMP))
+		} else if (ch->is_npc() && NPC_FLAGGED(ch, ENpcFlag::kMoveJump))
 			strcpy(smallBuf, "ускакал$g");
-		else if (ch->is_npc() && NPC_FLAGGED(ch, NPC_MOVECREEP))
+		else if (ch->is_npc() && NPC_FLAGGED(ch, ENpcFlag::kMoveCreep))
 			strcpy(smallBuf, "уполз$q");
 		else if (real_sector(was_in) == kSectWaterSwim
 			|| real_sector(was_in) == kSectWaterNoswim
@@ -746,19 +746,19 @@ int do_simple_move(CharData *ch, int dir, int need_specials_check, CharData *lea
 	if (!invis && !is_horse) {
 		if (is_flee
 			|| (ch->is_npc()
-				&& NPC_FLAGGED(ch, NPC_MOVERUN))) {
+				&& NPC_FLAGGED(ch, ENpcFlag::kMoveRun))) {
 			strcpy(smallBuf, "прибежал$g");
 		} else if ((!use_horse && AFF_FLAGGED(ch, EAffectFlag::AFF_FLY))
-			|| (ch->is_npc() && NPC_FLAGGED(ch, NPC_MOVEFLY))) {
+			|| (ch->is_npc() && NPC_FLAGGED(ch, ENpcFlag::kMoveFly))) {
 			strcpy(smallBuf, "прилетел$g");
-		} else if (ch->is_npc() && NPC_FLAGGED(ch, NPC_MOVESWIM)
+		} else if (ch->is_npc() && NPC_FLAGGED(ch, ENpcFlag::kMoveSwim)
 			&& (real_sector(go_to) == kSectWaterSwim
 				|| real_sector(go_to) == kSectWaterNoswim
 				|| real_sector(go_to) == kSectUnderwater)) {
 			strcpy(smallBuf, "приплыл$g");
-		} else if (ch->is_npc() && NPC_FLAGGED(ch, NPC_MOVEJUMP))
+		} else if (ch->is_npc() && NPC_FLAGGED(ch, ENpcFlag::kMoveJump))
 			strcpy(smallBuf, "прискакал$g");
-		else if (ch->is_npc() && NPC_FLAGGED(ch, NPC_MOVECREEP))
+		else if (ch->is_npc() && NPC_FLAGGED(ch, ENpcFlag::kMoveCreep))
 			strcpy(smallBuf, "приполз$q");
 		else if (real_sector(go_to) == kSectWaterSwim
 			|| real_sector(go_to) == kSectWaterNoswim

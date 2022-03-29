@@ -877,25 +877,25 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 	if (!dam && !no_savings) {
 		double koeff = 1;
 		if (victim->is_npc()) {
-			if (NPC_FLAGGED(victim, NPC_FIRECREATURE)) {
+			if (NPC_FLAGGED(victim, ENpcFlag::kFireCreature)) {
 				if (IS_SET(SpINFO.spell_class, kTypeFire))
 					koeff /= 2;
 				if (IS_SET(SpINFO.spell_class, kTypeWater))
 					koeff *= 2;
 			}
-			if (NPC_FLAGGED(victim, NPC_AIRCREATURE)) {
+			if (NPC_FLAGGED(victim, ENpcFlag::kAirCreature)) {
 				if (IS_SET(SpINFO.spell_class, kTypeEarth))
 					koeff *= 2;
 				if (IS_SET(SpINFO.spell_class, kTypeAir))
 					koeff /= 2;
 			}
-			if (NPC_FLAGGED(victim, NPC_WATERCREATURE)) {
+			if (NPC_FLAGGED(victim, ENpcFlag::kWaterCreature)) {
 				if (IS_SET(SpINFO.spell_class, kTypeFire))
 					koeff *= 2;
 				if (IS_SET(SpINFO.spell_class, kTypeWater))
 					koeff /= 2;
 			}
-			if (NPC_FLAGGED(victim, NPC_EARTHCREATURE)) {
+			if (NPC_FLAGGED(victim, ENpcFlag::kEarthCreature)) {
 				if (IS_SET(SpINFO.spell_class, kTypeEarth))
 					koeff /= 2;
 				if (IS_SET(SpINFO.spell_class, kTypeAir))

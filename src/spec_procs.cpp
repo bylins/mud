@@ -1928,7 +1928,7 @@ void best_weapon(CharData *ch, ObjData *sweapon, ObjData **dweapon) {
 void npc_wield(CharData *ch) {
 	ObjData *obj, *next, *right = nullptr, *left = nullptr, *both = nullptr;
 
-	if (!NPC_FLAGGED(ch, NPC_WIELDING))
+	if (!NPC_FLAGGED(ch, ENpcFlag::kWielding))
 		return;
 
 	if (ch->get_skill(ESkill::kHammer) > 0
@@ -2033,7 +2033,7 @@ void npc_armor(CharData *ch) {
 	ObjData *obj, *next;
 	int where = 0;
 
-	if (!NPC_FLAGGED(ch, NPC_ARMORING))
+	if (!NPC_FLAGGED(ch, ENpcFlag::kArmoring))
 		return;
 
 	if (GET_REAL_INT(ch) < 10 || IS_SHOPKEEPER(ch))
@@ -2225,7 +2225,7 @@ int do_npc_steal(CharData *ch, CharData *victim) {
 	int gold;
 	int max = 0;
 
-	if (!NPC_FLAGGED(ch, NPC_STEALING))
+	if (!NPC_FLAGGED(ch, ENpcFlag::kStealing))
 		return (false);
 
 	if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL))
@@ -2268,7 +2268,7 @@ int do_npc_steal(CharData *ch, CharData *victim) {
 }
 
 int npc_steal(CharData *ch) {
-	if (!NPC_FLAGGED(ch, NPC_STEALING))
+	if (!NPC_FLAGGED(ch, ENpcFlag::kStealing))
 		return (false);
 
 	if (GET_POS(ch) != EPosition::kStand || IS_SHOPKEEPER(ch) || ch->get_fighting())

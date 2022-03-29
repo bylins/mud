@@ -537,7 +537,7 @@ void filter_dupe_names() {
 				|| MOB_FLAGGED(mob, EMobFlag::kAppearsSpring)
 				|| MOB_FLAGGED(mob, EMobFlag::kAppearsSummer)
 				|| MOB_FLAGGED(mob, EMobFlag::kAppearsAutumn)
-				|| NPC_FLAGGED(mob, NPC_FREEDROP)
+				|| NPC_FLAGGED(mob, ENpcFlag::kFreeDrop)
 				|| mob->get_exp() <= 0) {
 				continue;
 			}

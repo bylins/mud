@@ -234,13 +234,13 @@ bool is_head(std::string name) {
 
 int get_virtual_race(CharData *mob) {
 	if (mob->get_role(MOB_ROLE_BOSS)) {
-		return NPC_BOSS;
+		return kNpcBoss;
 	}
 	std::map<int, int>::iterator it;
 	std::map<int, int> unique_mobs = SetsDrop::get_unique_mob();
 	for (it = unique_mobs.begin(); it != unique_mobs.end(); it++) {
 		if (GET_MOB_VNUM(mob) == it->first)
-			return NPC_UNIQUE;
+			return kNpcUnique;
 	}
 	return -1;
 }

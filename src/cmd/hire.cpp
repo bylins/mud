@@ -197,7 +197,7 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("И как вы это представляете - нанять самого себя?\r\n", ch);
 	else if (!helpee->is_npc())
 		send_to_char("Вы не можете нанять реального игрока!\r\n", ch);
-	else if (!NPC_FLAGGED(helpee, NPC_HELPED))
+	else if (!NPC_FLAGGED(helpee, ENpcFlag::kHelped))
 		act("$N не нанимается!", false, ch, 0, helpee, kToChar);
 	else if (AFF_FLAGGED(helpee, EAffectFlag::AFF_CHARM) && (!k || (k && helpee != k->ch)))
 		act("$N под чьим-то контролем.", false, ch, 0, helpee, kToChar);

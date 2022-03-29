@@ -1070,16 +1070,16 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		}
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_ALIGN)) {
 			if (i->is_npc()) {
-				if (NPC_FLAGGED(i, NPC_AIRCREATURE))
+				if (NPC_FLAGGED(i, ENpcFlag::kAirCreature))
 					sprintf(buf + strlen(buf), "%s(аура воздуха)%s ",
 							CCIBLU(ch, C_CMP), CCIRED(ch, C_CMP));
-				else if (NPC_FLAGGED(i, NPC_WATERCREATURE))
+				else if (NPC_FLAGGED(i, ENpcFlag::kWaterCreature))
 					sprintf(buf + strlen(buf), "%s(аура воды)%s ",
 							CCICYN(ch, C_CMP), CCIRED(ch, C_CMP));
-				else if (NPC_FLAGGED(i, NPC_FIRECREATURE))
+				else if (NPC_FLAGGED(i, ENpcFlag::kFireCreature))
 					sprintf(buf + strlen(buf), "%s(аура огня)%s ",
 							CCIMAG(ch, C_CMP), CCIRED(ch, C_CMP));
-				else if (NPC_FLAGGED(i, NPC_EARTHCREATURE))
+				else if (NPC_FLAGGED(i, ENpcFlag::kEarthCreature))
 					sprintf(buf + strlen(buf), "%s(аура земли)%s ",
 							CCIGRN(ch, C_CMP), CCIRED(ch, C_CMP));
 			}
