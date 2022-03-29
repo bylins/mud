@@ -334,7 +334,7 @@ weapon_affect_t weapon_affect = {
 	WeaponAffect{EWeaponAffectFlag::WAFF_ICE_AURA, to_underlying(EAffectFlag::AFF_ICEAURA), 0},
 	WeaponAffect{EWeaponAffectFlag::WAFF_DEAFNESS, to_underlying(EAffectFlag::AFF_DEAFNESS), 0},
 	WeaponAffect{EWeaponAffectFlag::WAFF_COMMANDER, to_underlying(EAffectFlag::AFF_COMMANDER), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_EARTHAURA, to_underlying(EAffectFlag::AFF_EARTHAURA), 0},
+	WeaponAffect{EWeaponAffectFlag::WAFF_EARTHAURA, to_underlying(EAffectFlag::AFF_EARTHAURA), 0}
 };
 
 
