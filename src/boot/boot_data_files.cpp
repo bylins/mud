@@ -1386,10 +1386,6 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 		mob_proto[i].set_remort(std::clamp<byte>(num_arg, 0, 100));
 	}
 
-	CASE("Class") {
-		mob_proto[i].set_class(std::clamp(static_cast<ECharClass>(num_arg), ECharClass::kNpcBase, ECharClass::kNpcLast));
-	}
-
 	CASE("Height") {
 		mob_proto[i].player_data.height = std::clamp(num_arg, 0, 200);
 	}

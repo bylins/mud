@@ -673,8 +673,6 @@ void medit_save_to_disk(int zone_num) {
 				fprintf(mob_file, "ExtraAttack: %d\n", mob->mob_specials.ExtraAttack);
 			if (mob->get_remort())
 				fprintf(mob_file, "MobRemort: %d\n", mob->get_remort());
-			if (GET_CLASS(mob))
-				fprintf(mob_file, "Class: %d\n", GET_CLASS(mob));
 			if (GET_RACE(mob))
 				fprintf(mob_file, "Race: %d\n", GET_RACE(mob));
 			if (GET_HEIGHT(mob))
