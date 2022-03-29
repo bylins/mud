@@ -29,10 +29,10 @@ void go_kick(CharData *ch, CharData *vict) {
 	} else {
 		int percent = ((10 - (compute_armor_class(vict) / 10)) * 2) + number(1, MUD::Skills()[ESkill::kKick].difficulty);
 		int prob = CalcCurrentSkill(ch, ESkill::kKick, vict);
-		if (GET_GOD_FLAG(vict, GF_GODSCURSE) || GET_MOB_HOLD(vict)) {
+		if (GET_GOD_FLAG(vict, EGf::kGodscurse) || GET_MOB_HOLD(vict)) {
 			prob = percent;
 		}
-		if (GET_GOD_FLAG(ch, GF_GODSCURSE) || (!ch->ahorse() && vict->ahorse())) {
+		if (GET_GOD_FLAG(ch, EGf::kGodscurse) || (!ch->ahorse() && vict->ahorse())) {
 			prob = 0;
 		}
 		if (check_spell_on_player(ch, kSpellWeb)) {

@@ -259,30 +259,34 @@ extern const religion_names_t religion_name;
 /**
  *	Gods flags.
  */
-constexpr Bitvector GF_GODSLIKE = 1 << 0;
-constexpr Bitvector GF_GODSCURSE = 1 << 1;
-constexpr Bitvector GF_HIGHGOD = 1 << 2;
-constexpr Bitvector GF_REMORT = 1 << 3;
-constexpr Bitvector GF_DEMIGOD = 1 << 4;    // Морталы с привилегиями богов //
-constexpr Bitvector GF_PERSLOG = 1 << 5;
-constexpr Bitvector GF_TESTER = 1 << 6;
+enum EGf : Bitvector {
+	kGodsLike = 1 << 0,
+	kGodscurse = 1 << 1,
+	kHighgod = 1 << 2,
+	kRemort = 1 << 3,
+	kDemigod = 1 << 4,    // Морталы с привилегиями богов //
+	kPerslog = 1 << 5,
+	kAllowTesterMode = 1 << 6
+};
 
 /**
  *	Modes of ignoring
- *	\todo Перенести в модуль с соственно игнорированием каналов.
+ *	\todo Перенести в модуль с собственно игнорированием каналов.
  */
-constexpr Bitvector IGNORE_TELL = 1 << 0;
-constexpr Bitvector IGNORE_SAY = 1 << 1;
-constexpr Bitvector IGNORE_CLAN = 1 << 2;
-constexpr Bitvector IGNORE_ALLIANCE = 1 << 3;
-constexpr Bitvector IGNORE_GOSSIP = 1 << 4;
-constexpr Bitvector IGNORE_SHOUT = 1 << 5;
-constexpr Bitvector IGNORE_HOLLER = 1 << 6;
-constexpr Bitvector IGNORE_GROUP = 1 << 7;
-constexpr Bitvector IGNORE_WHISPER = 1 << 8;
-constexpr Bitvector IGNORE_ASK = 1 << 9;
-constexpr Bitvector IGNORE_EMOTE = 1 << 10;
-constexpr Bitvector IGNORE_OFFTOP = 1 << 11;
+enum EIgnore : Bitvector {
+	kTell = 1 << 0,
+	kSay = 1 << 1,
+	kClan = 1 << 2,
+	kAlliance = 1 << 3,
+	kGossip = 1 << 4,
+	kShout = 1 << 5,
+	kHoller = 1 << 6,
+	kGroup = 1 << 7,
+	kWhisper = 1 << 8,
+	kAsk = 1 << 9,
+	kEmote = 1 << 10,
+	kOfftop = 1 << 11,
+};
 
 /*
  * ========================================================================================

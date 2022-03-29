@@ -2318,7 +2318,7 @@ void do_upgrade(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else {
 		add_dr = add_hr = (max_mod <= min_mod) ? min_mod : number(min_mod, max_mod);
 	}
-	if (percent > prob || GET_GOD_FLAG(ch, GF_GODSCURSE)) {
+	if (percent > prob || GET_GOD_FLAG(ch, EGf::kGodscurse)) {
 		act("Но только загубили $S.", false, ch, obj, 0, kToChar);
 		add_hr = -add_hr;
 		add_dr = -add_dr;
@@ -2425,7 +2425,7 @@ void do_armored(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	TrainSkill(ch, ESkill::kArmoring, percent <= prob, nullptr);
 	add_ac = IS_IMMORTAL(ch) ? -20 : -number(1, (GetRealLevel(ch) + 4) / 5);
 	if (percent > prob
-		|| GET_GOD_FLAG(ch, GF_GODSCURSE)) {
+		|| GET_GOD_FLAG(ch, EGf::kGodscurse)) {
 		act("Но только испортили $S.", false, ch, obj, nullptr, kToChar);
 		add_ac = -add_ac;
 	} else if (GET_SKILL(ch, ESkill::kArmoring) >= 100) {
@@ -2686,10 +2686,10 @@ void do_firstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int percent = number(1, MUD::Skills()[ESkill::kFirstAid].difficulty);
 	int prob = CalcCurrentSkill(ch, ESkill::kFirstAid, vict);
 
-	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE) || GET_GOD_FLAG(vict, GF_GODSLIKE)) {
+	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike) || GET_GOD_FLAG(vict, EGf::kGodsLike)) {
 		percent = prob;
 	}
-	if (GET_GOD_FLAG(ch, GF_GODSCURSE) || GET_GOD_FLAG(vict, GF_GODSCURSE)) {
+	if (GET_GOD_FLAG(ch, EGf::kGodscurse) || GET_GOD_FLAG(vict, EGf::kGodscurse)) {
 		prob = 0;
 	}
 	success = (prob >= percent);

@@ -445,7 +445,7 @@ void SpellPortal(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 	bool pkPortal = pk_action_type_summon(ch, victim) == PK_ACTION_REVENGE ||
 		pk_action_type_summon(ch, victim) == PK_ACTION_FIGHT;
 
-	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(victim, GF_GODSCURSE)
+	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(victim, EGf::kGodscurse)
 		// раньше было <= PK_ACTION_REVENGE, что вызывало абьюз при пенте на чара на арене,
 		// или пенте кидаемой с арены т.к. в данном случае использовалось PK_ACTION_NO которое меньше PK_ACTION_REVENGE
 		|| pkPortal || ((!victim->is_npc() || IS_CHARMICE(ch)) && PRF_FLAGGED(victim, EPrf::KSummonable))

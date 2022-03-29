@@ -14,7 +14,7 @@ void go_bash(CharData *ch, CharData *vict) {
 	}
 
 	if (!(ch->is_npc() || GET_EQ(ch, kShield) || IS_IMMORTAL(ch) || GET_MOB_HOLD(vict)
-		|| GET_GOD_FLAG(vict, GF_GODSCURSE))) {
+		|| GET_GOD_FLAG(vict, EGf::kGodscurse))) {
 		send_to_char("Вы не можете сделать этого без щита.\r\n", ch);
 		return;
 	};
@@ -42,10 +42,10 @@ void go_bash(CharData *ch, CharData *vict) {
 	int percent = number(1, MUD::Skills()[ESkill::kBash].difficulty);
 	int prob = CalcCurrentSkill(ch, ESkill::kBash, vict);
 
-	if (GET_MOB_HOLD(vict) || GET_GOD_FLAG(vict, GF_GODSCURSE)) {
+	if (GET_MOB_HOLD(vict) || GET_GOD_FLAG(vict, EGf::kGodscurse)) {
 		prob = percent;
 	}
-	if (MOB_FLAGGED(vict, MOB_NOBASH) || GET_GOD_FLAG(ch, GF_GODSCURSE)) {
+	if (MOB_FLAGGED(vict, MOB_NOBASH) || GET_GOD_FLAG(ch, EGf::kGodscurse)) {
 		prob = 0;
 	}
 	bool success = percent <= prob;
@@ -81,7 +81,7 @@ void go_bash(CharData *ch, CharData *vict) {
 			&& !AFF_FLAGGED(vict, EAffectFlag::AFF_STOPLEFT)
 			&& GET_WAIT(vict) <= 0
 			&& GET_MOB_HOLD(vict) == 0) {
-			if (!(GET_EQ(vict, kShield) || vict->is_npc() || IS_IMMORTAL(vict) || GET_GOD_FLAG(vict, GF_GODSLIKE)))
+			if (!(GET_EQ(vict, kShield) || vict->is_npc() || IS_IMMORTAL(vict) || GET_GOD_FLAG(vict, EGf::kGodsLike)))
 				send_to_char("У вас нечем отразить атаку противника.\r\n", vict);
 			else {
 				int range, prob2;

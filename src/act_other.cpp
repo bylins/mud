@@ -506,7 +506,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 		percent = MAX(percent - 50, 0);
 
 	// NO NO With Imp's and Shopkeepers, and if player thieving is not allowed
-	if ((IS_IMMORTAL(vict) || GET_GOD_FLAG(vict, GF_GODSLIKE) || GET_MOB_SPEC(vict) == shop_ext)
+	if ((IS_IMMORTAL(vict) || GET_GOD_FLAG(vict, EGf::kGodsLike) || GET_MOB_SPEC(vict) == shop_ext)
 		&& !IS_IMPL(ch)) {
 		send_to_char("Вы постеснялись красть у такого хорошего человека.\r\n", ch);
 		return;
@@ -674,7 +674,7 @@ void do_steal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Попробуйте набрать \"бросить <n> кун\".\r\n", ch);
 		return;
 	}
-	if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) && !(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE))) {
+	if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) && !(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike))) {
 		send_to_char("Здесь слишком мирно. Вам не хочется нарушать сию благодать...\r\n", ch);
 		return;
 	}
@@ -684,7 +684,7 @@ void do_steal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	if (vict->is_npc() && (MOB_FLAGGED(vict, MOB_NOFIGHT) || AFF_FLAGGED(vict, EAffectFlag::AFF_SHIELD)
 		|| MOB_FLAGGED(vict, MOB_PROTECT))
-		&& !(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE))) {
+		&& !(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike))) {
 		send_to_char("А ежели поймают? Посодют ведь!\r\nПодумав так, вы отказались от сего намеренья.\r\n", ch);
 		return;
 	}
@@ -1823,7 +1823,7 @@ void do_mode(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if ((i = search_block(arg, gen_tog_type, false)) < 0) {
 		showhelp = true;
 	} else if ((GetRealLevel(ch) < gen_tog_param[i >> 1].level)
-		|| (!GET_GOD_FLAG(ch, GF_TESTER) && gen_tog_param[i >> 1].tester)) {
+		|| (!GET_GOD_FLAG(ch, EGf::kAllowTesterMode) && gen_tog_param[i >> 1].tester)) {
 		send_to_char("Эта команда вам недоступна.\r\n", ch);
 		return;
 	} else {
@@ -1835,7 +1835,7 @@ void do_mode(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		fort::char_table table;
 		for (i = 0; *gen_tog_type[i << 1] != '\n'; i++) {
 			if ((GetRealLevel(ch) >= gen_tog_param[i].level)
-				&& (GET_GOD_FLAG(ch, GF_TESTER) || !gen_tog_param[i].tester)) {
+				&& (GET_GOD_FLAG(ch, EGf::kAllowTesterMode) || !gen_tog_param[i].tester)) {
 				table << gen_tog_type[i << 1] << gen_tog_type[(i << 1) + 1] << fort::endr;
 			}
 		}
@@ -2103,7 +2103,7 @@ void do_gen_tog(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			result = PRF_TOG_CHK(ch, EPrf::kMapper);
 			break;
 		case SCMD_TESTER:
-			//if (GET_GOD_FLAG(ch, GF_TESTER))
+			//if (GET_GOD_FLAG(ch, EGodFlag::TESTER))
 			//{
 			result = PRF_TOG_CHK(ch, EPrf::kTester);
 			//return;

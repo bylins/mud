@@ -29,7 +29,7 @@ void do_block(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (!(ch->is_npc()
 		|| GET_EQ(ch, kShield)
 		|| IS_IMMORTAL(ch)
-		|| GET_GOD_FLAG(ch, GF_GODSLIKE))) {
+		|| GET_GOD_FLAG(ch, EGf::kGodsLike))) {
 		send_to_char("Вы не можете сделать это без щита.\r\n", ch);
 		return;
 	}

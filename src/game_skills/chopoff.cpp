@@ -40,14 +40,14 @@ void go_chopoff(CharData *ch, CharData *vict) {
 	if (check_spell_on_player(ch, kSpellWeb)) {
 		prob /= 3;
 	}
-	if (GET_GOD_FLAG(ch, GF_GODSLIKE)
+	if (GET_GOD_FLAG(ch, EGf::kGodsLike)
 		|| GET_MOB_HOLD(vict)
-		|| GET_GOD_FLAG(vict, GF_GODSCURSE)) {
+		|| GET_GOD_FLAG(vict, EGf::kGodscurse)) {
 		prob = percent;
 	}
 
-	if (GET_GOD_FLAG(ch, GF_GODSCURSE) ||
-		GET_GOD_FLAG(vict, GF_GODSLIKE) ||
+	if (GET_GOD_FLAG(ch, EGf::kGodscurse) ||
+		GET_GOD_FLAG(vict, EGf::kGodsLike) ||
 		vict->ahorse() || GET_POS(vict) < EPosition::kFight || MOB_FLAGGED(vict, MOB_NOTRIP) || IS_IMMORTAL(vict))
 		prob = 0;
 

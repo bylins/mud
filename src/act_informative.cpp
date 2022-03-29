@@ -2605,7 +2605,7 @@ void do_looking(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 			send_to_char("Вы напрягли зрение и начали присматриваться по сторонам.\r\n", ch);
 			for (i = 0; i < kDirMaxNumber; i++)
 				look_in_direction(ch, i, EXIT_SHOW_LOOKING);
-			if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)))
+			if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike)))
 				WAIT_STATE(ch, 1 * kPulseViolence);
 		}
 	} else
@@ -2632,7 +2632,7 @@ void do_hearing(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 			send_to_char("Вы начали сосредоточенно прислушиваться.\r\n", ch);
 			for (i = 0; i < kDirMaxNumber; i++)
 				hear_in_direction(ch, i, 0);
-			if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)))
+			if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike)))
 				WAIT_STATE(ch, 1 * kPulseViolence);
 		}
 	} else
@@ -3056,7 +3056,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			switch (mode) {
 				case 'b':
 				case 'и':
-					if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_DEMIGOD) || PRF_FLAGGED(ch, EPrf::kCoderinfo))
+					if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kDemigod) || PRF_FLAGGED(ch, EPrf::kCoderinfo))
 						showname = true;
 					strcpy(buf, buf1);
 					break;
@@ -3216,7 +3216,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				sprintf(buf + strlen(buf), " (нем%s)", GET_CH_SUF_6(tch));
 			if (PLR_FLAGGED(tch, EPlrFlag::kKiller) == EPlrFlag::kKiller)
 				sprintf(buf + strlen(buf), "&R (ДУШЕГУБ)&n");
-			if ((IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_DEMIGOD)) && !NAME_GOD(tch)
+			if ((IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kDemigod)) && !NAME_GOD(tch)
 				&& GetRealLevel(tch) <= kNameLevel) {
 				sprintf(buf + strlen(buf), " &W!НЕ ОДОБРЕНО!&n");
 				if (showname) {
@@ -3224,7 +3224,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 							"\r\nПадежи: %s/%s/%s/%s/%s/%s Email: &S%s&s Пол: %s",
 							GET_PAD(tch, 0), GET_PAD(tch, 1), GET_PAD(tch, 2),
 							GET_PAD(tch, 3), GET_PAD(tch, 4), GET_PAD(tch, 5),
-							GET_GOD_FLAG(ch, GF_DEMIGOD) ? "скрыто" : GET_EMAIL(tch),
+							GET_GOD_FLAG(ch, EGf::kDemigod) ? "скрыто" : GET_EMAIL(tch),
 							genders[static_cast<int>(GET_SEX(tch))]);
 				}
 			}
@@ -3233,7 +3233,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			else if ((IS_IMMORTAL(ch) || PRF_FLAGGED(ch, EPrf::kCoderinfo)) && NAME_BAD(tch)) {
 				sprintf(buf + strlen(buf), " &Wзапрет %s!&n", get_name_by_id(NAME_ID_GOD(tch)));
 			}
-			if (IS_GOD(ch) && (GET_GOD_FLAG(tch, GF_TESTER) || PRF_FLAGGED(tch, EPrf::kTester)))
+			if (IS_GOD(ch) && (GET_GOD_FLAG(tch, EGf::kAllowTesterMode) || PRF_FLAGGED(tch, EPrf::kTester)))
 				sprintf(buf + strlen(buf), " &G(ТЕСТЕР!)&n");
 			if (IS_GOD(ch) && (PLR_FLAGGED(tch, EPlrFlag::kAutobot)))
 				sprintf(buf + strlen(buf), " &G(БОТ!)&n");
@@ -3247,8 +3247,8 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (!short_list || !(imms_num % 4)) {
 				imms += "\r\n";
 			}
-		} else if (GET_GOD_FLAG(tch, GF_DEMIGOD)
-			&& (IS_IMMORTAL(ch) || PRF_FLAGGED(ch, EPrf::kCoderinfo) || GET_GOD_FLAG(tch, GF_DEMIGOD))) {
+		} else if (GET_GOD_FLAG(tch, EGf::kDemigod)
+			&& (IS_IMMORTAL(ch) || PRF_FLAGGED(ch, EPrf::kCoderinfo) || GET_GOD_FLAG(tch, EGf::kDemigod))) {
 			demigods_num++;
 			demigods += buf;
 			if (!short_list || !(demigods_num % 4)) {
@@ -3933,7 +3933,7 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			 ONOFF(PRF_FLAGGED(ch, EPrf::kMapper)),
 			 ONOFF(PRF_FLAGGED(ch, EPrf::kIpControl)));
 	send_to_char(buf, ch);
-	if (GET_GOD_FLAG(ch, GF_TESTER))
+	if (GET_GOD_FLAG(ch, EGf::kAllowTesterMode))
 		sprintf(buf, " Тестер        : %-3s\r\n", ONOFF(PRF_FLAGGED(ch, EPrf::kTester)));
 	else
 		sprintf(buf, "\r\n");

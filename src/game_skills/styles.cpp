@@ -31,7 +31,7 @@ void do_touch(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	};
 
 	ObjData *primary = GET_EQ(ch, EEquipPos::kWield) ? GET_EQ(ch, EEquipPos::kWield) : GET_EQ(ch, EEquipPos::kBoths);
-	if (!(IS_IMMORTAL(ch) || ch->is_npc() || GET_GOD_FLAG(ch, GF_GODSLIKE) || !primary)) {
+	if (!(IS_IMMORTAL(ch) || ch->is_npc() || GET_GOD_FLAG(ch, EGf::kGodsLike) || !primary)) {
 		send_to_char("У вас заняты руки.\r\n", ch);
 		return;
 	}

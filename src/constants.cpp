@@ -1827,13 +1827,13 @@ struct AttackHitType attack_hit_text[] =
 
 const char *godslike_bits[] =
 	{
-		"GF_GODSLIKE",
-		"GF_GODSCURSE",
-		"GF_HIGHGOD",
-		"GF_REMORT",
-		"GF_DEMIGOD",
-		"GF_PERSLOG",
-		"GF_TESTER",
+		"GODSLIKE",
+		"GODSCURSE",
+		"HIGHGOD",
+		"REMORT",
+		"DEMIGOD",
+		"PERSLOG",
+		"TESTER",
 		"\n"
 	};
 

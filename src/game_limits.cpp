@@ -495,17 +495,17 @@ void beat_punish(const CharData::shared_ptr &i) {
 
 	}
 
-	if (GET_GOD_FLAG(i, GF_GODSLIKE)
+	if (GET_GOD_FLAG(i, EGf::kGodsLike)
 		&& GCURSE_DURATION(i) != 0
 		&& GCURSE_DURATION(i) <= time(nullptr)) {
-		CLR_GOD_FLAG(i, GF_GODSLIKE);
+		CLR_GOD_FLAG(i, EGf::kGodsLike);
 		send_to_char("Вы более не под защитой Богов.\r\n", i.get());
 	}
 
-	if (GET_GOD_FLAG(i, GF_GODSCURSE)
+	if (GET_GOD_FLAG(i, EGf::kGodscurse)
 		&& GCURSE_DURATION(i) != 0
 		&& GCURSE_DURATION(i) <= time(nullptr)) {
-		CLR_GOD_FLAG(i, GF_GODSCURSE);
+		CLR_GOD_FLAG(i, EGf::kGodscurse);
 		send_to_char("Боги более не в обиде на вас.\r\n", i.get());
 	}
 
@@ -733,7 +733,7 @@ void beat_points_update(int pulse) {
 void update_clan_exp(CharData *ch, int gain) {
 	if (CLAN(ch) && gain != 0) {
 		// экспа для уровня клана (+ только на праве, - любой, но /5)
-		if (gain < 0 || GET_GOD_FLAG(ch, GF_REMORT)) {
+		if (gain < 0 || GET_GOD_FLAG(ch, EGf::kRemort)) {
 			int tmp = gain > 0 ? gain : gain / 5;
 			CLAN(ch)->SetClanExp(ch, tmp);
 		}
@@ -768,7 +768,7 @@ void gain_exp(CharData *ch, int gain) {
 		gain = MIN(max_exp_gain_pc(ch), gain);    // put a cap on the max gain per kill
 		ch->set_exp(ch->get_exp() + gain);
 		if (GET_EXP(ch) >= level_exp(ch, kLvlImmortal)) {
-			if (!GET_GOD_FLAG(ch, GF_REMORT) && GET_REAL_REMORT(ch) < kMaxRemort) {
+			if (!GET_GOD_FLAG(ch, EGf::kRemort) && GET_REAL_REMORT(ch) < kMaxRemort) {
 				if (Remort::can_remort_now(ch)) {
 					send_to_char(ch, "%sПоздравляем, вы получили право на перевоплощение!%s\r\n",
 								 CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
@@ -777,7 +777,7 @@ void gain_exp(CharData *ch, int gain) {
 								 "%sПоздравляем, вы набрали максимальное количество опыта!\r\n"
 								 "%s%s\r\n", CCIGRN(ch, C_NRM), Remort::WHERE_TO_REMORT_STR.c_str(), CCNRM(ch, C_NRM));
 				}
-				SET_GOD_FLAG(ch, GF_REMORT);
+				SET_GOD_FLAG(ch, EGf::kRemort);
 			}
 		}
 		ch->set_exp(MIN(GET_EXP(ch), level_exp(ch, kLvlImmortal) - 1));
@@ -815,14 +815,14 @@ void gain_exp(CharData *ch, int gain) {
 		}
 	}
 	if ((GET_EXP(ch) < level_exp(ch, kLvlImmortal) - 1)
-		&& GET_GOD_FLAG(ch, GF_REMORT)
+		&& GET_GOD_FLAG(ch, EGf::kRemort)
 		&& gain
 		&& (GetRealLevel(ch) < kLvlImmortal)) {
 		if (Remort::can_remort_now(ch)) {
 			send_to_char(ch, "%sВы потеряли право на перевоплощение!%s\r\n",
 						 CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 		}
-		CLR_GOD_FLAG(ch, GF_REMORT);
+		CLR_GOD_FLAG(ch, EGf::kRemort);
 	}
 
 	char_stat::AddClassExp(GET_CLASS(ch), gain);

@@ -1171,7 +1171,7 @@ void command_interpreter(CharData *ch, char *argument) {
 			GlobalObjects::heartbeat().pulse_number(),
 			GET_ROOM_VNUM(ch->in_room),
 			argument);
-		if (GetRealLevel(ch) >= kLvlImmortal || GET_GOD_FLAG(ch, GF_PERSLOG) || GET_GOD_FLAG(ch, GF_DEMIGOD))
+		if (GetRealLevel(ch) >= kLvlImmortal || GET_GOD_FLAG(ch, EGf::kPerslog) || GET_GOD_FLAG(ch, EGf::kDemigod))
 			pers_log(ch, "<%s> {%5d} [%s]", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room), argument);
 	}
 
@@ -2376,11 +2376,11 @@ void do_entergame(DescriptorData *d) {
 	// На входе в игру вешаем флаг (странно, что он до этого нигде не вешался
 	if (privilege::IsContainedInGodsList(GET_NAME(d->character), GET_UNIQUE(d->character))
 		&& (GetRealLevel(d->character) < kLvlGod)) {
-		SET_GOD_FLAG(d->character, GF_DEMIGOD);
+		SET_GOD_FLAG(d->character, EGf::kDemigod);
 	}
 	// Насильственно забираем этот флаг у иммов (если он, конечно же, есть
-	if ((GET_GOD_FLAG(d->character, GF_DEMIGOD) && GetRealLevel(d->character) >= kLvlGod)) {
-		CLR_GOD_FLAG(d->character, GF_DEMIGOD);
+	if ((GET_GOD_FLAG(d->character, EGf::kDemigod) && GetRealLevel(d->character) >= kLvlGod)) {
+		CLR_GOD_FLAG(d->character, EGf::kDemigod);
 	}
 
 	switch (GET_SEX(d->character)) {
@@ -4157,7 +4157,7 @@ void god_work_invoice() {
 	for (DescriptorData *d = descriptor_list; d; d = d->next) {
 		if (d->character && STATE(d) == CON_PLAYING) {
 			if (IS_IMMORTAL(d->character)
-				|| GET_GOD_FLAG(d->character, GF_DEMIGOD)) {
+				|| GET_GOD_FLAG(d->character, EGf::kDemigod)) {
 				single_god_invoice(d->character.get());
 			}
 		}

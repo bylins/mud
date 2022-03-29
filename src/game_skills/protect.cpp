@@ -138,7 +138,7 @@ CharData *TryToFindProtector(CharData *victim, CharData *ch) {
 			if (vict->haveCooldown(ESkill::kProtect)) {
 				prob /= 2;
 			};
-			if (GET_GOD_FLAG(vict, GF_GODSCURSE)) {
+			if (GET_GOD_FLAG(vict, EGf::kGodscurse)) {
 				prob = 0;
 			}
 			bool success = prob >= percent;

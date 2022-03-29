@@ -87,7 +87,7 @@ int do_social(CharData *ch, char *argument) {
 		send_to_char("\r\n", ch);
 		for (const auto to : world[ch->in_room]->people) {
 			if (to == ch
-				|| ignores(to, ch, IGNORE_EMOTE)) {
+				|| ignores(to, ch, EIgnore::kEmote)) {
 				continue;
 			}
 
@@ -107,7 +107,7 @@ int do_social(CharData *ch, char *argument) {
 		send_to_char("\r\n", ch);
 		for (const auto to : world[ch->in_room]->people) {
 			if (to == ch
-				|| ignores(to, ch, IGNORE_EMOTE)) {
+				|| ignores(to, ch, EIgnore::kEmote)) {
 				continue;
 			}
 
@@ -128,7 +128,7 @@ int do_social(CharData *ch, char *argument) {
 // для глухих -- то же самое.
 			act(action->others_found, false, ch, nullptr, vict, kToNotVict | kToNotDeaf);
 			act(deaf_social, false, ch, nullptr, nullptr, kToRoom | kToDeaf);
-			if (!ignores(vict, ch, IGNORE_EMOTE))
+			if (!ignores(vict, ch, EIgnore::kEmote))
 				act(action->vict_found, false, ch, nullptr, vict, kToVict | kToNotDeaf);
 		}
 	}

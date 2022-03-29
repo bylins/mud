@@ -1740,9 +1740,9 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 		total_percent /= 2;
 	}
 
-	if (GET_GOD_FLAG(ch, GF_GODSLIKE) || (vict && GET_GOD_FLAG(vict, GF_GODSCURSE))) {
+	if (GET_GOD_FLAG(ch, EGf::kGodsLike) || (vict && GET_GOD_FLAG(vict, EGf::kGodscurse))) {
 		total_percent = MUD::Skills()[skill_id].cap;
-	} else if (GET_GOD_FLAG(ch, GF_GODSCURSE)) {
+	} else if (GET_GOD_FLAG(ch, EGf::kGodscurse)) {
 		total_percent = 0;
 	}
 

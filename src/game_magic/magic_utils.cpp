@@ -659,7 +659,7 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, int s
 }
 
 int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, int spellnum) {
-	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)) {
+	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike)) {
 		return true;
 	}
 
@@ -685,14 +685,14 @@ int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, int spellnum
 	}
 
 	prob = complex_spell_modifier(ch, spellnum, GAPPLY_SPELL_SUCCESS, prob);
-	if (GET_GOD_FLAG(ch, GF_GODSCURSE) ||
-		(SpINFO.violent && victim && GET_GOD_FLAG(victim, GF_GODSLIKE)) ||
-		(!SpINFO.violent && victim && GET_GOD_FLAG(victim, GF_GODSCURSE))) {
+	if (GET_GOD_FLAG(ch, EGf::kGodscurse) ||
+		(SpINFO.violent && victim && GET_GOD_FLAG(victim, EGf::kGodsLike)) ||
+		(!SpINFO.violent && victim && GET_GOD_FLAG(victim, EGf::kGodscurse))) {
 		prob -= 50;
 	}
 
-	if ((SpINFO.violent && victim && GET_GOD_FLAG(victim, GF_GODSCURSE)) ||
-		(!SpINFO.violent && victim && GET_GOD_FLAG(victim, GF_GODSLIKE))) {
+	if ((SpINFO.violent && victim && GET_GOD_FLAG(victim, EGf::kGodscurse)) ||
+		(!SpINFO.violent && victim && GET_GOD_FLAG(victim, EGf::kGodsLike))) {
 		prob += 50;
 	}
 

@@ -118,12 +118,12 @@ void CharRemember::add_str(std::string text, int flag) {
 			break;
 		case PERSONAL: add_to_cont(personal_, buffer);
 			break;
-		case GROUP:// added by WorM  групптелы 2010.10.13
+		case kGroup:// added by WorM  групптелы 2010.10.13
 			add_to_cont(group_, buffer);
 			break;
-		case GOSSIP: add_to_cont(gossip, buffer);
+		case kGossip: add_to_cont(gossip, buffer);
 			break;
-		case OFFTOP: add_to_cont(offtop, buffer);
+		case kOfftop: add_to_cont(offtop, buffer);
 			break;
 		case PRAY: add_to_cont(imm_pray, buffer);
 			break;
@@ -146,12 +146,12 @@ std::string CharRemember::get_text(int flag) const {
 			break;
 		case PERSONAL: buffer = get_from_cont(personal_, num_str_);
 			break;
-		case GROUP:// added by WorM  групптелы 2010.10.13
+		case kGroup:// added by WorM  групптелы 2010.10.13
 			buffer = get_from_cont(group_, num_str_);
 			break;
-		case GOSSIP: buffer = get_from_cont(gossip, num_str_);
+		case kGossip: buffer = get_from_cont(gossip, num_str_);
 			break;
-		case OFFTOP: buffer = get_from_cont(offtop, num_str_);
+		case kOfftop: buffer = get_from_cont(offtop, num_str_);
 			break;
 		case PRAY: buffer = get_from_cont(imm_pray, num_str_);
 			break;

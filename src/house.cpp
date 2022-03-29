@@ -1525,7 +1525,7 @@ void Clan::CharToChannel(CharData *ch, std::string text, int subcmd) {
 					&& STATE(d) == CON_PLAYING
 					&& CLAN(d->character) == CLAN(ch)
 					&& !AFF_FLAGGED(d->character, EAffectFlag::AFF_DEAFNESS)
-					&& !ignores(d->character.get(), ch, IGNORE_CLAN)) {
+					&& !ignores(d->character.get(), ch, EIgnore::kClan)) {
 					snprintf(buf, kMaxStringLength, "%s дружине: %s'%s'.%s\r\n",
 							 GET_NAME(ch), CCIRED(d->character, C_NRM), text.c_str(), CCNRM(d->character, C_NRM));
 					d->character->remember_add(buf, Remember::ALL);
@@ -1562,7 +1562,7 @@ void Clan::CharToChannel(CharData *ch, std::string text, int subcmd) {
 					&& STATE(d) == CON_PLAYING
 					&& d->character.get() != ch
 					&& !AFF_FLAGGED(d->character, EAffectFlag::AFF_DEAFNESS)
-					&& !ignores(d->character.get(), ch, IGNORE_ALLIANCE)) {
+					&& !ignores(d->character.get(), ch, EIgnore::kAlliance)) {
 					if (CLAN(ch)->CheckPolitics(CLAN(d->character)->GetRent()) == POLITICS_ALLIANCE
 						|| CLAN(ch) == CLAN(d->character)) {
 						// проверка на альянс с обеих сторон, шоб не спамили друг другу на зло
@@ -4507,7 +4507,7 @@ void Clan::HouseStat(CharData *ch, std::string &buffer) {
 			} else if (!IS_IMMORTAL(d->character)) {
 				it.second->level = GetRealLevel(d->character);
 				it.second->class_abbr = MUD::Classes()[d->character->get_class()].GetAbbr();
-				it.second->remort = GET_GOD_FLAG(d->character, GF_REMORT) ? true : false;
+				it.second->remort = GET_GOD_FLAG(d->character, EGf::kRemort) ? true : false;
 				it.second->remorts_amount = GET_REMORT(d->character);
 			}
 		} else if (name) {

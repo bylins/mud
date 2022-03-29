@@ -555,7 +555,7 @@ void gain_torc(CharData *ch, int drop) {
 
 // дергается из экстракт_чар, у босса берется макс дамагер, находящийся
 // в той же комнате, группе готорого и раскидываются гривны, если есть
-// кому раскидывать (флаг GF_REMORT, проверка на делимость гривен, проверка на
+// кому раскидывать (флаг EGodFlag::REMORT, проверка на делимость гривен, проверка на
 // то, что чар находился в комнате с мобом не менее половины раундов дамагера)
 void drop_torc(CharData *mob) {
 	if (!mob->get_role(MOB_ROLE_BOSS)
@@ -594,7 +594,7 @@ void drop_torc(CharData *mob) {
 	}
 
 	if (IN_ROOM(leader) == IN_ROOM(mob)
-		&& GET_GOD_FLAG(leader, GF_REMORT)
+		&& GET_GOD_FLAG(leader, EGf::kRemort)
 		&& (GET_UNIQUE(leader) == damager.first
 			|| mob->get_attacker(leader, ATTACKER_ROUNDS) >= damager.second / 2)) {
 		gain_torc(leader, drop);
@@ -604,7 +604,7 @@ void drop_torc(CharData *mob) {
 		if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
 			&& f->ch->in_room == IN_ROOM(mob)
 			&& !f->ch->is_npc()
-			&& GET_GOD_FLAG(f->ch, GF_REMORT)
+			&& GET_GOD_FLAG(f->ch, EGf::kRemort)
 			&& mob->get_attacker(f->ch, ATTACKER_ROUNDS) >= damager.second / 2) {
 			gain_torc(f->ch, drop);
 		}
@@ -778,7 +778,7 @@ void donat_torc(CharData *ch, const std::string &mob_name, unsigned type, int am
 				 "%s оценил ваши заслуги перед князем и народом земли русской и вознес вам хвалу.\r\n"
 				 "Вы почувствовали себя значительно опытней.\r\n", name.c_str());
 
-	if (GET_GOD_FLAG(ch, GF_REMORT)) {
+	if (GET_GOD_FLAG(ch, EGf::kRemort)) {
 		send_to_char(ch,
 					 "%sПоздравляем, вы получили право на перевоплощение!%s\r\n",
 					 CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
@@ -840,7 +840,7 @@ int torc(CharData *ch, void *me, int cmd, char * /*argument*/) {
 				"Вам не нужно подтверждать свое право на перевоплощение, просто наберите 'перевоплотиться'.\r\n", ch);
 		} else if (PRF_FLAGGED(ch, EPrf::kCanRemort)) {
 			// чар на этом морте уже жертвовал необходимое кол-во гривен
-			if (GET_GOD_FLAG(ch, GF_REMORT)) {
+			if (GET_GOD_FLAG(ch, EGf::kRemort)) {
 				send_to_char(
 					"Вы уже подтвердили свое право на перевоплощение, просто наберите 'перевоплотиться'.\r\n", ch);
 			} else {

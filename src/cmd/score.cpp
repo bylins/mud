@@ -298,7 +298,7 @@ void PrintBonusStateInfo(CharData *ch, std::ostringstream &out) {
 }
 
 void PrintExpTaxInfo(CharData *ch, std::ostringstream &out) {
-	if (GET_GOD_FLAG(ch, GF_REMORT) && CLAN(ch)) {
+	if (GET_GOD_FLAG(ch, EGf::kRemort) && CLAN(ch)) {
 		out << InfoStrPrefix(ch) << "Вы самоотверженно отдаете весь получаемый опыт своей дружине." << std::endl;
 	}
 }
@@ -443,7 +443,7 @@ void PrintPunishmentsInfo(CharData *ch, std::ostringstream &out) {
  	* наказаний, а отдельными флагами. По-хорошему, надо их привести к общему знаменателю (тем более, что счесть
  	* избранность богами наказанием - в некотором смысле символично).
  	*/
-	if (GET_GOD_FLAG(ch, GF_GODSCURSE) && GCURSE_DURATION(ch)) {
+	if (GET_GOD_FLAG(ch, EGf::kGodscurse) && GCURSE_DURATION(ch)) {
 		punish_info.punish = &ch->player_specials->pgcurse;
 		punish_info.msg = "Вы прокляты Богами на ";
 		PrintSinglePunishmentInfo(punish_info, out);
@@ -916,7 +916,7 @@ void PrintScoreBase(CharData *ch) {
 		send_to_char(buf, ch);
 	}
 
-	if (GET_GOD_FLAG(ch, GF_GODSCURSE) && GCURSE_DURATION(ch)) {
+	if (GET_GOD_FLAG(ch, EGf::kGodscurse) && GCURSE_DURATION(ch)) {
 		const int hrs = (GCURSE_DURATION(ch) - time(nullptr)) / 3600;
 		const int mins = ((GCURSE_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
 		sprintf(buf, "Вы прокляты Богами на %d %s %d %s.\r\n",

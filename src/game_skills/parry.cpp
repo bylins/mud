@@ -36,7 +36,7 @@ void do_multyparry(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 			&& offhand
 			&& GET_OBJ_TYPE(offhand) == ObjData::ITEM_WEAPON)
 		|| IS_IMMORTAL(ch)
-		|| GET_GOD_FLAG(ch, GF_GODSLIKE))) {
+		|| GET_GOD_FLAG(ch, EGf::kGodsLike))) {
 		send_to_char("Вы не можете отражать атаки безоружным.\r\n", ch);
 		return;
 	}
@@ -73,7 +73,7 @@ void do_parry(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!IS_IMMORTAL(ch) && !GET_GOD_FLAG(ch, GF_GODSLIKE)) {
+	if (!IS_IMMORTAL(ch) && !GET_GOD_FLAG(ch, EGf::kGodsLike)) {
 		if (GET_EQ(ch, EEquipPos::kBoths)) {
 			send_to_char("Вы не можете отклонить атаку двуручным оружием.\r\n", ch);
 			return;

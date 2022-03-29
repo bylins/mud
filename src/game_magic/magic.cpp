@@ -66,9 +66,9 @@ int CalcAntiSavings(CharData *ch) {
 
 	if (WAITLESS(ch))
 		modi = 350;
-	else if (GET_GOD_FLAG(ch, GF_GODSLIKE))
+	else if (GET_GOD_FLAG(ch, EGf::kGodsLike))
 		modi = 250;
-	else if (GET_GOD_FLAG(ch, GF_GODSCURSE))
+	else if (GET_GOD_FLAG(ch, EGf::kGodscurse))
 		modi = -250;
 	else
 		modi = GET_CAST_SUCCESS(ch);
@@ -151,9 +151,9 @@ int CalculateSaving(CharData *killer, CharData *victim, ESaving saving, int ext_
 
 	if (IS_GOD(victim))
 		save = -150;
-	else if (GET_GOD_FLAG(victim, GF_GODSLIKE))
+	else if (GET_GOD_FLAG(victim, EGf::kGodsLike))
 		save -= 50;
-	else if (GET_GOD_FLAG(victim, GF_GODSCURSE))
+	else if (GET_GOD_FLAG(victim, EGf::kGodscurse))
 		save += 50;
 	if (victim->is_npc() && !killer->is_npc()) {
 		killer->send_to_TC(false, true, true, "SAVING: Caster==%s  Mob==%s vnum==%d Level==%d base_save==%d stat_bonus==%d awake_bonus==%d save_ext==%d +cast==%d result==%d new_random==%d\r\n",
@@ -1614,7 +1614,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 			if (MOB_FLAGGED(victim, MOB_NOBLIND) ||
 				WAITLESS(victim) ||
 				((ch != victim) &&
-					!GET_GOD_FLAG(victim, GF_GODSCURSE) && CalcGeneralSaving(ch, victim, savetype, modi))) {
+					!GET_GOD_FLAG(victim, EGf::kGodscurse) && CalcGeneralSaving(ch, victim, savetype, modi))) {
 				send_to_char(NOEFFECT, ch);
 				success = false;
 				break;

@@ -31,7 +31,7 @@ void do_retreat(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 		return;
 	} else {
 		stop_fighting(ch, true);
-		if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)))
+		if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike)))
 			WAIT_STATE(ch, kPulseViolence);
 		send_to_char("Вы отступили из битвы.\r\n", ch);
 		act("$n выбыл$g из битвы.", false, ch, 0, 0, kToRoom | kToArenaListen);

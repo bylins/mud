@@ -111,7 +111,7 @@ int pk_calc_spamm(CharData *ch) {
 
 void pk_check_spamm(CharData *ch) {
 	if (pk_calc_spamm(ch) > MAX_PKILL_FOR_PERIOD) {
-		SET_GOD_FLAG(ch, GF_GODSCURSE);
+		SET_GOD_FLAG(ch, EGf::kGodscurse);
 		GCURSE_DURATION(ch) = time(0) + TIME_GODS_CURSE * 60 * 60;
 		act("Боги прокляли тот день, когда ты появился на свет!", false, ch, 0, 0, kToChar);
 	}

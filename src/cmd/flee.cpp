@@ -127,7 +127,7 @@ void do_flee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Но вы ведь ни с кем не сражаетесь!\r\n", ch);
 		return;
 	}
-	if (can_use_feat(ch, CALMNESS_FEAT) || GET_GOD_FLAG(ch, GF_GODSLIKE)) {
+	if (can_use_feat(ch, CALMNESS_FEAT) || GET_GOD_FLAG(ch, EGf::kGodsLike)) {
 		one_argument(argument, arg);
 		if ((direction = search_block(arg, dirs, false)) >= 0 ||
 			(direction = search_block(arg, FleeDirs, false)) >= 0) {

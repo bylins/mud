@@ -69,7 +69,7 @@ void do_say(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 // для возможности игнорирования теллов в клетку
 // пришлось изменить act в клетку на проход по клетке
 		for (const auto to : world[ch->in_room]->people) {
-			if (ch == to || ignores(to, ch, IGNORE_SAY)) {
+			if (ch == to || ignores(to, ch, EIgnore::kSay)) {
 				continue;
 			}
 			act(buf, false, ch, 0, to, kToVict | DG_NO_TRIG | kToNotDeaf);
@@ -122,7 +122,7 @@ void do_gsay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP)
 			&& k != ch
-			&& !ignores(k, ch, IGNORE_GROUP)) {
+			&& !ignores(k, ch, EIgnore::kGroup)) {
 			act(buf, false, ch, 0, k, kToVict | kToSleep | kToNotDeaf);
 			// added by WorM  групптелы 2010.10.13
 			if (!AFF_FLAGGED(k, EAffectFlag::AFF_DEAFNESS)
@@ -140,7 +140,7 @@ void do_gsay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		for (f = k->followers; f; f = f->next) {
 			if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
 				&& (f->ch != ch)
-				&& !ignores(f->ch, ch, IGNORE_GROUP)) {
+				&& !ignores(f->ch, ch, EIgnore::kGroup)) {
 				act(buf, false, ch, 0, f->ch, kToVict | kToSleep | kToNotDeaf);
 				// added by WorM  групптелы 2010.10.13
 				if (!AFF_FLAGGED(f->ch, EAffectFlag::AFF_DEAFNESS)
@@ -245,7 +245,7 @@ int is_tell_ok(CharData *ch, CharData *vict) {
 	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF))
 		send_to_char(SOUNDPROOF, ch);
 	else if ((!vict->is_npc() &&
-		(PRF_FLAGGED(vict, EPrf::kNoTell) || ignores(vict, ch, IGNORE_TELL))) ||
+		(PRF_FLAGGED(vict, EPrf::kNoTell) || ignores(vict, ch, EIgnore::kTell))) ||
 		ROOM_FLAGGED(vict->in_room, ROOM_SOUNDPROOF))
 		act("$N не сможет вас услышать.", false, ch, 0, vict, kToChar | kToSleep);
 	else if (GET_POS(vict) < EPosition::kRest || AFF_FLAGGED(vict, EAffectFlag::AFF_DEAFNESS))
@@ -385,7 +385,7 @@ void do_spec_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		send_to_char(NOPERSON, ch);
 	else if (vict == ch)
 		send_to_char("От ваших уст до ушей - всего одна ладонь...\r\n", ch);
-	else if (ignores(vict, ch, subcmd == SCMD_WHISPER ? IGNORE_WHISPER : IGNORE_ASK)) {
+	else if (ignores(vict, ch, subcmd == SCMD_WHISPER ? EIgnore::kWhisper : EIgnore::kAsk)) {
 		sprintf(buf, "%s не желает вас слышать.\r\n", GET_NAME(vict));
 		send_to_char(buf, ch);
 	} else {
@@ -737,17 +737,17 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			}
 		}
 		switch (subcmd) {
-			case SCMD_SHOUT: ign_flag = IGNORE_SHOUT;
+			case SCMD_SHOUT: ign_flag = EIgnore::kShout;
 				break;
 			case SCMD_GOSSIP:
 				if (PLR_FLAGGED(ch, EPlrFlag::kSpamer))
 					return;
-				ign_flag = IGNORE_GOSSIP;
+				ign_flag = EIgnore::kGossip;
 				break;
 			case SCMD_HOLLER:
 				if (PLR_FLAGGED(ch, EPlrFlag::kSpamer))
 					return;
-				ign_flag = IGNORE_HOLLER;
+				ign_flag = EIgnore::kHoller;
 				break;
 			default: ign_flag = 0;
 		}
@@ -905,7 +905,7 @@ void do_pray_gods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	for (i = descriptor_list; i; i = i->next) {
 		if (STATE(i) == CON_PLAYING) {
 			if ((IS_IMMORTAL(i->character.get())
-				|| (GET_GOD_FLAG(i->character.get(), GF_DEMIGOD)
+				|| (GET_GOD_FLAG(i->character.get(), EGf::kDemigod)
 					&& (GetRealLevel(ch) < 6)))
 				&& (i->character.get() != ch)) {
 				send_to_char(buf, i->character.get());
@@ -969,7 +969,7 @@ void do_offtop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			&& (GetRealLevel(i->character) < kLvlImmortal || IS_IMPL(i->character))
 			&& PRF_FLAGGED(i->character, EPrf::kOfftopMode)
 			&& !PRF_FLAGGED(i->character, EPrf::kStopOfftop)
-			&& !ignores(i->character.get(), ch, IGNORE_OFFTOP)) {
+			&& !ignores(i->character.get(), ch, EIgnore::kOfftop)) {
 			send_to_char(i->character.get(), "%s%s%s", KCYN, buf, KNRM);
 			i->character->remember_add(buf1, Remember::ALL);
 		}
@@ -1012,29 +1012,29 @@ const char *ign_find_name(long id) {
 char *text_ignore_modes(unsigned long mode, char *buf) {
 	buf[0] = 0;
 
-	if (IS_SET(mode, IGNORE_TELL))
+	if (IS_SET(mode, EIgnore::kTell))
 		strcat(buf, " сказать");
-	if (IS_SET(mode, IGNORE_SAY))
+	if (IS_SET(mode, EIgnore::kSay))
 		strcat(buf, " говорить");
-	if (IS_SET(mode, IGNORE_WHISPER))
+	if (IS_SET(mode, EIgnore::kWhisper))
 		strcat(buf, " шептать");
-	if (IS_SET(mode, IGNORE_ASK))
+	if (IS_SET(mode, EIgnore::kAsk))
 		strcat(buf, " спросить");
-	if (IS_SET(mode, IGNORE_EMOTE))
+	if (IS_SET(mode, EIgnore::kEmote))
 		strcat(buf, " эмоция");
-	if (IS_SET(mode, IGNORE_SHOUT))
+	if (IS_SET(mode, EIgnore::kShout))
 		strcat(buf, " кричать");
-	if (IS_SET(mode, IGNORE_GOSSIP))
+	if (IS_SET(mode, EIgnore::kGossip))
 		strcat(buf, " болтать");
-	if (IS_SET(mode, IGNORE_HOLLER))
+	if (IS_SET(mode, EIgnore::kHoller))
 		strcat(buf, " орать");
-	if (IS_SET(mode, IGNORE_GROUP))
+	if (IS_SET(mode, EIgnore::kGroup))
 		strcat(buf, " группа");
-	if (IS_SET(mode, IGNORE_CLAN))
+	if (IS_SET(mode, EIgnore::kClan))
 		strcat(buf, " дружина");
-	if (IS_SET(mode, IGNORE_ALLIANCE))
+	if (IS_SET(mode, EIgnore::kAlliance))
 		strcat(buf, " союзники");
-	if (IS_SET(mode, IGNORE_OFFTOP))
+	if (IS_SET(mode, EIgnore::kOfftop))
 		strcat(buf, " оффтопик");
 	return buf;
 }
@@ -1086,29 +1086,29 @@ void do_ignore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (utils::IsAbbrev(arg2, "все"))
 		all = 1;
 	else if (utils::IsAbbrev(arg2, "сказать"))
-		flag = IGNORE_TELL;
+		flag = EIgnore::kTell;
 	else if (utils::IsAbbrev(arg2, "говорить"))
-		flag = IGNORE_SAY;
+		flag = EIgnore::kSay;
 	else if (utils::IsAbbrev(arg2, "шептать"))
-		flag = IGNORE_WHISPER;
+		flag = EIgnore::kWhisper;
 	else if (utils::IsAbbrev(arg2, "спросить"))
-		flag = IGNORE_ASK;
+		flag = EIgnore::kAsk;
 	else if (utils::IsAbbrev(arg2, "эмоция"))
-		flag = IGNORE_EMOTE;
+		flag = EIgnore::kEmote;
 	else if (utils::IsAbbrev(arg2, "кричать"))
-		flag = IGNORE_SHOUT;
+		flag = EIgnore::kShout;
 	else if (utils::IsAbbrev(arg2, "болтать"))
-		flag = IGNORE_GOSSIP;
+		flag = EIgnore::kGossip;
 	else if (utils::IsAbbrev(arg2, "орать"))
-		flag = IGNORE_HOLLER;
+		flag = EIgnore::kHoller;
 	else if (utils::IsAbbrev(arg2, "группа"))
-		flag = IGNORE_GROUP;
+		flag = EIgnore::kGroup;
 	else if (utils::IsAbbrev(arg2, "дружина"))
-		flag = IGNORE_CLAN;
+		flag = EIgnore::kClan;
 	else if (utils::IsAbbrev(arg2, "союзники"))
-		flag = IGNORE_ALLIANCE;
+		flag = EIgnore::kAlliance;
 	else if (utils::IsAbbrev(arg2, "оффтоп"))
-		flag = IGNORE_OFFTOP;
+		flag = EIgnore::kOfftop;
 	else {
 		ignore_usage(ch);
 		return;
@@ -1148,18 +1148,18 @@ void do_ignore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 		mode = ignore->mode;
 		if (all) {
-			SET_BIT(mode, IGNORE_TELL);
-			SET_BIT(mode, IGNORE_SAY);
-			SET_BIT(mode, IGNORE_WHISPER);
-			SET_BIT(mode, IGNORE_ASK);
-			SET_BIT(mode, IGNORE_EMOTE);
-			SET_BIT(mode, IGNORE_SHOUT);
-			SET_BIT(mode, IGNORE_GOSSIP);
-			SET_BIT(mode, IGNORE_HOLLER);
-			SET_BIT(mode, IGNORE_GROUP);
-			SET_BIT(mode, IGNORE_CLAN);
-			SET_BIT(mode, IGNORE_ALLIANCE);
-			SET_BIT(mode, IGNORE_OFFTOP);
+			SET_BIT(mode, EIgnore::kTell);
+			SET_BIT(mode, EIgnore::kSay);
+			SET_BIT(mode, EIgnore::kWhisper);
+			SET_BIT(mode, EIgnore::kAsk);
+			SET_BIT(mode, EIgnore::kEmote);
+			SET_BIT(mode, EIgnore::kShout);
+			SET_BIT(mode, EIgnore::kGossip);
+			SET_BIT(mode, EIgnore::kHoller);
+			SET_BIT(mode, EIgnore::kGroup);
+			SET_BIT(mode, EIgnore::kClan);
+			SET_BIT(mode, EIgnore::kAlliance);
+			SET_BIT(mode, EIgnore::kOfftop);
 		} else {
 			SET_BIT(mode, flag);
 		}

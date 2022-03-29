@@ -379,7 +379,7 @@ void die(CharData *ch, CharData *killer) {
 		|| NORENTABLE(ch)) {
 		if (!(ch->is_npc()
 			|| IS_IMMORTAL(ch)
-			|| GET_GOD_FLAG(ch, GF_GODSLIKE)
+			|| GET_GOD_FLAG(ch, EGf::kGodsLike)
 			|| (killer && PRF_FLAGGED(killer, EPrf::kExecutor))))//если убил не палач
 		{
 			if (!NORENTABLE(ch))

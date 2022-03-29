@@ -34,9 +34,9 @@ void go_rescue(CharData *ch, CharData *vict, CharData *tmp_ch) {
 	int prob = CalcCurrentSkill(ch, ESkill::kRescue, tmp_ch);
 	ImproveSkill(ch, ESkill::kRescue, prob >= percent, tmp_ch);
 
-	if (GET_GOD_FLAG(ch, GF_GODSLIKE))
+	if (GET_GOD_FLAG(ch, EGf::kGodsLike))
 		prob = percent;
-	if (GET_GOD_FLAG(ch, GF_GODSCURSE))
+	if (GET_GOD_FLAG(ch, EGf::kGodscurse))
 		prob = 0;
 
 	bool success = percent <= prob;

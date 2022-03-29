@@ -157,12 +157,12 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 			send_to_char(buf, ch);
 		}
 
-		if (GET_GOD_FLAG(k, GF_GODSLIKE) && GCURSE_DURATION(k)) {
+		if (GET_GOD_FLAG(k, EGf::kGodsLike) && GCURSE_DURATION(k)) {
 			sprintf(buf, "Под защитой Богов : %ld час.\r\n",
 					static_cast<long>((GCURSE_DURATION(k) - time(nullptr)) / 3600));
 			send_to_char(buf, ch);
 		}
-		if (GET_GOD_FLAG(k, GF_GODSCURSE) && GCURSE_DURATION(k)) {
+		if (GET_GOD_FLAG(k, EGf::kGodscurse) && GCURSE_DURATION(k)) {
 			sprintf(buf, "Проклят Богами : %ld час.\r\n",
 					static_cast<long>((GCURSE_DURATION(k) - time(nullptr)) / 3600));
 			send_to_char(buf, ch);

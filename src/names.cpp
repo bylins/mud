@@ -254,7 +254,7 @@ bool NewNames::show(CharData *actor) {
 		buffer << "Имя: " << it->first << " " << it->second->name0 << "/" << it->second->name1
 			   << "/" << it->second->name2 << "/" << it->second->name3 << "/" << it->second->name4
 			   << "/" << it->second->name5 << " Email: &S"
-			   << (GET_GOD_FLAG(actor, GF_DEMIGOD) ? "неопределен" : it->second->email)
+			   << (GET_GOD_FLAG(actor, EGf::kDemigod) ? "неопределен" : it->second->email)
 			   << "&s Пол: " << genders[sex] << "\r\n";
 	}
 	buffer << CCNRM(actor, C_NRM);

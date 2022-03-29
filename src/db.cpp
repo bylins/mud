@@ -5083,7 +5083,7 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	if (ch->is_morphed()) ch->reset_morph();
 	ch->set_remort(ch->get_remort() + 1);
-	CLR_GOD_FLAG(ch, GF_REMORT);
+	CLR_GOD_FLAG(ch, EGf::kRemort);
 	ch->inc_str(1);
 	ch->inc_dex(1);
 	ch->inc_con(1);

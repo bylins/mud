@@ -138,7 +138,7 @@ void do_cast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	// Чтобы в бой не вступал с уже взведенной заклинашкой !!!
 	ch->set_cast(0, 0, 0, 0, 0);
 	if (!CalcCastSuccess(ch, tch, ESaving::kStability, spellnum)) {
-		if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)))
+		if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike)))
 			WAIT_STATE(ch, kPulseViolence);
 		if (GET_SPELL_MEM(ch, spell_subst)) {
 			GET_SPELL_MEM(ch, spell_subst)--;

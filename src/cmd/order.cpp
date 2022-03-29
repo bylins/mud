@@ -13,7 +13,7 @@ void do_order(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 
 	half_chop(argument, name, message);
-	if (GET_GOD_FLAG(ch, GF_GODSCURSE)) {
+	if (GET_GOD_FLAG(ch, EGf::kGodscurse)) {
 		send_to_char("Вы прокляты Богами и никто не слушается вас!\r\n", ch);
 		return;
 	}

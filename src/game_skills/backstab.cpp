@@ -113,10 +113,10 @@ void go_backstab(CharData *ch, CharData *vict) {
 		if (GET_MOB_HOLD(vict)) {
 			prob = prob * 5 / 4;
 		}
-		if (GET_GOD_FLAG(vict, GF_GODSCURSE)) {
+		if (GET_GOD_FLAG(vict, EGf::kGodscurse)) {
 			prob = percent;
 		}
-		if (GET_GOD_FLAG(vict, GF_GODSLIKE) || GET_GOD_FLAG(ch, GF_GODSCURSE)) {
+		if (GET_GOD_FLAG(vict, EGf::kGodsLike) || GET_GOD_FLAG(ch, EGf::kGodscurse)) {
 			prob = 0;
 		}
 		success = percent <= prob;

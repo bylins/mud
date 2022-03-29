@@ -1368,10 +1368,10 @@ void hit_touching(CharData *ch, CharData *vict, int *dam) {
 		int prob = CalcCurrentSkill(vict, ESkill::kIntercept, ch);
 		TrainSkill(vict, ESkill::kIntercept, prob >= percent, ch);
 		SendSkillBalanceMsg(ch, MUD::Skills()[ESkill::kIntercept].name, percent, prob, prob >= 70);
-		if (IS_IMMORTAL(vict) || GET_GOD_FLAG(vict, GF_GODSLIKE)) {
+		if (IS_IMMORTAL(vict) || GET_GOD_FLAG(vict, EGf::kGodsLike)) {
 			percent = prob;
 		}
-		if (GET_GOD_FLAG(vict, GF_GODSCURSE)) {
+		if (GET_GOD_FLAG(vict, EGf::kGodscurse)) {
 			percent = 0;
 		}
 		CLR_AF_BATTLE(vict, kEafTouch);
@@ -1402,7 +1402,7 @@ void hit_touching(CharData *ch, CharData *vict, int *dam) {
 void hit_deviate(CharData *ch, CharData *victim, int *dam) {
 	int range = number(1, MUD::Skills()[ESkill::kDodge].difficulty);
 	int prob = CalcCurrentSkill(victim, ESkill::kDodge, ch);
-	if (GET_GOD_FLAG(victim, GF_GODSCURSE)) {
+	if (GET_GOD_FLAG(victim, EGf::kGodscurse)) {
 		prob = 0;
 	}
 	prob = prob * 100 / range;
@@ -2229,9 +2229,9 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		// You can't damage an immortal!
 		if (IS_GOD(victim))
 			dam = 0;
-		else if (IS_IMMORTAL(victim) || GET_GOD_FLAG(victim, GF_GODSLIKE))
+		else if (IS_IMMORTAL(victim) || GET_GOD_FLAG(victim, EGf::kGodsLike))
 			dam /= 4;
-		else if (GET_GOD_FLAG(victim, GF_GODSCURSE))
+		else if (GET_GOD_FLAG(victim, EGf::kGodscurse))
 			dam *= 2;
 	}
 

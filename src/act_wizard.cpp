@@ -247,7 +247,7 @@ void send_to_gods(char *text, bool demigod) {
 			// Чар должен быть имморталом
 			// Либо же демигодом (при demigod = true)
 			if ((GetRealLevel(d->character) >= kLvlGod) ||
-				(GET_GOD_FLAG(d->character, GF_DEMIGOD) && demigod)) {
+				(GET_GOD_FLAG(d->character, EGf::kDemigod) && demigod)) {
 				send_to_char(text, d->character.get());
 			}
 		}
@@ -1291,7 +1291,7 @@ void do_echo(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 		for (const auto to : world[ch->in_room]->people) {
 			if (to == ch
-				|| ignores(to, ch, IGNORE_EMOTE)) {
+				|| ignores(to, ch, EIgnore::kEmote)) {
 				continue;
 			}
 
@@ -2923,7 +2923,7 @@ void do_sdemigod(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (STATE(d) == CON_PLAYING) {
 			// Если в игре, то проверяем, демигод ли чар
 			// Иммы 34-левела тоже могут смотреть канал
-			if ((GET_GOD_FLAG(d->character, GF_DEMIGOD)) || (GetRealLevel(d->character) == kLvlImplementator)) {
+			if ((GET_GOD_FLAG(d->character, EGf::kDemigod)) || (GetRealLevel(d->character) == kLvlImplementator)) {
 				// Проверяем пишет ли чар или отправляет письмо
 				// А так же на реж сдемигод
 				if ((!PLR_FLAGGED(d->character, EPlrFlag::kWriting)) &&
@@ -2957,7 +2957,7 @@ void do_wiznet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	//	if (EPrf::FLAGGED(ch, EPrf::CODERINFO)) return;
 
 	// Опускаем level для gf_demigod
-	if (GET_GOD_FLAG(ch, GF_DEMIGOD))
+	if (GET_GOD_FLAG(ch, EGf::kDemigod))
 		level = kLvlImmortal;
 
 	// использование доп. аргументов
@@ -2981,7 +2981,7 @@ void do_wiznet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			// Обнаруживаем всех кто может (теоретически) нас услышать
 			for (d = descriptor_list; d; d = d->next) {
 				if (STATE(d) == CON_PLAYING &&
-					(IS_IMMORTAL(d->character) || GET_GOD_FLAG(d->character, GF_DEMIGOD)) &&
+					(IS_IMMORTAL(d->character) || GET_GOD_FLAG(d->character, EGf::kDemigod)) &&
 					!PRF_FLAGGED(d->character, EPrf::kNoWiz) && (CAN_SEE(ch, d->character) || IS_IMPL(ch))) {
 					if (!bookmark1) {
 						strcpy(buf1,
@@ -2999,7 +2999,7 @@ void do_wiznet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			for (d = descriptor_list; d; d = d->next) {
 				if (STATE(d) == CON_PLAYING &&
-					(IS_IMMORTAL(d->character) || GET_GOD_FLAG(d->character, GF_DEMIGOD)) &&
+					(IS_IMMORTAL(d->character) || GET_GOD_FLAG(d->character, EGf::kDemigod)) &&
 					PRF_FLAGGED(d->character, EPrf::kNoWiz) && CAN_SEE(ch, d->character)) {
 					if (!bookmark2) {
 						if (!bookmark1)
@@ -3044,7 +3044,7 @@ void do_wiznet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	for (d = descriptor_list; d; d = d->next) {
 		if ((STATE(d) == CON_PLAYING) &&    // персонаж должен быть в игре
 			((GetRealLevel(d->character) >= level) ||    // уровень равным или выше level
-				(GET_GOD_FLAG(d->character, GF_DEMIGOD) && level == 31)) &&    // демигоды видят 31 канал
+				(GET_GOD_FLAG(d->character, EGf::kDemigod) && level == 31)) &&    // демигоды видят 31 канал
 			(!PRF_FLAGGED(d->character, EPrf::kNoWiz)) &&    // игрок с режимом NOWIZ не видит имм канала
 			(!PLR_FLAGGED(d->character, EPlrFlag::kWriting)) &&    // пишущий не видит имм канала
 			(!PLR_FLAGGED(d->character, EPlrFlag::kMailing)))    // отправляющий письмо не видит имм канала
@@ -3125,9 +3125,9 @@ void do_wizutil(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		send_to_char("Для кого?\r\n", ch);
 	else if (!(vict = get_player_pun(ch, arg, FIND_CHAR_WORLD)))
 		send_to_char("Нет такого игрока.\r\n", ch);
-	else if (GetRealLevel(vict) > GetRealLevel(ch) && !GET_GOD_FLAG(ch, GF_DEMIGOD) && !PRF_FLAGGED(ch, EPrf::kCoderinfo))
+	else if (GetRealLevel(vict) > GetRealLevel(ch) && !GET_GOD_FLAG(ch, EGf::kDemigod) && !PRF_FLAGGED(ch, EPrf::kCoderinfo))
 		send_to_char("А он ведь старше вас....\r\n", ch);
-	else if (GetRealLevel(vict) >= kLvlImmortal && GET_GOD_FLAG(ch, GF_DEMIGOD))
+	else if (GetRealLevel(vict) >= kLvlImmortal && GET_GOD_FLAG(ch, EGf::kDemigod))
 		send_to_char("А он ведь старше вас....\r\n", ch);
 	else {
 		switch (subcmd) {
@@ -3953,7 +3953,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 	// Check to make sure all the levels are correct
 	if (!IS_IMPL(ch)) {
 		if (!vict->is_npc() && vict != ch) {
-			if (!GET_GOD_FLAG(ch, GF_DEMIGOD)) {
+			if (!GET_GOD_FLAG(ch, EGf::kDemigod)) {
 				if (GetRealLevel(ch) <= GetRealLevel(vict) && !PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
 					send_to_char("Это не так просто, как вам кажется...\r\n", ch);
 					return (0);
@@ -4164,9 +4164,9 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				return 0;
 			}
 			if (on) {
-				SET_GOD_FLAG(vict, GF_DEMIGOD);
+				SET_GOD_FLAG(vict, EGf::kDemigod);
 			} else if (off) {
-				CLR_GOD_FLAG(vict, GF_DEMIGOD);
+				CLR_GOD_FLAG(vict, EGf::kDemigod);
 			}
 			break;
 		case 33:
@@ -4251,7 +4251,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 
 		case 42:
 			if (on) {
-				SET_GOD_FLAG(vict, GF_GODSLIKE);
+				SET_GOD_FLAG(vict, EGf::kGodsLike);
 				if (sscanf(val_arg, "%s %d", npad[0], &i) != 0)
 					GCURSE_DURATION(vict) = (i > 0) ? time(nullptr) + i * 60 * 60 : MAX_TIME;
 				else
@@ -4260,17 +4260,17 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				mudlog(buf, BRF, kLvlImplementator, SYSLOG, 0);
 
 			} else if (off)
-				CLR_GOD_FLAG(vict, GF_GODSLIKE);
+				CLR_GOD_FLAG(vict, EGf::kGodsLike);
 			break;
 		case 43:
 			if (on) {
-				SET_GOD_FLAG(vict, GF_GODSCURSE);
+				SET_GOD_FLAG(vict, EGf::kGodscurse);
 				if (sscanf(val_arg, "%s %d", npad[0], &i) != 0)
 					GCURSE_DURATION(vict) = (i > 0) ? time(nullptr) + i * 60 * 60 : MAX_TIME;
 				else
 					GCURSE_DURATION(vict) = 0;
 			} else if (off)
-				CLR_GOD_FLAG(vict, GF_GODSCURSE);
+				CLR_GOD_FLAG(vict, EGf::kGodscurse);
 			break;
 		case 44:
 			if (PRF_FLAGGED(ch, EPrf::kCoderinfo) || IS_IMPL(ch))
@@ -4450,9 +4450,9 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 		case 52:
 			// Отдельный лог команд персонажа
 			if (on) {
-				SET_GOD_FLAG(vict, GF_PERSLOG);
+				SET_GOD_FLAG(vict, EGf::kPerslog);
 			} else if (off) {
-				CLR_GOD_FLAG(vict, GF_PERSLOG);
+				CLR_GOD_FLAG(vict, EGf::kPerslog);
 			}
 			break;
 
@@ -4556,12 +4556,12 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			break;
 		case 60: // флаг тестера
 			if (!str_cmp(val_arg, "off") || !str_cmp(val_arg, "выкл")) {
-				CLR_GOD_FLAG(vict, GF_TESTER);
+				CLR_GOD_FLAG(vict, EGf::kAllowTesterMode);
 				PRF_FLAGS(vict).unset(EPrf::kTester); // обнулим реж тестер
 				sprintf(buf, "%s убрал флаг тестера для игрока %s", GET_NAME(ch), GET_NAME(vict));
 				mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
 			} else {
-				SET_GOD_FLAG(vict, GF_TESTER);
+				SET_GOD_FLAG(vict, EGf::kAllowTesterMode);
 				sprintf(buf, "%s установил флаг тестера для игрока %s", GET_NAME(ch), GET_NAME(vict));
 				mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
 				//			send_to_gods(buf);
@@ -4676,7 +4676,7 @@ void do_set(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 
 			// Запрет на злоупотребление командой SET на бессмертных
-			if (!GET_GOD_FLAG(ch, GF_DEMIGOD)) {
+			if (!GET_GOD_FLAG(ch, EGf::kDemigod)) {
 				if ((GetRealLevel(ch) <= GetRealLevel(vict)) && !(is_head(ch->get_name_str()))) {
 					send_to_char("Вы не можете сделать этого.\r\n", ch);
 					return;
@@ -4705,7 +4705,7 @@ void do_set(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		cbuf = std::make_unique<Player>();
 		if ((player_i = load_char(name, cbuf.get())) > -1) {
 			// Запрет на злоупотребление командой SET на бессмертных
-			if (!GET_GOD_FLAG(ch, GF_DEMIGOD)) {
+			if (!GET_GOD_FLAG(ch, EGf::kDemigod)) {
 				if (GetRealLevel(ch) <= GetRealLevel(cbuf) && !(is_head(ch->get_name_str()))) {
 					send_to_char("Вы не можете сделать этого.\r\n", ch);
 					return;

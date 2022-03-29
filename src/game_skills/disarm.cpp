@@ -36,9 +36,9 @@ void go_disarm(CharData *ch, CharData *vict) {
 		return;
 	int percent = number(1, MUD::Skills()[ESkill::kDisarm].difficulty);
 	int prob = CalcCurrentSkill(ch, ESkill::kDisarm, vict);
-	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(vict, GF_GODSCURSE) || GET_GOD_FLAG(ch, GF_GODSLIKE))
+	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(vict, EGf::kGodscurse) || GET_GOD_FLAG(ch, EGf::kGodsLike))
 		prob = percent;
-	if (IS_IMMORTAL(vict) || GET_GOD_FLAG(ch, GF_GODSCURSE) || GET_GOD_FLAG(vict, GF_GODSLIKE)
+	if (IS_IMMORTAL(vict) || GET_GOD_FLAG(ch, EGf::kGodscurse) || GET_GOD_FLAG(vict, EGf::kGodsLike)
 		|| can_use_feat(vict, STRONGCLUTCH_FEAT))
 		prob = 0;
 

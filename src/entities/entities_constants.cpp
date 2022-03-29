@@ -207,16 +207,16 @@ void init_ENoFlag_ITEM_NAMES() {
 	ENoFlag_value_by_name.clear();
 	ENoFlag_name_by_value.clear();
 
-	ENoFlag_name_by_value[ENoFlag::kMono] = "ITEM_NO_MONO";
-	ENoFlag_name_by_value[ENoFlag::kPoly] = "ITEM_NO_POLY";
-	ENoFlag_name_by_value[ENoFlag::kNeutral] = "ITEM_NO_NEUTRAL";
-	ENoFlag_name_by_value[ENoFlag::kMage] = "ITEM_NO_MAGIC_USER";
-	ENoFlag_name_by_value[ENoFlag::kSorcerer] = "ITEM_NO_CLERIC";
-	ENoFlag_name_by_value[ENoFlag::kThief] = "ITEM_NO_THIEF";
-	ENoFlag_name_by_value[ENoFlag::kWarrior] = "ITEM_NO_WARRIOR";
-	ENoFlag_name_by_value[ENoFlag::kAssasine] = "ITEM_NO_ASSASINE";
-	ENoFlag_name_by_value[ENoFlag::kGuard] = "ITEM_NO_GUARD";
-	ENoFlag_name_by_value[ENoFlag::kPaladine] = "ITEM_NO_PALADINE";
+	ENoFlag_name_by_value[ENoFlag::kMono] = "kMono";
+	ENoFlag_name_by_value[ENoFlag::kPoly] = "kPoly";
+	ENoFlag_name_by_value[ENoFlag::kNeutral] = "kNeutral";
+	ENoFlag_name_by_value[ENoFlag::kMage] = "kMage";
+	ENoFlag_name_by_value[ENoFlag::kSorcerer] = "kSorcerer";
+	ENoFlag_name_by_value[ENoFlag::kThief] = "kThief";
+	ENoFlag_name_by_value[ENoFlag::kWarrior] = "kWarrior";
+	ENoFlag_name_by_value[ENoFlag::kAssasine] = "kAssasine";
+	ENoFlag_name_by_value[ENoFlag::kGuard] = "kGuard";
+	ENoFlag_name_by_value[ENoFlag::kPaladine] = "kPaladine";
 	ENoFlag_name_by_value[ENoFlag::kRanger] = "kRanger";
 	ENoFlag_name_by_value[ENoFlag::kVigilant] = "kVigilant";
 	ENoFlag_name_by_value[ENoFlag::kMerchant] = "kMerchant";

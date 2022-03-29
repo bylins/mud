@@ -2782,8 +2782,8 @@ int process_input(DescriptorData *t) {
 					|| STATE(t) == CON_EXDESC
 					|| STATE(t) == CON_WRITEBOARD
 					|| STATE(t) == CON_WRITE_MOD)) {
-				// Иммам или морталам с GF_DEMIGOD разрешено использовать ";".
-				if (GetRealLevel(t->character) < kLvlImmortal && !GET_GOD_FLAG(t->character, GF_DEMIGOD))
+				// Иммам или морталам с EGodFlag::DEMIGOD разрешено использовать ";".
+				if (GetRealLevel(t->character) < kLvlImmortal && !GET_GOD_FLAG(t->character, EGf::kDemigod))
 					*ptr = ',';
 			}
 			if (*ptr == '&'

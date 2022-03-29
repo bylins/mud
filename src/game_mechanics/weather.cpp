@@ -834,7 +834,7 @@ int day_spell_modifier(CharData *ch, int/* spellnum*/, int type, int value) {
 			break;
 		case GAPPLY_SPELL_EFFECT: break;
 	}
-	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE))
+	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike))
 		modi = MAX(modi, value);
 	return (modi);
 }

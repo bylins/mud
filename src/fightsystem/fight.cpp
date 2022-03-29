@@ -1869,7 +1869,7 @@ void process_player_attack(CharData *ch, int min_init) {
 					  0, ch->get_cast_spell(), ch->get_cast_subst());
 
 			if (!(IS_IMMORTAL(ch)
-				|| GET_GOD_FLAG(ch, GF_GODSLIKE)
+				|| GET_GOD_FLAG(ch, EGf::kGodsLike)
 				|| CHECK_WAIT(ch))) {
 				WAIT_STATE(ch, kPulseViolence);
 			}
@@ -1902,7 +1902,7 @@ void process_player_attack(CharData *ch, int min_init) {
 	//**** удар основным оружием или рукой
 	if (GET_AF_BATTLE(ch, kEafFirst)) {
 		if (!IS_SET(trigger_code, kNoRightHandAttack) && !AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT)
-			&& (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE) || !GET_AF_BATTLE(ch, kEafUsedright))) {
+			&& (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike) || !GET_AF_BATTLE(ch, kEafUsedright))) {
 			//Знаю, выглядит страшно, но зато в hit()
 			//можно будет узнать применялось ли оглушить
 			//или молотить, по баттл-аффекту узнать получиться
@@ -1937,10 +1937,10 @@ void process_player_attack(CharData *ch, int min_init) {
 		&& GET_AF_BATTLE(ch, kEafSecond)
 		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_STOPLEFT)
 		&& (IS_IMMORTAL(ch)
-			|| GET_GOD_FLAG(ch, GF_GODSLIKE)
+			|| GET_GOD_FLAG(ch, EGf::kGodsLike)
 			|| ch->get_skill(ESkill::kSideAttack) > number(1, 101))) {
 		if (IS_IMMORTAL(ch)
-			|| GET_GOD_FLAG(ch, GF_GODSLIKE)
+			|| GET_GOD_FLAG(ch, EGf::kGodsLike)
 			|| !GET_AF_BATTLE(ch, kEafUsedleft)) {
 			exthit(ch, ESkill::kUndefined, fight::AttackType::kOffHand);
 		}
