@@ -123,7 +123,7 @@ void Characters::purge() {
 			clearMemory(character.get());
 		}
 
-		MOB_FLAGS(character).set(MOB_FREE);
+		MOB_FLAGS(character).set(EMobFlag::kMobFreed);
 	}
 
 	m_purge_list.clear();

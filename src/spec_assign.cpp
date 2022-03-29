@@ -201,9 +201,9 @@ void init_spec_procs(void) {
 // * Снятие нежелательных флагов у рентеров и продавцов.
 void clear_mob_charm(CharData *mob) {
 	if (mob && !mob->purged()) {
-		MOB_FLAGS(mob).unset(MOB_MOUNTING);
-		MOB_FLAGS(mob).set(MOB_NOCHARM);
-		MOB_FLAGS(mob).set(MOB_NORESURRECTION);
+		MOB_FLAGS(mob).unset(EMobFlag::kMounting);
+		MOB_FLAGS(mob).set(EMobFlag::kNoCharm);
+		MOB_FLAGS(mob).set(EMobFlag::kNoResurrection);
 		NPC_FLAGS(mob).unset(NPC_HELPED);
 	} else {
 		log("SYSERROR: mob = %s (%s:%d)",

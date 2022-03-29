@@ -1048,7 +1048,7 @@ void MobileFile::parse_mobile(const int nr) {
 		exit(1);
 	}
 	MOB_FLAGS(&mob_proto[i]).from_string(f1);
-	MOB_FLAGS(&mob_proto[i]).set(MOB_ISNPC);
+	MOB_FLAGS(&mob_proto[i]).set(EMobFlag::kNpc);
 	AFF_FLAGS(&mob_proto[i]).from_string(f2);
 	GET_ALIGNMENT(mob_proto + i) = t[2];
 	switch (UPPER(letter)) {

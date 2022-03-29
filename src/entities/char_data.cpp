@@ -783,7 +783,7 @@ bool IS_HORSE(const CharData *ch) {
 bool IS_MORTIFIER(const CharData *ch) {
 	return ch->is_npc()
 		&& ch->has_master()
-		&& MOB_FLAGGED(ch, MOB_CORPSE);
+		&& MOB_FLAGGED(ch, EMobFlag::kCorpse);
 }
 
 bool MAY_ATTACK(const CharData *sub) {
@@ -793,7 +793,7 @@ bool MAY_ATTACK(const CharData *sub) {
 		&& !AFF_FLAGGED((sub), EAffectFlag::AFF_MAGICSTOPFIGHT)
 		&& !AFF_FLAGGED((sub), EAffectFlag::AFF_HOLD)
 		&& !AFF_FLAGGED((sub), EAffectFlag::AFF_SLEEP)
-		&& !MOB_FLAGGED((sub), MOB_NOFIGHT)
+		&& !MOB_FLAGGED((sub), EMobFlag::kNoFight)
 		&& GET_WAIT(sub) <= 0
 		&& !sub->get_fighting()
 		&& GET_POS(sub) >= EPosition::kRest);
@@ -1709,7 +1709,7 @@ void CharData::removeGroupFlags() {
 
 void CharData::add_follower(CharData *ch) {
 
-	if (ch->is_npc() && MOB_FLAGGED(ch, MOB_NOGROUP))
+	if (ch->is_npc() && MOB_FLAGGED(ch, EMobFlag::kNoGroup))
 		return;
 	add_follower_silently(ch);
 

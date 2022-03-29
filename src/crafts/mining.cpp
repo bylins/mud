@@ -199,7 +199,7 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		mob = read_mobile(real_mobile(vnum), REAL);
 		if (mob) {
 			if (GetRealLevel(mob) <= GetRealLevel(ch)) {
-				MOB_FLAGS(mob).set(MOB_AGGRESSIVE);
+				MOB_FLAGS(mob).set(EMobFlag::kAgressive);
 				sprintf(textbuf, "Вы выкопали %s!\r\n", mob->player_data.PNames[3].c_str());
 				send_to_char(textbuf, ch);
 				sprintf(textbuf, "$n выкопал$g %s!\r\n", mob->player_data.PNames[3].c_str());

@@ -98,10 +98,10 @@ int find_first_step(RoomRnum src, RoomRnum target, CharData *ch) {
 		// Запрещаем мобам искать через запертые двери
 		through_locked_doors = false;
 		// если моб умеет открыть двери - ищем через закрытые двери
-		through_closed_doors = MOB_FLAGGED(ch, MOB_OPENDOOR);
+		through_closed_doors = MOB_FLAGGED(ch, EMobFlag::kOpensDoor);
 		// notrack мобам не помеха
 		through_notrack = true;
-		if (MOB_FLAGGED(ch, MOB_STAY_ZONE)) {
+		if (MOB_FLAGGED(ch, EMobFlag::kStayZone)) {
 			get_zone_rooms(world[src]->zone_rn, &rnum_start, &rnum_stop);
 			edge = EDGE_ZONE;
 		} else {

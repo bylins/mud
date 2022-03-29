@@ -83,7 +83,7 @@ void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 			affect_join(target, af2, true, false, true, false);
 		};
 		damage.Process(ch, target);
-		if (!target->purged() && roll.IsSuccess() && !MOB_FLAGGED(target, MOB_NOFEAR)
+		if (!target->purged() && roll.IsSuccess() && !MOB_FLAGGED(target, EMobFlag::kNoFear)
 			&& !CalcGeneralSaving(ch, target, ESaving::kWill, GET_REAL_WIS(ch) + GET_REAL_INT(ch))) {
 			go_flee(target);
 		};

@@ -1108,7 +1108,7 @@ void perform_drop_gold(CharData *ch, int amount) {
 		}
 
 		// Если этот моб трупа не оставит, то не выводить сообщение иначе ужасно коряво смотрится в бою и в тригах
-		if (!ch->is_npc() || !MOB_FLAGGED(ch, MOB_CORPSE)) {
+		if (!ch->is_npc() || !MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
 			send_to_char(ch, "Вы бросили %d %s на землю.\r\n",
 						 amount, GetDeclensionInNumber(amount, EWhat::kMoneyU));
 			sprintf(buf,
@@ -1503,7 +1503,7 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	one_argument(argument, arg);
 
 	if (subcmd == SCMD_DEVOUR) {
-		if (MOB_FLAGGED(ch, MOB_RESURRECTED)
+		if (MOB_FLAGGED(ch, EMobFlag::kResurrected)
 			&& can_use_feat(ch->get_master(), ZOMBIE_DROVER_FEAT)) {
 			feed_charmice(ch, arg);
 			return;
@@ -1905,7 +1905,7 @@ void do_wear(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->is_npc()
 		&& AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 		&& (!NPC_FLAGGED(ch, NPC_ARMORING)
-			|| MOB_FLAGGED(ch, MOB_RESURRECTED))) {
+			|| MOB_FLAGGED(ch, EMobFlag::kResurrected))) {
 		return;
 	}
 
@@ -1967,7 +1967,7 @@ void do_wield(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int wear;
 
 	if (ch->is_npc() && (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-		&& (!NPC_FLAGGED(ch, NPC_WIELDING) || MOB_FLAGGED(ch, MOB_RESURRECTED))))
+		&& (!NPC_FLAGGED(ch, NPC_WIELDING) || MOB_FLAGGED(ch, EMobFlag::kResurrected))))
 		return;
 
 	if (ch->is_morphed()) {
@@ -1989,7 +1989,7 @@ void do_wield(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			send_to_char("Это не оружие.\r\n", ch);
 		} else if (ch->is_npc()
 			&& AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-			&& MOB_FLAGGED(ch, MOB_CORPSE)) {
+			&& MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
 			send_to_char("Ожившие трупы не могут вооружаться.\r\n", ch);
 		} else {
 			one_argument(argument, arg);
@@ -2083,7 +2083,7 @@ void do_grab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 			if (ch->is_npc()
 				&& AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-				&& MOB_FLAGGED(ch, MOB_CORPSE)) {
+				&& MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
 				send_to_char("Ожившие трупы не могут вооружаться.\r\n", ch);
 				return;
 			}

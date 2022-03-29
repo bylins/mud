@@ -933,8 +933,8 @@ bool same_group(CharData *ch, CharData *tch) {
 		&& !ch->get_master()->is_npc()
 		&& (IS_HORSE(ch)
 			|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-			|| MOB_FLAGGED(ch, MOB_ANGEL)
-			|| MOB_FLAGGED(ch, MOB_GHOST))) {
+			|| MOB_FLAGGED(ch, EMobFlag::kTutelar)
+			|| MOB_FLAGGED(ch, EMobFlag::kMentalShadow))) {
 		ch = ch->get_master();
 	}
 
@@ -943,8 +943,8 @@ bool same_group(CharData *ch, CharData *tch) {
 		&& !tch->get_master()->is_npc()
 		&& (IS_HORSE(tch)
 			|| AFF_FLAGGED(tch, EAffectFlag::AFF_CHARM)
-			|| MOB_FLAGGED(tch, MOB_ANGEL)
-			|| MOB_FLAGGED(tch, MOB_GHOST))) {
+			|| MOB_FLAGGED(tch, EMobFlag::kTutelar)
+			|| MOB_FLAGGED(tch, EMobFlag::kMentalShadow))) {
 		tch = tch->get_master();
 	}
 

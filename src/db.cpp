@@ -3065,7 +3065,7 @@ int dl_load_obj(ObjData *corpse, CharData *ch, CharData *chr, int DL_LOAD_TYPE) 
 						trans_obj_name(tobj.get(), ch);
 					}
 					// Добавлена проверка на отсутствие трупа
-					if (MOB_FLAGGED(ch, MOB_CORPSE)) {
+					if (MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
 						act("На земле остал$U лежать $o.", false, ch, tobj.get(), 0, kToRoom);
 						obj_to_room(tobj.get(), ch->in_room);
 					} else {
@@ -3542,19 +3542,19 @@ CharData *read_mobile(MobVnum nr, int type) {                // and MobRnum
 		mob_index[i].total_online++;
 		assign_triggers(mob, MOB_TRIGGER);
 	} else {
-		MOB_FLAGS(mob).set(MOB_PLAYER_SUMMON);
+		MOB_FLAGS(mob).set(EMobFlag::kSummoned);
 	}
 
 	i = mob_index[i].zone;
 	if (i != -1 && zone_table[i].under_construction) {
 		// mobile принадлежит тестовой зоне
-		MOB_FLAGS(mob).set(MOB_NOSUMMON);
+		MOB_FLAGS(mob).set(EMobFlag::kNoSummon);
 	}
 
 //Polud - поставим флаг стражнику
 	guardian_type::iterator it = guardian_list.find(GET_MOB_VNUM(mob));
 	if (it != guardian_list.end()) {
-		MOB_FLAGS(mob).set(MOB_GUARDIAN);
+		MOB_FLAGS(mob).set(EMobFlag::kCityGuardian);
 	}
 
 	return (mob);
@@ -3742,19 +3742,19 @@ void paste_mob(CharData *ch, RoomRnum room) {
 	bool no_month = true;
 	bool no_time = true;
 
-	if (MOB_FLAGGED(ch, MOB_LIKE_DAY)) {
+	if (MOB_FLAGGED(ch, EMobFlag::kAppearsDay)) {
 		if (weather_info.sunlight == kSunRise || weather_info.sunlight == kSunLight)
 			time_ok = true;
 		need_move = true;
 		no_time = false;
 	}
-	if (MOB_FLAGGED(ch, MOB_LIKE_NIGHT)) {
+	if (MOB_FLAGGED(ch, EMobFlag::kAppearsNight)) {
 		if (weather_info.sunlight == kSunSet || weather_info.sunlight == kSunDark)
 			time_ok = true;
 		need_move = true;
 		no_time = false;
 	}
-	if (MOB_FLAGGED(ch, MOB_LIKE_FULLMOON)) {
+	if (MOB_FLAGGED(ch, EMobFlag::kAppearsFullmoon)) {
 		if ((weather_info.sunlight == kSunSet ||
 			weather_info.sunlight == kSunDark) &&
 			(weather_info.moon_day >= 12 && weather_info.moon_day <= 15))
@@ -3762,25 +3762,25 @@ void paste_mob(CharData *ch, RoomRnum room) {
 		need_move = true;
 		no_time = false;
 	}
-	if (MOB_FLAGGED(ch, MOB_LIKE_WINTER)) {
+	if (MOB_FLAGGED(ch, EMobFlag::kAppearsWinter)) {
 		if (weather_info.season == SEASON_WINTER)
 			month_ok = true;
 		need_move = true;
 		no_month = false;
 	}
-	if (MOB_FLAGGED(ch, MOB_LIKE_SPRING)) {
+	if (MOB_FLAGGED(ch, EMobFlag::kAppearsSpring)) {
 		if (weather_info.season == SEASON_SPRING)
 			month_ok = true;
 		need_move = true;
 		no_month = false;
 	}
-	if (MOB_FLAGGED(ch, MOB_LIKE_SUMMER)) {
+	if (MOB_FLAGGED(ch, EMobFlag::kAppearsSummer)) {
 		if (weather_info.season == SEASON_SUMMER)
 			month_ok = true;
 		need_move = true;
 		no_month = false;
 	}
-	if (MOB_FLAGGED(ch, MOB_LIKE_AUTUMN)) {
+	if (MOB_FLAGGED(ch, EMobFlag::kAppearsAutumn)) {
 		if (weather_info.season == SEASON_AUTUMN)
 			month_ok = true;
 		need_move = true;
@@ -4198,7 +4198,7 @@ bool ZoneReset::handle_zone_Q_command(const MobRnum rnum) {
 
 	utils::CExecutionTimer extract_timer;
 	for (const auto &mob : mobs) {
-		if (!MOB_FLAGGED(mob, MOB_RESURRECTED)) {
+		if (!MOB_FLAGGED(mob, EMobFlag::kResurrected)) {
 			extract_char(mob.get(), false, true);
 			extracted = true;
 		}
@@ -4777,7 +4777,7 @@ int mobs_in_room(int m_num, int r_num) {
 
 	for (const auto &ch : world[r_num]->people) {
 		if (m_num == GET_MOB_RNUM(ch)
-			&& !MOB_FLAGGED(ch, MOB_RESURRECTED)) {
+			&& !MOB_FLAGGED(ch, EMobFlag::kResurrected)) {
 			count++;
 		}
 	}

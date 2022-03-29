@@ -1792,7 +1792,7 @@ void drop_obj_on_zreset(CharData *ch, ObjData *obj, bool inv, bool zone_reset) {
 		// Если этот моб трупа не оставит, то не выводить сообщение
 		// иначе ужасно коряво смотрится в бою и в тригах
 		bool msgShown = false;
-		if (!ch->is_npc() || !MOB_FLAGGED(ch, MOB_CORPSE)) {
+		if (!ch->is_npc() || !MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
 			if (inv)
 				act("$n бросил$g $o3 на землю.", false, ch, obj, nullptr, kToRoom);
 			else
@@ -1855,8 +1855,8 @@ void extract_char(CharData *ch, int clear_objs, bool zone_reset) {
 	DescriptorData *t_desc;
 	int i;
 
-	if (MOB_FLAGGED(ch, MOB_FREE)
-		|| MOB_FLAGGED(ch, MOB_DELETE)) {
+	if (MOB_FLAGGED(ch, EMobFlag::kMobFreed)
+		|| MOB_FLAGGED(ch, EMobFlag::kMobDeleted)) {
 		return;
 	}
 
@@ -1946,7 +1946,7 @@ void extract_char(CharData *ch, int clear_objs, bool zone_reset) {
 	char_from_room(ch);
 
 	// pull the char from the list
-	MOB_FLAGS(ch).set(MOB_DELETE);
+	MOB_FLAGS(ch).set(EMobFlag::kMobDeleted);
 
 	if (ch->desc && ch->desc->original) {
 		do_return(ch, nullptr, 0, 0);
@@ -1962,7 +1962,7 @@ void extract_char(CharData *ch, int clear_objs, bool zone_reset) {
 	} else {
 //		log("[Extract char] All clear for NPC");
 		if ((GET_MOB_RNUM(ch) > -1)
-			&& !MOB_FLAGGED(ch, MOB_PLAYER_SUMMON))    // if mobile и не умертвие
+			&& !MOB_FLAGGED(ch, EMobFlag::kSummoned))    // if mobile и не умертвие
 		{
 			mob_index[GET_MOB_RNUM(ch)].total_online--;
 		}

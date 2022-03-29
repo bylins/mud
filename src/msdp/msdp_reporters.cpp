@@ -162,7 +162,7 @@ void GroupReporter::append_char(const std::shared_ptr<ArrayValue> &group,
 								const bool leader) {
 	if (PRF_FLAGGED(ch, EPrf::kNoClones)
 		&& character->is_npc()
-		&& (MOB_FLAGGED(character, MOB_CLONE)
+		&& (MOB_FLAGGED(character, EMobFlag::kClone)
 			|| GET_MOB_VNUM(character) == kMobKeeper)) {
 		return;
 	}
@@ -276,8 +276,8 @@ void GroupReporter::get(Variable::shared_ptr &response) {
 	for (auto f = master->followers; f; f = f->next) {
 		if (!AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
 			&& !(AFF_FLAGGED(f->ch, EAffectFlag::AFF_CHARM)
-				|| MOB_FLAGGED(f->ch, MOB_ANGEL)
-				|| MOB_FLAGGED(f->ch, MOB_GHOST))) {
+				|| MOB_FLAGGED(f->ch, EMobFlag::kTutelar)
+				|| MOB_FLAGGED(f->ch, EMobFlag::kMentalShadow))) {
 			continue;
 		}
 
@@ -290,8 +290,8 @@ void GroupReporter::get(Variable::shared_ptr &response) {
 
 		for (auto ff = f->ch->followers; ff; ff = ff->next) {
 			if (!(AFF_FLAGGED(ff->ch, EAffectFlag::AFF_CHARM)
-				|| MOB_FLAGGED(ff->ch, MOB_ANGEL)
-				|| MOB_FLAGGED(ff->ch, MOB_GHOST))) {
+				|| MOB_FLAGGED(ff->ch, EMobFlag::kTutelar)
+				|| MOB_FLAGGED(ff->ch, EMobFlag::kMentalShadow))) {
 				continue;
 			}
 

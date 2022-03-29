@@ -1607,7 +1607,7 @@ int npc_scavenge(CharData *ch) {
 	int max = 1;
 	ObjData *obj, *best_obj, *cont, *best_cont, *cobj;
 
-	if (!MOB_FLAGGED(ch, MOB_SCAVENGER)) {
+	if (!MOB_FLAGGED(ch, EMobFlag::kScavenger)) {
 		return (false);
 	}
 
@@ -1702,7 +1702,7 @@ int npc_loot(CharData *ch) {
 	int max = false;
 	ObjData *obj, *loot_obj, *next_loot, *cobj, *cnext_obj;
 
-	if (!MOB_FLAGGED(ch, MOB_LOOTER))
+	if (!MOB_FLAGGED(ch, EMobFlag::kLooter))
 		return (false);
 	if (IS_SHOPKEEPER(ch))
 		return (false);
@@ -1843,7 +1843,7 @@ int npc_move(CharData *ch, int dir, int/* need_specials_check*/) {
 		if (EXIT_FLAGGED(rdata, EX_CLOSED)) {
 			if (GET_REAL_INT(ch) >= 15
 				|| GET_DEST(ch) != kNowhere
-				|| MOB_FLAGGED(ch, MOB_OPENDOOR)) {
+				|| MOB_FLAGGED(ch, EMobFlag::kOpensDoor)) {
 				do_doorcmd(ch, 0, dir, SCMD_OPEN);
 				need_close = true;
 			}
@@ -2169,7 +2169,7 @@ int npc_battle_scavenge(CharData *ch) {
 	int max = false;
 	ObjData *obj, *next_obj = nullptr;
 
-	if (!MOB_FLAGGED(ch, MOB_SCAVENGER))
+	if (!MOB_FLAGGED(ch, EMobFlag::kScavenger))
 		return (false);
 
 	if (IS_SHOPKEEPER(ch))
@@ -2296,7 +2296,7 @@ void npc_group(CharData *ch) {
 		return;
 
 	// ноугруп мобы не вступают в группу
-	if (MOB_FLAGGED(ch, MOB_NOGROUP)) {
+	if (MOB_FLAGGED(ch, EMobFlag::kNoGroup)) {
 		return;
 	}
 
@@ -2317,7 +2317,7 @@ void npc_group(CharData *ch) {
 
 	// ноугруп моб не может быть лидером
 	if (leader
-		&& MOB_FLAGGED(leader, MOB_NOGROUP)) {
+		&& MOB_FLAGGED(leader, EMobFlag::kNoGroup)) {
 		leader = nullptr;
 	}
 
@@ -2327,7 +2327,7 @@ void npc_group(CharData *ch) {
 			|| GET_DEST(vict) != GET_DEST(ch)
 			|| zone != ZONE(vict)
 			|| group != GROUP(vict)
-			|| MOB_FLAGGED(vict, MOB_NOGROUP)
+			|| MOB_FLAGGED(vict, EMobFlag::kNoGroup)
 			|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
 			|| GET_POS(vict) < EPosition::kSleep) {
 			continue;

@@ -49,8 +49,8 @@ void process_mobmax(CharData *ch, CharData *killer) {
 	CharData *master = nullptr;
 	if (killer->is_npc()
 		&& (AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM)
-			|| MOB_FLAGGED(killer, MOB_ANGEL)
-			|| MOB_FLAGGED(killer, MOB_GHOST))
+			|| MOB_FLAGGED(killer, EMobFlag::kTutelar)
+			|| MOB_FLAGGED(killer, EMobFlag::kMentalShadow))
 		&& killer->has_master()) {
 		master = killer->get_master();
 	} else if (!killer->is_npc()) {
@@ -147,8 +147,8 @@ void update_die_counts(CharData *ch, CharData *killer, int dec_exp) {
 		&& rkiller->is_npc()
 		&& (IS_CHARMICE(rkiller)
 			|| IS_HORSE(rkiller)
-			|| MOB_FLAGGED(killer, MOB_ANGEL)
-			|| MOB_FLAGGED(killer, MOB_GHOST))) {
+			|| MOB_FLAGGED(killer, EMobFlag::kTutelar)
+			|| MOB_FLAGGED(killer, EMobFlag::kMentalShadow))) {
 		if (rkiller->has_master()) {
 			rkiller = rkiller->get_master();
 		} else {
@@ -568,8 +568,8 @@ void auto_loot(CharData *ch, CharData *killer, ObjData *corpse, int local_gold) 
 	} else if (ch->is_npc()
 		&& killer->is_npc()
 		&& (AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM)
-			|| MOB_FLAGGED(killer, MOB_ANGEL)
-			|| MOB_FLAGGED(killer, MOB_GHOST))
+			|| MOB_FLAGGED(killer, EMobFlag::kTutelar)
+			|| MOB_FLAGGED(killer, EMobFlag::kMentalShadow))
 		&& (corpse != nullptr)
 		&& killer->has_master()
 		&& killer->in_room == killer->get_master()->in_room
@@ -581,8 +581,8 @@ void auto_loot(CharData *ch, CharData *killer, ObjData *corpse, int local_gold) 
 		&& killer->is_npc()
 		&& local_gold
 		&& (AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM)
-			|| MOB_FLAGGED(killer, MOB_ANGEL)
-			|| MOB_FLAGGED(killer, MOB_GHOST))
+			|| MOB_FLAGGED(killer, EMobFlag::kTutelar)
+			|| MOB_FLAGGED(killer, EMobFlag::kMentalShadow))
 		&& (corpse != nullptr)
 		&& killer->has_master()
 		&& killer->in_room == killer->get_master()->in_room
@@ -597,7 +597,7 @@ void check_spell_capable(CharData *ch, CharData *killer) {
 	if (ch->is_npc()
 		&& killer
 		&& killer != ch
-		&& MOB_FLAGGED(ch, MOB_CLONE)
+		&& MOB_FLAGGED(ch, EMobFlag::kClone)
 		&& ch->has_master()
 		&& affected_by_spell(ch, kSpellCapable)) {
 		affect_from_char(ch, kSpellCapable);
@@ -668,7 +668,7 @@ void real_kill(CharData *ch, CharData *killer) {
 			log("Killed: %d %d %ld", GetRealLevel(ch), GET_MAX_HIT(ch), GET_EXP(ch));
 			obj_load_on_death(corpse, ch);
 		}
-		if (MOB_FLAGGED(ch, MOB_CORPSE)) {
+		if (MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
 			perform_drop_gold(ch, local_gold);
 			ch->set_gold(0);
 		}
@@ -1060,7 +1060,7 @@ void gain_battle_exp(CharData *ch, CharData *victim, int dam) {
 	// не даем получать батлу с себя по зеркалу?
 	if (ch == victim) { return; }
 	// не даем получать экспу с !эксп мобов
-	if (MOB_FLAGGED(victim, MOB_NO_BATTLE_EXP)) { return; }
+	if (MOB_FLAGGED(victim, EMobFlag::kNoBattleExp)) { return; }
 	// если цель не нпс то тоже не даем экспы
 	if (!victim->is_npc()) { return; }
 	// если цель под чармом не даем экспу
@@ -1246,7 +1246,7 @@ void char_dam_message(int dam, CharData *ch, CharData *victim, bool noflee) {
 			send_to_char("Сознание покинуло вас. В битве от вас пока проку мало.\r\n", victim);
 			break;
 		case EPosition::kDead:
-			if (victim->is_npc() && (MOB_FLAGGED(victim, MOB_CORPSE))) {
+			if (victim->is_npc() && (MOB_FLAGGED(victim, EMobFlag::kCorpse))) {
 				act("$n вспыхнул$g и рассыпал$u в прах.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 				send_to_char("Похоже вас убили и даже тела не оставили!\r\n", victim);
 			} else {
@@ -1274,7 +1274,7 @@ void char_dam_message(int dam, CharData *ch, CharData *victim, bool noflee) {
 			if (ch != victim
 				&& victim->is_npc()
 				&& GET_HIT(victim) < (GET_REAL_MAX_HIT(victim) / 4)
-				&& MOB_FLAGGED(victim, MOB_WIMPY)
+				&& MOB_FLAGGED(victim, EMobFlag::kWimpy)
 				&& !noflee
 				&& GET_POS(victim) > EPosition::kSit) {
 				do_flee(victim, nullptr, 0, 0);

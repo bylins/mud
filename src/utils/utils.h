@@ -1011,8 +1011,11 @@ const int kNameLevel = 5;
 #define IS_MAGIC_USER(ch)	(!(ch)->is_npc() && (IS_BITS(kMaskMage, (int) GET_CLASS(ch))))
 
 #define IS_UNDEAD(ch) ((ch)->is_npc() && \
-    (MOB_FLAGGED(ch, MOB_RESURRECTED) || (GET_RACE(ch) == ENpcRace::kZombie) || (GET_RACE(ch) == ENpcRace::kGhost)))
+    (MOB_FLAGGED(ch, EMobFlag::kResurrected) || \
+	(GET_RACE(ch) == ENpcRace::kZombie) ||  \
+	(GET_RACE(ch) == ENpcRace::kGhost)))
 
+// \todo Ввести для комнат флаг а-ля "место отдыха", а это убрать.
 #define LIKE_ROOM(ch) ((IS_SORCERER(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_CLERIC)) || \
                        (IS_MAGIC_USER(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_MAGE)) || \
                        (IS_WARRIOR(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_WARRIOR)) || \

@@ -1611,7 +1611,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 		case kSpellMassBlindness:
 		case kSpellPowerBlindness:
 		case kSpellBlindness: savetype = ESaving::kStability;
-			if (MOB_FLAGGED(victim, MOB_NOBLIND) ||
+			if (MOB_FLAGGED(victim, EMobFlag::kNoBlind) ||
 				WAITLESS(victim) ||
 				((ch != victim) &&
 					!GET_GOD_FLAG(victim, EGf::kGodscurse) && CalcGeneralSaving(ch, victim, savetype, modi))) {
@@ -1938,7 +1938,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 			break;
 
 		case kSpellSleep: savetype = ESaving::kWill;
-			if (AFF_FLAGGED(victim, EAffectFlag::AFF_HOLD) || MOB_FLAGGED(victim, MOB_NOSLEEP)
+			if (AFF_FLAGGED(victim, EAffectFlag::AFF_HOLD) || MOB_FLAGGED(victim, EMobFlag::kNoSleep)
 				|| (ch != victim && CalcGeneralSaving(ch, victim, ESaving::kWill, modi))) {
 				send_to_char(NOEFFECT, ch);
 				success = false;
@@ -2057,7 +2057,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 		case kSpellPowerHold:
 		case kSpellHold:
 			if (AFF_FLAGGED(victim, EAffectFlag::AFF_SLEEP)
-				|| MOB_FLAGGED(victim, MOB_NOHOLD) || AFF_FLAGGED(victim, EAffectFlag::AFF_BROKEN_CHAINS)
+				|| MOB_FLAGGED(victim, EMobFlag::kNoHold) || AFF_FLAGGED(victim, EAffectFlag::AFF_BROKEN_CHAINS)
 				|| (ch != victim && CalcGeneralSaving(ch, victim, ESaving::kWill, modi))) {
 				send_to_char(NOEFFECT, ch);
 				success = false;
@@ -2132,7 +2132,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 		case kSpellMassSilence:
 		case kSpellPowerSilence:
 		case kSpellSllence: savetype = ESaving::kWill;
-			if (MOB_FLAGGED(victim, MOB_NOSIELENCE) ||
+			if (MOB_FLAGGED(victim, EMobFlag::kNoSilence) ||
 				(ch != victim && CalcGeneralSaving(ch, victim, savetype, modi))) {
 				send_to_char(NOEFFECT, ch);
 				success = false;
@@ -2248,7 +2248,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 			break;
 
 		case kSpellEviless:
-			if (!victim->is_npc() || victim->get_master() != ch || !MOB_FLAGGED(victim, MOB_CORPSE)) {
+			if (!victim->is_npc() || victim->get_master() != ch || !MOB_FLAGGED(victim, EMobFlag::kCorpse)) {
 				//тихо уходим, т.к. заклинание массовое
 				break;
 			}
@@ -3075,7 +3075,7 @@ int mag_summons(int level, CharData *ch, ObjData *obj, int spellnum, int savetyp
 		sprintf(buf2, "умертвия %s", GET_PAD(mob, 1));
 		mob->player_data.PNames[1] = std::string(buf2);
 		mob->set_sex(ESex::kNeutral);
-		MOB_FLAGS(mob).set(MOB_RESURRECTED);    // added by Pereplut
+		MOB_FLAGS(mob).set(EMobFlag::kResurrected);    // added by Pereplut
 		// если есть фит ярость тьмы, то прибавляем к хп и дамролам
 		if (can_use_feat(ch, FURYDARK_FEAT)) {
 			GET_DR(mob) = GET_DR(mob) + GET_DR(mob) * 0.20;
@@ -3085,13 +3085,13 @@ int mag_summons(int level, CharData *ch, ObjData *obj, int spellnum, int savetyp
 		}
 	}
 	
-	if (!IS_IMMORTAL(ch) && (AFF_FLAGGED(mob, EAffectFlag::AFF_SANCTUARY) || MOB_FLAGGED(mob, MOB_PROTECT))) {
+	if (!IS_IMMORTAL(ch) && (AFF_FLAGGED(mob, EAffectFlag::AFF_SANCTUARY) || MOB_FLAGGED(mob, EMobFlag::kProtect))) {
 		send_to_char("Оживляемый был освящен Богами и противится этому!\r\n", ch);
 		extract_char(mob, false);
 		return 0;
 	}
 	if (!IS_IMMORTAL(ch)
-		&& (GET_MOB_SPEC(mob) || MOB_FLAGGED(mob, MOB_NORESURRECTION) || MOB_FLAGGED(mob, MOB_AREA_ATTACK))) {
+		&& (GET_MOB_SPEC(mob) || MOB_FLAGGED(mob, EMobFlag::kNoResurrection) || MOB_FLAGGED(mob, EMobFlag::kAreaAttack))) {
 		send_to_char("Вы не можете обрести власть над этим созданием!\r\n", ch);
 		extract_char(mob, false);
 		return 0;
@@ -3101,8 +3101,8 @@ int mag_summons(int level, CharData *ch, ObjData *obj, int spellnum, int savetyp
 		extract_char(mob, false);
 		return 0;
 	}
-	if (MOB_FLAGGED(mob, MOB_MOUNTING)) {
-		MOB_FLAGS(mob).unset(MOB_MOUNTING);
+	if (MOB_FLAGGED(mob, EMobFlag::kMounting)) {
+		MOB_FLAGS(mob).unset(EMobFlag::kMounting);
 	}
 	if (IS_HORSE(mob)) {
 		send_to_char("Это был боевой скакун, а не хухры-мухры.\r\n", ch);
@@ -3168,7 +3168,7 @@ int mag_summons(int level, CharData *ch, ObjData *obj, int spellnum, int savetyp
 		mob->set_skill(ESkill::kRescue, 100);
 	}
 
-	MOB_FLAGS(mob).set(MOB_CORPSE);
+	MOB_FLAGS(mob).set(EMobFlag::kCorpse);
 	if (spellnum == kSpellClone) {
 		sprintf(buf2, "двойник %s %s", GET_PAD(ch, 1), GET_NAME(ch));
 		mob->set_pc_name(buf2);
@@ -3217,8 +3217,8 @@ int mag_summons(int level, CharData *ch, ObjData *obj, int spellnum, int savetyp
 		GET_WEIGHT(mob) = GET_WEIGHT(ch);
 		GET_HEIGHT(mob) = GET_HEIGHT(ch);
 		GET_SIZE(mob) = GET_SIZE(ch);
-		MOB_FLAGS(mob).set(MOB_CLONE);
-		MOB_FLAGS(mob).unset(MOB_MOUNTING);
+		MOB_FLAGS(mob).set(EMobFlag::kClone);
+		MOB_FLAGS(mob).unset(EMobFlag::kMounting);
 	}
 	act(mag_summon_msgs[msg], false, ch, nullptr, mob, kToRoom | kToArenaListen);
 
@@ -3239,7 +3239,7 @@ int mag_summons(int level, CharData *ch, ObjData *obj, int spellnum, int savetyp
 		mag_summons(level, ch, obj, spellnum, 0);
 	}
 	if (spellnum == kSpellAnimateDead) {
-		MOB_FLAGS(mob).set(MOB_RESURRECTED);
+		MOB_FLAGS(mob).set(EMobFlag::kResurrected);
 		if (mob_num == kMobSkeleton && can_use_feat(ch, LOYALASSIST_FEAT))
 			mob->set_skill(ESkill::kRescue, 100);
 
@@ -3306,7 +3306,7 @@ int mag_summons(int level, CharData *ch, ObjData *obj, int spellnum, int savetyp
 		mob->set_skill(ESkill::kAwake, 50 + modifier * 2);
 		PRF_FLAGS(mob).set(EPrf::kAwake);
 	}
-	MOB_FLAGS(mob).set(MOB_NOTRAIN);
+	MOB_FLAGS(mob).set(EMobFlag::kNoSkillTrain);
 	// А надо ли это вообще делать???
 	if (handle_corpse) {
 		for (tobj = obj->get_contains(); tobj;) {
@@ -3365,7 +3365,7 @@ int CastToPoints(int level, CharData *ch, CharData *victim, int spellnum, ESavin
 			break;
 		case kSpellEviless:
 			//лечим только умертвия-чармисы
-			if (!victim->is_npc() || victim->get_master() != ch || !MOB_FLAGGED(victim, MOB_CORPSE))
+			if (!victim->is_npc() || victim->get_master() != ch || !MOB_FLAGGED(victim, EMobFlag::kCorpse))
 				return 1;
 			//при рекасте - не лечим
 			if (AFF_FLAGGED(ch, EAffectFlag::AFF_EVILESS)) {
@@ -3896,7 +3896,7 @@ void ReactToCast(CharData *victim, CharData *caster, int spellnum) {
 			attack_best(victim, caster);
 		else
 			hit(victim, caster, ESkill::kUndefined, fight::kMainHand);
-	} else if (CAN_SEE(victim, caster) && !caster->is_npc() && victim->is_npc() && MOB_FLAGGED(victim, MOB_MEMORY)) {
+	} else if (CAN_SEE(victim, caster) && !caster->is_npc() && victim->is_npc() && MOB_FLAGGED(victim, EMobFlag::kMemory)) {
 		mobRemember(victim, caster);
 	}
 

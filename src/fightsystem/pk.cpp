@@ -878,10 +878,10 @@ int may_kill_here(CharData *ch, CharData *victim, char *argument) {
 	if (!victim)
 		return true;
 
-	if (MOB_FLAGGED(ch, MOB_NOFIGHT))
+	if (MOB_FLAGGED(ch, EMobFlag::kNoFight))
 		return (false);
 
-	if (MOB_FLAGGED(victim, MOB_NOFIGHT)) {
+	if (MOB_FLAGGED(victim, EMobFlag::kNoFight)) {
 		act("Боги предотвратили ваше нападение на $N3.", false, ch, 0, victim, kToChar);
 		return (false);
 	}
@@ -906,9 +906,9 @@ int may_kill_here(CharData *ch, CharData *victim, char *argument) {
 		&& (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)
 			|| ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL))) {
 		// но это специальные мобы
-		if (MOB_FLAGGED(victim, MOB_HORDE))
+		if (MOB_FLAGGED(victim, EMobFlag::kHorde))
 			return true;
-		if (MOB_FLAGGED(ch, MOB_IGNORPEACE) && !IS_CHARMICE(ch))
+		if (MOB_FLAGGED(ch, EMobFlag::kIgnoresPeaceRoom) && !IS_CHARMICE(ch))
 			return true;
 		// моб по триггеру имеет право
 		if (ch->is_npc() && ch->get_rnum() == real_mobile(DG_CASTER_PROXY))

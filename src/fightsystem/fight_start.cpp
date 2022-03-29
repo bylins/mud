@@ -66,13 +66,13 @@ int set_hit(CharData *ch, CharData *victim) {
 		send_to_char(victim, "На вас было совершено нападение, редактирование отменено!\r\n");
 	}
 
-	if (MOB_FLAGGED(ch, MOB_MEMORY) && GET_WAIT(ch) > 0) {
+	if (MOB_FLAGGED(ch, EMobFlag::kMemory) && GET_WAIT(ch) > 0) {
 		if (!victim->is_npc()) {
 			mobRemember(ch, victim);
 		} else if (AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM)
 			&& victim->has_master()
 			&& !victim->get_master()->is_npc()) {
-			if (MOB_FLAGGED(victim, MOB_CLONE)) {
+			if (MOB_FLAGGED(victim, EMobFlag::kClone)) {
 				mobRemember(ch, victim->get_master());
 			} else if (ch->isInSameRoom(victim->get_master()) && CAN_SEE(ch, victim->get_master())) {
 				mobRemember(ch, victim->get_master());

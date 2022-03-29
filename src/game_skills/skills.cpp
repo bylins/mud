@@ -659,7 +659,7 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kUndercut: {
-			if (AWAKE(vict) || AFF_FLAGGED(vict, EAffectFlag::AFF_AWARNESS) || MOB_FLAGGED(vict, MOB_AWAKE))
+			if (AWAKE(vict) || AFF_FLAGGED(vict, EAffectFlag::AFF_AWARNESS) || MOB_FLAGGED(vict, EMobFlag::kMobAwake))
 				rate -= 20;
 			if (PRF_FLAGGED(vict, EPrf::kAwake))
 				rate -= CalculateSkillAwakeModifier(ch, vict);
@@ -1557,7 +1557,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 					bonus += 10;
 				if (GET_POS(vict) < EPosition::kSit)
 					bonus -= 50;
-				if (AWAKE(vict) || AFF_FLAGGED(vict, EAffectFlag::AFF_AWARNESS) || MOB_FLAGGED(vict, MOB_AWAKE))
+				if (AWAKE(vict) || AFF_FLAGGED(vict, EAffectFlag::AFF_AWARNESS) || MOB_FLAGGED(vict, EMobFlag::kMobAwake))
 					victim_modi -= 20;
 				if (PRF_FLAGGED(vict, EPrf::kAwake))
 					victim_modi -= CalculateSkillAwakeModifier(ch, vict);
@@ -1774,8 +1774,8 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 	}
 
 	if (victim &&
-		(MOB_FLAGGED(victim, MOB_NOTRAIN)
-			|| MOB_FLAGGED(victim, MOB_MOUNTING)
+		(MOB_FLAGGED(victim, EMobFlag::kNoSkillTrain)
+			|| MOB_FLAGGED(victim, EMobFlag::kMounting)
 			|| !OK_GAIN_EXP(ch, victim)
 			|| (victim->get_master() && !victim->get_master()->is_npc()))) {
 		return;
@@ -1820,7 +1820,7 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 								  (MIN(kSkillCapOnZeroRemort + GET_REAL_REMORT(ch) * 5, ch->get_trained_skill(skill))));
 		}
 		if (victim && victim->is_npc()) {
-			MOB_FLAGS(victim).set(MOB_NOTRAIN);
+			MOB_FLAGS(victim).set(EMobFlag::kNoSkillTrain);
 		}
 	}
 }
@@ -1831,8 +1831,8 @@ void TrainSkill(CharData *ch, const ESkill skill, bool success, CharData *vict) 
 			&& ch->get_trained_skill(skill) > 0
 			&& (!vict
 				|| (vict->is_npc()
-					&& !MOB_FLAGGED(vict, MOB_PROTECT)
-					&& !MOB_FLAGGED(vict, MOB_NOTRAIN)
+					&& !MOB_FLAGGED(vict, EMobFlag::kProtect)
+					&& !MOB_FLAGGED(vict, EMobFlag::kNoSkillTrain)
 					&& !AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
 					&& !IS_HORSE(vict)))) {
 			ImproveSkill(ch, skill, success, vict);

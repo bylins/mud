@@ -1211,7 +1211,7 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	for (k = ch->followers; k; k = k->next) {
 		if (AFF_FLAGGED(k->ch, EAffectFlag::AFF_CHARM)
 			&& k->ch->get_master() == ch
-			&& MOB_FLAGGED(k->ch, MOB_CLONE)
+			&& MOB_FLAGGED(k->ch, EMobFlag::kClone)
 			&& !affected_by_spell(k->ch, kSpellCapable)
 			&& ch->in_room == IN_ROOM(k->ch)) {
 			follower = k->ch;

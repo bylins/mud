@@ -666,7 +666,7 @@ class CharData : public ProtectedCharData {
 
 	void cleanup_script();
 
-	bool is_npc() const { return char_specials.saved.act.get(MOB_ISNPC); }
+	bool is_npc() const { return char_specials.saved.act.get(EMobFlag::kNpc); }
 	bool have_mind() const;
 
  private:

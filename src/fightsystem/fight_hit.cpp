@@ -808,7 +808,7 @@ int calculate_noparryhit_dmg(CharData *ch, ObjData *wielded) {
 }
 
 void might_hit_bash(CharData *ch, CharData *victim) {
-	if (MOB_FLAGGED(victim, MOB_NOBASH) || !GET_MOB_HOLD(victim)) {
+	if (MOB_FLAGGED(victim, EMobFlag::kNoBash) || !GET_MOB_HOLD(victim)) {
 		return;
 	}
 
@@ -1792,13 +1792,13 @@ void Damage::dam_message(CharData *ch, CharData *victim) const {
 // моб может видеть их хозяина.
 void update_mob_memory(CharData *ch, CharData *victim) {
 	// первое -- бьют моба, он запоминает обидчика
-	if (victim->is_npc() && MOB_FLAGGED(victim, MOB_MEMORY)) {
+	if (victim->is_npc() && MOB_FLAGGED(victim, EMobFlag::kMemory)) {
 		if (!ch->is_npc()) {
 			mobRemember(victim, ch);
 		} else if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 			&& ch->has_master()
 			&& !ch->get_master()->is_npc()) {
-			if (MOB_FLAGGED(ch, MOB_CLONE)) {
+			if (MOB_FLAGGED(ch, EMobFlag::kClone)) {
 				mobRemember(victim, ch->get_master());
 			} else if (IN_ROOM(ch->get_master()) == IN_ROOM(victim)
 				&& CAN_SEE(victim, ch->get_master())) {
@@ -1808,13 +1808,13 @@ void update_mob_memory(CharData *ch, CharData *victim) {
 	}
 
 	// второе -- бьет сам моб и запоминает, кого потом добивать :)
-	if (ch->is_npc() && MOB_FLAGGED(ch, MOB_MEMORY)) {
+	if (ch->is_npc() && MOB_FLAGGED(ch, EMobFlag::kMemory)) {
 		if (!victim->is_npc()) {
 			mobRemember(ch, victim);
 		} else if (AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM)
 			&& victim->has_master()
 			&& !victim->get_master()->is_npc()) {
-			if (MOB_FLAGGED(victim, MOB_CLONE)) {
+			if (MOB_FLAGGED(victim, EMobFlag::kClone)) {
 				mobRemember(ch, victim->get_master());
 			} else if (IN_ROOM(victim->get_master()) == ch->in_room
 				&& CAN_SEE(ch, victim->get_master())) {
@@ -2045,7 +2045,7 @@ void try_angel_sacrifice(CharData *ch, CharData *victim) {
 			world[IN_ROOM(victim)]->people;    // make copy of people because keeper might be removed from this list inside the loop
 		for (const auto keeper : people) {
 			if (keeper->is_npc()
-				&& MOB_FLAGGED(keeper, MOB_ANGEL)
+				&& MOB_FLAGGED(keeper, EMobFlag::kTutelar)
 				&& keeper->has_master()
 				&& AFF_FLAGGED(keeper->get_master(), EAffectFlag::AFF_GROUP)) {
 				CharData *keeper_leader = keeper->get_master()->has_master()
@@ -2128,8 +2128,8 @@ void Damage::process_death(CharData *ch, CharData *victim) {
 			// т.к. помечен флагом AFF_GROUP - точно PC
 			group_gain(killer, victim);
 		} else if ((AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM)
-			|| MOB_FLAGGED(killer, MOB_ANGEL)
-			|| MOB_FLAGGED(killer, MOB_GHOST))
+			|| MOB_FLAGGED(killer, EMobFlag::kTutelar)
+			|| MOB_FLAGGED(killer, EMobFlag::kMentalShadow))
 			&& killer->has_master())
 			// killer - зачармленный NPC с хозяином
 		{
@@ -2170,7 +2170,7 @@ void Damage::process_death(CharData *ch, CharData *victim) {
 				continue;
 			if (!ch_vict->is_npc())
 				continue;
-			if (MOB_FLAGGED(ch_vict, MOB_MEMORY)) {
+			if (MOB_FLAGGED(ch_vict, EMobFlag::kMemory)) {
 				mobForget(ch_vict, victim);
 			}
 		}
@@ -2220,8 +2220,8 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		return 0;    // -je, 7/7/92
 	}
 	// No fight mobiles
-	if ((ch->is_npc() && MOB_FLAGGED(ch, MOB_NOFIGHT))
-		|| (victim->is_npc() && MOB_FLAGGED(victim, MOB_NOFIGHT))) {
+	if ((ch->is_npc() && MOB_FLAGGED(ch, EMobFlag::kNoFight))
+		|| (victim->is_npc() && MOB_FLAGGED(victim, EMobFlag::kNoFight))) {
 		return 0;
 	}
 
@@ -2417,7 +2417,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	}
 
 	// зб на мобе
-	if (MOB_FLAGGED(victim, MOB_PROTECT)) {
+	if (MOB_FLAGGED(victim, EMobFlag::kProtect)) {
 		if (victim != ch) {
 			act("$n находится под защитой Богов.", false, victim, 0, 0, kToRoom);
 		}
@@ -2637,7 +2637,7 @@ void HitData::try_mighthit_dam(CharData *ch, CharData *victim) {
 		send_to_char(buf, ch);
 		lag = 3;
 		dam = 0;
-	} else if (MOB_FLAGGED(victim, MOB_NOMIGHTHIT)) {
+	} else if (MOB_FLAGGED(victim, EMobFlag::kNoHammer)) {
 		sprintf(buf, "&c&qНа других надо силу проверять!&Q&n\r\n");
 		send_to_char(buf, ch);
 		lag = 1;
@@ -2725,7 +2725,7 @@ void HitData::try_stupor_dam(CharData *ch, CharData *victim) {
 		prob = 0;
 	}
 
-	if (prob < percent || dam == 0 || MOB_FLAGGED(victim, MOB_NOSTUPOR)) {
+	if (prob < percent || dam == 0 || MOB_FLAGGED(victim, EMobFlag::kNoOverwhelm)) {
 		sprintf(buf, "&c&qВы попытались оглушить %s, но не смогли.&Q&n\r\n", PERS(victim, ch, 3));
 		send_to_char(buf, ch);
 		lag = 3;
@@ -2744,13 +2744,13 @@ void HitData::try_stupor_dam(CharData *ch, CharData *victim) {
 		send_to_char(buf, victim);
 		act("$n оглушил$a $N3.", true, ch, 0, victim, kToNotVict | kToArenaListen);
 	} else {
-		if (MOB_FLAGGED(victim, MOB_NOBASH)) {
+		if (MOB_FLAGGED(victim, EMobFlag::kNoBash)) {
 			sprintf(buf, "&G&qВаш мощнейший удар оглушил %s.&Q&n\r\n", PERS(victim, ch, 3));
 		} else {
 			sprintf(buf, "&G&qВаш мощнейший удар сбил %s с ног.&Q&n\r\n", PERS(victim, ch, 3));
 		}
 		send_to_char(buf, ch);
-		if (MOB_FLAGGED(victim, MOB_NOBASH)) {
+		if (MOB_FLAGGED(victim, EMobFlag::kNoBash)) {
 			act("$n мощным ударом оглушил$a $N3.", true, ch, 0, victim, kToNotVict | kToArenaListen);
 		} else {
 			act("$n своим оглушающим ударом сбил$a $N3 с ног.", true, ch, 0, victim, kToNotVict | kToArenaListen);
@@ -2762,7 +2762,7 @@ void HitData::try_stupor_dam(CharData *ch, CharData *victim) {
 		}
 		dam *= MAX(3, number(1, k));
 		WAIT_STATE(victim, 3 * kPulseViolence);
-		if (GET_POS(victim) > EPosition::kSit && !MOB_FLAGGED(victim, MOB_NOBASH)) {
+		if (GET_POS(victim) > EPosition::kSit && !MOB_FLAGGED(victim, EMobFlag::kNoBash)) {
 			GET_POS(victim) = EPosition::kSit;
 			sprintf(buf, "&R&qОглушающий удар %s сбил вас с ног.&Q&n\r\n", PERS(ch, victim, 1));
 			send_to_char(buf, victim);
@@ -2838,7 +2838,7 @@ int HitData::extdamage(CharData *ch, CharData *victim) {
 		}
 	}
 		//* яды со скила отравить //
-	else if (!MOB_FLAGGED(victim, MOB_PROTECT)
+	else if (!MOB_FLAGGED(victim, EMobFlag::kProtect)
 		&& dam
 		&& wielded
 		&& wielded->has_timed_spell()
@@ -3296,7 +3296,7 @@ void HitData::add_weapon_damage(CharData *ch, bool need_dice) {
 	}
 	if (ch->is_npc()
 		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-		&& !(MOB_FLAGGED(ch, MOB_ANGEL) || MOB_FLAGGED(ch, MOB_GHOST))) {
+		&& !(MOB_FLAGGED(ch, EMobFlag::kTutelar) || MOB_FLAGGED(ch, EMobFlag::kMentalShadow))) {
 		damroll *= MOB_DAMAGE_MULT;
 	} else {
 		damroll = MIN(damroll,
@@ -3515,15 +3515,15 @@ ESpell breathFlag2Spellnum(CharData *ch) {
 	ESpell t = kSpellNoSpell;
 	// наркоманский код с объездом в двух циклах битвекторов флагов заменил на читаемый код
 	// извините..
-	if (MOB_FLAGGED(ch, (MOB_FIREBREATH)))
+	if (MOB_FLAGGED(ch, (EMobFlag::kFireBreath)))
 		t = ESpell::kSpellFireBreath;
-	if (MOB_FLAGGED(ch, (MOB_GASBREATH)))
+	if (MOB_FLAGGED(ch, (EMobFlag::kGasBreath)))
 		t = ESpell::kSpellGasBreath;
-	if (MOB_FLAGGED(ch, (MOB_FROSTBREATH)))
+	if (MOB_FLAGGED(ch, (EMobFlag::kFrostBreath)))
 		t = ESpell::kSpellFrostBreath;
-	if (MOB_FLAGGED(ch, (MOB_ACIDBREATH)))
+	if (MOB_FLAGGED(ch, (EMobFlag::kAcidBreath)))
 		t = ESpell::kSpellAcidBreath;
-	if (MOB_FLAGGED(ch, (MOB_LIGHTBREATH)))
+	if (MOB_FLAGGED(ch, (EMobFlag::kLightingBreath)))
 		t = ESpell::kSpellLightingBreath;
 	return t;
 }
@@ -3552,7 +3552,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 	if (CAN_SEE(victim, ch)
 		&& !victim->get_fighting()
 		&& ((victim->is_npc() && (GET_HIT(victim) < GET_MAX_HIT(victim)
-			|| MOB_FLAGGED(victim, MOB_AWARE)))
+			|| MOB_FLAGGED(victim, EMobFlag::kAware)))
 			|| AFF_FLAGGED(victim, EAffectFlag::AFF_AWARNESS))
 		&& !GET_MOB_HOLD(victim) && GET_WAIT(victim) <= 0) {
 		set_battle_pos(victim);
@@ -3569,7 +3569,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 			if (!victim->get_fighting())
 				set_fighting(victim, ch);
 			// AOE атаки всегда магические. Раздаём каждому игроку и уходим.
-			if (MOB_FLAGGED(ch, MOB_AREA_ATTACK)) {
+			if (MOB_FLAGGED(ch, EMobFlag::kAreaAttack)) {
 				const auto
 					people = world[ch->in_room]->people;    // make copy because inside loop this list might be changed.
 				for (const auto &tch : people) {
@@ -3725,7 +3725,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 
 		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
 			&& victim->is_npc()
-			&& !(AFF_FLAGGED(victim, EAffectFlag::AFF_SHIELD) && !(MOB_FLAGGED(victim, MOB_PROTECT)))
+			&& !(AFF_FLAGGED(victim, EAffectFlag::AFF_SHIELD) && !(MOB_FLAGGED(victim, EMobFlag::kProtect)))
 			&& (number(1, 100) <= 6 * ch->get_cond_penalty(P_HITROLL))
 			&& !victim->get_role(MOB_ROLE_BOSS)) {
 			GET_HIT(victim) = 1;
@@ -3740,7 +3740,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 			hit_params.dam = static_cast<int>(hit_params.dam * hit_params.crit_backstab_multiplier(ch, victim));
 			if ((hit_params.dam > 0)
 				&& !AFF_FLAGGED(victim, EAffectFlag::AFF_SHIELD)
-				&& !(MOB_FLAGGED(victim, MOB_PROTECT))) {
+				&& !(MOB_FLAGGED(victim, EMobFlag::kProtect))) {
 				send_to_char("&GПрямо в сердце!&n\r\n", ch);
 			}
 		}
@@ -3778,7 +3778,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		}
 		if (success && (hit_params.calc_thaco - hit_params.diceroll < hit_params.victim_ac - 5
 				|| percent >= MUD::Skills()[ESkill::kPunctual].difficulty)) {
-			if (!MOB_FLAGGED(victim, MOB_NOTKILLPUNCTUAL)) {
+			if (!MOB_FLAGGED(victim, EMobFlag::kNotKillPunctual)) {
 				hit_params.set_flag(fight::kCritHit);
 				// CRIT_HIT и так щиты игнорит, но для порядку
 				hit_params.set_flag(fight::kIgnoreFireShield);

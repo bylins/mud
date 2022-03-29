@@ -175,7 +175,7 @@ void set_fighting(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if ((ch->is_npc() && MOB_FLAGGED(ch, MOB_NOFIGHT)) || (vict->is_npc() && MOB_FLAGGED(vict, MOB_NOFIGHT)))
+	if ((ch->is_npc() && MOB_FLAGGED(ch, EMobFlag::kNoFight)) || (vict->is_npc() && MOB_FLAGGED(vict, EMobFlag::kNoFight)))
 		return;
 
 	// if (AFF_FLAGGED(ch,AFF_STOPFIGHT))
@@ -408,8 +408,8 @@ CharData *find_friend_cure(CharData *caster, int spellnum) {
 			break;
 	}
 
-	if ((AFF_FLAGGED(caster, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(caster, MOB_ANGEL)
-		|| MOB_FLAGGED(caster, MOB_GHOST) || MOB_FLAGGED(caster, MOB_PLAYER_SUMMON)) // (Кудояр)
+	if ((AFF_FLAGGED(caster, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(caster, EMobFlag::kTutelar)
+		|| MOB_FLAGGED(caster, EMobFlag::kMentalShadow) || MOB_FLAGGED(caster, EMobFlag::kSummoned)) // (Кудояр)
 		&& AFF_FLAGGED(caster, EAffectFlag::AFF_HELPER)) {
 		if (GET_HP_PERC(caster) < AFF_USED) {
 			return caster;
@@ -426,14 +426,14 @@ CharData *find_friend_cure(CharData *caster, int spellnum) {
 	for (const auto vict : world[IN_ROOM(caster)]->people) {
 		if (!vict->is_npc()
 			|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
-			|| ((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST) || MOB_FLAGGED(vict, MOB_PLAYER_SUMMON)) // (Кудояр)
+			|| ((MOB_FLAGGED(vict, EMobFlag::kTutelar) || MOB_FLAGGED(vict, EMobFlag::kMentalShadow) || MOB_FLAGGED(vict, EMobFlag::kSummoned)) // (Кудояр)
 				&& vict->has_master()
 				&& !vict->get_master()->is_npc())
 			|| !CAN_SEE(caster, vict)) {
 			continue;
 		}
 
-		if (!vict->get_fighting() && !MOB_FLAGGED(vict, MOB_HELPER)) {
+		if (!vict->get_fighting() && !MOB_FLAGGED(vict, EMobFlag::kHelper)) {
 			continue;
 		}
 
@@ -479,7 +479,7 @@ CharData *find_friend(CharData *caster, int spellnum) {
 	}
 	if (AFF_FLAGGED(caster, EAffectFlag::AFF_HELPER)
 		&& (AFF_FLAGGED(caster, EAffectFlag::AFF_CHARM)
-			|| MOB_FLAGGED(caster, MOB_ANGEL) || MOB_FLAGGED(caster, MOB_GHOST) || MOB_FLAGGED(caster, MOB_PLAYER_SUMMON))) { //(Кудояр)
+			|| MOB_FLAGGED(caster, EMobFlag::kTutelar) || MOB_FLAGGED(caster, EMobFlag::kMentalShadow) || MOB_FLAGGED(caster, EMobFlag::kSummoned))) { //(Кудояр)
 		if (caster->has_any_affect(AFF_USED)
 			|| affected_by_spell(caster, spellreal)) {
 			return caster;
@@ -498,7 +498,7 @@ CharData *find_friend(CharData *caster, int spellnum) {
 		for (const auto vict : world[IN_ROOM(caster)]->people) {
 			if (!vict->is_npc()
 				|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
-				|| ((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST) || MOB_FLAGGED(vict, MOB_PLAYER_SUMMON)) // (Кудояр)
+				|| ((MOB_FLAGGED(vict, EMobFlag::kTutelar) || MOB_FLAGGED(vict, EMobFlag::kMentalShadow) || MOB_FLAGGED(vict, EMobFlag::kSummoned)) // (Кудояр)
 					&& vict->get_master()
 					&& !vict->get_master()->is_npc())
 				|| !CAN_SEE(caster, vict)) {
@@ -510,7 +510,7 @@ CharData *find_friend(CharData *caster, int spellnum) {
 			}
 
 			if (!vict->get_fighting()
-				&& !MOB_FLAGGED(vict, MOB_HELPER)) {
+				&& !MOB_FLAGGED(vict, EMobFlag::kHelper)) {
 				continue;
 			}
 
@@ -554,7 +554,7 @@ CharData *find_caster(CharData *caster, int spellnum) {
 
 	if (AFF_FLAGGED(caster, EAffectFlag::AFF_HELPER)
 		&& (AFF_FLAGGED(caster, EAffectFlag::AFF_CHARM)
-			|| MOB_FLAGGED(caster, MOB_ANGEL) || MOB_FLAGGED(caster, MOB_GHOST) || MOB_FLAGGED(caster, MOB_PLAYER_SUMMON))) { // (Кудояр)
+			|| MOB_FLAGGED(caster, EMobFlag::kTutelar) || MOB_FLAGGED(caster, EMobFlag::kMentalShadow) || MOB_FLAGGED(caster, EMobFlag::kSummoned))) { // (Кудояр)
 		if (caster->has_any_affect(AFF_USED)
 			|| affected_by_spell(caster, spellreal)) {
 			return caster;
@@ -573,7 +573,7 @@ CharData *find_caster(CharData *caster, int spellnum) {
 		for (const auto vict : world[IN_ROOM(caster)]->people) {
 			if (!vict->is_npc()
 				|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
-				|| ((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST) || MOB_FLAGGED(vict, MOB_PLAYER_SUMMON)) // (Кудояр)
+				|| ((MOB_FLAGGED(vict, EMobFlag::kTutelar) || MOB_FLAGGED(vict, EMobFlag::kMentalShadow) || MOB_FLAGGED(vict, EMobFlag::kSummoned)) // (Кудояр)
 					&& (vict->get_master() && !vict->get_master()->is_npc()))
 				|| !CAN_SEE(caster, vict)) {
 				continue;
@@ -584,7 +584,7 @@ CharData *find_caster(CharData *caster, int spellnum) {
 			}
 
 			if (!vict->get_fighting()
-				&& !MOB_FLAGGED(vict, MOB_HELPER)) {
+				&& !MOB_FLAGGED(vict, EMobFlag::kHelper)) {
 				continue;
 			}
 
@@ -639,8 +639,8 @@ CharData *find_affectee(CharData *caster, int spellnum) {
 	else if (spellreal == kSpellSnakeEyes)
 		spellreal = kSpellDetectPoison;
 
-	if ((AFF_FLAGGED(caster, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(caster, MOB_ANGEL)
-		|| MOB_FLAGGED(caster, MOB_GHOST) || MOB_FLAGGED(caster, MOB_PLAYER_SUMMON)) && AFF_FLAGGED(caster, EAffectFlag::AFF_HELPER)) { // (Кудояр)
+	if ((AFF_FLAGGED(caster, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(caster, EMobFlag::kTutelar)
+		|| MOB_FLAGGED(caster, EMobFlag::kMentalShadow) || MOB_FLAGGED(caster, EMobFlag::kSummoned)) && AFF_FLAGGED(caster, EAffectFlag::AFF_HELPER)) { // (Кудояр)
 		if (!affected_by_spell(caster, spellreal)) {
 			return caster;
 		} else if (caster->has_master()
@@ -657,7 +657,7 @@ CharData *find_affectee(CharData *caster, int spellnum) {
 		for (const auto vict : world[IN_ROOM(caster)]->people) {
 			if (!vict->is_npc()
 				|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
-				|| ((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST) || MOB_FLAGGED(vict, MOB_PLAYER_SUMMON)) // (Кудояр)
+				|| ((MOB_FLAGGED(vict, EMobFlag::kTutelar) || MOB_FLAGGED(vict, EMobFlag::kMentalShadow) || MOB_FLAGGED(vict, EMobFlag::kSummoned)) // (Кудояр)
 					&& vict->has_master()
 					&& !vict->get_master()->is_npc())
 				|| !CAN_SEE(caster, vict)) {
@@ -707,7 +707,7 @@ CharData *find_opp_affectee(CharData *caster, int spellnum) {
 	if (GET_REAL_INT(caster) > number(10, 20)) {
 		for (const auto vict : world[caster->in_room]->people) {
 			if ((vict->is_npc()
-				&& !((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST) || MOB_FLAGGED(vict, MOB_PLAYER_SUMMON) // (Кудояр)
+				&& !((MOB_FLAGGED(vict, EMobFlag::kTutelar) || MOB_FLAGGED(vict, EMobFlag::kMentalShadow) || MOB_FLAGGED(vict, EMobFlag::kSummoned) // (Кудояр)
 					|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM))
 					&& vict->has_master()
 					&& !vict->get_master()->is_npc()))
@@ -744,7 +744,7 @@ CharData *find_opp_caster(CharData *caster) {
 
 	for (const auto vict : world[IN_ROOM(caster)]->people) {
 		if (vict->is_npc()
-			&& !((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST) || MOB_FLAGGED(vict, MOB_PLAYER_SUMMON)) // Кудояр
+			&& !((MOB_FLAGGED(vict, EMobFlag::kTutelar) || MOB_FLAGGED(vict, EMobFlag::kMentalShadow) || MOB_FLAGGED(vict, EMobFlag::kSummoned)) // Кудояр
 				&& vict->has_master()
 				&& !vict->get_master()->is_npc())) {
 			continue;
@@ -771,8 +771,8 @@ CharData *find_damagee(CharData *caster) {
 	if (GET_REAL_INT(caster) > number(10, 20)) {
 		for (const auto vict : world[IN_ROOM(caster)]->people) {
 			if ((vict->is_npc()
-				&& !((MOB_FLAGGED(vict, MOB_ANGEL)
-					|| MOB_FLAGGED(vict, MOB_GHOST)
+				&& !((MOB_FLAGGED(vict, EMobFlag::kTutelar)
+					|| MOB_FLAGGED(vict, EMobFlag::kMentalShadow)
 					|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM))
 					&& vict->has_master()
 					&& !vict->get_master()->is_npc()))
@@ -921,7 +921,7 @@ CharData *find_minhp(CharData *caster) {
 	if (GET_REAL_INT(caster) > number(10, 20)) {
 		for (const auto vict : world[IN_ROOM(caster)]->people) {
 			if ((vict->is_npc()
-				&& !((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST) || MOB_FLAGGED(vict, MOB_PLAYER_SUMMON) // (Кудояр)
+				&& !((MOB_FLAGGED(vict, EMobFlag::kTutelar) || MOB_FLAGGED(vict, EMobFlag::kMentalShadow) || MOB_FLAGGED(vict, EMobFlag::kSummoned) // (Кудояр)
 					|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM))
 					&& vict->has_master()
 					&& !vict->get_master()->is_npc()))
@@ -997,7 +997,7 @@ void mob_casting(CharData *ch) {
 	while (spells < kMaxStringLength
 		&& item
 		&& GET_RACE(ch) == ENpcRace::kHuman
-		&& !(MOB_FLAGGED(ch, MOB_ANGEL) || MOB_FLAGGED(ch, MOB_GHOST))) {
+		&& !(MOB_FLAGGED(ch, EMobFlag::kTutelar) || MOB_FLAGGED(ch, EMobFlag::kMentalShadow))) {
 		switch (GET_OBJ_TYPE(item)) {
 			case ObjData::ITEM_WAND:
 			case ObjData::ITEM_STAFF:
@@ -1060,7 +1060,7 @@ void mob_casting(CharData *ch) {
 	victim = find_cure(ch, ch, &spellnum);
 
 	// angel not cast if master not in room
-	if (MOB_FLAGS(ch).get(MOB_ANGEL)) {
+	if (MOB_FLAGS(ch).get(EMobFlag::kTutelar)) {
 		if (ch->has_master() && ch->in_room != ch->get_master()->in_room) {
 			sprintf(buf, "%s тоскливо сморит по сторонам. Кажется ищет кого-то.", ch->get_name_str().c_str());
 			act(buf, false, ch, 0, 0, kToRoom | kToArenaListen);
@@ -1103,7 +1103,7 @@ void mob_casting(CharData *ch) {
 	{
 		item = ch->carrying;
 		while (!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-			&& !(MOB_FLAGGED(ch, MOB_ANGEL) || MOB_FLAGGED(ch, MOB_GHOST))
+			&& !(MOB_FLAGGED(ch, EMobFlag::kTutelar) || MOB_FLAGGED(ch, EMobFlag::kMentalShadow))
 			&& item
 			&& GET_RACE(ch) == ENpcRace::kHuman) {
 			switch (GET_OBJ_TYPE(item)) {
@@ -1226,7 +1226,7 @@ void try_angel_rescue(CharData *ch) {
 	for (k = ch->followers; k; k = k_next) {
 		k_next = k->next;
 		if (AFF_FLAGGED(k->ch, EAffectFlag::AFF_HELPER)
-			&& MOB_FLAGGED(k->ch, MOB_ANGEL)
+			&& MOB_FLAGGED(k->ch, EMobFlag::kTutelar)
 			&& !k->ch->get_fighting()
 			&& IN_ROOM(k->ch) == ch->in_room
 			&& CAN_SEE(k->ch, ch)
@@ -1517,7 +1517,7 @@ void using_mob_skills(CharData *ch) {
 		////////////////////////////////////////////////////////////////////////
 		// проверим на всякий случай, является ли моб ангелом,
 		// хотя вроде бы этого делать не надо
-		if (!(MOB_FLAGGED(ch, MOB_ANGEL) || MOB_FLAGGED(ch, MOB_GHOST))
+		if (!(MOB_FLAGGED(ch, EMobFlag::kTutelar) || MOB_FLAGGED(ch, EMobFlag::kMentalShadow))
 			&& ch->has_master()
 			&& (sk_num == ESkill::kRescue || sk_num == ESkill::kProtect)) {
 			CharData *caster = 0, *damager = 0;
@@ -1533,10 +1533,10 @@ void using_mob_skills(CharData *ch) {
 						&& !(AFF_FLAGGED(attacker, EAffectFlag::AFF_CHARM)
 							&& attacker->has_master()
 							&& !attacker->get_master()->is_npc())
-						&& !(MOB_FLAGGED(attacker, MOB_GHOST)
+						&& !(MOB_FLAGGED(attacker, EMobFlag::kMentalShadow)
 							&& attacker->has_master()
 							&& !attacker->get_master()->is_npc())
-						&& !(MOB_FLAGGED(attacker, MOB_ANGEL)
+						&& !(MOB_FLAGGED(attacker, EMobFlag::kTutelar)
 							&& attacker->has_master()
 							&& !attacker->get_master()->is_npc()))
 					|| !CAN_SEE(ch, vict) // не видно, кого нужно спасать
@@ -1788,7 +1788,7 @@ void process_npc_attack(CharData *ch) {
 	}
 
 	bool no_extra_attack = IS_SET(trigger_code, kNoExtraAttack);
-	if ((AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(ch, MOB_ANGEL))
+	if ((AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(ch, EMobFlag::kTutelar))
 		&& ch->has_master() && ch->in_room == IN_ROOM(ch->get_master())  // && !ch->master->is_npc()
 		&& AWAKE(ch) && MAY_ACT(ch) && GET_POS(ch) >= EPosition::kFight) {
 		// сначала мытаемся спасти
@@ -1838,7 +1838,7 @@ void process_npc_attack(CharData *ch) {
 			continue;
 		}
 		// если хп пробиты - уходим
-		if (MOB_FLAGGED(ch, MOB_EADECREASE)) {
+		if (MOB_FLAGGED(ch, EMobFlag::kDecreaseAttack)) {
 			if (ch->mob_specials.ExtraAttack * GET_HIT(ch) * 2 < i * GET_REAL_MAX_HIT(ch)) {
 				return;
 			}
@@ -2042,8 +2042,8 @@ void perform_violence() {
 			msdp_report_chars.insert(ch);
 		} else if (ch->has_master()
 			&& (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-				|| MOB_FLAGGED(ch, MOB_ANGEL)
-				|| MOB_FLAGGED(ch, MOB_GHOST))) {
+				|| MOB_FLAGGED(ch, EMobFlag::kTutelar)
+				|| MOB_FLAGGED(ch, EMobFlag::kMentalShadow))) {
 			auto master = ch->get_master();
 			if (master->desc
 				&& !master->get_fighting()
@@ -2140,8 +2140,8 @@ int check_agro_follower(CharData *ch, CharData *victim) {
 	if (ch->is_npc()
 		&& ch->has_master()
 		&& (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-			|| MOB_FLAGGED(ch, MOB_ANGEL)
-			|| MOB_FLAGGED(ch, MOB_GHOST)
+			|| MOB_FLAGGED(ch, EMobFlag::kTutelar)
+			|| MOB_FLAGGED(ch, EMobFlag::kMentalShadow)
 			|| IS_HORSE(ch))) {
 		ch = ch->get_master();
 	}
@@ -2149,8 +2149,8 @@ int check_agro_follower(CharData *ch, CharData *victim) {
 	if (victim->is_npc()
 		&& victim->has_master()
 		&& (AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM)
-			|| MOB_FLAGGED(victim, MOB_ANGEL)
-			|| MOB_FLAGGED(victim, MOB_GHOST)
+			|| MOB_FLAGGED(victim, EMobFlag::kTutelar)
+			|| MOB_FLAGGED(victim, EMobFlag::kMentalShadow)
 			|| IS_HORSE(victim))) {
 		victim = victim->get_master();
 	}
@@ -2161,7 +2161,7 @@ int check_agro_follower(CharData *ch, CharData *victim) {
 	while (cleader->has_master()) {
 		if (cleader->is_npc()
 			&& !AFF_FLAGGED(cleader, EAffectFlag::AFF_CHARM)
-			&& !(MOB_FLAGGED(cleader, MOB_ANGEL) || MOB_FLAGGED(cleader, MOB_GHOST))
+			&& !(MOB_FLAGGED(cleader, EMobFlag::kTutelar) || MOB_FLAGGED(cleader, EMobFlag::kMentalShadow))
 			&& !IS_HORSE(cleader)) {
 			break;
 		}
@@ -2171,7 +2171,7 @@ int check_agro_follower(CharData *ch, CharData *victim) {
 	while (vleader->has_master()) {
 		if (vleader->is_npc()
 			&& !AFF_FLAGGED(vleader, EAffectFlag::AFF_CHARM)
-			&& !(MOB_FLAGGED(vleader, MOB_ANGEL) || MOB_FLAGGED(vleader, MOB_GHOST))
+			&& !(MOB_FLAGGED(vleader, EMobFlag::kTutelar) || MOB_FLAGGED(vleader, EMobFlag::kMentalShadow))
 			&& !IS_HORSE(vleader)) {
 			break;
 		}

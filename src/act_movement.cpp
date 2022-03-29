@@ -368,8 +368,8 @@ int legal_dir(CharData *ch, int dir, int need_specials_check, int show_msg) {
 		}
 
 		//  if this room or the one we're going to needs a boat, check for one */
-		if (!MOB_FLAGGED(ch, MOB_SWIMMING)
-			&& !MOB_FLAGGED(ch, MOB_FLYING)
+		if (!MOB_FLAGGED(ch, EMobFlag::kSwimming)
+			&& !MOB_FLAGGED(ch, EMobFlag::kFlying)
 			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_FLY)
 			&& (real_sector(ch->in_room) == kSectWaterNoswim
 				|| real_sector(EXIT(ch, dir)->to_room()) == kSectWaterNoswim)) {
@@ -380,14 +380,14 @@ int legal_dir(CharData *ch, int dir, int need_specials_check, int show_msg) {
 
 		// Добавляем проверку на то что моб может вскрыть дверь
 		if (EXIT_FLAGGED(EXIT(ch, dir), EX_CLOSED) &&
-			!MOB_FLAGGED(ch, MOB_OPENDOOR))
+			!MOB_FLAGGED(ch, EMobFlag::kOpensDoor))
 			return (false);
 
-		if (!MOB_FLAGGED(ch, MOB_FLYING) &&
+		if (!MOB_FLAGGED(ch, EMobFlag::kFlying) &&
 			!AFF_FLAGGED(ch, EAffectFlag::AFF_FLY) && SECT(EXIT(ch, dir)->to_room()) == kSectOnlyFlying)
 			return (false);
 
-		if (MOB_FLAGGED(ch, MOB_ONLYSWIMMING) &&
+		if (MOB_FLAGGED(ch, EMobFlag::kOnlySwimming) &&
 			!(real_sector(EXIT(ch, dir)->to_room()) == kSectWaterSwim ||
 				real_sector(EXIT(ch, dir)->to_room()) == kSectWaterNoswim ||
 				real_sector(EXIT(ch, dir)->to_room()) == kSectUnderwater))
@@ -395,8 +395,8 @@ int legal_dir(CharData *ch, int dir, int need_specials_check, int show_msg) {
 
 		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ROOM_NOMOB) &&
 			!IS_HORSE(ch) &&
-			!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && !(MOB_FLAGGED(ch, MOB_ANGEL) || MOB_FLAGGED(ch, MOB_GHOST))
-			&& !MOB_FLAGGED(ch, MOB_IGNORNOMOB))
+			!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && !(MOB_FLAGGED(ch, EMobFlag::kTutelar) || MOB_FLAGGED(ch, EMobFlag::kMentalShadow))
+			&& !MOB_FLAGGED(ch, EMobFlag::kIgnoresNoMob))
 			return (false);
 
 		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ROOM_DEATH) && !IS_HORSE(ch))
@@ -650,7 +650,7 @@ int do_simple_move(CharData *ch, int dir, int need_specials_check, CharData *lea
 		sprintf(buf, "Вы поплелись %s%s.", leader ? "следом за $N4 " : "", DirsTo[dir]);
 		act(buf, false, ch, nullptr, leader, kToChar);
 	}
-	if (ch->is_npc() && MOB_FLAGGED(ch, MOB_SENTINEL) && !IS_CHARMICE(ch) && ROOM_FLAGGED(ch->in_room, ROOM_ARENA))
+	if (ch->is_npc() && MOB_FLAGGED(ch, EMobFlag::kSentinel) && !IS_CHARMICE(ch) && ROOM_FLAGGED(ch->in_room, ROOM_ARENA))
 		return false;
 	was_in = ch->in_room;
 	go_to = world[was_in]->dir_option[dir]->to_room();
@@ -890,7 +890,7 @@ int do_simple_move(CharData *ch, int dir, int need_specials_check, CharData *lea
 			}
 
 			// AWARE mobs
-			if (MOB_FLAGGED(vict, MOB_AWARE)
+			if (MOB_FLAGGED(vict, EMobFlag::kAware)
 				&& GET_POS(vict) < EPosition::kFight
 				&& !AFF_FLAGGED(vict, EAffectFlag::AFF_HOLD)
 				&& GET_POS(vict) > EPosition::kSleep) {
@@ -1594,7 +1594,7 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					}
 					if (AFF_FLAGGED(k->ch, EAffectFlag::AFF_HELPER)
 						&& !GET_MOB_HOLD(k->ch)
-						&& (MOB_FLAGGED(k->ch, MOB_ANGEL) || MOB_FLAGGED(k->ch, MOB_GHOST))
+						&& (MOB_FLAGGED(k->ch, EMobFlag::kTutelar) || MOB_FLAGGED(k->ch, EMobFlag::kMentalShadow))
 						&& !k->ch->get_fighting()
 						&& IN_ROOM(k->ch) == from_room
 						&& AWAKE(k->ch)) {

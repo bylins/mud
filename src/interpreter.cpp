@@ -2229,8 +2229,8 @@ void do_entergame(DescriptorData *d) {
 	if (!character) {
 		character_list.push_front(d->character);
 	} else {
-		MOB_FLAGS(character).unset(MOB_DELETE);
-		MOB_FLAGS(character).unset(MOB_FREE);
+		MOB_FLAGS(character).unset(EMobFlag::kMobDeleted);
+		MOB_FLAGS(character).unset(EMobFlag::kMobFreed);
 	}
 
 	log("Player %s enter at room %d", GET_NAME(d->character), GET_ROOM_VNUM(load_room));

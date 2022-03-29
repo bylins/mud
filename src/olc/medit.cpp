@@ -123,7 +123,7 @@ void medit_mobile_init(CharData *mob) {
 	mob->set_cha(11);
 	mob->set_con(11);
 
-	MOB_FLAGS(mob).set(MOB_ISNPC);
+	MOB_FLAGS(mob).set(EMobFlag::kNpc);
 	mob->player_specials = player_special_data::s_for_mobiles;
 
 	for (auto i = 0; i < MAX_NUMBER_RESISTANCE; i++) {
@@ -1376,7 +1376,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 	switch (OLC_MODE(d)) {
 		case MEDIT_CONFIRM_SAVESTRING:
 			// * Ensure mob has MOB_ISNPC set or things will go pair shaped.
-			MOB_FLAGS(OLC_MOB(d)).set(MOB_ISNPC);
+			MOB_FLAGS(OLC_MOB(d)).set(EMobFlag::kNpc);
 			switch (*arg) {
 				case 'y':
 				case 'Y':
@@ -1916,7 +1916,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 			} else {
 				OLC_MOB(d)->char_specials.saved.act.toggle_flag(plane, 1 << bit);
 				medit_disp_mob_flags(d);
-				if (MOB_FLAGGED(OLC_MOB(d), MOB_IGNORE_FORMATION)) {
+				if (MOB_FLAGGED(OLC_MOB(d), EMobFlag::kIgnoresFormation)) {
 					OLC_MOB(d)->set_role(MOB_ROLE_ROGUE, true);
 				}
 				return;

@@ -682,8 +682,8 @@ void do_steal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Воровать у своих? Это мерзко...\r\n", ch);
 		return;
 	}
-	if (vict->is_npc() && (MOB_FLAGGED(vict, MOB_NOFIGHT) || AFF_FLAGGED(vict, EAffectFlag::AFF_SHIELD)
-		|| MOB_FLAGGED(vict, MOB_PROTECT))
+	if (vict->is_npc() && (MOB_FLAGGED(vict, EMobFlag::kNoFight) || AFF_FLAGGED(vict, EAffectFlag::AFF_SHIELD)
+		|| MOB_FLAGGED(vict, EMobFlag::kProtect))
 		&& !(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike))) {
 		send_to_char("А ежели поймают? Посодют ведь!\r\nПодумав так, вы отказались от сего намеренья.\r\n", ch);
 		return;
@@ -837,8 +837,8 @@ bool is_group_member(CharData *ch, CharData *vict) {
 int perform_group(CharData *ch, CharData *vict) {
 	if (AFF_FLAGGED(vict, EAffectFlag::AFF_GROUP)
 		|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
-		|| MOB_FLAGGED(vict, MOB_ANGEL)
-		|| MOB_FLAGGED(vict, MOB_GHOST)
+		|| MOB_FLAGGED(vict, EMobFlag::kTutelar)
+		|| MOB_FLAGGED(vict, EMobFlag::kMentalShadow)
 		|| IS_HORSE(vict)) {
 		return (false);
 	}
@@ -1139,7 +1139,7 @@ void print_group(CharData *ch) {
 
 	for (f = ch->followers; f; f = f->next) {
 		if (!(AFF_FLAGGED(f->ch, EAffectFlag::AFF_CHARM)
-			|| MOB_FLAGGED(f->ch, MOB_ANGEL) || MOB_FLAGGED(f->ch, MOB_GHOST))) {
+			|| MOB_FLAGGED(f->ch, EMobFlag::kTutelar) || MOB_FLAGGED(f->ch, EMobFlag::kMentalShadow))) {
 			continue;
 		}
 		if (!cfound)
@@ -1154,7 +1154,7 @@ void print_group(CharData *ch) {
 		for (g = k->followers, cfound = 0; g; g = g->next) {
 			for (f = g->ch->followers; f; f = f->next) {
 				if (!(AFF_FLAGGED(f->ch, EAffectFlag::AFF_CHARM)
-					|| MOB_FLAGGED(f->ch, MOB_ANGEL) || MOB_FLAGGED(f->ch, MOB_GHOST))
+					|| MOB_FLAGGED(f->ch, EMobFlag::kTutelar) || MOB_FLAGGED(f->ch, EMobFlag::kMentalShadow))
 					|| !AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)) {
 					continue;
 				}
@@ -1167,7 +1167,7 @@ void print_group(CharData *ch) {
 				// shapirus: при включенном режиме не показываем клонов и хранителей
 				if (PRF_FLAGGED(ch, EPrf::kNoClones)
 					&& f->ch->is_npc()
-					&& (MOB_FLAGGED(f->ch, MOB_CLONE)
+					&& (MOB_FLAGGED(f->ch, EMobFlag::kClone)
 						|| GET_MOB_VNUM(f->ch) == kMobKeeper)) {
 					continue;
 				}
@@ -1180,7 +1180,7 @@ void print_group(CharData *ch) {
 
 			if (ch->has_master()) {
 				if (!(AFF_FLAGGED(g->ch, EAffectFlag::AFF_CHARM)
-					|| MOB_FLAGGED(g->ch, MOB_ANGEL) || MOB_FLAGGED(g->ch, MOB_GHOST))
+					|| MOB_FLAGGED(g->ch, EMobFlag::kTutelar) || MOB_FLAGGED(g->ch, EMobFlag::kMentalShadow))
 					|| !AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)) {
 					continue;
 				}
@@ -1188,7 +1188,7 @@ void print_group(CharData *ch) {
 				// shapirus: при включенном режиме не показываем клонов и хранителей
 				if (PRF_FLAGGED(ch, EPrf::kNoClones)
 					&& g->ch->is_npc()
-					&& (MOB_FLAGGED(g->ch, MOB_CLONE)
+					&& (MOB_FLAGGED(g->ch, EMobFlag::kClone)
 						|| GET_MOB_VNUM(g->ch) == kMobKeeper)) {
 					continue;
 				}
@@ -1265,7 +1265,7 @@ void do_group(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		// а то чото как-то глючно Двойник %1 не является членом вашей группы.
 		if (vict
 			&& vict->is_npc()
-			&& MOB_FLAGGED(vict, MOB_CLONE)
+			&& MOB_FLAGGED(vict, EMobFlag::kClone)
 			&& AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
 			&& vict->has_master()
 			&& !vict->get_master()->is_npc()) {
@@ -1298,8 +1298,8 @@ void do_group(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act("$N2 нужно следовать за вами, чтобы стать членом вашей группы.", false, ch, nullptr, vict, kToChar);
 	} else {
 		if (!AFF_FLAGGED(vict, EAffectFlag::AFF_GROUP)) {
-			if (AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(vict, MOB_ANGEL)
-				|| MOB_FLAGGED(vict, MOB_GHOST) || IS_HORSE(vict)) {
+			if (AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(vict, EMobFlag::kTutelar)
+				|| MOB_FLAGGED(vict, EMobFlag::kMentalShadow) || IS_HORSE(vict)) {
 				send_to_char("Только равноправные персонажи могут быть включены в группу.\r\n", ch);
 				send_to_char("Только равноправные персонажи могут быть включены в группу.\r\n", vict);
 			};

@@ -22,11 +22,11 @@ void PerformShadowThrowSideAbilities(AbilitySystem::TechniqueRoll &technique) {
 	int feature_id = INCORRECT_FEAT;
 	std::string to_char, to_vict, to_room;
 	void (*DoSideAction)(AbilitySystem::TechniqueRoll &technique);
-	Bitvector mob_no_flag = MOB_DELETE;
+	Bitvector mob_no_flag = EMobFlag::kMobDeleted;
 
 	switch (static_cast<ESkill>(weapon->get_skill())) {
 		case ESkill::kSpades:
-			mob_no_flag = MOB_NOBASH;
+			mob_no_flag = EMobFlag::kNoBash;
 			feature_id = SHADOW_SPEAR_FEAT;
 			to_char = "Попадание копья повалило $n3 наземь.";
 			to_vict =
@@ -43,7 +43,7 @@ void PerformShadowThrowSideAbilities(AbilitySystem::TechniqueRoll &technique) {
 			break;
 		case ESkill::kShortBlades:
 		case ESkill::kPicks:
-			mob_no_flag = MOB_NOSIELENCE;
+			mob_no_flag = EMobFlag::kNoSilence;
 			feature_id = SHADOW_DAGGER_FEAT;
 			to_char = "Меткое попадание вашего кинжала заставило $n3 умолкнуть.";
 			to_vict = "Бросок $N1 угодил вам в горло. Вы прикусили язык!";
@@ -57,7 +57,7 @@ void PerformShadowThrowSideAbilities(AbilitySystem::TechniqueRoll &technique) {
 				affect_join(technique.GetRival(), af, false, false, false, false);
 			});
 			break;
-		case ESkill::kClubs:mob_no_flag = MOB_NOSTUPOR;
+		case ESkill::kClubs:mob_no_flag = EMobFlag::kNoOverwhelm;
 			feature_id = SHADOW_CLUB_FEAT;
 			to_char = "Попадание булавы ошеломило $n3.";
 			to_vict = "Брошенная $N4 булава врезалась вам в лоб! Какие красивые звёздочки вокруг...";

@@ -45,7 +45,7 @@ void go_bash(CharData *ch, CharData *vict) {
 	if (GET_MOB_HOLD(vict) || GET_GOD_FLAG(vict, EGf::kGodscurse)) {
 		prob = percent;
 	}
-	if (MOB_FLAGGED(vict, MOB_NOBASH) || GET_GOD_FLAG(ch, EGf::kGodscurse)) {
+	if (MOB_FLAGGED(vict, EMobFlag::kNoBash) || GET_GOD_FLAG(ch, EGf::kGodscurse)) {
 		prob = 0;
 	}
 	bool success = percent <= prob;

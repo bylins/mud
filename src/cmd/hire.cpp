@@ -18,7 +18,7 @@ float get_damage_per_round(CharData *victim) {
 	float dam_per_round = dam_per_attack * num_attacks;
 
 	//Если дыхание - то дамаг умножается
-	if (MOB_FLAGGED(victim, (MOB_FIREBREATH | MOB_GASBREATH | MOB_FROSTBREATH | MOB_ACIDBREATH | MOB_LIGHTBREATH))) {
+	if (MOB_FLAGGED(victim, (EMobFlag::kFireBreath | EMobFlag::kGasBreath | EMobFlag::kFrostBreath | EMobFlag::kAcidBreath | EMobFlag::kLightingBreath))) {
 		dam_per_round *= 1.3f;
 	}
 
@@ -255,8 +255,8 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				return;
 			}
 		}
-		if (MOB_FLAGGED(helpee, MOB_NOGROUP))
-			MOB_FLAGS(helpee).unset(MOB_NOGROUP);
+		if (MOB_FLAGGED(helpee, EMobFlag::kNoGroup))
+			MOB_FLAGS(helpee).unset(EMobFlag::kNoGroup);
 
 		Affect<EApplyLocation> af;
 		if (!(k && k->ch == helpee)) {
@@ -316,10 +316,10 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 			}
 
-			MOB_FLAGS(helpee).unset(MOB_AGGRESSIVE);
-			MOB_FLAGS(helpee).unset(MOB_SPEC);
+			MOB_FLAGS(helpee).unset(EMobFlag::kAgressive);
+			MOB_FLAGS(helpee).unset(EMobFlag::kSpec);
 			PRF_FLAGS(helpee).unset(EPrf::kPunctual);
-			MOB_FLAGS(helpee).set(MOB_NOTRAIN);
+			MOB_FLAGS(helpee).set(EMobFlag::kNoSkillTrain);
 			helpee->set_skill(ESkill::kPunctual, 0);
 			ch->updateCharmee(GET_MOB_VNUM(helpee), cost);
 
