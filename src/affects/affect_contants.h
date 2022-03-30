@@ -113,65 +113,65 @@ EAffect ITEM_BY_NAME<EAffect>(const std::string &name);
 typedef std::list<EAffect> affects_list_t;
 
 
-enum class EWeaponAffectFlag : Bitvector {
-	WAFF_BLINDNESS = (1 << 0),
-	WAFF_INVISIBLE = (1 << 1),
-	WAFF_DETECT_ALIGN = (1 << 2),
-	WAFF_DETECT_INVISIBLE = (1 << 3),
-	WAFF_DETECT_MAGIC = (1 << 4),
-	WAFF_SENSE_LIFE = (1 << 5),
-	WAFF_WATER_WALK = (1 << 6),
-	WAFF_SANCTUARY = (1 << 7),
-	WAFF_CURSE = (1 << 8),
-	WAFF_INFRAVISION = (1 << 9),
-	WAFF_POISON = (1 << 10),
-	WAFF_PROTECT_EVIL = (1 << 11),
-	WAFF_PROTECT_GOOD = (1 << 12),
-	WAFF_SLEEP = (1 << 13),
-	WAFF_NOTRACK = (1 << 14),
-	WAFF_BLESS = (1 << 15),
-	WAFF_SNEAK = (1 << 16),
-	WAFF_HIDE = (1 << 17),
-	WAFF_HOLD = (1 << 18),
-	WAFF_FLY = (1 << 19),
-	WAFF_SILENCE = (1 << 20),
-	WAFF_AWARENESS = (1 << 21),
-	WAFF_BLINK = (1 << 22),
-	WAFF_NOFLEE = (1 << 23),
-	WAFF_SINGLE_LIGHT = (1 << 24),
-	WAFF_HOLY_LIGHT = (1 << 25),
-	WAFF_HOLY_DARK = (1 << 26),
-	WAFF_DETECT_POISON = (1 << 27),
-	WAFF_SLOW = (1 << 28),
-	WAFF_HASTE = (1 << 29),
-	WAFF_WATER_BREATH = kIntOne | (1 << 0),
-	WAFF_HAEMORRAGIA = kIntOne | (1 << 1),
-	WAFF_CAMOUFLAGE = kIntOne | (1 << 2),
-	WAFF_SHIELD = kIntOne | (1 << 3),
-	WAFF_AIR_SHIELD = kIntOne | (1 << 4),
-	WAFF_FIRE_SHIELD = kIntOne | (1 << 5),
-	WAFF_ICE_SHIELD = kIntOne | (1 << 6),
-	WAFF_MAGIC_GLASS = kIntOne | (1 << 7),
-	WAFF_STONE_HAND = kIntOne | (1 << 8),
-	WAFF_PRISMATIC_AURA = kIntOne | (1 << 9),
-	WAFF_AIR_AURA = kIntOne | (1 << 10),
-	WAFF_FIRE_AURA = kIntOne | (1 << 11),
-	WAFF_ICE_AURA = kIntOne | (1 << 12),
-	WAFF_DEAFNESS = kIntOne | (1 << 13),
-	WAFF_COMMANDER = kIntOne | (1 << 14),
-	WAFF_EARTHAURA = kIntOne | (1 << 15),
+enum class EWeaponAffect : Bitvector {
+	kBlindness = (1 << 0),
+	kInvisibility = (1 << 1),
+	kDetectAlign = (1 << 2),
+	kDetectInvisibility = (1 << 3),
+	kDetectMagic = (1 << 4),
+	kDetectLife = (1 << 5),
+	kWaterWalk = (1 << 6),
+	kSanctuary = (1 << 7),
+	kCurse = (1 << 8),
+	kInfravision = (1 << 9),
+	kPoison = (1 << 10),
+	kProtectedFromEvil = (1 << 11),
+	kProtectedFromGood = (1 << 12),
+	kSleep = (1 << 13),
+	kNoTrack = (1 << 14),
+	kBless = (1 << 15),
+	kSneak = (1 << 16),
+	kHide = (1 << 17),
+	kHold = (1 << 18),
+	kFly = (1 << 19),
+	kSilence = (1 << 20),
+	kAwareness = (1 << 21),
+	kBlink = (1 << 22),
+	kNoFlee = (1 << 23),
+	kSingleLight = (1 << 24),
+	kHolyLight = (1 << 25),
+	kHolyDark = (1 << 26),
+	kDetectPoison = (1 << 27),
+	kSlow = (1 << 28),
+	kHaste = (1 << 29),
+	kWaterBreath = kIntOne | (1 << 0),
+	kHaemorrhage = kIntOne | (1 << 1),
+	kDisguising = kIntOne | (1 << 2),
+	kShield = kIntOne | (1 << 3),
+	kAirShield = kIntOne | (1 << 4),
+	kFireShield = kIntOne | (1 << 5),
+	kIceShield = kIntOne | (1 << 6),
+	kMagicGlass = kIntOne | (1 << 7),
+	kStoneHand = kIntOne | (1 << 8),
+	kPrismaticAura = kIntOne | (1 << 9),
+	kAirAura = kIntOne | (1 << 10),
+	kFireAura = kIntOne | (1 << 11),
+	kIceAura = kIntOne | (1 << 12),
+	kDeafness = kIntOne | (1 << 13),
+	kComamnder = kIntOne | (1 << 14),
+	kEarthAura = kIntOne | (1 << 15),
 // не забудьте поправить WAFF_COUNT
 };
 
-constexpr size_t WAFF_COUNT = 47;
+constexpr size_t kWeaponAffectCount = 47;
 
 template<>
-EWeaponAffectFlag ITEM_BY_NAME<EWeaponAffectFlag>(const std::string &name);
+EWeaponAffect ITEM_BY_NAME<EWeaponAffect>(const std::string &name);
 template<>
-const std::string &NAME_BY_ITEM(EWeaponAffectFlag item);
+const std::string &NAME_BY_ITEM(EWeaponAffect item);
 
 struct WeaponAffect {
-	EWeaponAffectFlag aff_pos;
+	EWeaponAffect aff_pos;
 	Bitvector aff_bitvector;
 	int aff_spell;
 };
@@ -257,7 +257,7 @@ const std::string &NAME_BY_ITEM<EApplyLocation>(EApplyLocation item);
 template<>
 EApplyLocation ITEM_BY_NAME<EApplyLocation>(const std::string &name);
 
-using weapon_affect_t = std::array<WeaponAffect, WAFF_COUNT>;
+using weapon_affect_t = std::array<WeaponAffect, kWeaponAffectCount>;
 extern weapon_affect_t weapon_affect;
 extern const char *affected_bits[];
 extern const char *apply_types[];

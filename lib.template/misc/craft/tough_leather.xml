@@ -62,7 +62,7 @@
 		</extraflags>
 		
 		<weapon_affects>
-			<weapon_affect>WAFF_STONE_HAND</weapon_affect>
+			<weapon_affect>kStoneHand</weapon_affect>
 		</weapon_affects>
 		
 		<bonuses>
@@ -93,7 +93,7 @@
 				</skills>
 				<weapon_affects>
 					<!-- For possible values see material/class/affects -->
-					<weapon_affect>WAFF_SANCTUARY</weapon_affect>
+					<weapon_affect>kSanctuary</weapon_affect>
 				</weapon_affects>
 				<val0 />
 				<val1 />

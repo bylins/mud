@@ -11,18 +11,18 @@
 #include "game_skills/poison.h"
 
 bool no_bad_affects(ObjData *obj) {
-	static std::list<EWeaponAffectFlag> bad_waffects =
+	static std::list<EWeaponAffect> bad_waffects =
 		{
-			EWeaponAffectFlag::WAFF_HOLD,
-			EWeaponAffectFlag::WAFF_SANCTUARY,
-			EWeaponAffectFlag::WAFF_PRISMATIC_AURA,
-			EWeaponAffectFlag::WAFF_POISON,
-			EWeaponAffectFlag::WAFF_SILENCE,
-			EWeaponAffectFlag::WAFF_DEAFNESS,
-			EWeaponAffectFlag::WAFF_HAEMORRAGIA,
-			EWeaponAffectFlag::WAFF_BLINDNESS,
-			EWeaponAffectFlag::WAFF_SLEEP,
-			EWeaponAffectFlag::WAFF_HOLY_DARK
+			EWeaponAffect::kHold,
+			EWeaponAffect::kSanctuary,
+			EWeaponAffect::kPrismaticAura,
+			EWeaponAffect::kPoison,
+			EWeaponAffect::kSilence,
+			EWeaponAffect::kDeafness,
+			EWeaponAffect::kHaemorrhage,
+			EWeaponAffect::kBlindness,
+			EWeaponAffect::kSleep,
+			EWeaponAffect::kHolyDark
 		};
 	for (const auto wa : bad_waffects) {
 		if (OBJ_AFFECT(obj, wa)) {

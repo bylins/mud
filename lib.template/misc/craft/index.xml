@@ -137,8 +137,8 @@
 						
 						<weapon_affects>
 							<!-- For possible values see material/class/affects -->
-							<weapon_affect>WAFF_SANCTUARY</weapon_affect>
-								<weapon_affect>WAFF_FIRE_AURA</weapon_affect>
+							<weapon_affect>kSanctuary</weapon_affect>
+								<weapon_affect>kFireAura</weapon_affect>
 						</weapon_affects>
 						
 						<extraflags>
@@ -155,7 +155,7 @@
 					<extraflag>kHasOneSlot</extraflag>
 				</extraflags>
 				<weapon_affects>
-					<weapon_affect>WAFF_SANCTUARY</weapon_affect>
+					<weapon_affect>kSanctuary</weapon_affect>
 				</weapon_affects>
 			</class>
 			<class id="MC_ORGANDY" vnum="200041">
@@ -236,7 +236,7 @@
 							</skill>
 						</skills>
 						<weapon_affects>
-							<weapon_affect>WAFF_FLY</weapon_affect>
+							<weapon_affect>kFly</weapon_affect>
 						</weapon_affects>
 						<extraflags>
 							<extraflag>kNorent</extraflag>
@@ -323,15 +323,15 @@
 			</extraflags>
 
 			<weapon_affects>
-				<weapon_affect>WAFF_INVISIBLE</weapon_affect>
-				<weapon_affect>WAFF_DETECT_ALIGN</weapon_affect>
-				<weapon_affect>WAFF_DETECT_MAGIC</weapon_affect>
-				<weapon_affect>WAFF_SENSE_LIFE</weapon_affect>
-				<weapon_affect>WAFF_WATER_WALK</weapon_affect>
-				<weapon_affect>WAFF_INFRAVISION</weapon_affect>
-				<weapon_affect>WAFF_NOTRACK</weapon_affect>
-				<weapon_affect>WAFF_FLY</weapon_affect>
-				<weapon_affect>WAFF_SNEAK</weapon_affect>
+				<weapon_affect>kInvisibility</weapon_affect>
+				<weapon_affect>kDetectAlign</weapon_affect>
+				<weapon_affect>kDetectMagic</weapon_affect>
+				<weapon_affect>kDetectLife</weapon_affect>
+				<weapon_affect>kWaterWalk</weapon_affect>
+				<weapon_affect>kInfravision</weapon_affect>
+				<weapon_affect>kNoTrack</weapon_affect>
+				<weapon_affect>kFly</weapon_affect>
+				<weapon_affect>kSneak</weapon_affect>
 			</weapon_affects>
 
 			<wearflags>

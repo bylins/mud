@@ -266,7 +266,7 @@ class CObjectPrototype {
 	auto get_weight() const { return m_weight; }
 	auto serialize_values() const { return m_values.print_to_file(); }
 	bool can_wear_any() const { return m_wear_flags > 0 && m_wear_flags != to_underlying(EWearFlag::kTake); }
-	bool get_affect(const EWeaponAffectFlag weapon_affect) const { return m_waffect_flags.get(weapon_affect); }
+	bool get_affect(const EWeaponAffect weapon_affect) const { return m_waffect_flags.get(weapon_affect); }
 	bool get_affect(const uint32_t weapon_affect) const { return m_waffect_flags.get(weapon_affect); }
 	bool has_anti_flag(const EAntiFlag flag) const { return m_anti_flags.get(flag); }
 	bool has_flag(const EObjFlag packed_flag) const { return m_extra_flags.get(packed_flag); }
@@ -320,7 +320,7 @@ class CObjectPrototype {
 	void load_no_flags(const char *string) { m_no_flags.from_string(string); }
 	void remove_incorrect_values_keys(const int type) { m_values.remove_incorrect_keys(type); }
 	void set_action_description(const std::string &_) { m_action_description = _; }
-	void set_affect_flag(const EWeaponAffectFlag packed_flag) { m_waffect_flags.set(packed_flag); }
+	void set_affect_flag(const EWeaponAffect packed_flag) { m_waffect_flags.set(packed_flag); }
 	void set_affect_flags(const FlagData &flags) { m_waffect_flags = flags; }
 	void set_affected(const size_t index, const EApplyLocation location, const int modifier);
 	void set_affected(const size_t index, const obj_affected_type &affect) { m_affected[index] = affect; }
@@ -890,7 +890,7 @@ inline void SET_OBJ_AFF(CObjectPrototype *obj, const uint32_t packed_flag) { ret
 inline bool OBJ_AFFECT(const CObjectPrototype *obj,
 					   const uint32_t weapon_affect) { return obj->get_affect(weapon_affect); }
 
-inline bool OBJ_AFFECT(const CObjectPrototype *obj, const EWeaponAffectFlag weapon_affect) {
+inline bool OBJ_AFFECT(const CObjectPrototype *obj, const EWeaponAffect weapon_affect) {
 	return OBJ_AFFECT(obj, static_cast<uint32_t>(weapon_affect));
 }
 
