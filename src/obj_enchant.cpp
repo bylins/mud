@@ -20,7 +20,7 @@ enchant::enchant(ObjData *obj) {
 	type_ = ENCHANT_FROM_OBJ;
 
 	for (int i = 0; i < kMaxObjAffect; i++) {
-		if (obj->get_affected(i).location != APPLY_NONE
+		if (obj->get_affected(i).location != EApply::kNone
 			&& obj->get_affected(i).modifier != 0) {
 			affected_.push_back(obj->get_affected(i));
 		}
@@ -119,7 +119,7 @@ void enchant::apply_to_obj(ObjData *obj) const {
 			if (obj->get_affected(k).location == i->location) {
 				obj->add_affected(k, i->modifier);
 				break;
-			} else if (obj->get_affected(k).location == APPLY_NONE) {
+			} else if (obj->get_affected(k).location == EApply::kNone) {
 				obj->set_affected(k, *i);
 				break;
 			}

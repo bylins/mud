@@ -173,33 +173,33 @@ int perform_put(CharData *ch, ObjData::shared_ptr obj, ObjData *cont) {
 const int effects_l[5][40][2]{
 	{{0, 0}},
 	{{0, 26}, // количество строк
-	 {APPLY_ABSORBE, 5},
-	 {APPLY_C1, 3},
-	 {APPLY_C2, 3},
-	 {APPLY_C3, 2},
-	 {APPLY_C4, 2},
-	 {APPLY_C5, 1},
-	 {APPLY_C6, 1},
-	 {APPLY_CAST_SUCCESS, 3},
-	 {APPLY_HIT, 20},
-	 {APPLY_HITREG, 35},
-	 {APPLY_INITIATIVE, 5},
-	 {APPLY_MANAREG, 15},
-	 {APPLY_MORALE, 5},
-	 {APPLY_MOVE, 35},
-	 {APPLY_RESIST_AIR, 15},
-	 {APPLY_RESIST_EARTH, 15},
-	 {APPLY_RESIST_FIRE, 15},
-	 {APPLY_RESIST_IMMUNITY, 5},
-	 {APPLY_RESIST_MIND, 5},
-	 {APPLY_RESIST_VITALITY, 5},
-	 {APPLY_RESIST_WATER, 15},
-	 {APPLY_SAVING_CRITICAL, -5},
-	 {APPLY_SAVING_REFLEX, -5},
-	 {APPLY_SAVING_STABILITY, -5},
-	 {APPLY_SAVING_WILL, -5},
-	 {APPLY_SIZE, 10},
-	 {APPLY_RESIST_DARK, 15},
+	 {EApply::kAbsorbe, 5},
+	 {EApply::kFirstCircle, 3},
+	 {EApply::kSecondCircle, 3},
+	 {EApply::kThirdCircle, 2},
+	 {EApply::kFourthCircle, 2},
+	 {EApply::kFifthCircle, 1},
+	 {EApply::kSixthCircle, 1},
+	 {EApply::kCastSuccess, 3},
+	 {EApply::kHp, 20},
+	 {EApply::kHpRegen, 35},
+	 {EApply::kInitiative, 5},
+	 {EApply::kMamaRegen, 15},
+	 {EApply::kMorale, 5},
+	 {EApply::kMove, 35},
+	 {EApply::kResistAir, 15},
+	 {EApply::kResistEarth, 15},
+	 {EApply::kResistFire, 15},
+	 {EApply::kResistImmunity, 5},
+	 {EApply::kResistMind, 5},
+	 {EApply::kResistVitality, 5},
+	 {EApply::kResistWater, 15},
+	 {EApply::kSavingCritical, -5},
+	 {EApply::kSavingReflex, -5},
+	 {EApply::kSavingStability, -5},
+	 {EApply::kSavingWill, -5},
+	 {EApply::kSize, 10},
+	 {EApply::kResistDark, 15},
 	 {0, 0},
 	 {0, 0},
 	 {0, 0},
@@ -213,69 +213,69 @@ const int effects_l[5][40][2]{
 	 {0, 0},
 	 {0, 0}},
 	{{0, 37},
-	 {APPLY_ABSORBE, 10},
-	 {APPLY_C1, 3},
-	 {APPLY_C2, 3},
-	 {APPLY_C3, 3},
-	 {APPLY_C4, 3},
-	 {APPLY_C5, 2},
-	 {APPLY_C6, 2},
-	 {APPLY_C7, 2},
-	 {APPLY_C8, 1},
-	 {APPLY_C9, 1},
-	 {APPLY_CAST_SUCCESS, 5},
-	 {APPLY_CHA, 1},
-	 {APPLY_CON, 1},
-	 {APPLY_DAMROLL, 2},
-	 {APPLY_DEX, 1},
-	 {APPLY_HIT, 30},
-	 {APPLY_HITREG, 55},
-	 {APPLY_HITROLL, 2},
-	 {APPLY_INITIATIVE, 10},
-	 {APPLY_INT, 1},
-	 {APPLY_MANAREG, 30},
-	 {APPLY_MORALE, 7},
-	 {APPLY_MOVE, 55},
-	 {APPLY_RESIST_AIR, 25},
-	 {APPLY_RESIST_EARTH, 25},
-	 {APPLY_RESIST_FIRE, 25},
-	 {APPLY_RESIST_IMMUNITY, 10},
-	 {APPLY_RESIST_MIND, 10},
-	 {APPLY_RESIST_VITALITY, 10},
-	 {APPLY_RESIST_WATER, 25},
-	 {APPLY_SAVING_CRITICAL, -10},
-	 {APPLY_SAVING_REFLEX, -10},
-	 {APPLY_SAVING_STABILITY, -10},
-	 {APPLY_SAVING_WILL, -10},
-	 {APPLY_SIZE, 15},
-	 {APPLY_STR, 1},
-	 {APPLY_WIS, 1},
+	 {EApply::kAbsorbe, 10},
+	 {EApply::kFirstCircle, 3},
+	 {EApply::kSecondCircle, 3},
+	 {EApply::kThirdCircle, 3},
+	 {EApply::kFourthCircle, 3},
+	 {EApply::kFifthCircle, 2},
+	 {EApply::kSixthCircle, 2},
+	 {EApply::kSeventhCircle, 2},
+	 {EApply::kEighthCircle, 1},
+	 {EApply::kNinthCircle, 1},
+	 {EApply::kCastSuccess, 5},
+	 {EApply::kCha, 1},
+	 {EApply::kCon, 1},
+	 {EApply::kDamroll, 2},
+	 {EApply::kDex, 1},
+	 {EApply::kHp, 30},
+	 {EApply::kHpRegen, 55},
+	 {EApply::kHitroll, 2},
+	 {EApply::kInitiative, 10},
+	 {EApply::kInt, 1},
+	 {EApply::kMamaRegen, 30},
+	 {EApply::kMorale, 7},
+	 {EApply::kMove, 55},
+	 {EApply::kResistAir, 25},
+	 {EApply::kResistEarth, 25},
+	 {EApply::kResistFire, 25},
+	 {EApply::kResistImmunity, 10},
+	 {EApply::kResistMind, 10},
+	 {EApply::kResistVitality, 10},
+	 {EApply::kResistWater, 25},
+	 {EApply::kSavingCritical, -10},
+	 {EApply::kSavingReflex, -10},
+	 {EApply::kSavingStability, -10},
+	 {EApply::kSavingWill, -10},
+	 {EApply::kSize, 15},
+	 {EApply::kStr, 1},
+	 {EApply::kWis, 1},
 	 {0, 0},
 	 {0, 0}},
 	{{0, 23},
-	 {APPLY_ABSORBE, 15},
-	 {APPLY_C8, 2},
-	 {APPLY_C9, 2},
-	 {APPLY_CAST_SUCCESS, 7},
-	 {APPLY_CHA, 2},
-	 {APPLY_CON, 2},
-	 {APPLY_DAMROLL, 3},
-	 {APPLY_DEX, 2},
-	 {APPLY_HIT, 45},
-	 {APPLY_HITROLL, 3},
-	 {APPLY_INITIATIVE, 15},
-	 {APPLY_INT, 2},
-	 {APPLY_MORALE, 9},
-	 {APPLY_RESIST_IMMUNITY, 15},
-	 {APPLY_RESIST_MIND, 15},
-	 {APPLY_RESIST_VITALITY, 15},
-	 {APPLY_SAVING_CRITICAL, -15},
-	 {APPLY_SAVING_REFLEX, -15},
-	 {APPLY_SAVING_STABILITY, -15},
-	 {APPLY_SAVING_WILL, -15},
-	 {APPLY_SIZE, 20},
-	 {APPLY_STR, 2},
-	 {APPLY_WIS, 2},
+	 {EApply::kAbsorbe, 15},
+	 {EApply::kEighthCircle, 2},
+	 {EApply::kNinthCircle, 2},
+	 {EApply::kCastSuccess, 7},
+	 {EApply::kCha, 2},
+	 {EApply::kCon, 2},
+	 {EApply::kDamroll, 3},
+	 {EApply::kDex, 2},
+	 {EApply::kHp, 45},
+	 {EApply::kHitroll, 3},
+	 {EApply::kInitiative, 15},
+	 {EApply::kInt, 2},
+	 {EApply::kMorale, 9},
+	 {EApply::kResistImmunity, 15},
+	 {EApply::kResistMind, 15},
+	 {EApply::kResistVitality, 15},
+	 {EApply::kSavingCritical, -15},
+	 {EApply::kSavingReflex, -15},
+	 {EApply::kSavingStability, -15},
+	 {EApply::kSavingWill, -15},
+	 {EApply::kSize, 20},
+	 {EApply::kStr, 2},
+	 {EApply::kWis, 2},
 	 {0, 0},
 	 {0, 0},
 	 {0, 0},
@@ -293,27 +293,27 @@ const int effects_l[5][40][2]{
 	 {0, 0},
 	 {0, 0}},
 	{{0, 21},
-	 {APPLY_ABSORBE, 20},
-	 {APPLY_CAST_SUCCESS, 10},
-	 {APPLY_CHA, 2},
-	 {APPLY_CON, 2},
-	 {APPLY_DAMROLL, 4},
-	 {APPLY_DEX, 2},
-	 {APPLY_HIT, 60},
-	 {APPLY_HITROLL, 4},
-	 {APPLY_INITIATIVE, 20},
-	 {APPLY_INT, 2},
-	 {APPLY_MORALE, 12},
-	 {APPLY_MR, 3},
-	 {APPLY_RESIST_IMMUNITY, 20},
-	 {APPLY_RESIST_MIND, 20},
-	 {APPLY_RESIST_VITALITY, 20},
-	 {APPLY_SAVING_CRITICAL, -20},
-	 {APPLY_SAVING_REFLEX, -20},
-	 {APPLY_SAVING_STABILITY, -20},
-	 {APPLY_SAVING_WILL, -20},
-	 {APPLY_STR, 2},
-	 {APPLY_WIS, 2},
+	 {EApply::kAbsorbe, 20},
+	 {EApply::kCastSuccess, 10},
+	 {EApply::kCha, 2},
+	 {EApply::kCon, 2},
+	 {EApply::kDamroll, 4},
+	 {EApply::kDex, 2},
+	 {EApply::kHp, 60},
+	 {EApply::kHitroll, 4},
+	 {EApply::kInitiative, 20},
+	 {EApply::kInt, 2},
+	 {EApply::kMorale, 12},
+	 {EApply::kMagicResist, 3},
+	 {EApply::kResistImmunity, 20},
+	 {EApply::kResistMind, 20},
+	 {EApply::kResistVitality, 20},
+	 {EApply::kSavingCritical, -20},
+	 {EApply::kSavingReflex, -20},
+	 {EApply::kSavingStability, -20},
+	 {EApply::kSavingWill, -20},
+	 {EApply::kStr, 2},
+	 {EApply::kWis, 2},
 	 {0, 0},
 	 {0, 0},
 	 {0, 0},
@@ -381,7 +381,7 @@ ObjData *create_skin(CharData *mob, CharData *ch) {
 			{
 				effect *= -1;
 			}
-			skin->set_affected(k, static_cast<EApplyLocation>(location), effect);
+			skin->set_affected(k, static_cast<EApply>(location), effect);
 			k++;
 		}
 	}
@@ -1579,7 +1579,7 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	for (int i = 0; i < kMaxObjAffect; i++) {
 		if (food->get_affected(i).modifier) {
-			Affect<EApplyLocation> af;
+			Affect<EApply> af;
 			af.location = food->get_affected(i).location;
 			af.modifier = food->get_affected(i).modifier;
 			af.bitvector = 0;
@@ -1596,18 +1596,18 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		send_to_char("Однако, какой странный вкус!\r\n", ch);
 		act("$n закашлял$u и начал$g отплевываться.", false, ch, 0, 0, kToRoom | kToArenaListen);
 
-		Affect<EApplyLocation> af;
+		Affect<EApply> af;
 		af.type = kSpellPoison;
 		af.duration = CalcDuration(ch, amount == 1 ? amount : amount * 2, 0, 0, 0, 0);
 		af.modifier = 0;
-		af.location = APPLY_STR;
+		af.location = EApply::kStr;
 		af.bitvector = to_underlying(EAffect::kPoisoned);
 		af.battleflag = kAfSameTime;
 		affect_join(ch, af, false, false, false, false);
 		af.type = kSpellPoison;
 		af.duration = CalcDuration(ch, amount == 1 ? amount : amount * 2, 0, 0, 0, 0);
 		af.modifier = amount * 3;
-		af.location = APPLY_POISON;
+		af.location = EApply::kPoison;
 		af.bitvector = to_underlying(EAffect::kPoisoned);
 		af.battleflag = kAfSameTime;
 		affect_join(ch, af, false, false, false, false);
@@ -2252,9 +2252,9 @@ void do_upgrade(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	// Make sure no other (than hitroll & damroll) affections.
 	for (i = 0; i < kMaxObjAffect; i++) {
-		if ((obj->get_affected(i).location != APPLY_NONE)
-			&& (obj->get_affected(i).location != APPLY_HITROLL)
-			&& (obj->get_affected(i).location != APPLY_DAMROLL)) {
+		if ((obj->get_affected(i).location != EApply::kNone)
+			&& (obj->get_affected(i).location != EApply::kHitroll)
+			&& (obj->get_affected(i).location != EApply::kDamroll)) {
 			send_to_char("Этот предмет не может быть заточен.\r\n", ch);
 			return;
 		}
@@ -2326,8 +2326,8 @@ void do_upgrade(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act("И вроде бы неплохо в итоге получилось.", false, ch, obj, 0, kToChar);
 	}
 
-	obj->set_affected(0, APPLY_HITROLL, add_hr);
-	obj->set_affected(1, APPLY_DAMROLL, add_dr);
+	obj->set_affected(0, EApply::kHitroll, add_hr);
+	obj->set_affected(1, EApply::kDamroll, add_dr);
 
 	// если шмотка перестала быть нерушимой ставим таймер из прототипа
 	if (oldstate && !check_unlimited_timer(obj)) {
@@ -2376,7 +2376,7 @@ void do_armored(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	// Make sure no other affections.
 	for (i = 0; i < kMaxObjAffect; i++)
-		if (obj->get_affected(i).location != APPLY_NONE) {
+		if (obj->get_affected(i).location != EApply::kNone) {
 			send_to_char("Этот предмет не может быть укреплен.\r\n", ch);
 			return;
 		}
@@ -2433,46 +2433,46 @@ void do_armored(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			armorvalue = strengthening((GET_SKILL(ch, ESkill::kArmoring) / 10 * 10), Strengthening::ABSORBTION);
 			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
 //			send_to_char(ch, "увеличиваю поглот на %d\r\n", armorvalue);
-			obj->set_affected(1, APPLY_ABSORBE, armorvalue);
+			obj->set_affected(1, EApply::kAbsorbe, armorvalue);
 		} else if (CompareParam(arg2, "здоровье")) {
 			armorvalue = strengthening((GET_SKILL(ch, ESkill::kArmoring) / 10 * 10), Strengthening::HEALTH);
 			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
 			armorvalue *= -1;
 //			send_to_char(ch, "увеличиваю здоровье на %d\r\n", armorvalue);
-			obj->set_affected(1, APPLY_SAVING_CRITICAL, armorvalue);
+			obj->set_affected(1, EApply::kSavingCritical, armorvalue);
 		} else if (CompareParam(arg2, "живучесть"))// резисты в - лучше
 		{
 			armorvalue = strengthening((GET_SKILL(ch, ESkill::kArmoring) / 10 * 10), Strengthening::VITALITY);
 			armorvalue = -MAX(0, number(armorvalue, armorvalue - 2));
 			armorvalue *= -1;
 //			send_to_char(ch, "увеличиваю живучесть на %d\r\n", armorvalue);
-			obj->set_affected(1, APPLY_RESIST_VITALITY, armorvalue);
+			obj->set_affected(1, EApply::kResistVitality, armorvalue);
 		} else if (CompareParam(arg2, "стойкость")) {
 			armorvalue = strengthening((GET_SKILL(ch, ESkill::kArmoring) / 10 * 10), Strengthening::STAMINA);
 			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
 			armorvalue *= -1;
 //			send_to_char(ch, "увеличиваю стойкость на %d\r\n", armorvalue);
-			obj->set_affected(1, APPLY_SAVING_STABILITY, armorvalue);
+			obj->set_affected(1, EApply::kSavingStability, armorvalue);
 		} else if (CompareParam(arg2, "воздуха")) {
 			armorvalue = strengthening((GET_SKILL(ch, ESkill::kArmoring) / 10 * 10), Strengthening::AIR_PROTECTION);
 			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
 //			send_to_char(ch, "увеличиваю сопр воздуха на %d\r\n", armorvalue);
-			obj->set_affected(1, APPLY_RESIST_AIR, armorvalue);
+			obj->set_affected(1, EApply::kResistAir, armorvalue);
 		} else if (CompareParam(arg2, "воды")) {
 			armorvalue = strengthening((GET_SKILL(ch, ESkill::kArmoring) / 10 * 10), Strengthening::WATER_PROTECTION);
 			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
 //			send_to_char(ch, "увеличиваю сопр воды на %d\r\n", armorvalue);
-			obj->set_affected(1, APPLY_RESIST_WATER, armorvalue);
+			obj->set_affected(1, EApply::kResistWater, armorvalue);
 		} else if (CompareParam(arg2, "огня")) {
 			armorvalue = strengthening((GET_SKILL(ch, ESkill::kArmoring) / 10 * 10), Strengthening::FIRE_PROTECTION);
 			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
 //			send_to_char(ch, "увеличиваю сопр огню на %d\r\n", armorvalue);
-			obj->set_affected(1, APPLY_RESIST_FIRE, armorvalue);
+			obj->set_affected(1, EApply::kResistFire, armorvalue);
 		} else if (CompareParam(arg2, "земли")) {
 			armorvalue = strengthening((GET_SKILL(ch, ESkill::kArmoring) / 10 * 10), Strengthening::EARTH_PROTECTION);
 			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
 //			send_to_char(ch, "увеличиваю сопр земли на %d\r\n", armorvalue);
-			obj->set_affected(1, APPLY_RESIST_EARTH, armorvalue);
+			obj->set_affected(1, EApply::kResistEarth, armorvalue);
 		} else {
 			send_to_char(ch, "Но не поняли что улучшать.\r\n");
 			return;
@@ -2484,11 +2484,11 @@ void do_armored(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 //		send_to_char(ch, "увеличиваю таймер на %d%, устанавливаю таймер %d\r\n", armorvalue, timer);
 		armorvalue = strengthening((GET_SKILL(ch, ESkill::kArmoring) / 10 * 10), Strengthening::ARMOR);
 //		send_to_char(ch, "увеличиваю армор на %d скилл равен %d  значение берем %d\r\n", armorvalue, GET_SKILL(ch, ESkill::kArmoring), (GET_SKILL(ch, ESkill::kArmoring) / 10 * 10) );
-		obj->set_affected(2, APPLY_ARMOUR, armorvalue);
+		obj->set_affected(2, EApply::kArmour, armorvalue);
 		obj->set_extra_flag(EObjFlag::kArmored);
 		obj->set_extra_flag(EObjFlag::kTransformed); // установили флажок трансформации кодом
 	}
-	obj->set_affected(0, APPLY_AC, add_ac);
+	obj->set_affected(0, EApply::kAc, add_ac);
 }
 
 void do_fire(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
@@ -3141,11 +3141,11 @@ void feed_charmice(CharData *ch, char *arg) {
 						 0, 0, 0, 0);
 	}
 
-	Affect<EApplyLocation> af;
+	Affect<EApply> af;
 	af.type = kSpellCharm;
 	af.duration = MIN(max_charm_duration, (int) (mob_level * max_charm_duration / 30));
 	af.modifier = 0;
-	af.location = EApplyLocation::APPLY_NONE;
+	af.location = EApply::kNone;
 	af.bitvector = to_underlying(EAffect::kCharmed);
 	af.battleflag = 0;
 

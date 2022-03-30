@@ -410,8 +410,8 @@ const char *apply_types[] = {"ничего",
 							 "\n"
 };
 
-typedef std::map<EApplyLocation, std::string> EApplyLocation_name_by_value_t;
-typedef std::map<const std::string, EApplyLocation> EApplyLocation_value_by_name_t;
+typedef std::map<EApply, std::string> EApplyLocation_name_by_value_t;
+typedef std::map<const std::string, EApply> EApplyLocation_value_by_name_t;
 EApplyLocation_name_by_value_t EApplyLocation_name_by_value;
 EApplyLocation_value_by_name_t EApplyLocation_value_by_name;
 
@@ -419,84 +419,84 @@ void init_EApplyLocation_ITEM_NAMES() {
 	EApplyLocation_name_by_value.clear();
 	EApplyLocation_value_by_name.clear();
 
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_NONE] = "APPLY_NONE";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_STR] = "APPLY_STR";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_DEX] = "APPLY_DEX";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_INT] = "APPLY_INT";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_WIS] = "APPLY_WIS";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_CON] = "APPLY_CON";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_CHA] = "APPLY_CHA";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_CLASS] = "APPLY_CLASS";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_LEVEL] = "APPLY_LEVEL";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_AGE] = "APPLY_AGE";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_CHAR_WEIGHT] = "APPLY_CHAR_WEIGHT";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_CHAR_HEIGHT] = "APPLY_CHAR_HEIGHT";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_MANAREG] = "APPLY_MANAREG";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_HIT] = "APPLY_HIT";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_MOVE] = "APPLY_MOVE";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_GOLD] = "APPLY_GOLD";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_EXP] = "APPLY_EXP";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_AC] = "APPLY_AC";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_HITROLL] = "APPLY_HITROLL";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_DAMROLL] = "APPLY_DAMROLL";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_SAVING_WILL] = "APPLY_SAVING_WILL";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_RESIST_FIRE] = "APPLY_RESIST_FIRE";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_RESIST_AIR] = "APPLY_RESIST_AIR";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_RESIST_DARK] = "APPLY_RESIST_DARK";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_SAVING_CRITICAL] = "APPLY_SAVING_CRITICAL";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_SAVING_STABILITY] = "APPLY_SAVING_STABILITY";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_HITREG] = "APPLY_HITREG";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_MOVEREG] = "APPLY_MOVEREG";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_C1] = "APPLY_C1";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_C2] = "APPLY_C2";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_C3] = "APPLY_C3";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_C4] = "APPLY_C4";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_C5] = "APPLY_C5";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_C6] = "APPLY_C6";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_C7] = "APPLY_C7";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_C8] = "APPLY_C8";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_C9] = "APPLY_C9";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_SIZE] = "APPLY_SIZE";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_ARMOUR] = "APPLY_ARMOUR";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_POISON] = "APPLY_POISON";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_SAVING_REFLEX] = "APPLY_SAVING_REFLEX";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_CAST_SUCCESS] = "APPLY_CAST_SUCCESS";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_MORALE] = "APPLY_MORALE";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_INITIATIVE] = "APPLY_INITIATIVE";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_RELIGION] = "APPLY_RELIGION";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_ABSORBE] = "APPLY_ABSORBE";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_LIKES] = "APPLY_LIKES";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_RESIST_WATER] = "APPLY_RESIST_WATER";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_RESIST_EARTH] = "APPLY_RESIST_EARTH";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_RESIST_VITALITY] = "APPLY_RESIST_VITALITY";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_RESIST_MIND] = "APPLY_RESIST_MIND";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_RESIST_IMMUNITY] = "APPLY_RESIST_IMMUNITY";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_AR] = "APPLY_AR";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_MR] = "APPLY_MR";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_ACONITUM_POISON] = "APPLY_ACONITUM_POISON";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_SCOPOLIA_POISON] = "APPLY_SCOPOLIA_POISON";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_BELENA_POISON] = "APPLY_BELENA_POISON";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_DATURA_POISON] = "APPLY_DATURA_POISON";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_FREE_FOR_USE] = "APPLY_FREE_FOR_USE";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_BONUS_EXP] = "APPLY_BONUS_EXP";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_BONUS_SKILLS] = "APPLY_BONUS_SKILLS";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_PLAQUE] = "APPLY_PLAQUE";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_MADNESS] = "APPLY_MADNESS";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_PR] = "APPLY_PR";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_RESIST_DARK] = "APPLY_RESIST_DARK";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_VIEW_DT] = "APPLY_VIEW_DT";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_PERCENT_EXP] = "APPLY_PERCENT_EXP";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_PERCENT_PHYSDAM] = "APPLY_PERCENT_PHYSDAM";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_SPELL_BLINK] = "APPLY_SPELL_BLINK";
-	EApplyLocation_name_by_value[EApplyLocation::NUM_APPLIES] = "NUM_APPLIES";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_PERCENT_MAGDAM] = "APPLY_PERCENT_MAGDAM";
+	EApplyLocation_name_by_value[EApply::kNone] = "kNone";
+	EApplyLocation_name_by_value[EApply::kStr] = "kStr";
+	EApplyLocation_name_by_value[EApply::kDex] = "kDex";
+	EApplyLocation_name_by_value[EApply::kInt] = "kInt";
+	EApplyLocation_name_by_value[EApply::kWis] = "kWis";
+	EApplyLocation_name_by_value[EApply::kCon] = "kCon";
+	EApplyLocation_name_by_value[EApply::kCha] = "kCha";
+	EApplyLocation_name_by_value[EApply::kClass] = "kClass";
+	EApplyLocation_name_by_value[EApply::kLvl] = "kLvl";
+	EApplyLocation_name_by_value[EApply::kAge] = "kAge";
+	EApplyLocation_name_by_value[EApply::kWeight] = "kWeight";
+	EApplyLocation_name_by_value[EApply::kHeight] = "kHeight";
+	EApplyLocation_name_by_value[EApply::kMamaRegen] = "kMamaRegen";
+	EApplyLocation_name_by_value[EApply::kHp] = "kHp";
+	EApplyLocation_name_by_value[EApply::kMove] = "kMove";
+	EApplyLocation_name_by_value[EApply::kGold] = "kGold";
+	EApplyLocation_name_by_value[EApply::kExp] = "kExp";
+	EApplyLocation_name_by_value[EApply::kAc] = "kAc";
+	EApplyLocation_name_by_value[EApply::kHitroll] = "kHitroll";
+	EApplyLocation_name_by_value[EApply::kDamroll] = "kDamroll";
+	EApplyLocation_name_by_value[EApply::kSavingWill] = "kSavingWill";
+	EApplyLocation_name_by_value[EApply::kResistFire] = "kResistFire";
+	EApplyLocation_name_by_value[EApply::kResistAir] = "kResistAir";
+	EApplyLocation_name_by_value[EApply::kResistDark] = "kResistDark";
+	EApplyLocation_name_by_value[EApply::kSavingCritical] = "kSavingCritical";
+	EApplyLocation_name_by_value[EApply::kSavingStability] = "kSavingStability";
+	EApplyLocation_name_by_value[EApply::kHpRegen] = "kHpRegen";
+	EApplyLocation_name_by_value[EApply::kMoveRegen] = "kMoveRegen";
+	EApplyLocation_name_by_value[EApply::kFirstCircle] = "kFirstCircle";
+	EApplyLocation_name_by_value[EApply::kSecondCircle] = "kSecondCircle";
+	EApplyLocation_name_by_value[EApply::kThirdCircle] = "kThirdCircle";
+	EApplyLocation_name_by_value[EApply::kFourthCircle] = "kFourthCircle";
+	EApplyLocation_name_by_value[EApply::kFifthCircle] = "kFifthCircle";
+	EApplyLocation_name_by_value[EApply::kSixthCircle] = "kSixthCircle";
+	EApplyLocation_name_by_value[EApply::kSeventhCircle] = "kSeventhCircle";
+	EApplyLocation_name_by_value[EApply::kEighthCircle] = "kEighthCircle";
+	EApplyLocation_name_by_value[EApply::kNinthCircle] = "kNinthCircle";
+	EApplyLocation_name_by_value[EApply::kSize] = "kSize";
+	EApplyLocation_name_by_value[EApply::kArmour] = "kArmour";
+	EApplyLocation_name_by_value[EApply::kPoison] = "kPoison";
+	EApplyLocation_name_by_value[EApply::kSavingReflex] = "kSavingReflex";
+	EApplyLocation_name_by_value[EApply::kCastSuccess] = "kCastSuccess";
+	EApplyLocation_name_by_value[EApply::kMorale] = "kMorale";
+	EApplyLocation_name_by_value[EApply::kInitiative] = "kInitiative";
+	EApplyLocation_name_by_value[EApply::kReligion] = "kReligion";
+	EApplyLocation_name_by_value[EApply::kAbsorbe] = "kAbsorbe";
+	EApplyLocation_name_by_value[EApply::kLikes] = "kLikes";
+	EApplyLocation_name_by_value[EApply::kResistWater] = "kResistWater";
+	EApplyLocation_name_by_value[EApply::kResistEarth] = "kResistEarth";
+	EApplyLocation_name_by_value[EApply::kResistVitality] = "kResistVitality";
+	EApplyLocation_name_by_value[EApply::kResistMind] = "kResistMind";
+	EApplyLocation_name_by_value[EApply::kResistImmunity] = "kResistImmunity";
+	EApplyLocation_name_by_value[EApply::kAffectResist] = "kAffectResist";
+	EApplyLocation_name_by_value[EApply::kMagicResist] = "kMagicResist";
+	EApplyLocation_name_by_value[EApply::kAconitumPoison] = "kAconitumPoison";
+	EApplyLocation_name_by_value[EApply::kScopolaPoison] = "kScopolaPoison";
+	EApplyLocation_name_by_value[EApply::kBelenaPoison] = "kBelenaPoison";
+	EApplyLocation_name_by_value[EApply::kDaturaPoison] = "kDaturaPoison";
+	EApplyLocation_name_by_value[EApply::kFreeForUse1] = "kFreeForUse1";
+	EApplyLocation_name_by_value[EApply::kExpBonus] = "kExpBonus";
+	EApplyLocation_name_by_value[EApply::kSkillsBonus] = "kSkillsBonus";
+	EApplyLocation_name_by_value[EApply::kPlague] = "kPlague";
+	EApplyLocation_name_by_value[EApply::kMadness] = "kMadness";
+	EApplyLocation_name_by_value[EApply::kPhysicResist] = "kPhysicResist";
+	EApplyLocation_name_by_value[EApply::kResistDark] = "kResistDark";
+	EApplyLocation_name_by_value[EApply::kViewDeathTraps] = "kViewDeathTraps";
+	EApplyLocation_name_by_value[EApply::kExpPercent] = "kExpPercent";
+	EApplyLocation_name_by_value[EApply::kPhysicDamagePercent] = "kPhysicDamagePercent";
+	EApplyLocation_name_by_value[EApply::kSpelledBlink] = "kSpelledBlink";
+	EApplyLocation_name_by_value[EApply::kNumberApplies] = "kNumberApplies";
+	EApplyLocation_name_by_value[EApply::kMagicDamagePercent] = "kMagicDamagePercent";
 	for (const auto &i : EApplyLocation_name_by_value) {
 		EApplyLocation_value_by_name[i.second] = i.first;
 	}
 }
 
 template<>
-EApplyLocation ITEM_BY_NAME(const std::string &name) {
+EApply ITEM_BY_NAME(const std::string &name) {
 	if (EApplyLocation_name_by_value.empty()) {
 		init_EApplyLocation_ITEM_NAMES();
 	}
@@ -504,7 +504,7 @@ EApplyLocation ITEM_BY_NAME(const std::string &name) {
 }
 
 template<>
-const std::string &NAME_BY_ITEM(const EApplyLocation item) {
+const std::string &NAME_BY_ITEM(const EApply item) {
 	if (EApplyLocation_name_by_value.empty()) {
 		init_EApplyLocation_ITEM_NAMES();
 	}

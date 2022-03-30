@@ -88,7 +88,7 @@ int graf(int age, int p0, int p1, int p2, int p3, int p4, int p5, int p6) {
 }
 
 void handle_recall_spells(CharData *ch) {
-	Affect<EApplyLocation>::shared_ptr aff;
+	Affect<EApply>::shared_ptr aff;
 	for (const auto &af : ch->affected) {
 		if (af->type == kSpellRecallSpells) {
 			aff = af;
@@ -1539,10 +1539,10 @@ void obj_point_update() {
 
 				// decay poison && other affects
 				for (count = 0; count < kMaxObjAffect; count++) {
-					if (j->get_affected(count).location == APPLY_POISON) {
+					if (j->get_affected(count).location == EApply::kPoison) {
 						j->dec_affected_value(count);
 						if (j->get_affected(count).modifier <= 0) {
-							j->set_affected(count, APPLY_NONE, 0);
+							j->set_affected(count, EApply::kNone, 0);
 						}
 					}
 				}

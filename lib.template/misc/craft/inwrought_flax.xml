@@ -62,7 +62,7 @@
 			<meta>
 				<applies>
 					<apply>
-						<location>APPLY_HITROLL</location>
+						<location>kHitroll</location>
 						<modifier>5</modifier>
 					</apply>
 				</applies>

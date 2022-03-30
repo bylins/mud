@@ -1009,9 +1009,9 @@ void do_hidemove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	if (!sneaking) {
-		Affect<EApplyLocation> af;
+		Affect<EApply> af;
 		af.type = kSpellSneak;
-		af.location = EApplyLocation::APPLY_NONE;
+		af.location = EApply::kNone;
 		af.modifier = 0;
 		af.duration = 1;
 		const int calculated_skill = CalcCurrentSkill(ch, ESkill::kSneak, nullptr);

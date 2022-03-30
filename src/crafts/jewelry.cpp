@@ -139,7 +139,7 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	WAIT_STATE(ch, kPulseViolence);
 
 	for (int i = 0; i < kMaxObjAffect; i++) {
-		if (itemobj->get_affected(i).location == APPLY_NONE) {
+		if (itemobj->get_affected(i).location == EApply::kNone) {
 			prob -= i * insgem_vars.minus_for_affect;
 			break;
 		}
@@ -239,7 +239,7 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		tmp_type = iwg.get_type(GET_OBJ_VNUM(gemobj), effect);
 		switch (tmp_type) {
 			case 1: 
-				set_obj_eff(itemobj, static_cast<EApplyLocation>(tmp_bit), tmp_qty);
+				set_obj_eff(itemobj, static_cast<EApply>(tmp_bit), tmp_qty);
 				break;
 			case 2: 
 				set_obj_aff(itemobj, static_cast<EAffect>(tmp_bit));

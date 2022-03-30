@@ -946,7 +946,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 
 		affect_from_char(victim, kSpellCharm);
 		ch->add_follower(victim);
-		Affect<EApplyLocation> af;
+		Affect<EApply> af;
 		af.type = kSpellCharm;
 
 		if (GET_REAL_INT(victim) > GET_REAL_INT(ch)) {
@@ -956,7 +956,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 		}
 
 		af.modifier = 0;
-		af.location = APPLY_NONE;
+		af.location = EApply::kNone;
 		af.bitvector = to_underlying(EAffect::kCharmed);
 		af.battleflag = 0;
 		affect_to_char(victim, af);
@@ -1735,7 +1735,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 
 	found = false;
 	for (i = 0; i < kMaxObjAffect; i++) {
-		if (obj->get_affected(i).location != APPLY_NONE
+		if (obj->get_affected(i).location != EApply::kNone
 			&& obj->get_affected(i).modifier != 0) {
 			if (!found) {
 				send_to_char("Дополнительные свойства :\r\n", ch);
@@ -1880,7 +1880,7 @@ void mort_show_char_values(CharData *victim, CharData *ch, int fullness) {
 
 	int found = false;
 	for (const auto &aff : victim->affected) {
-		if (aff->location != APPLY_NONE && aff->modifier != 0) {
+		if (aff->location != EApply::kNone && aff->modifier != 0) {
 			if (!found) {
 				send_to_char("Дополнительные свойства :\r\n", ch);
 				found = true;
@@ -2180,11 +2180,11 @@ void SpellSummonAngel(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData
 	float additional_armour_for_charisma = 0.5; // 8 armour for 16 charisma, 25 armour for 50 charisma
 
 	clear_char_skills(mob);
-	Affect<EApplyLocation> af;
+	Affect<EApply> af;
 	af.type = kSpellCharm;
 	af.duration = CalcDuration(mob, floorf(base_ttl + additional_ttl_for_charisma * eff_cha), 0, 0, 0, 0);
 	af.modifier = 0;
-	af.location = EApplyLocation::APPLY_NONE;
+	af.location = EApply::kNone;
 	af.battleflag = 0;
 	af.bitvector = to_underlying(EAffect::kHelper);
 	affect_to_char(mob, af);
@@ -2344,11 +2344,11 @@ void SpellMentalShadow(int/* level*/, CharData *ch, CharData* /*victim*/, ObjDat
 		send_to_char("Вы точно не помните, как создать данного монстра.\r\n", ch);
 		return;
 	}
-	Affect<EApplyLocation> af;
+	Affect<EApply> af;
 	af.type = kSpellCharm;
 	af.duration = CalcDuration(mob, 5 + (int) VPOSI<float>((get_effective_int(ch) - 16.0) / 2, 0, 50), 0, 0, 0, 0);
 	af.modifier = 0;
-	af.location = APPLY_NONE;
+	af.location = EApply::kNone;
 	af.bitvector = to_underlying(EAffect::kHelper);
 	af.battleflag = 0;
 	affect_to_char(mob, af);

@@ -15,7 +15,7 @@ extern int interpolate(int min_value, int pulse);
 
 namespace {
 // * Наложение ядов с пушек, аффект стакается до трех раз.
-bool poison_affect_join(CharData *ch, Affect<EApplyLocation> &af) {
+bool poison_affect_join(CharData *ch, Affect<EApply> &af) {
 	bool found = false;
 
 	for (auto affect_i = ch->affected.begin(); affect_i != ch->affected.end() && af.location; ++affect_i) {
@@ -57,9 +57,9 @@ bool weap_poison_vict(CharData *ch, CharData *vict, int spell_num) {
 
 	if (spell_num == kSpellAconitumPoison) {
 		// урон 5 + левел/2, от 5 до 20 за стак
-		Affect<EApplyLocation> af;
+		Affect<EApply> af;
 		af.type = kSpellAconitumPoison;
-		af.location = APPLY_ACONITUM_POISON;
+		af.location = EApply::kAconitumPoison;
 		af.duration = 7;
 		af.modifier = GetRealLevel(ch) / 2 + 5;
 		af.bitvector = to_underlying(EAffect::kPoisoned);
@@ -71,9 +71,9 @@ bool weap_poison_vict(CharData *ch, CharData *vict, int spell_num) {
 		}
 	} else if (spell_num == kSpellScopolaPoison) {
 		// по +5% дамаги по целе за стак (кроме стаба)
-		Affect<EApplyLocation> af;
+		Affect<EApply> af;
 		af.type = kSpellScopolaPoison;
-		af.location = APPLY_SCOPOLIA_POISON;
+		af.location = EApply::kScopolaPoison;
 		af.duration = 7;
 		af.modifier = 5;
 		af.bitvector = to_underlying(EAffect::kPoisoned) | to_underlying(EAffect::kScopolaPoison);
@@ -87,25 +87,25 @@ bool weap_poison_vict(CharData *ch, CharData *vict, int spell_num) {
 		// не переключается (моб)
 		// -хитролы/хп-рег/дамаг-физ.атак/скилы
 
-		Affect<EApplyLocation> af[3];
+		Affect<EApply> af[3];
 		// скилл * 0.05 на чаров и + 5 на мобов. 4-10% и 9-15% (80-200 скила)
 		int percent = 0;
 		if (ch->get_skill(ESkill::kPoisoning) >= 80) {
 			percent = (ch->get_skill(ESkill::kPoisoning) * 5 / 100) + (vict->is_npc() ? 5 : 0);
 		}
 		// -дамаг физ.атак и скиллы
-		af[0].location = APPLY_BELENA_POISON;
+		af[0].location = EApply::kBelenaPoison;
 		af[0].modifier = percent;
 
 		// скилл * 0.05 + 5 на чаров и + 10 на мобов. 5.5-15% и 10.5-20% (10-200 скила)
 		percent = (ch->get_skill(ESkill::kPoisoning) * 5 / 100) + (vict->is_npc() ? 10 : 5);
 		// -хитролы
 		int remove_hit = GET_REAL_HR(vict) * (percent / 100);
-		af[1].location = APPLY_HITROLL;
+		af[1].location = EApply::kHitroll;
 		af[1].modifier = -remove_hit;
 		// -хп-рег
 		int remove_hp = GET_HITREG(vict) * (percent / 100);
-		af[2].location = APPLY_HITREG;
+		af[2].location = EApply::kHpRegen;
 		af[2].modifier = -remove_hp;
 
 		bool was_poisoned = true;
@@ -133,24 +133,24 @@ bool weap_poison_vict(CharData *ch, CharData *vict, int spell_num) {
 		// -каст/мем-рег/дамаг-заклов/скилы
 		// AFF_DATURA_POISON - флаг на снижение дамага с заклов
 
-		Affect<EApplyLocation> af[3];
+		Affect<EApply> af[3];
 		// скилл * 0.05 на чаров и + 5 на мобов. 4-10% и 9-15% (80-200 скила)
 		int percent = 0;
 		if (ch->get_skill(ESkill::kPoisoning) >= 80)
 			percent = (ch->get_skill(ESkill::kPoisoning) * 5 / 100) + (vict->is_npc() ? 5 : 0);
 		// -дамаг заклов и скиллы
-		af[0].location = APPLY_DATURA_POISON;
+		af[0].location = EApply::kDaturaPoison;
 		af[0].modifier = percent;
 
 		// скилл * 0.05 + 5 на чаров и + 10 на мобов. 5.5-15% и 10.5-20% (10-200 скила)
 		percent = (ch->get_skill(ESkill::kPoisoning) * 5 / 100) + (vict->is_npc() ? 10 : 5);
 		// -каст
 		int remove_cast = GET_CAST_SUCCESS(vict) * (percent / 100);
-		af[1].location = APPLY_CAST_SUCCESS;
+		af[1].location = EApply::kCastSuccess;
 		af[1].modifier = -remove_cast;
 		// -мем
 		int remove_mem = GET_MANAREG(vict) * (percent / 100);
-		af[2].location = APPLY_MANAREG;
+		af[2].location = EApply::kMamaRegen;
 		af[2].modifier = -remove_mem;
 
 		bool was_poisoned = true;
@@ -179,7 +179,7 @@ bool weap_poison_vict(CharData *ch, CharData *vict, int spell_num) {
 
 // * Крит при отравлении с пушек.
 void weap_crit_poison(CharData *ch, CharData *vict, int/* spell_num*/) {
-	Affect<EApplyLocation> af;
+	Affect<EApply> af;
 	int percent = number(1, MUD::Skills()[ESkill::kPoisoning].difficulty * 3);
 	int prob = CalcCurrentSkill(ch, ESkill::kPoisoning, vict);
 	if (prob >= percent) {
@@ -215,8 +215,8 @@ void weap_crit_poison(CharData *ch, CharData *vict, int/* spell_num*/) {
 				af.bitvector = to_underlying(EAffect::kPoisoned);
 				af.battleflag = kAfSameTime;
 
-				for (int i = APPLY_STR; i <= APPLY_CHA; i++) {
-					af.location = static_cast<EApplyLocation>(i);
+				for (int i = EApply::kStr; i <= EApply::kCha; i++) {
+					af.location = static_cast<EApply>(i);
 					affect_join(vict, af, false, false, false, false);
 				}
 
@@ -230,7 +230,7 @@ void weap_crit_poison(CharData *ch, CharData *vict, int/* spell_num*/) {
 				// минус реакция (1..5)
 				af.type = kSpellPoison;
 				af.duration = 30;
-				af.location = APPLY_SAVING_REFLEX;
+				af.location = EApply::kSavingReflex;
 				af.modifier = GetRealLevel(ch) / 6; //Polud с плюсом, поскольку здесь чем больше - тем хуже
 				af.bitvector = to_underlying(EAffect::kPoisoned);
 				af.battleflag = kAfSameTime;
@@ -245,7 +245,7 @@ void weap_crit_poison(CharData *ch, CharData *vict, int/* spell_num*/) {
 				// минус инициатива (1..5)
 				af.type = kSpellPoison;
 				af.duration = 30;
-				af.location = APPLY_INITIATIVE;
+				af.location = EApply::kInitiative;
 				af.modifier = -GetRealLevel(ch) / 6;
 				af.bitvector = to_underlying(EAffect::kPoisoned);
 				af.battleflag = kAfSameTime;
@@ -261,7 +261,7 @@ void weap_crit_poison(CharData *ch, CharData *vict, int/* spell_num*/) {
 				// минус живучесть (1..5)
 				af.type = kSpellPoison;
 				af.duration = 30;
-				af.location = APPLY_RESIST_VITALITY;
+				af.location = EApply::kResistVitality;
 				af.modifier = -GetRealLevel(ch) / 6;
 				af.bitvector = to_underlying(EAffect::kPoisoned);
 				af.battleflag = kAfSameTime;
@@ -281,32 +281,32 @@ void weap_crit_poison(CharData *ch, CharData *vict, int/* spell_num*/) {
 
 // * Отравление с заклинания 'яд'.
 void poison_victim(CharData *ch, CharData *vict, int modifier) {
-	Affect<EApplyLocation> af[4];
+	Affect<EApply> af[4];
 
 	// change strength
 	af[0].type = kSpellPoison;
-	af[0].location = APPLY_STR;
+	af[0].location = EApply::kStr;
 	af[0].duration = CalcDuration(vict, 0, std::max(2, GetRealLevel(ch) - GetRealLevel(vict)), 2, 0, 1);
 	af[0].modifier = -std::min(2, (modifier + 29) / 40);
 	af[0].bitvector = to_underlying(EAffect::kPoisoned);
 	af[0].battleflag = kAfSameTime;
 	// change damroll
 	af[1].type = kSpellPoison;
-	af[1].location = APPLY_DAMROLL;
+	af[1].location = EApply::kDamroll;
 	af[1].duration = af[0].duration;
 	af[1].modifier = -std::min(2, (modifier + 29) / 30);
 	af[1].bitvector = to_underlying(EAffect::kPoisoned);
 	af[1].battleflag = kAfSameTime;
 	// change hitroll
 	af[2].type = kSpellPoison;
-	af[2].location = APPLY_HITROLL;
+	af[2].location = EApply::kHitroll;
 	af[2].duration = af[0].duration;
 	af[2].modifier = -std::min(2, (modifier + 19) / 20);
 	af[2].bitvector = to_underlying(EAffect::kPoisoned);
 	af[2].battleflag = kAfSameTime;
 	// change poison level
 	af[3].type = kSpellPoison;
-	af[3].location = APPLY_POISON;
+	af[3].location = EApply::kPoison;
 	af[3].duration = af[0].duration;
 	af[3].modifier = GetRealLevel(ch);
 	af[3].bitvector = to_underlying(EAffect::kPoisoned);
@@ -418,9 +418,9 @@ bool check_poison(int spell) {
 * APPLY_POISON - у плеера раз в 2 секунды везде, у моба раз в минуту везде.
 * Остальные аффекты - у плеера раз в 2 секунды везде, у моба в бою раз в 2 секунды, вне боя - раз в минуту.
 */
-int processPoisonDamage(CharData *ch, const Affect<EApplyLocation>::shared_ptr &af) {
+int processPoisonDamage(CharData *ch, const Affect<EApply>::shared_ptr &af) {
 	int result = 0;
-	if (af->location == APPLY_POISON) {
+	if (af->location == EApply::kPoison) {
 		int poison_dmg = GET_POISON(ch) * (ch->is_npc() ? 4 : 5);
 		// мобов яд ядит на тике, а чаров каждый батл тик соответсвенно если это не моб надо делить на 30 или тип того
 		if (!ch->is_npc())
@@ -429,7 +429,7 @@ int processPoisonDamage(CharData *ch, const Affect<EApplyLocation>::shared_ptr &
 		Damage dmg(SpellDmg(kSpellPoison), poison_dmg, fight::kUndefDmg);
 		dmg.flags.set(fight::kNoFleeDmg);
 		result = dmg.Process(ch, ch);
-	} else if (af->location == APPLY_ACONITUM_POISON) {
+	} else if (af->location == EApply::kAconitumPoison) {
 		Damage dmg(SpellDmg(kSpellPoison), GET_POISON(ch), fight::kUndefDmg);
 		dmg.flags.set(fight::kNoFleeDmg);
 		result = dmg.Process(ch, ch);

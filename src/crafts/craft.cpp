@@ -687,7 +687,7 @@ bool CObject::save_to_node(pugi::xml_node *node) const {
 
 		CHelper::save_pairs_list(*node, "applies", "apply", "location", "modifier", get_all_affected(),
 								 [&](const auto &value) -> auto {
-									 return APPLY_NONE != value.location ? NAME_BY_ITEM(value.location) : "";
+									 return EApply::kNone != value.location ? NAME_BY_ITEM(value.location) : "";
 								 },
 								 [&](const auto &value) -> auto { return std::to_string(value.modifier); },
 								 [&]() { throw std::runtime_error("WARNING: Could not save applies"); });
@@ -854,28 +854,28 @@ void CObject::load_extended_values(const pugi::xml_node *node) {
 void CObject::load_applies(const pugi::xml_node *node) {
 	using applies_t = std::list<obj_affected_type>;
 	applies_t applies;
-	CHelper::load_pairs_list<EApplyLocation>(node, "applies", "apply", "location", "modifier",
-											 [&](const size_t number) {
+	CHelper::load_pairs_list<EApply>(node, "applies", "apply", "location", "modifier",
+									 [&](const size_t number) {
 												 logger(
 													 "WARNING: %zd-%s \"apply\" tag of \"applies\" group does not have the \"location\" tag. Object with VNUM %d.\n",
 													 number,
 													 suffix(number),
 													 get_vnum());
 											 },
-											 [&](const auto value) -> auto { return ITEM_BY_NAME<EApplyLocation>(value); },
-											 [&](const auto key) {
+									 [&](const auto value) -> auto { return ITEM_BY_NAME<EApply>(value); },
+									 [&](const auto key) {
 												 logger(
 													 "WARNING: Could not convert value \"%s\" to apply location. Object with VNUM %d.\n Skipping entry.\n",
 													 key,
 													 this->get_vnum());
 											 },
-											 [&](const auto key) {
+									 [&](const auto key) {
 												 logger(
 													 "WARNING: apply with key \"%s\" does not have \"modifier\" tag. Object with VNUM %d. Skipping entry.\n",
 													 key,
 													 this->get_vnum());
 											 },
-											 [&](const auto key, const auto value) {
+									 [&](const auto key, const auto value) {
 												 CHelper::load_integer(value,
 																	   [&](const auto int_value) {
 																		   applies.push_back(applies_t::value_type(key,

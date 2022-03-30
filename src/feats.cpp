@@ -126,7 +126,7 @@ void InitFeatByDefault(int feat_num) {
 	feat_info[feat_num].critsuccess_threshold = abilities::kDefaultCritsuccessThreshold;
 
 	for (i = 0; i < kMaxFeatAffect; i++) {
-		feat_info[feat_num].affected[i].location = APPLY_NONE;
+		feat_info[feat_num].affected[i].location = EApply::kNone;
 		feat_info[feat_num].affected[i].modifier = 0;
 	}
 
@@ -155,8 +155,8 @@ void InitFeatures() {
 //3
 	InitFeat(BLIND_FIGHT_FEAT, "слепой бой", NORMAL_FTYPE, true, feat_app);
 //4
-	feat_app.insert(APPLY_MR, 1);
-	feat_app.insert(APPLY_AR, 1);
+	feat_app.insert(EApply::kMagicResist, 1);
+	feat_app.insert(EApply::kAffectResist, 1);
 	InitFeat(IMPREGNABLE_FEAT, "непробиваемый", AFFECT_FTYPE, true, feat_app);
 	feat_app.clear();
 //5-*
@@ -174,20 +174,20 @@ void InitFeatures() {
 //11
 	InitFeat(POWER_ATTACK_FEAT, "мощная атака", ACTIVATED_FTYPE, true, feat_app);
 //12
-	feat_app.insert(APPLY_RESIST_FIRE, 5);
-	feat_app.insert(APPLY_RESIST_AIR, 5);
-	feat_app.insert(APPLY_RESIST_WATER, 5);
-	feat_app.insert(APPLY_RESIST_EARTH, 5);
-	feat_app.insert(APPLY_RESIST_DARK, 5);
+	feat_app.insert(EApply::kResistFire, 5);
+	feat_app.insert(EApply::kResistAir, 5);
+	feat_app.insert(EApply::kResistWater, 5);
+	feat_app.insert(EApply::kResistEarth, 5);
+	feat_app.insert(EApply::kResistDark, 5);
 	InitFeat(WOODEN_SKIN_FEAT, "деревянная кожа", AFFECT_FTYPE, true, feat_app);
 	feat_app.clear();
 //13
-	feat_app.insert(APPLY_RESIST_FIRE, 10);
-	feat_app.insert(APPLY_RESIST_AIR, 10);
-	feat_app.insert(APPLY_RESIST_WATER, 10);
-	feat_app.insert(APPLY_RESIST_EARTH, 10);
-	feat_app.insert(APPLY_RESIST_DARK, 10);
-	feat_app.insert(APPLY_ABSORBE, 5);
+	feat_app.insert(EApply::kResistFire, 10);
+	feat_app.insert(EApply::kResistAir, 10);
+	feat_app.insert(EApply::kResistWater, 10);
+	feat_app.insert(EApply::kResistEarth, 10);
+	feat_app.insert(EApply::kResistDark, 10);
+	feat_app.insert(EApply::kAbsorbe, 5);
 	InitFeat(IRON_SKIN_FEAT, "железная кожа", AFFECT_FTYPE, true, feat_app);
 	feat_app.clear();
 //14
@@ -199,7 +199,7 @@ void InitFeatures() {
 //16
 	InitFeat(HEALER_FEAT, "целитель", NORMAL_FTYPE, true, feat_app);
 //17
-	feat_app.insert(APPLY_SAVING_REFLEX, -10);
+	feat_app.insert(EApply::kSavingReflex, -10);
 	InitFeat(LIGHTING_REFLEX_FEAT, "мгновенная реакция", AFFECT_FTYPE, true, feat_app);
 	feat_app.clear();
 //18
@@ -209,27 +209,27 @@ void InitFeatures() {
 //19
 	InitFeat(POWER_MAGIC_FEAT, "мощь колдовства", NORMAL_FTYPE, true, feat_app);
 //20
-	feat_app.insert(APPLY_MOVEREG, 40);
+	feat_app.insert(EApply::kMoveRegen, 40);
 	InitFeat(ENDURANCE_FEAT, "выносливость", AFFECT_FTYPE, true, feat_app);
 	feat_app.clear();
 //21
-	feat_app.insert(APPLY_SAVING_WILL, -10);
-	feat_app.insert(APPLY_SAVING_STABILITY, -10);
+	feat_app.insert(EApply::kSavingWill, -10);
+	feat_app.insert(EApply::kSavingStability, -10);
 	InitFeat(GREAT_FORTITUDE_FEAT, "сила духа", AFFECT_FTYPE, true, feat_app);
 	feat_app.clear();
 //22
-	feat_app.insert(APPLY_HITREG, 35);
+	feat_app.insert(EApply::kHpRegen, 35);
 	InitFeat(FAST_REGENERATION_FEAT, "быстрое заживление", NORMAL_FTYPE, true, feat_app);
 	feat_app.clear();
 //23
 	InitFeat(STEALTHY_FEAT, "незаметность", SKILL_MOD_FTYPE, true, feat_app);
 //24
-	feat_app.insert(APPLY_CAST_SUCCESS, 80);
+	feat_app.insert(EApply::kCastSuccess, 80);
 	InitFeat(RELATED_TO_MAGIC_FEAT, "магическое родство", AFFECT_FTYPE, true, feat_app);
 	feat_app.clear();
 //25
-	feat_app.insert(APPLY_HITREG, 10);
-	feat_app.insert(APPLY_SAVING_CRITICAL, -4);
+	feat_app.insert(EApply::kHpRegen, 10);
+	feat_app.insert(EApply::kSavingCritical, -4);
 	InitFeat(SPLENDID_HEALTH_FEAT, "богатырское здоровье", AFFECT_FTYPE, true, feat_app);
 	feat_app.clear();
 //26
@@ -284,41 +284,41 @@ void InitFeatures() {
 //40
 	InitFeat(MOUNTAIN_PATHS_FEAT, "горные тропы", NORMAL_FTYPE, true, feat_app);
 //41
-	feat_app.insert(APPLY_MORALE, 5);
+	feat_app.insert(EApply::kMorale, 5);
 	InitFeat(LUCKY_FEAT, "счастливчик", AFFECT_FTYPE, true, feat_app);
 	feat_app.clear();
 //42
 	InitFeat(SPIRIT_WARRIOR_FEAT, "боевой дух", NORMAL_FTYPE, true, feat_app);
 //43
-	feat_app.insert(APPLY_HITREG, 50);
+	feat_app.insert(EApply::kHpRegen, 50);
 	InitFeat(RELIABLE_HEALTH_FEAT, "крепкое здоровье", AFFECT_FTYPE, true, feat_app);
 	feat_app.clear();
 //44
-	feat_app.insert(APPLY_MANAREG, 100);
+	feat_app.insert(EApply::kMamaRegen, 100);
 	InitFeat(EXCELLENT_MEMORY_FEAT, "превосходная память", AFFECT_FTYPE, true, feat_app);
 	feat_app.clear();
 //45
-	feat_app.insert(APPLY_DEX, 1);
+	feat_app.insert(EApply::kDex, 1);
 	InitFeat(ANIMAL_DEXTERY_FEAT, "звериная прыть", AFFECT_FTYPE, true, feat_app);
 	feat_app.clear();
 //46
-	feat_app.insert(APPLY_MANAREG, 25);
+	feat_app.insert(EApply::kMamaRegen, 25);
 	InitFeat(LEGIBLE_WRITTING_FEAT, "чёткий почерк", AFFECT_FTYPE, true, feat_app);
 	feat_app.clear();
 //47
-	feat_app.insert(APPLY_DAMROLL, 2);
+	feat_app.insert(EApply::kDamroll, 2);
 	InitFeat(IRON_MUSCLES_FEAT, "стальные мышцы", AFFECT_FTYPE, true, feat_app);
 	feat_app.clear();
 //48
-	feat_app.insert(APPLY_CAST_SUCCESS, 5);
+	feat_app.insert(EApply::kCastSuccess, 5);
 	InitFeat(MAGIC_SIGN_FEAT, "знак чародея", AFFECT_FTYPE, true, feat_app);
 	feat_app.clear();
 //49
-	feat_app.insert(APPLY_MOVEREG, 75);
+	feat_app.insert(EApply::kMoveRegen, 75);
 	InitFeat(GREAT_ENDURANCE_FEAT, "двужильность", AFFECT_FTYPE, true, feat_app);
 	feat_app.clear();
 //50
-	feat_app.insert(APPLY_MORALE, 5);
+	feat_app.insert(EApply::kMorale, 5);
 	InitFeat(BEST_DESTINY_FEAT, "лучшая доля", AFFECT_FTYPE, true, feat_app);
 	feat_app.clear();
 //51
@@ -330,53 +330,53 @@ void InitFeatures() {
 //54
 	InitFeat(GREAT_POWER_ATTACK_FEAT, "улучшенная мощная атака", ACTIVATED_FTYPE, true, feat_app);
 //55
-	feat_app.insert(APPLY_RESIST_IMMUNITY, 15);
+	feat_app.insert(EApply::kResistImmunity, 15);
 	InitFeat(IMMUNITY_FEAT, "привычка к яду", AFFECT_FTYPE, true, feat_app);
 	feat_app.clear();
 //56
-	feat_app.insert(APPLY_AC, -40);
+	feat_app.insert(EApply::kAc, -40);
 	InitFeat(MOBILITY_FEAT, "подвижность", AFFECT_FTYPE, true, feat_app);
 	feat_app.clear();
 //57
-	feat_app.insert(APPLY_STR, 1);
+	feat_app.insert(EApply::kStr, 1);
 	InitFeat(NATURAL_STRENGTH_FEAT, "силач", AFFECT_FTYPE, true, feat_app);
 	feat_app.clear();
 //58
-	feat_app.insert(APPLY_DEX, 1);
+	feat_app.insert(EApply::kDex, 1);
 	InitFeat(NATURAL_DEXTERY_FEAT, "проворство", AFFECT_FTYPE, true, feat_app);
 	feat_app.clear();
 //59
-	feat_app.insert(APPLY_INT, 1);
+	feat_app.insert(EApply::kInt, 1);
 	InitFeat(NATURAL_INTELLECT_FEAT, "природный ум", AFFECT_FTYPE, true, feat_app);
 	feat_app.clear();
 //60
-	feat_app.insert(APPLY_WIS, 1);
+	feat_app.insert(EApply::kWis, 1);
 	InitFeat(NATURAL_WISDOM_FEAT, "мудрец", AFFECT_FTYPE, true, feat_app);
 	feat_app.clear();
 //61
-	feat_app.insert(APPLY_CON, 1);
+	feat_app.insert(EApply::kCon, 1);
 	InitFeat(NATURAL_CONSTITUTION_FEAT, "здоровяк", AFFECT_FTYPE, true, feat_app);
 	feat_app.clear();
 //62
-	feat_app.insert(APPLY_CHA, 1);
+	feat_app.insert(EApply::kCha, 1);
 	InitFeat(NATURAL_CHARISMA_FEAT, "природное обаяние", AFFECT_FTYPE, true, feat_app);
 	feat_app.clear();
 //63
-	feat_app.insert(APPLY_MANAREG, 25);
+	feat_app.insert(EApply::kMamaRegen, 25);
 	InitFeat(MNEMONIC_ENHANCER_FEAT, "отличная память", AFFECT_FTYPE, true, feat_app);
 	feat_app.clear();
 //64 -*
 	InitFeat(MAGNETIC_PERSONALITY_FEAT, "предводитель", SKILL_MOD_FTYPE, true, feat_app);
 //65
-	feat_app.insert(APPLY_DAMROLL, 2);
+	feat_app.insert(EApply::kDamroll, 2);
 	InitFeat(DAMROLL_BONUS_FEAT, "тяжел на руку", AFFECT_FTYPE, true, feat_app);
 	feat_app.clear();
 //66
-	feat_app.insert(APPLY_HITROLL, 1);
+	feat_app.insert(EApply::kHitroll, 1);
 	InitFeat(HITROLL_BONUS_FEAT, "твердая рука", AFFECT_FTYPE, true, feat_app);
 	feat_app.clear();
 //67
-	feat_app.insert(APPLY_CAST_SUCCESS, 30);
+	feat_app.insert(EApply::kCastSuccess, 30);
 	InitFeat(MAGICAL_INSTINCT_FEAT, "магическое чутье", AFFECT_FTYPE, true, feat_app);
 	feat_app.clear();
 //68
@@ -972,11 +972,11 @@ void CheckBerserk(CharData *ch) {
 		timed.time = 4;
 		ImposeTimedFeat(ch, &timed);
 
-		Affect<EApplyLocation> af;
+		Affect<EApply> af;
 		af.type = kSpellBerserk;
 		af.duration = CalcDuration(ch, 1, 60, 30, 0, 0);
 		af.modifier = 0;
-		af.location = APPLY_NONE;
+		af.location = EApply::kNone;
 		af.battleflag = 0;
 
 		prob = ch->is_npc() ? 601 : (751 - GetRealLevel(ch) * 5);
@@ -1024,11 +1024,11 @@ void do_lightwalk(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 	ImposeTimedFeat(ch, &timed);
 
 	send_to_char("Хорошо, вы попытаетесь идти, не оставляя лишних следов.\r\n", ch);
-	Affect<EApplyLocation> af;
+	Affect<EApply> af;
 	af.type = kSpellLightWalk;
 	af.duration = CalcDuration(ch, 2, GetRealLevel(ch), 5, 2, 8);
 	af.modifier = 0;
-	af.location = APPLY_NONE;
+	af.location = EApply::kNone;
 	af.battleflag = 0;
 	if (number(1, 1000) > number(1, GET_REAL_DEX(ch) * 50)) {
 		af.bitvector = 0;
@@ -1269,15 +1269,15 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	ImposeTimedFeat(ch, &timed);
 
 	GET_CAST_SUCCESS(follower) = GET_REAL_REMORT(ch) * 4;
-	Affect<EApplyLocation> af;
+	Affect<EApply> af;
 	af.type = kSpellCapable;
 	af.duration = 48;
 	if (GET_REAL_REMORT(ch) > 0) {
 		af.modifier = GET_REAL_REMORT(ch) * 4;//вешаецо аффект который дает +морт*4 касту
-		af.location = APPLY_CAST_SUCCESS;
+		af.location = EApply::kCastSuccess;
 	} else {
 		af.modifier = 0;
-		af.location = APPLY_NONE;
+		af.location = EApply::kNone;
 	}
 	af.battleflag = 0;
 	af.bitvector = 0;
@@ -1338,7 +1338,7 @@ void CFeatArray::insert(const int location, int modifier) {
 void CFeatArray::clear() {
 	pos_ = 0;
 	for (auto & i : affected) {
-		i.location = APPLY_NONE;
+		i.location = EApply::kNone;
 		i.modifier = 0;
 	}
 }

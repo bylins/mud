@@ -160,7 +160,7 @@ enum class EWeaponAffect : Bitvector {
 	kDeafness = kIntOne | (1 << 13),
 	kComamnder = kIntOne | (1 << 14),
 	kEarthAura = kIntOne | (1 << 15),
-// не забудьте поправить WAFF_COUNT
+// не забудьте поправить kWeaponAffectCount
 };
 
 constexpr size_t kWeaponAffectCount = 47;
@@ -176,86 +176,88 @@ struct WeaponAffect {
 	int aff_spell;
 };
 
-// Modifier constants used with obj affects ('A' fields) //
 // Applies используются как в предметах, так и в аффектах. Разумней разместить их тут, т.к. по сути
 // applies на предметах - это урезанные аффекты.
-enum EApplyLocation {
-	APPLY_NONE = 0,    // No effect         //
-	APPLY_STR = 1,    // Apply to strength    //
-	APPLY_DEX = 2,    // Apply to dexterity      //
-	APPLY_INT = 3,    // Apply to constitution   //
-	APPLY_WIS = 4,    // Apply to wisdom      //
-	APPLY_CON = 5,    // Apply to constitution   //
-	APPLY_CHA = 6,    // Apply to charisma    //
-	APPLY_CLASS = 7,    // Reserved       //
-	APPLY_LEVEL = 8,    // Reserved       //
-	APPLY_AGE = 9,    // Apply to age         //
-	APPLY_CHAR_WEIGHT = 10,    // Apply to weight      //
-	APPLY_CHAR_HEIGHT = 11,    // Apply to height      //
-	APPLY_MANAREG = 12,    // Apply to max mana    //
-	APPLY_HIT = 13,    // Apply to max hit points //
-	APPLY_MOVE = 14,    // Apply to max move points   //
-	APPLY_GOLD = 15,    // Reserved       //
-	APPLY_EXP = 16,    // Reserved       //
-	APPLY_AC = 17,    // Apply to Armor Class    //
-	APPLY_HITROLL = 18,    // Apply to hitroll     //
-	APPLY_DAMROLL = 19,    // Apply to damage roll    //
-	APPLY_SAVING_WILL = 20,    // Apply to save throw: paralz   //
-	APPLY_RESIST_FIRE = 21,    // Apply to RESIST throw: fire  //
-	APPLY_RESIST_AIR = 22,    // Apply to RESIST throw: air   //
-	APPLY_SAVING_CRITICAL = 23,    // Apply to save throw: breath   //
-	APPLY_SAVING_STABILITY = 24,    // Apply to save throw: spells   //
-	APPLY_HITREG = 25,
-	APPLY_MOVEREG = 26,
-	APPLY_C1 = 27,
-	APPLY_C2 = 28,
-	APPLY_C3 = 29,
-	APPLY_C4 = 30,
-	APPLY_C5 = 31,
-	APPLY_C6 = 32,
-	APPLY_C7 = 33,
-	APPLY_C8 = 34,
-	APPLY_C9 = 35,
-	APPLY_SIZE = 36,
-	APPLY_ARMOUR = 37,
-	APPLY_POISON = 38,
-	APPLY_SAVING_REFLEX = 39,
-	APPLY_CAST_SUCCESS = 40,
-	APPLY_MORALE = 41,
-	APPLY_INITIATIVE = 42,
-	APPLY_RELIGION = 43,
-	APPLY_ABSORBE = 44,
-	APPLY_LIKES = 45,
-	APPLY_RESIST_WATER = 46,    // Apply to RESIST throw: water  //
-	APPLY_RESIST_EARTH = 47,    // Apply to RESIST throw: earth  //
-	APPLY_RESIST_VITALITY = 48,    // Apply to RESIST throw: light, dark, critical damage  //
-	APPLY_RESIST_MIND = 49,    // Apply to RESIST throw: mind magic  //
-	APPLY_RESIST_IMMUNITY = 50,    // Apply to RESIST throw: poison, disease etc.  //
-	APPLY_AR = 51,    // Apply to Magic affect resist //
-	APPLY_MR = 52,    // Apply to Magic damage resist //
-	APPLY_ACONITUM_POISON = 53,
-	APPLY_SCOPOLIA_POISON = 54,
-	APPLY_BELENA_POISON = 55,
-	APPLY_DATURA_POISON = 56,
-	APPLY_FREE_FOR_USE = 57, // занимайте
-	APPLY_BONUS_EXP = 58,
-	APPLY_BONUS_SKILLS = 59,
-	APPLY_PLAQUE = 60,
-	APPLY_MADNESS = 61,
-	APPLY_PR = 62,
-	APPLY_RESIST_DARK = 63,
-	APPLY_VIEW_DT = 64,
-	APPLY_PERCENT_EXP = 65, //бонус +экспа
-	APPLY_PERCENT_PHYSDAM = 66, // бонус + физповреждение
-	APPLY_SPELL_BLINK = 67, // мигание заклом
-	APPLY_PERCENT_MAGDAM = 68,
-	NUM_APPLIES
+/**
+ * Modifier constants used with obj affects ('A' fields) and character affects
+ */
+enum EApply {
+	kNone = 0,    // No effect         //
+	kStr = 1,    // Apply to strength    //
+	kDex = 2,    // Apply to dexterity      //
+	kInt = 3,    // Apply to constitution   //
+	kWis = 4,    // Apply to wisdom      //
+	kCon = 5,    // Apply to constitution   //
+	kCha = 6,    // Apply to charisma    //
+	kClass = 7,    // Reserved       //
+	kLvl = 8,    // Reserved       //
+	kAge = 9,    // Apply to age         //
+	kWeight = 10,    // Apply to weight      //
+	kHeight = 11,    // Apply to height      //
+	kMamaRegen = 12,    // Apply to max mana    //
+	kHp = 13,    // Apply to max hit points //
+	kMove = 14,    // Apply to max move points   //
+	kGold = 15,    // Reserved       //
+	kExp = 16,    // ---- свободно. занимайте
+	kAc = 17,    // Apply to Armor Class    //
+	kHitroll = 18,    // Apply to hitroll     //
+	kDamroll = 19,    // Apply to damage roll    //
+	kSavingWill = 20,    // Apply to save throw: paralz   //
+	kResistFire = 21,    // Apply to RESIST throw: fire  //
+	kResistAir = 22,    // Apply to RESIST throw: air   //
+	kSavingCritical = 23,    // Apply to save throw: breath   //
+	kSavingStability = 24,    // Apply to save throw: spells   //
+	kHpRegen = 25,
+	kMoveRegen = 26,
+	kFirstCircle = 27,
+	kSecondCircle = 28,
+	kThirdCircle = 29,
+	kFourthCircle = 30,
+	kFifthCircle = 31,
+	kSixthCircle = 32,
+	kSeventhCircle = 33,
+	kEighthCircle = 34,
+	kNinthCircle = 35,
+	kSize = 36,
+	kArmour = 37,
+	kPoison = 38,
+	kSavingReflex = 39,
+	kCastSuccess = 40,
+	kMorale = 41,
+	kInitiative = 42,
+	kReligion = 43,
+	kAbsorbe = 44,
+	kLikes = 45,
+	kResistWater = 46,    // Apply to RESIST throw: water  //
+	kResistEarth = 47,    // Apply to RESIST throw: earth  //
+	kResistVitality = 48,    // Apply to RESIST throw: light, dark, critical damage  //
+	kResistMind = 49,    // Apply to RESIST throw: mind magic  //
+	kResistImmunity = 50,    // Apply to RESIST throw: poison, disease etc.  //
+	kAffectResist = 51,    // Apply to Magic affect resist //
+	kMagicResist = 52,    // Apply to Magic damage resist //
+	kAconitumPoison = 53,
+	kScopolaPoison = 54,
+	kBelenaPoison = 55,
+	kDaturaPoison = 56,
+	kFreeForUse1 = 57, // занимайте
+	kExpBonus = 58,
+	kSkillsBonus = 59,
+	kPlague = 60,
+	kMadness = 61,
+	kPhysicResist = 62,
+	kResistDark = 63,
+	kViewDeathTraps = 64,
+	kExpPercent = 65, //бонус +экспа
+	kPhysicDamagePercent = 66, // бонус + физповреждение
+	kSpelledBlink = 67, // мигание заклом
+	kMagicDamagePercent = 68,
+	kNumberApplies
 };
 
 template<>
-const std::string &NAME_BY_ITEM<EApplyLocation>(EApplyLocation item);
+const std::string &NAME_BY_ITEM<EApply>(EApply item);
 template<>
-EApplyLocation ITEM_BY_NAME<EApplyLocation>(const std::string &name);
+EApply ITEM_BY_NAME<EApply>(const std::string &name);
 
 using weapon_affect_t = std::array<WeaponAffect, kWeaponAffectCount>;
 extern weapon_affect_t weapon_affect;

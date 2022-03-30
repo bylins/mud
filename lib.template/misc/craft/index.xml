@@ -107,19 +107,19 @@
 					<meta>
 						<applies>
 							<apply>
-								<location>APPLY_INT</location>
+								<location>kInt</location>
 								<modifier>1</modifier>
 							</apply>
 							<apply>
-								<location>APPLY_CHA</location>
+								<location>kCha</location>
 								<modifier>2</modifier>
 							</apply>
 							<apply>
-								<location>APPLY_WIS</location>
+								<location>kWis</location>
 								<modifier>2</modifier>
 							</apply>
 							<apply>
-								<location>APPLY_CAST_SUCCESS</location>
+								<location>kCastSuccess</location>
 								<modifier>5</modifier>
 							</apply>
 						</applies>
@@ -221,11 +221,11 @@
 					<meta>
 						<applies>
 							<apply>
-								<location>APPLY_WIS</location>
+								<location>kWis</location>
 								<modifier>2</modifier>
 							</apply>
 							<apply>
-								<location>APPLY_C6</location>
+								<location>kSixthCircle</location>
 								<modifier>1</modifier>
 							</apply>
 						</applies>
@@ -350,27 +350,27 @@
 
 			<applies>
 				<apply>
-					<location>APPLY_STR</location>
+					<location>kStr</location>
 					<modifier>12</modifier>
 				</apply>
 				<apply>
-					<location>APPLY_DEX</location>
+					<location>kDex</location>
 					<modifier>12</modifier>
 				</apply>
 				<apply>
-					<location>APPLY_INT</location>
+					<location>kInt</location>
 					<modifier>12</modifier>
 				</apply>
 				<apply>
-					<location>APPLY_WIS</location>
+					<location>kWis</location>
 					<modifier>12</modifier>
 				</apply>
 				<apply>
-					<location>APPLY_ABSORBE</location>
+					<location>kAbsorbe</location>
 					<modifier>12</modifier>
 				</apply>
 				<apply>
-					<location>APPLY_AC</location>
+					<location>kAc</location>
 					<modifier>-120</modifier>
 				</apply>
 			</applies>

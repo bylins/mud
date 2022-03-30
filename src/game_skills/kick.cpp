@@ -57,8 +57,8 @@ void go_kick(CharData *ch, CharData *vict) {
 			dam = modi * dam / 100;
 		}
 		if (ch->ahorse() && (ch->get_skill(ESkill::kRiding) >= 150) && (ch->get_skill(ESkill::kKick) >= 150)) {
-			Affect<EApplyLocation> af;
-			af.location = APPLY_NONE;
+			Affect<EApply> af;
+			af.location = EApply::kNone;
 			af.type = kSpellBattle;
 			af.modifier = 0;
 			af.battleflag = 0;

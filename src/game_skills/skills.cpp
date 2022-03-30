@@ -737,7 +737,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 	if (!ch->is_npc() && !ch->affected.empty()) {
 		for (const auto &aff: ch->affected) {
-			if (aff->location == APPLY_PLAQUE) {
+			if (aff->location == EApply::kPlague) {
 				base_percent -= number(ch->get_skill(skill_id) * 0.4, ch->get_skill(skill_id) * 0.05);
 			}
 		}
@@ -1218,7 +1218,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 	if (!ch->is_npc() && !ch->affected.empty()) {
 		for (const auto &aff: ch->affected) {
-			if (aff->location == APPLY_PLAQUE) {
+			if (aff->location == EApply::kPlague) {
 				base_percent -= number(ch->get_skill(skill_id) * 0.4, ch->get_skill(skill_id) * 0.05);
 			}
 		}

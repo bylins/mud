@@ -97,7 +97,7 @@
 			</extraflags>
 			<applies>
 				<apply>
-					<location>APPLY_MOVE</location>
+					<location>kMove</location>
 					<modifier>20</modifier>
 				</apply>
 			</applies>
@@ -153,7 +153,7 @@
 			</extraflags>
 			<applies>
 				<apply>
-					<location>APPLY_HITREG</location>
+					<location>kHpRegen</location>
 					<modifier>10</modifier>
 				</apply>
 			</applies>

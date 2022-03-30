@@ -1382,7 +1382,7 @@ void show_lots(char *filter, short int show_type, CharData *ch) {
 				for (int n = 0; n < kMaxObjAffect; n++) {
 					drndice = GET_EXCHANGE_ITEM(j)->get_affected(n).location;
 					drsdice = GET_EXCHANGE_ITEM(j)->get_affected(n).modifier;
-					if ((drndice != APPLY_NONE) && (drsdice != 0)) {
+					if ((drndice != EApply::kNone) && (drsdice != 0)) {
 						sprinttype(drndice, apply_types, buf2);
 						bool negative = false;
 						for (int k = 0; *apply_negative[k] != '\n'; k++) {

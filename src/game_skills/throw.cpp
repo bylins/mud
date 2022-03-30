@@ -49,7 +49,7 @@ void PerformShadowThrowSideAbilities(AbilitySystem::TechniqueRoll &technique) {
 			to_vict = "Бросок $N1 угодил вам в горло. Вы прикусили язык!";
 			to_room = "Меткое попадание $N1 заставило $n3 умолкнуть!";
 			DoSideAction = ([](AbilitySystem::TechniqueRoll &technique) {
-				Affect<EApplyLocation> af;
+				Affect<EApply> af;
 				af.type = kSpellBattle;
 				af.bitvector = to_underlying(EAffect::kSilence);
 				af.duration = CalcDuration(technique.GetRival(), 2, GetRealLevel(technique.GetActor()), 9, 6, 2);
@@ -63,7 +63,7 @@ void PerformShadowThrowSideAbilities(AbilitySystem::TechniqueRoll &technique) {
 			to_vict = "Брошенная $N4 булава врезалась вам в лоб! Какие красивые звёздочки вокруг...";
 			to_room = "Попадание булавы $N1 ошеломило $n3!";
 			DoSideAction = ([](AbilitySystem::TechniqueRoll &technique) {
-				Affect<EApplyLocation> af;
+				Affect<EApply> af;
 				af.type = kSpellBattle;
 				af.bitvector = to_underlying(EAffect::kStopFight);
 				af.duration = CalcDuration(technique.GetRival(), 3, 0, 0, 0, 0);

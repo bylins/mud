@@ -253,18 +253,18 @@ void do_drink_poison(CharData *ch, ObjData *jar, int amount) {
 	if ((GET_OBJ_VAL(jar, 3) == 1) && !IS_GOD(ch)) {
 		send_to_char("Что-то вкус какой-то странный!\r\n", ch);
 		act("$n поперхнул$u и закашлял$g.", true, ch, 0, 0, kToRoom);
-		Affect<EApplyLocation> af;
+		Affect<EApply> af;
 		af.type = kSpellPoison;
 		//если объем 0 -
 		af.duration = CalcDuration(ch, amount == 0 ? 3 : amount == 1 ? amount : amount * 3, 0, 0, 0, 0);
 		af.modifier = -2;
-		af.location = APPLY_STR;
+		af.location = EApply::kStr;
 		af.bitvector = to_underlying(EAffect::kPoisoned);
 		af.battleflag = kAfSameTime;
 		affect_join(ch, af, false, false, false, false);
 		af.type = kSpellPoison;
 		af.modifier = amount == 0 ? GetRealLevel(ch) * 3 : amount * 3;
-		af.location = APPLY_POISON;
+		af.location = EApply::kPoison;
 		af.bitvector = to_underlying(EAffect::kPoisoned);
 		af.battleflag = kAfSameTime;
 		affect_join(ch, af, false, false, false, false);
@@ -468,11 +468,11 @@ void do_drink_drunk(CharData *ch, ObjData *jar, int amount) {
 			&& GET_DRUNK_STATE(ch) == GET_COND(ch, DRUNK)) {
 			send_to_char("Винные пары ударили вам в голову.\r\n", ch);
 			// **** Decrease AC ***** //
-			Affect<EApplyLocation> af;
+			Affect<EApply> af;
 			af.type = kSpellDrunked;
 			af.duration = CalcDuration(ch, duration, 0, 0, 0, 0);
 			af.modifier = -20;
-			af.location = APPLY_AC;
+			af.location = EApply::kAc;
 			af.bitvector = to_underlying(EAffect::kDrunked);
 			af.battleflag = 0;
 			affect_join(ch, af, false, false, false, false);
@@ -480,7 +480,7 @@ void do_drink_drunk(CharData *ch, ObjData *jar, int amount) {
 			af.type = kSpellDrunked;
 			af.duration = CalcDuration(ch, duration, 0, 0, 0, 0);
 			af.modifier = -2;
-			af.location = APPLY_HITROLL;
+			af.location = EApply::kHitroll;
 			af.bitvector = to_underlying(EAffect::kDrunked);
 			af.battleflag = 0;
 			affect_join(ch, af, false, false, false, false);
@@ -488,7 +488,7 @@ void do_drink_drunk(CharData *ch, ObjData *jar, int amount) {
 			af.type = kSpellDrunked;
 			af.duration = CalcDuration(ch, duration, 0, 0, 0, 0);
 			af.modifier = (GetRealLevel(ch) + 4) / 5;
-			af.location = APPLY_DAMROLL;
+			af.location = EApply::kDamroll;
 			af.bitvector = to_underlying(EAffect::kDrunked);
 			af.battleflag = 0;
 			affect_join(ch, af, false, false, false, false);
@@ -701,23 +701,23 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act(buf, false, ch, obj, 0, kToChar);
 		act("$n попробовал$g похмелиться, но это не пошло $m на пользу.", false, ch, 0, 0, kToRoom);
 		duration = MAX(1, amount / 3);
-		Affect<EApplyLocation> af[3];
+		Affect<EApply> af[3];
 		af[0].type = kSpellAbstinent;
 		af[0].duration = CalcDuration(ch, duration, 0, 0, 0, 0);
 		af[0].modifier = 0;
-		af[0].location = APPLY_DAMROLL;
+		af[0].location = EApply::kDamroll;
 		af[0].bitvector = to_underlying(EAffect::kAbstinent);
 		af[0].battleflag = 0;
 		af[1].type = kSpellAbstinent;
 		af[1].duration = CalcDuration(ch, duration, 0, 0, 0, 0);
 		af[1].modifier = 0;
-		af[1].location = APPLY_HITROLL;
+		af[1].location = EApply::kHitroll;
 		af[1].bitvector = to_underlying(EAffect::kAbstinent);
 		af[1].battleflag = 0;
 		af[2].type = kSpellAbstinent;
 		af[2].duration = CalcDuration(ch, duration, 0, 0, 0, 0);
 		af[2].modifier = 0;
-		af[2].location = APPLY_AC;
+		af[2].location = EApply::kAc;
 		af[2].bitvector = to_underlying(EAffect::kAbstinent);
 		af[2].battleflag = 0;
 		switch (number(0, ch->get_skill(ESkill::kHangovering) / 20)) {

@@ -62,16 +62,16 @@ void go_chopoff(CharData *ch, CharData *vict) {
 		GET_POS(ch) = EPosition::kSit;
 		prob = 3;
 		if (can_use_feat(ch, EVASION_FEAT)) {
-			Affect<EApplyLocation> af;
+			Affect<EApply> af;
 			af.type = kSpellExpedient;
-			af.location = EApplyLocation::APPLY_PR;
+			af.location = EApply::kPhysicResist;
 			af.modifier = 50;
 			af.duration = CalcDuration(ch, 3, 0, 0, 0, 0);
 			af.battleflag = kAfBattledec | kAfPulsedec;
 			affect_join(ch, af, false, false, false, false);
-			af.location = EApplyLocation::APPLY_AR;
+			af.location = EApply::kAffectResist;
 			affect_join(ch, af, false, false, false, false);
-			af.location = EApplyLocation::APPLY_MR;
+			af.location = EApply::kMagicResist;
 			affect_join(ch, af, false, false, false, false);
 			send_to_char(ch,
 						 "%sВы покатились по земле, пытаясь избежать атак %s.%s\r\n",

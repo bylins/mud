@@ -65,7 +65,7 @@
 			<meta>
 				<applies>
 					<apply>
-						<location>APPLY_HIT</location>
+						<location>kHp</location>
 						<modifier>10</modifier>
 					</apply>
 				</applies>
@@ -143,7 +143,7 @@
 			<meta>
 				<applies>
 					<apply>
-						<location>APPLY_MR</location>
+						<location>kMagicResist</location>
 						<modifier>2</modifier>
 					</apply>
 				</applies>

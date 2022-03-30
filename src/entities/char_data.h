@@ -371,7 +371,7 @@ class CharData : public ProtectedCharData {
  public:
 	using ptr_t = CharData *;
 	using shared_ptr = std::shared_ptr<CharData>;
-	using char_affects_list_t = std::list<Affect<EApplyLocation>::shared_ptr>;
+	using char_affects_list_t = std::list<Affect<EApply>::shared_ptr>;
 	using morphs_list_t = std::list<std::string>;
 	using role_t = boost::dynamic_bitset<std::size_t>;
 	using followers_list_t = std::list<CharData *>;

@@ -45,7 +45,7 @@ void CharacterBuilder::add_poison()
 {
 	check_character_existance();
 
-	Affect<EApplyLocation> poison;
+	Affect<EApply> poison;
 	poison.type = SPELL_POISON;
 	poison.modifier = 0;
 	poison.location = APPLY_STR;
@@ -59,7 +59,7 @@ void CharacterBuilder::add_sleep()
 {
 	check_character_existance();
 
-	Affect<EApplyLocation> sleep;
+	Affect<EApply> sleep;
 	sleep.type = SPELL_SLEEP;
 	sleep.modifier = 0;
 	sleep.location = APPLY_AC;
@@ -73,7 +73,7 @@ void CharacterBuilder::add_detect_invis()
 {
 	check_character_existance();
 
-	Affect<EApplyLocation> detect_invis;
+	Affect<EApply> detect_invis;
 	detect_invis.type = SPELL_DETECT_INVIS;
 	detect_invis.modifier = 0;
 	detect_invis.location = APPLY_AC;
@@ -87,7 +87,7 @@ void CharacterBuilder::add_detect_align()
 {
 	check_character_existance();
 
-	Affect<EApplyLocation> detect_align;
+	Affect<EApply> detect_align;
 	detect_align.type = SPELL_DETECT_ALIGN;
 	detect_align.modifier = 0;
 	detect_align.location = APPLY_AC;

@@ -498,7 +498,7 @@ void show_apply_olc(DescriptorData *d) {
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
-	for (counter = 0; counter < NUM_APPLIES; counter++) {
+	for (counter = 0; counter < EApply::kNumberApplies; counter++) {
 		sprintf(buf, "%s%2d%s) %-40.40s %s", grn, counter, nrm,
 				apply_types[counter], !(++columns % 3) ? "\r\n" : "");
 		send_to_char(buf, d->character.get());
@@ -1977,12 +1977,12 @@ void oedit_parse(DescriptorData *d, char *arg) {
 
 		case OEDIT_APPLY:
 			if ((number = atoi(arg)) == 0) {
-				OLC_OBJ(d)->set_affected(OLC_VAL(d), EApplyLocation::APPLY_NONE, 0);
+				OLC_OBJ(d)->set_affected(OLC_VAL(d), EApply::kNone, 0);
 				oedit_disp_prompt_apply_menu(d);
-			} else if (number < 0 || number >= NUM_APPLIES) {
+			} else if (number < 0 || number >= EApply::kNumberApplies) {
 				oedit_disp_apply_menu(d);
 			} else {
-				OLC_OBJ(d)->set_affected_location(OLC_VAL(d), static_cast<EApplyLocation>(number));
+				OLC_OBJ(d)->set_affected_location(OLC_VAL(d), static_cast<EApply>(number));
 				send_to_char("Modifier : ", d->character.get());
 				OLC_MODE(d) = OEDIT_APPLYMOD;
 			}

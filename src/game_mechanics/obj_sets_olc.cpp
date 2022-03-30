@@ -1422,14 +1422,14 @@ void sedit::parse_activ_apply_loc(CharData *ch, const char *arg) {
 	int num = atoi(arg);
 
 	if (num == 0) {
-		apply.location = EApplyLocation::APPLY_NONE;
+		apply.location = EApply::kNone;
 		apply.modifier = 0;
 		show_activ_edit(ch);
-	} else if (num < 0 || num >= NUM_APPLIES) {
+	} else if (num < 0 || num >= EApply::kNumberApplies) {
 		send_to_char("Некорректный ввод.\r\n", ch);
 		show_apply_olc(ch->desc);
 	} else {
-		apply.location = static_cast<EApplyLocation>(num);
+		apply.location = static_cast<EApply>(num);
 		state = STATE_ACTIV_APPLY_MOD;
 		send_to_char("Введите модификатор : ", ch);
 	}
@@ -1443,7 +1443,7 @@ void sedit::parse_activ_apply_mod(CharData *ch, const char *arg) {
 	int num = atoi(arg);
 
 	if (num == 0) {
-		apply.location = EApplyLocation::APPLY_NONE;
+		apply.location = EApply::kNone;
 		apply.modifier = 0;
 		show_activ_edit(ch);
 	} else {

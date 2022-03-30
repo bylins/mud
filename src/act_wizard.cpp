@@ -5584,7 +5584,7 @@ void do_print_armor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		for (int i = 0; i < kMaxObjAffect; i++) {
 			int drndice = obj->get_affected(i).location;
 			int drsdice = obj->get_affected(i).modifier;
-			if (drndice == APPLY_NONE || !drsdice) {
+			if (drndice == EApply::kNone || !drsdice) {
 				continue;
 			}
 			sprinttype(drndice, apply_types, buf2);

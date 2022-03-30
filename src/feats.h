@@ -253,7 +253,7 @@ class CFeatArray {
 		int modifier;
 
 		CFeatAffect() :
-			location{APPLY_NONE}, modifier{0} {}
+			location{0}, modifier{0} {}
 
 		CFeatAffect(int location, int modifier) :
 			location(location), modifier(modifier) {}

@@ -165,11 +165,11 @@ bool affected_by_spell(CharData *ch, int type) {
 	return (false);
 }
 
-void affect_join_fspell(CharData *ch, const Affect<EApplyLocation> &af) {
+void affect_join_fspell(CharData *ch, const Affect<EApply> &af) {
 	bool found = false;
 	for (const auto &affect : ch->affected) {
-		const bool same_affect = (af.location == APPLY_NONE) && (affect->bitvector == af.bitvector);
-		const bool same_type = (af.location != APPLY_NONE) && (affect->type == af.type) && (affect->location == af.location);
+		const bool same_affect = (af.location == EApply::kNone) && (affect->bitvector == af.bitvector);
+		const bool same_type = (af.location != EApply::kNone) && (affect->type == af.type) && (affect->location == af.location);
 
 		if (same_affect || same_type) {
 			if (affect->modifier < af.modifier) {
@@ -844,7 +844,7 @@ unsigned int activate_stuff(CharData *ch, ObjData *obj, id_to_set_info_map::cons
 									|| !IS_OBJ_AFF(GET_EQ(ch, pos), i.aff_pos)) {
 									continue;
 								}
-								affect_modify(ch, APPLY_NONE, 0, static_cast<EAffect>(i.aff_bitvector), false);
+								affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(i.aff_bitvector), false);
 							}
 						}
 					}
@@ -1159,7 +1159,7 @@ unsigned int deactivate_stuff(CharData *ch, ObjData *obj, id_to_set_info_map::co
 										|| !IS_OBJ_AFF(GET_EQ(ch, pos), i.aff_pos)) {
 										continue;
 									}
-									affect_modify(ch, APPLY_NONE, 0, static_cast<EAffect>(i.aff_bitvector), false);
+									affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(i.aff_bitvector), false);
 								}
 							}
 
@@ -1187,7 +1187,7 @@ unsigned int deactivate_stuff(CharData *ch, ObjData *obj, id_to_set_info_map::co
 										|| !IS_OBJ_AFF(GET_EQ(ch, pos), i.aff_pos)) {
 										continue;
 									}
-									affect_modify(ch, APPLY_NONE, 0, static_cast<EAffect>(i.aff_bitvector), true);
+									affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(i.aff_bitvector), true);
 								}
 							}
 
@@ -1206,7 +1206,7 @@ unsigned int deactivate_stuff(CharData *ch, ObjData *obj, id_to_set_info_map::co
 								|| !IS_OBJ_AFF(GET_EQ(ch, pos), i.aff_pos)) {
 								continue;
 							}
-							affect_modify(ch, APPLY_NONE, 0, static_cast<EAffect>(i.aff_bitvector), false);
+							affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(i.aff_bitvector), false);
 						}
 					}
 
@@ -1235,7 +1235,7 @@ unsigned int deactivate_stuff(CharData *ch, ObjData *obj, id_to_set_info_map::co
 									!IS_OBJ_AFF(GET_EQ(ch, pos), i.aff_pos)) {
 									continue;
 								}
-								affect_modify(ch, APPLY_NONE, 0, static_cast<EAffect>(i.aff_bitvector), true);
+								affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(i.aff_bitvector), true);
 							}
 						}
 					}
@@ -1259,7 +1259,7 @@ unsigned int deactivate_stuff(CharData *ch, ObjData *obj, id_to_set_info_map::co
 							|| !IS_OBJ_AFF(obj, i.aff_pos)) {
 							continue;
 						}
-						affect_modify(ch, APPLY_NONE, 0, static_cast<EAffect>(i.aff_bitvector), false);
+						affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(i.aff_bitvector), false);
 					}
 				}
 
@@ -1325,7 +1325,7 @@ ObjData *unequip_char(CharData *ch, int pos, const CharEquipFlags& equip_flags) 
 					&& AFF_FLAGGED(&mob_proto[GET_MOB_RNUM(ch)], static_cast<EAffect>(j.aff_bitvector))) {
 					continue;
 				}
-				affect_modify(ch, APPLY_NONE, 0, static_cast<EAffect>(j.aff_bitvector), false);
+				affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(j.aff_bitvector), false);
 			}
 		}
 

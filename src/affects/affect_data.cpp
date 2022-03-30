@@ -100,9 +100,9 @@ int apply_armour(CharData *ch, int eq_pos) {
 // Теперь аффект регенерация новичка держится 3 реморта, с каждыи ремортом все слабее и слабее
 void apply_natural_affects(CharData *ch) {
 	if (GET_REAL_REMORT(ch) <= 3 && !IS_IMMORTAL(ch)) {
-		affect_modify(ch, APPLY_HITREG, 60 - (GET_REAL_REMORT(ch) * 10), EAffect::kNoobRegen, true);
-		affect_modify(ch, APPLY_MOVEREG, 100, EAffect::kNoobRegen, true);
-		affect_modify(ch, APPLY_MANAREG, 100 - (GET_REAL_REMORT(ch) * 20), EAffect::kNoobRegen, true);
+		affect_modify(ch, EApply::kHpRegen, 60 - (GET_REAL_REMORT(ch) * 10), EAffect::kNoobRegen, true);
+		affect_modify(ch, EApply::kMoveRegen, 100, EAffect::kNoobRegen, true);
+		affect_modify(ch, EApply::kMamaRegen, 100 - (GET_REAL_REMORT(ch) * 20), EAffect::kNoobRegen, true);
 	}
 }
 
@@ -120,7 +120,7 @@ std::array<EAffect, 3> char_stealth_aff =
 	};
 
 template<>
-bool Affect<EApplyLocation>::removable() const {
+bool Affect<EApply>::removable() const {
 	return !spell_info[type].name
 		|| *spell_info[type].name == '!'
 		|| type == kSpellSleep
@@ -260,7 +260,7 @@ void battle_affect_update(CharData *ch) {
 		if (!IS_SET(affect->battleflag, kAfBattledec) && !IS_SET(affect->battleflag, kAfSameTime))
 			continue;
 
-		if (ch->is_npc() && affect->location == APPLY_POISON)
+		if (ch->is_npc() && affect->location == EApply::kPoison)
 			continue;
 
 		if (affect->duration >= 1) {
@@ -308,7 +308,7 @@ void mobile_affect_update() {
 
 				if (affect->duration >= 1) {
 					if (IS_SET(affect->battleflag, kAfSameTime)
-						&& (!i->get_fighting() || affect->location == APPLY_POISON)) {
+						&& (!i->get_fighting() || affect->location == EApply::kPoison)) {
 						// здесь плеера могут спуржить
 						if (processPoisonDamage(i.get(), affect) == -1) {
 							was_purged = true;
@@ -476,7 +476,7 @@ void affect_total(CharData *ch) {
 				if (j.aff_bitvector == 0 || !IS_OBJ_AFF(obj, j.aff_pos)) {
 					continue;
 				}
-				affect_modify(ch, APPLY_NONE, 0, static_cast<EAffect>(j.aff_bitvector), true);
+				affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(j.aff_bitvector), true);
 			}
 		}
 	}
@@ -512,19 +512,19 @@ void affect_total(CharData *ch) {
 
 	// Обработка изворотливости (с) Числобог
 	if (can_use_feat(ch, DODGER_FEAT)) {
-		affect_modify(ch, APPLY_SAVING_REFLEX, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), static_cast<EAffect>(0), true);
-		affect_modify(ch, APPLY_SAVING_WILL, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), static_cast<EAffect>(0), true);
-		affect_modify(ch, APPLY_SAVING_STABILITY, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), static_cast<EAffect>(0), true);
-		affect_modify(ch, APPLY_SAVING_CRITICAL, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), static_cast<EAffect>(0), true);
+		affect_modify(ch, EApply::kSavingReflex, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), static_cast<EAffect>(0), true);
+		affect_modify(ch, EApply::kSavingWill, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), static_cast<EAffect>(0), true);
+		affect_modify(ch, EApply::kSavingStability, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), static_cast<EAffect>(0), true);
+		affect_modify(ch, EApply::kSavingCritical, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), static_cast<EAffect>(0), true);
 	}
 
 	// Обработка "выносливости" и "богатырского здоровья
 	// Знаю, что кривовато, придумаете, как лучше - делайте
 	if (!ch->is_npc()) {
 		if (can_use_feat(ch, ENDURANCE_FEAT))
-			affect_modify(ch, APPLY_MOVE, GetRealLevel(ch) * 2, static_cast<EAffect>(0), true);
+			affect_modify(ch, EApply::kMove, GetRealLevel(ch) * 2, static_cast<EAffect>(0), true);
 		if (can_use_feat(ch, SPLENDID_HEALTH_FEAT))
-			affect_modify(ch, APPLY_HIT, GetRealLevel(ch) * 2, static_cast<EAffect>(0), true);
+			affect_modify(ch, EApply::kHp, GetRealLevel(ch) * 2, static_cast<EAffect>(0), true);
 		if (NORENTABLE(ch) == 0 && !domination) // мы не на новой арене и не ПК
 			GloryConst::apply_modifiers(ch);
 		apply_natural_affects(ch);
@@ -539,7 +539,7 @@ void affect_total(CharData *ch) {
 	if (!ch->is_npc()) {
 		if ((int) GET_CLASS(ch) >= 0 && (int) GET_CLASS(ch) < kNumPlayerClasses) {
 			for (auto i : *class_app[(int) GET_CLASS(ch)].extra_affects) {
-				affect_modify(ch, APPLY_NONE, 0, i.affect, i.set_or_clear);
+				affect_modify(ch, EApply::kNone, 0, i.affect, i.set_or_clear);
 			}
 		}
 
@@ -673,7 +673,7 @@ void affect_total(CharData *ch) {
 }
 
 void affect_join(CharData *ch,
-				 Affect<EApplyLocation> &af,
+				 Affect<EApply> &af,
 				 bool add_dur,
 				 bool max_dur,
 				 bool add_mod,
@@ -714,12 +714,12 @@ void affect_join(CharData *ch,
 
 /* Insert an affect_type in a char_data structure
    Automatically sets appropriate bits and apply's */
-void affect_to_char(CharData *ch, const Affect<EApplyLocation> &af) {
+void affect_to_char(CharData *ch, const Affect<EApply> &af) {
 	long was_lgt = AFF_FLAGGED(ch, EAffect::kSingleLight) ? LIGHT_YES : LIGHT_NO;
 	long was_hlgt = AFF_FLAGGED(ch, EAffect::kHolyLight) ? LIGHT_YES : LIGHT_NO;
 	long was_hdrk = AFF_FLAGGED(ch, EAffect::kHolyDark) ? LIGHT_YES : LIGHT_NO;
 
-	Affect<EApplyLocation>::shared_ptr affected_alloc(new Affect<EApplyLocation>(af));
+	Affect<EApply>::shared_ptr affected_alloc(new Affect<EApply>(af));
 
 	ch->affected.push_front(affected_alloc);
 
@@ -739,121 +739,121 @@ void affect_modify(CharData *ch, byte loc, int mod, const EAffect bitv, bool add
 		mod = -mod;
 	}
 	switch (loc) {
-		case APPLY_NONE:break;
-		case APPLY_STR:ch->set_str_add(ch->get_str_add() + mod);
+		case EApply::kNone:break;
+		case EApply::kStr:ch->set_str_add(ch->get_str_add() + mod);
 			break;
-		case APPLY_DEX:ch->set_dex_add(ch->get_dex_add() + mod);
+		case EApply::kDex:ch->set_dex_add(ch->get_dex_add() + mod);
 			break;
-		case APPLY_INT:ch->set_int_add(ch->get_int_add() + mod);
+		case EApply::kInt:ch->set_int_add(ch->get_int_add() + mod);
 			break;
-		case APPLY_WIS:ch->set_wis_add(ch->get_wis_add() + mod);
+		case EApply::kWis:ch->set_wis_add(ch->get_wis_add() + mod);
 			break;
-		case APPLY_CON:ch->set_con_add(ch->get_con_add() + mod);
+		case EApply::kCon:ch->set_con_add(ch->get_con_add() + mod);
 			break;
-		case APPLY_CHA:ch->set_cha_add(ch->get_cha_add() + mod);
+		case EApply::kCha:ch->set_cha_add(ch->get_cha_add() + mod);
 			break;
-		case APPLY_CLASS:
-		case APPLY_LEVEL:break;
-		case APPLY_AGE:GET_AGE_ADD(ch) += mod;
+		case EApply::kClass:
+		case EApply::kLvl:break;
+		case EApply::kAge:GET_AGE_ADD(ch) += mod;
 			break;
-		case APPLY_CHAR_WEIGHT:GET_WEIGHT_ADD(ch) += mod;
+		case EApply::kWeight:GET_WEIGHT_ADD(ch) += mod;
 			break;
-		case APPLY_CHAR_HEIGHT:GET_HEIGHT_ADD(ch) += mod;
+		case EApply::kHeight:GET_HEIGHT_ADD(ch) += mod;
 			break;
-		case APPLY_MANAREG:GET_MANAREG(ch) += mod;
+		case EApply::kMamaRegen:GET_MANAREG(ch) += mod;
 			break;
-		case APPLY_HIT:GET_HIT_ADD(ch) += mod;
+		case EApply::kHp:GET_HIT_ADD(ch) += mod;
 			break;
-		case APPLY_MOVE:GET_MOVE_ADD(ch) += mod;
+		case EApply::kMove:GET_MOVE_ADD(ch) += mod;
 			break;
-		case APPLY_GOLD:
-		case APPLY_EXP:break;
-		case APPLY_AC:GET_AC_ADD(ch) += mod;
+		case EApply::kGold:
+		case EApply::kExp:break;
+		case EApply::kAc:GET_AC_ADD(ch) += mod;
 			break;
-		case APPLY_HITROLL:GET_HR_ADD(ch) += mod;
+		case EApply::kHitroll:GET_HR_ADD(ch) += mod;
 			break;
-		case APPLY_DAMROLL:GET_DR_ADD(ch) += mod;
+		case EApply::kDamroll:GET_DR_ADD(ch) += mod;
 			break;
-		case APPLY_RESIST_FIRE:GET_RESIST(ch, FIRE_RESISTANCE) += mod;
+		case EApply::kResistFire:GET_RESIST(ch, FIRE_RESISTANCE) += mod;
 			break;
-		case APPLY_RESIST_AIR:GET_RESIST(ch, AIR_RESISTANCE) += mod;
+		case EApply::kResistAir:GET_RESIST(ch, AIR_RESISTANCE) += mod;
 			break;
-		case APPLY_RESIST_DARK:GET_RESIST(ch, DARK_RESISTANCE) += mod;
+		case EApply::kResistDark:GET_RESIST(ch, DARK_RESISTANCE) += mod;
 			break;
-		case APPLY_SAVING_WILL:SET_SAVE(ch, ESaving::kWill, GET_SAVE(ch, ESaving::kWill) +  mod);
+		case EApply::kSavingWill:SET_SAVE(ch, ESaving::kWill, GET_SAVE(ch, ESaving::kWill) +  mod);
 			break;
-		case APPLY_SAVING_CRITICAL:SET_SAVE(ch, ESaving::kCritical, GET_SAVE(ch, ESaving::kCritical) +  mod);
+		case EApply::kSavingCritical:SET_SAVE(ch, ESaving::kCritical, GET_SAVE(ch, ESaving::kCritical) +  mod);
 			break;
-		case APPLY_SAVING_STABILITY:SET_SAVE(ch, ESaving::kStability, GET_SAVE(ch, ESaving::kStability) +  mod);
+		case EApply::kSavingStability:SET_SAVE(ch, ESaving::kStability, GET_SAVE(ch, ESaving::kStability) +  mod);
 			break;
-		case APPLY_SAVING_REFLEX:SET_SAVE(ch, ESaving::kReflex, GET_SAVE(ch, ESaving::kReflex) +  mod);
+		case EApply::kSavingReflex:SET_SAVE(ch, ESaving::kReflex, GET_SAVE(ch, ESaving::kReflex) +  mod);
 			break;
-		case APPLY_HITREG:GET_HITREG(ch) += mod;
+		case EApply::kHpRegen:GET_HITREG(ch) += mod;
 			break;
-		case APPLY_MOVEREG:GET_MOVEREG(ch) += mod;
+		case EApply::kMoveRegen:GET_MOVEREG(ch) += mod;
 			break;
-		case APPLY_C1:
-		case APPLY_C2:
-		case APPLY_C3:
-		case APPLY_C4:
-		case APPLY_C5:
-		case APPLY_C6:
-		case APPLY_C7:
-		case APPLY_C8:
-		case APPLY_C9:ch->add_obj_slot(loc - APPLY_C1, mod);
+		case EApply::kFirstCircle:
+		case EApply::kSecondCircle:
+		case EApply::kThirdCircle:
+		case EApply::kFourthCircle:
+		case EApply::kFifthCircle:
+		case EApply::kSixthCircle:
+		case EApply::kSeventhCircle:
+		case EApply::kEighthCircle:
+		case EApply::kNinthCircle:ch->add_obj_slot(loc - EApply::kFirstCircle, mod);
 			break;
-		case APPLY_SIZE:GET_SIZE_ADD(ch) += mod;
+		case EApply::kSize:GET_SIZE_ADD(ch) += mod;
 			break;
-		case APPLY_ARMOUR:GET_ARMOUR(ch) += mod;
+		case EApply::kArmour:GET_ARMOUR(ch) += mod;
 			break;
-		case APPLY_POISON:GET_POISON(ch) += mod;
+		case EApply::kPoison:GET_POISON(ch) += mod;
 			break;
-		case APPLY_CAST_SUCCESS:GET_CAST_SUCCESS(ch) += mod;
+		case EApply::kCastSuccess:GET_CAST_SUCCESS(ch) += mod;
 			break;
-		case APPLY_MORALE:GET_MORALE(ch) += mod;
+		case EApply::kMorale:GET_MORALE(ch) += mod;
 			break;
-		case APPLY_INITIATIVE:GET_INITIATIVE(ch) += mod;
+		case EApply::kInitiative:GET_INITIATIVE(ch) += mod;
 			break;
-		case APPLY_RELIGION:
+		case EApply::kReligion:
 			if (add)
 				GET_PRAY(ch) |= mod;
 			else
 				GET_PRAY(ch) &= mod;
 			break;
-		case APPLY_ABSORBE:GET_ABSORBE(ch) += mod;
+		case EApply::kAbsorbe:GET_ABSORBE(ch) += mod;
 			break;
-		case APPLY_LIKES:GET_LIKES(ch) += mod;
+		case EApply::kLikes:GET_LIKES(ch) += mod;
 			break;
-		case APPLY_RESIST_WATER:GET_RESIST(ch, WATER_RESISTANCE) += mod;
+		case EApply::kResistWater:GET_RESIST(ch, WATER_RESISTANCE) += mod;
 			break;
-		case APPLY_RESIST_EARTH:GET_RESIST(ch, EARTH_RESISTANCE) += mod;
+		case EApply::kResistEarth:GET_RESIST(ch, EARTH_RESISTANCE) += mod;
 			break;
-		case APPLY_RESIST_VITALITY:GET_RESIST(ch, VITALITY_RESISTANCE) += mod;
+		case EApply::kResistVitality:GET_RESIST(ch, VITALITY_RESISTANCE) += mod;
 			break;
-		case APPLY_RESIST_MIND:GET_RESIST(ch, MIND_RESISTANCE) += mod;
+		case EApply::kResistMind:GET_RESIST(ch, MIND_RESISTANCE) += mod;
 			break;
-		case APPLY_RESIST_IMMUNITY:GET_RESIST(ch, IMMUNITY_RESISTANCE) += mod;
+		case EApply::kResistImmunity:GET_RESIST(ch, IMMUNITY_RESISTANCE) += mod;
 			break;
-		case APPLY_AR:GET_AR(ch) += mod;
+		case EApply::kAffectResist:GET_AR(ch) += mod;
 			break;
-		case APPLY_MR:GET_MR(ch) += mod;
+		case EApply::kMagicResist:GET_MR(ch) += mod;
 			break;
-		case APPLY_ACONITUM_POISON:
-		case APPLY_SCOPOLIA_POISON:
-		case APPLY_BELENA_POISON:
-		case APPLY_DATURA_POISON:GET_POISON(ch) += mod;
+		case EApply::kAconitumPoison:
+		case EApply::kScopolaPoison:
+		case EApply::kBelenaPoison:
+		case EApply::kDaturaPoison:GET_POISON(ch) += mod;
 			break;
-		case APPLY_PR:GET_PR(ch) += mod; //скиллрезист
+		case EApply::kPhysicResist:GET_PR(ch) += mod; //скиллрезист
 			break;
-		case APPLY_PERCENT_PHYSDAM:ch->add_abils.percent_physdam_add += mod;
+		case EApply::kPhysicDamagePercent:ch->add_abils.percent_physdam_add += mod;
 			break;
-		case APPLY_PERCENT_MAGDAM:ch->add_abils.percent_magdam_add += mod;
+		case EApply::kMagicDamagePercent:ch->add_abils.percent_magdam_add += mod;
 			break;
-		case APPLY_PERCENT_EXP:ch->add_abils.percent_exp_add += mod;
+		case EApply::kExpPercent:ch->add_abils.percent_exp_add += mod;
 			break;
-		case APPLY_SPELL_BLINK:ch->add_abils.percent_spell_blink += mod;
+		case EApply::kSpelledBlink:ch->add_abils.percent_spell_blink += mod;
 			break;
-		case APPLY_BONUS_SKILLS: {
+		case EApply::kSkillsBonus: {
 			ch->set_skill_bonus(ch->get_skill_bonus() + mod);
 		}
 		default:break;

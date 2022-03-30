@@ -258,7 +258,7 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (MOB_FLAGGED(helpee, EMobFlag::kNoGroup))
 			MOB_FLAGS(helpee).unset(EMobFlag::kNoGroup);
 
-		Affect<EApplyLocation> af;
+		Affect<EApply> af;
 		if (!(k && k->ch == helpee)) {
 			ch->add_follower(helpee);
 			af.duration = CalcDuration(helpee, times * kTimeKoeff, 0, 0, 0, 0);
@@ -289,14 +289,14 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		af.type = kSpellCharm;
 		af.modifier = 0;
-		af.location = APPLY_NONE;
+		af.location = EApply::kNone;
 		af.bitvector = to_underlying(EAffect::kCharmed);
 		af.battleflag = 0;
 		affect_to_char(helpee, af);
 
 		af.type = kSpellCharm;
 		af.modifier = 0;
-		af.location = APPLY_NONE;
+		af.location = EApply::kNone;
 		af.bitvector = to_underlying(EAffect::kHelper);
 		af.battleflag = 0;
 		affect_to_char(helpee, af);

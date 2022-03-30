@@ -46,11 +46,11 @@ void go_strangle(CharData *ch, CharData *vict) {
 		dmg.Process(ch, vict);
 		SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 3);
 	} else {
-		Affect<EApplyLocation> af;
+		Affect<EApply> af;
 		af.type = kSpellStrangle;
 		af.duration = vict->is_npc() ? 8 : 15;
 		af.modifier = 0;
-		af.location = APPLY_NONE;
+		af.location = EApply::kNone;
 		af.battleflag = kAfSameTime;
 		af.bitvector = to_underlying(EAffect::kStrangled);
 		affect_to_char(vict, af);

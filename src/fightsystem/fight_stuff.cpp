@@ -443,9 +443,9 @@ void forget_all_spells(CharData *ch) {
 		ch->real_abils.SplMem[i] = 0;
 	}
 	if (max_slot) {
-		Affect<EApplyLocation> af;
+		Affect<EApply> af;
 		af.type = kSpellRecallSpells;
-		af.location = APPLY_NONE;
+		af.location = EApply::kNone;
 		af.modifier = 1; // номер круга, который восстанавливаем
 		//добавим 1 проход про запас, иначе неуспевает отмемиться последний круг -- аффект спадает раньше
 		af.duration = CalcDuration(ch, max_slot * RECALL_SPELLS_INTERVAL + kSecsPerPlayerAffect, 0, 0, 0, 0);
@@ -875,7 +875,7 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 
 		if (!ch->is_npc() && !ch->affected.empty() && Bonus::can_get_bonus_exp(ch)) {
 			for (const auto &aff : ch->affected) {
-				if (aff->location == APPLY_BONUS_EXP) // скушал свиток с эксп бонусом
+				if (aff->location == EApply::kExpBonus) // скушал свиток с эксп бонусом
 				{
 					exp *= MIN(3, aff->modifier); // бонус макс тройной
 				}

@@ -648,43 +648,43 @@ float count_mort_requred(const CObjectPrototype *obj) {
 				return 1000000;
 			}
 		}
-		if ((obj->get_affected(k).modifier > 0) && ((obj->get_affected(k).location != APPLY_AC) &&
-			(obj->get_affected(k).location != APPLY_SAVING_WILL) &&
-			(obj->get_affected(k).location != APPLY_SAVING_CRITICAL) &&
-			(obj->get_affected(k).location != APPLY_SAVING_STABILITY) &&
-			(obj->get_affected(k).location != APPLY_SAVING_REFLEX))) {
+		if ((obj->get_affected(k).modifier > 0) && ((obj->get_affected(k).location != EApply::kAc) &&
+			(obj->get_affected(k).location != EApply::kSavingWill) &&
+			(obj->get_affected(k).location != EApply::kSavingCritical) &&
+			(obj->get_affected(k).location != EApply::kSavingStability) &&
+			(obj->get_affected(k).location != EApply::kSavingReflex))) {
 			float weight =
 				ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, obj->get_affected(k).modifier);
 			total_weight += pow(weight, SQRT_MOD);
 		}
 			// савесы которые с минусом должны тогда понижать вес если в +
-		else if ((obj->get_affected(k).modifier > 0) && ((obj->get_affected(k).location == APPLY_AC) ||
-			(obj->get_affected(k).location == APPLY_SAVING_WILL) ||
-			(obj->get_affected(k).location == APPLY_SAVING_CRITICAL) ||
-			(obj->get_affected(k).location == APPLY_SAVING_STABILITY) ||
-			(obj->get_affected(k).location == APPLY_SAVING_REFLEX))) {
+		else if ((obj->get_affected(k).modifier > 0) && ((obj->get_affected(k).location == EApply::kAc) ||
+			(obj->get_affected(k).location == EApply::kSavingWill) ||
+			(obj->get_affected(k).location == EApply::kSavingCritical) ||
+			(obj->get_affected(k).location == EApply::kSavingStability) ||
+			(obj->get_affected(k).location == EApply::kSavingReflex))) {
 			float weight =
 				ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, 0 - obj->get_affected(k).modifier);
 			total_weight -= pow(weight, -SQRT_MOD);
 		}
 			//Добавленый кусок учет савесов с - значениями
 		else if ((obj->get_affected(k).modifier < 0)
-			&& ((obj->get_affected(k).location == APPLY_AC) ||
-				(obj->get_affected(k).location == APPLY_SAVING_WILL) ||
-				(obj->get_affected(k).location == APPLY_SAVING_CRITICAL) ||
-				(obj->get_affected(k).location == APPLY_SAVING_STABILITY) ||
-				(obj->get_affected(k).location == APPLY_SAVING_REFLEX))) {
+			&& ((obj->get_affected(k).location == EApply::kAc) ||
+				(obj->get_affected(k).location == EApply::kSavingWill) ||
+				(obj->get_affected(k).location == EApply::kSavingCritical) ||
+				(obj->get_affected(k).location == EApply::kSavingStability) ||
+				(obj->get_affected(k).location == EApply::kSavingReflex))) {
 			float weight =
 				ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, obj->get_affected(k).modifier);
 			total_weight += pow(weight, SQRT_MOD);
 		}
 			//Добавленый кусок учет отрицательного значения но не савесов
 		else if ((obj->get_affected(k).modifier < 0)
-			&& ((obj->get_affected(k).location != APPLY_AC) &&
-				(obj->get_affected(k).location != APPLY_SAVING_WILL) &&
-				(obj->get_affected(k).location != APPLY_SAVING_CRITICAL) &&
-				(obj->get_affected(k).location != APPLY_SAVING_STABILITY) &&
-				(obj->get_affected(k).location != APPLY_SAVING_REFLEX))) {
+			&& ((obj->get_affected(k).location != EApply::kAc) &&
+				(obj->get_affected(k).location != EApply::kSavingWill) &&
+				(obj->get_affected(k).location != EApply::kSavingCritical) &&
+				(obj->get_affected(k).location != EApply::kSavingStability) &&
+				(obj->get_affected(k).location != EApply::kSavingReflex))) {
 			float weight =
 				ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, 0 - obj->get_affected(k).modifier);
 			total_weight -= pow(weight, -SQRT_MOD);
@@ -1659,7 +1659,7 @@ void ObjData::init_set_table() {
 						continue;
 					}
 
-					obj_affected_type tmpafcn(static_cast<EApplyLocation>(tmploc), (sbyte) tmpmodi);
+					obj_affected_type tmpafcn(static_cast<EApply>(tmploc), (sbyte) tmpmodi);
 
 					if (!isstream.eof()) {
 						cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr
@@ -1668,7 +1668,7 @@ void ObjData::init_set_table() {
 						continue;
 					}
 
-					if (tmpafcn.location <= APPLY_NONE || tmpafcn.location >= NUM_APPLIES) {
+					if (tmpafcn.location <= EApply::kNone || tmpafcn.location >= EApply::kNumberApplies) {
 						cppstr = "init_set_table:: Wrong apply location in line '" + tag + ":" + cppstr + "'";
 						mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 						continue;
@@ -3318,7 +3318,7 @@ int vnum_flag(char *searchname, CharData *ch) {
 	if (f) {
 		for (const auto &i : obj_proto) {
 			for (plane = 0; plane < kMaxObjAffect; plane++) {
-				if (i->get_affected(plane).location == static_cast<EApplyLocation>(counter)) {
+				if (i->get_affected(plane).location == static_cast<EApply>(counter)) {
 					snprintf(buf, kMaxStringLength, "%3d. [%5d] %s : %s,  значение: %d\r\n",
 							 ++found, i->get_vnum(),
 							 i->get_short_description().c_str(),

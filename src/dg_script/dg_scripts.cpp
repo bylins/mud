@@ -2797,11 +2797,11 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "apply_value")) {
 			int num;
 			int sum  = 0;
-			for (num = 0; num < NUM_APPLIES; num++) {
+			for (num = 0; num < EApply::kNumberApplies; num++) {
 				if (!str_cmp(subfield, apply_types[num]))
 				break;
 			}
-			if (num == NUM_APPLIES) {
+			if (num == EApply::kNumberApplies) {
 				sprintf(buf, "Не найден апплай '%s' в списке apply_types", subfield);
 				trig_log(trig, buf);
 				return;

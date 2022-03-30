@@ -344,7 +344,7 @@ void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_ty
 
 	if (duration > 0) {
 		// add the affect
-		Affect<EApplyLocation> af;
+		Affect<EApply> af;
 		af.type = index_s;
 
 		af.battleflag = battle;
@@ -354,11 +354,11 @@ void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_ty
 			af.duration = CalcDuration(ch, duration * 2, 0, 0, 0, 0);
 		}
 		if (type == AFFECT_TYPE) {
-			af.location = APPLY_NONE;
+			af.location = EApply::kNone;
 			af.modifier = 0;
 			af.bitvector = index;
 		} else {
-			af.location = static_cast<EApplyLocation>(index);
+			af.location = static_cast<EApply>(index);
 			af.modifier = value;
 			af.bitvector = 0;
 		}

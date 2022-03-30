@@ -113,10 +113,10 @@ CharData *TryToFindProtector(CharData *victim, CharData *ch) {
 				vict->set_protecting(0);
 				vict->BattleAffects.unset(kEafProtect);
 				WAIT_STATE(vict, kPulseViolence);
-				Affect<EApplyLocation> af;
+				Affect<EApply> af;
 				af.type = kSpellBattle;
 				af.bitvector = to_underlying(EAffect::kStopFight);
-				af.location = EApplyLocation::APPLY_NONE;
+				af.location = EApply::kNone;
 				af.modifier = 0;
 				af.duration = CalcDuration(vict, 1, 0, 0, 0, 0);
 				af.battleflag = kAfBattledec | kAfPulsedec;

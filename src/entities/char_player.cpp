@@ -428,7 +428,7 @@ void Player::save_char() {
 			char_eq[i] = nullptr;
 	}
 
-	Affect<EApplyLocation> tmp_aff[kMaxAffect];
+	Affect<EApply> tmp_aff[kMaxAffect];
 	{
 		auto aff_i = affected.begin();
 		for (i = 0; i < kMaxAffect; i++) {
@@ -446,7 +446,7 @@ void Player::save_char() {
 				tmp_aff[i].type = 0;    // Zero signifies not used
 				tmp_aff[i].duration = 0;
 				tmp_aff[i].modifier = 0;
-				tmp_aff[i].location = EApplyLocation::APPLY_NONE;
+				tmp_aff[i].location = EApply::kNone;
 				tmp_aff[i].bitvector = 0;
 			}
 		}
@@ -1274,11 +1274,11 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 						fbgetline(fl, line);
 						sscanf(line, "%d %d %d %d %d %d", &num, &num2, &num3, &num4, &num5, &num6);
 						if (num > 0) {
-							Affect<EApplyLocation> af;
+							Affect<EApply> af;
 							af.type = num;
 							af.duration = num2;
 							af.modifier = num3;
-							af.location = static_cast<EApplyLocation>(num4);
+							af.location = static_cast<EApply>(num4);
 							af.bitvector = num5;
 							af.battleflag = num6;
 							if (af.type == kSpellLucky) {

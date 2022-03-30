@@ -353,11 +353,11 @@ void do_sneak(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	percent = number(1, MUD::Skills()[ESkill::kSneak].difficulty);
 	prob = CalcCurrentSkill(ch, ESkill::kSneak, nullptr);
 
-	Affect<EApplyLocation> af;
+	Affect<EApply> af;
 	af.type = kSpellSneak;
 	af.duration = CalcDuration(ch, 0, GetRealLevel(ch), 8, 0, 1);
 	af.modifier = 0;
-	af.location = APPLY_NONE;
+	af.location = EApply::kNone;
 	af.battleflag = 0;
 	if (percent > prob) {
 		af.bitvector = 0;
@@ -406,11 +406,11 @@ void do_camouflage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 	percent = number(1, MUD::Skills()[ESkill::kDisguise].difficulty);
 	prob = CalcCurrentSkill(ch, ESkill::kDisguise, nullptr);
 
-	Affect<EApplyLocation> af;
+	Affect<EApply> af;
 	af.type = kSpellCamouflage;
 	af.duration = CalcDuration(ch, 0, GetRealLevel(ch), 6, 0, 2);
 	af.modifier = world[ch->in_room]->zone_rn;
-	af.location = APPLY_NONE;
+	af.location = EApply::kNone;
 	af.battleflag = 0;
 
 	if (percent > prob) {
@@ -462,11 +462,11 @@ void do_hide(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	percent = number(1, MUD::Skills()[ESkill::kHide].difficulty);
 	prob = CalcCurrentSkill(ch, ESkill::kHide, nullptr);
 
-	Affect<EApplyLocation> af;
+	Affect<EApply> af;
 	af.type = kSpellHide;
 	af.duration = CalcDuration(ch, 0, GetRealLevel(ch), 8, 0, 1);
 	af.modifier = 0;
-	af.location = APPLY_NONE;
+	af.location = EApply::kNone;
 	af.battleflag = 0;
 
 	if (percent > prob) {
@@ -777,29 +777,29 @@ void do_courage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	timed_to_char(ch, &timed);
 	prob = CalcCurrentSkill(ch, ESkill::kCourage, nullptr) / 20;
 	dur = 1 + MIN(5, ch->get_skill(ESkill::kCourage) / 40);
-	Affect<EApplyLocation> af[4];
+	Affect<EApply> af[4];
 	af[0].type = kSpellCourage;
 	af[0].duration = CalcDuration(ch, dur, 0, 0, 0, 0);
 	af[0].modifier = 40;
-	af[0].location = APPLY_AC;
+	af[0].location = EApply::kAc;
 	af[0].bitvector = to_underlying(EAffect::kNoFlee);
 	af[0].battleflag = 0;
 	af[1].type = kSpellCourage;
 	af[1].duration = CalcDuration(ch, dur, 0, 0, 0, 0);
 	af[1].modifier = MAX(1, prob);
-	af[1].location = APPLY_DAMROLL;
+	af[1].location = EApply::kDamroll;
 	af[1].bitvector = to_underlying(EAffect::kCourage);
 	af[1].battleflag = 0;
 	af[2].type = kSpellCourage;
 	af[2].duration = CalcDuration(ch, dur, 0, 0, 0, 0);
 	af[2].modifier = MAX(1, prob * 7);
-	af[2].location = APPLY_ABSORBE;
+	af[2].location = EApply::kAbsorbe;
 	af[2].bitvector = to_underlying(EAffect::kCourage);
 	af[2].battleflag = 0;
 	af[3].type = kSpellCourage;
 	af[3].duration = CalcDuration(ch, dur, 0, 0, 0, 0);
 	af[3].modifier = 50;
-	af[3].location = APPLY_HITREG;
+	af[3].location = EApply::kHpRegen;
 	af[3].bitvector = to_underlying(EAffect::kCourage);
 	af[3].battleflag = 0;
 
@@ -2309,7 +2309,7 @@ void do_pray(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	for (const auto &i : pray_affect) {
 		if (i.metter == metter) {
-			Affect<EApplyLocation> af;
+			Affect<EApply> af;
 			af.type = kSpellReligion;
 			af.duration = CalcDuration(ch, 12, 0, 0, 0, 0);
 			af.modifier = i.modifier;
@@ -2458,9 +2458,9 @@ void do_bandage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	send_to_char("Вы достали бинты и начали оказывать себе первую помощь...\r\n", ch);
 	act("$n начал$g перевязывать свои раны.&n", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 
-	Affect<EApplyLocation> af;
+	Affect<EApply> af;
 	af.type = kSpellBandage;
-	af.location = APPLY_NONE;
+	af.location = EApply::kNone;
 	af.modifier = GET_OBJ_VAL(bandage, 0);
 	af.duration = CalcDuration(ch, 10, 0, 0, 0, 0);
 	af.bitvector = to_underlying(EAffect::kBandage);
@@ -2468,7 +2468,7 @@ void do_bandage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	affect_join(ch, af, false, false, false, false);
 
 	af.type = kSpellNoBandage;
-	af.location = APPLY_NONE;
+	af.location = EApply::kNone;
 	af.duration = CalcDuration(ch, 60, 0, 0, 0, 0);
 	af.bitvector = to_underlying(EAffect::kCannotBeBandaged);
 	af.battleflag = kAfPulsedec;

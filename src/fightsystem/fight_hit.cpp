@@ -100,23 +100,23 @@ int compute_armor_class(CharData *ch) {
 }
 
 void haemorragia(CharData *ch, int percent) {
-	Affect<EApplyLocation> af[3];
+	Affect<EApply> af[3];
 
 	af[0].type = kSpellHaemorragis;
-	af[0].location = APPLY_HITREG;
+	af[0].location = EApply::kHpRegen;
 	af[0].modifier = -percent;
 	//TODO: Отрицательное время, если тело больше 31?
 	af[0].duration = CalcDuration(ch, number(1, 31 - GET_REAL_CON(ch)), 0, 0, 0, 0);
 	af[0].bitvector = 0;
 	af[0].battleflag = 0;
 	af[1].type = kSpellHaemorragis;
-	af[1].location = APPLY_MOVEREG;
+	af[1].location = EApply::kMoveRegen;
 	af[1].modifier = -percent;
 	af[1].duration = af[0].duration;
 	af[1].bitvector = 0;
 	af[1].battleflag = 0;
 	af[2].type = kSpellHaemorragis;
-	af[2].location = APPLY_MANAREG;
+	af[2].location = EApply::kMamaRegen;
 	af[2].modifier = -percent;
 	af[2].duration = af[0].duration;
 	af[2].bitvector = 0;
@@ -129,13 +129,13 @@ void haemorragia(CharData *ch, int percent) {
 
 void HitData::compute_critical(CharData *ch, CharData *victim) {
 	const char *to_char = nullptr, *to_vict = nullptr;
-	Affect<EApplyLocation> af[4];
+	Affect<EApply> af[4];
 	ObjData *obj;
 	int unequip_pos = 0;
 
 	for (int i = 0; i < 4; i++) {
 		af[i].type = 0;
-		af[i].location = APPLY_NONE;
+		af[i].location = EApply::kNone;
 		af[i].bitvector = 0;
 		af[i].modifier = 0;
 		af[i].battleflag = 0;
@@ -202,7 +202,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					to_char = "сильно замедлило движения $N1";
 					to_vict = "раздробило вам колено";
 					af[0].type = kSpellBattle;
-					af[0].location = APPLY_HITROLL;
+					af[0].location = EApply::kHitroll;
 					af[0].modifier = -2;
 					af[0].bitvector = to_underlying(EAffect::kNoFlee);
 					SET_AF_BATTLE(victim, kEafSlow);
@@ -273,7 +273,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					to_char = "ранило $N3 в живот";
 					to_vict = "ранило вас в живот";
 					af[0].type = kSpellBattle;
-					af[0].location = APPLY_HITROLL;
+					af[0].location = EApply::kHitroll;
 					af[0].modifier = -2;
 					af[0].bitvector = to_underlying(EAffect::kNoFlee);
 					SET_AF_BATTLE(victim, kEafSlow);
@@ -284,7 +284,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					to_char = "ранило $N3 в живот";
 					to_vict = "ранило вас в живот";
 					af[0].type = kSpellBattle;
-					af[0].location = APPLY_HITROLL;
+					af[0].location = EApply::kHitroll;
 					af[0].modifier = -2;
 					af[0].bitvector = to_underlying(EAffect::kNoFlee);
 					haemorragia(victim, 20);
@@ -364,7 +364,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					to_char = "повредило $N2 туловище";
 					to_vict = "повредило вам туловище";
 					af[0].type = kSpellBattle;
-					af[0].location = APPLY_HITROLL;
+					af[0].location = EApply::kHitroll;
 					af[0].modifier = -2;
 					af[0].bitvector = to_underlying(EAffect::kNoFlee);
 					SET_AF_BATTLE(victim, kEafSlow);
@@ -387,7 +387,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					to_char = "заставило $N3 ослабить натиск";
 					to_vict = "сломало вам ребра";
 					af[0].type = kSpellBattle;
-					af[0].location = APPLY_HITROLL;
+					af[0].location = EApply::kHitroll;
 					af[0].modifier = -2;
 					af[1].type = kSpellBattle;
 					af[1].bitvector = to_underlying(EAffect::kNoFlee);
@@ -466,7 +466,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					if (GET_EQ(victim, EEquipPos::kShield))
 						unequip_pos = EEquipPos::kShield;
 					af[0].type = kSpellBattle;
-					af[0].location = APPLY_HITROLL;
+					af[0].location = EApply::kHitroll;
 					af[0].modifier = -2;
 					break;
 				case 7:    // armor damaged, hand damaged if no armour
@@ -574,7 +574,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 						unequip_pos = EEquipPos::kHead;
 					else {
 						af[0].type = kSpellBattle;
-						af[0].location = APPLY_HITROLL;
+						af[0].location = EApply::kHitroll;
 						af[0].modifier = -2;
 					}
 					dam *= (ch->get_skill(ESkill::kPunctual) / 4);
@@ -583,7 +583,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					break;
 				case 6:    // head damaged
 					af[0].type = kSpellBattle;
-					af[0].location = APPLY_HITROLL;
+					af[0].location = EApply::kHitroll;
 					af[0].modifier = -2;
 					dam *= (ch->get_skill(ESkill::kPunctual) / 4);
 					to_char = "повредило $N2 голову";
@@ -593,7 +593,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					WAIT_STATE(victim, 2 * kPulseViolence);
 					alt_equip(victim, EEquipPos::kHead, 100, 100);
 					af[0].type = kSpellBattle;
-					af[0].location = APPLY_HITROLL;
+					af[0].location = EApply::kHitroll;
 					af[0].modifier = -4;
 					af[0].bitvector = to_underlying(EAffect::kNoFlee);
 					to_char = "ранило $N3 в голову";
@@ -621,17 +621,17 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 				case 10:    // head damaged, -1 INT/WIS/CHA
 					dam *= (ch->get_skill(ESkill::kPunctual) / 2);
 					af[0].type = kSpellBattle;
-					af[0].location = APPLY_INT;
+					af[0].location = EApply::kInt;
 					af[0].modifier = -1;
 					af[0].duration = CalcDuration(victim, number(1, 6) * 24, 0, 0, 0, 0);
 					af[0].battleflag = kAfDeadkeep;
 					af[1].type = kSpellBattle;
-					af[1].location = APPLY_WIS;
+					af[1].location = EApply::kWis;
 					af[1].modifier = -1;
 					af[1].duration = CalcDuration(victim, number(1, 6) * 24, 0, 0, 0, 0);
 					af[1].battleflag = kAfDeadkeep;
 					af[2].type = kSpellBattle;
-					af[2].location = APPLY_CHA;
+					af[2].location = EApply::kCha;
 					af[2].modifier = -1;
 					af[2].duration = CalcDuration(victim, number(1, 6) * 24, 0, 0, 0, 0);
 					af[2].battleflag = kAfDeadkeep;
@@ -646,17 +646,17 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 				case 11:    // hits 0, WIS/2, INT/2, CHA/2
 					dam *= ch->get_skill(ESkill::kPunctual) / 2;
 					af[0].type = kSpellBattle;
-					af[0].location = APPLY_INT;
+					af[0].location = EApply::kInt;
 					af[0].modifier = -victim->get_int() / 2;
 					af[0].duration = CalcDuration(victim, number(1, 6) * 24, 0, 0, 0, 0);
 					af[0].battleflag = kAfDeadkeep;
 					af[1].type = kSpellBattle;
-					af[1].location = APPLY_WIS;
+					af[1].location = EApply::kWis;
 					af[1].modifier = -victim->get_wis() / 2;
 					af[1].duration = CalcDuration(victim, number(1, 6) * 24, 0, 0, 0, 0);
 					af[1].battleflag = kAfDeadkeep;
 					af[2].type = kSpellBattle;
-					af[2].location = APPLY_CHA;
+					af[2].location = EApply::kCha;
 					af[2].modifier = -victim->get_cha() / 2;
 					af[2].duration = CalcDuration(victim, number(1, 6) * 24, 0, 0, 0, 0);
 					af[2].battleflag = kAfDeadkeep;
@@ -666,17 +666,17 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					break;
 				default:    // killed
 					af[0].type = kSpellBattle;
-					af[0].location = APPLY_INT;
+					af[0].location = EApply::kInt;
 					af[0].modifier = -victim->get_int() / 2;
 					af[0].duration = CalcDuration(victim, number(1, 6) * 24, 0, 0, 0, 0);
 					af[0].battleflag = kAfDeadkeep;
 					af[1].type = kSpellBattle;
-					af[1].location = APPLY_WIS;
+					af[1].location = EApply::kWis;
 					af[1].modifier = -victim->get_wis() / 2;
 					af[1].duration = CalcDuration(victim, number(1, 6) * 24, 0, 0, 0, 0);
 					af[1].battleflag = kAfDeadkeep;
 					af[2].type = kSpellBattle;
-					af[2].location = APPLY_CHA;
+					af[2].location = EApply::kCha;
 					af[2].modifier = -victim->get_cha() / 2;
 					af[2].duration = CalcDuration(victim, number(1, 6) * 24, 0, 0, 0, 0);
 					af[2].battleflag = kAfDeadkeep;
@@ -2650,10 +2650,10 @@ void HitData::try_mighthit_dam(CharData *ch, CharData *victim) {
 			send_to_char(buf, ch);
 			lag = 1;
 			WAIT_STATE(victim, kPulseViolence);
-			Affect<EApplyLocation> af;
+			Affect<EApply> af;
 			af.type = kSpellBattle;
 			af.bitvector = to_underlying(EAffect::kStopFight);
-			af.location = APPLY_NONE;
+			af.location = EApply::kNone;
 			af.modifier = 0;
 			af.duration = CalcDuration(victim, 1, 0, 0, 0, 0);
 			af.battleflag = kAfBattledec | kAfPulsedec;
@@ -2670,10 +2670,10 @@ void HitData::try_mighthit_dam(CharData *ch, CharData *victim) {
 			lag = 2;
 			dam += (dam / 1);
 			WAIT_STATE(victim, 2 * kPulseViolence);
-			Affect<EApplyLocation> af;
+			Affect<EApply> af;
 			af.type = kSpellBattle;
 			af.bitvector = to_underlying(EAffect::kStopFight);
-			af.location = APPLY_NONE;
+			af.location = EApply::kNone;
 			af.modifier = 0;
 			af.duration = CalcDuration(victim, 2, 0, 0, 0, 0);
 			af.battleflag = kAfBattledec | kAfPulsedec;
@@ -2690,10 +2690,10 @@ void HitData::try_mighthit_dam(CharData *ch, CharData *victim) {
 			lag = 2;
 			dam *= 4;
 			WAIT_STATE(victim, 3 * kPulseViolence);
-			Affect<EApplyLocation> af;
+			Affect<EApply> af;
 			af.type = kSpellBattle;
 			af.bitvector = to_underlying(EAffect::kStopFight);
-			af.location = APPLY_NONE;
+			af.location = EApply::kNone;
 			af.modifier = 0;
 			af.duration = CalcDuration(victim, 3, 0, 0, 0, 0);
 			af.battleflag = kAfBattledec | kAfPulsedec;

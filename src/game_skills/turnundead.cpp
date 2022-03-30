@@ -65,18 +65,18 @@ void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 				false, target, nullptr, ch, kToVict);
 			act("&BЧахлый луч света $N1 лишь привел $n3 в ярость!\r\n&n",
 				false, target, nullptr, ch, kToNotVict | kToArenaListen);
-			Affect<EApplyLocation> af1;
+			Affect<EApply> af1;
 			af1.type = kSpellCourage;
 			af1.duration = CalcDuration(target, 3, 0, 0, 0, 0);
 			af1.modifier = MAX(1, roll.GetSuccessDegree() * 2);
-			af1.location = APPLY_DAMROLL;
+			af1.location = EApply::kDamroll;
 			af1.bitvector = to_underlying(EAffect::kNoFlee);
 			af1.battleflag = 0;
-			Affect<EApplyLocation> af2;
+			Affect<EApply> af2;
 			af2.type = kSpellCourage;
 			af2.duration = CalcDuration(target, 3, 0, 0, 0, 0);
 			af2.modifier = MAX(1, 25 + roll.GetSuccessDegree() * 5);
-			af2.location = APPLY_HITREG;
+			af2.location = EApply::kHpRegen;
 			af2.bitvector = to_underlying(EAffect::kNoFlee);
 			af2.battleflag = 0;
 			affect_join(target, af1, true, false, true, false);

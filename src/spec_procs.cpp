@@ -1900,11 +1900,11 @@ int calculate_weapon_class(CharData *ch, ObjData *weapon) {
 	damage = (GET_OBJ_VAL(weapon, 1) + 1) * (GET_OBJ_VAL(weapon, 2)) / 2;
 	for (i = 0; i < kMaxObjAffect; i++) {
 		auto &affected = weapon->get_affected(i);
-		if (affected.location == APPLY_DAMROLL) {
+		if (affected.location == EApply::kDamroll) {
 			damage += affected.modifier;
 		}
 
-		if (affected.location == APPLY_HITROLL) {
+		if (affected.location == EApply::kHitroll) {
 			hits += affected.modifier * 10;
 		}
 	}

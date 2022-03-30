@@ -487,7 +487,7 @@ void draw_room(CharData *ch, const RoomData *room, int cur_depth, int y, int x) 
 			const RoomData *next_room = world[room->dir_option[i]->to_room()];
 			bool view_dt = false;
 			for (const auto &aff : ch->affected) {
-				if (aff->location == APPLY_VIEW_DT) // скушал свиток с эксп бонусом
+				if (aff->location == EApply::kViewDeathTraps) // скушал свиток с эксп бонусом
 				{
 					view_dt = true;
 				}

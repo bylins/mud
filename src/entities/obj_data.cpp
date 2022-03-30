@@ -18,7 +18,7 @@
 #include <sstream>
 
 extern void get_from_container(CharData *ch, ObjData *cont, char *arg, int mode, int amount, bool autoloot);
-void set_obj_eff(ObjData *itemobj, EApplyLocation type, int mod);
+void set_obj_eff(ObjData *itemobj, EApply type, int mod);
 void set_obj_aff(ObjData *itemobj, EAffect bitv);
 extern void extract_trigger(Trigger *trig);
 
@@ -286,8 +286,8 @@ void CObjectPrototype::set_wear_flag(const EWearFlag flag) {
 
 void CObjectPrototype::clear_all_affected() {
 	for (size_t i = 0; i < kMaxObjAffect; i++) {
-		if (m_affected[i].location != APPLY_NONE) {
-			m_affected[i].location = APPLY_NONE;
+		if (m_affected[i].location != EApply::kNone) {
+			m_affected[i].location = EApply::kNone;
 		}
 	}
 }
@@ -414,13 +414,13 @@ void ObjData::set_enchant(int skill) {
 	int i = 0;
 
 	for (i = 0; i < kMaxObjAffect; i++) {
-		if (get_affected(i).location != APPLY_NONE) {
-			set_affected_location(i, APPLY_NONE);
+		if (get_affected(i).location != EApply::kNone) {
+			set_affected_location(i, EApply::kNone);
 		}
 	}
 
-	set_affected_location(0, APPLY_HITROLL);
-	set_affected_location(1, APPLY_DAMROLL);
+	set_affected_location(0, EApply::kHitroll);
+	set_affected_location(1, EApply::kDamroll);
 
 	if (skill <= 100)
 		// 4 мортов (скил магия света 100)
@@ -476,7 +476,7 @@ void ObjData::set_enchant(int skill, ObjData *obj) {
 	}
 
 	for (int i = 0; i < enchant_count; ++i) {
-		if (obj->get_affected(i).location != APPLY_NONE) {
+		if (obj->get_affected(i).location != EApply::kNone) {
 			set_obj_eff(this, obj->get_affected(i).location, obj->get_affected(i).modifier);
 		}
 	}
@@ -494,10 +494,10 @@ void ObjData::set_enchant(int skill, ObjData *obj) {
 void ObjData::unset_enchant() {
 	int i = 0;
 	for (i = 0; i < kMaxObjAffect; i++) {
-		if (obj_proto.at(get_rnum())->get_affected(i).location != APPLY_NONE) {
+		if (obj_proto.at(get_rnum())->get_affected(i).location != EApply::kNone) {
 			set_affected(i, obj_proto.at(get_rnum())->get_affected(i));
 		} else {
-			set_affected_location(i, APPLY_NONE);
+			set_affected_location(i, EApply::kNone);
 		}
 	}
 	// Возврат эфектов
@@ -820,13 +820,13 @@ void set_obj_aff(ObjData *itemobj, const EAffect bitv) {
 	}
 }
 
-void set_obj_eff(ObjData *itemobj, const EApplyLocation type, int mod) {
+void set_obj_eff(ObjData *itemobj, const EApply type, int mod) {
 	for (auto i = 0; i < kMaxObjAffect; i++) {
 		if (itemobj->get_affected(i).location == type) {
 			const auto current_mod = itemobj->get_affected(i).modifier;
 			itemobj->set_affected(i, type, current_mod + mod);
 			break;
-		} else if (itemobj->get_affected(i).location == APPLY_NONE) {
+		} else if (itemobj->get_affected(i).location == EApply::kNone) {
 			itemobj->set_affected(i, type, mod);
 			break;
 		}
@@ -851,47 +851,47 @@ float count_affect_weight(const CObjectPrototype * /*obj*/, int num, int mod) {
 	float weight = 0;
 
 	switch (num) {
-		case APPLY_STR: weight = mod * 7.5;
+		case EApply::kStr: weight = mod * 7.5;
 			break;
-		case APPLY_DEX: weight = mod * 10.0;
+		case EApply::kDex: weight = mod * 10.0;
 			break;
-		case APPLY_INT: weight = mod * 10.0;
+		case EApply::kInt: weight = mod * 10.0;
 			break;
-		case APPLY_WIS: weight = mod * 10.0;
+		case EApply::kWis: weight = mod * 10.0;
 			break;
-		case APPLY_CON: weight = mod * 10.0;
+		case EApply::kCon: weight = mod * 10.0;
 			break;
-		case APPLY_CHA: weight = mod * 10.0;
+		case EApply::kCha: weight = mod * 10.0;
 			break;
-		case APPLY_HIT: weight = mod * 0.3;
+		case EApply::kHp: weight = mod * 0.3;
 			break;
-		case APPLY_AC: weight = mod * -0.5;
+		case EApply::kAc: weight = mod * -0.5;
 			break;
-		case APPLY_HITROLL: weight = mod * 2.3;
+		case EApply::kHitroll: weight = mod * 2.3;
 			break;
-		case APPLY_DAMROLL: weight = mod * 3.3;
+		case EApply::kDamroll: weight = mod * 3.3;
 			break;
-		case APPLY_SAVING_WILL: weight = mod * -0.5;
+		case EApply::kSavingWill: weight = mod * -0.5;
 			break;
-		case APPLY_SAVING_CRITICAL: weight = mod * -0.5;
+		case EApply::kSavingCritical: weight = mod * -0.5;
 			break;
-		case APPLY_SAVING_STABILITY: weight = mod * -0.5;
+		case EApply::kSavingStability: weight = mod * -0.5;
 			break;
-		case APPLY_SAVING_REFLEX: weight = mod * -0.5;
+		case EApply::kSavingReflex: weight = mod * -0.5;
 			break;
-		case APPLY_CAST_SUCCESS: weight = mod * 1.5;
+		case EApply::kCastSuccess: weight = mod * 1.5;
 			break;
-		case APPLY_MANAREG: weight = mod * 0.2;
+		case EApply::kMamaRegen: weight = mod * 0.2;
 			break;
-		case APPLY_MORALE: weight = mod * 1.0;
+		case EApply::kMorale: weight = mod * 1.0;
 			break;
-		case APPLY_INITIATIVE: weight = mod * 2.0;
+		case EApply::kInitiative: weight = mod * 2.0;
 			break;
-		case APPLY_ABSORBE: weight = mod * 1.0;
+		case EApply::kAbsorbe: weight = mod * 1.0;
 			break;
-		case APPLY_AR: weight = mod * 1.5;
+		case EApply::kAffectResist: weight = mod * 1.5;
 			break;
-		case APPLY_MR: weight = mod * 1.5;
+		case EApply::kMagicResist: weight = mod * 1.5;
 			break;
 	}
 

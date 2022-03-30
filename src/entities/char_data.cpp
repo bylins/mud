@@ -214,20 +214,20 @@ void CharData::set_abstinent() {
 		duration /= 2;
 	}
 
-	Affect<EApplyLocation> af;
+	Affect<EApply> af;
 	af.type = kSpellAbstinent;
 	af.bitvector = to_underlying(EAffect::kAbstinent);
 	af.duration = duration;
 
-	af.location = APPLY_AC;
+	af.location = EApply::kAc;
 	af.modifier = 20;
 	affect_join(this, af, false, false, false, false);
 
-	af.location = APPLY_HITROLL;
+	af.location = EApply::kHitroll;
 	af.modifier = -2;
 	affect_join(this, af, false, false, false, false);
 
-	af.location = APPLY_DAMROLL;
+	af.location = EApply::kDamroll;
 	af.modifier = -2;
 	affect_join(this, af, false, false, false, false);
 }

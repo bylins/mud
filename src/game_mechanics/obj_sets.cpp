@@ -224,7 +224,7 @@ void VerifySet(SetNode &set) {
 			set.enabled = false;
 		}
 		for (auto k = i->second.apply.begin(); k != i->second.apply.end(); ++k) {
-			if (k->location < 0 || k->location >= NUM_APPLIES) {
+			if (k->location < 0 || k->location >= EApply::kNumberApplies) {
 				err_log(
 					"Item set #%zu: incorrect affect apply (loc=%d, mod=%d, activ=%d).",
 					num, k->location, k->modifier, i->first);
@@ -375,7 +375,7 @@ void load() {
 				// заполняются только первые kMaxObjAffect
 				for (auto & i : tmp_activ.apply) {
 					if (i.location <= 0) {
-						i.location = static_cast<EApplyLocation>(parse::ReadAttrAsInt(apply_node, "loc"));
+						i.location = static_cast<EApply>(parse::ReadAttrAsInt(apply_node, "loc"));
 						i.modifier = parse::ReadAttrAsInt(apply_node, "mod");
 						break;
 					}
@@ -517,7 +517,7 @@ void save() {
 			}
 			// set/activ/apply
 			for (auto & m : k.second.apply) {
-				if (m.location > 0 && m.location < NUM_APPLIES && m.modifier) {
+				if (m.location > 0 && m.location < EApply::kNumberApplies && m.modifier) {
 					pugi::xml_node xml_apply = xml_activ.append_child("apply");
 					xml_apply.append_attribute("loc") = m.location;
 					xml_apply.append_attribute("mod") = m.modifier;
@@ -1233,7 +1233,7 @@ void activ_sum::apply_affects(CharData *ch) const {
 	for (const auto &j : weapon_affect) {
 		if (j.aff_bitvector != 0
 			&& affects.get(j.aff_pos)) {
-			affect_modify(ch, APPLY_NONE, 0, static_cast<EAffect>(j.aff_bitvector), true);
+			affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(j.aff_bitvector), true);
 		}
 	}
 	for (auto &&i : apply) {

@@ -103,7 +103,7 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		pkPortal(ch);
 		timed.time = 18 - MIN(GET_REAL_REMORT(ch), 15);
 		WAIT_STATE(ch, 3 * kPulseViolence);
-		Affect<EApplyLocation> af;
+		Affect<EApply> af;
 		af.duration = CalcDuration(ch, 3, 0, 0, 0, 0);
 		af.bitvector = to_underlying(EAffect::kNoTeleport);
 		af.battleflag = kAfPulsedec;

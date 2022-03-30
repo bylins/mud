@@ -302,35 +302,35 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 			} else if (!strcmp(read_line, "Afc0")) {
 				*error = 40;
 				sscanf(buffer, "%d %d", t, t + 1);
-				object->set_affected(0, static_cast<EApplyLocation>(t[0]), t[1]);
+				object->set_affected(0, static_cast<EApply>(t[0]), t[1]);
 			} else if (!strcmp(read_line, "Afc1")) {
 				*error = 41;
 				sscanf(buffer, "%d %d", t, t + 1);
-				object->set_affected(1, static_cast<EApplyLocation>(t[0]), t[1]);
+				object->set_affected(1, static_cast<EApply>(t[0]), t[1]);
 			} else if (!strcmp(read_line, "Afc2")) {
 				*error = 42;
 				sscanf(buffer, "%d %d", t, t + 1);
-				object->set_affected(2, static_cast<EApplyLocation>(t[0]), t[1]);
+				object->set_affected(2, static_cast<EApply>(t[0]), t[1]);
 			} else if (!strcmp(read_line, "Afc3")) {
 				*error = 43;
 				sscanf(buffer, "%d %d", t, t + 1);
-				object->set_affected(3, static_cast<EApplyLocation>(t[0]), t[1]);
+				object->set_affected(3, static_cast<EApply>(t[0]), t[1]);
 			} else if (!strcmp(read_line, "Afc4")) {
 				*error = 44;
 				sscanf(buffer, "%d %d", t, t + 1);
-				object->set_affected(4, static_cast<EApplyLocation>(t[0]), t[1]);
+				object->set_affected(4, static_cast<EApply>(t[0]), t[1]);
 			} else if (!strcmp(read_line, "Afc5")) {
 				*error = 45;
 				sscanf(buffer, "%d %d", t, t + 1);
-				object->set_affected(5, static_cast<EApplyLocation>(t[0]), t[1]);
+				object->set_affected(5, static_cast<EApply>(t[0]), t[1]);
 			} else if (!strcmp(read_line, "Afc6")) {
 				*error = 456;
 				sscanf(buffer, "%d %d", t, t + 1);
-				object->set_affected(6, static_cast<EApplyLocation>(t[0]), t[1]);
+				object->set_affected(6, static_cast<EApply>(t[0]), t[1]);
 			} else if (!strcmp(read_line, "Afc7")) {
 				*error = 457;
 				sscanf(buffer, "%d %d", t, t + 1);
-				object->set_affected(7, static_cast<EApplyLocation>(t[0]), t[1]);
+				object->set_affected(7, static_cast<EApply>(t[0]), t[1]);
 			} else if (!strcmp(read_line, "Edes")) {
 				*error = 46;
 				ExtraDescription::shared_ptr new_descr(new ExtraDescription());
@@ -397,7 +397,7 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 								*error = 53;
 								return object;
 							}
-							tmp_affected.location = static_cast<EApplyLocation>(location);
+							tmp_affected.location = static_cast<EApply>(location);
 							tmp_aff.affected_.push_back(tmp_affected);
 							break;
 						}
@@ -694,7 +694,7 @@ ObjData::shared_ptr read_one_object(char **data, int *error) {
 		if (!get_buf_line(data, buffer)) {
 			*error = 0;
 			for (; j < kMaxObjAffect; j++) {
-				object->set_affected(j, APPLY_NONE, 0);
+				object->set_affected(j, EApply::kNone, 0);
 			}
 
 			if (GET_OBJ_TYPE(object) == ObjData::ITEM_MING) {
@@ -735,7 +735,7 @@ ObjData::shared_ptr read_one_object(char **data, int *error) {
 					return object;
 				}
 				if (sscanf(buffer, " %d %d ", t, t + 1) == 2) {
-					object->set_affected(j, static_cast<EApplyLocation>(t[0]), t[1]);
+					object->set_affected(j, static_cast<EApply>(t[0]), t[1]);
 					j++;
 				}
 				break;

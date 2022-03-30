@@ -804,7 +804,7 @@ void ObjectFile::parse_object(const int nr) {
 					exit(1);
 				}
 
-				tobj->set_affected(j, static_cast<EApplyLocation>(t[0]), t[1]);
+				tobj->set_affected(j, static_cast<EApply>(t[0]), t[1]);
 				++j;
 				break;
 

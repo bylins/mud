@@ -1364,42 +1364,42 @@ float MakeRecept::count_mort_requred(ObjData *obj) {
 				return 1000000;
 			}
 		}
-		if ((obj->get_affected(k).modifier > 0) && ((obj->get_affected(k).location != APPLY_AC) &&
-			(obj->get_affected(k).location != APPLY_SAVING_WILL) &&
-			(obj->get_affected(k).location != APPLY_SAVING_CRITICAL) &&
-			(obj->get_affected(k).location != APPLY_SAVING_STABILITY) &&
-			(obj->get_affected(k).location != APPLY_SAVING_REFLEX))) {
+		if ((obj->get_affected(k).modifier > 0) && ((obj->get_affected(k).location != EApply::kAc) &&
+			(obj->get_affected(k).location != EApply::kSavingWill) &&
+			(obj->get_affected(k).location != EApply::kSavingCritical) &&
+			(obj->get_affected(k).location != EApply::kSavingStability) &&
+			(obj->get_affected(k).location != EApply::kSavingReflex))) {
 			float weight = count_affect_weight(obj->get_affected(k).location, obj->get_affected(k).modifier);
 			log("SYSERROR: negative weight=%f, ObjVnum=%d",
 				weight, GET_OBJ_VNUM(obj));
 			total_weight += pow(weight, SQRT_MOD);
 		}
 			// савесы которые с минусом должны тогда понижать вес если в +
-		else if ((obj->get_affected(k).modifier > 0) && ((obj->get_affected(k).location == APPLY_AC) ||
-			(obj->get_affected(k).location == APPLY_SAVING_WILL) ||
-			(obj->get_affected(k).location == APPLY_SAVING_CRITICAL) ||
-			(obj->get_affected(k).location == APPLY_SAVING_STABILITY) ||
-			(obj->get_affected(k).location == APPLY_SAVING_REFLEX))) {
+		else if ((obj->get_affected(k).modifier > 0) && ((obj->get_affected(k).location == EApply::kAc) ||
+			(obj->get_affected(k).location == EApply::kSavingWill) ||
+			(obj->get_affected(k).location == EApply::kSavingCritical) ||
+			(obj->get_affected(k).location == EApply::kSavingStability) ||
+			(obj->get_affected(k).location == EApply::kSavingReflex))) {
 			float weight = count_affect_weight(obj->get_affected(k).location, 0 - obj->get_affected(k).modifier);
 			total_weight -= pow(weight, -SQRT_MOD);
 		}
 			//Добавленый кусок учет савесов с - значениями
 		else if ((obj->get_affected(k).modifier < 0)
-			&& ((obj->get_affected(k).location == APPLY_AC) ||
-				(obj->get_affected(k).location == APPLY_SAVING_WILL) ||
-				(obj->get_affected(k).location == APPLY_SAVING_CRITICAL) ||
-				(obj->get_affected(k).location == APPLY_SAVING_STABILITY) ||
-				(obj->get_affected(k).location == APPLY_SAVING_REFLEX))) {
+			&& ((obj->get_affected(k).location == EApply::kAc) ||
+				(obj->get_affected(k).location == EApply::kSavingWill) ||
+				(obj->get_affected(k).location == EApply::kSavingCritical) ||
+				(obj->get_affected(k).location == EApply::kSavingStability) ||
+				(obj->get_affected(k).location == EApply::kSavingReflex))) {
 			float weight = count_affect_weight(obj->get_affected(k).location, obj->get_affected(k).modifier);
 			total_weight += pow(weight, SQRT_MOD);
 		}
 			//Добавленый кусок учет отрицательного значения но не савесов
 		else if ((obj->get_affected(k).modifier < 0)
-			&& ((obj->get_affected(k).location != APPLY_AC) &&
-				(obj->get_affected(k).location != APPLY_SAVING_WILL) &&
-				(obj->get_affected(k).location != APPLY_SAVING_CRITICAL) &&
-				(obj->get_affected(k).location != APPLY_SAVING_STABILITY) &&
-				(obj->get_affected(k).location != APPLY_SAVING_REFLEX))) {
+			&& ((obj->get_affected(k).location != EApply::kAc) &&
+				(obj->get_affected(k).location != EApply::kSavingWill) &&
+				(obj->get_affected(k).location != EApply::kSavingCritical) &&
+				(obj->get_affected(k).location != EApply::kSavingStability) &&
+				(obj->get_affected(k).location != EApply::kSavingReflex))) {
 			float weight = count_affect_weight(obj->get_affected(k).location, 0 - obj->get_affected(k).modifier);
 			total_weight -= pow(weight, -SQRT_MOD);
 		}
@@ -1431,47 +1431,47 @@ float MakeRecept::count_affect_weight(int num, int mod) {
 	float weight = 0;
 
 	switch (num) {
-		case APPLY_STR: weight = mod * 7.5;
+		case EApply::kStr: weight = mod * 7.5;
 			break;
-		case APPLY_DEX: weight = mod * 10.0;
+		case EApply::kDex: weight = mod * 10.0;
 			break;
-		case APPLY_INT: weight = mod * 10.0;
+		case EApply::kInt: weight = mod * 10.0;
 			break;
-		case APPLY_WIS: weight = mod * 10.0;
+		case EApply::kWis: weight = mod * 10.0;
 			break;
-		case APPLY_CON: weight = mod * 10.0;
+		case EApply::kCon: weight = mod * 10.0;
 			break;
-		case APPLY_CHA: weight = mod * 10.0;
+		case EApply::kCha: weight = mod * 10.0;
 			break;
-		case APPLY_HIT: weight = mod * 0.3;
+		case EApply::kHp: weight = mod * 0.3;
 			break;
-		case APPLY_AC: weight = mod * -0.5;
+		case EApply::kAc: weight = mod * -0.5;
 			break;
-		case APPLY_HITROLL: weight = mod * 2.3;
+		case EApply::kHitroll: weight = mod * 2.3;
 			break;
-		case APPLY_DAMROLL: weight = mod * 3.3;
+		case EApply::kDamroll: weight = mod * 3.3;
 			break;
-		case APPLY_SAVING_WILL: weight = mod * -0.5;
+		case EApply::kSavingWill: weight = mod * -0.5;
 			break;
-		case APPLY_SAVING_CRITICAL: weight = mod * -0.5;
+		case EApply::kSavingCritical: weight = mod * -0.5;
 			break;
-		case APPLY_SAVING_STABILITY: weight = mod * -0.5;
+		case EApply::kSavingStability: weight = mod * -0.5;
 			break;
-		case APPLY_SAVING_REFLEX: weight = mod * -0.5;
+		case EApply::kSavingReflex: weight = mod * -0.5;
 			break;
-		case APPLY_CAST_SUCCESS: weight = mod * 1.5;
+		case EApply::kCastSuccess: weight = mod * 1.5;
 			break;
-		case APPLY_MANAREG: weight = mod * 0.2;
+		case EApply::kMamaRegen: weight = mod * 0.2;
 			break;
-		case APPLY_MORALE: weight = mod * 1.0;
+		case EApply::kMorale: weight = mod * 1.0;
 			break;
-		case APPLY_INITIATIVE: weight = mod * 2.0;
+		case EApply::kInitiative: weight = mod * 2.0;
 			break;
-		case APPLY_ABSORBE: weight = mod * 1.0;
+		case EApply::kAbsorbe: weight = mod * 1.0;
 			break;
-		case APPLY_AR: weight = mod * 1.5;
+		case EApply::kAffectResist: weight = mod * 1.5;
 			break;
-		case APPLY_MR: weight = mod * 1.5;
+		case EApply::kMagicResist: weight = mod * 1.5;
 			break;
 	}
 
@@ -1531,7 +1531,7 @@ void MakeRecept::make_object(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_PART
 		int i, raffect = 0;
 		for (i = 0; i < kMaxObjAffect; i++) // посмотрим скока аффектов
 		{
-			if (ingrs[j]->get_affected(i).location == APPLY_NONE) {
+			if (ingrs[j]->get_affected(i).location == EApply::kNone) {
 				break;
 			}
 		}
@@ -1548,7 +1548,7 @@ void MakeRecept::make_object(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_PART
 					}
 					break;
 				}
-				if (obj->get_affected(i).location == APPLY_NONE) // добавляем афф на свободное место
+				if (obj->get_affected(i).location == EApply::kNone) // добавляем афф на свободное место
 				{
 					if (number(1, 100) > GET_OBJ_VAL(ingrs[j], 2)) // проверим фейл на силу ингра
 					{
@@ -2193,10 +2193,10 @@ int MakeRecept::add_affects(CharData *ch,
 	int i, j;
 	for (i = 0; i < kMaxObjAffect; i++) {
 		found = false;
-		if (add[i].location == APPLY_NONE)
+		if (add[i].location == EApply::kNone)
 			continue;
 		for (j = 0; j < kMaxObjAffect; j++) {
-			if (base[j].location == APPLY_NONE)
+			if (base[j].location == EApply::kNone)
 				continue;
 			if (add[i].location == base[j].location) {
 				// Аффекты совпали.
@@ -2210,7 +2210,7 @@ int MakeRecept::add_affects(CharData *ch,
 		if (!found) {
 			// Ищем первый свободный аффект и втыкаем туда новый.
 			for (int j = 0; j < kMaxObjAffect; j++) {
-				if (base[j].location == APPLY_NONE) {
+				if (base[j].location == EApply::kNone) {
 					if (number(0, 100) > delta)
 						break;
 					base[j].location = add[i].location;

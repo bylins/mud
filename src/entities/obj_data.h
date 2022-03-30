@@ -24,7 +24,7 @@
 
 std::string print_obj_affects(const obj_affected_type &affect);
 void print_obj_affects(CharData *ch, const obj_affected_type &affect);
-void set_obj_eff(ObjData *itemobj, EApplyLocation type, int mod);
+void set_obj_eff(ObjData *itemobj, EApply type, int mod);
 void set_obj_aff(ObjData *itemobj, EAffect bitv);
 
 /// Чуть более гибкий, но не менее упоротый аналог GET_OBJ_VAL полей
@@ -300,7 +300,7 @@ class CObjectPrototype {
 	void add_val(const size_t index, const int amount) { m_vals[index] += amount; }
 	void add_weight(const int _) { m_weight += _; }
 	void clear_action_description() { m_action_description.clear(); }
-	void clear_affected(const size_t index) { m_affected[index].location = APPLY_NONE; }
+	void clear_affected(const size_t index) { m_affected[index].location = EApply::kNone; }
 	void clear_all_affected();
 	void clear_proto_script();
 	void dec_affected_value(const size_t index) { --m_affected[index].modifier; }
@@ -322,9 +322,9 @@ class CObjectPrototype {
 	void set_action_description(const std::string &_) { m_action_description = _; }
 	void set_affect_flag(const EWeaponAffect packed_flag) { m_waffect_flags.set(packed_flag); }
 	void set_affect_flags(const FlagData &flags) { m_waffect_flags = flags; }
-	void set_affected(const size_t index, const EApplyLocation location, const int modifier);
+	void set_affected(const size_t index, const EApply location, const int modifier);
 	void set_affected(const size_t index, const obj_affected_type &affect) { m_affected[index] = affect; }
-	void set_affected_location(const size_t index, const EApplyLocation _) { m_affected[index].location = _; }
+	void set_affected_location(const size_t index, const EApply _) { m_affected[index].location = _; }
 	void set_affected_modifier(const size_t index, const int _) { m_affected[index].modifier = _; }
 	void set_aliases(const std::string &_) { m_aliases = _; }
 	void set_all_affected(const affected_t &_) { m_affected = _; }
@@ -879,7 +879,7 @@ const std::string &NAME_BY_ITEM<ObjData::EObjectMaterial>(const ObjData::EObject
 template<>
 ObjData::EObjectMaterial ITEM_BY_NAME<ObjData::EObjectMaterial>(const std::string &name);
 
-inline void CObjectPrototype::set_affected(const size_t index, const EApplyLocation location, const int modifier) {
+inline void CObjectPrototype::set_affected(const size_t index, const EApply location, const int modifier) {
 	m_affected[index].location = location;
 	m_affected[index].modifier = modifier;
 }
