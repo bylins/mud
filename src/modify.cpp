@@ -872,7 +872,7 @@ void do_featset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			table << GetFeatName(feat);
 			if (table.cur_col() % 3 == 0) {
-				table << fort::endr;
+				table << table_wrapper::kEndRow;
 			}
 		}
 		table_wrapper::DecorateNoBorderTable(ch, table);

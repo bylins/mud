@@ -1836,7 +1836,7 @@ void do_mode(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		for (i = 0; *gen_tog_type[i << 1] != '\n'; i++) {
 			if ((GetRealLevel(ch) >= gen_tog_param[i].level)
 				&& (GET_GOD_FLAG(ch, EGf::kAllowTesterMode) || !gen_tog_param[i].tester)) {
-				table << gen_tog_type[i << 1] << gen_tog_type[(i << 1) + 1] << fort::endr;
+				table << gen_tog_type[i << 1] << gen_tog_type[(i << 1) + 1] << table_wrapper::kEndRow;
 			}
 		}
 		table_wrapper::DecorateNoBorderTable(ch, table);

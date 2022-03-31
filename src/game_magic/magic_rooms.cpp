@@ -71,12 +71,13 @@ void ShowAffectedRooms(CharData *ch) {
 	out << " Список комнат под аффектами:" << std::endl;
 
 	table_wrapper::Table table;
-	table << fort::header << "#" << "Vnum" << "Spell" << "Caster name" << "Time (s)" << fort::endr;
+	table << table_wrapper::kHeader <<
+		"#" << "Vnum" << "Spell" << "Caster name" << "Time (s)" << table_wrapper::kEndRow;
 	int count = 1;
 	for (const auto r : affected_rooms) {
 		for (const auto &af : r->affected) {
 			table << count << r->room_vn << spell_info[af->type].name
-				<< get_name_by_id(af->caster_id) << af->duration * 2 << fort::endr;
+				<< get_name_by_id(af->caster_id) << af->duration * 2 << table_wrapper::kEndRow;
 			++count;
 		}
 	}

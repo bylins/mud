@@ -4546,8 +4546,8 @@ void Clan::HouseStat(CharData *ch, std::string &buffer) {
 	}
 
 	table_wrapper::Table table;
-	table << fort::header << "Имя" << "Ур" << "Прв" << "Класс" << "Рейт. очков"
-		  << "Опыта дружины" << "Внесено кун" << "Был в игре" << fort::endr;
+	table << table_wrapper::kHeader << "Имя" << "Ур" << "Прв" << "Класс" << "Рейт. очков"
+		  << "Опыта дружины" << "Внесено кун" << "Был в игре" << table_wrapper::kEndRow;
 	std::string lvl_str;
 	for (auto it = temp_list.rbegin(); it != temp_list.rend(); ++it) {
 		table << it->second.second->name;
@@ -4559,13 +4559,13 @@ void Clan::HouseStat(CharData *ch, std::string &buffer) {
 			<< PrintNumberByDigits(it->second.second->exp)
 			<< PrintNumberByDigits(it->second.second->clan_exp)
 			<< PrintNumberByDigits(it->second.second->money)
-			<< it->second.first << fort::endr;
+			<< it->second.first << table_wrapper::kEndRow;
 	}
-	table.column(4).set_cell_text_align(fort::text_align::right);
-	table.column(5).set_cell_text_align(fort::text_align::right);
-	table.column(6).set_cell_text_align(fort::text_align::right);
+	table.SetColumnAlign(4, table_wrapper::align::kRight);
+	table.SetColumnAlign(5, table_wrapper::align::kRight);
+	table.SetColumnAlign(6, table_wrapper::align::kRight);
 
-	table_wrapper::DecorateZebraTextTable(ch, table, table_wrapper::kGreen);
+	table_wrapper::DecorateZebraTextTable(ch, table, table_wrapper::color::kGreen);
 	table_wrapper::PrintTableToStream(out, table);
 
 	page_string(ch->desc, out.str());

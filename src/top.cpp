@@ -71,7 +71,7 @@ void TopPlayer::PrintPlayersChart(CharData *ch) {
 			<< it.second.begin()->name_
 			<< it.second.begin()->remort_
 			<< GetDeclensionInNumber(it.second.begin()->remort_, EWhat::kRemort)
-			<< MUD::Classes()[it.first].GetName() << fort::endr;
+			<< MUD::Classes()[it.first].GetName() << table_wrapper::kEndRow;
 	}
 	table_wrapper::DecorateNoBorderTable(ch, table);
 	table_wrapper::PrintTableToChar(ch, table);
@@ -86,7 +86,7 @@ void TopPlayer::PrintClassChart(CharData *ch, ECharClass id) {
 		table
 			<< it.name_
 			<< it.remort_
-			<< GetDeclensionInNumber(it.remort_, EWhat::kRemort) << fort::endr;
+			<< GetDeclensionInNumber(it.remort_, EWhat::kRemort) << table_wrapper::kEndRow;
 
 		if (table.row_count() >= kPlayerChartSize) {
 			break;
@@ -118,7 +118,7 @@ void TopPlayer::PrintHelp(CharData *ch) {
 		if (it.IsAvailable()) {
 			table << it.GetPluralName();
 			if (count % columns_num == 0) {
-				table << fort::endr;
+				table << table_wrapper::kEndRow;
 			}
 			++count;
 		}
@@ -126,7 +126,7 @@ void TopPlayer::PrintHelp(CharData *ch) {
 	for (const auto &str: {"игроки", "прославленные"}) {
 		table << str;
 		if (count % columns_num == 0) {
-			table << fort::endr;
+			table << table_wrapper::kEndRow;
 		}
 		++count;
 	}

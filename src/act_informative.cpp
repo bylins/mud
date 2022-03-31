@@ -2715,7 +2715,7 @@ void PrintMyStat(CharData *ch) {
 	std::size_t row{0};
 	std::size_t col{0};
 
-	table << fort::header;
+	table << table_wrapper::kHeader;
 	table[row][col]	= "Статистика ваших смертей\r\n(количество, потерянного опыта)";
 	table[row][++col]	= "Текущее\r\nперевоплощение:";
 	table[row][++col]	= "\r\nВсего:";
@@ -2748,7 +2748,7 @@ void PrintMyStat(CharData *ch) {
 	table[row][++col] = std::to_string(GET_RIP_MOB(ch) + GET_RIP_PK(ch) + GET_RIP_DT(ch) + GET_RIP_OTHER(ch))
 		+ " (" + PrintNumberByDigits(GET_EXP_MOB(ch) + GET_EXP_PK(ch) + GET_EXP_DT(ch) + GET_EXP_OTHER(ch)
 		+ GET_EXP_ARENA(ch)) +")";
-	table << fort::endr << fort::separator << fort::endr;
+	table << table_wrapper::kEndRow << table_wrapper::kSeparator << table_wrapper::kEndRow;
 
 	col = 0;
 	table[++row][col] = "На арене:";
@@ -2759,14 +2759,14 @@ void PrintMyStat(CharData *ch) {
 	table[++row][col] = "Убито игроков: " + std::to_string(GET_WIN_ARENA(ch));
 	table[row][++col] = "Смертей: " + std::to_string(GET_RIP_ARENA(ch));
 	table[row][++col] = "Потеряно опыта: " + std::to_string(GET_EXP_ARENA(ch));
-	table << fort::endr << fort::separator << fort::endr;
+	table << table_wrapper::kEndRow << table_wrapper::kSeparator << table_wrapper::kEndRow;
 
 	col = 0;
 	table[++row][col] = "Арена доминирования:";
 	table[row][++col] = "Убито: " + std::to_string(ch->player_specials->saved.kill_arena_dom);
 	table[row][++col] = "Смерти: " + std::to_string(ch->player_specials->saved.rip_arena_dom);
 
-	table_wrapper::DecorateZebraTextTable(ch, table, table_wrapper::kLightCyan);
+	table_wrapper::DecorateZebraTextTable(ch, table, table_wrapper::color::kLightCyan);
 	table_wrapper::PrintTableToChar(ch, table);
 }
 

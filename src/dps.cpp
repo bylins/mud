@@ -191,15 +191,16 @@ void Dps::PrintStats(CharData *ch, CharData *coder) {
 void Dps::PrintPersonalDpsStat(CharData *ch, std::ostringstream &out) {
 	out << " Персональная статистика урона:" << std::endl;
 	table_wrapper::Table table;
-	table << fort::header << "Имя" << "Урон" << "В раунд" << "Макс." << "Лишний урон" << fort::endr;
+	table << table_wrapper::kHeader	<<
+		"Имя" << "Урон" << "В раунд" << "Макс." << "Лишний урон" << table_wrapper::kEndRow;
 	table << ch->get_name()
 		  << pers_dps_.get_dmg()
 		  << pers_dps_.get_stat()
 		  << pers_dps_.get_round_dmg()
-		  << pers_dps_.get_over_dmg() << fort::endr;
+		  << pers_dps_.get_over_dmg() << table_wrapper::kEndRow;
 	pers_dps_.print_charm_stats(table);
 
-	table_wrapper::DecorateZebraTable(ch, table, table_wrapper::kBlue);
+	table_wrapper::DecorateZebraTable(ch, table, table_wrapper::color::kBlue);
 	table_wrapper::PrintTableToStream(out, table);
 }
 
@@ -251,7 +252,8 @@ void Dps::PrintGroupStats(CharData *ch, CharData *coder) {
 	out << " Статистика урона вашей группы:" << std::endl;
 
 	table_wrapper::Table table;
-	table << fort::header << "Имя" << "Урон" << "(%)" << "В раунд" << "Макс." << "Лишний урон" << fort::endr;
+	table << table_wrapper::kHeader <<
+		"Имя" << "Урон" << "(%)" << "В раунд" << "Макс." << "Лишний урон" << table_wrapper::kEndRow;
 	for (auto it = tmp_group_list.rbegin(); it != tmp_group_list.rend(); ++it) {
 		double percent = tmp_total_dmg ? it->first * 100.0 / tmp_total_dmg : 0.0;
 		table << it->second.name
@@ -259,11 +261,11 @@ void Dps::PrintGroupStats(CharData *ch, CharData *coder) {
 			<< std::setprecision(2) << percent
 			<< it->second.dps
 			<< it->second.round_dmg
-			<< it->second.over_dmg << fort::endr;
+			<< it->second.over_dmg << table_wrapper::kEndRow;
 	}
 	tmp_group_list.clear();
 
-	table_wrapper::DecorateZebraTable(ch, table, table_wrapper::kBlue);
+	table_wrapper::DecorateZebraTable(ch, table, table_wrapper::color::kBlue);
 	out << table.to_string() << std::endl;
 	send_to_char(out.str(), coder);
 }
@@ -387,7 +389,7 @@ void PlayerDpsNode::print_charm_stats(table_wrapper::Table &table) const {
 				<< it.get_dmg()
 				<< it.get_stat()
 				<< it.get_round_dmg()
-				<< it.get_over_dmg() << fort::endr;
+				<< it.get_over_dmg() << table_wrapper::kEndRow;
 		}
 	}
 }
