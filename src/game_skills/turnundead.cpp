@@ -25,7 +25,7 @@ void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 	int skill = ch->get_skill(ESkill::kTurnUndead);
 	TimedSkill timed;
 	timed.skill = ESkill::kTurnUndead;
-	if (can_use_feat(ch, EXORCIST_FEAT)) {
+	if (IsAbleToUseFeat(ch, EFeat::kExorcist)) {
 		timed.time = IsTimedBySkill(ch, ESkill::kTurnUndead) + kHoursPerTurnUndead - 2;
 		skill += 10;
 	} else {
@@ -51,7 +51,7 @@ void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 	ActionTargeting::FoesRosterType roster{ch, [](CharData *, CharData *target) { return IS_UNDEAD(target); }};
 	for (const auto target : roster) {
 		damage.dam = fight::kZeroDmg;
-		roll.Init(ch, TURN_UNDEAD_FEAT, target);
+		roll.Init(ch, EFeat::kUndeadsTurn, target);
 		if (roll.IsSuccess()) {
 			if (roll.IsCriticalSuccess() && GetRealLevel(ch) > target->get_level() + RollDices(1, 5)) {
 				send_to_char(ch, "&GВы окончательно изгнали %s из мира!&n\r\n", GET_PAD(target, 3));

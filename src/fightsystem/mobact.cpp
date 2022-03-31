@@ -261,9 +261,9 @@ CharData *selectVictimDependingOnGroupFormation(CharData *assaulter, CharData *i
 	}
 
 	AbilitySystem::AgainstRivalRoll abilityRoll;
-	abilityRoll.Init(leader, TACTICIAN_FEAT, assaulter);
+	abilityRoll.Init(leader, EFeat::kTactician, assaulter);
 	bool tacticianFail = !abilityRoll.IsSuccess();
-	abilityRoll.Init(newVictim, SKIRMISHER_FEAT, assaulter);
+	abilityRoll.Init(newVictim, EFeat::kScirmisher, assaulter);
 	if (tacticianFail || !abilityRoll.IsSuccess()) {
 		return initialVictim;
 	}
@@ -347,7 +347,7 @@ CharData *find_best_stupidmob_victim(CharData *ch, int extmode) {
 
 		// Mobile aggresive
 		if (!kill_this && extra_aggr) {
-			if (can_use_feat(vict, SILVER_TONGUED_FEAT)) {
+			if (IsAbleToUseFeat(vict, EFeat::kSilverTongue)) {
 				const int number1 = number(1, GetRealLevel(vict) * GET_REAL_CHA(vict));
 				const int range = ((GetRealLevel(ch) > 30)
 								   ? (GetRealLevel(ch) * 2 * GET_REAL_INT(ch) + GET_REAL_INT(ch) * 20)
@@ -517,7 +517,7 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 			continue;
 
 		if (!kill_this && extra_aggr) {
-			if (can_use_feat(vict, SILVER_TONGUED_FEAT)
+			if (IsAbleToUseFeat(vict, EFeat::kSilverTongue)
 				&& number(1, GetRealLevel(vict) * GET_REAL_CHA(vict)) > number(1, GetRealLevel(ch) * GET_REAL_INT(ch))) {
 				continue;
 			}

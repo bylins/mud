@@ -1743,7 +1743,7 @@ char *make_prompt(DescriptorData *d) {
 				count += sprintf(prompt + count, "Кл:%d ", wc_count);
 			}
 			if (d->character->get_skill(ESkill::kTurnUndead)) {
-				if (can_use_feat(d->character.get(), EXORCIST_FEAT)) {
+				if (IsAbleToUseFeat(d->character.get(), EFeat::kExorcist)) {
 					count += sprintf(prompt + count,
 									 "Из:%d ",
 									 (kHoursPerDay - IsTimedBySkill(d->character.get(), ESkill::kTurnUndead))
@@ -1760,12 +1760,12 @@ char *make_prompt(DescriptorData *d) {
 			if (d->character->get_skill(ESkill::kStun))
 				count += sprintf(prompt + count, "Ош:%d ", IsTimedBySkill(d->character.get(), ESkill::kStun));
 
-			if (HAVE_FEAT(d->character, RELOCATE_FEAT))
-				count += sprintf(prompt + count, "Пр:%d ", IsTimed(d->character.get(), RELOCATE_FEAT));
-			if (HAVE_FEAT(d->character, SPELL_CAPABLE_FEAT))
-				count += sprintf(prompt + count, "Зч:%d ", IsTimed(d->character.get(), SPELL_CAPABLE_FEAT));
-			if (HAVE_FEAT(d->character, SHADOW_THROW_FEAT))
-				count += sprintf(prompt + count, "Зо:%d ", IsTimed(d->character.get(), SHADOW_THROW_FEAT));
+			if (HAVE_FEAT(d->character, EFeat::kRelocate))
+				count += sprintf(prompt + count, "Пр:%d ", IsTimed(d->character.get(), EFeat::kRelocate));
+			if (HAVE_FEAT(d->character, EFeat::kSpellCapabler))
+				count += sprintf(prompt + count, "Зч:%d ", IsTimed(d->character.get(), EFeat::kSpellCapabler));
+			if (HAVE_FEAT(d->character, EFeat::kShadowThrower))
+				count += sprintf(prompt + count, "Зо:%d ", IsTimed(d->character.get(), EFeat::kShadowThrower));
 		}
 
 		if (!d->character->get_fighting()

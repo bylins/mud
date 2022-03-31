@@ -33,7 +33,7 @@ int CalcRequiredLevel(const CharData *ch, int spellnum) {
 
 	if (required_level >= kLvlGod)
 		return required_level;
-	if (can_use_feat(ch, SECRET_RUNES_FEAT)) {
+	if (IsAbleToUseFeat(ch, EFeat::kSecretRunes)) {
 		int remort = GET_REAL_REMORT(ch);
 		required_level -= MIN(8, MAX(0, ((remort - 8) / 3) * 2 + (remort > 7 && remort < 11 ? 1 : 0)));
 	}
@@ -680,7 +680,7 @@ int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, int spellnum
 			break;
 	}
 
-	if (equip_in_metall(ch) && !can_use_feat(ch, COMBAT_CASTING_FEAT)) {
+	if (equip_in_metall(ch) && !IsAbleToUseFeat(ch, EFeat::kCombatCasting)) {
 		prob -= 50;
 	}
 

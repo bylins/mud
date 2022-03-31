@@ -17,7 +17,7 @@
 #include "obj_prototypes.h"
 #include "game_skills/townportal.h"
 #include "game_magic/magic_utils.h"
-#include "entities/zone.h"
+//#include "entities/zone.h"
 #include "structs/global_objects.h"
 
 extern const char *dirs[];
@@ -560,10 +560,10 @@ void do_wat(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_wfeatturn(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
-	int isFeat = 0;
+	bool isFeat = false;
 	CharData *ch;
 	char name[kMaxInputLength], featname[kMaxInputLength], amount[kMaxInputLength], *pos;
-	int featnum = 0, featdiff = 0;
+	int featdiff = 0;
 
 	one_argument(two_arguments(argument, name, featname), amount);
 
@@ -579,8 +579,9 @@ void do_wfeatturn(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 		*pos = ' ';
 	}
 
-	if ((featnum = FindFeatNum(featname)) > 0 && featnum < kMaxFeats) {
-		isFeat = 1;
+	const auto featnum = FindFeatNum(featname);
+	if (featnum >= EFeat::kFirstFeat && featnum <= EFeat::kLastFeat) {
+		isFeat = true;
 	} else {
 		wld_log(room, "wfeatturn: feature not found");
 		return;

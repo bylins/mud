@@ -172,10 +172,10 @@ enum EPrf : Bitvector {
 	kNoExchange = kIntOne | 1 << 9,            // Не слышит базар //
 	kNoClones = kIntOne | 1 << 10,            // Не видит в группе чужих клонов //
 	kNoInvistell = kIntOne | 1 << 11,            // Не хочет, чтобы телял "кто-то" //
-	kPowerAttack = kIntOne | 1 << 12,            // мощная атака //
-	kGreatPowerAttack = kIntOne | 1 << 13,    // улучшеная мощная атака //
-	kAimingAttack = kIntOne | 1 << 14,        // прицельная атака //
-	kGreatAimingAttack = kIntOne | 1 << 15,    // улучшеная прицельная атака //
+	kPerformPowerAttack = kIntOne | 1 << 12,            // мощная атака //
+	kPerformGreatPowerAttack = kIntOne | 1 << 13,    // улучшеная мощная атака //
+	kPerformAimingAttack = kIntOne | 1 << 14,        // прицельная атака //
+	kPerformGreatAimingAttack = kIntOne | 1 << 15,    // улучшеная прицельная атака //
 	kNewsMode = kIntOne | 1 << 16,            // вариант чтения новостей мада и дружины
 	kBoardMode = kIntOne | 1 << 17,            // уведомления о новых мессагах на досках
 	kDecayMode = kIntOne | 1 << 18,            // канал хранилища, рассыпание шмота

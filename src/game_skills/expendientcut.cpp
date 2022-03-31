@@ -63,7 +63,7 @@ void GoExpedientCut(CharData *ch, CharData *vict) {
 	vict = TryToFindProtector(vict, ch);
 
 	AbilitySystem::TechniqueRoll roll;
-	roll.Init(ch, EXPEDIENT_CUT_FEAT, vict);
+	roll.Init(ch, EFeat::kCutting, vict);
 
 	if (roll.IsWrongConditions()) {
 		roll.SendDenyMsgToActor();
@@ -114,7 +114,7 @@ void SetExtraAttackCut(CharData *ch, CharData *victim) {
 
 void DoExpedientCut(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 
-	if (ch->is_npc() || (!can_use_feat(ch, EXPEDIENT_CUT_FEAT) && !IS_IMPL(ch))) {
+	if (ch->is_npc() || (!IsAbleToUseFeat(ch, EFeat::kCutting) && !IS_IMPL(ch))) {
 		send_to_char("Вы не владеете таким приемом.\r\n", ch);
 		return;
 	}

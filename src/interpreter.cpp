@@ -2261,31 +2261,31 @@ void do_entergame(DescriptorData *d) {
 		PRF_FLAGS(d->character).unset(EPrf::kAwake);
 	}
 
-	if (PRF_FLAGS(d->character).get(EPrf::kPowerAttack)
-		&& !can_use_feat(d->character.get(), POWER_ATTACK_FEAT)) {
-		PRF_FLAGS(d->character).unset(EPrf::kPowerAttack);
+	if (PRF_FLAGS(d->character).get(EPrf::kPerformPowerAttack)
+		&& !IsAbleToUseFeat(d->character.get(), EFeat::kPowerAttack)) {
+		PRF_FLAGS(d->character).unset(EPrf::kPerformPowerAttack);
 	}
 
-	if (PRF_FLAGS(d->character).get(EPrf::kGreatPowerAttack)
-		&& !can_use_feat(d->character.get(), GREAT_POWER_ATTACK_FEAT)) {
-		PRF_FLAGS(d->character).unset(EPrf::kGreatPowerAttack);
+	if (PRF_FLAGS(d->character).get(EPrf::kPerformGreatPowerAttack)
+		&& !IsAbleToUseFeat(d->character.get(), EFeat::kGreatPowerAttack)) {
+		PRF_FLAGS(d->character).unset(EPrf::kPerformGreatPowerAttack);
 	}
 
-	if (PRF_FLAGS(d->character).get(EPrf::kAimingAttack)
-		&& !can_use_feat(d->character.get(), AIMING_ATTACK_FEAT)) {
-		PRF_FLAGS(d->character).unset(EPrf::kAimingAttack);
+	if (PRF_FLAGS(d->character).get(EPrf::kPerformAimingAttack)
+		&& !IsAbleToUseFeat(d->character.get(), EFeat::kAimingAttack)) {
+		PRF_FLAGS(d->character).unset(EPrf::kPerformAimingAttack);
 	}
 
-	if (PRF_FLAGS(d->character).get(EPrf::kGreatAimingAttack)
-		&& !can_use_feat(d->character.get(), GREAT_AIMING_ATTACK_FEAT)) {
-		PRF_FLAGS(d->character).unset(EPrf::kGreatAimingAttack);
+	if (PRF_FLAGS(d->character).get(EPrf::kPerformGreatAimingAttack)
+		&& !IsAbleToUseFeat(d->character.get(), EFeat::kGreatAimingAttack)) {
+		PRF_FLAGS(d->character).unset(EPrf::kPerformGreatAimingAttack);
 	}
 	if (PRF_FLAGS(d->character).get(EPrf::kDoubleThrow)
-		&& !can_use_feat(d->character.get(), DOUBLE_THROW_FEAT)) {
+		&& !IsAbleToUseFeat(d->character.get(), EFeat::kDoubleThrower)) {
 		PRF_FLAGS(d->character).unset(EPrf::kDoubleThrow);
 	}
 	if (PRF_FLAGS(d->character).get(EPrf::kTripleThrow)
-		&& !can_use_feat(d->character.get(), TRIPLE_THROW_FEAT)) {
+		&& !IsAbleToUseFeat(d->character.get(), EFeat::kTripleThrower)) {
 		PRF_FLAGS(d->character).unset(EPrf::kTripleThrow);
 	}
 	if (PRF_FLAGS(d->character).get(EPrf::kSkirmisher)) {
@@ -2296,9 +2296,8 @@ void do_entergame(DescriptorData *d) {
 	}
 
 	// Check & remove/add natural, race & unavailable features
-	for (int i = 1; i < kMaxFeats; i++) {
-		if (!HAVE_FEAT(d->character, i)
-			|| can_get_feat(d->character.get(), i)) {
+	for (auto i = EFeat::kFirstFeat; i <= EFeat::kLastFeat; ++i) {
+		if (!HAVE_FEAT(d->character, i) || IsAbleToGetFeat(d->character.get(), i)) {
 			if (feat_info[i].is_inborn[(int) GET_CLASS(d->character)][(int) GET_KIN(d->character)]) {
 				SET_FEAT(d->character, i);
 			}
@@ -2318,7 +2317,7 @@ void do_entergame(DescriptorData *d) {
 	//Заменяем закл !переместиться! на способность
 	if (GET_SPELL_TYPE(d->character, kSpellRelocate) == kSpellKnow && !IS_GOD(d->character)) {
 		GET_SPELL_TYPE(d->character, kSpellRelocate) = 0;
-		SET_FEAT(d->character, RELOCATE_FEAT);
+		SET_FEAT(d->character, EFeat::kRelocate);
 	}
 
 	//Проверим временные заклы пока нас не было

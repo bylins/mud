@@ -19,7 +19,8 @@ void PerformShadowThrowSideAbilities(AbilitySystem::TechniqueRoll &technique) {
 	if (!weapon) {
 		return;
 	}
-	int feature_id = INCORRECT_FEAT;
+
+	auto feature_id{EFeat::kIncorrectFeat};
 	std::string to_char, to_vict, to_room;
 	void (*DoSideAction)(AbilitySystem::TechniqueRoll &technique);
 	Bitvector mob_no_flag = EMobFlag::kMobDeleted;
@@ -27,7 +28,7 @@ void PerformShadowThrowSideAbilities(AbilitySystem::TechniqueRoll &technique) {
 	switch (static_cast<ESkill>(weapon->get_skill())) {
 		case ESkill::kSpades:
 			mob_no_flag = EMobFlag::kNoBash;
-			feature_id = SHADOW_SPEAR_FEAT;
+			feature_id = EFeat::kShadowSpear;
 			to_char = "Попадание копья повалило $n3 наземь.";
 			to_vict =
 				"Копье $N1 попало вам в колено. Вы рухнули наземь! Кажется, ваши приключения сейчас закончатся...";
@@ -44,7 +45,7 @@ void PerformShadowThrowSideAbilities(AbilitySystem::TechniqueRoll &technique) {
 		case ESkill::kShortBlades:
 		case ESkill::kPicks:
 			mob_no_flag = EMobFlag::kNoSilence;
-			feature_id = SHADOW_DAGGER_FEAT;
+			feature_id = EFeat::kShadowDagger;
 			to_char = "Меткое попадание вашего кинжала заставило $n3 умолкнуть.";
 			to_vict = "Бросок $N1 угодил вам в горло. Вы прикусили язык!";
 			to_room = "Меткое попадание $N1 заставило $n3 умолкнуть!";
@@ -58,7 +59,7 @@ void PerformShadowThrowSideAbilities(AbilitySystem::TechniqueRoll &technique) {
 			});
 			break;
 		case ESkill::kClubs:mob_no_flag = EMobFlag::kNoOverwhelm;
-			feature_id = SHADOW_CLUB_FEAT;
+			feature_id = EFeat::kShadowClub;
 			to_char = "Попадание булавы ошеломило $n3.";
 			to_vict = "Брошенная $N4 булава врезалась вам в лоб! Какие красивые звёздочки вокруг...";
 			to_room = "Попадание булавы $N1 ошеломило $n3!";
@@ -73,11 +74,11 @@ void PerformShadowThrowSideAbilities(AbilitySystem::TechniqueRoll &technique) {
 			});
 			break;
 		default:
-			feature_id = INCORRECT_FEAT;
+			feature_id = EFeat::kIncorrectFeat;
 			break;
 	};
 
-	if (!can_use_feat(technique.GetActor(), feature_id)) {
+	if (!IsAbleToUseFeat(technique.GetActor(), feature_id)) {
 		return;
 	};
 	AbilitySystem::TechniqueRoll side_roll;
@@ -100,10 +101,10 @@ void PerformWeaponThrow(AbilitySystem::TechniqueRoll &technique, Damage &damage)
 			damage.flags.set(fight::kIgnoreArmor);
 			damage.flags.set(fight::kCritHit);
 		};
-		if (IsTimed(technique.GetActor(), SHADOW_THROW_FEAT)) {
-			decreaseFeatTimer(technique.GetActor(), SHADOW_THROW_FEAT);
+		if (IsTimed(technique.GetActor(), EFeat::kShadowThrower)) {
+			decreaseFeatTimer(technique.GetActor(), EFeat::kShadowThrower);
 		};
-		if (technique.GetAbilityId() == SHADOW_THROW_FEAT) {
+		if (technique.GetAbilityId() == EFeat::kShadowThrower) {
 			PerformShadowThrowSideAbilities(technique);
 		};
 	} else {
@@ -128,16 +129,16 @@ void go_throw(CharData *ch, CharData *victim) {
 	// TODO: Возможно, стоит добавить простой тест на добавление целей.
 	int victims_amount = 1 + PRF_FLAGGED(ch, EPrf::kDoubleThrow) + 2 * PRF_FLAGGED(ch, EPrf::kTripleThrow);
 
-	int technique_id = THROW_WEAPON_FEAT;
-	fight::DmgType dmg_type = fight::kPhysDmg;
+	auto technique_id = EFeat::kThrowWeapon;
+	auto dmg_type = fight::kPhysDmg;
 	if (PRF_FLAGGED(ch, EPrf::kShadowThrow)) {
 		send_to_char("Рукоять оружия в вашей руке налилась неестественным холодом.\r\n", ch);
 		act("Оружие в руках $n1 окружила призрачная дымка.",
 			true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-		technique_id = SHADOW_THROW_FEAT;
+		technique_id = EFeat::kShadowThrower;
 		dmg_type = fight::kMagicDmg;
 		TimedFeat timed;
-		timed.feat = SHADOW_THROW_FEAT;
+		timed.feat = EFeat::kShadowThrower;
 		timed.time = 6;
 		ImposeTimedFeat(ch, &timed);
 		PRF_FLAGS(ch).unset(EPrf::kShadowThrow);
@@ -163,7 +164,7 @@ void go_throw(CharData *ch, CharData *victim) {
 	};
 
 	SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);
-	if (technique_id == THROW_WEAPON_FEAT) {
+	if (technique_id == EFeat::kThrowWeapon) {
 		SetSkillCooldownInFight(ch, ESkill::kThrow, 3);
 	}
 }
@@ -179,7 +180,7 @@ void do_throw(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	};
 /*
-	if (!IS_IMPL(ch) && !can_use_feat(ch, THROW_WEAPON_FEAT)) {
+	if (!IS_IMPL(ch) && !can_use_feat(ch, EFeat::kThrowWeapon)) {
 			send_to_char("Вы не умеете этого.\r\n", ch);
 			return;
 	}
@@ -203,7 +204,7 @@ void do_throw(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	if (subcmd == SCMD_SHADOW_THROW) {
-		if (IsTimed(ch, SHADOW_THROW_FEAT)) {
+		if (IsTimed(ch, EFeat::kShadowThrower)) {
 			send_to_char("Не стоит так часто беспокоить тёмные силы.\r\n", ch);
 			return;
 		}

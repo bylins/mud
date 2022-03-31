@@ -190,7 +190,7 @@ void Dps::PrintStats(CharData *ch, CharData *coder) {
  */
 void Dps::PrintPersonalDpsStat(CharData *ch, std::ostringstream &out) {
 	out << " Персональная статистика урона:" << std::endl;
-	fort::char_table table;
+	table_wrapper::Table table;
 	table << fort::header << "Имя" << "Урон" << "В раунд" << "Макс." << "Лишний урон" << fort::endr;
 	table << ch->get_name()
 		  << pers_dps_.get_dmg()
@@ -250,7 +250,7 @@ void Dps::PrintGroupStats(CharData *ch, CharData *coder) {
 	std::ostringstream out;
 	out << " Статистика урона вашей группы:" << std::endl;
 
-	fort::char_table table;
+	table_wrapper::Table table;
 	table << fort::header << "Имя" << "Урон" << "(%)" << "В раунд" << "Макс." << "Лишний урон" << fort::endr;
 	for (auto it = tmp_group_list.rbegin(); it != tmp_group_list.rend(); ++it) {
 		double percent = tmp_total_dmg ? it->first * 100.0 / tmp_total_dmg : 0.0;
@@ -379,7 +379,7 @@ void PlayerDpsNode::end_charm_round(CharData *ch) {
 }
 
 // * Чармисы в персональной статистике выводятся без сортировки.
-void PlayerDpsNode::print_charm_stats(fort::char_table &table) const {
+void PlayerDpsNode::print_charm_stats(table_wrapper::Table &table) const {
 	for (const auto & it : charm_list_) {
 		if (it.get_dmg() > 0) {
 			table

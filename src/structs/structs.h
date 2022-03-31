@@ -219,7 +219,6 @@ const int kHostLength = 30;
 const int kExdscrLength = 512;
 const int kMaxAffect = 128;
 const int kMaxObjAffect = 8;
-const int kMaxFeats = 256;
 const int kMaxHits = 32000; // Максимальное количество хитов и дамага //
 const long kMaxMoneyKept = 1000000000; // планка на кол-во денег у чара на руках и в банке (раздельно) //
 

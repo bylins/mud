@@ -682,7 +682,7 @@ void medit_save_to_disk(int zone_num) {
 			strcpy(buf1, "Special_Bitvector: ");
 			NPC_FLAGS(mob).tascii(4, buf1);
 			fprintf(mob_file, "%s\n", buf1);
-			for (c = 1; c < kMaxFeats; c++) {
+			for (c = EFeat::kFirstFeat; c <= EFeat::kLastFeat; ++c) {
 				if (HAVE_FEAT(mob, c))
 					fprintf(mob_file, "Feat: %d\n", c);
 			}
@@ -985,23 +985,25 @@ void medit_disp_role(DescriptorData *d) {
 	send_to_char(out, d->character.get());
 }
 
-//-------------------------------------------------------------------
-// *  Display features - added by Gorrah
 void medit_disp_features(DescriptorData *d) {
-	int columns = 0, counter;
+	int columns = 0;
 
 	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
 
-	for (counter = 1; counter < kMaxFeats; counter++) {
-		if (!feat_info[counter].name || *feat_info[counter].name == '!')
+	for (auto counter = EFeat::kFirstFeat; counter <= EFeat::kLastFeat; ++counter) {
+		if (!feat_info[counter].name || *feat_info[counter].name == '!') {
 			continue;
-		if (HAVE_FEAT(OLC_MOB(d), counter))
+		}
+
+		if (HAVE_FEAT(OLC_MOB(d), counter)) {
 			sprintf(buf1, " %s[%s*%s]%s ", cyn, grn, cyn, nrm);
-		else
+		} else {
 			strcpy(buf1, "     ");
+		}
+
 		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, counter, nrm,
 				 feat_info[counter].name, buf1, !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character.get());
@@ -1010,9 +1012,6 @@ void medit_disp_features(DescriptorData *d) {
 	send_to_char("\r\nУкажите номер способности. (0 - конец) : ", d->character.get());
 }
 
-// Конец изменений Gorrah'ом
-
-//Polud npc race menu
 void medit_disp_race(DescriptorData *d) {
 	int i;
 
@@ -1027,7 +1026,6 @@ void medit_disp_race(DescriptorData *d) {
 	}
 	send_to_char("Выберите расу моба : ", d->character.get());
 }
-//-Polud
 
 // * Display attack types menu.
 void medit_disp_attack_types(DescriptorData *d) {
@@ -1767,14 +1765,13 @@ void medit_parse(DescriptorData *d, char *arg) {
 		}
 			break;
 
-		case MEDIT_FEATURES: number = atoi(arg);
+		case MEDIT_FEATURES: {
+			number = atoi(arg);
 			if (number == 0) {
 				break;
 			}
-			if (number >= kMaxFeats
-				|| number <= 0
-				|| !feat_info[number].name
-				|| *feat_info[number].name == '!') {
+			if (number < EFeat::kFirstFeat || number > EFeat::kLastFeat ||
+				!feat_info[number].name || *feat_info[number].name == '!') {
 				send_to_char("Неверный номер.\r\n", d->character.get());
 			} else if (HAVE_FEAT(OLC_MOB(d), number)) {
 				UNSET_FEAT(OLC_MOB(d), number);
@@ -1783,6 +1780,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 			}
 			medit_disp_features(d);
 			return;
+		}
 
 		case MEDIT_RESISTANCES: number = atoi(arg);
 			if (number == 0) {

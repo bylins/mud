@@ -568,13 +568,13 @@ void oedit_disp_skills2_menu(DescriptorData *d) {
 }
 
 void oedit_disp_receipts_menu(DescriptorData *d) {
-	int counter, columns = 0;
+	int columns = 0;
 
 	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
-	for (counter = 0; counter <= top_imrecipes; counter++) {
+	for (int counter = 0; counter <= top_imrecipes; counter++) {
 		sprintf(buf, "%s%2d%s) %s%-20.20s %s", grn, counter, nrm, yel,
 				imrecipes[counter].name, !(++columns % 3) ? "\r\n" : "");
 		send_to_char(buf, d->character.get());
@@ -584,13 +584,13 @@ void oedit_disp_receipts_menu(DescriptorData *d) {
 }
 
 void oedit_disp_feats_menu(DescriptorData *d) {
-	int counter, columns = 0;
+	int columns = 0;
 
 	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
-	for (counter = 1; counter < kMaxFeats; counter++) {
+	for (auto counter = EFeat::kFirstFeat; counter < EFeat::kLastFeat; ++counter) {
 		if (!feat_info[counter].name || *feat_info[counter].name == '!') {
 			continue;
 		}
@@ -1870,10 +1870,8 @@ void oedit_parse(DescriptorData *d, char *arg) {
 								oedit_disp_menu(d);
 								return;
 							}
-							if (number <= 0
-								|| number >= kMaxFeats
-								|| !feat_info[number].name
-								|| *feat_info[number].name == '!') {
+							if (number < EFeat::kFirstFeat || number > EFeat::kLastFeat ||
+								!feat_info[number].name || *feat_info[number].name == '!') {
 								send_to_char("Неизвестная способность, повторите.\r\n", d->character.get());
 								oedit_disp_val2_menu(d);
 								return;

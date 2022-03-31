@@ -40,7 +40,7 @@ class AbilityRoll {
 		base_skill_{ESkill::kIncorrect},
 		deny_msg_{"Если вы это прочитали, значит, у кодера проблема.\r\n"} {};
 
-	virtual void Init(CharData *actor, int ability_num);
+	virtual void Init(CharData *actor, EFeat ability_id);
 	virtual void ProcessingResult(int result, int roll);
 	virtual void PerformAbilityTest();
 	virtual void DetermineBaseSkill();
@@ -86,7 +86,7 @@ class AgainstRivalRoll : public AbilityRoll {
 	bool IsActorMoraleFailure() override;
 
  public:
-	void Init(CharData *actor, int ability, CharData *victim);
+	void Init(CharData *actor, EFeat ability_id, CharData *victim);
 	CharData *GetRival() { return rival_; };
 
 	AgainstRivalRoll() :

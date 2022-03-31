@@ -18,7 +18,7 @@
 #include "game_magic/magic_utils.h"
 #include "game_skills/townportal.h"
 #include "utils/id_converter.h"
-#include "entities/zone.h"
+//#include "entities/zone.h"
 #include "structs/global_objects.h"
 
 extern const char *dirs[];
@@ -694,7 +694,7 @@ void do_ofeatturn(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int isFeat = 0;
 	CharData *ch;
 	char name[kMaxInputLength], featname[kMaxInputLength], amount[kMaxInputLength], *pos;
-	int featnum = 0, featdiff = 0;
+	int featdiff = 0;
 
 	one_argument(two_arguments(argument, name, featname), amount);
 
@@ -708,7 +708,8 @@ void do_ofeatturn(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	while ((pos = strchr(featname, '_')))
 		*pos = ' ';
 
-	if ((featnum = FindFeatNum(featname)) > 0 && featnum < kMaxFeats)
+	const auto feat_id = FindFeatNum(featname);
+	if (feat_id >= EFeat::kFirstFeat && feat_id <= EFeat::kLastFeat)
 		isFeat = 1;
 	else {
 		sprintf(buf, "ofeatturn: %s skill/recipe not found", featname);
@@ -731,7 +732,7 @@ void do_ofeatturn(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (isFeat)
-		trg_featturn(ch, featnum, featdiff, last_trig_vnum);
+		trg_featturn(ch, feat_id, featdiff, last_trig_vnum);
 }
 
 void do_oskillturn(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {

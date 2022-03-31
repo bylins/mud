@@ -29,6 +29,15 @@ class CharData;
 
 namespace table_wrapper {
 
+/**
+ * Таблица в стандартной, не unicode кодировке.
+ */
+using Table = fort::char_table;
+
+[[maybe_unused]] const auto kAlignRight		= fort::text_align::right;
+[[maybe_unused]] const auto kAlignLeft		= fort::text_align::left;
+[[maybe_unused]] const auto kAlignCenter	= fort::text_align::center;
+
 [[maybe_unused]] const auto kDefaultColor	= fort::color::default_color;
 [[maybe_unused]] const auto kBlack			= fort::color::black;
 [[maybe_unused]] const auto kRed			= fort::color::red;
@@ -52,28 +61,28 @@ namespace table_wrapper {
  * @param ch - персонаж, для которого формируется таблица.
  * @param table - оформляемая таблица.
  */
-void DecorateSimpleTable(CharData *ch, fort::char_table &table);
+void DecorateSimpleTable(CharData *ch, Table &table);
 
 /**
  * Оформить простейшую таблицу без рамок (для слабовидящих сохраняется сепаратор).
  * @param ch - персонаж, для которого формируется таблица.
  * @param table - оформляемая таблица.
  */
-void DecorateNoBorderTable(CharData *ch, fort::char_table &table);
+void DecorateNoBorderTable(CharData *ch, Table &table);
 
 /**
  * Оформить сервисную таблицу - вывод различной статистики иммморталам.
  * @param ch - персонаж, для которого формируется таблица.
  * @param table - оформляемая таблица.
  */
-void DecorateServiceTable(CharData *ch, fort::char_table &table);
+void DecorateServiceTable(CharData *ch, Table &table);
 
 /**
  * Оформить "красивую" таблицу - счет все и т.п.
  * @param ch - персонаж, для которого формируется таблица.
  * @param table - оформляемая таблица.
  */
-void DecorateCuteTable(CharData *ch, fort::char_table &table);
+void DecorateCuteTable(CharData *ch, Table &table);
 
 /**
  * Оформить таблицу в стиле "зебры".
@@ -82,7 +91,7 @@ void DecorateCuteTable(CharData *ch, fort::char_table &table);
  * @param table - оформляемая таблица.
  * @param color - фоновый цвет строки.
  */
-void DecorateZebraTable(CharData *ch, fort::char_table &table, fort::color color);
+void DecorateZebraTable(CharData *ch, Table &table, fort::color color);
 
 /**
  * Оформить таблицу в стиле текстовой "зебры".
@@ -91,14 +100,14 @@ void DecorateZebraTable(CharData *ch, fort::char_table &table, fort::color color
  * @param table - оформляемая таблица.
  * @param color - фоновый цвет строки.
  */
-void DecorateZebraTextTable(CharData *ch, fort::char_table &table, fort::color color);
+void DecorateZebraTextTable(CharData *ch, Table &table, fort::color color);
 
 /**
  *  Вывести таблицу персонажу. Возможное исключение перехватывается и обрабатывается.
  *  @param ch - персонаж, которому выводится таблица.
  *  @param table - распечатываемая таблица.
  */
-void PrintTableToChar(CharData *ch, fort::char_table &table);
+void PrintTableToChar(CharData *ch, Table &table);
 
 /**
  *  Вывести таблицу в указанный поток. Возможное исключение перехватывается и обрабатывается.
@@ -106,7 +115,7 @@ void PrintTableToChar(CharData *ch, fort::char_table &table);
  *  @param table - распечатываемая таблица.
  *  @param out - выводной поток.
  */
-void PrintTableToStream(std::ostringstream &out, fort::char_table &table);
+void PrintTableToStream(std::ostringstream &out, Table &table);
 
 } // table_wrapper
 

@@ -65,7 +65,7 @@ const PlayerChart &TopPlayer::Chart() {
 void TopPlayer::PrintPlayersChart(CharData *ch) {
 	send_to_char(" Лучшие персонажи игроков:\r\n", ch);
 
-	fort::char_table table;
+	table_wrapper::Table table;
 	for (const auto &it: TopPlayer::Chart()) {
 		table
 			<< it.second.begin()->name_
@@ -81,7 +81,7 @@ void TopPlayer::PrintClassChart(CharData *ch, ECharClass id) {
 	std::ostringstream out;
 	out << KWHT << " Лучшие " << MUD::Classes()[id].GetPluralName() << ":" << KNRM << std::endl;
 
-	fort::char_table table;
+	table_wrapper::Table table;
 	for (const auto &it: TopPlayer::chart_[id]) {
 		table
 			<< it.name_
@@ -111,7 +111,7 @@ void TopPlayer::PrintClassChart(CharData *ch, ECharClass id) {
 void TopPlayer::PrintHelp(CharData *ch) {
 	send_to_char(" Лучшими могут быть:\n", ch);
 
-	fort::char_table table;
+	table_wrapper::Table table;
 	const int columns_num{2};
 	int count = 1;
 	for (const auto &it: MUD::Classes()) {

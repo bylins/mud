@@ -2575,8 +2575,8 @@ void find_replacement(void *go,
 				strcpy(str, "0");
 			}
 		} else if (!str_cmp(field, "can_get_feat")) {
-			if ((num = FindFeatNum(subfield)) > 0) {
-				if (can_get_feat(c, num))
+			if (auto id = FindFeatNum(subfield); id > 0) {
+				if (IsAbleToGetFeat(c, id))
 					strcpy(str, "1");
 				else
 					strcpy(str, "0");

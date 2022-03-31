@@ -543,17 +543,15 @@ void Player::save_char() {
 	fprintf(saved, "Con : %d\n", this->get_inborn_con());
 	fprintf(saved, "Cha : %d\n", this->get_inborn_cha());
 
-	// способности - added by Gorrah
 	if (GetRealLevel(this) < kLvlImmortal) {
 		fprintf(saved, "Feat:\n");
-		for (i = 1; i < kMaxFeats; i++) {
-			if (HAVE_FEAT(this, i))
-				fprintf(saved, "%d %s\n", i, feat_info[i].name);
+		for (auto feat = EFeat::kFirstFeat; feat <= EFeat::kLastFeat; ++feat) {
+			if (HAVE_FEAT(this, feat))
+				fprintf(saved, "%d %s\n", feat, feat_info[feat].name);
 		}
 		fprintf(saved, "0 0\n");
 	}
 
-	// Задержки на cпособности
 	if (GetRealLevel(this) < kLvlImmortal) {
 		fprintf(saved, "FtTm:\n");
 		for (auto tf = this->timed_feat; tf; tf = tf->next) {
@@ -841,7 +839,7 @@ void Player::save_char() {
 	// added by WorM (Видолюб) 2010.06.04 бабки потраченные на найм(возвращаются при креше)
 	i = 0;
 	if (this->followers
-		&& can_use_feat(this, EMPLOYER_FEAT)
+		&& IsAbleToUseFeat(this, EFeat::kEmployer)
 		&& !IS_IMMORTAL(this)) {
 		struct Follower *k = nullptr;
 		for (k = this->followers; k; k = k->next) {
@@ -1441,10 +1439,12 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 					do {
 						fbgetline(fl, line);
 						sscanf(line, "%d", &num);
-						if (num > 0 && num < kMaxFeats)
-							if (feat_info[num].is_known[(int) GET_CLASS(this)][(int) GET_KIN(this)]
-								|| PlayerRace::FeatureCheck((int) GET_KIN(this), (int) GET_RACE(this), num))
+						if (num >= EFeat::kFirstFeat && num <= EFeat::kLastFeat) {
+							if (feat_info[num].is_known[(int) GET_CLASS(this)][(int) GET_KIN(this)] ||
+								PlayerRace::FeatureCheck((int) GET_KIN(this), (int) GET_RACE(this), num)) {
 								SET_FEAT(this, num);
+							}
+						}
 					} while (num != 0);
 				} else if (!strcmp(tag, "FtTm")) {
 					do {
@@ -1468,7 +1468,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 					this->player_specials->saved.GodsLike = lnum;
 					// added by WorM (Видолюб) 2010.06.04 бабки потраченные на найм(возвращаются при креше)
 				else if (!strcmp(tag, "GldH")) {
-					if (num != 0 && !IS_IMMORTAL(this) && can_use_feat(this, EMPLOYER_FEAT)) {
+					if (num != 0 && !IS_IMMORTAL(this) && IsAbleToUseFeat(this, EFeat::kEmployer)) {
 						this->player_specials->saved.HiredCost = num;
 					}
 				}

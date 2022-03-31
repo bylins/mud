@@ -411,22 +411,16 @@ void SpellPortal(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
-	// обработка NOTELEPORTIN и NOTELEPORTOUT теперь происходит при входе в портал
-	if (!IS_GOD(ch) && ( //ROOM_FLAGGED(ch->in_room, ROOM_NOTELEPORTOUT)||
-		//ROOM_FLAGGED(ch->in_room, ROOM_NOTELEPORTIN)||
-		SECT(fnd_room) == kSectSecret || ROOM_FLAGGED(fnd_room, ROOM_DEATH) || ROOM_FLAGGED(fnd_room, ROOM_SLOWDEATH)
-			|| ROOM_FLAGGED(fnd_room, ROOM_ICEDEATH) || ROOM_FLAGGED(fnd_room, ROOM_TUNNEL)
-			|| ROOM_FLAGGED(fnd_room, ROOM_GODROOM)    //||
-		//ROOM_FLAGGED(fnd_room, ROOM_NOTELEPORTOUT) ||
-		//ROOM_FLAGGED(fnd_room, ROOM_NOTELEPORTIN)
-	)) {
+
+	if (!IS_GOD(ch) && (SECT(fnd_room) == kSectSecret || ROOM_FLAGGED(fnd_room, ROOM_DEATH) ||
+		ROOM_FLAGGED(fnd_room, ROOM_SLOWDEATH) || ROOM_FLAGGED(fnd_room, ROOM_ICEDEATH) ||
+		ROOM_FLAGGED(fnd_room, ROOM_TUNNEL) || ROOM_FLAGGED(fnd_room, ROOM_GODROOM))) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
 
-	//Юзабилити фикс: не ставим пенту в одну клетку с кастующим
 	if (ch->in_room == fnd_room) {
-		send_to_char("Может вам лучше просто потоптаться на месте?\r\n", ch);
+		send_to_char("Может, вам лучше просто потоптаться на месте?\r\n", ch);
 		return;
 	}
 
@@ -961,7 +955,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 		af.battleflag = 0;
 		affect_to_char(victim, af);
 		// резервируем место под фит (Кудояр)
-		if (can_use_feat(ch, ANIMAL_MASTER_FEAT) && 
+		if (IsAbleToUseFeat(ch, EFeat::kAnimalMaster) &&
 		GET_RACE(victim) == 104) {
 			act("$N0 обрел$G часть вашей магической силы, и стал$G намного опаснее...",
 				false, ch, nullptr, victim, kToChar);
@@ -1165,11 +1159,11 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 				victim->set_skill(ESkill::kPunch, k_skills*0.9);
 				victim->set_skill(ESkill::kNoParryHit, k_skills*0.4);
 				victim->set_skill(ESkill::kIntercept, k_skills*0.75);
-				SET_FEAT(victim, PUNCH_MASTER_FEAT);
+				SET_FEAT(victim, EFeat::kPunchMaster);
 					if (floorf(r_cha*0.9 + perc/5.0) > number(1, 150)) {
-					SET_FEAT(victim, PUNCH_FOCUS_FEAT);
+					SET_FEAT(victim, EFeat::kPunchFocus);
 					victim->set_skill(ESkill::kStrangle, k_skills);
-					SET_FEAT(victim, BERSERK_FEAT);
+					SET_FEAT(victim, EFeat::kBerserker);
 					act("&B$N0 теперь сможет просто удавить всех своих врагов.&n\n",
 						false, ch, nullptr, victim, kToChar);
 				}
@@ -1185,10 +1179,10 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 				victim->set_skill(ESkill::kRescue, k_skills*0.8);
 				victim->set_skill(ESkill::kTwohands, k_skills*0.95);
 				victim->set_skill(ESkill::kNoParryHit, k_skills*0.4);
-				SET_FEAT(victim, BOTHHANDS_MASTER_FEAT);
-				SET_FEAT(victim, BOTHHANDS_FOCUS_FEAT);
+				SET_FEAT(victim, EFeat::kTwohandsMaster);
+				SET_FEAT(victim, EFeat::kTwohandsFocus);
 				if (floorf(r_cha + perc/5.0) > number(1, 150)) {
-					SET_FEAT(victim, RELATED_TO_MAGIC_FEAT);
+					SET_FEAT(victim, EFeat::kRelatedToMagic);
 					act("&G$N0 стал$G намного более опасным хищником.&n\n",
 						false, ch, nullptr, victim, kToChar);
 					victim->set_skill(ESkill::kFirstAid, k_skills*0.4);
@@ -1207,10 +1201,10 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 				victim->set_skill(ESkill::kPicks, k_skills*0.75);
 				victim->set_skill(ESkill::kPoisoning, k_skills*0.7);
 				victim->set_skill(ESkill::kNoParryHit, k_skills*0.75);
-				SET_FEAT(victim, PICK_MASTER_FEAT);
-				SET_FEAT(victim, THIEVES_STRIKE_FEAT);
+				SET_FEAT(victim, EFeat::kPicksMaster);
+				SET_FEAT(victim, EFeat::kThieveStrike);
 				if (floorf(r_cha*0.8 + perc/5.0) > number(1, 150)) {
-					SET_FEAT(victim, SHADOW_STRIKE_FEAT);
+					SET_FEAT(victim, EFeat::kShadowStrike);
 					act("&c$N0 затаил$U в вашей тени...&n\n", false, ch, nullptr, victim, kToChar);
 					
 				}
@@ -1233,10 +1227,10 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 						false, ch, nullptr, victim, kToChar);
 					victim->set_protecting(ch);
 				}
-				SET_FEAT(victim, AXES_MASTER_FEAT);
-				SET_FEAT(victim, THIEVES_STRIKE_FEAT);  
-				SET_FEAT(victim, DEFENDER_FEAT);
-				SET_FEAT(victim, LIVE_SHIELD_FEAT);
+				SET_FEAT(victim, EFeat::kAxesMaster);
+				SET_FEAT(victim, EFeat::kThieveStrike);
+				SET_FEAT(victim, EFeat::kDefender);
+				SET_FEAT(victim, EFeat::kLiveShield);
 				victim->set_con(floorf(GET_REAL_CON(victim)*1.3));
 				victim->set_str(floorf(GET_REAL_STR(victim)*1.2));
 				skill_id = ESkill::kAxes;
@@ -1252,8 +1246,8 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 				victim->set_skill(ESkill::kBows, k_skills*0.85);
 				victim->set_skill(ESkill::kRescue, k_skills*0.65);
 				victim->set_skill(ESkill::kNoParryHit, k_skills*0.5);
-				SET_FEAT(victim, THIEVES_STRIKE_FEAT);
-				SET_FEAT(victim, BOWS_MASTER_FEAT);
+				SET_FEAT(victim, EFeat::kThieveStrike);
+				SET_FEAT(victim, EFeat::kBowsMaster);
 				if (floorf(r_cha*0.8 + perc/5.0) > number(1, 150)) {
 					af.bitvector = to_underlying(EAffect::kCloudOfArrows);
 					act("&YВокруг когтей $N1 засияли яркие магические всполохи.&n\n",
@@ -1275,15 +1269,15 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 				victim->set_skill(ESkill::kDodge, k_skills*0.7);
 				victim->set_skill(ESkill::kRescue, k_skills*0.6);
 				victim->set_skill(ESkill::kNoParryHit, k_skills*0.6);
-				SET_FEAT(victim, CLUBS_MASTER_FEAT);
-				SET_FEAT(victim, THROW_WEAPON_FEAT);
-				SET_FEAT(victim, DOUBLE_THROW_FEAT);  
-				SET_FEAT(victim, TRIPLE_THROW_FEAT);
-				SET_FEAT(victim, POWER_THROW_FEAT); 
-				SET_FEAT(victim, DEADLY_THROW_FEAT);
+				SET_FEAT(victim, EFeat::kClubsMaster);
+				SET_FEAT(victim, EFeat::kThrowWeapon);
+				SET_FEAT(victim, EFeat::kDoubleThrower);
+				SET_FEAT(victim, EFeat::kTripleThrower);
+				SET_FEAT(victim, EFeat::kPowerThrow);
+				SET_FEAT(victim, EFeat::kDeadlyThrow);
 				if (floorf(r_cha*0.8 + perc/5.0) > number(1, 140)) {
-					SET_FEAT(victim, SHADOW_THROW_FEAT);
-					SET_FEAT(victim, SHADOW_CLUB_FEAT);
+					SET_FEAT(victim, EFeat::kShadowThrower);
+					SET_FEAT(victim, EFeat::kShadowClub);
 					victim->set_skill(ESkill::kDarkMagic, k_skills*0.7);
 					act("&cКогти $N1 преобрели &Kчерный цвет&c, будто смерть коснулась их.&n\n",
 						false, ch, nullptr, victim, kToChar);
@@ -1302,11 +1296,11 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 				victim->set_skill(ESkill::kKick, k_skills*0.95);
 				victim->set_skill(ESkill::kNoParryHit, k_skills*0.7);
 				victim->set_skill(ESkill::kRescue, k_skills*0.4);
-				SET_FEAT(victim, LONGS_MASTER_FEAT);
+				SET_FEAT(victim, EFeat::kLongsMaster);
 			
 				if (floorf(r_cha*0.8 + perc/5.0) > number(1, 150)) {
 					victim->set_skill(ESkill::kIronwind, k_skills*0.8);
-					SET_FEAT(victim, BERSERK_FEAT);
+					SET_FEAT(victim, EFeat::kBerserker);
 					act("&mДвижения $N1 сильно ускорились, и в глазах появились &Rогоньки&m безумия.&n\n",
 						false, ch, nullptr, victim, kToChar);
 				}
@@ -1325,22 +1319,22 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 				victim->set_skill(ESkill::kThrow, k_skills*0.95);
 				victim->set_skill(ESkill::kSpades, k_skills*0.9);
 				victim->set_skill(ESkill::kNoParryHit, k_skills*0.6);
-				SET_FEAT(victim, LIVE_SHIELD_FEAT);
-				SET_FEAT(victim, SPADES_MASTER_FEAT);
+				SET_FEAT(victim, EFeat::kLiveShield);
+				SET_FEAT(victim, EFeat::kSpadesMaster);
 								
 				if (floorf(r_cha*0.9 + perc/4.0) > number(1, 140)) {
-					SET_FEAT(victim, SHADOW_THROW_FEAT);
-					SET_FEAT(victim, SHADOW_SPEAR_FEAT);
+					SET_FEAT(victim, EFeat::kShadowThrower);
+					SET_FEAT(victim, EFeat::kShadowSpear);
 					victim->set_skill(ESkill::kDarkMagic, k_skills*0.8);
 					act("&KКогти $N1 преобрели темный оттенок, будто сама тьма коснулась их.&n\n",
 						false, ch, nullptr, victim, kToChar);
 				}
 				
-				SET_FEAT(victim, THROW_WEAPON_FEAT);
-				SET_FEAT(victim, DOUBLE_THROW_FEAT);  
-				SET_FEAT(victim, TRIPLE_THROW_FEAT);
-				SET_FEAT(victim, POWER_THROW_FEAT); 
-				SET_FEAT(victim, DEADLY_THROW_FEAT);
+				SET_FEAT(victim, EFeat::kThrowWeapon);
+				SET_FEAT(victim, EFeat::kDoubleThrower);
+				SET_FEAT(victim, EFeat::kTripleThrower);
+				SET_FEAT(victim, EFeat::kPowerThrow);
+				SET_FEAT(victim, EFeat::kDeadlyThrow);
 				victim->set_str(floorf(GET_REAL_STR(victim)*1.2));
 				victim->set_con(floorf(GET_REAL_CON(victim)*1.2));
 				skill_id = ESkill::kSpades;
@@ -1376,7 +1370,6 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 			MOB_FLAGS(victim).unset(EMobFlag::kAgressive);
 			MOB_FLAGS(victim).unset(EMobFlag::kSpec);
 			PRF_FLAGS(victim).unset(EPrf::kPunctual);
-// shapirus: !train для чармисов
 			MOB_FLAGS(victim).set(EMobFlag::kNoSkillTrain);
 			victim->set_skill(ESkill::kPunctual, 0);
 			// по идее при речарме и последующем креше можно оказаться с сейвом без шмота на чармисе -- Krodo
@@ -1612,19 +1605,20 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 					}
 					break;
 
-				case BOOK_FEAT:
-					if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < kMaxFeats) {
-						drndice = GET_OBJ_VAL(obj, 1);
-						if (can_get_feat(ch, drndice)) {
-							drsdice = feat_info[drndice].slot[(int) GET_CLASS(ch)][(int) GET_KIN(ch)];
+				case BOOK_FEAT: {
+					const auto feat_id = static_cast<EFeat>(GET_OBJ_VAL(obj, 1));
+					if (feat_id >= EFeat::kFirstFeat && feat_id <= EFeat::kLastFeat) {
+						if (IsAbleToGetFeat(ch, feat_id)) {
+							drsdice = feat_info[feat_id].slot[(int) GET_CLASS(ch)][(int) GET_KIN(ch)];
 						} else {
 							drsdice = kLvlImplementator;
 						}
-						sprintf(buf, "содержит секрет способности : \"%s\"\r\n", feat_info[drndice].name);
+						sprintf(buf, "содержит секрет способности : \"%s\"\r\n", GetFeatName(feat_id));
 						send_to_char(buf, ch);
 						sprintf(buf, "уровень изучения (для вас) : %d\r\n", drsdice);
 						send_to_char(buf, ch);
 					}
+				}
 					break;
 
 				default: send_to_char(CCIRED(ch, C_NRM), ch);
@@ -2102,7 +2096,7 @@ void SpellHolystrike(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData*
 		} else {
 			//Чуток нелогично, но раз зомби гоняет -- сам немного мертвяк. :)
 			//Тут сам спелл бредовый... Но пока на скорую руку.
-			if (!can_use_feat(tch, ZOMBIE_DROVER_FEAT)) {
+			if (!IsAbleToUseFeat(tch, EFeat::kZombieDrover)) {
 				continue;
 			}
 		}

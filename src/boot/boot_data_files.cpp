@@ -1407,7 +1407,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			log("SYSERROR : Excepted format <#> for FEAT in MOB #%d", i);
 			return;
 		}
-		if (t[0] >= kMaxFeats || t[0] <= 0) {
+		if (t[0] < EFeat::kFirstFeat || t[0] > EFeat::kLastFeat) {
 			log("SYSERROR : Unknown feat No %d for MOB #%d", t[0], i);
 			return;
 		}

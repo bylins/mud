@@ -1461,7 +1461,7 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	imlog(CMP, "Ингредиенты удалены");
 
 	// Кидаем кубики на создание
-	mres = number(1, 100 - (can_use_feat(ch, BREW_POTION_FEAT) ? 5 : 0));
+	mres = number(1, 100 - (IsAbleToUseFeat(ch, EFeat::kHerbalist) ? 5 : 0));
 	if (mres < (int) prob)
 		mres = IM_MSG_OK;
 	else {

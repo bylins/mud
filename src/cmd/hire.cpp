@@ -157,7 +157,7 @@ int get_reformed_charmice_hp(CharData *ch, CharData *victim, int spellnum) {
 
 void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->is_npc()
-		|| (!WAITLESS(ch) && !can_use_feat(ch, EMPLOYER_FEAT))) {
+		|| (!WAITLESS(ch) && !IsAbleToUseFeat(ch, EFeat::kEmployer))) {
 		send_to_char("Вам недоступно это!\r\n", ch);
 		return;
 	}
@@ -331,7 +331,7 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void do_freehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (ch->is_npc()
-		|| (!WAITLESS(ch) && !can_use_feat(ch, EMPLOYER_FEAT))) {
+		|| (!WAITLESS(ch) && !IsAbleToUseFeat(ch, EFeat::kEmployer))) {
 		send_to_char("Вам недоступно это!\r\n", ch);
 		return;
 	}

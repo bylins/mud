@@ -753,7 +753,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kHideTrack: {
 			parameter_bonus += GET_REAL_INT(ch);
-			bonus += can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0;
+			bonus += IsAbleToUseFeat(ch, EFeat::kStealthy) ? 5 : 0;
 			break;
 		}
 
@@ -785,7 +785,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kHide: {
 			parameter_bonus += dex_bonus(GET_REAL_DEX(ch));
-			bonus = size_app[GET_POS_SIZE(ch)].ac + (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
+			bonus = size_app[GET_POS_SIZE(ch)].ac + (IsAbleToUseFeat(ch, EFeat::kStealthy) ? 5 : 0);
 			if (IsAwakeOthers(ch) || equip_in_metall(ch)) {
 				bonus -= 50;
 			}
@@ -819,7 +819,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kPickLock: {
 			parameter_bonus = dex_bonus(GET_REAL_DEX(ch));
-			bonus += can_use_feat(ch, NIMBLE_FINGERS_FEAT) ? 5 : 0;
+			bonus += IsAbleToUseFeat(ch, EFeat::kNimbleFingers) ? 5 : 0;
 			break;
 		}
 
@@ -830,7 +830,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kSneak: {
 			parameter_bonus = dex_bonus(GET_REAL_DEX(ch));
-			bonus += can_use_feat(ch, STEALTHY_FEAT) ? 10 : 0;
+			bonus += IsAbleToUseFeat(ch, EFeat::kStealthy) ? 10 : 0;
 			if (IsAwakeOthers(ch) || equip_in_metall(ch))
 				bonus -= 50;
 			if (SECT(ch->in_room) == kSectCity)
@@ -847,7 +847,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kSteal: {
 			parameter_bonus = dex_bonus(GET_REAL_DEX(ch));
-			bonus += (can_use_feat(ch, NIMBLE_FINGERS_FEAT) ? 5 : 0);
+			bonus += (IsAbleToUseFeat(ch, EFeat::kNimbleFingers) ? 5 : 0);
 			if (IsAwakeOthers(ch) || equip_in_metall(ch))
 				bonus -= 50;
 			if (IS_DARK(ch->in_room))
@@ -865,7 +865,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kTrack: {
 			parameter_bonus = int_app[GET_REAL_INT(ch)].observation;
-			bonus += can_use_feat(ch, TRACKER_FEAT) ? 10 : 0;
+			bonus += IsAbleToUseFeat(ch, EFeat::kTracker) ? 10 : 0;
 			if (SECT(ch->in_room) == kSectForest
 				|| SECT(ch->in_room) == kSectField) {
 				bonus += 10;
@@ -889,7 +889,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kSense: {
 			parameter_bonus += int_app[GET_REAL_INT(ch)].observation;
-			bonus += can_use_feat(ch, TRACKER_FEAT) ? 20 : 0;
+			bonus += IsAbleToUseFeat(ch, EFeat::kTracker) ? 20 : 0;
 			break;
 		}
 
@@ -956,7 +956,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kDisguise: {
 			parameter_bonus = dex_bonus(GET_REAL_DEX(ch)) - size_app[GET_POS_SIZE(ch)].ac;
-			bonus += (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
+			bonus += (IsAbleToUseFeat(ch, EFeat::kStealthy) ? 5 : 0);
 			if (IsAwakeOthers(ch))
 				bonus -= 100;
 			if (IS_DARK(ch->in_room))
@@ -1015,7 +1015,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		case ESkill::kPoisoning: break;
 		case ESkill::kLeadership: {
 			parameter_bonus += cha_app[GET_REAL_CHA(ch)].leadership;
-			bonus += can_use_feat(ch, MAGNETIC_PERSONALITY_FEAT) ? 5 : 0;
+			bonus += IsAbleToUseFeat(ch, EFeat::kMagneticPersonality) ? 5 : 0;
 			break;
 		}
 
@@ -1049,7 +1049,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kIdentify: {
 			parameter_bonus = int_app[GET_REAL_INT(ch)].observation;
-			bonus += (can_use_feat(ch, CONNOISEUR_FEAT) ? 20 : 0);
+			bonus += (IsAbleToUseFeat(ch, EFeat::kConnoiseur) ? 20 : 0);
 			break;
 		}
 
@@ -1065,12 +1065,12 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kHangovering: {
 			parameter_bonus = GET_REAL_CON(ch) / 2;
-			bonus += (can_use_feat(ch, DRUNKARD_FEAT) ? 20 : 0);
+			bonus += (IsAbleToUseFeat(ch, EFeat::kDrunkard) ? 20 : 0);
 			break;
 		}
 
 		case ESkill::kFirstAid: {
-			bonus = (can_use_feat(ch, HEALER_FEAT) ? 10 : 0);
+			bonus = (IsAbleToUseFeat(ch, EFeat::kHealer) ? 10 : 0);
 			break;
 		}
 
@@ -1130,7 +1130,7 @@ ELuckTestResult MakeLuckTest(CharData *ch, CharData *vict) {
 	if (AFF_FLAGGED(ch, EAffect::kDeafness)) {
 		luck -= 20;
 	}
-	if (vict && can_use_feat(vict, SPIRIT_WARRIOR_FEAT)) {
+	if (vict && IsAbleToUseFeat(vict, EFeat::kWarriorSpirit)) {
 		luck -= 10;
 	}
 
@@ -1234,7 +1234,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 	switch (skill_id) {
 
 		case ESkill::kHideTrack: {
-			bonus = (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
+			bonus = (IsAbleToUseFeat(ch, EFeat::kStealthy) ? 5 : 0);
 			break;
 		}
 
@@ -1282,7 +1282,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kHide: {
 			bonus =
-				dex_bonus(GET_REAL_DEX(ch)) - size_app[GET_POS_SIZE(ch)].ac + (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
+				dex_bonus(GET_REAL_DEX(ch)) - size_app[GET_POS_SIZE(ch)].ac + (IsAbleToUseFeat(ch, EFeat::kStealthy) ? 5 : 0);
 			if (IsAwakeOthers(ch) || equip_in_metall(ch)) {
 				bonus -= 50;
 			}
@@ -1324,7 +1324,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kPickLock: {
-			bonus = dex_bonus(GET_REAL_DEX(ch)) + (can_use_feat(ch, NIMBLE_FINGERS_FEAT) ? 5 : 0);
+			bonus = dex_bonus(GET_REAL_DEX(ch)) + (IsAbleToUseFeat(ch, EFeat::kNimbleFingers) ? 5 : 0);
 			break;
 		}
 
@@ -1340,7 +1340,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kSneak: {
 			bonus = dex_bonus(GET_REAL_DEX(ch))
-				+ (can_use_feat(ch, STEALTHY_FEAT) ? 10 : 0);
+				+ (IsAbleToUseFeat(ch, EFeat::kStealthy) ? 10 : 0);
 
 			if (IsAwakeOthers(ch) || equip_in_metall(ch))
 				bonus -= 50;
@@ -1364,7 +1364,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kSteal: {
 			bonus = dex_bonus(GET_REAL_DEX(ch))
-				+ (can_use_feat(ch, NIMBLE_FINGERS_FEAT) ? 5 : 0);
+				+ (IsAbleToUseFeat(ch, EFeat::kNimbleFingers) ? 5 : 0);
 
 			if (IsAwakeOthers(ch) || equip_in_metall(ch))
 				bonus -= 50;
@@ -1387,7 +1387,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 		case ESkill::kTrack: {
 			ignore_luck = true;
 			total_percent =
-				base_percent + int_app[GET_REAL_INT(ch)].observation + (can_use_feat(ch, TRACKER_FEAT) ? 10 : 0);
+				base_percent + int_app[GET_REAL_INT(ch)].observation + (IsAbleToUseFeat(ch, EFeat::kTracker) ? 10 : 0);
 
 			if (SECT(ch->in_room) == kSectForest || SECT(ch->in_room) == kSectField) {
 				total_percent += 10;
@@ -1411,7 +1411,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kSense: {
 			bonus = int_app[GET_REAL_INT(ch)].observation
-				+ (can_use_feat(ch, TRACKER_FEAT) ? 20 : 0);
+				+ (IsAbleToUseFeat(ch, EFeat::kTracker) ? 20 : 0);
 			break;
 		}
 
@@ -1508,7 +1508,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kDisguise: {
 			bonus = dex_bonus(GET_REAL_DEX(ch)) - size_app[GET_POS_SIZE(ch)].ac
-				+ (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
+				+ (IsAbleToUseFeat(ch, EFeat::kStealthy) ? 5 : 0);
 
 			if (IsAwakeOthers(ch))
 				bonus -= 100;
@@ -1640,7 +1640,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kIdentify: {
 			bonus = int_app[GET_REAL_INT(ch)].observation
-				+ (can_use_feat(ch, CONNOISEUR_FEAT) ? 20 : 0);
+				+ (IsAbleToUseFeat(ch, EFeat::kConnoiseur) ? 20 : 0);
 			break;
 		}
 
@@ -1663,12 +1663,12 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kHangovering: {
 			bonus = -GET_REAL_CON(ch) / 2
-				+ (can_use_feat(ch, DRUNKARD_FEAT) ? 20 : 0);
+				+ (IsAbleToUseFeat(ch, EFeat::kDrunkard) ? 20 : 0);
 			break;
 		}
 
 		case ESkill::kFirstAid: {
-			bonus = (can_use_feat(ch, HEALER_FEAT) ? 10 : 0);
+			bonus = (IsAbleToUseFeat(ch, EFeat::kHealer) ? 10 : 0);
 			break;
 		}
 
@@ -1860,32 +1860,6 @@ int CalculateSkillAwakeModifier(CharData *killer, CharData *victim) {
 		result = victim->get_skill(ESkill::kAwake) / 2;
 	}
 	return result;
-}
-
-int FindWeaponMasterFeat(ESkill skill) {
-	switch (skill) {
-		case ESkill::kPunch: return PUNCH_MASTER_FEAT;
-			break;
-		case ESkill::kClubs: return CLUBS_MASTER_FEAT;
-			break;
-		case ESkill::kAxes: return AXES_MASTER_FEAT;
-			break;
-		case ESkill::kLongBlades: return LONGS_MASTER_FEAT;
-			break;
-		case ESkill::kShortBlades: return SHORTS_MASTER_FEAT;
-			break;
-		case ESkill::kNonstandart: return NONSTANDART_MASTER_FEAT;
-			break;
-		case ESkill::kTwohands: return BOTHHANDS_MASTER_FEAT;
-			break;
-		case ESkill::kPicks: return PICK_MASTER_FEAT;
-			break;
-		case ESkill::kSpades: return SPADES_MASTER_FEAT;
-			break;
-		case ESkill::kBows: return BOWS_MASTER_FEAT;
-			break;
-		default: return INCORRECT_FEAT;
-	}
 }
 
 //Определим мин уровень для изучения скилла из книги

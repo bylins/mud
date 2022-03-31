@@ -193,7 +193,7 @@ void do_sense(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!check_moves(ch, can_use_feat(ch, TRACKER_FEAT) ? SENSE_MOVES / 2 : SENSE_MOVES))
+	if (!check_moves(ch, IsAbleToUseFeat(ch, EFeat::kTracker) ? SENSE_MOVES / 2 : SENSE_MOVES))
 		return;
 
 	one_argument(argument, arg);

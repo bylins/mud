@@ -166,7 +166,7 @@ int feat_slot_lvl(int remort, int slot_for_remort, int slot) {
 Лишние способности у персонажей удалятся автоматически при использовании команды "способности".
 */
 void list_feats(CharData *ch, CharData *vict, bool all_feats) {
-	int i = 0, j = 0, sortpos, slot, max_slot = 0;
+	int i = 0, j = 0, slot, max_slot = 0;
 	char msg[kMaxStringLength];
 	bool sfound;
 
@@ -191,6 +191,7 @@ void list_feats(CharData *ch, CharData *vict, bool all_feats) {
 
 	sprintf(buf2, "\r\nВрожденные способности :\r\n");
 	j = 0;
+	auto sortpos{EFeat::kIncorrectFeat};
 	if (all_feats) {
 		if (clr(vict, C_NRM)) // реж цвет >= обычный
 			send_to_char(" Список способностей, доступных с текущим числом перевоплощений.\r\n"
@@ -203,21 +204,21 @@ void list_feats(CharData *ch, CharData *vict, bool all_feats) {
 						 " Пометкой [И] выделены уже изученные способности.\r\n"
 						 " Пометкой [Д] выделены доступные для изучения способности.\r\n"
 						 " Пометкой [Н] выделены способности, недоступные вам в настоящий момент.\r\n\r\n", vict);
-		for (sortpos = 1; sortpos < kMaxFeats; sortpos++) {
+		for (sortpos = EFeat::kFirstFeat; sortpos <= EFeat::kLastFeat; ++sortpos) {
 			if (!feat_info[sortpos].is_known[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]
 				&& !PlayerRace::FeatureCheck((int) GET_KIN(ch), (int) GET_RACE(ch), sortpos))
 				continue;
 			if (clr(vict, C_NRM))
 				sprintf(buf, "        %s%s %-30s%s\r\n",
 						HAVE_FEAT(ch, sortpos) ? KGRN :
-						can_get_feat(ch, sortpos) ? KNRM : KRED,
+						IsAbleToGetFeat(ch, sortpos) ? KNRM : KRED,
 						HAVE_FEAT(ch, sortpos) ? "[И]" :
-						can_get_feat(ch, sortpos) ? "[Д]" : "[Н]",
+						IsAbleToGetFeat(ch, sortpos) ? "[Д]" : "[Н]",
 						feat_info[sortpos].name, KNRM);
 			else
 				sprintf(buf, "    %s %-30s\r\n",
 						HAVE_FEAT(ch, sortpos) ? "[И]" :
-						can_get_feat(ch, sortpos) ? "[Д]" : "[Н]",
+						IsAbleToGetFeat(ch, sortpos) ? "[Д]" : "[Н]",
 						feat_info[sortpos].name);
 
 			if (feat_info[sortpos].is_inborn[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]
@@ -255,7 +256,7 @@ void list_feats(CharData *ch, CharData *vict, bool all_feats) {
 
 	sprintf(buf1, "Вы обладаете следующими способностями :\r\n");
 
-	for (sortpos = 1; sortpos < kMaxFeats; sortpos++) {
+	for (sortpos = EFeat::kFirstFeat; sortpos <= EFeat::kLastFeat; ++sortpos) {
 		if (strlen(buf2) >= kMaxStringLength - 60) {
 			strcat(buf2, "***ПЕРЕПОЛНЕНИЕ***\r\n");
 			break;
@@ -265,23 +266,23 @@ void list_feats(CharData *ch, CharData *vict, bool all_feats) {
 				continue;
 
 			switch (sortpos) {
-				case BERSERK_FEAT:
-				case LIGHT_WALK_FEAT:
-				case SPELL_CAPABLE_FEAT:
-				case RELOCATE_FEAT:
-				case SHADOW_THROW_FEAT:
+				case EFeat::kBerserker:
+				case EFeat::kLightWalk:
+				case EFeat::kSpellCapabler:
+				case EFeat::kRelocate:
+				case EFeat::kShadowThrower:
 					if (IsTimed(ch, sortpos))
 						sprintf(buf, "[%3d] ", IsTimed(ch, sortpos));
 					else
 						sprintf(buf, "[-!-] ");
 					break;
-				case POWER_ATTACK_FEAT:
-				case GREAT_POWER_ATTACK_FEAT:
-				case AIMING_ATTACK_FEAT:
-				case GREAT_AIMING_ATTACK_FEAT:
-				case SKIRMISHER_FEAT:
-				case DOUBLE_THROW_FEAT:
-				case TRIPLE_THROW_FEAT:
+				case EFeat::kPowerAttack:
+				case EFeat::kGreatPowerAttack:
+				case EFeat::kAimingAttack:
+				case EFeat::kGreatAimingAttack:
+				case EFeat::kScirmisher:
+				case EFeat::kDoubleThrower:
+				case EFeat::kTripleThrower:
 					if (PRF_FLAGGED(ch, GetPrfWithFeatNumber(sortpos)))
 						sprintf(buf, "[-%s*%s-] ", CCIGRN(vict, C_NRM), CCNRM(vict, C_NRM));
 					else
@@ -289,7 +290,7 @@ void list_feats(CharData *ch, CharData *vict, bool all_feats) {
 					break;
 				default: sprintf(buf, "      ");
 			}
-			if (can_use_feat(ch, sortpos))
+			if (IsAbleToUseFeat(ch, sortpos))
 				sprintf(buf + strlen(buf), "%s%s%s\r\n",
 						CCIYEL(vict, C_NRM), feat_info[sortpos].name, CCNRM(vict, C_NRM));
 			else if (clr(vict, C_NRM))
@@ -371,7 +372,7 @@ void list_skills(CharData *ch, CharData *vict, const char *filter/* = nullptr*/)
 							(kHoursPerDay - IsTimedBySkill(ch, skill_id)) / kHoursPerWarcry);
 					break;
 				case ESkill::kTurnUndead:
-					if (can_use_feat(ch, EXORCIST_FEAT)) {
+					if (IsAbleToUseFeat(ch, EFeat::kExorcist)) {
 						sprintf(buf,
 								"[-%d-] ",
 								(kHoursPerDay - IsTimedBySkill(ch, skill_id)) / (kHoursPerTurnUndead - 2));
@@ -736,7 +737,7 @@ void init_guilds() {
 				skill_id = FixNameAndFindSkillNum(line1);
 			}
 
-			if ((featnum = atoi(line1)) == 0 || featnum >= kMaxFeats) {
+			if ((featnum = atoi(line1)) == 0 || featnum >= EFeat::kLastFeat) {
 				if ((pos = strchr(line1, '.')))
 					*pos = ' ';
 				featnum = FindFeatNum(line1);
@@ -807,7 +808,7 @@ void init_guilds() {
 				skill_id = FixNameAndFindSkillNum(line5);
 			}
 
-			if ((featnum = atoi(line5)) == 0 || featnum >= kMaxFeats) {
+			if ((featnum = atoi(line5)) == 0 || featnum >= EFeat::kLastFeat) {
 				if ((pos = strchr(line5, '.')))
 					*pos = ' ';
 
@@ -895,8 +896,8 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 						found = true;
 					}
 
-					const auto feat_no = (guild_mono_info[info_num].learn_info + i)->feat_no;
-					if (feat_no > 0 && !HAVE_FEAT(ch, feat_no) && can_get_feat(ch, feat_no)) {
+					const auto feat_no = static_cast<EFeat>((guild_mono_info[info_num].learn_info + i)->feat_no);
+					if (feat_no > 0 && !HAVE_FEAT(ch, feat_no) && IsAbleToGetFeat(ch, feat_no)) {
 						gcount += sprintf(buf + gcount, "- способность %s\"%s\"%s\r\n",
 										  CCCYN(ch, C_NRM), GetFeatName(feat_no), CCNRM(ch, C_NRM));
 						found = true;
@@ -960,10 +961,9 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 						found = true;
 					}
 
-					const int feat_no = (guild_mono_info[info_num].learn_info + i)->feat_no;
-					if (feat_no > 0
-						&& feat_no < kMaxFeats) {
-						if (!HAVE_FEAT(ch, feat_no) && can_get_feat(ch, feat_no)) {
+					const auto feat_no = static_cast<EFeat>((guild_mono_info[info_num].learn_info + i)->feat_no);
+					if (feat_no >= EFeat::kFirstFeat && feat_no <= EFeat::kLastFeat) {
+						if (!HAVE_FEAT(ch, feat_no) && IsAbleToGetFeat(ch, feat_no)) {
 							sfound = true;
 						}
 					}
@@ -982,8 +982,8 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 				return (1);
 			}
 
-			const int feat_no = FindFeatNum(argument);
-			if ((feat_no > 0 && feat_no < kMaxFeats)) {
+			const auto feat_no = FindFeatNum(argument);
+			if (feat_no >= EFeat::kFirstFeat && feat_no <= EFeat::kLastFeat) {
 				for (i = 0, found = false; (guild_mono_info[info_num].learn_info + i)->feat_no >= 0; i++) {
 					if ((guild_mono_info[info_num].learn_info + i)->level > GetRealLevel(ch)) {
 						continue;
@@ -997,7 +997,7 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 								0,
 								victim,
 								kToChar);
-						} else if (!can_get_feat(ch, feat_no)) {
+						} else if (!IsAbleToGetFeat(ch, feat_no)) {
 							act("$N сказал$G : 'Я не могу тебя этому научить.'", false, ch, 0, victim, kToChar);
 						} else {
 							sprintf(buf, "$N научил$G вас способности %s\"%s\"%s",
@@ -1193,10 +1193,9 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 						found = true;
 					}
 
-					const int feat_no = (guild_poly_info[info_num] + i)->feat_no;
-					if (feat_no > 0
-						&& feat_no < kMaxFeats) {
-						if (!HAVE_FEAT(ch, feat_no) && can_get_feat(ch, feat_no)) {
+					const auto feat_no = static_cast<EFeat>((guild_poly_info[info_num] + i)->feat_no);
+					if (feat_no >= EFeat::kFirstFeat && feat_no <= EFeat::kLastFeat) {
+						if (!HAVE_FEAT(ch, feat_no) && IsAbleToGetFeat(ch, feat_no)) {
 							gcount += sprintf(buf + gcount, "- способность %s\"%s\"%s\r\n",
 											  CCCYN(ch, C_NRM), GetFeatName(feat_no), CCNRM(ch, C_NRM));
 							found = true;
@@ -1236,11 +1235,9 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 						sfound = true;
 					}
 
-					const int feat_no = (guild_poly_info[info_num] + i)->feat_no;
-					if (feat_no > 0
-						&& feat_no < kMaxFeats) {
-						if (!HAVE_FEAT(ch, feat_no)
-							&& can_get_feat(ch, feat_no)) {
+					const auto feat_no = static_cast<EFeat>((guild_poly_info[info_num] + i)->feat_no);
+					if (feat_no >= EFeat::kFirstFeat && feat_no <= EFeat::kLastFeat) {
+						if (!HAVE_FEAT(ch, feat_no) && IsAbleToGetFeat(ch, feat_no)) {
 							sfound = true;
 						}
 					}
@@ -1326,14 +1323,14 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 				}
 			}
 
-			int feat_no = FindFeatNum(argument);
-			if (feat_no < 0 || feat_no >= kMaxFeats) {
+			auto feat_no = FindFeatNum(argument);
+			if (feat_no < EFeat::kFirstFeat || feat_no > EFeat::kLastFeat) {
 				std::string str(argument);
 				std::replace_if(str.begin(), str.end(), boost::is_any_of("_:"), ' ');
 				feat_no = FindFeatNum(str.c_str(), true);
 			}
 
-			if (feat_no > 0 && feat_no < kMaxFeats) {
+			if (feat_no >= EFeat::kFirstFeat && feat_no <= EFeat::kLastFeat) {
 				for (i = 0, found = false; (guild_poly_info[info_num] + i)->feat_no >= 0; i++) {
 					if ((guild_poly_info[info_num] + i)->level > GetRealLevel(ch)) {
 						continue;
@@ -1351,7 +1348,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 								0,
 								victim,
 								kToChar);
-						} else if (!can_get_feat(ch, feat_no)) {
+						} else if (!IsAbleToGetFeat(ch, feat_no)) {
 							act("$N сказал$G : 'Я не могу тебя этому научить.'", false, ch, 0, victim, kToChar);
 						} else {
 							sprintf(buf, "$N научил$G вас способности %s\"%s\"%s",

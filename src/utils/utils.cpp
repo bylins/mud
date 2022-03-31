@@ -1967,7 +1967,7 @@ void tell_to_char(CharData *keeper, CharData *ch, const char *arg) {
 
 int CAN_CARRY_N(const CharData *ch) {
 	int n = 5 + GET_REAL_DEX(ch) / 2 + GetRealLevel(ch) / 2;
-	if (HAVE_FEAT(ch, JUGGLER_FEAT)) {
+	if (HAVE_FEAT(ch, EFeat::kJuggler)) {
 		n += GetRealLevel(ch) / 2;
 		if (GET_CLASS(ch) == kMagus) {
 			n += 5;

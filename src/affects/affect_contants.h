@@ -19,6 +19,7 @@ constexpr Bitvector kAfSameTime = 1 << 3; // тикает раз в две се�
  * Affect bits: used in char_data.char_specials.saved.affected_by //
  */
 enum class EAffect : Bitvector {
+	kIncorrect = 0u,
 	kBlind = 1u << 0,                    ///< (R) Char is blind
 	kInvisible = 1u << 1,                ///< Char is invisible
 	kDetectAlign = 1u << 2,                ///< Char is sensitive to align

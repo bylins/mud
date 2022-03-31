@@ -79,7 +79,7 @@ void do_employ(CharData *ch, char *argument, int cmd, int subcmd) {
 			if (GET_OBJ_VAL(mag_item, 3) == kSpellCharm
 				|| GET_OBJ_VAL(mag_item, 3) == kSpellAnimateDead
 				|| GET_OBJ_VAL(mag_item, 3) == kSpellResurrection) {
-				if (!can_use_feat(ch, MAGIC_USER_FEAT)) {
+				if (!IsAbleToUseFeat(ch, EFeat::kMagicUser)) {
 					send_to_char("Да, штука явно магическая! Но совершенно непонятно как ей пользоваться. :(\r\n", ch);
 					return;
 				}

@@ -926,21 +926,21 @@ unsigned int activate_stuff(CharData *ch, ObjData *obj, id_to_set_info_map::cons
 
 bool check_armor_type(CharData *ch, ObjData *obj) {
 	if (GET_OBJ_TYPE(obj) == ObjData::ITEM_ARMOR_LIGHT
-		&& !can_use_feat(ch, ARMOR_LIGHT_FEAT)) {
+		&& !IsAbleToUseFeat(ch, EFeat::kLightArmor)) {
 		act("Для использования $o1 требуется способность 'легкие доспехи'.",
 			false, ch, obj, nullptr, kToChar);
 		return false;
 	}
 
 	if (GET_OBJ_TYPE(obj) == ObjData::ITEM_ARMOR_MEDIAN
-		&& !can_use_feat(ch, ARMOR_MEDIAN_FEAT)) {
+		&& !IsAbleToUseFeat(ch, EFeat::kMediantArmor)) {
 		act("Для использования $o1 требуется способность 'средние доспехи'.",
 			false, ch, obj, nullptr, kToChar);
 		return false;
 	}
 
 	if (GET_OBJ_TYPE(obj) == ObjData::ITEM_ARMOR_HEAVY
-		&& !can_use_feat(ch, ARMOR_HEAVY_FEAT)) {
+		&& !IsAbleToUseFeat(ch, EFeat::kHeavyArmor)) {
 		act("Для использования $o1 требуется способность 'тяжелые доспехи'.",
 			false, ch, obj, nullptr, kToChar);
 		return false;

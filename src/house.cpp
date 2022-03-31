@@ -4545,7 +4545,7 @@ void Clan::HouseStat(CharData *ch, std::string &buffer) {
 		temp_list.insert(std::make_pair(lSortParam, std::make_pair(std::string(timeBuf), it.second)));
 	}
 
-	fort::char_table table;
+	table_wrapper::Table table;
 	table << fort::header << "Имя" << "Ур" << "Прв" << "Класс" << "Рейт. очков"
 		  << "Опыта дружины" << "Внесено кун" << "Был в игре" << fort::endr;
 	std::string lvl_str;

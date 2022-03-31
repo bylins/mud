@@ -8,7 +8,7 @@
 #include <cmath>
 
 void reduce_exp_after_flee(CharData *ch, CharData *victim, RoomRnum room) {
-	if (can_use_feat(ch, RETREAT_FEAT) || ROOM_FLAGGED(room, ROOM_ARENA))
+	if (IsAbleToUseFeat(ch, EFeat::kRetreat) || ROOM_FLAGGED(room, ROOM_ARENA))
 		return;
 
 	const auto loss = MAX(1, GET_REAL_MAX_HIT(victim) - GET_HIT(victim)) * GetRealLevel(victim);
@@ -127,7 +127,7 @@ void do_flee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Но вы ведь ни с кем не сражаетесь!\r\n", ch);
 		return;
 	}
-	if (can_use_feat(ch, CALMNESS_FEAT) || GET_GOD_FLAG(ch, EGf::kGodsLike)) {
+	if (IsAbleToUseFeat(ch, EFeat::kCalmness) || GET_GOD_FLAG(ch, EGf::kGodsLike)) {
 		one_argument(argument, arg);
 		if ((direction = search_block(arg, dirs, false)) >= 0 ||
 			(direction = search_block(arg, FleeDirs, false)) >= 0) {

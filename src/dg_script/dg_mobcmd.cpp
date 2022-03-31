@@ -978,7 +978,7 @@ void do_mfeatturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int isFeat = 0;
 	CharData *victim;
 	char name[kMaxInputLength], featname[kMaxInputLength], amount[kMaxInputLength], *pos;
-	int featnum = 0, featdiff = 0;
+	int featdiff = 0;
 
 	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
@@ -995,7 +995,8 @@ void do_mfeatturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	while ((pos = strchr(featname, '_')))
 		*pos = ' ';
 
-	if ((featnum = FindFeatNum(featname)) > 0 && featnum < kMaxFeats)
+	const auto feat_id = FindFeatNum(featname);
+	if (feat_id >= EFeat::kFirstFeat && feat_id <= EFeat::kLastFeat)
 		isFeat = 1;
 	else {
 		mob_log(ch, "mfeatturn: feature not found");
@@ -1024,7 +1025,7 @@ void do_mfeatturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	};
 
 	if (isFeat)
-		trg_featturn(victim, featnum, featdiff, last_trig_vnum);
+		trg_featturn(victim, feat_id, featdiff, last_trig_vnum);
 }
 
 void do_mskillturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {

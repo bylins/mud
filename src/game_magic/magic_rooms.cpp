@@ -70,7 +70,7 @@ void ShowAffectedRooms(CharData *ch) {
 	std::stringstream out;
 	out << " Список комнат под аффектами:" << std::endl;
 
-	fort::char_table table;
+	table_wrapper::Table table;
 	table << fort::header << "#" << "Vnum" << "Spell" << "Caster name" << "Time (s)" << fort::endr;
 	int count = 1;
 	for (const auto r : affected_rooms) {

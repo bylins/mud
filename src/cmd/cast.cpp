@@ -92,7 +92,7 @@ void do_cast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 
 	// Caster havn't slot
 	if (!GET_SPELL_MEM(ch, spellnum) && !IS_IMMORTAL(ch)) {
-		if (can_use_feat(ch, SPELL_SUBSTITUTE_FEAT)
+		if (IsAbleToUseFeat(ch, EFeat::kSpellSubstitute)
 			&& (spellnum == kSpellCureLight || spellnum == kSpellCureSerious
 				|| spellnum == kSpellCureCritic || spellnum == kSpellHeal)) {
 			for (i = 1; i <= kSpellCount; i++) {

@@ -118,11 +118,13 @@ void do_learn(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		send_to_char("МАГИЯ НЕ ОПРЕДЕЛЕНА - сообщите Богам!\r\n", ch);
 		return;
 	}
-	if (GET_OBJ_VAL(obj, 0) == BOOK_FEAT
-		&& (GET_OBJ_VAL(obj, 1) < 1
-			|| GET_OBJ_VAL(obj, 1) >= kMaxFeats)) {
-		send_to_char("СПОСОБНОСТЬ НЕ ОПРЕДЕЛЕНА - сообщите Богам!\r\n", ch);
-		return;
+	auto feat_id{EFeat::kIncorrectFeat};
+	if (GET_OBJ_VAL(obj, 0) == BOOK_FEAT) {
+		if ((GET_OBJ_VAL(obj, 1) < EFeat::kFirstFeat || GET_OBJ_VAL(obj, 1) > EFeat::kLastFeat)) {
+			send_to_char("СПОСОБНОСТЬ НЕ ОПРЕДЕЛЕНА - сообщите Богам!\r\n", ch);
+			return;
+		}
+		feat_id = static_cast<EFeat>(GET_OBJ_VAL(obj, 1));
 	}
 
 	int spellnum = kSpellNoSpell;
@@ -145,8 +147,7 @@ void do_learn(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 			send_to_char("Некорректная запись рецепта для вашего класса - сообщите Богам.\r\n", ch);
 			return;
 		}
-	} else if (GET_OBJ_VAL(obj, 0) == BOOK_FEAT && can_get_feat(ch, GET_OBJ_VAL(obj, 1))) {
-		spellnum = GET_OBJ_VAL(obj, 1);
+	} else if (GET_OBJ_VAL(obj, 0) == BOOK_FEAT && IsAbleToGetFeat(ch, feat_id)) {
 		spellname = feat_info[spellnum].name;
 	}
 
@@ -258,7 +259,7 @@ void do_learn(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 				GET_RSKILL(ch) = rs;
 				rs->perc = 5;
 				break;
-			case BOOK_FEAT: SET_FEAT(ch, spellnum);
+			case BOOK_FEAT: SET_FEAT(ch, feat_id);
 				break;
 		}
 	}

@@ -482,48 +482,41 @@ void affect_total(CharData *ch) {
 	}
 	ch->obj_bonus().apply_affects(ch);
 
-/*	if (ch->add_abils.absorb > 0) {
-		ch->add_abils.mresist += MIN(ch->add_abils.absorb / 2, 25); //поглота
-	}
-*/
-	// move features modifiers - added by Gorrah
-	for (int i = 1; i < kMaxFeats; i++) {
-		if (can_use_feat(ch, i) && (feat_info[i].type == AFFECT_FTYPE)) {
-			for (int j = 0; j < kMaxFeatAffect; j++) {
-				affect_modify(ch,
-							  feat_info[i].affected[j].location,
-							  feat_info[i].affected[j].modifier,
-							  static_cast<EAffect>(0),
-							  true);
+	// move features modifiers
+	for (auto i = EFeat::kFirstFeat; i <= EFeat::kLastFeat; ++i) {
+		if (IsAbleToUseFeat(ch, i) && (feat_info[i].type == EFeatType::kAffect)) {
+			for (int j = 0; j < kMaxFeatAffect; ++j) {
+				affect_modify(ch, feat_info[i].affected[j].location, feat_info[i].affected[j].modifier,
+							  EAffect::kIncorrect, true);
 			}
 		}
 	}
 
 	// IMPREGNABLE_FEAT учитывается дважды: выше начисляем единичку за 0 мортов, а теперь по 1 за каждый морт
-	if (can_use_feat(ch, IMPREGNABLE_FEAT)) {
+	if (IsAbleToUseFeat(ch, EFeat::kImpregnable)) {
 		for (int j = 0; j < kMaxFeatAffect; j++) {
 			affect_modify(ch,
-						  feat_info[IMPREGNABLE_FEAT].affected[j].location,
-						  MIN(9, feat_info[IMPREGNABLE_FEAT].affected[j].modifier * GET_REAL_REMORT(ch)),
-						  static_cast<EAffect>(0),
+						  feat_info[EFeat::kImpregnable].affected[j].location,
+						  std::min(9, feat_info[EFeat::kImpregnable].affected[j].modifier * GET_REAL_REMORT(ch)),
+						  EAffect::kIncorrect,
 						  true);
 		}
 	}
 
 	// Обработка изворотливости (с) Числобог
-	if (can_use_feat(ch, DODGER_FEAT)) {
-		affect_modify(ch, EApply::kSavingReflex, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), static_cast<EAffect>(0), true);
-		affect_modify(ch, EApply::kSavingWill, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), static_cast<EAffect>(0), true);
-		affect_modify(ch, EApply::kSavingStability, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), static_cast<EAffect>(0), true);
-		affect_modify(ch, EApply::kSavingCritical, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), static_cast<EAffect>(0), true);
+	if (IsAbleToUseFeat(ch, EFeat::kDodger)) {
+		affect_modify(ch, EApply::kSavingReflex, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), EAffect::kIncorrect, true);
+		affect_modify(ch, EApply::kSavingWill, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), EAffect::kIncorrect, true);
+		affect_modify(ch, EApply::kSavingStability, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), EAffect::kIncorrect, true);
+		affect_modify(ch, EApply::kSavingCritical, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), EAffect::kIncorrect, true);
 	}
 
 	// Обработка "выносливости" и "богатырского здоровья
 	// Знаю, что кривовато, придумаете, как лучше - делайте
 	if (!ch->is_npc()) {
-		if (can_use_feat(ch, ENDURANCE_FEAT))
+		if (IsAbleToUseFeat(ch, EFeat::kEndurance))
 			affect_modify(ch, EApply::kMove, GetRealLevel(ch) * 2, static_cast<EAffect>(0), true);
-		if (can_use_feat(ch, SPLENDID_HEALTH_FEAT))
+		if (IsAbleToUseFeat(ch, EFeat::kSplendidHealth))
 			affect_modify(ch, EApply::kHp, GetRealLevel(ch) * 2, static_cast<EAffect>(0), true);
 		if (NORENTABLE(ch) == 0 && !domination) // мы не на новой арене и не ПК
 			GloryConst::apply_modifiers(ch);
@@ -552,7 +545,7 @@ void affect_total(CharData *ch) {
 		if (!AFF_FLAGGED(ch, EAffect::kNoobRegen)) {
 			GET_HITREG(ch) += (GetRealLevel(ch) + 4) / 5 * 10;
 		}
-		if (can_use_feat(ch, DARKREGEN_FEAT)) {
+		if (IsAbleToUseFeat(ch, EFeat::kRegenOfDarkness)) {
 			GET_HITREG(ch) += GET_HITREG(ch) * 0.2;
 		}
 		if (GET_CON_ADD(ch)) {

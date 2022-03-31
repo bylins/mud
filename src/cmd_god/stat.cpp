@@ -769,12 +769,14 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 					}
 				}
 					break;
-				case BOOK_FEAT:
-					if (GET_OBJ_VAL(j, 1) >= 1 && GET_OBJ_VAL(j, 1) < kMaxFeats) {
-						sprintf(buf, "содержит секрет способности : \"%s\"",
-								feat_info[GET_OBJ_VAL(j, 1)].name);
-					} else
+				case BOOK_FEAT: {
+					const auto id = static_cast<EFeat>(GET_OBJ_VAL(j, 1));
+					if (id >= EFeat::kFirstFeat && id <= EFeat::kLastFeat) {
+						sprintf(buf, "содержит секрет способности : \"%s\"", GetFeatName(id));
+					} else {
 						sprintf(buf, "неверный номер способности");
+					}
+				}
 					break;
 				case BOOK_RECPT: {
 					const auto recipe = im_get_recipe(GET_OBJ_VAL(j, 1));

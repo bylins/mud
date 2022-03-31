@@ -1808,7 +1808,7 @@ void look_at_room(CharData *ch, int ignore_brief) {
 	if (!ch->desc)
 		return;
 
-	if (IS_DARK(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !can_use_feat(ch, DARK_READING_FEAT)) {
+	if (IS_DARK(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !IsAbleToUseFeat(ch, EFeat::kDarkReading)) {
 		send_to_char("Слишком темно...\r\n", ch);
 		show_glow_objs(ch);
 		return;
@@ -2270,14 +2270,14 @@ const char *diag_liquid_timer(const ObjData *obj) {
 //buf это буфер в который дописывать инфу, в нем уже может быть что-то иначе надо перед вызовом присвоить *buf='\0'
 void obj_info(CharData *ch, ObjData *obj, char buf[kMaxStringLength]) {
 	int j;
-	if (can_use_feat(ch, SKILLED_TRADER_FEAT) || PRF_FLAGGED(ch, EPrf::kHolylight) || ch->get_skill(ESkill::kJewelry)) {
+	if (IsAbleToUseFeat(ch, EFeat::kSkilledTrader) || PRF_FLAGGED(ch, EPrf::kHolylight) || ch->get_skill(ESkill::kJewelry)) {
 		sprintf(buf + strlen(buf), "Материал : %s", CCCYN(ch, C_NRM));
 		sprinttype(obj->get_material(), material_name, buf + strlen(buf));
 		sprintf(buf + strlen(buf), "\r\n%s", CCNRM(ch, C_NRM));
 	}
 
 	if (GET_OBJ_TYPE(obj) == ObjData::ITEM_MING
-		&& (can_use_feat(ch, BREW_POTION_FEAT)
+		&& (IsAbleToUseFeat(ch, EFeat::kHerbalist)
 			|| PRF_FLAGGED(ch, EPrf::kHolylight))) {
 		for (j = 0; imtypes[j].id != GET_OBJ_VAL(obj, IM_TYPE_SLOT) && j <= top_imtypes;) {
 			j++;
@@ -2304,7 +2304,7 @@ void obj_info(CharData *ch, ObjData *obj, char buf[kMaxStringLength]) {
 	}
 
 	//|| EPrf::FLAGGED(ch, EPrf::HOLYLIGHT)
-	if (can_use_feat(ch, MASTER_JEWELER_FEAT)) {
+	if (IsAbleToUseFeat(ch, EFeat::kJeweller)) {
 		sprintf(buf + strlen(buf), "Слоты : %s", CCCYN(ch, C_NRM));
 		if (obj->has_flag(EObjFlag::kHasThreeSlots)) {
 			strcat(buf, "доступно 3 слота\r\n");
@@ -2711,7 +2711,7 @@ void ClearMyStat(CharData *ch) {
 }
 
 void PrintMyStat(CharData *ch) {
-	fort::char_table table;
+	table_wrapper::Table table;
 	std::size_t row{0};
 	std::size_t col{0};
 
@@ -3942,7 +3942,7 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 void do_zone(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (ch->desc
-		&& !(IS_DARK(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !can_use_feat(ch, DARK_READING_FEAT))
+		&& !(IS_DARK(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !IsAbleToUseFeat(ch, EFeat::kDarkReading))
 		&& !AFF_FLAGGED(ch, EAffect::kBlind)) {
 		MapSystem::print_map(ch);
 	}

@@ -70,7 +70,7 @@ void process_mobmax(CharData *ch, CharData *killer) {
 			if (IN_ROOM(master) == IN_ROOM(killer)) {
 				// лидер группы в тойже комнате, что и убивец
 				cnt = 1;
-				if (can_use_feat(master, PARTNER_FEAT)) {
+				if (IsAbleToUseFeat(master, EFeat::kPartner)) {
 					leader_partner = true;
 				}
 			}
@@ -542,11 +542,11 @@ void auto_loot(CharData *ch, CharData *killer, ObjData *corpse, int local_gold) 
 	char obj[256];
 
 	if (IS_DARK(IN_ROOM(killer))
-		&& !can_use_feat(killer, DARK_READING_FEAT)
+		&& !IsAbleToUseFeat(killer, EFeat::kDarkReading)
 		&& !(killer->is_npc()
 			&& AFF_FLAGGED(killer, EAffect::kCharmed)
 			&& killer->has_master()
-			&& can_use_feat(killer->get_master(), DARK_READING_FEAT))) {
+			&& IsAbleToUseFeat(killer->get_master(), EFeat::kDarkReading))) {
 		return;
 	}
 
@@ -737,7 +737,7 @@ void raw_kill(CharData *ch, CharData *killer) {
 
 	// добавляем одну душу киллеру
 	if (ch->is_npc() && killer) {
-		if (can_use_feat(killer, COLLECTORSOULS_FEAT)) {
+		if (IsAbleToUseFeat(killer, EFeat::kSoulsCollector)) {
 			if (GetRealLevel(ch) >= GetRealLevel(killer)) {
 				if (killer->get_souls() < (GET_REAL_REMORT(killer) + 1)) {
 					act("&GВы забрали душу $N1 себе!&n", false, killer, nullptr, ch, kToChar);
@@ -966,7 +966,7 @@ void group_gain(CharData *killer, CharData *victim) {
 	bool use_partner_exp = false;
 
 	// если наем лидер, то тоже режем экспу
-	if (can_use_feat(killer, CYNIC_FEAT)) {
+	if (IsAbleToUseFeat(killer, EFeat::kCynic)) {
 		maxlevel = 300;
 	} else {
 		maxlevel = GetRealLevel(killer);
@@ -997,7 +997,7 @@ void group_gain(CharData *killer, CharData *victim) {
 			// если в группе наем, то режим опыт всей группе
 			// дабы наема не выгодно было бы брать в группу
 			// ставим 300, чтобы вообще под ноль резало
-			if (can_use_feat(f->ch, CYNIC_FEAT)) {
+			if (IsAbleToUseFeat(f->ch, EFeat::kCynic)) {
 				maxlevel = 300;
 			}
 			// просмотр членов группы в той же комнате
@@ -1033,7 +1033,7 @@ void group_gain(CharData *killer, CharData *victim) {
 	// если лидер группы в комнате
 	if (leader_inroom) {
 		// если у лидера группы есть способность напарник
-		if (can_use_feat(leader, PARTNER_FEAT) && use_partner_exp) {
+		if (IsAbleToUseFeat(leader, EFeat::kPartner) && use_partner_exp) {
 			// если в группе всего двое человек
 			// k - лидер, и один последователь
 			if (partner_count == 1) {

@@ -12,6 +12,9 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
+#include <boost/algorithm/string.hpp>
+#include <boost/format.hpp>
+
 #include "modify.h"
 
 #include "interpreter.h"
@@ -39,9 +42,7 @@
 #include "game_magic/spells_info.h"
 #include "game_magic/magic_temp_spells.h"
 #include "structs/global_objects.h"
-
-#include <boost/algorithm/string.hpp>
-#include <boost/format.hpp>
+#include "utils/table_wrapper.h"
 
 void show_string(DescriptorData *d, char *input);
 
@@ -855,27 +856,30 @@ void do_featset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *vict;
 	char name[kMaxInputLength], buf2[128];
 	char buf[kMaxInputLength], help[kMaxStringLength];
-	int feat = -1, value, i, qend;
+	int value, qend;
 
 	argument = one_argument(argument, name);
 
-	if (!*name)        // no arguments. print an informative text //
-	{
-		send_to_char("Формат: featset <игрок> '<способность>' <значение>\r\n", ch);
-		strcpy(help, "Возможные способности:\r\n");
-		for (qend = 0, i = 1; i < kMaxFeats; i++) {
-			if (feat_info[i].type == UNUSED_FTYPE)    // This is valid. //
+	if (!*name) {
+		std::ostringstream out;
+		out << "Формат: featset <игрок> '<способность>' <значение>" << std:: endl
+			<< "Возможные способности:" << std:: endl;
+
+		table_wrapper::Table table;
+		for (auto feat = EFeat::kFirstFeat; feat <= EFeat::kLastFeat; ++feat) {
+			if (feat_info[feat].type == EFeatType::kUnused) {
 				continue;
-			sprintf(help + strlen(help), "%30s", feat_info[i].name);
-			if (qend++ % 3 == 2) {
-				strcat(help, "\r\n");
-				send_to_char(help, ch);
-				*help = '\0';
+			}
+			table << GetFeatName(feat);
+			if (table.cur_col() % 3 == 0) {
+				table << fort::endr;
 			}
 		}
-		if (*help)
-			send_to_char(help, ch);
-		send_to_char("\r\n", ch);
+		table_wrapper::DecorateNoBorderTable(ch, table);
+		table_wrapper::PrintTableToStream(out, table);
+		out << std:: endl;
+
+		send_to_char(out.str().c_str(), ch);
 		return;
 	}
 
@@ -906,7 +910,8 @@ void do_featset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	strcpy(help, (argument + 1));
 	help[qend - 1] = '\0';
 
-	if ((feat = FindFeatNum(help)) <= 0) {
+	auto feat_id = FindFeatNum(help);
+	if (feat_id <= 0) {
 		send_to_char("Неизвестная способность.\r\n", ch);
 		return;
 	}
@@ -930,20 +935,22 @@ void do_featset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	sprintf(buf2, "%s changed %s's %s to '%s'.", GET_NAME(ch), GET_NAME(vict),
-			feat_info[feat].name, value ? "enabled" : "disabled");
+			feat_info[feat_id].name, value ? "enabled" : "disabled");
 	mudlog(buf2, BRF, -1, SYSLOG, true);
 	imm_log("%s", buf2);
-	if (feat >= 0 && feat < kMaxFeats) {
-		if (value)
-			SET_FEAT(vict, feat);
-		else
-			UNSET_FEAT(vict, feat);
+	if (feat_id >= EFeat::kFirstFeat && feat_id <= EFeat::kLastFeat) {
+		if (value) {
+			SET_FEAT(vict, feat_id);
+		} else {
+			UNSET_FEAT(vict, feat_id);
+		}
 	}
 	sprintf(buf2, "Вы изменили для %s '%s' на '%s'.\r\n", GET_PAD(vict, 1),
-			feat_info[feat].name, value ? "доступно" : "недоступно");
-	if (!can_get_feat(vict, feat) && value == 1)
+			feat_info[feat_id].name, value ? "доступно" : "недоступно");
+	if (!IsAbleToGetFeat(vict, feat_id) && value == 1) {
 		send_to_char("Эта способность не доступна данному персонажу и будет удалена при повторном входе в игру.\r\n",
 					 ch);
+	}
 	send_to_char(buf2, ch);
 }
 

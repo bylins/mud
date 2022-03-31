@@ -6,14 +6,14 @@
 
 namespace AbilitySystem {
 
-void AgainstRivalRoll::Init(CharData *actor, int ability, CharData *victim) {
+void AgainstRivalRoll::Init(CharData *actor, EFeat ability, CharData *victim) {
 	rival_ = victim;
 	AbilityRoll::Init(actor, ability);
 };
 
-void AbilityRoll::Init(CharData *actor, int ability_num) {
+void AbilityRoll::Init(CharData *actor, EFeat ability_id) {
 	actor_ = actor;
-	ability_ = &feat_info[ability_num];
+	ability_ = &feat_info[ability_id];
 	if (TryRevealWrongConditions()) {
 		success_ = false;
 		return;
@@ -55,7 +55,7 @@ bool AbilityRoll::TryRevealWrongConditions() {
 };
 
 bool AbilityRoll::IsActorCantUseAbility() {
-	if (!IS_IMPL(actor_) && !can_use_feat(actor_, ability_->id)) {
+	if (!IS_IMPL(actor_) && !IsAbleToUseFeat(actor_, ability_->id)) {
 		deny_msg_ = "Вы не можете использовать этот навык.\r\n";
 		wrong_conditions_ = true;
 	};

@@ -210,7 +210,7 @@ int mana_gain(const CharData *ch) {
 		(AFF_FLAGGED(ch, EAffect::kHold) ||
 			AFF_FLAGGED(ch, EAffect::kBlind) ||
 			AFF_FLAGGED(ch, EAffect::kSleep) ||
-			((ch->in_room != kNowhere) && IS_DARK(ch->in_room) && !can_use_feat(ch, DARK_READING_FEAT)))) {
+			((ch->in_room != kNowhere) && IS_DARK(ch->in_room) && !IsAbleToUseFeat(ch, EFeat::kDarkReading)))) {
 		stopmem = true;
 		percent = 0;
 	}

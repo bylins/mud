@@ -475,7 +475,7 @@ void PrintMorphInfo(CharData *ch, std::ostringstream &out) {
  * @param col - номер столбца.
  * @return - количество заполненных функцией столбцов.
  */
-int PrintBaseInfoToTable(CharData *ch, fort::char_table &table, std::size_t col) {
+int PrintBaseInfoToTable(CharData *ch, table_wrapper::Table &table, std::size_t col) {
 	std::size_t row{0};
 	table[row][col] = std::string("Племя: ") + PlayerRace::GetRaceNameByNum(GET_KIN(ch), GET_RACE(ch), GET_SEX(ch));
 	table[++row][col] = std::string("Вера: ") + religion_name[GET_RELIGION(ch)][static_cast<int>(GET_SEX(ch))];
@@ -508,7 +508,7 @@ int PrintBaseInfoToTable(CharData *ch, fort::char_table &table, std::size_t col)
  * @param col - номер столбца.
  * @return - количество заполненных функцией столбцов.
  */
-int PrintBaseStatsToTable(CharData *ch, fort::char_table &table, std::size_t col) {
+int PrintBaseStatsToTable(CharData *ch, table_wrapper::Table &table, std::size_t col) {
 	std::size_t row{0};
 	table[row][col] = "Сила";			table[row][col + 1] = std::to_string(ch->get_str()) + " (" + std::to_string(GET_REAL_STR(ch)) + ")";
 	table[++row][col] = "Ловкость";		table[row][col + 1] = std::to_string(ch->get_dex()) + " (" + std::to_string(GET_REAL_DEX(ch)) + ")";
@@ -538,7 +538,7 @@ int PrintBaseStatsToTable(CharData *ch, fort::char_table &table, std::size_t col
  * @param col - номер столбца.
  * @return - количество заполненных функцией столбцов.
  */
-int PrintSecondaryStatsToTable(CharData *ch, fort::char_table &table, std::size_t col) {
+int PrintSecondaryStatsToTable(CharData *ch, table_wrapper::Table &table, std::size_t col) {
 	HitData hit_params;
 	hit_params.weapon = fight::kMainHand;
 	hit_params.init(ch, ch);
@@ -569,7 +569,7 @@ int PrintSecondaryStatsToTable(CharData *ch, fort::char_table &table, std::size_
  * @param col - номер столбца.
  * @return - количество заполненных функцией столбцов.
  */
-int PrintProtectiveStatsToTable(CharData *ch, fort::char_table &table, std::size_t col) {
+int PrintProtectiveStatsToTable(CharData *ch, table_wrapper::Table &table, std::size_t col) {
 	std::size_t row{0};
 	int ac = compute_armor_class(ch) / 10;
 	if (ac < 5) {
@@ -656,7 +656,7 @@ void PrintScoreAll(CharData *ch) {
 	out << "  Вы " << ch->get_name() << ", " << MUD::Classes()[ch->get_class()].GetName() << ". Ваши показатели:" << std::endl;
 
 	// Заполняем основную таблицу и выводим в поток
-	fort::char_table table;
+	table_wrapper::Table table;
 	std::size_t current_column{0};
 	current_column += PrintBaseInfoToTable(ch, table, current_column);
 	current_column += PrintBaseStatsToTable(ch, table, current_column);
@@ -928,7 +928,7 @@ void PrintScoreBase(CharData *ch) {
 		sprintf(buf, "Вы находитесь в звериной форме - %s.\r\n", ch->get_morph_desc().c_str());
 		send_to_char(buf, ch);
 	}
-	if (can_use_feat(ch, COLLECTORSOULS_FEAT)) {
+	if (IsAbleToUseFeat(ch, EFeat::kSoulsCollector)) {
 		const int souls = ch->get_souls();
 		if (souls == 0) {
 			sprintf(buf, "Вы не имеете чужих душ.\r\n");
@@ -1017,22 +1017,22 @@ int CalcHitroll(CharData *ch) {
 	} else {
 		HitData::CheckWeapFeats(ch, ESkill::kPunch, hr, max_dam);
 	}
-	if (can_use_feat(ch, WEAPON_FINESSE_FEAT)) {
+	if (IsAbleToUseFeat(ch, EFeat::kWeaponFinesse)) {
 		hr += str_bonus(GET_REAL_DEX(ch), STR_TO_HIT);
 	} else {
 		hr += str_bonus(GET_REAL_STR(ch), STR_TO_HIT);
 	}
 	hr += GET_REAL_HR(ch) - thaco(static_cast<int>(GET_CLASS(ch)), GetRealLevel(ch));
-	if (PRF_FLAGGED(ch, EPrf::kPowerAttack)) {
+	if (PRF_FLAGGED(ch, EPrf::kPerformPowerAttack)) {
 		hr -= 2;
 	}
-	if (PRF_FLAGGED(ch, EPrf::kGreatPowerAttack)) {
+	if (PRF_FLAGGED(ch, EPrf::kPerformGreatPowerAttack)) {
 		hr -= 4;
 	}
-	if (PRF_FLAGGED(ch, EPrf::kAimingAttack)) {
+	if (PRF_FLAGGED(ch, EPrf::kPerformAimingAttack)) {
 		hr += 2;
 	}
-	if (PRF_FLAGGED(ch, EPrf::kGreatAimingAttack)) {
+	if (PRF_FLAGGED(ch, EPrf::kPerformGreatAimingAttack)) {
 		hr += 4;
 	}
 	hr -= (ch->ahorse() ? (10 - GET_SKILL(ch, ESkill::kRiding) / 20) : 0);

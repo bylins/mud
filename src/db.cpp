@@ -5118,8 +5118,8 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	while (ch->timed_feat) {
 		ExpireTimedFeat(ch, ch->timed_feat);
 	}
-	for (i = 1; i < kMaxFeats; i++) {
-		UNSET_FEAT(ch, i);
+	for (auto feat = EFeat::kFirstFeat; feat <= EFeat::kLastFeat; ++feat) {
+		UNSET_FEAT(ch, feat);
 	}
 
 	if (ch->get_remort() >= 9 && ch->get_remort() % 3 == 0) {
@@ -5150,8 +5150,8 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	PRF_FLAGS(ch).unset(EPrf::KSummonable);
 	PRF_FLAGS(ch).unset(EPrf::kAwake);
 	PRF_FLAGS(ch).unset(EPrf::kPunctual);
-	PRF_FLAGS(ch).unset(EPrf::kPowerAttack);
-	PRF_FLAGS(ch).unset(EPrf::kGreatPowerAttack);
+	PRF_FLAGS(ch).unset(EPrf::kPerformPowerAttack);
+	PRF_FLAGS(ch).unset(EPrf::kPerformGreatPowerAttack);
 	PRF_FLAGS(ch).unset(EPrf::kAwake);
 	PRF_FLAGS(ch).unset(EPrf::kIronWind);
 	PRF_FLAGS(ch).unset(EPrf::kDoubleThrow);

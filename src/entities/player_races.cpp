@@ -2,8 +2,9 @@
 // Part of Bylins http://www.mud.ru
 
 #include "utils/utils.h"
-#include "player_races.h"
 #include "utils/pugixml/pugixml.h"
+
+#include "player_races.h"
 
 PlayerKinListType PlayerRace::PlayerKinList;
 

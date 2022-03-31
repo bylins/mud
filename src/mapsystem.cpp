@@ -1023,7 +1023,7 @@ void do_map(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (AFF_FLAGGED(ch, EAffect::kBlind)) {
 		send_to_char("Слепому карта не поможет!\r\n", ch);
 		return;
-	} else if (is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !can_use_feat(ch, DARK_READING_FEAT)) {
+	} else if (is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !IsAbleToUseFeat(ch, EFeat::kDarkReading)) {
 		send_to_char("Идем на ощупь и на запах!\r\n", ch);
 		return;
 	}

@@ -16,6 +16,7 @@
 #include "structs/structs.h"
 #include "utils/logger.h"
 #include <optional>
+#include <feats.h>
 
 struct RoomData;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 
@@ -477,7 +478,7 @@ int open_wtrigger(RoomData *room, CharData *actor, int dir, int unlock);
 int close_wtrigger(RoomData *room, CharData *actor, int dir, int lock);
 int timechange_wtrigger(RoomData *room, const int time);
 
-void trg_featturn(CharData *ch, int featnum, int featdiff, int vnum);
+void trg_featturn(CharData *ch, EFeat feat_id, int featdiff, int vnum);
 void trg_skillturn(CharData *ch, const ESkill skillnum, int skilldiff, int vnum);
 void AddSkill(CharData *ch, const ESkill skillnum, int skilldiff, int vnum);
 void trg_spellturn(CharData *ch, int spellnum, int spelldiff, int vnum);

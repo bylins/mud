@@ -210,7 +210,7 @@ void CharData::reset() {
 void CharData::set_abstinent() {
 	int duration = CalcDuration(this, 2, MAX(0, GET_DRUNK_STATE(this) - kDrunked), 4, 2, 5);
 
-	if (can_use_feat(this, DRUNKARD_FEAT)) {
+	if (IsAbleToUseFeat(this, EFeat::kDrunkard)) {
 		duration /= 2;
 	}
 
@@ -1925,7 +1925,7 @@ void CharData::restore_npc() {
 		}
 	}
 	// рестор для фитов
-	for (int i = 1; i < kMaxFeats; i++) {
+	for (auto i = EFeat::kFirstFeat; i <= EFeat::kLastFeat; ++i) {
 		if (!HAVE_FEAT(proto, i)) {
 				UNSET_FEAT(this, i);
 			}

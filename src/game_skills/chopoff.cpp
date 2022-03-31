@@ -61,7 +61,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 		act("$n попытал$u подсечь $N3, но упал$g сам$g.", true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 		GET_POS(ch) = EPosition::kSit;
 		prob = 3;
-		if (can_use_feat(ch, EVASION_FEAT)) {
+		if (IsAbleToUseFeat(ch, EFeat::kEvasion)) {
 			Affect<EApply> af;
 			af.type = kSpellExpedient;
 			af.location = EApply::kPhysicResist;

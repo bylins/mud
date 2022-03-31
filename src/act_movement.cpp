@@ -227,11 +227,11 @@ int skip_sneaking(CharData *ch, CharData *vict) {
 			make_visible(ch, EAffect::kSneak);
 			EXTRA_FLAGS(ch).get(EXTRA_FAILSNEAK);
 		} else if (affected_by_spell(ch, kSpellSneak)) {
-			//if (can_use_feat(ch, STEALTHY_FEAT)) //тать или наем
+			//if (can_use_feat(ch, EFeat::kStealthy)) //тать или наем
 			//percent = number(1, 140 + GET_REAL_INT(vict));
 			//else
 			percent = number(1,
-							 (can_use_feat(ch, STEALTHY_FEAT) ? 102 : 112)
+							 (IsAbleToUseFeat(ch, EFeat::kStealthy) ? 102 : 112)
 								 + (GET_REAL_INT(vict) * (vict->get_role(MOB_ROLE_BOSS) ? 3 : 1))
 								 + (GetRealLevel(vict) > 30 ? GetRealLevel(vict) : 0));
 			prob = CalcCurrentSkill(ch, ESkill::kSneak, vict);
@@ -306,12 +306,12 @@ int calculate_move_cost(CharData *ch, int dir) {
 	auto ch_inroom = real_sector(ch->in_room);
 	auto ch_toroom = real_sector(EXIT(ch, dir)->to_room());
 
-	if (can_use_feat(ch, FOREST_PATHS_FEAT)) {
+	if (IsAbleToUseFeat(ch, EFeat::kForestPath)) {
 		ch_inroom = real_forest_paths_sect(ch_inroom);
 		ch_toroom = real_forest_paths_sect(ch_toroom);
 	}
 
-	if (can_use_feat(ch, MOUNTAIN_PATHS_FEAT)) {
+	if (IsAbleToUseFeat(ch, EFeat::kMountainPath)) {
 		ch_inroom = real_mountains_paths_sect(ch_inroom);
 		ch_toroom = real_mountains_paths_sect(ch_toroom);
 	}
@@ -694,7 +694,7 @@ int do_simple_move(CharData *ch, int dir, int need_specials_check, CharData *lea
 		} else
 			strcpy(smallBuf, "уш$y");
 
-		if (is_flee && !ch->is_npc() && can_use_feat(ch, WRIGGLER_FEAT))
+		if (is_flee && !ch->is_npc() && IsAbleToUseFeat(ch, EFeat::kWriggler))
 			sprintf(buf2, "$n %s.", smallBuf);
 		else
 			sprintf(buf2, "$n %s %s.", smallBuf, DirsTo[dir]);
@@ -720,7 +720,7 @@ int do_simple_move(CharData *ch, int dir, int need_specials_check, CharData *lea
 
 	char_from_room(ch);
 	//затычка для бегства. чтоьы не отрабатывал MSDP протокол
-	if (is_flee && !ch->is_npc() && !can_use_feat(ch, CALMNESS_FEAT))
+	if (is_flee && !ch->is_npc() && !IsAbleToUseFeat(ch, EFeat::kCalmness))
 		char_flee_to_room(ch, go_to);
 	else
 		char_to_room(ch, go_to);

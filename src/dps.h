@@ -51,7 +51,7 @@ typedef std::list<DpsNode> CharmListType;
 class PlayerDpsNode : public DpsNode {
  public:
 	void add_charm_dmg(CharData *ch, int dmg, int over_dmg);
-	void print_charm_stats(fort::char_table &table) const;
+	void print_charm_stats(table_wrapper::Table &table) const;
 	void print_group_charm_stats(CharData *ch) const;
 	void end_charm_round(CharData *ch);
 
