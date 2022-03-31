@@ -1809,10 +1809,10 @@ int npc_loot(CharData *ch) {
 
 int npc_move(CharData *ch, int dir, int/* need_specials_check*/) {
 	int need_close = false, need_lock = false;
-	int rev_dir[] = {kDirSouth, kDirWest, kDirNorth, kDirEast, kDirDown, kDirUp};
+	int rev_dir[] = {EDirection::kSouth, EDirection::kWest, EDirection::kNorth, EDirection::kEast, EDirection::kDown, EDirection::kUp};
 	int retval = false;
 
-	if (ch == nullptr || dir < 0 || dir >= kDirMaxNumber || ch->get_fighting()) {
+	if (ch == nullptr || dir < 0 || dir >= EDirection::kMaxDirNum || ch->get_fighting()) {
 		return (false);
 	} else if (!EXIT(ch, dir) || EXIT(ch, dir)->to_room() == kNowhere) {
 		return (false);

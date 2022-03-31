@@ -261,7 +261,7 @@ void bribe_mtrigger(CharData *ch, CharData *actor, int amount) {
 
 void greet_mtrigger(CharData *actor, int dir) {
 	char buf[kMaxInputLength];
-	int rev_dir[] = {kDirSouth, kDirWest, kDirNorth, kDirEast, kDirDown, kDirUp};
+	int rev_dir[] = {EDirection::kSouth, EDirection::kWest, EDirection::kNorth, EDirection::kEast, EDirection::kDown, EDirection::kUp};
 
 	if (!actor || actor->purged()) {
 		return;
@@ -308,7 +308,7 @@ void greet_mtrigger(CharData *actor, int dir) {
 }
 
 void income_mtrigger(CharData *ch, int dir) {
-	int rev_dir[] = {kDirSouth, kDirWest, kDirNorth, kDirEast, kDirDown, kDirUp};
+	int rev_dir[] = {EDirection::kSouth, EDirection::kWest, EDirection::kNorth, EDirection::kEast, EDirection::kDown, EDirection::kUp};
 	int ispcinroom = 0;
 	CharData *actor = nullptr;
 
@@ -1162,7 +1162,7 @@ int close_otrigger(ObjData *obj, CharData *actor, int lock) {
 void greet_otrigger(CharData *actor, int dir) {
 	char buf[kMaxInputLength];
 	ObjData *obj;
-	int rev_dir[] = {kDirSouth, kDirWest, kDirNorth, kDirEast, kDirDown, kDirUp};
+	int rev_dir[] = {EDirection::kSouth, EDirection::kWest, EDirection::kNorth, EDirection::kEast, EDirection::kDown, EDirection::kUp};
 
 	if (actor->is_npc() || GET_INVIS_LEV(actor)) {
 		return;
@@ -1238,7 +1238,7 @@ void random_wtrigger(RoomData *room, int/* num*/, void * /*s*/, int/* types*/, c
 
 int enter_wtrigger(RoomData *room, CharData *actor, int dir) {
 	char buf[kMaxInputLength];
-	int rev_dir[] = {kDirSouth, kDirWest, kDirNorth, kDirEast, kDirDown, kDirUp};
+	int rev_dir[] = {EDirection::kSouth, EDirection::kWest, EDirection::kNorth, EDirection::kEast, EDirection::kDown, EDirection::kUp};
 
 	if (!actor || actor->purged())
 		return 1;

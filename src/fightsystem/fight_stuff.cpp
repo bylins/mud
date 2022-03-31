@@ -483,7 +483,7 @@ void death_cry(CharData *ch, CharData *killer) {
 		}
 	}
 
-	for (door = 0; door < kDirMaxNumber; door++) {
+	for (door = 0; door < EDirection::kMaxDirNum; door++) {
 		if (CAN_GO(ch, door)) {
 			const auto room_number = world[ch->in_room]->dir_option[door]->to_room();
 			const auto room = world[room_number];

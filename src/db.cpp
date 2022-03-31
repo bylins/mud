@@ -2860,7 +2860,7 @@ void renum_world(void) {
 	int room, door;
 
 	for (room = FIRST_ROOM; room <= top_of_world; room++) {
-		for (door = 0; door < kDirMaxNumber; door++) {
+		for (door = 0; door < EDirection::kMaxDirNum; door++) {
 			if (world[room]->dir_option[door]) {
 				if (world[room]->dir_option[door]->to_room() != kNowhere) {
 					const auto to_room = real_room(world[room]->dir_option[door]->to_room());
@@ -4508,7 +4508,7 @@ void ZoneReset::reset_zone_essential() {
 						break;
 					}
 
-					if (ZCMD.arg2 < 0 || ZCMD.arg2 >= kDirMaxNumber ||
+					if (ZCMD.arg2 < 0 || ZCMD.arg2 >= EDirection::kMaxDirNum ||
 						(world[ZCMD.arg1]->dir_option[ZCMD.arg2] == nullptr)) {
 						ZONE_ERROR("door does not exist, command disabled");
 						ZCMD.command = '*';
@@ -5531,7 +5531,7 @@ void room_copy(RoomData *dst, RoomData *src)
 	dst->temp_description = 0; // так надо
 
 	// Выходы и входы
-	for (i = 0; i < kDirMaxNumber; ++i) {
+	for (i = 0; i < EDirection::kMaxDirNum; ++i) {
 		const auto &rdd = src->dir_option[i];
 		if (rdd) {
 			dst->dir_option[i].reset(new ExitData());
@@ -5583,7 +5583,7 @@ void room_free(RoomData *room)
 	}
 
 	// Выходы и входы
-	for (int i = 0; i < kDirMaxNumber; i++) {
+	for (int i = 0; i < EDirection::kMaxDirNum; i++) {
 		if (room->dir_option[i]) {
 			room->dir_option[i].reset();
 		}

@@ -126,7 +126,7 @@ int find_first_step(RoomRnum src, RoomRnum target, CharData *ch) {
 	static struct bfs_queue_struct temp_queue;
 
 	// first, enqueue the first steps, saving which direction we're going.
-	for (curr_dir = 0; curr_dir < kDirMaxNumber; curr_dir++) {
+	for (curr_dir = 0; curr_dir < EDirection::kMaxDirNum; curr_dir++) {
 		if (VALID_EDGE(src, curr_dir, edge, through_locked_doors, through_closed_doors, through_notrack)) {
 			MARK(TOROOM(src, curr_dir));
 			temp_queue.room = TOROOM(src, curr_dir);
@@ -142,7 +142,7 @@ int find_first_step(RoomRnum src, RoomRnum target, CharData *ch) {
 			bfs_queue.clear();
 			return curr_dir;
 		} else {
-			for (curr_dir = 0; curr_dir < kDirMaxNumber; curr_dir++) {
+			for (curr_dir = 0; curr_dir < EDirection::kMaxDirNum; curr_dir++) {
 				if (VALID_EDGE(bfs_queue[i].room, curr_dir, edge, through_locked_doors, through_closed_doors, through_notrack)) {
 					MARK(TOROOM(bfs_queue[i].room, curr_dir));
 					temp_queue.room = TOROOM(bfs_queue[i].room, curr_dir);
@@ -169,7 +169,7 @@ int go_sense(CharData *ch, CharData *victim) {
 	if (percent > skill) {
 		int tries = 10;
 		do {
-			dir = number(0, kDirMaxNumber - 1);
+			dir = number(0, EDirection::kMaxDirNum - 1);
 		} while (!CAN_GO(ch, dir) && --tries);
 		return dir;
 	}

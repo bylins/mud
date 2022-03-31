@@ -454,7 +454,7 @@ void WorldFile::parse_room(int virtual_nr) {
 	world[room_nr]->glight = 0;
 	world[room_nr]->proto_script.reset(new ObjData::triggers_list_t());
 
-	for (i = 0; i < kDirMaxNumber; i++) {
+	for (i = 0; i < EDirection::kMaxDirNum; i++) {
 		world[room_nr]->dir_option[i] = nullptr;
 	}
 

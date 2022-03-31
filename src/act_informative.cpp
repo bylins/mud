@@ -163,13 +163,13 @@ void do_quest(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
  * This function screams bitvector... -gg 6/45/98
  */
 
-const char *Dirs[kDirMaxNumber + 1] = {"Север",
-									   "Восток",
-									   "Юг",
-									   "Запад",
-									   "Вверх",
-									   "Вниз",
-									   "\n"
+const char *Dirs[EDirection::kMaxDirNum + 1] = {"Север",
+												"Восток",
+												"Юг",
+												"Запад",
+												"Вверх",
+												"Вниз",
+												"\n"
 };
 
 const char *ObjState[8][2] = {{"рассыпается", "рассыпается"},
@@ -1437,7 +1437,7 @@ void do_auto_exits(CharData *ch) {
 
 	*buf = '\0';
 
-	for (door = 0; door < kDirMaxNumber; door++) {
+	for (door = 0; door < EDirection::kMaxDirNum; door++) {
 		// Наконец-то добавлена отрисовка в автовыходах закрытых дверей
 		if (EXIT(ch, door) && EXIT(ch, door)->to_room() != kNowhere) {
 			if (EXIT_FLAGGED(EXIT(ch, door), EX_CLOSED)) {
@@ -1470,7 +1470,7 @@ void do_exits(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Вы слепы, как котенок!\r\n", ch);
 		return;
 	}
-	for (door = 0; door < kDirMaxNumber; door++)
+	for (door = 0; door < EDirection::kMaxDirNum; door++)
 		if (EXIT(ch, door) && EXIT(ch, door)->to_room() != kNowhere && !EXIT_FLAGGED(EXIT(ch, door), EX_CLOSED)) {
 			if (IS_GOD(ch))
 				sprintf(buf2, "%-6s - [%5d] %s\r\n", Dirs[door],
@@ -1508,7 +1508,7 @@ void do_blind_exits(CharData *ch) {
 		send_to_char("Вы слепы, как котенок!\r\n", ch);
 		return;
 	}
-	for (door = 0; door < kDirMaxNumber; door++)
+	for (door = 0; door < EDirection::kMaxDirNum; door++)
 		if (EXIT(ch, door) && EXIT(ch, door)->to_room() != kNowhere && !EXIT_FLAGGED(EXIT(ch, door), EX_CLOSED)) {
 			if (IS_GOD(ch))
 				sprintf(buf2, "&W%s - [%d] %s ", Dirs[door],
@@ -2582,7 +2582,7 @@ void do_sides(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	else {
 		skip_hide_on_look(ch);
 		send_to_char("Вы посмотрели по сторонам.\r\n", ch);
-		for (i = 0; i < kDirMaxNumber; i++) {
+		for (i = 0; i < EDirection::kMaxDirNum; i++) {
 			look_in_direction(ch, i, 0);
 		}
 	}
@@ -2603,7 +2603,7 @@ void do_looking(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	else if (ch->get_skill(ESkill::kLooking)) {
 		if (check_moves(ch, LOOKING_MOVES)) {
 			send_to_char("Вы напрягли зрение и начали присматриваться по сторонам.\r\n", ch);
-			for (i = 0; i < kDirMaxNumber; i++)
+			for (i = 0; i < EDirection::kMaxDirNum; i++)
 				look_in_direction(ch, i, EXIT_SHOW_LOOKING);
 			if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike)))
 				WAIT_STATE(ch, 1 * kPulseViolence);
@@ -2630,7 +2630,7 @@ void do_hearing(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	else if (ch->get_skill(ESkill::kHearing)) {
 		if (check_moves(ch, HEARING_MOVES)) {
 			send_to_char("Вы начали сосредоточенно прислушиваться.\r\n", ch);
-			for (i = 0; i < kDirMaxNumber; i++)
+			for (i = 0; i < EDirection::kMaxDirNum; i++)
 				hear_in_direction(ch, i, 0);
 			if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike)))
 				WAIT_STATE(ch, 1 * kPulseViolence);

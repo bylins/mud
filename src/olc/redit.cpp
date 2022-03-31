@@ -218,7 +218,7 @@ void redit_save_internally(DescriptorData *d) {
 				world[i]->portal_room++;
 			}
 
-			for (j = 0; j < kDirMaxNumber; j++) {
+			for (j = 0; j < EDirection::kMaxDirNum; j++) {
 				if (W_EXIT(i, j)) {
 					const auto to_room = W_EXIT(i, j)->to_room();
 
@@ -232,7 +232,7 @@ void redit_save_internally(DescriptorData *d) {
 		// * Update any rooms being edited.
 		for (auto dsc = descriptor_list; dsc; dsc = dsc->next) {
 			if (dsc->connected == CON_REDIT) {
-				for (j = 0; j < kDirMaxNumber; j++) {
+				for (j = 0; j < EDirection::kMaxDirNum; j++) {
 					if (OLC_ROOM(dsc)->dir_option[j]) {
 						const auto to_room = OLC_ROOM(dsc)->dir_option[j]->to_room();
 
@@ -302,7 +302,7 @@ void redit_save_to_disk(int zone_num) {
 					zone_table[room->zone_rn].vnum, buf2, room->sector_type);
 
 			// * Handle exits.
-			for (counter2 = 0; counter2 < kDirMaxNumber; counter2++) {
+			for (counter2 = 0; counter2 < EDirection::kMaxDirNum; counter2++) {
 				if (room->dir_option[counter2]) {
 					// * Again, strip out the garbage.
 					if (!room->dir_option[counter2]->general_description.empty()) {
@@ -522,23 +522,23 @@ void redit_disp_menu(DescriptorData *d) {
 			 grn, nrm, room->name,
 			 grn, room->temp_description,
 			 grn, nrm, cyn, buf1, grn, nrm, cyn, buf2, grn, nrm, cyn,
-			 room->dir_option[kDirNorth] && room->dir_option[kDirNorth]->to_room() != kNowhere
-			 ? world[room->dir_option[kDirNorth]->to_room()]->room_vn : kNowhere,
+			 room->dir_option[EDirection::kNorth] && room->dir_option[EDirection::kNorth]->to_room() != kNowhere
+			 ? world[room->dir_option[EDirection::kNorth]->to_room()]->room_vn : kNowhere,
 			 grn, nrm, cyn,
-			 room->dir_option[kDirEast] && room->dir_option[kDirEast]->to_room() != kNowhere
-			 ? world[room->dir_option[kDirEast]->to_room()]->room_vn : kNowhere,
+			 room->dir_option[EDirection::kEast] && room->dir_option[EDirection::kEast]->to_room() != kNowhere
+			 ? world[room->dir_option[EDirection::kEast]->to_room()]->room_vn : kNowhere,
 			 grn, nrm, cyn,
-			 room->dir_option[kDirSouth] && room->dir_option[kDirSouth]->to_room() != kNowhere
-			 ? world[room->dir_option[kDirSouth]->to_room()]->room_vn : kNowhere,
+			 room->dir_option[EDirection::kSouth] && room->dir_option[EDirection::kSouth]->to_room() != kNowhere
+			 ? world[room->dir_option[EDirection::kSouth]->to_room()]->room_vn : kNowhere,
 			 grn, nrm, cyn,
-			 room->dir_option[kDirWest] && room->dir_option[kDirWest]->to_room() != kNowhere
-			 ? world[room->dir_option[kDirWest]->to_room()]->room_vn : kNowhere,
+			 room->dir_option[EDirection::kWest] && room->dir_option[EDirection::kWest]->to_room() != kNowhere
+			 ? world[room->dir_option[EDirection::kWest]->to_room()]->room_vn : kNowhere,
 			 grn, nrm, cyn,
-			 room->dir_option[kDirUp] && room->dir_option[kDirUp]->to_room() != kNowhere
-			 ? world[room->dir_option[kDirUp]->to_room()]->room_vn : kNowhere,
+			 room->dir_option[EDirection::kUp] && room->dir_option[EDirection::kUp]->to_room() != kNowhere
+			 ? world[room->dir_option[EDirection::kUp]->to_room()]->room_vn : kNowhere,
 			 grn, nrm, cyn,
-			 room->dir_option[kDirDown] && room->dir_option[kDirDown]->to_room() != kNowhere
-			 ? world[room->dir_option[kDirDown]->to_room()]->room_vn : kNowhere,
+			 room->dir_option[EDirection::kDown] && room->dir_option[EDirection::kDown]->to_room() != kNowhere
+			 ? world[room->dir_option[EDirection::kDown]->to_room()]->room_vn : kNowhere,
 			 grn, nrm, grn, nrm, cyn,
 			 !room->proto_script->empty() ? "Set." : "Not Set.",
 			 grn, nrm);
@@ -621,28 +621,28 @@ void redit_parse(DescriptorData *d, char *arg) {
 				case '4': redit_disp_sector_menu(d);
 					break;
 
-				case '5': OLC_VAL(d) = kDirNorth;
+				case '5': OLC_VAL(d) = EDirection::kNorth;
 					redit_disp_exit_menu(d);
 					break;
 
-				case '6': OLC_VAL(d) = kDirEast;
+				case '6': OLC_VAL(d) = EDirection::kEast;
 					redit_disp_exit_menu(d);
 					break;
 
-				case '7': OLC_VAL(d) = kDirSouth;
+				case '7': OLC_VAL(d) = EDirection::kSouth;
 					redit_disp_exit_menu(d);
 					break;
 
-				case '8': OLC_VAL(d) = kDirWest;
+				case '8': OLC_VAL(d) = EDirection::kWest;
 					redit_disp_exit_menu(d);
 					break;
 
-				case '9': OLC_VAL(d) = kDirUp;
+				case '9': OLC_VAL(d) = EDirection::kUp;
 					redit_disp_exit_menu(d);
 					break;
 
 				case 'a':
-				case 'A': OLC_VAL(d) = kDirDown;
+				case 'A': OLC_VAL(d) = EDirection::kDown;
 					redit_disp_exit_menu(d);
 					break;
 

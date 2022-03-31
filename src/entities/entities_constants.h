@@ -450,13 +450,15 @@ extern std::unordered_map<int, std::string> SECTOR_TYPE_BY_VALUE;
 /**
  * The cardinal directions: used as index to room_data.dir_option[]
  */
-const __uint8_t kDirNorth = 0;
-const __uint8_t kDirEast = 1;
-const __uint8_t kDirSouth = 2;
-const __uint8_t kDirWest = 3;
-const __uint8_t kDirUp = 4;
-const __uint8_t kDirDown = 5;
-const __uint8_t kDirMaxNumber = 6;        // number of directions in a room (nsewud) //
+enum EDirection {
+	kNorth = 0,
+	kEast = 1,
+	kSouth = 2,
+	kWest = 3,
+	kUp = 4,
+	kDown = 5,
+	kMaxDirNum = 6        // number of directions in a room (nsewud) //
+};
 
 /**
  * Room flags: used in room_data.room_flags

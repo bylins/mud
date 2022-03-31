@@ -1781,7 +1781,7 @@ char *make_prompt(DescriptorData *d) {
 			if (PRF_FLAGGED(d->character, EPrf::kDispExits)) {
 				count += sprintf(prompt + count, "Вых:");
 				if (!AFF_FLAGGED(d->character, EAffect::kBlind)) {
-					for (door = 0; door < kDirMaxNumber; door++) {
+					for (door = 0; door < EDirection::kMaxDirNum; door++) {
 						if (EXIT(d->character, door)
 							&& EXIT(d->character, door)->to_room() != kNowhere
 							&& !EXIT_FLAGGED(EXIT(d->character, door), EX_HIDDEN)) {

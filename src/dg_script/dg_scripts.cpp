@@ -3277,7 +3277,7 @@ void find_replacement(void *go,
 				strcpy(str, r->name);
 		} else if (!str_cmp(field, "direction")) {
 			if (*subfield) {
-				for (int i = 0; i < kDirMaxNumber; i++) {
+				for (int i = 0; i < EDirection::kMaxDirNum; i++) {
 					if (!str_cmp(subfield, dirs[i])) {
 						if (r->dir_option[i]) {
 							sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[i]->to_room())));
@@ -3287,28 +3287,28 @@ void find_replacement(void *go,
 				}
 			}
 		} else if (!str_cmp(field, "north")) {
-			if (r->dir_option[kDirNorth]) {
-				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[kDirNorth]->to_room())));
+			if (r->dir_option[EDirection::kNorth]) {
+				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[EDirection::kNorth]->to_room())));
 			}
 		} else if (!str_cmp(field, "east")) {
-			if (r->dir_option[kDirEast]) {
-				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[kDirEast]->to_room())));
+			if (r->dir_option[EDirection::kEast]) {
+				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[EDirection::kEast]->to_room())));
 			}
 		} else if (!str_cmp(field, "south")) {
-			if (r->dir_option[kDirSouth]) {
-				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[kDirSouth]->to_room())));
+			if (r->dir_option[EDirection::kSouth]) {
+				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[EDirection::kSouth]->to_room())));
 			}
 		} else if (!str_cmp(field, "west")) {
-			if (r->dir_option[kDirWest]) {
-				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[kDirWest]->to_room())));
+			if (r->dir_option[EDirection::kWest]) {
+				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[EDirection::kWest]->to_room())));
 			}
 		} else if (!str_cmp(field, "up")) {
-			if (r->dir_option[kDirUp]) {
-				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[kDirUp]->to_room())));
+			if (r->dir_option[EDirection::kUp]) {
+				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[EDirection::kUp]->to_room())));
 			}
 		} else if (!str_cmp(field, "down")) {
-			if (r->dir_option[kDirDown]) {
-				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[kDirDown]->to_room())));
+			if (r->dir_option[EDirection::kDown]) {
+				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[EDirection::kDown]->to_room())));
 			}
 		} else if (!str_cmp(field, "vnum")) {
 			sprintf(str, "%d", r->room_vn);

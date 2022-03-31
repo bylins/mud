@@ -270,7 +270,7 @@ void put_on_screen(unsigned y, unsigned x, int num, int depth) {
 // затирают символы выходов ^ и v, но не затирают друг друга, т.е. что
 // первое отрисовалось, то и остается, поэтому идут по важности
 void check_position_and_put_on_screen(int next_y, int next_x, int sign_num, int depth, int exit_num) {
-	if (exit_num == kDirUp) {
+	if (exit_num == EDirection::kUp) {
 		switch (sign_num) {
 			case SCREEN_DEATH_TRAP:
 			case SCREEN_WATER:
@@ -279,7 +279,7 @@ void check_position_and_put_on_screen(int next_y, int next_x, int sign_num, int 
 			case SCREEN_FLYING_RED: put_on_screen(next_y - 1, next_x + 1, sign_num, depth);
 				return;
 		}
-	} else if (exit_num == kDirDown) {
+	} else if (exit_num == EDirection::kDown) {
 		switch (sign_num) {
 			case SCREEN_DEATH_TRAP:
 			case SCREEN_WATER:
@@ -437,30 +437,30 @@ void draw_room(CharData *ch, const RoomData *room, int cur_depth, int y, int x) 
 		put_on_screen(y, x, SCREEN_PEACE, cur_depth);
 	}
 
-	for (int i = 0; i < kDirMaxNumber; ++i) {
+	for (int i = 0; i < EDirection::kMaxDirNum; ++i) {
 		int cur_y = y, cur_x = x, cur_sign = -1, next_y = y, next_x = x;
 		switch (i) {
-			case kDirNorth: cur_y -= 1;
+			case EDirection::kNorth: cur_y -= 1;
 				next_y -= 2;
 				cur_sign = SCREEN_Y_OPEN;
 				break;
-			case kDirEast: cur_x += 2;
+			case EDirection::kEast: cur_x += 2;
 				next_x += 4;
 				cur_sign = SCREEN_X_OPEN;
 				break;
-			case kDirSouth: cur_y += 1;
+			case EDirection::kSouth: cur_y += 1;
 				next_y += 2;
 				cur_sign = SCREEN_Y_OPEN;
 				break;
-			case kDirWest: cur_x -= 2;
+			case EDirection::kWest: cur_x -= 2;
 				next_x -= 4;
 				cur_sign = SCREEN_X_OPEN;
 				break;
-			case kDirUp: cur_y -= 1;
+			case EDirection::kUp: cur_y -= 1;
 				cur_x += 1;
 				cur_sign = SCREEN_UP_OPEN;
 				break;
-			case kDirDown: cur_y += 1;
+			case EDirection::kDown: cur_y += 1;
 				cur_x -= 1;
 				cur_sign = SCREEN_DOWN_OPEN;
 				break;
@@ -523,7 +523,7 @@ void draw_room(CharData *ch, const RoomData *room, int cur_depth, int y, int x) 
 				}
 			}
 			// знаки в центре клетки, не рисующиеся для выходов вверх/вниз
-			if (i != kDirUp && i != kDirDown) {
+			if (i != EDirection::kUp && i != EDirection::kDown) {
 				// переход в другую зону
 				if (next_room->zone_rn != world[ch->in_room]->zone_rn) {
 					put_on_screen(next_y, next_x, SCREEN_NEW_ZONE, cur_depth);
@@ -564,7 +564,7 @@ void draw_room(CharData *ch, const RoomData *room, int cur_depth, int y, int x) 
 				}
 			}
 			// проход по следующей в глубину комнате
-			if (i != kDirUp && i != kDirDown
+			if (i != EDirection::kUp && i != EDirection::kDown
 				&& cur_depth < MAX_DEPTH_ROOMS
 				&& (!EXIT_FLAGGED(room->dir_option[i], EX_CLOSED) || IS_IMMORTAL(ch))
 				&& next_room->zone_rn == world[ch->in_room]->zone_rn

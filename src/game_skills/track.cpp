@@ -62,7 +62,7 @@ int go_track(CharData *ch, CharData *victim, const ESkill skill_no) {
 		int tries = 10;
 		// Find a random direction. :)
 		do {
-			dir = number(0, kDirMaxNumber - 1);
+			dir = number(0, EDirection::kMaxDirNum - 1);
 		} while (!CAN_GO(ch, dir) && --tries);
 		return dir;
 	}
@@ -112,7 +112,7 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 			if (*name && calc_track > number(1, 40)) {
 				CAP(name);
-				for (track_t = i = 0; i < kDirMaxNumber; i++) {
+				for (track_t = i = 0; i < EDirection::kMaxDirNum; i++) {
 					track_t |= track->time_outgone[i];
 					track_t |= track->time_income[i];
 				}
@@ -161,7 +161,7 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CAP(name);
 	sprintf(buf, "%s:\r\n", name);
 
-	for (int c = 0; c < kDirMaxNumber; c++) {
+	for (int c = 0; c < EDirection::kMaxDirNum; c++) {
 		if ((track && track->time_income[c]
 			&& calc_track >= number(0, MUD::Skills()[ESkill::kTrack].difficulty))
 			|| (!track && calc_track < number(0, MUD::Skills()[ESkill::kTrack].difficulty))) {
@@ -192,7 +192,7 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_hidetrack(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	struct TrackData *track[kDirMaxNumber + 1], *temp;
+	struct TrackData *track[EDirection::kMaxDirNum + 1], *temp;
 	int percent, prob, i, croom, found = false, dir, rdir;
 
 	if (ch->is_npc() || !ch->get_skill(ESkill::kHideTrack)) {
@@ -202,7 +202,7 @@ void do_hidetrack(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 
 	croom = ch->in_room;
 
-	for (dir = 0; dir < kDirMaxNumber; dir++) {
+	for (dir = 0; dir < EDirection::kMaxDirNum; dir++) {
 		track[dir] = nullptr;
 		rdir = Reverse[dir];
 		if (EXITDATA(croom, dir) &&
@@ -219,12 +219,12 @@ void do_hidetrack(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 		}
 	}
 
-	track[kDirMaxNumber] = nullptr;
+	track[EDirection::kMaxDirNum] = nullptr;
 	for (temp = world[ch->in_room]->track; temp; temp = temp->next)
 		if (!IS_SET(temp->track_info, TRACK_NPC) &&
 			GET_IDNUM(ch) == temp->who && !IS_SET(temp->track_info, TRACK_HIDE)) {
 			found = true;
-			track[kDirMaxNumber] = temp;
+			track[EDirection::kMaxDirNum] = temp;
 			break;
 		}
 
@@ -245,12 +245,12 @@ void do_hidetrack(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 		if (!number(0, 25 - IsTimedBySkill(ch, ESkill::kHideTrack) ? 0 : 15))
 			ImproveSkill(ch, ESkill::kHideTrack, true, nullptr);
 		prob -= percent;
-		for (i = 0; i <= kDirMaxNumber; i++)
+		for (i = 0; i <= EDirection::kMaxDirNum; i++)
 			if (track[i]) {
-				if (i < kDirMaxNumber)
+				if (i < EDirection::kMaxDirNum)
 					track[i]->time_outgone[Reverse[i]] <<= MIN(31, prob);
 				else
-					for (rdir = 0; rdir < kDirMaxNumber; rdir++) {
+					for (rdir = 0; rdir < EDirection::kMaxDirNum; rdir++) {
 						track[i]->time_income[rdir] <<= MIN(31, prob);
 						track[i]->time_outgone[rdir] <<= MIN(31, prob);
 					}
@@ -259,7 +259,7 @@ void do_hidetrack(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 			}
 	}
 
-	for (i = 0; i <= kDirMaxNumber; i++)
+	for (i = 0; i <= EDirection::kMaxDirNum; i++)
 		if (track[i])
 			SET_BIT(track[i]->track_info, TRACK_HIDE);
 }

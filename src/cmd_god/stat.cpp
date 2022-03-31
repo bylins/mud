@@ -1083,7 +1083,7 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 		}
 		send_to_char(CCNRM(ch, C_NRM), ch);
 	}
-	for (i = 0; i < kDirMaxNumber; i++) {
+	for (i = 0; i < EDirection::kMaxDirNum; i++) {
 		if (rm->dir_option[i]) {
 			if (rm->dir_option[i]->to_room() == kNowhere)
 				sprintf(smallBuf, " %sNONE%s", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
