@@ -1439,9 +1439,9 @@ void hit_deviate(CharData *ch, CharData *victim, int *dam) {
 
 void hit_parry(CharData *ch, CharData *victim, ESkill skill, int hit_type, int *dam) {
 	if (!((GET_EQ(victim, EEquipPos::kWield)
-		&& GET_OBJ_TYPE(GET_EQ(victim, EEquipPos::kWield)) == ObjData::ITEM_WEAPON
+		&& GET_OBJ_TYPE(GET_EQ(victim, EEquipPos::kWield)) == EObjType::ITEM_WEAPON
 		&& GET_EQ(victim, EEquipPos::kHold)
-		&& GET_OBJ_TYPE(GET_EQ(victim, EEquipPos::kHold)) == ObjData::ITEM_WEAPON)
+		&& GET_OBJ_TYPE(GET_EQ(victim, EEquipPos::kHold)) == EObjType::ITEM_WEAPON)
 		|| victim->is_npc()
 		|| IS_IMMORTAL(victim))) {
 		send_to_char("У вас нечем отклонить атаку противника\r\n", victim);
@@ -1500,9 +1500,9 @@ void hit_parry(CharData *ch, CharData *victim, ESkill skill, int hit_type, int *
 
 void hit_multyparry(CharData *ch, CharData *victim, ESkill skill, int hit_type, int *dam) {
 	if (!((GET_EQ(victim, EEquipPos::kWield)
-		&& GET_OBJ_TYPE(GET_EQ(victim, EEquipPos::kWield)) == ObjData::ITEM_WEAPON
+		&& GET_OBJ_TYPE(GET_EQ(victim, EEquipPos::kWield)) == EObjType::ITEM_WEAPON
 		&& GET_EQ(victim, EEquipPos::kHold)
-		&& GET_OBJ_TYPE(GET_EQ(victim, EEquipPos::kHold)) == ObjData::ITEM_WEAPON)
+		&& GET_OBJ_TYPE(GET_EQ(victim, EEquipPos::kHold)) == EObjType::ITEM_WEAPON)
 		|| victim->is_npc()
 		|| IS_IMMORTAL(victim))) {
 		send_to_char("У вас нечем отклонять атаки противников\r\n", victim);
@@ -2898,7 +2898,7 @@ void HitData::init(CharData *ch, CharData *victim) {
 	}
 
 	if (wielded
-		&& GET_OBJ_TYPE(wielded) == ObjData::ITEM_WEAPON) {
+		&& GET_OBJ_TYPE(wielded) == EObjType::ITEM_WEAPON) {
 		// для всех типов атак скилл берется из пушки, если она есть
 		weap_skill = static_cast<ESkill>(GET_OBJ_SKILL(wielded));
 	} else {
@@ -2922,7 +2922,7 @@ void HitData::init(CharData *ch, CharData *victim) {
 		hit_no_parry = true;
 	}
 
-	if (wielded && GET_OBJ_TYPE(wielded) == ObjData::ITEM_WEAPON) {
+	if (wielded && GET_OBJ_TYPE(wielded) == EObjType::ITEM_WEAPON) {
 		hit_type = GET_OBJ_VAL(wielded, 3);
 	} else {
 		weapon_pos = 0;
@@ -2945,7 +2945,7 @@ void HitData::init(CharData *ch, CharData *victim) {
 void HitData::calc_base_hr(CharData *ch) {
 	if (skill_num != ESkill::kThrow && skill_num != ESkill::kBackstab) {
 		if (wielded
-			&& GET_OBJ_TYPE(wielded) == ObjData::ITEM_WEAPON
+			&& GET_OBJ_TYPE(wielded) == EObjType::ITEM_WEAPON
 			&& !ch->is_npc()) {
 			// Apply HR for light weapon
 			int percent = 0;
@@ -3047,7 +3047,7 @@ void HitData::calc_base_hr(CharData *ch) {
 	if ((skill_num == ESkill::kThrow
 		|| skill_num == ESkill::kBackstab)
 		&& wielded
-		&& GET_OBJ_TYPE(wielded) == ObjData::ITEM_WEAPON) {
+		&& GET_OBJ_TYPE(wielded) == EObjType::ITEM_WEAPON) {
 		if (skill_num == ESkill::kBackstab) {
 			calc_thaco -= MAX(0, (ch->get_skill(ESkill::kSneak) + ch->get_skill(ESkill::kHide) - 100) / 30);
 		}
@@ -3079,7 +3079,7 @@ void HitData::calc_rand_hr(CharData *ch, CharData *victim) {
 	if (weapon == fight::AttackType::kOffHand
 		&& skill_num != ESkill::kThrow
 		&& skill_num != ESkill::kBackstab
-		&& !(wielded && GET_OBJ_TYPE(wielded) == ObjData::ITEM_WEAPON)
+		&& !(wielded && GET_OBJ_TYPE(wielded) == EObjType::ITEM_WEAPON)
 		&& !ch->is_npc()) {
 			calc_thaco += std::max(0, (CalcSkillMinCap(victim, ESkill::kLeftHit) - CalcCurrentSkill(ch, ESkill::kLeftHit, victim)) / 10);
 	}
@@ -3159,7 +3159,7 @@ void HitData::calc_stat_hr(CharData *ch) {
 	if (weapon == fight::AttackType::kOffHand
 		&& skill_num != ESkill::kThrow
 		&& skill_num != ESkill::kBackstab
-		&& !(wielded && GET_OBJ_TYPE(wielded) == ObjData::ITEM_WEAPON)
+		&& !(wielded && GET_OBJ_TYPE(wielded) == EObjType::ITEM_WEAPON)
 		&& !ch->is_npc()) {
 		calc_thaco += (MUD::Skills()[ESkill::kLeftHit].difficulty - ch->get_skill(ESkill::kLeftHit)) / 10;
 	}
@@ -3433,7 +3433,7 @@ int HitData::calc_damage(CharData *ch, bool need_dice) {
 	if (PRF_FLAGGED(ch, EPrf::kExecutor))
 		send_to_char(ch, "&YДамага с бонусами от силы или ловкости == %d str_bonus == %d str == %d&n\r\n", dam, str_bonus(GET_REAL_STR(ch), STR_TO_DAM), GET_REAL_STR(ch));
 	// оружие/руки и модификаторы урона скилов, с ними связанных
-	if (wielded && GET_OBJ_TYPE(wielded) == ObjData::ITEM_WEAPON) {
+	if (wielded && GET_OBJ_TYPE(wielded) == EObjType::ITEM_WEAPON) {
 		add_weapon_damage(ch, need_dice);
 		if (PRF_FLAGGED(ch, EPrf::kExecutor))
 			send_to_char(ch, "&YДамага +кубики оружия дамага == %d вооружен %s vnum %d&n\r\n", dam, GET_OBJ_PNAME(wielded,1).c_str(), GET_OBJ_VNUM(wielded));

@@ -12,7 +12,7 @@
 
 struct TechniqueItem {
 	int wear_position;
-	ObjData::EObjectType type;
+	EObjType type;
 	ESkill skill;
 	bool flagged;
 	EObjFlag flag;
@@ -27,20 +27,20 @@ struct TechniqueItem {
 
 	TechniqueItem() :
 		wear_position{-1},
-		type{ObjData::ITEM_UNDEFINED},
+		type{EObjType::ITEM_UNDEFINED},
 		skill{ESkill::kAny},
 		flagged{false},
 		flag{EObjFlag::kGlow} {};
 
-	TechniqueItem(int wear_position, ObjData::EObjectType obj_type) :
+	TechniqueItem(int wear_position, EObjType obj_type) :
 		wear_position{wear_position}, skill{ESkill::kAny}, flagged{false}, flag{EObjFlag::kGlow} {
 		type = obj_type;
 	};
-	TechniqueItem(int wear_position, ObjData::EObjectType obj_type, ESkill obj_skill) :
+	TechniqueItem(int wear_position, EObjType obj_type, ESkill obj_skill) :
 		TechniqueItem(wear_position, obj_type) {
 		skill = obj_skill;
 	};
-	TechniqueItem(int wear_position, ObjData::EObjectType obj_type, ESkill obj_skill, EObjFlag extra_flag) :
+	TechniqueItem(int wear_position, EObjType obj_type, ESkill obj_skill, EObjFlag extra_flag) :
 		TechniqueItem(wear_position, obj_type, obj_skill) {
 		flag = extra_flag;
 		flagged = true;

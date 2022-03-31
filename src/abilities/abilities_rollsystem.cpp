@@ -182,7 +182,7 @@ bool TechniqueRoll::CheckTechniqueKit() {
 bool TechniqueRoll::IsSuitableItem(const TechniqueItem &item) {
 	ObjData *char_item = GET_EQ(actor_, item.wear_position);
 	if (item == char_item) {
-		if (GET_OBJ_TYPE(char_item) == ObjData::ITEM_WEAPON) {
+		if (GET_OBJ_TYPE(char_item) == EObjType::ITEM_WEAPON) {
 			weapon_equip_position_ = item.wear_position;
 			if (ability_->uses_weapon_skill) {
 				base_skill_ = static_cast<ESkill>GET_OBJ_SKILL(char_item);

@@ -74,7 +74,7 @@ bool is_wear_light(CharData *ch) {
 	bool wear_light = false;
 	for (int wear_pos = 0; wear_pos < EEquipPos::kNumEquipPos; wear_pos++) {
 		if (GET_EQ(ch, wear_pos)
-			&& GET_OBJ_TYPE(GET_EQ(ch, wear_pos)) == ObjData::ITEM_LIGHT
+			&& GET_OBJ_TYPE(GET_EQ(ch, wear_pos)) == EObjType::ITEM_LIGHT
 			&& GET_OBJ_VAL(GET_EQ(ch, wear_pos), 2)) {
 			wear_light = true;
 		}
@@ -522,12 +522,12 @@ bool stockable_custom_labels(ObjData *obj_one, ObjData *obj_two) {
 bool equal_obj(ObjData *obj_one, ObjData *obj_two) {
 	if (GET_OBJ_VNUM(obj_one) != GET_OBJ_VNUM(obj_two)
 		|| strcmp(obj_one->get_short_description().c_str(), obj_two->get_short_description().c_str())
-		|| (GET_OBJ_TYPE(obj_one) == ObjData::ITEM_DRINKCON
+		|| (GET_OBJ_TYPE(obj_one) == EObjType::ITEM_DRINKCON
 			&& GET_OBJ_VAL(obj_one, 2) != GET_OBJ_VAL(obj_two, 2))
-		|| (GET_OBJ_TYPE(obj_one) == ObjData::ITEM_CONTAINER
+		|| (GET_OBJ_TYPE(obj_one) == EObjType::ITEM_CONTAINER
 			&& (obj_one->get_contains() || obj_two->get_contains()))
 		|| GET_OBJ_VNUM(obj_two) == -1
-		|| (GET_OBJ_TYPE(obj_one) == ObjData::ITEM_BOOK
+		|| (GET_OBJ_TYPE(obj_one) == EObjType::ITEM_BOOK
 			&& GET_OBJ_VAL(obj_one, 1) != GET_OBJ_VAL(obj_two, 1))
 		|| !stockable_custom_labels(obj_one, obj_two)) {
 		return false;
@@ -925,21 +925,21 @@ unsigned int activate_stuff(CharData *ch, ObjData *obj, id_to_set_info_map::cons
 }
 
 bool check_armor_type(CharData *ch, ObjData *obj) {
-	if (GET_OBJ_TYPE(obj) == ObjData::ITEM_ARMOR_LIGHT
+	if (GET_OBJ_TYPE(obj) == EObjType::ITEM_ARMOR_LIGHT
 		&& !IsAbleToUseFeat(ch, EFeat::kLightArmor)) {
 		act("Для использования $o1 требуется способность 'легкие доспехи'.",
 			false, ch, obj, nullptr, kToChar);
 		return false;
 	}
 
-	if (GET_OBJ_TYPE(obj) == ObjData::ITEM_ARMOR_MEDIAN
+	if (GET_OBJ_TYPE(obj) == EObjType::ITEM_ARMOR_MEDIAN
 		&& !IsAbleToUseFeat(ch, EFeat::kMediantArmor)) {
 		act("Для использования $o1 требуется способность 'средние доспехи'.",
 			false, ch, obj, nullptr, kToChar);
 		return false;
 	}
 
-	if (GET_OBJ_TYPE(obj) == ObjData::ITEM_ARMOR_HEAVY
+	if (GET_OBJ_TYPE(obj) == EObjType::ITEM_ARMOR_HEAVY
 		&& !IsAbleToUseFeat(ch, EFeat::kHeavyArmor)) {
 		act("Для использования $o1 требуется способность 'тяжелые доспехи'.",
 			false, ch, obj, nullptr, kToChar);
@@ -1110,7 +1110,7 @@ void equip_char(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip
 
 	// Раз показываем сообщение, значит, предмет надевает сам персонаж
 	// А вообще эта порнография из-за того, что одна функция используется с кучей флагов в разных вариантах
-	if (show_msg && ch->get_fighting() && (GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON || pos == kShield)) {
+	if (show_msg && ch->get_fighting() && (GET_OBJ_TYPE(obj) == EObjType::ITEM_WEAPON || pos == kShield)) {
 		SetSkillCooldown(ch, ESkill::kGlobalCooldown, 2);
 	}
 }
@@ -1489,7 +1489,7 @@ bool obj_to_room(ObjData *object, RoomRnum room) {
 			object->set_destroyer(script_destroy_timer);
 		} else if (object->has_flag(EObjFlag::kNodecay)) {
 			object->set_destroyer(room_nodestroy_timer);
-		} else if (GET_OBJ_TYPE(object) == ObjData::ITEM_MONEY) {
+		} else if (GET_OBJ_TYPE(object) == EObjType::ITEM_MONEY) {
 			object->set_destroyer(money_destroy_timer);
 		} else if (ROOM_FLAGGED(room, ROOM_DEATH)) {
 			object->set_destroyer(death_destroy_timer);
@@ -1736,7 +1736,7 @@ void update_char_objects(CharData *ch) {
 //Polud раз уж светит любой источник света, то и гаснуть тоже должны все
 	for (int wear_pos = 0; wear_pos < EEquipPos::kNumEquipPos; wear_pos++) {
 		if (GET_EQ(ch, wear_pos) != nullptr) {
-			if (GET_OBJ_TYPE(GET_EQ(ch, wear_pos)) == ObjData::ITEM_LIGHT) {
+			if (GET_OBJ_TYPE(GET_EQ(ch, wear_pos)) == EObjType::ITEM_LIGHT) {
 				if (GET_OBJ_VAL(GET_EQ(ch, wear_pos), 2) > 0) {
 					const int i = GET_EQ(ch, wear_pos)->dec_val(2);
 					if (i == 1) {
@@ -2463,7 +2463,7 @@ ObjData::shared_ptr create_money(int amount) {
 	new_descr->next = nullptr;
 	obj->set_ex_description(new_descr);
 
-	obj->set_type(ObjData::ITEM_MONEY);
+	obj->set_type(EObjType::ITEM_MONEY);
 	obj->set_wear_flags(to_underlying(EWearFlag::kTake));
 	obj->set_sex(ESex::kFemale);
 	obj->set_val(0, amount);
@@ -3023,7 +3023,7 @@ int equip_in_metall(CharData *ch) {
 	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
 		if (GET_EQ(ch, i)
 			&& ObjSystem::is_armor_type(GET_EQ(ch, i))
-			&& GET_OBJ_MATER(GET_EQ(ch, i)) <= ObjData::MAT_COLOR) {
+			&& GET_OBJ_MATER(GET_EQ(ch, i)) <= EObjMaterial::MAT_COLOR) {
 			wgt += GET_OBJ_WEIGHT(GET_EQ(ch, i));
 		}
 	}

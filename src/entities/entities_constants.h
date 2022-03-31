@@ -560,6 +560,81 @@ const __uint8_t kSectThickIce = 29;
  */
 
 /**
+ * Object types.
+ */
+enum EObjType {
+	ITEM_UNDEFINED = 0,
+	ITEM_LIGHT = 1,            // Item is a light source  //
+	ITEM_SCROLL = 2,        // Item is a scroll     //
+	ITEM_WAND = 3,            // Item is a wand    //
+	ITEM_STAFF = 4,            // Item is a staff      //
+	ITEM_WEAPON = 5,        // Item is a weapon     //
+	ITEM_FIREWEAPON = 6,    // Unimplemented     //
+	ITEM_MISSILE = 7,        // Unimplemented     //
+	ITEM_TREASURE = 8,        // Item is a treasure, not gold  //
+	ITEM_ARMOR = 9,            // Item is armor     //
+	ITEM_POTION = 10,        // Item is a potion     //
+	ITEM_WORN = 11,            // Unimplemented     //
+	ITEM_OTHER = 12,        // Misc object       //
+	ITEM_TRASH = 13,        // Trash - shopkeeps won't buy   //
+	ITEM_TRAP = 14,            // Unimplemented     //
+	ITEM_CONTAINER = 15,    // Item is a container     //
+	ITEM_NOTE = 16,            // Item is note      //
+	ITEM_DRINKCON = 17,        // Item is a drink container  //
+	ITEM_KEY = 18,            // Item is a key     //
+	ITEM_FOOD = 19,            // Item is food         //
+	ITEM_MONEY = 20,        // Item is money (gold)    //
+	ITEM_PEN = 21,            // Item is a pen     //
+	ITEM_BOAT = 22,            // Item is a boat    //
+	ITEM_FOUNTAIN = 23,        // Item is a fountain      //
+	ITEM_BOOK = 24,            // Item is book //
+	ITEM_INGREDIENT = 25,    // Item is magical ingradient //
+	ITEM_MING = 26,            // Магический ингредиент //
+	ITEM_MATERIAL = 27,        // Материал для крафтовых умений //
+	ITEM_BANDAGE = 28,        // бинты для перевязки
+	ITEM_ARMOR_LIGHT = 29,    // легкий тип брони
+	ITEM_ARMOR_MEDIAN = 30,    // средний тип брони
+	ITEM_ARMOR_HEAVY = 31,    // тяжелый тип брони
+	ITEM_ENCHANT = 32,        // зачарование предмета
+	ITEM_MAGIC_MATERIAL = 33,    // Item is a material related to crafts system
+	ITEM_MAGIC_ARROW = 34,    // Item is a material related to crafts system
+	ITEM_MAGIC_CONTAINER = 35,    // Item is a material related to crafts system
+	ITEM_CRAFT_MATERIAL = 36,    // Item is a material related to crafts system
+};
+
+template<>
+const std::string &NAME_BY_ITEM<EObjType>(const EObjType item);
+template<>
+EObjType ITEM_BY_NAME<EObjType>(const std::string &name);
+
+enum EObjMaterial {
+	MAT_NONE = 0,
+	MAT_BULAT = 1,
+	MAT_BRONZE = 2,
+	MAT_IRON = 3,
+	MAT_STEEL = 4,
+	MAT_SWORDSSTEEL = 5,
+	MAT_COLOR = 6,
+	MAT_CRYSTALL = 7,
+	MAT_WOOD = 8,
+	MAT_SUPERWOOD = 9,
+	MAT_FARFOR = 10,
+	MAT_GLASS = 11,
+	MAT_ROCK = 12,
+	MAT_BONE = 13,
+	MAT_MATERIA = 14,
+	MAT_SKIN = 15,
+	MAT_ORGANIC = 16,
+	MAT_PAPER = 17,
+	MAT_DIAMOND = 18
+};
+
+template<>
+const std::string &NAME_BY_ITEM<EObjMaterial>(const EObjMaterial item);
+template<>
+EObjMaterial ITEM_BY_NAME<EObjMaterial>(const std::string &name);
+
+/**
  * Magic books types.
  */
 const __uint8_t BOOK_SPELL = 0;    // Книга заклинания //

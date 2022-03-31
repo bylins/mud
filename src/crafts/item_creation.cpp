@@ -899,7 +899,7 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 		act("В $o5 что-то лежит.", false, ch, obj, 0, kToChar);
 		return;
 	}
-	if (GET_OBJ_TYPE(obj) == ObjData::ITEM_INGREDIENT) {
+	if (GET_OBJ_TYPE(obj) == EObjType::ITEM_INGREDIENT) {
 		for (i = 0, found = false; i < MAX_PROTO; i++) {
 			if (GET_OBJ_VAL(obj, 1) == created_item[obj_type].proto[i]) {
 				if (proto[i]) {
@@ -941,7 +941,7 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 					return;
 				}
 				for (coal = ch->carrying; coal; coal = coal->get_next_content()) {
-					if (GET_OBJ_TYPE(coal) == ObjData::ITEM_INGREDIENT) {
+					if (GET_OBJ_TYPE(coal) == EObjType::ITEM_INGREDIENT) {
 						for (i = 0; i < MAX_PROTO; i++) {
 							if (proto[i] == coal) {
 								break;
@@ -980,7 +980,7 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 			break;
 		case ESkill::kCreateBow:
 			for (coal = ch->carrying; coal; coal = coal->get_next_content()) {
-				if (GET_OBJ_TYPE(coal) == ObjData::ITEM_INGREDIENT) {
+				if (GET_OBJ_TYPE(coal) == EObjType::ITEM_INGREDIENT) {
 					for (i = 0; i < MAX_PROTO; i++) {
 						if (proto[i] == coal) {
 							break;
@@ -1191,9 +1191,9 @@ ObjData *get_obj_in_list_ingr(int num,
 			return i;
 		}
 		if ((GET_OBJ_VAL(i, 1) == num)
-			&& (GET_OBJ_TYPE(i) == ObjData::ITEM_INGREDIENT
-				|| GET_OBJ_TYPE(i) == ObjData::ITEM_MING
-				|| GET_OBJ_TYPE(i) == ObjData::ITEM_MATERIAL)) {
+			&& (GET_OBJ_TYPE(i) == EObjType::ITEM_INGREDIENT
+				|| GET_OBJ_TYPE(i) == EObjType::ITEM_MING
+				|| GET_OBJ_TYPE(i) == EObjType::ITEM_MATERIAL)) {
 			return i;
 		}
 	}
@@ -1250,13 +1250,13 @@ int MakeRecept::can_make(CharData *ch) {
 
 int MakeRecept::get_ingr_lev(ObjData *ingrobj) {
 	// Получаем уровень ингредиента ...
-	if (GET_OBJ_TYPE(ingrobj) == ObjData::ITEM_INGREDIENT) {
+	if (GET_OBJ_TYPE(ingrobj) == EObjType::ITEM_INGREDIENT) {
 		// Получаем уровень игредиента до 128
 		return (GET_OBJ_VAL(ingrobj, 0) >> 8);
-	} else if (GET_OBJ_TYPE(ingrobj) == ObjData::ITEM_MING) {
+	} else if (GET_OBJ_TYPE(ingrobj) == EObjType::ITEM_MING) {
 		// У ингров типа 26 совпадает уровень и сила.
 		return GET_OBJ_VAL(ingrobj, IM_POWER_SLOT);
-	} else if (GET_OBJ_TYPE(ingrobj) == ObjData::ITEM_MATERIAL) {
+	} else if (GET_OBJ_TYPE(ingrobj) == EObjType::ITEM_MATERIAL) {
 		return GET_OBJ_VAL(ingrobj, 0);
 	} else {
 		return -1;
@@ -1265,10 +1265,10 @@ int MakeRecept::get_ingr_lev(ObjData *ingrobj) {
 
 int MakeRecept::get_ingr_pow(ObjData *ingrobj) {
 	// Получаем силу ингредиента ...
-	if (GET_OBJ_TYPE(ingrobj) == ObjData::ITEM_INGREDIENT
-		|| GET_OBJ_TYPE(ingrobj) == ObjData::ITEM_MATERIAL) {
+	if (GET_OBJ_TYPE(ingrobj) == EObjType::ITEM_INGREDIENT
+		|| GET_OBJ_TYPE(ingrobj) == EObjType::ITEM_MATERIAL) {
 		return GET_OBJ_VAL(ingrobj, 2);
-	} else if (GET_OBJ_TYPE(ingrobj) == ObjData::ITEM_MING) {
+	} else if (GET_OBJ_TYPE(ingrobj) == EObjType::ITEM_MING) {
 		return GET_OBJ_VAL(ingrobj, IM_POWER_SLOT);
 	} else {
 		return -1;
@@ -1916,8 +1916,8 @@ int MakeRecept::make(CharData *ch) {
 		break;
 	}
 	int sign = -1;
-	if (GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON
-		|| GET_OBJ_TYPE(obj) == ObjData::ITEM_INGREDIENT) {
+	if (GET_OBJ_TYPE(obj) == EObjType::ITEM_WEAPON
+		|| GET_OBJ_TYPE(obj) == EObjType::ITEM_INGREDIENT) {
 		sign = 1;
 	}
 	obj->set_weight(stat_modify(ch, GET_OBJ_WEIGHT(obj), 20 * sign));
@@ -1930,18 +1930,18 @@ int MakeRecept::make(CharData *ch) {
 	// Можно посчитать бонусы от времени суток.
 	// Считаем среднюю силу ингров .
 	switch (GET_OBJ_TYPE(obj)) {
-		case ObjData::ITEM_LIGHT:
+		case EObjType::ITEM_LIGHT:
 			// Считаем длительность свечения.
 			if (GET_OBJ_VAL(obj, 2) != -1) {
 				obj->set_val(2, stat_modify(ch, GET_OBJ_VAL(obj, 2), 1));
 			}
 			break;
-		case ObjData::ITEM_WAND:
-		case ObjData::ITEM_STAFF:
+		case EObjType::ITEM_WAND:
+		case EObjType::ITEM_STAFF:
 			// Считаем уровень закла
 			obj->set_val(0, GetRealLevel(ch));
 			break;
-		case ObjData::ITEM_WEAPON:
+		case EObjType::ITEM_WEAPON:
 			// Считаем число xdy
 			// модифицируем XdY
 			if (GET_OBJ_VAL(obj, 1) > GET_OBJ_VAL(obj, 2)) {
@@ -1950,28 +1950,28 @@ int MakeRecept::make(CharData *ch) {
 				obj->set_val(2, stat_modify(ch, GET_OBJ_VAL(obj, 2) - 1, 1) + 1);
 			}
 			break;
-		case ObjData::ITEM_ARMOR:
-		case ObjData::ITEM_ARMOR_LIGHT:
-		case ObjData::ITEM_ARMOR_MEDIAN:
-		case ObjData::ITEM_ARMOR_HEAVY:
+		case EObjType::ITEM_ARMOR:
+		case EObjType::ITEM_ARMOR_LIGHT:
+		case EObjType::ITEM_ARMOR_MEDIAN:
+		case EObjType::ITEM_ARMOR_HEAVY:
 			// Считаем + АС
 			obj->set_val(0, stat_modify(ch, GET_OBJ_VAL(obj, 0), 1));
 			// Считаем поглощение.
 			obj->set_val(1, stat_modify(ch, GET_OBJ_VAL(obj, 1), 1));
 			break;
-		case ObjData::ITEM_POTION:
+		case EObjType::ITEM_POTION:
 			// Считаем уровень итоговый напитка
 			obj->set_val(0, stat_modify(ch, GET_OBJ_VAL(obj, 0), 1));
 			break;
-		case ObjData::ITEM_CONTAINER:
+		case EObjType::ITEM_CONTAINER:
 			// Считаем объем контейнера.
 			obj->set_val(0, stat_modify(ch, GET_OBJ_VAL(obj, 0), 1));
 			break;
-		case ObjData::ITEM_DRINKCON:
+		case EObjType::ITEM_DRINKCON:
 			// Считаем объем контейнера.
 			obj->set_val(0, stat_modify(ch, GET_OBJ_VAL(obj, 0), 1));
 			break;
-		case ObjData::ITEM_INGREDIENT:
+		case EObjType::ITEM_INGREDIENT:
 			// Для ингров ничего не трогаем ... ибо опасно. :)
 			break;
 		default: break;
@@ -2019,8 +2019,8 @@ int MakeRecept::make(CharData *ch) {
 	// число шмоток в мире то шмотки по хуже будут вытеснять
 	// шмотки по лучше (в целом это не так страшно).
 	// Ставим метку если все хорошо.
-	if ((GET_OBJ_TYPE(obj) != ObjData::ITEM_INGREDIENT
-		&& GET_OBJ_TYPE(obj) != ObjData::ITEM_MING)
+	if ((GET_OBJ_TYPE(obj) != EObjType::ITEM_INGREDIENT
+		&& GET_OBJ_TYPE(obj) != EObjType::ITEM_MING)
 		&& (number(1, 100) - CalcCurrentSkill(ch, skill, 0) < 0)) {
 		act(tagging.c_str(), false, ch, obj.get(), 0, kToChar);
 		// Прибавляем в экстра описание строчку.

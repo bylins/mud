@@ -143,7 +143,7 @@ void SpellCreateWater(int/* level*/, CharData *ch, CharData *victim, ObjData *ob
 	// level = MAX(MIN(level, kLevelImplementator), 1);       - not used
 
 	if (obj
-		&& GET_OBJ_TYPE(obj) == ObjData::ITEM_DRINKCON) {
+		&& GET_OBJ_TYPE(obj) == EObjType::ITEM_DRINKCON) {
 		if ((GET_OBJ_VAL(obj, 2) != LIQ_WATER) && (GET_OBJ_VAL(obj, 1) != 0)) {
 			send_to_char("Прекратите, ради бога, химичить.\r\n", ch);
 			return;
@@ -1385,7 +1385,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 }
 
 void show_weapon(CharData *ch, ObjData *obj) {
-	if (GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON) {
+	if (GET_OBJ_TYPE(obj) == EObjType::ITEM_WEAPON) {
 		*buf = '\0';
 		if (CAN_WEAR(obj, EWearFlag::kWield)) {
 			sprintf(buf, "Можно взять %s в правую руку.\r\n", OBJN(obj, ch, 3));
@@ -1510,8 +1510,8 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 		return;
 
 	switch (GET_OBJ_TYPE(obj)) {
-		case ObjData::ITEM_SCROLL:
-		case ObjData::ITEM_POTION: sprintf(buf, "Содержит заклинание: ");
+		case EObjType::ITEM_SCROLL:
+		case EObjType::ITEM_POTION: sprintf(buf, "Содержит заклинание: ");
 			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) <= kSpellCount)
 				sprintf(buf + strlen(buf), " %s", GetSpellName(GET_OBJ_VAL(obj, 1)));
 			if (GET_OBJ_VAL(obj, 2) >= 1 && GET_OBJ_VAL(obj, 2) <= kSpellCount)
@@ -1522,25 +1522,25 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 			send_to_char(buf, ch);
 			break;
 
-		case ObjData::ITEM_WAND:
-		case ObjData::ITEM_STAFF: sprintf(buf, "Вызывает заклинания: ");
+		case EObjType::ITEM_WAND:
+		case EObjType::ITEM_STAFF: sprintf(buf, "Вызывает заклинания: ");
 			if (GET_OBJ_VAL(obj, 3) >= 1 && GET_OBJ_VAL(obj, 3) <= kSpellCount)
 				sprintf(buf + strlen(buf), " %s\r\n", GetSpellName(GET_OBJ_VAL(obj, 3)));
 			sprintf(buf + strlen(buf), "Зарядов %d (осталось %d).\r\n", GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
 			send_to_char(buf, ch);
 			break;
 
-		case ObjData::ITEM_WEAPON: drndice = GET_OBJ_VAL(obj, 1);
+		case EObjType::ITEM_WEAPON: drndice = GET_OBJ_VAL(obj, 1);
 			drsdice = GET_OBJ_VAL(obj, 2);
 			sprintf(buf, "Наносимые повреждения '%dD%d'", drndice, drsdice);
 			sprintf(buf + strlen(buf), " среднее %.1f.\r\n", ((drsdice + 1) * drndice / 2.0));
 			send_to_char(buf, ch);
 			break;
 
-		case ObjData::ITEM_ARMOR:
-		case ObjData::ITEM_ARMOR_LIGHT:
-		case ObjData::ITEM_ARMOR_MEDIAN:
-		case ObjData::ITEM_ARMOR_HEAVY: drndice = GET_OBJ_VAL(obj, 0);
+		case EObjType::ITEM_ARMOR:
+		case EObjType::ITEM_ARMOR_LIGHT:
+		case EObjType::ITEM_ARMOR_MEDIAN:
+		case EObjType::ITEM_ARMOR_HEAVY: drndice = GET_OBJ_VAL(obj, 0);
 			drsdice = GET_OBJ_VAL(obj, 1);
 			sprintf(buf, "защита (AC) : %d\r\n", drndice);
 			send_to_char(buf, ch);
@@ -1548,7 +1548,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 			send_to_char(buf, ch);
 			break;
 
-		case ObjData::ITEM_BOOK:
+		case EObjType::ITEM_BOOK:
 			switch (GET_OBJ_VAL(obj, 0)) {
 				case BOOK_SPELL:
 					if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) <= kSpellCount) {
@@ -1628,7 +1628,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 			}
 			break;
 
-		case ObjData::ITEM_INGREDIENT: sprintbit(GET_OBJ_SKILL(obj), ingradient_bits, buf2);
+		case EObjType::ITEM_INGREDIENT: sprintbit(GET_OBJ_SKILL(obj), ingradient_bits, buf2);
 			snprintf(buf, kMaxStringLength, "%s\r\n", buf2);
 			send_to_char(buf, ch);
 
@@ -1660,7 +1660,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 			}
 			break;
 
-		case ObjData::ITEM_MING:
+		case EObjType::ITEM_MING:
 			for (j = 0; imtypes[j].id != GET_OBJ_VAL(obj, IM_TYPE_SLOT) && j <= top_imtypes;) {
 				j++;
 			}
@@ -1694,16 +1694,16 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 			break;
 
 			//Информация о контейнерах (Купала)
-		case ObjData::ITEM_CONTAINER: sprintf(buf, "Максимально вместимый вес: %d.\r\n", GET_OBJ_VAL(obj, 0));
+		case EObjType::ITEM_CONTAINER: sprintf(buf, "Максимально вместимый вес: %d.\r\n", GET_OBJ_VAL(obj, 0));
 			send_to_char(buf, ch);
 			break;
 
 			//Информация о емкостях (Купала)
-		case ObjData::ITEM_DRINKCON: drinkcon::identify(ch, obj);
+		case EObjType::ITEM_DRINKCON: drinkcon::identify(ch, obj);
 			break;
 
-		case ObjData::ITEM_MAGIC_ARROW:
-		case ObjData::ITEM_MAGIC_CONTAINER: sprintf(buf, "Может вместить стрел: %d.\r\n", GET_OBJ_VAL(obj, 1));
+		case EObjType::ITEM_MAGIC_ARROW:
+		case EObjType::ITEM_MAGIC_CONTAINER: sprintf(buf, "Может вместить стрел: %d.\r\n", GET_OBJ_VAL(obj, 1));
 			sprintf(buf, "Осталось стрел: %s%d&n.\r\n",
 					GET_OBJ_VAL(obj, 2) > 3 ? "&G" : "&R", GET_OBJ_VAL(obj, 2));
 			send_to_char(buf, ch);
@@ -1739,7 +1739,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 		}
 	}
 
-	if (GET_OBJ_TYPE(obj) == ObjData::ITEM_ENCHANT
+	if (GET_OBJ_TYPE(obj) == EObjType::ITEM_ENCHANT
 		&& GET_OBJ_VAL(obj, 0) != 0) {
 		if (!found) {
 			send_to_char("Дополнительные свойства :\r\n", ch);
@@ -3328,11 +3328,11 @@ bool mag_item_ok(CharData *ch, ObjData *obj, int spelltype) {
 	int num = 0;
 
 	if (spelltype == kSpellRunes
-		&& GET_OBJ_TYPE(obj) != ObjData::ITEM_INGREDIENT) {
+		&& GET_OBJ_TYPE(obj) != EObjType::ITEM_INGREDIENT) {
 		return false;
 	}
 
-	if (GET_OBJ_TYPE(obj) == ObjData::ITEM_INGREDIENT) {
+	if (GET_OBJ_TYPE(obj) == EObjType::ITEM_INGREDIENT) {
 		if ((!IS_SET(GET_OBJ_SKILL(obj), kItemRunes) && spelltype == kSpellRunes)
 			|| (IS_SET(GET_OBJ_SKILL(obj), kItemRunes) && spelltype != kSpellRunes)) {
 			return false;

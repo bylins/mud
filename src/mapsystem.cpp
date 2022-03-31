@@ -339,13 +339,13 @@ void draw_objs(const CharData *ch, int room_rnum, int next_y, int next_x) {
 				continue;
 			}
 			if (!ch->map_check_option(MAP_MODE_INGREDIENTS)
-				&& (GET_OBJ_TYPE(obj) == ObjData::ITEM_INGREDIENT
-					|| GET_OBJ_TYPE(obj) == ObjData::ITEM_MING)) {
+				&& (GET_OBJ_TYPE(obj) == EObjType::ITEM_INGREDIENT
+					|| GET_OBJ_TYPE(obj) == EObjType::ITEM_MING)) {
 				continue;
 			}
 			if (!IS_CORPSE(obj)
-				&& GET_OBJ_TYPE(obj) != ObjData::ITEM_INGREDIENT
-				&& GET_OBJ_TYPE(obj) != ObjData::ITEM_MING
+				&& GET_OBJ_TYPE(obj) != EObjType::ITEM_INGREDIENT
+				&& GET_OBJ_TYPE(obj) != EObjType::ITEM_MING
 				&& !ch->map_check_option(MAP_MODE_OTHER_OBJECTS)) {
 				continue;
 			}

@@ -565,26 +565,26 @@ void InitFeatures() {
 
 	auto item_kit = std::make_unique<TechniqueItemKit>();
 	item_kit->reserve(2);
-	item_kit->push_back(TechniqueItem(EEquipPos::kWield, ObjData::ITEM_WEAPON, ESkill::kShortBlades));
-	item_kit->push_back(TechniqueItem(EEquipPos::kHold, ObjData::ITEM_WEAPON, ESkill::kShortBlades));
+	item_kit->push_back(TechniqueItem(EEquipPos::kWield, EObjType::ITEM_WEAPON, ESkill::kShortBlades));
+	item_kit->push_back(TechniqueItem(EEquipPos::kHold, EObjType::ITEM_WEAPON, ESkill::kShortBlades));
 	feat_info[EFeat::kCutting].item_kits.push_back(std::move(item_kit));
 
 	item_kit = std::make_unique<TechniqueItemKit>();
 	item_kit->reserve(2);
-	item_kit->push_back(TechniqueItem(EEquipPos::kWield, ObjData::ITEM_WEAPON, ESkill::kLongBlades));
-	item_kit->push_back(TechniqueItem(EEquipPos::kHold, ObjData::ITEM_WEAPON, ESkill::kLongBlades));
+	item_kit->push_back(TechniqueItem(EEquipPos::kWield, EObjType::ITEM_WEAPON, ESkill::kLongBlades));
+	item_kit->push_back(TechniqueItem(EEquipPos::kHold, EObjType::ITEM_WEAPON, ESkill::kLongBlades));
 	feat_info[EFeat::kCutting].item_kits.push_back(std::move(item_kit));
 
 	item_kit = std::make_unique<TechniqueItemKit>();
 	item_kit->reserve(2);
-	item_kit->push_back(TechniqueItem(EEquipPos::kWield, ObjData::ITEM_WEAPON, ESkill::kSpades));
-	item_kit->push_back(TechniqueItem(EEquipPos::kHold, ObjData::ITEM_WEAPON, ESkill::kSpades));
+	item_kit->push_back(TechniqueItem(EEquipPos::kWield, EObjType::ITEM_WEAPON, ESkill::kSpades));
+	item_kit->push_back(TechniqueItem(EEquipPos::kHold, EObjType::ITEM_WEAPON, ESkill::kSpades));
 	feat_info[EFeat::kCutting].item_kits.push_back(std::move(item_kit));
 
 	item_kit = std::make_unique<TechniqueItemKit>();
 	item_kit->reserve(2);
-	item_kit->push_back(TechniqueItem(EEquipPos::kWield, ObjData::ITEM_WEAPON, ESkill::kPicks));
-	item_kit->push_back(TechniqueItem(EEquipPos::kHold, ObjData::ITEM_WEAPON, ESkill::kPicks));
+	item_kit->push_back(TechniqueItem(EEquipPos::kWield, EObjType::ITEM_WEAPON, ESkill::kPicks));
+	item_kit->push_back(TechniqueItem(EEquipPos::kHold, EObjType::ITEM_WEAPON, ESkill::kPicks));
 	feat_info[EFeat::kCutting].item_kits.push_back(std::move(item_kit));
 
 //140
@@ -623,13 +623,13 @@ void InitFeatures() {
 
 	item_kit = std::make_unique<TechniqueItemKit>();
 	item_kit->reserve(1);
-	item_kit->push_back(TechniqueItem(EEquipPos::kWield, ObjData::ITEM_WEAPON,
+	item_kit->push_back(TechniqueItem(EEquipPos::kWield, EObjType::ITEM_WEAPON,
 									  ESkill::kAny, EObjFlag::kThrowing));
 	feat_info[EFeat::kThrowWeapon].item_kits.push_back(std::move(item_kit));
 
 	item_kit = std::make_unique<TechniqueItemKit>();
 	item_kit->reserve(1);
-	item_kit->push_back(TechniqueItem(EEquipPos::kHold, ObjData::ITEM_WEAPON,
+	item_kit->push_back(TechniqueItem(EEquipPos::kHold, EObjType::ITEM_WEAPON,
 									  ESkill::kAny, EObjFlag::kThrowing));
 	feat_info[EFeat::kThrowWeapon].item_kits.push_back(std::move(item_kit));
 //145
@@ -651,12 +651,12 @@ void InitFeatures() {
 	feat_info[EFeat::kShadowThrower].item_kits.reserve(2);
 	item_kit = std::make_unique<TechniqueItemKit>();
 	item_kit->reserve(1);
-	item_kit->push_back(TechniqueItem(EEquipPos::kWield, ObjData::ITEM_WEAPON,
+	item_kit->push_back(TechniqueItem(EEquipPos::kWield, EObjType::ITEM_WEAPON,
 									  ESkill::kAny, EObjFlag::kThrowing));
 	feat_info[EFeat::kShadowThrower].item_kits.push_back(std::move(item_kit));
 	item_kit = std::make_unique<TechniqueItemKit>();
 	item_kit->reserve(1);
-	item_kit->push_back(TechniqueItem(EEquipPos::kHold, ObjData::ITEM_WEAPON,
+	item_kit->push_back(TechniqueItem(EEquipPos::kHold, EObjType::ITEM_WEAPON,
 									  ESkill::kAny, EObjFlag::kThrowing));
 	feat_info[EFeat::kShadowThrower].item_kits.push_back(std::move(item_kit));
 //146
@@ -1130,16 +1130,16 @@ void do_fit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	switch (subcmd) {
 		case SCMD_DO_ADAPT:
-			if (GET_OBJ_MATER(obj) != ObjData::MAT_NONE
-				&& GET_OBJ_MATER(obj) != ObjData::MAT_BULAT
-				&& GET_OBJ_MATER(obj) != ObjData::MAT_BRONZE
-				&& GET_OBJ_MATER(obj) != ObjData::MAT_IRON
-				&& GET_OBJ_MATER(obj) != ObjData::MAT_STEEL
-				&& GET_OBJ_MATER(obj) != ObjData::MAT_SWORDSSTEEL
-				&& GET_OBJ_MATER(obj) != ObjData::MAT_COLOR
-				&& GET_OBJ_MATER(obj) != ObjData::MAT_WOOD
-				&& GET_OBJ_MATER(obj) != ObjData::MAT_SUPERWOOD
-				&& GET_OBJ_MATER(obj) != ObjData::MAT_GLASS) {
+			if (GET_OBJ_MATER(obj) != EObjMaterial::MAT_NONE
+				&& GET_OBJ_MATER(obj) != EObjMaterial::MAT_BULAT
+				&& GET_OBJ_MATER(obj) != EObjMaterial::MAT_BRONZE
+				&& GET_OBJ_MATER(obj) != EObjMaterial::MAT_IRON
+				&& GET_OBJ_MATER(obj) != EObjMaterial::MAT_STEEL
+				&& GET_OBJ_MATER(obj) != EObjMaterial::MAT_SWORDSSTEEL
+				&& GET_OBJ_MATER(obj) != EObjMaterial::MAT_COLOR
+				&& GET_OBJ_MATER(obj) != EObjMaterial::MAT_WOOD
+				&& GET_OBJ_MATER(obj) != EObjMaterial::MAT_SUPERWOOD
+				&& GET_OBJ_MATER(obj) != EObjMaterial::MAT_GLASS) {
 				sprintf(buf, "К сожалению %s сделан%s из неподходящего материала.\r\n",
 						GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_SUF_6(obj));
 				send_to_char(buf, ch);
@@ -1147,10 +1147,10 @@ void do_fit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			}
 			break;
 		case SCMD_MAKE_OVER:
-			if (GET_OBJ_MATER(obj) != ObjData::MAT_BONE
-				&& GET_OBJ_MATER(obj) != ObjData::MAT_MATERIA
-				&& GET_OBJ_MATER(obj) != ObjData::MAT_SKIN
-				&& GET_OBJ_MATER(obj) != ObjData::MAT_ORGANIC) {
+			if (GET_OBJ_MATER(obj) != EObjMaterial::MAT_BONE
+				&& GET_OBJ_MATER(obj) != EObjMaterial::MAT_MATERIA
+				&& GET_OBJ_MATER(obj) != EObjMaterial::MAT_SKIN
+				&& GET_OBJ_MATER(obj) != EObjMaterial::MAT_ORGANIC) {
 				sprintf(buf, "К сожалению %s сделан%s из неподходящего материала.\r\n",
 						GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_SUF_6(obj));
 				send_to_char(buf, ch);

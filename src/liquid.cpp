@@ -288,7 +288,7 @@ int cast_potion(CharData *ch, ObjData *jar) {
 		jar->dec_val(1);
 
 		if (GET_OBJ_VAL(jar, 1) <= 0
-			&& GET_OBJ_TYPE(jar) != ObjData::ITEM_FOUNTAIN) {
+			&& GET_OBJ_TYPE(jar) != EObjType::ITEM_FOUNTAIN) {
 			name_from_drinkcon(jar);
 			jar->set_skill(0);
 			reset_potion_values(jar);
@@ -307,14 +307,14 @@ int do_drink_check(CharData *ch, ObjData *jar) {
 	}
 
 	//Сообщение на случай попытки проглотить ингры
-	if (GET_OBJ_TYPE(jar) == ObjData::ITEM_MING) {
+	if (GET_OBJ_TYPE(jar) == EObjType::ITEM_MING) {
 		send_to_char("Не можешь приготовить - покупай готовое!\r\n", ch);
 		return 0;
 	}
 	//Проверяем можно ли из этого пить
 
-	if (GET_OBJ_TYPE(jar) != ObjData::ITEM_DRINKCON
-		&& GET_OBJ_TYPE(jar) != ObjData::ITEM_FOUNTAIN) {
+	if (GET_OBJ_TYPE(jar) != EObjType::ITEM_DRINKCON
+		&& GET_OBJ_TYPE(jar) != EObjType::ITEM_FOUNTAIN) {
 		send_to_char("Не стоит. Козлят и так много!\r\n", ch);
 		return 0;
 	}
@@ -343,7 +343,7 @@ ObjData *do_drink_get_jar(CharData *ch, char *jar_name) {
 			return jar;
 		}
 
-		if (GET_OBJ_TYPE(jar) == ObjData::ITEM_DRINKCON) {
+		if (GET_OBJ_TYPE(jar) == EObjType::ITEM_DRINKCON) {
 			send_to_char("Прежде это стоит поднять.\r\n", ch);
 			return jar;
 		}
@@ -543,7 +543,7 @@ void do_drink(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	// вес отнимаемый вес не моежт быть больше веса контейнера
 
-	if (GET_OBJ_TYPE(jar) != ObjData::ITEM_FOUNTAIN) {
+	if (GET_OBJ_TYPE(jar) != EObjType::ITEM_FOUNTAIN) {
 		weight_change_object(jar, -MIN(amount, GET_OBJ_WEIGHT(jar)));    // Subtract amount
 	}
 
@@ -579,7 +579,7 @@ void do_drink(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	do_drink_poison(ch, jar, amount);
 
 	// empty the container, and no longer poison. 999 - whole fountain //
-	if (GET_OBJ_TYPE(jar) != ObjData::ITEM_FOUNTAIN
+	if (GET_OBJ_TYPE(jar) != EObjType::ITEM_FOUNTAIN
 		|| GET_OBJ_VAL(jar, 1) != 999) {
 		jar->sub_val(1, amount);
 	}
@@ -627,7 +627,7 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!*arg) {
 		for (obj = ch->carrying; obj; obj = obj->get_next_content()) {
-			if (GET_OBJ_TYPE(obj) == ObjData::ITEM_DRINKCON) {
+			if (GET_OBJ_TYPE(obj) == EObjType::ITEM_DRINKCON) {
 				break;
 			}
 		}
@@ -644,13 +644,13 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	}
 
-	if (GET_OBJ_TYPE(obj) != ObjData::ITEM_DRINKCON
-		&& GET_OBJ_TYPE(obj) != ObjData::ITEM_FOUNTAIN) {
+	if (GET_OBJ_TYPE(obj) != EObjType::ITEM_DRINKCON
+		&& GET_OBJ_TYPE(obj) != EObjType::ITEM_FOUNTAIN) {
 		send_to_char("Этим вы вряд-ли сможете похмелиться.\r\n", ch);
 		return;
 	}
 
-	if (on_ground && (GET_OBJ_TYPE(obj) == ObjData::ITEM_DRINKCON)) {
+	if (on_ground && (GET_OBJ_TYPE(obj) == EObjType::ITEM_DRINKCON)) {
 		send_to_char("Прежде это стоит поднять.\r\n", ch);
 		return;
 	}
@@ -934,8 +934,8 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			send_to_char("У вас нет этого!\r\n", ch);
 			return;
 		}
-		if (GET_OBJ_TYPE(from_obj) != ObjData::ITEM_DRINKCON
-			&& GET_OBJ_TYPE(from_obj) != ObjData::ITEM_POTION) {
+		if (GET_OBJ_TYPE(from_obj) != EObjType::ITEM_DRINKCON
+			&& GET_OBJ_TYPE(from_obj) != EObjType::ITEM_POTION) {
 			send_to_char("Вы не можете из этого переливать!\r\n", ch);
 			return;
 		}
@@ -950,7 +950,7 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			send_to_char("У вас этого нет!\r\n", ch);
 			return;
 		}
-		if (GET_OBJ_TYPE(to_obj) != ObjData::ITEM_DRINKCON) {
+		if (GET_OBJ_TYPE(to_obj) != EObjType::ITEM_DRINKCON) {
 			act("Вы не можете наполнить $o3!", false, ch, to_obj, 0, kToChar);
 			return;
 		}
@@ -964,7 +964,7 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			send_to_char(buf, ch);
 			return;
 		}
-		if (GET_OBJ_TYPE(from_obj) != ObjData::ITEM_FOUNTAIN) {
+		if (GET_OBJ_TYPE(from_obj) != EObjType::ITEM_FOUNTAIN) {
 			act("Вы не сможете ничего наполнить из $o1.", false, ch, from_obj, 0, kToChar);
 			return;
 		}
@@ -998,8 +998,8 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			send_to_char("Вы не можете этого найти!\r\n", ch);
 			return;
 		}
-		if (GET_OBJ_TYPE(to_obj) != ObjData::ITEM_DRINKCON
-			&& GET_OBJ_TYPE(to_obj) != ObjData::ITEM_FOUNTAIN) {
+		if (GET_OBJ_TYPE(to_obj) != EObjType::ITEM_DRINKCON
+			&& GET_OBJ_TYPE(to_obj) != EObjType::ITEM_FOUNTAIN) {
 			send_to_char("Вы не сможете в это налить.\r\n", ch);
 			return;
 		}
@@ -1010,7 +1010,7 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	if (GET_OBJ_VAL(to_obj, 1) != 0
-		&& GET_OBJ_TYPE(from_obj) != ObjData::ITEM_POTION
+		&& GET_OBJ_TYPE(from_obj) != EObjType::ITEM_POTION
 		&& GET_OBJ_VAL(to_obj, 2) != GET_OBJ_VAL(from_obj, 2)) {
 		send_to_char("Вы станете неплохим Химиком, но не в нашей игре.\r\n", ch);
 		return;
@@ -1027,7 +1027,7 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 //Added by Adept - переливание зелья из бутылки или емкости в емкость
 
 	//Переливает из бутылки с зельем в емкость
-	if (GET_OBJ_TYPE(from_obj) == ObjData::ITEM_POTION) {
+	if (GET_OBJ_TYPE(from_obj) == EObjType::ITEM_POTION) {
 		int result = check_equal_potions(from_obj, to_obj);
 		if (GET_OBJ_VAL(to_obj, 1) == 0 || result > 0) {
 			send_to_char(ch, "Вы занялись переливанием зелья в %s.\r\n",
@@ -1060,8 +1060,8 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	//Переливает из емкости или колодца с зельем куда-то
-	if ((GET_OBJ_TYPE(from_obj) == ObjData::ITEM_DRINKCON
-		|| GET_OBJ_TYPE(from_obj) == ObjData::ITEM_FOUNTAIN)
+	if ((GET_OBJ_TYPE(from_obj) == EObjType::ITEM_DRINKCON
+		|| GET_OBJ_TYPE(from_obj) == EObjType::ITEM_FOUNTAIN)
 		&& is_potion(from_obj)) {
 		if (GET_OBJ_VAL(to_obj, 1) == 0) {
 			spells_to_drinkcon(from_obj, to_obj);
@@ -1103,7 +1103,7 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		name_to_drinkcon(to_obj, GET_OBJ_VAL(from_obj, 2));
 	// Then how much to pour //
 	amount = (GET_OBJ_VAL(to_obj, 0) - GET_OBJ_VAL(to_obj, 1));
-	if (GET_OBJ_TYPE(from_obj) != ObjData::ITEM_FOUNTAIN
+	if (GET_OBJ_TYPE(from_obj) != EObjType::ITEM_FOUNTAIN
 		|| GET_OBJ_VAL(from_obj, 1) != 999) {
 		from_obj->sub_val(1, amount);
 	}
@@ -1124,7 +1124,7 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	// And the weight boogie //
-	if (GET_OBJ_TYPE(from_obj) != ObjData::ITEM_FOUNTAIN) {
+	if (GET_OBJ_TYPE(from_obj) != EObjType::ITEM_FOUNTAIN) {
 		weight_change_object(from_obj, -amount);
 	}
 	weight_change_object(to_obj, amount);    // Add weight //

@@ -127,74 +127,12 @@ class CObjectPrototype {
  public:
 	using shared_ptr = std::shared_ptr<CObjectPrototype>;
 
-	enum EObjectType {
-		ITEM_UNDEFINED = 0,
-		ITEM_LIGHT = 1,            // Item is a light source  //
-		ITEM_SCROLL = 2,        // Item is a scroll     //
-		ITEM_WAND = 3,            // Item is a wand    //
-		ITEM_STAFF = 4,            // Item is a staff      //
-		ITEM_WEAPON = 5,        // Item is a weapon     //
-		ITEM_FIREWEAPON = 6,    // Unimplemented     //
-		ITEM_MISSILE = 7,        // Unimplemented     //
-		ITEM_TREASURE = 8,        // Item is a treasure, not gold  //
-		ITEM_ARMOR = 9,            // Item is armor     //
-		ITEM_POTION = 10,        // Item is a potion     //
-		ITEM_WORN = 11,            // Unimplemented     //
-		ITEM_OTHER = 12,        // Misc object       //
-		ITEM_TRASH = 13,        // Trash - shopkeeps won't buy   //
-		ITEM_TRAP = 14,            // Unimplemented     //
-		ITEM_CONTAINER = 15,    // Item is a container     //
-		ITEM_NOTE = 16,            // Item is note      //
-		ITEM_DRINKCON = 17,        // Item is a drink container  //
-		ITEM_KEY = 18,            // Item is a key     //
-		ITEM_FOOD = 19,            // Item is food         //
-		ITEM_MONEY = 20,        // Item is money (gold)    //
-		ITEM_PEN = 21,            // Item is a pen     //
-		ITEM_BOAT = 22,            // Item is a boat    //
-		ITEM_FOUNTAIN = 23,        // Item is a fountain      //
-		ITEM_BOOK = 24,            // Item is book //
-		ITEM_INGREDIENT = 25,    // Item is magical ingradient //
-		ITEM_MING = 26,            // Магический ингредиент //
-		ITEM_MATERIAL = 27,        // Материал для крафтовых умений //
-		ITEM_BANDAGE = 28,        // бинты для перевязки
-		ITEM_ARMOR_LIGHT = 29,    // легкий тип брони
-		ITEM_ARMOR_MEDIAN = 30,    // средний тип брони
-		ITEM_ARMOR_HEAVY = 31,    // тяжелый тип брони
-		ITEM_ENCHANT = 32,        // зачарование предмета
-		ITEM_MAGIC_MATERIAL = 33,    // Item is a material related to crafts system
-		ITEM_MAGIC_ARROW = 34,    // Item is a material related to crafts system
-		ITEM_MAGIC_CONTAINER = 35,    // Item is a material related to crafts system
-		ITEM_CRAFT_MATERIAL = 36,    // Item is a material related to crafts system
-	};
-
-	enum EObjectMaterial {
-		MAT_NONE = 0,
-		MAT_BULAT = 1,
-		MAT_BRONZE = 2,
-		MAT_IRON = 3,
-		MAT_STEEL = 4,
-		MAT_SWORDSSTEEL = 5,
-		MAT_COLOR = 6,
-		MAT_CRYSTALL = 7,
-		MAT_WOOD = 8,
-		MAT_SUPERWOOD = 9,
-		MAT_FARFOR = 10,
-		MAT_GLASS = 11,
-		MAT_ROCK = 12,
-		MAT_BONE = 13,
-		MAT_MATERIA = 14,
-		MAT_SKIN = 15,
-		MAT_ORGANIC = 16,
-		MAT_PAPER = 17,
-		MAT_DIAMOND = 18
-	};
-
 	constexpr static int DEFAULT_MAXIMUM_DURABILITY = 100;
 	constexpr static int DEFAULT_CURRENT_DURABILITY = DEFAULT_MAXIMUM_DURABILITY;
 	constexpr static int DEFAULT_LEVEL = 0;
 	constexpr static int DEFAULT_WEIGHT = INT_MAX;
-	constexpr static EObjectType DEFAULT_TYPE = ITEM_OTHER;
-	constexpr static EObjectMaterial DEFAULT_MATERIAL = MAT_NONE;
+	constexpr static EObjType DEFAULT_TYPE = ITEM_OTHER;
+	constexpr static EObjMaterial DEFAULT_MATERIAL = MAT_NONE;
 
 	constexpr static int NUM_PADS = 6;
 
@@ -339,7 +277,7 @@ class CObjectPrototype {
 	void set_extra_flag(const size_t plane, const uint32_t flag) { m_extra_flags.set_flag(plane, flag); }
 	void set_extra_flags(const FlagData &flags) { m_extra_flags = flags; }
 	void set_level(const int _) { m_level = _; }
-	void set_material(const EObjectMaterial _) { m_material = _; }
+	void set_material(const EObjMaterial _) { m_material = _; }
 	void set_max_in_world(const int _) { m_max_in_world = _; }
 	void set_maximum_durability(const int _) { m_maximum_durability = _; }
 	void set_no_flag(const ENoFlag flag) { m_no_flags.set(flag); }
@@ -353,7 +291,7 @@ class CObjectPrototype {
 	void set_short_description(const std::string &_) { m_short_description = _; }
 	void set_skill(const int _) { m_skill = _; }
 	void set_spell(const int _) { m_spell = static_cast<ESpell>(_); }
-	void set_type(const EObjectType _) { m_type = _; }
+	void set_type(const EObjType _) { m_type = _; }
 	void set_sex(const ESex _) { m_sex = _; }
 	void set_value(const ObjVal::EValueKey key, const int value) { return m_values.set(key, value); }
 	void set_values(const ObjVal &_) { m_values = _; }
@@ -422,7 +360,7 @@ class CObjectPrototype {
  private:
 	ObjVnum m_vnum;
 
-	EObjectType m_type;
+	EObjType m_type;
 	int m_weight;
 
 	affected_t m_affected;    // affects //
@@ -449,7 +387,7 @@ class CObjectPrototype {
 	int m_maximum_durability;
 	int m_current_durability;
 
-	EObjectMaterial m_material;
+	EObjMaterial m_material;
 	ESex m_sex;
 
 	FlagData m_extra_flags;    // If it hums, glows, etc.      //
@@ -868,16 +806,6 @@ class ObjData : public CObjectPrototype {
 	std::unordered_set<IDChangeObserver::shared_ptr> m_id_change_observers;
 	std::unordered_set<UIDChangeObserver::shared_ptr> m_uid_change_observers;
 };
-
-template<>
-const std::string &NAME_BY_ITEM<ObjData::EObjectType>(const ObjData::EObjectType item);
-template<>
-ObjData::EObjectType ITEM_BY_NAME<ObjData::EObjectType>(const std::string &name);
-
-template<>
-const std::string &NAME_BY_ITEM<ObjData::EObjectMaterial>(const ObjData::EObjectMaterial item);
-template<>
-ObjData::EObjectMaterial ITEM_BY_NAME<ObjData::EObjectMaterial>(const std::string &name);
 
 inline void CObjectPrototype::set_affected(const size_t index, const EApply location, const int modifier) {
 	m_affected[index].location = location;

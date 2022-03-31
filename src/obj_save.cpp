@@ -229,7 +229,7 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 				object->set_current_durability(atoi(buffer));
 			} else if (!strcmp(read_line, "Mter")) {
 				*error = 18;
-				object->set_material(static_cast<ObjData::EObjectMaterial>(atoi(buffer)));
+				object->set_material(static_cast<EObjMaterial>(atoi(buffer)));
 			} else if (!strcmp(read_line, "Sexx")) {
 				*error = 19;
 				object->set_sex(static_cast<ESex>(atoi(buffer)));
@@ -265,7 +265,7 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 				object->set_wear_flags(wear_flags);
 			} else if (!strcmp(read_line, "Type")) {
 				*error = 28;
-				object->set_type(static_cast<ObjData::EObjectType>(atoi(buffer)));
+				object->set_type(static_cast<EObjType>(atoi(buffer)));
 			} else if (!strcmp(read_line, "Val0")) {
 				*error = 29;
 				object->set_val(0, atoi(buffer));
@@ -499,21 +499,21 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 	*error = 0;
 
 	// Проверить вес фляг и т.п.
-	if (GET_OBJ_TYPE(object) == ObjData::ITEM_DRINKCON
-		|| GET_OBJ_TYPE(object) == ObjData::ITEM_FOUNTAIN) {
+	if (GET_OBJ_TYPE(object) == EObjType::ITEM_DRINKCON
+		|| GET_OBJ_TYPE(object) == EObjType::ITEM_FOUNTAIN) {
 		if (GET_OBJ_WEIGHT(object) < GET_OBJ_VAL(object, 1)) {
 			object->set_weight(GET_OBJ_VAL(object, 1) + 5);
 		}
 	}
 	// проставляем имя жидкости
-	if (GET_OBJ_TYPE(object) == ObjData::ITEM_DRINKCON) {
+	if (GET_OBJ_TYPE(object) == EObjType::ITEM_DRINKCON) {
 		name_from_drinkcon(object.get());
 		if (GET_OBJ_VAL(object, 1) && GET_OBJ_VAL(object, 2)) {
 			name_to_drinkcon(object.get(), GET_OBJ_VAL(object, 2));
 		}
 	}
 	// Проверка на ингры
-	if (GET_OBJ_TYPE(object) == ObjData::ITEM_MING) {
+	if (GET_OBJ_TYPE(object) == EObjType::ITEM_MING) {
 		int err = im_assign_power(object.get());
 		if (err) {
 			*error = 100 + err;
@@ -609,7 +609,7 @@ ObjData::shared_ptr read_one_object(char **data, int *error) {
 
 	object->set_maximum_durability(t[1]);
 	object->set_current_durability(t[2]);
-	object->set_material(static_cast<ObjData::EObjectMaterial>(t[3]));
+	object->set_material(static_cast<EObjMaterial>(t[3]));
 
 	*error = 10;
 	if (!get_buf_line(data, buffer)
@@ -638,7 +638,7 @@ ObjData::shared_ptr read_one_object(char **data, int *error) {
 		|| sscanf(buffer, " %d %s %s", t, f1, f2) != 3) {
 		return object;
 	}
-	object->set_type(static_cast<ObjData::EObjectType>(t[0]));
+	object->set_type(static_cast<EObjType>(t[0]));
 	object->set_extra_flags(clear_flags);
 	object->set_wear_flags(0);
 	object->load_extra_flags(f1);
@@ -680,8 +680,8 @@ ObjData::shared_ptr read_one_object(char **data, int *error) {
 	object->set_owner(t[1]);
 
 	// Проверить вес фляг и т.п.
-	if (GET_OBJ_TYPE(object) == ObjData::ITEM_DRINKCON
-		|| GET_OBJ_TYPE(object) == ObjData::ITEM_FOUNTAIN) {
+	if (GET_OBJ_TYPE(object) == EObjType::ITEM_DRINKCON
+		|| GET_OBJ_TYPE(object) == EObjType::ITEM_FOUNTAIN) {
 		if (GET_OBJ_WEIGHT(object) < GET_OBJ_VAL(object, 1)) {
 			object->set_weight(GET_OBJ_VAL(object, 1) + 5);
 		}
@@ -697,7 +697,7 @@ ObjData::shared_ptr read_one_object(char **data, int *error) {
 				object->set_affected(j, EApply::kNone, 0);
 			}
 
-			if (GET_OBJ_TYPE(object) == ObjData::ITEM_MING) {
+			if (GET_OBJ_TYPE(object) == EObjType::ITEM_MING) {
 				int err = im_assign_power(object.get());
 				if (err) {
 					*error = 100 + err;
@@ -2014,7 +2014,7 @@ int Crash_load(CharData *ch) {
 		{
 			if (obj2
 				&& obj2->get_worn_on() < 0
-				&& GET_OBJ_TYPE(obj) == ObjData::ITEM_CONTAINER)    // This is container and it is not free
+				&& GET_OBJ_TYPE(obj) == EObjType::ITEM_CONTAINER)    // This is container and it is not free
 			{
 				CREATE(tank, 1);
 				tank->next = tank_list;
@@ -2037,7 +2037,7 @@ int Crash_load(CharData *ch) {
 		} else {
 			if (obj2
 				&& obj2->get_worn_on() < obj->get_worn_on()
-				&& GET_OBJ_TYPE(obj) == ObjData::ITEM_CONTAINER)    // This is container and it is not free
+				&& GET_OBJ_TYPE(obj) == EObjType::ITEM_CONTAINER)    // This is container and it is not free
 			{
 				tank_to = tank_list;
 				CREATE(tank, 1);
@@ -2114,8 +2114,8 @@ int Crash_is_unrentable(CharData *ch, ObjData *obj) {
 		|| obj->has_flag(EObjFlag::kRepopDecay)
 		|| obj->has_flag(EObjFlag::kZonedacay)
 		|| (GET_OBJ_RNUM(obj) <= kNothing
-			&& GET_OBJ_TYPE(obj) != ObjData::ITEM_MONEY)
-		|| GET_OBJ_TYPE(obj) == ObjData::ITEM_KEY
+			&& GET_OBJ_TYPE(obj) != EObjType::ITEM_MONEY)
+		|| GET_OBJ_TYPE(obj) == EObjType::ITEM_KEY
 		|| SetSystem::is_norent_set(ch, obj)) {
 		return true;
 	}

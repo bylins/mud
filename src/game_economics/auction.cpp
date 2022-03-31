@@ -131,7 +131,7 @@ bool auction_drive(CharData *ch, char *argument) {
 				send_to_char("У вас этого нет.\r\n", ch);
 				return false;
 			}
-			if (GET_OBJ_TYPE(obj) != ObjData::ITEM_BOOK) {
+			if (GET_OBJ_TYPE(obj) != EObjType::ITEM_BOOK) {
 				if (obj->has_flag(EObjFlag::kNorent)
 					|| obj->has_flag(EObjFlag::kNosell)) {
 					send_to_char("Этот предмет не предназначен для аукциона.\r\n", ch);
@@ -383,8 +383,8 @@ bool auction_drive(CharData *ch, char *argument) {
 			}
 			obj = GET_LOT(lot)->item;
 			sprintf(buf, "Предмет \"%s\", ", obj->get_short_description().c_str());
-			if ((GET_OBJ_TYPE(obj) == ObjData::ITEM_WAND)
-				|| (GET_OBJ_TYPE(obj) == ObjData::ITEM_STAFF)) {
+			if ((GET_OBJ_TYPE(obj) == EObjType::ITEM_WAND)
+				|| (GET_OBJ_TYPE(obj) == EObjType::ITEM_STAFF)) {
 				if (GET_OBJ_VAL(obj, 2) < GET_OBJ_VAL(obj, 1)) {
 					strcat(buf, "(б/у), ");
 				}

@@ -252,15 +252,15 @@ bool CObject::load_from_node(const pugi::xml_node *node) {
 		set_minimum_remorts(minimum_remorts_value);
 	}
 
-	CHelper::ELoadFlagResult load_result = CHelper::load_flag<EObjectType>(*node, "type",
-																		   [&](const auto type) { this->set_type(type); },
-																		   [&](const auto name) {
+	CHelper::ELoadFlagResult load_result = CHelper::load_flag<EObjType>(*node, "type",
+																		[&](const auto type) { this->set_type(type); },
+																		[&](const auto name) {
 																			   logger(
 																				   "WARNING: Failed to set object type '%s' for object with VNUM %d. Object will be skipped.\n",
 																				   name,
 																				   this->get_vnum());
 																		   },
-																		   [&]() {
+																		[&]() {
 																			   logger(
 																				   "WARNING: \"type\" tag not found for object with VNUM %d not found. Setting to default value: %s.\n",
 																				   this->get_vnum(),
@@ -368,15 +368,15 @@ bool CObject::load_from_node(const pugi::xml_node *node) {
 		}
 	}
 
-	load_result = CHelper::load_flag<EObjectMaterial>(*node, "material",
-													  [&](const auto material) { this->set_material(material); },
-													  [&](const auto name) {
+	load_result = CHelper::load_flag<EObjMaterial>(*node, "material",
+												   [&](const auto material) { this->set_material(material); },
+												   [&](const auto name) {
 														  logger(
 															  "WARNING: Failed to set material '%s' for object with VNUM %d. Object will be skipped.\n",
 															  name,
 															  this->get_vnum());
 													  },
-													  [&]() {
+												   [&]() {
 														  logger(
 															  "WARNING: \"material\" tag for object with VNUM %d not found. Setting to default value: %s.\n",
 															  this->get_vnum(),
@@ -608,7 +608,7 @@ bool CObject::save_to_node(pugi::xml_node *node) const {
 			// unpack item_parameters
 			std::list<std::string> item_parameters;
 			switch (get_type()) {
-				case ObjData::ITEM_INGREDIENT: {
+				case EObjType::ITEM_INGREDIENT: {
 					int flag = 1;
 					while (flag <= get_skill()) {
 						if (IS_SET(get_skill(), flag)) {
@@ -619,7 +619,7 @@ bool CObject::save_to_node(pugi::xml_node *node) const {
 				}
 					break;
 
-				case ObjData::ITEM_WEAPON: item_parameters.push_back(NAME_BY_ITEM(static_cast<ESkill>(get_skill())));
+				case EObjType::ITEM_WEAPON: item_parameters.push_back(NAME_BY_ITEM(static_cast<ESkill>(get_skill())));
 					break;
 
 				default: break;
@@ -725,7 +725,7 @@ ObjData *CObject::build_object() const {
 
 bool CObject::load_item_parameters(const pugi::xml_node *node) {
 	switch (get_type()) {
-		case ObjData::ITEM_INGREDIENT:
+		case EObjType::ITEM_INGREDIENT:
 			for (const auto flags : node->children("parameter")) {
 				const char *flag = flags.child_value();
 				try {
@@ -743,7 +743,7 @@ bool CObject::load_item_parameters(const pugi::xml_node *node) {
 			}
 			break;
 
-		case ObjData::ITEM_WEAPON: {
+		case EObjType::ITEM_WEAPON: {
 			const char *skill_value = node->child_value("parameter");
 			try {
 				set_skill(to_underlying(ITEM_BY_NAME<ESkill>(skill_value)));

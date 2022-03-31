@@ -924,10 +924,6 @@ const int kNameLevel = 5;
 #define IS_OBJ_NO(obj, stat) ((obj)->has_no_flag(stat))
 #define IS_OBJ_AFF(obj, stat) ((obj)->get_affect(stat))
 
-#define IS_CORPSE(obj)     (GET_OBJ_TYPE(obj) == ObjData::ITEM_CONTAINER && \
-               GET_OBJ_VAL((obj), 3) == ObjData::CORPSE_INDICATOR)
-#define IS_MOB_CORPSE(obj) (IS_CORPSE(obj) &&  GET_OBJ_VAL((obj), 2) != -1)
-
 // compound utilities and other macros *********************************
 
 #define HSHR(ch) (ESex::kNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "его": (IS_FEMALE(ch) ? "ее" : "их")) :"его")
@@ -1314,6 +1310,10 @@ int CAN_CARRY_N(const CharData *ch);
 
 #define OK_SHIELD(ch, obj)  (GET_OBJ_WEIGHT(obj) <= \
                           (2 * str_bonus(GET_REAL_STR(ch), STR_HOLD_W)))
+
+#define IS_CORPSE(obj)     (GET_OBJ_TYPE(obj) == EObjType::ITEM_CONTAINER && \
+               GET_OBJ_VAL((obj), 3) == ObjData::CORPSE_INDICATOR)
+#define IS_MOB_CORPSE(obj) (IS_CORPSE(obj) &&  GET_OBJ_VAL((obj), 2) != -1)
 
 /// аналог sprintbitwd и производных
 /// \param bits - bitset|boost::dynamic_bitset

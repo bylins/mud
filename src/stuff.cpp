@@ -396,7 +396,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 	obj->set_PName(4, "острыми когтями");
 	obj->set_PName(5, "острых когтях");
 	obj->set_sex(ESex::kPoly);
-	obj->set_type(ObjData::ITEM_WEAPON);
+	obj->set_type(EObjType::ITEM_WEAPON);
 	// среднее оружки
 	obj->set_val(1, floorf(diff/18.0)); // при 100 скила куб. = 5  	при 200 скила = 11
 	obj->set_val(2, floorf(diff/27.0)); // при 100 скила граней = d4  при 200 скила = d7
@@ -419,7 +419,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 
 	obj->set_maximum_durability(5000);
 	obj->set_current_durability(5000);
-	obj->set_material(ObjData::MAT_CRYSTALL);
+	obj->set_material(EObjMaterial::MAT_CRYSTALL);
 
 	obj->set_weight(floorf(diff/9.0));
 
@@ -479,7 +479,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 		position = 18;
 		break;
 	case ESkill::kPunch: // кулачка
-		obj->set_type(ObjData::ITEM_ARMOR);
+		obj->set_type(EObjType::ITEM_ARMOR);
 		obj->set_affected(0, EApply::kDamroll, floorf(diff/10.0));
 		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
 		position = 9;
@@ -495,7 +495,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 		position = 16;
 		break;
 	case ESkill::kShieldBlock: // блок щитом ? делаем щит
-		obj->set_type(ObjData::ITEM_ARMOR);
+		obj->set_type(EObjType::ITEM_ARMOR);
 		obj->set_description("Роговые пластины лежат здесь.");
 		obj->set_ex_description(descr.c_str(), "Роговые пластины лежат здесь.");
 		obj->set_aliases("роговые пластины");
@@ -526,7 +526,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 		obj->set_PName(3, "прочную шкуру");
 		obj->set_PName(4, "прочной шкурой");
 		obj->set_PName(5, "прочной шкуре");
-		obj->set_type(ObjData::ITEM_ARMOR);
+		obj->set_type(EObjType::ITEM_ARMOR);
 		if (diff == -1) { // тут делаем сапоги 
 			obj->set_sex(ESex::kPoly);
 			obj->set_weight(50);

@@ -116,7 +116,7 @@ ObjData::shared_ptr WorldObjects::create_from_prototype_by_rnum(ObjRnum rnum) {
 
 		const auto id = max_id.allocate();
 		new_object->set_id(id);
-		if (new_object->get_type() == ObjData::ITEM_DRINKCON) {
+		if (new_object->get_type() == EObjType::ITEM_DRINKCON) {
 			if (new_object->get_val(1) > 0) {
 				name_from_drinkcon(new_object.get());
 				name_to_drinkcon(new_object.get(), new_object->get_val(2));

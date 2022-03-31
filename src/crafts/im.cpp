@@ -885,7 +885,7 @@ void im_reset_room(RoomData *room, int level, int type) {
 
 	for (o = room->contents; o; o = next) {
 		next = o->get_next_content();
-		if (GET_OBJ_TYPE(o) == ObjData::ITEM_MING) {
+		if (GET_OBJ_TYPE(o) == EObjType::ITEM_MING) {
 			extract_obj(o);
 		}
 	}
@@ -1208,7 +1208,7 @@ ObjData **im_obtain_ingredients(CharData *ch, char *argument, int *count) {
 			snprintf(buf, kMaxStringLength, "У вас нет %s.\r\n", name);
 			break;
 		}
-		if (GET_OBJ_TYPE(o) != ObjData::ITEM_MING) {
+		if (GET_OBJ_TYPE(o) != EObjType::ITEM_MING) {
 			sprintf(buf, "Вы должны использовать только магические ингредиенты.\r\n");
 			break;
 		}
@@ -1366,14 +1366,14 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	switch (GET_OBJ_TYPE(obj_proto[tgt])) {
-		case ObjData::ITEM_SCROLL:
-		case ObjData::ITEM_POTION: param[0] = GET_OBJ_VAL(obj_proto[tgt], 0);    // уровень
+		case EObjType::ITEM_SCROLL:
+		case EObjType::ITEM_POTION: param[0] = GET_OBJ_VAL(obj_proto[tgt], 0);    // уровень
 			param[1] = 1;    // количество
 			param[2] = obj_proto[tgt]->get_timer();    // таймер
 			break;
 
-		case ObjData::ITEM_WAND:
-		case ObjData::ITEM_STAFF: param[0] = GET_OBJ_VAL(obj_proto[tgt], 0);    // уровень
+		case EObjType::ITEM_WAND:
+		case EObjType::ITEM_STAFF: param[0] = GET_OBJ_VAL(obj_proto[tgt], 0);    // уровень
 			param[1] = GET_OBJ_VAL(obj_proto[tgt], 1);    // количество
 			param[2] = obj_proto[tgt]->get_timer();    // таймер
 			break;
@@ -1487,8 +1487,8 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		const auto result = world_objects.create_from_prototype_by_rnum(tgt);
 		if (result) {
 			switch (GET_OBJ_TYPE(result)) {
-				case ObjData::ITEM_SCROLL:
-				case ObjData::ITEM_POTION:
+				case EObjType::ITEM_SCROLL:
+				case EObjType::ITEM_POTION:
 					if (val[0] > 0) {
 						result->set_val(0, val[0]);
 					}
@@ -1497,8 +1497,8 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					}
 					break;
 
-				case ObjData::ITEM_WAND:
-				case ObjData::ITEM_STAFF:
+				case EObjType::ITEM_WAND:
+				case EObjType::ITEM_STAFF:
 					if (val[0] > 0) {
 						result->set_val(0, val[0]);
 					}

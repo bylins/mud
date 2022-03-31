@@ -651,7 +651,7 @@ void ObjectFile::parse_object(const int nr) {
 
 	tobj->set_maximum_durability(t[1]);
 	tobj->set_current_durability(MIN(t[1], t[2]));
-	tobj->set_material(static_cast<ObjData::EObjectMaterial>(t[3]));
+	tobj->set_material(static_cast<EObjMaterial>(t[3]));
 
 	if (tobj->get_current_durability() > tobj->get_maximum_durability()) {
 		log("SYSERR: Obj_cur > Obj_Max, vnum: %d", nr);
@@ -708,7 +708,7 @@ void ObjectFile::parse_object(const int nr) {
 		exit(1);
 	}
 
-	tobj->set_type(static_cast<ObjData::EObjectType>(t[0]));        // ** What's a object
+	tobj->set_type(static_cast<EObjType>(t[0]));        // ** What's a object
 	tobj->load_extra_flags(f1);
 	// ** Its effects
 	int wear_flags = 0;
@@ -750,8 +750,8 @@ void ObjectFile::parse_object(const int nr) {
 	tobj->set_rent_on(t[3]);
 
 	// check to make sure that weight of containers exceeds curr. quantity
-	if (tobj->get_type() == ObjData::ITEM_DRINKCON
-		|| tobj->get_type() == ObjData::ITEM_FOUNTAIN) {
+	if (tobj->get_type() == EObjType::ITEM_DRINKCON
+		|| tobj->get_type() == EObjType::ITEM_FOUNTAIN) {
 		if (tobj->get_weight() < tobj->get_val(1)) {
 			tobj->set_weight(tobj->get_val(1) + 5);
 		}
@@ -891,8 +891,8 @@ bool ObjectFile::check_object(ObjData *obj) {
 	}
 
 	switch (GET_OBJ_TYPE(obj)) {
-		case ObjData::ITEM_DRINKCON:
-		case ObjData::ITEM_FOUNTAIN:
+		case EObjType::ITEM_DRINKCON:
+		case EObjType::ITEM_FOUNTAIN:
 			if (GET_OBJ_VAL(obj, 1) > GET_OBJ_VAL(obj, 0)) {
 				error = true;
 				log("SYSERR: Object #%d (%s) contains (%d) more than maximum (%d).",
@@ -900,18 +900,18 @@ bool ObjectFile::check_object(ObjData *obj) {
 			}
 			break;
 
-		case ObjData::ITEM_SCROLL:
-		case ObjData::ITEM_POTION: error = error || check_object_level(obj, 0);
+		case EObjType::ITEM_SCROLL:
+		case EObjType::ITEM_POTION: error = error || check_object_level(obj, 0);
 			error = error || check_object_spell_number(obj, 1);
 			error = error || check_object_spell_number(obj, 2);
 			error = error || check_object_spell_number(obj, 3);
 			break;
 
-		case ObjData::ITEM_BOOK: error = error || check_object_spell_number(obj, 1);
+		case EObjType::ITEM_BOOK: error = error || check_object_spell_number(obj, 1);
 			break;
 
-		case ObjData::ITEM_WAND:
-		case ObjData::ITEM_STAFF: error = error || check_object_level(obj, 0);
+		case EObjType::ITEM_WAND:
+		case EObjType::ITEM_STAFF: error = error || check_object_level(obj, 0);
 			error = error || check_object_spell_number(obj, 3);
 			if (GET_OBJ_VAL(obj, 2) > GET_OBJ_VAL(obj, 1)) {
 				error = true;

@@ -1032,14 +1032,14 @@ inline bool NO_DESTROY(const ObjData *obj) {
 		|| obj->get_worn_by()
 		|| obj->get_in_obj()
 //		|| (obj->get_script()->has_triggers())
-		|| GET_OBJ_TYPE(obj) == ObjData::ITEM_FOUNTAIN
+		|| GET_OBJ_TYPE(obj) == EObjType::ITEM_FOUNTAIN
 		|| obj->get_in_room() == kNowhere
 		|| (obj->has_flag(EObjFlag::kNodecay)
 			&& !ROOM_FLAGGED(obj->get_in_room(), ROOM_DEATH)));
 }
 
 inline bool NO_TIMER(const ObjData *obj) {
-	if (GET_OBJ_TYPE(obj) == ObjData::ITEM_FOUNTAIN)
+	if (GET_OBJ_TYPE(obj) == EObjType::ITEM_FOUNTAIN)
 		return true;
 // так как таймер всего 30 шмот из тестовой зоны в своей зоне запретим тикать на земле
 // полный вариан

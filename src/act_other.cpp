@@ -257,13 +257,13 @@ int check_awake(CharData *ch, int what) {
 
 			if (IS_SET(what, kAcheckLight)
 				&& IS_DEFAULTDARK(ch->in_room)
-				&& GET_OBJ_TYPE(GET_EQ(ch, i)) == ObjData::ITEM_LIGHT
+				&& GET_OBJ_TYPE(GET_EQ(ch, i)) == EObjType::ITEM_LIGHT
 				&& GET_OBJ_VAL(GET_EQ(ch, i), 2)) {
 				SET_BIT(retval, kAcheckLight);
 			}
 
 			if (ObjSystem::is_armor_type(GET_EQ(ch, i))
-				&& GET_OBJ_MATER(GET_EQ(ch, i)) <= ObjData::MAT_COLOR) {
+				&& GET_OBJ_MATER(GET_EQ(ch, i)) <= EObjMaterial::MAT_COLOR) {
 				wgt += GET_OBJ_WEIGHT(GET_EQ(ch, i));
 			}
 		}
@@ -2284,8 +2284,8 @@ void do_pray(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			send_to_char("Вы должны пожертвовать что-то стоящее.\r\n", ch);
 			return;
 		}
-		if (GET_OBJ_TYPE(obj) != ObjData::ITEM_FOOD
-			&& GET_OBJ_TYPE(obj) != ObjData::ITEM_TREASURE) {
+		if (GET_OBJ_TYPE(obj) != EObjType::ITEM_FOOD
+			&& GET_OBJ_TYPE(obj) != EObjType::ITEM_TREASURE) {
 			send_to_char("Богам неугодна эта жертва.\r\n", ch);
 			return;
 		}
@@ -2445,7 +2445,7 @@ void do_bandage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 
 	ObjData *bandage = nullptr;
 	for (ObjData *i = ch->carrying; i; i = i->get_next_content()) {
-		if (GET_OBJ_TYPE(i) == ObjData::ITEM_BANDAGE) {
+		if (GET_OBJ_TYPE(i) == EObjType::ITEM_BANDAGE) {
 			bandage = i;
 			break;
 		}

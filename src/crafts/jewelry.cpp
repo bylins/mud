@@ -119,8 +119,8 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		send_to_char(buf, ch);
 		return;
 	}
-	if (GET_OBJ_MATER(itemobj) == ObjData::MAT_NONE || (GET_OBJ_MATER(itemobj) > ObjData::MAT_COLOR)) {
-		if (!(GET_OBJ_MATER(itemobj) == ObjData::MAT_BONE || GET_OBJ_MATER(itemobj) == ObjData::MAT_ROCK)) {
+	if (GET_OBJ_MATER(itemobj) == EObjMaterial::MAT_NONE || (GET_OBJ_MATER(itemobj) > EObjMaterial::MAT_COLOR)) {
+		if (!(GET_OBJ_MATER(itemobj) == EObjMaterial::MAT_BONE || GET_OBJ_MATER(itemobj) == EObjMaterial::MAT_ROCK)) {
 			sprintf(buf, "%s состоит из неподходящего материала.\r\n", itemobj->get_PName(0).c_str());
 			send_to_char(buf, ch);
 			return;
@@ -224,7 +224,7 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		itemobj->set_timer(timer);
 	}
 
-	if (GET_OBJ_MATER(gemobj) == ObjData::MAT_DIAMOND) {
+	if (GET_OBJ_MATER(gemobj) == EObjMaterial::MAT_DIAMOND) {
 		std::string effect;
 		if (!*arg3) {
 			int gem_vnum = GET_OBJ_VNUM(gemobj);

@@ -184,7 +184,7 @@ void ItemNode::replace_descs(ObjData *obj, const int vnum) const {
 
 	obj->set_ex_description(nullptr); //Пока в конфиге нельзя указать экстраописания - убираем нафиг
 
-	if ((GET_OBJ_TYPE(obj) == ObjData::ITEM_DRINKCON)
+	if ((GET_OBJ_TYPE(obj) == EObjType::ITEM_DRINKCON)
 		&& (GET_OBJ_VAL(obj, 1) > 0)) //Если работаем с непустой емкостью...
 	{
 		name_to_drinkcon(obj, GET_OBJ_VAL(obj, 2)); //...Следует указать содержимое емкости
@@ -365,7 +365,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 			obj_to_char(obj, ch);
 			if (currency == "слава") {
 				// книги за славу не фейлим
-				if (ObjData::ITEM_BOOK == GET_OBJ_TYPE(obj)) {
+				if (EObjType::ITEM_BOOK == GET_OBJ_TYPE(obj)) {
 					obj->set_extra_flag(EObjFlag::KNofail);
 				}
 				// снятие и логирование славы
@@ -375,18 +375,18 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 										 GET_NAME(ch), GET_OBJ_PNAME(proto, 0).c_str(), price);
 			} else if (currency == "лед") {
 				// книги за лед, как и за славу, не фейлим
-				if (ObjData::ITEM_BOOK == GET_OBJ_TYPE(obj)) {
+				if (EObjType::ITEM_BOOK == GET_OBJ_TYPE(obj)) {
 					obj->set_extra_flag(EObjFlag::KNofail);
 				}
 				ch->sub_ice_currency(price);
 			} else if (currency == "ногаты") {
 				// книги за лед, как и за славу, не фейлим
-				if (ObjData::ITEM_BOOK == GET_OBJ_TYPE(obj)) {
+				if (EObjType::ITEM_BOOK == GET_OBJ_TYPE(obj)) {
 					obj->set_extra_flag(EObjFlag::KNofail);
 				}
 				ch->sub_nogata(price);
 			} else if (currency == "гривны") {
-				if (ObjData::ITEM_BOOK == GET_OBJ_TYPE(obj)) {
+				if (EObjType::ITEM_BOOK == GET_OBJ_TYPE(obj)) {
 					obj->set_extra_flag(EObjFlag::KNofail);
 				}
 				ch->sub_hryvn(price);
@@ -481,7 +481,7 @@ void shop_node::print_shop_list(CharData *ch, const std::string &arg, int keeper
 		if (item->empty()) {
 			print_value = item->get_item_name(keeper_vnum);
 			const auto rnum = obj_proto.rnum(item->vnum());
-			if (GET_OBJ_TYPE(obj_proto[rnum]) == ObjData::ITEM_DRINKCON) {
+			if (GET_OBJ_TYPE(obj_proto[rnum]) == EObjType::ITEM_DRINKCON) {
 				print_value += " с " + std::string(drinknames[GET_OBJ_VAL(obj_proto[rnum], 2)]);
 			}
 		} else {
@@ -516,60 +516,60 @@ void shop_node::print_shop_list(CharData *ch, const std::string &arg, int keeper
 bool init_type(const std::string &str, int &type) {
 	if (utils::IsAbbrev(str, "свет")
 		|| utils::IsAbbrev(str, "light")) {
-		type = ObjData::ITEM_LIGHT;
+		type = EObjType::ITEM_LIGHT;
 	} else if (utils::IsAbbrev(str, "свиток")
 		|| utils::IsAbbrev(str, "scroll")) {
-		type = ObjData::ITEM_SCROLL;
+		type = EObjType::ITEM_SCROLL;
 	} else if (utils::IsAbbrev(str, "палочка")
 		|| utils::IsAbbrev(str, "wand")) {
-		type = ObjData::ITEM_WAND;
+		type = EObjType::ITEM_WAND;
 	} else if (utils::IsAbbrev(str, "посох")
 		|| utils::IsAbbrev(str, "staff")) {
-		type = ObjData::ITEM_STAFF;
+		type = EObjType::ITEM_STAFF;
 	} else if (utils::IsAbbrev(str, "оружие")
 		|| utils::IsAbbrev(str, "weapon")) {
-		type = ObjData::ITEM_WEAPON;
+		type = EObjType::ITEM_WEAPON;
 	} else if (utils::IsAbbrev(str, "броня")
 		|| utils::IsAbbrev(str, "armor")) {
-		type = ObjData::ITEM_ARMOR;
+		type = EObjType::ITEM_ARMOR;
 	} else if (utils::IsAbbrev(str, "материал")
 		|| utils::IsAbbrev(str, "material")) {
-		type = ObjData::ITEM_MATERIAL;
+		type = EObjType::ITEM_MATERIAL;
 	} else if (utils::IsAbbrev(str, "напиток")
 		|| utils::IsAbbrev(str, "potion")) {
-		type = ObjData::ITEM_POTION;
+		type = EObjType::ITEM_POTION;
 	} else if (utils::IsAbbrev(str, "прочее")
 		|| utils::IsAbbrev(str, "другое")
 		|| utils::IsAbbrev(str, "other")) {
-		type = ObjData::ITEM_OTHER;
+		type = EObjType::ITEM_OTHER;
 	} else if (utils::IsAbbrev(str, "контейнер")
 		|| utils::IsAbbrev(str, "container")) {
-		type = ObjData::ITEM_CONTAINER;
+		type = EObjType::ITEM_CONTAINER;
 	} else if (utils::IsAbbrev(str, "емкость")
 		|| utils::IsAbbrev(str, "tank")) {
-		type = ObjData::ITEM_DRINKCON;
+		type = EObjType::ITEM_DRINKCON;
 	} else if (utils::IsAbbrev(str, "книга")
 		|| utils::IsAbbrev(str, "book")) {
-		type = ObjData::ITEM_BOOK;
+		type = EObjType::ITEM_BOOK;
 	} else if (utils::IsAbbrev(str, "руна")
 		|| utils::IsAbbrev(str, "rune")) {
-		type = ObjData::ITEM_INGREDIENT;
+		type = EObjType::ITEM_INGREDIENT;
 	} else if (utils::IsAbbrev(str, "ингредиент")
 		|| utils::IsAbbrev(str, "ingradient")) {
-		type = ObjData::ITEM_MING;
+		type = EObjType::ITEM_MING;
 	} else if (utils::IsAbbrev(str, "легкие")
 		|| utils::IsAbbrev(str, "легкая")) {
-		type = ObjData::ITEM_ARMOR_LIGHT;
+		type = EObjType::ITEM_ARMOR_LIGHT;
 	} else if (utils::IsAbbrev(str, "средние")
 		|| utils::IsAbbrev(str, "средняя")) {
-		type = ObjData::ITEM_ARMOR_MEDIAN;
+		type = EObjType::ITEM_ARMOR_MEDIAN;
 	} else if (utils::IsAbbrev(str, "тяжелые")
 		|| utils::IsAbbrev(str, "тяжелая")) {
-		type = ObjData::ITEM_ARMOR_HEAVY;
+		type = EObjType::ITEM_ARMOR_HEAVY;
 	} else if (utils::IsAbbrev(str, "колчан")) {
-		type = ObjData::ITEM_MAGIC_CONTAINER;
+		type = EObjType::ITEM_MAGIC_CONTAINER;
 	} else if (utils::IsAbbrev(str, "стрела")) {
-		type = ObjData::ITEM_MAGIC_ARROW;
+		type = EObjType::ITEM_MAGIC_ARROW;
 	} else {
 		return false;
 	}
@@ -673,7 +673,7 @@ void shop_node::filter_shop_list(CharData *ch, const std::string &arg, int keepe
 		if (item->empty()) {
 			print_value = item->get_item_name(keeper_vnum);
 			const auto rnum = obj_proto.rnum(item->vnum());
-			if (GET_OBJ_TYPE(obj_proto[rnum]) == ObjData::ITEM_DRINKCON) {
+			if (GET_OBJ_TYPE(obj_proto[rnum]) == EObjType::ITEM_DRINKCON) {
 				print_value += " с " + std::string(drinknames[GET_OBJ_VAL(obj_proto[rnum], 2)]);
 			}
 
@@ -995,7 +995,7 @@ unsigned shop_node::get_item_num(std::string &item_name, int keeper_vnum) const 
 		if (item->empty()) {
 			name_value = utils::remove_colors(item->get_item_name(keeper_vnum));
 			const auto rnum = obj_proto.rnum(item->vnum());
-			if (GET_OBJ_TYPE(obj_proto[rnum]) == ObjData::ITEM_DRINKCON) {
+			if (GET_OBJ_TYPE(obj_proto[rnum]) == EObjType::ITEM_DRINKCON) {
 				name_value += " " + std::string(drinknames[GET_OBJ_VAL(obj_proto[rnum], 2)]);
 			}
 		} else {
@@ -1051,7 +1051,7 @@ void shop_node::put_item_to_shop(ObjData *obj) {
 					continue;
 				}
 
-				if (GET_OBJ_TYPE(obj) != ObjData::ITEM_MING //а у них всех один рнум
+				if (GET_OBJ_TYPE(obj) != EObjType::ITEM_MING //а у них всех один рнум
 					|| obj->get_short_description() == tmp_obj->get_short_description()) {
 					item->add_uid(obj->get_uid());
 					put_to_storage(obj);
@@ -1099,13 +1099,13 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 	}
 
 	if (GET_OBJ_VAL(obj, 2) == 0
-		&& (GET_OBJ_TYPE(obj) == ObjData::ITEM_WAND
-			|| GET_OBJ_TYPE(obj) == ObjData::ITEM_STAFF)) {
+		&& (GET_OBJ_TYPE(obj) == EObjType::ITEM_WAND
+			|| GET_OBJ_TYPE(obj) == EObjType::ITEM_STAFF)) {
 		tell_to_char(keeper, ch, "Я не покупаю использованные вещи!");
 		return;
 	}
 
-	if (GET_OBJ_TYPE(obj) == ObjData::ITEM_CONTAINER
+	if (GET_OBJ_TYPE(obj) == EObjType::ITEM_CONTAINER
 		&& cmd != "Чинить") {
 		if (obj->get_contains()) {
 			tell_to_char(keeper, ch, "Не надо предлагать мне кота в мешке.");
@@ -1190,25 +1190,25 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 		}
 
 		switch (obj->get_material()) {
-			case ObjData::MAT_BULAT:
-			case ObjData::MAT_CRYSTALL:
-			case ObjData::MAT_DIAMOND:
-			case ObjData::MAT_SWORDSSTEEL: repair_price *= 2;
+			case EObjMaterial::MAT_BULAT:
+			case EObjMaterial::MAT_CRYSTALL:
+			case EObjMaterial::MAT_DIAMOND:
+			case EObjMaterial::MAT_SWORDSSTEEL: repair_price *= 2;
 				break;
 
-			case ObjData::MAT_SUPERWOOD:
-			case ObjData::MAT_COLOR:
-			case ObjData::MAT_GLASS:
-			case ObjData::MAT_BRONZE:
-			case ObjData::MAT_FARFOR:
-			case ObjData::MAT_BONE:
-			case ObjData::MAT_ORGANIC: repair_price += MAX(1, repair_price / 2);
+			case EObjMaterial::MAT_SUPERWOOD:
+			case EObjMaterial::MAT_COLOR:
+			case EObjMaterial::MAT_GLASS:
+			case EObjMaterial::MAT_BRONZE:
+			case EObjMaterial::MAT_FARFOR:
+			case EObjMaterial::MAT_BONE:
+			case EObjMaterial::MAT_ORGANIC: repair_price += MAX(1, repair_price / 2);
 				break;
 
-			case ObjData::MAT_IRON:
-			case ObjData::MAT_STEEL:
-			case ObjData::MAT_SKIN:
-			case ObjData::MAT_MATERIA:
+			case EObjMaterial::MAT_IRON:
+			case EObjMaterial::MAT_STEEL:
+			case EObjMaterial::MAT_SKIN:
+			case EObjMaterial::MAT_MATERIA:
 				//repair_price = repair_price;
 				break;
 

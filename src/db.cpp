@@ -334,10 +334,10 @@ bool check_unlimited_timer(const CObjectPrototype *obj) {
 	// куда одевается наш предмет
 	int item_wear = -1;
 	bool type_item = false;
-	if (GET_OBJ_TYPE(obj) == ObjData::ITEM_ARMOR
-		|| GET_OBJ_TYPE(obj) == ObjData::ITEM_STAFF
-		|| GET_OBJ_TYPE(obj) == ObjData::ITEM_WORN
-		|| GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON) {
+	if (GET_OBJ_TYPE(obj) == EObjType::ITEM_ARMOR
+		|| GET_OBJ_TYPE(obj) == EObjType::ITEM_STAFF
+		|| GET_OBJ_TYPE(obj) == EObjType::ITEM_WORN
+		|| GET_OBJ_TYPE(obj) == EObjType::ITEM_WEAPON) {
 		type_item = true;
 	}
 	// сумма для статов
@@ -539,10 +539,10 @@ float count_koef_obj(const CObjectPrototype *obj, int item_wear) {
 float count_unlimited_timer(const CObjectPrototype *obj) {
 	float result = 0.0;
 	bool type_item = false;
-	if (GET_OBJ_TYPE(obj) == ObjData::ITEM_ARMOR
-		|| GET_OBJ_TYPE(obj) == ObjData::ITEM_STAFF
-		|| GET_OBJ_TYPE(obj) == ObjData::ITEM_WORN
-		|| GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON) {
+	if (GET_OBJ_TYPE(obj) == EObjType::ITEM_ARMOR
+		|| GET_OBJ_TYPE(obj) == EObjType::ITEM_STAFF
+		|| GET_OBJ_TYPE(obj) == EObjType::ITEM_WORN
+		|| GET_OBJ_TYPE(obj) == EObjType::ITEM_WEAPON) {
 		type_item = true;
 	}
 	// сумма для статов
@@ -1258,8 +1258,8 @@ void init_portals(void) {
 /// конверт поля GET_OBJ_SKILL в емкостях TODO: 12.2013
 int convert_drinkcon_skill(CObjectPrototype *obj, bool proto) {
 	if (GET_OBJ_SKILL(obj) > 0
-		&& (GET_OBJ_TYPE(obj) == ObjData::ITEM_DRINKCON
-			|| GET_OBJ_TYPE(obj) == ObjData::ITEM_FOUNTAIN)) {
+		&& (GET_OBJ_TYPE(obj) == EObjType::ITEM_DRINKCON
+			|| GET_OBJ_TYPE(obj) == EObjType::ITEM_FOUNTAIN)) {
 		log("obj_skill: %d - %s (%d)", GET_OBJ_SKILL(obj),
 			GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_VNUM(obj));
 		// если емскости уже просетили какие-то заклы, то зелье
@@ -1267,7 +1267,7 @@ int convert_drinkcon_skill(CObjectPrototype *obj, bool proto) {
 		if (obj->get_value(ObjVal::EValueKey::POTION_PROTO_VNUM) < 0) {
 			const auto potion = world_objects.create_from_prototype_by_vnum(GET_OBJ_SKILL(obj));
 			if (potion
-				&& GET_OBJ_TYPE(potion) == ObjData::ITEM_POTION) {
+				&& GET_OBJ_TYPE(potion) == EObjType::ITEM_POTION) {
 				drinkcon::copy_potion_values(potion.get(), obj);
 				if (proto) {
 					// copy_potion_values сетит до кучи и внум из пошена,
@@ -4051,7 +4051,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum) {
 							if (obj_proto.actual_count(rnum) < obj_proto[rnum]->get_max_in_world()) {
 								const auto obj_in = world_objects.create_from_prototype_by_vnum((*load_in)->vnum);
 								if (obj_in
-									&& GET_OBJ_TYPE(obj) == ObjData::ITEM_CONTAINER) {
+									&& GET_OBJ_TYPE(obj) == EObjType::ITEM_CONTAINER) {
 									obj_to_obj(obj_in.get(), obj.get());
 									obj_in->set_vnum_zone_from(GET_OBJ_VNUM_ZONE_FROM(obj));
 
@@ -4390,7 +4390,7 @@ void ZoneReset::reset_zone_essential() {
 							ZONE_ERROR("target obj not found, command omited");
 							break;
 						}
-						if (GET_OBJ_TYPE(obj_to) != ObjData::ITEM_CONTAINER) {
+						if (GET_OBJ_TYPE(obj_to) != EObjType::ITEM_CONTAINER) {
 							ZONE_ERROR("attempt put obj to non container, omited");
 							ZCMD.command = '*';
 							break;

@@ -21,9 +21,9 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 	one_argument(argument, cast_argument);
 	level = GET_OBJ_VAL(obj, 0);
 	if (level == 0) {
-		if (GET_OBJ_TYPE(obj) == ObjData::ITEM_STAFF) {
+		if (GET_OBJ_TYPE(obj) == EObjType::ITEM_STAFF) {
 			level = DEFAULT_STAFF_LVL;
-		} else if (GET_OBJ_TYPE(obj) == ObjData::ITEM_WAND) {
+		} else if (GET_OBJ_TYPE(obj) == EObjType::ITEM_WAND) {
 			level = DEFAULT_WAND_LVL;
 		}
 	}
@@ -36,7 +36,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 	}
 
 	switch (GET_OBJ_TYPE(obj)) {
-		case ObjData::ITEM_STAFF:
+		case EObjType::ITEM_STAFF:
 			if (!obj->get_action_description().empty()) {
 				act(obj->get_action_description().c_str(), false, ch, obj, nullptr, kToChar);
 				act(obj->get_action_description().c_str(), false, ch, obj, nullptr, kToRoom | kToArenaListen);
@@ -65,7 +65,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 
 			break;
 
-		case ObjData::ITEM_WAND: spellnum = GET_OBJ_VAL(obj, 3);
+		case EObjType::ITEM_WAND: spellnum = GET_OBJ_VAL(obj, 3);
 
 			if (GET_OBJ_VAL(obj, 2) <= 0) {
 				send_to_char("Похоже, магия кончилась.\r\n", ch);
@@ -124,7 +124,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 			CallMagic(ch, tch, tobj, world[ch->in_room], GET_OBJ_VAL(obj, 3), level);
 			break;
 
-		case ObjData::ITEM_SCROLL:
+		case EObjType::ITEM_SCROLL:
 			if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
 				send_to_char("Вы немы, как рыба.\r\n", ch);
 				return;
@@ -167,7 +167,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 			extract_obj(obj);
 			break;
 
-		case ObjData::ITEM_POTION:
+		case EObjType::ITEM_POTION:
 			if (AFF_FLAGGED(ch, EAffect::kStrangled)) {
 				send_to_char("Да вам сейчас и глоток воздуха не проглотить!\r\n", ch);
 				return;

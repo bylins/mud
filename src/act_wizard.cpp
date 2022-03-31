@@ -5303,41 +5303,41 @@ void do_print_armor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		switch (*argument) {
 			case 'М': argument = one_argument(++argument, tmpbuf);
 				if (utils::IsAbbrev(tmpbuf, "булат")) {
-					filter.material = ObjData::MAT_BULAT;
+					filter.material = EObjMaterial::MAT_BULAT;
 				} else if (utils::IsAbbrev(tmpbuf, "бронза")) {
-					filter.material = ObjData::MAT_BRONZE;
+					filter.material = EObjMaterial::MAT_BRONZE;
 				} else if (utils::IsAbbrev(tmpbuf, "железо")) {
-					filter.material = ObjData::MAT_IRON;
+					filter.material = EObjMaterial::MAT_IRON;
 				} else if (utils::IsAbbrev(tmpbuf, "сталь")) {
-					filter.material = ObjData::MAT_STEEL;
+					filter.material = EObjMaterial::MAT_STEEL;
 				} else if (utils::IsAbbrev(tmpbuf, "кованая.сталь")) {
-					filter.material = ObjData::MAT_SWORDSSTEEL;
+					filter.material = EObjMaterial::MAT_SWORDSSTEEL;
 				} else if (utils::IsAbbrev(tmpbuf, "драг.металл")) {
-					filter.material = ObjData::MAT_COLOR;
+					filter.material = EObjMaterial::MAT_COLOR;
 				} else if (utils::IsAbbrev(tmpbuf, "кристалл")) {
-					filter.material = ObjData::MAT_CRYSTALL;
+					filter.material = EObjMaterial::MAT_CRYSTALL;
 				} else if (utils::IsAbbrev(tmpbuf, "дерево")) {
-					filter.material = ObjData::MAT_WOOD;
+					filter.material = EObjMaterial::MAT_WOOD;
 				} else if (utils::IsAbbrev(tmpbuf, "прочное.дерево")) {
-					filter.material = ObjData::MAT_SUPERWOOD;
+					filter.material = EObjMaterial::MAT_SUPERWOOD;
 				} else if (utils::IsAbbrev(tmpbuf, "керамика")) {
-					filter.material = ObjData::MAT_FARFOR;
+					filter.material = EObjMaterial::MAT_FARFOR;
 				} else if (utils::IsAbbrev(tmpbuf, "стекло")) {
-					filter.material = ObjData::MAT_GLASS;
+					filter.material = EObjMaterial::MAT_GLASS;
 				} else if (utils::IsAbbrev(tmpbuf, "камень")) {
-					filter.material = ObjData::MAT_ROCK;
+					filter.material = EObjMaterial::MAT_ROCK;
 				} else if (utils::IsAbbrev(tmpbuf, "кость")) {
-					filter.material = ObjData::MAT_BONE;
+					filter.material = EObjMaterial::MAT_BONE;
 				} else if (utils::IsAbbrev(tmpbuf, "ткань")) {
-					filter.material = ObjData::MAT_MATERIA;
+					filter.material = EObjMaterial::MAT_MATERIA;
 				} else if (utils::IsAbbrev(tmpbuf, "кожа")) {
-					filter.material = ObjData::MAT_SKIN;
+					filter.material = EObjMaterial::MAT_SKIN;
 				} else if (utils::IsAbbrev(tmpbuf, "органика")) {
-					filter.material = ObjData::MAT_ORGANIC;
+					filter.material = EObjMaterial::MAT_ORGANIC;
 				} else if (utils::IsAbbrev(tmpbuf, "береста")) {
-					filter.material = ObjData::MAT_PAPER;
+					filter.material = EObjMaterial::MAT_PAPER;
 				} else if (utils::IsAbbrev(tmpbuf, "драг.камень")) {
-					filter.material = ObjData::MAT_DIAMOND;
+					filter.material = EObjMaterial::MAT_DIAMOND;
 				} else {
 					send_to_char("Неверный материал предмета.\r\n", ch);
 					return;
@@ -5346,13 +5346,13 @@ void do_print_armor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				break;
 			case 'Т': argument = one_argument(++argument, tmpbuf);
 				if (utils::IsAbbrev(tmpbuf, "броня") || utils::IsAbbrev(tmpbuf, "armor")) {
-					filter.type = ObjData::ITEM_ARMOR;
+					filter.type = EObjType::ITEM_ARMOR;
 				} else if (utils::IsAbbrev(tmpbuf, "легкие") || utils::IsAbbrev(tmpbuf, "легкая")) {
-					filter.type = ObjData::ITEM_ARMOR_LIGHT;
+					filter.type = EObjType::ITEM_ARMOR_LIGHT;
 				} else if (utils::IsAbbrev(tmpbuf, "средние") || utils::IsAbbrev(tmpbuf, "средняя")) {
-					filter.type = ObjData::ITEM_ARMOR_MEDIAN;
+					filter.type = EObjType::ITEM_ARMOR_MEDIAN;
 				} else if (utils::IsAbbrev(tmpbuf, "тяжелые") || utils::IsAbbrev(tmpbuf, "тяжелая")) {
-					filter.type = ObjData::ITEM_ARMOR_HEAVY;
+					filter.type = EObjType::ITEM_ARMOR_HEAVY;
 				} else {
 					send_to_char("Неверный тип предмета.\r\n", ch);
 					return;

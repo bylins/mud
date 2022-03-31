@@ -623,16 +623,16 @@ void affect_total(CharData *ch) {
 	// calculate DAMAGE value
 	GET_DAMAGE(ch) = (str_bonus(GET_REAL_STR(ch), STR_TO_DAM) + GetRealDamroll(ch)) * 2;
 	if ((obj = GET_EQ(ch, EEquipPos::kBoths))
-		&& GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON) {
+		&& GET_OBJ_TYPE(obj) == EObjType::ITEM_WEAPON) {
 		GET_DAMAGE(ch) += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + GET_OBJ_VAL(obj, 1)))
 			>> 1; // правильный расчет среднего у оружия
 	} else {
 		if ((obj = GET_EQ(ch, EEquipPos::kWield))
-			&& GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON) {
+			&& GET_OBJ_TYPE(obj) == EObjType::ITEM_WEAPON) {
 			GET_DAMAGE(ch) += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + GET_OBJ_VAL(obj, 1))) >> 1;
 		}
 		if ((obj = GET_EQ(ch, EEquipPos::kHold))
-			&& GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON) {
+			&& GET_OBJ_TYPE(obj) == EObjType::ITEM_WEAPON) {
 			GET_DAMAGE(ch) += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + GET_OBJ_VAL(obj, 1))) >> 1;
 		}
 	}

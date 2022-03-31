@@ -15,59 +15,59 @@
 bool ParseFilter::init_type(const char *str) {
 	if (utils::IsAbbrev(str, "свет")
 		|| utils::IsAbbrev(str, "light")) {
-		type = ObjData::ITEM_LIGHT;
+		type = EObjType::ITEM_LIGHT;
 	} else if (utils::IsAbbrev(str, "свиток")
 		|| utils::IsAbbrev(str, "scroll")) {
-		type = ObjData::ITEM_SCROLL;
+		type = EObjType::ITEM_SCROLL;
 	} else if (utils::IsAbbrev(str, "палочка")
 		|| utils::IsAbbrev(str, "wand")) {
-		type = ObjData::ITEM_WAND;
+		type = EObjType::ITEM_WAND;
 	} else if (utils::IsAbbrev(str, "посох")
 		|| utils::IsAbbrev(str, "staff")) {
-		type = ObjData::ITEM_STAFF;
+		type = EObjType::ITEM_STAFF;
 	} else if (utils::IsAbbrev(str, "оружие")
 		|| utils::IsAbbrev(str, "weapon")) {
-		type = ObjData::ITEM_WEAPON;
+		type = EObjType::ITEM_WEAPON;
 	} else if (utils::IsAbbrev(str, "броня")
 		|| utils::IsAbbrev(str, "armor")) {
-		type = ObjData::ITEM_ARMOR;
+		type = EObjType::ITEM_ARMOR;
 	} else if (utils::IsAbbrev(str, "напиток")
 		|| utils::IsAbbrev(str, "potion")) {
-		type = ObjData::ITEM_POTION;
+		type = EObjType::ITEM_POTION;
 	} else if (utils::IsAbbrev(str, "прочее")
 		|| utils::IsAbbrev(str, "другое")
 		|| utils::IsAbbrev(str, "other")) {
-		type = ObjData::ITEM_OTHER;
+		type = EObjType::ITEM_OTHER;
 	} else if (utils::IsAbbrev(str, "контейнер")
 		|| utils::IsAbbrev(str, "container")) {
-		type = ObjData::ITEM_CONTAINER;
+		type = EObjType::ITEM_CONTAINER;
 	} else if (utils::IsAbbrev(str, "материал")
 		|| utils::IsAbbrev(str, "material")) {
-		type = ObjData::ITEM_MATERIAL;
+		type = EObjType::ITEM_MATERIAL;
 	} else if (utils::IsAbbrev(str, "зачарованный")
 		|| utils::IsAbbrev(str, "enchant")) {
-		type = ObjData::ITEM_ENCHANT;
+		type = EObjType::ITEM_ENCHANT;
 	} else if (utils::IsAbbrev(str, "емкость")
 		|| utils::IsAbbrev(str, "tank")) {
-		type = ObjData::ITEM_DRINKCON;
+		type = EObjType::ITEM_DRINKCON;
 	} else if (utils::IsAbbrev(str, "книга")
 		|| utils::IsAbbrev(str, "book")) {
-		type = ObjData::ITEM_BOOK;
+		type = EObjType::ITEM_BOOK;
 	} else if (utils::IsAbbrev(str, "руна")
 		|| utils::IsAbbrev(str, "rune")) {
-		type = ObjData::ITEM_INGREDIENT;
+		type = EObjType::ITEM_INGREDIENT;
 	} else if (utils::IsAbbrev(str, "ингредиент")
 		|| utils::IsAbbrev(str, "ingradient")) {
-		type = ObjData::ITEM_MING;
+		type = EObjType::ITEM_MING;
 	} else if (utils::IsAbbrev(str, "легкие")
 		|| utils::IsAbbrev(str, "легкая")) {
-		type = ObjData::ITEM_ARMOR_LIGHT;
+		type = EObjType::ITEM_ARMOR_LIGHT;
 	} else if (utils::IsAbbrev(str, "средние")
 		|| utils::IsAbbrev(str, "средняя")) {
-		type = ObjData::ITEM_ARMOR_MEDIAN;
+		type = EObjType::ITEM_ARMOR_MEDIAN;
 	} else if (utils::IsAbbrev(str, "тяжелые")
 		|| utils::IsAbbrev(str, "тяжелая")) {
-		type = ObjData::ITEM_ARMOR_HEAVY;
+		type = EObjType::ITEM_ARMOR_HEAVY;
 	} else {
 		return false;
 	}
@@ -219,7 +219,7 @@ bool ParseFilter::init_weap_class(const char *str) {
 		return false;
 	}
 
-	type = ObjData::ITEM_WEAPON;
+	type = EObjType::ITEM_WEAPON;
 
 	return true;
 }
@@ -399,8 +399,8 @@ bool ParseFilter::check_name(ObjData *obj, CharData *ch) const {
 	if (name.empty()
 		|| isname(name, name_obj)) {
 		result = true;
-	} else if ((GET_OBJ_TYPE(obj) == ObjData::ITEM_MING
-		|| GET_OBJ_TYPE(obj) == ObjData::ITEM_INGREDIENT)
+	} else if ((GET_OBJ_TYPE(obj) == EObjType::ITEM_MING
+		|| GET_OBJ_TYPE(obj) == EObjType::ITEM_INGREDIENT)
 		&& GET_OBJ_RNUM(obj) >= 0
 		&& isname(name, obj_proto[GET_OBJ_RNUM(obj)]->get_aliases().c_str())) {
 		result = true;

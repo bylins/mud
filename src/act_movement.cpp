@@ -112,7 +112,7 @@ int has_boat(CharData *ch) {
 
 	// non-wearable boats in inventory will do it
 	for (obj = ch->carrying; obj; obj = obj->get_next_content()) {
-		if (GET_OBJ_TYPE(obj) == ObjData::ITEM_BOAT
+		if (GET_OBJ_TYPE(obj) == EObjType::ITEM_BOAT
 			&& (find_eq_pos(ch, obj, nullptr) < 0)) {
 			return true;
 		}
@@ -121,7 +121,7 @@ int has_boat(CharData *ch) {
 	// and any boat you're wearing will do it too
 	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
 		if (GET_EQ(ch, i)
-			&& GET_OBJ_TYPE(GET_EQ(ch, i)) == ObjData::ITEM_BOAT) {
+			&& GET_OBJ_TYPE(GET_EQ(ch, i)) == EObjType::ITEM_BOAT) {
 			return true;
 		}
 	}
@@ -1027,7 +1027,7 @@ void do_hidemove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 #define DOOR_IS_OPENABLE(ch, obj, door)    ((obj) ? \
-            ((GET_OBJ_TYPE(obj) == ObjData::ITEM_CONTAINER) && \
+            ((GET_OBJ_TYPE(obj) == EObjType::ITEM_CONTAINER) && \
             OBJVAL_FLAGGED(obj, CONT_CLOSEABLE)) :\
             (EXIT_FLAGGED(EXIT(ch, door), EX_ISDOOR)))
 #define DOOR_IS(ch, door)    ((EXIT_FLAGGED(EXIT(ch, door), EX_ISDOOR)))
