@@ -43,8 +43,8 @@ struct bfs_queue_struct {
 #define UNMARK(room)    (world[room]->unset_flag(ERoomFlag::kBfsMark))
 #define IS_MARKED(room)    (ROOM_FLAGGED(room, ERoomFlag::kBfsMark))
 #define TOROOM(x, y)    (world[(x)]->dir_option[(y)]->to_room())
-#define IS_CLOSED(x, y)    (EXIT_FLAGGED(world[(x)]->dir_option[(y)], EX_CLOSED))
-#define IS_LOCKED(x, y)    (EXIT_FLAGGED(world[(x)]->dir_option[(y)], EX_LOCKED))
+#define IS_CLOSED(x, y)    (EXIT_FLAGGED(world[(x)]->dir_option[(y)], EExitFlag::kClosed))
+#define IS_LOCKED(x, y)    (EXIT_FLAGGED(world[(x)]->dir_option[(y)], EExitFlag::kLocked))
 
 int VALID_EDGE(RoomRnum x, int y, int edge_range, bool through_locked_doors, bool through_closed_doors, bool through_notrack) {
 	if (world[x]->dir_option[y] == nullptr || TOROOM(x, y) == kNowhere)

@@ -536,13 +536,13 @@ void WorldFile::setup_dir(int room, unsigned dir) {
 	if (result == 3)//Polud видимо "старый" формат (20.10.2010), прочитаем в старом
 	{
 		if (t[0] & 1)
-			world[room]->dir_option[dir]->exit_info = EX_ISDOOR;
+			world[room]->dir_option[dir]->exit_info = EExitFlag::kHasDoor;
 		else if (t[0] & 2)
-			world[room]->dir_option[dir]->exit_info = EX_ISDOOR | EX_PICKPROOF;
+			world[room]->dir_option[dir]->exit_info = EExitFlag::kHasDoor | EExitFlag::kPickroof;
 		else
 			world[room]->dir_option[dir]->exit_info = 0;
 		if (t[0] & 4)
-			world[room]->dir_option[dir]->exit_info |= EX_HIDDEN;
+			world[room]->dir_option[dir]->exit_info |= EExitFlag::kHidden;
 
 		world[room]->dir_option[dir]->lock_complexity = 0;
 	} else if (result == 4) {

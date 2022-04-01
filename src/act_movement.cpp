@@ -379,7 +379,7 @@ int legal_dir(CharData *ch, int dir, int need_specials_check, int show_msg) {
 		}
 
 		// Добавляем проверку на то что моб может вскрыть дверь
-		if (EXIT_FLAGGED(EXIT(ch, dir), EX_CLOSED) &&
+		if (EXIT_FLAGGED(EXIT(ch, dir), EExitFlag::kClosed) &&
 			!MOB_FLAGGED(ch, EMobFlag::kOpensDoor))
 			return (false);
 
@@ -923,7 +923,7 @@ int perform_move(CharData *ch, int dir, int need_specials_check, int checkmob, C
 		return false;
 	else if (!EXIT(ch, dir) || EXIT(ch, dir)->to_room() == kNowhere)
 		send_to_char("Вы не сможете туда пройти...\r\n", ch);
-	else if (EXIT_FLAGGED(EXIT(ch, dir), EX_CLOSED)) {
+	else if (EXIT_FLAGGED(EXIT(ch, dir), EExitFlag::kClosed)) {
 		if (EXIT(ch, dir)->keyword) {
 			sprintf(buf2, "Закрыто (%s).\r\n", EXIT(ch, dir)->keyword);
 			send_to_char(buf2, ch);
@@ -1029,21 +1029,21 @@ void do_hidemove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 #define DOOR_IS_OPENABLE(ch, obj, door)    ((obj) ? \
             ((GET_OBJ_TYPE(obj) == EObjType::ITEM_CONTAINER) && \
             OBJVAL_FLAGGED(obj, CONT_CLOSEABLE)) :\
-            (EXIT_FLAGGED(EXIT(ch, door), EX_ISDOOR)))
-#define DOOR_IS(ch, door)    ((EXIT_FLAGGED(EXIT(ch, door), EX_ISDOOR)))
+            (EXIT_FLAGGED(EXIT(ch, door), EExitFlag::kHasDoor)))
+#define DOOR_IS(ch, door)    ((EXIT_FLAGGED(EXIT(ch, door), EExitFlag::kHasDoor)))
 
 #define DOOR_IS_OPEN(ch, obj, door)    ((obj) ? \
             (!OBJVAL_FLAGGED(obj, CONT_CLOSED)) :\
-            (!EXIT_FLAGGED(EXIT(ch, door), EX_CLOSED)))
+            (!EXIT_FLAGGED(EXIT(ch, door), EExitFlag::kClosed)))
 #define DOOR_IS_BROKEN(ch, obj, door)    ((obj) ? \
     (OBJVAL_FLAGGED(obj, CONT_BROKEN)) :\
-    (EXIT_FLAGGED(EXIT(ch, door), EX_BROKEN)))
+    (EXIT_FLAGGED(EXIT(ch, door), EExitFlag::kBrokenLock)))
 #define DOOR_IS_UNLOCKED(ch, obj, door)    ((obj) ? \
             (!OBJVAL_FLAGGED(obj, CONT_LOCKED)) :\
-            (!EXIT_FLAGGED(EXIT(ch, door), EX_LOCKED)))
+            (!EXIT_FLAGGED(EXIT(ch, door), EExitFlag::kLocked)))
 #define DOOR_IS_PICKPROOF(ch, obj, door) ((obj) ? \
     (OBJVAL_FLAGGED(obj, CONT_PICKPROOF) || OBJVAL_FLAGGED(obj, CONT_BROKEN)) : \
-    (EXIT_FLAGGED(EXIT(ch, door), EX_PICKPROOF) || EXIT_FLAGGED(EXIT(ch, door), EX_BROKEN)))
+    (EXIT_FLAGGED(EXIT(ch, door), EExitFlag::kPickroof) || EXIT_FLAGGED(EXIT(ch, door), EExitFlag::kBrokenLock)))
 
 #define DOOR_IS_CLOSED(ch, obj, door)    (!(DOOR_IS_OPEN(ch, obj, door)))
 #define DOOR_IS_LOCKED(ch, obj, door)    (!(DOOR_IS_UNLOCKED(ch, obj, door)))
@@ -1172,7 +1172,7 @@ inline void OPEN_DOOR(const RoomRnum room, ObjData *obj, const int door) {
 		TOGGLE_BIT(v, CONT_CLOSED);
 		obj->set_val(1, v);
 	} else {
-		TOGGLE_BIT(EXITN(room, door)->exit_info, EX_CLOSED);
+		TOGGLE_BIT(EXITN(room, door)->exit_info, EExitFlag::kClosed);
 	}
 }
 
@@ -1182,7 +1182,7 @@ inline void LOCK_DOOR(const RoomRnum room, ObjData *obj, const int door) {
 		TOGGLE_BIT(v, CONT_LOCKED);
 		obj->set_val(1, v);
 	} else {
-		TOGGLE_BIT(EXITN(room, door)->exit_info, EX_LOCKED);
+		TOGGLE_BIT(EXITN(room, door)->exit_info, EExitFlag::kLocked);
 	}
 }
 
@@ -1207,7 +1207,7 @@ void do_doorcmd(CharData *ch, ObjData *obj, int door, DOOR_SCMD scmd) {
 			if ((back->to_room() != ch->in_room)
 				|| ((EXITDATA(ch->in_room, door)->exit_info
 					^ EXITDATA(other_room, rev_dir[door])->exit_info)
-					& (EX_ISDOOR | EX_CLOSED | EX_LOCKED))) {
+					& (EExitFlag::kHasDoor | EExitFlag::kClosed | EExitFlag::kLocked))) {
 				back.reset();
 			}
 		}
@@ -1386,7 +1386,7 @@ bool ok_pick(CharData *ch, ObjVnum /*keynum*/, ObjData *obj, int door, int scmd)
 				SET_BIT(v, CONT_BROKEN);
 				obj->set_val(1, v);
 			} else {
-				SET_BIT(EXIT(ch, door)->exit_info, EX_BROKEN);
+				SET_BIT(EXIT(ch, door)->exit_info, EExitFlag::kBrokenLock);
 			}
 		} else {
 			if (pbi.unlock_probability == 0) {
@@ -1636,7 +1636,7 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		for (door = 0; door < EDirection::kMaxDirNum; door++)
 			if (EXIT(ch, door))
 				if (EXIT(ch, door)->to_room() != kNowhere)
-					if (!EXIT_FLAGGED(EXIT(ch, door), EX_CLOSED) &&
+					if (!EXIT_FLAGGED(EXIT(ch, door), EExitFlag::kClosed) &&
 						ROOM_FLAGGED(EXIT(ch, door)->to_room(), ERoomFlag::kIndoors)) {
 						perform_move(ch, door, 1, true, nullptr);
 						return;

@@ -470,17 +470,17 @@ void draw_room(CharData *ch, const RoomData *room, int cur_depth, int y, int x) 
 
 		if (room->dir_option[i]
 			&& room->dir_option[i]->to_room() != kNowhere
-			&& (!EXIT_FLAGGED(room->dir_option[i], EX_HIDDEN) || IS_IMMORTAL(ch))) {
+			&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kHidden) || IS_IMMORTAL(ch))) {
 			// отрисовка выхода
-			if (EXIT_FLAGGED(room->dir_option[i], EX_CLOSED)) {
+			if (EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed)) {
 				put_on_screen(cur_y, cur_x, cur_sign + 1, cur_depth);
-			} else if (EXIT_FLAGGED(room->dir_option[i], EX_HIDDEN)) {
+			} else if (EXIT_FLAGGED(room->dir_option[i], EExitFlag::kHidden)) {
 				put_on_screen(cur_y, cur_x, cur_sign + 2, cur_depth);
 			} else {
 				put_on_screen(cur_y, cur_x, cur_sign, cur_depth);
 			}
 			// за двери закрытые смотрят только иммы
-			if (EXIT_FLAGGED(room->dir_option[i], EX_CLOSED) && !IS_IMMORTAL(ch)) {
+			if (EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) && !IS_IMMORTAL(ch)) {
 				continue;
 			}
 			// здесь важна очередность, что первое отрисовалось - то и будет
@@ -533,7 +533,7 @@ void draw_room(CharData *ch, const RoomData *room, int cur_depth, int y, int x) 
 			}
 			// существа
 			if (cur_depth == 1
-				&& (!EXIT_FLAGGED(room->dir_option[i], EX_CLOSED) || IS_IMMORTAL(ch))
+				&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) || IS_IMMORTAL(ch))
 				&& (ch->map_check_option(MAP_MODE_MOBS) || ch->map_check_option(MAP_MODE_PLAYERS))) {
 				// в случае вверх/вниз next_y/x = y/x, рисуется относительно
 				// координат чара, со смещением, чтобы писать около полей v и ^
@@ -550,7 +550,7 @@ void draw_room(CharData *ch, const RoomData *room, int cur_depth, int y, int x) 
 			}
 			// предметы
 			if (cur_depth == 1
-				&& (!EXIT_FLAGGED(room->dir_option[i], EX_CLOSED) || IS_IMMORTAL(ch))
+				&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) || IS_IMMORTAL(ch))
 				&& (ch->map_check_option(MAP_MODE_MOBS_CORPSES)
 					|| ch->map_check_option(MAP_MODE_PLAYER_CORPSES)
 					|| ch->map_check_option(MAP_MODE_INGREDIENTS)
@@ -566,7 +566,7 @@ void draw_room(CharData *ch, const RoomData *room, int cur_depth, int y, int x) 
 			// проход по следующей в глубину комнате
 			if (i != EDirection::kUp && i != EDirection::kDown
 				&& cur_depth < MAX_DEPTH_ROOMS
-				&& (!EXIT_FLAGGED(room->dir_option[i], EX_CLOSED) || IS_IMMORTAL(ch))
+				&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) || IS_IMMORTAL(ch))
 				&& next_room->zone_rn == world[ch->in_room]->zone_rn
 				&& mode_allow(ch, cur_depth)) {
 				draw_room(ch, next_room, cur_depth + 1, next_y, next_x);

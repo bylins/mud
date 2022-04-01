@@ -1440,9 +1440,9 @@ void do_auto_exits(CharData *ch) {
 	for (door = 0; door < EDirection::kMaxDirNum; door++) {
 		// Наконец-то добавлена отрисовка в автовыходах закрытых дверей
 		if (EXIT(ch, door) && EXIT(ch, door)->to_room() != kNowhere) {
-			if (EXIT_FLAGGED(EXIT(ch, door), EX_CLOSED)) {
+			if (EXIT_FLAGGED(EXIT(ch, door), EExitFlag::kClosed)) {
 				slen += sprintf(buf + slen, "(%c) ", LOWER(*dirs[door]));
-			} else if (!EXIT_FLAGGED(EXIT(ch, door), EX_HIDDEN)) {
+			} else if (!EXIT_FLAGGED(EXIT(ch, door), EExitFlag::kHidden)) {
 				if (world[EXIT(ch, door)->to_room()]->zone_rn == world[ch->in_room]->zone_rn) {
 					slen += sprintf(buf + slen, "%c ", LOWER(*dirs[door]));
 				} else {
@@ -1471,7 +1471,7 @@ void do_exits(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	for (door = 0; door < EDirection::kMaxDirNum; door++)
-		if (EXIT(ch, door) && EXIT(ch, door)->to_room() != kNowhere && !EXIT_FLAGGED(EXIT(ch, door), EX_CLOSED)) {
+		if (EXIT(ch, door) && EXIT(ch, door)->to_room() != kNowhere && !EXIT_FLAGGED(EXIT(ch, door), EExitFlag::kClosed)) {
 			if (IS_GOD(ch))
 				sprintf(buf2, "%-6s - [%5d] %s\r\n", Dirs[door],
 						GET_ROOM_VNUM(EXIT(ch, door)->to_room()), world[EXIT(ch, door)->to_room()]->name);
@@ -1509,7 +1509,7 @@ void do_blind_exits(CharData *ch) {
 		return;
 	}
 	for (door = 0; door < EDirection::kMaxDirNum; door++)
-		if (EXIT(ch, door) && EXIT(ch, door)->to_room() != kNowhere && !EXIT_FLAGGED(EXIT(ch, door), EX_CLOSED)) {
+		if (EXIT(ch, door) && EXIT(ch, door)->to_room() != kNowhere && !EXIT_FLAGGED(EXIT(ch, door), EExitFlag::kClosed)) {
 			if (IS_GOD(ch))
 				sprintf(buf2, "&W%s - [%d] %s ", Dirs[door],
 						GET_ROOM_VNUM(EXIT(ch, door)->to_room()), world[EXIT(ch, door)->to_room()]->name);
@@ -1969,7 +1969,7 @@ void look_in_direction(CharData *ch, int dir, int info_is) {
 			&& EXIT(ch, dir)->to_room() != kNowhere)) {
 		rdata = EXIT(ch, dir);
 		count += sprintf(buf, "%s%s:%s ", CCYEL(ch, C_NRM), Dirs[dir], CCNRM(ch, C_NRM));
-		if (EXIT_FLAGGED(rdata, EX_CLOSED)) {
+		if (EXIT_FLAGGED(rdata, EExitFlag::kClosed)) {
 			if (rdata->keyword) {
 				count += sprintf(buf + count, " закрыто (%s).\r\n", rdata->keyword);
 			} else {
@@ -1977,13 +1977,13 @@ void look_in_direction(CharData *ch, int dir, int info_is) {
 			}
 
 			const int skill_pick = ch->get_skill(ESkill::kPickLock);
-			if (EXIT_FLAGGED(rdata, EX_LOCKED) && skill_pick) {
-				if (EXIT_FLAGGED(rdata, EX_PICKPROOF)) {
+			if (EXIT_FLAGGED(rdata, EExitFlag::kLocked) && skill_pick) {
+				if (EXIT_FLAGGED(rdata, EExitFlag::kPickroof)) {
 					count += sprintf(buf + count - 2,
 									 "%s вы никогда не сможете ЭТО взломать!%s\r\n",
 									 CCICYN(ch, C_NRM),
 									 CCNRM(ch, C_NRM));
-				} else if (EXIT_FLAGGED(rdata, EX_BROKEN)) {
+				} else if (EXIT_FLAGGED(rdata, EExitFlag::kBrokenLock)) {
 					count += sprintf(buf + count - 2, "%s Замок сломан... %s\r\n", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
 				} else {
 					const PickProbabilityInformation &pbi = get_pick_probability(ch, rdata->lock_complexity);

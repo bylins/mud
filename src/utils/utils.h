@@ -983,7 +983,7 @@ const int kNameLevel = 5;
 
 #define CAN_GO(ch, door) ((ch)?((EXIT(ch,door) && \
           (EXIT(ch,door)->to_room() != kNowhere) && \
-          !IS_SET(EXIT(ch, door)->exit_info, EX_CLOSED))):0)
+          !IS_SET(EXIT(ch, door)->exit_info, EExitFlag::kClosed))):0)
 
 #define IS_SORCERER(ch)		(!(ch)->is_npc() && (GET_CLASS(ch) == ECharClass::kSorcerer))
 #define IS_THIEF(ch)		(!(ch)->is_npc() && (GET_CLASS(ch) == ECharClass::kThief))

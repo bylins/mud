@@ -329,9 +329,9 @@ void redit_save_to_disk(int zone_num) {
 					//Сохраним их, чтобы не поломать загруженную зону
 					byte old_exit_info = room->dir_option[counter2]->exit_info;
 
-					REMOVE_BIT(room->dir_option[counter2]->exit_info, EX_CLOSED);
-					REMOVE_BIT(room->dir_option[counter2]->exit_info, EX_LOCKED);
-					REMOVE_BIT(room->dir_option[counter2]->exit_info, EX_BROKEN);
+					REMOVE_BIT(room->dir_option[counter2]->exit_info, EExitFlag::kClosed);
+					REMOVE_BIT(room->dir_option[counter2]->exit_info, EExitFlag::kLocked);
+					REMOVE_BIT(room->dir_option[counter2]->exit_info, EExitFlag::kBrokenLock);
 					// * Ok, now wrote output to file.
 					fprintf(fp, "D%d\n%s~\n%s~\n%d %d %d %d\n",
 							counter2, buf1, buf2,
@@ -400,9 +400,9 @@ void redit_disp_exit_menu(DescriptorData *d) {
 	}
 
 	// * Weird door handling!
-	if (IS_SET(OLC_EXIT(d)->exit_info, EX_ISDOOR)) {
+	if (IS_SET(OLC_EXIT(d)->exit_info, EExitFlag::kHasDoor)) {
 		strcpy(buf2, "Дверь ");
-		if (IS_SET(OLC_EXIT(d)->exit_info, EX_PICKPROOF)) {
+		if (IS_SET(OLC_EXIT(d)->exit_info, EExitFlag::kPickroof)) {
 			strcat(buf2, "Невзламываемая ");
 		}
 		sprintf(buf2 + strlen(buf2), " (Сложность замка [%d])", OLC_EXIT(d)->lock_complexity);
@@ -410,7 +410,7 @@ void redit_disp_exit_menu(DescriptorData *d) {
 		strcpy(buf2, "Нет двери");
 	}
 
-	if (IS_SET(OLC_EXIT(d)->exit_info, EX_HIDDEN)) {
+	if (IS_SET(OLC_EXIT(d)->exit_info, EExitFlag::kHidden)) {
 		strcat(buf2, " (Выход скрыт)");
 	}
 
@@ -451,9 +451,9 @@ void redit_disp_exit_flag_menu(DescriptorData *d) {
 			"%s3%s) [%c]Скрытый выход\r\n"
 			"%s4%s) [%d]Сложность замка\r\n"
 			"Ваш выбор (0 - выход): ",
-			grn, nrm, IS_SET(OLC_EXIT(d)->exit_info, EX_ISDOOR) ? 'x' : ' ',
-			grn, nrm, IS_SET(OLC_EXIT(d)->exit_info, EX_PICKPROOF) ? 'x' : ' ',
-			grn, nrm, IS_SET(OLC_EXIT(d)->exit_info, EX_HIDDEN) ? 'x' : ' ',
+			grn, nrm, IS_SET(OLC_EXIT(d)->exit_info, EExitFlag::kHasDoor) ? 'x' : ' ',
+			grn, nrm, IS_SET(OLC_EXIT(d)->exit_info, EExitFlag::kPickroof) ? 'x' : ' ',
+			grn, nrm, IS_SET(OLC_EXIT(d)->exit_info, EExitFlag::kHidden) ? 'x' : ' ',
 			grn, nrm, OLC_EXIT(d)->lock_complexity);
 	send_to_char(buf, d->character.get());
 }
@@ -769,15 +769,15 @@ void redit_parse(DescriptorData *d, char *arg) {
 				redit_disp_exit_menu(d);
 			else {
 				if (number == 1) {
-					if (IS_SET(OLC_EXIT(d)->exit_info, EX_ISDOOR)) {
+					if (IS_SET(OLC_EXIT(d)->exit_info, EExitFlag::kHasDoor)) {
 						OLC_EXIT(d)->exit_info = 0;
 						OLC_EXIT(d)->lock_complexity = 0;
 					} else
-						SET_BIT(OLC_EXIT(d)->exit_info, EX_ISDOOR);
+						SET_BIT(OLC_EXIT(d)->exit_info, EExitFlag::kHasDoor);
 				} else if (number == 2) {
-					TOGGLE_BIT(OLC_EXIT(d)->exit_info, EX_PICKPROOF);
+					TOGGLE_BIT(OLC_EXIT(d)->exit_info, EExitFlag::kPickroof);
 				} else if (number == 3) {
-					TOGGLE_BIT(OLC_EXIT(d)->exit_info, EX_HIDDEN);
+					TOGGLE_BIT(OLC_EXIT(d)->exit_info, EExitFlag::kHidden);
 				} else if (number == 4) {
 					OLC_MODE(d) = REDIT_LOCK_COMPLEXITY;
 					send_to_char("Введите сложность замка, (0-255): ", d->character.get());

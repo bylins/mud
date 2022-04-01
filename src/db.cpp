@@ -4513,26 +4513,26 @@ void ZoneReset::reset_zone_essential() {
 						ZONE_ERROR("door does not exist, command disabled");
 						ZCMD.command = '*';
 					} else {
-						REMOVE_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->exit_info, EX_BROKEN);
+						REMOVE_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->exit_info, EExitFlag::kBrokenLock);
 						switch (ZCMD.arg3) {
 							case 0:
 								REMOVE_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->
-									exit_info, EX_LOCKED);
+									exit_info, EExitFlag::kLocked);
 								REMOVE_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->
-									exit_info, EX_CLOSED);
+									exit_info, EExitFlag::kClosed);
 								break;
-							case 1: SET_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->exit_info, EX_CLOSED);
+							case 1: SET_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->exit_info, EExitFlag::kClosed);
 								REMOVE_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->
-									exit_info, EX_LOCKED);
+									exit_info, EExitFlag::kLocked);
 								break;
-							case 2: SET_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->exit_info, EX_LOCKED);
-								SET_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->exit_info, EX_CLOSED);
+							case 2: SET_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->exit_info, EExitFlag::kLocked);
+								SET_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->exit_info, EExitFlag::kClosed);
 								break;
-							case 3: SET_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->exit_info, EX_HIDDEN);
+							case 3: SET_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->exit_info, EExitFlag::kHidden);
 								break;
 							case 4:
 								REMOVE_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->
-									exit_info, EX_HIDDEN);
+									exit_info, EExitFlag::kHidden);
 								break;
 						}
 						curr_state = 1;

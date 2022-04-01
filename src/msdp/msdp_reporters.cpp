@@ -28,7 +28,7 @@ void RoomReporter::get(Variable::shared_ptr &response) {
 
 	for (int i = 0; i < EDirection::kMaxDirNum; ++i) {
 		if (directions[i]
-			&& !EXIT_FLAGGED(directions[i], EX_HIDDEN)) {
+			&& !EXIT_FLAGGED(directions[i], EExitFlag::kHidden)) {
 			const static std::string direction_commands[EDirection::kMaxDirNum] = {"n", "e", "s", "w", "u", "d"};
 			const auto to_rnum = directions[i]->to_room();
 			if (to_rnum == from_rnum) {

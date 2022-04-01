@@ -517,13 +517,15 @@ enum EDirection {
 /**
  * Exit info: used in room_data.dir_option.exit_info
  */
-constexpr Bitvector EX_ISDOOR = 1 << 0;    	// Exit is a door     //
-constexpr Bitvector EX_CLOSED = 1 << 1;   	// The door is closed //
-constexpr Bitvector EX_LOCKED = 1 << 2; 	   	// The door is locked //
-constexpr Bitvector EX_PICKPROOF = 1 << 3;    // Lock can't be picked  //
-constexpr Bitvector EX_HIDDEN = 1 << 4;
-constexpr Bitvector EX_BROKEN = 1 << 5; 		//Polud замок двери сломан
-constexpr Bitvector EX_DUNGEON_ENTRY = 1 << 6;    // When character goes through this door then he will get into a copy of the zone behind the door.
+ enum EExitFlag : Bitvector {
+	kHasDoor = 1 << 0,		// Exit has a door     //
+	kClosed = 1 << 1,
+	kLocked = 1 << 2,
+	kPickroof = 1 << 3,		// Lock can't be picked  //
+	kHidden = 1 << 4,
+	kBrokenLock = 1 << 5,	// замок двери сломан
+	kDungeonEntry = 1 << 6	// When character goes through this door then he will get into a copy of the zone behind the door.
+ };
 
 /**
  * Sector types: used in room_data.sector_type

@@ -1784,8 +1784,8 @@ char *make_prompt(DescriptorData *d) {
 					for (door = 0; door < EDirection::kMaxDirNum; door++) {
 						if (EXIT(d->character, door)
 							&& EXIT(d->character, door)->to_room() != kNowhere
-							&& !EXIT_FLAGGED(EXIT(d->character, door), EX_HIDDEN)) {
-							count += EXIT_FLAGGED(EXIT(d->character, door), EX_CLOSED)
+							&& !EXIT_FLAGGED(EXIT(d->character, door), EExitFlag::kHidden)) {
+							count += EXIT_FLAGGED(EXIT(d->character, door), EExitFlag::kClosed)
 									 ? sprintf(prompt + count, "(%s)", dirs[door])
 									 : sprintf(prompt + count, "%s", dirs[door]);
 						}

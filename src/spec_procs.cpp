@@ -1819,17 +1819,17 @@ int npc_move(CharData *ch, int dir, int/* need_specials_check*/) {
 	} else if (ch->has_master()
 		&& ch->in_room == IN_ROOM(ch->get_master())) {
 		return (false);
-	} else if (EXIT_FLAGGED(EXIT(ch, dir), EX_CLOSED)) {
-		if (!EXIT_FLAGGED(EXIT(ch, dir), EX_ISDOOR)) {
+	} else if (EXIT_FLAGGED(EXIT(ch, dir), EExitFlag::kClosed)) {
+		if (!EXIT_FLAGGED(EXIT(ch, dir), EExitFlag::kHasDoor)) {
 			return (false);
 		}
 
 		const auto &rdata = EXIT(ch, dir);
 
-		if (EXIT_FLAGGED(rdata, EX_LOCKED)) {
+		if (EXIT_FLAGGED(rdata, EExitFlag::kLocked)) {
 			if (has_key(ch, rdata->key)
-				|| (!EXIT_FLAGGED(rdata, EX_PICKPROOF)
-					&& !EXIT_FLAGGED(rdata, EX_BROKEN)
+				|| (!EXIT_FLAGGED(rdata, EExitFlag::kPickroof)
+					&& !EXIT_FLAGGED(rdata, EExitFlag::kBrokenLock)
 					&& CalcCurrentSkill(ch, ESkill::kPicks, 0) >= number(0, 100))) {
 				do_doorcmd(ch, 0, dir, SCMD_UNLOCK);
 				need_lock = true;
@@ -1837,7 +1837,7 @@ int npc_move(CharData *ch, int dir, int/* need_specials_check*/) {
 				return (false);
 			}
 		}
-		if (EXIT_FLAGGED(rdata, EX_CLOSED)) {
+		if (EXIT_FLAGGED(rdata, EExitFlag::kClosed)) {
 			if (GET_REAL_INT(ch) >= 15
 				|| GET_DEST(ch) != kNowhere
 				|| MOB_FLAGGED(ch, EMobFlag::kOpensDoor)) {
@@ -1853,7 +1853,7 @@ int npc_move(CharData *ch, int dir, int/* need_specials_check*/) {
 		const int close_direction = retval ? rev_dir[dir] : dir;
 		// закрываем за собой только существующую дверь
 		if (EXIT(ch, close_direction) &&
-			EXIT_FLAGGED(EXIT(ch, close_direction), EX_ISDOOR) &&
+			EXIT_FLAGGED(EXIT(ch, close_direction), EExitFlag::kHasDoor) &&
 			EXIT(ch, close_direction)->to_room() != kNowhere) {
 			do_doorcmd(ch, 0, close_direction, SCMD_CLOSE);
 		}
@@ -1863,7 +1863,7 @@ int npc_move(CharData *ch, int dir, int/* need_specials_check*/) {
 		const int lock_direction = retval ? rev_dir[dir] : dir;
 		// запираем за собой только существующую дверь
 		if (EXIT(ch, lock_direction) &&
-			EXIT_FLAGGED(EXIT(ch, lock_direction), EX_ISDOOR) &&
+			EXIT_FLAGGED(EXIT(ch, lock_direction), EExitFlag::kHasDoor) &&
 			EXIT(ch, lock_direction)->to_room() != kNowhere) {
 			do_doorcmd(ch, 0, lock_direction, SCMD_LOCK);
 		}
