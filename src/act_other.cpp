@@ -2349,7 +2349,7 @@ void do_recall(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (!IS_IMMORTAL(ch)
-		&& (SECT(ch->in_room) == kSectSecret
+		&& (SECT(ch->in_room) == ESector::kSecret
 			|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoMagic)
 			|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kDeathTrap)
 			|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kSlowDeathTrap)
@@ -2490,14 +2490,14 @@ bool is_dark(RoomRnum room) {
 	if (ROOM_AFFECTED(room, room_spells::ERoomAffect::kLight))
 		coef += 2.0;
 	// если светит луна и комната !помещение и !город
-	if ((SECT(room) != kSectInside) && (SECT(room) != kSectCity)
+	if ((SECT(room) != ESector::kInside) && (SECT(room) != ESector::kCity)
 		&& (GET_ROOM_SKY(room) == kSkyLightning
 			&& weather_info.moon_day >= kFullMoonStart
 			&& weather_info.moon_day <= kFullMoonStop))
 		coef += 1.0;
 
 	// если ночь и мы не внутри и не в городе
-	if ((SECT(room) != kSectInside) && (SECT(room) != kSectCity)
+	if ((SECT(room) != ESector::kInside) && (SECT(room) != ESector::kCity)
 		&& ((weather_info.sunlight == kSunSet) || (weather_info.sunlight == kSunDark)))
 		coef -= 1.0;
 	// если на комнате флаг темно

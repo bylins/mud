@@ -2513,12 +2513,12 @@ void do_fire(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (SECT(ch->in_room) == kSectInside ||
-		SECT(ch->in_room) == kSectCity ||
-		SECT(ch->in_room) == kSectWaterSwim ||
-		SECT(ch->in_room) == kSectWaterNoswim ||
-		SECT(ch->in_room) == kSectOnlyFlying ||
-		SECT(ch->in_room) == kSectUnderwater || SECT(ch->in_room) == kSectSecret) {
+	if (SECT(ch->in_room) == ESector::kInside ||
+		SECT(ch->in_room) == ESector::kCity ||
+		SECT(ch->in_room) == ESector::kWaterSwim ||
+		SECT(ch->in_room) == ESector::kWaterNoswim ||
+		SECT(ch->in_room) == ESector::kOnlyFlying ||
+		SECT(ch->in_room) == ESector::kUnderwater || SECT(ch->in_room) == ESector::kSecret) {
 		send_to_char("В этой комнате нельзя разжечь костер.\r\n", ch);
 		return;
 	}

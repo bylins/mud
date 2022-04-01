@@ -499,7 +499,7 @@ void draw_room(CharData *ch, const RoomData *room, int cur_depth, int y, int x) 
 				check_position_and_put_on_screen(next_y, next_x, SCREEN_DEATH_TRAP, cur_depth, i);
 			}
 			// можно утонуть
-			if (next_room->sector_type == kSectWaterNoswim) {
+			if (next_room->sector_type == ESector::kWaterNoswim) {
 				if (!has_boat(ch)) {
 					check_position_and_put_on_screen(next_y, next_x, SCREEN_WATER_RED, cur_depth, i);
 				} else {
@@ -507,7 +507,7 @@ void draw_room(CharData *ch, const RoomData *room, int cur_depth, int y, int x) 
 				}
 			}
 			// можно задохнуться
-			if (next_room->sector_type == kSectUnderwater) {
+			if (next_room->sector_type == ESector::kUnderwater) {
 				if (!AFF_FLAGGED(ch, EAffect::kWaterBreath)) {
 					check_position_and_put_on_screen(next_y, next_x, SCREEN_WATER_RED, cur_depth, i);
 				} else {
@@ -515,7 +515,7 @@ void draw_room(CharData *ch, const RoomData *room, int cur_depth, int y, int x) 
 				}
 			}
 			// Флай-дт
-			if (next_room->sector_type == kSectOnlyFlying) {
+			if (next_room->sector_type == ESector::kOnlyFlying) {
 				if (!AFF_FLAGGED(ch, EAffect::kFly)) {
 					check_position_and_put_on_screen(next_y, next_x, SCREEN_FLYING_RED, cur_depth, i);
 				} else {

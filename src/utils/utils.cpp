@@ -869,58 +869,58 @@ int real_sector(int room) {
 	if (ROOM_FLAGGED(room, ERoomFlag::kNoWeather))
 		return sector;
 	switch (sector) {
-		case kSectInside:
-		case kSectCity:
-		case kSectOnlyFlying:
-		case kSectUnderwater:
-		case kSectSecret:
-		case kSectStoneroad:
-		case kSectRoad:
-		case kSectWildroad: return sector;
+		case ESector::kInside:
+		case ESector::kCity:
+		case ESector::kOnlyFlying:
+		case ESector::kUnderwater:
+		case ESector::kSecret:
+		case ESector::kStoneroad:
+		case ESector::kRoad:
+		case ESector::kWildroad: return sector;
 			break;
-		case kSectField:
+		case ESector::kField:
 			if (world[room]->weather.snowlevel > 20)
-				return kSectFieldSnow;
+				return ESector::kFieldSnow;
 			else if (world[room]->weather.rainlevel > 20)
-				return kSectFieldRain;
+				return ESector::kFieldRain;
 			else
-				return kSectField;
+				return ESector::kField;
 			break;
-		case kSectForest:
+		case ESector::kForest:
 			if (world[room]->weather.snowlevel > 20)
-				return kSectForestSnow;
+				return ESector::kForestSnow;
 			else if (world[room]->weather.rainlevel > 20)
-				return kSectForestRain;
+				return ESector::kForestRain;
 			else
-				return kSectForest;
+				return ESector::kForest;
 			break;
-		case kSectHills:
+		case ESector::kHills:
 			if (world[room]->weather.snowlevel > 20)
-				return kSectHillsSnow;
+				return ESector::kHillsSnow;
 			else if (world[room]->weather.rainlevel > 20)
-				return kSectHillsRain;
+				return ESector::kHillsRain;
 			else
-				return kSectHills;
+				return ESector::kHills;
 			break;
-		case kSectMountain:
+		case ESector::kMountain:
 			if (world[room]->weather.snowlevel > 20)
-				return kSectMountainSnow;
+				return ESector::kMountainSnow;
 			else
-				return kSectMountain;
+				return ESector::kMountain;
 			break;
-		case kSectWaterSwim:
-		case kSectWaterNoswim:
+		case ESector::kWaterSwim:
+		case ESector::kWaterNoswim:
 			if (world[room]->weather.icelevel > 30)
-				return kSectThickIce;
+				return ESector::kThickIce;
 			else if (world[room]->weather.icelevel > 20)
-				return kSectNormalIce;
+				return ESector::kNormalIce;
 			else if (world[room]->weather.icelevel > 10)
-				return kSectThinIce;
+				return ESector::kThinIce;
 			else
 				return sector;
 			break;
 	}
-	return kSectInside;
+	return ESector::kInside;
 }
 
 bool same_group(CharData *ch, CharData *tch) {

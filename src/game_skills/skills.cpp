@@ -792,14 +792,14 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 			if (IS_DARK(ch->in_room)) {
 				bonus += 25;
 			}
-			if (SECT(ch->in_room) == kSectInside) {
+			if (SECT(ch->in_room) == ESector::kInside) {
 				bonus += 20;
-			} else if (SECT(ch->in_room) == kSectCity) {
+			} else if (SECT(ch->in_room) == ESector::kCity) {
 				bonus -= 15;
-			} else if (SECT(ch->in_room) == kSectForest) {
+			} else if (SECT(ch->in_room) == ESector::kForest) {
 				bonus += 20;
-			} else if (SECT(ch->in_room) == kSectHills
-				|| SECT(ch->in_room) == kSectMountain) {
+			} else if (SECT(ch->in_room) == ESector::kHills
+				|| SECT(ch->in_room) == ESector::kMountain) {
 				bonus += 10;
 			}
 			break;
@@ -833,7 +833,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 			bonus += IsAbleToUseFeat(ch, EFeat::kStealthy) ? 10 : 0;
 			if (IsAwakeOthers(ch) || equip_in_metall(ch))
 				bonus -= 50;
-			if (SECT(ch->in_room) == kSectCity)
+			if (SECT(ch->in_room) == ESector::kCity)
 				bonus -= 10;
 			if (IS_DARK(ch->in_room)) {
 				bonus += 20;
@@ -866,19 +866,19 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		case ESkill::kTrack: {
 			parameter_bonus = int_app[GET_REAL_INT(ch)].observation;
 			bonus += IsAbleToUseFeat(ch, EFeat::kTracker) ? 10 : 0;
-			if (SECT(ch->in_room) == kSectForest
-				|| SECT(ch->in_room) == kSectField) {
+			if (SECT(ch->in_room) == ESector::kForest
+				|| SECT(ch->in_room) == ESector::kField) {
 				bonus += 10;
 			}
-			if (SECT(ch->in_room) == kSectUnderwater) {
+			if (SECT(ch->in_room) == ESector::kUnderwater) {
 				bonus -= 30;
 			}
 			bonus = GetComplexSkillModifier(ch, ESkill::kUndefined, GAPPLY_SKILL_SUCCESS, bonus);
-			if (SECT(ch->in_room) == kSectWaterSwim
-				|| SECT(ch->in_room) == kSectWaterNoswim
-				|| SECT(ch->in_room) == kSectOnlyFlying
-				|| SECT(ch->in_room) == kSectUnderwater
-				|| SECT(ch->in_room) == kSectSecret
+			if (SECT(ch->in_room) == ESector::kWaterSwim
+				|| SECT(ch->in_room) == ESector::kWaterNoswim
+				|| SECT(ch->in_room) == ESector::kOnlyFlying
+				|| SECT(ch->in_room) == ESector::kUnderwater
+				|| SECT(ch->in_room) == ESector::kSecret
 				|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoTrack)) {
 				parameter_bonus = 0;
 				bonus = -100;
@@ -961,12 +961,12 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 				bonus -= 100;
 			if (IS_DARK(ch->in_room))
 				bonus += 15;
-			if (SECT(ch->in_room) == kSectCity)
+			if (SECT(ch->in_room) == ESector::kCity)
 				bonus -= 15;
-			else if (SECT(ch->in_room) == kSectForest)
+			else if (SECT(ch->in_room) == ESector::kForest)
 				bonus += 10;
-			else if (SECT(ch->in_room) == kSectHills
-				|| SECT(ch->in_room) == kSectMountain)
+			else if (SECT(ch->in_room) == ESector::kHills
+				|| SECT(ch->in_room) == ESector::kMountain)
 				bonus += 5;
 			if (equip_in_metall(ch))
 				bonus -= 30;
@@ -1291,14 +1291,14 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 				bonus += 25;
 			}
 
-			if (SECT(ch->in_room) == kSectInside) {
+			if (SECT(ch->in_room) == ESector::kInside) {
 				bonus += 20;
-			} else if (SECT(ch->in_room) == kSectCity) {
+			} else if (SECT(ch->in_room) == ESector::kCity) {
 				bonus -= 15;
-			} else if (SECT(ch->in_room) == kSectForest) {
+			} else if (SECT(ch->in_room) == ESector::kForest) {
 				bonus += 20;
-			} else if (SECT(ch->in_room) == kSectHills
-				|| SECT(ch->in_room) == kSectMountain) {
+			} else if (SECT(ch->in_room) == ESector::kHills
+				|| SECT(ch->in_room) == ESector::kMountain) {
 				bonus += 10;
 			}
 
@@ -1345,7 +1345,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 			if (IsAwakeOthers(ch) || equip_in_metall(ch))
 				bonus -= 50;
 
-			if (SECT(ch->in_room) == kSectCity)
+			if (SECT(ch->in_room) == ESector::kCity)
 				bonus -= 10;
 			if (IS_DARK(ch->in_room))
 				bonus += 20;
@@ -1389,17 +1389,17 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 			total_percent =
 				base_percent + int_app[GET_REAL_INT(ch)].observation + (IsAbleToUseFeat(ch, EFeat::kTracker) ? 10 : 0);
 
-			if (SECT(ch->in_room) == kSectForest || SECT(ch->in_room) == kSectField) {
+			if (SECT(ch->in_room) == ESector::kForest || SECT(ch->in_room) == ESector::kField) {
 				total_percent += 10;
 			}
 
 			total_percent = GetComplexSkillModifier(ch, ESkill::kUndefined, GAPPLY_SKILL_SUCCESS, total_percent);
 
-			if (SECT(ch->in_room) == kSectWaterSwim
-				|| SECT(ch->in_room) == kSectWaterNoswim
-				|| SECT(ch->in_room) == kSectOnlyFlying
-				|| SECT(ch->in_room) == kSectUnderwater
-				|| SECT(ch->in_room) == kSectSecret
+			if (SECT(ch->in_room) == ESector::kWaterSwim
+				|| SECT(ch->in_room) == ESector::kWaterNoswim
+				|| SECT(ch->in_room) == ESector::kOnlyFlying
+				|| SECT(ch->in_room) == ESector::kUnderwater
+				|| SECT(ch->in_room) == ESector::kSecret
 				|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoTrack))
 				total_percent = 0;
 
@@ -1516,12 +1516,12 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 			if (IS_DARK(ch->in_room))
 				bonus += 15;
 
-			if (SECT(ch->in_room) == kSectCity)
+			if (SECT(ch->in_room) == ESector::kCity)
 				bonus -= 15;
-			else if (SECT(ch->in_room) == kSectForest)
+			else if (SECT(ch->in_room) == ESector::kForest)
 				bonus += 10;
-			else if (SECT(ch->in_room) == kSectHills
-				|| SECT(ch->in_room) == kSectMountain)
+			else if (SECT(ch->in_room) == ESector::kHills
+				|| SECT(ch->in_room) == ESector::kMountain)
 				bonus += 5;
 			if (equip_in_metall(ch))
 				bonus -= 30;

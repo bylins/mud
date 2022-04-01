@@ -958,7 +958,7 @@ void look_at_char(CharData *i, CharData *ch) {
 }
 
 void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
-	int sector = kSectCity;
+	int sector = ESector::kCity;
 	int n;
 	char aura_txt[200];
 	const char *positions[] =
@@ -1225,13 +1225,13 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			}
 		} else if (IS_HORSE(i) && AFF_FLAGGED(i, EAffect::kTethered))
 			sprintf(buf + strlen(buf), "привязан%s здесь. ", GET_CH_SUF_6(i));
-		else if ((sector = real_sector(i->in_room)) == kSectOnlyFlying)
+		else if ((sector = real_sector(i->in_room)) == ESector::kOnlyFlying)
 			strcat(buf, IS_POLY(i) ? "летают здесь. " : "летает здесь. ");
-		else if (sector == kSectUnderwater)
+		else if (sector == ESector::kUnderwater)
 			strcat(buf, IS_POLY(i) ? "плавают здесь. " : "плавает здесь. ");
 		else if (GET_POS(i) > EPosition::kSleep && AFF_FLAGGED(i, EAffect::kFly))
 			strcat(buf, IS_POLY(i) ? "летают здесь. " : "летает здесь. ");
-		else if (sector == kSectWaterSwim || sector == kSectWaterNoswim)
+		else if (sector == ESector::kWaterSwim || sector == ESector::kWaterNoswim)
 			strcat(buf, IS_POLY(i) ? "плавают здесь. " : "плавает здесь. ");
 		else
 			strcat(buf,
@@ -1901,32 +1901,32 @@ void look_at_room(CharData *ch, int ignore_brief) {
 		&& !ROOM_FLAGGED(ch->in_room, ERoomFlag::kIndoors)) {
 		*buf = '\0';
 		switch (real_sector(ch->in_room)) {
-			case kSectFieldSnow:
-			case kSectForestSnow:
-			case kSectHillsSnow:
-			case kSectMountainSnow:
+			case ESector::kFieldSnow:
+			case ESector::kForestSnow:
+			case ESector::kHillsSnow:
+			case ESector::kMountainSnow:
 				sprintf(buf, "%sСнежный ковер лежит у вас под ногами.%s\r\n",
 						CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 				break;
-			case kSectFieldRain:
-			case kSectForestRain:
-			case kSectHillsRain:
+			case ESector::kFieldRain:
+			case ESector::kForestRain:
+			case ESector::kHillsRain:
 				sprintf(buf,
 						"%sВы просто увязаете в грязи.%s\r\n",
 						CCIWHT(ch, C_NRM),
 						CCNRM(ch, C_NRM));
 				break;
-			case kSectThickIce:
+			case ESector::kThickIce:
 				sprintf(buf,
 						"%sУ вас под ногами толстый лед.%s\r\n",
 						CCIBLU(ch, C_NRM),
 						CCNRM(ch, C_NRM));
 				break;
-			case kSectNormalIce:
+			case ESector::kNormalIce:
 				sprintf(buf, "%sУ вас под ногами достаточно толстый лед.%s\r\n",
 						CCIBLU(ch, C_NRM), CCNRM(ch, C_NRM));
 				break;
-			case kSectThinIce:
+			case ESector::kThinIce:
 				sprintf(buf, "%sТоненький ледок вот-вот проломится под вами.%s\r\n",
 						CCICYN(ch, C_NRM), CCNRM(ch, C_NRM));
 				break;
@@ -2083,7 +2083,7 @@ void hear_in_direction(CharData *ch, int dir, int info_is) {
 							tmpstr += " Вы слышите чей-то громкий скрип.\r\n";
 						else
 							tmpstr += " Вы слышите чей-то грозный скрип.\r\n";
-					} else if (real_sector(ch->in_room) != kSectUnderwater) {
+					} else if (real_sector(ch->in_room) != ESector::kUnderwater) {
 						if (GetRealLevel(tch) < 5)
 							tmpstr += " Вы слышите чью-то тихую возню.\r\n";
 						else if (GetRealLevel(tch) < 15)

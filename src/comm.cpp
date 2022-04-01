@@ -3416,11 +3416,11 @@ void send_to_outdoor(const char *messg, int control) {
 		if (!control
 			|| (IS_SET(control, SUN_CONTROL)
 				&& room != kNowhere
-				&& SECT(room) != kSectUnderwater
+				&& SECT(room) != ESector::kUnderwater
 				&& !AFF_FLAGGED(i->character, EAffect::kBlind))
 			|| (IS_SET(control, WEATHER_CONTROL)
 				&& room != kNowhere
-				&& SECT(room) != kSectUnderwater
+				&& SECT(room) != ESector::kUnderwater
 				&& !ROOM_FLAGGED(room, ERoomFlag::kNoWeather)
 				&& world[IN_ROOM(i->character)]->weather.duration <= 0)) {
 			SEND_TO_Q(messg, i);

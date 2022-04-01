@@ -102,10 +102,10 @@ int deathtrap::check_death_trap(CharData *ch) {
 	if (ch->in_room != kNowhere && !PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
 		if ((ROOM_FLAGGED(ch->in_room, ERoomFlag::kDeathTrap)
 			&& !IS_IMMORTAL(ch))
-			|| (real_sector(ch->in_room) == kSectOnlyFlying && !ch->is_npc()
+			|| (real_sector(ch->in_room) == ESector::kOnlyFlying && !ch->is_npc()
 				&& !IS_GOD(ch)
 				&& !AFF_FLAGGED(ch, EAffect::kFly))
-			|| (real_sector(ch->in_room) == kSectWaterNoswim && !ch->is_npc()
+			|| (real_sector(ch->in_room) == ESector::kWaterNoswim && !ch->is_npc()
 				&& !IS_GOD(ch)
 				&& !has_boat(ch))) {
 			ObjData *corpse;

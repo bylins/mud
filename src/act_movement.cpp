@@ -57,9 +57,9 @@ int check_death_ice(int room, CharData * /*ch*/) {
 	if (room == kNowhere)
 		return (false);
 	sector = SECT(room);
-	if (sector != kSectWaterSwim && sector != kSectWaterNoswim)
+	if (sector != ESector::kWaterSwim && sector != ESector::kWaterNoswim)
 		return (false);
-	if ((sector = real_sector(room)) != kSectThinIce && sector != kSectNormalIce)
+	if ((sector = real_sector(room)) != ESector::kThinIce && sector != ESector::kNormalIce)
 		return (false);
 
 	for (const auto vict : world[room]->people) {
@@ -73,7 +73,7 @@ int check_death_ice(int room, CharData * /*ch*/) {
 		return (false);
 	}
 
-	if ((sector == kSectThinIce && mass > 500) || (sector == kSectNormalIce && mass > 1500)) {
+	if ((sector == ESector::kThinIce && mass > 500) || (sector == ESector::kNormalIce && mass > 1500)) {
 		const auto first_in_room = world[room]->first_character();
 
 		act("Лед проломился под вашей тяжестью.", false, first_in_room, nullptr, nullptr, kToRoom);
@@ -277,11 +277,11 @@ int skip_sneaking(CharData *ch, CharData *vict) {
 
 int real_forest_paths_sect(int sect) {
 	switch (sect) {
-		case kSectForest: return kSectField;
+		case ESector::kForest: return ESector::kField;
 			break;
-		case kSectForestSnow: return kSectFieldSnow;
+		case ESector::kForestSnow: return ESector::kFieldSnow;
 			break;
-		case kSectForestRain: return kSectFieldRain;
+		case ESector::kForestRain: return ESector::kFieldRain;
 			break;
 	}
 	return sect;
@@ -289,13 +289,13 @@ int real_forest_paths_sect(int sect) {
 
 int real_mountains_paths_sect(int sect) {
 	switch (sect) {
-		case kSectHills:
-		case kSectMountain: return kSectField;
+		case ESector::kHills:
+		case ESector::kMountain: return ESector::kField;
 			break;
-		case kSectHillsRain: return kSectFieldRain;
+		case ESector::kHillsRain: return ESector::kFieldRain;
 			break;
-		case kSectHillsSnow:
-		case kSectMountainSnow: return kSectFieldSnow;
+		case ESector::kHillsSnow:
+		case ESector::kMountainSnow: return ESector::kFieldSnow;
 			break;
 	}
 	return sect;
@@ -371,8 +371,8 @@ int legal_dir(CharData *ch, int dir, int need_specials_check, int show_msg) {
 		if (!MOB_FLAGGED(ch, EMobFlag::kSwimming)
 			&& !MOB_FLAGGED(ch, EMobFlag::kFlying)
 			&& !AFF_FLAGGED(ch, EAffect::kFly)
-			&& (real_sector(ch->in_room) == kSectWaterNoswim
-				|| real_sector(EXIT(ch, dir)->to_room()) == kSectWaterNoswim)) {
+			&& (real_sector(ch->in_room) == ESector::kWaterNoswim
+				|| real_sector(EXIT(ch, dir)->to_room()) == ESector::kWaterNoswim)) {
 			if (!has_boat(ch)) {
 				return (false);
 			}
@@ -384,13 +384,13 @@ int legal_dir(CharData *ch, int dir, int need_specials_check, int show_msg) {
 			return (false);
 
 		if (!MOB_FLAGGED(ch, EMobFlag::kFlying) &&
-			!AFF_FLAGGED(ch, EAffect::kFly) && SECT(EXIT(ch, dir)->to_room()) == kSectOnlyFlying)
+			!AFF_FLAGGED(ch, EAffect::kFly) && SECT(EXIT(ch, dir)->to_room()) == ESector::kOnlyFlying)
 			return (false);
 
 		if (MOB_FLAGGED(ch, EMobFlag::kOnlySwimming) &&
-			!(real_sector(EXIT(ch, dir)->to_room()) == kSectWaterSwim ||
-				real_sector(EXIT(ch, dir)->to_room()) == kSectWaterNoswim ||
-				real_sector(EXIT(ch, dir)->to_room()) == kSectUnderwater))
+			!(real_sector(EXIT(ch, dir)->to_room()) == ESector::kWaterSwim ||
+				real_sector(EXIT(ch, dir)->to_room()) == ESector::kWaterNoswim ||
+				real_sector(EXIT(ch, dir)->to_room()) == ESector::kUnderwater))
 			return (false);
 
 		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kNoEntryMob) &&
@@ -417,15 +417,15 @@ int legal_dir(CharData *ch, int dir, int need_specials_check, int show_msg) {
 			}
 		}
 
-		if (real_sector(ch->in_room) == kSectWaterNoswim ||
-			real_sector(EXIT(ch, dir)->to_room()) == kSectWaterNoswim) {
+		if (real_sector(ch->in_room) == ESector::kWaterNoswim ||
+			real_sector(EXIT(ch, dir)->to_room()) == ESector::kWaterNoswim) {
 			if (!has_boat(ch)) {
 				if (show_msg)
 					send_to_char("Вам нужна лодка, чтобы попасть туда.\r\n", ch);
 				return (false);
 			}
 		}
-		if (real_sector(EXIT(ch, dir)->to_room()) == kSectOnlyFlying
+		if (real_sector(EXIT(ch, dir)->to_room()) == ESector::kOnlyFlying
 			&& !IS_GOD(ch)
 			&& !AFF_FLAGGED(ch, EAffect::kFly)) {
 			if (show_msg) {
@@ -673,17 +673,17 @@ int do_simple_move(CharData *ch, int dir, int need_specials_check, CharData *lea
 			strcpy(smallBuf, "улетел$g");
 		} else if (ch->is_npc()
 			&& NPC_FLAGGED(ch, ENpcFlag::kMoveSwim)
-			&& (real_sector(was_in) == kSectWaterSwim
-				|| real_sector(was_in) == kSectWaterNoswim
-				|| real_sector(was_in) == kSectUnderwater)) {
+			&& (real_sector(was_in) == ESector::kWaterSwim
+				|| real_sector(was_in) == ESector::kWaterNoswim
+				|| real_sector(was_in) == ESector::kUnderwater)) {
 			strcpy(smallBuf, "уплыл$g");
 		} else if (ch->is_npc() && NPC_FLAGGED(ch, ENpcFlag::kMoveJump))
 			strcpy(smallBuf, "ускакал$g");
 		else if (ch->is_npc() && NPC_FLAGGED(ch, ENpcFlag::kMoveCreep))
 			strcpy(smallBuf, "уполз$q");
-		else if (real_sector(was_in) == kSectWaterSwim
-			|| real_sector(was_in) == kSectWaterNoswim
-			|| real_sector(was_in) == kSectUnderwater) {
+		else if (real_sector(was_in) == ESector::kWaterSwim
+			|| real_sector(was_in) == ESector::kWaterNoswim
+			|| real_sector(was_in) == ESector::kUnderwater) {
 			strcpy(smallBuf, "уплыл$g");
 		} else if (use_horse) {
 			horse = ch->get_horse();
@@ -752,17 +752,17 @@ int do_simple_move(CharData *ch, int dir, int need_specials_check, CharData *lea
 			|| (ch->is_npc() && NPC_FLAGGED(ch, ENpcFlag::kMoveFly))) {
 			strcpy(smallBuf, "прилетел$g");
 		} else if (ch->is_npc() && NPC_FLAGGED(ch, ENpcFlag::kMoveSwim)
-			&& (real_sector(go_to) == kSectWaterSwim
-				|| real_sector(go_to) == kSectWaterNoswim
-				|| real_sector(go_to) == kSectUnderwater)) {
+			&& (real_sector(go_to) == ESector::kWaterSwim
+				|| real_sector(go_to) == ESector::kWaterNoswim
+				|| real_sector(go_to) == ESector::kUnderwater)) {
 			strcpy(smallBuf, "приплыл$g");
 		} else if (ch->is_npc() && NPC_FLAGGED(ch, ENpcFlag::kMoveJump))
 			strcpy(smallBuf, "прискакал$g");
 		else if (ch->is_npc() && NPC_FLAGGED(ch, ENpcFlag::kMoveCreep))
 			strcpy(smallBuf, "приполз$q");
-		else if (real_sector(go_to) == kSectWaterSwim
-			|| real_sector(go_to) == kSectWaterNoswim
-			|| real_sector(go_to) == kSectUnderwater) {
+		else if (real_sector(go_to) == ESector::kWaterSwim
+			|| real_sector(go_to) == ESector::kWaterNoswim
+			|| real_sector(go_to) == ESector::kUnderwater) {
 			strcpy(smallBuf, "приплыл$g");
 		} else if (use_horse) {
 			horse = ch->get_horse();

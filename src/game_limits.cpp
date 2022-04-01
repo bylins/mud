@@ -962,7 +962,7 @@ void underwater_check() {
 	DescriptorData *d;
 	for (d = descriptor_list; d; d = d->next) {
 		if (d->character
-			&& SECT(d->character->in_room) == kSectUnderwater
+			&& SECT(d->character->in_room) == ESector::kUnderwater
 			&& !IS_GOD(d->character)
 			&& !AFF_FLAGGED(d->character, EAffect::kWaterBreath)) {
 			sprintf(buf, "Player %s died under water (room %d)",
@@ -1131,36 +1131,36 @@ void room_point_update() {
 		for (track = world[count]->track, temp = nullptr; track; track = next_track) {
 			next_track = track->next;
 			switch (real_sector(count)) {
-				case kSectOnlyFlying:
-				case kSectUnderwater:
-				case kSectSecret:
-				case kSectWaterSwim:
-				case kSectWaterNoswim: spellnum = 31;
+				case ESector::kOnlyFlying:
+				case ESector::kUnderwater:
+				case ESector::kSecret:
+				case ESector::kWaterSwim:
+				case ESector::kWaterNoswim: spellnum = 31;
 					break;
-				case kSectThickIce:
-				case kSectNormalIce:
-				case kSectThinIce: spellnum = 16;
+				case ESector::kThickIce:
+				case ESector::kNormalIce:
+				case ESector::kThinIce: spellnum = 16;
 					break;
-				case kSectCity: spellnum = 4;
+				case ESector::kCity: spellnum = 4;
 					break;
-				case kSectField:
-				case kSectFieldRain: spellnum = 2;
+				case ESector::kField:
+				case ESector::kFieldRain: spellnum = 2;
 					break;
-				case kSectFieldSnow: spellnum = 1;
+				case ESector::kFieldSnow: spellnum = 1;
 					break;
-				case kSectForest:
-				case kSectForestRain: spellnum = 2;
+				case ESector::kForest:
+				case ESector::kForestRain: spellnum = 2;
 					break;
-				case kSectForestSnow: spellnum = 1;
+				case ESector::kForestSnow: spellnum = 1;
 					break;
-				case kSectHills:
-				case kSectHillsRain: spellnum = 3;
+				case ESector::kHills:
+				case ESector::kHillsRain: spellnum = 3;
 					break;
-				case kSectHillsSnow: spellnum = 1;
+				case ESector::kHillsSnow: spellnum = 1;
 					break;
-				case kSectMountain: spellnum = 4;
+				case ESector::kMountain: spellnum = 4;
 					break;
-				case kSectMountainSnow: spellnum = 1;
+				case ESector::kMountainSnow: spellnum = 1;
 					break;
 				default: spellnum = 2;
 			}
@@ -1623,34 +1623,34 @@ void point_update() {
 					int mana = 0;
 
 					switch (real_sector(IN_ROOM(i))) {
-						case kSectOnlyFlying:
-						case kSectUnderwater:
-						case kSectSecret:
-						case kSectWaterSwim:
-						case kSectWaterNoswim:
-						case kSectThickIce:
-						case kSectNormalIce: [[fallthrough]];
-						case kSectThinIce: mana = 0;
+						case ESector::kOnlyFlying:
+						case ESector::kUnderwater:
+						case ESector::kSecret:
+						case ESector::kWaterSwim:
+						case ESector::kWaterNoswim:
+						case ESector::kThickIce:
+						case ESector::kNormalIce: [[fallthrough]];
+						case ESector::kThinIce: mana = 0;
 							break;
-						case kSectCity: mana = 20;
+						case ESector::kCity: mana = 20;
 							break;
-						case kSectField: [[fallthrough]];
-						case kSectFieldRain: mana = 100;
+						case ESector::kField: [[fallthrough]];
+						case ESector::kFieldRain: mana = 100;
 							break;
-						case kSectFieldSnow: mana = 40;
+						case ESector::kFieldSnow: mana = 40;
 							break;
-						case kSectForest:
-						case kSectForestRain: mana = 80;
+						case ESector::kForest:
+						case ESector::kForestRain: mana = 80;
 							break;
-						case kSectForestSnow: mana = 30;
+						case ESector::kForestSnow: mana = 30;
 							break;
-						case kSectHills: [[fallthrough]];
-						case kSectHillsRain: mana = 70;
+						case ESector::kHills: [[fallthrough]];
+						case ESector::kHillsRain: mana = 70;
 							break;
-						case kSectHillsSnow: [[fallthrough]];
-						case kSectMountain: mana = 25;
+						case ESector::kHillsSnow: [[fallthrough]];
+						case ESector::kMountain: mana = 25;
 							break;
-						case kSectMountainSnow: mana = 10;
+						case ESector::kMountainSnow: mana = 10;
 							break;
 						default: mana = 10;
 					}

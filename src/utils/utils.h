@@ -455,8 +455,8 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
 #define GET_ROOM_SKY(room) (world[room]->weather.duration > 0 ? world[room]->weather.sky : weather_info.sky)
 #define IS_TIMEDARK(room) is_dark(room)
 #define IS_DEFAULTDARK(room) (ROOM_FLAGGED(room, ERoomFlag::kDark) || \
-                              (SECT(room) != kSectInside && \
-                               SECT(room) != kSectCity   && \
+                              (SECT(room) != ESector::kInside && \
+                               SECT(room) != ESector::kCity   && \
                                ( weather_info.sunlight == kSunSet || \
                                  weather_info.sunlight == kSunDark )) )
 

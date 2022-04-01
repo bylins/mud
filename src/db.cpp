@@ -2770,9 +2770,9 @@ void check_room_flags(int rnum) {
 		world[rnum]->unset_flag(ERoomFlag::kNoSummonOut);
 	}
 	if (world[rnum]->get_flag(ERoomFlag::kHouse)
-		&& (SECT(rnum) == kSectMountain || SECT(rnum) == kSectHills)) {
+		&& (SECT(rnum) == ESector::kMountain || SECT(rnum) == ESector::kHills)) {
 		// шоб в замках умные не копали
-		SECT(rnum) = kSectInside;
+		SECT(rnum) = ESector::kInside;
 	}
 }
 
@@ -2839,7 +2839,7 @@ void add_vrooms_to_all_zones() {
 		new_room->set_name(std::string("Виртуальная комната"));
 		new_room->description_num = RoomDescription::add_desc(std::string("Похоже, здесь вам делать нечего."));
 		new_room->clear_flags();
-		new_room->sector_type = kSectSecret;
+		new_room->sector_type = ESector::kSecret;
 
 		new_room->affected_by.clear();
 		memset(&new_room->base_property, 0, sizeof(RoomState));

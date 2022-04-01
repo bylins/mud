@@ -844,8 +844,8 @@ int weather_spell_modifier(CharData *ch, int spellnum, int type, int value) {
 
 	if (ch->is_npc() ||
 		ch->in_room == kNowhere ||
-		SECT(ch->in_room) == kSectInside ||
-		SECT(ch->in_room) == kSectCity ||
+		SECT(ch->in_room) == ESector::kInside ||
+		SECT(ch->in_room) == ESector::kCity ||
 		ROOM_FLAGGED(ch->in_room, ERoomFlag::kIndoors) || ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoWeather) || ch->is_npc())
 		return (modi);
 
@@ -916,8 +916,8 @@ int weather_skill_modifier(CharData *ch, ESkill skillnum, int type, int value) {
 	int modi = value, sky = weather_info.sky;
 
 	if (ch->is_npc() ||
-		SECT(ch->in_room) == kSectInside ||
-		SECT(ch->in_room) == kSectCity ||
+		SECT(ch->in_room) == ESector::kInside ||
+		SECT(ch->in_room) == ESector::kCity ||
 		ROOM_FLAGGED(ch->in_room, ERoomFlag::kIndoors) || ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoWeather))
 		return (modi);
 

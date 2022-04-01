@@ -1511,7 +1511,7 @@ int obj_decay(ObjData *object) {
 
 	sect = real_sector(room);
 
-	if (((sect == kSectWaterSwim || sect == kSectWaterNoswim) &&
+	if (((sect == ESector::kWaterSwim || sect == ESector::kWaterNoswim) &&
 		!object->has_flag(EObjFlag::kSwimming) &&
 		!object->has_flag(EObjFlag::kFlying) &&
 		!IS_CORPSE(object))) {
@@ -1522,7 +1522,7 @@ int obj_decay(ObjData *object) {
 		return (1);
 	}
 
-	if (((sect == kSectOnlyFlying) && !IS_CORPSE(object) && !object->has_flag(EObjFlag::kFlying))) {
+	if (((sect == ESector::kOnlyFlying) && !IS_CORPSE(object) && !object->has_flag(EObjFlag::kFlying))) {
 
 		act("$o0 упал$G вниз.", false, world[room]->first_character(), object, nullptr, kToRoom);
 		act("$o0 упал$G вниз.", false, world[room]->first_character(), object, nullptr, kToChar);

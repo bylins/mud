@@ -202,7 +202,7 @@ int GetTeleportTargetRoom(CharData *ch, int rnum_start, int rnum_stop) {
 		fnd_room = r_array[j];
 		r_array[j] = r_array[n - 1];
 
-		if (SECT(fnd_room) != kSectSecret &&
+		if (SECT(fnd_room) != ESector::kSecret &&
 			!ROOM_FLAGGED(fnd_room, ERoomFlag::kDeathTrap) &&
 			!ROOM_FLAGGED(fnd_room, ERoomFlag::kTunnel) &&
 			!ROOM_FLAGGED(fnd_room, ERoomFlag::kNoTeleportIn) &&
@@ -360,7 +360,7 @@ void SpellRelocate(int/* level*/, CharData *ch, CharData *victim, ObjData* /* ob
 	}
 
 	if (!IS_GOD(ch) &&
-		(SECT(fnd_room) == kSectSecret ||
+		(SECT(fnd_room) == ESector::kSecret ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kDeathTrap) ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kSlowDeathTrap) ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kTunnel) ||
@@ -412,7 +412,7 @@ void SpellPortal(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 		return;
 	}
 
-	if (!IS_GOD(ch) && (SECT(fnd_room) == kSectSecret || ROOM_FLAGGED(fnd_room, ERoomFlag::kDeathTrap) ||
+	if (!IS_GOD(ch) && (SECT(fnd_room) == ESector::kSecret || ROOM_FLAGGED(fnd_room, ERoomFlag::kDeathTrap) ||
 		ROOM_FLAGGED(fnd_room, ERoomFlag::kSlowDeathTrap) || ROOM_FLAGGED(fnd_room, ERoomFlag::kIceTrap) ||
 		ROOM_FLAGGED(fnd_room, ERoomFlag::kTunnel) || ROOM_FLAGGED(fnd_room, ERoomFlag::kGodsRoom))) {
 		send_to_char(SUMMON_FAIL, ch);
@@ -560,7 +560,7 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 			|| ROOM_FLAGGED(ch_room, ERoomFlag::kTunnel)
 			|| ROOM_FLAGGED(ch_room, ERoomFlag::kNoBattle)
 			|| ROOM_FLAGGED(ch_room, ERoomFlag::kGodsRoom)
-			|| SECT(ch->in_room) == kSectSecret
+			|| SECT(ch->in_room) == ESector::kSecret
 			|| (!same_group(ch, victim)
 				&& (ROOM_FLAGGED(ch_room, ERoomFlag::kPeaceful) || ROOM_FLAGGED(ch_room, ERoomFlag::kArena)))) {
 			send_to_char(SUMMON_FAIL, ch);
@@ -670,7 +670,7 @@ void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *o
 			return false;
 		}
 
-		if (SECT(i->get_in_room()) == kSectSecret) {
+		if (SECT(i->get_in_room()) == ESector::kSecret) {
 			return false;
 		}
 
@@ -693,7 +693,7 @@ void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *o
 				return false;
 			}
 
-			if (SECT(IN_ROOM(carried_by)) == kSectSecret || IS_IMMORTAL(carried_by)) {
+			if (SECT(IN_ROOM(carried_by)) == ESector::kSecret || IS_IMMORTAL(carried_by)) {
 				return false;
 			}
 		}
@@ -1981,7 +1981,7 @@ void SpellControlWeather(int/* level*/, CharData *ch, CharData* /*victim*/, ObjD
 		duration = MAX(GetRealLevel(ch) / 8, 2);
 		zone = world[ch->in_room]->zone_rn;
 		for (i = FIRST_ROOM; i <= top_of_world; i++)
-			if (world[i]->zone_rn == zone && SECT(i) != kSectInside && SECT(i) != kSectCity) {
+			if (world[i]->zone_rn == zone && SECT(i) != ESector::kInside && SECT(i) != ESector::kCity) {
 				world[i]->weather.sky = what_sky;
 				world[i]->weather.weather_type = sky_type;
 				world[i]->weather.duration = duration;

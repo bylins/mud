@@ -78,7 +78,7 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (!IS_GOD(ch) &&
-		(SECT(fnd_room) == kSectSecret ||
+		(SECT(fnd_room) == ESector::kSecret ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kDeathTrap) ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kSlowDeathTrap) ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kTunnel) ||

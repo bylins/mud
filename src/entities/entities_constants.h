@@ -530,32 +530,34 @@ enum EDirection {
 /**
  * Sector types: used in room_data.sector_type
  */
-const __uint8_t kSectInside = 0;
-const __uint8_t kSectCity = 1;
-const __uint8_t kSectField = 2;
-const __uint8_t kSectForest = 3;
-const __uint8_t kSectHills = 4;
-const __uint8_t kSectMountain = 5;
-const __uint8_t kSectWaterSwim = 6;		// Swimmable water      //
-const __uint8_t kSectWaterNoswim = 7;	// Water - need a boat  //
-const __uint8_t kSectOnlyFlying = 8;	// Wheee!         //
-const __uint8_t kSectUnderwater = 9;
-const __uint8_t kSectSecret = 10;
-const __uint8_t kSectStoneroad = 11;
-const __uint8_t kSectRoad = 12;
-const __uint8_t kSectWildroad = 13;
+ enum ESector : int {
+	kInside = 0,
+	kCity = 1,
+	kField = 2,
+	kForest = 3,
+	kHills = 4,
+	kMountain = 5,
+	kWaterSwim = 6,		// Swimmable water      //
+	kWaterNoswim = 7,	// Water - need a boat  //
+	kOnlyFlying = 8,	// Wheee!         //
+	kUnderwater = 9,
+	kSecret = 10,
+	kStoneroad = 11,
+	kRoad = 12,
+	kWildroad = 13,
 // надо не забывать менять NUM_ROOM_SECTORS в olc.h
 // Values for weather changes //
-const __uint8_t kSectFieldSnow = 20;
-const __uint8_t kSectFieldRain = 21;
-const __uint8_t kSectForestSnow = 22;
-const __uint8_t kSectForestRain = 23;
-const __uint8_t kSectHillsSnow = 24;
-const __uint8_t kSectHillsRain = 25;
-const __uint8_t kSectMountainSnow = 26;
-const __uint8_t kSectThinIce = 27;
-const __uint8_t kSectNormalIce = 28;
-const __uint8_t kSectThickIce = 29;
+	kFieldSnow = 20,
+	kFieldRain = 21,
+	kForestSnow = 22,
+	kForestRain = 23,
+	kHillsSnow = 24,
+	kHillsRain = 25,
+	kMountainSnow = 26,
+	kThinIce = 27,
+	kNormalIce = 28,
+	kThickIce = 29
+ };
 
 /*
  * ========================================================================================

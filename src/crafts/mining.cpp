@@ -146,8 +146,8 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (world[ch->in_room]->sector_type != kSectMountain &&
-		world[ch->in_room]->sector_type != kSectHills && !IS_IMMORTAL(ch)) {
+	if (world[ch->in_room]->sector_type != ESector::kMountain &&
+		world[ch->in_room]->sector_type != ESector::kHills && !IS_IMMORTAL(ch)) {
 		send_to_char("Полезные минералы водятся только в гористой местности!\r\n", ch);
 		return;
 	}
