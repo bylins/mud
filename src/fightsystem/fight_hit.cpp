@@ -735,7 +735,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 				act(buf, true, ch, 0, victim, kToNotVict | kToArenaListen);
 				break;
 		}
-		if (!victim->is_npc() && ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA))
+		if (!victim->is_npc() && ROOM_FLAGGED(IN_ROOM(victim), ERoomFlag::kArena))
 			obj_to_char(obj, victim);
 		else
 			obj_to_room(obj, IN_ROOM(victim));
@@ -2085,7 +2085,7 @@ void update_pk_logs(CharData *ch, CharData *victim) {
 		|| (ch->has_master()
 			&& !ch->get_master()->is_npc()))
 		&& NORENTABLE(victim)
-		&& !ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA)) {
+		&& !ROOM_FLAGGED(IN_ROOM(victim), ERoomFlag::kArena)) {
 		mudlog(buf2, BRF, kLvlImplementator, SYSLOG, 0);
 		if (ch->is_npc()
 			&& (AFF_FLAGGED(ch, EAffect::kCharmed) || IS_HORSE(ch))
@@ -3723,7 +3723,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 			hit_params.dam *= backstab_mult(GetRealLevel(ch));
 		}
 
-		if (IsAbleToUseFeat(ch, EFeat::kShadowStrike) && !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
+		if (IsAbleToUseFeat(ch, EFeat::kShadowStrike) && !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)
 			&& victim->is_npc()
 			&& !(AFF_FLAGGED(victim, EAffect::kShield) && !(MOB_FLAGGED(victim, EMobFlag::kProtect)))
 			&& (number(1, 100) <= 6 * ch->get_cond_penalty(P_HITROLL))

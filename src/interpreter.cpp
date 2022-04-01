@@ -1693,7 +1693,7 @@ int find_command(const char *command) {
 
 // int fnum - номер найденного в комнате спешиал-моба, для обработки нескольких спешиал-мобов в одной комнате //
 int special(CharData *ch, int cmd, char *arg, int fnum) {
-	if (ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)) {
+	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kHouse)) {
 		const auto clan = Clan::GetClanByRoom(ch->in_room);
 		if (!clan) {
 			return 0;

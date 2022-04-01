@@ -879,7 +879,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 				|| SECT(ch->in_room) == kSectOnlyFlying
 				|| SECT(ch->in_room) == kSectUnderwater
 				|| SECT(ch->in_room) == kSectSecret
-				|| ROOM_FLAGGED(ch->in_room, ROOM_NOTRACK)) {
+				|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoTrack)) {
 				parameter_bonus = 0;
 				bonus = -100;
 			}
@@ -1400,7 +1400,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 				|| SECT(ch->in_room) == kSectOnlyFlying
 				|| SECT(ch->in_room) == kSectUnderwater
 				|| SECT(ch->in_room) == kSectSecret
-				|| ROOM_FLAGGED(ch->in_room, ROOM_NOTRACK))
+				|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoTrack))
 				total_percent = 0;
 
 			if (vict) {
@@ -1782,10 +1782,10 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 	}
 
 	if (ch->in_room == kNowhere
-		|| ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)
-		|| ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
-		|| ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)
-		|| ROOM_FLAGGED(ch->in_room, ROOM_ATRIUM)) {
+		|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kPeaceful)
+		|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)
+		|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kHouse)
+		|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kHouseEntry)) {
 		return;
 	}
 

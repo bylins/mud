@@ -1482,7 +1482,7 @@ void do_exits(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 				else {
 					const RoomRnum rnum_exit_room = EXIT(ch, door)->to_room();
 					if (PRF_FLAGGED(ch, EPrf::kMapper) && !PLR_FLAGGED(ch, EPlrFlag::kScriptWriter)
-						&& !ROOM_FLAGGED(rnum_exit_room, ROOM_NOMAPPER)) {
+						&& !ROOM_FLAGGED(rnum_exit_room, ERoomFlag::kMoMapper)) {
 						sprintf(buf2 + strlen(buf2), "[%5d] %s", GET_ROOM_VNUM(rnum_exit_room), world[rnum_exit_room]->name);
 					} else {
 						strcat(buf2, world[rnum_exit_room]->name);
@@ -1520,7 +1520,7 @@ void do_blind_exits(CharData *ch) {
 				else {
 					const RoomRnum rnum_exit_room = EXIT(ch, door)->to_room();
 					if (PRF_FLAGGED(ch, EPrf::kMapper) && !PLR_FLAGGED(ch, EPlrFlag::kScriptWriter)
-						&& !ROOM_FLAGGED(rnum_exit_room, ROOM_NOMAPPER)) {
+						&& !ROOM_FLAGGED(rnum_exit_room, ERoomFlag::kMoMapper)) {
 						sprintf(buf2 + strlen(buf2), "[%d] %s", GET_ROOM_VNUM(rnum_exit_room), world[rnum_exit_room]->name);
 					} else {
 						strcat(buf2, world[rnum_exit_room]->name);
@@ -1831,19 +1831,19 @@ void look_at_room(CharData *ch, int ignore_brief) {
 
 	if (!ch->is_npc() && PRF_FLAGGED(ch, EPrf::kRoomFlags)) {
 		// иммам рандомная * во флагах ломает мапер грят
-		const bool has_flag = ROOM_FLAGGED(ch->in_room, ROOM_BFS_MARK) ? true : false;
-		world[ch->in_room]->unset_flag(ROOM_BFS_MARK);
+		const bool has_flag = ROOM_FLAGGED(ch->in_room, ERoomFlag::kBfsMark) ? true : false;
+		world[ch->in_room]->unset_flag(ERoomFlag::kBfsMark);
 
 		world[ch->in_room]->flags_sprint(buf, ";");
 		snprintf(buf2, kMaxStringLength, "[%5d] %s [%s]", GET_ROOM_VNUM(ch->in_room), world[ch->in_room]->name, buf);
 		send_to_char(buf2, ch);
 
 		if (has_flag) {
-			world[ch->in_room]->set_flag(ROOM_BFS_MARK);
+			world[ch->in_room]->set_flag(ERoomFlag::kBfsMark);
 		}
 	} else {
 		if (PRF_FLAGGED(ch, EPrf::kMapper) && !PLR_FLAGGED(ch, EPlrFlag::kScriptWriter)
-			&& !ROOM_FLAGGED(ch->in_room, ROOM_NOMAPPER)) {
+			&& !ROOM_FLAGGED(ch->in_room, ERoomFlag::kMoMapper)) {
 			sprintf(buf2, "%s [%d]", world[ch->in_room]->name, GET_ROOM_VNUM(ch->in_room));
 			send_to_char(buf2, ch);
 		} else
@@ -1855,7 +1855,7 @@ void look_at_room(CharData *ch, int ignore_brief) {
 
 	if (IS_DARK(ch->in_room) && !PRF_FLAGGED(ch, EPrf::kHolylight)) {
 		send_to_char("Слишком темно...\r\n", ch);
-	} else if ((!ch->is_npc() && !PRF_FLAGGED(ch, EPrf::kBrief)) || ignore_brief || ROOM_FLAGGED(ch->in_room, ROOM_DEATH)) {
+	} else if ((!ch->is_npc() && !PRF_FLAGGED(ch, EPrf::kBrief)) || ignore_brief || ROOM_FLAGGED(ch->in_room, ERoomFlag::kDeathTrap)) {
 		show_extend_room(RoomDescription::show_desc(world[ch->in_room]->description_num).c_str(), ch);
 	}
 
@@ -1897,8 +1897,8 @@ void look_at_room(CharData *ch, int ignore_brief) {
 		send_to_char(buf, ch);
 	}
 
-	if (ch->in_room != kNowhere && !ROOM_FLAGGED(ch->in_room, ROOM_NOWEATHER)
-		&& !ROOM_FLAGGED(ch->in_room, ROOM_INDOORS)) {
+	if (ch->in_room != kNowhere && !ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoWeather)
+		&& !ROOM_FLAGGED(ch->in_room, ERoomFlag::kIndoors)) {
 		*buf = '\0';
 		switch (real_sector(ch->in_room)) {
 			case kSectFieldSnow:

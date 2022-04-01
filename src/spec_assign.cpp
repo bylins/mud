@@ -134,7 +134,7 @@ void assign_rooms(void) {
 
 	if (dts_are_dumps)
 		for (i = FIRST_ROOM; i <= top_of_world; i++)
-			if (ROOM_FLAGGED(i, ROOM_DEATH))
+			if (ROOM_FLAGGED(i, ERoomFlag::kDeathTrap))
 				world[i]->func = dump;
 }
 

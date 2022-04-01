@@ -306,7 +306,7 @@ bool IsAbleToDoPrivilege(CharData *ch, const std::string &cmd_name, int cmd_numb
 			default: break;
 		}
 		// на арене доступны команды из группы arena_master
-		if (!mode && ROOM_FLAGGED(ch->in_room, ROOM_ARENA) && it->second.arena.find(cmd_name) != it->second.arena.end())
+		if (!mode && ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena) && it->second.arena.find(cmd_name) != it->second.arena.end())
 			return true;
 	}
 	return false;
@@ -341,7 +341,7 @@ bool CheckSpells(const CharData *ch, int spellnum) {
 		return true;
 	// флаг arena_master - только на арене и только для призыва/пенты
 	if (spellnum == kSpellPortal || spellnum == kSpellSummon || spellnum == kSpellWorldOfRecall)
-		if (ROOM_FLAGGED(ch->in_room, ROOM_ARENA) && CheckFlag(ch, kArenaMaster))
+		if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena) && CheckFlag(ch, kArenaMaster))
 			return true;
 	return false;
 }

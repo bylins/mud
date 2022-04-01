@@ -866,7 +866,7 @@ int check_moves(CharData *ch, int how_moves) {
 int real_sector(int room) {
 	int sector = SECT(room);
 
-	if (ROOM_FLAGGED(room, ROOM_NOWEATHER))
+	if (ROOM_FLAGGED(room, ERoomFlag::kNoWeather))
 		return sector;
 	switch (sector) {
 		case kSectInside:
@@ -972,7 +972,7 @@ bool same_group(CharData *ch, CharData *tch) {
 // Проверка является комната рентой.
 bool is_rent(RoomRnum room) {
 	// комната с флагом замок, но клан мертвый
-	if (ROOM_FLAGGED(room, ROOM_HOUSE)) {
+	if (ROOM_FLAGGED(room, ERoomFlag::kHouse)) {
 		const auto clan = Clan::GetClanByRoom(room);
 		if (!clan) {
 			return false;

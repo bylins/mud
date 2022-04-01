@@ -8,7 +8,7 @@
 #include <cmath>
 
 void reduce_exp_after_flee(CharData *ch, CharData *victim, RoomRnum room) {
-	if (IsAbleToUseFeat(ch, EFeat::kRetreat) || ROOM_FLAGGED(room, ROOM_ARENA))
+	if (IsAbleToUseFeat(ch, EFeat::kRetreat) || ROOM_FLAGGED(room, ERoomFlag::kArena))
 		return;
 
 	const auto loss = MAX(1, GET_REAL_MAX_HIT(victim) - GET_HIT(victim)) * GetRealLevel(victim);
@@ -44,7 +44,7 @@ void go_flee(CharData *ch) {
 	int correct_dirs = 0;
 
 	for (auto i = 0; i < EDirection::kMaxDirNum; ++i) {
-		if (legal_dir(ch, i, true, false) && !ROOM_FLAGGED(EXIT(ch, i)->to_room(), ROOM_DEATH)) {
+		if (legal_dir(ch, i, true, false) && !ROOM_FLAGGED(EXIT(ch, i)->to_room(), ERoomFlag::kDeathTrap)) {
 			dirs[correct_dirs] = i;
 			++correct_dirs;
 		}
@@ -93,7 +93,7 @@ void go_dir_flee(CharData *ch, int direction) {
 	}
 
 	if (legal_dir(ch, direction, true, false)
-		&& !ROOM_FLAGGED(EXIT(ch, direction)->to_room(), ROOM_DEATH)) {
+		&& !ROOM_FLAGGED(EXIT(ch, direction)->to_room(), ERoomFlag::kDeathTrap)) {
 		if (do_simple_move(ch, direction, true, 0, true)) {
 			const auto was_in = ch->in_room;
 			const auto was_fighting = ch->get_fighting();

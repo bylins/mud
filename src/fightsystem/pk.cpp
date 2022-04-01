@@ -216,7 +216,7 @@ void pk_update_revenge(CharData *agressor, CharData *victim, int attime, int ren
 // 3. если нужно, начать БД
 void pk_increment_kill(CharData *agressor, CharData *victim, int rent, bool flag_temp) {
 
-	if (ROOM_FLAGGED(agressor->in_room, ROOM_NOBATTLE) || ROOM_FLAGGED(victim->in_room, ROOM_NOBATTLE)) {
+	if (ROOM_FLAGGED(agressor->in_room, ERoomFlag::kNoBattle) || ROOM_FLAGGED(victim->in_room, ERoomFlag::kNoBattle)) {
 		may_kill_here(agressor, victim, NoArgument);
 		return;
 	}
@@ -370,7 +370,7 @@ bool pk_agro_action(CharData *agressor, CharData *victim) {
 		return false;
 	}
 	// если клан-замок - выдворяем за пределы
-	if (ROOM_FLAGGED(agressor->in_room, ROOM_HOUSE) && !ROOM_FLAGGED(agressor->in_room, ROOM_ARENA) && CLAN(agressor)) {
+	if (ROOM_FLAGGED(agressor->in_room, ERoomFlag::kHouse) && !ROOM_FLAGGED(agressor->in_room, ERoomFlag::kArena) && CLAN(agressor)) {
 		if (victim->get_fighting() != nullptr)
 			stop_fighting(victim, false);
 		if (victim->get_fighting() != nullptr)
@@ -427,8 +427,8 @@ int pk_action_type_summon(CharData *agressor, CharData *victim) {
 	}
 
 	if (!agressor || !victim || agressor == victim
-		|| ROOM_FLAGGED(IN_ROOM(agressor), ROOM_ARENA)
-		|| ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA)
+		|| ROOM_FLAGGED(IN_ROOM(agressor), ERoomFlag::kArena)
+		|| ROOM_FLAGGED(IN_ROOM(victim), ERoomFlag::kArena)
 		|| agressor->is_npc() || victim->is_npc()) {
 		return PK_ACTION_NO;
 	}
@@ -530,11 +530,11 @@ int pk_action_type(CharData *agressor, CharData *victim) {
 	pk_translate_pair(&agressor, &victim);
 
 	if (!agressor || !victim || agressor == victim
-		|| ROOM_FLAGGED(IN_ROOM(agressor), ROOM_ARENA)
-		|| ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA)
+		|| ROOM_FLAGGED(IN_ROOM(agressor), ERoomFlag::kArena)
+		|| ROOM_FLAGGED(IN_ROOM(victim), ERoomFlag::kArena)
 		|| agressor->is_npc() || victim->is_npc()
 		|| (agressor != victim
-			&& (ROOM_FLAGGED(agressor->in_room, ROOM_NOBATTLE) || ROOM_FLAGGED(victim->in_room, ROOM_NOBATTLE))))
+			&& (ROOM_FLAGGED(agressor->in_room, ERoomFlag::kNoBattle) || ROOM_FLAGGED(victim->in_room, ERoomFlag::kNoBattle))))
 		return PK_ACTION_NO;
 
 	if (PLR_FLAGGED(victim, EPlrFlag::kKiller) || (AGRO(victim) && NORENTABLE(victim)))
@@ -886,7 +886,7 @@ int may_kill_here(CharData *ch, CharData *victim, char *argument) {
 		return (false);
 	}
 	//запрет на любые агры
-	if (ch != victim && (ROOM_FLAGGED(ch->in_room, ROOM_NOBATTLE) || ROOM_FLAGGED(victim->in_room, ROOM_NOBATTLE))) {
+	if (ch != victim && (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoBattle) || ROOM_FLAGGED(victim->in_room, ERoomFlag::kNoBattle))) {
 		send_to_char("Высшие силы воспретили здесь сражаться!\r\n", ch);
 		return (false);
 	}
@@ -902,9 +902,9 @@ int may_kill_here(CharData *ch, CharData *victim, char *argument) {
 		return true;
 	}
 	// Один из участников в мирной комнате
-	if (ch != victim && !ROOM_FLAGGED(victim->in_room, ROOM_ARENA)
-		&& (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)
-			|| ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL))) {
+	if (ch != victim && !ROOM_FLAGGED(victim->in_room, ERoomFlag::kArena)
+		&& (ROOM_FLAGGED(ch->in_room, ERoomFlag::kPeaceful)
+			|| ROOM_FLAGGED(victim->in_room, ERoomFlag::kPeaceful))) {
 		// но это специальные мобы
 		if (MOB_FLAGGED(victim, EMobFlag::kHorde))
 			return true;

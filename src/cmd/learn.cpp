@@ -200,17 +200,17 @@ void do_learn(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		return;
 	}
 
-	addchance = (IS_SORCERER(ch) && ROOM_FLAGGED(ch->in_room, ROOM_CLERIC)) ||
-		(IS_MAGE(ch) && ROOM_FLAGGED(ch->in_room, ROOM_MAGE)) ||
-		(IS_PALADINE(ch) && ROOM_FLAGGED(ch->in_room, ROOM_PALADINE)) ||
-		(IS_THIEF(ch) && ROOM_FLAGGED(ch->in_room, ROOM_THIEF)) ||
-		(IS_ASSASINE(ch) && ROOM_FLAGGED(ch->in_room, ROOM_ASSASINE)) ||
-		(IS_WARRIOR(ch) && ROOM_FLAGGED(ch->in_room, ROOM_WARRIOR)) ||
-		(IS_RANGER(ch) && ROOM_FLAGGED(ch->in_room, ROOM_RANGER)) ||
-		(IS_GUARD(ch) && ROOM_FLAGGED(ch->in_room, ROOM_GUARD)) ||
-		(IS_VIGILANT(ch) && ROOM_FLAGGED(ch->in_room, ROOM_SMITH)) ||
-		(IS_MAGUS(ch) && ROOM_FLAGGED(ch->in_room, ROOM_DRUID)) ||
-		(IS_MERCHANT(ch) && ROOM_FLAGGED(ch->in_room, ROOM_MERCHANT)) ? 10 : 0;
+	addchance = (IS_SORCERER(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kForSorcerers)) ||
+		(IS_MAGE(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kForMages)) ||
+		(IS_PALADINE(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kForPaladines)) ||
+		(IS_THIEF(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kForThieves)) ||
+		(IS_ASSASINE(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kForAssasines)) ||
+		(IS_WARRIOR(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kForWarriors)) ||
+		(IS_RANGER(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kForRangers)) ||
+		(IS_GUARD(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kForGuards)) ||
+		(IS_VIGILANT(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kForge)) ||
+		(IS_MAGUS(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kForMaguses)) ||
+		(IS_MERCHANT(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kForMerchants)) ? 10 : 0;
 	addchance += (GET_OBJ_VAL(obj, 0) == BOOK_SPELL) ? 0 : 10;
 
 	if (!obj->has_flag(EObjFlag::KNofail)

@@ -465,7 +465,7 @@ void do_put(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (obj_dotmode == FIND_INDIV)    // put <obj> <container>
 			{
 				if (money_mode) {
-					if (ROOM_FLAGGED(ch->in_room, ROOM_NOITEM)) {
+					if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoItem)) {
 						act("Неведомая сила помешала вам сделать это!!", false,
 							ch, 0, 0, kToChar);
 						return;
@@ -1082,7 +1082,7 @@ void perform_drop_gold(CharData *ch, int amount) {
 		send_to_char("У вас нет такой суммы!\r\n", ch);
 	} else {
 		WAIT_STATE(ch, kPulseViolence);    // to prevent coin-bombing
-		if (ROOM_FLAGGED(ch->in_room, ROOM_NOITEM)) {
+		if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoItem)) {
 			act("Неведомая сила помешала вам сделать это!", false, ch, 0, 0, kToChar);
 			return;
 		}
@@ -1223,7 +1223,7 @@ void do_drop(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 void perform_give(CharData *ch, CharData *vict, ObjData *obj) {
 	if (!bloody::handle_transfer(ch, vict, obj))
 		return;
-	if (ROOM_FLAGGED(ch->in_room, ROOM_NOITEM) && !IS_GOD(ch)) {
+	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoItem) && !IS_GOD(ch)) {
 		act("Неведомая сила помешала вам сделать это!", false, ch, 0, 0, kToChar);
 		return;
 	}
@@ -1298,7 +1298,7 @@ void perform_give_gold(CharData *ch, CharData *vict, int amount) {
 		send_to_char("И откуда вы их взять собираетесь?\r\n", ch);
 		return;
 	}
-	if (ROOM_FLAGGED(ch->in_room, ROOM_NOITEM) && !IS_GOD(ch)) {
+	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoItem) && !IS_GOD(ch)) {
 		act("Неведомая сила помешала вам сделать это!", false, ch, 0, 0, kToChar);
 		return;
 	}
@@ -1338,7 +1338,7 @@ void perform_give_nogat(CharData *ch, CharData *vict, int amount) {
 		send_to_char("И откуда ты их взять собирался?\r\n", ch);
 		return;
 	}
-	if (ROOM_FLAGGED(ch->in_room, ROOM_NOITEM) && !IS_GOD(ch)) {
+	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoItem) && !IS_GOD(ch)) {
 		act("Неведомая сила помешала вам сделать это!", false, ch, 0, 0, kToChar);
 		return;
 	}

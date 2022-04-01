@@ -52,9 +52,9 @@ void do_horseon(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else if (AFF_FLAGGED(horse, EAffect::kTethered))
 		act("Вам стоит отвязать $N3.", false, ch, 0, horse, kToChar);
 		//чтоб не вскакивали в ванрумах
-	else if (ROOM_FLAGGED(ch->in_room, ROOM_TUNNEL))
+	else if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kTunnel))
 		send_to_char("Слишком мало места.\r\n", ch);
-	else if (ROOM_FLAGGED(ch->in_room, ROOM_NOHORSE))
+	else if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNohorse))
 		act("$Z $N взбрыкнул$G и отказал$U вас слушаться.", false, ch, 0, horse, kToChar);
 	else {
 		if (affected_by_spell(ch, kSpellSneak))

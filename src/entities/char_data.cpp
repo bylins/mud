@@ -568,7 +568,7 @@ int CharData::get_inborn_skill(const ESkill skill_num) {
 }
 
 int CharData::get_trained_skill(const ESkill skill_num) const {
-	if (ROOM_FLAGGED(this->in_room, ROOM_ARENA_DOMINATION)) {
+	if (ROOM_FLAGGED(this->in_room, ERoomFlag::kDominationArena)) {
 		if (MUD::Classes()[chclass_].HasSkill(skill_num)) {
 			return 100;
 		}
@@ -809,14 +809,14 @@ bool OK_GAIN_EXP(const CharData *ch, const CharData *victim) {
 	return !NAME_BAD(ch)
 		&& (NAME_FINE(ch)
 			|| !(GetRealLevel(ch) == kNameLevel))
-		&& !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
+		&& !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)
 		&& victim->is_npc()
 		&& (GET_EXP(victim) > 0)
 		&& (!victim->is_npc()
 			|| !ch->is_npc()
 			|| AFF_FLAGGED(ch, EAffect::kCharmed))
 		&& !IS_HORSE(victim)
-		&& !ROOM_FLAGGED(ch->in_room, ROOM_ARENA_DOMINATION);
+		&& !ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena);
 }
 
 bool IS_MALE(const CharData *ch) {

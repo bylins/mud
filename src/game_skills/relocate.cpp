@@ -50,7 +50,7 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (!IS_GOD(ch)) {
-		if (ROOM_FLAGGED(ch->in_room, ROOM_NOTELEPORTOUT)) {
+		if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoTeleportOut)) {
 			send_to_char("Попытка перемещения не удалась.\r\n", ch);
 			return;
 		}
@@ -79,11 +79,11 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!IS_GOD(ch) &&
 		(SECT(fnd_room) == kSectSecret ||
-			ROOM_FLAGGED(fnd_room, ROOM_DEATH) ||
-			ROOM_FLAGGED(fnd_room, ROOM_SLOWDEATH) ||
-			ROOM_FLAGGED(fnd_room, ROOM_TUNNEL) ||
-			ROOM_FLAGGED(fnd_room, ROOM_NORELOCATEIN) ||
-			ROOM_FLAGGED(fnd_room, ROOM_ICEDEATH) || (ROOM_FLAGGED(fnd_room, ROOM_GODROOM) && !IS_IMMORTAL(ch)))) {
+			ROOM_FLAGGED(fnd_room, ERoomFlag::kDeathTrap) ||
+			ROOM_FLAGGED(fnd_room, ERoomFlag::kSlowDeathTrap) ||
+			ROOM_FLAGGED(fnd_room, ERoomFlag::kTunnel) ||
+			ROOM_FLAGGED(fnd_room, ERoomFlag::kNoRelocateIn) ||
+			ROOM_FLAGGED(fnd_room, ERoomFlag::kIceTrap) || (ROOM_FLAGGED(fnd_room, ERoomFlag::kGodsRoom) && !IS_IMMORTAL(ch)))) {
 		send_to_char("Попытка перемещения не удалась.\r\n", ch);
 		return;
 	}
@@ -97,7 +97,7 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	ch->dismount();
 	act("$n медленно появил$u откуда-то.", true, ch, nullptr, nullptr, kToRoom);
 	if (!(PRF_FLAGGED(victim, EPrf::KSummonable) || same_group(ch, victim) || IS_IMMORTAL(ch)
-		|| ROOM_FLAGGED(fnd_room, ROOM_ARENA))) {
+		|| ROOM_FLAGGED(fnd_room, ERoomFlag::kArena))) {
 		send_to_char(ch, "%sВаш поступок был расценен как потенциально агрессивный.%s\r\n",
 					 CCIRED(ch, C_NRM), CCINRM(ch, C_NRM));
 		pkPortal(ch);

@@ -242,11 +242,11 @@ int is_tell_ok(CharData *ch, CharData *vict) {
 	if (IS_GOD(ch) || PRF_FLAGGED(ch, EPrf::kCoderinfo))
 		return (true);
 
-	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF))
+	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kSoundproof))
 		send_to_char(SOUNDPROOF, ch);
 	else if ((!vict->is_npc() &&
 		(PRF_FLAGGED(vict, EPrf::kNoTell) || ignores(vict, ch, EIgnore::kTell))) ||
-		ROOM_FLAGGED(vict->in_room, ROOM_SOUNDPROOF))
+		ROOM_FLAGGED(vict->in_room, ERoomFlag::kSoundproof))
 		act("$N не сможет вас услышать.", false, ch, 0, vict, kToChar | kToSleep);
 	else if (GET_POS(vict) < EPosition::kRest || AFF_FLAGGED(vict, EAffect::kDeafness))
 		act("$N вас не услышит.", false, ch, 0, vict, kToChar | kToSleep);
@@ -272,7 +272,7 @@ void do_tell(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	/* Непонятно нафига нужно
-	if (ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
+	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kTribune))
 	{
 		send_to_char(SOUNDPROOF, ch);
 		return;
@@ -637,8 +637,8 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		send_to_char(com_msgs[subcmd].muted_msg, ch);
 		return;
 	}
-	//if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) || ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
-	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF)) {
+	//if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kSoundproof) || ROOM_FLAGGED(ch->in_room, ERoomFlag::kTribune))
+	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kSoundproof)) {
 		send_to_char(SOUNDPROOF, ch);
 		return;
 	}
@@ -713,7 +713,7 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	} else {
 		/* Непонятный запрет
-		if (ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
+		if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kTribune))
 		{
 			send_to_char(SOUNDPROOF, ch);
 			return;
@@ -777,7 +777,7 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		if (STATE(i) == CON_PLAYING && i != ch->desc && i->character &&
 			!PRF_FLAGS(i->character).get(com_msgs[subcmd].noflag) &&
 			!PLR_FLAGGED(i->character, EPlrFlag::kWriting) &&
-			!ROOM_FLAGGED(i->character->in_room, ROOM_SOUNDPROOF) && GET_POS(i->character) > EPosition::kSleep) {
+			!ROOM_FLAGGED(i->character->in_room, ERoomFlag::kSoundproof) && GET_POS(i->character) > EPosition::kSleep) {
 			if (ignores(i->character.get(), ch, ign_flag)) {
 				continue;
 			}
@@ -928,8 +928,8 @@ void do_offtop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
 		return;
 	}
-	//if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) || ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
-	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF)) {
+	//if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kSoundproof) || ROOM_FLAGGED(ch->in_room, ERoomFlag::kTribune))
+	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kSoundproof)) {
 		send_to_char(SOUNDPROOF, ch);
 		return;
 	}

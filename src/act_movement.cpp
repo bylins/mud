@@ -81,7 +81,7 @@ int check_death_ice(int room, CharData * /*ch*/) {
 
 		world[room]->weather.icelevel = 0;
 		world[room]->ices = 2;
-		world[room]->set_flag(ROOM_ICEDEATH);
+		world[room]->set_flag(ERoomFlag::kIceTrap);
 		deathtrap::add(world[room]);
 	} else {
 		return (false);
@@ -393,23 +393,23 @@ int legal_dir(CharData *ch, int dir, int need_specials_check, int show_msg) {
 				real_sector(EXIT(ch, dir)->to_room()) == kSectUnderwater))
 			return (false);
 
-		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ROOM_NOMOB) &&
+		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kNoEntryMob) &&
 			!IS_HORSE(ch) &&
 			!AFF_FLAGGED(ch, EAffect::kCharmed) && !(MOB_FLAGGED(ch, EMobFlag::kTutelar) || MOB_FLAGGED(ch, EMobFlag::kMentalShadow))
 			&& !MOB_FLAGGED(ch, EMobFlag::kIgnoresNoMob))
 			return (false);
 
-		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ROOM_DEATH) && !IS_HORSE(ch))
+		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kDeathTrap) && !IS_HORSE(ch))
 			return (false);
 
-		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ROOM_GODROOM))
+		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kGodsRoom))
 			return (false);
 
-		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ROOM_NOHORSE) && IS_HORSE(ch))
+		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kNohorse) && IS_HORSE(ch))
 			return (false);
 	} else {
 		//Вход в замок
-		if (ROOM_FLAGGED(ch->in_room, ROOM_ATRIUM)) {
+		if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kHouseEntry)) {
 			if (!Clan::MayEnter(ch, EXIT(ch, dir)->to_room(), HCE_ATRIUM)) {
 				if (show_msg)
 					send_to_char("Частная собственность! Вход воспрещен!\r\n", ch);
@@ -435,7 +435,7 @@ int legal_dir(CharData *ch, int dir, int need_specials_check, int show_msg) {
 		}
 
 		// если там ДТ и чар верхом на пони
-		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ROOM_DEATH) && ch->ahorse()) {
+		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kDeathTrap) && ch->ahorse()) {
 			if (show_msg) {
 				// я весьма костоязычен, исправьте кто-нибудь на нормальную
 				// мессагу, антуражненькую
@@ -459,7 +459,7 @@ int legal_dir(CharData *ch, int dir, int need_specials_check, int show_msg) {
 			return (false);
 		}
 		//Вход в замок
-		if (ROOM_FLAGGED(ch->in_room, ROOM_ATRIUM)) {
+		if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kHouseEntry)) {
 			if (!Clan::MayEnter(ch, EXIT(ch, dir)->to_room(), HCE_ATRIUM)) {
 				if (show_msg)
 					send_to_char("Частная собственность! Вход воспрещен!\r\n", ch);
@@ -476,7 +476,7 @@ int legal_dir(CharData *ch, int dir, int need_specials_check, int show_msg) {
 			}
 		}
 		//проверка на ванрум: скидываем игрока с коня, если там незанято
-		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ROOM_TUNNEL) &&
+		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kTunnel) &&
 			(num_pc_in_room((world[EXIT(ch, dir)->to_room()])) > 0)) {
 			if (show_msg)
 				send_to_char("Слишком мало места.\r\n", ch);
@@ -499,14 +499,14 @@ int legal_dir(CharData *ch, int dir, int need_specials_check, int show_msg) {
 		}
 
 		if (ch->ahorse()
-			&& (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ROOM_TUNNEL)
-				|| ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ROOM_NOHORSE))) {
+			&& (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kTunnel)
+				|| ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kNohorse))) {
 			if (show_msg)
 				act("$Z $N не в состоянии пройти туда.\r\n", false, ch, nullptr, ch->get_horse(), kToChar);
 			return false;
 		}
 
-		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ROOM_GODROOM) && !IS_GRGOD(ch)) {
+		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kGodsRoom) && !IS_GRGOD(ch)) {
 			if (show_msg)
 				send_to_char("Вы не столь Божественны, как вам кажется!\r\n", ch);
 			return (false);
@@ -650,7 +650,7 @@ int do_simple_move(CharData *ch, int dir, int need_specials_check, CharData *lea
 		sprintf(buf, "Вы поплелись %s%s.", leader ? "следом за $N4 " : "", DirsTo[dir]);
 		act(buf, false, ch, nullptr, leader, kToChar);
 	}
-	if (ch->is_npc() && MOB_FLAGGED(ch, EMobFlag::kSentinel) && !IS_CHARMICE(ch) && ROOM_FLAGGED(ch->in_room, ROOM_ARENA))
+	if (ch->is_npc() && MOB_FLAGGED(ch, EMobFlag::kSentinel) && !IS_CHARMICE(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena))
 		return false;
 	was_in = ch->in_room;
 	go_to = world[was_in]->dir_option[dir]->to_room();
@@ -736,7 +736,7 @@ int do_simple_move(CharData *ch, int dir, int need_specials_check, CharData *lea
 				|| (EXIT(ch, i)
 					&& EXIT(ch, i)->to_room() != kNowhere)) {
 				const auto &rdata = EXIT(ch, i);
-				if (ROOM_FLAGGED(rdata->to_room(), ROOM_DEATH)) {
+				if (ROOM_FLAGGED(rdata->to_room(), ERoomFlag::kDeathTrap)) {
 					send_to_char("\007 Внимание, рядом гиблое место!\r\n", ch);
 				}
 			}
@@ -821,7 +821,7 @@ int do_simple_move(CharData *ch, int dir, int need_specials_check, CharData *lea
 			}
 		}
 
-		if (!track && !ROOM_FLAGGED(go_to, ROOM_NOTRACK)) {
+		if (!track && !ROOM_FLAGGED(go_to, ERoomFlag::kNoTrack)) {
 			CREATE(track, 1);
 			track->track_info = ch->is_npc() ? TRACK_NPC : 0;
 			track->who = ch->is_npc() ? mob_rnum : GET_IDNUM(ch);
@@ -844,7 +844,7 @@ int do_simple_move(CharData *ch, int dir, int need_specials_check, CharData *lea
 				&& track->who == GET_IDNUM(ch)))
 				break;
 
-		if (!track && !ROOM_FLAGGED(was_in, ROOM_NOTRACK)) {
+		if (!track && !ROOM_FLAGGED(was_in, ERoomFlag::kNoTrack)) {
 			CREATE(track, 1);
 			track->track_info = ch->is_npc() ? TRACK_NPC : 0;
 			track->who = ch->is_npc() ? mob_rnum : GET_IDNUM(ch);
@@ -1528,13 +1528,13 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					return;
 				}
 				//проверка на флаг нельзя_верхом
-				if (ROOM_FLAGGED(door, ROOM_NOHORSE) && ch->ahorse()) {
+				if (ROOM_FLAGGED(door, ERoomFlag::kNohorse) && ch->ahorse()) {
 					act("$Z $N отказывается туда идти, и вам пришлось соскочить.",
 						false, ch, nullptr, ch->get_horse(), kToChar);
 					ch->dismount();
 				}
 				//проверка на ванрум и лошадь
-				if (ROOM_FLAGGED(door, ROOM_TUNNEL) &&
+				if (ROOM_FLAGGED(door, ERoomFlag::kTunnel) &&
 					(num_pc_in_room(world[door]) > 0 || ch->ahorse())) {
 					if (num_pc_in_room(world[door]) > 0) {
 						send_to_char("Слишком мало места.\r\n", ch);
@@ -1549,10 +1549,10 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				if (!IS_IMMORTAL(ch)
 					&& ((!ch->is_npc()
 						&& (!Clan::MayEnter(ch, door, HCE_PORTAL) || (GetRealLevel(ch) <= 10 && world[door]->portal_time && GET_REAL_REMORT(ch) < 9)))
-						|| (ROOM_FLAGGED(from_room, ROOM_NOTELEPORTOUT) || ROOM_FLAGGED(door, ROOM_NOTELEPORTIN))
+						|| (ROOM_FLAGGED(from_room, ERoomFlag::kNoTeleportOut) || ROOM_FLAGGED(door, ERoomFlag::kNoTeleportIn))
 						|| AFF_FLAGGED(ch, EAffect::kNoTeleport)
 						|| (world[door]->pkPenterUnique
-							&& (ROOM_FLAGGED(door, ROOM_ARENA) || ROOM_FLAGGED(door, ROOM_HOUSE))))) {
+							&& (ROOM_FLAGGED(door, ERoomFlag::kArena) || ROOM_FLAGGED(door, ERoomFlag::kHouse))))) {
 					sprintf(smallBuf, "%sПентаграмма ослепительно вспыхнула!%s\r\n",
 							CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 					act(smallBuf, true, ch, nullptr, nullptr, kToChar);
@@ -1587,7 +1587,7 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						!k->ch->get_fighting() &&
 						!GET_MOB_HOLD(k->ch) &&
 						IN_ROOM(k->ch) == from_room && AWAKE(k->ch)) {
-						if (!ROOM_FLAGGED(door, ROOM_NOHORSE)) {
+						if (!ROOM_FLAGGED(door, ERoomFlag::kNohorse)) {
 							char_from_room(k->ch);
 							char_to_room(k->ch, door);
 						}
@@ -1629,7 +1629,7 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			sprintf(buf2, "Вы не нашли здесь '%s'.\r\n", smallBuf);
 			send_to_char(buf2, ch);
 		}
-	} else if (ROOM_FLAGGED(ch->in_room, ROOM_INDOORS))
+	} else if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kIndoors))
 		send_to_char("Вы уже внутри.\r\n", ch);
 	else            // try to locate an entrance
 	{
@@ -1637,7 +1637,7 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (EXIT(ch, door))
 				if (EXIT(ch, door)->to_room() != kNowhere)
 					if (!EXIT_FLAGGED(EXIT(ch, door), EX_CLOSED) &&
-						ROOM_FLAGGED(EXIT(ch, door)->to_room(), ROOM_INDOORS)) {
+						ROOM_FLAGGED(EXIT(ch, door)->to_room(), ERoomFlag::kIndoors)) {
 						perform_move(ch, door, 1, true, nullptr);
 						return;
 					}

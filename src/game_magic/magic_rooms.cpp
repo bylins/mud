@@ -420,9 +420,9 @@ int ImposeSpellToRoom(int/* level*/, CharData *ch, RoomData *room, int spellnum)
 			break;
 
 		case kSpellRuneLabel:
-			if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)
-				|| ROOM_FLAGGED(ch->in_room, ROOM_TUNNEL)
-				|| ROOM_FLAGGED(ch->in_room, ROOM_NOTELEPORTIN)) {
+			if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kPeaceful)
+				|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kTunnel)
+				|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoTeleportIn)) {
 				to_char = "Вы начертали свое имя рунами на земле, знаки вспыхнули, но ничего не произошло.";
 				to_room = "$n начертил$g на земле несколько рун, знаки вспыхнули, но ничего не произошло.";
 				lag = 2;
@@ -463,7 +463,7 @@ int ImposeSpellToRoom(int/* level*/, CharData *ch, RoomData *room, int spellnum)
 			break;
 
 		case kSpellBlackTentacles:
-			if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_MONO) || ROOM_FLAGGED(IN_ROOM(ch), ROOM_POLY)) {
+			if (ROOM_FLAGGED(IN_ROOM(ch), ERoomFlag::kForMono) || ROOM_FLAGGED(IN_ROOM(ch), ERoomFlag::kForPoly)) {
 				success = false;
 				break;
 			}

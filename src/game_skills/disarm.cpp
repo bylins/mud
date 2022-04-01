@@ -63,7 +63,7 @@ void go_disarm(CharData *ch, CharData *vict) {
 		SetSkillCooldown(ch, ESkill::kGlobalCooldown, vict->is_npc() ? 1 : 2);
 		prob = 2;
 
-		if (ROOM_FLAGGED(IN_ROOM(vict), ROOM_ARENA) || (!IS_MOB(vict)) || vict->has_master()) {
+		if (ROOM_FLAGGED(IN_ROOM(vict), ERoomFlag::kArena) || (!IS_MOB(vict)) || vict->has_master()) {
 			obj_to_char(wielded, vict);
 		} else {
 			obj_to_room(wielded, IN_ROOM(vict));

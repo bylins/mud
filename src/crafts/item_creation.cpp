@@ -936,7 +936,7 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 				return;
 			}
 			if (!IS_IMMORTAL(ch)) {
-				if (!ROOM_FLAGGED(ch->in_room, ROOM_SMITH)) {
+				if (!ROOM_FLAGGED(ch->in_room, ERoomFlag::kForge)) {
 					send_to_char("Вам нужно попасть в кузницу для этого.\r\n", ch);
 					return;
 				}
@@ -1630,7 +1630,7 @@ int MakeRecept::make(CharData *ch) {
 		case ESkill::kMakeWeapon:
 		case ESkill::kMakeArmor:
 			// Проверяем есть ли тут наковальня или комната кузня.
-			if ((!ROOM_FLAGGED(ch->in_room, ROOM_SMITH)) && (!IS_IMMORTAL(ch))) {
+			if ((!ROOM_FLAGGED(ch->in_room, ERoomFlag::kForge)) && (!IS_IMMORTAL(ch))) {
 				send_to_char("Вам нужно попасть в кузницу для этого.\r\n", ch);
 				return (false);
 			}

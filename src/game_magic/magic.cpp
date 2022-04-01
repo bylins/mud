@@ -387,7 +387,6 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 //расчет на 30 морт 30 левел 90 мудры
 
 	switch (spellnum) {
-		// ******** ДЛЯ ВСЕХ МАГОВ ********
 		// магическая стрела
 		//  мин 2+10 среднее 5+10 макс 8+10
 		// нейтрал
@@ -482,7 +481,6 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 			}
 			break;
 
-			// ********** ДЛЯ ФРАГЕРОВ **********
 			// горящие руки
 			// мин 8+10 среднее 16+10 мах 24+10
 			// ОГОНЬ
@@ -622,7 +620,6 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 				adice = level * 6;
 			}
 			break;
-			// ******* ХАЙЛЕВЕЛ СУПЕРДАМАДЖ МАГИЯ ******
 			// каменное проклятие
 			//  мин 12+30 среднее 486+30 макс 990+30
 		case kSpellStunning:
@@ -666,7 +663,6 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 			}
 			break;
 
-			// ********* СПЕЦИФИЧНАЯ ДЛЯ КЛЕРИКОВ МАГИЯ **********
 		case kSpellDamageLight: savetype = ESaving::kCritical;
 			ndice = 4;
 			sdice = 3;
@@ -2796,7 +2792,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
          * поэтому на каждого члена группы применяется свой аффект, а кастер еще и полечить может
          * */
 
-			if (ch == victim && !ROOM_FLAGGED(ch->in_room, ROOM_ARENA))
+			if (ch == victim && !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena))
 				rnd = number(1, 5);
 			else
 				rnd = number(1, 4);

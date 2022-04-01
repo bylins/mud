@@ -3421,7 +3421,7 @@ void send_to_outdoor(const char *messg, int control) {
 			|| (IS_SET(control, WEATHER_CONTROL)
 				&& room != kNowhere
 				&& SECT(room) != kSectUnderwater
-				&& !ROOM_FLAGGED(room, ROOM_NOWEATHER)
+				&& !ROOM_FLAGGED(room, ERoomFlag::kNoWeather)
 				&& world[IN_ROOM(i->character)]->weather.duration <= 0)) {
 			SEND_TO_Q(messg, i);
 		}
@@ -3878,8 +3878,8 @@ void act(const char *str,
 		}
 	}
 	//Реализация флага слышно арену
-	if ((to_arena) && (ch) && !IS_IMMORTAL(ch) && (ch->in_room != kNowhere) && ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
-		&& ROOM_FLAGGED(ch->in_room, ROOM_ARENASEND) && !ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV)) {
+	if ((to_arena) && (ch) && !IS_IMMORTAL(ch) && (ch->in_room != kNowhere) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)
+		&& ROOM_FLAGGED(ch->in_room, ERoomFlag::kArenaSend) && !ROOM_FLAGGED(ch->in_room, ERoomFlag::kTribune)) {
 		arena_room_rnum = ch->in_room;
 		// находим первую клетку в зоне
 		while ((int) world[arena_room_rnum - 1]->room_vn / 100 == (int) world[arena_room_rnum]->room_vn / 100)
@@ -3887,7 +3887,7 @@ void act(const char *str,
 		//пробегаемся по всем клеткам в зоне
 		while ((int) world[arena_room_rnum + 1]->room_vn / 100 == (int) world[arena_room_rnum]->room_vn / 100) {
 			// находим клетку в которой слышно арену и всем игрокам в ней передаем сообщение с арены
-			if (ch->in_room != arena_room_rnum && ROOM_FLAGGED(arena_room_rnum, ROOM_ARENARECV)) {
+			if (ch->in_room != arena_room_rnum && ROOM_FLAGGED(arena_room_rnum, ERoomFlag::kTribune)) {
 				int stop_count = 0;
 				for (const auto to : world[arena_room_rnum]->people) {
 					if (stop_count >= 200) {

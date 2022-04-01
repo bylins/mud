@@ -454,7 +454,7 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
 #define SECT(room)   (world[(room)]->sector_type)
 #define GET_ROOM_SKY(room) (world[room]->weather.duration > 0 ? world[room]->weather.sky : weather_info.sky)
 #define IS_TIMEDARK(room) is_dark(room)
-#define IS_DEFAULTDARK(room) (ROOM_FLAGGED(room, ROOM_DARK) || \
+#define IS_DEFAULTDARK(room) (ROOM_FLAGGED(room, ERoomFlag::kDark) || \
                               (SECT(room) != kSectInside && \
                                SECT(room) != kSectCity   && \
                                ( weather_info.sunlight == kSunSet || \
@@ -1009,19 +1009,19 @@ const int kNameLevel = 5;
 	(GET_RACE(ch) == ENpcRace::kGhost)))
 
 // \todo Ввести для комнат флаг а-ля "место отдыха", а это убрать.
-#define LIKE_ROOM(ch) ((IS_SORCERER(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_CLERIC)) || \
-                       (IS_MAGIC_USER(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_MAGE)) || \
-                       (IS_WARRIOR(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_WARRIOR)) || \
-                       (IS_THIEF(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_THIEF)) || \
-                       (IS_ASSASINE(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_ASSASINE)) || \
-                       (IS_GUARD(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_GUARD)) || \
-                       (IS_PALADINE(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_PALADINE)) || \
-                       (IS_RANGER(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_RANGER)) || \
-                       (IS_VIGILANT(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_SMITH)) || \
-                       (IS_MERCHANT(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_MERCHANT)) || \
-                       (IS_MAGUS(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_DRUID)))
+#define LIKE_ROOM(ch) ((IS_SORCERER(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForSorcerers)) || \
+                       (IS_MAGIC_USER(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForMages)) || \
+                       (IS_WARRIOR(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForWarriors)) || \
+                       (IS_THIEF(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForThieves)) || \
+                       (IS_ASSASINE(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForAssasines)) || \
+                       (IS_GUARD(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForGuards)) || \
+                       (IS_PALADINE(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForPaladines)) || \
+                       (IS_RANGER(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForRangers)) || \
+                       (IS_VIGILANT(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForge)) || \
+                       (IS_MERCHANT(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForMerchants)) || \
+                       (IS_MAGUS(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForMaguses)))
 
-#define OUTSIDE(ch) (!ROOM_FLAGGED((ch)->in_room, ROOM_INDOORS))
+#define OUTSIDE(ch) (!ROOM_FLAGGED((ch)->in_room, ERoomFlag::kIndoors))
 
 int on_horse(const CharData *ch);
 int has_horse(const CharData *ch, int same_room);

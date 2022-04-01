@@ -87,7 +87,7 @@ bool RoomReporter::blockReport() const {
 		|| (AFF_FLAGGED((descriptor()->character), EAffect::kBlind));  //Слепому карта не поможет!
 	const auto cannot_see_in_dark = (is_dark(IN_ROOM(descriptor()->character)) && !CAN_SEE_IN_DARK(descriptor()->character));
 	if (descriptor()->character->in_room != kNowhere)
-		nomapper = ROOM_FLAGGED(descriptor()->character->in_room, ROOM_NOMAPPER);
+		nomapper = ROOM_FLAGGED(descriptor()->character->in_room, ERoomFlag::kMoMapper);
 	const auto scriptwriter = PLR_FLAGGED(descriptor()->character, EPlrFlag::kScriptWriter); // скриптеру не шлем
 
 	return blind || cannot_see_in_dark || scriptwriter || nomapper;

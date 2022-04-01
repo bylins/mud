@@ -2765,11 +2765,11 @@ void GameLoader::prepare_global_structures(const EBootType mode, const int rec_c
 void check_room_flags(int rnum) {
 	if (deathtrap::IsSlowDeathtrap(rnum)) {
 		// снятие номагик и прочих флагов, запрещающих чару выбраться из комнаты без выходов при наличии медленного дт
-		world[rnum]->unset_flag(ROOM_NOMAGIC);
-		world[rnum]->unset_flag(ROOM_NOTELEPORTOUT);
-		world[rnum]->unset_flag(ROOM_NOSUMMON);
+		world[rnum]->unset_flag(ERoomFlag::kNoMagic);
+		world[rnum]->unset_flag(ERoomFlag::kNoTeleportOut);
+		world[rnum]->unset_flag(ERoomFlag::kNoSummonOut);
 	}
-	if (world[rnum]->get_flag(ROOM_HOUSE)
+	if (world[rnum]->get_flag(ERoomFlag::kHouse)
 		&& (SECT(rnum) == kSectMountain || SECT(rnum) == kSectHills)) {
 		// шоб в замках умные не копали
 		SECT(rnum) = kSectInside;

@@ -176,7 +176,7 @@ void ClanPkLog::load(const std::string &abbrev) {
 void ClanPkLog::check(CharData *ch, CharData *victim) {
 	if (!ch || !victim || ch->purged() || victim->purged()
 		|| victim->is_npc() || !CLAN(victim) || ch == victim
-		|| (ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA) && !NORENTABLE(victim))) {
+		|| (ROOM_FLAGGED(IN_ROOM(victim), ERoomFlag::kArena) && !NORENTABLE(victim))) {
 		return;
 	}
 	CharData *killer = ch;

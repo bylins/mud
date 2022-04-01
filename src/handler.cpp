@@ -350,7 +350,7 @@ void char_to_room(CharData *ch, RoomRnum room) {
 		room = ch->get_from_room();
 	}
 
-	if (!ch->is_npc() && NORENTABLE(ch) && ROOM_FLAGGED(room, ROOM_ARENA) && !IS_IMMORTAL(ch)) {
+	if (!ch->is_npc() && NORENTABLE(ch) && ROOM_FLAGGED(room, ERoomFlag::kArena) && !IS_IMMORTAL(ch)) {
 		send_to_char("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
 		room = ch->get_from_room();
 	}
@@ -416,7 +416,7 @@ void char_flee_to_room(CharData *ch, RoomRnum room) {
 		room = ch->get_from_room();
 	}
 
-	if (!ch->is_npc() && NORENTABLE(ch) && ROOM_FLAGGED(room, ROOM_ARENA) && !IS_IMMORTAL(ch)) {
+	if (!ch->is_npc() && NORENTABLE(ch) && ROOM_FLAGGED(room, ERoomFlag::kArena) && !IS_IMMORTAL(ch)) {
 		send_to_char("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
 		room = ch->get_from_room();
 	}
@@ -870,7 +870,7 @@ unsigned int activate_stuff(CharData *ch, ObjData *obj, id_to_set_info_map::cons
 								continue;
 							}
 							if (!no_cast) {
-								if (ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
+								if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoMagic)) {
 									act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 										false, ch, GET_EQ(ch, pos), nullptr, kToRoom);
 									act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
@@ -902,7 +902,7 @@ unsigned int activate_stuff(CharData *ch, ObjData *obj, id_to_set_info_map::cons
 							continue;
 						}
 						if (!no_cast) {
-							if (ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
+							if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoMagic)) {
 								act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 									false, ch, obj, nullptr, kToRoom);
 								act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
@@ -1087,7 +1087,7 @@ void equip_char(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip
 				}
 
 				if (!no_cast) {
-					if (ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
+					if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoMagic)) {
 						act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 							false, ch, obj, nullptr, kToRoom);
 						act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
@@ -1481,7 +1481,7 @@ bool obj_to_room(ObjData *object, RoomRnum room) {
 		object->set_in_room(room);
 		object->set_carried_by(nullptr);
 		object->set_worn_by(nullptr);
-		if (ROOM_FLAGGED(room, ROOM_NOITEM)) {
+		if (ROOM_FLAGGED(room, ERoomFlag::kNoItem)) {
 			object->set_extra_flag(EObjFlag::kDecay);
 		}
 
@@ -1491,7 +1491,7 @@ bool obj_to_room(ObjData *object, RoomRnum room) {
 			object->set_destroyer(room_nodestroy_timer);
 		} else if (GET_OBJ_TYPE(object) == EObjType::ITEM_MONEY) {
 			object->set_destroyer(money_destroy_timer);
-		} else if (ROOM_FLAGGED(room, ROOM_DEATH)) {
+		} else if (ROOM_FLAGGED(room, ERoomFlag::kDeathTrap)) {
 			object->set_destroyer(death_destroy_timer);
 		} else {
 			object->set_destroyer(room_destroy_timer);

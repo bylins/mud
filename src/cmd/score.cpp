@@ -332,13 +332,13 @@ void PrintRentableInfo(CharData *ch, std::ostringstream &out) {
 		} else {
 			out << rent_time << " " << GetDeclensionInNumber(rent_time, EWhat::kSec) << "." << KNRM << std::endl;
 		}
-	} else if ((ch->in_room != kNowhere) && ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) && !PLR_FLAGGED(ch, EPlrFlag::kKiller)) {
+	} else if ((ch->in_room != kNowhere) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kPeaceful) && !PLR_FLAGGED(ch, EPlrFlag::kKiller)) {
 		out << InfoStrPrefix(ch) << KIGRN << "Тут вы чувствуете себя в безопасности." << KNRM << std::endl;
 	}
 }
 // \todo Сделать авторазмещение в комнате-кузнице горна и убрать эту функцию.
 void PrinForgeInfo(CharData *ch, std::ostringstream &out) {
-	if (ROOM_FLAGGED(ch->in_room, ROOM_SMITH)
+	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kForge)
 		&& (ch->get_skill(ESkill::kJewelry)
 		|| ch->get_skill(ESkill::kRepair)
 		|| ch->get_skill(ESkill::kReforging))) {
@@ -848,12 +848,12 @@ void PrintScoreBase(CharData *ch) {
 				"%sВ связи с боевыми действиями вы не можете уйти на постой.%s\r\n",
 				CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
-	} else if ((ch->in_room != kNowhere) && ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) && !PLR_FLAGGED(ch, EPlrFlag::kKiller)) {
+	} else if ((ch->in_room != kNowhere) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kPeaceful) && !PLR_FLAGGED(ch, EPlrFlag::kKiller)) {
 		sprintf(buf, "%sТут вы чувствуете себя в безопасности.%s\r\n", CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 	}
 
-	if (ROOM_FLAGGED(ch->in_room, ROOM_SMITH)
+	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kForge)
 		&& (ch->get_skill(ESkill::kJewelry) || ch->get_skill(ESkill::kRepair) || ch->get_skill(ESkill::kReforging))) {
 		sprintf(buf,
 				"%sЭто место отлично подходит для занятий кузнечным делом.%s\r\n",
@@ -960,7 +960,7 @@ void PrintScoreBase(CharData *ch) {
 			send_to_char(buf, ch);
 		}
 	}
-	if (ch->get_nogata() > 0 && ROOM_FLAGGED(ch->in_room, ROOM_ARENA_DOMINATION)) {
+	if (ch->get_nogata() > 0 && ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
 		int value = ch->get_nogata();
 		if (ch->get_nogata() == 1) {
 			sprintf(buf, "У вас в наличии есть одна жалкая ногата.\r\n");

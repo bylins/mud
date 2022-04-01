@@ -854,7 +854,7 @@ void InitSpells() {
 			  EPosition::kStand, kTarCharRoom | kTarFightSelf, false,
 			  kMagAffects | kNpcAffectNpc, 0, kTypeEarth);
 
-//166 - SPELL_ROOM_LIGHT
+//166 - SPELL_ERoomFlag::kAlwaysLit
 	initSpell(kSpellRoomLight, "осветить комнату", "room light",
 			  10, 10, 1, EPosition::kStand, kTarRoomThis, false,
 			  kMagRoom, 0, kTypeLight);

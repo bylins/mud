@@ -159,13 +159,13 @@ void update_die_counts(CharData *ch, CharData *killer, int dec_exp) {
 			rkiller = nullptr;
 		}
 	}
-	if (ROOM_FLAGGED(ch->in_room, ROOM_ARENA_DOMINATION)) {
+	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
 		ch->player_specials->saved.rip_arena_dom++;
 	}
 	if (!ch->is_npc()) {
 		if (rkiller && rkiller != ch) {
-			if (ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) {
-				if (ROOM_FLAGGED(ch->in_room, ROOM_ARENA_DOMINATION)) {
+			if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)) {
+				if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
 					rkiller->player_specials->saved.kill_arena_dom = rkiller->player_specials->saved.kill_arena_dom + 1;
 				}
 				else {
@@ -193,9 +193,9 @@ void update_die_counts(CharData *ch, CharData *killer, int dec_exp) {
 				}
 			}
 		} else if ((!rkiller || (rkiller && rkiller == ch)) &&
-			(ROOM_FLAGGED(ch->in_room, ROOM_DEATH) ||
-				ROOM_FLAGGED(ch->in_room, ROOM_SLOWDEATH) ||
-				ROOM_FLAGGED(ch->in_room, ROOM_ICEDEATH))) {
+			(ROOM_FLAGGED(ch->in_room, ERoomFlag::kDeathTrap) ||
+				ROOM_FLAGGED(ch->in_room, ERoomFlag::kSlowDeathTrap) ||
+				ROOM_FLAGGED(ch->in_room, ERoomFlag::kIceTrap))) {
 			//Рип в дт
 			GET_RIP_DT(ch) = GET_RIP_DT(ch) + 1;
 			GET_RIP_DTTHIS(ch) = GET_RIP_DTTHIS(ch) + 1;
@@ -375,7 +375,7 @@ void die(CharData *ch, CharData *killer) {
 	}
 
 	if (ch->is_npc()
-		|| !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
+		|| !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)
 		|| NORENTABLE(ch)) {
 		if (!(ch->is_npc()
 			|| IS_IMMORTAL(ch)
@@ -648,7 +648,7 @@ void real_kill(CharData *ch, CharData *killer) {
 
 	// Перенес вызов pk_revenge_action из die, чтобы на момент создания
 	// трупа месть на убийцу была еще жива
-	if (ch->is_npc() || !ROOM_FLAGGED(ch->in_room, ROOM_ARENA) || NORENTABLE(ch)) {
+	if (ch->is_npc() || !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena) || NORENTABLE(ch)) {
 		pk_revenge_action(killer, ch);
 	}
 
@@ -750,7 +750,7 @@ void raw_kill(CharData *ch, CharData *killer) {
 	if (ch->in_room != kNowhere) {
 		if (killer && (!killer->is_npc() || IS_CHARMICE(killer)) && !ch->is_npc())
  			kill_pc_wtrigger(killer, ch);
-		if (!ch->is_npc() && (!NORENTABLE(ch) && ROOM_FLAGGED(ch->in_room, ROOM_ARENA))) {
+		if (!ch->is_npc() && (!NORENTABLE(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena))) {
 			//Если убили на арене
 			arena_kill(ch, killer);
 		} else if (change_rep(ch, killer)) {
@@ -930,11 +930,11 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 		&& !IS_IMMORTAL(ch)
 		&& victim->is_npc()
 		&& !IS_CHARMICE(victim)
-		&& !ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA)) {
+		&& !ROOM_FLAGGED(IN_ROOM(victim), ERoomFlag::kArena)) {
 		mob_stat::AddMob(victim, members);
 		EXTRA_FLAGS(victim).set(EXTRA_GRP_KILL_COUNT);
 	} else if (ch->is_npc() && !victim->is_npc()
-		&& !ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA)) {
+		&& !ROOM_FLAGGED(IN_ROOM(victim), ERoomFlag::kArena)) {
 		mob_stat::AddMob(ch, 0);
 	}
 }

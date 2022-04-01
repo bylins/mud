@@ -69,7 +69,7 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	}
 
 	if (!IS_IMMORTAL(ch)) {
-		if (!ROOM_FLAGGED(ch->in_room, ROOM_SMITH)) {
+		if (!ROOM_FLAGGED(ch->in_room, ERoomFlag::kForge)) {
 			send_to_char("Вам нужно попасть в кузницу для этого.\r\n", ch);
 			return;
 		}

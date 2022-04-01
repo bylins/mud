@@ -478,7 +478,7 @@ void message_auction(char *message, CharData *ch) {
 			i->character &&
 			!PRF_FLAGGED(i->character, EPrf::kNoAuction) &&
 			!PLR_FLAGGED(i->character, EPlrFlag::kWriting) &&
-			!ROOM_FLAGGED(IN_ROOM(i->character), ROOM_SOUNDPROOF) && GET_POS(i->character) > EPosition::kSleep) {
+			!ROOM_FLAGGED(IN_ROOM(i->character), ERoomFlag::kSoundproof) && GET_POS(i->character) > EPosition::kSleep) {
 			if (COLOR_LEV(i->character) >= C_NRM) {
 				send_to_char("&Y&q", i->character.get());
 			}
@@ -705,7 +705,7 @@ void sell_auction(int lot) {
 		return;
 
 	if (ch->in_room != IN_ROOM(tch)
-		|| !ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
+		|| !ROOM_FLAGGED(ch->in_room, ERoomFlag::kPeaceful)) {
 		if (GET_LOT(lot)->tact >= kMaxAuctionTact) {
 			sprintf(tmpbuff,
 					"Аукцион : лот %d(%s) снят с аукциона распорядителем торгов.",

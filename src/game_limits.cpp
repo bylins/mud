@@ -1035,7 +1035,7 @@ inline bool NO_DESTROY(const ObjData *obj) {
 		|| GET_OBJ_TYPE(obj) == EObjType::ITEM_FOUNTAIN
 		|| obj->get_in_room() == kNowhere
 		|| (obj->has_flag(EObjFlag::kNodecay)
-			&& !ROOM_FLAGGED(obj->get_in_room(), ROOM_DEATH)));
+			&& !ROOM_FLAGGED(obj->get_in_room(), ERoomFlag::kDeathTrap)));
 }
 
 inline bool NO_TIMER(const ObjData *obj) {
@@ -1119,7 +1119,7 @@ void room_point_update() {
 		}
 		if (world[count]->ices)
 			if (!--world[count]->ices) {
-				world[count]->unset_flag(ROOM_ICEDEATH);
+				world[count]->unset_flag(ERoomFlag::kIceTrap);
 				deathtrap::remove(world[count]);
 			}
 

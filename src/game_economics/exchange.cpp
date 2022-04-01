@@ -1272,7 +1272,7 @@ void message_exchange(char *message, CharData *ch, ExchangeItem *j) {
 			&& i->character
 			&& !PRF_FLAGGED(i->character, EPrf::kNoExchange)
 			&& !PLR_FLAGGED(i->character, EPlrFlag::kWriting)
-			&& !ROOM_FLAGGED(IN_ROOM(i->character), ROOM_SOUNDPROOF)
+			&& !ROOM_FLAGGED(IN_ROOM(i->character), ERoomFlag::kSoundproof)
 			&& GET_POS(i->character) > EPosition::kSleep) {
 			if (!PRF_FLAGGED(i->character, EPrf::kNoIngrMode)
 				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == EObjType::ITEM_INGREDIENT

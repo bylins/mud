@@ -838,7 +838,7 @@ bool Clan::MayEnter(CharData *ch, RoomRnum room, bool mode) {
 	const auto clan = GetClanByRoom(room);
 	if (!clan
 		|| IS_GRGOD(ch)
-		|| !ROOM_FLAGGED(room, ROOM_HOUSE)
+		|| !ROOM_FLAGGED(room, ERoomFlag::kHouse)
 		|| clan->entranceMode
 		|| PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
 		return true;

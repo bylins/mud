@@ -273,11 +273,11 @@ bool MayCastInNomagic(CharData *caster, int spellnum) {
 bool MayCastHere(CharData *caster, CharData *victim, int spellnum) {
 	int ignore;
 
-	if (IS_GRGOD(caster) || !ROOM_FLAGGED(IN_ROOM(caster), ROOM_PEACEFUL)) {
+	if (IS_GRGOD(caster) || !ROOM_FLAGGED(IN_ROOM(caster), ERoomFlag::kPeaceful)) {
 		return true;
 	}
 
-	if (ROOM_FLAGGED(IN_ROOM(caster), ROOM_NOBATTLE) && SpINFO.violent) {
+	if (ROOM_FLAGGED(IN_ROOM(caster), ERoomFlag::kNoBattle) && SpINFO.violent) {
 		return false;
 	}
 
@@ -340,7 +340,7 @@ int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict
 //		return 0;
 //	}
 
-	if (ROOM_FLAGGED(IN_ROOM(caster), ROOM_NOMAGIC) && !MayCastInNomagic(caster, spellnum)) {
+	if (ROOM_FLAGGED(IN_ROOM(caster), ERoomFlag::kNoMagic) && !MayCastInNomagic(caster, spellnum)) {
 		send_to_char("Ваша магия потерпела неудачу и развеялась по воздуху.\r\n", caster);
 		act("Магия $n1 потерпела неудачу и развеялась по воздуху.",
 			false, caster, nullptr, nullptr, kToRoom | kToArenaListen);
@@ -668,10 +668,10 @@ int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, int spellnum
 	switch (saving) {
 		case ESaving::kStability:
 			prob = wis_bonus(GET_REAL_WIS(ch), WIS_FAILS) + GET_CAST_SUCCESS(ch);
-			if ((IS_MAGE(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ROOM_MAGE))
-				|| (IS_SORCERER(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ROOM_CLERIC))
-				|| (IS_PALADINE(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ROOM_PALADINE))
-				|| (IS_MERCHANT(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ROOM_MERCHANT))) {
+			if ((IS_MAGE(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ERoomFlag::kForMages))
+				|| (IS_SORCERER(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ERoomFlag::kForSorcerers))
+				|| (IS_PALADINE(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ERoomFlag::kForPaladines))
+				|| (IS_MERCHANT(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ERoomFlag::kForMerchants))) {
 				prob += 10;
 			}
 			break;

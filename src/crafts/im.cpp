@@ -896,7 +896,7 @@ void im_reset_room(RoomData *room, int level, int type) {
 	}
 
 	if (!zone_types[type].ingr_qty
-		|| room->get_flag(ROOM_DEATH)) {
+		|| room->get_flag(ERoomFlag::kDeathTrap)) {
 		return;
 	}
 	for (i = 0; i < zone_types[type].ingr_qty; i++) {

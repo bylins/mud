@@ -501,7 +501,7 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 
 	//Polud привязываем загрузку ингров к расе (типу) моба
 	if (ch->is_npc() && GET_RACE(ch) > ENpcRace::kBasic && !NPC_FLAGGED(ch, ENpcFlag::kNoIngrDrop)
-		&& !ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)) {
+		&& !ROOM_FLAGGED(ch->in_room, ERoomFlag::kHouse)) {
 		ObjData *ingr = try_make_ingr(ch, 1000);
 		if (ingr) {
 			obj_to_obj(ingr, corpse.get());
@@ -514,7 +514,7 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 
 	// если чармис убит палачом или на арене(и владелец не в бд) то труп попадает не в клетку а в инвентарь к владельцу чармиса
 	if (IS_CHARMICE(ch) && !MOB_FLAGGED(ch, EMobFlag::kCorpse)
-		&& ((killer && PRF_FLAGGED(killer, EPrf::kExecutor)) || (ROOM_FLAGGED(ch->in_room, ROOM_ARENA) && !NORENTABLE(ch->get_master())))) {
+		&& ((killer && PRF_FLAGGED(killer, EPrf::kExecutor)) || (ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena) && !NORENTABLE(ch->get_master())))) {
 		if (ch->has_master()) {
 				obj_to_char(corpse.get(), ch->get_master());
 		}

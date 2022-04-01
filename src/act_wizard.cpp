@@ -1489,11 +1489,11 @@ RoomRnum find_target_room(CharData *ch, char *rawroomstr, int trig) {
 
 	// a location has been found -- if you're < GRGOD, check restrictions.
 	if (!IS_GRGOD(ch) && !PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
-		if (ROOM_FLAGGED(location, ROOM_GODROOM) && GetRealLevel(ch) < kLvlGreatGod) {
+		if (ROOM_FLAGGED(location, ERoomFlag::kGodsRoom) && GetRealLevel(ch) < kLvlGreatGod) {
 			send_to_char("Вы не столь божественны, чтобы получить доступ в эту комнату!\r\n", ch);
 			return (kNowhere);
 		}
-		if (ROOM_FLAGGED(location, ROOM_NOTELEPORTIN) && trig != 1) {
+		if (ROOM_FLAGGED(location, ERoomFlag::kNoTeleportIn) && trig != 1) {
 			send_to_char("В комнату не телепортировать!\r\n", ch);
 			return (kNowhere);
 		}
@@ -1763,7 +1763,7 @@ void do_switch(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			&& !visible_character->is_npc()) {
 			send_to_char("Вы не столь могущественны, чтобы контроолировать тело игрока.\r\n", ch);
 		} else if (GetRealLevel(ch) < kLvlGreatGod
-			&& ROOM_FLAGGED(IN_ROOM(visible_character), ROOM_GODROOM)) {
+			&& ROOM_FLAGGED(IN_ROOM(visible_character), ERoomFlag::kGodsRoom)) {
 			send_to_char("Вы не можете находиться в той комнате.\r\n", ch);
 		} else if (!IS_GRGOD(ch)
 			&& !Clan::MayEnter(ch, IN_ROOM(visible_character), HCE_PORTAL)) {
@@ -2534,7 +2534,7 @@ void do_restore(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		// имм с привилегией arena может ресторить только чаров, находящихся с ним на этой же арене
 		// плюс исключается ситуация, когда они в одной зоне, но чар не в клетке арены
 		if (privilege::CheckFlag(ch, privilege::kArenaMaster)) {
-			if (!ROOM_FLAGGED(vict->in_room, ROOM_ARENA) || world[ch->in_room]->zone_rn != world[vict->in_room]->zone_rn) {
+			if (!ROOM_FLAGGED(vict->in_room, ERoomFlag::kArena) || world[ch->in_room]->zone_rn != world[vict->in_room]->zone_rn) {
 				send_to_char("Не положено...\r\n", ch);
 				return;
 			}
@@ -3607,13 +3607,13 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		case 6: strcpy(buf, "Смертельных выходов\r\n" "-------------------\r\n");
 			for (i = FIRST_ROOM, j = 0; i <= top_of_world; i++)
-				if (ROOM_FLAGGED(i, ROOM_DEATH))
+				if (ROOM_FLAGGED(i, ERoomFlag::kDeathTrap))
 					sprintf(buf + strlen(buf), "%2d: [%5d] %s\r\n", ++j, GET_ROOM_VNUM(i), world[i]->name);
 			page_string(ch->desc, buf, true);
 			break;
 		case 7: strcpy(buf, "Комнаты для богов\r\n" "-----------------\r\n");
 			for (i = FIRST_ROOM, j = 0; i <= top_of_world; i++)
-				if (ROOM_FLAGGED(i, ROOM_GODROOM))
+				if (ROOM_FLAGGED(i, ERoomFlag::kGodsRoom))
 					sprintf(buf + strlen(buf), "%2d: [%5d] %s\r\n", ++j, GET_ROOM_VNUM(i), world[i]->name);
 			page_string(ch->desc, buf, true);
 			break;

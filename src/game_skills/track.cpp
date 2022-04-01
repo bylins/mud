@@ -152,7 +152,7 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			*name = '\0';
 	}
 
-	if (calc_track < number(1, 40) || !*name || ROOM_FLAGGED(ch->in_room, ROOM_NOTRACK)) {
+	if (calc_track < number(1, 40) || !*name || ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoTrack)) {
 		send_to_char("Вы не видите похожих следов.\r\n", ch);
 		return;
 	}

@@ -203,12 +203,12 @@ int GetTeleportTargetRoom(CharData *ch, int rnum_start, int rnum_stop) {
 		r_array[j] = r_array[n - 1];
 
 		if (SECT(fnd_room) != kSectSecret &&
-			!ROOM_FLAGGED(fnd_room, ROOM_DEATH) &&
-			!ROOM_FLAGGED(fnd_room, ROOM_TUNNEL) &&
-			!ROOM_FLAGGED(fnd_room, ROOM_NOTELEPORTIN) &&
-			!ROOM_FLAGGED(fnd_room, ROOM_SLOWDEATH) &&
-			!ROOM_FLAGGED(fnd_room, ROOM_ICEDEATH) &&
-			(!ROOM_FLAGGED(fnd_room, ROOM_GODROOM) || IS_IMMORTAL(ch)) &&
+			!ROOM_FLAGGED(fnd_room, ERoomFlag::kDeathTrap) &&
+			!ROOM_FLAGGED(fnd_room, ERoomFlag::kTunnel) &&
+			!ROOM_FLAGGED(fnd_room, ERoomFlag::kNoTeleportIn) &&
+			!ROOM_FLAGGED(fnd_room, ERoomFlag::kSlowDeathTrap) &&
+			!ROOM_FLAGGED(fnd_room, ERoomFlag::kIceTrap) &&
+			(!ROOM_FLAGGED(fnd_room, ERoomFlag::kGodsRoom) || IS_IMMORTAL(ch)) &&
 			Clan::MayEnter(ch, fnd_room, HCE_PORTAL))
 			break;
 	}
@@ -228,7 +228,7 @@ void SpellRecall(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 	}
 
 	if (!IS_GOD(ch)
-		&& (ROOM_FLAGGED(IN_ROOM(victim), ROOM_NOTELEPORTOUT) || AFF_FLAGGED(victim, EAffect::kNoTeleport))) {
+		&& (ROOM_FLAGGED(IN_ROOM(victim), ERoomFlag::kNoTeleportOut) || AFF_FLAGGED(victim, EAffect::kNoTeleport))) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
@@ -293,7 +293,7 @@ void SpellTeleport(int /* level */, CharData *ch, CharData */*victim*/, ObjData 
 	RoomRnum in_room = ch->in_room, fnd_room = kNowhere;
 	RoomRnum rnum_start, rnum_stop;
 
-	if (!IS_GOD(ch) && (ROOM_FLAGGED(in_room, ROOM_NOTELEPORTOUT) || AFF_FLAGGED(ch, EAffect::kNoTeleport))) {
+	if (!IS_GOD(ch) && (ROOM_FLAGGED(in_room, ERoomFlag::kNoTeleportOut) || AFF_FLAGGED(ch, EAffect::kNoTeleport))) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
@@ -330,7 +330,7 @@ void SpellRelocate(int/* level*/, CharData *ch, CharData *victim, ObjData* /* ob
 		return;
 
 	if (!IS_GOD(ch)) {
-		if (ROOM_FLAGGED(ch->in_room, ROOM_NOTELEPORTOUT)) {
+		if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoTeleportOut)) {
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
@@ -361,11 +361,11 @@ void SpellRelocate(int/* level*/, CharData *ch, CharData *victim, ObjData* /* ob
 
 	if (!IS_GOD(ch) &&
 		(SECT(fnd_room) == kSectSecret ||
-			ROOM_FLAGGED(fnd_room, ROOM_DEATH) ||
-			ROOM_FLAGGED(fnd_room, ROOM_SLOWDEATH) ||
-			ROOM_FLAGGED(fnd_room, ROOM_TUNNEL) ||
-			ROOM_FLAGGED(fnd_room, ROOM_NORELOCATEIN) ||
-			ROOM_FLAGGED(fnd_room, ROOM_ICEDEATH) || (ROOM_FLAGGED(fnd_room, ROOM_GODROOM) && !IS_IMMORTAL(ch)))) {
+			ROOM_FLAGGED(fnd_room, ERoomFlag::kDeathTrap) ||
+			ROOM_FLAGGED(fnd_room, ERoomFlag::kSlowDeathTrap) ||
+			ROOM_FLAGGED(fnd_room, ERoomFlag::kTunnel) ||
+			ROOM_FLAGGED(fnd_room, ERoomFlag::kNoRelocateIn) ||
+			ROOM_FLAGGED(fnd_room, ERoomFlag::kIceTrap) || (ROOM_FLAGGED(fnd_room, ERoomFlag::kGodsRoom) && !IS_IMMORTAL(ch)))) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
@@ -412,9 +412,9 @@ void SpellPortal(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 		return;
 	}
 
-	if (!IS_GOD(ch) && (SECT(fnd_room) == kSectSecret || ROOM_FLAGGED(fnd_room, ROOM_DEATH) ||
-		ROOM_FLAGGED(fnd_room, ROOM_SLOWDEATH) || ROOM_FLAGGED(fnd_room, ROOM_ICEDEATH) ||
-		ROOM_FLAGGED(fnd_room, ROOM_TUNNEL) || ROOM_FLAGGED(fnd_room, ROOM_GODROOM))) {
+	if (!IS_GOD(ch) && (SECT(fnd_room) == kSectSecret || ROOM_FLAGGED(fnd_room, ERoomFlag::kDeathTrap) ||
+		ROOM_FLAGGED(fnd_room, ERoomFlag::kSlowDeathTrap) || ROOM_FLAGGED(fnd_room, ERoomFlag::kIceTrap) ||
+		ROOM_FLAGGED(fnd_room, ERoomFlag::kTunnel) || ROOM_FLAGGED(fnd_room, ERoomFlag::kGodsRoom))) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
@@ -467,7 +467,7 @@ void SpellPortal(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 		CheckAutoNosummon(victim);
 
 		// если пенту ставит имм с привилегией arena (и находясь на арене), то пента получается односторонняя
-		if (privilege::CheckFlag(ch, privilege::kArenaMaster) && ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) {
+		if (privilege::CheckFlag(ch, privilege::kArenaMaster) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)) {
 			return;
 		}
 
@@ -554,15 +554,15 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 			return;
 		}
 
-		if (ROOM_FLAGGED(ch_room, ROOM_NOSUMMON)
-			|| ROOM_FLAGGED(ch_room, ROOM_DEATH)
-			|| ROOM_FLAGGED(ch_room, ROOM_SLOWDEATH)
-			|| ROOM_FLAGGED(ch_room, ROOM_TUNNEL)
-			|| ROOM_FLAGGED(ch_room, ROOM_NOBATTLE)
-			|| ROOM_FLAGGED(ch_room, ROOM_GODROOM)			
+		if (ROOM_FLAGGED(ch_room, ERoomFlag::kNoSummonOut)
+			|| ROOM_FLAGGED(ch_room, ERoomFlag::kDeathTrap)
+			|| ROOM_FLAGGED(ch_room, ERoomFlag::kSlowDeathTrap)
+			|| ROOM_FLAGGED(ch_room, ERoomFlag::kTunnel)
+			|| ROOM_FLAGGED(ch_room, ERoomFlag::kNoBattle)
+			|| ROOM_FLAGGED(ch_room, ERoomFlag::kGodsRoom)
 			|| SECT(ch->in_room) == kSectSecret
 			|| (!same_group(ch, victim)
-				&& (ROOM_FLAGGED(ch_room, ROOM_PEACEFUL) || ROOM_FLAGGED(ch_room, ROOM_ARENA)))) {
+				&& (ROOM_FLAGGED(ch_room, ERoomFlag::kPeaceful) || ROOM_FLAGGED(ch_room, ERoomFlag::kArena)))) {
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
@@ -573,17 +573,17 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 		}
 
 		if (!ch->is_npc()) {
-			if (ROOM_FLAGGED(vic_room, ROOM_NOSUMMON)
-				|| ROOM_FLAGGED(vic_room, ROOM_GODROOM)
+			if (ROOM_FLAGGED(vic_room, ERoomFlag::kNoSummonOut)
+				|| ROOM_FLAGGED(vic_room, ERoomFlag::kGodsRoom)
 				|| !Clan::MayEnter(ch, vic_room, HCE_PORTAL)
 				|| AFF_FLAGGED(victim, EAffect::kNoTeleport)
 				|| (!same_group(ch, victim)
-					&& (ROOM_FLAGGED(vic_room, ROOM_TUNNEL) || ROOM_FLAGGED(vic_room, ROOM_ARENA)))) {
+					&& (ROOM_FLAGGED(vic_room, ERoomFlag::kTunnel) || ROOM_FLAGGED(vic_room, ERoomFlag::kArena)))) {
 				send_to_char(SUMMON_FAIL, ch);
 				return;
 			}
 		} else {
-			if (ROOM_FLAGGED(vic_room, ROOM_NOSUMMON) || AFF_FLAGGED(victim, EAffect::kNoTeleport)) {
+			if (ROOM_FLAGGED(vic_room, ERoomFlag::kNoSummonOut) || AFF_FLAGGED(victim, EAffect::kNoTeleport)) {
 				send_to_char(SUMMON_FAIL, ch);
 				return;
 			}
@@ -3109,7 +3109,7 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kSpellMagicBattle] = "SPELL_MAGICBATTLE";
 	ESpell_name_by_value[ESpell::kSpellBerserk] = "SPELL_BERSERK";
 	ESpell_name_by_value[ESpell::kSpellStoneBones] = "SPELL_STONEBONES";
-	ESpell_name_by_value[ESpell::kSpellRoomLight] = "SPELL_ROOM_LIGHT";
+	ESpell_name_by_value[ESpell::kSpellRoomLight] = "SPELL_ERoomFlag::kAlwaysLit";
 	ESpell_name_by_value[ESpell::kSpellPoosinedFog] = "SPELL_POISONED_FOG";
 	ESpell_name_by_value[ESpell::kSpellThunderstorm] = "SPELL_THUNDERSTORM";
 	ESpell_name_by_value[ESpell::kSpellLightWalk] = "SPELL_LIGHT_WALK";

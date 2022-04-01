@@ -488,7 +488,7 @@ void list_spells(CharData *ch, CharData *vict, int all_spells) {
 	for (i = 1; i <= kSpellCount; i++) {
 		if (!GET_SPELL_TYPE(ch, i) && !all_spells)
 			continue;
-		if (ROOM_FLAGGED(ch->in_room, ROOM_ARENA_DOMINATION)) {
+		if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
 			if (!IS_SET(GET_SPELL_TYPE(ch, i), kSpellTemp) && !all_spells)
 				continue;
 		}
@@ -2225,7 +2225,7 @@ int do_npc_steal(CharData *ch, CharData *victim) {
 	if (!NPC_FLAGGED(ch, ENpcFlag::kStealing))
 		return (false);
 
-	if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL))
+	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kPeaceful))
 		return (false);
 
 	if (victim->is_npc() || IS_SHOPKEEPER(ch) || victim->get_fighting())

@@ -39,9 +39,9 @@ struct bfs_queue_struct {
 #define EDGE_WORLD  2
 
 // Utility macros
-#define MARK(room)    (world[room]->set_flag(ROOM_BFS_MARK))
-#define UNMARK(room)    (world[room]->unset_flag(ROOM_BFS_MARK))
-#define IS_MARKED(room)    (ROOM_FLAGGED(room, ROOM_BFS_MARK))
+#define MARK(room)    (world[room]->set_flag(ERoomFlag::kBfsMark))
+#define UNMARK(room)    (world[room]->unset_flag(ERoomFlag::kBfsMark))
+#define IS_MARKED(room)    (ROOM_FLAGGED(room, ERoomFlag::kBfsMark))
 #define TOROOM(x, y)    (world[(x)]->dir_option[(y)]->to_room())
 #define IS_CLOSED(x, y)    (EXIT_FLAGGED(world[(x)]->dir_option[(y)], EX_CLOSED))
 #define IS_LOCKED(x, y)    (EXIT_FLAGGED(world[(x)]->dir_option[(y)], EX_LOCKED))
@@ -60,7 +60,7 @@ int VALID_EDGE(RoomRnum x, int y, int edge_range, bool through_locked_doors, boo
 	if (!through_locked_doors && IS_LOCKED(x, y))
 		return 0;
 
-	const bool respect_notrack = through_notrack ? false : ROOM_FLAGGED(TOROOM(x, y), ROOM_NOTRACK);
+	const bool respect_notrack = through_notrack ? false : ROOM_FLAGGED(TOROOM(x, y), ERoomFlag::kNoTrack);
 	if (respect_notrack || IS_MARKED(TOROOM(x, y)))
 		return 0;
 

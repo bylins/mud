@@ -139,7 +139,7 @@ void do_quit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		send_to_char("Вас пригласила к себе владелица косы...\r\n", ch);
 		die(ch, nullptr);
 	}
-	else if (ROOM_FLAGGED(ch->in_room, ROOM_ARENA_DOMINATION)) {
+	else if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
 		if (GET_SEX(ch) == ESex::kMale)
 			send_to_char("Сдался салага? Не выйдет...", ch);
 		else
@@ -491,7 +491,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 		return;
 	}
 
-	if (!WAITLESS(ch) && ROOM_FLAGGED(IN_ROOM(vict), ROOM_ARENA)) {
+	if (!WAITLESS(ch) && ROOM_FLAGGED(IN_ROOM(vict), ERoomFlag::kArena)) {
 		send_to_char("Воровство при поединке недопустимо.\r\n", ch);
 		return;
 	}
@@ -674,11 +674,11 @@ void do_steal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Попробуйте набрать \"бросить <n> кун\".\r\n", ch);
 		return;
 	}
-	if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) && !(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike))) {
+	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kPeaceful) && !(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike))) {
 		send_to_char("Здесь слишком мирно. Вам не хочется нарушать сию благодать...\r\n", ch);
 		return;
 	}
-	if (ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)) {
+	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kHouse)) {
 		send_to_char("Воровать у своих? Это мерзко...\r\n", ch);
 		return;
 	}
@@ -2236,11 +2236,11 @@ void do_pray(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
-	if (subcmd == SCMD_DONATE && !ROOM_FLAGGED(ch->in_room, ROOM_POLY)) {
+	if (subcmd == SCMD_DONATE && !ROOM_FLAGGED(ch->in_room, ERoomFlag::kForPoly)) {
 		send_to_char("Найдите подходящее место для вашей жертвы.\r\n", ch);
 		return;
 	}
-	if (subcmd == SCMD_PRAY && !ROOM_FLAGGED(ch->in_room, ROOM_MONO)) {
+	if (subcmd == SCMD_PRAY && !ROOM_FLAGGED(ch->in_room, ERoomFlag::kForMono)) {
 		send_to_char("Это место не обладает необходимой святостью.\r\n", ch);
 		return;
 	}
@@ -2350,14 +2350,14 @@ void do_recall(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 	if (!IS_IMMORTAL(ch)
 		&& (SECT(ch->in_room) == kSectSecret
-			|| ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)
-			|| ROOM_FLAGGED(ch->in_room, ROOM_DEATH)
-			|| ROOM_FLAGGED(ch->in_room, ROOM_SLOWDEATH)
-			|| ROOM_FLAGGED(ch->in_room, ROOM_TUNNEL)
-			|| ROOM_FLAGGED(ch->in_room, ROOM_NORELOCATEIN)
-			|| ROOM_FLAGGED(ch->in_room, ROOM_NOTELEPORTIN)
-			|| ROOM_FLAGGED(ch->in_room, ROOM_ICEDEATH)
-			|| ROOM_FLAGGED(ch->in_room, ROOM_GODROOM)
+			|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoMagic)
+			|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kDeathTrap)
+			|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kSlowDeathTrap)
+			|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kTunnel)
+			|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoRelocateIn)
+			|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoTeleportIn)
+			|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kIceTrap)
+			|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kGodsRoom)
 			|| !Clan::MayEnter(ch, ch->in_room, HCE_PORTAL)
 			|| !Clan::MayEnter(ch, rent_room, HCE_PORTAL))) {
 		send_to_char("У вас не получилось вернуться!\r\n", ch);
@@ -2410,7 +2410,7 @@ void do_beep(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("\007\007Вы вызвали себя!\r\n", ch);
 	else if (PRF_FLAGGED(ch, EPrf::kNoTell))
 		send_to_char("Вы не можете пищать в режиме обращения.\r\n", ch);
-	else if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF))
+	else if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kSoundproof))
 		send_to_char("Стены заглушили ваш писк.\r\n", ch);
 	else if (!vict->is_npc() && !vict->desc)    // linkless
 		act("$N потерял связь.", false, ch, nullptr, vict, kToChar | kToSleep);
@@ -2501,10 +2501,10 @@ bool is_dark(RoomRnum room) {
 		&& ((weather_info.sunlight == kSunSet) || (weather_info.sunlight == kSunDark)))
 		coef -= 1.0;
 	// если на комнате флаг темно
-	if (ROOM_FLAGGED(room, ROOM_DARK))
+	if (ROOM_FLAGGED(room, ERoomFlag::kDark))
 		coef -= 1.0;
 
-	if (ROOM_FLAGGED(room, ROOM_LIGHT))
+	if (ROOM_FLAGGED(room, ERoomFlag::kAlwaysLit))
 		coef += 200.0;
 
 	// проверка на костер

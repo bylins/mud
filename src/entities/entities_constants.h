@@ -464,53 +464,55 @@ enum EDirection {
  * Room flags: used in room_data.room_flags
  * WARNING: In the world files, NEVER set the bits marked "R" ("Reserved")
  */
-constexpr Bitvector ROOM_DARK = 1 << 0;
-constexpr Bitvector ROOM_DEATH =  1 << 1;    // Death trap      //
-constexpr Bitvector ROOM_NOMOB = 1 << 2;
-constexpr Bitvector ROOM_INDOORS = 1 << 3;
-constexpr Bitvector ROOM_PEACEFUL = 1 << 4;
-constexpr Bitvector ROOM_SOUNDPROOF = 1 << 5;
-constexpr Bitvector ROOM_NOTRACK = 1 << 6;
-constexpr Bitvector ROOM_NOMAGIC = 1 << 7;
-constexpr Bitvector ROOM_TUNNEL = 1 << 8;
-constexpr Bitvector ROOM_NOTELEPORTIN = 1 << 9;
-constexpr Bitvector ROOM_GODROOM = 1 << 10;    // kLevelGod+ only allowed //
-constexpr Bitvector ROOM_HOUSE = 1 << 11;    // (R) Room is a house  //
-constexpr Bitvector ROOM_HOUSE_CRASH = 1 << 12;    // (R) House needs saving   //
-constexpr Bitvector ROOM_ATRIUM = 1 << 13;    // (R) The door to a house //
-constexpr Bitvector ROOM_OLC = 1 << 14;    // (R) Modifyable/!compress   //
-constexpr Bitvector ROOM_BFS_MARK = 1 << 15;    // (R) breath-first srch mrk   //
-constexpr Bitvector ROOM_MAGE = 1 << 16;
-constexpr Bitvector ROOM_CLERIC = 1 << 17;
-constexpr Bitvector ROOM_THIEF = 1 << 18;
-constexpr Bitvector ROOM_WARRIOR = 1 << 19;
-constexpr Bitvector ROOM_ASSASINE = 1 << 20;
-constexpr Bitvector ROOM_GUARD = 1 << 21;
-constexpr Bitvector ROOM_PALADINE = 1 << 22;
-constexpr Bitvector ROOM_RANGER = 1 << 23;
-constexpr Bitvector ROOM_POLY = 1 << 24;
-constexpr Bitvector ROOM_MONO = 1 << 25;
-constexpr Bitvector ROOM_SMITH = 1 << 26;
-constexpr Bitvector ROOM_MERCHANT = 1 << 27;
-constexpr Bitvector ROOM_DRUID = 1 << 28;
-constexpr Bitvector ROOM_ARENA = 1 << 29;
+ enum ERoomFlag : Bitvector {
+	kDark = 1 << 0,
+	kDeathTrap =  1 << 1,    // Death trap      //
+	kNoEntryMob = 1 << 2,
+	kIndoors = 1 << 3,
+	kPeaceful = 1 << 4,
+	kSoundproof = 1 << 5,
+	kNoTrack = 1 << 6,
+	kNoMagic = 1 << 7,
+	kTunnel = 1 << 8,
+	kNoTeleportIn = 1 << 9,
+	kGodsRoom = 1 << 10,    // kLevelGod+ only allowed //
+	kHouse = 1 << 11,    // (R) Room is a house  //
+	kHouseCrash = 1 << 12,    // (R) House needs saving   //
+	kHouseEntry = 1 << 13,    // (R) The door to a house //
+	//kOlc = 1 << 14,    // Не используется //
+	kBfsMark = 1 << 15,    // (R) breath-first srch mrk   //
+	kForMages = 1 << 16,
+	kForSorcerers = 1 << 17,
+	kForThieves = 1 << 18,
+	kForWarriors = 1 << 19,
+	kForAssasines = 1 << 20,
+	kForGuards = 1 << 21,
+	kForPaladines = 1 << 22,
+	kForRangers = 1 << 23,
+	kForPoly = 1 << 24,
+	kForMono = 1 << 25,
+	kForge = 1 << 26,
+	kForMerchants = 1 << 27,
+	kForMaguses = 1 << 28,
+	kArena = 1 << 29,
 
-constexpr Bitvector ROOM_NOSUMMON = kIntOne | (1 << 0);
-constexpr Bitvector ROOM_NOTELEPORTOUT = kIntOne | (1 << 1);
-constexpr Bitvector ROOM_NOHORSE = kIntOne | (1 << 2);
-constexpr Bitvector ROOM_NOWEATHER = kIntOne | (1 << 3);
-constexpr Bitvector ROOM_SLOWDEATH = kIntOne | (1 << 4);
-constexpr Bitvector ROOM_ICEDEATH = kIntOne | (1 << 5);
-constexpr Bitvector ROOM_NORELOCATEIN = kIntOne | (1 << 6);
-constexpr Bitvector ROOM_ARENARECV = kIntOne | (1 << 7);  // комната в которой слышно сообщения арены
-constexpr Bitvector ROOM_ARENASEND = kIntOne | (1 << 8);   // комната из которой отправляются сообщения арены
-constexpr Bitvector ROOM_NOBATTLE = kIntOne | (1 << 9);
-constexpr Bitvector ROOM_QUEST = kIntOne | (1 << 10);
-constexpr Bitvector ROOM_LIGHT = kIntOne | (1 << 11);
-constexpr Bitvector ROOM_NOMAPPER = kIntOne | (1 << 12);  //нет внумов комнат
+	kNoSummonOut = kIntOne | (1 << 0),
+	kNoTeleportOut = kIntOne | (1 << 1),
+	kNohorse = kIntOne | (1 << 2),
+	kNoWeather = kIntOne | (1 << 3),
+	kSlowDeathTrap = kIntOne | (1 << 4),
+	kIceTrap = kIntOne | (1 << 5),
+	kNoRelocateIn = kIntOne | (1 << 6),
+	kTribune = kIntOne | (1 << 7),  // комната в которой слышно сообщения арены
+	kArenaSend = kIntOne | (1 << 8),   // комната из которой отправляются сообщения арены
+	kNoBattle = kIntOne | (1 << 9),
+	//ROOM_QUEST = kIntOne | (1 << 10),	// не используется //
+	kAlwaysLit = kIntOne | (1 << 11),
+	kMoMapper = kIntOne | (1 << 12),  //нет внумов комнат
 
-constexpr Bitvector ROOM_NOITEM = kIntTwo | (1 << 0);    // Передача вещей в комнате запрещена
-constexpr Bitvector ROOM_ARENA_DOMINATION = kIntTwo | (1 << 1); // комната арены доминирования
+	kNoItem = kIntTwo | (1 << 0),    // Передача вещей в комнате запрещена
+	kDominationArena = kIntTwo | (1 << 1) // комната арены доминирования
+ };
 
 /**
  * Exit info: used in room_data.dir_option.exit_info

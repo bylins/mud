@@ -433,7 +433,7 @@ void draw_room(CharData *ch, const RoomData *room, int cur_depth, int y, int x) 
 		if (ch->map_check_option(MAP_MODE_OBJS_CURR_ROOM)) {
 			draw_objs(ch, ch->in_room, y, x);
 		}
-	} else if (room->get_flag(ROOM_PEACEFUL)) {
+	} else if (room->get_flag(ERoomFlag::kPeaceful)) {
 		put_on_screen(y, x, SCREEN_PEACE, cur_depth);
 	}
 
@@ -493,7 +493,7 @@ void draw_room(CharData *ch, const RoomData *room, int cur_depth, int y, int x) 
 				}
 			}
 			// дт иммам и нубам с 0 мортов
-			if (next_room->get_flag(ROOM_DEATH)
+			if (next_room->get_flag(ERoomFlag::kDeathTrap)
 				&& (GET_REAL_REMORT(ch) <= 5
 					|| view_dt || IS_IMMORTAL(ch))) {
 				check_position_and_put_on_screen(next_y, next_x, SCREEN_DEATH_TRAP, cur_depth, i);
@@ -579,7 +579,7 @@ void draw_room(CharData *ch, const RoomData *room, int cur_depth, int y, int x) 
 
 // imm по дефолту = 0, если нет, то распечатанная карта засылается ему
 void print_map(CharData *ch, CharData *imm) {
-	if (ROOM_FLAGGED(ch->in_room, ROOM_NOMAPPER))
+	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kMoMapper))
 		return;
 	MAX_LINES = MAX_LINES_STANDART;
 	MAX_LENGTH = MAX_LENGTH_STANDART;

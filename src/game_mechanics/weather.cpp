@@ -342,7 +342,7 @@ void weather_change(void) {
 	// Change some values for world
 	for (i = FIRST_ROOM; i <= top_of_world; i++) {
 		raincast = snowcast = 0;
-		if (ROOM_FLAGGED(i, ROOM_NOWEATHER))
+		if (ROOM_FLAGGED(i, ERoomFlag::kNoWeather))
 			continue;
 		if (world[i]->weather.duration) {
 			calc_basic(world[i]->weather.weather_type, world[i]->weather.sky, &raincast, &snowcast);
@@ -846,7 +846,7 @@ int weather_spell_modifier(CharData *ch, int spellnum, int type, int value) {
 		ch->in_room == kNowhere ||
 		SECT(ch->in_room) == kSectInside ||
 		SECT(ch->in_room) == kSectCity ||
-		ROOM_FLAGGED(ch->in_room, ROOM_INDOORS) || ROOM_FLAGGED(ch->in_room, ROOM_NOWEATHER) || ch->is_npc())
+		ROOM_FLAGGED(ch->in_room, ERoomFlag::kIndoors) || ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoWeather) || ch->is_npc())
 		return (modi);
 
 	sky = GET_ROOM_SKY(ch->in_room);
@@ -918,7 +918,7 @@ int weather_skill_modifier(CharData *ch, ESkill skillnum, int type, int value) {
 	if (ch->is_npc() ||
 		SECT(ch->in_room) == kSectInside ||
 		SECT(ch->in_room) == kSectCity ||
-		ROOM_FLAGGED(ch->in_room, ROOM_INDOORS) || ROOM_FLAGGED(ch->in_room, ROOM_NOWEATHER))
+		ROOM_FLAGGED(ch->in_room, ERoomFlag::kIndoors) || ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoWeather))
 		return (modi);
 
 	sky = GET_ROOM_SKY(ch->in_room);

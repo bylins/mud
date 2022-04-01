@@ -31,7 +31,7 @@ void deathtrap::load() {
 	room_list.clear();
 
 	for (int i = FIRST_ROOM; i <= top_of_world; ++i)
-		if (ROOM_FLAGGED(i, ROOM_SLOWDEATH) || ROOM_FLAGGED(i, ROOM_ICEDEATH))
+		if (ROOM_FLAGGED(i, ERoomFlag::kSlowDeathTrap) || ROOM_FLAGGED(i, ERoomFlag::kIceTrap))
 			room_list.push_back(world[i]);
 }
 
@@ -100,7 +100,7 @@ void deathtrap::log_death_trap(CharData *ch) {
 // * Попадание в обычное дт.
 int deathtrap::check_death_trap(CharData *ch) {
 	if (ch->in_room != kNowhere && !PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
-		if ((ROOM_FLAGGED(ch->in_room, ROOM_DEATH)
+		if ((ROOM_FLAGGED(ch->in_room, ERoomFlag::kDeathTrap)
 			&& !IS_IMMORTAL(ch))
 			|| (real_sector(ch->in_room) == kSectOnlyFlying && !ch->is_npc()
 				&& !IS_GOD(ch)
@@ -144,7 +144,7 @@ int deathtrap::check_death_trap(CharData *ch) {
 }
 
 bool deathtrap::IsSlowDeathtrap(int rnum) {
-	if (ROOM_FLAGGED(rnum, ROOM_SLOWDEATH) || ROOM_FLAGGED(rnum, ROOM_ICEDEATH))
+	if (ROOM_FLAGGED(rnum, ERoomFlag::kSlowDeathTrap) || ROOM_FLAGGED(rnum, ERoomFlag::kIceTrap))
 		return true;
 	return false;
 }
@@ -156,7 +156,7 @@ int calc_tunnel_dmg(CharData *ch, int room_rnum) {
 	if (!ch->is_npc()
 		&& !IS_IMMORTAL(ch)
 		&& NORENTABLE(ch)
-		&& ROOM_FLAGGED(room_rnum, ROOM_TUNNEL)) {
+		&& ROOM_FLAGGED(room_rnum, ERoomFlag::kTunnel)) {
 		return std::max(20, GET_REAL_MAX_HIT(ch) >> 3);
 	}
 	return 0;

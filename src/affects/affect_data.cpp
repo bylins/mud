@@ -411,7 +411,7 @@ void affect_total(CharData *ch) {
 	}
 	bool domination = false;
 
-	if (!ch->is_npc() && ROOM_FLAGGED(ch->in_room, ROOM_ARENA_DOMINATION)) {
+	if (!ch->is_npc() && ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
 		domination = true;
 	}
 	ObjData *obj;
