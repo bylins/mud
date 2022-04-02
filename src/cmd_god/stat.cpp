@@ -1,28 +1,29 @@
 #include "stat.h"
 
 #include "ban.h"
-#include "chars/char.h"
-#include "chars/char_player.h"
-#include "chars/player_races.h"
+#include "entities/char_data.h"
+#include "entities/char_player.h"
+#include "entities/player_races.h"
 #include "utils/utils_char_obj.inl"
 #include "description.h"
 #include "fightsystem/fight_hit.h"
 #include "fightsystem/pk.h"
 #include "olc/olc.h"
-#include "glory.h"
-#include "glory_const.h"
+#include "game_mechanics/glory.h"
+#include "game_mechanics/glory_const.h"
 #include "graph.h"
 #include "house.h"
 #include "liquid.h"
 #include "obj_prototypes.h"
-#include "screen.h"
+#include "color.h"
 #include "mob_stat.h"
 #include "modify.h"
-#include "zone.table.h"
-#include "skills_info.h"
-#include "magic/spells_info.h"
+//#include "entities/zone.h"
+#include "game_magic/spells_info.h"
+#include "structs/global_objects.h"
+#include "depot.h"
 
-void do_statip(CHAR_DATA *ch, CHAR_DATA *k) {
+void do_statip(CharData *ch, CharData *k) {
 	log("Start logon list stat");
 
 	// Отображаем список ip-адресов с которых персонаж входил
@@ -46,15 +47,15 @@ void do_statip(CHAR_DATA *ch, CHAR_DATA *k) {
 	log("End logon list stat");
 }
 
-void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
+void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	int i, i2, found = 0;
-	OBJ_DATA *j;
-	struct follow_type *fol;
+	ObjData *j;
+	struct Follower *fol;
 	char tmpbuf[128];
 	buf[0] = 0;
-	int god_level = PRF_FLAGGED(ch, PRF_CODERINFO) ? LVL_IMPL : GET_REAL_LEVEL(ch);
+	int god_level = PRF_FLAGGED(ch, PRF_CODERINFO) ? kLvlImplementator : GetRealLevel(ch);
 	int k_room = -1;
-	if (!virt && (god_level == LVL_IMPL || (god_level == LVL_GRGOD && !IS_NPC(k)))) {
+	if (!virt && (god_level == kLvlImplementator || (god_level == kLvlGreatGod && !IS_NPC(k)))) {
 		k_room = GET_ROOM_VNUM(IN_ROOM(k));
 	}
 	// пишем пол  (мужчина)
@@ -65,7 +66,7 @@ void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
 		sprintf(buf, "%s %s ", tmpbuf, smallBuf);
 	}
 	sprintf(buf2,
-			"%s '%s' IDNum: [%ld] В комнате [%d] Текущий ID:[%ld]",
+			"%s '%s' IDNum: [%ld] В комнате [%d] Текущий Id:[%ld]",
 			(!IS_NPC(k) ? "PC" : (!IS_MOB(k) ? "NPC" : "MOB")),
 			GET_NAME(k),
 			GET_IDNUM(k),
@@ -122,48 +123,48 @@ void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
 
 		if (PLR_FLAGGED(k, PLR_FROZEN) && FREEZE_DURATION(k)) {
 			sprintf(buf, "Заморожен : %ld час [%s].\r\n",
-					static_cast<long>((FREEZE_DURATION(k) - time(NULL)) / 3600),
+					static_cast<long>((FREEZE_DURATION(k) - time(nullptr)) / 3600),
 					FREEZE_REASON(k) ? FREEZE_REASON(k) : "-");
 			send_to_char(buf, ch);
 		}
 		if (PLR_FLAGGED(k, PLR_HELLED) && HELL_DURATION(k)) {
 			sprintf(buf, "Находится в темнице : %ld час [%s].\r\n",
-					static_cast<long>((HELL_DURATION(k) - time(NULL)) / 3600),
+					static_cast<long>((HELL_DURATION(k) - time(nullptr)) / 3600),
 					HELL_REASON(k) ? HELL_REASON(k) : "-");
 			send_to_char(buf, ch);
 		}
 		if (PLR_FLAGGED(k, PLR_NAMED) && NAME_DURATION(k)) {
 			sprintf(buf, "Находится в комнате имени : %ld час.\r\n",
-					static_cast<long>((NAME_DURATION(k) - time(NULL)) / 3600));
+					static_cast<long>((NAME_DURATION(k) - time(nullptr)) / 3600));
 			send_to_char(buf, ch);
 		}
 		if (PLR_FLAGGED(k, PLR_MUTE) && MUTE_DURATION(k)) {
 			sprintf(buf, "Будет молчать : %ld час [%s].\r\n",
-					static_cast<long>((MUTE_DURATION(k) - time(NULL)) / 3600),
+					static_cast<long>((MUTE_DURATION(k) - time(nullptr)) / 3600),
 					MUTE_REASON(k) ? MUTE_REASON(k) : "-");
 			send_to_char(buf, ch);
 		}
 		if (PLR_FLAGGED(k, PLR_DUMB) && DUMB_DURATION(k)) {
 			sprintf(buf, "Будет нем : %ld мин [%s].\r\n",
-					static_cast<long>((DUMB_DURATION(k) - time(NULL)) / 60),
+					static_cast<long>((DUMB_DURATION(k) - time(nullptr)) / 60),
 					DUMB_REASON(k) ? DUMB_REASON(k) : "-");
 			send_to_char(buf, ch);
 		}
 		if (!PLR_FLAGGED(k, PLR_REGISTERED) && UNREG_DURATION(k)) {
 			sprintf(buf, "Не будет зарегистрирован : %ld час [%s].\r\n",
-					static_cast<long>((UNREG_DURATION(k) - time(NULL)) / 3600),
+					static_cast<long>((UNREG_DURATION(k) - time(nullptr)) / 3600),
 					UNREG_REASON(k) ? UNREG_REASON(k) : "-");
 			send_to_char(buf, ch);
 		}
 
 		if (GET_GOD_FLAG(k, GF_GODSLIKE) && GCURSE_DURATION(k)) {
 			sprintf(buf, "Под защитой Богов : %ld час.\r\n",
-					static_cast<long>((GCURSE_DURATION(k) - time(NULL)) / 3600));
+					static_cast<long>((GCURSE_DURATION(k) - time(nullptr)) / 3600));
 			send_to_char(buf, ch);
 		}
 		if (GET_GOD_FLAG(k, GF_GODSCURSE) && GCURSE_DURATION(k)) {
 			sprintf(buf, "Проклят Богами : %ld час.\r\n",
-					static_cast<long>((GCURSE_DURATION(k) - time(NULL)) / 3600));
+					static_cast<long>((GCURSE_DURATION(k) - time(nullptr)) / 3600));
 			send_to_char(buf, ch);
 		}
 	}
@@ -179,7 +180,7 @@ void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
 	send_to_char(buf, ch);
 
 	if (!IS_NPC(k)) {
-		sprinttype(k->get_class(), pc_class_types, smallBuf);
+		strcpy(smallBuf, MUD::Classes()[k->get_class()].GetCName());
 		sprintf(buf, "Племя: %s, Род: %s, Профессия: %s",
 				PlayerRace::GetKinNameByNum(GET_KIN(k), GET_SEX(k)).c_str(),
 				k->get_race_name().c_str(),
@@ -204,7 +205,7 @@ void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
 	}
 
 	sprintf(buf, ", Уровень: [%s%2d%s], Опыт: [%s%10ld%s]%s, Наклонности: [%4d]\r\n",
-			CCYEL(ch, C_NRM), GET_REAL_LEVEL(k), CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
+			CCYEL(ch, C_NRM), GetRealLevel(k), CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
 			GET_EXP(k), CCNRM(ch, C_NRM), tmp_buf, GET_ALIGNMENT(k));
 
 	send_to_char(buf, ch);
@@ -230,13 +231,13 @@ void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
 		k->add_today_torc(0);
 		sprintf(buf, "Рента: [%d], Денег: [%9ld], В банке: [%9ld] (Всего: %ld), Гривны: %d/%d/%d %d, Ногат: %d",
 				GET_LOADROOM(k), k->get_gold(), k->get_bank(), k->get_total_gold(),
-				k->get_ext_money(ExtMoney::TORC_GOLD),
-				k->get_ext_money(ExtMoney::TORC_SILVER),
-				k->get_ext_money(ExtMoney::TORC_BRONZE),
+				k->get_ext_money(ExtMoney::kTorcGold),
+				k->get_ext_money(ExtMoney::kTorcSilver),
+				k->get_ext_money(ExtMoney::kTorcBronze),
 				k->get_hryvn(), k->get_nogata());
 
 		//. Display OLC zone for immorts .
-		if (GET_REAL_LEVEL(ch) >= LVL_IMMORT) {
+		if (GetRealLevel(ch) >= kLvlImmortal) {
 			sprintf(buf1, ", %sOLC[%d]%s", CCGRN(ch, C_NRM), GET_OLC_ZONE(k), CCNRM(ch, C_NRM));
 			strcat(buf, buf1);
 		}
@@ -245,10 +246,10 @@ void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
 	} else {
 		sprintf(buf,
 				"Сейчас в мире : %d. ",
-				GET_MOB_RNUM(k) >= 0 ? mob_index[GET_MOB_RNUM(k)].number - (virt ? 1 : 0) : -1);
+				GET_MOB_RNUM(k) >= 0 ? mob_index[GET_MOB_RNUM(k)].total_online - (virt ? 1 : 0) : -1);
 		send_to_char(buf, ch);
 		std::string stats;
-		mob_stat::last_kill_mob(k, stats);
+		mob_stat::GetLastMobKill(k, stats);
 		sprintf(buf, "Последний раз убит: %s", stats.c_str());
 		send_to_char(buf, ch);
 	}
@@ -298,15 +299,12 @@ void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
 			GetRealDamroll(k) + str_bonus(GET_REAL_STR(k), STR_TO_DAM));
 	send_to_char(buf, ch);
 	sprintf(buf,
-			"Защитн.аффекты: [Para:%d/Breath:%d/Spell:%d/Basic:%d], Поглощ: [%d], Стойк: [%d], Реакц: [%d], Воля: [%d]\r\n",
-			GET_SAVE(k, 0),
-			GET_SAVE(k, 1),
-			GET_SAVE(k, 2),
-			GET_SAVE(k, 3),
+			"Защитн.аффекты: [Will:%d/Crit.:%d/Stab.:%d/Reflex:%d], Поглощ: [%d], Воля: [%d], Здор.: [%d], Стойк.: [%d], Реакц.: [%d]\r\n",
+			GET_SAVE(k, ESaving::kWill), GET_SAVE(k, ESaving::kCritical),
+			GET_SAVE(k, ESaving::kStability), GET_SAVE(k, ESaving::kReflex),
 			GET_ABSORBE(k),
-			GET_REAL_SAVING_STABILITY(k),
-			GET_REAL_SAVING_REFLEX(k),
-			GET_REAL_SAVING_WILL(k));
+			GET_REAL_SAVING_WILL(k), GET_REAL_SAVING_CRITICAL(k),
+			GET_REAL_SAVING_STABILITY(k), GET_REAL_SAVING_REFLEX(k));
 	send_to_char(buf, ch);
 	sprintf(buf,
 			"Резисты: [Огонь:%d/Воздух:%d/Вода:%d/Земля:%d/Жизнь:%d/Разум:%d/Иммунитет:%d/Тьма:%d]\r\n",
@@ -331,7 +329,7 @@ void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
 			GET_INITIATIVE(k));
 	send_to_char(buf, ch);
 
-	sprinttype(GET_POS(k), position_types, smallBuf);
+	sprinttype(static_cast<int>(GET_POS(k)), position_types, smallBuf);
 	sprintf(buf, "Положение: %s, Сражается: %s, Экипирован в металл: %s",
 			smallBuf, (k->get_fighting() ? GET_NAME(k->get_fighting()) : "Нет"), (equip_in_metall(k) ? "Да" : "Нет"));
 
@@ -347,7 +345,7 @@ void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
 	send_to_char(strcat(buf, "\r\n"), ch);
 
 	strcpy(buf, "Позиция по умолчанию: ");
-	sprinttype((k->mob_specials.default_pos), position_types, buf2);
+	sprinttype(static_cast<int>(k->mob_specials.default_pos), position_types, buf2);
 	strcat(buf, buf2);
 
 	sprintf(buf2, ", Таймер отсоединения (тиков) [%d]\r\n", k->char_specials.timer);
@@ -377,9 +375,9 @@ void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
 					 k->mob_specials.MaxFactor,
 					 CCNRM(ch, C_NRM));
 		send_to_char(ch, "Умения:&c");
-		for (const auto counter : AVAILABLE_SKILLS) {
-			if (*skill_info[counter].name != '!' && k->get_skill(counter)) {
-				send_to_char(ch, " %s:[%3d]", skill_info[counter].name, k->get_skill(counter));
+		for (const auto &skill : MUD::Skills()) {
+			if (skill.IsValid() && k->get_skill(skill.GetId())) {
+				send_to_char(ch, " %s:[%3d]", skill.GetName(), k->get_skill(skill.GetId()));
 			}
 		}
 		send_to_char(ch, CCNRM(ch, C_NRM));
@@ -397,10 +395,10 @@ void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
 			}
 
 			// пытаемся просчитать маршрут на несколько клеток вперед
-			std::vector<room_vnum> predictive_path_vnum_list;
+			std::vector<RoomVnum> predictive_path_vnum_list;
 			static const int max_path_size = 25;
-			room_vnum current_room = world[k->in_room]->room_vn;
-			while (current_room != GET_DEST(k) && predictive_path_vnum_list.size() < max_path_size && current_room > NOWHERE) {
+			RoomVnum current_room = world[k->in_room]->room_vn;
+			while (current_room != GET_DEST(k) && predictive_path_vnum_list.size() < max_path_size && current_room > kNowhere) {
 				const auto direction = find_first_step(real_room(current_room), real_room(GET_DEST(k)), k);
 				if (direction >= 0) {
 					const auto exit_room_rnum = world[real_room(current_room)]->dir_option[direction]->to_room();
@@ -474,11 +472,11 @@ void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
 		send_to_char(buf, ch);
 	}
 
-	if (god_level >= LVL_GRGOD) {
+	if (god_level >= kLvlGreatGod) {
 		sprintf(buf, "Ведущий: %s, Ведомые:", (k->has_master() ? GET_NAME(k->get_master()) : "<нет>"));
 
 		for (fol = k->followers; fol; fol = fol->next) {
-			sprintf(buf2, "%s %s", found++ ? "," : "", PERS(fol->follower, ch, 0));
+			sprintf(buf2, "%s %s", found++ ? "," : "", PERS(fol->ch, ch, 0));
 			strcat(buf, buf2);
 			if (strlen(buf) >= 62) {
 				if (fol->next)
@@ -503,9 +501,9 @@ void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
 		for (const auto &aff : k->affected) {
 			*buf2 = '\0';
 			sprintf(buf, "Заклинания: (%3d%s|%s) %s%-21s%s ", aff->duration + 1,
-					(aff->battleflag & AF_PULSEDEC) || (aff->battleflag & AF_SAME_TIME) ? "плс" : "мин",
-					(aff->battleflag & AF_BATTLEDEC) || (aff->battleflag & AF_SAME_TIME) ? "рнд" : "мин",
-					CCCYN(ch, C_NRM), spell_name(aff->type), CCNRM(ch, C_NRM));
+					(aff->battleflag & kAfPulsedec) || (aff->battleflag & kAfSameTime) ? "плс" : "мин",
+					(aff->battleflag & kAfBattledec) || (aff->battleflag & kAfSameTime) ? "рнд" : "мин",
+					CCCYN(ch, C_NRM), GetSpellName(aff->type), CCNRM(ch, C_NRM));
 			if (aff->modifier) {
 				sprintf(buf2, "%+d to %s", aff->modifier, apply_types[(int) aff->location]);
 				strcat(buf, buf2);
@@ -524,23 +522,23 @@ void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
 	}
 
 	// check mobiles for a script
-	if (IS_NPC(k) && god_level >= LVL_BUILDER) {
+	if (IS_NPC(k) && god_level >= kLvlBuilder) {
 		do_sstat_character(ch, k);
 		if (MEMORY(k)) {
-			struct memory_rec_struct *memchar;
+			struct MemoryRecord *memchar;
 			send_to_char("Помнит:\r\n", ch);
 			for (memchar = MEMORY(k); memchar; memchar = memchar->next) {
 				sprintf(buf, "%10ld - %10ld\r\n",
 						static_cast<long>(memchar->id),
-						static_cast<long>(memchar->time - time(NULL)));
+						static_cast<long>(memchar->time - time(nullptr)));
 				send_to_char(buf, ch);
 			}
 		}
 	} else        // this is a PC, display their global variables
 	{
 		if (SCRIPT(k)->global_vars) {
-			struct trig_var_data *tv;
-			char name[MAX_INPUT_LENGTH];
+			struct TriggerVar *tv;
+			char name[kMaxInputLength];
 			void find_uid_name(char *uid, char *name);
 			send_to_char("Глобальные переменные:\r\n", ch);
 			// currently, variable context for players is always 0, so it is
@@ -566,11 +564,12 @@ void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
 			send_to_char(ch, "Выполнил квесты:\r\n%s\r\n", quested.c_str());
 
 		if (NORENTABLE(k)) {
-			sprintf(buf, "Не может уйти на постой %ld\r\n", static_cast<long int>(NORENTABLE(k) - time(0)));
+			sprintf(buf, "Не может уйти на постой %ld\r\n",
+					static_cast<long int>(NORENTABLE(k) - time(nullptr)));
 			send_to_char(buf, ch);
 		}
 		if (AGRO(k)) {
-			sprintf(buf, "Агрессор %ld\r\n", static_cast<long int>(AGRO(k) - time(NULL)));
+			sprintf(buf, "Агрессор %ld\r\n", static_cast<long int>(AGRO(k) - time(nullptr)));
 			send_to_char(buf, ch);
 		}
 		pk_list_sprintf(k, buf);
@@ -584,10 +583,10 @@ void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
 	}
 }
 
-void do_stat_object(CHAR_DATA *ch, OBJ_DATA *j, const int virt = 0) {
+void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	int i, found;
-	obj_vnum rnum, vnum;
-	OBJ_DATA *j2;
+	ObjVnum rnum, vnum;
+	ObjData *j2;
 	long int li;
 	bool is_grgod = (IS_GRGOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO)) ? true : false;
 
@@ -613,7 +612,7 @@ void do_stat_object(CHAR_DATA *ch, OBJ_DATA *j, const int virt = 0) {
 		strcpy(buf2, "None");
 	}
 
-	send_to_char(ch, "VNum: [%s%5d%s], RNum: [%5d], UID: [%d], ID: [%ld]\r\n",
+	send_to_char(ch, "VNum: [%s%5d%s], RNum: [%5d], UID: [%d], Id: [%ld]\r\n",
 				 CCGRN(ch, C_NRM), vnum, CCNRM(ch, C_NRM), GET_OBJ_RNUM(j), GET_OBJ_UID(j), j->get_id());
 
 	send_to_char(ch, "Расчет критерия: %f, мортов: (%f) \r\n", j->show_koef_obj(), j->show_mort_req());
@@ -625,7 +624,11 @@ void do_stat_object(CHAR_DATA *ch, OBJ_DATA *j, const int virt = 0) {
 //	if (GET_OBJ_ZONE(j))
 	send_to_char(ch, ", Принадлежит зоне VNUM : %d", GET_OBJ_VNUM_ZONE_FROM(j));
 	if (GET_OBJ_MAKER(j)) {
-		send_to_char(ch, ", Создатель : %s", get_name_by_unique(GET_OBJ_MAKER(j)));
+		const char *to_name = get_name_by_unique(GET_OBJ_MAKER(j));
+		if (to_name)
+			send_to_char(ch, ", Создатель : %s", to_name);
+		else
+			send_to_char(ch, ", Создатель : не найден");
 	}
 	if (GET_OBJ_PARENT(j)) {
 		send_to_char(ch, ", Родитель(VNum) : [%d]", GET_OBJ_PARENT(j));
@@ -656,7 +659,7 @@ void do_stat_object(CHAR_DATA *ch, OBJ_DATA *j, const int virt = 0) {
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	sprinttype(j->get_material(), material_name, buf2);
-	snprintf(buf, MAX_STRING_LENGTH, "Материал : %s, макс.прочность : %d, тек.прочность : %d\r\n",
+	snprintf(buf, kMaxStringLength, "Материал : %s, макс.прочность : %d, тек.прочность : %d\r\n",
 			 buf2, j->get_maximum_durability(), j->get_current_durability());
 	send_to_char(buf, ch);
 
@@ -693,7 +696,7 @@ void do_stat_object(CHAR_DATA *ch, OBJ_DATA *j, const int virt = 0) {
 
 	auto room = get_room_where_obj(j);
 	strcpy(buf, "Находится в комнате : ");
-	if (room == NOWHERE || !is_grgod) {
+	if (room == kNowhere || !is_grgod) {
 		strcat(buf, "нигде");
 	} else {
 		sprintf(buf2, "%d", room);
@@ -705,7 +708,11 @@ void do_stat_object(CHAR_DATA *ch, OBJ_DATA *j, const int virt = 0) {
 		sprintf(buf2, "[%d] %s", GET_OBJ_VNUM(j->get_in_obj()), j->get_in_obj()->get_short_description().c_str());
 		strcat(buf, buf2);
 	} else {
-		strcat(buf, "Нет");
+		const auto param = Depot::look_obj_depot(j);
+		if ( param != nullptr)
+			strcat(buf, param);
+		else
+			strcat(buf, "Нет");
 	}
 
 	strcat(buf, ", В инвентаре: ");
@@ -730,41 +737,42 @@ void do_stat_object(CHAR_DATA *ch, OBJ_DATA *j, const int virt = 0) {
 	send_to_char(buf, ch);
 
 	switch (GET_OBJ_TYPE(j)) {
-		case OBJ_DATA::ITEM_BOOK:
+		case ObjData::ITEM_BOOK:
 
 			switch (GET_OBJ_VAL(j, 0)) {
 				case BOOK_SPELL:
-					if (GET_OBJ_VAL(j, 1) >= 1 && GET_OBJ_VAL(j, 1) <= SPELLS_COUNT) {
+					if (GET_OBJ_VAL(j, 1) >= 1 && GET_OBJ_VAL(j, 1) <= kSpellCount) {
 						sprintf(buf, "содержит заклинание        : \"%s\"", spell_info[GET_OBJ_VAL(j, 1)].name);
 					} else
 						sprintf(buf, "неверный номер заклинания");
 					break;
-				case BOOK_SKILL:
-					if (GET_OBJ_VAL(j, 1) >= 1 && GET_OBJ_VAL(j, 1) < MAX_SKILL_NUM) {
-						sprintf(buf, "содержит секрет умения     : \"%s\"", skill_info[GET_OBJ_VAL(j, 1)].name);
+				case BOOK_SKILL: {
+					auto skill_id = static_cast<ESkill>(GET_OBJ_VAL(j, 1));
+					if (MUD::Skills().IsValid(skill_id)) {
+						sprintf(buf, "содержит секрет умения     : \"%s\"", MUD::Skills()[skill_id].GetName());
 					} else
 						sprintf(buf, "неверный номер умения");
 					break;
+				}
 				case BOOK_UPGRD: {
-					const auto skill_num = GET_OBJ_VAL(j, 1);
-					if (skill_num >= 1 && skill_num < MAX_SKILL_NUM) {
+					auto skill_id = static_cast<ESkill>(GET_OBJ_VAL(j, 1));
+					if (MUD::Skills().IsValid(skill_id)) {
 						if (GET_OBJ_VAL(j, 3) > 0) {
-							sprintf(buf,
-									"повышает умение \"%s\" (максимум %d)",
-									skill_info[skill_num].name,
-									GET_OBJ_VAL(j, 3));
+							sprintf(buf, "повышает умение \"%s\" (максимум %d)",
+									MUD::Skills()[skill_id].GetName(), GET_OBJ_VAL(j, 3));
 						} else {
-							sprintf(buf,
-									"повышает умение \"%s\" (не больше максимума текущего перевоплощения)",
-									skill_info[skill_num].name);
+							sprintf(buf, "повышает умение \"%s\" (не больше максимума текущего перевоплощения)",
+									MUD::Skills()[skill_id].GetName());
 						}
-					} else
+					} else {
 						sprintf(buf, "неверный номер повышаемоего умения");
+					}
 				}
 					break;
 				case BOOK_FEAT:
-					if (GET_OBJ_VAL(j, 1) >= 1 && GET_OBJ_VAL(j, 1) < MAX_FEATS) {
-						sprintf(buf, "содержит секрет способности : \"%s\"", feat_info[GET_OBJ_VAL(j, 1)].name);
+					if (GET_OBJ_VAL(j, 1) >= 1 && GET_OBJ_VAL(j, 1) < kMaxFeats) {
+						sprintf(buf, "содержит секрет способности : \"%s\"",
+								feat_info[GET_OBJ_VAL(j, 1)].name);
 					} else
 						sprintf(buf, "неверный номер способности");
 					break;
@@ -790,7 +798,7 @@ void do_stat_object(CHAR_DATA *ch, OBJ_DATA *j, const int virt = 0) {
 					break;
 			}
 			break;
-		case OBJ_DATA::ITEM_LIGHT:
+		case ObjData::ITEM_LIGHT:
 			if (GET_OBJ_VAL(j, 2) < 0) {
 				strcpy(buf, "Вечный свет!");
 			} else {
@@ -798,41 +806,41 @@ void do_stat_object(CHAR_DATA *ch, OBJ_DATA *j, const int virt = 0) {
 			}
 			break;
 
-		case OBJ_DATA::ITEM_SCROLL:
-		case OBJ_DATA::ITEM_POTION:
+		case ObjData::ITEM_SCROLL:
+		case ObjData::ITEM_POTION:
 			sprintf(buf, "Заклинания: (Уровень %d) %s, %s, %s",
 					GET_OBJ_VAL(j, 0),
-					spell_name(GET_OBJ_VAL(j, 1)),
-					spell_name(GET_OBJ_VAL(j, 2)),
-					spell_name(GET_OBJ_VAL(j, 3)));
+					GetSpellName(GET_OBJ_VAL(j, 1)),
+					GetSpellName(GET_OBJ_VAL(j, 2)),
+					GetSpellName(GET_OBJ_VAL(j, 3)));
 			break;
 
-		case OBJ_DATA::ITEM_WAND:
-		case OBJ_DATA::ITEM_STAFF:
+		case ObjData::ITEM_WAND:
+		case ObjData::ITEM_STAFF:
 			sprintf(buf, "Заклинание: %s уровень %d, %d (из %d) зарядов осталось",
-					spell_name(GET_OBJ_VAL(j, 3)),
+					GetSpellName(GET_OBJ_VAL(j, 3)),
 					GET_OBJ_VAL(j, 0),
 					GET_OBJ_VAL(j, 2),
 					GET_OBJ_VAL(j, 1));
 			break;
 
-		case OBJ_DATA::ITEM_WEAPON:
+		case ObjData::ITEM_WEAPON:
 			sprintf(buf, "Повреждения: %dd%d, Тип повреждения: %d",
 					GET_OBJ_VAL(j, 1),
 					GET_OBJ_VAL(j, 2),
 					GET_OBJ_VAL(j, 3));
 			break;
 
-		case OBJ_DATA::ITEM_ARMOR:
-		case OBJ_DATA::ITEM_ARMOR_LIGHT:
-		case OBJ_DATA::ITEM_ARMOR_MEDIAN:
-		case OBJ_DATA::ITEM_ARMOR_HEAVY:sprintf(buf, "AC: [%d]  Броня: [%d]", GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1));
+		case ObjData::ITEM_ARMOR:
+		case ObjData::ITEM_ARMOR_LIGHT:
+		case ObjData::ITEM_ARMOR_MEDIAN:
+		case ObjData::ITEM_ARMOR_HEAVY:sprintf(buf, "AC: [%d]  Броня: [%d]", GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1));
 			break;
 
-		case OBJ_DATA::ITEM_TRAP:sprintf(buf, "Spell: %d, - Hitpoints: %d", GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1));
+		case ObjData::ITEM_TRAP:sprintf(buf, "Spell: %d, - Hitpoints: %d", GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1));
 			break;
 
-		case OBJ_DATA::ITEM_CONTAINER:sprintbit(GET_OBJ_VAL(j, 1), container_bits, smallBuf);
+		case ObjData::ITEM_CONTAINER:sprintbit(GET_OBJ_VAL(j, 1), container_bits, smallBuf);
 			//sprintf(buf, "Объем: %d, Тип ключа: %s, Номер ключа: %d, Труп: %s",
 			//	GET_OBJ_VAL(j, 0), buf2, GET_OBJ_VAL(j, 2), YESNO(GET_OBJ_VAL(j, 3)));
 			if (IS_CORPSE(j)) {
@@ -844,8 +852,8 @@ void do_stat_object(CHAR_DATA *ch, OBJ_DATA *j, const int virt = 0) {
 			}
 			break;
 
-		case OBJ_DATA::ITEM_DRINKCON:
-		case OBJ_DATA::ITEM_FOUNTAIN:sprinttype(GET_OBJ_VAL(j, 2), drinks, smallBuf);
+		case ObjData::ITEM_DRINKCON:
+		case ObjData::ITEM_FOUNTAIN:sprinttype(GET_OBJ_VAL(j, 2), drinks, smallBuf);
 			{
 				std::string spells = drinkcon::print_spells(ch, j);
 				boost::trim(spells);
@@ -854,20 +862,20 @@ void do_stat_object(CHAR_DATA *ch, OBJ_DATA *j, const int virt = 0) {
 			}
 			break;
 
-		case OBJ_DATA::ITEM_NOTE:sprintf(buf, "Tongue: %d", GET_OBJ_VAL(j, 0));
+		case ObjData::ITEM_NOTE:sprintf(buf, "Tongue: %d", GET_OBJ_VAL(j, 0));
 			break;
 
-		case OBJ_DATA::ITEM_KEY:strcpy(buf, "");
+		case ObjData::ITEM_KEY:strcpy(buf, "");
 			break;
 
-		case OBJ_DATA::ITEM_FOOD:
+		case ObjData::ITEM_FOOD:
 			sprintf(buf,
 					"Насыщает(час): %d, Таймер (если 1 отравлено): %d",
 					GET_OBJ_VAL(j, 0),
 					GET_OBJ_VAL(j, 3));
 			break;
 
-		case OBJ_DATA::ITEM_MONEY:
+		case ObjData::ITEM_MONEY:
 			sprintf(buf, "Сумма: %d\r\nВалюта: %s", GET_OBJ_VAL(j, 0),
 					GET_OBJ_VAL(j, 1) == currency::GOLD ? "куны" :
 					GET_OBJ_VAL(j, 1) == currency::ICE ? "искристые снежинки" :
@@ -875,24 +883,24 @@ void do_stat_object(CHAR_DATA *ch, OBJ_DATA *j, const int virt = 0) {
 			);
 			break;
 
-		case OBJ_DATA::ITEM_INGREDIENT:sprintbit(GET_OBJ_SKILL(j), ingradient_bits, smallBuf);
+		case ObjData::ITEM_INGREDIENT:sprintbit(GET_OBJ_SKILL(j), ingradient_bits, smallBuf);
 			sprintf(buf, "ingr bits %s", smallBuf);
 
-			if (IS_SET(GET_OBJ_SKILL(j), ITEM_CHECK_USES)) {
+			if (IS_SET(GET_OBJ_SKILL(j), kItemCheckUses)) {
 				sprintf(buf + strlen(buf), "\r\nможно применить %d раз", GET_OBJ_VAL(j, 2));
 			}
 
-			if (IS_SET(GET_OBJ_SKILL(j), ITEM_CHECK_LAG)) {
+			if (IS_SET(GET_OBJ_SKILL(j), kItemCheckLag)) {
 				sprintf(buf + strlen(buf), "\r\nможно применить 1 раз в %d сек", (i = GET_OBJ_VAL(j, 0) & 0xFF));
-				if (GET_OBJ_VAL(j, 3) == 0 || GET_OBJ_VAL(j, 3) + i < time(NULL))
+				if (GET_OBJ_VAL(j, 3) == 0 || GET_OBJ_VAL(j, 3) + i < time(nullptr))
 					sprintf(buf + strlen(buf), "(можно применять).");
 				else {
-					li = GET_OBJ_VAL(j, 3) + i - time(NULL);
+					li = GET_OBJ_VAL(j, 3) + i - time(nullptr);
 					sprintf(buf + strlen(buf), "(осталось %ld сек).", li);
 				}
 			}
 
-			if (IS_SET(GET_OBJ_SKILL(j), ITEM_CHECK_LEVEL)) {
+			if (IS_SET(GET_OBJ_SKILL(j), kItemCheckLevel)) {
 				sprintf(buf + strlen(buf), "\r\nможно применить с %d уровня.", (GET_OBJ_VAL(j, 0) >> 8) & 0x1F);
 			}
 
@@ -901,10 +909,10 @@ void do_stat_object(CHAR_DATA *ch, OBJ_DATA *j, const int virt = 0) {
 						CCICYN(ch, C_NRM), obj_proto[i]->get_PName(0).c_str(), CCNRM(ch, C_NRM));
 			}
 			break;
-		case OBJ_DATA::ITEM_MAGIC_CONTAINER:
-		case OBJ_DATA::ITEM_MAGIC_ARROW:
+		case ObjData::ITEM_MAGIC_CONTAINER:
+		case ObjData::ITEM_MAGIC_ARROW:
 			sprintf(buf, "Заклинание: [%s]. Объем [%d]. Осталось стрел[%d].",
-					spell_name(GET_OBJ_VAL(j, 0)), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2));
+					GetSpellName(GET_OBJ_VAL(j, 0)), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2));
 			break;
 
 		default:
@@ -939,7 +947,7 @@ void do_stat_object(CHAR_DATA *ch, OBJ_DATA *j, const int virt = 0) {
 	}
 	found = 0;
 	send_to_char("Аффекты:", ch);
-	for (i = 0; i < MAX_OBJ_AFFECT; i++) {
+	for (i = 0; i < kMaxObjAffect; i++) {
 		if (j->get_affected(i).modifier) {
 			sprinttype(j->get_affected(i).location, apply_types, smallBuf);
 			sprintf(buf, "%s %+d to %s", found++ ? "," : "", j->get_affected(i).modifier, smallBuf);
@@ -953,20 +961,13 @@ void do_stat_object(CHAR_DATA *ch, OBJ_DATA *j, const int virt = 0) {
 	if (j->has_skills()) {
 		CObjectPrototype::skills_t skills;
 		j->get_skills(skills);
-		int skill_num;
-		int percent;
 
 		send_to_char("\r\nУмения :", ch);
 		for (const auto &it : skills) {
-			skill_num = it.first;
-			percent = it.second;
-
-			if (percent == 0) // TODO: такого не должно быть?
-			{
+			if (it.second == 0) {
 				continue;
 			}
-
-			sprintf(buf, " %+d%% to %s", percent, skill_info[skill_num].name);
+			sprintf(buf, " %+d%% to %s", it.second, MUD::Skills()[it.first].GetName());
 			send_to_char(buf, ch);
 		}
 	}
@@ -985,7 +986,7 @@ void do_stat_object(CHAR_DATA *ch, OBJ_DATA *j, const int virt = 0) {
 	if (is_grgod) {
 		sprintf(buf,
 				"Сейчас в мире : %d. На постое : %d. Макс в мире: %d\r\n",
-				rnum >= 0 ? obj_proto.number(rnum) - (virt ? 1 : 0) : -1,
+				rnum >= 0 ? obj_proto.CountInWorld(rnum) - (virt ? 1 : 0) : -1,
 				rnum >= 0 ? obj_proto.stored(rnum) : -1,
 				GET_OBJ_MIW(j));
 		send_to_char(buf, ch);
@@ -994,11 +995,11 @@ void do_stat_object(CHAR_DATA *ch, OBJ_DATA *j, const int virt = 0) {
 	}
 }
 
-void do_stat_room(CHAR_DATA *ch, const int rnum = 0) {
-	ROOM_DATA *rm = world[ch->in_room];
+void do_stat_room(CharData *ch, const int rnum = 0) {
+	RoomData *rm = world[ch->in_room];
 	int i, found;
-	OBJ_DATA *j;
-	CHAR_DATA *k;
+	ObjData *j;
+	CharData *k;
 	char tmpBuf[255];
 
 	if (rnum != 0) {
@@ -1015,7 +1016,7 @@ void do_stat_room(CHAR_DATA *ch, const int rnum = 0) {
 	send_to_char(buf, ch);
 
 	rm->flags_sprint(smallBuf, ",");
-	sprintf(buf, "СпецПроцедура: %s, Флаги: %s\r\n", (rm->func == NULL) ? "None" : "Exists", smallBuf);
+	sprintf(buf, "СпецПроцедура: %s, Флаги: %s\r\n", (rm->func == nullptr) ? "None" : "Exists", smallBuf);
 	send_to_char(buf, ch);
 
 	send_to_char("Описание:\r\n", ch);
@@ -1080,9 +1081,9 @@ void do_stat_room(CHAR_DATA *ch, const int rnum = 0) {
 		}
 		send_to_char(CCNRM(ch, C_NRM), ch);
 	}
-	for (i = 0; i < NUM_OF_DIRS; i++) {
+	for (i = 0; i < kDirMaxNumber; i++) {
 		if (rm->dir_option[i]) {
-			if (rm->dir_option[i]->to_room() == NOWHERE)
+			if (rm->dir_option[i]->to_room() == kNowhere)
 				sprintf(smallBuf, " %sNONE%s", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
 			else
 				sprintf(smallBuf, "%s%5d%s", CCCYN(ch, C_NRM),
@@ -1108,7 +1109,7 @@ void do_stat_room(CHAR_DATA *ch, const int rnum = 0) {
 		sprintf(buf1, " Аффекты на комнате:\r\n");
 		for (const auto &aff : rm->affected) {
 			sprintf(buf1 + strlen(buf1), "       Заклинание \"%s\" (%d) - %s.\r\n",
-					spell_name(aff->type),
+					GetSpellName(aff->type),
 					aff->duration,
 					((k = find_char(aff->caster_id))
 					 ? GET_NAME(k)
@@ -1120,9 +1121,9 @@ void do_stat_room(CHAR_DATA *ch, const int rnum = 0) {
 	do_sstat_room(rm, ch);
 }
 
-void do_stat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *victim;
-	OBJ_DATA *object;
+void do_stat(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharData *victim;
+	ObjData *object;
 	int tmp;
 
 	half_chop(argument, buf1, buf2);
@@ -1132,19 +1133,19 @@ void do_stat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	int level = PRF_FLAGGED(ch, PRF_CODERINFO) ? LVL_IMPL : GET_REAL_LEVEL(ch);
+	int level = PRF_FLAGGED(ch, PRF_CODERINFO) ? kLvlImplementator : GetRealLevel(ch);
 
-	if (is_abbrev(buf1, "room") && level >= LVL_BUILDER) {
-		int vnum, rnum = NOWHERE;
+	if (utils::IsAbbrev(buf1, "room") && level >= kLvlBuilder) {
+		int vnum, rnum = kNowhere;
 		if (*buf2 && (vnum = atoi(buf2))) {
-			if ((rnum = real_room(vnum)) != NOWHERE)
+			if ((rnum = real_room(vnum)) != kNowhere)
 				do_stat_room(ch, rnum);
 			else
 				send_to_char("Состояние какой комнаты?\r\n", ch);
 		}
 		if (!*buf2)
 			do_stat_room(ch);
-	} else if (is_abbrev(buf1, "mob") && level >= LVL_BUILDER) {
+	} else if (utils::IsAbbrev(buf1, "mob") && level >= kLvlBuilder) {
 		if (!*buf2)
 			send_to_char("Состояние какого создания?\r\n", ch);
 		else {
@@ -1153,7 +1154,7 @@ void do_stat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			else
 				send_to_char("Нет такого создания в этом МАДе.\r\n", ch);
 		}
-	} else if (is_abbrev(buf1, "player")) {
+	} else if (utils::IsAbbrev(buf1, "player")) {
 		if (!*buf2) {
 			send_to_char("Состояние какого игрока?\r\n", ch);
 		} else {
@@ -1162,7 +1163,7 @@ void do_stat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			else
 				send_to_char("Этого персонажа сейчас нет в игре.\r\n", ch);
 		}
-	} else if (is_abbrev(buf1, "ip")) {
+	} else if (utils::IsAbbrev(buf1, "ip")) {
 		if (!*buf2) {
 			send_to_char("Состояние ip какого игрока?\r\n", ch);
 		} else {
@@ -1181,13 +1182,13 @@ void do_stat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				send_to_char("Такого игрока нет ВООБЩЕ.\r\n", ch);
 			}
 		}
-	} else if (is_abbrev(buf1, "file")) {
+	} else if (utils::IsAbbrev(buf1, "file")) {
 		if (!*buf2) {
 			send_to_char("Состояние какого игрока(из файла)?\r\n", ch);
 		} else {
 			Player t_vict;
 			if (load_char(buf2, &t_vict) > -1) {
-				if (GET_REAL_LEVEL(&t_vict) > level) {
+				if (GetRealLevel(&t_vict) > level) {
 					send_to_char("Извините, вам это еще рано.\r\n", ch);
 				} else {
 					Clan::SetClanData(&t_vict);
@@ -1197,35 +1198,35 @@ void do_stat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				send_to_char("Такого игрока нет ВООБЩЕ.\r\n", ch);
 			}
 		}
-	} else if (is_abbrev(buf1, "object") && level >= LVL_BUILDER) {
+	} else if (utils::IsAbbrev(buf1, "object") && level >= kLvlBuilder) {
 		if (!*buf2)
 			send_to_char("Состояние какого предмета?\r\n", ch);
 		else {
-			if ((object = get_obj_vis(ch, buf2)) != NULL)
+			if ((object = get_obj_vis(ch, buf2)) != nullptr)
 				do_stat_object(ch, object);
 			else
 				send_to_char("Нет такого предмета в игре.\r\n", ch);
 		}
 	} else {
-		if (level >= LVL_BUILDER) {
-			if ((object = get_object_in_equip_vis(ch, buf1, ch->equipment, &tmp)) != NULL)
+		if (level >= kLvlBuilder) {
+			if ((object = get_object_in_equip_vis(ch, buf1, ch->equipment, &tmp)) != nullptr)
 				do_stat_object(ch, object);
-			else if ((object = get_obj_in_list_vis(ch, buf1, ch->carrying)) != NULL)
+			else if ((object = get_obj_in_list_vis(ch, buf1, ch->carrying)) != nullptr)
 				do_stat_object(ch, object);
-			else if ((victim = get_char_vis(ch, buf1, FIND_CHAR_ROOM)) != NULL)
+			else if ((victim = get_char_vis(ch, buf1, FIND_CHAR_ROOM)) != nullptr)
 				do_stat_character(ch, victim);
-			else if ((object = get_obj_in_list_vis(ch, buf1, world[ch->in_room]->contents)) != NULL)
+			else if ((object = get_obj_in_list_vis(ch, buf1, world[ch->in_room]->contents)) != nullptr)
 				do_stat_object(ch, object);
-			else if ((victim = get_char_vis(ch, buf1, FIND_CHAR_WORLD)) != NULL)
+			else if ((victim = get_char_vis(ch, buf1, FIND_CHAR_WORLD)) != nullptr)
 				do_stat_character(ch, victim);
-			else if ((object = get_obj_vis(ch, buf1)) != NULL)
+			else if ((object = get_obj_vis(ch, buf1)) != nullptr)
 				do_stat_object(ch, object);
 			else
 				send_to_char("Ничего похожего с этим именем нет.\r\n", ch);
 		} else {
-			if ((victim = get_player_vis(ch, buf1, FIND_CHAR_ROOM)) != NULL)
+			if ((victim = get_player_vis(ch, buf1, FIND_CHAR_ROOM)) != nullptr)
 				do_stat_character(ch, victim);
-			else if ((victim = get_player_vis(ch, buf1, FIND_CHAR_WORLD)) != NULL)
+			else if ((victim = get_player_vis(ch, buf1, FIND_CHAR_WORLD)) != nullptr)
 				do_stat_character(ch, victim);
 			else
 				send_to_char("Никого похожего с этим именем нет.\r\n", ch);

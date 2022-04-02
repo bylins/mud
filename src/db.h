@@ -12,34 +12,36 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#ifndef _DB_H_
-#define _DB_H_
+#ifndef DB_H_
+#define DB_H_
 
-#include "obj.h"
 #include "boot/boot_constants.h"
-#include "structs.h"
 #include "conf.h"    // to get definition of build type: (CIRCLE_AMIGA|CIRCLE_UNIX|CIRCLE_WINDOWS|CIRCLE_ACORN|CIRCLE_VMS)
 #include "name_adviser.h"
+#include "obj_save.h"
+#include "entities/obj_data.h"
+#include "structs/descriptor_data.h"
+#include "structs/structs.h"
 
 #include <map>
 #include <list>
 #include <memory>
 
-struct ROOM_DATA;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
-class CHAR_DATA;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
+struct RoomData;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
+class CharData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 
 // room manage functions
-void room_copy(ROOM_DATA *dst, ROOM_DATA *src);
-void room_free(ROOM_DATA *room);
+void room_copy(RoomData *dst, RoomData *src);
+void room_free(RoomData *room);
 
 // public procedures in db.cpp
 void tag_argument(char *argument, char *tag);
-void boot_db(void);
-void zone_update(void);
-bool can_be_reset(zone_rnum zone);
-room_rnum real_room(room_vnum vnum);
+void boot_db();
+void zone_update();
+bool can_be_reset(ZoneRnum zone);
+RoomRnum real_room(RoomVnum vnum);
 long get_id_by_name(char *name);
-long get_id_by_uid(long uid);
+//long get_id_by_uid(long uid);
 int get_uid_by_id(int id);
 long cmp_ptable_by_name(char *name, int len);
 const char *get_name_by_id(long id);
@@ -50,26 +52,25 @@ long get_ptable_by_unique(long unique);
 int get_zone_rooms(int, int *, int *);
 void zone_traffic_save();
 
-int load_char(const char *name, CHAR_DATA *char_element, bool reboot = 0, const bool find_id = true);
-CHAR_DATA *read_mobile(mob_vnum nr, int type);
-mob_rnum real_mobile(mob_vnum vnum);
-int vnum_mobile(char *searchname, CHAR_DATA *ch);
-void clear_char_skills(CHAR_DATA *ch);
+int load_char(const char *name, CharData *char_element, bool reboot = false, bool find_id = true);
+CharData *read_mobile(MobVnum nr, int type);
+MobRnum real_mobile(MobVnum vnum);
+int vnum_mobile(char *searchname, CharData *ch);
+void clear_char_skills(CharData *ch);
 int correct_unique(int unique);
 bool check_unlimited_timer(const CObjectPrototype *obj);
-void SaveGlobalUID(void);
-void flush_player_index(void);
+void SaveGlobalUID();
+void flush_player_index();
 
 #define REAL          0
 #define VIRTUAL       (1 << 0)
-#define OBJ_NO_CALC   (1 << 1)
 
-CObjectPrototype::shared_ptr get_object_prototype(obj_vnum nr, int type = VIRTUAL);
+CObjectPrototype::shared_ptr get_object_prototype(ObjVnum nr, int type = VIRTUAL);
 
-int vnum_object(char *searchname, CHAR_DATA *ch);
-int vnum_flag(char *searchname, CHAR_DATA *ch);
-int vnum_room(char *searchname, CHAR_DATA *ch);
-int vnum_obj_trig(char *searchname, CHAR_DATA *ch);
+int vnum_object(char *searchname, CharData *ch);
+int vnum_flag(char *searchname, CharData *ch);
+int vnum_room(char *searchname, CharData *ch);
+int vnum_obj_trig(char *searchname, CharData *ch);
 
 // structure for the reset commands
 struct reset_com {
@@ -96,13 +97,10 @@ struct reset_com {
 	char *sarg2;        // string argument
 };
 
-struct _case {
-	// внум сундука
-	int vnum;
-	// шанс выпадаения
-	int chance;
-	// внумы шмоток, которые выпадают из кейса
-	std::vector<int> vnum_objs;
+struct TreasureCase {
+	ObjVnum vnum;
+	int drop_chance;
+	std::vector<ObjVnum> vnum_objs; // внумы шмоток, которые выпадают из кейса
 };
 
 // для экстраффектов в random_obj
@@ -169,7 +167,7 @@ class RandomObj {
 
 // for queueing zones for update
 struct reset_q_element {
-	zone_rnum zone_to_reset;    // ref to zone_data
+	ZoneRnum zone_to_reset;    // ref to zone_data
 	struct reset_q_element *next;
 };
 
@@ -179,28 +177,26 @@ struct reset_q_type {
 	struct reset_q_element *tail;
 };
 
-#define OBJECT_SAVE_ACTIVITY 300
-#define PLAYER_SAVE_ACTIVITY 300
-#define MAX_SAVED_ITEMS      1000
+const int OBJECT_SAVE_ACTIVITY = 300;
+const int PLAYER_SAVE_ACTIVITY = 300;
+const int MAX_SAVED_ITEMS = 1000;
 
-class player_index_element {
+class PlayerIndexElement {
  public:
-	player_index_element(const int id, const char *name);
+	PlayerIndexElement(int id, const char *name);
 
-	//added by WorM индексируюца еще мыло и последний айпи
 	char *mail;
 	char *last_ip;
-	//end by WorM
 	int unique;
 	int level;
 	int remorts;
-	int plr_class;
+	ECharClass plr_class;
 	int last_logon;
 	int activity;        // When player be saved and checked
-	save_info *timer;
+	SaveInfo *timer;
 
-	const char *name() const { return m_name; }
-	int id() const { return m_id; }
+	[[nodiscard]] const char *name() const { return m_name; }
+	[[nodiscard]] int id() const { return m_id; }
 
 	void set_name(const char *name);
 	void set_id(const int id) { m_id = id; }
@@ -210,24 +206,24 @@ class player_index_element {
 	const char *m_name;
 };
 
-#define SEASON_WINTER        0
-#define SEASON_SPRING        1
-#define SEASON_SUMMER        2
-#define SEASON_AUTUMN        3
+const int SEASON_WINTER = 0;
+const int SEASON_SPRING = 1;
+const int SEASON_SUMMER = 2;
+const int SEASON_AUTUMN = 3;
 
-#define MONTH_JANUARY    0
-#define MONTH_FEBRUARY    1
-#define MONTH_MART            2
-#define MONTH_APRIL            3
-#define MONTH_MAY            4
-#define MONTH_JUNE            5
-#define MONTH_JULY            6
-#define MONTH_AUGUST        7
-#define MONTH_SEPTEMBER        8
-#define MONTH_OCTOBER        9
-#define MONTH_NOVEMBER        10
-#define MONTH_DECEMBER        11
-#define DAYS_PER_WEEK        7
+const int MONTH_JANUARY = 0;
+const int MONTH_FEBRUARY = 1;
+const int MONTH_MART = 2;
+const int MONTH_APRIL = 3;
+const int MONTH_MAY = 4;
+const int MONTH_JUNE = 5;
+const int MONTH_JULY = 6;
+const int MONTH_AUGUST = 7;
+const int MONTH_SEPTEMBER = 8;
+const int MONTH_OCTOBER = 9;
+const int MONTH_NOVEMBER = 10;
+const int MONTH_DECEMBER = 11;
+const int DAYS_PER_WEEK = 7;
 
 struct month_temperature_type {
 	int min;
@@ -239,7 +235,7 @@ struct month_temperature_type {
 struct ingredient {
 	int imtype;
 	std::string imname;
-	std::array<int, MAX_MOB_LEVEL + 1> prob; // вероятность загрузки для каждого уровня моба
+	std::array<int, kMaxMobLevel + 1> prob; // вероятность загрузки для каждого уровня моба
 };
 
 class MobRace {
@@ -255,10 +251,10 @@ typedef std::map<int, MobRacePtr> MobRaceListType;
 
 //-Polud
 
-extern room_rnum top_of_world;
+extern RoomRnum top_of_world;
 
-void add_trig_index_entry(int nr, TRIG_DATA *proto);
-extern INDEX_DATA **trig_index;
+void add_trig_index_entry(int nr, Trigger *proto);
+extern IndexData **trig_index;
 
 #ifndef __CONFIG_C__
 extern char const *OK;
@@ -272,12 +268,12 @@ extern const int sunrise[][2];
 extern const int Reverse[];
 
 // external vars
-extern CHAR_DATA *combat_list;
+extern CharData *combat_list;
 
 #include <vector>
 #include <deque>
 
-class Rooms : public std::vector<ROOM_DATA *> {
+class Rooms : public std::vector<RoomData *> {
  public:
 	static constexpr int UNDEFINED_ROOM_VNUM = -1;
 	~Rooms();
@@ -285,38 +281,37 @@ class Rooms : public std::vector<ROOM_DATA *> {
 
 extern Rooms &world;
 
-extern INDEX_DATA *mob_index;
-extern mob_rnum top_of_mobt;
+extern IndexData *mob_index;
+extern MobRnum top_of_mobt;
 
-inline obj_vnum GET_OBJ_VNUM(const CObjectPrototype *obj) { return obj->get_vnum(); }
+inline ObjVnum GET_OBJ_VNUM(const CObjectPrototype *obj) { return obj->get_vnum(); }
 
-extern DESCRIPTOR_DATA *descriptor_list;
-extern CHAR_DATA *mob_proto;
+extern CharData *mob_proto;
 extern const char *MENU;
 
-extern struct portals_list_type *portals_list;
-extern TIME_INFO_DATA time_info;
+extern struct Portal *portals_list;
+extern TimeInfoData time_info;
 
 extern int convert_drinkcon_skill(CObjectPrototype *obj, bool proto);
 
-int dl_parse(load_list **dl_list, char *line);
-int dl_load_obj(OBJ_DATA *corpse, CHAR_DATA *ch, CHAR_DATA *chr, int DL_LOAD_TYPE);
-int trans_obj_name(OBJ_DATA *obj, CHAR_DATA *ch);
-void dl_list_copy(load_list **pdst, load_list *src);
+int dl_parse(OnDeadLoadList **dl_list, char *line);
+int dl_load_obj(ObjData *corpse, CharData *ch, CharData *chr, int DL_LOAD_TYPE);
+int trans_obj_name(ObjData *obj, CharData *ch);
+void dl_list_copy(OnDeadLoadList **pdst, OnDeadLoadList *src);
 void paste_mobiles();
 
-extern room_rnum r_helled_start_room;
-extern room_rnum r_mortal_start_room;
-extern room_rnum r_immort_start_room;
-extern room_rnum r_named_start_room;
-extern room_rnum r_unreg_start_room;
+extern RoomRnum r_helled_start_room;
+extern RoomRnum r_mortal_start_room;
+extern RoomRnum r_immort_start_room;
+extern RoomRnum r_named_start_room;
+extern RoomRnum r_unreg_start_room;
 
 long get_ptable_by_name(const char *name);
 void free_alias(struct alias_data *a);
 
-class PlayersIndex : public std::vector<player_index_element> {
+class PlayersIndex : public std::vector<PlayerIndexElement> {
  public:
-	using parent_t = std::vector<player_index_element>;
+	using parent_t = std::vector<PlayerIndexElement>;
 	using parent_t::operator[];
 	using parent_t::size;
 
@@ -324,11 +319,11 @@ class PlayersIndex : public std::vector<player_index_element> {
 
 	~PlayersIndex();
 
-	std::size_t append(const player_index_element &element);
+	std::size_t append(const PlayerIndexElement &element);
 	bool player_exists(const int id) const { return m_id_to_index.find(id) != m_id_to_index.end(); }
 	bool player_exists(const char *name) const { return NOT_FOUND != get_by_name(name); }
 	std::size_t get_by_name(const char *name) const;
-	void set_name(const std::size_t index, const char *name);
+	void set_name(std::size_t index, const char *name);
 
 	NameAdviser &name_adviser() { return m_name_adviser; }
 
@@ -347,7 +342,7 @@ class PlayersIndex : public std::vector<player_index_element> {
 	using name_to_index_t = std::unordered_map<std::string, std::size_t, hasher, equal_to>;
 	using free_names_t = std::deque<std::string>;
 
-	void add_name_to_index(const char *name, const std::size_t index);
+	void add_name_to_index(const char *name, std::size_t index);
 
 	id_to_index_t m_id_to_index;
 	name_to_index_t m_name_to_index;
@@ -359,50 +354,50 @@ extern PlayersIndex &player_table;
 
 extern long top_idnum;
 
-bool player_exists(const long id);
+bool player_exists(long id);
 
-inline save_info *SAVEINFO(const size_t number) {
+inline SaveInfo *SAVEINFO(const size_t number) {
 	return player_table[number].timer;
 }
 
 inline void clear_saveinfo(const size_t number) {
 	delete player_table[number].timer;
-	player_table[number].timer = NULL;
+	player_table[number].timer = nullptr;
 }
 
-void recreate_saveinfo(const size_t number);
+void recreate_saveinfo(size_t number);
 
-void set_god_skills(CHAR_DATA *ch);
+void set_god_skills(CharData *ch);
 void check_room_flags(int rnum);
 
 namespace OfftopSystem {
 void init();
-void set_flag(CHAR_DATA *ch);
+void set_flag(CharData *ch);
 } // namespace OfftopSystem
 
 void delete_char(const char *name);
 
-void set_test_data(CHAR_DATA *mob);
+void set_test_data(CharData *mob);
 
 void set_zone_mob_level();
 
-bool can_snoop(CHAR_DATA *imm, CHAR_DATA *vict);
+//bool can_snoop(CharacterData *imm, CharacterData *vict);
 
-extern insert_wanted_gem iwg;
+//extern insert_wanted_gem iwg;
 
 class GameLoader {
  public:
 	GameLoader();
 
 	void boot_world();
-	void index_boot(const EBootType mode);
+	void index_boot(EBootType mode);
 
  private:
-	static void prepare_global_structures(const EBootType mode, const int rec_count);
+	static void prepare_global_structures(EBootType mode, const int rec_count);
 };
 
 extern GameLoader world_loader;
 
-#endif
+#endif // DB_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

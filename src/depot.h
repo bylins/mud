@@ -5,8 +5,8 @@
 #ifndef DEPOT_HPP_INCLUDED
 #define DEPOT_HPP_INCLUDED
 
-#include "obj.h"
-#include "structs.h"
+#include "entities/obj_data.h"
+#include "structs/structs.h"
 #include "sysdep.h"
 #include "conf.h"
 
@@ -22,30 +22,32 @@ void save_all_online_objs();
 void update_timers();
 void save_char_by_uid(int uid);
 
-bool is_depot(OBJ_DATA *obj);
-void show_depot(CHAR_DATA *ch);
-bool put_depot(CHAR_DATA *ch, const OBJ_DATA::shared_ptr &obj);
-void take_depot(CHAR_DATA *ch, char *arg, int howmany);
+bool is_depot(ObjData *obj);
+void show_depot(CharData *ch);
+bool put_depot(CharData *ch, const ObjData::shared_ptr &obj);
+void take_depot(CharData *ch, char *arg, int howmany);
 int delete_obj(int vnum);
 
-int get_total_cost_per_day(CHAR_DATA *ch);
-void show_stats(CHAR_DATA *ch);
+int get_total_cost_per_day(CharData *ch);
+void show_stats(CharData *ch);
 
-void enter_char(CHAR_DATA *ch);
-void exit_char(CHAR_DATA *ch);
-void reload_char(long uid, CHAR_DATA *ch);
+void enter_char(CharData *ch);
+void exit_char(CharData *ch);
+void reload_char(long uid, CharData *ch);
 
-int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name);
-bool show_purged_message(CHAR_DATA *ch);
-int print_imm_where_obj(CHAR_DATA *ch, char *arg, int num);
-OBJ_DATA *locate_object(const char *str);
+int print_spell_locate_object(CharData *ch, int count, std::string name);
+bool show_purged_message(CharData *ch);
+int print_imm_where_obj(CharData *ch, char *arg, int num);
+char *look_obj_depot(ObjData *obj);
+ObjData *find_obj_from_depot_and_dec_number(char *arg, int &number);
+ObjData *locate_object(const char *str);
 
-void olc_update_from_proto(int robj_num, OBJ_DATA *olc_proto);
-void rename_char(CHAR_DATA *ch);
+void olc_update_from_proto(int robj_num, ObjData *olc_proto);
+void rename_char(CharData *ch);
 void add_offline_money(long uid, int money);
 
-bool find_set_item(CHAR_DATA *ch, const std::set<int> &vnum_list);
-int report_unrentables(CHAR_DATA *ch, CHAR_DATA *recep);
+bool find_set_item(CharData *ch, const std::set<int> &vnum_list);
+int report_unrentables(CharData *ch, CharData *recep);
 
 void check_rented(int uid);
 void delete_set_item(int uid, int vnum);

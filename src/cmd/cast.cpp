@@ -1,18 +1,11 @@
 #include "cast.h"
 
-#include "chars/char.h"
-#include "obj.h"
-#include "room.h"
-#include "structs.h"
-#include "comm.h"
-#include "skills.h"
-#include "magic/spells.h"
-#include "magic/magic_utils.h"
-#include "features.h"
-#include "classes/class_spell_slots.h"
-#include "magic/spells_info.h"
+#include "entities/char_data.h"
+#include "game_magic/magic_utils.h"
+#include "game_classes/classes_spell_slots.h"
+#include "game_magic/spells_info.h"
 #include "handler.h"
-#include "screen.h"
+#include "color.h"
 
 /*
  * do_cast is the entry point for PC-casted spells.  It parses the arguments,
@@ -20,10 +13,10 @@
  * the spell can be cast, checks for sufficient mana and subtracts it, and
  * passes control to CastSpell().
  */
-void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
-	CHAR_DATA *tch;
-	OBJ_DATA *tobj;
-	ROOM_DATA *troom;
+void do_cast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
+	CharData *tch;
+	ObjData *tobj;
+	RoomData *troom;
 
 	char *s, *t;
 	int i, spellnum, spell_subst, target = 0;
@@ -35,7 +28,7 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(SKILL_GLOBAL_COOLDOWN)) {
+	if (ch->haveCooldown(ESkill::kGlobalCooldown)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
@@ -61,31 +54,31 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 
 	// get: blank, spell name, target name
 	s = strtok(argument, "'*!");
-	if (s == NULL) {
+	if (s == nullptr) {
 		send_to_char("ЧТО вы хотите колдовать?\r\n", ch);
 		return;
 	}
-	s = strtok(NULL, "'*!");
-	if (s == NULL) {
+	s = strtok(nullptr, "'*!");
+	if (s == nullptr) {
 		send_to_char("Название заклинания должно быть заключено в символы : ' или * или !\r\n", ch);
 		return;
 	}
-	t = strtok(NULL, "\0");
+	t = strtok(nullptr, "\0");
 
 	spellnum = FixNameAndFindSpellNum(s);
 	spell_subst = spellnum;
 
 	// Unknown spell
-	if (spellnum < 1 || spellnum > SPELLS_COUNT) {
+	if (spellnum < 1 || spellnum > kSpellCount) {
 		send_to_char("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
 	}
 
 	// Caster is lower than spell level
-	if ((!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP | SPELL_KNOW) ||
+	if ((!IS_SET(GET_SPELL_TYPE(ch, spellnum), kSpellTemp | kSpellKnow) ||
 		GET_REAL_REMORT(ch) < MIN_CAST_REM(spell_info[spellnum], ch)) &&
-		(GET_REAL_LEVEL(ch) < LVL_GRGOD) && (!IS_NPC(ch))) {
-		if (GET_REAL_LEVEL(ch) < MIN_CAST_LEV(spell_info[spellnum], ch)
+		(GetRealLevel(ch) < kLvlGreatGod) && (!IS_NPC(ch))) {
+		if (GetRealLevel(ch) < MIN_CAST_LEV(spell_info[spellnum], ch)
 			|| GET_REAL_REMORT(ch) < MIN_CAST_REM(spell_info[spellnum], ch)
 			|| PlayerClass::slot_for_char(ch, spell_info[spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
 				<= 0) {
@@ -100,9 +93,9 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	// Caster havn't slot
 	if (!GET_SPELL_MEM(ch, spellnum) && !IS_IMMORTAL(ch)) {
 		if (can_use_feat(ch, SPELL_SUBSTITUTE_FEAT)
-			&& (spellnum == SPELL_CURE_LIGHT || spellnum == SPELL_CURE_SERIOUS
-				|| spellnum == SPELL_CURE_CRITIC || spellnum == SPELL_HEAL)) {
-			for (i = 1; i <= SPELLS_COUNT; i++) {
+			&& (spellnum == kSpellCureLight || spellnum == kSpellCureSerious
+				|| spellnum == kSpellCureCritic || spellnum == kSpellHeal)) {
+			for (i = 1; i <= kSpellCount; i++) {
 				if (GET_SPELL_MEM(ch, i) &&
 					spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] ==
 						spell_info[spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) {
@@ -110,7 +103,7 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 					break;
 				}
 			}
-			if (i > SPELLS_COUNT) {
+			if (i > kSpellCount) {
 				send_to_char("У вас нет заученных заклинаний этого круга.\r\n", ch);
 				return;
 			}
@@ -121,7 +114,7 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	}
 
 	// Find the target
-	if (t != NULL)
+	if (t != nullptr)
 		one_argument(t, arg);
 	else
 		*arg = '\0';
@@ -136,7 +129,7 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		send_to_char("Тяжеловато найти цель вашего заклинания!\r\n", ch);
 		return;
 	}
-	if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP) && AFF_FLAGGED(ch, EAffectFlag::AFF_DOMINATION)) {
+	if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), kSpellTemp) && ROOM_FLAGGED(ch->in_room, ROOM_ARENA_DOMINATION)) {
 		send_to_char("На данной арене вы можете колдовать только временные заклинания!\r\n", ch);
 		return;
 	}
@@ -144,9 +137,9 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	// You throws the dice and you takes your chances.. 101% is total failure
 	// Чтобы в бой не вступал с уже взведенной заклинашкой !!!
 	ch->set_cast(0, 0, 0, 0, 0);
-	if (!CalculateCastSuccess(ch, tch, SAVING_STABILITY, spellnum)) {
+	if (!CalcCastSuccess(ch, tch, ESaving::kStability, spellnum)) {
 		if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)))
-			WAIT_STATE(ch, PULSE_VIOLENCE);
+			WAIT_STATE(ch, kPulseViolence);
 		if (GET_SPELL_MEM(ch, spell_subst)) {
 			GET_SPELL_MEM(ch, spell_subst)--;
 		}
@@ -165,10 +158,10 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 					"Вы приготовились применить заклинание %s'%s'%s%s.\r\n",
 					CCCYN(ch, C_NRM), spell_info[spellnum].name, CCNRM(ch, C_NRM),
 					tch == ch ? " на себя" : tch ? " на $N3" : tobj ? " на $o3" : troom ? " на всех" : "");
-			act(buf, FALSE, ch, tobj, tch, TO_CHAR);
+			act(buf, false, ch, tobj, tch, kToChar);
 		} else if (CastSpell(ch, tch, tobj, troom, spellnum, spell_subst) >= 0) {
 			if (!(WAITLESS(ch) || CHECK_WAIT(ch)))
-				WAIT_STATE(ch, PULSE_VIOLENCE);
+				WAIT_STATE(ch, kPulseViolence);
 		}
 	}
 }

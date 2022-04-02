@@ -18,9 +18,10 @@
 #include "act_movement.h"
 #include "cmd_god/ban.h"
 #include "boards/boards.h"
-#include "chars/char.h"
-#include "chars/char_player.h"
-#include "chars/world.characters.h"
+#include "entities/char_data.h"
+#include "entities/char_player.h"
+#include "entities/world_characters.h"
+#include "communication/insult.h"
 #include "cmd_god/stat.h"
 #include "cmd_god/godtest.h"
 #include "cmd/follow.h"
@@ -40,6 +41,7 @@
 #include "comm.h"
 #include "constants.h"
 #include "crafts/craft_commands.h"
+#include "crafts/jewelry.h"
 #include "db.h"
 #include "depot.h"
 #include "dg_script/dg_scripts.h"
@@ -49,74 +51,75 @@
 #include "fightsystem/pk.h"
 #include "fightsystem/fight_start.h"
 #include "genchar.h"
-#include "glory.h"
-#include "glory_const.h"
-#include "glory_misc.h"
+#include "game_classes/classes.h"
+#include "game_mechanics/glory.h"
+#include "game_mechanics/glory_const.h"
+#include "game_mechanics/glory_misc.h"
 #include "handler.h"
 #include "heartbeat_commands.h"
 #include "house.h"
 #include "crafts/item_creation.h"
 #include "liquid.h"
-#include "logger.h"
-#include "mail.h"
+#include "utils/logger.h"
+#include "communication/mail.h"
 #include "modify.h"
 #include "name_list.h"
-#include "named_stuff.h"
+#include "game_mechanics/named_stuff.h"
 #include "names.h"
-#include "obj.h"
+#include "entities/obj_data.h"
 #include "obj_prototypes.h"
 #include "olc/olc.h"
-#include "parcel.h"
-#include "password.h"
-#include "privilege.h"
-#include "room.h"
-#include "screen.h"
-#include "skills.h"
-#include "skills/bash.h"
-#include "skills/block.h"
-#include "skills/chopoff.h"
-#include "skills/disarm.h"
-#include "skills/ironwind.h"
-#include "skills/kick.h"
-#include "skills/manadrain.h"
-#include "skills/mighthit.h"
-#include "skills/parry.h"
-#include "skills/protect.h"
-#include "skills/resque.h"
-#include "skills/strangle.h"
-#include "skills/stun.h"
-#include "skills/stupor.h"
-#include "skills/throw.h"
-#include "skills/track.h"
-#include "skills/turnundead.h"
-#include "skills/warcry.h"
-#include "skills/relocate.h"
-#include "magic/spells.h"
+#include "communication/parcel.h"
+#include "administration/password.h"
+#include "administration/privilege.h"
+#include "entities/room_data.h"
+#include "color.h"
+#include "game_skills/skills.h"
+#include "game_skills/bash.h"
+#include "game_skills/block.h"
+#include "game_skills/chopoff.h"
+#include "game_skills/disarm.h"
+#include "game_skills/ironwind.h"
+#include "game_skills/kick.h"
+#include "game_skills/manadrain.h"
+#include "game_skills/mighthit.h"
+#include "game_skills/parry.h"
+#include "game_skills/protect.h"
+#include "game_skills/resque.h"
+#include "game_skills/strangle.h"
+#include "game_skills/stun.h"
+#include "game_skills/stupor.h"
+#include "game_skills/throw.h"
+#include "game_skills/track.h"
+#include "game_skills/turnundead.h"
+#include "game_skills/warcry.h"
+#include "game_skills/relocate.h"
+#include "game_magic/spells.h"
 #include "time.h"
 #include "title.h"
 #include "top.h"
-#include "skills_info.h"
+#include "game_skills/skills_info.h"
 
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"
 #endif
-#include "chars/player_races.h"
+#include "entities/player_races.h"
 #include "birthplaces.h"
 #include "help.h"
 #include "mapsystem.h"
-#include "ext_money.h"
+#include "game_economics/ext_money.h"
 #include "noob.h"
 #include "reset_stats.h"
-#include "obj_sets.h"
+#include "game_mechanics/obj_sets.h"
 #include "utils/utils.h"
-#include "magic/magic_temp_spells.h"
-#include "structs.h"
+#include "game_magic/magic_temp_spells.h"
+#include "structs/structs.h"
 #include "sysdep.h"
 #include "conf.h"
-#include "bonus.h"
+#include "game_mechanics/bonus.h"
 #include "utils/utils_debug.h"
-#include "global_objects.h"
-#include "chars/accounts.h"
+#include "structs/global_objects.h"
+#include "administration/accounts.h"
 #include "fightsystem/pk.h"
 
 #include <boost/lexical_cast.hpp>
@@ -131,295 +134,282 @@
 #include <arpa/inet.h>
 #endif
 
-extern room_rnum r_mortal_start_room;
-extern room_rnum r_immort_start_room;
-extern room_rnum r_frozen_start_room;
-extern room_rnum r_helled_start_room;
-extern room_rnum r_named_start_room;
-extern room_rnum r_unreg_start_room;
-extern const char *class_menu;
-extern const char *class_menu_vik;
-extern const char *class_menu_step;
+//extern RoomRnum r_mortal_start_room;
+//extern RoomRnum r_immort_start_room;
+extern RoomRnum r_frozen_start_room;
+//extern RoomRnum r_helled_start_room;
+//extern RoomRnum r_named_start_room;
+//extern RoomRnum r_unreg_start_room;
 extern const char *religion_menu;
 extern char *motd;
 extern char *rules;
 extern char *background;
-extern const char *MENU;
+//extern const char *MENU;
 extern const char *WELC_MESSG;
 extern const char *START_MESSG;
-extern DESCRIPTOR_DATA *descriptor_list;
+//extern DescriptorData *descriptor_list;
 extern int circle_restrict;
 extern int no_specials;
 extern int max_bad_pws;
-extern INDEX_DATA *mob_index;
+//extern IndexData *mob_index;
 extern const char *default_race[];
-extern void add_karma(CHAR_DATA *ch, const char *punish, const char *reason);
-extern struct pclean_criteria_data pclean_criteria[];
+extern void add_karma(CharData *ch, const char *punish, const char *reason);
+extern struct PCCleanCriteria pclean_criteria[];
 extern int rent_file_timeout;
 
 extern char *GREETINGS;
-extern const char *pc_class_types[];
-extern const char *pc_class_types_vik[];
-extern const char *pc_class_types_step[];
-//extern const char *race_types[];
-extern const char *race_types_step[];
-extern const char *race_types_vik[];
 extern const char *kin_types[];
 extern struct set_struct set_fields[];
 extern struct show_struct show_fields[];
 extern char *name_rules;
 
 // external functions
-void do_start(CHAR_DATA *ch, int newbie);
-int parse_class(char arg);
-int parse_class_vik(char arg);
-int parse_class_step(char arg);
+void do_start(CharData *ch, int newbie);
 int Valid_Name(char *newname);
 int Is_Valid_Name(char *newname);
 int Is_Valid_Dc(char *newname);
-void read_aliases(CHAR_DATA *ch);
-void write_aliases(CHAR_DATA *ch);
-void read_saved_vars(CHAR_DATA *ch);
-void oedit_parse(DESCRIPTOR_DATA *d, char *arg);
-void redit_parse(DESCRIPTOR_DATA *d, char *arg);
-void zedit_parse(DESCRIPTOR_DATA *d, char *arg);
-void medit_parse(DESCRIPTOR_DATA *d, char *arg);
-void trigedit_parse(DESCRIPTOR_DATA *d, char *arg);
+void read_aliases(CharData *ch);
+void write_aliases(CharData *ch);
+void read_saved_vars(CharData *ch);
+void oedit_parse(DescriptorData *d, char *arg);
+void redit_parse(DescriptorData *d, char *arg);
+void zedit_parse(DescriptorData *d, char *arg);
+void medit_parse(DescriptorData *d, char *arg);
+void trigedit_parse(DescriptorData *d, char *arg);
 int find_social(char *name);
-extern int CheckProxy(DESCRIPTOR_DATA *ch);
-extern void check_max_hp(CHAR_DATA *ch);
+extern int CheckProxy(DescriptorData *ch);
+extern void check_max_hp(CharData *ch);
 // local functions
-int perform_dupe_check(DESCRIPTOR_DATA *d);
+int perform_dupe_check(DescriptorData *d);
 struct alias_data *find_alias(struct alias_data *alias_list, char *str);
-void free_alias(struct alias_data *a);
-void perform_complex_alias(struct txt_q *input_q, char *orig, struct alias_data *a);
-int perform_alias(DESCRIPTOR_DATA *d, char *orig);
+//void free_alias(struct alias_data *a);
+void perform_complex_alias(struct TextBlocksQueue *input_q, char *orig, struct alias_data *a);
+int perform_alias(DescriptorData *d, char *orig);
 int reserved_word(const char *argument);
 int _parse_name(char *arg, char *name);
-void add_logon_record(DESCRIPTOR_DATA *d);
+void add_logon_record(DescriptorData *d);
 // prototypes for all do_x functions.
 int find_action(char *cmd);
-int do_social(CHAR_DATA *ch, char *argument);
-void init_warcry(CHAR_DATA *ch);
+int do_social(CharData *ch, char *argument);
+void init_warcry(CharData *ch);
 
-void do_advance(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_alias(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_antigods(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_at(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_affects(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_backstab(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_ban(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_beep(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_cast(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_warcry(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_clanstuff(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_create(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_expedient_cut(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_mixture(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_courage(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_commands(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_consider(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_credits(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_date(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_dc(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_diagnose(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_display(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_drink(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_drunkoff(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_features(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_featset(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_firstaid(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_fire(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_drop(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_eat(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_echo(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_equipment(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_examine(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_remort(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_remember_char(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_exit(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_exits(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_horseon(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_horseoff(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_horseput(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_horseget(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_horsetake(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_hidemove(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_fit(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_force(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_extinguish(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_forcetime(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_glory(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_gecho(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_gen_comm(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_mobshout(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_gen_ps(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_get(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_give(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_givehorse(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_gold(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_goto(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_grab(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_group(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_gsay(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_hide(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_info(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_inspect(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_insult(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_inventory(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_invis(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_last(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_mode(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_mark(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_makefood(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_deviate(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_levels(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_liblist(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_lightwalk(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_load(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_loadstat(CHAR_DATA *ch, char *argument, int cmd, int subbcmd);
-void do_look(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_sides(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_not_here(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_offer(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_page(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_pray(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_poofset(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_pour(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_skills(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_statistic(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_spells(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_spellstat(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_memorize(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_learn(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_forget(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_purge(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_put(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_quit(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_reboot(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_remove(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_rent(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_reply(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_report(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_refill(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_setall(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_stophorse(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_restore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_return(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_save(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_say(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_score(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_sdemigod(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_send(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_set(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_show(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_shutdown(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_skillset(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_sneak(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_snoop(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_spec_comm(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_spell_capable(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_split(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_split(CHAR_DATA *ch, char *argument, int cmd, int subcmd, int currency);
-void do_fry(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_steal(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_switch(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_syslog(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_teleport(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_tell(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_time(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_toggle(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_sense(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_unban(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_ungroup(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_employ(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_users(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_visible(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_vnum(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_vstat(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_wear(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_weather(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_where(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_who(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_wield(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_wimpy(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_wizlock(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_wiznet(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_wizutil(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_write(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_zreset(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_style(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_poisoned(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_repair(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_camouflage(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_touch(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_transform_weapon(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_dig(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_insertgem(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_ignore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_proxy(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_exchange(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_godtest(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_print_armor(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_relocate(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_custom_label(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_quest(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_check(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_advance(CharData *ch, char *argument, int cmd, int subcmd);
+void do_alias(CharData *ch, char *argument, int cmd, int subcmd);
+void do_antigods(CharData *ch, char *argument, int cmd, int subcmd);
+void do_at(CharData *ch, char *argument, int cmd, int subcmd);
+void do_affects(CharData *ch, char *argument, int cmd, int subcmd);
+void do_backstab(CharData *ch, char *argument, int cmd, int subcmd);
+void do_ban(CharData *ch, char *argument, int cmd, int subcmd);
+void do_beep(CharData *ch, char *argument, int cmd, int subcmd);
+//void do_cast(CharData *ch, char *argument, int cmd, int subcmd);
+//void do_warcry(CharData *ch, char *argument, int cmd, int subcmd);
+void do_clanstuff(CharData *ch, char *argument, int cmd, int subcmd);
+//void do_create(CharData *ch, char *argument, int cmd, int subcmd);
+void DoExpedientCut(CharData *ch, char *argument, int, int);
+//void do_mixture(CharData *ch, char *argument, int cmd, int subcmd);
+void do_courage(CharData *ch, char *argument, int cmd, int subcmd);
+void do_commands(CharData *ch, char *argument, int cmd, int subcmd);
+void do_consider(CharData *ch, char *argument, int cmd, int subcmd);
+void do_credits(CharData *ch, char *argument, int cmd, int subcmd);
+void do_date(CharData *ch, char *argument, int cmd, int subcmd);
+void do_dc(CharData *ch, char *argument, int cmd, int subcmd);
+void do_diagnose(CharData *ch, char *argument, int cmd, int subcmd);
+void do_display(CharData *ch, char *argument, int cmd, int subcmd);
+//void do_drink(CharData *ch, char *argument, int cmd, int subcmd);
+//void do_drunkoff(CharData *ch, char *argument, int cmd, int subcmd);
+void do_features(CharData *ch, char *argument, int cmd, int subcmd);
+void do_featset(CharData *ch, char *argument, int cmd, int subcmd);
+void do_firstaid(CharData *ch, char *argument, int cmd, int subcmd);
+void do_fire(CharData *ch, char *argument, int cmd, int subcmd);
+void do_drop(CharData *ch, char *argument, int cmd, int subcmd);
+void do_eat(CharData *ch, char *argument, int cmd, int subcmd);
+void do_echo(CharData *ch, char *argument, int cmd, int subcmd);
+void do_equipment(CharData *ch, char *argument, int cmd, int subcmd);
+void do_examine(CharData *ch, char *argument, int cmd, int subcmd);
+void do_remort(CharData *ch, char *argument, int cmd, int subcmd);
+void do_remember_char(CharData *ch, char *argument, int cmd, int subcmd);
+void do_exit(CharData *ch, char *argument, int cmd, int subcmd);
+void do_exits(CharData *ch, char *argument, int cmd, int subcmd);
+void do_horseon(CharData *ch, char *argument, int cmd, int subcmd);
+void do_horseoff(CharData *ch, char *argument, int cmd, int subcmd);
+void do_horseput(CharData *ch, char *argument, int cmd, int subcmd);
+void do_horseget(CharData *ch, char *argument, int cmd, int subcmd);
+void do_horsetake(CharData *ch, char *argument, int cmd, int subcmd);
+void do_hidemove(CharData *ch, char *argument, int cmd, int subcmd);
+void do_fit(CharData *ch, char *argument, int cmd, int subcmd);
+void do_force(CharData *ch, char *argument, int cmd, int subcmd);
+void do_extinguish(CharData *ch, char *argument, int cmd, int subcmd);
+void do_forcetime(CharData *ch, char *argument, int cmd, int subcmd);
+void do_glory(CharData *ch, char *argument, int cmd, int subcmd);
+void do_gecho(CharData *ch, char *argument, int cmd, int subcmd);
+void do_gen_comm(CharData *ch, char *argument, int cmd, int subcmd);
+void do_mobshout(CharData *ch, char *argument, int cmd, int subcmd);
+void do_gen_ps(CharData *ch, char *argument, int cmd, int subcmd);
+void do_get(CharData *ch, char *argument, int cmd, int subcmd);
+void do_give(CharData *ch, char *argument, int cmd, int subcmd);
+void do_givehorse(CharData *ch, char *argument, int cmd, int subcmd);
+void do_gold(CharData *ch, char *argument, int cmd, int subcmd);
+void do_goto(CharData *ch, char *argument, int cmd, int subcmd);
+void do_grab(CharData *ch, char *argument, int cmd, int subcmd);
+void do_group(CharData *ch, char *argument, int cmd, int subcmd);
+void do_gsay(CharData *ch, char *argument, int cmd, int subcmd);
+void do_hide(CharData *ch, char *argument, int cmd, int subcmd);
+void do_info(CharData *ch, char *argument, int cmd, int subcmd);
+void do_inspect(CharData *ch, char *argument, int cmd, int subcmd);
+//void do_insult(CharData *ch, char *argument, int cmd, int subcmd);
+void do_inventory(CharData *ch, char *argument, int cmd, int subcmd);
+void do_invis(CharData *ch, char *argument, int cmd, int subcmd);
+void do_last(CharData *ch, char *argument, int cmd, int subcmd);
+void do_mode(CharData *ch, char *argument, int cmd, int subcmd);
+void do_mark(CharData *ch, char *argument, int cmd, int subcmd);
+void do_makefood(CharData *ch, char *argument, int cmd, int subcmd);
+void do_deviate(CharData *ch, char *argument, int cmd, int subcmd);
+void do_levels(CharData *ch, char *argument, int cmd, int subcmd);
+void do_liblist(CharData *ch, char *argument, int cmd, int subcmd);
+void do_lightwalk(CharData *ch, char *argument, int cmd, int subcmd);
+void do_load(CharData *ch, char *argument, int cmd, int subcmd);
+void do_loadstat(CharData *ch, char *argument, int cmd, int subbcmd);
+void do_look(CharData *ch, char *argument, int cmd, int subcmd);
+void do_sides(CharData *ch, char *argument, int cmd, int subcmd);
+void do_not_here(CharData *ch, char *argument, int cmd, int subcmd);
+void do_offer(CharData *ch, char *argument, int cmd, int subcmd);
+void do_olc(CharData *ch, char *argument, int cmd, int subcmd);
+void do_page(CharData *ch, char *argument, int cmd, int subcmd);
+void do_pray(CharData *ch, char *argument, int cmd, int subcmd);
+void do_poofset(CharData *ch, char *argument, int cmd, int subcmd);
+//void do_pour(CharData *ch, char *argument, int cmd, int subcmd);
+void do_skills(CharData *ch, char *argument, int cmd, int subcmd);
+void do_statistic(CharData *ch, char *argument, int cmd, int subcmd);
+void do_spells(CharData *ch, char *argument, int cmd, int subcmd);
+void do_spellstat(CharData *ch, char *argument, int cmd, int subcmd);
+//void do_memorize(CharData *ch, char *argument, int cmd, int subcmd);
+//void do_learn(CharData *ch, char *argument, int cmd, int subcmd);
+//void do_forget(CharData *ch, char *argument, int cmd, int subcmd);
+void do_purge(CharData *ch, char *argument, int cmd, int subcmd);
+void do_put(CharData *ch, char *argument, int cmd, int subcmd);
+void do_quit(CharData *ch, char *argument, int /* cmd */, int subcmd);
+void do_reboot(CharData *ch, char *argument, int cmd, int subcmd);
+void do_remove(CharData *ch, char *argument, int cmd, int subcmd);
+void do_rent(CharData *ch, char *argument, int cmd, int subcmd);
+void do_reply(CharData *ch, char *argument, int cmd, int subcmd);
+void do_report(CharData *ch, char *argument, int cmd, int subcmd);
+void do_refill(CharData *ch, char *argument, int cmd, int subcmd);
+void do_setall(CharData *ch, char *argument, int cmd, int subcmd);
+void do_stophorse(CharData *ch, char *argument, int cmd, int subcmd);
+void do_restore(CharData *ch, char *argument, int cmd, int subcmd);
+void do_return(CharData *ch, char *argument, int cmd, int subcmd);
+void do_save(CharData *ch, char *argument, int cmd, int subcmd);
+void do_say(CharData *ch, char *argument, int cmd, int subcmd);
+void DoScore(CharData *ch, char *argument, int, int);
+void do_sdemigod(CharData *ch, char *argument, int cmd, int subcmd);
+void do_send(CharData *ch, char *argument, int cmd, int subcmd);
+void do_set(CharData *ch, char *argument, int cmd, int subcmd);
+void do_show(CharData *ch, char *argument, int cmd, int subcmd);
+void do_shutdown(CharData *ch, char *argument, int cmd, int subcmd);
+void do_skillset(CharData *ch, char *argument, int cmd, int subcmd);
+void do_sneak(CharData *ch, char *argument, int cmd, int subcmd);
+void do_snoop(CharData *ch, char *argument, int cmd, int subcmd);
+void do_spec_comm(CharData *ch, char *argument, int cmd, int subcmd);
+void do_spell_capable(CharData *ch, char *argument, int cmd, int subcmd);
+void do_split(CharData *ch, char *argument, int cmd, int subcmd);
+void do_split(CharData *ch, char *argument, int cmd, int subcmd, int currency);
+void do_fry(CharData *ch, char *argument, int cmd, int subcmd);
+void do_steal(CharData *ch, char *argument, int cmd, int subcmd);
+void do_switch(CharData *ch, char *argument, int cmd, int subcmd);
+void do_syslog(CharData *ch, char *argument, int cmd, int subcmd);
+void do_teleport(CharData *ch, char *argument, int cmd, int subcmd);
+void do_tell(CharData *ch, char *argument, int cmd, int subcmd);
+void do_time(CharData *ch, char *argument, int cmd, int subcmd);
+void do_toggle(CharData *ch, char *argument, int cmd, int subcmd);
+void do_sense(CharData *ch, char *argument, int cmd, int subcmd);
+void do_unban(CharData *ch, char *argument, int cmd, int subcmd);
+void do_ungroup(CharData *ch, char *argument, int cmd, int subcmd);
+//void do_employ(CharData *ch, char *argument, int cmd, int subcmd);
+void do_users(CharData *ch, char *argument, int cmd, int subcmd);
+void do_visible(CharData *ch, char *argument, int cmd, int subcmd);
+void do_vnum(CharData *ch, char *argument, int cmd, int subcmd);
+void do_vstat(CharData *ch, char *argument, int cmd, int subcmd);
+void do_wear(CharData *ch, char *argument, int cmd, int subcmd);
+void do_weather(CharData *ch, char *argument, int cmd, int subcmd);
+void do_where(CharData *ch, char *argument, int cmd, int subcmd);
+void do_who(CharData *ch, char *argument, int cmd, int subcmd);
+void do_wield(CharData *ch, char *argument, int cmd, int subcmd);
+void do_wimpy(CharData *ch, char *argument, int cmd, int subcmd);
+void do_wizlock(CharData *ch, char *argument, int cmd, int subcmd);
+void do_wiznet(CharData *ch, char *argument, int cmd, int subcmd);
+void do_wizutil(CharData *ch, char *argument, int cmd, int subcmd);
+void do_write(CharData *ch, char *argument, int cmd, int subcmd);
+void do_zreset(CharData *ch, char *argument, int cmd, int subcmd);
+void do_style(CharData *ch, char *argument, int cmd, int subcmd);
+void do_poisoned(CharData *ch, char *argument, int cmd, int subcmd);
+void do_repair(CharData *ch, char *argument, int cmd, int subcmd);
+void do_camouflage(CharData *ch, char *argument, int cmd, int subcmd);
+void do_touch(CharData *ch, char *argument, int cmd, int subcmd);
+void do_transform_weapon(CharData *ch, char *argument, int cmd, int subcmd);
+void do_dig(CharData *ch, char *argument, int cmd, int subcmd);
+void do_insertgem(CharData *ch, char *argument, int cmd, int subcmd);
+void do_ignore(CharData *ch, char *argument, int cmd, int subcmd);
+void do_proxy(CharData *ch, char *argument, int cmd, int subcmd);
+void do_exchange(CharData *ch, char *argument, int cmd, int subcmd);
+//void do_godtest(CharData *ch, char *argument, int cmd, int subcmd);
+void do_print_armor(CharData *ch, char *argument, int cmd, int subcmd);
+//void do_relocate(CharData *ch, char *argument, int cmd, int subcmd);
+void do_custom_label(CharData *ch, char *argument, int cmd, int subcmd);
+void do_quest(CharData *ch, char *argument, int cmd, int subcmd);
+void do_check(CharData *ch, char *argument, int cmd, int subcmd);
 // DG Script ACMD's
-void do_attach(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_detach(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_tlist(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_tstat(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_vdelete(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_hearing(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_looking(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_identify(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_upgrade(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_armored(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_recall(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_pray_gods(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_rset(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_recipes(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_cook(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_forgive(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_townportal(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void DoHouse(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void DoClanChannel(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void DoClanList(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void DoShowPolitics(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void DoShowWars(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_show_alliance(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void DoHcontrol(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void DoWhoClan(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void DoClanPkList(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void DoStoreHouse(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_clanstuff(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void DoBest(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_offtop(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_dmeter(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_mystat(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_zone(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_bandage(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_sanitize(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_morph(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_morphset(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_console(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_shops_list(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_unfreeze(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void Bonus::do_bonus_by_character(CHAR_DATA *, char *, int, int);
-void do_summon(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_check_occupation(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_delete_obj(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_arena_restore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void Bonus::do_bonus_info(CHAR_DATA *, char *, int, int);
-void do_showzonestats(CHAR_DATA *, char *, int, int);
-void do_overstuff(CHAR_DATA *ch, char *, int, int);
-void do_cities(CHAR_DATA *ch, char *, int, int);
-void do_send_text_to_char(CHAR_DATA *ch, char *, int, int);
-void do_add_wizard(CHAR_DATA *ch, char *, int, int);
-void do_touch_stigma(CHAR_DATA *ch, char *, int, int);
-void do_show_mobmax(CHAR_DATA *ch, char *, int, int);
+void do_attach(CharData *ch, char *argument, int cmd, int subcmd);
+void do_detach(CharData *ch, char *argument, int cmd, int subcmd);
+void do_tlist(CharData *ch, char *argument, int cmd, int subcmd);
+void do_tstat(CharData *ch, char *argument, int cmd, int subcmd);
+void do_vdelete(CharData *ch, char *argument, int cmd, int subcmd);
+void do_hearing(CharData *ch, char *argument, int cmd, int subcmd);
+void do_looking(CharData *ch, char *argument, int cmd, int subcmd);
+void do_identify(CharData *ch, char *argument, int cmd, int subcmd);
+void do_upgrade(CharData *ch, char *argument, int cmd, int subcmd);
+void do_armored(CharData *ch, char *argument, int cmd, int subcmd);
+void do_recall(CharData *ch, char *argument, int cmd, int subcmd);
+void do_pray_gods(CharData *ch, char *argument, int cmd, int subcmd);
+void do_rset(CharData *ch, char *argument, int cmd, int subcmd);
+void do_recipes(CharData *ch, char *argument, int cmd, int subcmd);
+void do_cook(CharData *ch, char *argument, int cmd, int subcmd);
+void do_forgive(CharData *ch, char *argument, int cmd, int subcmd);
+void do_townportal(CharData *ch, char *argument, int cmd, int subcmd);
+void DoHouse(CharData *ch, char *argument, int cmd, int subcmd);
+void DoClanChannel(CharData *ch, char *argument, int cmd, int subcmd);
+void DoClanList(CharData *ch, char *argument, int cmd, int subcmd);
+void DoShowPolitics(CharData *ch, char *argument, int cmd, int subcmd);
+void DoShowWars(CharData *ch, char *argument, int cmd, int subcmd);
+void do_show_alliance(CharData *ch, char *argument, int cmd, int subcmd);
+void DoHcontrol(CharData *ch, char *argument, int cmd, int subcmd);
+void DoWhoClan(CharData *ch, char *argument, int cmd, int subcmd);
+void DoClanPkList(CharData *ch, char *argument, int cmd, int subcmd);
+void DoStoreHouse(CharData *ch, char *argument, int cmd, int subcmd);
+//void do_clanstuff(CharData *ch, char *argument, int cmd, int subcmd);
+void DoBest(CharData *ch, char *argument, int cmd, int subcmd);
+void do_offtop(CharData *ch, char *argument, int cmd, int subcmd);
+void do_dmeter(CharData *ch, char *argument, int cmd, int subcmd);
+void do_mystat(CharData *ch, char *argument, int cmd, int subcmd);
+void do_zone(CharData *ch, char *argument, int cmd, int subcmd);
+void do_bandage(CharData *ch, char *argument, int cmd, int subcmd);
+void do_sanitize(CharData *ch, char *argument, int cmd, int subcmd);
+void do_morph(CharData *ch, char *argument, int cmd, int subcmd);
+void do_morphset(CharData *ch, char *argument, int cmd, int subcmd);
+void do_console(CharData *ch, char *argument, int cmd, int subcmd);
+void do_shops_list(CharData *ch, char *argument, int cmd, int subcmd);
+void do_unfreeze(CharData *ch, char *argument, int cmd, int subcmd);
+//void Bonus::do_bonus_by_character(CharData *, char *, int, int);
+void do_summon(CharData *ch, char *argument, int cmd, int subcmd);
+void do_check_occupation(CharData *ch, char *argument, int cmd, int subcmd);
+void do_delete_obj(CharData *ch, char *argument, int cmd, int subcmd);
+void do_arena_restore(CharData *ch, char *argument, int cmd, int subcmd);
+//void Bonus::do_bonus_info(CharData *, char *, int, int);
+void do_showzonestats(CharData *, char *, int, int);
+void do_overstuff(CharData *ch, char *, int, int);
+void do_cities(CharData *ch, char *, int, int);
+void do_send_text_to_char(CharData *ch, char *, int, int);
+void do_touch_stigma(CharData *ch, char *, int, int);
+void do_show_mobmax(CharData *ch, char *, int, int);
 
 /* This is the Master Command List(tm).
 
@@ -434,9 +424,6 @@ void do_show_mobmax(CHAR_DATA *ch, char *, int, int);
  * priority.
  */
 
-#define MAGIC_NUM 419
-#define MAGIC_LEN 8
-
 // здесь храним коды, которые отправили игрокам на почту
 // строка - это мыло, если один чар вошел с необычного места, то блочим сразу всех чаров на этом мыле,
 // пока не введет код (или до ребута)
@@ -445,7 +432,7 @@ std::map<std::string, int> new_loc_codes;
 // имя чара на код, отправленный на почту для подтверждения мыла при создании
 std::map<std::string, int> new_char_codes;
 
-void do_debug_queues(CHAR_DATA * /*ch*/, char *argument, int /*cmd*/, int /*subcmd*/) {
+void do_debug_queues(CharData * /*ch*/, char *argument, int /*cmd*/, int /*subcmd*/) {
 	std::stringstream ss;
 	if (argument && *argument) {
 		debug::log_queue(argument).print_queue(ss, argument);
@@ -457,639 +444,638 @@ void do_debug_queues(CHAR_DATA * /*ch*/, char *argument, int /*cmd*/, int /*subc
 		q.second.print_queue(ss, q.first);
 	}
 
-	mudlog(ss.str().c_str(), DEF, LVL_GOD, ERRLOG, TRUE);
+	mudlog(ss.str().c_str(), DEF, kLvlGod, ERRLOG, true);
 }
 
 cpp_extern const struct command_info cmd_info[] =
 	{
-		{"RESERVED", 0, 0, 0, 0, 0},    // this must be first -- for specprocs
+		{"RESERVED", EPosition::kDead, nullptr, 0, 0, 0},    // this must be first -- for specprocs
 
 		// directions must come before other commands but after RESERVED
-		{"север", POS_STANDING, do_move, 0, SCMD_NORTH, -2},
-		{"восток", POS_STANDING, do_move, 0, SCMD_EAST, -2},
-		{"юг", POS_STANDING, do_move, 0, SCMD_SOUTH, -2},
-		{"запад", POS_STANDING, do_move, 0, SCMD_WEST, -2},
-		{"вверх", POS_STANDING, do_move, 0, SCMD_UP, -2},
-		{"вниз", POS_STANDING, do_move, 0, SCMD_DOWN, -2},
-		{"north", POS_STANDING, do_move, 0, SCMD_NORTH, -2},
-		{"east", POS_STANDING, do_move, 0, SCMD_EAST, -2},
-		{"south", POS_STANDING, do_move, 0, SCMD_SOUTH, -2},
-		{"west", POS_STANDING, do_move, 0, SCMD_WEST, -2},
-		{"up", POS_STANDING, do_move, 0, SCMD_UP, -2},
-		{"down", POS_STANDING, do_move, 0, SCMD_DOWN, -2},
+		{"север", EPosition::kStand, do_move, 0, SCMD_NORTH, -2},
+		{"восток", EPosition::kStand, do_move, 0, SCMD_EAST, -2},
+		{"юг", EPosition::kStand, do_move, 0, SCMD_SOUTH, -2},
+		{"запад", EPosition::kStand, do_move, 0, SCMD_WEST, -2},
+		{"вверх", EPosition::kStand, do_move, 0, SCMD_UP, -2},
+		{"вниз", EPosition::kStand, do_move, 0, SCMD_DOWN, -2},
+		{"north", EPosition::kStand, do_move, 0, SCMD_NORTH, -2},
+		{"east", EPosition::kStand, do_move, 0, SCMD_EAST, -2},
+		{"south", EPosition::kStand, do_move, 0, SCMD_SOUTH, -2},
+		{"west", EPosition::kStand, do_move, 0, SCMD_WEST, -2},
+		{"up", EPosition::kStand, do_move, 0, SCMD_UP, -2},
+		{"down", EPosition::kStand, do_move, 0, SCMD_DOWN, -2},
 
-		{"аффекты", POS_DEAD, do_affects, 0, SCMD_AUCTION, 0},
-		{"авторы", POS_DEAD, do_gen_ps, 0, SCMD_CREDITS, 0},
-		{"атаковать", POS_FIGHTING, do_hit, 0, SCMD_MURDER, -1},
-		{"аукцион", POS_RESTING, do_gen_comm, 0, SCMD_AUCTION, 100},
-		{"анонсы", POS_DEAD, Boards::DoBoard, 1, Boards::NOTICE_BOARD, -1},
+		{"аффекты", EPosition::kDead, do_affects, 0, SCMD_AUCTION, 0},
+		{"авторы", EPosition::kDead, do_gen_ps, 0, SCMD_CREDITS, 0},
+		{"атаковать", EPosition::kFight, do_hit, 0, SCMD_MURDER, -1},
+		{"аукцион", EPosition::kRest, do_gen_comm, 0, SCMD_AUCTION, 100},
+		{"анонсы", EPosition::kDead, Boards::DoBoard, 1, Boards::NOTICE_BOARD, -1},
 
-		{"базар", POS_RESTING, do_exchange, 1, 0, -1},
-		{"баланс", POS_STANDING, do_not_here, 1, 0, 0},
-		{"баги", POS_DEAD, Boards::DoBoard, 1, Boards::ERROR_BOARD, 0},
-		{"бежать", POS_FIGHTING, do_flee, 1, 0, -1},
-		{"бинтовать", POS_RESTING, do_bandage, 0, 0, 0},
-		{"билдер", POS_DEAD, Boards::DoBoard, 1, Boards::GODBUILD_BOARD, -1},
-		{"блок", POS_FIGHTING, do_block, 0, 0, -1},
-		{"блокнот", POS_DEAD, Boards::DoBoard, 1, Boards::PERS_BOARD, -1},
-		{"боги", POS_DEAD, do_gen_ps, 0, SCMD_IMMLIST, 0},
-		{"божества", POS_DEAD, Boards::DoBoard, 1, Boards::GODGENERAL_BOARD, -1},
-		{"болтать", POS_RESTING, do_gen_comm, 0, SCMD_GOSSIP, -1},
-		{"бонус", POS_DEAD, Bonus::do_bonus_by_character, LVL_IMPL, 0, 0},
-		{"бонусинфо", POS_DEAD, Bonus::do_bonus_info, LVL_IMPL, 0, 0},
-		{"бросить", POS_RESTING, do_drop, 0, SCMD_DROP, -1},
-		{"варить", POS_RESTING, do_cook, 0, 0, 200},
-		{"версия", POS_DEAD, do_gen_ps, 0, SCMD_VERSION, 0},
-		{"вече", POS_DEAD, Boards::DoBoard, 1, Boards::GENERAL_BOARD, -1},
-		{"взять", POS_RESTING, do_get, 0, 0, 200},
-		{"взглянуть", POS_RESTING, do_diagnose, 0, 0, 100},
-		{"взломать", POS_STANDING, do_gen_door, 1, DOOR_SCMD::SCMD_PICK, -1},
-		{"вихрь", POS_FIGHTING, do_iron_wind, 0, 0, -1},
-		{"вложить", POS_STANDING, do_not_here, 1, 0, -1},
-		{"вернуть", POS_STANDING, do_not_here, 0, 0, -1},
-		{"вернуться", POS_DEAD, do_return, 0, 0, -1},
-		{"войти", POS_STANDING, do_enter, 0, 0, -2},
-		{"война", POS_RESTING, DoShowWars, 0, 0, 0},
-		{"вооружиться", POS_RESTING, do_wield, 0, 0, 200},
-		{"возврат", POS_RESTING, do_recall, 0, 0, -1},
-		{"воззвать", POS_DEAD, do_pray_gods, 0, 0, -1},
-		{"вплавить", POS_STANDING, do_insertgem, 0, SKILL_INSERTGEM, -1},
-		{"время", POS_DEAD, do_time, 0, 0, 0},
-		{"врата", POS_SITTING, do_townportal, 1, 0, -1},
-		{"вскочить", POS_FIGHTING, do_horseon, 0, 0, 500},
-		{"встать", POS_RESTING, do_stand, 0, 0, 500},
-		{"вспомнить", POS_DEAD, do_remember_char, 0, 0, 0},
-		{"выбросить", POS_RESTING, do_drop, 0, 0 /*SCMD_DONATE */ , 300},
-		{"выследить", POS_STANDING, do_track, 0, 0, 500},
-		{"вылить", POS_STANDING, do_pour, 0, SCMD_POUR, 500},
-		{"выходы", POS_RESTING, do_exits, 0, 0, 0},
+		{"базар", EPosition::kRest, do_exchange, 1, 0, -1},
+		{"баланс", EPosition::kStand, do_not_here, 1, 0, 0},
+		{"баги", EPosition::kDead, Boards::DoBoard, 1, Boards::ERROR_BOARD, 0},
+		{"бежать", EPosition::kFight, do_flee, 1, 0, -1},
+		{"бинтовать", EPosition::kRest, do_bandage, 0, 0, 0},
+		{"билдер", EPosition::kDead, Boards::DoBoard, 1, Boards::GODBUILD_BOARD, -1},
+		{"блок", EPosition::kFight, do_block, 0, 0, -1},
+		{"блокнот", EPosition::kDead, Boards::DoBoard, 1, Boards::PERS_BOARD, -1},
+		{"боги", EPosition::kDead, do_gen_ps, 0, SCMD_IMMLIST, 0},
+		{"божества", EPosition::kDead, Boards::DoBoard, 1, Boards::GODGENERAL_BOARD, -1},
+		{"болтать", EPosition::kRest, do_gen_comm, 0, SCMD_GOSSIP, -1},
+		{"бонус", EPosition::kDead, Bonus::do_bonus_by_character, kLvlImplementator, 0, 0},
+		{"бонусинфо", EPosition::kDead, Bonus::do_bonus_info, kLvlImplementator, 0, 0},
+		{"бросить", EPosition::kRest, do_drop, 0, SCMD_DROP, -1},
+		{"варить", EPosition::kRest, do_cook, 0, 0, 200},
+		{"версия", EPosition::kDead, do_gen_ps, 0, SCMD_VERSION, 0},
+		{"вече", EPosition::kDead, Boards::DoBoard, 1, Boards::GENERAL_BOARD, -1},
+		{"взять", EPosition::kRest, do_get, 0, 0, 200},
+		{"взглянуть", EPosition::kRest, do_diagnose, 0, 0, 100},
+		{"взломать", EPosition::kStand, do_gen_door, 1, DOOR_SCMD::SCMD_PICK, -1},
+		{"вихрь", EPosition::kFight, do_iron_wind, 0, 0, -1},
+		{"вложить", EPosition::kStand, do_not_here, 1, 0, -1},
+		{"вернуть", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"вернуться", EPosition::kDead, do_return, 0, 0, -1},
+		{"войти", EPosition::kStand, do_enter, 0, 0, -2},
+		{"война", EPosition::kRest, DoShowWars, 0, 0, 0},
+		{"вооружиться", EPosition::kRest, do_wield, 0, 0, 200},
+		{"возврат", EPosition::kRest, do_recall, 0, 0, -1},
+		{"воззвать", EPosition::kDead, do_pray_gods, 0, 0, -1},
+		{"вплавить", EPosition::kStand, do_insertgem, 0, 0, -1},
+		{"время", EPosition::kDead, do_time, 0, 0, 0},
+		{"врата", EPosition::kSit, do_townportal, 1, 0, -1},
+		{"вскочить", EPosition::kFight, do_horseon, 0, 0, 500},
+		{"встать", EPosition::kRest, do_stand, 0, 0, 500},
+		{"вспомнить", EPosition::kDead, do_remember_char, 0, 0, 0},
+		{"выбросить", EPosition::kRest, do_drop, 0, 0 /*SCMD_DONATE */ , 300},
+		{"выследить", EPosition::kStand, do_track, 0, 0, 500},
+		{"вылить", EPosition::kStand, do_pour, 0, SCMD_POUR, 500},
+		{"выходы", EPosition::kRest, do_exits, 0, 0, 0},
 
-		{"говорить", POS_RESTING, do_say, 0, 0, -1},
-		{"ггруппа", POS_SLEEPING, do_gsay, 0, 0, 500},
-		{"гговорить", POS_SLEEPING, do_gsay, 0, 0, 500},
-		{"гдругам", POS_SLEEPING, DoClanChannel, 0, SCMD_CHANNEL, 0},
-		{"где", POS_RESTING, do_where, LVL_IMMORT, 0, 0},
-		{"гдея", POS_RESTING, do_zone, 0, 0, 0},
-		{"глоток", POS_RESTING, do_drink, 0, SCMD_SIP, 200},
-		{"города", POS_DEAD, do_cities, 0, 0, 0},
-		{"группа", POS_SLEEPING, do_group, 1, 0, -1},
-		{"гсоюзникам", POS_SLEEPING, DoClanChannel, 0, SCMD_ACHANNEL, 0},
-		{"гэхо", POS_DEAD, do_gecho, LVL_GOD, 0, 0},
-		{"гбогам", POS_DEAD, do_wiznet, LVL_IMMORT, 0, 0},
+		{"говорить", EPosition::kRest, do_say, 0, 0, -1},
+		{"ггруппа", EPosition::kSleep, do_gsay, 0, 0, 500},
+		{"гговорить", EPosition::kSleep, do_gsay, 0, 0, 500},
+		{"гдругам", EPosition::kSleep, DoClanChannel, 0, SCMD_CHANNEL, 0},
+		{"где", EPosition::kRest, do_where, kLvlImmortal, 0, 0},
+		{"гдея", EPosition::kRest, do_zone, 0, 0, 0},
+		{"глоток", EPosition::kRest, do_drink, 0, SCMD_SIP, 200},
+		{"города", EPosition::kDead, do_cities, 0, 0, 0},
+		{"группа", EPosition::kSleep, do_group, 1, 0, -1},
+		{"гсоюзникам", EPosition::kSleep, DoClanChannel, 0, SCMD_ACHANNEL, 0},
+		{"гэхо", EPosition::kDead, do_gecho, kLvlGod, 0, 0},
+		{"гбогам", EPosition::kDead, do_wiznet, kLvlImmortal, 0, 0},
 
-		{"дать", POS_RESTING, do_give, 0, 0, 500},
-		{"дата", POS_DEAD, do_date, 0, SCMD_DATE, 0},
-		{"делить", POS_RESTING, do_split, 1, 0, 200},
-		{"держать", POS_RESTING, do_grab, 0, 0, 300},
-		{"дметр", POS_DEAD, do_dmeter, 0, 0, 0},
-		{"доложить", POS_RESTING, do_report, 0, 0, 500},
-		{"доски", POS_DEAD, Boards::DoBoardList, 0, 0, 0},
-		{"дружины", POS_DEAD, DoClanList, 0, 0, 0},
-		{"дрновости", POS_DEAD, Boards::DoBoard, 1, Boards::CLANNEWS_BOARD, -1},
-		{"дрвече", POS_DEAD, Boards::DoBoard, 1, Boards::CLAN_BOARD, -1},
-		{"дрлист", POS_DEAD, DoClanPkList, 0, 1, 0},
-		//{"добавить", POS_DEAD, do_add_wizard, LVL_IMPL, 0, 0 },
-		{"есть", POS_RESTING, do_eat, 0, SCMD_EAT, 500},
+		{"дать", EPosition::kRest, do_give, 0, 0, 500},
+		{"дата", EPosition::kDead, do_date, 0, SCMD_DATE, 0},
+		{"делить", EPosition::kRest, do_split, 1, 0, 200},
+		{"держать", EPosition::kRest, do_grab, 0, 0, 300},
+		{"дметр", EPosition::kDead, do_dmeter, 0, 0, 0},
+		{"доложить", EPosition::kRest, do_report, 0, 0, 500},
+		{"доски", EPosition::kDead, Boards::DoBoardList, 0, 0, 0},
+		{"дружины", EPosition::kDead, DoClanList, 0, 0, 0},
+		{"дрновости", EPosition::kDead, Boards::DoBoard, 1, Boards::CLANNEWS_BOARD, -1},
+		{"дрвече", EPosition::kDead, Boards::DoBoard, 1, Boards::CLAN_BOARD, -1},
+		{"дрлист", EPosition::kDead, DoClanPkList, 0, 1, 0},
+		{"есть", EPosition::kRest, do_eat, 0, SCMD_EAT, 500},
 
-		{"жертвовать", POS_STANDING, do_pray, 1, SCMD_DONATE, -1},
+		{"жертвовать", EPosition::kStand, do_pray, 1, SCMD_DONATE, -1},
 
-		{"заколоть", POS_STANDING, do_backstab, 1, 0, 1},
-		{"забыть", POS_RESTING, do_forget, 0, 0, 0},
-		{"задержать", POS_STANDING, do_not_here, 1, 0, -1},
-		{"заклинания", POS_SLEEPING, do_spells, 0, 0, 0},
-		{"заклстат", POS_DEAD, do_spellstat, LVL_GRGOD, 0, 0},
-		{"закрыть", POS_SITTING, do_gen_door, 0, SCMD_CLOSE, 500},
-		{"замакс", POS_RESTING, do_show_mobmax, 1, 0, -1},
-		{"замести", POS_STANDING, do_hidetrack, 1, 0, -1},
-		{"замолчать", POS_DEAD, do_wizutil, LVL_GOD, SCMD_MUTE, 0},
-		{"заморозить", POS_DEAD, do_wizutil, LVL_FREEZE, SCMD_FREEZE, 0},
-		{"занятость", POS_DEAD, do_check_occupation, LVL_GOD, 0, 0},
-		{"запомнить", POS_RESTING, do_memorize, 0, 0, 0},
-		{"запереть", POS_SITTING, do_gen_door, 0, SCMD_LOCK, 500},
-		{"запрет", POS_DEAD, do_ban, LVL_GRGOD, 0, 0},
-		{"заснуть", POS_SLEEPING, do_sleep, 0, 0, -1},
-		{"заставка", POS_DEAD, do_gen_ps, 0, SCMD_MOTD, 0},
-		{"заставить", POS_SLEEPING, do_force, LVL_GRGOD, 0, 0},
-		{"затоптать", POS_STANDING, do_extinguish, 0, 0, 0},
-		{"заточить", POS_RESTING, do_upgrade, 0, 0, 500},
-		{"заучить", POS_RESTING, do_memorize, 0, 0, 0},
-		{"зачитать", POS_RESTING, do_employ, 0, SCMD_RECITE, 500},
-		{"зачаровать", POS_STANDING, do_spell_capable, 1, 0, 0},
-		{"зачистить", POS_DEAD, do_sanitize, LVL_GRGOD, 0, 0},
-		{"золото", POS_RESTING, do_gold, 0, 0, 0},
-		{"зона", POS_RESTING, do_zone, 0, 0, 0},
-		{"зоныстат", POS_DEAD, do_showzonestats, LVL_IMMORT, 0, 0},
-		{"инвентарь", POS_SLEEPING, do_inventory, 0, 0, 0},
-		{"игнорировать", POS_DEAD, do_ignore, 0, 0, 0},
-		{"идеи", POS_DEAD, Boards::DoBoard, 1, Boards::IDEA_BOARD, 0},
-		{"изгнать нежить", POS_RESTING, do_turn_undead, 0, 0, -1},
-		{"изучить", POS_SITTING, do_learn, 0, 0, 0},
-		{"информация", POS_SLEEPING, do_gen_ps, 0, SCMD_INFO, 0},
-		{"испить", POS_RESTING, do_employ, 0, SCMD_QUAFF, 500},
-		{"использовать", POS_RESTING, do_style, 0, 0, 0},
-		{"имя", POS_SLEEPING, do_name, LVL_IMMORT, 0, 0},
+		{"заколоть", EPosition::kStand, do_backstab, 1, 0, 1},
+		{"забыть", EPosition::kRest, do_forget, 0, 0, 0},
+		{"задержать", EPosition::kStand, do_not_here, 1, 0, -1},
+		{"заклинания", EPosition::kSleep, do_spells, 0, 0, 0},
+		{"заклстат", EPosition::kDead, do_spellstat, kLvlGreatGod, 0, 0},
+		{"закрыть", EPosition::kSit, do_gen_door, 0, SCMD_CLOSE, 500},
+		{"замакс", EPosition::kRest, do_show_mobmax, 1, 0, -1},
+		{"замести", EPosition::kStand, do_hidetrack, 1, 0, -1},
+		{"замолчать", EPosition::kDead, do_wizutil, kLvlGod, SCMD_MUTE, 0},
+		{"заморозить", EPosition::kDead, do_wizutil, kLvlFreeze, SCMD_FREEZE, 0},
+		{"занятость", EPosition::kDead, do_check_occupation, kLvlGod, 0, 0},
+		{"запомнить", EPosition::kRest, do_memorize, 0, 0, 0},
+		{"запереть", EPosition::kSit, do_gen_door, 0, SCMD_LOCK, 500},
+		{"запрет", EPosition::kDead, do_ban, kLvlGreatGod, 0, 0},
+		{"заснуть", EPosition::kSleep, do_sleep, 0, 0, -1},
+		{"заставка", EPosition::kDead, do_gen_ps, 0, SCMD_MOTD, 0},
+		{"заставить", EPosition::kSleep, do_force, kLvlGreatGod, 0, 0},
+		{"затоптать", EPosition::kStand, do_extinguish, 0, 0, 0},
+		{"заточить", EPosition::kRest, do_upgrade, 0, 0, 500},
+		{"заучить", EPosition::kRest, do_memorize, 0, 0, 0},
+		{"зачитать", EPosition::kRest, do_employ, 0, SCMD_RECITE, 500},
+		{"зачаровать", EPosition::kStand, do_spell_capable, 1, 0, 0},
+		{"зачистить", EPosition::kDead, do_sanitize, kLvlGreatGod, 0, 0},
+		{"золото", EPosition::kRest, do_gold, 0, 0, 0},
+		{"зона", EPosition::kRest, do_zone, 0, 0, 0},
+		{"зоныстат", EPosition::kDead, do_showzonestats, kLvlImmortal, 0, 0},
+		{"инвентарь", EPosition::kSleep, do_inventory, 0, 0, 0},
+		{"игнорировать", EPosition::kDead, do_ignore, 0, 0, 0},
+		{"идеи", EPosition::kDead, Boards::DoBoard, 1, Boards::IDEA_BOARD, 0},
+		{"изгнать нежить", EPosition::kRest, do_turn_undead, 0, 0, -1},
+		{"изучить", EPosition::kSit, do_learn, 0, 0, 0},
+		{"информация", EPosition::kSleep, do_gen_ps, 0, SCMD_INFO, 0},
+		{"испить", EPosition::kRest, do_employ, 0, SCMD_QUAFF, 500},
+		{"использовать", EPosition::kRest, do_style, 0, 0, 0},
+		{"имя", EPosition::kSleep, do_name, kLvlImmortal, 0, 0},
 
-		{"колдовать", POS_SITTING, do_cast, 1, 0, -1},
-		{"казна", POS_RESTING, do_not_here, 1, 0, 0},
-		{"карта", POS_RESTING, do_map, 0, 0, 0},
-		{"клан", POS_RESTING, DoHouse, 0, 0, 0},
-		{"клич", POS_FIGHTING, do_warcry, 1, 0, -1},
-		{"кодер", POS_DEAD, Boards::DoBoard, 1, Boards::CODER_BOARD, -1},
-		{"команды", POS_DEAD, do_commands, 0, SCMD_COMMANDS, 0},
-		{"коне", POS_SLEEPING, do_quit, 0, 0, 0},
-		{"конец", POS_SLEEPING, do_quit, 0, SCMD_QUIT, 0},
-		{"копать", POS_STANDING, do_dig, 0, SKILL_DIG, -1},
-		{"красться", POS_STANDING, do_hidemove, 1, 0, -2},
-		{"кричать", POS_RESTING, do_gen_comm, 0, SCMD_SHOUT, -1},
-		{"кто", POS_RESTING, do_who, 0, 0, 0},
-		{"ктодружина", POS_RESTING, DoWhoClan, 0, 0, 0},
-		{"ктоя", POS_DEAD, do_gen_ps, 0, SCMD_WHOAMI, 0},
-		{"купить", POS_STANDING, do_not_here, 0, 0, -1},
+		{"колдовать", EPosition::kSit, do_cast, 1, 0, -1},
+		{"казна", EPosition::kRest, do_not_here, 1, 0, 0},
+		{"карта", EPosition::kRest, do_map, 0, 0, 0},
+		{"клан", EPosition::kRest, DoHouse, 0, 0, 0},
+		{"клич", EPosition::kFight, do_warcry, 1, 0, -1},
+		{"кодер", EPosition::kDead, Boards::DoBoard, 1, Boards::CODER_BOARD, -1},
+		{"команды", EPosition::kDead, do_commands, 0, SCMD_COMMANDS, 0},
+		{"коне", EPosition::kSleep, do_quit, 0, 0, 0},
+		{"конец", EPosition::kSleep, do_quit, 0, SCMD_QUIT, 0},
+		{"копать", EPosition::kStand, do_dig, 0, 0, -1},
+		{"красться", EPosition::kStand, do_hidemove, 1, 0, -2},
+		{"кричать", EPosition::kRest, do_gen_comm, 0, SCMD_SHOUT, -1},
+		{"кто", EPosition::kRest, do_who, 0, 0, 0},
+		{"ктодружина", EPosition::kRest, DoWhoClan, 0, 0, 0},
+		{"ктоя", EPosition::kDead, do_gen_ps, 0, SCMD_WHOAMI, 0},
+		{"купить", EPosition::kStand, do_not_here, 0, 0, -1},
 
-		{"леваярука", POS_RESTING, do_grab, 1, 0, 300},
-		{"лечить", POS_STANDING, do_firstaid, 0, 0, -1},
-		{"лить", POS_STANDING, do_pour, 0, SCMD_POUR, 500},
-		{"лошадь", POS_STANDING, do_not_here, 1, 0, -1},
-		{"лучшие", POS_DEAD, DoBest, 0, 0, 0},
+		{"леваярука", EPosition::kRest, do_grab, 1, 0, 300},
+		{"лечить", EPosition::kStand, do_firstaid, 0, 0, -1},
+		{"лить", EPosition::kStand, do_pour, 0, SCMD_POUR, 500},
+		{"лошадь", EPosition::kStand, do_not_here, 1, 0, -1},
+		{"лучшие", EPosition::kDead, DoBest, 0, 0, 0},
 
-		{"маскировка", POS_RESTING, do_camouflage, 0, 0, 500},
-		{"магазины", POS_DEAD, do_shops_list, LVL_IMMORT, 0, 0},
-		{"метнуть", POS_FIGHTING, do_throw, 0, SCMD_PHYSICAL_THROW, -1},
-		{"менять", POS_STANDING, do_not_here, 0, 0, -1},
-		{"месть", POS_RESTING, do_revenge, 0, 0, 0},
-		{"молот", POS_FIGHTING, do_mighthit, 0, 0, -1},
-		{"молиться", POS_STANDING, do_pray, 1, SCMD_PRAY, -1},
-		{"моястатистика", POS_DEAD, do_mystat, 0, 0, 0},
-		{"мысл", POS_DEAD, do_quit, 0, 0, 0},
-		{"мысль", POS_DEAD, Boards::report_on_board, 0, Boards::SUGGEST_BOARD, 0},
+		{"маскировка", EPosition::kRest, do_camouflage, 0, 0, 500},
+		{"магазины", EPosition::kDead, do_shops_list, kLvlImmortal, 0, 0},
+		{"метнуть", EPosition::kFight, do_throw, 0, SCMD_PHYSICAL_THROW, -1},
+		{"менять", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"месть", EPosition::kRest, do_revenge, 0, 0, 0},
+		{"молот", EPosition::kFight, do_mighthit, 0, 0, -1},
+		{"молиться", EPosition::kStand, do_pray, 1, SCMD_PRAY, -1},
+		{"моястатистика", EPosition::kDead, do_mystat, 0, 0, 0},
+		{"мысл", EPosition::kDead, do_quit, 0, 0, 0},
+		{"мысль", EPosition::kDead, Boards::report_on_board, 0, Boards::SUGGEST_BOARD, 0},
 
-		{"наемник", POS_STANDING, do_not_here, 1, 0, -1},
-		{"наказания", POS_DEAD, Boards::DoBoard, 1, Boards::GODPUNISH_BOARD, -1},
-		{"налить", POS_STANDING, do_pour, 0, SCMD_FILL, 500},
-		{"наполнить", POS_STANDING, do_pour, 0, SCMD_FILL, 500},
-		{"найти", POS_STANDING, do_sense, 0, 0, 500},
-		{"нанять", POS_STANDING, do_findhelpee, 0, 0, -1},
-		{"новичок", POS_SLEEPING, do_gen_ps, 0, SCMD_INFO, 0},
-		{"новости", POS_DEAD, Boards::DoBoard, 1, Boards::NEWS_BOARD, -1},
-		{"надеть", POS_RESTING, do_wear, 0, 0, 500},
-		{"нацарапать", POS_RESTING, do_custom_label, 0, 0, 0},
+		{"наемник", EPosition::kStand, do_not_here, 1, 0, -1},
+		{"наказания", EPosition::kDead, Boards::DoBoard, 1, Boards::GODPUNISH_BOARD, -1},
+		{"налить", EPosition::kStand, do_pour, 0, SCMD_FILL, 500},
+		{"наполнить", EPosition::kStand, do_pour, 0, SCMD_FILL, 500},
+		{"найти", EPosition::kStand, do_sense, 0, 0, 500},
+		{"нанять", EPosition::kStand, do_findhelpee, 0, 0, -1},
+		{"новичок", EPosition::kSleep, do_gen_ps, 0, SCMD_INFO, 0},
+		{"новости", EPosition::kDead, Boards::DoBoard, 1, Boards::NEWS_BOARD, -1},
+		{"надеть", EPosition::kRest, do_wear, 0, 0, 500},
+		{"нацарапать", EPosition::kRest, do_custom_label, 0, 0, 0},
 
-		{"обезоружить", POS_FIGHTING, do_disarm, 0, 0, -1},
-		{"обернуться", POS_STANDING, do_morph, 0, 0, -1},
-		{"облачить", POS_RESTING, do_wear, 0, 0, 500},
-		{"обмен", POS_STANDING, do_not_here, 0, 0, 0},
-		{"обменять", POS_STANDING, do_not_here, 0, 0, 0},
-		{"оглядеться", POS_RESTING, do_sides, 0, 0, 0},
-		{"оглушить", POS_FIGHTING, do_stupor, 0, 0, -1},
-		{"одеть", POS_RESTING, do_wear, 0, 0, 500},
-		{"опознать", POS_RESTING, do_identify, 0, 0, 500},
-		{"опохмелиться", POS_RESTING, do_drunkoff, 0, 0, -1},
-		{"опечатк", POS_DEAD, do_quit, 0, 0, 0},
-		{"опечатка", POS_DEAD, Boards::report_on_board, 0, Boards::MISPRINT_BOARD, 0},
-		{"опустить", POS_RESTING, do_put, 0, 0, 500},
-		{"орать", POS_RESTING, do_gen_comm, 1, SCMD_HOLLER, -1},
-		{"осмотреть", POS_RESTING, do_examine, 0, 0, 0},
-		{"оседлать", POS_STANDING, do_horsetake, 1, 0, -1},
-		{"оскорбить", POS_RESTING, do_insult, 0, 0, -1},
-		{"осушить", POS_RESTING, do_employ, 0, SCMD_QUAFF, 300},
-		{"освежевать", POS_STANDING, do_makefood, 0, 0, -1},
-		{"ответить", POS_RESTING, do_reply, 0, 0, -1},
-		{"отразить", POS_FIGHTING, do_multyparry, 0, 0, -1},
-		{"отвязать", POS_DEAD, do_horseget, 0, 0, -1},
-		{"отдохнуть", POS_RESTING, do_rest, 0, 0, -1},
-		{"открыть", POS_SITTING, do_gen_door, 0, DOOR_SCMD::SCMD_OPEN, 500},
-		{"отпереть", POS_SITTING, do_gen_door, 0, SCMD_UNLOCK, 500},
-		{"отпустить", POS_SITTING, do_stophorse, 0, 0, -1},
-		{"отравить", POS_FIGHTING, do_poisoned, 0, 0, -1},
-		{"отринуть", POS_RESTING, do_antigods, 1, 0, -1},
-		{"отступить", POS_FIGHTING, do_retreat, 1, 0, -1},
-		{"отправить", POS_STANDING, do_not_here, 1, 0, -1},
-		{"оффтоп", POS_DEAD, do_offtop, 0, 0, -1},
-		{"ошеломить", POS_STANDING, do_stun, 1, 0, -1},
-		{"оценить", POS_STANDING, do_not_here, 0, 0, 500},
-		{"очки", POS_DEAD, do_score, 0, 0, 0},
-		{"очепятки", POS_DEAD, Boards::DoBoard, 1, Boards::MISPRINT_BOARD, 0},
-		{"очистить", POS_DEAD, do_not_here, 0, SCMD_CLEAR, -1},
-		{"ошибк", POS_DEAD, do_quit, 0, 0, 0},
-		{"ошибка", POS_DEAD, Boards::report_on_board, 0, Boards::ERROR_BOARD, 0},
+		{"обезоружить", EPosition::kFight, do_disarm, 0, 0, -1},
+		{"обернуться", EPosition::kStand, do_morph, 0, 0, -1},
+		{"облачить", EPosition::kRest, do_wear, 0, 0, 500},
+		{"обмен", EPosition::kStand, do_not_here, 0, 0, 0},
+		{"обменять", EPosition::kStand, do_not_here, 0, 0, 0},
+		{"оглядеться", EPosition::kRest, do_sides, 0, 0, 0},
+		{"оглушить", EPosition::kFight, do_stupor, 0, 0, -1},
+		{"одеть", EPosition::kRest, do_wear, 0, 0, 500},
+		{"опознать", EPosition::kRest, do_identify, 0, 0, 500},
+		{"опохмелиться", EPosition::kRest, do_drunkoff, 0, 0, -1},
+		{"опечатк", EPosition::kDead, do_quit, 0, 0, 0},
+		{"опечатка", EPosition::kDead, Boards::report_on_board, 0, Boards::MISPRINT_BOARD, 0},
+		{"опустить", EPosition::kRest, do_put, 0, 0, 500},
+		{"орать", EPosition::kRest, do_gen_comm, 1, SCMD_HOLLER, -1},
+		{"осмотреть", EPosition::kRest, do_examine, 0, 0, 0},
+		{"оседлать", EPosition::kStand, do_horsetake, 1, 0, -1},
+		{"оскорбить", EPosition::kRest, do_insult, 0, 0, -1},
+		{"осушить", EPosition::kRest, do_employ, 0, SCMD_QUAFF, 300},
+		{"освежевать", EPosition::kStand, do_makefood, 0, 0, -1},
+		{"ответить", EPosition::kRest, do_reply, 0, 0, -1},
+		{"отразить", EPosition::kFight, do_multyparry, 0, 0, -1},
+		{"отвязать", EPosition::kDead, do_horseget, 0, 0, -1},
+		{"отдохнуть", EPosition::kRest, do_rest, 0, 0, -1},
+		{"открыть", EPosition::kSit, do_gen_door, 0, DOOR_SCMD::SCMD_OPEN, 500},
+		{"отпереть", EPosition::kSit, do_gen_door, 0, SCMD_UNLOCK, 500},
+		{"отпустить", EPosition::kSit, do_stophorse, 0, 0, -1},
+		{"отравить", EPosition::kFight, do_poisoned, 0, 0, -1},
+		{"отринуть", EPosition::kRest, do_antigods, 1, 0, -1},
+		{"отступить", EPosition::kFight, do_retreat, 1, 0, -1},
+		{"отправить", EPosition::kStand, do_not_here, 1, 0, -1},
+		{"оффтоп", EPosition::kDead, do_offtop, 0, 0, -1},
+		{"ошеломить", EPosition::kStand, do_stun, 1, 0, -1},
+		{"оценить", EPosition::kStand, do_not_here, 0, 0, 500},
+		{"очки", EPosition::kDead, DoScore, 0, 0, 0},
+		{"очепятки", EPosition::kDead, Boards::DoBoard, 1, Boards::MISPRINT_BOARD, 0},
+		{"очистить", EPosition::kDead, do_not_here, 0, SCMD_CLEAR, -1},
+		{"ошибк", EPosition::kDead, do_quit, 0, 0, 0},
+		{"ошибка", EPosition::kDead, Boards::report_on_board, 0, Boards::ERROR_BOARD, 0},
 
-		{"парировать", POS_FIGHTING, do_parry, 0, 0, -1},
-		{"перехватить", POS_FIGHTING, do_touch, 0, 0, -1},
-		{"перековать", POS_STANDING, do_transform_weapon, 0, SKILL_TRANSFORMWEAPON, -1},
-		{"передать", POS_STANDING, do_givehorse, 0, 0, -1},
-		{"перевести", POS_STANDING, do_not_here, 1, 0, -1},
-		{"переместиться", POS_STANDING, do_relocate, 1, 0, 0},
-		{"перевоплотитьс", POS_STANDING, do_remort, 0, 0, -1},
-		{"перевоплотиться", POS_STANDING, do_remort, 0, 1, -1},
-		{"перелить", POS_STANDING, do_pour, 0, SCMD_POUR, 500},
-		{"перешить", POS_RESTING, do_fit, 0, SCMD_MAKE_OVER, 500},
-		{"пить", POS_RESTING, do_drink, 0, SCMD_DRINK, 400},
-		{"писать", POS_STANDING, do_write, 1, 0, -1},
-		{"пклист", POS_SLEEPING, DoClanPkList, 0, 0, 0},
-		{"пнуть", POS_FIGHTING, do_kick, 1, 0, -1},
-		{"погода", POS_RESTING, do_weather, 0, 0, 0},
-		{"подкрасться", POS_STANDING, do_sneak, 1, 0, 500},
-		{"подножка", POS_FIGHTING, do_chopoff, 0, 0, 500},
-		{"подняться", POS_RESTING, do_stand, 0, 0, -1},
-		{"поджарить", POS_RESTING, do_fry, 0, 0, -1},
-		{"перевязать", POS_RESTING, do_bandage, 0, 0, 0},
-		{"переделать", POS_RESTING, do_fit, 0, SCMD_DO_ADAPT, 500},
-		{"подсмотреть", POS_RESTING, do_look, 0, SCMD_LOOK_HIDE, 0},
-		{"положить", POS_RESTING, do_put, 0, 0, 400},
-		{"получить", POS_STANDING, do_not_here, 1, 0, -1},
-		{"политика", POS_SLEEPING, DoShowPolitics, 0, 0, 0},
-		{"помочь", POS_FIGHTING, do_assist, 1, 0, -1},
-		{"помощь", POS_DEAD, do_help, 0, 0, 0},
-		{"пометить", POS_DEAD, do_mark, LVL_IMPL, 0, 0},
-		{"порез", POS_FIGHTING, do_expedient_cut, 0, 0, -1},
-		{"поселиться", POS_STANDING, do_not_here, 1, 0, -1},
-		{"постой", POS_STANDING, do_not_here, 1, 0, -1},
-		{"почта", POS_STANDING, do_not_here, 1, 0, -1},
-		{"пополнить", POS_STANDING, do_refill, 0, 0, 300},
-		{"поручения", POS_RESTING, do_quest, 1, 0, -1},
-		{"появиться", POS_RESTING, do_visible, 1, 0, -1},
-		{"правила", POS_DEAD, do_gen_ps, 0, SCMD_POLICIES, 0},
-		{"предложение", POS_STANDING, do_not_here, 1, 0, 500},
-		//{"призвать", POS_STANDING, do_summon, 1, 0, -1},
-		{"приказ", POS_RESTING, do_order, 1, 0, -1},
-		{"привязать", POS_RESTING, do_horseput, 0, 0, 500},
-		{"приглядеться", POS_RESTING, do_looking, 0, 0, 250},
-		{"прикрыть", POS_FIGHTING, do_protect, 0, 0, -1},
-		{"применить", POS_SITTING, do_employ, 1, SCMD_USE, 400},
-		//{"прикоснуться", POS_STANDING, do_touch_stigma, 0, 0, -1},
-		{"присесть", POS_RESTING, do_sit, 0, 0, -1},
-		{"прислушаться", POS_RESTING, do_hearing, 0, 0, 300},
-		{"присмотреться", POS_RESTING, do_looking, 0, 0, 250},
-		{"придумки", POS_DEAD, Boards::DoBoard, 0, Boards::SUGGEST_BOARD, 0},
-		{"проверить", POS_DEAD, do_check, 0, 0, 0},
-		{"проснуться", POS_SLEEPING, do_wake, 0, SCMD_WAKE, -1},
-		{"простить", POS_RESTING, do_forgive, 0, 0, 0},
-		{"пробовать", POS_RESTING, do_eat, 0, SCMD_TASTE, 300},
-		{"сожрать", POS_RESTING, do_eat, 0, SCMD_DEVOUR, 300},
-		{"продать", POS_STANDING, do_not_here, 0, 0, -1},
-		{"фильтровать", POS_STANDING, do_not_here, 0, 0, -1},
-		{"прыжок", POS_SLEEPING, do_goto, LVL_GOD, 0, 0},
+		{"парировать", EPosition::kFight, do_parry, 0, 0, -1},
+		{"перехватить", EPosition::kFight, do_touch, 0, 0, -1},
+		{"перековать", EPosition::kStand, do_transform_weapon, 0, SCMD_TRANSFORMWEAPON, -1},
+		{"передать", EPosition::kStand, do_givehorse, 0, 0, -1},
+		{"перевести", EPosition::kStand, do_not_here, 1, 0, -1},
+		{"переместиться", EPosition::kStand, do_relocate, 1, 0, 0},
+		{"перевоплотитьс", EPosition::kStand, do_remort, 0, 0, -1},
+		{"перевоплотиться", EPosition::kStand, do_remort, 0, 1, -1},
+		{"перелить", EPosition::kStand, do_pour, 0, SCMD_POUR, 500},
+		{"перешить", EPosition::kRest, do_fit, 0, SCMD_MAKE_OVER, 500},
+		{"пить", EPosition::kRest, do_drink, 0, SCMD_DRINK, 400},
+		{"писать", EPosition::kStand, do_write, 1, 0, -1},
+		{"пклист", EPosition::kSleep, DoClanPkList, 0, 0, 0},
+		{"пнуть", EPosition::kFight, do_kick, 1, 0, -1},
+		{"погода", EPosition::kRest, do_weather, 0, 0, 0},
+		{"подкрасться", EPosition::kStand, do_sneak, 1, 0, 500},
+		{"подножка", EPosition::kFight, do_chopoff, 0, 0, 500},
+		{"подняться", EPosition::kRest, do_stand, 0, 0, -1},
+		{"поджарить", EPosition::kRest, do_fry, 0, 0, -1},
+		{"перевязать", EPosition::kRest, do_bandage, 0, 0, 0},
+		{"переделать", EPosition::kRest, do_fit, 0, SCMD_DO_ADAPT, 500},
+		{"подсмотреть", EPosition::kRest, do_look, 0, SCMD_LOOK_HIDE, 0},
+		{"положить", EPosition::kRest, do_put, 0, 0, 400},
+		{"получить", EPosition::kStand, do_not_here, 1, 0, -1},
+		{"политика", EPosition::kSleep, DoShowPolitics, 0, 0, 0},
+		{"помочь", EPosition::kFight, do_assist, 1, 0, -1},
+		{"помощь", EPosition::kDead, do_help, 0, 0, 0},
+		{"пометить", EPosition::kDead, do_mark, kLvlImplementator, 0, 0},
+		{"порез", EPosition::kFight, DoExpedientCut, 0, 0, -1},
+		{"поселиться", EPosition::kStand, do_not_here, 1, 0, -1},
+		{"постой", EPosition::kStand, do_not_here, 1, 0, -1},
+		{"почта", EPosition::kStand, do_not_here, 1, 0, -1},
+		{"пополнить", EPosition::kStand, do_refill, 0, 0, 300},
+		{"поручения", EPosition::kRest, do_quest, 1, 0, -1},
+		{"появиться", EPosition::kRest, do_visible, 1, 0, -1},
+		{"правила", EPosition::kDead, do_gen_ps, 0, SCMD_POLICIES, 0},
+		{"предложение", EPosition::kStand, do_not_here, 1, 0, 500},
+		//{"призвать", EPosition::kStand, do_summon, 1, 0, -1},
+		{"приказ", EPosition::kRest, do_order, 1, 0, -1},
+		{"привязать", EPosition::kRest, do_horseput, 0, 0, 500},
+		{"приглядеться", EPosition::kRest, do_looking, 0, 0, 250},
+		{"прикрыть", EPosition::kFight, do_protect, 0, 0, -1},
+		{"применить", EPosition::kSit, do_employ, 1, SCMD_USE, 400},
+		//{"прикоснуться", EPosition::kStand, do_touch_stigma, 0, 0, -1},
+		{"присесть", EPosition::kRest, do_sit, 0, 0, -1},
+		{"прислушаться", EPosition::kRest, do_hearing, 0, 0, 300},
+		{"присмотреться", EPosition::kRest, do_looking, 0, 0, 250},
+		{"придумки", EPosition::kDead, Boards::DoBoard, 0, Boards::SUGGEST_BOARD, 0},
+		{"проверить", EPosition::kDead, do_check, 0, 0, 0},
+		{"проснуться", EPosition::kSleep, do_wake, 0, SCMD_WAKE, -1},
+		{"простить", EPosition::kRest, do_forgive, 0, 0, 0},
+		{"пробовать", EPosition::kRest, do_eat, 0, SCMD_TASTE, 300},
+		{"сожрать", EPosition::kRest, do_eat, 0, SCMD_DEVOUR, 300},
+		{"продать", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"фильтровать", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"прыжок", EPosition::kSleep, do_goto, kLvlGod, 0, 0},
 
-		{"разбудить", POS_RESTING, do_wake, 0, SCMD_WAKEUP, -1},
-		{"разгруппировать", POS_DEAD, do_ungroup, 0, 0, 500},
-		{"разделить", POS_RESTING, do_split, 1, 0, 500},
-		{"разделы", POS_RESTING, do_help, 1, 0, 500},
-		{"разжечь", POS_STANDING, do_fire, 0, 0, -1},
-		{"распустить", POS_DEAD, do_ungroup, 0, 0, 500},
-		{"рассмотреть", POS_STANDING, do_not_here, 0, 0, -1},
-		{"рассчитать", POS_RESTING, do_freehelpee, 0, 0, -1},
-		{"режим", POS_DEAD, do_mode, 0, 0, 0},
-		{"ремонт", POS_RESTING, do_repair, 0, 0, -1},
-		{"рецепты", POS_RESTING, do_recipes, 0, 0, 0},
-		{"рекорды", POS_DEAD, DoBest, 0, 0, 0},
-		{"руны", POS_FIGHTING, do_mixture, 0, SCMD_RUNES, -1},
+		{"разбудить", EPosition::kRest, do_wake, 0, SCMD_WAKEUP, -1},
+		{"разгруппировать", EPosition::kDead, do_ungroup, 0, 0, 500},
+		{"разделить", EPosition::kRest, do_split, 1, 0, 500},
+		{"разделы", EPosition::kRest, do_help, 1, 0, 500},
+		{"разжечь", EPosition::kStand, do_fire, 0, 0, -1},
+		{"распустить", EPosition::kDead, do_ungroup, 0, 0, 500},
+		{"рассмотреть", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"рассчитать", EPosition::kRest, do_freehelpee, 0, 0, -1},
+		{"режим", EPosition::kDead, do_mode, 0, 0, 0},
+		{"ремонт", EPosition::kRest, do_repair, 0, 0, -1},
+		{"рецепты", EPosition::kRest, do_recipes, 0, 0, 0},
+		{"рекорды", EPosition::kDead, DoBest, 0, 0, 0},
+		{"руны", EPosition::kFight, do_mixture, 0, SCMD_RUNES, -1},
 
-		{"сбить", POS_FIGHTING, do_bash, 1, 0, -1},
-		{"свойства", POS_STANDING, do_not_here, 0, 0, -1},
-		{"сгруппа", POS_SLEEPING, do_gsay, 0, 0, -1},
-		{"сглазить", POS_FIGHTING, do_manadrain, 0, 0, -1},
-		{"сесть", POS_RESTING, do_sit, 0, 0, -1},
-		{"синоним", POS_DEAD, do_alias, 0, 0, 0},
-		{"сдемигодам", POS_DEAD, do_sdemigod, LVL_IMMORT, 0, 0},
-		{"сказать", POS_RESTING, do_tell, 0, 0, -1},
-		{"скользить", POS_STANDING, do_lightwalk, 0, 0, 0},
-		{"следовать", POS_RESTING, do_follow, 0, 0, 500},
-		{"сложить", POS_FIGHTING, do_mixture, 0, SCMD_RUNES, -1},
-		{"слава", POS_STANDING, Glory::do_spend_glory, 0, 0, 0},
-		{"слава2", POS_STANDING, GloryConst::do_spend_glory, 0, 0, 0},
-		{"смотреть", POS_RESTING, do_look, 0, SCMD_LOOK, 0},
-		{"смешать", POS_STANDING, do_mixture, 0, SCMD_ITEMS, -1},
-//  { "смастерить",     POS_STANDING, do_transform_weapon, 0, SKILL_CREATEBOW, -1 },
-		{"снять", POS_RESTING, do_remove, 0, 0, 500},
-		{"создать", POS_SITTING, do_create, 0, 0, -1},
-		{"сон", POS_SLEEPING, do_sleep, 0, 0, -1},
-		{"соскочить", POS_FIGHTING, do_horseoff, 0, 0, -1},
-		{"состав", POS_RESTING, do_create, 0, SCMD_RECIPE, 0},
-		{"сохранить", POS_SLEEPING, do_save, 0, 0, 0},
-		{"союзы", POS_RESTING, do_show_alliance, 0, 0, 0},
-		{"социалы", POS_DEAD, do_commands, 0, SCMD_SOCIALS, 0},
-		{"спать", POS_SLEEPING, do_sleep, 0, 0, -1},
-		{"спасти", POS_FIGHTING, do_rescue, 1, 0, -1},
-		{"способности", POS_SLEEPING, do_features, 0, 0, 0},
-		{"список", POS_STANDING, do_not_here, 0, 0, -1},
-		{"справка", POS_DEAD, do_help, 0, 0, 0},
-		{"спросить", POS_RESTING, do_spec_comm, 0, SCMD_ASK, -1},
-		{"спрятаться", POS_STANDING, do_hide, 1, 0, 500},
-		{"сравнить", POS_RESTING, do_consider, 0, 0, 500},
-		{"ставка", POS_STANDING, do_not_here, 0, 0, -1},
-		{"статус", POS_DEAD, do_display, 0, 0, 0},
-		{"статистика", POS_DEAD, do_statistic, 0, 0, 0},
-		{"стереть", POS_DEAD, do_gen_ps, 0, SCMD_CLEAR, 0},
-		{"стиль", POS_RESTING, do_style, 0, 0, 0},
-		{"строка", POS_DEAD, do_display, 0, 0, 0},
-		{"счет", POS_DEAD, do_score, 0, 0, 0},
-		{"телега", POS_DEAD, do_telegram, 0, 0, -1},
-		{"тень", POS_FIGHTING, do_throw, 0, SCMD_SHADOW_THROW, -1},
-		{"титул", POS_DEAD, TitleSystem::do_title, 0, 0, 0},
-		{"трусость", POS_DEAD, do_wimpy, 0, 0, 0},
-		{"убить", POS_FIGHTING, do_kill, 0, 0, -1},
-		{"убрать", POS_RESTING, do_remove, 0, 0, 400},
-		{"ударить", POS_FIGHTING, do_hit, 0, SCMD_HIT, -1},
-		{"удавить", POS_FIGHTING, do_strangle, 0, 0, -1},
-		{"удалить", POS_STANDING, do_delete_obj, LVL_IMPL, 0, 0},
-		{"уклониться", POS_FIGHTING, do_deviate, 1, 0, -1},
-		{"украсть", POS_STANDING, do_steal, 1, 0, 0},
-		{"укрепить", POS_RESTING, do_armored, 0, 0, -1},
-		{"умения", POS_SLEEPING, do_skills, 0, 0, 0},
-		{"уровень", POS_DEAD, do_score, 0, 0, 0},
-		{"уровни", POS_DEAD, do_levels, 0, 0, 0},
-		{"учить", POS_STANDING, do_not_here, 0, 0, -1},
-		{"хранилище", POS_DEAD, DoStoreHouse, 0, 0, 0},
-		{"характеристики", POS_STANDING, do_not_here, 0, 0, -1},
-		{"кланстаф", POS_STANDING, do_clanstuff, 0, 0, 0},
-		{"чинить", POS_STANDING, do_not_here, 0, 0, -1},
-		{"читать", POS_RESTING, do_look, 0, SCMD_READ, 200},
-		{"шептать", POS_RESTING, do_spec_comm, 0, SCMD_WHISPER, -1},
-		{"экипировка", POS_SLEEPING, do_equipment, 0, 0, 0},
-		{"эмоция", POS_RESTING, do_echo, 1, SCMD_EMOTE, -1},
-		{"эхо", POS_SLEEPING, do_echo, LVL_IMMORT, SCMD_ECHO, -1},
-		{"ярость", POS_RESTING, do_courage, 0, 0, -1},
+		{"сбить", EPosition::kFight, do_bash, 1, 0, -1},
+		{"свойства", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"сгруппа", EPosition::kSleep, do_gsay, 0, 0, -1},
+		{"сглазить", EPosition::kFight, do_manadrain, 0, 0, -1},
+		{"сесть", EPosition::kRest, do_sit, 0, 0, -1},
+		{"синоним", EPosition::kDead, do_alias, 0, 0, 0},
+		{"сдемигодам", EPosition::kDead, do_sdemigod, kLvlImmortal, 0, 0},
+		{"сказать", EPosition::kRest, do_tell, 0, 0, -1},
+		{"скользить", EPosition::kStand, do_lightwalk, 0, 0, 0},
+		{"следовать", EPosition::kRest, do_follow, 0, 0, 500},
+		{"сложить", EPosition::kFight, do_mixture, 0, SCMD_RUNES, -1},
+		{"слава", EPosition::kStand, Glory::do_spend_glory, 0, 0, 0},
+		{"слава2", EPosition::kStand, GloryConst::do_spend_glory, 0, 0, 0},
+		{"смотреть", EPosition::kRest, do_look, 0, SCMD_LOOK, 0},
+		{"смешать", EPosition::kStand, do_mixture, 0, SCMD_ITEMS, -1},
+//  { "смастерить",     EPosition::kStand, do_transform_weapon, 0, SCMD_CREATEBOW, -1 },
+		{"снять", EPosition::kRest, do_remove, 0, 0, 500},
+		{"создать", EPosition::kSit, do_create, 0, 0, -1},
+		{"сон", EPosition::kSleep, do_sleep, 0, 0, -1},
+		{"соскочить", EPosition::kFight, do_horseoff, 0, 0, -1},
+		{"состав", EPosition::kRest, do_create, 0, SCMD_RECIPE, 0},
+		{"сохранить", EPosition::kSleep, do_save, 0, 0, 0},
+		{"союзы", EPosition::kRest, do_show_alliance, 0, 0, 0},
+		{"социалы", EPosition::kDead, do_commands, 0, SCMD_SOCIALS, 0},
+		{"спать", EPosition::kSleep, do_sleep, 0, 0, -1},
+		{"спасти", EPosition::kFight, do_rescue, 1, 0, -1},
+		{"способности", EPosition::kSleep, do_features, 0, 0, 0},
+		{"список", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"справка", EPosition::kDead, do_help, 0, 0, 0},
+		{"спросить", EPosition::kRest, do_spec_comm, 0, SCMD_ASK, -1},
+		{"спрятаться", EPosition::kStand, do_hide, 1, 0, 500},
+		{"сравнить", EPosition::kRest, do_consider, 0, 0, 500},
+		{"ставка", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"статус", EPosition::kDead, do_display, 0, 0, 0},
+		{"статистика", EPosition::kDead, do_statistic, 0, 0, 0},
+		{"стереть", EPosition::kDead, do_gen_ps, 0, SCMD_CLEAR, 0},
+		{"стиль", EPosition::kRest, do_style, 0, 0, 0},
+		{"строка", EPosition::kDead, do_display, 0, 0, 0},
+		{"счет", EPosition::kDead, DoScore, 0, 0, 0},
+		{"телега", EPosition::kDead, do_telegram, 0, 0, -1},
+		{"тень", EPosition::kFight, do_throw, 0, SCMD_SHADOW_THROW, -1},
+		{"титул", EPosition::kDead, TitleSystem::do_title, 0, 0, 0},
+		{"трусость", EPosition::kDead, do_wimpy, 0, 0, 0},
+		{"убить", EPosition::kFight, do_kill, 0, 0, -1},
+		{"убрать", EPosition::kRest, do_remove, 0, 0, 400},
+		{"ударить", EPosition::kFight, do_hit, 0, SCMD_HIT, -1},
+		{"удавить", EPosition::kFight, do_strangle, 0, 0, -1},
+		{"удалить", EPosition::kStand, do_delete_obj, kLvlImplementator, 0, 0},
+		{"уклониться", EPosition::kFight, do_deviate, 1, 0, -1},
+		{"украсть", EPosition::kStand, do_steal, 1, 0, 0},
+		{"укрепить", EPosition::kRest, do_armored, 0, 0, -1},
+		{"умения", EPosition::kSleep, do_skills, 0, 0, 0},
+		{"уровень", EPosition::kDead, DoScore, 0, 0, 0},
+		{"уровни", EPosition::kDead, do_levels, 0, 0, 0},
+		{"учить", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"хранилище", EPosition::kDead, DoStoreHouse, 0, 0, 0},
+		{"характеристики", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"кланстаф", EPosition::kStand, do_clanstuff, 0, 0, 0},
+		{"чинить", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"читать", EPosition::kRest, do_look, 0, SCMD_READ, 200},
+		{"шептать", EPosition::kRest, do_spec_comm, 0, SCMD_WHISPER, -1},
+		{"экипировка", EPosition::kSleep, do_equipment, 0, 0, 0},
+		{"эмоция", EPosition::kRest, do_echo, 1, SCMD_EMOTE, -1},
+		{"эхо", EPosition::kSleep, do_echo, kLvlImmortal, SCMD_ECHO, -1},
+		{"ярость", EPosition::kRest, do_courage, 0, 0, -1},
 
 		// God commands for listing
-		{"мсписок", POS_DEAD, do_liblist, 0, SCMD_MLIST, 0},
-		{"осписок", POS_DEAD, do_liblist, 0, SCMD_OLIST, 0},
-		{"ксписок", POS_DEAD, do_liblist, 0, SCMD_RLIST, 0},
-		{"зсписок", POS_DEAD, do_liblist, 0, SCMD_ZLIST, 0},
+		{"мсписок", EPosition::kDead, do_liblist, 0, SCMD_MLIST, 0},
+		{"осписок", EPosition::kDead, do_liblist, 0, SCMD_OLIST, 0},
+		{"ксписок", EPosition::kDead, do_liblist, 0, SCMD_RLIST, 0},
+		{"зсписок", EPosition::kDead, do_liblist, 0, SCMD_ZLIST, 0},
 
-		{"'", POS_RESTING, do_say, 0, 0, -1},
-		{":", POS_RESTING, do_echo, 1, SCMD_EMOTE, -1},
-		{";", POS_DEAD, do_wiznet, LVL_IMMORT, 0, -1},
-		{"advance", POS_DEAD, do_advance, LVL_IMPL, 0, 0},
-		{"alias", POS_DEAD, do_alias, 0, 0, 0},
-		{"alter", POS_RESTING, do_fit, 0, SCMD_MAKE_OVER, 500},
-		{"ask", POS_RESTING, do_spec_comm, 0, SCMD_ASK, -1},
-		{"assist", POS_FIGHTING, do_assist, 1, 0, -1},
-		{"attack", POS_FIGHTING, do_hit, 0, SCMD_MURDER, -1},
-		{"auction", POS_RESTING, do_gen_comm, 0, SCMD_AUCTION, -1},
-		{"arenarestore", POS_SLEEPING, do_arena_restore, LVL_GOD, 0, 0},
-		{"backstab", POS_STANDING, do_backstab, 1, 0, 1},
-		{"balance", POS_STANDING, do_not_here, 1, 0, -1},
-		{"ban", POS_DEAD, do_ban, LVL_GRGOD, 0, 0},
-		{"bash", POS_FIGHTING, do_bash, 1, 0, -1},
-		{"beep", POS_DEAD, do_beep, LVL_IMMORT, 0, 0},
-		{"block", POS_FIGHTING, do_block, 0, 0, -1},
-		{"bug", POS_DEAD, Boards::report_on_board, 0, Boards::ERROR_BOARD, 0},
-		{"buy", POS_STANDING, do_not_here, 0, 0, -1},
-		{"best", POS_DEAD, DoBest, 0, 0, 0},
-		{"cast", POS_SITTING, do_cast, 1, 0, -1},
-		{"check", POS_STANDING, do_not_here, 1, 0, -1},
-		{"chopoff", POS_FIGHTING, do_chopoff, 0, 0, 500},
-		{"clear", POS_DEAD, do_gen_ps, 0, SCMD_CLEAR, 0},
-		{"close", POS_SITTING, do_gen_door, 0, SCMD_CLOSE, 500},
-		{"cls", POS_DEAD, do_gen_ps, 0, SCMD_CLEAR, 0},
-		{"commands", POS_DEAD, do_commands, 0, SCMD_COMMANDS, 0},
-		{"consider", POS_RESTING, do_consider, 0, 0, 500},
-		{"credits", POS_DEAD, do_gen_ps, 0, SCMD_CREDITS, 0},
-		{"date", POS_DEAD, do_date, LVL_IMMORT, SCMD_DATE, 0},
-		{"dc", POS_DEAD, do_dc, LVL_GRGOD, 0, 0},
-		{"deposit", POS_STANDING, do_not_here, 1, 0, 500},
-		{"deviate", POS_FIGHTING, do_deviate, 0, 0, -1},
-		{"diagnose", POS_RESTING, do_diagnose, 0, 0, 500},
-		{"dig", POS_STANDING, do_dig, 0, SKILL_DIG, -1},
-		{"disarm", POS_FIGHTING, do_disarm, 0, 0, -1},
-		{"display", POS_DEAD, do_display, 0, 0, 0},
-		{"drink", POS_RESTING, do_drink, 0, SCMD_DRINK, 500},
-		{"drop", POS_RESTING, do_drop, 0, SCMD_DROP, 500},
-		{"dumb", POS_DEAD, do_wizutil, LVL_IMMORT, SCMD_DUMB, 0},
-		{"eat", POS_RESTING, do_eat, 0, SCMD_EAT, 500},
-		{"devour", POS_RESTING, do_eat, 0, SCMD_DEVOUR, 300},
-		{"echo", POS_SLEEPING, do_echo, LVL_IMMORT, SCMD_ECHO, 0},
-		{"emote", POS_RESTING, do_echo, 1, SCMD_EMOTE, -1},
-		{"enter", POS_STANDING, do_enter, 0, 0, -2},
-		{"equipment", POS_SLEEPING, do_equipment, 0, 0, 0},
-		{"examine", POS_RESTING, do_examine, 0, 0, 500},
-		{"exchange", POS_RESTING, do_exchange, 1, 0, -1},
-		{"exits", POS_RESTING, do_exits, 0, 0, 500},
-		{"featset", POS_SLEEPING, do_featset, LVL_IMPL, 0, 0},
-		{"features", POS_SLEEPING, do_features, 0, 0, 0},
-		{"fill", POS_STANDING, do_pour, 0, SCMD_FILL, 500},
-		{"fit", POS_RESTING, do_fit, 0, SCMD_DO_ADAPT, 500},
-		{"flee", POS_FIGHTING, do_flee, 1, 0, -1},
-		{"follow", POS_RESTING, do_follow, 0, 0, -1},
-		{"force", POS_SLEEPING, do_force, LVL_GRGOD, 0, 0},
-		{"forcetime", POS_DEAD, do_forcetime, LVL_IMPL, 0, 0},
-		{"freeze", POS_DEAD, do_wizutil, LVL_FREEZE, SCMD_FREEZE, 0},
-		{"gecho", POS_DEAD, do_gecho, LVL_GOD, 0, 0},
-		{"get", POS_RESTING, do_get, 0, 0, 500},
-		{"give", POS_RESTING, do_give, 0, 0, 500},
-		{"godnews", POS_DEAD, Boards::DoBoard, 1, Boards::GODNEWS_BOARD, -1},
-		{"gold", POS_RESTING, do_gold, 0, 0, 0},
-		{"glide", POS_STANDING, do_lightwalk, 0, 0, 0},
-		{"glory", POS_RESTING, GloryConst::do_glory, LVL_IMPL, 0, 0},
-		{"glorytemp", POS_RESTING, do_glory, LVL_BUILDER, 0, 0},
-		{"gossip", POS_RESTING, do_gen_comm, 0, SCMD_GOSSIP, -1},
-		{"goto", POS_SLEEPING, do_goto, LVL_GOD, 0, 0},
-		{"grab", POS_RESTING, do_grab, 0, 0, 500},
-		{"group", POS_RESTING, do_group, 1, 0, 500},
-		{"gsay", POS_SLEEPING, do_gsay, 0, 0, -1},
-		{"gtell", POS_SLEEPING, do_gsay, 0, 0, -1},
-		{"handbook", POS_DEAD, do_gen_ps, LVL_IMMORT, SCMD_HANDBOOK, 0},
-		{"hcontrol", POS_DEAD, DoHcontrol, LVL_GRGOD, 0, 0},
-		{"help", POS_DEAD, do_help, 0, 0, 0},
-		{"hell", POS_DEAD, do_wizutil, LVL_GOD, SCMD_HELL, 0},
-		{"hide", POS_STANDING, do_hide, 1, 0, 0},
-		{"hit", POS_FIGHTING, do_hit, 0, SCMD_HIT, -1},
-		{"hold", POS_RESTING, do_grab, 1, 0, 500},
-		{"holler", POS_RESTING, do_gen_comm, 1, SCMD_HOLLER, -1},
-		{"horse", POS_STANDING, do_not_here, 0, 0, -1},
-		{"house", POS_RESTING, DoHouse, 0, 0, 0},
-		{"huk", POS_FIGHTING, do_mighthit, 0, 0, -1},
-		{"idea", POS_DEAD, Boards::DoBoard, 1, Boards::IDEA_BOARD, 0},
-		{"ignore", POS_DEAD, do_ignore, 0, 0, 0},
-		{"immlist", POS_DEAD, do_gen_ps, 0, SCMD_IMMLIST, 0},
-		{"index", POS_RESTING, do_help, 1, 0, 500},
-		{"info", POS_SLEEPING, do_gen_ps, 0, SCMD_INFO, 0},
-		{"insert", POS_STANDING, do_insertgem, 0, SKILL_INSERTGEM, -1},
-		{"inspect", POS_DEAD, do_inspect, LVL_BUILDER, 0, 0},
-		{"insult", POS_RESTING, do_insult, 0, 0, -1},
-		{"inventory", POS_SLEEPING, do_inventory, 0, 0, 0},
-		{"invis", POS_DEAD, do_invis, LVL_GOD, 0, -1},
-		{"kick", POS_FIGHTING, do_kick, 1, 0, -1},
-		{"kill", POS_FIGHTING, do_kill, 0, 0, -1},
-		{"last", POS_DEAD, do_last, LVL_GOD, 0, 0},
-		{"levels", POS_DEAD, do_levels, 0, 0, 0},
-		{"list", POS_STANDING, do_not_here, 0, 0, -1},
-		{"load", POS_DEAD, do_load, LVL_BUILDER, 0, 0},
-		{"loadstat", POS_DEAD, do_loadstat, LVL_IMPL, 0, 0},
-		{"look", POS_RESTING, do_look, 0, SCMD_LOOK, 200},
-		{"lock", POS_SITTING, do_gen_door, 0, SCMD_LOCK, 500},
-		{"map", POS_RESTING, do_map, 0, 0, 0},
-		{"mail", POS_STANDING, do_not_here, 1, 0, -1},
-		{"mercenary", POS_STANDING, do_not_here, 1, 0, -1},
-		{"mode", POS_DEAD, do_mode, 0, 0, 0},
-		{"mshout", POS_RESTING, do_mobshout, 0, 0, -1},
-		{"motd", POS_DEAD, do_gen_ps, 0, SCMD_MOTD, 0},
-		{"murder", POS_FIGHTING, do_hit, 0, SCMD_MURDER, -1},
-		{"mute", POS_DEAD, do_wizutil, LVL_IMMORT, SCMD_MUTE, 0},
-		{"medit", POS_DEAD, do_olc, 0, SCMD_OLC_MEDIT, 0},
-		{"name", POS_DEAD, do_wizutil, LVL_GOD, SCMD_NAME, 0},
-		{"nedit", POS_RESTING, NamedStuff::do_named, LVL_BUILDER, SCMD_NAMED_EDIT, 0}, //Именной стаф редактирование
-		{"news", POS_DEAD, Boards::DoBoard, 1, Boards::NEWS_BOARD, -1},
-		{"nlist", POS_RESTING, NamedStuff::do_named, LVL_BUILDER, SCMD_NAMED_LIST, 0}, //Именной стаф список
-		{"notitle", POS_DEAD, do_wizutil, LVL_GRGOD, SCMD_NOTITLE, 0},
-		{"odelete", POS_STANDING, do_delete_obj, LVL_IMPL, 0, 0},
-		{"oedit", POS_DEAD, do_olc, 0, SCMD_OLC_OEDIT, 0},
-		{"offer", POS_STANDING, do_not_here, 1, 0, 0},
-		{"olc", POS_DEAD, do_olc, LVL_GOD, SCMD_OLC_SAVEINFO, 0},
-		{"open", POS_SITTING, do_gen_door, 0, SCMD_OPEN, 500},
-		{"order", POS_RESTING, do_order, 1, 0, -1},
-		{"overstuff", POS_DEAD, do_overstuff, LVL_GRGOD, 0, 0},
-		{"page", POS_DEAD, do_page, LVL_GOD, 0, 0},
-		{"parry", POS_FIGHTING, do_parry, 0, 0, -1},
-		{"pick", POS_STANDING, do_gen_door, 1, SCMD_PICK, -1},
-		{"poisoned", POS_FIGHTING, do_poisoned, 0, 0, -1},
-		{"policy", POS_DEAD, do_gen_ps, 0, SCMD_POLICIES, 0},
-		{"poofin", POS_DEAD, do_poofset, LVL_GOD, SCMD_POOFIN, 0},
-		{"poofout", POS_DEAD, do_poofset, LVL_GOD, SCMD_POOFOUT, 0},
-		{"pour", POS_STANDING, do_pour, 0, SCMD_POUR, -1},
-		{"practice", POS_STANDING, do_not_here, 0, 0, -1},
-		{"prompt", POS_DEAD, do_display, 0, 0, 0},
-		{"proxy", POS_DEAD, do_proxy, LVL_GRGOD, 0, 0},
-		{"purge", POS_DEAD, do_purge, LVL_GOD, 0, 0},
-		{"put", POS_RESTING, do_put, 0, 0, 500},
-//	{"python", POS_DEAD, do_console, LVL_GOD, 0, 0},
-		{"quaff", POS_RESTING, do_employ, 0, SCMD_QUAFF, 500},
-		{"qui", POS_SLEEPING, do_quit, 0, 0, 0},
-		{"quit", POS_SLEEPING, do_quit, 0, SCMD_QUIT, -1},
-		{"read", POS_RESTING, do_look, 0, SCMD_READ, 200},
-		{"receive", POS_STANDING, do_not_here, 1, 0, -1},
-		{"recipes", POS_RESTING, do_recipes, 0, 0, 0},
-		{"recite", POS_RESTING, do_employ, 0, SCMD_RECITE, 500},
-		{"redit", POS_DEAD, do_olc, 0, SCMD_OLC_REDIT, 0},
-		{"register", POS_DEAD, do_wizutil, LVL_IMMORT, SCMD_REGISTER, 0},
-		{"unregister", POS_DEAD, do_wizutil, LVL_IMMORT, SCMD_UNREGISTER, 0},
-		{"reload", POS_DEAD, do_reboot, LVL_IMPL, 0, 0},
-		{"remove", POS_RESTING, do_remove, 0, 0, 500},
-		{"rent", POS_STANDING, do_not_here, 1, 0, -1},
-		{"reply", POS_RESTING, do_reply, 0, 0, -1},
-		{"report", POS_RESTING, do_report, 0, 0, -1},
-		{"reroll", POS_DEAD, do_wizutil, LVL_GRGOD, SCMD_REROLL, 0},
-		{"rescue", POS_FIGHTING, do_rescue, 1, 0, -1},
-		{"rest", POS_RESTING, do_rest, 0, 0, -1},
-		{"restore", POS_DEAD, do_restore, LVL_GRGOD, SCMD_RESTORE_GOD, 0},
-		{"return", POS_DEAD, do_return, 0, 0, -1},
-		{"rset", POS_SLEEPING, do_rset, LVL_BUILDER, 0, 0},
-		{"rules", POS_DEAD, do_gen_ps, LVL_IMMORT, SCMD_RULES, 0},
-		{"runes", POS_FIGHTING, do_mixture, 0, SCMD_RUNES, -1},
-		{"save", POS_SLEEPING, do_save, 0, 0, 0},
-		{"say", POS_RESTING, do_say, 0, 0, -1},
-		{"scan", POS_RESTING, do_sides, 0, 0, 500},
-		{"score", POS_DEAD, do_score, 0, 0, 0},
-		{"sell", POS_STANDING, do_not_here, 0, 0, -1},
-		{"send", POS_SLEEPING, do_send, LVL_GRGOD, 0, 0},
-		{"sense", POS_STANDING, do_sense, 0, 0, 500},
-		{"set", POS_DEAD, do_set, LVL_IMMORT, 0, 0},
-		{"settle", POS_STANDING, do_not_here, 1, 0, -1},
-		{"shout", POS_RESTING, do_gen_comm, 0, SCMD_SHOUT, -1},
-		{"show", POS_DEAD, do_show, LVL_IMMORT, 0, 0},
-		{"shutdown", POS_DEAD, do_shutdown, LVL_IMPL, SCMD_SHUTDOWN, 0},
-		{"sip", POS_RESTING, do_drink, 0, SCMD_SIP, 500},
-		{"sit", POS_RESTING, do_sit, 0, 0, -1},
-		{"skills", POS_RESTING, do_skills, 0, 0, 0},
-		{"skillset", POS_SLEEPING, do_skillset, LVL_IMPL, 0, 0},
-		{"morphset", POS_SLEEPING, do_morphset, LVL_IMPL, 0, 0},
-		{"setall", POS_DEAD, do_setall, LVL_IMPL, 0, 0},
-		{"sleep", POS_SLEEPING, do_sleep, 0, 0, -1},
-		{"sneak", POS_STANDING, do_sneak, 1, 0, -2},
-		{"snoop", POS_DEAD, do_snoop, LVL_GRGOD, 0, 0},
-		{"socials", POS_DEAD, do_commands, 0, SCMD_SOCIALS, 0},
-		{"spells", POS_RESTING, do_spells, 0, 0, 0},
-		{"split", POS_RESTING, do_split, 1, 0, 0},
-		{"stand", POS_RESTING, do_stand, 0, 0, -1},
-		{"stat", POS_DEAD, do_stat, LVL_GOD, 0, 0},
-		{"steal", POS_STANDING, do_steal, 1, 0, 300},
-		{"strangle", POS_FIGHTING, do_strangle, 0, 0, -1},
-		{"stupor", POS_FIGHTING, do_stupor, 0, 0, -1},
-		{"switch", POS_DEAD, do_switch, LVL_GRGOD, 0, 0},
-		{"syslog", POS_DEAD, do_syslog, LVL_IMMORT, SYSLOG, 0},
-		{"suggest", POS_DEAD, Boards::report_on_board, 0, Boards::SUGGEST_BOARD, 0},
-		{"slist", POS_DEAD, do_slist, LVL_IMPL, 0, 0},
-		{"sedit", POS_DEAD, do_sedit, LVL_IMPL, 0, 0},
-		{"errlog", POS_DEAD, do_syslog, LVL_BUILDER, ERRLOG, 0},
-		{"imlog", POS_DEAD, do_syslog, LVL_BUILDER, IMLOG, 0},
-		{"take", POS_RESTING, do_get, 0, 0, 500},
-		{"taste", POS_RESTING, do_eat, 0, SCMD_TASTE, 500},
-		{"t2c", POS_RESTING, do_send_text_to_char, LVL_GRGOD, 0, -1},
-		{"telegram", POS_DEAD, do_telegram, LVL_IMMORT, 0, -1},
-		{"teleport", POS_DEAD, do_teleport, LVL_GRGOD, 0, -1},
-		{"tell", POS_RESTING, do_tell, 0, 0, -1},
-		{"time", POS_DEAD, do_time, 0, 0, 0},
-		{"title", POS_DEAD, TitleSystem::do_title, 0, 0, 0},
-		{"touch", POS_FIGHTING, do_touch, 0, 0, -1},
-		{"track", POS_STANDING, do_track, 0, 0, -1},
-		{"transfer", POS_STANDING, do_not_here, 1, 0, -1},
-		{"trigedit", POS_DEAD, do_olc, 0, SCMD_OLC_TRIGEDIT, 0},
-		{"turn undead", POS_RESTING, do_turn_undead, 0, 0, -1},
-		{"typo", POS_DEAD, Boards::report_on_board, 0, Boards::MISPRINT_BOARD, 0},
-		{"unaffect", POS_DEAD, do_wizutil, LVL_GRGOD, SCMD_UNAFFECT, 0},
-		{"unban", POS_DEAD, do_unban, LVL_GRGOD, 0, 0},
-		{"unfreeze", POS_DEAD, do_unfreeze, LVL_IMPL, 0, 0},
-		{"ungroup", POS_DEAD, do_ungroup, 0, 0, -1},
-		{"unlock", POS_SITTING, do_gen_door, 0, SCMD_UNLOCK, 500},
-		{"uptime", POS_DEAD, do_date, LVL_IMMORT, SCMD_UPTIME, 0},
-		{"use", POS_SITTING, do_employ, 1, SCMD_USE, 500},
-		{"users", POS_DEAD, do_users, LVL_IMMORT, 0, 0},
-		{"value", POS_STANDING, do_not_here, 0, 0, -1},
-		{"version", POS_DEAD, do_gen_ps, 0, SCMD_VERSION, 0},
-		{"visible", POS_RESTING, do_visible, 1, 0, -1},
-		{"vnum", POS_DEAD, do_vnum, LVL_GRGOD, 0, 0},
-		{"вномер", POS_DEAD, do_vnum, LVL_GRGOD, 0, 0},  //тупой копипаст для использования русского синтаксиса
-		{"vstat", POS_DEAD, do_vstat, LVL_GRGOD, 0, 0},
-		{"wake", POS_SLEEPING, do_wake, 0, 0, -1},
-		{"warcry", POS_FIGHTING, do_warcry, 1, 0, -1},
-		{"wear", POS_RESTING, do_wear, 0, 0, 500},
-		{"weather", POS_RESTING, do_weather, 0, 0, 0},
-		{"where", POS_RESTING, do_where, LVL_IMMORT, 0, 0},
-		{"whirl", POS_FIGHTING, do_iron_wind, 0, 0, -1},
-		{"whisper", POS_RESTING, do_spec_comm, 0, SCMD_WHISPER, -1},
-		{"who", POS_RESTING, do_who, 0, 0, 0},
-		{"whoami", POS_DEAD, do_gen_ps, 0, SCMD_WHOAMI, 0},
-		{"wield", POS_RESTING, do_wield, 0, 0, 500},
-		{"wimpy", POS_DEAD, do_wimpy, 0, 0, 0},
-		{"withdraw", POS_STANDING, do_not_here, 1, 0, -1},
-		{"wizhelp", POS_SLEEPING, do_commands, LVL_IMMORT, SCMD_WIZHELP, 0},
-		{"wizlock", POS_DEAD, do_wizlock, LVL_IMPL, 0, 0},
-		{"wiznet", POS_DEAD, do_wiznet, LVL_IMMORT, 0, 0},
-		{"wizat", POS_DEAD, do_at, LVL_GRGOD, 0, 0},
-		{"write", POS_STANDING, do_write, 1, 0, -1},
-		{"zedit", POS_DEAD, do_olc, 0, SCMD_OLC_ZEDIT, 0},
-		{"zone", POS_RESTING, do_zone, 0, 0, 0},
-		{"zreset", POS_DEAD, do_zreset, LVL_GRGOD, 0, 0},
+		{"'", EPosition::kRest, do_say, 0, 0, -1},
+		{":", EPosition::kRest, do_echo, 1, SCMD_EMOTE, -1},
+		{";", EPosition::kDead, do_wiznet, kLvlImmortal, 0, -1},
+		{"advance", EPosition::kDead, do_advance, kLvlImplementator, 0, 0},
+		{"alias", EPosition::kDead, do_alias, 0, 0, 0},
+		{"alter", EPosition::kRest, do_fit, 0, SCMD_MAKE_OVER, 500},
+		{"ask", EPosition::kRest, do_spec_comm, 0, SCMD_ASK, -1},
+		{"assist", EPosition::kFight, do_assist, 1, 0, -1},
+		{"attack", EPosition::kFight, do_hit, 0, SCMD_MURDER, -1},
+		{"auction", EPosition::kRest, do_gen_comm, 0, SCMD_AUCTION, -1},
+		{"arenarestore", EPosition::kSleep, do_arena_restore, kLvlGod, 0, 0},
+		{"backstab", EPosition::kStand, do_backstab, 1, 0, 1},
+		{"balance", EPosition::kStand, do_not_here, 1, 0, -1},
+		{"ban", EPosition::kDead, do_ban, kLvlGreatGod, 0, 0},
+		{"bash", EPosition::kFight, do_bash, 1, 0, -1},
+		{"beep", EPosition::kDead, do_beep, kLvlImmortal, 0, 0},
+		{"block", EPosition::kFight, do_block, 0, 0, -1},
+		{"bug", EPosition::kDead, Boards::report_on_board, 0, Boards::ERROR_BOARD, 0},
+		{"buy", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"best", EPosition::kDead, DoBest, 0, 0, 0},
+		{"cast", EPosition::kSit, do_cast, 1, 0, -1},
+		{"check", EPosition::kStand, do_not_here, 1, 0, -1},
+		{"chopoff", EPosition::kFight, do_chopoff, 0, 0, 500},
+		{"clear", EPosition::kDead, do_gen_ps, 0, SCMD_CLEAR, 0},
+		{"close", EPosition::kSit, do_gen_door, 0, SCMD_CLOSE, 500},
+		{"cls", EPosition::kDead, do_gen_ps, 0, SCMD_CLEAR, 0},
+		{"commands", EPosition::kDead, do_commands, 0, SCMD_COMMANDS, 0},
+		{"consider", EPosition::kRest, do_consider, 0, 0, 500},
+		{"credits", EPosition::kDead, do_gen_ps, 0, SCMD_CREDITS, 0},
+		{"date", EPosition::kDead, do_date, kLvlImmortal, SCMD_DATE, 0},
+		{"dc", EPosition::kDead, do_dc, kLvlGreatGod, 0, 0},
+		{"deposit", EPosition::kStand, do_not_here, 1, 0, 500},
+		{"deviate", EPosition::kFight, do_deviate, 0, 0, -1},
+		{"diagnose", EPosition::kRest, do_diagnose, 0, 0, 500},
+		{"dig", EPosition::kStand, do_dig, 0, 0, -1},
+		{"disarm", EPosition::kFight, do_disarm, 0, 0, -1},
+		{"display", EPosition::kDead, do_display, 0, 0, 0},
+		{"drink", EPosition::kRest, do_drink, 0, SCMD_DRINK, 500},
+		{"drop", EPosition::kRest, do_drop, 0, SCMD_DROP, 500},
+		{"dumb", EPosition::kDead, do_wizutil, kLvlImmortal, SCMD_DUMB, 0},
+		{"eat", EPosition::kRest, do_eat, 0, SCMD_EAT, 500},
+		{"devour", EPosition::kRest, do_eat, 0, SCMD_DEVOUR, 300},
+		{"echo", EPosition::kSleep, do_echo, kLvlImmortal, SCMD_ECHO, 0},
+		{"emote", EPosition::kRest, do_echo, 1, SCMD_EMOTE, -1},
+		{"enter", EPosition::kStand, do_enter, 0, 0, -2},
+		{"equipment", EPosition::kSleep, do_equipment, 0, 0, 0},
+		{"examine", EPosition::kRest, do_examine, 0, 0, 500},
+		{"exchange", EPosition::kRest, do_exchange, 1, 0, -1},
+		{"exits", EPosition::kRest, do_exits, 0, 0, 500},
+		{"featset", EPosition::kSleep, do_featset, kLvlImplementator, 0, 0},
+		{"features", EPosition::kSleep, do_features, 0, 0, 0},
+		{"fill", EPosition::kStand, do_pour, 0, SCMD_FILL, 500},
+		{"fit", EPosition::kRest, do_fit, 0, SCMD_DO_ADAPT, 500},
+		{"flee", EPosition::kFight, do_flee, 1, 0, -1},
+		{"follow", EPosition::kRest, do_follow, 0, 0, -1},
+		{"force", EPosition::kSleep, do_force, kLvlGreatGod, 0, 0},
+		{"forcetime", EPosition::kDead, do_forcetime, kLvlImplementator, 0, 0},
+		{"freeze", EPosition::kDead, do_wizutil, kLvlFreeze, SCMD_FREEZE, 0},
+		{"gecho", EPosition::kDead, do_gecho, kLvlGod, 0, 0},
+		{"get", EPosition::kRest, do_get, 0, 0, 500},
+		{"give", EPosition::kRest, do_give, 0, 0, 500},
+		{"godnews", EPosition::kDead, Boards::DoBoard, 1, Boards::GODNEWS_BOARD, -1},
+		{"gold", EPosition::kRest, do_gold, 0, 0, 0},
+		{"glide", EPosition::kStand, do_lightwalk, 0, 0, 0},
+		{"glory", EPosition::kRest, GloryConst::do_glory, kLvlImplementator, 0, 0},
+		{"glorytemp", EPosition::kRest, do_glory, kLvlBuilder, 0, 0},
+		{"gossip", EPosition::kRest, do_gen_comm, 0, SCMD_GOSSIP, -1},
+		{"goto", EPosition::kSleep, do_goto, kLvlGod, 0, 0},
+		{"grab", EPosition::kRest, do_grab, 0, 0, 500},
+		{"group", EPosition::kRest, do_group, 1, 0, 500},
+		{"gsay", EPosition::kSleep, do_gsay, 0, 0, -1},
+		{"gtell", EPosition::kSleep, do_gsay, 0, 0, -1},
+		{"handbook", EPosition::kDead, do_gen_ps, kLvlImmortal, SCMD_HANDBOOK, 0},
+		{"hcontrol", EPosition::kDead, DoHcontrol, kLvlGreatGod, 0, 0},
+		{"help", EPosition::kDead, do_help, 0, 0, 0},
+		{"hell", EPosition::kDead, do_wizutil, kLvlGod, SCMD_HELL, 0},
+		{"hide", EPosition::kStand, do_hide, 1, 0, 0},
+		{"hit", EPosition::kFight, do_hit, 0, SCMD_HIT, -1},
+		{"hold", EPosition::kRest, do_grab, 1, 0, 500},
+		{"holler", EPosition::kRest, do_gen_comm, 1, SCMD_HOLLER, -1},
+		{"horse", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"house", EPosition::kRest, DoHouse, 0, 0, 0},
+		{"huk", EPosition::kFight, do_mighthit, 0, 0, -1},
+		{"idea", EPosition::kDead, Boards::DoBoard, 1, Boards::IDEA_BOARD, 0},
+		{"ignore", EPosition::kDead, do_ignore, 0, 0, 0},
+		{"immlist", EPosition::kDead, do_gen_ps, 0, SCMD_IMMLIST, 0},
+		{"index", EPosition::kRest, do_help, 1, 0, 500},
+		{"info", EPosition::kSleep, do_gen_ps, 0, SCMD_INFO, 0},
+		{"insert", EPosition::kStand, do_insertgem, 0, 0, -1},
+		{"inspect", EPosition::kDead, do_inspect, kLvlBuilder, 0, 0},
+		{"insult", EPosition::kRest, do_insult, 0, 0, -1},
+		{"inventory", EPosition::kSleep, do_inventory, 0, 0, 0},
+		{"invis", EPosition::kDead, do_invis, kLvlGod, 0, -1},
+		{"kick", EPosition::kFight, do_kick, 1, 0, -1},
+		{"kill", EPosition::kFight, do_kill, 0, 0, -1},
+		{"last", EPosition::kDead, do_last, kLvlGod, 0, 0},
+		{"levels", EPosition::kDead, do_levels, 0, 0, 0},
+		{"list", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"load", EPosition::kDead, do_load, kLvlBuilder, 0, 0},
+		{"loadstat", EPosition::kDead, do_loadstat, kLvlImplementator, 0, 0},
+		{"look", EPosition::kRest, do_look, 0, SCMD_LOOK, 200},
+		{"lock", EPosition::kSit, do_gen_door, 0, SCMD_LOCK, 500},
+		{"map", EPosition::kRest, do_map, 0, 0, 0},
+		{"mail", EPosition::kStand, do_not_here, 1, 0, -1},
+		{"mercenary", EPosition::kStand, do_not_here, 1, 0, -1},
+		{"mode", EPosition::kDead, do_mode, 0, 0, 0},
+		{"mshout", EPosition::kRest, do_mobshout, 0, 0, -1},
+		{"motd", EPosition::kDead, do_gen_ps, 0, SCMD_MOTD, 0},
+		{"murder", EPosition::kFight, do_hit, 0, SCMD_MURDER, -1},
+		{"mute", EPosition::kDead, do_wizutil, kLvlImmortal, SCMD_MUTE, 0},
+		{"medit", EPosition::kDead, do_olc, 0, SCMD_OLC_MEDIT, 0},
+		{"name", EPosition::kDead, do_wizutil, kLvlGod, SCMD_NAME, 0},
+		{"nedit", EPosition::kRest, NamedStuff::do_named, kLvlBuilder, SCMD_NAMED_EDIT, 0}, //Именной стаф редактирование
+		{"news", EPosition::kDead, Boards::DoBoard, 1, Boards::NEWS_BOARD, -1},
+		{"nlist", EPosition::kRest, NamedStuff::do_named, kLvlBuilder, SCMD_NAMED_LIST, 0}, //Именной стаф список
+		{"notitle", EPosition::kDead, do_wizutil, kLvlGreatGod, SCMD_NOTITLE, 0},
+		{"odelete", EPosition::kStand, do_delete_obj, kLvlImplementator, 0, 0},
+		{"oedit", EPosition::kDead, do_olc, 0, SCMD_OLC_OEDIT, 0},
+		{"offer", EPosition::kStand, do_not_here, 1, 0, 0},
+		{"olc", EPosition::kDead, do_olc, kLvlGod, SCMD_OLC_SAVEINFO, 0},
+		{"open", EPosition::kSit, do_gen_door, 0, SCMD_OPEN, 500},
+		{"order", EPosition::kRest, do_order, 1, 0, -1},
+		{"overstuff", EPosition::kDead, do_overstuff, kLvlGreatGod, 0, 0},
+		{"page", EPosition::kDead, do_page, kLvlGod, 0, 0},
+		{"parry", EPosition::kFight, do_parry, 0, 0, -1},
+		{"pick", EPosition::kStand, do_gen_door, 1, SCMD_PICK, -1},
+		{"poisoned", EPosition::kFight, do_poisoned, 0, 0, -1},
+		{"policy", EPosition::kDead, do_gen_ps, 0, SCMD_POLICIES, 0},
+		{"poofin", EPosition::kDead, do_poofset, kLvlGod, SCMD_POOFIN, 0},
+		{"poofout", EPosition::kDead, do_poofset, kLvlGod, SCMD_POOFOUT, 0},
+		{"pour", EPosition::kStand, do_pour, 0, SCMD_POUR, -1},
+		{"practice", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"prompt", EPosition::kDead, do_display, 0, 0, 0},
+		{"proxy", EPosition::kDead, do_proxy, kLvlGreatGod, 0, 0},
+		{"purge", EPosition::kDead, do_purge, kLvlGod, 0, 0},
+		{"put", EPosition::kRest, do_put, 0, 0, 500},
+//	{"python", EPosition::kDead, do_console, kLevelGod, 0, 0},
+		{"quaff", EPosition::kRest, do_employ, 0, SCMD_QUAFF, 500},
+		{"qui", EPosition::kSleep, do_quit, 0, 0, 0},
+		{"quit", EPosition::kSleep, do_quit, 0, SCMD_QUIT, -1},
+		{"read", EPosition::kRest, do_look, 0, SCMD_READ, 200},
+		{"receive", EPosition::kStand, do_not_here, 1, 0, -1},
+		{"recipes", EPosition::kRest, do_recipes, 0, 0, 0},
+		{"recite", EPosition::kRest, do_employ, 0, SCMD_RECITE, 500},
+		{"redit", EPosition::kDead, do_olc, 0, SCMD_OLC_REDIT, 0},
+		{"register", EPosition::kDead, do_wizutil, kLvlImmortal, SCMD_REGISTER, 0},
+		{"unregister", EPosition::kDead, do_wizutil, kLvlImmortal, SCMD_UNREGISTER, 0},
+		{"reload", EPosition::kDead, do_reboot, kLvlImplementator, 0, 0},
+		{"remove", EPosition::kRest, do_remove, 0, 0, 500},
+		{"rent", EPosition::kStand, do_not_here, 1, 0, -1},
+		{"reply", EPosition::kRest, do_reply, 0, 0, -1},
+		{"report", EPosition::kRest, do_report, 0, 0, -1},
+		{"reroll", EPosition::kDead, do_wizutil, kLvlGreatGod, SCMD_REROLL, 0},
+		{"rescue", EPosition::kFight, do_rescue, 1, 0, -1},
+		{"rest", EPosition::kRest, do_rest, 0, 0, -1},
+		{"restore", EPosition::kDead, do_restore, kLvlGreatGod, SCMD_RESTORE_GOD, 0},
+		{"return", EPosition::kDead, do_return, 0, 0, -1},
+		{"rset", EPosition::kSleep, do_rset, kLvlBuilder, 0, 0},
+		{"rules", EPosition::kDead, do_gen_ps, kLvlImmortal, SCMD_RULES, 0},
+		{"runes", EPosition::kFight, do_mixture, 0, SCMD_RUNES, -1},
+		{"save", EPosition::kSleep, do_save, 0, 0, 0},
+		{"say", EPosition::kRest, do_say, 0, 0, -1},
+		{"scan", EPosition::kRest, do_sides, 0, 0, 500},
+		{"score", EPosition::kDead, DoScore, 0, 0, 0},
+		{"sell", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"send", EPosition::kSleep, do_send, kLvlGreatGod, 0, 0},
+		{"sense", EPosition::kStand, do_sense, 0, 0, 500},
+		{"set", EPosition::kDead, do_set, kLvlImmortal, 0, 0},
+		{"settle", EPosition::kStand, do_not_here, 1, 0, -1},
+		{"shout", EPosition::kRest, do_gen_comm, 0, SCMD_SHOUT, -1},
+		{"show", EPosition::kDead, do_show, kLvlImmortal, 0, 0},
+		{"shutdown", EPosition::kDead, do_shutdown, kLvlImplementator, SCMD_SHUTDOWN, 0},
+		{"sip", EPosition::kRest, do_drink, 0, SCMD_SIP, 500},
+		{"sit", EPosition::kRest, do_sit, 0, 0, -1},
+		{"skills", EPosition::kRest, do_skills, 0, 0, 0},
+		{"skillset", EPosition::kSleep, do_skillset, kLvlImplementator, 0, 0},
+		{"morphset", EPosition::kSleep, do_morphset, kLvlImplementator, 0, 0},
+		{"setall", EPosition::kDead, do_setall, kLvlImplementator, 0, 0},
+		{"sleep", EPosition::kSleep, do_sleep, 0, 0, -1},
+		{"sneak", EPosition::kStand, do_sneak, 1, 0, -2},
+		{"snoop", EPosition::kDead, do_snoop, kLvlGreatGod, 0, 0},
+		{"socials", EPosition::kDead, do_commands, 0, SCMD_SOCIALS, 0},
+		{"spells", EPosition::kRest, do_spells, 0, 0, 0},
+		{"split", EPosition::kRest, do_split, 1, 0, 0},
+		{"stand", EPosition::kRest, do_stand, 0, 0, -1},
+		{"stat", EPosition::kDead, do_stat, kLvlGod, 0, 0},
+		{"steal", EPosition::kStand, do_steal, 1, 0, 300},
+		{"strangle", EPosition::kFight, do_strangle, 0, 0, -1},
+		{"stupor", EPosition::kFight, do_stupor, 0, 0, -1},
+		{"switch", EPosition::kDead, do_switch, kLvlGreatGod, 0, 0},
+		{"syslog", EPosition::kDead, do_syslog, kLvlImmortal, SYSLOG, 0},
+		{"suggest", EPosition::kDead, Boards::report_on_board, 0, Boards::SUGGEST_BOARD, 0},
+		{"slist", EPosition::kDead, do_slist, kLvlImplementator, 0, 0},
+		{"sedit", EPosition::kDead, do_sedit, kLvlImplementator, 0, 0},
+		{"errlog", EPosition::kDead, do_syslog, kLvlBuilder, ERRLOG, 0},
+		{"imlog", EPosition::kDead, do_syslog, kLvlBuilder, IMLOG, 0},
+		{"take", EPosition::kRest, do_get, 0, 0, 500},
+		{"taste", EPosition::kRest, do_eat, 0, SCMD_TASTE, 500},
+		{"t2c", EPosition::kRest, do_send_text_to_char, kLvlGreatGod, 0, -1},
+		{"telegram", EPosition::kDead, do_telegram, kLvlImmortal, 0, -1},
+		{"teleport", EPosition::kDead, do_teleport, kLvlGreatGod, 0, -1},
+		{"tell", EPosition::kRest, do_tell, 0, 0, -1},
+		{"time", EPosition::kDead, do_time, 0, 0, 0},
+		{"title", EPosition::kDead, TitleSystem::do_title, 0, 0, 0},
+		{"touch", EPosition::kFight, do_touch, 0, 0, -1},
+		{"track", EPosition::kStand, do_track, 0, 0, -1},
+		{"transfer", EPosition::kStand, do_not_here, 1, 0, -1},
+		{"trigedit", EPosition::kDead, do_olc, 0, SCMD_OLC_TRIGEDIT, 0},
+		{"turn undead", EPosition::kRest, do_turn_undead, 0, 0, -1},
+		{"typo", EPosition::kDead, Boards::report_on_board, 0, Boards::MISPRINT_BOARD, 0},
+		{"unaffect", EPosition::kDead, do_wizutil, kLvlGreatGod, SCMD_UNAFFECT, 0},
+		{"unban", EPosition::kDead, do_unban, kLvlGreatGod, 0, 0},
+		{"unfreeze", EPosition::kDead, do_unfreeze, kLvlImplementator, 0, 0},
+		{"ungroup", EPosition::kDead, do_ungroup, 0, 0, -1},
+		{"unlock", EPosition::kSit, do_gen_door, 0, SCMD_UNLOCK, 500},
+		{"uptime", EPosition::kDead, do_date, kLvlImmortal, SCMD_UPTIME, 0},
+		{"use", EPosition::kSit, do_employ, 1, SCMD_USE, 500},
+		{"users", EPosition::kDead, do_users, kLvlImmortal, 0, 0},
+		{"value", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"version", EPosition::kDead, do_gen_ps, 0, SCMD_VERSION, 0},
+		{"visible", EPosition::kRest, do_visible, 1, 0, -1},
+		{"vnum", EPosition::kDead, do_vnum, kLvlGreatGod, 0, 0},
+		{"вномер", EPosition::kDead, do_vnum, kLvlGreatGod, 0, 0},  //тупой копипаст для использования русского синтаксиса
+		{"vstat", EPosition::kDead, do_vstat, kLvlGreatGod, 0, 0},
+		{"wake", EPosition::kSleep, do_wake, 0, 0, -1},
+		{"warcry", EPosition::kFight, do_warcry, 1, 0, -1},
+		{"wear", EPosition::kRest, do_wear, 0, 0, 500},
+		{"weather", EPosition::kRest, do_weather, 0, 0, 0},
+		{"where", EPosition::kRest, do_where, kLvlImmortal, 0, 0},
+		{"whirl", EPosition::kFight, do_iron_wind, 0, 0, -1},
+		{"whisper", EPosition::kRest, do_spec_comm, 0, SCMD_WHISPER, -1},
+		{"who", EPosition::kRest, do_who, 0, 0, 0},
+		{"whoami", EPosition::kDead, do_gen_ps, 0, SCMD_WHOAMI, 0},
+		{"wield", EPosition::kRest, do_wield, 0, 0, 500},
+		{"wimpy", EPosition::kDead, do_wimpy, 0, 0, 0},
+		{"withdraw", EPosition::kStand, do_not_here, 1, 0, -1},
+		{"wizhelp", EPosition::kSleep, do_commands, kLvlImmortal, SCMD_WIZHELP, 0},
+		{"wizlock", EPosition::kDead, do_wizlock, kLvlImplementator, 0, 0},
+		{"wiznet", EPosition::kDead, do_wiznet, kLvlImmortal, 0, 0},
+		{"wizat", EPosition::kDead, do_at, kLvlGreatGod, 0, 0},
+		{"write", EPosition::kStand, do_write, 1, 0, -1},
+		{"zedit", EPosition::kDead, do_olc, 0, SCMD_OLC_ZEDIT, 0},
+		{"zone", EPosition::kRest, do_zone, 0, 0, 0},
+		{"zreset", EPosition::kDead, do_zreset, kLvlGreatGod, 0, 0},
 
 		// test command for gods
-		{"godtest", POS_DEAD, do_godtest, LVL_IMPL, 0, 0},
-		{"armor", POS_DEAD, do_print_armor, LVL_IMPL, 0, 0},
+		{"godtest", EPosition::kDead, do_godtest, kLvlGreatGod, 0, 0},
+		{"armor", EPosition::kDead, do_print_armor, kLvlImplementator, 0, 0},
 
 		// Команды крафтинга - для тестига пока уровня имма
-		{"mrlist", POS_DEAD, do_list_make, LVL_BUILDER, 0, 0},
-		{"mredit", POS_DEAD, do_edit_make, LVL_BUILDER, 0, 0},
-		{"сшить", POS_STANDING, do_make_item, 0, MAKE_WEAR, 0},
-		{"выковать", POS_STANDING, do_make_item, 0, MAKE_METALL, 0},
-		{"смастерить", POS_STANDING, do_make_item, 0, MAKE_CRAFT, 0},
+		{"mrlist", EPosition::kDead, do_list_make, kLvlBuilder, 0, 0},
+		{"mredit", EPosition::kDead, do_edit_make, kLvlBuilder, 0, 0},
+		{"сшить", EPosition::kStand, do_make_item, 0, MAKE_WEAR, 0},
+		{"выковать", EPosition::kStand, do_make_item, 0, MAKE_METALL, 0},
+		{"смастерить", EPosition::kStand, do_make_item, 0, MAKE_CRAFT, 0},
 
 		// God commands for listing
-		{"mlist", POS_DEAD, do_liblist, 0, SCMD_MLIST, 0},
-		{"olist", POS_DEAD, do_liblist, 0, SCMD_OLIST, 0},
-		{"rlist", POS_DEAD, do_liblist, 0, SCMD_RLIST, 0},
-		{"zlist", POS_DEAD, do_liblist, 0, SCMD_ZLIST, 0},
-		{"clist", POS_DEAD, do_liblist, LVL_GOD, SCMD_CLIST, 0},
+		{"mlist", EPosition::kDead, do_liblist, 0, SCMD_MLIST, 0},
+		{"olist", EPosition::kDead, do_liblist, 0, SCMD_OLIST, 0},
+		{"rlist", EPosition::kDead, do_liblist, 0, SCMD_RLIST, 0},
+		{"zlist", EPosition::kDead, do_liblist, 0, SCMD_ZLIST, 0},
+		{"clist", EPosition::kDead, do_liblist, kLvlGod, SCMD_CLIST, 0},
 
-		{"attach", POS_DEAD, do_attach, LVL_IMPL, 0, 0},
-		{"detach", POS_DEAD, do_detach, LVL_IMPL, 0, 0},
-		{"tlist", POS_DEAD, do_tlist, 0, 0, 0},
-		{"tstat", POS_DEAD, do_tstat, 0, 0, 0},
-		{"vdelete", POS_DEAD, do_vdelete, LVL_IMPL, 0, 0},
-		{"debug_queues", POS_DEAD, do_debug_queues, LVL_IMPL, 0, 0},
+		{"attach", EPosition::kDead, do_attach, kLvlImplementator, 0, 0},
+		{"detach", EPosition::kDead, do_detach, kLvlImplementator, 0, 0},
+		{"tlist", EPosition::kDead, do_tlist, 0, 0, 0},
+		{"tstat", EPosition::kDead, do_tstat, 0, 0, 0},
+		{"vdelete", EPosition::kDead, do_vdelete, kLvlImplementator, 0, 0},
+		{"debug_queues", EPosition::kDead, do_debug_queues, kLvlImplementator, 0, 0},
 
 		{heartbeat::cmd::HEARTBEAT_COMMAND, heartbeat::cmd::MINIMAL_POSITION, heartbeat::cmd::do_heartbeat,
 		 heartbeat::cmd::MINIMAL_LEVEL, heartbeat::SCMD_NOTHING, heartbeat::cmd::UNHIDE_PROBABILITY},
 		//{crafts::cmd::CRAFT_COMMAND, crafts::cmd::MINIMAL_POSITION, crafts::cmd::do_craft, crafts::cmd::MINIMAL_LEVEL, crafts::SCMD_NOTHING, crafts::cmd::UNHIDE_PROBABILITY},
-		{"\n", 0, 0, 0, 0, 0}
+		{"\n", EPosition::kDead, nullptr, 0, 0, 0}
 	};                // this must be last
 
 const char *dir_fill[] = {"in",
@@ -1113,35 +1099,35 @@ const char *reserved[] = {"a",
 						  "\n"
 };
 
-void check_hiding_cmd(CHAR_DATA *ch, int percent) {
-	int remove_hide = FALSE;
-	if (affected_by_spell(ch, SPELL_HIDE)) {
+void check_hiding_cmd(CharData *ch, int percent) {
+	int remove_hide = false;
+	if (affected_by_spell(ch, kSpellHide)) {
 		if (percent == -2) {
 			if (AFF_FLAGGED(ch, EAffectFlag::AFF_SNEAK)) {
-				remove_hide = number(1, skill_info[SKILL_SNEAK].difficulty) >
-					CalcCurrentSkill(ch, SKILL_SNEAK, 0);
+				remove_hide = number(1, MUD::Skills()[ESkill::kSneak].difficulty) >
+					CalcCurrentSkill(ch, ESkill::kSneak, nullptr);
 			} else {
 				percent = 500;
 			}
 		}
 
 		if (percent == -1) {
-			remove_hide = TRUE;
+			remove_hide = true;
 		} else if (percent > 0) {
-			remove_hide = number(1, percent) > CalcCurrentSkill(ch, SKILL_HIDE, 0);
+			remove_hide = number(1, percent) > CalcCurrentSkill(ch, ESkill::kHide, nullptr);
 		}
 
 		if (remove_hide) {
-			affect_from_char(ch, SPELL_HIDE);
+			affect_from_char(ch, kSpellHide);
 			if (!AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE)) {
 				send_to_char("Вы прекратили прятаться.\r\n", ch);
-				act("$n прекратил$g прятаться.", FALSE, ch, 0, 0, TO_ROOM);
+				act("$n прекратил$g прятаться.", false, ch, nullptr, nullptr, kToRoom);
 			}
 		}
 	}
 }
 
-bool check_frozen_cmd(CHAR_DATA * /*ch*/, int cmd) {
+bool check_frozen_cmd(CharData * /*ch*/, int cmd) {
 	if (!strcmp(cmd_info[cmd].command, "предложение")
 		|| !strcmp(cmd_info[cmd].command, "offer")
 		|| !strcmp(cmd_info[cmd].command, "постой")
@@ -1168,8 +1154,8 @@ bool check_frozen_cmd(CHAR_DATA * /*ch*/, int cmd) {
  * It makes sure you are the proper level and position to execute the command,
  * then calls the appropriate function.
  */
-void command_interpreter(CHAR_DATA *ch, char *argument) {
-	int cmd, social = FALSE, hardcopy = FALSE;
+void command_interpreter(CharData *ch, char *argument) {
+	int cmd, social = false, hardcopy = false;
 	char *line;
 
 	// just drop to next line for hitting CR
@@ -1185,7 +1171,7 @@ void command_interpreter(CHAR_DATA *ch, char *argument) {
 			GlobalObjects::heartbeat().pulse_number(),
 			GET_ROOM_VNUM(ch->in_room),
 			argument);
-		if (GET_REAL_LEVEL(ch) >= LVL_IMMORT || GET_GOD_FLAG(ch, GF_PERSLOG) || GET_GOD_FLAG(ch, GF_DEMIGOD))
+		if (GetRealLevel(ch) >= kLvlImmortal || GET_GOD_FLAG(ch, GF_PERSLOG) || GET_GOD_FLAG(ch, GF_DEMIGOD))
 			pers_log(ch, "<%s> {%5d} [%s]", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room), argument);
 	}
 
@@ -1208,7 +1194,7 @@ void command_interpreter(CHAR_DATA *ch, char *argument) {
 
 	const size_t length = strlen(arg);
 	if (1 < length && *(arg + length - 1) == '!') {
-		hardcopy = TRUE;
+		hardcopy = true;
 		*(arg + length - 1) = '\0';
 		*(argument + length - 1) = ' ';
 	}
@@ -1253,7 +1239,7 @@ void command_interpreter(CHAR_DATA *ch, char *argument) {
 
 	if (*cmd_info[cmd].command == '\n') {
 		if (find_action(arg) >= 0)
-			social = TRUE;
+			social = true;
 		else {
 			send_to_char("Чаво?\r\n", ch);
 			return;
@@ -1261,7 +1247,7 @@ void command_interpreter(CHAR_DATA *ch, char *argument) {
 	}
 
 	if (((!IS_NPC(ch)
-		&& (GET_FREEZE_LEV(ch) > GET_REAL_LEVEL(ch))
+		&& (GET_FREEZE_LEV(ch) > GetRealLevel(ch))
 		&& (PLR_FLAGGED(ch, PLR_FROZEN)))
 		|| GET_MOB_HOLD(ch)
 		|| AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
@@ -1271,32 +1257,32 @@ void command_interpreter(CHAR_DATA *ch, char *argument) {
 		return;
 	}
 
-	if (!social && cmd_info[cmd].command_pointer == NULL) {
+	if (!social && cmd_info[cmd].command_pointer == nullptr) {
 		send_to_char("Извините, не смог разобрать команду.\r\n", ch);
 		return;
 	}
 
-	if (!social && IS_NPC(ch) && cmd_info[cmd].minimum_level >= LVL_IMMORT) {
+	if (!social && IS_NPC(ch) && cmd_info[cmd].minimum_level >= kLvlImmortal) {
 		send_to_char("Вы еще не БОГ, чтобы делать это.\r\n", ch);
 		return;
 	}
 
 	if (!social && GET_POS(ch) < cmd_info[cmd].minimum_position) {
 		switch (GET_POS(ch)) {
-			case POS_DEAD: send_to_char("Очень жаль - ВЫ МЕРТВЫ!!! :-(\r\n", ch);
+			case EPosition::kDead: send_to_char("Очень жаль - ВЫ МЕРТВЫ!!! :-(\r\n", ch);
 				break;
-			case POS_INCAP:
-			case POS_MORTALLYW: send_to_char("Вы в критическом состоянии и не можете ничего делать!\r\n", ch);
+			case EPosition::kIncap:
+			case EPosition::kPerish: send_to_char("Вы в критическом состоянии и не можете ничего делать!\r\n", ch);
 				break;
-			case POS_STUNNED: send_to_char("Вы слишком слабы, чтобы сделать это!\r\n", ch);
+			case EPosition::kStun: send_to_char("Вы слишком слабы, чтобы сделать это!\r\n", ch);
 				break;
-			case POS_SLEEPING: send_to_char("Сделать это в ваших снах?\r\n", ch);
+			case EPosition::kSleep: send_to_char("Сделать это в ваших снах?\r\n", ch);
 				break;
-			case POS_RESTING: send_to_char("Нет... Вы слишком расслаблены...\r\n", ch);
+			case EPosition::kRest: send_to_char("Нет... Вы слишком расслаблены...\r\n", ch);
 				break;
-			case POS_SITTING: send_to_char("Пожалуй, вам лучше встать на ноги.\r\n", ch);
+			case EPosition::kSit: send_to_char("Пожалуй, вам лучше встать на ноги.\r\n", ch);
 				break;
-			case POS_FIGHTING: send_to_char("Ни за что! Вы сражаетесь за свою жизнь!\r\n", ch);
+			case EPosition::kFight: send_to_char("Ни за что! Вы сражаетесь за свою жизнь!\r\n", ch);
 				break;
 			default: send_to_char("Вы не в том состоянии, чтобы это сделать...\r\n", ch);
 				break;
@@ -1312,9 +1298,9 @@ void command_interpreter(CHAR_DATA *ch, char *argument) {
 		if (ch->purged()) {
 			return;
 		}
-		if (!IS_NPC(ch) && ch->in_room != NOWHERE && CHECK_AGRO(ch)) {
-			CHECK_AGRO(ch) = FALSE;
-			do_aggressive_room(ch, FALSE);
+		if (!IS_NPC(ch) && ch->in_room != kNowhere && CHECK_AGRO(ch)) {
+			CHECK_AGRO(ch) = false;
+			do_aggressive_room(ch, false);
 			if (ch->purged()) {
 				return;
 			}
@@ -1326,7 +1312,7 @@ void command_interpreter(CHAR_DATA *ch, char *argument) {
 // * Routines to handle aliasing                                          *
 // ************************************************************************
 struct alias_data *find_alias(struct alias_data *alias_list, char *str) {
-	while (alias_list != NULL) {
+	while (alias_list != nullptr) {
 		if (*str == *alias_list->alias)    // hey, every little bit counts :-)
 			if (!strcmp(str, alias_list->alias))
 				return (alias_list);
@@ -1334,7 +1320,7 @@ struct alias_data *find_alias(struct alias_data *alias_list, char *str) {
 		alias_list = alias_list->next;
 	}
 
-	return (NULL);
+	return (nullptr);
 }
 
 void free_alias(struct alias_data *a) {
@@ -1346,7 +1332,7 @@ void free_alias(struct alias_data *a) {
 }
 
 // The interface to the outside world: do_alias
-void do_alias(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_alias(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char *repl;
 	struct alias_data *a;
 
@@ -1358,10 +1344,10 @@ void do_alias(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!*arg)        // no argument specified -- list currently defined aliases
 	{
 		send_to_char("Определены следующие алиасы:\r\n", ch);
-		if ((a = GET_ALIASES(ch)) == NULL)
+		if ((a = GET_ALIASES(ch)) == nullptr)
 			send_to_char(" Нет алиасов.\r\n", ch);
 		else {
-			while (a != NULL) {
+			while (a != nullptr) {
 				sprintf(buf, "%-15s %s\r\n", a->alias, a->replacement);
 				send_to_char(buf, ch);
 				a = a->next;
@@ -1370,13 +1356,13 @@ void do_alias(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else        // otherwise, add or remove aliases
 	{
 		// is this an alias we've already defined?
-		if ((a = find_alias(GET_ALIASES(ch), arg)) != NULL) {
+		if ((a = find_alias(GET_ALIASES(ch), arg)) != nullptr) {
 			REMOVE_FROM_LIST(a, GET_ALIASES(ch));
 			free_alias(a);
 		}
 		// if no replacement string is specified, assume we want to delete
 		if (!*repl) {
-			if (a == NULL)
+			if (a == nullptr)
 				send_to_char("Такой алиас не определен.\r\n", ch);
 			else
 				send_to_char("Алиас успешно удален.\r\n", ch);
@@ -1397,7 +1383,7 @@ void do_alias(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			GET_ALIASES(ch) = a;
 			send_to_char("Алиас успешно добавлен.\r\n", ch);
 		}
-		WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
+		WAIT_STATE(ch, 1 * kPulseViolence);
 		write_aliases(ch);
 	}
 }
@@ -1410,27 +1396,27 @@ void do_alias(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
  */
 #define NUM_TOKENS       9
 
-void perform_complex_alias(struct txt_q *input_q, char *orig, struct alias_data *a) {
-	struct txt_q temp_queue;
+void perform_complex_alias(struct TextBlocksQueue *input_q, char *orig, struct alias_data *a) {
+	struct TextBlocksQueue temp_queue;
 	char *tokens[NUM_TOKENS], *temp, *write_point;
 	int num_of_tokens = 0, num;
 
 	// First, parse the original string
 	temp = strtok(strcpy(buf2, orig), " ");
-	while (temp != NULL && num_of_tokens < NUM_TOKENS) {
+	while (temp != nullptr && num_of_tokens < NUM_TOKENS) {
 		tokens[num_of_tokens++] = temp;
-		temp = strtok(NULL, " ");
+		temp = strtok(nullptr, " ");
 	}
 
 	// initialize
 	write_point = buf;
-	temp_queue.head = temp_queue.tail = NULL;
+	temp_queue.head = temp_queue.tail = nullptr;
 
 	// now parse the alias
 	for (temp = a->replacement; *temp; temp++) {
 		if (*temp == ALIAS_SEP_CHAR) {
 			*write_point = '\0';
-			buf[MAX_INPUT_LENGTH - 1] = '\0';
+			buf[kMaxInputLength - 1] = '\0';
 			write_to_q(buf, &temp_queue, 1);
 			write_point = buf;
 		} else if (*temp == ALIAS_VAR_CHAR) {
@@ -1448,11 +1434,11 @@ void perform_complex_alias(struct txt_q *input_q, char *orig, struct alias_data 
 	}
 
 	*write_point = '\0';
-	buf[MAX_INPUT_LENGTH - 1] = '\0';
+	buf[kMaxInputLength - 1] = '\0';
 	write_to_q(buf, &temp_queue, 1);
 
 	// push our temp_queue on to the _front_ of the input queue
-	if (input_q->head == NULL)
+	if (input_q->head == nullptr)
 		*input_q = temp_queue;
 	else {
 		temp_queue.tail->next = input_q->head;
@@ -1468,8 +1454,8 @@ void perform_complex_alias(struct txt_q *input_q, char *orig, struct alias_data 
  *   1: String was _not_ modified in place; rather, the expanded aliases
  *      have been placed at the front of the character's input queue.
  */
-int perform_alias(DESCRIPTOR_DATA *d, char *orig) {
-	char first_arg[MAX_INPUT_LENGTH], *ptr;
+int perform_alias(DescriptorData *d, char *orig) {
+	char first_arg[kMaxInputLength], *ptr;
 	struct alias_data *a, *tmp;
 
 	// Mobs don't have alaises. //
@@ -1477,7 +1463,7 @@ int perform_alias(DESCRIPTOR_DATA *d, char *orig) {
 		return (0);
 
 	// bail out immediately if the guy doesn't have any aliases //
-	if ((tmp = GET_ALIASES(d->character)) == NULL)
+	if ((tmp = GET_ALIASES(d->character)) == nullptr)
 		return (0);
 
 	// find the alias we're supposed to match //
@@ -1488,7 +1474,7 @@ int perform_alias(DESCRIPTOR_DATA *d, char *orig) {
 		return (0);
 
 	// if the first arg is not an alias, return without doing anything //
-	if ((a = find_alias(tmp, first_arg)) == NULL)
+	if ((a = find_alias(tmp, first_arg)) == nullptr)
 		return (0);
 
 	if (a->type == ALIAS_SIMPLE) {
@@ -1580,7 +1566,7 @@ char *delete_doubledollar(char *string) {
 	char *read, *write;
 
 	// If the string has no dollar signs, return immediately //
-	if ((write = strchr(string, '$')) == NULL)
+	if ((write = strchr(string, '$')) == nullptr)
 		return (string);
 
 	// Start from the location of the first dollar sign //
@@ -1597,25 +1583,11 @@ char *delete_doubledollar(char *string) {
 }
 
 int fill_word(const char *argument) {
-	return (search_block(argument, dir_fill, TRUE) >= 0);
+	return (search_block(argument, dir_fill, true) >= 0);
 }
 
 int reserved_word(const char *argument) {
-	return (search_block(argument, reserved, TRUE) >= 0);
-}
-
-int is_abbrev(const char *arg1, const char *arg2) {
-	if (!*arg1)
-		return (0);
-
-	for (; *arg1 && *arg2; arg1++, arg2++)
-		if (LOWER(*arg1) != LOWER(*arg2))
-			return (0);
-
-	if (!*arg1)
-		return (1);
-	else
-		return (0);
+	return (search_block(argument, reserved, true) >= 0);
 }
 
 template<typename T>
@@ -1625,7 +1597,7 @@ T one_argument_template(T argument, char *first_arg) {
 	if (!argument) {
 		log("SYSERR: one_argument received a NULL pointer!");
 		*first_arg = '\0';
-		return (NULL);
+		return (nullptr);
 	}
 
 	do {
@@ -1653,7 +1625,7 @@ T any_one_arg_template(T argument, char *first_arg) {
 
 	int num = 0;
 //	int len = strlen(argument);
-	while (*argument && !a_isspace(*argument) && num < MAX_STRING_LENGTH - 1) {
+	while (*argument && !a_isspace(*argument) && num < kMaxStringLength - 1) {
 		*first_arg = a_lcc(*argument);
 		++first_arg;
 		++argument;
@@ -1669,11 +1641,43 @@ const char *one_argument(const char *argument, char *first_arg) { return one_arg
 char *any_one_arg(char *argument, char *first_arg) { return any_one_arg_template(argument, first_arg); }
 const char *any_one_arg(const char *argument, char *first_arg) { return any_one_arg_template(argument, first_arg); }
 
+void array_argument(const char *arg, std::vector<std::string> &out)
+{
+	char local_buf[kMaxTrglineLength];
+	const char *current_arg = arg;
+	out.clear();
+	do {
+		current_arg = one_argument(current_arg, local_buf);
+		if (!*local_buf) {
+			break;
+		}
+		out.push_back(local_buf);
+	} while (*current_arg);
+}
+
+void array_argument(const char *arg, std::vector<short> &out)
+{
+	std::vector<std::string> tmp;
+	array_argument(arg, tmp);
+	for (const auto &value : tmp) {
+		out.push_back(atoi(value.c_str()));
+	}
+}
+
+void array_argument(const char *arg, std::vector<int> &out)
+{
+	std::vector<std::string> tmp;
+	array_argument(arg, tmp);
+	for (const auto &value : tmp) {
+		out.push_back(atoi(value.c_str()));
+	}
+}
+
 // return first space-delimited token in arg1; remainder of string in arg2 //
 void half_chop(const char *string, char *arg1, char *arg2) {
 	const char *temp = any_one_arg_template(string, arg1);
 	skip_spaces(&temp);
-	strl_cpy(arg2, temp, MAX_STRING_LENGTH);
+	strl_cpy(arg2, temp, kMaxStringLength);
 }
 
 // Used in specprocs, mostly.  (Exactly) matches "command" to cmd number //
@@ -1688,7 +1692,7 @@ int find_command(const char *command) {
 }
 
 // int fnum - номер найденного в комнате спешиал-моба, для обработки нескольких спешиал-мобов в одной комнате //
-int special(CHAR_DATA *ch, int cmd, char *arg, int fnum) {
+int special(CharData *ch, int cmd, char *arg, int fnum) {
 	if (ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)) {
 		const auto clan = Clan::GetClanByRoom(ch->in_room);
 		if (!clan) {
@@ -1696,11 +1700,11 @@ int special(CHAR_DATA *ch, int cmd, char *arg, int fnum) {
 		}
 	}
 
-	OBJ_DATA *i;
+	ObjData *i;
 	int j;
 
 	// special in room? //
-	if (GET_ROOM_SPEC(ch->in_room) != NULL) {
+	if (GET_ROOM_SPEC(ch->in_room) != nullptr) {
 		if (GET_ROOM_SPEC(ch->in_room)(ch, world[ch->in_room], cmd, arg)) {
 			check_hiding_cmd(ch, -1);
 			return (1);
@@ -1709,7 +1713,7 @@ int special(CHAR_DATA *ch, int cmd, char *arg, int fnum) {
 
 	// special in equipment list? //
 	for (j = 0; j < NUM_WEARS; j++) {
-		if (GET_EQ(ch, j) && GET_OBJ_SPEC(GET_EQ(ch, j)) != NULL) {
+		if (GET_EQ(ch, j) && GET_OBJ_SPEC(GET_EQ(ch, j)) != nullptr) {
 			if (GET_OBJ_SPEC(GET_EQ(ch, j))(ch, GET_EQ(ch, j), cmd, arg)) {
 				check_hiding_cmd(ch, -1);
 				return (1);
@@ -1719,7 +1723,7 @@ int special(CHAR_DATA *ch, int cmd, char *arg, int fnum) {
 
 	// special in inventory? //
 	for (i = ch->carrying; i; i = i->get_next_content()) {
-		if (GET_OBJ_SPEC(i) != NULL
+		if (GET_OBJ_SPEC(i) != nullptr
 			&& GET_OBJ_SPEC(i)(ch, i, cmd, arg)) {
 			check_hiding_cmd(ch, -1);
 			return (1);
@@ -1730,7 +1734,7 @@ int special(CHAR_DATA *ch, int cmd, char *arg, int fnum) {
 //Polud чтобы продавцы не мешали друг другу в одной комнате, предусмотрим возможность различать их по номеру
 	int specialNum = 1; //если номер не указан - по умолчанию берется первый
 	for (const auto k : world[ch->in_room]->people) {
-		if (GET_MOB_SPEC(k) != NULL
+		if (GET_MOB_SPEC(k) != nullptr
 			&& (fnum == 1
 				|| fnum == specialNum++)
 			&& GET_MOB_SPEC(k)(ch, k, cmd, arg)) {
@@ -1742,7 +1746,7 @@ int special(CHAR_DATA *ch, int cmd, char *arg, int fnum) {
 	// special in object present? //
 	for (i = world[ch->in_room]->contents; i; i = i->get_next_content()) {
 		auto spec = GET_OBJ_SPEC(i);
-		if (spec != NULL
+		if (spec != nullptr
 			&& spec(ch, i, cmd, arg)) {
 			check_hiding_cmd(ch, -1);
 			return (1);
@@ -1811,8 +1815,8 @@ enum Mode {
  * XXX: Make immortals 'return' instead of being disconnected when switched
  *      into person returns.  This function seems a bit over-extended too.
  */
-int perform_dupe_check(DESCRIPTOR_DATA *d) {
-	DESCRIPTOR_DATA *k, *next_k;
+int perform_dupe_check(DescriptorData *d) {
+	DescriptorData *k, *next_k;
 	Mode mode = UNDEFINED;
 
 	int id = GET_IDNUM(d->character);
@@ -1822,7 +1826,7 @@ int perform_dupe_check(DESCRIPTOR_DATA *d) {
 	 * other descriptors controlling a character with the same ID number.
 	 */
 
-	CHAR_DATA::shared_ptr target;
+	CharData::shared_ptr target;
 	for (k = descriptor_list; k; k = next_k) {
 		next_k = k->next;
 		if (k == d) {
@@ -1832,9 +1836,9 @@ int perform_dupe_check(DESCRIPTOR_DATA *d) {
 		if (k->original && (GET_IDNUM(k->original) == id))    // switched char
 		{
 			if (str_cmp(d->host, k->host)) {
-				sprintf(buf, "ПОВТОРНЫЙ ВХОД !!! ID = %ld Персонаж = %s Хост = %s(был %s)",
+				sprintf(buf, "ПОВТОРНЫЙ ВХОД! Id = %ld Персонаж = %s Хост = %s(был %s)",
 						GET_IDNUM(d->character), GET_NAME(d->character), k->host, d->host);
-				mudlog(buf, BRF, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
+				mudlog(buf, BRF, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 				//send_to_gods(buf);
 			}
 
@@ -1847,16 +1851,16 @@ int perform_dupe_check(DESCRIPTOR_DATA *d) {
 			}
 
 			if (k->character) {
-				k->character->desc = NULL;
+				k->character->desc = nullptr;
 			}
 
-			k->character = NULL;
-			k->original = NULL;
+			k->character = nullptr;
+			k->original = nullptr;
 		} else if (k->character && (GET_IDNUM(k->character) == id)) {
 			if (str_cmp(d->host, k->host)) {
-				sprintf(buf, "ПОВТОРНЫЙ ВХОД !!! ID = %ld Name = %s Host = %s(был %s)",
+				sprintf(buf, "ПОВТОРНЫЙ ВХОД! Id = %ld Name = %s Host = %s(был %s)",
 						GET_IDNUM(d->character), GET_NAME(d->character), k->host, d->host);
-				mudlog(buf, BRF, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
+				mudlog(buf, BRF, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 				//send_to_gods(buf);
 			}
 
@@ -1865,9 +1869,9 @@ int perform_dupe_check(DESCRIPTOR_DATA *d) {
 				target = k->character;
 				mode = USURP;
 			}
-			k->character->desc = NULL;
-			k->character = NULL;
-			k->original = NULL;
+			k->character->desc = nullptr;
+			k->character = nullptr;
+			k->original = nullptr;
 			SEND_TO_Q("\r\nПопытка второго входа - отключаемся.\r\n", k);
 			STATE(k) = CON_CLOSE;
 		}
@@ -1882,7 +1886,7 @@ int perform_dupe_check(DESCRIPTOR_DATA *d) {
 	 * duplicates, though theoretically none should be able to exist).
 	 */
 
-	character_list.foreach_on_copy([&](const CHAR_DATA::shared_ptr &ch) {
+	character_list.foreach_on_copy([&](const CharData::shared_ptr &ch) {
 		if (IS_NPC(ch)) {
 			return;
 		}
@@ -1891,7 +1895,7 @@ int perform_dupe_check(DESCRIPTOR_DATA *d) {
 			return;
 		}
 
-		// ignore chars with descriptors (already handled by above step) //
+		// ignore entities with descriptors (already handled by above step) //
 		if (ch->desc)
 			return;
 
@@ -1907,11 +1911,11 @@ int perform_dupe_check(DESCRIPTOR_DATA *d) {
 		}
 
 		// we've found a duplicate - blow him away, dumping his eq in limbo. //
-		if (ch->in_room != NOWHERE) {
+		if (ch->in_room != kNowhere) {
 			char_from_room(ch);
 		}
 		char_to_room(ch, STRANGE_ROOM);
-		extract_char(ch.get(), FALSE);
+		extract_char(ch.get(), false);
 	});
 
 	// no target for switching into was found - allow login to continue //
@@ -1923,7 +1927,7 @@ int perform_dupe_check(DESCRIPTOR_DATA *d) {
 
 	d->character = target;
 	d->character->desc = d;
-	d->original = NULL;
+	d->original = nullptr;
 	d->character->char_specials.timer = 0;
 	PLR_FLAGS(d->character).unset(PLR_MAILING);
 	PLR_FLAGS(d->character).unset(PLR_WRITING);
@@ -1932,22 +1936,24 @@ int perform_dupe_check(DESCRIPTOR_DATA *d) {
 	switch (mode) {
 		case RECON: SEND_TO_Q("Пересоединяемся.\r\n", d);
 			check_light(d->character.get(), LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, 1);
-			act("$n восстановил$g связь.", TRUE, d->character.get(), 0, 0, TO_ROOM);
+			act("$n восстановил$g связь.",
+				true, d->character.get(), nullptr, nullptr, kToRoom);
 			sprintf(buf, "%s [%s] has reconnected.", GET_NAME(d->character), d->host);
-			mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
+			mudlog(buf, NRM, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 			login_change_invoice(d->character.get());
 			break;
 
 		case USURP: SEND_TO_Q("Ваша душа вновь вернулась в тело, которое так ждало ее возвращения!\r\n", d);
 			act("$n надломил$u от боли, окруженн$w белой аурой...\r\n"
-				"Тело $s было захвачено новым духом!", TRUE, d->character.get(), 0, 0, TO_ROOM);
+				"Тело $s было захвачено новым духом!",
+				true, d->character.get(), nullptr, nullptr, kToRoom);
 			sprintf(buf, "%s has re-logged in ... disconnecting old socket.", GET_NAME(d->character));
-			mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
+			mudlog(buf, NRM, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 			break;
 
 		case UNSWITCH: SEND_TO_Q("Пересоединяемся для перевключения игрока.", d);
 			sprintf(buf, "%s [%s] has reconnected.", GET_NAME(d->character), d->host);
-			mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
+			mudlog(buf, NRM, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 			break;
 
 		default:
@@ -1959,8 +1965,8 @@ int perform_dupe_check(DESCRIPTOR_DATA *d) {
 	return 1;
 }
 
-int pre_help(CHAR_DATA *ch, char *arg) {
-	char command[MAX_INPUT_LENGTH], topic[MAX_INPUT_LENGTH];
+int pre_help(CharData *ch, char *arg) {
+	char command[kMaxInputLength], topic[kMaxInputLength];
 
 	half_chop(arg, command, topic);
 
@@ -1976,7 +1982,7 @@ int pre_help(CHAR_DATA *ch, char *arg) {
 // вобщем флажок для зареганных ип, потому что при очередной автопроверке, если превышен
 // лимит коннектов с ип - сядут все сместе, что выглядит имхо странно, может там комп новый воткнули
 // и просто еще до иммов не достучались лимит поднять... вобщем сидит тот, кто не успел Ж)
-int check_dupes_host(DESCRIPTOR_DATA *d, bool autocheck = 0) {
+int check_dupes_host(DescriptorData *d, bool autocheck = false) {
 	if (!d->character || IS_IMMORTAL(d->character))
 		return 1;
 
@@ -1992,7 +1998,7 @@ int check_dupes_host(DESCRIPTOR_DATA *d, bool autocheck = 0) {
 		}
 	}
 
-	for (DESCRIPTOR_DATA *i = descriptor_list; i; i = i->next) {
+	for (DescriptorData *i = descriptor_list; i; i = i->next) {
 		if (i != d
 			&& i->ip == d->ip
 			&& i->character
@@ -2016,7 +2022,7 @@ int check_dupes_host(DESCRIPTOR_DATA *d, bool autocheck = 0) {
 							"Вошел - %s, в игре - %s, IP - %s.\r\n"
 							"Игрок помещен в комнату незарегистрированных игроков.",
 							GET_NAME(d->character), GET_NAME(i->character), d->host);
-					mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
+					mudlog(buf, NRM, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 					return 0;
 
 				case 1:
@@ -2035,7 +2041,7 @@ int check_dupes_host(DESCRIPTOR_DATA *d, bool autocheck = 0) {
 	return 1;
 }
 
-int check_dupes_email(DESCRIPTOR_DATA *d) {
+int check_dupes_email(DescriptorData *d) {
 	if (!d->character
 		|| IS_IMMORTAL(d->character)) {
 		return (1);
@@ -2058,22 +2064,22 @@ int check_dupes_email(DESCRIPTOR_DATA *d) {
 	return 1;
 }
 
-void add_logon_record(DESCRIPTOR_DATA *d) {
+void add_logon_record(DescriptorData *d) {
 	log("Enter logon list");
 	// Добавляем запись в LOG_LIST
 	d->character->get_account()->add_login(std::string(d->host));
 
 	const auto logon = std::find_if(LOGON_LIST(d->character).begin(), LOGON_LIST(d->character).end(),
-									[&](const logon_data &l) -> bool {
+									[&](const Logon &l) -> bool {
 										return !strcmp(l.ip, d->host);
 									});
 
 	if (logon == LOGON_LIST(d->character).end()) {
-		const logon_data cur_log = {str_dup(d->host), 1, time(0), false};
+		const Logon cur_log = {str_dup(d->host), 1, time(nullptr), false};
 		LOGON_LIST(d->character).push_back(cur_log);
 	} else {
 		++logon->count;
-		logon->lasttime = time(0);
+		logon->lasttime = time(nullptr);
 	}
 
 	int pos = get_ptable_by_unique(GET_UNIQUE(d->character));
@@ -2087,43 +2093,43 @@ void add_logon_record(DESCRIPTOR_DATA *d) {
 }
 
 // * Проверка на доступные религии конкретной профе (из текущей генерации чара).
-void check_religion(CHAR_DATA *ch) {
-	if (class_religion[ch->get_class()] == RELIGION_POLY && GET_RELIGION(ch) != RELIGION_POLY) {
-		GET_RELIGION(ch) = RELIGION_POLY;
+void check_religion(CharData *ch) {
+	if (class_religion[ch->get_class()] == kReligionPoly && GET_RELIGION(ch) != kReligionPoly) {
+		GET_RELIGION(ch) = kReligionPoly;
 		log("Change religion to poly: %s", ch->get_name().c_str());
-	} else if (class_religion[ch->get_class()] == RELIGION_MONO && GET_RELIGION(ch) != RELIGION_MONO) {
-		GET_RELIGION(ch) = RELIGION_MONO;
+	} else if (class_religion[ch->get_class()] == kReligionMono && GET_RELIGION(ch) != kReligionMono) {
+		GET_RELIGION(ch) = kReligionMono;
 		log("Change religion to mono: %s", ch->get_name().c_str());
 	}
 }
 
-void do_entergame(DESCRIPTOR_DATA *d) {
+void do_entergame(DescriptorData *d) {
 	int load_room, cmd, flag = 0;
 
 	d->character->reset();
 	read_aliases(d->character.get());
 
-	if (GET_REAL_LEVEL(d->character) == LVL_IMMORT) {
-		d->character->set_level(LVL_GOD);
+	if (GetRealLevel(d->character) == kLvlImmortal) {
+		d->character->set_level(kLvlGod);
 	}
 
-	if (GET_REAL_LEVEL(d->character) > LVL_IMPL) {
+	if (GetRealLevel(d->character) > kLvlImplementator) {
 		d->character->set_level(1);
 	}
 
-	if (GET_INVIS_LEV(d->character) > LVL_IMPL
+	if (GET_INVIS_LEV(d->character) > kLvlImplementator
 		|| GET_INVIS_LEV(d->character) < 0) {
 		SET_INVIS_LEV(d->character, 0);
 	}
 
-	if (GET_REAL_LEVEL(d->character) > LVL_IMMORT
-		&& GET_REAL_LEVEL(d->character) < LVL_BUILDER
+	if (GetRealLevel(d->character) > kLvlImmortal
+		&& GetRealLevel(d->character) < kLvlBuilder
 		&& (d->character->get_gold() > 0 || d->character->get_bank() > 0)) {
 		d->character->set_gold(0);
 		d->character->set_bank(0);
 	}
 
-	if (GET_REAL_LEVEL(d->character) >= LVL_IMMORT && GET_REAL_LEVEL(d->character) < LVL_IMPL) {
+	if (GetRealLevel(d->character) >= kLvlImmortal && GetRealLevel(d->character) < kLvlImplementator) {
 		for (cmd = 0; *cmd_info[cmd].command != '\n'; cmd++) {
 			if (!strcmp(cmd_info[cmd].command, "syslog")) {
 				if (Privilege::can_do_priv(d->character.get(), std::string(cmd_info[cmd].command), cmd, 0)) {
@@ -2138,23 +2144,23 @@ void do_entergame(DESCRIPTOR_DATA *d) {
 		}
 	}
 
-	if (GET_REAL_LEVEL(d->character) < LVL_IMPL) {
+	if (GetRealLevel(d->character) < kLvlImplementator) {
 		if (PLR_FLAGGED(d->character, PLR_INVSTART)) {
-			SET_INVIS_LEV(d->character, LVL_IMMORT);
+			SET_INVIS_LEV(d->character, kLvlImmortal);
 		}
-		if (GET_INVIS_LEV(d->character) > GET_REAL_LEVEL(d->character)) {
-			SET_INVIS_LEV(d->character, GET_REAL_LEVEL(d->character));
+		if (GET_INVIS_LEV(d->character) > GetRealLevel(d->character)) {
+			SET_INVIS_LEV(d->character, GetRealLevel(d->character));
 		}
 
 		if (PRF_FLAGGED(d->character, PRF_CODERINFO)) {
 			PRF_FLAGS(d->character).unset(PRF_CODERINFO);
 		}
-		if (GET_REAL_LEVEL(d->character) < LVL_GOD) {
+		if (GetRealLevel(d->character) < kLvlGod) {
 			if (PRF_FLAGGED(d->character, PRF_HOLYLIGHT)) {
 				PRF_FLAGS(d->character).unset(PRF_HOLYLIGHT);
 			}
 		}
-		if (GET_REAL_LEVEL(d->character) < LVL_GOD) {
+		if (GetRealLevel(d->character) < kLvlGod) {
 			if (PRF_FLAGGED(d->character, PRF_NOHASSLE)) {
 				PRF_FLAGS(d->character).unset(PRF_NOHASSLE);
 			}
@@ -2164,7 +2170,7 @@ void do_entergame(DESCRIPTOR_DATA *d) {
 		}
 
 		if (GET_INVIS_LEV(d->character) > 0
-			&& GET_REAL_LEVEL(d->character) < LVL_IMMORT) {
+			&& GetRealLevel(d->character) < kLvlImmortal) {
 			SET_INVIS_LEV(d->character, 0);
 		}
 	}
@@ -2177,7 +2183,7 @@ void do_entergame(DESCRIPTOR_DATA *d) {
 
 	/*
 	 * We have to place the character in a room before equipping them
-	 * or equip_char() will gripe about the person in NOWHERE.
+	 * or equip_char() will gripe about the person in kNowhere.
 	 */
 	if (PLR_FLAGGED(d->character, PLR_HELLED))
 		load_room = r_helled_start_room;
@@ -2188,7 +2194,7 @@ void do_entergame(DESCRIPTOR_DATA *d) {
 	else if (!check_dupes_host(d))
 		load_room = r_unreg_start_room;
 	else {
-		if ((load_room = GET_LOADROOM(d->character)) == NOWHERE) {
+		if ((load_room = GET_LOADROOM(d->character)) == kNowhere) {
 			load_room = calc_loadroom(d->character.get());
 		}
 		load_room = real_room(load_room);
@@ -2198,13 +2204,13 @@ void do_entergame(DESCRIPTOR_DATA *d) {
 		}
 
 		if (!is_rent(load_room)) {
-			load_room = NOWHERE;
+			load_room = kNowhere;
 		}
 	}
 
-	// If char was saved with NOWHERE, or real_room above failed...
-	if (load_room == NOWHERE) {
-		if (GET_REAL_LEVEL(d->character) >= LVL_IMMORT)
+	// If char was saved with kNowhere, or real_room above failed...
+	if (load_room == kNowhere) {
+		if (GetRealLevel(d->character) >= kLvlImmortal)
 			load_room = r_immort_start_room;
 		else
 			load_room = r_mortal_start_room;
@@ -2212,7 +2218,7 @@ void do_entergame(DESCRIPTOR_DATA *d) {
 
 	send_to_char(WELC_MESSG, d->character.get());
 
-	CHAR_DATA *character = nullptr;
+	CharData *character = nullptr;
 	for (const auto &character_i : character_list) {
 		if (character_i == d->character) {
 			character = character_i.get();
@@ -2231,7 +2237,7 @@ void do_entergame(DESCRIPTOR_DATA *d) {
 	char_to_room(d->character, load_room);
 
 	// а потом уже вычитаем за ренту
-	if (GET_REAL_LEVEL(d->character) != 0) {
+	if (GetRealLevel(d->character) != 0) {
 		Crash_load(d->character.get());
 		d->character->obj_bonus().update(d->character.get());
 	}
@@ -2246,12 +2252,12 @@ void do_entergame(DESCRIPTOR_DATA *d) {
 	}
 
 	if (PRF_FLAGS(d->character).get(PRF_PUNCTUAL)
-		&& !d->character->get_skill(SKILL_PUNCTUAL)) {
+		&& !d->character->get_skill(ESkill::kPunctual)) {
 		PRF_FLAGS(d->character).unset(PRF_PUNCTUAL);
 	}
 
 	if (PRF_FLAGS(d->character).get(PRF_AWAKE)
-		&& !d->character->get_skill(SKILL_AWAKE)) {
+		&& !d->character->get_skill(ESkill::kAwake)) {
 		PRF_FLAGS(d->character).unset(PRF_AWAKE);
 	}
 
@@ -2290,34 +2296,33 @@ void do_entergame(DESCRIPTOR_DATA *d) {
 	}
 
 	// Check & remove/add natural, race & unavailable features
-	for (int i = 1; i < MAX_FEATS; i++) {
+	for (int i = 1; i < kMaxFeats; i++) {
 		if (!HAVE_FEAT(d->character, i)
 			|| can_get_feat(d->character.get(), i)) {
-			if (feat_info[i].inbornFeatureOfClass[(int) GET_CLASS(d->character)][(int) GET_KIN(d->character)]) {
+			if (feat_info[i].is_inborn[(int) GET_CLASS(d->character)][(int) GET_KIN(d->character)]) {
 				SET_FEAT(d->character, i);
 			}
 		}
 	}
 
-	setFeaturesOfRace(d->character.get());
+	SetRaceFeats(d->character.get());
 
-	//нефиг левыми скиллами размахивать если не имм
 	if (!IS_IMMORTAL(d->character)) {
-		for (const auto i : AVAILABLE_SKILLS) {
-			if (skill_info[i].classknow[(int) GET_CLASS(d->character)][(int) GET_KIN(d->character)] != KNOW_SKILL) {
-				d->character->set_skill(i, 0);
+		for (const auto &skill : MUD::Skills()) {
+			if (MUD::Classes()[(d->character)->get_class()].HasntSkill(skill.GetId())) {
+				d->character->set_skill(skill.GetId(), 0);
 			}
 		}
 	}
 
 	//Заменяем закл !переместиться! на способность
-	if (GET_SPELL_TYPE(d->character, SPELL_RELOCATE) == SPELL_KNOW && !IS_GOD(d->character)) {
-		GET_SPELL_TYPE(d->character, SPELL_RELOCATE) = 0;
+	if (GET_SPELL_TYPE(d->character, kSpellRelocate) == kSpellKnow && !IS_GOD(d->character)) {
+		GET_SPELL_TYPE(d->character, kSpellRelocate) = 0;
 		SET_FEAT(d->character, RELOCATE_FEAT);
 	}
 
 	//Проверим временные заклы пока нас не было
-	Temporary_Spells::update_char_times(d->character.get(), time(0));
+	Temporary_Spells::update_char_times(d->character.get(), time(nullptr));
 
 	// Карачун. Редкая бага. Сбрасываем явно не нужные аффекты.
 	d->character->remove_affect(EAffectFlag::AFF_GROUP);
@@ -2329,14 +2334,14 @@ void do_entergame(DESCRIPTOR_DATA *d) {
 	// with the copyover patch, this next line goes in enter_player_game()
 	GET_ID(d->character) = GET_IDNUM(d->character);
 	GET_ACTIVITY(d->character) = number(0, PLAYER_SAVE_ACTIVITY - 1);
-	d->character->set_last_logon(time(0));
+	d->character->set_last_logon(time(nullptr));
 	player_table[get_ptable_by_unique(GET_UNIQUE(d->character))].last_logon = LAST_LOGON(d->character);
 	add_logon_record(d);
 	// чтобы восстановление маны спам-контроля "кто" не шло, когда чар заходит после
 	// того, как повисел на менюшке; важно, чтобы этот вызов шел раньше save_char()
-	d->character->set_who_last(time(0));
+	d->character->set_who_last(time(nullptr));
 	d->character->save_char();
-	act("$n вступил$g в игру.", TRUE, d->character.get(), 0, 0, TO_ROOM);
+	act("$n вступил$g в игру.", true, d->character.get(), nullptr, nullptr, kToRoom);
 	// with the copyover patch, this next line goes in enter_player_game()
 	read_saved_vars(d->character.get());
 	enter_wtrigger(world[d->character.get()->in_room], d->character.get(), -1);
@@ -2345,13 +2350,13 @@ void do_entergame(DESCRIPTOR_DATA *d) {
 	STATE(d) = CON_PLAYING;
 	PRF_FLAGS(d->character).set(PRF_COLOR_2); // цвет всегда полный
 // режимы по дефолту у нового чара
-	const bool new_char = GET_REAL_LEVEL(d->character) <= 0 ? true : false;
+	const bool new_char = GetRealLevel(d->character) <= 0 ? true : false;
 	if (new_char) {
-		PRF_FLAGS(d->character).set(PRF_DRAW_MAP); //рисовать миникарту
+		PRF_FLAGS(d->character).set(PRF_DRAW_MAP);
 		PRF_FLAGS(d->character).set(PRF_GOAHEAD); //IAC GA
-		PRF_FLAGS(d->character).set(PRF_AUTOMEM); // автомем
-		PRF_FLAGS(d->character).set(PRF_AUTOLOOT); // автолут
-		PRF_FLAGS(d->character).set(PRF_PKL_MODE); // пклист
+		PRF_FLAGS(d->character).set(PRF_AUTOMEM);
+		PRF_FLAGS(d->character).set(PRF_AUTOLOOT);
+		PRF_FLAGS(d->character).set(PRF_PKL_MODE);
 		PRF_FLAGS(d->character).set(PRF_WORKMATE_MODE); // соклан
 		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_SHOP);
 		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_RENT);
@@ -2360,8 +2365,8 @@ void do_entergame(DESCRIPTOR_DATA *d) {
 		d->character->map_set_option(MapSystem::MAP_MODE_BIG);
 		PRF_FLAGS(d->character).set(PRF_ENTER_ZONE);
 		PRF_FLAGS(d->character).set(PRF_BOARD_MODE);
-		d->character->set_last_exchange(time(0)); // когда последний раз базар
-		do_start(d->character.get(), TRUE);
+		d->character->set_last_exchange(time(nullptr));
+		do_start(d->character.get(), true);
 		GET_MANA_STORED(d->character) = 0;
 		send_to_char(START_MESSG, d->character.get());
 	}
@@ -2370,29 +2375,27 @@ void do_entergame(DESCRIPTOR_DATA *d) {
 
 	// На входе в игру вешаем флаг (странно, что он до этого нигде не вешался
 	if (Privilege::god_list_check(GET_NAME(d->character), GET_UNIQUE(d->character))
-		&& (GET_REAL_LEVEL(d->character) < LVL_GOD)) {
+		&& (GetRealLevel(d->character) < kLvlGod)) {
 		SET_GOD_FLAG(d->character, GF_DEMIGOD);
 	}
 	// Насильственно забираем этот флаг у иммов (если он, конечно же, есть
-	if ((GET_GOD_FLAG(d->character, GF_DEMIGOD) && GET_REAL_LEVEL(d->character) >= LVL_GOD)) {
+	if ((GET_GOD_FLAG(d->character, GF_DEMIGOD) && GetRealLevel(d->character) >= kLvlGod)) {
 		CLR_GOD_FLAG(d->character, GF_DEMIGOD);
 	}
 
 	switch (GET_SEX(d->character)) {
-		case ESex::SEX_NEUTRAL: sprintf(buf, "%s вошло в игру.", GET_NAME(d->character));
+		case ESex::kLast: [[fallthrough]];
+		case ESex::kNeutral: sprintf(buf, "%s вошло в игру.", GET_NAME(d->character));
 			break;
-
-		case ESex::SEX_MALE: sprintf(buf, "%s вошел в игру.", GET_NAME(d->character));
+		case ESex::kMale: sprintf(buf, "%s вошел в игру.", GET_NAME(d->character));
 			break;
-
-		case ESex::SEX_FEMALE: sprintf(buf, "%s вошла в игру.", GET_NAME(d->character));
+		case ESex::kFemale: sprintf(buf, "%s вошла в игру.", GET_NAME(d->character));
 			break;
-
-		case ESex::SEX_POLY: sprintf(buf, "%s вошли в игру.", GET_NAME(d->character));
+		case ESex::kPoly: sprintf(buf, "%s вошли в игру.", GET_NAME(d->character));
 			break;
 	}
 
-	mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
+	mudlog(buf, NRM, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 	d->has_prompt = 0;
 	login_change_invoice(d->character.get());
 	affect_total(d->character.get());
@@ -2414,7 +2417,7 @@ void do_entergame(DESCRIPTOR_DATA *d) {
 //Все это засунуто в одну функцию для того
 //Чтобы в случае некорректности сразу нескольких параметров
 //Они все были корректно обработаны
-bool ValidateStats(DESCRIPTOR_DATA *d) {
+bool ValidateStats(DescriptorData *d) {
 	//Требуется рерол статов
 	if (!GloryMisc::check_stats(d->character.get())) {
 		return false;
@@ -2440,7 +2443,7 @@ bool ValidateStats(DESCRIPTOR_DATA *d) {
 	}
 
 	// не корректный номер религии
-	if (GET_RELIGION(d->character) > RELIGION_MONO) {
+	if (GET_RELIGION(d->character) > kReligionMono) {
 		SEND_TO_Q(religion_menu, d);
 		SEND_TO_Q("\n\rРелигия :", d);
 		STATE(d) = CON_RESET_RELIGION;
@@ -2450,7 +2453,7 @@ bool ValidateStats(DESCRIPTOR_DATA *d) {
 	return true;
 }
 
-void DoAfterPassword(DESCRIPTOR_DATA *d) {
+void DoAfterPassword(DescriptorData *d) {
 	int load_result;
 
 	// Password was correct.
@@ -2462,14 +2465,14 @@ void DoAfterPassword(DESCRIPTOR_DATA *d) {
 		SEND_TO_Q("Извините, вы не можете выбрать этого игрока с данного IP!\r\n", d);
 		STATE(d) = CON_CLOSE;
 		sprintf(buf, "Connection attempt for %s denied from %s", GET_NAME(d->character), d->host);
-		mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
+		mudlog(buf, NRM, kLvlGod, SYSLOG, true);
 		return;
 	}
-	if (GET_REAL_LEVEL(d->character) < circle_restrict) {
+	if (GetRealLevel(d->character) < circle_restrict) {
 		SEND_TO_Q("Игра временно приостановлена.. Ждем вас немного позже.\r\n", d);
 		STATE(d) = CON_CLOSE;
 		sprintf(buf, "Request for login denied for %s [%s] (wizlock)", GET_NAME(d->character), d->host);
-		mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
+		mudlog(buf, NRM, kLvlGod, SYSLOG, true);
 		return;
 	}
 	if (new_loc_codes.count(GET_EMAIL(d->character)) != 0) {
@@ -2489,7 +2492,7 @@ void DoAfterPassword(DESCRIPTOR_DATA *d) {
 	if (!subnets.empty()) {
 		if (subnets.count(inet_addr(d->host) & MASK) == 0) {
 			sprintf(buf, "Персонаж %s вошел с необычного места!", GET_NAME(d->character));
-			mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
+			mudlog(buf, CMP, kLvlGod, SYSLOG, true);
 			if (PRF_FLAGGED(d->character, PRF_IPCONTROL)) {
 				int random_number = number(1000000, 9999999);
 				new_loc_codes[GET_EMAIL(d->character)] = random_number;
@@ -2536,7 +2539,7 @@ void DoAfterPassword(DESCRIPTOR_DATA *d) {
 	STATE(d) = CON_RMOTD;
 }
 
-void CreateChar(DESCRIPTOR_DATA *d) {
+void CreateChar(DescriptorData *d) {
 	if (d->character) {
 		return;
 	}
@@ -2546,7 +2549,7 @@ void CreateChar(DESCRIPTOR_DATA *d) {
 	d->character->desc = d;
 }
 
-int create_unique(void) {
+int create_unique() {
 	int unique;
 
 	do {
@@ -2557,28 +2560,28 @@ int create_unique(void) {
 }
 
 // initialize a new character only if class is set
-void init_char(CHAR_DATA *ch, player_index_element &element) {
+void init_char(CharData *ch, PlayerIndexElement &element) {
 	int i;
 
 #ifdef TEST_BUILD
 	if (0 == player_table.size())
 	{
 		// При собирании через make test первый чар в маде становится иммом 34
-		ch->set_level(LVL_IMPL);
+		ch->set_level(kLevelImplementator);
 	}
 #endif
 
-	GET_PORTALS(ch) = NULL;
+	GET_PORTALS(ch) = nullptr;
 	CREATE(GET_LOGS(ch), 1 + LAST_LOG);
-	ch->set_npc_name(0);
+	ch->set_npc_name(nullptr);
 	ch->player_data.long_descr = "";
 	ch->player_data.description = "";
-	ch->player_data.time.birth = time(0);
+	ch->player_data.time.birth = time(nullptr);
 	ch->player_data.time.played = 0;
-	ch->player_data.time.logon = time(0);
+	ch->player_data.time.logon = time(nullptr);
 
 	// make favors for sex
-	if (ch->get_sex() == ESex::SEX_MALE) {
+	if (ch->get_sex() == ESex::kMale) {
 		ch->player_data.weight = number(120, 180);
 		ch->player_data.height = number(160, 200);
 	} else {
@@ -2598,28 +2601,29 @@ void init_char(CHAR_DATA *ch, player_index_element &element) {
 	element.level = 0;
 	element.remorts = 0;
 	element.last_logon = -1;
-	element.mail = NULL;//added by WorM mail
-	element.last_ip = NULL;//added by WorM последний айпи
+	element.mail = nullptr;//added by WorM mail
+	element.last_ip = nullptr;//added by WorM последний айпи
 
-	if (GET_REAL_LEVEL(ch) > LVL_GOD) {
+	if (GetRealLevel(ch) > kLvlGod) {
 		set_god_skills(ch);
 		set_god_morphs(ch);
 	}
 
-	for (i = 1; i <= SPELLS_COUNT; i++) {
-		if (GET_REAL_LEVEL(ch) < LVL_GRGOD)
+	for (i = 1; i <= kSpellCount; i++) {
+		if (GetRealLevel(ch) < kLvlGreatGod)
 			GET_SPELL_TYPE(ch, i) = 0;
 		else
-			GET_SPELL_TYPE(ch, i) = SPELL_KNOW;
+			GET_SPELL_TYPE(ch, i) = kSpellKnow;
 	}
 
 	ch->char_specials.saved.affected_by = clear_flags;
-	for (i = 0; i < SAVING_COUNT; i++)
-		GET_SAVE(ch, i) = 0;
+	for (auto save = ESaving::kFirst; save <= ESaving::kLast; ++save) {
+		SET_SAVE(ch, save, 0);
+	}
 	for (i = 0; i < MAX_NUMBER_RESISTANCE; i++)
 		GET_RESIST(ch, i) = 0;
 
-	if (GET_REAL_LEVEL(ch) == LVL_IMPL) {
+	if (GetRealLevel(ch) == kLvlImplementator) {
 		ch->set_str(25);
 		ch->set_int(25);
 		ch->set_wis(25);
@@ -2630,7 +2634,7 @@ void init_char(CHAR_DATA *ch, player_index_element &element) {
 	ch->real_abils.size = 50;
 
 	for (i = 0; i < 3; i++) {
-		GET_COND(ch, i) = (GET_REAL_LEVEL(ch) == LVL_IMPL ? -1 : i == DRUNK ? 0 : 24);
+		GET_COND(ch, i) = (GetRealLevel(ch) == kLvlImplementator ? -1 : i == DRUNK ? 0 : 24);
 	}
 	GET_LASTIP(ch)[0] = 0;
 	//	GET_LOADROOM(ch) = start_room;
@@ -2654,16 +2658,16 @@ void init_char(CHAR_DATA *ch, player_index_element &element) {
 * If the name already exists, by overwriting a deleted character, then
 * we re-use the old position.
 */
-int create_entry(player_index_element &element) {
+int create_entry(PlayerIndexElement &element) {
 	// create new save activity
 	element.activity = number(0, OBJECT_SAVE_ACTIVITY - 1);
-	element.timer = NULL;
+	element.timer = nullptr;
 
 	return static_cast<int>(player_table.append(element));
 }
 
-void DoAfterEmailConfirm(DESCRIPTOR_DATA *d) {
-	player_index_element element(-1, GET_PC_NAME(d->character));
+void DoAfterEmailConfirm(DescriptorData *d) {
+	PlayerIndexElement element(-1, GET_PC_NAME(d->character));
 
 	// Now GET_NAME() will work properly.
 	init_char(d->character.get(), element);
@@ -2694,7 +2698,7 @@ void DoAfterEmailConfirm(DESCRIPTOR_DATA *d) {
 	SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
 	STATE(d) = CON_RMOTD;
 	d->character->set_who_mana(0);
-	d->character->set_who_last(time(0));
+	d->character->set_who_last(time(nullptr));
 
 }
 
@@ -2712,7 +2716,7 @@ void DoAfterEmailConfirm(DESCRIPTOR_DATA *d) {
                                 "\xd0\xb0\xd0\xb7\xd0\xb1\xd1\x83\xd0\xba\xd0\xb0: "\
                                 "\"\xd0\xb0\xd0\xb1\xd0\xb2...\xd1\x8d\xd1\x8e\xd1\x8f\"."
 
-static void ShowEncodingPrompt(DESCRIPTOR_DATA *d, bool withHints = false) {
+static void ShowEncodingPrompt(DescriptorData *d, bool withHints = false) {
 	if (withHints) {
 		SEND_TO_Q(
 			"\r\n"
@@ -2744,11 +2748,29 @@ static void ShowEncodingPrompt(DESCRIPTOR_DATA *d, bool withHints = false) {
 	}
 }
 
+void DisplaySelectCharClassMenu(DescriptorData *d) {
+	std::ostringstream out;
+	out << std::endl << "Выберите профессию:" << std::endl;
+	std::vector<ECharClass> char_classes;
+	char_classes.reserve(kNumPlayerClasses);
+	for (const auto &it : MUD::Classes()) {
+		if (it.IsAvailable()) {
+			char_classes.push_back(it.GetId());
+		}
+	}
+	std::sort(char_classes.begin(), char_classes.end());
+	for (const auto &it : char_classes) {
+		out << "  " << KCYN << std::right << std::setw(3) << it + 1 << KNRM << ") "
+		<< KGRN << std::left << MUD::Classes()[it].GetName() << std::endl << KNRM;
+	}
+	write_to_output(out.str().c_str(), d);
+}
+
 // deal with newcomers and other non-playing sockets
-void nanny(DESCRIPTOR_DATA *d, char *arg) {
-	char buf[MAX_STRING_LENGTH];
+void nanny(DescriptorData *d, char *arg) {
+	char buf[kMaxStringLength];
 	int player_i = 0, load_result;
-	char tmp_name[MAX_INPUT_LENGTH], pwd_name[MAX_INPUT_LENGTH], pwd_pwd[MAX_INPUT_LENGTH];
+	char tmp_name[kMaxInputLength], pwd_name[kMaxInputLength], pwd_pwd[kMaxInputLength];
 	bool is_player_deleted;
 	if (STATE(d) != CON_CONSOLE)
 		skip_spaces(&arg);
@@ -2835,7 +2857,7 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 				ShowEncodingPrompt(d, true);
 				return;
 			};
-			if (!*arg || *arg < '0' || *arg >= '0' + KT_LAST) {
+			if (!*arg || *arg < '0' || *arg >= '0' + kCodePageLast) {
 				SEND_TO_Q("\r\nUnknown key table. Retry, please : ", d);
 				return;
 			};
@@ -2882,7 +2904,7 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 						SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 						if (!PLR_FLAGGED(d->character, PLR_DELETED)) {
 							sprintf(buf, "Bad PW: %s [%s]", GET_NAME(d->character), d->host);
-							mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+							mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
 						}
 
 						d->character.reset();
@@ -2899,8 +2921,8 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 					return;
 				} else {
 					if (parse_exist_name(arg, tmp_name) ||
-						strlen(tmp_name) < (MIN_NAME_LENGTH - 1) || // дабы можно было войти чарам с 4 буквами
-						strlen(tmp_name) > MAX_NAME_LENGTH ||
+						strlen(tmp_name) < (kMinNameLength - 1) || // дабы можно было войти чарам с 4 буквами
+						strlen(tmp_name) > kMaxNameLength ||
 						!Is_Valid_Name(tmp_name) || fill_word(tmp_name) || reserved_word(tmp_name)) {
 						SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 						return;
@@ -2935,7 +2957,7 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 						}
 
 						// дополнительная проверка на длину имени чара
-						if (strlen(tmp_name) < (MIN_NAME_LENGTH)) {
+						if (strlen(tmp_name) < (kMinNameLength)) {
 							SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 							return;
 						}
@@ -2968,7 +2990,7 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 				} else    // player unknown -- make new character
 				{
 					// еще одна проверка
-					if (strlen(tmp_name) < (MIN_NAME_LENGTH)) {
+					if (strlen(tmp_name) < (kMinNameLength)) {
 						SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 						return;
 					}
@@ -2979,7 +3001,7 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 						return;
 					}
 
-					if (cmp_ptable_by_name(tmp_name, MIN_NAME_LENGTH) >= 0) {
+					if (cmp_ptable_by_name(tmp_name, kMinNameLength) >= 0) {
 						SEND_TO_Q
 						("Первые символы вашего имени совпадают с уже существующим персонажем.\r\n"
 						 "Для исключения разных недоразумений вам необходимо выбрать другое имя.\r\n"
@@ -3002,7 +3024,7 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 				if (ban->is_banned(d->host) >= BanList::BAN_NEW) {
 					sprintf(buf, "Попытка создания персонажа %s отклонена для [%s] (siteban)",
 							GET_PC_NAME(d->character), d->host);
-					mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
+					mudlog(buf, NRM, kLvlGod, SYSLOG, true);
 					SEND_TO_Q("Извините, создание нового персонажа для вашего IP !!! ЗАПРЕЩЕНО !!!\r\n", d);
 					STATE(d) = CON_CLOSE;
 					return;
@@ -3012,7 +3034,7 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 					SEND_TO_Q("Извините, вы не можете создать новый персонаж в настоящий момент.\r\n", d);
 					sprintf(buf, "Попытка создания нового персонажа %s отклонена для [%s] (wizlock)",
 							GET_PC_NAME(d->character), d->host);
-					mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
+					mudlog(buf, NRM, kLvlGod, SYSLOG, true);
 					STATE(d) = CON_CLOSE;
 					return;
 				}
@@ -3038,7 +3060,7 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 
 			} else if (UPPER(*arg) == 'N' || UPPER(*arg) == 'Н') {
 				SEND_TO_Q("Итак, чего изволите? Учтите, бананов нет :)\r\n" "Имя : ", d);
-				d->character->set_pc_name(0);
+				d->character->set_pc_name(nullptr);
 				STATE(d) = CON_GET_NAME;
 			} else {
 				SEND_TO_Q("Ответьте Yes(Да) or No(Нет) : ", d);
@@ -3056,8 +3078,8 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 			}
 
 			if (_parse_name(arg, tmp_name) ||
-				strlen(tmp_name) < MIN_NAME_LENGTH ||
-				strlen(tmp_name) > MAX_NAME_LENGTH ||
+				strlen(tmp_name) < kMinNameLength ||
+				strlen(tmp_name) > kMaxNameLength ||
 				!Is_Valid_Name(tmp_name) || fill_word(tmp_name) || reserved_word(tmp_name)) {
 				SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 				return;
@@ -3084,7 +3106,7 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 			}
 
 			// skip name check for deleted players
-			if (!is_player_deleted && cmp_ptable_by_name(tmp_name, MIN_NAME_LENGTH) >= 0) {
+			if (!is_player_deleted && cmp_ptable_by_name(tmp_name, kMinNameLength) >= 0) {
 				SEND_TO_Q("Первые символы вашего имени совпадают с уже существующим персонажем.\r\n"
 						  "Для исключения разных недоразумений вам необходимо выбрать другое имя.\r\n"
 						  "Имя  : ", d);
@@ -3099,7 +3121,7 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 			if (ban->is_banned(d->host) >= BanList::BAN_NEW) {
 				sprintf(buf, "Попытка создания персонажа %s отклонена для [%s] (siteban)",
 						GET_PC_NAME(d->character), d->host);
-				mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
+				mudlog(buf, NRM, kLvlGod, SYSLOG, true);
 				SEND_TO_Q("Извините, создание нового персонажа для вашего IP !!!ЗАПРЕЩЕНО!!!\r\n", d);
 				STATE(d) = CON_CLOSE;
 				return;
@@ -3110,7 +3132,7 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 				sprintf(buf,
 						"Попытка создания нового персонажа %s отклонена для [%s] (wizlock)",
 						GET_PC_NAME(d->character), d->host);
-				mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
+				mudlog(buf, NRM, kLvlGod, SYSLOG, true);
 				STATE(d) = CON_CLOSE;
 				return;
 			}
@@ -3153,7 +3175,7 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 			} else {
 				if (!Password::compare_password(d->character.get(), arg)) {
 					sprintf(buf, "Bad PW: %s [%s]", GET_NAME(d->character), d->host);
-					mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+					mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
 					GET_BAD_PWS(d->character)++;
 					d->character->save_char();
 					if (++(d->bad_pws) >= max_bad_pws)    // 3 strikes and you're out.
@@ -3203,10 +3225,9 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 			}
 
 			if (STATE(d) == CON_CNFPASSWD) {
-				GET_KIN(d->character) = 0; // added by WorM: Выставляем расу в Русич(коммент выше)
-				SEND_TO_Q(class_menu, d);
-				SEND_TO_Q("\r\nВаша профессия (Для более полной информации вы можете набрать"
-						  " \r\nсправка <интересующая профессия>): ", d);
+				GET_KIN(d->character) = 0;
+				DisplaySelectCharClassMenu(d);
+				SEND_TO_Q("\r\nВаша профессия? (Для более полной информации вы можете набрать 'справка <интересующая профессия>'): ", d);
 				STATE(d) = CON_QCLASS;
 			} else {
 				sprintf(buf, "%s заменил себе пароль.", GET_NAME(d->character));
@@ -3228,11 +3249,11 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 
 			switch (UPPER(*arg)) {
 				case 'М':
-				case 'M': d->character->set_sex(ESex::SEX_MALE);
+				case 'M': d->character->set_sex(ESex::kMale);
 					break;
 
 				case 'Ж':
-				case 'F': d->character->set_sex(ESex::SEX_FEMALE);
+				case 'F': d->character->set_sex(ESex::kFemale);
 					break;
 
 				default: SEND_TO_Q("Это может быть и пол, но явно не ваш :)\r\n" "А какой у ВАС пол? ", d);
@@ -3262,21 +3283,8 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 			}
 
 			GET_KIN(d->character) = load_result;
-			/*
-			Ахтунг-партизанен!
-			Пока что убраны все вызовы парсилок _классов_ для отличных от русичей _рас_.
-			Сами парсилки и списки классов оставлены для потомков.
-			Проверка тоже убрана, так что при создании перса другой расы ему предложат выбрать "русские" классы.
-			Теоретически это конечно неправильно, но я сомневаюсь, что в ближайшем будущем кто-то станет доделывать расы.
-			Если же такой садомазо найдется, то для него это всеи пишется.
-			В таком варианте надо в описания _рас_ в файле playerraces.xml
-			Ввести список доступных расе классов. И уже от этого списка плясать с названиями и парсом, а не городить все в 3 экземплярах
-			Сами классы при этом из кода можно и не выносить ж)
-			Sventovit
-			 */
-			SEND_TO_Q(class_menu, d);
-			SEND_TO_Q("\r\nВаша профессия (Для более полной информации вы можете набрать"
-					  " \r\nсправка <интересующая профессия>): ", d);
+			DisplaySelectCharClassMenu(d);
+			SEND_TO_Q("\r\nВаша профессия? (Для более полной информации вы можете набрать 'справка <интересующая профессия>'): ", d);
 			STATE(d) = CON_QCLASS;
 			break;
 
@@ -3292,24 +3300,24 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 				case 'Я':
 				case 'З':
 				case 'P':
-					if (class_religion[(int) GET_CLASS(d->character)] == RELIGION_MONO) {
+					if (class_religion[(int) GET_CLASS(d->character)] == kReligionMono) {
 						SEND_TO_Q
 						("Персонаж выбранной вами профессии не желает быть язычником!\r\n"
 						 "Так каким Богам вы хотите служить? ", d);
 						return;
 					}
-					GET_RELIGION(d->character) = RELIGION_POLY;
+					GET_RELIGION(d->character) = kReligionPoly;
 					break;
 
 				case 'Х':
 				case 'C':
-					if (class_religion[(int) GET_CLASS(d->character)] == RELIGION_POLY) {
+					if (class_religion[(int) GET_CLASS(d->character)] == kReligionPoly) {
 						SEND_TO_Q
 						("Персонажу выбранной вами профессии противно христианство!\r\n"
 						 "Так каким Богам вы хотите служить? ", d);
 						return;
 					}
-					GET_RELIGION(d->character) = RELIGION_MONO;
+					GET_RELIGION(d->character) = kReligionMono;
 					break;
 
 				default: SEND_TO_Q("Атеизм сейчас не моден :)\r\n" "Так каким Богам вы хотите служить? ", d);
@@ -3325,72 +3333,37 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 
 			break;
 
-		case CON_QCLASS:
+		case CON_QCLASS: {
 			if (pre_help(d->character.get(), arg)) {
-				SEND_TO_Q(class_menu, d);
+				DisplaySelectCharClassMenu(d);
 				SEND_TO_Q("\r\nВаша профессия : ", d);
 				STATE(d) = CON_QCLASS;
 				return;
 			}
 
-			load_result = parse_class(*arg);
-			if (load_result == CLASS_UNDEFINED) {
+			int class_num{-1};
+			ECharClass class_id{ECharClass::kUndefined};
+			try {
+				class_num = std::stoi(arg);
+			} catch (std::exception &) {
+				class_id = FindAvailableCharClassId(arg);
+			}
+			if (class_num != -1) {
+				class_id = MUD::Classes().FindAvailableItem(class_num - 1).GetId();
+			}
+
+			if (class_id == ECharClass::kUndefined) {
 				SEND_TO_Q("\r\nЭто не профессия.\r\nПрофессия : ", d);
 				return;
 			} else {
-				d->character->set_class(load_result);
+				d->character->set_class(class_id);
 			}
 
 			SEND_TO_Q(religion_menu, d);
 			SEND_TO_Q("\n\rРелигия :", d);
 			STATE(d) = CON_RELIGION;
 			break;
-
-		case CON_QCLASSS:
-			if (pre_help(d->character.get(), arg)) {
-				SEND_TO_Q(class_menu_step, d);
-				SEND_TO_Q("\r\nВаша профессия : ", d);
-				STATE(d) = CON_QCLASSS;
-				return;
-			}
-
-			load_result = parse_class_step(*arg);
-
-			if (load_result == CLASS_UNDEFINED) {
-				SEND_TO_Q("\r\nЭто не профессия.\r\nПрофессия : ", d);
-				return;
-			} else {
-				d->character->set_class(load_result);
-			}
-
-			SEND_TO_Q(religion_menu, d);
-			SEND_TO_Q("\n\rРелигия :", d);
-			STATE(d) = CON_RELIGION;
-
-			break;
-
-		case CON_QCLASSV:
-			if (pre_help(d->character.get(), arg)) {
-				SEND_TO_Q(class_menu_vik, d);
-				SEND_TO_Q("\r\nВаша профессия : ", d);
-				STATE(d) = CON_QCLASSV;
-				return;
-			}
-
-			load_result = parse_class_vik(*arg);
-
-			if (load_result == CLASS_UNDEFINED) {
-				SEND_TO_Q("\r\nЭто не профессия.\r\nПрофессия : ", d);
-				return;
-			} else {
-				d->character->set_class(load_result);
-			}
-
-			SEND_TO_Q(religion_menu, d);
-			SEND_TO_Q("\n\rРелигия:", d);
-			STATE(d) = CON_RELIGION;
-
-			break;
+		}
 
 		case CON_RACE:        // query race
 			if (pre_help(d->character.get(), arg)) {
@@ -3409,8 +3382,8 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 			}
 
 			GET_RACE(d->character) = load_result;
-			SEND_TO_Q(string(BirthPlace::ShowMenu(PlayerRace::GetRaceBirthPlaces(GET_KIN(d->character),
-																				 GET_RACE(d->character)))).c_str(), d);
+			SEND_TO_Q(string(Birthplaces::ShowMenu(PlayerRace::GetRaceBirthPlaces(GET_KIN(d->character),
+																				  GET_RACE(d->character)))).c_str(), d);
 			SEND_TO_Q("\r\nГде вы хотите начать свои приключения: ", d);
 			STATE(d) = CON_BIRTHPLACE;
 
@@ -3418,8 +3391,8 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 
 		case CON_BIRTHPLACE:
 			if (pre_help(d->character.get(), arg)) {
-				SEND_TO_Q(string(BirthPlace::ShowMenu(PlayerRace::GetRaceBirthPlaces(GET_KIN(d->character),
-																					 GET_RACE(d->character)))).c_str(),
+				SEND_TO_Q(string(Birthplaces::ShowMenu(PlayerRace::GetRaceBirthPlaces(GET_KIN(d->character),
+																					  GET_RACE(d->character)))).c_str(),
 						  d);
 				SEND_TO_Q("\r\nГде вы хотите начать свои приключения: ", d);
 				STATE(d) = CON_BIRTHPLACE;
@@ -3428,7 +3401,7 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 
 			load_result = PlayerRace::CheckBirthPlace(GET_KIN(d->character), GET_RACE(d->character), arg);
 
-			if (!BirthPlace::CheckId(load_result)) {
+			if (!Birthplaces::CheckId(load_result)) {
 				SEND_TO_Q("Не уверены? Бывает.\r\n"
 						  "Подумайте еще разок, и выберите:", d);
 				return;
@@ -3451,7 +3424,7 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 			}
 
 			switch (genchar_parse(d->character.get(), arg)) {
-				case GENCHAR_CONTINUE: genchar_disp_menu(d->character.get());
+				case kGencharContinue: genchar_disp_menu(d->character.get());
 					break;
 				default: SEND_TO_Q("\r\nВведите ваш E-mail"
 								   "\r\n(ВСЕ ВАШИ ПЕРСОНАЖИ ДОЛЖНЫ ИМЕТЬ ОДИНАКОВЫЙ E-mail)."
@@ -3465,14 +3438,14 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 			if (!*arg) {
 				SEND_TO_Q("\r\nВаш E-mail : ", d);
 				return;
-			} else if (!valid_email(arg)) {
+			} else if (!IsValidEmail(arg)) {
 				SEND_TO_Q("\r\nНекорректный E-mail!" "\r\nВаш E-mail :  ", d);
 				return;
 			}
 #ifdef TEST_BUILD
 			strncpy(GET_EMAIL(d->character), arg, 127);
 			*(GET_EMAIL(d->character) + 127) = '\0';
-			lower_convert(GET_EMAIL(d->character));
+			utils::ConvertToLow(GET_EMAIL(d->character));
 			DoAfterEmailConfirm(d);
 			break;
 #endif
@@ -3481,7 +3454,7 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 				new_char_codes[d->character->get_pc_name()] = random_number;
 				strncpy(GET_EMAIL(d->character), arg, 127);
 				*(GET_EMAIL(d->character) + 127) = '\0';
-				lower_convert(GET_EMAIL(d->character));
+				utils::ConvertToLow(GET_EMAIL(d->character));
 				std::string cmd_line =
 					str(boost::format("python3 send_code.py %s %d &") % GET_EMAIL(d->character) % random_number);
 				auto result = system(cmd_line.c_str());
@@ -3536,15 +3509,15 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 				case '0': SEND_TO_Q("\r\nДо встречи на земле Киевской.\r\n", d);
 
 					if (GET_REAL_REMORT(d->character) == 0
-						&& GET_REAL_LEVEL(d->character) <= 25
+						&& GetRealLevel(d->character) <= 25
 						&& !PLR_FLAGS(d->character).get(PLR_NODELETE)) {
 						int timeout = -1;
-						for (int ci = 0; GET_REAL_LEVEL(d->character) > pclean_criteria[ci].level; ci++) {
-							//if (GET_REAL_LEVEL(d->character) == pclean_criteria[ci].level)
+						for (int ci = 0; GetRealLevel(d->character) > pclean_criteria[ci].level; ci++) {
+							//if (GetRealLevel(d->character) == pclean_criteria[ci].level)
 							timeout = pclean_criteria[ci + 1].days;
 						}
 						if (timeout > 0) {
-							time_t deltime = time(NULL) + timeout * 60 * rent_file_timeout * 24;
+							time_t deltime = time(nullptr) + timeout * 60 * rent_file_timeout * 24;
 							sprintf(buf, "В случае вашего отсутствия персонаж будет храниться до %s нашей эры :).\r\n",
 									rustime(localtime(&deltime)));
 							SEND_TO_Q(buf, d);
@@ -3583,8 +3556,8 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 					SEND_TO_Q("Введите описание вашего героя, которое будет выводиться по команде <осмотреть>.\r\n", d);
 					SEND_TO_Q("(/s сохранить /h помощь)\r\n", d);
 
-					d->writer.reset(new DelegatedStdStringWriter(d->character->player_data.description));
-					d->max_str = EXDSCR_LENGTH;
+					d->writer.reset(new utils::DelegatedStdStringWriter(d->character->player_data.description));
+					d->max_str = kExdscrLength;
 					STATE(d) = CON_EXDESC;
 
 					break;
@@ -3695,13 +3668,13 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 					STATE(d) = CON_CLOSE;
 					return;
 				}
-				if (GET_REAL_LEVEL(d->character) >= LVL_GRGOD)
+				if (GetRealLevel(d->character) >= kLvlGreatGod)
 					return;
 				delete_char(GET_NAME(d->character));
 				sprintf(buf, "Персонаж '%s' удален!\r\n" "До свидания.\r\n", GET_NAME(d->character));
 				SEND_TO_Q(buf, d);
-				sprintf(buf, "%s (lev %d) has self-deleted.", GET_NAME(d->character), GET_REAL_LEVEL(d->character));
-				mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
+				sprintf(buf, "%s (lev %d) has self-deleted.", GET_NAME(d->character), GetRealLevel(d->character));
+				mudlog(buf, NRM, kLvlGod, SYSLOG, true);
 				d->character->get_account()->remove_player(GetUniqueByName(GET_NAME(d->character)));
 				STATE(d) = CON_CLOSE;
 				return;
@@ -3717,11 +3690,11 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 1, arg);
 			}
 			if (!_parse_name(arg, tmp_name)
-				&& strlen(tmp_name) >= MIN_NAME_LENGTH
-				&& strlen(tmp_name) <= MAX_NAME_LENGTH
+				&& strlen(tmp_name) >= kMinNameLength
+				&& strlen(tmp_name) <= kMaxNameLength
 				&& !strn_cmp(tmp_name,
 							 GET_PC_NAME(d->character),
-							 std::min<size_t>(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))) {
+							 std::min<size_t>(kMinNameLength, strlen(GET_PC_NAME(d->character)) - 1))) {
 				d->character->player_data.PNames[1] = std::string(CAP(tmp_name));
 				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 2, tmp_name);
 				sprintf(buf, "Имя в дательном падеже (отправить КОМУ?) [%s]: ", tmp_name);
@@ -3742,11 +3715,11 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 			}
 
 			if (!_parse_name(arg, tmp_name)
-				&& strlen(tmp_name) >= MIN_NAME_LENGTH
-				&& strlen(tmp_name) <= MAX_NAME_LENGTH
+				&& strlen(tmp_name) >= kMinNameLength
+				&& strlen(tmp_name) <= kMaxNameLength
 				&& !strn_cmp(tmp_name,
 							 GET_PC_NAME(d->character),
-							 std::min<size_t>(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))) {
+							 std::min<size_t>(kMinNameLength, strlen(GET_PC_NAME(d->character)) - 1))) {
 				d->character->player_data.PNames[2] = std::string(CAP(tmp_name));
 				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 3, tmp_name);
 				sprintf(buf, "Имя в винительном падеже (ударить КОГО?) [%s]: ", tmp_name);
@@ -3768,11 +3741,11 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 			}
 
 			if (!_parse_name(arg, tmp_name)
-				&& strlen(tmp_name) >= MIN_NAME_LENGTH
-				&& strlen(tmp_name) <= MAX_NAME_LENGTH
+				&& strlen(tmp_name) >= kMinNameLength
+				&& strlen(tmp_name) <= kMaxNameLength
 				&& !strn_cmp(tmp_name,
 							 GET_PC_NAME(d->character),
-							 std::min<size_t>(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))) {
+							 std::min<size_t>(kMinNameLength, strlen(GET_PC_NAME(d->character)) - 1))) {
 				d->character->player_data.PNames[3] = std::string(CAP(tmp_name));
 				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 4, tmp_name);
 				sprintf(buf, "Имя в творительном падеже (сражаться с КЕМ?) [%s]: ", tmp_name);
@@ -3791,10 +3764,10 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 			if (strlen(arg) == 0)
 				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 4, arg);
 			if (!_parse_name(arg, tmp_name) &&
-				strlen(tmp_name) >= MIN_NAME_LENGTH && strlen(tmp_name) <= MAX_NAME_LENGTH &&
+				strlen(tmp_name) >= kMinNameLength && strlen(tmp_name) <= kMaxNameLength &&
 				!strn_cmp(tmp_name,
 						  GET_PC_NAME(d->character),
-						  std::min<size_t>(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
+						  std::min<size_t>(kMinNameLength, strlen(GET_PC_NAME(d->character)) - 1))
 				) {
 				d->character->player_data.PNames[4] = std::string(CAP(tmp_name));
 				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 5, tmp_name);
@@ -3812,10 +3785,10 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 			if (strlen(arg) == 0)
 				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 5, arg);
 			if (!_parse_name(arg, tmp_name) &&
-				strlen(tmp_name) >= MIN_NAME_LENGTH && strlen(tmp_name) <= MAX_NAME_LENGTH &&
+				strlen(tmp_name) >= kMinNameLength && strlen(tmp_name) <= kMaxNameLength &&
 				!strn_cmp(tmp_name,
 						  GET_PC_NAME(d->character),
-						  std::min<size_t>(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
+						  std::min<size_t>(kMinNameLength, strlen(GET_PC_NAME(d->character)) - 1))
 				) {
 				d->character->player_data.PNames[5] = std::string(CAP(tmp_name));
 				sprintf(buf,
@@ -3839,7 +3812,7 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 			}
 
 			switch (genchar_parse(d->character.get(), arg)) {
-				case GENCHAR_CONTINUE: genchar_disp_menu(d->character.get());
+				case kGencharContinue: genchar_disp_menu(d->character.get());
 					break;
 
 				default:
@@ -3931,24 +3904,24 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 				case 'Я':
 				case 'З':
 				case 'P':
-					if (class_religion[(int) GET_CLASS(d->character)] == RELIGION_MONO) {
+					if (class_religion[(int) GET_CLASS(d->character)] == kReligionMono) {
 						SEND_TO_Q
 						("Персонаж выбранной вами профессии не желает быть язычником!\r\n"
 						 "Так каким Богам вы хотите служить? ", d);
 						return;
 					}
-					GET_RELIGION(d->character) = RELIGION_POLY;
+					GET_RELIGION(d->character) = kReligionPoly;
 					break;
 
 				case 'Х':
 				case 'C':
-					if (class_religion[(int) GET_CLASS(d->character)] == RELIGION_POLY) {
+					if (class_religion[(int) GET_CLASS(d->character)] == kReligionPoly) {
 						SEND_TO_Q ("Персонажу выбранной вами профессии противно христианство!\r\n"
 								   "Так каким Богам вы хотите служить? ", d);
 						return;
 					}
 
-					GET_RELIGION(d->character) = RELIGION_MONO;
+					GET_RELIGION(d->character) = kReligionMono;
 
 					break;
 
@@ -4012,40 +3985,48 @@ void GetOneParam(std::string &in_buffer, std::string &out_buffer) {
 
 // регистронезависимое сравнение двух строк по длине первой, флаг - для учета длины строк (неравенство)
 bool CompareParam(const std::string &buffer, const char *arg, bool full) {
-	if (!arg || !*arg || buffer.empty() || (full && buffer.length() != strlen(arg)))
-		return 0;
+	if (!arg || !*arg || buffer.empty() || (full && buffer.length() != strlen(arg))) {
+		return false;
+	}
 
 	std::string::size_type i;
-	for (i = 0; i != buffer.length() && *arg; ++i, ++arg)
-		if (LOWER(buffer[i]) != LOWER(*arg))
-			return (0);
+	for (i = 0; i != buffer.length() && *arg; ++i, ++arg) {
+		if (LOWER(buffer[i]) != LOWER(*arg)) {
+			return false;
+		}
+	}
 
-	if (i == buffer.length())
-		return (1);
-	else
-		return (0);
+	if (i == buffer.length()) {
+		return true;
+	} else {
+		return false;
+	}
 }
 
 // тоже самое с обоими аргументами стринг
 bool CompareParam(const std::string &buffer, const std::string &buffer2, bool full) {
 	if (buffer.empty() || buffer2.empty()
-		|| (full && buffer.length() != buffer2.length()))
-		return 0;
+		|| (full && buffer.length() != buffer2.length())) {
+		return false;
+	}
 
 	std::string::size_type i;
-	for (i = 0; i != buffer.length() && i != buffer2.length(); ++i)
-		if (LOWER(buffer[i]) != LOWER(buffer2[i]))
-			return (0);
+	for (i = 0; i != buffer.length() && i != buffer2.length(); ++i) {
+		if (LOWER(buffer[i]) != LOWER(buffer2[i])) {
+			return false;
+		}
+	}
 
-	if (i == buffer.length())
-		return (1);
-	else
-		return (0);
+	if (i == buffer.length()) {
+		return true;
+	} else {
+		return false;
+	}
 }
 
 // ищет дескриптор игрока(онлайн состояние) по его УИДу
-DESCRIPTOR_DATA *DescByUID(int uid) {
-	DESCRIPTOR_DATA *d = 0;
+DescriptorData *DescByUID(int uid) {
+	DescriptorData *d = nullptr;
 
 	for (d = descriptor_list; d; d = d->next)
 		if (d->character && GET_UNIQUE(d->character) == uid)
@@ -4058,8 +4039,8 @@ DESCRIPTOR_DATA *DescByUID(int uid) {
 * \param id - ид, который ищем
 * \param playing - 0 если ищем игрока в любом состоянии, 1 (дефолт) если ищем только незанятых
 */
-DESCRIPTOR_DATA *get_desc_by_id(long id, bool playing) {
-	DESCRIPTOR_DATA *d = 0;
+DescriptorData *get_desc_by_id(long id, bool playing) {
+	DescriptorData *d = nullptr;
 
 	if (playing) {
 		for (d = descriptor_list; d; d = d->next)
@@ -4087,7 +4068,7 @@ long GetUniqueByName(const std::string &name, bool god) {
 			if (!god)
 				return player_table[i].unique;
 			else {
-				if (player_table[i].level < LVL_IMMORT)
+				if (player_table[i].level < kLvlImmortal)
 					return player_table[i].unique;
 				else
 					return -1;
@@ -4099,7 +4080,7 @@ long GetUniqueByName(const std::string &name, bool god) {
 }
 
 bool IsActiveUser(long unique) {
-	time_t currTime = time(0);
+	time_t currTime = time(nullptr);
 	time_t charLogon;
 	int inactivityDelay = /* day*/ (3600 * 24) * /*days count*/ 60;
 	for (std::size_t i = 0; i < player_table.size(); ++i) {
@@ -4120,7 +4101,7 @@ std::string GetNameByUnique(long unique, bool god) {
 			if (!god) {
 				return player_table[i].name();
 			} else {
-				if (player_table[i].level < LVL_IMMORT) {
+				if (player_table[i].level < kLvlImmortal) {
 					return player_table[i].name();
 				} else {
 					return empty;
@@ -4155,30 +4136,16 @@ std::string ExpFormat(long long exp) {
 		return (prefix + boost::lexical_cast<std::string>(exp / 1000000000LL) + " млрд");
 }
 
-// * Конвертация входной строки в нижний регистр
-void lower_convert(std::string &text) {
-	for (std::string::iterator it = text.begin(); it != text.end(); ++it)
-		*it = LOWER(*it);
-}
-
-// * Конвертация входной строки в нижний регистр
-void lower_convert(char *text) {
-	while (*text) {
-		*text = LOWER(*text);
-		text++;
-	}
-}
-
 // * Конвертация имени в нижний регистр + первый сивмол в верхний (для единообразного поиска в контейнерах)
 void name_convert(std::string &text) {
 	if (!text.empty()) {
-		lower_convert(text);
+		utils::ConvertToLow(text);
 		*text.begin() = UPPER(*text.begin());
 	}
 }
 
 // * Генерация списка неодобренных титулов и имен и вывод их имму
-bool single_god_invoice(CHAR_DATA *ch) {
+bool single_god_invoice(CharData *ch) {
 	bool hasMessages = false;
 	hasMessages |= TitleSystem::show_title_list(ch);
 	hasMessages |= NewNames::show(ch);
@@ -4187,7 +4154,7 @@ bool single_god_invoice(CHAR_DATA *ch) {
 
 // * Поиск незанятых иммов онлайн для вывода им неодобренных титулов и имен раз в 5 минут
 void god_work_invoice() {
-	for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next) {
+	for (DescriptorData *d = descriptor_list; d; d = d->next) {
 		if (d->character && STATE(d) == CON_PLAYING) {
 			if (IS_IMMORTAL(d->character)
 				|| GET_GOD_FLAG(d->character, GF_DEMIGOD)) {
@@ -4198,7 +4165,7 @@ void god_work_invoice() {
 }
 
 // * Вывод оповещений о новых сообщениях на досках, письмах, (неодобренных имен и титулов для иммов) при логине и релогине
-bool login_change_invoice(CHAR_DATA *ch) {
+bool login_change_invoice(CharData *ch) {
 	bool hasMessages = false;
 
 	hasMessages |= Boards::Static::LoginInfo(ch);
@@ -4226,14 +4193,14 @@ bool login_change_invoice(CHAR_DATA *ch) {
 // работает аналогично восстановлению и расходованию маны у волхвов
 // константы пока определены через #define в interpreter.h
 // возвращает истину, если спамконтроль сработал и игроку придется подождать
-bool who_spamcontrol(CHAR_DATA *ch, unsigned short int mode = WHO_LISTALL) {
+bool who_spamcontrol(CharData *ch, unsigned short int mode = WHO_LISTALL) {
 	int cost = 0;
 	time_t ctime;
 
 	if (IS_IMMORTAL(ch))
 		return false;
 
-	ctime = time(0);
+	ctime = time(nullptr);
 
 	switch (mode) {
 		case WHO_LISTALL: cost = WHO_COST;

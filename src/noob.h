@@ -4,23 +4,23 @@
 #ifndef NOOB_HPP_INCLUDED
 #define NOOB_HPP_INCLUDED
 
-#include "structs.h"
+#include "structs/structs.h"
 
 #include <string>
 #include <vector>
 
-class CHAR_DATA;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
+class CharData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 
 namespace Noob {
 
 void init();
-int outfit(CHAR_DATA *ch, void *me, int cmd, char *argument);
+int outfit(CharData *ch, void *me, int cmd, char *argument);
 
-bool is_noob(const CHAR_DATA *ch);
-std::string print_start_outfit(CHAR_DATA *ch);
-std::vector<int> get_start_outfit(CHAR_DATA *ch);
-void check_help_message(CHAR_DATA *ch);
-void equip_start_outfit(CHAR_DATA *ch, OBJ_DATA *obj);
+bool is_noob(const CharData *ch);
+std::string print_start_outfit(CharData *ch);
+std::vector<int> get_start_outfit(CharData *ch);
+void check_help_message(CharData *ch);
+void equip_start_outfit(CharData *ch, ObjData *obj);
 
 } // namespace Noob
 

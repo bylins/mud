@@ -14,12 +14,15 @@
 #ifndef _UTILS_H_
 #define _UTILS_H_
 
-#include "config.h"
-#include "structs.h"
+#include "game_classes/classes_constants.h"
 #include "conf.h"
-#include "pugixml.h"
-#include "classes/class_constants.h"
-
+#include "config.h"
+#include "entities/entities_constants.h"
+#include "utils/pugixml/pugixml.h"
+#include "structs/structs.h"
+#include "game_mechanics/weather.h"
+#include "utils_string.h"
+#include "entities/zone.h"
 #include <boost/dynamic_bitset.hpp>
 
 #include <string>
@@ -28,8 +31,9 @@
 #include <vector>
 #include <sstream>
 
-struct ROOM_DATA;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
-class CHAR_DATA;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
+struct RoomData;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
+class CharData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
+struct DescriptorData;
 
 // external declarations and prototypes *********************************
 
@@ -54,7 +58,7 @@ class CHAR_DATA;    // forward declaration to avoid inclusion of char.hpp and an
 //	'\xf0', '\xf1', '\xf2', '\xf3', '\xf4', '\xf5', '\xf6', '\xf7', '\xf8', '\xf9', '\xfa', '\xfb', '\xfc', '\xfd', '\xfe', '\xff'	//256
 //};
 
-// Full ASCII table for fast erase chars
+// Full ASCII table for fast erase entities
 //const bool a_isdigit_table[] = {
 //	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
 //	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
@@ -79,16 +83,23 @@ class CHAR_DATA;    // forward declaration to avoid inclusion of char.hpp and an
 inline const char *not_empty(const std::string &s) {
 	return s.empty() ? "undefined" : s.c_str();
 }
-
-inline const char *not_empty(const std::string &s, const char *subst) {
-	return s.empty()
-		   ? (subst
-			  ? subst
-			  : "undefined")
-		   : s.c_str();
+// поиск рнума зоны по внум, если не  найдено будет 0
+inline int zone_rnum_from_vnum(int zvn) {
+	ZoneRnum zrn;
+	for (zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
+		if (zone_table[zrn].vnum == zvn)
+			break;
+	}
+	if (zrn == static_cast<ZoneRnum>(zone_table.size()))
+		zrn = 0;
+	return zrn;
 }
 
-extern struct weather_data weather_info;
+inline const char *not_empty(const std::string &s, const char *subst) {
+	return s.empty() ? (subst ? subst : "undefined") : s.c_str();
+}
+
+//extern struct Weather weather_info;
 extern char AltToKoi[];
 extern char KoiToAlt[];
 extern char WinToKoi[];
@@ -96,11 +107,11 @@ extern char KoiToWin[];
 extern char KoiToWin2[];
 extern char AltToLat[];
 
-extern int class_stats_limit[NUM_PLAYER_CLASSES][6];
+extern int class_stats_limit[kNumPlayerClasses][6];
 
 // public functions in utils.cpp
-CHAR_DATA *find_char(long n);
-CHAR_DATA *get_random_pc_group(CHAR_DATA *ch);
+CharData *find_char(long n);
+CharData *get_random_pc_group(CharData *ch);
 char *rustime(const struct tm *timeptr);
 char *str_dup(const char *source);
 char *str_add(char *dst, const char *src);
@@ -115,46 +126,64 @@ int strn_cmp(const std::string &arg1, const std::string &arg2, size_t n);
 int touch(const char *path);
 
 int number(int from, int to);
-int dice(int number, int size);
+int RollDices(int number, int size);
 void sprinttype(int type, const char *names[], char *result);
 int get_line(FILE *fl, char *buf);
 int get_filename(const char *orig_name, char *filename, int mode);
-TIME_INFO_DATA *age(const CHAR_DATA *ch);
-int num_pc_in_room(ROOM_DATA *room);
+TimeInfoData *age(const CharData *ch);
+int num_pc_in_room(RoomData *room);
 void core_dump_real(const char *, int);
-int replace_str(const AbstractStringWriter::shared_ptr &writer,
+int replace_str(const utils::AbstractStringWriter::shared_ptr &writer,
 				const char *pattern,
 				const char *replacement,
 				int rep_all,
 				int max_size);
-void format_text(const AbstractStringWriter::shared_ptr &writer, int mode, DESCRIPTOR_DATA *d, size_t maxlen);
-int check_moves(CHAR_DATA *ch, int how_moves);
+void format_text(const utils::AbstractStringWriter::shared_ptr &writer, int mode, DescriptorData *d, size_t maxlen);
+int check_moves(CharData *ch, int how_moves);
 void koi_to_alt(char *str, int len);
 std::string koi_to_alt(const std::string &input);
 void koi_to_win(char *str, int len);
 void koi_to_utf8(char *str_i, char *str_o);
 void utf8_to_koi(char *str_i, char *str_o);
 int real_sector(int room);
-char *format_act(const char *orig, CHAR_DATA *ch, OBJ_DATA *obj, const void *vict_obj);
+char *format_act(const char *orig, CharData *ch, ObjData *obj, const void *vict_obj);
 int roundup(float fl);
-int valid_email(const char *address);
+bool IsValidEmail(const char *address);
 void skip_dots(char **string);
 const char *str_str(const char *cs, const char *ct);
 void kill_ems(char *str);
 void cut_one_word(std::string &str, std::string &word);
 size_t strl_cpy(char *dst, const char *src, size_t siz);
-int GetRealDamroll(CHAR_DATA *ch);
-int GetAutoattackDamroll(CHAR_DATA *ch, int weapon_skill);
-extern bool GetAffectNumByName(const std::string &affName, EAffectFlag &result);
-void tell_to_char(CHAR_DATA *keeper, CHAR_DATA *ch, const char *arg);
-bool is_head(std::string name);
 
-extern bool is_dark(room_rnum room);
+
+extern bool GetAffectNumByName(const std::string &affName, EAffectFlag &result);
+void tell_to_char(CharData *keeper, CharData *ch, const char *arg);
+bool is_head(std::string name);
+/*
+std::string to_string(int x) { return std::to_string(x); }
+std::string to_string(unsigned int x) { return std::to_string(x); }
+std::string to_string(long x) { return std::to_string(x); }
+std::string to_string(unsigned long x) { return std::to_string(x); }
+std::string to_string(long long x) { return std::to_string(x); }
+std::string to_string(unsigned long long x) { return std::to_string(x); }
+std::string to_string(float x) { return std::to_string(x); }
+std::string to_string(double x) { return std::to_string(x); }
+std::string to_string(long double x) { return std::to_string(x); }
+std::string to_string(const char *x) { return std::string(x); }
+std::string to_string(const std::string &x) { return x; }
+*/
+template<typename T> inline std::string to_string(const T &t) {
+	std::stringstream ss;
+	ss << t;
+	return ss.str();
+};
+
+extern bool is_dark(RoomRnum room);
 #define core_dump()     core_dump_real(__FILE__, __LINE__)
 extern const char *ACTNULL;
 
 #define CHECK_NULL(pointer, expression) \
-  if ((pointer) == NULL) i = ACTNULL; else i = (expression);
+  if ((pointer) == nullptr) i = ACTNULL; else i = (expression);
 
 #define MIN_TITLE_LEV   25
 
@@ -209,31 +238,31 @@ char *CAP(char *txt);
 #define AtoL(c) ((ubyte)(c) < 128 ? (c) : AltToLat[(ubyte)(c)-128])
 
 // in act.informative.cpp //
-void look_at_room(CHAR_DATA *ch, int mode);
+void look_at_room(CharData *ch, int mode);
 
 // in act.movmement.cpp //
-int do_simple_move(CHAR_DATA *ch, int dir, int following, CHAR_DATA *leader, bool is_flee);
-int perform_move(CHAR_DATA *ch, int dir, int following, int checkmob, CHAR_DATA *leader);
+int do_simple_move(CharData *ch, int dir, int following, CharData *leader, bool is_flee);
+int perform_move(CharData *ch, int dir, int following, int checkmob, CharData *leader);
 
 // in limits.cpp //
-int mana_gain(const CHAR_DATA *ch);
-int hit_gain(CHAR_DATA *ch);
-int move_gain(CHAR_DATA *ch);
-void advance_level(CHAR_DATA *ch);
-void gain_exp(CHAR_DATA *ch, int gain);
-void gain_exp_regardless(CHAR_DATA *ch, int gain);
-void gain_condition(CHAR_DATA *ch, unsigned condition, int value);
-void check_idling(CHAR_DATA *ch);
+int mana_gain(const CharData *ch);
+int hit_gain(CharData *ch);
+int move_gain(CharData *ch);
+void advance_level(CharData *ch);
+void gain_exp(CharData *ch, int gain);
+void gain_exp_regardless(CharData *ch, int gain);
+void gain_condition(CharData *ch, unsigned condition, int value);
+void check_idling(CharData *ch);
 void point_update(void);
 void room_point_update();
 void exchange_point_update();
 void obj_point_update();
-void update_pos(CHAR_DATA *victim);
+void update_pos(CharData *victim);
 
 // various constants ****************************************************
 
 // проверяет, висит ли заданный спелл на чаре
-bool check_spell_on_player(CHAR_DATA *ch, int spell_num);
+bool check_spell_on_player(CharData *ch, int spell_num);
 
 
 // get_filename() //
@@ -247,9 +276,9 @@ bool check_spell_on_player(CHAR_DATA *ch, int spell_num);
 #define PURGE_DEPOT_FILE  8
 
 // breadth-first searching //
-#define BFS_ERROR        -1
-#define BFS_ALREADY_THERE  -2
-#define BFS_NO_PATH         -3
+#define BFS_ERROR        (-1)
+#define BFS_ALREADY_THERE  (-2)
+#define BFS_NO_PATH         (-3)
 
 /*
  * XXX: These constants should be configurable. See act.informative.c
@@ -267,15 +296,6 @@ bool check_spell_on_player(CHAR_DATA *ch, int spell_num);
 #define SECS_PER_MUD_DAY      (HOURS_PER_DAY*SECS_PER_MUD_HOUR)
 #define SECS_PER_MUD_MONTH    (DAYS_PER_MONTH*SECS_PER_MUD_DAY)
 #define SECS_PER_MUD_YEAR     (MONTHS_PER_YEAR*SECS_PER_MUD_MONTH)
-#define NEWMOONSTART               27
-#define NEWMOONSTOP                1
-#define HALFMOONSTART              7
-#define FULLMOONSTART              13
-#define FULLMOONSTOP               15
-#define LASTHALFMOONSTART          21
-#define MOON_CYCLE               28
-#define WEEK_CYCLE               7
-#define POLY_WEEK_CYCLE          9
 
 // real-life time (remember Real Life?)
 #define SECS_PER_REAL_MIN  60
@@ -283,29 +303,28 @@ bool check_spell_on_player(CHAR_DATA *ch, int spell_num);
 #define SECS_PER_REAL_DAY  (24*SECS_PER_REAL_HOUR)
 #define SECS_PER_REAL_YEAR (365*SECS_PER_REAL_DAY)
 
-short GET_REAL_LEVEL(const CHAR_DATA *ch);
-short GET_REAL_LEVEL(const std::shared_ptr<CHAR_DATA> *ch);
-short GET_REAL_LEVEL(const std::shared_ptr<CHAR_DATA> &ch);
+int GetRealLevel(const CharData *ch);
+int GetRealLevel(const std::shared_ptr<CharData> *ch);
+int GetRealLevel(const std::shared_ptr<CharData> &ch);
 
-short GET_REAL_REMORT(const CHAR_DATA *ch);
-short GET_REAL_REMORT(const std::shared_ptr<CHAR_DATA> *ch);
-short GET_REAL_REMORT(const std::shared_ptr<CHAR_DATA> &ch);
+short GET_REAL_REMORT(const CharData *ch);
+short GET_REAL_REMORT(const std::shared_ptr<CharData> *ch);
+short GET_REAL_REMORT(const std::shared_ptr<CharData> &ch);
 
-#define IS_IMMORTAL(ch)     (!IS_NPC(ch) && GET_LEVEL(ch) >= LVL_IMMORT)
-#define IS_GOD(ch)          (!IS_NPC(ch) && GET_LEVEL(ch) >= LVL_GOD)
-#define IS_GRGOD(ch)        (!IS_NPC(ch) && GET_LEVEL(ch) >= LVL_GRGOD)
-#define IS_IMPL(ch)         (!IS_NPC(ch) && GET_LEVEL(ch) >= LVL_IMPL)
-#define IS_HIGHGOD(ch)      (IS_IMPL(ch) && (GET_GOD_FLAG(ch,GF_HIGHGOD)))
+#define IS_IMMORTAL(ch)     (!IS_NPC(ch) && GET_LEVEL(ch) >= kLvlImmortal)
+#define IS_GOD(ch)          (!IS_NPC(ch) && GET_LEVEL(ch) >= kLvlGod)
+#define IS_GRGOD(ch)        (!IS_NPC(ch) && GET_LEVEL(ch) >= kLvlGreatGod)
+#define IS_IMPL(ch)         (!IS_NPC(ch) && GET_LEVEL(ch) >= kLvlImplementator)
 
 #define IS_BITS(mask, bitno) (IS_SET(mask,(1 << bitno)))
-#define IS_CASTER(ch)        (IS_BITS(MASK_CASTER,GET_CLASS(ch)))
-#define IS_MAGE(ch)          (IS_BITS(MASK_MAGES, GET_CLASS(ch)))
+#define IS_CASTER(ch)        (IS_BITS(kMaskCaster,GET_CLASS(ch)))
+#define IS_MAGE(ch)          (IS_BITS(kMaskMage, GET_CLASS(ch)))
 
-extern int receptionist(CHAR_DATA *, void *, int, char *);
-extern int postmaster(CHAR_DATA *, void *, int, char *);
-extern int bank(CHAR_DATA *, void *, int, char *);
-extern int shop_ext(CHAR_DATA *, void *, int, char *);
-extern int mercenary(CHAR_DATA *, void *, int, char *);
+extern int receptionist(CharData *, void *, int, char *);
+extern int postmaster(CharData *, void *, int, char *);
+extern int bank(CharData *, void *, int, char *);
+extern int shop_ext(CharData *, void *, int, char *);
+extern int mercenary(CharData *, void *, int, char *);
 
 #define IS_SHOPKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == shop_ext)
 #define IS_RENTKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == receptionist)
@@ -323,7 +342,6 @@ extern int mercenary(CHAR_DATA *, void *, int, char *);
 #define LATIN(c)   (a_lat(c))
 
 #define ISNEWL(ch) ((ch) == '\n' || (ch) == '\r')
-#define IF_STR(st) ((st) ? (st) : "\0")
 
 // memory utils *********************************************************
 
@@ -336,10 +354,10 @@ inline void CREATE(T *&result, const size_t number) {
 	}
 }
 
-template<>
-inline void CREATE(EXTRA_DESCR_DATA *&, const size_t) {
-	throw std::runtime_error("for EXTRA_DESCR_DATA you have to use operator new");
-}
+/*template<>
+inline void CREATE(ExtraDescription *&, const size_t) {
+	throw std::runtime_error("for ExtraDescription you have to use operator new");
+}*/
 
 template<typename T>
 inline void RECREATE(T *&result, const size_t number) {
@@ -472,7 +490,6 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
 #define EXIT_FLAGGED(exit, flag)     (IS_SET((exit)->exit_info, (flag)))
 #define OBJVAL_FLAGGED(obj, flag)    (IS_SET(GET_OBJ_VAL((obj), 1), (flag)))
 #define OBJWEAR_FLAGGED(obj, mask)   (obj->get_wear_mask(mask))
-#define DESC_FLAGGED(d, flag) (IS_SET(DESC_FLAGS(d), (flag)))
 #define HAS_SPELL_ROUTINE(spl, flag) (IS_SET(SPELL_ROUTINES(spl), (flag)))
 
 // IS_AFFECTED for backwards compatibility
@@ -483,69 +500,23 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
 
 // room utils ***********************************************************
 #define SECT(room)   (world[(room)]->sector_type)
-#define GET_ROOM_SKY(room) (world[room]->weather.duration > 0 ? \
-                            world[room]->weather.sky : weather_info.sky)
-
-#define IS_MOONLIGHT(room) ((GET_ROOM_SKY(room) == SKY_LIGHTNING && \
-                             weather_info.moon_day >= FULLMOONSTART && \
-                             weather_info.moon_day <= FULLMOONSTOP))
-
+#define GET_ROOM_SKY(room) (world[room]->weather.duration > 0 ? world[room]->weather.sky : weather_info.sky)
 #define IS_TIMEDARK(room) is_dark(room)
-
-/*((world[room]->gdark > world[room]->glight) || \
-                            (!(world[room]->light+world[room]->fires+world[room]->glight) && \
-                              (ROOM_FLAGGED(room, ROOM_DARK) || \
-                              (SECT(room) != SECT_INSIDE && \
-                               SECT(room) != SECT_CITY   && \
-                               ( weather_info.sunlight == SUN_SET || \
-                                 weather_info.sunlight == SUN_DARK )) ) ) )*/
-
 #define IS_DEFAULTDARK(room) (ROOM_FLAGGED(room, ROOM_DARK) || \
-                              (SECT(room) != SECT_INSIDE && \
-                               SECT(room) != SECT_CITY   && \
+                              (SECT(room) != kSectInside && \
+                               SECT(room) != kSectCity   && \
                                ( weather_info.sunlight == SUN_SET || \
                                  weather_info.sunlight == SUN_DARK )) )
 
 #define IS_DARK(room) is_dark(room)
-
-#define IS_DARKOLD(room)      ((world[room]->gdark > (world[room]->glight + world[room]->light + world[room]->fires)) || \
-                            (!(world[room]->gdark < (world[room]->glight + world[room]->light + world[room]->fires)) && \
-                              !ROOM_AFFECTED(room, AFF_ROOM_LIGHT) && \
-                (ROOM_FLAGGED(room, ROOM_DARK) || \
-                              (SECT(room) != SECT_INSIDE && \
-                               SECT(room) != SECT_CITY   && \
-                               ( weather_info.sunlight == SUN_SET || \
-                                 (weather_info.sunlight == SUN_DARK && \
-                                  !IS_MOONLIGHT(room)) )) ) ) )
-
-#define IS_DARKTHIS(room)      ((world[room]->gdark > world[room]->glight) || \
-                                (!(world[room]->gdark < world[room]->glight) && \
-                                 !(world[room]->light+world[room]->fires) && \
-                                  (ROOM_FLAGGED(room, ROOM_DARK) || \
-                                  (SECT(room) != SECT_INSIDE && \
-                                   SECT(room) != SECT_CITY   && \
-                                   ( weather_info.sunlight == SUN_DARK && \
-                                     !IS_MOONLIGHT(room) )) ) ) )
-
-#define IS_DARKSIDE(room)      ((world[room]->gdark > world[room]->glight) || \
-                                (!(world[room]->gdark < world[room]->glight) && \
-                                 !(world[room]->light+world[room]->fires) && \
-                                  (ROOM_FLAGGED(room, ROOM_DARK) || \
-                                  (SECT(room) != SECT_INSIDE && \
-                                   SECT(room) != SECT_CITY   && \
-                                   ( weather_info.sunlight == SUN_SET  || \
-                                     weather_info.sunlight == SUN_RISE || \
-                                     (weather_info.sunlight == SUN_DARK && \
-                                      !IS_MOONLIGHT(room) )) ) ) )
-
-#define IS_LIGHT(room)     (!IS_DARK(room))
+#define IS_LIGHT(room)  (!IS_DARK(room))
 
 #define VALID_RNUM(rnum)   ((rnum) > 0 && (rnum) <= top_of_world)
-#define GET_ROOM_VNUM(rnum) ((room_vnum)(VALID_RNUM(rnum) ? world[(rnum)]->room_vn : NOWHERE))
-#define GET_ROOM_SPEC(room) (VALID_RNUM(room) ? world[(room)]->func : NULL)
+#define GET_ROOM_VNUM(rnum) ((RoomVnum)(VALID_RNUM(rnum) ? world[(rnum)]->room_vn : kNowhere))
+#define GET_ROOM_SPEC(room) (VALID_RNUM(room) ? world[(room)]->func : nullptr)
 
 // char utils ***********************************************************
-#define IS_MANA_CASTER(ch) (GET_CLASS(ch)==CLASS_DRUID)
+#define IS_MANA_CASTER(ch) (GET_CLASS(ch) == ECharClass::kMagus)
 #define IN_ROOM(ch)  ((ch)->in_room)
 #define GET_AGE(ch)     (age(ch)->year)
 #define GET_REAL_AGE(ch) (age(ch)->year + GET_AGE_ADD(ch))
@@ -555,13 +526,12 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
 #define GET_TITLE(ch)   ((ch)->player_data.title)
 #define GET_LEVEL(ch)   ((ch)->get_level())
 #define GET_MAX_MANA(ch)      (mana[MIN(50, GET_REAL_WIS(ch))])
-#define SAME_ROOM(ch, tch)        (IN_ROOM(ch) == IN_ROOM(tch))
 #define GET_MANA_COST(ch, spellnum)      mag_manacost(ch,spellnum)
 #define GET_MANA_STORED(ch)   ((ch)->MemQueue.stored)
 #define GET_MEM_COMPLETED(ch) ((ch)->MemQueue.stored)
 #define GET_MEM_CURRENT(ch)   (MEMQUEUE_EMPTY(ch)?0:mag_manacost(ch,(ch)->MemQueue.queue->spellnum))
 #define GET_MEM_TOTAL(ch)     ((ch)->MemQueue.total)
-#define MEMQUEUE_EMPTY(ch)    ((ch)->MemQueue.queue == NULL)
+#define MEMQUEUE_EMPTY(ch)    ((ch)->MemQueue.queue == nullptr)
 #define INITIATIVE(ch)        ((ch)->Initiative)
 #define BATTLECNTR(ch)        ((ch)->BattleCounter)
 #define ROUND_COUNTER(ch)     ((ch)->round_counter)
@@ -569,10 +539,9 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
 #define CHECK_AGRO(ch)        ((ch)->CheckAggressive)
 #define WAITLESS(ch)          (IS_IMMORTAL(ch))
 #define PUNCTUAL_WAITLESS(ch)          (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE))
-#define CLR_MEMORY(ch)  (memset((ch)->Memory,0,SPELLS_COUNT+1))
-#define IS_CODER(ch)    (GET_REAL_LEVEL(ch) < LVL_IMMORT && PRF_FLAGGED(ch, PRF_CODERINFO))
+#define IS_CODER(ch)    (GetRealLevel(ch) < kLvlImmortal && PRF_FLAGGED(ch, PRF_CODERINFO))
 #define IS_COLORED(ch)    (pk_count (ch))
-#define MAX_PORTALS(ch)  ((GET_REAL_LEVEL(ch)/3)+GET_REAL_REMORT(ch))
+#define MAX_PORTALS(ch)  ((GetRealLevel(ch)/3)+GET_REAL_REMORT(ch))
 
 #define GET_AF_BATTLE(ch, flag) ((ch)->BattleAffects.get(flag))
 #define SET_AF_BATTLE(ch, flag) ((ch)->BattleAffects.set(flag))
@@ -660,7 +629,7 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_AC(ch)         ((ch)->real_abils.armor)
 #define GET_AC_ADD(ch)    ((ch)->add_abils.ac_add)
 #define GET_REAL_AC(ch)      (GET_AC(ch)+GET_AC_ADD(ch))
-#define GET_MORALE(ch)       ((ch)->add_abils.morale_add)
+#define GET_MORALE(ch)       ((ch)->add_abils.morale)
 #define GET_INITIATIVE(ch)   ((ch)->add_abils.initiative_add)
 #define GET_POISON(ch)      ((ch)->add_abils.poison_add)
 #define GET_CAST_SUCCESS(ch) ((ch)->add_abils.cast_success)
@@ -682,8 +651,7 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_AGE_ADD(ch)   ((ch)->add_abils.age_add)
 #define GET_HIT_ADD(ch)   ((ch)->add_abils.hit_add)
 #define GET_MOVE_ADD(ch)  ((ch)->add_abils.move_add)
-#define GET_SAVE(ch, i)    ((ch)->add_abils.apply_saving_throw[i])
-#define GET_RESIST(ch, i)  ((ch)->add_abils.apply_resistance_throw[i])
+#define GET_RESIST(ch, i)  ((ch)->add_abils.apply_resistance[i])
 #define GET_AR(ch)        ((ch)->add_abils.aresist)
 #define GET_MR(ch)        ((ch)->add_abils.mresist)
 #define GET_PR(ch)        ((ch)->add_abils.presist) // added by WorM (Видолюб) поглощение физ.урона в %
@@ -691,10 +659,10 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_DAMAGE(ch)    ((ch)->DamageLevel)
 #define GET_LIKES(ch)     ((ch)->mob_specials.LikeWork)
 
-#define GET_REAL_SAVING_STABILITY(ch)    (dex_bonus(GET_REAL_CON(ch)) - GET_SAVE(ch, SAVING_STABILITY)    + (ch->ahorse() ? 20 : 0))
-#define GET_REAL_SAVING_REFLEX(ch)        (dex_bonus(GET_REAL_DEX(ch)) - GET_SAVE(ch, SAVING_REFLEX)        + (ch->ahorse() ? -20 : 0))
-#define GET_REAL_SAVING_CRITICAL(ch)    (dex_bonus(GET_REAL_CON(ch)) - GET_SAVE(ch, SAVING_CRITICAL))
-#define GET_REAL_SAVING_WILL(ch)        (dex_bonus(GET_REAL_WIS(ch)) - GET_SAVE(ch, SAVING_WILL))
+#define GET_REAL_SAVING_STABILITY(ch)	(dex_bonus(GET_REAL_CON(ch)) - GET_SAVE(ch, ESaving::kStability) + ((ch)->ahorse() ? 20 : 0))
+#define GET_REAL_SAVING_REFLEX(ch)	(dex_bonus(GET_REAL_DEX(ch)) - GET_SAVE(ch, ESaving::kReflex) + ((ch)->ahorse() ? -20 : 0))
+#define GET_REAL_SAVING_CRITICAL(ch)	(dex_bonus(GET_REAL_CON(ch)) - GET_SAVE(ch, ESaving::kCritical))
+#define GET_REAL_SAVING_WILL(ch)	(dex_bonus(GET_REAL_WIS(ch)) - GET_SAVE(ch, ESaving::kWill))
 
 #define GET_POS(ch)        ((ch)->char_specials.position)
 #define GET_IDNUM(ch)     ((ch)->get_idnum())
@@ -714,12 +682,10 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define ALIG_NEUT 0
 #define ALIG_GOOD 1
 #define ALIG_EVIL 2
-#define ALIG_EVIL_LESS     -300
+#define ALIG_EVIL_LESS     (-300)
 #define ALIG_GOOD_MORE     300
 
 #define GET_ALIGNMENT(ch)     ((ch)->char_specials.saved.alignment)
-#define CALC_ALIGNMENT(ch)    ((GET_ALIGNMENT(ch) <= ALIG_EVIL_LESS) ? ALIG_EVIL : \
-                               (GET_ALIGNMENT(ch) >= ALIG_GOOD_MORE) ? ALIG_GOOD : ALIG_NEUT)
 
 #define NAME_LEVEL 5
 #define NAME_FINE(ch)          (NAME_GOD(ch)>1000)
@@ -788,13 +754,12 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define SET_FEAT(ch, feat) ((ch)->real_abils.Feats.set(feat))
 #define UNSET_FEAT(ch, feat) ((ch)->real_abils.Feats.reset(feat))
 #define HAVE_FEAT(ch, feat) ((ch)->real_abils.Feats.test(feat))
-#define    NUM_LEV_FEAT(ch) ((int) 1+GET_REAL_LEVEL(ch)*(5+GET_REAL_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)])/28)
+#define    NUM_LEV_FEAT(ch) ((int) 1+GetRealLevel(ch)*(5+GET_REAL_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)])/28)
 #define FEAT_SLOT(ch, feat) (feat_info[feat].slot[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
 
 #define MOD_CAST_LEV(sp, ch) (BASE_CAST_LEV(sp, ch) - (MMAX(GET_REAL_REMORT(ch) - MIN_CAST_REM(sp,ch),0) / 3))
 
 // Min cast level getting
-//#define MIN_CAST_LEV(sp, ch) (AFF_FLAGGED(ch, EAffectFlag::AFF_DOMINATION)? 31 : MMAX(0,MOD_CAST_LEV(sp,ch)))
 #define MIN_CAST_LEV(sp, ch) (MMAX(0,MOD_CAST_LEV(sp,ch)))
 #define BASE_CAST_LEV(sp, ch) ((sp).min_level[(int) GET_CLASS (ch)][(int) GET_KIN (ch)])
 
@@ -802,7 +767,7 @@ inline T VPOSI(const T val, const T min, const T max) {
 
 #define GET_EQ(ch, i)      ((ch)->equipment[i])
 
-#define GET_MOB_SPEC(ch)   (IS_MOB(ch) ? mob_index[(ch)->get_rnum()].func : NULL)
+#define GET_MOB_SPEC(ch)   (IS_MOB(ch) ? mob_index[(ch)->get_rnum()].func : nullptr)
 #define GET_MOB_RNUM(mob)  (mob)->get_rnum()
 #define GET_MOB_VNUM(mob)  (IS_MOB(mob) ? mob_index[(mob)->get_rnum()].vnum : -1)
 
@@ -810,7 +775,7 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define MEMORY(ch)          ((ch)->mob_specials.memory)
 #define GET_DEST(ch)        (((ch)->mob_specials.dest_count ? \
                               (ch)->mob_specials.dest[(ch)->mob_specials.dest_pos] : \
-                              NOWHERE))
+                              kNowhere))
 #define GET_ACTIVITY(ch)    ((ch)->mob_specials.activity)
 #define GET_GOLD_NoDs(ch)   ((ch)->mob_specials.GoldNoDs)
 #define GET_GOLD_SiDs(ch)   ((ch)->mob_specials.GoldSiDs)
@@ -892,9 +857,9 @@ inline T VPOSI(const T val, const T min, const T max) {
                           IS_FEMALE(ch) ? "ая" : "ие")
 
 #define GET_OBJ_SEX(obj) ((obj)->get_sex())
-#define IS_OBJ_NOSEXY(obj)    (GET_OBJ_SEX(obj) == ESex::SEX_NEUTRAL)
-#define IS_OBJ_MALE(obj)   (GET_OBJ_SEX(obj) == ESex::SEX_MALE)
-#define IS_OBJ_FEMALE(obj)    (GET_OBJ_SEX(obj) == ESex::SEX_FEMALE)
+#define IS_OBJ_NOSEXY(obj)    (GET_OBJ_SEX(obj) == ESex::kNeutral)
+#define IS_OBJ_MALE(obj)   (GET_OBJ_SEX(obj) == ESex::kMale)
+#define IS_OBJ_FEMALE(obj)    (GET_OBJ_SEX(obj) == ESex::kFemale)
 
 #define GET_OBJ_MIW(obj) ((obj)->get_max_in_world())
 
@@ -961,8 +926,8 @@ inline T VPOSI(const T val, const T min, const T max) {
                             IS_FEMALE(ch) ? "ей" : "ими")
 #define GET_CH_POLY_1(ch) (IS_POLY(ch) ? "те" : "")
 
-#define GET_OBJ_POLY_1(ch, obj) ((GET_OBJ_SEX(obj) == ESex::SEX_POLY) ? "ят" : "ит")
-#define GET_OBJ_VIS_POLY_1(ch, obj) (!CAN_SEE_OBJ(ch,obj) ? "ит" : (GET_OBJ_SEX(obj) == ESex::SEX_POLY) ? "ят" : "ит")
+#define GET_OBJ_POLY_1(ch, obj) ((GET_OBJ_SEX(obj) == ESex::kPoly) ? "ят" : "ит")
+#define GET_OBJ_VIS_POLY_1(ch, obj) (!CAN_SEE_OBJ(ch,obj) ? "ит" : (GET_OBJ_SEX(obj) == ESex::kPoly) ? "ят" : "ит")
 
 #define PUNCTUAL_WAIT_STATE(ch, cycle) do { GET_PUNCTUAL_WAIT_STATE(ch) = (cycle); } while(0)
 #define CHECK_WAIT(ch)        ((ch)->get_wait() > 0)
@@ -1019,8 +984,8 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define IS_OBJ_NO(obj, stat) ((obj)->get_no_flag(stat))
 #define IS_OBJ_AFF(obj, stat) (obj->get_affect(stat))
 
-#define IS_CORPSE(obj)     (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_CONTAINER && \
-               GET_OBJ_VAL((obj), 3) == OBJ_DATA::CORPSE_INDICATOR)
+#define IS_CORPSE(obj)     (GET_OBJ_TYPE(obj) == ObjData::ITEM_CONTAINER && \
+               GET_OBJ_VAL((obj), 3) == ObjData::CORPSE_INDICATOR)
 #define IS_MOB_CORPSE(obj) (IS_CORPSE(obj) &&  GET_OBJ_VAL((obj), 2) != -1)
 
 // compound utilities and other macros *********************************
@@ -1032,15 +997,15 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define CIRCLEMUD_VERSION(major, minor, patchlevel) \
    (((major) << 16) + ((minor) << 8) + (patchlevel))
 
-#define HSHR(ch) (ESex::SEX_NEUTRAL != GET_SEX(ch) ? (IS_MALE(ch) ? "его": (IS_FEMALE(ch) ? "ее" : "их")) :"его")
-#define HSSH(ch) (ESex::SEX_NEUTRAL != GET_SEX(ch) ? (IS_MALE(ch) ? "он": (IS_FEMALE(ch) ? "она" : "они")) :"оно")
-#define HMHR(ch) (ESex::SEX_NEUTRAL != GET_SEX(ch) ? (IS_MALE(ch) ? "ему": (IS_FEMALE(ch) ? "ей" : "им")) :"ему")
-#define HYOU(ch) (ESex::SEX_NEUTRAL != GET_SEX(ch) ? (IS_MALE(ch) ? "ваш": (IS_FEMALE(ch) ? "ваша" : (IS_NOSEXY(ch) ? "ваше": "ваши"))) :"ваш")
+#define HSHR(ch) (ESex::kNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "его": (IS_FEMALE(ch) ? "ее" : "их")) :"его")
+#define HSSH(ch) (ESex::kNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "он": (IS_FEMALE(ch) ? "она" : "они")) :"оно")
+#define HMHR(ch) (ESex::kNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "ему": (IS_FEMALE(ch) ? "ей" : "им")) :"ему")
+#define HYOU(ch) (ESex::kNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "ваш": (IS_FEMALE(ch) ? "ваша" : (IS_NOSEXY(ch) ? "ваше": "ваши"))) :"ваш")
 
-#define OSHR(ch) (ESex::SEX_NEUTRAL != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::SEX_MALE ? "его": (GET_OBJ_SEX(ch) == ESex::SEX_FEMALE ? "ее" : "их")) :"его")
-#define OSSH(ch) (ESex::SEX_NEUTRAL != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::SEX_MALE ? "он": (GET_OBJ_SEX(ch) == ESex::SEX_FEMALE ? "она" : "они")) :"оно")
-#define OMHR(ch) (ESex::SEX_NEUTRAL != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::SEX_MALE ? "ему": (GET_OBJ_SEX(ch) == ESex::SEX_FEMALE ? "ей" : "им")) :"ему")
-#define OYOU(ch) (ESex::SEX_NEUTRAL != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::SEX_MALE ? "ваш": (GET_OBJ_SEX(ch) == ESex::SEX_FEMALE ? "ваша" : "ваши")) :"ваше")
+#define OSHR(ch) (ESex::kNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::kMale ? "его": (GET_OBJ_SEX(ch) == ESex::kFemale ? "ее" : "их")) :"его")
+#define OSSH(ch) (ESex::kNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::kMale ? "он": (GET_OBJ_SEX(ch) == ESex::kFemale ? "она" : "они")) :"оно")
+#define OMHR(ch) (ESex::kNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::kMale ? "ему": (GET_OBJ_SEX(ch) == ESex::kFemale ? "ей" : "им")) :"ему")
+#define OYOU(ch) (ESex::kNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::kMale ? "ваш": (GET_OBJ_SEX(ch) == ESex::kFemale ? "ваша" : "ваши")) :"ваше")
 
 #define HERE(ch)  ((IS_NPC(ch) || (ch)->desc || NORENTABLE(ch)))
 
@@ -1053,7 +1018,7 @@ inline T VPOSI(const T val, const T min, const T max) {
         (MORT_CAN_SEE_CHAR(sub, obj) || (!IS_NPC(sub) && PRF_FLAGGED(sub, PRF_HOLYLIGHT)))
 
 #define CAN_SEE_CHAR(sub, obj) (IS_CODER(sub) || SELF(sub, obj) || \
-        ((GET_REAL_LEVEL(sub) >= (IS_NPC(obj) ? 0 : GET_INVIS_LEV(obj))) && \
+        ((GetRealLevel(sub) >= (IS_NPC(obj) ? 0 : GET_INVIS_LEV(obj))) && \
          IMM_CAN_SEE_CHAR(sub, obj)))
 // End of CAN_SEE
 
@@ -1088,55 +1053,36 @@ inline T VPOSI(const T val, const T min, const T max) {
                            : GET_PAD_OBJ(pad))
 
 #define EXITDATA(room, door) ((room >= 0 && room <= top_of_world) ? \
-                             world[room]->dir_option[door] : NULL)
+                             world[room]->dir_option[door] : nullptr)
 
 #define EXIT(ch, door)  (world[(ch)->in_room]->dir_option[door])
 
 #define CAN_GO(ch, door) (ch?((EXIT(ch,door) && \
-          (EXIT(ch,door)->to_room() != NOWHERE) && \
+          (EXIT(ch,door)->to_room() != kNowhere) && \
           !IS_SET(EXIT(ch, door)->exit_info, EX_CLOSED))):0)
 
-#define CLASS_ABBR(ch) (IS_NPC(ch) ? "--" : class_abbrevs[(int)GET_CLASS(ch)])
+#define IS_SORCERER(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kSorcerer))
+#define IS_THIEF(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kThief))
+#define IS_ASSASINE(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kAssasine))
+#define IS_WARRIOR(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kWarrior))
+#define IS_PALADINE(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kPaladine))
+#define IS_RANGER(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kRanger))
+#define IS_GUARD(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kGuard))
+#define IS_VIGILANT(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kVigilant))
+#define IS_MERCHANT(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kMerchant))
+#define IS_MAGUS(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kMagus))
+#define IS_CONJURER(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kConjurer))
+#define IS_CHARMER(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kCharmer))
+#define IS_WIZARD(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kWizard))
+#define IS_NECROMANCER(ch)	(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kNecromancer))
 
-#define KIN_ABBR(ch) (IS_NPC(ch) ? "--" : kin_abbrevs[(int)GET_KIN(ch)])
-
-#define IS_MAGIC_USER(ch)  (!IS_NPC(ch) && \
-            (IS_BITS(MASK_MAGES, (int) GET_CLASS(ch))))
-#define IS_CLERIC(ch)      (!IS_NPC(ch) && \
-            ((int) GET_CLASS(ch) == CLASS_CLERIC))
-#define IS_THIEF(ch)    (!IS_NPC(ch) && \
-            ((int) GET_CLASS(ch) == CLASS_THIEF))
-#define IS_ASSASINE(ch)    (!IS_NPC(ch) && \
-            ((int) GET_CLASS(ch) == CLASS_ASSASINE))
-#define IS_WARRIOR(ch)     (!IS_NPC(ch) && \
-            (GET_CLASS(ch) == CLASS_WARRIOR))
-#define IS_PALADINE(ch)    (!IS_NPC(ch) && \
-            (GET_CLASS(ch) == CLASS_PALADINE))
-#define IS_RANGER(ch)      (!IS_NPC(ch) && \
-            (GET_CLASS(ch) == CLASS_RANGER))
-#define IS_GUARD(ch)    (!IS_NPC(ch) && \
-            ((int) GET_CLASS(ch) == CLASS_GUARD))
-#define IS_SMITH(ch)    (!IS_NPC(ch) && \
-            (GET_CLASS(ch) == CLASS_SMITH))
-#define IS_MERCHANT(ch)    (!IS_NPC(ch) && \
-            (GET_CLASS(ch) == CLASS_MERCHANT))
-#define IS_DRUID(ch)    (!IS_NPC(ch) && \
-            ((int) GET_CLASS(ch) == CLASS_DRUID))
-#define IS_BATTLEMAGE(ch)  (!IS_NPC(ch) && \
-            ((int) GET_CLASS(ch) == CLASS_BATTLEMAGE))
-#define IS_CHARMMAGE(ch)   (!IS_NPC(ch) && \
-            ((int) GET_CLASS(ch) == CLASS_CHARMMAGE))
-#define IS_DEFENDERMAGE(ch)   (!IS_NPC(ch) && \
-            ((int) GET_CLASS(ch) == CLASS_DEFENDERMAGE))
-#define IS_NECROMANCER(ch) (!IS_NPC(ch) && \
-            ((int) GET_CLASS(ch) == CLASS_NECROMANCER))
-#define IS_FIGHTER_USER(ch)  (!IS_NPC(ch) && \
-            (IS_BITS(MASK_FIGHTERS, (int) GET_CLASS(ch))))
+#define IS_FIGHTER_USER(ch)  (!IS_NPC(ch) && (IS_BITS(kMaskFighter, (int) GET_CLASS(ch))))
+#define IS_MAGIC_USER(ch)	(!IS_NPC(ch) && (IS_BITS(kMaskMage, (int) GET_CLASS(ch))))
 
 #define IS_UNDEAD(ch) (IS_NPC(ch) && \
     (MOB_FLAGGED(ch, MOB_RESURRECTED) || (GET_RACE(ch) == NPC_RACE_ZOMBIE) || (GET_RACE(ch) == NPC_RACE_GHOST)))
 
-#define LIKE_ROOM(ch) ((IS_CLERIC(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_CLERIC)) || \
+#define LIKE_ROOM(ch) ((IS_SORCERER(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_CLERIC)) || \
                        (IS_MAGIC_USER(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_MAGE)) || \
                        (IS_WARRIOR(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_WARRIOR)) || \
                        (IS_THIEF(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_THIEF)) || \
@@ -1144,37 +1090,34 @@ inline T VPOSI(const T val, const T min, const T max) {
                        (IS_GUARD(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_GUARD)) || \
                        (IS_PALADINE(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_PALADINE)) || \
                        (IS_RANGER(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_RANGER)) || \
-                       (IS_SMITH(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_SMITH)) || \
+                       (IS_VIGILANT(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_SMITH)) || \
                        (IS_MERCHANT(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_MERCHANT)) || \
-                       (IS_DRUID(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_DRUID)))
+                       (IS_MAGUS(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_DRUID)))
 
 #define OUTSIDE(ch) (!ROOM_FLAGGED((ch)->in_room, ROOM_INDOORS))
 
-int on_horse(const CHAR_DATA *ch);
-int has_horse(const CHAR_DATA *ch, int same_room);
-CHAR_DATA *get_horse(CHAR_DATA *ch);
-void horse_drop(CHAR_DATA *ch);
-void make_horse(CHAR_DATA *horse, CHAR_DATA *ch);
-void check_horse(CHAR_DATA *ch);
+int on_horse(const CharData *ch);
+int has_horse(const CharData *ch, int same_room);
+CharData *get_horse(CharData *ch);
+void horse_drop(CharData *ch);
+void make_horse(CharData *horse, CharData *ch);
+void check_horse(CharData *ch);
 
-bool same_group(CHAR_DATA *ch, CHAR_DATA *tch);
+bool same_group(CharData *ch, CharData *tch);
 
-int is_post(room_rnum room);
-bool is_rent(room_rnum room);
+int is_post(RoomRnum room);
+bool is_rent(RoomRnum room);
 
-int pc_duration(CHAR_DATA *ch, int cnst, int level, int level_divisor, int min, int max);
+int CalcDuration(CharData *ch, int cnst, int level, int level_divisor, int min, int max);
 
 // Modifier functions
-int day_spell_modifier(CHAR_DATA *ch, int spellnum, int type, int value);
-int weather_spell_modifier(CHAR_DATA *ch, int spellnum, int type, int value);
-int complex_spell_modifier(CHAR_DATA *ch, int spellnum, int type, int value);
+int day_spell_modifier(CharData *ch, int spellnum, int type, int value);
+int weather_spell_modifier(CharData *ch, int spellnum, int type, int value);
+int complex_spell_modifier(CharData *ch, int spellnum, int type, int value);
 
-int day_skill_modifier(CHAR_DATA *ch, int skillnum, int type, int value);
-int weather_skill_modifier(CHAR_DATA *ch, int skillnum, int type, int value);
-int complex_skill_modifier(CHAR_DATA *ch, int skillnum, int type, int value);
-void can_carry_obj(CHAR_DATA *ch, OBJ_DATA *obj);
-bool CAN_CARRY_OBJ(const CHAR_DATA *ch, const OBJ_DATA *obj);
-bool ignores(CHAR_DATA *, CHAR_DATA *, unsigned int);
+void can_carry_obj(CharData *ch, ObjData *obj);
+bool CAN_CARRY_OBJ(const CharData *ch, const ObjData *obj);
+bool ignores(CharData *, CharData *, unsigned int);
 
 // PADS for something ***************************************************
 const char *desc_count(long how_many, int of_what);
@@ -1231,33 +1174,17 @@ const char *desc_count(long how_many, int of_what);
 #define ACHECK_GLOWING (1 << 3)
 #define ACHECK_WEIGHT  (1 << 4)
 
-int check_awake(CHAR_DATA *ch, int what);
-int awake_hide(CHAR_DATA *ch);
-int awake_invis(CHAR_DATA *ch);
-int awake_camouflage(CHAR_DATA *ch);
-int awake_sneak(CHAR_DATA *ch);
-int awaking(CHAR_DATA *ch, int mode);
+int check_awake(CharData *ch, int what);
+int awake_hide(CharData *ch);
+int awake_invis(CharData *ch);
+int awake_camouflage(CharData *ch);
+int awake_sneak(CharData *ch);
+int awaking(CharData *ch, int mode);
 std::string time_format(int timer, int flag = 0);
 
 size_t count_colors(const char *str, size_t len = 0);
 char *colored_name(const char *str, size_t len, const bool left_align = false);
 size_t strlen_no_colors(const char *str);
-
-// OS compatibility *****************************************************
-
-
-// there could be some strange OS which doesn't have NULL...
-#ifndef NULL
-#define NULL (void *)0
-#endif
-
-#if !defined(FALSE)
-#define FALSE 0
-#endif
-
-#if !defined(TRUE)
-#define TRUE  (!FALSE)
-#endif
 
 // defines for fseek
 #ifndef SEEK_SET
@@ -1414,7 +1341,7 @@ void skip_spaces(T string) {
 namespace MoneyDropStat {
 
 void add(int zone_vnum, long money);
-void print(CHAR_DATA *ch);
+void print(CharData *ch);
 void print_log();
 
 } // MoneyDropStat
@@ -1422,7 +1349,7 @@ void print_log();
 namespace ZoneExpStat {
 
 void add(int zone_vnum, long exp);
-void print_gain(CHAR_DATA *ch);
+void print_gain(CharData *ch);
 void print_log();
 
 } // ZoneExpStat
@@ -1436,9 +1363,9 @@ int str_bonus(int str, int type);
 int dex_bonus(int dex);
 int dex_ac_bonus(int dex);
 int calc_str_req(int weight, int type);
-void message_str_need(CHAR_DATA *ch, OBJ_DATA *obj, int type);
+void message_str_need(CharData *ch, ObjData *obj, int type);
 int wis_bonus(int stat, int type);
-int CAN_CARRY_N(const CHAR_DATA *ch);
+int CAN_CARRY_N(const CharData *ch);
 
 #define CAN_CARRY_W(ch) ((str_bonus(GET_REAL_STR(ch), STR_CARRY_W) * (HAVE_FEAT(ch, PORTER_FEAT) ? 110 : 100))/100)
 
@@ -1491,73 +1418,7 @@ void print_bitset(const N &bits, const T &names,
 
 const char *print_obj_state(int tm_pct);
 
-struct exchange_item_data;
-// для парса строки с фильтрами в клан-хранах и базаре
-struct ParseFilter {
-	enum { CLAN, EXCHANGE };
-
-	ParseFilter(int type) : type(-1), state(-1), wear(EWearFlag::ITEM_WEAR_UNDEFINED), wear_message(-1),
-							weap_class(-1), weap_message(-1), cost(-1), cost_sign('\0'), rent(-1), rent_sign('\0'),
-							new_timesign('\0'), new_timedown(time(0)), new_timeup(time(0)),
-							filter_type(type) {};
-
-	bool init_type(const char *str);
-	bool init_state(const char *str);
-	bool init_wear(const char *str);
-	bool init_cost(const char *str);
-	bool init_rent(const char *str);
-    bool init_remorts(const char *str);
-	bool init_weap_class(const char *str);
-	bool init_affect(char *str, size_t str_len);
-	bool init_realtime(const char *str);
-	size_t affects_cnt() const;
-	bool check(OBJ_DATA *obj, CHAR_DATA *ch);
-	bool check(exchange_item_data *exch_obj);
-	std::string print() const;
-
-	std::string name;      // имя предмета
-	std::string owner;     // имя продавца (базар)
-	int type;              // тип оружия
-	int state;             // состояние
-	EWearFlag wear;              // куда одевается
-	int wear_message;      // для названия куда одеть
-	int weap_class;        // класс оружие
-	int weap_message;      // для названия оружия
-	int cost;              // для цены
-	char cost_sign;        // знак цены +/-
-	int rent;             // для стоимости ренты
-	char rent_sign;        // знак ренты +/-
-    int filter_remorts_count = -1;
-    int remorts[2] = {-1,-1}; //для количества ремортов
-    char remorts_sign[2] = "\0"; // знак ремортов
-	char new_timesign;       // знак времени < > =
-	time_t new_timedown;   // нижняя граница времени
-	time_t new_timeup;       // верхняя граница времени
-	int filter_type;       // CLAN/EXCHANGE
-
-	std::vector<int> affect_apply; // аффекты apply_types
-	std::vector<int> affect_weap;  // аффекты weapon_affects
-	std::vector<int> affect_extra; // аффекты extra_bits
-
-	std::string show_obj_aff(OBJ_DATA *obj);
-
- private:
-	bool check_name(OBJ_DATA *obj, CHAR_DATA *ch = 0) const;
-	bool check_type(OBJ_DATA *obj) const;
-	bool check_state(OBJ_DATA *obj) const;
-	bool check_wear(OBJ_DATA *obj) const;
-	bool check_weap_class(OBJ_DATA *obj) const;
-	bool check_cost(int obj_price) const;
-	bool check_rent(int obj_price) const;
-    bool check_remorts(OBJ_DATA *obj) const;
-	bool check_affect_weap(OBJ_DATA *obj) const;
-	bool check_affect_apply(OBJ_DATA *obj) const;
-	bool check_affect_extra(OBJ_DATA *obj) const;
-	bool check_owner(exchange_item_data *exch_obj) const;
-	bool check_realtime(exchange_item_data *exch_obj) const;
-};
-
-int get_virtual_race(CHAR_DATA *mob);
+int get_virtual_race(CharData *mob);
 
 #define _QUOTE(x) # x
 #define QUOTE(x) _QUOTE(x)
@@ -1580,21 +1441,21 @@ private:
 #endif
 
 // global buffering system
-#ifdef __DB_C__
-char buf[MAX_STRING_LENGTH];
-char buf1[MAX_STRING_LENGTH];
-char buf2[MAX_STRING_LENGTH];
-char arg[MAX_STRING_LENGTH];
-char smallBuf[MAX_RAW_INPUT_LENGTH];
+#ifdef DB_C__
+char buf[kMaxStringLength];
+char buf1[kMaxStringLength];
+char buf2[kMaxStringLength];
+char arg[kMaxStringLength];
+char smallBuf[kMaxRawInputLength];
 #else
-extern char buf[MAX_STRING_LENGTH];
-extern char buf1[MAX_STRING_LENGTH];
-extern char buf2[MAX_STRING_LENGTH];
-extern char arg[MAX_STRING_LENGTH];
-extern char smallBuf[MAX_RAW_INPUT_LENGTH];
+extern char buf[kMaxStringLength];
+extern char buf1[kMaxStringLength];
+extern char buf2[kMaxStringLength];
+extern char arg[kMaxStringLength];
+extern char smallBuf[kMaxRawInputLength];
 #endif
 
-#define plant_magic(x)    do { (x)[sizeof(x) - 1] = MAGIC_NUMBER; } while (0)
+#define plant_magic(x)    do { (x)[sizeof(x) - 1] = kMagicNumber; } while (0)
 #define test_magic(x)    ((x)[sizeof(x) - 1])
 
 /*
@@ -1718,6 +1579,12 @@ class StreamFlagsHolder {
 	std::ostream &m_stream;
 	std::ios::fmtflags m_flags;
 };
+
+/**
+ *  Напечатать число в виде строки с разделителем разрядов - запятой.
+ *  @param num  - обрабатываемоле число.
+ */
+std::string PrintNumberByDigits(long long num);
 
 #endif // _UTILS_H_
 

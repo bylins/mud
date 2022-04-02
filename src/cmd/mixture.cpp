@@ -1,12 +1,12 @@
 #include "mixture.h"
 
-#include "magic/spells.h"
-#include "magic/magic_utils.h"
+#include "game_magic/spells.h"
+#include "game_magic/magic_utils.h"
 #include "handler.h"
-#include "privilege.h"
-#include "magic/spells_info.h"
+#include "administration/privilege.h"
+#include "game_magic/spells_info.h"
 
-void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
+void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (IS_NPC(ch))
 		return;
 	if (IS_IMMORTAL(ch) && !Privilege::check_flag(ch, Privilege::USE_SKILLS)) {
@@ -14,9 +14,9 @@ void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
-	CHAR_DATA *tch;
-	OBJ_DATA *tobj;
-	ROOM_DATA *troom;
+	CharData *tch;
+	ObjData *tobj;
+	RoomData *troom;
 	char *s, *t;
 	int spellnum, target = 0;
 
@@ -29,32 +29,32 @@ void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 			send_to_char("Что вы хотите смешать?\r\n", ch);
 		return;
 	}
-	s = strtok(NULL, "'*!");
+	s = strtok(nullptr, "'*!");
 	if (!s) {
 		send_to_char("Название вызываемой магии смеси должно быть заключено в символы : ' или * или !\r\n", ch);
 		return;
 	}
-	t = strtok(NULL, "\0");
+	t = strtok(nullptr, "\0");
 
 	spellnum = FixNameAndFindSpellNum(s);
 
-	if (spellnum < 1 || spellnum > SPELLS_COUNT) {
+	if (spellnum < 1 || spellnum > kSpellCount) {
 		send_to_char("И откуда вы набрались рецептов?\r\n", ch);
 		return;
 	}
 
-	if (((!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_ITEMS)
+	if (((!IS_SET(GET_SPELL_TYPE(ch, spellnum), kSpellItems)
 		&& subcmd == SCMD_ITEMS)
-		|| (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_RUNES)
+		|| (!IS_SET(GET_SPELL_TYPE(ch, spellnum), kSpellRunes)
 			&& subcmd == SCMD_RUNES)) && !IS_GOD(ch)) {
 		send_to_char("Это блюдо вам явно не понравится.\r\n" "Научитесь его правильно готовить.\r\n", ch);
 		return;
 	}
 
-	if (!check_recipe_values(ch, spellnum, subcmd == SCMD_ITEMS ? SPELL_ITEMS : SPELL_RUNES, FALSE))
+	if (!CheckRecipeValues(ch, spellnum, subcmd == SCMD_ITEMS ? kSpellItems : kSpellRunes, false))
 		return;
 
-	if (!check_recipe_items(ch, spellnum, subcmd == SCMD_ITEMS ? SPELL_ITEMS : SPELL_RUNES, FALSE)) {
+	if (!CheckRecipeItems(ch, spellnum, subcmd == SCMD_ITEMS ? kSpellItems : kSpellRunes, false)) {
 		if (subcmd == SCMD_ITEMS)
 			send_to_char("У вас нет нужных ингредиентов!\r\n", ch);
 		else if (subcmd == SCMD_RUNES)
@@ -63,7 +63,7 @@ void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	// Find the target
-	if (t != NULL)
+	if (t != nullptr)
 		one_argument(t, arg);
 	else
 		*arg = '\0';
@@ -80,13 +80,13 @@ void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
-	if (tch != ch && !IS_IMMORTAL(ch) && IS_SET(spell_info[spellnum].targets, TAR_SELF_ONLY)) {
+	if (tch != ch && !IS_IMMORTAL(ch) && IS_SET(spell_info[spellnum].targets, kTarSelfOnly)) {
 		send_to_char("Вы можете колдовать это только на себя!\r\n", ch);
 		return;
 	}
 
 	if (IS_MANA_CASTER(ch)) {
-		if (GET_REAL_LEVEL(ch) < CalculateRequiredLevel(ch, spellnum)) {
+		if (GetRealLevel(ch) < CalcRequiredLevel(ch, spellnum)) {
 			send_to_char("Вы еще слишком малы, чтобы колдовать такое.\r\n", ch);
 			return;
 		}
@@ -99,9 +99,9 @@ void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 		}
 	}
 
-	if (check_recipe_items(ch, spellnum, subcmd == SCMD_ITEMS ? SPELL_ITEMS : SPELL_RUNES, TRUE, tch)) {
-		if (!CalculateCastSuccess(ch, tch, SAVING_NONE, spellnum)) {
-			WAIT_STATE(ch, PULSE_VIOLENCE);
+	if (CheckRecipeItems(ch, spellnum, subcmd == SCMD_ITEMS ? kSpellItems : kSpellRunes, true, tch)) {
+		if (!CalcCastSuccess(ch, tch, ESaving::kStability, spellnum)) {
+			WAIT_STATE(ch, kPulseViolence);
 			if (!tch || !SendSkillMessages(0, ch, tch, spellnum)) {
 				if (subcmd == SCMD_ITEMS)
 					send_to_char("Вы неправильно смешали ингредиенты!\r\n", ch);
@@ -109,9 +109,9 @@ void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 					send_to_char("Вы не смогли правильно истолковать значение рун!\r\n", ch);
 			}
 		} else {
-			if (CallMagic(ch, tch, tobj, world[ch->in_room], spellnum, GET_REAL_LEVEL(ch)) >= 0) {
+			if (CallMagic(ch, tch, tobj, world[ch->in_room], spellnum, GetRealLevel(ch)) >= 0) {
 				if (!(WAITLESS(ch) || CHECK_WAIT(ch)))
-					WAIT_STATE(ch, PULSE_VIOLENCE);
+					WAIT_STATE(ch, kPulseViolence);
 			}
 		}
 	}

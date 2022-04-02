@@ -7,13 +7,13 @@
 
 #include "conf.h"
 #include "sysdep.h"
-#include "structs.h"
+#include "structs/structs.h"
 
 namespace SpamSystem {
 
 const int MIN_OFFTOP_LVL = 6;
 enum { OFFTOP_MODE };
-bool check(CHAR_DATA *ch, int mode);
+bool check(CharData *ch, int mode);
 
 } // SpamSystem
 

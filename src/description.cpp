@@ -4,7 +4,7 @@
 
 #include "description.h"
 
-#include "logger.h"
+#include "utils/logger.h"
 
 std::vector<std::string> RoomDescription::_desc_list;
 RoomDescription::reboot_map_t RoomDescription::_reboot_map;

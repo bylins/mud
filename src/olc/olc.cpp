@@ -11,58 +11,58 @@
 #include "olc.h"
 
 #include "obj_prototypes.h"
-#include "obj.h"
+#include "entities/obj_data.h"
 #include "interpreter.h"
 #include "comm.h"
 #include "db.h"
 #include "dg_script/dg_olc.h"
-#include "screen.h"
+#include "color.h"
 #include "crafts/item_creation.h"
 #include "crafts/im.h"
-#include "privilege.h"
-#include "chars/char.h"
-#include "room.h"
-#include "logger.h"
+#include "administration/privilege.h"
+#include "entities/char_data.h"
+#include "entities/room_data.h"
+#include "utils/logger.h"
 #include "utils/utils.h"
 #include "utils/id_converter.h"
-#include "structs.h"
+#include "structs/structs.h"
 #include "sysdep.h"
 #include "conf.h"
-#include "zone.table.h"
+#include "entities/zone.h"
 
 #include <vector>
 
 // * External data structures.
-extern CHAR_DATA *mob_proto;
+extern CharData *mob_proto;
 
-extern DESCRIPTOR_DATA *descriptor_list;
+extern DescriptorData *descriptor_list;
 
 // * External functions.
-void zedit_setup(DESCRIPTOR_DATA *d, int room_num);
+void zedit_setup(DescriptorData *d, int room_num);
 void zedit_save_to_disk(int zone);
-int zedit_new_zone(CHAR_DATA *ch, int new_zone);
-void medit_setup(DESCRIPTOR_DATA *d, int rmob_num);
+int zedit_new_zone(CharData *ch, int new_zone);
+void medit_setup(DescriptorData *d, int rmob_num);
 void medit_save_to_disk(int zone);
-void redit_setup(DESCRIPTOR_DATA *d, int rroom_num);
+void redit_setup(DescriptorData *d, int rroom_num);
 void redit_save_to_disk(int zone);
-void oedit_setup(DESCRIPTOR_DATA *d, int robj_num);
+void oedit_setup(DescriptorData *d, int robj_num);
 void oedit_save_to_disk(int zone);
-void sedit_setup_new(DESCRIPTOR_DATA *d);
-void sedit_setup_existing(DESCRIPTOR_DATA *d, int robj_num);
-void room_free(ROOM_DATA *room);
-void medit_mobile_free(CHAR_DATA *mob);
-void trigedit_setup_new(DESCRIPTOR_DATA *d);
-void trigedit_setup_existing(DESCRIPTOR_DATA *d, int rtrg_num);
+void sedit_setup_new(DescriptorData *d);
+void sedit_setup_existing(DescriptorData *d, int robj_num);
+void room_free(RoomData *room);
+void medit_mobile_free(CharData *mob);
+void trigedit_setup_new(DescriptorData *d);
+void trigedit_setup_existing(DescriptorData *d, int rtrg_num);
 int real_trigger(int vnum);
-void dg_olc_script_free(DESCRIPTOR_DATA *d);
+void dg_olc_script_free(DescriptorData *d);
 
 // Internal function prototypes.
-void olc_saveinfo(CHAR_DATA *ch);
+void olc_saveinfo(CharData *ch);
 
 // global data
 const char *save_info_msg[5] = {"Rooms", "Objects", "Zone info", "Mobiles", "Shops"};
 const char *nrm, *grn, *cyn, *yel, *iyel, *ired;
-struct olc_save_info *olc_save_list = NULL;
+struct olc_save_info *olc_save_list = nullptr;
 
 struct olc_scmd_data {
 	const char *text;
@@ -113,10 +113,10 @@ olc_data::olc_data()
  * generic OLC stuff, then passes control to the sub-olc sections.
  */
 
-void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
+void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 	int number = -1, save = 0, real_num;
 	bool lock = 0, unlock = 0;
-	DESCRIPTOR_DATA *d;
+	DescriptorData *d;
 
 	// * No screwing around as a mobile.
 	if (IS_NPC(ch))
@@ -143,8 +143,8 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 		}
 	} else if (!a_isdigit(*buf1)) {
 		if (strn_cmp("save", buf1, 4) == 0
-			|| (lock = !strn_cmp("lock", buf1, 4)) == TRUE
-			|| (unlock = !strn_cmp("unlock", buf1, 6)) == TRUE) {
+			|| (lock = !strn_cmp("lock", buf1, 4)) == true
+			|| (unlock = !strn_cmp("unlock", buf1, 6)) == true) {
 			if (!*buf2) {
 				if (GET_OLC_ZONE(ch)) {
 					save = 1;
@@ -157,7 +157,7 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 				save = 1;
 				number = atoi(buf2) * 100;
 			}
-		} else if (subcmd == SCMD_OLC_ZEDIT && (GET_REAL_LEVEL(ch) >= LVL_BUILDER || PRF_FLAGGED(ch, PRF_CODERINFO))) {
+		} else if (subcmd == SCMD_OLC_ZEDIT && (GetRealLevel(ch) >= kLvlBuilder || PRF_FLAGGED(ch, PRF_CODERINFO))) {
 			send_to_char("Создание новых зон отключено.\r\n", ch);
 			return;
 			/*
@@ -207,35 +207,35 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 	}
 
 	if (lock) {
-		zone_table[OLC_ZNUM(d)].locked = TRUE;
+		zone_table[OLC_ZNUM(d)].locked = true;
 		send_to_char("Защищаю зону от записи.\r\n", ch);
 		sprintf(buf, "(GC) %s has locked zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].vnum);
 		olc_log("%s locks zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].vnum);
-		mudlog(buf, LGH, LVL_IMPL, SYSLOG, TRUE);
+		mudlog(buf, LGH, kLvlImplementator, SYSLOG, true);
 		zedit_save_to_disk(OLC_ZNUM(d));
 		delete d->olc;
 		return;
 	}
 
 	if (unlock) {
-		zone_table[OLC_ZNUM(d)].locked = FALSE;
+		zone_table[OLC_ZNUM(d)].locked = false;
 		send_to_char("Снимаю защиту от записи.\r\n", ch);
 		sprintf(buf, "(GC) %s has unlocked zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].vnum);
 		olc_log("%s unlocks zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].vnum);
-		mudlog(buf, LGH, LVL_IMPL, SYSLOG, TRUE);
+		mudlog(buf, LGH, kLvlImplementator, SYSLOG, true);
 		zedit_save_to_disk(OLC_ZNUM(d));
 		delete d->olc;
 		return;
 	}
 	// Check if zone is protected from editing
-	if ((zone_table[OLC_ZNUM(d)].locked) && (GET_REAL_LEVEL(ch) != 34)) {
+	if ((zone_table[OLC_ZNUM(d)].locked) && (GetRealLevel(ch) != 34)) {
 		send_to_char("Зона защищена от записи. С вопросами к старшим богам.\r\n", ch);
 		delete d->olc;
 		return;
 	}
 
 	// * Everyone but IMPLs can only edit zones they have been assigned.
-	if (GET_REAL_LEVEL(ch) < LVL_IMPL) {
+	if (GetRealLevel(ch) < kLvlImplementator) {
 		if (!Privilege::can_do_priv(ch, std::string(cmd_info[cmd].command), cmd, 0, false)) {
 			if (!GET_OLC_ZONE(ch) || (zone_table[OLC_ZNUM(d)].vnum != GET_OLC_ZONE(ch))) {
 				send_to_char("Вам запрещен доступ к сией зоне.\r\n", ch);
@@ -246,7 +246,7 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 	}
 
 	if (save) {
-		const char *type = NULL;
+		const char *type = nullptr;
 		switch (subcmd) {
 			case SCMD_OLC_REDIT: type = "room";
 				break;
@@ -265,7 +265,7 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 		send_to_char(buf, ch);
 		sprintf(buf, "OLC: %s saves %s info for zone %d.", GET_NAME(ch), type, zone_table[OLC_ZNUM(d)].vnum);
 		olc_log("%s save %s in Z%d", GET_NAME(ch), type, zone_table[OLC_ZNUM(d)].vnum);
-		mudlog(buf, LGH, MAX(LVL_BUILDER, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+		mudlog(buf, LGH, MAX(kLvlBuilder, GET_INVIS_LEV(ch)), SYSLOG, true);
 
 		switch (subcmd) {
 			case SCMD_OLC_REDIT: redit_save_to_disk(OLC_ZNUM(d));
@@ -292,14 +292,14 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 			STATE(d) = CON_TRIGEDIT;
 			break;
 		case SCMD_OLC_REDIT:
-			if ((real_num = real_room(number)) != NOWHERE)
+			if ((real_num = real_room(number)) != kNowhere)
 				redit_setup(d, real_num);
 			else
-				redit_setup(d, NOWHERE);
+				redit_setup(d, kNowhere);
 			STATE(d) = CON_REDIT;
 			break;
 		case SCMD_OLC_ZEDIT:
-			if ((real_num = real_room(number)) == NOWHERE) {
+			if ((real_num = real_room(number)) == kNowhere) {
 				send_to_char("Желательно создать комнату прежде, чем начинаете ее редактировать.\r\n", ch);
 				delete d->olc;
 				return;
@@ -324,7 +324,7 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 			break;
 	}
 	act("$n по локоть запустил$g руки в глубины Мира и начал$g что-то со скрежетом там поворачивать.",
-		TRUE, d->character.get(), 0, 0, TO_ROOM);
+		true, d->character.get(), 0, 0, kToRoom);
 	PLR_FLAGS(ch).set(PLR_WRITING);
 }
 
@@ -332,7 +332,7 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 // Internal utilities
 // ------------------------------------------------------------
 
-void olc_saveinfo(CHAR_DATA *ch) {
+void olc_saveinfo(CharData *ch) {
 	struct olc_save_info *entry;
 
 	if (olc_save_list) {
@@ -385,7 +385,7 @@ void olc_remove_from_save_list(int zone, byte type) {
 * Set the colour string pointers for that which this char will
 * see at color level NRM.  Changing the entries here will change
 * the colour scheme throughout the OLC. */
-void get_char_cols(CHAR_DATA *ch) {
+void get_char_cols(CharData *ch) {
 	nrm = CCNRM(ch, C_NRM);
 	grn = CCGRN(ch, C_NRM);
 	cyn = CCCYN(ch, C_NRM);
@@ -393,7 +393,7 @@ void get_char_cols(CHAR_DATA *ch) {
 	iyel = CCIYEL(ch, C_NRM);
 	ired = CCIRED(ch, C_NRM);
 }
-void disp_planes_values(DESCRIPTOR_DATA *d, const char *names[], short num_column) {
+void disp_planes_values(DescriptorData *d, const char *names[], short num_column) {
 	int counter, column = 0, plane = 0;
 	char c;
 	for (counter = 0, c = 'a' - 1; plane < NUM_PLANES; counter++) {
@@ -434,7 +434,7 @@ void strip_string(char *buffer) {
  * attatched to a descriptor, sets all flags back to how they
  * should be.
  */
-void cleanup_olc(DESCRIPTOR_DATA *d, byte cleanup_type) {
+void cleanup_olc(DescriptorData *d, byte cleanup_type) {
 	if (d->olc) {
 
 		// Освободить редактируемый триггер
@@ -499,13 +499,13 @@ void cleanup_olc(DESCRIPTOR_DATA *d, byte cleanup_type) {
 			PLR_FLAGS(d->character).unset(PLR_WRITING);
 			STATE(d) = CON_PLAYING;
 			act("$n закончил$g работу и удовлетворенно посмотрел$g в развороченные недра Мироздания.",
-				TRUE, d->character.get(), 0, 0, TO_ROOM);
+				true, d->character.get(), 0, 0, kToRoom);
 		}
 		delete d->olc;
 	}
 }
 
-void xedit_disp_ing(DESCRIPTOR_DATA *d, int *ping) {
+void xedit_disp_ing(DescriptorData *d, int *ping) {
 	char str[128];
 	int i = 0;
 
@@ -521,7 +521,7 @@ void xedit_disp_ing(DESCRIPTOR_DATA *d, int *ping) {
 				 "д <ингр>  - [д]обавить ингредиенты\r\n" "в         - [в]ыход\r\n" "Команда> ", d->character.get());
 }
 
-int xparse_ing(DESCRIPTOR_DATA * /*d*/, int **pping, char *arg) {
+int xparse_ing(DescriptorData * /*d*/, int **pping, char *arg) {
 	switch (*arg) {
 		case 'у':
 		case 'У': ++arg;
@@ -529,7 +529,7 @@ int xparse_ing(DESCRIPTOR_DATA * /*d*/, int **pping, char *arg) {
 			if (arg[0] == '*') {
 				if (*pping)
 					free(*pping);
-				*pping = NULL;
+				*pping = nullptr;
 			} else if (a_isdigit(arg[0])) {
 				im_extract_ing(pping, atoi(arg));
 			}

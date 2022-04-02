@@ -1,8 +1,8 @@
 #if !defined __CRAFT_COMMANDS_HPP__
 #define __CRAFT_COMMANDS_HPP__
 
-#include "structs.h"
 #include "commands.h"
+#include "entities/entities_constants.h"
 
 #include <memory>
 
@@ -15,7 +15,7 @@ namespace cmd {
 extern const char *CRAFT_COMMAND;
 
 /// Minimal position for base crafts command
-constexpr int MINIMAL_POSITION = POS_SITTING;
+constexpr EPosition MINIMAL_POSITION = EPosition::kSit;
 
 // Minimal level for base crafts command
 constexpr int MINIMAL_LEVEL = 0;
@@ -23,7 +23,7 @@ constexpr int MINIMAL_LEVEL = 0;
 // Probability to stop hide when using base crafts command
 constexpr int UNHIDE_PROBABILITY = 0;    // -1 - always, 0 - never
 
-extern void do_craft(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+extern void do_craft(CharData *ch, char *argument, int cmd, int subcmd);
 }
 }
 

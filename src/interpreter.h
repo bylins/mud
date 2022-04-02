@@ -16,52 +16,45 @@
 #define _INTERPRETER_H_
 
 #include "conf.h"
-#include "structs.h"
+#include "structs/descriptor_data.h"
+#include "entities/entities_constants.h"
 
 #include <string>
 
-class CHAR_DATA;    // to avoid inclusion of "char.hpp"
+class CharData;    // to avoid inclusion of "char.hpp"
 
-void do_move(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_move(CharData *ch, char *argument, int cmd, int subcmd);
 
 #define CMD_NAME (cmd_info[cmd].command)
 #define CMD_IS(cmd_name) (!strn_cmp(cmd_name, cmd_info[cmd].command, strlen(cmd_name)))
 #define IS_MOVE(cmdnum) (cmd_info[cmdnum].command_pointer == do_move)
 
-void command_interpreter(CHAR_DATA *ch, char *argument);
+void command_interpreter(CharData *ch, char *argument);
 int search_block(const char *arg, const char **list, int exact);
 int search_block(const std::string &arg, const char **list, int exact);
 int fill_word(const char *argument);
 void half_chop(char const *string, char *arg1, char *arg2);
-void nanny(DESCRIPTOR_DATA *d, char *arg);
-
-/**
-* returns 1 if arg1 is an abbreviation of arg2
-*/
-int is_abbrev(const char *arg1, const char *arg2);
-inline int is_abbrev(const std::string &arg1, const char *arg2) { return is_abbrev(arg1.c_str(), arg2); }
+void nanny(DescriptorData *d, char *arg);
 
 int is_number(const char *str);
 int find_command(const char *command);
 // блок подобной же фигни для стрингов
 void GetOneParam(std::string &buffer, std::string &buffer2);
-bool CompareParam(const std::string &buffer, const char *arg, bool full = 0);
-bool CompareParam(const std::string &buffer, const std::string &buffer2, bool full = 0);
-DESCRIPTOR_DATA *DescByUID(int uid);
-DESCRIPTOR_DATA *get_desc_by_id(long id, bool playing = 1);
+bool CompareParam(const std::string &buffer, const char *arg, bool full = false);
+bool CompareParam(const std::string &buffer, const std::string &buffer2, bool full = false);
+DescriptorData *DescByUID(int uid);
+DescriptorData *get_desc_by_id(long id, bool playing = 1);
 long GetUniqueByName(const std::string &name, bool god = false);
 std::string GetNameByUnique(long unique, bool god = false);
 bool IsActiveUser(long unique);
 void CreateFileName(std::string &name);
 std::string ExpFormat(long long exp);
-void lower_convert(std::string &text);
-void lower_convert(char *text);
 void name_convert(std::string &text);
 void god_work_invoice();
-int special(CHAR_DATA *ch, int cmd, char *arg, int fnum);
+int special(CharData *ch, int cmd, char *arg, int fnum);
 int find_name(const char *name);
 
-void check_hiding_cmd(CHAR_DATA *ch, int percent);
+void check_hiding_cmd(CharData *ch, int percent);
 
 char *delete_doubledollar(char *string);
 // Cоответствие классов и религий (Кард)
@@ -72,8 +65,8 @@ extern const int class_religion[];
 
 struct command_info {
 	const char *command;
-	byte minimum_position;
-	void (*command_pointer)(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+	EPosition minimum_position;
+	void (*command_pointer)(CharData *ch, char *argument, int cmd, int subcmd);
 	sh_int minimum_level;
 	int subcmd;                ///< Subcommand. See SCMD_* constants.
 	int unhide_percent;
@@ -314,7 +307,7 @@ const char *one_argument(const char *argument, char *first_arg);
 
 ///
 /// same as one_argument except that it doesn't ignore fill words
-/// как бы декларируем, что first_arg должен быть не менее MAX_INPUT_LENGTH
+/// как бы декларируем, что first_arg должен быть не менее kMaxInputLength
 ///
 char *any_one_arg(char *argument, char *first_arg);
 const char *any_one_arg(const char *argument, char *first_arg);
@@ -332,6 +325,11 @@ template<typename T>
 T three_arguments(T argument, char *first_arg, char *second_arg, char *third_arg) {
 	return (one_argument(one_argument(one_argument(argument, first_arg), second_arg), third_arg));
 }
+
+// читает все аргументы из arg в out
+void array_argument(const char *arg, std::vector<std::string> &out);
+void array_argument(const char *arg, std::vector<short> &out);
+void array_argument(const char *arg, std::vector<int> &out);
 
 // константы для спам-контроля команды кто
 // если кто захочет и сможет вынести их во внешний конфиг, то почет ему и слава
@@ -351,8 +349,8 @@ T three_arguments(T argument, char *first_arg, char *second_arg, char *third_arg
 #define WHO_LISTNAME 1
 #define WHO_LISTCLAN 2
 
-bool login_change_invoice(CHAR_DATA *ch);
-bool who_spamcontrol(CHAR_DATA *, unsigned short int);
+bool login_change_invoice(CharData *ch);
+bool who_spamcontrol(CharData *, unsigned short int);
 
 #endif // _INTERPRETER_H_
 

@@ -1,28 +1,23 @@
-#include "interpreter.h"
-#include "screen.h"
 #include "top.h"
-#include "glory_const.h"
-#include "chars/char.h"
 
-#include <boost/algorithm/string.hpp>
-#include <boost/format.hpp>
+#include "game_classes/classes.h"
+#include "color.h"
+#include "game_mechanics/glory_const.h"
+#include "entities/char_data.h"
+#include "structs/global_objects.h"
+#include "utils/table_wrapper.h"
 
-#include <iomanip>
-
-extern const char *class_name[];
-
-TopListType TopPlayer::TopList(NUM_PLAYER_CLASSES);
+PlayerChart TopPlayer::chart_(kNumPlayerClasses);
 
 // отдельное удаление из списка (для ренеймов, делетов и т.п.)
 // данная функция работает в том числе и с неполностью загруженным персонажем
 // подробности в комментарии к load_char_ascii
-void TopPlayer::Remove(CHAR_DATA *short_ch) {
-	std::list<TopPlayer> &tmp_list = TopPlayer::TopList[static_cast<int>(GET_CLASS(short_ch))];
+void TopPlayer::Remove(CharData *short_ch) {
+	auto &tmp_list = TopPlayer::chart_[short_ch->get_class()];
 
 	auto it = std::find_if(tmp_list.begin(), tmp_list.end(), [&short_ch](const TopPlayer &p) {
-		return p.unique == GET_UNIQUE(short_ch);
+		return p.unique_ == short_ch->get_uid();
 	});
-
 	if (it != tmp_list.end())
 		tmp_list.erase(it);
 }
@@ -30,123 +25,142 @@ void TopPlayer::Remove(CHAR_DATA *short_ch) {
 // проверяем надо-ли добавлять в топ и добавляем/обновляем при случае. reboot по дефолту 0 (1 для ребута)
 // данная функция работает в том числе и с неполностью загруженным персонажем
 // подробности в комментарии к load_char_ascii
-void TopPlayer::Refresh(CHAR_DATA *short_ch, bool reboot) {
-	if (IS_NPC(short_ch)
+void TopPlayer::Refresh(CharData *short_ch, bool reboot) {
+	if (short_ch->is_npc()
 		|| PLR_FLAGS(short_ch).get(PLR_FROZEN)
 		|| PLR_FLAGS(short_ch).get(PLR_DELETED)
 		|| IS_IMMORTAL(short_ch)) {
 		return;
 	}
 
-	if (!reboot)
+	if (!reboot) {
 		TopPlayer::Remove(short_ch);
+	}
 
-	// шерстим список по ремортам и экспе и смотрим куда воткнуться
 	std::list<TopPlayer>::iterator it_exp;
-	for (it_exp = TopPlayer::TopList[GET_CLASS(short_ch)].begin();
-		 it_exp != TopPlayer::TopList[GET_CLASS(short_ch)].end(); ++it_exp)
-		if (it_exp->remort < GET_REAL_REMORT(short_ch)
-			|| (it_exp->remort == GET_REAL_REMORT(short_ch) && it_exp->exp < GET_EXP(short_ch)))
+	for (it_exp = TopPlayer::chart_[short_ch->get_class()].begin();
+		 it_exp != TopPlayer::chart_[short_ch->get_class()].end(); ++it_exp) {
+		if (it_exp->remort_ < GET_REAL_REMORT(short_ch)
+			|| (it_exp->remort_ == GET_REAL_REMORT(short_ch) && it_exp->exp_ < GET_EXP(short_ch))) {
 			break;
+		}
+	}
 
 	if (short_ch->get_name().empty()) {
 		return; // у нас все может быть
 	}
 	TopPlayer temp_player(GET_UNIQUE(short_ch), GET_NAME(short_ch), GET_EXP(short_ch), GET_REAL_REMORT(short_ch));
 
-	if (it_exp != TopPlayer::TopList[GET_CLASS(short_ch)].end())
-		TopPlayer::TopList[GET_CLASS(short_ch)].insert(it_exp, temp_player);
-	else
-		TopPlayer::TopList[GET_CLASS(short_ch)].push_back(temp_player);
+	if (it_exp != TopPlayer::chart_[short_ch->get_class()].end()) {
+		TopPlayer::chart_[short_ch->get_class()].insert(it_exp, temp_player);
+	} else {
+		TopPlayer::chart_[short_ch->get_class()].push_back(temp_player);
+	}
 }
 
-const char *TopPlayer::TopFormat[NUM_PLAYER_CLASSES + 1] =
-	{
-		"лекари",
-		"колдуны",
-		"тати",
-		"богатыри",
-		"наемники",
-		"дружинники",
-		"кудесники",
-		"волшебники",
-		"чернокнижники",
-		"витязи",
-		"охотники",
-		"кузнецы",
-		"купцы",
-		"волхвы",
-		"игроки"
-	};
+const PlayerChart &TopPlayer::Chart() {
+	return chart_;
+};
 
-// команда 'лучшие'
-void DoBest(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch))
-		return;
+void TopPlayer::PrintPlayersChart(CharData *ch) {
+	send_to_char(" Лучшие персонажи игроков:\r\n", ch);
 
-	std::string buffer = argument;
-	boost::trim(buffer);
+	fort::char_table table;
+	for (const auto &it: TopPlayer::Chart()) {
+		table
+			<< it.second.begin()->name_
+			<< it.second.begin()->remort_
+			<< desc_count(it.second.begin()->remort_, WHAT_REMORT)
+			<< MUD::Classes()[it.first].GetName() << fort::endr;
+	}
+	table_wrapper::DecorateNoBorderTable(ch, table);
+	table_wrapper::PrintTableToChar(ch, table);
+}
 
-	bool find = 0;
-	int class_num = 0;
-	// тут и далее <= для учета 'игроки' после классов
-	for (; class_num <= NUM_PLAYER_CLASSES; ++class_num) {
-		if (CompareParam(buffer, TopPlayer::TopFormat[class_num])) {
-			find = 1;
+void TopPlayer::PrintClassChart(CharData *ch, ECharClass id) {
+	std::ostringstream out;
+	out << KWHT << " Лучшие " << MUD::Classes()[id].GetPluralName() << ":" << KNRM << std::endl;
+
+	fort::char_table table;
+	for (const auto &it: TopPlayer::chart_[id]) {
+		table
+			<< it.name_
+			<< it.remort_
+			<< desc_count(it.remort_, WHAT_REMORT) << fort::endr;
+
+		if (table.row_count() >= kPlayerChartSize) {
 			break;
 		}
 	}
+	table_wrapper::DecorateNoBorderTable(ch, table);
+	table_wrapper::PrintTableToStream(out, table);
 
-	if (find) {
-		std::ostringstream out;
-		out << CCWHT(ch, C_NRM) << "Лучшие " << TopPlayer::TopFormat[class_num] << ":" << CCNRM(ch, C_NRM) << "\r\n";
-
-		if (class_num < NUM_PLAYER_CLASSES)   // конкретная профа
-		{
-			boost::format class_format("\t%-20s %-2d %s\r\n");
-			int i = 0;
-			for (std::list<TopPlayer>::const_iterator it = TopPlayer::TopList[class_num].begin();
-				 it != TopPlayer::TopList[class_num].end() && i < MAX_TOP_CLASS; ++it, ++i)
-				out << class_format % it->name % it->remort % desc_count(it->remort, WHAT_REMORT);
-
-			// если игрок участвует в данном топе - покажем ему, какой он неудачник
-			int count = 1;
-			std::list<TopPlayer>::iterator find_me = TopPlayer::TopList[class_num].begin();
-			for (; find_me != TopPlayer::TopList[class_num].end(); ++find_me, ++count)
-				if (find_me->unique == GET_UNIQUE(ch))
-					break;
-			if (find_me != TopPlayer::TopList[class_num].end())
-				out << "Ваш текущий рейтинг: " << count << "\r\n";
-
-			send_to_char(out.str().c_str(), ch);
-		} else   // все профы
-		{
-			int i = 0;
-			boost::format all_format("\t%-20s %-2d %-17s %s\r\n");
-			for (TopListType::const_iterator it = TopPlayer::TopList.begin(); it != TopPlayer::TopList.end(); ++it, ++i)
-				if (!it->empty())
-					out << all_format % it->begin()->name % it->begin()->remort
-						% desc_count(it->begin()->remort, WHAT_REMORT) % class_name[i];
-			send_to_char(out.str().c_str(), ch);
+	// если игрок участвует в данном топе - покажем ему, какой он неудачник
+	int count = 1;
+	for (const auto &it: TopPlayer::chart_[id]) {
+		if (it.unique_ == ch->get_uid()) {
+			out.clear();
+			out << std::endl << "  Ваш текущий рейтинг: " << count << std::endl;
+			break;
 		}
-	} else {
-		// топ славы
-		if (CompareParam(buffer, "прославленные")) {
-			GloryConst::print_glory_top(ch);
-			return;
+		++count;
+	}
+	send_to_char(out.str(), ch);
+}
+
+void TopPlayer::PrintHelp(CharData *ch) {
+	send_to_char(" Лучшими могут быть:\n", ch);
+
+	fort::char_table table;
+	const int columns_num{2};
+	int count = 1;
+	for (const auto &it: MUD::Classes()) {
+		if (it.IsAvailable()) {
+			table << it.GetPluralName();
+			if (count % columns_num == 0) {
+				table << fort::endr;
+			}
+			++count;
 		}
+	}
+	for (const auto &str: {"игроки", "прославленные"}) {
+		table << str;
+		if (count % columns_num == 0) {
+			table << fort::endr;
+		}
+		++count;
+	}
 
-		std::ostringstream out;
-		out.setf(std::ios_base::left, std::ios_base::adjustfield);
-		out << "Лучшими могут быть:\r\n";
-		for (int i = 0, j = 1; i <= NUM_PLAYER_CLASSES; ++i, ++j)
-			out << std::setw(15) << TopPlayer::TopFormat[i] << (j % 4 ? "" : "\r\n");
+	table_wrapper::DecorateSimpleTable(ch, table);
+	table_wrapper::PrintTableToChar(ch, table);
+}
 
-		out << std::setw(15) << "прославленные\r\n";
-		out << "\r\n";
-		send_to_char(out.str().c_str(), ch);
+void DoBest(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	if (ch->is_npc()) {
 		return;
 	}
+
+	std::string buffer = argument;
+	utils::Trim(buffer);
+
+	if (CompareParam(buffer, "прославленные")) {
+		GloryConst::PrintGloryChart(ch);
+		return;
+	}
+
+	if (CompareParam(buffer, "игроки")) {
+		TopPlayer::PrintPlayersChart(ch);
+		return;
+	}
+
+	auto class_id = FindAvailableCharClassId(buffer);
+	if (class_id != ECharClass::kUndefined) {
+		TopPlayer::PrintClassChart(ch, class_id);
+		return;
+	}
+
+	TopPlayer::PrintHelp(ch);
+
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

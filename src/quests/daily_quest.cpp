@@ -1,7 +1,7 @@
 #include "quests/daily_quest.h"
 
-#include "chars/char.h"
-#include "global_objects.h"
+#include "entities/char_data.h"
+#include "structs/global_objects.h"
 
 namespace DailyQuest {
 
@@ -55,7 +55,7 @@ std::string DailyQuestLoader::log_message() const
 bool DailyQuestLoader::load()
 {
 	do_load();
-	mudlog(std::string(m_log_msg.str()).c_str(), CMP, LVL_IMMORT, SYSLOG, TRUE);
+	mudlog(std::string(m_log_msg.str()).c_str(), CMP, kLvlImmortal, SYSLOG, true);
 	return m_load_status;
 }
 
@@ -109,12 +109,12 @@ bool DailyQuestLoader::do_load()
 		m_daily_quest_list.try_emplace(id, desk, reward);
 	}
 
-	m_log_msg << "Файл с дейликами успешно загружен. Загружено квестов: " << m_daily_quest_list.size();
+	m_log_msg << "Daily quests file loading successful. Total quests: " << m_daily_quest_list.size();
 	m_load_status = true;
 	return m_load_status;
 }
 
-void load_from_file(CHAR_DATA *ch)
+void load_from_file(CharData *ch)
 {
 	DailyQuestLoader quest_loader;
 	if (quest_loader.load()) {

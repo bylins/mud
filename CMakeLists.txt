@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.0)
 
 project(bylins CXX)
 
@@ -14,18 +15,18 @@ set(SOURCES
 		src/heartbeat.cpp
 		src/heartbeat_commands.cpp
 		src/abilities/abilities_rollsystem.cpp
-		src/chars/accounts.cpp
+		src/administration/accounts.cpp
 		src/action_targeting.cpp
 		src/act_comm.cpp
 		src/act_informative.cpp
 		src/act_item.cpp
 		src/act_movement.cpp
 		src/act_other.cpp
-		src/act_social.cpp
+		src/communication/social.cpp
 		src/act_wizard.cpp
 		src/affects/affect_handler.cpp
 		src/alias.cpp
-		src/auction.cpp
+		src/game_economics/auction.cpp
 		src/backtrace.cpp
 		src/cmd_god/ban.cpp
 		src/birthplaces.cpp
@@ -34,17 +35,17 @@ set(SOURCES
 		src/boards/boards.cpp
 		src/boards/boards_formatters.cpp
 		src/boards/boards_types.cpp
-		src/bonus.cpp
-		src/bonus_command_parser.cpp
+		src/game_mechanics/bonus.cpp
+		src/game_mechanics/bonus_command_parser.cpp
 		src/boot/boot_constants.cpp
 		src/boot/boot_data_files.cpp
 		src/boot/boot_index.cpp
 		src/cache.cpp
-		src/celebrates.cpp
-		src/chars/char.cpp
-		src/chars/char_player.cpp
-		src/classes/class.cpp
-		src/classes/class_spell_slots.cpp
+		src/game_mechanics/celebrates.cpp
+        src/entities/char_data.cpp
+		src/entities/char_player.cpp
+		src/game_classes/classes.cpp
+		src/game_classes/classes_spell_slots.cpp
 		src/color.cpp
 		src/comm.cpp
 		src/cmd_god/shutdown.cpp
@@ -55,10 +56,11 @@ set(SOURCES
 		src/quests/quest.cpp
 		src/quests/daily_quest.cpp
 		src/db.cpp
-		src/deathtrap.cpp
+		src/game_mechanics/deathtrap.cpp
 		src/depot.cpp
 		src/description.cpp
 		src/dg_script/dg_comm.cpp
+		src/dg_script/dg_domination_helper.cpp
 		src/dg_script/dg_db_scripts.cpp
 		src/dg_script/dg_event.cpp
 		src/dg_script/dg_handler.cpp
@@ -69,44 +71,45 @@ set(SOURCES
 		src/dg_script/dg_scripts.cpp
 		src/dg_script/dg_triggers.cpp
 		src/dg_script/dg_wldcmd.cpp
-		src/dictionary.cpp
+		src/game_economics/dictionary.cpp
 		src/diskio.cpp
 		src/dps.cpp
-		src/exchange.cpp
-		src/ext_money.cpp
+        src/entities/entities_constants.cpp
+		src/game_economics/exchange.cpp
+		src/game_economics/ext_money.cpp
 		src/external_trigger.cpp
 		src/feats.cpp
 		src/fightsystem/fight.cpp
 		src/fightsystem/fight_hit.cpp
 		src/fightsystem/fight_penalties.cpp
 		src/fightsystem/fight_stuff.cpp
-		src/file_crc.cpp
+		src/utils/file_crc.cpp
 		src/genchar.cpp
-		src/glory_const.cpp
-		src/glory.cpp
-		src/glory_misc.cpp
+		src/game_mechanics/glory_const.cpp
+		src/game_mechanics/glory.cpp
+		src/game_mechanics/glory_misc.cpp
 		src/graph.cpp
 		src/handler.cpp
 		src/help.cpp
 		src/house.cpp
 		src/house_exp.cpp
-		src/ignores.cpp
-		src/ignores_loader.cpp
+		src/communication/ignores.cpp
+		src/communication/ignores_loader.cpp
 		src/crafts/im.cpp
 		src/interpreter.cpp
 		src/crafts/item_creation.cpp
 		src/game_limits.cpp
-		src/levenshtein.cpp
+		src/utils/levenshtein.cpp
 		src/liquid.cpp
-		src/logger.cpp
-		src/magic/magic.cpp
-		src/magic/magic_items.cpp
-		src/magic/magic_rooms.cpp
-		src/magic/magic_utils.cpp
-		src/magic/spells.cpp
-		src/magic/spells_info.cpp
-		src/magic/magic_temp_spells.cpp
-		src/mail.cpp
+		src/utils/logger.cpp
+		src/game_magic/magic.cpp
+		src/game_magic/magic_items.cpp
+		src/game_magic/magic_rooms.cpp
+		src/game_magic/magic_utils.cpp
+		src/game_magic/spells.cpp
+		src/game_magic/spells_info.cpp
+		src/game_magic/magic_temp_spells.cpp
+		src/communication/mail.cpp
 		src/mapsystem.cpp
 		src/meat_maker.cpp
 		src/olc/medit.cpp
@@ -114,106 +117,106 @@ set(SOURCES
 		src/mobmax.cpp
 		src/mob_stat.cpp
 		src/modify.cpp
-		src/skills/morph.cpp
+		src/game_skills/morph.cpp
 		src/name_adviser.cpp
-		src/named_stuff.cpp
+		src/game_mechanics/named_stuff.cpp
 		src/name_list.cpp
 		src/names.cpp
 		src/noob.cpp
-		src/obj.cpp
+		src/entities/obj_data.cpp
 		src/obj_enchant.cpp
 		src/obj_save.cpp
-		src/obj_save_ext.cpp
-		src/obj_sets.cpp
-		src/obj_sets_olc.cpp
-		src/magic/magic_objects.cpp
+		src/game_mechanics/obj_save_ext.cpp
+		src/game_mechanics/obj_sets.cpp
+		src/game_mechanics/obj_sets_olc.cpp
+		src/game_magic/magic_objects.cpp
 		src/olc/oedit.cpp
 		src/olc/olc.cpp
-		src/parcel.cpp
-		src/parse.cpp
-		src/password.cpp
+		src/communication/parcel.cpp
+		src/utils/parse.cpp
+		src/administration/password.cpp
 		src/fightsystem/pk.cpp
-		src/chars/player_races.cpp
-		src/privilege.cpp
-		src/pugixml.cpp
+		src/entities/player_races.cpp
+		src/administration/privilege.cpp
+		src/utils/pugixml/pugixml.cpp
 		src/quests/quested.cpp
-		src/random.cpp
+		src/utils/random.cpp
 		src/olc/redit.cpp
-		src/remember.cpp
+		src/communication/remember.cpp
 		src/reset_stats.cpp
-		src/room.cpp
-		src/sets_drop.cpp
-		src/shop_ext.cpp
+		src/entities/room_data.cpp
+		src/game_mechanics/sets_drop.cpp
+		src/game_economics/shop_ext.cpp
 		src/cmd_god/shutdown_parameters.cpp
-		src/skills.cpp
-		src/skills_info.cpp
+		src/game_skills/skills.cpp
+		src/game_skills/skills_info.cpp
 		src/spam.cpp
 		src/spec_assign.cpp
 		src/spec_procs.cpp
-		src/structs.cpp
-		src/structs.cpp
+		src/structs/descriptor_data.cpp
+        src/structs/structs.cpp
 		src/stuff.cpp
-		src/utils/flags.hpp
+        src/structs/flags.hpp
 		src/utils/id_converter.cpp
 		src/utils/utils_time.cpp
 		src/title.cpp
 		src/top.cpp
 		src/utils/utils.cpp
 		src/version.cpp
-		src/weather.cpp
+        src/game_mechanics/weather.cpp
 		src/olc/zedit.cpp
-		src/utils/utils.string.cpp
+		src/utils/utils_string.cpp
 		src/world_objects.cpp
 		src/obj_prototypes.cpp
 		src/id.cpp
 		src/utils/utils_find_obj_id_by_vnum.cpp
-		src/global_objects.cpp
-		src/shops_implementation.cpp
-		src/chars/world.characters.cpp
+        src/structs/global_objects.cpp
+		src/game_economics/shops_implementation.cpp
+		src/entities/world_characters.cpp
 		src/utils/utils_debug.cpp
 		src/speedwalks.cpp
-		src/shops_implementation.cpp
-		src/radix_trie.cpp
-		src/compact_trie.cpp
+		src/game_economics/shops_implementation.cpp
+        src/structs/radix_trie.cpp
+        src/structs/compact_trie.cpp
 		src/id.cpp
 		src/stigmas.cpp
-		src/zone.table.cpp
+		src/entities/zone.cpp
 		src/strengthening.cpp
-		src/skills/backstab.cpp
-		src/skills/bash.cpp
-		src/skills/stun.cpp
-		src/skills/resque.cpp
-		src/skills/kick.cpp
-		src/skills/strangle.cpp
-		src/skills/chopoff.cpp
-		src/skills/disarm.cpp
-		src/skills/stupor.cpp
-		src/skills/ironwind.cpp
-		src/skills/throw.cpp
-		src/skills/mighthit.cpp
-		src/skills/morph.cpp
-		src/skills/block.cpp
-		src/skills/parry.cpp
-		src/skills/pick.cpp
-		src/skills/poison.cpp
-		src/skills/protect.cpp
-		src/skills/expendientcut.cpp
-		src/skills/turnundead.cpp
-		src/skills/townportal.cpp
-		src/skills/manadrain.cpp
-		src/skills/warcry.cpp
-		src/skills/identify.cpp
-		src/skills/relocate.cpp
-		src/chars/mount.cpp
+		src/game_skills/backstab.cpp
+		src/game_skills/bash.cpp
+		src/game_skills/stun.cpp
+		src/game_skills/resque.cpp
+		src/game_skills/kick.cpp
+		src/game_skills/strangle.cpp
+		src/game_skills/chopoff.cpp
+		src/game_skills/disarm.cpp
+		src/game_skills/stupor.cpp
+		src/game_skills/ironwind.cpp
+		src/game_skills/throw.cpp
+		src/game_skills/mighthit.cpp
+		src/game_skills/morph.cpp
+		src/game_skills/block.cpp
+		src/game_skills/parry.cpp
+		src/game_skills/pick.cpp
+		src/game_skills/poison.cpp
+		src/game_skills/protect.cpp
+		src/game_skills/expendientcut.cpp
+		src/game_skills/turnundead.cpp
+		src/game_skills/townportal.cpp
+		src/game_skills/manadrain.cpp
+		src/game_skills/warcry.cpp
+		src/game_skills/identify.cpp
+		src/game_skills/relocate.cpp
+		src/game_mechanics/mount.cpp
 		src/fightsystem/assist.cpp
 		src/fightsystem/fight_start.cpp
-		src/skills/styles.cpp
+		src/game_skills/styles.cpp
 		src/fightsystem/common.cpp
 		src/cmd/retreat.cpp
 		src/cmd/order.cpp
 		src/cmd/mercenary.cpp
 		src/affects/affect_data.cpp
-		src/skills/track.cpp
+		src/game_skills/track.cpp
 		src/cmd/flee.cpp
 		src/cmd/hire.cpp
 		src/cmd/telegram.cpp
@@ -226,7 +229,24 @@ set(SOURCES
 		src/cmd/mixture.cpp
 		src/cmd/cast.cpp
 		src/cmd/employ.cpp
-        src/cmd/follow.cpp )
+        src/cmd/follow.cpp
+		src/structs/flag_data.cpp
+        src/crafts/jewelry.cpp
+		src/crafts/mining.cpp
+		src/game_classes/classes_constants.cpp
+        src/structs/extra_description.cpp
+		src/communication/insult.cpp
+		src/abilities/abilities_info.cpp
+		src/abilities/abilities_constants.cpp
+		src/game_classes/classes_info.cpp
+		src/utils/objects_filter.cpp
+		src/structs/info_container.cpp
+		src/utils/parser_wrapper.cpp
+		src/boot/cfg_manager.cpp
+		src/affects/affect_contants.cpp
+		src/cmd_god/users.cpp
+		src/utils/table_wrapper.cpp
+		src/cmd/score.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -243,58 +263,58 @@ set(HEADERS
 		src/cmd/cast.h
 		src/cmd/employ.h
 		src/affects/affect_data.h
-		src/skills/track.h
+		src/game_skills/track.h
 		src/fightsystem/common.h
 		src/fightsystem/assist.h
 		src/fightsystem/fight_start.h
 		src/cmd/retreat.h
 		src/cmd/order.h
 		src/cmd/mercenary.h
-		src/skills/styles.h
-		src/skills/manadrain.h
-		src/skills/townportal.h
-		src/skills/turnundead.h
-		src/skills/mighthit.h
-		src/skills/expendientcut.h
-		src/skills/block.h
-		src/skills/protect.h
-		src/skills/parry.h
-		src/skills/pick.h
-		src/skills/throw.h
-		src/skills/ironwind.h
-		src/skills/disarm.h
-		src/skills/warcry.h
-		src/skills/identify.h
-		src/skills/relocate.h
+		src/game_skills/styles.h
+		src/game_skills/manadrain.h
+		src/game_skills/townportal.h
+		src/game_skills/turnundead.h
+		src/game_skills/mighthit.h
+		src/game_skills/expendientcut.h
+		src/game_skills/block.h
+		src/game_skills/protect.h
+		src/game_skills/parry.h
+		src/game_skills/pick.h
+		src/game_skills/throw.h
+		src/game_skills/ironwind.h
+		src/game_skills/disarm.h
+		src/game_skills/warcry.h
+		src/game_skills/identify.h
+		src/game_skills/relocate.h
 		src/act_movement.h
 		src/strengthening.h
 		src/abilities/abilities_constants.h
 		src/abilities/abilities_rollsystem.h
-		src/chars/mount.h
-		src/chars/accounts.h
+		src/game_mechanics/mount.h
+		src/administration/accounts.h
 		src/action_targeting.h
 		src/blocking_queue.h
 		src/influxdb.h
 		src/heartbeat_commands.h
-		src/weather.h
+        src/game_mechanics/weather.h
 		src/game_limits.h
 		src/act_wizard.h
 		src/heartbeat.h
 		src/speedwalks.h
-		src/chars/world.characters.h
-		src/shops_implementation.h
-		src/global_objects.h
+		src/entities/world_characters.h
+		src/game_economics/shops_implementation.h
+        src/structs/global_objects.h
 		src/utils/id_converter.h
 		src/utils/utils_find_obj_id_by_vnum.h
 		src/id.h
-		src/compact_trie.h
-		src/radix_trie.h
+        src/structs/compact_trie.h
+        src/structs/radix_trie.h
 		src/obj_prototypes.h
 		src/world_objects.h
-		src/utils/utils.string.h
+		src/utils/utils_string.h
 		src/act_other.h
 		src/affects/affect_handler.h
-		src/auction.h
+		src/game_economics/auction.h
 		src/backtrace.h
 		src/cmd_god/ban.h
 		src/birthplaces.h
@@ -304,19 +324,19 @@ set(HEADERS
 		src/boards/boards.h
 		src/boards/boards_message.h
 		src/boards/boards_types.h
-		src/bonus.h
-		src/bonus_command_parser.h
-		src/bonus_types.h
+		src/game_mechanics/bonus.h
+		src/game_mechanics/bonus_command_parser.h
+		src/game_mechanics/bonus_types.h
 		src/boot/boot_constants.h
 		src/boot/boot_data_files.h
 		src/boot/boot_index.h
 		src/cache.h
-		src/celebrates.h
-		src/chars/char.h
+		src/game_mechanics/celebrates.h
+        src/entities/char_data.h
 		src/utils/utils_char_obj.inl
-		src/chars/char_player.h
-		src/classes/class.h
-		src/classes/class_spell_slots.h
+		src/entities/char_player.h
+		src/game_classes/classes.h
+		src/game_classes/classes_spell_slots.h
 		src/comm.h
 		src/cmd_god/shutdown.h
 		src/commands.h
@@ -328,19 +348,20 @@ set(HEADERS
 		src/quests/daily_quest.h
 		src/quests/quest.h
 		src/db.h
-		src/deathtrap.h
+		src/game_mechanics/deathtrap.h
 		src/depot.h
 		src/description.h
 		src/dg_script/dg_db_scripts.h
+		src/dg_script/dg_domination_helper.h
 		src/dg_script/dg_event.h
 		src/dg_script/dg_olc.h
 		src/dg_script/dg_scripts.h
-		src/dictionary.h
+		src/game_economics/dictionary.h
 		src/diskio.h
-		src/structs_double_map.h
+		src/structs/structs_double_map.h
 		src/dps.h
-		src/exchange.h
-		src/ext_money.h
+		src/game_economics/exchange.h
+		src/game_economics/ext_money.h
 		src/external_trigger.h
 		src/abilities/abilities_items_set.h
 		src/feats.h
@@ -349,31 +370,31 @@ set(HEADERS
 		src/fightsystem/fight_hit.h
 		src/fightsystem/fight_stuff.h
 		src/fightsystem/fight_penalties.h
-		src/file_crc.h
+		src/utils/file_crc.h
 		src/genchar.h
-		src/glory_const.h
-		src/glory.h
-		src/glory_misc.h
+		src/game_mechanics/glory_const.h
+		src/game_mechanics/glory.h
+		src/game_mechanics/glory_misc.h
 		src/handler.h
 		src/help.h
 		src/house_exp.h
 		src/house.h
-		src/ignores.h
-		src/ignores_loader.h
+		src/communication/ignores.h
+		src/communication/ignores_loader.h
 		src/crafts/im.h
 		src/interpreter.h
 		src/crafts/item_creation.h
-		src/levenshtein.h
+		src/utils/levenshtein.h
 		src/liquid.h
-		src/logger.h
-		src/magic/magic.h
-		src/magic/magic_items.h
-		src/magic/magic_rooms.h
-		src/magic/magic_utils.h
-		src/magic/spells.h
-		src/magic/spells_info.h
-		src/magic/magic_temp_spells.h
-		src/mail.h
+		src/utils/logger.h
+		src/game_magic/magic.h
+		src/game_magic/magic_items.h
+		src/game_magic/magic_rooms.h
+		src/game_magic/magic_utils.h
+		src/game_magic/spells.h
+		src/game_magic/spells_info.h
+		src/game_magic/magic_temp_spells.h
+		src/communication/mail.h
 		src/mapsystem.h
 		src/meat_maker.h
 		src/fightsystem/mobact.h
@@ -381,37 +402,38 @@ set(HEADERS
 		src/mob_stat.h
 		src/modify.h
 		src/name_adviser.h
-		src/named_stuff.h
+		src/game_mechanics/named_stuff.h
 		src/name_list.h
 		src/noob.h
 		src/obj_enchant.h
-		src/obj.h
+		src/entities/obj_data.h
 		src/obj_save.h
-		src/obj_sets.h
-		src/obj_sets_stuff.h
+		src/game_mechanics/obj_sets.h
+		src/game_mechanics/obj_sets_stuff.h
 		src/olc/olc.h
-		src/parcel.h
-		src/parse.h
-		src/password.h
+		src/communication/parcel.h
+		src/utils/parse.h
+		src/administration/password.h
 		src/fightsystem/pk.h
-		src/chars/player_i.h
-		src/chars/player_races.h
-		src/privilege.h
-		src/pugiconfig.h
-		src/pugixml.h
+		src/entities/player_i.h
+		src/entities/player_races.h
+		src/administration/privilege.h
+		src/utils/pugixml/pugiconfig.h
+		src/utils/pugixml/pugixml.h
 		src/quests/quested.h
-		src/random.h
-		src/remember.h
+		src/utils/random.h
+		src/communication/remember.h
 		src/reset_stats.h
-		src/room.h
-		src/screen.h
-		src/sets_drop.h
-		src/shop_ext.h
+		src/entities/room_data.h
+		src/color.h
+		src/game_mechanics/sets_drop.h
+		src/game_economics/shop_ext.h
 		src/cmd_god/shutdown_parameters.h
-		src/skills.h
-		src/skills_info.h
+		src/game_skills/skills.h
+		src/game_skills/skills_info.h
 		src/spam.h
-		src/structs.h
+		src/structs/descriptor_data.h
+        src/structs/structs.h
 		src/stuff.h
 		src/sysdep.h
 		src/telnet.h
@@ -419,20 +441,38 @@ set(HEADERS
 		src/title.h
 		src/top.h
 		src/utils/utils.h
-		src/xml_loading_helper.h
+		src/utils/xml_loading_helper.h
 		src/utils/utils_debug.h
 		src/stigmas.h
-		src/zone.table.h
-		src/skills/backstab.h
-		src/skills/bash.h
-		src/skills/stun.h
-		src/skills/poison.h
-		src/skills/resque.h
-		src/skills/kick.h
-		src/skills/strangle.h
-		src/skills/chopoff.h
-		src/skills/stupor.h
-		src/graph.h)
+		src/entities/zone.h
+		src/game_skills/backstab.h
+		src/game_skills/bash.h
+		src/game_skills/stun.h
+		src/game_skills/poison.h
+		src/game_skills/resque.h
+		src/game_skills/kick.h
+		src/game_skills/strangle.h
+		src/game_skills/chopoff.h
+		src/game_skills/stupor.h
+		src/graph.h
+		src/structs/flag_data.h
+        src/entities/entities_constants.h
+		src/crafts/jewelry.h
+		src/crafts/mining.h
+		src/affects/affect_contants.h
+        src/structs/extra_description.h
+		src/communication/insult.h
+		src/communication/social.h
+		src/abilities/abilities_info.h
+		src/game_classes/classes_info.h
+		src/utils/objects_filter.h
+		src/structs/info_container.h
+		src/utils/parser_wrapper.h
+		src/boot/cfg_manager.h
+		src/structs/iterators.h
+		src/cmd_god/users.h
+		src/utils/table_wrapper.h
+		src/cmd/score.h)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 # Build types
@@ -529,9 +569,10 @@ else()
 	set(PYTHON_LIBRARIES)
 endif ()
 
+# MSDP
 set(MSDP_FILES
 		src/msdp/msdp.h
-	src/msdp/msdp.cpp
+		src/msdp/msdp.cpp
 		src/msdp/msdp_parser.cpp
 		src/msdp/msdp_parser.h
 		src/msdp/msdp_constants.h
@@ -623,11 +664,18 @@ set_target_properties(changelog PROPERTIES FOLDER "Utility targets")
 # Main library file.
 add_library(circle.library STATIC ${CIRCLE_FILES})
 if (UNIX OR CYGWIN)
-	add_definitions("--std=gnu++17")
+	#add_definitions("--std=gnu++17")
+	add_definitions("-std=c++2a")
 else ()
 	set_target_properties(circle.library PROPERTIES CXX_STANDARD 14)
 endif ()
 add_dependencies(circle.library versioning changelog)
+
+# Linfort integration
+# Disable building tests and examples in libfort project
+set(FORT_ENABLE_TESTING OFF CACHE INTERNAL "")
+add_subdirectory(src/utils/libfort)
+target_link_libraries(circle.library fort)
 
 # Boost
 set(BOOST_MODULES ${BOOST_PYTHON_MODULE} system filesystem)

@@ -7,24 +7,24 @@
 
 #include "conf.h"
 #include "sysdep.h"
-#include "structs.h"
+#include "structs/structs.h"
 
 // оба списка воткнуты в попытке ускорить работу триггеров на этапе подстановки переменных
 
 namespace CharacterAlias {
 
-void add(CHAR_DATA *ch);
-void remove(CHAR_DATA *ch);
-CHAR_DATA *get_by_name(const char *str);
+void add(CharData *ch);
+void remove(CharData *ch);
+CharData *get_by_name(const char *str);
 
 } // namespace CharacterAlias
 
 namespace ObjectAlias {
 
-void add(OBJ_DATA *obj);
-void remove(OBJ_DATA *obj);
-OBJ_DATA *get_by_name(const char *str);
-OBJ_DATA *locate_object(const char *str);
+void add(ObjData *obj);
+void remove(ObjData *obj);
+ObjData *get_by_name(const char *str);
+ObjData *locate_object(const char *str);
 
 } // namespace ObjectAlias
 

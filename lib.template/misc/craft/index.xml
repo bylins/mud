@@ -27,15 +27,15 @@
 			<sockets required="4" additional="4" />
 
 			<skills>
-				<skill id="ID of first required skill" base="yes" train_threshold="500" /> <!-- override skill parameter -->
-				<skill id="ID of second required skill" base="yes" />
+				<skill id="id of first required skill" base="yes" train_threshold="500" /> <!-- override skill parameter -->
+				<skill id="id of second required skill" base="yes" />
 
-				<skill id="ID of first additional skill" train_threshold="1000" /> <!-- override skill parameter -->
-				<skill id="ID of second additional skill" />
+				<skill id="id of first additional skill" train_threshold="1000" /> <!-- override skill parameter -->
+				<skill id="id of second additional skill" />
 			</skills>
 
 			<recipes>
-				<recipe id="ID of available recipe" />
+				<recipe id="id of available recipe" />
 			</recipes>
 		</craft>
 	</crafts>
@@ -126,11 +126,11 @@
 						
 						<skills>
 							<skill>
-								<id>SKILL_FIRE_MAGIC</id>
+								<id>kFireMagic</id>
 								<value>10</value>
 							</skill>
 							<skill>
-								<id>SKILL_MANADRAIN</id>
+								<id>kJinx</id>
 								<value>10</value>
 							</skill>
 						</skills>
@@ -231,7 +231,7 @@
 						</applies>
 						<skills>
 							<skill>
-								<id>SKILL_AIR_MAGIC</id>
+								<id>kAirMagic</id>
 								<value>15</value>
 							</skill>
 						</skills>
@@ -306,10 +306,10 @@
 			<weight>10</weight>
 			<timer>unlimited</timer>
 			<item_parameters>
-				<parameter>SKILL_CLUBS</parameter>
+				<parameter>kClubs</parameter>
 			</item_parameters>
 			<material>MAT_SUPERWOOD</material>
-			<spell>SPELL_SLEEP</spell>
+			<spell>kSpellSleep</spell>
 
 			<extraflags>
 				<extraflag>ITEM_BLESS</extraflag>
@@ -343,7 +343,7 @@
 
 			<skills>
 				<skill>
-					<id>SKILL_IDENTIFY</id>
+					<id>kIdentify</id>
 					<value>100</value>
 				</skill>
 			</skills>

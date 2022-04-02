@@ -1,36 +1,33 @@
-#include "heartbeat.h"
+//#include "heartbeat.h"
 
-#include "auction.h"
-#include "deathtrap.h"
-#include "parcel.h"
+#include "game_economics/auction.h"
+#include "game_mechanics/deathtrap.h"
+#include "communication/parcel.h"
 #include "fightsystem/pk.h"
-#include "celebrates.h"
+#include "game_mechanics/celebrates.h"
 #include "fightsystem/fight.h"
 #include "help.h"
-#include "bonus.h"
-#include "magic/magic_temp_spells.h"
+#include "game_mechanics/bonus.h"
+#include "game_magic/magic_temp_spells.h"
 #include "external_trigger.h"
 #include "house.h"
 #include "cmd_god/ban.h"
-#include "exchange.h"
+#include "game_economics/exchange.h"
 #include "title.h"
 #include "depot.h"
-#include "glory.h"
-#include "file_crc.h"
-#include "sets_drop.h"
-#include "mail.h"
+#include "game_mechanics/glory.h"
+#include "utils/file_crc.h"
+#include "game_mechanics/sets_drop.h"
+#include "communication/mail.h"
 #include "mob_stat.h"
-#include "weather.h"
-#include "magic/magic.h"
-#include "magic/magic_rooms.h"
-#include "obj_save.h"
+#include "game_magic/magic.h"
 #include "game_limits.h"
 #include "fightsystem/mobact.h"
 #include "dg_script/dg_event.h"
 #include "corpse.h"
 #include "cmd_god/shutdown_parameters.h"
 #include "utils/utils_time.h"
-#include "global_objects.h"
+#include "structs/global_objects.h"
 
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"
@@ -40,7 +37,7 @@
 constexpr bool FRAC_SAVE = true;
 
 void check_idle_passwords(void) {
-	DESCRIPTOR_DATA *d, *next_d;
+	DescriptorData *d, *next_d;
 
 	for (d = descriptor_list; d; d = next_d) {
 		next_d = d->next;
@@ -58,7 +55,7 @@ void check_idle_passwords(void) {
 
 void record_usage(void) {
 	int sockets_connected = 0, sockets_playing = 0;
-	DESCRIPTOR_DATA *d;
+	DescriptorData *d;
 
 	for (d = descriptor_list; d; d = d->next) {
 		sockets_connected++;
@@ -84,7 +81,7 @@ namespace {
 void process_speedwalks() {
 	for (auto &sw : GlobalObjects::speedwalks()) {
 		if (sw.wait > sw.route[sw.cur_state].wait) {
-			for (CHAR_DATA *ch : sw.mobs) {
+			for (CharData *ch : sw.mobs) {
 				if (ch && !ch->purged()) {
 					std::string direction = sw.route[sw.cur_state].direction;
 					int dir = 1;
@@ -100,7 +97,7 @@ void process_speedwalks() {
 						dir = SCMD_UP;
 					if (boost::starts_with(direction, "вниз"))
 						dir = SCMD_DOWN;
-					perform_move(ch, dir - 1, 0, TRUE, 0);
+					perform_move(ch, dir - 1, 0, true, 0);
 				}
 			}
 			sw.wait = 0;
@@ -160,7 +157,7 @@ class CheckScheduledRebootCall : public AbstractPulseAction {
 
 void CheckScheduledRebootCall::perform(int, int) {
 	const auto boot_time = GlobalObjects::shutdown_parameters().get_boot_time();
-	const auto uptime_minutes = ((time(NULL) - boot_time) / 60);
+	const auto uptime_minutes = ((time(nullptr) - boot_time) / 60);
 
 	if (uptime_minutes >= (shutdown_parameters.get_reboot_uptime() - 30)
 		&& shutdown_parameters.get_shutdown_timeout() == 0) {
@@ -186,14 +183,14 @@ void CheckTriggeredRebootCall::perform(int, int) {
 
 	if (m_external_trigger_checker
 		&& m_external_trigger_checker->check()) {
-		mudlog("Сработал внешний триггер перезагрузки.", DEF, LVL_IMPL, SYSLOG, true);
+		mudlog("Сработал внешний триггер перезагрузки.", DEF, kLvlImplementator, SYSLOG, true);
 		shutdown_parameters.reboot();
 	}
 }
 
 class BeatPointsUpdateCall : public AbstractPulseAction {
  public:
-	virtual void perform(int pulse_number, int) override { beat_points_update(pulse_number / PASSES_PER_SEC); }
+	virtual void perform(int pulse_number, int) override { beat_points_update(pulse_number / kPassesPerSec); }
 };
 
 class CrashFracSaveCall : public AbstractPulseAction {
@@ -203,8 +200,8 @@ class CrashFracSaveCall : public AbstractPulseAction {
 
 void CrashFracSaveCall::perform(int pulse_number, int) {
 	if (FRAC_SAVE && AUTO_SAVE) {
-		Crash_frac_save_all((pulse_number / PASSES_PER_SEC) % PLAYER_SAVE_ACTIVITY);
-		Crash_frac_rent_time((pulse_number / PASSES_PER_SEC) % OBJECT_SAVE_ACTIVITY);
+		Crash_frac_save_all((pulse_number / kPassesPerSec) % PLAYER_SAVE_ACTIVITY);
+		Crash_frac_rent_time((pulse_number / kPassesPerSec) % OBJECT_SAVE_ACTIVITY);
 	}
 }
 
@@ -254,7 +251,7 @@ class CrashSaveCall : public AbstractPulseAction {
 
 CrashSaveCall::CrashSaveCall() :
 	m_mins_since_crashsave(0),
-	m_last_rent_check(time(NULL)) {
+	m_last_rent_check(time(nullptr)) {
 }
 
 void CrashSaveCall::perform(int, int) {
@@ -268,7 +265,7 @@ void CrashSaveCall::perform(int, int) {
 
 	m_mins_since_crashsave = 0;
 	Crash_save_all();
-	const auto check_at = time(NULL);
+	const auto check_at = time(nullptr);
 
 	if (m_last_rent_check > check_at) {
 		m_last_rent_check = check_at;
@@ -276,7 +273,7 @@ void CrashSaveCall::perform(int, int) {
 
 	if (((check_at - m_last_rent_check) / 60)) {
 		Crash_rent_time((check_at - m_last_rent_check) / 60);
-		m_last_rent_check = time(NULL) - (check_at - m_last_rent_check) % 60;
+		m_last_rent_check = time(nullptr) - (check_at - m_last_rent_check) % 60;
 	}
 }
 
@@ -293,7 +290,7 @@ void UpdateClanExpCall::perform(int, int) {
 class SpellUsageCall : public AbstractPulseAction {
  public:
 	virtual void perform(int, int) override {
-		if (!SpellUsage::isActive) {
+		if (!SpellUsage::is_active) {
 			return;
 		}
 
@@ -308,244 +305,244 @@ class SpellUsageCall : public AbstractPulseAction {
 Heartbeat::steps_t &pulse_steps() {
 	static Heartbeat::steps_t pulse_steps_storage = {
 		Heartbeat::PulseStep("Speed walks processing",
-							 PASSES_PER_SEC,
+							 kPassesPerSec,
 							 0,
 							 std::make_shared<SimpleCall>(process_speedwalks)),
 		Heartbeat::PulseStep("Global drop: tables reloading",
-							 PASSES_PER_SEC * 120 * 60,
+							 kPassesPerSec * 120 * 60,
 							 0,
 							 std::make_shared<SimpleCall>(GlobalDrop::reload_tables)),
 		Heartbeat::PulseStep("Events processing", 1, 0, std::make_shared<SimpleCall>(process_events)),
 		Heartbeat::PulseStep("Triggers check", PULSE_DG_SCRIPT, 1, std::make_shared<SimpleCall>(script_trigger_check)),
-		Heartbeat::PulseStep("Sanity check", 60 * PASSES_PER_SEC, 2, std::make_shared<SimpleCall>(sanity_check)),
+		Heartbeat::PulseStep("Sanity check", 60 * kPassesPerSec, 2, std::make_shared<SimpleCall>(sanity_check)),
 		Heartbeat::PulseStep("Check idle passwords",
-							 40 * PASSES_PER_SEC,
+							 40 * kPassesPerSec,
 							 0,
 							 std::make_shared<SimpleCall>(check_idle_passwords)),
 		Heartbeat::PulseStep("Mobile activity", 10, 0, std::make_shared<MobActCall>()),
 		Heartbeat::PulseStep("Inspecting", 1, 0, std::make_shared<InspectCall>()),
 		Heartbeat::PulseStep("Set all inspecting", 1, 0, std::make_shared<SetAllInspectCall>()),
 		Heartbeat::PulseStep("Death trap activity",
-							 2 * PASSES_PER_SEC,
+							 2 * kPassesPerSec,
 							 0,
 							 std::make_shared<SimpleCall>(DeathTrap::activity)),
-		Heartbeat::PulseStep("Underwater check", 2 * PASSES_PER_SEC, 0, std::make_shared<SimpleCall>(underwater_check)),
+		Heartbeat::PulseStep("Underwater check", 2 * kPassesPerSec, 0, std::make_shared<SimpleCall>(underwater_check)),
 		Heartbeat::PulseStep("Clan system: check player in house",
-							 2 * PASSES_PER_SEC,
+							 2 * kPassesPerSec,
 							 0,
 							 std::make_shared<SimpleCall>(ClanSystem::check_player_in_house)),
-		Heartbeat::PulseStep("Violence performing", PULSE_VIOLENCE, 3, std::make_shared<SimpleCall>(perform_violence)),
+		Heartbeat::PulseStep("Violence performing", kPulseViolence, 3, std::make_shared<SimpleCall>(perform_violence)),
 		Heartbeat::PulseStep("Scheduled reboot checking",
-							 30 * PASSES_PER_SEC,
+							 30 * kPassesPerSec,
 							 0,
 							 std::make_shared<CheckScheduledRebootCall>()),
 		Heartbeat::PulseStep("Check of reboot trigger",
-							 PASSES_PER_SEC,
+							 kPassesPerSec,
 							 0,
 							 std::make_shared<CheckTriggeredRebootCall>()),
 		Heartbeat::PulseStep("Auction update",
-							 AUCTION_PULSES * PASSES_PER_SEC,
+							 AUCTION_PULSES * kPassesPerSec,
 							 0,
 							 std::make_shared<SimpleCall>(tact_auction)),
 		Heartbeat::PulseStep("Room affect update",
-							 SECS_PER_ROOM_AFFECT * PASSES_PER_SEC,
+							 SECS_PER_ROOM_AFFECT * kPassesPerSec,
 							 0,
-							 std::make_shared<SimpleCall>(RoomSpells::room_affect_update)),
+							 std::make_shared<SimpleCall>(room_spells::UpdateRoomsAffects)),
 		Heartbeat::PulseStep("Player affect update",
-							 SECS_PER_PLAYER_AFFECT * PASSES_PER_SEC,
+							 SECS_PER_PLAYER_AFFECT * kPassesPerSec,
 							 0,
 							 std::make_shared<SimpleCall>(player_affect_update)),
 		Heartbeat::PulseStep("Hour update",
-							 TIME_KOEFF * SECS_PER_MUD_HOUR * PASSES_PER_SEC,
-							 PASSES_PER_SEC - 4,
+							 TIME_KOEFF * SECS_PER_MUD_HOUR * kPassesPerSec,
+							 kPassesPerSec - 4,
 							 std::make_shared<SimpleCall>(hour_update)),
 		Heartbeat::PulseStep("Timer bonus",
-							 TIME_KOEFF * SECS_PER_MUD_HOUR * PASSES_PER_SEC,
-							 PASSES_PER_SEC - 3,
+							 TIME_KOEFF * SECS_PER_MUD_HOUR * kPassesPerSec,
+							 kPassesPerSec - 3,
 							 std::make_shared<SimpleCall>(Bonus::timer_bonus)),
 		Heartbeat::PulseStep("Weather and time",
-							 TIME_KOEFF * SECS_PER_MUD_HOUR * PASSES_PER_SEC,
-							 PASSES_PER_SEC - 2,
+							 TIME_KOEFF * SECS_PER_MUD_HOUR * kPassesPerSec,
+							 kPassesPerSec - 2,
 							 std::make_shared<SimpleCall>([]() { weather_and_time(1); })),
 		Heartbeat::PulseStep("Paste mobiles",
-							 TIME_KOEFF * SECS_PER_MUD_HOUR * PASSES_PER_SEC,
-							 PASSES_PER_SEC - 1,
+							 TIME_KOEFF * SECS_PER_MUD_HOUR * kPassesPerSec,
+							 kPassesPerSec - 1,
 							 std::make_shared<SimpleCall>(paste_mobiles)),
-		Heartbeat::PulseStep("Zone update", PULSE_ZONE, 5, std::make_shared<SimpleCall>(zone_update)),
+		Heartbeat::PulseStep("Zone update", kPulseZone, 5, std::make_shared<SimpleCall>(zone_update)),
 		Heartbeat::PulseStep("Money drop stat: print log",
-							 60 * 60 * PASSES_PER_SEC,
+							 60 * 60 * kPassesPerSec,
 							 49,
 							 std::make_shared<SimpleCall>(MoneyDropStat::print_log)),
 		Heartbeat::PulseStep("Zone exp stat: print log",
-							 60 * 60 * PASSES_PER_SEC,
+							 60 * 60 * kPassesPerSec,
 							 49,
 							 std::make_shared<SimpleCall>(ZoneExpStat::print_log)),
 		Heartbeat::PulseStep("Print rune log",
-							 60 * 60 * PASSES_PER_SEC,
+							 60 * 60 * kPassesPerSec,
 							 49,
 							 std::make_shared<SimpleCall>(print_rune_log)),
 		Heartbeat::PulseStep("Mob stats saving",
-							 60 * mob_stat::SAVE_PERIOD * PASSES_PER_SEC,
+							 60 * mob_stat::kSavePeriod * kPassesPerSec,
 							 57,
-							 std::make_shared<SimpleCall>(mob_stat::save)),
+							 std::make_shared<SimpleCall>(mob_stat::Save)),
 		Heartbeat::PulseStep("Sets drop table saving",
-							 60 * SetsDrop::SAVE_PERIOD * PASSES_PER_SEC,
+							 60 * SetsDrop::SAVE_PERIOD * kPassesPerSec,
 							 52,
 							 std::make_shared<SimpleCall>(SetsDrop::save_drop_table)),
 		Heartbeat::PulseStep("Clan system: chest log saving",
-							 60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC,
+							 60 * kChestUpdatePeriod * kPassesPerSec,
 							 50,
 							 std::make_shared<SimpleCall>(ClanSystem::save_chest_log)),
 		Heartbeat::PulseStep("Clan system: ingredients chests saving",
-							 60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC,
+							 60 * kChestUpdatePeriod * kPassesPerSec,
 							 48,
 							 std::make_shared<SimpleCall>(ClanSystem::save_ingr_chests)),
 		Heartbeat::PulseStep("Global drop: saving",
-							 60 * GlobalDrop::SAVE_PERIOD * PASSES_PER_SEC,
+							 60 * GlobalDrop::SAVE_PERIOD * kPassesPerSec,
 							 47,
 							 std::make_shared<SimpleCall>(GlobalDrop::save)),
 		Heartbeat::PulseStep("Clan: chest update",
-							 60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC,
+							 60 * kChestUpdatePeriod * kPassesPerSec,
 							 46,
 							 std::make_shared<SimpleCall>(Clan::ChestUpdate)),
 		Heartbeat::PulseStep("Clan: save chest all",
-							 60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC,
+							 60 * kChestUpdatePeriod * kPassesPerSec,
 							 44,
 							 std::make_shared<SimpleCall>(Clan::SaveChestAll)),
 		Heartbeat::PulseStep("Clan: clan save",
-							 60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC,
+							 60 * kChestUpdatePeriod * kPassesPerSec,
 							 40,
 							 std::make_shared<SimpleCall>(Clan::ClanSave)),
 		Heartbeat::PulseStep("Celebrates: sanitize",
-							 Celebrates::CLEAN_PERIOD * 60 * PASSES_PER_SEC,
+							 Celebrates::CLEAN_PERIOD * 60 * kPassesPerSec,
 							 39,
 							 std::make_shared<SimpleCall>(Celebrates::sanitize)),
-		Heartbeat::PulseStep("Record usage", 5 * 60 * PASSES_PER_SEC, 37, std::make_shared<SimpleCall>(record_usage)),
+		Heartbeat::PulseStep("Record usage", 5 * 60 * kPassesPerSec, 37, std::make_shared<SimpleCall>(record_usage)),
 		Heartbeat::PulseStep("Reload proxy ban",
-							 5 * 60 * PASSES_PER_SEC,
+							 5 * 60 * kPassesPerSec,
 							 36,
 							 std::make_shared<SimpleCall>([]() { ban->reload_proxy_ban(ban->RELOAD_MODE_TMPFILE); })),
 		Heartbeat::PulseStep("God work invoice",
-							 5 * 60 * PASSES_PER_SEC,
+							 5 * 60 * kPassesPerSec,
 							 35,
 							 std::make_shared<SimpleCall>(god_work_invoice)),
 		Heartbeat::PulseStep("Title system: title list saving",
-							 5 * 60 * PASSES_PER_SEC,
+							 5 * 60 * kPassesPerSec,
 							 34,
 							 std::make_shared<SimpleCall>(TitleSystem::save_title_list)),
 		Heartbeat::PulseStep("Register system: save",
-							 5 * 60 * PASSES_PER_SEC,
+							 5 * 60 * kPassesPerSec,
 							 33,
 							 std::make_shared<SimpleCall>(RegisterSystem::save)),
 		Heartbeat::PulseStep("Mail: save",
-							 SECS_PER_MUD_HOUR * PASSES_PER_SEC,
+							 SECS_PER_MUD_HOUR * kPassesPerSec,
 							 32,
 							 std::make_shared<SimpleCall>(mail::save)),
 		Heartbeat::PulseStep("Help system: update dynamic checking",
-							 SECS_PER_MUD_HOUR * PASSES_PER_SEC,
+							 SECS_PER_MUD_HOUR * kPassesPerSec,
 							 31,
 							 std::make_shared<SimpleCall>(HelpSystem::check_update_dynamic)),
 		Heartbeat::PulseStep("Sets drop: reload by timer",
-							 SECS_PER_MUD_HOUR * PASSES_PER_SEC,
+							 SECS_PER_MUD_HOUR * kPassesPerSec,
 							 30,
 							 std::make_shared<SimpleCall>(SetsDrop::reload_by_timer)),
 		Heartbeat::PulseStep("Clan: save PK log",
-							 SECS_PER_MUD_HOUR * PASSES_PER_SEC,
+							 SECS_PER_MUD_HOUR * kPassesPerSec,
 							 29,
 							 std::make_shared<SimpleCall>(Clan::save_pk_log)),
 		Heartbeat::PulseStep("Characters purging",
-							 SECS_PER_MUD_HOUR * PASSES_PER_SEC,
+							 SECS_PER_MUD_HOUR * kPassesPerSec,
 							 28,
 							 std::make_shared<SimpleCall>([]() { character_list.purge(); })),
 		Heartbeat::PulseStep("Objects purging",
-							 SECS_PER_MUD_HOUR * PASSES_PER_SEC,
+							 SECS_PER_MUD_HOUR * kPassesPerSec,
 							 27,
 							 std::make_shared<SimpleCall>([]() { world_objects.purge(); })),
 		Heartbeat::PulseStep("Depot: timers updating",
-							 SECS_PER_MUD_HOUR * PASSES_PER_SEC,
+							 SECS_PER_MUD_HOUR * kPassesPerSec,
 							 25,
 							 std::make_shared<SimpleCall>(Depot::update_timers)),
 		Heartbeat::PulseStep("Parcel: timers updating",
-							 SECS_PER_MUD_HOUR * PASSES_PER_SEC,
+							 SECS_PER_MUD_HOUR * kPassesPerSec,
 							 24,
 							 std::make_shared<SimpleCall>(Parcel::update_timers)),
 		Heartbeat::PulseStep("Glory: timers updating",
-							 SECS_PER_MUD_HOUR * PASSES_PER_SEC,
+							 SECS_PER_MUD_HOUR * kPassesPerSec,
 							 23,
 							 std::make_shared<SimpleCall>(Glory::timers_update)),
 		Heartbeat::PulseStep("Glory: saving",
-							 SECS_PER_MUD_HOUR * PASSES_PER_SEC,
+							 SECS_PER_MUD_HOUR * kPassesPerSec,
 							 22,
 							 std::make_shared<SimpleCall>(Glory::save_glory)),
 		Heartbeat::PulseStep("Depot: saving all online objects",
-							 SECS_PER_MUD_HOUR * PASSES_PER_SEC,
+							 SECS_PER_MUD_HOUR * kPassesPerSec,
 							 21,
 							 std::make_shared<SimpleCall>(Depot::save_all_online_objs)),
 		Heartbeat::PulseStep("Depot: time data saving",
-							 SECS_PER_MUD_HOUR * PASSES_PER_SEC,
+							 SECS_PER_MUD_HOUR * kPassesPerSec,
 							 17,
 							 std::make_shared<SimpleCall>(Depot::save_timedata)),
 		Heartbeat::PulseStep("Mobile affects updating",
-							 SECS_PER_MUD_HOUR * PASSES_PER_SEC,
+							 SECS_PER_MUD_HOUR * kPassesPerSec,
 							 16,
 							 std::make_shared<SimpleCall>(mobile_affect_update)),
 		Heartbeat::PulseStep("Objects point updating",
-							 SECS_PER_MUD_HOUR * PASSES_PER_SEC,
+							 SECS_PER_MUD_HOUR * kPassesPerSec,
 							 11,
 							 std::make_shared<SimpleCall>(obj_point_update)),
 		Heartbeat::PulseStep("Bloody: updating",
-							 SECS_PER_MUD_HOUR * PASSES_PER_SEC,
+							 SECS_PER_MUD_HOUR * kPassesPerSec,
 							 10,
 							 std::make_shared<SimpleCall>(bloody::update)),
 		Heartbeat::PulseStep("Room point updating",
-							 SECS_PER_MUD_HOUR * PASSES_PER_SEC,
+							 SECS_PER_MUD_HOUR * kPassesPerSec,
 							 6,
 							 std::make_shared<SimpleCall>(room_point_update)),
 		Heartbeat::PulseStep("Temporary spells: times updating",
-							 SECS_PER_MUD_HOUR * PASSES_PER_SEC,
+							 SECS_PER_MUD_HOUR * kPassesPerSec,
 							 5,
 							 std::make_shared<SimpleCall>(Temporary_Spells::update_times)),
 		Heartbeat::PulseStep("Exchange point updating",
-							 SECS_PER_MUD_HOUR * PASSES_PER_SEC,
+							 SECS_PER_MUD_HOUR * kPassesPerSec,
 							 2,
 							 std::make_shared<SimpleCall>(exchange_point_update)),
 		Heartbeat::PulseStep("Players index flushing",
-							 SECS_PER_MUD_HOUR * PASSES_PER_SEC,
+							 SECS_PER_MUD_HOUR * kPassesPerSec,
 							 1,
 							 std::make_shared<SimpleCall>(flush_player_index)),
 		Heartbeat::PulseStep("Point updating",
-							 SECS_PER_MUD_HOUR * PASSES_PER_SEC,
-							 PASSES_PER_SEC - 5,
+							 SECS_PER_MUD_HOUR * kPassesPerSec,
+							 kPassesPerSec - 5,
 							 std::make_shared<SimpleCall>(point_update)),
-		Heartbeat::PulseStep("Beat points updating", PASSES_PER_SEC, 0, std::make_shared<BeatPointsUpdateCall>()),
+		Heartbeat::PulseStep("Beat points updating", kPassesPerSec, 0, std::make_shared<BeatPointsUpdateCall>()),
 #if defined WITH_SCRIPTING
 		Heartbeat::PulseStep("Scripting: heartbeat", scripting::HEARTBEAT_PASSES, 0, std::make_shared<SimpleCall>(scripting::heartbeat)),
 #endif
-		Heartbeat::PulseStep("Crash frac save", PASSES_PER_SEC, 7, std::make_shared<CrashFracSaveCall>()),
+		Heartbeat::PulseStep("Crash frac save", kPassesPerSec, 7, std::make_shared<CrashFracSaveCall>()),
 		Heartbeat::PulseStep("Exchange database save",
-							 EXCHANGE_AUTOSAVETIME * PASSES_PER_SEC,
+							 EXCHANGE_AUTOSAVETIME * kPassesPerSec,
 							 9,
 							 std::make_shared<ExchangeDatabaseSaveCall>()),
 		Heartbeat::PulseStep("Exchange database backup save",
-							 EXCHANGE_AUTOSAVETIME * PASSES_PER_SEC,
+							 EXCHANGE_AUTOSAVETIME * kPassesPerSec,
 							 9,
 							 std::make_shared<ExchangeDatabaseBackupSaveCall>()),
-		Heartbeat::PulseStep("Global UID saving", 60 * PASSES_PER_SEC, 9, std::make_shared<GlobalSaveUIDCall>()),
-		Heartbeat::PulseStep("Crash save", 60 * PASSES_PER_SEC, 11, std::make_shared<CrashSaveCall>()),
+		Heartbeat::PulseStep("Global UID saving", 60 * kPassesPerSec, 9, std::make_shared<GlobalSaveUIDCall>()),
+		Heartbeat::PulseStep("Crash save", 60 * kPassesPerSec, 11, std::make_shared<CrashSaveCall>()),
 		Heartbeat::PulseStep("Clan experience updating",
-							 60 * CLAN_EXP_UPDATE_PERIOD * PASSES_PER_SEC,
+							 60 * CLAN_EXP_UPDATE_PERIOD * kPassesPerSec,
 							 14,
 							 std::make_shared<UpdateClanExpCall>()),
 		Heartbeat::PulseStep("Clan: chest invoice",
-							 60 * CHEST_INVOICE_PERIOD * PASSES_PER_SEC,
+							 60 * kChestInvoicePeriod * kPassesPerSec,
 							 15,
 							 std::make_shared<SimpleCall>(Clan::ChestInvoice)),
-//			Heartbeat::PulseStep("Gifts", 60 * 60 * PASSES_PER_SEC, 18, std::make_shared<SimpleCall>(gifts)),
+//			Heartbeat::PulseStep("Gifts", 60 * 60 * kPassesPerSec, 18, std::make_shared<SimpleCall>(gifts)),
 		Heartbeat::PulseStep("File CRC: saving",
-							 PASSES_PER_SEC,
+							 kPassesPerSec,
 							 23,
 							 std::make_shared<SimpleCall>([]() { FileCRC::save(false); })),
-		Heartbeat::PulseStep("Spells usage saving", 60 * 60 * PASSES_PER_SEC, 0, std::make_shared<SpellUsageCall>())
+		Heartbeat::PulseStep("Spells usage saving", 60 * 60 * kPassesPerSec, 0, std::make_shared<SpellUsageCall>())
 	};
 
 	return pulse_steps_storage;
@@ -582,7 +579,7 @@ void Heartbeat::operator()(const int missed_pulses) {
 	utils::CExecutionTimer timer;
 	pulse(missed_pulses, label);
 	const auto execution_time = timer.delta();
-	if (PASSES_PER_SEC / 60.0 < execution_time.count()) {
+	if (kPassesPerSec / 60.0 < execution_time.count()) {
 		log("SYSERR: Long-running tick #%d worked for %.4f seconds (missed pulses argument has value %d)",
 			pulse_number(), execution_time.count(), missed_pulses);
 	}

@@ -1,8 +1,8 @@
 #include "heartbeat_commands.h"
 
 #include "heartbeat.h"
-#include "global_objects.h"
-#include "utils/utils.string.h"
+#include "structs/global_objects.h"
+#include "utils/utils_string.h"
 
 #include <iomanip>
 
@@ -13,7 +13,7 @@ using namespace commands::utils;
 
 class HeartbeatCommandContext : public ReplyableContext {
  public:
-	HeartbeatCommandContext(CHAR_DATA *character, Heartbeat &heartbeat)
+	HeartbeatCommandContext(CharData *character, Heartbeat &heartbeat)
 		: ReplyableContext(character), m_heartbeat(heartbeat) {}
 
 	Heartbeat &operator()() const { return m_heartbeat; }
@@ -38,7 +38,7 @@ class ClearStats : public commands::utils::CommonCommand {
 
 void ClearStats::execute(const CommandContext::shared_ptr &context,
 						 const arguments_t &path,
-						 const arguments_t &arguments) {
+						 const arguments_t &/*arguments*/) {
 	const auto heartbeat_context = std::dynamic_pointer_cast<HeartbeatCommandContext>(context);
 	if (!heartbeat_context) {
 		log("SYSERR: context of heartbeat command '%s' is not an instance of class 'HeartbeatCommandContext'.",
@@ -267,7 +267,7 @@ void ShowHeartbeatStats::print_steps(std::ostream &os,
 class CommandsHandler : public commands::AbstractCommandsHanler {
  public:
 	virtual void initialize() override;
-	virtual void process(CHAR_DATA *character, char *arguments) override;
+	virtual void process(CharData *character, char *arguments) override;
 
  private:
 	CommandEmbranchment::shared_ptr m_command;
@@ -293,7 +293,7 @@ void CommandsHandler::initialize() {
 		.rebuild_help();
 }
 
-void CommandsHandler::process(CHAR_DATA *character, char *arguments) {
+void CommandsHandler::process(CharData *character, char *arguments) {
 	AbstractCommand::arguments_t arguments_list(arguments);
 	const auto context = std::make_shared<HeartbeatCommandContext>(character, GlobalObjects::heartbeat());
 	AbstractCommand::arguments_t path;
@@ -308,7 +308,7 @@ const commands::AbstractCommandsHanler::shared_ptr &commands_handler() {
 }
 }
 
-void do_heartbeat(CHAR_DATA *ch, char *arguments, int /*cmd*/, int /*subcmd*/) {
+void do_heartbeat(CharData *ch, char *arguments, int /*cmd*/, int /*subcmd*/) {
 	commands_handler()->process(ch, arguments);
 }
 

@@ -4,8 +4,8 @@
 #define _FIGHT_H_
 
 #include "fight_constants.h"
-#include "chars/char.h"
-#include "structs.h"
+#include "entities/char_data.h"
+#include "structs/structs.h"
 #include "conf.h"
 #include "sysdep.h"
 
@@ -15,8 +15,8 @@
  * obj.process(ch, victim);
  */
 struct SkillDmg {
-	SkillDmg(int num) : skill_num(num) {};
-	int skill_num;
+	SkillDmg(ESkill id) : skill_id(id) {};
+	ESkill skill_id;
 };
 
 /**
@@ -54,15 +54,16 @@ class Damage {
 	Damage() { zero_init(); };
 
 	// скилы
-	Damage(SkillDmg obj, int in_dam, FightSystem::DmgType in_dmg_type) {
+	Damage(SkillDmg obj, int in_dam, fight::DmgType in_dmg_type, ObjData *wielded_obj) {
 		zero_init();
-		skill_num = obj.skill_num;
+		skill_id = obj.skill_id;
 		dam = in_dam;
 		dmg_type = in_dmg_type;
+		wielded = wielded_obj;
 	};
 
 	// заклинания
-	Damage(SpellDmg obj, int in_dam, FightSystem::DmgType in_dmg_type) {
+	Damage(SpellDmg obj, int in_dam, fight::DmgType in_dmg_type) {
 		zero_init();
 		spell_num = obj.spell_num;
 		dam = in_dam;
@@ -70,14 +71,14 @@ class Damage {
 	};
 
 	// прочий дамаг
-	Damage(SimpleDmg obj, int in_dam, FightSystem::DmgType in_dmg_type) {
+	Damage(SimpleDmg obj, int in_dam, fight::DmgType in_dmg_type) {
 		zero_init();
 		msg_num = obj.msg_num;
 		dam = in_dam;
 		dmg_type = in_dmg_type;
 	};
 
-	int process(CHAR_DATA *ch, CHAR_DATA *victim);
+	int Process(CharData *ch, CharData *victim);
 
 	// дамаг атакующего
 	int dam;
@@ -87,7 +88,7 @@ class Damage {
 	// тип урона (физ/маг/обычный)
 	int dmg_type;
 	// см. описание в HitData
-	int skill_num;
+	ESkill skill_id;
 	// номер заклинания, если >= 0
 	int spell_num;
 	// Какой стихией магии наносится урон.
@@ -100,26 +101,28 @@ class Damage {
 	// инится только начиная с вызова process
 	int msg_num;
 	// набор флагов из HitType
-	std::bitset<FightSystem::HIT_TYPE_FLAGS_NUM> flags;
+	std::bitset<fight::kHitFlagsNum> flags;
 	// позиция атакующего на начало атаки (по дефолту будет = текущему положению)
-	int ch_start_pos;
+	EPosition ch_start_pos;
 	// позиция жертвы на начало атаки (по дефолту будет = текущему положению)
-	int victim_start_pos;
+	EPosition victim_start_pos;
+	// Оружие которым нанесли дамаг
+	ObjData *wielded;
 
  private:
 	// инит всех полей дефолтными значениями для конструкторов
 	void zero_init();
 	// инит msg_num, ch_start_pos, victim_start_pos
 	// дергается в начале process, когда все уже заполнено
-	void post_init(CHAR_DATA *ch, CHAR_DATA *victim);
-	void post_init_shields(CHAR_DATA *victim);
+	void post_init(CharData *ch, CharData *victim);
+	void post_init_shields(CharData *victim);
 	// process()
-	bool magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim);
-	void armor_dam_reduce(CHAR_DATA *victim);
-	bool dam_absorb(CHAR_DATA *ch, CHAR_DATA *victim);
-	void process_death(CHAR_DATA *ch, CHAR_DATA *victim);
-	void send_critical_message(CHAR_DATA *ch, CHAR_DATA *victim);
-	void dam_message(CHAR_DATA *ch, CHAR_DATA *victim) const;
+	bool magic_shields_dam(CharData *ch, CharData *victim);
+	void armor_dam_reduce(CharData *victim);
+	bool dam_absorb(CharData *ch, CharData *victim);
+	void process_death(CharData *ch, CharData *victim);
+	void send_critical_message(CharData *ch, CharData *victim);
+	void dam_message(CharData *ch, CharData *victim) const;
 
 	// обратный дамаг от огненного щита
 	int fs_damage;
@@ -130,31 +133,31 @@ class Damage {
 
 // fight.cpp
 
-void set_fighting(CHAR_DATA *ch, CHAR_DATA *victim);
-inline void set_fighting(const CHAR_DATA::shared_ptr &ch, CHAR_DATA *victim) { set_fighting(ch.get(), victim); }
+void set_fighting(CharData *ch, CharData *victim);
+inline void set_fighting(const CharData::shared_ptr &ch, CharData *victim) { set_fighting(ch.get(), victim); }
 
-void stop_fighting(CHAR_DATA *ch, int switch_others);
+void stop_fighting(CharData *ch, int switch_others);
 void perform_violence();
-int calc_initiative(CHAR_DATA *ch, bool mode);
+int calc_initiative(CharData *ch, bool mode);
 
 // fight_hit.cpp
 
-int compute_armor_class(CHAR_DATA *ch);
-bool check_mighthit_weapon(CHAR_DATA *ch);
+int compute_armor_class(CharData *ch);
+bool check_mighthit_weapon(CharData *ch);
 void apply_weapon_bonus(int ch_class, const ESkill skill, int *damroll, int *hitroll);
 
 // fight_stuff.cpp
 
-void die(CHAR_DATA *ch, CHAR_DATA *killer);
-void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer);
+void die(CharData *ch, CharData *killer);
+void raw_kill(CharData *ch, CharData *killer);
 
-void alterate_object(OBJ_DATA *obj, int dam, int chance);
-void alt_equip(CHAR_DATA *ch, int pos, int dam, int chance);
+void alterate_object(ObjData *obj, int dam, int chance);
+void alt_equip(CharData *ch, int pos, int dam, int chance);
 
-void char_dam_message(int dam, CHAR_DATA *ch, CHAR_DATA *victim, bool mayflee);
-void test_self_hitroll(CHAR_DATA *ch);
+void char_dam_message(int dam, CharData *ch, CharData *victim, bool mayflee);
+void TestSelfHitroll(CharData *ch);
 
-int calc_leadership(CHAR_DATA *ch);
+int calc_leadership(CharData *ch);
 
 #endif
 

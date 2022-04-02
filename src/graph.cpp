@@ -12,28 +12,28 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include "interpreter.h"
-#include "constants.h"
+/*#include "interpreter.h"
+#include "constants.h"*/
 #include "handler.h"
-#include "random.h"
-#include "skills_info.h"
+#include "utils/random.h"
+#include "structs/global_objects.h"
 
 // Externals
-void do_say(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_sense(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_say(CharData *ch, char *argument, int cmd, int subcmd);
+void do_sense(CharData *ch, char *argument, int cmd, int subcmd);
 extern const char *dirs[];
 extern const char *DirsTo[];
 extern int track_through_doors;
-extern CHAR_DATA *mob_proto;
+extern CharData *mob_proto;
 
 // local functions
-void bfs_enqueue(room_rnum room, int dir);
+void bfs_enqueue(RoomRnum room, int dir);
 void bfs_dequeue(void);
 void bfs_clear_queue(void);
-int find_first_step(room_rnum src, room_rnum target, CHAR_DATA *ch);
+int find_first_step(RoomRnum src, RoomRnum target, CharData *ch);
 
 struct bfs_queue_struct {
-	room_rnum room;
+	RoomRnum room;
 	char dir;
 };
 
@@ -48,8 +48,8 @@ struct bfs_queue_struct {
 #define IS_CLOSED(x, y)    (EXIT_FLAGGED(world[(x)]->dir_option[(y)], EX_CLOSED))
 #define IS_LOCKED(x, y)    (EXIT_FLAGGED(world[(x)]->dir_option[(y)], EX_LOCKED))
 
-int VALID_EDGE(room_rnum x, int y, int edge_range, bool through_locked_doors, bool through_closed_doors, bool through_notrack) {
-	if (world[x]->dir_option[y] == NULL || TOROOM(x, y) == NOWHERE)
+int VALID_EDGE(RoomRnum x, int y, int edge_range, bool through_locked_doors, bool through_closed_doors, bool through_notrack) {
+	if (world[x]->dir_option[y] == nullptr || TOROOM(x, y) == kNowhere)
 		return 0;
 
 	// Попытка уползти в другую зону
@@ -76,12 +76,12 @@ int VALID_EDGE(room_rnum x, int y, int edge_range, bool through_locked_doors, bo
  * Intended usage: in mobile_activity, give a mob a dir to go if they're
  * tracking another mob or a PC.  Or, a 'track' skill for PCs.
  */
-int find_first_step(room_rnum src, room_rnum target, CHAR_DATA *ch) {
+int find_first_step(RoomRnum src, RoomRnum target, CharData *ch) {
 	int curr_dir, edge;
 	bool through_locked_doors = false;
 	bool through_closed_doors = false;
 	bool through_notrack = false;
-	room_rnum curr_room, rnum_start = FIRST_ROOM, rnum_stop = top_of_world;
+	RoomRnum curr_room, rnum_start = FIRST_ROOM, rnum_stop = top_of_world;
 
 	if (src < FIRST_ROOM || src > top_of_world || target < FIRST_ROOM || target > top_of_world) {
 		log("SYSERR: Illegal value %d or %d passed to find_first_step. (%s)", src, target, __FILE__);
@@ -128,7 +128,7 @@ int find_first_step(room_rnum src, room_rnum target, CHAR_DATA *ch) {
 	static struct bfs_queue_struct temp_queue;
 
 	// first, enqueue the first steps, saving which direction we're going.
-	for (curr_dir = 0; curr_dir < NUM_OF_DIRS; curr_dir++) {
+	for (curr_dir = 0; curr_dir < kDirMaxNumber; curr_dir++) {
 		if (VALID_EDGE(src, curr_dir, edge, through_locked_doors, through_closed_doors, through_notrack)) {
 			MARK(TOROOM(src, curr_dir));
 			temp_queue.room = TOROOM(src, curr_dir);
@@ -144,7 +144,7 @@ int find_first_step(room_rnum src, room_rnum target, CHAR_DATA *ch) {
 			bfs_queue.clear();
 			return curr_dir;
 		} else {
-			for (curr_dir = 0; curr_dir < NUM_OF_DIRS; curr_dir++) {
+			for (curr_dir = 0; curr_dir < kDirMaxNumber; curr_dir++) {
 				if (VALID_EDGE(bfs_queue[i].room, curr_dir, edge, through_locked_doors, through_closed_doors, through_notrack)) {
 					MARK(TOROOM(bfs_queue[i].room, curr_dir));
 					temp_queue.room = TOROOM(bfs_queue[i].room, curr_dir);
@@ -156,22 +156,22 @@ int find_first_step(room_rnum src, room_rnum target, CHAR_DATA *ch) {
 	}
 	bfs_queue.clear();
 	sprintf(buf, "Mob (mob: %s vnum: %d) can't find path.", GET_NAME(ch), GET_MOB_VNUM(ch));
-	mudlog(buf, NRM, -1, ERRLOG, TRUE);
+	mudlog(buf, NRM, -1, ERRLOG, true);
 	return (BFS_NO_PATH);
 }
 
-int go_sense(CHAR_DATA *ch, CHAR_DATA *victim) {
-	int percent, dir, skill = CalcCurrentSkill(ch, SKILL_SENSE, victim);
+int go_sense(CharData *ch, CharData *victim) {
+	int percent, dir, skill = CalcCurrentSkill(ch, ESkill::kSense, victim);
 
 	skill = skill
 		- MAX(1, (GET_REAL_REMORT(victim) - GET_REAL_REMORT(ch)) * 5); // разница в ремортах *5 вычитается из текущего умения
-	skill = skill - MAX(1, (GET_REAL_LEVEL(victim) - GET_REAL_LEVEL(ch)) * 5);
+	skill = skill - MAX(1, (GetRealLevel(victim) - GetRealLevel(ch)) * 5);
 	skill = MAX(0, skill);
-	percent = number(0, skill_info[SKILL_SENSE].difficulty);
+	percent = number(0, MUD::Skills()[ESkill::kSense].difficulty);
 	if (percent > skill) {
 		int tries = 10;
 		do {
-			dir = number(0, NUM_OF_DIRS - 1);
+			dir = number(0, kDirMaxNumber - 1);
 		} while (!CAN_GO(ch, dir) && --tries);
 		return dir;
 	}
@@ -180,12 +180,12 @@ int go_sense(CHAR_DATA *ch, CHAR_DATA *victim) {
 	return find_first_step(ch->in_room, victim->in_room, ch);
 }
 
-void do_sense(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *vict;
+void do_sense(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharData *vict;
 	int dir;
 
 	// The character must have the track skill.
-	if (IS_NPC(ch) || !ch->get_skill(SKILL_SENSE)) {
+	if (IS_NPC(ch) || !ch->get_skill(ESkill::kSense)) {
 		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -216,7 +216,7 @@ void do_sense(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Ваши чувства молчат.\r\n", ch);
 		return;
 	}
-	act("Похоже, $n кого-то ищет.", FALSE, ch, 0, 0, TO_ROOM);
+	act("Похоже, $n кого-то ищет.", false, ch, 0, 0, kToRoom);
 
 	dir = go_sense(ch, vict);
 
@@ -228,11 +228,11 @@ void do_sense(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		case BFS_NO_PATH: strcpy(buf, "Ваши чувства молчат.");
 			break;
 		default:        // Success!
-			ImproveSkill(ch, SKILL_SENSE, TRUE, vict);
+			ImproveSkill(ch, ESkill::kSense, true, vict);
 			sprintf(buf, "Чувство подсказало вам : \"Ступай %s.\"\r\n", DirsTo[dir]);
 			break;
 	}
-	act(buf, FALSE, ch, 0, vict, TO_CHAR);
+	act(buf, false, ch, 0, vict, kToChar);
 }
 
 

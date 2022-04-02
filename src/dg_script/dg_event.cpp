@@ -17,14 +17,15 @@
 #include "db.h"
 #include "dg_scripts.h"
 #include "utils/utils.h"
+#include "entities/char_data.h"
 #include "comm.h"
 
 // * define statics
-static struct event_info *event_list = NULL;
+static struct TriggerEvent *event_list = nullptr;
 
 // * Add an event to the current list
-struct event_info *add_event(int time, EVENT(*func), void *info) {
-	struct event_info *this_data, *prev, *curr;
+struct TriggerEvent *add_event(int time, EVENT(*func), void *info) {
+	struct TriggerEvent *this_data, *prev, *curr;
 
 	CREATE(this_data, 1);
 	this_data->time_remaining = time;
@@ -32,7 +33,7 @@ struct event_info *add_event(int time, EVENT(*func), void *info) {
 	this_data->info = info;
 
 	// sort the event into the list in next-to-fire order
-	if (event_list == NULL)
+	if (event_list == nullptr)
 		event_list = this_data;
 	else if (this_data->time_remaining <= event_list->time_remaining) {
 		this_data->next = event_list;
@@ -53,8 +54,8 @@ struct event_info *add_event(int time, EVENT(*func), void *info) {
 	return this_data;
 }
 
-void remove_event(struct event_info *event) {
-	struct event_info *curr;
+void remove_event(struct TriggerEvent *event) {
+	struct TriggerEvent *curr;
 
 	if (event_list == event) {
 		event_list = event->next;
@@ -70,12 +71,14 @@ void remove_event(struct event_info *event) {
 }
 
 void process_events(void) {
-	struct event_info *e = event_list;
-	struct event_info *del;
-	struct timeval start, stop, result;
+	struct TriggerEvent *e = event_list;
+	struct TriggerEvent *del;
 	int trig_vnum;
+	int timewarning = 50;
 
-	gettimeofday(&start, NULL);
+	auto now = std::chrono::system_clock::now();
+	auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
+	auto start = now_ms.time_since_epoch();
 
 	while (e) {
 		if (--(e->time_remaining) == 0) {
@@ -89,21 +92,48 @@ void process_events(void) {
 			// На отработку отложенных тригов выделяем всего 50 мсекунд
 			// По исчерпанию лимита откладываем отработку на следующий тик.
 			// Делаем для более равномерного распределения времени процессора.
-			gettimeofday(&stop, NULL);
-			timediff(&result, &stop, &start);
+			now = std::chrono::system_clock::now();
+			now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
+			auto end = now_ms.time_since_epoch();
+			long timediff = end.count() - start.count();
 
-			if (result.tv_sec > 0 || result.tv_usec >= MAX_TRIG_USEC) {
+			if (timediff > timewarning) {
 				// Выводим номер триггера который переполнил время работы.
-				sprintf(buf,
-						"[TrigVNum: %d]: process_events overflow %ld sec. %ld us.",
-						trig_vnum, result.tv_sec, result.tv_usec);
-				mudlog(buf, BRF, -1, ERRLOG, TRUE);
-
+				sprintf(buf, "[TrigVNum: %d]: process_events overflow %ld ms.  warning  > %d ms",
+						trig_vnum, timediff, timewarning);
+				mudlog(buf, BRF, -1, ERRLOG, true);
 				break;
 			}
 		} else
 			e = e->next;
 	}
+}
+
+void print_event_list(CharData *ch)
+{
+	sprintf(buf, "В данный момент выполняются следующие триггеры:\r\n");
+	send_to_char(buf, ch);
+
+	short trig_counter = 1;
+	TriggerEvent *e = event_list;
+	while (e) {
+		const wait_event_data *wed = static_cast<wait_event_data*>(e->info);
+		if (!wed || !wed->trigger) {
+			e = e->next;
+			continue;
+		}
+		sprintf(buf, "[%-3d] Trigger: %s, VNum: [%5d]\r\n", trig_counter, GET_TRIG_NAME(wed->trigger), GET_TRIG_VNUM(wed->trigger));
+		if (GET_TRIG_WAIT(wed->trigger) && wed->trigger->curr_state != nullptr) {
+			sprintf(buf+strlen(buf), "    Wait: %d, Current line: %s\r\n", GET_TRIG_WAIT(wed->trigger)->time_remaining, wed->trigger->curr_state->cmd.c_str());
+		}
+		send_to_char(buf, ch);
+
+		++trig_counter;
+		e = e->next;
+	}
+
+	sprintf(buf, "Итого триггеров %d.\r\n", trig_counter - 1);
+	send_to_char(buf, ch);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

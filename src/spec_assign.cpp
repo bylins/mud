@@ -15,22 +15,22 @@
 #include "obj_prototypes.h"
 #include "cmd/mercenary.h"
 #include "constants.h"
-#include "logger.h"
+#include "utils/logger.h"
 #include "house.h"
 #include "boards/boards_constants.h"
 #include "boards/boards.h"
-#include "chars/char.h"
+#include "entities/char_data.h"
 #include "noob.h"
 
 extern int dts_are_dumps;
 
-extern INDEX_DATA *mob_index;
+extern IndexData *mob_index;
 
-int dump(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int puff(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int horse_keeper(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int exchange(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int torc(CHAR_DATA *ch, void *me, int cmd, char *argument);
+int dump(CharData *ch, void *me, int cmd, char *argument);
+int puff(CharData *ch, void *me, int cmd, char *argument);
+int horse_keeper(CharData *ch, void *me, int cmd, char *argument);
+int exchange(CharData *ch, void *me, int cmd, char *argument);
+int torc(CharData *ch, void *me, int cmd, char *argument);
 
 void assign_kings_castle(void);
 
@@ -39,17 +39,17 @@ void assign_mobiles(void);
 void assign_objects(void);
 void assign_rooms(void);
 
-typedef int special_f(CHAR_DATA *, void *, int, char *);
+typedef int special_f(CharData *, void *, int, char *);
 
-void ASSIGNROOM(room_vnum room, special_f);
-void ASSIGNMOB(mob_vnum mob, special_f);
-void ASSIGNOBJ(obj_vnum obj, special_f);
-void clear_mob_charm(CHAR_DATA *mob);
+void ASSIGNROOM(RoomVnum room, special_f);
+void ASSIGNMOB(MobVnum mob, special_f);
+void ASSIGNOBJ(ObjVnum obj, special_f);
+void clear_mob_charm(CharData *mob);
 
 // functions to perform assignments
 
-void ASSIGNMOB(mob_vnum mob, int fname(CHAR_DATA *, void *, int, char *)) {
-	mob_rnum rnum;
+void ASSIGNMOB(MobVnum mob, int fname(CharData *, void *, int, char *)) {
+	MobRnum rnum;
 
 	if ((rnum = real_mobile(mob)) >= 0) {
 		mob_index[rnum].func = fname;
@@ -62,8 +62,8 @@ void ASSIGNMOB(mob_vnum mob, int fname(CHAR_DATA *, void *, int, char *)) {
 	}
 }
 
-void ASSIGNOBJ(obj_vnum obj, special_f fname) {
-	const obj_rnum rnum = real_object(obj);
+void ASSIGNOBJ(ObjVnum obj, special_f fname) {
+	const ObjRnum rnum = real_object(obj);
 
 	if (rnum >= 0) {
 		obj_proto.func(rnum, fname);
@@ -72,18 +72,18 @@ void ASSIGNOBJ(obj_vnum obj, special_f fname) {
 	}
 }
 
-void ASSIGNROOM(room_vnum room, special_f fname) {
-	const room_rnum rnum = real_room(room);
+void ASSIGNROOM(RoomVnum room, special_f fname) {
+	const RoomRnum rnum = real_room(room);
 
-	if (rnum != NOWHERE) {
+	if (rnum != kNowhere) {
 		world[rnum]->func = fname;
 	} else {
 		log("SYSERR: Attempt to assign spec to non-existant room #%d", room);
 	}
 }
 
-void ASSIGNMASTER(mob_vnum mob, special_f fname, int learn_info) {
-	mob_rnum rnum;
+void ASSIGNMASTER(MobVnum mob, special_f fname, int learn_info) {
+	MobRnum rnum;
 
 	if ((rnum = real_mobile(mob)) >= 0) {
 		mob_index[rnum].func = fname;
@@ -130,7 +130,7 @@ void assign_objects(void) {
 
 // assign special procedures to rooms //
 void assign_rooms(void) {
-	room_rnum i;
+	RoomRnum i;
 
 	if (dts_are_dumps)
 		for (i = FIRST_ROOM; i <= top_of_world; i++)
@@ -199,7 +199,7 @@ void init_spec_procs(void) {
 }
 
 // * Снятие нежелательных флагов у рентеров и продавцов.
-void clear_mob_charm(CHAR_DATA *mob) {
+void clear_mob_charm(CharData *mob) {
 	if (mob && !mob->purged()) {
 		MOB_FLAGS(mob).unset(MOB_MOUNTING);
 		MOB_FLAGS(mob).set(MOB_NOCHARM);

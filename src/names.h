@@ -4,7 +4,7 @@
 #ifndef NAMES_HPP_INCLUDED
 #define NAMES_HPP_INCLUDED
 
-class CHAR_DATA;
+class CharData;
 
 // Система одобрения имён
 namespace NewNames {
@@ -13,15 +13,15 @@ enum {
 	AUTO_BAN = 1,
 	NO_DECISION = 2
 };
-void add(CHAR_DATA *ch);
-void remove(CHAR_DATA *ch);
-void remove(const std::string &name, CHAR_DATA *actor);
+void add(CharData *ch);
+void remove(CharData *ch);
+void remove(const std::string &name, CharData *actor);
 void load();
-bool show(CHAR_DATA *actor);
-int auto_authorize(DESCRIPTOR_DATA *d);
+bool show(CharData *actor);
+int auto_authorize(DescriptorData *d);
 } // namespace NewNames
 
-void do_name(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void do_name(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 
 #endif // NAMES_HPP_INCLUDED
 

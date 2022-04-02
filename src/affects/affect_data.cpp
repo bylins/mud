@@ -1,15 +1,16 @@
-#include <glory_const.h>
+#include <game_mechanics/glory_const.h>
 
 #include "affect_data.h"
-#include "chars/char_player.h"
-#include "chars/world.characters.h"
-#include "classes/class.h"
+#include "entities/char_player.h"
+#include "entities/world_characters.h"
+#include "fightsystem/fight_hit.h"
+#include "game_classes/classes.h"
 #include "cmd/follow.h"
-#include "deathtrap.h"
-#include "magic/magic.h"
-#include "skills/poison.h"
+#include "game_mechanics/deathtrap.h"
+#include "game_magic/magic.h"
+#include "game_skills/poison.h"
 
-bool no_bad_affects(OBJ_DATA *obj) {
+bool no_bad_affects(ObjData *obj) {
 	static std::list<EWeaponAffectFlag> bad_waffects =
 		{
 			EWeaponAffectFlag::WAFF_HOLD,
@@ -32,7 +33,7 @@ bool no_bad_affects(OBJ_DATA *obj) {
 }
 
 // Return the effect of a piece of armor in position eq_pos
-int apply_ac(CHAR_DATA *ch, int eq_pos) {
+int apply_ac(CharData *ch, int eq_pos) {
 	int factor = 1;
 
 	if (GET_EQ(ch, eq_pos) == nullptr) {
@@ -61,9 +62,9 @@ int apply_ac(CHAR_DATA *ch, int eq_pos) {
 	return (factor * GET_OBJ_VAL(GET_EQ(ch, eq_pos), 0));
 }
 
-int apply_armour(CHAR_DATA *ch, int eq_pos) {
+int apply_armour(CharData *ch, int eq_pos) {
 	int factor = 1;
-	OBJ_DATA *obj = GET_EQ(ch, eq_pos);
+	ObjData *obj = GET_EQ(ch, eq_pos);
 
 	if (!obj) {
 		log("SYSERR: apply_armor(%s,%d) when no equip...", GET_NAME(ch), eq_pos);
@@ -97,11 +98,11 @@ int apply_armour(CHAR_DATA *ch, int eq_pos) {
 ///
 // Была ошибка, у нубов реген хитов был всегда 50, хотя с 26 по 30, должен быть 60.
 // Теперь аффект регенерация новичка держится 3 реморта, с каждыи ремортом все слабее и слабее
-void apply_natural_affects(CHAR_DATA *ch) {
+void apply_natural_affects(CharData *ch) {
 	if (GET_REAL_REMORT(ch) <= 3 && !IS_IMMORTAL(ch)) {
-		affect_modify(ch, APPLY_HITREG, 60 - (GET_REAL_REMORT(ch) * 10), EAffectFlag::AFF_NOOB_REGEN, TRUE);
-		affect_modify(ch, APPLY_MOVEREG, 100, EAffectFlag::AFF_NOOB_REGEN, TRUE);
-		affect_modify(ch, APPLY_MANAREG, 100 - (GET_REAL_REMORT(ch) * 20), EAffectFlag::AFF_NOOB_REGEN, TRUE);
+		affect_modify(ch, APPLY_HITREG, 60 - (GET_REAL_REMORT(ch) * 10), EAffectFlag::AFF_NOOB_REGEN, true);
+		affect_modify(ch, APPLY_MOVEREG, 100, EAffectFlag::AFF_NOOB_REGEN, true);
+		affect_modify(ch, APPLY_MANAREG, 100 - (GET_REAL_REMORT(ch) * 20), EAffectFlag::AFF_NOOB_REGEN, true);
 	}
 }
 
@@ -119,31 +120,31 @@ std::array<EAffectFlag, 3> char_stealth_aff =
 	};
 
 template<>
-bool AFFECT_DATA<EApplyLocation>::removable() const {
+bool Affect<EApplyLocation>::removable() const {
 	return !spell_info[type].name
 		|| *spell_info[type].name == '!'
-		|| type == SPELL_SLEEP
-		|| type == SPELL_POISON
-		|| type == SPELL_WEAKNESS
-		|| type == SPELL_CURSE
-		|| type == SPELL_PLAQUE
-		|| type == SPELL_SILENCE
-		|| type == SPELL_POWER_SILENCE
-		|| type == SPELL_BLINDNESS
-		|| type == SPELL_POWER_BLINDNESS
-		|| type == SPELL_HAEMORRAGIA
-		|| type == SPELL_HOLD
-		|| type == SPELL_POWER_HOLD
-		|| type == SPELL_PEACEFUL
-		|| type == SPELL_CONE_OF_COLD
-		|| type == SPELL_DEAFNESS
-		|| type == SPELL_POWER_DEAFNESS
-		|| type == SPELL_BATTLE;
+		|| type == kSpellSleep
+		|| type == kSpellPoison
+		|| type == kSpellWeaknes
+		|| type == kSpellCurse
+		|| type == kSpellFever
+		|| type == kSpellSllence
+		|| type == kSpellPowerSilence
+		|| type == kSpellBlindness
+		|| type == kSpellPowerBlindness
+		|| type == kSpellHaemorragis
+		|| type == kSpellHold
+		|| type == kSpellPowerHold
+		|| type == kSpellPeaceful
+		|| type == kSpellColdWind
+		|| type == kSpellDeafness
+		|| type == kSpellPowerDeafness
+		|| type == kSpellBattle;
 }
 
 // This file update pulse affects only
-void pulse_affect_update(CHAR_DATA *ch) {
-	bool pulse_aff = FALSE;
+void pulse_affect_update(CharData *ch) {
+	bool pulse_aff = false;
 
 	if (ch->get_fighting()) {
 		return;
@@ -154,27 +155,27 @@ void pulse_affect_update(CHAR_DATA *ch) {
 		++next_affect_i;
 		const auto &affect = *affect_i;
 
-		if (!IS_SET(affect->battleflag, AF_PULSEDEC)) {
+		if (!IS_SET(affect->battleflag, kAfPulsedec)) {
 			continue;
 		}
 
-		pulse_aff = TRUE;
+		pulse_aff = true;
 		if (affect->duration >= 1) {
 			if (IS_NPC(ch)) {
 				affect->duration--;
 			} else {
-				affect->duration -= MIN(affect->duration, SECS_PER_PLAYER_AFFECT * PASSES_PER_SEC);
+				affect->duration -= MIN(affect->duration, SECS_PER_PLAYER_AFFECT * kPassesPerSec);
 			}
 		} else if (affect->duration == -1)    // No action //
 		{
 			affect->duration = -1;    // GODs only! unlimited //
 		} else {
-			if ((affect->type > 0) && (affect->type <= SPELLS_COUNT)) {
+			if ((affect->type > 0) && (affect->type <= kSpellCount)) {
 				if (next_affect_i == ch->affected.end()
 					|| (*next_affect_i)->type != affect->type
 					|| (*next_affect_i)->duration > 0) {
 					if (affect->type > 0
-						&& affect->type <= SPELLS_COUNT) {
+						&& affect->type <= kSpellCount) {
 						show_spell_off(affect->type, ch);
 					}
 				}
@@ -190,7 +191,7 @@ void pulse_affect_update(CHAR_DATA *ch) {
 }
 
 void player_affect_update() {
-	character_list.foreach_on_copy([](const CHAR_DATA::shared_ptr &i) {
+	character_list.foreach_on_copy([](const CharData::shared_ptr &i) {
 		// на всякий случай проверка на пурж, в целом пурж чармисов внутри
 		// такого цикла сейчас выглядит безопасным, чармисы если и есть, то они
 		// добавлялись в чар-лист в начало списка и идут до самого чара
@@ -209,7 +210,7 @@ void player_affect_update() {
 			const auto &affect = *affect_i;
 
 			if (affect->duration >= 1) {
-				if (IS_SET(affect->battleflag, AF_SAME_TIME) && !i->get_fighting()) {
+				if (IS_SET(affect->battleflag, kAfSameTime) && !i->get_fighting()) {
 					// здесь плеера могут спуржить
 					if (processPoisonDamage(i.get(), affect) == -1) {
 						was_purged = true;
@@ -218,17 +219,17 @@ void player_affect_update() {
 				}
 				affect->duration--;
 			} else if (affect->duration != -1) {
-				if ((affect->type > 0) && (affect->type <= SPELLS_COUNT)) {
+				if ((affect->type > 0) && (affect->type <= kSpellCount)) {
 					if (next_affect_i == i->affected.end()
 						|| (*next_affect_i)->type != affect->type
 						|| (*next_affect_i)->duration > 0) {
 						if (affect->type > 0
-							&& affect->type <= SPELLS_COUNT) {
+							&& affect->type <= kSpellCount) {
 							//чтобы не выдавалось, "что теперь вы можете сражаться",
 							//хотя на самом деле не можете :)
-							if (!(affect->type == SPELL_MAGICBATTLE
+							if (!(affect->type == kSpellMagicBattle
 								&& AFF_FLAGGED(i, EAffectFlag::AFF_STOPFIGHT))) {
-								if (!(affect->type == SPELL_BATTLE
+								if (!(affect->type == kSpellBattle
 									&& AFF_FLAGGED(i, EAffectFlag::AFF_MAGICSTOPFIGHT))) {
 									show_spell_off(affect->type, i.get());
 								}
@@ -250,24 +251,24 @@ void player_affect_update() {
 }
 
 // This file update battle affects only
-void battle_affect_update(CHAR_DATA *ch) {
+void battle_affect_update(CharData *ch) {
 	auto next_affect_i = ch->affected.begin();
 	for (auto affect_i = next_affect_i; affect_i != ch->affected.end(); affect_i = next_affect_i) {
 		++next_affect_i;
 		const auto &affect = *affect_i;
 
-		if (!IS_SET(affect->battleflag, AF_BATTLEDEC) && !IS_SET(affect->battleflag, AF_SAME_TIME))
+		if (!IS_SET(affect->battleflag, kAfBattledec) && !IS_SET(affect->battleflag, kAfSameTime))
 			continue;
 
 		if (IS_NPC(ch) && affect->location == APPLY_POISON)
 			continue;
 
 		if (affect->duration >= 1) {
-			if (IS_SET(affect->battleflag, AF_SAME_TIME)) {
+			if (IS_SET(affect->battleflag, kAfSameTime)) {
 				if (processPoisonDamage(ch, affect) == -1) // жертва умерла
 					return;
 				if (ch->purged()) {
-					mudlog("Некому обновлять аффект, чар уже спуржен.", BRF, LVL_IMPL, SYSLOG, TRUE);
+					mudlog("Некому обновлять аффект, чар уже спуржен.", BRF, kLvlImplementator, SYSLOG, true);
 					return;
 				}
 				affect->duration--;
@@ -278,11 +279,11 @@ void battle_affect_update(CHAR_DATA *ch) {
 					affect->duration -= MIN(affect->duration, SECS_PER_MUD_HOUR / SECS_PER_PLAYER_AFFECT);
 			}
 		} else if (affect->duration != -1) {
-			if (affect->type > 0 && affect->type <= SPELLS_COUNT) {
+			if (affect->type > 0 && affect->type <= kSpellCount) {
 				if (next_affect_i == ch->affected.end()
 					|| (*next_affect_i)->type != affect->type
 					|| (*next_affect_i)->duration > 0) {
-					if (affect->type > 0 && affect->type <= SPELLS_COUNT)
+					if (affect->type > 0 && affect->type <= kSpellCount)
 						show_spell_off(affect->type, ch);
 				}
 			}
@@ -295,8 +296,8 @@ void battle_affect_update(CHAR_DATA *ch) {
 }
 
 void mobile_affect_update() {
-	character_list.foreach_on_copy([](const CHAR_DATA::shared_ptr &i) {
-		int was_charmed = FALSE, charmed_msg = FALSE;
+	character_list.foreach_on_copy([](const CharData::shared_ptr &i) {
+		int was_charmed = false, charmed_msg = false;
 		bool was_purged = false;
 
 		if (IS_NPC(i)) {
@@ -306,7 +307,7 @@ void mobile_affect_update() {
 				const auto &affect = *affect_i;
 
 				if (affect->duration >= 1) {
-					if (IS_SET(affect->battleflag, AF_SAME_TIME)
+					if (IS_SET(affect->battleflag, kAfSameTime)
 						&& (!i->get_fighting() || affect->location == APPLY_POISON)) {
 						// здесь плеера могут спуржить
 						if (processPoisonDamage(i.get(), affect) == -1) {
@@ -317,29 +318,29 @@ void mobile_affect_update() {
 					}
 
 					affect->duration--;
-					if (affect->type == SPELL_CHARM && !charmed_msg && affect->duration <= 1) {
+					if (affect->type == kSpellCharm && !charmed_msg && affect->duration <= 1) {
 						act("$n начал$g растерянно оглядываться по сторонам.",
-							FALSE,
+							false,
 							i.get(),
 							nullptr,
 							nullptr,
-							TO_ROOM | TO_ARENA_LISTEN);
-						charmed_msg = TRUE;
+							kToRoom | kToArenaListen);
+						charmed_msg = true;
 					}
 				} else if (affect->duration == -1) {
 					affect->duration = -1;    // GODS - unlimited
 				} else {
 					if (affect->type > 0
-						&& affect->type <= SPELLS_COUNT) {
+						&& affect->type <= kSpellCount) {
 						if (next_affect_i == i->affected.end()
 							|| (*next_affect_i)->type != affect->type
 							|| (*next_affect_i)->duration > 0) {
 							if (affect->type > 0
-								&& affect->type <= SPELLS_COUNT) {
+								&& affect->type <= kSpellCount) {
 								show_spell_off(affect->type, i.get());
-								if (affect->type == SPELL_CHARM
+								if (affect->type == kSpellCharm
 									|| affect->bitvector == to_underlying(EAffectFlag::AFF_CHARM)) {
-									was_charmed = TRUE;
+									was_charmed = true;
 								}
 							}
 						}
@@ -353,9 +354,9 @@ void mobile_affect_update() {
 		if (!was_purged) {
 			affect_total(i.get());
 
-			decltype(i->timed) timed_next;
-			for (auto timed = i->timed; timed; timed = timed_next) {
-				timed_next = timed->next;
+			decltype(i->timed) timed_skill;
+			for (auto timed = i->timed; timed; timed = timed_skill) {
+				timed_skill = timed->next;
 				if (timed->time >= 1) {
 					timed->time--;
 				} else {
@@ -363,12 +364,13 @@ void mobile_affect_update() {
 				}
 			}
 
-			for (auto timed = i->timed_feat; timed; timed = timed_next) {
-				timed_next = timed->next;
+			decltype(i->timed_feat) timed_feat;
+			for (auto timed = i->timed_feat; timed; timed = timed_feat) {
+				timed_feat = timed->next;
 				if (timed->time >= 1) {
 					timed->time--;
 				} else {
-					timed_feat_from_char(i.get(), timed);
+					ExpireTimedFeat(i.get(), timed);
 				}
 			}
 
@@ -384,7 +386,7 @@ void mobile_affect_update() {
 }
 
 // Call affect_remove with every spell of spelltype "skill"
-void affect_from_char(CHAR_DATA *ch, int type) {
+void affect_from_char(CharData *ch, int type) {
 	auto next_affect_i = ch->affected.begin();
 	for (auto affect_i = next_affect_i; affect_i != ch->affected.end(); affect_i = next_affect_i) {
 		++next_affect_i;
@@ -394,7 +396,7 @@ void affect_from_char(CHAR_DATA *ch, int type) {
 		}
 	}
 
-	if (IS_NPC(ch) && type == SPELL_CHARM) {
+	if (IS_NPC(ch) && type == kSpellCharm) {
 		EXTRACT_TIMER(ch) = 5;
 		ch->mob_specials.hire_price = 0;// added by WorM (Видолюб) 2010.06.04 Сбрасываем цену найма
 	}
@@ -402,19 +404,19 @@ void affect_from_char(CHAR_DATA *ch, int type) {
 
 // This updates a character by subtracting everything he is affected by
 // restoring original abilities, and then affecting all again
-void affect_total(CHAR_DATA *ch) {
+void affect_total(CharData *ch) {
 	if (ch->purged()) {
 		// we don't care of affects of removed character.
 		return;
 	}
 	bool domination = false;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DOMINATION)) {
+	if (!IS_NPC(ch) && ROOM_FLAGGED(ch->in_room, ROOM_ARENA_DOMINATION)) {
 		domination = true;
 	}
-	OBJ_DATA *obj;
+	ObjData *obj;
 
-	FLAG_DATA saved;
+	FlagData saved;
 
 	// Init struct
 	saved.clear();
@@ -442,7 +444,7 @@ void affect_total(CHAR_DATA *ch) {
 		ch->set_wis_add(ch->get_remort_add());
 		ch->set_cha_add(ch->get_remort_add());
 		double add_hp_per_level = class_app[GET_CLASS(ch)].base_con
-				+ (VPOSI_MOB(ch, 2, ch->get_con()) - class_app[GET_CLASS(ch)].base_con)
+				+ (VPOSI_MOB(ch, EBaseStat::kCon, ch->get_con()) - class_app[GET_CLASS(ch)].base_con)
 				* class_app[GET_CLASS(ch)].koef_con / 100.0 + 3;
 	 	GET_HIT_ADD(ch) = static_cast<int>(add_hp_per_level * (30 - ch->get_level()));
 //		send_to_char(ch, "add per level %f hitadd %d  level %d\r\n", add_hp_per_level, GET_HIT_ADD(ch), ch->get_level());
@@ -465,8 +467,8 @@ void affect_total(CHAR_DATA *ch) {
 				GET_ARMOUR(ch) += apply_armour(ch, i);
 			}
 			// Update weapon applies
-			for (int j = 0; j < MAX_OBJ_AFFECT; j++) {
-				affect_modify(ch, GET_EQ(ch, i)->get_affected(j).location,  GET_EQ(ch, i)->get_affected(j).modifier, static_cast<EAffectFlag>(0), TRUE);
+			for (int j = 0; j < kMaxObjAffect; j++) {
+				affect_modify(ch, GET_EQ(ch, i)->get_affected(j).location, GET_EQ(ch, i)->get_affected(j).modifier, static_cast<EAffectFlag>(0), true);
 			}
 			// Update weapon bitvectors
 			for (const auto &j : weapon_affect) {
@@ -474,7 +476,7 @@ void affect_total(CHAR_DATA *ch) {
 				if (j.aff_bitvector == 0 || !IS_OBJ_AFF(obj, j.aff_pos)) {
 					continue;
 				}
-				affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(j.aff_bitvector), TRUE);
+				affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(j.aff_bitvector), true);
 			}
 		}
 	}
@@ -485,57 +487,57 @@ void affect_total(CHAR_DATA *ch) {
 	}
 */
 	// move features modifiers - added by Gorrah
-	for (int i = 1; i < MAX_FEATS; i++) {
+	for (int i = 1; i < kMaxFeats; i++) {
 		if (can_use_feat(ch, i) && (feat_info[i].type == AFFECT_FTYPE)) {
-			for (int j = 0; j < MAX_FEAT_AFFECT; j++) {
+			for (int j = 0; j < kMaxFeatAffect; j++) {
 				affect_modify(ch,
 							  feat_info[i].affected[j].location,
 							  feat_info[i].affected[j].modifier,
 							  static_cast<EAffectFlag>(0),
-							  TRUE);
+							  true);
 			}
 		}
 	}
 
 	// IMPREGNABLE_FEAT учитывается дважды: выше начисляем единичку за 0 мортов, а теперь по 1 за каждый морт
 	if (can_use_feat(ch, IMPREGNABLE_FEAT)) {
-		for (int j = 0; j < MAX_FEAT_AFFECT; j++) {
+		for (int j = 0; j < kMaxFeatAffect; j++) {
 			affect_modify(ch,
 						  feat_info[IMPREGNABLE_FEAT].affected[j].location,
 						  MIN(9, feat_info[IMPREGNABLE_FEAT].affected[j].modifier * GET_REAL_REMORT(ch)),
 						  static_cast<EAffectFlag>(0),
-						  TRUE);
+						  true);
 		}
 	}
 
 	// Обработка изворотливости (с) Числобог
 	if (can_use_feat(ch, DODGER_FEAT)) {
-		affect_modify(ch, APPLY_SAVING_REFLEX, -(GET_REAL_REMORT(ch) + GET_REAL_LEVEL(ch)), static_cast<EAffectFlag>(0), TRUE);
-		affect_modify(ch, APPLY_SAVING_WILL, -(GET_REAL_REMORT(ch) + GET_REAL_LEVEL(ch)), static_cast<EAffectFlag>(0), TRUE);
-		affect_modify(ch, APPLY_SAVING_STABILITY, -(GET_REAL_REMORT(ch) + GET_REAL_LEVEL(ch)), static_cast<EAffectFlag>(0), TRUE);
-		affect_modify(ch, APPLY_SAVING_CRITICAL, -(GET_REAL_REMORT(ch) + GET_REAL_LEVEL(ch)), static_cast<EAffectFlag>(0), TRUE);
+		affect_modify(ch, APPLY_SAVING_REFLEX, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), static_cast<EAffectFlag>(0), true);
+		affect_modify(ch, APPLY_SAVING_WILL, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), static_cast<EAffectFlag>(0), true);
+		affect_modify(ch, APPLY_SAVING_STABILITY, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), static_cast<EAffectFlag>(0), true);
+		affect_modify(ch, APPLY_SAVING_CRITICAL, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), static_cast<EAffectFlag>(0), true);
 	}
 
 	// Обработка "выносливости" и "богатырского здоровья
 	// Знаю, что кривовато, придумаете, как лучше - делайте
 	if (!IS_NPC(ch)) {
 		if (can_use_feat(ch, ENDURANCE_FEAT))
-			affect_modify(ch, APPLY_MOVE, GET_REAL_LEVEL(ch) * 2, static_cast<EAffectFlag>(0), TRUE);
+			affect_modify(ch, APPLY_MOVE, GetRealLevel(ch) * 2, static_cast<EAffectFlag>(0), true);
 		if (can_use_feat(ch, SPLENDID_HEALTH_FEAT))
-			affect_modify(ch, APPLY_HIT, GET_REAL_LEVEL(ch) * 2, static_cast<EAffectFlag>(0), TRUE);
-		if (!domination) // мы на новой арене
+			affect_modify(ch, APPLY_HIT, GetRealLevel(ch) * 2, static_cast<EAffectFlag>(0), true);
+		if (NORENTABLE(ch) == 0 && !domination) // мы не на новой арене и не ПК
 			GloryConst::apply_modifiers(ch);
 		apply_natural_affects(ch);
 	}
 
 	// move affect modifiers
 	for (const auto &af : ch->affected) {
-		affect_modify(ch, af->location, af->modifier, static_cast<EAffectFlag>(af->bitvector), TRUE);
+		affect_modify(ch, af->location, af->modifier, static_cast<EAffectFlag>(af->bitvector), true);
 	}
 
 	// move race and class modifiers
 	if (!IS_NPC(ch)) {
-		if ((int) GET_CLASS(ch) >= 0 && (int) GET_CLASS(ch) < NUM_PLAYER_CLASSES) {
+		if ((int) GET_CLASS(ch) >= 0 && (int) GET_CLASS(ch) < kNumPlayerClasses) {
 			for (auto i : *class_app[(int) GET_CLASS(ch)].extra_affects) {
 				affect_modify(ch, APPLY_NONE, 0, i.affect, i.set_or_clear);
 			}
@@ -546,9 +548,9 @@ void affect_total(CHAR_DATA *ch) {
 		if (wdex != 0) {
 			ch->set_dex_add(ch->get_dex_add() - wdex);
 		}
-		GET_DR_ADD(ch) += extra_damroll((int) GET_CLASS(ch), (int) GET_REAL_LEVEL(ch));
+		GET_DR_ADD(ch) += extra_damroll((int) GET_CLASS(ch), GetRealLevel(ch));
 		if (!AFF_FLAGGED(ch, EAffectFlag::AFF_NOOB_REGEN)) {
-			GET_HITREG(ch) += ((int) GET_REAL_LEVEL(ch) + 4) / 5 * 10;
+			GET_HITREG(ch) += (GetRealLevel(ch) + 4) / 5 * 10;
 		}
 		if (can_use_feat(ch, DARKREGEN_FEAT)) {
 			GET_HITREG(ch) += GET_HITREG(ch) * 0.2;
@@ -573,19 +575,19 @@ void affect_total(CHAR_DATA *ch) {
 	if (!IS_IMMORTAL(ch)) {
 		if ((obj = GET_EQ(ch, WEAR_BOTHS)) && !OK_BOTH(ch, obj)) {
 			if (!IS_NPC(ch)) {
-				act("Вам слишком тяжело держать $o3 в обоих руках!", FALSE, ch, obj, nullptr, TO_CHAR);
+				act("Вам слишком тяжело держать $o3 в обоих руках!", false, ch, obj, nullptr, kToChar);
 				message_str_need(ch, obj, STR_BOTH_W);
 			}
-			act("$n прекратил$g использовать $o3.", FALSE, ch, obj, nullptr, TO_ROOM);
+			act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, kToRoom);
 			obj_to_char(unequip_char(ch, WEAR_BOTHS, CharEquipFlags()), ch);
 			return;
 		}
 		if ((obj = GET_EQ(ch, WEAR_WIELD)) && !OK_WIELD(ch, obj)) {
 			if (!IS_NPC(ch)) {
-				act("Вам слишком тяжело держать $o3 в правой руке!", FALSE, ch, obj, nullptr, TO_CHAR);
+				act("Вам слишком тяжело держать $o3 в правой руке!", false, ch, obj, nullptr, kToChar);
 				message_str_need(ch, obj, STR_WIELD_W);
 			}
-			act("$n прекратил$g использовать $o3.", FALSE, ch, obj, nullptr, TO_ROOM);
+			act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, kToRoom);
 			obj_to_char(unequip_char(ch, WEAR_WIELD, CharEquipFlags()), ch);
 			// если пушку можно вооружить в обе руки и эти руки свободны
 			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS)
@@ -601,25 +603,25 @@ void affect_total(CHAR_DATA *ch) {
 		}
 		if ((obj = GET_EQ(ch, WEAR_HOLD)) && !OK_HELD(ch, obj)) {
 			if (!IS_NPC(ch)) {
-				act("Вам слишком тяжело держать $o3 в левой руке!", FALSE, ch, obj, nullptr, TO_CHAR);
+				act("Вам слишком тяжело держать $o3 в левой руке!", false, ch, obj, nullptr, kToChar);
 				message_str_need(ch, obj, STR_HOLD_W);
 			}
-			act("$n прекратил$g использовать $o3.", FALSE, ch, obj, nullptr, TO_ROOM);
+			act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, kToRoom);
 			obj_to_char(unequip_char(ch, WEAR_HOLD, CharEquipFlags()), ch);
 			return;
 		}
 		if ((obj = GET_EQ(ch, WEAR_SHIELD)) && !OK_SHIELD(ch, obj)) {
 			if (!IS_NPC(ch)) {
-				act("Вам слишком тяжело держать $o3 на левой руке!", FALSE, ch, obj, nullptr, TO_CHAR);
+				act("Вам слишком тяжело держать $o3 на левой руке!", false, ch, obj, nullptr, kToChar);
 				message_str_need(ch, obj, STR_SHIELD_W);
 			}
-			act("$n прекратил$g использовать $o3.", FALSE, ch, obj, nullptr, TO_ROOM);
+			act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, kToRoom);
 			obj_to_char(unequip_char(ch, WEAR_SHIELD, CharEquipFlags()), ch);
 			return;
 		}
 		if ((obj = GET_EQ(ch, WEAR_QUIVER)) && !GET_EQ(ch, WEAR_BOTHS)) {
 			send_to_char("Нету лука, нет и стрел.\r\n", ch);
-			act("$n прекратил$g использовать $o3.", FALSE, ch, obj, nullptr, TO_ROOM);
+			act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, kToRoom);
 			obj_to_char(unequip_char(ch, WEAR_QUIVER, CharEquipFlags()), ch);
 			return;
 		}
@@ -628,16 +630,16 @@ void affect_total(CHAR_DATA *ch) {
 	// calculate DAMAGE value
 	GET_DAMAGE(ch) = (str_bonus(GET_REAL_STR(ch), STR_TO_DAM) + GetRealDamroll(ch)) * 2;
 	if ((obj = GET_EQ(ch, WEAR_BOTHS))
-		&& GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON) {
+		&& GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON) {
 		GET_DAMAGE(ch) += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + GET_OBJ_VAL(obj, 1)))
 			>> 1; // правильный расчет среднего у оружия
 	} else {
 		if ((obj = GET_EQ(ch, WEAR_WIELD))
-			&& GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON) {
+			&& GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON) {
 			GET_DAMAGE(ch) += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + GET_OBJ_VAL(obj, 1))) >> 1;
 		}
 		if ((obj = GET_EQ(ch, WEAR_HOLD))
-			&& GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON) {
+			&& GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON) {
 			GET_DAMAGE(ch) += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + GET_OBJ_VAL(obj, 1))) >> 1;
 		}
 	}
@@ -645,8 +647,8 @@ void affect_total(CHAR_DATA *ch) {
 	{
 		// Calculate CASTER value
 		int i = 1;
-		for (GET_CASTER(ch) = 0; !IS_NPC(ch) && i <= SPELLS_COUNT; i++) {
-			if (IS_SET(GET_SPELL_TYPE(ch, i), SPELL_KNOW | SPELL_TEMP)) {
+		for (GET_CASTER(ch) = 0; !IS_NPC(ch) && i <= kSpellCount; i++) {
+			if (IS_SET(GET_SPELL_TYPE(ch, i), kSpellKnow | kSpellTemp)) {
 				GET_CASTER(ch) += (spell_info[i].danger * GET_SPELL_MEM(ch, i));
 			}
 		}
@@ -657,12 +659,12 @@ void affect_total(CHAR_DATA *ch) {
 		for (const auto &i : char_stealth_aff) {
 			if (saved.get(i)
 				&& !AFF_FLAGS(ch).get(i)) {
-				CHECK_AGRO(ch) = TRUE;
+				CHECK_AGRO(ch) = true;
 			}
 		}
 	}
-	check_berserk(ch);
-	if (ch->get_fighting() || affected_by_spell(ch, SPELL_GLITTERDUST)) {
+	CheckBerserk(ch);
+	if (ch->get_fighting() || affected_by_spell(ch, kSpellGlitterDust)) {
 		AFF_FLAGS(ch).unset(EAffectFlag::AFF_HIDE);
 		AFF_FLAGS(ch).unset(EAffectFlag::AFF_SNEAK);
 		AFF_FLAGS(ch).unset(EAffectFlag::AFF_CAMOUFLAGE);
@@ -670,12 +672,12 @@ void affect_total(CHAR_DATA *ch) {
 	}
 }
 
-void affect_join(CHAR_DATA *ch,
-				 AFFECT_DATA<EApplyLocation> &af,
+void affect_join(CharData *ch,
+				 Affect<EApplyLocation> &af,
 				 bool add_dur,
-				 bool avg_dur,
+				 bool max_dur,
 				 bool add_mod,
-				 bool avg_mod) {
+				 bool max_mod) {
 	bool found = false;
 
 	if (af.location) {
@@ -683,20 +685,17 @@ void affect_join(CHAR_DATA *ch,
 			const auto &affect = *affect_i;
 			if (affect->type == af.type
 				&& affect->location == af.location) {
+
 				if (add_dur) {
 					af.duration += affect->duration;
-				}
-
-				if (avg_dur) {
-					af.duration /= 2;
+				} else if (max_dur) {
+					af.duration = std::max(af.duration, affect->duration);
 				}
 
 				if (add_mod) {
 					af.modifier += affect->modifier;
-				}
-
-				if (avg_mod) {
-					af.modifier /= 2;
+				} else if (max_mod) {
+					af.modifier = std::max(af.modifier, affect->modifier);
 				}
 
 				ch->affect_remove(affect_i);
@@ -715,24 +714,24 @@ void affect_join(CHAR_DATA *ch,
 
 /* Insert an affect_type in a char_data structure
    Automatically sets appropriate bits and apply's */
-void affect_to_char(CHAR_DATA *ch, const AFFECT_DATA<EApplyLocation> &af) {
+void affect_to_char(CharData *ch, const Affect<EApplyLocation> &af) {
 	long was_lgt = AFF_FLAGGED(ch, EAffectFlag::AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO;
 	long was_hlgt = AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO;
 	long was_hdrk = AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO;
 
-	AFFECT_DATA<EApplyLocation>::shared_ptr affected_alloc(new AFFECT_DATA<EApplyLocation>(af));
+	Affect<EApplyLocation>::shared_ptr affected_alloc(new Affect<EApplyLocation>(af));
 
 	ch->affected.push_front(affected_alloc);
 
 	AFF_FLAGS(ch) += af.aff;
 	if (af.bitvector)
-		affect_modify(ch, af.location, af.modifier, static_cast<EAffectFlag>(af.bitvector), TRUE);
+		affect_modify(ch, af.location, af.modifier, static_cast<EAffectFlag>(af.bitvector), true);
 	//log("[AFFECT_TO_CHAR->AFFECT_TOTAL] Start");
 	affect_total(ch);
 	check_light(ch, LIGHT_UNDEF, was_lgt, was_hlgt, was_hdrk, 1);
 }
 
-void affect_modify(CHAR_DATA *ch, byte loc, int mod, const EAffectFlag bitv, bool add) {
+void affect_modify(CharData *ch, byte loc, int mod, const EAffectFlag bitv, bool add) {
 	if (add) {
 		AFF_FLAGS(ch).set(bitv);
 	} else {
@@ -775,19 +774,19 @@ void affect_modify(CHAR_DATA *ch, byte loc, int mod, const EAffectFlag bitv, boo
 			break;
 		case APPLY_DAMROLL:GET_DR_ADD(ch) += mod;
 			break;
-		case APPLY_SAVING_WILL:GET_SAVE(ch, SAVING_WILL) += mod;
-			break;
 		case APPLY_RESIST_FIRE:GET_RESIST(ch, FIRE_RESISTANCE) += mod;
 			break;
 		case APPLY_RESIST_AIR:GET_RESIST(ch, AIR_RESISTANCE) += mod;
 			break;
 		case APPLY_RESIST_DARK:GET_RESIST(ch, DARK_RESISTANCE) += mod;
 			break;
-		case APPLY_SAVING_CRITICAL:GET_SAVE(ch, SAVING_CRITICAL) += mod;
+		case APPLY_SAVING_WILL:SET_SAVE(ch, ESaving::kWill, GET_SAVE(ch, ESaving::kWill) +  mod);
 			break;
-		case APPLY_SAVING_STABILITY:GET_SAVE(ch, SAVING_STABILITY) += mod;
+		case APPLY_SAVING_CRITICAL:SET_SAVE(ch, ESaving::kCritical, GET_SAVE(ch, ESaving::kCritical) +  mod);
 			break;
-		case APPLY_SAVING_REFLEX:GET_SAVE(ch, SAVING_REFLEX) += mod;
+		case APPLY_SAVING_STABILITY:SET_SAVE(ch, ESaving::kStability, GET_SAVE(ch, ESaving::kStability) +  mod);
+			break;
+		case APPLY_SAVING_REFLEX:SET_SAVE(ch, ESaving::kReflex, GET_SAVE(ch, ESaving::kReflex) +  mod);
 			break;
 		case APPLY_HITREG:GET_HITREG(ch) += mod;
 			break;
@@ -846,7 +845,9 @@ void affect_modify(CHAR_DATA *ch, byte loc, int mod, const EAffectFlag bitv, boo
 			break;
 		case APPLY_PR:GET_PR(ch) += mod; //скиллрезист
 			break;
-		case APPLY_PERCENT_DAM:ch->add_abils.percent_dam_add += mod;
+		case APPLY_PERCENT_PHYSDAM:ch->add_abils.percent_physdam_add += mod;
+			break;
+		case APPLY_PERCENT_MAGDAM:ch->add_abils.percent_magdam_add += mod;
 			break;
 		case APPLY_PERCENT_EXP:ch->add_abils.percent_exp_add += mod;
 			break;
@@ -860,17 +861,16 @@ void affect_modify(CHAR_DATA *ch, byte loc, int mod, const EAffectFlag bitv, boo
 }
 
 // * Снятие аффектов с чара при смерти/уходе в дт.
-void reset_affects(CHAR_DATA *ch) {
+void reset_affects(CharData *ch) {
 	auto naf = ch->affected.begin();
 
 	for (auto af = naf; af != ch->affected.end(); af = naf) {
 		++naf;
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) 
-			|| AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)
-			|| AFF_FLAGGED(ch, EAffectFlag::AFF_DOMINATION))
+			|| AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER))
 			continue;
 		const auto &affect = *af;
-		if (!IS_SET(affect->battleflag, AF_DEADKEEP)) {
+		if (!IS_SET(affect->battleflag, kAfDeadkeep)) {
 			ch->affect_remove(af);
 		}
 	}

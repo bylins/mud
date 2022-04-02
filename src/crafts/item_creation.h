@@ -7,48 +7,52 @@
 *  $Revision$                                                      *
 **************************************************************************/
 
-#ifndef __ITEM_CREATION_HPP__
-#define __ITEM_CREATION_HPP__
+#ifndef ITEM_CREATION_HPP_
+#define ITEM_CREATION_HPP_
 
-#include "skills.h"
-#include "interpreter.h"
-#include "features.h"
+#include "affects/affect_data.h"
 #include "conf.h"
+#include "entities/entities_constants.h"
+#include "features.h"
+#include "interpreter.h"
+#include "game_skills/skills.h"
 
 #include <string>
 #include <list>
 #include <iostream>
 #include <fstream>
 
-#define MAX_ITEMS    9
+const int MAX_ITEMS = 9;
+const int MAX_PARTS = 3;
 
-#define MAX_PARTS    3
+const int MAX_PROTO = 3;
+const int COAL_PROTO = 311;
+const int WOOD_PROTO = 313;
+const int TETIVA_PROTO = 314;
 
-#define MAX_PROTO    3
-#define COAL_PROTO    311
-#define WOOD_PROTO      313
-#define TETIVA_PROTO    314
+const int MREDIT_MAIN_MENU = 0;
+const int MREDIT_OBJ_PROTO = 1;
+const int MREDIT_SKILL = 2;
+const int MREDIT_LOCK = 3;
+const int MREDIT_INGR_MENU = 4;
+const int MREDIT_INGR_PROTO = 5;
+const int MREDIT_INGR_WEIGHT = 6;
+const int MREDIT_INGR_POWER = 7;
+const int MREDIT_DEL = 8;
+const int MREDIT_CONFIRM_SAVE = 9;
 
-#define MREDIT_MAIN_MENU    0
-#define MREDIT_OBJ_PROTO    1
-#define MREDIT_SKILL        2
-#define MREDIT_LOCK        3
-#define MREDIT_INGR_MENU    4
-#define MREDIT_INGR_PROTO    5
-#define MREDIT_INGR_WEIGHT    6
-#define MREDIT_INGR_POWER    7
-#define MREDIT_DEL        8
-#define MREDIT_CONFIRM_SAVE     9
+const int MAKE_ANY = 0;
+const int MAKE_POTION = 1;
+const int MAKE_WEAR = 2;
+const int MAKE_METALL = 3;
+const int MAKE_CRAFT = 4;
+const int MAKE_AMULET = 5;
 
-#define MAKE_ANY    0
-#define MAKE_POTION    1
-#define MAKE_WEAR    2
-#define MAKE_METALL    3
-#define MAKE_CRAFT    4
-#define MAKE_AMULET 5
+const int SCMD_TRANSFORMWEAPON = 0;
+const int SCMD_CREATEBOW = 1;
 
 // определяем минимальное количество мувов для возможности что-то сделать.
-#define MIN_MAKE_MOVE   10
+const int MIN_MAKE_MOVE = 10;
 
 using std::string;
 using std::ifstream;
@@ -56,13 +60,13 @@ using std::ofstream;
 using std::list;
 using std::endl;
 
-void mredit_parse(struct DESCRIPTOR_DATA *d, char *arg);
-void mredit_disp_menu(struct DESCRIPTOR_DATA *d);
-void mredit_disp_ingr_menu(struct DESCRIPTOR_DATA *d);
+void mredit_parse(struct DescriptorData *d, char *arg);
+void mredit_disp_menu(struct DescriptorData *d);
+void mredit_disp_ingr_menu(struct DescriptorData *d);
 
-void do_list_make(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_edit_make(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_make_item(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_list_make(CharData *ch, char *argument, int cmd, int subcmd);
+void do_edit_make(CharData *ch, char *argument, int cmd, int subcmd);
+void do_make_item(CharData *ch, char *argument, int cmd, int subcmd);
 
 void init_make_items();
 // Старая структура мы ее используем в перековке.
@@ -99,7 +103,7 @@ class MakeReceptList {
 	~MakeReceptList();
 
 	// Вывод списка рецептов по всем компонентам у персонажа
-	int can_make_list(CHAR_DATA *ch);
+	int can_make_list(CharData *ch);
 
 	// загрузить рецепты .
 	int load();
@@ -110,7 +114,7 @@ class MakeReceptList {
 	// сделать рецепт по названию его прототипа из листа.
 	MakeRecept *get_by_name(string &rname);
 
-	MakeReceptList *can_make(CHAR_DATA *ch, MakeReceptList *canlist, int use_skill);
+	MakeReceptList *can_make(CharData *ch, MakeReceptList *canlist, ESkill use_skill);
 
 	// число элементов рецептов
 	size_t size();
@@ -130,28 +134,28 @@ class MakeReceptList {
 };
 
 class MakeRecept {
-	int stat_modify(CHAR_DATA *ch, int value, float devider);
+	int stat_modify(CharData *ch, int value, float devider);
 
-	int add_flags(CHAR_DATA *ch, FLAG_DATA *base_flag, const FLAG_DATA *add_flag, int delta);
+	int add_flags(CharData *ch, FlagData *base_flag, const FlagData *add_flag, int delta);
 
-	int add_affects(CHAR_DATA *ch,
-					std::array<obj_affected_type, MAX_OBJ_AFFECT> &base,
-					const std::array<obj_affected_type, MAX_OBJ_AFFECT> &add,
+	int add_affects(CharData *ch,
+					std::array<obj_affected_type, kMaxObjAffect> &base,
+					const std::array<obj_affected_type, kMaxObjAffect> &add,
 					int delta);
 
-	int get_ingr_lev(OBJ_DATA *ingrobj);
+	int get_ingr_lev(ObjData *ingrobj);
 
-	void make_object(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *ingrs[MAX_PARTS], int ingr_cnt);
+	void make_object(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_PARTS], int ingr_cnt);
 
-	void make_value_wear(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *ingrs[MAX_PARTS]);
+	void make_value_wear(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_PARTS]);
 	//к сожалению у нас не прототип. прийдется расчитывать отдельно
-	float count_mort_requred(OBJ_DATA *obj);
+	float count_mort_requred(ObjData *obj);
 
 	float count_affect_weight(int num, int mod);
 
-	int get_ingr_pow(OBJ_DATA *ingrobj);
+	int get_ingr_pow(ObjData *ingrobj);
 
-	void add_rnd_skills(CHAR_DATA *ch, OBJ_DATA *obj_from, OBJ_DATA *obj_to);
+	void add_rnd_skills(CharData *ch, ObjData *obj_from, ObjData *obj_to);
 
  public:
 	bool locked;
@@ -164,15 +168,15 @@ class MakeRecept {
 	// изготовление рецепта указанным чаром.
 	MakeRecept();
 	// определяем может ли в принципе из компонентов находящихся в инвентаре
-	int can_make(CHAR_DATA *ch);
+	int can_make(CharData *ch);
 	// создать предмет по рецепту
-	int make(CHAR_DATA *ch);
+	int make(CharData *ch);
 	// вытащить рецепт из строки.
 	int load_from_str(string &rstr);
 	// сохранить рецепт в строку.
 	int save_to_str(string &rstr);
 };
 
-#endif
+#endif // ITEM_CREATION_HPP_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

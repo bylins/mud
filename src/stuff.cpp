@@ -9,21 +9,23 @@
 
 #include "stuff.h"
 
+#include <cmath>
+
 #include "world_objects.h"
 #include "obj_prototypes.h"
 #include "handler.h"
 #include "corpse.h"
-#include "screen.h"
-#include "sets_drop.h"
+#include "color.h"
+#include "game_mechanics/sets_drop.h"
+#include "structs/global_objects.h"
 
 
 extern std::vector<RandomObj> random_objs;
-extern const char *skill_name(int num);
-extern void set_obj_eff(OBJ_DATA *itemobj, const EApplyLocation type, int mod);
-extern void set_obj_aff(OBJ_DATA *itemobj, const EAffectFlag bitv);
+extern void set_obj_eff(ObjData *itemobj, const EApplyLocation type, int mod);
+extern void set_obj_aff(ObjData *itemobj, const EAffectFlag bitv);
 extern int planebit(const char *str, int *plane, int *bit);
 
-void LoadRandomObj(OBJ_DATA *obj) {
+void LoadRandomObj(ObjData *obj) {
 	// костыли, привет
 	int plane, bit;
 	for (auto robj : random_objs) {
@@ -65,8 +67,8 @@ void oload_class::init() {
 	std::string cppstr;
 	std::istringstream isstream;
 	bool in_block = false;
-	obj_vnum ovnum;
-	mob_vnum mvnum;
+	ObjVnum ovnum;
+	MobVnum mvnum;
 	int oqty, lprob;
 
 	clear();
@@ -75,7 +77,7 @@ void oload_class::init() {
 
 	if (!fp) {
 		cppstr = "oload_class:: Unable open input file !!!";
-		mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+		mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 		return;
 	}
 
@@ -89,7 +91,7 @@ void oload_class::init() {
 
 			if (cppstr.empty()) {
 				cppstr = "oload_class:: Error in line '#' expected '#<RIGHT_obj_vnum>' !!!";
-				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+				mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 				in_block = false;
 				continue;
 			}
@@ -100,7 +102,7 @@ void oload_class::init() {
 			if (!isstream.eof() || real_object(ovnum) < 0) {
 				isstream.clear();
 				cppstr = "oload_class:: Error in line '#" + cppstr + "' expected '#<RIGHT_obj_vnum>' !!!";
-				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+				mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 				in_block = false;
 				continue;
 			}
@@ -117,10 +119,10 @@ void oload_class::init() {
 			if (lprob < 0 || lprob > MAX_LOAD_PROB || oqty < 0 || real_mobile(mvnum) < 0 || !isstream.eof()) {
 				isstream.clear();
 				cppstr = "oload_class:: Error in line '" + cppstr + "'";
-				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+				mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 				cppstr =
 					"oload_class:: \texpected '<RIGHT_mob_vnum>\t<0 <= obj_qty>\t<0 <= load_prob <= MAX_LOAD_PROB>' !!!";
-				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+				mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 				continue;
 			}
 
@@ -129,23 +131,23 @@ void oload_class::init() {
 			add_elem(mvnum, ovnum, obj_load_info(oqty, lprob));
 		} else {
 			cppstr = "oload_class:: Error in line '" + cppstr + "' expected '#<RIGHT_obj_vnum>' !!!";
-			mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+			mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 		}
 	}
 }
 
 oload_class oload_table;
 
-obj_rnum ornum_by_info(const std::pair<obj_vnum, obj_load_info> &it) {
-	obj_rnum i = real_object(it.first);
-	obj_rnum resutl_obj = number(1, MAX_LOAD_PROB) <= it.second.load_prob
+ObjRnum ornum_by_info(const std::pair<ObjVnum, obj_load_info> &it) {
+	ObjRnum i = real_object(it.first);
+	ObjRnum resutl_obj = number(1, MAX_LOAD_PROB) <= it.second.load_prob
 						  ? (it.first >= 0 && i >= 0
 							 ? (obj_proto.actual_count(i) < it.second.obj_qty
 								? i
-								: NOTHING)
-							 : NOTHING)
-						  : NOTHING;
-	if (resutl_obj != NOTHING) {
+								: kNothing)
+							 : kNothing)
+						  : kNothing;
+	if (resutl_obj != kNothing) {
 		log("Current load_prob: %d/%d, obj #%d (setload)", it.second.load_prob, MAX_LOAD_PROB, it.first);
 	}
 	return resutl_obj;
@@ -189,15 +191,16 @@ int get_stat_mod(int stat) {
 	return mod;
 }
 
-void generate_book_upgrd(OBJ_DATA *obj) {
-	const auto skill_list = make_array<int>(
-		SKILL_BACKSTAB, SKILL_PUNCTUAL, SKILL_BASH, SKILL_MIGHTHIT,
-		SKILL_STUPOR, SKILL_ADDSHOT, SKILL_AWAKE, SKILL_NOPARRYHIT,
-		SKILL_WARCRY, SKILL_IRON_WIND, SKILL_STRANGLE);
+void generate_book_upgrd(ObjData *obj) {
+	const auto skill_list = make_array<ESkill>(
+		ESkill::kBackstab, ESkill::kPunctual, ESkill::kBash, ESkill::kHammer,
+		ESkill::kOverwhelm, ESkill::kAddshot, ESkill::kAwake, ESkill::kNoParryHit,
+		ESkill::kWarcry, ESkill::kIronwind, ESkill::kStrangle);
 
-	obj->set_val(1, skill_list[number(0, static_cast<int>(skill_list.size()) - 1)]);
-	std::string book_name = skill_name(GET_OBJ_VAL(obj, 1));
+	auto skill_id = skill_list[number(0, skill_list.size() - 1)];
+	std::string book_name = MUD::Skills()[skill_id].name;
 
+	obj->set_val(1, to_underlying(skill_id));
 	obj->set_aliases("книга секретов умения: " + book_name);
 	obj->set_short_description("книга секретов умения: " + book_name);
 	obj->set_description("Книга секретов умения: " + book_name + " лежит здесь.");
@@ -210,7 +213,7 @@ void generate_book_upgrd(OBJ_DATA *obj) {
 	obj->set_PName(5, "книге секретов умения: " + book_name);
 }
 
-void generate_warrior_enchant(OBJ_DATA *obj) {
+void generate_warrior_enchant(ObjData *obj) {
 	const auto main_list = make_array<EApplyLocation>(
 		APPLY_STR, APPLY_DEX, APPLY_CON, APPLY_AC, APPLY_DAMROLL);
 
@@ -242,12 +245,12 @@ void generate_warrior_enchant(OBJ_DATA *obj) {
 			break;
 		}
 		default: sprintf(buf2, "SYSERR: Unknown vnum warrior enchant object: %d", GET_OBJ_VNUM(obj));
-			mudlog(buf2, BRF, LVL_IMMORT, SYSLOG, TRUE);
+			mudlog(buf2, BRF, kLvlImmortal, SYSLOG, true);
 			break;
 	}
 }
 
-void generate_magic_enchant(OBJ_DATA *obj) {
+void generate_magic_enchant(ObjData *obj) {
 	const auto main_list = make_array<EApplyLocation>(
 		APPLY_STR, APPLY_DEX, APPLY_CON, APPLY_INT, APPLY_WIS,
 		APPLY_CHA, APPLY_AC, APPLY_DAMROLL, APPLY_AR, APPLY_MR);
@@ -289,7 +292,7 @@ void generate_magic_enchant(OBJ_DATA *obj) {
 			break;
 		}
 		default: sprintf(buf2, "SYSERR: Unknown vnum magic enchant object: %d", GET_OBJ_VNUM(obj));
-			mudlog(buf2, BRF, LVL_IMMORT, SYSLOG, TRUE);
+			mudlog(buf2, BRF, kLvlImmortal, SYSLOG, true);
 			break;
 	}
 }
@@ -298,7 +301,7 @@ void generate_magic_enchant(OBJ_DATA *obj) {
  * \param setload = true - лоад через систему дропа сетов
  *        setload = false - лоад через глобал дроп
  */
-void obj_to_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, int rnum, bool setload) {
+void obj_to_corpse(ObjData *corpse, CharData *ch, int rnum, bool setload) {
 	const auto o = world_objects.create_from_prototype_by_rnum(rnum);
 	if (!o) {
 		log("SYSERROR: null from read_object rnum=%d (%s:%d)", rnum, __FILE__, __LINE__);
@@ -329,7 +332,7 @@ void obj_to_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, int rnum, bool setload) {
 			send_to_char(tch, "%sДиво дивное, чудо чудное!%s\r\n", CCGRN(tch, C_NRM), CCNRM(tch, C_NRM));
 		}
 	}
-
+	o->set_vnum_zone_from(99999);
 	if (MOB_FLAGGED(ch, MOB_CORPSE)) {
 		obj_to_room(o.get(), ch->in_room);
 	} else {
@@ -337,18 +340,18 @@ void obj_to_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, int rnum, bool setload) {
 	}
 
 	if (!obj_decay(o.get())) {
-		if (o->get_in_room() != NOWHERE) {
-			act("На земле остал$U лежать $o.", FALSE, ch, o.get(), 0, TO_ROOM);
+		if (o->get_in_room() != kNowhere) {
+			act("На земле остал$U лежать $o.", false, ch, o.get(), 0, kToRoom);
 		}
 		load_otrigger(o.get());
 	}
 }
 
-void obj_load_on_death(OBJ_DATA *corpse, CHAR_DATA *ch) {
-	if (ch == NULL
+void obj_load_on_death(ObjData *corpse, CharData *ch) {
+	if (ch == nullptr
 		|| !IS_NPC(ch)
 		|| (!MOB_FLAGGED(ch, MOB_CORPSE)
-			&& corpse == NULL)) {
+			&& corpse == nullptr)) {
 		return;
 	}
 
@@ -367,7 +370,7 @@ void obj_load_on_death(OBJ_DATA *corpse, CHAR_DATA *ch) {
 		return;
 	}
 
-	std::vector<obj_rnum> v(p->second.size());
+	std::vector<ObjRnum> v(p->second.size());
 	std::transform(p->second.begin(), p->second.end(), v.begin(), ornum_by_info);
 
 	for (size_t i = 0; i < v.size(); i++) {
@@ -378,7 +381,7 @@ void obj_load_on_death(OBJ_DATA *corpse, CHAR_DATA *ch) {
 }
 
 // готовим прототипы шмоток для зверюшек (Кудояр)
-void create_charmice_stuff(CHAR_DATA *ch, const ESkill skill_id, int diff) {
+void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 	const auto obj = world_objects.create_blank();
 	int position = 0;
 	obj->set_aliases("острые когти");
@@ -392,8 +395,8 @@ void create_charmice_stuff(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 	obj->set_PName(3, "острые когти");
 	obj->set_PName(4, "острыми когтями");
 	obj->set_PName(5, "острых когтях");
-	obj->set_sex(ESex::SEX_POLY);
-	obj->set_type(OBJ_DATA::ITEM_WEAPON);
+	obj->set_sex(ESex::kPoly);
+	obj->set_type(ObjData::ITEM_WEAPON);
 	// среднее оружки
 	obj->set_val(1, floorf(diff/18.0)); // при 100 скила куб. = 5  	при 200 скила = 11
 	obj->set_val(2, floorf(diff/27.0)); // при 100 скила граней = d4  при 200 скила = d7
@@ -416,83 +419,83 @@ void create_charmice_stuff(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 
 	obj->set_maximum_durability(5000);
 	obj->set_current_durability(5000);
-	obj->set_material(OBJ_DATA::MAT_CRYSTALL);
+	obj->set_material(ObjData::MAT_CRYSTALL);
 
 	obj->set_weight(floorf(diff/9.0));
 
 	switch (skill_id)
 	{
-	case SKILL_CLUBS: // дубины
+	case ESkill::kClubs: // дубины
 		obj->set_val(3, 12);
 		obj->set_skill(141);
 		obj->set_extra_flag(EExtraFlag::ITEM_THROWING);
 		obj->set_affected(0, APPLY_STR, floorf(diff/12.0));
 		obj->set_affected(1, APPLY_SAVING_STABILITY, -floorf(diff/4.0));
-		create_charmice_stuff(ch, SKILL_INVALID, diff);
+		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
 		position = 16;
 		break;
-	case SKILL_SPADES: // копья
+	case ESkill::kSpades: // копья
 		obj->set_val(3, 11);
 		obj->set_skill(148);
 		obj->set_extra_flag(EExtraFlag::ITEM_THROWING);
-		create_charmice_stuff(ch, SKILL_BLOCK, diff);
-		create_charmice_stuff(ch, SKILL_INVALID, diff);
+		create_charmice_stuff(ch, ESkill::kShieldBlock, diff);
+		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
 		position = 16;
 		break;
-	case SKILL_PICK: // стабер
+	case ESkill::kPicks: // стабер
 		obj->set_val(3, 11);
 		obj->set_skill(147);
 		obj->set_affected(0, APPLY_STR, floorf(diff/16.0));
 		obj->set_affected(1, APPLY_DEX, floorf(diff/10.0));
-		create_charmice_stuff(ch, SKILL_INVALID, diff);
+		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
 		position = 16;
 		break;
-	case SKILL_AXES: // секиры
+	case ESkill::kAxes: // секиры
 		obj->set_val(3, 8);
 		obj->set_skill(142);
 		obj->set_affected(0, APPLY_STR, floorf(diff/12.0));
 		obj->set_affected(1, APPLY_DEX, floorf(diff/15.0));
 		obj->set_affected(2, APPLY_DAMROLL, floorf(diff/10.0));
 		obj->set_affected(3, APPLY_HIT, 5*(diff));
-		create_charmice_stuff(ch, SKILL_BLOCK, diff);
-		create_charmice_stuff(ch, SKILL_INVALID, diff);
+		create_charmice_stuff(ch, ESkill::kShieldBlock, diff);
+		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
 		position = 16;
 		break;
-	case SKILL_BOWS: // луки
+	case ESkill::kBows: // луки
 		obj->set_val(3, 2);
 		obj->set_skill(154);
 		obj->set_affected(0, APPLY_STR, floorf(diff/20.0));
 		obj->set_affected(1, APPLY_DEX, floorf(diff/15.0));
-		create_charmice_stuff(ch, SKILL_INVALID, diff);
+		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
 		position = 18;
 		break;
-	case SKILL_BOTHHANDS: // двуруч
+	case ESkill::kTwohands: // двуруч
 		obj->set_val(3, 1);
 		obj->set_skill(146);
 		obj->set_weight(floorf(diff/4.0)); // 50 вес при 200% скила
 		obj->set_affected(0, APPLY_STR, floorf(diff/15.0));
 		obj->set_affected(1, APPLY_DAMROLL, floorf(diff/13.0));
-		create_charmice_stuff(ch, SKILL_INVALID, diff);
+		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
 		position = 18;
 		break;
-	case SKILL_PUNCH: // кулачка
-		obj->set_type(OBJ_DATA::ITEM_ARMOR);
+	case ESkill::kPunch: // кулачка
+		obj->set_type(ObjData::ITEM_ARMOR);
 		obj->set_affected(0, APPLY_DAMROLL, floorf(diff/10.0));
-		create_charmice_stuff(ch, SKILL_INVALID, diff);
+		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
 		position = 9;
 		break;
-	case SKILL_LONGS: // длинные
+	case ESkill::kLongBlades: // длинные
 		obj->set_val(3, 10);
 		obj->set_skill(143);
 		obj->set_affected(0, APPLY_STR, floorf(diff/15.0));
 		obj->set_affected(1, APPLY_DEX, floorf(diff/12.0));
 		obj->set_affected(2, APPLY_SAVING_REFLEX, -floorf(diff/3.5));
-		create_charmice_stuff(ch, SKILL_INVALID, -1); // так изощренно создаем обувку(-1), итак кэйсов наплодил
-		create_charmice_stuff(ch, SKILL_INVALID, diff);
+		create_charmice_stuff(ch, ESkill::kIncorrect, -1); // так изощренно создаем обувку(-1), итак кэйсов наплодил
+		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
 		position = 16;
 		break;
-	case SKILL_BLOCK: // блок щитом ? делаем щит
-		obj->set_type(OBJ_DATA::ITEM_ARMOR);
+	case ESkill::kShieldBlock: // блок щитом ? делаем щит
+		obj->set_type(ObjData::ITEM_ARMOR);
 		obj->set_description("Роговые пластины лежат здесь.");
 		obj->set_ex_description(descr.c_str(), "Роговые пластины лежат здесь.");
 		obj->set_aliases("роговые пластины");
@@ -511,8 +514,8 @@ void create_charmice_stuff(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 		obj->set_affected(3, APPLY_SAVING_WILL, -floorf(diff/3.5));
 		position = 11; // слот щит
 		break;		
-	default: //SKILL_INVALID / тут шкура(армор)
-		obj->set_sex(ESex::SEX_FEMALE);
+	default: //ESkill::kIncorrect / тут шкура(армор)
+		obj->set_sex(ESex::kFemale);
 		obj->set_description("Прочная шкура лежит здесь.");
 		obj->set_ex_description(descr.c_str(), "Прочная шкура лежит здесь.");
 		obj->set_aliases("прочная шкура");
@@ -523,9 +526,9 @@ void create_charmice_stuff(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 		obj->set_PName(3, "прочную шкуру");
 		obj->set_PName(4, "прочной шкурой");
 		obj->set_PName(5, "прочной шкуре");
-		obj->set_type(OBJ_DATA::ITEM_ARMOR);
+		obj->set_type(ObjData::ITEM_ARMOR);
 		if (diff == -1) { // тут делаем сапоги 
-			obj->set_sex(ESex::SEX_POLY);
+			obj->set_sex(ESex::kPoly);
 			obj->set_weight(50);
 			obj->set_description("Оторванная лапа зверя лежит здесь.");
 			obj->set_ex_description(descr.c_str(), "Оторванная лапа зверя лежит здесь.");

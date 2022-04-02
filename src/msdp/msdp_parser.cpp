@@ -2,7 +2,7 @@
 
 #include "config.h"
 #include "telnet.h"
-#include "logger.h"
+#include "utils/logger.h"
 
 namespace msdp {
 bool debug_flag = false;

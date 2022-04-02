@@ -16,13 +16,13 @@
 
 #include "conf.h"
 #include "sysdep.h"
-#include "structs.h"
+#include "structs/structs.h"
 #include "comm.h"
-#include "logger.h"
+#include "utils/logger.h"
 #include "utils/utils.h"
-#include "magic/spells.h"
-#include "chars/char.h"
-#include "chars/char_player.h"
+#include "game_magic/spells.h"
+#include "entities/char_data.h"
+#include "entities/char_player.h"
 #include "db.h"
 
 const char *genchar_help =
@@ -105,8 +105,12 @@ const char *default_race[] = {
 	"Веляне" //волхв
 };
 
-void genchar_disp_menu(CHAR_DATA *ch) {
-	char buf[MAX_STRING_LENGTH];
+int CalcBasseStatsSum(CharData *ch) {
+	return ch->get_str() + ch->get_dex() + ch->get_int() + ch->get_wis() + ch->get_con() + ch->get_cha();
+}
+
+void genchar_disp_menu(CharData *ch) {
+	char buf[kMaxStringLength];
 
 	sprintf(buf,
 			"\r\n              -      +\r\n"
@@ -126,58 +130,58 @@ void genchar_disp_menu(CHAR_DATA *ch) {
 			ch->get_inborn_int(), MIN_INT(ch), MAX_INT(ch),
 			ch->get_inborn_wis(), MIN_WIS(ch), MAX_WIS(ch),
 			ch->get_inborn_con(), MIN_CON(ch), MAX_CON(ch),
-			ch->get_inborn_cha(), MIN_CHA(ch), MAX_CHA(ch), SUM_ALL_STATS - SUM_STATS(ch));
+			ch->get_inborn_cha(), MIN_CHA(ch), MAX_CHA(ch), kBaseStatsSum - CalcBasseStatsSum(ch));
 	send_to_char(buf, ch);
-	if (SUM_ALL_STATS == SUM_STATS(ch))
+	if (kBaseStatsSum == CalcBasseStatsSum(ch))
 		send_to_char("  В) Закончить генерацию\r\n", ch);
 	send_to_char(" Ваш выбор: ", ch);
 }
 
-int genchar_parse(CHAR_DATA *ch, char *arg) {
+int genchar_parse(CharData *ch, char *arg) {
 	int tmp_class;
 	switch (*arg) {
 		case 'А':
-		case 'а': ch->set_str(MAX(ch->get_inborn_str() - 1, MIN_STR(ch)));
+		case 'а': ch->set_str(std::max(ch->get_inborn_str() - 1, MIN_STR(ch)));
 			break;
 		case 'Б':
-		case 'б': ch->set_dex(MAX(ch->get_inborn_dex() - 1, MIN_DEX(ch)));
+		case 'б': ch->set_dex(std::max(ch->get_inborn_dex() - 1, MIN_DEX(ch)));
 			break;
 		case 'Г':
-		case 'г': ch->set_int(MAX(ch->get_inborn_int() - 1, MIN_INT(ch)));
+		case 'г': ch->set_int(std::max(ch->get_inborn_int() - 1, MIN_INT(ch)));
 			break;
 		case 'Д':
-		case 'д': ch->set_wis(MAX(ch->get_inborn_wis() - 1, MIN_WIS(ch)));
+		case 'д': ch->set_wis(std::max(ch->get_inborn_wis() - 1, MIN_WIS(ch)));
 			break;
 		case 'Е':
-		case 'е': ch->set_con(MAX(ch->get_inborn_con() - 1, MIN_CON(ch)));
+		case 'е': ch->set_con(std::max(ch->get_inborn_con() - 1, MIN_CON(ch)));
 			break;
 		case 'Ж':
-		case 'ж': ch->set_cha(MAX(ch->get_inborn_cha() - 1, MIN_CHA(ch)));
+		case 'ж': ch->set_cha(std::max(ch->get_inborn_cha() - 1, MIN_CHA(ch)));
 			break;
 		case 'З':
-		case 'з': ch->set_str(MIN(ch->get_inborn_str() + 1, MAX_STR(ch)));
+		case 'з': ch->set_str(std::min(ch->get_inborn_str() + 1, MAX_STR(ch)));
 			break;
 		case 'И':
-		case 'и': ch->set_dex(MIN(ch->get_inborn_dex() + 1, MAX_DEX(ch)));
+		case 'и': ch->set_dex(std::min(ch->get_inborn_dex() + 1, MAX_DEX(ch)));
 			break;
 		case 'К':
-		case 'к': ch->set_int(MIN(ch->get_inborn_int() + 1, MAX_INT(ch)));
+		case 'к': ch->set_int(std::min(ch->get_inborn_int() + 1, MAX_INT(ch)));
 			break;
 		case 'Л':
-		case 'л': ch->set_wis(MIN(ch->get_inborn_wis() + 1, MAX_WIS(ch)));
+		case 'л': ch->set_wis(std::min(ch->get_inborn_wis() + 1, MAX_WIS(ch)));
 			break;
 		case 'М':
-		case 'м': ch->set_con(MIN(ch->get_inborn_con() + 1, MAX_CON(ch)));
+		case 'м': ch->set_con(std::min(ch->get_inborn_con() + 1, MAX_CON(ch)));
 			break;
 		case 'Н':
-		case 'н': ch->set_cha(MIN(ch->get_inborn_cha() + 1, MAX_CHA(ch)));
+		case 'н': ch->set_cha(std::min(ch->get_inborn_cha() + 1, MAX_CHA(ch)));
 			break;
 		case 'П':
 		case 'п': send_to_char(genchar_help, ch);
 			break;
 		case 'В':
 		case 'в':
-			if (SUM_STATS(ch) != SUM_ALL_STATS)
+			if (CalcBasseStatsSum(ch) != kBaseStatsSum)
 				break;
 			// по случаю успешной генерации сохраняем стартовые статы
 			ch->set_start_stat(G_STR, ch->get_inborn_str());
@@ -186,7 +190,7 @@ int genchar_parse(CHAR_DATA *ch, char *arg) {
 			ch->set_start_stat(G_WIS, ch->get_inborn_wis());
 			ch->set_start_stat(G_CON, ch->get_inborn_con());
 			ch->set_start_stat(G_CHA, ch->get_inborn_cha());
-			return GENCHAR_EXIT;
+			return kGencharExit;
 		case 'О':
 		case 'о': tmp_class = GET_CLASS(ch);
 			ch->set_str(auto_stats[tmp_class][0]);
@@ -201,10 +205,10 @@ int genchar_parse(CHAR_DATA *ch, char *arg) {
 			ch->set_start_stat(G_WIS, ch->get_inborn_wis());
 			ch->set_start_stat(G_CON, ch->get_inborn_con());
 			ch->set_start_stat(G_CHA, ch->get_inborn_cha());
-			return GENCHAR_EXIT;
+			return kGencharExit;
 		default: break;
 	}
-	return GENCHAR_CONTINUE;
+	return kGencharContinue;
 }
 
 /*
@@ -212,11 +216,11 @@ int genchar_parse(CHAR_DATA *ch, char *arg) {
  * the best 3 out of 4 rolls of a 6-sided die.  Each class then decides
  * which priority will be given for the best to worst stats.
  */
-void roll_real_abils(CHAR_DATA *ch) {
+void roll_real_abils(CharData *ch) {
 	int i;
 
 	switch (ch->get_class()) {
-		case CLASS_CLERIC: ch->set_cha(10);
+		case ECharClass::kSorcerer: ch->set_cha(10);
 			do {
 				ch->set_con(12 + number(0, 3));
 				ch->set_wis(18 + number(0, 5));
@@ -236,9 +240,9 @@ void roll_real_abils(CHAR_DATA *ch) {
 			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 170) : number(120, 180);
 			break;
 
-		case CLASS_BATTLEMAGE:
-		case CLASS_DEFENDERMAGE:
-		case CLASS_CHARMMAGE:
+		case ECharClass::kConjurer:
+		case ECharClass::kWizard:
+		case ECharClass::kCharmer:
 			do {
 				ch->set_str(10 + number(0, 4));
 				ch->set_wis(17 + number(0, 5));
@@ -259,7 +263,7 @@ void roll_real_abils(CHAR_DATA *ch) {
 			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 150) : number(120, 180);
 			break;
 
-		case CLASS_NECROMANCER:
+		case ECharClass::kNecromancer:
 			do {
 				ch->set_cha(10 + number(0, 2));
 				ch->set_wis(20 + number(0, 3));
@@ -280,7 +284,7 @@ void roll_real_abils(CHAR_DATA *ch) {
 			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 150) : number(120, 180);
 			break;
 
-		case CLASS_THIEF:
+		case ECharClass::kThief:
 			do {
 				ch->set_str(16 + number(0, 3));
 				ch->set_con(14 + number(0, 3));
@@ -301,7 +305,7 @@ void roll_real_abils(CHAR_DATA *ch) {
 			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 170) : number(120, 180);
 			break;
 
-		case CLASS_WARRIOR: ch->set_cha(10);
+		case ECharClass::kWarrior: ch->set_cha(10);
 			do {
 				ch->set_str(20 + number(0, 4));
 				ch->set_dex(8 + number(0, 3));
@@ -321,7 +325,7 @@ void roll_real_abils(CHAR_DATA *ch) {
 			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(160, 180) : number(170, 200);
 			break;
 
-		case CLASS_ASSASINE: ch->set_cha(12);
+		case ECharClass::kAssasine: ch->set_cha(12);
 			do {
 				ch->set_str(16 + number(0, 5));
 				ch->set_dex(18 + number(0, 5));
@@ -342,7 +346,7 @@ void roll_real_abils(CHAR_DATA *ch) {
 			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 180) : number(150, 200);
 			break;
 
-		case CLASS_GUARD: ch->set_cha(12);
+		case ECharClass::kGuard: ch->set_cha(12);
 			do {
 				ch->set_str(19 + number(0, 3));
 				ch->set_dex(13 + number(0, 3));
@@ -363,7 +367,7 @@ void roll_real_abils(CHAR_DATA *ch) {
 			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(140, 170) : number(160, 200);
 			break;
 
-		case CLASS_PALADINE:
+		case ECharClass::kPaladine:
 			do {
 				ch->set_str(18 + number(0, 3));
 				ch->set_wis(14 + number(0, 4));
@@ -385,7 +389,7 @@ void roll_real_abils(CHAR_DATA *ch) {
 			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(140, 175) : number(140, 190);
 			break;
 
-		case CLASS_RANGER:
+		case ECharClass::kRanger:
 
 			do {
 				ch->set_str(18 + number(0, 6));
@@ -407,7 +411,7 @@ void roll_real_abils(CHAR_DATA *ch) {
 			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 180) : number(120, 200);
 			break;
 
-		case CLASS_SMITH:
+		case ECharClass::kVigilant:
 			do {
 				ch->set_str(18 + number(0, 5));
 				ch->set_dex(14 + number(0, 3));
@@ -428,7 +432,7 @@ void roll_real_abils(CHAR_DATA *ch) {
 			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(150, 180) : number(170, 200);
 			break;
 
-		case CLASS_MERCHANT:
+		case ECharClass::kMerchant:
 			do {
 				ch->set_str(18 + number(0, 3));
 				ch->set_con(12 + number(0, 6));
@@ -449,7 +453,7 @@ void roll_real_abils(CHAR_DATA *ch) {
 			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 180) : number(120, 200);
 			break;
 
-		case CLASS_DRUID: ch->set_cha(12);
+		case ECharClass::kMagus: ch->set_cha(12);
 			do {
 				ch->set_con(12 + number(0, 3));
 				ch->set_wis(15 + number(0, 3));
@@ -467,8 +471,8 @@ void roll_real_abils(CHAR_DATA *ch) {
 			ch->set_int(ch->get_int() + 2);
 			GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(150, 180) : number(150, 190);
 			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 170) : number(120, 180);
-			for (i = 1; i <= SPELLS_COUNT; i++)
-				GET_SPELL_TYPE(ch, i) = SPELL_RUNES;
+			for (i = 1; i <= kSpellCount; i++)
+				GET_SPELL_TYPE(ch, i) = kSpellRunes;
 			break;
 
 		default: log("SYSERROR : ATTEMPT STORE ABILITIES FOR UNKNOWN CLASS (Player %s)", GET_NAME(ch));
@@ -478,7 +482,7 @@ void roll_real_abils(CHAR_DATA *ch) {
 // Функция для склонения имени по падежам.
 // Буквы должны быть заранее переведены в нижний регистр.
 // name - имя в именительном падеже
-// sex - пол (SEX_MALE или SEX_FEMALE)
+// sex - пол (kMale или kFemale)
 // caseNum - номер падежа (0 - 5)
 //  0 - именительный (кто? что?)
 //  1 - родительный (кого? чего?)
@@ -490,8 +494,8 @@ void roll_real_abils(CHAR_DATA *ch) {
 void GetCase(const char *name, const ESex sex, int caseNum, char *result) {
 	size_t len = strlen(name);
 
-	if (strchr("цкнгшщзхфвпрлджчсмтб", name[len - 1]) != NULL
-		&& sex == ESex::SEX_MALE) {
+	if (strchr("цкнгшщзхфвпрлджчсмтб", name[len - 1]) != nullptr
+		&& sex == ESex::kMale) {
 		strcpy(result, name);
 		if (caseNum == 1)
 			strcat(result, "а"); // Ивана
@@ -519,7 +523,7 @@ void GetCase(const char *name, const ESex sex, int caseNum, char *result) {
 		else
 			strcat(result, "я"); // Аня, Ваня
 	} else if (name[len - 1] == 'й'
-		&& sex == ESex::SEX_MALE) {
+		&& sex == ESex::kMale) {
 		strncpy(result, name, len - 1);
 		result[len - 1] = '\0';
 		if (caseNum == 1)
@@ -538,7 +542,7 @@ void GetCase(const char *name, const ESex sex, int caseNum, char *result) {
 		strncpy(result, name, len - 1);
 		result[len - 1] = '\0';
 		if (caseNum == 1) {
-			if (strchr("шщжч", name[len - 2]) != NULL)
+			if (strchr("шщжч", name[len - 2]) != nullptr)
 				strcat(result, "и"); // Маши, Паши
 			else
 				strcat(result, "ы"); // Анны
@@ -547,7 +551,7 @@ void GetCase(const char *name, const ESex sex, int caseNum, char *result) {
 		else if (caseNum == 3)
 			strcat(result, "у"); // Пашу, Анну
 		else if (caseNum == 4) {
-			if (strchr("шщч", name[len - 2]) != NULL)
+			if (strchr("шщч", name[len - 2]) != nullptr)
 				strcat(result, "ей"); // Машей, Пашей
 			else
 				strcat(result, "ой"); // Анной, Ханжой
@@ -560,7 +564,6 @@ void GetCase(const char *name, const ESex sex, int caseNum, char *result) {
 		strcpy(result, name);
 	}
 	CAP(result);
-	return;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

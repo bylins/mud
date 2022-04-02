@@ -2,9 +2,9 @@
 // Part of Bylins http://www.mud.ru
 
 #include "obj_enchant.h"
-#include "obj.h"
-#include "screen.h"
-#include "chars/char.h"
+#include "entities/obj_data.h"
+#include "color.h"
+#include "entities/char_data.h"
 
 namespace ObjectEnchant {
 
@@ -15,11 +15,11 @@ enchant::enchant()
 	no_flags_ = clear_flags;
 }
 
-enchant::enchant(OBJ_DATA *obj) {
+enchant::enchant(ObjData *obj) {
 	name_ = !GET_OBJ_PNAME(obj, 4).empty() ? GET_OBJ_PNAME(obj, 4).c_str() : "<null>";
 	type_ = ENCHANT_FROM_OBJ;
 
-	for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+	for (int i = 0; i < kMaxObjAffect; i++) {
 		if (obj->get_affected(i).location != APPLY_NONE
 			&& obj->get_affected(i).modifier != 0) {
 			affected_.push_back(obj->get_affected(i));
@@ -35,7 +35,7 @@ enchant::enchant(OBJ_DATA *obj) {
 	sdice_ = 0;
 }
 
-void enchant::print(CHAR_DATA *ch) const {
+void enchant::print(CharData *ch) const {
 	send_to_char(ch, "Зачаровано %s :%s\r\n", name_.c_str(), CCCYN(ch, C_NRM));
 
 	for (std::vector<obj_affected_type>::const_iterator i = affected_.begin(),
@@ -107,15 +107,15 @@ std::string enchant::print_to_file() const {
 	return out.str();
 }
 
-void correct_values(OBJ_DATA *obj) {
+void correct_values(ObjData *obj) {
 	obj->set_weight(std::max(1, GET_OBJ_WEIGHT(obj)));
 	obj->set_val(1, std::max(0, GET_OBJ_VAL(obj, 1)));
 	obj->set_val(2, std::max(0, GET_OBJ_VAL(obj, 2)));
 }
 
-void enchant::apply_to_obj(OBJ_DATA *obj) const {
+void enchant::apply_to_obj(ObjData *obj) const {
 	for (auto i = affected_.cbegin(), iend = affected_.cend(); i != iend; ++i) {
-		for (int k = 0; k < MAX_OBJ_AFFECT; k++) {
+		for (int k = 0; k < kMaxObjAffect; k++) {
 			if (obj->get_affected(k).location == i->location) {
 				obj->add_affected(k, i->modifier);
 				break;
@@ -131,7 +131,7 @@ void enchant::apply_to_obj(OBJ_DATA *obj) const {
 	obj->add_no_flags(no_flags_);
 	obj->add_weight(weight_);
 
-	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON) {
+	if (GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON) {
 		obj->add_val(1, ndice_);
 		obj->add_val(2, sdice_);
 	}
@@ -161,7 +161,7 @@ std::string Enchants::print_to_file() const {
 	return out;
 }
 
-void Enchants::print(CHAR_DATA *ch) const {
+void Enchants::print(CharData *ch) const {
 	for (auto i = list_.cbegin(), iend = list_.cend(); i != iend; ++i) {
 		i->print(ch);
 	}
@@ -171,7 +171,7 @@ bool Enchants::empty() const {
 	return list_.empty();
 }
 
-void Enchants::update_set_bonus(OBJ_DATA *obj, const obj_sets::ench_type &set_ench) {
+void Enchants::update_set_bonus(ObjData *obj, const obj_sets::ench_type &set_ench) {
 	for (auto i = list_.begin(); i != list_.end(); ++i) {
 		if (i->type_ == ENCHANT_FROM_SET) {
 			if (i->weight_ != set_ench.weight
@@ -180,7 +180,7 @@ void Enchants::update_set_bonus(OBJ_DATA *obj, const obj_sets::ench_type &set_en
 				// вес
 				obj->add_weight(set_ench.weight - i->weight_);
 				// дайсы пушек
-				if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON) {
+				if (GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON) {
 					obj->add_val(1, set_ench.ndice - i->ndice_);
 					obj->add_val(2, set_ench.sdice - i->sdice_);
 				}
@@ -202,7 +202,7 @@ void Enchants::update_set_bonus(OBJ_DATA *obj, const obj_sets::ench_type &set_en
 	tmp.apply_to_obj(obj);
 }
 
-void Enchants::remove_set_bonus(OBJ_DATA *obj) {
+void Enchants::remove_set_bonus(ObjData *obj) {
 	for (auto i = list_.begin(); i != list_.end(); ++i) {
 		if (i->type_ == ENCHANT_FROM_SET) {
 			obj->sub_weight(i->weight_);

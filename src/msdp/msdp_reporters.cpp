@@ -1,16 +1,17 @@
 #include "msdp_reporters.h"
 
-#include "chars/char.h"
-#include "magic/magic.h"
+#include "entities/char_data.h"
+#include "entities/entities_constants.h"
+#include "game_magic/magic.h"
 #include "msdp_constants.h"
-#include "zone.table.h"
+#include "entities/zone.h"
 
 namespace msdp {
 void RoomReporter::get(Variable::shared_ptr &response) {
 	const auto rnum = IN_ROOM(descriptor()->character);
 	const auto vnum = GET_ROOM_VNUM(rnum);
 	const auto from_rnum = descriptor()->character->get_from_room();
-	if ((from_rnum == vnum) || (NOWHERE == vnum)) {
+	if ((from_rnum == vnum) || (kNowhere == vnum)) {
 		//добавил проверку если перемещаемся из неоткуда
 		return;
 	}
@@ -25,20 +26,20 @@ void RoomReporter::get(Variable::shared_ptr &response) {
 	const auto directions = world[rnum]->dir_option;
 	std::string from_direction = "-";
 
-	for (int i = 0; i < NUM_OF_DIRS; ++i) {
+	for (int i = 0; i < kDirMaxNumber; ++i) {
 		if (directions[i]
 			&& !EXIT_FLAGGED(directions[i], EX_HIDDEN)) {
-			const static std::string direction_commands[NUM_OF_DIRS] = {"n", "e", "s", "w", "u", "d"};
+			const static std::string direction_commands[kDirMaxNumber] = {"n", "e", "s", "w", "u", "d"};
 			const auto to_rnum = directions[i]->to_room();
 			if (to_rnum == from_rnum) {
 				from_direction = direction_commands[i];
 			}
 			const auto to_vnum = GET_ROOM_VNUM(to_rnum);
-			if (NOWHERE
+			if (kNowhere
 				!= to_vnum)    // Anton Gorev (2016-05-01): Some rooms has exits that  lead to nowhere. It is a workaround.
 			{
 				exits->add(std::make_shared<Variable>(direction_commands[i],
-													  std::make_shared<StringValue>(std::to_string(to_vnum))));
+						std::make_shared<StringValue>(std::to_string(to_vnum))));
 			}
 		}
 	}
@@ -53,30 +54,26 @@ void RoomReporter::get(Variable::shared_ptr &response) {
 		zone_name(new char[4 * strlen(zone_table[world[rnum]->zone_rn].name)], std::default_delete<char[]>());
 	descriptor()->string_to_client_encoding(zone_table[world[rnum]->zone_rn].name, zone_name.get());
 
-	room_descriptor->add(std::make_shared<Variable>("VNUM",
-													std::make_shared<StringValue>(std::to_string(vnum))));
-	room_descriptor->add(std::make_shared<Variable>("NAME",
-													std::make_shared<StringValue>(room_name.get())));
-	room_descriptor->add(std::make_shared<Variable>("AREA",
-													std::make_shared<StringValue>(zone_name.get())));
-	room_descriptor->add(std::make_shared<Variable>("ZONE",
-													std::make_shared<StringValue>(std::to_string(vnum / 100))));
+	room_descriptor->add(std::make_shared<Variable>("VNUM", std::make_shared<StringValue>(std::to_string(vnum))));
+	room_descriptor->add(std::make_shared<Variable>("NAME", std::make_shared<StringValue>(room_name.get())));
+	room_descriptor->add(std::make_shared<Variable>("AREA", std::make_shared<StringValue>(zone_name.get())));
+	room_descriptor->add(std::make_shared<Variable>("ZONE", std::make_shared<StringValue>(std::to_string(vnum / 100))));
 
 	const auto from_vnum = GET_ROOM_VNUM(from_rnum);
-	if (from_vnum != NOWHERE) {
+	if (from_vnum != kNowhere) {
 		room_descriptor->add(std::make_shared<Variable>("FROM_ROOM",
-														std::make_shared<StringValue>(std::to_string(from_vnum))));
+				std::make_shared<StringValue>(std::to_string(from_vnum))));
 	}
 
 	if (from_direction != "-") {
 		room_descriptor->add(std::make_shared<Variable>("FROM_DIRECTION",
-														std::make_shared<StringValue>(from_direction)));
+				std::make_shared<StringValue>(from_direction)));
 	}
 
 	const auto stype = SECTOR_TYPE_BY_VALUE.find(world[rnum]->sector_type);
 	if (stype != SECTOR_TYPE_BY_VALUE.end()) {
 		room_descriptor->add(std::make_shared<Variable>("TERRAIN",
-														std::make_shared<StringValue>(stype->second)));
+				std::make_shared<StringValue>(stype->second)));
 	}
 
 	room_descriptor->add(std::make_shared<Variable>("EXITS", exits));
@@ -85,13 +82,15 @@ void RoomReporter::get(Variable::shared_ptr &response) {
 }
 
 bool RoomReporter::blockReport() const {
+	bool nomapper = true;
 	const auto blind = (PRF_FLAGGED(descriptor()->character, PRF_BLIND)) //В режиме слепого игрока карта недоступна
 		|| (AFF_FLAGGED((descriptor()->character), EAffectFlag::AFF_BLIND));  //Слепому карта не поможет!
-	const auto
-		cannot_see_in_dark = (is_dark(IN_ROOM(descriptor()->character)) && !CAN_SEE_IN_DARK(descriptor()->character));
+	const auto cannot_see_in_dark = (is_dark(IN_ROOM(descriptor()->character)) && !CAN_SEE_IN_DARK(descriptor()->character));
+	if (descriptor()->character->in_room != kNowhere)
+		nomapper = ROOM_FLAGGED(descriptor()->character->in_room, ROOM_NOMAPPER);
 	const auto scriptwriter = PLR_FLAGGED(descriptor()->character, PLR_SCRIPTWRITER); // скриптеру не шлем
 
-	return blind || cannot_see_in_dark || scriptwriter;
+	return blind || cannot_see_in_dark || scriptwriter || nomapper;
 }
 
 void GoldReporter::get(Variable::shared_ptr &response) {
@@ -99,7 +98,7 @@ void GoldReporter::get(Variable::shared_ptr &response) {
 
 	const auto pocket_money = std::to_string(descriptor()->character->get_gold());
 	gold->add(std::make_shared<Variable>("POCKET",
-										 std::make_shared<StringValue>(pocket_money)));
+			std::make_shared<StringValue>(pocket_money)));
 
 	const auto bank_money = std::to_string(descriptor()->character->get_bank());
 	gold->add(std::make_shared<Variable>("BANK",
@@ -127,7 +126,7 @@ void MaxManaReporter::get(Variable::shared_ptr &response) {
 }
 
 void LevelReporter::get(Variable::shared_ptr &response) {
-	const auto level = std::to_string(GET_REAL_LEVEL(descriptor()->character));
+	const auto level = std::to_string(GetRealLevel(descriptor()->character));
 	response = std::make_shared<Variable>(constants::LEVEL,
 										  std::make_shared<StringValue>(level));
 }
@@ -158,18 +157,18 @@ void StateReporter::get(Variable::shared_ptr &response) {
 }
 
 void GroupReporter::append_char(const std::shared_ptr<ArrayValue> &group,
-								const CHAR_DATA *ch,
-								const CHAR_DATA *character,
+								const CharData *ch,
+								const CharData *character,
 								const bool leader) {
 	if (PRF_FLAGGED(ch, PRF_NOCLONES)
 		&& IS_NPC(character)
 		&& (MOB_FLAGGED(character, MOB_CLONE)
-			|| GET_MOB_VNUM(character) == MOB_KEEPER)) {
+			|| GET_MOB_VNUM(character) == kMobKeeper)) {
 		return;
 	}
 	const auto member = std::make_shared<TableValue>();
 
-	char buffer[MAX_INPUT_LENGTH] = {0};
+	char buffer[kMaxInputLength] = {0};
 	descriptor()->string_to_client_encoding(GET_NAME(character), buffer);
 	member->add(std::make_shared<Variable>("NAME",
 										   std::make_shared<StringValue>(buffer)));
@@ -225,15 +224,15 @@ void GroupReporter::append_char(const std::shared_ptr<ArrayValue> &group,
 	const auto leader_value = leader ? "leader" : (IS_NPC(character) ? "npc" : "pc");
 	member->add(std::make_shared<Variable>("ROLE", std::make_shared<StringValue>(leader_value)));
 
-	char position[MAX_INPUT_LENGTH];
-	sprinttype(GET_POS(character), position_types, position);
+	char position[kMaxInputLength];
+	sprinttype(static_cast<int>(GET_POS(character)), position_types, position);
 	descriptor()->string_to_client_encoding(position, buffer);
 	member->add(std::make_shared<Variable>("POSITION", std::make_shared<StringValue>(buffer)));
 
 	group->add(member);
 }
 
-int GroupReporter::get_mem(const CHAR_DATA *character) const {
+int GroupReporter::get_mem(const CharData *character) const {
 	int result = 0;
 	int div = 0;
 	if (!IS_NPC(character)
@@ -275,28 +274,28 @@ void GroupReporter::get(Variable::shared_ptr &response) {
 	const auto master = ch->has_master() ? ch->get_master() : ch;
 	append_char(group_descriptor, ch, master, true);
 	for (auto f = master->followers; f; f = f->next) {
-		if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-			&& !(AFF_FLAGGED(f->follower, EAffectFlag::AFF_CHARM)
-				|| MOB_FLAGGED(f->follower, MOB_ANGEL)
-				|| MOB_FLAGGED(f->follower, MOB_GHOST))) {
+		if (!AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+			&& !(AFF_FLAGGED(f->ch, EAffectFlag::AFF_CHARM)
+				|| MOB_FLAGGED(f->ch, MOB_ANGEL)
+				|| MOB_FLAGGED(f->ch, MOB_GHOST))) {
 			continue;
 		}
 
-		append_char(group_descriptor, ch, f->follower, false);
+		append_char(group_descriptor, ch, f->ch, false);
 
-		// followers of a follower
-		if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)) {
+		// followers of a ch
+		if (!AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)) {
 			continue;
 		}
 
-		for (auto ff = f->follower->followers; ff; ff = ff->next) {
-			if (!(AFF_FLAGGED(ff->follower, EAffectFlag::AFF_CHARM)
-				|| MOB_FLAGGED(ff->follower, MOB_ANGEL)
-				|| MOB_FLAGGED(ff->follower, MOB_GHOST))) {
+		for (auto ff = f->ch->followers; ff; ff = ff->next) {
+			if (!(AFF_FLAGGED(ff->ch, EAffectFlag::AFF_CHARM)
+				|| MOB_FLAGGED(ff->ch, MOB_ANGEL)
+				|| MOB_FLAGGED(ff->ch, MOB_GHOST))) {
 				continue;
 			}
 
-			append_char(group_descriptor, ch, ff->follower, false);
+			append_char(group_descriptor, ch, ff->ch, false);
 		}
 	}
 

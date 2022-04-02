@@ -15,19 +15,20 @@
 
 #include "dg_scripts.h"
 #include "handler.h"
-#include "magic/magic_utils.h"
+#include "game_magic/magic_utils.h"
 #include "dg_event.h"
+#include "structs/global_objects.h"
 
 // remove a single trigger from a mob/obj/room
-void extract_trigger(TRIG_DATA *trig) {
+void extract_trigger(Trigger *trig) {
 	if (GET_TRIG_WAIT(trig)) {
 		// см. объяснения в вызове trig_data_free()
 		free(GET_TRIG_WAIT(trig)->info);
 		remove_event(GET_TRIG_WAIT(trig));
-		GET_TRIG_WAIT(trig) = NULL;
+		GET_TRIG_WAIT(trig) = nullptr;
 	}
 
-	trig_index[trig->get_rnum()]->number--;
+	trig_index[trig->get_rnum()]->total_online--;
 
 	// walk the trigger list and remove this one
 	trigger_list.remove(trig);
@@ -38,7 +39,7 @@ void extract_trigger(TRIG_DATA *trig) {
 }
 
 // remove all triggers from a mob/obj/room
-void extract_script(SCRIPT_DATA *sc) {
+void extract_script(Script *sc) {
 	sc->trig_list.clear();
 }
 
@@ -55,14 +56,14 @@ void extract_script_mem(struct script_memory *sc) {
 }
 
 // perhaps not the best place for this, but I didn't want a new file
-const char *skill_percent(TRIG_DATA *trig, CHAR_DATA *ch, char *skill) {
+const char *skill_percent(Trigger *trig, CharData *ch, char *skill) {
 	static char retval[256];
 	im_rskill *rs;
 	int rid;
 
-	const ESkill skillnum = FixNameAndFindSkillNum(skill);
-	if (skillnum > 0) {
-		sprintf(retval, "%d", ch->get_trained_skill(skillnum));
+	const ESkill skill_id = FixNameAndFindSkillNum(skill);
+	if (MUD::Skills().IsValid(skill_id)) {
+		sprintf(retval, "%d", ch->get_trained_skill(skill_id));
 		return retval;
 	}
 	rid = im_get_recipe_by_name(skill);
@@ -73,17 +74,17 @@ const char *skill_percent(TRIG_DATA *trig, CHAR_DATA *ch, char *skill) {
 		sprintf(retval, "%d", rs->perc);
 		return retval;
 	}
-	if ((skillnum == 0) && (rid < 0)) {
+	if ((skill_id == ESkill::kIncorrect) && (rid < 0)) {
 		sprintf(buf2, "Wrong skill\recipe name: %s", skill);
 		trig_log(trig, buf2);
 	}
 	return ("0");
 }
 
-bool feat_owner(TRIG_DATA *trig, CHAR_DATA *ch, char *feat) {
+bool feat_owner(Trigger *trig, CharData *ch, char *feat) {
 	int featnum;
 
-	featnum = find_feat_num(feat);
+	featnum = FindFeatNum(feat);
 	if (featnum > 0) {
 		if (HAVE_FEAT(ch, featnum))
 			return 1;
@@ -94,7 +95,7 @@ bool feat_owner(TRIG_DATA *trig, CHAR_DATA *ch, char *feat) {
 	return 0;
 }
 
-const char *spell_count(TRIG_DATA *trig, CHAR_DATA *ch, char *spell) {
+const char *spell_count(Trigger *trig, CharData *ch, char *spell) {
 	static char retval[256];
 	int spellnum;
 
@@ -112,7 +113,7 @@ const char *spell_count(TRIG_DATA *trig, CHAR_DATA *ch, char *spell) {
 	return retval;
 }
 
-const char *spell_knowledge(TRIG_DATA *trig, CHAR_DATA *ch, char *spell) {
+const char *spell_knowledge(Trigger *trig, CharData *ch, char *spell) {
 	static char retval[256];
 	int spellnum;
 

@@ -1,9 +1,9 @@
 #ifndef BYLINS_MERCENARY_H
 #define BYLINS_MERCENARY_H
 
-class CHAR_DATA;
+class CharData;
 
-int mercenary(CHAR_DATA *ch, void * /*me*/, int cmd, char *argument);
+int mercenary(CharData *ch, void * /*me*/, int cmd, char *argument);
 
 struct MERCDATA {
 	int CharmedCount; // кол-во раз почармлено

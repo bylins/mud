@@ -3,14 +3,14 @@
 
 #include "cmd_god/shutdown_parameters.h"
 
-#include "structs.h"
+#include "structs/structs.h"
 
-class CHAR_DATA;    // to avoid inclusion of "char.hpp"
+class CharData;    // to avoid inclusion of "char.hpp"
 
 namespace commands {
 class Shutdown {
  public:
-	Shutdown(CHAR_DATA *character, const char *argument, ShutdownParameters &shutdown_parameters);
+	Shutdown(CharData *character, const char *argument, ShutdownParameters &shutdown_parameters);
 
 	bool parse_arguments();
 	void reboot() const;
@@ -24,11 +24,11 @@ class Shutdown {
  private:
 	static char const *HELP_MESSAGE;
 
-	CHAR_DATA *m_character;
+	CharData *m_character;
 	const char *m_argument;
 	int m_timeout;
 	ShutdownParameters &m_shutdown_parameters;
-	char m_argument_buffer[MAX_STRING_LENGTH];
+	char m_argument_buffer[kMaxStringLength];
 };
 }
 

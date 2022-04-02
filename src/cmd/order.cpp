@@ -3,11 +3,11 @@
 #include "handler.h"
 
 // ****************** CHARM ORDERS PROCEDURES
-void do_order(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	char name[MAX_INPUT_LENGTH], message[MAX_INPUT_LENGTH];
-	bool found = FALSE;
-	room_rnum org_room;
-	CHAR_DATA *vict;
+void do_order(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	char name[kMaxInputLength], message[kMaxInputLength];
+	bool found = false;
+	RoomRnum org_room;
+	CharData *vict;
 
 	if (!ch)
 		return;
@@ -24,9 +24,9 @@ void do_order(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!*name || !*message)
 		send_to_char("Приказать что и кому?\r\n", ch);
 	else if (!(vict = get_char_vis(ch, name, FIND_CHAR_ROOM)) &&
-		!is_abbrev(name, "followers") && !is_abbrev(name, "все") && !is_abbrev(name, "всем"))
+		!utils::IsAbbrev(name, "followers") && !utils::IsAbbrev(name, "все") && !utils::IsAbbrev(name, "всем"))
 		send_to_char("Вы не видите такого персонажа.\r\n", ch);
-	else if (ch == vict && !is_abbrev(name, "все") && !is_abbrev(name, "всем"))
+	else if (ch == vict && !utils::IsAbbrev(name, "все") && !utils::IsAbbrev(name, "всем"))
 		send_to_char("Вы начали слышать императивные голоса - срочно к психиатру!\r\n", ch);
 	else {
 		if (vict && !IS_NPC(vict) && !IS_GOD(ch)) {
@@ -40,27 +40,27 @@ void do_order(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		if (vict
-			&& !is_abbrev(name, "все")
-			&& !is_abbrev(name, "всем")
-			&& !is_abbrev(name, "followers")) {
+			&& !utils::IsAbbrev(name, "все")
+			&& !utils::IsAbbrev(name, "всем")
+			&& !utils::IsAbbrev(name, "followers")) {
 			sprintf(buf, "$N приказал$g вам '%s'", message);
-			act(buf, FALSE, vict, 0, ch, TO_CHAR | CHECK_DEAF);
-			act("$n отдал$g приказ $N2.", FALSE, ch, 0, vict, TO_ROOM | CHECK_DEAF);
+			act(buf, false, vict, 0, ch, kToChar | kToNotDeaf);
+			act("$n отдал$g приказ $N2.", false, ch, 0, vict, kToRoom | kToNotDeaf);
 
 			if (vict->get_master() != ch
-				|| !AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
+				|| !(AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) || AFF_FLAGGED(vict, EAffectFlag::AFF_HELPER))
 				|| AFF_FLAGGED(vict, EAffectFlag::AFF_DEAFNESS)) {
 				if (!IS_POLY(vict)) {
-					act("$n безразлично смотрит по сторонам.", FALSE, vict, 0, 0, TO_ROOM);
+					act("$n безразлично смотрит по сторонам.", false, vict, 0, 0, kToRoom);
 				} else {
-					act("$n безразлично смотрят по сторонам.", FALSE, vict, 0, 0, TO_ROOM);
+					act("$n безразлично смотрят по сторонам.", false, vict, 0, 0, kToRoom);
 				}
 			} else {
 				send_to_char(OK, ch);
 				if (vict->get_wait() <= 0) {
 					command_interpreter(vict, message);
 				} else if (vict->get_fighting()) {
-					if (vict->last_comm != NULL) {
+					if (vict->last_comm != nullptr) {
 						free(vict->last_comm);
 					}
 					vict->last_comm = str_dup(message);
@@ -68,22 +68,22 @@ void do_order(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		} else {
 			org_room = ch->in_room;
-			act("$n отдал$g приказ.", FALSE, ch, 0, 0, TO_ROOM | CHECK_DEAF);
+			act("$n отдал$g приказ.", false, ch, 0, 0, kToRoom | kToNotDeaf);
 
-			CHAR_DATA::followers_list_t followers = ch->get_followers_list();
+			CharData::followers_list_t followers = ch->get_followers_list();
 
 			for (const auto follower : followers) {
 				if (org_room != follower->in_room) {
 					continue;
 				}
 
-				if (AFF_FLAGGED(follower, EAffectFlag::AFF_CHARM)
+				if ((AFF_FLAGGED(follower, EAffectFlag::AFF_CHARM) || AFF_FLAGGED(follower, EAffectFlag::AFF_HELPER))
 					&& !AFF_FLAGGED(follower, EAffectFlag::AFF_DEAFNESS)) {
-					found = TRUE;
+					found = true;
 					if (follower->get_wait() <= 0) {
 						command_interpreter(follower, message);
 					} else if (follower->get_fighting()) {
-						if (follower->last_comm != NULL) {
+						if (follower->last_comm != nullptr) {
 							free(follower->last_comm);
 						}
 						follower->last_comm = str_dup(message);

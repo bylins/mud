@@ -9,7 +9,7 @@
 
 #include "conf.h"
 #include "sysdep.h"
-#include "structs.h"
+#include "structs/structs.h"
 
 // виды жидскостей, наливаемых в контейнеры
 enum {
@@ -50,20 +50,20 @@ extern const char *drinknames[];
 extern const int drink_aff[][3];
 extern const char *color_liquid[];
 
-void do_drink(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_drunkoff(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_pour(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_drink(CharData *ch, char *argument, int cmd, int subcmd);
+void do_drunkoff(CharData *ch, char *argument, int cmd, int subcmd);
+void do_pour(CharData *ch, char *argument, int cmd, int subcmd);
 
-void name_from_drinkcon(OBJ_DATA *obj);
-void name_to_drinkcon(OBJ_DATA *obj, int type);
-bool is_potion(const OBJ_DATA *obj);
+void name_from_drinkcon(ObjData *obj);
+void name_to_drinkcon(ObjData *obj, int type);
+bool is_potion(const ObjData *obj);
 
 class CObjectPrototype;    // to avoit inclusion of "obj.hpp"
 
 namespace drinkcon {
 
-void identify(CHAR_DATA *ch, const OBJ_DATA *obj);
-std::string print_spells(CHAR_DATA *ch, const OBJ_DATA *obj);
+void identify(CharData *ch, const ObjData *obj);
+std::string print_spells(CharData *ch, const ObjData *obj);
 void copy_potion_values(const CObjectPrototype *from_obj, CObjectPrototype *to_obj);
 
 } // namespace drinkcon

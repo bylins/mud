@@ -18,7 +18,7 @@
 
 #include "boards/boards_changelog_loaders.h"
 #include "boards/boards_constants.h"
-#include "chars/char.h"
+#include "entities/char_data.h"
 
 #if CIRCLE_UNIX
 #include <sys/stat.h>
@@ -27,7 +27,6 @@
 #include <iostream>
 
 #define YES        1
-#define FALSE    0
 #define NO        0
 
 /*
@@ -48,7 +47,7 @@
  *
  */
 
-int level_exp(CHAR_DATA *ch, int level);
+int level_exp(CharData *ch, int level);
 
 // GAME PLAY OPTIONS
 
@@ -63,8 +62,8 @@ int max_pc_corpse_time = 30;
 int idle_void = 10;
 int idle_rent_time = 40;
 
-// This level and up is immune to idling, LVL_IMPL+1 will disable it.
-int idle_max_level = LVL_IMMORT;
+// This level and up is immune to idling, kLevelImplementator+1 will disable it.
+int idle_max_level = kLvlImmortal;
 
 // should items in death traps automatically be junked?
 int dts_are_dumps = YES;
@@ -103,11 +102,11 @@ int free_rent = YES;
 //int max_obj_save = 120;
 
 // receptionist's surcharge on top of item costs
-int min_rent_cost(CHAR_DATA *ch) {
-	if ((GET_REAL_LEVEL(ch) < 15) && (GET_REAL_REMORT(ch) == 0))
+int min_rent_cost(CharData *ch) {
+	if ((GetRealLevel(ch) < 15) && (GET_REAL_REMORT(ch) == 0))
 		return (0);
 	else
-		return ((GET_REAL_LEVEL(ch) + 30 * GET_REAL_REMORT(ch)) * 2);
+		return ((GetRealLevel(ch) + 30 * GET_REAL_REMORT(ch)) * 2);
 }
 
 // Lifetime of crashfiles, forced-rent and idlesave files in days
@@ -127,7 +126,7 @@ int free_crashrent_period = 2;
    они физически попуржатся.
    Если количество дней равно -1, то не удалять никогда
 */
-struct pclean_criteria_data pclean_criteria[] =
+struct PCCleanCriteria pclean_criteria[] =
 	{
 		//     УРОВЕНЬ           ДНИ
 		{-1, 0},        // Удаленные чары - удалять сразу
@@ -157,7 +156,7 @@ struct pclean_criteria_data pclean_criteria[] =
 		{23, 161},
 		{24, 168},
 		{25, 360},
-		{LVL_IMPL, -1},        // c 25го и дальше живут вечно
+		{kLvlImplementator, -1},        // c 25го и дальше живут вечно
 		{-2, 0}            // Последняя обязательная строка
 	};
 
@@ -165,18 +164,18 @@ struct pclean_criteria_data pclean_criteria[] =
 // ROOM NUMBERS
 
 // virtual number of room that mortals should enter at
-room_vnum mortal_start_room = 4056;    // tavern in village
+RoomVnum mortal_start_room = 4056;    // tavern in village
 
 // virtual number of room that immorts should enter at by default
-room_vnum immort_start_room = 100;    // place  in castle
+RoomVnum immort_start_room = 100;    // place  in castle
 
 // virtual number of room that frozen players should enter at
-room_vnum frozen_start_room = 101;    // something in castle
+RoomVnum frozen_start_room = 101;    // something in castle
 
 // virtual number of room that helled players should enter at
-room_vnum helled_start_room = 101;    // something in castle
-room_vnum named_start_room = 105;
-room_vnum unreg_start_room = 103;
+RoomVnum helled_start_room = 101;    // something in castle
+RoomVnum named_start_room = 105;
+RoomVnum unreg_start_room = 103;
 
 
 // GAME OPERATION OPTIONS
@@ -200,7 +199,7 @@ ush_int DFLT_PORT = 4000;
  * course, that IP address must be one of your host's interfaces, or it
  * won't work.)
  */
-const char *DFLT_IP = NULL;    // bind to all interfaces
+const char *DFLT_IP = nullptr;    // bind to all interfaces
 // const char *DFLT_IP = "192.168.1.1";  -- bind only to one interface
 
 // default directory to use as data directory
@@ -212,7 +211,7 @@ const char *DFLT_DIR = "lib";
  * versions of Circle.  If you specify a file, you don't get messages to
  * the screen. (Hint: Try 'tail -f' if you have a UNIX machine.)
  */
-const char *LOGNAME = NULL;
+const char *LOGNAME = nullptr;
 // const char *LOGNAME = "log/syslog";  -- useful for Windows users
 
 // maximum number of players allowed before game starts to turn people away
@@ -235,7 +234,7 @@ int max_bad_pws = 3;
  * to just have to remove the SITEOK flags from those people I want to ban
  * rather than what is currently done?
  */
-int siteok_everyone = TRUE;
+int siteok_everyone = true;
 
 /*
  * Some nameservers are very slow and cause the game to lag terribly every
@@ -280,27 +279,26 @@ const char *START_MESSG =
 	" Твоя задача непроста, но надеемся, что ты сумеешь достойно решить ее.\r\n"
 	" В добрый час, путник, и да будет скатертью тебе дорога...\r\n" "\r\n";
 
-int max_exp_gain_pc(CHAR_DATA *ch) {
+int max_exp_gain_pc(CharData *ch) {
 	int result = 1;
 	if (!IS_NPC(ch)) {
-		int max_per_lev =
-			level_exp(ch, GET_REAL_LEVEL(ch) + 1) - level_exp(ch, GET_REAL_LEVEL(ch) + 0);
+		int max_per_lev = level_exp(ch, GET_LEVEL(ch) + 1) - level_exp(ch, GET_LEVEL(ch) + 0); //тут берем левел без плюсов от стафа
 		result = max_per_lev / (10 + GET_REAL_REMORT(ch));
 	}
 	return result;
 }
 
-int max_exp_loss_pc(CHAR_DATA *ch) {
-	return (IS_NPC(ch) ? 1 : (level_exp(ch, GET_REAL_LEVEL(ch) + 1) - level_exp(ch, GET_REAL_LEVEL(ch) + 0)) / 3);
+int max_exp_loss_pc(CharData *ch) {
+	return (IS_NPC(ch) ? 1 : (level_exp(ch, GetRealLevel(ch) + 1) - level_exp(ch, GetRealLevel(ch) + 0)) / 3);
 }
 
-int calc_loadroom(const CHAR_DATA *ch, int bplace_mode /*= BIRTH_PLACE_UNDEFINED*/) {
+int calc_loadroom(const CharData *ch, int bplace_mode /*= BIRTH_PLACE_UNDEFINED*/) {
 	if (IS_IMMORTAL(ch)) {
 		return (immort_start_room);
 	} else if (PLR_FLAGGED(ch, PLR_FROZEN)) {
 		return (frozen_start_room);
 	} else {
-		const int loadroom = BirthPlace::GetLoadRoom(bplace_mode);
+		const int loadroom = Birthplaces::GetLoadRoom(bplace_mode);
 		if (loadroom != BIRTH_PLACE_UNDEFINED) {
 			return loadroom;
 		}

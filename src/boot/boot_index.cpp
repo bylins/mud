@@ -1,6 +1,6 @@
 #include "boot/boot_index.h"
 
-#include "logger.h"
+#include "utils/logger.h"
 #include "utils/utils.h"
 
 class IndexFileImplementation : public IndexFile {

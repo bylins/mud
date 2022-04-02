@@ -5,10 +5,11 @@
 #ifndef HELP_HPP_INCLUDED
 #define HELP_HPP_INCLUDED
 
+#include "entities/char_player.h"
 #include "conf.h"
-#include "sysdep.h"
 #include "interpreter.h"
-#include "chars/char_player.h"
+#include "structs/flag_data.h"
+#include "sysdep.h"
 
 #include <string>
 #include <map>
@@ -33,7 +34,7 @@ void add_static(const std::string &key, const std::string &entry,
 // в динамической справке все с включенным no_immlog и 0 min_level
 void add_dynamic(const std::string &key, const std::string &entry);
 // добавление сетов, идет в DYNAMIC массив с включенным sets_drop_page
-void add_sets_drop(const std::string key_str, const std::string entry_str);
+void add_sets_drop(const std::string &key_str, const std::string &entry_str);
 // лоад/релоад конкретного массива справки
 void reload(HelpSystem::Flags sort_flag);
 // лоад/релоад всей справки
@@ -50,7 +51,7 @@ struct clss_activ_node {
 	clss_activ_node() { total_affects = clear_flags; };
 
 	// аффекты
-	FLAG_DATA total_affects;
+	FlagData total_affects;
 	// свойства
 	std::vector<obj_affected_type> affected;
 	// скилы
@@ -85,8 +86,14 @@ void sum_apply(T &l, const N &r) {
 }
 
 template<class T>
+bool IsPositive(const T &t) {
+	decltype(t) zero{};
+	return (t > zero);
+}
+
+template<class T>
 void add_pair(T &target, const typename T::value_type &add) {
-	if (add.first > 0) {
+	if (IsPositive(add.first)) {
 		auto i = target.find(add.first);
 		if (i != target.end()) {
 			i->second += add.second;
@@ -99,7 +106,7 @@ void add_pair(T &target, const typename T::value_type &add) {
 template<class T>
 void add_map(T &target, const T &add) {
 	for (auto i = add.begin(), iend = add.end(); i != iend; ++i) {
-		if (i->first > 0) {
+		if (IsPositive(i->first)) {
 			auto ii = target.find(i->first);
 			if (ii != target.end()) {
 				ii->second += i->second;
@@ -112,7 +119,7 @@ void add_map(T &target, const T &add) {
 
 } // namespace PrintActivators
 
-void do_help(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_help(CharData *ch, char *argument, int cmd, int subcmd);
 
 #endif // HELP_HPP_INCLUDED
 

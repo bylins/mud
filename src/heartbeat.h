@@ -1,7 +1,7 @@
 #ifndef __HEARTBEAT_HPP__
 #define __HEARTBEAT_HPP__
 
-#include "structs.h"
+#include "structs/structs.h"
 
 #include <functional>
 #include <queue>
@@ -144,7 +144,7 @@ void LabelledMeasurements<Label>::remove_handler(const pulse_t pulse) {
 
 class Heartbeat {
  public:
-	static constexpr long long ROLL_OVER_AFTER = 600 * 60 * PASSES_PER_SEC;
+	static constexpr long long ROLL_OVER_AFTER = 600 * 60 * kPassesPerSec;
 
 	using pulse_action_t = AbstractPulseAction::shared_ptr;
 

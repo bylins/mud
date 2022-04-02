@@ -3,115 +3,113 @@
 
 #include "mob_stat.h"
 
-#include "pugixml.h"
-#include "parse.h"
-#include "chars/char.h"
-#include "screen.h"
-
-#include <iomanip>
+#include "utils/pugixml/pugixml.h"
+#include "utils/parse.h"
+#include "entities/char_data.h"
+#include "color.h"
+#include "structs/global_objects.h"
 
 namespace char_stat {
 
 /// мобов убито - для 'статистика'
-int mkilled = 0;
+int mobs_killed = 0;
 /// игроков убито - для 'статистика'
-int pkilled = 0;
-/// экспа, номер профы, имя профы для распечатки
-struct class_exp_node {
-	unsigned long long exp;
-	std::string class_name;
-};
-/// экспа за ребут с делением по профам - для 'статистика'
-std::array<class_exp_node, NUM_PLAYER_CLASSES> class_exp =
-	{{
-		 {0, "Лекари"},
-		 {0, "Колдуны"},
-		 {0, "Тати"},
-		 {0, "Богатыри"},
-		 {0, "Наемники"},
-		 {0, "Дружинники"},
-		 {0, "Кудесники"},
-		 {0, "Волшебники"},
-		 {0, "Чернокнижники"},
-		 {0, "Витязи"},
-		 {0, "Охотники"},
-		 {0, "Кузнецы"},
-		 {0, "Купцы"},
-		 {0, "Волхвы"}
-	 }};
+int players_killed = 0;
 
-void add_class_exp(unsigned class_num, int exp) {
-	if (class_num < class_exp.size() && exp > 0) {
-		class_exp.at(class_num).exp += exp;
-	}
-}
+using ClassExpStat = std::pair<ECharClass, long long int>;
+using ExpStatArray = std::array<ClassExpStat, to_underlying(ECharClass::kLast) + 1>;
+using ExpStatArrayPtr = std::unique_ptr<ExpStatArray>;
+/// Опыт за ребут с делением по профам - для 'статистика'
+std::unordered_map<ECharClass, unsigned long long> classes_exp_stat;
 
-std::string print_curr_class(CHAR_DATA *ch, const class_exp_node &node,
-							 unsigned long long top_exp) {
-	std::string out;
-	out += CCICYN(ch, C_NRM);
-	for (int k = 1; k <= 10; ++k) {
-		if (top_exp / 10 * k <= node.exp) {
-			out += "*";
-		} else {
-			out += CCNRM(ch, C_NRM);
-			out += ".";
+/*
+ * Подобная инициализация небезопасна: всегда существует возможность, что кто-то сунется в структуру
+ * статистики до ее инициализации.
+ *  \todo Нужно сделать глобальное хранилище статистики в global_objects и засунуть это все туда
+ *  инициализацию, соответственно, разместить в процедуре загрузки мада. ABYRVALG
+ */
+void InitClassesExpStat() {
+	for ( const auto &it : MUD::Classes()) {
+		if (it.IsAvailable() && !classes_exp_stat.contains(it.GetId())) {
+			classes_exp_stat.emplace(it.GetId(), 0);
 		}
 	}
-	out += CCNRM(ch, C_NRM);
-
-	char buf_[MAX_INPUT_LENGTH];
-	snprintf(buf_, sizeof(buf_), "%-13s %s",
-			 node.class_name.c_str(), out.c_str());
-
-	return buf_;
 }
 
-std::string print_class_exp(CHAR_DATA *ch) {
-	auto tmp_array = class_exp;
+void AddClassExp(ECharClass class_id, int exp) {
+	if (classes_exp_stat.empty()) {
+		InitClassesExpStat();
+	}
+	if (exp > 0 && MUD::Classes().IsAvailable(class_id)) {
+		classes_exp_stat[class_id] += exp;
+	}
+}
 
-	std::sort(tmp_array.begin(), tmp_array.end(),
-			  [](const class_exp_node &lhs, const class_exp_node &rhs) {
-				  return lhs.exp > rhs.exp;
+std::string PrintClassExpStat(const ECharClass id, unsigned long long top_exp) {
+	std::ostringstream out;
+	out << std::left << std::setw(15) << MUD::Classes()[id].GetPluralName() << " " << std::left << KICYN;
+	const int points_amount{10};
+	int stars{0};
+	if (top_exp > 0) {
+		stars = static_cast<int>(classes_exp_stat[id] / (top_exp / points_amount));
+		for (int i = 0; i < stars; ++i) {
+			out << "*";
+		}
+	}
+	out << KNRM << std::setfill('.') << std::setw(points_amount - stars) << "";
+
+	return out.str();
+}
+
+ExpStatArrayPtr BuildExpStatArray() {
+	auto array_ptr = std::make_unique<ExpStatArray>();
+	std::copy(classes_exp_stat.begin(), classes_exp_stat.end(), array_ptr->begin());
+	std::sort(array_ptr->begin(), array_ptr->end(),
+			  [](const ClassExpStat &l, const ClassExpStat&r) {
+				  return l.second > r.second;
 			  });
-
-	std::string out("\r\nСоотношения набранного с перезагрузки опыта:\r\n");
-	const unsigned long long top_exp = tmp_array.at(0).exp;
-	const size_t add = class_exp.size() / 2;
-	size_t cnt = 0;
-
-	for (auto i = tmp_array.cbegin();
-		 i != tmp_array.cend() && cnt < add; ++i, ++cnt) {
-		out += print_curr_class(ch, *i, top_exp);
-		// второй столбик
-		size_t remaining = std::distance(i, tmp_array.cend());
-		if (remaining > add) {
-			auto ii = i;
-			std::advance(ii, add);
-			out += "     " + print_curr_class(ch, *ii, top_exp) + "\r\n";
-		} else {
-			out += "\r\n";
-			break;
-		}
-	}
-
-	return out;
+	return array_ptr;
 }
 
-void log_class_exp() {
+void PrintClassesExpStat(std::ostringstream &out) {
+	if (classes_exp_stat.empty()) {
+		InitClassesExpStat();
+	}
+	auto tmp_array = BuildExpStatArray();
+	const unsigned long long top_exp = (*tmp_array)[0].second;
+
+	out << " Соотношения набранного с перезагрузки опыта:" << std::endl << std::endl;
+	/*
+	 * При более чем 2 столбцах будет работать неправильно.
+	 * Но возиться сейчас с написанием универсальной функции не вижу смысла:
+	 * нужен полноценный модуль форматирования таблиц, а не такие костыли по всему коду.
+	 * \todo table format
+	 */
+	const int columns{2};
+	const auto rows = std::ceil(tmp_array->size()/columns);
+	auto firs_col = (*tmp_array).begin();
+	auto second_col = firs_col;
+	std::advance(second_col, rows);
+	for (int i = 0; i < rows; ++i) {
+		out << " "  << PrintClassExpStat(firs_col->first, top_exp);
+		++firs_col;
+		if (second_col < (*tmp_array).end()) {
+			out << "  " << PrintClassExpStat(second_col->first, top_exp);
+			++second_col;
+		}
+		out << std::endl;
+	}
+	out << std::endl;
+}
+
+void LogClassesExpStat() {
+	auto tmp_array = BuildExpStatArray();
+	const unsigned long long top_exp = (*tmp_array)[0].second;
+
 	log("Saving class exp stats.");
-	auto tmp_array = class_exp;
-
-	std::sort(tmp_array.begin(), tmp_array.end(),
-			  [](const class_exp_node &lhs, const class_exp_node &rhs) {
-				  return lhs.exp > rhs.exp;
-			  });
-
-	const unsigned long long top_exp_pct = tmp_array.at(0).exp;
-	for (auto i = tmp_array.cbegin(); i != tmp_array.cend(); ++i) {
+	for (const auto & i : (*tmp_array)) {
 		log("class_exp: %13s   %15lld   %3llu%%",
-			i->class_name.c_str(), i->exp,
-			top_exp_pct != 0 ? i->exp * 100 / top_exp_pct : i->exp);
+			MUD::Classes()[i.first].GetPluralCName(), i.second, top_exp != 0 ? i.second * 100 / top_exp : 0);
 	}
 }
 
@@ -119,81 +117,81 @@ void log_class_exp() {
 
 namespace mob_stat {
 
-const char *MOB_STAT_FILE = LIB_PLRSTUFF"mob_stat.xml";
-const char *MOB_STAT_FILE_NEW = LIB_PLRSTUFF"mob_stat_new.xml";
+//const char *kMobStatFile = LIB_PLRSTUFF"mob_stat.xml";
+const char *kMobStatFileNew = LIB_PLRSTUFF"mob_stat_new.xml";
 /// за сколько месяцев хранится статистика (+ текущий месяц)
-const int HISTORY_SIZE = 6;
+const int kMobStatHistorySize = 6;
 /// выборка кол-ва мобов для show stats при старте мада <months, mob-count>
 std::map<int, int> count_stats;
 std::map<int, int> kill_stats;
 /// список мобов по внуму и месяцам
 
-const time_t MobNode::DEFAULT_DATE = 0;
+const time_t MobKillStat::default_date = 0;
 
-mob_list_t mob_list;
+MobStatRegister mob_stat_register;
 
 /// month, year
-std::pair<int, int> get_date() {
-	time_t curr_time = time(0);
+std::pair<int, int> GetDate() {
+	time_t curr_time = time(nullptr);
 	struct tm *tmp_tm = localtime(&curr_time);
 	return std::make_pair(tmp_tm->tm_mon + 1, tmp_tm->tm_year + 1900);
 }
 
-void load() {
-	mob_list.clear();
+void Load() {
+	mob_stat_register.clear();
 
-	char buf_[MAX_INPUT_LENGTH];
+	char buf_[kMaxInputLength];
 
 	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(MOB_STAT_FILE_NEW);
+	pugi::xml_parse_result result = doc.load_file(kMobStatFileNew);
 	if (!result) {
 		snprintf(buf_, sizeof(buf_), "...%s", result.description());
-		mudlog(buf_, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		mudlog(buf_, CMP, kLvlImmortal, SYSLOG, true);
 		return;
 	}
 	pugi::xml_node node_list = doc.child("mob_list");
 	if (!node_list) {
 		snprintf(buf_, sizeof(buf_), "...<mob_stat_new> read fail");
-		mudlog(buf_, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		mudlog(buf_, CMP, kLvlImmortal, SYSLOG, true);
 		return;
 	}
 	for (pugi::xml_node xml_mob = node_list.child("mob"); xml_mob;
 		 xml_mob = xml_mob.next_sibling("mob")) {
-		const int mob_vnum = Parse::attr_int(xml_mob, "vnum");
+		const int mob_vnum = parse::ReadAttrAsInt(xml_mob, "vnum");
 		if (real_mobile(mob_vnum) < 0) {
 			snprintf(buf_, sizeof(buf_),
 					 "...bad mob attributes (vnum=%d)", mob_vnum);
-			mudlog(buf_, CMP, LVL_IMMORT, SYSLOG, TRUE);
+			mudlog(buf_, CMP, kLvlImmortal, SYSLOG, true);
 			continue;
 		}
 
-		time_t kill_date = MobNode::DEFAULT_DATE;
+		time_t kill_date = MobKillStat::default_date;
 		pugi::xml_attribute xml_date = xml_mob.attribute("date");
 		if (xml_date) {
 			kill_date = static_cast<time_t>(xml_date.as_ullong(kill_date));
 		}
 
 		// инит статы конкретного моба по месяцам
-		MobNode tmp_time(kill_date);
+		MobKillStat tmp_time(kill_date);
 		for (pugi::xml_node xml_time = xml_mob.child("t"); xml_time;
 			 xml_time = xml_time.next_sibling("t")) {
-			struct mob_node tmp_mob;
-			tmp_mob.month = Parse::attr_int(xml_time, "m");
-			tmp_mob.year = Parse::attr_int(xml_time, "y");
+			struct MobMonthKillStat tmp_mob;
+			tmp_mob.month = parse::ReadAttrAsInt(xml_time, "m");
+			tmp_mob.year = parse::ReadAttrAsInt(xml_time, "y");
 			if (tmp_mob.month <= 0 || tmp_mob.month > 12 || tmp_mob.year <= 0) {
 				snprintf(buf_, sizeof(buf_),
 						 "...bad mob attributes (month=%d, year=%d)",
 						 tmp_mob.month, tmp_mob.year);
-				mudlog(buf_, CMP, LVL_IMMORT, SYSLOG, TRUE);
+				mudlog(buf_, CMP, kLvlImmortal, SYSLOG, true);
 				continue;
 			}
-			auto date = get_date();
+			auto date = GetDate();
 			if ((date.first + date.second * 12)
-				- (tmp_mob.month + tmp_mob.year * 12) > HISTORY_SIZE + 1) {
+				- (tmp_mob.month + tmp_mob.year * 12) > kMobStatHistorySize + 1) {
 				continue;
 			}
 			count_stats[tmp_mob.month] += 1;
-			for (int k = 0; k <= MAX_GROUP_SIZE; ++k) {
+			for (int k = 0; k <= kMaxGroupSize; ++k) {
 				snprintf(buf_, sizeof(buf_), "n%d", k);
 				pugi::xml_attribute attr = xml_time.attribute(buf_);
 				if (attr && attr.as_int() > 0) {
@@ -206,90 +204,90 @@ void load() {
 			}
 			tmp_time.stats.push_back(tmp_mob);
 		}
-		mob_list.emplace(mob_vnum, tmp_time);
+		mob_stat_register.emplace(mob_vnum, tmp_time);
 	}
 }
 
-void save() {
+void Save() {
 	pugi::xml_document doc;
 	doc.append_child().set_name("mob_list");
 	pugi::xml_node xml_mob_list = doc.child("mob_list");
-	char buf_[MAX_INPUT_LENGTH];
+	char buf_[kMaxInputLength];
 
-	for (auto i = mob_list.cbegin(), iend = mob_list.cend(); i != iend; ++i) {
+	for (const auto & i : mob_stat_register) {
 		pugi::xml_node mob_node = xml_mob_list.append_child();
 		mob_node.set_name("mob");
-		mob_node.append_attribute("vnum") = i->first;
-		mob_node.append_attribute("date") = static_cast<unsigned long long>(i->second.date);
+		mob_node.append_attribute("vnum") = i.first;
+		mob_node.append_attribute("date") = static_cast<unsigned long long>(i.second.date);
 		// стата по месяцам
-		for (auto k = i->second.stats.cbegin(), kend = i->second.stats.cend(); k != kend; ++k) {
+		for (const auto & stat : i.second.stats) {
 			pugi::xml_node time_node = mob_node.append_child();
 			time_node.set_name("t");
-			time_node.append_attribute("m") = k->month;
-			time_node.append_attribute("y") = k->year;
-			for (int g = 0; g <= MAX_GROUP_SIZE; ++g) {
-				if (k->kills.at(g) > 0) {
+			time_node.append_attribute("m") = stat.month;
+			time_node.append_attribute("y") = stat.year;
+			for (int g = 0; g <= kMaxGroupSize; ++g) {
+				if (stat.kills.at(g) > 0) {
 					snprintf(buf_, sizeof(buf_), "n%d", g);
-					time_node.append_attribute(buf_) = k->kills.at(g);
+					time_node.append_attribute(buf_) = stat.kills.at(g);
 				}
 			}
 		}
 	}
-	doc.save_file(MOB_STAT_FILE_NEW);
+	doc.save_file(kMobStatFileNew);
 }
 
-void clear_zone(int zone_vnum) {
-	for (auto i = mob_list.begin(), iend = mob_list.end(); i != iend; /**/) {
+void ClearZoneStat(ZoneVnum zone_vnum) {
+	for (auto i = mob_stat_register.begin(), iend = mob_stat_register.end(); i != iend; /**/) {
 		if (i->first / 100 == zone_vnum) {
-			mob_list.erase(i++);
+			mob_stat_register.erase(i++);
 		} else {
 			++i;
 		}
 	}
-	save();
+	Save();
 }
 
-void show_stats(CHAR_DATA *ch) {
+void ShowStats(CharData *ch) {
 	std::stringstream out;
-	out << "  Всего уникальных мобов в статистике убийств: " << mob_list.size() << "\r\n"
+	out << "  Всего уникальных мобов в статистике убийств: "
+		<< mob_stat_register.size() << std::endl
 		<< "  Количество уникальных мобов по месяцам:";
-	for (auto i = count_stats.begin(); i != count_stats.end(); ++i) {
-		out << " " << std::setw(2) << std::setfill('0') << i->first << ":" << i->second;
+	for (auto & count_stat : count_stats) {
+		out << " " << std::setw(2) << std::setfill('0') << count_stat.first << ":" << count_stat.second;
 	}
 
 	out << "\r\n" << "  Количество убитых мобов по месяцам:";
-	for (auto i = kill_stats.begin(); i != kill_stats.end(); ++i) {
-		out << " " << std::setw(2) << std::setfill('0') << i->first << ":" << i->second;
+	for (auto & kill_stat : kill_stats) {
+		out << " " << std::setw(2) << std::setfill('0') << kill_stat.first << ":" << kill_stat.second;
 	}
 
-	out << "\r\n";
+	out << std::endl;
 	send_to_char(out.str(), ch);
 }
 
-/// !node_list.empty()
-void update_mob_node(std::list<mob_node> &node_list, int members) {
-	auto date = get_date();
+void UpdateMobNode(std::list<MobMonthKillStat> &node_list, int members) {
+	auto date = GetDate();
 	auto k = node_list.rbegin();
 	const int months = k->month + k->year * 12;
 	// сравнение номера месяца с переключением на следующий
 	if (months == date.first + date.second * 12) {
 		k->kills.at(members) += 1;
 	} else {
-		struct mob_node node;
+		struct MobMonthKillStat node;
 		node.month = date.first;
 		node.year = date.second;
 		node.kills.at(members) += 1;
 		node_list.push_back(node);
 		// проверка на переполнение кол-ва месяцев
-		if (node_list.size() > HISTORY_SIZE + 1) {
+		if (node_list.size() > kMobStatHistorySize + 1) {
 			node_list.erase(node_list.begin());
 		}
 	}
 }
 
-int last_time_killed_mob(int vnum) {
-	auto i = mob_list.find(vnum);
-	if (i != mob_list.end() && i->second.date != 0) {
+time_t GetMobKilllastTime(MobVnum vnum) {
+	auto i = mob_stat_register.find(vnum);
+	if (i != mob_stat_register.end() && i->second.date != 0) {
 		const auto killtime = i->second.date;
 		return killtime;
 	} else {
@@ -297,9 +295,9 @@ int last_time_killed_mob(int vnum) {
 	}
 }
 
-void last_kill_mob(CHAR_DATA *mob, std::string &result) {
-	auto i = mob_list.find(GET_MOB_VNUM(mob));
-	if (i != mob_list.end() && i->second.date != 0) {
+void GetLastMobKill(CharData *mob, std::string &result) {
+	auto i = mob_stat_register.find(GET_MOB_VNUM(mob));
+	if (i != mob_stat_register.end() && i->second.date != 0) {
 		const auto killtime = i->second.date;
 		result = asctime(localtime(&killtime));
 	} else {
@@ -307,39 +305,39 @@ void last_kill_mob(CHAR_DATA *mob, std::string &result) {
 	}
 
 }
-void add_mob(CHAR_DATA *mob, int members) {
-	if (members < 0 || members > MAX_GROUP_SIZE) {
-		char buf_[MAX_INPUT_LENGTH];
+void AddMob(CharData *mob, int members) {
+	if (members < 0 || members > kMaxGroupSize) {
+		char buf_[kMaxInputLength];
 		snprintf(buf_, sizeof(buf_),
-				 "SYSERROR: mob_vnum=%d, members=%d (%s:%d)",
+				 "SYSERROR: MobVnum=%d, members=%d (%s:%d)",
 				 GET_MOB_VNUM(mob), members, __FILE__, __LINE__);
-		mudlog(buf_, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		mudlog(buf_, CMP, kLvlImmortal, SYSLOG, true);
 		return;
 	}
-	auto i = mob_list.find(GET_MOB_VNUM(mob));
-	if (i != mob_list.end() && !i->second.stats.empty()) {
+	auto i = mob_stat_register.find(GET_MOB_VNUM(mob));
+	if (i != mob_stat_register.end() && !i->second.stats.empty()) {
 		i->second.date = time(nullptr);
-		update_mob_node(i->second.stats, members);
+		UpdateMobNode(i->second.stats, members);
 	} else {
-		struct mob_node node;
-		auto date = get_date();
+		struct MobMonthKillStat node;
+		auto date = GetDate();
 		node.month = date.first;
 		node.year = date.second;
 		node.kills.at(members) += 1;
-		MobNode list_node;
+		MobKillStat list_node;
 		list_node.stats.push_back(node);
 		list_node.date = time(nullptr);
 
-		mob_list[GET_MOB_VNUM(mob)] = list_node;
+		mob_stat_register[GET_MOB_VNUM(mob)] = list_node;
 	}
 	if (members == 0) {
-		++char_stat::pkilled;
+		++char_stat::players_killed;
 	} else {
-		++char_stat::mkilled;
+		++char_stat::mobs_killed;
 	}
 }
 
-std::string print_mob_name(int mob_vnum, unsigned int len) {
+std::string PrintMobName(int mob_vnum, unsigned int len) {
 	std::string name = "null";
 	const int rnum = real_mobile(mob_vnum);
 	if (rnum > 0 && rnum <= top_of_mobt) {
@@ -351,14 +349,14 @@ std::string print_mob_name(int mob_vnum, unsigned int len) {
 	return name;
 }
 
-mob_node sum_stat(const std::list<mob_node> &mob_list, int months) {
-	auto date = get_date();
+MobMonthKillStat SumStat(const std::list<MobMonthKillStat> &mob_list, int months) {
+	auto date = GetDate();
 	const int min_month = (date.first + date.second * 12) - months;
-	struct mob_node tmp_stat;
+	struct MobMonthKillStat tmp_stat;
 
 	for (auto i = mob_list.rbegin(), iend = mob_list.rend(); i != iend; ++i) {
 		if (months == 0 || min_month < (i->month + i->year * 12)) {
-			for (int k = 0; k <= MAX_GROUP_SIZE; ++k) {
+			for (int k = 0; k <= kMaxGroupSize; ++k) {
 				tmp_stat.kills.at(k) += i->kills.at(k);
 			}
 		}
@@ -366,12 +364,12 @@ mob_node sum_stat(const std::list<mob_node> &mob_list, int months) {
 	return tmp_stat;
 }
 
-void show_zone(CHAR_DATA *ch, int zone_vnum, int months) {
-	std::map<int, mob_node> sort_list;
-	for (auto i = mob_list.begin(), iend = mob_list.end(); i != iend; ++i) {
-		if (i->first / 100 == zone_vnum) {
-			mob_node sum = sum_stat(i->second.stats, months);
-			sort_list.insert(std::make_pair(i->first, sum));
+void ShowZoneMobKillsStat(CharData *ch, ZoneVnum zone_vnum, int months) {
+	std::map<int, MobMonthKillStat> sort_list;
+	for (auto & i : mob_stat_register) {
+		if (i.first / 100 == zone_vnum) {
+			MobMonthKillStat sum = SumStat(i.second.stats, months);
+			sort_list.insert(std::make_pair(i.first, sum));
 		}
 	}
 
@@ -380,16 +378,16 @@ void show_zone(CHAR_DATA *ch, int zone_vnum, int months) {
 		<< ", месяцев: " << months << "\r\n"
 									  "   vnum : имя : pk : группа = убийств (n3=100 моба убили 100 раз втроем)\r\n\r\n";
 
-	for (auto i = sort_list.begin(); i != sort_list.end(); ++i) {
-		out << i->first << " : " << std::setw(20)
-			<< print_mob_name(i->first, 20) << " : "
-			<< i->second.kills.at(0) << " :";
-		for (int g = 1; g <= MAX_GROUP_SIZE; ++g) {
-			if (i->second.kills.at(g) > 0) {
-				out << " n" << g << "=" << i->second.kills.at(g);
+	for (auto & i : sort_list) {
+		out << i.first << " : " << std::setw(20)
+			<< PrintMobName(i.first, 20) << " : "
+			<< i.second.kills.at(0) << " :";
+		for (int g = 1; g <= kMaxGroupSize; ++g) {
+			if (i.second.kills.at(g) > 0) {
+				out << " n" << g << "=" << i.second.kills.at(g);
 			}
 		}
-		out << "\r\n";
+		out << std::endl;
 	}
 
 	send_to_char(out.str().c_str(), ch);

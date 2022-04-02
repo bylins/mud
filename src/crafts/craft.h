@@ -7,8 +7,8 @@
 #ifndef __CRAFT_HPP__
 #define __CRAFT_HPP__
 
-#include "obj.h"
-#include "structs.h"
+#include "entities/obj_data.h"
+#include "structs/structs.h"
 
 #include <stdarg.h>
 
@@ -46,7 +46,7 @@ class Cases {
 
 	const auto &get_case(const size_t number) const { return m_cases[number]; }
 	const auto &aliases() const { return m_joined_aliases; }
-	OBJ_DATA::pnames_t build_pnames() const;
+	ObjData::pnames_t build_pnames() const;
 
  private:
 	cases_t m_cases;
@@ -60,7 +60,7 @@ class Cases {
 class CObject : public CObjectPrototype {
  public:
 	CObject(const CObjectPrototype &object) : CObjectPrototype(object) {}
-	CObject(const obj_vnum vnum) : CObjectPrototype(vnum) {}
+	CObject(const ObjVnum vnum) : CObjectPrototype(vnum) {}
 	~CObject() {}
 
 	bool load_from_node(const pugi::xml_node *node);
@@ -69,13 +69,13 @@ class CObject : public CObjectPrototype {
 	bool save_to_node(pugi::xml_node *node) const;
 
 	/**
-	 * Builds OBJ_DATA instance suitable for add it into the list of objects prototypes.
+	 * Builds ObjectData instance suitable for add it into the list of objects prototypes.
 	 *
-	 * Allocates memory for OBJ_DATA instance and fill this memory by appropriate values.
+	 * Allocates memory for ObjectData instance and fill this memory by appropriate values.
 	 *
 	 * \return Pointer to created instance.
 	 */
-	OBJ_DATA *build_object() const;
+	ObjData *build_object() const;
 
  private:
 	constexpr static int VALS_COUNT = 4;
@@ -145,7 +145,7 @@ class CMaterial {
  private:
 	bool load(const pugi::xml_node *node);
 
-	const id_t m_id;                        ///< Material ID.
+	const id_t m_id;                        ///< Material Id.
 	std::string m_name;                        ///< Material name.
 	std::list<CMaterialClass> m_classes;    ///< List of material classes for this material.
 
@@ -171,16 +171,16 @@ class CRecipe {
 
 	const auto &id() const { return m_id; }
 
-	bool satisfy(const CHAR_DATA *) const { return false; }
+	bool satisfy(const CharData *) const { return false; }
 
  private:
 	bool load(const pugi::xml_node *node);
 
 	struct ResultObject {
-		obj_vnum m_vnum;
+		ObjVnum m_vnum;
 	};
 
-	id_t m_id;                          ///< Recipe ID.
+	id_t m_id;                          ///< Recipe id.
 	::std::string m_name;                ///< Recipe name.
 
 	// TODO: add field with requirements to learn: skills where one of them is primary skill
@@ -205,7 +205,7 @@ class CSkillBase {
  private:
 	bool load(const pugi::xml_node *node);
 
-	id_t m_id;                          ///< Skill ID.
+	id_t m_id;                          ///< Skill id.
 	std::string m_name;                 ///< Skill Name.
 	int m_threshold;                    ///< Threshold to increase skill.
 
@@ -224,7 +224,7 @@ class CCraft {
  private:
 	bool load(const pugi::xml_node *node);
 
-	id_t m_id;                              ///< Craft ID.
+	id_t m_id;                              ///< Craft id.
 	std::string m_name;                     ///< Craft name.
 	std::set<id_t> m_skills;                ///< List of required skills for this crafts.
 	std::set<id_t> m_recipes;               ///< List of available recipes for this crafts.
@@ -287,7 +287,7 @@ class CCraftModel {
 	const auto base_top() const { return m_base_top; }
 	const auto remorts_bonus() const { return m_remorts_bonus; }
 
-	bool export_object(const obj_vnum vnum, const char *filename);
+	bool export_object(const ObjVnum vnum, const char *filename);
 
  private:
 	/**
@@ -295,15 +295,15 @@ class CCraftModel {
 	*/
 	class CVNumRange {
 	 public:
-		CVNumRange(const obj_vnum min, const obj_vnum max) : m_min(min), m_max(max) {}
+		CVNumRange(const ObjVnum min, const ObjVnum max) : m_min(min), m_max(max) {}
 		bool operator<(const CVNumRange &right) const { return m_min < right.m_min; }
 
-		const obj_vnum &min() const { return m_min; }
-		const obj_vnum &max() const { return m_max; }
+		const ObjVnum &min() const { return m_min; }
+		const ObjVnum &max() const { return m_max; }
 
 	 private:
-		obj_vnum m_min;
-		obj_vnum m_max;
+		ObjVnum m_min;
+		ObjVnum m_max;
 	};
 
 	enum EAddVNumResult {
@@ -334,9 +334,9 @@ class CCraftModel {
 
 	bool load_vnum_ranges(const pugi::xml_node *model);
 
-	EAddVNumResult check_vnum(const obj_vnum vnum) const;
-	EAddVNumResult add_vnum(const obj_vnum vnum);
-	void report_vnum_error(const obj_vnum vnum, const EAddVNumResult add_vnum_result);
+	EAddVNumResult check_vnum(const ObjVnum vnum) const;
+	EAddVNumResult add_vnum(const ObjVnum vnum);
+	void report_vnum_error(const ObjVnum vnum, const EAddVNumResult add_vnum_result);
 
 	crafts_t m_crafts;            ///< List of crafts defined for the game.
 	skills_t m_skills;            ///< List of skills defined for the game.
@@ -356,13 +356,13 @@ class CCraftModel {
 	std::list<std::string> m_recipe_files;        ///< List of files with recipe definitions.
 
 	// Helpers
-	std::map<id_t, id_set_t> m_skill2crafts;        ///< Maps skill ID to set of crafts which this skill belongs to.
-	std::map<id_t, const CCraft *> m_id2craft;        ///< Maps crafts ID to pointer to crafts descriptor.
-	std::map<id_t, const CSkillBase *> m_id2skill;    ///< Maps skill ID to pointer to skill descriptor.
-	std::map<id_t, const CRecipe *> m_id2recipe;        ///< Maps recipe ID to pointer to recipe descriptor.
+	std::map<id_t, id_set_t> m_skill2crafts;        ///< Maps skill id to set of crafts which this skill belongs to.
+	std::map<id_t, const CCraft *> m_id2craft;        ///< Maps crafts id to pointer to crafts descriptor.
+	std::map<id_t, const CSkillBase *> m_id2skill;    ///< Maps skill id to pointer to skill descriptor.
+	std::map<id_t, const CRecipe *> m_id2recipe;        ///< Maps recipe id to pointer to recipe descriptor.
 
 	std::set<CVNumRange> m_allowed_vnums;
-	std::set<obj_vnum> m_existing_vnums;
+	std::set<ObjVnum> m_existing_vnums;
 };
 }
 

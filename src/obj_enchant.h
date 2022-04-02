@@ -4,7 +4,8 @@
 #ifndef OBJ_ENCHANT_HPP_INCLUDED
 #define OBJ_ENCHANT_HPP_INCLUDED
 
-#include "structs.h"
+#include "affects/affect_data.h"
+#include "structs/flag_data.h"
 #include "sysdep.h"
 #include "conf.h"
 
@@ -28,26 +29,26 @@ enum {
 struct enchant {
 	enchant();
 	// инит свои аффекты из указанного предмета (ENCHANT_FROM_OBJ)
-	enchant(OBJ_DATA *obj);
+	enchant(ObjData *obj);
 	// распечатка аффектов для опознания
-	void print(CHAR_DATA *ch) const;
+	void print(CharData *ch) const;
 	// генерация строки с энчантом для файла объекта
 	std::string print_to_file() const;
 	// добавить энчант на предмет
-	void apply_to_obj(OBJ_DATA *obj) const;
+	void apply_to_obj(ObjData *obj) const;
 
 	// имя источника аффектов
 	std::string name_;
 	// тип источника аффектов
 	int type_;
-	// список APPLY аффектов (affected[MAX_OBJ_AFFECT])
+	// список APPLY аффектов (affected[kMaxObjAffect])
 	std::vector<obj_affected_type> affected_;
 	// аффекты обкаста (obj_flags.affects)
-	FLAG_DATA affects_flags_;
+	FlagData affects_flags_;
 	// экстра аффекты (obj_flags.extra_flags)
-	FLAG_DATA extra_flags_;
+	FlagData extra_flags_;
 	// запреты на ношение (obj_flags.no_flag)
-	FLAG_DATA no_flags_;
+	FlagData no_flags_;
 	// изменение веса (+-)
 	int weight_;
 	// кубики на пушки (пока вешаются только с сетовых энчантов)
@@ -59,13 +60,13 @@ class Enchants {
  public:
 	bool empty() const;
 	std::string print_to_file() const;
-	void print(CHAR_DATA *ch) const;
+	void print(CharData *ch) const;
 	bool check(int type) const;
 	void add(const enchant &ench);
 	// сеты используют только вес (который накопительный, а не флаг), поэтому
 	// их допускается менять, т.к. сколько прибавили, столько можно и отнять
-	void update_set_bonus(OBJ_DATA *obj, const obj_sets::ench_type &ench);
-	void remove_set_bonus(OBJ_DATA *obj);
+	void update_set_bonus(ObjData *obj, const obj_sets::ench_type &ench);
+	void remove_set_bonus(ObjData *obj);
 
  private:
 	std::vector<enchant> list_;

@@ -1,7 +1,7 @@
 #include "boards_types.h"
 
 #include "boards_constants.h"
-#include "logger.h"
+#include "utils/logger.h"
 #include "utils/utils.h"
 
 namespace Boards {

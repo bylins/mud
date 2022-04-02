@@ -5,9 +5,9 @@ const short SCMD_USE = 0;
 const short SCMD_QUAFF = 1;
 const short SCMD_RECITE = 2;
 
-class CHAR_DATA;
+class CharData;
 
-void do_employ(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_employ(CharData *ch, char *argument, int cmd, int subcmd);
 
 #endif //BYLINS_EMPLOY_H
 

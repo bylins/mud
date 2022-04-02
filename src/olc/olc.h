@@ -12,7 +12,7 @@
 #define _OLC_H_
 
 #include "db.h"
-#include "structs.h"
+#include "structs/structs.h"
 
 // * If you don't want a short explanation of each field in your zone files,
 // * change the number below to a 0 instead of a 1.
@@ -57,9 +57,9 @@
 
 // * Utilities exported from olc.c.
 void strip_string(char *);
-void cleanup_olc(DESCRIPTOR_DATA *d, byte cleanup_type);
-void get_char_cols(CHAR_DATA *ch);
-void disp_planes_values(DESCRIPTOR_DATA *d, const char *names[], short num_column);
+void cleanup_olc(DescriptorData *d, byte cleanup_type);
+void get_char_cols(CharData *ch);
+void disp_planes_values(DescriptorData *d, const char *names[], short num_column);
 void olc_add_to_save_list(int zone, byte type);
 void olc_remove_from_save_list(int zone, byte type);
 
@@ -87,11 +87,11 @@ struct olc_data {
 	int value;
 	int total_mprogs;
 	unsigned long bitmask;
-	CHAR_DATA *mob;
-	ROOM_DATA *room;
-	OBJ_DATA *obj;
+	CharData *mob;
+	RoomData *room;
+	ObjData *obj;
 	ZoneData *zone;
-	EXTRA_DESCR_DATA::shared_ptr desc;
+	ExtraDescription::shared_ptr desc;
 
 	MakeRecept *mrec;
 
@@ -99,11 +99,11 @@ struct olc_data {
 	struct mob_prog_data *mprog;
 	struct mob_prog_data *mprogl;
 #endif
-	TRIG_DATA *trig;
+	Trigger *trig;
 	int script_mode;
 	int trigger_position;
 	int item_type;
-	OBJ_DATA::triggers_list_t script;
+	ObjData::triggers_list_t script;
 	char *storage;        // for holding commands etc..
 };
 
@@ -387,8 +387,8 @@ extern struct olc_save_info *olc_save_list;
 #define MAX_MOB_DESC    512
 #define MAX_OBJ_DESC    512
 
-void xedit_disp_ing(DESCRIPTOR_DATA *d, int *ping);
-int xparse_ing(DESCRIPTOR_DATA *d, int **pping, char *arg);
+void xedit_disp_ing(DescriptorData *d, int *ping);
+int xparse_ing(DescriptorData *d, int **pping, char *arg);
 
 #endif
 

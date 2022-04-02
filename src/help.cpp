@@ -7,20 +7,15 @@
 #include "obj_prototypes.h"
 #include "modify.h"
 #include "house.h"
-#include "sets_drop.h"
-#include "screen.h"
-#include "zone.table.h"
-#include "skills_info.h"
+#include "game_mechanics/sets_drop.h"
+#include "color.h"
+#include "structs/global_objects.h"
 
 #include <boost/format.hpp>
 #include <boost/range/algorithm/remove_if.hpp>
 
 extern char *help;
-extern const char *weapon_affects[];
-extern const char *no_bits[];
-extern const char *class_name[];
 
-////////////////////////////////////////////////////////////////////////////////
 namespace PrintActivators {
 
 // распечатка активов
@@ -45,7 +40,7 @@ void sum_skills(CObjectPrototype::skills_t &target, const CObjectPrototype::skil
 }
 
 void sum_skills(CObjectPrototype::skills_t &target, const CObjectPrototype::skills_t::value_type &add) {
-	if (add.first > 0 && add.second != 0) {
+	if (MUD::Skills().IsValid(add.first) && add.second != 0) {
 		auto i = target.find(add.first);
 		if (i != target.end()) {
 			i->second += add.second;
@@ -77,7 +72,7 @@ std::string print_skill(const CObjectPrototype::skills_t::value_type &skill, boo
 	if (skill.second != 0) {
 		out += boost::str(boost::format("%s%s%s%s%s%s%d%%%s\r\n")
 							  % (activ ? " +    " : "   ") % KCYN
-							  % skill_info[skill.first].name % KNRM
+							  % MUD::Skills()[skill.first].GetName() % KNRM
 							  % KCYN % (skill.second < 0 ? " ухудшает на " : " улучшает на ")
 							  % abs(skill.second) % KNRM);
 	}
@@ -110,14 +105,14 @@ std::string print_obj_affects(const CObjectPrototype *const obj) {
 		out << "Неудобства : " << buf2 << "\r\n";
 	}
 
-	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON) {
+	if (GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON) {
 		const int drndice = GET_OBJ_VAL(obj, 1);
 		const int drsdice = GET_OBJ_VAL(obj, 2);
 		out << boost::format("Наносимые повреждения '%dD%d' среднее %.1f\r\n")
 			% drndice % drsdice % ((drsdice + 1) * drndice / 2.0);
 	}
 
-	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON
+	if (GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON
 		|| CAN_WEAR(obj, EWearFlag::ITEM_WEAR_SHIELD)
 		|| CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS)) {
 		out << "Вес : " << GET_OBJ_WEIGHT(obj) << "\r\n";
@@ -128,7 +123,7 @@ std::string print_obj_affects(const CObjectPrototype *const obj) {
 	}
 
 	std::string tmp_str;
-	for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+	for (int i = 0; i < kMaxObjAffect; i++) {
 		if (obj->get_affected(i).modifier != 0) {
 			tmp_str += "   " + print_obj_affects(obj->get_affected(i));
 		}
@@ -152,25 +147,36 @@ std::string print_activator(class_to_act_map::const_iterator &activ, const CObje
 	std::stringstream out;
 
 	out << " + Профессии :";
-	for (int i = 0; i <= NUM_PLAYER_CLASSES * NUM_KIN; ++i) {
+	for (const auto &char_class : MUD::Classes()) {
+		if (check_num_in_unique_bit_flag_data(activ->first, to_underlying(char_class.GetId()))) {
+			if (char_class.IsAvailable()) {
+				out << " " << char_class.GetName();
+			} else if (char_class.GetId() > ECharClass::kLast && char_class.GetId() <= ECharClass::kNpcLast) {
+				out << " чармисы";
+			}
+		}
+	}
+/*
+ *  Старый код пока оставлен на случай глюков - ABYRVALG.
+ 	for (int i = 0; i <= kNumPlayerClasses * kNumKins; ++i) {
 		if (check_num_in_unique_bit_flag_data(activ->first, i)) {
-			if (i < NUM_PLAYER_CLASSES * NUM_KIN) {
+			if (i < kNumPlayerClasses * kNumKins) {
 				out << " " << class_name[i];
 			} else {
 				out << " чармисы";
 			}
 		}
-	}
-	out << "\r\n";
+	}*/
+	out << std::endl;
 
-	FLAG_DATA affects = activ->second.get_affects();
+	FlagData affects = activ->second.get_affects();
 	if (affects.sprintbits(weapon_affects, buf2, ",")) {
-		out << " + Аффекты : " << buf2 << "\r\n";
+		out << " + Аффекты : " << buf2 << std::endl;
 	}
 
-	std::array<obj_affected_type, MAX_OBJ_AFFECT> affected = activ->second.get_affected();
+	std::array<obj_affected_type, kMaxObjAffect> affected = activ->second.get_affected();
 	std::string tmp_str;
-	for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+	for (int i = 0; i < kMaxObjAffect; i++) {
 		if (affected[i].modifier != 0) {
 			tmp_str += " +    " + print_obj_affects(affected[i]);
 		}
@@ -179,7 +185,7 @@ std::string print_activator(class_to_act_map::const_iterator &activ, const CObje
 		out << " + Свойства :\r\n" << tmp_str;
 	}
 
-	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON) {
+	if (GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON) {
 		int drndice = 0, drsdice = 0;
 		activ->second.get_dices(drsdice, drndice);
 		if (drsdice > 0 && drndice > 0) {
@@ -212,8 +218,8 @@ struct activators_obj {
 	// номер профы и ее суммарные активы
 	std::map<int, clss_activ_node> clss_list;
 	// суммарные статы шмоток
-	FLAG_DATA native_no_flag;
-	FLAG_DATA native_affects;
+	FlagData native_no_flag;
+	FlagData native_affects;
 	std::vector<obj_affected_type> native_affected;
 	CObjectPrototype::skills_t native_skills;
 
@@ -226,12 +232,10 @@ struct activators_obj {
 };
 
 void activators_obj::fill_class(set_info::const_iterator k) {
-	for (qty_to_camap_map::const_iterator m = k->second.begin(),
-			 mend = k->second.end(); m != mend; ++m) {
-		for (class_to_act_map::const_iterator q = m->second.begin(),
-				 qend = m->second.end(); q != qend; ++q) {
-			for (int i = 0; i <= NUM_PLAYER_CLASSES * NUM_KIN; ++i) {
-				if (check_num_in_unique_bit_flag_data(q->first, i)) {
+	for (const auto & m : k->second) {
+		for (const auto & q : m.second) {
+			for (int i = 0; i <= kNumPlayerClasses * kNumKins; ++i) {
+				if (check_num_in_unique_bit_flag_data(q.first, i)) {
 					struct clss_activ_node tmp_node;
 					clss_list[i] = tmp_node;
 				}
@@ -241,26 +245,22 @@ void activators_obj::fill_class(set_info::const_iterator k) {
 }
 
 void activators_obj::fill_node(const set_info &set) {
-	for (set_info::const_iterator k = set.begin(),
-			 kend = set.end(); k != kend; ++k) {
+	for (const auto & k : set) {
 		// перебираем полученные ранее профы
-		for (std::map<int, clss_activ_node>::iterator w = clss_list.begin(),
-				 wend = clss_list.end(); w != wend; ++w) {
+		for (auto & w : clss_list) {
 			// идем по кол-ву активаторов с конца от максимального
-			for (qty_to_camap_map::const_reverse_iterator m = k->second.rbegin(),
-					 mend = k->second.rend(); m != mend; ++m) {
+			for (auto m = k.second.rbegin(), mend = k.second.rend(); m != mend; ++m) {
 				bool found = false;
 				// до первого совпадения по профе
-				for (class_to_act_map::const_iterator q = m->second.begin(),
-						 qend = m->second.end(); q != qend; ++q) {
-					if (check_num_in_unique_bit_flag_data(q->first, w->first)) {
+				for (const auto & q : m->second) {
+					if (check_num_in_unique_bit_flag_data(q.first, w.first)) {
 						// суммирование активаторов для данной профы
-						w->second.total_affects += q->second.get_affects();
-						sum_apply(w->second.affected, q->second.get_affected());
+						w.second.total_affects += q.second.get_affects();
+						sum_apply(w.second.affected, q.second.get_affected());
 						// скилы
 						CObjectPrototype::skills_t tmp_skills;
-						q->second.get_skills(tmp_skills);
-						sum_skills(w->second.skills, tmp_skills);
+						q.second.get_skills(tmp_skills);
+						sum_skills(w.second.skills, tmp_skills);
 						found = true;
 						break;
 					}
@@ -276,38 +276,44 @@ void activators_obj::fill_node(const set_info &set) {
 std::string activators_obj::print() {
 	std::vector<dup_node> dup_list;
 
-	for (std::map<int, clss_activ_node>::iterator cls_it = clss_list.begin(),
-			 cls_it_end = clss_list.end(); cls_it != cls_it_end; ++cls_it) {
+	for (auto & cls_it : clss_list) {
 		// распечатка аффектов каждой профы
 		dup_node node;
-		node.clss += cls_it->first < NUM_PLAYER_CLASSES * NUM_KIN ? class_name[cls_it->first] : "чармисы";
+		// ABYRVALG временно сделаем так (старый код ниже). Потом надо поменять в списке активов ид класса на emum
+		//node.clss += cls_it.first < kNumPlayerClasses * kNumKins ? class_name[cls_it.first] : "чармисы";
+		auto class_id = static_cast<ECharClass>(cls_it.first);
+		if (MUD::Classes()[class_id].IsAvailable()) {
+			node.clss += MUD::Classes()[class_id].GetName();
+		} else if (class_id > ECharClass::kLast && class_id <= ECharClass::kNpcLast) {
+			node.clss += "чармисы";
+		}
+
 		// affects
-		cls_it->second.total_affects += native_affects;
-		if (cls_it->second.total_affects.sprintbits(weapon_affects, buf2, ",")) {
+		cls_it.second.total_affects += native_affects;
+		if (cls_it.second.total_affects.sprintbits(weapon_affects, buf2, ",")) {
 			node.afct += " + Аффекты : " + std::string(buf2) + "\r\n";
 		}
 		// affected
-		sum_apply(cls_it->second.affected, native_affected);
+		sum_apply(cls_it.second.affected, native_affected);
 		// сортировка для более удобного сравнения статов по распечатке
-		std::sort(cls_it->second.affected.begin(), cls_it->second.affected.end(),
+		std::sort(cls_it.second.affected.begin(), cls_it.second.affected.end(),
 				  [](const obj_affected_type &lrs, const obj_affected_type &rhs) {
 					  return lrs.location < rhs.location;
 				  });
 
 		std::string tmp_str;
-		for (std::vector<obj_affected_type>::const_iterator i = cls_it->second.affected.begin(),
-				 iend = cls_it->second.affected.end(); i != iend; ++i) {
-			tmp_str += " +    " + print_obj_affects(*i);
+		for (auto i : cls_it.second.affected) {
+			tmp_str += " +    " + print_obj_affects(i);
 		}
 		if (!tmp_str.empty()) {
 			node.afct += " + Свойства :\r\n" + tmp_str;
 		}
 		// скилы
-		sum_skills(cls_it->second.skills, native_skills);
-		node.afct += print_skills(cls_it->second.skills, true);
+		sum_skills(cls_it.second.skills, native_skills);
+		node.afct += print_skills(cls_it.second.skills, true);
 
 		// слияние одинаковых по аффектам проф
-		std::vector<dup_node>::iterator i = std::find_if(dup_list.begin(), dup_list.end(),
+		auto i = std::find_if(dup_list.begin(), dup_list.end(),
 														 [&](const dup_node &x) {
 															 return x.afct == node.afct;
 														 });
@@ -320,9 +326,8 @@ std::string activators_obj::print() {
 	}
 
 	std::string out_str;
-	for (std::vector<dup_node>::const_iterator i = dup_list.begin(),
-			 iend = dup_list.end(); i != iend; ++i) {
-		out_str += "Профессии : " + i->clss + "\r\n" + i->afct;
+	for (const auto & i : dup_list) {
+		out_str += "Профессии : " + i.clss + "\r\n" + i.afct;
 	}
 	return out_str;
 }
@@ -334,8 +339,7 @@ std::string print_fullset_stats(const set_info &set) {
 	activators_obj activ;
 
 	// первый проход - родные статы предметов + инит проф в clss_list
-	for (set_info::const_iterator k = set.begin(),
-			 kend = set.end(); k != kend; ++k) {
+	for (auto k = set.begin(), kend = set.end(); k != kend; ++k) {
 		const int rnum = real_object(k->first);
 		if (rnum < 0) {
 			continue;
@@ -369,48 +373,46 @@ std::string print_fullset_stats(const set_info &set) {
 
 // инициация распечатки справки по активаторам
 void process() {
-	for (id_to_set_info_map::const_iterator it = OBJ_DATA::set_table.begin(),
-			 iend = OBJ_DATA::set_table.end(); it != iend; ++it) {
+	for (const auto & it : ObjData::set_table) {
 		std::stringstream out;
 		// it->first = int_id, it->second = set_info
 		out << "---------------------------------------------------------------------------\r\n";
-		out << it->second.get_name() << "\r\n";
+		out << it.second.get_name() << "\r\n";
 		out << "---------------------------------------------------------------------------\r\n";
-		out << print_fullset_stats(it->second);
-		for (set_info::const_iterator k = it->second.begin(), kend = it->second.end(); k != kend; ++k) {
+		out << print_fullset_stats(it.second);
+		for (const auto & k : it.second) {
 			out << "---------------------------------------------------------------------------\r\n";
 			// k->first = int_obj_vnum, k->second = qty_to_camap_map
-			const int rnum = real_object(k->first);
+			const int rnum = real_object(k.first);
 			if (rnum < 0) {
-				log("SYSERROR: wrong obj vnum: %d (%s %s %d)", k->first, __FILE__, __func__, __LINE__);
+				log("SYSERROR: wrong obj vnum: %d (%s %s %d)", k.first, __FILE__, __func__, __LINE__);
 				continue;
 			}
 
 			const auto &obj = obj_proto[rnum];
 			out << print_obj_affects(obj.get());
 
-			for (qty_to_camap_map::const_iterator m = k->second.begin(); m != k->second.end(); ++m) {
+			for (const auto & m : k.second) {
 				// m->first = num_activators, m->second = class_to_act_map
-				for (class_to_act_map::const_iterator q = m->second.begin(); q != m->second.end(); ++q) {
-					out << "Предметов для активации: " << m->first << "\r\n";
+				for (auto q = m.second.begin(); q != m.second.end(); ++q) {
+					out << "Предметов для активации: " << m.first << "\r\n";
 					out << print_activator(q, obj.get());
 				}
 			}
 		}
 		// генерация алиасов для справки
 		std::string set_name = "актив";
-		if (it->second.get_alias().empty()) {
-			set_name += it->second.get_name();
+		if (it.second.get_alias().empty()) {
+			set_name += it.second.get_name();
 			set_name.erase(boost::remove_if(set_name, boost::is_any_of(" ,.")), set_name.end());
 			HelpSystem::add_static(set_name, out.str(), 0, true);
 		} else {
-			std::string alias = it->second.get_alias();
+			std::string alias = it.second.get_alias();
 			std::vector<std::string> str_list;
 			boost::split(str_list, alias, boost::is_any_of(","));
-			for (std::vector<std::string>::iterator k = str_list.begin(),
-					 kend = str_list.end(); k != kend; ++k) {
-				k->erase(boost::remove_if(*k, boost::is_any_of(" ,.")), k->end());
-				HelpSystem::add_static(set_name + "сет" + *k, out.str(), 0, true);
+			for (auto & k : str_list) {
+				k.erase(boost::remove_if(k, boost::is_any_of(" ,.")), k.end());
+				HelpSystem::add_static(set_name + "сет" + k, out.str(), 0, true);
 			}
 		}
 	}
@@ -427,14 +429,14 @@ struct help_node {
 	help_node(const std::string &key, const std::string &val)
 		: keyword(key), entry(val), min_level(0),
 		  sets_drop_page(false), no_immlog(false) {
-		lower_convert(keyword);
+		utils::ConvertToLow(keyword);
 	};
 
 	// ключ для поиска
 	std::string keyword;
 	// текст справки
 	std::string entry;
-	// требуемый уровень для чтения (демигоды могут читать LVL_IMMORT)
+	// требуемый уровень для чтения (демигоды могут читать kLevelImmortal)
 	int min_level;
 	// для сгенерированных страниц дропа сетов
 	// не спамят в иммлог при чтении, выводят перед страницей таймер
@@ -462,11 +464,11 @@ const char *HELP_USE_EXMAPLES =
 
 class UserSearch {
  public:
-	UserSearch(CHAR_DATA *in_ch)
+	explicit UserSearch(CharData *in_ch)
 		: strong(false), stop(false), diff_keys(false), level(0), topic_num(0), curr_topic_num(0) { ch = in_ch; };
 
 	// ищущий чар
-	CHAR_DATA *ch;
+	CharData *ch;
 	// строгий поиск (! на конце)
 	bool strong;
 	// флаг остановки прохода по спискам справок
@@ -527,7 +529,7 @@ void add_dynamic(const std::string &key, const std::string &entry) {
 	dynamic_help.push_back(tmp_node);
 }
 
-void add_sets_drop(const std::string key, const std::string entry) {
+void add_sets_drop(const std::string &key, const std::string &entry) {
 	if (key.empty() || entry.empty()) {
 		log("SYSERROR: empty str '%s' -> '%s' (%s %s %d)",
 			key.c_str(), entry.c_str(), __FILE__, __func__, __LINE__);
@@ -623,7 +625,7 @@ void UserSearch::process(int flag) {
 
 void UserSearch::print_not_found() const {
 	snprintf(buf, sizeof(buf), "%s uses command HELP: %s (not found)", GET_NAME(ch), arg_str.c_str());
-	mudlog(buf, LGH, LVL_IMMORT, SYSLOG, TRUE);
+	mudlog(buf, LGH, kLvlImmortal, SYSLOG, true);
 	snprintf(buf, sizeof(buf),
 			 "&WПо вашему запросу '&w%s&W' ничего не было найдено.&n\r\n"
 			 "\r\n&cИнформация:&n\r\n"
@@ -644,7 +646,7 @@ void UserSearch::print_curr_topic(const help_node &node) const {
 	if (!node.no_immlog) {
 		snprintf(buf, sizeof(buf), "%s uses command HELP: %s (read)",
 				 GET_NAME(ch), arg_str.c_str());
-		mudlog(buf, LGH, LVL_IMMORT, SYSLOG, TRUE);
+		mudlog(buf, LGH, kLvlImmortal, SYSLOG, true);
 	}
 	page_string(ch->desc, node.entry);
 }
@@ -653,7 +655,7 @@ void UserSearch::print_key_list() const {
 	// конкретный раздел справки
 	// печатается если нашлось всего одно вхождение
 	// или все вхождения были дублями одного топика с разными ключами
-	if (key_list.size() > 0 && (!diff_keys || key_list.size() == 1)) {
+	if (!key_list.empty() && (!diff_keys || key_list.size() == 1)) {
 		print_curr_topic(*(key_list[0]));
 		return;
 	}
@@ -673,15 +675,15 @@ void UserSearch::print_key_list() const {
 		<< HELP_USE_EXMAPLES;
 
 	snprintf(buf, sizeof(buf), "%s uses command HELP: %s (list)", GET_NAME(ch), arg_str.c_str());
-	mudlog(buf, LGH, LVL_IMMORT, SYSLOG, TRUE);
+	mudlog(buf, LGH, kLvlImmortal, SYSLOG, true);
 	page_string(ch->desc, out.str());
 }
 
 void UserSearch::search(const std::vector<help_node> &cont) {
 	// поиск в сортированном по ключам массиве через lower_bound
-	std::vector<help_node>::const_iterator i =
+	auto i =
 		std::lower_bound(cont.begin(), cont.end(), arg_str,
-						 [](const help_node &h, const std::string arg) {
+						 [](const help_node &h, const std::string& arg) {
 							 return h.keyword < arg;
 						 });
 
@@ -698,8 +700,8 @@ void UserSearch::search(const std::vector<help_node> &cont) {
 		// key_list заполняется в любом случае, если поиск
 		// идет без индекса topic_num, уникальность содержимого
 		// для последующих проверок отражается через diff_keys
-		for (unsigned k = 0; k < key_list.size(); ++k) {
-			if (key_list[k]->entry != i->entry) {
+		for (auto & k : key_list) {
+			if (k->entry != i->entry) {
 				diff_keys = true;
 				break;
 			}
@@ -725,7 +727,7 @@ void UserSearch::search(const std::vector<help_node> &cont) {
 
 using namespace HelpSystem;
 
-void do_help(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_help(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!ch->desc) {
 		return;
 	}
@@ -739,8 +741,8 @@ void do_help(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	UserSearch user_search(ch);
-	// trust_level справки для демигодов - LVL_IMMORT
-	user_search.level = GET_GOD_FLAG(ch, GF_DEMIGOD) ? LVL_IMMORT : GET_REAL_LEVEL(ch);
+	// trust_level справки для демигодов - kLevelImmortal
+	user_search.level = GET_GOD_FLAG(ch, GF_DEMIGOD) ? kLvlImmortal : GetRealLevel(ch);
 	// первый аргумент без пробелов, заодно в нижний регистр
 	one_argument(argument, arg);
 	// Получаем topic_num для индексации топика

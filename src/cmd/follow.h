@@ -1,11 +1,11 @@
 #ifndef BYLINS_FOLLOW_H
 #define BYLINS_FOLLOW_H
 
-class CHAR_DATA;
+class CharData;
 
-void do_follow(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-bool stop_follower(CHAR_DATA *ch, int mode);
-bool die_follower(CHAR_DATA *ch);
-bool circle_follow(CHAR_DATA *ch, CHAR_DATA *victim);
+void do_follow(CharData *ch, char *argument, int cmd, int subcmd);
+bool stop_follower(CharData *ch, int mode);
+bool die_follower(CharData *ch);
+bool circle_follow(CharData *ch, CharData *victim);
 
 #endif //BYLINS_FOLLOW_H

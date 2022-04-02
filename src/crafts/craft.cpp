@@ -10,10 +10,10 @@
 #include "craft_logger.h"
 #include "craft_static.h"
 #include "utils/utils_time.h"
-#include "xml_loading_helper.h"
-#include "parse.h"
+#include "utils/xml_loading_helper.h"
+#include "utils/parse.h"
 #include "db.h"
-#include "pugixml.h"
+#include "utils/pugixml/pugixml.h"
 
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string/detail/util.hpp>
@@ -113,8 +113,8 @@ bool Cases::save_to_node(pugi::xml_node *node) const {
 	return true;
 }
 
-OBJ_DATA::pnames_t Cases::build_pnames() const {
-	OBJ_DATA::pnames_t result;
+ObjData::pnames_t Cases::build_pnames() const {
+	ObjData::pnames_t result;
 	for (size_t n = 0; n < CASES_COUNT; ++n) {
 		result[n] = str_dup(m_cases[n].c_str());
 	}
@@ -154,8 +154,8 @@ bool CObject::load_from_node(const pugi::xml_node *node) {
 
 	if (0 > cost_value) {
 		logger("WARNING: Wrong \"cost\" value of the object with VNUM %d. Setting to the default value %d.\n",
-			   get_vnum(), OBJ_DATA::DEFAULT_COST);
-		cost_value = OBJ_DATA::DEFAULT_COST;
+			   get_vnum(), ObjData::DEFAULT_COST);
+		cost_value = ObjData::DEFAULT_COST;
 	}
 	set_cost(cost_value);
 
@@ -194,21 +194,21 @@ bool CObject::load_from_node(const pugi::xml_node *node) {
 
 	if (0 > rent_on_value) {
 		logger("WARNING: Wrong \"rent/on\" value of the object with VNUM %d. Setting to the default value %d.\n",
-			   get_vnum(), OBJ_DATA::DEFAULT_RENT_ON);
-		rent_on_value = OBJ_DATA::DEFAULT_RENT_ON;
+			   get_vnum(), ObjData::DEFAULT_RENT_ON);
+		rent_on_value = ObjData::DEFAULT_RENT_ON;
 	}
 	set_rent_on(rent_on_value);
 
 	if (0 > rent_off_value) {
 		logger("WARNING: Wrong \"rent/off\" value of the object with VNUM %d. Setting to the default value %d.\n",
-			   get_vnum(), OBJ_DATA::DEFAULT_RENT_OFF);
-		rent_off_value = OBJ_DATA::DEFAULT_RENT_OFF;
+			   get_vnum(), ObjData::DEFAULT_RENT_OFF);
+		rent_off_value = ObjData::DEFAULT_RENT_OFF;
 	}
 	set_rent_off(rent_off_value);
 
 	const auto global_maximum = node->child("global_maximum");
 	if (global_maximum) {
-		int global_maximum_value = OBJ_DATA::DEFAULT_MAX_IN_WORLD;
+		int global_maximum_value = ObjData::DEFAULT_MAX_IN_WORLD;
 		CHelper::load_integer(global_maximum.child_value(), global_maximum_value,
 							  [&]() {
 								  logger(
@@ -218,13 +218,13 @@ bool CObject::load_from_node(const pugi::xml_node *node) {
 							  });
 
 		if (0 >= global_maximum_value
-			&& OBJ_DATA::DEFAULT_MAX_IN_WORLD != global_maximum_value) {
+			&& ObjData::DEFAULT_MAX_IN_WORLD != global_maximum_value) {
 			logger(
 				"WARNING: Wrong \"global_maximum\" value %d of the object with VNUM %d. Setting to the default value %d.\n",
 				global_maximum_value,
 				get_vnum(),
-				OBJ_DATA::DEFAULT_MAX_IN_WORLD);
-			global_maximum_value = OBJ_DATA::DEFAULT_MAX_IN_WORLD;
+				ObjData::DEFAULT_MAX_IN_WORLD);
+			global_maximum_value = ObjData::DEFAULT_MAX_IN_WORLD;
 		}
 
 		set_max_in_world(global_maximum_value);
@@ -232,7 +232,7 @@ bool CObject::load_from_node(const pugi::xml_node *node) {
 
 	const auto minimum_remorts = node->child("minimal_remorts");
 	if (minimum_remorts) {
-		int minimum_remorts_value = OBJ_DATA::DEFAULT_MINIMUM_REMORTS;
+		int minimum_remorts_value = ObjData::DEFAULT_MINIMUM_REMORTS;
 		CHelper::load_integer(minimum_remorts.child_value(), minimum_remorts_value,
 							  [&]() {
 								  logger(
@@ -246,8 +246,8 @@ bool CObject::load_from_node(const pugi::xml_node *node) {
 				"WARNING: Wrong \"minimal_remorts\" value %d of the object with VNUM %d. Setting to the default value %d.\n",
 				minimum_remorts_value,
 				get_vnum(),
-				OBJ_DATA::DEFAULT_MINIMUM_REMORTS);
-			minimum_remorts_value = OBJ_DATA::DEFAULT_MINIMUM_REMORTS;
+				ObjData::DEFAULT_MINIMUM_REMORTS);
+			minimum_remorts_value = ObjData::DEFAULT_MINIMUM_REMORTS;
 		}
 		set_minimum_remorts(minimum_remorts_value);
 	}
@@ -347,7 +347,7 @@ bool CObject::load_from_node(const pugi::xml_node *node) {
 	{
 		const std::string timer_value = timer.child_value();
 		if ("unlimited" == timer_value) {
-			set_timer(OBJ_DATA::UNLIMITED_TIMER);
+			set_timer(ObjData::UNLIMITED_TIMER);
 		} else {
 			CHelper::load_integer(weight.child_value(),
 								  [&](const auto value) { this->set_timer(std::max(value, 0)); },
@@ -596,7 +596,7 @@ bool CObject::save_to_node(pugi::xml_node *node) const {
 		CHelper::save_string(*node, "weight", std::to_string(get_weight()).c_str(),
 							 [&]() { throw std::runtime_error("WARNING: Failed to save object weight"); });
 
-		if (OBJ_DATA::UNLIMITED_TIMER != get_timer()) {
+		if (ObjData::UNLIMITED_TIMER != get_timer()) {
 			CHelper::save_string(*node, "timer", std::to_string(get_timer()).c_str(),
 								 [&]() { throw std::runtime_error("WARNING: Failed to save object timer"); });
 		} else {
@@ -608,7 +608,7 @@ bool CObject::save_to_node(pugi::xml_node *node) const {
 			// unpack item_parameters
 			std::list<std::string> item_parameters;
 			switch (get_type()) {
-				case OBJ_DATA::ITEM_INGREDIENT: {
+				case ObjData::ITEM_INGREDIENT: {
 					int flag = 1;
 					while (flag <= get_skill()) {
 						if (IS_SET(get_skill(), flag)) {
@@ -619,7 +619,7 @@ bool CObject::save_to_node(pugi::xml_node *node) const {
 				}
 					break;
 
-				case OBJ_DATA::ITEM_WEAPON: item_parameters.push_back(NAME_BY_ITEM(static_cast<ESkill>(get_skill())));
+				case ObjData::ITEM_WEAPON: item_parameters.push_back(NAME_BY_ITEM(static_cast<ESkill>(get_skill())));
 					break;
 
 				default: break;
@@ -702,7 +702,7 @@ bool CObject::save_to_node(pugi::xml_node *node) const {
 
 		CHelper::save_pairs_list(*node, "extended_values", "entry", "key", "value", get_all_values(),
 								 [&](const auto &value) -> auto {
-									 return TextId::to_str(TextId::OBJ_VALS,
+									 return text_id::ToStr(text_id::kObjVals,
 														   static_cast<int>(value.first));
 								 },
 								 [&](const auto &value) -> auto { return std::to_string(value.second); },
@@ -719,13 +719,13 @@ bool CObject::save_to_node(pugi::xml_node *node) const {
 	return true;
 }
 
-OBJ_DATA *CObject::build_object() const {
-	return new OBJ_DATA(*this);
+ObjData *CObject::build_object() const {
+	return new ObjData(*this);
 }
 
 bool CObject::load_item_parameters(const pugi::xml_node *node) {
 	switch (get_type()) {
-		case OBJ_DATA::ITEM_INGREDIENT:
+		case ObjData::ITEM_INGREDIENT:
 			for (const auto flags : node->children("parameter")) {
 				const char *flag = flags.child_value();
 				try {
@@ -743,7 +743,7 @@ bool CObject::load_item_parameters(const pugi::xml_node *node) {
 			}
 			break;
 
-		case OBJ_DATA::ITEM_WEAPON: {
+		case ObjData::ITEM_WEAPON: {
 			const char *skill_value = node->child_value("parameter");
 			try {
 				set_skill(to_underlying(ITEM_BY_NAME<ESkill>(skill_value)));
@@ -776,7 +776,7 @@ void CObject::load_skills(const pugi::xml_node *node) {
 									 [&](const auto value) -> auto { return ITEM_BY_NAME<ESkill>(value); },
 									 [&](const auto key) {
 										 logger(
-											 "WARNING: Could not convert value \"%s\" to skill ID. Object with VNUM %d.\n Skipping entry.\n",
+											 "WARNING: Could not convert value \"%s\" to skill Id. Object with VNUM %d.\n Skipping entry.\n",
 											 key,
 											 this->get_vnum());
 									 },
@@ -815,7 +815,7 @@ void CObject::load_extended_values(const pugi::xml_node *node) {
 														this->get_vnum());
 												},
 												[&](const auto value) -> auto {
-													return static_cast<ObjVal::EValueKey>(TextId::to_num(TextId::OBJ_VALS,
+													return static_cast<ObjVal::EValueKey>(text_id::ToNum(text_id::kObjVals,
 																										 value));
 												},
 												[&](const auto key) {
@@ -836,7 +836,7 @@ void CObject::load_extended_values(const pugi::xml_node *node) {
 																			  this->set_value(key, int_value);
 																			  logger(
 																				  "Adding extended values pair (%s, %d) to object with VNUM %d.\n",
-																				  TextId::to_str(TextId::OBJ_VALS,
+																				  text_id::ToStr(text_id::kObjVals,
 																								 to_underlying(key)).c_str(),
 																				  int_value,
 																				  this->get_vnum());
@@ -844,7 +844,7 @@ void CObject::load_extended_values(const pugi::xml_node *node) {
 																		  [&]() {
 																			  logger(
 																				  "WARNIGN: Could not convert extended value of \"value\" tag to integer. Entry key value \"%s\". Object with VNUM %d",
-																				  TextId::to_str(TextId::OBJ_VALS,
+																				  text_id::ToStr(text_id::kObjVals,
 																								 to_underlying(key)).c_str(),
 																				  this->get_vnum());
 																		  });
@@ -898,7 +898,7 @@ void CObject::load_applies(const pugi::xml_node *node) {
 	bool first = true;
 	size_t i = 0;
 	for (const auto &apply : applies) {
-		if (i < MAX_OBJ_AFFECT) {
+		if (i < kMaxObjAffect) {
 			set_affected(i, apply);
 		} else {
 			const auto &apply = applies.back();
@@ -912,7 +912,7 @@ void CObject::load_applies(const pugi::xml_node *node) {
 		logger(
 			"WARNING: Object with VNUM %d has applies over the limit of %d. The following applies is ignored: { %s }.\n",
 			get_vnum(),
-			MAX_OBJ_AFFECT,
+			kMaxObjAffect,
 			ignored_applies.str().c_str());
 	}
 }
@@ -924,19 +924,19 @@ bool CObject::check_object_consistency() const {
 }
 
 bool CMaterialClass::load(const pugi::xml_node *node) {
-	logger("Loading material class with ID '%s'...\n", m_id.c_str());
+	logger("Loading material class with Id '%s'...\n", m_id.c_str());
 	Logger::CPrefix prefix(logger, BODY_PREFIX);
 
 	const auto desc_node = node->child("description");
 	if (!desc_node) {
-		logger("ERROR: material class with ID '%s' does not contain required \"description\" tag.\n",
+		logger("ERROR: material class with Id '%s' does not contain required \"description\" tag.\n",
 			   m_id.c_str());
 		return false;
 	}
 
 	const auto short_desc = desc_node.child("short");
 	if (!short_desc) {
-		logger("ERROR: material class with ID '%s' does not contain required \"description/short\" tag.\n",
+		logger("ERROR: material class with Id '%s' does not contain required \"description/short\" tag.\n",
 			   m_id.c_str());
 		return false;
 	}
@@ -944,7 +944,7 @@ bool CMaterialClass::load(const pugi::xml_node *node) {
 
 	const auto long_desc = desc_node.child("long");
 	if (!long_desc) {
-		logger("ERROR: material class with ID '%s' does not contain required \"description/long\" tag.\n",
+		logger("ERROR: material class with Id '%s' does not contain required \"description/long\" tag.\n",
 			   m_id.c_str());
 		return false;
 	}
@@ -952,7 +952,7 @@ bool CMaterialClass::load(const pugi::xml_node *node) {
 
 	const auto item = node->child("item");
 	if (!item) {
-		logger("ERROR: material class with ID '%s' does not contain required \"item\" tag.\n", m_id.c_str());
+		logger("ERROR: material class with Id '%s' does not contain required \"item\" tag.\n", m_id.c_str());
 		return false;
 	}
 	if (!m_item_cases.load_from_node(&item)) {
@@ -969,7 +969,7 @@ bool CMaterialClass::load(const pugi::xml_node *node) {
 	}
 
 	prefix.change_prefix(END_PREFIX);
-	logger("End of loading material class with ID '%s'.\n", m_id.c_str());
+	logger("End of loading material class with Id '%s'.\n", m_id.c_str());
 
 	return true;
 }
@@ -1006,13 +1006,13 @@ bool CMaterialClass::load_adjectives(const pugi::xml_node *node) {
 }
 
 bool CMaterial::load(const pugi::xml_node *node) {
-	logger("Loading material with ID %s...\n", m_id.c_str());
+	logger("Loading material with Id %s...\n", m_id.c_str());
 	Logger::CPrefix prefix(logger, BODY_PREFIX);
 
 	// load material name
 	const auto node_name = node->child("name");
 	if (!node_name) {
-		logger("ERROR: could not find required node 'name' for material with ID '%s'.\n", m_id.c_str());
+		logger("ERROR: could not find required node 'name' for material with id '%s'.\n", m_id.c_str());
 		return false;
 	}
 	const std::string name = node_name.child_value();
@@ -1021,50 +1021,50 @@ bool CMaterial::load(const pugi::xml_node *node) {
 	// load material classes
 	for (const auto node_class: node->children("class")) {
 		if (node_class.attribute("id").empty()) {
-			logger("WARNING: class tag of material with ID '%s' does not contain ID of class. Class will be skipped.\n",
+			logger("WARNING: class tag of material with id '%s' does not contain ID of class. Class will be skipped.\n",
 				   m_id.c_str());
 			continue;
 		}
 		const std::string class_id = node_class.attribute("id").value();
 		CMaterialClass mc(class_id);
 		if (!mc.load(&node_class)) {
-			logger("WARNING: class with ID '%s' has not been loaded. Class will be skipped.\n", class_id.c_str());
+			logger("WARNING: class with id '%s' has not been loaded. Class will be skipped.\n", class_id.c_str());
 		}
 		m_classes.push_back(mc);
 	}
 
 	prefix.change_prefix(END_PREFIX);
-	logger("End of loading material with ID '%s'.\n", m_id.c_str());
+	logger("End of loading material with id '%s'.\n", m_id.c_str());
 
 	return true;
 }
 
 bool CRecipe::load(const pugi::xml_node * /*node*/) {
-	logger("Loading recipe with ID %s...\n", m_id.c_str());
+	logger("Loading recipe with id %s...\n", m_id.c_str());
 	Logger::CPrefix prefix(logger, BODY_PREFIX);
 
 	prefix.change_prefix(END_PREFIX);
-	logger("End of loading recipe with ID %s\n", m_id.c_str());
+	logger("End of loading recipe with id %s\n", m_id.c_str());
 
 	return true;
 }
 
 bool CSkillBase::load(const pugi::xml_node * /*node*/) {
-	logger("Loading skill with ID %s...\n", m_id.c_str());
+	logger("Loading skill with id %s...\n", m_id.c_str());
 	Logger::CPrefix prefix(logger, BODY_PREFIX);
 
 	prefix.change_prefix(END_PREFIX);
-	logger("End of loading skill with ID %s\n", m_id.c_str());
+	logger("End of loading skill with id %s\n", m_id.c_str());
 
 	return true;
 }
 
 bool CCraft::load(const pugi::xml_node * /*node*/) {
-	logger("Loading crafts with ID %s...\n", m_id.c_str());
+	logger("Loading crafts with id %s...\n", m_id.c_str());
 	Logger::CPrefix prefix(logger, BODY_PREFIX);
 
 	prefix.change_prefix(END_PREFIX);
-	logger("End of loading crafts with ID %s\n", m_id.c_str());
+	logger("End of loading crafts with id %s\n", m_id.c_str());
 
 	return true;
 }
@@ -1195,7 +1195,7 @@ bool CCraftModel::load_prototype(const pugi::xml_node *prototype, const size_t n
 		return false;
 	}
 
-	obj_vnum vnum = prototype->attribute("vnum").as_int(0);
+	ObjVnum vnum = prototype->attribute("vnum").as_int(0);
 	if (0 == vnum) {
 		logger("Failed to get VNUM of the %zd-%s prototype. This prototype entry will be skipped.\n",
 			   number, suffix(number));
@@ -1223,7 +1223,7 @@ bool CCraftModel::load_prototype(const pugi::xml_node *prototype, const size_t n
 		pugi::xml_document pdoc;
 		const auto presult = pdoc.load_file(filename.c_str());
 		if (!presult) {
-			logger("WARNING: could not load external file '%s' with %zd-%s prototype (ID: %d): '%s' "
+			logger("WARNING: could not load external file '%s' with %zd-%s prototype (id: %d): '%s' "
 				   "at offset %zu. Prototype will be skipped.\n",
 				   filename.c_str(),
 				   number,
@@ -1266,7 +1266,7 @@ bool CCraftModel::load_prototype(const pugi::xml_node *prototype, const size_t n
 
 bool CCraftModel::load_material(const pugi::xml_node *material, const size_t number) {
 	if (material->attribute("id").empty()) {
-		logger("%zd-%s material tag does not have ID attribute. Will be skipped.\n",
+		logger("%zd-%s material tag does not have id attribute. Will be skipped.\n",
 			   number, suffix(number));
 		return false;
 	}
@@ -1275,7 +1275,7 @@ bool CCraftModel::load_material(const pugi::xml_node *material, const size_t num
 	const auto m = std::make_shared<CMaterial>(id);
 	if (material->attribute("filename").empty()) {
 		if (!m->load(material)) {
-			logger("WARNING: Skipping material with ID '%s'.\n", id.c_str());
+			logger("WARNING: Skipping material with id '%s'.\n", id.c_str());
 			return false;
 		}
 	} else {
@@ -1297,19 +1297,19 @@ bool CCraftModel::load_material(const pugi::xml_node *material, const size_t num
 
 		const auto mroot = mdoc.child("material");
 		if (!mroot) {
-			logger("WARNING: could not find root \"material\" tag for material with ID "
+			logger("WARNING: could not find root \"material\" tag for material with id "
 				   "'%s' in the external file '%s'. Material will be skipped.\n",
 				   id.c_str(),
 				   filename.c_str());
 			return false;
 		}
 
-		logger("Using external file '%s' for material with ID '%s'.\n",
+		logger("Using external file '%s' for material with id '%s'.\n",
 			   filename.c_str(),
 			   id.c_str());
 
 		if (!m->load(&mroot)) {
-			logger("WARNING: Skipping material with ID '%s'.\n",
+			logger("WARNING: Skipping material with id '%s'.\n",
 				   id.c_str());
 			return false;
 		}
@@ -1321,7 +1321,7 @@ bool CCraftModel::load_material(const pugi::xml_node *material, const size_t num
 
 bool CCraftModel::load_recipe(const pugi::xml_node *recipe, const size_t number) {
 	if (recipe->attribute("id").empty()) {
-		logger("%zd-%s recipe tag does not have ID attribute. Will be skipped.\n",
+		logger("%zd-%s recipe tag does not have id attribute. Will be skipped.\n",
 			   number, suffix(number));
 		return false;
 	}
@@ -1330,7 +1330,7 @@ bool CCraftModel::load_recipe(const pugi::xml_node *recipe, const size_t number)
 	const auto r = std::make_shared<CRecipe>(id);
 	if (recipe->attribute("filename").empty()) {
 		if (!r->load(recipe)) {
-			logger("WARNING: Skipping recipe with ID '%s'.\n", id.c_str());
+			logger("WARNING: Skipping recipe with id '%s'.\n", id.c_str());
 			return false;
 		}
 	} else {
@@ -1352,19 +1352,19 @@ bool CCraftModel::load_recipe(const pugi::xml_node *recipe, const size_t number)
 
 		const auto rroot = rdoc.child("recipe");
 		if (!rroot) {
-			logger("WARNING: could not find root \"recipe\" tag for recipe with ID "
+			logger("WARNING: could not find root \"recipe\" tag for recipe with id "
 				   "'%s' in the external file '%s'. Recipe will be skipped.\n",
 				   id.c_str(),
 				   filename.c_str());
 			return false;
 		}
 
-		logger("Using external file '%s' for recipe with ID '%s'.\n",
+		logger("Using external file '%s' for recipe with id '%s'.\n",
 			   filename.c_str(),
 			   id.c_str());
 
 		if (!r->load(&rroot)) {
-			logger("WARNING: Skipping recipe with ID '%s'.\n",
+			logger("WARNING: Skipping recipe with id '%s'.\n",
 				   id.c_str());
 			return false;
 		}
@@ -1429,7 +1429,7 @@ bool CCraftModel::load_vnum_ranges(const pugi::xml_node *node) {
 				logger("WARNING: Required attribute \"min\" for VNum range is missing. Range will be ignored.\n");
 				continue;
 			}
-			obj_vnum min = 0;
+			ObjVnum min = 0;
 			CHelper::load_integer(min_node.child_value(), min,
 								  [&]() {
 									  logger(
@@ -1444,7 +1444,7 @@ bool CCraftModel::load_vnum_ranges(const pugi::xml_node *node) {
 				logger("WARNING: Required attribute \"max\" for VNum range is missing. Range will be ignored.\n");
 				continue;
 			}
-			obj_vnum max = 0;
+			ObjVnum max = 0;
 			CHelper::load_integer(max_node.child_value(), max,
 								  [&]() {
 									  logger(
@@ -1477,7 +1477,7 @@ bool CCraftModel::load_vnum_ranges(const pugi::xml_node *node) {
 	return true;
 }
 
-craft::CCraftModel::EAddVNumResult CCraftModel::check_vnum(const obj_vnum vnum) const {
+craft::CCraftModel::EAddVNumResult CCraftModel::check_vnum(const ObjVnum vnum) const {
 	const bool exists = m_existing_vnums.find(vnum) != m_existing_vnums.end();
 	if (exists) {
 		return EAVNR_ALREADY_EXISTS;
@@ -1496,7 +1496,7 @@ craft::CCraftModel::EAddVNumResult CCraftModel::check_vnum(const obj_vnum vnum) 
 	return EAVNR_OUT_OF_RANGE;
 }
 
-CCraftModel::EAddVNumResult CCraftModel::add_vnum(const obj_vnum vnum) {
+CCraftModel::EAddVNumResult CCraftModel::add_vnum(const ObjVnum vnum) {
 	const auto result = check_vnum(vnum);
 	if (EAVNR_OK == result) {
 		m_existing_vnums.insert(vnum);
@@ -1504,7 +1504,7 @@ CCraftModel::EAddVNumResult CCraftModel::add_vnum(const obj_vnum vnum) {
 	return result;
 }
 
-void CCraftModel::report_vnum_error(const obj_vnum vnum, const EAddVNumResult add_vnum_result) {
+void CCraftModel::report_vnum_error(const ObjVnum vnum, const EAddVNumResult add_vnum_result) {
 	std::string reason;
 	switch (add_vnum_result) {
 		case EAVNR_ALREADY_EXISTS: reason = "VNUM already exists in the model";
@@ -1524,7 +1524,7 @@ void CCraftModel::report_vnum_error(const obj_vnum vnum, const EAddVNumResult ad
 		   vnum, reason.c_str());
 }
 
-bool CCraftModel::export_object(const obj_vnum vnum, const char *filename) {
+bool CCraftModel::export_object(const ObjVnum vnum, const char *filename) {
 	const auto rnum = obj_proto.rnum(vnum);
 	if (-1 == rnum) {
 		logger("WARNING: Failed to export prototype with VNUM %d", vnum);

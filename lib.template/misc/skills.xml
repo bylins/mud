@@ -9,11 +9,9 @@
     О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫ "О©╫О©╫О©╫О©╫О©╫О©╫" О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫
     О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ "О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ NbM+K О©╫О©╫О©╫О©╫О©╫ О©╫ % О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ N"
     О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫ "О©╫О©╫О©╫". О©╫ О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫...
-
     О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
     О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
     О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫.
-
     О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫:
     О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫.
     <skill id="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫">
@@ -21,442 +19,441 @@
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
         <max_perxent val="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
     </skill>
-
 -->
 <?xml version="1.0" encoding="koi8-r"?>
 <skills>
-	<skill id="SKILL_PROTECT">
+	<skill id="kProtect">
         <number val="1" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="120" />
+        <max_percent val="120" />
     </skill>
-	<skill id="SKILL_TOUCH">
+	<skill id="kIntercept">
         <number val="2" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
-	<skill id="SKILL_SHIT">
+	<skill id="kLeftHit">
 	    <number val="3" />
         <name text="О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
-    <skill id="SKILL_MIGHTHIT">
+    <skill id="kHammer">
 	    <number val="4" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
-    <skill id="SKILL_STUPOR">
+    <skill id="kOverwhelm">
 	    <number val="5" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="100" />
+        <max_percent val="16" />
     </skill>
-    <skill id="SKILL_POISONED">
+    <skill id="kPoisoning">
 	    <number val="6" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="200" />
+        <max_percent val="200" />
     </skill>
-    <skill id="SKILL_SENSE">
+    <skill id="kSense">
 	    <number val="7" />
         <name text="О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
-    <skill id="SKILL_HORSE">
+    <skill id="kRiding">
 	    <number val="8" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
-    <skill id="SKILL_HIDETRACK">
+    <skill id="kHideTrack">
 	    <number val="9" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="120" />
+        <max_percent val="120" />
     </skill>
     <!-- О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫? О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫... -->
-    <skill id="SKILL_RELIGION">
+    <skill id="kReligion">
 	    <number val="10" />
         <name text="!О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫!" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
-    <skill id="SKILL_MAKEFOOD">
+    <skill id="kSkinning">
 	    <number val="11" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="120" />
+        <max_percent val="120" />
     </skill>
-	<skill id="SKILL_MULTYPARRY">
+	<skill id="kMultiparry">
 	    <number val="12" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="140" />
+        <max_percent val="140" />
     </skill>
-	<skill id="SKILL_TRANSFORMWEAPON">
+	<skill id="kReforging">
 	    <number val="13" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="140" />
+        <max_percent val="140" />
     </skill>
     <!-- О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ -->
-    <skill id="SKILL_LEADERSHIP">
+    <skill id="kLeadership">
 	    <number val="20" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
-	<skill id="SKILL_PUNCTUAL">
+	<skill id="kPunctual">
 	    <number val="21" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="110" />
+        <max_percent val="110" />
     </skill>
-	<skill id="SKILL_AWAKE">
+	<skill id="kAwake">
 	    <number val="22" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
-    <skill id="SKILL_IDENTIFY">
+    <skill id="kIdentify">
 	    <number val="23" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
-    <skill id="SKILL_HEARING">
+    <skill id="kHearing">
 	    <number val="24" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
     <!-- О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫-О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ -->
-    <skill id="SKILL_CREATE_POTION">
+    <skill id="kCreatePotion">
 	    <number val="25" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
-    <skill id="SKILL_CREATE_SCROLL">
+    <skill id="kCreateScroll">
 	    <number val="26" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
-    <skill id="SKILL_CREATE_WAND">
+    <skill id="kCreateWand">
 	    <number val="27" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
     <!--  О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ -->
-    <skill id="SKILL_LOOK_HIDE">
+    <skill id="kPry">
 	    <number val="28" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
-	<skill id="SKILL_ARMORED">
+	<skill id="kArmoring">
 	    <number val="29" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
-	<skill id="SKILL_DRUNKOFF">
+	<skill id="kHangovering">
 	    <number val="30" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
-	<skill id="SKILL_AID">
+	<skill id="kFirstAid">
 	    <number val="31" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
-	<skill id="SKILL_FIRE">
+	<skill id="kCampfire">
 	    <number val="32" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
     <!-- О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ -->
-	<skill id="SKILL_CREATEBOW">
+	<skill id="kCreateBow">
         <number val="33" />
         <name text="create bow" />
-        <difficulty val="140" />
+        <max_percent val="140" />
     </skill>
     <!-- О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ -->
-    <skill id="SKILL_THROW">
+    <skill id="kThrow">
 	    <number val="130" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="150" />
+        <max_percent val="150" />
     </skill>
-	<skill id="SKILL_BACKSTAB">
+	<skill id="kBackstab">
         <number val="131" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="140" />
+        <max_percent val="140" />
     </skill>
-	<skill id="SKILL_BASH">
+	<skill id="kBash">
         <number val="132" />
         <name text="О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="140" />
+        <max_percent val="140" />
     </skill>
-	<skill id="SKILL_HIDE">
+	<skill id="kHide">
         <number val="133" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
 	<skill id="SKILL_KICK">
         <number val="134" />
         <name text="О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
-	<skill id="SKILL_PICK_LOCK">
+	<skill id="kPickLock">
         <number val="135" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="120" />
+        <max_percent val="120" />
     </skill>
-	<skill id="SKILL_PUNCH">
+	<skill id="kPunch">
         <number val="136" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
-	<skill id="SKILL_RESCUE">
+	<skill id="kRescue">
         <number val="137" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="130" />
+        <max_percent val="130" />
     </skill>
-	<skill id="SKILL_SNEAK">
+	<skill id="kSneak">
         <number val="138" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
-	<skill id="SKILL_STEAL">
+	<skill id="kSteal">
         <number val="139" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
-	<skill id="SKILL_TRACK">
+	<skill id="kTrack">
         <number val="140" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
-    <skill id="SKILL_CLUBS">
+    <skill id="kClubs">
 	    <number val="141" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="160" />
+        <max_percent val="160" />
     </skill>
-    <skill id="SKILL_AXES">
+    <skill id="kAxes">
 	    <number val="142" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="160" />
+        <max_percent val="160" />
     </skill>
-	<skill id="SKILL_LONGS">
+	<skill id="kLongBlades">
 	    <number val="143" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="160" />
+        <max_percent val="160" />
     </skill>
-	<skill id="SKILL_SHORTS">
+	<skill id="kShortBlades">
 	    <number val="144" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="160" />
+        <max_percent val="160" />
     </skill>
-    <skill id="SKILL_NONSTANDART">
+    <skill id="kNonstandart">
 	    <number val="145" />
         <name text="О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="160" />
+        <max_percent val="160" />
     </skill>
-    <skill id="SKILL_BOTHHANDS">
+    <skill id="kTwohands">
 	    <number val="146" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="160" />
+        <max_percent val="160" />
     </skill>
-    <skill id="SKILL_PICK">
+    <skill id="kPicks">
 	    <number val="147" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="160" />
+        <max_percent val="160" />
     </skill>
-    <skill id="SKILL_SPADES">
+    <skill id="kSpades">
 	    <number val="148" />
         <name text="О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="160" />
+        <max_percent val="160" />
     </skill>
-    <skill id="SKILL_SATTACK">
+    <skill id="kSideAttack">
 	    <number val="149" />
         <name text="О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
-    <skill id="SKILL_DISARM">
+    <skill id="kDisarm">
 	    <number val="150" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
-    <skill id="SKILL_PARRY">
+    <skill id="kParry">
         <number val="151" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="120" />
+        <max_percent val="120" />
     </skill>
 	<skill id="SKILL_HEAL">
 	    <number val="152" />
         <name text="!heal!" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
     <skill id="SKILL_TURN">
 	    <number val="153" />
         <name text="turn" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
-	<skill id="SKILL_BOWS">
+	<skill id="kBows">
 	    <number val="154" />
         <name text="О©╫О©╫О©╫О©╫" />
-        <difficulty val="160" />
+        <max_percent val="160" />
     </skill>
-    <skill id="SKILL_ADDSHOT">
+    <skill id="kAddshot">
 	    <number val="155" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="200" />
+        <max_percent val="200" />
     </skill>
-	<skill id="SKILL_CAMOUFLAGE">
+	<skill id="kDisguise">
 	    <number val="156" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
-	<skill id="SKILL_DEVIATE">
+	<skill id="kDodge">
 	    <number val="157" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
-	<skill id="SKILL_BLOCK">
+	<skill id="kShieldBlock">
         <number val="158" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="200" />
+        <max_percent val="200" />
     </skill>
-    <skill id="SKILL_LOOKING">
+    <skill id="kLooking">
 	    <number val="159" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
-	<skill id="SKILL_CHOPOFF">
+	<skill id="kUndercut">
 	    <number val="160" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
-	<skill id="SKILL_REPAIR">
+	<skill id="kRepair">
 	    <number val="161" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
     <!-- О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ -->
-    <skill id="SKILL_UPGRADE">
+    <skill id="kSharpening">
 	    <number val="164" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
-    <skill id="SKILL_COURAGE">
+    <skill id="kCourage">
 	    <number val="165" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
-    <skill id="SKILL_MANADRAIN">
+    <skill id="kJinx">
 	    <number val="166" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
-	<skill id="SKILL_NOPARRYHIT">
+	<skill id="kNoParryHit">
 	    <number val="167" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
-	<skill id="SKILL_TOWNPORTAL">
+	<skill id="kTownportal">
 	    <number val="168" />
         <name text="О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
-    <!-- О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ -->
-    <skill id="SKILL_MAKE_STAFF">
+    <!-- О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫-->
+    <skill id="kMakeStaff">
 	    <number val="169" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="140" />
+        <max_percent val="140" />
     </skill>
-    <skill id="SKILL_MAKE_BOW">
+    <skill id="kMakeBow">
 	    <number val="170" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫" />
-        <difficulty val="140" />
+        <max_percent val="140" />
     </skill>
-	<skill id="SKILL_MAKE_WEAPON">
+	<skill id="kMakeWeapon">
 	    <number val="171" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="140" />
+        <max_percent val="140" />
     </skill>
-	<skill id="SKILL_MAKE_ARMOR">
+	<skill id="kMakeArmor">
 	    <number val="172" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="140" />
+        <max_percent val="140" />
     </skill>
-	<skill id="SKILL_MAKE_WEAR">
+	<skill id="kMakeWear">
 	    <number val="173" />
         <name text="О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="140" />
+        <max_percent val="140" />
     </skill>
-	<skill id="SKILL_MAKE_JEWEL">
+	<skill id="kMakeJewel">
 	    <number val="174" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="140" />
+        <max_percent val="140" />
     </skill>
-    <skill id="SKILL_MAKE_POTION">
+    <skill id="kMakePotion">
 	    <number val="175" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="140" />
+        <max_percent val="140" />
     </skill>
     <!-- О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫  -->
-    <skill id="SKILL_DIG">
+    <skill id="kDigging">
 	    <number val="176" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
-	<skill id="SKILL_INSERTGEM">
+	<skill id="kJewelry">
 	    <number val="177" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
-    <skill id="SKILL_WARCRY">
+    <skill id="kWarcry">
 	    <number val="178" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
-	<skill id="SKILL_TURN_UNDEAD">
+	<skill id="kTurnUndead">
 	    <number val="179" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="100" />
+        <max_percent val="100" />
     </skill>
-	<skill id="SKILL_IRON_WIND">
+	<skill id="kIronwind">
 	    <number val="180" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="150" />
+        <max_percent val="150" />
     </skill>
-	<skill id="SKILL_STRANGLE">
+	<skill id="kStrangle">
 	    <number val="181" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="200" />
+        <max_percent val="200" />
     </skill>
-	<skill id="SKILL_AIR_MAGIC">
+	<skill id="kAirMagic">
 	    <number val="182" />
         <name text="О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="200" />
+        <max_percent val="200" />
     </skill>
-	<skill id="SKILL_FIRE_MAGIC">
+	<skill id="kFireMagic">
 	    <number val="183" />
         <name text="О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫" />
-        <difficulty val="200" />
+        <max_percent val="200" />
     </skill>
-	<skill id="SKILL_WATER_MAGIC">
+	<skill id="kWaterMagic">
 	    <number val="184" />
         <name text="О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫" />
-        <difficulty val="200" />
+        <max_percent val="200" />
     </skill>
-	<skill id="SKILL_EARTH_MAGIC">
+	<skill id="kEarthMagic">
 	    <number val="185" />
         <name text="О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="200" />
+        <max_percent val="200" />
     </skill>
-	<skill id="SKILL_LIGHT_MAGIC">
+	<skill id="kLightMagic">
 	    <number val="186" />
         <name text="О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="200" />
+        <max_percent val="200" />
     </skill>
-	<skill id="SKILL_DARK_MAGIC">
+	<skill id="kDarkMagic">
 	    <number val="187" />
         <name text="О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫" />
-        <difficulty val="200" />
+        <max_percent val="200" />
     </skill>
-	<skill id="SKILL_MIND_MAGIC">
+	<skill id="kMindMagic">
 	    <number val="188" />
         <name text="О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="200" />
+        <max_percent val="200" />
     </skill>
-	<skill id="SKILL_LIFE_MAGIC">
+	<skill id="kLifeMagic">
 	    <number val="189" />
         <name text="О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
-        <difficulty val="200" />
+        <max_percent val="200" />
     </skill>
 </skills>

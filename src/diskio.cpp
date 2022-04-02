@@ -18,7 +18,7 @@
 
 int fbgetline(FBFILE *fbfl, char *line) {
 	if (!fbfl || !line || !*fbfl->ptr)
-		return FALSE;
+		return false;
 
 	char *r = fbfl->ptr, *w = line;
 
@@ -31,10 +31,10 @@ int fbgetline(FBFILE *fbfl, char *line) {
 	*w = '\0';
 
 	if (r > fbfl->buf + fbfl->size)
-		return FALSE;
+		return false;
 	else {
 		fbfl->ptr = r;
-		return TRUE;
+		return true;
 	}
 }
 
@@ -75,10 +75,10 @@ char *fbgetstring(FBFILE *fl) {
 	char *str, *r, *w;
 
 	if (!fl || !*fl->ptr)
-		return NULL;
+		return nullptr;
 
 	if (!(size = find_string_size(fl->ptr)))
-		return NULL;
+		return nullptr;
 
 	str = (char *) malloc(size + 1);
 	*str = '\0';
@@ -122,18 +122,18 @@ FBFILE *fbopen_for_read(char *fname) {
 	FBFILE *fbfl;
 
 	if (!(fbfl = (FBFILE *) malloc(sizeof(FBFILE))))
-		return NULL;
+		return nullptr;
 
 	if (!(fl = fopen(fname, "r"))) {
 		free(fbfl);
-		return NULL;
+		return nullptr;
 	}
 
 	err = fstat(fileno(fl), &sb);
 	if (err < 0 || sb.st_size <= 0) {
 		free(fbfl);
 		fclose(fl);
-		return NULL;
+		return nullptr;
 	}
 
 	fbfl->size = sb.st_size;
@@ -157,16 +157,16 @@ FBFILE *fbopen_for_write(char *fname, int mode) {
 	FBFILE *fbfl;
 
 	if (!(fbfl = (FBFILE *) malloc(sizeof(FBFILE))))
-		return NULL;
+		return nullptr;
 
 	if (!(fbfl->buf = (char *) malloc(FB_STARTSIZE))) {
 		free(fbfl);
-		return NULL;
+		return nullptr;
 	}
 	if (!(fbfl->name = (char *) malloc(strlen(fname) + 1))) {
 		free(fbfl->buf);
 		free(fbfl);
-		return NULL;
+		return nullptr;
 	}
 	strcpy(fbfl->name, fname);
 	fbfl->ptr = fbfl->buf;
@@ -178,14 +178,14 @@ FBFILE *fbopen_for_write(char *fname, int mode) {
 
 FBFILE *fbopen(char *fname, int mode) {
 	if (!fname || !*fname || !mode)
-		return NULL;
+		return nullptr;
 
 	if (IS_SET(mode, FB_READ))
 		return fbopen_for_read(fname);
 	else if (IS_SET(mode, FB_WRITE) || IS_SET(mode, FB_APPEND))
 		return fbopen_for_write(fname, mode);
 	else
-		return NULL;
+		return nullptr;
 }
 
 size_t fbclose_for_read(FBFILE *fbfl) {
