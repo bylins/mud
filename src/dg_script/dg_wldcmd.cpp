@@ -280,8 +280,8 @@ void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 		for (auto ch_i = next_ch; ch_i != people_copy.end(); ch_i = next_ch) {
 			const auto ch = *ch_i;
 			++next_ch;
-			char_from_room(ch);
-			char_to_room(ch, target);
+			ExtractCharFromRoom(ch);
+			PlaceCharToRoom(ch, target);
 			ch->dismount();
 			look_at_room(ch, true);
 		}
@@ -298,8 +298,8 @@ void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 			++next_ch;
 			if (ch->is_npc() && !IS_CHARMICE(ch))
 				continue;
-			char_from_room(ch);
-			char_to_room(ch, target);
+			ExtractCharFromRoom(ch);
+			PlaceCharToRoom(ch, target);
 			ch->dismount();
 			look_at_room(ch, true);
 		}
@@ -315,16 +315,16 @@ void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 			const auto people_copy = world[ch->in_room]->people;
 			for (const auto charmee : people_copy) {
 				if (IS_CHARMICE(charmee) && charmee->get_master() == ch) {
-					char_from_room(charmee);
-					char_to_room(charmee, target);
+					ExtractCharFromRoom(charmee);
+					PlaceCharToRoom(charmee, target);
 				}
 			}
 			if (!str_cmp(argument, "horse") && horse) {
-				char_from_room(horse);
-				char_to_room(horse, target);
+				ExtractCharFromRoom(horse);
+				PlaceCharToRoom(horse, target);
 			}
-			char_from_room(ch);
-			char_to_room(ch, target);
+			ExtractCharFromRoom(ch);
+			PlaceCharToRoom(ch, target);
 			ch->dismount();
 			look_at_room(ch, true);
 			greet_mtrigger(ch, -1);
@@ -459,7 +459,7 @@ void do_wload(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 			wld_log(room, "wload: bad mob vnum");
 			return;
 		}
-		char_to_room(mob, real_room(room->room_vn));
+		PlaceCharToRoom(mob, real_room(room->room_vn));
 		load_mtrigger(mob);
 	} else if (utils::IsAbbrev(arg1, "obj")) {
 		const auto object = world_objects.create_from_prototype_by_vnum(number);
@@ -479,7 +479,7 @@ void do_wload(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 		log("Load obj #%d by %s (wload)", number, room->name);
 		object->set_vnum_zone_from(zone_table[room->zone_rn].vnum);
-		obj_to_room(object.get(), real_room(room->room_vn));
+		PlaceObjToRoom(object.get(), real_room(room->room_vn));
 		load_otrigger(object.get());
 	} else {
 		wld_log(room, "wload: bad type");

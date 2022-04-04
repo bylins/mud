@@ -362,7 +362,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 			if (obj->has_flag(EObjFlag::kBindOnPurchase)) {
 				obj->set_owner(GET_UNIQUE(ch));
 			}
-			obj_to_char(obj, ch);
+			PlaceObjToInventory(obj, ch);
 			if (currency == "слава") {
 				// книги за славу не фейлим
 				if (EObjType::kBook == GET_OBJ_TYPE(obj)) {
@@ -1170,7 +1170,7 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 
 			return;
 		} else {
-			obj_from_char(obj);
+			ExtractObjFromChar(obj);
 			tell_to_char(keeper,
 						 ch,
 						 ("Получи за " + std::string(GET_OBJ_PNAME(obj, 3)) + " " + price_to_show + ".").c_str());

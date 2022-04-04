@@ -80,7 +80,8 @@ void do_cast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		(GetRealLevel(ch) < kLvlGreatGod) && !ch->is_npc()) {
 		if (GetRealLevel(ch) < MIN_CAST_LEV(spell_info[spellnum], ch)
 			|| GET_REAL_REMORT(ch) < MIN_CAST_REM(spell_info[spellnum], ch)
-			|| PlayerClass::slot_for_char(ch, spell_info[spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
+			|| PlayerClass::CalcCircleSlotsAmount(ch,
+												  spell_info[spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
 				<= 0) {
 			send_to_char("Рано еще вам бросаться такими словами!\r\n", ch);
 			return;

@@ -667,7 +667,7 @@ void list_obj_to_char(ObjData *list, CharData *ch, int mode, int show) {
 			if (!push) {
 				push = i;
 				push_count = 1;
-			} else if ((!equal_obj(i, push))
+			} else if ((!IsObjsStackable(i, push))
 				|| (quest_item(i))) {
 				if (clan_chest) {
 					buffer << show_obj_to_char(push, ch, mode, show, push_count);
@@ -1236,7 +1236,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		else
 			strcat(buf,
 				   IS_POLY(i) ? poly_positions[static_cast<int>(GET_POS(i))] : positions[static_cast<int>(GET_POS(i))]);
-		if (AFF_FLAGGED(ch, EAffect::kDetectMagic) && i->is_npc() && affected_by_spell(i, kSpellCapable))
+		if (AFF_FLAGGED(ch, EAffect::kDetectMagic) && i->is_npc() && IsAffectedBySpell(i, kSpellCapable))
 			sprintf(buf + strlen(buf), "(аура магии) ");
 	} else {
 		if (i->get_fighting()) {

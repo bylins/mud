@@ -84,7 +84,7 @@ void go_strangle(CharData *ch, CharData *vict) {
 	TimedSkill timed;
 	timed.skill = ESkill::kStrangle;
 	timed.time = delay;
-	timed_to_char(ch, &timed);
+	ImposeTimedSkill(ch, &timed);
 }
 
 void do_strangle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {

@@ -360,7 +360,7 @@ void mobile_affect_update() {
 				if (timed->time >= 1) {
 					timed->time--;
 				} else {
-					timed_from_char(i.get(), timed);
+					ExpireTimedSkill(i.get(), timed);
 				}
 			}
 
@@ -572,7 +572,7 @@ void affect_total(CharData *ch) {
 				message_str_need(ch, obj, STR_BOTH_W);
 			}
 			act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, kToRoom);
-			obj_to_char(unequip_char(ch, EEquipPos::kBoths, CharEquipFlags()), ch);
+			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kBoths, CharEquipFlags()), ch);
 			return;
 		}
 		if ((obj = GET_EQ(ch, EEquipPos::kWield)) && !OK_WIELD(ch, obj)) {
@@ -581,7 +581,7 @@ void affect_total(CharData *ch) {
 				message_str_need(ch, obj, STR_WIELD_W);
 			}
 			act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, kToRoom);
-			obj_to_char(unequip_char(ch, EEquipPos::kWield, CharEquipFlags()), ch);
+			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kWield, CharEquipFlags()), ch);
 			// если пушку можно вооружить в обе руки и эти руки свободны
 			if (CAN_WEAR(obj, EWearFlag::kBoth)
 				&& OK_BOTH(ch, obj)
@@ -590,7 +590,7 @@ void affect_total(CharData *ch) {
 				&& !GET_EQ(ch, EEquipPos::kShield)
 				&& !GET_EQ(ch, EEquipPos::kWield)
 				&& !GET_EQ(ch, EEquipPos::kBoths)) {
-				equip_char(ch, obj, EEquipPos::kBoths, CharEquipFlag::show_msg);
+				EquipObj(ch, obj, EEquipPos::kBoths, CharEquipFlag::show_msg);
 			}
 			return;
 		}
@@ -600,7 +600,7 @@ void affect_total(CharData *ch) {
 				message_str_need(ch, obj, STR_HOLD_W);
 			}
 			act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, kToRoom);
-			obj_to_char(unequip_char(ch, EEquipPos::kHold, CharEquipFlags()), ch);
+			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kHold, CharEquipFlags()), ch);
 			return;
 		}
 		if ((obj = GET_EQ(ch, EEquipPos::kShield)) && !OK_SHIELD(ch, obj)) {
@@ -609,40 +609,40 @@ void affect_total(CharData *ch) {
 				message_str_need(ch, obj, STR_SHIELD_W);
 			}
 			act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, kToRoom);
-			obj_to_char(unequip_char(ch, EEquipPos::kShield, CharEquipFlags()), ch);
+			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kShield, CharEquipFlags()), ch);
 			return;
 		}
 		if ((obj = GET_EQ(ch, EEquipPos::kQuiver)) && !GET_EQ(ch, EEquipPos::kBoths)) {
 			send_to_char("Нету лука, нет и стрел.\r\n", ch);
 			act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, kToRoom);
-			obj_to_char(unequip_char(ch, EEquipPos::kQuiver, CharEquipFlags()), ch);
+			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kQuiver, CharEquipFlags()), ch);
 			return;
 		}
 	}
 
 	// calculate DAMAGE value
-	GET_DAMAGE(ch) = (str_bonus(GET_REAL_STR(ch), STR_TO_DAM) + GetRealDamroll(ch)) * 2;
+	ch->damage_level = (str_bonus(GET_REAL_STR(ch), STR_TO_DAM) + GetRealDamroll(ch)) * 2;
 	if ((obj = GET_EQ(ch, EEquipPos::kBoths))
 		&& GET_OBJ_TYPE(obj) == EObjType::kWeapon) {
-		GET_DAMAGE(ch) += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + GET_OBJ_VAL(obj, 1)))
+		ch->damage_level += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + GET_OBJ_VAL(obj, 1)))
 			>> 1; // правильный расчет среднего у оружия
 	} else {
 		if ((obj = GET_EQ(ch, EEquipPos::kWield))
 			&& GET_OBJ_TYPE(obj) == EObjType::kWeapon) {
-			GET_DAMAGE(ch) += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + GET_OBJ_VAL(obj, 1))) >> 1;
+			ch->damage_level += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + GET_OBJ_VAL(obj, 1))) >> 1;
 		}
 		if ((obj = GET_EQ(ch, EEquipPos::kHold))
 			&& GET_OBJ_TYPE(obj) == EObjType::kWeapon) {
-			GET_DAMAGE(ch) += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + GET_OBJ_VAL(obj, 1))) >> 1;
+			ch->damage_level += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + GET_OBJ_VAL(obj, 1))) >> 1;
 		}
 	}
 
 	{
 		// Calculate CASTER value
 		int i = 1;
-		for (GET_CASTER(ch) = 0; !ch->is_npc() && i <= kSpellCount; i++) {
+		for (ch->caster_level = 0; !ch->is_npc() && i <= kSpellCount; i++) {
 			if (IS_SET(GET_SPELL_TYPE(ch, i), kSpellKnow | kSpellTemp)) {
-				GET_CASTER(ch) += (spell_info[i].danger * GET_SPELL_MEM(ch, i));
+				ch->caster_level += (spell_info[i].danger * GET_SPELL_MEM(ch, i));
 			}
 		}
 	}
@@ -657,7 +657,7 @@ void affect_total(CharData *ch) {
 		}
 	}
 	CheckBerserk(ch);
-	if (ch->get_fighting() || affected_by_spell(ch, kSpellGlitterDust)) {
+	if (ch->get_fighting() || IsAffectedBySpell(ch, kSpellGlitterDust)) {
 		AFF_FLAGS(ch).unset(EAffect::kHide);
 		AFF_FLAGS(ch).unset(EAffect::kSneak);
 		AFF_FLAGS(ch).unset(EAffect::kDisguise);
@@ -721,7 +721,7 @@ void affect_to_char(CharData *ch, const Affect<EApply> &af) {
 		affect_modify(ch, af.location, af.modifier, static_cast<EAffect>(af.bitvector), true);
 	//log("[AFFECT_TO_CHAR->AFFECT_TOTAL] Start");
 	affect_total(ch);
-	check_light(ch, kLightUndef, was_lgt, was_hlgt, was_hdrk, 1);
+	CheckLight(ch, kLightUndef, was_lgt, was_hlgt, was_hdrk, 1);
 }
 
 void affect_modify(CharData *ch, byte loc, int mod, const EAffect bitv, bool add) {

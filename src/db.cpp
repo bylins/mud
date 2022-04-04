@@ -2066,7 +2066,7 @@ bool can_snoop(CharData *imm, CharData *vict) {
 	for (ClanMailType::const_iterator i = clan_list.begin(),
 			 iend = clan_list.end(); i != iend; ++i) {
 		std::set<std::string>::const_iterator k = i->second.find(GET_EMAIL(imm));
-		if (k != i->second.end() && CLAN(vict)->CheckPolitics(i->first) == POLITICS_WAR) {
+		if (k != i->second.end() && CLAN(vict)->CheckPolitics(i->first) == kPoliticsWar) {
 			return false;
 		}
 	}
@@ -3067,7 +3067,7 @@ int dl_load_obj(ObjData *corpse, CharData *ch, CharData *chr, int DL_LOAD_TYPE) 
 					// Добавлена проверка на отсутствие трупа
 					if (MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
 						act("На земле остал$U лежать $o.", false, ch, tobj.get(), 0, kToRoom);
-						obj_to_room(tobj.get(), ch->in_room);
+						PlaceObjToRoom(tobj.get(), ch->in_room);
 					} else {
 						if ((DL_LOAD_TYPE == DL_SKIN) && (corpse->get_carried_by() == chr)) {
 							can_carry_obj(chr, tobj.get());
@@ -3798,20 +3798,20 @@ void paste_mob(CharData *ch, RoomRnum room) {
 				return;
 			}
 
-			char_from_room(ch);
-			char_to_room(ch, real_room(GET_LASTROOM(ch)));
+			ExtractCharFromRoom(ch);
+			PlaceCharToRoom(ch, real_room(GET_LASTROOM(ch)));
 		} else {
 			if (world[room]->room_vn == zone_table[world[room]->zone_rn].top)
 				return;
 
 			GET_LASTROOM(ch) = GET_ROOM_VNUM(room);
-			char_from_room(ch);
+			ExtractCharFromRoom(ch);
 			room = real_room(zone_table[world[room]->zone_rn].top);
 
 			if (room == kNowhere)
 				room = real_room(GET_LASTROOM(ch));
 
-			char_to_room(ch, room);
+			PlaceCharToRoom(ch, room);
 		}
 	}
 }
@@ -3895,7 +3895,7 @@ void paste_obj(ObjData *obj, RoomRnum room) {
 				return;
 			}
 			obj_from_room(obj);
-			obj_to_room(obj, real_room(OBJ_GET_LASTROOM(obj)));
+			PlaceObjToRoom(obj, real_room(OBJ_GET_LASTROOM(obj)));
 		} else {
 			if (world[room]->room_vn == zone_table[world[room]->zone_rn].top) {
 				return;
@@ -3906,7 +3906,7 @@ void paste_obj(ObjData *obj, RoomRnum room) {
 			if (room == kNowhere) {
 				room = real_room(OBJ_GET_LASTROOM(obj));
 			}
-			obj_to_room(obj, room);
+			PlaceObjToRoom(obj, room);
 		}
 	}
 }
@@ -3979,7 +3979,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum) {
 							}
 						}
 						load_mtrigger(mob);
-						char_to_room(mob, real_room((*room)->vnum));
+						PlaceCharToRoom(mob, real_room((*room)->vnum));
 						Celebrates::add_mob_to_load_list(mob->id, mob);
 						for (load_in = (*load)->objects.begin(); load_in != (*load)->objects.end(); ++load_in) {
 							ObjRnum rnum = real_object((*load_in)->vnum);
@@ -3987,7 +3987,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum) {
 							if (obj_proto.actual_count(rnum) < obj_proto[rnum]->get_max_in_world()) {
 								const auto obj = world_objects.create_from_prototype_by_vnum((*load_in)->vnum);
 								if (obj) {
-									obj_to_char(obj.get(), mob);
+									PlaceObjToInventory(obj.get(), mob);
 									obj->set_vnum_zone_from(zone_table[world[IN_ROOM(mob)]->zone_rn].vnum);
 
 									for (Celebrates::TrigList::iterator it = (*load_in)->triggers.begin();
@@ -4043,7 +4043,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum) {
 						load_otrigger(obj.get());
 						Celebrates::add_obj_to_load_list(obj->get_uid(), obj.get());
 
-						obj_to_room(obj.get(), real_room((*room)->vnum));
+						PlaceObjToRoom(obj.get(), real_room((*room)->vnum));
 
 						for (load_in = (*load)->objects.begin(); load_in != (*load)->objects.end(); ++load_in) {
 							ObjRnum rnum = real_object((*load_in)->vnum);
@@ -4279,7 +4279,7 @@ void ZoneReset::reset_zone_essential() {
 							mob->set_level(rndlev);
 						}
 
-						char_to_room(mob, ZCMD.arg3);
+						PlaceCharToRoom(mob, ZCMD.arg3);
 						load_mtrigger(mob);
 						tmob = mob;
 						curr_state = 1;
@@ -4360,7 +4360,7 @@ void ZoneReset::reset_zone_essential() {
 						const auto obj = world_objects.create_from_prototype_by_rnum(ZCMD.arg1);
 						obj->set_vnum_zone_from(zone_table[world[ZCMD.arg3]->zone_rn].vnum);
 
-						if (!obj_to_room(obj.get(), ZCMD.arg3)) {
+						if (!PlaceObjToRoom(obj.get(), ZCMD.arg3)) {
 							extract_obj(obj.get());
 							break;
 						}
@@ -4427,7 +4427,7 @@ void ZoneReset::reset_zone_essential() {
 						&& (ZCMD.arg4 <= 0
 							|| number(1, 100) <= ZCMD.arg4)) {
 						const auto obj = world_objects.create_from_prototype_by_rnum(ZCMD.arg1);
-						obj_to_char(obj.get(), mob);
+						PlaceObjToInventory(obj.get(), mob);
 						obj->set_vnum_zone_from(zone_table[world[IN_ROOM(mob)]->zone_rn].vnum);
 						tobj = obj.get();
 						load_otrigger(obj.get());
@@ -4460,9 +4460,9 @@ void ZoneReset::reset_zone_essential() {
 							load_otrigger(obj.get());
 							if (wear_otrigger(obj.get(), mob, ZCMD.arg3)) {
 								obj->set_in_room(kNowhere);
-								equip_char(mob, obj.get(), ZCMD.arg3, CharEquipFlags());
+								EquipObj(mob, obj.get(), ZCMD.arg3, CharEquipFlags());
 							} else {
-								obj_to_char(obj.get(), mob);
+								PlaceObjToInventory(obj.get(), mob);
 							}
 							if (!(obj->get_carried_by() == mob)
 								&& !(obj->get_worn_by() == mob)) {
@@ -5107,12 +5107,12 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 // Снимаем весь стафф
 	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
 		if (GET_EQ(ch, i)) {
-			obj_to_char(unequip_char(ch, i, CharEquipFlags()), ch);
+			PlaceObjToInventory(UnequipChar(ch, i, CharEquipFlags()), ch);
 		}
 	}
 
 	while (ch->timed) {
-		timed_from_char(ch, ch->timed);
+		ExpireTimedSkill(ch, ch->timed);
 	}
 
 	while (ch->timed_feat) {
@@ -5201,8 +5201,8 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		else
 			load_room = r_mortal_start_room;
 	}
-	char_from_room(ch);
-	char_to_room(ch, load_room);
+	ExtractCharFromRoom(ch);
+	PlaceCharToRoom(ch, load_room);
 	look_at_room(ch, 0);
 	PLR_FLAGS(ch).set(EPlrFlag::kNoDelete);
 	remove_rune_label(ch);

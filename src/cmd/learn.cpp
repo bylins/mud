@@ -16,7 +16,7 @@ void book_upgrd_fail_message(CharData *ch, ObjData *obj) {
 }
 
 void do_learn(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
-	using PlayerClass::slot_for_char;
+	using PlayerClass::CalcCircleSlotsAmount;
 
 	ObjData *obj;
 	int addchance = 10, rcpt = -1;
@@ -83,7 +83,7 @@ void do_learn(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	}
 
 	if (GET_OBJ_VAL(obj, 0) == EBook::kSpell
-		&& slot_for_char(ch, 1) <= 0) {
+		&& CalcCircleSlotsAmount(ch, 1) <= 0) {
 		send_to_char("Далась вам эта магия! Пошли-бы, водочки выпили...\r\n", ch);
 		return;
 	}

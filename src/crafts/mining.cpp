@@ -118,12 +118,12 @@ void dig_obj(CharData *ch, ObjData *obj) {
 		act(textbuf, false, ch, nullptr, nullptr, kToRoom);
 		if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
 			send_to_char("Вы не смогли унести столько предметов.\r\n", ch);
-			obj_to_room(obj, ch->in_room);
+			PlaceObjToRoom(obj, ch->in_room);
 		} else if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj) > CAN_CARRY_W(ch)) {
 			send_to_char("Вы не смогли унести такой веc.\r\n", ch);
-			obj_to_room(obj, ch->in_room);
+			PlaceObjToRoom(obj, ch->in_room);
 		} else {
-			obj_to_char(obj, ch);
+			PlaceObjToInventory(obj, ch);
 		}
 	}
 }
@@ -204,7 +204,7 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 				send_to_char(textbuf, ch);
 				sprintf(textbuf, "$n выкопал$g %s!\r\n", mob->player_data.PNames[3].c_str());
 				act(textbuf, false, ch, nullptr, nullptr, kToRoom);
-				char_to_room(mob, ch->in_room);
+				PlaceCharToRoom(mob, ch->in_room);
 				return;
 			}
 		} else

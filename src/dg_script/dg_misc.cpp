@@ -362,7 +362,7 @@ void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_ty
 			af.modifier = value;
 			af.bitvector = 0;
 		}
-		affect_join_fspell(ch, af); // перекастим аффект
+		ImposeAffect(ch, af); // перекастим аффект
 	} else {
 		// remove affect
 		affect_from_char(ch, index_s);

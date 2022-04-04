@@ -10,7 +10,7 @@ namespace PlayerClass {
 
 const short SPELL_SLOTS_FOR_IMMORTAL = 10;
 
-const int MAG_SLOTS[][kMaxSlot] = {{2, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 1
+const int kMageSlots[][kMaxSlot] = {{2, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 1
 								   {2, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 2
 								   {3, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 3
 								   {3, 1, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 4
@@ -42,7 +42,7 @@ const int MAG_SLOTS[][kMaxSlot] = {{2, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 1
 								   {8, 8, 7, 6, 6, 5, 4, 2, 1, 0},    // lvl 30
 };
 
-const int NECROMANCER_SLOTS[][kMaxSlot] = {{2, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 1
+const int kNecromancerSlots[][kMaxSlot] = {{2, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 1
 										   {2, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 2
 										   {3, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 3
 										   {3, 1, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 4
@@ -81,7 +81,7 @@ const int NECROMANCER_SLOTS[][kMaxSlot] = {{2, 0, 0, 0, 0, 0, 0, 0, 0, 0},    //
 #define MAX_CL_WIS   35
 #define CL_WIS_DIV   1
 
-const int CLERIC_SLOTS[][MAX_CL_SLOT] = {{1, 0, 0, 0, 0, 0, 0, 0},    // level 1 wisdom 10
+const int kSorcererSlots[][MAX_CL_SLOT] = {{1, 0, 0, 0, 0, 0, 0, 0},    // level 1 wisdom 10
 										 {1, 0, 0, 0, 0, 0, 0, 0},    // level 2 wisdom 10
 										 {1, 0, 0, 0, 0, 0, 0, 0},    // level 3 wisdom 10
 										 {2, 1, 0, 0, 0, 0, 0, 0},    // level 4 wisdom 10
@@ -864,7 +864,7 @@ const int CLERIC_SLOTS[][MAX_CL_SLOT] = {{1, 0, 0, 0, 0, 0, 0, 0},    // level 1
 };
 
 #define MAX_ME_SLOT 4
-const int MERCHANT_SLOTS[][MAX_ME_SLOT] = {{0, 0, 0, 0},    // lvl 1
+const int KMerchantSlots[][MAX_ME_SLOT] = {{0, 0, 0, 0},    // lvl 1
 										   {0, 0, 0, 0},            // lvl 2
 										   {0, 0, 0, 0},            // lvl 3
 										   {1, 0, 0, 0},            // lvl 4
@@ -903,7 +903,7 @@ const int MERCHANT_SLOTS[][MAX_ME_SLOT] = {{0, 0, 0, 0},    // lvl 1
 #define MAX_PA_WIS   30
 #define PA_WIS_DIV   2
 
-const int PALADINE_SLOTS[][MAX_PA_SLOT] = {{1, 0, 0, 0},    // lvl 8 wis 10,11
+const int kPaladineSlots[][MAX_PA_SLOT] = {{1, 0, 0, 0},    // lvl 8 wis 10,11
 										   {1, 0, 0, 0},            // lvl 9
 										   {1, 0, 0, 0},            // lvl 10
 										   {1, 0, 0, 0},            // lvl 11
@@ -1160,7 +1160,7 @@ const int PALADINE_SLOTS[][MAX_PA_SLOT] = {{1, 0, 0, 0},    // lvl 8 wis 10,11
 
 MaxClassSlot max_slots;
 
-int slot_for_char(CharData *ch, int slot_num) {
+int CalcCircleSlotsAmount(CharData *ch, int slot_num) {
 	int wis_is = -1, wis_line, wis_block;
 
 	if (slot_num < 1 || slot_num > kMaxSlot || GetRealLevel(ch) < 1 || ch->is_npc()) {
@@ -1180,9 +1180,9 @@ int slot_for_char(CharData *ch, int slot_num) {
 	switch (GET_CLASS(ch)) {
 		case ECharClass::kConjurer:
 		case ECharClass::kWizard:
-		case ECharClass::kCharmer: wis_is = MAG_SLOTS[GetRealLevel(ch) - 1][slot_num];
+		case ECharClass::kCharmer: wis_is = kMageSlots[GetRealLevel(ch) - 1][slot_num];
 			break;
-		case ECharClass::kNecromancer: wis_is = NECROMANCER_SLOTS[GetRealLevel(ch) - 1][slot_num];
+		case ECharClass::kNecromancer: wis_is = kNecromancerSlots[GetRealLevel(ch) - 1][slot_num];
 			break;
 		case ECharClass::kSorcerer:
 			if (GetRealLevel(ch) >= MIN_CL_LEVEL && slot_num < MAX_CL_SLOT && GET_REAL_WIS(ch) >= MIN_CL_WIS) {
@@ -1190,7 +1190,7 @@ int slot_for_char(CharData *ch, int slot_num) {
 				wis_block = wis_block / CL_WIS_DIV;
 				wis_block = wis_block * (MAX_CL_LEVEL - MIN_CL_LEVEL + 1);
 				wis_line = GetRealLevel(ch) - MIN_CL_LEVEL;
-				wis_is = CLERIC_SLOTS[wis_block + wis_line][slot_num];
+				wis_is = kSorcererSlots[wis_block + wis_line][slot_num];
 			}
 			break;
 		case ECharClass::kPaladine:
@@ -1199,12 +1199,12 @@ int slot_for_char(CharData *ch, int slot_num) {
 				wis_block = wis_block / PA_WIS_DIV;
 				wis_block = wis_block * (MAX_PA_LEVEL - MIN_PA_LEVEL + 1);
 				wis_line = GetRealLevel(ch) - MIN_PA_LEVEL;
-				wis_is = PALADINE_SLOTS[wis_block + wis_line][slot_num];
+				wis_is = kPaladineSlots[wis_block + wis_line][slot_num];
 			}
 			break;
 		case ECharClass::kMerchant:
 			if (slot_num < MAX_ME_SLOT) {
-				wis_is = MERCHANT_SLOTS[GetRealLevel(ch) - 1][slot_num];
+				wis_is = KMerchantSlots[GetRealLevel(ch) - 1][slot_num];
 			}
 			break;
 		default: break;

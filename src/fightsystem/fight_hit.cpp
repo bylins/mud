@@ -700,7 +700,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 		act(buf, false, ch, 0, victim, kToVict);
 	}
 	if (unequip_pos && GET_EQ(victim, unequip_pos)) {
-		obj = unequip_char(victim, unequip_pos, CharEquipFlags());
+		obj = UnequipChar(victim, unequip_pos, CharEquipFlags());
 		switch (unequip_pos) {
 			case 6:        //WEAR_HEAD
 				sprintf(buf, "%s слетел%s с вашей головы.", obj->get_PName(0).c_str(), GET_OBJ_SUF_1(obj));
@@ -736,10 +736,10 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 				break;
 		}
 		if (!victim->is_npc() && ROOM_FLAGGED(IN_ROOM(victim), ERoomFlag::kArena))
-			obj_to_char(obj, victim);
+			PlaceObjToInventory(obj, victim);
 		else
-			obj_to_room(obj, IN_ROOM(victim));
-		obj_decay(obj);
+			PlaceObjToRoom(obj, IN_ROOM(victim));
+		CheckObjDecay(obj);
 	}
 	if (!victim->is_npc()) {
 		dam /= 5;
@@ -1591,13 +1591,13 @@ void appear(CharData *ch) {
 		|| AFF_FLAGGED(ch, EAffect::kDisguise)
 		|| AFF_FLAGGED(ch, EAffect::kHide);
 
-	if (affected_by_spell(ch, kSpellInvisible))
+	if (IsAffectedBySpell(ch, kSpellInvisible))
 		affect_from_char(ch, kSpellInvisible);
-	if (affected_by_spell(ch, kSpellHide))
+	if (IsAffectedBySpell(ch, kSpellHide))
 		affect_from_char(ch, kSpellHide);
-	if (affected_by_spell(ch, kSpellSneak))
+	if (IsAffectedBySpell(ch, kSpellSneak))
 		affect_from_char(ch, kSpellSneak);
-	if (affected_by_spell(ch, kSpellCamouflage))
+	if (IsAffectedBySpell(ch, kSpellCamouflage))
 		affect_from_char(ch, kSpellCamouflage);
 
 	AFF_FLAGS(ch).unset(EAffect::kInvisible);
@@ -3051,12 +3051,10 @@ void HitData::calc_base_hr(CharData *ch) {
 			calc_thaco -= MAX(0, (ch->get_skill(ESkill::kSneak) + ch->get_skill(ESkill::kHide) - 100) / 30);
 		}
 	} else {
-		// тюнинг оверности делается тут :)
 		calc_thaco += 4;
 	}
 
-	//dzMUDiST Обработка !исступления! +Gorrah
-	if (affected_by_spell(ch, kSpellBerserk)) {
+	if (IsAffectedBySpell(ch, kSpellBerserk)) {
 		if (AFF_FLAGGED(ch, EAffect::kBerserk)) {
 			calc_thaco -= (12 * ((GET_REAL_MAX_HIT(ch) / 2) - GET_HIT(ch)) / GET_REAL_MAX_HIT(ch));
 		}
@@ -3084,7 +3082,7 @@ void HitData::calc_rand_hr(CharData *ch, CharData *victim) {
 	}
 
 	// courage
-	if (affected_by_spell(ch, kSpellCourage)) {
+	if (IsAffectedBySpell(ch, kSpellCourage)) {
 		int range = number(1, MUD::Skills()[ESkill::kCourage].difficulty + GET_REAL_MAX_HIT(ch) - GET_HIT(ch));
 		int prob = CalcCurrentSkill(ch, ESkill::kCourage, victim);
 		TrainSkill(ch, ESkill::kCourage, prob > range, victim);
@@ -3164,7 +3162,7 @@ void HitData::calc_stat_hr(CharData *ch) {
 	}
 
 	// courage
-	if (affected_by_spell(ch, kSpellCourage)) {
+	if (IsAffectedBySpell(ch, kSpellCourage)) {
 		dam += ((ch->get_skill(ESkill::kCourage) + 19) / 20);
 		calc_thaco -= ((ch->get_skill(ESkill::kCourage) + 9) / 20) * p_hitroll;
 	}
@@ -3398,7 +3396,7 @@ int HitData::calc_damage(CharData *ch, bool need_dice) {
 	if (PRF_FLAGGED(ch, EPrf::kExecutor))
 		send_to_char(ch, "&YДамага с учетом перков мощная-улучш == %d&n\r\n", dam);
 	// courage
-	if (affected_by_spell(ch, kSpellCourage)) {
+	if (IsAffectedBySpell(ch, kSpellCourage)) {
 		int range = number(1, MUD::Skills()[ESkill::kCourage].difficulty + GET_REAL_MAX_HIT(ch) - GET_HIT(ch));
 		int prob = CalcCurrentSkill(ch, ESkill::kCourage, ch);
 		if (prob > range) {
@@ -3473,7 +3471,7 @@ int HitData::calc_damage(CharData *ch, bool need_dice) {
 			send_to_char(ch, "&YДамага после расчета железного ветра == %d&n\r\n", dam);
 	}
 
-	if (affected_by_spell(ch, kSpellBerserk)) {
+	if (IsAffectedBySpell(ch, kSpellBerserk)) {
 		if (AFF_FLAGGED(ch, EAffect::kBerserk)) {
 			dam = (dam*std::max(150, 150 + GetRealLevel(ch) +
 				RollDices(0, GET_REAL_REMORT(ch)) * 2)) / 100;

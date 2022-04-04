@@ -492,7 +492,7 @@ int PrintBaseInfoToTable(CharData *ch, table_wrapper::Table &table, std::size_t 
 	table[++row][col] = std::string("Голоден: ") + (GET_COND(ch, FULL) > kNormCondition ? "Угу :(" : "Нет");
 	table[++row][col] = std::string("Жажда: ") + (GET_COND_M(ch, THIRST) ? "Наливай!" : "Нет");
 	if (GET_COND(ch, DRUNK) >= kDrunked) {
-		table[++row][col] = (affected_by_spell(ch, kSpellAbstinent) ? "Похмелье." : "Вы пьяны.");
+		table[++row][col] = (IsAffectedBySpell(ch, kSpellAbstinent) ? "Похмелье." : "Вы пьяны.");
 	}
 	if (PlayerSystem::weight_dex_penalty(ch)) {
 		table[++row][col] = "Вы перегружены!";
@@ -808,7 +808,7 @@ void PrintScoreBase(CharData *ch) {
 	strcpy(buf, CCIGRN(ch, C_NRM));
 	const auto value_drunked = GET_COND(ch, DRUNK);
 	if (value_drunked >= kDrunked) {
-		if (affected_by_spell(ch, kSpellAbstinent))
+		if (IsAffectedBySpell(ch, kSpellAbstinent))
 			strcat(buf, "Привет с большого бодуна!\r\n");
 		else {
 			if (value_drunked >= kMortallyDrunked)

@@ -57,9 +57,9 @@ void do_horseon(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNohorse))
 		act("$Z $N взбрыкнул$G и отказал$U вас слушаться.", false, ch, 0, horse, kToChar);
 	else {
-		if (affected_by_spell(ch, kSpellSneak))
+		if (IsAffectedBySpell(ch, kSpellSneak))
 			affect_from_char(ch, kSpellSneak);
-		if (affected_by_spell(ch, kSpellCamouflage))
+		if (IsAffectedBySpell(ch, kSpellCamouflage))
 			affect_from_char(ch, kSpellCamouflage);
 		act("Вы взобрались на спину $N1.", false, ch, 0, horse, kToChar);
 		act("$n вскочил$g на $N3.", false, ch, 0, horse, kToRoom | kToArenaListen);

@@ -2636,8 +2636,8 @@ void find_replacement(void *go,
 			else {
 				int p = atoi(subfield);
 				if (p > 0){
-					char_from_room(c);
-					char_to_room(c, real_room(p));
+					ExtractCharFromRoom(c);
+					PlaceCharToRoom(c, real_room(p));
 				}
 			}
 		} else if (!str_cmp(field, "riding")) {
@@ -2827,7 +2827,7 @@ void find_replacement(void *go,
 			//к тому же они в том списке не все кличи например никак там не отображаются
 		else if (!str_cmp(field, "affected_by")) {
 			if ((num = FixNameAndFindSpellNum(subfield)) > 0) {
-				sprintf(str, "%d", (int) affected_by_spell(c, num));
+				sprintf(str, "%d", (int) IsAffectedBySpell(c, num));
 			}
 		} else if (!str_cmp(field, "action")) {
 			if (c->is_npc()) {
@@ -3002,7 +3002,7 @@ void find_replacement(void *go,
 			sprintf(str, "%c%ld", UID_OBJ, o->get_id());
 		} else if (!str_cmp(field, "uid")) {
 			if (!GET_OBJ_UID(o)) {
-				set_uid(o);
+				InitUid(o);
 			}
 			sprintf(str, "%u", GET_OBJ_UID(o));
 		} else if (!str_cmp(field, "skill")) {
@@ -3138,9 +3138,9 @@ void find_replacement(void *go,
 			//found something to put our object
 			//let's make it nobody's!
 			if (o->get_worn_by()) {
-				unequip_char(o->get_worn_by(), o->get_worn_on(), CharEquipFlags());
+				UnequipChar(o->get_worn_by(), o->get_worn_on(), CharEquipFlags());
 			} else if (o->get_carried_by()) {
-				obj_from_char(o);
+				ExtractObjFromChar(o);
 			} else if (o->get_in_obj()) {
 				obj_from_obj(o);
 			} else if (o->get_in_room() > kNowhere) {
@@ -3151,11 +3151,11 @@ void find_replacement(void *go,
 			}
 			//finally, put it to destination
 			if (char_to)
-				obj_to_char(o, char_to);
+				PlaceObjToInventory(o, char_to);
 			else if (obj_to)
 				obj_to_obj(o, obj_to);
 			else if (room_to)
-				obj_to_room(o, real_room(room_to->room_vn));
+				PlaceObjToRoom(o, real_room(room_to->room_vn));
 			else {
 				sprintf(buf2,
 						"object.put: ATTENTION! за время подготовки объекта >%s< к передаче перестал существовать адресат. Объект сейчас в kNowhere",
@@ -4431,7 +4431,7 @@ void add_stuf_zone(Trigger *trig, char *cmd) {
 		room_rnum = real_room(room_vnum);
 		if (room_rnum != kNowhere) {
 			object->set_vnum_zone_from(zone_table[world[room_rnum]->zone_rn].vnum);
-			obj_to_room(object.get(), room_rnum);
+			PlaceObjToRoom(object.get(), room_rnum);
 			load_otrigger(object.get());
 		}
 		obj_vnum = number(15020, 15029);
@@ -4445,7 +4445,7 @@ void add_stuf_zone(Trigger *trig, char *cmd) {
 		room_rnum = real_room(room_vnum);
 		if (room_rnum != kNowhere) {
 			object->set_vnum_zone_from(zone_table[world[room_rnum]->zone_rn].vnum);
-			obj_to_room(object.get(), room_rnum);
+			PlaceObjToRoom(object.get(), room_rnum);
 			load_otrigger(object.get());
 		}
 		obj_vnum = number(15030, 15039);
@@ -4459,7 +4459,7 @@ void add_stuf_zone(Trigger *trig, char *cmd) {
 		room_rnum = real_room(room_vnum);
 		if (room_rnum != kNowhere) {
 			object->set_vnum_zone_from(zone_table[world[room_rnum]->zone_rn].vnum);
-			obj_to_room(object.get(), room_rnum);
+			PlaceObjToRoom(object.get(), room_rnum);
 			load_otrigger(object.get());
 		}
 }

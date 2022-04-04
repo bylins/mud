@@ -60,12 +60,12 @@ long do_gold_tax(CharData *ch, long gold);
 
 } // namespace ClanSystem
 
-const int POLITICS_NEUTRAL = 0;
-const int POLITICS_WAR = 1;
-const int POLITICS_ALLIANCE = 2;
+const int kPoliticsNeutral = 0;
+const int kPoliticsWar = 1;
+const int kPoliticsAlliance = 2;
 
-const int HCE_ATRIUM = 0;
-const int HCE_PORTAL = 1;
+const int kHouseAtrium = 0;
+const int kHousePortal = 1;
 
 // период снятия за ренту (минут)
 const int kChestUpdatePeriod = 10;
@@ -80,10 +80,10 @@ const int kClanStorehouseTax = 1000;
 // процент стоимости ренты шмотки (надетой) для хранилища
 const int kClanStorehouseCoeff = 50;
 
-const int MAX_CLANLEVEL = 5;
+const int kMaxClanlevel = 5;
 // номер зоны с прототипами клан-стафа
-const int CLAN_STUFF_ZONE = 18;
-const int CHEST_IDENT_PAY = 110;
+const int kClanStuffZone = 18;
+const int kChestIdentPay = 110;
 
 void fix_ingr_chest_rnum(const int room_rnum);//Нужно чтоб позиция короба не съехала
 

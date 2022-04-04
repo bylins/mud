@@ -1327,11 +1327,11 @@ int auto_equip(CharData *ch, ObjData *obj, int location) {
 			if (!GET_EQ(ch, j)) {
 				// Check the characters's alignment to prevent them from being
 				// zapped through the auto-equipping.
-				if (invalid_align(ch, obj) || invalid_anti_class(ch, obj) || invalid_no_class(ch, obj)
+				if (HaveIncompatibleAlign(ch, obj) || invalid_anti_class(ch, obj) || invalid_no_class(ch, obj)
 					|| NamedStuff::check_named(ch, obj, 0)) {
 					location = LOC_INVENTORY;
 				} else {
-					equip_char(ch, obj, j, CharEquipFlag::no_cast | CharEquipFlag::skip_total);
+					EquipObj(ch, obj, j, CharEquipFlag::no_cast | CharEquipFlag::skip_total);
 //					log("Equipped with %s %d", (obj)->short_description, j);
 				}
 			} else    // Oops, saved a player with double equipment?
@@ -1345,7 +1345,7 @@ int auto_equip(CharData *ch, ObjData *obj, int location) {
 	}
 	if (location <= 0)    // Inventory
 	{
-		obj_to_char(obj, ch);
+		PlaceObjToInventory(obj, ch);
 	}
 	return (location);
 }
@@ -2061,7 +2061,7 @@ int Crash_load(CharData *ch) {
 			if (tank_to) {
 				obj_to_obj(obj, tank_to->tank);
 			} else {
-				obj_to_char(obj, ch);
+				PlaceObjToInventory(obj, ch);
 			}
 			log("%s load_char_obj %d %d %u", GET_NAME(ch), GET_OBJ_VNUM(obj), obj->get_uid(), obj->get_timer());
 		}
@@ -2141,7 +2141,7 @@ void Crash_extract_norent_eq(CharData *ch) {
 		}
 
 		if (Crash_is_unrentable(ch, GET_EQ(ch, j))) {
-			obj_to_char(unequip_char(ch, j, CharEquipFlags()), ch);
+			PlaceObjToInventory(UnequipChar(ch, j, CharEquipFlags()), ch);
 		} else {
 			Crash_extract_norents(ch, GET_EQ(ch, j));
 		}
@@ -2161,7 +2161,7 @@ void Crash_extract_norent_charmee(CharData *ch) {
 				}
 
 				if (Crash_is_unrentable(k->ch, GET_EQ(k->ch, j))) {
-					obj_to_char(unequip_char(k->ch, j, CharEquipFlags()), k->ch);
+					PlaceObjToInventory(UnequipChar(k->ch, j, CharEquipFlags()), k->ch);
 				} else {
 					Crash_extract_norents(k->ch, GET_EQ(k->ch, j));
 				}
@@ -2588,7 +2588,7 @@ void Crash_report_rent(CharData *ch, CharData *recep, ObjData *obj, int *cost,
 					if (!push) {
 						push = i;
 						push_count = 1;
-					} else if (!equal_obj(i, push)) {
+					} else if (!IsObjsStackable(i, push)) {
 						Crash_report_rent_item(ch, recep, push, push_count, factor, equip, recursive);
 						if (recursive) {
 							Crash_report_rent(ch,

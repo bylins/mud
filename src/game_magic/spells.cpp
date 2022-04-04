@@ -209,7 +209,7 @@ int GetTeleportTargetRoom(CharData *ch, int rnum_start, int rnum_stop) {
 			!ROOM_FLAGGED(fnd_room, ERoomFlag::kSlowDeathTrap) &&
 			!ROOM_FLAGGED(fnd_room, ERoomFlag::kIceTrap) &&
 			(!ROOM_FLAGGED(fnd_room, ERoomFlag::kGodsRoom) || IS_IMMORTAL(ch)) &&
-			Clan::MayEnter(ch, fnd_room, HCE_PORTAL))
+			Clan::MayEnter(ch, fnd_room, kHousePortal))
 			break;
 	}
 
@@ -279,8 +279,8 @@ void SpellRecall(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 	if (!enter_wtrigger(world[fnd_room], ch, -1))
 		return;
 	act("$n исчез$q.", true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-	char_from_room(victim);
-	char_to_room(victim, fnd_room);
+	ExtractCharFromRoom(victim);
+	PlaceCharToRoom(victim, fnd_room);
 	victim->dismount();
 	act("$n появил$u в центре комнаты.", true, victim, nullptr, nullptr, kToRoom);
 	look_at_room(victim, 0);
@@ -307,8 +307,8 @@ void SpellTeleport(int /* level */, CharData *ch, CharData */*victim*/, ObjData 
 	if (!enter_wtrigger(world[fnd_room], ch, -1))
 		return;
 	act("$n медленно исчез$q из виду.", false, ch, nullptr, nullptr, kToRoom);
-	char_from_room(ch);
-	char_to_room(ch, fnd_room);
+	ExtractCharFromRoom(ch);
+	PlaceCharToRoom(ch, fnd_room);
 	ch->dismount();
 	act("$n медленно появил$u откуда-то.", false, ch, nullptr, nullptr, kToRoom);
 	look_at_room(ch, 0);
@@ -348,7 +348,7 @@ void SpellRelocate(int/* level*/, CharData *ch, CharData *victim, ObjData* /* ob
 		return;
 	}
 
-	if (!Clan::MayEnter(ch, to_room, HCE_PORTAL)) {
+	if (!Clan::MayEnter(ch, to_room, kHousePortal)) {
 		fnd_room = Clan::CloseRent(to_room);
 	} else {
 		fnd_room = to_room;
@@ -374,8 +374,8 @@ void SpellRelocate(int/* level*/, CharData *ch, CharData *victim, ObjData* /* ob
 //	check_auto_nosummon(victim);
 	act("$n медленно исчез$q из виду.", true, ch, nullptr, nullptr, kToRoom);
 	send_to_char("Лазурные сполохи пронеслись перед вашими глазами.\r\n", ch);
-	char_from_room(ch);
-	char_to_room(ch, fnd_room);
+	ExtractCharFromRoom(ch);
+	PlaceCharToRoom(ch, fnd_room);
 	ch->dismount();
 	look_at_room(ch, 0);
 	act("$n медленно появил$u откуда-то.", true, ch, nullptr, nullptr, kToRoom);
@@ -567,7 +567,7 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 			return;
 		}
 		// отдельно проверку на клан комнаты, своих чармисов призвать можем (Кудояр)
-		if (!Clan::MayEnter(victim, ch_room, HCE_PORTAL) && !(victim->has_master()) && (victim->get_master() != ch)) {
+		if (!Clan::MayEnter(victim, ch_room, kHousePortal) && !(victim->has_master()) && (victim->get_master() != ch)) {
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
@@ -575,7 +575,7 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 		if (!ch->is_npc()) {
 			if (ROOM_FLAGGED(vic_room, ERoomFlag::kNoSummonOut)
 				|| ROOM_FLAGGED(vic_room, ERoomFlag::kGodsRoom)
-				|| !Clan::MayEnter(ch, vic_room, HCE_PORTAL)
+				|| !Clan::MayEnter(ch, vic_room, kHousePortal)
 				|| AFF_FLAGGED(victim, EAffect::kNoTeleport)
 				|| (!same_group(ch, victim)
 					&& (ROOM_FLAGGED(vic_room, ERoomFlag::kTunnel) || ROOM_FLAGGED(vic_room, ERoomFlag::kArena)))) {
@@ -596,8 +596,8 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 	if (!enter_wtrigger(world[ch_room], ch, -1))
 		return;
 	act("$n растворил$u на ваших глазах.", true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-	char_from_room(victim);
-	char_to_room(victim, ch_room);
+	ExtractCharFromRoom(victim);
+	PlaceCharToRoom(victim, ch_room);
 	victim->dismount();
 	act("$n прибыл$g по вызову.", true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 	act("$n призвал$g вас!", false, ch, nullptr, victim, kToVict);
@@ -612,8 +612,8 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 				if (!k->ch->get_fighting()) {
 					act("$n растворил$u на ваших глазах.",
 						true, k->ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					char_from_room(k->ch);
-					char_to_room(k->ch, ch_room);
+					ExtractCharFromRoom(k->ch);
+					PlaceCharToRoom(k->ch, ch_room);
 					act("$n прибыл$g за хозяином.",
 						true, k->ch, nullptr, nullptr, kToRoom | kToArenaListen);
 					act("$n призвал$g вас!", false, ch, nullptr, k->ch, kToVict);
@@ -1362,7 +1362,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 							false, victim, GET_EQ(victim, i), nullptr, kToChar);
 						act("$n прекратил$g использовать $o3.",
 							true, victim, GET_EQ(victim, i), nullptr, kToRoom);
-						obj_to_char(unequip_char(victim, i, CharEquipFlag::show_msg), victim);
+						PlaceObjToInventory(UnequipChar(victim, i, CharEquipFlag::show_msg), victim);
 					}
 				}
 			}
@@ -2028,7 +2028,7 @@ void SpellEnergydrain(int/* level*/, CharData *ch, CharData *victim, ObjData* /*
 	if (ch == victim || !CalcGeneralSaving(ch, victim, ESaving::kWill, CALC_SUCCESS(modi, 33))) {
 		int i;
 		for (i = 0; i <= kSpellCount; GET_SPELL_MEM(victim, i++) = 0);
-		GET_CASTER(victim) = 0;
+		victim->caster_level = 0;
 		send_to_char("Внезапно вы осознали, что у вас напрочь отшибло память.\r\n", victim);
 	} else
 		send_to_char(NOEFFECT, ch);
@@ -2295,7 +2295,7 @@ void SpellSummonAngel(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData
 	MOB_FLAGS(mob).set(EMobFlag::kLightingBreath);
 
 	mob->set_level(GetRealLevel(ch));
-	char_to_room(mob, ch->in_room);
+	PlaceCharToRoom(mob, ch->in_room);
 	ch->add_follower(mob);
 	
 	if (IS_FEMALE(mob)) {
@@ -2376,7 +2376,7 @@ void SpellMentalShadow(int/* level*/, CharData *ch, CharData* /*victim*/, ObjDat
 	mob->set_level(GetRealLevel(ch));
 	MOB_FLAGS(mob).set(EMobFlag::kCorpse);
 	MOB_FLAGS(mob).set(EMobFlag::kMentalShadow);
-	char_to_room(mob, IN_ROOM(ch));
+	PlaceCharToRoom(mob, IN_ROOM(ch));
 	ch->add_follower(mob);
 	mob->set_protecting(ch);
 	
@@ -3243,7 +3243,7 @@ void extract_item(CharData *ch, ObjData *obj, int spelltype) {
 					 char_get_custom_label(obj, ch).c_str());
 			act(buf, false, ch, obj, nullptr, kToChar);
 		}
-		obj_from_char(obj);
+		ExtractObjFromChar(obj);
 		extract_obj(obj);
 	}
 }
@@ -3531,7 +3531,7 @@ int CheckRecipeItems(CharData *ch, int spellnum, int spelltype, int extract, con
 				strcat(buf, " и создали $o3.");
 				act(buf, false, ch, obj.get(), nullptr, kToChar);
 				act("$n создал$g $o3.", false, ch, obj.get(), nullptr, kToRoom | kToArenaListen);
-				obj_to_char(obj.get(), ch);
+				PlaceObjToInventory(obj.get(), ch);
 			} else {
 				strcat(buf, " и попытались создать $o3.\r\n" "Ничего не вышло.");
 				act(buf, false, ch, obj.get(), nullptr, kToChar);

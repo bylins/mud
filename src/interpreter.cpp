@@ -1101,7 +1101,7 @@ const char *reserved[] = {"a",
 
 void check_hiding_cmd(CharData *ch, int percent) {
 	int remove_hide = false;
-	if (affected_by_spell(ch, kSpellHide)) {
+	if (IsAffectedBySpell(ch, kSpellHide)) {
 		if (percent == -2) {
 			if (AFF_FLAGGED(ch, EAffect::kSneak)) {
 				remove_hide = number(1, MUD::Skills()[ESkill::kSneak].difficulty) >
@@ -1935,7 +1935,7 @@ int perform_dupe_check(DescriptorData *d) {
 
 	switch (mode) {
 		case RECON: SEND_TO_Q("Пересоединяемся.\r\n", d);
-			check_light(d->character.get(), kLightNo, kLightNo, kLightNo, kLightNo, 1);
+			CheckLight(d->character.get(), kLightNo, kLightNo, kLightNo, kLightNo, 1);
 			act("$n восстановил$g связь.",
 				true, d->character.get(), nullptr, nullptr, kToRoom);
 			sprintf(buf, "%s [%s] has reconnected.", GET_NAME(d->character), d->host);
@@ -2199,7 +2199,7 @@ void do_entergame(DescriptorData *d) {
 		}
 		load_room = real_room(load_room);
 
-		if (!Clan::MayEnter(d->character.get(), load_room, HCE_PORTAL)) {
+		if (!Clan::MayEnter(d->character.get(), load_room, kHousePortal)) {
 			load_room = Clan::CloseRent(load_room);
 		}
 
@@ -2398,7 +2398,7 @@ void do_entergame(DescriptorData *d) {
 	d->has_prompt = 0;
 	login_change_invoice(d->character.get());
 	affect_total(d->character.get());
-	check_light(d->character.get(), kLightNo, kLightNo, kLightNo, kLightNo, 0);
+	CheckLight(d->character.get(), kLightNo, kLightNo, kLightNo, kLightNo, 0);
 	look_at_room(d->character.get(), 0);
 
 	if (new_char) {

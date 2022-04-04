@@ -35,7 +35,7 @@ void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 		send_to_char("Вам пока не по силам изгонять нежить, нужно отдохнуть.\r\n", ch);
 		return;
 	}
-	timed_to_char(ch, &timed);
+	ImposeTimedSkill(ch, &timed);
 
 	send_to_char(ch, "Вы свели руки в магическом жесте и отовсюду хлынули яркие лучи света.\r\n");
 	act("$n свел$g руки в магическом жесте и отовсюду хлынули яркие лучи света.\r\n",

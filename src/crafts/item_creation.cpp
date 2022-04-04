@@ -806,20 +806,20 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 
 			if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
 				send_to_char("Вы не сможете унести столько предметов.\r\n", ch);
-				obj_to_room(tobj.get(), ch->in_room);
-				obj_decay(tobj.get());
+				PlaceObjToRoom(tobj.get(), ch->in_room);
+				CheckObjDecay(tobj.get());
 			} else if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(tobj) > CAN_CARRY_W(ch)) {
 				send_to_char("Вы не сможете унести такой вес.\r\n", ch);
-				obj_to_room(tobj.get(), ch->in_room);
-				obj_decay(tobj.get());
+				PlaceObjToRoom(tobj.get(), ch->in_room);
+				CheckObjDecay(tobj.get());
 			} else {
-				obj_to_char(tobj.get(), ch);
+				PlaceObjToInventory(tobj.get(), ch);
 			}
 		}
 	}
 
 	if (obj) {
-		obj_from_char(obj);
+		ExtractObjFromChar(obj);
 		extract_obj(obj);
 	}
 }
@@ -2050,12 +2050,12 @@ int MakeRecept::make(CharData *ch) {
 	// 9. Проверяем минимум 2
 	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
 		send_to_char("Вы не сможете унести столько предметов.\r\n", ch);
-		obj_to_room(obj.get(), ch->in_room);
+		PlaceObjToRoom(obj.get(), ch->in_room);
 	} else if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj) > CAN_CARRY_W(ch)) {
 		send_to_char("Вы не сможете унести такой вес.\r\n", ch);
-		obj_to_room(obj.get(), ch->in_room);
+		PlaceObjToRoom(obj.get(), ch->in_room);
 	} else {
-		obj_to_char(obj.get(), ch);
+		PlaceObjToInventory(obj.get(), ch);
 	}
 	return (true);
 }

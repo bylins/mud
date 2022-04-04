@@ -290,7 +290,7 @@ int exchange_exhibit(CharData *ch, char *arg) {
 	if (check_unlimited_timer(obj)) // если нерушима таймер 1 неделя
 		obj->set_timer(10080);
 	GET_EXCHANGE_ITEM(item) = obj;
-	obj_from_char(obj);
+	ExtractObjFromChar(obj);
 
 	sprintf(tmpbuf, "Вы выставили на базар $O3 (лот %d) за %d %s.",
 			GET_EXCHANGE_ITEM_LOT(item), item_cost, GetDeclensionInNumber(item_cost, EWhat::kMoneyU));
@@ -421,7 +421,7 @@ int exchange_withdraw(CharData *ch, char *arg) {
 	message_exchange(tmpbuf, ch, item);
 	if (check_unlimited_timer(GET_EXCHANGE_ITEM(item))) // если нерушима фрешим таймер из прототипа
 		GET_EXCHANGE_ITEM(item)->set_timer(obj_proto.at(GET_OBJ_RNUM(GET_EXCHANGE_ITEM(item)))->get_timer());
-	obj_to_char(GET_EXCHANGE_ITEM(item), ch);
+	PlaceObjToInventory(GET_EXCHANGE_ITEM(item), ch);
 	clear_exchange_lot(item);
 
 	if (EXCHANGE_SAVEONEVERYOPERATION) {
@@ -482,7 +482,7 @@ int exchange_information(CharData *ch, char *arg) {
 		strcat(buf, buf2);
 		strcat(buf, "\n");
 	}
-	if (invalid_align(ch, GET_EXCHANGE_ITEM(item)) || invalid_no_class(ch, GET_EXCHANGE_ITEM(item))) {
+	if (HaveIncompatibleAlign(ch, GET_EXCHANGE_ITEM(item)) || invalid_no_class(ch, GET_EXCHANGE_ITEM(item))) {
 		sprintf(buf2, "Вы не сможете пользоваться этой вещью.");
 		strcat(buf, buf2);
 		strcat(buf, "\n");
@@ -611,7 +611,7 @@ int exchange_purchase(CharData *ch, char *arg) {
 			message_exchange(tmpbuf, ch, item);
 			if (check_unlimited_timer(GET_EXCHANGE_ITEM(item))) // если нерушима фрешим таймер из прототипа
 				GET_EXCHANGE_ITEM(item)->set_timer(obj_proto.at(GET_OBJ_RNUM(GET_EXCHANGE_ITEM(item)))->get_timer());
-			obj_to_char(GET_EXCHANGE_ITEM(item), ch);
+			PlaceObjToInventory(GET_EXCHANGE_ITEM(item), ch);
 			clear_exchange_lot(item);
 			if (EXCHANGE_SAVEONEVERYOPERATION) {
 				exchange_database_save();
@@ -641,7 +641,7 @@ int exchange_purchase(CharData *ch, char *arg) {
 		message_exchange(tmpbuf, ch, item);
 		if (check_unlimited_timer(GET_EXCHANGE_ITEM(item))) // если нерушима фрешим таймер из прототипа
 			GET_EXCHANGE_ITEM(item)->set_timer(obj_proto.at(GET_OBJ_RNUM(GET_EXCHANGE_ITEM(item)))->get_timer());
-		obj_to_char(GET_EXCHANGE_ITEM(item), ch);
+		PlaceObjToInventory(GET_EXCHANGE_ITEM(item), ch);
 		clear_exchange_lot(item);
 		if (EXCHANGE_SAVEONEVERYOPERATION) {
 			exchange_database_save();
@@ -664,7 +664,7 @@ int exchange_purchase(CharData *ch, char *arg) {
 				GET_EXCHANGE_ITEM_COST(item), GetDeclensionInNumber(GET_EXCHANGE_ITEM_COST(item), EWhat::kMoneyA));
 		act(tmpbuf, false, seller, 0, nullptr, kToChar);
 
-		obj_to_char(GET_EXCHANGE_ITEM(item), ch);
+		PlaceObjToInventory(GET_EXCHANGE_ITEM(item), ch);
 		clear_exchange_lot(item);
 		if (EXCHANGE_SAVEONEVERYOPERATION) {
 			exchange_database_save();

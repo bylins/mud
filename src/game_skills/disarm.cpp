@@ -59,15 +59,15 @@ void go_disarm(CharData *ch, CharData *vict) {
 		send_to_char(vict, "Ловкий удар %s выбил %s%s из ваших рук.\r\n",
 					 GET_PAD(ch, 1), wielded->get_PName(3).c_str(), char_get_custom_label(wielded, vict).c_str());
 		act("$n ловко выбил$g $o3 из рук $N1.", true, ch, wielded, vict, kToNotVict | kToArenaListen);
-		unequip_char(vict, pos, CharEquipFlags());
+		UnequipChar(vict, pos, CharEquipFlags());
 		SetSkillCooldown(ch, ESkill::kGlobalCooldown, vict->is_npc() ? 1 : 2);
 		prob = 2;
 
 		if (ROOM_FLAGGED(IN_ROOM(vict), ERoomFlag::kArena) || (!IS_MOB(vict)) || vict->has_master()) {
-			obj_to_char(wielded, vict);
+			PlaceObjToInventory(wielded, vict);
 		} else {
-			obj_to_room(wielded, IN_ROOM(vict));
-			obj_decay(wielded);
+			PlaceObjToRoom(wielded, IN_ROOM(vict));
+			CheckObjDecay(wielded);
 		};
 	}
 

@@ -506,10 +506,10 @@ void gifts() {
 	const auto obj_cont = world_objects.create_from_prototype_by_vnum(2594);
 
 	// создаем упаковку для подарка
-	obj_to_room(obj_cont.get(), real_room(rand_vnum_r));
+	PlaceObjToRoom(obj_cont.get(), real_room(rand_vnum_r));
 	obj_to_obj(obj_gift.get(), obj_cont.get());
-	obj_decay(obj_gift.get());
-	obj_decay(obj_cont.get());
+	CheckObjDecay(obj_gift.get());
+	CheckObjDecay(obj_cont.get());
 	log("Загружен подарок в комнату: %d, объект: %d", rand_vnum_r, rand_vnum);
 }
 
@@ -3110,7 +3110,7 @@ void close_socket(DescriptorData * d, int direct)
 			}
 			if (!d->character->is_npc()) {
 				d->character->save_char();
-				check_light(d->character.get(), kLightNo, kLightNo, kLightNo, kLightNo, -1);
+				CheckLight(d->character.get(), kLightNo, kLightNo, kLightNo, kLightNo, -1);
 				Crash_ldsave(d->character.get());
 
 				sprintf(buf, "Closing link to: %s.", GET_NAME(d->character));

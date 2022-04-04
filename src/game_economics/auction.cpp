@@ -25,7 +25,7 @@ constexpr int kMaxAuctionTact = kMaxAuctionTactBuy + 3;
 extern int invalid_anti_class(CharData *ch, const ObjData *obj);
 extern int invalid_unique(CharData *ch, const ObjData *obj);
 extern int invalid_no_class(CharData *ch, const ObjData *obj);
-extern int invalid_align(CharData *ch, ObjData *obj);
+extern bool HaveIncompatibleAlign(CharData *ch, ObjData *obj);
 extern char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear);
 extern char *diag_timer_to_char(const ObjData *obj);
 extern void SetWait(CharData *ch, int waittime, int victim_in_room);
@@ -405,7 +405,7 @@ bool auction_drive(CharData *ch, char *argument) {
 				strcat(buf, buf2);
 				strcat(buf, "\n");
 			}
-			if ((!ch->is_npc() && invalid_align(ch, obj))
+			if ((!ch->is_npc() && HaveIncompatibleAlign(ch, obj))
 				|| invalid_no_class(ch, obj)) {
 				sprintf(buf2, "Вы не сможете пользоваться этой вещью.");
 				strcat(buf, buf2);
@@ -681,8 +681,8 @@ void trans_auction(int lot) {
 	tmpstr = "Вы купили " + obj->get_PName(3) + " на аукционе.\r\n";
 	send_to_char(tmpstr.c_str(), tch);
 
-	obj_from_char(obj);
-	obj_to_char(obj, tch);
+	ExtractObjFromChar(obj);
+	PlaceObjToInventory(obj, tch);
 
 	ch->add_bank(GET_LOT(lot)->cost);
 	tch->remove_both_gold(GET_LOT(lot)->cost + (GET_LOT(lot)->cost / 10));
@@ -740,8 +740,8 @@ void sell_auction(int lot) {
 	tmpstr = "Вы купили " + obj->get_PName(3) + " на аукционе.\r\n";
 	send_to_char(tmpstr.c_str(), tch);
 
-	obj_from_char(obj);
-	obj_to_char(obj, tch);
+	ExtractObjFromChar(obj);
+	PlaceObjToInventory(obj, tch);
 
 	ch->add_bank(GET_LOT(lot)->cost);
 	tch->remove_both_gold(GET_LOT(lot)->cost);

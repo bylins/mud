@@ -6,7 +6,7 @@
 #include "game_classes/classes_spell_slots.h"
 #include "game_magic/magic_utils.h" //включен ради функци поиска спеллов, которые по-хорошеиу должны быть где-то в утилитах.
 
-using PlayerClass::slot_for_char;
+using PlayerClass::CalcCircleSlotsAmount;
 
 void show_wizdom(CharData *ch, int bitset);
 void do_memorize(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
@@ -43,7 +43,7 @@ void do_memorize(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	// Caster is lower than spell level
 	if (GetRealLevel(ch) < MIN_CAST_LEV(spell_info[spellnum], ch)
 		|| GET_REAL_REMORT(ch) < MIN_CAST_REM(spell_info[spellnum], ch)
-		|| slot_for_char(ch, spell_info[spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0) {
+		|| CalcCircleSlotsAmount(ch, spell_info[spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0) {
 		send_to_char("Рано еще вам бросаться такими словами!\r\n", ch);
 		return;
 	};
@@ -61,7 +61,7 @@ void show_wizdom(CharData *ch, int bitset) {
 	for (i = 1; i <= kMaxSlot; i++) {
 		*names[i - 1] = '\0';
 		slots[i - 1] = 0;
-		if (slot_for_char(ch, i))
+		if (CalcCircleSlotsAmount(ch, i))
 			imax_slot = i;
 	}
 	if (bitset & 0x01) {
@@ -164,7 +164,7 @@ void show_wizdom(CharData *ch, int bitset) {
 		int *s = MemQ_slots(ch);
 		gcount += sprintf(buf2 + gcount, "  %sСвободно :%s\r\n", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
 		for (i = 0; i < imax_slot; i++) {
-			slot_num = MAX(0, slot_for_char(ch, i + 1) - s[i]);
+			slot_num = MAX(0, CalcCircleSlotsAmount(ch, i + 1) - s[i]);
 			gcount += sprintf(buf2 + gcount, "%s%2d-%2d%s  ",
 							  slot_num ? CCICYN(ch, C_NRM) : "",
 							  i + 1, slot_num, slot_num ? CCNRM(ch, C_NRM) : "");

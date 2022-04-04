@@ -226,7 +226,7 @@ void do_mjunk(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if ((find_all_dots(arg) == kFindIndiv) && !junk_all) {
 		if ((obj = get_object_in_equip_vis(ch, arg, ch->equipment, &pos)) != nullptr) {
-			unequip_char(ch, pos, CharEquipFlags());
+			UnequipChar(ch, pos, CharEquipFlags());
 			extract_obj(obj);
 			return;
 		}
@@ -241,7 +241,7 @@ void do_mjunk(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		}
 		while ((obj = get_object_in_equip_vis(ch, arg, ch->equipment, &pos))) {
-			unequip_char(ch, pos, CharEquipFlags());
+			UnequipChar(ch, pos, CharEquipFlags());
 			extract_obj(obj);
 		}
 	}
@@ -376,7 +376,7 @@ void do_mload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 		}
 		log("Load mob #%d by %s (mload)", number, GET_NAME(ch));
-		char_to_room(mob, ch->in_room);
+		PlaceCharToRoom(mob, ch->in_room);
 		load_mtrigger(mob);
 	} else if (utils::IsAbbrev(arg1, "obj")) {
 		const auto object = world_objects.create_from_prototype_by_vnum(number);
@@ -399,9 +399,9 @@ void do_mload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		object->set_vnum_zone_from(zone_table[world[ch->in_room]->zone_rn].vnum);
 
 		if (CAN_WEAR(object.get(), EWearFlag::kTake)) {
-			obj_to_char(object.get(), ch);
+			PlaceObjToInventory(object.get(), ch);
 		} else {
-			obj_to_room(object.get(), ch->in_room);
+			PlaceObjToRoom(object.get(), ch->in_room);
 		}
 
 		load_otrigger(object.get());
@@ -481,8 +481,8 @@ void do_mgoto(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->get_fighting())
 		stop_fighting(ch, true);
 
-	char_from_room(ch);
-	char_to_room(ch, location);
+	ExtractCharFromRoom(ch);
+	PlaceCharToRoom(ch, location);
 }
 
 // lets the mobile do a command at another location. Very useful
@@ -556,8 +556,8 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				mob_log(ch, "mteleport transports from kNowhere");
 				return;
 			}
-			char_from_room(vict);
-			char_to_room(vict, target);
+			ExtractCharFromRoom(vict);
+			PlaceCharToRoom(vict, target);
 			// переделать чтоб чары смотрели в клетку после переноса, походу еще один цикл крутить, ну и мутево будет
 			if (!vict->is_npc())
 				look_at_room(vict, true);
@@ -575,8 +575,8 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			if (vict->is_npc() && !IS_CHARMICE(vict))
 				continue;
-			char_from_room(vict);
-			char_to_room(vict, target);
+			ExtractCharFromRoom(vict);
+			PlaceCharToRoom(vict, target);
 			look_at_room(vict, true);
 		}
 	} else {
@@ -596,8 +596,8 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		const auto people_copy = world[IN_ROOM(vict)]->people;
 		for (const auto charmee : people_copy) {
 			if (IS_CHARMICE(charmee) && charmee->get_master()  == vict) {
-				char_from_room(charmee);
-				char_to_room(charmee, target);
+				ExtractCharFromRoom(charmee);
+				PlaceCharToRoom(charmee, target);
 			}
 		}
 		if (vict->ahorse() || vict->has_horse(true)) {
@@ -606,8 +606,8 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			horse = nullptr;
 		}
 		if (!str_cmp(argument, "horse") && horse) {
-			char_from_room(horse);
-			char_to_room(horse, target);
+			ExtractCharFromRoom(horse);
+			PlaceCharToRoom(horse, target);
 		}
 		from_room = vict->in_room;
 //Polud реализуем режим followers. за аргументом телепорта перемешаются все последователи-NPC
@@ -615,14 +615,14 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			Follower *ft;
 			for (ft = vict->followers; ft; ft = ft->next) {
 				if (IN_ROOM(ft->ch) == from_room && ft->ch->is_npc()) {
-					char_from_room(ft->ch);
-					char_to_room(ft->ch, target);
+					ExtractCharFromRoom(ft->ch);
+					PlaceCharToRoom(ft->ch, target);
 				}
 			}
 		}
 //-Polud
-		char_from_room(vict);
-		char_to_room(vict, target);
+		ExtractCharFromRoom(vict);
+		PlaceCharToRoom(vict, target);
 		vict->dismount();
 		look_at_room(vict, true);
 		greet_mtrigger(vict, -1);
@@ -811,13 +811,13 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		for (pos = 0; pos < EEquipPos::kNumEquipPos; pos++) {
 			if (GET_EQ(ch, pos))
-				obj[pos] = unequip_char(ch, pos, CharEquipFlags());
+				obj[pos] = UnequipChar(ch, pos, CharEquipFlags());
 			else
 				obj[pos] = nullptr;
 		}
 
 		// put the mob in the same room as ch so extract will work
-		char_to_room(m, ch->in_room);
+		PlaceCharToRoom(m, ch->in_room);
 
 // Обмен содержимым
 		CharData tmpmob(*m);
@@ -869,7 +869,7 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		for (pos = 0; pos < EEquipPos::kNumEquipPos; pos++) {
 			if (obj[pos])
-				equip_char(ch, obj[pos], pos, CharEquipFlag::no_cast);
+				EquipObj(ch, obj[pos], pos, CharEquipFlag::no_cast);
 		}
 		extract_char(m, false);
 	}

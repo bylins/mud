@@ -369,7 +369,7 @@ void do_arena_restore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			struct TimedSkill wctimed;
 			wctimed.skill = ESkill::kWarcry;
 			wctimed.time = 0;
-			timed_to_char(vict, &wctimed);
+			ImposeTimedSkill(vict, &wctimed);
 		}
 		if (IS_GRGOD(ch) && IS_IMMORTAL(vict)) {
 			vict->set_str(25);
@@ -386,19 +386,19 @@ void do_arena_restore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 		//сброс таймеров скиллов и фитов
 		while (vict->timed)
-			timed_from_char(vict, vict->timed);
+			ExpireTimedSkill(vict, vict->timed);
 		while (vict->timed_feat)
 			ExpireTimedFeat(vict, vict->timed_feat);
 		reset_affects(vict);
 		for (int i = 0; i < EEquipPos::kNumEquipPos; i++) {
 			if (GET_EQ(vict, i)) {
 				remove_otrigger(GET_EQ(vict, i), vict);
-				extract_obj(unequip_char(vict, i, CharEquipFlags()));
+				extract_obj(UnequipChar(vict, i, CharEquipFlags()));
 			}
 		}
 		ObjData *obj;
 		for (obj = vict->carrying; obj; obj = vict->carrying) {
-			obj_from_char(obj);
+			ExtractObjFromChar(obj);
 			extract_obj(obj);
 		}
 		act("Все ваши вещи были удалены и все аффекты сняты $N4!",
@@ -511,8 +511,8 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 						else
 							result = r_mortal_start_room;
 					}
-					char_from_room(vict);
-					char_to_room(vict, result);
+					ExtractCharFromRoom(vict);
+					PlaceCharToRoom(vict, result);
 					look_at_room(vict, result);
 				};
 
@@ -577,8 +577,8 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 						else
 							result = r_mortal_start_room;
 					}
-					char_from_room(vict);
-					char_to_room(vict, result);
+					ExtractCharFromRoom(vict);
+					PlaceCharToRoom(vict, result);
 					look_at_room(vict, result);
 				};
 
@@ -616,8 +616,8 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 							result = r_mortal_start_room;
 					}
 
-					char_from_room(vict);
-					char_to_room(vict, result);
+					ExtractCharFromRoom(vict);
+					PlaceCharToRoom(vict, result);
 					look_at_room(vict, result);
 					act("$n выпущен$a из комнаты имени!",
 						false, vict, nullptr, nullptr, kToRoom);
@@ -660,8 +660,8 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 							result = r_mortal_start_room;
 					}
 
-					char_from_room(vict);
-					char_to_room(vict, result);
+					ExtractCharFromRoom(vict);
+					PlaceCharToRoom(vict, result);
 					look_at_room(vict, result);
 				};
 				sprintf(buf, "%s%s зарегистрировал$G вас.%s",
@@ -758,8 +758,8 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 					act("$n водворен$a в темницу!",
 						false, vict, nullptr, nullptr, kToRoom);
 
-					char_from_room(vict);
-					char_to_room(vict, r_helled_start_room);
+					ExtractCharFromRoom(vict);
+					PlaceCharToRoom(vict, r_helled_start_room);
 					look_at_room(vict, r_helled_start_room);
 				};
 				break;
@@ -787,8 +787,8 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 					act("$n водворен$a в темницу!",
 						false, vict, nullptr, nullptr, kToRoom);
 
-					char_from_room(vict);
-					char_to_room(vict, r_helled_start_room);
+					ExtractCharFromRoom(vict);
+					PlaceCharToRoom(vict, r_helled_start_room);
 					look_at_room(vict, r_helled_start_room);
 				};
 				vict->set_was_in_room(kNowhere);
@@ -811,8 +811,8 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				if (IN_ROOM(vict) != kNowhere) {
 					act("$n водворен$a в комнату имени!",
 						false, vict, nullptr, nullptr, kToRoom);
-					char_from_room(vict);
-					char_to_room(vict, r_named_start_room);
+					ExtractCharFromRoom(vict);
+					PlaceCharToRoom(vict, r_named_start_room);
 					look_at_room(vict, r_named_start_room);
 				};
 				vict->set_was_in_room(kNowhere);
@@ -835,8 +835,8 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 					if (vict->desc && !check_dupes_host(vict->desc) && IN_ROOM(vict) != r_unreg_start_room) {
 						act("$n водворен$a в комнату для незарегистрированных игроков, играющих через прокси.",
 							false, vict, nullptr, nullptr, kToRoom);
-						char_from_room(vict);
-						char_to_room(vict, r_unreg_start_room);
+						ExtractCharFromRoom(vict);
+						PlaceCharToRoom(vict, r_unreg_start_room);
 						look_at_room(vict, r_unreg_start_room);
 					}
 				}
@@ -1497,7 +1497,7 @@ RoomRnum find_target_room(CharData *ch, char *rawroomstr, int trig) {
 			send_to_char("В комнату не телепортировать!\r\n", ch);
 			return (kNowhere);
 		}
-		if (!Clan::MayEnter(ch, location, HCE_PORTAL)) {
+		if (!Clan::MayEnter(ch, location, kHousePortal)) {
 			send_to_char("Частная собственность - посторонним в ней делать нечего!\r\n", ch);
 			return (kNowhere);
 		}
@@ -1525,14 +1525,14 @@ void do_at(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	// a location has been found.
 	original_loc = ch->in_room;
-	char_from_room(ch);
-	char_to_room(ch, location);
+	ExtractCharFromRoom(ch);
+	PlaceCharToRoom(ch, location);
 	command_interpreter(ch, command);
 
 	// check if the char is still there
 	if (ch->in_room == location) {
-		char_from_room(ch);
-		char_to_room(ch, original_loc);
+		ExtractCharFromRoom(ch);
+		PlaceCharToRoom(ch, original_loc);
 	}
 	ch->dismount();
 }
@@ -1598,9 +1598,9 @@ void do_goto(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		strcpy(buf, "$n растворил$u в клубах дыма.");
 
 	act(buf, true, ch, nullptr, nullptr, kToRoom);
-	char_from_room(ch);
+	ExtractCharFromRoom(ch);
 
-	char_to_room(ch, location);
+	PlaceCharToRoom(ch, location);
 	ch->dismount();
 
 	if (POOFIN(ch))
@@ -1630,8 +1630,8 @@ void do_teleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else if ((target = find_target_room(ch, buf2, 0)) != kNowhere) {
 		send_to_char(OK, ch);
 		act("$n растворил$u в клубах дыма.", false, victim, nullptr, nullptr, kToRoom);
-		char_from_room(victim);
-		char_to_room(victim, target);
+		ExtractCharFromRoom(victim);
+		PlaceCharToRoom(victim, target);
 		victim->dismount();
 		act("$n появил$u, окутанн$w розовым туманом.",
 			false, victim, nullptr, nullptr, kToRoom);
@@ -1766,7 +1766,7 @@ void do_switch(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			&& ROOM_FLAGGED(IN_ROOM(visible_character), ERoomFlag::kGodsRoom)) {
 			send_to_char("Вы не можете находиться в той комнате.\r\n", ch);
 		} else if (!IS_GRGOD(ch)
-			&& !Clan::MayEnter(ch, IN_ROOM(visible_character), HCE_PORTAL)) {
+			&& !Clan::MayEnter(ch, IN_ROOM(visible_character), kHousePortal)) {
 			send_to_char("Вы не сможете проникнуть на частную территорию.\r\n", ch);
 		} else {
 			const auto victim = character_list.get_character_by_address(visible_character);
@@ -1841,7 +1841,7 @@ void do_load(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 		}
 		mob = read_mobile(r_num, REAL);
-		char_to_room(mob, ch->in_room);
+		PlaceCharToRoom(mob, ch->in_room);
 		act("$n порыл$u в МУДе.", true, ch, nullptr, nullptr, kToRoom);
 		act("$n создал$g $N3!", false, ch, nullptr, mob, kToRoom);
 		act("Вы создали $N3.", false, ch, nullptr, mob, kToChar);
@@ -1866,16 +1866,16 @@ void do_load(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		if (load_into_inventory) {
-			obj_to_char(obj.get(), ch);
+			PlaceObjToInventory(obj.get(), ch);
 		} else {
-			obj_to_room(obj.get(), ch->in_room);
+			PlaceObjToRoom(obj.get(), ch->in_room);
 		}
 
 		act("$n покопал$u в МУДе.", true, ch, nullptr, nullptr, kToRoom);
 		act("$n создал$g $o3!", false, ch, obj.get(), nullptr, kToRoom);
 		act("Вы создали $o3.", false, ch, obj.get(), nullptr, kToChar);
 		load_otrigger(obj.get());
-		obj_decay(obj.get());
+		CheckObjDecay(obj.get());
 		olc_log("%s load obj %s #%d", GET_NAME(ch), obj->get_short_description().c_str(), number);
 	} else if (utils::IsAbbrev(buf, "ing")) {
 		int power, i;
@@ -1891,14 +1891,14 @@ void do_load(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			send_to_char("Ошибка загрузки ингредиента\r\n", ch);
 			return;
 		}
-		obj_to_char(obj, ch);
+		PlaceObjToInventory(obj, ch);
 		act("$n покопал$u в МУДе.", true, ch, nullptr, nullptr, kToRoom);
 		act("$n создал$g $o3!", false, ch, obj, nullptr, kToRoom);
 		act("Вы создали $o3.", false, ch, obj, nullptr, kToChar);
 		sprintf(buf, "%s load ing %d %s", GET_NAME(ch), power, iname);
 		mudlog(buf, NRM, kLvlBuilder, IMLOG, true);
 		load_otrigger(obj);
-		obj_decay(obj);
+		CheckObjDecay(obj);
 		olc_log("%s load ing %s #%d", GET_NAME(ch), obj->get_short_description().c_str(), power);
 	} else {
 		send_to_char("Нет уж. Ты создай че-нить нормальное.\r\n", ch);
@@ -1936,7 +1936,7 @@ void do_vstat(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 		}
 		mob = read_mobile(r_num, REAL);
-		char_to_room(mob, 1);
+		PlaceCharToRoom(mob, 1);
 		do_stat_character(ch, mob, 1);
 		extract_char(mob, false);
 	} else if (utils::IsAbbrev(buf, "obj")) {
@@ -2551,7 +2551,7 @@ void do_restore(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			struct TimedSkill wctimed;
 			wctimed.skill = ESkill::kWarcry;
 			wctimed.time = 0;
-			timed_to_char(vict, &wctimed);
+			ImposeTimedSkill(vict, &wctimed);
 		}
 		if (IS_GRGOD(ch) && IS_IMMORTAL(vict)) {
 			vict->set_str(25);
@@ -2568,7 +2568,7 @@ void do_restore(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 		//сброс таймеров скиллов и фитов
 		while (vict->timed)
-			timed_from_char(vict, vict->timed);
+			ExpireTimedSkill(vict, vict->timed);
 		while (vict->timed_feat)
 			ExpireTimedFeat(vict, vict->timed_feat);
 
@@ -4126,8 +4126,8 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				return (0);
 			}
 			if (IN_ROOM(vict) != kNowhere)    // Another Eric Green special.
-				char_from_room(vict);
-			char_to_room(vict, rnum);
+				ExtractCharFromRoom(vict);
+			PlaceCharToRoom(vict, rnum);
 			vict->dismount();
 			break;
 		case 28: SET_OR_REMOVE(on, off, PRF_FLAGS(vict), EPrf::kRoomFlags);

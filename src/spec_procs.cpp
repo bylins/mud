@@ -473,7 +473,7 @@ const char *spells_color(int spellnum) {
    при параметре true */
 #include "game_classes/classes_spell_slots.h"
 void list_spells(CharData *ch, CharData *vict, int all_spells) {
-	using PlayerClass::slot_for_char;
+	using PlayerClass::CalcCircleSlotsAmount;
 
 	char names[kMaxSlot][kMaxStringLength];
 	std::string time_str;
@@ -494,7 +494,7 @@ void list_spells(CharData *ch, CharData *vict, int all_spells) {
 		}
 		if ((MIN_CAST_LEV(spell_info[i], ch) > GetRealLevel(ch)
 			|| MIN_CAST_REM(spell_info[i], ch) > GET_REAL_REMORT(ch)
-			|| slot_for_char(ch, spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0)
+			|| CalcCircleSlotsAmount(ch, spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0)
 			&& all_spells && !GET_SPELL_TYPE(ch, i))
 			continue;
 
@@ -1497,7 +1497,7 @@ int horse_keeper(CharData *ch, void *me, int cmd, char *argument) {
 			return (true);
 		}
 		make_horse(horse, ch);
-		char_to_room(horse, ch->in_room);
+		PlaceCharToRoom(horse, ch->in_room);
 		sprintf(buf, "$N оседлал$G %s и отдал$G %s вам.", GET_PAD(horse, 3), HSHR(horse));
 		act(buf, false, ch, 0, victim, kToChar);
 		sprintf(buf, "$N оседлал$G %s и отдал$G %s $n2.", GET_PAD(horse, 3), HSHR(horse));
@@ -1594,8 +1594,8 @@ void npc_dropunuse(CharData *ch) {
 		nobj = obj->get_next_content();
 		if (item_nouse(obj)) {
 			act("$n выбросил$g $o3.", false, ch, obj, 0, kToRoom);
-			obj_from_char(obj);
-			obj_to_room(obj, ch->in_room);
+			ExtractObjFromChar(obj);
+			PlaceObjToRoom(obj, ch->in_room);
 		}
 	}
 }
@@ -1677,7 +1677,7 @@ int npc_scavenge(CharData *ch) {
 					extract_obj(best_obj);
 				} else {
 					obj_from_room(best_obj);
-					obj_to_char(best_obj, ch);
+					PlaceObjToInventory(best_obj, ch);
 				}
 			} else {
 				sprintf(buf, "$n достал$g $o3 из %s.", cont->get_PName(1).c_str());
@@ -1687,7 +1687,7 @@ int npc_scavenge(CharData *ch) {
 					extract_obj(best_obj);
 				} else {
 					obj_from_obj(best_obj);
-					obj_to_char(best_obj, ch);
+					PlaceObjToInventory(best_obj, ch);
 				}
 			}
 		}
@@ -1721,7 +1721,7 @@ int npc_loot(CharData *ch) {
 							extract_obj(loot_obj);
 						} else {
 							obj_from_obj(loot_obj);
-							obj_to_char(loot_obj, ch);
+							PlaceObjToInventory(loot_obj, ch);
 							max++;
 						}
 					}
@@ -1748,7 +1748,7 @@ int npc_loot(CharData *ch) {
 									extract_obj(cobj);
 								} else {
 									obj_from_obj(cobj);
-									obj_to_char(cobj, ch);
+									PlaceObjToInventory(cobj, ch);
 									max++;
 								}
 							}
@@ -1794,7 +1794,7 @@ int npc_loot(CharData *ch) {
 									extract_obj(cobj);
 								} else {
 									obj_from_obj(cobj);
-									obj_to_char(cobj, ch);
+									PlaceObjToInventory(cobj, ch);
 									max++;
 								}
 							}
@@ -1978,50 +1978,50 @@ void npc_wield(CharData *ch) {
 		}
 		if (GET_EQ(ch, EEquipPos::kBoths)) {
 			act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, EEquipPos::kBoths), 0, kToRoom);
-			obj_to_char(unequip_char(ch, EEquipPos::kBoths, CharEquipFlag::show_msg), ch);
+			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kBoths, CharEquipFlag::show_msg), ch);
 		}
 		if (GET_EQ(ch, EEquipPos::kWield)) {
 			act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, EEquipPos::kWield), 0, kToRoom);
-			obj_to_char(unequip_char(ch, EEquipPos::kWield, CharEquipFlag::show_msg), ch);
+			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kWield, CharEquipFlag::show_msg), ch);
 		}
 		if (GET_EQ(ch, EEquipPos::kShield)) {
 			act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, EEquipPos::kShield), 0, kToRoom);
-			obj_to_char(unequip_char(ch, EEquipPos::kShield, CharEquipFlag::show_msg), ch);
+			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kShield, CharEquipFlag::show_msg), ch);
 		}
 		if (GET_EQ(ch, EEquipPos::kHold)) {
 			act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, EEquipPos::kHold), 0, kToRoom);
-			obj_to_char(unequip_char(ch, EEquipPos::kHold, CharEquipFlag::show_msg), ch);
+			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kHold, CharEquipFlag::show_msg), ch);
 		}
 		//obj_from_char(both);
-		equip_char(ch, both, EEquipPos::kBoths, CharEquipFlag::show_msg);
+		EquipObj(ch, both, EEquipPos::kBoths, CharEquipFlag::show_msg);
 	} else {
 		if (left && GET_EQ(ch, EEquipPos::kHold) != left) {
 			if (GET_EQ(ch, EEquipPos::kBoths)) {
 				act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, EEquipPos::kBoths), 0, kToRoom);
-				obj_to_char(unequip_char(ch, EEquipPos::kBoths, CharEquipFlag::show_msg), ch);
+				PlaceObjToInventory(UnequipChar(ch, EEquipPos::kBoths, CharEquipFlag::show_msg), ch);
 			}
 			if (GET_EQ(ch, EEquipPos::kShield)) {
 				act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, EEquipPos::kShield), 0, kToRoom);
-				obj_to_char(unequip_char(ch, EEquipPos::kShield, CharEquipFlag::show_msg), ch);
+				PlaceObjToInventory(UnequipChar(ch, EEquipPos::kShield, CharEquipFlag::show_msg), ch);
 			}
 			if (GET_EQ(ch, EEquipPos::kHold)) {
 				act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, EEquipPos::kHold), 0, kToRoom);
-				obj_to_char(unequip_char(ch, EEquipPos::kHold, CharEquipFlag::show_msg), ch);
+				PlaceObjToInventory(UnequipChar(ch, EEquipPos::kHold, CharEquipFlag::show_msg), ch);
 			}
 			//obj_from_char(left);
-			equip_char(ch, left, EEquipPos::kHold, CharEquipFlag::show_msg);
+			EquipObj(ch, left, EEquipPos::kHold, CharEquipFlag::show_msg);
 		}
 		if (right && GET_EQ(ch, EEquipPos::kWield) != right) {
 			if (GET_EQ(ch, EEquipPos::kBoths)) {
 				act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, EEquipPos::kBoths), 0, kToRoom);
-				obj_to_char(unequip_char(ch, EEquipPos::kBoths, CharEquipFlag::show_msg), ch);
+				PlaceObjToInventory(UnequipChar(ch, EEquipPos::kBoths, CharEquipFlag::show_msg), ch);
 			}
 			if (GET_EQ(ch, EEquipPos::kWield)) {
 				act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, EEquipPos::kWield), 0, kToRoom);
-				obj_to_char(unequip_char(ch, EEquipPos::kWield, CharEquipFlag::show_msg), ch);
+				PlaceObjToInventory(UnequipChar(ch, EEquipPos::kWield, CharEquipFlag::show_msg), ch);
 			}
 			//obj_from_char(right);
-			equip_char(ch, right, EEquipPos::kWield, CharEquipFlag::show_msg);
+			EquipObj(ch, right, EEquipPos::kWield, CharEquipFlag::show_msg);
 		}
 	}
 }
@@ -2121,10 +2121,10 @@ void npc_armor(CharData *ch) {
 				continue;
 			}
 			act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, where), 0, kToRoom);
-			obj_to_char(unequip_char(ch, where, CharEquipFlag::show_msg), ch);
+			PlaceObjToInventory(UnequipChar(ch, where, CharEquipFlag::show_msg), ch);
 		}
 		//obj_from_char(obj);
-		equip_char(ch, obj, where, CharEquipFlag::show_msg);
+		EquipObj(ch, obj, where, CharEquipFlag::show_msg);
 		break;
 	}
 }
@@ -2140,7 +2140,7 @@ void npc_light(CharData *ch) {
 
 	if ((obj = GET_EQ(ch, EEquipPos::kLight)) && (GET_OBJ_VAL(obj, 2) == 0 || !is_dark(ch->in_room))) {
 		act("$n прекратил$g использовать $o3.", false, ch, obj, 0, kToRoom);
-		obj_to_char(unequip_char(ch, EEquipPos::kLight, CharEquipFlag::show_msg), ch);
+		PlaceObjToInventory(UnequipChar(ch, EEquipPos::kLight, CharEquipFlag::show_msg), ch);
 	}
 
 	if (!GET_EQ(ch, EEquipPos::kLight) && is_dark(ch->in_room)) {
@@ -2151,12 +2151,12 @@ void npc_light(CharData *ch) {
 			}
 			if (GET_OBJ_VAL(obj, 2) == 0) {
 				act("$n выбросил$g $o3.", false, ch, obj, 0, kToRoom);
-				obj_from_char(obj);
-				obj_to_room(obj, ch->in_room);
+				ExtractObjFromChar(obj);
+				PlaceObjToRoom(obj, ch->in_room);
 				continue;
 			}
 			//obj_from_char(obj);
-			equip_char(ch, obj, EEquipPos::kLight, CharEquipFlag::show_msg);
+			EquipObj(ch, obj, EEquipPos::kLight, CharEquipFlag::show_msg);
 			return;
 		}
 	}
@@ -2180,7 +2180,7 @@ int npc_battle_scavenge(CharData *ch) {
 				&& (ObjSystem::is_armor_type(obj)
 					|| GET_OBJ_TYPE(obj) == EObjType::kWeapon)) {
 				obj_from_room(obj);
-				obj_to_char(obj, ch);
+				PlaceObjToInventory(obj, ch);
 				act("$n поднял$g $o3.", false, ch, obj, 0, kToRoom);
 				max = true;
 			}
@@ -2255,8 +2255,8 @@ int do_npc_steal(CharData *ch, CharData *victim) {
 					<= CAN_CARRY_W(ch) && (!best || GET_OBJ_COST(obj) > GET_OBJ_COST(best)))
 					best = obj;
 			if (best) {
-				obj_from_char(best);
-				obj_to_char(best, ch);
+				ExtractObjFromChar(best);
+				PlaceObjToInventory(best, ch);
 				max++;
 			}
 		}
@@ -2678,7 +2678,7 @@ int fido(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 			for (temp = i->get_contains(); temp; temp = next_obj) {
 				next_obj = temp->get_next_content();
 				obj_from_obj(temp);
-				obj_to_room(temp, ch->in_room);
+				PlaceObjToRoom(temp, ch->in_room);
 			}
 			extract_obj(i);
 			return (true);
@@ -2705,7 +2705,7 @@ int janitor(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 
 		act("$n picks up some trash.", false, ch, 0, 0, kToRoom);
 		obj_from_room(i);
-		obj_to_char(i, ch);
+		PlaceObjToInventory(i, ch);
 
 		return true;
 	}
@@ -2809,7 +2809,7 @@ int pet_shops(CharData *ch, void * /*me*/, int cmd, char *argument) {
 			// free(pet->player_data.description); don't free the prototype!
 			pet->player_data.description = str_dup(buf);
 		}
-		char_to_room(pet, ch->in_room);
+		PlaceCharToRoom(pet, ch->in_room);
 		ch->add_follower(pet);
 		load_mtrigger(pet);
 

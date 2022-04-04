@@ -1212,16 +1212,16 @@ int roundup(float fl) {
 void can_carry_obj(CharData *ch, ObjData *obj) {
 	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
 		send_to_char("Вы не можете нести столько предметов.", ch);
-		obj_to_room(obj, ch->in_room);
-		obj_decay(obj);
+		PlaceObjToRoom(obj, ch->in_room);
+		CheckObjDecay(obj);
 	} else {
 		if (GET_OBJ_WEIGHT(obj) + IS_CARRYING_W(ch) > CAN_CARRY_W(ch)) {
 			sprintf(buf, "Вам слишком тяжело нести еще и %s.", obj->get_PName(3).c_str());
 			send_to_char(buf, ch);
-			obj_to_room(obj, ch->in_room);
+			PlaceObjToRoom(obj, ch->in_room);
 			// obj_decay(obj);
 		} else {
-			obj_to_char(obj, ch);
+			PlaceObjToInventory(obj, ch);
 		}
 	}
 }

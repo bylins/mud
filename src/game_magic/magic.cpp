@@ -1049,7 +1049,7 @@ bool material_component_processing(CharData *caster, CharData *victim, int spell
 	act(use, false, caster, tobj, nullptr, kToChar);
 	if (GET_OBJ_VAL(tobj, 2) < 1) {
 		act(exhausted, false, caster, tobj, nullptr, kToChar);
-		obj_from_char(tobj);
+		ExtractObjFromChar(tobj);
 		extract_obj(tobj);
 	}
 	return (false);
@@ -1075,7 +1075,7 @@ bool material_component_processing(CharData *caster, int /*vnum*/, int spellnum)
 	act(use, false, caster, tobj, nullptr, kToChar);
 	if (GET_OBJ_VAL(tobj, 2) < 1) {
 		act(exhausted, false, caster, tobj, nullptr, kToChar);
-		obj_from_char(tobj);
+		ExtractObjFromChar(tobj);
 		extract_obj(tobj);
 	}
 	return (false);
@@ -1216,12 +1216,12 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 				success = false;
 				break;
 			}
-			if (affected_by_spell(victim, kSpellStrength)) {
+			if (IsAffectedBySpell(victim, kSpellStrength)) {
 				affect_from_char(victim, kSpellStrength);
 				success = false;
 				break;
 			}
-			if (affected_by_spell(victim, kSpellDexterity)) {
+			if (IsAffectedBySpell(victim, kSpellDexterity)) {
 				affect_from_char(victim, kSpellDexterity);
 				success = false;
 				break;
@@ -1267,10 +1267,10 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 			break;
 
 		case kSpellAirShield:
-			if (affected_by_spell(victim, kSpellIceShield)) {
+			if (IsAffectedBySpell(victim, kSpellIceShield)) {
 				affect_from_char(victim, kSpellIceShield);
 			}
-			if (affected_by_spell(victim, kSpellFireShield)) {
+			if (IsAffectedBySpell(victim, kSpellFireShield)) {
 				affect_from_char(victim, kSpellFireShield);
 			}
 			af[0].bitvector = to_underlying(EAffect::kAirShield);
@@ -1284,9 +1284,9 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 			break;
 
 		case kSpellFireShield:
-			if (affected_by_spell(victim, kSpellIceShield))
+			if (IsAffectedBySpell(victim, kSpellIceShield))
 				affect_from_char(victim, kSpellIceShield);
-			if (affected_by_spell(victim, kSpellAirShield))
+			if (IsAffectedBySpell(victim, kSpellAirShield))
 				affect_from_char(victim, kSpellAirShield);
 			af[0].bitvector = to_underlying(EAffect::kFireShield);
 			af[0].battleflag = kAfBattledec;
@@ -1299,9 +1299,9 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 			break;
 
 		case kSpellIceShield:
-			if (affected_by_spell(victim, kSpellFireShield))
+			if (IsAffectedBySpell(victim, kSpellFireShield))
 				affect_from_char(victim, kSpellFireShield);
-			if (affected_by_spell(victim, kSpellAirShield))
+			if (IsAffectedBySpell(victim, kSpellAirShield))
 				affect_from_char(victim, kSpellAirShield);
 			af[0].bitvector = to_underlying(EAffect::kIceShield);
 			af[0].battleflag = kAfBattledec;
@@ -1482,7 +1482,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 
 		case kSpellGroupHaste:
 		case kSpellHaste:
-			if (affected_by_spell(victim, kSpellSlowdown)) {
+			if (IsAffectedBySpell(victim, kSpellSlowdown)) {
 				affect_from_char(victim, kSpellSlowdown);
 				success = false;
 				break;
@@ -1508,7 +1508,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 			break;
 
 		case kSpellEnlarge:
-			if (affected_by_spell(victim, kSpellLessening)) {
+			if (IsAffectedBySpell(victim, kSpellLessening)) {
 				affect_from_char(victim, kSpellLessening);
 				success = false;
 				break;
@@ -1523,7 +1523,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 			break;
 
 		case kSpellLessening:
-			if (affected_by_spell(victim, kSpellEnlarge)) {
+			if (IsAffectedBySpell(victim, kSpellEnlarge)) {
 				affect_from_char(victim, kSpellEnlarge);
 				success = false;
 				break;
@@ -1571,7 +1571,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 				send_to_char("Только на себя или одногруппника!\r\n", ch);
 				return 0;
 			}
-			if (affected_by_spell(victim, kSpellSanctuary)) {
+			if (IsAffectedBySpell(victim, kSpellSanctuary)) {
 				affect_from_char(victim, kSpellSanctuary);
 				success = false;
 				break;
@@ -1743,7 +1743,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 				break;
 			}
 
-			if (affected_by_spell(victim, kSpellHaste)) {
+			if (IsAffectedBySpell(victim, kSpellHaste)) {
 				affect_from_char(victim, kSpellHaste);
 				success = false;
 				break;
@@ -1821,7 +1821,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 		case kSpellInvisible:
 			if (!victim)
 				victim = ch;
-			if (affected_by_spell(victim, kSpellGlitterDust)) {
+			if (IsAffectedBySpell(victim, kSpellGlitterDust)) {
 				send_to_char(NOEFFECT, ch);
 				success = false;
 				break;
@@ -1930,7 +1930,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 				send_to_char("Только на себя или одногруппника!\r\n", ch);
 				return 0;
 			}
-			if (affected_by_spell(victim, kSpellPrismaticAura)) {
+			if (IsAffectedBySpell(victim, kSpellPrismaticAura)) {
 				affect_from_char(victim, kSpellPrismaticAura);
 				success = false;
 				break;
@@ -1975,7 +1975,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 
 		case kSpellGroupStrength:
 		case kSpellStrength:
-			if (affected_by_spell(victim, kSpellWeaknes)) {
+			if (IsAffectedBySpell(victim, kSpellWeaknes)) {
 				affect_from_char(victim, kSpellWeaknes);
 				success = false;
 				break;
@@ -1995,7 +1995,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 			break;
 
 		case kSpellDexterity:
-			if (affected_by_spell(victim, kSpellWeaknes)) {
+			if (IsAffectedBySpell(victim, kSpellWeaknes)) {
 				affect_from_char(victim, kSpellWeaknes);
 				success = false;
 				break;
@@ -2323,7 +2323,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 					if ((victim->is_npc()
 						&& AFF_FLAGGED(victim, static_cast<EAffect>(af[0].bitvector)))
 						|| (ch != victim
-							&& affected_by_spell(victim, kSpellDeafness))) {
+							&& IsAffectedBySpell(victim, kSpellDeafness))) {
 						if (ch->in_room == IN_ROOM(victim))
 							send_to_char(NOEFFECT, ch);
 					} else {
@@ -2486,13 +2486,13 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 				break;
 			}
 
-			if (affected_by_spell(victim, kSpellInvisible)) {
+			if (IsAffectedBySpell(victim, kSpellInvisible)) {
 				affect_from_char(victim, kSpellInvisible);
 			}
-			if (affected_by_spell(victim, kSpellCamouflage)) {
+			if (IsAffectedBySpell(victim, kSpellCamouflage)) {
 				affect_from_char(victim, kSpellCamouflage);
 			}
-			if (affected_by_spell(victim, kSpellHide)) {
+			if (IsAffectedBySpell(victim, kSpellHide)) {
 				affect_from_char(victim, kSpellHide);
 			}
 			af[0].location = EApply::kSavingReflex;
@@ -2835,11 +2835,11 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 		}
 	}
 	// позитивные аффекты - продлеваем, если они уже на цели
-	if (!spell_info[spellnum].violent && affected_by_spell(victim, spellnum) && success) {
+	if (!spell_info[spellnum].violent && IsAffectedBySpell(victim, spellnum) && success) {
 		update_spell = true;
 	}
 	// вот такой оригинальный способ запретить рекасты негативных аффектов - через флаг апдейта
-	if ((ch != victim) && affected_by_spell(victim, spellnum) && success && (!update_spell)) {
+	if ((ch != victim) && IsAffectedBySpell(victim, spellnum) && success && (!update_spell)) {
 		if (ch->in_room == IN_ROOM(victim))
 			send_to_char(NOEFFECT, ch);
 		success = false;
@@ -2850,7 +2850,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 		if (af[i].bitvector || af[i].location != EApply::kNone) {
 			af[i].duration = complex_spell_modifier(ch, spellnum, GAPPLY_SPELL_EFFECT, af[i].duration);
 			if (update_spell)
-				affect_join_fspell(victim, af[i]);
+				ImposeAffect(victim, af[i]);
 			else
 				affect_join(victim, af[i], accum_duration, false, accum_affect, false);
 		}
@@ -3225,7 +3225,7 @@ int mag_summons(int level, CharData *ch, ObjData *obj, int spellnum, int savetyp
 	}
 	act(mag_summon_msgs[msg], false, ch, nullptr, mob, kToRoom | kToArenaListen);
 
-	char_to_room(mob, ch->in_room);
+	PlaceCharToRoom(mob, ch->in_room);
 	ch->add_follower(mob);
 
 	if (spellnum == kSpellClone) {
@@ -3315,8 +3315,8 @@ int mag_summons(int level, CharData *ch, ObjData *obj, int spellnum, int savetyp
 		for (tobj = obj->get_contains(); tobj;) {
 			next_obj = tobj->get_next_content();
 			obj_from_obj(tobj);
-			obj_to_room(tobj, ch->in_room);
-			if (!obj_decay(tobj) && tobj->get_in_room() != kNowhere) {
+			PlaceObjToRoom(tobj, ch->in_room);
+			if (!CheckObjDecay(tobj) && tobj->get_in_room() != kNowhere) {
 				act("На земле остал$U лежать $o.", false, ch, tobj, nullptr, kToRoom | kToArenaListen);
 			}
 			tobj = next_obj;
@@ -3503,18 +3503,18 @@ int CastUnaffects(int/* level*/, CharData *ch, CharData *victim, int spellnum, E
 			return 0;
 	}
 
-	if (spellnum == kSpellRemovePoison && !affected_by_spell(victim, spell)) {
-		if (affected_by_spell(victim, kSpellAconitumPoison))
+	if (spellnum == kSpellRemovePoison && !IsAffectedBySpell(victim, spell)) {
+		if (IsAffectedBySpell(victim, kSpellAconitumPoison))
 			spell = kSpellAconitumPoison;
-		else if (affected_by_spell(victim, kSpellScopolaPoison))
+		else if (IsAffectedBySpell(victim, kSpellScopolaPoison))
 			spell = kSpellScopolaPoison;
-		else if (affected_by_spell(victim, kSpellBelenaPoison))
+		else if (IsAffectedBySpell(victim, kSpellBelenaPoison))
 			spell = kSpellBelenaPoison;
-		else if (affected_by_spell(victim, kSpellDaturaPoison))
+		else if (IsAffectedBySpell(victim, kSpellDaturaPoison))
 			spell = kSpellDaturaPoison;
 	}
 
-	if (!affected_by_spell(victim, spell)) {
+	if (!IsAffectedBySpell(victim, spell)) {
 		if (spellnum != kSpellHeal)    // 'cure blindness' message.
 			send_to_char(NOEFFECT, ch);
 		return 0;
@@ -3777,14 +3777,14 @@ int CastCreation(int/* level*/, CharData *ch, int spellnum) {
 
 	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
 		send_to_char("Вы не сможете унести столько предметов.\r\n", ch);
-		obj_to_room(tobj.get(), ch->in_room);
-		obj_decay(tobj.get());
+		PlaceObjToRoom(tobj.get(), ch->in_room);
+		CheckObjDecay(tobj.get());
 	} else if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(tobj) > CAN_CARRY_W(ch)) {
 		send_to_char("Вы не сможете унести такой вес.\r\n", ch);
-		obj_to_room(tobj.get(), ch->in_room);
-		obj_decay(tobj.get());
+		PlaceObjToRoom(tobj.get(), ch->in_room);
+		CheckObjDecay(tobj.get());
 	} else {
-		obj_to_char(tobj.get(), ch);
+		PlaceObjToInventory(tobj.get(), ch);
 	}
 
 	return 1;

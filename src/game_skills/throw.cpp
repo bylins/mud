@@ -102,16 +102,16 @@ void PerformWeaponThrow(AbilitySystem::TechniqueRoll &technique, Damage &damage)
 			damage.flags.set(fight::kCritHit);
 		};
 		if (IsTimed(technique.GetActor(), EFeat::kShadowThrower)) {
-			decreaseFeatTimer(technique.GetActor(), EFeat::kShadowThrower);
+			DecreaseFeatTimer(technique.GetActor(), EFeat::kShadowThrower);
 		};
 		if (technique.GetAbilityId() == EFeat::kShadowThrower) {
 			PerformShadowThrowSideAbilities(technique);
 		};
 	} else {
 		if (technique.IsCriticalFail()) {
-			ObjData *weapon = unequip_char(technique.GetActor(), technique.GetWeaponEquipPosition(), CharEquipFlags());
+			ObjData *weapon = UnequipChar(technique.GetActor(), technique.GetWeaponEquipPosition(), CharEquipFlags());
 			if (weapon) {
-				obj_to_char(weapon, technique.GetActor());
+				PlaceObjToInventory(weapon, technique.GetActor());
 				send_to_char(technique.GetActor(), "&BВы выронили %s!&n\r\n", GET_OBJ_PNAME(weapon, 3).c_str());
 			};
 		};

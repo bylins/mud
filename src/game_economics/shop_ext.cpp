@@ -476,7 +476,7 @@ void town_shop_keepers() {
 			if (get_zone_rooms(world[ch->in_room]->zone_rn, &rnum_start, &rnum_end)) {
 				CharData *mob = read_mobile(1901, VIRTUAL);
 				if (mob) {
-					char_to_room(mob, number(rnum_start, rnum_end));
+					PlaceCharToRoom(mob, number(rnum_start, rnum_end));
 				}
 			}
 			zone_list.insert(world[ch->in_room]->zone_rn);

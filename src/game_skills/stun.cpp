@@ -58,7 +58,7 @@ void go_stun(CharData *ch, CharData *vict) {
 		ImproveSkill(ch, ESkill::kStun, true, vict);
 		timed.skill = ESkill::kStun;
 		timed.time = 7;
-		timed_to_char(ch, &timed);
+		ImposeTimedSkill(ch, &timed);
 		act("У вас не получилось ошеломить $N3, надо больше тренироваться!",
 			false, ch, nullptr, vict, kToChar);
 		act("$N3 попытал$U ошеломить вас, но не получилось.",
@@ -71,7 +71,7 @@ void go_stun(CharData *ch, CharData *vict) {
 
 	timed.skill = ESkill::kStun;
 	timed.time = std::clamp(7 - (GET_SKILL(ch, ESkill::kStun) - 150) / 10, 2, 7);
-	timed_to_char(ch, &timed);
+	ImposeTimedSkill(ch, &timed);
 	//weap_weight = GET_EQ(ch, WEAR_BOTHS)?  GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS)) : GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD));
 	//float num = MIN(95, (pow(GET_SKILL(ch, ESkill::kStun), 2) + pow(weap_weight, 2) + pow(GET_REAL_STR(ch), 2)) /
 	//(pow(GET_REAL_DEX(vict), 2) + (GET_REAL_CON(vict) - GET_SAVE(vict, kStability)) * 30.0));

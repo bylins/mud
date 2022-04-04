@@ -201,8 +201,8 @@ void CharData::reset() {
 		GET_MOVE(this) = 1;
 	}
 
-	GET_CASTER(this) = 0;
-	GET_DAMAGE(this) = 0;
+	this->caster_level = 0;
+	this->damage_level = 0;
 
 	PlayerI::reset();
 }
@@ -258,7 +258,7 @@ void CharData::affect_remove(const char_affects_list_t::iterator &affect_i) {
 	affected.erase(affect_i);
 
 	affect_total(this);
-	check_light(this, kLightUndef, was_lgt, was_hlgt, was_hdrk, 1);
+	CheckLight(this, kLightUndef, was_lgt, was_hlgt, was_hdrk, 1);
 }
 
 bool CharData::has_any_affect(const affects_list_t &affects) {
@@ -440,7 +440,7 @@ void CharData::purge() {
 	}
 
 	while (this->timed) {
-		timed_from_char(this, this->timed);
+		ExpireTimedSkill(this, this->timed);
 	}
 
 	Celebrates::remove_from_mob_lists(this->id);
@@ -1857,7 +1857,7 @@ void CharData::restore_mob() {
 	for (int i = 0; i <= kSpellCount; ++i) {
 		GET_SPELL_MEM(this, i) = GET_SPELL_MEM(&mob_proto[GET_MOB_RNUM(this)], i);
 	}
-	GET_CASTER(this) = GET_CASTER(&mob_proto[GET_MOB_RNUM(this)]);
+	this->caster_level = (&mob_proto[GET_MOB_RNUM(this)])->caster_level;
 }
 // Кудояр 
 void CharData::restore_npc() {
@@ -1930,7 +1930,7 @@ void CharData::restore_npc() {
 				UNSET_FEAT(this, i);
 			}
 	}
-	GET_CASTER(this) = GET_CASTER(proto);
+	this->caster_level = proto->caster_level;
 }
 
 void CharData::report_loop_error(const CharData::ptr_t master) const {

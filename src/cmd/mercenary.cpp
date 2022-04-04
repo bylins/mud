@@ -104,7 +104,7 @@ void doBring(CharData *ch, CharData *boss, unsigned int pos, char *bank) {
 			return;
 		}
 		mob = read_mobile(rnum, REAL);
-		char_to_room(mob, ch->in_room);
+		PlaceCharToRoom(mob, ch->in_room);
 		if (ch->get_class() == kCharmer) {
 			act("$n окрикнул$g своих парней и скрыл$u из виду.", true, boss, 0, 0, kToRoom);
 			act("Спустя некоторое время, взмыленная ватага вернулась, волоча на аркане $n3.", true, mob, 0, 0, kToRoom);

@@ -685,7 +685,7 @@ void beat_points_update(int pulse) {
 				int spellnum;
 				spellnum = MemQ_learn(i);
 				GET_SPELL_MEM(i, spellnum)++;
-				GET_CASTER(i) += spell_info[spellnum].danger;
+				i->caster_level += spell_info[spellnum].danger;
 			}
 
 			if (i->mem_queue.Empty()) {
@@ -995,13 +995,13 @@ void check_idling(CharData *ch) {
 				send_to_char("Вы пропали в пустоте этого мира.\r\n", ch);
 
 				Crash_crashsave(ch);
-				char_from_room(ch);
-				char_to_room(ch, STRANGE_ROOM);
+				ExtractCharFromRoom(ch);
+				PlaceCharToRoom(ch, STRANGE_ROOM);
 				remove_rune_label(ch);
 			} else if (ch->char_specials.timer > idle_rent_time) {
 				if (ch->in_room != kNowhere)
-					char_from_room(ch);
-				char_to_room(ch, STRANGE_ROOM);
+					ExtractCharFromRoom(ch);
+				PlaceCharToRoom(ch, STRANGE_ROOM);
 				Crash_idlesave(ch);
 				Depot::exit_char(ch);
 				Clan::clan_invoice(ch, false);
@@ -1374,9 +1374,9 @@ void obj_point_update() {
 					if (j->get_in_obj()) {
 						obj_to_obj(jj, j->get_in_obj());
 					} else if (j->get_carried_by()) {
-						obj_to_char(jj, j->get_carried_by());
+						PlaceObjToInventory(jj, j->get_carried_by());
 					} else if (j->get_in_room() != kNowhere) {
-						obj_to_room(jj, j->get_in_room());
+						PlaceObjToRoom(jj, j->get_in_room());
 					} else {
 						log("SYSERR: extract %s from %s to kNothing !!!",
 							jj->get_PName(0).c_str(), j->get_PName(0).c_str());
@@ -1388,7 +1388,7 @@ void obj_point_update() {
 				// Конец Ладник
 				if (j->get_carried_by()) {
 					act("$p рассыпал$U в ваших руках.", false, j->get_carried_by(), j.get(), 0, kToChar);
-					obj_from_char(j.get());
+					ExtractObjFromChar(j.get());
 				} else if (j->get_in_room() != kNowhere) {
 					if (!world[j->get_in_room()]->people.empty()) {
 						act("Черви полностью сожрали $o3.",
@@ -1441,11 +1441,11 @@ void obj_point_update() {
 					if (j->get_in_obj()) {
 						obj_to_obj(jj, j->get_in_obj());
 					} else if (j->get_worn_by()) {
-						obj_to_char(jj, j->get_worn_by());
+						PlaceObjToInventory(jj, j->get_worn_by());
 					} else if (j->get_carried_by()) {
-						obj_to_char(jj, j->get_carried_by());
+						PlaceObjToInventory(jj, j->get_carried_by());
 					} else if (j->get_in_room() != kNowhere) {
-						obj_to_room(jj, j->get_in_room());
+						PlaceObjToRoom(jj, j->get_in_room());
 					} else {
 						log("SYSERR: extract %s from %s to kNothing !!!",
 							jj->get_PName(0).c_str(),
@@ -1482,7 +1482,7 @@ void obj_point_update() {
 							}
 							break;
 					}
-					unequip_char(j->get_worn_by(), j->get_worn_on(), CharEquipFlags());
+					UnequipChar(j->get_worn_by(), j->get_worn_on(), CharEquipFlags());
 				} else if (j->get_carried_by()) {
 					if (IS_CHARMICE(j->get_carried_by())) {
 						charmee_obj_decay_tell(j->get_carried_by(), j.get(), 0);
@@ -1491,7 +1491,7 @@ void obj_point_update() {
 								 char_get_custom_label(j.get(), j->get_carried_by()).c_str());
 						act(buf, false, j->get_carried_by(), j.get(), 0, kToChar);
 					}
-					obj_from_char(j.get());
+					ExtractObjFromChar(j.get());
 				} else if (j->get_in_room() != kNowhere) {
 					if (j->get_timer() <= 0 && j->has_flag(EObjFlag::kNodecay)) {
 						snprintf(buf, kMaxStringLength, "ВНИМАНИЕ!!! Объект: %s VNUM: %d рассыпался по таймеру на земле в комнате: %d",
@@ -1551,7 +1551,7 @@ void obj_point_update() {
 
 	// Тонущие, падающие, и сыпящиеся обьекты.
 	world_objects.foreach_on_copy([&](const ObjData::shared_ptr &j) {
-		obj_decay(j.get());
+		CheckObjDecay(j.get());
 	});
 }
 
@@ -1694,7 +1694,7 @@ void point_update() {
 						if (GET_SPELL_MEM(mob_proto + mob_num, spellnum) > GET_SPELL_MEM(i, spellnum)) {
 							GET_SPELL_MEM(i, spellnum)++;
 							mana += ((spell_info[spellnum].mana_max + spell_info[spellnum].mana_min) / 2);
-							GET_CASTER(i) += (IS_SET(spell_info[spellnum].routines, NPC_CALCULATE) ? 1 : 0);
+							i->caster_level += (IS_SET(spell_info[spellnum].routines, NPC_CALCULATE) ? 1 : 0);
 						}
 
 						++count;

@@ -99,7 +99,7 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (!IS_IMMORTAL(ch)) {
 			if (!CHECK_WAIT(ch))
 				WAIT_STATE(ch, kPulseViolence);
-			timed_to_char(ch, &timed);
+			ImposeTimedSkill(ch, &timed);
 			GET_MOVE(ch) -= spell_info[spellnum].mana_max;
 		}
 		TrainSkill(ch, ESkill::kWarcry, true, nullptr);

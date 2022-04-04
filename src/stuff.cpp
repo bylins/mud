@@ -334,12 +334,12 @@ void obj_to_corpse(ObjData *corpse, CharData *ch, int rnum, bool setload) {
 	}
 	o->set_vnum_zone_from(99999);
 	if (MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
-		obj_to_room(o.get(), ch->in_room);
+		PlaceObjToRoom(o.get(), ch->in_room);
 	} else {
 		obj_to_obj(o.get(), corpse);
 	}
 
-	if (!obj_decay(o.get())) {
+	if (!CheckObjDecay(o.get())) {
 		if (o->get_in_room() != kNowhere) {
 			act("На земле остал$U лежать $o.", false, ch, o.get(), 0, kToRoom);
 		}
@@ -555,7 +555,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 		break;
 	}
 	// одеваем шмотки
-	equip_char(ch, obj.get(), position, CharEquipFlags());
+	EquipObj(ch, obj.get(), position, CharEquipFlags());
 }
 
 

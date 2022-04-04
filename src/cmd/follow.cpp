@@ -67,7 +67,7 @@ bool stop_follower(CharData *ch, int mode) {
 	if (AFF_FLAGGED(ch, EAffect::kCharmed)
 		|| AFF_FLAGGED(ch, EAffect::kHelper)
 		|| IS_SET(mode, kSfCharmlost)) {
-		if (affected_by_spell(ch, kSpellCharm)) {
+		if (IsAffectedBySpell(ch, kSpellCharm)) {
 			affect_from_char(ch, kSpellCharm);
 		}
 		ch->extract_timer = 5;
@@ -96,8 +96,8 @@ bool stop_follower(CharData *ch, int mode) {
 			// сначало бросаем лишнее
 				while (ch->carrying) {
 						ObjData *obj = ch->carrying;
-							obj_from_char(obj);
-							obj_to_room(obj, ch->in_room);
+					ExtractObjFromChar(obj);
+					PlaceObjToRoom(obj, ch->in_room);
 					}
 			
 			for (int i = 0; i < EEquipPos::kNumEquipPos; i++) { // убираем что одето
@@ -105,7 +105,7 @@ bool stop_follower(CharData *ch, int mode) {
 					if (!remove_otrigger(GET_EQ(ch, i), ch)) {
 						continue;
 					}
-					obj_to_char(unequip_char(ch, i, CharEquipFlag::show_msg), ch);
+					PlaceObjToInventory(UnequipChar(ch, i, CharEquipFlag::show_msg), ch);
 					//extract_obj(tmp);
 					while (ch->carrying) {
 						ObjData *obj = ch->carrying;

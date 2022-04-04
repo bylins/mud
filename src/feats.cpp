@@ -991,7 +991,7 @@ void CheckBerserk(CharData *ch) {
 	struct TimedFeat timed;
 	int prob;
 
-	if (affected_by_spell(ch, kSpellBerserk) &&
+	if (IsAffectedBySpell(ch, kSpellBerserk) &&
 		(GET_HIT(ch) > GET_REAL_MAX_HIT(ch) / 2)) {
 		affect_from_char(ch, kSpellBerserk);
 		send_to_char("Предсмертное исступление оставило вас.\r\n", ch);
@@ -1041,7 +1041,7 @@ void do_lightwalk(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 		return;
 	}
 
-	if (affected_by_spell(ch, kSpellLightWalk)) {
+	if (IsAffectedBySpell(ch, kSpellLightWalk)) {
 		send_to_char("Вы уже двигаетесь легким шагом.\r\n", ch);
 		return;
 	}
@@ -1178,7 +1178,7 @@ void do_fit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 // Вложить закл в клона
 void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
-	using PlayerClass::slot_for_char;
+	using PlayerClass::CalcCircleSlotsAmount;
 
 	struct TimedFeat timed;
 
@@ -1225,7 +1225,7 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		(GetRealLevel(ch) < kLvlGreatGod) && (!ch->is_npc())) {
 		if (GetRealLevel(ch) < MIN_CAST_LEV(SpINFO, ch)
 			|| GET_REAL_REMORT(ch) < MIN_CAST_REM(SpINFO, ch)
-			|| slot_for_char(ch, SpINFO.slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0) {
+			|| CalcCircleSlotsAmount(ch, SpINFO.slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0) {
 			send_to_char("Рано еще вам бросаться такими словами!\r\n", ch);
 			return;
 		} else {
@@ -1245,7 +1245,7 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		if (AFF_FLAGGED(k->ch, EAffect::kCharmed)
 			&& k->ch->get_master() == ch
 			&& MOB_FLAGGED(k->ch, EMobFlag::kClone)
-			&& !affected_by_spell(k->ch, kSpellCapable)
+			&& !IsAffectedBySpell(k->ch, kSpellCapable)
 			&& ch->in_room == IN_ROOM(k->ch)) {
 			follower = k->ch;
 			break;

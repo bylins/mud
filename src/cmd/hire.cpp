@@ -312,7 +312,7 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 					act("Вы прекратили использовать $o3.", false, helpee, GET_EQ(helpee, i), 0, kToChar);
 					act("$n прекратил$g использовать $o3.", true, helpee, GET_EQ(helpee, i), 0, kToRoom);
-					obj_to_char(unequip_char(helpee, i, CharEquipFlag::show_msg), helpee);
+					PlaceObjToInventory(UnequipChar(helpee, i, CharEquipFlag::show_msg), helpee);
 				}
 			}
 

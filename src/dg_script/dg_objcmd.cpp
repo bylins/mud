@@ -320,7 +320,7 @@ void do_otransform(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (obj->get_worn_by()) {
 			pos = obj->get_worn_on();
 			wearer = obj->get_worn_by();
-			unequip_char(obj->get_worn_by(), pos, CharEquipFlags());
+			UnequipChar(obj->get_worn_by(), pos, CharEquipFlags());
 		}
 
 		obj->swap(*o);
@@ -330,7 +330,7 @@ void do_otransform(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		if (wearer) {
-			equip_char(wearer, obj, pos, CharEquipFlags());
+			EquipObj(wearer, obj, pos, CharEquipFlags());
 		}
 		extract_obj(o.get());
 	}
@@ -404,8 +404,8 @@ void do_oteleport(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 				obj_log(obj, "oteleport transports from kNowhere");
 				return;
 			}
-			char_from_room(ch);
-			char_to_room(ch, target);
+			ExtractCharFromRoom(ch);
+			PlaceCharToRoom(ch, target);
 			ch->dismount();
 			look_at_room(ch, true);
 		}
@@ -430,8 +430,8 @@ void do_oteleport(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			if (ch->is_npc() && !IS_CHARMICE(ch))
 				continue;
-			char_from_room(ch);
-			char_to_room(ch, target);
+			ExtractCharFromRoom(ch);
+			PlaceCharToRoom(ch, target);
 			ch->dismount();
 			look_at_room(ch, true);
 		}
@@ -450,17 +450,17 @@ void do_oteleport(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		const auto people_copy = world[ch->in_room]->people;
 		for (const auto charmee: people_copy) {
 			if (IS_CHARMICE(charmee) && charmee->get_master() == ch) {
-				char_from_room(charmee);
-				char_to_room(charmee, target);
+				ExtractCharFromRoom(charmee);
+				PlaceCharToRoom(charmee, target);
 			}
 		}
 		if (!str_cmp(argument, "horse")
 			&& horse) {
-			char_from_room(horse);
-			char_to_room(horse, target);
+			ExtractCharFromRoom(horse);
+			PlaceCharToRoom(horse, target);
 		}
-		char_from_room(ch);
-		char_to_room(ch, target);
+		ExtractCharFromRoom(ch);
+		PlaceCharToRoom(ch, target);
 		ch->dismount();
 		look_at_room(ch, true);
 		greet_mtrigger(ch, -1);
@@ -490,7 +490,7 @@ void do_dgoload(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 			obj_log(obj, "oload: bad mob vnum");
 			return;
 		}
-		char_to_room(mob, room);
+		PlaceCharToRoom(mob, room);
 		load_mtrigger(mob);
 	} else if (utils::IsAbbrev(arg1, "obj")) {
 		const auto object = world_objects.create_from_prototype_by_vnum(number);
@@ -510,7 +510,7 @@ void do_dgoload(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 		log("Load obj #%d by %s (oload)", number, obj->get_aliases().c_str());
 		object->set_vnum_zone_from(zone_table[world[room]->zone_rn].vnum);
-		obj_to_room(object.get(), room);
+		PlaceObjToRoom(object.get(), room);
 		load_otrigger(object.get());
 	} else {
 		obj_log(obj, "oload: bad type");

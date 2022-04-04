@@ -271,8 +271,8 @@ bool stone_rebirth(CharData *ch, CharData *killer) {
 				if (j->get_vnum() == 1000) { // камень возрождения
 					send_to_char("Божественная сила спасла вашу жизнь!\r\n", ch);
 //					enter_wtrigger(world[rnum_start], ch, -1);
-					char_from_room(ch);
-					char_to_room(ch, rnum_start);
+					ExtractCharFromRoom(ch);
+					PlaceCharToRoom(ch, rnum_start);
 					ch->dismount();
 					GET_HIT(ch) = 1;
 					update_pos(ch);
@@ -320,8 +320,8 @@ bool check_tester_death(CharData *ch, CharData *killer) {
 	}
 //	enter_wtrigger(world[rent_room], ch, -1);
 	send_to_char("Божественная сила спасла вашу жизнь.!\r\n", ch);
-	char_from_room(ch);
-	char_to_room(ch, rent_room);
+	ExtractCharFromRoom(ch);
+	PlaceCharToRoom(ch, rent_room);
 	ch->dismount();
 	GET_HIT(ch) = 1;
 	update_pos(ch);
@@ -361,8 +361,8 @@ void die(CharData *ch, CharData *killer) {
 //		sprintf(buf, "Вы погибли смертью глупых в бою! Боги возродили вас, но вы пока не можете двигаться\r\n");
 //		send_to_char(buf, ch);  // все мессаги писать в грит триггере
 //		enter_wtrigger(world[real_room(75989)], ch, -1);
-		char_from_room(ch);
-		char_to_room(ch, real_room(75989));
+		ExtractCharFromRoom(ch);
+		PlaceCharToRoom(ch, real_room(75989));
 		ch->dismount();
 		GET_HIT(ch) = 1;
 		update_pos(ch);
@@ -412,13 +412,13 @@ void die(CharData *ch, CharData *killer) {
 
 #include "game_classes/classes_spell_slots.h"
 void forget_all_spells(CharData *ch) {
-	using PlayerClass::slot_for_char;
+	using PlayerClass::CalcCircleSlotsAmount;
 
 	ch->mem_queue.stored = 0;
 	int slots[kMaxSlot];
 	int max_slot = 0;
 	for (unsigned i = 0; i < kMaxSlot; ++i) {
-		slots[i] = slot_for_char(ch, i + 1);
+		slots[i] = CalcCircleSlotsAmount(ch, i + 1);
 		if (slots[i]) max_slot = i + 1;
 	}
 	struct SpellMemQueueItem *qi_cur, **qi = &ch->mem_queue.queue;
@@ -508,7 +508,7 @@ void arena_kill(CharData *ch, CharData *killer) {
 	GET_POS(ch) = EPosition::kSit;
 	int to_room = real_room(GET_LOADROOM(ch));
 	// тут придется ручками тащить чара за ворота, если ему в замке не рады
-	if (!Clan::MayEnter(ch, to_room, HCE_PORTAL)) {
+	if (!Clan::MayEnter(ch, to_room, kHousePortal)) {
 		to_room = Clan::CloseRent(to_room);
 	}
 	if (to_room == kNowhere) {
@@ -518,8 +518,8 @@ void arena_kill(CharData *ch, CharData *killer) {
 	}
 	for (Follower *f = ch->followers; f; f = f->next) {
 		if (IS_CHARMICE(f->ch)) {
-			char_from_room(f->ch);
-			char_to_room(f->ch, to_room);
+			ExtractCharFromRoom(f->ch);
+			PlaceCharToRoom(f->ch, to_room);
 		}
 	}
 	for (int i=0; i < MAX_FIRSTAID_REMOVE; i++) {
@@ -531,8 +531,8 @@ void arena_kill(CharData *ch, CharData *killer) {
 	affect_from_char(ch, kSpellScopolaPoison);
 	affect_from_char(ch, kSpellBelenaPoison);
 
-	char_from_room(ch);
-	char_to_room(ch, to_room);
+	ExtractCharFromRoom(ch);
+	PlaceCharToRoom(ch, to_room);
 	look_at_room(ch, to_room);
 	act("$n со стонами упал$g с небес...", false, ch, nullptr, nullptr, kToRoom);
 	enter_wtrigger(world[ch->in_room], ch, -1);
@@ -599,7 +599,7 @@ void check_spell_capable(CharData *ch, CharData *killer) {
 		&& killer != ch
 		&& MOB_FLAGGED(ch, EMobFlag::kClone)
 		&& ch->has_master()
-		&& affected_by_spell(ch, kSpellCapable)) {
+		&& IsAffectedBySpell(ch, kSpellCapable)) {
 		affect_from_char(ch, kSpellCapable);
 		act("Чары, наложенные на $n3, тускло засветились и стали превращаться в нечто опасное.",
 			false, ch, nullptr, killer, kToRoom | kToArenaListen);

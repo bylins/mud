@@ -591,8 +591,6 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_AR(ch)        ((ch)->add_abils.aresist)
 #define GET_MR(ch)        ((ch)->add_abils.mresist)
 #define GET_PR(ch)        ((ch)->add_abils.presist) // added by WorM (Видолюб) поглощение физ.урона в %
-#define GET_CASTER(ch)    ((ch)->caster_level)
-#define GET_DAMAGE(ch)    ((ch)->damage_level)
 #define GET_LIKES(ch)     ((ch)->mob_specials.LikeWork)
 
 #define GET_REAL_SAVING_STABILITY(ch)	(dex_bonus(GET_REAL_CON(ch)) - GET_SAVE(ch, ESaving::kStability) + ((ch)->ahorse() ? 20 : 0))

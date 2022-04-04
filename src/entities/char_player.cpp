@@ -420,7 +420,7 @@ void Player::save_char() {
 	// снимаем все возможные аффекты
 	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
 		if (GET_EQ(this, i)) {
-			char_eq[i] = unequip_char(this, i, CharEquipFlag::skip_total);
+			char_eq[i] = UnequipChar(this, i, CharEquipFlag::skip_total);
 #ifndef NO_EXTRANEOUS_TRIGGERS
 			remove_otrigger(char_eq[i], this);
 #endif
@@ -927,7 +927,7 @@ void Player::save_char() {
 #ifndef NO_EXTRANEOUS_TRIGGERS
 			if (wear_otrigger(char_eq[i], this, i))
 #endif
-			equip_char(this, char_eq[i], i, CharEquipFlag::no_cast | CharEquipFlag::skip_total);
+			EquipObj(this, char_eq[i], i, CharEquipFlag::no_cast | CharEquipFlag::skip_total);
 #ifndef NO_EXTRANEOUS_TRIGGERS
 			else
 				obj_to_char(char_eq[i], this);
@@ -1778,7 +1778,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 						if (num != 0) {
 							timed.skill = static_cast<ESkill>(num);
 							timed.time = num2;
-							timed_to_char(this, &timed);
+							ImposeTimedSkill(this, &timed);
 						}
 					} while (num != 0);
 				} else if (!strcmp(tag, "Spel")) {

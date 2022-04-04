@@ -97,12 +97,12 @@ void do_employ(CharData *ch, char *argument, int cmd, int subcmd) {
 		if (GET_EQ(ch, do_hold)) {
 			act("Вы прекратили использовать $o3.", false, ch, GET_EQ(ch, do_hold), 0, kToChar);
 			act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, do_hold), 0, kToRoom | kToArenaListen);
-			obj_to_char(unequip_char(ch, do_hold, CharEquipFlags()), ch);
+			PlaceObjToInventory(UnequipChar(ch, do_hold, CharEquipFlags()), ch);
 		}
 		if (GET_EQ(ch, EEquipPos::kHold))
-			obj_to_char(unequip_char(ch, EEquipPos::kHold, CharEquipFlags()), ch);
+			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kHold, CharEquipFlags()), ch);
 		//obj_from_char(mag_item);
-		equip_char(ch, mag_item, EEquipPos::kHold, CharEquipFlags());
+		EquipObj(ch, mag_item, EEquipPos::kHold, CharEquipFlags());
 	}
 	if ((do_hold && GET_EQ(ch, EEquipPos::kHold) == mag_item) || (!do_hold))
 		EmployMagicItem(ch, mag_item, buf_temp);

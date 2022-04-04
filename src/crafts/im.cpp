@@ -927,7 +927,7 @@ void im_reset_room(RoomData *room, int level, int type) {
 				pow = lev - after->power < before->power - lev ? after->power : before->power;
 			o = load_ingredient(indx, pow, -1);
 			if (o)
-				obj_to_room(o, real_room(room->room_vn));
+				PlaceObjToRoom(o, real_room(room->room_vn));
 		}
 	}
 }
@@ -1513,7 +1513,7 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 				default: break;
 			}
-			obj_to_char(result.get(), ch);
+			PlaceObjToInventory(result.get(), ch);
 		}
 	}
 

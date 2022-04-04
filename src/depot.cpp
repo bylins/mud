@@ -463,7 +463,7 @@ void load_chests() {
 				return;
 			}
 
-			obj_to_room(pers_chest.get(), ch->in_room);
+			PlaceObjToRoom(pers_chest.get(), ch->in_room);
 		}
 	}
 }
@@ -820,7 +820,7 @@ std::string print_obj_list(CharData *ch, ObjListType &cont) {
 		if (prev_obj_it == cont.cend()) {
 			prev_obj_it = obj_it;
 			count = 1;
-		} else if (!equal_obj(obj_it->get(), prev_obj_it->get())) {
+		} else if (!IsObjsStackable(obj_it->get(), prev_obj_it->get())) {
 			print_obj(i_out, s_out, prev_obj_it->get(), count, ch);
 			prev_obj_it = obj_it;
 			count = 1;
@@ -924,7 +924,7 @@ void put_gold_chest(CharData *ch, const ObjData::shared_ptr &obj) {
 	}
 	long gold = GET_OBJ_VAL(obj, 0);
 	ch->add_bank(gold);
-	obj_from_char(obj.get());
+	ExtractObjFromChar(obj.get());
 	extract_obj(obj.get());
 	send_to_char(ch, "Вы вложили %ld %s.\r\n", gold, GetDeclensionInNumber(gold, EWhat::kMoneyU));
 }
@@ -1032,7 +1032,7 @@ bool put_depot(CharData *ch, const ObjData::shared_ptr &obj) {
 	act("Вы положили $o3 в персональное хранилище.", false, ch, obj.get(), 0, kToChar);
 	act("$n положил$g $o3 в персональное хранилище.", true, ch, obj.get(), 0, kToRoom);
 
-	obj_from_char(obj.get());
+	ExtractObjFromChar(obj.get());
 	check_auction(nullptr, obj.get());
 	world_objects.remove(obj);
 	ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PERS_CHEST_SAVE);
@@ -1074,7 +1074,7 @@ void CharNode::remove_item(ObjListType::iterator &obj_it, ObjListType &cont, Cha
 			  GET_OBJ_UID(obj_it->get()),
 			  GET_OBJ_VNUM(obj_it->get()));
 	world_objects.add(*obj_it);
-	obj_to_char(obj_it->get(), vict);
+	PlaceObjToInventory(obj_it->get(), vict);
 	act("Вы взяли $o3 из персонального хранилища.", false, vict, obj_it->get(), 0, kToChar);
 	act("$n взял$g $o3 из персонального хранилища.", true, vict, obj_it->get(), 0, kToRoom);
 	cont.erase(obj_it++);

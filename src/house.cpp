@@ -64,7 +64,7 @@ void fix_ingr_chest_rnum(const int room_rnum)//Нужно чтоб позици�
 }
 namespace {
 
-long long clan_level_exp[MAX_CLANLEVEL + 1] =
+long long clan_level_exp[kMaxClanlevel + 1] =
 	{
 		0LL,
 		100000000LL, // 1 level, should be achieved fast, 100M imho is possible//
@@ -151,7 +151,7 @@ bool Clan::InEnemyZone(CharData *ch) {
 	int zone = world[ch->in_room]->zone_rn;
 	for (auto & clan : Clan::ClanList)
 		if (zone == world[real_room(clan->rent)]->zone_rn) {
-			if (CLAN(ch) && (CLAN(ch) == clan || clan->CheckPolitics(CLAN(ch)->GetRent()) == POLITICS_ALLIANCE))
+			if (CLAN(ch) && (CLAN(ch) == clan || clan->CheckPolitics(CLAN(ch)->GetRent()) == kPoliticsAlliance))
 				return false;
 			else
 				return true;
@@ -850,14 +850,14 @@ bool Clan::MayEnter(CharData *ch, RoomRnum room, bool mode) {
 
 	bool isMember = false;
 
-	if (CLAN(ch) == clan || clan->CheckPolitics(CLAN(ch)->GetRent()) == POLITICS_ALLIANCE) {
+	if (CLAN(ch) == clan || clan->CheckPolitics(CLAN(ch)->GetRent()) == kPoliticsAlliance) {
 		isMember = true;
 	}
 
-	int _mode = mode ? HCE_PORTAL : HCE_ATRIUM;
+	int _mode = mode ? kHousePortal : kHouseAtrium;
 	switch (_mode) {
 		// вход через дверь - контролирует охранник
-		case HCE_ATRIUM:
+		case kHouseAtrium:
 			for (const auto mobs : world[ch->in_room]->people) {
 				if (clan->guard == GET_MOB_VNUM(mobs)
 					&& !isMember) {
@@ -869,7 +869,7 @@ bool Clan::MayEnter(CharData *ch, RoomRnum room, bool mode) {
 			return true;
 
 			// телепортация
-		case HCE_PORTAL:
+		case kHousePortal:
 			if (!isMember) {
 				send_to_char("Частная собственность - посторонним в ней делать нечего!\r\n", ch);
 				return false;
@@ -877,7 +877,7 @@ bool Clan::MayEnter(CharData *ch, RoomRnum room, bool mode) {
 
 			// с временным флагом тоже курят
 			if (NORENTABLE(ch)) {
-				if (mode == HCE_ATRIUM) {
+				if (mode == kHouseAtrium) {
 					send_to_char("Пускай сначала кровь с тебя стечет, а потом входи сколько угодно.\r\n", ch);
 				}
 				return false;
@@ -1315,7 +1315,7 @@ void Clan::remove_member(const ClanMembersList::key_type &key) {
 			char_from_room(k->character);
 			act("$n был$g выдворен$a за пределы замка!", true, k->character.get(), nullptr, nullptr, kToRoom);
 			send_to_char("Вы были выдворены за пределы замка!\r\n", k->character.get());
-			char_to_room(k->character.get(), real_room(clan->out_rent));
+			PlaceCharToRoom(k->character.get(), real_room(clan->out_rent));
 			look_at_room(k->character.get(), real_room(clan->out_rent));
 			act("$n свалил$u с небес, выкрикивая какие-то ругательства!",
 				true,
@@ -1460,11 +1460,11 @@ void Clan::GodToChannel(CharData *ch, std::string text, int subcmd) {
 					&& STATE(d) == CON_PLAYING
 					&& !AFF_FLAGGED(d->character, EAffect::kDeafness)
 					&& d->character.get() != ch) {
-					if (CheckPolitics(CLAN(d->character)->GetRent()) == POLITICS_ALLIANCE
+					if (CheckPolitics(CLAN(d->character)->GetRent()) == kPoliticsAlliance
 						|| CLAN(d->character).get() == this) {
 						// проверка на альянс с обеих сторон, иначе это не альянс
 						if (CLAN(d->character).get() != this) {
-							if (CLAN(d->character)->CheckPolitics(this->rent) == POLITICS_ALLIANCE) {
+							if (CLAN(d->character)->CheckPolitics(this->rent) == kPoliticsAlliance) {
 								send_to_char(d->character.get(),
 											 "%s ВАШИМ СОЮЗНИКАМ: %s'%s'%s\r\n",
 											 GET_NAME(ch),
@@ -1549,8 +1549,8 @@ void Clan::CharToChannel(CharData *ch, std::string text, int subcmd) {
 			// вспомнить
 			snprintf(buf, kMaxStringLength, "%s союзникам: &G'%s'.&n\r\n", GET_NAME(ch), text.c_str());
 			for (auto & clan : Clan::ClanList) {
-				if ((CLAN(ch)->CheckPolitics(clan->GetRent()) == POLITICS_ALLIANCE
-					&& clan->CheckPolitics(CLAN(ch)->GetRent()) == POLITICS_ALLIANCE)
+				if ((CLAN(ch)->CheckPolitics(clan->GetRent()) == kPoliticsAlliance
+					&& clan->CheckPolitics(CLAN(ch)->GetRent()) == kPoliticsAlliance)
 					|| CLAN(ch) == clan) {
 					clan->add_remember(buf, Remember::ALLY);
 				}
@@ -1563,10 +1563,10 @@ void Clan::CharToChannel(CharData *ch, std::string text, int subcmd) {
 					&& d->character.get() != ch
 					&& !AFF_FLAGGED(d->character, EAffect::kDeafness)
 					&& !ignores(d->character.get(), ch, EIgnore::kAlliance)) {
-					if (CLAN(ch)->CheckPolitics(CLAN(d->character)->GetRent()) == POLITICS_ALLIANCE
+					if (CLAN(ch)->CheckPolitics(CLAN(d->character)->GetRent()) == kPoliticsAlliance
 						|| CLAN(ch) == CLAN(d->character)) {
 						// проверка на альянс с обеих сторон, шоб не спамили друг другу на зло
-						if ((CLAN(d->character)->CheckPolitics(CLAN(ch)->GetRent()) == POLITICS_ALLIANCE)
+						if ((CLAN(d->character)->CheckPolitics(CLAN(ch)->GetRent()) == kPoliticsAlliance)
 							|| CLAN(ch) == CLAN(d->character)) {
 							snprintf(buf,
 									 kMaxStringLength,
@@ -1777,16 +1777,16 @@ int Clan::CheckPolitics(int victim) {
 	if (it != politics.end()) {
 		return it->second;
 	}
-	return POLITICS_NEUTRAL;
+	return kPoliticsNeutral;
 }
 
 // выставляем клану политику(state) по отношению к victim
 // нейтралитет означает просто удаление записи, если она была
 void Clan::SetPolitics(int victim, int state) {
 	auto it = politics.find(victim);
-	if (it == politics.end() && state == POLITICS_NEUTRAL)
+	if (it == politics.end() && state == kPoliticsNeutral)
 		return;
-	if (state == POLITICS_NEUTRAL)
+	if (state == kPoliticsNeutral)
 		politics.erase(it);
 	else
 		politics[victim] = state;
@@ -1860,7 +1860,7 @@ void DoShowWars(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				continue;
 			}
 
-			if ((*clan1)->CheckPolitics((*clan2)->rent) == POLITICS_WAR) {
+			if ((*clan1)->CheckPolitics((*clan2)->rent) == kPoliticsWar) {
 				buffer3 << " " << (*clan1)->abbrev << " против " << (*clan2)->abbrev << "\r\n";
 			}
 		}
@@ -1871,7 +1871,7 @@ void DoShowWars(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					continue;
 				}
 
-				if (clan1->CheckPolitics(clan2->rent) == POLITICS_WAR) {
+				if (clan1->CheckPolitics(clan2->rent) == kPoliticsWar) {
 					buffer3 << " " << clan1->abbrev << " против " << clan2->abbrev << "\r\n";
 				}
 			}
@@ -1910,7 +1910,7 @@ void do_show_alliance(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				continue;
 			}
 
-			if ((*clan1)->CheckPolitics((*clan2)->rent) == POLITICS_ALLIANCE) {
+			if ((*clan1)->CheckPolitics((*clan2)->rent) == kPoliticsAlliance) {
 				buffer3 << " " << (*clan1)->abbrev << " помогает " << (*clan2)->abbrev << "\r\n";
 			}
 		}
@@ -1921,7 +1921,7 @@ void do_show_alliance(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 					continue;
 				}
 
-				if (clan1->CheckPolitics(clan2->rent) == POLITICS_ALLIANCE) {
+				if (clan1->CheckPolitics(clan2->rent) == kPoliticsAlliance) {
 					buffer3 << " " << clan1->abbrev << " помогает " << clan2->abbrev << "\r\n";
 				}
 			}
@@ -1960,9 +1960,9 @@ void DoShowPolitics(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		p1 = CLAN(ch)->CheckPolitics(clanVictim->rent);
 		p2 = clanVictim->CheckPolitics(CLAN(ch)->rent);
 		buffer2 << strFormat % clanVictim->abbrev
-			% (p1 == POLITICS_WAR ? CCIRED(ch, C_NRM) : (p1 == POLITICS_ALLIANCE ? CCGRN(ch, C_NRM) : CCNRM(ch, C_NRM)))
+			% (p1 == kPoliticsWar ? CCIRED(ch, C_NRM) : (p1 == kPoliticsAlliance ? CCGRN(ch, C_NRM) : CCNRM(ch, C_NRM)))
 			% politicsnames[p1] % CCNRM(ch, C_NRM)
-			% (p2 == POLITICS_WAR ? CCIRED(ch, C_NRM) : (p2 == POLITICS_ALLIANCE ? CCGRN(ch, C_NRM) : CCNRM(ch, C_NRM)))
+			% (p2 == kPoliticsWar ? CCIRED(ch, C_NRM) : (p2 == kPoliticsAlliance ? CCGRN(ch, C_NRM) : CCNRM(ch, C_NRM)))
 			% politicsnames[p2] % CCNRM(ch, C_NRM);
 	}
 	send_to_char(buffer2.str(), ch);
@@ -1991,13 +1991,13 @@ void Clan::ManagePolitics(CharData *ch, std::string &buffer) {
 	if (buffer2.empty())
 		send_to_char("Укажите действие: нейтралитет|война|альянс.\r\n", ch);
 	else if (CompareParam(buffer2, "нейтралитет")) {
-		if (CheckPolitics((*vict)->rent) == POLITICS_NEUTRAL) {
+		if (CheckPolitics((*vict)->rent) == kPoliticsNeutral) {
 			send_to_char(ch,
 						 "Ваша дружина уже находится в состоянии нейтралитета с дружиной %s.\r\n",
 						 (*vict)->abbrev.c_str());
 			return;
 		}
-		SetPolitics((*vict)->rent, POLITICS_NEUTRAL);
+		SetPolitics((*vict)->rent, kPoliticsNeutral);
 		SetWait(ch, 1, false);
 		// уведомляем обе дружины
 		for (d = descriptor_list; d; d = d->next) {
@@ -2020,12 +2020,12 @@ void Clan::ManagePolitics(CharData *ch, std::string &buffer) {
 						 CCWHT(ch, C_NRM), (*vict)->abbrev.c_str(), CCNRM(ch, C_NRM));
 		}
 	} else if (CompareParam(buffer2, "война")) {
-		if (CheckPolitics((*vict)->rent) == POLITICS_WAR) {
+		if (CheckPolitics((*vict)->rent) == kPoliticsWar) {
 			send_to_char(ch, "Ваша дружина уже воюет с дружиной %s.\r\n", (*vict)->abbrev.c_str());
 			return;
 		}
 
-		SetPolitics((*vict)->rent, POLITICS_WAR);
+		SetPolitics((*vict)->rent, kPoliticsWar);
 		SetWait(ch, 1, false);
 		// тож самое
 
@@ -2057,13 +2057,13 @@ void Clan::ManagePolitics(CharData *ch, std::string &buffer) {
 						 CCNRM(ch, C_NRM));
 		}
 	} else if (CompareParam(buffer2, "альянс")) {
-		if (CheckPolitics((*vict)->rent) == POLITICS_ALLIANCE) {
+		if (CheckPolitics((*vict)->rent) == kPoliticsAlliance) {
 			send_to_char(ch, "Ваша дружина уже в альянсе с дружиной %s.\r\n", (*vict)->abbrev.c_str());
 			return;
 		}
 
 		SetWait(ch, 1, false);
-		SetPolitics((*vict)->rent, POLITICS_ALLIANCE);
+		SetPolitics((*vict)->rent, kPoliticsAlliance);
 
 		// тож самое
 		for (d = descriptor_list; d; d = d->next) {
@@ -2282,7 +2282,7 @@ void Clan::hcontrol_set_ingr_chest(CharData *ch, std::string &text) {
 			 chest = chest->get_next_content()) {
 			if (is_ingr_chest(chest)) {
 				obj_from_room(chest);
-				obj_to_room(chest, room_rnum);
+				PlaceObjToRoom(chest, room_rnum);
 				chest_moved = true;
 				break;
 			}
@@ -2295,7 +2295,7 @@ void Clan::hcontrol_set_ingr_chest(CharData *ch, std::string &text) {
 	if (!chest_moved) {
 		const auto chest = world_objects.create_from_prototype_by_vnum(INGR_CHEST_VNUM);
 		if (chest) {
-			obj_to_room(chest.get(), (*i)->get_ingr_chest_room_rnum());
+			PlaceObjToRoom(chest.get(), (*i)->get_ingr_chest_room_rnum());
 		}
 		send_to_char("Хранилище установлено.\r\n", ch);
 	} else {
@@ -2454,7 +2454,7 @@ void Clan::HcontrolBuild(CharData *ch, std::string &buffer) {
 	// залоадим сразу хранилище
 	const auto chest = world_objects.create_from_prototype_by_vnum(CLAN_CHEST_VNUM);
 	if (chest) {
-		obj_to_room(chest.get(), real_room(tempClan->chest_room));
+		PlaceObjToRoom(chest.get(), real_room(tempClan->chest_room));
 	}
 
 	Clan::ClanList.push_back(tempClan);
@@ -2543,7 +2543,7 @@ void Clan::DestroyClan(Clan::shared_ptr clan) {
 
 	for (const auto &clanVictim : Clan::ClanList) { //для всех кланов выставляем нейтралитет (тупо удаляем)
 		if (clan->rent != clanVictim->rent)
-			clanVictim->SetPolitics(clan->rent, POLITICS_NEUTRAL);
+			clanVictim->SetPolitics(clan->rent, kPoliticsNeutral);
 	}
 
 	clan->set_rep(0);
@@ -2922,7 +2922,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 	if (GET_OBJ_TYPE(obj) == EObjType::kMoney) {
 		long gold = GET_OBJ_VAL(obj, 0);
 		if (IS_IMMORTAL(ch)) {
-			obj_from_char(obj);
+			ExtractObjFromChar(obj);
 			extract_obj(obj);
 			ch->add_gold(gold);
 			send_to_char(ch, "Вам это не положено! Вы вновь обрели %ld %s.\r\n",
@@ -2936,7 +2936,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 			CLAN(ch)->m_members.add_money(GET_UNIQUE(ch), over);
 			gold -= over;
 			ch->add_gold(gold);
-			obj_from_char(obj);
+			ExtractObjFromChar(obj);
 			extract_obj(obj);
 			send_to_char(ch,
 						 "Вам удалось вложить в казну дружины только %ld %s.\r\n",
@@ -2946,7 +2946,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 		}
 		CLAN(ch)->bank += gold;
 		CLAN(ch)->m_members.add_money(GET_UNIQUE(ch), gold);
-		obj_from_char(obj);
+		ExtractObjFromChar(obj);
 		extract_obj(obj);
 		send_to_char(ch, "Вы вложили в казну дружины %ld %s.\r\n", gold, GetDeclensionInNumber(gold, EWhat::kMoneyU));
 
@@ -2978,7 +2978,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 				kToChar);
 			return false;
 		}
-		obj_from_char(obj);
+		ExtractObjFromChar(obj);
 		obj_to_obj(obj, chest);
 		ObjSaveSync::add(ch->get_uid(), CLAN(ch)->GetRent(), ObjSaveSync::CLAN_SAVE);
 
@@ -3024,7 +3024,7 @@ bool Clan::TakeChest(CharData *ch, ObjData *obj, ObjData *chest) {
 	}
 
 	obj_from_obj(obj);
-	obj_to_char(obj, ch);
+	PlaceObjToInventory(obj, ch);
 	ObjSaveSync::add(ch->get_uid(), CLAN(ch)->GetRent(), ObjSaveSync::CLAN_SAVE);
 
 	if (obj->get_carried_by() == ch) {
@@ -3133,7 +3133,7 @@ void Clan::ChestLoad() {
 		//лоадим сундук. в зонах его лоадить не нужно.
 		const auto chest = world_objects.create_from_prototype_by_vnum(CLAN_CHEST_VNUM);
 		if (chest) {
-			obj_to_room(chest.get(), real_room((*clan)->chest_room));
+			PlaceObjToRoom(chest.get(), real_room((*clan)->chest_room));
 		}
 
 		if (!chest) {
@@ -4273,7 +4273,7 @@ void DoStoreHouse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	skip_spaces(&stufina);
 
 	if (utils::IsAbbrev(arg, "характеристики") || utils::IsAbbrev(arg, "identify") || utils::IsAbbrev(arg, "опознать")) {
-		if ((ch->get_bank() < CHEST_IDENT_PAY) && (GetRealLevel(ch) < kLvlImplementator)) {
+		if ((ch->get_bank() < kChestIdentPay) && (GetRealLevel(ch) < kLvlImplementator)) {
 			send_to_char("У вас недостаточно денег в банке для такого исследования.\r\n", ch);
 			return;
 		}
@@ -4285,12 +4285,12 @@ void DoStoreHouse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					send_to_char(ch, "Характеристики предмета: %s\r\n", stufina);
 					bool full = false;
 					mort_show_obj_values(tmp_obj, ch, 200, full);
-					ch->remove_bank(CHEST_IDENT_PAY);
+					ch->remove_bank(kChestIdentPay);
 					send_to_char(ch,
 								 "%sЗа информацию о предмете с вашего банковского счета сняли %d %s%s\r\n",
 								 CCIGRN(ch, C_NRM),
-								 CHEST_IDENT_PAY,
-								 GetDeclensionInNumber(CHEST_IDENT_PAY, EWhat::kMoneyU),
+								 kChestIdentPay,
+								 GetDeclensionInNumber(kChestIdentPay, EWhat::kMoneyU),
 								 CCNRM(ch, C_NRM));
 					return;
 				}
@@ -4665,7 +4665,7 @@ void Clan::SetClanExp(CharData *ch, int add) {
 	}
 
 	if (this->clan_exp > clan_level_exp[this->clan_level + 1]
-		&& this->clan_level < MAX_CLANLEVEL) {
+		&& this->clan_level < kMaxClanlevel) {
 		this->clan_level++;
 		for (DescriptorData *d = descriptor_list; d; d = d->next) {
 			if (d->character && STATE(d) == CON_PLAYING
@@ -4794,7 +4794,7 @@ void do_clanstuff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	auto it = CLAN(ch)->clanstuff.begin();
 	for (; it != CLAN(ch)->clanstuff.end(); it++) {
-		vnum = CLAN_STUFF_ZONE * 100 + it->num;
+		vnum = kClanStuffZone * 100 + it->num;
 		const auto obj = world_objects.create_from_prototype_by_vnum(vnum);
 		if (!obj) {
 			continue;
@@ -4842,7 +4842,7 @@ void do_clanstuff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			break;
 		}
 
-		obj_to_char(obj.get(), ch);
+		PlaceObjToInventory(obj.get(), ch);
 		cnt++;
 
 		sprintf(buf, "$n взял$g %s из сундука", obj->get_PName(0).c_str());
@@ -4920,7 +4920,7 @@ bool Clan::is_alli_member(int unique) {
 		}
 
 		if (clan->is_clan_member(unique)
-			&& clan->CheckPolitics(GetRent()) == POLITICS_ALLIANCE) {
+			&& clan->CheckPolitics(GetRent()) == kPoliticsAlliance) {
 			return true;
 		}
 	}
@@ -5041,7 +5041,7 @@ int Clan::GetClanWars(CharData *ch) {
 			continue;
 		}
 		p1 = CLAN(ch)->CheckPolitics((*clanVictim)->rent);
-		if (p1 == POLITICS_WAR) result++;
+		if (p1 == kPoliticsWar) result++;
 	}
 
 	return result;
@@ -5148,7 +5148,7 @@ void Clan::init_ingr_chest() {
 		return;
 	}
 	//лоадим в комнату сам хран
-	obj_to_room(chest.get(), get_ingr_chest_room_rnum());
+	PlaceObjToRoom(chest.get(), get_ingr_chest_room_rnum());
 
 	FILE *fl = fopen(filename.c_str(), "r+b");
 	if (!fl) {
@@ -5244,7 +5244,7 @@ bool Clan::put_ingr_chest(CharData *ch, ObjData *obj, ObjData *chest) {
 
 		if (GET_OBJ_TYPE(obj) == EObjType::kMoney) {
 			int howmany = GET_OBJ_VAL(obj, 0);
-			obj_from_char(obj);
+			ExtractObjFromChar(obj);
 			extract_obj(obj);
 			ch->add_gold(howmany);
 			send_to_char(ch, "Вы вновь обрели %d %s.\r\n", howmany, GetDeclensionInNumber(howmany, EWhat::kMoneyU));
@@ -5267,7 +5267,7 @@ bool Clan::put_ingr_chest(CharData *ch, ObjData *obj, ObjData *chest) {
 			return false;
 		}
 
-		obj_from_char(obj);
+		ExtractObjFromChar(obj);
 		obj_to_obj(obj, chest);
 		act("Вы положили $o3 в $O3.", false, ch, obj, chest, kToChar);
 		CLAN(ch)->ingr_chest_objcount_++;
@@ -5283,7 +5283,7 @@ bool Clan::take_ingr_chest(CharData *ch, ObjData *obj, ObjData *chest) {
 	}
 
 	obj_from_obj(obj);
-	obj_to_char(obj, ch);
+	PlaceObjToInventory(obj, ch);
 	if (obj->get_carried_by() == ch) {
 		act("Вы взяли $o3 из $O1.", false, ch, obj, chest, kToChar);
 		CLAN(ch)->ingr_chest_objcount_--;
@@ -5382,7 +5382,7 @@ void Clan::set_ingr_chest(CharData *ch) {
 		for (ObjData *chest = world[get_ingr_chest_room_rnum()]->contents; chest; chest = chest->get_next_content()) {
 			if (is_ingr_chest(chest)) {
 				obj_from_room(chest);
-				obj_to_room(chest, ch->in_room);
+				PlaceObjToRoom(chest, ch->in_room);
 				chest_moved = true;
 				break;
 			}
@@ -5395,7 +5395,7 @@ void Clan::set_ingr_chest(CharData *ch) {
 	if (!chest_moved) {
 		const auto chest = world_objects.create_from_prototype_by_vnum(INGR_CHEST_VNUM);
 		if (chest) {
-			obj_to_room(chest.get(), get_ingr_chest_room_rnum());
+			PlaceObjToRoom(chest.get(), get_ingr_chest_room_rnum());
 		}
 		send_to_char("Хранилище установлено.\r\n", ch);
 	} else {
@@ -5627,7 +5627,7 @@ unsigned Clan::get_bank() const {
 void ClanSystem::check_player_in_house() {
 	for (auto d = descriptor_list; d; d = d->next) {
 		if (d->character
-			&& (!Clan::MayEnter(d->character.get(), IN_ROOM(d->character), HCE_ATRIUM))) {
+			&& (!Clan::MayEnter(d->character.get(), IN_ROOM(d->character), kHouseAtrium))) {
 			const auto clan = Clan::GetClanByRoom(IN_ROOM(d->character));
 			if (clan) {
 				char_from_room(d->character);
@@ -5654,8 +5654,8 @@ bool ClanSystem::is_alliance(CharData *ch, char *clan_abbr) {
 				return true;
 			}
 
-			if (clan->CheckPolitics(CLAN(ch)->GetRent()) == POLITICS_ALLIANCE
-				&& CLAN(ch)->CheckPolitics(clan->GetRent()) == POLITICS_ALLIANCE) {
+			if (clan->CheckPolitics(CLAN(ch)->GetRent()) == kPoliticsAlliance
+				&& CLAN(ch)->CheckPolitics(clan->GetRent()) == kPoliticsAlliance) {
 				return true;
 			}
 		}

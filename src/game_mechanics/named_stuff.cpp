@@ -507,9 +507,9 @@ void receive_items(CharData *ch, CharData *mailman) {
 						 obj_proto.actual_count(r_num));
 				const auto obj = world_objects.create_from_prototype_by_rnum(r_num);
 				obj->set_extra_flag(EObjFlag::kNamed);
-				obj_to_char(obj.get(), ch);
+				PlaceObjToInventory(obj.get(), ch);
 				obj->cleanup_script();
-				obj_decay(obj.get());
+				CheckObjDecay(obj.get());
 
 				act("$n дал$g вам $o3.", false, mailman, obj.get(), ch, kToVict);
 				act("$N дал$G $n2 $o3.", false, ch, obj.get(), mailman, kToRoom);

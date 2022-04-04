@@ -405,7 +405,7 @@ void make_arena_corpse(CharData *ch, CharData *killer) {
 	exdesc->description = str_dup(buf);    // косметика
 	exdesc->next = corpse->get_ex_description();
 	corpse->set_ex_description(exdesc);
-	obj_to_room(corpse.get(), ch->in_room);
+	PlaceObjToRoom(corpse.get(), ch->in_room);
 }
 
 ObjData *make_corpse(CharData *ch, CharData *killer) {
@@ -456,7 +456,7 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 		if (GET_EQ(ch, i)) {
 			remove_otrigger(GET_EQ(ch, i), ch);
 
-			obj_to_char(unequip_char(ch, i, CharEquipFlags()), ch);
+			PlaceObjToInventory(UnequipChar(ch, i, CharEquipFlags()), ch);
 		}
 	}
 
@@ -516,7 +516,7 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 	if (IS_CHARMICE(ch) && !MOB_FLAGGED(ch, EMobFlag::kCorpse)
 		&& ((killer && PRF_FLAGGED(killer, EPrf::kExecutor)) || (ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena) && !NORENTABLE(ch->get_master())))) {
 		if (ch->has_master()) {
-				obj_to_char(corpse.get(), ch->get_master());
+			PlaceObjToInventory(corpse.get(), ch->get_master());
 		}
 		return nullptr;
 	} else {
@@ -525,7 +525,7 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 			&& ch->get_was_in_room() != kNowhere) {
 			corpse_room = ch->get_was_in_room();
 		}
-		obj_to_room(corpse.get(), corpse_room);
+		PlaceObjToRoom(corpse.get(), corpse_room);
 		return corpse.get();
 	}
 }

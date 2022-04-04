@@ -259,14 +259,14 @@ void pk_increment_kill(CharData *agressor, CharData *victim, int rent, bool flag
 		if (GET_EQ(agressor, i)) {
 			p_item = GET_EQ(agressor, i);
 			if (invalid_no_class(agressor, p_item)) {
-				obj_to_char(unequip_char(agressor, i, CharEquipFlags()), agressor);
+				PlaceObjToInventory(UnequipChar(agressor, i, CharEquipFlags()), agressor);
 				remove_otrigger(p_item, agressor);
 			}
 		}
 		if (GET_EQ(victim, i)) {
 			p_item = GET_EQ(victim, i);
 			if (invalid_no_class(victim, p_item)) {
-				obj_to_char(unequip_char(victim, i, CharEquipFlags()), victim);
+				PlaceObjToInventory(UnequipChar(victim, i, CharEquipFlags()), victim);
 				remove_otrigger(p_item, victim);
 			}
 		}
@@ -376,13 +376,13 @@ bool pk_agro_action(CharData *agressor, CharData *victim) {
 		if (victim->get_fighting() != nullptr)
 			stop_fighting(agressor, false);
 		act("$n был$g выдворен$a за пределы замка!", true, agressor, 0, 0, kToRoom);
-		char_from_room(agressor);
+		ExtractCharFromRoom(agressor);
 		if (IS_FEMALE(agressor))
 			send_to_char("Охолонись малая, на своих бросаться не дело!\r\n", agressor);
 		else
 			send_to_char("Охолонись малец, на своих бросаться не дело!\r\n", agressor);
 		send_to_char("Защитная магия взяла вас за шиворот и выкинула вон из замка!\r\n", agressor);
-		char_to_room(agressor, real_room(CLAN(agressor)->out_rent));
+		PlaceCharToRoom(agressor, real_room(CLAN(agressor)->out_rent));
 		look_at_room(agressor, real_room(CLAN(agressor)->out_rent));
 		act("$n свалил$u с небес, выкрикивая какие-то ругательства!", true, agressor, 0, 0, kToRoom);
 		SetWait(agressor, 1, true);

@@ -311,10 +311,11 @@ void stop_fighting(CharData *ch, int switch_others) {
 }
 
 int GET_MAXDAMAGE(CharData *ch) {
-	if (AFF_FLAGGED(ch, EAffect::kHold))
+	if (AFF_FLAGGED(ch, EAffect::kHold)) {
 		return 0;
-	else
-		return GET_DAMAGE(ch);
+	} else {
+		return ch->damage_level;
+	}
 }
 
 int GET_MAXCASTER(CharData *ch) {
@@ -323,7 +324,7 @@ int GET_MAXCASTER(CharData *ch) {
 		|| GET_WAIT(ch) > 0)
 		return 0;
 	else
-		return IS_IMMORTAL(ch) ? 1 : GET_CASTER(ch);
+		return IS_IMMORTAL(ch) ? 1 : ch->caster_level;
 }
 
 #define GET_HP_PERC(ch) ((int)(GET_HIT(ch) * 100 / GET_MAX_HIT(ch)))
@@ -481,13 +482,13 @@ CharData *find_friend(CharData *caster, int spellnum) {
 		&& (AFF_FLAGGED(caster, EAffect::kCharmed)
 			|| MOB_FLAGGED(caster, EMobFlag::kTutelar) || MOB_FLAGGED(caster, EMobFlag::kMentalShadow) || MOB_FLAGGED(caster, EMobFlag::kSummoned))) { //(Кудояр)
 		if (caster->has_any_affect(AFF_USED)
-			|| affected_by_spell(caster, spellreal)) {
+			|| IsAffectedBySpell(caster, spellreal)) {
 			return caster;
 		} else if (caster->has_master()
 			&& CAN_SEE(caster, caster->get_master())
 			&& IN_ROOM(caster->get_master()) == IN_ROOM(caster)
 			&& (caster->get_master()->has_any_affect(AFF_USED)
-				|| affected_by_spell(caster->get_master(), spellreal))) {
+				|| IsAffectedBySpell(caster->get_master(), spellreal))) {
 			return caster->get_master();
 		}
 
@@ -556,13 +557,13 @@ CharData *find_caster(CharData *caster, int spellnum) {
 		&& (AFF_FLAGGED(caster, EAffect::kCharmed)
 			|| MOB_FLAGGED(caster, EMobFlag::kTutelar) || MOB_FLAGGED(caster, EMobFlag::kMentalShadow) || MOB_FLAGGED(caster, EMobFlag::kSummoned))) { // (Кудояр)
 		if (caster->has_any_affect(AFF_USED)
-			|| affected_by_spell(caster, spellreal)) {
+			|| IsAffectedBySpell(caster, spellreal)) {
 			return caster;
 		} else if (caster->has_master()
 			&& CAN_SEE(caster, caster->get_master())
 			&& IN_ROOM(caster->get_master()) == IN_ROOM(caster)
 			&& (caster->get_master()->has_any_affect(AFF_USED)
-				|| affected_by_spell(caster->get_master(), spellreal))) {
+				|| IsAffectedBySpell(caster->get_master(), spellreal))) {
 			return caster->get_master();
 		}
 
@@ -641,12 +642,12 @@ CharData *find_affectee(CharData *caster, int spellnum) {
 
 	if ((AFF_FLAGGED(caster, EAffect::kCharmed) || MOB_FLAGGED(caster, EMobFlag::kTutelar)
 		|| MOB_FLAGGED(caster, EMobFlag::kMentalShadow) || MOB_FLAGGED(caster, EMobFlag::kSummoned)) && AFF_FLAGGED(caster, EAffect::kHelper)) { // (Кудояр)
-		if (!affected_by_spell(caster, spellreal)) {
+		if (!IsAffectedBySpell(caster, spellreal)) {
 			return caster;
 		} else if (caster->has_master()
 			&& CAN_SEE(caster, caster->get_master())
 			&& IN_ROOM(caster->get_master()) == IN_ROOM(caster)
-			&& caster->get_master()->get_fighting() && !affected_by_spell(caster->get_master(), spellreal)) {
+			&& caster->get_master()->get_fighting() && !IsAffectedBySpell(caster->get_master(), spellreal)) {
 			return caster->get_master();
 		}
 
@@ -666,7 +667,7 @@ CharData *find_affectee(CharData *caster, int spellnum) {
 
 			if (!vict->get_fighting()
 				|| AFF_FLAGGED(vict, EAffect::kHold)
-				|| affected_by_spell(vict, spellreal)) {
+				|| IsAffectedBySpell(vict, spellreal)) {
 				continue;
 			}
 
@@ -678,7 +679,7 @@ CharData *find_affectee(CharData *caster, int spellnum) {
 	}
 
 	if (!victim
-		&& !affected_by_spell(caster, spellreal)) {
+		&& !IsAffectedBySpell(caster, spellreal)) {
 		victim = caster;
 	}
 
@@ -719,7 +720,7 @@ CharData *find_opp_affectee(CharData *caster, int spellnum) {
 				&& (GET_REAL_INT(caster) < number(20, 27)
 					|| !in_same_battle(caster, vict, true)))
 				|| AFF_FLAGGED(vict, EAffect::kHold)
-				|| affected_by_spell(vict, spellreal)) {
+				|| IsAffectedBySpell(vict, spellreal)) {
 				continue;
 			}
 			if (!victim || vict_val < GET_MAXDAMAGE(vict)) {
@@ -731,7 +732,7 @@ CharData *find_opp_affectee(CharData *caster, int spellnum) {
 
 	if (!victim
 		&& caster->get_fighting()
-		&& !affected_by_spell(caster->get_fighting(), spellreal)) {
+		&& !IsAffectedBySpell(caster->get_fighting(), spellreal)) {
 		victim = caster->get_fighting();
 	}
 
@@ -1120,9 +1121,9 @@ void mob_casting(CharData *ch) {
 					for (int i = 1; i <= 3; i++) {
 						if (GET_OBJ_VAL(item, i) == spellnum) {
 							if (ch != victim) {
-								obj_from_char(item);
+								ExtractObjFromChar(item);
 								act("$n передал$g $o3 $N2.", false, ch, item, victim, kToRoom | kToArenaListen);
-								obj_to_char(item, victim);
+								PlaceObjToInventory(item, victim);
 							} else {
 								victim = ch;
 							}
@@ -1594,10 +1595,10 @@ void using_mob_skills(CharData *ch) {
 						continue;
 					}
 					if (!caster
-						|| (IS_CASTER(vict) && GET_CASTER(vict) > GET_CASTER(caster))) {
+						|| (IS_CASTER(vict) && vict->caster_level > caster->caster_level)) {
 						caster = vict;
 					}
-					if (!damager || GET_DAMAGE(vict) > GET_DAMAGE(damager)) {
+					if (!damager || vict->damage_level > damager->damage_level) {
 						damager = vict;
 					}
 				}
@@ -1606,7 +1607,7 @@ void using_mob_skills(CharData *ch) {
 
 			if (caster
 				&& (CAN_SEE(ch, caster) || ch->get_fighting() == caster)
-				&& GET_CASTER(caster) > POOR_CASTER
+				&& caster->caster_level > POOR_CASTER
 				&& (sk_num == ESkill::kBash || sk_num == ESkill::kUndercut)) {
 				if (sk_num == ESkill::kBash) {
 //send_to_char(caster, "Баш предфункция\r\n");
@@ -1975,7 +1976,7 @@ bool stuff_before_round(CharData *ch) {
 	round_num_mtrigger(ch, ch->get_fighting());
 
 	SET_AF_BATTLE(ch, kEafStand);
-	if (affected_by_spell(ch, kSpellSleep))
+	if (IsAffectedBySpell(ch, kSpellSleep))
 		SET_AF_BATTLE(ch, kEafSleep);
 	if (ch->in_room == kNowhere)
 		return false;

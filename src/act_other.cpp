@@ -80,7 +80,7 @@ extern char *color_value(CharData *ch, int real, int max);
 //int posi_value(int real, int max);
 int invalid_no_class(CharData *ch, const ObjData *obj);
 extern void split_or_clan_tax(CharData *ch, long amount);
-extern bool is_wear_light(CharData *ch);
+extern bool IsWearingLight(CharData *ch);
 // local functions
 void do_antigods(CharData *ch, char *argument, int cmd, int subcmd);
 void do_quit(CharData *ch, char *argument, int /* cmd */, int subcmd);
@@ -116,7 +116,7 @@ void do_antigods(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 	if (AFF_FLAGGED(ch, EAffect::kShield)) {
-		if (affected_by_spell(ch, kSpellGodsShield))
+		if (IsAffectedBySpell(ch, kSpellGodsShield))
 			affect_from_char(ch, kSpellGodsShield);
 		AFF_FLAGS(ch).unset(EAffect::kShield);
 		send_to_char("Голубой кокон вокруг вашего тела угас.\r\n", ch);
@@ -205,8 +205,8 @@ void do_summon(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 	send_to_char("Ваш скакун появился перед вами.\r\n", ch);
 	act("$n исчез$q в голубом пламени.", true, horse, nullptr, nullptr, kToRoom);
-	char_from_room(horse);
-	char_to_room(horse, ch->in_room);
+	ExtractCharFromRoom(horse);
+	PlaceCharToRoom(horse, ch->in_room);
 	look_at_room(horse, 0);
 	act("$n появил$u из голубого пламени!", true, horse, nullptr, nullptr, kToRoom);
 }
@@ -336,14 +336,14 @@ void do_sneak(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (affected_by_spell(ch, kSpellGlitterDust)) {
+	if (IsAffectedBySpell(ch, kSpellGlitterDust)) {
 		send_to_char("Вы бесшумно крадетесь, отбрасывая тысячи солнечных зайчиков...\r\n", ch);
 		return;
 	}
 
 	affect_from_char(ch, kSpellSneak);
 
-	if (affected_by_spell(ch, kSpellSneak)) {
+	if (IsAffectedBySpell(ch, kSpellSneak)) {
 		send_to_char("Вы уже пытаетесь красться.\r\n", ch);
 		return;
 	}
@@ -382,7 +382,7 @@ void do_camouflage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 		return;
 	}
 
-	if (affected_by_spell(ch, kSpellGlitterDust)) {
+	if (IsAffectedBySpell(ch, kSpellGlitterDust)) {
 		send_to_char("Вы замаскировались под золотую рыбку.\r\n", ch);
 		return;
 	}
@@ -396,7 +396,7 @@ void do_camouflage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 		affect_from_char(ch, kSpellCamouflage);
 	}
 
-	if (affected_by_spell(ch, kSpellCamouflage)) {
+	if (IsAffectedBySpell(ch, kSpellCamouflage)) {
 		send_to_char("Вы уже маскируетесь.\r\n", ch);
 		return;
 	}
@@ -423,7 +423,7 @@ void do_camouflage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 	if (!IS_IMMORTAL(ch)) {
 		timed.skill = ESkill::kDisguise;
 		timed.time = 2;
-		timed_to_char(ch, &timed);
+		ImposeTimedSkill(ch, &timed);
 	}
 }
 
@@ -442,7 +442,7 @@ void do_hide(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 	affect_from_char(ch, kSpellHide);
 
-	if (affected_by_spell(ch, kSpellHide)) {
+	if (IsAffectedBySpell(ch, kSpellHide)) {
 		send_to_char("Вы уже пытаетесь спрятаться.\r\n", ch);
 		return;
 	}
@@ -452,7 +452,7 @@ void do_hide(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (affected_by_spell(ch, kSpellGlitterDust)) {
+	if (IsAffectedBySpell(ch, kSpellGlitterDust)) {
 		send_to_char("Спрятаться?! Да вы сверкаете как корчма во время гулянки!.\r\n", ch);
 		return;
 	}
@@ -547,7 +547,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 				} else {
 					act("Вы раздели $N3 и взяли $o3.", false, ch, obj, vict, kToChar);
 					act("$n украл$g $o3 у $N1.", false, ch, obj, vict, kToNotVict | kToArenaListen);
-					obj_to_char(unequip_char(vict, eq_pos, CharEquipFlags()), ch);
+					PlaceObjToInventory(UnequipChar(vict, eq_pos, CharEquipFlags()), ch);
 				}
 			}
 		} else    // obj found in inventory
@@ -579,8 +579,8 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 			{
 				if (IS_CARRYING_N(ch) + 1 < CAN_CARRY_N(ch)) {
 					if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj) < CAN_CARRY_W(ch)) {
-						obj_from_char(obj);
-						obj_to_char(obj, ch);
+						ExtractObjFromChar(obj);
+						PlaceObjToInventory(obj, ch);
 						act("Вы украли $o3 у $N1!", false, ch, obj, vict, kToChar);
 					}
 				} else {
@@ -774,7 +774,7 @@ void do_courage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 
 	timed.skill = ESkill::kCourage;
 	timed.time = 6;
-	timed_to_char(ch, &timed);
+	ImposeTimedSkill(ch, &timed);
 	prob = CalcCurrentSkill(ch, ESkill::kCourage, nullptr) / 20;
 	dur = 1 + MIN(5, ch->get_skill(ESkill::kCourage) / 40);
 	Affect<EApply> af[4];
@@ -2298,14 +2298,14 @@ void do_pray(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 
 	if (!IS_IMMORTAL(ch) && (IsTimedBySkill(ch, ESkill::kReligion)
-		|| affected_by_spell(ch, kSpellReligion))) {
+		|| IsAffectedBySpell(ch, kSpellReligion))) {
 		send_to_char("Вы не можете так часто взывать к Богам.\r\n", ch);
 		return;
 	}
 
 	timed.skill = ESkill::kReligion;
 	timed.time = 12;
-	timed_to_char(ch, &timed);
+	ImposeTimedSkill(ch, &timed);
 
 	for (const auto &i : pray_affect) {
 		if (i.metter == metter) {
@@ -2331,7 +2331,7 @@ void do_pray(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		act(buf, false, ch, obj, nullptr, kToRoom | kToArenaListen);
 		sprintf(buf, "Вы принесли $o3 в жертву %s.", pray_whom[metter]);
 		act(buf, false, ch, obj, nullptr, kToChar);
-		obj_from_char(obj);
+		ExtractObjFromChar(obj);
 		extract_obj(obj);
 	}
 }
@@ -2358,8 +2358,8 @@ void do_recall(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoTeleportIn)
 			|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kIceTrap)
 			|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kGodsRoom)
-			|| !Clan::MayEnter(ch, ch->in_room, HCE_PORTAL)
-			|| !Clan::MayEnter(ch, rent_room, HCE_PORTAL))) {
+			|| !Clan::MayEnter(ch, ch->in_room, kHousePortal)
+			|| !Clan::MayEnter(ch, rent_room, kHousePortal))) {
 		send_to_char("У вас не получилось вернуться!\r\n", ch);
 		return;
 	}
@@ -2369,8 +2369,8 @@ void do_recall(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		if (ch->in_room != rent_room) {
 			send_to_char("Вы почувствовали, как чья-то огромная рука подхватила вас и куда-то унесла!\r\n", ch);
 			act("$n поднял$a глаза к небу и внезапно исчез$q!", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-			char_from_room(ch);
-			char_to_room(ch, rent_room);
+			ExtractCharFromRoom(ch);
+			PlaceCharToRoom(ch, rent_room);
 			look_at_room(ch, 0);
 			act("$n внезапно появил$u в центре комнаты!", true, ch, nullptr, nullptr, kToRoom);
 		} else {
@@ -2515,7 +2515,7 @@ bool is_dark(RoomRnum room) {
 
 	for (const auto tmp_ch : world[room]->people) {
 		// если на чаре есть освещение, например, шарик или лампа
-		if (is_wear_light(tmp_ch))
+		if (IsWearingLight(tmp_ch))
 			coef += 1.0;
 		// если на чаре аффект свет
 		if (AFF_FLAGGED(tmp_ch, EAffect::kSingleLight))

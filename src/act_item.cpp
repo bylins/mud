@@ -132,7 +132,7 @@ int perform_put(CharData *ch, ObjData::shared_ptr obj, ObjData *cont) {
 		act("Неведомая сила помешала положить $o3 в $O3.", false, ch, obj.get(), cont, kToChar);
 	} 
 	else {
-		obj_from_char(obj.get());
+		ExtractObjFromChar(obj.get());
 		// чтобы там по 1 куне гор не было, чару тож возвращается на счет, а не в инвентарь кучкой
 		if (obj->get_type() == EObjType::kMoney && obj->get_rnum() == 0) {
 			ObjData *temp, *obj_next;
@@ -477,12 +477,12 @@ void do_put(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						return;
 					}
 
-					obj_to_char(obj.get(), ch);
+					PlaceObjToInventory(obj.get(), ch);
 					ch->remove_gold(howmany);
 
 					// если положить не удалось - возвращаем все взад
 					if (perform_put(ch, obj, cont)) {
-						obj_from_char(obj.get());
+						ExtractObjFromChar(obj.get());
 						extract_obj(obj.get());
 						ch->add_gold(howmany);
 						return;
@@ -742,7 +742,7 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 		ch->add_gold(value);
 	}
 
-	obj_from_char(obj);
+	ExtractObjFromChar(obj);
 	extract_obj(obj);
 }
 
@@ -768,7 +768,7 @@ bool perform_get_from_container(CharData *ch, ObjData *obj, ObjData *cont, int m
 			return 1;
 		}
 		obj_from_obj(obj);
-		obj_to_char(obj, ch);
+		PlaceObjToInventory(obj, ch);
 		if (obj->get_carried_by() == ch) {
 			if (bloody::is_bloody(obj)) {
 				act("Вы взяли $o3 из $O1, испачкав свои руки кровью!", false, ch, obj, cont, kToChar);
@@ -846,7 +846,7 @@ void get_from_container(CharData *ch, ObjData *cont, char *arg, int mode, int ho
 int perform_get_from_room(CharData *ch, ObjData *obj) {
 	if (can_take_obj(ch, obj) && get_otrigger(obj, ch) && bloody::handle_transfer(nullptr, ch, obj)) {
 		obj_from_room(obj);
-		obj_to_char(obj, ch);
+		PlaceObjToInventory(obj, ch);
 		if (obj->get_carried_by() == ch) {
 			if (bloody::is_bloody(obj)) {
 				act("Вы подняли $o3, испачкав свои руки кровью!", false, ch, obj, 0, kToChar);
@@ -1121,7 +1121,7 @@ void perform_drop_gold(CharData *ch, int amount) {
 			sprintf(buf, "$n бросил$g %s на землю.", money_desc(amount, 3));
 			act(buf, true, ch, 0, 0, kToRoom | kToArenaListen);
 		}
-		obj_to_room(obj.get(), ch->in_room);
+		PlaceObjToRoom(obj.get(), ch->in_room);
 
 		ch->remove_gold(amount);
 	}
@@ -1149,10 +1149,10 @@ void perform_drop(CharData *ch, ObjData *obj) {
 	act(buf, false, ch, obj, 0, kToChar);
 	sprintf(buf, "$n %s$g $o3.", drop_op[2]);
 	act(buf, true, ch, obj, 0, kToRoom | kToArenaListen);
-	obj_from_char(obj);
+	ExtractObjFromChar(obj);
 
-	obj_to_room(obj, ch->in_room);
-	obj_decay(obj);
+	PlaceObjToRoom(obj, ch->in_room);
+	CheckObjDecay(obj);
 }
 
 void do_drop(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
@@ -1261,8 +1261,8 @@ void perform_give(CharData *ch, CharData *vict, ObjData *obj) {
 		return;    // object has been removed from world during script execution.
 	}
 
-	obj_from_char(obj);
-	obj_to_char(obj, vict);
+	ExtractObjFromChar(obj);
+	PlaceObjToInventory(obj, vict);
 
 	// передача объектов-денег и кошельков
 	get_check_money(vict, obj, 0);
@@ -1440,9 +1440,9 @@ void weight_change_object(ObjData *obj, int weight) {
 	if (obj->get_in_room() != kNowhere) {
 		obj->set_weight(MAX(1, GET_OBJ_WEIGHT(obj) + weight));
 	} else if ((tmp_ch = obj->get_carried_by())) {
-		obj_from_char(obj);
+		ExtractObjFromChar(obj);
 		obj->set_weight(MAX(1, GET_OBJ_WEIGHT(obj) + weight));
-		obj_to_char(obj, tmp_ch);
+		PlaceObjToInventory(obj, tmp_ch);
 	} else if ((tmp_obj = obj->get_in_obj())) {
 		obj_from_obj(obj);
 		obj->set_weight(MAX(1, GET_OBJ_WEIGHT(obj) + weight));
@@ -1586,7 +1586,7 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			af.type = kSpellFullFeed;
 //			af.battleflag = 0;
 			af.duration = CalcDuration(ch, 10 * 2, 0, 0, 0, 0);
-			affect_join_fspell(ch, af);
+			ImposeAffect(ch, af);
 		}
 
 	}
@@ -1737,7 +1737,7 @@ void perform_wear(CharData *ch, ObjData *obj, int where) {
 		return;
 
 	//obj_from_char(obj);
-	equip_char(ch, obj, where, CharEquipFlag::show_msg);
+	EquipObj(ch, obj, where, CharEquipFlag::show_msg);
 }
 
 int find_eq_pos(CharData *ch, ObjData *obj, char *arg) {
@@ -2131,7 +2131,7 @@ void RemoveEquipment(CharData *ch, int pos) {
 			}
 			act("Вы прекратили использовать $o3.", false, ch, obj, 0, kToChar);
 			act("$n прекратил$g использовать $o3.", true, ch, obj, 0, kToRoom | kToArenaListen);
-			obj_to_char(unequip_char(ch, pos, CharEquipFlag::show_msg), ch);
+			PlaceObjToInventory(UnequipChar(ch, pos, CharEquipFlag::show_msg), ch);
 		}
 	}
 }
@@ -2209,7 +2209,7 @@ void do_remove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if ((obj = GET_EQ(ch, EEquipPos::kQuiver)) && !GET_EQ(ch, EEquipPos::kBoths)) {
 		send_to_char("Нету лука, нет и стрел.\r\n", ch);
 		act("$n прекратил$g использовать $o3.", false, ch, obj, 0, kToRoom);
-		obj_to_char(unequip_char(ch, EEquipPos::kQuiver, CharEquipFlags()), ch);
+		PlaceObjToInventory(UnequipChar(ch, EEquipPos::kQuiver, CharEquipFlags()), ch);
 		return;
 	}
 }
@@ -2733,7 +2733,7 @@ void do_firstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		count = MIN(MAX_FIRSTAID_REMOVE, MAX_FIRSTAID_REMOVE * prob / 100);
 
 		for (percent = 0, prob = need; !need && percent < MAX_FIRSTAID_REMOVE && RemoveSpell(percent); percent++) {
-			if (affected_by_spell(vict, RemoveSpell(percent))) {
+			if (IsAffectedBySpell(vict, RemoveSpell(percent))) {
 				need = true;
 				if (percent < count) {
 					spellnum = RemoveSpell(percent);
@@ -2750,7 +2750,7 @@ void do_firstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else {
 		timed.skill = ESkill::kFirstAid;
 		timed.time = IS_IMMORTAL(ch) ? 2 : IS_PALADINE(ch) ? 4 : IS_SORCERER(ch) ? 2 : 6;
-		timed_to_char(ch, &timed);
+		ImposeTimedSkill(ch, &timed);
 		if (vict != ch) {
 			ImproveSkill(ch, ESkill::kFirstAid, success, 0);
 			if (success) {
@@ -2915,7 +2915,7 @@ void do_repair(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		// timed.time - это unsigned char, поэтому при уходе в минус будет вынос на 255 и ниже
 		int modif = ch->get_skill(ESkill::kRepair) / 7 + number(1, 5);
 		timed.time = MAX(1, 25 - modif);
-		timed_to_char(ch, &timed);
+		ImposeTimedSkill(ch, &timed);
 		obj->set_current_durability(MIN(GET_OBJ_MAX(obj), GET_OBJ_CUR(obj) * percent / prob + 1));
 		send_to_char(ch, "Теперь %s выгляд%s лучше.\r\n", obj->get_PName(0).c_str(), GET_OBJ_POLY_1(ch, obj));
 		act("$n умело починил$g $o3.", false, ch, obj, 0, kToRoom | kToArenaListen);
@@ -3073,7 +3073,7 @@ void do_makefood(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				if (obj->get_carried_by() == ch) {
 					can_carry_obj(ch, it);
 				} else {
-					obj_to_room(it, ch->in_room);
+					PlaceObjToRoom(it, ch->in_room);
 				}
 			}
 		}
@@ -3116,7 +3116,7 @@ void feed_charmice(CharData *ch, char *arg) {
 	const int max_heal_hp = 3 * mob_level;
 	chance_to_eat = (100 - 2 * mob_level) / 2;
 	//Added by Ann
-	if (affected_by_spell(ch->get_master(), kSpellFascination)) {
+	if (IsAffectedBySpell(ch->get_master(), kSpellFascination)) {
 		chance_to_eat -= 30;
 	}
 	//end Ann
@@ -3149,7 +3149,7 @@ void feed_charmice(CharData *ch, char *arg) {
 	af.bitvector = to_underlying(EAffect::kCharmed);
 	af.battleflag = 0;
 
-	affect_join_fspell(ch, af);
+	ImposeAffect(ch, af);
 
 	act("Громко чавкая, $N сожрал$G труп.", true, ch, obj, ch, kToRoom | kToArenaListen);
 	act("Похоже, лакомство пришлось по вкусу.", true, ch, nullptr, ch->get_master(), kToVict);

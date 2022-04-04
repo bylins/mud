@@ -45,7 +45,7 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (affected_by_spell(vict, kSpellGodsShield) || MOB_FLAGGED(vict, EMobFlag::kProtect)) {
+	if (IsAffectedBySpell(vict, kSpellGodsShield) || MOB_FLAGGED(vict, EMobFlag::kProtect)) {
 		send_to_char("Боги хранят вашу жертву.\r\n", ch);
 		return;
 	}
@@ -73,7 +73,7 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!IS_IMMORTAL(ch)) {
 		timed.skill = ESkill::kJinx;
 		timed.time = 6 - MIN(4, (ch->get_skill(ESkill::kJinx) + 30) / 50);
-		timed_to_char(ch, &timed);
+		ImposeTimedSkill(ch, &timed);
 	}
 
 }

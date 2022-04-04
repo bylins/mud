@@ -83,7 +83,7 @@ void do_forget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 		} else {
 			GET_SPELL_MEM(ch, spellnum)--;
-			GET_CASTER(ch) -= spell_info[spellnum].danger;
+			ch->caster_level -= spell_info[spellnum].danger;
 			sprintf(buf, "Вы удалили заклинание '%s%s%s' из %s.\r\n",
 					KICYN, spell_info[spellnum].name,
 					KNRM, GET_RELIGION(ch) == kReligionMono ? "своего часослова" : "своих рез");

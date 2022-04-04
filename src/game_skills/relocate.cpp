@@ -67,7 +67,7 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!Clan::MayEnter(ch, to_room, HCE_PORTAL))
+	if (!Clan::MayEnter(ch, to_room, kHousePortal))
 		fnd_room = Clan::CloseRent(to_room);
 	else
 		fnd_room = to_room;
@@ -92,8 +92,8 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 	act("$n медленно исчез$q из виду.", true, ch, nullptr, nullptr, kToRoom);
 	send_to_char("Лазурные сполохи пронеслись перед вашими глазами.\r\n", ch);
-	char_from_room(ch);
-	char_to_room(ch, fnd_room);
+	ExtractCharFromRoom(ch);
+	PlaceCharToRoom(ch, fnd_room);
 	ch->dismount();
 	act("$n медленно появил$u откуда-то.", true, ch, nullptr, nullptr, kToRoom);
 	if (!(PRF_FLAGGED(victim, EPrf::KSummonable) || same_group(ch, victim) || IS_IMMORTAL(ch)

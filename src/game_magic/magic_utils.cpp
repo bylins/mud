@@ -649,7 +649,7 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, int s
 	}
 	// если НПЦ - уменьшаем его макс.количество кастуемых спеллов
 	if (ch->is_npc()) {
-		GET_CASTER(ch) -= (IS_SET(spell_info[spellnum].routines, NPC_CALCULATE) ? 1 : 0);
+		ch->caster_level -= (IS_SET(spell_info[spellnum].routines, NPC_CALCULATE) ? 1 : 0);
 	}
 	if (!ch->is_npc()) {
 		affect_total(ch);

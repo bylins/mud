@@ -680,7 +680,7 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	timed.skill = ESkill::kHangovering;
 	timed.time = IsAbleToUseFeat(ch, EFeat::kDrunkard) ? GetModifier(EFeat::kDrunkard, kFeatTimer) : 12;
-	timed_to_char(ch, &timed);
+	ImposeTimedSkill(ch, &timed);
 
 	percent = number(1, MUD::Skills()[ESkill::kHangovering].difficulty);
 	prob = CalcCurrentSkill(ch, ESkill::kHangovering, nullptr);

@@ -1618,8 +1618,6 @@ void zedit_parse(DescriptorData *d, char *arg) {
 				case 'P':
 				case 'E':
 				case 'G':
-//			CHECK_OBJ(d, pos) zedit_disp_arg2(d);
-//Gorrah: Поскольку у нас теперь max in world хранится в объекте, то редактировать его тут не нужно.
 					CHECK_OBJ(d, pos);
 					if (item->cmd.command == 'G')
 						zedit_disp_arg4(d);

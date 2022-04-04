@@ -255,7 +255,7 @@ void send_object(CharData *ch, CharData *mailman, long vict_uid, ObjData *obj) {
 	send_cost_buffer += SEND_COST;
 
 	ch->remove_both_gold(total_cost);
-	obj_from_char(obj);
+	ExtractObjFromChar(obj);
 	ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PARCEL_SAVE);
 
 	check_auction(nullptr, obj);
@@ -529,7 +529,7 @@ void receive(CharData *ch, CharData *mailman) {
 			}
 			return_money(name, money, RETURN_WITH_MONEY);
 
-			obj_to_char(obj, ch);
+			PlaceObjToInventory(obj, ch);
 			snprintf(buf, kMaxStringLength, "$n дал$g вам посылку (отправитель %s).", name.c_str());
 			act(buf, false, mailman, 0, ch, kToVict);
 			act("$N дал$G $n2 посылку.", false, ch, 0, mailman, kToRoom);
@@ -887,7 +887,7 @@ void bring_back(CharData *ch, CharData *mailman) {
 			world_objects.add(l->obj_);
 			obj_to_obj(l->obj_.get(), obj);
 		}
-		obj_to_char(obj, ch);
+		PlaceObjToInventory(obj, ch);
 		snprintf(buf, kMaxStringLength, "$n дал$g вам посылку.");
 		act(buf, false, mailman, 0, ch, kToVict);
 		act("$N дал$G $n2 посылку.", false, ch, 0, mailman, kToRoom);

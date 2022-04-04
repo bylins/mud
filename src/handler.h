@@ -40,7 +40,7 @@ int get_room_sky(int rnum);
 int equip_in_metall(CharData *ch);
 bool IsAwakeOthers(CharData *ch);
 
-void check_light(CharData *ch, int was_equip, int was_single, int was_holylight, int was_holydark, int koef);
+void CheckLight(CharData *ch, int was_equip, int was_single, int was_holylight, int was_holydark, int koef);
 
 // Resistance calculate //
 int ApplyResist(CharData *ch, int resist_type, int effect);
@@ -51,10 +51,10 @@ int GetResistType(int spellnum);
 void ImposeTimedFeat(CharData *ch, TimedFeat *timed);
 void ExpireTimedFeat(CharData *ch, TimedFeat *timed);
 int IsTimed(CharData *ch, int feat);
-void timed_to_char(CharData *ch, struct TimedSkill *timed);
-void timed_from_char(CharData *ch, struct TimedSkill *timed);
+void ImposeTimedSkill(CharData *ch, struct TimedSkill *timed);
+void ExpireTimedSkill(CharData *ch, struct TimedSkill *timed);
 int IsTimedBySkill(CharData *ch, ESkill id);
-void decreaseFeatTimer(CharData *ch, int featureID);
+void DecreaseFeatTimer(CharData *ch, int featureID);
 
 // utility //
 char *money_desc(int amount, int padis);
@@ -66,13 +66,13 @@ int get_number(std::string &name);
 RoomVnum get_room_where_obj(ObjData *obj, bool deep = false);
 
 // ******** objects *********** //
-bool equal_obj(ObjData *obj_one, ObjData *obj_two);
-void obj_to_char(ObjData *object, CharData *ch);
-void obj_from_char(ObjData *object);
+bool IsObjsStackable(ObjData *obj_one, ObjData *obj_two);
+void PlaceObjToInventory(ObjData *object, CharData *ch);
+void ExtractObjFromChar(ObjData *object);
 
-void equip_char(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_flags);
-ObjData *unequip_char(CharData *ch, int pos, const CharEquipFlags& equip_flags);
-int invalid_align(CharData *ch, ObjData *obj);
+void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_flags);
+ObjData *UnequipChar(CharData *ch, int pos, const CharEquipFlags& equip_flags);
+bool HaveIncompatibleAlign(CharData *ch, ObjData *obj);
 
 ObjData *get_obj_in_list(char *name, ObjData *list);
 ObjData *get_obj_in_list_num(int num, ObjData *list);
@@ -81,8 +81,8 @@ ObjData *get_obj_in_list_vnum(int num, ObjData *list);
 ObjData *get_obj(char *name, int vnum = 0);
 ObjData *get_obj_num(ObjRnum nr);
 
-int obj_decay(ObjData *object);
-bool obj_to_room(ObjData *object, RoomRnum room);
+bool CheckObjDecay(ObjData *object);
+bool PlaceObjToRoom(ObjData *object, RoomRnum room);
 void obj_from_room(ObjData *object);
 void obj_to_obj(ObjData *obj, ObjData *obj_to);
 void obj_from_obj(ObjData *obj);
@@ -96,14 +96,14 @@ CharData *get_char_room(char *name, RoomRnum room);
 CharData *get_char_num(MobRnum nr);
 CharData *get_char(char *name, int vnum = 0);
 
-void char_from_room(CharData *ch);
-inline void char_from_room(const CharData::shared_ptr &ch) { char_from_room(ch.get()); }
-void char_to_room(CharData *ch, RoomRnum room);
-void char_flee_to_room(CharData *ch, RoomRnum room);
-inline void char_to_room(const CharData::shared_ptr &ch, RoomRnum room) { char_to_room(ch.get(), room); }
-inline void char_flee_to_room(const CharData::shared_ptr &ch, RoomRnum room) { char_flee_to_room(ch.get(), room); }
+void ExtractCharFromRoom(CharData *ch);
+inline void char_from_room(const CharData::shared_ptr &ch) { ExtractCharFromRoom(ch.get()); }
+void PlaceCharToRoom(CharData *ch, RoomRnum room);
+void FleeToRoom(CharData *ch, RoomRnum room);
+inline void char_to_room(const CharData::shared_ptr &ch, RoomRnum room) { PlaceCharToRoom(ch.get(), room); }
+inline void char_flee_to_room(const CharData::shared_ptr &ch, RoomRnum room) { FleeToRoom(ch.get(), room); }
 void extract_char(CharData *ch, int clear_objs, bool zone_reset = 0);
-void room_affect_process_on_entry(CharData *ch, RoomRnum room);
+void ProcessRoomAffectsOnEntry(CharData *ch, RoomRnum room);
 
 // find if character can see //
 CharData *get_char_room_vis(CharData *ch, const char *name);
@@ -213,7 +213,7 @@ void MemQ_forget(CharData *ch, int num);
 int *MemQ_slots(CharData *ch);
 
 int get_object_low_rent(ObjData *obj);
-void set_uid(ObjData *object);
+void InitUid(ObjData *object);
 
 void remove_rune_label(CharData *ch);
 

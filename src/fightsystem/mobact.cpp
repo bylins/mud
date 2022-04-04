@@ -390,9 +390,8 @@ CharData *find_best_stupidmob_victim(CharData *ch, int extmode) {
 			min_lvl = vict;
 		}
 
-		if (IS_CASTER(vict)
-			&& (!caster
-				|| GET_CASTER(caster) * GET_REAL_CHA(vict) < GET_CASTER(vict) * GET_REAL_CHA(caster))) {
+		if (IS_CASTER(vict) &&
+			(!caster	|| caster->caster_level * GET_REAL_CHA(vict) < GET_REAL_CHA(caster)*vict->caster_level)) {
 			caster = vict;
 		}
 	}
@@ -899,7 +898,7 @@ void extract_charmice(CharData *ch) {
 	std::vector<ObjData *> objects;
 	for (int i = 0; i < EEquipPos::kNumEquipPos; ++i) {
 		if (GET_EQ(ch, i)) {
-			ObjData *obj = unequip_char(ch, i, CharEquipFlags());
+			ObjData *obj = UnequipChar(ch, i, CharEquipFlags());
 			if (obj) {
 				remove_otrigger(obj, ch);
 				objects.push_back(obj);
@@ -909,7 +908,7 @@ void extract_charmice(CharData *ch) {
 
 	while (ch->carrying) {
 		ObjData *obj = ch->carrying;
-		obj_from_char(obj);
+		ExtractObjFromChar(obj);
 		objects.push_back(obj);
 	}
 
@@ -1311,7 +1310,7 @@ void mobRemember(CharData *ch, CharData *victim) {
 	if (!IsTimedBySkill(victim, ESkill::kHideTrack)) {
 		timed.skill = ESkill::kHideTrack;
 		timed.time = ch->get_skill(ESkill::kTrack) ? 6 : 3;
-		timed_to_char(victim, &timed);
+		ImposeTimedSkill(victim, &timed);
 	}
 }
 

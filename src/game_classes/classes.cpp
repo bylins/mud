@@ -449,7 +449,7 @@ int thaco(int class_num, int level) {
 				case 32: return 0;
 				case 33: return 0;
 				case 34: return 0;
-				default: log("SYSERR: Missing level for cleric thac0.");
+				default: log("SYSERR: Missing level for sorcerer thac0.");
 					break;
 			}
 			 break;
@@ -1081,7 +1081,7 @@ void do_start(CharData *ch, int newbie) {
 				obj->set_cost(0);
 				obj->set_rent_off(0);
 				obj->set_rent_on(0);
-				obj_to_char(obj.get(), ch);
+				PlaceObjToInventory(obj.get(), ch);
 				Noob::equip_start_outfit(ch, obj.get());
 			}
 		}

@@ -1438,7 +1438,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			return;
 		}
 		GET_SPELL_MEM(mob_proto + i, t[0]) += 1;
-		GET_CASTER(mob_proto + i) += (IS_SET(spell_info[t[0]].routines, NPC_CALCULATE) ? 1 : 0);
+		(mob_proto + i)->caster_level += (IS_SET(spell_info[t[0]].routines, NPC_CALCULATE) ? 1 : 0);
 	}
 
 	CASE("Helper") {

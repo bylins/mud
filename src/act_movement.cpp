@@ -156,14 +156,14 @@ void make_visible(CharData *ch, const EAffect affect) {
 int skip_hiding(CharData *ch, CharData *vict) {
 	int percent, prob;
 
-	if (MAY_SEE(ch, vict, ch) && (AFF_FLAGGED(ch, EAffect::kHide) || affected_by_spell(ch, kSpellHide))) {
+	if (MAY_SEE(ch, vict, ch) && (AFF_FLAGGED(ch, EAffect::kHide) || IsAffectedBySpell(ch, kSpellHide))) {
 		if (awake_hide(ch))    //if (affected_by_spell(ch, SPELL_HIDE))
 		{
 			send_to_char("Вы попытались спрятаться, но ваша экипировка выдала вас.\r\n", ch);
 			affect_from_char(ch, kSpellHide);
 			make_visible(ch, EAffect::kHide);
 			EXTRA_FLAGS(ch).set(EXTRA_FAILHIDE);
-		} else if (affected_by_spell(ch, kSpellHide)) {
+		} else if (IsAffectedBySpell(ch, kSpellHide)) {
 			percent = number(1, 82 + GET_REAL_INT(vict));
 			prob = CalcCurrentSkill(ch, ESkill::kHide, vict);
 			if (percent > prob) {
@@ -187,14 +187,14 @@ int skip_camouflage(CharData *ch, CharData *vict) {
 
 	if (MAY_SEE(ch, vict, ch)
 		&& (AFF_FLAGGED(ch, EAffect::kDisguise)
-			|| affected_by_spell(ch, kSpellCamouflage))) {
+			|| IsAffectedBySpell(ch, kSpellCamouflage))) {
 		if (awake_camouflage(ch))    //if (affected_by_spell(ch,SPELL_CAMOUFLAGE))
 		{
 			send_to_char("Вы попытались замаскироваться, но ваша экипировка выдала вас.\r\n", ch);
 			affect_from_char(ch, kSpellCamouflage);
 			make_visible(ch, EAffect::kDisguise);
 			EXTRA_FLAGS(ch).set(EXTRA_FAILCAMOUFLAGE);
-		} else if (affected_by_spell(ch, kSpellCamouflage)) {
+		} else if (IsAffectedBySpell(ch, kSpellCamouflage)) {
 			percent = number(1, 82 + GET_REAL_INT(vict));
 			prob = CalcCurrentSkill(ch, ESkill::kDisguise, vict);
 			if (percent > prob) {
@@ -217,16 +217,16 @@ int skip_sneaking(CharData *ch, CharData *vict) {
 	int percent, prob, absolute_fail;
 	bool try_fail;
 
-	if (MAY_SEE(ch, vict, ch) && (AFF_FLAGGED(ch, EAffect::kSneak) || affected_by_spell(ch, kSpellSneak))) {
+	if (MAY_SEE(ch, vict, ch) && (AFF_FLAGGED(ch, EAffect::kSneak) || IsAffectedBySpell(ch, kSpellSneak))) {
 		if (awake_sneak(ch))    //if (affected_by_spell(ch,SPELL_SNEAK))
 		{
 			send_to_char("Вы попытались подкрасться, но ваша экипировка выдала вас.\r\n", ch);
 			affect_from_char(ch, kSpellSneak);
-			if (affected_by_spell(ch, kSpellHide))
+			if (IsAffectedBySpell(ch, kSpellHide))
 				affect_from_char(ch, kSpellHide);
 			make_visible(ch, EAffect::kSneak);
 			EXTRA_FLAGS(ch).get(EXTRA_FAILSNEAK);
-		} else if (affected_by_spell(ch, kSpellSneak)) {
+		} else if (IsAffectedBySpell(ch, kSpellSneak)) {
 			//if (can_use_feat(ch, EFeat::kStealthy)) //тать или наем
 			//percent = number(1, 140 + GET_REAL_INT(vict));
 			//else
@@ -246,7 +246,7 @@ int skip_sneaking(CharData *ch, CharData *vict) {
 
 			if ((percent > prob) || try_fail) {
 				affect_from_char(ch, kSpellSneak);
-				if (affected_by_spell(ch, kSpellHide))
+				if (IsAffectedBySpell(ch, kSpellHide))
 					affect_from_char(ch, kSpellHide);
 				if (!AFF_FLAGGED(ch, EAffect::kSneak)) {
 					ImproveSkill(ch, ESkill::kSneak, false, vict);
@@ -321,9 +321,9 @@ int calculate_move_cost(CharData *ch, int dir) {
 
 	if (IS_IMMORTAL(ch))
 		need_movement = 0;
-	else if (affected_by_spell(ch, kSpellCamouflage))
+	else if (IsAffectedBySpell(ch, kSpellCamouflage))
 		need_movement += CAMOUFLAGE_MOVES;
-	else if (affected_by_spell(ch, kSpellSneak))
+	else if (IsAffectedBySpell(ch, kSpellSneak))
 		need_movement += SNEAK_MOVES;
 
 	return need_movement;
@@ -410,7 +410,7 @@ int legal_dir(CharData *ch, int dir, int need_specials_check, int show_msg) {
 	} else {
 		//Вход в замок
 		if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kHouseEntry)) {
-			if (!Clan::MayEnter(ch, EXIT(ch, dir)->to_room(), HCE_ATRIUM)) {
+			if (!Clan::MayEnter(ch, EXIT(ch, dir)->to_room(), kHouseAtrium)) {
 				if (show_msg)
 					send_to_char("Частная собственность! Вход воспрещен!\r\n", ch);
 				return (false);
@@ -460,7 +460,7 @@ int legal_dir(CharData *ch, int dir, int need_specials_check, int show_msg) {
 		}
 		//Вход в замок
 		if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kHouseEntry)) {
-			if (!Clan::MayEnter(ch, EXIT(ch, dir)->to_room(), HCE_ATRIUM)) {
+			if (!Clan::MayEnter(ch, EXIT(ch, dir)->to_room(), kHouseAtrium)) {
 				if (show_msg)
 					send_to_char("Частная собственность! Вход воспрещен!\r\n", ch);
 				return (false);
@@ -631,7 +631,7 @@ int do_simple_move(CharData *ch, int dir, int need_specials_check, CharData *lea
 			invis = 1;
 		else if (awake_sneak(ch)) {
 			affect_from_char(ch, kSpellSneak);
-		} else if (!affected_by_spell(ch, kSpellSneak) || CalcCurrentSkill(ch, ESkill::kSneak, nullptr) >= number(1, i))
+		} else if (!IsAffectedBySpell(ch, kSpellSneak) || CalcCurrentSkill(ch, ESkill::kSneak, nullptr) >= number(1, i))
 			invis = 1;
 	}
 
@@ -641,7 +641,7 @@ int do_simple_move(CharData *ch, int dir, int need_specials_check, CharData *lea
 			invis = 1;
 		else if (awake_camouflage(ch)) {
 			affect_from_char(ch, kSpellCamouflage);
-		} else if (!affected_by_spell(ch, kSpellCamouflage) ||
+		} else if (!IsAffectedBySpell(ch, kSpellCamouflage) ||
 			CalcCurrentSkill(ch, ESkill::kDisguise, nullptr) >= number(1, i))
 			invis = 1;
 	}
@@ -718,16 +718,16 @@ int do_simple_move(CharData *ch, int dir, int need_specials_check, CharData *lea
 		ImproveSkill(ch, ESkill::kTrack, true, nullptr);
 	}
 
-	char_from_room(ch);
+	ExtractCharFromRoom(ch);
 	//затычка для бегства. чтоьы не отрабатывал MSDP протокол
 	if (is_flee && !ch->is_npc() && !IsAbleToUseFeat(ch, EFeat::kCalmness))
-		char_flee_to_room(ch, go_to);
+		FleeToRoom(ch, go_to);
 	else
-		char_to_room(ch, go_to);
+		PlaceCharToRoom(ch, go_to);
 	if (horse) {
 		GET_HORSESTATE(horse) -= 1;
-		char_from_room(horse);
-		char_to_room(horse, go_to);
+		ExtractCharFromRoom(horse);
+		PlaceCharToRoom(horse, go_to);
 	}
 
 	if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {
@@ -790,7 +790,7 @@ int do_simple_move(CharData *ch, int dir, int need_specials_check, CharData *lea
 		look_at_room(ch, 0);
 
 	if (!ch->is_npc())
-		room_affect_process_on_entry(ch, ch->in_room);
+		ProcessRoomAffectsOnEntry(ch, ch->in_room);
 
 	if (deathtrap::check_death_trap(ch)) {
 		if (horse) {
@@ -831,7 +831,7 @@ int do_simple_move(CharData *ch, int dir, int need_specials_check, CharData *lea
 
 		if (track) {
 			SET_BIT(track->time_income[Reverse[dir]], 1);
-			if (affected_by_spell(ch, kSpellLightWalk) && !ch->ahorse())
+			if (IsAffectedBySpell(ch, kSpellLightWalk) && !ch->ahorse())
 				if (AFF_FLAGGED(ch, EAffect::kLightWalk))
 					track->time_income[Reverse[dir]] <<= number(15, 30);
 			REMOVE_BIT(track->track_info, TRACK_HIDE);
@@ -853,7 +853,7 @@ int do_simple_move(CharData *ch, int dir, int need_specials_check, CharData *lea
 		}
 		if (track) {
 			SET_BIT(track->time_outgone[dir], 1);
-			if (affected_by_spell(ch, kSpellLightWalk) && !ch->ahorse())
+			if (IsAffectedBySpell(ch, kSpellLightWalk) && !ch->ahorse())
 				if (AFF_FLAGGED(ch, EAffect::kLightWalk))
 					track->time_outgone[dir] <<= number(15, 30);
 			REMOVE_BIT(track->track_info, TRACK_HIDE);
@@ -987,7 +987,7 @@ void do_move(CharData *ch, char * /*argument*/, int/* cmd*/, int subcmd) {
 }
 
 void do_hidemove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	int dir = 0, sneaking = affected_by_spell(ch, kSpellSneak);
+	int dir = 0, sneaking = IsAffectedBySpell(ch, kSpellSneak);
 
 	skip_spaces(&argument);
 	if (!ch->get_skill(ESkill::kSneak)) {
@@ -1021,7 +1021,7 @@ void do_hidemove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		affect_join(ch, af, false, false, false, false);
 	}
 	perform_move(ch, dir, 0, true, nullptr);
-	if (!sneaking || affected_by_spell(ch, kSpellGlitterDust)) {
+	if (!sneaking || IsAffectedBySpell(ch, kSpellGlitterDust)) {
 		affect_from_char(ch, kSpellSneak);
 	}
 }
@@ -1303,10 +1303,10 @@ void do_doorcmd(CharData *ch, ObjData *obj, int door, DOOR_SCMD scmd) {
 						extract_obj(obj);
 						obj = world_objects.create_from_prototype_by_rnum(r_num).get();
 						obj->set_crafter_uid(GET_UNIQUE(ch));
-						obj_to_char(obj, ch);
+						PlaceObjToInventory(obj, ch);
 						act("$n завизжал$g от радости.", false, ch, nullptr, nullptr, kToRoom);
 						load_otrigger(obj);
-						obj_decay(obj);
+						CheckObjDecay(obj);
 						olc_log("%s load obj %s #%d", GET_NAME(ch), obj->get_short_description().c_str(), vnum);
 						return;
 					}
@@ -1548,7 +1548,7 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				// Обработка флагов NOTELEPORTIN и NOTELEPORTOUT здесь же
 				if (!IS_IMMORTAL(ch)
 					&& ((!ch->is_npc()
-						&& (!Clan::MayEnter(ch, door, HCE_PORTAL) || (GetRealLevel(ch) <= 10 && world[door]->portal_time && GET_REAL_REMORT(ch) < 9)))
+						&& (!Clan::MayEnter(ch, door, kHousePortal) || (GetRealLevel(ch) <= 10 && world[door]->portal_time && GET_REAL_REMORT(ch) < 9)))
 						|| (ROOM_FLAGGED(from_room, ERoomFlag::kNoTeleportOut) || ROOM_FLAGGED(door, ERoomFlag::kNoTeleportIn))
 						|| AFF_FLAGGED(ch, EAffect::kNoTeleport)
 						|| (world[door]->pkPenterUnique
@@ -1574,8 +1574,8 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 								 CCIRED(ch, C_NRM), CCINRM(ch, C_NRM));
 					pkPortal(ch);
 				}
-				char_from_room(ch);
-				char_to_room(ch, door);
+				ExtractCharFromRoom(ch);
+				PlaceCharToRoom(ch, door);
 				greet_mtrigger(ch, -1);
 				greet_otrigger(ch, -1);
 				SetWait(ch, 3, false);
@@ -1588,8 +1588,8 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						!GET_MOB_HOLD(k->ch) &&
 						IN_ROOM(k->ch) == from_room && AWAKE(k->ch)) {
 						if (!ROOM_FLAGGED(door, ERoomFlag::kNohorse)) {
-							char_from_room(k->ch);
-							char_to_room(k->ch, door);
+							ExtractCharFromRoom(k->ch);
+							PlaceCharToRoom(k->ch, door);
 						}
 					}
 					if (AFF_FLAGGED(k->ch, EAffect::kHelper)
@@ -1600,8 +1600,8 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						&& AWAKE(k->ch)) {
 						act("$n исчез$q в пентаграмме.", true,
 							k->ch, nullptr, nullptr, kToRoom);
-						char_from_room(k->ch);
-						char_to_room(k->ch, door);
+						ExtractCharFromRoom(k->ch);
+						PlaceCharToRoom(k->ch, door);
 						SetWait(k->ch, 3, false);
 						act("$n появил$u из пентаграммы.", true,
 							k->ch, nullptr, nullptr, kToRoom);
