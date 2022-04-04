@@ -36,7 +36,7 @@
 			<level>0</level>
 			<weight>20</weight>
 			<timer>999999</timer>
-			<material>MAT_SKIN</material>
+			<material>kSkin</material>
 			<spell>kSpellNoSpell</spell>
 			<extraflags>
 				<extraflag>kBless</extraflag>
@@ -90,7 +90,7 @@
 			<level>0</level>
 			<weight>7</weight>
 			<timer>10080</timer>
-			<material>MAT_BRONZE</material>
+			<material>kBronze</material>
 			<spell>kSpellBurningHands</spell>
 			<extraflags>
 				<extraflag>kNosell</extraflag>
@@ -146,7 +146,7 @@
 			<level>0</level>
 			<weight>7</weight>
 			<timer>20160</timer>
-			<material>MAT_ORGANIC</material>
+			<material>kOrganic</material>
 			<spell>kSpellNoSpell</spell>
 			<extraflags>
 				<extraflag>kSwimming</extraflag>
@@ -202,7 +202,7 @@
 			<level>0</level>
 			<weight>7</weight>
 			<timer>10080</timer>
-			<material>MAT_SKIN</material>
+			<material>kSkin</material>
 			<spell>kSpellTeleport</spell>
 			<val0>1</val0>
 			<val1>1661</val1>

@@ -2261,24 +2261,24 @@ void do_upgrade(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	switch (obj->get_material()) {
-		case EObjMaterial::MAT_BRONZE:
-		case EObjMaterial::MAT_BULAT:
-		case EObjMaterial::MAT_IRON:
-		case EObjMaterial::MAT_STEEL:
-		case EObjMaterial::MAT_SWORDSSTEEL:
-		case EObjMaterial::MAT_COLOR:
-		case EObjMaterial::MAT_BONE: act("Вы взялись точить $o3.", false, ch, obj, 0, kToChar);
+		case EObjMaterial::kBronze:
+		case EObjMaterial::kBulat:
+		case EObjMaterial::kIron:
+		case EObjMaterial::kSteel:
+		case EObjMaterial::kForgedSteel:
+		case EObjMaterial::kPreciousMetel:
+		case EObjMaterial::kBone: act("Вы взялись точить $o3.", false, ch, obj, 0, kToChar);
 			act("$n взял$u точить $o3.", false, ch, obj, 0, kToRoom | kToArenaListen);
 			weight = -1;
 			break;
 
-		case EObjMaterial::MAT_WOOD:
-		case EObjMaterial::MAT_SUPERWOOD: act("Вы взялись стругать $o3.", false, ch, obj, 0, kToChar);
+		case EObjMaterial::kWood:
+		case EObjMaterial::kHardWood: act("Вы взялись стругать $o3.", false, ch, obj, 0, kToChar);
 			act("$n взял$u стругать $o3.", false, ch, obj, 0, kToRoom | kToArenaListen);
 			weight = -1;
 			break;
 
-		case EObjMaterial::MAT_SKIN: act("Вы взялись проклепывать $o3.", false, ch, obj, 0, kToChar);
+		case EObjMaterial::kSkin: act("Вы взялись проклепывать $o3.", false, ch, obj, 0, kToChar);
 			act("$n взял$u проклепывать $o3.", false, ch, obj, 0, kToRoom | kToArenaListen);
 			weight = +1;
 			break;
@@ -2400,18 +2400,18 @@ void do_armored(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	switch (obj->get_material()) {
-		case EObjMaterial::MAT_IRON:
-		case EObjMaterial::MAT_STEEL:
-		case EObjMaterial::MAT_BULAT: act("Вы принялись закалять $o3.", false, ch, obj, 0, kToChar);
+		case EObjMaterial::kIron:
+		case EObjMaterial::kSteel:
+		case EObjMaterial::kBulat: act("Вы принялись закалять $o3.", false, ch, obj, 0, kToChar);
 			act("$n принял$u закалять $o3.", false, ch, obj, 0, kToRoom | kToArenaListen);
 			break;
 
-		case EObjMaterial::MAT_WOOD:
-		case EObjMaterial::MAT_SUPERWOOD: act("Вы принялись обшивать $o3 железом.", false, ch, obj, 0, kToChar);
+		case EObjMaterial::kWood:
+		case EObjMaterial::kHardWood: act("Вы принялись обшивать $o3 железом.", false, ch, obj, 0, kToChar);
 			act("$n принял$u обшивать $o3 железом.", false, ch, obj, 0, kToRoom | kToArenaListen);
 			break;
 
-		case EObjMaterial::MAT_SKIN: act("Вы принялись проклепывать $o3.", false, ch, obj, 0, kToChar);
+		case EObjMaterial::kSkin: act("Вы принялись проклепывать $o3.", false, ch, obj, 0, kToChar);
 			act("$n принял$u проклепывать $o3.", false, ch, obj, 0, kToRoom | kToArenaListen);
 			break;
 

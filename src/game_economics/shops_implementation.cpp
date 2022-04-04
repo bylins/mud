@@ -1190,25 +1190,25 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 		}
 
 		switch (obj->get_material()) {
-			case EObjMaterial::MAT_BULAT:
-			case EObjMaterial::MAT_CRYSTALL:
-			case EObjMaterial::MAT_DIAMOND:
-			case EObjMaterial::MAT_SWORDSSTEEL: repair_price *= 2;
+			case EObjMaterial::kBulat:
+			case EObjMaterial::kCrystal:
+			case EObjMaterial::kDiamond:
+			case EObjMaterial::kForgedSteel: repair_price *= 2;
 				break;
 
-			case EObjMaterial::MAT_SUPERWOOD:
-			case EObjMaterial::MAT_COLOR:
-			case EObjMaterial::MAT_GLASS:
-			case EObjMaterial::MAT_BRONZE:
-			case EObjMaterial::MAT_FARFOR:
-			case EObjMaterial::MAT_BONE:
-			case EObjMaterial::MAT_ORGANIC: repair_price += MAX(1, repair_price / 2);
+			case EObjMaterial::kHardWood:
+			case EObjMaterial::kPreciousMetel:
+			case EObjMaterial::kGlass:
+			case EObjMaterial::kBronze:
+			case EObjMaterial::kCeramic:
+			case EObjMaterial::kBone:
+			case EObjMaterial::kOrganic: repair_price += MAX(1, repair_price / 2);
 				break;
 
-			case EObjMaterial::MAT_IRON:
-			case EObjMaterial::MAT_STEEL:
-			case EObjMaterial::MAT_SKIN:
-			case EObjMaterial::MAT_MATERIA:
+			case EObjMaterial::kIron:
+			case EObjMaterial::kSteel:
+			case EObjMaterial::kSkin:
+			case EObjMaterial::kCloth:
 				//repair_price = repair_price;
 				break;
 

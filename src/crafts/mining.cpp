@@ -290,9 +290,9 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	obj = world_objects.create_from_prototype_by_vnum(vnum);
 	if (obj) {
 		if (number(1, dig_vars.glass_chance) != 1) {
-			obj->set_material(EObjMaterial::MAT_GLASS);
+			obj->set_material(EObjMaterial::kGlass);
 		} else {
-			obj->set_material(EObjMaterial::MAT_DIAMOND);
+			obj->set_material(EObjMaterial::kDiamond);
 		}
 
 		dig_obj(ch, obj.get());

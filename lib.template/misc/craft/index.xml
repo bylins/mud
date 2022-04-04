@@ -308,7 +308,7 @@
 			<item_parameters>
 				<parameter>kClubs</parameter>
 			</item_parameters>
-			<material>MAT_SUPERWOOD</material>
+			<material>kHardWood</material>
 			<spell>kSpellSleep</spell>
 
 			<extraflags>

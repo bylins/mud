@@ -497,25 +497,25 @@ void init_EObjMaterial_ITEM_NAMES() {
 	EObjMaterial_value_by_name.clear();
 	EObjMaterial_name_by_value.clear();
 
-	EObjMaterial_name_by_value[EObjMaterial::MAT_NONE] = "MAT_NONE";
-	EObjMaterial_name_by_value[EObjMaterial::MAT_BULAT] = "MAT_BULAT";
-	EObjMaterial_name_by_value[EObjMaterial::MAT_BRONZE] = "MAT_BRONZE";
-	EObjMaterial_name_by_value[EObjMaterial::MAT_IRON] = "MAT_IRON";
-	EObjMaterial_name_by_value[EObjMaterial::MAT_STEEL] = "MAT_STEEL";
-	EObjMaterial_name_by_value[EObjMaterial::MAT_SWORDSSTEEL] = "MAT_SWORDSSTEEL";
-	EObjMaterial_name_by_value[EObjMaterial::MAT_COLOR] = "MAT_COLOR";
-	EObjMaterial_name_by_value[EObjMaterial::MAT_CRYSTALL] = "MAT_CRYSTALL";
-	EObjMaterial_name_by_value[EObjMaterial::MAT_WOOD] = "MAT_WOOD";
-	EObjMaterial_name_by_value[EObjMaterial::MAT_SUPERWOOD] = "MAT_SUPERWOOD";
-	EObjMaterial_name_by_value[EObjMaterial::MAT_FARFOR] = "MAT_FARFOR";
-	EObjMaterial_name_by_value[EObjMaterial::MAT_GLASS] = "MAT_GLASS";
-	EObjMaterial_name_by_value[EObjMaterial::MAT_ROCK] = "MAT_ROCK";
-	EObjMaterial_name_by_value[EObjMaterial::MAT_BONE] = "MAT_BONE";
-	EObjMaterial_name_by_value[EObjMaterial::MAT_MATERIA] = "MAT_MATERIA";
-	EObjMaterial_name_by_value[EObjMaterial::MAT_SKIN] = "MAT_SKIN";
-	EObjMaterial_name_by_value[EObjMaterial::MAT_ORGANIC] = "MAT_ORGANIC";
-	EObjMaterial_name_by_value[EObjMaterial::MAT_PAPER] = "MAT_PAPER";
-	EObjMaterial_name_by_value[EObjMaterial::MAT_DIAMOND] = "MAT_DIAMOND";
+	EObjMaterial_name_by_value[EObjMaterial::kMaterialUndefined] = "kMaterialUndefined";
+	EObjMaterial_name_by_value[EObjMaterial::kBulat] = "kBulat";
+	EObjMaterial_name_by_value[EObjMaterial::kBronze] = "kBronze";
+	EObjMaterial_name_by_value[EObjMaterial::kIron] = "kIron";
+	EObjMaterial_name_by_value[EObjMaterial::kSteel] = "kSteel";
+	EObjMaterial_name_by_value[EObjMaterial::kForgedSteel] = "kForgedSteel";
+	EObjMaterial_name_by_value[EObjMaterial::kPreciousMetel] = "kPreciousMetel";
+	EObjMaterial_name_by_value[EObjMaterial::kCrystal] = "kCrystal";
+	EObjMaterial_name_by_value[EObjMaterial::kWood] = "kWood";
+	EObjMaterial_name_by_value[EObjMaterial::kHardWood] = "kSolidWood";
+	EObjMaterial_name_by_value[EObjMaterial::kCeramic] = "kCeramic";
+	EObjMaterial_name_by_value[EObjMaterial::kGlass] = "kGlass";
+	EObjMaterial_name_by_value[EObjMaterial::kStone] = "kStone";
+	EObjMaterial_name_by_value[EObjMaterial::kBone] = "kBone";
+	EObjMaterial_name_by_value[EObjMaterial::kCloth] = "kCloth";
+	EObjMaterial_name_by_value[EObjMaterial::kSkin] = "kSkin";
+	EObjMaterial_name_by_value[EObjMaterial::kOrganic] = "kOrganic";
+	EObjMaterial_name_by_value[EObjMaterial::kPaper] = "kPaper";
+	EObjMaterial_name_by_value[EObjMaterial::kDiamond] = "kDiamond";
 
 	for (const auto &i : EObjMaterial_name_by_value) {
 		EObjMaterial_value_by_name[i.second] = i.first;

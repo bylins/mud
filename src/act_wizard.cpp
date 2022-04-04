@@ -5303,41 +5303,41 @@ void do_print_armor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		switch (*argument) {
 			case 'М': argument = one_argument(++argument, tmpbuf);
 				if (utils::IsAbbrev(tmpbuf, "булат")) {
-					filter.material = EObjMaterial::MAT_BULAT;
+					filter.material = EObjMaterial::kBulat;
 				} else if (utils::IsAbbrev(tmpbuf, "бронза")) {
-					filter.material = EObjMaterial::MAT_BRONZE;
+					filter.material = EObjMaterial::kBronze;
 				} else if (utils::IsAbbrev(tmpbuf, "железо")) {
-					filter.material = EObjMaterial::MAT_IRON;
+					filter.material = EObjMaterial::kIron;
 				} else if (utils::IsAbbrev(tmpbuf, "сталь")) {
-					filter.material = EObjMaterial::MAT_STEEL;
+					filter.material = EObjMaterial::kSteel;
 				} else if (utils::IsAbbrev(tmpbuf, "кованая.сталь")) {
-					filter.material = EObjMaterial::MAT_SWORDSSTEEL;
+					filter.material = EObjMaterial::kForgedSteel;
 				} else if (utils::IsAbbrev(tmpbuf, "драг.металл")) {
-					filter.material = EObjMaterial::MAT_COLOR;
+					filter.material = EObjMaterial::kPreciousMetel;
 				} else if (utils::IsAbbrev(tmpbuf, "кристалл")) {
-					filter.material = EObjMaterial::MAT_CRYSTALL;
+					filter.material = EObjMaterial::kCrystal;
 				} else if (utils::IsAbbrev(tmpbuf, "дерево")) {
-					filter.material = EObjMaterial::MAT_WOOD;
+					filter.material = EObjMaterial::kWood;
 				} else if (utils::IsAbbrev(tmpbuf, "прочное.дерево")) {
-					filter.material = EObjMaterial::MAT_SUPERWOOD;
+					filter.material = EObjMaterial::kHardWood;
 				} else if (utils::IsAbbrev(tmpbuf, "керамика")) {
-					filter.material = EObjMaterial::MAT_FARFOR;
+					filter.material = EObjMaterial::kCeramic;
 				} else if (utils::IsAbbrev(tmpbuf, "стекло")) {
-					filter.material = EObjMaterial::MAT_GLASS;
+					filter.material = EObjMaterial::kGlass;
 				} else if (utils::IsAbbrev(tmpbuf, "камень")) {
-					filter.material = EObjMaterial::MAT_ROCK;
+					filter.material = EObjMaterial::kStone;
 				} else if (utils::IsAbbrev(tmpbuf, "кость")) {
-					filter.material = EObjMaterial::MAT_BONE;
+					filter.material = EObjMaterial::kBone;
 				} else if (utils::IsAbbrev(tmpbuf, "ткань")) {
-					filter.material = EObjMaterial::MAT_MATERIA;
+					filter.material = EObjMaterial::kCloth;
 				} else if (utils::IsAbbrev(tmpbuf, "кожа")) {
-					filter.material = EObjMaterial::MAT_SKIN;
+					filter.material = EObjMaterial::kSkin;
 				} else if (utils::IsAbbrev(tmpbuf, "органика")) {
-					filter.material = EObjMaterial::MAT_ORGANIC;
+					filter.material = EObjMaterial::kOrganic;
 				} else if (utils::IsAbbrev(tmpbuf, "береста")) {
-					filter.material = EObjMaterial::MAT_PAPER;
+					filter.material = EObjMaterial::kPaper;
 				} else if (utils::IsAbbrev(tmpbuf, "драг.камень")) {
-					filter.material = EObjMaterial::MAT_DIAMOND;
+					filter.material = EObjMaterial::kDiamond;
 				} else {
 					send_to_char("Неверный материал предмета.\r\n", ch);
 					return;

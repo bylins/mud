@@ -1418,7 +1418,7 @@ void show_lots(char *filter, short int show_type, CharData *ch) {
 						 GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0).c_str(), buf);
 			}
 		} else if (is_dig_stone(GET_EXCHANGE_ITEM(j))
-			&& GET_OBJ_MATER(GET_EXCHANGE_ITEM(j)) == EObjMaterial::MAT_GLASS) {
+			&& GET_OBJ_MATER(GET_EXCHANGE_ITEM(j)) == EObjMaterial::kGlass) {
 			sprintf(tmpbuf,
 					"[%4d]   %s (стекло)",
 					GET_EXCHANGE_ITEM_LOT(j),

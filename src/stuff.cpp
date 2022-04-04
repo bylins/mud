@@ -419,7 +419,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 
 	obj->set_maximum_durability(5000);
 	obj->set_current_durability(5000);
-	obj->set_material(EObjMaterial::MAT_CRYSTALL);
+	obj->set_material(EObjMaterial::kCrystal);
 
 	obj->set_weight(floorf(diff/9.0));
 

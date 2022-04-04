@@ -1130,16 +1130,16 @@ void do_fit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	switch (subcmd) {
 		case SCMD_DO_ADAPT:
-			if (GET_OBJ_MATER(obj) != EObjMaterial::MAT_NONE
-				&& GET_OBJ_MATER(obj) != EObjMaterial::MAT_BULAT
-				&& GET_OBJ_MATER(obj) != EObjMaterial::MAT_BRONZE
-				&& GET_OBJ_MATER(obj) != EObjMaterial::MAT_IRON
-				&& GET_OBJ_MATER(obj) != EObjMaterial::MAT_STEEL
-				&& GET_OBJ_MATER(obj) != EObjMaterial::MAT_SWORDSSTEEL
-				&& GET_OBJ_MATER(obj) != EObjMaterial::MAT_COLOR
-				&& GET_OBJ_MATER(obj) != EObjMaterial::MAT_WOOD
-				&& GET_OBJ_MATER(obj) != EObjMaterial::MAT_SUPERWOOD
-				&& GET_OBJ_MATER(obj) != EObjMaterial::MAT_GLASS) {
+			if (GET_OBJ_MATER(obj) != EObjMaterial::kMaterialUndefined
+				&& GET_OBJ_MATER(obj) != EObjMaterial::kBulat
+				&& GET_OBJ_MATER(obj) != EObjMaterial::kBronze
+				&& GET_OBJ_MATER(obj) != EObjMaterial::kIron
+				&& GET_OBJ_MATER(obj) != EObjMaterial::kSteel
+				&& GET_OBJ_MATER(obj) != EObjMaterial::kForgedSteel
+				&& GET_OBJ_MATER(obj) != EObjMaterial::kPreciousMetel
+				&& GET_OBJ_MATER(obj) != EObjMaterial::kWood
+				&& GET_OBJ_MATER(obj) != EObjMaterial::kHardWood
+				&& GET_OBJ_MATER(obj) != EObjMaterial::kGlass) {
 				sprintf(buf, "К сожалению %s сделан%s из неподходящего материала.\r\n",
 						GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_SUF_6(obj));
 				send_to_char(buf, ch);
@@ -1147,10 +1147,10 @@ void do_fit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			}
 			break;
 		case SCMD_MAKE_OVER:
-			if (GET_OBJ_MATER(obj) != EObjMaterial::MAT_BONE
-				&& GET_OBJ_MATER(obj) != EObjMaterial::MAT_MATERIA
-				&& GET_OBJ_MATER(obj) != EObjMaterial::MAT_SKIN
-				&& GET_OBJ_MATER(obj) != EObjMaterial::MAT_ORGANIC) {
+			if (GET_OBJ_MATER(obj) != EObjMaterial::kBone
+				&& GET_OBJ_MATER(obj) != EObjMaterial::kCloth
+				&& GET_OBJ_MATER(obj) != EObjMaterial::kSkin
+				&& GET_OBJ_MATER(obj) != EObjMaterial::kOrganic) {
 				sprintf(buf, "К сожалению %s сделан%s из неподходящего материала.\r\n",
 						GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_SUF_6(obj));
 				send_to_char(buf, ch);

@@ -614,25 +614,25 @@ template<>
 EObjType ITEM_BY_NAME<EObjType>(const std::string &name);
 
 enum EObjMaterial {
-	MAT_NONE = 0,
-	MAT_BULAT = 1,
-	MAT_BRONZE = 2,
-	MAT_IRON = 3,
-	MAT_STEEL = 4,
-	MAT_SWORDSSTEEL = 5,
-	MAT_COLOR = 6,
-	MAT_CRYSTALL = 7,
-	MAT_WOOD = 8,
-	MAT_SUPERWOOD = 9,
-	MAT_FARFOR = 10,
-	MAT_GLASS = 11,
-	MAT_ROCK = 12,
-	MAT_BONE = 13,
-	MAT_MATERIA = 14,
-	MAT_SKIN = 15,
-	MAT_ORGANIC = 16,
-	MAT_PAPER = 17,
-	MAT_DIAMOND = 18
+	kMaterialUndefined = 0,
+	kBulat = 1,
+	kBronze = 2,
+	kIron = 3,
+	kSteel = 4,
+	kForgedSteel = 5,
+	kPreciousMetel = 6,
+	kCrystal = 7,
+	kWood = 8,
+	kHardWood = 9,
+	kCeramic = 10,
+	kGlass = 11,
+	kStone = 12,
+	kBone = 13,
+	kCloth = 14,
+	kSkin = 15,
+	kOrganic = 16,
+	kPaper = 17,
+	kDiamond = 18
 };
 
 template<>
