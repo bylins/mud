@@ -1550,7 +1550,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 
 		case EObjType::kBook:
 			switch (GET_OBJ_VAL(obj, 0)) {
-				case BOOK_SPELL:
+				case EBook::kSpell:
 					if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) <= kSpellCount) {
 						drndice = GET_OBJ_VAL(obj, 1);
 						if (MIN_CAST_REM(spell_info[GET_OBJ_VAL(obj, 1)], ch) > GET_REAL_REMORT(ch))
@@ -1564,7 +1564,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 					}
 					break;
 
-				case BOOK_SKILL: {
+				case EBook::kSkill: {
 					auto skill_id = static_cast<ESkill>(GET_OBJ_VAL(obj, 1));
 					if (MUD::Skills().IsValid(skill_id)) {
 						drndice = GET_OBJ_VAL(obj, 1);
@@ -1580,10 +1580,10 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 					}
 					break;
 				}
-				case BOOK_UPGRD: print_book_uprgd_skill(ch, obj);
+				case EBook::kSkillUpgrade: print_book_uprgd_skill(ch, obj);
 					break;
 
-				case BOOK_RECPT: drndice = im_get_recipe(GET_OBJ_VAL(obj, 1));
+				case EBook::kReceipt: drndice = im_get_recipe(GET_OBJ_VAL(obj, 1));
 					if (drndice >= 0) {
 						drsdice = MAX(GET_OBJ_VAL(obj, 2), imrecipes[drndice].level);
 						int count = imrecipes[drndice].remort;
@@ -1605,7 +1605,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 					}
 					break;
 
-				case BOOK_FEAT: {
+				case EBook::kFeat: {
 					const auto feat_id = static_cast<EFeat>(GET_OBJ_VAL(obj, 1));
 					if (feat_id >= EFeat::kFirstFeat && feat_id <= EFeat::kLastFeat) {
 						if (IsAbleToGetFeat(ch, feat_id)) {

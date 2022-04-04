@@ -1028,21 +1028,21 @@ void do_hidemove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 #define DOOR_IS_OPENABLE(ch, obj, door)    ((obj) ? \
             ((GET_OBJ_TYPE(obj) == EObjType::kContainer) && \
-            OBJVAL_FLAGGED(obj, CONT_CLOSEABLE)) :\
+            OBJVAL_FLAGGED(obj, EContainerFlag::kCloseable)) :\
             (EXIT_FLAGGED(EXIT(ch, door), EExitFlag::kHasDoor)))
 #define DOOR_IS(ch, door)    ((EXIT_FLAGGED(EXIT(ch, door), EExitFlag::kHasDoor)))
 
 #define DOOR_IS_OPEN(ch, obj, door)    ((obj) ? \
-            (!OBJVAL_FLAGGED(obj, CONT_CLOSED)) :\
+            (!OBJVAL_FLAGGED(obj, EContainerFlag::kShutted)) :\
             (!EXIT_FLAGGED(EXIT(ch, door), EExitFlag::kClosed)))
 #define DOOR_IS_BROKEN(ch, obj, door)    ((obj) ? \
-    (OBJVAL_FLAGGED(obj, CONT_BROKEN)) :\
+    (OBJVAL_FLAGGED(obj, EContainerFlag::kLockIsBroken)) :\
     (EXIT_FLAGGED(EXIT(ch, door), EExitFlag::kBrokenLock)))
 #define DOOR_IS_UNLOCKED(ch, obj, door)    ((obj) ? \
-            (!OBJVAL_FLAGGED(obj, CONT_LOCKED)) :\
+            (!OBJVAL_FLAGGED(obj, EContainerFlag::kLockedUp)) :\
             (!EXIT_FLAGGED(EXIT(ch, door), EExitFlag::kLocked)))
 #define DOOR_IS_PICKPROOF(ch, obj, door) ((obj) ? \
-    (OBJVAL_FLAGGED(obj, CONT_PICKPROOF) || OBJVAL_FLAGGED(obj, CONT_BROKEN)) : \
+    (OBJVAL_FLAGGED(obj, EContainerFlag::kUncrackable) || OBJVAL_FLAGGED(obj, EContainerFlag::kLockIsBroken)) : \
     (EXIT_FLAGGED(EXIT(ch, door), EExitFlag::kPickroof) || EXIT_FLAGGED(EXIT(ch, door), EExitFlag::kBrokenLock)))
 
 #define DOOR_IS_CLOSED(ch, obj, door)    (!(DOOR_IS_OPEN(ch, obj, door)))
@@ -1169,7 +1169,7 @@ const int flags_door[] =
 inline void OPEN_DOOR(const RoomRnum room, ObjData *obj, const int door) {
 	if (obj) {
 		auto v = obj->get_val(1);
-		TOGGLE_BIT(v, CONT_CLOSED);
+		TOGGLE_BIT(v, EContainerFlag::kShutted);
 		obj->set_val(1, v);
 	} else {
 		TOGGLE_BIT(EXITN(room, door)->exit_info, EExitFlag::kClosed);
@@ -1179,7 +1179,7 @@ inline void OPEN_DOOR(const RoomRnum room, ObjData *obj, const int door) {
 inline void LOCK_DOOR(const RoomRnum room, ObjData *obj, const int door) {
 	if (obj) {
 		auto v = obj->get_val(1);
-		TOGGLE_BIT(v, CONT_LOCKED);
+		TOGGLE_BIT(v, EContainerFlag::kLockedUp);
 		obj->set_val(1, v);
 	} else {
 		TOGGLE_BIT(EXITN(room, door)->exit_info, EExitFlag::kLocked);
@@ -1383,7 +1383,7 @@ bool ok_pick(CharData *ch, ObjVnum /*keynum*/, ObjData *obj, int door, int scmd)
 			send_to_char("Вы все-таки сломали этот замок...\r\n", ch);
 			if (obj) {
 				auto v = obj->get_val(1);
-				SET_BIT(v, CONT_BROKEN);
+				SET_BIT(v, EContainerFlag::kLockIsBroken);
 				obj->set_val(1, v);
 			} else {
 				SET_BIT(EXIT(ch, door)->exit_info, EExitFlag::kBrokenLock);

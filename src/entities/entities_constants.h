@@ -643,11 +643,13 @@ EObjMaterial ITEM_BY_NAME<EObjMaterial>(const std::string &name);
 /**
  * Magic books types.
  */
-const __uint8_t BOOK_SPELL = 0;    // Книга заклинания //
-const __uint8_t BOOK_SKILL = 1;    // Книга умения //
-const __uint8_t BOOK_UPGRD = 2;    // Увеличение умения //
-const __uint8_t BOOK_RECPT = 3;    // Книга рецепта //
-const __uint8_t BOOK_FEAT = 4;        // Книга способности (feats) //
+ enum EBook {
+	kSpell = 0,
+	kSkill = 1,
+	kSkillUpgrade = 2,
+	kReceipt = 3,
+	kFeat = 4
+};
 
 /**
  * Take/Wear flags: used by obj_data.obj_flags.wear_flags
@@ -852,11 +854,13 @@ EAntiFlag ITEM_BY_NAME<EAntiFlag>(const std::string &name);
 /**
  * Container flags - value[1]
  */
-constexpr Bitvector CONT_CLOSEABLE = 1 << 0;    // Container can be closed //
-constexpr Bitvector CONT_PICKPROOF = 1 << 1;    // Container is pickproof  //
-constexpr Bitvector CONT_CLOSED = 1 << 2;        // Container is closed     //
-constexpr Bitvector CONT_LOCKED = 1 << 3;        // Container is locked     //
-constexpr Bitvector CONT_BROKEN = 1 << 4;        // Container is locked     //
+enum EContainerFlag {
+	kCloseable = 1 << 0,
+	kUncrackable = 1 << 1,
+	kShutted = 1 << 2,
+	kLockedUp = 1 << 3,
+	kLockIsBroken = 1 << 4
+};
 
 #endif //BYLINS_SRC_ENTITY_ROOMS_ROOM_CONSTANTS_H_
 

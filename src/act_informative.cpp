@@ -539,7 +539,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 				}
 			}
 			if ((GET_OBJ_TYPE(object) == EObjType::kContainer)
-				&& !OBJVAL_FLAGGED(object, CONT_CLOSED)) // если закрыто, содержимое не показываем
+				&& !OBJVAL_FLAGGED(object, EContainerFlag::kShutted)) // если закрыто, содержимое не показываем
 			{
 				if (object->get_contains()) {
 					strcat(buf2, " (есть содержимое)");
@@ -2164,17 +2164,17 @@ void look_in_obj(CharData *ch, char *arg) {
 		}
 
 		if (GET_OBJ_TYPE(obj) == EObjType::kContainer) {
-			if (OBJVAL_FLAGGED(obj, CONT_CLOSED)) {
+			if (OBJVAL_FLAGGED(obj, EContainerFlag::kShutted)) {
 				act("Закрыт$A.", false, ch, obj, nullptr, kToChar);
 				const int skill_pick = ch->get_skill(ESkill::kPickLock);
 				int count = sprintf(buf, "Заперт%s.", GET_OBJ_SUF_6(obj));
-				if (OBJVAL_FLAGGED(obj, CONT_LOCKED) && skill_pick) {
-					if (OBJVAL_FLAGGED(obj, CONT_PICKPROOF))
+				if (OBJVAL_FLAGGED(obj, EContainerFlag::kLockedUp) && skill_pick) {
+					if (OBJVAL_FLAGGED(obj, EContainerFlag::kUncrackable))
 						count += sprintf(buf + count,
 										 "%s Вы никогда не сможете ЭТО взломать!%s\r\n",
 										 CCICYN(ch, C_NRM),
 										 CCNRM(ch, C_NRM));
-					else if (OBJVAL_FLAGGED(obj, CONT_BROKEN))
+					else if (OBJVAL_FLAGGED(obj, EContainerFlag::kLockIsBroken))
 						count += sprintf(buf + count, "%s Замок сломан... %s\r\n", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
 					else {
 						const PickProbabilityInformation &pbi = get_pick_probability(ch, GET_OBJ_VAL(obj, 3));

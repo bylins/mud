@@ -775,17 +775,17 @@ void oedit_disp_val2_menu(DescriptorData *d) {
 
 		case EObjType::kBook:
 			switch (GET_OBJ_VAL(OLC_OBJ(d), 0)) {
-				case BOOK_SPELL: oedit_disp_spells_menu(d);
+				case EBook::kSpell: oedit_disp_spells_menu(d);
 					break;
 
-				case BOOK_SKILL:
-				case BOOK_UPGRD: oedit_disp_skills2_menu(d);
+				case EBook::kSkill:
+				case EBook::kSkillUpgrade: oedit_disp_skills2_menu(d);
 					break;
 
-				case BOOK_RECPT: oedit_disp_receipts_menu(d);
+				case EBook::kReceipt: oedit_disp_receipts_menu(d);
 					break;
 
-				case BOOK_FEAT: oedit_disp_feats_menu(d);
+				case EBook::kFeat: oedit_disp_feats_menu(d);
 					break;
 
 				default: oedit_disp_val4_menu(d);
@@ -840,9 +840,9 @@ void oedit_disp_val3_menu(DescriptorData *d) {
 		case EObjType::kBook:
 //		send_to_char("Уровень изучения (+ к умению если тип = 2 ) : ", d->character);
 			switch (GET_OBJ_VAL(OLC_OBJ(d), 0)) {
-				case BOOK_SKILL: send_to_char("Введите уровень изучения : ", d->character.get());
+				case EBook::kSkill: send_to_char("Введите уровень изучения : ", d->character.get());
 					break;
-				case BOOK_UPGRD: send_to_char("На сколько увеличится умение : ", d->character.get());
+				case EBook::kSkillUpgrade: send_to_char("На сколько увеличится умение : ", d->character.get());
 					break;
 				default: oedit_disp_val4_menu(d);
 			}
@@ -884,7 +884,7 @@ void oedit_disp_val4_menu(DescriptorData *d) {
 
 		case EObjType::kBook:
 			switch (GET_OBJ_VAL(OLC_OBJ(d), 0)) {
-				case BOOK_UPGRD:
+				case EBook::kSkillUpgrade:
 					send_to_char("Максимальный % умения :\r\n"
 								 "Если <= 0, то учитывается только макс. возможный навык игрока на данном реморте.\r\n"
 								 "Если > 0, то учитывается только данное значение без учета макс. навыка игрока.\r\n",
@@ -1825,7 +1825,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 
 				case EObjType::kBook:
 					switch (GET_OBJ_VAL(OLC_OBJ(d), 0)) {
-						case BOOK_SPELL:
+						case EBook::kSpell:
 							if (number == 0) {
 								OLC_VAL(d) = 0;
 								oedit_disp_menu(d);
@@ -1839,8 +1839,8 @@ void oedit_parse(DescriptorData *d, char *arg) {
 							}
 							break;
 
-						case BOOK_SKILL:
-						case BOOK_UPGRD:
+						case EBook::kSkill:
+						case EBook::kSkillUpgrade:
 							if (number == 0) {
 								OLC_VAL(d) = 0;
 								oedit_disp_menu(d);
@@ -1856,7 +1856,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 							}
 							break;
 
-						case BOOK_RECPT:
+						case EBook::kReceipt:
 							if (number > top_imrecipes || number < 0 || !imrecipes[number].name) {
 								send_to_char("Неизвестный рецепт, повторите.\r\n", d->character.get());
 								oedit_disp_val2_menu(d);
@@ -1864,7 +1864,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 							}
 							break;
 
-						case BOOK_FEAT:
+						case EBook::kFeat:
 							if (number == 0) {
 								OLC_VAL(d) = 0;
 								oedit_disp_menu(d);

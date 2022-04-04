@@ -740,13 +740,13 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 		case EObjType::kBook:
 
 			switch (GET_OBJ_VAL(j, 0)) {
-				case BOOK_SPELL:
+				case EBook::kSpell:
 					if (GET_OBJ_VAL(j, 1) >= 1 && GET_OBJ_VAL(j, 1) <= kSpellCount) {
 						sprintf(buf, "содержит заклинание        : \"%s\"", spell_info[GET_OBJ_VAL(j, 1)].name);
 					} else
 						sprintf(buf, "неверный номер заклинания");
 					break;
-				case BOOK_SKILL: {
+				case EBook::kSkill: {
 					auto skill_id = static_cast<ESkill>(GET_OBJ_VAL(j, 1));
 					if (MUD::Skills().IsValid(skill_id)) {
 						sprintf(buf, "содержит секрет умения     : \"%s\"", MUD::Skills()[skill_id].GetName());
@@ -754,7 +754,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 						sprintf(buf, "неверный номер умения");
 					break;
 				}
-				case BOOK_UPGRD: {
+				case EBook::kSkillUpgrade: {
 					auto skill_id = static_cast<ESkill>(GET_OBJ_VAL(j, 1));
 					if (MUD::Skills().IsValid(skill_id)) {
 						if (GET_OBJ_VAL(j, 3) > 0) {
@@ -769,7 +769,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 					}
 				}
 					break;
-				case BOOK_FEAT: {
+				case EBook::kFeat: {
 					const auto id = static_cast<EFeat>(GET_OBJ_VAL(j, 1));
 					if (id >= EFeat::kFirstFeat && id <= EFeat::kLastFeat) {
 						sprintf(buf, "содержит секрет способности : \"%s\"", GetFeatName(id));
@@ -778,7 +778,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 					}
 				}
 					break;
-				case BOOK_RECPT: {
+				case EBook::kReceipt: {
 					const auto recipe = im_get_recipe(GET_OBJ_VAL(j, 1));
 					if (recipe >= 0) {
 						const auto recipelevel = MAX(GET_OBJ_VAL(j, 2), imrecipes[recipe].level);

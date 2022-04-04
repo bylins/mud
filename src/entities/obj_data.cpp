@@ -1073,7 +1073,7 @@ bool is_purse(ObjData *obj) {
 /// вываливаем и пуржим кошелек при попытке открыть или при взятии хозяином
 void process_open_purse(CharData *ch, ObjData *obj) {
 	auto value = obj->get_val(1);
-	REMOVE_BIT(value, CONT_CLOSED);
+	REMOVE_BIT(value, EContainerFlag::kShutted);
 	obj->set_val(1, value);
 
 	char buf_[kMaxInputLength];

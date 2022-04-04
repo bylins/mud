@@ -459,7 +459,7 @@ void do_put(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			send_to_char(buf, ch);
 		} else if (GET_OBJ_TYPE(cont) != EObjType::kContainer) {
 			act("В $o3 нельзя ничего положить.", false, ch, cont, 0, kToChar);
-		} else if (OBJVAL_FLAGGED(cont, CONT_CLOSED)) {
+		} else if (OBJVAL_FLAGGED(cont, EContainerFlag::kShutted)) {
 			act("$o0 закрыт$A!", false, ch, cont, 0, kToChar);
 		} else {
 			if (obj_dotmode == FIND_INDIV)    // put <obj> <container>
@@ -794,7 +794,7 @@ void get_from_container(CharData *ch, ObjData *cont, char *arg, int mode, int ho
 	int obj_dotmode, found = 0;
 
 	obj_dotmode = find_all_dots(arg);
-	if (OBJVAL_FLAGGED(cont, CONT_CLOSED))
+	if (OBJVAL_FLAGGED(cont, EContainerFlag::kShutted))
 		act("$o закрыт$A.", false, ch, cont, 0, kToChar);
 	else if (obj_dotmode == FIND_INDIV) {
 		if (!(obj = get_obj_in_list_vis(ch, arg, cont->get_contains()))) {

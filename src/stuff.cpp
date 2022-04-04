@@ -314,7 +314,7 @@ void obj_to_corpse(ObjData *corpse, CharData *ch, int rnum, bool setload) {
 
 	if (!setload) {
 		switch (o->get_vnum()) {
-			case GlobalDrop::BOOK_UPGRD_VNUM: generate_book_upgrd(o.get());
+			case GlobalDrop::kSkillUpgradeBookVnum: generate_book_upgrd(o.get());
 				break;
 
 			case GlobalDrop::WARR1_ENCHANT_VNUM:

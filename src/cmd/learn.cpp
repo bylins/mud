@@ -74,52 +74,52 @@ void do_learn(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		return;
 	}
 
-	if (GET_OBJ_VAL(obj, 0) != BOOK_SPELL && GET_OBJ_VAL(obj, 0) != BOOK_SKILL &&
-		GET_OBJ_VAL(obj, 0) != BOOK_UPGRD && GET_OBJ_VAL(obj, 0) != BOOK_RECPT &&
-		GET_OBJ_VAL(obj, 0) != BOOK_FEAT) {
+	if (GET_OBJ_VAL(obj, 0) != EBook::kSpell && GET_OBJ_VAL(obj, 0) != EBook::kSkill &&
+		GET_OBJ_VAL(obj, 0) != EBook::kSkillUpgrade && GET_OBJ_VAL(obj, 0) != EBook::kReceipt &&
+		GET_OBJ_VAL(obj, 0) != EBook::kFeat) {
 		act("НЕВЕРНЫЙ ТИП КНИГИ - сообщите Богам!",
 			false, ch, obj, nullptr, kToChar);
 		return;
 	}
 
-	if (GET_OBJ_VAL(obj, 0) == BOOK_SPELL
+	if (GET_OBJ_VAL(obj, 0) == EBook::kSpell
 		&& slot_for_char(ch, 1) <= 0) {
 		send_to_char("Далась вам эта магия! Пошли-бы, водочки выпили...\r\n", ch);
 		return;
 	}
 
 	if (GET_OBJ_VAL(obj, 2) < 1
-		&& GET_OBJ_VAL(obj, 0) != BOOK_UPGRD
-		&& GET_OBJ_VAL(obj, 0) != BOOK_SPELL
-		&& GET_OBJ_VAL(obj, 0) != BOOK_FEAT
-		&& GET_OBJ_VAL(obj, 0) != BOOK_RECPT) {
+		&& GET_OBJ_VAL(obj, 0) != EBook::kSkillUpgrade
+		&& GET_OBJ_VAL(obj, 0) != EBook::kSpell
+		&& GET_OBJ_VAL(obj, 0) != EBook::kFeat
+		&& GET_OBJ_VAL(obj, 0) != EBook::kReceipt) {
 		send_to_char("НЕКОРРЕКТНЫЙ УРОВЕНЬ - сообщите Богам!\r\n", ch);
 		return;
 	}
 
-	if (GET_OBJ_VAL(obj, 0) == BOOK_RECPT) {
+	if (GET_OBJ_VAL(obj, 0) == EBook::kReceipt) {
 		rcpt = im_get_recipe(GET_OBJ_VAL(obj, 1));
 	}
 
 	auto skill_id{ESkill::kIncorrect};
-	if ((GET_OBJ_VAL(obj, 0) == BOOK_SKILL || GET_OBJ_VAL(obj, 0) == BOOK_UPGRD)) {
+	if ((GET_OBJ_VAL(obj, 0) == EBook::kSkill || GET_OBJ_VAL(obj, 0) == EBook::kSkillUpgrade)) {
 		skill_id = static_cast<ESkill>(GET_OBJ_VAL(obj, 1));
 		if (MUD::Skills().IsInvalid(skill_id)) {
 			send_to_char("УМЕНИЕ НЕ ОПРЕДЕЛЕНО - сообщите Богам!\r\n", ch);
 			return;
 		}
 	}
-	if (GET_OBJ_VAL(obj, 0) == BOOK_RECPT && rcpt < 0) {
+	if (GET_OBJ_VAL(obj, 0) == EBook::kReceipt && rcpt < 0) {
 		send_to_char("РЕЦЕПТ НЕ ОПРЕДЕЛЕН - сообщите Богам!\r\n", ch);
 		return;
 	}
-	if (GET_OBJ_VAL(obj, 0) == BOOK_SPELL && (GET_OBJ_VAL(obj, 1) < 1
+	if (GET_OBJ_VAL(obj, 0) == EBook::kSpell && (GET_OBJ_VAL(obj, 1) < 1
 		|| GET_OBJ_VAL(obj, 1) > kSpellCount)) {
 		send_to_char("МАГИЯ НЕ ОПРЕДЕЛЕНА - сообщите Богам!\r\n", ch);
 		return;
 	}
 	auto feat_id{EFeat::kIncorrectFeat};
-	if (GET_OBJ_VAL(obj, 0) == BOOK_FEAT) {
+	if (GET_OBJ_VAL(obj, 0) == EBook::kFeat) {
 		if ((GET_OBJ_VAL(obj, 1) < EFeat::kFirstFeat || GET_OBJ_VAL(obj, 1) > EFeat::kLastFeat)) {
 			send_to_char("СПОСОБНОСТЬ НЕ ОПРЕДЕЛЕНА - сообщите Богам!\r\n", ch);
 			return;
@@ -128,15 +128,15 @@ void do_learn(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	}
 
 	int spellnum = kSpellNoSpell;
-	if ((GET_OBJ_VAL(obj, 0) == BOOK_SKILL
+	if ((GET_OBJ_VAL(obj, 0) == EBook::kSkill
 		&& IsAbleToGetSkill(ch, skill_id, GET_OBJ_VAL(obj, 2)))
-		|| GET_OBJ_VAL(obj, 0) == BOOK_UPGRD) {
+		|| GET_OBJ_VAL(obj, 0) == EBook::kSkillUpgrade) {
 		spellname = MUD::Skills()[skill_id].GetName();
-	} else if (GET_OBJ_VAL(obj, 0) == BOOK_SPELL
+	} else if (GET_OBJ_VAL(obj, 0) == EBook::kSpell
 		&& IsAbleToGetSpell(ch, GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2))) {
 		spellnum = GET_OBJ_VAL(obj, 1);
 		spellname = spell_info[spellnum].name;
-	} else if (GET_OBJ_VAL(obj, 0) == BOOK_RECPT
+	} else if (GET_OBJ_VAL(obj, 0) == EBook::kReceipt
 		&& imrecipes[rcpt].classknow[(int) GET_CLASS(ch)] == KNOW_RECIPE
 		&& MAX(GET_OBJ_VAL(obj, 2), imrecipes[rcpt].level) <= GetRealLevel(ch)
 		&& imrecipes[rcpt].remort <= GET_REAL_REMORT(ch)) {
@@ -147,14 +147,14 @@ void do_learn(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 			send_to_char("Некорректная запись рецепта для вашего класса - сообщите Богам.\r\n", ch);
 			return;
 		}
-	} else if (GET_OBJ_VAL(obj, 0) == BOOK_FEAT && IsAbleToGetFeat(ch, feat_id)) {
+	} else if (GET_OBJ_VAL(obj, 0) == EBook::kFeat && IsAbleToGetFeat(ch, feat_id)) {
 		spellname = feat_info[spellnum].name;
 	}
 
-	if ((GET_OBJ_VAL(obj, 0) == BOOK_SKILL && ch->get_skill(skill_id))
-		|| (GET_OBJ_VAL(obj, 0) == BOOK_SPELL && GET_SPELL_TYPE(ch, spellnum) & kSpellKnow)
-		|| (GET_OBJ_VAL(obj, 0) == BOOK_FEAT && HAVE_FEAT(ch, spellnum))
-		|| (GET_OBJ_VAL(obj, 0) == BOOK_RECPT && rs)) {
+	if ((GET_OBJ_VAL(obj, 0) == EBook::kSkill && ch->get_skill(skill_id))
+		|| (GET_OBJ_VAL(obj, 0) == EBook::kSpell && GET_SPELL_TYPE(ch, spellnum) & kSpellKnow)
+		|| (GET_OBJ_VAL(obj, 0) == EBook::kFeat && HAVE_FEAT(ch, spellnum))
+		|| (GET_OBJ_VAL(obj, 0) == EBook::kReceipt && rs)) {
 		sprintf(buf, "Вы открыли %s и принялись с интересом\r\n"
 					 "изучать. Каким же было разочарование, когда прочитав %s,\r\n"
 					 "Вы поняли, что это %s \"%s\".\r\n",
@@ -170,7 +170,7 @@ void do_learn(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		return;
 	}
 
-	if (GET_OBJ_VAL(obj, 0) == BOOK_UPGRD) {
+	if (GET_OBJ_VAL(obj, 0) == EBook::kSkillUpgrade) {
 		// апгрейд скилла без учета макс.скилла плеера (до макс в книге)
 		if (GET_OBJ_VAL(obj, 3) > 0 && ch->get_trained_skill(skill_id) >= GET_OBJ_VAL(obj, 3)) {
 			book_upgrd_fail_message(ch, obj);
@@ -211,7 +211,7 @@ void do_learn(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		(IS_VIGILANT(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kForge)) ||
 		(IS_MAGUS(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kForMaguses)) ||
 		(IS_MERCHANT(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kForMerchants)) ? 10 : 0;
-	addchance += (GET_OBJ_VAL(obj, 0) == BOOK_SPELL) ? 0 : 10;
+	addchance += (GET_OBJ_VAL(obj, 0) == EBook::kSpell) ? 0 : 10;
 
 	if (!obj->has_flag(EObjFlag::KNofail)
 		&& number(1, 100) > int_app[POSI(GET_REAL_INT(ch))].spell_aknowlege + addchance) {
@@ -232,18 +232,18 @@ void do_learn(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		sprintf(buf,
 				"LEARN: Игрок %s выучил %s %s \"%s\"",
 				GET_NAME(ch),
-				(GET_OBJ_VAL(obj, 0) == BOOK_UPGRD) ? stype0[1] : stype0[0],
+				(GET_OBJ_VAL(obj, 0) == EBook::kSkillUpgrade) ? stype0[1] : stype0[0],
 				stype2[GET_OBJ_VAL(obj, 0)],
 				spellname);
 		log("%s", buf);
 		switch (GET_OBJ_VAL(obj, 0)) {
-			case BOOK_SPELL: GET_SPELL_TYPE(ch, spellnum) |= kSpellKnow;
+			case EBook::kSpell: GET_SPELL_TYPE(ch, spellnum) |= kSpellKnow;
 				break;
 
-			case BOOK_SKILL: ch->set_skill(skill_id, 5);
+			case EBook::kSkill: ch->set_skill(skill_id, 5);
 				break;
 
-			case BOOK_UPGRD: {
+			case EBook::kSkillUpgrade: {
 				const int left_skill_level = ch->get_trained_skill(skill_id) + GET_OBJ_VAL(obj, 2);
 				if (GET_OBJ_VAL(obj, 3) > 0) {
 					ch->set_skill(skill_id, std::min(left_skill_level, GET_OBJ_VAL(obj, 3)));
@@ -253,13 +253,13 @@ void do_learn(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 			}
 				break;
 
-			case BOOK_RECPT: CREATE(rs, 1);
+			case EBook::kReceipt: CREATE(rs, 1);
 				rs->rid = spellnum;
 				rs->link = GET_RSKILL(ch);
 				GET_RSKILL(ch) = rs;
 				rs->perc = 5;
 				break;
-			case BOOK_FEAT: SET_FEAT(ch, feat_id);
+			case EBook::kFeat: SET_FEAT(ch, feat_id);
 				break;
 		}
 	}
