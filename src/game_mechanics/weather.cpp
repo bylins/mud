@@ -895,7 +895,7 @@ int weather_spell_modifier(CharData *ch, int spellnum, int type, int value) {
 			}
 			break;
 	}
-	if (WAITLESS(ch))
+	if (IS_IMMORTAL(ch))
 		modi = MAX(modi, value);
 	return (modi);
 }
@@ -949,7 +949,7 @@ int weather_skill_modifier(CharData *ch, ESkill skillnum, int type, int value) {
 			}
 			break;
 	}
-	if (WAITLESS(ch))
+	if (IS_IMMORTAL(ch))
 		modi = MAX(modi, value);
 	return (modi);
 }

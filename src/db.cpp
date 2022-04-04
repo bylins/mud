@@ -3528,7 +3528,7 @@ CharData *read_mobile(MobVnum nr, int type) {                // and MobRnum
 		GET_ACTIVITY(mob) = number(0, kPulseMobile - 1);
 	else
 		GET_ACTIVITY(mob) = number(0, mob->mob_specials.speed);
-	EXTRACT_TIMER(mob) = 0;
+	mob->extract_timer = 0;
 	mob->points.move = mob->points.max_move;
 	mob->add_gold(RollDices(GET_GOLD_NoDs(mob), GET_GOLD_SiDs(mob)));
 
@@ -3728,7 +3728,7 @@ void paste_mob(CharData *ch, RoomRnum room) {
 	if (IS_CHARMICE(ch)
 		|| AFF_FLAGGED(ch, EAffect::kHorse)
 		|| AFF_FLAGGED(ch, EAffect::kHold)
-		|| (EXTRACT_TIMER(ch) > 0)) {
+		|| (ch->extract_timer > 0)) {
 		return;
 	}
 //	if (MOB_FLAGGED(ch, MOB_CORPSE))
@@ -5161,7 +5161,7 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	check_portals(ch);
 	if (ch->get_protecting()) {
 		ch->set_protecting(0);
-		ch->BattleAffects.unset(kEafProtect);
+		ch->battle_affects.unset(kEafProtect);
 	}
 
 	//Обновляем статистику рипов для текущего перевоплощения

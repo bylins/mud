@@ -1282,7 +1282,7 @@ int invalid_anti_class(CharData *ch, const ObjData *obj) {
 		&& AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		return (true);
 	}
-	if ((ch->is_npc() || WAITLESS(ch)) && !IS_CHARMICE(ch)) {
+	if ((ch->is_npc() || IS_IMMORTAL(ch)) && !IS_CHARMICE(ch)) {
 		return (false);
 	}
 	if ((IS_OBJ_ANTI(obj, EAntiFlag::kNoPkClan) && char_to_pk_clan(ch))) {
@@ -1325,7 +1325,7 @@ int invalid_no_class(CharData *ch, const ObjData *obj) {
 
 	if (!IS_CHARMICE(ch)
 		&& (ch->is_npc()
-			|| WAITLESS(ch))) {
+			|| IS_IMMORTAL(ch))) {
 		return false;
 	}
 

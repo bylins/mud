@@ -486,12 +486,12 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 		return;
 	}
 
-	if (!WAITLESS(ch) && vict->get_fighting()) {
+	if (!IS_IMMORTAL(ch) && vict->get_fighting()) {
 		act("$N слишком быстро перемещается.", false, ch, nullptr, vict, kToChar);
 		return;
 	}
 
-	if (!WAITLESS(ch) && ROOM_FLAGGED(IN_ROOM(vict), ERoomFlag::kArena)) {
+	if (!IS_IMMORTAL(ch) && ROOM_FLAGGED(IN_ROOM(vict), ERoomFlag::kArena)) {
 		send_to_char("Воровство при поединке недопустимо.\r\n", ch);
 		return;
 	}
@@ -499,7 +499,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 	// 101% is a complete failure
 	percent = number(1, MUD::Skills()[ESkill::kSteal].difficulty);
 
-	if (WAITLESS(ch) || (GET_POS(vict) <= EPosition::kSleep && !AFF_FLAGGED(vict, EAffect::kSleep)))
+	if (IS_IMMORTAL(ch) || (GET_POS(vict) <= EPosition::kSleep && !AFF_FLAGGED(vict, EAffect::kSleep)))
 		success = 1;    // ALWAYS SUCCESS, unless heavy object.
 
 	if (!AWAKE(vict))    // Easier to steal from sleeping people.
@@ -563,7 +563,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 
 			if (AFF_FLAGGED(ch, EAffect::kHide))
 				prob += 5;
-			if (!WAITLESS(ch) && AFF_FLAGGED(vict, EAffect::kSleep))
+			if (!IS_IMMORTAL(ch) && AFF_FLAGGED(vict, EAffect::kSleep))
 				prob = 0;
 			if (percent > prob && !success) {
 				ohoh = true;
@@ -596,7 +596,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 		prob = CalcCurrentSkill(ch, ESkill::kSteal, vict);
 		if (AFF_FLAGGED(ch, EAffect::kHide))
 			prob += 5;
-		if (!WAITLESS(ch) && AFF_FLAGGED(vict, EAffect::kSleep))
+		if (!IS_IMMORTAL(ch) && AFF_FLAGGED(vict, EAffect::kSleep))
 			prob = 0;
 		if (percent > prob && !success) {
 			ohoh = true;
@@ -647,7 +647,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 		if (CAN_SEE(vict, ch) && AWAKE(vict))
 			ImproveSkill(ch, ESkill::kSteal, 0, vict);
 	}
-	if (!WAITLESS(ch) && ohoh)
+	if (!IS_IMMORTAL(ch) && ohoh)
 		WAIT_STATE(ch, 3 * kPulseViolence);
 	pk_thiefs_action(ch, vict);
 	if (ohoh && vict->is_npc() && AWAKE(vict) && CAN_SEE(vict, ch) && MAY_ATTACK(vict))
@@ -662,7 +662,7 @@ void do_steal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (!WAITLESS(ch) && ch->ahorse()) {
+	if (!IS_IMMORTAL(ch) && ch->ahorse()) {
 		send_to_char("Верхом это сделать затруднительно.\r\n", ch);
 		return;
 	}

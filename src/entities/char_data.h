@@ -811,23 +811,23 @@ class CharData : public ProtectedCharData {
 
 	struct SpellMemQueue mem_queue;        // очередь изучаемых заклинаний
 
-	int CasterLevel;
-	int DamageLevel;
+	int caster_level;
+	int damage_level;
 	struct PK_Memory_type *pk_list;
 	struct Helper *helpers;
 	int track_dirs;
-	int CheckAggressive;
-	int ExtractTimer;
+	bool check_aggressive;
+	int extract_timer;
 
 	FlagData Temporary;
 
-	int Initiative;
-	int BattleCounter;
+	int initiative;
+	int battle_counter;
 	int round_counter;
 
-	FlagData BattleAffects;
+	FlagData battle_affects;
 
-	int Poisoner;
+	int poisoner;
 
 	OnDeadLoadList *dl_list;    // загружаемые в труп предметы
 	bool agrobd;        // показывает, агробд или нет

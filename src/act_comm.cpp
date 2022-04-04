@@ -808,7 +808,7 @@ void do_mobshout(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	DescriptorData *i;
 
 	// to keep pets, etc from being ordered to shout
-	if (!(ch->is_npc() || WAITLESS(ch)))
+	if (!(ch->is_npc() || IS_IMMORTAL(ch)))
 		return;
 	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;

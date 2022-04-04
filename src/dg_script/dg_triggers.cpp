@@ -757,7 +757,7 @@ void round_num_mtrigger(CharData *ch, CharData *actor) {
 	char buf[kMaxInputLength];
 	for (auto t : SCRIPT(ch)->trig_list) {
 		if (TRIGGER_CHECK(t, MTRIG_ROUND_NUM)
-			&& ROUND_COUNTER(ch) == GET_TRIG_NARG(t)) {
+			&& ch->round_counter == GET_TRIG_NARG(t)) {
 			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
 			script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
 			return;

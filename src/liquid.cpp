@@ -268,7 +268,7 @@ void do_drink_poison(CharData *ch, ObjData *jar, int amount) {
 		af.bitvector = to_underlying(EAffect::kPoisoned);
 		af.battleflag = kAfSameTime;
 		affect_join(ch, af, false, false, false, false);
-		ch->Poisoner = 0;
+		ch->poisoner = 0;
 	}
 }
 

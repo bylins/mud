@@ -110,7 +110,7 @@ void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			}
 		} else {
 			if (CallMagic(ch, tch, tobj, world[ch->in_room], spellnum, GetRealLevel(ch)) >= 0) {
-				if (!(WAITLESS(ch) || CHECK_WAIT(ch)))
+				if (!(IS_IMMORTAL(ch) || CHECK_WAIT(ch)))
 					WAIT_STATE(ch, kPulseViolence);
 			}
 		}

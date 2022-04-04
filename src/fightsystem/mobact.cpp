@@ -994,12 +994,12 @@ void mobile_activity(int activity_level, int missed_pulses) {
 			return;
 		}
 		// Extract uncharmed mobs
-		if (EXTRACT_TIMER(ch) > 0) {
+		if (ch->extract_timer > 0) {
 			if (ch->has_master()) {
-				EXTRACT_TIMER(ch) = 0;
+				ch->extract_timer = 0;
 			} else {
-				EXTRACT_TIMER(ch)--;
-				if (!EXTRACT_TIMER(ch)) {
+				--(ch->extract_timer);
+				if (!(ch->extract_timer)) {
 					extract_charmice(ch.get());
 					return;
 				}
@@ -1104,7 +1104,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 			i--;
 		}
 
-		if (EXTRACT_TIMER(ch) == 0) {
+		if (ch->extract_timer == 0) {
 			//чармисы, собирающиеся уходить - не лутят! (Купала)
 			//Niker: LootCR// Start
 			//Не уверен, что рассмотрены все случаи, когда нужно снимать флаги с моба

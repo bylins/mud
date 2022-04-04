@@ -65,7 +65,7 @@ bool weap_poison_vict(CharData *ch, CharData *vict, int spell_num) {
 		af.bitvector = to_underlying(EAffect::kPoisoned);
 		af.battleflag = kAfSameTime;
 		if (poison_affect_join(vict, af)) {
-			vict->Poisoner = GET_ID(ch);
+			vict->poisoner = GET_ID(ch);
 			SET_AF_BATTLE(ch, kEafPoisoned);
 			return true;
 		}
@@ -79,7 +79,7 @@ bool weap_poison_vict(CharData *ch, CharData *vict, int spell_num) {
 		af.bitvector = to_underlying(EAffect::kPoisoned) | to_underlying(EAffect::kScopolaPoison);
 		af.battleflag = kAfSameTime;
 		if (poison_affect_join(vict, af)) {
-			vict->Poisoner = GET_ID(ch);
+			vict->poisoner = GET_ID(ch);
 			SET_AF_BATTLE(ch, kEafPoisoned);
 			return true;
 		}
@@ -124,7 +124,7 @@ bool weap_poison_vict(CharData *ch, CharData *vict, int spell_num) {
 		}
 
 		if (was_poisoned) {
-			vict->Poisoner = GET_ID(ch);
+			vict->poisoner = GET_ID(ch);
 			SET_AF_BATTLE(ch, kEafPoisoned);
 			return true;
 		}
@@ -169,7 +169,7 @@ bool weap_poison_vict(CharData *ch, CharData *vict, int spell_num) {
 		}
 
 		if (was_poisoned) {
-			vict->Poisoner = GET_ID(ch);
+			vict->poisoner = GET_ID(ch);
 			SET_AF_BATTLE(ch, kEafPoisoned);
 			return true;
 		}
@@ -315,7 +315,7 @@ void poison_victim(CharData *ch, CharData *vict, int modifier) {
 	for (auto & i : af) {
 		affect_join(vict, i, false, false, false, false);
 	}
-	vict->Poisoner = GET_ID(ch);
+	vict->poisoner = GET_ID(ch);
 
 	snprintf(buf, sizeof(buf), "%sВы отравили $N3.%s", CCIGRN(ch, C_NRM), CCCYN(ch, C_NRM));
 	act(buf, false, ch, nullptr, vict, kToChar);

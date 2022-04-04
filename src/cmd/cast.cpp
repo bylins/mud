@@ -160,7 +160,7 @@ void do_cast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 					tch == ch ? " на себя" : tch ? " на $N3" : tobj ? " на $o3" : troom ? " на всех" : "");
 			act(buf, false, ch, tobj, tch, kToChar);
 		} else if (CastSpell(ch, tch, tobj, troom, spellnum, spell_subst) >= 0) {
-			if (!(WAITLESS(ch) || CHECK_WAIT(ch)))
+			if (!(IS_IMMORTAL(ch) || CHECK_WAIT(ch)))
 				WAIT_STATE(ch, kPulseViolence);
 		}
 	}

@@ -113,7 +113,7 @@ void doBring(CharData *ch, CharData *boss, unsigned int pos, char *bank) {
 			sprintf(buf, "Спустя некоторое время, %s вернул$U, ведя за собой $n3.", boss->get_npc_name().c_str());
 			act(buf, true, mob, 0, ch, kToRoom);
 		}
-		if (!WAITLESS(ch)) {
+		if (!IS_IMMORTAL(ch)) {
 			if (isname(bank, "банк bank"))
 				ch->remove_bank(cost);
 			else

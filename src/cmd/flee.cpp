@@ -32,7 +32,7 @@ void go_flee(CharData *ch) {
 		return;
 	}
 
-	if (!WAITLESS(ch))
+	if (!IS_IMMORTAL(ch))
 		WAIT_STATE(ch, kPulseViolence);
 
 	if (ch->ahorse() && (GET_POS(ch->get_horse()) < EPosition::kFight || GET_MOB_HOLD(ch->get_horse()))) {
@@ -104,7 +104,7 @@ void go_dir_flee(CharData *ch, int direction) {
 				reduce_exp_after_flee(ch, was_fighting, was_in);
 			}
 
-			if (!WAITLESS(ch)) {
+			if (!IS_IMMORTAL(ch)) {
 				WAIT_STATE(ch, 1 * kPulseViolence);
 			}
 			return;

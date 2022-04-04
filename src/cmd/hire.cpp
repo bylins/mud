@@ -157,7 +157,7 @@ int get_reformed_charmice_hp(CharData *ch, CharData *victim, int spellnum) {
 
 void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->is_npc()
-		|| (!WAITLESS(ch) && !IsAbleToUseFeat(ch, EFeat::kEmployer))) {
+		|| (!IS_IMMORTAL(ch) && !IsAbleToUseFeat(ch, EFeat::kEmployer))) {
 		send_to_char("Вам недоступно это!\r\n", ch);
 		return;
 	}
@@ -277,7 +277,7 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		affect_from_char(helpee, kSpellCharm);
 
-		if (!WAITLESS(ch)) {
+		if (!IS_IMMORTAL(ch)) {
 			if (isname(isbank, "банк bank")) {
 				ch->remove_bank(cost);
 				helpee->mob_specials.hire_price = -hire_price;
@@ -331,7 +331,7 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void do_freehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (ch->is_npc()
-		|| (!WAITLESS(ch) && !IsAbleToUseFeat(ch, EFeat::kEmployer))) {
+		|| (!IS_IMMORTAL(ch) && !IsAbleToUseFeat(ch, EFeat::kEmployer))) {
 		send_to_char("Вам недоступно это!\r\n", ch);
 		return;
 	}

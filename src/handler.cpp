@@ -1042,7 +1042,7 @@ void equip_char(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip
 	obj->set_worn_by(ch);
 	obj->set_worn_on(pos);
 	obj->set_next_content(nullptr);
-	CHECK_AGRO(ch) = true;
+	ch->check_aggressive = true;
 
 	if (show_msg) {
 		wear_message(ch, obj, pos);

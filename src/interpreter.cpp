@@ -1159,7 +1159,7 @@ void command_interpreter(CharData *ch, char *argument) {
 	char *line;
 
 	// just drop to next line for hitting CR
-	CHECK_AGRO(ch) = 0;
+	ch->check_aggressive = 0;
 	skip_spaces(&argument);
 
 	if (!*argument)
@@ -1298,8 +1298,8 @@ void command_interpreter(CharData *ch, char *argument) {
 		if (ch->purged()) {
 			return;
 		}
-		if (!ch->is_npc() && ch->in_room != kNowhere && CHECK_AGRO(ch)) {
-			CHECK_AGRO(ch) = false;
+		if (!ch->is_npc() && ch->in_room != kNowhere && ch->check_aggressive) {
+			ch->check_aggressive = false;
 			do_aggressive_room(ch, false);
 			if (ch->purged()) {
 				return;

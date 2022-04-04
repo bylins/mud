@@ -397,7 +397,7 @@ void affect_from_char(CharData *ch, int type) {
 	}
 
 	if (ch->is_npc() && type == kSpellCharm) {
-		EXTRACT_TIMER(ch) = 5;
+		ch->extract_timer = 5;
 		ch->mob_specials.hire_price = 0;// added by WorM (Видолюб) 2010.06.04 Сбрасываем цену найма
 	}
 }
@@ -556,7 +556,7 @@ void affect_total(CharData *ch) {
 			}
 		}
 
-		if (!WAITLESS(ch) && ch->ahorse()) {
+		if (!IS_IMMORTAL(ch) && ch->ahorse()) {
 			AFF_FLAGS(ch).unset(EAffect::kHide);
 			AFF_FLAGS(ch).unset(EAffect::kSneak);
 			AFF_FLAGS(ch).unset(EAffect::kDisguise);
@@ -652,7 +652,7 @@ void affect_total(CharData *ch) {
 		for (const auto &i : char_stealth_aff) {
 			if (saved.get(i)
 				&& !AFF_FLAGS(ch).get(i)) {
-				CHECK_AGRO(ch) = true;
+				ch->check_aggressive = true;
 			}
 		}
 	}

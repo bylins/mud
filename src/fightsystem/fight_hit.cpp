@@ -1392,7 +1392,7 @@ void hit_touching(CharData *ch, CharData *vict, int *dam) {
 		SetSkillCooldownInFight(vict, ESkill::kGlobalCooldown, 1);
 		SetSkillCooldownInFight(vict, ESkill::kIntercept, prob);
 /*
-		if (!WAITLESS(vict)) {
+		if (!IS_IMMORTAL(vict)) {
 			WAIT_STATE(vict, prob * kPulseViolence);
 		}
 */
@@ -1434,7 +1434,7 @@ void hit_deviate(CharData *ch, CharData *victim, int *dam) {
 		*dam = -1;
 		SET_AF_BATTLE(victim, kEafDodge);
 	}
-	BATTLECNTR(victim)++;
+	++(victim->battle_counter);
 }
 
 void hit_parry(CharData *ch, CharData *victim, ESkill skill, int hit_type, int *dam) {
@@ -1490,7 +1490,7 @@ void hit_parry(CharData *ch, CharData *victim, ESkill skill, int hit_type, int *
 			SetSkillCooldownInFight(victim, ESkill::kGlobalCooldown, 1);
 		SetSkillCooldownInFight(victim, ESkill::kParry, prob);
 /*
-		if (!WAITLESS(ch) && prob) {
+		if (!IS_IMMORTAL(ch) && prob) {
 			WAIT_STATE(victim, kPulseViolence * prob);
 		}
 */
@@ -1507,8 +1507,7 @@ void hit_multyparry(CharData *ch, CharData *victim, ESkill skill, int hit_type, 
 		|| IS_IMMORTAL(victim))) {
 		send_to_char("У вас нечем отклонять атаки противников\r\n", victim);
 	} else {
-		int range = number(1,
-						   MUD::Skills()[ESkill::kMultiparry].difficulty) + 15 * BATTLECNTR(victim);
+		int range = number(1, MUD::Skills()[ESkill::kMultiparry].difficulty) + 15*victim->battle_counter;
 		int prob = CalcCurrentSkill(victim, ESkill::kMultiparry, ch);
 		prob = prob * 100 / range;
 
@@ -1518,7 +1517,7 @@ void hit_multyparry(CharData *ch, CharData *victim, ESkill skill, int hit_type, 
 				|| number(1, 1000) >= 20 * MIN(GET_REAL_DEX(victim), 35))) {
 			prob = 0;
 		} else {
-			BATTLECNTR(victim)++;
+			++(victim->battle_counter);
 		}
 
 		TrainSkill(victim, ESkill::kMultiparry, prob >= 50, ch);
@@ -1558,7 +1557,7 @@ void hit_block(CharData *ch, CharData *victim, int *dam) {
 		int range = number(1, MUD::Skills()[ESkill::kShieldBlock].difficulty);
 		int prob = CalcCurrentSkill(victim, ESkill::kShieldBlock, ch);
 		prob = prob * 100 / range;
-		BATTLECNTR(victim)++;
+		++(victim->battle_counter);
 		TrainSkill(victim, ESkill::kShieldBlock, prob > 99, ch);
 		SendSkillBalanceMsg(ch, MUD::Skills()[ESkill::kShieldBlock].name, range, prob, prob > 99);
 		if (prob < 100) {
@@ -2105,7 +2104,7 @@ void Damage::process_death(CharData *ch, CharData *victim) {
 			if (spell_num == kSpellPoison) {
 				for (const auto poisoner : world[IN_ROOM(victim)]->people) {
 					if (poisoner != victim
-						&& GET_ID(poisoner) == victim->Poisoner) {
+						&& GET_ID(poisoner) == victim->poisoner) {
 						killer = poisoner;
 					}
 				}
@@ -3242,7 +3241,7 @@ void HitData::check_defense_skills(CharData *ch, CharData *victim) {
 		&& !AFF_FLAGGED(victim, EAffect::kStopFight)
 		&& !AFF_FLAGGED(victim, EAffect::kMagicStopFight)
 		&& GET_MOB_HOLD(victim) == 0
-		&& BATTLECNTR(victim) < (GetRealLevel(victim) + 7) / 8) {
+		&& victim->battle_counter < (GetRealLevel(victim) + 7) / 8) {
 		// Обработаем команду   УКЛОНИТЬСЯ
 		hit_deviate(ch, victim, &dam);
 	} else if (dam > 0
@@ -3263,7 +3262,7 @@ void HitData::check_defense_skills(CharData *ch, CharData *victim) {
 		&& !AFF_FLAGGED(victim, EAffect::kMagicStopFight)
 		&& !AFF_FLAGGED(victim, EAffect::kStopRight)
 		&& !AFF_FLAGGED(victim, EAffect::kStopLeft)
-		&& BATTLECNTR(victim) < (GetRealLevel(victim) + 4) / 5
+		&& victim->battle_counter < (GetRealLevel(victim) + 4) / 5
 		&& GET_WAIT(victim) <= 0
 		&& GET_MOB_HOLD(victim) == 0) {
 		// обработаем команду  ВЕЕРНАЯ ЗАЩИТА
@@ -3276,7 +3275,7 @@ void HitData::check_defense_skills(CharData *ch, CharData *victim) {
 		&& !AFF_FLAGGED(victim, EAffect::kStopLeft)
 		&& GET_WAIT(victim) <= 0
 		&& GET_MOB_HOLD(victim) == 0
-		&& BATTLECNTR(victim) < (GetRealLevel(victim) + 8) / 9) {
+		&& victim->battle_counter < (GetRealLevel(victim) + 8) / 9) {
 		// Обработаем команду   БЛОКИРОВАТЬ
 		hit_block(ch, victim, &dam);
 	}
@@ -3448,14 +3447,14 @@ int HitData::calc_damage(CharData *ch, bool need_dice) {
 			// 0 раунд и стаб = 70% скрытого, дальше раунд * 0.4 (до 5 раунда)
 			int round_dam = tmp_dam * 7 / 10;
 			if (IsAbleToUseFeat(ch, EFeat::kSnakeRage)) {
-				if (ROUND_COUNTER(ch) >= 1 && ROUND_COUNTER(ch) <= 3) {
-					dam *= ROUND_COUNTER(ch);
+				if (ch->round_counter >= 1 && ch->round_counter <= 3) {
+					dam *= ch->round_counter;
 				}
 			}
-			if (skill_num == ESkill::kBackstab || ROUND_COUNTER(ch) <= 0) {
+			if (skill_num == ESkill::kBackstab || ch->round_counter <= 0) {
 				dam += round_dam;
 			} else {
-				dam += round_dam * MIN(3, ROUND_COUNTER(ch));
+				dam += round_dam*std::min(3, ch->round_counter);
 			}
 			if (PRF_FLAGGED(ch, EPrf::kExecutor))
 				send_to_char(ch, "&YДамага от скрытого удара == %d&n\r\n", dam);
@@ -3476,7 +3475,8 @@ int HitData::calc_damage(CharData *ch, bool need_dice) {
 
 	if (affected_by_spell(ch, kSpellBerserk)) {
 		if (AFF_FLAGGED(ch, EAffect::kBerserk)) {
-			dam = (dam * MAX(150, 150 + GetRealLevel(ch) + RollDices(0, GET_REAL_REMORT(ch)) * 2)) / 100;
+			dam = (dam*std::max(150, 150 + GetRealLevel(ch) +
+				RollDices(0, GET_REAL_REMORT(ch)) * 2)) / 100;
 			if (PRF_FLAGGED(ch, EPrf::kExecutor))
 				send_to_char(ch, "&YДамага с учетом берсерка== %d&n\r\n", dam);
 		}
@@ -3773,7 +3773,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		int percent = CalcCurrentSkill(ch, ESkill::kPunctual, victim);
 		bool success = percent >= number(1, MUD::Skills()[ESkill::kPunctual].difficulty);
 		TrainSkill(ch, ESkill::kPunctual, success, victim);
-		if (!PUNCTUAL_WAITLESS(ch)) {
+		if (!IS_IMMORTAL(ch)) {
 			PUNCTUAL_WAIT_STATE(ch, 1 * kPulseViolence);
 		}
 		if (success && (hit_params.calc_thaco - hit_params.diceroll < hit_params.victim_ac - 5
@@ -3785,7 +3785,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 				hit_params.dam_critic = do_punctual(ch, victim, hit_params.wielded);
 				ch->send_to_TC(false, true, false, "&CДамага точки равна = %d&n\r\n", hit_params.dam_critic);
 				victim->send_to_TC(false, true, false, "&CДамага точки равна = %d&n\r\n", hit_params.dam_critic);
-				if (!PUNCTUAL_WAITLESS(ch)) {
+				if (!IS_IMMORTAL(ch)) {
 					PUNCTUAL_WAIT_STATE(ch, 2 * kPulseViolence);
 				}
 				CallMagic(ch, victim, nullptr, nullptr, ESpell::kSpellPaladineInspiration, GetRealLevel(ch));

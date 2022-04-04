@@ -111,7 +111,7 @@ CharData *TryToFindProtector(CharData *victim, CharData *ch) {
 					kToChar);
 				act("$N пытается напасть на вас! Лучше бы вам отойти.", false, victim, 0, vict, kToChar);
 				vict->set_protecting(0);
-				vict->BattleAffects.unset(kEafProtect);
+				vict->battle_affects.unset(kEafProtect);
 				WAIT_STATE(vict, kPulseViolence);
 				Affect<EApply> af;
 				af.type = kSpellBattle;

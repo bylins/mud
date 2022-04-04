@@ -203,9 +203,9 @@ void set_fighting(CharData *ch, CharData *vict) {
 	if (ch->get_protecting())
 		SET_AF_BATTLE(ch, kEafProtect);
 	ch->set_touching(0);
-	INITIATIVE(ch) = 0;
-	BATTLECNTR(ch) = 0;
-	ROUND_COUNTER(ch) = 0;
+	ch->initiative = 0;
+	ch->battle_counter = 0;
+	ch->round_counter = 0;
 	ch->set_extra_attack(kExtraAttackUnused, 0);
 	set_battle_pos(ch);
 
@@ -259,9 +259,9 @@ void stop_fighting(CharData *ch, int switch_others) {
 	ch->last_comm = nullptr;
 	ch->set_touching(0);
 	ch->set_fighting(0);
-	INITIATIVE(ch) = 0;
-	BATTLECNTR(ch) = 0;
-	ROUND_COUNTER(ch) = 0;
+	ch->initiative = 0;
+	ch->battle_counter = 0;
+	ch->round_counter = 0;
 	ch->set_extra_attack(kExtraAttackUnused, 0);
 	ch->set_cast(0, 0, 0, 0, 0);
 	restore_battle_pos(ch);
@@ -1701,14 +1701,14 @@ void update_round_affs() {
 
 		if (GET_AF_BATTLE(ch, kEafBlock)) {
 			CLR_AF_BATTLE(ch, kEafBlock);
-			if (!WAITLESS(ch) && GET_WAIT(ch) < kPulseViolence)
+			if (!IS_IMMORTAL(ch) && GET_WAIT(ch) < kPulseViolence)
 				WAIT_STATE(ch, 1 * kPulseViolence);
 		}
 
 //		if (GET_AF_BATTLE(ch, EAF_DEVIATE))
 //		{
 //			CLR_AF_BATTLE(ch, EAF_DEVIATE);
-//			if (!WAITLESS(ch) && GET_WAIT(ch) < kPulseViolence)
+//			if (!IS_IMMORTAL(ch) && GET_WAIT(ch) < kPulseViolence)
 //				WAIT_STATE(ch, 1 * kPulseViolence);
 //		}
 
@@ -1875,8 +1875,8 @@ void process_player_attack(CharData *ch, int min_init) {
 			}
 			ch->set_cast(0, 0, 0, 0, 0);
 		}
-		if (INITIATIVE(ch) > min_init) {
-			INITIATIVE(ch)--;
+		if (ch->initiative > min_init) {
+			--(ch->initiative);
 			return;
 		}
 	}
@@ -1888,8 +1888,8 @@ void process_player_attack(CharData *ch, int min_init) {
 	if (!IS_SET(trigger_code, kNoExtraAttack) && ch->get_extra_victim()
 		&& GET_WAIT(ch) <= 0 && using_extra_attack(ch)) {
 		ch->set_extra_attack(kExtraAttackUnused, nullptr);
-		if (INITIATIVE(ch) > min_init) {
-			INITIATIVE(ch)--;
+		if (ch->initiative > min_init) {
+			--(ch->initiative);
 			return;
 		}
 	}
@@ -1926,8 +1926,8 @@ void process_player_attack(CharData *ch, int min_init) {
 		}
 		CLR_AF_BATTLE(ch, kEafFirst);
 		SET_AF_BATTLE(ch, kEafSecond);
-		if (INITIATIVE(ch) > min_init) {
-			INITIATIVE(ch)--;
+		if (ch->initiative > min_init) {
+			--(ch->initiative);
 			return;
 		}
 	}
@@ -1966,9 +1966,9 @@ void process_player_attack(CharData *ch, int min_init) {
 // * \return false - чар не участвует в расчете инициативы
 bool stuff_before_round(CharData *ch) {
 	// Initialize initiative
-	INITIATIVE(ch) = 0;
-	BATTLECNTR(ch) = 0;
-	ROUND_COUNTER(ch) += 1;
+	ch->initiative = 0;
+	ch->battle_counter = 0;
+	ch->round_counter += 1;
 	DpsSystem::check_round(ch);
 	BattleRoundParameters params(ch);
 	handle_affects(params);
@@ -2059,10 +2059,10 @@ void perform_violence() {
 
 		const int initiative = calc_initiative(ch, true);
 		if (initiative == 0) {
-			INITIATIVE(ch) = -100; //Если кубик выпал в 0 - бей последним шанс 1 из 201
+			ch->initiative = -100; //Если кубик выпал в 0 - бей последним шанс 1 из 201
 			min_init = MIN(min_init, -100);
 		} else {
-			INITIATIVE(ch) = initiative;
+			ch->initiative = initiative;
 		}
 
 		SET_AF_BATTLE(ch, kEafFirst);
@@ -2074,7 +2074,7 @@ void perform_violence() {
 	for (int initiative = max_init; initiative >= min_init; initiative--) {
 		for (CharData *ch = combat_list; ch; ch = next_combat_list) {
 			next_combat_list = ch->next_fighting;
-			if (INITIATIVE(ch) != initiative || ch->in_room == kNowhere) {
+			if (ch->initiative != initiative || ch->in_room == kNowhere) {
 				continue;
 			}
 

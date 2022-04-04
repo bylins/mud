@@ -2782,7 +2782,7 @@ void find_replacement(void *go,
 				sprintf(str, "%d", static_cast<int>(GET_POS(c)));
 			} else {
 				auto pos = std::clamp(static_cast<EPosition>(atoi(subfield)), EPosition::kPerish, --EPosition::kLast);
-				if (!WAITLESS(c)) {
+				if (!IS_IMMORTAL(c)) {
 					if (c->ahorse()) {
 						c->dismount();
 					}
@@ -2794,7 +2794,7 @@ void find_replacement(void *go,
 
 			if (!*subfield || (pos = atoi(subfield)) <= 0) {
 				sprintf(str, "%d", GET_WAIT(c));
-			} else if (!WAITLESS(c)) {
+			} else if (!IS_IMMORTAL(c)) {
 				WAIT_STATE(c, pos * kPulseViolence);
 			}
 		} else if (!str_cmp(field, "apply_value")) {

@@ -77,7 +77,7 @@ bool check_named(CharData *ch, const ObjData *obj, const bool simple) {
 		if (IS_CHARMICE(ch)) // Чармисы тоже могут работать с именными вещами
 		{
 			CharData *master = ch->get_master();
-			if (WAITLESS(master)) // Чармис имма
+			if (IS_IMMORTAL(master)) // Чармис имма
 			{
 				return false;
 			}
@@ -106,7 +106,7 @@ bool check_named(CharData *ch, const ObjData *obj, const bool simple) {
 		}
 		if (ch->is_npc())
 			return true;
-		if (WAITLESS(ch)) // Имм
+		if (IS_IMMORTAL(ch)) // Имм
 			return false;
 		if (it->second->uid == GET_UNIQUE(ch))//Это владелец предмета
 			return false;

@@ -70,7 +70,7 @@ bool stop_follower(CharData *ch, int mode) {
 		if (affected_by_spell(ch, kSpellCharm)) {
 			affect_from_char(ch, kSpellCharm);
 		}
-		EXTRACT_TIMER(ch) = 5;
+		ch->extract_timer = 5;
 		AFF_FLAGS(ch).unset(EAffect::kCharmed);
 
 		if (ch->get_fighting()) {

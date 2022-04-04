@@ -1611,7 +1611,7 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		af.bitvector = to_underlying(EAffect::kPoisoned);
 		af.battleflag = kAfSameTime;
 		affect_join(ch, af, false, false, false, false);
-		ch->Poisoner = 0;
+		ch->poisoner = 0;
 	}
 	if (subcmd == SCMD_EAT
 		|| (subcmd == SCMD_TASTE
@@ -2644,7 +2644,7 @@ void do_extinguish(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	//Выдадим-ка лаг за эти дела.
-	if (!WAITLESS(ch)) {
+	if (!IS_IMMORTAL(ch)) {
 		WAIT_STATE(ch, lag * kPulseViolence);
 	}
 }
@@ -3061,7 +3061,7 @@ void do_makefood(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		if (GET_RACE(mob) == ENpcRace::kAnimal) // шкуры только с животных
 		{
-			if (WAITLESS(ch) || skill_to_skin(mob, ch)) {
+			if (IS_IMMORTAL(ch) || skill_to_skin(mob, ch)) {
 				entrails.push_back(create_skin(mob, ch));
 			}
 		}

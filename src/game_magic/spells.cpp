@@ -2050,7 +2050,7 @@ void SpellSacrifice(int/* level*/, CharData *ch, CharData *victim, ObjData* /*ob
 	// Высосать жизнь - некроманы - уровень 18 круг 6й (5)
 	// *** мин 54 макс 66 (330)
 
-	if (WAITLESS(victim) || victim == ch || IS_CHARMICE(victim)) {
+	if (IS_IMMORTAL(victim) || victim == ch || IS_CHARMICE(victim)) {
 		send_to_char(NOEFFECT, ch);
 		return;
 	}

@@ -186,8 +186,8 @@ void CharData::reset() {
 	next_fighting = nullptr;
 	set_protecting(nullptr);
 	set_touching(nullptr);
-	BattleAffects = clear_flags;
-	Poisoner = 0;
+	battle_affects = clear_flags;
+	poisoner = 0;
 	set_fighting(nullptr);
 	char_specials.position = EPosition::kStand;
 	mob_specials.default_pos = EPosition::kStand;
@@ -349,17 +349,17 @@ void CharData::zero_init() {
 	next_fighting = nullptr;
 	followers = nullptr;
 	m_master = nullptr;
-	CasterLevel = 0;
-	DamageLevel = 0;
+	caster_level = 0;
+	damage_level = 0;
 	pk_list = nullptr;
 	helpers = nullptr;
 	track_dirs = 0;
-	CheckAggressive = 0;
-	ExtractTimer = 0;
-	Initiative = 0;
-	BattleCounter = 0;
+	check_aggressive = 0;
+	extract_timer = 0;
+	initiative = 0;
+	battle_counter = 0;
 	round_counter = 0;
-	Poisoner = 0;
+	poisoner = 0;
 	dl_list = nullptr;
 	agrobd = false;
 
@@ -379,7 +379,7 @@ void CharData::zero_init() {
 
 	memset(&mem_queue, 0, sizeof(SpellMemQueue));
 	memset(&Temporary, 0, sizeof(FlagData));
-	memset(&BattleAffects, 0, sizeof(FlagData));
+	memset(&battle_affects, 0, sizeof(FlagData));
 	char_specials.position = EPosition::kStand;
 	mob_specials.default_pos = EPosition::kStand;
 	souls = 0;

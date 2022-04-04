@@ -31,7 +31,7 @@ int IsHaveNoExtraAttack(CharData *ch) {
 }
 
 void SetWait(CharData *ch, int waittime, int victim_in_room) {
-	if (!WAITLESS(ch) && (!victim_in_room || (ch->get_fighting() && ch->isInSameRoom(ch->get_fighting())))) {
+	if (!IS_IMMORTAL(ch) && (!victim_in_room || (ch->get_fighting() && ch->isInSameRoom(ch->get_fighting())))) {
 		WAIT_STATE(ch, waittime * kPulseViolence);
 	}
 }

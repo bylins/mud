@@ -152,7 +152,7 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!WAITLESS(ch) && ch->ahorse()) {
+	if (!IS_IMMORTAL(ch) && ch->ahorse()) {
 		send_to_char("Верхом это сделать затруднительно.\r\n", ch);
 		return;
 	}

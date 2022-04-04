@@ -531,7 +531,7 @@ int ImposeSpellToRoom(int/* level*/, CharData *ch, RoomData *room, int spellnum)
 	} else
 		send_to_char(NOEFFECT, ch);
 
-	if (!WAITLESS(ch))
+	if (!IS_IMMORTAL(ch))
 		WAIT_STATE(ch, lag * kPulseViolence);
 
 	return 0;

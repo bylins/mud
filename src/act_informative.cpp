@@ -2437,7 +2437,7 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 				fnum = number(1, MUD::Skills()[ESkill::kPry].difficulty);
 				found = CalcCurrentSkill(ch, ESkill::kPry, found_char);
 				TrainSkill(ch, ESkill::kPry, found < fnum, found_char);
-				if (!WAITLESS(ch))
+				if (!IS_IMMORTAL(ch))
 					WAIT_STATE(ch, 1 * kPulseViolence);
 				if (found >= fnum && (fnum < 100 || IS_IMMORTAL(ch)) && !IS_IMMORTAL(found_char))
 					return false;

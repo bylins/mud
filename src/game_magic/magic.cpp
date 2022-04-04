@@ -61,7 +61,7 @@ bool is_room_forbidden(RoomData *room) {
 int CalcAntiSavings(CharData *ch) {
 	int modi = 0;
 
-	if (WAITLESS(ch))
+	if (IS_IMMORTAL(ch))
 		modi = 350;
 	else if (GET_GOD_FLAG(ch, EGf::kGodsLike))
 		modi = 250;
@@ -453,7 +453,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 					break;
 				}
 			}
-			if (GET_POS(victim) > EPosition::kSit && !WAITLESS(victim) && (number(1, 999) > GET_AR(victim) * 10) &&
+			if (GET_POS(victim) > EPosition::kSit && !IS_IMMORTAL(victim) && (number(1, 999) > GET_AR(victim) * 10) &&
 				(GET_MOB_HOLD(victim) || !CalcGeneralSaving(ch, victim, ESaving::kReflex, CALC_SUCCESS(modi, 30)))) {
 				if (IS_HORSE(ch))
 					ch->drop_from_horse();
@@ -471,7 +471,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 			sdice = 8;
 			adice = level / 3 + 2 * ms_mod;
 			if (GET_POS(victim) > EPosition::kSit &&
-				!WAITLESS(victim) && (number(1, 999) > GET_AR(victim) * 10) &&
+				!IS_IMMORTAL(victim) && (number(1, 999) > GET_AR(victim) * 10) &&
 				(GET_MOB_HOLD(victim) || !CalcGeneralSaving(ch, victim, ESaving::kStability, CALC_SUCCESS(modi, 60)))) {
 				act("$n3 повалило на землю.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 				act("Вас повалило на землю.", false, victim, nullptr, nullptr, kToChar);
@@ -681,7 +681,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 		case kSpellDispelEvil: ndice = 4;
 			sdice = 4;
 			adice = level;
-			if (ch != victim && IS_EVIL(ch) && !WAITLESS(ch) && GET_HIT(ch) > 1) {
+			if (ch != victim && IS_EVIL(ch) && !IS_IMMORTAL(ch) && GET_HIT(ch) > 1) {
 				send_to_char("Ваша магия обратилась против вас.", ch);
 				GET_HIT(ch) = 1;
 			}
@@ -694,7 +694,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 		case kSpellDispelGood: ndice = 4;
 			sdice = 4;
 			adice = level;
-			if (ch != victim && IS_GOOD(ch) && !WAITLESS(ch) && GET_HIT(ch) > 1) {
+			if (ch != victim && IS_GOOD(ch) && !IS_IMMORTAL(ch) && GET_HIT(ch) > 1) {
 				send_to_char("Ваша магия обратилась против вас.", ch);
 				GET_HIT(ch) = 1;
 			}
@@ -724,7 +724,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 			break;
 			// высосать жизнь
 		case kSpellSacrifice:
-			if (WAITLESS(victim))
+			if (IS_IMMORTAL(victim))
 				break;
 			ndice = 8;
 			sdice = 8;
@@ -738,7 +738,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 			sdice = 6;
 			adice = level + GET_REAL_REMORT(ch) * 3;
 			if (GET_POS(victim) > EPosition::kSit &&
-				!WAITLESS(victim) && (number(1, 999) > GET_AR(victim) * 10) &&
+				!IS_IMMORTAL(victim) && (number(1, 999) > GET_AR(victim) * 10) &&
 				(!CalcGeneralSaving(ch, victim, ESaving::kReflex, CALC_SUCCESS(modi, 30)))) {
 				act("$n3 повалило на землю.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 				act("Вас повалило на землю.", false, victim, nullptr, nullptr, kToChar);
@@ -845,7 +845,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 			ndice = GET_REAL_REMORT(ch) + (level + 2) / 3;
 			sdice = 5;
 			if (GET_POS(victim) > EPosition::kSit &&
-				!WAITLESS(victim) &&
+				!IS_IMMORTAL(victim) &&
 				(GET_MOB_HOLD(victim) || !CalcGeneralSaving(ch, victim, ESaving::kStability, GET_REAL_CON(ch)))) {
 				act("$n3 повалило на землю.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 				act("Вас повалило на землю.", false, victim, nullptr, nullptr, kToChar);
@@ -1623,7 +1623,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 		case kSpellPowerBlindness:
 		case kSpellBlindness: savetype = ESaving::kStability;
 			if (MOB_FLAGGED(victim, EMobFlag::kNoBlind) ||
-				WAITLESS(victim) ||
+				IS_IMMORTAL(victim) ||
 				((ch != victim) &&
 					!GET_GOD_FLAG(victim, EGf::kGodscurse) && CalcGeneralSaving(ch, victim, savetype, modi))) {
 				send_to_char(NOEFFECT, ch);
@@ -2306,7 +2306,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 					}
 					break;
 			}
-			if (WAITLESS(victim) || (!WAITLESS(ch) && CalcGeneralSaving(ch, victim, savetype, modi))) {
+			if (IS_IMMORTAL(victim) || (!IS_IMMORTAL(ch) && CalcGeneralSaving(ch, victim, savetype, modi))) {
 				success = false;
 				break;
 			}
@@ -2401,7 +2401,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 			//Заклинания Забвение, Бремя времени. Далим.
 		case kSpellOblivion:
 		case kSpellBurdenOfTime: {
-			if (WAITLESS(victim) || CalcGeneralSaving(ch,
+			if (IS_IMMORTAL(victim) || CalcGeneralSaving(ch,
 													  victim,
 													  ESaving::kReflex,
 													  CALC_SUCCESS(modi, (spellnum == kSpellOblivion ? 40 : 90)))) {
@@ -2861,7 +2861,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 	if (success) {
 		// вот некрасиво же тут это делать...
 		if (spellnum == kSpellPoison)
-			victim->Poisoner = GET_ID(ch);
+			victim->poisoner = GET_ID(ch);
 		if (to_vict != nullptr)
 			act(to_vict, false, victim, nullptr, ch, kToChar);
 		if (to_room != nullptr)

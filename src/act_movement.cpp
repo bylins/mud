@@ -146,7 +146,7 @@ void make_visible(CharData *ch, const EAffect affect) {
 		default: break;
 	}
 	AFF_FLAGS(ch).unset(affect);
-	CHECK_AGRO(ch) = true;
+	ch->check_aggressive = true;
 	if (*to_char)
 		send_to_char(to_char, ch);
 	if (*to_room)

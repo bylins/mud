@@ -96,7 +96,7 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	SaySpell(ch, spellnum, nullptr, nullptr);
 
 	if (CallMagic(ch, nullptr, nullptr, nullptr, spellnum, GetRealLevel(ch)) >= 0) {
-		if (!WAITLESS(ch)) {
+		if (!IS_IMMORTAL(ch)) {
 			if (!CHECK_WAIT(ch))
 				WAIT_STATE(ch, kPulseViolence);
 			timed_to_char(ch, &timed);
