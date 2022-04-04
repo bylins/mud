@@ -712,11 +712,11 @@ void obj_from_char(ObjData *object) {
 int invalid_align(CharData *ch, ObjData *obj) {
 	if (ch->is_npc() || IS_IMMORTAL(ch))
 		return (false);
-	if (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MONO)
+	if (IS_OBJ_ANTI(obj, EAntiFlag::kMono)
 		&& GET_RELIGION(ch) == kReligionMono) {
 		return true;
 	}
-	if (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_POLY)
+	if (IS_OBJ_ANTI(obj, EAntiFlag::kPoly)
 		&& GET_RELIGION(ch) == kReligionPoly) {
 		return true;
 	}

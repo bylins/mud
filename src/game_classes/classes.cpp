@@ -1278,7 +1278,7 @@ int invalid_anti_class(CharData *ch, const ObjData *obj) {
 			}
 		}
 	}
-	if (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMICE)
+	if (IS_OBJ_ANTI(obj, EAntiFlag::kCharmice)
 		&& AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		return (true);
 	}
@@ -1289,29 +1289,29 @@ int invalid_anti_class(CharData *ch, const ObjData *obj) {
 		return (true);
 	}
 
-	if ((IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MONO) && GET_RELIGION(ch) == kReligionMono)
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_POLY) && GET_RELIGION(ch) == kReligionPoly)
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MAGIC_USER) && IS_MAGIC_USER(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_BATTLEMAGE) && IS_CONJURER(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMMAGE) && IS_CHARMER(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_DEFENDERMAGE) && IS_WIZARD(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_NECROMANCER) && IS_NECROMANCER(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_FIGHTER_USER) && IS_FIGHTER_USER(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MALE) && IS_MALE(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_FEMALE) && IS_FEMALE(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CLERIC) && IS_SORCERER(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_WARRIOR) && IS_WARRIOR(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_GUARD) && IS_GUARD(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_THIEF) && IS_THIEF(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_ASSASINE) && IS_ASSASINE(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_PALADINE) && IS_PALADINE(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_RANGER) && IS_RANGER(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_SMITH) && IS_VIGILANT(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MERCHANT) && IS_MERCHANT(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_DRUID) && IS_MAGUS(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_KILLER) && PLR_FLAGGED(ch, EPlrFlag::kKiller))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_BD) && check_agrobd(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_COLORED) && IS_COLORED(ch))) {
+	if ((IS_OBJ_ANTI(obj, EAntiFlag::kMono) && GET_RELIGION(ch) == kReligionMono)
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kPoly) && GET_RELIGION(ch) == kReligionPoly)
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kMage) && IS_MAGIC_USER(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kConjurer) && IS_CONJURER(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kCharmer) && IS_CHARMER(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kWizard) && IS_WIZARD(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kNecromancer) && IS_NECROMANCER(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kFighter) && IS_FIGHTER_USER(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kMale) && IS_MALE(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kFemale) && IS_FEMALE(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kSorcerer) && IS_SORCERER(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kWarrior) && IS_WARRIOR(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kGuard) && IS_GUARD(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kThief) && IS_THIEF(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kAssasine) && IS_ASSASINE(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kPaladine) && IS_PALADINE(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kRanger) && IS_RANGER(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kVigilant) && IS_VIGILANT(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kMerchant) && IS_MERCHANT(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kMagus) && IS_MAGUS(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kKiller) && PLR_FLAGGED(ch, EPlrFlag::kKiller))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kBattle) && check_agrobd(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kColored) && IS_COLORED(ch))) {
 		return (true);
 	}
 	return (false);

@@ -943,44 +943,32 @@ bool is_mob_item(const CObjectPrototype *obj) {
 	if (IS_OBJ_NO(obj, ENoFlag::kCharmice)) {
 		return true;
 	}
-	if (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MALE)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_FEMALE)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMICE)) {
+	if (IS_OBJ_ANTI(obj, EAntiFlag::kMale)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::kFemale)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::kCharmice)) {
 		return true;
 	}
-	if (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MONO)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_POLY)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMICE)) {
+	if (IS_OBJ_ANTI(obj, EAntiFlag::kMono)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::kPoly)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::kCharmice)) {
 		return true;
 	}
-	if (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_RUSICHI)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMICE)) {
-		return true;
-	}
-	if (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CLERIC)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_THIEF)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_WARRIOR)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_ASSASINE)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_GUARD)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_PALADINE)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_RANGER)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_SMITH)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MERCHANT)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_DRUID)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_BATTLEMAGE)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMMAGE)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_DEFENDERMAGE)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_NECROMANCER)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMICE)) {
-		return true;
-	}
-	if (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_SEVERANE)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_POLANE)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_KRIVICHI)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_VATICHI)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_VELANE)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_DREVLANE)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMICE)) {
+
+	if (IS_OBJ_ANTI(obj, EAntiFlag::kSorcerer)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::kThief)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::kWarrior)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::kAssasine)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::kGuard)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::kPaladine)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::kRanger)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::kVigilant)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::kMerchant)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::kMagus)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::kConjurer)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::kCharmer)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::kWizard)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::kNecromancer)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::kCharmice)) {
 		return true;
 	}
 
