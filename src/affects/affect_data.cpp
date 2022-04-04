@@ -708,9 +708,9 @@ void affect_join(CharData *ch,
 /* Insert an affect_type in a char_data structure
    Automatically sets appropriate bits and apply's */
 void affect_to_char(CharData *ch, const Affect<EApply> &af) {
-	long was_lgt = AFF_FLAGGED(ch, EAffect::kSingleLight) ? LIGHT_YES : LIGHT_NO;
-	long was_hlgt = AFF_FLAGGED(ch, EAffect::kHolyLight) ? LIGHT_YES : LIGHT_NO;
-	long was_hdrk = AFF_FLAGGED(ch, EAffect::kHolyDark) ? LIGHT_YES : LIGHT_NO;
+	long was_lgt = AFF_FLAGGED(ch, EAffect::kSingleLight) ? kLightYes : kLightNo;
+	long was_hlgt = AFF_FLAGGED(ch, EAffect::kHolyLight) ? kLightYes : kLightNo;
+	long was_hdrk = AFF_FLAGGED(ch, EAffect::kHolyDark) ? kLightYes : kLightNo;
 
 	Affect<EApply>::shared_ptr affected_alloc(new Affect<EApply>(af));
 
@@ -721,7 +721,7 @@ void affect_to_char(CharData *ch, const Affect<EApply> &af) {
 		affect_modify(ch, af.location, af.modifier, static_cast<EAffect>(af.bitvector), true);
 	//log("[AFFECT_TO_CHAR->AFFECT_TOTAL] Start");
 	affect_total(ch);
-	check_light(ch, LIGHT_UNDEF, was_lgt, was_hlgt, was_hdrk, 1);
+	check_light(ch, kLightUndef, was_lgt, was_hlgt, was_hdrk, 1);
 }
 
 void affect_modify(CharData *ch, byte loc, int mod, const EAffect bitv, bool add) {

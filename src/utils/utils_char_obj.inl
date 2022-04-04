@@ -14,7 +14,7 @@ inline bool INVIS_OK_OBJ(const CharData *sub, const ObjData *obj) {
 inline bool MORT_CAN_SEE_OBJ(const CharData *sub, const ObjData *obj) {
 	return INVIS_OK_OBJ(sub, obj)
 		&& !AFF_FLAGGED(sub, EAffect::kBlind)
-		&& (IS_LIGHT(obj->get_in_room())
+		&& (!is_dark(obj->get_in_room())
 			|| obj->has_flag(EObjFlag::kGlow)
 			|| (IS_CORPSE(obj)
 				&& AFF_FLAGGED(sub, EAffect::kInfravision))

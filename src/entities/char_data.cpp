@@ -233,9 +233,9 @@ void CharData::set_abstinent() {
 }
 
 void CharData::affect_remove(const char_affects_list_t::iterator &affect_i) {
-	int was_lgt = AFF_FLAGGED(this, EAffect::kSingleLight) ? LIGHT_YES : LIGHT_NO;
-	long was_hlgt = AFF_FLAGGED(this, EAffect::kHolyLight) ? LIGHT_YES : LIGHT_NO;
-	long was_hdrk = AFF_FLAGGED(this, EAffect::kHolyDark) ? LIGHT_YES : LIGHT_NO;
+	int was_lgt = AFF_FLAGGED(this, EAffect::kSingleLight) ? kLightYes : kLightNo;
+	long was_hlgt = AFF_FLAGGED(this, EAffect::kHolyLight) ? kLightYes : kLightNo;
+	long was_hdrk = AFF_FLAGGED(this, EAffect::kHolyDark) ? kLightYes : kLightNo;
 
 	if (affected.empty()) {
 		log("SYSERR: affect_remove(%s) when no affects...", GET_NAME(this));
@@ -258,7 +258,7 @@ void CharData::affect_remove(const char_affects_list_t::iterator &affect_i) {
 	affected.erase(affect_i);
 
 	affect_total(this);
-	check_light(this, LIGHT_UNDEF, was_lgt, was_hlgt, was_hdrk, 1);
+	check_light(this, kLightUndef, was_lgt, was_hlgt, was_hdrk, 1);
 }
 
 bool CharData::has_any_affect(const affects_list_t &affects) {
@@ -761,14 +761,14 @@ bool IS_CHARMICE(const CharData *ch) {
 bool MORT_CAN_SEE(const CharData *sub, const CharData *obj) {
 	return HERE(obj)
 		&& INVIS_OK(sub, obj)
-		&& (IS_LIGHT((obj)->in_room)
+		&& (!is_dark((obj)->in_room)
 			|| AFF_FLAGGED((sub), EAffect::kInfravision));
 }
 
 bool MAY_SEE(const CharData *ch, const CharData *sub, const CharData *obj) {
 	return !(GET_INVIS_LEV(ch) > 30)
 		&& !AFF_FLAGGED(sub, EAffect::kBlind)
-		&& (!IS_DARK(sub->in_room)
+		&& (!is_dark(sub->in_room)
 			|| AFF_FLAGGED(sub, EAffect::kInfravision))
 		&& (!AFF_FLAGGED(obj, EAffect::kInvisible)
 			|| AFF_FLAGGED(sub, EAffect::kDetectInvisible));

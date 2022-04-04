@@ -1120,7 +1120,7 @@ void do_attach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	if (utils::IsAbbrev(arg, "mtr")) {
-		if ((victim = get_char_vis(ch, targ_name, FIND_CHAR_WORLD))) {
+		if ((victim = get_char_vis(ch, targ_name, EFind::kCharInWorld))) {
 			if (victim->is_npc())    // have a valid mob, now get trigger
 			{
 				rn = real_trigger(tn);
@@ -1213,7 +1213,7 @@ void do_detach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	} else {
 		if (utils::IsAbbrev(arg1, "mob")) {
-			if (!(victim = get_char_vis(ch, arg2, FIND_CHAR_WORLD)))
+			if (!(victim = get_char_vis(ch, arg2, EFind::kCharInWorld)))
 				send_to_char("No such mobile around.\r\n", ch);
 			else if (!*arg3)
 				send_to_char("You must specify a trigger to remove.\r\n", ch);
@@ -1231,7 +1231,7 @@ void do_detach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			else if ((object = get_obj_in_list_vis(ch, arg1, ch->carrying)));
 			else if ((victim = get_char_room_vis(ch, arg1)));
 			else if ((object = get_obj_in_list_vis(ch, arg1, world[ch->in_room]->contents)));
-			else if ((victim = get_char_vis(ch, arg1, FIND_CHAR_WORLD)));
+			else if ((victim = get_char_vis(ch, arg1, EFind::kCharInWorld)));
 			else if ((object = get_obj_vis(ch, arg1)));
 			else
 				send_to_char("Nothing around by that name.\r\n", ch);

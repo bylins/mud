@@ -127,7 +127,7 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if ((vict = get_char_vis(ch, arg, FIND_CHAR_ROOM))) {
+	if ((vict = get_char_vis(ch, arg, EFind::kCharInRoom))) {
 		act("Вы же в одной комнате с $N4!", false, ch, nullptr, vict, kToChar);
 		return;
 	}

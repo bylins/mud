@@ -180,7 +180,7 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	const auto helpee = get_char_vis(ch, arg, FIND_CHAR_ROOM);
+	const auto helpee = get_char_vis(ch, arg, EFind::kCharInRoom);
 	if (!helpee) {
 		send_to_char("Вы не видите никого похожего.\r\n", ch);
 		return;

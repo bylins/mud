@@ -1109,7 +1109,7 @@ void CharNode::take_item(CharData *vict, char *arg, int howmany) {
 	ObjListType &cont = pers_online;
 
 	int obj_dotmode = find_all_dots(arg);
-	if (obj_dotmode == FIND_INDIV) {
+	if (obj_dotmode == kFindIndiv) {
 		bool result = obj_from_obj_list(arg, vict);
 		if (!result) {
 			send_to_char(vict, "Вы не видите '%s' в хранилище.\r\n", arg);
@@ -1119,13 +1119,13 @@ void CharNode::take_item(CharData *vict, char *arg, int howmany) {
 			result = obj_from_obj_list(arg, vict);
 		}
 	} else {
-		if (obj_dotmode == FIND_ALLDOT && !*arg) {
+		if (obj_dotmode == kFindAlldot && !*arg) {
 			send_to_char("Взять что \"все\"?\r\n", vict);
 			return;
 		}
 		bool found = 0;
 		for (ObjListType::iterator obj_list_it = cont.begin(); obj_list_it != cont.end();) {
-			if (obj_dotmode == FIND_ALL
+			if (obj_dotmode == kFindAll
 				|| isname(arg, (*obj_list_it)->get_aliases())
 				|| CHECK_CUSTOM_LABEL(arg, obj_list_it->get(), vict)) {
 				// чтобы нельзя было разом собрать со шкафчика неск.тыс шмоток

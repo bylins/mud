@@ -1407,7 +1407,7 @@ void do_gen_door(CharData *ch, char *argument, int, int subcmd) {
 	char type[kMaxInputLength], dir[kMaxInputLength];
 	ObjData *obj = nullptr;
 	CharData *victim = nullptr;
-	int where_bits = FIND_OBJ_INV | FIND_OBJ_ROOM | FIND_OBJ_EQUIP;
+	int where_bits = EFind::kObjInventory | EFind::kObjRoom | EFind::kObjEquip;
 
 	if (AFF_FLAGGED(ch, EAffect::kBlind)) {
 		send_to_char("Очнитесь, вы же слепы!\r\n", ch);
@@ -1427,11 +1427,11 @@ void do_gen_door(CharData *ch, char *argument, int, int subcmd) {
 	two_arguments(argument, type, dir);
 
 	if (isname(dir, "земля комната room ground"))
-		where_bits = FIND_OBJ_ROOM;
+		where_bits = EFind::kObjRoom;
 	else if (isname(dir, "инвентарь inventory"))
-		where_bits = FIND_OBJ_INV;
+		where_bits = EFind::kObjInventory;
 	else if (isname(dir, "экипировка equipment"))
-		where_bits = FIND_OBJ_EQUIP;
+		where_bits = EFind::kObjEquip;
 
 	//Сначала ищем дверь, считая второй аргумент указанием на сторону света
 	door = find_door(ch, type, dir, (DOOR_SCMD) subcmd);
@@ -1778,7 +1778,7 @@ void do_wake(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (*arg) {
 		if (GET_POS(ch) == EPosition::kSleep)
 			send_to_char("Может быть вам лучше проснуться?\r\n", ch);
-		else if ((vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)) == nullptr)
+		else if ((vict = get_char_vis(ch, arg, EFind::kCharInRoom)) == nullptr)
 			send_to_char(NOPERSON, ch);
 		else if (vict == ch)
 			self = 1;

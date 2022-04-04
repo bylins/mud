@@ -1066,7 +1066,7 @@ void process_open_purse(CharData *ch, ObjData *obj) {
 
 	char buf_[kMaxInputLength];
 	snprintf(buf_, sizeof(buf_), "all");
-	get_from_container(ch, obj, buf_, FIND_OBJ_INV, 1, false);
+	get_from_container(ch, obj, buf_, EFind::kObjInventory, 1, false);
 	act("$o рассыпал$U в ваших руках...", false, ch, obj, 0, kToChar);
 	extract_obj(obj);
 }

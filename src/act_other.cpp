@@ -667,7 +667,7 @@ void do_steal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	two_arguments(argument, obj_name, vict_name);
-	if (!(vict = get_char_vis(ch, vict_name, FIND_CHAR_ROOM))) {
+	if (!(vict = get_char_vis(ch, vict_name, EFind::kCharInRoom))) {
 		send_to_char("Украсть у кого?\r\n", ch);
 		return;
 	} else if (vict == ch) {
@@ -1260,7 +1260,7 @@ void do_group(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		return;
 	} else if (!str_cmp(buf, "leader") || !str_cmp(buf, "лидер")) {
-		vict = get_player_vis(ch, argument, FIND_CHAR_WORLD);
+		vict = get_player_vis(ch, argument, EFind::kCharInWorld);
 		// added by WorM (Видолюб) Если найден клон и его хозяин персонаж
 		// а то чото как-то глючно Двойник %1 не является членом вашей группы.
 		if (vict
@@ -1292,7 +1292,7 @@ void do_group(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!(vict = get_char_vis(ch, buf, FIND_CHAR_ROOM))) {
+	if (!(vict = get_char_vis(ch, buf, EFind::kCharInRoom))) {
 		send_to_char(NOPERSON, ch);
 	} else if ((vict->get_master() != ch) && (vict != ch)) {
 		act("$N2 нужно следовать за вами, чтобы стать членом вашей группы.", false, ch, nullptr, vict, kToChar);
@@ -2404,7 +2404,7 @@ void do_beep(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!*buf)
 		send_to_char("Кого вызывать?\r\n", ch);
-	else if (!(vict = get_char_vis(ch, buf, FIND_CHAR_WORLD)) || vict->is_npc())
+	else if (!(vict = get_char_vis(ch, buf, EFind::kCharInWorld)) || vict->is_npc())
 		send_to_char(NOPERSON, ch);
 	else if (ch == vict)
 		send_to_char("\007\007Вы вызвали себя!\r\n", ch);

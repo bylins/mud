@@ -1171,7 +1171,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 					|| !legal_dir(ch.get(), door, true, false)
 					|| (is_room_forbidden(world[rdata->to_room()])
 						&& !MOB_FLAGGED(ch, EMobFlag::kIgnoreForbidden))
-					|| IS_DARK(rdata->to_room())
+					|| is_dark(rdata->to_room())
 					|| (MOB_FLAGGED(ch, EMobFlag::kStayZone)
 						&& world[ch->in_room]->zone_rn != world[rdata->to_room()]->zone_rn)) {
 					continue;

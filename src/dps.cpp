@@ -477,7 +477,7 @@ void do_dmeter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	} else if (PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
 		// распечатка статистики указанного персонажа
-		CharData *vict = get_player_vis(ch, arg, FIND_CHAR_WORLD);
+		CharData *vict = get_player_vis(ch, arg, EFind::kCharInWorld);
 		if (vict) {
 			vict->dps_print_stats(ch);
 		} else {

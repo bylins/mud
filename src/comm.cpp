@@ -3110,7 +3110,7 @@ void close_socket(DescriptorData * d, int direct)
 			}
 			if (!d->character->is_npc()) {
 				d->character->save_char();
-				check_light(d->character.get(), LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, -1);
+				check_light(d->character.get(), kLightNo, kLightNo, kLightNo, kLightNo, -1);
 				Crash_ldsave(d->character.get());
 
 				sprintf(buf, "Closing link to: %s.", GET_NAME(d->character));

@@ -201,7 +201,7 @@ void do_send_text_to_char(CharData *ch, char *argument, int, int) {
 
 	if (!*buf || !*buf2) {
 		send_to_char("Кому и какой текст вы хотите отправить?\r\n", ch);
-	} else if (!(vict = get_player_vis(ch, buf, FIND_CHAR_WORLD))) {
+	} else if (!(vict = get_player_vis(ch, buf, EFind::kCharInWorld))) {
 		send_to_char("Такого персонажа нет в игре.\r\n", ch);
 	} else if (vict->is_npc())
 		send_to_char("Такого персонажа нет в игре.\r\n", ch);
@@ -355,7 +355,7 @@ void do_arena_restore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	one_argument(argument, buf);
 	if (!*buf)
 		send_to_char("Кого вы хотите восстановить?\r\n", ch);
-	else if (!(vict = get_char_vis(ch, buf, FIND_CHAR_WORLD)))
+	else if (!(vict = get_char_vis(ch, buf, EFind::kCharInWorld)))
 		send_to_char(NOPERSON, ch);
 	else {
 		GET_HIT(vict) = GET_REAL_MAX_HIT(vict);
@@ -1367,7 +1367,7 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	}
 
-	CharData *vict = get_player_vis(ch, arg, FIND_CHAR_WORLD);
+	CharData *vict = get_player_vis(ch, arg, EFind::kCharInWorld);
 	Player t_vict; // TODO: надо выносить во вторую функцию, чтобы зря не создавать
 	if (!vict) {
 		if (load_char(arg, &t_vict) < 0) {
@@ -1439,7 +1439,7 @@ void do_send(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Послать что и кому (не путать с куда и кого :)\r\n", ch);
 		return;
 	}
-	if (!(vict = get_player_vis(ch, arg, FIND_CHAR_WORLD))) {
+	if (!(vict = get_player_vis(ch, arg, EFind::kCharInWorld))) {
 		send_to_char(NOPERSON, ch);
 		return;
 	}
@@ -1473,7 +1473,7 @@ RoomRnum find_target_room(CharData *ch, char *rawroomstr, int trig) {
 			send_to_char("Нет комнаты с таким номером.\r\n", ch);
 			return (kNowhere);
 		}
-	} else if ((target_mob = get_char_vis(ch, roomstr, FIND_CHAR_WORLD)) != nullptr) {
+	} else if ((target_mob = get_char_vis(ch, roomstr, EFind::kCharInWorld)) != nullptr) {
 		location = target_mob->in_room;
 	} else if ((target_obj = get_obj_vis(ch, roomstr)) != nullptr) {
 		if (target_obj->get_in_room() != kNowhere) {
@@ -1619,7 +1619,7 @@ void do_teleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!*buf)
 		send_to_char("Кого вы хотите переместить?\r\n", ch);
-	else if (!(victim = get_char_vis(ch, buf, FIND_CHAR_WORLD)))
+	else if (!(victim = get_char_vis(ch, buf, EFind::kCharInWorld)))
 		send_to_char(NOPERSON, ch);
 	else if (victim == ch)
 		send_to_char("Используйте 'прыжок' для собственного перемещения.\r\n", ch);
@@ -1700,7 +1700,7 @@ void do_snoop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!*arg)
 		stop_snooping(ch);
-	else if (!(victim = get_player_vis(ch, arg, FIND_CHAR_WORLD)))
+	else if (!(victim = get_player_vis(ch, arg, EFind::kCharInWorld)))
 		send_to_char("Нет такого создания в игре.\r\n", ch);
 	else if (!victim->desc)
 		act("Вы не можете $S подслушать - он$G потерял$G связь..\r\n",
@@ -1752,7 +1752,7 @@ void do_switch(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (!*arg) {
 		send_to_char("Стать кем?\r\n", ch);
 	} else {
-		const auto visible_character = get_char_vis(ch, arg, FIND_CHAR_WORLD);
+		const auto visible_character = get_char_vis(ch, arg, EFind::kCharInWorld);
 		if (!visible_character) {
 			send_to_char("Нет такого создания.\r\n", ch);
 		} else if (ch == visible_character) {
@@ -1960,7 +1960,7 @@ void do_purge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, buf);
 
 	if (*buf) {        // argument supplied. destroy single object or char
-		if ((vict = get_char_vis(ch, buf, FIND_CHAR_ROOM)) != nullptr) {
+		if ((vict = get_char_vis(ch, buf, EFind::kCharInRoom)) != nullptr) {
 			if (!vict->is_npc() && GetRealLevel(ch) <= GetRealLevel(vict) && !PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
 				send_to_char("Да я вас за это...\r\n", ch);
 				return;
@@ -2467,7 +2467,7 @@ void do_advance(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	two_arguments(argument, name, level);
 
 	if (*name) {
-		if (!(victim = get_player_vis(ch, name, FIND_CHAR_WORLD))) {
+		if (!(victim = get_player_vis(ch, name, EFind::kCharInWorld))) {
 			send_to_char("Не найду такого игрока.\r\n", ch);
 			return;
 		}
@@ -2528,7 +2528,7 @@ void do_restore(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	one_argument(argument, buf);
 	if (!*buf)
 		send_to_char("Кого вы хотите восстановить?\r\n", ch);
-	else if (!(vict = get_char_vis(ch, buf, FIND_CHAR_WORLD)))
+	else if (!(vict = get_char_vis(ch, buf, EFind::kCharInWorld)))
 		send_to_char(NOPERSON, ch);
 	else {
 		// имм с привилегией arena может ресторить только чаров, находящихся с ним на этой же арене
@@ -2846,7 +2846,7 @@ void do_force(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Кого и что вы хотите принудить сделать?\r\n", ch);
 	} else if (!IS_GRGOD(ch) || (str_cmp("all", arg) && str_cmp("room", arg) && str_cmp("все", arg)
 		&& str_cmp("здесь", arg))) {
-		const auto vict = get_char_vis(ch, arg, FIND_CHAR_WORLD);
+		const auto vict = get_char_vis(ch, arg, EFind::kCharInWorld);
 		if (!vict) {
 			send_to_char(NOPERSON, ch);
 		} else if (!vict->is_npc() && GetRealLevel(ch) <= GetRealLevel(vict) && !PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
@@ -3122,7 +3122,7 @@ void do_wizutil(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	if (!*arg)
 		send_to_char("Для кого?\r\n", ch);
-	else if (!(vict = get_player_pun(ch, arg, FIND_CHAR_WORLD)))
+	else if (!(vict = get_player_pun(ch, arg, EFind::kCharInWorld)))
 		send_to_char("Нет такого игрока.\r\n", ch);
 	else if (GetRealLevel(vict) > GetRealLevel(ch) && !GET_GOD_FLAG(ch, EGf::kDemigod) && !PRF_FLAGGED(ch, EPrf::kCoderinfo))
 		send_to_char("А он ведь старше вас....\r\n", ch);
@@ -3492,7 +3492,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				send_to_char("Уточните имя.\r\n", ch);
 				return;
 			}
-			if (!(vict = get_player_vis(ch, value, FIND_CHAR_WORLD))) {
+			if (!(vict = get_player_vis(ch, value, EFind::kCharInWorld))) {
 				send_to_char("Нет такого игрока.\r\n", ch);
 				return;
 			}
@@ -3735,7 +3735,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				send_to_char("Уточните имя.\r\n", ch);
 				return;
 			}
-			if (!(vict = get_player_vis(ch, value, FIND_CHAR_WORLD))) {
+			if (!(vict = get_player_vis(ch, value, EFind::kCharInWorld))) {
 				send_to_char("Нет такого игрока.\r\n", ch);
 				return;
 			}
@@ -3746,7 +3746,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				send_to_char("Уточните имя.\r\n", ch);
 				return;
 			}
-			if (!(vict = get_player_vis(ch, value, FIND_CHAR_WORLD))) {
+			if (!(vict = get_player_vis(ch, value, EFind::kCharInWorld))) {
 				send_to_char("Нет такого игрока.\r\n", ch);
 				return;
 			}
@@ -3764,7 +3764,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				send_to_char("Уточните имя.\r\n", ch);
 				return;
 			}
-			if (!(vict = get_player_vis(ch, value, FIND_CHAR_WORLD))) {
+			if (!(vict = get_player_vis(ch, value, EFind::kCharInWorld))) {
 				send_to_char("Нет такого игрока.\r\n", ch);
 				return;
 			}
@@ -3814,7 +3814,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				send_to_char("Уточните имя.\r\n", ch);
 				return;
 			}
-			if (!(vict = get_player_vis(ch, value, FIND_CHAR_WORLD))) {
+			if (!(vict = get_player_vis(ch, value, EFind::kCharInWorld))) {
 				send_to_char("Нет такого игрока.\r\n", ch);
 				return;
 			}
@@ -4669,7 +4669,7 @@ void do_set(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!is_file) {
 		if (is_player) {
 
-			if (!(vict = get_player_pun(ch, name, FIND_CHAR_WORLD))) {
+			if (!(vict = get_player_pun(ch, name, EFind::kCharInWorld))) {
 				send_to_char("Нет такого игрока.\r\n", ch);
 				return;
 			}
@@ -4688,7 +4688,7 @@ void do_set(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		} else    // is_mob
 		{
-			if (!(vict = get_char_vis(ch, name, FIND_CHAR_WORLD))
+			if (!(vict = get_char_vis(ch, name, EFind::kCharInWorld))
 				|| !vict->is_npc()) {
 				send_to_char("Нет такой твари Божьей.\r\n", ch);
 				return;
@@ -4696,7 +4696,7 @@ void do_set(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	} else if (is_file)    // try to load the player off disk
 	{
-		if (get_player_pun(ch, name, FIND_CHAR_WORLD)) {
+		if (get_player_pun(ch, name, EFind::kCharInWorld)) {
 			send_to_char("Да разуй же глаза! Оно в сети!\r\n", ch);
 			return;
 		}

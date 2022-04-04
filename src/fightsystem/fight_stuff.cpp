@@ -541,7 +541,7 @@ void arena_kill(CharData *ch, CharData *killer) {
 void auto_loot(CharData *ch, CharData *killer, ObjData *corpse, int local_gold) {
 	char obj[256];
 
-	if (IS_DARK(IN_ROOM(killer))
+	if (is_dark(IN_ROOM(killer))
 		&& !IsAbleToUseFeat(killer, EFeat::kDarkReading)
 		&& !(killer->is_npc()
 			&& AFF_FLAGGED(killer, EAffect::kCharmed)
@@ -556,7 +556,7 @@ void auto_loot(CharData *ch, CharData *killer, ObjData *corpse, int local_gold) 
 		&& (corpse != nullptr)
 		&& can_loot(killer)) {
 		sprintf(obj, "all");
-		get_from_container(killer, corpse, obj, FIND_OBJ_INV, 1, true);
+		get_from_container(killer, corpse, obj, EFind::kObjInventory, 1, true);
 	} else if (ch->is_npc()
 		&& !killer->is_npc()
 		&& local_gold
@@ -564,7 +564,7 @@ void auto_loot(CharData *ch, CharData *killer, ObjData *corpse, int local_gold) 
 		&& (corpse != nullptr)
 		&& can_loot(killer)) {
 		sprintf(obj, "all.coin");
-		get_from_container(killer, corpse, obj, FIND_OBJ_INV, 1, false);
+		get_from_container(killer, corpse, obj, EFind::kObjInventory, 1, false);
 	} else if (ch->is_npc()
 		&& killer->is_npc()
 		&& (AFF_FLAGGED(killer, EAffect::kCharmed)
@@ -576,7 +576,7 @@ void auto_loot(CharData *ch, CharData *killer, ObjData *corpse, int local_gold) 
 		&& PRF_FLAGGED(killer->get_master(), EPrf::kAutoloot)
 		&& can_loot(killer->get_master())) {
 		sprintf(obj, "all");
-		get_from_container(killer->get_master(), corpse, obj, FIND_OBJ_INV, 1, true);
+		get_from_container(killer->get_master(), corpse, obj, EFind::kObjInventory, 1, true);
 	} else if (ch->is_npc()
 		&& killer->is_npc()
 		&& local_gold
@@ -589,7 +589,7 @@ void auto_loot(CharData *ch, CharData *killer, ObjData *corpse, int local_gold) 
 		&& PRF_FLAGGED(killer->get_master(), EPrf::kAutomoney)
 		&& can_loot(killer->get_master())) {
 		sprintf(obj, "all.coin");
-		get_from_container(killer->get_master(), corpse, obj, FIND_OBJ_INV, 1, false);
+		get_from_container(killer->get_master(), corpse, obj, EFind::kObjInventory, 1, false);
 	}
 }
 

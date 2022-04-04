@@ -23,7 +23,7 @@ void do_order(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	if (!*name || !*message)
 		send_to_char("Приказать что и кому?\r\n", ch);
-	else if (!(vict = get_char_vis(ch, name, FIND_CHAR_ROOM)) &&
+	else if (!(vict = get_char_vis(ch, name, EFind::kCharInRoom)) &&
 		!utils::IsAbbrev(name, "followers") && !utils::IsAbbrev(name, "все") && !utils::IsAbbrev(name, "всем"))
 		send_to_char("Вы не видите такого персонажа.\r\n", ch);
 	else if (ch == vict && !utils::IsAbbrev(name, "все") && !utils::IsAbbrev(name, "всем"))

@@ -203,7 +203,7 @@ void do_sense(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	// The person can't see the victim.
-	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_WORLD))) {
+	if (!(vict = get_char_vis(ch, arg, EFind::kCharInWorld))) {
 		send_to_char("Ваши чувства молчат.\r\n", ch);
 		return;
 	}

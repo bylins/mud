@@ -1151,7 +1151,7 @@ void do_stat(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (!*buf2)
 			send_to_char("Состояние какого создания?\r\n", ch);
 		else {
-			if ((victim = get_char_vis(ch, buf2, FIND_CHAR_WORLD)) != nullptr)
+			if ((victim = get_char_vis(ch, buf2, EFind::kCharInWorld)) != nullptr)
 				do_stat_character(ch, victim, 0);
 			else
 				send_to_char("Нет такого создания в этом МАДе.\r\n", ch);
@@ -1160,7 +1160,7 @@ void do_stat(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (!*buf2) {
 			send_to_char("Состояние какого игрока?\r\n", ch);
 		} else {
-			if ((victim = get_player_vis(ch, buf2, FIND_CHAR_WORLD)) != nullptr)
+			if ((victim = get_player_vis(ch, buf2, EFind::kCharInWorld)) != nullptr)
 				do_stat_character(ch, victim);
 			else
 				send_to_char("Этого персонажа сейчас нет в игре.\r\n", ch);
@@ -1169,7 +1169,7 @@ void do_stat(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (!*buf2) {
 			send_to_char("Состояние ip какого игрока?\r\n", ch);
 		} else {
-			if ((victim = get_player_vis(ch, buf2, FIND_CHAR_WORLD)) != nullptr) {
+			if ((victim = get_player_vis(ch, buf2, EFind::kCharInWorld)) != nullptr) {
 				do_statip(ch, victim);
 				return;
 			} else {
@@ -1215,20 +1215,20 @@ void do_stat(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				do_stat_object(ch, object);
 			else if ((object = get_obj_in_list_vis(ch, buf1, ch->carrying)) != nullptr)
 				do_stat_object(ch, object);
-			else if ((victim = get_char_vis(ch, buf1, FIND_CHAR_ROOM)) != nullptr)
+			else if ((victim = get_char_vis(ch, buf1, EFind::kCharInRoom)) != nullptr)
 				do_stat_character(ch, victim);
 			else if ((object = get_obj_in_list_vis(ch, buf1, world[ch->in_room]->contents)) != nullptr)
 				do_stat_object(ch, object);
-			else if ((victim = get_char_vis(ch, buf1, FIND_CHAR_WORLD)) != nullptr)
+			else if ((victim = get_char_vis(ch, buf1, EFind::kCharInWorld)) != nullptr)
 				do_stat_character(ch, victim);
 			else if ((object = get_obj_vis(ch, buf1)) != nullptr)
 				do_stat_object(ch, object);
 			else
 				send_to_char("Ничего похожего с этим именем нет.\r\n", ch);
 		} else {
-			if ((victim = get_player_vis(ch, buf1, FIND_CHAR_ROOM)) != nullptr)
+			if ((victim = get_player_vis(ch, buf1, EFind::kCharInRoom)) != nullptr)
 				do_stat_character(ch, victim);
-			else if ((victim = get_player_vis(ch, buf1, FIND_CHAR_WORLD)) != nullptr)
+			else if ((victim = get_player_vis(ch, buf1, EFind::kCharInWorld)) != nullptr)
 				do_stat_character(ch, victim);
 			else
 				send_to_char("Никого похожего с этим именем нет.\r\n", ch);

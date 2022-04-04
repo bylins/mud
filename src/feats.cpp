@@ -1111,7 +1111,7 @@ void do_fit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	//На кого переделываем?
 	argument = one_argument(argument, arg2);
-	if (!(vict = get_char_vis(ch, arg2, FIND_CHAR_ROOM))) {
+	if (!(vict = get_char_vis(ch, arg2, EFind::kCharInRoom))) {
 		send_to_char("Под кого вы хотите переделать эту вещь?\r\n Нет такого создания в округе!\r\n", ch);
 		return;
 	};

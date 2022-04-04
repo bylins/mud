@@ -38,7 +38,7 @@ void do_touch(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	CharData *vict = nullptr;
 	one_argument(argument, arg);
-	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM))) {
+	if (!(vict = get_char_vis(ch, arg, EFind::kCharInRoom))) {
 		for (const auto i : world[ch->in_room]->people) {
 			if (i->get_fighting() == ch) {
 				vict = i;

@@ -6,8 +6,8 @@
 #include "spells_info.h"
 #include "magic_utils.h"
 
-const short DEFAULT_STAFF_LVL = 12;
-const short DEFAULT_WAND_LVL = 12;
+const short kDefaultStaffLvl = 12;
+const short kDefaultWandLvl = 12;
 
 extern char cast_argument[kMaxInputLength];
 
@@ -22,9 +22,9 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 	level = GET_OBJ_VAL(obj, 0);
 	if (level == 0) {
 		if (GET_OBJ_TYPE(obj) == EObjType::kStaff) {
-			level = DEFAULT_STAFF_LVL;
+			level = kDefaultStaffLvl;
 		} else if (GET_OBJ_TYPE(obj) == EObjType::kWand) {
-			level = DEFAULT_WAND_LVL;
+			level = kDefaultWandLvl;
 		}
 	}
 

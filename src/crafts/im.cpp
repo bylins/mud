@@ -1082,7 +1082,7 @@ void do_rset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!(vict = get_char_vis(ch, name, FIND_CHAR_WORLD))) {
+	if (!(vict = get_char_vis(ch, name, EFind::kCharInWorld))) {
 		send_to_char(NOPERSON, ch);
 		return;
 	}

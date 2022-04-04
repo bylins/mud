@@ -14,8 +14,8 @@
 
 // комментарий на русском в надежде починить кодировки bitbucket
 
-#ifndef _HANDLER_H_
-#define _HANDLER_H_
+#ifndef HANDLER_H_
+#define HANDLER_H_
 
 #include "entities/char_data.h"
 #include "structs/structs.h"    // there was defined type "byte" if it had been missing
@@ -23,20 +23,16 @@
 
 struct RoomData;
 
-#define LIGHT_NO    0
-#define LIGHT_YES   1
-#define LIGHT_UNDEF 2
+const int kLightNo = 0;
+const int kLightYes = 1;
+const int kLightUndef = 2;
 
 enum class CharEquipFlag : uint8_t {
-	// no spell casting
-	no_cast,
-
-	// no total affect update
-	skip_total,
-
-	// show wear and activation messages
-	show_msg
+	no_cast,	// no spell casting
+	skip_total,	// no total affect update
+	show_msg	// show wear and activation messages
 };
+
 FLAGS_DECLARE_FROM_ENUM(CharEquipFlags, CharEquipFlag);
 FLAGS_DECLARE_OPERATORS(CharEquipFlags, CharEquipFlag);
 
@@ -162,26 +158,24 @@ inline ObjData *get_object_in_equip_vis(CharData *ch,
 
 int find_all_dots(char *arg);
 
-#define FIND_INDIV    0
-#define FIND_ALL    1
-#define FIND_ALLDOT    2
+const int kFindIndiv = 0;
+const int kFindAll = 1;
+const int kFindAlldot = 2;
 
 
 // Generic Find //
 
 int generic_find(char *arg, Bitvector bitvector, CharData *ch, CharData **tar_ch, ObjData **tar_obj);
-
-#define FIND_CHAR_ROOM     (1 << 0)
-#define FIND_CHAR_WORLD    (1 << 1)
-#define FIND_OBJ_INV       (1 << 2)
-#define FIND_OBJ_ROOM      (1 << 3)
-#define FIND_OBJ_WORLD     (1 << 4)
-#define FIND_OBJ_EQUIP     (1 << 5)
-#define FIND_CHAR_DISCONNECTED (1 << 6)
-#define FIND_OBJ_EXDESC    (1 << 7)
-
-#define CRASH_DELETE_OLD   (1 << 0)
-#define CRASH_DELETE_NEW   (1 << 1)
+enum EFind : Bitvector {
+	kCharInRoom = 1 << 0,
+	kCharInWorld = 1 << 1,
+	kCharDisconnected = 1 << 6,
+	kObjInventory = 1 << 2,
+	kObjRoom = 1 << 3,
+	kObjWorld = 1 << 4,
+	kObjEquip = 1 << 5,
+	kObjExtraDesc = 1 << 7
+};
 
 // prototypes from crash save system //
 int Crash_delete_crashfile(CharData *ch);
@@ -222,6 +216,7 @@ int get_object_low_rent(ObjData *obj);
 void set_uid(ObjData *object);
 
 void remove_rune_label(CharData *ch);
-#endif
+
+#endif // HANDLER_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

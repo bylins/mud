@@ -789,7 +789,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 			if (IsAwakeOthers(ch) || equip_in_metall(ch)) {
 				bonus -= 50;
 			}
-			if (IS_DARK(ch->in_room)) {
+			if (is_dark(ch->in_room)) {
 				bonus += 25;
 			}
 			if (SECT(ch->in_room) == ESector::kInside) {
@@ -835,7 +835,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 				bonus -= 50;
 			if (SECT(ch->in_room) == ESector::kCity)
 				bonus -= 10;
-			if (IS_DARK(ch->in_room)) {
+			if (is_dark(ch->in_room)) {
 				bonus += 20;
 			}
 			if (vict) {
@@ -850,7 +850,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 			bonus += (IsAbleToUseFeat(ch, EFeat::kNimbleFingers) ? 5 : 0);
 			if (IsAwakeOthers(ch) || equip_in_metall(ch))
 				bonus -= 50;
-			if (IS_DARK(ch->in_room))
+			if (is_dark(ch->in_room))
 				bonus += 20;
 			if (vict) {
 				if (!CAN_SEE(vict, ch))
@@ -959,7 +959,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 			bonus += (IsAbleToUseFeat(ch, EFeat::kStealthy) ? 5 : 0);
 			if (IsAwakeOthers(ch))
 				bonus -= 100;
-			if (IS_DARK(ch->in_room))
+			if (is_dark(ch->in_room))
 				bonus += 15;
 			if (SECT(ch->in_room) == ESector::kCity)
 				bonus -= 15;
@@ -1287,7 +1287,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 				bonus -= 50;
 			}
 
-			if (IS_DARK(ch->in_room)) {
+			if (is_dark(ch->in_room)) {
 				bonus += 25;
 			}
 
@@ -1347,7 +1347,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 			if (SECT(ch->in_room) == ESector::kCity)
 				bonus -= 10;
-			if (IS_DARK(ch->in_room))
+			if (is_dark(ch->in_room))
 				bonus += 20;
 
 			if (vict) {
@@ -1368,7 +1368,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 			if (IsAwakeOthers(ch) || equip_in_metall(ch))
 				bonus -= 50;
-			if (IS_DARK(ch->in_room))
+			if (is_dark(ch->in_room))
 				bonus += 20;
 
 			if (vict) {
@@ -1513,7 +1513,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 			if (IsAwakeOthers(ch))
 				bonus -= 100;
 
-			if (IS_DARK(ch->in_room))
+			if (is_dark(ch->in_room))
 				bonus += 15;
 
 			if (SECT(ch->in_room) == ESector::kCity)

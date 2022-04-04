@@ -31,7 +31,7 @@ void do_backstab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	one_argument(argument, arg);
-	CharData *vict = get_char_vis(ch, arg, FIND_CHAR_ROOM);
+	CharData *vict = get_char_vis(ch, arg, EFind::kCharInRoom);
 	if (!vict) {
 		send_to_char("Кого вы так сильно ненавидите, что хотите заколоть?\r\n", ch);
 		return;

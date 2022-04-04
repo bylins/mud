@@ -17,7 +17,7 @@ void do_insult(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	if (*arg) {
-		if (!(victim = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
+		if (!(victim = get_char_vis(ch, arg, EFind::kCharInRoom)))
 			send_to_char("&KА он вас и не услышит :(&n\r\n", ch);
 		else {
 			if (victim != ch) {

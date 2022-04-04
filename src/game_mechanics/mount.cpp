@@ -35,7 +35,7 @@ void do_horseon(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	one_argument(argument, arg);
 	if (*arg)
-		horse = get_char_vis(ch, arg, FIND_CHAR_ROOM);
+		horse = get_char_vis(ch, arg, EFind::kCharInRoom);
 	else
 		horse = ch->get_horse();
 
@@ -103,7 +103,7 @@ void do_horseget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	one_argument(argument, arg);
 	if (*arg)
-		horse = get_char_vis(ch, arg, FIND_CHAR_ROOM);
+		horse = get_char_vis(ch, arg, EFind::kCharInRoom);
 	else
 		horse = ch->get_horse();
 
@@ -141,7 +141,7 @@ void do_horseput(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	one_argument(argument, arg);
 	if (*arg)
-		horse = get_char_vis(ch, arg, FIND_CHAR_ROOM);
+		horse = get_char_vis(ch, arg, EFind::kCharInRoom);
 	else
 		horse = ch->get_horse();
 	if (horse == nullptr)
@@ -179,7 +179,7 @@ void do_horsetake(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	one_argument(argument, arg);
 	if (*arg) {
-		horse = get_char_vis(ch, arg, FIND_CHAR_ROOM);
+		horse = get_char_vis(ch, arg, EFind::kCharInRoom);
 	}
 
 	if (horse == nullptr) {
@@ -237,7 +237,7 @@ void do_givehorse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Кому вы хотите передать скакуна?\r\n", ch);
 		return;
 	}
-	if (!(victim = get_char_vis(ch, arg, FIND_CHAR_ROOM))) {
+	if (!(victim = get_char_vis(ch, arg, EFind::kCharInRoom))) {
 		send_to_char("Вам некому передать скакуна.\r\n", ch);
 		return;
 	} else if (victim->is_npc()) {

@@ -406,7 +406,7 @@ void do_put(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *tmp_char;
 	int obj_dotmode, cont_dotmode, found = 0, howmany = 1, money_mode = false;
 	char *theobj, *thecont, *theplace;
-	int where_bits = FIND_OBJ_INV | FIND_OBJ_EQUIP | FIND_OBJ_ROOM;
+	int where_bits = EFind::kObjInventory | EFind::kObjEquip | EFind::kObjRoom;
 
 	argument = two_arguments(argument, arg1, arg2);
 	argument = two_arguments(argument, arg3, arg4);
@@ -423,11 +423,11 @@ void do_put(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (isname(theplace, "земля комната room ground"))
-		where_bits = FIND_OBJ_ROOM;
+		where_bits = EFind::kObjRoom;
 	else if (isname(theplace, "инвентарь inventory"))
-		where_bits = FIND_OBJ_INV;
+		where_bits = EFind::kObjInventory;
 	else if (isname(theplace, "экипировка equipment"))
-		where_bits = FIND_OBJ_EQUIP;
+		where_bits = EFind::kObjEquip;
 
 	if (theobj && (!strn_cmp("coin", theobj, 4) || !strn_cmp("кун", theobj, 3))) {
 		money_mode = true;
@@ -439,7 +439,7 @@ void do_put(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			send_to_char("Нет у вас такой суммы.\r\n", ch);
 			return;
 		}
-		obj_dotmode = FIND_INDIV;
+		obj_dotmode = kFindIndiv;
 	} else
 		obj_dotmode = find_all_dots(theobj);
 
@@ -447,7 +447,7 @@ void do_put(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!*theobj)
 		send_to_char("Положить что и куда?\r\n", ch);
-	else if (cont_dotmode != FIND_INDIV)
+	else if (cont_dotmode != kFindIndiv)
 		send_to_char("Вы можете положить вещь только в один контейнер.\r\n", ch);
 	else if (!*thecont) {
 		sprintf(buf, "Куда вы хотите положить '%s'?\r\n", theobj);
@@ -462,7 +462,7 @@ void do_put(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		} else if (OBJVAL_FLAGGED(cont, EContainerFlag::kShutted)) {
 			act("$o0 закрыт$A!", false, ch, cont, 0, kToChar);
 		} else {
-			if (obj_dotmode == FIND_INDIV)    // put <obj> <container>
+			if (obj_dotmode == kFindIndiv)    // put <obj> <container>
 			{
 				if (money_mode) {
 					if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoItem)) {
@@ -511,7 +511,7 @@ void do_put(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					next_obj = obj->get_next_content();
 					if (obj != cont
 						&& CAN_SEE_OBJ(ch, obj)
-						&& (obj_dotmode == FIND_ALL
+						&& (obj_dotmode == kFindAll
 							|| isname(theobj, obj->get_aliases())
 							|| CHECK_CUSTOM_LABEL(theobj, obj, ch))) {
 						found = 1;
@@ -523,7 +523,7 @@ void do_put(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 
 				if (!found) {
-					if (obj_dotmode == FIND_ALL)
+					if (obj_dotmode == kFindAll)
 						send_to_char
 							("Чтобы положить что-то ненужное нужно купить что-то ненужное.\r\n",
 							 ch);
@@ -751,7 +751,7 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 bool perform_get_from_container(CharData *ch, ObjData *obj, ObjData *cont, int mode) {
 	if (!bloody::handle_transfer(nullptr, ch, obj))
 		return false;
-	if ((mode == FIND_OBJ_INV || mode == FIND_OBJ_ROOM || mode == FIND_OBJ_EQUIP) && can_take_obj(ch, obj)
+	if ((mode == EFind::kObjInventory || mode == EFind::kObjRoom || mode == EFind::kObjEquip) && can_take_obj(ch, obj)
 		&& get_otrigger(obj, ch)) {
 		// если берем из клан-сундука
 		if (Clan::is_clan_chest(cont)) {
@@ -796,7 +796,7 @@ void get_from_container(CharData *ch, ObjData *cont, char *arg, int mode, int ho
 	obj_dotmode = find_all_dots(arg);
 	if (OBJVAL_FLAGGED(cont, EContainerFlag::kShutted))
 		act("$o закрыт$A.", false, ch, cont, 0, kToChar);
-	else if (obj_dotmode == FIND_INDIV) {
+	else if (obj_dotmode == kFindIndiv) {
 		if (!(obj = get_obj_in_list_vis(ch, arg, cont->get_contains()))) {
 			sprintf(buf, "Вы не видите '%s' в $o5.", arg);
 			act(buf, false, ch, cont, 0, kToChar);
@@ -810,14 +810,14 @@ void get_from_container(CharData *ch, ObjData *cont, char *arg, int mode, int ho
 			}
 		}
 	} else {
-		if (obj_dotmode == FIND_ALLDOT && !*arg) {
+		if (obj_dotmode == kFindAlldot && !*arg) {
 			send_to_char("Взять что \"все\"?\r\n", ch);
 			return;
 		}
 		for (obj = cont->get_contains(); obj; obj = next_obj) {
 			next_obj = obj->get_next_content();
 			if (CAN_SEE_OBJ(ch, obj)
-				&& (obj_dotmode == FIND_ALL
+				&& (obj_dotmode == kFindAll
 					|| isname(arg, obj->get_aliases())
 					|| CHECK_CUSTOM_LABEL(arg, obj, ch))) {
 				if (autoloot
@@ -833,7 +833,7 @@ void get_from_container(CharData *ch, ObjData *cont, char *arg, int mode, int ho
 			}
 		}
 		if (!found) {
-			if (obj_dotmode == FIND_ALL)
+			if (obj_dotmode == kFindAll)
 				act("$o пуст$A.", false, ch, cont, 0, kToChar);
 			else {
 				sprintf(buf, "Вы не видите ничего похожего на '%s' в $o5.", arg);
@@ -874,7 +874,7 @@ void get_from_room(CharData *ch, char *arg, int howmany) {
 
 	dotmode = find_all_dots(arg);
 
-	if (dotmode == FIND_INDIV) {
+	if (dotmode == kFindIndiv) {
 		if (!(obj = get_obj_in_list_vis(ch, arg, world[ch->in_room]->contents))) {
 			sprintf(buf, "Вы не видите здесь '%s'.\r\n", arg);
 			send_to_char(buf, ch);
@@ -887,14 +887,14 @@ void get_from_room(CharData *ch, char *arg, int howmany) {
 			}
 		}
 	} else {
-		if (dotmode == FIND_ALLDOT && !*arg) {
+		if (dotmode == kFindAlldot && !*arg) {
 			send_to_char("Взять что \"все\"?\r\n", ch);
 			return;
 		}
 		for (obj = world[ch->in_room]->contents; obj; obj = next_obj) {
 			next_obj = obj->get_next_content();
 			if (CAN_SEE_OBJ(ch, obj)
-				&& (dotmode == FIND_ALL
+				&& (dotmode == kFindAll
 					|| isname(arg, obj->get_aliases())
 					|| CHECK_CUSTOM_LABEL(arg, obj, ch))) {
 				found = 1;
@@ -902,7 +902,7 @@ void get_from_room(CharData *ch, char *arg, int howmany) {
 			}
 		}
 		if (!found) {
-			if (dotmode == FIND_ALL) {
+			if (dotmode == kFindAll) {
 				send_to_char("Похоже, здесь ничего нет.\r\n", ch);
 			} else {
 				sprintf(buf, "Вы не нашли здесь '%s'.\r\n", arg);
@@ -928,8 +928,8 @@ void do_mark(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Не указан или неверный маркер.\r\n", ch);
 	} else {
 		cont_dotmode = find_all_dots(arg1);
-		if (cont_dotmode == FIND_INDIV) {
-			generic_find(arg1, FIND_OBJ_INV | FIND_OBJ_ROOM | FIND_OBJ_EQUIP, ch, &tmp_char, &cont);
+		if (cont_dotmode == kFindIndiv) {
+			generic_find(arg1, EFind::kObjInventory | EFind::kObjRoom | EFind::kObjEquip, ch, &tmp_char, &cont);
 			if (!cont) {
 				sprintf(buf, "У вас нет '%s'.\r\n", arg1);
 				send_to_char(buf, ch);
@@ -938,13 +938,13 @@ void do_mark(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			cont->set_owner(atoi(arg2));
 			act("Вы пометили $o3.", false, ch, cont, 0, kToChar);
 		} else {
-			if (cont_dotmode == FIND_ALLDOT && !*arg1) {
+			if (cont_dotmode == kFindAlldot && !*arg1) {
 				send_to_char("Пометить что \"все\"?\r\n", ch);
 				return;
 			}
 			for (cont = ch->carrying; cont; cont = cont->get_next_content()) {
 				if (CAN_SEE_OBJ(ch, cont)
-					&& (cont_dotmode == FIND_ALL
+					&& (cont_dotmode == kFindAll
 						|| isname(arg1, cont->get_aliases()))) {
 					cont->set_owner(atoi(arg2));
 					act("Вы пометили $o3.", false, ch, cont, 0, kToChar);
@@ -953,7 +953,7 @@ void do_mark(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			for (cont = world[ch->in_room]->contents; cont; cont = cont->get_next_content()) {
 				if (CAN_SEE_OBJ(ch, cont)
-					&& (cont_dotmode == FIND_ALL
+					&& (cont_dotmode == kFindAll
 						|| isname(arg2, cont->get_aliases()))) {
 					cont->set_owner(atoi(arg2));
 					act("Вы пометили $o3.", false, ch, cont, 0, kToChar);
@@ -961,7 +961,7 @@ void do_mark(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 			}
 			if (!found) {
-				if (cont_dotmode == FIND_ALL) {
+				if (cont_dotmode == kFindAll) {
 					send_to_char("Вы не смогли найти ничего для маркировки.\r\n", ch);
 				} else {
 					sprintf(buf, "Вы что-то не видите здесь '%s'.\r\n", arg1);
@@ -978,7 +978,7 @@ void do_get(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg3[kMaxInputLength];
 	char arg4[kMaxInputLength];
 	char *theobj, *thecont, *theplace;
-	int where_bits = FIND_OBJ_INV | FIND_OBJ_EQUIP | FIND_OBJ_ROOM;
+	int where_bits = EFind::kObjInventory | EFind::kObjEquip | EFind::kObjRoom;
 
 	int cont_dotmode, found = 0, mode, amount = 1;
 	ObjData *cont;
@@ -1011,14 +1011,14 @@ void do_get(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		if (isname(theplace, "земля комната room ground"))
-			where_bits = FIND_OBJ_ROOM;
+			where_bits = EFind::kObjRoom;
 		else if (isname(theplace, "инвентарь inventory"))
-			where_bits = FIND_OBJ_INV;
+			where_bits = EFind::kObjInventory;
 		else if (isname(theplace, "экипировка equipment"))
-			where_bits = FIND_OBJ_EQUIP;
+			where_bits = EFind::kObjEquip;
 
 		cont_dotmode = find_all_dots(thecont);
-		if (cont_dotmode == FIND_INDIV) {
+		if (cont_dotmode == kFindIndiv) {
 			mode = generic_find(thecont, where_bits, ch, &tmp_char, &cont);
 			if (!cont) {
 				sprintf(buf, "Вы не видите '%s'.\r\n", arg2);
@@ -1029,42 +1029,42 @@ void do_get(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				get_from_container(ch, cont, theobj, mode, amount, false);
 			}
 		} else {
-			if (cont_dotmode == FIND_ALLDOT
+			if (cont_dotmode == kFindAlldot
 				&& !*thecont) {
 				send_to_char("Взять из чего \"всего\"?\r\n", ch);
 				return;
 			}
-			for (cont = ch->carrying; cont && IS_SET(where_bits, FIND_OBJ_INV); cont = cont->get_next_content()) {
+			for (cont = ch->carrying; cont && IS_SET(where_bits, EFind::kObjInventory); cont = cont->get_next_content()) {
 				if (CAN_SEE_OBJ(ch, cont)
-					&& (cont_dotmode == FIND_ALL
+					&& (cont_dotmode == kFindAll
 						|| isname(thecont, cont->get_aliases())
 						|| CHECK_CUSTOM_LABEL(thecont, cont, ch))) {
 					if (GET_OBJ_TYPE(cont) == EObjType::kContainer) {
 						found = 1;
-						get_from_container(ch, cont, theobj, FIND_OBJ_INV, amount, false);
-					} else if (cont_dotmode == FIND_ALLDOT) {
+						get_from_container(ch, cont, theobj, EFind::kObjInventory, amount, false);
+					} else if (cont_dotmode == kFindAlldot) {
 						found = 1;
 						act("$o - не контейнер.", false, ch, cont, 0, kToChar);
 					}
 				}
 			}
-			for (cont = world[ch->in_room]->contents; cont && IS_SET(where_bits, FIND_OBJ_ROOM);
+			for (cont = world[ch->in_room]->contents; cont && IS_SET(where_bits, EFind::kObjRoom);
 				 cont = cont->get_next_content()) {
 				if (CAN_SEE_OBJ(ch, cont)
-					&& (cont_dotmode == FIND_ALL
+					&& (cont_dotmode == kFindAll
 						|| isname(thecont, cont->get_aliases())
 						|| CHECK_CUSTOM_LABEL(thecont, cont, ch))) {
 					if (GET_OBJ_TYPE(cont) == EObjType::kContainer) {
-						get_from_container(ch, cont, theobj, FIND_OBJ_ROOM, amount, false);
+						get_from_container(ch, cont, theobj, EFind::kObjRoom, amount, false);
 						found = 1;
-					} else if (cont_dotmode == FIND_ALLDOT) {
+					} else if (cont_dotmode == kFindAlldot) {
 						act("$o - не контейнер.", false, ch, cont, 0, kToChar);
 						found = 1;
 					}
 				}
 			}
 			if (!found) {
-				if (cont_dotmode == FIND_ALL) {
+				if (cont_dotmode == kFindAll) {
 					send_to_char("Вы не смогли найти ни одного контейнера.\r\n", ch);
 				} else {
 					sprintf(buf, "Вы что-то не видите здесь '%s'.\r\n", thecont);
@@ -1187,7 +1187,7 @@ void do_drop(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	} else {
 		const auto dotmode = find_all_dots(arg);
 		// Can't junk or donate all
-		if (dotmode == FIND_ALL) {
+		if (dotmode == kFindAll) {
 			if (!ch->carrying)
 				send_to_char("А у вас ничего и нет.\r\n", ch);
 			else
@@ -1195,7 +1195,7 @@ void do_drop(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 					next_obj = obj->get_next_content();
 					perform_drop(ch, obj);
 				}
-		} else if (dotmode == FIND_ALLDOT) {
+		} else if (dotmode == kFindAlldot) {
 			if (!*arg) {
 				sprintf(buf, "%s \"все\" какого типа предметов?\r\n", drop_op[0]);
 				send_to_char(buf, ch);
@@ -1279,7 +1279,7 @@ CharData *give_find_vict(CharData *ch, char *arg) {
 	if (!*arg) {
 		send_to_char("Кому?\r\n", ch);
 		return (nullptr);
-	} else if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM))) {
+	} else if (!(vict = get_char_vis(ch, arg, EFind::kCharInRoom))) {
 		send_to_char(NOPERSON, ch);
 		return (nullptr);
 	} else if (vict == ch) {
@@ -1400,14 +1400,14 @@ void do_give(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (!(vict = give_find_vict(ch, buf1)))
 			return;
 		dotmode = find_all_dots(arg);
-		if (dotmode == FIND_INDIV) {
+		if (dotmode == kFindIndiv) {
 			if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
 				snprintf(buf, kMaxInputLength, "У вас нет '%s'.\r\n", arg);
 				send_to_char(buf, ch);
 			} else
 				perform_give(ch, vict, obj);
 		} else {
-			if (dotmode == FIND_ALLDOT && !*arg) {
+			if (dotmode == kFindAlldot && !*arg) {
 				send_to_char("Дать \"все\" какого типа предметов?\r\n", ch);
 				return;
 			}
@@ -1418,7 +1418,7 @@ void do_give(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				for (obj = ch->carrying; obj; obj = next_obj) {
 					next_obj = obj->get_next_content();
 					if (CAN_SEE_OBJ(ch, obj)
-						&& (dotmode == FIND_ALL
+						&& (dotmode == kFindAll
 							|| isname(arg, obj->get_aliases())
 							|| CHECK_CUSTOM_LABEL(arg, obj, ch))) {
 						perform_give(ch, vict, obj);
@@ -1915,11 +1915,11 @@ void do_wear(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	dotmode = find_all_dots(arg1);
 
-	if (*arg2 && (dotmode != FIND_INDIV)) {
+	if (*arg2 && (dotmode != kFindIndiv)) {
 		send_to_char("И на какую часть тела вы желаете это надеть?!\r\n", ch);
 		return;
 	}
-	if (dotmode == FIND_ALL) {
+	if (dotmode == kFindAll) {
 		for (obj = ch->carrying; obj && !GET_MOB_HOLD(ch) && GET_POS(ch) > EPosition::kSleep; obj = next_obj) {
 			next_obj = obj->get_next_content();
 			if (CAN_SEE_OBJ(ch, obj)
@@ -1931,7 +1931,7 @@ void do_wear(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (!items_worn) {
 			send_to_char("Увы, но надеть вам нечего.\r\n", ch);
 		}
-	} else if (dotmode == FIND_ALLDOT) {
+	} else if (dotmode == kFindAlldot) {
 		if (!*arg1) {
 			send_to_char("Надеть \"все\" чего?\r\n", ch);
 			return;
@@ -2148,7 +2148,7 @@ void do_remove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	dotmode = find_all_dots(arg);
 
-	if (dotmode == FIND_ALL) {
+	if (dotmode == kFindAll) {
 		found = 0;
 		for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
 			if (GET_EQ(ch, i)) {
@@ -2160,7 +2160,7 @@ void do_remove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			send_to_char("На вас не надето предметов этого типа.\r\n", ch);
 			return;
 		}
-	} else if (dotmode == FIND_ALLDOT) {
+	} else if (dotmode == kFindAlldot) {
 		if (!*arg) {
 			send_to_char("Снять все вещи какого типа?\r\n", ch);
 			return;
@@ -2668,7 +2668,7 @@ void do_firstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!*arg) {
 		vict = ch;
 	} else {
-		vict = get_char_vis(ch, arg, FIND_CHAR_ROOM);
+		vict = get_char_vis(ch, arg, EFind::kCharInRoom);
 		if (!vict) {
 			send_to_char("Кого вы хотите подлечить?\r\n", ch);
 			return;
@@ -2802,7 +2802,7 @@ void do_poisoned(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	ObjData *weapon = 0;
 	CharData *dummy = 0;
-	int result = generic_find(arg, FIND_OBJ_INV | FIND_OBJ_EQUIP, ch, &dummy, &weapon);
+	int result = generic_find(arg, EFind::kObjInventory | EFind::kObjEquip, ch, &dummy, &weapon);
 
 	if (!weapon || !result) {
 		send_to_char(ch, "У вас нет \'%s\'.\r\n", arg);

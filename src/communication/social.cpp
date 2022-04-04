@@ -96,7 +96,7 @@ int do_social(CharData *ch, char *argument) {
 		}
 		return (true);
 	}
-	if (!(vict = get_char_vis(ch, buf, FIND_CHAR_ROOM))) {
+	if (!(vict = get_char_vis(ch, buf, EFind::kCharInRoom))) {
 		const auto message = action->not_found
 							 ? action->not_found
 							 : "Поищите кого-нибудь более доступного для этих целей.\r\n";

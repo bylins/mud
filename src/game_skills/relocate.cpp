@@ -32,7 +32,7 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	CharData *victim = get_player_vis(ch, arg, FIND_CHAR_WORLD);
+	CharData *victim = get_player_vis(ch, arg, EFind::kCharInWorld);
 
 	if (!victim) {
 		send_to_char(NOPERSON, ch);

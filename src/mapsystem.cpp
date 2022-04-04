@@ -294,7 +294,7 @@ void check_position_and_put_on_screen(int next_y, int next_x, int sign_num, int 
 }
 
 void draw_mobs(const CharData *ch, int room_rnum, int next_y, int next_x) {
-	if (IS_DARK(room_rnum) && !IS_IMMORTAL(ch)) {
+	if (is_dark(room_rnum) && !IS_IMMORTAL(ch)) {
 		put_on_screen(next_y, next_x - 1, SCREEN_MOB_UNDEF, 1);
 	} else {
 		int cnt = 0;
@@ -324,7 +324,7 @@ void draw_mobs(const CharData *ch, int room_rnum, int next_y, int next_x) {
 }
 
 void draw_objs(const CharData *ch, int room_rnum, int next_y, int next_x) {
-	if (IS_DARK(room_rnum) && !IS_IMMORTAL(ch)) {
+	if (is_dark(room_rnum) && !IS_IMMORTAL(ch)) {
 		put_on_screen(next_y, next_x + 1, SCREEN_OBJ_UNDEF, 1);
 	} else {
 		int cnt = 0;

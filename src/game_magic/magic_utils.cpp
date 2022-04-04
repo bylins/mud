@@ -441,7 +441,7 @@ int FindCastTarget(int spellnum, const char *t, CharData *ch, CharData **tch, Ob
 		return true;
 	else if (*t) {
 		if (IS_SET(SpINFO.targets, kTarCharRoom)) {
-			if ((*tch = get_char_vis(ch, t, FIND_CHAR_ROOM)) != nullptr) {
+			if ((*tch = get_char_vis(ch, t, EFind::kCharInRoom)) != nullptr) {
 				if (SpINFO.violent && !check_pkill(ch, *tch, t))
 					return false;
 				return true;
@@ -449,7 +449,7 @@ int FindCastTarget(int spellnum, const char *t, CharData *ch, CharData **tch, Ob
 		}
 
 		if (IS_SET(SpINFO.targets, kTarCharWorld)) {
-			if ((*tch = get_char_vis(ch, t, FIND_CHAR_WORLD)) != nullptr) {
+			if ((*tch = get_char_vis(ch, t, EFind::kCharInWorld)) != nullptr) {
 				// чтобы мобов не чекали
 				if (ch->is_npc() || !(*tch)->is_npc()) {
 					if (SpINFO.violent && !check_pkill(ch, *tch, t)) {

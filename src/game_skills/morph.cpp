@@ -243,7 +243,7 @@ void do_morphset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_WORLD))) {
+	if (!(vict = get_char_vis(ch, arg, EFind::kCharInWorld))) {
 		send_to_char(NOPERSON, ch);
 		return;
 	}

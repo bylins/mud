@@ -27,7 +27,6 @@
 #include "fightsystem/fight.h"
 #include "game_economics/ext_money.h"
 #include "mob_stat.h"
-#include "entities/zone.h"
 #include "game_classes/classes_spell_slots.h"
 #include "game_magic/spells_info.h"
 #include "liquid.h"
@@ -210,7 +209,7 @@ int mana_gain(const CharData *ch) {
 		(AFF_FLAGGED(ch, EAffect::kHold) ||
 			AFF_FLAGGED(ch, EAffect::kBlind) ||
 			AFF_FLAGGED(ch, EAffect::kSleep) ||
-			((ch->in_room != kNowhere) && IS_DARK(ch->in_room) && !IsAbleToUseFeat(ch, EFeat::kDarkReading)))) {
+			((ch->in_room != kNowhere) && is_dark(ch->in_room) && !IsAbleToUseFeat(ch, EFeat::kDarkReading)))) {
 		stopmem = true;
 		percent = 0;
 	}

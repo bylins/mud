@@ -177,7 +177,7 @@ void do_follow(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			return;
 		}
-		if (!(leader = get_char_vis(ch, smallBuf, FIND_CHAR_ROOM))) {
+		if (!(leader = get_char_vis(ch, smallBuf, EFind::kCharInRoom))) {
 			send_to_char(NOPERSON, ch);
 			return;
 		}

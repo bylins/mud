@@ -1935,7 +1935,7 @@ int perform_dupe_check(DescriptorData *d) {
 
 	switch (mode) {
 		case RECON: SEND_TO_Q("Пересоединяемся.\r\n", d);
-			check_light(d->character.get(), LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, 1);
+			check_light(d->character.get(), kLightNo, kLightNo, kLightNo, kLightNo, 1);
 			act("$n восстановил$g связь.",
 				true, d->character.get(), nullptr, nullptr, kToRoom);
 			sprintf(buf, "%s [%s] has reconnected.", GET_NAME(d->character), d->host);
@@ -2398,7 +2398,7 @@ void do_entergame(DescriptorData *d) {
 	d->has_prompt = 0;
 	login_change_invoice(d->character.get());
 	affect_total(d->character.get());
-	check_light(d->character.get(), LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, 0);
+	check_light(d->character.get(), kLightNo, kLightNo, kLightNo, kLightNo, 0);
 	look_at_room(d->character.get(), 0);
 
 	if (new_char) {

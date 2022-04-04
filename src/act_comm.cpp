@@ -283,7 +283,7 @@ void do_tell(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!*buf || !*buf2) {
 		send_to_char("Что и кому вы хотите сказать?\r\n", ch);
-	} else if (!(vict = get_player_vis(ch, buf, FIND_CHAR_WORLD))) {
+	} else if (!(vict = get_player_vis(ch, buf, EFind::kCharInWorld))) {
 		send_to_char(NOPERSON, ch);
 	} else if (vict->is_npc())
 		send_to_char(NOPERSON, ch);
@@ -381,7 +381,7 @@ void do_spec_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (!*buf || !*buf2) {
 		sprintf(buf, "Что вы хотите %s.. и %s?\r\n", action_sing, vict1);
 		send_to_char(buf, ch);
-	} else if (!(vict = get_char_vis(ch, buf, FIND_CHAR_ROOM)))
+	} else if (!(vict = get_char_vis(ch, buf, EFind::kCharInRoom)))
 		send_to_char(NOPERSON, ch);
 	else if (vict == ch)
 		send_to_char("От ваших уст до ушей - всего одна ладонь...\r\n", ch);
@@ -533,7 +533,7 @@ void do_page(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			return;
 		}
-		if ((vict = get_char_vis(ch, arg, FIND_CHAR_WORLD)) != nullptr) {
+		if ((vict = get_char_vis(ch, arg, EFind::kCharInWorld)) != nullptr) {
 			act(buffer.str().c_str(), false, ch, 0, vict, kToVict);
 			if (PRF_FLAGGED(ch, EPrf::kNoRepeat))
 				send_to_char(OK, ch);
@@ -855,7 +855,7 @@ void do_pray_gods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			send_to_char("Какому смертному вы собираетесь ответить?\r\n", ch);
 			return;
 		}
-		victim = get_player_vis(ch, arg1, FIND_CHAR_WORLD);
+		victim = get_player_vis(ch, arg1, EFind::kCharInWorld);
 		if (victim == nullptr) {
 			send_to_char("Такого нет в игре!\r\n", ch);
 			return;

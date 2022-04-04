@@ -32,7 +32,7 @@ void do_assist(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 		}
 	} else {
-		if (!(helpee = get_char_vis(ch, arg, FIND_CHAR_ROOM))) {
+		if (!(helpee = get_char_vis(ch, arg, EFind::kCharInRoom))) {
 			send_to_char(NOPERSON, ch);
 			return;
 		}

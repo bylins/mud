@@ -164,7 +164,7 @@ bool auction_drive(CharData *ch, char *argument) {
 				value = MAX(1, GET_OBJ_COST(obj));
 			};
 			if (*whom) {
-				if (!(tch = get_player_vis(ch, whom, FIND_CHAR_WORLD))) {
+				if (!(tch = get_player_vis(ch, whom, EFind::kCharInWorld))) {
 					send_to_char("Вы не видите этого игрока.\r\n", ch);
 					return false;
 				}

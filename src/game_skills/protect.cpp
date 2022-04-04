@@ -41,7 +41,7 @@ void do_protect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	};
 
-	CharData *vict = get_char_vis(ch, arg, FIND_CHAR_ROOM);
+	CharData *vict = get_char_vis(ch, arg, EFind::kCharInRoom);
 	if (!vict) {
 		send_to_char("И кто так сильно мил вашему сердцу?\r\n", ch);
 		return;

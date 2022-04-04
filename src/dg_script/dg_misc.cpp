@@ -57,14 +57,14 @@ int find_dg_cast_target(int spellnum, const char *t, CharData *ch, CharData **tc
 
 	if (*t) {
 		if (IS_SET(spell_info[spellnum].targets, kTarCharRoom)) {
-			if ((*tch = get_char_vis(ch, t, FIND_CHAR_ROOM)) != nullptr) {
+			if ((*tch = get_char_vis(ch, t, EFind::kCharInRoom)) != nullptr) {
 //            if (spell_info[spellnum].violent && !check_pkill(ch,*tch,t))
 //                 return false;
 				return true;
 			}
 		}
 		if (IS_SET(spell_info[spellnum].targets, kTarCharWorld)) {
-			if ((*tch = get_char_vis(ch, t, FIND_CHAR_WORLD)) != nullptr) {
+			if ((*tch = get_char_vis(ch, t, EFind::kCharInWorld)) != nullptr) {
 //            if (spell_info[spellnum].violent && !check_pkill(ch,*tch,t))
 //                 return false;
 				return true;

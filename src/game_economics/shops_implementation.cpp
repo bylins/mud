@@ -764,7 +764,7 @@ void shop_node::process_cmd(CharData *ch, CharData *keeper, char *argument, cons
 		int i, dotmode = find_all_dots(argument);
 		std::string buffer2(argument);
 		switch (dotmode) {
-			case FIND_INDIV: {
+			case kFindIndiv: {
 				const auto obj = get_obj_in_list_vis(ch, buffer2, ch->carrying);
 
 				if (!obj) {
@@ -785,7 +785,7 @@ void shop_node::process_cmd(CharData *ch, CharData *keeper, char *argument, cons
 
 				break;
 
-			case FIND_ALL: {
+			case kFindAll: {
 				ObjData *obj_next = nullptr;
 				for (auto obj = ch->carrying; obj; obj = obj_next) {
 					obj_next = obj->get_next_content();
@@ -795,7 +795,7 @@ void shop_node::process_cmd(CharData *ch, CharData *keeper, char *argument, cons
 
 				break;
 
-			case FIND_ALLDOT: {
+			case kFindAlldot: {
 				auto obj = get_obj_in_list_vis(ch, buffer2, ch->carrying);
 				if (!obj) {
 					send_to_char("У вас нет " + buffer2 + "!\r\n", ch);

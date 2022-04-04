@@ -85,7 +85,7 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 		boost::trim(buffer);
 		if (CompareParam(buffer, "удалить")) {
 			boost::trim(buffer2);
-			CharData *vict = get_player_pun(ch, buffer2, FIND_CHAR_WORLD);
+			CharData *vict = get_player_pun(ch, buffer2, EFind::kCharInWorld);
 			if (!vict) {
 				send_to_char("Нет такого игрока.\r\n", ch);
 				return;

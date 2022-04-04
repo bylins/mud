@@ -784,7 +784,7 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	CharData *vict = get_player_vis(ch, arg, FIND_CHAR_WORLD);
+	CharData *vict = get_player_vis(ch, arg, EFind::kCharInWorld);
 	if (vict && vict->desc && STATE(vict->desc) == CON_GLORY_CONST) {
 		send_to_char("Персонаж в данный момент редактирует свою славу.\r\n", ch);
 		return;

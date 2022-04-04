@@ -1477,7 +1477,7 @@ void do_exits(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 						GET_ROOM_VNUM(EXIT(ch, door)->to_room()), world[EXIT(ch, door)->to_room()]->name);
 			else {
 				sprintf(buf2, "%-6s - ", Dirs[door]);
-				if (IS_DARK(EXIT(ch, door)->to_room()) && !CAN_SEE_IN_DARK(ch))
+				if (is_dark(EXIT(ch, door)->to_room()) && !CAN_SEE_IN_DARK(ch))
 					strcat(buf2, "слишком темно\r\n");
 				else {
 					const RoomRnum rnum_exit_room = EXIT(ch, door)->to_room();
@@ -1515,7 +1515,7 @@ void do_blind_exits(CharData *ch) {
 						GET_ROOM_VNUM(EXIT(ch, door)->to_room()), world[EXIT(ch, door)->to_room()]->name);
 			else {
 				sprintf(buf2, "&W%s - ", Dirs[door]);
-				if (IS_DARK(EXIT(ch, door)->to_room()) && !CAN_SEE_IN_DARK(ch))
+				if (is_dark(EXIT(ch, door)->to_room()) && !CAN_SEE_IN_DARK(ch))
 					strcat(buf2, "слишком темно");
 				else {
 					const RoomRnum rnum_exit_room = EXIT(ch, door)->to_room();
@@ -1808,7 +1808,7 @@ void look_at_room(CharData *ch, int ignore_brief) {
 	if (!ch->desc)
 		return;
 
-	if (IS_DARK(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !IsAbleToUseFeat(ch, EFeat::kDarkReading)) {
+	if (is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !IsAbleToUseFeat(ch, EFeat::kDarkReading)) {
 		send_to_char("Слишком темно...\r\n", ch);
 		show_glow_objs(ch);
 		return;
@@ -1853,7 +1853,7 @@ void look_at_room(CharData *ch, int ignore_brief) {
 	send_to_char(CCNRM(ch, C_NRM), ch);
 	send_to_char("\r\n", ch);
 
-	if (IS_DARK(ch->in_room) && !PRF_FLAGGED(ch, EPrf::kHolylight)) {
+	if (is_dark(ch->in_room) && !PRF_FLAGGED(ch, EPrf::kHolylight)) {
 		send_to_char("Слишком темно...\r\n", ch);
 	} else if ((!ch->is_npc() && !PRF_FLAGGED(ch, EPrf::kBrief)) || ignore_brief || ROOM_FLAGGED(ch->in_room, ERoomFlag::kDeathTrap)) {
 		show_extend_room(RoomDescription::show_desc(world[ch->in_room]->description_num).c_str(), ch);
@@ -2128,7 +2128,7 @@ void look_in_obj(CharData *ch, char *arg) {
 	CharData *dummy = nullptr;
 	char whatp[kMaxInputLength], where[kMaxInputLength];
 	int amt, bits;
-	int where_bits = FIND_OBJ_INV | FIND_OBJ_ROOM | FIND_OBJ_EQUIP;
+	int where_bits = EFind::kObjInventory | EFind::kObjRoom | EFind::kObjEquip;
 
 	if (!*arg)
 		send_to_char("Смотреть во что?\r\n", ch);
@@ -2136,11 +2136,11 @@ void look_in_obj(CharData *ch, char *arg) {
 		half_chop(arg, whatp, where);
 
 	if (isname(where, "земля комната room ground"))
-		where_bits = FIND_OBJ_ROOM;
+		where_bits = EFind::kObjRoom;
 	else if (isname(where, "инвентарь inventory"))
-		where_bits = FIND_OBJ_INV;
+		where_bits = EFind::kObjInventory;
 	else if (isname(where, "экипировка equipment"))
-		where_bits = FIND_OBJ_EQUIP;
+		where_bits = EFind::kObjEquip;
 
 	bits = generic_find(arg, where_bits, ch, &dummy, &obj);
 
@@ -2185,11 +2185,11 @@ void look_in_obj(CharData *ch, char *arg) {
 			} else {
 				send_to_char(OBJN(obj, ch, 0), ch);
 				switch (bits) {
-					case FIND_OBJ_INV: send_to_char("(в руках)\r\n", ch);
+					case EFind::kObjInventory: send_to_char("(в руках)\r\n", ch);
 						break;
-					case FIND_OBJ_ROOM: send_to_char("(на земле)\r\n", ch);
+					case EFind::kObjRoom: send_to_char("(на земле)\r\n", ch);
 						break;
-					case FIND_OBJ_EQUIP: send_to_char("(в амуниции)\r\n", ch);
+					case EFind::kObjEquip: send_to_char("(в амуниции)\r\n", ch);
 						break;
 					default: send_to_char("(неведомо где)\r\n", ch);
 						break;
@@ -2197,7 +2197,7 @@ void look_in_obj(CharData *ch, char *arg) {
 				if (!obj->get_contains())
 					send_to_char(" Внутри ничего нет.\r\n", ch);
 				else {
-					if (GET_OBJ_VAL(obj, 0) > 0 && bits != FIND_OBJ_ROOM) {
+					if (GET_OBJ_VAL(obj, 0) > 0 && bits != EFind::kObjRoom) {
 						/* amt - индекс массива из 6 элементов (0..5) с описанием наполненности
 						   с помощью нехитрых мат. преобразований мы получаем соотношение веса и максимального объема контейнера,
 						   выраженные числами от 0 до 5. (причем 5 будет лишь при полностью полном контейнере)
@@ -2206,7 +2206,7 @@ void look_in_obj(CharData *ch, char *arg) {
 						sprintf(buf, "Заполнен%s содержимым %s:\r\n", GET_OBJ_SUF_6(obj), fullness[amt]);
 						send_to_char(buf, ch);
 					}
-					list_obj_to_char(obj->get_contains(), ch, 1, bits != FIND_OBJ_ROOM);
+					list_obj_to_char(obj->get_contains(), ch, 1, bits != EFind::kObjRoom);
 				}
 			}
 		} else {
@@ -2355,7 +2355,7 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 	ObjData *found_obj = nullptr;
 	struct CharacterPortal *tmp;
 	char *desc, *what, whatp[kMaxInputLength], where[kMaxInputLength];
-	int where_bits = FIND_OBJ_INV | FIND_OBJ_ROOM | FIND_OBJ_EQUIP | FIND_CHAR_ROOM | FIND_OBJ_EXDESC;
+	int where_bits = EFind::kObjInventory | EFind::kObjRoom | EFind::kObjEquip | EFind::kCharInRoom | EFind::kObjExtraDesc;
 
 	if (!ch->desc) {
 		return false;
@@ -2370,16 +2370,16 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 	what = whatp;
 
 	if (isname(where, "земля комната room ground"))
-		where_bits = FIND_OBJ_ROOM | FIND_CHAR_ROOM;
+		where_bits = EFind::kObjRoom | EFind::kCharInRoom;
 	else if (isname(where, "инвентарь inventory"))
-		where_bits = FIND_OBJ_INV;
+		where_bits = EFind::kObjInventory;
 	else if (isname(where, "экипировка equipment"))
-		where_bits = FIND_OBJ_EQUIP;
+		where_bits = EFind::kObjEquip;
 
 	// для townportal
 	if (isname(whatp, "камень") &&
 		ch->get_skill(ESkill::kTownportal) &&
-		(port = get_portal(GET_ROOM_VNUM(ch->in_room), nullptr)) != nullptr && IS_SET(where_bits, FIND_OBJ_ROOM)) {
+		(port = get_portal(GET_ROOM_VNUM(ch->in_room), nullptr)) != nullptr && IS_SET(where_bits, EFind::kObjRoom)) {
 
 		if (has_char_portal(ch, GET_ROOM_VNUM(ch->in_room))) {
 			send_to_char("На камне огненными буквами написано слово '&R", ch);
@@ -2410,7 +2410,7 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 	}
 
 	// заглянуть в пентаграмму
-	if (isname(whatp, "пентаграмма") && world[ch->in_room]->portal_time && IS_SET(where_bits, FIND_OBJ_ROOM)) {
+	if (isname(whatp, "пентаграмма") && world[ch->in_room]->portal_time && IS_SET(where_bits, EFind::kObjRoom)) {
 		const auto r = ch->in_room;
 		const auto to_room = world[r]->portal_room;
 		send_to_char("Приблизившись к пентаграмме, вы осторожно заглянули в нее.\r\n\r\n", ch);
@@ -2643,7 +2643,7 @@ void do_examine(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	CharData *tmp_char;
 	ObjData *tmp_object;
 	char where[kMaxInputLength];
-	int where_bits = FIND_OBJ_INV | FIND_OBJ_ROOM | FIND_OBJ_EQUIP | FIND_CHAR_ROOM | FIND_OBJ_EXDESC;
+	int where_bits = EFind::kObjInventory | EFind::kObjRoom | EFind::kObjEquip | EFind::kCharInRoom | EFind::kObjExtraDesc;
 
 	if (GET_POS(ch) < EPosition::kSleep) {
 		send_to_char("Виделся часто сон беспокойный...\r\n", ch);
@@ -2661,23 +2661,23 @@ void do_examine(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	if (isname(where, "земля комната room ground"))
-		where_bits = FIND_OBJ_ROOM | FIND_CHAR_ROOM;
+		where_bits = EFind::kObjRoom | EFind::kCharInRoom;
 	else if (isname(where, "инвентарь inventory"))
-		where_bits = FIND_OBJ_INV;
+		where_bits = EFind::kObjInventory;
 	else if (isname(where, "экипировка equipment"))
-		where_bits = FIND_OBJ_EQUIP;
+		where_bits = EFind::kObjEquip;
 
 	skip_hide_on_look(ch);
 
 	if (look_at_target(ch, argument, subcmd))
 		return;
 
-	if (isname(arg, "пентаграмма") && world[ch->in_room]->portal_time && IS_SET(where_bits, FIND_OBJ_ROOM))
+	if (isname(arg, "пентаграмма") && world[ch->in_room]->portal_time && IS_SET(where_bits, EFind::kObjRoom))
 		return;
 
 	if (isname(arg, "камень") &&
 		ch->get_skill(ESkill::kTownportal) &&
-		(get_portal(GET_ROOM_VNUM(ch->in_room), nullptr)) != nullptr && IS_SET(where_bits, FIND_OBJ_ROOM))
+		(get_portal(GET_ROOM_VNUM(ch->in_room), nullptr)) != nullptr && IS_SET(where_bits, EFind::kObjRoom))
 		return;
 
 	generic_find(arg, where_bits, ch, &tmp_char, &tmp_object);
@@ -3749,7 +3749,7 @@ void do_consider(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	one_argument(argument, buf);
 
-	if (!(victim = get_char_vis(ch, buf, FIND_CHAR_ROOM))) {
+	if (!(victim = get_char_vis(ch, buf, EFind::kCharInRoom))) {
 		send_to_char("Кого вы хотите оценить?\r\n", ch);
 		return;
 	}
@@ -3794,7 +3794,7 @@ void do_diagnose(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, buf);
 
 	if (*buf) {
-		if (!(vict = get_char_vis(ch, buf, FIND_CHAR_ROOM)))
+		if (!(vict = get_char_vis(ch, buf, EFind::kCharInRoom)))
 			send_to_char(NOPERSON, ch);
 		else
 			diag_char_to_char(vict, ch);
@@ -3942,7 +3942,7 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 void do_zone(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (ch->desc
-		&& !(IS_DARK(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !IsAbleToUseFeat(ch, EFeat::kDarkReading))
+		&& !(is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !IsAbleToUseFeat(ch, EFeat::kDarkReading))
 		&& !AFF_FLAGGED(ch, EAffect::kBlind)) {
 		MapSystem::print_map(ch);
 	}

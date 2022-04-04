@@ -314,14 +314,14 @@ void send(CharData *ch, CharData *mailman, long vict_uid, char *arg) {
 		}
 	} else {
 		int dotmode = find_all_dots(tmp_arg);
-		if (dotmode == FIND_INDIV) {
+		if (dotmode == kFindIndiv) {
 			if (!(obj = get_obj_in_list_vis(ch, tmp_arg, ch->carrying))) {
 				send_to_char(ch, "У вас нет '%s'.\r\n", tmp_arg);
 				return;
 			}
 			send_object(ch, mailman, vict_uid, obj);
 		} else {
-			if (dotmode == FIND_ALLDOT && !*tmp_arg) {
+			if (dotmode == kFindAlldot && !*tmp_arg) {
 				send_to_char("Отправить \"все\" какого типа предметов?\r\n", ch);
 				return;
 			}
@@ -332,7 +332,7 @@ void send(CharData *ch, CharData *mailman, long vict_uid, char *arg) {
 				for (obj = ch->carrying; obj; obj = next_obj) {
 					next_obj = obj->get_next_content();
 					if (CAN_SEE_OBJ(ch, obj)
-						&& ((dotmode == FIND_ALL
+						&& ((dotmode == kFindAll
 							|| isname(tmp_arg, obj->get_aliases())))) {
 						send_object(ch, mailman, vict_uid, obj);
 						has_items = true;

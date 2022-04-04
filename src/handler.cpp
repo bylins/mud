@@ -32,7 +32,6 @@
 #include "color.h"
 #include "game_magic/magic_utils.h"
 #include "world_objects.h"
-#include "entities/zone.h"
 #include "game_classes/classes_spell_slots.h"
 #include "depot.h"
 
@@ -89,29 +88,29 @@ void check_light(CharData *ch, int was_equip, int was_single, int was_holylight,
 
 	// In equipment
 	if (is_wear_light(ch)) {
-		if (was_equip == LIGHT_NO) {
+		if (was_equip == kLightNo) {
 			world[ch->in_room]->light = MAX(0, world[ch->in_room]->light + koef);
 		}
 	} else {
-		if (was_equip == LIGHT_YES)
+		if (was_equip == kLightYes)
 			world[ch->in_room]->light = MAX(0, world[ch->in_room]->light - koef);
 	}
 
 	// Singlelight affect
 	if (AFF_FLAGGED(ch, EAffect::kSingleLight)) {
-		if (was_single == LIGHT_NO)
+		if (was_single == kLightNo)
 			world[ch->in_room]->light = MAX(0, world[ch->in_room]->light + koef);
 	} else {
-		if (was_single == LIGHT_YES)
+		if (was_single == kLightYes)
 			world[ch->in_room]->light = MAX(0, world[ch->in_room]->light - koef);
 	}
 
 	// Holylight affect
 	if (AFF_FLAGGED(ch, EAffect::kHolyLight)) {
-		if (was_holylight == LIGHT_NO)
+		if (was_holylight == kLightNo)
 			world[ch->in_room]->glight = MAX(0, world[ch->in_room]->glight + koef);
 	} else {
-		if (was_holylight == LIGHT_YES)
+		if (was_holylight == kLightYes)
 			world[ch->in_room]->glight = MAX(0, world[ch->in_room]->glight - koef);
 	}
 
@@ -126,13 +125,13 @@ void check_light(CharData *ch, int was_equip, int was_single, int was_holylight,
 	{
 		/*if (IS_IMMORTAL(ch))
 			send_to_char("HOLYDARK ON\r\n",ch);*/
-		if (was_holydark == LIGHT_NO)
+		if (was_holydark == kLightNo)
 			world[ch->in_room]->gdark = MAX(0, world[ch->in_room]->gdark + koef);
 	} else        // if (IS_IMMORTAL(ch))
 	{
 		/*if (IS_IMMORTAL(ch))
 			send_to_char("HOLYDARK OFF\r\n",ch);*/
-		if (was_holydark == LIGHT_YES)
+		if (was_holydark == kLightYes)
 			world[ch->in_room]->gdark = MAX(0, world[ch->in_room]->gdark - koef);
 	}
 
@@ -295,7 +294,7 @@ void char_from_room(CharData *ch) {
 	if (!ch->is_npc())
 		ch->set_from_room(ch->in_room);
 
-	check_light(ch, LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, -1);
+	check_light(ch, kLightNo, kLightNo, kLightNo, kLightNo, -1);
 
 	auto &people = world[ch->in_room]->people;
 	people.erase(std::find(people.begin(), people.end(), ch));
@@ -357,7 +356,7 @@ void char_to_room(CharData *ch, RoomRnum room) {
 	world[room]->people.push_front(ch);
 
 	ch->in_room = room;
-	check_light(ch, LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, 1);
+	check_light(ch, kLightNo, kLightNo, kLightNo, kLightNo, 1);
 	EXTRA_FLAGS(ch).unset(EXTRA_FAILHIDE);
 	EXTRA_FLAGS(ch).unset(EXTRA_FAILSNEAK);
 	EXTRA_FLAGS(ch).unset(EXTRA_FAILCAMOUFLAGE);
@@ -393,7 +392,7 @@ void char_to_room(CharData *ch, RoomRnum room) {
 
 	// report room changing
 	if (ch->desc) {
-		if (!(IS_DARK(ch->in_room) && !PRF_FLAGGED(ch, EPrf::kHolylight)))
+		if (!(is_dark(ch->in_room) && !PRF_FLAGGED(ch, EPrf::kHolylight)))
 			ch->desc->msdp_report("ROOM");
 	}
 
@@ -423,7 +422,7 @@ void char_flee_to_room(CharData *ch, RoomRnum room) {
 	world[room]->people.push_front(ch);
 
 	ch->in_room = room;
-	check_light(ch, LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, 1);
+	check_light(ch, kLightNo, kLightNo, kLightNo, kLightNo, 1);
 	EXTRA_FLAGS(ch).unset(EXTRA_FAILHIDE);
 	EXTRA_FLAGS(ch).unset(EXTRA_FAILSNEAK);
 	EXTRA_FLAGS(ch).unset(EXTRA_FAILCAMOUFLAGE);
@@ -460,7 +459,7 @@ void char_flee_to_room(CharData *ch, RoomRnum room) {
 	// небольшой перегиб. когда сбегаешь то ты теряешься в ориентации а тут нате все видно
 //	if (ch->desc)
 //	{
-//		if (!(IS_DARK(ch->in_room) && !EPrf::FLAGGED(ch, EPrf::HOLYLIGHT)))
+//		if (!(is_dark(ch->in_room) && !EPrf::FLAGGED(ch, EPrf::HOLYLIGHT)))
 //			ch->desc->msdp_report("ROOM");
 //	}
 
@@ -947,9 +946,9 @@ bool check_armor_type(CharData *ch, ObjData *obj) {
 }
 
 void equip_char(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_flags) {
-	int was_lgt = AFF_FLAGGED(ch, EAffect::kSingleLight) ? LIGHT_YES : LIGHT_NO,
-		was_hlgt = AFF_FLAGGED(ch, EAffect::kHolyLight) ? LIGHT_YES : LIGHT_NO,
-		was_hdrk = AFF_FLAGGED(ch, EAffect::kHolyDark) ? LIGHT_YES : LIGHT_NO,
+	int was_lgt = AFF_FLAGGED(ch, EAffect::kSingleLight) ? kLightYes : kLightNo,
+		was_hlgt = AFF_FLAGGED(ch, EAffect::kHolyLight) ? kLightYes : kLightNo,
+		was_hdrk = AFF_FLAGGED(ch, EAffect::kHolyDark) ? kLightYes : kLightNo,
 		was_lamp = false;
 
 	const bool no_cast = equip_flags.test(CharEquipFlag::no_cast);
@@ -1273,9 +1272,9 @@ unsigned int deactivate_stuff(CharData *ch, ObjData *obj, id_to_set_info_map::co
 }
 
 ObjData *unequip_char(CharData *ch, int pos, const CharEquipFlags& equip_flags) {
-	int was_lgt = AFF_FLAGGED(ch, EAffect::kSingleLight) ? LIGHT_YES : LIGHT_NO,
-		was_hlgt = AFF_FLAGGED(ch, EAffect::kHolyLight) ? LIGHT_YES : LIGHT_NO,
-		was_hdrk = AFF_FLAGGED(ch, EAffect::kHolyDark) ? LIGHT_YES : LIGHT_NO, was_lamp = false;
+	int was_lgt = AFF_FLAGGED(ch, EAffect::kSingleLight) ? kLightYes : kLightNo,
+		was_hlgt = AFF_FLAGGED(ch, EAffect::kHolyLight) ? kLightYes : kLightNo,
+		was_hdrk = AFF_FLAGGED(ch, EAffect::kHolyDark) ? kLightYes : kLightNo, was_lamp = false;
 
 	const bool skip_total = equip_flags.test(CharEquipFlag::skip_total);
 	const bool show_msg = equip_flags.test(CharEquipFlag::show_msg);
@@ -1994,7 +1993,7 @@ CharData *get_player_vis(CharData *ch, const char *name, int inroom) {
 			continue;
 		if (!HERE(i))
 			continue;
-		if ((inroom & FIND_CHAR_ROOM) && i->in_room != ch->in_room)
+		if ((inroom & EFind::kCharInRoom) && i->in_room != ch->in_room)
 			continue;
 		if (!CAN_SEE_CHAR(ch, i))
 			continue;
@@ -2012,7 +2011,7 @@ CharData *get_player_pun(CharData *ch, const char *name, int inroom) {
 	for (const auto &i : character_list) {
 		if (i->is_npc())
 			continue;
-		if ((inroom & FIND_CHAR_ROOM) && i->in_room != ch->in_room)
+		if ((inroom & EFind::kCharInRoom) && i->in_room != ch->in_room)
 			continue;
 		if (!isname(name, i->get_pc_name())) {
 			continue;
@@ -2040,7 +2039,7 @@ CharData *get_char_room_vis(CharData *ch, const char *name) {
 
 	const int number = get_number(&tmp);
 	if (0 == number) {
-		return get_player_vis(ch, tmp, FIND_CHAR_ROOM);
+		return get_player_vis(ch, tmp, EFind::kCharInRoom);
 	}
 
 	int j = 0;
@@ -2062,9 +2061,9 @@ CharData *get_char_vis(CharData *ch, const char *name, int where) {
 	char *tmp = tmpname;
 
 	// check the room first
-	if (where == FIND_CHAR_ROOM) {
+	if (where == EFind::kCharInRoom) {
 		return get_char_room_vis(ch, name);
-	} else if (where == FIND_CHAR_WORLD) {
+	} else if (where == EFind::kCharInWorld) {
 		if ((i = get_char_room_vis(ch, name)) != nullptr) {
 			return (i);
 		}
@@ -2507,23 +2506,23 @@ int generic_find(char *arg, Bitvector bitvector, CharData *ch, CharData **tar_ch
 	if (!*name)
 		return (0);
 
-	if (IS_SET(bitvector, FIND_CHAR_ROOM))    // Find person in room
+	if (IS_SET(bitvector, EFind::kCharInRoom))    // Find person in room
 	{
-		if ((*tar_ch = get_char_vis(ch, name, FIND_CHAR_ROOM)) != nullptr)
-			return (FIND_CHAR_ROOM);
+		if ((*tar_ch = get_char_vis(ch, name, EFind::kCharInRoom)) != nullptr)
+			return (EFind::kCharInRoom);
 	}
-	if (IS_SET(bitvector, FIND_CHAR_WORLD)) {
-		if ((*tar_ch = get_char_vis(ch, name, FIND_CHAR_WORLD)) != nullptr)
-			return (FIND_CHAR_WORLD);
+	if (IS_SET(bitvector, EFind::kCharInWorld)) {
+		if ((*tar_ch = get_char_vis(ch, name, EFind::kCharInWorld)) != nullptr)
+			return (EFind::kCharInWorld);
 	}
-	if (IS_SET(bitvector, FIND_OBJ_WORLD)) {
+	if (IS_SET(bitvector, EFind::kObjWorld)) {
 		if ((*tar_obj = get_obj_vis(ch, name)))
-			return (FIND_OBJ_WORLD);
+			return (EFind::kObjWorld);
 	}
 
 	// Начало изменений. (с) Дмитрий ака dzMUDiST ака Кудояр
 
-// Переписан код, обрабатывающий параметры FIND_OBJ_EQUIP | FIND_OBJ_INV | FIND_OBJ_ROOM
+// Переписан код, обрабатывающий параметры EFind::kObjEquip | EFind::kObjInventory | EFind::kObjRoom
 // В итоге поиск объекта просиходит в "экипировке - инветаре - комнате" согласно
 // общему количеству имеющихся "созвучных" предметов.
 // Старый код закомментирован и подан в конце изменений.
@@ -2532,49 +2531,49 @@ int generic_find(char *arg, Bitvector bitvector, CharData *ch, CharData **tar_ch
 	if (!(number = get_number(&tmp)))
 		return 0;
 
-	if (IS_SET(bitvector, FIND_OBJ_EQUIP)) {
+	if (IS_SET(bitvector, EFind::kObjEquip)) {
 		for (l = 0; l < EEquipPos::kNumEquipPos; l++) {
 			if (GET_EQ(ch, l) && CAN_SEE_OBJ(ch, GET_EQ(ch, l))) {
 				if (isname(tmp, GET_EQ(ch, l)->get_aliases())
 					|| CHECK_CUSTOM_LABEL(tmp, GET_EQ(ch, l), ch)
-					|| (IS_SET(bitvector, FIND_OBJ_EXDESC)
+					|| (IS_SET(bitvector, EFind::kObjExtraDesc)
 						&& find_exdesc(tmp, GET_EQ(ch, l)->get_ex_description()))) {
 					if (++j == number) {
 						*tar_obj = GET_EQ(ch, l);
-						return (FIND_OBJ_EQUIP);
+						return (EFind::kObjEquip);
 					}
 				}
 			}
 		}
 	}
 
-	if (IS_SET(bitvector, FIND_OBJ_INV)) {
+	if (IS_SET(bitvector, EFind::kObjInventory)) {
 		for (i = ch->carrying; i && (j <= number); i = i->get_next_content()) {
 			if (isname(tmp, i->get_aliases())
 				|| CHECK_CUSTOM_LABEL(tmp, i, ch)
-				|| (IS_SET(bitvector, FIND_OBJ_EXDESC)
+				|| (IS_SET(bitvector, EFind::kObjExtraDesc)
 					&& find_exdesc(tmp, i->get_ex_description()))) {
 				if (CAN_SEE_OBJ(ch, i)) {
 					if (++j == number) {
 						*tar_obj = i;
-						return (FIND_OBJ_INV);
+						return (EFind::kObjInventory);
 					}
 				}
 			}
 		}
 	}
 
-	if (IS_SET(bitvector, FIND_OBJ_ROOM)) {
+	if (IS_SET(bitvector, EFind::kObjRoom)) {
 		for (i = world[ch->in_room]->contents;
 			 i && (j <= number); i = i->get_next_content()) {
 			if (isname(tmp, i->get_aliases())
 				|| CHECK_CUSTOM_LABEL(tmp, i, ch)
-				|| (IS_SET(bitvector, FIND_OBJ_EXDESC)
+				|| (IS_SET(bitvector, EFind::kObjExtraDesc)
 					&& find_exdesc(tmp, i->get_ex_description()))) {
 				if (CAN_SEE_OBJ(ch, i)) {
 					if (++j == number) {
 						*tar_obj = i;
-						return (FIND_OBJ_ROOM);
+						return (EFind::kObjRoom);
 					}
 				}
 			}
@@ -2589,13 +2588,13 @@ int find_all_dots(char *arg) {
 	char tmpname[kMaxInputLength];
 
 	if (!str_cmp(arg, "all") || !str_cmp(arg, "все")) {
-		return (FIND_ALL);
+		return (kFindAll);
 	} else if (!strn_cmp(arg, "all.", 4) || !strn_cmp(arg, "все.", 4)) {
 		strl_cpy(tmpname, arg + 4, kMaxInputLength);
 		strl_cpy(arg, tmpname, kMaxInputLength);
-		return (FIND_ALLDOT);
+		return (kFindAlldot);
 	} else {
-		return (FIND_INDIV);
+		return (kFindIndiv);
 	}
 }
 

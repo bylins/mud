@@ -224,7 +224,7 @@ void do_mjunk(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!str_cmp(arg, "all") || !str_cmp(arg, "все"))
 		junk_all = 1;
 
-	if ((find_all_dots(arg) == FIND_INDIV) && !junk_all) {
+	if ((find_all_dots(arg) == kFindIndiv) && !junk_all) {
 		if ((obj = get_object_in_equip_vis(ch, arg, ch->equipment, &pos)) != nullptr) {
 			unequip_char(ch, pos, CharEquipFlags());
 			extract_obj(obj);
@@ -586,7 +586,7 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				mob_log(ch, buf);
 				return;
 			}
-		} else if (!(vict = get_char_vis(ch, arg1, FIND_CHAR_WORLD))) {
+		} else if (!(vict = get_char_vis(ch, arg1, EFind::kCharInWorld))) {
 			sprintf(buf, "mteleport: victim (%s) does not exist", arg1);
 			mob_log(ch, buf);
 			return;
@@ -717,7 +717,7 @@ void do_mexp(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			mob_log(ch, buf);
 			return;
 		}
-	} else if (!(victim = get_char_vis(ch, name, FIND_CHAR_WORLD))) {
+	} else if (!(victim = get_char_vis(ch, name, EFind::kCharInWorld))) {
 		sprintf(buf, "mexp: victim (%s) does not exist", name);
 		mob_log(ch, buf);
 		return;
@@ -750,7 +750,7 @@ void do_mgold(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			mob_log(ch, buf);
 			return;
 		}
-	} else if (!(victim = get_char_vis(ch, name, FIND_CHAR_WORLD))) {
+	} else if (!(victim = get_char_vis(ch, name, EFind::kCharInWorld))) {
 		sprintf(buf, "mgold: victim (%s) does not exist", name);
 		mob_log(ch, buf);
 		return;
@@ -1018,7 +1018,7 @@ void do_mfeatturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			mob_log(ch, buf);
 			return;
 		}
-	} else if (!(victim = get_char_vis(ch, name, FIND_CHAR_WORLD))) {
+	} else if (!(victim = get_char_vis(ch, name, EFind::kCharInWorld))) {
 		sprintf(buf, "mfeatturn: victim (%s) does not exist", name);
 		mob_log(ch, buf);
 		return;
@@ -1070,7 +1070,7 @@ void do_mskillturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			mob_log(ch, buf);
 			return;
 		}
-	} else if (!(victim = get_char_vis(ch, name, FIND_CHAR_WORLD))) {
+	} else if (!(victim = get_char_vis(ch, name, EFind::kCharInWorld))) {
 		sprintf(buf, "mskillturn: victim (%s) does not exist", name);
 		mob_log(ch, buf);
 		return;
@@ -1122,7 +1122,7 @@ void do_mskilladd(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			mob_log(ch, buf);
 			return;
 		}
-	} else if (!(victim = get_char_vis(ch, name, FIND_CHAR_WORLD))) {
+	} else if (!(victim = get_char_vis(ch, name, EFind::kCharInWorld))) {
 		sprintf(buf, "mskilladd: victim (%s) does not exist", name);
 		mob_log(ch, buf);
 		return;
@@ -1175,7 +1175,7 @@ void do_mspellturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			mob_log(ch, buf);
 			return;
 		}
-	} else if (!(victim = get_char_vis(ch, name, FIND_CHAR_WORLD))) {
+	} else if (!(victim = get_char_vis(ch, name, EFind::kCharInWorld))) {
 		sprintf(buf, "mspellturn: victim (%s) does not exist", name);
 		mob_log(ch, buf);
 		return;
@@ -1219,7 +1219,7 @@ void do_mspellturntemp(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 			mob_log(ch, buf);
 			return;
 		}
-	} else if (!(victim = get_char_vis(ch, name, FIND_CHAR_WORLD))) {
+	} else if (!(victim = get_char_vis(ch, name, EFind::kCharInWorld))) {
 		sprintf(buf, "mspellturntemp: victim (%s) does not exist", name);
 		mob_log(ch, buf);
 		return;
@@ -1256,7 +1256,7 @@ void do_mspelladd(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			mob_log(ch, buf);
 			return;
 		}
-	} else if (!(victim = get_char_vis(ch, name, FIND_CHAR_WORLD))) {
+	} else if (!(victim = get_char_vis(ch, name, EFind::kCharInWorld))) {
 		sprintf(buf, "mspelladd: victim (%s) does not exist", name);
 		mob_log(ch, buf);
 		return;
@@ -1316,7 +1316,7 @@ void do_mspellitem(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			mob_log(ch, buf);
 			return;
 		}
-	} else if (!(victim = get_char_vis(ch, name, FIND_CHAR_WORLD))) {
+	} else if (!(victim = get_char_vis(ch, name, EFind::kCharInWorld))) {
 		sprintf(buf, "mspellitem: victim (%s) does not exist", name);
 		mob_log(ch, buf);
 		return;

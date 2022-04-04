@@ -2138,12 +2138,12 @@ void npc_light(CharData *ch) {
 	if (AFF_FLAGGED(ch, EAffect::kInfravision))
 		return;
 
-	if ((obj = GET_EQ(ch, EEquipPos::kLight)) && (GET_OBJ_VAL(obj, 2) == 0 || !IS_DARK(ch->in_room))) {
+	if ((obj = GET_EQ(ch, EEquipPos::kLight)) && (GET_OBJ_VAL(obj, 2) == 0 || !is_dark(ch->in_room))) {
 		act("$n прекратил$g использовать $o3.", false, ch, obj, 0, kToRoom);
 		obj_to_char(unequip_char(ch, EEquipPos::kLight, CharEquipFlag::show_msg), ch);
 	}
 
-	if (!GET_EQ(ch, EEquipPos::kLight) && IS_DARK(ch->in_room)) {
+	if (!GET_EQ(ch, EEquipPos::kLight) && is_dark(ch->in_room)) {
 		for (obj = ch->carrying; obj; obj = next) {
 			next = obj->get_next_content();
 			if (GET_OBJ_TYPE(obj) != EObjType::kLightSource) {
