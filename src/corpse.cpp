@@ -381,7 +381,7 @@ void make_arena_corpse(CharData *ch, CharData *killer) {
 	sprintf(buf2, "останках %s", GET_PAD(ch, 1));
 	corpse->set_PName(5, buf2);
 
-	corpse->set_type(EObjType::ITEM_CONTAINER);
+	corpse->set_type(EObjType::kContainer);
 	corpse->set_wear_flag(EWearFlag::kTake);
 	corpse->set_extra_flag(EObjFlag::kNodonate);
 	corpse->set_extra_flag(EObjFlag::kNosell);
@@ -435,7 +435,7 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 	sprintf(buf2, "трупе %s", GET_PAD(ch, 1));
 	corpse->set_PName(5, buf2);
 
-	corpse->set_type(EObjType::ITEM_CONTAINER);
+	corpse->set_type(EObjType::kContainer);
 	corpse->set_wear_flag(EWearFlag::kTake);
 	corpse->set_extra_flag(EObjFlag::kNodonate);
 	corpse->set_extra_flag(EObjFlag::kNosell);

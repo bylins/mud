@@ -750,8 +750,8 @@ void ObjectFile::parse_object(const int nr) {
 	tobj->set_rent_on(t[3]);
 
 	// check to make sure that weight of containers exceeds curr. quantity
-	if (tobj->get_type() == EObjType::ITEM_DRINKCON
-		|| tobj->get_type() == EObjType::ITEM_FOUNTAIN) {
+	if (tobj->get_type() == EObjType::kLiquidContainer
+		|| tobj->get_type() == EObjType::kFountain) {
 		if (tobj->get_weight() < tobj->get_val(1)) {
 			tobj->set_weight(tobj->get_val(1) + 5);
 		}
@@ -891,8 +891,8 @@ bool ObjectFile::check_object(ObjData *obj) {
 	}
 
 	switch (GET_OBJ_TYPE(obj)) {
-		case EObjType::ITEM_DRINKCON:
-		case EObjType::ITEM_FOUNTAIN:
+		case EObjType::kLiquidContainer:
+		case EObjType::kFountain:
 			if (GET_OBJ_VAL(obj, 1) > GET_OBJ_VAL(obj, 0)) {
 				error = true;
 				log("SYSERR: Object #%d (%s) contains (%d) more than maximum (%d).",
@@ -900,18 +900,18 @@ bool ObjectFile::check_object(ObjData *obj) {
 			}
 			break;
 
-		case EObjType::ITEM_SCROLL:
-		case EObjType::ITEM_POTION: error = error || check_object_level(obj, 0);
+		case EObjType::kScroll:
+		case EObjType::kPorion: error = error || check_object_level(obj, 0);
 			error = error || check_object_spell_number(obj, 1);
 			error = error || check_object_spell_number(obj, 2);
 			error = error || check_object_spell_number(obj, 3);
 			break;
 
-		case EObjType::ITEM_BOOK: error = error || check_object_spell_number(obj, 1);
+		case EObjType::kBook: error = error || check_object_spell_number(obj, 1);
 			break;
 
-		case EObjType::ITEM_WAND:
-		case EObjType::ITEM_STAFF: error = error || check_object_level(obj, 0);
+		case EObjType::kWand:
+		case EObjType::kStaff: error = error || check_object_level(obj, 0);
 			error = error || check_object_spell_number(obj, 3);
 			if (GET_OBJ_VAL(obj, 2) > GET_OBJ_VAL(obj, 1)) {
 				error = true;

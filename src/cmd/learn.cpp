@@ -66,7 +66,7 @@ void do_learn(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		return;
 	}
 
-	if (GET_OBJ_TYPE(obj) != EObjType::ITEM_BOOK) {
+	if (GET_OBJ_TYPE(obj) != EObjType::kBook) {
 		act("Вы уставились на $o3, как баран на новые ворота.",
 			false, ch, obj, nullptr, kToChar);
 		act("$n начал$g внимательно изучать устройство $o1.",

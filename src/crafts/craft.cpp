@@ -608,7 +608,7 @@ bool CObject::save_to_node(pugi::xml_node *node) const {
 			// unpack item_parameters
 			std::list<std::string> item_parameters;
 			switch (get_type()) {
-				case EObjType::ITEM_INGREDIENT: {
+				case EObjType::kIngredient: {
 					int flag = 1;
 					while (flag <= get_skill()) {
 						if (IS_SET(get_skill(), flag)) {
@@ -619,7 +619,7 @@ bool CObject::save_to_node(pugi::xml_node *node) const {
 				}
 					break;
 
-				case EObjType::ITEM_WEAPON: item_parameters.push_back(NAME_BY_ITEM(static_cast<ESkill>(get_skill())));
+				case EObjType::kWeapon: item_parameters.push_back(NAME_BY_ITEM(static_cast<ESkill>(get_skill())));
 					break;
 
 				default: break;
@@ -725,7 +725,7 @@ ObjData *CObject::build_object() const {
 
 bool CObject::load_item_parameters(const pugi::xml_node *node) {
 	switch (get_type()) {
-		case EObjType::ITEM_INGREDIENT:
+		case EObjType::kIngredient:
 			for (const auto flags : node->children("parameter")) {
 				const char *flag = flags.child_value();
 				try {
@@ -743,7 +743,7 @@ bool CObject::load_item_parameters(const pugi::xml_node *node) {
 			}
 			break;
 
-		case EObjType::ITEM_WEAPON: {
+		case EObjType::kWeapon: {
 			const char *skill_value = node->child_value("parameter");
 			try {
 				set_skill(to_underlying(ITEM_BY_NAME<ESkill>(skill_value)));

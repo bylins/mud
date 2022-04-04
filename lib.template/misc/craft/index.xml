@@ -294,7 +294,7 @@
 			<global_maximum>1</global_maximum>
 			<minimum_remorts>0</minimum_remorts>
 
-			<type>ITEM_WEAPON</type>
+			<type>kWeapon</type>
 
 			<durability>
 				<maximum>12000</maximum>

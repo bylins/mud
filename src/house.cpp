@@ -2919,7 +2919,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 		return false;
 	}
 
-	if (GET_OBJ_TYPE(obj) == EObjType::ITEM_MONEY) {
+	if (GET_OBJ_TYPE(obj) == EObjType::kMoney) {
 		long gold = GET_OBJ_VAL(obj, 0);
 		if (IS_IMMORTAL(ch)) {
 			obj_from_char(obj);
@@ -2953,14 +2953,14 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 	} else if (obj->has_flag(EObjFlag::kNodrop)
 		|| obj->has_flag(EObjFlag::kZonedacay)
 		|| obj->has_flag(EObjFlag::kRepopDecay)
-		|| GET_OBJ_TYPE(obj) == EObjType::ITEM_KEY
+		|| GET_OBJ_TYPE(obj) == EObjType::kKey
 		|| obj->has_flag(EObjFlag::kNorent)
 		|| GET_OBJ_RENT(obj) < 0
 		|| GET_OBJ_RNUM(obj) <= kNothing
 		|| obj->has_flag(EObjFlag::kNamed)
 		|| GET_OBJ_OWNER(obj)) {
 		act("Неведомая сила помешала положить $o3 в $O3.", false, ch, obj, chest, kToChar);
-	} else if (GET_OBJ_TYPE(obj) == EObjType::ITEM_CONTAINER
+	} else if (GET_OBJ_TYPE(obj) == EObjType::kContainer
 		&& obj->get_contains()) {
 		act("В $o5 что-то лежит.", false, ch, obj, nullptr, kToChar);
 	} else if (SetSystem::is_norent_set(ch, obj, true) && obj->has_flag(EObjFlag::kNotOneInClanChest)) {
@@ -5237,12 +5237,12 @@ bool Clan::put_ingr_chest(CharData *ch, ObjData *obj, ObjData *chest) {
 		return false;
 	}
 
-	if (GET_OBJ_TYPE(obj) != EObjType::ITEM_MING
-		&& GET_OBJ_TYPE(obj) != EObjType::ITEM_MATERIAL) {
+	if (GET_OBJ_TYPE(obj) != EObjType::kMagicIngredient
+		&& GET_OBJ_TYPE(obj) != EObjType::kCraftMaterial) {
 		send_to_char(ch, "%s - Хранилище ингредиентов не предназначено для предметов данного типа.\r\n",
 					 GET_OBJ_PNAME(obj, 0).c_str());
 
-		if (GET_OBJ_TYPE(obj) == EObjType::ITEM_MONEY) {
+		if (GET_OBJ_TYPE(obj) == EObjType::kMoney) {
 			int howmany = GET_OBJ_VAL(obj, 0);
 			obj_from_char(obj);
 			extract_obj(obj);

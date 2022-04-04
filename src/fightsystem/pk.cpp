@@ -1050,18 +1050,18 @@ void set_bloody_flag(ObjData *list, const CharData *ch) {
 	set_bloody_flag(list->get_next_content(), ch);
 	const int t = GET_OBJ_TYPE(list);
 	if (!list->has_flag(EObjFlag::kBloody)
-		&& (t == EObjType::ITEM_LIGHT
-			|| t == EObjType::ITEM_WAND
-			|| t == EObjType::ITEM_STAFF
-			|| t == EObjType::ITEM_WEAPON
-			|| t == EObjType::ITEM_ARMOR
-			|| (t == EObjType::ITEM_CONTAINER
+		&& (t == EObjType::kLightSource
+			|| t == EObjType::kWand
+			|| t == EObjType::kStaff
+			|| t == EObjType::kWeapon
+			|| t == EObjType::kArmor
+			|| (t == EObjType::kContainer
 				&& GET_OBJ_VAL(list, 0))
-			|| t == EObjType::ITEM_ARMOR_LIGHT
-			|| t == EObjType::ITEM_ARMOR_MEDIAN
-			|| t == EObjType::ITEM_ARMOR_HEAVY
-			|| t == EObjType::ITEM_INGREDIENT
-			|| t == EObjType::ITEM_WORN)) {
+			|| t == EObjType::kLightArmor
+			|| t == EObjType::kMediumArmor
+			|| t == EObjType::kHeavyArmor
+			|| t == EObjType::kIngredient
+			|| t == EObjType::kWorm)) {
 		list->set_extra_flag(EObjFlag::kBloody);
 		bloody_map[list].owner_unique = GET_UNIQUE(ch);
 		bloody_map[list].kill_at = time(nullptr);

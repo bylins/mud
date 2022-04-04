@@ -122,23 +122,23 @@ int perform_put(CharData *ch, ObjData::shared_ptr obj, ObjData *cont) {
 	if (GET_OBJ_WEIGHT(cont) + GET_OBJ_WEIGHT(obj) > GET_OBJ_VAL(cont, 0)) {
 		act("$O : $o не помещается туда.", false, ch, obj.get(), cont, kToChar);
 	} 
-	else if (GET_OBJ_TYPE(obj) == EObjType::ITEM_CONTAINER && obj->get_contains()) {
+	else if (GET_OBJ_TYPE(obj) == EObjType::kContainer && obj->get_contains()) {
 		send_to_char(ch, "В %s что-то лежит.\r\n", obj->get_PName(5).c_str());
 	} 
 	else if (obj->has_flag(EObjFlag::kNodrop)) {
 		act("Неведомая сила помешала положить $o3 в $O3.", false, ch, obj.get(), cont, kToChar);
 	} 
-	else if (obj->has_flag(EObjFlag::kZonedacay) || obj->get_type() == EObjType::ITEM_KEY) {
+	else if (obj->has_flag(EObjFlag::kZonedacay) || obj->get_type() == EObjType::kKey) {
 		act("Неведомая сила помешала положить $o3 в $O3.", false, ch, obj.get(), cont, kToChar);
 	} 
 	else {
 		obj_from_char(obj.get());
 		// чтобы там по 1 куне гор не было, чару тож возвращается на счет, а не в инвентарь кучкой
-		if (obj->get_type() == EObjType::ITEM_MONEY && obj->get_rnum() == 0) {
+		if (obj->get_type() == EObjType::kMoney && obj->get_rnum() == 0) {
 			ObjData *temp, *obj_next;
 			for (temp = cont->get_contains(); temp; temp = obj_next) {
 				obj_next = temp->get_next_content();
-				if (GET_OBJ_TYPE(temp) == EObjType::ITEM_MONEY) {
+				if (GET_OBJ_TYPE(temp) == EObjType::kMoney) {
 					// тут можно просто в поле прибавить, но там описание для кун разное от кол-ва
 					int money = GET_OBJ_VAL(temp, 0);
 					money += GET_OBJ_VAL(obj, 0);
@@ -457,7 +457,7 @@ void do_put(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (!cont) {
 			sprintf(buf, "Вы не видите здесь '%s'.\r\n", thecont);
 			send_to_char(buf, ch);
-		} else if (GET_OBJ_TYPE(cont) != EObjType::ITEM_CONTAINER) {
+		} else if (GET_OBJ_TYPE(cont) != EObjType::kContainer) {
 			act("В $o3 нельзя ничего положить.", false, ch, cont, 0, kToChar);
 		} else if (OBJVAL_FLAGGED(cont, CONT_CLOSED)) {
 			act("$o0 закрыт$A!", false, ch, cont, 0, kToChar);
@@ -555,7 +555,7 @@ void do_refill(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("У вас нет этого!\r\n", ch);
 		return;
 	}
-	if (GET_OBJ_TYPE(from_obj) != EObjType::ITEM_MAGIC_ARROW) {
+	if (GET_OBJ_TYPE(from_obj) != EObjType::kMagicArrow) {
 		send_to_char("И как вы себе это представляете?\r\n", ch);
 		return;
 	}
@@ -571,8 +571,8 @@ void do_refill(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Вы не можете этого найти!\r\n", ch);
 		return;
 	}
-	if (!((GET_OBJ_TYPE(to_obj) == EObjType::ITEM_MAGIC_CONTAINER)
-		|| GET_OBJ_TYPE(to_obj) == EObjType::ITEM_MAGIC_ARROW)) {
+	if (!((GET_OBJ_TYPE(to_obj) == EObjType::kMagicContaner)
+		|| GET_OBJ_TYPE(to_obj) == EObjType::kMagicArrow)) {
 		send_to_char("Вы не сможете в это сложить стрелы.\r\n", ch);
 		return;
 	}
@@ -615,11 +615,11 @@ void do_refill(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 int can_take_obj(CharData *ch, ObjData *obj) {
 	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)
-		&& GET_OBJ_TYPE(obj) != EObjType::ITEM_MONEY) {
+		&& GET_OBJ_TYPE(obj) != EObjType::kMoney) {
 		act("$p: Вы не могете нести столько вещей.", false, ch, obj, 0, kToChar);
 		return (0);
 	} else if ((IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj)) > CAN_CARRY_W(ch)
-		&& GET_OBJ_TYPE(obj) != EObjType::ITEM_MONEY) {
+		&& GET_OBJ_TYPE(obj) != EObjType::kMoney) {
 		act("$p: Вы не в состоянии нести еще и $S.", false, ch, obj, 0, kToChar);
 		return (0);
 	} else if (!(CAN_WEAR(obj, EWearFlag::kTake))) {
@@ -672,7 +672,7 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 	const int value = GET_OBJ_VAL(obj, 0);
 	const int curr_type = GET_OBJ_VAL(obj, 1);
 
-	if (GET_OBJ_TYPE(obj) != EObjType::ITEM_MONEY
+	if (GET_OBJ_TYPE(obj) != EObjType::kMoney
 		|| value <= 0) {
 		return;
 	}
@@ -821,8 +821,8 @@ void get_from_container(CharData *ch, ObjData *cont, char *arg, int mode, int ho
 					|| isname(arg, obj->get_aliases())
 					|| CHECK_CUSTOM_LABEL(arg, obj, ch))) {
 				if (autoloot
-					&& (GET_OBJ_TYPE(obj) == EObjType::ITEM_INGREDIENT
-						|| GET_OBJ_TYPE(obj) == EObjType::ITEM_MING)
+					&& (GET_OBJ_TYPE(obj) == EObjType::kIngredient
+						|| GET_OBJ_TYPE(obj) == EObjType::kMagicIngredient)
 					&& PRF_FLAGGED(ch, EPrf::kNoIngrLoot)) {
 					continue;
 				}
@@ -1023,7 +1023,7 @@ void do_get(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (!cont) {
 				sprintf(buf, "Вы не видите '%s'.\r\n", arg2);
 				send_to_char(buf, ch);
-			} else if (GET_OBJ_TYPE(cont) != EObjType::ITEM_CONTAINER) {
+			} else if (GET_OBJ_TYPE(cont) != EObjType::kContainer) {
 				act("$o - не контейнер.", false, ch, cont, 0, kToChar);
 			} else {
 				get_from_container(ch, cont, theobj, mode, amount, false);
@@ -1039,7 +1039,7 @@ void do_get(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					&& (cont_dotmode == FIND_ALL
 						|| isname(thecont, cont->get_aliases())
 						|| CHECK_CUSTOM_LABEL(thecont, cont, ch))) {
-					if (GET_OBJ_TYPE(cont) == EObjType::ITEM_CONTAINER) {
+					if (GET_OBJ_TYPE(cont) == EObjType::kContainer) {
 						found = 1;
 						get_from_container(ch, cont, theobj, FIND_OBJ_INV, amount, false);
 					} else if (cont_dotmode == FIND_ALLDOT) {
@@ -1054,7 +1054,7 @@ void do_get(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					&& (cont_dotmode == FIND_ALL
 						|| isname(thecont, cont->get_aliases())
 						|| CHECK_CUSTOM_LABEL(thecont, cont, ch))) {
-					if (GET_OBJ_TYPE(cont) == EObjType::ITEM_CONTAINER) {
+					if (GET_OBJ_TYPE(cont) == EObjType::kContainer) {
 						get_from_container(ch, cont, theobj, FIND_OBJ_ROOM, amount, false);
 						found = 1;
 					} else if (cont_dotmode == FIND_ALLDOT) {
@@ -1091,7 +1091,7 @@ void perform_drop_gold(CharData *ch, int amount) {
 		ObjData *next_obj;
 		for (ObjData *existing_obj = world[ch->in_room]->contents; existing_obj; existing_obj = next_obj) {
 			next_obj = existing_obj->get_next_content();
-			if (GET_OBJ_TYPE(existing_obj) == EObjType::ITEM_MONEY && GET_OBJ_VAL(existing_obj, 1) == currency::GOLD) {
+			if (GET_OBJ_TYPE(existing_obj) == EObjType::kMoney && GET_OBJ_VAL(existing_obj, 1) == currency::GOLD) {
 				//Запоминаем стоимость существующей кучки и удаляем ее
 				additional_amount = GET_OBJ_VAL(existing_obj, 0);
 				obj_from_room(existing_obj);
@@ -1533,33 +1533,33 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 	if (subcmd == SCMD_TASTE
-		&& ((GET_OBJ_TYPE(food) == EObjType::ITEM_DRINKCON)
-			|| (GET_OBJ_TYPE(food) == EObjType::ITEM_FOUNTAIN))) {
+		&& ((GET_OBJ_TYPE(food) == EObjType::kLiquidContainer)
+			|| (GET_OBJ_TYPE(food) == EObjType::kFountain))) {
 		do_drink(ch, argument, 0, SCMD_SIP);
 		return;
 	}
 
 	if (!IS_GOD(ch)) {
-		if (GET_OBJ_TYPE(food) == EObjType::ITEM_MING) //Сообщение на случай попытки проглотить ингры
+		if (GET_OBJ_TYPE(food) == EObjType::kMagicIngredient) //Сообщение на случай попытки проглотить ингры
 		{
 			send_to_char("Не можешь приготовить - покупай готовое!\r\n", ch);
 			return;
 		}
-		if (GET_OBJ_TYPE(food) != EObjType::ITEM_FOOD
-			&& GET_OBJ_TYPE(food) != EObjType::ITEM_NOTE) {
+		if (GET_OBJ_TYPE(food) != EObjType::kFood
+			&& GET_OBJ_TYPE(food) != EObjType::kNote) {
 			send_to_char("Это несъедобно!\r\n", ch);
 			return;
 		}
 	}
 	if (GET_COND(ch, FULL) == 0
-		&& GET_OBJ_TYPE(food) != EObjType::ITEM_NOTE)    // Stomach full
+		&& GET_OBJ_TYPE(food) != EObjType::kNote)    // Stomach full
 	{
 		send_to_char("Вы слишком сыты для этого!\r\n", ch);
 		return;
 	}
 	if (subcmd == SCMD_EAT
 		|| (subcmd == SCMD_TASTE
-			&& GET_OBJ_TYPE(food) == EObjType::ITEM_NOTE)) {
+			&& GET_OBJ_TYPE(food) == EObjType::kNote)) {
 		act("Вы съели $o3.", false, ch, food, 0, kToChar);
 		act("$n съел$g $o3.", true, ch, food, 0, kToRoom | kToArenaListen);
 	} else {
@@ -1567,7 +1567,7 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		act("$n попробовал$g $o3 на вкус.", true, ch, food, 0, kToRoom | kToArenaListen);
 	}
 
-	amount = ((subcmd == SCMD_EAT && GET_OBJ_TYPE(food) != EObjType::ITEM_NOTE)
+	amount = ((subcmd == SCMD_EAT && GET_OBJ_TYPE(food) != EObjType::kNote)
 			  ? GET_OBJ_VAL(food, 0)
 			  : 1);
 
@@ -1615,7 +1615,7 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 	if (subcmd == SCMD_EAT
 		|| (subcmd == SCMD_TASTE
-			&& GET_OBJ_TYPE(food) == EObjType::ITEM_NOTE)) {
+			&& GET_OBJ_TYPE(food) == EObjType::kNote)) {
 		extract_obj(food);
 	} else {
 		food->set_val(0, food->get_val(0) - 1);
@@ -1691,7 +1691,7 @@ void perform_wear(CharData *ch, ObjData *obj, int where) {
 		return;
 	}
 	if (ch->haveCooldown(ESkill::kGlobalCooldown)) {
-		if (ch->get_fighting() && (where == EEquipPos::kShield || GET_OBJ_TYPE(obj) == EObjType::ITEM_WEAPON)) {
+		if (ch->get_fighting() && (where == EEquipPos::kShield || GET_OBJ_TYPE(obj) == EObjType::kWeapon)) {
 			send_to_char("Вам нужно набраться сил.\r\n", ch);
 			return;
 		}
@@ -1716,7 +1716,7 @@ void perform_wear(CharData *ch, ObjData *obj, int where) {
 	if (   // не может одеть колчан если одет не лук
 		(where == EEquipPos::kQuiver &&
 			!(GET_EQ(ch, EEquipPos::kBoths) &&
-				(((GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kBoths))) == EObjType::ITEM_WEAPON)
+				(((GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kBoths))) == EObjType::kWeapon)
 					&& (static_cast<ESkill>GET_OBJ_SKILL(GET_EQ(ch, EEquipPos::kBoths)) == ESkill::kBows))))) {
 		send_to_char("А стрелять чем будете?\r\n", ch);
 		return;
@@ -1985,7 +1985,7 @@ void do_wield(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (!CAN_WEAR(obj, EWearFlag::kWield)
 			&& !CAN_WEAR(obj, EWearFlag::kBoth)) {
 			send_to_char("Вы не можете вооружиться этим.\r\n", ch);
-		} else if (GET_OBJ_TYPE(obj) != EObjType::ITEM_WEAPON) {
+		} else if (GET_OBJ_TYPE(obj) != EObjType::kWeapon) {
 			send_to_char("Это не оружие.\r\n", ch);
 		} else if (ch->is_npc()
 			&& AFF_FLAGGED(ch, EAffect::kCharmed)
@@ -2061,19 +2061,19 @@ void do_grab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		snprintf(buf, kMaxInputLength, "У вас нет ничего похожего на '%s'.\r\n", arg);
 		send_to_char(buf, ch);
 	} else {
-		if (GET_OBJ_TYPE(obj) == EObjType::ITEM_LIGHT) {
+		if (GET_OBJ_TYPE(obj) == EObjType::kLightSource) {
 			perform_wear(ch, obj, EEquipPos::kLight);
 		} else {
 			if (!CAN_WEAR(obj, EWearFlag::kHold)
-				&& GET_OBJ_TYPE(obj) != EObjType::ITEM_WAND
-				&& GET_OBJ_TYPE(obj) != EObjType::ITEM_STAFF
-				&& GET_OBJ_TYPE(obj) != EObjType::ITEM_SCROLL
-				&& GET_OBJ_TYPE(obj) != EObjType::ITEM_POTION) {
+				&& GET_OBJ_TYPE(obj) != EObjType::kWand
+				&& GET_OBJ_TYPE(obj) != EObjType::kStaff
+				&& GET_OBJ_TYPE(obj) != EObjType::kScroll
+				&& GET_OBJ_TYPE(obj) != EObjType::kPorion) {
 				send_to_char("Вы не можете это держать.\r\n", ch);
 				return;
 			}
 
-			if (GET_OBJ_TYPE(obj) == EObjType::ITEM_WEAPON) {
+			if (GET_OBJ_TYPE(obj) == EObjType::kWeapon) {
 				if (static_cast<ESkill>GET_OBJ_SKILL(obj) == ESkill::kTwohands
 					|| static_cast<ESkill>GET_OBJ_SKILL(obj) == ESkill::kBows) {
 					send_to_char("Данный тип оружия держать невозможно.", ch);
@@ -2126,7 +2126,7 @@ void RemoveEquipment(CharData *ch, int pos) {
 			if (!remove_otrigger(obj, ch)) {
 				return;
 			}
-			if (ch->get_fighting() && (GET_OBJ_TYPE(obj) == EObjType::ITEM_WEAPON || pos == EEquipPos::kShield)) {
+			if (ch->get_fighting() && (GET_OBJ_TYPE(obj) == EObjType::kWeapon || pos == EEquipPos::kShield)) {
 				ch->setSkillCooldown(ESkill::kGlobalCooldown, 2);
 			}
 			act("Вы прекратили использовать $o3.", false, ch, obj, 0, kToChar);
@@ -2235,7 +2235,7 @@ void do_upgrade(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	};
 
-	if (GET_OBJ_TYPE(obj) != EObjType::ITEM_WEAPON) {
+	if (GET_OBJ_TYPE(obj) != EObjType::kWeapon) {
 		send_to_char("Вы можете заточить только оружие.\r\n", ch);
 		return;
 	}
@@ -2807,7 +2807,7 @@ void do_poisoned(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!weapon || !result) {
 		send_to_char(ch, "У вас нет \'%s\'.\r\n", arg);
 		return;
-	} else if (GET_OBJ_TYPE(weapon) != EObjType::ITEM_WEAPON) {
+	} else if (GET_OBJ_TYPE(weapon) != EObjType::kWeapon) {
 		send_to_char("Вы можете нанести яд только на оружие.\r\n", ch);
 		return;
 	}
@@ -2816,7 +2816,7 @@ void do_poisoned(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!cont) {
 		send_to_char(ch, "У вас нет \'%s\'.\r\n", argument);
 		return;
-	} else if (GET_OBJ_TYPE(cont) != EObjType::ITEM_DRINKCON) {
+	} else if (GET_OBJ_TYPE(cont) != EObjType::kLiquidContainer) {
 		send_to_char(ch, "%s не является емкостью.\r\n", cont->get_PName(0).c_str());
 		return;
 	} else if (GET_OBJ_VAL(cont, 1) <= 0) {
@@ -2877,7 +2877,7 @@ void do_repair(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act("$o в ремонте не нуждается.", false, ch, obj, 0, kToChar);
 		return;
 	}
-	if (GET_OBJ_TYPE(obj) != EObjType::ITEM_WEAPON
+	if (GET_OBJ_TYPE(obj) != EObjType::kWeapon
 		&& !ObjSystem::is_armor_type(obj)) {
 		send_to_char("Вы можете отремонтировать только оружие или броню.\r\n", ch);
 		return;

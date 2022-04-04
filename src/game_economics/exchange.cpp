@@ -214,7 +214,7 @@ int exchange_exhibit(CharData *ch, char *arg) {
 		send_to_char("Никто не купит ЭТО за такую сумму.\r\n", ch);
 		return false;
 	}
-	if (GET_OBJ_TYPE(obj) != EObjType::ITEM_BOOK) {
+	if (GET_OBJ_TYPE(obj) != EObjType::kBook) {
 		if (obj->has_flag(EObjFlag::kNorent)
 			|| obj->has_flag(EObjFlag::kNosell)
 			|| obj->has_flag(EObjFlag::kZonedacay)
@@ -245,7 +245,7 @@ int exchange_exhibit(CharData *ch, char *arg) {
 		item_cost = MAX(1, GET_OBJ_COST(obj));
 	}
 
-	tax = (GET_OBJ_TYPE(obj) != EObjType::ITEM_MING)
+	tax = (GET_OBJ_TYPE(obj) != EObjType::kMagicIngredient)
 		  ? EXCHANGE_EXHIBIT_PAY + (int) (item_cost * EXCHANGE_EXHIBIT_PAY_COEFF)
 		  : (int) (item_cost * EXCHANGE_EXHIBIT_PAY_COEFF / 2);
 	if ((ch->get_total_gold() < tax)
@@ -258,8 +258,8 @@ int exchange_exhibit(CharData *ch, char *arg) {
 		 j = next_thing) {
 		next_thing = j->next;
 		if (GET_EXCHANGE_ITEM_SELLERID(j) == GET_IDNUM(ch)) {
-			if (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::ITEM_MING
-				&& GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::ITEM_INGREDIENT) {
+			if (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kMagicIngredient
+				&& GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kIngredient) {
 				counter++;
 			} else {
 				counter_ming++;
@@ -459,8 +459,8 @@ int exchange_information(CharData *ch, char *arg) {
 	sprintf(buf, "Лот %d. Цена %d\r\n", GET_EXCHANGE_ITEM_LOT(item), GET_EXCHANGE_ITEM_COST(item));
 
 	sprintf(buf + strlen(buf), "Предмет \"%s\", ", GET_EXCHANGE_ITEM(item)->get_short_description().c_str());
-	if (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(item)) == EObjType::ITEM_WAND
-		|| GET_OBJ_TYPE(GET_EXCHANGE_ITEM(item)) == EObjType::ITEM_STAFF) {
+	if (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(item)) == EObjType::kWand
+		|| GET_OBJ_TYPE(GET_EXCHANGE_ITEM(item)) == EObjType::kStaff) {
 		if (GET_OBJ_VAL(GET_EXCHANGE_ITEM(item), 2) < GET_OBJ_VAL(GET_EXCHANGE_ITEM(item), 1)) {
 			strcat(buf, "(б/у), ");
 		}
@@ -1275,8 +1275,8 @@ void message_exchange(char *message, CharData *ch, ExchangeItem *j) {
 			&& !ROOM_FLAGGED(IN_ROOM(i->character), ERoomFlag::kSoundproof)
 			&& GET_POS(i->character) > EPosition::kSleep) {
 			if (!PRF_FLAGGED(i->character, EPrf::kNoIngrMode)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == EObjType::ITEM_INGREDIENT
-					|| GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == EObjType::ITEM_MING)) {
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == EObjType::kIngredient
+					|| GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == EObjType::kMagicIngredient)) {
 				continue;
 			}
 			ParseFilter params(ParseFilter::EXCHANGE);
@@ -1336,35 +1336,35 @@ void show_lots(char *filter, short int show_type, CharData *ch) {
 			|| ((show_type == 1)
 				&& (!isname(GET_NAME(ch), get_name_by_id(GET_EXCHANGE_ITEM_SELLERID(j)))))
 			|| ((show_type == 2)
-				&& ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::ITEM_INGREDIENT)
+				&& ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kIngredient)
 					|| (GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) < 200)
 					|| (GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) > 299)))
 			|| ((show_type == 3)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::ITEM_ARMOR)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::ITEM_ARMOR_LIGHT)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::ITEM_ARMOR_MEDIAN)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::ITEM_ARMOR_HEAVY))
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kArmor)
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kLightArmor)
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kMediumArmor)
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kHeavyArmor))
 			|| ((show_type == 4)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::ITEM_WEAPON))
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kWeapon))
 			|| ((show_type == 5)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::ITEM_BOOK))
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kBook))
 			|| (show_type == 6
-				&& GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::ITEM_MING
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::ITEM_INGREDIENT
+				&& GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kMagicIngredient
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kIngredient
 					|| (GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) >= 200
 						&& GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) <= 299)))
 			|| ((show_type == 7)
-				&& ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == EObjType::ITEM_INGREDIENT)
+				&& ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == EObjType::kIngredient)
 					|| ObjSystem::is_armor_type(GET_EXCHANGE_ITEM(j))
-					|| (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == EObjType::ITEM_WEAPON)
-					|| (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == EObjType::ITEM_BOOK)
-					|| (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == EObjType::ITEM_MING)))
+					|| (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == EObjType::kWeapon)
+					|| (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == EObjType::kBook)
+					|| (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == EObjType::kMagicIngredient)))
 			|| ((show_type == 8)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::ITEM_ARMOR_LIGHT))
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kLightArmor))
 			|| ((show_type == 9)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::ITEM_ARMOR_MEDIAN))
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kMediumArmor))
 			|| ((show_type == 10)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::ITEM_ARMOR_HEAVY))) {
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kHeavyArmor))) {
 			continue;
 		}
 		// ну идиотизм сидеть статить 5-10 страниц резных

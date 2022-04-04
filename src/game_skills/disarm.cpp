@@ -19,8 +19,8 @@ void go_disarm(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (!((wielded && GET_OBJ_TYPE(wielded) != EObjType::ITEM_LIGHT)
-		|| (helded && GET_OBJ_TYPE(helded) != EObjType::ITEM_LIGHT))) {
+	if (!((wielded && GET_OBJ_TYPE(wielded) != EObjType::kLightSource)
+		|| (helded && GET_OBJ_TYPE(helded) != EObjType::kLightSource))) {
 		return;
 	}
 	int pos = 0;
@@ -106,11 +106,11 @@ void do_disarm(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 
 	if (!((GET_EQ(vict, EEquipPos::kWield)
-		&& GET_OBJ_TYPE(GET_EQ(vict, EEquipPos::kWield)) != EObjType::ITEM_LIGHT)
+		&& GET_OBJ_TYPE(GET_EQ(vict, EEquipPos::kWield)) != EObjType::kLightSource)
 		|| (GET_EQ(vict, EEquipPos::kHold)
-			&& GET_OBJ_TYPE(GET_EQ(vict, EEquipPos::kHold)) != EObjType::ITEM_LIGHT)
+			&& GET_OBJ_TYPE(GET_EQ(vict, EEquipPos::kHold)) != EObjType::kLightSource)
 		|| (GET_EQ(vict, EEquipPos::kBoths)
-			&& GET_OBJ_TYPE(GET_EQ(vict, EEquipPos::kBoths)) != EObjType::ITEM_LIGHT))) {
+			&& GET_OBJ_TYPE(GET_EQ(vict, EEquipPos::kBoths)) != EObjType::kLightSource))) {
 		send_to_char("Вы не можете обезоружить безоружное создание.\r\n", ch);
 		return;
 	}

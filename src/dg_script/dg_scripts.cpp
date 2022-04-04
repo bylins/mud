@@ -3116,7 +3116,7 @@ void find_replacement(void *go,
 			if (*subfield == UID_OBJ) {
 				obj_to = find_obj_by_id(atoi(subfield + 1));
 				if (!(obj_to
-					&& GET_OBJ_TYPE(obj_to) == EObjType::ITEM_CONTAINER)) {
+					&& GET_OBJ_TYPE(obj_to) == EObjType::kContainer)) {
 					trig_log(trig, "object.put: объект-приемник не найден или не является контейнером");
 					return;
 				}
@@ -3239,7 +3239,7 @@ void find_replacement(void *go,
 				sprintf(str, "%d", GET_OBJ_RENTEQ(o));
 			}
 		} else if (!str_cmp(field, "objs")) {
-			if (o->get_type() == EObjType::ITEM_CONTAINER) {
+			if (o->get_type() == EObjType::kContainer) {
 				size_t str_length = strlen(str);
 				for (auto temp = o->get_contains(); temp; temp = temp->get_next_content()) {
 					int n = snprintf(tmp, kMaxTrglineLength, "%c%ld ", UID_OBJ, temp->get_id());

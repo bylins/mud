@@ -5346,13 +5346,13 @@ void do_print_armor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				break;
 			case 'Т': argument = one_argument(++argument, tmpbuf);
 				if (utils::IsAbbrev(tmpbuf, "броня") || utils::IsAbbrev(tmpbuf, "armor")) {
-					filter.type = EObjType::ITEM_ARMOR;
+					filter.type = EObjType::kArmor;
 				} else if (utils::IsAbbrev(tmpbuf, "легкие") || utils::IsAbbrev(tmpbuf, "легкая")) {
-					filter.type = EObjType::ITEM_ARMOR_LIGHT;
+					filter.type = EObjType::kLightArmor;
 				} else if (utils::IsAbbrev(tmpbuf, "средние") || utils::IsAbbrev(tmpbuf, "средняя")) {
-					filter.type = EObjType::ITEM_ARMOR_MEDIAN;
+					filter.type = EObjType::kMediumArmor;
 				} else if (utils::IsAbbrev(tmpbuf, "тяжелые") || utils::IsAbbrev(tmpbuf, "тяжелая")) {
-					filter.type = EObjType::ITEM_ARMOR_HEAVY;
+					filter.type = EObjType::kHeavyArmor;
 				} else {
 					send_to_char("Неверный тип предмета.\r\n", ch);
 					return;

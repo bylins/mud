@@ -27,7 +27,7 @@ struct TechniqueItem {
 
 	TechniqueItem() :
 		wear_position{-1},
-		type{EObjType::ITEM_UNDEFINED},
+		type{EObjType::kItemUndefined},
 		skill{ESkill::kAny},
 		flagged{false},
 		flag{EObjFlag::kGlow} {};

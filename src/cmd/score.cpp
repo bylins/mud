@@ -978,7 +978,7 @@ int CalcHitroll(CharData *ch) {
 	int max_dam = 0;
 	ObjData *weapon = GET_EQ(ch, kBoths);
 	if (weapon) {
-		if (GET_OBJ_TYPE(weapon) == EObjType::ITEM_WEAPON) {
+		if (GET_OBJ_TYPE(weapon) == EObjType::kWeapon) {
 			skill = static_cast<ESkill>(GET_OBJ_SKILL(weapon));
 			if (ch->get_skill(skill) == 0) {
 				hr -= (50 - std::min(50, GET_REAL_INT(ch))) / 3;
@@ -989,7 +989,7 @@ int CalcHitroll(CharData *ch) {
 	} else {
 		weapon = GET_EQ(ch, kHold);
 		if (weapon) {
-			if (GET_OBJ_TYPE(weapon) == EObjType::ITEM_WEAPON) {
+			if (GET_OBJ_TYPE(weapon) == EObjType::kWeapon) {
 				skill = static_cast<ESkill>(GET_OBJ_SKILL(weapon));
 				if (ch->get_skill(skill) == 0) {
 					hr -= (50 - std::min(50, GET_REAL_INT(ch))) / 3;
@@ -1000,7 +1000,7 @@ int CalcHitroll(CharData *ch) {
 		}
 		weapon = GET_EQ(ch, kWield);
 		if (weapon) {
-			if (GET_OBJ_TYPE(weapon) == EObjType::ITEM_WEAPON) {
+			if (GET_OBJ_TYPE(weapon) == EObjType::kWeapon) {
 				skill = static_cast<ESkill>(GET_OBJ_SKILL(weapon));
 				if (ch->get_skill(skill) == 0) {
 					hr -= (50 - std::min(50, GET_REAL_INT(ch))) / 3;

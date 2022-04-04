@@ -27,7 +27,7 @@
 			</rent>
 			<global_maximum>-1</global_maximum>
 			<minimum_remorts>-1</minimum_remorts>
-			<type>ITEM_ARMOR</type>
+			<type>kArmor</type>
 			<durability>
 				<maximum>250</maximum>
 				<current>250</current>
@@ -81,7 +81,7 @@
 			</rent>
 			<global_maximum>-1</global_maximum>
 			<minimum_remorts>-1</minimum_remorts>
-			<type>ITEM_CRAFT_MATERIAL</type>
+			<type>kCraftMaterial2</type>
 			<durability>
 				<maximum>1</maximum>
 				<current>1</current>
@@ -137,7 +137,7 @@
 			</rent>
 			<global_maximum>-1</global_maximum>
 			<minimum_remorts>-1</minimum_remorts>
-			<type>ITEM_CRAFT_MATERIAL</type>
+			<type>kCraftMaterial2</type>
 			<durability>
 				<maximum>1</maximum>
 				<current>1</current>
@@ -193,7 +193,7 @@
 			</rent>
 			<global_maximum>-1</global_maximum>
 			<minimum_remorts>-1</minimum_remorts>
-			<type>ITEM_CRAFT_MATERIAL</type>
+			<type>kCraftMaterial2</type>
 			<durability>
 				<maximum>1</maximum>
 				<current>1</current>

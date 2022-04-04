@@ -113,9 +113,9 @@ enum EFeat : int {
 	kStrengthConcentration = 88,// концентрация силы
 	kDarkReading = 89,			// кошачий глаз
 	kSpellCapabler = 90,		// зачаровать
-	kLightArmor = 91,			// ношение легкого типа доспехов
-	kMediantArmor = 92,			// ношение среднего типа доспехов
-	kHeavyArmor = 93,			// ношение тяжелого типа доспехов
+	kWearingLightArmor = 91,	// ношение легкого типа доспехов
+	kWearingMediumArmor = 92,	// ношение среднего типа доспехов
+	kWearingHeavyArmor = 93,	// ношение тяжелого типа доспехов
 	kGemsInlay = 94,			// инкрустация камнями (TODO: не используется)
 	kWarriorStrength = 95,		// богатырская сила
 	kRelocate = 96,				// переместиться

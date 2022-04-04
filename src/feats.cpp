@@ -444,11 +444,11 @@ void InitFeatures() {
 //90
 	InitFeat(EFeat::kSpellCapabler, "зачаровать", EFeatType::kNormal, true, feat_app);
 //91
-	InitFeat(EFeat::kLightArmor, "легкие доспехи", EFeatType::kNormal, true, feat_app);
+	InitFeat(EFeat::kWearingLightArmor, "легкие доспехи", EFeatType::kNormal, true, feat_app);
 //92
-	InitFeat(EFeat::kMediantArmor, "средние доспехи", EFeatType::kNormal, true, feat_app);
+	InitFeat(EFeat::kWearingMediumArmor, "средние доспехи", EFeatType::kNormal, true, feat_app);
 //93
-	InitFeat(EFeat::kHeavyArmor, "тяжелые доспехи", EFeatType::kNormal, true, feat_app);
+	InitFeat(EFeat::kWearingHeavyArmor, "тяжелые доспехи", EFeatType::kNormal, true, feat_app);
 //94
 	InitFeat(EFeat::kGemsInlay, "инкрустация", EFeatType::kNormal, true, feat_app);
 //95
@@ -565,26 +565,26 @@ void InitFeatures() {
 
 	auto item_kit = std::make_unique<TechniqueItemKit>();
 	item_kit->reserve(2);
-	item_kit->push_back(TechniqueItem(EEquipPos::kWield, EObjType::ITEM_WEAPON, ESkill::kShortBlades));
-	item_kit->push_back(TechniqueItem(EEquipPos::kHold, EObjType::ITEM_WEAPON, ESkill::kShortBlades));
+	item_kit->push_back(TechniqueItem(EEquipPos::kWield, EObjType::kWeapon, ESkill::kShortBlades));
+	item_kit->push_back(TechniqueItem(EEquipPos::kHold, EObjType::kWeapon, ESkill::kShortBlades));
 	feat_info[EFeat::kCutting].item_kits.push_back(std::move(item_kit));
 
 	item_kit = std::make_unique<TechniqueItemKit>();
 	item_kit->reserve(2);
-	item_kit->push_back(TechniqueItem(EEquipPos::kWield, EObjType::ITEM_WEAPON, ESkill::kLongBlades));
-	item_kit->push_back(TechniqueItem(EEquipPos::kHold, EObjType::ITEM_WEAPON, ESkill::kLongBlades));
+	item_kit->push_back(TechniqueItem(EEquipPos::kWield, EObjType::kWeapon, ESkill::kLongBlades));
+	item_kit->push_back(TechniqueItem(EEquipPos::kHold, EObjType::kWeapon, ESkill::kLongBlades));
 	feat_info[EFeat::kCutting].item_kits.push_back(std::move(item_kit));
 
 	item_kit = std::make_unique<TechniqueItemKit>();
 	item_kit->reserve(2);
-	item_kit->push_back(TechniqueItem(EEquipPos::kWield, EObjType::ITEM_WEAPON, ESkill::kSpades));
-	item_kit->push_back(TechniqueItem(EEquipPos::kHold, EObjType::ITEM_WEAPON, ESkill::kSpades));
+	item_kit->push_back(TechniqueItem(EEquipPos::kWield, EObjType::kWeapon, ESkill::kSpades));
+	item_kit->push_back(TechniqueItem(EEquipPos::kHold, EObjType::kWeapon, ESkill::kSpades));
 	feat_info[EFeat::kCutting].item_kits.push_back(std::move(item_kit));
 
 	item_kit = std::make_unique<TechniqueItemKit>();
 	item_kit->reserve(2);
-	item_kit->push_back(TechniqueItem(EEquipPos::kWield, EObjType::ITEM_WEAPON, ESkill::kPicks));
-	item_kit->push_back(TechniqueItem(EEquipPos::kHold, EObjType::ITEM_WEAPON, ESkill::kPicks));
+	item_kit->push_back(TechniqueItem(EEquipPos::kWield, EObjType::kWeapon, ESkill::kPicks));
+	item_kit->push_back(TechniqueItem(EEquipPos::kHold, EObjType::kWeapon, ESkill::kPicks));
 	feat_info[EFeat::kCutting].item_kits.push_back(std::move(item_kit));
 
 //140
@@ -623,13 +623,13 @@ void InitFeatures() {
 
 	item_kit = std::make_unique<TechniqueItemKit>();
 	item_kit->reserve(1);
-	item_kit->push_back(TechniqueItem(EEquipPos::kWield, EObjType::ITEM_WEAPON,
+	item_kit->push_back(TechniqueItem(EEquipPos::kWield, EObjType::kWeapon,
 									  ESkill::kAny, EObjFlag::kThrowing));
 	feat_info[EFeat::kThrowWeapon].item_kits.push_back(std::move(item_kit));
 
 	item_kit = std::make_unique<TechniqueItemKit>();
 	item_kit->reserve(1);
-	item_kit->push_back(TechniqueItem(EEquipPos::kHold, EObjType::ITEM_WEAPON,
+	item_kit->push_back(TechniqueItem(EEquipPos::kHold, EObjType::kWeapon,
 									  ESkill::kAny, EObjFlag::kThrowing));
 	feat_info[EFeat::kThrowWeapon].item_kits.push_back(std::move(item_kit));
 //145
@@ -651,12 +651,12 @@ void InitFeatures() {
 	feat_info[EFeat::kShadowThrower].item_kits.reserve(2);
 	item_kit = std::make_unique<TechniqueItemKit>();
 	item_kit->reserve(1);
-	item_kit->push_back(TechniqueItem(EEquipPos::kWield, EObjType::ITEM_WEAPON,
+	item_kit->push_back(TechniqueItem(EEquipPos::kWield, EObjType::kWeapon,
 									  ESkill::kAny, EObjFlag::kThrowing));
 	feat_info[EFeat::kShadowThrower].item_kits.push_back(std::move(item_kit));
 	item_kit = std::make_unique<TechniqueItemKit>();
 	item_kit->reserve(1);
-	item_kit->push_back(TechniqueItem(EEquipPos::kHold, EObjType::ITEM_WEAPON,
+	item_kit->push_back(TechniqueItem(EEquipPos::kHold, EObjType::kWeapon,
 									  ESkill::kAny, EObjFlag::kThrowing));
 	feat_info[EFeat::kShadowThrower].item_kits.push_back(std::move(item_kit));
 //146

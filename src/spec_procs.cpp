@@ -1543,14 +1543,14 @@ int horse_keeper(CharData *ch, void *me, int cmd, char *argument) {
 
 bool item_nouse(ObjData *obj) {
 	switch (GET_OBJ_TYPE(obj)) {
-		case EObjType::ITEM_LIGHT:
+		case EObjType::kLightSource:
 			if (GET_OBJ_VAL(obj, 2) == 0) {
 				return true;
 			}
 			break;
 
-		case EObjType::ITEM_SCROLL:
-		case EObjType::ITEM_POTION:
+		case EObjType::kScroll:
+		case EObjType::kPorion:
 			if (!GET_OBJ_VAL(obj, 1)
 				&& !GET_OBJ_VAL(obj, 2)
 				&& !GET_OBJ_VAL(obj, 3)) {
@@ -1558,29 +1558,29 @@ bool item_nouse(ObjData *obj) {
 			}
 			break;
 
-		case EObjType::ITEM_STAFF:
-		case EObjType::ITEM_WAND:
+		case EObjType::kStaff:
+		case EObjType::kWand:
 			if (!GET_OBJ_VAL(obj, 2)) {
 				return true;
 			}
 			break;
 
-		case EObjType::ITEM_CONTAINER:
+		case EObjType::kContainer:
 			if (!system_obj::is_purse(obj)) {
 				return true;
 			}
 			break;
 
-		case EObjType::ITEM_OTHER:
-		case EObjType::ITEM_TRASH:
-		case EObjType::ITEM_TRAP:
-		case EObjType::ITEM_NOTE:
-		case EObjType::ITEM_DRINKCON:
-		case EObjType::ITEM_FOOD:
-		case EObjType::ITEM_PEN:
-		case EObjType::ITEM_BOAT:
-		case EObjType::ITEM_FOUNTAIN:
-		case EObjType::ITEM_MING: return true;
+		case EObjType::kOther:
+		case EObjType::kTrash:
+		case EObjType::kTrap:
+		case EObjType::kNote:
+		case EObjType::kLiquidContainer:
+		case EObjType::kFood:
+		case EObjType::kPen:
+		case EObjType::kBoat:
+		case EObjType::kFountain:
+		case EObjType::kMagicIngredient: return true;
 
 		default: break;
 	}
@@ -1619,13 +1619,13 @@ int npc_scavenge(CharData *ch) {
 		cont = nullptr;
 		best_cont = nullptr;
 		for (obj = world[ch->in_room]->contents; obj; obj = obj->get_next_content()) {
-			if (GET_OBJ_TYPE(obj) == EObjType::ITEM_MING
+			if (GET_OBJ_TYPE(obj) == EObjType::kMagicIngredient
 				|| Clan::is_clan_chest(obj)
 				|| ClanSystem::is_ingr_chest(obj)) {
 				continue;
 			}
 
-			if (GET_OBJ_TYPE(obj) == EObjType::ITEM_CONTAINER
+			if (GET_OBJ_TYPE(obj) == EObjType::kContainer
 				&& !system_obj::is_purse(obj)) {
 				if (IS_CORPSE(obj)) {
 					continue;
@@ -1672,7 +1672,7 @@ int npc_scavenge(CharData *ch) {
 		if (best_obj != nullptr) {
 			if (best_obj != best_cont) {
 				act("$n поднял$g $o3.", false, ch, best_obj, 0, kToRoom);
-				if (GET_OBJ_TYPE(best_obj) == EObjType::ITEM_MONEY) {
+				if (GET_OBJ_TYPE(best_obj) == EObjType::kMoney) {
 					ch->add_gold(GET_OBJ_VAL(best_obj, 0));
 					extract_obj(best_obj);
 				} else {
@@ -1682,7 +1682,7 @@ int npc_scavenge(CharData *ch) {
 			} else {
 				sprintf(buf, "$n достал$g $o3 из %s.", cont->get_PName(1).c_str());
 				act(buf, false, ch, best_obj, 0, kToRoom);
-				if (GET_OBJ_TYPE(best_obj) == EObjType::ITEM_MONEY) {
+				if (GET_OBJ_TYPE(best_obj) == EObjType::kMoney) {
 					ch->add_gold(GET_OBJ_VAL(best_obj, 0));
 					extract_obj(best_obj);
 				} else {
@@ -1710,13 +1710,13 @@ int npc_loot(CharData *ch) {
 				// Сначала лутим то, что не в контейнерах
 				for (loot_obj = obj->get_contains(); loot_obj; loot_obj = next_loot) {
 					next_loot = loot_obj->get_next_content();
-					if ((GET_OBJ_TYPE(loot_obj) != EObjType::ITEM_CONTAINER
+					if ((GET_OBJ_TYPE(loot_obj) != EObjType::kContainer
 						|| system_obj::is_purse(loot_obj))
 						&& CAN_GET_OBJ(ch, loot_obj)
 						&& !item_nouse(loot_obj)) {
 						sprintf(buf, "$n вытащил$g $o3 из %s.", obj->get_PName(1).c_str());
 						act(buf, false, ch, loot_obj, 0, kToRoom);
-						if (GET_OBJ_TYPE(loot_obj) == EObjType::ITEM_MONEY) {
+						if (GET_OBJ_TYPE(loot_obj) == EObjType::kMoney) {
 							ch->add_gold(GET_OBJ_VAL(loot_obj, 0));
 							extract_obj(loot_obj);
 						} else {
@@ -1729,7 +1729,7 @@ int npc_loot(CharData *ch) {
 				// Теперь не запертые контейнеры
 				for (loot_obj = obj->get_contains(); loot_obj; loot_obj = next_loot) {
 					next_loot = loot_obj->get_next_content();
-					if (GET_OBJ_TYPE(loot_obj) == EObjType::ITEM_CONTAINER) {
+					if (GET_OBJ_TYPE(loot_obj) == EObjType::kContainer) {
 						if (IS_CORPSE(loot_obj)
 							|| OBJVAL_FLAGGED(loot_obj, CONT_LOCKED)
 							|| system_obj::is_purse(loot_obj)) {
@@ -1743,7 +1743,7 @@ int npc_loot(CharData *ch) {
 							if (CAN_GET_OBJ(ch, cobj) && !item_nouse(cobj)) {
 								sprintf(buf, "$n вытащил$g $o3 из %s.", obj->get_PName(1).c_str());
 								act(buf, false, ch, cobj, 0, kToRoom);
-								if (GET_OBJ_TYPE(cobj) == EObjType::ITEM_MONEY) {
+								if (GET_OBJ_TYPE(cobj) == EObjType::kMoney) {
 									ch->add_gold(GET_OBJ_VAL(cobj, 0));
 									extract_obj(cobj);
 								} else {
@@ -1758,7 +1758,7 @@ int npc_loot(CharData *ch) {
 				// И наконец, лутим запертые контейнеры если есть ключ или можем взломать
 				for (loot_obj = obj->get_contains(); loot_obj; loot_obj = next_loot) {
 					next_loot = loot_obj->get_next_content();
-					if (GET_OBJ_TYPE(loot_obj) == EObjType::ITEM_CONTAINER) {
+					if (GET_OBJ_TYPE(loot_obj) == EObjType::kContainer) {
 						if (IS_CORPSE(loot_obj)
 							|| !OBJVAL_FLAGGED(loot_obj, CONT_LOCKED)
 							|| system_obj::is_purse(loot_obj)) {
@@ -1789,7 +1789,7 @@ int npc_loot(CharData *ch) {
 							if (CAN_GET_OBJ(ch, cobj) && !item_nouse(cobj)) {
 								sprintf(buf, "$n вытащил$g $o3 из %s.", obj->get_PName(1).c_str());
 								act(buf, false, ch, cobj, 0, kToRoom);
-								if (GET_OBJ_TYPE(cobj) == EObjType::ITEM_MONEY) {
+								if (GET_OBJ_TYPE(cobj) == EObjType::kMoney) {
 									ch->add_gold(GET_OBJ_VAL(cobj, 0));
 									extract_obj(cobj);
 								} else {
@@ -1889,7 +1889,7 @@ int calculate_weapon_class(CharData *ch, ObjData *weapon) {
 	int damage = 0, hits = 0, i;
 
 	if (!weapon
-		|| GET_OBJ_TYPE(weapon) != EObjType::ITEM_WEAPON) {
+		|| GET_OBJ_TYPE(weapon) != EObjType::kWeapon) {
 		return 0;
 	}
 
@@ -1937,15 +1937,15 @@ void npc_wield(CharData *ch) {
 		return;
 
 	if (GET_EQ(ch, EEquipPos::kHold)
-		&& GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kHold)) == EObjType::ITEM_WEAPON) {
+		&& GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kHold)) == EObjType::kWeapon) {
 		left = GET_EQ(ch, EEquipPos::kHold);
 	}
 	if (GET_EQ(ch, EEquipPos::kWield)
-		&& GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kWield)) == EObjType::ITEM_WEAPON) {
+		&& GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kWield)) == EObjType::kWeapon) {
 		right = GET_EQ(ch, EEquipPos::kWield);
 	}
 	if (GET_EQ(ch, EEquipPos::kBoths)
-		&& GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kBoths)) == EObjType::ITEM_WEAPON) {
+		&& GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kBoths)) == EObjType::kWeapon) {
 		both = GET_EQ(ch, EEquipPos::kBoths);
 	}
 
@@ -1954,7 +1954,7 @@ void npc_wield(CharData *ch) {
 
 	for (obj = ch->carrying; obj; obj = next) {
 		next = obj->get_next_content();
-		if (GET_OBJ_TYPE(obj) != EObjType::ITEM_WEAPON
+		if (GET_OBJ_TYPE(obj) != EObjType::kWeapon
 			|| GET_OBJ_UID(obj) != 0) {
 			continue;
 		}
@@ -2146,7 +2146,7 @@ void npc_light(CharData *ch) {
 	if (!GET_EQ(ch, EEquipPos::kLight) && IS_DARK(ch->in_room)) {
 		for (obj = ch->carrying; obj; obj = next) {
 			next = obj->get_next_content();
-			if (GET_OBJ_TYPE(obj) != EObjType::ITEM_LIGHT) {
+			if (GET_OBJ_TYPE(obj) != EObjType::kLightSource) {
 				continue;
 			}
 			if (GET_OBJ_VAL(obj, 2) == 0) {
@@ -2178,7 +2178,7 @@ int npc_battle_scavenge(CharData *ch) {
 			if (CAN_GET_OBJ(ch, obj)
 				&& !has_curse(obj)
 				&& (ObjSystem::is_armor_type(obj)
-					|| GET_OBJ_TYPE(obj) == EObjType::ITEM_WEAPON)) {
+					|| GET_OBJ_TYPE(obj) == EObjType::kWeapon)) {
 				obj_from_room(obj);
 				obj_to_char(obj, ch);
 				act("$n поднял$g $o3.", false, ch, obj, 0, kToRoom);
@@ -2698,7 +2698,7 @@ int janitor(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 			continue;
 		}
 
-		if (GET_OBJ_TYPE(i) != EObjType::ITEM_DRINKCON
+		if (GET_OBJ_TYPE(i) != EObjType::kLiquidContainer
 			&& GET_OBJ_COST(i) >= 15) {
 			continue;
 		}

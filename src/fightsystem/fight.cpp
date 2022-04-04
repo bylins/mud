@@ -999,8 +999,8 @@ void mob_casting(CharData *ch) {
 		&& GET_RACE(ch) == ENpcRace::kHuman
 		&& !(MOB_FLAGGED(ch, EMobFlag::kTutelar) || MOB_FLAGGED(ch, EMobFlag::kMentalShadow))) {
 		switch (GET_OBJ_TYPE(item)) {
-			case EObjType::ITEM_WAND:
-			case EObjType::ITEM_STAFF:
+			case EObjType::kWand:
+			case EObjType::kStaff:
 				if (GET_OBJ_VAL(item, 3) < 0 || GET_OBJ_VAL(item, 3) > kSpellCount) {
 					log("SYSERR: Не верно указано значение спела в стафе vnum: %d %s, позиция: 3, значение: %d ",
 						GET_OBJ_VNUM(item),
@@ -1015,7 +1015,7 @@ void mob_casting(CharData *ch) {
 				}
 				break;
 
-			case EObjType::ITEM_POTION:
+			case EObjType::kPorion:
 				for (int i = 1; i <= 3; i++) {
 					if (GET_OBJ_VAL(item, i) < 0 || GET_OBJ_VAL(item, i) > kSpellCount) {
 						log("SYSERR: Не верно указано значение спела в напитке vnum %d %s, позиция: %d, значение: %d ",
@@ -1032,7 +1032,7 @@ void mob_casting(CharData *ch) {
 				}
 				break;
 
-			case EObjType::ITEM_SCROLL:
+			case EObjType::kScroll:
 				for (int i = 1; i <= 3; i++) {
 					if (GET_OBJ_VAL(item, i) < 0 || GET_OBJ_VAL(item, i) > kSpellCount) {
 						log("SYSERR: Не верно указано значение спела в свитке %d %s, позиция: %d, значение: %d ",
@@ -1107,8 +1107,8 @@ void mob_casting(CharData *ch) {
 			&& item
 			&& GET_RACE(ch) == ENpcRace::kHuman) {
 			switch (GET_OBJ_TYPE(item)) {
-				case EObjType::ITEM_WAND:
-				case EObjType::ITEM_STAFF:
+				case EObjType::kWand:
+				case EObjType::kStaff:
 					if (GET_OBJ_VAL(item, 2) > 0
 						&& GET_OBJ_VAL(item, 3) == spellnum) {
 						EmployMagicItem(ch, item, GET_NAME(victim));
@@ -1116,7 +1116,7 @@ void mob_casting(CharData *ch) {
 					}
 					break;
 
-				case EObjType::ITEM_POTION:
+				case EObjType::kPorion:
 					for (int i = 1; i <= 3; i++) {
 						if (GET_OBJ_VAL(item, i) == spellnum) {
 							if (ch != victim) {
@@ -1132,7 +1132,7 @@ void mob_casting(CharData *ch) {
 					}
 					break;
 
-				case EObjType::ITEM_SCROLL:
+				case EObjType::kScroll:
 					for (int i = 1; i <= 3; i++) {
 						if (GET_OBJ_VAL(item, i) == spellnum) {
 							EmployMagicItem(ch, item, GET_NAME(victim));
@@ -1934,7 +1934,7 @@ void process_player_attack(CharData *ch, int min_init) {
 
 	//**** удар вторым оружием если оно есть и умение позволяет
 	if (!IS_SET(trigger_code, kNoLeftHandAttack) && GET_EQ(ch, EEquipPos::kHold)
-		&& GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kHold)) == EObjType::ITEM_WEAPON
+		&& GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kHold)) == EObjType::kWeapon
 		&& GET_AF_BATTLE(ch, kEafSecond)
 		&& !AFF_FLAGGED(ch, EAffect::kStopLeft)
 		&& (IS_IMMORTAL(ch)

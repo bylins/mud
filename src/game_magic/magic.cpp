@@ -1005,7 +1005,7 @@ bool material_component_processing(CharData *caster, CharData *victim, int spell
 	switch (spellnum) {
 		case kSpellFascination:
 			for (auto i = caster->carrying; i; i = i->get_next_content()) {
-				if (GET_OBJ_TYPE(i) == EObjType::ITEM_INGREDIENT && i->get_val(1) == 3000) {
+				if (GET_OBJ_TYPE(i) == EObjType::kIngredient && i->get_val(1) == 3000) {
 					vnum = GET_OBJ_VNUM(i);
 					break;
 				}
@@ -1016,7 +1016,7 @@ bool material_component_processing(CharData *caster, CharData *victim, int spell
 			break;
 		case kSpellHypnoticPattern:
 			for (auto i = caster->carrying; i; i = i->get_next_content()) {
-				if (GET_OBJ_TYPE(i) == EObjType::ITEM_INGREDIENT && i->get_val(1) == 3006) {
+				if (GET_OBJ_TYPE(i) == EObjType::kIngredient && i->get_val(1) == 3006) {
 					vnum = GET_OBJ_VNUM(i);
 					break;
 				}
@@ -1027,7 +1027,7 @@ bool material_component_processing(CharData *caster, CharData *victim, int spell
 			break;
 		case kSpellEnchantWeapon:
 			for (auto i = caster->carrying; i; i = i->get_next_content()) {
-				if (GET_OBJ_TYPE(i) == EObjType::ITEM_INGREDIENT && i->get_val(1) == 1930) {
+				if (GET_OBJ_TYPE(i) == EObjType::kIngredient && i->get_val(1) == 1930) {
 					vnum = GET_OBJ_VNUM(i);
 					break;
 				}
@@ -3564,7 +3564,7 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, int spellnum, ESa
 				obj->set_extra_flag(EObjFlag::kBless);
 				if (obj->has_flag(EObjFlag::kNodrop)) {
 					obj->unset_extraflag(EObjFlag::kNodrop);
-					if (GET_OBJ_TYPE(obj) == EObjType::ITEM_WEAPON) {
+					if (GET_OBJ_TYPE(obj) == EObjType::kWeapon) {
 						obj->inc_val(2);
 					}
 				}
@@ -3578,7 +3578,7 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, int spellnum, ESa
 		case kSpellCurse:
 			if (!obj->has_flag(EObjFlag::kNodrop)) {
 				obj->set_extra_flag(EObjFlag::kNodrop);
-				if (GET_OBJ_TYPE(obj) == EObjType::ITEM_WEAPON) {
+				if (GET_OBJ_TYPE(obj) == EObjType::kWeapon) {
 					if (GET_OBJ_VAL(obj, 2) > 0) {
 						obj->dec_val(2);
 					}
@@ -3604,9 +3604,9 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, int spellnum, ESa
 
 		case kSpellPoison:
 			if (!GET_OBJ_VAL(obj, 3)
-				&& (GET_OBJ_TYPE(obj) == EObjType::ITEM_DRINKCON
-					|| GET_OBJ_TYPE(obj) == EObjType::ITEM_FOUNTAIN
-					|| GET_OBJ_TYPE(obj) == EObjType::ITEM_FOOD)) {
+				&& (GET_OBJ_TYPE(obj) == EObjType::kLiquidContainer
+					|| GET_OBJ_TYPE(obj) == EObjType::kFountain
+					|| GET_OBJ_TYPE(obj) == EObjType::kFood)) {
 				obj->set_val(3, 1);
 				to_char = "$o отравлен$G.";
 			}
@@ -3615,7 +3615,7 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, int spellnum, ESa
 		case kSpellRemoveCurse:
 			if (obj->has_flag(EObjFlag::kNodrop)) {
 				obj->unset_extraflag(EObjFlag::kNodrop);
-				if (GET_OBJ_TYPE(obj) == EObjType::ITEM_WEAPON) {
+				if (GET_OBJ_TYPE(obj) == EObjType::kWeapon) {
 					obj->inc_val(2);
 				}
 				to_char = "$o вспыхнул$G розовым светом и тут же погас$Q.";
@@ -3628,7 +3628,7 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, int spellnum, ESa
 			}
 
 			// Either already enchanted or not a weapon.
-			if (GET_OBJ_TYPE(obj) != EObjType::ITEM_WEAPON) {
+			if (GET_OBJ_TYPE(obj) != EObjType::kWeapon) {
 				to_char = "Еще раз ударьтесь головой об стену, авось зрение вернется...";
 				break;
 			} else if (obj->has_flag(EObjFlag::kMagic)) {
@@ -3677,9 +3677,9 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, int spellnum, ESa
 				break;
 			}
 			if ((GET_OBJ_VAL(obj, 3) == 1)
-				&& ((GET_OBJ_TYPE(obj) == EObjType::ITEM_DRINKCON)
-					|| GET_OBJ_TYPE(obj) == EObjType::ITEM_FOUNTAIN
-					|| GET_OBJ_TYPE(obj) == EObjType::ITEM_FOOD)) {
+				&& ((GET_OBJ_TYPE(obj) == EObjType::kLiquidContainer)
+					|| GET_OBJ_TYPE(obj) == EObjType::kFountain
+					|| GET_OBJ_TYPE(obj) == EObjType::kFood)) {
 				obj->set_val(3, 0);
 				to_char = "$o стал$G вполне пригодным к применению.";
 			}

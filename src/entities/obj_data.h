@@ -131,7 +131,7 @@ class CObjectPrototype {
 	constexpr static int DEFAULT_CURRENT_DURABILITY = DEFAULT_MAXIMUM_DURABILITY;
 	constexpr static int DEFAULT_LEVEL = 0;
 	constexpr static int DEFAULT_WEIGHT = INT_MAX;
-	constexpr static EObjType DEFAULT_TYPE = ITEM_OTHER;
+	constexpr static EObjType DEFAULT_TYPE = kOther;
 	constexpr static EObjMaterial DEFAULT_MATERIAL = MAT_NONE;
 
 	constexpr static int NUM_PADS = 6;

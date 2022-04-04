@@ -1311,7 +1311,7 @@ int CAN_CARRY_N(const CharData *ch);
 #define OK_SHIELD(ch, obj)  (GET_OBJ_WEIGHT(obj) <= \
                           (2 * str_bonus(GET_REAL_STR(ch), STR_HOLD_W)))
 
-#define IS_CORPSE(obj)     (GET_OBJ_TYPE(obj) == EObjType::ITEM_CONTAINER && \
+#define IS_CORPSE(obj)     (GET_OBJ_TYPE(obj) == EObjType::kContainer && \
                GET_OBJ_VAL((obj), 3) == ObjData::CORPSE_INDICATOR)
 #define IS_MOB_CORPSE(obj) (IS_CORPSE(obj) &&  GET_OBJ_VAL((obj), 2) != -1)
 

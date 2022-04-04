@@ -105,7 +105,7 @@ constexpr Bitvector kSpellScroll = 1 << 4;
 constexpr Bitvector kSpellItems = 1 << 5;
 constexpr Bitvector kSpellRunes = 1 << 6;
 
-/// Flags for ingredient items (ITEM_INGREDIENT)
+/// Flags for ingredient items (kIngredient)
 enum EIngredientFlag {
 	kItemRunes = 1 << 0,
 	kItemCheckUses = 1 << 1,

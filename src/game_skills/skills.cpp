@@ -900,7 +900,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 				bonus += ch->get_skill(ESkill::kAwake);
 			}
 			if (GET_EQ(ch, EEquipPos::kHold)
-				&& GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kHold)) == EObjType::ITEM_WEAPON) {
+				&& GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kHold)) == EObjType::kWeapon) {
 				bonus += weapon_app[MAX(0, MIN(50, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kHold))))].parrying;
 			}
 			break;
@@ -1424,7 +1424,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 			}
 
 			if (GET_EQ(ch, EEquipPos::kHold)
-				&& GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kHold)) == EObjType::ITEM_WEAPON) {
+				&& GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kHold)) == EObjType::kWeapon) {
 				bonus += weapon_app[MAX(0, MIN(50, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kHold))))].parrying;
 			}
 			victim_modi = 100;

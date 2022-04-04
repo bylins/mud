@@ -19,7 +19,7 @@ struct ench_type;
 namespace ObjectEnchant {
 
 enum {
-	// из предмета типа ITEM_ENCHANT
+	// из предмета типа kEnchant
 	ENCHANT_FROM_OBJ,
 	// из сетового бонуса
 	ENCHANT_FROM_SET

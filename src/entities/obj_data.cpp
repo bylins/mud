@@ -152,7 +152,7 @@ const std::string ObjData::activate_obj(const activation &__act) {
 			set_weight(weight);
 		}
 
-		if (get_type() == ITEM_WEAPON) {
+		if (get_type() == kWeapon) {
 			int nsides, ndices;
 			__act.get_dices(ndices, nsides);
 			// Типа такая проверка на то, устанавливались ли эти параметры.
@@ -188,7 +188,7 @@ const std::string ObjData::deactivate_obj(const activation &__act) {
 
 		set_weight(obj_proto[get_rnum()]->get_weight());
 
-		if (get_type() == ITEM_WEAPON) {
+		if (get_type() == kWeapon) {
 			set_val(1, obj_proto[get_rnum()]->get_val(1));
 			set_val(2, obj_proto[get_rnum()]->get_val(2));
 		}
@@ -297,7 +297,7 @@ void CObjectPrototype::clear_proto_script() {
 }
 
 void CObjectPrototype::zero_init() {
-	m_type = ITEM_UNDEFINED;
+	m_type = kItemUndefined;
 	m_aliases.clear();
 	m_description.clear();
 	m_short_description.clear();
@@ -668,10 +668,10 @@ void ObjData::dec_timer(int time, bool ignore_utimer, bool exchange) {
 	}
 	std::stringstream buffer;
 
-	if (get_timer()  > 100000 && (GET_OBJ_TYPE(this) == EObjType::ITEM_ARMOR
-			|| GET_OBJ_TYPE(this) == EObjType::ITEM_STAFF
-			|| GET_OBJ_TYPE(this) == EObjType::ITEM_WORN
-			|| GET_OBJ_TYPE(this) == EObjType::ITEM_WEAPON)) {
+	if (get_timer()  > 100000 && (GET_OBJ_TYPE(this) == EObjType::kArmor
+			|| GET_OBJ_TYPE(this) == EObjType::kStaff
+			|| GET_OBJ_TYPE(this) == EObjType::kWorm
+			|| GET_OBJ_TYPE(this) == EObjType::kWeapon)) {
 		buffer << "У предмета [" << GET_OBJ_VNUM(this)
 				<< "] имя: " << GET_OBJ_PNAME(this, 0).c_str() << ", id: " <<  get_id() << ", таймер > 100к равен: " << get_timer();
 		if (get_in_room() != kNowhere) {
@@ -691,8 +691,8 @@ void ObjData::dec_timer(int time, bool ignore_utimer, bool exchange) {
 		set_timer(get_timer() - time);
 	}
 	if (!exchange) {
-		if (((GET_OBJ_TYPE(this) == EObjType::ITEM_DRINKCON)
-			|| (GET_OBJ_TYPE(this) == EObjType::ITEM_FOOD))
+		if (((GET_OBJ_TYPE(this) == EObjType::kLiquidContainer)
+			|| (GET_OBJ_TYPE(this) == EObjType::kFood))
 			&& GET_OBJ_VAL(this, 3) > 1) //таймер у жижек и еды
 		{
 			dec_val(3);
@@ -900,10 +900,10 @@ float count_affect_weight(const CObjectPrototype * /*obj*/, int num, int mod) {
 
 bool is_armor_type(const CObjectPrototype *obj) {
 	switch (GET_OBJ_TYPE(obj)) {
-		case EObjType::ITEM_ARMOR:
-		case EObjType::ITEM_ARMOR_LIGHT:
-		case EObjType::ITEM_ARMOR_MEDIAN:
-		case EObjType::ITEM_ARMOR_HEAVY: return true;
+		case EObjType::kArmor:
+		case EObjType::kLightArmor:
+		case EObjType::kMediumArmor:
+		case EObjType::kHeavyArmor: return true;
 
 		default: return false;
 	}
@@ -1047,7 +1047,7 @@ ObjData *create_purse(CharData *ch, int/* gold*/) {
 			 "--------------------------------------------------\r\n", ch->get_name().c_str());
 	obj->set_ex_description(obj->get_PName(0).c_str(), buf_);
 
-	obj->set_type(EObjType::ITEM_CONTAINER);
+	obj->set_type(EObjType::kContainer);
 	obj->set_wear_flags(to_underlying(EWearFlag::kTake));
 
 	obj->set_val(0, 0);
@@ -1220,8 +1220,8 @@ void ObjVal::remove_incorrect_keys(int type) {
 	for (auto i = m_values.begin(); i != m_values.end(); /* empty */) {
 		bool erased = false;
 		switch (type) {
-			case EObjType::ITEM_DRINKCON:
-			case EObjType::ITEM_FOUNTAIN:
+			case EObjType::kLiquidContainer:
+			case EObjType::kFountain:
 				if (!is_valid_drinkcon(i->first)) {
 					i = m_values.erase(i);
 					erased = true;
