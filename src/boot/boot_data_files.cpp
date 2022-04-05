@@ -1103,6 +1103,29 @@ void MobileFile::parse_mobile(const int nr) {
 	if ((mob_proto + 1)->get_level() == 0)
 		set_test_data(mob_proto + i);
 
+	if (MOB_FLAGGED((mob_proto + i), (MOB_FIREBREATH))
+		|| MOB_FLAGGED((mob_proto + i), (MOB_GASBREATH))
+		|| MOB_FLAGGED((mob_proto + i), (MOB_FROSTBREATH))
+		|| MOB_FLAGGED((mob_proto + i), (MOB_ACIDBREATH))
+		||MOB_FLAGGED((mob_proto + i), (MOB_LIGHTBREATH)) ) {
+		ZoneRnum zrn = 0;
+		for (zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size() - 1); zrn++) {
+			if (zone_table[zrn].vnum == mob_index[i].vnum  / 100)
+				break;
+		}
+
+//		long tmpwis = ((mob_proto + i)->get_wis() - 22) * 5 / 100.0;
+		sprintf(buf, "Зона,%d,%s,Моб,%d,%s,уровень,%d,мудрость,%d,бонус дамаг от мудрости,%d, прц.", 
+				zone_table[zrn].vnum,
+				zone_table[zrn].name,
+				mob_index[i].vnum,
+				GET_NAME(mob_proto + i),
+				GetRealLevel(mob_proto + i),
+				(mob_proto + i)->get_wis(),
+				((mob_proto + i)->get_wis() - 22) * 5);
+		log("%s", buf);
+
+	}
 	top_of_mobt = i++;
 }
 
@@ -1423,31 +1446,6 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			log("SYSERROR : Unknown skill No %d for MOB #%d", t[0], nr);
 			return;
 		}
-<<<<<<< HEAD
-		t[1] = MIN(200, MAX(0, t[1]));
-		if (t[0] == SKILL_BACKSTAB) {
-			HitData hit_params;
-			hit_params.weapon = FightSystem::MAIN_HAND;
-			hit_params.init((mob_proto + i), (mob_proto + i));
-			int dam = hit_params.calc_damage(mob_proto + i, false);
-			int dam2 = dam * backstab_mult(GET_REAL_LEVEL(mob_proto + i));
-			zone_rnum zrn = 0;
-			for (zrn = 0; zrn < static_cast<zone_rnum>(zone_table.size() - 1); zrn++) {
-				if (zone_table[zrn].vnum == mob_index[i].vnum  / 100)
-					break;
-				}
-			sprintf(buf, "Зона,%d,%s,Моб,%d,%s,уровень,%d,заколоть,%d,дамага,%d,стабдамага,%d", zone_table[zrn].vnum , zone_table[zrn].name,
-					mob_index[i].vnum, GET_NAME(mob_proto + i), GET_REAL_LEVEL(mob_proto + i), 
-				t[1], dam, dam2);
-			log("%s", buf);
-//			MOB_FLAGS(mob_proto + i).set(MOB_IGNORE_FORMATION);
-//			(mob_proto + i)->set_role(MOB_ROLE_ROGUE, true);
-		}
-		(mob_proto + i)->set_skill(static_cast<ESkill>(t[0]), t[1]);
-=======
-		t[1] = std::clamp(t[1], 0, MUD::Skills()[skill_id].cap);
-		(mob_proto + i)->set_skill(skill_id, t[1]);
->>>>>>> master
 	}
 
 	CASE("Spell") {
