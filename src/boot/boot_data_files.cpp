@@ -1113,15 +1113,20 @@ void MobileFile::parse_mobile(const int nr) {
 			if (zone_table[zrn].vnum == mob_index[i].vnum  / 100)
 				break;
 		}
+		int	ndice = (mob_proto + i)->mob_specials.damnodice;
+		int	sdice = (mob_proto + i)->mob_specials.damsizedice;
+		int	adice = GetRealDamroll((mob_proto + i)) + str_bonus(GET_REAL_STR((mob_proto + i)), STR_TO_DAM);
 
 //		long tmpwis = ((mob_proto + i)->get_wis() - 22) * 5 / 100.0;
-		sprintf(buf, "Зона,%d,%s,Моб,%d,%s,уровень,%d,мудрость,%d,бонус дамаг от мудрости,%d, прц.", 
+		sprintf(buf, "Зона;%d;%s;Моб;%d;%s;уровень;%d;мудрость;%d;миндамаг;%d;максдамаг;%d;бонус дамаг от мудрости;%d; прц.", 
 				zone_table[zrn].vnum,
 				zone_table[zrn].name,
 				mob_index[i].vnum,
 				GET_NAME(mob_proto + i),
 				GetRealLevel(mob_proto + i),
 				(mob_proto + i)->get_wis(),
+				(ndice + adice) * (mob_proto[i].mob_specials.LikeWork + 1),
+				(ndice * sdice + adice) * (mob_proto[i].mob_specials.LikeWork + 1),
 				((mob_proto + i)->get_wis() - 22) * 5);
 		log("%s", buf);
 
