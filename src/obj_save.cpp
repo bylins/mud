@@ -1938,7 +1938,7 @@ int Crash_load(CharData *ch) {
 			send_to_char("Нет соответствия заголовков - чтение предметов прервано.\r\n", ch);
 			sprintf(buf, "SYSERR: Objects reading fail for %s (2), stop reading.", GET_NAME(ch));
 			mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
-			extract_obj(obj.get());
+			ExtractObjFromWorld(obj.get());
 			break;
 		}
 
@@ -1965,7 +1965,7 @@ int Crash_load(CharData *ch) {
 					 char_get_custom_label(obj.get(), ch).c_str(),
 					 GET_OBJ_SUF_2(obj));
 			send_to_char(buf, ch);
-			extract_obj(obj.get());
+			ExtractObjFromWorld(obj.get());
 
 			continue;
 		}
@@ -1974,14 +1974,14 @@ int Crash_load(CharData *ch) {
 		if (obj->has_flag(EObjFlag::kZonedacay)) {
 			sprintf(buf, "%s рассыпал%s в прах.\r\n", cap.c_str(), GET_OBJ_SUF_2(obj));
 			send_to_char(buf, ch);
-			extract_obj(obj.get());
+			ExtractObjFromWorld(obj.get());
 			continue;
 		}
 		//очищаем RepopDecay объедки
 		if (obj->has_flag(EObjFlag::kRepopDecay)) {
 			sprintf(buf, "%s рассыпал%s в прах.\r\n", cap.c_str(), GET_OBJ_SUF_2(obj));
 			send_to_char(buf, ch);
-			extract_obj(obj.get());
+			ExtractObjFromWorld(obj.get());
 			continue;
 		}
 
@@ -1992,7 +1992,7 @@ int Crash_load(CharData *ch) {
 			sprintf(buf, "%s рассыпал%s, как запрещенн%s для вас.\r\n",
 					cap.c_str(), GET_OBJ_SUF_2(obj), GET_OBJ_SUF_3(obj));
 			send_to_char(buf, ch);
-			extract_obj(obj.get());
+			ExtractObjFromWorld(obj.get());
 			continue;
 		}
 
@@ -2059,7 +2059,7 @@ int Crash_load(CharData *ch) {
 			}
 			obj->set_worn_on(0);
 			if (tank_to) {
-				obj_to_obj(obj, tank_to->tank);
+				PlaceObjIntoObj(obj, tank_to->tank);
 			} else {
 				PlaceObjToInventory(obj, ch);
 			}
@@ -2100,7 +2100,7 @@ void Crash_extract_objs(ObjData *obj) {
 		if (GET_OBJ_RNUM(obj) >= 0 && obj->get_timer() >= 0) {
 			obj_proto.inc_stored(GET_OBJ_RNUM(obj));
 		}
-		extract_obj(obj);
+		ExtractObjFromWorld(obj);
 	}
 }
 
@@ -2129,7 +2129,7 @@ void Crash_extract_norents(CharData *ch, ObjData *obj) {
 		next = obj->get_next_content();
 		Crash_extract_norents(ch, obj->get_contains());
 		if (Crash_is_unrentable(ch, obj)) {
-			extract_obj(obj);
+			ExtractObjFromWorld(obj);
 		}
 	}
 }
@@ -2820,7 +2820,7 @@ int gen_receptionist(CharData *ch, CharData *recep, int cmd, char * /*arg*/, int
 		}
 		Clan::clan_invoice(ch, false);
 		ch->save_char();
-		extract_char(ch, false);
+		ExtractCharFromWorld(ch, false);
 	} else if (CMD_IS("offer") || CMD_IS("предложение")) {
 		Crash_offer_rent(ch, recep, rentshow, mode, &cost);
 		act("$N предложил$G $n2 остановиться у н$S.", false, ch, 0, recep, kToRoom);
@@ -2897,7 +2897,7 @@ void Crash_save_all_rent(void) {
 			//AFF_FLAGS(ch.get()).unset(EAffectFlag::AFF_GROUP);
 			(ch.get())->removeGroupFlags();
 			AFF_FLAGS(ch.get()).unset(EAffect::kHorse);
-			extract_char(ch.get(), false);
+			ExtractCharFromWorld(ch.get(), false);
 		}
 	});
 }

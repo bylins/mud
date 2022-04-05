@@ -820,7 +820,7 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 
 	if (obj) {
 		ExtractObjFromChar(obj);
-		extract_obj(obj);
+		ExtractObjFromWorld(obj);
 	}
 }
 void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
@@ -973,7 +973,7 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 			for (i = 0; i < MAX_PROTO; i++) {
 				if (proto[i] && proto[i] != obj) {
 					obj->set_cost(GET_OBJ_COST(obj) + GET_OBJ_COST(proto[i]));
-					extract_obj(proto[i]);
+					ExtractObjFromWorld(proto[i]);
 				}
 			}
 			go_create_weapon(ch, obj, obj_type, ESkill::kReforging);
@@ -1012,7 +1012,7 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 				if (proto[i]) {
 					proto[0]->add_weight(GET_OBJ_WEIGHT(proto[i]));
 					proto[0]->set_cost(GET_OBJ_COST(proto[0]) + GET_OBJ_COST(proto[i]));
-					extract_obj(proto[i]);
+					ExtractObjFromWorld(proto[i]);
 				}
 			}
 			go_create_weapon(ch, proto[0], obj_type, ESkill::kCreateBow);
@@ -1840,7 +1840,7 @@ int MakeRecept::make(CharData *ch) {
 					std::string tmpname = std::string(ingrs[i]->get_PName(1).c_str());
 					IS_CARRYING_W(ch) -= GET_OBJ_WEIGHT(ingrs[i]);
 					ingrs[i]->set_weight(0);
-					extract_obj(ingrs[i]);
+					ExtractObjFromWorld(ingrs[i]);
 					ingrs[i] = nullptr;
 					//Если некст ингра в инве нет, то сообщаем об этом и идем в фэйл. Некст ингры все равно проверяем
 					if (!get_obj_in_list_ingr(obj_vnum_tmp, ch->carrying)) {
@@ -1889,7 +1889,7 @@ int MakeRecept::make(CharData *ch) {
 		}
 		for (i = 0; i < ingr_cnt; i++) {
 			if (ingrs[i] && GET_OBJ_WEIGHT(ingrs[i]) <= 0) {
-				extract_obj(ingrs[i]);
+				ExtractObjFromWorld(ingrs[i]);
 			}
 		}
 		return (false);
@@ -2009,7 +2009,7 @@ int MakeRecept::make(CharData *ch) {
 	// Мочим истраченные ингры.
 	for (i = 0; i < ingr_cnt; i++) {
 		if (GET_OBJ_WEIGHT(ingrs[i]) <= 0) {
-			extract_obj(ingrs[i]);
+			ExtractObjFromWorld(ingrs[i]);
 		}
 	}
 	// 8. Проверяем мах. инворлд.

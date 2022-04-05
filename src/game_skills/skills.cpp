@@ -759,7 +759,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kBackstab: {
 			parameter_bonus += GET_REAL_DEX(ch);
-			if (IsAwakeOthers(ch) || equip_in_metall(ch)) {
+			if (IsAwakeOthers(ch) || IsEquipInMetall(ch)) {
 				bonus += -50;
 			}
 			if (vict) {
@@ -786,7 +786,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		case ESkill::kHide: {
 			parameter_bonus += dex_bonus(GET_REAL_DEX(ch));
 			bonus = size_app[GET_POS_SIZE(ch)].ac + (IsAbleToUseFeat(ch, EFeat::kStealthy) ? 5 : 0);
-			if (IsAwakeOthers(ch) || equip_in_metall(ch)) {
+			if (IsAwakeOthers(ch) || IsEquipInMetall(ch)) {
 				bonus -= 50;
 			}
 			if (is_dark(ch->in_room)) {
@@ -831,7 +831,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		case ESkill::kSneak: {
 			parameter_bonus = dex_bonus(GET_REAL_DEX(ch));
 			bonus += IsAbleToUseFeat(ch, EFeat::kStealthy) ? 10 : 0;
-			if (IsAwakeOthers(ch) || equip_in_metall(ch))
+			if (IsAwakeOthers(ch) || IsEquipInMetall(ch))
 				bonus -= 50;
 			if (SECT(ch->in_room) == ESector::kCity)
 				bonus -= 10;
@@ -848,7 +848,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		case ESkill::kSteal: {
 			parameter_bonus = dex_bonus(GET_REAL_DEX(ch));
 			bonus += (IsAbleToUseFeat(ch, EFeat::kNimbleFingers) ? 5 : 0);
-			if (IsAwakeOthers(ch) || equip_in_metall(ch))
+			if (IsAwakeOthers(ch) || IsEquipInMetall(ch))
 				bonus -= 50;
 			if (is_dark(ch->in_room))
 				bonus += 20;
@@ -943,7 +943,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kAddshot: {
-			if (equip_in_metall(ch)) {
+			if (IsEquipInMetall(ch)) {
 				bonus -= 20;
 			}
 			break;
@@ -968,7 +968,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 			else if (SECT(ch->in_room) == ESector::kHills
 				|| SECT(ch->in_room) == ESector::kMountain)
 				bonus += 5;
-			if (equip_in_metall(ch))
+			if (IsEquipInMetall(ch))
 				bonus -= 30;
 
 			break;
@@ -976,14 +976,14 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kDodge: {
 			parameter_bonus = -size_app[GET_POS_SIZE(ch)].ac + dex_bonus(GET_REAL_DEX(ch));
-			if (equip_in_metall(ch))
+			if (IsEquipInMetall(ch))
 				bonus -= 40;
 			break;
 		}
 
 		case ESkill::kUndercut: {
 			parameter_bonus = dex_bonus(GET_REAL_DEX(ch));
-			if (equip_in_metall(ch)) {
+			if (IsEquipInMetall(ch)) {
 				bonus -= 10;
 			}
 			if (vict) {
@@ -1242,7 +1242,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 			victim_sav = -GET_REAL_SAVING_REFLEX(vict);
 			bonus = dex_bonus(GET_REAL_DEX(ch)) * 2;
 			if (IsAwakeOthers(ch)
-				|| equip_in_metall(ch)) {
+				|| IsEquipInMetall(ch)) {
 				bonus -= 50;
 			}
 
@@ -1283,7 +1283,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 		case ESkill::kHide: {
 			bonus =
 				dex_bonus(GET_REAL_DEX(ch)) - size_app[GET_POS_SIZE(ch)].ac + (IsAbleToUseFeat(ch, EFeat::kStealthy) ? 5 : 0);
-			if (IsAwakeOthers(ch) || equip_in_metall(ch)) {
+			if (IsAwakeOthers(ch) || IsEquipInMetall(ch)) {
 				bonus -= 50;
 			}
 
@@ -1342,7 +1342,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 			bonus = dex_bonus(GET_REAL_DEX(ch))
 				+ (IsAbleToUseFeat(ch, EFeat::kStealthy) ? 10 : 0);
 
-			if (IsAwakeOthers(ch) || equip_in_metall(ch))
+			if (IsAwakeOthers(ch) || IsEquipInMetall(ch))
 				bonus -= 50;
 
 			if (SECT(ch->in_room) == ESector::kCity)
@@ -1366,7 +1366,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 			bonus = dex_bonus(GET_REAL_DEX(ch))
 				+ (IsAbleToUseFeat(ch, EFeat::kNimbleFingers) ? 5 : 0);
 
-			if (IsAwakeOthers(ch) || equip_in_metall(ch))
+			if (IsAwakeOthers(ch) || IsEquipInMetall(ch))
 				bonus -= 50;
 			if (is_dark(ch->in_room))
 				bonus += 20;
@@ -1495,7 +1495,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kAddshot: {
-			if (equip_in_metall(ch))
+			if (IsEquipInMetall(ch))
 				bonus -= 5;
 			ignore_luck = true;
 			break;
@@ -1523,7 +1523,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 			else if (SECT(ch->in_room) == ESector::kHills
 				|| SECT(ch->in_room) == ESector::kMountain)
 				bonus += 5;
-			if (equip_in_metall(ch))
+			if (IsEquipInMetall(ch))
 				bonus -= 30;
 
 			if (vict) {
@@ -1537,7 +1537,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 			bonus = -size_app[GET_POS_SIZE(ch)].ac +
 				dex_bonus(GET_REAL_DEX(ch));
 
-			if (equip_in_metall(ch))
+			if (IsEquipInMetall(ch))
 				bonus -= 40;
 
 			if (vict) {
@@ -1550,7 +1550,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 			victim_sav = -GET_REAL_SAVING_REFLEX(vict);
 			bonus = dex_bonus(GET_REAL_DEX(ch)) + ((dex_bonus(GET_REAL_DEX(ch)) * 5) / 10)
 				+ size_app[GET_POS_SIZE(ch)].ac; // тест х3 признан вредительским
-			if (equip_in_metall(ch))
+			if (IsEquipInMetall(ch))
 				bonus -= 10;
 			if (vict) {
 				if (!CAN_SEE(vict, ch))

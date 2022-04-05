@@ -229,10 +229,10 @@ std::string generate_purged_text(long uid, int obj_vnum, unsigned int obj_uid) {
 				 << obj->get_short_description() << char_get_custom_label(obj.get(), ch)
 				 << " рассыпал" << GET_OBJ_SUF_2(obj.get())
 				 << " в прах'" << CCNRM(ch, C_NRM) << "\r\n";
-			extract_obj(obj.get());
+			ExtractObjFromWorld(obj.get());
 			return text.str();
 		}
-		extract_obj(obj.get());
+		ExtractObjFromWorld(obj.get());
 	}
 
 	return out.str();
@@ -618,7 +618,7 @@ void CharNode::update_online_item() {
 					  (*obj_it)->get_short_description().c_str(),
 					  GET_OBJ_UID(obj_it->get()),
 					  GET_OBJ_VNUM(obj_it->get()));
-			extract_obj(obj_it->get());
+			ExtractObjFromWorld(obj_it->get());
 			pers_online.erase(obj_it++);
 			need_save = true;
 		} else {
@@ -736,7 +736,7 @@ void CharNode::reset() {
 				  (*obj_it)->get_short_description().c_str(),
 				  GET_OBJ_UID(obj_it->get()),
 				  GET_OBJ_VNUM(obj_it->get()));
-		extract_obj(obj_it->get());
+		ExtractObjFromWorld(obj_it->get());
 	}
 	pers_online.clear();
 
@@ -925,7 +925,7 @@ void put_gold_chest(CharData *ch, const ObjData::shared_ptr &obj) {
 	long gold = GET_OBJ_VAL(obj, 0);
 	ch->add_bank(gold);
 	ExtractObjFromChar(obj.get());
-	extract_obj(obj.get());
+	ExtractObjFromWorld(obj.get());
 	send_to_char(ch, "Вы вложили %ld %s.\r\n", gold, GetDeclensionInNumber(gold, EWhat::kMoneyU));
 }
 
@@ -1266,7 +1266,7 @@ void CharNode::load_online_objs(int file_type, bool reload) {
 						  obj->get_short_description().c_str(),
 						  GET_OBJ_UID(obj),
 						  obj->get_vnum());
-				extract_obj(obj.get());
+				ExtractObjFromWorld(obj.get());
 				continue;
 			}
 		}
@@ -1329,7 +1329,7 @@ void CharNode::online_to_offline(ObjListType &cont) {
 		tmp_obj.rent_cost = get_object_low_rent(obj_it->get());
 		tmp_obj.uid = GET_OBJ_UID(*obj_it);
 		offline_list.push_back(tmp_obj);
-		extract_obj(obj_it->get());
+		ExtractObjFromWorld(obj_it->get());
 		// плюсуем персональное хранилище к общей ренте
 		add_cost_per_day(tmp_obj.rent_cost);
 		// из макс.в мире в игре она уходит в ренту

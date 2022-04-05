@@ -227,22 +227,22 @@ void do_mjunk(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if ((find_all_dots(arg) == kFindIndiv) && !junk_all) {
 		if ((obj = get_object_in_equip_vis(ch, arg, ch->equipment, &pos)) != nullptr) {
 			UnequipChar(ch, pos, CharEquipFlags());
-			extract_obj(obj);
+			ExtractObjFromWorld(obj);
 			return;
 		}
 		if ((obj = get_obj_in_list_vis(ch, arg, ch->carrying)) != nullptr)
-			extract_obj(obj);
+			ExtractObjFromWorld(obj);
 		return;
 	} else {
 		for (obj = ch->carrying; obj != nullptr; obj = obj_next) {
 			obj_next = obj->get_next_content();
 			if (arg[3] == '\0' || isname(arg + 4, obj->get_aliases())) {
-				extract_obj(obj);
+				ExtractObjFromWorld(obj);
 			}
 		}
 		while ((obj = get_object_in_equip_vis(ch, arg, ch->equipment, &pos))) {
 			UnequipChar(ch, pos, CharEquipFlags());
-			extract_obj(obj);
+			ExtractObjFromWorld(obj);
 		}
 	}
 }
@@ -435,7 +435,7 @@ void do_mpurge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (victim == nullptr) {
 		if ((obj = get_obj_by_char(ch, arg))) {
-			extract_obj(obj);
+			ExtractObjFromWorld(obj);
 		} else {
 			mob_log(ch, "mpurge: bad argument");
 		}
@@ -452,7 +452,7 @@ void do_mpurge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		die_follower(victim);
 	}
 
-	extract_char(victim, false);
+	ExtractCharFromWorld(victim, false);
 }
 
 // lets the mobile goto any location it wishes that is not private
@@ -871,7 +871,7 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (obj[pos])
 				EquipObj(ch, obj[pos], pos, CharEquipFlag::no_cast);
 		}
-		extract_char(m, false);
+		ExtractCharFromWorld(m, false);
 	}
 }
 
@@ -1453,7 +1453,7 @@ bool mob_script_command_interpreter(CharData *ch, char *argument) {
 		cmd++;
 	}
 // damage mtrigger срабатывает всегда
-	if (!SCRIPT_CHECK(ch, MTRIG_DAMAGE)) {
+	if (!CheckScript(ch, MTRIG_DAMAGE)) {
 		if (!mob_cmd_info[cmd].use_in_lag && 
 				(GET_MOB_HOLD(ch)
 				|| AFF_FLAGGED(ch, EAffect::kStopFight)

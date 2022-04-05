@@ -944,7 +944,7 @@ void extract_exchange_item(ExchangeItem *item) {
 	if (item->comment)
 		free(item->comment);
 	if (item->obj)
-		extract_obj(item->obj);
+		ExtractObjFromWorld(item->obj);
 	free(item);
 
 }

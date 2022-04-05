@@ -54,19 +54,6 @@ struct temporary_spell_data {
 };
 // кол-во +слотов со шмоток
 const int MAX_ADD_SLOTS = 10;
-// типы резистов
-enum {
-	FIRE_RESISTANCE = 0,
-	AIR_RESISTANCE,
-	WATER_RESISTANCE,
-	EARTH_RESISTANCE,
-	VITALITY_RESISTANCE,
-	MIND_RESISTANCE,
-	IMMUNITY_RESISTANCE,
-	DARK_RESISTANCE,
-	MAX_NUMBER_RESISTANCE
-};
-const int kMaxPlayerResist = 75;
 
 // Char's additional abilities. Used only while work
 struct char_played_ability_data {
@@ -96,7 +83,7 @@ struct char_played_ability_data {
 	int percent_magdam_add;
 	int percent_spell_blink;
 	std::array<int, to_underlying(ESaving::kLast) + 1> apply_saving_throw;	// Saving throw (Bonuses)
-	std::array<int, MAX_NUMBER_RESISTANCE> apply_resistance;					// Сопротивления повреждениям
+	std::array<int, EResist::kLastResist + 1> apply_resistance;					// Сопротивления повреждениям
 	int mresist;
 	int aresist;
 	int presist; // По просьбе <сумасшедшего> (зачеркнуто) безбашенного билдера поглощение физ.урона в %

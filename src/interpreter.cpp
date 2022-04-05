@@ -1915,7 +1915,7 @@ int perform_dupe_check(DescriptorData *d) {
 			char_from_room(ch);
 		}
 		char_to_room(ch, STRANGE_ROOM);
-		extract_char(ch.get(), false);
+		ExtractCharFromWorld(ch.get(), false);
 	});
 
 	// no target for switching into was found - allow login to continue //
@@ -2619,8 +2619,9 @@ void init_char(CharData *ch, PlayerIndexElement &element) {
 	for (auto save = ESaving::kFirst; save <= ESaving::kLast; ++save) {
 		SET_SAVE(ch, save, 0);
 	}
-	for (i = 0; i < MAX_NUMBER_RESISTANCE; i++)
+	for (i = EResist::kFirstResist; i <= EResist::kLastResist; ++i) {
 		GET_RESIST(ch, i) = 0;
+	}
 
 	if (GetRealLevel(ch) == kLvlImplementator) {
 		ch->set_str(25);

@@ -479,7 +479,7 @@ bool make_clean(CelebrateDataPtr celebrate) {
 						// This function is very bad because modifies global variable loaded_mobs
 						// Initially loop was over this global variable. Therefore this loop constantly crashed.
 						// I've changed loop variable to the copy of loaded_mobs, but it's still a bad approach.
-						extract_char(mob, 0);
+						ExtractCharFromWorld(mob, 0);
 					}
 				}
 			}
@@ -492,7 +492,7 @@ bool make_clean(CelebrateDataPtr celebrate) {
 			for (CelebrateRoomsList::iterator room = rooms->second.begin(); room != rooms->second.end(); ++room) {
 				for (LoadList::iterator it = (*room)->objects.begin(); it != (*room)->objects.end(); ++it) {
 					if ((*it)->vnum == vnum) {
-						extract_obj(obj_it->second);
+						ExtractObjFromWorld(obj_it->second);
 					}
 				}
 			}

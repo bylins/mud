@@ -293,6 +293,6 @@ void do_stophorse(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 	act("$n отпустил$g $N3.", false, ch, 0, horse, kToRoom | kToArenaListen);
 	if (GET_MOB_VNUM(horse) == HORSE_VNUM) {
 		act("$n убежал$g в свою конюшню.\r\n", false, horse, 0, 0, kToRoom | kToArenaListen);
-		extract_char(horse, false);
+		ExtractCharFromWorld(horse, false);
 	}
 }

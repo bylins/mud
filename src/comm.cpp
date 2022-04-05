@@ -507,7 +507,7 @@ void gifts() {
 
 	// создаем упаковку для подарка
 	PlaceObjToRoom(obj_cont.get(), real_room(rand_vnum_r));
-	obj_to_obj(obj_gift.get(), obj_cont.get());
+	PlaceObjIntoObj(obj_gift.get(), obj_cont.get());
 	CheckObjDecay(obj_gift.get());
 	CheckObjDecay(obj_cont.get());
 	log("Загружен подарок в комнату: %d, объект: %d", rand_vnum_r, rand_vnum);

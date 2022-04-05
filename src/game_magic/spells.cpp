@@ -1956,13 +1956,13 @@ void SpellControlWeather(int/* level*/, CharData *ch, CharData* /*victim*/, ObjD
 		case kSkyCloudy: sky_info = "Небо покрылось тяжелыми тучами.";
 			break;
 		case kSkyRaining:
-			if (time_info.month >= MONTH_MAY && time_info.month <= MONTH_OCTOBER) {
+			if (time_info.month >= EMonth::kMay && time_info.month <= EMonth::kOctober) {
 				sky_info = "Начался проливной дождь.";
 				create_rainsnow(&sky_type, kWeatherLightrain, 0, 50, 50);
-			} else if (time_info.month >= MONTH_DECEMBER || time_info.month <= MONTH_FEBRUARY) {
+			} else if (time_info.month >= EMonth::kDecember || time_info.month <= EMonth::kFebruary) {
 				sky_info = "Повалил снег.";
 				create_rainsnow(&sky_type, kWeatherLightsnow, 0, 50, 50);
-			} else if (time_info.month == MONTH_MART || time_info.month == MONTH_NOVEMBER) {
+			} else if (time_info.month == EMonth::kMarch || time_info.month == EMonth::kNovember) {
 				if (weather_info.temperature > 2) {
 					sky_info = "Начался проливной дождь.";
 					create_rainsnow(&sky_type, kWeatherLightrain, 0, 50, 50);
@@ -2115,7 +2115,7 @@ void SpellHolystrike(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData*
 				continue;
 			}
 
-			extract_obj(o);
+			ExtractObjFromWorld(o);
 
 			break;
 		}
@@ -3244,7 +3244,7 @@ void extract_item(CharData *ch, ObjData *obj, int spelltype) {
 			act(buf, false, ch, obj, nullptr, kToChar);
 		}
 		ExtractObjFromChar(obj);
-		extract_obj(obj);
+		ExtractObjFromWorld(obj);
 	}
 }
 
@@ -3535,7 +3535,7 @@ int CheckRecipeItems(CharData *ch, int spellnum, int spelltype, int extract, con
 			} else {
 				strcat(buf, " и попытались создать $o3.\r\n" "Ничего не вышло.");
 				act(buf, false, ch, obj.get(), nullptr, kToChar);
-				extract_obj(obj.get());
+				ExtractObjFromWorld(obj.get());
 			}
 		} else {
 			if (spelltype == kSpellItems) {

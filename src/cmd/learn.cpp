@@ -263,6 +263,6 @@ void do_learn(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 				break;
 		}
 	}
-	extract_obj(obj);
+	ExtractObjFromWorld(obj);
 }
 

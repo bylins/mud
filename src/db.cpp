@@ -234,7 +234,7 @@ extern RoomVnum helled_start_room;
 extern RoomVnum named_start_room;
 extern RoomVnum unreg_start_room;
 extern DescriptorData *descriptor_list;
-extern struct month_temperature_type year_temp[];
+extern struct MonthTemperature year_temp[];
 extern char *house_rank[];
 extern struct PCCleanCriteria pclean_criteria[];
 extern int class_stats_limit[kNumPlayerClasses][6];
@@ -2633,7 +2633,7 @@ void reset_time(void) {
 	weather_info.temperature = (year_temp[time_info.month].med * 4 +
 		number(year_temp[time_info.month].min, year_temp[time_info.month].max)) / 5;
 	weather_info.pressure = 960;
-	if ((time_info.month >= MONTH_MAY) && (time_info.month <= MONTH_NOVEMBER))
+	if ((time_info.month >= EMonth::kMay) && (time_info.month <= EMonth::kNovember))
 		weather_info.pressure += RollDices(1, 50);
 	else
 		weather_info.pressure += RollDices(1, 80);
@@ -2641,28 +2641,28 @@ void reset_time(void) {
 	weather_info.change = 0;
 	weather_info.weather_type = 0;
 
-	if (time_info.month >= MONTH_APRIL && time_info.month <= MONTH_MAY)
-		weather_info.season = SEASON_SPRING;
-	else if (time_info.month == MONTH_MART && weather_info.temperature >= 3)
-		weather_info.season = SEASON_SPRING;
-	else if (time_info.month >= MONTH_JUNE && time_info.month <= MONTH_AUGUST)
-		weather_info.season = SEASON_SUMMER;
-	else if (time_info.month >= MONTH_SEPTEMBER && time_info.month <= MONTH_OCTOBER)
-		weather_info.season = SEASON_AUTUMN;
-	else if (time_info.month == MONTH_NOVEMBER && weather_info.temperature >= 3)
-		weather_info.season = SEASON_AUTUMN;
+	if (time_info.month >= EMonth::kApril && time_info.month <= EMonth::kMay)
+		weather_info.season = ESeason::kSpring;
+	else if (time_info.month == EMonth::kMarch && weather_info.temperature >= 3)
+		weather_info.season = ESeason::kSpring;
+	else if (time_info.month >= EMonth::kJune && time_info.month <= EMonth::kAugust)
+		weather_info.season = ESeason::kSummer;
+	else if (time_info.month >= EMonth::kSeptember && time_info.month <= EMonth::kOctober)
+		weather_info.season = ESeason::kAutumn;
+	else if (time_info.month == EMonth::kNovember && weather_info.temperature >= 3)
+		weather_info.season = ESeason::kAutumn;
 	else
-		weather_info.season = SEASON_WINTER;
+		weather_info.season = ESeason::kWinter;
 
 	if (weather_info.pressure <= 980)
 		weather_info.sky = kSkyLightning;
 	else if (weather_info.pressure <= 1000) {
 		weather_info.sky = kSkyRaining;
-		if (time_info.month >= MONTH_APRIL && time_info.month <= MONTH_OCTOBER)
+		if (time_info.month >= EMonth::kApril && time_info.month <= EMonth::kOctober)
 			create_rainsnow(&weather_info.weather_type, kWeatherLightrain, 40, 40, 20);
-		else if (time_info.month >= MONTH_DECEMBER || time_info.month <= MONTH_FEBRUARY)
+		else if (time_info.month >= EMonth::kDecember || time_info.month <= EMonth::kFebruary)
 			create_rainsnow(&weather_info.weather_type, kWeatherLightsnow, 50, 40, 10);
-		else if (time_info.month == MONTH_NOVEMBER || time_info.month == MONTH_MART) {
+		else if (time_info.month == EMonth::kNovember || time_info.month == EMonth::kMarch) {
 			if (weather_info.temperature >= 3)
 				create_rainsnow(&weather_info.weather_type, kWeatherLightrain, 70, 30, 0);
 			else
@@ -3072,11 +3072,11 @@ int dl_load_obj(ObjData *corpse, CharData *ch, CharData *chr, int DL_LOAD_TYPE) 
 						if ((DL_LOAD_TYPE == DL_SKIN) && (corpse->get_carried_by() == chr)) {
 							can_carry_obj(chr, tobj.get());
 						} else {
-							obj_to_obj(tobj.get(), corpse);
+							PlaceObjIntoObj(tobj.get(), corpse);
 						}
 					}
 				} else {
-					extract_obj(tobj.get());
+					ExtractObjFromWorld(tobj.get());
 					load = false;
 				}
 
@@ -3763,25 +3763,25 @@ void paste_mob(CharData *ch, RoomRnum room) {
 		no_time = false;
 	}
 	if (MOB_FLAGGED(ch, EMobFlag::kAppearsWinter)) {
-		if (weather_info.season == SEASON_WINTER)
+		if (weather_info.season == ESeason::kWinter)
 			month_ok = true;
 		need_move = true;
 		no_month = false;
 	}
 	if (MOB_FLAGGED(ch, EMobFlag::kAppearsSpring)) {
-		if (weather_info.season == SEASON_SPRING)
+		if (weather_info.season == ESeason::kSpring)
 			month_ok = true;
 		need_move = true;
 		no_month = false;
 	}
 	if (MOB_FLAGGED(ch, EMobFlag::kAppearsSummer)) {
-		if (weather_info.season == SEASON_SUMMER)
+		if (weather_info.season == ESeason::kSummer)
 			month_ok = true;
 		need_move = true;
 		no_month = false;
 	}
 	if (MOB_FLAGGED(ch, EMobFlag::kAppearsAutumn)) {
-		if (weather_info.season == SEASON_AUTUMN)
+		if (weather_info.season == ESeason::kAutumn)
 			month_ok = true;
 		need_move = true;
 		no_month = false;
@@ -3794,7 +3794,7 @@ void paste_mob(CharData *ch, RoomRnum room) {
 				return;
 
 			if (GET_LASTROOM(ch) == kNowhere) {
-				extract_char(ch, false, true);
+				ExtractCharFromWorld(ch, false, true);
 				return;
 			}
 
@@ -3856,28 +3856,28 @@ void paste_obj(ObjData *obj, RoomRnum room) {
 		no_time = false;
 	}
 	if (obj->has_flag(EObjFlag::kAppearsWinter)) {
-		if (weather_info.season == SEASON_WINTER) {
+		if (weather_info.season == ESeason::kWinter) {
 			month_ok = true;
 		}
 		need_move = true;
 		no_month = false;
 	}
 	if (obj->has_flag(EObjFlag::kAppearsSpring)) {
-		if (weather_info.season == SEASON_SPRING) {
+		if (weather_info.season == ESeason::kSpring) {
 			month_ok = true;
 		}
 		need_move = true;
 		no_month = false;
 	}
 	if (obj->has_flag(EObjFlag::kAppearsSummer)) {
-		if (weather_info.season == SEASON_SUMMER) {
+		if (weather_info.season == ESeason::kSummer) {
 			month_ok = true;
 		}
 		need_move = true;
 		no_month = false;
 	}
 	if (obj->has_flag(EObjFlag::kAppearsAutumn)) {
-		if (weather_info.season == SEASON_AUTUMN) {
+		if (weather_info.season == ESeason::kAutumn) {
 			month_ok = true;
 		}
 		need_move = true;
@@ -3891,17 +3891,17 @@ void paste_obj(ObjData *obj, RoomRnum room) {
 				return;
 			}
 			if (OBJ_GET_LASTROOM(obj) == kNowhere) {
-				extract_obj(obj);
+				ExtractObjFromWorld(obj);
 				return;
 			}
-			obj_from_room(obj);
+			ExtractObjFromRoom(obj);
 			PlaceObjToRoom(obj, real_room(OBJ_GET_LASTROOM(obj)));
 		} else {
 			if (world[room]->room_vn == zone_table[world[room]->zone_rn].top) {
 				return;
 			}
 			obj->set_room_was_in(GET_ROOM_VNUM(room));
-			obj_from_room(obj);
+			ExtractObjFromRoom(obj);
 			room = real_room(zone_table[world[room]->zone_rn].top);
 			if (room == kNowhere) {
 				room = real_room(OBJ_GET_LASTROOM(obj));
@@ -4052,7 +4052,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum) {
 								const auto obj_in = world_objects.create_from_prototype_by_vnum((*load_in)->vnum);
 								if (obj_in
 									&& GET_OBJ_TYPE(obj) == EObjType::kContainer) {
-									obj_to_obj(obj_in.get(), obj.get());
+									PlaceObjIntoObj(obj_in.get(), obj.get());
 									obj_in->set_vnum_zone_from(GET_OBJ_VNUM_ZONE_FROM(obj));
 
 									for (Celebrates::TrigList::iterator it = (*load_in)->triggers.begin();
@@ -4199,7 +4199,7 @@ bool ZoneReset::handle_zone_Q_command(const MobRnum rnum) {
 	utils::CExecutionTimer extract_timer;
 	for (const auto &mob : mobs) {
 		if (!MOB_FLAGGED(mob, EMobFlag::kResurrected)) {
-			extract_char(mob.get(), false, true);
+			ExtractCharFromWorld(mob.get(), false, true);
 			extracted = true;
 		}
 	}
@@ -4361,7 +4361,7 @@ void ZoneReset::reset_zone_essential() {
 						obj->set_vnum_zone_from(zone_table[world[ZCMD.arg3]->zone_rn].vnum);
 
 						if (!PlaceObjToRoom(obj.get(), ZCMD.arg3)) {
-							extract_obj(obj.get());
+							ExtractObjFromWorld(obj.get());
 							break;
 						}
 						load_otrigger(obj.get());
@@ -4386,7 +4386,7 @@ void ZoneReset::reset_zone_essential() {
 						|| check_unlimited_timer(obj_proto[ZCMD.arg1].get()))
 						&& (ZCMD.arg4 <= 0
 							|| number(1, 100) <= ZCMD.arg4)) {
-						if (!(obj_to = get_obj_num(ZCMD.arg3))) {
+						if (!(obj_to = SearchObjByVnum(ZCMD.arg3))) {
 							ZONE_ERROR("target obj not found, command omited");
 							break;
 						}
@@ -4403,7 +4403,7 @@ void ZoneReset::reset_zone_essential() {
 						} else if (obj_to->get_carried_by()) {
 							obj->set_vnum_zone_from(zone_table[world[IN_ROOM(obj_to->get_carried_by())]->zone_rn].vnum);
 						}
-						obj_to_obj(obj.get(), obj_to);
+						PlaceObjIntoObj(obj.get(), obj_to);
 						load_otrigger(obj.get());
 						tobj = obj.get();
 						curr_state = 1;
@@ -4466,7 +4466,7 @@ void ZoneReset::reset_zone_essential() {
 							}
 							if (!(obj->get_carried_by() == mob)
 								&& !(obj->get_worn_by() == mob)) {
-								extract_obj(obj.get());
+								ExtractObjFromWorld(obj.get());
 								tobj = nullptr;
 							} else {
 								tobj = obj.get();
@@ -4488,9 +4488,9 @@ void ZoneReset::reset_zone_essential() {
 						break;
 					}
 
-					if (const auto obj = get_obj_in_list_num(ZCMD.arg2, world[ZCMD.arg1]->contents)) {
-						obj_from_room(obj);
-						extract_obj(obj);
+					if (const auto obj = GetObjByRnum(ZCMD.arg2, world[ZCMD.arg1]->contents)) {
+						ExtractObjFromRoom(obj);
+						ExtractObjFromWorld(obj);
 						curr_state = 1;
 					}
 					tmob = nullptr;
@@ -5205,7 +5205,7 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	PlaceCharToRoom(ch, load_room);
 	look_at_room(ch, 0);
 	PLR_FLAGS(ch).set(EPlrFlag::kNoDelete);
-	remove_rune_label(ch);
+	RemoveRuneLabelFromWorld(ch, ESpell::kSpellRuneLabel);
 
 	// сброс всего, связанного с гривнами (замакс сохраняем)
 	PRF_FLAGS(ch).unset(EPrf::kCanRemort);

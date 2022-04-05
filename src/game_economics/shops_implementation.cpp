@@ -934,7 +934,7 @@ void shop_node::process_ident(CharData *ch, CharData *keeper, char *argument, co
 	}
 
 	if (tmp_obj) {
-		extract_obj(tmp_obj);
+		ExtractObjFromWorld(tmp_obj);
 	}
 }
 
@@ -948,7 +948,7 @@ void shop_node::clear_store() {
 	m_storage.clear();
 
 	for (const auto &item : to_remove) {
-		extract_obj(item);
+		ExtractObjFromWorld(item);
 	}
 }
 
@@ -1043,7 +1043,7 @@ void shop_node::put_item_to_shop(ObjData *obj) {
 		const auto &item = m_items_list.node(index);
 		if (item->vnum() == obj->get_vnum()) {
 			if (item->empty()) {
-				extract_obj(obj);
+				ExtractObjFromWorld(obj);
 				return;
 			} else {
 				ObjData *tmp_obj = get_from_shelve(index);

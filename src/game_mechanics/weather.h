@@ -4,7 +4,30 @@
 #include "structs/structs.h"
 #include "game_skills/skills.h" // ABYRVALG - вынести в скиллз_константс
 
+enum class ESeason {
+	kWinter = 0,
+	kSpring,
+	kSummer,
+	kAutumn
+};
+
+enum EMonth {
+	kJanuary = 0,
+	kFebruary,
+	kMarch,
+	kApril,
+	kMay,
+	kJune,
+	kJuly,
+	kAugust,
+	kSeptember,
+	kOctober,
+	kNovember,
+	kDecember
+};
+
 const int kHoursPerDay = 24;
+const int kDaysPerWeek = 7;
 const int kDaysPerMonth = 30;
 const int kMonthsPerYear = 12;
 const int kSecsPerPlayerAffect = 2;
@@ -53,6 +76,12 @@ constexpr Bitvector kWeatherLightwind = 1 << 9;
 constexpr Bitvector kWeatherMediumwind = 1 << 10;
 constexpr Bitvector kWeatherBigwind = 1 << 11;
 
+struct MonthTemperature {
+	int min;
+	int max;
+	int med;
+};
+
 struct Weather {
 	int hours_go;        // Time life from reboot //
 
@@ -74,7 +103,7 @@ struct Weather {
 	int sky;            // How is the sky.   //
 	int sunlight;        // And how much sun. //
 	int moon_day;        // And how much moon //
-	int season;
+	ESeason season;
 	int week_day_mono;
 	int week_day_poly;
 };

@@ -336,7 +336,7 @@ void obj_to_corpse(ObjData *corpse, CharData *ch, int rnum, bool setload) {
 	if (MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
 		PlaceObjToRoom(o.get(), ch->in_room);
 	} else {
-		obj_to_obj(o.get(), corpse);
+		PlaceObjIntoObj(o.get(), corpse);
 	}
 
 	if (!CheckObjDecay(o.get())) {

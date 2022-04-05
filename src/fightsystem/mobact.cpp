@@ -56,7 +56,7 @@ int npc_steal(CharData *ch);
 void npc_light(CharData *ch);
 extern void SetWait(CharData *ch, int waittime, int victim_in_room);
 bool guardian_attack(CharData *ch, CharData *vict);
-void drop_obj_on_zreset(CharData *ch, ObjData *obj, bool inv, bool zone_reset);
+void DropObjOnZoneReset(CharData *ch, ObjData *obj, bool inv, bool zone_reset);
 
 // local functions
 
@@ -94,25 +94,25 @@ int extra_aggressive(CharData *ch, CharData *victim) {
 
 	if (MOB_FLAGGED(ch, EMobFlag::kAgressiveWinter)) {
 		no_month = false;
-		if (weather_info.season == SEASON_WINTER)
+		if (weather_info.season == ESeason::kWinter)
 			month_ok = true;
 	}
 
 	if (MOB_FLAGGED(ch, EMobFlag::kAgressiveSpring)) {
 		no_month = false;
-		if (weather_info.season == SEASON_SPRING)
+		if (weather_info.season == ESeason::kSpring)
 			month_ok = true;
 	}
 
 	if (MOB_FLAGGED(ch, EMobFlag::kAgressiveSummer)) {
 		no_month = false;
-		if (weather_info.season == SEASON_SUMMER)
+		if (weather_info.season == ESeason::kSummer)
 			month_ok = true;
 	}
 
 	if (MOB_FLAGGED(ch, EMobFlag::kAgressiveAutumn)) {
 		no_month = false;
-		if (weather_info.season == SEASON_AUTUMN)
+		if (weather_info.season == ESeason::kAutumn)
 			month_ok = true;
 	}
 
@@ -915,12 +915,12 @@ void extract_charmice(CharData *ch) {
 	if (!objects.empty()) {
 		ObjData *charmice_box = create_charmice_box(ch);
 		for (auto it = objects.begin(); it != objects.end(); ++it) {
-			obj_to_obj(*it, charmice_box);
+			PlaceObjIntoObj(*it, charmice_box);
 		}
-		drop_obj_on_zreset(ch, charmice_box, true, false);
+		DropObjOnZoneReset(ch, charmice_box, true, false);
 	}
 
-	extract_char(ch, false);
+	ExtractCharFromWorld(ch, false);
 }
 }
 
@@ -989,7 +989,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		{
 			act("Возникший как из-под земли цыган ловко вскочил на $n3 и унесся прочь.",
 				false, ch.get(), nullptr, nullptr, kToRoom);
-			extract_char(ch.get(), false);
+			ExtractCharFromWorld(ch.get(), false);
 			return;
 		}
 		// Extract uncharmed mobs

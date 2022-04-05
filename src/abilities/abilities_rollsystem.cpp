@@ -134,7 +134,7 @@ void AgainstRivalRoll::TrainBaseSkill(bool success) {
 };
 
 int AgainstRivalRoll::CalcTargetRating() {
-	return std::max(0, CalculateSaving(actor_, rival_, ability_->saving, 0));
+	return std::max(0, CalcSaving(actor_, rival_, ability_->saving, 0));
 };
 
 //TODO: избавиться от target в calculate_skill и убрать обертку

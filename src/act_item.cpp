@@ -142,10 +142,10 @@ int perform_put(CharData *ch, ObjData::shared_ptr obj, ObjData *cont) {
 					// тут можно просто в поле прибавить, но там описание для кун разное от кол-ва
 					int money = GET_OBJ_VAL(temp, 0);
 					money += GET_OBJ_VAL(obj, 0);
-					obj_from_obj(temp);
-					extract_obj(temp);
-					obj_from_obj(obj.get());
-					extract_obj(obj.get());
+					ExtractObjFromObj(temp);
+					ExtractObjFromWorld(temp);
+					ExtractObjFromObj(obj.get());
+					ExtractObjFromWorld(obj.get());
 					obj = create_money(money);
 					if (!obj) {
 						return 0;
@@ -155,7 +155,7 @@ int perform_put(CharData *ch, ObjData::shared_ptr obj, ObjData *cont) {
 			}
 		}
 
-		obj_to_obj(obj.get(), cont);
+		PlaceObjIntoObj(obj.get(), cont);
 
 		act("$n положил$g $o3 в $O3.", true, ch, obj.get(), cont, kToRoom | kToArenaListen);
 
@@ -483,7 +483,7 @@ void do_put(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					// если положить не удалось - возвращаем все взад
 					if (perform_put(ch, obj, cont)) {
 						ExtractObjFromChar(obj.get());
-						extract_obj(obj.get());
+						ExtractObjFromWorld(obj.get());
 						ch->add_gold(howmany);
 						return;
 					}
@@ -598,7 +598,7 @@ void do_refill(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		{
 			to_obj->add_val(2, t1);
 			send_to_char("Вы аккуратно сложили стрелы в колчан.\r\n", ch);
-			extract_obj(from_obj);
+			ExtractObjFromWorld(from_obj);
 			return;
 		} else {
 			to_obj->add_val(2, (t2 - GET_OBJ_VAL(to_obj, 2)));
@@ -687,7 +687,7 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 			sprintf(local_buf, "%d", value);
 			do_split(ch, local_buf, 0, 0, curr_type);
 		}
-		extract_obj(obj);
+		ExtractObjFromWorld(obj);
 		return;
 	}
 
@@ -743,7 +743,7 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 	}
 
 	ExtractObjFromChar(obj);
-	extract_obj(obj);
+	ExtractObjFromWorld(obj);
 }
 
 // return 0 - чтобы словить невозможность взять из клан-сундука,
@@ -767,7 +767,7 @@ bool perform_get_from_container(CharData *ch, ObjData *obj, ObjData *cont, int m
 			}
 			return 1;
 		}
-		obj_from_obj(obj);
+		ExtractObjFromObj(obj);
 		PlaceObjToInventory(obj, ch);
 		if (obj->get_carried_by() == ch) {
 			if (bloody::is_bloody(obj)) {
@@ -845,7 +845,7 @@ void get_from_container(CharData *ch, ObjData *cont, char *arg, int mode, int ho
 
 int perform_get_from_room(CharData *ch, ObjData *obj) {
 	if (can_take_obj(ch, obj) && get_otrigger(obj, ch) && bloody::handle_transfer(nullptr, ch, obj)) {
-		obj_from_room(obj);
+		ExtractObjFromRoom(obj);
 		PlaceObjToInventory(obj, ch);
 		if (obj->get_carried_by() == ch) {
 			if (bloody::is_bloody(obj)) {
@@ -1094,8 +1094,8 @@ void perform_drop_gold(CharData *ch, int amount) {
 			if (GET_OBJ_TYPE(existing_obj) == EObjType::kMoney && GET_OBJ_VAL(existing_obj, 1) == currency::GOLD) {
 				//Запоминаем стоимость существующей кучки и удаляем ее
 				additional_amount = GET_OBJ_VAL(existing_obj, 0);
-				obj_from_room(existing_obj);
-				extract_obj(existing_obj);
+				ExtractObjFromRoom(existing_obj);
+				ExtractObjFromWorld(existing_obj);
 			}
 		}
 
@@ -1103,7 +1103,7 @@ void perform_drop_gold(CharData *ch, int amount) {
 		int result = drop_wtrigger(obj.get(), ch);
 
 		if (!result) {
-			extract_obj(obj.get());
+			ExtractObjFromWorld(obj.get());
 			return;
 		}
 
@@ -1444,9 +1444,9 @@ void weight_change_object(ObjData *obj, int weight) {
 		obj->set_weight(MAX(1, GET_OBJ_WEIGHT(obj) + weight));
 		PlaceObjToInventory(obj, tmp_ch);
 	} else if ((tmp_obj = obj->get_in_obj())) {
-		obj_from_obj(obj);
+		ExtractObjFromObj(obj);
 		obj->set_weight(MAX(1, GET_OBJ_WEIGHT(obj) + weight));
-		obj_to_obj(obj, tmp_obj);
+		PlaceObjIntoObj(obj, tmp_obj);
 	} else {
 		log("SYSERR: Unknown attempt to subtract weight from an object.");
 	}
@@ -1489,7 +1489,7 @@ void do_fry(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	const auto tobj = world_objects.create_from_prototype_by_vnum(meat_mapping.get(meet_vnum));
 	if (tobj) {
 		can_carry_obj(ch, tobj.get());
-		extract_obj(meet);
+		ExtractObjFromWorld(meet);
 		WAIT_STATE(ch, 1 * kPulseViolence);
 	} else {
 		mudlog("Не возможно загрузить жаренное мясо в act.item.cpp::do_fry!", NRM, kLvlGreatGod, ERRLOG, true);
@@ -1616,12 +1616,12 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (subcmd == SCMD_EAT
 		|| (subcmd == SCMD_TASTE
 			&& GET_OBJ_TYPE(food) == EObjType::kNote)) {
-		extract_obj(food);
+		ExtractObjFromWorld(food);
 	} else {
 		food->set_val(0, food->get_val(0) - 1);
 		if (!food->get_val(0)) {
 			send_to_char("Вы доели все!\r\n", ch);
-			extract_obj(food);
+			ExtractObjFromWorld(food);
 		}
 	}
 }
@@ -2305,7 +2305,7 @@ void do_upgrade(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (obj->get_timer() == 0) // не ждем рассыпания на тике
 	{
 		act("$o не выдержал$G издевательств и рассыпал$U в мелкую пыль...", false, ch, obj, 0, kToChar);
-		extract_obj(obj);
+		ExtractObjFromWorld(obj);
 		return;
 	}
 	//При 200% заточки шмотка будет точиться на 4-5 хитролов и 4-5 дамролов
@@ -2908,7 +2908,7 @@ void do_repair(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		} else {
 			act("Вы окончательно доломали $o3.", false, ch, obj, 0, kToChar);
 			act("$n окончательно доломал$g $o3.", false, ch, obj, 0, kToRoom | kToArenaListen);
-			extract_obj(obj);
+			ExtractObjFromWorld(obj);
 		}
 	} else {
 		timed.skill = ESkill::kRepair;
@@ -3079,7 +3079,7 @@ void do_makefood(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	}
 
-	extract_obj(obj);
+	ExtractObjFromWorld(obj);
 }
 
 void feed_charmice(CharData *ch, char *arg) {
@@ -3104,7 +3104,7 @@ void feed_charmice(CharData *ch, char *arg) {
 
 	if (reformed_hp_summ >= get_player_charms(ch->get_master(), kSpellAnimateDead)) {
 		send_to_char("Вы не можете управлять столькими последователями.\r\n", ch->get_master());
-		extract_char(ch, false);
+		ExtractCharFromWorld(ch, false);
 		return;
 	}
 
@@ -3128,7 +3128,7 @@ void feed_charmice(CharData *ch, char *arg) {
 		if (GET_POS(ch) == EPosition::kDead) {
 			die(ch, nullptr);
 		}
-		extract_obj(obj);
+		ExtractObjFromWorld(obj);
 		return;
 	}
 	if (weather_info.moon_day < 14) {
@@ -3166,7 +3166,7 @@ void feed_charmice(CharData *ch, char *arg) {
 			true, ch, nullptr, ch->get_master(), kToNotVict | kToArenaListen);
 	}
 
-	extract_obj(obj);
+	ExtractObjFromWorld(obj);
 }
 
 // чтоб не абузили длину. персональные пофиг, а клановые не надо.

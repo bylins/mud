@@ -206,31 +206,6 @@ class PlayerIndexElement {
 	const char *m_name;
 };
 
-const int SEASON_WINTER = 0;
-const int SEASON_SPRING = 1;
-const int SEASON_SUMMER = 2;
-const int SEASON_AUTUMN = 3;
-
-const int MONTH_JANUARY = 0;
-const int MONTH_FEBRUARY = 1;
-const int MONTH_MART = 2;
-const int MONTH_APRIL = 3;
-const int MONTH_MAY = 4;
-const int MONTH_JUNE = 5;
-const int MONTH_JULY = 6;
-const int MONTH_AUGUST = 7;
-const int MONTH_SEPTEMBER = 8;
-const int MONTH_OCTOBER = 9;
-const int MONTH_NOVEMBER = 10;
-const int MONTH_DECEMBER = 11;
-const int DAYS_PER_WEEK = 7;
-
-struct month_temperature_type {
-	int min;
-	int max;
-	int med;
-};
-
 //Polud тестовый класс для хранения параметров различных рас мобов
 struct ingredient {
 	int imtype;

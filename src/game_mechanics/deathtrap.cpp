@@ -129,14 +129,14 @@ int deathtrap::check_death_trap(CharData *ch) {
 			//конец правки (с) Василиса
 			corpse = make_corpse(ch);
 			if (corpse != nullptr) {
-				obj_from_room(corpse);    // для того, чтобы удалилость все содержимое
-				extract_obj(corpse);
+				ExtractObjFromRoom(corpse);    // для того, чтобы удалилость все содержимое
+				ExtractObjFromWorld(corpse);
 			}
 			GET_HIT(ch) = GET_MOVE(ch) = 0;
 			if (NORENTABLE(ch)) {
 				die(ch, nullptr);
 			} else
-				extract_char(ch, true);
+				ExtractCharFromWorld(ch, true);
 			return true;
 		}
 	}

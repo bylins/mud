@@ -331,7 +331,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 
 	sprinttype(static_cast<int>(GET_POS(k)), position_types, smallBuf);
 	sprintf(buf, "Положение: %s, Сражается: %s, Экипирован в металл: %s",
-			smallBuf, (k->get_fighting() ? GET_NAME(k->get_fighting()) : "Нет"), (equip_in_metall(k) ? "Да" : "Нет"));
+			smallBuf, (k->get_fighting() ? GET_NAME(k->get_fighting()) : "Нет"), (IsEquipInMetall(k) ? "Да" : "Нет"));
 
 	if (k->is_npc()) {
 		strcat(buf, ", Тип атаки: ");

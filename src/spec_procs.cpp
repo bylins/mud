@@ -1532,7 +1532,7 @@ int horse_keeper(CharData *ch, void *me, int cmd, char *argument) {
 		act(buf, false, ch, 0, victim, kToChar);
 		sprintf(buf, "$N расседлал$G %s и отвел$G %s в стойло.", GET_PAD(horse, 3), HSHR(horse));
 		act(buf, false, ch, 0, victim, kToRoom);
-		extract_char(horse, false);
+		ExtractCharFromWorld(horse, false);
 		ch->add_gold((HORSE_COST >> 1));
 		PLR_FLAGS(ch).set(EPlrFlag::kCrashSave);
 		return (true);
@@ -1674,9 +1674,9 @@ int npc_scavenge(CharData *ch) {
 				act("$n поднял$g $o3.", false, ch, best_obj, 0, kToRoom);
 				if (GET_OBJ_TYPE(best_obj) == EObjType::kMoney) {
 					ch->add_gold(GET_OBJ_VAL(best_obj, 0));
-					extract_obj(best_obj);
+					ExtractObjFromWorld(best_obj);
 				} else {
-					obj_from_room(best_obj);
+					ExtractObjFromRoom(best_obj);
 					PlaceObjToInventory(best_obj, ch);
 				}
 			} else {
@@ -1684,9 +1684,9 @@ int npc_scavenge(CharData *ch) {
 				act(buf, false, ch, best_obj, 0, kToRoom);
 				if (GET_OBJ_TYPE(best_obj) == EObjType::kMoney) {
 					ch->add_gold(GET_OBJ_VAL(best_obj, 0));
-					extract_obj(best_obj);
+					ExtractObjFromWorld(best_obj);
 				} else {
-					obj_from_obj(best_obj);
+					ExtractObjFromObj(best_obj);
 					PlaceObjToInventory(best_obj, ch);
 				}
 			}
@@ -1718,9 +1718,9 @@ int npc_loot(CharData *ch) {
 						act(buf, false, ch, loot_obj, 0, kToRoom);
 						if (GET_OBJ_TYPE(loot_obj) == EObjType::kMoney) {
 							ch->add_gold(GET_OBJ_VAL(loot_obj, 0));
-							extract_obj(loot_obj);
+							ExtractObjFromWorld(loot_obj);
 						} else {
-							obj_from_obj(loot_obj);
+							ExtractObjFromObj(loot_obj);
 							PlaceObjToInventory(loot_obj, ch);
 							max++;
 						}
@@ -1745,9 +1745,9 @@ int npc_loot(CharData *ch) {
 								act(buf, false, ch, cobj, 0, kToRoom);
 								if (GET_OBJ_TYPE(cobj) == EObjType::kMoney) {
 									ch->add_gold(GET_OBJ_VAL(cobj, 0));
-									extract_obj(cobj);
+									ExtractObjFromWorld(cobj);
 								} else {
-									obj_from_obj(cobj);
+									ExtractObjFromObj(cobj);
 									PlaceObjToInventory(cobj, ch);
 									max++;
 								}
@@ -1791,9 +1791,9 @@ int npc_loot(CharData *ch) {
 								act(buf, false, ch, cobj, 0, kToRoom);
 								if (GET_OBJ_TYPE(cobj) == EObjType::kMoney) {
 									ch->add_gold(GET_OBJ_VAL(cobj, 0));
-									extract_obj(cobj);
+									ExtractObjFromWorld(cobj);
 								} else {
-									obj_from_obj(cobj);
+									ExtractObjFromObj(cobj);
 									PlaceObjToInventory(cobj, ch);
 									max++;
 								}
@@ -2179,7 +2179,7 @@ int npc_battle_scavenge(CharData *ch) {
 				&& !has_curse(obj)
 				&& (ObjSystem::is_armor_type(obj)
 					|| GET_OBJ_TYPE(obj) == EObjType::kWeapon)) {
-				obj_from_room(obj);
+				ExtractObjFromRoom(obj);
 				PlaceObjToInventory(obj, ch);
 				act("$n поднял$g $o3.", false, ch, obj, 0, kToRoom);
 				max = true;
@@ -2410,7 +2410,7 @@ int dump(CharData *ch, void * /*me*/, int cmd, char *argument) {
 
 	for (k = world[ch->in_room]->contents; k; k = world[ch->in_room]->contents) {
 		act("$p рассыпал$U в прах!", false, 0, k, 0, kToRoom);
-		extract_obj(k);
+		ExtractObjFromWorld(k);
 	}
 
 	if (!CMD_IS("drop") || !CMD_IS("бросить"))
@@ -2421,7 +2421,7 @@ int dump(CharData *ch, void * /*me*/, int cmd, char *argument) {
 	for (k = world[ch->in_room]->contents; k; k = world[ch->in_room]->contents) {
 		act("$p рассыпал$U в прах!", false, 0, k, 0, kToRoom);
 		value += MAX(1, MIN(1, GET_OBJ_COST(k) / 10));
-		extract_obj(k);
+		ExtractObjFromWorld(k);
 	}
 
 	if (value) {
@@ -2677,10 +2677,10 @@ int fido(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 			act("$n savagely devours a corpse.", false, ch, 0, 0, kToRoom);
 			for (temp = i->get_contains(); temp; temp = next_obj) {
 				next_obj = temp->get_next_content();
-				obj_from_obj(temp);
+				ExtractObjFromObj(temp);
 				PlaceObjToRoom(temp, ch->in_room);
 			}
-			extract_obj(i);
+			ExtractObjFromWorld(i);
 			return (true);
 		}
 	}
@@ -2704,7 +2704,7 @@ int janitor(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 		}
 
 		act("$n picks up some trash.", false, ch, 0, 0, kToRoom);
-		obj_from_room(i);
+		ExtractObjFromRoom(i);
 		PlaceObjToInventory(i, ch);
 
 		return true;
@@ -2784,7 +2784,7 @@ int pet_shops(CharData *ch, void * /*me*/, int cmd, char *argument) {
 	} else if (CMD_IS("buy")) {
 		two_arguments(argument, buf, pet_name);
 
-		if (!(pet = get_char_room(buf, pet_room))) {
+		if (!(pet = SearchCharInRoomByName(buf, pet_room))) {
 			send_to_char("There is no such pet!\r\n", ch);
 			return (true);
 		}

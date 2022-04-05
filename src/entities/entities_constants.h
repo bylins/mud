@@ -90,6 +90,26 @@ const std::string &NAME_BY_ITEM<ESaving>(ESaving item);
 template<>
 ESaving ITEM_BY_NAME<ESaving>(const std::string &name);
 
+/**
+ * Magic damage resistance types.
+ */
+enum EResist {
+	kFire = 0,
+	kAir,
+	kWater,
+	kEarth,
+	kVitality,
+	kMind,
+	kImmunity,
+	kDark,
+	kFirstResist = kFire,
+	kLastResist = kDark
+};
+
+EResist& operator++(EResist &r);
+
+const int kMaxPlayerResist = 75;
+
 /*
  * Character equipment positions: used as index for char_data.equipment[]
  * MOTE: Don't confuse these constants with the ITEM_ bitvectors which control
@@ -465,7 +485,7 @@ enum EDirection {
  * WARNING: In the world files, NEVER set the bits marked "R" ("Reserved")
  */
  enum ERoomFlag : Bitvector {
-	kDark = 1 << 0,
+	kDarked = 1 << 0,
 	kDeathTrap =  1 << 1,    // Death trap      //
 	kNoEntryMob = 1 << 2,
 	kIndoors = 1 << 3,

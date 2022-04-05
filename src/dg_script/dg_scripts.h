@@ -450,16 +450,15 @@ int remove_var_cntx(struct TriggerVar **var_list, char *name, long id);
 
 // player id's: 0 to ROOM_ID_BASE - 1            //
 // room id's: ROOM_ID_BASE to MOBOBJ_ID_BASE - 1 //
-#define ROOM_ID_BASE    150000
+const int kRoomToBase = 150000;
 
 #define SCRIPT_TYPES(s)          ((s)->types)
-#define TRIGGERS(s)          ((s)->trig_list)
 
 #define GET_SHORT(ch)    ((ch)->get_npc_name().c_str())
 
-bool SCRIPT_CHECK(const ObjData *go, const long type);
-bool SCRIPT_CHECK(const CharData *go, const long type);
-bool SCRIPT_CHECK(const RoomData *go, const long type);
+bool CheckSript(const ObjData *go, const long type);
+bool CheckScript(const CharData *go, const long type);
+bool CheckSript(const RoomData *go, const long type);
 
 #define TRIGGER_CHECK(t, type)   (IS_SET(GET_TRIG_TYPE(t), type) && \
                   !GET_TRIG_DEPTH(t))

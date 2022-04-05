@@ -337,7 +337,7 @@ void InitFeatures() {
 	InitFeat(EFeat::kGreatPowerAttack, "улучшенная мощная атака", EFeatType::kActivated, true, feat_app);
 //55
 	feat_app.insert(EApply::kResistImmunity, 15);
-	InitFeat(EFeat::kImmunity, "привычка к яду", EFeatType::kAffect, true, feat_app);
+	InitFeat(EFeat::kStrongImmunity, "привычка к яду", EFeatType::kAffect, true, feat_app);
 	feat_app.clear();
 //56
 	feat_app.insert(EApply::kAc, -40);

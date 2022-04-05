@@ -532,7 +532,7 @@ bool ObjData::clone_olc_object_from_prototype(const ObjVnum vnum) {
 
 	set_rnum(old_rnum);
 
-	extract_obj(obj_original.get());
+	ExtractObjFromWorld(obj_original.get());
 
 	return true;
 }
@@ -1068,7 +1068,7 @@ void process_open_purse(CharData *ch, ObjData *obj) {
 	snprintf(buf_, sizeof(buf_), "all");
 	get_from_container(ch, obj, buf_, EFind::kObjInventory, 1, false);
 	act("$o рассыпал$U в ваших руках...", false, ch, obj, 0, kToChar);
-	extract_obj(obj);
+	ExtractObjFromWorld(obj);
 }
 
 } // namespace system_obj

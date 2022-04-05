@@ -2281,7 +2281,7 @@ void Clan::hcontrol_set_ingr_chest(CharData *ch, std::string &text) {
 		for (ObjData *chest = world[(*i)->get_ingr_chest_room_rnum()]->contents; chest;
 			 chest = chest->get_next_content()) {
 			if (is_ingr_chest(chest)) {
-				obj_from_room(chest);
+				ExtractObjFromRoom(chest);
 				PlaceObjToRoom(chest, room_rnum);
 				chest_moved = true;
 				break;
@@ -2563,8 +2563,8 @@ void Clan::DestroyClan(Clan::shared_ptr clan) {
 		if (Clan::is_clan_chest(chest)) {
 			for (temp = chest->get_contains(); temp; temp = obj_next) {
 				obj_next = temp->get_next_content();
-				obj_from_obj(temp);
-				extract_obj(temp);
+				ExtractObjFromObj(temp);
+				ExtractObjFromWorld(temp);
 			}
 			break;
 		}
@@ -2923,7 +2923,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 		long gold = GET_OBJ_VAL(obj, 0);
 		if (IS_IMMORTAL(ch)) {
 			ExtractObjFromChar(obj);
-			extract_obj(obj);
+			ExtractObjFromWorld(obj);
 			ch->add_gold(gold);
 			send_to_char(ch, "Вам это не положено! Вы вновь обрели %ld %s.\r\n",
 						 gold, GetDeclensionInNumber(gold, EWhat::kMoneyU));
@@ -2937,7 +2937,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 			gold -= over;
 			ch->add_gold(gold);
 			ExtractObjFromChar(obj);
-			extract_obj(obj);
+			ExtractObjFromWorld(obj);
 			send_to_char(ch,
 						 "Вам удалось вложить в казну дружины только %ld %s.\r\n",
 						 over,
@@ -2947,7 +2947,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 		CLAN(ch)->bank += gold;
 		CLAN(ch)->m_members.add_money(GET_UNIQUE(ch), gold);
 		ExtractObjFromChar(obj);
-		extract_obj(obj);
+		ExtractObjFromWorld(obj);
 		send_to_char(ch, "Вы вложили в казну дружины %ld %s.\r\n", gold, GetDeclensionInNumber(gold, EWhat::kMoneyU));
 
 	} else if (obj->has_flag(EObjFlag::kNodrop)
@@ -2979,7 +2979,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 			return false;
 		}
 		ExtractObjFromChar(obj);
-		obj_to_obj(obj, chest);
+		PlaceObjIntoObj(obj, chest);
 		ObjSaveSync::add(ch->get_uid(), CLAN(ch)->GetRent(), ObjSaveSync::CLAN_SAVE);
 
 		std::string log_text = boost::str(boost::format("%s сдал%s %s%s\r\n")
@@ -3023,7 +3023,7 @@ bool Clan::TakeChest(CharData *ch, ObjData *obj, ObjData *chest) {
 		return false;
 	}
 
-	obj_from_obj(obj);
+	ExtractObjFromObj(obj);
 	PlaceObjToInventory(obj, ch);
 	ObjSaveSync::add(ch->get_uid(), CLAN(ch)->GetRent(), ObjSaveSync::CLAN_SAVE);
 
@@ -3109,10 +3109,10 @@ void Clan::ChestLoad() {
 			if (Clan::is_clan_chest(chest)) {
 				for (temp = chest->get_contains(); temp; temp = obj_next) {
 					obj_next = temp->get_next_content();
-					obj_from_obj(temp);
-					extract_obj(temp);
+					ExtractObjFromObj(temp);
+					ExtractObjFromWorld(temp);
 				}
-				extract_obj(chest);
+				ExtractObjFromWorld(chest);
 				break;
 			}
 		}
@@ -3178,9 +3178,9 @@ void Clan::ChestLoad() {
 			if (!NamedStuff::check_named(nullptr,
 										 obj.get()))//Если объект есть в списке именных то ему нечего делать в хранилище
 			{
-				obj_to_obj(obj.get(), chest.get());
+				PlaceObjIntoObj(obj.get(), chest.get());
 			} else {
-				extract_obj(obj.get());
+				ExtractObjFromWorld(obj.get());
 			}
 		}
 		delete[] databuf;
@@ -3212,8 +3212,8 @@ void Clan::ChestUpdate() {
 				if (Clan::is_clan_chest(chest)) {
 					for (temp = chest->get_contains(); temp; temp = obj_next) {
 						obj_next = temp->get_next_content();
-						obj_from_obj(temp);
-						extract_obj(temp);
+						ExtractObjFromObj(temp);
+						ExtractObjFromWorld(temp);
 					}
 					break;
 				}
@@ -5131,10 +5131,10 @@ void Clan::init_ingr_chest() {
 			ObjData *obj_next;
 			for (ObjData *temp = chest->get_contains(); temp; temp = obj_next) {
 				obj_next = temp->get_next_content();
-				obj_from_obj(temp);
-				extract_obj(temp);
+				ExtractObjFromObj(temp);
+				ExtractObjFromWorld(temp);
 			}
-			extract_obj(chest);
+			ExtractObjFromWorld(chest);
 			break;
 		}
 	}
@@ -5189,7 +5189,7 @@ void Clan::init_ingr_chest() {
 
 			continue;
 		}
-		obj_to_obj(obj.get(), chest.get());
+		PlaceObjIntoObj(obj.get(), chest.get());
 	}
 	delete[] databuf;
 }
@@ -5245,7 +5245,7 @@ bool Clan::put_ingr_chest(CharData *ch, ObjData *obj, ObjData *chest) {
 		if (GET_OBJ_TYPE(obj) == EObjType::kMoney) {
 			int howmany = GET_OBJ_VAL(obj, 0);
 			ExtractObjFromChar(obj);
-			extract_obj(obj);
+			ExtractObjFromWorld(obj);
 			ch->add_gold(howmany);
 			send_to_char(ch, "Вы вновь обрели %d %s.\r\n", howmany, GetDeclensionInNumber(howmany, EWhat::kMoneyU));
 		}
@@ -5268,7 +5268,7 @@ bool Clan::put_ingr_chest(CharData *ch, ObjData *obj, ObjData *chest) {
 		}
 
 		ExtractObjFromChar(obj);
-		obj_to_obj(obj, chest);
+		PlaceObjIntoObj(obj, chest);
 		act("Вы положили $o3 в $O3.", false, ch, obj, chest, kToChar);
 		CLAN(ch)->ingr_chest_objcount_++;
 	}
@@ -5282,7 +5282,7 @@ bool Clan::take_ingr_chest(CharData *ch, ObjData *obj, ObjData *chest) {
 		return false;
 	}
 
-	obj_from_obj(obj);
+	ExtractObjFromObj(obj);
 	PlaceObjToInventory(obj, ch);
 	if (obj->get_carried_by() == ch) {
 		act("Вы взяли $o3 из $O1.", false, ch, obj, chest, kToChar);
@@ -5345,8 +5345,8 @@ void Clan::purge_ingr_chest() {
 			ObjData *obj_next;
 			for (ObjData *temp = chest->get_contains(); temp; temp = obj_next) {
 				obj_next = temp->get_next_content();
-				obj_from_obj(temp);
-				extract_obj(temp);
+				ExtractObjFromObj(temp);
+				ExtractObjFromWorld(temp);
 			}
 			break;
 		}
@@ -5381,7 +5381,7 @@ void Clan::set_ingr_chest(CharData *ch) {
 	if (ingr_chest_active()) {
 		for (ObjData *chest = world[get_ingr_chest_room_rnum()]->contents; chest; chest = chest->get_next_content()) {
 			if (is_ingr_chest(chest)) {
-				obj_from_room(chest);
+				ExtractObjFromRoom(chest);
 				PlaceObjToRoom(chest, ch->in_room);
 				chest_moved = true;
 				break;
@@ -5415,7 +5415,7 @@ void Clan::disable_ingr_chest(CharData *ch) {
 				send_to_char("Во избежание недоразумений отключить можно только пустое хранилище.\r\n", ch);
 				return;
 			}
-			extract_obj(chest);
+			ExtractObjFromWorld(chest);
 			break;
 		}
 	}

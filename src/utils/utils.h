@@ -453,8 +453,7 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
 // room utils ***********************************************************
 #define SECT(room)   (world[(room)]->sector_type)
 #define GET_ROOM_SKY(room) (world[room]->weather.duration > 0 ? world[room]->weather.sky : weather_info.sky)
-#define IS_TIMEDARK(room) is_dark(room)
-#define IS_DEFAULTDARK(room) (ROOM_FLAGGED(room, ERoomFlag::kDark) || \
+#define IS_DEFAULTDARK(room) (ROOM_FLAGGED(room, ERoomFlag::kDarked) || \
                               (SECT(room) != ESector::kInside && \
                                SECT(room) != ESector::kCity   && \
                                ( weather_info.sunlight == kSunSet || \
@@ -1111,7 +1110,7 @@ size_t strlen_no_colors(const char *str);
 #define SEEK_END  2
 #endif
 
-#define SENDOK(ch)   (((ch)->desc || SCRIPT_CHECK((ch), MTRIG_ACT)) && \
+#define SENDOK(ch)   (((ch)->desc || CheckScript((ch), MTRIG_ACT)) && \
                (to_sleeping || AWAKE(ch)) && \
                      !PLR_FLAGGED((ch), EPlrFlag::kWriting))
 

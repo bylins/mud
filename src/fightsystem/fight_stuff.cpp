@@ -758,7 +758,7 @@ void raw_kill(CharData *ch, CharData *killer) {
 			arena_kill(ch, killer);
 		} else {
 			real_kill(ch, killer);
-			extract_char(ch, true);
+			ExtractCharFromWorld(ch, true);
 		}
 	}
 }
@@ -1125,7 +1125,7 @@ void alterate_object(ObjData *obj, int dam, int chance) {
 						 char_get_custom_label(obj, obj->get_carried_by()).c_str());
 				act(buf, false, obj->get_carried_by(), obj, nullptr, kToChar);
 			}
-			extract_obj(obj);
+			ExtractObjFromWorld(obj);
 		}
 	}
 }

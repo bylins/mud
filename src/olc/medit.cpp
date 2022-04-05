@@ -126,7 +126,7 @@ void medit_mobile_init(CharData *mob) {
 	MOB_FLAGS(mob).set(EMobFlag::kNpc);
 	mob->player_specials = player_special_data::s_for_mobiles;
 
-	for (auto i = 0; i < MAX_NUMBER_RESISTANCE; i++) {
+	for (auto i = EResist::kFirstResist; i <= EResist::kLastResist; ++i) {
 		GET_RESIST(mob, i) = 0;
 	}
 }
@@ -1786,12 +1786,13 @@ void medit_parse(DescriptorData *d, char *arg) {
 			if (number == 0) {
 				break;
 			}
-			if (number > MAX_NUMBER_RESISTANCE || number < 0) {
+			--number;
+			if (number < EResist::kFirstResist || number > EResist::kLastResist) {
 				send_to_char("Неверный номер.\r\n", d->character.get());
 			} else if (sscanf(arg, "%d %d", &plane, &bit) < 2) {
 				send_to_char("Не указан уровень сопротивления.\r\n", d->character.get());
 			} else {
-				GET_RESIST(OLC_MOB(d), number - 1) = MIN(100, MAX(-100, bit));
+				GET_RESIST(OLC_MOB(d), number) =  std::clamp(bit, kMinResistance, kMaxResistance);
 			}
 			medit_disp_resistances(d);
 			return;

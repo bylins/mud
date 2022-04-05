@@ -518,4 +518,9 @@ EObjMaterial ITEM_BY_NAME(const std::string &name) {
 	return EObjMaterial_value_by_name.at(name);
 }
 
+EResist& operator++(EResist &r) {
+	r =  static_cast<EResist>(to_underlying(r) + 1);
+	return r;
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

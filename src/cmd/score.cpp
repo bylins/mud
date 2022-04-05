@@ -144,14 +144,14 @@ void PrintScoreList(CharData *ch) {
 				ch->add_abils.percent_magdam_add + ch->obj_bonus().calc_mage_dmg(100),
 				ch->add_abils.percent_physdam_add + ch->obj_bonus().calc_phys_dmg(100));
 	send_to_char(ch, "Сопротивление: огню: %d, воздуху: %d, воде: %d, земле: %d, тьме: %d, живучесть: %d, разум: %d, иммунитет: %d.\r\n",
-				 MIN(GET_RESIST(ch, FIRE_RESISTANCE), 75),
-				 MIN(GET_RESIST(ch, AIR_RESISTANCE), 75),
-				 MIN(GET_RESIST(ch, WATER_RESISTANCE), 75),
-				 MIN(GET_RESIST(ch, EARTH_RESISTANCE), 75),
-				 MIN(GET_RESIST(ch, DARK_RESISTANCE), 75),
-				 MIN(GET_RESIST(ch, VITALITY_RESISTANCE), 75),
-				 MIN(GET_RESIST(ch, MIND_RESISTANCE), 75),
-				 MIN(GET_RESIST(ch, IMMUNITY_RESISTANCE), 75));
+				 MIN(GET_RESIST(ch, EResist::kFire), 75),
+				 MIN(GET_RESIST(ch, EResist::kAir), 75),
+				 MIN(GET_RESIST(ch, EResist::kWater), 75),
+				 MIN(GET_RESIST(ch, EResist::kEarth), 75),
+				 MIN(GET_RESIST(ch, EResist::kDark), 75),
+				 MIN(GET_RESIST(ch, EResist::kVitality), 75),
+				 MIN(GET_RESIST(ch, EResist::kMind), 75),
+				 MIN(GET_RESIST(ch, EResist::kImmunity), 75));
 	send_to_char(ch, "Спас броски: воля: %d, здоровье: %d, стойкость: %d, реакция: %d, маг.резист: %d, физ.резист %d, отчар.резист: %d.\r\n",
 				 GET_REAL_SAVING_WILL(ch),
 				 GET_REAL_SAVING_CRITICAL(ch),
@@ -583,14 +583,14 @@ int PrintProtectiveStatsToTable(CharData *ch, table_wrapper::Table &table, std::
 	table[++row][col] = "Сопротивления: ";	table[row][col + 1] = " ";
 	table[++row][col] = "Урону";			table[row][col + 1] = std::to_string(GET_MR(ch));
 	table[++row][col] = "Заклинаниям";		table[row][col + 1] = std::to_string(GET_PR(ch));
-	table[++row][col] = "Магии огня";		table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, FIRE_RESISTANCE), kMaxPlayerResist));
-	table[++row][col] = "Магии воды";		table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, WATER_RESISTANCE), kMaxPlayerResist));
-	table[++row][col] = "Магии земли";		table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EARTH_RESISTANCE), kMaxPlayerResist));
-	table[++row][col] = "Магии воздуха";	table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, AIR_RESISTANCE), kMaxPlayerResist));
-	table[++row][col] = "Магии тьмы";		table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, DARK_RESISTANCE), kMaxPlayerResist));
-	table[++row][col] = "Магии разума";		table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, MIND_RESISTANCE), kMaxPlayerResist));
-	table[++row][col] = "Тяжелым ранам";	table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, VITALITY_RESISTANCE), kMaxPlayerResist));
-	table[++row][col] = "Ядам и болезням";	table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, IMMUNITY_RESISTANCE), kMaxPlayerResist));
+	table[++row][col] = "Магии огня";		table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kFire), kMaxPlayerResist));
+	table[++row][col] = "Магии воды";		table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kWater), kMaxPlayerResist));
+	table[++row][col] = "Магии земли";		table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kEarth), kMaxPlayerResist));
+	table[++row][col] = "Магии воздуха";	table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kAir), kMaxPlayerResist));
+	table[++row][col] = "Магии тьмы";		table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kDark), kMaxPlayerResist));
+	table[++row][col] = "Магии разума";		table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kMind), kMaxPlayerResist));
+	table[++row][col] = "Тяжелым ранам";	table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kVitality), kMaxPlayerResist));
+	table[++row][col] = "Ядам и болезням";	table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kImmunity), kMaxPlayerResist));
 
 	return 2; // заполнено столбцов
 }

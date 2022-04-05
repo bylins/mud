@@ -61,7 +61,7 @@ int average_day_temp(void);
 // local functions
 int graf(int age, int p0, int p1, int p2, int p3, int p4, int p5, int p6);
 int level_exp(CharData *ch, int level);
-void update_char_objects(CharData *ch);    // handler.cpp
+void UpdateCharObjects(CharData *ch);    // handler.cpp
 // Delete this, if you delete overflow fix in beat_points_update below.
 void die(CharData *ch, CharData *killer);
 // When age < 20 return the value p0 //
@@ -997,7 +997,7 @@ void check_idling(CharData *ch) {
 				Crash_crashsave(ch);
 				ExtractCharFromRoom(ch);
 				PlaceCharToRoom(ch, STRANGE_ROOM);
-				remove_rune_label(ch);
+				RemoveRuneLabelFromWorld(ch, ESpell::kSpellRuneLabel);
 			} else if (ch->char_specials.timer > idle_rent_time) {
 				if (ch->in_room != kNowhere)
 					ExtractCharFromRoom(ch);
@@ -1007,7 +1007,7 @@ void check_idling(CharData *ch) {
 				Clan::clan_invoice(ch, false);
 				sprintf(buf, "%s force-rented and extracted (idle).", GET_NAME(ch));
 				mudlog(buf, NRM, kLvlGod, SYSLOG, true);
-				extract_char(ch, false);
+				ExtractCharFromWorld(ch, false);
 
 				// чара в лд уже посейвило при обрыве коннекта
 				if (ch->desc) {
@@ -1267,8 +1267,8 @@ void clan_chest_point_update(ObjData *j) {
 			&& up_obj_where(j->get_in_obj()) != kNowhere
 			&& GET_OBJ_VNUM_ZONE_FROM(j) != zone_table[world[up_obj_where(j->get_in_obj())]->zone_rn].vnum)) {
 		clan_chest_invoice(j);
-		obj_from_obj(j);
-		extract_obj(j);
+		ExtractObjFromObj(j);
+		ExtractObjFromWorld(j);
 	}
 }
 
@@ -1370,9 +1370,9 @@ void obj_point_update() {
 				ObjData *jj, *next_thing2;
 				for (jj = j->get_contains(); jj; jj = next_thing2) {
 					next_thing2 = jj->get_next_content();    // Next in inventory
-					obj_from_obj(jj);
+					ExtractObjFromObj(jj);
 					if (j->get_in_obj()) {
-						obj_to_obj(jj, j->get_in_obj());
+						PlaceObjIntoObj(jj, j->get_in_obj());
 					} else if (j->get_carried_by()) {
 						PlaceObjToInventory(jj, j->get_carried_by());
 					} else if (j->get_in_room() != kNowhere) {
@@ -1381,7 +1381,7 @@ void obj_point_update() {
 						log("SYSERR: extract %s from %s to kNothing !!!",
 							jj->get_PName(0).c_str(), j->get_PName(0).c_str());
 						// core_dump();
-						extract_obj(jj);
+						ExtractObjFromWorld(jj);
 					}
 				}
 
@@ -1405,14 +1405,14 @@ void obj_point_update() {
 							kToChar);
 					}
 
-					obj_from_room(j.get());
+					ExtractObjFromRoom(j.get());
 				} else if (j->get_in_obj()) {
-					obj_from_obj(j.get());
+					ExtractObjFromObj(j.get());
 				}
-				extract_obj(j.get());
+				ExtractObjFromWorld(j.get());
 			}
 		} else {
-			if (SCRIPT_CHECK(j.get(), OTRIG_TIMER)) {
+			if (CheckSript(j.get(), OTRIG_TIMER)) {
 				if (j->get_timer() > 0 && j->has_flag(EObjFlag::kTicktimer)) {
 					j->dec_timer();
 				}
@@ -1437,9 +1437,9 @@ void obj_point_update() {
 				ObjData *jj, *next_thing2;
 				for (jj = j->get_contains(); jj; jj = next_thing2) {
 					next_thing2 = jj->get_next_content();
-					obj_from_obj(jj);
+					ExtractObjFromObj(jj);
 					if (j->get_in_obj()) {
-						obj_to_obj(jj, j->get_in_obj());
+						PlaceObjIntoObj(jj, j->get_in_obj());
 					} else if (j->get_worn_by()) {
 						PlaceObjToInventory(jj, j->get_worn_by());
 					} else if (j->get_carried_by()) {
@@ -1451,7 +1451,7 @@ void obj_point_update() {
 							jj->get_PName(0).c_str(),
 							j->get_PName(0).c_str());
 						// core_dump();
-						extract_obj(jj);
+						ExtractObjFromWorld(jj);
 					}
 				}
 
@@ -1506,7 +1506,7 @@ void obj_point_update() {
 							false, world[j->get_in_room()]->first_character(), j.get(), 0, kToRoom);
 					}
 
-					obj_from_room(j.get());
+					ExtractObjFromRoom(j.get());
 				} else if (j->get_in_obj()) {
 					// если сыпется в находящемся у чара или чармиса контейнере, то об этом тоже сообщаем
 					CharData *cont_owner = nullptr;
@@ -1528,9 +1528,9 @@ void obj_point_update() {
 							act(buf, false, cont_owner, j.get(), 0, kToChar);
 						}
 					}
-					obj_from_obj(j.get());
+					ExtractObjFromObj(j.get());
 				}
-			extract_obj(j.get());
+				ExtractObjFromWorld(j.get());
 			} else {
 				if (!j) {
 					return;
@@ -1730,7 +1730,7 @@ void point_update() {
 			}
 		}
 
-		update_char_objects(i);
+		UpdateCharObjects(i);
 
 		if (!i->is_npc()
 			&& GetRealLevel(i) < idle_max_level
@@ -1776,7 +1776,7 @@ void repop_decay(ZoneRnum zone) {
 				}
 			}
 
-			extract_obj(j.get());
+			ExtractObjFromWorld(j.get());
 		}
 	});
 }

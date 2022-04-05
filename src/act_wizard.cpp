@@ -393,13 +393,13 @@ void do_arena_restore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		for (int i = 0; i < EEquipPos::kNumEquipPos; i++) {
 			if (GET_EQ(vict, i)) {
 				remove_otrigger(GET_EQ(vict, i), vict);
-				extract_obj(UnequipChar(vict, i, CharEquipFlags()));
+				ExtractObjFromWorld(UnequipChar(vict, i, CharEquipFlags()));
 			}
 		}
 		ObjData *obj;
 		for (obj = vict->carrying; obj; obj = vict->carrying) {
 			ExtractObjFromChar(obj);
-			extract_obj(obj);
+			ExtractObjFromWorld(obj);
 		}
 		act("Все ваши вещи были удалены и все аффекты сняты $N4!",
 			false, vict, nullptr, ch, kToChar);
@@ -1938,7 +1938,7 @@ void do_vstat(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		mob = read_mobile(r_num, REAL);
 		PlaceCharToRoom(mob, 1);
 		do_stat_character(ch, mob, 1);
-		extract_char(mob, false);
+		ExtractCharFromWorld(mob, false);
 	} else if (utils::IsAbbrev(buf, "obj")) {
 		if ((r_num = real_object(number)) < 0) {
 			send_to_char("Этот предмет явно перенесли в РМУД.\r\n", ch);
@@ -1947,7 +1947,7 @@ void do_vstat(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		const auto obj = world_objects.create_from_prototype_by_rnum(r_num);
 		do_stat_object(ch, obj.get(), 1);
-		extract_obj(obj.get());
+		ExtractObjFromWorld(obj.get());
 	} else
 		send_to_char("Тут должно быть что-то типа 'obj' или 'mob'.\r\n", ch);
 }
@@ -1984,11 +1984,11 @@ void do_purge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 
 			if (!vict->purged()) {
-				extract_char(vict, false);
+				ExtractCharFromWorld(vict, false);
 			}
 		} else if ((obj = get_obj_in_list_vis(ch, buf, world[ch->in_room]->contents)) != nullptr) {
 			act("$n просто разметал$g $o3 на молекулы.", false, ch, obj, nullptr, kToRoom);
-			extract_obj(obj);
+			ExtractObjFromWorld(obj);
 		} else {
 			send_to_char("Ничего похожего с таким именем нет.\r\n", ch);
 			return;
@@ -2008,14 +2008,14 @@ void do_purge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 
 				if (!vict->purged()) {
-					extract_char(vict, false);
+					ExtractCharFromWorld(vict, false);
 				}
 			}
 		}
 
 		for (obj = world[ch->in_room]->contents; obj; obj = next_o) {
 			next_o = obj->get_next_content();
-			extract_obj(obj);
+			ExtractObjFromWorld(obj);
 		}
 	}
 }

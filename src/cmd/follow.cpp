@@ -83,7 +83,7 @@ bool stop_follower(CharData *ch, int mode) {
 				GET_LASTROOM(ch) = GET_ROOM_VNUM(ch->in_room);
 				perform_drop_gold(ch, ch->get_gold());
 				ch->set_gold(0);
-				extract_char(ch, false);
+				ExtractCharFromWorld(ch, false);
 				return (true);
 			} else if (AFF_FLAGGED(ch, EAffect::kHelper)) {
 				AFF_FLAGS(ch).unset(EAffect::kHelper);
@@ -109,7 +109,7 @@ bool stop_follower(CharData *ch, int mode) {
 					//extract_obj(tmp);
 					while (ch->carrying) {
 						ObjData *obj = ch->carrying;
-							extract_obj(obj);
+						ExtractObjFromWorld(obj);
 					}
 				}
 			}

@@ -185,7 +185,7 @@ void do_quit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			if (d->character && (GET_IDNUM(d->character) == GET_IDNUM(ch)))
 				STATE(d) = CON_DISCONNECT;
 		}
-		extract_char(ch, false);
+		ExtractCharFromWorld(ch, false);
 	}
 }
 
@@ -2332,7 +2332,7 @@ void do_pray(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		sprintf(buf, "Вы принесли $o3 в жертву %s.", pray_whom[metter]);
 		act(buf, false, ch, obj, nullptr, kToChar);
 		ExtractObjFromChar(obj);
-		extract_obj(obj);
+		ExtractObjFromWorld(obj);
 	}
 }
 
@@ -2478,7 +2478,7 @@ void do_bandage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	IS_CARRYING_W(ch) -= 1;
 	if (GET_OBJ_WEIGHT(bandage) <= 0) {
 		send_to_char("Очередная пачка бинтов подошла к концу.\r\n", ch);
-		extract_obj(bandage);
+		ExtractObjFromWorld(bandage);
 	}
 }
 
@@ -2501,7 +2501,7 @@ bool is_dark(RoomRnum room) {
 		&& ((weather_info.sunlight == kSunSet) || (weather_info.sunlight == kSunDark)))
 		coef -= 1.0;
 	// если на комнате флаг темно
-	if (ROOM_FLAGGED(room, ERoomFlag::kDark))
+	if (ROOM_FLAGGED(room, ERoomFlag::kDarked))
 		coef -= 1.0;
 
 	if (ROOM_FLAGGED(room, ERoomFlag::kAlwaysLit))

@@ -145,7 +145,7 @@ void apply_enchant(CharData *ch, ObjData *obj, std::string text) {
 		send_to_char(ch, "Вы успешно зачаровали %s.\r\n", GET_OBJ_PNAME(target, 0).c_str());
 		ObjectEnchant::enchant ench(obj);
 		ench.apply_to_obj(target);
-		extract_obj(obj);
+		ExtractObjFromWorld(obj);
 	} else {
 		int slots = obj->get_wear_flags();
 		REMOVE_BIT(slots, EWearFlag::kTake);

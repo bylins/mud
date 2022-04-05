@@ -349,7 +349,7 @@ ObjData *load_ingredient(int index, int power, int rnum)
 
 		err = im_assign_power(ing.get());
 		if (err != 0) {
-			extract_obj(ing.get());
+			ExtractObjFromWorld(ing.get());
 			sprintf(buf, "IM power assignment error %d", err);
 			break;
 		}
@@ -886,7 +886,7 @@ void im_reset_room(RoomData *room, int level, int type) {
 	for (o = room->contents; o; o = next) {
 		next = o->get_next_content();
 		if (GET_OBJ_TYPE(o) == EObjType::kMagicIngredient) {
-			extract_obj(o);
+			ExtractObjFromWorld(o);
 		}
 	}
 
@@ -1455,7 +1455,7 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	// Удалаяю объекты
 	for (i = 0; i < num; ++i)
-		extract_obj(objs[i]);
+		ExtractObjFromWorld(objs[i]);
 	free(objs);
 
 	imlog(CMP, "Ингредиенты удалены");

@@ -744,7 +744,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 	if (!victim->is_npc()) {
 		dam /= 5;
 	}
-	dam = ApplyResist(victim, VITALITY_RESISTANCE, dam);
+	dam = ApplyResist(victim, EResist::kVitality, dam);
 	for (int i = 0; i < 4; i++) {
 		if (af[i].type) {
 			if (af[i].bitvector == to_underlying(EAffect::kStopFight)
@@ -2066,7 +2066,7 @@ void try_angel_sacrifice(CharData *ch, CharData *victim) {
 							 GET_PAD(keeper, 0), GET_CH_SUF_1(keeper), GET_PAD(victim, 3));
 					act(buf, false, victim, 0, 0, kToRoom | kToArenaListen);
 
-					extract_char(keeper, 0);
+					ExtractCharFromWorld(keeper, 0);
 					GET_HIT(victim) = MIN(300, GET_MAX_HIT(victim) / 2);
 				}
 			}
@@ -3743,7 +3743,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 			}
 		}
 
-		hit_params.dam = ApplyResist(victim, VITALITY_RESISTANCE, hit_params.dam);
+		hit_params.dam = ApplyResist(victim, EResist::kVitality, hit_params.dam);
 		// режем стаб
 		if (IsAbleToUseFeat(ch, EFeat::kShadowStrike) && !ch->is_npc()) {
 			hit_params.dam = std::min(8000 + GET_REAL_REMORT(ch) * 20 * GetRealLevel(ch), hit_params.dam);
@@ -3761,7 +3761,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		if (ch->is_npc()) {
 			hit_params.dam = std::min(300, hit_params.dam);
 		}
-		hit_params.dam = ApplyResist(victim, VITALITY_RESISTANCE, hit_params.dam);
+		hit_params.dam = ApplyResist(victim, EResist::kVitality, hit_params.dam);
 		hit_params.extdamage(ch, victim);
 		return;
 	}

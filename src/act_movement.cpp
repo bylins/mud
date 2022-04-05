@@ -794,7 +794,7 @@ int do_simple_move(CharData *ch, int dir, int need_specials_check, CharData *lea
 
 	if (deathtrap::check_death_trap(ch)) {
 		if (horse) {
-			extract_char(horse, false);
+			ExtractCharFromWorld(horse, false);
 		}
 		return (false);
 	}
@@ -1296,11 +1296,11 @@ void do_doorcmd(CharData *ch, ObjData *obj, int door, DOOR_SCMD scmd) {
 						ObjData *i;
 						for (i = obj_inv; i; i = i->get_next_content()) {
 							if (GET_OBJ_VNUM(i) == vnum_key) {
-								extract_obj(i);
+								ExtractObjFromWorld(i);
 								break;
 							}
 						}
-						extract_obj(obj);
+						ExtractObjFromWorld(obj);
 						obj = world_objects.create_from_prototype_by_rnum(r_num).get();
 						obj->set_crafter_uid(GET_UNIQUE(ch));
 						PlaceObjToInventory(obj, ch);

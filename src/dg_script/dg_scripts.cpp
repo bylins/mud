@@ -382,7 +382,7 @@ ObjData *find_obj_by_id(const object_id_t id) {
 
 // return room with UID n
 RoomData *find_room(long n) {
-	n = real_room(n - ROOM_ID_BASE);
+	n = real_room(n - kRoomToBase);
 
 	if ((n >= FIRST_ROOM) && (n <= top_of_world))
 		return world[n];
@@ -422,7 +422,7 @@ int find_room_vnum(long n) {
 }
 
 int find_room_uid(long n) {
-	return (real_room(n) != kNowhere) ? ROOM_ID_BASE + n : -1;
+	return (real_room(n) != kNowhere) ? kRoomToBase + n : -1;
 	//return (real_room (n) != kNowhere) ? n : -1;
 }
 
@@ -1380,16 +1380,16 @@ int remove_var_cntx(struct TriggerVar **var_list, char *name, long id)
 	return 1;
 }
 
-bool SCRIPT_CHECK(const ObjData *go, const long type) {
+bool CheckSript(const ObjData *go, const long type) {
 	return !go->get_script()->is_purged() && go->get_script()->has_triggers()
 		&& IS_SET(SCRIPT_TYPES(go->get_script()), type);
 }
 
-bool SCRIPT_CHECK(const CharData *go, const long type) {
+bool CheckScript(const CharData *go, const long type) {
 	return !SCRIPT(go)->is_purged() && SCRIPT(go)->has_triggers() && IS_SET(SCRIPT_TYPES(go->script), type);
 }
 
-bool SCRIPT_CHECK(const RoomData *go, const long type) {
+bool CheckSript(const RoomData *go, const long type) {
 	return !SCRIPT(go)->is_purged() && SCRIPT(go)->has_triggers() && IS_SET(SCRIPT_TYPES(go->script), type);
 }
 
@@ -1626,7 +1626,7 @@ void find_replacement(void *go,
 				}
 				if ((o = get_object_in_equip(ch, name)));
 				else if ((o = get_obj_in_list(name, ch->carrying)));
-				else if ((c = get_char_room(name, ch->in_room)));
+				else if ((c = SearchCharInRoomByName(name, ch->in_room)));
 				else if ((o = get_obj_in_list(name, world[ch->in_room]->contents)));
 				else if ((c = get_char(name, GET_TRIG_VNUM(trig))));
 				else if ((o = get_obj(name, GET_TRIG_VNUM(trig))));
@@ -1820,13 +1820,13 @@ void find_replacement(void *go,
 
 			} else if (!str_cmp(field, "season")) {
 				switch (weather_info.season) {
-					case SEASON_WINTER: strcat(str, "зима");
+					case ESeason::kWinter: strcat(str, "зима");
 						break;
-					case SEASON_SPRING: strcat(str, "весна");
+					case ESeason::kSpring: strcat(str, "весна");
 						break;
-					case SEASON_SUMMER: strcat(str, "лето");
+					case ESeason::kSummer: strcat(str, "лето");
 						break;
-					case SEASON_AUTUMN: strcat(str, "осень");
+					case ESeason::kAutumn: strcat(str, "осень");
 						break;
 				}
 			}
@@ -3142,9 +3142,9 @@ void find_replacement(void *go,
 			} else if (o->get_carried_by()) {
 				ExtractObjFromChar(o);
 			} else if (o->get_in_obj()) {
-				obj_from_obj(o);
+				ExtractObjFromObj(o);
 			} else if (o->get_in_room() > kNowhere) {
-				obj_from_room(o);
+				ExtractObjFromRoom(o);
 			} else {
 				trig_log(trig, "object.put: не удалось извлечь объект");
 				return;
@@ -3153,7 +3153,7 @@ void find_replacement(void *go,
 			if (char_to)
 				PlaceObjToInventory(o, char_to);
 			else if (obj_to)
-				obj_to_obj(o, obj_to);
+				PlaceObjIntoObj(o, obj_to);
 			else if (room_to)
 				PlaceObjToRoom(o, real_room(room_to->room_vn));
 			else {

@@ -77,7 +77,7 @@ int CalcAntiSavings(CharData *ch) {
 	return modi;
 }
 
-int CalculateSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply) {
+int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply) {
 	int temp_save_stat = 0, temp_awake_mod = 0;
 
 	if (-GET_SAVE(victim, saving) / 10 > number(1, 100)) {
@@ -185,7 +185,7 @@ int CalculateSaving(CharData *killer, CharData *victim, ESaving saving, int ext_
 }
 
 int CalcGeneralSaving(CharData *killer, CharData *victim, ESaving type, int ext_apply) {
-	int save = CalculateSaving(killer, victim, type, ext_apply);
+	int save = CalcSaving(killer, victim, type, ext_apply);
 	if (std::max(10, save) <= number(1, 200)) {
 		return true;
 	}
@@ -193,17 +193,18 @@ int CalcGeneralSaving(CharData *killer, CharData *victim, ESaving type, int ext_
 	return false;
 }
 
-int multi_cast_say(CharData *ch) {
-	if (!ch->is_npc())
-		return 1;
+bool IsAbleToSay(CharData *ch) {
+	if (!ch->is_npc()) {
+		return true;
+	}
 	switch (GET_RACE(ch)) {
 		case ENpcRace::kBoggart:
 		case ENpcRace::kGhost:
 		case ENpcRace::kHuman:
-		case ENpcRace::kZombie:
-		case ENpcRace::kSpirit: return 1;
+		case ENpcRace::kZombie: [[fallthrough]];
+		case ENpcRace::kSpirit: return true;
 	}
-	return 0;
+	return false;
 }
 
 void show_spell_off(int aff, CharData *ch) {
@@ -219,12 +220,12 @@ void show_spell_off(int aff, CharData *ch) {
 }
 
 // зависимость длительности закла от скила магии
-float func_koef_duration(int spellnum, int percent) {
+float CalcDurationCoef(int spellnum, int skill_percent) {
 	switch (spellnum) {
 		case kSpellStrength:
 		case kSpellDexterity:
 		case kSpellGroupBlink: [[fallthrough]];
-		case kSpellBlink: return 1 + percent / 400.00;
+		case kSpellBlink: return 1 + skill_percent / 400.00;
 			break;
 		default: return 1;
 			break;
@@ -232,7 +233,7 @@ float func_koef_duration(int spellnum, int percent) {
 }
 
 // зависимость модификации спелла от скила магии
-float func_koef_modif(int spellnum, int percent) {
+float CalcModCoef(int spellnum, int percent) {
 	switch (spellnum) {
 		case kSpellStrength:
 		case kSpellDexterity:
@@ -265,7 +266,7 @@ float func_koef_modif(int spellnum, int percent) {
 	return 0;
 }
 
-int magic_skill_damage_calc(CharData *ch, CharData *victim, int spellnum, int dam) {
+int CalcMagicSkillDam(CharData *ch, CharData *victim, int spellnum, int dam) {
 	auto skill_id = GetMagicSkillId(spellnum);
 	if (MUD::Skills().IsValid(skill_id)) {
 		if (ch->is_npc()) {
@@ -382,7 +383,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 
 	// вводим переменную-модификатор владения школы магии	
 	const int
-		ms_mod = func_koef_modif(spellnum, ch->get_skill(GetMagicSkillId(spellnum))); // к кубикам от % владения магии
+		ms_mod = CalcModCoef(spellnum, ch->get_skill(GetMagicSkillId(spellnum))); // к кубикам от % владения магии
 
 //расчет на 30 морт 30 левел 90 мудры
 
@@ -934,7 +935,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 		}
 		//вместо старого учета мудры добавлена обработка с учетом скиллов
 		//после коэффициента - так как в самой функции стоит планка по дамагу, пусть и относительная
-		dam = magic_skill_damage_calc(ch, victim, spellnum, dam);
+		dam = CalcMagicSkillDam(ch, victim, spellnum, dam);
 	}
 
 	//Голодный кастер меньше дамажит!
@@ -1040,7 +1041,7 @@ bool material_component_processing(CharData *caster, CharData *victim, int spell
 		default: log("WARNING: wrong spellnum %d in %s:%d", spellnum, __FILE__, __LINE__);
 			return false;
 	}
-	ObjData *tobj = get_obj_in_list_vnum(vnum, caster->carrying);
+	ObjData *tobj = GetObjByVnum(vnum, caster->carrying);
 	if (!tobj) {
 		act(missing, false, victim, nullptr, caster, kToChar);
 		return (true);
@@ -1050,7 +1051,7 @@ bool material_component_processing(CharData *caster, CharData *victim, int spell
 	if (GET_OBJ_VAL(tobj, 2) < 1) {
 		act(exhausted, false, caster, tobj, nullptr, kToChar);
 		ExtractObjFromChar(tobj);
-		extract_obj(tobj);
+		ExtractObjFromWorld(tobj);
 	}
 	return (false);
 }
@@ -1076,7 +1077,7 @@ bool material_component_processing(CharData *caster, int /*vnum*/, int spellnum)
 	if (GET_OBJ_VAL(tobj, 2) < 1) {
 		act(exhausted, false, caster, tobj, nullptr, kToChar);
 		ExtractObjFromChar(tobj);
-		extract_obj(tobj);
+		ExtractObjFromWorld(tobj);
 	}
 	return (false);
 }
@@ -1189,8 +1190,8 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 //  log("[MAG Affect] Modifier value for %s (caster %s) = %d(spell %d)",
 //      GET_NAME(victim), GET_NAME(ch), modi, spellnum);
 
-	const int koef_duration = func_koef_duration(spellnum, ch->get_skill(GetMagicSkillId(spellnum)));
-	const int koef_modifier = func_koef_modif(spellnum, ch->get_skill(GetMagicSkillId(spellnum)));
+	const auto koef_duration = CalcDurationCoef(spellnum, ch->get_skill(GetMagicSkillId(spellnum)));
+	const auto koef_modifier = CalcModCoef(spellnum, ch->get_skill(GetMagicSkillId(spellnum)));
 
 	switch (spellnum) {
 		case kSpellChillTouch: savetype = ESaving::kStability;
@@ -3041,13 +3042,13 @@ int mag_summons(int level, CharData *ch, ObjData *obj, int spellnum, int savetyp
 			if (number(0, 3) == 0) {
 				send_to_char(mag_summon_fail_msgs[fmsg], ch);
 				if (handle_corpse)
-					extract_obj(obj);
+					ExtractObjFromWorld(obj);
 				return 0;
 			}
 		} else {
 			send_to_char(mag_summon_fail_msgs[fmsg], ch);
 			if (handle_corpse)
-				extract_obj(obj);
+				ExtractObjFromWorld(obj);
 			return 0;
 		}
 	}
@@ -3089,19 +3090,19 @@ int mag_summons(int level, CharData *ch, ObjData *obj, int spellnum, int savetyp
 
 	if (!IS_IMMORTAL(ch) && (AFF_FLAGGED(mob, EAffect::kSanctuary) || MOB_FLAGGED(mob, EMobFlag::kProtect))) {
 		send_to_char("Оживляемый был освящен Богами и противится этому!\r\n", ch);
-		extract_char(mob, false);
+		ExtractCharFromWorld(mob, false);
 		return 0;
 	}
 	if (!IS_IMMORTAL(ch) &&
 		(GET_MOB_SPEC(mob) || MOB_FLAGGED(mob, EMobFlag::kNoResurrection) ||
 			MOB_FLAGGED(mob, EMobFlag::kAreaAttack))) {
 		send_to_char("Вы не можете обрести власть над этим созданием!\r\n", ch);
-		extract_char(mob, false);
+		ExtractCharFromWorld(mob, false);
 		return 0;
 	}
 	if (!IS_IMMORTAL(ch) && AFF_FLAGGED(mob, EAffect::kShield)) {
 		send_to_char("Боги защищают это существо даже после смерти.\r\n", ch);
-		extract_char(mob, false);
+		ExtractCharFromWorld(mob, false);
 		return 0;
 	}
 	if (MOB_FLAGGED(mob, EMobFlag::kMounting)) {
@@ -3109,7 +3110,7 @@ int mag_summons(int level, CharData *ch, ObjData *obj, int spellnum, int savetyp
 	}
 	if (IS_HORSE(mob)) {
 		send_to_char("Это был боевой скакун, а не хухры-мухры.\r\n", ch);
-		extract_char(mob, false);
+		ExtractCharFromWorld(mob, false);
 		return 0;
 	}
 
@@ -3142,9 +3143,9 @@ int mag_summons(int level, CharData *ch, ObjData *obj, int spellnum, int savetyp
 	}
 
 	if (!CheckCharmices(ch, mob, spellnum)) {
-		extract_char(mob, false);
+		ExtractCharFromWorld(mob, false);
 		if (handle_corpse)
-			extract_obj(obj);
+			ExtractObjFromWorld(obj);
 		return 0;
 	}
 
@@ -3314,14 +3315,14 @@ int mag_summons(int level, CharData *ch, ObjData *obj, int spellnum, int savetyp
 	if (handle_corpse) {
 		for (tobj = obj->get_contains(); tobj;) {
 			next_obj = tobj->get_next_content();
-			obj_from_obj(tobj);
+			ExtractObjFromObj(tobj);
 			PlaceObjToRoom(tobj, ch->in_room);
 			if (!CheckObjDecay(tobj) && tobj->get_in_room() != kNowhere) {
 				act("На земле остал$U лежать $o.", false, ch, tobj, nullptr, kToRoom | kToArenaListen);
 			}
 			tobj = next_obj;
 		}
-		extract_obj(obj);
+		ExtractObjFromWorld(obj);
 	}
 	return 1;
 }
@@ -3643,9 +3644,9 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, int spellnum, ESa
 
 			auto reagobj = GET_EQ(ch, EEquipPos::kHold);
 			if (reagobj
-				&& (get_obj_in_list_vnum(GlobalDrop::MAGIC1_ENCHANT_VNUM, reagobj)
-					|| get_obj_in_list_vnum(GlobalDrop::MAGIC2_ENCHANT_VNUM, reagobj)
-					|| get_obj_in_list_vnum(GlobalDrop::MAGIC3_ENCHANT_VNUM, reagobj))) {
+				&& (GetObjByVnum(GlobalDrop::MAGIC1_ENCHANT_VNUM, reagobj)
+					|| GetObjByVnum(GlobalDrop::MAGIC2_ENCHANT_VNUM, reagobj)
+					|| GetObjByVnum(GlobalDrop::MAGIC3_ENCHANT_VNUM, reagobj))) {
 				// у нас имеется доп символ для зачарования
 				obj->set_enchant(ch->get_skill(ESkill::kLightMagic), reagobj);
 				material_component_processing(ch, reagobj->get_rnum(), spellnum); //может неправильный вызов
@@ -4380,7 +4381,7 @@ int TrySendCastMessages(CharData *ch, CharData *victim, RoomData *room, int spel
 		return msgIndex;
 	}
 	if (room && world[ch->in_room] == room) {
-		if (multi_cast_say(ch)) {
+		if (IsAbleToSay(ch)) {
 			if (mag_messages[msgIndex].to_char != nullptr) {
 				// вот тут надо воткнуть проверку на группу.
 				act(mag_messages[msgIndex].to_char, false, ch, nullptr, victim, kToChar);

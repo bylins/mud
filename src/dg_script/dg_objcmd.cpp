@@ -332,7 +332,7 @@ void do_otransform(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (wearer) {
 			EquipObj(wearer, obj, pos, CharEquipFlags());
 		}
-		extract_obj(o.get());
+		ExtractObjFromWorld(o.get());
 	}
 }
 
@@ -350,7 +350,7 @@ void do_opurge(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!(ch = get_char_by_obj(obj, arg))) {
 		if ((o = get_obj_by_obj(obj, arg))) {
-			extract_obj(o);
+			ExtractObjFromWorld(o);
 		} else
 			obj_log(obj, "opurge: bad argument");
 		return;
@@ -365,7 +365,7 @@ void do_opurge(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		|| ch->has_master()) {
 		die_follower(ch);
 	}
-	extract_char(ch, false);
+	ExtractCharFromWorld(ch, false);
 }
 
 void do_oteleport(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {

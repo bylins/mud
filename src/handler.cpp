@@ -40,8 +40,8 @@ using PlayerClass::CalcCircleSlotsAmount;
 // local functions //
 int apply_ac(CharData *ch, int eq_pos);
 int apply_armour(CharData *ch, int eq_pos);
-void update_object(ObjData *obj, int use);
-void update_char_objects(CharData *ch);
+void UpdateObject(ObjData *obj, int use);
+void UpdateCharObjects(CharData *ch);
 bool IsWearingLight(CharData *ch);
 
 // external functions //
@@ -300,7 +300,7 @@ void ProcessRoomAffectsOnEntry(CharData *ch, RoomRnum room) {
 			// если вошел игрок - ПвП - делаем проверку на шанс в зависимости от % магии кастующего (Кудояр)
 			// без магии и ниже 80%: шанс 25%, на 100% - 27%, на 200% - 37% ,при 300% - 47%
 			// иначе пве, и просто кастим сон на входящего
-			float mkof = func_koef_modif(kSpellHypnoticPattern, caster->get_skill(GetMagicSkillId(
+			float mkof = CalcModCoef(kSpellHypnoticPattern, caster->get_skill(GetMagicSkillId(
 				kSpellHypnoticPattern)));
 			if (!ch->is_npc() && (number (1, 100) > (23 + 2*mkof))) {
 				return;
@@ -1367,40 +1367,52 @@ int get_number(std::string &name) {
 	return (1);
 }
 
-// Search a given list for an object number, and return a ptr to that obj //
-ObjData *get_obj_in_list_num(int num, ObjData *list) {
+/**
+ * Search an object in list by rnum.
+ * @param rnum - object rnum.
+ * @param list - given list.
+ * @return - ptr to found obj or nullptr.
+ */
+ObjData *GetObjByRnum(ObjRnum rnum, ObjData *list) {
 	ObjData *i;
-
 	for (i = list; i; i = i->get_next_content()) {
-		if (GET_OBJ_RNUM(i) == num) {
+		if (i->get_rnum() == rnum) {
 			return (i);
 		}
 	}
 
-	return (nullptr);
+	return nullptr;
 }
 
-// Search a given list for an object virtul_number, and return a ptr to that obj //
-ObjData *get_obj_in_list_vnum(int num, ObjData *list) {
+/**
+ * Search an object in list by vnum.
+ * @param vnum - object vnum.
+ * @param list - given list.
+ * @return - ptr to found obj or nullptr.
+ */
+ObjData *GetObjByVnum(ObjVnum vnum, ObjData *list) {
 	ObjData *i;
-
 	for (i = list; i; i = i->get_next_content()) {
-		if (GET_OBJ_VNUM(i) == num) {
+		if (i->get_vnum() == vnum) {
 			return (i);
 		}
 	}
 
-	return (nullptr);
+	return nullptr;
 }
 
-// search the entire world for an object number, and return a pointer  //
-ObjData *get_obj_num(ObjRnum nr) {
-	const auto result = world_objects.find_first_by_rnum(nr);
+/**
+ * Search the entire world for an object by virtual number.
+ * @param vnum - object vnum.
+ * @return - ptr to found obj or nullptr.
+ */
+ObjData *SearchObjByVnum(ObjRnum rnum) {
+	const auto result = world_objects.find_first_by_rnum(rnum);
 	return result.get();
 }
 
 // search a room for a char, and return a pointer if found..  //
-CharData *get_char_room(char *name, RoomRnum room) {
+CharData *SearchCharInRoomByName(char *name, RoomRnum room) {
 	char tmpname[kMaxInputLength];
 	char *tmp = tmpname;
 
@@ -1423,9 +1435,9 @@ CharData *get_char_room(char *name, RoomRnum room) {
 }
 
 // search all over the world for a char num, and return a pointer if found //
-CharData *get_char_num(MobRnum nr) {
+CharData *SearchCharByRnum(MobRnum rnum) {
 	for (const auto &i : character_list) {
-		if (GET_MOB_RNUM(i) == nr) {
+		if (i->get_rnum() == rnum) {
 			return i.get();
 		}
 	}
@@ -1500,7 +1512,7 @@ bool CheckObjDecay(ObjData *object) {
 			false, world[room]->first_character(), object, nullptr, kToRoom);
 		act("$o0 медленно утонул$G.",
 			false, world[room]->first_character(), object, nullptr, kToChar);
-		extract_obj(object);
+		ExtractObjFromWorld(object);
 		return true;
 	}
 
@@ -1510,7 +1522,7 @@ bool CheckObjDecay(ObjData *object) {
 			false, world[room]->first_character(), object, nullptr, kToRoom);
 		act("$o0 упал$G вниз.",
 			false, world[room]->first_character(), object, nullptr, kToChar);
-		extract_obj(object);
+		ExtractObjFromWorld(object);
 		return true;
 	}
 
@@ -1521,18 +1533,17 @@ bool CheckObjDecay(ObjData *object) {
 			world[room]->first_character(), object, nullptr, kToRoom);
 		act("$o0 рассыпал$U в мелкую пыль, которую развеял ветер.", false,
 			world[room]->first_character(), object, nullptr, kToChar);
-		extract_obj(object);
+		ExtractObjFromWorld(object);
 		return true;
 	}
 
 	return false;
 }
 
-// Take an object from a room
-void obj_from_room(ObjData *object) {
+void ExtractObjFromRoom(ObjData *object) {
 	if (!object || object->get_in_room() == kNowhere) {
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
-		log("SYSERR: NULL object (%p) or obj not in a room (%d) passed to obj_from_room",
+		log("SYSERR: NULL object (%p) or obj not in a room (%d) passed to ExtractObjFromRoom",
 			object, object->get_in_room());
 		return;
 	}
@@ -1543,13 +1554,12 @@ void obj_from_room(ObjData *object) {
 	object->set_next_content(nullptr);
 }
 
-// put an object in an object (quaint)
-void obj_to_obj(ObjData *obj, ObjData *obj_to) {
+void PlaceObjIntoObj(ObjData *obj, ObjData *obj_to) {
 	ObjData *tmp_obj;
 
 	if (!obj || !obj_to || obj == obj_to) {
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
-		log("SYSERR: NULL object (%p) or same source (%p) and target (%p) obj passed to obj_to_obj.",
+		log("SYSERR: NULL object (%p) or same source (%p) and target (%p) obj passed to PlaceObjIntoObj.",
 			obj, obj, obj_to);
 		return;
 	}
@@ -1571,7 +1581,7 @@ void obj_to_obj(ObjData *obj, ObjData *obj_to) {
 }
 
 // remove an object from an object
-void obj_from_obj(ObjData *obj) {
+void ExtractObjFromObj(ObjData *obj) {
 	if (obj->get_in_obj() == nullptr) {
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
 		log("SYSERR: (%s): trying to illegally extract obj from obj.", __FILE__);
@@ -1585,13 +1595,13 @@ void obj_from_obj(ObjData *obj) {
 	// Subtract weight from containers container
 	auto temp = obj->get_in_obj();
 	for (; temp->get_in_obj(); temp = temp->get_in_obj()) {
-		temp->set_weight(MAX(1, GET_OBJ_WEIGHT(temp) - GET_OBJ_WEIGHT(obj)));
+		temp->set_weight(std::max(1, GET_OBJ_WEIGHT(temp) - GET_OBJ_WEIGHT(obj)));
 	}
 
 	// Subtract weight from char that carries the object
-	temp->set_weight(MAX(1, GET_OBJ_WEIGHT(temp) - GET_OBJ_WEIGHT(obj)));
+	temp->set_weight(std::max(1, GET_OBJ_WEIGHT(temp) - GET_OBJ_WEIGHT(obj)));
 	if (temp->get_carried_by()) {
-		IS_CARRYING_W(temp->get_carried_by()) = MAX(1, IS_CARRYING_W(temp->get_carried_by()) - GET_OBJ_WEIGHT(obj));
+		IS_CARRYING_W(temp->get_carried_by()) = std::max(1, IS_CARRYING_W(temp->get_carried_by()) - GET_OBJ_WEIGHT(obj));
 	}
 
 	obj->set_in_obj(nullptr);
@@ -1621,8 +1631,7 @@ RoomVnum get_room_where_obj(ObjData *obj, bool deep) {
 	return kNowhere;
 }
 
-// Extract an object from the world
-void extract_obj(ObjData *obj) {
+void ExtractObjFromWorld(ObjData *obj) {
 	char name[kMaxStringLength];
 	ObjData *temp;
 
@@ -1641,7 +1650,7 @@ void extract_obj(ObjData *obj) {
 
 	while (obj->get_contains()) {
 		temp = obj->get_contains();
-		obj_from_obj(temp);
+		ExtractObjFromObj(temp);
 
 		if (obj->get_carried_by()) {
 			if (obj->get_carried_by()->is_npc()
@@ -1663,9 +1672,9 @@ void extract_obj(ObjData *obj) {
 			PlaceObjToRoom(temp, obj->get_in_room());
 			CheckObjDecay(temp);
 		} else if (obj->get_in_obj()) {
-			extract_obj(temp);
+			ExtractObjFromWorld(temp);
 		} else {
-			extract_obj(temp);
+			ExtractObjFromWorld(temp);
 		}
 	}
 	// Содержимое контейнера удалено
@@ -1677,11 +1686,11 @@ void extract_obj(ObjData *obj) {
 	}
 
 	if (obj->get_in_room() != kNowhere) {
-		obj_from_room(obj);
+		ExtractObjFromRoom(obj);
 	} else if (obj->get_carried_by()) {
 		ExtractObjFromChar(obj);
 	} else if (obj->get_in_obj()) {
-		obj_from_obj(obj);
+		ExtractObjFromObj(obj);
 	}
 
 	check_auction(nullptr, obj);
@@ -1696,12 +1705,12 @@ void extract_obj(ObjData *obj) {
 	world_objects.remove(obj);
 }
 
-void update_object(ObjData *obj, int use) {
+void UpdateObject(ObjData *obj, int use) {
 	ObjData *obj_it = obj;
 
 	while (obj_it) {
 		// don't update objects with a timer trigger
-		const bool trig_timer = SCRIPT_CHECK(obj_it, OTRIG_TIMER);
+		const bool trig_timer = CheckSript(obj_it, OTRIG_TIMER);
 		const bool has_timer = obj_it->get_timer() > 0;
 		const bool tick_timer = 0 != obj_it->has_flag(EObjFlag::kTicktimer);
 
@@ -1710,15 +1719,14 @@ void update_object(ObjData *obj, int use) {
 		}
 
 		if (obj_it->get_contains()) {
-			update_object(obj_it->get_contains(), use);
+			UpdateObject(obj_it->get_contains(), use);
 		}
 
 		obj_it = obj_it->get_next_content();
 	}
 }
 
-void update_char_objects(CharData *ch) {
-//Polud раз уж светит любой источник света, то и гаснуть тоже должны все
+void UpdateCharObjects(CharData *ch) {
 	for (int wear_pos = 0; wear_pos < EEquipPos::kNumEquipPos; wear_pos++) {
 		if (GET_EQ(ch, wear_pos) != nullptr) {
 			if (GET_OBJ_TYPE(GET_EQ(ch, wear_pos)) == EObjType::kLightSource) {
@@ -1738,23 +1746,22 @@ void update_char_objects(CharData *ch) {
 						}
 
 						if (GET_EQ(ch, wear_pos)->has_flag(EObjFlag::kDecay)) {
-							extract_obj(GET_EQ(ch, wear_pos));
+							ExtractObjFromWorld(GET_EQ(ch, wear_pos));
 						}
 					}
 				}
 			}
 		}
 	}
-	//-Polud
 
 	for (int i = 0; i < EEquipPos::kNumEquipPos; i++) {
 		if (GET_EQ(ch, i)) {
-			update_object(GET_EQ(ch, i), 1);
+			UpdateObject(GET_EQ(ch, i), 1);
 		}
 	}
 
 	if (ch->carrying) {
-		update_object(ch->carrying, 1);
+		UpdateObject(ch->carrying, 1);
 	}
 }
 
@@ -1766,9 +1773,9 @@ void update_char_objects(CharData *ch) {
 * \param inv - 1 сообщение о выкидывании из инвентаря, 0 - о снятии с себя
 * \param zone_reset - 1 - пуржим стаф без включенных таймеров, 0 - не пуржим ничего
 */
-void drop_obj_on_zreset(CharData *ch, ObjData *obj, bool inv, bool zone_reset) {
+void DropObjOnZoneReset(CharData *ch, ObjData *obj, bool inv, bool zone_reset) {
 	if (zone_reset && !obj->has_flag(EObjFlag::kTicktimer))
-		extract_obj(obj);
+		ExtractObjFromWorld(obj);
 	else {
 		if (inv)
 			act("Вы выбросили $o3 на землю.", false, ch, obj, nullptr, kToChar);
@@ -1831,21 +1838,18 @@ void change_npc_leader(CharData *ch) {
 * Extract a ch completely from the world, and leave his stuff behind
 * \param zone_reset - 0 обычный пурж когда угодно (по умолчанию), 1 - пурж при резете зоны
 */
-void extract_char(CharData *ch, int clear_objs, bool zone_reset) {
+void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 	if (ch->purged()) {
 		log("SYSERROR: double extract_char (%s:%d)", __FILE__, __LINE__);
 		return;
 	}
 
-	DescriptorData *t_desc;
-	int i;
-
-	if (MOB_FLAGGED(ch, EMobFlag::kMobFreed)
-		|| MOB_FLAGGED(ch, EMobFlag::kMobDeleted)) {
+	if (MOB_FLAGGED(ch, EMobFlag::kMobFreed) || MOB_FLAGGED(ch, EMobFlag::kMobDeleted)) {
 		return;
 	}
 
 	std::string name = GET_NAME(ch);
+	DescriptorData *t_desc;
 	log("[Extract char] Start function for char %s VNUM: %d", name.c_str(), GET_MOB_VNUM(ch));
 	if (!ch->is_npc() && !ch->desc) {
 //		log("[Extract char] Extract descriptors");
@@ -1873,7 +1877,7 @@ void extract_char(CharData *ch, int clear_objs, bool zone_reset) {
 
 	// transfer equipment to room, if any
 //	log("[Extract char] Drop equipment");
-	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
+	for (auto i = 0; i < EEquipPos::kNumEquipPos; i++) {
 		if (GET_EQ(ch, i)) {
 			ObjData *obj_eq = UnequipChar(ch, i, CharEquipFlags());
 			if (!obj_eq) {
@@ -1881,7 +1885,7 @@ void extract_char(CharData *ch, int clear_objs, bool zone_reset) {
 			}
 
 			remove_otrigger(obj_eq, ch);
-			drop_obj_on_zreset(ch, obj_eq, false, zone_reset);
+			DropObjOnZoneReset(ch, obj_eq, false, zone_reset);
 		}
 	}
 
@@ -1890,7 +1894,7 @@ void extract_char(CharData *ch, int clear_objs, bool zone_reset) {
 	while (ch->carrying) {
 		ObjData *obj = ch->carrying;
 		ExtractObjFromChar(obj);
-		drop_obj_on_zreset(ch, obj, true, zone_reset);
+		DropObjOnZoneReset(ch, obj, true, zone_reset);
 	}
 
 	if (ch->is_npc()) {
@@ -2676,7 +2680,7 @@ void check_portals(CharData *ch) {
 	// Пробегаем max_p порталы
 	for (tmp = GET_PORTALS(ch); tmp;) {
 		port = get_portal(tmp->vnum, nullptr);
-		if (!port || (portals >= max_p) || (MAX(1, port->level - GET_REAL_REMORT(ch) / 2) > GetRealLevel(ch))) {
+		if (!port || (portals >= max_p) || std::max(1, port->level - GET_REAL_REMORT(ch) / 2) > GetRealLevel(ch)) {
 			if (dlt) {
 				dlt->next = tmp->next;
 			} else {
@@ -2701,7 +2705,7 @@ float get_effective_cha(CharData *ch) {
 
 	key_value = ch->get_cha();
 	auto max_cha = class_stats_limit[ch->get_class()][5];
-	key_value_add = MIN(max_cha - ch->get_cha(), GET_CHA_ADD(ch));
+	key_value_add = std::min(max_cha - ch->get_cha(), GET_CHA_ADD(ch));
 
 	float eff_cha = 0.0;
 	if (GetRealLevel(ch) <= 14) {
@@ -2724,7 +2728,7 @@ float get_effective_wis(CharData *ch, int spellnum) {
 
 	if (spellnum == kSpellResurrection || spellnum == kSpellAnimateDead) {
 		key_value = ch->get_wis();
-		key_value_add = MIN(max_wis - ch->get_wis(), GET_WIS_ADD(ch));
+		key_value_add = std::min(max_wis - ch->get_wis(), GET_WIS_ADD(ch));
 	} else {
 		//если гдето вылезет косяком
 		key_value = 0;
@@ -2750,7 +2754,7 @@ float get_effective_int(CharData *ch) {
 
 	key_value = ch->get_int();
 	auto max_int = class_stats_limit[ch->get_class()][4];
-	key_value_add = MIN(max_int - ch->get_int(), GET_INT_ADD(ch));
+	key_value_add = std::min(max_int - ch->get_int(), GET_INT_ADD(ch));
 
 	float eff_int = 0.0;
 	if (GetRealLevel(ch) <= 14) {
@@ -2824,7 +2828,7 @@ int mag_manacost(const CharData *ch, int spellnum) {
 			* (float) mana_gain_cs[VPOSI(55 - GET_REAL_INT(ch), 10, 50)]
 			/ (float) int_app[VPOSI(55 - GET_REAL_INT(ch), 10, 50)].mana_per_tic
 			* 60
-			* MAX(SpINFO.mana_max
+			* std::max(SpINFO.mana_max
 					  - (SpINFO.mana_change
 						  * (GetRealLevel(ch)
 							  - spell_create[spellnum].runes.min_caster_level)),
@@ -2832,11 +2836,14 @@ int mag_manacost(const CharData *ch, int spellnum) {
 	} else {
 		if (!IS_MANA_CASTER(ch) && GetRealLevel(ch) >= MIN_CAST_LEV(SpINFO, ch)
 			&& GET_REAL_REMORT(ch) >= MIN_CAST_REM(SpINFO, ch)) {
-			result = MAX(SpINFO.mana_max - (SpINFO.mana_change * (GetRealLevel(ch) - MIN_CAST_LEV(SpINFO, ch))), SpINFO.mana_min);
+			result = std::max(SpINFO.mana_max - (SpINFO.mana_change * (GetRealLevel(ch) - MIN_CAST_LEV(SpINFO, ch))),
+							  SpINFO.mana_min);
 			if (SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] < 0) {
-				result = result * (100 - MIN(99, abs(SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]))) / 100;
+				result = result * (100 -
+						std::min(99, abs(SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]))) / 100;
 			} else {
-				result = result * 100 / (100 - MIN(99, abs(SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])));
+				result = result * 100 / (100 -
+						std::min(99, abs(SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])));
 			}
 //		Меняем мем на коэффициент скилла магии
 			if (GET_CLASS(ch) == kPaladine || GET_CLASS(ch) == kMerchant) {
@@ -2997,7 +3004,7 @@ int *MemQ_slots(CharData *ch) {
 	return slots;
 }
 
-int equip_in_metall(CharData *ch) {
+int IsEquipInMetall(CharData *ch) {
 	int i, wgt = 0;
 
 	if (ch->is_npc() && !AFF_FLAGGED(ch, EAffect::kCharmed))
@@ -3049,23 +3056,23 @@ int ApplyResist(CharData *ch, int resist_type, int effect) {
 
 int GetResisTypeWithSpellClass(int spell_class) {
 	switch (spell_class) {
-		case kTypeFire: return FIRE_RESISTANCE;
+		case kTypeFire: return EResist::kFire;
 			break;
-		case kTypeDark: return DARK_RESISTANCE;
+		case kTypeDark: return EResist::kDark;
 			break;
-		case kTypeAir: return AIR_RESISTANCE;
+		case kTypeAir: return EResist::kAir;
 			break;
-		case kTypeWater: return WATER_RESISTANCE;
+		case kTypeWater: return EResist::kWater;
 			break;
-		case kTypeEarth: return EARTH_RESISTANCE;
+		case kTypeEarth: return EResist::kEarth;
 			break;
-		case kTypeLight: return VITALITY_RESISTANCE;
+		case kTypeLight: return EResist::kVitality;
 			break;
-		case kTypeMind: return MIND_RESISTANCE;
+		case kTypeMind: return EResist::kMind;
 			break;
-		case kTypeLife: return IMMUNITY_RESISTANCE;
+		case kTypeLife: return EResist::kImmunity;
 			break;
-		default: return VITALITY_RESISTANCE;
+		default: return EResist::kVitality;
 			break;
 	}
 };
@@ -3080,13 +3087,18 @@ int get_object_low_rent(ObjData *obj) {
 	return rent;
 }
 
-// * Удаление рунной метки (при пропадании в пустоте и реморте).
-void remove_rune_label(CharData *ch) {
-	RoomData *label_room = room_spells::FindAffectedRoom(GET_ID(ch), kSpellRuneLabel);
-	if (label_room) {
-		const auto aff = room_spells::FindAffect(label_room, kSpellRuneLabel);
-		if (aff != label_room->affected.end()) {
-			room_spells::RemoveAffect(label_room, aff);
+/**
+ * Removing room affect from first affected room.
+ * \todo Переделать на использование функций из модуля спеллов на комнаты. Удалить из habdler.cpp
+ * @param ch - affect caster.
+ * @param spell_id - removing spell affect.
+ */
+void RemoveRuneLabelFromWorld(CharData *ch, ESpell spell_id) {
+	auto affected_room = room_spells::FindAffectedRoom(GET_ID(ch), spell_id);
+	if (affected_room) {
+		const auto aff = room_spells::FindAffect(affected_room, spell_id);
+		if (aff != affected_room->affected.end()) {
+			room_spells::RemoveAffect(affected_room, aff);
 			send_to_char("Ваша рунная метка удалена.\r\n", ch);
 		}
 	}

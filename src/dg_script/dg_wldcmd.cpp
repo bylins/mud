@@ -422,7 +422,7 @@ void do_wpurge(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!(ch = get_char_by_room(room, arg))) {
 		if ((obj = get_obj_by_room(room, arg))) {
-			extract_obj(obj);
+			ExtractObjFromWorld(obj);
 		} else {
 			wld_log(room, "wpurge: bad argument");
 		}
@@ -438,7 +438,7 @@ void do_wpurge(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 		|| ch->get_master()) {
 		die_follower(ch);
 	}
-	extract_char(ch, false);
+	ExtractCharFromWorld(ch, false);
 }
 
 // loads a mobile or object into the room //

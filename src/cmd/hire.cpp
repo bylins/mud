@@ -77,14 +77,14 @@ long calc_hire_price(CharData *ch, CharData *victim) {
 				   m_stab, m_ref, m_crit, m_wil);
 	price += m_stab + m_ref + m_crit + m_wil;
 	// магические резисты
-	int m_fire = GET_RESIST(victim, FIRE_RESISTANCE) * 4;
-	int m_air = GET_RESIST(victim, AIR_RESISTANCE) * 4;
-	int m_water = GET_RESIST(victim, WATER_RESISTANCE) * 4;
-	int m_earth = GET_RESIST(victim, EARTH_RESISTANCE) * 4;
-	int m_vita = GET_RESIST(victim, VITALITY_RESISTANCE) * 4;
-	int m_mind = GET_RESIST(victim, MIND_RESISTANCE) * 4;
-	int m_immu = GET_RESIST(victim, IMMUNITY_RESISTANCE) * 4;
-	int m_dark = GET_RESIST(victim, DARK_RESISTANCE) * 4;
+	int m_fire = GET_RESIST(victim, EResist::kFire) * 4;
+	int m_air = GET_RESIST(victim, EResist::kAir) * 4;
+	int m_water = GET_RESIST(victim, EResist::kWater) * 4;
+	int m_earth = GET_RESIST(victim, EResist::kEarth) * 4;
+	int m_vita = GET_RESIST(victim, EResist::kVitality) * 4;
+	int m_mind = GET_RESIST(victim, EResist::kMind) * 4;
+	int m_immu = GET_RESIST(victim, EResist::kImmunity) * 4;
+	int m_dark = GET_RESIST(victim, EResist::kDark) * 4;
 	ch->send_to_TC(true, true, true,
 				   "Маг.резисты: Fire:%d Air:%d Water:%d Earth:%d Vita:%d Mind:%d Immu:%d Dark:%d\r\n",
 				   m_fire, m_air, m_water, m_earth, m_vita, m_mind, m_immu, m_dark);

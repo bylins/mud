@@ -60,7 +60,7 @@ extern const char *magic_container_bits[];
 extern struct SpellInfo spell_info[];
 extern DescriptorData *descriptor_list;
 extern int top_imrecipes;
-extern void extract_obj(ObjData *obj);
+extern void ExtractObjFromWorld(ObjData *obj);
 
 //------------------------------------------------------------------------
 

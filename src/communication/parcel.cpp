@@ -525,7 +525,7 @@ void receive(CharData *ch, CharData *mailman) {
 				money += it3->money_ - calculate_timer_cost(it3);
 				// добавляем в глоб.список и кладем в посылку
 				world_objects.add(it3->obj_);
-				obj_to_obj(it3->obj_.get(), obj);
+				PlaceObjIntoObj(it3->obj_.get(), obj);
 			}
 			return_money(name, money, RETURN_WITH_MONEY);
 
@@ -596,7 +596,7 @@ void extract_parcel(int sender_uid, int target_uid, const std::list<Node>::itera
 		return_money(name, money_return, RETURN_WITH_MONEY);
 	}
 
-	extract_obj(it->obj_.get());
+	ExtractObjFromWorld(it->obj_.get());
 }
 
 // * Генерация письма о возврате посылки.
@@ -885,7 +885,7 @@ void bring_back(CharData *ch, CharData *mailman) {
 		for (std::list<Node>::iterator l = k->second.begin(); l != k->second.end(); ++l) {
 			money += l->money_ - calculate_timer_cost(l);
 			world_objects.add(l->obj_);
-			obj_to_obj(l->obj_.get(), obj);
+			PlaceObjIntoObj(l->obj_.get(), obj);
 		}
 		PlaceObjToInventory(obj, ch);
 		snprintf(buf, kMaxStringLength, "$n дал$g вам посылку.");

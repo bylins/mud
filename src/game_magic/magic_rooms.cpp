@@ -20,7 +20,7 @@ std::list<RoomData *> affected_rooms;
 
 void RemoveSingleRoomAffect(long casterID, int spellnum);
 void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::shared_ptr &aff);
-void sendAffectOffMessageToRoom(int aff, RoomRnum room);
+void SendRemoveAffectMsgToRoom(int affectType, RoomRnum room);
 void AddRoomToAffected(RoomData *room);
 void affect_room_join_fspell(RoomData *room, const Affect<ERoomApply> &af);
 void affect_room_join(RoomData *room, Affect<ERoomApply> &af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod);
@@ -113,7 +113,7 @@ int RemoveAffectFromRooms(int spellnum, const F &filter) {
 	for (const auto room : affected_rooms) {
 		const auto &affect = std::find_if(room->affected.begin(), room->affected.end(), filter);
 		if (affect != room->affected.end()) {
-			sendAffectOffMessageToRoom((*affect)->type, real_room(room->room_vn));
+			SendRemoveAffectMsgToRoom((*affect)->type, real_room(room->room_vn));
 			spellnum = (*affect)->type;
 			RemoveAffect(room, affect);
 			return spellnum;
@@ -128,7 +128,7 @@ void RemoveSingleRoomAffect(long casterID, int spellnum) {
 	RemoveAffectFromRooms(spellnum, filter);
 }
 
-int removeControlledRoomAffect(CharData *ch) {
+int RemoveControlledRoomAffect(CharData *ch) {
 	long casterID = GET_ID(ch);
 	auto filter =
 		[&casterID](auto &af) {
@@ -137,7 +137,7 @@ int removeControlledRoomAffect(CharData *ch) {
 	return RemoveAffectFromRooms(0, filter);
 }
 
-void sendAffectOffMessageToRoom(int affectType, RoomRnum room) {
+void SendRemoveAffectMsgToRoom(int affectType, RoomRnum room) {
 	// TODO:" refactor and replace int affectType by ESpell
 	const std::string &msg = get_wear_off_text(static_cast<ESpell>(affectType));
 	if (affectType > 0 && affectType <= kSpellCount && !msg.empty()) {
@@ -295,7 +295,7 @@ void UpdateRoomsAffects() {
 					if (next_affect_i == affects.end()
 						|| (*next_affect_i)->type != affect->type
 						|| (*next_affect_i)->duration > 0) {
-						sendAffectOffMessageToRoom(affect->type, real_room((*room)->room_vn));
+						SendRemoveAffectMsgToRoom(affect->type, real_room((*room)->room_vn));
 					}
 				}
 				RemoveAffect(*room, affect_i);
@@ -322,7 +322,7 @@ void UpdateRoomsAffects() {
 // =============================================================== //
 
 // Применение заклинания к комнате //
-int ImposeSpellToRoom(int/* level*/, CharData *ch, RoomData *room, int spellnum) {
+int CastSpellToRoom(int/* level*/, CharData *ch, RoomData *room, int spellnum) {
 	bool accum_affect = false, accum_duration = false, success = true;
 	bool update_spell = false;
 	// Должен ли данный спелл быть только 1 в мире от этого кастера?
@@ -486,7 +486,7 @@ int ImposeSpellToRoom(int/* level*/, CharData *ch, RoomData *room, int spellnum)
 	}
 	if (success) {
 		if (IS_SET(SpINFO.routines, kMagNeedControl)) {
-			int SplFound = removeControlledRoomAffect(ch);
+			int SplFound = RemoveControlledRoomAffect(ch);
 			if (SplFound) {
 				send_to_char(ch,
 							 "Вы прервали заклинание !%s! и приготовились применить !%s!\r\n",

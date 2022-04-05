@@ -37,7 +37,7 @@ FLAGS_DECLARE_FROM_ENUM(CharEquipFlags, CharEquipFlag);
 FLAGS_DECLARE_OPERATORS(CharEquipFlags, CharEquipFlag);
 
 int get_room_sky(int rnum);
-int equip_in_metall(CharData *ch);
+int IsEquipInMetall(CharData *ch);
 bool IsAwakeOthers(CharData *ch);
 
 void CheckLight(CharData *ch, int was_equip, int was_single, int was_holylight, int was_holydark, int koef);
@@ -75,25 +75,25 @@ ObjData *UnequipChar(CharData *ch, int pos, const CharEquipFlags& equip_flags);
 bool HaveIncompatibleAlign(CharData *ch, ObjData *obj);
 
 ObjData *get_obj_in_list(char *name, ObjData *list);
-ObjData *get_obj_in_list_num(int num, ObjData *list);
-ObjData *get_obj_in_list_vnum(int num, ObjData *list);
+ObjData *GetObjByRnum(int obj_rnum, ObjData *list);
+ObjData *GetObjByVnum(int vnum, ObjData *list);
 
 ObjData *get_obj(char *name, int vnum = 0);
-ObjData *get_obj_num(ObjRnum nr);
+ObjData *SearchObjByVnum(ObjRnum rnum);
 
 bool CheckObjDecay(ObjData *object);
 bool PlaceObjToRoom(ObjData *object, RoomRnum room);
-void obj_from_room(ObjData *object);
-void obj_to_obj(ObjData *obj, ObjData *obj_to);
-void obj_from_obj(ObjData *obj);
+void ExtractObjFromRoom(ObjData *object);
+void PlaceObjIntoObj(ObjData *obj, ObjData *obj_to);
+void ExtractObjFromObj(ObjData *obj);
 void object_list_new_owner(ObjData *list, CharData *ch);
 
-void extract_obj(ObjData *obj);
+void ExtractObjFromWorld(ObjData *obj);
 
 // ******* characters ********* //
 
-CharData *get_char_room(char *name, RoomRnum room);
-CharData *get_char_num(MobRnum nr);
+CharData *SearchCharInRoomByName(char *name, RoomRnum room);
+CharData *SearchCharByRnum(MobRnum rnum);
 CharData *get_char(char *name, int vnum = 0);
 
 void ExtractCharFromRoom(CharData *ch);
@@ -102,7 +102,7 @@ void PlaceCharToRoom(CharData *ch, RoomRnum room);
 void FleeToRoom(CharData *ch, RoomRnum room);
 inline void char_to_room(const CharData::shared_ptr &ch, RoomRnum room) { PlaceCharToRoom(ch.get(), room); }
 inline void char_flee_to_room(const CharData::shared_ptr &ch, RoomRnum room) { FleeToRoom(ch.get(), room); }
-void extract_char(CharData *ch, int clear_objs, bool zone_reset = 0);
+void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset = 0);
 void ProcessRoomAffectsOnEntry(CharData *ch, RoomRnum room);
 
 // find if character can see //
@@ -215,7 +215,7 @@ int *MemQ_slots(CharData *ch);
 int get_object_low_rent(ObjData *obj);
 void InitUid(ObjData *object);
 
-void remove_rune_label(CharData *ch);
+void RemoveRuneLabelFromWorld(CharData *ch, ESpell spell_id);
 
 #endif // HANDLER_H_
 

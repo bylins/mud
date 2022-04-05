@@ -74,7 +74,7 @@ enum EFeat : int {
 	kJuggler = 52,				//жонглер
 	kNimbleFingers = 53,		//ловкач
 	kGreatPowerAttack = 54,		//улучшенная мощная атака
-	kImmunity = 55,				//привычка к яду
+	kStrongImmunity = 55,		//привычка к яду
 	kMobility = 56,				//подвижность
 	kNaturalStr = 57,			//силач
 	kNaturalDex = 58,			//проворство

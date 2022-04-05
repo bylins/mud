@@ -164,7 +164,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 			/*if (obj != nullptr) {
 				extract_obj(obj);
 			}*/
-			extract_obj(obj);
+			ExtractObjFromWorld(obj);
 			break;
 
 		case EObjType::kPorion:
@@ -191,7 +191,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 			/*if (obj != nullptr) {
 				extract_obj(obj);
 			}*/
-			extract_obj(obj);
+			ExtractObjFromWorld(obj);
 			break;
 
 		default: log("SYSERR: Unknown object_type %d in EmployMagicItem.", GET_OBJ_TYPE(obj));

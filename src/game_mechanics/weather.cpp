@@ -160,7 +160,7 @@ void another_hour(int/* mode*/) {
 	}
 }
 
-struct month_temperature_type year_temp[kMonthsPerYear] = {{-32, +4, -18},    //Jan
+struct MonthTemperature year_temp[kMonthsPerYear] = {{-32, +4, -18},    //Jan
 															{-28, +5, -15},            //Feb
 															{-12, +12, -6},            //Mar
 															{-10, +15, +8},            //Apr
@@ -204,7 +204,7 @@ int average_day_temp(void) {
 }
 
 int average_week_temp(void) {
-	return (weather_info.temp_last_week / MAX(1, MIN(DAYS_PER_WEEK * kHoursPerDay, weather_info.hours_go)));
+	return (weather_info.temp_last_week / MAX(1, MIN(kDaysPerWeek * kHoursPerDay, weather_info.hours_go)));
 }
 
 int average_day_press(void) {
@@ -212,7 +212,7 @@ int average_day_press(void) {
 }
 
 int average_week_press(void) {
-	return (weather_info.press_last_week / MAX(1, MIN(DAYS_PER_WEEK * kHoursPerDay, weather_info.hours_go)));
+	return (weather_info.press_last_week / MAX(1, MIN(kDaysPerWeek * kHoursPerDay, weather_info.hours_go)));
 }
 
 void create_rainsnow(int *wtype, int startvalue, int chance1, int chance2, int chance3) {
@@ -287,12 +287,12 @@ void weather_change(void) {
 	// Average pressure and temperature per 24 hours
 	weather_info.press_last_day += weather_info.pressure;
 	weather_info.temp_last_day += weather_info.temperature;
-	if (weather_info.hours_go > (DAYS_PER_WEEK * kHoursPerDay)) {
+	if (weather_info.hours_go > (kDaysPerWeek * kHoursPerDay)) {
 		weather_info.press_last_week =
-			weather_info.press_last_week * (DAYS_PER_WEEK * kHoursPerDay -
-				1) / (DAYS_PER_WEEK * kHoursPerDay);
+			weather_info.press_last_week * (kDaysPerWeek * kHoursPerDay -
+				1) / (kDaysPerWeek * kHoursPerDay);
 		weather_info.temp_last_week =
-			weather_info.temp_last_week * (DAYS_PER_WEEK * kHoursPerDay - 1) / (DAYS_PER_WEEK * kHoursPerDay);
+			weather_info.temp_last_week * (kDaysPerWeek * kHoursPerDay - 1) / (kDaysPerWeek * kHoursPerDay);
 	}
 	// Average pressure and temperature per week
 	weather_info.press_last_week += weather_info.pressure;
@@ -417,25 +417,26 @@ void weather_change(void) {
 	weather_info.pressure = MIN(weather_info.pressure, 1040);
 	weather_info.pressure = MAX(weather_info.pressure, 960);
 
-	if (time_info.month == MONTH_MAY)
-		weather_info.season = SEASON_SPRING;
-	else if (time_info.month >= MONTH_JUNE && time_info.month <= MONTH_AUGUST)
-		weather_info.season = SEASON_SUMMER;
-	else if (time_info.month >= MONTH_SEPTEMBER && time_info.month <= MONTH_OCTOBER)
-		weather_info.season = SEASON_AUTUMN;
-	else if (time_info.month >= MONTH_DECEMBER || time_info.month <= MONTH_FEBRUARY)
-		weather_info.season = SEASON_WINTER;
+	if (time_info.month == EMonth::kMay)
+		weather_info.season = ESeason::kSpring;
+	else if (time_info.month >= EMonth::kJune && time_info.month <= EMonth::kAugust)
+		weather_info.season = ESeason::kSummer;
+	else if (time_info.month >= EMonth::kSeptember && time_info.month <= EMonth::kOctober)
+		weather_info.season = ESeason::kAutumn;
+	else if (time_info.month >= EMonth::kDecember || time_info.month <= EMonth::kFebruary)
+		weather_info.season = ESeason::kWinter;
 
 	switch (weather_info.season) {
-		case SEASON_WINTER:
-			if ((time_info.month == MONTH_MART && avg_week_temp > 5
-				&& weather_info.snowlevel == 0) || (time_info.month == MONTH_APRIL && weather_info.snowlevel == 0))
-				weather_info.season = SEASON_SPRING;
+		case ESeason::kWinter:
+			if ((time_info.month == EMonth::kMarch && avg_week_temp > 5
+				&& weather_info.snowlevel == 0) || (time_info.month == EMonth::kApril && weather_info.snowlevel == 0))
+				weather_info.season = ESeason::kSpring;
 			break;
-		case SEASON_AUTUMN:
-			if (time_info.month == MONTH_NOVEMBER && (avg_week_temp < 2 || weather_info.snowlevel >= 5))
-				weather_info.season = SEASON_WINTER;
+		case ESeason::kAutumn:
+			if (time_info.month == EMonth::kNovember && (avg_week_temp < 2 || weather_info.snowlevel >= 5))
+				weather_info.season = ESeason::kWinter;
 			break;
+		default: break;
 	}
 
 	sky_change = 0;
@@ -490,7 +491,7 @@ void weather_change(void) {
 
 	switch (sky_change) {
 		case 1:        // CLOUDLESS -> CLOUDY
-			if (time_info.month >= MONTH_MAY && time_info.month <= MONTH_AUGUST) {
+			if (time_info.month >= EMonth::kMay && time_info.month <= EMonth::kAugust) {
 				if (time_info.hours >= 8 && time_info.hours <= 16)
 					temp_change += number(-3, -1);
 				else if (time_info.hours >= 5 && time_info.hours <= 20)
@@ -500,13 +501,13 @@ void weather_change(void) {
 				temp_change += number(-2, +2);
 			break;
 		case 2:        // CLOUDY -> RAINING
-			if (time_info.month >= MONTH_MAY && time_info.month <= MONTH_AUGUST)
+			if (time_info.month >= EMonth::kMay && time_info.month <= EMonth::kAugust)
 				temp_change += number(-1, +1);
 			else
 				temp_change += number(-2, +2);
 			break;
 		case 3:        // CLOUDY -> CLOUDLESS
-			if (time_info.month >= MONTH_MAY && time_info.month <= MONTH_AUGUST) {
+			if (time_info.month >= EMonth::kMay && time_info.month <= EMonth::kAugust) {
 				if (time_info.hours >= 7 && time_info.hours <= 19)
 					temp_change += number(+1, +2);
 				else
@@ -515,7 +516,7 @@ void weather_change(void) {
 				temp_change += number(-1, +1);
 			break;
 		case 4:        // RAINING -> LIGHTNING
-			if (time_info.month >= MONTH_MAY && time_info.month <= MONTH_AUGUST) {
+			if (time_info.month >= EMonth::kMay && time_info.month <= EMonth::kAugust) {
 				if (time_info.hours >= 10 && time_info.hours <= 18)
 					temp_change += number(+1, +3);
 				else
@@ -524,13 +525,13 @@ void weather_change(void) {
 				temp_change += number(-3, +3);
 			break;
 		case 5:        // RAINING -> CLOUDY
-			if (time_info.month >= MONTH_JUNE && time_info.month <= MONTH_AUGUST)
+			if (time_info.month >= EMonth::kJune && time_info.month <= EMonth::kAugust)
 				temp_change += number(0, +1);
 			else
 				temp_change += number(-1, +1);
 			break;
 		case 6:        // LIGHTNING -> RAINING
-			if (time_info.month >= MONTH_MAY && time_info.month <= MONTH_AUGUST) {
+			if (time_info.month >= EMonth::kMay && time_info.month <= EMonth::kAugust) {
 				if (time_info.hours >= 10 && time_info.hours <= 17)
 					temp_change += number(-3, +1);
 				else
@@ -548,7 +549,7 @@ void weather_change(void) {
 	temp_change += day_temp_change[time_info.hours][weather_info.sky];
 	if (time_info.day >= 22) {
 		temp = weather_info.temperature +
-			(time_info.month >= MONTH_DECEMBER ? year_temp[0].med : year_temp[time_info.month + 1].med);
+			(time_info.month >= EMonth::kDecember ? year_temp[0].med : year_temp[time_info.month + 1].med);
 		temp /= 2;
 	} else if (time_info.day <= 8) {
 		temp = weather_info.temperature + year_temp[time_info.month].med;
@@ -592,20 +593,20 @@ void weather_change(void) {
 			break;
 		case 2:        // CLOUDY -> RAINING
 			switch (time_info.month) {
-				case MONTH_MAY:
-				case MONTH_JUNE:
-				case MONTH_JULY:
-				case MONTH_AUGUST:
-				case MONTH_SEPTEMBER: strcat(buf, "Начался дождь.\r\n");
+				case EMonth::kMay:
+				case EMonth::kJune:
+				case EMonth::kJuly:
+				case EMonth::kAugust:
+				case EMonth::kSeptember: strcat(buf, "Начался дождь.\r\n");
 					create_rainsnow(&cweather_type, kWeatherLightrain, 30, 40, 30);
 					break;
-				case MONTH_DECEMBER:
-				case MONTH_JANUARY:
-				case MONTH_FEBRUARY: strcat(buf, "Пошел снег.\r\n");
+				case EMonth::kDecember:
+				case EMonth::kJanuary:
+				case EMonth::kFebruary: strcat(buf, "Пошел снег.\r\n");
 					create_rainsnow(&cweather_type, kWeatherLightsnow, 30, 40, 30);
 					break;
-				case MONTH_OCTOBER:
-				case MONTH_APRIL:
+				case EMonth::kOctober:
+				case EMonth::kApril:
 					if (IS_SET(cweather_type, kWeatherQuickcool)
 						&& weather_info.temperature <= 5) {
 						strcat(buf, "Пошел снег.\r\n");
@@ -615,7 +616,7 @@ void weather_change(void) {
 						create_rainsnow(&cweather_type, kWeatherLightrain, 40, 60, 0);
 					}
 					break;
-				case MONTH_NOVEMBER:
+				case EMonth::kNovember:
 					if (avg_day_temp <= 3 || IS_SET(cweather_type, kWeatherQuickcool)) {
 						strcat(buf, "Пошел снег.\r\n");
 						create_rainsnow(&cweather_type, kWeatherLightsnow, 40, 60, 0);
@@ -624,7 +625,7 @@ void weather_change(void) {
 						create_rainsnow(&cweather_type, kWeatherLightrain, 40, 60, 0);
 					}
 					break;
-				case MONTH_MART:
+				case EMonth::kMarch:
 					if (avg_day_temp >= 3 || IS_SET(cweather_type, kWeatherQuickhot)) {
 						strcat(buf, "Начался дождь.\r\n");
 						create_rainsnow(&cweather_type, kWeatherLightrain, 80, 20, 0);
@@ -655,11 +656,11 @@ void weather_change(void) {
 			break;
 		case 6:        // LIGHTNING -> RAINING
 			switch (time_info.month) {
-				case MONTH_MAY:
-				case MONTH_JUNE:
-				case MONTH_JULY:
-				case MONTH_AUGUST:
-				case MONTH_SEPTEMBER:
+				case EMonth::kMay:
+				case EMonth::kJune:
+				case EMonth::kJuly:
+				case EMonth::kAugust:
+				case EMonth::kSeptember:
 					if (IS_SET(cweather_type, kWeatherQuickcool)) {
 						strcat(buf, "Начался град.\r\n");
 						SET_BIT(cweather_type, kWeatherHail);
@@ -668,13 +669,13 @@ void weather_change(void) {
 						create_rainsnow(&cweather_type, kWeatherLightrain, 10, 40, 50);
 					}
 					break;
-				case MONTH_DECEMBER:
-				case MONTH_JANUARY:
-				case MONTH_FEBRUARY: strcat(buf, "Повалил снег.\r\n");
+				case EMonth::kDecember:
+				case EMonth::kJanuary:
+				case EMonth::kFebruary: strcat(buf, "Повалил снег.\r\n");
 					create_rainsnow(&cweather_type, kWeatherLightsnow, 10, 40, 50);
 					break;
-				case MONTH_OCTOBER:
-				case MONTH_APRIL:
+				case EMonth::kOctober:
+				case EMonth::kApril:
 					if (IS_SET(cweather_type, kWeatherQuickcool)
 						&& weather_info.temperature <= 5) {
 						strcat(buf, "Повалил снег.\r\n");
@@ -684,7 +685,7 @@ void weather_change(void) {
 						create_rainsnow(&cweather_type, kWeatherLightrain, 40, 60, 0);
 					}
 					break;
-				case MONTH_NOVEMBER:
+				case EMonth::kNovember:
 					if (avg_day_temp <= 3 || IS_SET(cweather_type, kWeatherQuickcool)) {
 						strcat(buf, "Повалил снег.\r\n");
 						create_rainsnow(&cweather_type, kWeatherLightsnow, 40, 60, 0);
@@ -693,7 +694,7 @@ void weather_change(void) {
 						create_rainsnow(&cweather_type, kWeatherLightrain, 40, 60, 0);
 					}
 					break;
-				case MONTH_MART:
+				case EMonth::kMarch:
 					if (avg_day_temp >= 3 || IS_SET(cweather_type, kWeatherQuickhot)) {
 						strcat(buf, "Начался дождь.\r\n");
 						create_rainsnow(&cweather_type, kWeatherLightrain, 80, 20, 0);
@@ -839,14 +840,17 @@ int day_spell_modifier(CharData *ch, int/* spellnum*/, int type, int value) {
 }
 
 int weather_spell_modifier(CharData *ch, int spellnum, int type, int value) {
-	int modi = value, sky = weather_info.sky, season = weather_info.season;
+	int modi = value, sky = weather_info.sky;
+	auto season = weather_info.season;
 
 	if (ch->is_npc() ||
 		ch->in_room == kNowhere ||
 		SECT(ch->in_room) == ESector::kInside ||
 		SECT(ch->in_room) == ESector::kCity ||
-		ROOM_FLAGGED(ch->in_room, ERoomFlag::kIndoors) || ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoWeather) || ch->is_npc())
+		ROOM_FLAGGED(ch->in_room, ERoomFlag::kIndoors) ||
+		ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoWeather) || ch->is_npc()) {
 		return (modi);
+		}
 
 	sky = GET_ROOM_SKY(ch->in_room);
 
@@ -861,7 +865,7 @@ int weather_spell_modifier(CharData *ch, int spellnum, int type, int value) {
 				case kSpellIceBolts:
 				case kSpellFireball:
 				case kSpellFireBlast:
-					if (season == SEASON_SUMMER &&
+					if (season == ESeason::kSummer &&
 						(weather_info.sunlight == kSunRise || weather_info.sunlight == kSunLight)) {
 						if (sky == kSkyLightning)
 							modi += (modi * number(20, 50) / 100);
@@ -884,7 +888,7 @@ int weather_spell_modifier(CharData *ch, int spellnum, int type, int value) {
 				case kSpellIceStorm:
 				case kSpellColdWind:
 				case kSpellGodsWrath:
-					if (season == SEASON_WINTER) {
+					if (season == ESeason::kWinter) {
 						if (sky == kSkyRaining || sky == kSkyCloudy)
 							modi += (modi * number(20, 50) / 100);
 						else if (sky == kSkyCloudless || sky == kSkyLightning)

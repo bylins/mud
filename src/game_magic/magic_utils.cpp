@@ -373,7 +373,7 @@ int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict
 	}
 
 	if (IS_SET(SpINFO.routines, kMagRoom)) {
-		return room_spells::ImposeSpellToRoom(level, caster, rvict, spellnum);
+		return room_spells::CastSpellToRoom(level, caster, rvict, spellnum);
 	}
 
 	return CastToSingleTarget(level, caster, cvict, ovict, spellnum, ESaving::kStability);
@@ -680,7 +680,7 @@ int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, int spellnum
 			break;
 	}
 
-	if (equip_in_metall(ch) && !IsAbleToUseFeat(ch, EFeat::kCombatCasting)) {
+	if (IsEquipInMetall(ch) && !IsAbleToUseFeat(ch, EFeat::kCombatCasting)) {
 		prob -= 50;
 	}
 

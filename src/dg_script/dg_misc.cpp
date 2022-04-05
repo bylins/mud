@@ -254,7 +254,7 @@ void do_dg_cast(void *go, Script * /*sc*/, Trigger *trig, int type, char *cmd) {
 		trig_log(trig, buf2);
 	}
 	if (dummy_mob)
-		extract_char(caster, false);
+		ExtractCharFromWorld(caster, false);
 }
 
 /* modify an affection on the target. affections can be of the AFF_x

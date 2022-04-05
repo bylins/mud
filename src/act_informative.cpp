@@ -1615,31 +1615,31 @@ void show_extend_room(const char *const description, CharData *ch) {
 		*pos = '<';
 
 	found = found || paste_description(string, TAG_WINTERNIGHT,
-									   (weather_info.season == SEASON_WINTER
+									   (weather_info.season == ESeason::kWinter
 										   && (weather_info.sunlight == kSunSet || weather_info.sunlight == kSunDark)));
 	found = found || paste_description(string, TAG_WINTERDAY,
-									   (weather_info.season == SEASON_WINTER
+									   (weather_info.season == ESeason::kWinter
 										   && (weather_info.sunlight == kSunRise
 											   || weather_info.sunlight == kSunLight)));
 	found = found || paste_description(string, TAG_SPRINGNIGHT,
-									   (weather_info.season == SEASON_SPRING
+									   (weather_info.season == ESeason::kSpring
 										   && (weather_info.sunlight == kSunSet || weather_info.sunlight == kSunDark)));
 	found = found || paste_description(string, TAG_SPRINGDAY,
-									   (weather_info.season == SEASON_SPRING
+									   (weather_info.season == ESeason::kSpring
 										   && (weather_info.sunlight == kSunRise
 											   || weather_info.sunlight == kSunLight)));
 	found = found || paste_description(string, TAG_SUMMERNIGHT,
-									   (weather_info.season == SEASON_SUMMER
+									   (weather_info.season == ESeason::kSummer
 										   && (weather_info.sunlight == kSunSet || weather_info.sunlight == kSunDark)));
 	found = found || paste_description(string, TAG_SUMMERDAY,
-									   (weather_info.season == SEASON_SUMMER
+									   (weather_info.season == ESeason::kSummer
 										   && (weather_info.sunlight == kSunRise
 											   || weather_info.sunlight == kSunLight)));
 	found = found || paste_description(string, TAG_AUTUMNNIGHT,
-									   (weather_info.season == SEASON_AUTUMN
+									   (weather_info.season == ESeason::kAutumn
 										   && (weather_info.sunlight == kSunSet || weather_info.sunlight == kSunDark)));
 	found = found || paste_description(string, TAG_AUTUMNDAY,
-									   (weather_info.season == SEASON_AUTUMN
+									   (weather_info.season == ESeason::kAutumn
 										   && (weather_info.sunlight == kSunRise
 											   || weather_info.sunlight == kSunLight)));
 	found = found || paste_description(string, TAG_NIGHT,
@@ -1995,7 +1995,7 @@ void look_in_direction(CharData *ch, int dir, int info_is) {
 			return;
 		}
 
-		if (IS_TIMEDARK(rdata->to_room())) {
+		if (is_dark(rdata->to_room())) {
 			count += sprintf(buf + count, " слишком темно.\r\n");
 			send_to_char(buf, ch);
 			if (info_is & EXIT_SHOW_LOOKING) {
@@ -2911,13 +2911,13 @@ void do_time(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 				time_info.year,
 				(time_info.month * kDaysPerMonth) + day);
 	switch (weather_info.season) {
-		case SEASON_WINTER: strcat(buf, ", зима");
+		case ESeason::kWinter: strcat(buf, ", зима");
 			break;
-		case SEASON_SPRING: strcat(buf, ", весна");
+		case ESeason::kSpring: strcat(buf, ", весна");
 			break;
-		case SEASON_SUMMER: strcat(buf, ", лето");
+		case ESeason::kSummer: strcat(buf, ", лето");
 			break;
-		case SEASON_AUTUMN: strcat(buf, ", осень");
+		case ESeason::kAutumn: strcat(buf, ", осень");
 			break;
 	}
 	strcat(buf, ".\r\n");

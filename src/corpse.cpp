@@ -475,7 +475,7 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 	if (ch->get_gold() > 0) {
 		if (ch->is_npc()) {
 			const auto money = create_money(ch->get_gold());
-			obj_to_obj(money.get(), corpse.get());
+			PlaceObjIntoObj(money.get(), corpse.get());
 		} else {
 			const int amount = ch->get_gold();
 			const auto money = create_money(amount);
@@ -483,13 +483,13 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 			if (amount >= 100) {
 				purse = system_obj::create_purse(ch, amount);
 				if (purse) {
-					obj_to_obj(money.get(), purse);
-					obj_to_obj(purse, corpse.get());
+					PlaceObjIntoObj(money.get(), purse);
+					PlaceObjIntoObj(purse, corpse.get());
 				}
 			}
 
 			if (!purse) {
-				obj_to_obj(money.get(), corpse.get());
+				PlaceObjIntoObj(money.get(), corpse.get());
 			}
 		}
 		ch->set_gold(0);
@@ -504,7 +504,7 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 		&& !ROOM_FLAGGED(ch->in_room, ERoomFlag::kHouse)) {
 		ObjData *ingr = try_make_ingr(ch, 1000);
 		if (ingr) {
-			obj_to_obj(ingr, corpse.get());
+			PlaceObjIntoObj(ingr, corpse.get());
 		}
 	}
 

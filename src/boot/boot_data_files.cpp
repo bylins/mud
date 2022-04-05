@@ -1261,11 +1261,11 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 
 	CASE("Resistances") {
 		auto array_string = split_string(value);
-		if (array_string.size() < 7 || array_string.size() > MAX_NUMBER_RESISTANCE) {
+		if (array_string.size() < 7 || array_string.size() > EResist::kLastResist + 1) {
 			log("SYSERROR : Excepted format <# # # # # # # #> for RESISTANCES in MOB #%d", i);
 			return;
 		}
-		for (unsigned kk = 0; kk < array_string.size(); kk++) {
+		for (unsigned kk = 0; kk < array_string.size(); ++kk) {
 			GET_RESIST(mob_proto + i, kk) = std::clamp(atoi(array_string[kk].c_str()), kMinResistance, kMaxResistance);
 		}
 

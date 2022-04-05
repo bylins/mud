@@ -1047,7 +1047,7 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			}
 			weight_change_object(to_obj, 1);
 			to_obj->inc_val(1);
-			extract_obj(from_obj);
+			ExtractObjFromWorld(from_obj);
 			return;
 		} else if (result < 0) {
 			send_to_char("Не пытайтесь подмешать более слабое зелье!\r\n", ch);

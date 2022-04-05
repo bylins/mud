@@ -165,13 +165,13 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 					gemobj->get_PName(3).c_str(),
 					itemobj->get_PName(3).c_str());
 			act(buf, false, ch, nullptr, nullptr, kToRoom);
-			extract_obj(gemobj);
+			ExtractObjFromWorld(gemobj);
 			if (number(1, 100) <= insgem_vars.dikey_percent) {
 				sprintf(buf, "...и испортив хорошую вещь!\r\n");
 				send_to_char(buf, ch);
 				sprintf(buf, "$n испортил$g %s!\r\n", itemobj->get_PName(3).c_str());
 				act(buf, false, ch, nullptr, nullptr, kToRoom);
-				extract_obj(itemobj);
+				ExtractObjFromWorld(itemobj);
 			}
 			return;
 		}
@@ -206,7 +206,7 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 					gemobj->get_PName(3).c_str(),
 					itemobj->get_PName(3).c_str());
 			act(buf, false, ch, nullptr, nullptr, kToRoom);
-			extract_obj(gemobj);
+			ExtractObjFromWorld(gemobj);
 			return;
 		}
 	}
@@ -268,7 +268,7 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	if (!itemobj->has_flag(EObjFlag::kTransformed)) {
 		itemobj->set_extra_flag(EObjFlag::kTransformed);
 	}
-	extract_obj(gemobj);
+	ExtractObjFromWorld(gemobj);
 }
 
 void insert_wanted_gem::show(CharData *ch, int gem_vnum) {
