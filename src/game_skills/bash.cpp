@@ -8,18 +8,18 @@
 
 // ************************* BASH PROCEDURES
 void go_bash(CharData *ch, CharData *vict) {
-	if (IsUnableToAct(ch) || AFF_FLAGGED(ch, EAffectFlag::AFF_STOPLEFT)) {
+	if (IsUnableToAct(ch) || AFF_FLAGGED(ch, EAffect::kStopLeft)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
 
-	if (!(IS_NPC(ch) || GET_EQ(ch, WEAR_SHIELD) || IS_IMMORTAL(ch) || GET_MOB_HOLD(vict)
-		|| GET_GOD_FLAG(vict, GF_GODSCURSE))) {
+	if (!(ch->is_npc() || GET_EQ(ch, kShield) || IS_IMMORTAL(ch) || GET_MOB_HOLD(vict)
+		|| GET_GOD_FLAG(vict, EGf::kGodscurse))) {
 		send_to_char("Вы не можете сделать этого без щита.\r\n", ch);
 		return;
 	};
 
-	if (PRF_FLAGS(ch).get(PRF_IRON_WIND)) {
+	if (PRF_FLAGS(ch).get(EPrf::kIronWind)) {
 		send_to_char("Вы не можете применять этот прием в таком состоянии!\r\n", ch);
 		return;
 	}
@@ -42,10 +42,10 @@ void go_bash(CharData *ch, CharData *vict) {
 	int percent = number(1, MUD::Skills()[ESkill::kBash].difficulty);
 	int prob = CalcCurrentSkill(ch, ESkill::kBash, vict);
 
-	if (GET_MOB_HOLD(vict) || GET_GOD_FLAG(vict, GF_GODSCURSE)) {
+	if (GET_MOB_HOLD(vict) || GET_GOD_FLAG(vict, EGf::kGodscurse)) {
 		prob = percent;
 	}
-	if (MOB_FLAGGED(vict, MOB_NOBASH) || GET_GOD_FLAG(ch, GF_GODSCURSE)) {
+	if (MOB_FLAGGED(vict, EMobFlag::kNoBash) || GET_GOD_FLAG(ch, EGf::kGodscurse)) {
 		prob = 0;
 	}
 	bool success = percent <= prob;
@@ -70,18 +70,18 @@ void go_bash(CharData *ch, CharData *vict) {
 
 //делаем блокирование баша
 		if ((GET_AF_BATTLE(vict, kEafBlock)
-			|| (can_use_feat(vict, DEFENDER_FEAT)
-				&& GET_EQ(vict, WEAR_SHIELD)
-				&& PRF_FLAGGED(vict, PRF_AWAKE)
+			|| (IsAbleToUseFeat(vict, EFeat::kDefender)
+				&& GET_EQ(vict, kShield)
+				&& PRF_FLAGGED(vict, EPrf::kAwake)
 				&& vict->get_skill(ESkill::kAwake)
 				&& vict->get_skill(ESkill::kShieldBlock)
 				&& GET_POS(vict) > EPosition::kSit))
-			&& !AFF_FLAGGED(vict, EAffectFlag::AFF_STOPFIGHT)
-			&& !AFF_FLAGGED(vict, EAffectFlag::AFF_MAGICSTOPFIGHT)
-			&& !AFF_FLAGGED(vict, EAffectFlag::AFF_STOPLEFT)
+			&& !AFF_FLAGGED(vict, EAffect::kStopFight)
+			&& !AFF_FLAGGED(vict, EAffect::kMagicStopFight)
+			&& !AFF_FLAGGED(vict, EAffect::kStopLeft)
 			&& GET_WAIT(vict) <= 0
 			&& GET_MOB_HOLD(vict) == 0) {
-			if (!(GET_EQ(vict, WEAR_SHIELD) || IS_NPC(vict) || IS_IMMORTAL(vict) || GET_GOD_FLAG(vict, GF_GODSLIKE)))
+			if (!(GET_EQ(vict, kShield) || vict->is_npc() || IS_IMMORTAL(vict) || GET_GOD_FLAG(vict, EGf::kGodsLike)))
 				send_to_char("У вас нечем отразить атаку противника.\r\n", vict);
 			else {
 				int range, prob2;
@@ -103,7 +103,7 @@ void go_bash(CharData *ch, CharData *vict) {
 						false, ch, nullptr, vict, kToChar);
 					act("$n блокировал$g попытку $N1 сбить $s.",
 						true, vict, nullptr, ch, kToNotVict | kToArenaListen);
-					alt_equip(vict, WEAR_SHIELD, 30, 10);
+					alt_equip(vict, kShield, 30, 10);
 					if (!ch->get_fighting()) {
 						set_fighting(ch, vict);
 						SetWait(ch, 1, true);
@@ -119,7 +119,7 @@ void go_bash(CharData *ch, CharData *vict) {
 		dmg.flags.set(fight::kNoFleeDmg);
 		dam = dmg.Process(ch, vict);
 
-		if (dam > 0 || (dam == 0 && AFF_FLAGGED(vict, EAffectFlag::AFF_SHIELD))) {
+		if (dam > 0 || (dam == 0 && AFF_FLAGGED(vict, EAffect::kShield))) {
 			prob = 2;
 			if (!vict->drop_from_horse()) {
 				GET_POS(vict) = EPosition::kSit;
@@ -131,7 +131,7 @@ void go_bash(CharData *ch, CharData *vict) {
 }
 
 void do_bash(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if ((IS_NPC(ch) && (!AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER))) || !ch->get_skill(ESkill::kBash)) {
+	if ((ch->is_npc() && (!AFF_FLAGGED(ch, EAffect::kHelper))) || !ch->get_skill(ESkill::kBash)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -164,7 +164,7 @@ void do_bash(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (IS_IMPL(ch) || !ch->get_fighting()) {
 		go_bash(ch, vict);
 	} else if (IsHaveNoExtraAttack(ch)) {
-		if (!IS_NPC(ch))
+		if (!ch->is_npc())
 			act("Хорошо. Вы попытаетесь сбить $N3.", false, ch, nullptr, vict, kToChar);
 		ch->set_extra_attack(kExtraAttackBash, vict);
 	}

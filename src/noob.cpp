@@ -174,27 +174,27 @@ void check_help_message(CharData *ch) {
 /// Богатырям при надевании перчаток сетится кулачный бой.
 ///
 void equip_start_outfit(CharData *ch, ObjData *obj) {
-	if (GET_OBJ_TYPE(obj) == ObjData::ITEM_ARMOR) {
+	if (GET_OBJ_TYPE(obj) == EObjType::kArmor) {
 		int where = find_eq_pos(ch, obj, nullptr);
 		if (where >= 0) {
-			equip_char(ch, obj, where, CharEquipFlags());
+			EquipObj(ch, obj, where, CharEquipFlags());
 			// богатырям в перчатках сетим кулачный бой вместо пушек
-			if (where == WEAR_HANDS && GET_CLASS(ch) == kWarrior) {
+			if (where == EEquipPos::kHands && GET_CLASS(ch) == kWarrior) {
 				ch->set_skill(ESkill::kPunch, 10);
 			}
 		}
-	} else if (GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON) {
-		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WIELD)
-			&& !GET_EQ(ch, WEAR_WIELD)) {
-			equip_char(ch, obj, WEAR_WIELD, CharEquipFlags());
+	} else if (GET_OBJ_TYPE(obj) == EObjType::kWeapon) {
+		if (CAN_WEAR(obj, EWearFlag::kWield)
+			&& !GET_EQ(ch, EEquipPos::kWield)) {
+			EquipObj(ch, obj, EEquipPos::kWield, CharEquipFlags());
 			ch->set_skill(static_cast<ESkill>(GET_OBJ_SKILL(obj)), 10);
-		} else if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS)
-			&& !GET_EQ(ch, WEAR_BOTHS)) {
-			equip_char(ch, obj, WEAR_BOTHS, CharEquipFlags());
+		} else if (CAN_WEAR(obj, EWearFlag::kBoth)
+			&& !GET_EQ(ch, EEquipPos::kBoths)) {
+			EquipObj(ch, obj, EEquipPos::kBoths, CharEquipFlags());
 			ch->set_skill(static_cast<ESkill>(GET_OBJ_SKILL(obj)), 10);
-		} else if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HOLD)
-			&& !GET_EQ(ch, WEAR_HOLD)) {
-			equip_char(ch, obj, WEAR_HOLD, CharEquipFlags());
+		} else if (CAN_WEAR(obj, EWearFlag::kHold)
+			&& !GET_EQ(ch, EEquipPos::kHold)) {
+			EquipObj(ch, obj, EEquipPos::kHold, CharEquipFlags());
 			ch->set_skill(static_cast<ESkill>(GET_OBJ_SKILL(obj)), 10);
 		}
 	}

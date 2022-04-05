@@ -8,7 +8,7 @@
 void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int spellnum, cnt;
 
-	if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (ch->is_npc() && AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	if (!ch->get_skill(ESkill::kWarcry)) {
@@ -16,7 +16,7 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)) {
+	if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
 		send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
 		return;
 	}
@@ -83,7 +83,7 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	timed.skill = ESkill::kWarcry;
 	timed.time = IsTimedBySkill(ch, ESkill::kWarcry) + kHoursPerWarcry;
 
-	if (timed.time > HOURS_PER_DAY) {
+	if (timed.time > kHoursPerDay) {
 		send_to_char("Вы охрипли и не можете кричать.\r\n", ch);
 		return;
 	}
@@ -96,10 +96,10 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	SaySpell(ch, spellnum, nullptr, nullptr);
 
 	if (CallMagic(ch, nullptr, nullptr, nullptr, spellnum, GetRealLevel(ch)) >= 0) {
-		if (!WAITLESS(ch)) {
+		if (!IS_IMMORTAL(ch)) {
 			if (!CHECK_WAIT(ch))
 				WAIT_STATE(ch, kPulseViolence);
-			timed_to_char(ch, &timed);
+			ImposeTimedSkill(ch, &timed);
 			GET_MOVE(ch) -= spell_info[spellnum].mana_max;
 		}
 		TrainSkill(ch, ESkill::kWarcry, true, nullptr);

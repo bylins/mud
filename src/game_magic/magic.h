@@ -65,8 +65,7 @@ int CastCreation(int, CharData *ch, int spellnum);
 int CastToSingleTarget(int level, CharData *caster, CharData *cvict, ObjData *ovict, int spellnum, ESaving saving);
 
 bool material_component_processing(CharData *caster, CharData *victim, int spellnum);
-float func_koef_duration(int spellnum, int percent); 
-float func_koef_modif(int spellnum, int percent);
+float CalcModCoef(int spellnum, int percent);
 
 #endif
 

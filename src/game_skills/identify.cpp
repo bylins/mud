@@ -10,7 +10,7 @@ void do_identify(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	struct TimedSkill timed;
 	int k, level = 0;
 
-	if (IS_NPC(ch) || ch->get_skill(ESkill::kIdentify) <= 0) {
+	if (ch->is_npc() || ch->get_skill(ESkill::kIdentify) <= 0) {
 		send_to_char("Вам стоит сначала этому научиться.\r\n", ch);
 		return;
 	}
@@ -22,16 +22,16 @@ void do_identify(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	k = generic_find(arg, FIND_CHAR_ROOM | FIND_OBJ_INV | FIND_OBJ_ROOM | FIND_OBJ_EQUIP, caster, &cvict, &ovict);
+	k = generic_find(arg, EFind::kCharInRoom | EFind::kObjInventory | EFind::kObjRoom | EFind::kObjEquip, caster, &cvict, &ovict);
 	if (!k) {
 		send_to_char("Похоже, здесь этого нет.\r\n", ch);
 		return;
 	}
 	if (!IS_IMMORTAL(ch)) {
 		timed.skill = ESkill::kIdentify;
-		timed.time = MAX((can_use_feat(ch, CONNOISEUR_FEAT) ? GetModifier(CONNOISEUR_FEAT, FEAT_TIMER) : 12)
+		timed.time = MAX((IsAbleToUseFeat(ch, EFeat::kConnoiseur) ? GetModifier(EFeat::kConnoiseur, kFeatTimer) : 12)
 							 - ((GET_SKILL(ch, ESkill::kIdentify) - 25) / 25), 1); //12..5 or 8..1
-		timed_to_char(ch, &timed);
+		ImposeTimedSkill(ch, &timed);
 	}
 	MANUAL_SPELL(SkillIdentify)
 }

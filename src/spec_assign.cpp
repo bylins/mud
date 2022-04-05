@@ -134,7 +134,7 @@ void assign_rooms(void) {
 
 	if (dts_are_dumps)
 		for (i = FIRST_ROOM; i <= top_of_world; i++)
-			if (ROOM_FLAGGED(i, ROOM_DEATH))
+			if (ROOM_FLAGGED(i, ERoomFlag::kDeathTrap))
 				world[i]->func = dump;
 }
 
@@ -201,10 +201,10 @@ void init_spec_procs(void) {
 // * Снятие нежелательных флагов у рентеров и продавцов.
 void clear_mob_charm(CharData *mob) {
 	if (mob && !mob->purged()) {
-		MOB_FLAGS(mob).unset(MOB_MOUNTING);
-		MOB_FLAGS(mob).set(MOB_NOCHARM);
-		MOB_FLAGS(mob).set(MOB_NORESURRECTION);
-		NPC_FLAGS(mob).unset(NPC_HELPED);
+		MOB_FLAGS(mob).unset(EMobFlag::kMounting);
+		MOB_FLAGS(mob).set(EMobFlag::kNoCharm);
+		MOB_FLAGS(mob).set(EMobFlag::kNoResurrection);
+		NPC_FLAGS(mob).unset(ENpcFlag::kHelped);
 	} else {
 		log("SYSERROR: mob = %s (%s:%d)",
 			mob ? (mob->purged() ? "purged" : "true") : "false",

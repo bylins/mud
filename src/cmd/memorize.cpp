@@ -6,7 +6,7 @@
 #include "game_classes/classes_spell_slots.h"
 #include "game_magic/magic_utils.h" //включен ради функци поиска спеллов, которые по-хорошеиу должны быть где-то в утилитах.
 
-using PlayerClass::slot_for_char;
+using PlayerClass::CalcCircleSlotsAmount;
 
 void show_wizdom(CharData *ch, int bitset);
 void do_memorize(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
@@ -43,7 +43,7 @@ void do_memorize(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	// Caster is lower than spell level
 	if (GetRealLevel(ch) < MIN_CAST_LEV(spell_info[spellnum], ch)
 		|| GET_REAL_REMORT(ch) < MIN_CAST_REM(spell_info[spellnum], ch)
-		|| slot_for_char(ch, spell_info[spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0) {
+		|| CalcCircleSlotsAmount(ch, spell_info[spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0) {
 		send_to_char("Рано еще вам бросаться такими словами!\r\n", ch);
 		return;
 	};
@@ -61,7 +61,7 @@ void show_wizdom(CharData *ch, int bitset) {
 	for (i = 1; i <= kMaxSlot; i++) {
 		*names[i - 1] = '\0';
 		slots[i - 1] = 0;
-		if (slot_for_char(ch, i))
+		if (CalcCircleSlotsAmount(ch, i))
 			imax_slot = i;
 	}
 	if (bitset & 0x01) {
@@ -108,7 +108,7 @@ void show_wizdom(CharData *ch, int bitset) {
 			slots[i] = 0;
 		}
 
-		if (!MEMQUEUE_EMPTY(ch)) {
+		if (!ch->mem_queue.Empty()) {
 			unsigned char cnt[kSpellCount + 1];
 			memset(cnt, 0, kSpellCount + 1);
 			timestr[0] = 0;
@@ -116,7 +116,7 @@ void show_wizdom(CharData *ch, int bitset) {
 				int div, min, sec;
 				div = mana_gain(ch);
 				if (div > 0) {
-					sec = MAX(0, 1 + GET_MEM_CURRENT(ch) - GET_MEM_COMPLETED(ch));    // sec/div -- время мема в мин
+					sec = std::max(0, 1 + GET_MEM_CURRENT(ch) - ch->mem_queue.stored);    // sec/div -- время мема в мин
 					sec = sec * 60 / div;    // время мема в сек
 					min = sec / 60;
 					sec %= 60;
@@ -129,11 +129,11 @@ void show_wizdom(CharData *ch, int bitset) {
 				}
 			}
 
-			for (q = ch->MemQueue.queue; q; q = q->link) {
+			for (q = ch->mem_queue.queue; q; q = q->link) {
 				++cnt[q->spellnum];
 			}
 
-			for (q = ch->MemQueue.queue; q; q = q->link) {
+			for (q = ch->mem_queue.queue; q; q = q->link) {
 				i = q->spellnum;
 				if (cnt[i] == 0)
 					continue;
@@ -142,7 +142,7 @@ void show_wizdom(CharData *ch, int bitset) {
 										   "%2s|[%2d] %-26s%5s|",
 										   slots[slot_num] % 80 <
 											   10 ? "\r\n" : "  ", cnt[i],
-										   spell_info[i].name, q == ch->MemQueue.queue ? timestr : "");
+										   spell_info[i].name, q == ch->mem_queue.queue ? timestr : "");
 				cnt[i] = 0;
 			}
 
@@ -164,7 +164,7 @@ void show_wizdom(CharData *ch, int bitset) {
 		int *s = MemQ_slots(ch);
 		gcount += sprintf(buf2 + gcount, "  %sСвободно :%s\r\n", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
 		for (i = 0; i < imax_slot; i++) {
-			slot_num = MAX(0, slot_for_char(ch, i + 1) - s[i]);
+			slot_num = MAX(0, CalcCircleSlotsAmount(ch, i + 1) - s[i]);
 			gcount += sprintf(buf2 + gcount, "%s%2d-%2d%s  ",
 							  slot_num ? CCICYN(ch, C_NRM) : "",
 							  i + 1, slot_num, slot_num ? CCNRM(ch, C_NRM) : "");

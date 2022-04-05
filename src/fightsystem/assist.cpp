@@ -19,7 +19,7 @@ void do_assist(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (i->get_fighting() && i->get_fighting() != ch
 				&& ((ch->has_master() && ch->get_master() == i->get_master())
 					|| ch->get_master() == i || i->get_master() == ch
-					|| (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && ch->get_master() && ch->get_master()->get_master()
+					|| (AFF_FLAGGED(ch, EAffect::kCharmed) && ch->get_master() && ch->get_master()->get_master()
 						&& (ch->get_master()->get_master() == i
 							|| ch->get_master()->get_master() == i->get_master())))) {
 				helpee = i;
@@ -32,7 +32,7 @@ void do_assist(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 		}
 	} else {
-		if (!(helpee = get_char_vis(ch, arg, FIND_CHAR_ROOM))) {
+		if (!(helpee = get_char_vis(ch, arg, EFind::kCharInRoom))) {
 			send_to_char(NOPERSON, ch);
 			return;
 		}

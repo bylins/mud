@@ -60,7 +60,7 @@ std::string name_currency_plural(std::string name) {
 struct type_node {
 	type_node() : MORT_REQ(99), MORT_REQ_ADD_PER_MORT(99), MORT_NUM(99),
 				  DROP_LVL(99), DROP_AMOUNT(0), DROP_AMOUNT_ADD_PER_LVL(0), MINIMUM_DAYS(99),
-				  DESC_MESSAGE_NUM(0), DESC_MESSAGE_U_NUM(0) {};
+				  DESC_MESSAGE_NUM(EWhat::kDay), DESC_MESSAGE_U_NUM(EWhat::kDay) {};
 	// сколько гривен требуется на соответствующее право морта
 	int MORT_REQ;
 	// сколько добавлять к требованиям за каждый морт сверху
@@ -79,8 +79,8 @@ struct type_node {
 	// дропнется не более 10 золотых гривен или их эквивалента
 	int MINIMUM_DAYS;
 	// для сообщений через desc_count
-	int DESC_MESSAGE_NUM;
-	int DESC_MESSAGE_U_NUM;
+	EWhat DESC_MESSAGE_NUM;
+	EWhat DESC_MESSAGE_U_NUM;
 };
 
 // список типов гривен со всеми их параметрами
@@ -360,9 +360,9 @@ std::string create_message(CharData *ch, int gold, int silver, int bronze) {
 
 	if (gold > 0) {
 		out << CCIYEL(ch, C_NRM) << gold << " "
-			<< desc_count(gold, type_list[kTorcGold].DESC_MESSAGE_U_NUM);
+			<< GetDeclensionInNumber(gold, type_list[kTorcGold].DESC_MESSAGE_U_NUM);
 		if (silver <= 0 && bronze <= 0) {
-			out << " " << desc_count(gold, WHAT_TORCu);
+			out << " " << GetDeclensionInNumber(gold, EWhat::kTorcU);
 		}
 		out << CCNRM(ch, C_NRM);
 		++cnt;
@@ -371,28 +371,28 @@ std::string create_message(CharData *ch, int gold, int silver, int bronze) {
 		if (cnt > 0) {
 			if (bronze > 0) {
 				out << ", " << CCWHT(ch, C_NRM) << silver << " "
-					<< desc_count(silver, type_list[kTorcSilver].DESC_MESSAGE_U_NUM)
+					<< GetDeclensionInNumber(silver, type_list[kTorcSilver].DESC_MESSAGE_U_NUM)
 					<< CCNRM(ch, C_NRM) << " и ";
 			} else {
 				out << " и " << CCWHT(ch, C_NRM) << silver << " "
-					<< desc_count(silver, type_list[kTorcSilver].DESC_MESSAGE_U_NUM)
-					<< " " << desc_count(silver, WHAT_TORCu)
+					<< GetDeclensionInNumber(silver, type_list[kTorcSilver].DESC_MESSAGE_U_NUM)
+					<< " " << GetDeclensionInNumber(silver, EWhat::kTorcU)
 					<< CCNRM(ch, C_NRM);
 			}
 		} else {
 			out << CCWHT(ch, C_NRM) << silver << " "
-				<< desc_count(silver, type_list[kTorcSilver].DESC_MESSAGE_U_NUM);
+				<< GetDeclensionInNumber(silver, type_list[kTorcSilver].DESC_MESSAGE_U_NUM);
 			if (bronze > 0) {
 				out << CCNRM(ch, C_NRM) << " и ";
 			} else {
-				out << " " << desc_count(silver, WHAT_TORCu) << CCNRM(ch, C_NRM);
+				out << " " << GetDeclensionInNumber(silver, EWhat::kTorcU) << CCNRM(ch, C_NRM);
 			}
 		}
 	}
 	if (bronze > 0) {
 		out << CCYEL(ch, C_NRM) << bronze << " "
-			<< desc_count(bronze, type_list[kTorcBronze].DESC_MESSAGE_U_NUM)
-			<< " " << desc_count(bronze, WHAT_TORCu)
+			<< GetDeclensionInNumber(bronze, type_list[kTorcBronze].DESC_MESSAGE_U_NUM)
+			<< " " << GetDeclensionInNumber(bronze, EWhat::kTorcU)
 			<< CCNRM(ch, C_NRM);
 	}
 
@@ -405,7 +405,7 @@ bool has_connected_bosses(CharData *ch) {
 	// если в комнате есть другие живые боссы
 	for (const auto i : world[ch->in_room]->people) {
 		if (i != ch
-			&& IS_NPC(i)
+			&& i->is_npc()
 			&& !IS_CHARMICE(i)
 			&& i->get_role(MOB_ROLE_BOSS)) {
 			return true;
@@ -414,7 +414,7 @@ bool has_connected_bosses(CharData *ch) {
 	// если у данного моба есть живые последователи-боссы
 	for (Follower *i = ch->followers; i; i = i->next) {
 		if (i->ch != ch
-			&& IS_NPC(i->ch)
+			&& i->ch->is_npc()
 			&& !IS_CHARMICE(i->ch)
 			&& i->ch->get_master() == ch
 			&& i->ch->get_role(MOB_ROLE_BOSS)) {
@@ -555,7 +555,7 @@ void gain_torc(CharData *ch, int drop) {
 
 // дергается из экстракт_чар, у босса берется макс дамагер, находящийся
 // в той же комнате, группе готорого и раскидываются гривны, если есть
-// кому раскидывать (флаг GF_REMORT, проверка на делимость гривен, проверка на
+// кому раскидывать (флаг EGodFlag::REMORT, проверка на делимость гривен, проверка на
 // то, что чар находился в комнате с мобом не менее половины раундов дамагера)
 void drop_torc(CharData *mob) {
 	if (!mob->get_role(MOB_ROLE_BOSS)
@@ -574,15 +574,15 @@ void drop_torc(CharData *mob) {
 		return;
 	}
 
-	CharData *leader = (d->character->has_master() && AFF_FLAGGED(d->character, EAffectFlag::AFF_GROUP))
+	CharData *leader = (d->character->has_master() && AFF_FLAGGED(d->character, EAffect::kGroup))
 						? d->character->get_master()
 						: d->character.get();
 
 	int members = 1;
 	for (Follower *f = leader->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+		if (AFF_FLAGGED(f->ch, EAffect::kGroup)
 			&& f->ch->in_room == IN_ROOM(mob)
-			&& !IS_NPC(f->ch)) {
+			&& !f->ch->is_npc()) {
 			++members;
 		}
 	}
@@ -594,17 +594,17 @@ void drop_torc(CharData *mob) {
 	}
 
 	if (IN_ROOM(leader) == IN_ROOM(mob)
-		&& GET_GOD_FLAG(leader, GF_REMORT)
+		&& GET_GOD_FLAG(leader, EGf::kRemort)
 		&& (GET_UNIQUE(leader) == damager.first
 			|| mob->get_attacker(leader, ATTACKER_ROUNDS) >= damager.second / 2)) {
 		gain_torc(leader, drop);
 	}
 
 	for (Follower *f = leader->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+		if (AFF_FLAGGED(f->ch, EAffect::kGroup)
 			&& f->ch->in_room == IN_ROOM(mob)
-			&& !IS_NPC(f->ch)
-			&& GET_GOD_FLAG(f->ch, GF_REMORT)
+			&& !f->ch->is_npc()
+			&& GET_GOD_FLAG(f->ch, EGf::kRemort)
 			&& mob->get_attacker(f->ch, ATTACKER_ROUNDS) >= damager.second / 2) {
 			gain_torc(f->ch, drop);
 		}
@@ -675,17 +675,17 @@ void init() {
 	type_list[kTorcBronze].MINIMUM_DAYS = parse::ReadChildValueAsInt(main_node, "BRONZE_MINIMUM_DAYS");
 
 	// не из конфига, но инится заодно со всеми
-	type_list[kTorcGold].DESC_MESSAGE_NUM = WHAT_TGOLD;
-	type_list[kTorcSilver].DESC_MESSAGE_NUM = WHAT_TSILVER;
-	type_list[kTorcBronze].DESC_MESSAGE_NUM = WHAT_TBRONZE;
-	type_list[kTorcGold].DESC_MESSAGE_U_NUM = WHAT_TGOLDu;
-	type_list[kTorcSilver].DESC_MESSAGE_U_NUM = WHAT_TSILVERu;
-	type_list[kTorcBronze].DESC_MESSAGE_U_NUM = WHAT_TBRONZEu;
+	type_list[kTorcGold].DESC_MESSAGE_NUM = EWhat::kGoldTorc;
+	type_list[kTorcSilver].DESC_MESSAGE_NUM = EWhat::kSilverTorc;
+	type_list[kTorcBronze].DESC_MESSAGE_NUM = EWhat::kBronzeTorc;
+	type_list[kTorcGold].DESC_MESSAGE_U_NUM = EWhat::kGoldTorcU;
+	type_list[kTorcSilver].DESC_MESSAGE_U_NUM = EWhat::kSilverTorcU;
+	type_list[kTorcBronze].DESC_MESSAGE_U_NUM = EWhat::kBronzeTorcU;
 }
 
 // проверка, мешает ли что-то чару уйти в реморт
 bool can_remort_now(CharData *ch) {
-	if (PRF_FLAGGED(ch, PRF_CAN_REMORT) || !need_torc(ch)) {
+	if (PRF_FLAGGED(ch, EPrf::kCanRemort) || !need_torc(ch)) {
 		return true;
 	}
 	return false;
@@ -765,11 +765,11 @@ namespace {
 void donat_torc(CharData *ch, const std::string &mob_name, unsigned type, int amount) {
 	const int balance = ch->get_ext_money(type) - amount;
 	ch->set_ext_money(type, balance);
-	PRF_FLAGS(ch).set(PRF_CAN_REMORT);
+	PRF_FLAGS(ch).set(EPrf::kCanRemort);
 
 	send_to_char(ch, "Вы пожертвовали %d %s %s.\r\n",
-				 amount, desc_count(amount, type_list[type].DESC_MESSAGE_NUM),
-				 desc_count(amount, WHAT_TORC));
+				 amount, GetDeclensionInNumber(amount, type_list[type].DESC_MESSAGE_NUM),
+				 GetDeclensionInNumber(amount, EWhat::kTorc));
 
 	std::string name = mob_name;
 	name_convert(name);
@@ -778,7 +778,7 @@ void donat_torc(CharData *ch, const std::string &mob_name, unsigned type, int am
 				 "%s оценил ваши заслуги перед князем и народом земли русской и вознес вам хвалу.\r\n"
 				 "Вы почувствовали себя значительно опытней.\r\n", name.c_str());
 
-	if (GET_GOD_FLAG(ch, GF_REMORT)) {
+	if (GET_GOD_FLAG(ch, EGf::kRemort)) {
 		send_to_char(ch,
 					 "%sПоздравляем, вы получили право на перевоплощение!%s\r\n",
 					 CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
@@ -797,11 +797,11 @@ void message_low_torc(CharData *ch, unsigned type, int amount, const char *add_t
 					 "Для подтверждения права на перевоплощение вы должны пожертвовать %d %s %s.\r\n"
 					 "У вас в данный момент %d %s %s%s\r\n",
 					 amount,
-					 desc_count(amount, type_list[type].DESC_MESSAGE_U_NUM),
-					 desc_count(amount, WHAT_TORC),
+					 GetDeclensionInNumber(amount, type_list[type].DESC_MESSAGE_U_NUM),
+					 GetDeclensionInNumber(amount, EWhat::kTorc),
 					 money,
-					 desc_count(money, type_list[type].DESC_MESSAGE_NUM),
-					 desc_count(money, WHAT_TORC),
+					 GetDeclensionInNumber(money, type_list[type].DESC_MESSAGE_NUM),
+					 GetDeclensionInNumber(money, EWhat::kTorc),
 					 add_text);
 	}
 }
@@ -810,7 +810,7 @@ void message_low_torc(CharData *ch, unsigned type, int amount, const char *add_t
 
 // глашатаи
 int torc(CharData *ch, void *me, int cmd, char * /*argument*/) {
-	if (!ch->desc || IS_NPC(ch)) {
+	if (!ch->desc || ch->is_npc()) {
 		return 0;
 	}
 	if (CMD_IS("менять") || CMD_IS("обмен") || CMD_IS("обменять")) {
@@ -838,9 +838,9 @@ int torc(CharData *ch, void *me, int cmd, char * /*argument*/) {
 			// от чара для реморта ничего не требуется
 			send_to_char(
 				"Вам не нужно подтверждать свое право на перевоплощение, просто наберите 'перевоплотиться'.\r\n", ch);
-		} else if (PRF_FLAGGED(ch, PRF_CAN_REMORT)) {
+		} else if (PRF_FLAGGED(ch, EPrf::kCanRemort)) {
 			// чар на этом морте уже жертвовал необходимое кол-во гривен
-			if (GET_GOD_FLAG(ch, GF_REMORT)) {
+			if (GET_GOD_FLAG(ch, EGf::kRemort)) {
 				send_to_char(
 					"Вы уже подтвердили свое право на перевоплощение, просто наберите 'перевоплотиться'.\r\n", ch);
 			} else {

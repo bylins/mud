@@ -16,6 +16,7 @@
 #include "game_economics/ext_money.h"
 #include "game_magic/magic_temp_spells.h"
 #include "administration/accounts.h"
+#include "liquid.h"
 
 #include "game_magic/spells_info.h"
 
@@ -214,7 +215,8 @@ void Player::sub_nogata(int value) {
 
 void Player::add_nogata(int value) {
 	this->nogata += value;
-	send_to_char(this, "Вы получили %ld %s.\r\n", static_cast<long>(value), desc_count(value, WHAT_NOGATAu));
+	send_to_char(this, "Вы получили %ld %s.\r\n", static_cast<long>(value),
+				 GetDeclensionInNumber(value, EWhat::kNogataU));
 
 }
 
@@ -225,10 +227,10 @@ void Player::add_hryvn(int value) {
 	} else if ((this->get_hryvn() + value) > cap_hryvn) {
 		value = cap_hryvn - this->get_hryvn();
 		send_to_char(this, "Вы получили только %ld %s, так как в вашу копилку больше не лезет...\r\n",
-					 static_cast<long>(value), desc_count(value, WHAT_TORCu));
+					 static_cast<long>(value), GetDeclensionInNumber(value, EWhat::kTorcU));
 	} else if (value > 0) {
 		send_to_char(this, "Вы получили %ld %s.\r\n",
-					 static_cast<long>(value), desc_count(value, WHAT_TORCu));
+					 static_cast<long>(value), GetDeclensionInNumber(value, EWhat::kTorcU));
 	} else if (value == 0) {
 		return;
 	}
@@ -389,12 +391,12 @@ void Player::save_char() {
 	char filename[kMaxStringLength];
 	int i;
 	time_t li;
-	ObjData *char_eq[NUM_WEARS];
+	ObjData *char_eq[EEquipPos::kNumEquipPos];
 	struct TimedSkill *skj;
 	struct CharacterPortal *prt;
 	int tmp = time(0) - this->player_data.time.logon;
 
-	if (IS_NPC(this) || this->get_pfilepos() < 0)
+	if (this->is_npc() || this->get_pfilepos() < 0)
 		return;
 	if (this->account == nullptr) {
 		this->account = Account::get_account(GET_EMAIL(this));
@@ -409,16 +411,16 @@ void Player::save_char() {
 	save_char_vars(this);
 
 	// Запись чара в новом формате
-	get_filename(GET_NAME(this), filename, PLAYERS_FILE);
+	get_filename(GET_NAME(this), filename, kPlayersFile);
 	if (!(saved = fopen(filename, "w"))) {
 		perror("Unable open charfile");
 		return;
 	}
 	// подготовка
 	// снимаем все возможные аффекты
-	for (i = 0; i < NUM_WEARS; i++) {
+	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
 		if (GET_EQ(this, i)) {
-			char_eq[i] = unequip_char(this, i, CharEquipFlag::skip_total);
+			char_eq[i] = UnequipChar(this, i, CharEquipFlag::skip_total);
 #ifndef NO_EXTRANEOUS_TRIGGERS
 			remove_otrigger(char_eq[i], this);
 #endif
@@ -426,7 +428,7 @@ void Player::save_char() {
 			char_eq[i] = nullptr;
 	}
 
-	Affect<EApplyLocation> tmp_aff[kMaxAffect];
+	Affect<EApply> tmp_aff[kMaxAffect];
 	{
 		auto aff_i = affected.begin();
 		for (i = 0; i < kMaxAffect; i++) {
@@ -444,7 +446,7 @@ void Player::save_char() {
 				tmp_aff[i].type = 0;    // Zero signifies not used
 				tmp_aff[i].duration = 0;
 				tmp_aff[i].modifier = 0;
-				tmp_aff[i].location = EApplyLocation::APPLY_NONE;
+				tmp_aff[i].location = EApply::kNone;
 				tmp_aff[i].bitvector = 0;
 			}
 		}
@@ -541,17 +543,15 @@ void Player::save_char() {
 	fprintf(saved, "Con : %d\n", this->get_inborn_con());
 	fprintf(saved, "Cha : %d\n", this->get_inborn_cha());
 
-	// способности - added by Gorrah
 	if (GetRealLevel(this) < kLvlImmortal) {
 		fprintf(saved, "Feat:\n");
-		for (i = 1; i < kMaxFeats; i++) {
-			if (HAVE_FEAT(this, i))
-				fprintf(saved, "%d %s\n", i, feat_info[i].name);
+		for (auto feat = EFeat::kFirstFeat; feat <= EFeat::kLastFeat; ++feat) {
+			if (HAVE_FEAT(this, feat))
+				fprintf(saved, "%d %s\n", feat, feat_info[feat].name);
 		}
 		fprintf(saved, "0 0\n");
 	}
 
-	// Задержки на cпособности
 	if (GetRealLevel(this) < kLvlImmortal) {
 		fprintf(saved, "FtTm:\n");
 		for (auto tf = this->timed_feat; tf; tf = tf->next) {
@@ -623,7 +623,7 @@ void Player::save_char() {
 	// Мемящиеся спелы
 	if (GetRealLevel(this) < kLvlImmortal) {
 		fprintf(saved, "SpTM:\n");
-		for (struct SpellMemQueueItem *qi = this->MemQueue.queue; qi != nullptr; qi = qi->link)
+		for (struct SpellMemQueueItem *qi = this->mem_queue.queue; qi != nullptr; qi = qi->link)
 			fprintf(saved, "%d\n", qi->spellnum);
 		fprintf(saved, "0\n");
 	}
@@ -649,7 +649,7 @@ void Player::save_char() {
 	fprintf(saved, "Hry : %d\n", this->get_hryvn());
 	fprintf(saved, "Tglo: %ld\n", static_cast<long int>(this->getGloryRespecTime()));
 	fprintf(saved, "Hit : %d/%d\n", GET_HIT(this), GET_MAX_HIT(this));
-	fprintf(saved, "Mana: %d/%d\n", GET_MEM_COMPLETED(this), GET_MEM_TOTAL(this));
+	fprintf(saved, "Mana: %d/%d\n", this->mem_queue.stored, (this)->mem_queue.total);
 	fprintf(saved, "Move: %d/%d\n", GET_MOVE(this), GET_MAX_MOVE(this));
 	fprintf(saved, "Gold: %ld\n", get_gold());
 	fprintf(saved, "Bank: %ld\n", get_bank());
@@ -689,28 +689,28 @@ void Player::save_char() {
 	PRF_FLAGS(this).tascii(4, buf);
 	fprintf(saved, "Pref: %s\n", buf);
 
-	if (MUTE_DURATION(this) > 0 && PLR_FLAGGED(this, PLR_MUTE))
+	if (MUTE_DURATION(this) > 0 && PLR_FLAGGED(this, EPlrFlag::kMuted))
 		fprintf(saved,
 				"PMut: %ld %d %ld %s~\n",
 				MUTE_DURATION(this),
 				GET_MUTE_LEV(this),
 				MUTE_GODID(this),
 				MUTE_REASON(this));
-	if (NAME_DURATION(this) > 0 && PLR_FLAGGED(this, PLR_NAMED))
+	if (NAME_DURATION(this) > 0 && PLR_FLAGGED(this, EPlrFlag::kNameDenied))
 		fprintf(saved,
 				"PNam: %ld %d %ld %s~\n",
 				NAME_DURATION(this),
 				GET_NAME_LEV(this),
 				NAME_GODID(this),
 				NAME_REASON(this));
-	if (DUMB_DURATION(this) > 0 && PLR_FLAGGED(this, PLR_DUMB))
+	if (DUMB_DURATION(this) > 0 && PLR_FLAGGED(this, EPlrFlag::kDumbed))
 		fprintf(saved,
 				"PDum: %ld %d %ld %s~\n",
 				DUMB_DURATION(this),
 				GET_DUMB_LEV(this),
 				DUMB_GODID(this),
 				DUMB_REASON(this));
-	if (HELL_DURATION(this) > 0 && PLR_FLAGGED(this, PLR_HELLED))
+	if (HELL_DURATION(this) > 0 && PLR_FLAGGED(this, EPlrFlag::kHelled))
 		fprintf(saved,
 				"PHel: %ld %d %ld %s~\n",
 				HELL_DURATION(this),
@@ -724,7 +724,7 @@ void Player::save_char() {
 				GET_GCURSE_LEV(this),
 				GCURSE_GODID(this),
 				GCURSE_REASON(this));
-	if (FREEZE_DURATION(this) > 0 && PLR_FLAGGED(this, PLR_FROZEN))
+	if (FREEZE_DURATION(this) > 0 && PLR_FLAGGED(this, EPlrFlag::kFrozen))
 		fprintf(saved,
 				"PFrz: %ld %d %ld %s~\n",
 				FREEZE_DURATION(this),
@@ -839,13 +839,13 @@ void Player::save_char() {
 	// added by WorM (Видолюб) 2010.06.04 бабки потраченные на найм(возвращаются при креше)
 	i = 0;
 	if (this->followers
-		&& can_use_feat(this, EMPLOYER_FEAT)
+		&& IsAbleToUseFeat(this, EFeat::kEmployer)
 		&& !IS_IMMORTAL(this)) {
 		struct Follower *k = nullptr;
 		for (k = this->followers; k; k = k->next) {
 			if (k->ch
-				&& AFF_FLAGGED(k->ch, EAffectFlag::AFF_HELPER)
-				&& AFF_FLAGGED(k->ch, EAffectFlag::AFF_CHARM)) {
+				&& AFF_FLAGGED(k->ch, EAffect::kHelper)
+				&& AFF_FLAGGED(k->ch, EAffect::kCharmed)) {
 				break;
 			}
 		}
@@ -922,12 +922,12 @@ void Player::save_char() {
 		}
 	}
 
-	for (i = 0; i < NUM_WEARS; i++) {
+	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
 		if (char_eq[i]) {
 #ifndef NO_EXTRANEOUS_TRIGGERS
 			if (wear_otrigger(char_eq[i], this, i))
 #endif
-			equip_char(this, char_eq[i], i, CharEquipFlag::no_cast | CharEquipFlag::skip_total);
+			EquipObj(this, char_eq[i], i, CharEquipFlag::no_cast | CharEquipFlag::skip_total);
 #ifndef NO_EXTRANEOUS_TRIGGERS
 			else
 				obj_to_char(char_eq[i], this);
@@ -957,7 +957,7 @@ void Player::save_char() {
 // при включенном флаге файл читается только до поля Rebt, все остальные поля пропускаются
 // поэтому при каких-то изменениях в entrycount, must_be_deleted и TopPlayer::Refresh следует
 // убедиться, что изменный код работает с действительно проинициализированными полями персонажа
-// на данный момент это: PLR_FLAGS, GET_CLASS, GET_EXP, GET_IDNUM, LAST_LOGON, GetRealLevel, GET_NAME, GET_REAL_REMORT, GET_UNIQUE, GET_EMAIL
+// на данный момент это: EPlrFlag::FLAGS, GET_CLASS, GET_EXP, GET_IDNUM, LAST_LOGON, GetRealLevel, GET_NAME, GET_REAL_REMORT, GET_UNIQUE, GET_EMAIL
 // * \param reboot - по дефолту = false
 int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*= true*/) {
 	int id, num = 0, num2 = 0, num3 = 0, num4 = 0, num5 = 0, num6 = 0, i;
@@ -978,7 +978,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	}
 
 	bool result = id >= 0;
-	result = result && get_filename(name, filename, PLAYERS_FILE);
+	result = result && get_filename(name, filename, kPlayersFile);
 	result = result && (fl = fbopen(filename, FB_READ));
 	if (!result) {
 		const std::size_t BUFFER_SIZE = 1024;
@@ -1144,8 +1144,8 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	this->char_specials.carry_weight = 0;
 	this->char_specials.carry_items = 0;
 	this->real_abils.armor = 100;
-	GET_MEM_TOTAL(this) = 0;
-	GET_MEM_COMPLETED(this) = 0;
+	this->mem_queue.total = 0;
+	this->mem_queue.stored = 0;
 	MemQ_init(this);
 
 	GET_AC(this) = 10;
@@ -1229,7 +1229,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	GET_RELIGION(this) = 1;
 	GET_RACE(this) = 1;
 	this->set_sex(ESex::kNeutral);
-	GET_COND(this, THIRST) = NORM_COND_VALUE;
+	GET_COND(this, THIRST) = kNormCondition;
 	GET_WEIGHT(this) = 50;
 	GET_WIMP_LEV(this) = 0;
 	PRF_FLAGS(this).from_string("");    // suspicious line: we should clear flags.. Loading from "" does not clear flags.
@@ -1272,11 +1272,11 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 						fbgetline(fl, line);
 						sscanf(line, "%d %d %d %d %d %d", &num, &num2, &num3, &num4, &num5, &num6);
 						if (num > 0) {
-							Affect<EApplyLocation> af;
+							Affect<EApply> af;
 							af.type = num;
 							af.duration = num2;
 							af.modifier = num3;
-							af.location = static_cast<EApplyLocation>(num4);
+							af.location = static_cast<EApply>(num4);
 							af.bitvector = num5;
 							af.battleflag = num6;
 							if (af.type == kSpellLucky) {
@@ -1439,10 +1439,12 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 					do {
 						fbgetline(fl, line);
 						sscanf(line, "%d", &num);
-						if (num > 0 && num < kMaxFeats)
-							if (feat_info[num].is_known[(int) GET_CLASS(this)][(int) GET_KIN(this)]
-								|| PlayerRace::FeatureCheck((int) GET_KIN(this), (int) GET_RACE(this), num))
+						if (num >= EFeat::kFirstFeat && num <= EFeat::kLastFeat) {
+							if (feat_info[num].is_known[(int) GET_CLASS(this)][(int) GET_KIN(this)] ||
+								PlayerRace::FeatureCheck((int) GET_KIN(this), (int) GET_RACE(this), num)) {
 								SET_FEAT(this, num);
+							}
+						}
 					} while (num != 0);
 				} else if (!strcmp(tag, "FtTm")) {
 					do {
@@ -1466,7 +1468,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 					this->player_specials->saved.GodsLike = lnum;
 					// added by WorM (Видолюб) 2010.06.04 бабки потраченные на найм(возвращаются при креше)
 				else if (!strcmp(tag, "GldH")) {
-					if (num != 0 && !IS_IMMORTAL(this) && can_use_feat(this, EMPLOYER_FEAT)) {
+					if (num != 0 && !IS_IMMORTAL(this) && IsAbleToUseFeat(this, EFeat::kEmployer)) {
 						this->player_specials->saved.HiredCost = num;
 					}
 				}
@@ -1544,8 +1546,8 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 			case 'M':
 				if (!strcmp(tag, "Mana")) {
 					sscanf(line, "%d/%d", &num, &num2);
-					GET_MEM_COMPLETED(this) = num;
-					GET_MEM_TOTAL(this) = num2;
+					this->mem_queue.stored = num;
+					this->mem_queue.total = num2;
 				} else if (!strcmp(tag, "Map ")) {
 					std::string str(line);
 					std::bitset<MapSystem::TOTAL_MAP_OPTIONS> tmp(str);
@@ -1776,7 +1778,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 						if (num != 0) {
 							timed.skill = static_cast<ESkill>(num);
 							timed.time = num2;
-							timed_to_char(this, &timed);
+							ImposeTimedSkill(this, &timed);
 						}
 					} while (num != 0);
 				} else if (!strcmp(tag, "Spel")) {
@@ -1794,7 +1796,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 							GET_SPELL_MEM(this, num) = num2;
 					} while (num != 0);
 				} else if (!strcmp(tag, "SpTM")) {
-					struct SpellMemQueueItem *qi_cur, **qi = &MemQueue.queue;
+					struct SpellMemQueueItem *qi_cur, **qi = &mem_queue.queue;
 					while (*qi)
 						qi = &((*qi)->link);
 					do {
@@ -1879,7 +1881,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 			default: sprintf(buf, "SYSERR: Unknown tag %s in pfile %s", tag, name);
 		}
 	}
-	PRF_FLAGS(this).set(PRF_COLOR_2); //всегда цвет полный
+	PRF_FLAGS(this).set(EPrf::kColor2); //всегда цвет полный
 	// initialization for imms
 	if (GetRealLevel(this) >= kLvlImmortal) {
 		set_god_skills(this);
@@ -1911,7 +1913,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	 * If you're not poisioned and you've been away for more than an hour of
 	 * real time, we'll set your HMV back to full
 	 */
-	if (!AFF_FLAGGED(this, EAffectFlag::AFF_POISON) && (((long) (time(0) - LAST_LOGON(this))) >= SECS_PER_REAL_HOUR)) {
+	if (!AFF_FLAGGED(this, EAffect::kPoisoned) && (((long) (time(0) - LAST_LOGON(this))) >= kSecsPerRealHour)) {
 		GET_HIT(this) = GET_REAL_MAX_HIT(this);
 		GET_MOVE(this) = GET_REAL_MAX_MOVE(this);
 	} else

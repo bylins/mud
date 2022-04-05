@@ -33,7 +33,7 @@ int CalcRequiredLevel(const CharData *ch, int spellnum) {
 
 	if (required_level >= kLvlGod)
 		return required_level;
-	if (can_use_feat(ch, SECRET_RUNES_FEAT)) {
+	if (IsAbleToUseFeat(ch, EFeat::kSecretRunes)) {
 		int remort = GET_REAL_REMORT(ch);
 		required_level -= MIN(8, MAX(0, ((remort - 8) / 3) * 2 + (remort > 7 && remort < 11 ? 1 : 0)));
 	}
@@ -56,13 +56,13 @@ void SaySpell(CharData *ch, int spellnum, CharData *tch, ObjData *tobj) {
 		mudlog(buf, CMP, kLvlGod, SYSLOG, true);
 		return;
 	}
-	if (IS_NPC(ch)) {
+	if (ch->is_npc()) {
 		switch (GET_RACE(ch)) {
-			case NPC_RACE_EVIL_SPIRIT:
-			case NPC_RACE_GHOST:
-			case NPC_RACE_HUMAN:
-			case NPC_RACE_ZOMBIE:
-			case NPC_RACE_SPIRIT:
+			case ENpcRace::kBoggart:
+			case ENpcRace::kGhost:
+			case ENpcRace::kHuman:
+			case ENpcRace::kZombie:
+			case ENpcRace::kSpirit:
 			{
 				const int religion = number(kReligionPoly, kReligionMono);
 				const std::string &cast_phrase = religion ? cast_phrase_list->text_for_christian : cast_phrase_list->text_for_heathen;
@@ -86,7 +86,7 @@ void SaySpell(CharData *ch, int spellnum, CharData *tch, ObjData *tobj) {
 		}
 	} else {
 		//если включен режим без повторов (подавление ехо) не показываем
-		if (PRF_FLAGGED(ch, PRF_NOREPEAT)) {
+		if (PRF_FLAGGED(ch, EPrf::kNoRepeat)) {
 			if (!ch->get_fighting()) //если персонаж не в бою, шлем строчку, если в бою ничего не шлем
 				send_to_char(OK, ch);
 		} else {
@@ -130,7 +130,7 @@ void SaySpell(CharData *ch, int spellnum, CharData *tch, ObjData *tobj) {
 			|| i == tch
 			|| !i->desc
 			|| !AWAKE(i)
-			|| AFF_FLAGGED(i, EAffectFlag::AFF_DEAFNESS)) {
+			|| AFF_FLAGGED(i, EAffect::kDeafness)) {
 			continue;
 		}
 
@@ -146,7 +146,7 @@ void SaySpell(CharData *ch, int spellnum, CharData *tch, ObjData *tobj) {
 	if (tch != nullptr
 		&& tch != ch
 		&& IN_ROOM(tch) == ch->in_room
-		&& !AFF_FLAGGED(tch, EAffectFlag::AFF_DEAFNESS)) {
+		&& !AFF_FLAGGED(tch, EAffect::kDeafness)) {
 		if (SpINFO.violent) {
 			sprintf(buf1, damagee_vict,
 					IS_SET(GET_SPELL_TYPE(tch, spellnum), kSpellKnow | kSpellTemp) ? GetSpellName(spellnum) : buf);
@@ -273,11 +273,11 @@ bool MayCastInNomagic(CharData *caster, int spellnum) {
 bool MayCastHere(CharData *caster, CharData *victim, int spellnum) {
 	int ignore;
 
-	if (IS_GRGOD(caster) || !ROOM_FLAGGED(IN_ROOM(caster), ROOM_PEACEFUL)) {
+	if (IS_GRGOD(caster) || !ROOM_FLAGGED(IN_ROOM(caster), ERoomFlag::kPeaceful)) {
 		return true;
 	}
 
-	if (ROOM_FLAGGED(IN_ROOM(caster), ROOM_NOBATTLE) && SpINFO.violent) {
+	if (ROOM_FLAGGED(IN_ROOM(caster), ERoomFlag::kNoBattle) && SpINFO.violent) {
 		return false;
 	}
 
@@ -340,7 +340,7 @@ int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict
 //		return 0;
 //	}
 
-	if (ROOM_FLAGGED(IN_ROOM(caster), ROOM_NOMAGIC) && !MayCastInNomagic(caster, spellnum)) {
+	if (ROOM_FLAGGED(IN_ROOM(caster), ERoomFlag::kNoMagic) && !MayCastInNomagic(caster, spellnum)) {
 		send_to_char("Ваша магия потерпела неудачу и развеялась по воздуху.\r\n", caster);
 		act("Магия $n1 потерпела неудачу и развеялась по воздуху.",
 			false, caster, nullptr, nullptr, kToRoom | kToArenaListen);
@@ -373,7 +373,7 @@ int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict
 	}
 
 	if (IS_SET(SpINFO.routines, kMagRoom)) {
-		return room_spells::ImposeSpellToRoom(level, caster, rvict, spellnum);
+		return room_spells::CastSpellToRoom(level, caster, rvict, spellnum);
 	}
 
 	return CastToSingleTarget(level, caster, cvict, ovict, spellnum, ESaving::kStability);
@@ -441,7 +441,7 @@ int FindCastTarget(int spellnum, const char *t, CharData *ch, CharData **tch, Ob
 		return true;
 	else if (*t) {
 		if (IS_SET(SpINFO.targets, kTarCharRoom)) {
-			if ((*tch = get_char_vis(ch, t, FIND_CHAR_ROOM)) != nullptr) {
+			if ((*tch = get_char_vis(ch, t, EFind::kCharInRoom)) != nullptr) {
 				if (SpINFO.violent && !check_pkill(ch, *tch, t))
 					return false;
 				return true;
@@ -449,15 +449,15 @@ int FindCastTarget(int spellnum, const char *t, CharData *ch, CharData **tch, Ob
 		}
 
 		if (IS_SET(SpINFO.targets, kTarCharWorld)) {
-			if ((*tch = get_char_vis(ch, t, FIND_CHAR_WORLD)) != nullptr) {
+			if ((*tch = get_char_vis(ch, t, EFind::kCharInWorld)) != nullptr) {
 				// чтобы мобов не чекали
-				if (IS_NPC(ch) || !IS_NPC(*tch)) {
+				if (ch->is_npc() || !(*tch)->is_npc()) {
 					if (SpINFO.violent && !check_pkill(ch, *tch, t)) {
 						return false;
 					}
 					return true;
 				}
-				if (!IS_NPC(ch)) {
+				if (!ch->is_npc()) {
 					struct Follower *k, *k_next;
 					char tmpname[kMaxInputLength];
 					char *tmp = tmpname;
@@ -574,7 +574,7 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, int s
 		return (0);
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && ch->get_master() == tch) {
+	if (AFF_FLAGGED(ch, EAffect::kCharmed) && ch->get_master() == tch) {
 		send_to_char("Вы не посмеете поднять руку на вашего повелителя!\r\n", ch);
 		return (0);
 	}
@@ -607,7 +607,7 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, int s
 		}
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_PEACEFUL)) {
+	if (AFF_FLAGGED(ch, EAffect::kPeaceful)) {
 		ignore = IS_SET(SpINFO.targets, kTarIgnore) ||
 			IS_SET(SpINFO.routines, kMagMasses) || IS_SET(SpINFO.routines, kMagGroups);
 		if (ignore) { // индивидуальная цель
@@ -644,14 +644,14 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, int s
 		GET_SPELL_MEM(ch, spell_subst) = 0;
 	}
 	// если включен автомем
-	if (!IS_NPC(ch) && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, PRF_AUTOMEM)) {
+	if (!ch->is_npc() && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, EPrf::kAutomem)) {
 		MemQ_remember(ch, spell_subst);
 	}
 	// если НПЦ - уменьшаем его макс.количество кастуемых спеллов
-	if (IS_NPC(ch)) {
-		GET_CASTER(ch) -= (IS_SET(spell_info[spellnum].routines, NPC_CALCULATE) ? 1 : 0);
+	if (ch->is_npc()) {
+		ch->caster_level -= (IS_SET(spell_info[spellnum].routines, NPC_CALCULATE) ? 1 : 0);
 	}
-	if (!IS_NPC(ch)) {
+	if (!ch->is_npc()) {
 		affect_total(ch);
 	}
 
@@ -659,7 +659,7 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, int s
 }
 
 int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, int spellnum) {
-	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)) {
+	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike)) {
 		return true;
 	}
 
@@ -668,10 +668,10 @@ int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, int spellnum
 	switch (saving) {
 		case ESaving::kStability:
 			prob = wis_bonus(GET_REAL_WIS(ch), WIS_FAILS) + GET_CAST_SUCCESS(ch);
-			if ((IS_MAGE(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ROOM_MAGE))
-				|| (IS_SORCERER(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ROOM_CLERIC))
-				|| (IS_PALADINE(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ROOM_PALADINE))
-				|| (IS_MERCHANT(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ROOM_MERCHANT))) {
+			if ((IS_MAGE(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ERoomFlag::kForMages))
+				|| (IS_SORCERER(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ERoomFlag::kForSorcerers))
+				|| (IS_PALADINE(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ERoomFlag::kForPaladines))
+				|| (IS_MERCHANT(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ERoomFlag::kForMerchants))) {
 				prob += 10;
 			}
 			break;
@@ -680,23 +680,23 @@ int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, int spellnum
 			break;
 	}
 
-	if (equip_in_metall(ch) && !can_use_feat(ch, COMBAT_CASTING_FEAT)) {
+	if (IsEquipInMetall(ch) && !IsAbleToUseFeat(ch, EFeat::kCombatCasting)) {
 		prob -= 50;
 	}
 
 	prob = complex_spell_modifier(ch, spellnum, GAPPLY_SPELL_SUCCESS, prob);
-	if (GET_GOD_FLAG(ch, GF_GODSCURSE) ||
-		(SpINFO.violent && victim && GET_GOD_FLAG(victim, GF_GODSLIKE)) ||
-		(!SpINFO.violent && victim && GET_GOD_FLAG(victim, GF_GODSCURSE))) {
+	if (GET_GOD_FLAG(ch, EGf::kGodscurse) ||
+		(SpINFO.violent && victim && GET_GOD_FLAG(victim, EGf::kGodsLike)) ||
+		(!SpINFO.violent && victim && GET_GOD_FLAG(victim, EGf::kGodscurse))) {
 		prob -= 50;
 	}
 
-	if ((SpINFO.violent && victim && GET_GOD_FLAG(victim, GF_GODSCURSE)) ||
-		(!SpINFO.violent && victim && GET_GOD_FLAG(victim, GF_GODSLIKE))) {
+	if ((SpINFO.violent && victim && GET_GOD_FLAG(victim, EGf::kGodscurse)) ||
+		(!SpINFO.violent && victim && GET_GOD_FLAG(victim, EGf::kGodsLike))) {
 		prob += 50;
 	}
 
-	if (IS_NPC(ch) && (GetRealLevel(ch) >= kStrongMobLevel)) {
+	if (ch->is_npc() && (GetRealLevel(ch) >= kStrongMobLevel)) {
 		prob += GetRealLevel(ch) - 20;
 	}
 

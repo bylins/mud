@@ -64,7 +64,7 @@ void save() {
 }
 
 bool check_named(CharData *ch, const ObjData *obj, const bool simple) {
-	if (!obj->get_extra_flag(EExtraFlag::ITEM_NAMED)) {
+	if (!obj->has_flag(EObjFlag::kNamed)) {
 		return false; // если шмотка не именная - остальное и проверять не нужно
 	}
 	StuffListType::iterator it = stuff_list.find(GET_OBJ_VNUM(obj));
@@ -77,7 +77,7 @@ bool check_named(CharData *ch, const ObjData *obj, const bool simple) {
 		if (IS_CHARMICE(ch)) // Чармисы тоже могут работать с именными вещами
 		{
 			CharData *master = ch->get_master();
-			if (WAITLESS(master)) // Чармис имма
+			if (IS_IMMORTAL(master)) // Чармис имма
 			{
 				return false;
 			}
@@ -104,9 +104,9 @@ bool check_named(CharData *ch, const ObjData *obj, const bool simple) {
 				}
 			}
 		}
-		if (IS_NPC(ch))
+		if (ch->is_npc())
 			return true;
-		if (WAITLESS(ch)) // Имм
+		if (IS_IMMORTAL(ch)) // Имм
 			return false;
 		if (it->second->uid == GET_UNIQUE(ch))//Это владелец предмета
 			return false;
@@ -383,7 +383,7 @@ void do_named(CharData *ch, char *argument, int cmd, int subcmd) {
 							sprintf(buf1, "%6d) %s",
 									obj_proto[r_num]->get_vnum(),
 									colored_name(obj_proto[r_num]->get_short_description().c_str(), -32));
-							if (IS_GRGOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO)) {
+							if (IS_GRGOD(ch) || PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
 								snprintf(buf2, kMaxStringLength, "%s Игра:%d Пост:%d Владелец:%-16s e-mail:&S%s&s\r\n", buf1,
 										 obj_proto.CountInWorld(r_num), obj_proto.stored(r_num),
 										 GetNameByUnique(it->second->uid, false).c_str(), it->second->mail.c_str());
@@ -506,10 +506,10 @@ void receive_items(CharData *ch, CharData *mailman) {
 						 GET_OBJ_MIW(obj_proto[r_num]),
 						 obj_proto.actual_count(r_num));
 				const auto obj = world_objects.create_from_prototype_by_rnum(r_num);
-				obj->set_extra_flag(EExtraFlag::ITEM_NAMED);
-				obj_to_char(obj.get(), ch);
+				obj->set_extra_flag(EObjFlag::kNamed);
+				PlaceObjToInventory(obj.get(), ch);
 				obj->cleanup_script();
-				obj_decay(obj.get());
+				CheckObjDecay(obj.get());
 
 				act("$n дал$g вам $o3.", false, mailman, obj.get(), ch, kToVict);
 				act("$N дал$G $n2 $o3.", false, ch, obj.get(), mailman, kToRoom);

@@ -17,12 +17,12 @@ void do_employ(CharData *ch, char *argument, int cmd, int subcmd) {
 		return;
 	}
 
-	if (PRF_FLAGS(ch).get(PRF_IRON_WIND)) {
+	if (PRF_FLAGS(ch).get(EPrf::kIronWind)) {
 		send_to_char("Вы в бою и вам сейчас не до магических выкрутасов!\r\n", ch);
 		return;
 	}
 
-	mag_item = GET_EQ(ch, WEAR_HOLD);
+	mag_item = GET_EQ(ch, kHold);
 	if (!mag_item
 		|| !isname(arg, mag_item->get_aliases())) {
 		switch (subcmd) {
@@ -36,7 +36,7 @@ void do_employ(CharData *ch, char *argument, int cmd, int subcmd) {
 				break;
 			case SCMD_USE: mag_item = get_obj_in_list_vis(ch, arg, ch->carrying);
 				if (!mag_item
-					|| GET_OBJ_TYPE(mag_item) != ObjData::ITEM_ENCHANT) {
+					|| GET_OBJ_TYPE(mag_item) != EObjType::kEnchant) {
 					snprintf(buf2, kMaxStringLength, "Возьмите в руку '%s' перед применением!\r\n", arg);
 					send_to_char(buf2, ch);
 					return;
@@ -48,30 +48,30 @@ void do_employ(CharData *ch, char *argument, int cmd, int subcmd) {
 	}
 	switch (subcmd) {
 		case SCMD_QUAFF:
-			if (PRF_FLAGS(ch).get(PRF_IRON_WIND)) {
+			if (PRF_FLAGS(ch).get(EPrf::kIronWind)) {
 				send_to_char("Не стоит отвлекаться в бою!\r\n", ch);
 				return;
 			}
-			if (GET_OBJ_TYPE(mag_item) != ObjData::ITEM_POTION) {
+			if (GET_OBJ_TYPE(mag_item) != EObjType::kPorion) {
 				send_to_char("Осушить вы можете только напиток (ну, Богам еще пЫво по вкусу ;)\r\n", ch);
 				return;
 			}
 			do_hold = 1;
 			break;
 		case SCMD_RECITE:
-			if (GET_OBJ_TYPE(mag_item) != ObjData::ITEM_SCROLL) {
+			if (GET_OBJ_TYPE(mag_item) != EObjType::kScroll) {
 				send_to_char("Пригодны для зачитывания только свитки.\r\n", ch);
 				return;
 			}
 			do_hold = 1;
 			break;
 		case SCMD_USE:
-			if (GET_OBJ_TYPE(mag_item) == ObjData::ITEM_ENCHANT) {
+			if (GET_OBJ_TYPE(mag_item) == EObjType::kEnchant) {
 				apply_enchant(ch, mag_item, buf);
 				return;
 			}
-			if (GET_OBJ_TYPE(mag_item) != ObjData::ITEM_WAND
-				&& GET_OBJ_TYPE(mag_item) != ObjData::ITEM_STAFF) {
+			if (GET_OBJ_TYPE(mag_item) != EObjType::kWand
+				&& GET_OBJ_TYPE(mag_item) != EObjType::kStaff) {
 				send_to_char("Применять можно только магические предметы!\r\n", ch);
 				return;
 			}
@@ -79,32 +79,32 @@ void do_employ(CharData *ch, char *argument, int cmd, int subcmd) {
 			if (GET_OBJ_VAL(mag_item, 3) == kSpellCharm
 				|| GET_OBJ_VAL(mag_item, 3) == kSpellAnimateDead
 				|| GET_OBJ_VAL(mag_item, 3) == kSpellResurrection) {
-				if (!can_use_feat(ch, MAGIC_USER_FEAT)) {
+				if (!IsAbleToUseFeat(ch, EFeat::kMagicUser)) {
 					send_to_char("Да, штука явно магическая! Но совершенно непонятно как ей пользоваться. :(\r\n", ch);
 					return;
 				}
 			}
 			break;
 	}
-	if (do_hold && GET_EQ(ch, WEAR_HOLD) != mag_item) {
-		if (GET_EQ(ch, WEAR_BOTHS))
-			do_hold = WEAR_BOTHS;
-		else if (GET_EQ(ch, WEAR_SHIELD))
-			do_hold = WEAR_SHIELD;
+	if (do_hold && GET_EQ(ch, EEquipPos::kHold) != mag_item) {
+		if (GET_EQ(ch, EEquipPos::kBoths))
+			do_hold = EEquipPos::kBoths;
+		else if (GET_EQ(ch, EEquipPos::kShield))
+			do_hold = EEquipPos::kShield;
 		else
-			do_hold = WEAR_HOLD;
+			do_hold = EEquipPos::kHold;
 
 		if (GET_EQ(ch, do_hold)) {
 			act("Вы прекратили использовать $o3.", false, ch, GET_EQ(ch, do_hold), 0, kToChar);
 			act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, do_hold), 0, kToRoom | kToArenaListen);
-			obj_to_char(unequip_char(ch, do_hold, CharEquipFlags()), ch);
+			PlaceObjToInventory(UnequipChar(ch, do_hold, CharEquipFlags()), ch);
 		}
-		if (GET_EQ(ch, WEAR_HOLD))
-			obj_to_char(unequip_char(ch, WEAR_HOLD, CharEquipFlags()), ch);
+		if (GET_EQ(ch, EEquipPos::kHold))
+			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kHold, CharEquipFlags()), ch);
 		//obj_from_char(mag_item);
-		equip_char(ch, mag_item, WEAR_HOLD, CharEquipFlags());
+		EquipObj(ch, mag_item, EEquipPos::kHold, CharEquipFlags());
 	}
-	if ((do_hold && GET_EQ(ch, WEAR_HOLD) == mag_item) || (!do_hold))
+	if ((do_hold && GET_EQ(ch, EEquipPos::kHold) == mag_item) || (!do_hold))
 		EmployMagicItem(ch, mag_item, buf_temp);
 	free(buf_temp);
 
@@ -124,11 +124,11 @@ void apply_enchant(CharData *ch, ObjData *obj, std::string text) {
 		return;
 	}
 
-	if (OBJ_FLAGGED(target, EExtraFlag::ITEM_SETSTUFF)) {
+	if (target->has_flag(EObjFlag::KSetItem)) {
 		send_to_char(ch, "Сетовый предмет не может быть зачарован.\r\n");
 		return;
 	}
-	if (GET_OBJ_TYPE(target) == ObjData::ITEM_ENCHANT) {
+	if (GET_OBJ_TYPE(target) == EObjType::kEnchant) {
 		send_to_char(ch, "Этот предмет уже магический и не может быть зачарован.\r\n");
 		return;
 	}
@@ -141,14 +141,14 @@ void apply_enchant(CharData *ch, ObjData *obj, std::string text) {
 
 	auto check_slots = GET_OBJ_WEAR(obj) & GET_OBJ_WEAR(target);
 	if (check_slots > 0
-		&& check_slots != to_underlying(EWearFlag::ITEM_WEAR_TAKE)) {
+		&& check_slots != to_underlying(EWearFlag::kTake)) {
 		send_to_char(ch, "Вы успешно зачаровали %s.\r\n", GET_OBJ_PNAME(target, 0).c_str());
 		ObjectEnchant::enchant ench(obj);
 		ench.apply_to_obj(target);
-		extract_obj(obj);
+		ExtractObjFromWorld(obj);
 	} else {
 		int slots = obj->get_wear_flags();
-		REMOVE_BIT(slots, EWearFlag::ITEM_WEAR_TAKE);
+		REMOVE_BIT(slots, EWearFlag::kTake);
 		if (sprintbit(slots, wear_bits, buf2)) {
 			send_to_char(ch, "Это зачарование применяется к предметам со слотами надевания: %s\r\n", buf2);
 		} else {

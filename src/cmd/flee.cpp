@@ -8,7 +8,7 @@
 #include <cmath>
 
 void reduce_exp_after_flee(CharData *ch, CharData *victim, RoomRnum room) {
-	if (can_use_feat(ch, RETREAT_FEAT) || ROOM_FLAGGED(room, ROOM_ARENA))
+	if (IsAbleToUseFeat(ch, EFeat::kRetreat) || ROOM_FLAGGED(room, ERoomFlag::kArena))
 		return;
 
 	const auto loss = MAX(1, GET_REAL_MAX_HIT(victim) - GET_HIT(victim)) * GetRealLevel(victim);
@@ -17,12 +17,12 @@ void reduce_exp_after_flee(CharData *ch, CharData *victim, RoomRnum room) {
 
 // ********************* FLEE PROCEDURE
 void go_flee(CharData *ch) {
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD) || GET_WAIT(ch) > 0) {
+	if (AFF_FLAGGED(ch, EAffect::kHold) || GET_WAIT(ch) > 0) {
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_NOFLEE) || AFF_FLAGGED(ch, EAffectFlag::AFF_LACKY)
-		|| PRF_FLAGS(ch).get(PRF_IRON_WIND)) {
+	if (AFF_FLAGGED(ch, EAffect::kNoFlee) || AFF_FLAGGED(ch, EAffect::kLacky)
+		|| PRF_FLAGS(ch).get(EPrf::kIronWind)) {
 		send_to_char("Невидимые оковы мешают вам сбежать.\r\n", ch);
 		return;
 	}
@@ -32,7 +32,7 @@ void go_flee(CharData *ch) {
 		return;
 	}
 
-	if (!WAITLESS(ch))
+	if (!IS_IMMORTAL(ch))
 		WAIT_STATE(ch, kPulseViolence);
 
 	if (ch->ahorse() && (GET_POS(ch->get_horse()) < EPosition::kFight || GET_MOB_HOLD(ch->get_horse()))) {
@@ -40,18 +40,18 @@ void go_flee(CharData *ch) {
 		return;
 	}
 
-	int dirs[kDirMaxNumber];
+	int dirs[EDirection::kMaxDirNum];
 	int correct_dirs = 0;
 
-	for (auto i = 0; i < kDirMaxNumber; ++i) {
-		if (legal_dir(ch, i, true, false) && !ROOM_FLAGGED(EXIT(ch, i)->to_room(), ROOM_DEATH)) {
+	for (auto i = 0; i < EDirection::kMaxDirNum; ++i) {
+		if (legal_dir(ch, i, true, false) && !ROOM_FLAGGED(EXIT(ch, i)->to_room(), ERoomFlag::kDeathTrap)) {
 			dirs[correct_dirs] = i;
 			++correct_dirs;
 		}
 	}
 
 	if (correct_dirs > 0
-		&& !bernoulli_trial(std::pow((1.0 - static_cast<double>(correct_dirs) / kDirMaxNumber), kDirMaxNumber))) {
+		&& !bernoulli_trial(std::pow((1.0 - static_cast<double>(correct_dirs) / EDirection::kMaxDirNum), EDirection::kMaxDirNum))) {
 		const auto direction = dirs[number(0, correct_dirs - 1)];
 		const auto was_fighting = ch->get_fighting();
 		const auto was_in = ch->in_room;
@@ -63,7 +63,7 @@ void go_flee(CharData *ch) {
 				act("Верн$W $N вынес$Q вас из боя.", false, ch, 0, ch->get_horse(), kToChar);
 			}
 
-			if (was_fighting && !IS_NPC(ch)) {
+			if (was_fighting && !ch->is_npc()) {
 				reduce_exp_after_flee(ch, was_fighting, was_in);
 			}
 		} else {
@@ -81,8 +81,8 @@ void go_dir_flee(CharData *ch, int direction) {
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_NOFLEE) || AFF_FLAGGED(ch, EAffectFlag::AFF_LACKY)
-		|| PRF_FLAGS(ch).get(PRF_IRON_WIND)) {
+	if (AFF_FLAGGED(ch, EAffect::kNoFlee) || AFF_FLAGGED(ch, EAffect::kLacky)
+		|| PRF_FLAGS(ch).get(EPrf::kIronWind)) {
 		send_to_char("Невидимые оковы мешают вам сбежать.\r\n", ch);
 		return;
 	}
@@ -93,18 +93,18 @@ void go_dir_flee(CharData *ch, int direction) {
 	}
 
 	if (legal_dir(ch, direction, true, false)
-		&& !ROOM_FLAGGED(EXIT(ch, direction)->to_room(), ROOM_DEATH)) {
+		&& !ROOM_FLAGGED(EXIT(ch, direction)->to_room(), ERoomFlag::kDeathTrap)) {
 		if (do_simple_move(ch, direction, true, 0, true)) {
 			const auto was_in = ch->in_room;
 			const auto was_fighting = ch->get_fighting();
 
 			act("$n запаниковал$g и попытал$u убежать.", false, ch, 0, 0, kToRoom | kToArenaListen);
 			send_to_char("Вы быстро убежали с поля битвы.\r\n", ch);
-			if (was_fighting && !IS_NPC(ch)) {
+			if (was_fighting && !ch->is_npc()) {
 				reduce_exp_after_flee(ch, was_fighting, was_in);
 			}
 
-			if (!WAITLESS(ch)) {
+			if (!IS_IMMORTAL(ch)) {
 				WAIT_STATE(ch, 1 * kPulseViolence);
 			}
 			return;
@@ -127,7 +127,7 @@ void do_flee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Но вы ведь ни с кем не сражаетесь!\r\n", ch);
 		return;
 	}
-	if (can_use_feat(ch, CALMNESS_FEAT) || GET_GOD_FLAG(ch, GF_GODSLIKE)) {
+	if (IsAbleToUseFeat(ch, EFeat::kCalmness) || GET_GOD_FLAG(ch, EGf::kGodsLike)) {
 		one_argument(argument, arg);
 		if ((direction = search_block(arg, dirs, false)) >= 0 ||
 			(direction = search_block(arg, FleeDirs, false)) >= 0) {

@@ -6,14 +6,14 @@
 
 namespace AbilitySystem {
 
-void AgainstRivalRoll::Init(CharData *actor, int ability, CharData *victim) {
+void AgainstRivalRoll::Init(CharData *actor, EFeat ability, CharData *victim) {
 	rival_ = victim;
 	AbilityRoll::Init(actor, ability);
 };
 
-void AbilityRoll::Init(CharData *actor, int ability_num) {
+void AbilityRoll::Init(CharData *actor, EFeat ability_id) {
 	actor_ = actor;
-	ability_ = &feat_info[ability_num];
+	ability_ = &feat_info[ability_id];
 	if (TryRevealWrongConditions()) {
 		success_ = false;
 		return;
@@ -29,7 +29,7 @@ void AbilityRoll::PerformAbilityTest() {
 	int difficulty = actor_rating_ - target_rating;
 	int roll_result = difficulty - roll;
 	ProcessingResult(roll_result, roll);
-	if (PRF_FLAGGED(actor_, PRF_TESTER)) {
+	if (PRF_FLAGGED(actor_, EPrf::kTester)) {
 		send_to_char(actor_,
 					 "&CНавык: %s, Рейтинг навыка: %d, Рейтинг цели: %d, Сложность: %d Бросок d100: %d, Итог: %d (%s)&n\r\n",
 					 ability_->name,
@@ -55,7 +55,7 @@ bool AbilityRoll::TryRevealWrongConditions() {
 };
 
 bool AbilityRoll::IsActorCantUseAbility() {
-	if (!IS_IMPL(actor_) && !can_use_feat(actor_, ability_->id)) {
+	if (!IS_IMPL(actor_) && !IsAbleToUseFeat(actor_, ability_->id)) {
 		deny_msg_ = "Вы не можете использовать этот навык.\r\n";
 		wrong_conditions_ = true;
 	};
@@ -134,7 +134,7 @@ void AgainstRivalRoll::TrainBaseSkill(bool success) {
 };
 
 int AgainstRivalRoll::CalcTargetRating() {
-	return std::max(0, CalculateSaving(actor_, rival_, ability_->saving, 0));
+	return std::max(0, CalcSaving(actor_, rival_, ability_->saving, 0));
 };
 
 //TODO: избавиться от target в calculate_skill и убрать обертку
@@ -182,7 +182,7 @@ bool TechniqueRoll::CheckTechniqueKit() {
 bool TechniqueRoll::IsSuitableItem(const TechniqueItem &item) {
 	ObjData *char_item = GET_EQ(actor_, item.wear_position);
 	if (item == char_item) {
-		if (GET_OBJ_TYPE(char_item) == ObjData::ITEM_WEAPON) {
+		if (GET_OBJ_TYPE(char_item) == EObjType::kWeapon) {
 			weapon_equip_position_ = item.wear_position;
 			if (ability_->uses_weapon_skill) {
 				base_skill_ = static_cast<ESkill>GET_OBJ_SKILL(char_item);

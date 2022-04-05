@@ -21,10 +21,10 @@ void do_cast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	char *s, *t;
 	int i, spellnum, spell_subst, target = 0;
 
-	if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (ch->is_npc() && AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)) {
+	if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
 		send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
 		return;
 	}
@@ -35,12 +35,12 @@ void do_cast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 
 	if (!ch->affected.empty()) {
 		for (const auto &aff : ch->affected) {
-			if (aff->location == APPLY_PLAQUE && number(1, 100) < 10) { // лихорадка 10% фэйл закла
+			if (aff->location == EApply::kPlague && number(1, 100) < 10) { // лихорадка 10% фэйл закла
 				send_to_char("Вас трясет лихорадка, вы не смогли сконцентрироваться на произнесении заклинания.\r\n",
 							 ch);
 				return;
 			}
-			if (aff->location == APPLY_MADNESS && number(1, 100) < 20) { // безумие 20% фэйл закла
+			if (aff->location == EApply::kMadness && number(1, 100) < 20) { // безумие 20% фэйл закла
 				send_to_char("Начав безумно кричать, вы забыли, что хотели произнести.\r\n", ch);
 				return;
 			}
@@ -77,10 +77,11 @@ void do_cast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	// Caster is lower than spell level
 	if ((!IS_SET(GET_SPELL_TYPE(ch, spellnum), kSpellTemp | kSpellKnow) ||
 		GET_REAL_REMORT(ch) < MIN_CAST_REM(spell_info[spellnum], ch)) &&
-		(GetRealLevel(ch) < kLvlGreatGod) && (!IS_NPC(ch))) {
+		(GetRealLevel(ch) < kLvlGreatGod) && !ch->is_npc()) {
 		if (GetRealLevel(ch) < MIN_CAST_LEV(spell_info[spellnum], ch)
 			|| GET_REAL_REMORT(ch) < MIN_CAST_REM(spell_info[spellnum], ch)
-			|| PlayerClass::slot_for_char(ch, spell_info[spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
+			|| PlayerClass::CalcCircleSlotsAmount(ch,
+												  spell_info[spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
 				<= 0) {
 			send_to_char("Рано еще вам бросаться такими словами!\r\n", ch);
 			return;
@@ -92,7 +93,7 @@ void do_cast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 
 	// Caster havn't slot
 	if (!GET_SPELL_MEM(ch, spellnum) && !IS_IMMORTAL(ch)) {
-		if (can_use_feat(ch, SPELL_SUBSTITUTE_FEAT)
+		if (IsAbleToUseFeat(ch, EFeat::kSpellSubstitute)
 			&& (spellnum == kSpellCureLight || spellnum == kSpellCureSerious
 				|| spellnum == kSpellCureCritic || spellnum == kSpellHeal)) {
 			for (i = 1; i <= kSpellCount; i++) {
@@ -129,7 +130,7 @@ void do_cast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		send_to_char("Тяжеловато найти цель вашего заклинания!\r\n", ch);
 		return;
 	}
-	if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), kSpellTemp) && ROOM_FLAGGED(ch->in_room, ROOM_ARENA_DOMINATION)) {
+	if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), kSpellTemp) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
 		send_to_char("На данной арене вы можете колдовать только временные заклинания!\r\n", ch);
 		return;
 	}
@@ -138,12 +139,12 @@ void do_cast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	// Чтобы в бой не вступал с уже взведенной заклинашкой !!!
 	ch->set_cast(0, 0, 0, 0, 0);
 	if (!CalcCastSuccess(ch, tch, ESaving::kStability, spellnum)) {
-		if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)))
+		if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike)))
 			WAIT_STATE(ch, kPulseViolence);
 		if (GET_SPELL_MEM(ch, spell_subst)) {
 			GET_SPELL_MEM(ch, spell_subst)--;
 		}
-		if (!IS_NPC(ch) && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, PRF_AUTOMEM))
+		if (!ch->is_npc() && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, EPrf::kAutomem))
 			MemQ_remember(ch, spell_subst);
 		//log("[DO_CAST->AFFECT_TOTAL] Start");
 		affect_total(ch);
@@ -160,7 +161,7 @@ void do_cast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 					tch == ch ? " на себя" : tch ? " на $N3" : tobj ? " на $o3" : troom ? " на всех" : "");
 			act(buf, false, ch, tobj, tch, kToChar);
 		} else if (CastSpell(ch, tch, tobj, troom, spellnum, spell_subst) >= 0) {
-			if (!(WAITLESS(ch) || CHECK_WAIT(ch)))
+			if (!(IS_IMMORTAL(ch) || CHECK_WAIT(ch)))
 				WAIT_STATE(ch, kPulseViolence);
 		}
 	}

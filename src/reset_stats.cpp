@@ -129,10 +129,10 @@ void print_menu(DescriptorData *d) {
 		"5) отменить и вернуться в главное меню\r\n"
 		"\r\nВаш выбор:")
 									 % CCIGRN(d->character, C_SPR) % CCNRM(d->character, C_SPR)
-									 % stats_price % desc_count(stats_price, WHAT_MONEYa)
-									 % race_price % desc_count(race_price, WHAT_MONEYa)
-									 % feats_price % desc_count(feats_price, WHAT_MONEYa)
-									 % religion_price % desc_count(religion_price, WHAT_MONEYa));
+									 % stats_price % GetDeclensionInNumber(stats_price, EWhat::kMoneyA)
+									 % race_price % GetDeclensionInNumber(race_price, EWhat::kMoneyA)
+									 % feats_price % GetDeclensionInNumber(feats_price, EWhat::kMoneyA)
+									 % religion_price % GetDeclensionInNumber(religion_price, EWhat::kMoneyA));
 	SEND_TO_Q(str.c_str(), d);
 }
 

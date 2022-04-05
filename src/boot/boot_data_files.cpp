@@ -454,7 +454,7 @@ void WorldFile::parse_room(int virtual_nr) {
 	world[room_nr]->glight = 0;
 	world[room_nr]->proto_script.reset(new ObjData::triggers_list_t());
 
-	for (i = 0; i < kDirMaxNumber; i++) {
+	for (i = 0; i < EDirection::kMaxDirNum; i++) {
 		world[room_nr]->dir_option[i] = nullptr;
 	}
 
@@ -536,13 +536,13 @@ void WorldFile::setup_dir(int room, unsigned dir) {
 	if (result == 3)//Polud видимо "старый" формат (20.10.2010), прочитаем в старом
 	{
 		if (t[0] & 1)
-			world[room]->dir_option[dir]->exit_info = EX_ISDOOR;
+			world[room]->dir_option[dir]->exit_info = EExitFlag::kHasDoor;
 		else if (t[0] & 2)
-			world[room]->dir_option[dir]->exit_info = EX_ISDOOR | EX_PICKPROOF;
+			world[room]->dir_option[dir]->exit_info = EExitFlag::kHasDoor | EExitFlag::kPickroof;
 		else
 			world[room]->dir_option[dir]->exit_info = 0;
 		if (t[0] & 4)
-			world[room]->dir_option[dir]->exit_info |= EX_HIDDEN;
+			world[room]->dir_option[dir]->exit_info |= EExitFlag::kHidden;
 
 		world[room]->dir_option[dir]->lock_complexity = 0;
 	} else if (result == 4) {
@@ -651,7 +651,7 @@ void ObjectFile::parse_object(const int nr) {
 
 	tobj->set_maximum_durability(t[1]);
 	tobj->set_current_durability(MIN(t[1], t[2]));
-	tobj->set_material(static_cast<ObjData::EObjectMaterial>(t[3]));
+	tobj->set_material(static_cast<EObjMaterial>(t[3]));
 
 	if (tobj->get_current_durability() > tobj->get_maximum_durability()) {
 		log("SYSERR: Obj_cur > Obj_Max, vnum: %d", nr);
@@ -673,7 +673,7 @@ void ObjectFile::parse_object(const int nr) {
 	// не должно быть
 	if (timer == ObjData::UNLIMITED_TIMER) {
 		timer--;
-		tobj->set_extra_flag(EExtraFlag::ITEM_TICKTIMER);
+		tobj->set_extra_flag(EObjFlag::kTicktimer);
 	}
 	tobj->set_timer(timer);
 	tobj->set_spell(t[2] < 1 || t[2] > kSpellCount ? kSpellNoSpell : t[2]);
@@ -708,7 +708,7 @@ void ObjectFile::parse_object(const int nr) {
 		exit(1);
 	}
 
-	tobj->set_type(static_cast<ObjData::EObjectType>(t[0]));        // ** What's a object
+	tobj->set_type(static_cast<EObjType>(t[0]));        // ** What's a object
 	tobj->load_extra_flags(f1);
 	// ** Its effects
 	int wear_flags = 0;
@@ -750,8 +750,8 @@ void ObjectFile::parse_object(const int nr) {
 	tobj->set_rent_on(t[3]);
 
 	// check to make sure that weight of containers exceeds curr. quantity
-	if (tobj->get_type() == ObjData::ITEM_DRINKCON
-		|| tobj->get_type() == ObjData::ITEM_FOUNTAIN) {
+	if (tobj->get_type() == EObjType::kLiquidContainer
+		|| tobj->get_type() == EObjType::kFountain) {
 		if (tobj->get_weight() < tobj->get_val(1)) {
 			tobj->set_weight(tobj->get_val(1) + 5);
 		}
@@ -804,7 +804,7 @@ void ObjectFile::parse_object(const int nr) {
 					exit(1);
 				}
 
-				tobj->set_affected(j, static_cast<EApplyLocation>(t[0]), t[1]);
+				tobj->set_affected(j, static_cast<EApply>(t[0]), t[1]);
 				++j;
 				break;
 
@@ -840,8 +840,8 @@ void ObjectFile::parse_object(const int nr) {
 
 			case '$':
 			case '#': check_object(tobj);        // Anton Gorev (2015/12/29): do we need the result of this check?
-				if (tobj->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY)
-					|| tobj->get_extra_flag(EExtraFlag::ITEM_REPOP_DECAY))
+				if (tobj->has_flag(EObjFlag::kZonedacay)
+					|| tobj->has_flag(EObjFlag::kRepopDecay))
 					tobj->set_max_in_world(-1);
 				obj_proto.add(tobj, nr);
 				return;
@@ -891,8 +891,8 @@ bool ObjectFile::check_object(ObjData *obj) {
 	}
 
 	switch (GET_OBJ_TYPE(obj)) {
-		case ObjData::ITEM_DRINKCON:
-		case ObjData::ITEM_FOUNTAIN:
+		case EObjType::kLiquidContainer:
+		case EObjType::kFountain:
 			if (GET_OBJ_VAL(obj, 1) > GET_OBJ_VAL(obj, 0)) {
 				error = true;
 				log("SYSERR: Object #%d (%s) contains (%d) more than maximum (%d).",
@@ -900,18 +900,18 @@ bool ObjectFile::check_object(ObjData *obj) {
 			}
 			break;
 
-		case ObjData::ITEM_SCROLL:
-		case ObjData::ITEM_POTION: error = error || check_object_level(obj, 0);
+		case EObjType::kScroll:
+		case EObjType::kPorion: error = error || check_object_level(obj, 0);
 			error = error || check_object_spell_number(obj, 1);
 			error = error || check_object_spell_number(obj, 2);
 			error = error || check_object_spell_number(obj, 3);
 			break;
 
-		case ObjData::ITEM_BOOK: error = error || check_object_spell_number(obj, 1);
+		case EObjType::kBook: error = error || check_object_spell_number(obj, 1);
 			break;
 
-		case ObjData::ITEM_WAND:
-		case ObjData::ITEM_STAFF: error = error || check_object_level(obj, 0);
+		case EObjType::kWand:
+		case EObjType::kStaff: error = error || check_object_level(obj, 0);
 			error = error || check_object_spell_number(obj, 3);
 			if (GET_OBJ_VAL(obj, 2) > GET_OBJ_VAL(obj, 1)) {
 				error = true;
@@ -1048,7 +1048,7 @@ void MobileFile::parse_mobile(const int nr) {
 		exit(1);
 	}
 	MOB_FLAGS(&mob_proto[i]).from_string(f1);
-	MOB_FLAGS(&mob_proto[i]).set(MOB_ISNPC);
+	MOB_FLAGS(&mob_proto[i]).set(EMobFlag::kNpc);
 	AFF_FLAGS(&mob_proto[i]).from_string(f2);
 	GET_ALIGNMENT(mob_proto + i) = t[2];
 	switch (UPPER(letter)) {
@@ -1095,7 +1095,7 @@ void MobileFile::parse_mobile(const int nr) {
 		}
 	} while (letter != 0);
 
-	for (j = 0; j < NUM_WEARS; j++) {
+	for (j = 0; j < EEquipPos::kNumEquipPos; j++) {
 		mob_proto[i].equipment[j] = nullptr;
 	}
 
@@ -1135,8 +1135,8 @@ void MobileFile::parse_simple_mob(int i, int nr) {
 
 	// max hit = 0 is a flag that H, M, V is xdy+z
 	GET_MAX_HIT(mob_proto + i) = 0;
-	GET_MEM_TOTAL(mob_proto + i) = t[3];
-	GET_MEM_COMPLETED(mob_proto + i) = t[4];
+	(mob_proto + i)->mem_queue.total = t[3];
+	(mob_proto + i)->mem_queue.stored = t[4];
 	mob_proto[i].points.hit = t[5];
 
 	mob_proto[i].points.move = 100;
@@ -1180,7 +1180,7 @@ void MobileFile::parse_simple_mob(int i, int nr) {
 	mob_proto[i].mob_specials.default_pos = static_cast<EPosition>(t[1]);
 	mob_proto[i].set_sex(static_cast<ESex>(t[2]));
 
-	mob_proto[i].player_data.Race = NPC_RACE_BASIC;
+	mob_proto[i].player_data.Race = ENpcRace::kBasic;
 	mob_proto[i].set_class(ECharClass::kNpcBase);
 	mob_proto[i].player_data.weight = 200;
 	mob_proto[i].player_data.height = 198;
@@ -1261,11 +1261,11 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 
 	CASE("Resistances") {
 		auto array_string = split_string(value);
-		if (array_string.size() < 7 || array_string.size() > MAX_NUMBER_RESISTANCE) {
+		if (array_string.size() < 7 || array_string.size() > EResist::kLastResist + 1) {
 			log("SYSERROR : Excepted format <# # # # # # # #> for RESISTANCES in MOB #%d", i);
 			return;
 		}
-		for (unsigned kk = 0; kk < array_string.size(); kk++) {
+		for (unsigned kk = 0; kk < array_string.size(); ++kk) {
 			GET_RESIST(mob_proto + i, kk) = std::clamp(atoi(array_string[kk].c_str()), kMinResistance, kMaxResistance);
 		}
 
@@ -1395,7 +1395,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 	}
 
 	CASE("Race") {
-		mob_proto[i].player_data.Race = std::clamp(num_arg, NPC_RACE_BASIC, NPC_RACE_NEXT - 1);
+		mob_proto[i].player_data.Race = std::clamp(static_cast<ENpcRace>(num_arg), ENpcRace::kBasic, ENpcRace::kLastNpcRace);
 	}
 
 	CASE("Special_Bitvector") {
@@ -1407,7 +1407,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			log("SYSERROR : Excepted format <#> for FEAT in MOB #%d", i);
 			return;
 		}
-		if (t[0] >= kMaxFeats || t[0] <= 0) {
+		if (t[0] < EFeat::kFirstFeat || t[0] > EFeat::kLastFeat) {
 			log("SYSERROR : Unknown feat No %d for MOB #%d", t[0], i);
 			return;
 		}
@@ -1438,14 +1438,14 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			return;
 		}
 		GET_SPELL_MEM(mob_proto + i, t[0]) += 1;
-		GET_CASTER(mob_proto + i) += (IS_SET(spell_info[t[0]].routines, NPC_CALCULATE) ? 1 : 0);
+		(mob_proto + i)->caster_level += (IS_SET(spell_info[t[0]].routines, NPC_CALCULATE) ? 1 : 0);
 	}
 
 	CASE("Helper") {
 		CREATE(helper, 1);
 		helper->mob_vnum = num_arg;
-		helper->next = GET_HELPER(mob_proto + i);
-		GET_HELPER(mob_proto + i) = helper;
+		helper->next = (mob_proto + i)->helpers;
+		(mob_proto + i)->helpers = helper;
 	}
 
 	CASE("Role") {

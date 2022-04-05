@@ -31,7 +31,7 @@ void do_backstab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	one_argument(argument, arg);
-	CharData *vict = get_char_vis(ch, arg, FIND_CHAR_ROOM);
+	CharData *vict = get_char_vis(ch, arg, EFind::kCharInRoom);
 	if (!vict) {
 		send_to_char("Кого вы так сильно ненавидите, что хотите заколоть?\r\n", ch);
 		return;
@@ -42,22 +42,22 @@ void do_backstab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!GET_EQ(ch, WEAR_WIELD) && (!IS_NPC(ch) || IS_CHARMICE(ch))) {
+	if (!GET_EQ(ch, EEquipPos::kWield) && (!ch->is_npc() || IS_CHARMICE(ch))) {
 		send_to_char("Требуется держать оружие в правой руке.\r\n", ch);
 		return;
 	}
 
-	if ((!IS_NPC(ch) || IS_CHARMICE(ch)) && GET_OBJ_VAL(GET_EQ(ch, WEAR_WIELD), 3) != fight::type_pierce) {
+	if ((!ch->is_npc() || IS_CHARMICE(ch)) && GET_OBJ_VAL(GET_EQ(ch, EEquipPos::kWield), 3) != fight::type_pierce) {
 		send_to_char("ЗаКОЛоть можно только КОЛющим оружием!\r\n", ch);
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) || IsUnableToAct(ch)) {
+	if (AFF_FLAGGED(ch, EAffect::kStopRight) || IsUnableToAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
 
-	if (vict->get_fighting() && !can_use_feat(ch, THIEVES_STRIKE_FEAT)) {
+	if (vict->get_fighting() && !IsAbleToUseFeat(ch, EFeat::kThieveStrike)) {
 		send_to_char("Ваша цель слишком быстро движется - вы можете пораниться!\r\n", ch);
 		return;
 	}
@@ -81,7 +81,7 @@ void go_backstab(CharData *ch, CharData *vict) {
 	if (!pk_agro_action(ch, vict))
 		return;
 
-	if ((MOB_FLAGGED(vict, MOB_AWARE) && AWAKE(vict)) && !IS_GOD(ch)) {
+	if ((MOB_FLAGGED(vict, EMobFlag::kAware) && AWAKE(vict)) && !IS_GOD(ch)) {
 		act("Вы заметили, что $N попытал$u вас заколоть!", false, vict, nullptr, ch, kToChar);
 		act("$n заметил$g вашу попытку заколоть $s!", false, vict, nullptr, ch, kToVict);
 		act("$n заметил$g попытку $N1 заколоть $s!", false, vict, nullptr, ch, kToNotVict | kToArenaListen);
@@ -90,7 +90,7 @@ void go_backstab(CharData *ch, CharData *vict) {
 	}
 
 	bool success = false;
-/*	if (PRF_FLAGGED(ch, PRF_TESTER)) {
+/*	if (EPrf::FLAGGED(ch, EPrf::TESTER)) {
 		SkillRollResult result = MakeSkillTest(ch, ESkill::kBackstab, vict);
 		success = result.success;
 	} else 
@@ -99,7 +99,7 @@ void go_backstab(CharData *ch, CharData *vict) {
 		int percent = number(1, MUD::Skills()[ESkill::kBackstab].difficulty);
 		int prob = CalcCurrentSkill(ch, ESkill::kBackstab, vict);
 
-		if (can_use_feat(ch, SHADOW_STRIKE_FEAT)) {
+		if (IsAbleToUseFeat(ch, EFeat::kShadowStrike)) {
 			prob = prob + prob * 20 / 100;
 		};
 
@@ -107,16 +107,16 @@ void go_backstab(CharData *ch, CharData *vict) {
 			prob = prob * (GET_REAL_DEX(ch) + 50) / 100;
 		}
 
-		if (AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE)) {
+		if (AFF_FLAGGED(ch, EAffect::kHide)) {
 			prob += 5;
 		}
 		if (GET_MOB_HOLD(vict)) {
 			prob = prob * 5 / 4;
 		}
-		if (GET_GOD_FLAG(vict, GF_GODSCURSE)) {
+		if (GET_GOD_FLAG(vict, EGf::kGodscurse)) {
 			prob = percent;
 		}
-		if (GET_GOD_FLAG(vict, GF_GODSLIKE) || GET_GOD_FLAG(ch, GF_GODSCURSE)) {
+		if (GET_GOD_FLAG(vict, EGf::kGodsLike) || GET_GOD_FLAG(ch, EGf::kGodscurse)) {
 			prob = 0;
 		}
 		success = percent <= prob;
@@ -125,7 +125,7 @@ void go_backstab(CharData *ch, CharData *vict) {
 
 	TrainSkill(ch, ESkill::kBackstab, success, vict);
 	if (!success) {
-		Damage dmg(SkillDmg(ESkill::kBackstab), fight::kZeroDmg, fight::kPhysDmg, GET_EQ(ch, WEAR_WIELD));
+		Damage dmg(SkillDmg(ESkill::kBackstab), fight::kZeroDmg, fight::kPhysDmg, GET_EQ(ch, EEquipPos::kWield));
 		dmg.Process(ch, vict);
 	} else {
 		hit(ch, vict, ESkill::kBackstab, fight::kMainHand);

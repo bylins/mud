@@ -91,112 +91,111 @@ const char *affected_bits[] = {"слепота",    // 0
 							   "вспоминает заклинания",
 							   "регенерация новичка",
 							   "вампиризм",
-							   "потеря равновесия",
+							   "\n",	// не используется, место свободно
 							   "полководец",
 							   "земной поклон",
 							   "\n",
 							   "\n",
 };
 
-typedef std::map<EAffectFlag, std::string> EAffectFlag_name_by_value_t;
-typedef std::map<const std::string, EAffectFlag> EAffectFlag_value_by_name_t;
+typedef std::map<EAffect, std::string> EAffectFlag_name_by_value_t;
+typedef std::map<const std::string, EAffect> EAffectFlag_value_by_name_t;
 EAffectFlag_name_by_value_t EAffectFlag_name_by_value;
 EAffectFlag_value_by_name_t EAffectFlag_value_by_name;
 void init_EAffectFlag_ITEM_NAMES() {
 	EAffectFlag_value_by_name.clear();
 	EAffectFlag_name_by_value.clear();
 
-	EAffectFlag_name_by_value[EAffectFlag::AFF_BLIND] = "AFF_BLIND";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_INVISIBLE] = "AFF_INVISIBLE";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_DETECT_ALIGN] = "AFF_DETECT_ALIGN";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_DETECT_INVIS] = "AFF_DETECT_INVIS";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_DETECT_MAGIC] = "AFF_DETECT_MAGIC";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_SENSE_LIFE] = "AFF_SENSE_LIFE";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_WATERWALK] = "AFF_WATERWALK";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_SANCTUARY] = "AFF_SANCTUARY";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_GROUP] = "AFF_GROUP";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_CURSE] = "AFF_CURSE";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_INFRAVISION] = "AFF_INFRAVISION";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_POISON] = "AFF_POISON";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_PROTECT_EVIL] = "AFF_PROTECT_EVIL";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_PROTECT_GOOD] = "AFF_PROTECT_GOOD";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_SLEEP] = "AFF_SLEEP";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_NOTRACK] = "AFF_NOTRACK";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_TETHERED] = "AFF_TETHERED";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_BLESS] = "AFF_BLESS";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_SNEAK] = "AFF_SNEAK";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_HIDE] = "AFF_HIDE";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_COURAGE] = "AFF_COURAGE";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_CHARM] = "AFF_CHARM";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_HOLD] = "AFF_HOLD";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_FLY] = "AFF_FLY";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_SILENCE] = "AFF_SILENCE";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_AWARNESS] = "AFF_AWARNESS";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_BLINK] = "AFF_BLINK";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_HORSE] = "AFF_HORSE";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_NOFLEE] = "AFF_NOFLEE";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_SINGLELIGHT] = "AFF_SINGLELIGHT";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_HOLYLIGHT] = "AFF_HOLYLIGHT";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_HOLYDARK] = "AFF_HOLYDARK";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_DETECT_POISON] = "AFF_DETECT_POISON";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_DRUNKED] = "AFF_DRUNKED";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_ABSTINENT] = "AFF_ABSTINENT";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_STOPRIGHT] = "AFF_STOPRIGHT";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_STOPLEFT] = "AFF_STOPLEFT";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_STOPFIGHT] = "AFF_STOPFIGHT";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_HAEMORRAGIA] = "AFF_HAEMORRAGIA";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_CAMOUFLAGE] = "AFF_CAMOUFLAGE";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_WATERBREATH] = "AFF_WATERBREATH";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_SLOW] = "AFF_SLOW";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_HASTE] = "AFF_HASTE";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_SHIELD] = "AFF_SHIELD";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_AIRSHIELD] = "AFF_AIRSHIELD";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_FIRESHIELD] = "AFF_FIRESHIELD";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_ICESHIELD] = "AFF_ICESHIELD";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_MAGICGLASS] = "AFF_MAGICGLASS";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_STAIRS] = "AFF_STAIRS";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_STONEHAND] = "AFF_STONEHAND";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_PRISMATICAURA] = "AFF_PRISMATICAURA";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_HELPER] = "AFF_HELPER";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_EVILESS] = "AFF_EVILESS";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_AIRAURA] = "AFF_AIRAURA";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_FIREAURA] = "AFF_FIREAURA";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_ICEAURA] = "AFF_ICEAURA";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_DEAFNESS] = "AFF_DEAFNESS";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_CRYING] = "AFF_CRYING";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_PEACEFUL] = "AFF_PEACEFUL";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_MAGICSTOPFIGHT] = "AFF_MAGICSTOPFIGHT";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_BERSERK] = "AFF_BERSERK";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_LIGHT_WALK] = "AFF_LIGHT_WALK";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_BROKEN_CHAINS] = "AFF_BROKEN_CHAINS";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_CLOUD_OF_ARROWS] = "AFF_CLOUD_OF_ARROWS";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_SHADOW_CLOAK] = "AFF_SHADOW_CLOAK";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_GLITTERDUST] = "AFF_GLITTERDUST";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_AFFRIGHT] = "AFF_AFFRIGHT";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_SCOPOLIA_POISON] = "AFF_SCOPOLIA_POISON";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_DATURA_POISON] = "AFF_DATURA_POISON";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_SKILLS_REDUCE] = "AFF_SKILLS_REDUCE";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_NOT_SWITCH] = "AFF_NOT_SWITCH";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_BELENA_POISON] = "AFF_BELENA_POISON";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_NOTELEPORT] = "AFF_NOTELEPORT";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_LACKY] = "AFF_LACKY";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_BANDAGE] = "AFF_BANDAGE";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_NO_BANDAGE] = "AFF_NO_BANDAGE";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_MORPH] = "AFF_MORPH";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_STRANGLED] = "AFF_STRANGLED";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_RECALL_SPELLS] = "AFF_RECALL_SPELLS";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_NOOB_REGEN] = "AFF_NOOB_REGEN";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_VAMPIRE] = "AFF_VAMPIRE";
-	//EAffectFlag_name_by_value[EAffectFlag::AFF_EXPEDIENT] = "AFF_EXPEDIENT";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_COMMANDER] = "AFF_COMMANDER";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_EARTHAURA] = "AFF_EARTHAURA";
+	EAffectFlag_name_by_value[EAffect::kBlind] = "kBlind";
+	EAffectFlag_name_by_value[EAffect::kInvisible] = "kInvisible";
+	EAffectFlag_name_by_value[EAffect::kDetectAlign] = "kDetectAlign";
+	EAffectFlag_name_by_value[EAffect::kDetectInvisible] = "kDetectInvisible";
+	EAffectFlag_name_by_value[EAffect::kDetectMagic] = "kDetectMagic";
+	EAffectFlag_name_by_value[EAffect::kDetectLife] = "kDetectLife";
+	EAffectFlag_name_by_value[EAffect::kWaterWalk] = "kWaterWalk";
+	EAffectFlag_name_by_value[EAffect::kSanctuary] = "kSanctuary";
+	EAffectFlag_name_by_value[EAffect::kGroup] = "kGroup";
+	EAffectFlag_name_by_value[EAffect::kCurse] = "kCurse";
+	EAffectFlag_name_by_value[EAffect::kInfravision] = "kInfravision";
+	EAffectFlag_name_by_value[EAffect::kPoisoned] = "kPoisoned";
+	EAffectFlag_name_by_value[EAffect::kProtectedFromEvil] = "kProtectedFromEvil";
+	EAffectFlag_name_by_value[EAffect::kProtectedFromGood] = "kProtectedFromGood";
+	EAffectFlag_name_by_value[EAffect::kSleep] = "kSleep";
+	EAffectFlag_name_by_value[EAffect::kNoTrack] = "kNoTrack";
+	EAffectFlag_name_by_value[EAffect::kTethered] = "kTethered";
+	EAffectFlag_name_by_value[EAffect::kBless] = "kBless";
+	EAffectFlag_name_by_value[EAffect::kSneak] = "kSneak";
+	EAffectFlag_name_by_value[EAffect::kHide] = "kHide";
+	EAffectFlag_name_by_value[EAffect::kCourage] = "kCourage";
+	EAffectFlag_name_by_value[EAffect::kCharmed] = "kCharmed";
+	EAffectFlag_name_by_value[EAffect::kHold] = "kHold";
+	EAffectFlag_name_by_value[EAffect::kFly] = "kFly";
+	EAffectFlag_name_by_value[EAffect::kSilence] = "kSilence";
+	EAffectFlag_name_by_value[EAffect::kAwarness] = "kAwarness";
+	EAffectFlag_name_by_value[EAffect::kBlink] = "kBlink";
+	EAffectFlag_name_by_value[EAffect::kHorse] = "kHorse";
+	EAffectFlag_name_by_value[EAffect::kNoFlee] = "kNoFlee";
+	EAffectFlag_name_by_value[EAffect::kSingleLight] = "kSingleLight";
+	EAffectFlag_name_by_value[EAffect::kHolyLight] = "kHolyLight";
+	EAffectFlag_name_by_value[EAffect::kHolyDark] = "kHolyDark";
+	EAffectFlag_name_by_value[EAffect::kDetectPoison] = "kDetectPoison";
+	EAffectFlag_name_by_value[EAffect::kDrunked] = "kDrunked";
+	EAffectFlag_name_by_value[EAffect::kAbstinent] = "kAbstinent";
+	EAffectFlag_name_by_value[EAffect::kStopRight] = "kStopRight";
+	EAffectFlag_name_by_value[EAffect::kStopLeft] = "kStopLeft";
+	EAffectFlag_name_by_value[EAffect::kStopFight] = "kStopFight";
+	EAffectFlag_name_by_value[EAffect::kHaemorrhage] = "kHaemorrhage";
+	EAffectFlag_name_by_value[EAffect::kDisguise] = "kDisguise";
+	EAffectFlag_name_by_value[EAffect::kWaterBreath] = "kWaterBreath";
+	EAffectFlag_name_by_value[EAffect::kSlow] = "kSlow";
+	EAffectFlag_name_by_value[EAffect::kHaste] = "kHaste";
+	EAffectFlag_name_by_value[EAffect::kShield] = "kShield";
+	EAffectFlag_name_by_value[EAffect::kAirShield] = "kAirShield";
+	EAffectFlag_name_by_value[EAffect::kFireShield] = "kFireShield";
+	EAffectFlag_name_by_value[EAffect::kIceShield] = "kIceShield";
+	EAffectFlag_name_by_value[EAffect::kMagicGlass] = "kMagicGlass";
+	EAffectFlag_name_by_value[EAffect::kStairs] = "kStairs";
+	EAffectFlag_name_by_value[EAffect::kStoneHands] = "kStoneHands";
+	EAffectFlag_name_by_value[EAffect::kPrismaticAura] = "kPrismaticAura";
+	EAffectFlag_name_by_value[EAffect::kHelper] = "kHelper";
+	EAffectFlag_name_by_value[EAffect::kForcesOfEvil] = "kForcesOfEvil";
+	EAffectFlag_name_by_value[EAffect::kAitAura] = "kAitAura";
+	EAffectFlag_name_by_value[EAffect::kFireAura] = "kFireAura";
+	EAffectFlag_name_by_value[EAffect::kIceAura] = "kIceAura";
+	EAffectFlag_name_by_value[EAffect::kDeafness] = "kDeafness";
+	EAffectFlag_name_by_value[EAffect::kCrying] = "kCrying";
+	EAffectFlag_name_by_value[EAffect::kPeaceful] = "kPeaceful";
+	EAffectFlag_name_by_value[EAffect::kMagicStopFight] = "kMagicStopFight";
+	EAffectFlag_name_by_value[EAffect::kBerserk] = "kBerserk";
+	EAffectFlag_name_by_value[EAffect::kLightWalk] = "kLightWalk";
+	EAffectFlag_name_by_value[EAffect::kBrokenChains] = "kBrokenChains";
+	EAffectFlag_name_by_value[EAffect::kCloudOfArrows] = "kCloudOfArrows";
+	EAffectFlag_name_by_value[EAffect::kShadowCloak] = "kShadowCloak";
+	EAffectFlag_name_by_value[EAffect::kGlitterDust] = "kGlitterDust";
+	EAffectFlag_name_by_value[EAffect::kAffright] = "kAffright";
+	EAffectFlag_name_by_value[EAffect::kScopolaPoison] = "kScopolaPoison";
+	EAffectFlag_name_by_value[EAffect::kDaturaPoison] = "kDaturaPoison";
+	EAffectFlag_name_by_value[EAffect::kSkillReduce] = "kSkillReduce";
+	EAffectFlag_name_by_value[EAffect::kNoBattleSwitch] = "kNoBattleSwitch";
+	EAffectFlag_name_by_value[EAffect::kBelenaPoison] = "kBelenaPoison";
+	EAffectFlag_name_by_value[EAffect::kNoTeleport] = "kNoTeleport";
+	EAffectFlag_name_by_value[EAffect::kLacky] = "kLacky";
+	EAffectFlag_name_by_value[EAffect::kBandage] = "kBandage";
+	EAffectFlag_name_by_value[EAffect::kCannotBeBandaged] = "kCannotBeBandaged";
+	EAffectFlag_name_by_value[EAffect::kMorphing] = "kMorphing";
+	EAffectFlag_name_by_value[EAffect::kStrangled] = "kStrangled";
+	EAffectFlag_name_by_value[EAffect::kMemorizeSpells] = "kMemorizeSpells";
+	EAffectFlag_name_by_value[EAffect::kNoobRegen] = "kNoobRegen";
+	EAffectFlag_name_by_value[EAffect::kVampirism] = "kVampirism";
+	EAffectFlag_name_by_value[EAffect::kCommander] = "kCommander";
+	EAffectFlag_name_by_value[EAffect::kEarthAura] = "kEarthAura";
 	for (const auto &i : EAffectFlag_name_by_value) {
 		EAffectFlag_value_by_name[i.second] = i.first;
 	}
 }
 
 template<>
-const std::string &NAME_BY_ITEM(const EAffectFlag item) {
+const std::string &NAME_BY_ITEM(const EAffect item) {
 	if (EAffectFlag_name_by_value.empty()) {
 		init_EAffectFlag_ITEM_NAMES();
 	}
@@ -204,15 +203,15 @@ const std::string &NAME_BY_ITEM(const EAffectFlag item) {
 }
 
 template<>
-EAffectFlag ITEM_BY_NAME(const std::string &name) {
+EAffect ITEM_BY_NAME(const std::string &name) {
 	if (EAffectFlag_name_by_value.empty()) {
 		init_EAffectFlag_ITEM_NAMES();
 	}
 	return EAffectFlag_value_by_name.at(name);
 }
 
-typedef std::map<EWeaponAffectFlag, std::string> EWeaponAffectFlag_name_by_value_t;
-typedef std::map<const std::string, EWeaponAffectFlag> EWeaponAffectFlag_value_by_name_t;
+typedef std::map<EWeaponAffect, std::string> EWeaponAffectFlag_name_by_value_t;
+typedef std::map<const std::string, EWeaponAffect> EWeaponAffectFlag_value_by_name_t;
 EWeaponAffectFlag_name_by_value_t EWeaponAffectFlag_name_by_value;
 EWeaponAffectFlag_value_by_name_t EWeaponAffectFlag_value_by_name;
 
@@ -220,59 +219,59 @@ void init_EWeaponAffectFlag_ITEM_NAMES() {
 	EWeaponAffectFlag_name_by_value.clear();
 	EWeaponAffectFlag_value_by_name.clear();
 
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_BLINDNESS] = "WAFF_BLINDNESS";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_INVISIBLE] = "WAFF_INVISIBLE";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_DETECT_ALIGN] = "WAFF_DETECT_ALIGN";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_DETECT_INVISIBLE] = "WAFF_DETECT_INVISIBLE";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_DETECT_MAGIC] = "WAFF_DETECT_MAGIC";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_SENSE_LIFE] = "WAFF_SENSE_LIFE";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_WATER_WALK] = "WAFF_WATER_WALK";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_SANCTUARY] = "WAFF_SANCTUARY";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_CURSE] = "WAFF_CURSE";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_INFRAVISION] = "WAFF_INFRAVISION";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_POISON] = "WAFF_POISON";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_PROTECT_EVIL] = "WAFF_PROTECT_EVIL";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_PROTECT_GOOD] = "WAFF_PROTECT_GOOD";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_SLEEP] = "WAFF_SLEEP";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_NOTRACK] = "WAFF_NOTRACK";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_BLESS] = "WAFF_BLESS";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_SNEAK] = "WAFF_SNEAK";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_HIDE] = "WAFF_HIDE";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_HOLD] = "WAFF_HOLD";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_FLY] = "WAFF_FLY";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_SILENCE] = "WAFF_SILENCE";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_AWARENESS] = "WAFF_AWARENESS";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_BLINK] = "WAFF_BLINK";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_NOFLEE] = "WAFF_NOFLEE";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_SINGLE_LIGHT] = "WAFF_SINGLE_LIGHT";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_HOLY_LIGHT] = "WAFF_HOLY_LIGHT";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_HOLY_DARK] = "WAFF_HOLY_DARK";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_DETECT_POISON] = "WAFF_DETECT_POISON";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_SLOW] = "WAFF_SLOW";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_HASTE] = "WAFF_HASTE";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_WATER_BREATH] = "WAFF_WATER_BREATH";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_HAEMORRAGIA] = "WAFF_HAEMORRAGIA";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_CAMOUFLAGE] = "WAFF_CAMOUFLAGE";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_SHIELD] = "WAFF_SHIELD";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_AIR_SHIELD] = "WAFF_AIR_SHIELD";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_FIRE_SHIELD] = "WAFF_FIRE_SHIELD";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_ICE_SHIELD] = "WAFF_ICE_SHIELD";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_MAGIC_GLASS] = "WAFF_MAGIC_GLASS";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_STONE_HAND] = "WAFF_STONE_HAND";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_PRISMATIC_AURA] = "WAFF_PRISMATIC_AURA";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_AIR_AURA] = "WAFF_AIR_AURA";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_FIRE_AURA] = "WAFF_FIRE_AURA";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_ICE_AURA] = "WAFF_ICE_AURA";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_DEAFNESS] = "WAFF_DEAFNESS";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_COMMANDER] = "WAFF_COMMANDER";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_EARTHAURA] = "WAFF_EARTHAURA";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kBlindness] = "kBlindness";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kInvisibility] = "kInvisibility";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kDetectAlign] = "kDetectAlign";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kDetectInvisibility] = "kDetectInvisibility";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kDetectMagic] = "kDetectMagic";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kDetectLife] = "kDetectLife";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kWaterWalk] = "kWaterWalk";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kSanctuary] = "kSanctuary";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kCurse] = "kCurse";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kInfravision] = "kInfravision";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kPoison] = "kPoison";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kProtectedFromEvil] = "kProtectedFromEvil";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kProtectedFromGood] = "kProtectedFromGood";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kSleep] = "kSleep";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kNoTrack] = "kNoTrack";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kBless] = "kBless";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kSneak] = "kSneak";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kHide] = "kHide";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kHold] = "kHold";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kFly] = "kFly";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kSilence] = "kSilence";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kAwareness] = "kAwareness";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kBlink] = "kBlink";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kNoFlee] = "kNoFlee";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kSingleLight] = "kSingleLight";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kHolyLight] = "kHolyLight";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kHolyDark] = "kHolyDark";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kDetectPoison] = "kDetectPoison";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kSlow] = "kSlow";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kHaste] = "kHaste";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kWaterBreath] = "kWaterBreath";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kHaemorrhage] = "kHaemorrhage";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kDisguising] = "kDisguising";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kShield] = "kShield";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kAirShield] = "kAirShield";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kFireShield] = "kFireShield";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kIceShield] = "kIceShield";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kMagicGlass] = "kMagicGlass";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kStoneHand] = "kStoneHand";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kPrismaticAura] = "kPrismaticAura";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kAirAura] = "kAirAura";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kFireAura] = "kFireAura";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kIceAura] = "kIceAura";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kDeafness] = "kDeafness";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kComamnder] = "kComamnder";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kEarthAura] = "kEarthAura";
 	for (const auto &i : EWeaponAffectFlag_name_by_value) {
 		EWeaponAffectFlag_value_by_name[i.second] = i.first;
 	}
 }
 
 template<>
-EWeaponAffectFlag ITEM_BY_NAME(const std::string &name) {
+EWeaponAffect ITEM_BY_NAME(const std::string &name) {
 	if (EWeaponAffectFlag_name_by_value.empty()) {
 		init_EWeaponAffectFlag_ITEM_NAMES();
 	}
@@ -280,7 +279,7 @@ EWeaponAffectFlag ITEM_BY_NAME(const std::string &name) {
 }
 
 template<>
-const std::string &NAME_BY_ITEM(const EWeaponAffectFlag item) {
+const std::string &NAME_BY_ITEM(const EWeaponAffect item) {
 	if (EWeaponAffectFlag_name_by_value.empty()) {
 		init_EWeaponAffectFlag_ITEM_NAMES();
 	}
@@ -288,52 +287,52 @@ const std::string &NAME_BY_ITEM(const EWeaponAffectFlag item) {
 }
 
 weapon_affect_t weapon_affect = {
-	WeaponAffect{EWeaponAffectFlag::WAFF_BLINDNESS, 0, kSpellBlindness},
-	WeaponAffect{EWeaponAffectFlag::WAFF_INVISIBLE, to_underlying(EAffectFlag::AFF_INVISIBLE), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_DETECT_ALIGN, to_underlying(EAffectFlag::AFF_DETECT_ALIGN), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_DETECT_INVISIBLE, to_underlying(EAffectFlag::AFF_DETECT_INVIS), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_DETECT_MAGIC, to_underlying(EAffectFlag::AFF_DETECT_MAGIC), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_SENSE_LIFE, to_underlying(EAffectFlag::AFF_SENSE_LIFE), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_WATER_WALK, to_underlying(EAffectFlag::AFF_WATERWALK), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_SANCTUARY, to_underlying(EAffectFlag::AFF_SANCTUARY), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_CURSE, to_underlying(EAffectFlag::AFF_CURSE), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_INFRAVISION, to_underlying(EAffectFlag::AFF_INFRAVISION), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_POISON, 0, kSpellPoison},
-	WeaponAffect{EWeaponAffectFlag::WAFF_PROTECT_EVIL, to_underlying(EAffectFlag::AFF_PROTECT_EVIL), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_PROTECT_GOOD, to_underlying(EAffectFlag::AFF_PROTECT_GOOD), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_SLEEP, 0, kSpellSleep},
-	WeaponAffect{EWeaponAffectFlag::WAFF_NOTRACK, to_underlying(EAffectFlag::AFF_NOTRACK), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_BLESS, to_underlying(EAffectFlag::AFF_BLESS), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_SNEAK, to_underlying(EAffectFlag::AFF_SNEAK), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_HIDE, to_underlying(EAffectFlag::AFF_HIDE), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_HOLD, 0, kSpellHold},
-	WeaponAffect{EWeaponAffectFlag::WAFF_FLY, to_underlying(EAffectFlag::AFF_FLY), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_SILENCE, to_underlying(EAffectFlag::AFF_SILENCE), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_AWARENESS, to_underlying(EAffectFlag::AFF_AWARNESS), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_BLINK, to_underlying(EAffectFlag::AFF_BLINK), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_NOFLEE, to_underlying(EAffectFlag::AFF_NOFLEE), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_SINGLE_LIGHT, to_underlying(EAffectFlag::AFF_SINGLELIGHT), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_HOLY_LIGHT, to_underlying(EAffectFlag::AFF_HOLYLIGHT), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_HOLY_DARK, to_underlying(EAffectFlag::AFF_HOLYDARK), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_DETECT_POISON, to_underlying(EAffectFlag::AFF_DETECT_POISON), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_SLOW, to_underlying(EAffectFlag::AFF_SLOW), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_HASTE, to_underlying(EAffectFlag::AFF_HASTE), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_WATER_BREATH, to_underlying(EAffectFlag::AFF_WATERBREATH), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_HAEMORRAGIA, to_underlying(EAffectFlag::AFF_HAEMORRAGIA), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_CAMOUFLAGE, to_underlying(EAffectFlag::AFF_CAMOUFLAGE), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_SHIELD, to_underlying(EAffectFlag::AFF_SHIELD), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_AIR_SHIELD, to_underlying(EAffectFlag::AFF_AIRSHIELD), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_FIRE_SHIELD, to_underlying(EAffectFlag::AFF_FIRESHIELD), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_ICE_SHIELD, to_underlying(EAffectFlag::AFF_ICESHIELD), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_MAGIC_GLASS, to_underlying(EAffectFlag::AFF_MAGICGLASS), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_STONE_HAND, to_underlying(EAffectFlag::AFF_STONEHAND), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_PRISMATIC_AURA, to_underlying(EAffectFlag::AFF_PRISMATICAURA), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_AIR_AURA, to_underlying(EAffectFlag::AFF_AIRAURA), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_FIRE_AURA, to_underlying(EAffectFlag::AFF_FIREAURA), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_ICE_AURA, to_underlying(EAffectFlag::AFF_ICEAURA), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_DEAFNESS, to_underlying(EAffectFlag::AFF_DEAFNESS), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_COMMANDER, to_underlying(EAffectFlag::AFF_COMMANDER), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_EARTHAURA, to_underlying(EAffectFlag::AFF_EARTHAURA), 0}
+	WeaponAffect{EWeaponAffect::kBlindness, 0, kSpellBlindness},
+	WeaponAffect{EWeaponAffect::kInvisibility, to_underlying(EAffect::kInvisible), 0},
+	WeaponAffect{EWeaponAffect::kDetectAlign, to_underlying(EAffect::kDetectAlign), 0},
+	WeaponAffect{EWeaponAffect::kDetectInvisibility, to_underlying(EAffect::kDetectInvisible), 0},
+	WeaponAffect{EWeaponAffect::kDetectMagic, to_underlying(EAffect::kDetectMagic), 0},
+	WeaponAffect{EWeaponAffect::kDetectLife, to_underlying(EAffect::kDetectLife), 0},
+	WeaponAffect{EWeaponAffect::kWaterWalk, to_underlying(EAffect::kWaterWalk), 0},
+	WeaponAffect{EWeaponAffect::kSanctuary, to_underlying(EAffect::kSanctuary), 0},
+	WeaponAffect{EWeaponAffect::kCurse, to_underlying(EAffect::kCurse), 0},
+	WeaponAffect{EWeaponAffect::kInfravision, to_underlying(EAffect::kInfravision), 0},
+	WeaponAffect{EWeaponAffect::kPoison, 0, kSpellPoison},
+	WeaponAffect{EWeaponAffect::kProtectedFromEvil, to_underlying(EAffect::kProtectedFromEvil), 0},
+	WeaponAffect{EWeaponAffect::kProtectedFromGood, to_underlying(EAffect::kProtectedFromGood), 0},
+	WeaponAffect{EWeaponAffect::kSleep, 0, kSpellSleep},
+	WeaponAffect{EWeaponAffect::kNoTrack, to_underlying(EAffect::kNoTrack), 0},
+	WeaponAffect{EWeaponAffect::kBless, to_underlying(EAffect::kBless), 0},
+	WeaponAffect{EWeaponAffect::kSneak, to_underlying(EAffect::kSneak), 0},
+	WeaponAffect{EWeaponAffect::kHide, to_underlying(EAffect::kHide), 0},
+	WeaponAffect{EWeaponAffect::kHold, 0, kSpellHold},
+	WeaponAffect{EWeaponAffect::kFly, to_underlying(EAffect::kFly), 0},
+	WeaponAffect{EWeaponAffect::kSilence, to_underlying(EAffect::kSilence), 0},
+	WeaponAffect{EWeaponAffect::kAwareness, to_underlying(EAffect::kAwarness), 0},
+	WeaponAffect{EWeaponAffect::kBlink, to_underlying(EAffect::kBlink), 0},
+	WeaponAffect{EWeaponAffect::kNoFlee, to_underlying(EAffect::kNoFlee), 0},
+	WeaponAffect{EWeaponAffect::kSingleLight, to_underlying(EAffect::kSingleLight), 0},
+	WeaponAffect{EWeaponAffect::kHolyLight, to_underlying(EAffect::kHolyLight), 0},
+	WeaponAffect{EWeaponAffect::kHolyDark, to_underlying(EAffect::kHolyDark), 0},
+	WeaponAffect{EWeaponAffect::kDetectPoison, to_underlying(EAffect::kDetectPoison), 0},
+	WeaponAffect{EWeaponAffect::kSlow, to_underlying(EAffect::kSlow), 0},
+	WeaponAffect{EWeaponAffect::kHaste, to_underlying(EAffect::kHaste), 0},
+	WeaponAffect{EWeaponAffect::kWaterBreath, to_underlying(EAffect::kWaterBreath), 0},
+	WeaponAffect{EWeaponAffect::kHaemorrhage, to_underlying(EAffect::kHaemorrhage), 0},
+	WeaponAffect{EWeaponAffect::kDisguising, to_underlying(EAffect::kDisguise), 0},
+	WeaponAffect{EWeaponAffect::kShield, to_underlying(EAffect::kShield), 0},
+	WeaponAffect{EWeaponAffect::kAirShield, to_underlying(EAffect::kAirShield), 0},
+	WeaponAffect{EWeaponAffect::kFireShield, to_underlying(EAffect::kFireShield), 0},
+	WeaponAffect{EWeaponAffect::kIceShield, to_underlying(EAffect::kIceShield), 0},
+	WeaponAffect{EWeaponAffect::kMagicGlass, to_underlying(EAffect::kMagicGlass), 0},
+	WeaponAffect{EWeaponAffect::kStoneHand, to_underlying(EAffect::kStoneHands), 0},
+	WeaponAffect{EWeaponAffect::kPrismaticAura, to_underlying(EAffect::kPrismaticAura), 0},
+	WeaponAffect{EWeaponAffect::kAirAura, to_underlying(EAffect::kAitAura), 0},
+	WeaponAffect{EWeaponAffect::kFireAura, to_underlying(EAffect::kFireAura), 0},
+	WeaponAffect{EWeaponAffect::kIceAura, to_underlying(EAffect::kIceAura), 0},
+	WeaponAffect{EWeaponAffect::kDeafness, to_underlying(EAffect::kDeafness), 0},
+	WeaponAffect{EWeaponAffect::kComamnder, to_underlying(EAffect::kCommander), 0},
+	WeaponAffect{EWeaponAffect::kEarthAura, to_underlying(EAffect::kEarthAura), 0}
 };
 
 
@@ -411,8 +410,8 @@ const char *apply_types[] = {"ничего",
 							 "\n"
 };
 
-typedef std::map<EApplyLocation, std::string> EApplyLocation_name_by_value_t;
-typedef std::map<const std::string, EApplyLocation> EApplyLocation_value_by_name_t;
+typedef std::map<EApply, std::string> EApplyLocation_name_by_value_t;
+typedef std::map<const std::string, EApply> EApplyLocation_value_by_name_t;
 EApplyLocation_name_by_value_t EApplyLocation_name_by_value;
 EApplyLocation_value_by_name_t EApplyLocation_value_by_name;
 
@@ -420,84 +419,84 @@ void init_EApplyLocation_ITEM_NAMES() {
 	EApplyLocation_name_by_value.clear();
 	EApplyLocation_value_by_name.clear();
 
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_NONE] = "APPLY_NONE";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_STR] = "APPLY_STR";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_DEX] = "APPLY_DEX";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_INT] = "APPLY_INT";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_WIS] = "APPLY_WIS";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_CON] = "APPLY_CON";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_CHA] = "APPLY_CHA";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_CLASS] = "APPLY_CLASS";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_LEVEL] = "APPLY_LEVEL";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_AGE] = "APPLY_AGE";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_CHAR_WEIGHT] = "APPLY_CHAR_WEIGHT";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_CHAR_HEIGHT] = "APPLY_CHAR_HEIGHT";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_MANAREG] = "APPLY_MANAREG";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_HIT] = "APPLY_HIT";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_MOVE] = "APPLY_MOVE";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_GOLD] = "APPLY_GOLD";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_EXP] = "APPLY_EXP";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_AC] = "APPLY_AC";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_HITROLL] = "APPLY_HITROLL";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_DAMROLL] = "APPLY_DAMROLL";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_SAVING_WILL] = "APPLY_SAVING_WILL";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_RESIST_FIRE] = "APPLY_RESIST_FIRE";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_RESIST_AIR] = "APPLY_RESIST_AIR";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_RESIST_DARK] = "APPLY_RESIST_DARK";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_SAVING_CRITICAL] = "APPLY_SAVING_CRITICAL";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_SAVING_STABILITY] = "APPLY_SAVING_STABILITY";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_HITREG] = "APPLY_HITREG";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_MOVEREG] = "APPLY_MOVEREG";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_C1] = "APPLY_C1";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_C2] = "APPLY_C2";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_C3] = "APPLY_C3";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_C4] = "APPLY_C4";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_C5] = "APPLY_C5";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_C6] = "APPLY_C6";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_C7] = "APPLY_C7";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_C8] = "APPLY_C8";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_C9] = "APPLY_C9";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_SIZE] = "APPLY_SIZE";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_ARMOUR] = "APPLY_ARMOUR";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_POISON] = "APPLY_POISON";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_SAVING_REFLEX] = "APPLY_SAVING_REFLEX";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_CAST_SUCCESS] = "APPLY_CAST_SUCCESS";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_MORALE] = "APPLY_MORALE";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_INITIATIVE] = "APPLY_INITIATIVE";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_RELIGION] = "APPLY_RELIGION";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_ABSORBE] = "APPLY_ABSORBE";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_LIKES] = "APPLY_LIKES";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_RESIST_WATER] = "APPLY_RESIST_WATER";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_RESIST_EARTH] = "APPLY_RESIST_EARTH";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_RESIST_VITALITY] = "APPLY_RESIST_VITALITY";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_RESIST_MIND] = "APPLY_RESIST_MIND";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_RESIST_IMMUNITY] = "APPLY_RESIST_IMMUNITY";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_AR] = "APPLY_AR";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_MR] = "APPLY_MR";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_ACONITUM_POISON] = "APPLY_ACONITUM_POISON";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_SCOPOLIA_POISON] = "APPLY_SCOPOLIA_POISON";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_BELENA_POISON] = "APPLY_BELENA_POISON";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_DATURA_POISON] = "APPLY_DATURA_POISON";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_FREE_FOR_USE] = "APPLY_FREE_FOR_USE";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_BONUS_EXP] = "APPLY_BONUS_EXP";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_BONUS_SKILLS] = "APPLY_BONUS_SKILLS";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_PLAQUE] = "APPLY_PLAQUE";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_MADNESS] = "APPLY_MADNESS";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_PR] = "APPLY_PR";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_RESIST_DARK] = "APPLY_RESIST_DARK";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_VIEW_DT] = "APPLY_VIEW_DT";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_PERCENT_EXP] = "APPLY_PERCENT_EXP";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_PERCENT_PHYSDAM] = "APPLY_PERCENT_PHYSDAM";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_SPELL_BLINK] = "APPLY_SPELL_BLINK";
-	EApplyLocation_name_by_value[EApplyLocation::NUM_APPLIES] = "NUM_APPLIES";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_PERCENT_MAGDAM] = "APPLY_PERCENT_MAGDAM";
+	EApplyLocation_name_by_value[EApply::kNone] = "kNone";
+	EApplyLocation_name_by_value[EApply::kStr] = "kStr";
+	EApplyLocation_name_by_value[EApply::kDex] = "kDex";
+	EApplyLocation_name_by_value[EApply::kInt] = "kInt";
+	EApplyLocation_name_by_value[EApply::kWis] = "kWis";
+	EApplyLocation_name_by_value[EApply::kCon] = "kCon";
+	EApplyLocation_name_by_value[EApply::kCha] = "kCha";
+	EApplyLocation_name_by_value[EApply::kClass] = "kClass";
+	EApplyLocation_name_by_value[EApply::kLvl] = "kLvl";
+	EApplyLocation_name_by_value[EApply::kAge] = "kAge";
+	EApplyLocation_name_by_value[EApply::kWeight] = "kWeight";
+	EApplyLocation_name_by_value[EApply::kHeight] = "kHeight";
+	EApplyLocation_name_by_value[EApply::kMamaRegen] = "kMamaRegen";
+	EApplyLocation_name_by_value[EApply::kHp] = "kHp";
+	EApplyLocation_name_by_value[EApply::kMove] = "kMove";
+	EApplyLocation_name_by_value[EApply::kGold] = "kGold";
+	EApplyLocation_name_by_value[EApply::kExp] = "kExp";
+	EApplyLocation_name_by_value[EApply::kAc] = "kAc";
+	EApplyLocation_name_by_value[EApply::kHitroll] = "kHitroll";
+	EApplyLocation_name_by_value[EApply::kDamroll] = "kDamroll";
+	EApplyLocation_name_by_value[EApply::kSavingWill] = "kSavingWill";
+	EApplyLocation_name_by_value[EApply::kResistFire] = "kResistFire";
+	EApplyLocation_name_by_value[EApply::kResistAir] = "kResistAir";
+	EApplyLocation_name_by_value[EApply::kResistDark] = "kResistDark";
+	EApplyLocation_name_by_value[EApply::kSavingCritical] = "kSavingCritical";
+	EApplyLocation_name_by_value[EApply::kSavingStability] = "kSavingStability";
+	EApplyLocation_name_by_value[EApply::kHpRegen] = "kHpRegen";
+	EApplyLocation_name_by_value[EApply::kMoveRegen] = "kMoveRegen";
+	EApplyLocation_name_by_value[EApply::kFirstCircle] = "kFirstCircle";
+	EApplyLocation_name_by_value[EApply::kSecondCircle] = "kSecondCircle";
+	EApplyLocation_name_by_value[EApply::kThirdCircle] = "kThirdCircle";
+	EApplyLocation_name_by_value[EApply::kFourthCircle] = "kFourthCircle";
+	EApplyLocation_name_by_value[EApply::kFifthCircle] = "kFifthCircle";
+	EApplyLocation_name_by_value[EApply::kSixthCircle] = "kSixthCircle";
+	EApplyLocation_name_by_value[EApply::kSeventhCircle] = "kSeventhCircle";
+	EApplyLocation_name_by_value[EApply::kEighthCircle] = "kEighthCircle";
+	EApplyLocation_name_by_value[EApply::kNinthCircle] = "kNinthCircle";
+	EApplyLocation_name_by_value[EApply::kSize] = "kSize";
+	EApplyLocation_name_by_value[EApply::kArmour] = "kArmour";
+	EApplyLocation_name_by_value[EApply::kPoison] = "kPoison";
+	EApplyLocation_name_by_value[EApply::kSavingReflex] = "kSavingReflex";
+	EApplyLocation_name_by_value[EApply::kCastSuccess] = "kCastSuccess";
+	EApplyLocation_name_by_value[EApply::kMorale] = "kMorale";
+	EApplyLocation_name_by_value[EApply::kInitiative] = "kInitiative";
+	EApplyLocation_name_by_value[EApply::kReligion] = "kReligion";
+	EApplyLocation_name_by_value[EApply::kAbsorbe] = "kAbsorbe";
+	EApplyLocation_name_by_value[EApply::kLikes] = "kLikes";
+	EApplyLocation_name_by_value[EApply::kResistWater] = "kResistWater";
+	EApplyLocation_name_by_value[EApply::kResistEarth] = "kResistEarth";
+	EApplyLocation_name_by_value[EApply::kResistVitality] = "kResistVitality";
+	EApplyLocation_name_by_value[EApply::kResistMind] = "kResistMind";
+	EApplyLocation_name_by_value[EApply::kResistImmunity] = "kResistImmunity";
+	EApplyLocation_name_by_value[EApply::kAffectResist] = "kAffectResist";
+	EApplyLocation_name_by_value[EApply::kMagicResist] = "kMagicResist";
+	EApplyLocation_name_by_value[EApply::kAconitumPoison] = "kAconitumPoison";
+	EApplyLocation_name_by_value[EApply::kScopolaPoison] = "kScopolaPoison";
+	EApplyLocation_name_by_value[EApply::kBelenaPoison] = "kBelenaPoison";
+	EApplyLocation_name_by_value[EApply::kDaturaPoison] = "kDaturaPoison";
+	EApplyLocation_name_by_value[EApply::kFreeForUse1] = "kFreeForUse1";
+	EApplyLocation_name_by_value[EApply::kExpBonus] = "kExpBonus";
+	EApplyLocation_name_by_value[EApply::kSkillsBonus] = "kSkillsBonus";
+	EApplyLocation_name_by_value[EApply::kPlague] = "kPlague";
+	EApplyLocation_name_by_value[EApply::kMadness] = "kMadness";
+	EApplyLocation_name_by_value[EApply::kPhysicResist] = "kPhysicResist";
+	EApplyLocation_name_by_value[EApply::kResistDark] = "kResistDark";
+	EApplyLocation_name_by_value[EApply::kViewDeathTraps] = "kViewDeathTraps";
+	EApplyLocation_name_by_value[EApply::kExpPercent] = "kExpPercent";
+	EApplyLocation_name_by_value[EApply::kPhysicDamagePercent] = "kPhysicDamagePercent";
+	EApplyLocation_name_by_value[EApply::kSpelledBlink] = "kSpelledBlink";
+	EApplyLocation_name_by_value[EApply::kNumberApplies] = "kNumberApplies";
+	EApplyLocation_name_by_value[EApply::kMagicDamagePercent] = "kMagicDamagePercent";
 	for (const auto &i : EApplyLocation_name_by_value) {
 		EApplyLocation_value_by_name[i.second] = i.first;
 	}
 }
 
 template<>
-EApplyLocation ITEM_BY_NAME(const std::string &name) {
+EApply ITEM_BY_NAME(const std::string &name) {
 	if (EApplyLocation_name_by_value.empty()) {
 		init_EApplyLocation_ITEM_NAMES();
 	}
@@ -505,7 +504,7 @@ EApplyLocation ITEM_BY_NAME(const std::string &name) {
 }
 
 template<>
-const std::string &NAME_BY_ITEM(const EApplyLocation item) {
+const std::string &NAME_BY_ITEM(const EApply item) {
 	if (EApplyLocation_name_by_value.empty()) {
 		init_EApplyLocation_ITEM_NAMES();
 	}

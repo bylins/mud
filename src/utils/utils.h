@@ -11,8 +11,8 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#ifndef _UTILS_H_
-#define _UTILS_H_
+#ifndef UTILS_H_
+#define UTILS_H_
 
 #include "game_classes/classes_constants.h"
 #include "conf.h"
@@ -78,7 +78,7 @@ struct DescriptorData;
 //	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false
 //};
 
-#define not_null(ptr, str) (ptr && *ptr) ? ptr : str ? str : "undefined"
+#define not_null(ptr, str) ((ptr) && *(ptr)) ? (ptr) : (str) ? (str) : "undefined"
 
 inline const char *not_empty(const std::string &s) {
 	return s.empty() ? "undefined" : s.c_str();
@@ -111,7 +111,6 @@ extern int class_stats_limit[kNumPlayerClasses][6];
 
 // public functions in utils.cpp
 CharData *find_char(long n);
-CharData *get_random_pc_group(CharData *ch);
 char *rustime(const struct tm *timeptr);
 char *str_dup(const char *source);
 char *str_add(char *dst, const char *src);
@@ -132,7 +131,6 @@ int get_line(FILE *fl, char *buf);
 int get_filename(const char *orig_name, char *filename, int mode);
 TimeInfoData *age(const CharData *ch);
 int num_pc_in_room(RoomData *room);
-void core_dump_real(const char *, int);
 int replace_str(const utils::AbstractStringWriter::shared_ptr &writer,
 				const char *pattern,
 				const char *replacement,
@@ -156,7 +154,7 @@ void cut_one_word(std::string &str, std::string &word);
 size_t strl_cpy(char *dst, const char *src, size_t siz);
 
 
-extern bool GetAffectNumByName(const std::string &affName, EAffectFlag &result);
+extern bool GetAffectNumByName(const std::string &affName, EAffect &result);
 void tell_to_char(CharData *keeper, CharData *ch, const char *arg);
 bool is_head(std::string name);
 /*
@@ -179,7 +177,6 @@ template<typename T> inline std::string to_string(const T &t) {
 };
 
 extern bool is_dark(RoomRnum room);
-#define core_dump()     core_dump_real(__FILE__, __LINE__)
 extern const char *ACTNULL;
 
 #define CHECK_NULL(pointer, expression) \
@@ -196,31 +193,14 @@ extern const char *ACTNULL;
 #undef MIN
 #endif
 
-#define SF_EMPTY       (1 << 0)
-#define SF_FOLLOWERDIE (1 << 1)
-#define SF_MASTERDIE   (1 << 2)
-#define SF_CHARMLOST   (1 << 3)
-#define SF_SILENCE     (1 << 4)
-
-#define EXP_IMPL 2000000000
-#define MAX_AUCTION_LOT            3
-#define MAX_AUCTION_TACT_BUY       5
-#define MAX_AUCTION_TACT_PRESENT   (MAX_AUCTION_TACT_BUY + 3)
-#define AUCTION_PULSES             30
-#define CHAR_DRUNKED               10
-#define CHAR_MORTALLY_DRUNKED      18
-
-#define MAX_COND_VALUE               48
-#define NORM_COND_VALUE               22
-#define GET_COND_M(ch, cond) ((GET_COND(ch,cond)<=NORM_COND_VALUE)?0:GET_COND(ch,cond)-NORM_COND_VALUE)
-#define GET_COND_K(ch, cond) (((GET_COND_M(ch,cond)*100)/(MAX_COND_VALUE-NORM_COND_VALUE)))
+constexpr int kSfEmpty = 1 << 0;
+constexpr int kSfFollowerdie = 1 << 1;
+constexpr int kSfMasterdie = 1 << 2;
+constexpr int kSfCharmlost = 1 << 3;
+constexpr int kSfSilence = 1 << 4;
 
 int MAX(int a, int b);
 int MIN(int a, int b);
-
-// all argument min/max macros definition
-#define MMIN(a, b) ((a<b)?a:b)
-#define MMAX(a, b) ((a<b)?b:a)
 
 char *colorLOW(char *txt);
 std::string &colorLOW(std::string &txt);
@@ -253,7 +233,7 @@ void gain_exp(CharData *ch, int gain);
 void gain_exp_regardless(CharData *ch, int gain);
 void gain_condition(CharData *ch, unsigned condition, int value);
 void check_idling(CharData *ch);
-void point_update(void);
+void point_update();
 void room_point_update();
 void exchange_point_update();
 void obj_point_update();
@@ -264,44 +244,25 @@ void update_pos(CharData *victim);
 // проверяет, висит ли заданный спелл на чаре
 bool check_spell_on_player(CharData *ch, int spell_num);
 
-
 // get_filename() //
-#define ALIAS_FILE        1
-#define SCRIPT_VARS_FILE  2
-#define PLAYERS_FILE      3
-#define TEXT_CRASH_FILE   4
-#define TIME_CRASH_FILE   5
-#define PERS_DEPOT_FILE   6
-#define SHARE_DEPOT_FILE  7
-#define PURGE_DEPOT_FILE  8
+const int kAliasFile = 1;
+const int kScriptVarsFile = 2;
+const int kPlayersFile = 3;
+const int kTextCrashFile = 4;
+const int kTimeCrashFile = 5;
+const int kPersDepotFile = 6;
+const int kShareDepotFile = 7;
+const int kPurgeDepotFile = 8;
 
 // breadth-first searching //
-#define BFS_ERROR        (-1)
-#define BFS_ALREADY_THERE  (-2)
-#define BFS_NO_PATH         (-3)
-
-/*
- * XXX: These constants should be configurable. See act.informative.c
- * and utils.cpp for other places to change.
- */
-// mud-life time
-#define HOURS_PER_DAY          24
-#define DAYS_PER_MONTH         30
-#define MONTHS_PER_YEAR        12
-#define SECS_PER_PLAYER_AFFECT 2
-#define SECS_PER_ROOM_AFFECT 2
-#define TIME_KOEFF             2
-#define MOB_MEM_KOEFF          SECS_PER_MUD_HOUR
-#define SECS_PER_MUD_HOUR     60
-#define SECS_PER_MUD_DAY      (HOURS_PER_DAY*SECS_PER_MUD_HOUR)
-#define SECS_PER_MUD_MONTH    (DAYS_PER_MONTH*SECS_PER_MUD_DAY)
-#define SECS_PER_MUD_YEAR     (MONTHS_PER_YEAR*SECS_PER_MUD_MONTH)
+const int kBfsError = -1;
+const int kBfsAlreadyThere = -2;
+const int kBfsNoPath = -3;
 
 // real-life time (remember Real Life?)
-#define SECS_PER_REAL_MIN  60
-#define SECS_PER_REAL_HOUR (60*SECS_PER_REAL_MIN)
-#define SECS_PER_REAL_DAY  (24*SECS_PER_REAL_HOUR)
-#define SECS_PER_REAL_YEAR (365*SECS_PER_REAL_DAY)
+const int kSecsPerRealMin = 60;
+constexpr int kSecsPerRealHour = 60*kSecsPerRealMin;
+constexpr int kSecsPerRealDay = 24*kSecsPerRealHour;
 
 int GetRealLevel(const CharData *ch);
 int GetRealLevel(const std::shared_ptr<CharData> *ch);
@@ -311,12 +272,12 @@ short GET_REAL_REMORT(const CharData *ch);
 short GET_REAL_REMORT(const std::shared_ptr<CharData> *ch);
 short GET_REAL_REMORT(const std::shared_ptr<CharData> &ch);
 
-#define IS_IMMORTAL(ch)     (!IS_NPC(ch) && GET_LEVEL(ch) >= kLvlImmortal)
-#define IS_GOD(ch)          (!IS_NPC(ch) && GET_LEVEL(ch) >= kLvlGod)
-#define IS_GRGOD(ch)        (!IS_NPC(ch) && GET_LEVEL(ch) >= kLvlGreatGod)
-#define IS_IMPL(ch)         (!IS_NPC(ch) && GET_LEVEL(ch) >= kLvlImplementator)
+#define IS_IMMORTAL(ch)     (!(ch)->is_npc() && (ch)->get_level() >= kLvlImmortal)
+#define IS_GOD(ch)          (!(ch)->is_npc() && (ch)->get_level() >= kLvlGod)
+#define IS_GRGOD(ch)        (!(ch)->is_npc() && (ch)->get_level() >= kLvlGreatGod)
+#define IS_IMPL(ch)         (!(ch)->is_npc() && (ch)->get_level() >= kLvlImplementator)
 
-#define IS_BITS(mask, bitno) (IS_SET(mask,(1 << bitno)))
+#define IS_BITS(mask, bitno) (IS_SET(mask,(1 << (bitno))))
 #define IS_CASTER(ch)        (IS_BITS(kMaskCaster,GET_CLASS(ch)))
 #define IS_MAGE(ch)          (IS_BITS(kMaskMage, GET_CLASS(ch)))
 
@@ -339,8 +300,6 @@ extern int mercenary(CharData *, void *, int, char *);
 
 #define LOWER(c)   (a_lcc(c))
 #define UPPER(c)   (a_ucc(c))
-#define LATIN(c)   (a_lat(c))
-
 #define ISNEWL(ch) ((ch) == '\n' || (ch) == '\r')
 
 // memory utils *********************************************************
@@ -472,28 +431,21 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
 #define NPC_FLAGS(ch)  ((ch)->mob_specials.npc_flags)
 #define ROOM_AFF_FLAGS(room)  ((room)->affected_by)
 #define EXTRA_FLAGS(ch) ((ch)->Temporary)
-#define GET_ROOM(loc) (world[(loc)])
-#define DESC_FLAGS(d)   ((d)->options)
 #define SPELL_ROUTINES(spl) (spell_info[spl].routines)
 
-// See http://www.circlemud.org/~greerga/todo.009 to eliminate MOB_ISNPC.
-#define IS_NPC(ch)           ((ch)->is_npc())
-#define IS_MOB(ch)          (IS_NPC(ch) && ch->get_rnum() >= 0)
+#define IS_MOB(ch)          ((ch)->is_npc() && (ch)->get_rnum() >= 0)
 
-#define MOB_FLAGGED(ch, flag)   (IS_NPC(ch) && MOB_FLAGS(ch).get(flag))
-#define PLR_FLAGGED(ch, flag)   (!IS_NPC(ch) && PLR_FLAGS(ch).get(flag))
+#define MOB_FLAGGED(ch, flag)   ((ch)->is_npc() && MOB_FLAGS(ch).get(flag))
+#define PLR_FLAGGED(ch, flag)   (!(ch)->is_npc() && PLR_FLAGS(ch).get(flag))
 #define PRF_FLAGGED(ch, flag)   (PRF_FLAGS(ch).get(flag))
 #define NPC_FLAGGED(ch, flag)   (NPC_FLAGS(ch).get(flag))
 #define EXTRA_FLAGGED(ch, flag) (EXTRA_FLAGS(ch).get(flag))
-#define ROOM_FLAGGED(loc, flag) (GET_ROOM((loc))->get_flag(flag))
+#define ROOM_FLAGGED(loc, flag) (world[(loc)]->get_flag(flag))
 #define ROOM_AFFECTED(loc, flag) (ROOM_AFF_FLAGS((world[(loc)])).get(flag))
 #define EXIT_FLAGGED(exit, flag)     (IS_SET((exit)->exit_info, (flag)))
 #define OBJVAL_FLAGGED(obj, flag)    (IS_SET(GET_OBJ_VAL((obj), 1), (flag)))
-#define OBJWEAR_FLAGGED(obj, mask)   (obj->get_wear_mask(mask))
+#define OBJWEAR_FLAGGED(obj, mask)   ((obj)->get_wear_mask(mask))
 #define HAS_SPELL_ROUTINE(spl, flag) (IS_SET(SPELL_ROUTINES(spl), (flag)))
-
-// IS_AFFECTED for backwards compatibility
-#define IS_AFFECTED(ch, skill) (AFF_FLAGGED(ch, EAffectFlag::skill))
 
 #define PLR_TOG_CHK(ch, flag) (PLR_FLAGS(ch).toggle(flag))
 #define PRF_TOG_CHK(ch, flag) (PRF_FLAGS(ch).toggle(flag))
@@ -501,15 +453,11 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
 // room utils ***********************************************************
 #define SECT(room)   (world[(room)]->sector_type)
 #define GET_ROOM_SKY(room) (world[room]->weather.duration > 0 ? world[room]->weather.sky : weather_info.sky)
-#define IS_TIMEDARK(room) is_dark(room)
-#define IS_DEFAULTDARK(room) (ROOM_FLAGGED(room, ROOM_DARK) || \
-                              (SECT(room) != kSectInside && \
-                               SECT(room) != kSectCity   && \
-                               ( weather_info.sunlight == SUN_SET || \
-                                 weather_info.sunlight == SUN_DARK )) )
-
-#define IS_DARK(room) is_dark(room)
-#define IS_LIGHT(room)  (!IS_DARK(room))
+#define IS_DEFAULTDARK(room) (ROOM_FLAGGED(room, ERoomFlag::kDarked) || \
+                              (SECT(room) != ESector::kInside && \
+                               SECT(room) != ESector::kCity   && \
+                               ( weather_info.sunlight == kSunSet || \
+                                 weather_info.sunlight == kSunDark )) )
 
 #define VALID_RNUM(rnum)   ((rnum) > 0 && (rnum) <= top_of_world)
 #define GET_ROOM_VNUM(rnum) ((RoomVnum)(VALID_RNUM(rnum) ? world[(rnum)]->room_vn : kNowhere))
@@ -522,38 +470,25 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
 #define GET_REAL_AGE(ch) (age(ch)->year + GET_AGE_ADD(ch))
 #define GET_PC_NAME(ch) ((ch)->get_pc_name().c_str())
 #define GET_NAME(ch)    ((ch)->get_name().c_str())
-#define GET_HELPER(ch)  ((ch)->helpers)
 #define GET_TITLE(ch)   ((ch)->player_data.title)
-#define GET_LEVEL(ch)   ((ch)->get_level())
 #define GET_MAX_MANA(ch)      (mana[MIN(50, GET_REAL_WIS(ch))])
 #define GET_MANA_COST(ch, spellnum)      mag_manacost(ch,spellnum)
-#define GET_MANA_STORED(ch)   ((ch)->MemQueue.stored)
-#define GET_MEM_COMPLETED(ch) ((ch)->MemQueue.stored)
-#define GET_MEM_CURRENT(ch)   (MEMQUEUE_EMPTY(ch)?0:mag_manacost(ch,(ch)->MemQueue.queue->spellnum))
-#define GET_MEM_TOTAL(ch)     ((ch)->MemQueue.total)
-#define MEMQUEUE_EMPTY(ch)    ((ch)->MemQueue.queue == nullptr)
-#define INITIATIVE(ch)        ((ch)->Initiative)
-#define BATTLECNTR(ch)        ((ch)->BattleCounter)
-#define ROUND_COUNTER(ch)     ((ch)->round_counter)
-#define EXTRACT_TIMER(ch)     ((ch)->ExtractTimer)
-#define CHECK_AGRO(ch)        ((ch)->CheckAggressive)
-#define WAITLESS(ch)          (IS_IMMORTAL(ch))
-#define PUNCTUAL_WAITLESS(ch)          (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE))
-#define IS_CODER(ch)    (GetRealLevel(ch) < kLvlImmortal && PRF_FLAGGED(ch, PRF_CODERINFO))
+#define GET_MEM_CURRENT(ch)   (((ch)->mem_queue.queue == nullptr) ? 0 : mag_manacost(ch,(ch)->mem_queue.queue->spellnum))
+#define IS_CODER(ch)    (GetRealLevel(ch) < kLvlImmortal && PRF_FLAGGED(ch, EPrf::kCoderinfo))
 #define IS_COLORED(ch)    (pk_count (ch))
 #define MAX_PORTALS(ch)  ((GetRealLevel(ch)/3)+GET_REAL_REMORT(ch))
 
-#define GET_AF_BATTLE(ch, flag) ((ch)->BattleAffects.get(flag))
-#define SET_AF_BATTLE(ch, flag) ((ch)->BattleAffects.set(flag))
-#define CLR_AF_BATTLE(ch, flag) ((ch)->BattleAffects.unset(flag))
-#define NUL_AF_BATTLE(ch)      ((ch)->BattleAffects.clear())
+#define GET_AF_BATTLE(ch, flag) ((ch)->battle_affects.get(flag))
+#define SET_AF_BATTLE(ch, flag) ((ch)->battle_affects.set(flag))
+#define CLR_AF_BATTLE(ch, flag) ((ch)->battle_affects.unset(flag))
+#define NUL_AF_BATTLE(ch)      ((ch)->battle_affects.clear())
 #define GET_REMORT(ch)         ((ch)->get_remort())
 #define GET_SKILL(ch, skill)   ((ch)->get_skill(skill))
 #define GET_EMAIL(ch)          ((ch)->player_specials->saved.EMail)
 #define GET_LASTIP(ch)         ((ch)->player_specials->saved.LastIP)
-#define GET_GOD_FLAG(ch, flag)  (IS_SET((ch)->player_specials->saved.GodsLike,flag))
-#define SET_GOD_FLAG(ch, flag)  (SET_BIT((ch)->player_specials->saved.GodsLike,flag))
-#define CLR_GOD_FLAG(ch, flag)  (REMOVE_BIT((ch)->player_specials->saved.GodsLike,flag))
+#define GET_GOD_FLAG(ch, flag)  (IS_SET((ch)->player_specials->saved.GodsLike, flag))
+#define SET_GOD_FLAG(ch, flag)  (SET_BIT((ch)->player_specials->saved.GodsLike, flag))
+#define CLR_GOD_FLAG(ch, flag)  (REMOVE_BIT((ch)->player_specials->saved.GodsLike, flag))
 #define GET_UNIQUE(ch)         ((ch)->get_uid())
 #define LAST_LOGON(ch)         ((ch)->get_last_logon())
 #define LAST_EXCHANGE(ch)         ((ch)->get_last_exchange())
@@ -587,7 +522,7 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
 //Polud
 #define NOTIFY_EXCH_PRICE(ch)  ((ch)->player_specials->saved.ntfyExchangePrice)
 
-#define POSI(val)      ((val < 50) ? ((val > 0) ? val : 1) : 50)
+#define POSI(val)      (((val) < 50) ? (((val) > 0) ? (val) : 1) : 50)
 
 template<typename T>
 inline T VPOSI(const T val, const T min, const T max) {
@@ -595,7 +530,7 @@ inline T VPOSI(const T val, const T min, const T max) {
 }
 
 // у чаров режет до 50, у мобов до ста
-//#define VPOSI_MOB(ch, stat_id, val)	IS_NPC(ch) ? val : VPOSI(val, 1, class_stats_limit[(int)GET_CLASS(ch)][stat_id])
+//#define VPOSI_MOB(ch, stat_id, val)	ch->is_npc() ? val : VPOSI(val, 1, class_stats_limit[(int)GET_CLASS(ch)][stat_id])
 
 #define GET_CLASS(ch)   ((ch)->get_class())
 #define GET_KIN(ch)     ((ch)->player_data.Kin)
@@ -655,8 +590,6 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_AR(ch)        ((ch)->add_abils.aresist)
 #define GET_MR(ch)        ((ch)->add_abils.mresist)
 #define GET_PR(ch)        ((ch)->add_abils.presist) // added by WorM (Видолюб) поглощение физ.урона в %
-#define GET_CASTER(ch)    ((ch)->CasterLevel)
-#define GET_DAMAGE(ch)    ((ch)->DamageLevel)
 #define GET_LIKES(ch)     ((ch)->mob_specials.LikeWork)
 
 #define GET_REAL_SAVING_STABILITY(ch)	(dex_bonus(GET_REAL_CON(ch)) - GET_SAVE(ch, ESaving::kStability) + ((ch)->ahorse() ? 20 : 0))
@@ -673,21 +606,17 @@ inline T VPOSI(const T val, const T min, const T max) {
 // Макросы доступа к полям параметров комнат
 #define GET_ROOM_BASE_POISON(room) ((room)->base_property.poison)
 #define GET_ROOM_ADD_POISON(room) ((room)->add_property.poison)
-#define GET_ROOM_POISON(room) (GET_ROOM_BASE_POISON(room)+GET_ROOM_ADD_POISON(room))
 
 // Получение кубиков урона - работает только для мобов!
 #define GET_NDD(ch) ((ch)->mob_specials.damnodice)
 #define GET_SDD(ch) ((ch)->mob_specials.damsizedice)
 
-#define ALIG_NEUT 0
-#define ALIG_GOOD 1
-#define ALIG_EVIL 2
-#define ALIG_EVIL_LESS     (-300)
-#define ALIG_GOOD_MORE     300
+const int kAligEvilLess = -300;
+const int kAligGoodMore = 300;
 
 #define GET_ALIGNMENT(ch)     ((ch)->char_specials.saved.alignment)
 
-#define NAME_LEVEL 5
+const int kNameLevel = 5;
 #define NAME_FINE(ch)          (NAME_GOD(ch)>1000)
 #define NAME_BAD(ch)           (NAME_GOD(ch)<1000 && NAME_GOD(ch))
 
@@ -750,17 +679,17 @@ inline T VPOSI(const T val, const T min, const T max) {
 
 #define GET_SPELL_TYPE(ch, i) ((ch)->real_abils.SplKnw[i])
 #define GET_SPELL_MEM(ch, i)  ((ch)->real_abils.SplMem[i])
-#define SET_SPELL(ch, i, pct) ((ch)->real_abils.SplMem[i] = pct)
+#define SET_SPELL(ch, i, pct) ((ch)->real_abils.SplMem[i] = (pct))
 #define SET_FEAT(ch, feat) ((ch)->real_abils.Feats.set(feat))
 #define UNSET_FEAT(ch, feat) ((ch)->real_abils.Feats.reset(feat))
 #define HAVE_FEAT(ch, feat) ((ch)->real_abils.Feats.test(feat))
 #define    NUM_LEV_FEAT(ch) ((int) 1+GetRealLevel(ch)*(5+GET_REAL_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)])/28)
 #define FEAT_SLOT(ch, feat) (feat_info[feat].slot[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
 
-#define MOD_CAST_LEV(sp, ch) (BASE_CAST_LEV(sp, ch) - (MMAX(GET_REAL_REMORT(ch) - MIN_CAST_REM(sp,ch),0) / 3))
+#define MOD_CAST_LEV(sp, ch) (BASE_CAST_LEV(sp, ch) - (std::max(GET_REAL_REMORT(ch) - MIN_CAST_REM(sp,ch),0) / 3))
 
 // Min cast level getting
-#define MIN_CAST_LEV(sp, ch) (MMAX(0,MOD_CAST_LEV(sp,ch)))
+#define MIN_CAST_LEV(sp, ch) (std::max(0,MOD_CAST_LEV(sp,ch)))
 #define BASE_CAST_LEV(sp, ch) ((sp).min_level[(int) GET_CLASS (ch)][(int) GET_KIN (ch)])
 
 #define MIN_CAST_REM(sp, ch) ((sp).min_remort[(int) GET_CLASS (ch)][(int) GET_KIN (ch)])
@@ -783,11 +712,11 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_LASTROOM(ch)    ((ch)->mob_specials.LastRoom)
 
 #define CAN_SEE_IN_DARK(ch) \
-   (AFF_FLAGGED(ch, EAffectFlag::AFF_INFRAVISION) || (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_HOLYLIGHT)))
+   (AFF_FLAGGED(ch, EAffect::kInfravision) || (!(ch)->is_npc() && PRF_FLAGGED(ch, EPrf::kHolylight)))
 
-#define IS_GOOD(ch)          (GET_ALIGNMENT(ch) >= ALIG_GOOD_MORE)
-#define IS_EVIL(ch)          (GET_ALIGNMENT(ch) <= ALIG_EVIL_LESS)
-#define IS_NEUTRAL(ch)        (!IS_GOOD(ch) && !IS_EVIL(ch))
+#define IS_GOOD(ch)          (GET_ALIGNMENT(ch) >= kAligGoodMore)
+#define IS_EVIL(ch)          (GET_ALIGNMENT(ch) <= kAligEvilLess)
+
 /*
 #define SAME_ALIGN(ch,vict)  ((IS_GOOD(ch) && IS_GOOD(vict)) ||\
                               (IS_EVIL(ch) && IS_EVIL(vict)) ||\
@@ -927,13 +856,12 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_CH_POLY_1(ch) (IS_POLY(ch) ? "те" : "")
 
 #define GET_OBJ_POLY_1(ch, obj) ((GET_OBJ_SEX(obj) == ESex::kPoly) ? "ят" : "ит")
-#define GET_OBJ_VIS_POLY_1(ch, obj) (!CAN_SEE_OBJ(ch,obj) ? "ит" : (GET_OBJ_SEX(obj) == ESex::kPoly) ? "ят" : "ит")
 
 #define PUNCTUAL_WAIT_STATE(ch, cycle) do { GET_PUNCTUAL_WAIT_STATE(ch) = (cycle); } while(0)
 #define CHECK_WAIT(ch)        ((ch)->get_wait() > 0)
 #define GET_WAIT(ch)          (ch)->get_wait()
 #define GET_PUNCTUAL_WAIT(ch)          GET_PUNCTUAL_WAIT_STATE(ch)
-#define GET_MOB_SILENCE(ch)  (AFF_FLAGGED((ch),AFF_SILENCE) ? 1 : 0)
+
 // New, preferred macro
 #define GET_PUNCTUAL_WAIT_STATE(ch)    ((ch)->punctual_wait)
 
@@ -956,7 +884,6 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_OBJ_ANTI(obj)       ((obj)->get_anti_flags())
 #define GET_OBJ_NO(obj)         ((obj)->get_no_flags())
 #define GET_OBJ_ACT(obj)        ((obj)->get_action_description())
-#define GET_OBJ_POS(obj)        ((obj)->get_worn_on())
 #define GET_OBJ_TYPE(obj)       ((obj)->get_type())
 #define GET_OBJ_COST(obj)       ((obj)->get_cost())
 #define GET_OBJ_RENT(obj)       ((obj)->get_rent_off())
@@ -978,24 +905,13 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_OBJ_RNUM(obj)  ((obj)->get_rnum())
 
 #define OBJ_GET_LASTROOM(obj) ((obj)->get_room_was_in())
-#define OBJ_WHERE(obj) ((obj)->get_worn_by() ? IN_ROOM(obj->get_worn_by()) : \
-                        (obj)->get_carried_by() ? IN_ROOM(obj->get_carried_by()) : (obj)->get_in_room())
-#define IS_OBJ_ANTI(obj, stat) ((obj)->get_anti_flag(stat))
-#define IS_OBJ_NO(obj, stat) ((obj)->get_no_flag(stat))
-#define IS_OBJ_AFF(obj, stat) (obj->get_affect(stat))
-
-#define IS_CORPSE(obj)     (GET_OBJ_TYPE(obj) == ObjData::ITEM_CONTAINER && \
-               GET_OBJ_VAL((obj), 3) == ObjData::CORPSE_INDICATOR)
-#define IS_MOB_CORPSE(obj) (IS_CORPSE(obj) &&  GET_OBJ_VAL((obj), 2) != -1)
+#define OBJ_WHERE(obj) ((obj)->get_worn_by() ? IN_ROOM((obj)->get_worn_by()) : \
+                        (obj)->get_carried_by() ? IN_ROOM((obj)->get_carried_by()) : (obj)->get_in_room())
+#define IS_OBJ_ANTI(obj, stat) ((obj)->has_anti_flag(stat))
+#define IS_OBJ_NO(obj, stat) ((obj)->has_no_flag(stat))
+#define IS_OBJ_AFF(obj, stat) ((obj)->get_affect(stat))
 
 // compound utilities and other macros *********************************
-
-/*
- * Used to compute CircleMUD version. To see if the code running is newer
- * than 3.0pl13, you would use: #if _CIRCLEMUD > CIRCLEMUD_VERSION(3,0,13)
- */
-#define CIRCLEMUD_VERSION(major, minor, patchlevel) \
-   (((major) << 16) + ((minor) << 8) + (patchlevel))
 
 #define HSHR(ch) (ESex::kNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "его": (IS_FEMALE(ch) ? "ее" : "их")) :"его")
 #define HSSH(ch) (ESex::kNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "он": (IS_FEMALE(ch) ? "она" : "они")) :"оно")
@@ -1007,7 +923,7 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define OMHR(ch) (ESex::kNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::kMale ? "ему": (GET_OBJ_SEX(ch) == ESex::kFemale ? "ей" : "им")) :"ему")
 #define OYOU(ch) (ESex::kNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::kMale ? "ваш": (GET_OBJ_SEX(ch) == ESex::kFemale ? "ваша" : "ваши")) :"ваше")
 
-#define HERE(ch)  ((IS_NPC(ch) || (ch)->desc || NORENTABLE(ch)))
+#define HERE(ch)  (((ch)->is_npc() || (ch)->desc || NORENTABLE(ch)))
 
 // Can subject see character "obj" without light
 #define MORT_CAN_SEE_CHAR(sub, obj) (HERE(obj) && \
@@ -1015,17 +931,12 @@ inline T VPOSI(const T val, const T min, const T max) {
                 )
 
 #define IMM_CAN_SEE_CHAR(sub, obj) \
-        (MORT_CAN_SEE_CHAR(sub, obj) || (!IS_NPC(sub) && PRF_FLAGGED(sub, PRF_HOLYLIGHT)))
+        (MORT_CAN_SEE_CHAR(sub, obj) || (!(sub)->is_npc() && PRF_FLAGGED(sub, EPrf::kHolylight)))
 
 #define CAN_SEE_CHAR(sub, obj) (IS_CODER(sub) || SELF(sub, obj) || \
-        ((GetRealLevel(sub) >= (IS_NPC(obj) ? 0 : GET_INVIS_LEV(obj))) && \
+        ((GetRealLevel(sub) >= ((obj)->is_npc() ? 0 : GET_INVIS_LEV(obj))) && \
          IMM_CAN_SEE_CHAR(sub, obj)))
 // End of CAN_SEE
-
-// Is anyone carrying this object and if so, are they visible?
-#define CAN_SEE_OBJ_CARRIER(sub, obj) \
-  ((!obj->carried_by || CAN_SEE(sub, obj->carried_by)) && \
-   (!obj->worn_by    || CAN_SEE(sub, obj->worn_by)))
 
 #define GET_PAD_PERS(pad) ((pad) == 5 ? "ком-то" :\
                            (pad) == 4 ? "кем-то" :\
@@ -1052,49 +963,52 @@ inline T VPOSI(const T val, const T min, const T max) {
                            (!(obj)->get_PName(pad).empty()) ? (obj)->get_PName(pad).c_str() : (obj)->get_short_description().c_str() \
                            : GET_PAD_OBJ(pad))
 
-#define EXITDATA(room, door) ((room >= 0 && room <= top_of_world) ? \
-                             world[room]->dir_option[door] : nullptr)
+#define EXITDATA(room, door) (((room) >= 0 && (room) <= top_of_world) ? \
+                             world[(room)]->dir_option[(door)] : nullptr)
 
 #define EXIT(ch, door)  (world[(ch)->in_room]->dir_option[door])
 
-#define CAN_GO(ch, door) (ch?((EXIT(ch,door) && \
+#define CAN_GO(ch, door) ((ch)?((EXIT(ch,door) && \
           (EXIT(ch,door)->to_room() != kNowhere) && \
-          !IS_SET(EXIT(ch, door)->exit_info, EX_CLOSED))):0)
+          !IS_SET(EXIT(ch, door)->exit_info, EExitFlag::kClosed))):0)
 
-#define IS_SORCERER(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kSorcerer))
-#define IS_THIEF(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kThief))
-#define IS_ASSASINE(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kAssasine))
-#define IS_WARRIOR(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kWarrior))
-#define IS_PALADINE(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kPaladine))
-#define IS_RANGER(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kRanger))
-#define IS_GUARD(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kGuard))
-#define IS_VIGILANT(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kVigilant))
-#define IS_MERCHANT(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kMerchant))
-#define IS_MAGUS(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kMagus))
-#define IS_CONJURER(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kConjurer))
-#define IS_CHARMER(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kCharmer))
-#define IS_WIZARD(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kWizard))
-#define IS_NECROMANCER(ch)	(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kNecromancer))
+#define IS_SORCERER(ch)		(!(ch)->is_npc() && (GET_CLASS(ch) == ECharClass::kSorcerer))
+#define IS_THIEF(ch)		(!(ch)->is_npc() && (GET_CLASS(ch) == ECharClass::kThief))
+#define IS_ASSASINE(ch)		(!(ch)->is_npc() && (GET_CLASS(ch) == ECharClass::kAssasine))
+#define IS_WARRIOR(ch)		(!(ch)->is_npc() && (GET_CLASS(ch) == ECharClass::kWarrior))
+#define IS_PALADINE(ch)		(!(ch)->is_npc() && (GET_CLASS(ch) == ECharClass::kPaladine))
+#define IS_RANGER(ch)		(!(ch)->is_npc() && (GET_CLASS(ch) == ECharClass::kRanger))
+#define IS_GUARD(ch)		(!(ch)->is_npc() && (GET_CLASS(ch) == ECharClass::kGuard))
+#define IS_VIGILANT(ch)		(!(ch)->is_npc() && (GET_CLASS(ch) == ECharClass::kVigilant))
+#define IS_MERCHANT(ch)		(!(ch)->is_npc() && (GET_CLASS(ch) == ECharClass::kMerchant))
+#define IS_MAGUS(ch)		(!(ch)->is_npc() && (GET_CLASS(ch) == ECharClass::kMagus))
+#define IS_CONJURER(ch)		(!(ch)->is_npc() && (GET_CLASS(ch) == ECharClass::kConjurer))
+#define IS_CHARMER(ch)		(!(ch)->is_npc() && (GET_CLASS(ch) == ECharClass::kCharmer))
+#define IS_WIZARD(ch)		(!(ch)->is_npc() && (GET_CLASS(ch) == ECharClass::kWizard))
+#define IS_NECROMANCER(ch)	(!(ch)->is_npc() && (GET_CLASS(ch) == ECharClass::kNecromancer))
 
-#define IS_FIGHTER_USER(ch)  (!IS_NPC(ch) && (IS_BITS(kMaskFighter, (int) GET_CLASS(ch))))
-#define IS_MAGIC_USER(ch)	(!IS_NPC(ch) && (IS_BITS(kMaskMage, (int) GET_CLASS(ch))))
+#define IS_FIGHTER_USER(ch)  (!(ch)->is_npc() && (IS_BITS(kMaskFighter, (int) GET_CLASS(ch))))
+#define IS_MAGIC_USER(ch)	(!(ch)->is_npc() && (IS_BITS(kMaskMage, (int) GET_CLASS(ch))))
 
-#define IS_UNDEAD(ch) (IS_NPC(ch) && \
-    (MOB_FLAGGED(ch, MOB_RESURRECTED) || (GET_RACE(ch) == NPC_RACE_ZOMBIE) || (GET_RACE(ch) == NPC_RACE_GHOST)))
+#define IS_UNDEAD(ch) ((ch)->is_npc() && \
+    (MOB_FLAGGED(ch, EMobFlag::kResurrected) || \
+	(GET_RACE(ch) == ENpcRace::kZombie) ||  \
+	(GET_RACE(ch) == ENpcRace::kGhost)))
 
-#define LIKE_ROOM(ch) ((IS_SORCERER(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_CLERIC)) || \
-                       (IS_MAGIC_USER(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_MAGE)) || \
-                       (IS_WARRIOR(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_WARRIOR)) || \
-                       (IS_THIEF(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_THIEF)) || \
-                       (IS_ASSASINE(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_ASSASINE)) || \
-                       (IS_GUARD(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_GUARD)) || \
-                       (IS_PALADINE(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_PALADINE)) || \
-                       (IS_RANGER(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_RANGER)) || \
-                       (IS_VIGILANT(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_SMITH)) || \
-                       (IS_MERCHANT(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_MERCHANT)) || \
-                       (IS_MAGUS(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_DRUID)))
+// \todo Ввести для комнат флаг а-ля "место отдыха", а это убрать.
+#define LIKE_ROOM(ch) ((IS_SORCERER(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForSorcerers)) || \
+                       (IS_MAGIC_USER(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForMages)) || \
+                       (IS_WARRIOR(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForWarriors)) || \
+                       (IS_THIEF(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForThieves)) || \
+                       (IS_ASSASINE(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForAssasines)) || \
+                       (IS_GUARD(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForGuards)) || \
+                       (IS_PALADINE(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForPaladines)) || \
+                       (IS_RANGER(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForRangers)) || \
+                       (IS_VIGILANT(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForge)) || \
+                       (IS_MERCHANT(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForMerchants)) || \
+                       (IS_MAGUS(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForMaguses)))
 
-#define OUTSIDE(ch) (!ROOM_FLAGGED((ch)->in_room, ROOM_INDOORS))
+#define OUTSIDE(ch) (!ROOM_FLAGGED((ch)->in_room, ERoomFlag::kIndoors))
 
 int on_horse(const CharData *ch);
 int has_horse(const CharData *ch, int same_room);
@@ -1120,59 +1034,62 @@ bool CAN_CARRY_OBJ(const CharData *ch, const ObjData *obj);
 bool ignores(CharData *, CharData *, unsigned int);
 
 // PADS for something ***************************************************
-const char *desc_count(long how_many, int of_what);
-#define WHAT_DAY    0
-#define WHAT_HOUR    1
-#define WHAT_YEAR    2
-#define WHAT_POINT    3
-#define WHAT_MINa    4
-#define WHAT_MINu    5
-#define WHAT_MONEYa    6
-#define WHAT_MONEYu    7
-#define WHAT_THINGa    8
-#define WHAT_THINGu    9
-#define WHAT_LEVEL    10
-#define WHAT_MOVEa    11
-#define WHAT_MOVEu    12
-#define WHAT_ONEa    13
-#define WHAT_ONEu    14
-#define WHAT_SEC    15
-#define WHAT_DEGREE    16
-#define WHAT_ROW    17
-#define WHAT_OBJECT    18
-#define WHAT_OBJu    19
-#define WHAT_REMORT    20
-#define WHAT_WEEK    21
-#define WHAT_MONTH    22
-#define WHAT_WEEKu    23
-#define WHAT_GLORY    24
-#define WHAT_GLORYu    25
-#define WHAT_PEOPLE    26
-#define WHAT_STR    27
-#define WHAT_GULP    28
-#define WHAT_TORC    29
-#define WHAT_TGOLD        30
-#define WHAT_TSILVER    31
-#define WHAT_TBRONZE    32
-#define WHAT_TORCu        33
-#define WHAT_TGOLDu        34
-#define WHAT_TSILVERu    35
-#define WHAT_TBRONZEu    36
-#define WHAT_ICEu        37
-#define WHAT_NOGATAu        38
+enum class EWhat : int  {
+	kDay,
+	kHour,
+	kYear,
+	kPoint,
+	kMinA,
+	kMinU,
+	kMoneyA,
+	kMoneyU,
+	kThingA,
+	kThingU,
+	kLvl,
+	kMoveA,
+	kMoveU,
+	kOneA,
+	kOneU,
+	kSec,
+	kDegree,
+	kRow,
+	kObject,
+	kObjU,
+	kRemort,
+	kWeek,
+	kMonth,
+	kWeekU,
+	kGlory,
+	kGloryU,
+	kPeople,
+	kStr,
+	kGulp,
+	kTorc,
+	kGoldTorc,
+	kSilverTorc,
+	kBronzeTorc,
+	kTorcU,
+	kGoldTorcU,
+	kSilverTorcU,
+	kBronzeTorcU,
+	kIceU,
+	kNogataU
+};
 
-#undef AW_HIDE // конфликтует с winuser.h
+const char *GetDeclensionInNumber(long amount, EWhat of_what);
+
+//#undef AW_HIDE // конфликтует с winuser.h
 // some awaking cases
-#define AW_HIDE       (1 << 0)
-#define AW_INVIS      (1 << 1)
-#define AW_CAMOUFLAGE (1 << 2)
-#define AW_SNEAK      (1 << 3)
+const int kAwHide = 1 << 0;
+const int kAwInvis = 1 << 1;
+const int kAwCamouflage = 1 << 2;
+const int kAwSneak = 1 << 3;
 
-#define ACHECK_AFFECTS (1 << 0)
-#define ACHECK_LIGHT   (1 << 1)
-#define ACHECK_HUMMING (1 << 2)
-#define ACHECK_GLOWING (1 << 3)
-#define ACHECK_WEIGHT  (1 << 4)
+const int kAcheckAffects = 1 << 0;
+const int kAcheckLight = 1 << 1;
+const int kAcheckHumming = 1 << 2;
+const int kAcheckGlowing = 1 << 3;
+const int kAcheckWeight = 1 << 4;
 
 int check_awake(CharData *ch, int what);
 int awake_hide(CharData *ch);
@@ -1193,9 +1110,9 @@ size_t strlen_no_colors(const char *str);
 #define SEEK_END  2
 #endif
 
-#define SENDOK(ch)   (((ch)->desc || SCRIPT_CHECK((ch), MTRIG_ACT)) && \
+#define SENDOK(ch)   (((ch)->desc || CheckScript((ch), MTRIG_ACT)) && \
                (to_sleeping || AWAKE(ch)) && \
-                     !PLR_FLAGGED((ch), PLR_WRITING))
+                     !PLR_FLAGGED((ch), EPlrFlag::kWriting))
 
 extern const bool a_isspace_table[];
 inline bool a_isspace(const unsigned char c) {
@@ -1367,7 +1284,7 @@ void message_str_need(CharData *ch, ObjData *obj, int type);
 int wis_bonus(int stat, int type);
 int CAN_CARRY_N(const CharData *ch);
 
-#define CAN_CARRY_W(ch) ((str_bonus(GET_REAL_STR(ch), STR_CARRY_W) * (HAVE_FEAT(ch, PORTER_FEAT) ? 110 : 100))/100)
+#define CAN_CARRY_W(ch) ((str_bonus(GET_REAL_STR(ch), STR_CARRY_W) * (HAVE_FEAT(ch, EFeat::kPorter) ? 110 : 100))/100)
 
 #define OK_BOTH(ch, obj)  (GET_OBJ_WEIGHT(obj) <= \
                           str_bonus(GET_REAL_STR(ch), STR_WIELD_W) + str_bonus(GET_REAL_STR(ch), STR_HOLD_W))
@@ -1380,6 +1297,10 @@ int CAN_CARRY_N(const CharData *ch);
 
 #define OK_SHIELD(ch, obj)  (GET_OBJ_WEIGHT(obj) <= \
                           (2 * str_bonus(GET_REAL_STR(ch), STR_HOLD_W)))
+
+#define IS_CORPSE(obj)     (GET_OBJ_TYPE(obj) == EObjType::kContainer && \
+               GET_OBJ_VAL((obj), 3) == ObjData::CORPSE_INDICATOR)
+#define IS_MOB_CORPSE(obj) (IS_CORPSE(obj) &&  GET_OBJ_VAL((obj), 2) != -1)
 
 /// аналог sprintbitwd и производных
 /// \param bits - bitset|boost::dynamic_bitset
@@ -1581,11 +1502,11 @@ class StreamFlagsHolder {
 };
 
 /**
- *  Напечатать число в виде строки с разделителем разрядов - запятой.
+ *  Напечатать число в виде строки с разделителем разрядов.
  *  @param num  - обрабатываемоле число.
  */
 std::string PrintNumberByDigits(long long num);
 
-#endif // _UTILS_H_
+#endif // UTILS_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

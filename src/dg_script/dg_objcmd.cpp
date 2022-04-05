@@ -18,7 +18,7 @@
 #include "game_magic/magic_utils.h"
 #include "game_skills/townportal.h"
 #include "utils/id_converter.h"
-#include "entities/zone.h"
+//#include "entities/zone.h"
 #include "structs/global_objects.h"
 
 extern const char *dirs[];
@@ -198,7 +198,7 @@ void do_oforce(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 			const auto people_copy = world[room]->people;
 			for (const auto ch : people_copy)
 			{
-				if (IS_NPC(ch)
+				if (ch->is_npc()
 					|| GetRealLevel(ch) < kLevelImmortal)
 				{
 					command_interpreter(ch, line);
@@ -208,13 +208,13 @@ void do_oforce(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else {
 		if ((ch = get_char_by_obj(obj, arg1))) {
 			// если чар в ЛД
-			if (!IS_NPC(ch)) {
+			if (!ch->is_npc()) {
 				if (!ch->desc) {
 					return;
 				}
 			}
 
-			if (IS_NPC(ch)) {
+			if (ch->is_npc()) {
 				if (mob_script_command_interpreter(ch, line)) {
 					obj_log(obj, "Mob trigger commands in oforce. Please rewrite trigger.");
 					return;
@@ -320,19 +320,19 @@ void do_otransform(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (obj->get_worn_by()) {
 			pos = obj->get_worn_on();
 			wearer = obj->get_worn_by();
-			unequip_char(obj->get_worn_by(), pos, CharEquipFlags());
+			UnequipChar(obj->get_worn_by(), pos, CharEquipFlags());
 		}
 
 		obj->swap(*o);
 
-		if (o->get_extra_flag(EExtraFlag::ITEM_TICKTIMER)) {
-			obj->set_extra_flag(EExtraFlag::ITEM_TICKTIMER);
+		if (o->has_flag(EObjFlag::kTicktimer)) {
+			obj->set_extra_flag(EObjFlag::kTicktimer);
 		}
 
 		if (wearer) {
-			equip_char(wearer, obj, pos, CharEquipFlags());
+			EquipObj(wearer, obj, pos, CharEquipFlags());
 		}
-		extract_obj(o.get());
+		ExtractObjFromWorld(o.get());
 	}
 }
 
@@ -350,13 +350,13 @@ void do_opurge(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!(ch = get_char_by_obj(obj, arg))) {
 		if ((o = get_obj_by_obj(obj, arg))) {
-			extract_obj(o);
+			ExtractObjFromWorld(o);
 		} else
 			obj_log(obj, "opurge: bad argument");
 		return;
 	}
 
-	if (!IS_NPC(ch)) {
+	if (!ch->is_npc()) {
 		obj_log(obj, "opurge: purging a PC");
 		return;
 	}
@@ -365,7 +365,7 @@ void do_opurge(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		|| ch->has_master()) {
 		die_follower(ch);
 	}
-	extract_char(ch, false);
+	ExtractCharFromWorld(ch, false);
 }
 
 void do_oteleport(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -404,8 +404,8 @@ void do_oteleport(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 				obj_log(obj, "oteleport transports from kNowhere");
 				return;
 			}
-			char_from_room(ch);
-			char_to_room(ch, target);
+			ExtractCharFromRoom(ch);
+			PlaceCharToRoom(ch, target);
 			ch->dismount();
 			look_at_room(ch, true);
 		}
@@ -428,10 +428,10 @@ void do_oteleport(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 				obj_log(obj, "oteleport transports allchar from kNowhere");
 				return;
 			}
-			if (IS_NPC(ch) && !IS_CHARMICE(ch))
+			if (ch->is_npc() && !IS_CHARMICE(ch))
 				continue;
-			char_from_room(ch);
-			char_to_room(ch, target);
+			ExtractCharFromRoom(ch);
+			PlaceCharToRoom(ch, target);
 			ch->dismount();
 			look_at_room(ch, true);
 		}
@@ -450,17 +450,17 @@ void do_oteleport(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		const auto people_copy = world[ch->in_room]->people;
 		for (const auto charmee: people_copy) {
 			if (IS_CHARMICE(charmee) && charmee->get_master() == ch) {
-				char_from_room(charmee);
-				char_to_room(charmee, target);
+				ExtractCharFromRoom(charmee);
+				PlaceCharToRoom(charmee, target);
 			}
 		}
 		if (!str_cmp(argument, "horse")
 			&& horse) {
-			char_from_room(horse);
-			char_to_room(horse, target);
+			ExtractCharFromRoom(horse);
+			PlaceCharToRoom(horse, target);
 		}
-		char_from_room(ch);
-		char_to_room(ch, target);
+		ExtractCharFromRoom(ch);
+		PlaceCharToRoom(ch, target);
 		ch->dismount();
 		look_at_room(ch, true);
 		greet_mtrigger(ch, -1);
@@ -490,7 +490,7 @@ void do_dgoload(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 			obj_log(obj, "oload: bad mob vnum");
 			return;
 		}
-		char_to_room(mob, room);
+		PlaceCharToRoom(mob, room);
 		load_mtrigger(mob);
 	} else if (utils::IsAbbrev(arg1, "obj")) {
 		const auto object = world_objects.create_from_prototype_by_vnum(number);
@@ -510,7 +510,7 @@ void do_dgoload(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 		log("Load obj #%d by %s (oload)", number, obj->get_aliases().c_str());
 		object->set_vnum_zone_from(zone_table[world[room]->zone_rn].vnum);
-		obj_to_room(object.get(), room);
+		PlaceObjToRoom(object.get(), room);
 		load_otrigger(object.get());
 	} else {
 		obj_log(obj, "oload: bad type");
@@ -522,7 +522,7 @@ void ApplyDamage(CharData* target, int damage) {
 	update_pos(target);
 	char_dam_message(damage, target, target, 0);
 	if (GET_POS(target) == EPosition::kDead) {
-		if (!IS_NPC(target)) {
+		if (!target->is_npc()) {
 			sprintf(buf2, "%s killed by odamage at %s [%d]", GET_NAME(target),
 					target->in_room == kNowhere ? "NOWHERE" : world[target->in_room]->name, GET_ROOM_VNUM(target->in_room));
 			mudlog(buf2, BRF, kLvlBuilder, SYSLOG, true);
@@ -694,7 +694,7 @@ void do_ofeatturn(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int isFeat = 0;
 	CharData *ch;
 	char name[kMaxInputLength], featname[kMaxInputLength], amount[kMaxInputLength], *pos;
-	int featnum = 0, featdiff = 0;
+	int featdiff = 0;
 
 	one_argument(two_arguments(argument, name, featname), amount);
 
@@ -708,7 +708,8 @@ void do_ofeatturn(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	while ((pos = strchr(featname, '_')))
 		*pos = ' ';
 
-	if ((featnum = FindFeatNum(featname)) > 0 && featnum < kMaxFeats)
+	const auto feat_id = FindFeatNum(featname);
+	if (feat_id >= EFeat::kFirstFeat && feat_id <= EFeat::kLastFeat)
 		isFeat = 1;
 	else {
 		sprintf(buf, "ofeatturn: %s skill/recipe not found", featname);
@@ -731,7 +732,7 @@ void do_ofeatturn(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (isFeat)
-		trg_featturn(ch, featnum, featdiff, last_trig_vnum);
+		trg_featturn(ch, feat_id, featdiff, last_trig_vnum);
 }
 
 void do_oskillturn(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {

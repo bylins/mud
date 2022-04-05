@@ -15,59 +15,59 @@
 bool ParseFilter::init_type(const char *str) {
 	if (utils::IsAbbrev(str, "свет")
 		|| utils::IsAbbrev(str, "light")) {
-		type = ObjData::ITEM_LIGHT;
+		type = EObjType::kLightSource;
 	} else if (utils::IsAbbrev(str, "свиток")
 		|| utils::IsAbbrev(str, "scroll")) {
-		type = ObjData::ITEM_SCROLL;
+		type = EObjType::kScroll;
 	} else if (utils::IsAbbrev(str, "палочка")
 		|| utils::IsAbbrev(str, "wand")) {
-		type = ObjData::ITEM_WAND;
+		type = EObjType::kWand;
 	} else if (utils::IsAbbrev(str, "посох")
 		|| utils::IsAbbrev(str, "staff")) {
-		type = ObjData::ITEM_STAFF;
+		type = EObjType::kStaff;
 	} else if (utils::IsAbbrev(str, "оружие")
 		|| utils::IsAbbrev(str, "weapon")) {
-		type = ObjData::ITEM_WEAPON;
+		type = EObjType::kWeapon;
 	} else if (utils::IsAbbrev(str, "броня")
 		|| utils::IsAbbrev(str, "armor")) {
-		type = ObjData::ITEM_ARMOR;
+		type = EObjType::kArmor;
 	} else if (utils::IsAbbrev(str, "напиток")
 		|| utils::IsAbbrev(str, "potion")) {
-		type = ObjData::ITEM_POTION;
+		type = EObjType::kPorion;
 	} else if (utils::IsAbbrev(str, "прочее")
 		|| utils::IsAbbrev(str, "другое")
 		|| utils::IsAbbrev(str, "other")) {
-		type = ObjData::ITEM_OTHER;
+		type = EObjType::kOther;
 	} else if (utils::IsAbbrev(str, "контейнер")
 		|| utils::IsAbbrev(str, "container")) {
-		type = ObjData::ITEM_CONTAINER;
+		type = EObjType::kContainer;
 	} else if (utils::IsAbbrev(str, "материал")
 		|| utils::IsAbbrev(str, "material")) {
-		type = ObjData::ITEM_MATERIAL;
+		type = EObjType::kCraftMaterial;
 	} else if (utils::IsAbbrev(str, "зачарованный")
 		|| utils::IsAbbrev(str, "enchant")) {
-		type = ObjData::ITEM_ENCHANT;
+		type = EObjType::kEnchant;
 	} else if (utils::IsAbbrev(str, "емкость")
 		|| utils::IsAbbrev(str, "tank")) {
-		type = ObjData::ITEM_DRINKCON;
+		type = EObjType::kLiquidContainer;
 	} else if (utils::IsAbbrev(str, "книга")
 		|| utils::IsAbbrev(str, "book")) {
-		type = ObjData::ITEM_BOOK;
+		type = EObjType::kBook;
 	} else if (utils::IsAbbrev(str, "руна")
 		|| utils::IsAbbrev(str, "rune")) {
-		type = ObjData::ITEM_INGREDIENT;
+		type = EObjType::kIngredient;
 	} else if (utils::IsAbbrev(str, "ингредиент")
 		|| utils::IsAbbrev(str, "ingradient")) {
-		type = ObjData::ITEM_MING;
+		type = EObjType::kMagicIngredient;
 	} else if (utils::IsAbbrev(str, "легкие")
 		|| utils::IsAbbrev(str, "легкая")) {
-		type = ObjData::ITEM_ARMOR_LIGHT;
+		type = EObjType::kLightArmor;
 	} else if (utils::IsAbbrev(str, "средние")
 		|| utils::IsAbbrev(str, "средняя")) {
-		type = ObjData::ITEM_ARMOR_MEDIAN;
+		type = EObjType::kMediumArmor;
 	} else if (utils::IsAbbrev(str, "тяжелые")
 		|| utils::IsAbbrev(str, "тяжелая")) {
-		type = ObjData::ITEM_ARMOR_HEAVY;
+		type = EObjType::kHeavyArmor;
 	} else {
 		return false;
 	}
@@ -95,52 +95,52 @@ bool ParseFilter::init_state(const char *str) {
 
 bool ParseFilter::init_wear(const char *str) {
 	if (utils::IsAbbrev(str, "палец")) {
-		wear = EWearFlag::ITEM_WEAR_FINGER;
+		wear = EWearFlag::kFinger;
 		wear_message = 1;
 	} else if (utils::IsAbbrev(str, "шея") || utils::IsAbbrev(str, "грудь")) {
-		wear = EWearFlag::ITEM_WEAR_NECK;
+		wear = EWearFlag::kNeck;
 		wear_message = 2;
 	} else if (utils::IsAbbrev(str, "тело")) {
-		wear = EWearFlag::ITEM_WEAR_BODY;
+		wear = EWearFlag::kBody;
 		wear_message = 3;
 	} else if (utils::IsAbbrev(str, "голова")) {
-		wear = EWearFlag::ITEM_WEAR_HEAD;
+		wear = EWearFlag::kHead;
 		wear_message = 4;
 	} else if (utils::IsAbbrev(str, "ноги")) {
-		wear = EWearFlag::ITEM_WEAR_LEGS;
+		wear = EWearFlag::kLegs;
 		wear_message = 5;
 	} else if (utils::IsAbbrev(str, "ступни")) {
-		wear = EWearFlag::ITEM_WEAR_FEET;
+		wear = EWearFlag::kFeet;
 		wear_message = 6;
 	} else if (utils::IsAbbrev(str, "кисти")) {
-		wear = EWearFlag::ITEM_WEAR_HANDS;
+		wear = EWearFlag::kHands;
 		wear_message = 7;
 	} else if (utils::IsAbbrev(str, "руки")) {
-		wear = EWearFlag::ITEM_WEAR_ARMS;
+		wear = EWearFlag::kArms;
 		wear_message = 8;
 	} else if (utils::IsAbbrev(str, "щит")) {
-		wear = EWearFlag::ITEM_WEAR_SHIELD;
+		wear = EWearFlag::kShield;
 		wear_message = 9;
 	} else if (utils::IsAbbrev(str, "плечи")) {
-		wear = EWearFlag::ITEM_WEAR_ABOUT;
+		wear = EWearFlag::kShoulders;
 		wear_message = 10;
 	} else if (utils::IsAbbrev(str, "пояс")) {
-		wear = EWearFlag::ITEM_WEAR_WAIST;
+		wear = EWearFlag::kWaist;
 		wear_message = 11;
 	} else if (utils::IsAbbrev(str, "запястья")) {
-		wear = EWearFlag::ITEM_WEAR_WRIST;
+		wear = EWearFlag::kWrist;
 		wear_message = 12;
 	} else if (utils::IsAbbrev(str, "правая")) {
-		wear = EWearFlag::ITEM_WEAR_WIELD;
+		wear = EWearFlag::kWield;
 		wear_message = 13;
 	} else if (utils::IsAbbrev(str, "левая")) {
-		wear = EWearFlag::ITEM_WEAR_HOLD;
+		wear = EWearFlag::kHold;
 		wear_message = 14;
 	} else if (utils::IsAbbrev(str, "обе")) {
-		wear = EWearFlag::ITEM_WEAR_BOTHS;
+		wear = EWearFlag::kBoth;
 		wear_message = 15;
 	} else if (utils::IsAbbrev(str, "колчан")) {
-		wear = EWearFlag::ITEM_WEAR_QUIVER;
+		wear = EWearFlag::kQuiver;
 		wear_message = 16;
 	} else {
 		return false;
@@ -219,7 +219,7 @@ bool ParseFilter::init_weap_class(const char *str) {
 		return false;
 	}
 
-	type = ObjData::ITEM_WEAPON;
+	type = EObjType::kWeapon;
 
 	return true;
 }
@@ -399,8 +399,8 @@ bool ParseFilter::check_name(ObjData *obj, CharData *ch) const {
 	if (name.empty()
 		|| isname(name, name_obj)) {
 		result = true;
-	} else if ((GET_OBJ_TYPE(obj) == ObjData::ITEM_MING
-		|| GET_OBJ_TYPE(obj) == ObjData::ITEM_INGREDIENT)
+	} else if ((GET_OBJ_TYPE(obj) == EObjType::kMagicIngredient
+		|| GET_OBJ_TYPE(obj) == EObjType::kIngredient)
 		&& GET_OBJ_RNUM(obj) >= 0
 		&& isname(name, obj_proto[GET_OBJ_RNUM(obj)]->get_aliases().c_str())) {
 		result = true;
@@ -455,7 +455,7 @@ bool ParseFilter::check_state(ObjData *obj) const {
 }
 
 bool ParseFilter::check_wear(ObjData *obj) const {
-	if (wear == EWearFlag::ITEM_WEAR_UNDEFINED
+	if (wear == EWearFlag::kUndefined
 		|| CAN_WEAR(obj, wear)) {
 		return true;
 	}
@@ -677,7 +677,7 @@ std::string ParseFilter::print() const {
 		buffer += print_obj_state(state);
 		buffer += " ";
 	}
-	if (wear != EWearFlag::ITEM_WEAR_UNDEFINED) {
+	if (wear != EWearFlag::kUndefined) {
 		buffer += wear_bits[wear_message];
 		buffer += " ";
 	}

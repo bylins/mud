@@ -169,7 +169,7 @@ void Dps::PrintStats(CharData *ch, CharData *coder) {
 		coder = ch;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)) {
+	if (AFF_FLAGGED(ch, EAffect::kGroup)) {
 		tmp_total_dmg = 0;
 		CharData *leader = ch->has_master() ? ch->get_master() : ch;
 		leader->dps_print_group_stats(ch, coder);
@@ -190,16 +190,17 @@ void Dps::PrintStats(CharData *ch, CharData *coder) {
  */
 void Dps::PrintPersonalDpsStat(CharData *ch, std::ostringstream &out) {
 	out << " Персональная статистика урона:" << std::endl;
-	fort::char_table table;
-	table << fort::header << "Имя" << "Урон" << "В раунд" << "Макс." << "Лишний урон" << fort::endr;
+	table_wrapper::Table table;
+	table << table_wrapper::kHeader	<<
+		"Имя" << "Урон" << "В раунд" << "Макс." << "Лишний урон" << table_wrapper::kEndRow;
 	table << ch->get_name()
 		  << pers_dps_.get_dmg()
 		  << pers_dps_.get_stat()
 		  << pers_dps_.get_round_dmg()
-		  << pers_dps_.get_over_dmg() << fort::endr;
+		  << pers_dps_.get_over_dmg() << table_wrapper::kEndRow;
 	pers_dps_.print_charm_stats(table);
 
-	table_wrapper::DecorateZebraTable(ch, table, table_wrapper::kBlue);
+	table_wrapper::DecorateZebraTable(ch, table, table_wrapper::color::kBlue);
 	table_wrapper::PrintTableToStream(out, table);
 }
 
@@ -237,7 +238,7 @@ void Dps::PrintGroupStats(CharData *ch, CharData *coder) {
 	for (Follower *f = leader->followers; f; f = f->next) {
 		if (f->ch
 			&& !f->ch->is_npc()
-			&& AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)) {
+			&& AFF_FLAGGED(f->ch, EAffect::kGroup)) {
 			AddTmpGroupList(f->ch);
 		}
 	}
@@ -250,8 +251,9 @@ void Dps::PrintGroupStats(CharData *ch, CharData *coder) {
 	std::ostringstream out;
 	out << " Статистика урона вашей группы:" << std::endl;
 
-	fort::char_table table;
-	table << fort::header << "Имя" << "Урон" << "(%)" << "В раунд" << "Макс." << "Лишний урон" << fort::endr;
+	table_wrapper::Table table;
+	table << table_wrapper::kHeader <<
+		"Имя" << "Урон" << "(%)" << "В раунд" << "Макс." << "Лишний урон" << table_wrapper::kEndRow;
 	for (auto it = tmp_group_list.rbegin(); it != tmp_group_list.rend(); ++it) {
 		double percent = tmp_total_dmg ? it->first * 100.0 / tmp_total_dmg : 0.0;
 		table << it->second.name
@@ -259,11 +261,11 @@ void Dps::PrintGroupStats(CharData *ch, CharData *coder) {
 			<< std::setprecision(2) << percent
 			<< it->second.dps
 			<< it->second.round_dmg
-			<< it->second.over_dmg << fort::endr;
+			<< it->second.over_dmg << table_wrapper::kEndRow;
 	}
 	tmp_group_list.clear();
 
-	table_wrapper::DecorateZebraTable(ch, table, table_wrapper::kBlue);
+	table_wrapper::DecorateZebraTable(ch, table, table_wrapper::color::kBlue);
 	out << table.to_string() << std::endl;
 	send_to_char(out.str(), coder);
 }
@@ -379,7 +381,7 @@ void PlayerDpsNode::end_charm_round(CharData *ch) {
 }
 
 // * Чармисы в персональной статистике выводятся без сортировки.
-void PlayerDpsNode::print_charm_stats(fort::char_table &table) const {
+void PlayerDpsNode::print_charm_stats(table_wrapper::Table &table) const {
 	for (const auto & it : charm_list_) {
 		if (it.get_dmg() > 0) {
 			table
@@ -387,7 +389,7 @@ void PlayerDpsNode::print_charm_stats(fort::char_table &table) const {
 				<< it.get_dmg()
 				<< it.get_stat()
 				<< it.get_round_dmg()
-				<< it.get_over_dmg() << fort::endr;
+				<< it.get_over_dmg() << table_wrapper::kEndRow;
 		}
 	}
 }
@@ -416,15 +418,15 @@ void PlayerDpsNode::print_group_charm_stats(CharData *ch) const {
 
 // * Подсчет дамаги за предыдущий раунд, дергается в начале раунда и по окончанию боя.
 void check_round(CharData *ch) {
-	if (!IS_NPC(ch)) {
+	if (!ch->is_npc()) {
 		ch->dps_end_round(DpsSystem::PERS_DPS);
-		if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)) {
+		if (AFF_FLAGGED(ch, EAffect::kGroup)) {
 			CharData *leader = ch->has_master() ? ch->get_master() : ch;
 			leader->dps_end_round(DpsSystem::GROUP_DPS, ch);
 		}
 	} else if (IS_CHARMICE(ch) && ch->has_master()) {
 		ch->get_master()->dps_end_round(DpsSystem::PERS_CHARM_DPS, ch);
-		if (AFF_FLAGGED(ch->get_master(), EAffectFlag::AFF_GROUP)) {
+		if (AFF_FLAGGED(ch->get_master(), EAffect::kGroup)) {
 			CharData *leader = ch->get_master()->has_master() ? ch->get_master()->get_master() : ch->get_master();
 			leader->dps_end_round(DpsSystem::GROUP_CHARM_DPS, ch);
 		}
@@ -449,7 +451,7 @@ const char *DMETR_FORMAT =
 * 'дметр очистить группа' - очистка групповой статистики (только лидер).
 */
 void do_dmeter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch)) {
+	if (ch->is_npc()) {
 		return;
 	}
 
@@ -463,7 +465,7 @@ void do_dmeter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			ch->dps_clear(DpsSystem::PERS_DPS);
 			send_to_char("Персональная статистика очищена.\r\n", ch);
 		} else if (isname(name, "группа")) {
-			if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)) {
+			if (!AFF_FLAGGED(ch, EAffect::kGroup)) {
 				send_to_char("Вы не состоите в группе.\r\n", ch);
 				return;
 			}
@@ -473,9 +475,9 @@ void do_dmeter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			ch->dps_clear(DpsSystem::GROUP_DPS);
 		}
-	} else if (PRF_FLAGGED(ch, PRF_CODERINFO)) {
+	} else if (PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
 		// распечатка статистики указанного персонажа
-		CharData *vict = get_player_vis(ch, arg, FIND_CHAR_WORLD);
+		CharData *vict = get_player_vis(ch, arg, EFind::kCharInWorld);
 		if (vict) {
 			vict->dps_print_stats(ch);
 		} else {

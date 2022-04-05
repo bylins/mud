@@ -12,35 +12,35 @@
 
 struct TechniqueItem {
 	int wear_position;
-	ObjData::EObjectType type;
+	EObjType type;
 	ESkill skill;
 	bool flagged;
-	EExtraFlag flag;
+	EObjFlag flag;
 
 	// TODO: Добавить учет типов ударов (уколол и проч).
 	bool operator==(const ObjData *item) const {
 		return (item
 			&& (type == GET_OBJ_TYPE(item))
 			&& ((skill == ESkill::kAny) || (skill == static_cast<ESkill>(item->get_skill())))
-			&& (flagged ? OBJ_FLAGGED(item, flag) : true));
+			&& (flagged ? item->has_flag(flag) : true));
 	};
 
 	TechniqueItem() :
 		wear_position{-1},
-		type{ObjData::ITEM_UNDEFINED},
+		type{EObjType::kItemUndefined},
 		skill{ESkill::kAny},
 		flagged{false},
-		flag{EExtraFlag::ITEM_GLOW} {};
+		flag{EObjFlag::kGlow} {};
 
-	TechniqueItem(int wear_position, ObjData::EObjectType obj_type) :
-		wear_position{wear_position}, skill{ESkill::kAny}, flagged{false}, flag{EExtraFlag::ITEM_GLOW} {
+	TechniqueItem(int wear_position, EObjType obj_type) :
+		wear_position{wear_position}, skill{ESkill::kAny}, flagged{false}, flag{EObjFlag::kGlow} {
 		type = obj_type;
 	};
-	TechniqueItem(int wear_position, ObjData::EObjectType obj_type, ESkill obj_skill) :
+	TechniqueItem(int wear_position, EObjType obj_type, ESkill obj_skill) :
 		TechniqueItem(wear_position, obj_type) {
 		skill = obj_skill;
 	};
-	TechniqueItem(int wear_position, ObjData::EObjectType obj_type, ESkill obj_skill, EExtraFlag extra_flag) :
+	TechniqueItem(int wear_position, EObjType obj_type, ESkill obj_skill, EObjFlag extra_flag) :
 		TechniqueItem(wear_position, obj_type, obj_skill) {
 		flag = extra_flag;
 		flagged = true;

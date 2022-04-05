@@ -252,15 +252,15 @@ bool CObject::load_from_node(const pugi::xml_node *node) {
 		set_minimum_remorts(minimum_remorts_value);
 	}
 
-	CHelper::ELoadFlagResult load_result = CHelper::load_flag<EObjectType>(*node, "type",
-																		   [&](const auto type) { this->set_type(type); },
-																		   [&](const auto name) {
+	CHelper::ELoadFlagResult load_result = CHelper::load_flag<EObjType>(*node, "type",
+																		[&](const auto type) { this->set_type(type); },
+																		[&](const auto name) {
 																			   logger(
 																				   "WARNING: Failed to set object type '%s' for object with VNUM %d. Object will be skipped.\n",
 																				   name,
 																				   this->get_vnum());
 																		   },
-																		   [&]() {
+																		[&]() {
 																			   logger(
 																				   "WARNING: \"type\" tag not found for object with VNUM %d not found. Setting to default value: %s.\n",
 																				   this->get_vnum(),
@@ -368,15 +368,15 @@ bool CObject::load_from_node(const pugi::xml_node *node) {
 		}
 	}
 
-	load_result = CHelper::load_flag<EObjectMaterial>(*node, "material",
-													  [&](const auto material) { this->set_material(material); },
-													  [&](const auto name) {
+	load_result = CHelper::load_flag<EObjMaterial>(*node, "material",
+												   [&](const auto material) { this->set_material(material); },
+												   [&](const auto name) {
 														  logger(
 															  "WARNING: Failed to set material '%s' for object with VNUM %d. Object will be skipped.\n",
 															  name,
 															  this->get_vnum());
 													  },
-													  [&]() {
+												   [&]() {
 														  logger(
 															  "WARNING: \"material\" tag for object with VNUM %d not found. Setting to default value: %s.\n",
 															  this->get_vnum(),
@@ -397,14 +397,14 @@ bool CObject::load_from_node(const pugi::xml_node *node) {
 											 [&]() {});
 
 	// loading of object extraflags
-	CHelper::load_flags<EExtraFlag>(*node, "extraflags", "extraflag",
-									[&](const auto flag) { this->set_extra_flag(flag); },
-									[&](const auto value) {
+	CHelper::load_flags<EObjFlag>(*node, "extraflags", "extraflag",
+								  [&](const auto flag) { this->set_extra_flag(flag); },
+								  [&](const auto value) {
 										logger("Setting extra flag '%s' for object with VNUM %d.\n",
 											   NAME_BY_ITEM(value).c_str(),
 											   this->get_vnum());
 									},
-									[&](const auto flag) {
+								  [&](const auto flag) {
 										logger(
 											"WARNING: Skipping extra flag '%s' of object with VNUM %d, because this value is not valid.\n",
 											flag,
@@ -412,14 +412,14 @@ bool CObject::load_from_node(const pugi::xml_node *node) {
 									});
 
 	// loading of object weapon affect flags
-	CHelper::load_flags<EWeaponAffectFlag>(*node, "weapon_affects", "weapon_affect",
-										   [&](const auto flag) { this->set_affect_flag(flag); },
-										   [&](const auto value) {
+	CHelper::load_flags<EWeaponAffect>(*node, "weapon_affects", "weapon_affect",
+									   [&](const auto flag) { this->set_affect_flag(flag); },
+									   [&](const auto value) {
 											   logger("Setting weapon affect flag '%s' for object with VNUM %d.\n",
 													  NAME_BY_ITEM(value).c_str(),
 													  this->get_vnum());
 										   },
-										   [&](const auto flag) {
+									   [&](const auto flag) {
 											   logger(
 												   "WARNING: Skipping weapon affect flag '%s' of object with VNUM %d, because this value is not valid.\n",
 												   flag,
@@ -608,7 +608,7 @@ bool CObject::save_to_node(pugi::xml_node *node) const {
 			// unpack item_parameters
 			std::list<std::string> item_parameters;
 			switch (get_type()) {
-				case ObjData::ITEM_INGREDIENT: {
+				case EObjType::kIngredient: {
 					int flag = 1;
 					while (flag <= get_skill()) {
 						if (IS_SET(get_skill(), flag)) {
@@ -619,7 +619,7 @@ bool CObject::save_to_node(pugi::xml_node *node) const {
 				}
 					break;
 
-				case ObjData::ITEM_WEAPON: item_parameters.push_back(NAME_BY_ITEM(static_cast<ESkill>(get_skill())));
+				case EObjType::kWeapon: item_parameters.push_back(NAME_BY_ITEM(static_cast<ESkill>(get_skill())));
 					break;
 
 				default: break;
@@ -638,21 +638,21 @@ bool CObject::save_to_node(pugi::xml_node *node) const {
 		CHelper::save_string(*node, "spell", NAME_BY_ITEM(get_spell()).c_str(),
 							 [&]() { throw std::runtime_error("WARNING: Failed to save object spell"); });
 
-		CHelper::save_list<EExtraFlag>(*node, "extraflags", "extraflag", get_extra_flags(),
-									   [&]() {
+		CHelper::save_list<EObjFlag>(*node, "extraflags", "extraflag", get_extra_flags(),
+									 [&]() {
 										   throw std::runtime_error("WARNING: Failed to create node \"extraflags\".\n");
 									   },
-									   [&](const auto value) {
+									 [&](const auto value) {
 										   throw std::runtime_error(
 											   "WARNING: Could not save extraflag " + NAME_BY_ITEM(value));
 									   });
 
-		CHelper::save_list<EWeaponAffectFlag>(*node, "weapon_affects", "weapon_affect", get_affect_flags(),
-											  [&]() {
+		CHelper::save_list<EWeaponAffect>(*node, "weapon_affects", "weapon_affect", get_affect_flags(),
+										  [&]() {
 												  throw std::runtime_error(
 													  "WARNING: Failed to create node \"weapon_affects\".\n");
 											  },
-											  [&](const auto value) {
+										  [&](const auto value) {
 												  throw std::runtime_error(
 													  "WARNING: Could not save weapon affect " + NAME_BY_ITEM(value));
 											  });
@@ -687,7 +687,7 @@ bool CObject::save_to_node(pugi::xml_node *node) const {
 
 		CHelper::save_pairs_list(*node, "applies", "apply", "location", "modifier", get_all_affected(),
 								 [&](const auto &value) -> auto {
-									 return APPLY_NONE != value.location ? NAME_BY_ITEM(value.location) : "";
+									 return EApply::kNone != value.location ? NAME_BY_ITEM(value.location) : "";
 								 },
 								 [&](const auto &value) -> auto { return std::to_string(value.modifier); },
 								 [&]() { throw std::runtime_error("WARNING: Could not save applies"); });
@@ -725,7 +725,7 @@ ObjData *CObject::build_object() const {
 
 bool CObject::load_item_parameters(const pugi::xml_node *node) {
 	switch (get_type()) {
-		case ObjData::ITEM_INGREDIENT:
+		case EObjType::kIngredient:
 			for (const auto flags : node->children("parameter")) {
 				const char *flag = flags.child_value();
 				try {
@@ -743,7 +743,7 @@ bool CObject::load_item_parameters(const pugi::xml_node *node) {
 			}
 			break;
 
-		case ObjData::ITEM_WEAPON: {
+		case EObjType::kWeapon: {
 			const char *skill_value = node->child_value("parameter");
 			try {
 				set_skill(to_underlying(ITEM_BY_NAME<ESkill>(skill_value)));
@@ -854,28 +854,28 @@ void CObject::load_extended_values(const pugi::xml_node *node) {
 void CObject::load_applies(const pugi::xml_node *node) {
 	using applies_t = std::list<obj_affected_type>;
 	applies_t applies;
-	CHelper::load_pairs_list<EApplyLocation>(node, "applies", "apply", "location", "modifier",
-											 [&](const size_t number) {
+	CHelper::load_pairs_list<EApply>(node, "applies", "apply", "location", "modifier",
+									 [&](const size_t number) {
 												 logger(
 													 "WARNING: %zd-%s \"apply\" tag of \"applies\" group does not have the \"location\" tag. Object with VNUM %d.\n",
 													 number,
 													 suffix(number),
 													 get_vnum());
 											 },
-											 [&](const auto value) -> auto { return ITEM_BY_NAME<EApplyLocation>(value); },
-											 [&](const auto key) {
+									 [&](const auto value) -> auto { return ITEM_BY_NAME<EApply>(value); },
+									 [&](const auto key) {
 												 logger(
 													 "WARNING: Could not convert value \"%s\" to apply location. Object with VNUM %d.\n Skipping entry.\n",
 													 key,
 													 this->get_vnum());
 											 },
-											 [&](const auto key) {
+									 [&](const auto key) {
 												 logger(
 													 "WARNING: apply with key \"%s\" does not have \"modifier\" tag. Object with VNUM %d. Skipping entry.\n",
 													 key,
 													 this->get_vnum());
 											 },
-											 [&](const auto key, const auto value) {
+									 [&](const auto key, const auto value) {
 												 CHelper::load_integer(value,
 																	   [&](const auto int_value) {
 																		   applies.push_back(applies_t::value_type(key,

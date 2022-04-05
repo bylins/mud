@@ -73,7 +73,7 @@ void break_inst(CharData *ch) {
 	int i;
 	char buf[300];
 
-	for (i = WEAR_WIELD; i <= WEAR_BOTHS; i++) {
+	for (i = EEquipPos::kWield; i <= EEquipPos::kBoths; i++) {
 		if (GET_EQ(ch, i)
 			&& (strstr(GET_EQ(ch, i)->get_aliases().c_str(), "лопата")
 				|| strstr(GET_EQ(ch, i)->get_aliases().c_str(), "кирка"))) {
@@ -97,7 +97,7 @@ void break_inst(CharData *ch) {
 int check_for_dig(CharData *ch) {
 	int i;
 
-	for (i = WEAR_WIELD; i <= WEAR_BOTHS; i++) {
+	for (i = EEquipPos::kWield; i <= EEquipPos::kBoths; i++) {
 		if (GET_EQ(ch, i)
 			&& (strstr(GET_EQ(ch, i)->get_aliases().c_str(), "лопата")
 				|| strstr(GET_EQ(ch, i)->get_aliases().c_str(), "кирка"))) {
@@ -118,12 +118,12 @@ void dig_obj(CharData *ch, ObjData *obj) {
 		act(textbuf, false, ch, nullptr, nullptr, kToRoom);
 		if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
 			send_to_char("Вы не смогли унести столько предметов.\r\n", ch);
-			obj_to_room(obj, ch->in_room);
+			PlaceObjToRoom(obj, ch->in_room);
 		} else if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj) > CAN_CARRY_W(ch)) {
 			send_to_char("Вы не смогли унести такой веc.\r\n", ch);
-			obj_to_room(obj, ch->in_room);
+			PlaceObjToRoom(obj, ch->in_room);
 		} else {
-			obj_to_char(obj, ch);
+			PlaceObjToInventory(obj, ch);
 		}
 	}
 }
@@ -136,7 +136,7 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int vnum;
 	int old_wis, old_int;
 
-	if (IS_NPC(ch) || !ch->get_skill(ESkill::kDigging)) {
+	if (ch->is_npc() || !ch->get_skill(ESkill::kDigging)) {
 		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -146,23 +146,23 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (world[ch->in_room]->sector_type != kSectMountain &&
-		world[ch->in_room]->sector_type != kSectHills && !IS_IMMORTAL(ch)) {
+	if (world[ch->in_room]->sector_type != ESector::kMountain &&
+		world[ch->in_room]->sector_type != ESector::kHills && !IS_IMMORTAL(ch)) {
 		send_to_char("Полезные минералы водятся только в гористой местности!\r\n", ch);
 		return;
 	}
 
-	if (!WAITLESS(ch) && ch->ahorse()) {
+	if (!IS_IMMORTAL(ch) && ch->ahorse()) {
 		send_to_char("Верхом это сделать затруднительно.\r\n", ch);
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND) && !IS_IMMORTAL(ch)) {
+	if (AFF_FLAGGED(ch, EAffect::kBlind) && !IS_IMMORTAL(ch)) {
 		send_to_char("Вы слепы и не видите где копать.\r\n", ch);
 		return;
 	}
 
-	if (IS_DARK(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !IS_IMMORTAL(ch)) {
+	if (is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !IS_IMMORTAL(ch)) {
 		send_to_char("Куда копать? Чего копать? Ничего не видно...\r\n", ch);
 		return;
 	}
@@ -199,12 +199,12 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		mob = read_mobile(real_mobile(vnum), REAL);
 		if (mob) {
 			if (GetRealLevel(mob) <= GetRealLevel(ch)) {
-				MOB_FLAGS(mob).set(MOB_AGGRESSIVE);
+				MOB_FLAGS(mob).set(EMobFlag::kAgressive);
 				sprintf(textbuf, "Вы выкопали %s!\r\n", mob->player_data.PNames[3].c_str());
 				send_to_char(textbuf, ch);
 				sprintf(textbuf, "$n выкопал$g %s!\r\n", mob->player_data.PNames[3].c_str());
 				act(textbuf, false, ch, nullptr, nullptr, kToRoom);
-				char_to_room(mob, ch->in_room);
+				PlaceCharToRoom(mob, ch->in_room);
 				return;
 			}
 		} else
@@ -290,9 +290,9 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	obj = world_objects.create_from_prototype_by_vnum(vnum);
 	if (obj) {
 		if (number(1, dig_vars.glass_chance) != 1) {
-			obj->set_material(ObjData::MAT_GLASS);
+			obj->set_material(EObjMaterial::kGlass);
 		} else {
-			obj->set_material(ObjData::MAT_DIAMOND);
+			obj->set_material(EObjMaterial::kDiamond);
 		}
 
 		dig_obj(ch, obj.get());

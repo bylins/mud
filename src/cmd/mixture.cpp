@@ -7,9 +7,9 @@
 #include "game_magic/spells_info.h"
 
 void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
-	if (IS_NPC(ch))
+	if (ch->is_npc())
 		return;
-	if (IS_IMMORTAL(ch) && !Privilege::check_flag(ch, Privilege::USE_SKILLS)) {
+	if (IS_IMMORTAL(ch) && !privilege::CheckFlag(ch, privilege::kUseSkills)) {
 		send_to_char("Не положено...\r\n", ch);
 		return;
 	}
@@ -91,11 +91,11 @@ void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			return;
 		}
 
-		if (GET_MANA_STORED(ch) < GET_MANA_COST(ch, spellnum)) {
+		if (ch->mem_queue.stored < GET_MANA_COST(ch, spellnum)) {
 			send_to_char("У вас маловато магической энергии!\r\n", ch);
 			return;
 		} else {
-			GET_MANA_STORED(ch) = GET_MANA_STORED(ch) - GET_MANA_COST(ch, spellnum);
+			ch->mem_queue.stored = ch->mem_queue.stored - GET_MANA_COST(ch, spellnum);
 		}
 	}
 
@@ -110,7 +110,7 @@ void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			}
 		} else {
 			if (CallMagic(ch, tch, tobj, world[ch->in_room], spellnum, GetRealLevel(ch)) >= 0) {
-				if (!(WAITLESS(ch) || CHECK_WAIT(ch)))
+				if (!(IS_IMMORTAL(ch) || CHECK_WAIT(ch)))
 					WAIT_STATE(ch, kPulseViolence);
 			}
 		}

@@ -6,7 +6,7 @@
 
 // **************** MULTYPARRY PROCEDURES
 void go_multyparry(CharData *ch) {
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) || AFF_FLAGGED(ch, EAffectFlag::AFF_STOPLEFT) || IsUnableToAct(ch)) {
+	if (AFF_FLAGGED(ch, EAffect::kStopRight) || AFF_FLAGGED(ch, EAffect::kStopLeft) || IsUnableToAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
@@ -16,7 +16,7 @@ void go_multyparry(CharData *ch) {
 }
 
 void do_multyparry(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch) || !ch->get_skill(ESkill::kMultiparry)) {
+	if (ch->is_npc() || !ch->get_skill(ESkill::kMultiparry)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -29,14 +29,14 @@ void do_multyparry(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 		return;
 	}
 
-	ObjData *primary = GET_EQ(ch, WEAR_WIELD), *offhand = GET_EQ(ch, WEAR_HOLD);
-	if (!(IS_NPC(ch)
+	ObjData *primary = GET_EQ(ch, EEquipPos::kWield), *offhand = GET_EQ(ch, EEquipPos::kHold);
+	if (!(ch->is_npc()
 		|| (primary
-			&& GET_OBJ_TYPE(primary) == ObjData::ITEM_WEAPON
+			&& GET_OBJ_TYPE(primary) == EObjType::kWeapon
 			&& offhand
-			&& GET_OBJ_TYPE(offhand) == ObjData::ITEM_WEAPON)
+			&& GET_OBJ_TYPE(offhand) == EObjType::kWeapon)
 		|| IS_IMMORTAL(ch)
-		|| GET_GOD_FLAG(ch, GF_GODSLIKE))) {
+		|| GET_GOD_FLAG(ch, EGf::kGodsLike))) {
 		send_to_char("Вы не можете отражать атаки безоружным.\r\n", ch);
 		return;
 	}
@@ -49,7 +49,7 @@ void do_multyparry(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 
 // **************** PARRY PROCEDURES
 void go_parry(CharData *ch) {
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) || AFF_FLAGGED(ch, EAffectFlag::AFF_STOPLEFT) || IsUnableToAct(ch)) {
+	if (AFF_FLAGGED(ch, EAffect::kStopRight) || AFF_FLAGGED(ch, EAffect::kStopLeft) || IsUnableToAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
@@ -59,7 +59,7 @@ void go_parry(CharData *ch) {
 }
 
 void do_parry(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch) || !ch->get_skill(ESkill::kParry)) {
+	if (ch->is_npc() || !ch->get_skill(ESkill::kParry)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -73,17 +73,17 @@ void do_parry(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!IS_IMMORTAL(ch) && !GET_GOD_FLAG(ch, GF_GODSLIKE)) {
-		if (GET_EQ(ch, WEAR_BOTHS)) {
+	if (!IS_IMMORTAL(ch) && !GET_GOD_FLAG(ch, EGf::kGodsLike)) {
+		if (GET_EQ(ch, EEquipPos::kBoths)) {
 			send_to_char("Вы не можете отклонить атаку двуручным оружием.\r\n", ch);
 			return;
 		}
 
 		bool prim = 0, offh = 0;
-		if (GET_EQ(ch, WEAR_WIELD) && GET_OBJ_TYPE(GET_EQ(ch, WEAR_WIELD)) == ObjData::ITEM_WEAPON) {
+		if (GET_EQ(ch, EEquipPos::kWield) && GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kWield)) == EObjType::kWeapon) {
 			prim = 1;
 		}
-		if (GET_EQ(ch, WEAR_HOLD) && GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == ObjData::ITEM_WEAPON) {
+		if (GET_EQ(ch, EEquipPos::kHold) && GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kHold)) == EObjType::kWeapon) {
 			offh = 1;
 		}
 

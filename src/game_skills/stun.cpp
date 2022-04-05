@@ -21,15 +21,15 @@ void do_stun(CharData *ch, char *argument, int, int) {
 		send_to_char("Вы привстали на стременах и поняли: 'лошадь украли!!!'\r\n", ch);
 		return;
 	}
-	if ((GET_SKILL(ch, ESkill::kRiding) < 151) && (!IS_NPC(ch))) {
+	if ((GET_SKILL(ch, ESkill::kRiding) < 151) && (!ch->is_npc())) {
 		send_to_char("Вы слишком неуверенно управляете лошадью, чтоб на ней пытаться ошеломить противника.\r\n", ch);
 		return;
 	}
-	if (IsTimedBySkill(ch, ESkill::kStun) && (!IS_NPC(ch))) {
+	if (IsTimedBySkill(ch, ESkill::kStun) && (!ch->is_npc())) {
 		send_to_char("Ваш грозный вид не испугает даже мышь, попробуйте ошеломить попозже.\r\n", ch);
 		return;
 	}
-	if (!IS_NPC(ch) && !(GET_EQ(ch, WEAR_WIELD) || GET_EQ(ch, WEAR_BOTHS))) {
+	if (!ch->is_npc() && !(GET_EQ(ch, EEquipPos::kWield) || GET_EQ(ch, EEquipPos::kBoths))) {
 		send_to_char("Вы должны держать оружие в основной руке.\r\n", ch);
 		return;
 	}
@@ -58,7 +58,7 @@ void go_stun(CharData *ch, CharData *vict) {
 		ImproveSkill(ch, ESkill::kStun, true, vict);
 		timed.skill = ESkill::kStun;
 		timed.time = 7;
-		timed_to_char(ch, &timed);
+		ImposeTimedSkill(ch, &timed);
 		act("У вас не получилось ошеломить $N3, надо больше тренироваться!",
 			false, ch, nullptr, vict, kToChar);
 		act("$N3 попытал$U ошеломить вас, но не получилось.",
@@ -71,7 +71,7 @@ void go_stun(CharData *ch, CharData *vict) {
 
 	timed.skill = ESkill::kStun;
 	timed.time = std::clamp(7 - (GET_SKILL(ch, ESkill::kStun) - 150) / 10, 2, 7);
-	timed_to_char(ch, &timed);
+	ImposeTimedSkill(ch, &timed);
 	//weap_weight = GET_EQ(ch, WEAR_BOTHS)?  GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS)) : GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD));
 	//float num = MIN(95, (pow(GET_SKILL(ch, ESkill::kStun), 2) + pow(weap_weight, 2) + pow(GET_REAL_STR(ch), 2)) /
 	//(pow(GET_REAL_DEX(vict), 2) + (GET_REAL_CON(vict) - GET_SAVE(vict, kStability)) * 30.0));
@@ -90,8 +90,8 @@ void go_stun(CharData *ch, CharData *vict) {
 			true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 		set_hit(ch, vict);
 	} else {
-		if (GET_EQ(ch, WEAR_BOTHS)
-		&& static_cast<ESkill>((ch->equipment[WEAR_BOTHS])->get_skill()) == ESkill::kBows) {
+		if (GET_EQ(ch, EEquipPos::kBoths)
+		&& static_cast<ESkill>((ch->equipment[EEquipPos::kBoths])->get_skill()) == ESkill::kBows) {
 			act("Точным выстрелом вы ошеломили $N3!",
 				false, ch, nullptr, vict, kToChar);
 			act("Точный выстрел $N1 повалил вас с ног и лишил сознания.",

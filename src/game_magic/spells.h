@@ -105,7 +105,7 @@ constexpr Bitvector kSpellScroll = 1 << 4;
 constexpr Bitvector kSpellItems = 1 << 5;
 constexpr Bitvector kSpellRunes = 1 << 6;
 
-/// Flags for ingredient items (ITEM_INGREDIENT)
+/// Flags for ingredient items (kIngredient)
 enum EIngredientFlag {
 	kItemRunes = 1 << 0,
 	kItemCheckUses = 1 << 1,
@@ -476,7 +476,7 @@ bool CatchBloodyCorpse(ObjData *l);
 // other prototypes //
 void InitSpellLevels();
 const char *GetSpellName(int num);
-int CalculateSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply);
+int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply);
 int CalcGeneralSaving(CharData *killer, CharData *victim, ESaving type, int ext_apply);
 bool IsAbleToGetSpell(CharData *ch, int spellnum);
 int CalcMinSpellLevel(CharData *ch, int spellnum, int req_lvl);

@@ -15,7 +15,7 @@
 
 extern void death_cry(CharData *ch, CharData *killer);
 
-namespace DeathTrap {
+namespace deathtrap {
 
 // список текущих слоу-дт в маде
 std::list<RoomData *> room_list;
@@ -26,12 +26,12 @@ void remove_items(CharData *ch);
 } // namespace DeathTrap
 
 // * Инициализация списка при загрузке мада или редактирования комнат в олц
-void DeathTrap::load() {
+void deathtrap::load() {
 	// на случай релоада, свапать смысла нету
 	room_list.clear();
 
 	for (int i = FIRST_ROOM; i <= top_of_world; ++i)
-		if (ROOM_FLAGGED(i, ROOM_SLOWDEATH) || ROOM_FLAGGED(i, ROOM_ICEDEATH))
+		if (ROOM_FLAGGED(i, ERoomFlag::kSlowDeathTrap) || ROOM_FLAGGED(i, ERoomFlag::kIceTrap))
 			room_list.push_back(world[i]);
 }
 
@@ -39,7 +39,7 @@ void DeathTrap::load() {
 * Добавление новой комнаты с проверкой на присутствие
 * \param room - комната, кот. добавляем
 */
-void DeathTrap::add(RoomData *room) {
+void deathtrap::add(RoomData *room) {
 	std::list<RoomData *>::const_iterator it = std::find(room_list.begin(), room_list.end(), room);
 	if (it == room_list.end())
 		room_list.push_back(room);
@@ -49,7 +49,7 @@ void DeathTrap::add(RoomData *room) {
 * Удаление комнаты из списка слоу-дт
 * \param room - комната, кот. удаляем
 */
-void DeathTrap::remove(RoomData *room) {
+void deathtrap::remove(RoomData *room) {
 	room_list.remove(room);
 }
 
@@ -57,11 +57,11 @@ void DeathTrap::remove(RoomData *room) {
 /// Доп список строится для случаев, когда в списке комнаты сначала идет чар,
 /// а следом его чармисы и последовательный проход по ch->next_in_room
 /// с пуржем чара натыкается далее на обнуленные структуры чармисов.
-void DeathTrap::activity() {
+void deathtrap::activity() {
 	for (auto it = room_list.cbegin(); it != room_list.cend(); ++it) {
 		const auto people = (*it)->people; // make copy of people in the room
 		for (const auto i : people) {
-			if (i->purged() || IS_NPC(i)) {
+			if (i->purged() || i->is_npc()) {
 				continue;
 			}
 			std::string name = i->get_name_str();
@@ -81,7 +81,7 @@ void DeathTrap::activity() {
 }
 
 // * Логирование в отдельный файл уходов в дт для интересу и мб статистики.
-void DeathTrap::log_death_trap(CharData *ch) {
+void deathtrap::log_death_trap(CharData *ch) {
 	const char *filename = "../log/death_trap.log";
 	static FILE *file = 0;
 	if (!file) {
@@ -98,18 +98,18 @@ void DeathTrap::log_death_trap(CharData *ch) {
 }
 
 // * Попадание в обычное дт.
-int DeathTrap::check_death_trap(CharData *ch) {
-	if (ch->in_room != kNowhere && !PRF_FLAGGED(ch, PRF_CODERINFO)) {
-		if ((ROOM_FLAGGED(ch->in_room, ROOM_DEATH)
+int deathtrap::check_death_trap(CharData *ch) {
+	if (ch->in_room != kNowhere && !PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
+		if ((ROOM_FLAGGED(ch->in_room, ERoomFlag::kDeathTrap)
 			&& !IS_IMMORTAL(ch))
-			|| (real_sector(ch->in_room) == kSectOnlyFlying && !IS_NPC(ch)
+			|| (real_sector(ch->in_room) == ESector::kOnlyFlying && !ch->is_npc()
 				&& !IS_GOD(ch)
-				&& !AFF_FLAGGED(ch, EAffectFlag::AFF_FLY))
-			|| (real_sector(ch->in_room) == kSectWaterNoswim && !IS_NPC(ch)
+				&& !AFF_FLAGGED(ch, EAffect::kFly))
+			|| (real_sector(ch->in_room) == ESector::kWaterNoswim && !ch->is_npc()
 				&& !IS_GOD(ch)
 				&& !has_boat(ch))) {
 			ObjData *corpse;
-			DeathTrap::log_death_trap(ch);
+			deathtrap::log_death_trap(ch);
 
 			if (check_tester_death(ch, nullptr)) {
 				sprintf(buf1,
@@ -129,22 +129,22 @@ int DeathTrap::check_death_trap(CharData *ch) {
 			//конец правки (с) Василиса
 			corpse = make_corpse(ch);
 			if (corpse != nullptr) {
-				obj_from_room(corpse);    // для того, чтобы удалилость все содержимое
-				extract_obj(corpse);
+				ExtractObjFromRoom(corpse);    // для того, чтобы удалилость все содержимое
+				ExtractObjFromWorld(corpse);
 			}
 			GET_HIT(ch) = GET_MOVE(ch) = 0;
 			if (NORENTABLE(ch)) {
 				die(ch, nullptr);
 			} else
-				extract_char(ch, true);
+				ExtractCharFromWorld(ch, true);
 			return true;
 		}
 	}
 	return false;
 }
 
-bool DeathTrap::is_slow_dt(int rnum) {
-	if (ROOM_FLAGGED(rnum, ROOM_SLOWDEATH) || ROOM_FLAGGED(rnum, ROOM_ICEDEATH))
+bool deathtrap::IsSlowDeathtrap(int rnum) {
+	if (ROOM_FLAGGED(rnum, ERoomFlag::kSlowDeathTrap) || ROOM_FLAGGED(rnum, ERoomFlag::kIceTrap))
 		return true;
 	return false;
 }
@@ -153,10 +153,10 @@ bool DeathTrap::is_slow_dt(int rnum) {
 /// \return если > 0, то величину дамага,
 /// иначе - чара в tunnel_damage() не дамагнет
 int calc_tunnel_dmg(CharData *ch, int room_rnum) {
-	if (!IS_NPC(ch)
+	if (!ch->is_npc()
 		&& !IS_IMMORTAL(ch)
 		&& NORENTABLE(ch)
-		&& ROOM_FLAGGED(room_rnum, ROOM_TUNNEL)) {
+		&& ROOM_FLAGGED(room_rnum, ERoomFlag::kTunnel)) {
 		return std::max(20, GET_REAL_MAX_HIT(ch) >> 3);
 	}
 	return 0;
@@ -164,7 +164,7 @@ int calc_tunnel_dmg(CharData *ch, int room_rnum) {
 
 /// \return true - чара может убить сразу при входе в ванрум
 /// предполагается не пускать чара на верную смерть
-bool DeathTrap::check_tunnel_death(CharData *ch, int room_rnum) {
+bool deathtrap::check_tunnel_death(CharData *ch, int room_rnum) {
 	const int dam = calc_tunnel_dmg(ch, room_rnum);
 	if (dam > 0 && GET_HIT(ch) <= dam * 2) {
 		return true;
@@ -174,7 +174,7 @@ bool DeathTrap::check_tunnel_death(CharData *ch, int room_rnum) {
 
 /// дамаг чаров с бд в ван-румах раз в 2 секунды (SECS_PER_PLAYER_AFFECT)
 /// и просто по факту входа (char_to_room), чтобы не так резво скакали
-bool DeathTrap::tunnel_damage(CharData *ch) {
+bool deathtrap::tunnel_damage(CharData *ch) {
 	const int dam = calc_tunnel_dmg(ch, ch->in_room);
 	if (dam > 0) {
 		const int room_rnum = ch->in_room;

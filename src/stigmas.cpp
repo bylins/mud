@@ -18,7 +18,7 @@ void do_touch_stigma(CharacterData *ch, char* argument, int, int)
 		return;
 	}
 
-	if (!(vict = get_player_vis(ch, buf, FIND_CHAR_WORLD)))
+	if (!(vict = get_player_vis(ch, buf, EFind::kCharInWorld)))
 	{
 		ch->touch_stigma(buf);
 	}

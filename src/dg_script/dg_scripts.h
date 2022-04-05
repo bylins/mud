@@ -16,6 +16,7 @@
 #include "structs/structs.h"
 #include "utils/logger.h"
 #include <optional>
+#include <feats.h>
 
 struct RoomData;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 
@@ -449,16 +450,15 @@ int remove_var_cntx(struct TriggerVar **var_list, char *name, long id);
 
 // player id's: 0 to ROOM_ID_BASE - 1            //
 // room id's: ROOM_ID_BASE to MOBOBJ_ID_BASE - 1 //
-#define ROOM_ID_BASE    150000
+const int kRoomToBase = 150000;
 
 #define SCRIPT_TYPES(s)          ((s)->types)
-#define TRIGGERS(s)          ((s)->trig_list)
 
 #define GET_SHORT(ch)    ((ch)->get_npc_name().c_str())
 
-bool SCRIPT_CHECK(const ObjData *go, const long type);
-bool SCRIPT_CHECK(const CharData *go, const long type);
-bool SCRIPT_CHECK(const RoomData *go, const long type);
+bool CheckSript(const ObjData *go, const long type);
+bool CheckScript(const CharData *go, const long type);
+bool CheckSript(const RoomData *go, const long type);
 
 #define TRIGGER_CHECK(t, type)   (IS_SET(GET_TRIG_TYPE(t), type) && \
                   !GET_TRIG_DEPTH(t))
@@ -477,7 +477,7 @@ int open_wtrigger(RoomData *room, CharData *actor, int dir, int unlock);
 int close_wtrigger(RoomData *room, CharData *actor, int dir, int lock);
 int timechange_wtrigger(RoomData *room, const int time);
 
-void trg_featturn(CharData *ch, int featnum, int featdiff, int vnum);
+void trg_featturn(CharData *ch, EFeat feat_id, int featdiff, int vnum);
 void trg_skillturn(CharData *ch, const ESkill skillnum, int skilldiff, int vnum);
 void AddSkill(CharData *ch, const ESkill skillnum, int skilldiff, int vnum);
 void trg_spellturn(CharData *ch, int spellnum, int spelldiff, int vnum);

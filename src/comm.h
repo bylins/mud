@@ -110,8 +110,8 @@ const int kToDeaf = 32;				// посылать только глухим
 const int kToNotDeaf = 64;			// не посылать глухим
 const int kToSleep = 128;			// to char, even if sleeping
 const int kToArenaListen = 512;		// не отсылать сообщение с арены слушателям, чтоб не спамить передвижениями и тп
-const int kToBriefShields = 1024;	// отсылать только тем, у кого включен режим PRF_BRIEF_SHIELDS
-const int kToNoBriefShields = 2048;	// отсылать только тем, у кого нет режима PRF_BRIEF_SHIELDS
+const int kToBriefShields = 1024;	// отсылать только тем, у кого включен режим EPrf::BRIEF_SHIELDS
+const int kToNoBriefShields = 2048;	// отсылать только тем, у кого нет режима EPrf::BRIEF_SHIELDS
 
 // I/O functions
 int write_to_descriptor(socket_t desc, const char *txt, size_t total);

@@ -63,29 +63,29 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 
 	argument = two_arguments(argument, arg1, arg2);
 
-	if (IS_NPC(ch) || !ch->get_skill(ESkill::kJewelry)) {
+	if (ch->is_npc() || !ch->get_skill(ESkill::kJewelry)) {
 		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}
 
 	if (!IS_IMMORTAL(ch)) {
-		if (!ROOM_FLAGGED(ch->in_room, ROOM_SMITH)) {
+		if (!ROOM_FLAGGED(ch->in_room, ERoomFlag::kForge)) {
 			send_to_char("Вам нужно попасть в кузницу для этого.\r\n", ch);
 			return;
 		}
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
+	if (AFF_FLAGGED(ch, EAffect::kBlind)) {
 		send_to_char("Вы слепы!\r\n", ch);
 		return;
 	}
 
-	if (IS_DARK(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !IS_IMMORTAL(ch)) {
+	if (is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !IS_IMMORTAL(ch)) {
 		send_to_char("Да тут темно хоть глаза выколи...\r\n", ch);
 		return;
 	}
 
-	if (!WAITLESS(ch) && ch->ahorse()) {
+	if (!IS_IMMORTAL(ch) && ch->ahorse()) {
 		send_to_char("Верхом это сделать затруднительно.\r\n", ch);
 		return;
 	}
@@ -119,16 +119,16 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		send_to_char(buf, ch);
 		return;
 	}
-	if (GET_OBJ_MATER(itemobj) == ObjData::MAT_NONE || (GET_OBJ_MATER(itemobj) > ObjData::MAT_COLOR)) {
-		if (!(GET_OBJ_MATER(itemobj) == ObjData::MAT_BONE || GET_OBJ_MATER(itemobj) == ObjData::MAT_ROCK)) {
+	if (GET_OBJ_MATER(itemobj) == EObjMaterial::kMaterialUndefined || (GET_OBJ_MATER(itemobj) > EObjMaterial::kPreciousMetel)) {
+		if (!(GET_OBJ_MATER(itemobj) == EObjMaterial::kBone || GET_OBJ_MATER(itemobj) == EObjMaterial::kStone)) {
 			sprintf(buf, "%s состоит из неподходящего материала.\r\n", itemobj->get_PName(0).c_str());
 			send_to_char(buf, ch);
 			return;
 		}
 	}
-	if (!OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_WITH1SLOT)
-		&& !OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_WITH2SLOTS)
-		&& !OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_WITH3SLOTS)) {
+	if (!itemobj->has_flag(EObjFlag::kHasOneSlot)
+		&& !itemobj->has_flag(EObjFlag::kHasTwoSlots)
+		&& !itemobj->has_flag(EObjFlag::kHasThreeSlots)) {
 		send_to_char("Вы не видите куда здесь можно вплавить камень.\r\n", ch);
 		return;
 	}
@@ -139,7 +139,7 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	WAIT_STATE(ch, kPulseViolence);
 
 	for (int i = 0; i < kMaxObjAffect; i++) {
-		if (itemobj->get_affected(i).location == APPLY_NONE) {
+		if (itemobj->get_affected(i).location == EApply::kNone) {
 			prob -= i * insgem_vars.minus_for_affect;
 			break;
 		}
@@ -165,13 +165,13 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 					gemobj->get_PName(3).c_str(),
 					itemobj->get_PName(3).c_str());
 			act(buf, false, ch, nullptr, nullptr, kToRoom);
-			extract_obj(gemobj);
+			ExtractObjFromWorld(gemobj);
 			if (number(1, 100) <= insgem_vars.dikey_percent) {
 				sprintf(buf, "...и испортив хорошую вещь!\r\n");
 				send_to_char(buf, ch);
 				sprintf(buf, "$n испортил$g %s!\r\n", itemobj->get_PName(3).c_str());
 				act(buf, false, ch, nullptr, nullptr, kToRoom);
-				extract_obj(itemobj);
+				ExtractObjFromWorld(itemobj);
 			}
 			return;
 		}
@@ -206,7 +206,7 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 					gemobj->get_PName(3).c_str(),
 					itemobj->get_PName(3).c_str());
 			act(buf, false, ch, nullptr, nullptr, kToRoom);
-			extract_obj(gemobj);
+			ExtractObjFromWorld(gemobj);
 			return;
 		}
 	}
@@ -224,7 +224,7 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		itemobj->set_timer(timer);
 	}
 
-	if (GET_OBJ_MATER(gemobj) == ObjData::MAT_DIAMOND) {
+	if (GET_OBJ_MATER(gemobj) == EObjMaterial::kDiamond) {
 		std::string effect;
 		if (!*arg3) {
 			int gem_vnum = GET_OBJ_VNUM(gemobj);
@@ -239,13 +239,13 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		tmp_type = iwg.get_type(GET_OBJ_VNUM(gemobj), effect);
 		switch (tmp_type) {
 			case 1: 
-				set_obj_eff(itemobj, static_cast<EApplyLocation>(tmp_bit), tmp_qty);
+				set_obj_eff(itemobj, static_cast<EApply>(tmp_bit), tmp_qty);
 				break;
 			case 2: 
-				set_obj_aff(itemobj, static_cast<EAffectFlag>(tmp_bit));
+				set_obj_aff(itemobj, static_cast<EAffect>(tmp_bit));
 				break;
 			case 3: 
-				itemobj->set_extra_flag(static_cast<EExtraFlag>(tmp_bit));
+				itemobj->set_extra_flag(static_cast<EObjFlag>(tmp_bit));
 				break;
 			case 4:
 				itemobj->set_skill(static_cast<ESkill>(tmp_bit), tmp_qty);
@@ -255,20 +255,20 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		}
 	}
 
-	if (OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_WITH3SLOTS)) {
-		itemobj->unset_extraflag(EExtraFlag::ITEM_WITH3SLOTS);
-		itemobj->set_extra_flag(EExtraFlag::ITEM_WITH2SLOTS);
-	} else if (OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_WITH2SLOTS)) {
-		itemobj->unset_extraflag(EExtraFlag::ITEM_WITH2SLOTS);
-		itemobj->set_extra_flag(EExtraFlag::ITEM_WITH1SLOT);
-	} else if (OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_WITH1SLOT)) {
-		itemobj->unset_extraflag(EExtraFlag::ITEM_WITH1SLOT);
+	if (itemobj->has_flag(EObjFlag::kHasThreeSlots)) {
+		itemobj->unset_extraflag(EObjFlag::kHasThreeSlots);
+		itemobj->set_extra_flag(EObjFlag::kHasTwoSlots);
+	} else if (itemobj->has_flag(EObjFlag::kHasTwoSlots)) {
+		itemobj->unset_extraflag(EObjFlag::kHasTwoSlots);
+		itemobj->set_extra_flag(EObjFlag::kHasOneSlot);
+	} else if (itemobj->has_flag(EObjFlag::kHasOneSlot)) {
+		itemobj->unset_extraflag(EObjFlag::kHasOneSlot);
 	}
 
-	if (!OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_TRANSFORMED)) {
-		itemobj->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED);
+	if (!itemobj->has_flag(EObjFlag::kTransformed)) {
+		itemobj->set_extra_flag(EObjFlag::kTransformed);
 	}
-	extract_obj(gemobj);
+	ExtractObjFromWorld(gemobj);
 }
 
 void insert_wanted_gem::show(CharData *ch, int gem_vnum) {

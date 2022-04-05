@@ -5,7 +5,7 @@
 
 // ******************* BLOCK PROCEDURES
 void go_block(CharData *ch) {
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPLEFT)) {
+	if (AFF_FLAGGED(ch, EAffect::kStopLeft)) {
 		send_to_char("Ваша рука парализована.\r\n", ch);
 		return;
 	}
@@ -14,7 +14,7 @@ void go_block(CharData *ch) {
 }
 
 void do_block(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch) || !ch->get_skill(ESkill::kShieldBlock)) {
+	if (ch->is_npc() || !ch->get_skill(ESkill::kShieldBlock)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -26,10 +26,10 @@ void do_block(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Но вы ни с кем не сражаетесь!\r\n", ch);
 		return;
 	};
-	if (!(IS_NPC(ch)
-		|| GET_EQ(ch, WEAR_SHIELD)
+	if (!(ch->is_npc()
+		|| GET_EQ(ch, kShield)
 		|| IS_IMMORTAL(ch)
-		|| GET_GOD_FLAG(ch, GF_GODSLIKE))) {
+		|| GET_GOD_FLAG(ch, EGf::kGodsLike))) {
 		send_to_char("Вы не можете сделать это без щита.\r\n", ch);
 		return;
 	}

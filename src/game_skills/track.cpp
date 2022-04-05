@@ -45,8 +45,8 @@ int go_track(CharData *ch, CharData *victim, const ESkill skill_no) {
 	int percent, dir;
 	int if_sense;
 
-	if (AFF_FLAGGED(victim, EAffectFlag::AFF_NOTRACK) && (skill_no != ESkill::kSense)) {
-		return BFS_ERROR;
+	if (AFF_FLAGGED(victim, EAffect::kNoTrack) && (skill_no != ESkill::kSense)) {
+		return kBfsError;
 	}
 	// 101 is a complete failure, no matter what the proficiency.
 	//Временная затычка. Перевести на резисты
@@ -54,7 +54,7 @@ int go_track(CharData *ch, CharData *victim, const ESkill skill_no) {
 	if_sense = (skill_no == ESkill::kSense) ? 100 : 0;
 	percent = number(0, MUD::Skills()[skill_no].difficulty - if_sense);
 	//current_skillpercent = GET_SKILL(ch, ESkill::kSense);
-	if ((!IS_NPC(victim)) && (!IS_GOD(ch)) && (!IS_NPC(ch))) //Если цель чар и ищет не бог
+	if ((!victim->is_npc()) && (!IS_GOD(ch)) && (!ch->is_npc())) //Если цель чар и ищет не бог
 	{
 		percent = MIN(99, number(0, GET_REAL_REMORT(victim)) + percent);
 	}
@@ -62,7 +62,7 @@ int go_track(CharData *ch, CharData *victim, const ESkill skill_no) {
 		int tries = 10;
 		// Find a random direction. :)
 		do {
-			dir = number(0, kDirMaxNumber - 1);
+			dir = number(0, EDirection::kMaxDirNum - 1);
 		} while (!CAN_GO(ch, dir) && --tries);
 		return dir;
 	}
@@ -78,17 +78,17 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char name[kMaxInputLength];
 
 	// The character must have the track skill.
-	if (IS_NPC(ch) || !ch->get_skill(ESkill::kTrack)) {
+	if (ch->is_npc() || !ch->get_skill(ESkill::kTrack)) {
 		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
+	if (AFF_FLAGGED(ch, EAffect::kBlind)) {
 		send_to_char("Вы слепы как крот.\r\n", ch);
 		return;
 	}
 
-	if (!check_moves(ch, can_use_feat(ch, TRACKER_FEAT) ? TRACK_MOVES / 2 : TRACK_MOVES))
+	if (!check_moves(ch, IsAbleToUseFeat(ch, EFeat::kTracker) ? TRACK_MOVES / 2 : TRACK_MOVES))
 		return;
 
 	calc_track = CalcCurrentSkill(ch, ESkill::kTrack, nullptr);
@@ -112,7 +112,7 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 			if (*name && calc_track > number(1, 40)) {
 				CAP(name);
-				for (track_t = i = 0; i < kDirMaxNumber; i++) {
+				for (track_t = i = 0; i < EDirection::kMaxDirNum; i++) {
 					track_t |= track->time_outgone[i];
 					track_t |= track->time_income[i];
 				}
@@ -127,7 +127,7 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if ((vict = get_char_vis(ch, arg, FIND_CHAR_ROOM))) {
+	if ((vict = get_char_vis(ch, arg, EFind::kCharInRoom))) {
 		act("Вы же в одной комнате с $N4!", false, ch, nullptr, vict, kToChar);
 		return;
 	}
@@ -152,7 +152,7 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			*name = '\0';
 	}
 
-	if (calc_track < number(1, 40) || !*name || ROOM_FLAGGED(ch->in_room, ROOM_NOTRACK)) {
+	if (calc_track < number(1, 40) || !*name || ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoTrack)) {
 		send_to_char("Вы не видите похожих следов.\r\n", ch);
 		return;
 	}
@@ -161,7 +161,7 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CAP(name);
 	sprintf(buf, "%s:\r\n", name);
 
-	for (int c = 0; c < kDirMaxNumber; c++) {
+	for (int c = 0; c < EDirection::kMaxDirNum; c++) {
 		if ((track && track->time_income[c]
 			&& calc_track >= number(0, MUD::Skills()[ESkill::kTrack].difficulty))
 			|| (!track && calc_track < number(0, MUD::Skills()[ESkill::kTrack].difficulty))) {
@@ -192,17 +192,17 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_hidetrack(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	struct TrackData *track[kDirMaxNumber + 1], *temp;
+	struct TrackData *track[EDirection::kMaxDirNum + 1], *temp;
 	int percent, prob, i, croom, found = false, dir, rdir;
 
-	if (IS_NPC(ch) || !ch->get_skill(ESkill::kHideTrack)) {
+	if (ch->is_npc() || !ch->get_skill(ESkill::kHideTrack)) {
 		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}
 
 	croom = ch->in_room;
 
-	for (dir = 0; dir < kDirMaxNumber; dir++) {
+	for (dir = 0; dir < EDirection::kMaxDirNum; dir++) {
 		track[dir] = nullptr;
 		rdir = Reverse[dir];
 		if (EXITDATA(croom, dir) &&
@@ -219,12 +219,12 @@ void do_hidetrack(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 		}
 	}
 
-	track[kDirMaxNumber] = nullptr;
+	track[EDirection::kMaxDirNum] = nullptr;
 	for (temp = world[ch->in_room]->track; temp; temp = temp->next)
 		if (!IS_SET(temp->track_info, TRACK_NPC) &&
 			GET_IDNUM(ch) == temp->who && !IS_SET(temp->track_info, TRACK_HIDE)) {
 			found = true;
-			track[kDirMaxNumber] = temp;
+			track[EDirection::kMaxDirNum] = temp;
 			break;
 		}
 
@@ -232,7 +232,7 @@ void do_hidetrack(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 		send_to_char("Вы не видите своих следов.\r\n", ch);
 		return;
 	}
-	if (!check_moves(ch, can_use_feat(ch, STEALTHY_FEAT) ? HIDETRACK_MOVES / 2 : HIDETRACK_MOVES))
+	if (!check_moves(ch, IsAbleToUseFeat(ch, EFeat::kStealthy) ? HIDETRACK_MOVES / 2 : HIDETRACK_MOVES))
 		return;
 	percent = number(1, MUD::Skills()[ESkill::kHideTrack].difficulty);
 	prob = CalcCurrentSkill(ch, ESkill::kHideTrack, nullptr);
@@ -245,12 +245,12 @@ void do_hidetrack(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 		if (!number(0, 25 - IsTimedBySkill(ch, ESkill::kHideTrack) ? 0 : 15))
 			ImproveSkill(ch, ESkill::kHideTrack, true, nullptr);
 		prob -= percent;
-		for (i = 0; i <= kDirMaxNumber; i++)
+		for (i = 0; i <= EDirection::kMaxDirNum; i++)
 			if (track[i]) {
-				if (i < kDirMaxNumber)
+				if (i < EDirection::kMaxDirNum)
 					track[i]->time_outgone[Reverse[i]] <<= MIN(31, prob);
 				else
-					for (rdir = 0; rdir < kDirMaxNumber; rdir++) {
+					for (rdir = 0; rdir < EDirection::kMaxDirNum; rdir++) {
 						track[i]->time_income[rdir] <<= MIN(31, prob);
 						track[i]->time_outgone[rdir] <<= MIN(31, prob);
 					}
@@ -259,7 +259,7 @@ void do_hidetrack(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 			}
 	}
 
-	for (i = 0; i <= kDirMaxNumber; i++)
+	for (i = 0; i <= EDirection::kMaxDirNum; i++)
 		if (track[i])
 			SET_BIT(track[i]->track_info, TRACK_HIDE);
 }

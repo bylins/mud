@@ -11,12 +11,12 @@ extern void CheckAutoNosummon(CharData *ch);
 void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	struct TimedFeat timed;
 
-	if (!can_use_feat(ch, RELOCATE_FEAT)) {
+	if (!IsAbleToUseFeat(ch, EFeat::kRelocate)) {
 		send_to_char("Вам это недоступно.\r\n", ch);
 		return;
 	}
 
-	if (IsTimed(ch, RELOCATE_FEAT)
+	if (IsTimed(ch, EFeat::kRelocate)
 #ifdef TEST_BUILD
 		&& !IS_IMMORTAL(ch)
 #endif
@@ -32,29 +32,29 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	CharData *victim = get_player_vis(ch, arg, FIND_CHAR_WORLD);
+	CharData *victim = get_player_vis(ch, arg, EFind::kCharInWorld);
 
 	if (!victim) {
 		send_to_char(NOPERSON, ch);
 		return;
 	}
 
-	if (IS_NPC(victim)) {
+	if (victim->is_npc()) {
 		send_to_char("Попытка перемещения не удалась.\r\n", ch);
 		return;
 	}
 
-	if (GetRealLevel(victim) > GetRealLevel(ch) && !PRF_FLAGGED(victim, PRF_SUMMONABLE) && !same_group(ch, victim)) {
+	if (GetRealLevel(victim) > GetRealLevel(ch) && !PRF_FLAGGED(victim, EPrf::KSummonable) && !same_group(ch, victim)) {
 		send_to_char("Попытка перемещения не удалась.\r\n", ch);
 		return;
 	}
 
 	if (!IS_GOD(ch)) {
-		if (ROOM_FLAGGED(ch->in_room, ROOM_NOTELEPORTOUT)) {
+		if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoTeleportOut)) {
 			send_to_char("Попытка перемещения не удалась.\r\n", ch);
 			return;
 		}
-		if (AFF_FLAGGED(ch, EAffectFlag::AFF_NOTELEPORT)) {
+		if (AFF_FLAGGED(ch, EAffect::kNoTeleport)) {
 			send_to_char("Попытка перемещения не удалась.\r\n", ch);
 			return;
 		}
@@ -67,7 +67,7 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!Clan::MayEnter(ch, to_room, HCE_PORTAL))
+	if (!Clan::MayEnter(ch, to_room, kHousePortal))
 		fnd_room = Clan::CloseRent(to_room);
 	else
 		fnd_room = to_room;
@@ -78,34 +78,34 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (!IS_GOD(ch) &&
-		(SECT(fnd_room) == kSectSecret ||
-			ROOM_FLAGGED(fnd_room, ROOM_DEATH) ||
-			ROOM_FLAGGED(fnd_room, ROOM_SLOWDEATH) ||
-			ROOM_FLAGGED(fnd_room, ROOM_TUNNEL) ||
-			ROOM_FLAGGED(fnd_room, ROOM_NORELOCATEIN) ||
-			ROOM_FLAGGED(fnd_room, ROOM_ICEDEATH) || (ROOM_FLAGGED(fnd_room, ROOM_GODROOM) && !IS_IMMORTAL(ch)))) {
+		(SECT(fnd_room) == ESector::kSecret ||
+			ROOM_FLAGGED(fnd_room, ERoomFlag::kDeathTrap) ||
+			ROOM_FLAGGED(fnd_room, ERoomFlag::kSlowDeathTrap) ||
+			ROOM_FLAGGED(fnd_room, ERoomFlag::kTunnel) ||
+			ROOM_FLAGGED(fnd_room, ERoomFlag::kNoRelocateIn) ||
+			ROOM_FLAGGED(fnd_room, ERoomFlag::kIceTrap) || (ROOM_FLAGGED(fnd_room, ERoomFlag::kGodsRoom) && !IS_IMMORTAL(ch)))) {
 		send_to_char("Попытка перемещения не удалась.\r\n", ch);
 		return;
 	}
-	timed.feat = RELOCATE_FEAT;
+	timed.feat = EFeat::kRelocate;
 	if (!enter_wtrigger(world[fnd_room], ch, -1))
 			return;
 	act("$n медленно исчез$q из виду.", true, ch, nullptr, nullptr, kToRoom);
 	send_to_char("Лазурные сполохи пронеслись перед вашими глазами.\r\n", ch);
-	char_from_room(ch);
-	char_to_room(ch, fnd_room);
+	ExtractCharFromRoom(ch);
+	PlaceCharToRoom(ch, fnd_room);
 	ch->dismount();
 	act("$n медленно появил$u откуда-то.", true, ch, nullptr, nullptr, kToRoom);
-	if (!(PRF_FLAGGED(victim, PRF_SUMMONABLE) || same_group(ch, victim) || IS_IMMORTAL(ch)
-		|| ROOM_FLAGGED(fnd_room, ROOM_ARENA))) {
+	if (!(PRF_FLAGGED(victim, EPrf::KSummonable) || same_group(ch, victim) || IS_IMMORTAL(ch)
+		|| ROOM_FLAGGED(fnd_room, ERoomFlag::kArena))) {
 		send_to_char(ch, "%sВаш поступок был расценен как потенциально агрессивный.%s\r\n",
 					 CCIRED(ch, C_NRM), CCINRM(ch, C_NRM));
 		pkPortal(ch);
 		timed.time = 18 - MIN(GET_REAL_REMORT(ch), 15);
 		WAIT_STATE(ch, 3 * kPulseViolence);
-		Affect<EApplyLocation> af;
+		Affect<EApply> af;
 		af.duration = CalcDuration(ch, 3, 0, 0, 0, 0);
-		af.bitvector = to_underlying(EAffectFlag::AFF_NOTELEPORT);
+		af.bitvector = to_underlying(EAffect::kNoTeleport);
 		af.battleflag = kAfPulsedec;
 		affect_to_char(ch, af);
 	} else {

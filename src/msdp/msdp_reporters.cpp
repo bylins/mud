@@ -26,10 +26,10 @@ void RoomReporter::get(Variable::shared_ptr &response) {
 	const auto directions = world[rnum]->dir_option;
 	std::string from_direction = "-";
 
-	for (int i = 0; i < kDirMaxNumber; ++i) {
+	for (int i = 0; i < EDirection::kMaxDirNum; ++i) {
 		if (directions[i]
-			&& !EXIT_FLAGGED(directions[i], EX_HIDDEN)) {
-			const static std::string direction_commands[kDirMaxNumber] = {"n", "e", "s", "w", "u", "d"};
+			&& !EXIT_FLAGGED(directions[i], EExitFlag::kHidden)) {
+			const static std::string direction_commands[EDirection::kMaxDirNum] = {"n", "e", "s", "w", "u", "d"};
 			const auto to_rnum = directions[i]->to_room();
 			if (to_rnum == from_rnum) {
 				from_direction = direction_commands[i];
@@ -83,12 +83,12 @@ void RoomReporter::get(Variable::shared_ptr &response) {
 
 bool RoomReporter::blockReport() const {
 	bool nomapper = true;
-	const auto blind = (PRF_FLAGGED(descriptor()->character, PRF_BLIND)) //В режиме слепого игрока карта недоступна
-		|| (AFF_FLAGGED((descriptor()->character), EAffectFlag::AFF_BLIND));  //Слепому карта не поможет!
+	const auto blind = (PRF_FLAGGED(descriptor()->character, EPrf::kBlindMode)) //В режиме слепого игрока карта недоступна
+		|| (AFF_FLAGGED((descriptor()->character), EAffect::kBlind));  //Слепому карта не поможет!
 	const auto cannot_see_in_dark = (is_dark(IN_ROOM(descriptor()->character)) && !CAN_SEE_IN_DARK(descriptor()->character));
 	if (descriptor()->character->in_room != kNowhere)
-		nomapper = ROOM_FLAGGED(descriptor()->character->in_room, ROOM_NOMAPPER);
-	const auto scriptwriter = PLR_FLAGGED(descriptor()->character, PLR_SCRIPTWRITER); // скриптеру не шлем
+		nomapper = ROOM_FLAGGED(descriptor()->character->in_room, ERoomFlag::kMoMapper);
+	const auto scriptwriter = PLR_FLAGGED(descriptor()->character, EPlrFlag::kScriptWriter); // скриптеру не шлем
 
 	return blind || cannot_see_in_dark || scriptwriter || nomapper;
 }
@@ -148,7 +148,7 @@ void StateReporter::get(Variable::shared_ptr &response) {
 										  std::make_shared<StringValue>(current_move)));
 
 	if (IS_MANA_CASTER(descriptor()->character)) {
-		const auto current_mana = std::to_string(GET_MANA_STORED(descriptor()->character));
+		const auto current_mana = std::to_string(descriptor()->character->mem_queue.stored);
 		state->add(std::make_shared<Variable>("CURRENT_MANA",
 											  std::make_shared<StringValue>(current_mana)));
 	}
@@ -160,9 +160,9 @@ void GroupReporter::append_char(const std::shared_ptr<ArrayValue> &group,
 								const CharData *ch,
 								const CharData *character,
 								const bool leader) {
-	if (PRF_FLAGGED(ch, PRF_NOCLONES)
-		&& IS_NPC(character)
-		&& (MOB_FLAGGED(character, MOB_CLONE)
+	if (PRF_FLAGGED(ch, EPrf::kNoClones)
+		&& character->is_npc()
+		&& (MOB_FLAGGED(character, EMobFlag::kClone)
 			|| GET_MOB_VNUM(character) == kMobKeeper)) {
 		return;
 	}
@@ -187,33 +187,33 @@ void GroupReporter::append_char(const std::shared_ptr<ArrayValue> &group,
 	member->add(std::make_shared<Variable>("MEM_TIME", std::make_shared<StringValue>(std::to_string(memory))));
 
 	std::string affects;
-	affects += AFF_FLAGGED(character, EAffectFlag::AFF_SANCTUARY)
+	affects += AFF_FLAGGED(character, EAffect::kSanctuary)
 			   ? "О"
-			   : (AFF_FLAGGED(character, EAffectFlag::AFF_PRISMATICAURA) ? "П" : "");
-	if (AFF_FLAGGED(character, EAffectFlag::AFF_WATERBREATH)) {
+			   : (AFF_FLAGGED(character, EAffect::kPrismaticAura) ? "П" : "");
+	if (AFF_FLAGGED(character, EAffect::kWaterBreath)) {
 		affects += "Д";
 	}
 
-	if (AFF_FLAGGED(character, EAffectFlag::AFF_INVISIBLE)) {
+	if (AFF_FLAGGED(character, EAffect::kInvisible)) {
 		affects += "Н";
 	}
 
-	if (AFF_FLAGGED(character, EAffectFlag::AFF_SINGLELIGHT)
-		|| AFF_FLAGGED(character, EAffectFlag::AFF_HOLYLIGHT)
-		|| (GET_EQ(character, WEAR_LIGHT)
-			&& GET_OBJ_VAL(GET_EQ(character, WEAR_LIGHT), 2))) {
+	if (AFF_FLAGGED(character, EAffect::kSingleLight)
+		|| AFF_FLAGGED(character, EAffect::kHolyLight)
+		|| (GET_EQ(character, EEquipPos::kLight)
+			&& GET_OBJ_VAL(GET_EQ(character, EEquipPos::kLight), 2))) {
 		affects += "С";
 	}
 
-	if (AFF_FLAGGED(character, EAffectFlag::AFF_FLY)) {
+	if (AFF_FLAGGED(character, EAffect::kFly)) {
 		affects += "Л";
 	}
 
-	if (!IS_NPC(character) && character->ahorse()) {
+	if (!character->is_npc() && character->ahorse()) {
 		affects += "В";
 	}
 
-	if (IS_NPC(character)
+	if (character->is_npc()
 		&& character->low_charm()) {
 		affects += "Т";
 	}
@@ -221,7 +221,7 @@ void GroupReporter::append_char(const std::shared_ptr<ArrayValue> &group,
 	descriptor()->string_to_client_encoding(affects.c_str(), buffer);
 	member->add(std::make_shared<Variable>("AFFECTS", std::make_shared<StringValue>(buffer)));
 
-	const auto leader_value = leader ? "leader" : (IS_NPC(character) ? "npc" : "pc");
+	const auto leader_value = leader ? "leader" : (character->is_npc() ? "npc" : "pc");
 	member->add(std::make_shared<Variable>("ROLE", std::make_shared<StringValue>(leader_value)));
 
 	char position[kMaxInputLength];
@@ -235,16 +235,16 @@ void GroupReporter::append_char(const std::shared_ptr<ArrayValue> &group,
 int GroupReporter::get_mem(const CharData *character) const {
 	int result = 0;
 	int div = 0;
-	if (!IS_NPC(character)
-		&& ((!IS_MANA_CASTER(character) && !MEMQUEUE_EMPTY(character))
-			|| (IS_MANA_CASTER(character) && GET_MANA_STORED(character) < GET_MAX_MANA(character)))) {
+	if (!character->is_npc()
+		&& ((!IS_MANA_CASTER(character) && !character->mem_queue.Empty())
+			|| (IS_MANA_CASTER(character) && character->mem_queue.stored < GET_MAX_MANA(character)))) {
 		div = mana_gain(character);
 		if (div > 0) {
 			if (!IS_MANA_CASTER(character)) {
-				result = MAX(0, 1 + GET_MEM_TOTAL(character) - GET_MEM_COMPLETED(character));
+				result = std::max(0, 1 + character->mem_queue.total - character->mem_queue.stored);
 				result = result * 60 / div;
 			} else {
-				result = MAX(0, 1 + GET_MAX_MANA(character) - GET_MANA_STORED(character));
+				result = std::max(0, 1 + GET_MAX_MANA(character) - character->mem_queue.stored);
 				result = result / div;
 			}
 		} else {
@@ -274,24 +274,24 @@ void GroupReporter::get(Variable::shared_ptr &response) {
 	const auto master = ch->has_master() ? ch->get_master() : ch;
 	append_char(group_descriptor, ch, master, true);
 	for (auto f = master->followers; f; f = f->next) {
-		if (!AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
-			&& !(AFF_FLAGGED(f->ch, EAffectFlag::AFF_CHARM)
-				|| MOB_FLAGGED(f->ch, MOB_ANGEL)
-				|| MOB_FLAGGED(f->ch, MOB_GHOST))) {
+		if (!AFF_FLAGGED(f->ch, EAffect::kGroup)
+			&& !(AFF_FLAGGED(f->ch, EAffect::kCharmed)
+				|| MOB_FLAGGED(f->ch, EMobFlag::kTutelar)
+				|| MOB_FLAGGED(f->ch, EMobFlag::kMentalShadow))) {
 			continue;
 		}
 
 		append_char(group_descriptor, ch, f->ch, false);
 
 		// followers of a ch
-		if (!AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)) {
+		if (!AFF_FLAGGED(f->ch, EAffect::kGroup)) {
 			continue;
 		}
 
 		for (auto ff = f->ch->followers; ff; ff = ff->next) {
-			if (!(AFF_FLAGGED(ff->ch, EAffectFlag::AFF_CHARM)
-				|| MOB_FLAGGED(ff->ch, MOB_ANGEL)
-				|| MOB_FLAGGED(ff->ch, MOB_GHOST))) {
+			if (!(AFF_FLAGGED(ff->ch, EAffect::kCharmed)
+				|| MOB_FLAGGED(ff->ch, EMobFlag::kTutelar)
+				|| MOB_FLAGGED(ff->ch, EMobFlag::kMentalShadow))) {
 				continue;
 			}
 

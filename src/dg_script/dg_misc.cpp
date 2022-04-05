@@ -57,14 +57,14 @@ int find_dg_cast_target(int spellnum, const char *t, CharData *ch, CharData **tc
 
 	if (*t) {
 		if (IS_SET(spell_info[spellnum].targets, kTarCharRoom)) {
-			if ((*tch = get_char_vis(ch, t, FIND_CHAR_ROOM)) != nullptr) {
+			if ((*tch = get_char_vis(ch, t, EFind::kCharInRoom)) != nullptr) {
 //            if (spell_info[spellnum].violent && !check_pkill(ch,*tch,t))
 //                 return false;
 				return true;
 			}
 		}
 		if (IS_SET(spell_info[spellnum].targets, kTarCharWorld)) {
-			if ((*tch = get_char_vis(ch, t, FIND_CHAR_WORLD)) != nullptr) {
+			if ((*tch = get_char_vis(ch, t, EFind::kCharInWorld)) != nullptr) {
 //            if (spell_info[spellnum].violent && !check_pkill(ch,*tch,t))
 //                 return false;
 				return true;
@@ -79,7 +79,7 @@ int find_dg_cast_target(int spellnum, const char *t, CharData *ch, CharData **tc
 
 		if (IS_SET(spell_info[spellnum].targets, kTarObjEquip)) {
 			int i;
-			for (i = 0; i < NUM_WEARS; i++) {
+			for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
 				if (GET_EQ(ch, i) && isname(t, GET_EQ(ch, i)->get_aliases())) {
 					*tobj = GET_EQ(ch, i);
 					return true;
@@ -254,7 +254,7 @@ void do_dg_cast(void *go, Script * /*sc*/, Trigger *trig, int type, char *cmd) {
 		trig_log(trig, buf2);
 	}
 	if (dummy_mob)
-		extract_char(caster, false);
+		ExtractCharFromWorld(caster, false);
 }
 
 /* modify an affection on the target. affections can be of the AFF_x
@@ -344,7 +344,7 @@ void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_ty
 
 	if (duration > 0) {
 		// add the affect
-		Affect<EApplyLocation> af;
+		Affect<EApply> af;
 		af.type = index_s;
 
 		af.battleflag = battle;
@@ -354,15 +354,15 @@ void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_ty
 			af.duration = CalcDuration(ch, duration * 2, 0, 0, 0, 0);
 		}
 		if (type == AFFECT_TYPE) {
-			af.location = APPLY_NONE;
+			af.location = EApply::kNone;
 			af.modifier = 0;
 			af.bitvector = index;
 		} else {
-			af.location = static_cast<EApplyLocation>(index);
+			af.location = static_cast<EApply>(index);
 			af.modifier = value;
 			af.bitvector = 0;
 		}
-		affect_join_fspell(ch, af); // перекастим аффект
+		ImposeAffect(ch, af); // перекастим аффект
 	} else {
 		// remove affect
 		affect_from_char(ch, index_s);

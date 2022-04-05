@@ -7,18 +7,18 @@
 #include "utils.h"
 
 inline bool INVIS_OK_OBJ(const CharData *sub, const ObjData *obj) {
-	return !obj->get_extra_flag(EExtraFlag::ITEM_INVISIBLE)
-		|| AFF_FLAGGED(sub, EAffectFlag::AFF_DETECT_INVIS);
+	return !obj->has_flag(EObjFlag::kInvisible)
+		|| AFF_FLAGGED(sub, EAffect::kDetectInvisible);
 }
 
 inline bool MORT_CAN_SEE_OBJ(const CharData *sub, const ObjData *obj) {
 	return INVIS_OK_OBJ(sub, obj)
-		&& !AFF_FLAGGED(sub, EAffectFlag::AFF_BLIND)
-		&& (IS_LIGHT(obj->get_in_room())
-			|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_GLOW)
+		&& !AFF_FLAGGED(sub, EAffect::kBlind)
+		&& (!is_dark(obj->get_in_room())
+			|| obj->has_flag(EObjFlag::kGlow)
 			|| (IS_CORPSE(obj)
-				&& AFF_FLAGGED(sub, EAffectFlag::AFF_INFRAVISION))
-			|| can_use_feat(sub, DARK_READING_FEAT));
+				&& AFF_FLAGGED(sub, EAffect::kInfravision))
+			|| IsAbleToUseFeat(sub, EFeat::kDarkReading));
 }
 
 inline bool CAN_SEE_OBJ(const CharData *sub, const ObjData *obj) {
@@ -28,8 +28,8 @@ inline bool CAN_SEE_OBJ(const CharData *sub, const ObjData *obj) {
 			&& (obj->get_in_obj()->get_worn_by() == sub
 				|| obj->get_in_obj()->get_carried_by() == sub))
 		|| MORT_CAN_SEE_OBJ(sub, obj)
-		|| (!IS_NPC(sub)
-			&& PRF_FLAGGED((sub), PRF_HOLYLIGHT)));
+		|| (!sub->is_npc()
+			&& PRF_FLAGGED((sub), EPrf::kHolylight)));
 }
 
 inline const char *OBJN(const ObjData *obj, const CharData *vict, const size_t pad) {
@@ -45,11 +45,11 @@ inline const char *OBJS(const ObjData *obj, const CharData *vict) {
 }
 
 inline bool CAN_GET_OBJ(const CharData *ch, const ObjData *obj) {
-	return (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_TAKE)
+	return (CAN_WEAR(obj, EWearFlag::kTake)
 		&& CAN_CARRY_OBJ(ch, obj)
 		&& CAN_SEE_OBJ(ch, obj))
-		&& !(IS_NPC(ch)
-			&& obj->get_extra_flag(EExtraFlag::ITEM_BLOODY));
+		&& !(ch->is_npc()
+			&& obj->has_flag(EObjFlag::kBloody));
 }
 
 #endif // __CHAR_OBJ_UTILS_HPP__

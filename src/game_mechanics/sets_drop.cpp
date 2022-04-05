@@ -532,12 +532,12 @@ void filter_dupe_names() {
 			}
 			// редко появляющиеся мобы, мобы без экспы
 			const CharData *mob = &mob_proto[k->rnum];
-			if (MOB_FLAGGED(mob, MOB_LIKE_FULLMOON)
-				|| MOB_FLAGGED(mob, MOB_LIKE_WINTER)
-				|| MOB_FLAGGED(mob, MOB_LIKE_SPRING)
-				|| MOB_FLAGGED(mob, MOB_LIKE_SUMMER)
-				|| MOB_FLAGGED(mob, MOB_LIKE_AUTUMN)
-				|| NPC_FLAGGED(mob, NPC_FREEDROP)
+			if (MOB_FLAGGED(mob, EMobFlag::kAppearsFullmoon)
+				|| MOB_FLAGGED(mob, EMobFlag::kAppearsWinter)
+				|| MOB_FLAGGED(mob, EMobFlag::kAppearsSpring)
+				|| MOB_FLAGGED(mob, EMobFlag::kAppearsSummer)
+				|| MOB_FLAGGED(mob, EMobFlag::kAppearsAutumn)
+				|| NPC_FLAGGED(mob, ENpcFlag::kFreeDrop)
 				|| mob->get_exp() <= 0) {
 				continue;
 			}

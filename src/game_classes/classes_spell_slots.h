@@ -11,7 +11,7 @@
 
 namespace PlayerClass {
 
-int slot_for_char(CharData *ch, int slot_num);
+int CalcCircleSlotsAmount(CharData *ch, int slot_num);
 void mspell_slot(char *name, int spell, int kin, int chclass, int slot);
 
 class MaxClassSlot {

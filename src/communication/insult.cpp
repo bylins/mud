@@ -12,12 +12,12 @@ void do_insult(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	one_argument(argument, arg);
 
-	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB)) {
+	if (!ch->is_npc() && PLR_FLAGGED(ch, EPlrFlag::kDumbed)) {
 		send_to_char("Боги наказали вас и вы не можете выражать эмоции!\r\n", ch);
 		return;
 	}
 	if (*arg) {
-		if (!(victim = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
+		if (!(victim = get_char_vis(ch, arg, EFind::kCharInRoom)))
 			send_to_char("&KА он вас и не услышит :(&n\r\n", ch);
 		else {
 			if (victim != ch) {

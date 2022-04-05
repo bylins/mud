@@ -12,8 +12,6 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-/*#include "interpreter.h"
-#include "constants.h"*/
 #include "handler.h"
 #include "utils/random.h"
 #include "structs/global_objects.h"
@@ -41,12 +39,12 @@ struct bfs_queue_struct {
 #define EDGE_WORLD  2
 
 // Utility macros
-#define MARK(room)    (GET_ROOM(room)->set_flag(ROOM_BFS_MARK))
-#define UNMARK(room)    (GET_ROOM(room)->unset_flag(ROOM_BFS_MARK))
-#define IS_MARKED(room)    (ROOM_FLAGGED(room, ROOM_BFS_MARK))
+#define MARK(room)    (world[room]->set_flag(ERoomFlag::kBfsMark))
+#define UNMARK(room)    (world[room]->unset_flag(ERoomFlag::kBfsMark))
+#define IS_MARKED(room)    (ROOM_FLAGGED(room, ERoomFlag::kBfsMark))
 #define TOROOM(x, y)    (world[(x)]->dir_option[(y)]->to_room())
-#define IS_CLOSED(x, y)    (EXIT_FLAGGED(world[(x)]->dir_option[(y)], EX_CLOSED))
-#define IS_LOCKED(x, y)    (EXIT_FLAGGED(world[(x)]->dir_option[(y)], EX_LOCKED))
+#define IS_CLOSED(x, y)    (EXIT_FLAGGED(world[(x)]->dir_option[(y)], EExitFlag::kClosed))
+#define IS_LOCKED(x, y)    (EXIT_FLAGGED(world[(x)]->dir_option[(y)], EExitFlag::kLocked))
 
 int VALID_EDGE(RoomRnum x, int y, int edge_range, bool through_locked_doors, bool through_closed_doors, bool through_notrack) {
 	if (world[x]->dir_option[y] == nullptr || TOROOM(x, y) == kNowhere)
@@ -62,7 +60,7 @@ int VALID_EDGE(RoomRnum x, int y, int edge_range, bool through_locked_doors, boo
 	if (!through_locked_doors && IS_LOCKED(x, y))
 		return 0;
 
-	const bool respect_notrack = through_notrack ? false : ROOM_FLAGGED(TOROOM(x, y), ROOM_NOTRACK);
+	const bool respect_notrack = through_notrack ? false : ROOM_FLAGGED(TOROOM(x, y), ERoomFlag::kNoTrack);
 	if (respect_notrack || IS_MARKED(TOROOM(x, y)))
 		return 0;
 
@@ -85,14 +83,14 @@ int find_first_step(RoomRnum src, RoomRnum target, CharData *ch) {
 
 	if (src < FIRST_ROOM || src > top_of_world || target < FIRST_ROOM || target > top_of_world) {
 		log("SYSERR: Illegal value %d or %d passed to find_first_step. (%s)", src, target, __FILE__);
-		return (BFS_ERROR);
+		return (kBfsError);
 	}
 
 	if (src == target)
-		return (BFS_ALREADY_THERE);
+		return (kBfsAlreadyThere);
 
 	// clear marks first, some OLC systems will save the mark.
-	if (IS_NPC(ch)) {
+	if (ch->is_npc()) {
 		// Запрещаем искать мобам  в другой зоне ...
 //		if (world[src]->zone != world[target]->zone)
 //			return (BFS_ERROR);
@@ -100,10 +98,10 @@ int find_first_step(RoomRnum src, RoomRnum target, CharData *ch) {
 		// Запрещаем мобам искать через запертые двери
 		through_locked_doors = false;
 		// если моб умеет открыть двери - ищем через закрытые двери
-		through_closed_doors = MOB_FLAGGED(ch, MOB_OPENDOOR);
+		through_closed_doors = MOB_FLAGGED(ch, EMobFlag::kOpensDoor);
 		// notrack мобам не помеха
 		through_notrack = true;
-		if (MOB_FLAGGED(ch, MOB_STAY_ZONE)) {
+		if (MOB_FLAGGED(ch, EMobFlag::kStayZone)) {
 			get_zone_rooms(world[src]->zone_rn, &rnum_start, &rnum_stop);
 			edge = EDGE_ZONE;
 		} else {
@@ -128,7 +126,7 @@ int find_first_step(RoomRnum src, RoomRnum target, CharData *ch) {
 	static struct bfs_queue_struct temp_queue;
 
 	// first, enqueue the first steps, saving which direction we're going.
-	for (curr_dir = 0; curr_dir < kDirMaxNumber; curr_dir++) {
+	for (curr_dir = 0; curr_dir < EDirection::kMaxDirNum; curr_dir++) {
 		if (VALID_EDGE(src, curr_dir, edge, through_locked_doors, through_closed_doors, through_notrack)) {
 			MARK(TOROOM(src, curr_dir));
 			temp_queue.room = TOROOM(src, curr_dir);
@@ -144,7 +142,7 @@ int find_first_step(RoomRnum src, RoomRnum target, CharData *ch) {
 			bfs_queue.clear();
 			return curr_dir;
 		} else {
-			for (curr_dir = 0; curr_dir < kDirMaxNumber; curr_dir++) {
+			for (curr_dir = 0; curr_dir < EDirection::kMaxDirNum; curr_dir++) {
 				if (VALID_EDGE(bfs_queue[i].room, curr_dir, edge, through_locked_doors, through_closed_doors, through_notrack)) {
 					MARK(TOROOM(bfs_queue[i].room, curr_dir));
 					temp_queue.room = TOROOM(bfs_queue[i].room, curr_dir);
@@ -157,7 +155,7 @@ int find_first_step(RoomRnum src, RoomRnum target, CharData *ch) {
 	bfs_queue.clear();
 	sprintf(buf, "Mob (mob: %s vnum: %d) can't find path.", GET_NAME(ch), GET_MOB_VNUM(ch));
 	mudlog(buf, NRM, -1, ERRLOG, true);
-	return (BFS_NO_PATH);
+	return (kBfsNoPath);
 }
 
 int go_sense(CharData *ch, CharData *victim) {
@@ -171,7 +169,7 @@ int go_sense(CharData *ch, CharData *victim) {
 	if (percent > skill) {
 		int tries = 10;
 		do {
-			dir = number(0, kDirMaxNumber - 1);
+			dir = number(0, EDirection::kMaxDirNum - 1);
 		} while (!CAN_GO(ch, dir) && --tries);
 		return dir;
 	}
@@ -185,17 +183,17 @@ void do_sense(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int dir;
 
 	// The character must have the track skill.
-	if (IS_NPC(ch) || !ch->get_skill(ESkill::kSense)) {
+	if (ch->is_npc() || !ch->get_skill(ESkill::kSense)) {
 		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
+	if (AFF_FLAGGED(ch, EAffect::kBlind)) {
 		send_to_char("Вы слепы как крот.\r\n", ch);
 		return;
 	}
 
-	if (!check_moves(ch, can_use_feat(ch, TRACKER_FEAT) ? SENSE_MOVES / 2 : SENSE_MOVES))
+	if (!check_moves(ch, IsAbleToUseFeat(ch, EFeat::kTracker) ? SENSE_MOVES / 2 : SENSE_MOVES))
 		return;
 
 	one_argument(argument, arg);
@@ -205,14 +203,14 @@ void do_sense(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	// The person can't see the victim.
-	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_WORLD))) {
+	if (!(vict = get_char_vis(ch, arg, EFind::kCharInWorld))) {
 		send_to_char("Ваши чувства молчат.\r\n", ch);
 		return;
 	}
 
 	// We can't track the victim.
 	//Старый комментарий. Раньше было много !трека, теперь его мало
-	if (AFF_FLAGGED(vict, EAffectFlag::AFF_NOTRACK)) {
+	if (AFF_FLAGGED(vict, EAffect::kNoTrack)) {
 		send_to_char("Ваши чувства молчат.\r\n", ch);
 		return;
 	}
@@ -221,11 +219,11 @@ void do_sense(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	dir = go_sense(ch, vict);
 
 	switch (dir) {
-		case BFS_ERROR: strcpy(buf, "Хммм... Ваше чувство подвело вас.");
+		case kBfsError: strcpy(buf, "Хммм... Ваше чувство подвело вас.");
 			break;
-		case BFS_ALREADY_THERE: strcpy(buf, "Вы же в одной комнате с $N4!");
+		case kBfsAlreadyThere: strcpy(buf, "Вы же в одной комнате с $N4!");
 			break;
-		case BFS_NO_PATH: strcpy(buf, "Ваши чувства молчат.");
+		case kBfsNoPath: strcpy(buf, "Ваши чувства молчат.");
 			break;
 		default:        // Success!
 			ImproveSkill(ch, ESkill::kSense, true, vict);

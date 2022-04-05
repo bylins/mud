@@ -7,20 +7,20 @@
 #include "handler.h"
 
 void make_horse(CharData *horse, CharData *ch) {
-	AFF_FLAGS(horse).set(EAffectFlag::AFF_HORSE);
+	AFF_FLAGS(horse).set(EAffect::kHorse);
 	ch->add_follower(horse);
-	MOB_FLAGS(horse).unset(MOB_WIMPY);
-	MOB_FLAGS(horse).unset(MOB_SENTINEL);
-	MOB_FLAGS(horse).unset(MOB_HELPER);
-	MOB_FLAGS(horse).unset(MOB_AGGRESSIVE);
-	MOB_FLAGS(horse).unset(MOB_MOUNTING);
-	AFF_FLAGS(horse).unset(EAffectFlag::AFF_TETHERED);
+	MOB_FLAGS(horse).unset(EMobFlag::kWimpy);
+	MOB_FLAGS(horse).unset(EMobFlag::kSentinel);
+	MOB_FLAGS(horse).unset(EMobFlag::kHelper);
+	MOB_FLAGS(horse).unset(EMobFlag::kAgressive);
+	MOB_FLAGS(horse).unset(EMobFlag::kMounting);
+	AFF_FLAGS(horse).unset(EAffect::kTethered);
 }
 
 void do_horseon(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *horse;
 
-	if (IS_NPC(ch))
+	if (ch->is_npc())
 		return;
 
 	if (!ch->get_horse()) {
@@ -35,7 +35,7 @@ void do_horseon(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	one_argument(argument, arg);
 	if (*arg)
-		horse = get_char_vis(ch, arg, FIND_CHAR_ROOM);
+		horse = get_char_vis(ch, arg, EFind::kCharInRoom);
 	else
 		horse = ch->get_horse();
 
@@ -49,28 +49,28 @@ void do_horseon(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Это не ваш скакун.\r\n", ch);
 	else if (GET_POS(horse) < EPosition::kFight)
 		act("$N не сможет вас нести в таком состоянии.", false, ch, 0, horse, kToChar);
-	else if (AFF_FLAGGED(horse, EAffectFlag::AFF_TETHERED))
+	else if (AFF_FLAGGED(horse, EAffect::kTethered))
 		act("Вам стоит отвязать $N3.", false, ch, 0, horse, kToChar);
 		//чтоб не вскакивали в ванрумах
-	else if (ROOM_FLAGGED(ch->in_room, ROOM_TUNNEL))
+	else if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kTunnel))
 		send_to_char("Слишком мало места.\r\n", ch);
-	else if (ROOM_FLAGGED(ch->in_room, ROOM_NOHORSE))
+	else if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNohorse))
 		act("$Z $N взбрыкнул$G и отказал$U вас слушаться.", false, ch, 0, horse, kToChar);
 	else {
-		if (affected_by_spell(ch, kSpellSneak))
+		if (IsAffectedBySpell(ch, kSpellSneak))
 			affect_from_char(ch, kSpellSneak);
-		if (affected_by_spell(ch, kSpellCamouflage))
+		if (IsAffectedBySpell(ch, kSpellCamouflage))
 			affect_from_char(ch, kSpellCamouflage);
 		act("Вы взобрались на спину $N1.", false, ch, 0, horse, kToChar);
 		act("$n вскочил$g на $N3.", false, ch, 0, horse, kToRoom | kToArenaListen);
-		AFF_FLAGS(ch).set(EAffectFlag::AFF_HORSE);
+		AFF_FLAGS(ch).set(EAffect::kHorse);
 	}
 }
 
 void do_horseoff(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	CharData *horse;
 
-	if (IS_NPC(ch))
+	if (ch->is_npc())
 		return;
 	if (!(horse = ch->get_horse())) {
 		send_to_char("У вас нет скакуна.\r\n", ch);
@@ -88,7 +88,7 @@ void do_horseoff(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 void do_horseget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *horse;
 
-	if (IS_NPC(ch))
+	if (ch->is_npc())
 		return;
 
 	if (!ch->get_horse()) {
@@ -103,7 +103,7 @@ void do_horseget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	one_argument(argument, arg);
 	if (*arg)
-		horse = get_char_vis(ch, arg, FIND_CHAR_ROOM);
+		horse = get_char_vis(ch, arg, EFind::kCharInRoom);
 	else
 		horse = ch->get_horse();
 
@@ -115,19 +115,19 @@ void do_horseget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Это не скакун.\r\n", ch);
 	else if (horse->get_master() != ch)
 		send_to_char("Это не ваш скакун.\r\n", ch);
-	else if (!AFF_FLAGGED(horse, EAffectFlag::AFF_TETHERED))
+	else if (!AFF_FLAGGED(horse, EAffect::kTethered))
 		act("А $N и не привязан$A.", false, ch, 0, horse, kToChar);
 	else {
 		act("Вы отвязали $N3.", false, ch, 0, horse, kToChar);
 		act("$n отвязал$g $N3.", false, ch, 0, horse, kToRoom | kToArenaListen);
-		AFF_FLAGS(horse).unset(EAffectFlag::AFF_TETHERED);
+		AFF_FLAGS(horse).unset(EAffect::kTethered);
 	}
 }
 
 void do_horseput(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *horse;
 
-	if (IS_NPC(ch))
+	if (ch->is_npc())
 		return;
 	if (!ch->get_horse()) {
 		send_to_char("У вас нет скакуна.\r\n", ch);
@@ -141,7 +141,7 @@ void do_horseput(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	one_argument(argument, arg);
 	if (*arg)
-		horse = get_char_vis(ch, arg, FIND_CHAR_ROOM);
+		horse = get_char_vis(ch, arg, EFind::kCharInRoom);
 	else
 		horse = ch->get_horse();
 	if (horse == nullptr)
@@ -152,19 +152,19 @@ void do_horseput(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Это не скакун.\r\n", ch);
 	else if (horse->get_master() != ch)
 		send_to_char("Это не ваш скакун.\r\n", ch);
-	else if (AFF_FLAGGED(horse, EAffectFlag::AFF_TETHERED))
+	else if (AFF_FLAGGED(horse, EAffect::kTethered))
 		act("А $N уже и так привязан$A.", false, ch, 0, horse, kToChar);
 	else {
 		act("Вы привязали $N3.", false, ch, 0, horse, kToChar);
 		act("$n привязал$g $N3.", false, ch, 0, horse, kToRoom | kToArenaListen);
-		AFF_FLAGS(horse).set(EAffectFlag::AFF_TETHERED);
+		AFF_FLAGS(horse).set(EAffect::kTethered);
 	}
 }
 
 void do_horsetake(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *horse = nullptr;
 
-	if (IS_NPC(ch))
+	if (ch->is_npc())
 		return;
 
 	if (ch->get_horse()) {
@@ -179,21 +179,21 @@ void do_horsetake(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	one_argument(argument, arg);
 	if (*arg) {
-		horse = get_char_vis(ch, arg, FIND_CHAR_ROOM);
+		horse = get_char_vis(ch, arg, EFind::kCharInRoom);
 	}
 
 	if (horse == nullptr) {
 		send_to_char(NOPERSON, ch);
 		return;
-	} else if (!IS_NPC(horse)) {
+	} else if (!horse->is_npc()) {
 		send_to_char("Господи, не чуди...\r\n", ch);
 		return;
 	}
 		// Исправил ошибку не дававшую воровать коняжек. -- Четырь (13.10.10)
 	else if (!IS_GOD(ch)
-		&& !MOB_FLAGGED(horse, MOB_MOUNTING)
+		&& !MOB_FLAGGED(horse, EMobFlag::kMounting)
 		&& !(horse->has_master()
-			&& AFF_FLAGGED(horse, EAffectFlag::AFF_HORSE))) {
+			&& AFF_FLAGGED(horse, EAffect::kHorse))) {
 		act("Вы не сможете оседлать $N3.", false, ch, 0, horse, kToChar);
 		return;
 	} else if (ch->get_horse()) {
@@ -211,7 +211,7 @@ void do_horsetake(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 		}
 	}
-	if (stop_follower(horse, SF_EMPTY))
+	if (stop_follower(horse, kSfEmpty))
 		return;
 	act("Вы оседлали $N3.", false, ch, 0, horse, kToChar);
 	act("$n оседлал$g $N3.", false, ch, 0, horse, kToRoom | kToArenaListen);
@@ -221,7 +221,7 @@ void do_horsetake(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 void do_givehorse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *horse, *victim;
 
-	if (IS_NPC(ch))
+	if (ch->is_npc())
 		return;
 
 	if (!(horse = ch->get_horse())) {
@@ -237,10 +237,10 @@ void do_givehorse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Кому вы хотите передать скакуна?\r\n", ch);
 		return;
 	}
-	if (!(victim = get_char_vis(ch, arg, FIND_CHAR_ROOM))) {
+	if (!(victim = get_char_vis(ch, arg, EFind::kCharInRoom))) {
 		send_to_char("Вам некому передать скакуна.\r\n", ch);
 		return;
-	} else if (IS_NPC(victim)) {
+	} else if (victim->is_npc()) {
 		send_to_char("Он и без этого обойдется.\r\n", ch);
 		return;
 	}
@@ -252,12 +252,12 @@ void do_givehorse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Вам стоит слезть со скакуна.\r\n", ch);
 		return;
 	}
-	if (AFF_FLAGGED(horse, EAffectFlag::AFF_TETHERED)) {
+	if (AFF_FLAGGED(horse, EAffect::kTethered)) {
 		send_to_char("Вам стоит прежде отвязать своего скакуна.\r\n", ch);
 		return;
 	}
 	// Долбанные умертвия при передаче рассыпаются и весело роняют мад на проходе по последователям чара -- Krodo
-	if (stop_follower(horse, SF_EMPTY))
+	if (stop_follower(horse, kSfEmpty))
 		return;
 	act("Вы передали своего скакуна $N2.", false, ch, 0, victim, kToChar);
 	act("$n передал$g вам своего скакуна.", false, ch, 0, victim, kToVict);
@@ -268,7 +268,7 @@ void do_givehorse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 void do_stophorse(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	CharData *horse;
 
-	if (IS_NPC(ch))
+	if (ch->is_npc())
 		return;
 
 	if (!(horse = ch->get_horse())) {
@@ -283,16 +283,16 @@ void do_stophorse(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 		send_to_char("Вам стоит слезть со скакуна.\r\n", ch);
 		return;
 	}
-	if (AFF_FLAGGED(horse, EAffectFlag::AFF_TETHERED)) {
+	if (AFF_FLAGGED(horse, EAffect::kTethered)) {
 		send_to_char("Вам стоит прежде отвязать своего скакуна.\r\n", ch);
 		return;
 	}
-	if (stop_follower(horse, SF_EMPTY))
+	if (stop_follower(horse, kSfEmpty))
 		return;
 	act("Вы отпустили $N3.", false, ch, 0, horse, kToChar);
 	act("$n отпустил$g $N3.", false, ch, 0, horse, kToRoom | kToArenaListen);
 	if (GET_MOB_VNUM(horse) == HORSE_VNUM) {
 		act("$n убежал$g в свою конюшню.\r\n", false, horse, 0, 0, kToRoom | kToArenaListen);
-		extract_char(horse, false);
+		ExtractCharFromWorld(horse, false);
 	}
 }

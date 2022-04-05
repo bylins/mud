@@ -263,15 +263,15 @@ void mudlog(const char *str, LogMode type, int level, EOutputStream channel, int
 	strftime(time_buf, sizeof(time_buf), "%d-%m-%y %H:%M:%S", localtime(&ct));
 	snprintf(tmpbuf, sizeof(tmpbuf), "[%s][ %s ]\r\n", time_buf, str);
 	for (i = descriptor_list; i; i = i->next) {
-		if (STATE(i) != CON_PLAYING || IS_NPC(i->character))    // switch
+		if (STATE(i) != CON_PLAYING || i->character->is_npc())    // switch
 			continue;
 		if (GET_LOGS(i->character)[channel] < type && type != DEF)
 			continue;
-		if (type == DEF && GetRealLevel(i->character) < kLvlImmortal && !PRF_FLAGGED(i->character, PRF_CODERINFO))
+		if (type == DEF && GetRealLevel(i->character) < kLvlImmortal && !PRF_FLAGGED(i->character, EPrf::kCoderinfo))
 			continue;
-		if (GetRealLevel(i->character) < level && !PRF_FLAGGED(i->character, PRF_CODERINFO))
+		if (GetRealLevel(i->character) < level && !PRF_FLAGGED(i->character, EPrf::kCoderinfo))
 			continue;
-		if (PLR_FLAGGED(i->character, PLR_WRITING) || PLR_FLAGGED(i->character, PLR_FROZEN))
+		if (PLR_FLAGGED(i->character, EPlrFlag::kWriting) || PLR_FLAGGED(i->character, EPlrFlag::kFrozen))
 			continue;
 
 		send_to_char(CCGRN(i->character, C_NRM), i->character.get());

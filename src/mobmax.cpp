@@ -56,7 +56,7 @@ void MobMax::init() {
 			log("Warning! Mob <0 lev!");
 		else {
 			++num_levels[level];
-			if (GET_RACE(mob_proto + i) == NPC_RACE_ANIMAL)
+			if (GET_RACE(mob_proto + i) == ENpcRace::kAnimal)
 				++num_animals_levels[level];
 			vnum_to_level[mob_index[i].vnum] = level;
 		}
@@ -107,7 +107,7 @@ void MobMax::refresh(int level) {
 
 // * Добавление замакса по мобу vnum, левела level. count для случая сета замакса иммом.
 void MobMax::add(CharData *ch, int vnum, int count, int level) {
-	if (IS_NPC(ch) || IS_IMMORTAL(ch) || vnum < 0 || count < 1 || level < 0 || level > kMaxMobLevel) return;
+	if (ch->is_npc() || IS_IMMORTAL(ch) || vnum < 0 || count < 1 || level < 0 || level > kMaxMobLevel) return;
 
 	MobMaxType::iterator it = std::find_if(mobmax_.begin(), mobmax_.end(),
 										   [&](const mobmax_data &data) {
@@ -125,7 +125,7 @@ void MobMax::add(CharData *ch, int vnum, int count, int level) {
 
 // * Версия add без лишних расчетов для инита во время загрузки персонажа.
 void MobMax::load(CharData *ch, int vnum, int count, int level) {
-	if (IS_NPC(ch) || IS_IMMORTAL(ch) || vnum < 0 || count < 1 || level < 0 || level > kMaxMobLevel) return;
+	if (ch->is_npc() || IS_IMMORTAL(ch) || vnum < 0 || count < 1 || level < 0 || level > kMaxMobLevel) return;
 
 	mobmax_data tmp_data(vnum, count, level);
 	mobmax_.push_front(tmp_data);

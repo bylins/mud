@@ -254,7 +254,7 @@ bool NewNames::show(CharData *actor) {
 		buffer << "Имя: " << it->first << " " << it->second->name0 << "/" << it->second->name1
 			   << "/" << it->second->name2 << "/" << it->second->name3 << "/" << it->second->name4
 			   << "/" << it->second->name5 << " Email: &S"
-			   << (GET_GOD_FLAG(actor, GF_DEMIGOD) ? "неопределен" : it->second->email)
+			   << (GET_GOD_FLAG(actor, EGf::kDemigod) ? "неопределен" : it->second->email)
 			   << "&s Пол: " << genders[sex] << "\r\n";
 	}
 	buffer << CCNRM(actor, C_NRM);
@@ -362,7 +362,7 @@ void agree_name(CharData *d, const char *immname, int immlev) {
 enum { NAME_AGREE, NAME_DISAGREE, NAME_DELETE };
 
 static void go_name(CharData *ch, CharData *vict, int action) {
-	int god_level = PRF_FLAGGED(ch, PRF_CODERINFO) ? kLvlImplementator : GetRealLevel(ch);
+	int god_level = PRF_FLAGGED(ch, EPrf::kCoderinfo) ? kLvlImplementator : GetRealLevel(ch);
 
 	if (GetRealLevel(vict) > god_level) {
 		send_to_char("А он ведь старше вас...\r\n", ch);
@@ -446,8 +446,8 @@ void do_name(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	CharData *vict;
-	if ((vict = get_player_vis(ch, name, FIND_CHAR_WORLD)) != nullptr) {
-		if (!(vict = get_player_pun(ch, name, FIND_CHAR_WORLD))) {
+	if ((vict = get_player_vis(ch, name, EFind::kCharInWorld)) != nullptr) {
+		if (!(vict = get_player_pun(ch, name, EFind::kCharInWorld))) {
 			send_to_char("Нет такого игрока.\r\n", ch);
 			return;
 		}

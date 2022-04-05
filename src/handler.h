@@ -14,8 +14,8 @@
 
 // комментарий на русском в надежде починить кодировки bitbucket
 
-#ifndef _HANDLER_H_
-#define _HANDLER_H_
+#ifndef HANDLER_H_
+#define HANDLER_H_
 
 #include "entities/char_data.h"
 #include "structs/structs.h"    // there was defined type "byte" if it had been missing
@@ -23,28 +23,24 @@
 
 struct RoomData;
 
-#define LIGHT_NO    0
-#define LIGHT_YES   1
-#define LIGHT_UNDEF 2
+const int kLightNo = 0;
+const int kLightYes = 1;
+const int kLightUndef = 2;
 
 enum class CharEquipFlag : uint8_t {
-	// no spell casting
-	no_cast,
-
-	// no total affect update
-	skip_total,
-
-	// show wear and activation messages
-	show_msg
+	no_cast,	// no spell casting
+	skip_total,	// no total affect update
+	show_msg	// show wear and activation messages
 };
+
 FLAGS_DECLARE_FROM_ENUM(CharEquipFlags, CharEquipFlag);
 FLAGS_DECLARE_OPERATORS(CharEquipFlags, CharEquipFlag);
 
 int get_room_sky(int rnum);
-int equip_in_metall(CharData *ch);
+int IsEquipInMetall(CharData *ch);
 bool IsAwakeOthers(CharData *ch);
 
-void check_light(CharData *ch, int was_equip, int was_single, int was_holylight, int was_holydark, int koef);
+void CheckLight(CharData *ch, int was_equip, int was_single, int was_holylight, int was_holydark, int koef);
 
 // Resistance calculate //
 int ApplyResist(CharData *ch, int resist_type, int effect);
@@ -55,10 +51,10 @@ int GetResistType(int spellnum);
 void ImposeTimedFeat(CharData *ch, TimedFeat *timed);
 void ExpireTimedFeat(CharData *ch, TimedFeat *timed);
 int IsTimed(CharData *ch, int feat);
-void timed_to_char(CharData *ch, struct TimedSkill *timed);
-void timed_from_char(CharData *ch, struct TimedSkill *timed);
+void ImposeTimedSkill(CharData *ch, struct TimedSkill *timed);
+void ExpireTimedSkill(CharData *ch, struct TimedSkill *timed);
 int IsTimedBySkill(CharData *ch, ESkill id);
-void decreaseFeatTimer(CharData *ch, int featureID);
+void DecreaseFeatTimer(CharData *ch, int featureID);
 
 // utility //
 char *money_desc(int amount, int padis);
@@ -70,44 +66,44 @@ int get_number(std::string &name);
 RoomVnum get_room_where_obj(ObjData *obj, bool deep = false);
 
 // ******** objects *********** //
-bool equal_obj(ObjData *obj_one, ObjData *obj_two);
-void obj_to_char(ObjData *object, CharData *ch);
-void obj_from_char(ObjData *object);
+bool IsObjsStackable(ObjData *obj_one, ObjData *obj_two);
+void PlaceObjToInventory(ObjData *object, CharData *ch);
+void ExtractObjFromChar(ObjData *object);
 
-void equip_char(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_flags);
-ObjData *unequip_char(CharData *ch, int pos, const CharEquipFlags& equip_flags);
-int invalid_align(CharData *ch, ObjData *obj);
+void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_flags);
+ObjData *UnequipChar(CharData *ch, int pos, const CharEquipFlags& equip_flags);
+bool HaveIncompatibleAlign(CharData *ch, ObjData *obj);
 
 ObjData *get_obj_in_list(char *name, ObjData *list);
-ObjData *get_obj_in_list_num(int num, ObjData *list);
-ObjData *get_obj_in_list_vnum(int num, ObjData *list);
+ObjData *GetObjByRnum(int obj_rnum, ObjData *list);
+ObjData *GetObjByVnum(int vnum, ObjData *list);
 
 ObjData *get_obj(char *name, int vnum = 0);
-ObjData *get_obj_num(ObjRnum nr);
+ObjData *SearchObjByVnum(ObjRnum rnum);
 
-int obj_decay(ObjData *object);
-bool obj_to_room(ObjData *object, RoomRnum room);
-void obj_from_room(ObjData *object);
-void obj_to_obj(ObjData *obj, ObjData *obj_to);
-void obj_from_obj(ObjData *obj);
+bool CheckObjDecay(ObjData *object);
+bool PlaceObjToRoom(ObjData *object, RoomRnum room);
+void ExtractObjFromRoom(ObjData *object);
+void PlaceObjIntoObj(ObjData *obj, ObjData *obj_to);
+void ExtractObjFromObj(ObjData *obj);
 void object_list_new_owner(ObjData *list, CharData *ch);
 
-void extract_obj(ObjData *obj);
+void ExtractObjFromWorld(ObjData *obj);
 
 // ******* characters ********* //
 
-CharData *get_char_room(char *name, RoomRnum room);
-CharData *get_char_num(MobRnum nr);
+CharData *SearchCharInRoomByName(char *name, RoomRnum room);
+CharData *SearchCharByRnum(MobRnum rnum);
 CharData *get_char(char *name, int vnum = 0);
 
-void char_from_room(CharData *ch);
-inline void char_from_room(const CharData::shared_ptr &ch) { char_from_room(ch.get()); }
-void char_to_room(CharData *ch, RoomRnum room);
-void char_flee_to_room(CharData *ch, RoomRnum room);
-inline void char_to_room(const CharData::shared_ptr &ch, RoomRnum room) { char_to_room(ch.get(), room); }
-inline void char_flee_to_room(const CharData::shared_ptr &ch, RoomRnum room) { char_flee_to_room(ch.get(), room); }
-void extract_char(CharData *ch, int clear_objs, bool zone_reset = 0);
-void room_affect_process_on_entry(CharData *ch, RoomRnum room);
+void ExtractCharFromRoom(CharData *ch);
+inline void char_from_room(const CharData::shared_ptr &ch) { ExtractCharFromRoom(ch.get()); }
+void PlaceCharToRoom(CharData *ch, RoomRnum room);
+void FleeToRoom(CharData *ch, RoomRnum room);
+inline void char_to_room(const CharData::shared_ptr &ch, RoomRnum room) { PlaceCharToRoom(ch.get(), room); }
+inline void char_flee_to_room(const CharData::shared_ptr &ch, RoomRnum room) { FleeToRoom(ch.get(), room); }
+void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset = 0);
+void ProcessRoomAffectsOnEntry(CharData *ch, RoomRnum room);
 
 // find if character can see //
 CharData *get_char_room_vis(CharData *ch, const char *name);
@@ -162,26 +158,24 @@ inline ObjData *get_object_in_equip_vis(CharData *ch,
 
 int find_all_dots(char *arg);
 
-#define FIND_INDIV    0
-#define FIND_ALL    1
-#define FIND_ALLDOT    2
+const int kFindIndiv = 0;
+const int kFindAll = 1;
+const int kFindAlldot = 2;
 
 
 // Generic Find //
 
 int generic_find(char *arg, Bitvector bitvector, CharData *ch, CharData **tar_ch, ObjData **tar_obj);
-
-#define FIND_CHAR_ROOM     (1 << 0)
-#define FIND_CHAR_WORLD    (1 << 1)
-#define FIND_OBJ_INV       (1 << 2)
-#define FIND_OBJ_ROOM      (1 << 3)
-#define FIND_OBJ_WORLD     (1 << 4)
-#define FIND_OBJ_EQUIP     (1 << 5)
-#define FIND_CHAR_DISCONNECTED (1 << 6)
-#define FIND_OBJ_EXDESC    (1 << 7)
-
-#define CRASH_DELETE_OLD   (1 << 0)
-#define CRASH_DELETE_NEW   (1 << 1)
+enum EFind : Bitvector {
+	kCharInRoom = 1 << 0,
+	kCharInWorld = 1 << 1,
+	kCharDisconnected = 1 << 6,
+	kObjInventory = 1 << 2,
+	kObjRoom = 1 << 3,
+	kObjWorld = 1 << 4,
+	kObjEquip = 1 << 5,
+	kObjExtraDesc = 1 << 7
+};
 
 // prototypes from crash save system //
 int Crash_delete_crashfile(CharData *ch);
@@ -219,9 +213,10 @@ void MemQ_forget(CharData *ch, int num);
 int *MemQ_slots(CharData *ch);
 
 int get_object_low_rent(ObjData *obj);
-void set_uid(ObjData *object);
+void InitUid(ObjData *object);
 
-void remove_rune_label(CharData *ch);
-#endif
+void RemoveRuneLabelFromWorld(CharData *ch, ESpell spell_id);
+
+#endif // HANDLER_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

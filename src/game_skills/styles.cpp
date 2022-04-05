@@ -21,7 +21,7 @@ void go_touch(CharData *ch, CharData *vict) {
 }
 
 void do_touch(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch) || !ch->get_skill(ESkill::kIntercept)) {
+	if (ch->is_npc() || !ch->get_skill(ESkill::kIntercept)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -30,16 +30,15 @@ void do_touch(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	};
 
-	ObjData *primary = GET_EQ(ch, WEAR_WIELD) ? GET_EQ(ch, WEAR_WIELD) : GET_EQ(ch,
-																				WEAR_BOTHS);
-	if (!(IS_IMMORTAL(ch) || IS_NPC(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE) || !primary)) {
+	ObjData *primary = GET_EQ(ch, EEquipPos::kWield) ? GET_EQ(ch, EEquipPos::kWield) : GET_EQ(ch, EEquipPos::kBoths);
+	if (!(IS_IMMORTAL(ch) || ch->is_npc() || GET_GOD_FLAG(ch, EGf::kGodsLike) || !primary)) {
 		send_to_char("У вас заняты руки.\r\n", ch);
 		return;
 	}
 
 	CharData *vict = nullptr;
 	one_argument(argument, arg);
-	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM))) {
+	if (!(vict = get_char_vis(ch, arg, EFind::kCharInRoom))) {
 		for (const auto i : world[ch->in_room]->people) {
 			if (i->get_fighting() == ch) {
 				vict = i;
@@ -93,7 +92,7 @@ void go_deviate(CharData *ch) {
 }
 
 void do_deviate(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch) || !ch->get_skill(ESkill::kDodge)) {
+	if (ch->is_npc() || !ch->get_skill(ESkill::kDodge)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -137,8 +136,8 @@ void do_style(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!*arg) {
 		send_to_char(ch, "Вы сражаетесь %s стилем.\r\n",
-					 PRF_FLAGS(ch).get(PRF_PUNCTUAL) ? "точным" : PRF_FLAGS(ch).get(PRF_AWAKE) ? "осторожным"
-																							   : "обычным");
+					 PRF_FLAGS(ch).get(EPrf::kPunctual) ? "точным" : PRF_FLAGS(ch).get(EPrf::kAwake) ? "осторожным"
+																									 : "обычным");
 		return;
 	}
 	if (TryFlipActivatedFeature(ch, argument)) {
@@ -157,18 +156,18 @@ void do_style(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	switch (tp) {
 		case 0:
 		case 1:
-		case 2:PRF_FLAGS(ch).unset(PRF_PUNCTUAL);
-			PRF_FLAGS(ch).unset(PRF_AWAKE);
+		case 2:PRF_FLAGS(ch).unset(EPrf::kPunctual);
+			PRF_FLAGS(ch).unset(EPrf::kAwake);
 
 			if (tp == 1) {
-				PRF_FLAGS(ch).set(PRF_PUNCTUAL);
+				PRF_FLAGS(ch).set(EPrf::kPunctual);
 			}
 			if (tp == 2) {
-				PRF_FLAGS(ch).set(PRF_AWAKE);
+				PRF_FLAGS(ch).set(EPrf::kAwake);
 			}
 
-			if (ch->get_fighting() && !(AFF_FLAGGED(ch, EAffectFlag::AFF_COURAGE) ||
-				AFF_FLAGGED(ch, EAffectFlag::AFF_DRUNKED) || AFF_FLAGGED(ch, EAffectFlag::AFF_ABSTINENT))) {
+			if (ch->get_fighting() && !(AFF_FLAGGED(ch, EAffect::kCourage) ||
+				AFF_FLAGGED(ch, EAffect::kDrunked) || AFF_FLAGGED(ch, EAffect::kAbstinent))) {
 				CLR_AF_BATTLE(ch, kEafPunctual);
 				CLR_AF_BATTLE(ch, kEafAwake);
 				if (tp == 1)

@@ -27,7 +27,7 @@
 			</rent>
 			<global_maximum>-1</global_maximum>
 			<minimum_remorts>-1</minimum_remorts>
-			<type>ITEM_ARMOR</type>
+			<type>kArmor</type>
 			<durability>
 				<maximum>250</maximum>
 				<current>250</current>
@@ -36,14 +36,14 @@
 			<level>0</level>
 			<weight>20</weight>
 			<timer>999999</timer>
-			<material>MAT_SKIN</material>
+			<material>kSkin</material>
 			<spell>kSpellNoSpell</spell>
 			<extraflags>
-				<extraflag>ITEM_BLESS</extraflag>
+				<extraflag>kBless</extraflag>
 			</extraflags>
 			<wearflags>
-				<wearflag>ITEM_WEAR_TAKE</wearflag>
-				<wearflag>ITEM_WEAR_BODY</wearflag>
+				<wearflag>kTake</wearflag>
+				<wearflag>kBody</wearflag>
 			</wearflags>
 			<val0>0</val0>
 			<val1>0</val1>
@@ -81,7 +81,7 @@
 			</rent>
 			<global_maximum>-1</global_maximum>
 			<minimum_remorts>-1</minimum_remorts>
-			<type>ITEM_CRAFT_MATERIAL</type>
+			<type>kCraftMaterial2</type>
 			<durability>
 				<maximum>1</maximum>
 				<current>1</current>
@@ -90,14 +90,14 @@
 			<level>0</level>
 			<weight>7</weight>
 			<timer>10080</timer>
-			<material>MAT_BRONZE</material>
+			<material>kBronze</material>
 			<spell>kSpellBurningHands</spell>
 			<extraflags>
-				<extraflag>ITEM_NOSELL</extraflag>
+				<extraflag>kNosell</extraflag>
 			</extraflags>
 			<applies>
 				<apply>
-					<location>APPLY_MOVE</location>
+					<location>kMove</location>
 					<modifier>20</modifier>
 				</apply>
 			</applies>
@@ -137,7 +137,7 @@
 			</rent>
 			<global_maximum>-1</global_maximum>
 			<minimum_remorts>-1</minimum_remorts>
-			<type>ITEM_CRAFT_MATERIAL</type>
+			<type>kCraftMaterial2</type>
 			<durability>
 				<maximum>1</maximum>
 				<current>1</current>
@@ -146,14 +146,14 @@
 			<level>0</level>
 			<weight>7</weight>
 			<timer>20160</timer>
-			<material>MAT_ORGANIC</material>
+			<material>kOrganic</material>
 			<spell>kSpellNoSpell</spell>
 			<extraflags>
-				<extraflag>ITEM_SWIMMING</extraflag>
+				<extraflag>kSwimming</extraflag>
 			</extraflags>
 			<applies>
 				<apply>
-					<location>APPLY_HITREG</location>
+					<location>kHpRegen</location>
 					<modifier>10</modifier>
 				</apply>
 			</applies>
@@ -193,7 +193,7 @@
 			</rent>
 			<global_maximum>-1</global_maximum>
 			<minimum_remorts>-1</minimum_remorts>
-			<type>ITEM_CRAFT_MATERIAL</type>
+			<type>kCraftMaterial2</type>
 			<durability>
 				<maximum>1</maximum>
 				<current>1</current>
@@ -202,7 +202,7 @@
 			<level>0</level>
 			<weight>7</weight>
 			<timer>10080</timer>
-			<material>MAT_SKIN</material>
+			<material>kSkin</material>
 			<spell>kSpellTeleport</spell>
 			<val0>1</val0>
 			<val1>1661</val1>

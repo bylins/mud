@@ -281,21 +281,21 @@ const char *START_MESSG =
 
 int max_exp_gain_pc(CharData *ch) {
 	int result = 1;
-	if (!IS_NPC(ch)) {
-		int max_per_lev = level_exp(ch, GET_LEVEL(ch) + 1) - level_exp(ch, GET_LEVEL(ch) + 0); //тут берем левел без плюсов от стафа
+	if (!ch->is_npc()) {
+		int max_per_lev = level_exp(ch, ch->get_level() + 1) - level_exp(ch, ch->get_level() + 0); //тут берем левел без плюсов от стафа
 		result = max_per_lev / (10 + GET_REAL_REMORT(ch));
 	}
 	return result;
 }
 
 int max_exp_loss_pc(CharData *ch) {
-	return (IS_NPC(ch) ? 1 : (level_exp(ch, GetRealLevel(ch) + 1) - level_exp(ch, GetRealLevel(ch) + 0)) / 3);
+	return (ch->is_npc() ? 1 : (level_exp(ch, GetRealLevel(ch) + 1) - level_exp(ch, GetRealLevel(ch) + 0)) / 3);
 }
 
 int calc_loadroom(const CharData *ch, int bplace_mode /*= BIRTH_PLACE_UNDEFINED*/) {
 	if (IS_IMMORTAL(ch)) {
 		return (immort_start_room);
-	} else if (PLR_FLAGGED(ch, PLR_FROZEN)) {
+	} else if (PLR_FLAGGED(ch, EPlrFlag::kFrozen)) {
 		return (frozen_start_room);
 	} else {
 		const int loadroom = Birthplaces::GetLoadRoom(bplace_mode);

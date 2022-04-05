@@ -27,9 +27,9 @@
 #include "fightsystem/fight.h"
 #include "game_economics/ext_money.h"
 #include "mob_stat.h"
-#include "entities/zone.h"
 #include "game_classes/classes_spell_slots.h"
 #include "game_magic/spells_info.h"
+#include "liquid.h"
 
 #include <boost/format.hpp>
 #include <random>
@@ -61,7 +61,7 @@ int average_day_temp(void);
 // local functions
 int graf(int age, int p0, int p1, int p2, int p3, int p4, int p5, int p6);
 int level_exp(CharData *ch, int level);
-void update_char_objects(CharData *ch);    // handler.cpp
+void UpdateCharObjects(CharData *ch);    // handler.cpp
 // Delete this, if you delete overflow fix in beat_points_update below.
 void die(CharData *ch, CharData *killer);
 // When age < 20 return the value p0 //
@@ -87,7 +87,7 @@ int graf(int age, int p0, int p1, int p2, int p3, int p4, int p5, int p6) {
 }
 
 void handle_recall_spells(CharData *ch) {
-	Affect<EApplyLocation>::shared_ptr aff;
+	Affect<EApply>::shared_ptr aff;
 	for (const auto &af : ch->affected) {
 		if (af->type == kSpellRecallSpells) {
 			aff = af;
@@ -102,12 +102,12 @@ void handle_recall_spells(CharData *ch) {
 	//максимальный доступный чару круг
 	unsigned max_slot = max_slots.get(ch);
 	//обрабатываем только каждые RECALL_SPELLS_INTERVAL секунд
-	int secs_left = (SECS_PER_PLAYER_AFFECT * aff->duration) / SECS_PER_MUD_HOUR - SECS_PER_PLAYER_AFFECT;
+	int secs_left = (kSecsPerPlayerAffect * aff->duration) / kSecsPerMudHour - kSecsPerPlayerAffect;
 	if (secs_left / RECALL_SPELLS_INTERVAL < max_slot - aff->modifier || secs_left <= 2) {
 		int slot_to_restore = aff->modifier++;
 
 		bool found_spells = false;
-		struct SpellMemQueueItem *next = nullptr, *prev = nullptr, *i = ch->MemQueue.queue;
+		struct SpellMemQueueItem *next = nullptr, *prev = nullptr, *i = ch->mem_queue.queue;
 		while (i) {
 			next = i->link;
 			if (spell_info[i->spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] == slot_to_restore) {
@@ -116,11 +116,11 @@ void handle_recall_spells(CharData *ch) {
 					found_spells = true;
 				}
 				if (prev) prev->link = next;
-				if (i == ch->MemQueue.queue) {
-					ch->MemQueue.queue = next;
-					GET_MEM_COMPLETED(ch) = 0;
+				if (i == ch->mem_queue.queue) {
+					ch->mem_queue.queue = next;
+					ch->mem_queue.stored = 0;
 				}
-				GET_MEM_TOTAL(ch) = MAX(0, GET_MEM_TOTAL(ch) - mag_manacost(ch, i->spellnum));
+				ch->mem_queue.total = std::max(0, ch->mem_queue.total - mag_manacost(ch, i->spellnum));
 				sprintf(buf, "Вы вспомнили заклинание \"%s%s%s\".\r\n",
 						CCICYN(ch, C_NRM), spell_info[i->spellnum].name, CCNRM(ch, C_NRM));
 				send_to_char(buf, ch);
@@ -147,7 +147,7 @@ int mana_gain(const CharData *ch) {
 	int gain = 0, restore = int_app[GET_REAL_INT(ch)].mana_per_tic, percent = 100;
 	int stopmem = false;
 
-	if (IS_NPC(ch)) {
+	if (ch->is_npc()) {
 		gain = GetRealLevel(ch);
 	} else {
 		if (!ch->desc || STATE(ch->desc) != CON_PLAYING)
@@ -173,7 +173,7 @@ int mana_gain(const CharData *ch) {
 	if (world[ch->in_room]->fires)
 		percent += MAX(100, 10 + (world[ch->in_room]->fires * 5) * 2);
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS))
+	if (AFF_FLAGGED(ch, EAffect::kDeafness))
 		percent += 15;
 
 	// Skill/Spell calculations
@@ -206,19 +206,19 @@ int mana_gain(const CharData *ch) {
 		}
 
 	if (!IS_MANA_CASTER(ch) &&
-		(AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD) ||
-			AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND) ||
-			AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP) ||
-			((ch->in_room != kNowhere) && IS_DARK(ch->in_room) && !can_use_feat(ch, DARK_READING_FEAT)))) {
+		(AFF_FLAGGED(ch, EAffect::kHold) ||
+			AFF_FLAGGED(ch, EAffect::kBlind) ||
+			AFF_FLAGGED(ch, EAffect::kSleep) ||
+			((ch->in_room != kNowhere) && is_dark(ch->in_room) && !IsAbleToUseFeat(ch, EFeat::kDarkReading)))) {
 		stopmem = true;
 		percent = 0;
 	}
 
 	if (!IS_MANA_CASTER(ch))
 		percent += GET_MANAREG(ch);
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_POISON) && percent > 0)
+	if (AFF_FLAGGED(ch, EAffect::kPoisoned) && percent > 0)
 		percent /= 4;
-	if (!IS_NPC(ch))
+	if (!ch->is_npc())
 		percent *= ch->get_cond_penalty(P_MEM_GAIN);
 	percent = MAX(0, MIN(1000, percent));
 	gain = gain * percent / 100;
@@ -230,13 +230,13 @@ int mana_gain(const CharData::shared_ptr &ch) { return mana_gain(ch.get()); }
 int hit_gain(CharData *ch) {
 	int gain = 0, restore = MAX(10, GET_REAL_CON(ch) * 3 / 2), percent = 100;
 
-	if (IS_NPC(ch))
+	if (ch->is_npc())
 		gain = GetRealLevel(ch) + GET_REAL_CON(ch);
 	else {
 		if (!ch->desc || STATE(ch->desc) != CON_PLAYING)
 			return (0);
 
-		if (!AFF_FLAGGED(ch, EAffectFlag::AFF_NOOB_REGEN)) {
+		if (!AFF_FLAGGED(ch, EAffect::kNoobRegen)) {
 			gain = graf(age(ch)->year, restore - 3, restore, restore, restore - 2,
 						restore - 3, restore - 5, restore - 7);
 		} else {
@@ -275,14 +275,14 @@ int hit_gain(CharData *ch) {
 	percent += GET_HITREG(ch);
 
 	// TODO: перевоткнуть на apply_аффект
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_POISON) && percent > 0)
+	if (AFF_FLAGGED(ch, EAffect::kPoisoned) && percent > 0)
 		percent /= 4;
 
-	if (!IS_NPC(ch))
+	if (!ch->is_npc())
 		percent *= ch->get_cond_penalty(P_HIT_GAIN);
 	percent = MAX(0, MIN(250, percent));
 	gain = gain * percent / 100;
-	if (!IS_NPC(ch)) {
+	if (!ch->is_npc()) {
 		if (GET_POS(ch) == EPosition::kIncap || GET_POS(ch) == EPosition::kPerish)
 			gain = 0;
 	}
@@ -294,7 +294,7 @@ int hit_gain(const CharData::shared_ptr &ch) { return hit_gain(ch.get()); }
 int move_gain(CharData *ch) {
 	int gain = 0, restore = GET_REAL_CON(ch) / 2, percent = 100;
 
-	if (IS_NPC(ch))
+	if (ch->is_npc())
 		gain = GetRealLevel(ch);
 	else {
 		if (!ch->desc || STATE(ch->desc) != CON_PLAYING)
@@ -333,10 +333,10 @@ int move_gain(CharData *ch) {
 	}
 
 	percent += GET_MOVEREG(ch);
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_POISON) && percent > 0)
+	if (AFF_FLAGGED(ch, EAffect::kPoisoned) && percent > 0)
 		percent /= 4;
 
-	if (!IS_NPC(ch))
+	if (!ch->is_npc())
 		percent *= ch->get_cond_penalty(P_HIT_GAIN);
 	percent = MAX(0, MIN(250, percent));
 	gain = gain * percent / 100;
@@ -374,8 +374,8 @@ int interpolate(int min_value, int pulse) {
 void beat_punish(const CharData::shared_ptr &i) {
 	int restore;
 	// Проверяем на выпуск чара из кутузки
-	if (PLR_FLAGGED(i, PLR_HELLED) && HELL_DURATION(i) && HELL_DURATION(i) <= time(nullptr)) {
-		restore = PLR_TOG_CHK(i, PLR_HELLED);
+	if (PLR_FLAGGED(i, EPlrFlag::kHelled) && HELL_DURATION(i) && HELL_DURATION(i) <= time(nullptr)) {
+		restore = PLR_TOG_CHK(i, EPlrFlag::kHelled);
 		if (HELL_REASON(i))
 			free(HELL_REASON(i));
 		HELL_REASON(i) = 0;
@@ -398,10 +398,10 @@ void beat_punish(const CharData::shared_ptr &i) {
 		act("Насвистывая \"От звонка до звонка...\", $n появил$u в центре комнаты.", false, i.get(), 0, 0, kToRoom);
 	}
 
-	if (PLR_FLAGGED(i, PLR_NAMED)
+	if (PLR_FLAGGED(i, EPlrFlag::kNameDenied)
 		&& NAME_DURATION(i)
 		&& NAME_DURATION(i) <= time(nullptr)) {
-		restore = PLR_TOG_CHK(i, PLR_NAMED);
+		restore = PLR_TOG_CHK(i, EPlrFlag::kNameDenied);
 		if (NAME_REASON(i)) {
 			free(NAME_REASON(i));
 		}
@@ -431,10 +431,10 @@ void beat_punish(const CharData::shared_ptr &i) {
 		act("С ревом \"Имья, сестра, имья...\", $n появил$u в центре комнаты.", false, i.get(), 0, 0, kToRoom);
 	}
 
-	if (PLR_FLAGGED(i, PLR_MUTE)
+	if (PLR_FLAGGED(i, EPlrFlag::kMuted)
 		&& MUTE_DURATION(i) != 0
 		&& MUTE_DURATION(i) <= time(nullptr)) {
-		restore = PLR_TOG_CHK(i, PLR_MUTE);
+		restore = PLR_TOG_CHK(i, EPlrFlag::kMuted);
 		if (MUTE_REASON(i))
 			free(MUTE_REASON(i));
 		MUTE_REASON(i) = 0;
@@ -444,10 +444,10 @@ void beat_punish(const CharData::shared_ptr &i) {
 		send_to_char("Вы можете орать.\r\n", i.get());
 	}
 
-	if (PLR_FLAGGED(i, PLR_DUMB)
+	if (PLR_FLAGGED(i, EPlrFlag::kDumbed)
 		&& DUMB_DURATION(i) != 0
 		&& DUMB_DURATION(i) <= time(nullptr)) {
-		restore = PLR_TOG_CHK(i, PLR_DUMB);
+		restore = PLR_TOG_CHK(i, EPlrFlag::kDumbed);
 		if (DUMB_REASON(i))
 			free(DUMB_REASON(i));
 		DUMB_REASON(i) = 0;
@@ -457,10 +457,10 @@ void beat_punish(const CharData::shared_ptr &i) {
 		send_to_char("Вы можете говорить.\r\n", i.get());
 	}
 
-	if (!PLR_FLAGGED(i, PLR_REGISTERED)
+	if (!PLR_FLAGGED(i, EPlrFlag::kRegistred)
 		&& UNREG_DURATION(i) != 0
 		&& UNREG_DURATION(i) <= time(nullptr)) {
-		restore = PLR_TOG_CHK(i, PLR_REGISTERED);
+		restore = PLR_TOG_CHK(i, EPlrFlag::kRegistred);
 		if (UNREG_REASON(i))
 			free(UNREG_REASON(i));
 		UNREG_REASON(i) = 0;
@@ -494,24 +494,24 @@ void beat_punish(const CharData::shared_ptr &i) {
 
 	}
 
-	if (GET_GOD_FLAG(i, GF_GODSLIKE)
+	if (GET_GOD_FLAG(i, EGf::kGodsLike)
 		&& GCURSE_DURATION(i) != 0
 		&& GCURSE_DURATION(i) <= time(nullptr)) {
-		CLR_GOD_FLAG(i, GF_GODSLIKE);
+		CLR_GOD_FLAG(i, EGf::kGodsLike);
 		send_to_char("Вы более не под защитой Богов.\r\n", i.get());
 	}
 
-	if (GET_GOD_FLAG(i, GF_GODSCURSE)
+	if (GET_GOD_FLAG(i, EGf::kGodscurse)
 		&& GCURSE_DURATION(i) != 0
 		&& GCURSE_DURATION(i) <= time(nullptr)) {
-		CLR_GOD_FLAG(i, GF_GODSCURSE);
+		CLR_GOD_FLAG(i, EGf::kGodscurse);
 		send_to_char("Боги более не в обиде на вас.\r\n", i.get());
 	}
 
-	if (PLR_FLAGGED(i, PLR_FROZEN)
+	if (PLR_FLAGGED(i, EPlrFlag::kFrozen)
 		&& FREEZE_DURATION(i) != 0
 		&& FREEZE_DURATION(i) <= time(nullptr)) {
-		restore = PLR_TOG_CHK(i, PLR_FROZEN);
+		restore = PLR_TOG_CHK(i, EPlrFlag::kFrozen);
 		if (FREEZE_REASON(i)) {
 			free(FREEZE_REASON(i));
 		}
@@ -545,7 +545,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 		restore = IN_ROOM(i);
 	}
 
-	if (PLR_FLAGGED(i, PLR_HELLED)) {
+	if (PLR_FLAGGED(i, EPlrFlag::kHelled)) {
 		if (restore != r_helled_start_room) {
 			if (IN_ROOM(i) == STRANGE_ROOM) {
 				i->set_was_in_room(r_helled_start_room);
@@ -560,7 +560,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 				i->set_was_in_room(kNowhere);
 			}
 		}
-	} else if (PLR_FLAGGED(i, PLR_NAMED)) {
+	} else if (PLR_FLAGGED(i, EPlrFlag::kNameDenied)) {
 		if (restore != r_named_start_room) {
 			if (IN_ROOM(i) == STRANGE_ROOM) {
 				i->set_was_in_room(r_named_start_room);
@@ -577,7 +577,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 	} else if (!RegisterSystem::is_registered(i.get()) && i->desc && STATE(i->desc) == CON_PLAYING) {
 		if (restore != r_unreg_start_room
 			&& !NORENTABLE(i)
-			&& !DeathTrap::is_slow_dt(IN_ROOM(i))
+			&& !deathtrap::IsSlowDeathtrap(IN_ROOM(i))
 			&& !check_dupes_host(i->desc, 1)) {
 			if (IN_ROOM(i) == STRANGE_ROOM) {
 				i->set_was_in_room(r_unreg_start_room);
@@ -622,7 +622,7 @@ void beat_points_update(int pulse) {
 
 	// only for PC's
 	character_list.foreach_on_copy([&](const auto &i) {
-		if (IS_NPC(i))
+		if (i->is_npc())
 			return;
 
 		if (IN_ROOM(i) == kNowhere) {
@@ -658,7 +658,7 @@ void beat_points_update(int pulse) {
 		restore = hit_gain(i);
 		restore = interpolate(restore, pulse);
 
-		if (AFF_FLAGGED(i, EAffectFlag::AFF_BANDAGE)) {
+		if (AFF_FLAGGED(i, EAffect::kBandage)) {
 			for (const auto &aff : i->affected) {
 				if (aff->type == kSpellBandage) {
 					restore += MIN(GET_REAL_MAX_HIT(i) / 10, aff->modifier);
@@ -671,30 +671,24 @@ void beat_points_update(int pulse) {
 			GET_HIT(i) = MIN(GET_HIT(i) + restore, GET_REAL_MAX_HIT(i));
 		}
 
-		// Проверка аффекта !исступление!. Поместил именно здесь,
-		// но если кто найдет более подходящее место переносите =)
-		//Gorrah: перенес в handler::affect_total
-		//check_berserk(i);
-
 		// Restore PC caster mem
-		if (!IS_MANA_CASTER(i) && !MEMQUEUE_EMPTY(i)) {
+		if (!IS_MANA_CASTER(i) && !i->mem_queue.Empty()) {
 			restore = mana_gain(i);
 			restore = interpolate(restore, pulse);
-			GET_MEM_COMPLETED(i) += restore;
+			i->mem_queue.stored += restore;
 
-			if (AFF_FLAGGED(i, EAffectFlag::AFF_RECALL_SPELLS)) {
+			if (AFF_FLAGGED(i, EAffect::kMemorizeSpells)) {
 				handle_recall_spells(i.get());
 			}
 
-			while (GET_MEM_COMPLETED(i) > GET_MEM_CURRENT(i.get())
-				&& !MEMQUEUE_EMPTY(i)) {
+			while (i->mem_queue.stored > GET_MEM_CURRENT(i.get()) && !i->mem_queue.Empty()) {
 				int spellnum;
 				spellnum = MemQ_learn(i);
 				GET_SPELL_MEM(i, spellnum)++;
-				GET_CASTER(i) += spell_info[spellnum].danger;
+				i->caster_level += spell_info[spellnum].danger;
 			}
 
-			if (MEMQUEUE_EMPTY(i)) {
+			if (i->mem_queue.Empty()) {
 				if (GET_RELIGION(i) == kReligionMono) {
 					send_to_char("Наконец ваши занятия окончены. Вы с улыбкой захлопнули свой часослов.\r\n", i.get());
 					act("Окончив занятия, $n с улыбкой захлопнул$g часослов.", false, i.get(), 0, 0, kToRoom);
@@ -705,22 +699,22 @@ void beat_points_update(int pulse) {
 			}
 		}
 
-		if (!IS_MANA_CASTER(i) && MEMQUEUE_EMPTY(i)) {
-			GET_MEM_TOTAL(i) = 0;
-			GET_MEM_COMPLETED(i) = 0;
+		if (!IS_MANA_CASTER(i) && i->mem_queue.Empty()) {
+			i->mem_queue.total = 0;
+			i->mem_queue.stored = 0;
 		}
 
 		// Гейн маны у волхвов
-		if (IS_MANA_CASTER(i) && GET_MANA_STORED(i) < GET_MAX_MANA(i.get())) {
-			GET_MANA_STORED(i) += mana_gain(i);
-			if (GET_MANA_STORED(i) >= GET_MAX_MANA(i.get())) {
-				GET_MANA_STORED(i) = GET_MAX_MANA(i.get());
+		if (IS_MANA_CASTER(i) && i->mem_queue.stored < GET_MAX_MANA(i.get())) {
+			i->mem_queue.stored += mana_gain(i);
+			if (i->mem_queue.stored >= GET_MAX_MANA(i.get())) {
+				i->mem_queue.stored = GET_MAX_MANA(i.get());
 				send_to_char("Ваша магическая энергия полностью восстановилась\r\n", i.get());
 			}
 		}
 
-		if (IS_MANA_CASTER(i) && GET_MANA_STORED(i) > GET_MAX_MANA(i.get())) {
-			GET_MANA_STORED(i) = GET_MAX_MANA(i.get());
+		if (IS_MANA_CASTER(i) && i->mem_queue.stored > GET_MAX_MANA(i.get())) {
+			i->mem_queue.stored = GET_MAX_MANA(i.get());
 		}
 
 		// Restore moves
@@ -738,7 +732,7 @@ void beat_points_update(int pulse) {
 void update_clan_exp(CharData *ch, int gain) {
 	if (CLAN(ch) && gain != 0) {
 		// экспа для уровня клана (+ только на праве, - любой, но /5)
-		if (gain < 0 || GET_GOD_FLAG(ch, GF_REMORT)) {
+		if (gain < 0 || GET_GOD_FLAG(ch, EGf::kRemort)) {
 			int tmp = gain > 0 ? gain : gain / 5;
 			CLAN(ch)->SetClanExp(ch, tmp);
 		}
@@ -758,7 +752,7 @@ void gain_exp(CharData *ch, int gain) {
 	int num_levels = 0;
 	char buf[128];
 
-	if (IS_NPC(ch)) {
+	if (ch->is_npc()) {
 		ch->set_exp(ch->get_exp() + gain);
 		return;
 	} else {
@@ -766,14 +760,14 @@ void gain_exp(CharData *ch, int gain) {
 		ZoneExpStat::add(zone_table[world[ch->in_room]->zone_rn].vnum, gain);
 	}
 
-	if (!IS_NPC(ch) && ((GetRealLevel(ch) < 1 || GetRealLevel(ch) >= kLvlImmortal)))
+	if (!ch->is_npc() && ((GetRealLevel(ch) < 1 || GetRealLevel(ch) >= kLvlImmortal)))
 		return;
 
 	if (gain > 0 && GetRealLevel(ch) < kLvlImmortal) {
 		gain = MIN(max_exp_gain_pc(ch), gain);    // put a cap on the max gain per kill
 		ch->set_exp(ch->get_exp() + gain);
 		if (GET_EXP(ch) >= level_exp(ch, kLvlImmortal)) {
-			if (!GET_GOD_FLAG(ch, GF_REMORT) && GET_REAL_REMORT(ch) < kMaxRemort) {
+			if (!GET_GOD_FLAG(ch, EGf::kRemort) && GET_REAL_REMORT(ch) < kMaxRemort) {
 				if (Remort::can_remort_now(ch)) {
 					send_to_char(ch, "%sПоздравляем, вы получили право на перевоплощение!%s\r\n",
 								 CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
@@ -782,7 +776,7 @@ void gain_exp(CharData *ch, int gain) {
 								 "%sПоздравляем, вы набрали максимальное количество опыта!\r\n"
 								 "%s%s\r\n", CCIGRN(ch, C_NRM), Remort::WHERE_TO_REMORT_STR.c_str(), CCNRM(ch, C_NRM));
 				}
-				SET_GOD_FLAG(ch, GF_REMORT);
+				SET_GOD_FLAG(ch, EGf::kRemort);
 			}
 		}
 		ch->set_exp(MIN(GET_EXP(ch), level_exp(ch, kLvlImmortal) - 1));
@@ -820,14 +814,14 @@ void gain_exp(CharData *ch, int gain) {
 		}
 	}
 	if ((GET_EXP(ch) < level_exp(ch, kLvlImmortal) - 1)
-		&& GET_GOD_FLAG(ch, GF_REMORT)
+		&& GET_GOD_FLAG(ch, EGf::kRemort)
 		&& gain
 		&& (GetRealLevel(ch) < kLvlImmortal)) {
 		if (Remort::can_remort_now(ch)) {
 			send_to_char(ch, "%sВы потеряли право на перевоплощение!%s\r\n",
 						 CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 		}
-		CLR_GOD_FLAG(ch, GF_REMORT);
+		CLR_GOD_FLAG(ch, EGf::kRemort);
 	}
 
 	char_stat::AddClassExp(GET_CLASS(ch), gain);
@@ -840,7 +834,7 @@ void gain_exp_regardless(CharData *ch, int gain) {
 	int num_levels = 0;
 
 	ch->set_exp(ch->get_exp() + gain);
-	if (!IS_NPC(ch)) {
+	if (!ch->is_npc()) {
 		if (gain > 0) {
 			while (GetRealLevel(ch) < kLvlImplementator && GET_EXP(ch) >= level_exp(ch, GetRealLevel(ch) + 1)) {
 				ch->set_level(ch->get_level() + 1);
@@ -892,7 +886,7 @@ void gain_condition(CharData *ch, unsigned condition, int value) {
 		return;
 	}
 
-	if (IS_NPC(ch) || GET_COND(ch, condition) == -1) {
+	if (ch->is_npc() || GET_COND(ch, condition) == -1) {
 		return;
 	}
 
@@ -902,22 +896,22 @@ void gain_condition(CharData *ch, unsigned condition, int value) {
 	}
 
 	GET_COND(ch, condition) += value;
-	GET_COND(ch, condition) = MAX(0, GET_COND(ch, condition));
+	GET_COND(ch, condition) = std::max(0, GET_COND(ch, condition));
 
 	// обработка после увеличения
 	switch (condition) {
-		case DRUNK: GET_COND(ch, condition) = MIN(CHAR_MORTALLY_DRUNKED + 1, GET_COND(ch, condition));
+		case DRUNK: GET_COND(ch, condition) = std::min(kMortallyDrunked + 1, GET_COND(ch, condition));
 			break;
 
-		default: GET_COND(ch, condition) = MIN(MAX_COND_VALUE, GET_COND(ch, condition));
+		default: GET_COND(ch, condition) = std::min(kMaxCondition, GET_COND(ch, condition));
 			break;
 	}
 
-	if (cond_state >= CHAR_DRUNKED && GET_COND(ch, DRUNK) < CHAR_DRUNKED) {
+	if (cond_state >= kDrunked && GET_COND(ch, DRUNK) < kDrunked) {
 		GET_DRUNK_STATE(ch) = 0;
 	}
 
-	if (PLR_FLAGGED(ch, PLR_WRITING))
+	if (PLR_FLAGGED(ch, EPlrFlag::kWriting))
 		return;
 
 	int cond_value = GET_COND(ch, condition);
@@ -954,7 +948,7 @@ void gain_condition(CharData *ch, unsigned condition, int value) {
 
 		case DRUNK:
 			//Если чара прекратило штормить, шлем сообщение
-			if (cond_state >= CHAR_MORTALLY_DRUNKED && GET_COND(ch, DRUNK) < CHAR_MORTALLY_DRUNKED) {
+			if (cond_state >= kMortallyDrunked && GET_COND(ch, DRUNK) < kMortallyDrunked) {
 				send_to_char("Наконец-то вы протрезвели.\r\n", ch);
 			}
 			return;
@@ -967,9 +961,9 @@ void underwater_check() {
 	DescriptorData *d;
 	for (d = descriptor_list; d; d = d->next) {
 		if (d->character
-			&& SECT(d->character->in_room) == kSectUnderwater
+			&& SECT(d->character->in_room) == ESector::kUnderwater
 			&& !IS_GOD(d->character)
-			&& !AFF_FLAGGED(d->character, EAffectFlag::AFF_WATERBREATH)) {
+			&& !AFF_FLAGGED(d->character, EAffect::kWaterBreath)) {
 			sprintf(buf, "Player %s died under water (room %d)",
 					GET_NAME(d->character), GET_ROOM_VNUM(d->character->in_room));
 
@@ -1001,19 +995,19 @@ void check_idling(CharData *ch) {
 				send_to_char("Вы пропали в пустоте этого мира.\r\n", ch);
 
 				Crash_crashsave(ch);
-				char_from_room(ch);
-				char_to_room(ch, STRANGE_ROOM);
-				remove_rune_label(ch);
+				ExtractCharFromRoom(ch);
+				PlaceCharToRoom(ch, STRANGE_ROOM);
+				RemoveRuneLabelFromWorld(ch, ESpell::kSpellRuneLabel);
 			} else if (ch->char_specials.timer > idle_rent_time) {
 				if (ch->in_room != kNowhere)
-					char_from_room(ch);
-				char_to_room(ch, STRANGE_ROOM);
+					ExtractCharFromRoom(ch);
+				PlaceCharToRoom(ch, STRANGE_ROOM);
 				Crash_idlesave(ch);
 				Depot::exit_char(ch);
 				Clan::clan_invoice(ch, false);
 				sprintf(buf, "%s force-rented and extracted (idle).", GET_NAME(ch));
 				mudlog(buf, NRM, kLvlGod, SYSLOG, true);
-				extract_char(ch, false);
+				ExtractCharFromWorld(ch, false);
 
 				// чара в лд уже посейвило при обрыве коннекта
 				if (ch->desc) {
@@ -1037,14 +1031,14 @@ inline bool NO_DESTROY(const ObjData *obj) {
 		|| obj->get_worn_by()
 		|| obj->get_in_obj()
 //		|| (obj->get_script()->has_triggers())
-		|| GET_OBJ_TYPE(obj) == ObjData::ITEM_FOUNTAIN
+		|| GET_OBJ_TYPE(obj) == EObjType::kFountain
 		|| obj->get_in_room() == kNowhere
-		|| (obj->get_extra_flag(EExtraFlag::ITEM_NODECAY)
-			&& !ROOM_FLAGGED(obj->get_in_room(), ROOM_DEATH)));
+		|| (obj->has_flag(EObjFlag::kNodecay)
+			&& !ROOM_FLAGGED(obj->get_in_room(), ERoomFlag::kDeathTrap)));
 }
 
 inline bool NO_TIMER(const ObjData *obj) {
-	if (GET_OBJ_TYPE(obj) == ObjData::ITEM_FOUNTAIN)
+	if (GET_OBJ_TYPE(obj) == EObjType::kFountain)
 		return true;
 // так как таймер всего 30 шмот из тестовой зоны в своей зоне запретим тикать на земле
 // полный вариан
@@ -1061,7 +1055,7 @@ inline bool NO_TIMER(const ObjData *obj) {
 	}
 */
 // а почему бы не так?
-	if (zone_table[world[obj->get_in_room()]->zone_rn].under_construction && !OBJ_FLAGGED(obj, EExtraFlag::ITEM_TICKTIMER))
+	if (zone_table[world[obj->get_in_room()]->zone_rn].under_construction && !obj->has_flag(EObjFlag::kTicktimer))
 		return true;
 	return false;
 }
@@ -1078,7 +1072,7 @@ void hour_update(void) {
 	DescriptorData *i;
 
 	for (i = descriptor_list; i; i = i->next) {
-		if (STATE(i) != CON_PLAYING || i->character == nullptr || PLR_FLAGGED(i->character, PLR_WRITING))
+		if (STATE(i) != CON_PLAYING || i->character == nullptr || PLR_FLAGGED(i->character, EPlrFlag::kWriting))
 			continue;
 		sprintf(buf, "%sМинул час.%s\r\n", CCIRED(i->character, C_NRM), CCNRM(i->character, C_NRM));
 		SEND_TO_Q(buf, i);
@@ -1124,8 +1118,8 @@ void room_point_update() {
 		}
 		if (world[count]->ices)
 			if (!--world[count]->ices) {
-				GET_ROOM(count)->unset_flag(ROOM_ICEDEATH);
-				DeathTrap::remove(world[count]);
+				world[count]->unset_flag(ERoomFlag::kIceTrap);
+				deathtrap::remove(world[count]);
 			}
 
 		world[count]->glight = MAX(0, world[count]->glight);
@@ -1136,42 +1130,42 @@ void room_point_update() {
 		for (track = world[count]->track, temp = nullptr; track; track = next_track) {
 			next_track = track->next;
 			switch (real_sector(count)) {
-				case kSectOnlyFlying:
-				case kSectUnderwater:
-				case kSectSecret:
-				case kSectWaterSwim:
-				case kSectWaterNoswim: spellnum = 31;
+				case ESector::kOnlyFlying:
+				case ESector::kUnderwater:
+				case ESector::kSecret:
+				case ESector::kWaterSwim:
+				case ESector::kWaterNoswim: spellnum = 31;
 					break;
-				case kSectThickIce:
-				case kSectNormalIce:
-				case kSectThinIce: spellnum = 16;
+				case ESector::kThickIce:
+				case ESector::kNormalIce:
+				case ESector::kThinIce: spellnum = 16;
 					break;
-				case kSectCity: spellnum = 4;
+				case ESector::kCity: spellnum = 4;
 					break;
-				case kSectField:
-				case kSectFieldRain: spellnum = 2;
+				case ESector::kField:
+				case ESector::kFieldRain: spellnum = 2;
 					break;
-				case kSectFieldSnow: spellnum = 1;
+				case ESector::kFieldSnow: spellnum = 1;
 					break;
-				case kSectForest:
-				case kSectForestRain: spellnum = 2;
+				case ESector::kForest:
+				case ESector::kForestRain: spellnum = 2;
 					break;
-				case kSectForestSnow: spellnum = 1;
+				case ESector::kForestSnow: spellnum = 1;
 					break;
-				case kSectHills:
-				case kSectHillsRain: spellnum = 3;
+				case ESector::kHills:
+				case ESector::kHillsRain: spellnum = 3;
 					break;
-				case kSectHillsSnow: spellnum = 1;
+				case ESector::kHillsSnow: spellnum = 1;
 					break;
-				case kSectMountain: spellnum = 4;
+				case ESector::kMountain: spellnum = 4;
 					break;
-				case kSectMountainSnow: spellnum = 1;
+				case ESector::kMountainSnow: spellnum = 1;
 					break;
 				default: spellnum = 2;
 			}
 
 			int restore;
-			for (mana = 0, restore = false; mana < kDirMaxNumber; mana++) {
+			for (mana = 0, restore = false; mana < EDirection::kMaxDirNum; mana++) {
 				if ((track->time_income[mana] <<= spellnum)) {
 					restore = true;
 				}
@@ -1229,8 +1223,8 @@ void clan_chest_invoice(ObjData *j) {
 	for (DescriptorData *d = descriptor_list; d; d = d->next) {
 		if (d->character
 			&& STATE(d) == CON_PLAYING
-			&& !AFF_FLAGGED(d->character, EAffectFlag::AFF_DEAFNESS)
-			&& PRF_FLAGGED(d->character, PRF_DECAY_MODE)
+			&& !AFF_FLAGGED(d->character, EAffect::kDeafness)
+			&& PRF_FLAGGED(d->character, EPrf::kDecayMode)
 			&& CLAN(d->character)
 			&& CLAN(d->character)->GetRent() == room) {
 			send_to_char(d->character.get(), "[Хранилище]: %s'%s%s рассыпал%s в прах'%s\r\n",
@@ -1268,13 +1262,13 @@ void clan_chest_point_update(ObjData *j) {
 	}
 
 	if (j->get_timer() <= 0
-		|| (j->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY)
+		|| (j->has_flag(EObjFlag::kZonedacay)
 			&& GET_OBJ_VNUM_ZONE_FROM(j)
 			&& up_obj_where(j->get_in_obj()) != kNowhere
 			&& GET_OBJ_VNUM_ZONE_FROM(j) != zone_table[world[up_obj_where(j->get_in_obj())]->zone_rn].vnum)) {
 		clan_chest_invoice(j);
-		obj_from_obj(j);
-		extract_obj(j);
+		ExtractObjFromObj(j);
+		ExtractObjFromWorld(j);
 	}
 }
 
@@ -1343,7 +1337,7 @@ void obj_point_update() {
 		if (j->get_in_obj()
 			&& !j->get_in_obj()->get_carried_by()
 			&& !j->get_in_obj()->get_worn_by()
-			&& j->get_in_obj()->get_extra_flag(EExtraFlag::ITEM_NODECAY)
+			&& j->get_in_obj()->has_flag(EObjFlag::kNodecay)
 			&& GET_ROOM_VNUM(j->get_in_obj()->get_in_room()) % 100 != 99) {
 			int zone = world[j->get_in_obj()->get_in_room()]->zone_rn;
 			bool find = 0;
@@ -1376,25 +1370,25 @@ void obj_point_update() {
 				ObjData *jj, *next_thing2;
 				for (jj = j->get_contains(); jj; jj = next_thing2) {
 					next_thing2 = jj->get_next_content();    // Next in inventory
-					obj_from_obj(jj);
+					ExtractObjFromObj(jj);
 					if (j->get_in_obj()) {
-						obj_to_obj(jj, j->get_in_obj());
+						PlaceObjIntoObj(jj, j->get_in_obj());
 					} else if (j->get_carried_by()) {
-						obj_to_char(jj, j->get_carried_by());
+						PlaceObjToInventory(jj, j->get_carried_by());
 					} else if (j->get_in_room() != kNowhere) {
-						obj_to_room(jj, j->get_in_room());
+						PlaceObjToRoom(jj, j->get_in_room());
 					} else {
 						log("SYSERR: extract %s from %s to kNothing !!!",
 							jj->get_PName(0).c_str(), j->get_PName(0).c_str());
 						// core_dump();
-						extract_obj(jj);
+						ExtractObjFromWorld(jj);
 					}
 				}
 
 				// Конец Ладник
 				if (j->get_carried_by()) {
 					act("$p рассыпал$U в ваших руках.", false, j->get_carried_by(), j.get(), 0, kToChar);
-					obj_from_char(j.get());
+					ExtractObjFromChar(j.get());
 				} else if (j->get_in_room() != kNowhere) {
 					if (!world[j->get_in_room()]->people.empty()) {
 						act("Черви полностью сожрали $o3.",
@@ -1411,15 +1405,15 @@ void obj_point_update() {
 							kToChar);
 					}
 
-					obj_from_room(j.get());
+					ExtractObjFromRoom(j.get());
 				} else if (j->get_in_obj()) {
-					obj_from_obj(j.get());
+					ExtractObjFromObj(j.get());
 				}
-				extract_obj(j.get());
+				ExtractObjFromWorld(j.get());
 			}
 		} else {
-			if (SCRIPT_CHECK(j.get(), OTRIG_TIMER)) {
-				if (j->get_timer() > 0 && j->get_extra_flag(EExtraFlag::ITEM_TICKTIMER)) {
+			if (CheckSript(j.get(), OTRIG_TIMER)) {
+				if (j->get_timer() > 0 && j->has_flag(EObjFlag::kTicktimer)) {
 					j->dec_timer();
 				}
 				if (!j->get_timer()) {
@@ -1433,7 +1427,7 @@ void obj_point_update() {
 			if (j && (j->get_in_room() != kNowhere) && j->get_timer() > 0 && !NO_TIMER(j.get())) {
 				j->dec_timer();
 			}
-			if (j && ((j->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY)
+			if (j && ((j->has_flag(EObjFlag::kZonedacay)
 					&& GET_OBJ_VNUM_ZONE_FROM(j)
 					&& up_obj_where(j.get()) != kNowhere
 					&& GET_OBJ_VNUM_ZONE_FROM(j) != zone_table[world[up_obj_where(j.get())]->zone_rn].vnum)
@@ -1443,32 +1437,32 @@ void obj_point_update() {
 				ObjData *jj, *next_thing2;
 				for (jj = j->get_contains(); jj; jj = next_thing2) {
 					next_thing2 = jj->get_next_content();
-					obj_from_obj(jj);
+					ExtractObjFromObj(jj);
 					if (j->get_in_obj()) {
-						obj_to_obj(jj, j->get_in_obj());
+						PlaceObjIntoObj(jj, j->get_in_obj());
 					} else if (j->get_worn_by()) {
-						obj_to_char(jj, j->get_worn_by());
+						PlaceObjToInventory(jj, j->get_worn_by());
 					} else if (j->get_carried_by()) {
-						obj_to_char(jj, j->get_carried_by());
+						PlaceObjToInventory(jj, j->get_carried_by());
 					} else if (j->get_in_room() != kNowhere) {
-						obj_to_room(jj, j->get_in_room());
+						PlaceObjToRoom(jj, j->get_in_room());
 					} else {
 						log("SYSERR: extract %s from %s to kNothing !!!",
 							jj->get_PName(0).c_str(),
 							j->get_PName(0).c_str());
 						// core_dump();
-						extract_obj(jj);
+						ExtractObjFromWorld(jj);
 					}
 				}
 
 				// Конец Ладник
 				if (j->get_worn_by()) {
 					switch (j->get_worn_on()) {
-						case WEAR_LIGHT:
-						case WEAR_SHIELD:
-						case WEAR_WIELD:
-						case WEAR_HOLD:
-						case WEAR_BOTHS:
+						case EEquipPos::kLight:
+						case EEquipPos::kShield:
+						case EEquipPos::kWield:
+						case EEquipPos::kHold:
+						case EEquipPos::kBoths:
 							if (IS_CHARMICE(j->get_worn_by())) {
 								charmee_obj_decay_tell(j->get_worn_by(), j.get(), 0);
 							} else {
@@ -1488,7 +1482,7 @@ void obj_point_update() {
 							}
 							break;
 					}
-					unequip_char(j->get_worn_by(), j->get_worn_on(), CharEquipFlags());
+					UnequipChar(j->get_worn_by(), j->get_worn_on(), CharEquipFlags());
 				} else if (j->get_carried_by()) {
 					if (IS_CHARMICE(j->get_carried_by())) {
 						charmee_obj_decay_tell(j->get_carried_by(), j.get(), 0);
@@ -1497,9 +1491,9 @@ void obj_point_update() {
 								 char_get_custom_label(j.get(), j->get_carried_by()).c_str());
 						act(buf, false, j->get_carried_by(), j.get(), 0, kToChar);
 					}
-					obj_from_char(j.get());
+					ExtractObjFromChar(j.get());
 				} else if (j->get_in_room() != kNowhere) {
-					if (j->get_timer() <= 0 && j->get_extra_flag(EExtraFlag::ITEM_NODECAY)) {
+					if (j->get_timer() <= 0 && j->has_flag(EObjFlag::kNodecay)) {
 						snprintf(buf, kMaxStringLength, "ВНИМАНИЕ!!! Объект: %s VNUM: %d рассыпался по таймеру на земле в комнате: %d",
 								 GET_OBJ_PNAME(j.get(), 0).c_str(), GET_OBJ_VNUM(j.get()), world[j->get_in_room()]->room_vn);
 						mudlog(buf, CMP, kLvlGreatGod, ERRLOG, true);
@@ -1512,7 +1506,7 @@ void obj_point_update() {
 							false, world[j->get_in_room()]->first_character(), j.get(), 0, kToRoom);
 					}
 
-					obj_from_room(j.get());
+					ExtractObjFromRoom(j.get());
 				} else if (j->get_in_obj()) {
 					// если сыпется в находящемся у чара или чармиса контейнере, то об этом тоже сообщаем
 					CharData *cont_owner = nullptr;
@@ -1534,9 +1528,9 @@ void obj_point_update() {
 							act(buf, false, cont_owner, j.get(), 0, kToChar);
 						}
 					}
-					obj_from_obj(j.get());
+					ExtractObjFromObj(j.get());
 				}
-			extract_obj(j.get());
+				ExtractObjFromWorld(j.get());
 			} else {
 				if (!j) {
 					return;
@@ -1544,10 +1538,10 @@ void obj_point_update() {
 
 				// decay poison && other affects
 				for (count = 0; count < kMaxObjAffect; count++) {
-					if (j->get_affected(count).location == APPLY_POISON) {
+					if (j->get_affected(count).location == EApply::kPoison) {
 						j->dec_affected_value(count);
 						if (j->get_affected(count).modifier <= 0) {
-							j->set_affected(count, APPLY_NONE, 0);
+							j->set_affected(count, EApply::kNone, 0);
 						}
 					}
 				}
@@ -1557,7 +1551,7 @@ void obj_point_update() {
 
 	// Тонущие, падающие, и сыпящиеся обьекты.
 	world_objects.foreach_on_copy([&](const ObjData::shared_ptr &j) {
-		obj_decay(j.get());
+		CheckObjDecay(j.get());
 	});
 }
 
@@ -1573,20 +1567,20 @@ void point_update() {
 	for (const auto &character : character_list) {
 		const auto i = character.get();
 
-		if (IS_NPC(i)) {
-			i->inc_restore_timer(SECS_PER_MUD_HOUR);
+		if (i->is_npc()) {
+			i->inc_restore_timer(kSecsPerMudHour);
 		}
 
 		/* Если чар или моб попытался проснуться а на нем аффект сон,
 		то он снова должен валиться в сон */
-		if (AFF_FLAGGED(i, EAffectFlag::AFF_SLEEP)
+		if (AFF_FLAGGED(i, EAffect::kSleep)
 			&& GET_POS(i) > EPosition::kSleep) {
 			GET_POS(i) = EPosition::kSleep;
 			send_to_char("Вы попытались очнуться, но снова заснули и упали наземь.\r\n", i);
 			act("$n попытал$u очнуться, но снова заснул$a и упал$a наземь.", true, i, 0, 0, kToRoom);
 		}
 
-		if (!IS_NPC(i)) {
+		if (!i->is_npc()) {
 			gain_condition(i, DRUNK, -1);
 
 			if (average_day_temp() < -20) {
@@ -1612,7 +1606,7 @@ void point_update() {
 
 		if (GET_POS(i) >= EPosition::kStun)    // Restore hit points
 		{
-			if (IS_NPC(i)
+			if (i->is_npc()
 				|| !UPDATE_PC_ON_BEAT) {
 				const int count = hit_gain(i);
 				if (GET_HIT(i) < GET_REAL_MAX_HIT(i)) {
@@ -1621,41 +1615,41 @@ void point_update() {
 			}
 
 			// Restore mobs
-			if (IS_NPC(i)
+			if (i->is_npc()
 				&& !i->get_fighting())    // Restore horse
 			{
 				if (IS_HORSE(i)) {
 					int mana = 0;
 
 					switch (real_sector(IN_ROOM(i))) {
-						case kSectOnlyFlying:
-						case kSectUnderwater:
-						case kSectSecret:
-						case kSectWaterSwim:
-						case kSectWaterNoswim:
-						case kSectThickIce:
-						case kSectNormalIce: [[fallthrough]];
-						case kSectThinIce: mana = 0;
+						case ESector::kOnlyFlying:
+						case ESector::kUnderwater:
+						case ESector::kSecret:
+						case ESector::kWaterSwim:
+						case ESector::kWaterNoswim:
+						case ESector::kThickIce:
+						case ESector::kNormalIce: [[fallthrough]];
+						case ESector::kThinIce: mana = 0;
 							break;
-						case kSectCity: mana = 20;
+						case ESector::kCity: mana = 20;
 							break;
-						case kSectField: [[fallthrough]];
-						case kSectFieldRain: mana = 100;
+						case ESector::kField: [[fallthrough]];
+						case ESector::kFieldRain: mana = 100;
 							break;
-						case kSectFieldSnow: mana = 40;
+						case ESector::kFieldSnow: mana = 40;
 							break;
-						case kSectForest:
-						case kSectForestRain: mana = 80;
+						case ESector::kForest:
+						case ESector::kForestRain: mana = 80;
 							break;
-						case kSectForestSnow: mana = 30;
+						case ESector::kForestSnow: mana = 30;
 							break;
-						case kSectHills: [[fallthrough]];
-						case kSectHillsRain: mana = 70;
+						case ESector::kHills: [[fallthrough]];
+						case ESector::kHillsRain: mana = 70;
 							break;
-						case kSectHillsSnow: [[fallthrough]];
-						case kSectMountain: mana = 25;
+						case ESector::kHillsSnow: [[fallthrough]];
+						case ESector::kMountain: mana = 25;
 							break;
-						case kSectMountainSnow: mana = 10;
+						case ESector::kMountainSnow: mana = 10;
 							break;
 						default: mana = 10;
 					}
@@ -1664,7 +1658,7 @@ void point_update() {
 						mana /= 2;
 					}
 
-					GET_HORSESTATE(i) = MIN(800, GET_HORSESTATE(i) + mana);
+					GET_HORSESTATE(i) = std::min(800, GET_HORSESTATE(i) + mana);
 				}
 
 				// Forget PC's
@@ -1700,7 +1694,7 @@ void point_update() {
 						if (GET_SPELL_MEM(mob_proto + mob_num, spellnum) > GET_SPELL_MEM(i, spellnum)) {
 							GET_SPELL_MEM(i, spellnum)++;
 							mana += ((spell_info[spellnum].mana_max + spell_info[spellnum].mana_min) / 2);
-							GET_CASTER(i) += (IS_SET(spell_info[spellnum].routines, NPC_CALCULATE) ? 1 : 0);
+							i->caster_level += (IS_SET(spell_info[spellnum].routines, NPC_CALCULATE) ? 1 : 0);
 						}
 
 						++count;
@@ -1709,7 +1703,7 @@ void point_update() {
 			}
 
 			// Restore moves
-			if (IS_NPC(i)
+			if (i->is_npc()
 				|| !UPDATE_PC_ON_BEAT) {
 				if (GET_MOVE(i) < GET_REAL_MAX_MOVE(i)) {
 					GET_MOVE(i) = MIN(GET_MOVE(i) + move_gain(i), GET_REAL_MAX_MOVE(i));
@@ -1736,11 +1730,11 @@ void point_update() {
 			}
 		}
 
-		update_char_objects(i);
+		UpdateCharObjects(i);
 
-		if (!IS_NPC(i)
+		if (!i->is_npc()
 			&& GetRealLevel(i) < idle_max_level
-			&& !PRF_FLAGGED(i, PRF_CODERINFO)) {
+			&& !PRF_FLAGGED(i, EPrf::kCoderinfo)) {
 			check_idling(i);
 		}
 	});
@@ -1753,7 +1747,7 @@ void repop_decay(ZoneRnum zone) {
 		const ZoneVnum obj_zone_num = j->get_vnum() / 100;
 
 		if (obj_zone_num == zone_num
-			&& j->get_extra_flag(EExtraFlag::ITEM_REPOP_DECAY)) {
+			&& j->has_flag(EObjFlag::kRepopDecay)) {
 			if (j->get_worn_by()) {
 				act("$o рассыпал$U, вспыхнув ярким светом...", false, j->get_worn_by(), j.get(), 0, kToChar);
 			} else if (j->get_carried_by()) {
@@ -1782,7 +1776,7 @@ void repop_decay(ZoneRnum zone) {
 				}
 			}
 
-			extract_obj(j.get());
+			ExtractObjFromWorld(j.get());
 		}
 	});
 }

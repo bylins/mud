@@ -234,39 +234,15 @@ bool is_head(std::string name) {
 
 int get_virtual_race(CharData *mob) {
 	if (mob->get_role(MOB_ROLE_BOSS)) {
-		return NPC_BOSS;
+		return kNpcBoss;
 	}
 	std::map<int, int>::iterator it;
 	std::map<int, int> unique_mobs = SetsDrop::get_unique_mob();
 	for (it = unique_mobs.begin(); it != unique_mobs.end(); it++) {
 		if (GET_MOB_VNUM(mob) == it->first)
-			return NPC_UNIQUE;
+			return kNpcUnique;
 	}
 	return -1;
-}
-
-CharData *get_random_pc_group(CharData *ch) {
-	std::vector<CharData *> tmp_list;
-	CharData *victim;
-	CharData *k;
-	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
-		return nullptr;
-	if (ch->has_master()) {
-		k = ch->get_master();
-	} else {
-		k = ch;
-	}
-	for (Follower *i = k->followers; i; i = i->next) {
-		if (!IS_NPC(k) && !IS_CHARMICE(i->ch) && (k != i->ch) && (k->in_room == i->ch->in_room)) {
-			tmp_list.push_back(i->ch);
-		}
-	}
-	if (tmp_list.empty()) {
-		return nullptr;
-	}
-	tmp_list.push_back(k); // засунем в список лидера
-	victim = tmp_list.at(number(0, tmp_list.size() - 1));
-	return victim;
 }
 
 /*
@@ -466,10 +442,10 @@ TimeInfoData *real_time_passed(time_t t2, time_t t1) {
 
 	secs = (long) (t2 - t1);
 
-	now.hours = (secs / SECS_PER_REAL_HOUR) % 24;    // 0..23 hours //
-	secs -= SECS_PER_REAL_HOUR * now.hours;
+	now.hours = (secs / kSecsPerRealHour) % 24;    // 0..23 hours //
+	secs -= kSecsPerRealHour * now.hours;
 
-	now.day = (secs / SECS_PER_REAL_DAY);    // 0..34 days  //
+	now.day = (secs / kSecsPerRealDay);    // 0..34 days  //
 	// secs -= SECS_PER_REAL_DAY * now.day; - Not used. //
 
 	now.month = -1;
@@ -485,16 +461,16 @@ TimeInfoData *mud_time_passed(time_t t2, time_t t1) {
 
 	secs = (long) (t2 - t1);
 
-	now.hours = (secs / (SECS_PER_MUD_HOUR * TIME_KOEFF)) % HOURS_PER_DAY;    // 0..23 hours //
-	secs -= SECS_PER_MUD_HOUR * TIME_KOEFF * now.hours;
+	now.hours = (secs / (kSecsPerMudHour * kTimeKoeff)) % kHoursPerDay;    // 0..23 hours //
+	secs -= kSecsPerMudHour * kTimeKoeff * now.hours;
 
-	now.day = (secs / (SECS_PER_MUD_DAY * TIME_KOEFF)) % DAYS_PER_MONTH;    // 0..29 days  //
-	secs -= SECS_PER_MUD_DAY * TIME_KOEFF * now.day;
+	now.day = (secs / (kSecsPerMudDay * kTimeKoeff)) % kDaysPerMonth;    // 0..29 days  //
+	secs -= kSecsPerMudDay * kTimeKoeff * now.day;
 
-	now.month = (secs / (SECS_PER_MUD_MONTH * TIME_KOEFF)) % MONTHS_PER_YEAR;    // 0..11 months //
-	secs -= SECS_PER_MUD_MONTH * TIME_KOEFF * now.month;
+	now.month = (secs / (kSecsPerMudMonth * kTimeKoeff)) % kMonthsPerYear;    // 0..11 months //
+	secs -= kSecsPerMudMonth * kTimeKoeff * now.month;
 
-	now.year = (secs / (SECS_PER_MUD_YEAR * TIME_KOEFF));    // 0..XX? years //
+	now.year = (secs / (kSecsPerMudYear * kTimeKoeff));    // 0..XX? years //
 
 	return (&now);
 }
@@ -545,28 +521,28 @@ int get_filename(const char *orig_name, char *filename, int mode) {
 	}
 
 	switch (mode) {
-		case ALIAS_FILE: prefix = LIB_PLRALIAS;
+		case kAliasFile: prefix = LIB_PLRALIAS;
 			suffix = SUF_ALIAS;
 			break;
-		case SCRIPT_VARS_FILE: prefix = LIB_PLRVARS;
+		case kScriptVarsFile: prefix = LIB_PLRVARS;
 			suffix = SUF_MEM;
 			break;
-		case PLAYERS_FILE: prefix = LIB_PLRS;
+		case kPlayersFile: prefix = LIB_PLRS;
 			suffix = SUF_PLAYER;
 			break;
-		case TEXT_CRASH_FILE: prefix = LIB_PLROBJS;
+		case kTextCrashFile: prefix = LIB_PLROBJS;
 			suffix = TEXT_SUF_OBJS;
 			break;
-		case TIME_CRASH_FILE: prefix = LIB_PLROBJS;
+		case kTimeCrashFile: prefix = LIB_PLROBJS;
 			suffix = TIME_SUF_OBJS;
 			break;
-		case PERS_DEPOT_FILE: prefix = LIB_DEPOT;
+		case kPersDepotFile: prefix = LIB_DEPOT;
 			suffix = SUF_PERS_DEPOT;
 			break;
-		case SHARE_DEPOT_FILE: prefix = LIB_DEPOT;
+		case kShareDepotFile: prefix = LIB_DEPOT;
 			suffix = SUF_SHARE_DEPOT;
 			break;
-		case PURGE_DEPOT_FILE: prefix = LIB_DEPOT;
+		case kPurgeDepotFile: prefix = LIB_DEPOT;
 			suffix = SUF_PURGE_DEPOT;
 			break;
 		default: return (0);
@@ -623,45 +599,12 @@ int get_filename(const char *orig_name, char *filename, int mode) {
 int num_pc_in_room(RoomData *room) {
 	int i = 0;
 	for (const auto ch : room->people) {
-		if (!IS_NPC(ch)) {
+		if (!ch->is_npc()) {
 			i++;
 		}
 	}
 
 	return i;
-}
-
-/*
- * This function (derived from basic fork(); abort(); idea by Erwin S.
- * Andreasen) causes your MUD to dump core (assuming you can) but
- * continue running.  The core dump will allow post-mortem debugging
- * that is less severe than assert();  Don't call this directly as
- * core_dump_unix() but as simply 'core_dump()' so that it will be
- * excluded from systems not supporting them. (e.g. Windows '95).
- *
- * You still want to call abort() or exit(1) for
- * non-recoverable errors, of course...
- *
- * XXX: Wonder if flushing streams includes sockets?
- */
-void core_dump_real(const char *who, int line) {
-	log("SYSERR: Assertion failed at %s:%d!", who, line);
-
-#if defined(CIRCLE_UNIX)
-	// These would be duplicated otherwise...
-	fflush(stdout);
-	fflush(stderr);
-	for (int i = 0; i < 1 + LAST_LOG; ++i) {
-		fflush(runtime_config.logs(static_cast<EOutputStream>(i)).handle());
-	}
-
-	/*
-	 * Kill the child so the debugger or script doesn't think the MUD
-	 * crashed.  The 'autorun' script would otherwise run it again.
-	 */
-	if (fork() == 0)
-		abort();
-#endif
 }
 
 void koi_to_win(char *str, int size) {
@@ -845,35 +788,72 @@ void format_text(const utils::AbstractStringWriter::shared_ptr &writer,
 	writer->set_string(formatted);
 }
 
-const char *some_pads[3][39] =
-	{
-		{"дней", "часов", "лет", "очков", "минут", "минут", "кун", "кун", "штук", "штук", "уровней", "верст", "верст",
-		 "единиц", "единиц", "секунд", "градусов", "строк", "предметов", "предметов", "перевоплощений", "недель",
-		 "месяцев", "недель", "славы", "славы", "человек", "силы", "глотков", "гривен", "золотых", "серебряных",
-		 "бронзовых", "гривен", "золотых", "серебряных", "бронзовых", "искристых снежинок", "ногат"},
-		{"день", "час", "год", "очко", "минута", "минуту", "куна", "куну", "штука", "штуку", "уровень", "верста",
-		 "версту", "единица", "единицу", "секунду", "градус", "строка", "предмет", "предмета", "перевоплощение",
-		 "неделя", "месяц", "неделю", "слава", "славу", "человек", "сила", "глоток", "гривна", "золотая", "серебряная",
-		 "бронзовая", "гривну", "золотую", "серебряную", "бронзовую", "искристую снежинку", "ногату"},
-		{"дня", "часа", "года", "очка", "минуты", "минуты", "куны", "куны", "штуки", "штуки", "уровня", "версты",
-		 "версты", "единицы", "единицы", "секунды", "градуса", "строки", "предмета", "предметов", "перевоплощения",
-		 "недели", "месяца", "недели", "славы", "славы", "человека", "силы", "глотка", "гривны", "золотые",
-		 "серебряные", "бронзовые", "гривны", "золотые", "серебряные", "бронзовые", "искристые снежинки", "ногаты"}
+/*
+\todo Переделать в нормальный вид с библиотекой склонений/спряжений или хотя бы полным списом падежей с индексацией через ECases.
+*/
+using SomePads = std::array<std::string, 3>;
+using SomePadsMap = std::unordered_map<EWhat, SomePads>;
+
+const char *GetDeclensionInNumber(long amount, EWhat of_what) {
+	static const SomePadsMap things_cases = {
+		{EWhat::kDay, {"дней", "день", "дня"}},
+		{EWhat::kHour, {"часов", "час", "часа"}},
+		{EWhat::kYear, {"лет", "год", "года"}},
+		{EWhat::kPoint, {"очков", "очко", "очка"}},
+		{EWhat::kMinA, {"минут", "минута", "минуты"}},
+		{EWhat::kMinU, {"минут", "минуту", "минуты"}},
+		{EWhat::kMoneyA, {"кун", "куна", "куны"}},
+		{EWhat::kMoneyU, {"кун", "куну", "куны"}},
+		{EWhat::kThingA, {"штук", "штука", "штуки"}},
+		{EWhat::kThingU, {"штук", "штуку", "штуки"}},
+		{EWhat::kLvl, {"уровней", "уровень", "уровня"}},
+		{EWhat::kMoveA, {"верст", "верста", "версты"}},
+		{EWhat::kMoveU, {"верст", "версту", "версты"}},
+		{EWhat::kOneA, {"единиц", "единица", "единицы"}},
+		{EWhat::kOneU, {"единиц", "единицу", "единицы"}},
+		{EWhat::kSec, {"секунд", "секунду", "секунды"}},
+		{EWhat::kDegree, {"градусов", "градус", "градуса"}},
+		{EWhat::kRow, {"строк", "строка", "строки"}},
+		{EWhat::kObject, {"предметов", "предмет", "предмета"}},
+		{EWhat::kObjU, {"предметов", "предмета", "предметов"}},
+		{EWhat::kRemort, {"перевоплощений", "перевоплощение", "перевоплощения"}},
+		{EWhat::kWeek, {"недель", "неделя", "недели"}},
+		{EWhat::kMonth, {"месяцев", "месяц", "месяца"}},
+		{EWhat::kWeekU, {"недель", "неделю", "недели"}},
+		{EWhat::kGlory, {"славы", "слава", "славы"}},
+		{EWhat::kGloryU, {"славы", "славу", "славы"}},
+		{EWhat::kPeople, {"человек", "человек", "человека"}},
+		{EWhat::kStr, {"силы", "сила", "силы"}},
+		{EWhat::kGulp, {"глотков", "глоток", "глотка"}},
+		{EWhat::kTorc, {"гривен", "гривна", "гривны"}},
+		{EWhat::kGoldTorc, {"золотых", "золотая", "золотые"}},
+		{EWhat::kSilverTorc, {"серебряных", "серебряная", "серебряные"}},
+		{EWhat::kBronzeTorc, {"бронзовых", "бронзовая", "бронзовые"}},
+		{EWhat::kTorcU, {"гривен", "гривну", "гривны"}},
+		{EWhat::kGoldTorcU, {"золотых", "золотую", "золотые"}},
+		{EWhat::kSilverTorcU, {"серебряных", "серебряную", "серебряные"}},
+		{EWhat::kBronzeTorcU, {"бронзовых", "бронзовую", "бронзовые"}},
+		{EWhat::kIceU, {"искристых снежинок", "искристую снежинку", "искристые снежинки"}},
+		{EWhat::kNogataU, {"ногат", "ногату", "ногаты"}}
 	};
 
-const char *desc_count(long how_many, int of_what) {
-	if (how_many < 0)
-		how_many = -how_many;
-	if ((how_many % 100 >= 11 && how_many % 100 <= 14) || how_many % 10 >= 5 || how_many % 10 == 0)
-		return some_pads[0][of_what];
-	if (how_many % 10 == 1)
-		return some_pads[1][of_what];
-	else
-		return some_pads[2][of_what];
+	if (amount < 0) {
+		amount = -amount;
+	}
+
+	if ((amount % 100 >= 11 && amount % 100 <= 14) || amount % 10 >= 5 || amount % 10 == 0) {
+		return things_cases.at(of_what)[0].c_str();
+	}
+
+	if (amount % 10 == 1) {
+		return things_cases.at(of_what)[1].c_str();
+	} else {
+		return things_cases.at(of_what)[2].c_str();
+	}
 }
 
 int check_moves(CharData *ch, int how_moves) {
-	if (IS_IMMORTAL(ch) || IS_NPC(ch))
+	if (IS_IMMORTAL(ch) || ch->is_npc())
 		return (true);
 	if (GET_MOVE(ch) < how_moves) {
 		send_to_char("Вы слишком устали.\r\n", ch);
@@ -886,61 +866,61 @@ int check_moves(CharData *ch, int how_moves) {
 int real_sector(int room) {
 	int sector = SECT(room);
 
-	if (ROOM_FLAGGED(room, ROOM_NOWEATHER))
+	if (ROOM_FLAGGED(room, ERoomFlag::kNoWeather))
 		return sector;
 	switch (sector) {
-		case kSectInside:
-		case kSectCity:
-		case kSectOnlyFlying:
-		case kSectUnderwater:
-		case kSectSecret:
-		case kSectStoneroad:
-		case kSectRoad:
-		case kSectWildroad: return sector;
+		case ESector::kInside:
+		case ESector::kCity:
+		case ESector::kOnlyFlying:
+		case ESector::kUnderwater:
+		case ESector::kSecret:
+		case ESector::kStoneroad:
+		case ESector::kRoad:
+		case ESector::kWildroad: return sector;
 			break;
-		case kSectField:
+		case ESector::kField:
 			if (world[room]->weather.snowlevel > 20)
-				return kSectFieldSnow;
+				return ESector::kFieldSnow;
 			else if (world[room]->weather.rainlevel > 20)
-				return kSectFieldRain;
+				return ESector::kFieldRain;
 			else
-				return kSectField;
+				return ESector::kField;
 			break;
-		case kSectForest:
+		case ESector::kForest:
 			if (world[room]->weather.snowlevel > 20)
-				return kSectForestSnow;
+				return ESector::kForestSnow;
 			else if (world[room]->weather.rainlevel > 20)
-				return kSectForestRain;
+				return ESector::kForestRain;
 			else
-				return kSectForest;
+				return ESector::kForest;
 			break;
-		case kSectHills:
+		case ESector::kHills:
 			if (world[room]->weather.snowlevel > 20)
-				return kSectHillsSnow;
+				return ESector::kHillsSnow;
 			else if (world[room]->weather.rainlevel > 20)
-				return kSectHillsRain;
+				return ESector::kHillsRain;
 			else
-				return kSectHills;
+				return ESector::kHills;
 			break;
-		case kSectMountain:
+		case ESector::kMountain:
 			if (world[room]->weather.snowlevel > 20)
-				return kSectMountainSnow;
+				return ESector::kMountainSnow;
 			else
-				return kSectMountain;
+				return ESector::kMountain;
 			break;
-		case kSectWaterSwim:
-		case kSectWaterNoswim:
+		case ESector::kWaterSwim:
+		case ESector::kWaterNoswim:
 			if (world[room]->weather.icelevel > 30)
-				return kSectThickIce;
+				return ESector::kThickIce;
 			else if (world[room]->weather.icelevel > 20)
-				return kSectNormalIce;
+				return ESector::kNormalIce;
 			else if (world[room]->weather.icelevel > 10)
-				return kSectThinIce;
+				return ESector::kThinIce;
 			else
 				return sector;
 			break;
 	}
-	return kSectInside;
+	return ESector::kInside;
 }
 
 bool same_group(CharData *ch, CharData *tch) {
@@ -948,34 +928,34 @@ bool same_group(CharData *ch, CharData *tch) {
 		return false;
 
 	// Добавлены проверки чтобы не любой заследовавшийся моб считался согруппником (Купала)
-	if (IS_NPC(ch)
+	if (ch->is_npc()
 		&& ch->has_master()
-		&& !IS_NPC(ch->get_master())
+		&& !ch->get_master()->is_npc()
 		&& (IS_HORSE(ch)
-			|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-			|| MOB_FLAGGED(ch, MOB_ANGEL)
-			|| MOB_FLAGGED(ch, MOB_GHOST))) {
+			|| AFF_FLAGGED(ch, EAffect::kCharmed)
+			|| MOB_FLAGGED(ch, EMobFlag::kTutelar)
+			|| MOB_FLAGGED(ch, EMobFlag::kMentalShadow))) {
 		ch = ch->get_master();
 	}
 
-	if (IS_NPC(tch)
+	if (tch->is_npc()
 		&& tch->has_master()
-		&& !IS_NPC(tch->get_master())
+		&& !tch->get_master()->is_npc()
 		&& (IS_HORSE(tch)
-			|| AFF_FLAGGED(tch, EAffectFlag::AFF_CHARM)
-			|| MOB_FLAGGED(tch, MOB_ANGEL)
-			|| MOB_FLAGGED(tch, MOB_GHOST))) {
+			|| AFF_FLAGGED(tch, EAffect::kCharmed)
+			|| MOB_FLAGGED(tch, EMobFlag::kTutelar)
+			|| MOB_FLAGGED(tch, EMobFlag::kMentalShadow))) {
 		tch = tch->get_master();
 	}
 
 	// NPC's always in same group
-	if ((IS_NPC(ch) && IS_NPC(tch))
+	if ((ch->is_npc() && tch->is_npc())
 		|| ch == tch) {
 		return true;
 	}
 
-	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)
-		|| !AFF_FLAGGED(tch, EAffectFlag::AFF_GROUP)) {
+	if (!AFF_FLAGGED(ch, EAffect::kGroup)
+		|| !AFF_FLAGGED(tch, EAffect::kGroup)) {
 		return false;
 	}
 
@@ -992,7 +972,7 @@ bool same_group(CharData *ch, CharData *tch) {
 // Проверка является комната рентой.
 bool is_rent(RoomRnum room) {
 	// комната с флагом замок, но клан мертвый
-	if (ROOM_FLAGGED(room, ROOM_HOUSE)) {
+	if (ROOM_FLAGGED(room, ERoomFlag::kHouse)) {
 		const auto clan = Clan::GetClanByRoom(room);
 		if (!clan) {
 			return false;
@@ -1000,7 +980,7 @@ bool is_rent(RoomRnum room) {
 	}
 	// комната без рентера в ней
 	for (const auto ch : world[room]->people) {
-		if (IS_NPC(ch)
+		if (ch->is_npc()
 			&& IS_RENTKEEPER(ch)) {
 			return true;
 		}
@@ -1011,7 +991,7 @@ bool is_rent(RoomRnum room) {
 // Проверка является комната почтой.
 int is_post(RoomRnum room) {
 	for (const auto ch : world[room]->people) {
-		if (IS_NPC(ch)
+		if (ch->is_npc()
 			&& IS_POSTKEEPER(ch)) {
 			return (true);
 		}
@@ -1232,16 +1212,16 @@ int roundup(float fl) {
 void can_carry_obj(CharData *ch, ObjData *obj) {
 	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
 		send_to_char("Вы не можете нести столько предметов.", ch);
-		obj_to_room(obj, ch->in_room);
-		obj_decay(obj);
+		PlaceObjToRoom(obj, ch->in_room);
+		CheckObjDecay(obj);
 	} else {
 		if (GET_OBJ_WEIGHT(obj) + IS_CARRYING_W(ch) > CAN_CARRY_W(ch)) {
 			sprintf(buf, "Вам слишком тяжело нести еще и %s.", obj->get_PName(3).c_str());
 			send_to_char(buf, ch);
-			obj_to_room(obj, ch->in_room);
+			PlaceObjToRoom(obj, ch->in_room);
 			// obj_decay(obj);
 		} else {
-			obj_to_char(obj, ch);
+			PlaceObjToInventory(obj, ch);
 		}
 	}
 }
@@ -1253,7 +1233,7 @@ void can_carry_obj(CharData *ch, ObjData *obj) {
  */
 bool CAN_CARRY_OBJ(const CharData *ch, const ObjData *obj) {
 	// для анлимного лута мобами из трупов
-	if (IS_NPC(ch) && !IS_CHARMICE(ch)) {
+	if (ch->is_npc() && !IS_CHARMICE(ch)) {
 		return true;
 	}
 
@@ -1267,7 +1247,7 @@ bool CAN_CARRY_OBJ(const CharData *ch, const ObjData *obj) {
 
 // shapirus: проверка, игнорирет ли чар who чара whom
 bool ignores(CharData *who, CharData *whom, unsigned int flag) {
-	if (IS_NPC(who)) return false;
+	if (who->is_npc()) return false;
 
 	long ign_id;
 
@@ -1277,8 +1257,8 @@ bool ignores(CharData *who, CharData *whom, unsigned int flag) {
 	}
 
 // чармисы игнорируемого хозяина тоже должны быть проигнорированы
-	if (IS_NPC(whom)
-		&& AFF_FLAGGED(whom, EAffectFlag::AFF_CHARM)) {
+	if (whom->is_npc()
+		&& AFF_FLAGGED(whom, EAffect::kCharmed)) {
 		return ignores(who, whom->get_master(), flag);
 	}
 
@@ -1344,39 +1324,39 @@ std::string time_format(int in_timer, int flag) {
 	int one = 0, two = 0;
 
 	if (timer < 60)
-		out << timer << " " << desc_count(in_timer, flag ? WHAT_MINu : WHAT_MINa);
+		out << timer << " " << GetDeclensionInNumber(in_timer, flag ? EWhat::kMinU : EWhat::kMinA);
 	else if (timer < 1440) {
 		sprintf(buffer, "%.1f", timer / 60);
 		sscanf(buffer, "%d.%d", &one, &two);
 		out << one;
 		if (two)
-			out << "." << two << " " << desc_count(two, WHAT_HOUR);
+			out << "." << two << " " << GetDeclensionInNumber(two, EWhat::kHour);
 		else
-			out << " " << desc_count(one, WHAT_HOUR);
+			out << " " << GetDeclensionInNumber(one, EWhat::kHour);
 	} else if (timer < 10080) {
 		sprintf(buffer, "%.1f", timer / 1440);
 		sscanf(buffer, "%d.%d", &one, &two);
 		out << one;
 		if (two)
-			out << "." << two << " " << desc_count(two, WHAT_DAY);
+			out << "." << two << " " << GetDeclensionInNumber(two, EWhat::kDay);
 		else
-			out << " " << desc_count(one, WHAT_DAY);
+			out << " " << GetDeclensionInNumber(one, EWhat::kDay);
 	} else if (timer < 44640) {
 		sprintf(buffer, "%.1f", timer / 10080);
 		sscanf(buffer, "%d.%d", &one, &two);
 		out << one;
 		if (two)
-			out << "." << two << " " << desc_count(two, WHAT_WEEK);
+			out << "." << two << " " << GetDeclensionInNumber(two, EWhat::kWeek);
 		else
-			out << " " << desc_count(one, flag ? WHAT_WEEKu : WHAT_WEEK);
+			out << " " << GetDeclensionInNumber(one, flag ? EWhat::kWeekU : EWhat::kWeek);
 	} else {
 		sprintf(buffer, "%.1f", timer / 44640);
 		sscanf(buffer, "%d.%d", &one, &two);
 		out << one;
 		if (two)
-			out << "." << two << " " << desc_count(two, WHAT_MONTH);
+			out << "." << two << " " << GetDeclensionInNumber(two, EWhat::kMonth);
 		else
-			out << " " << desc_count(one, WHAT_MONTH);
+			out << " " << GetDeclensionInNumber(one, EWhat::kMonth);
 	}
 	return out.str();
 }
@@ -1615,7 +1595,7 @@ void add(int zone_vnum, long exp) {
 }
 
 void print_gain(CharData *ch) {
-	if (!PRF_FLAGGED(ch, PRF_CODERINFO)) {
+	if (!PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
 		send_to_char(ch, "Пока в разработке.\r\n");
 		return;
 	}
@@ -1912,15 +1892,15 @@ void message_str_need(CharData *ch, ObjData *obj, int type) {
 			return;
 	}
 	send_to_char(ch, "Для этого требуется %d %s.\r\n",
-				 need_str, desc_count(need_str, WHAT_STR));
+				 need_str, GetDeclensionInNumber(need_str, EWhat::kStr));
 }
 
-bool GetAffectNumByName(const std::string &affName, EAffectFlag &result) {
+bool GetAffectNumByName(const std::string &affName, EAffect &result) {
 	int base = 0, offset = 0, counter = 0;
 	bool endOfArray = false;
 	while (!endOfArray) {
 		if (affName == std::string(affected_bits[counter])) {
-			result = static_cast<EAffectFlag>((base << 30) | (1 << offset));
+			result = static_cast<EAffect>((base << 30) | (1 << offset));
 			return true;
 		}
 		offset++;
@@ -1974,7 +1954,7 @@ size_t strlen_no_colors(const char *str) {
 // Симуляция телла от моба
 void tell_to_char(CharData *keeper, CharData *ch, const char *arg) {
 	char local_buf[kMaxInputLength];
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS) || PRF_FLAGGED(ch, PRF_NOTELL)) {
+	if (AFF_FLAGGED(ch, EAffect::kDeafness) || PRF_FLAGGED(ch, EPrf::kNoTell)) {
 		sprintf(local_buf, "жестами показал$g на свой рот и уши. Ну его, болезного ..");
 		do_echo(keeper, local_buf, 0, SCMD_EMOTE);
 		return;
@@ -1987,7 +1967,7 @@ void tell_to_char(CharData *keeper, CharData *ch, const char *arg) {
 
 int CAN_CARRY_N(const CharData *ch) {
 	int n = 5 + GET_REAL_DEX(ch) / 2 + GetRealLevel(ch) / 2;
-	if (HAVE_FEAT(ch, JUGGLER_FEAT)) {
+	if (HAVE_FEAT(ch, EFeat::kJuggler)) {
 		n += GetRealLevel(ch) / 2;
 		if (GET_CLASS(ch) == kMagus) {
 			n += 5;
@@ -2042,7 +2022,7 @@ void sanity_check(void) {
 
 int GetRealLevel(const CharData *ch) {
 
-	if (IS_NPC(ch)) {
+	if (ch->is_npc()) {
 		return std::clamp(ch->get_level() + ch->get_level_add(), 1, kMaxMobLevel);
 	}
 

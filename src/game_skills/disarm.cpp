@@ -11,23 +11,23 @@
 
 // ************* DISARM PROCEDURES
 void go_disarm(CharData *ch, CharData *vict) {
-	ObjData *wielded = GET_EQ(vict, WEAR_WIELD) ? GET_EQ(vict, WEAR_WIELD) :
-					   GET_EQ(vict, WEAR_BOTHS), *helded = GET_EQ(vict, WEAR_HOLD);
+	ObjData *wielded = GET_EQ(vict, EEquipPos::kWield) ? GET_EQ(vict, EEquipPos::kWield) :
+					   GET_EQ(vict, EEquipPos::kBoths), *helded = GET_EQ(vict, EEquipPos::kHold);
 
 	if (IsUnableToAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
 
-	if (!((wielded && GET_OBJ_TYPE(wielded) != ObjData::ITEM_LIGHT)
-		|| (helded && GET_OBJ_TYPE(helded) != ObjData::ITEM_LIGHT))) {
+	if (!((wielded && GET_OBJ_TYPE(wielded) != EObjType::kLightSource)
+		|| (helded && GET_OBJ_TYPE(helded) != EObjType::kLightSource))) {
 		return;
 	}
 	int pos = 0;
 	if (number(1, 100) > 30) {
-		pos = wielded ? (GET_EQ(vict, WEAR_BOTHS) ? WEAR_BOTHS : WEAR_WIELD) : WEAR_HOLD;
+		pos = wielded ? (GET_EQ(vict, EEquipPos::kBoths) ? EEquipPos::kBoths : EEquipPos::kWield) : EEquipPos::kHold;
 	} else {
-		pos = helded ? WEAR_HOLD : (GET_EQ(vict, WEAR_BOTHS) ? WEAR_BOTHS : WEAR_WIELD);
+		pos = helded ? EEquipPos::kHold : (GET_EQ(vict, EEquipPos::kBoths) ? EEquipPos::kBoths : EEquipPos::kWield);
 	}
 
 	if (!pos || !GET_EQ(vict, pos))
@@ -36,16 +36,16 @@ void go_disarm(CharData *ch, CharData *vict) {
 		return;
 	int percent = number(1, MUD::Skills()[ESkill::kDisarm].difficulty);
 	int prob = CalcCurrentSkill(ch, ESkill::kDisarm, vict);
-	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(vict, GF_GODSCURSE) || GET_GOD_FLAG(ch, GF_GODSLIKE))
+	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(vict, EGf::kGodscurse) || GET_GOD_FLAG(ch, EGf::kGodsLike))
 		prob = percent;
-	if (IS_IMMORTAL(vict) || GET_GOD_FLAG(ch, GF_GODSCURSE) || GET_GOD_FLAG(vict, GF_GODSLIKE)
-		|| can_use_feat(vict, STRONGCLUTCH_FEAT))
+	if (IS_IMMORTAL(vict) || GET_GOD_FLAG(ch, EGf::kGodscurse) || GET_GOD_FLAG(vict, EGf::kGodsLike)
+		|| IsAbleToUseFeat(vict, EFeat::kStrongClutch))
 		prob = 0;
 
 	bool success = percent <= prob;
 	TrainSkill(ch, ESkill::kDisarm, success, vict);
 	SendSkillBalanceMsg(ch, MUD::Skills()[ESkill::kDisarm].name, percent, prob, success);
-	if (!success || GET_EQ(vict, pos)->get_extra_flag(EExtraFlag::ITEM_NODISARM)) {
+	if (!success || GET_EQ(vict, pos)->has_flag(EObjFlag::kNodisarm)) {
 		send_to_char(ch,
 					 "%sВы не сумели обезоружить %s...%s\r\n",
 					 CCWHT(ch, C_NRM),
@@ -59,20 +59,20 @@ void go_disarm(CharData *ch, CharData *vict) {
 		send_to_char(vict, "Ловкий удар %s выбил %s%s из ваших рук.\r\n",
 					 GET_PAD(ch, 1), wielded->get_PName(3).c_str(), char_get_custom_label(wielded, vict).c_str());
 		act("$n ловко выбил$g $o3 из рук $N1.", true, ch, wielded, vict, kToNotVict | kToArenaListen);
-		unequip_char(vict, pos, CharEquipFlags());
-		SetSkillCooldown(ch, ESkill::kGlobalCooldown, IS_NPC(vict) ? 1 : 2);
+		UnequipChar(vict, pos, CharEquipFlags());
+		SetSkillCooldown(ch, ESkill::kGlobalCooldown, vict->is_npc() ? 1 : 2);
 		prob = 2;
 
-		if (ROOM_FLAGGED(IN_ROOM(vict), ROOM_ARENA) || (!IS_MOB(vict)) || vict->has_master()) {
-			obj_to_char(wielded, vict);
+		if (ROOM_FLAGGED(IN_ROOM(vict), ERoomFlag::kArena) || (!IS_MOB(vict)) || vict->has_master()) {
+			PlaceObjToInventory(wielded, vict);
 		} else {
-			obj_to_room(wielded, IN_ROOM(vict));
-			obj_decay(wielded);
+			PlaceObjToRoom(wielded, IN_ROOM(vict));
+			CheckObjDecay(wielded);
 		};
 	}
 
 	appear(ch);
-	if (IS_NPC(vict) && CAN_SEE(vict, ch) && vict->have_mind() && GET_WAIT(ch) <= 0) {
+	if (vict->is_npc() && CAN_SEE(vict, ch) && vict->have_mind() && GET_WAIT(ch) <= 0) {
 		set_hit(vict, ch);
 	}
 	SetSkillCooldown(ch, ESkill::kDisarm, prob);
@@ -80,7 +80,7 @@ void go_disarm(CharData *ch, CharData *vict) {
 }
 
 void do_disarm(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch) || !ch->get_skill(ESkill::kDisarm)) {
+	if (ch->is_npc() || !ch->get_skill(ESkill::kDisarm)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -105,12 +105,12 @@ void do_disarm(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!check_pkill(ch, vict, arg))
 		return;
 
-	if (!((GET_EQ(vict, WEAR_WIELD)
-		&& GET_OBJ_TYPE(GET_EQ(vict, WEAR_WIELD)) != ObjData::ITEM_LIGHT)
-		|| (GET_EQ(vict, WEAR_HOLD)
-			&& GET_OBJ_TYPE(GET_EQ(vict, WEAR_HOLD)) != ObjData::ITEM_LIGHT)
-		|| (GET_EQ(vict, WEAR_BOTHS)
-			&& GET_OBJ_TYPE(GET_EQ(vict, WEAR_BOTHS)) != ObjData::ITEM_LIGHT))) {
+	if (!((GET_EQ(vict, EEquipPos::kWield)
+		&& GET_OBJ_TYPE(GET_EQ(vict, EEquipPos::kWield)) != EObjType::kLightSource)
+		|| (GET_EQ(vict, EEquipPos::kHold)
+			&& GET_OBJ_TYPE(GET_EQ(vict, EEquipPos::kHold)) != EObjType::kLightSource)
+		|| (GET_EQ(vict, EEquipPos::kBoths)
+			&& GET_OBJ_TYPE(GET_EQ(vict, EEquipPos::kBoths)) != EObjType::kLightSource))) {
 		send_to_char("Вы не можете обезоружить безоружное создание.\r\n", ch);
 		return;
 	}

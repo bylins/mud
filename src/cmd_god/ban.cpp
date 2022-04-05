@@ -1087,7 +1087,7 @@ void BanList::disconnectBannedIp(std::string Ip) {
 * следующих заходах автоматически уже не зарегистрирует никого с тем же мылом,
 * но если они имели свои собсвенные регистрации через команду register, то
 * их эта отмена в принципе не задевает, т.е. на работу статой системы регистраций
-* в данном случае никакого влияния не оказываем и флаг PLR_REGISTERED не трогаем. -- Krodo
+* в данном случае никакого влияния не оказываем и флаг EPlrFlag::REGISTERED не трогаем. -- Krodo
 */
 namespace RegisterSystem {
 
@@ -1101,9 +1101,9 @@ bool need_save = 0;
 
 } // namespace RegisterSystem
 
-// * Добавления мыла в список + проставления флага PLR_REGISTERED, registered_email не выставляется
+// * Добавления мыла в список + проставления флага EPlrFlag::REGISTERED, registered_email не выставляется
 void RegisterSystem::add(CharData *ch, const char *text, const char *reason) {
-	PLR_FLAGS(ch).set(PLR_REGISTERED);
+	PLR_FLAGS(ch).set(EPlrFlag::kRegistred);
 	if (!text || !reason) return;
 	std::stringstream out;
 	out << GET_NAME(ch) << " -> " << text << " [" << reason << "]";
@@ -1115,11 +1115,11 @@ void RegisterSystem::add(CharData *ch, const char *text, const char *reason) {
 }
 
 /**
-* Удаление мыла из списка, снятие флага PLR_REGISTERED и registered_email.
+* Удаление мыла из списка, снятие флага EPlrFlag::REGISTERED и registered_email.
 * В течении секунды персонаж помещается в комнату незареганных игроков, если он не один с данного ип
 */
 void RegisterSystem::remove(CharData *ch) {
-	PLR_FLAGS(ch).unset(PLR_REGISTERED);
+	PLR_FLAGS(ch).unset(EPlrFlag::kRegistred);
 	EmailListType::iterator it = email_list.find(GET_EMAIL(ch));
 	if (it != email_list.end()) {
 		email_list.erase(it);
@@ -1134,7 +1134,7 @@ void RegisterSystem::remove(CharData *ch) {
 * \return 0 - нет, 1 - да
 */
 bool RegisterSystem::is_registered(CharData *ch) {
-	if (PLR_FLAGGED(ch, PLR_REGISTERED) || (ch->desc && ch->desc->registered_email))
+	if (PLR_FLAGGED(ch, EPlrFlag::kRegistred) || (ch->desc && ch->desc->registered_email))
 		return 1;
 	return 0;
 }

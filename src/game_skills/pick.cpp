@@ -77,7 +77,7 @@ PickProbabilityInformation get_pick_probability(CharData *ch, int lock_complexit
 		skill_train_allowed && !complexity_restriction
 	};
 
-	if (!IS_NPC(ch)) {
+	if (!ch->is_npc()) {
 		std::stringstream text_info;
 		text_info << std::boolalpha << "Шанс взлома: " << pbi.unlock_probability << "%, шанс сломать замок: " << pbi.brake_lock_probability << "%, возможность прокачки скила: " << pbi.skill_train_allowed << "\r\n";
 		text_info << std::boolalpha << "Сложность замка: " << lock_complexity << ", разница между скилом и сложностью замка: " << skill_difference << "\r\n";

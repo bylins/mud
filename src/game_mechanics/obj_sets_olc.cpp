@@ -448,7 +448,7 @@ void sedit::show_activ_edit(CharData *ch) {
 		const int rnum = real_object(activ.enchant.first);
 		const char *name =
 			(rnum >= 0 ? obj_proto[rnum]->get_short_description().c_str() : "<null>");
-		if (GET_OBJ_TYPE(obj_proto[rnum]) == ObjData::ITEM_WEAPON) {
+		if (GET_OBJ_TYPE(obj_proto[rnum]) == EObjType::kWeapon) {
 			snprintf(buf_, sizeof(buf_),
 					 "%s%2d%s) Зачарование предмета : %s[%d] %s вес %+d, кубики %+dD%+d%s\r\n",
 					 CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
@@ -976,10 +976,10 @@ void sedit::parse_activ_add(CharData *ch, const char *arg) {
 	auto i = olc_set.activ_list.find(num);
 	if (i != olc_set.activ_list.end()) {
 		send_to_char(ch, "В наборе уже есть активатор на %d %s.\r\n",
-					 num, desc_count(num, WHAT_OBJECT));
+					 num, GetDeclensionInNumber(num, EWhat::kObject));
 	} else {
 		send_to_char(ch, "Активатор на %d %s добавлен в набор.\r\n",
-					 num, desc_count(num, WHAT_OBJECT));
+					 num, GetDeclensionInNumber(num, EWhat::kObject));
 		ActivNode node;
 		// GCC 4.4
 		//olc_set.activ_list.emplace(num, node);
@@ -1041,7 +1041,7 @@ void sedit::parse_activ_ench_vnum(CharData *ch, const char *arg) {
 	olc_set.activ_list.at(activ_edit).enchant.first = vnum;
 
 	if (rnum >= 0
-		&& GET_OBJ_TYPE(obj_proto[rnum]) == ObjData::ITEM_WEAPON) {
+		&& GET_OBJ_TYPE(obj_proto[rnum]) == EObjType::kWeapon) {
 		state = STATE_ACTIV_ENCH_NDICE;
 		send_to_char("Укажите изменение бросков кубика (0 - без изменений) :", ch);
 	} else {
@@ -1422,14 +1422,14 @@ void sedit::parse_activ_apply_loc(CharData *ch, const char *arg) {
 	int num = atoi(arg);
 
 	if (num == 0) {
-		apply.location = EApplyLocation::APPLY_NONE;
+		apply.location = EApply::kNone;
 		apply.modifier = 0;
 		show_activ_edit(ch);
-	} else if (num < 0 || num >= NUM_APPLIES) {
+	} else if (num < 0 || num >= EApply::kNumberApplies) {
 		send_to_char("Некорректный ввод.\r\n", ch);
 		show_apply_olc(ch->desc);
 	} else {
-		apply.location = static_cast<EApplyLocation>(num);
+		apply.location = static_cast<EApply>(num);
 		state = STATE_ACTIV_APPLY_MOD;
 		send_to_char("Введите модификатор : ", ch);
 	}
@@ -1443,7 +1443,7 @@ void sedit::parse_activ_apply_mod(CharData *ch, const char *arg) {
 	int num = atoi(arg);
 
 	if (num == 0) {
-		apply.location = EApplyLocation::APPLY_NONE;
+		apply.location = EApply::kNone;
 		apply.modifier = 0;
 		show_activ_edit(ch);
 	} else {
@@ -1505,7 +1505,7 @@ void sedit::parse_activ_change(CharData *ch, const char *arg) {
 	} else if (olc_set.activ_list.find(num) != olc_set.activ_list.end()) {
 		send_to_char(ch,
 					 "Набор уже содержит активатор на %d %s.\r\n",
-					 num, desc_count(num, WHAT_OBJECT));
+					 num, GetDeclensionInNumber(num, EWhat::kObject));
 	} else {
 		ActivNode activ;
 		auto i = olc_set.activ_list.find(activ_edit);
@@ -1518,7 +1518,7 @@ void sedit::parse_activ_change(CharData *ch, const char *arg) {
 		//olc_set.activ_list.emplace(num, activ);
 		olc_set.activ_list.insert(std::make_pair(num, activ));
 		send_to_char(ch, "Активатор на %d %s добавлен в набор.\r\n",
-					 num, desc_count(num, WHAT_OBJECT));
+					 num, GetDeclensionInNumber(num, EWhat::kObject));
 	}
 	show_activ_edit(ch);
 }
@@ -1636,7 +1636,7 @@ const char *SEDIT_HELP =
 
 /// иммский sedit, см. SEDIT_HELP
 void do_sedit(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch)) {
+	if (ch->is_npc()) {
 		return;
 	}
 

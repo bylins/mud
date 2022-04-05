@@ -15,7 +15,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (PRF_FLAGS(ch).get(PRF_IRON_WIND)) {
+	if (PRF_FLAGS(ch).get(EPrf::kIronWind)) {
 		send_to_char("Вы не можете применять этот прием в таком состоянии!\r\n", ch);
 		return;
 	}
@@ -40,15 +40,15 @@ void go_chopoff(CharData *ch, CharData *vict) {
 	if (check_spell_on_player(ch, kSpellWeb)) {
 		prob /= 3;
 	}
-	if (GET_GOD_FLAG(ch, GF_GODSLIKE)
+	if (GET_GOD_FLAG(ch, EGf::kGodsLike)
 		|| GET_MOB_HOLD(vict)
-		|| GET_GOD_FLAG(vict, GF_GODSCURSE)) {
+		|| GET_GOD_FLAG(vict, EGf::kGodscurse)) {
 		prob = percent;
 	}
 
-	if (GET_GOD_FLAG(ch, GF_GODSCURSE) ||
-		GET_GOD_FLAG(vict, GF_GODSLIKE) ||
-		vict->ahorse() || GET_POS(vict) < EPosition::kFight || MOB_FLAGGED(vict, MOB_NOTRIP) || IS_IMMORTAL(vict))
+	if (GET_GOD_FLAG(ch, EGf::kGodscurse) ||
+		GET_GOD_FLAG(vict, EGf::kGodsLike) ||
+		vict->ahorse() || GET_POS(vict) < EPosition::kFight || MOB_FLAGGED(vict, EMobFlag::kNoUndercut) || IS_IMMORTAL(vict))
 		prob = 0;
 
 	bool success = percent <= prob;
@@ -61,17 +61,17 @@ void go_chopoff(CharData *ch, CharData *vict) {
 		act("$n попытал$u подсечь $N3, но упал$g сам$g.", true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 		GET_POS(ch) = EPosition::kSit;
 		prob = 3;
-		if (can_use_feat(ch, EVASION_FEAT)) {
-			Affect<EApplyLocation> af;
+		if (IsAbleToUseFeat(ch, EFeat::kEvasion)) {
+			Affect<EApply> af;
 			af.type = kSpellExpedient;
-			af.location = EApplyLocation::APPLY_PR;
+			af.location = EApply::kPhysicResist;
 			af.modifier = 50;
 			af.duration = CalcDuration(ch, 3, 0, 0, 0, 0);
 			af.battleflag = kAfBattledec | kAfPulsedec;
 			affect_join(ch, af, false, false, false, false);
-			af.location = EApplyLocation::APPLY_AR;
+			af.location = EApply::kAffectResist;
 			affect_join(ch, af, false, false, false, false);
-			af.location = EApplyLocation::APPLY_MR;
+			af.location = EApply::kMagicResist;
 			affect_join(ch, af, false, false, false, false);
 			send_to_char(ch,
 						 "%sВы покатились по земле, пытаясь избежать атак %s.%s\r\n",
@@ -102,7 +102,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 	}
 
 	appear(ch);
-	if (IS_NPC(vict) && CAN_SEE(vict, ch) && vict->have_mind() && vict->get_wait() <= 0) {
+	if (vict->is_npc() && CAN_SEE(vict, ch) && vict->have_mind() && vict->get_wait() <= 0) {
 		set_hit(vict, ch);
 	}
 
@@ -148,7 +148,7 @@ void do_chopoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (IS_IMPL(ch) || !ch->get_fighting())
 		go_chopoff(ch, vict);
 	else if (IsHaveNoExtraAttack(ch)) {
-		if (!IS_NPC(ch))
+		if (!ch->is_npc())
 			act("Хорошо. Вы попытаетесь подсечь $N3.", false, ch, nullptr, vict, kToChar);
 		ch->set_extra_attack(kExtraAttackUndercut, vict);
 	}

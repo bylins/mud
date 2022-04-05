@@ -21,17 +21,17 @@
 extern int material_value[];
 void die(CharData *ch, CharData *killer);
 
-constexpr auto WEAR_TAKE = to_underlying(EWearFlag::ITEM_WEAR_TAKE);
+constexpr auto WEAR_TAKE = to_underlying(EWearFlag::kTake);
 constexpr auto WEAR_TAKE_BOTHS_WIELD =
-	WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_BOTHS) | to_underlying(EWearFlag::ITEM_WEAR_WIELD);
-constexpr auto WEAR_TAKE_BODY = WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_BODY);
-constexpr auto WEAR_TAKE_ARMS = WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_ARMS);
-constexpr auto WEAR_TAKE_LEGS = WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_LEGS);
-constexpr auto WEAR_TAKE_HEAD = WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_HEAD);
-constexpr auto WEAR_TAKE_BOTHS = WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_BOTHS);
+	WEAR_TAKE | to_underlying(EWearFlag::kBoth) | to_underlying(EWearFlag::kWield);
+constexpr auto WEAR_TAKE_BODY = WEAR_TAKE | to_underlying(EWearFlag::kBody);
+constexpr auto WEAR_TAKE_ARMS = WEAR_TAKE | to_underlying(EWearFlag::kArms);
+constexpr auto WEAR_TAKE_LEGS = WEAR_TAKE | to_underlying(EWearFlag::kLegs);
+constexpr auto WEAR_TAKE_HEAD = WEAR_TAKE | to_underlying(EWearFlag::kHead);
+constexpr auto WEAR_TAKE_BOTHS = WEAR_TAKE | to_underlying(EWearFlag::kBoth);
 constexpr auto
-	WEAR_TAKE_DUAL = WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_HOLD) | to_underlying(EWearFlag::ITEM_WEAR_WIELD);
-constexpr auto WEAR_TAKE_HOLD = WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_HOLD);
+	WEAR_TAKE_DUAL = WEAR_TAKE | to_underlying(EWearFlag::kHold) | to_underlying(EWearFlag::kWield);
+constexpr auto WEAR_TAKE_HOLD = WEAR_TAKE | to_underlying(EWearFlag::kHold);
 struct create_item_type created_item[] =
 	{
 		{300, 0x7E, 15, 40, {{COAL_PROTO, 0, 0}}, ESkill::kReforging, WEAR_TAKE_BOTHS_WIELD},
@@ -671,7 +671,7 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 			tobj->set_weight(MIN(weight, created_item[obj_type].max_weight));
 			tobj->set_cost(2 * GET_OBJ_COST(obj) / 3);
 			tobj->set_owner(GET_UNIQUE(ch));
-			tobj->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED);
+			tobj->set_extra_flag(EObjFlag::kTransformed);
 			// ковка объектов со слотами.
 			// для 5+ мортов имеем шанс сковать стаф с 3 слотами: базовый 2% и по 0.5% за морт
 			// для 2 слотов базовый шанс 5%, 1% за каждый морт
@@ -679,11 +679,11 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 			// Карачун. Поправлено. Расчет не через морты а через скил.
 			if (skill == ESkill::kReforging) {
 				if (ch->get_skill(skill) >= 105 && number(1, 100) <= 2 + (ch->get_skill(skill) - 105) / 10) {
-					tobj->set_extra_flag(EExtraFlag::ITEM_WITH3SLOTS);
+					tobj->set_extra_flag(EObjFlag::kHasThreeSlots);
 				} else if (number(1, 100) <= 5 + MAX((ch->get_skill(skill) - 80), 0) / 5) {
-					tobj->set_extra_flag(EExtraFlag::ITEM_WITH2SLOTS);
+					tobj->set_extra_flag(EObjFlag::kHasTwoSlots);
 				} else if (number(1, 100) <= 20 + MAX((ch->get_skill(skill) - 80), 0) / 5 * 4) {
-					tobj->set_extra_flag(EExtraFlag::ITEM_WITH1SLOT);
+					tobj->set_extra_flag(EObjFlag::kHasOneSlot);
 				}
 			}
 			switch (obj_type) {
@@ -724,7 +724,7 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 					//			tobj->set_wear_flags(created_item[obj_type].wear); пусть wear флаги будут из прототипа
 					if (skill != ESkill::kCreateBow) {
 						if (GET_OBJ_WEIGHT(tobj) < 14 && percent * 4 > prob) {
-							tobj->set_wear_flag(EWearFlag::ITEM_WEAR_HOLD);
+							tobj->set_wear_flag(EWearFlag::kHold);
 						}
 						to_room = "$n выковал$g $o3.";
 						average = (((float) sdice + 1) * (float) ndice / 2.0);
@@ -752,9 +752,9 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 					sdice += (GET_OBJ_WEIGHT(tobj) / 10);
 					tobj->set_val(1, ndice);
 					tobj->set_val(2, sdice);
-					tobj->set_extra_flag(EExtraFlag::ITEM_NORENT);
-					tobj->set_extra_flag(EExtraFlag::ITEM_DECAY);
-					tobj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
+					tobj->set_extra_flag(EObjFlag::kNorent);
+					tobj->set_extra_flag(EObjFlag::kDecay);
+					tobj->set_extra_flag(EObjFlag::kNosell);
 					tobj->set_wear_flags(created_item[obj_type].wear);
 					to_room = "$n создал$g $o3.";
 					to_char = "Вы создали $o3.";
@@ -806,21 +806,21 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 
 			if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
 				send_to_char("Вы не сможете унести столько предметов.\r\n", ch);
-				obj_to_room(tobj.get(), ch->in_room);
-				obj_decay(tobj.get());
+				PlaceObjToRoom(tobj.get(), ch->in_room);
+				CheckObjDecay(tobj.get());
 			} else if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(tobj) > CAN_CARRY_W(ch)) {
 				send_to_char("Вы не сможете унести такой вес.\r\n", ch);
-				obj_to_room(tobj.get(), ch->in_room);
-				obj_decay(tobj.get());
+				PlaceObjToRoom(tobj.get(), ch->in_room);
+				CheckObjDecay(tobj.get());
 			} else {
-				obj_to_char(tobj.get(), ch);
+				PlaceObjToInventory(tobj.get(), ch);
 			}
 		}
 	}
 
 	if (obj) {
-		obj_from_char(obj);
-		extract_obj(obj);
+		ExtractObjFromChar(obj);
+		ExtractObjFromWorld(obj);
 	}
 }
 void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
@@ -841,7 +841,7 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 			break;
 	}
 
-	if (IS_NPC(ch) || !ch->get_skill(skill_id)) {
+	if (ch->is_npc() || !ch->get_skill(skill_id)) {
 		send_to_char("Вас этому никто не научил.\r\n", ch);
 		return;
 	}
@@ -899,7 +899,7 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 		act("В $o5 что-то лежит.", false, ch, obj, 0, kToChar);
 		return;
 	}
-	if (GET_OBJ_TYPE(obj) == ObjData::ITEM_INGREDIENT) {
+	if (GET_OBJ_TYPE(obj) == EObjType::kIngredient) {
 		for (i = 0, found = false; i < MAX_PROTO; i++) {
 			if (GET_OBJ_VAL(obj, 1) == created_item[obj_type].proto[i]) {
 				if (proto[i]) {
@@ -936,12 +936,12 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 				return;
 			}
 			if (!IS_IMMORTAL(ch)) {
-				if (!ROOM_FLAGGED(ch->in_room, ROOM_SMITH)) {
+				if (!ROOM_FLAGGED(ch->in_room, ERoomFlag::kForge)) {
 					send_to_char("Вам нужно попасть в кузницу для этого.\r\n", ch);
 					return;
 				}
 				for (coal = ch->carrying; coal; coal = coal->get_next_content()) {
-					if (GET_OBJ_TYPE(coal) == ObjData::ITEM_INGREDIENT) {
+					if (GET_OBJ_TYPE(coal) == EObjType::kIngredient) {
 						for (i = 0; i < MAX_PROTO; i++) {
 							if (proto[i] == coal) {
 								break;
@@ -973,14 +973,14 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 			for (i = 0; i < MAX_PROTO; i++) {
 				if (proto[i] && proto[i] != obj) {
 					obj->set_cost(GET_OBJ_COST(obj) + GET_OBJ_COST(proto[i]));
-					extract_obj(proto[i]);
+					ExtractObjFromWorld(proto[i]);
 				}
 			}
 			go_create_weapon(ch, obj, obj_type, ESkill::kReforging);
 			break;
 		case ESkill::kCreateBow:
 			for (coal = ch->carrying; coal; coal = coal->get_next_content()) {
-				if (GET_OBJ_TYPE(coal) == ObjData::ITEM_INGREDIENT) {
+				if (GET_OBJ_TYPE(coal) == EObjType::kIngredient) {
 					for (i = 0; i < MAX_PROTO; i++) {
 						if (proto[i] == coal) {
 							break;
@@ -1012,7 +1012,7 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 				if (proto[i]) {
 					proto[0]->add_weight(GET_OBJ_WEIGHT(proto[i]));
 					proto[0]->set_cost(GET_OBJ_COST(proto[0]) + GET_OBJ_COST(proto[i]));
-					extract_obj(proto[i]);
+					ExtractObjFromWorld(proto[i]);
 				}
 			}
 			go_create_weapon(ch, proto[0], obj_type, ESkill::kCreateBow);
@@ -1191,9 +1191,9 @@ ObjData *get_obj_in_list_ingr(int num,
 			return i;
 		}
 		if ((GET_OBJ_VAL(i, 1) == num)
-			&& (GET_OBJ_TYPE(i) == ObjData::ITEM_INGREDIENT
-				|| GET_OBJ_TYPE(i) == ObjData::ITEM_MING
-				|| GET_OBJ_TYPE(i) == ObjData::ITEM_MATERIAL)) {
+			&& (GET_OBJ_TYPE(i) == EObjType::kIngredient
+				|| GET_OBJ_TYPE(i) == EObjType::kMagicIngredient
+				|| GET_OBJ_TYPE(i) == EObjType::kCraftMaterial)) {
 			return i;
 		}
 	}
@@ -1218,7 +1218,7 @@ int MakeRecept::can_make(CharData *ch) {
 	if (locked)
 		return (false);
 	// Сделать проверку наличия скилла у игрока.
-	if (IS_NPC(ch) || !ch->get_skill(skill)) {
+	if (ch->is_npc() || !ch->get_skill(skill)) {
 		return (false);
 	}
 	// Делаем проверку может ли чар сделать предмет такого типа
@@ -1250,13 +1250,13 @@ int MakeRecept::can_make(CharData *ch) {
 
 int MakeRecept::get_ingr_lev(ObjData *ingrobj) {
 	// Получаем уровень ингредиента ...
-	if (GET_OBJ_TYPE(ingrobj) == ObjData::ITEM_INGREDIENT) {
+	if (GET_OBJ_TYPE(ingrobj) == EObjType::kIngredient) {
 		// Получаем уровень игредиента до 128
 		return (GET_OBJ_VAL(ingrobj, 0) >> 8);
-	} else if (GET_OBJ_TYPE(ingrobj) == ObjData::ITEM_MING) {
+	} else if (GET_OBJ_TYPE(ingrobj) == EObjType::kMagicIngredient) {
 		// У ингров типа 26 совпадает уровень и сила.
 		return GET_OBJ_VAL(ingrobj, IM_POWER_SLOT);
-	} else if (GET_OBJ_TYPE(ingrobj) == ObjData::ITEM_MATERIAL) {
+	} else if (GET_OBJ_TYPE(ingrobj) == EObjType::kCraftMaterial) {
 		return GET_OBJ_VAL(ingrobj, 0);
 	} else {
 		return -1;
@@ -1265,10 +1265,10 @@ int MakeRecept::get_ingr_lev(ObjData *ingrobj) {
 
 int MakeRecept::get_ingr_pow(ObjData *ingrobj) {
 	// Получаем силу ингредиента ...
-	if (GET_OBJ_TYPE(ingrobj) == ObjData::ITEM_INGREDIENT
-		|| GET_OBJ_TYPE(ingrobj) == ObjData::ITEM_MATERIAL) {
+	if (GET_OBJ_TYPE(ingrobj) == EObjType::kIngredient
+		|| GET_OBJ_TYPE(ingrobj) == EObjType::kCraftMaterial) {
 		return GET_OBJ_VAL(ingrobj, 2);
-	} else if (GET_OBJ_TYPE(ingrobj) == ObjData::ITEM_MING) {
+	} else if (GET_OBJ_TYPE(ingrobj) == EObjType::kMagicIngredient) {
 		return GET_OBJ_VAL(ingrobj, IM_POWER_SLOT);
 	} else {
 		return -1;
@@ -1276,31 +1276,31 @@ int MakeRecept::get_ingr_pow(ObjData *ingrobj) {
 }
 void MakeRecept::make_value_wear(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_PARTS]) {
 	int wearkoeff = 50;
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BODY)) // 1.1
+	if (CAN_WEAR(obj, EWearFlag::kBody)) // 1.1
 	{
 		wearkoeff = 110;
 	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HEAD)) //0.8
+	if (CAN_WEAR(obj, EWearFlag::kHead)) //0.8
 	{
 		wearkoeff = 80;
 	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_LEGS)) //0.5
+	if (CAN_WEAR(obj, EWearFlag::kLegs)) //0.5
 	{
 		wearkoeff = 50;
 	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FEET)) //0.6
+	if (CAN_WEAR(obj, EWearFlag::kFeet)) //0.6
 	{
 		wearkoeff = 60;
 	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ARMS)) //0.5
+	if (CAN_WEAR(obj, EWearFlag::kArms)) //0.5
 	{
 		wearkoeff = 50;
 	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ABOUT))//0.9
+	if (CAN_WEAR(obj, EWearFlag::kShoulders))//0.9
 	{
 		wearkoeff = 90;
 	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS))//0.45
+	if (CAN_WEAR(obj, EWearFlag::kHands))//0.45
 	{
 		wearkoeff = 45;
 	}
@@ -1308,31 +1308,31 @@ void MakeRecept::make_value_wear(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_
 				 ((GET_REAL_INT(ch) * GET_REAL_INT(ch) / 10 + ch->get_skill(ESkill::kMakeWear)) / 100
 					 + (GET_OBJ_VAL(ingrs[0], 3) + 1)) * wearkoeff
 					 / 100); //АС=((инта*инта/10+умелка)/100+левл.шкуры)*коэф.части тела
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BODY)) //0.9
+	if (CAN_WEAR(obj, EWearFlag::kBody)) //0.9
 	{
 		wearkoeff = 90;
 	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HEAD)) //0.7
+	if (CAN_WEAR(obj, EWearFlag::kHead)) //0.7
 	{
 		wearkoeff = 70;
 	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_LEGS)) //0.4
+	if (CAN_WEAR(obj, EWearFlag::kLegs)) //0.4
 	{
 		wearkoeff = 40;
 	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FEET)) //0.5
+	if (CAN_WEAR(obj, EWearFlag::kFeet)) //0.5
 	{
 		wearkoeff = 50;
 	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ARMS)) //0.4
+	if (CAN_WEAR(obj, EWearFlag::kArms)) //0.4
 	{
 		wearkoeff = 40;
 	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ABOUT))//0.8
+	if (CAN_WEAR(obj, EWearFlag::kShoulders))//0.8
 	{
 		wearkoeff = 80;
 	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS))//0.31
+	if (CAN_WEAR(obj, EWearFlag::kHands))//0.31
 	{
 		wearkoeff = 31;
 	}
@@ -1364,42 +1364,42 @@ float MakeRecept::count_mort_requred(ObjData *obj) {
 				return 1000000;
 			}
 		}
-		if ((obj->get_affected(k).modifier > 0) && ((obj->get_affected(k).location != APPLY_AC) &&
-			(obj->get_affected(k).location != APPLY_SAVING_WILL) &&
-			(obj->get_affected(k).location != APPLY_SAVING_CRITICAL) &&
-			(obj->get_affected(k).location != APPLY_SAVING_STABILITY) &&
-			(obj->get_affected(k).location != APPLY_SAVING_REFLEX))) {
+		if ((obj->get_affected(k).modifier > 0) && ((obj->get_affected(k).location != EApply::kAc) &&
+			(obj->get_affected(k).location != EApply::kSavingWill) &&
+			(obj->get_affected(k).location != EApply::kSavingCritical) &&
+			(obj->get_affected(k).location != EApply::kSavingStability) &&
+			(obj->get_affected(k).location != EApply::kSavingReflex))) {
 			float weight = count_affect_weight(obj->get_affected(k).location, obj->get_affected(k).modifier);
 			log("SYSERROR: negative weight=%f, ObjVnum=%d",
 				weight, GET_OBJ_VNUM(obj));
 			total_weight += pow(weight, SQRT_MOD);
 		}
 			// савесы которые с минусом должны тогда понижать вес если в +
-		else if ((obj->get_affected(k).modifier > 0) && ((obj->get_affected(k).location == APPLY_AC) ||
-			(obj->get_affected(k).location == APPLY_SAVING_WILL) ||
-			(obj->get_affected(k).location == APPLY_SAVING_CRITICAL) ||
-			(obj->get_affected(k).location == APPLY_SAVING_STABILITY) ||
-			(obj->get_affected(k).location == APPLY_SAVING_REFLEX))) {
+		else if ((obj->get_affected(k).modifier > 0) && ((obj->get_affected(k).location == EApply::kAc) ||
+			(obj->get_affected(k).location == EApply::kSavingWill) ||
+			(obj->get_affected(k).location == EApply::kSavingCritical) ||
+			(obj->get_affected(k).location == EApply::kSavingStability) ||
+			(obj->get_affected(k).location == EApply::kSavingReflex))) {
 			float weight = count_affect_weight(obj->get_affected(k).location, 0 - obj->get_affected(k).modifier);
 			total_weight -= pow(weight, -SQRT_MOD);
 		}
 			//Добавленый кусок учет савесов с - значениями
 		else if ((obj->get_affected(k).modifier < 0)
-			&& ((obj->get_affected(k).location == APPLY_AC) ||
-				(obj->get_affected(k).location == APPLY_SAVING_WILL) ||
-				(obj->get_affected(k).location == APPLY_SAVING_CRITICAL) ||
-				(obj->get_affected(k).location == APPLY_SAVING_STABILITY) ||
-				(obj->get_affected(k).location == APPLY_SAVING_REFLEX))) {
+			&& ((obj->get_affected(k).location == EApply::kAc) ||
+				(obj->get_affected(k).location == EApply::kSavingWill) ||
+				(obj->get_affected(k).location == EApply::kSavingCritical) ||
+				(obj->get_affected(k).location == EApply::kSavingStability) ||
+				(obj->get_affected(k).location == EApply::kSavingReflex))) {
 			float weight = count_affect_weight(obj->get_affected(k).location, obj->get_affected(k).modifier);
 			total_weight += pow(weight, SQRT_MOD);
 		}
 			//Добавленый кусок учет отрицательного значения но не савесов
 		else if ((obj->get_affected(k).modifier < 0)
-			&& ((obj->get_affected(k).location != APPLY_AC) &&
-				(obj->get_affected(k).location != APPLY_SAVING_WILL) &&
-				(obj->get_affected(k).location != APPLY_SAVING_CRITICAL) &&
-				(obj->get_affected(k).location != APPLY_SAVING_STABILITY) &&
-				(obj->get_affected(k).location != APPLY_SAVING_REFLEX))) {
+			&& ((obj->get_affected(k).location != EApply::kAc) &&
+				(obj->get_affected(k).location != EApply::kSavingWill) &&
+				(obj->get_affected(k).location != EApply::kSavingCritical) &&
+				(obj->get_affected(k).location != EApply::kSavingStability) &&
+				(obj->get_affected(k).location != EApply::kSavingReflex))) {
 			float weight = count_affect_weight(obj->get_affected(k).location, 0 - obj->get_affected(k).modifier);
 			total_weight -= pow(weight, -SQRT_MOD);
 		}
@@ -1407,15 +1407,15 @@ float MakeRecept::count_mort_requred(ObjData *obj) {
 	// аффекты AFF_x через weapon_affect
 	for (const auto &m : weapon_affect) {
 		if (IS_OBJ_AFF(obj, m.aff_pos)) {
-			if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_AIRSHIELD) {
+			if (static_cast<EAffect>(m.aff_bitvector) == EAffect::kAirShield) {
 				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
-			} else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_FIRESHIELD) {
+			} else if (static_cast<EAffect>(m.aff_bitvector) == EAffect::kFireShield) {
 				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
-			} else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_ICESHIELD) {
+			} else if (static_cast<EAffect>(m.aff_bitvector) == EAffect::kIceShield) {
 				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
-			} else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_MAGICGLASS) {
+			} else if (static_cast<EAffect>(m.aff_bitvector) == EAffect::kMagicGlass) {
 				total_weight += pow(AFF_MAGICGLASS_MOD, SQRT_MOD);
-			} else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_BLINK) {
+			} else if (static_cast<EAffect>(m.aff_bitvector) == EAffect::kBlink) {
 				total_weight += pow(AFF_BLINK_MOD, SQRT_MOD);
 			}
 		}
@@ -1431,47 +1431,47 @@ float MakeRecept::count_affect_weight(int num, int mod) {
 	float weight = 0;
 
 	switch (num) {
-		case APPLY_STR: weight = mod * 7.5;
+		case EApply::kStr: weight = mod * 7.5;
 			break;
-		case APPLY_DEX: weight = mod * 10.0;
+		case EApply::kDex: weight = mod * 10.0;
 			break;
-		case APPLY_INT: weight = mod * 10.0;
+		case EApply::kInt: weight = mod * 10.0;
 			break;
-		case APPLY_WIS: weight = mod * 10.0;
+		case EApply::kWis: weight = mod * 10.0;
 			break;
-		case APPLY_CON: weight = mod * 10.0;
+		case EApply::kCon: weight = mod * 10.0;
 			break;
-		case APPLY_CHA: weight = mod * 10.0;
+		case EApply::kCha: weight = mod * 10.0;
 			break;
-		case APPLY_HIT: weight = mod * 0.3;
+		case EApply::kHp: weight = mod * 0.3;
 			break;
-		case APPLY_AC: weight = mod * -0.5;
+		case EApply::kAc: weight = mod * -0.5;
 			break;
-		case APPLY_HITROLL: weight = mod * 2.3;
+		case EApply::kHitroll: weight = mod * 2.3;
 			break;
-		case APPLY_DAMROLL: weight = mod * 3.3;
+		case EApply::kDamroll: weight = mod * 3.3;
 			break;
-		case APPLY_SAVING_WILL: weight = mod * -0.5;
+		case EApply::kSavingWill: weight = mod * -0.5;
 			break;
-		case APPLY_SAVING_CRITICAL: weight = mod * -0.5;
+		case EApply::kSavingCritical: weight = mod * -0.5;
 			break;
-		case APPLY_SAVING_STABILITY: weight = mod * -0.5;
+		case EApply::kSavingStability: weight = mod * -0.5;
 			break;
-		case APPLY_SAVING_REFLEX: weight = mod * -0.5;
+		case EApply::kSavingReflex: weight = mod * -0.5;
 			break;
-		case APPLY_CAST_SUCCESS: weight = mod * 1.5;
+		case EApply::kCastSuccess: weight = mod * 1.5;
 			break;
-		case APPLY_MANAREG: weight = mod * 0.2;
+		case EApply::kMamaRegen: weight = mod * 0.2;
 			break;
-		case APPLY_MORALE: weight = mod * 1.0;
+		case EApply::kMorale: weight = mod * 1.0;
 			break;
-		case APPLY_INITIATIVE: weight = mod * 2.0;
+		case EApply::kInitiative: weight = mod * 2.0;
 			break;
-		case APPLY_ABSORBE: weight = mod * 1.0;
+		case EApply::kAbsorbe: weight = mod * 1.0;
 			break;
-		case APPLY_AR: weight = mod * 1.5;
+		case EApply::kAffectResist: weight = mod * 1.5;
 			break;
-		case APPLY_MR: weight = mod * 1.5;
+		case EApply::kMagicResist: weight = mod * 1.5;
 			break;
 	}
 
@@ -1523,7 +1523,7 @@ void MakeRecept::make_object(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_PART
 	add_affects(ch, temp_affected, ingrs[0]->get_all_affected(), get_ingr_pow(ingrs[0]));
 	obj->set_all_affected(temp_affected);
 	add_rnd_skills(ch, ingrs[0], obj); //переносим случайную умелку со шкуры
-	obj->set_extra_flag(EExtraFlag::ITEM_NOALTER);  // нельзя сфрешить черным свитком
+	obj->set_extra_flag(EObjFlag::kNoalter);  // нельзя сфрешить черным свитком
 	obj->set_timer((GET_OBJ_VAL(ingrs[0], 3) + 1) * 1000
 					   + ch->get_skill(ESkill::kMakeWear) / 2 * number(160, 220)); // таймер зависит в основном от умелки
 	obj->set_craft_timer(obj->get_timer()); // запомним таймер созданной вещи для правильного отображения при осм для ее сост.
@@ -1531,7 +1531,7 @@ void MakeRecept::make_object(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_PART
 		int i, raffect = 0;
 		for (i = 0; i < kMaxObjAffect; i++) // посмотрим скока аффектов
 		{
-			if (ingrs[j]->get_affected(i).location == APPLY_NONE) {
+			if (ingrs[j]->get_affected(i).location == EApply::kNone) {
 				break;
 			}
 		}
@@ -1548,7 +1548,7 @@ void MakeRecept::make_object(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_PART
 					}
 					break;
 				}
-				if (obj->get_affected(i).location == APPLY_NONE) // добавляем афф на свободное место
+				if (obj->get_affected(i).location == EApply::kNone) // добавляем афф на свободное место
 				{
 					if (number(1, 100) > GET_OBJ_VAL(ingrs[j], 2)) // проверим фейл на силу ингра
 					{
@@ -1579,7 +1579,7 @@ int MakeRecept::make(CharData *ch) {
 	int dam = 0;
 	bool make_fail;
 	// 1. Проверить есть ли скилл у чара
-	if (IS_NPC(ch) || !ch->get_skill(skill)) {
+	if (ch->is_npc() || !ch->get_skill(skill)) {
 		send_to_char("Странно что вам вообще пришло в голову cделать это.\r\n", ch);
 		return (false);
 	}
@@ -1630,7 +1630,7 @@ int MakeRecept::make(CharData *ch) {
 		case ESkill::kMakeWeapon:
 		case ESkill::kMakeArmor:
 			// Проверяем есть ли тут наковальня или комната кузня.
-			if ((!ROOM_FLAGGED(ch->in_room, ROOM_SMITH)) && (!IS_IMMORTAL(ch))) {
+			if ((!ROOM_FLAGGED(ch->in_room, ERoomFlag::kForge)) && (!IS_IMMORTAL(ch))) {
 				send_to_char("Вам нужно попасть в кузницу для этого.\r\n", ch);
 				return (false);
 			}
@@ -1840,7 +1840,7 @@ int MakeRecept::make(CharData *ch) {
 					std::string tmpname = std::string(ingrs[i]->get_PName(1).c_str());
 					IS_CARRYING_W(ch) -= GET_OBJ_WEIGHT(ingrs[i]);
 					ingrs[i]->set_weight(0);
-					extract_obj(ingrs[i]);
+					ExtractObjFromWorld(ingrs[i]);
 					ingrs[i] = nullptr;
 					//Если некст ингра в инве нет, то сообщаем об этом и идем в фэйл. Некст ингры все равно проверяем
 					if (!get_obj_in_list_ingr(obj_vnum_tmp, ch->carrying)) {
@@ -1878,7 +1878,7 @@ int MakeRecept::make(CharData *ch) {
 			char_dam_message(dam, ch, ch, 0);
 			if (GET_POS(ch) == EPosition::kDead) {
 				// Убился веником.
-				if (!IS_NPC(ch)) {
+				if (!ch->is_npc()) {
 					sprintf(tmpbuf, "%s killed by a crafting at %s",
 							GET_NAME(ch),
 							ch->in_room == kNowhere ? "kNowhere" : world[ch->in_room]->name);
@@ -1889,7 +1889,7 @@ int MakeRecept::make(CharData *ch) {
 		}
 		for (i = 0; i < ingr_cnt; i++) {
 			if (ingrs[i] && GET_OBJ_WEIGHT(ingrs[i]) <= 0) {
-				extract_obj(ingrs[i]);
+				ExtractObjFromWorld(ingrs[i]);
 			}
 		}
 		return (false);
@@ -1909,15 +1909,15 @@ int MakeRecept::make(CharData *ch) {
 	switch (skill) {
 		case ESkill::kMakeBow:;
 		case ESkill::kMakeWear:
-			obj->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED);
-			obj->set_extra_flag(EExtraFlag::ITEM_NOT_UNLIMIT_TIMER);
+			obj->set_extra_flag(EObjFlag::kTransformed);
+			obj->set_extra_flag(EObjFlag::KLimitedTimer);
 			break;
 		default: 
 		break;
 	}
 	int sign = -1;
-	if (GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON
-		|| GET_OBJ_TYPE(obj) == ObjData::ITEM_INGREDIENT) {
+	if (GET_OBJ_TYPE(obj) == EObjType::kWeapon
+		|| GET_OBJ_TYPE(obj) == EObjType::kIngredient) {
 		sign = 1;
 	}
 	obj->set_weight(stat_modify(ch, GET_OBJ_WEIGHT(obj), 20 * sign));
@@ -1930,18 +1930,18 @@ int MakeRecept::make(CharData *ch) {
 	// Можно посчитать бонусы от времени суток.
 	// Считаем среднюю силу ингров .
 	switch (GET_OBJ_TYPE(obj)) {
-		case ObjData::ITEM_LIGHT:
+		case EObjType::kLightSource:
 			// Считаем длительность свечения.
 			if (GET_OBJ_VAL(obj, 2) != -1) {
 				obj->set_val(2, stat_modify(ch, GET_OBJ_VAL(obj, 2), 1));
 			}
 			break;
-		case ObjData::ITEM_WAND:
-		case ObjData::ITEM_STAFF:
+		case EObjType::kWand:
+		case EObjType::kStaff:
 			// Считаем уровень закла
 			obj->set_val(0, GetRealLevel(ch));
 			break;
-		case ObjData::ITEM_WEAPON:
+		case EObjType::kWeapon:
 			// Считаем число xdy
 			// модифицируем XdY
 			if (GET_OBJ_VAL(obj, 1) > GET_OBJ_VAL(obj, 2)) {
@@ -1950,28 +1950,28 @@ int MakeRecept::make(CharData *ch) {
 				obj->set_val(2, stat_modify(ch, GET_OBJ_VAL(obj, 2) - 1, 1) + 1);
 			}
 			break;
-		case ObjData::ITEM_ARMOR:
-		case ObjData::ITEM_ARMOR_LIGHT:
-		case ObjData::ITEM_ARMOR_MEDIAN:
-		case ObjData::ITEM_ARMOR_HEAVY:
+		case EObjType::kArmor:
+		case EObjType::kLightArmor:
+		case EObjType::kMediumArmor:
+		case EObjType::kHeavyArmor:
 			// Считаем + АС
 			obj->set_val(0, stat_modify(ch, GET_OBJ_VAL(obj, 0), 1));
 			// Считаем поглощение.
 			obj->set_val(1, stat_modify(ch, GET_OBJ_VAL(obj, 1), 1));
 			break;
-		case ObjData::ITEM_POTION:
+		case EObjType::kPorion:
 			// Считаем уровень итоговый напитка
 			obj->set_val(0, stat_modify(ch, GET_OBJ_VAL(obj, 0), 1));
 			break;
-		case ObjData::ITEM_CONTAINER:
+		case EObjType::kContainer:
 			// Считаем объем контейнера.
 			obj->set_val(0, stat_modify(ch, GET_OBJ_VAL(obj, 0), 1));
 			break;
-		case ObjData::ITEM_DRINKCON:
+		case EObjType::kLiquidContainer:
 			// Считаем объем контейнера.
 			obj->set_val(0, stat_modify(ch, GET_OBJ_VAL(obj, 0), 1));
 			break;
-		case ObjData::ITEM_INGREDIENT:
+		case EObjType::kIngredient:
 			// Для ингров ничего не трогаем ... ибо опасно. :)
 			break;
 		default: break;
@@ -2009,7 +2009,7 @@ int MakeRecept::make(CharData *ch) {
 	// Мочим истраченные ингры.
 	for (i = 0; i < ingr_cnt; i++) {
 		if (GET_OBJ_WEIGHT(ingrs[i]) <= 0) {
-			extract_obj(ingrs[i]);
+			ExtractObjFromWorld(ingrs[i]);
 		}
 	}
 	// 8. Проверяем мах. инворлд.
@@ -2019,8 +2019,8 @@ int MakeRecept::make(CharData *ch) {
 	// число шмоток в мире то шмотки по хуже будут вытеснять
 	// шмотки по лучше (в целом это не так страшно).
 	// Ставим метку если все хорошо.
-	if ((GET_OBJ_TYPE(obj) != ObjData::ITEM_INGREDIENT
-		&& GET_OBJ_TYPE(obj) != ObjData::ITEM_MING)
+	if ((GET_OBJ_TYPE(obj) != EObjType::kIngredient
+		&& GET_OBJ_TYPE(obj) != EObjType::kMagicIngredient)
 		&& (number(1, 100) - CalcCurrentSkill(ch, skill, 0) < 0)) {
 		act(tagging.c_str(), false, ch, obj.get(), 0, kToChar);
 		// Прибавляем в экстра описание строчку.
@@ -2050,12 +2050,12 @@ int MakeRecept::make(CharData *ch) {
 	// 9. Проверяем минимум 2
 	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
 		send_to_char("Вы не сможете унести столько предметов.\r\n", ch);
-		obj_to_room(obj.get(), ch->in_room);
+		PlaceObjToRoom(obj.get(), ch->in_room);
 	} else if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj) > CAN_CARRY_W(ch)) {
 		send_to_char("Вы не сможете унести такой вес.\r\n", ch);
-		obj_to_room(obj.get(), ch->in_room);
+		PlaceObjToRoom(obj.get(), ch->in_room);
 	} else {
-		obj_to_char(obj.get(), ch);
+		PlaceObjToInventory(obj.get(), ch);
 	}
 	return (true);
 }
@@ -2193,10 +2193,10 @@ int MakeRecept::add_affects(CharData *ch,
 	int i, j;
 	for (i = 0; i < kMaxObjAffect; i++) {
 		found = false;
-		if (add[i].location == APPLY_NONE)
+		if (add[i].location == EApply::kNone)
 			continue;
 		for (j = 0; j < kMaxObjAffect; j++) {
-			if (base[j].location == APPLY_NONE)
+			if (base[j].location == EApply::kNone)
 				continue;
 			if (add[i].location == base[j].location) {
 				// Аффекты совпали.
@@ -2210,7 +2210,7 @@ int MakeRecept::add_affects(CharData *ch,
 		if (!found) {
 			// Ищем первый свободный аффект и втыкаем туда новый.
 			for (int j = 0; j < kMaxObjAffect; j++) {
-				if (base[j].location == APPLY_NONE) {
+				if (base[j].location == EApply::kNone) {
 					if (number(0, 100) > delta)
 						break;
 					base[j].location = add[i].location;

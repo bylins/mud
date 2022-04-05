@@ -89,7 +89,7 @@ RoomData::RoomData() : room_vn(0),
 					   pkPenterUnique(0),
 					   holes(0),
 					   poison(0) {
-	for (auto i = 0; i < kDirMaxNumber; ++i) {
+	for (auto i = 0; i < EDirection::kMaxDirNum; ++i) {
 		dir_option[i].reset();
 	}
 

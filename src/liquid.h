@@ -11,6 +11,14 @@
 #include "sysdep.h"
 #include "structs/structs.h"
 
+extern const int kDrunked;
+extern const int kMortallyDrunked;
+extern const int kMaxCondition;
+extern const int kNormCondition;
+
+#define GET_COND_M(ch, cond) ((GET_COND(ch,cond) <= kNormCondition) ? 0 : GET_COND(ch,cond) - kNormCondition)
+#define GET_COND_K(ch, cond) (((GET_COND_M(ch,cond)*100)/(kMaxCondition - kNormCondition)))
+
 // виды жидскостей, наливаемых в контейнеры
 enum {
 	LIQ_WATER = 0,

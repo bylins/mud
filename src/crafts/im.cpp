@@ -349,7 +349,7 @@ ObjData *load_ingredient(int index, int power, int rnum)
 
 		err = im_assign_power(ing.get());
 		if (err != 0) {
-			extract_obj(ing.get());
+			ExtractObjFromWorld(ing.get());
 			sprintf(buf, "IM power assignment error %d", err);
 			break;
 		}
@@ -364,7 +364,7 @@ ObjData *load_ingredient(int index, int power, int rnum)
 void im_translate_rskill_to_id(void) {
 	im_rskill *rs;
 	for (const auto &ch : character_list) {
-		if (IS_NPC(ch)) {
+		if (ch->is_npc()) {
 			continue;
 		}
 
@@ -378,7 +378,7 @@ void im_translate_rskill_to_rid(void) {
 	im_rskill *rs, **prs;
 	int rid;
 	for (const auto &ch : character_list) {
-		if (IS_NPC(ch))
+		if (ch->is_npc())
 			continue;
 		prs = &GET_RSKILL(ch);
 		while ((rs = *prs) != nullptr) {
@@ -885,8 +885,8 @@ void im_reset_room(RoomData *room, int level, int type) {
 
 	for (o = room->contents; o; o = next) {
 		next = o->get_next_content();
-		if (GET_OBJ_TYPE(o) == ObjData::ITEM_MING) {
-			extract_obj(o);
+		if (GET_OBJ_TYPE(o) == EObjType::kMagicIngredient) {
+			ExtractObjFromWorld(o);
 		}
 	}
 
@@ -896,7 +896,7 @@ void im_reset_room(RoomData *room, int level, int type) {
 	}
 
 	if (!zone_types[type].ingr_qty
-		|| room->get_flag(ROOM_DEATH)) {
+		|| room->get_flag(ERoomFlag::kDeathTrap)) {
 		return;
 	}
 	for (i = 0; i < zone_types[type].ingr_qty; i++) {
@@ -927,7 +927,7 @@ void im_reset_room(RoomData *room, int level, int type) {
 				pow = lev - after->power < before->power - lev ? after->power : before->power;
 			o = load_ingredient(indx, pow, -1);
 			if (o)
-				obj_to_room(o, real_room(room->room_vn));
+				PlaceObjToRoom(o, real_room(room->room_vn));
 		}
 	}
 }
@@ -1046,7 +1046,7 @@ void list_recipes(CharData *ch, bool all_recipes) {
 }
 
 void do_recipes(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch))
+	if (ch->is_npc())
 		return;
 	skip_spaces(&argument);
 	if (utils::IsAbbrev(argument, "все") || utils::IsAbbrev(argument, "all"))
@@ -1082,7 +1082,7 @@ void do_rset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!(vict = get_char_vis(ch, name, FIND_CHAR_WORLD))) {
+	if (!(vict = get_char_vis(ch, name, EFind::kCharInWorld))) {
 		send_to_char(NOPERSON, ch);
 		return;
 	}
@@ -1131,7 +1131,7 @@ void do_rset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Превышено максимальное значение рецепта.\r\n", ch);
 		value = kMaxRecipeLevel;
 	}
-	if (IS_NPC(vict)) {
+	if (vict->is_npc()) {
 		send_to_char("Вы не можете добавить рецепт для мобов.\r\n", ch);
 		return;
 	}
@@ -1154,7 +1154,7 @@ void do_rset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 void im_improve_recipe(CharData *ch, im_rskill *rs, int success) {
 	int prob, div, diff;
 
-	if (IS_NPC(ch) || (rs->perc >= kMaxRecipeLevel))
+	if (ch->is_npc() || (rs->perc >= kMaxRecipeLevel))
 		return;
 
 	if (ch->in_room != kNowhere && (CalcSkillWisdomCap(ch) - rs->perc > 0)) {
@@ -1208,7 +1208,7 @@ ObjData **im_obtain_ingredients(CharData *ch, char *argument, int *count) {
 			snprintf(buf, kMaxStringLength, "У вас нет %s.\r\n", name);
 			break;
 		}
-		if (GET_OBJ_TYPE(o) != ObjData::ITEM_MING) {
+		if (GET_OBJ_TYPE(o) != EObjType::kMagicIngredient) {
 			sprintf(buf, "Вы должны использовать только магические ингредиенты.\r\n");
 			break;
 		}
@@ -1366,14 +1366,14 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	switch (GET_OBJ_TYPE(obj_proto[tgt])) {
-		case ObjData::ITEM_SCROLL:
-		case ObjData::ITEM_POTION: param[0] = GET_OBJ_VAL(obj_proto[tgt], 0);    // уровень
+		case EObjType::kScroll:
+		case EObjType::kPorion: param[0] = GET_OBJ_VAL(obj_proto[tgt], 0);    // уровень
 			param[1] = 1;    // количество
 			param[2] = obj_proto[tgt]->get_timer();    // таймер
 			break;
 
-		case ObjData::ITEM_WAND:
-		case ObjData::ITEM_STAFF: param[0] = GET_OBJ_VAL(obj_proto[tgt], 0);    // уровень
+		case EObjType::kWand:
+		case EObjType::kStaff: param[0] = GET_OBJ_VAL(obj_proto[tgt], 0);    // уровень
 			param[1] = GET_OBJ_VAL(obj_proto[tgt], 1);    // количество
 			param[2] = obj_proto[tgt]->get_timer();    // таймер
 			break;
@@ -1455,13 +1455,13 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	// Удалаяю объекты
 	for (i = 0; i < num; ++i)
-		extract_obj(objs[i]);
+		ExtractObjFromWorld(objs[i]);
 	free(objs);
 
 	imlog(CMP, "Ингредиенты удалены");
 
 	// Кидаем кубики на создание
-	mres = number(1, 100 - (can_use_feat(ch, BREW_POTION_FEAT) ? 5 : 0));
+	mres = number(1, 100 - (IsAbleToUseFeat(ch, EFeat::kHerbalist) ? 5 : 0));
 	if (mres < (int) prob)
 		mres = IM_MSG_OK;
 	else {
@@ -1487,8 +1487,8 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		const auto result = world_objects.create_from_prototype_by_rnum(tgt);
 		if (result) {
 			switch (GET_OBJ_TYPE(result)) {
-				case ObjData::ITEM_SCROLL:
-				case ObjData::ITEM_POTION:
+				case EObjType::kScroll:
+				case EObjType::kPorion:
 					if (val[0] > 0) {
 						result->set_val(0, val[0]);
 					}
@@ -1497,8 +1497,8 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					}
 					break;
 
-				case ObjData::ITEM_WAND:
-				case ObjData::ITEM_STAFF:
+				case EObjType::kWand:
+				case EObjType::kStaff:
 					if (val[0] > 0) {
 						result->set_val(0, val[0]);
 					}
@@ -1513,7 +1513,7 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 				default: break;
 			}
-			obj_to_char(result.get(), ch);
+			PlaceObjToInventory(result.get(), ch);
 		}
 	}
 

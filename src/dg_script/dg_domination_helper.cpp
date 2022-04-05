@@ -146,7 +146,7 @@ static bool load_arena_mob(Trigger *trig, MobVnum mob_vn, RoomVnum room_vn, bool
 		snprintf(buf2, kMaxStringLength, "load mob: %d to room: %d", mob_vn, room_vn);
 		trig_log(trig, buf2);
 	}
-	char_to_room(mob_rn, room_rn);
+	PlaceCharToRoom(mob_rn, room_rn);
 	load_mtrigger(mob_rn);
 
 	return true;

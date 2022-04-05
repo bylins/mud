@@ -360,7 +360,7 @@ using namespace ShopExt;
 
 int shop_ext(CharData *ch, void *me, int cmd, char *argument) {
 	if (!ch->desc
-		|| IS_NPC(ch)) {
+		|| ch->is_npc()) {
 		return 0;
 	}
 
@@ -468,7 +468,7 @@ void town_shop_keepers() {
 		if (IS_RENTKEEPER(ch)
 			&& ch->in_room > 0
 			&& !Clan::GetClanByRoom(ch->in_room)
-			&& !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
+			&& !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)
 			&& zone_table[world[ch->in_room]->zone_rn].vnum > 39 // в служебках нехрен делать
 			&& GET_ROOM_VNUM(ch->in_room) % 100 != 99
 			&& zone_list.find(world[ch->in_room]->zone_rn) == zone_list.end()) {
@@ -476,7 +476,7 @@ void town_shop_keepers() {
 			if (get_zone_rooms(world[ch->in_room]->zone_rn, &rnum_start, &rnum_end)) {
 				CharData *mob = read_mobile(1901, VIRTUAL);
 				if (mob) {
-					char_to_room(mob, number(rnum_start, rnum_end));
+					PlaceCharToRoom(mob, number(rnum_start, rnum_end));
 				}
 			}
 			zone_list.insert(world[ch->in_room]->zone_rn);

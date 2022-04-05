@@ -288,23 +288,23 @@ void assign_triggers(void *i, int type) {
 	}
 }
 
-void trg_featturn(CharData *ch, int featnum, int featdiff, int vnum) {
-	if (HAVE_FEAT(ch, featnum)) {
+void trg_featturn(CharData *ch, EFeat feat_id, int featdiff, int vnum) {
+	if (HAVE_FEAT(ch, feat_id)) {
 		if (featdiff)
 			return;
 		else {
-			sprintf(buf, "Вы утратили способность '%s'.\r\n", feat_info[featnum].name);
+			sprintf(buf, "Вы утратили способность '%s'.\r\n", feat_info[feat_id].name);
 			send_to_char(buf, ch);
-			log("Remove %s to %s (trigfeatturn) trigvnum %d", feat_info[featnum].name, GET_NAME(ch), vnum);
-			UNSET_FEAT(ch, featnum);
+			log("Remove %s to %s (trigfeatturn) trigvnum %d", feat_info[feat_id].name, GET_NAME(ch), vnum);
+			UNSET_FEAT(ch, feat_id);
 		}
 	} else {
 		if (featdiff) {
-			if (feat_info[featnum].is_known[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) {
-				sprintf(buf, "Вы обрели способность '%s'.\r\n", feat_info[featnum].name);
+			if (feat_info[feat_id].is_known[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) {
+				sprintf(buf, "Вы обрели способность '%s'.\r\n", feat_info[feat_id].name);
 				send_to_char(buf, ch);
-				log("Add %s to %s (trigfeatturn) trigvnum %d", feat_info[featnum].name, GET_NAME(ch), vnum);
-				SET_FEAT(ch, featnum);
+				log("Add %s to %s (trigfeatturn) trigvnum %d", feat_info[feat_id].name, GET_NAME(ch), vnum);
+				SET_FEAT(ch, feat_id);
 			}
 		};
 	}

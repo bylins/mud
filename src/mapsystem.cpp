@@ -270,7 +270,7 @@ void put_on_screen(unsigned y, unsigned x, int num, int depth) {
 // затирают символы выходов ^ и v, но не затирают друг друга, т.е. что
 // первое отрисовалось, то и остается, поэтому идут по важности
 void check_position_and_put_on_screen(int next_y, int next_x, int sign_num, int depth, int exit_num) {
-	if (exit_num == kDirUp) {
+	if (exit_num == EDirection::kUp) {
 		switch (sign_num) {
 			case SCREEN_DEATH_TRAP:
 			case SCREEN_WATER:
@@ -279,7 +279,7 @@ void check_position_and_put_on_screen(int next_y, int next_x, int sign_num, int 
 			case SCREEN_FLYING_RED: put_on_screen(next_y - 1, next_x + 1, sign_num, depth);
 				return;
 		}
-	} else if (exit_num == kDirDown) {
+	} else if (exit_num == EDirection::kDown) {
 		switch (sign_num) {
 			case SCREEN_DEATH_TRAP:
 			case SCREEN_WATER:
@@ -294,7 +294,7 @@ void check_position_and_put_on_screen(int next_y, int next_x, int sign_num, int 
 }
 
 void draw_mobs(const CharData *ch, int room_rnum, int next_y, int next_x) {
-	if (IS_DARK(room_rnum) && !IS_IMMORTAL(ch)) {
+	if (is_dark(room_rnum) && !IS_IMMORTAL(ch)) {
 		put_on_screen(next_y, next_x - 1, SCREEN_MOB_UNDEF, 1);
 	} else {
 		int cnt = 0;
@@ -302,15 +302,15 @@ void draw_mobs(const CharData *ch, int room_rnum, int next_y, int next_x) {
 			if (tch == ch) {
 				continue;
 			}
-			if (IS_NPC(tch) && !ch->map_check_option(MAP_MODE_MOBS)) {
+			if (tch->is_npc() && !ch->map_check_option(MAP_MODE_MOBS)) {
 				continue;
 			}
-			if (!IS_NPC(tch) && !ch->map_check_option(MAP_MODE_PLAYERS)) {
+			if (!tch->is_npc() && !ch->map_check_option(MAP_MODE_PLAYERS)) {
 				continue;
 			}
 			if (HERE(tch)
 				&& (CAN_SEE(ch, tch)
-					|| awaking(tch, AW_HIDE | AW_INVIS | AW_CAMOUFLAGE))) {
+					|| awaking(tch, kAwHide | kAwInvis | kAwCamouflage))) {
 				++cnt;
 			}
 		}
@@ -324,7 +324,7 @@ void draw_mobs(const CharData *ch, int room_rnum, int next_y, int next_x) {
 }
 
 void draw_objs(const CharData *ch, int room_rnum, int next_y, int next_x) {
-	if (IS_DARK(room_rnum) && !IS_IMMORTAL(ch)) {
+	if (is_dark(room_rnum) && !IS_IMMORTAL(ch)) {
 		put_on_screen(next_y, next_x + 1, SCREEN_OBJ_UNDEF, 1);
 	} else {
 		int cnt = 0;
@@ -339,13 +339,13 @@ void draw_objs(const CharData *ch, int room_rnum, int next_y, int next_x) {
 				continue;
 			}
 			if (!ch->map_check_option(MAP_MODE_INGREDIENTS)
-				&& (GET_OBJ_TYPE(obj) == ObjData::ITEM_INGREDIENT
-					|| GET_OBJ_TYPE(obj) == ObjData::ITEM_MING)) {
+				&& (GET_OBJ_TYPE(obj) == EObjType::kIngredient
+					|| GET_OBJ_TYPE(obj) == EObjType::kMagicIngredient)) {
 				continue;
 			}
 			if (!IS_CORPSE(obj)
-				&& GET_OBJ_TYPE(obj) != ObjData::ITEM_INGREDIENT
-				&& GET_OBJ_TYPE(obj) != ObjData::ITEM_MING
+				&& GET_OBJ_TYPE(obj) != EObjType::kIngredient
+				&& GET_OBJ_TYPE(obj) != EObjType::kMagicIngredient
 				&& !ch->map_check_option(MAP_MODE_OTHER_OBJECTS)) {
 				continue;
 			}
@@ -433,34 +433,34 @@ void draw_room(CharData *ch, const RoomData *room, int cur_depth, int y, int x) 
 		if (ch->map_check_option(MAP_MODE_OBJS_CURR_ROOM)) {
 			draw_objs(ch, ch->in_room, y, x);
 		}
-	} else if (room->get_flag(ROOM_PEACEFUL)) {
+	} else if (room->get_flag(ERoomFlag::kPeaceful)) {
 		put_on_screen(y, x, SCREEN_PEACE, cur_depth);
 	}
 
-	for (int i = 0; i < kDirMaxNumber; ++i) {
+	for (int i = 0; i < EDirection::kMaxDirNum; ++i) {
 		int cur_y = y, cur_x = x, cur_sign = -1, next_y = y, next_x = x;
 		switch (i) {
-			case kDirNorth: cur_y -= 1;
+			case EDirection::kNorth: cur_y -= 1;
 				next_y -= 2;
 				cur_sign = SCREEN_Y_OPEN;
 				break;
-			case kDirEast: cur_x += 2;
+			case EDirection::kEast: cur_x += 2;
 				next_x += 4;
 				cur_sign = SCREEN_X_OPEN;
 				break;
-			case kDirSouth: cur_y += 1;
+			case EDirection::kSouth: cur_y += 1;
 				next_y += 2;
 				cur_sign = SCREEN_Y_OPEN;
 				break;
-			case kDirWest: cur_x -= 2;
+			case EDirection::kWest: cur_x -= 2;
 				next_x -= 4;
 				cur_sign = SCREEN_X_OPEN;
 				break;
-			case kDirUp: cur_y -= 1;
+			case EDirection::kUp: cur_y -= 1;
 				cur_x += 1;
 				cur_sign = SCREEN_UP_OPEN;
 				break;
-			case kDirDown: cur_y += 1;
+			case EDirection::kDown: cur_y += 1;
 				cur_x -= 1;
 				cur_sign = SCREEN_DOWN_OPEN;
 				break;
@@ -470,36 +470,36 @@ void draw_room(CharData *ch, const RoomData *room, int cur_depth, int y, int x) 
 
 		if (room->dir_option[i]
 			&& room->dir_option[i]->to_room() != kNowhere
-			&& (!EXIT_FLAGGED(room->dir_option[i], EX_HIDDEN) || IS_IMMORTAL(ch))) {
+			&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kHidden) || IS_IMMORTAL(ch))) {
 			// отрисовка выхода
-			if (EXIT_FLAGGED(room->dir_option[i], EX_CLOSED)) {
+			if (EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed)) {
 				put_on_screen(cur_y, cur_x, cur_sign + 1, cur_depth);
-			} else if (EXIT_FLAGGED(room->dir_option[i], EX_HIDDEN)) {
+			} else if (EXIT_FLAGGED(room->dir_option[i], EExitFlag::kHidden)) {
 				put_on_screen(cur_y, cur_x, cur_sign + 2, cur_depth);
 			} else {
 				put_on_screen(cur_y, cur_x, cur_sign, cur_depth);
 			}
 			// за двери закрытые смотрят только иммы
-			if (EXIT_FLAGGED(room->dir_option[i], EX_CLOSED) && !IS_IMMORTAL(ch)) {
+			if (EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) && !IS_IMMORTAL(ch)) {
 				continue;
 			}
 			// здесь важна очередность, что первое отрисовалось - то и будет
 			const RoomData *next_room = world[room->dir_option[i]->to_room()];
 			bool view_dt = false;
 			for (const auto &aff : ch->affected) {
-				if (aff->location == APPLY_VIEW_DT) // скушал свиток с эксп бонусом
+				if (aff->location == EApply::kViewDeathTraps) // скушал свиток с эксп бонусом
 				{
 					view_dt = true;
 				}
 			}
 			// дт иммам и нубам с 0 мортов
-			if (next_room->get_flag(ROOM_DEATH)
+			if (next_room->get_flag(ERoomFlag::kDeathTrap)
 				&& (GET_REAL_REMORT(ch) <= 5
 					|| view_dt || IS_IMMORTAL(ch))) {
 				check_position_and_put_on_screen(next_y, next_x, SCREEN_DEATH_TRAP, cur_depth, i);
 			}
 			// можно утонуть
-			if (next_room->sector_type == kSectWaterNoswim) {
+			if (next_room->sector_type == ESector::kWaterNoswim) {
 				if (!has_boat(ch)) {
 					check_position_and_put_on_screen(next_y, next_x, SCREEN_WATER_RED, cur_depth, i);
 				} else {
@@ -507,23 +507,23 @@ void draw_room(CharData *ch, const RoomData *room, int cur_depth, int y, int x) 
 				}
 			}
 			// можно задохнуться
-			if (next_room->sector_type == kSectUnderwater) {
-				if (!AFF_FLAGGED(ch, EAffectFlag::AFF_WATERBREATH)) {
+			if (next_room->sector_type == ESector::kUnderwater) {
+				if (!AFF_FLAGGED(ch, EAffect::kWaterBreath)) {
 					check_position_and_put_on_screen(next_y, next_x, SCREEN_WATER_RED, cur_depth, i);
 				} else {
 					check_position_and_put_on_screen(next_y, next_x, SCREEN_WATER, cur_depth, i);
 				}
 			}
 			// Флай-дт
-			if (next_room->sector_type == kSectOnlyFlying) {
-				if (!AFF_FLAGGED(ch, EAffectFlag::AFF_FLY)) {
+			if (next_room->sector_type == ESector::kOnlyFlying) {
+				if (!AFF_FLAGGED(ch, EAffect::kFly)) {
 					check_position_and_put_on_screen(next_y, next_x, SCREEN_FLYING_RED, cur_depth, i);
 				} else {
 					check_position_and_put_on_screen(next_y, next_x, SCREEN_FLYING, cur_depth, i);
 				}
 			}
 			// знаки в центре клетки, не рисующиеся для выходов вверх/вниз
-			if (i != kDirUp && i != kDirDown) {
+			if (i != EDirection::kUp && i != EDirection::kDown) {
 				// переход в другую зону
 				if (next_room->zone_rn != world[ch->in_room]->zone_rn) {
 					put_on_screen(next_y, next_x, SCREEN_NEW_ZONE, cur_depth);
@@ -533,7 +533,7 @@ void draw_room(CharData *ch, const RoomData *room, int cur_depth, int y, int x) 
 			}
 			// существа
 			if (cur_depth == 1
-				&& (!EXIT_FLAGGED(room->dir_option[i], EX_CLOSED) || IS_IMMORTAL(ch))
+				&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) || IS_IMMORTAL(ch))
 				&& (ch->map_check_option(MAP_MODE_MOBS) || ch->map_check_option(MAP_MODE_PLAYERS))) {
 				// в случае вверх/вниз next_y/x = y/x, рисуется относительно
 				// координат чара, со смещением, чтобы писать около полей v и ^
@@ -550,7 +550,7 @@ void draw_room(CharData *ch, const RoomData *room, int cur_depth, int y, int x) 
 			}
 			// предметы
 			if (cur_depth == 1
-				&& (!EXIT_FLAGGED(room->dir_option[i], EX_CLOSED) || IS_IMMORTAL(ch))
+				&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) || IS_IMMORTAL(ch))
 				&& (ch->map_check_option(MAP_MODE_MOBS_CORPSES)
 					|| ch->map_check_option(MAP_MODE_PLAYER_CORPSES)
 					|| ch->map_check_option(MAP_MODE_INGREDIENTS)
@@ -564,9 +564,9 @@ void draw_room(CharData *ch, const RoomData *room, int cur_depth, int y, int x) 
 				}
 			}
 			// проход по следующей в глубину комнате
-			if (i != kDirUp && i != kDirDown
+			if (i != EDirection::kUp && i != EDirection::kDown
 				&& cur_depth < MAX_DEPTH_ROOMS
-				&& (!EXIT_FLAGGED(room->dir_option[i], EX_CLOSED) || IS_IMMORTAL(ch))
+				&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) || IS_IMMORTAL(ch))
 				&& next_room->zone_rn == world[ch->in_room]->zone_rn
 				&& mode_allow(ch, cur_depth)) {
 				draw_room(ch, next_room, cur_depth + 1, next_y, next_x);
@@ -579,7 +579,7 @@ void draw_room(CharData *ch, const RoomData *room, int cur_depth, int y, int x) 
 
 // imm по дефолту = 0, если нет, то распечатанная карта засылается ему
 void print_map(CharData *ch, CharData *imm) {
-	if (ROOM_FLAGGED(ch->in_room, ROOM_NOMAPPER))
+	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kMoMapper))
 		return;
 	MAX_LINES = MAX_LINES_STANDART;
 	MAX_LENGTH = MAX_LENGTH_STANDART;
@@ -1014,16 +1014,16 @@ void Options::text_olc(CharData *ch, const char *arg) {
 } // namespace MapSystem
 
 void do_map(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch)) {
+	if (ch->is_npc()) {
 		return;
 	}
-	if (PRF_FLAGGED(ch, PRF_BLIND)) {
+	if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {
 		send_to_char("В режиме слепого игрока карта недоступна.\r\n", ch);
 		return;
-	} else if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
+	} else if (AFF_FLAGGED(ch, EAffect::kBlind)) {
 		send_to_char("Слепому карта не поможет!\r\n", ch);
 		return;
-	} else if (is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !can_use_feat(ch, DARK_READING_FEAT)) {
+	} else if (is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !IsAbleToUseFeat(ch, EFeat::kDarkReading)) {
 		send_to_char("Идем на ощупь и на запах!\r\n", ch);
 		return;
 	}

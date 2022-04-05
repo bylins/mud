@@ -107,19 +107,19 @@
 					<meta>
 						<applies>
 							<apply>
-								<location>APPLY_INT</location>
+								<location>kInt</location>
 								<modifier>1</modifier>
 							</apply>
 							<apply>
-								<location>APPLY_CHA</location>
+								<location>kCha</location>
 								<modifier>2</modifier>
 							</apply>
 							<apply>
-								<location>APPLY_WIS</location>
+								<location>kWis</location>
 								<modifier>2</modifier>
 							</apply>
 							<apply>
-								<location>APPLY_CAST_SUCCESS</location>
+								<location>kCastSuccess</location>
 								<modifier>5</modifier>
 							</apply>
 						</applies>
@@ -137,25 +137,25 @@
 						
 						<weapon_affects>
 							<!-- For possible values see material/class/affects -->
-							<weapon_affect>WAFF_SANCTUARY</weapon_affect>
-								<weapon_affect>WAFF_FIRE_AURA</weapon_affect>
+							<weapon_affect>kSanctuary</weapon_affect>
+								<weapon_affect>kFireAura</weapon_affect>
 						</weapon_affects>
 						
 						<extraflags>
 							<!-- For possible values see material/class/extraflags -->
-							<extraflag>ITEM_NORENT</extraflag>
-							<extraflag>ITEM_WITH1SLOT</extraflag>
+							<extraflag>kNorent</extraflag>
+							<extraflag>kHasOneSlot</extraflag>
 						</extraflags>
 						
 						<val1 /> <!-- has bonus to the first number value -->
 					</meta>
 				</bonuses>
 				<extraflags>
-					<extraflag>ITEM_NORENT</extraflag>
-					<extraflag>ITEM_WITH1SLOT</extraflag>
+					<extraflag>kNorent</extraflag>
+					<extraflag>kHasOneSlot</extraflag>
 				</extraflags>
 				<weapon_affects>
-					<weapon_affect>WAFF_SANCTUARY</weapon_affect>
+					<weapon_affect>kSanctuary</weapon_affect>
 				</weapon_affects>
 			</class>
 			<class id="MC_ORGANDY" vnum="200041">
@@ -213,7 +213,7 @@
 					</neuter>
 				</adjectives>
 				<extraflags>
-					<extraflag>ITEM_BLESS</extraflag>
+					<extraflag>kBless</extraflag>
 				</extraflags>
 				<bonuses>
 					<durability>100</durability>
@@ -221,11 +221,11 @@
 					<meta>
 						<applies>
 							<apply>
-								<location>APPLY_WIS</location>
+								<location>kWis</location>
 								<modifier>2</modifier>
 							</apply>
 							<apply>
-								<location>APPLY_C6</location>
+								<location>kSixthCircle</location>
 								<modifier>1</modifier>
 							</apply>
 						</applies>
@@ -236,10 +236,10 @@
 							</skill>
 						</skills>
 						<weapon_affects>
-							<weapon_affect>WAFF_FLY</weapon_affect>
+							<weapon_affect>kFly</weapon_affect>
 						</weapon_affects>
 						<extraflags>
-							<extraflag>ITEM_NORENT</extraflag>
+							<extraflag>kNorent</extraflag>
 						</extraflags>
 						<val0 />
 						<val1 />
@@ -294,7 +294,7 @@
 			<global_maximum>1</global_maximum>
 			<minimum_remorts>0</minimum_remorts>
 
-			<type>ITEM_WEAPON</type>
+			<type>kWeapon</type>
 
 			<durability>
 				<maximum>12000</maximum>
@@ -308,37 +308,37 @@
 			<item_parameters>
 				<parameter>kClubs</parameter>
 			</item_parameters>
-			<material>MAT_SUPERWOOD</material>
+			<material>kHardWood</material>
 			<spell>kSpellSleep</spell>
 
 			<extraflags>
-				<extraflag>ITEM_BLESS</extraflag>
-				<extraflag>ITEM_NOSELL</extraflag>
-				<extraflag>ITEM_NODISARM</extraflag>
-				<extraflag>ITEM_NODONATE</extraflag>
-				<extraflag>ITEM_SWIMMING</extraflag>
-				<extraflag>ITEM_FLYING</extraflag>
-				<extraflag>ITEM_WITH3SLOTS</extraflag>
-				<extraflag>ITEM_NODECAY</extraflag>
+				<extraflag>kBless</extraflag>
+				<extraflag>kNosell</extraflag>
+				<extraflag>kNodisarm</extraflag>
+				<extraflag>kNodonate</extraflag>
+				<extraflag>kSwimming</extraflag>
+				<extraflag>kFly</extraflag>
+				<extraflag>kHasThreeSlots</extraflag>
+				<extraflag>kNodecay</extraflag>
 			</extraflags>
 
 			<weapon_affects>
-				<weapon_affect>WAFF_INVISIBLE</weapon_affect>
-				<weapon_affect>WAFF_DETECT_ALIGN</weapon_affect>
-				<weapon_affect>WAFF_DETECT_MAGIC</weapon_affect>
-				<weapon_affect>WAFF_SENSE_LIFE</weapon_affect>
-				<weapon_affect>WAFF_WATER_WALK</weapon_affect>
-				<weapon_affect>WAFF_INFRAVISION</weapon_affect>
-				<weapon_affect>WAFF_NOTRACK</weapon_affect>
-				<weapon_affect>WAFF_FLY</weapon_affect>
-				<weapon_affect>WAFF_SNEAK</weapon_affect>
+				<weapon_affect>kInvisibility</weapon_affect>
+				<weapon_affect>kDetectAlign</weapon_affect>
+				<weapon_affect>kDetectMagic</weapon_affect>
+				<weapon_affect>kDetectLife</weapon_affect>
+				<weapon_affect>kWaterWalk</weapon_affect>
+				<weapon_affect>kInfravision</weapon_affect>
+				<weapon_affect>kNoTrack</weapon_affect>
+				<weapon_affect>kFly</weapon_affect>
+				<weapon_affect>kSneak</weapon_affect>
 			</weapon_affects>
 
 			<wearflags>
-				<wearflag>ITEM_WEAR_TAKE</wearflag>
-				<wearflag>ITEM_WEAR_WIELD</wearflag>
-				<wearflag>ITEM_WEAR_HOLD</wearflag>
-				<wearflag>ITEM_WEAR_BOTHS</wearflag>
+				<wearflag>kTake</wearflag>
+				<wearflag>kWield</wearflag>
+				<wearflag>kHold</wearflag>
+				<wearflag>kBoth</wearflag>
 			</wearflags>
 
 			<skills>
@@ -350,27 +350,27 @@
 
 			<applies>
 				<apply>
-					<location>APPLY_STR</location>
+					<location>kStr</location>
 					<modifier>12</modifier>
 				</apply>
 				<apply>
-					<location>APPLY_DEX</location>
+					<location>kDex</location>
 					<modifier>12</modifier>
 				</apply>
 				<apply>
-					<location>APPLY_INT</location>
+					<location>kInt</location>
 					<modifier>12</modifier>
 				</apply>
 				<apply>
-					<location>APPLY_WIS</location>
+					<location>kWis</location>
 					<modifier>12</modifier>
 				</apply>
 				<apply>
-					<location>APPLY_ABSORBE</location>
+					<location>kAbsorbe</location>
 					<modifier>12</modifier>
 				</apply>
 				<apply>
-					<location>APPLY_AC</location>
+					<location>kAc</location>
 					<modifier>-120</modifier>
 				</apply>
 			</applies>

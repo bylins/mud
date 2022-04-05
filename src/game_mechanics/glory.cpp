@@ -308,7 +308,7 @@ void add_glory(long uid, int amount) {
 	DescriptorData *d = DescByUID(uid);
 	if (d)
 		send_to_char(d->character.get(), "Вы заслужили %d %s славы.\r\n",
-					 amount, desc_count(amount, WHAT_POINT));
+					 amount, GetDeclensionInNumber(amount, EWhat::kPoint));
 }
 
 /**
@@ -709,7 +709,7 @@ void spend_glory_menu(CharData *ch) {
 
 	int diff = ch->desc->glory->olc_node->spend_glory - ch->desc->glory->olc_add_spend_glory;
 	if (diff > 0) {
-		out << "  Вы должны распределить вложенные ранее " << diff << " " << desc_count(diff, WHAT_POINT) << "\r\n";
+		out << "  Вы должны распределить вложенные ранее " << diff << " " << GetDeclensionInNumber(diff, EWhat::kPoint) << "\r\n";
 	} else if (ch->desc->glory->olc_add_spend_glory > ch->desc->glory->olc_node->spend_glory
 		|| ch->desc->glory->olc_str != ch->get_inborn_str()
 		|| ch->desc->glory->olc_dex != ch->get_inborn_dex()
@@ -952,7 +952,7 @@ bool remove_stats(CharData *ch, CharData *god, int amount) {
 				 "С %s снято %d %s вложенной ранее славы.\r\n",
 				 GET_PAD(ch, 1),
 				 removed,
-				 desc_count(removed, WHAT_POINT));
+				 GetDeclensionInNumber(removed, EWhat::kPoint));
 	// надо пересчитать хп на случай снятия с тела
 	check_max_hp(ch);
 	save_glory();
@@ -1176,7 +1176,7 @@ void remove_freeze(long uid) {
 void check_freeze(CharData *ch) {
 	auto it = glory_list.find(GET_UNIQUE(ch));
 	if (it != glory_list.end())
-		it->second->freeze = PLR_FLAGGED(ch, PLR_FROZEN) ? true : false;
+		it->second->freeze = PLR_FLAGGED(ch, EPlrFlag::kFrozen) ? true : false;
 }
 
 void set_stats(CharData *ch) {

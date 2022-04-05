@@ -16,6 +16,7 @@
 #include "backtrace.h"
 #include "zone.h"
 #include "structs/global_objects.h"
+#include "liquid.h"
 
 #include <boost/format.hpp>
 #include <random>
@@ -108,7 +109,7 @@ bool CharData::in_used_zone() const {
 //вычисление штрафов за голод и жажду
 //P_DAMROLL, P_HITROLL, P_CAST, P_MEM_GAIN, P_MOVE_GAIN, P_HIT_GAIN
 float CharData::get_cond_penalty(int type) const {
-	if (IS_NPC(this)) return 1;
+	if (this->is_npc()) return 1;
 	if (!(GET_COND_M(this, FULL) || GET_COND_M(this, THIRST))) return 1;
 
 	float penalty = 0;
@@ -173,7 +174,7 @@ float CharData::get_cond_penalty(int type) const {
 void CharData::reset() {
 	int i;
 
-	for (i = 0; i < NUM_WEARS; i++) {
+	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
 		GET_EQ(this, i) = nullptr;
 	}
 	memset((void *) &add_abils, 0, sizeof(add_abils));
@@ -185,8 +186,8 @@ void CharData::reset() {
 	next_fighting = nullptr;
 	set_protecting(nullptr);
 	set_touching(nullptr);
-	BattleAffects = clear_flags;
-	Poisoner = 0;
+	battle_affects = clear_flags;
+	poisoner = 0;
 	set_fighting(nullptr);
 	char_specials.position = EPosition::kStand;
 	mob_specials.default_pos = EPosition::kStand;
@@ -200,41 +201,41 @@ void CharData::reset() {
 		GET_MOVE(this) = 1;
 	}
 
-	GET_CASTER(this) = 0;
-	GET_DAMAGE(this) = 0;
+	this->caster_level = 0;
+	this->damage_level = 0;
 
 	PlayerI::reset();
 }
 
 void CharData::set_abstinent() {
-	int duration = CalcDuration(this, 2, MAX(0, GET_DRUNK_STATE(this) - CHAR_DRUNKED), 4, 2, 5);
+	int duration = CalcDuration(this, 2, MAX(0, GET_DRUNK_STATE(this) - kDrunked), 4, 2, 5);
 
-	if (can_use_feat(this, DRUNKARD_FEAT)) {
+	if (IsAbleToUseFeat(this, EFeat::kDrunkard)) {
 		duration /= 2;
 	}
 
-	Affect<EApplyLocation> af;
+	Affect<EApply> af;
 	af.type = kSpellAbstinent;
-	af.bitvector = to_underlying(EAffectFlag::AFF_ABSTINENT);
+	af.bitvector = to_underlying(EAffect::kAbstinent);
 	af.duration = duration;
 
-	af.location = APPLY_AC;
+	af.location = EApply::kAc;
 	af.modifier = 20;
 	affect_join(this, af, false, false, false, false);
 
-	af.location = APPLY_HITROLL;
+	af.location = EApply::kHitroll;
 	af.modifier = -2;
 	affect_join(this, af, false, false, false, false);
 
-	af.location = APPLY_DAMROLL;
+	af.location = EApply::kDamroll;
 	af.modifier = -2;
 	affect_join(this, af, false, false, false, false);
 }
 
 void CharData::affect_remove(const char_affects_list_t::iterator &affect_i) {
-	int was_lgt = AFF_FLAGGED(this, EAffectFlag::AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO;
-	long was_hlgt = AFF_FLAGGED(this, EAffectFlag::AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO;
-	long was_hdrk = AFF_FLAGGED(this, EAffectFlag::AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO;
+	int was_lgt = AFF_FLAGGED(this, EAffect::kSingleLight) ? kLightYes : kLightNo;
+	long was_hlgt = AFF_FLAGGED(this, EAffect::kHolyLight) ? kLightYes : kLightNo;
+	long was_hdrk = AFF_FLAGGED(this, EAffect::kHolyDark) ? kLightYes : kLightNo;
 
 	if (affected.empty()) {
 		log("SYSERR: affect_remove(%s) when no affects...", GET_NAME(this));
@@ -242,10 +243,10 @@ void CharData::affect_remove(const char_affects_list_t::iterator &affect_i) {
 	}
 
 	const auto af = *affect_i;
-	affect_modify(this, af->location, af->modifier, static_cast<EAffectFlag>(af->bitvector), false);
+	affect_modify(this, af->location, af->modifier, static_cast<EAffect>(af->bitvector), false);
 	if (af->type == kSpellAbstinent) {
 		if (player_specials) {
-			GET_DRUNK_STATE(this) = GET_COND(this, DRUNK) = MIN(GET_COND(this, DRUNK), CHAR_DRUNKED - 1);
+			GET_DRUNK_STATE(this) = GET_COND(this, DRUNK) = MIN(GET_COND(this, DRUNK), kDrunked - 1);
 		} else {
 			log("SYSERR: player_specials is not set.");
 		}
@@ -257,7 +258,7 @@ void CharData::affect_remove(const char_affects_list_t::iterator &affect_i) {
 	affected.erase(affect_i);
 
 	affect_total(this);
-	check_light(this, LIGHT_UNDEF, was_lgt, was_hlgt, was_hdrk, 1);
+	CheckLight(this, kLightUndef, was_lgt, was_hlgt, was_hdrk, 1);
 }
 
 bool CharData::has_any_affect(const affects_list_t &affects) {
@@ -348,17 +349,17 @@ void CharData::zero_init() {
 	next_fighting = nullptr;
 	followers = nullptr;
 	m_master = nullptr;
-	CasterLevel = 0;
-	DamageLevel = 0;
+	caster_level = 0;
+	damage_level = 0;
 	pk_list = nullptr;
 	helpers = nullptr;
 	track_dirs = 0;
-	CheckAggressive = 0;
-	ExtractTimer = 0;
-	Initiative = 0;
-	BattleCounter = 0;
+	check_aggressive = 0;
+	extract_timer = 0;
+	initiative = 0;
+	battle_counter = 0;
 	round_counter = 0;
-	Poisoner = 0;
+	poisoner = 0;
 	dl_list = nullptr;
 	agrobd = false;
 
@@ -376,9 +377,9 @@ void CharData::zero_init() {
 		i = nullptr;
 	}
 
-	memset(&MemQueue, 0, sizeof(spell_mem_queue));
+	memset(&mem_queue, 0, sizeof(SpellMemQueue));
 	memset(&Temporary, 0, sizeof(FlagData));
-	memset(&BattleAffects, 0, sizeof(FlagData));
+	memset(&battle_affects, 0, sizeof(FlagData));
 	char_specials.position = EPosition::kStand;
 	mob_specials.default_pos = EPosition::kStand;
 	souls = 0;
@@ -409,7 +410,7 @@ void CharData::purge() {
 	int i, id = -1;
 	struct alias_data *a;
 
-	if (!IS_NPC(this) && !get_name().empty()) {
+	if (!this->is_npc() && !get_name().empty()) {
 		id = get_ptable_by_name(GET_NAME(this));
 		if (id >= 0) {
 			player_table[id].level = GetRealLevel(this);
@@ -418,8 +419,8 @@ void CharData::purge() {
 		}
 	}
 
-	if (!IS_NPC(this) || (IS_NPC(this) && GET_MOB_RNUM(this) == -1)) {
-		if (IS_NPC(this) && this->mob_specials.Questor)
+	if (!this->is_npc() || (this->is_npc() && GET_MOB_RNUM(this) == -1)) {
+		if (this->is_npc() && this->mob_specials.Questor)
 			free(this->mob_specials.Questor);
 
 		pk_free_list(this);
@@ -439,7 +440,7 @@ void CharData::purge() {
 	}
 
 	while (this->timed) {
-		timed_from_char(this, this->timed);
+		ExpireTimedSkill(this, this->timed);
 	}
 
 	Celebrates::remove_from_mob_lists(this->id);
@@ -502,7 +503,7 @@ void CharData::purge() {
 
 		this->player_specials.reset();
 
-		if (IS_NPC(this)) {
+		if (this->is_npc()) {
 			log("SYSERR: Mob %s (#%d) had player_specials allocated!", GET_NAME(this), GET_MOB_VNUM(this));
 		}
 	}
@@ -520,7 +521,7 @@ void CharData::purge() {
 // * Скилл с учетом всех плюсов и минусов от шмоток/яда.
 int CharData::get_skill(const ESkill skill_num) const {
 	int skill = get_trained_skill(skill_num) + get_equipped_skill(skill_num);
-	if (AFF_FLAGGED(this, EAffectFlag::AFF_SKILLS_REDUCE)) {
+	if (AFF_FLAGGED(this, EAffect::kSkillReduce)) {
 		skill -= skill * GET_POISON(this) / 100;
 	}
 	return std::clamp(skill, 0, MUD::Skills()[skill_num].cap);
@@ -531,7 +532,7 @@ int CharData::get_skill(const ESkill skill_num) const {
 // всем остальным -- не более 5% с шмотки
 int CharData::get_equipped_skill(const ESkill skill_num) const {
 	int skill = 0;
-	bool is_native = IS_NPC(this) || MUD::Classes()[chclass_].HasSkill(skill_num);
+	bool is_native = this->is_npc() || MUD::Classes()[chclass_].HasSkill(skill_num);
 	for (auto i : equipment) {
 		if (i) {
 			if (is_native) {
@@ -556,7 +557,7 @@ int CharData::get_equipped_skill(const ESkill skill_num) const {
 
 // * Родной тренированный скилл чара.
 int CharData::get_inborn_skill(const ESkill skill_num) {
-	if (Privilege::check_skills(this)) {
+	if (privilege::CheckSkills(this)) {
 		auto it = skills.find(skill_num);
 		if (it != skills.end()) {
 			//return normalize_skill(it->second.skillLevel, skill_num);
@@ -567,12 +568,12 @@ int CharData::get_inborn_skill(const ESkill skill_num) {
 }
 
 int CharData::get_trained_skill(const ESkill skill_num) const {
-	if (ROOM_FLAGGED(this->in_room, ROOM_ARENA_DOMINATION)) {
+	if (ROOM_FLAGGED(this->in_room, ERoomFlag::kDominationArena)) {
 		if (MUD::Classes()[chclass_].HasSkill(skill_num)) {
 			return 100;
 		}
 	}
-	if (Privilege::check_skills(this)) {
+	if (privilege::CheckSkills(this)) {
 		return std::clamp(current_morph_->get_trained_skill(skill_num), 0, MUD::Skills()[skill_num].cap);
 	}
 	return 0;
@@ -752,47 +753,47 @@ ObjData *CharData::get_cast_obj() const {
 }
 
 bool IS_CHARMICE(const CharData *ch) {
-	return IS_NPC(ch)
-		&& (AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)
-			|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM));
+	return ch->is_npc()
+		&& (AFF_FLAGGED(ch, EAffect::kHelper)
+			|| AFF_FLAGGED(ch, EAffect::kCharmed));
 }
 
 bool MORT_CAN_SEE(const CharData *sub, const CharData *obj) {
 	return HERE(obj)
 		&& INVIS_OK(sub, obj)
-		&& (IS_LIGHT((obj)->in_room)
-			|| AFF_FLAGGED((sub), EAffectFlag::AFF_INFRAVISION));
+		&& (!is_dark((obj)->in_room)
+			|| AFF_FLAGGED((sub), EAffect::kInfravision));
 }
 
 bool MAY_SEE(const CharData *ch, const CharData *sub, const CharData *obj) {
 	return !(GET_INVIS_LEV(ch) > 30)
-		&& !AFF_FLAGGED(sub, EAffectFlag::AFF_BLIND)
-		&& (!IS_DARK(sub->in_room)
-			|| AFF_FLAGGED(sub, EAffectFlag::AFF_INFRAVISION))
-		&& (!AFF_FLAGGED(obj, EAffectFlag::AFF_INVISIBLE)
-			|| AFF_FLAGGED(sub, EAffectFlag::AFF_DETECT_INVIS));
+		&& !AFF_FLAGGED(sub, EAffect::kBlind)
+		&& (!is_dark(sub->in_room)
+			|| AFF_FLAGGED(sub, EAffect::kInfravision))
+		&& (!AFF_FLAGGED(obj, EAffect::kInvisible)
+			|| AFF_FLAGGED(sub, EAffect::kDetectInvisible));
 }
 
 bool IS_HORSE(const CharData *ch) {
-	return IS_NPC(ch)
+	return ch->is_npc()
 		&& ch->has_master()
-		&& AFF_FLAGGED(ch, EAffectFlag::AFF_HORSE);
+		&& AFF_FLAGGED(ch, EAffect::kHorse);
 }
 
 bool IS_MORTIFIER(const CharData *ch) {
-	return IS_NPC(ch)
+	return ch->is_npc()
 		&& ch->has_master()
-		&& MOB_FLAGGED(ch, MOB_CORPSE);
+		&& MOB_FLAGGED(ch, EMobFlag::kCorpse);
 }
 
 bool MAY_ATTACK(const CharData *sub) {
-	return (!AFF_FLAGGED((sub), EAffectFlag::AFF_CHARM)
+	return (!AFF_FLAGGED((sub), EAffect::kCharmed)
 		&& !IS_HORSE((sub))
-		&& !AFF_FLAGGED((sub), EAffectFlag::AFF_STOPFIGHT)
-		&& !AFF_FLAGGED((sub), EAffectFlag::AFF_MAGICSTOPFIGHT)
-		&& !AFF_FLAGGED((sub), EAffectFlag::AFF_HOLD)
-		&& !AFF_FLAGGED((sub), EAffectFlag::AFF_SLEEP)
-		&& !MOB_FLAGGED((sub), MOB_NOFIGHT)
+		&& !AFF_FLAGGED((sub), EAffect::kStopFight)
+		&& !AFF_FLAGGED((sub), EAffect::kMagicStopFight)
+		&& !AFF_FLAGGED((sub), EAffect::kHold)
+		&& !AFF_FLAGGED((sub), EAffect::kSleep)
+		&& !MOB_FLAGGED((sub), EMobFlag::kNoFight)
 		&& GET_WAIT(sub) <= 0
 		&& !sub->get_fighting()
 		&& GET_POS(sub) >= EPosition::kRest);
@@ -800,22 +801,22 @@ bool MAY_ATTACK(const CharData *sub) {
 
 bool AWAKE(const CharData *ch) {
 	return GET_POS(ch) > EPosition::kSleep
-		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP);
+		&& !AFF_FLAGGED(ch, EAffect::kSleep);
 }
 
 //Вы уверены,что функцияам расчете опыта самое место в классе персонажа?
 bool OK_GAIN_EXP(const CharData *ch, const CharData *victim) {
 	return !NAME_BAD(ch)
 		&& (NAME_FINE(ch)
-			|| !(GetRealLevel(ch) == NAME_LEVEL))
-		&& !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
-		&& IS_NPC(victim)
+			|| !(GetRealLevel(ch) == kNameLevel))
+		&& !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)
+		&& victim->is_npc()
 		&& (GET_EXP(victim) > 0)
-		&& (!IS_NPC(victim)
-			|| !IS_NPC(ch)
-			|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+		&& (!victim->is_npc()
+			|| !ch->is_npc()
+			|| AFF_FLAGGED(ch, EAffect::kCharmed))
 		&& !IS_HORSE(victim)
-		&& !ROOM_FLAGGED(ch->in_room, ROOM_ARENA_DOMINATION);
+		&& !ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena);
 }
 
 bool IS_MALE(const CharData *ch) {
@@ -836,13 +837,13 @@ bool IS_POLY(const CharData *ch) {
 
 bool IMM_CAN_SEE(const CharData *sub, const CharData *obj) {
 	return MORT_CAN_SEE(sub, obj)
-		|| (!IS_NPC(sub)
-			&& PRF_FLAGGED(sub, PRF_HOLYLIGHT));
+		|| (!sub->is_npc()
+			&& PRF_FLAGGED(sub, EPrf::kHolylight));
 }
 
 bool CAN_SEE(const CharData *sub, const CharData *obj) {
 	return SELF(sub, obj)
-		|| ((GetRealLevel(sub) >= (IS_NPC(obj) ? 0 : GET_INVIS_LEV(obj)))
+		|| ((GetRealLevel(sub) >= (obj->is_npc() ? 0 : GET_INVIS_LEV(obj)))
 			&& IMM_CAN_SEE(sub, obj));
 }
 
@@ -904,18 +905,18 @@ bool CharData::purged() const {
 }
 
 const std::string &CharData::get_name_str() const {
-	if (IS_NPC(this)) {
+	if (this->is_npc()) {
 		return short_descr_;
 	}
 	return name_;
 }
 
 const std::string &CharData::get_name() const {
-	return IS_NPC(this) ? get_npc_name() : get_pc_name();
+	return this->is_npc() ? get_npc_name() : get_pc_name();
 }
 
 void CharData::set_name(const char *name) {
-	if (IS_NPC(this)) {
+	if (this->is_npc()) {
 		set_npc_name(name);
 	} else {
 		set_pc_name(name);
@@ -992,7 +993,7 @@ int CharData::get_level_add() const {
 }
 
 void CharData::set_level(int level) {
-	if (IS_NPC(this)) {
+	if (this->is_npc()) {
 		level_ = std::clamp(level, kMinCharLevel, kMaxMobLevel);
 	} else {
 		level_ = std::clamp(level, kMinCharLevel, kLvlImplementator);
@@ -1217,7 +1218,7 @@ void CharData::set_gold(long num, bool need_log) {
 	}
 	num = MAX(0, MIN(kMaxMoneyKept, num));
 
-	if (need_log && !IS_NPC(this)) {
+	if (need_log && !this->is_npc()) {
 		long change = num - get_gold();
 		if (change > 0) {
 			log("Gold: %s add %ld", get_name().c_str(), change);
@@ -1241,7 +1242,7 @@ void CharData::set_bank(long num, bool need_log) {
 	}
 	num = MAX(0, MIN(kMaxMoneyKept, num));
 
-	if (need_log && !IS_NPC(this)) {
+	if (need_log && !this->is_npc()) {
 		long change = num - get_bank();
 		if (change > 0) {
 			log("Gold: %s add %ld", get_name().c_str(), change);
@@ -1503,7 +1504,7 @@ void CharData::clear_add_apply_affects() {
 ///////////////////////////////////////////////////////////////////////////////
 int CharData::get_zone_group() const {
 	const auto rnum = get_rnum();
-	if (IS_NPC(this)
+	if (this->is_npc()
 		&& rnum >= 0
 		&& mob_index[rnum].zone >= 0) {
 		const auto zone = mob_index[rnum].zone;
@@ -1593,7 +1594,7 @@ std::string CharData::only_title_noclan() {
 std::string CharData::clan_for_title() {
 	std::string result = std::string();
 
-	bool imm = IS_IMMORTAL(this) || PRF_FLAGGED(this, PRF_CODERINFO);
+	bool imm = IS_IMMORTAL(this) || PRF_FLAGGED(this, EPrf::kCoderinfo);
 
 	if (CLAN(this) && !imm)
 		result = result + "(" + GET_CLAN_STATUS(this) + ")";
@@ -1658,14 +1659,14 @@ void CharData::reset_morph() {
 };
 
 bool CharData::is_morphed() const {
-	return current_morph_->Name() != "Обычная" || AFF_FLAGGED(this, EAffectFlag::AFF_MORPH);
+	return current_morph_->Name() != "Обычная" || AFF_FLAGGED(this, EAffect::kMorphing);
 };
 
 void CharData::set_normal_morph() {
 	current_morph_ = GetNormalMorphNew(this);
 }
 
-bool CharData::isAffected(const EAffectFlag flag) const {
+bool CharData::isAffected(const EAffect flag) const {
 	return current_morph_->isAffected(flag);
 }
 
@@ -1702,13 +1703,13 @@ void CharData::msdp_report(const std::string &name) {
 }
 
 void CharData::removeGroupFlags() {
-	AFF_FLAGS(this).unset(EAffectFlag::AFF_GROUP);
-	PRF_FLAGS(this).unset(PRF_SKIRMISHER);
+	AFF_FLAGS(this).unset(EAffect::kGroup);
+	PRF_FLAGS(this).unset(EPrf::kSkirmisher);
 }
 
 void CharData::add_follower(CharData *ch) {
 
-	if (IS_NPC(ch) && MOB_FLAGGED(ch, MOB_NOGROUP))
+	if (ch->is_npc() && MOB_FLAGGED(ch, EMobFlag::kNoGroup))
 		return;
 	add_follower_silently(ch);
 
@@ -1773,7 +1774,7 @@ const CharData::role_t &CharData::get_role_bits() const {
 // добавляет указанного ch чара в список атакующих босса с параметром type
 // или обновляет его данные в этом списке
 void CharData::add_attacker(CharData *ch, unsigned type, int num) {
-	if (!IS_NPC(this) || IS_NPC(ch) || !get_role(MOB_ROLE_BOSS)) {
+	if (!this->is_npc() || ch->is_npc() || !get_role(MOB_ROLE_BOSS)) {
 		return;
 	}
 
@@ -1805,7 +1806,7 @@ void CharData::add_attacker(CharData *ch, unsigned type, int num) {
 // возвращает количественный параметр по флагу type указанного ch чара
 // из списка атакующих данного босса
 int CharData::get_attacker(CharData *ch, unsigned type) const {
-	if (!IS_NPC(this) || IS_NPC(ch) || !get_role(MOB_ROLE_BOSS)) {
+	if (!this->is_npc() || ch->is_npc() || !get_role(MOB_ROLE_BOSS)) {
 		return -1;
 	}
 	auto i = attackers_.find(ch->get_uid());
@@ -1823,13 +1824,13 @@ int CharData::get_attacker(CharData *ch, unsigned type) const {
 std::pair<int /* uid */, int /* rounds */> CharData::get_max_damager_in_room() const {
 	std::pair<int, int> damager(-1, 0);
 
-	if (!IS_NPC(this) || !get_role(MOB_ROLE_BOSS)) {
+	if (!this->is_npc() || !get_role(MOB_ROLE_BOSS)) {
 		return damager;
 	}
 
 	int max_dmg = 0;
 	for (const auto i : world[this->in_room]->people) {
-		if (!IS_NPC(i) && i->desc) {
+		if (!i->is_npc() && i->desc) {
 			auto it = attackers_.find(i->get_uid());
 			if (it != attackers_.end()) {
 				if (it->second.damage > max_dmg) {
@@ -1856,11 +1857,11 @@ void CharData::restore_mob() {
 	for (int i = 0; i <= kSpellCount; ++i) {
 		GET_SPELL_MEM(this, i) = GET_SPELL_MEM(&mob_proto[GET_MOB_RNUM(this)], i);
 	}
-	GET_CASTER(this) = GET_CASTER(&mob_proto[GET_MOB_RNUM(this)]);
+	this->caster_level = (&mob_proto[GET_MOB_RNUM(this)])->caster_level;
 }
 // Кудояр 
 void CharData::restore_npc() {
-	if(!IS_NPC(this)) return;
+	if(!this->is_npc()) return;
 	
 	attackers_.clear();
 	auto proto = (&mob_proto[GET_MOB_RNUM(this)]);
@@ -1924,12 +1925,12 @@ void CharData::restore_npc() {
 		}
 	}
 	// рестор для фитов
-	for (int i = 1; i < kMaxFeats; i++) {
+	for (auto i = EFeat::kFirstFeat; i <= EFeat::kLastFeat; ++i) {
 		if (!HAVE_FEAT(proto, i)) {
 				UNSET_FEAT(this, i);
 			}
 	}
-	GET_CASTER(this) = GET_CASTER(proto);
+	this->caster_level = proto->caster_level;
 }
 
 void CharData::report_loop_error(const CharData::ptr_t master) const {
@@ -2019,17 +2020,17 @@ void CharData::send_to_TC(bool to_impl, bool to_tester, bool to_coder, const cha
 		return;
 	}
 	if ((IS_CHARMICE(this) && this->get_master()->is_npc()) //если это чармис у нпц
-		|| (IS_NPC(this) && !IS_CHARMICE(this))) //просто непись
+		|| (this->is_npc() && !IS_CHARMICE(this))) //просто непись
 		return;
 
 	if (to_impl &&
 		(IS_IMPL(this) || (IS_CHARMICE(this) && IS_IMPL(this->get_master()))))
 		needSend = true;
 	if (!needSend && to_coder &&
-		(PRF_FLAGGED(this, PRF_CODERINFO) || (IS_CHARMICE(this) && (PRF_FLAGGED(this->get_master(), PRF_CODERINFO)))))
+		(PRF_FLAGGED(this, EPrf::kCoderinfo) || (IS_CHARMICE(this) && (PRF_FLAGGED(this->get_master(), EPrf::kCoderinfo)))))
 		needSend = true;
 	if (!needSend && to_tester &&
-		(PRF_FLAGGED(this, PRF_TESTER) || (IS_CHARMICE(this) && (PRF_FLAGGED(this->get_master(), PRF_TESTER)))))
+		(PRF_FLAGGED(this, EPrf::kTester) || (IS_CHARMICE(this) && (PRF_FLAGGED(this->get_master(), EPrf::kTester)))))
 		needSend = true;
 	if (!needSend)
 		return;
@@ -2051,7 +2052,7 @@ void CharData::send_to_TC(bool to_impl, bool to_tester, bool to_coder, const cha
 }
 
 bool CharData::have_mind() const {
-	if (!AFF_FLAGGED(this, EAffectFlag::AFF_CHARM) && !IS_HORSE(this))
+	if (!AFF_FLAGGED(this, EAffect::kCharmed) && !IS_HORSE(this))
 		return true;
 	return false;
 }
@@ -2059,12 +2060,12 @@ bool CharData::have_mind() const {
 bool CharData::has_horse(bool same_room) const {
 	struct Follower *f;
 
-	if (IS_NPC(this)) {
+	if (this->is_npc()) {
 		return false;
 	}
 
 	for (f = this->followers; f; f = f->next) {
-		if (IS_NPC(f->ch) && AFF_FLAGGED(f->ch, EAffectFlag::AFF_HORSE)
+		if (f->ch->is_npc() && AFF_FLAGGED(f->ch, EAffect::kHorse)
 			&& (!same_room || this->in_room == IN_ROOM(f->ch))) {
 			return true;
 		}
@@ -2073,7 +2074,7 @@ bool CharData::has_horse(bool same_room) const {
 }
 // персонаж на лошади?
 bool CharData::ahorse() const {
-	return AFF_FLAGGED(this, EAffectFlag::AFF_HORSE) && this->has_horse(true);
+	return AFF_FLAGGED(this, EAffect::kHorse) && this->has_horse(true);
 }
 
 bool CharData::isHorsePrevents() {
@@ -2100,7 +2101,7 @@ bool CharData::drop_from_horse() {
 		return false;
 	sprintf(buf, "%s свалил%s со своего скакуна.", GET_PAD(plr, 0), GET_CH_SUF_2(plr));
 	act(buf, false, plr, 0, 0, kToRoom | kToArenaListen);
-	AFF_FLAGS(plr).unset(EAffectFlag::AFF_HORSE);
+	AFF_FLAGS(plr).unset(EAffect::kHorse);
 	WAIT_STATE(this, 3 * kPulseViolence);
 	if (GET_POS(plr) > EPosition::kSit)
 		GET_POS(plr) = EPosition::kSit;
@@ -2110,8 +2111,8 @@ bool CharData::drop_from_horse() {
 void CharData::dismount() {
 	if (!this->ahorse() || this->get_horse() == nullptr)
 		return;
-	if (!IS_NPC(this) && this->has_horse(true)) {
-		AFF_FLAGS(this).unset(EAffectFlag::AFF_HORSE);
+	if (!this->is_npc() && this->has_horse(true)) {
+		AFF_FLAGS(this).unset(EAffect::kHorse);
 	}
 	act("Вы слезли со спины $N1.", false, this, 0, this->get_horse(), kToChar);
 	act("$n соскочил$g с $N1.", false, this, 0, this->get_horse(), kToRoom | kToArenaListen);
@@ -2120,11 +2121,11 @@ void CharData::dismount() {
 CharData *CharData::get_horse() {
 	struct Follower *f;
 
-	if (IS_NPC(this))
+	if (this->is_npc())
 		return nullptr;
 
 	for (f = this->followers; f; f = f->next) {
-		if (IS_NPC(f->ch) && AFF_FLAGGED(f->ch, EAffectFlag::AFF_HORSE)) {
+		if (f->ch->is_npc() && AFF_FLAGGED(f->ch, EAffect::kHorse)) {
 			return (f->ch);
 		}
 	}

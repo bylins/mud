@@ -27,8 +27,8 @@ void TopPlayer::Remove(CharData *short_ch) {
 // подробности в комментарии к load_char_ascii
 void TopPlayer::Refresh(CharData *short_ch, bool reboot) {
 	if (short_ch->is_npc()
-		|| PLR_FLAGS(short_ch).get(PLR_FROZEN)
-		|| PLR_FLAGS(short_ch).get(PLR_DELETED)
+		|| PLR_FLAGS(short_ch).get(EPlrFlag::kFrozen)
+		|| PLR_FLAGS(short_ch).get(EPlrFlag::kDeleted)
 		|| IS_IMMORTAL(short_ch)) {
 		return;
 	}
@@ -65,13 +65,13 @@ const PlayerChart &TopPlayer::Chart() {
 void TopPlayer::PrintPlayersChart(CharData *ch) {
 	send_to_char(" Лучшие персонажи игроков:\r\n", ch);
 
-	fort::char_table table;
+	table_wrapper::Table table;
 	for (const auto &it: TopPlayer::Chart()) {
 		table
 			<< it.second.begin()->name_
 			<< it.second.begin()->remort_
-			<< desc_count(it.second.begin()->remort_, WHAT_REMORT)
-			<< MUD::Classes()[it.first].GetName() << fort::endr;
+			<< GetDeclensionInNumber(it.second.begin()->remort_, EWhat::kRemort)
+			<< MUD::Classes()[it.first].GetName() << table_wrapper::kEndRow;
 	}
 	table_wrapper::DecorateNoBorderTable(ch, table);
 	table_wrapper::PrintTableToChar(ch, table);
@@ -81,12 +81,12 @@ void TopPlayer::PrintClassChart(CharData *ch, ECharClass id) {
 	std::ostringstream out;
 	out << KWHT << " Лучшие " << MUD::Classes()[id].GetPluralName() << ":" << KNRM << std::endl;
 
-	fort::char_table table;
+	table_wrapper::Table table;
 	for (const auto &it: TopPlayer::chart_[id]) {
 		table
 			<< it.name_
 			<< it.remort_
-			<< desc_count(it.remort_, WHAT_REMORT) << fort::endr;
+			<< GetDeclensionInNumber(it.remort_, EWhat::kRemort) << table_wrapper::kEndRow;
 
 		if (table.row_count() >= kPlayerChartSize) {
 			break;
@@ -111,14 +111,14 @@ void TopPlayer::PrintClassChart(CharData *ch, ECharClass id) {
 void TopPlayer::PrintHelp(CharData *ch) {
 	send_to_char(" Лучшими могут быть:\n", ch);
 
-	fort::char_table table;
+	table_wrapper::Table table;
 	const int columns_num{2};
 	int count = 1;
 	for (const auto &it: MUD::Classes()) {
 		if (it.IsAvailable()) {
 			table << it.GetPluralName();
 			if (count % columns_num == 0) {
-				table << fort::endr;
+				table << table_wrapper::kEndRow;
 			}
 			++count;
 		}
@@ -126,7 +126,7 @@ void TopPlayer::PrintHelp(CharData *ch) {
 	for (const auto &str: {"игроки", "прославленные"}) {
 		table << str;
 		if (count % columns_num == 0) {
-			table << fort::endr;
+			table << table_wrapper::kEndRow;
 		}
 		++count;
 	}

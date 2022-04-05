@@ -11,7 +11,7 @@
 #include "structs/global_objects.h"
 
 void go_strangle(CharData *ch, CharData *vict) {
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) || IsUnableToAct(ch)) {
+	if (AFF_FLAGGED(ch, EAffect::kStopRight) || IsUnableToAct(ch)) {
 		send_to_char("Сейчас у вас не получится выполнить этот прием.\r\n", ch);
 		return;
 	}
@@ -46,18 +46,18 @@ void go_strangle(CharData *ch, CharData *vict) {
 		dmg.Process(ch, vict);
 		SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 3);
 	} else {
-		Affect<EApplyLocation> af;
+		Affect<EApply> af;
 		af.type = kSpellStrangle;
-		af.duration = IS_NPC(vict) ? 8 : 15;
+		af.duration = vict->is_npc() ? 8 : 15;
 		af.modifier = 0;
-		af.location = APPLY_NONE;
+		af.location = EApply::kNone;
 		af.battleflag = kAfSameTime;
-		af.bitvector = to_underlying(EAffectFlag::AFF_STRANGLED);
+		af.bitvector = to_underlying(EAffect::kStrangled);
 		affect_to_char(vict, af);
 
 		int dam =
 			(GET_MAX_HIT(vict) * GaussIntNumber((300 + 5 * ch->get_skill(ESkill::kStrangle)) / 70, 7.0, 1, 30)) / 100;
-		dam = (IS_NPC(vict) ? MIN(dam, 6 * GET_MAX_HIT(ch)) : MIN(dam, 2 * GET_MAX_HIT(ch)));
+		dam = (vict->is_npc() ? MIN(dam, 6 * GET_MAX_HIT(ch)) : MIN(dam, 2 * GET_MAX_HIT(ch)));
 		Damage dmg(SkillDmg(ESkill::kStrangle), dam, fight::kPhysDmg, nullptr);
 		dmg.flags.set(fight::kIgnoreArmor);
 		dmg.Process(ch, vict);
@@ -84,7 +84,7 @@ void go_strangle(CharData *ch, CharData *vict) {
 	TimedSkill timed;
 	timed.skill = ESkill::kStrangle;
 	timed.time = delay;
-	timed_to_char(ch, &timed);
+	ImposeTimedSkill(ch, &timed);
 }
 
 void do_strangle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -104,15 +104,15 @@ void do_strangle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (AFF_FLAGGED(vict, EAffectFlag::AFF_STRANGLED)) {
+	if (AFF_FLAGGED(vict, EAffect::kStrangled)) {
 		send_to_char("Ваша жертва хватается руками за горло - не подобраться!\r\n", ch);
 		return;
 	}
 
 	if (IS_UNDEAD(vict)
-		|| GET_RACE(vict) == NPC_RACE_FISH
-		|| GET_RACE(vict) == NPC_RACE_PLANT
-		|| GET_RACE(vict) == NPC_RACE_THING) {
+		|| GET_RACE(vict) == ENpcRace::kFish
+		|| GET_RACE(vict) == ENpcRace::kPlant
+		|| GET_RACE(vict) == ENpcRace::kConstruct) {
 		send_to_char("Вы бы еще верстовой столб удавить попробовали...\r\n", ch);
 		return;
 	}

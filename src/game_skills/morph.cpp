@@ -150,11 +150,11 @@ void AnimalMorph::SetChar(CharData *ch) {
 	ch_ = ch;
 };
 
-bool AnimalMorph::isAffected(const EAffectFlag flag) const {
+bool AnimalMorph::isAffected(const EAffect flag) const {
 	return affects_.find(flag) != affects_.end();
 }
 
-void AnimalMorph::AddAffect(const EAffectFlag flag) {
+void AnimalMorph::AddAffect(const EAffect flag) {
 	if (affects_.find(flag) == affects_.end()) {
 		affects_.insert(flag);
 	}
@@ -173,7 +173,7 @@ MorphPtr GetNormalMorphNew(CharData *ch) {
 }
 
 void do_morph(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch))
+	if (ch->is_npc())
 		return;
 	if (!ch->get_skill(ESkill::kMorph)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
@@ -210,17 +210,17 @@ void do_morph(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	act(str(boost::format(newMorph->GetMessageToRoom()) % newMorph->PadName()).c_str(), true, ch, 0, 0, kToRoom);
 
 	ch->set_morph(newMorph);
-	if (ch->equipment[WEAR_BOTHS]) {
-		send_to_char("Вы не можете держать в лапах " + ch->equipment[WEAR_BOTHS]->get_PName(3) + ".\r\n", ch);
-		RemoveEquipment(ch, WEAR_BOTHS);
+	if (ch->equipment[EEquipPos::kBoths]) {
+		send_to_char("Вы не можете держать в лапах " + ch->equipment[EEquipPos::kBoths]->get_PName(3) + ".\r\n", ch);
+		RemoveEquipment(ch, EEquipPos::kBoths);
 	}
-	if (ch->equipment[WEAR_WIELD]) {
-		send_to_char("Ваша правая лапа бессильно опустила " + ch->equipment[WEAR_WIELD]->get_PName(3) + ".\r\n", ch);
-		RemoveEquipment(ch, WEAR_WIELD);
+	if (ch->equipment[EEquipPos::kWield]) {
+		send_to_char("Ваша правая лапа бессильно опустила " + ch->equipment[EEquipPos::kWield]->get_PName(3) + ".\r\n", ch);
+		RemoveEquipment(ch, EEquipPos::kWield);
 	}
-	if (ch->equipment[WEAR_HOLD]) {
-		send_to_char("Ваша левая лапа не удержала " + ch->equipment[WEAR_HOLD]->get_PName(3) + ".\r\n", ch);
-		RemoveEquipment(ch, WEAR_HOLD);
+	if (ch->equipment[EEquipPos::kHold]) {
+		send_to_char("Ваша левая лапа не удержала " + ch->equipment[EEquipPos::kHold]->get_PName(3) + ".\r\n", ch);
+		RemoveEquipment(ch, EEquipPos::kHold);
 	}
 	WAIT_STATE(ch, 3 * kPulseViolence);
 }
@@ -243,7 +243,7 @@ void do_morphset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_WORLD))) {
+	if (!(vict = get_char_vis(ch, arg, EFind::kCharInWorld))) {
 		send_to_char(NOPERSON, ch);
 		return;
 	}
@@ -336,7 +336,7 @@ void load_morphs() {
 		}
 
 		for (pugi::xml_node aff = affectsList.child("affect"); aff; aff = aff.next_sibling("affect")) {
-			EAffectFlag affNum;
+			EAffect affNum;
 			const bool found = GetAffectNumByName(aff.child_value(), affNum);
 			if (found) {
 				affs.insert(affNum);

@@ -183,7 +183,7 @@ void add_glory(long uid, int amount) {
 	if (d) {
 		send_to_char(d->character.get(), "%sВы заслужили %d %s постоянной славы!%s\r\n",
 					 CCGRN(d->character, C_NRM),
-					 amount, desc_count(amount, WHAT_POINT),
+					 amount, GetDeclensionInNumber(amount, EWhat::kPoint),
 					 CCNRM(d->character, C_NRM));
 	}
 	save();
@@ -784,7 +784,7 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	CharData *vict = get_player_vis(ch, arg, FIND_CHAR_WORLD);
+	CharData *vict = get_player_vis(ch, arg, EFind::kCharInWorld);
 	if (vict && vict->desc && STATE(vict->desc) == CON_GLORY_CONST) {
 		send_to_char("Персонаж в данный момент редактирует свою славу.\r\n", ch);
 		return;
@@ -1061,31 +1061,31 @@ void apply_modifiers(CharData *ch) {
 		int location = 0;
 		bool add = true;
 		switch (i->first) {
-			case GLORY_HIT: location = APPLY_HIT;
+			case GLORY_HIT: location = EApply::kHp;
 				break;
-			case GLORY_SUCCESS: location = APPLY_CAST_SUCCESS;
+			case GLORY_SUCCESS: location = EApply::kCastSuccess;
 				break;
-			case GLORY_WILL: location = APPLY_SAVING_WILL;
+			case GLORY_WILL: location = EApply::kSavingWill;
 				add = false;
 				break;
-			case GLORY_STABILITY: location = APPLY_SAVING_STABILITY;
+			case GLORY_STABILITY: location = EApply::kSavingStability;
 				add = false;
 				break;
-			case GLORY_REFLEX: location = APPLY_SAVING_REFLEX;
+			case GLORY_REFLEX: location = EApply::kSavingReflex;
 				add = false;
 				break;
-			case GLORY_MIND: location = APPLY_RESIST_MIND;
+			case GLORY_MIND: location = EApply::kResistMind;
 				break;
-			case GLORY_MANAREG: location = APPLY_MANAREG;
+			case GLORY_MANAREG: location = EApply::kMamaRegen;
 				break;
-			case GLORY_BONUSPSYS: location = APPLY_PERCENT_PHYSDAM;
+			case GLORY_BONUSPSYS: location = EApply::kPhysicDamagePercent;
 				break;
-			case GLORY_BONUSMAG: location = APPLY_PERCENT_MAGDAM;
+			case GLORY_BONUSMAG: location = EApply::kMagicDamagePercent;
 				break;
 			default: break;
 		}
 		if (location) {
-			affect_modify(ch, location, i->second * stat_multi(i->first), static_cast<EAffectFlag>(0), add);
+			affect_modify(ch, location, i->second * stat_multi(i->first), static_cast<EAffect>(0), add);
 		}
 	}
 }

@@ -64,9 +64,9 @@ DescriptorData *send_result_message(long unique, bool action);
 
 // * Команда титул, title. ACMD(do_title), для игроков и для иммов все одной командой.
 void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch)) return;
+	if (ch->is_npc()) return;
 
-	if (!Privilege::check_flag(ch, Privilege::TITLE) && PLR_FLAGGED(ch, PLR_NOTITLE)) {
+	if (!privilege::CheckFlag(ch, privilege::kTitle) && PLR_FLAGGED(ch, EPlrFlag::kNoTitle)) {
 		send_to_char("Вам запрещена работа с титулами.\r\n", ch);
 		return;
 	}
@@ -81,16 +81,16 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 
 	// какие тока извраты не приходится делать, чтобы соответствовать синтаксису одобрения имен
 	int result = TITLE_NEED_HELP;
-	if (IS_GOD(ch) || Privilege::check_flag(ch, Privilege::TITLE)) {
+	if (IS_GOD(ch) || privilege::CheckFlag(ch, privilege::kTitle)) {
 		boost::trim(buffer);
 		if (CompareParam(buffer, "удалить")) {
 			boost::trim(buffer2);
-			CharData *vict = get_player_pun(ch, buffer2, FIND_CHAR_WORLD);
+			CharData *vict = get_player_pun(ch, buffer2, EFind::kCharInWorld);
 			if (!vict) {
 				send_to_char("Нет такого игрока.\r\n", ch);
 				return;
 			}
-			if (GetRealLevel(vict) >= kLvlImmortal || PRF_FLAGGED(vict, PRF_CODERINFO)) {
+			if (GetRealLevel(vict) >= kLvlImmortal || PRF_FLAGGED(vict, EPrf::kCoderinfo)) {
 				send_to_char("Вы не можете сделать этого.\r\n", ch);
 				return;
 			}
@@ -113,7 +113,7 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 	if (CompareParam(buffer2, "установить")) {
 		boost::trim(buffer);
 		if (buffer.size() > MAX_TITLE_LENGTH) {
-			if (PLR_FLAGGED(ch, PLR_NOTITLE)) {
+			if (PLR_FLAGGED(ch, EPlrFlag::kNoTitle)) {
 				send_to_char(ch, "Вам запрещено устанавливать самому себе титул.\r\n");
 				return;
 			}
@@ -140,7 +140,7 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 			if (!check_title(buffer, ch)) return;
 			title = buffer;
 		}
-		if (IS_GOD(ch) || Privilege::check_flag(ch, Privilege::TITLE)) {
+		if (IS_GOD(ch) || privilege::CheckFlag(ch, privilege::kTitle)) {
 			set_player_title(ch, pre_title, title, GET_NAME(ch));
 			send_to_char("Титул установлен\r\n", ch);
 			return;
@@ -205,7 +205,7 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 bool TitleSystem::check_title(const std::string &text, CharData *ch) {
 	if (!check_alphabet(text, ch, " ,.-?Ёё")) return 0;
 
-	if (GetRealLevel(ch) < 25 && !GET_REAL_REMORT(ch) && !IS_GOD(ch) && !Privilege::check_flag(ch, Privilege::TITLE)) {
+	if (GetRealLevel(ch) < 25 && !GET_REAL_REMORT(ch) && !IS_GOD(ch) && !privilege::CheckFlag(ch, privilege::kTitle)) {
 		send_to_char(ch, "Для права на титул вы должны достигнуть 25го уровня или иметь перевоплощения.\r\n");
 		return 0;
 	}
@@ -222,7 +222,7 @@ bool TitleSystem::check_title(const std::string &text, CharData *ch) {
 bool TitleSystem::check_pre_title(std::string text, CharData *ch) {
 	if (!check_alphabet(text, ch, " .-?Ёё")) return 0;
 
-	if (IS_GOD(ch) || Privilege::check_flag(ch, Privilege::TITLE)) return 1;
+	if (IS_GOD(ch) || privilege::CheckFlag(ch, privilege::kTitle)) return 1;
 
 	if (!GET_REAL_REMORT(ch)) {
 		send_to_char(ch, "Вы должны иметь по крайней мере одно перевоплощение для предтитула.\r\n");
@@ -395,7 +395,7 @@ void TitleSystem::set_player_title(CharData *ch,
 
 // * Для распечатки разных подсказок имму и игроку
 const char *TitleSystem::print_help_string(CharData *ch) {
-	if (IS_GOD(ch) || Privilege::check_flag(ch, Privilege::TITLE))
+	if (IS_GOD(ch) || privilege::CheckFlag(ch, privilege::kTitle))
 		return GOD_DO_TITLE_FORMAT;
 
 	return MORTAL_DO_TITLE_FORMAT;
@@ -464,7 +464,7 @@ std::string TitleSystem::print_agree_string(bool new_petition) {
 
 // * Обработка пустого вызова команды титул
 void TitleSystem::do_title_empty(CharData *ch) {
-	if ((IS_GOD(ch) || Privilege::check_flag(ch, Privilege::TITLE)) && !title_list.empty())
+	if ((IS_GOD(ch) || privilege::CheckFlag(ch, privilege::kTitle)) && !title_list.empty())
 		show_title_list(ch);
 	else {
 		std::stringstream out;

@@ -23,7 +23,7 @@ bool stop_follower(CharData *ch, int mode) {
 	}
 
 	// для смены лидера без лишнего спама
-	if (!IS_SET(mode, SF_SILENCE)) {
+	if (!IS_SET(mode, kSfSilence)) {
 		act("Вы прекратили следовать за $N4.", false, ch, 0, ch->get_master(), kToChar);
 		act("$n прекратил$g следовать за $N4.", true, ch, 0, ch->get_master(), kToNotVict | kToArenaListen);
 	}
@@ -64,52 +64,52 @@ bool stop_follower(CharData *ch, int mode) {
 	//AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
 	ch->removeGroupFlags();
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-		|| AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)
-		|| IS_SET(mode, SF_CHARMLOST)) {
-		if (affected_by_spell(ch, kSpellCharm)) {
+	if (AFF_FLAGGED(ch, EAffect::kCharmed)
+		|| AFF_FLAGGED(ch, EAffect::kHelper)
+		|| IS_SET(mode, kSfCharmlost)) {
+		if (IsAffectedBySpell(ch, kSpellCharm)) {
 			affect_from_char(ch, kSpellCharm);
 		}
-		EXTRACT_TIMER(ch) = 5;
-		AFF_FLAGS(ch).unset(EAffectFlag::AFF_CHARM);
+		ch->extract_timer = 5;
+		AFF_FLAGS(ch).unset(EAffect::kCharmed);
 
 		if (ch->get_fighting()) {
 			stop_fighting(ch, true);
 		}
 
-		if (IS_NPC(ch)) {
-			if (MOB_FLAGGED(ch, MOB_CORPSE)) {
+		if (ch->is_npc()) {
+			if (MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
 				act("Налетевший ветер развеял $n3, не оставив и следа.", true, ch, 0, 0, kToRoom | kToArenaListen);
 				GET_LASTROOM(ch) = GET_ROOM_VNUM(ch->in_room);
 				perform_drop_gold(ch, ch->get_gold());
 				ch->set_gold(0);
-				extract_char(ch, false);
+				ExtractCharFromWorld(ch, false);
 				return (true);
-			} else if (AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)) {
-				AFF_FLAGS(ch).unset(EAffectFlag::AFF_HELPER);
+			} else if (AFF_FLAGGED(ch, EAffect::kHelper)) {
+				AFF_FLAGS(ch).unset(EAffect::kHelper);
 			}
 		}
 	}
-	if (IS_NPC(ch) && MOB_FLAGGED(ch, MOB_PLAYER_SUMMON)) { // фул рестор моба (Кудояр)
+	if (ch->is_npc() && MOB_FLAGGED(ch, EMobFlag::kSummoned)) { // фул рестор моба (Кудояр)
 		act("Магия подпитующая $n3 развеялась, и $n0 вернул$u в норму.", true, ch, 0, 0, kToRoom | kToArenaListen);
 		ch->restore_npc();
 			// сначало бросаем лишнее
 				while (ch->carrying) {
 						ObjData *obj = ch->carrying;
-							obj_from_char(obj);
-							obj_to_room(obj, ch->in_room);
+					ExtractObjFromChar(obj);
+					PlaceObjToRoom(obj, ch->in_room);
 					}
 			
-			for (int i = 0; i < NUM_WEARS; i++) { // убираем что одето
+			for (int i = 0; i < EEquipPos::kNumEquipPos; i++) { // убираем что одето
 				if (GET_EQ(ch, i)) {
 					if (!remove_otrigger(GET_EQ(ch, i), ch)) {
 						continue;
 					}
-					obj_to_char(unequip_char(ch, i, CharEquipFlag::show_msg), ch);
+					PlaceObjToInventory(UnequipChar(ch, i, CharEquipFlag::show_msg), ch);
 					//extract_obj(tmp);
 					while (ch->carrying) {
 						ObjData *obj = ch->carrying;
-							extract_obj(obj);
+						ExtractObjFromWorld(obj);
 					}
 				}
 			}
@@ -117,7 +117,7 @@ bool stop_follower(CharData *ch, int mode) {
 	}
 	
 	 
-	if (IS_NPC(ch)
+	if (ch->is_npc()
 		//&& !MOB_FLAGGED(ch, MOB_PLAYER_SUMMON)    //Не ресетим флаги, если моб призван игроком
 		&& (i = GET_MOB_RNUM(ch)) >= 0) {
 		MOB_FLAGS(ch) = MOB_FLAGS(mob_proto + i);
@@ -130,18 +130,18 @@ bool stop_follower(CharData *ch, int mode) {
 bool die_follower(CharData *ch) {
 	struct Follower *j, *k = ch->followers;
 
-	if (ch->has_master() && stop_follower(ch, SF_FOLLOWERDIE)) {
+	if (ch->has_master() && stop_follower(ch, kSfFollowerdie)) {
 		//  чармиса спуржили в stop_follower
 		return true;
 	}
 
 	if (ch->ahorse()) {
-		AFF_FLAGS(ch).unset(EAffectFlag::AFF_HORSE);
+		AFF_FLAGS(ch).unset(EAffect::kHorse);
 	}
 
 	for (k = ch->followers; k; k = j) {
 		j = k->next;
-		stop_follower(k->ch, SF_MASTERDIE);
+		stop_follower(k->ch, kSfMasterdie);
 	}
 	return false;
 }
@@ -166,18 +166,18 @@ void do_follow(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	struct Follower *f;
 	one_argument(argument, smallBuf);
 
-	if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && ch->get_fighting())
+	if (ch->is_npc() && AFF_FLAGGED(ch, EAffect::kCharmed) && ch->get_fighting())
 		return;
 	if (*smallBuf) {
 		if (!str_cmp(smallBuf, "я") || !str_cmp(smallBuf, "self") || !str_cmp(smallBuf, "me")) {
 			if (!ch->has_master()) {
 				send_to_char("Но вы ведь ни за кем не следуете...\r\n", ch);
 			} else {
-				stop_follower(ch, SF_EMPTY);
+				stop_follower(ch, kSfEmpty);
 			}
 			return;
 		}
-		if (!(leader = get_char_vis(ch, smallBuf, FIND_CHAR_ROOM))) {
+		if (!(leader = get_char_vis(ch, smallBuf, EFind::kCharInRoom))) {
 			send_to_char(NOPERSON, ch);
 			return;
 		}
@@ -191,7 +191,7 @@ void do_follow(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
+	if (AFF_FLAGGED(ch, EAffect::kCharmed)
 		&& ch->has_master()) {
 		act("Но вы можете следовать только за $N4!", false, ch, 0, ch->get_master(), kToChar);
 	} else        // Not Charmed follow person
@@ -201,7 +201,7 @@ void do_follow(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				send_to_char("Вы уже следуете за собой.\r\n", ch);
 				return;
 			}
-			stop_follower(ch, SF_EMPTY);
+			stop_follower(ch, kSfEmpty);
 		} else {
 			if (circle_follow(ch, leader)) {
 				send_to_char("Так у вас целый хоровод получится.\r\n", ch);
@@ -209,7 +209,7 @@ void do_follow(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 
 			if (ch->has_master()) {
-				stop_follower(ch, SF_EMPTY);
+				stop_follower(ch, kSfEmpty);
 			}
 			//AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
 			ch->removeGroupFlags();

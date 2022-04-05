@@ -27,8 +27,8 @@ int set_hit(CharData *ch, CharData *victim) {
 			victim->desc->writer->clear();
 		}
 		STATE(victim->desc) = CON_PLAYING;
-		if (!IS_NPC(victim)) {
-			PLR_FLAGS(victim).unset(PLR_WRITING);
+		if (!victim->is_npc()) {
+			PLR_FLAGS(victim).unset(EPlrFlag::kWriting);
 		}
 		if (victim->desc->backstr) {
 			free(victim->desc->backstr);
@@ -66,13 +66,13 @@ int set_hit(CharData *ch, CharData *victim) {
 		send_to_char(victim, "На вас было совершено нападение, редактирование отменено!\r\n");
 	}
 
-	if (MOB_FLAGGED(ch, MOB_MEMORY) && GET_WAIT(ch) > 0) {
-		if (!IS_NPC(victim)) {
+	if (MOB_FLAGGED(ch, EMobFlag::kMemory) && GET_WAIT(ch) > 0) {
+		if (!victim->is_npc()) {
 			mobRemember(ch, victim);
-		} else if (AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM)
+		} else if (AFF_FLAGGED(victim, EAffect::kCharmed)
 			&& victim->has_master()
-			&& !IS_NPC(victim->get_master())) {
-			if (MOB_FLAGGED(victim, MOB_CLONE)) {
+			&& !victim->get_master()->is_npc()) {
+			if (MOB_FLAGGED(victim, EMobFlag::kClone)) {
 				mobRemember(ch, victim->get_master());
 			} else if (ch->isInSameRoom(victim->get_master()) && CAN_SEE(ch, victim->get_master())) {
 				mobRemember(ch, victim->get_master());
@@ -81,7 +81,7 @@ int set_hit(CharData *ch, CharData *victim) {
 		return (false);
 	}
 	hit(ch, victim, ESkill::kUndefined,
-		AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) ? fight::kOffHand : fight::kMainHand);
+		AFF_FLAGGED(ch, EAffect::kStopRight) ? fight::kOffHand : fight::kMainHand);
 	SetWait(ch, 2, true);
 	//ch->setSkillCooldown(kGlobalCooldown, 2);
 	return (true);
@@ -107,7 +107,7 @@ void do_hit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (!may_kill_here(ch, vict, argument)) {
 		return;
 	}
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && (ch->get_master() == vict)) {
+	if (AFF_FLAGGED(ch, EAffect::kCharmed) && (ch->get_master() == vict)) {
 		act("$N слишком дорог для вас, чтобы бить $S.", false, ch, 0, vict, kToChar);
 		return;
 	}
@@ -153,7 +153,7 @@ void do_kill(CharData *ch, char *argument, int cmd, int subcmd) {
 		send_to_char("Вы мазохист... :(\r\n", ch);
 		return;
 	};
-	if (IS_IMPL(vict) || PRF_FLAGGED(vict, PRF_CODERINFO)) {
+	if (IS_IMPL(vict) || PRF_FLAGGED(vict, EPrf::kCoderinfo)) {
 		send_to_char("А если он вас чайником долбанет? Думай, Господи, думай!\r\n", ch);
 	} else {
 		act("Вы обратили $N3 в прах! Взглядом! Одним!", false, ch, 0, vict, kToChar);

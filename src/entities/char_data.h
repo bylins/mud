@@ -54,19 +54,6 @@ struct temporary_spell_data {
 };
 // кол-во +слотов со шмоток
 const int MAX_ADD_SLOTS = 10;
-// типы резистов
-enum {
-	FIRE_RESISTANCE = 0,
-	AIR_RESISTANCE,
-	WATER_RESISTANCE,
-	EARTH_RESISTANCE,
-	VITALITY_RESISTANCE,
-	MIND_RESISTANCE,
-	IMMUNITY_RESISTANCE,
-	DARK_RESISTANCE,
-	MAX_NUMBER_RESISTANCE
-};
-const int kMaxPlayerResist = 75;
 
 // Char's additional abilities. Used only while work
 struct char_played_ability_data {
@@ -96,7 +83,7 @@ struct char_played_ability_data {
 	int percent_magdam_add;
 	int percent_spell_blink;
 	std::array<int, to_underlying(ESaving::kLast) + 1> apply_saving_throw;	// Saving throw (Bonuses)
-	std::array<int, MAX_NUMBER_RESISTANCE> apply_resistance;					// Сопротивления повреждениям
+	std::array<int, EResist::kLastResist + 1> apply_resistance;					// Сопротивления повреждениям
 	int mresist;
 	int aresist;
 	int presist; // По просьбе <сумасшедшего> (зачеркнуто) безбашенного билдера поглощение физ.урона в %
@@ -107,7 +94,7 @@ struct char_played_ability_data {
 struct char_ability_data {
 	std::array<ubyte, kSpellCount + 1> SplKnw; // array of SPELL_KNOW_TYPE
 	std::array<ubyte, kSpellCount + 1> SplMem; // array of MEMed SPELLS
-	std::bitset<kMaxFeats> Feats;
+	std::bitset<EFeat::kLastFeat + 1> Feats;
 	sbyte size;
 	int hitroll;
 	int damroll;
@@ -179,10 +166,12 @@ struct mob_special_data {
 };
 
 // очередь запоминания заклинаний
-struct spell_mem_queue {
+struct SpellMemQueue {
 	struct SpellMemQueueItem *queue;
 	int stored;        // накоплено манны
 	int total;            // полное время мема всей очереди
+
+	[[nodiscard]] bool Empty() const { return queue == nullptr; };
 };
 
 // Structure used for extra_attack - bash, kick, diasrm, chopoff, etc
@@ -369,7 +358,7 @@ class CharData : public ProtectedCharData {
  public:
 	using ptr_t = CharData *;
 	using shared_ptr = std::shared_ptr<CharData>;
-	using char_affects_list_t = std::list<Affect<EApplyLocation>::shared_ptr>;
+	using char_affects_list_t = std::list<Affect<EApply>::shared_ptr>;
 	using morphs_list_t = std::list<std::string>;
 	using role_t = boost::dynamic_bitset<std::size_t>;
 	using followers_list_t = std::list<CharData *>;
@@ -588,7 +577,7 @@ class CharData : public ProtectedCharData {
 	std::string get_morph_desc() const;
 	int get_inborn_skill(const ESkill skill_num);
 	void set_morphed_skill(const ESkill skill_num, int percent);
-	bool isAffected(const EAffectFlag flag) const;
+	bool isAffected(const EAffect flag) const;
 	const IMorph::affects_list_t &GetMorphAffects();
 
 	void set_who_mana(unsigned int);
@@ -664,7 +653,7 @@ class CharData : public ProtectedCharData {
 
 	void cleanup_script();
 
-	bool is_npc() const { return char_specials.saved.act.get(MOB_ISNPC); }
+	bool is_npc() const { return char_specials.saved.act.get(EMobFlag::kNpc); }
 	bool have_mind() const;
 
  private:
@@ -794,7 +783,7 @@ class CharData : public ProtectedCharData {
 	char_affects_list_t affected;    // affected by what spells
 	struct TimedSkill *timed;    // use which timed skill/spells
 	struct TimedFeat *timed_feat;    // use which timed feats
-	ObjData *equipment[NUM_WEARS];    // Equipment array
+	ObjData *equipment[EEquipPos::kNumEquipPos];    // Equipment array
 
 	ObjData *carrying;    // Head of list
 	DescriptorData *desc;    // NULL for mobiles
@@ -807,25 +796,25 @@ class CharData : public ProtectedCharData {
 	//отладочные сообщения имморталу/тестеру/кодеру
 	void send_to_TC(bool to_impl, bool to_tester, bool to_coder, const char *msg, ...);
 
-	struct spell_mem_queue MemQueue;        // очередь изучаемых заклинаний
+	struct SpellMemQueue mem_queue;        // очередь изучаемых заклинаний
 
-	int CasterLevel;
-	int DamageLevel;
+	int caster_level;
+	int damage_level;
 	struct PK_Memory_type *pk_list;
 	struct Helper *helpers;
 	int track_dirs;
-	int CheckAggressive;
-	int ExtractTimer;
+	bool check_aggressive;
+	int extract_timer;
 
 	FlagData Temporary;
 
-	int Initiative;
-	int BattleCounter;
+	int initiative;
+	int battle_counter;
 	int round_counter;
 
-	FlagData BattleAffects;
+	FlagData battle_affects;
 
-	int Poisoner;
+	int poisoner;
 
 	OnDeadLoadList *dl_list;    // загружаемые в труп предметы
 	bool agrobd;        // показывает, агробд или нет
@@ -891,12 +880,12 @@ inline FlagData &AFF_FLAGS(CharData *ch) { return ch->char_specials.saved.affect
 inline const FlagData &AFF_FLAGS(const CharData *ch) { return ch->char_specials.saved.affected_by; }
 inline const FlagData &AFF_FLAGS(const CharData::shared_ptr &ch) { return ch->char_specials.saved.affected_by; }
 
-inline bool AFF_FLAGGED(const CharData *ch, const EAffectFlag flag) {
+inline bool AFF_FLAGGED(const CharData *ch, const EAffect flag) {
 	return AFF_FLAGS(ch).get(flag)
 		|| ch->isAffected(flag);
 }
 
-inline bool AFF_FLAGGED(const CharData::shared_ptr &ch, const EAffectFlag flag) {
+inline bool AFF_FLAGGED(const CharData::shared_ptr &ch, const EAffect flag) {
 	return AFF_FLAGS(ch).get(flag)
 		|| ch->isAffected(flag);
 }
@@ -905,16 +894,16 @@ bool IS_CHARMICE(const CharData *ch);
 inline bool IS_CHARMICE(const CharData::shared_ptr &ch) { return IS_CHARMICE(ch.get()); }
 
 inline bool IS_FLY(const CharData *ch) {
-	return AFF_FLAGGED(ch, EAffectFlag::AFF_FLY);
+	return AFF_FLAGGED(ch, EAffect::kFly);
 }
 
 inline bool INVIS_OK(const CharData *sub, const CharData *obj) {
-	return !AFF_FLAGGED(sub, EAffectFlag::AFF_BLIND)
-		&& ((!AFF_FLAGGED(obj, EAffectFlag::AFF_INVISIBLE)
-			|| AFF_FLAGGED(sub, EAffectFlag::AFF_DETECT_INVIS))
-			&& ((!AFF_FLAGGED(obj, EAffectFlag::AFF_HIDE)
-				&& !AFF_FLAGGED(obj, EAffectFlag::AFF_CAMOUFLAGE))
-				|| AFF_FLAGGED(sub, EAffectFlag::AFF_SENSE_LIFE)));
+	return !AFF_FLAGGED(sub, EAffect::kBlind)
+		&& ((!AFF_FLAGGED(obj, EAffect::kInvisible)
+			|| AFF_FLAGGED(sub, EAffect::kDetectInvisible))
+			&& ((!AFF_FLAGGED(obj, EAffect::kHide)
+				&& !AFF_FLAGGED(obj, EAffect::kDisguise))
+				|| AFF_FLAGGED(sub, EAffect::kDetectLife)));
 }
 
 inline bool INVIS_OK(const CharData *sub, const CharData::shared_ptr &obj) { return INVIS_OK(sub, obj.get()); }
@@ -944,7 +933,7 @@ bool MAY_ATTACK(const CharData *sub);
 inline bool MAY_ATTACK(const CharData::shared_ptr &sub) { return MAY_ATTACK(sub.get()); }
 
 inline bool GET_MOB_HOLD(const CharData *ch) {
-	return AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD);
+	return AFF_FLAGGED(ch, EAffect::kHold);
 }
 
 bool AWAKE(const CharData *ch);
@@ -953,7 +942,7 @@ inline bool AWAKE(const CharData::shared_ptr &ch) { return AWAKE(ch.get()); }
 // Polud условие для проверки перед запуском всех mob-триггеров КРОМЕ death, random и global
 //пока здесь только чарм, как и было раньше
 inline bool CAN_START_MTRIG(const CharData *ch) {
-	return !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM);
+	return !AFF_FLAGGED(ch, EAffect::kCharmed);
 }
 //-Polud
 

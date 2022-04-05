@@ -1,27 +1,61 @@
-#ifndef __WEATHER_HPP__
-#define __WEATHER_HPP__
+#ifndef WEATHER_HPP_
+#define WEATHER_HPP_
 
 #include "structs/structs.h"
 #include "game_skills/skills.h" // ABYRVALG - вынести в скиллз_константс
 
+enum class ESeason {
+	kWinter = 0,
+	kSpring,
+	kSummer,
+	kAutumn
+};
+
+enum EMonth {
+	kJanuary = 0,
+	kFebruary,
+	kMarch,
+	kApril,
+	kMay,
+	kJune,
+	kJuly,
+	kAugust,
+	kSeptember,
+	kOctober,
+	kNovember,
+	kDecember
+};
+
+const int kHoursPerDay = 24;
+const int kDaysPerWeek = 7;
+const int kDaysPerMonth = 30;
+const int kMonthsPerYear = 12;
+const int kSecsPerPlayerAffect = 2;
+const int kSecsPerRoomAffect = 2;
+const int kTimeKoeff = 2;
+const int kSecsPerMudHour = 60;
+constexpr int kSecsPerMudDay = kHoursPerDay*kSecsPerMudHour;
+constexpr int kSecsPerMudMonth = kDaysPerMonth*kSecsPerMudDay;
+constexpr int kSecsPerMudYear = kMonthsPerYear*kSecsPerMudMonth;
+
 // Sun state for Weather //
-const __uint8_t SUN_DARK = 0;
-const __uint8_t SUN_RISE = 1;
-const __uint8_t SUN_LIGHT = 2;
-const __uint8_t SUN_SET = 3;
+const __uint8_t kSunDark = 0;
+const __uint8_t kSunRise = 1;
+const __uint8_t kSunLight = 2;
+const __uint8_t kSunSet = 3;
 
 // Moon change type //
-const __uint8_t NEWMOONSTART = 27;
-const __uint8_t NEWMOONSTOP = 1;
-const __uint8_t HALFMOONSTART = 7;
-const __uint8_t FULLMOONSTART = 13;
-const __uint8_t FULLMOONSTOP = 15;
-const __uint8_t LASTHALFMOONSTART = 21;
-const __uint8_t MOON_CYCLE = 28;
-const __uint8_t WEEK_CYCLE = 7;
-const __uint8_t POLY_WEEK_CYCLE = 9;
-const __uint8_t MOON_INCREASE = 0;
-const __uint8_t MOON_DECREASE = 1;
+const __uint8_t kNewMoonStart = 27;
+const __uint8_t kNewMoonStop = 1;
+const __uint8_t kHalfMoonStart = 7;
+const __uint8_t kFullMoonStart = 13;
+const __uint8_t kFullMoonStop = 15;
+const __uint8_t kLastHalfMoonStart = 21;
+const __uint8_t kMoonCycle = 28;
+const __uint8_t kWeekCycle = 7;
+const __uint8_t kPolyWeekCycle = 9;
+const __uint8_t kMoonIncrease = 0;
+const __uint8_t kMoonDecrease = 1;
 
 // Sky conditions for Weather //
 const __uint8_t kSkyCloudless = 0;
@@ -29,18 +63,24 @@ const __uint8_t kSkyCloudy = 1;
 const __uint8_t kSkyRaining = 2;
 const __uint8_t kSkyLightning = 3;
 
-constexpr Bitvector WEATHER_QUICKCOOL = 1 << 0;
-constexpr Bitvector WEATHER_QUICKHOT = 1 << 1;
-constexpr Bitvector WEATHER_LIGHTRAIN = 1 << 2;
-constexpr Bitvector WEATHER_MEDIUMRAIN = 1 << 3;
-constexpr Bitvector WEATHER_BIGRAIN = 1 << 4;
-constexpr Bitvector WEATHER_GRAD = 1 << 5;
-constexpr Bitvector WEATHER_LIGHTSNOW = 1 << 6;
-constexpr Bitvector WEATHER_MEDIUMSNOW = 1 << 7;
-constexpr Bitvector WEATHER_BIGSNOW = 1 << 8;
-constexpr Bitvector WEATHER_LIGHTWIND = 1 << 9;
-constexpr Bitvector WEATHER_MEDIUMWIND = 1 << 10;
-constexpr Bitvector WEATHER_BIGWIND = 1 << 11;
+constexpr Bitvector kWeatherQuickcool = 1 << 0;
+constexpr Bitvector kWeatherQuickhot = 1 << 1;
+constexpr Bitvector kWeatherLightrain = 1 << 2;
+constexpr Bitvector kWeatherMediumrain = 1 << 3;
+constexpr Bitvector kWeatherBigrain = 1 << 4;
+constexpr Bitvector kWeatherHail = 1 << 5;
+constexpr Bitvector kWeatherLightsnow = 1 << 6;
+constexpr Bitvector kWeatherMediumsnow = 1 << 7;
+constexpr Bitvector kWeatherBigsnow = 1 << 8;
+constexpr Bitvector kWeatherLightwind = 1 << 9;
+constexpr Bitvector kWeatherMediumwind = 1 << 10;
+constexpr Bitvector kWeatherBigwind = 1 << 11;
+
+struct MonthTemperature {
+	int min;
+	int max;
+	int med;
+};
 
 struct Weather {
 	int hours_go;        // Time life from reboot //
@@ -63,7 +103,7 @@ struct Weather {
 	int sky;            // How is the sky.   //
 	int sunlight;        // And how much sun. //
 	int moon_day;        // And how much moon //
-	int season;
+	ESeason season;
 	int week_day_mono;
 	int week_day_poly;
 };
@@ -71,8 +111,8 @@ struct Weather {
 extern Weather weather_info;
 
 void weather_and_time(int mode);
-int complex_skill_modifier(CharData *ch, ESkill skillnum, int type, int value);
+int GetComplexSkillModifier(CharData *ch, ESkill skillnum, int type, int value);
 
-#endif // __WEATHER_HPP__
+#endif // WEATHER_HPP_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

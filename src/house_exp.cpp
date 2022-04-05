@@ -175,17 +175,17 @@ void ClanPkLog::load(const std::string &abbrev) {
 
 void ClanPkLog::check(CharData *ch, CharData *victim) {
 	if (!ch || !victim || ch->purged() || victim->purged()
-		|| IS_NPC(victim) || !CLAN(victim) || ch == victim
-		|| (ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA) && !NORENTABLE(victim))) {
+		|| victim->is_npc() || !CLAN(victim) || ch == victim
+		|| (ROOM_FLAGGED(IN_ROOM(victim), ERoomFlag::kArena) && !NORENTABLE(victim))) {
 		return;
 	}
 	CharData *killer = ch;
-	if (IS_NPC(killer)
+	if (killer->is_npc()
 		&& killer->has_master()
-		&& !IS_NPC(killer->get_master())) {
+		&& !killer->get_master()->is_npc()) {
 		killer = killer->get_master();
 	}
-	if (!IS_NPC(killer) && CLAN(killer) != CLAN(victim)) {
+	if (!killer->is_npc() && CLAN(killer) != CLAN(victim)) {
 		char timeBuf[20];
 		time_t curr_time = time(0);
 		strftime(timeBuf, sizeof(timeBuf), "%d-%m-%Y (%H:%M)", localtime(&curr_time));

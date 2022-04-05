@@ -18,8 +18,8 @@
 #include <sstream>
 
 extern void get_from_container(CharData *ch, ObjData *cont, char *arg, int mode, int amount, bool autoloot);
-void set_obj_eff(ObjData *itemobj, EApplyLocation type, int mod);
-void set_obj_aff(ObjData *itemobj, EAffectFlag bitv);
+void set_obj_eff(ObjData *itemobj, EApply type, int mod);
+void set_obj_aff(ObjData *itemobj, EAffect bitv);
 extern void extract_trigger(Trigger *trig);
 
 id_to_set_info_map ObjData::set_table;
@@ -152,7 +152,7 @@ const std::string ObjData::activate_obj(const activation &__act) {
 			set_weight(weight);
 		}
 
-		if (get_type() == ITEM_WEAPON) {
+		if (get_type() == kWeapon) {
 			int nsides, ndices;
 			__act.get_dices(ndices, nsides);
 			// Типа такая проверка на то, устанавливались ли эти параметры.
@@ -188,7 +188,7 @@ const std::string ObjData::deactivate_obj(const activation &__act) {
 
 		set_weight(obj_proto[get_rnum()]->get_weight());
 
-		if (get_type() == ITEM_WEAPON) {
+		if (get_type() == kWeapon) {
 			set_val(1, obj_proto[get_rnum()]->get_val(1));
 			set_val(2, obj_proto[get_rnum()]->get_val(2));
 		}
@@ -286,8 +286,8 @@ void CObjectPrototype::set_wear_flag(const EWearFlag flag) {
 
 void CObjectPrototype::clear_all_affected() {
 	for (size_t i = 0; i < kMaxObjAffect; i++) {
-		if (m_affected[i].location != APPLY_NONE) {
-			m_affected[i].location = APPLY_NONE;
+		if (m_affected[i].location != EApply::kNone) {
+			m_affected[i].location = EApply::kNone;
 		}
 	}
 }
@@ -297,7 +297,7 @@ void CObjectPrototype::clear_proto_script() {
 }
 
 void CObjectPrototype::zero_init() {
-	m_type = ITEM_UNDEFINED;
+	m_type = kItemUndefined;
 	m_aliases.clear();
 	m_description.clear();
 	m_short_description.clear();
@@ -414,13 +414,13 @@ void ObjData::set_enchant(int skill) {
 	int i = 0;
 
 	for (i = 0; i < kMaxObjAffect; i++) {
-		if (get_affected(i).location != APPLY_NONE) {
-			set_affected_location(i, APPLY_NONE);
+		if (get_affected(i).location != EApply::kNone) {
+			set_affected_location(i, EApply::kNone);
 		}
 	}
 
-	set_affected_location(0, APPLY_HITROLL);
-	set_affected_location(1, APPLY_DAMROLL);
+	set_affected_location(0, EApply::kHitroll);
+	set_affected_location(1, EApply::kDamroll);
 
 	if (skill <= 100)
 		// 4 мортов (скил магия света 100)
@@ -447,15 +447,15 @@ void ObjData::set_enchant(int skill) {
 		set_affected_modifier(1, 1 + number(-4, 5));
 	}
 
-	set_extra_flag(EExtraFlag::ITEM_MAGIC);
-	set_extra_flag(EExtraFlag::ITEM_TRANSFORMED);
+	set_extra_flag(EObjFlag::kMagic);
+	set_extra_flag(EObjFlag::kTransformed);
 }
 
 void ObjData::set_enchant(int skill, ObjData *obj) {
-	const auto negative_list = make_array<EAffectFlag>(
-		EAffectFlag::AFF_CURSE, EAffectFlag::AFF_SLEEP, EAffectFlag::AFF_HOLD,
-		EAffectFlag::AFF_SILENCE, EAffectFlag::AFF_CRYING, EAffectFlag::AFF_BLIND,
-		EAffectFlag::AFF_SLOW);
+	const auto negative_list = make_array<EAffect>(
+		EAffect::kCurse, EAffect::kSleep, EAffect::kHold,
+		EAffect::kSilence, EAffect::kCrying, EAffect::kBlind,
+		EAffect::kSlow);
 
 	//накидываем хитрол и дамрол
 	set_enchant(skill);
@@ -476,7 +476,7 @@ void ObjData::set_enchant(int skill, ObjData *obj) {
 	}
 
 	for (int i = 0; i < enchant_count; ++i) {
-		if (obj->get_affected(i).location != APPLY_NONE) {
+		if (obj->get_affected(i).location != EApply::kNone) {
 			set_obj_eff(this, obj->get_affected(i).location, obj->get_affected(i).modifier);
 		}
 	}
@@ -494,24 +494,24 @@ void ObjData::set_enchant(int skill, ObjData *obj) {
 void ObjData::unset_enchant() {
 	int i = 0;
 	for (i = 0; i < kMaxObjAffect; i++) {
-		if (obj_proto.at(get_rnum())->get_affected(i).location != APPLY_NONE) {
+		if (obj_proto.at(get_rnum())->get_affected(i).location != EApply::kNone) {
 			set_affected(i, obj_proto.at(get_rnum())->get_affected(i));
 		} else {
-			set_affected_location(i, APPLY_NONE);
+			set_affected_location(i, EApply::kNone);
 		}
 	}
 	// Возврат эфектов
 	set_affect_flags(obj_proto[get_rnum()]->get_affect_flags());
 	// поскольку все обнулилось можно втыкать слоты для ковки
-	if (OBJ_FLAGGED(obj_proto.at(get_rnum()).get(), EExtraFlag::ITEM_WITH3SLOTS)) {
-		set_extra_flag(EExtraFlag::ITEM_WITH3SLOTS);
-	} else if (OBJ_FLAGGED(obj_proto.at(get_rnum()).get(), EExtraFlag::ITEM_WITH2SLOTS)) {
-		set_extra_flag(EExtraFlag::ITEM_WITH2SLOTS);
-	} else if (OBJ_FLAGGED(obj_proto.at(get_rnum()).get(), EExtraFlag::ITEM_WITH1SLOT)) {
-		set_extra_flag(EExtraFlag::ITEM_WITH1SLOT);
+	if (obj_proto.at(get_rnum()).get()->has_flag(EObjFlag::kHasThreeSlots)) {
+		set_extra_flag(EObjFlag::kHasThreeSlots);
+	} else if (obj_proto.at(get_rnum()).get()->has_flag(EObjFlag::kHasTwoSlots)) {
+		set_extra_flag(EObjFlag::kHasTwoSlots);
+	} else if (obj_proto.at(get_rnum()).get()->has_flag(EObjFlag::kHasOneSlot)) {
+		set_extra_flag(EObjFlag::kHasOneSlot);
 	}
-	unset_extraflag(EExtraFlag::ITEM_MAGIC);
-	unset_extraflag(EExtraFlag::ITEM_TRANSFORMED);
+	unset_extraflag(EObjFlag::kMagic);
+	unset_extraflag(EObjFlag::kTransformed);
 }
 
 bool ObjData::clone_olc_object_from_prototype(const ObjVnum vnum) {
@@ -532,7 +532,7 @@ bool ObjData::clone_olc_object_from_prototype(const ObjVnum vnum) {
 
 	set_rnum(old_rnum);
 
-	extract_obj(obj_original.get());
+	ExtractObjFromWorld(obj_original.get());
 
 	return true;
 }
@@ -668,10 +668,10 @@ void ObjData::dec_timer(int time, bool ignore_utimer, bool exchange) {
 	}
 	std::stringstream buffer;
 
-	if (get_timer()  > 100000 && (GET_OBJ_TYPE(this) == ObjData::ITEM_ARMOR
-			|| GET_OBJ_TYPE(this) == ObjData::ITEM_STAFF
-			|| GET_OBJ_TYPE(this) == ObjData::ITEM_WORN
-			|| GET_OBJ_TYPE(this) == ObjData::ITEM_WEAPON)) {
+	if (get_timer()  > 100000 && (GET_OBJ_TYPE(this) == EObjType::kArmor
+			|| GET_OBJ_TYPE(this) == EObjType::kStaff
+			|| GET_OBJ_TYPE(this) == EObjType::kWorm
+			|| GET_OBJ_TYPE(this) == EObjType::kWeapon)) {
 		buffer << "У предмета [" << GET_OBJ_VNUM(this)
 				<< "] имя: " << GET_OBJ_PNAME(this, 0).c_str() << ", id: " <<  get_id() << ", таймер > 100к равен: " << get_timer();
 		if (get_in_room() != kNowhere) {
@@ -691,8 +691,8 @@ void ObjData::dec_timer(int time, bool ignore_utimer, bool exchange) {
 		set_timer(get_timer() - time);
 	}
 	if (!exchange) {
-		if (((GET_OBJ_TYPE(this) == CObjectPrototype::ITEM_DRINKCON)
-			|| (GET_OBJ_TYPE(this) == CObjectPrototype::ITEM_FOOD))
+		if (((GET_OBJ_TYPE(this) == EObjType::kLiquidContainer)
+			|| (GET_OBJ_TYPE(this) == EObjType::kFood))
 			&& GET_OBJ_VAL(this, 3) > 1) //таймер у жижек и еды
 		{
 			dec_val(3);
@@ -741,7 +741,7 @@ std::string CObjectPrototype::item_count_message(int num, int pad) {
 	std::stringstream out;
 	out << get_PName(pad);
 	if (num > 1) {
-		out << " (x " << num << " " << desc_count(num, WHAT_THINGa) << ")";
+		out << " (x " << num << " " << GetDeclensionInNumber(num, EWhat::kThingA) << ")";
 	}
 	return out.str();
 }
@@ -812,7 +812,7 @@ void CObjectPrototype::set_ex_description(const char *keyword, const char *descr
 	m_ex_description = d;
 }
 
-void set_obj_aff(ObjData *itemobj, const EAffectFlag bitv) {
+void set_obj_aff(ObjData *itemobj, const EAffect bitv) {
 	for (const auto &i : weapon_affect) {
 		if (i.aff_bitvector == static_cast<Bitvector>(bitv)) {
 			SET_OBJ_AFF(itemobj, to_underlying(i.aff_pos));
@@ -820,13 +820,13 @@ void set_obj_aff(ObjData *itemobj, const EAffectFlag bitv) {
 	}
 }
 
-void set_obj_eff(ObjData *itemobj, const EApplyLocation type, int mod) {
+void set_obj_eff(ObjData *itemobj, const EApply type, int mod) {
 	for (auto i = 0; i < kMaxObjAffect; i++) {
 		if (itemobj->get_affected(i).location == type) {
 			const auto current_mod = itemobj->get_affected(i).modifier;
 			itemobj->set_affected(i, type, current_mod + mod);
 			break;
-		} else if (itemobj->get_affected(i).location == APPLY_NONE) {
+		} else if (itemobj->get_affected(i).location == EApply::kNone) {
 			itemobj->set_affected(i, type, mod);
 			break;
 		}
@@ -851,47 +851,47 @@ float count_affect_weight(const CObjectPrototype * /*obj*/, int num, int mod) {
 	float weight = 0;
 
 	switch (num) {
-		case APPLY_STR: weight = mod * 7.5;
+		case EApply::kStr: weight = mod * 7.5;
 			break;
-		case APPLY_DEX: weight = mod * 10.0;
+		case EApply::kDex: weight = mod * 10.0;
 			break;
-		case APPLY_INT: weight = mod * 10.0;
+		case EApply::kInt: weight = mod * 10.0;
 			break;
-		case APPLY_WIS: weight = mod * 10.0;
+		case EApply::kWis: weight = mod * 10.0;
 			break;
-		case APPLY_CON: weight = mod * 10.0;
+		case EApply::kCon: weight = mod * 10.0;
 			break;
-		case APPLY_CHA: weight = mod * 10.0;
+		case EApply::kCha: weight = mod * 10.0;
 			break;
-		case APPLY_HIT: weight = mod * 0.3;
+		case EApply::kHp: weight = mod * 0.3;
 			break;
-		case APPLY_AC: weight = mod * -0.5;
+		case EApply::kAc: weight = mod * -0.5;
 			break;
-		case APPLY_HITROLL: weight = mod * 2.3;
+		case EApply::kHitroll: weight = mod * 2.3;
 			break;
-		case APPLY_DAMROLL: weight = mod * 3.3;
+		case EApply::kDamroll: weight = mod * 3.3;
 			break;
-		case APPLY_SAVING_WILL: weight = mod * -0.5;
+		case EApply::kSavingWill: weight = mod * -0.5;
 			break;
-		case APPLY_SAVING_CRITICAL: weight = mod * -0.5;
+		case EApply::kSavingCritical: weight = mod * -0.5;
 			break;
-		case APPLY_SAVING_STABILITY: weight = mod * -0.5;
+		case EApply::kSavingStability: weight = mod * -0.5;
 			break;
-		case APPLY_SAVING_REFLEX: weight = mod * -0.5;
+		case EApply::kSavingReflex: weight = mod * -0.5;
 			break;
-		case APPLY_CAST_SUCCESS: weight = mod * 1.5;
+		case EApply::kCastSuccess: weight = mod * 1.5;
 			break;
-		case APPLY_MANAREG: weight = mod * 0.2;
+		case EApply::kMamaRegen: weight = mod * 0.2;
 			break;
-		case APPLY_MORALE: weight = mod * 1.0;
+		case EApply::kMorale: weight = mod * 1.0;
 			break;
-		case APPLY_INITIATIVE: weight = mod * 2.0;
+		case EApply::kInitiative: weight = mod * 2.0;
 			break;
-		case APPLY_ABSORBE: weight = mod * 1.0;
+		case EApply::kAbsorbe: weight = mod * 1.0;
 			break;
-		case APPLY_AR: weight = mod * 1.5;
+		case EApply::kAffectResist: weight = mod * 1.5;
 			break;
-		case APPLY_MR: weight = mod * 1.5;
+		case EApply::kMagicResist: weight = mod * 1.5;
 			break;
 	}
 
@@ -900,88 +900,75 @@ float count_affect_weight(const CObjectPrototype * /*obj*/, int num, int mod) {
 
 bool is_armor_type(const CObjectPrototype *obj) {
 	switch (GET_OBJ_TYPE(obj)) {
-		case ObjData::ITEM_ARMOR:
-		case ObjData::ITEM_ARMOR_LIGHT:
-		case ObjData::ITEM_ARMOR_MEDIAN:
-		case ObjData::ITEM_ARMOR_HEAVY: return true;
+		case EObjType::kArmor:
+		case EObjType::kLightArmor:
+		case EObjType::kMediumArmor:
+		case EObjType::kHeavyArmor: return true;
 
 		default: return false;
 	}
 }
 
 bool is_mob_item(const CObjectPrototype *obj) {
-	if (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MALE)
-		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_FEMALE)
-		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CHARMICE)) {
+	if (IS_OBJ_NO(obj, ENoFlag::kMale)
+		&& IS_OBJ_NO(obj, ENoFlag::kFemale)
+		&& IS_OBJ_NO(obj, ENoFlag::kCharmice)) {
 		return true;
 	}
-	if (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MONO)
-		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_POLY)
-		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CHARMICE)) {
+	if (IS_OBJ_NO(obj, ENoFlag::kMono)
+		&& IS_OBJ_NO(obj, ENoFlag::kPoly)
+		&& IS_OBJ_NO(obj, ENoFlag::kCharmice)) {
 		return true;
 	}
-	if (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_RUSICHI)
-		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CHARMICE)) {
+	if (IS_OBJ_NO(obj, ENoFlag::kCharmice)) {
 		return true;
 	}
-	if (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CLERIC)
-		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_THIEF)
-		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_WARRIOR)
-		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_ASSASINE)
-		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_GUARD)
-		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_PALADINE)
-		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_RANGER)
-		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_SMITH)
-		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MERCHANT)
-		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_DRUID)
-		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_BATTLEMAGE)
-		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CHARMMAGE)
-		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_DEFENDERMAGE)
-		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_NECROMANCER)
-		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CHARMICE)) {
+	if (IS_OBJ_NO(obj, ENoFlag::kSorcerer)
+		&& IS_OBJ_NO(obj, ENoFlag::kThief)
+		&& IS_OBJ_NO(obj, ENoFlag::kWarrior)
+		&& IS_OBJ_NO(obj, ENoFlag::kAssasine)
+		&& IS_OBJ_NO(obj, ENoFlag::kGuard)
+		&& IS_OBJ_NO(obj, ENoFlag::kPaladine)
+		&& IS_OBJ_NO(obj, ENoFlag::kRanger)
+		&& IS_OBJ_NO(obj, ENoFlag::kVigilant)
+		&& IS_OBJ_NO(obj, ENoFlag::kMerchant)
+		&& IS_OBJ_NO(obj, ENoFlag::kMagus)
+		&& IS_OBJ_NO(obj, ENoFlag::kConjurer)
+		&& IS_OBJ_NO(obj, ENoFlag::kCharmer)
+		&& IS_OBJ_NO(obj, ENoFlag::kWIzard)
+		&& IS_OBJ_NO(obj, ENoFlag::kNecromancer)
+		&& IS_OBJ_NO(obj, ENoFlag::kCharmice)) {
 		return true;
 	}
-	if (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CHARMICE)) {
+	if (IS_OBJ_NO(obj, ENoFlag::kCharmice)) {
 		return true;
 	}
-	if (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MALE)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_FEMALE)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMICE)) {
+	if (IS_OBJ_ANTI(obj, EAntiFlag::kMale)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::kFemale)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::kCharmice)) {
 		return true;
 	}
-	if (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MONO)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_POLY)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMICE)) {
+	if (IS_OBJ_ANTI(obj, EAntiFlag::kMono)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::kPoly)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::kCharmice)) {
 		return true;
 	}
-	if (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_RUSICHI)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMICE)) {
-		return true;
-	}
-	if (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CLERIC)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_THIEF)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_WARRIOR)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_ASSASINE)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_GUARD)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_PALADINE)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_RANGER)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_SMITH)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MERCHANT)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_DRUID)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_BATTLEMAGE)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMMAGE)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_DEFENDERMAGE)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_NECROMANCER)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMICE)) {
-		return true;
-	}
-	if (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_SEVERANE)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_POLANE)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_KRIVICHI)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_VATICHI)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_VELANE)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_DREVLANE)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMICE)) {
+
+	if (IS_OBJ_ANTI(obj, EAntiFlag::kSorcerer)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::kThief)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::kWarrior)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::kAssasine)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::kGuard)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::kPaladine)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::kRanger)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::kVigilant)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::kMerchant)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::kMagus)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::kConjurer)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::kCharmer)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::kWizard)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::kNecromancer)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::kCharmice)) {
 		return true;
 	}
 
@@ -990,7 +977,7 @@ bool is_mob_item(const CObjectPrototype *obj) {
 
 void init_ilvl(CObjectPrototype *obj) {
 	if (is_mob_item(obj)
-		|| obj->get_extra_flag(EExtraFlag::ITEM_SETSTUFF)
+		|| obj->has_flag(EObjFlag::KSetItem)
 		|| obj->get_minimum_remorts() > 0) {
 		obj->set_ilevel(0);
 		return;
@@ -1048,8 +1035,8 @@ ObjData *create_purse(CharData *ch, int/* gold*/) {
 			 "--------------------------------------------------\r\n", ch->get_name().c_str());
 	obj->set_ex_description(obj->get_PName(0).c_str(), buf_);
 
-	obj->set_type(ObjData::ITEM_CONTAINER);
-	obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE));
+	obj->set_type(EObjType::kContainer);
+	obj->set_wear_flags(to_underlying(EWearFlag::kTake));
 
 	obj->set_val(0, 0);
 	// CLOSEABLE + CLOSED
@@ -1061,8 +1048,8 @@ ObjData *create_purse(CharData *ch, int/* gold*/) {
 	obj->set_rent_on(0);
 	// чтобы скавенж мобов не трогать
 	obj->set_cost(2);
-	obj->set_extra_flag(EExtraFlag::ITEM_NODONATE);
-	obj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
+	obj->set_extra_flag(EObjFlag::kNodonate);
+	obj->set_extra_flag(EObjFlag::kNosell);
 
 	return obj.get();
 }
@@ -1074,14 +1061,14 @@ bool is_purse(ObjData *obj) {
 /// вываливаем и пуржим кошелек при попытке открыть или при взятии хозяином
 void process_open_purse(CharData *ch, ObjData *obj) {
 	auto value = obj->get_val(1);
-	REMOVE_BIT(value, CONT_CLOSED);
+	REMOVE_BIT(value, EContainerFlag::kShutted);
 	obj->set_val(1, value);
 
 	char buf_[kMaxInputLength];
 	snprintf(buf_, sizeof(buf_), "all");
-	get_from_container(ch, obj, buf_, FIND_OBJ_INV, 1, false);
+	get_from_container(ch, obj, buf_, EFind::kObjInventory, 1, false);
 	act("$o рассыпал$U в ваших руках...", false, ch, obj, 0, kToChar);
-	extract_obj(obj);
+	ExtractObjFromWorld(obj);
 }
 
 } // namespace system_obj
@@ -1221,8 +1208,8 @@ void ObjVal::remove_incorrect_keys(int type) {
 	for (auto i = m_values.begin(); i != m_values.end(); /* empty */) {
 		bool erased = false;
 		switch (type) {
-			case ObjData::ITEM_DRINKCON:
-			case ObjData::ITEM_FOUNTAIN:
+			case EObjType::kLiquidContainer:
+			case EObjType::kFountain:
 				if (!is_valid_drinkcon(i->first)) {
 					i = m_values.erase(i);
 					erased = true;
@@ -1278,121 +1265,6 @@ void print_obj_affects(CharData *ch, const obj_affected_type &affect) {
 			 CCCYN(ch, C_NRM),
 			 negative ? " ухудшает на " : " улучшает на ", abs(affect.modifier), CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
-}
-
-typedef std::map<ObjData::EObjectType, std::string> EObjectType_name_by_value_t;
-typedef std::map<const std::string, ObjData::EObjectType> EObjectType_value_by_name_t;
-EObjectType_name_by_value_t EObjectType_name_by_value;
-EObjectType_value_by_name_t EObjectType_value_by_name;
-void init_EObjectType_ITEM_NAMES() {
-	EObjectType_value_by_name.clear();
-	EObjectType_name_by_value.clear();
-
-	EObjectType_name_by_value[ObjData::EObjectType::ITEM_LIGHT] = "ITEM_LIGHT";
-	EObjectType_name_by_value[ObjData::EObjectType::ITEM_SCROLL] = "ITEM_SCROLL";
-	EObjectType_name_by_value[ObjData::EObjectType::ITEM_WAND] = "ITEM_WAND";
-	EObjectType_name_by_value[ObjData::EObjectType::ITEM_STAFF] = "ITEM_STAFF";
-	EObjectType_name_by_value[ObjData::EObjectType::ITEM_WEAPON] = "ITEM_WEAPON";
-	EObjectType_name_by_value[ObjData::EObjectType::ITEM_FIREWEAPON] = "ITEM_FIREWEAPON";
-	EObjectType_name_by_value[ObjData::EObjectType::ITEM_MISSILE] = "ITEM_MISSILE";
-	EObjectType_name_by_value[ObjData::EObjectType::ITEM_TREASURE] = "ITEM_TREASURE";
-	EObjectType_name_by_value[ObjData::EObjectType::ITEM_ARMOR] = "ITEM_ARMOR";
-	EObjectType_name_by_value[ObjData::EObjectType::ITEM_POTION] = "ITEM_POTION";
-	EObjectType_name_by_value[ObjData::EObjectType::ITEM_WORN] = "ITEM_WORN";
-	EObjectType_name_by_value[ObjData::EObjectType::ITEM_OTHER] = "ITEM_OTHER";
-	EObjectType_name_by_value[ObjData::EObjectType::ITEM_TRASH] = "ITEM_TRASH";
-	EObjectType_name_by_value[ObjData::EObjectType::ITEM_TRAP] = "ITEM_TRAP";
-	EObjectType_name_by_value[ObjData::EObjectType::ITEM_CONTAINER] = "ITEM_CONTAINER";
-	EObjectType_name_by_value[ObjData::EObjectType::ITEM_NOTE] = "ITEM_NOTE";
-	EObjectType_name_by_value[ObjData::EObjectType::ITEM_DRINKCON] = "ITEM_DRINKCON";
-	EObjectType_name_by_value[ObjData::EObjectType::ITEM_KEY] = "ITEM_KEY";
-	EObjectType_name_by_value[ObjData::EObjectType::ITEM_FOOD] = "ITEM_FOOD";
-	EObjectType_name_by_value[ObjData::EObjectType::ITEM_MONEY] = "ITEM_MONEY";
-	EObjectType_name_by_value[ObjData::EObjectType::ITEM_PEN] = "ITEM_PEN";
-	EObjectType_name_by_value[ObjData::EObjectType::ITEM_BOAT] = "ITEM_BOAT";
-	EObjectType_name_by_value[ObjData::EObjectType::ITEM_FOUNTAIN] = "ITEM_FOUNTAIN";
-	EObjectType_name_by_value[ObjData::EObjectType::ITEM_BOOK] = "ITEM_BOOK";
-	EObjectType_name_by_value[ObjData::EObjectType::ITEM_INGREDIENT] = "ITEM_INGREDIENT";
-	EObjectType_name_by_value[ObjData::EObjectType::ITEM_MING] = "ITEM_MING";
-	EObjectType_name_by_value[ObjData::EObjectType::ITEM_MATERIAL] = "ITEM_MATERIAL";
-	EObjectType_name_by_value[ObjData::EObjectType::ITEM_BANDAGE] = "ITEM_BANDAGE";
-	EObjectType_name_by_value[ObjData::EObjectType::ITEM_ARMOR_LIGHT] = "ITEM_ARMOR_LIGHT";
-	EObjectType_name_by_value[ObjData::EObjectType::ITEM_ARMOR_MEDIAN] = "ITEM_ARMOR_MEDIAN";
-	EObjectType_name_by_value[ObjData::EObjectType::ITEM_ARMOR_HEAVY] = "ITEM_ARMOR_HEAVY";
-	EObjectType_name_by_value[ObjData::EObjectType::ITEM_ENCHANT] = "ITEM_ENCHANT";
-	EObjectType_name_by_value[ObjData::EObjectType::ITEM_MAGIC_MATERIAL] = "ITEM_MAGIC_MATERIAL";
-	EObjectType_name_by_value[ObjData::EObjectType::ITEM_MAGIC_ARROW] = "ITEM_MAGIC_ARROW";
-	EObjectType_name_by_value[ObjData::EObjectType::ITEM_MAGIC_CONTAINER] = "ITEM_MAGIC_CONTAINER";
-	EObjectType_name_by_value[ObjData::EObjectType::ITEM_CRAFT_MATERIAL] = "ITEM_CRAFT_MATERIAL";
-
-	for (const auto &i : EObjectType_name_by_value) {
-		EObjectType_value_by_name[i.second] = i.first;
-	}
-}
-
-template<>
-const std::string &NAME_BY_ITEM<ObjData::EObjectType>(const ObjData::EObjectType item) {
-	if (EObjectType_name_by_value.empty()) {
-		init_EObjectType_ITEM_NAMES();
-	}
-	return EObjectType_name_by_value.at(item);
-}
-
-template<>
-ObjData::EObjectType ITEM_BY_NAME(const std::string &name) {
-	if (EObjectType_name_by_value.empty()) {
-		init_EObjectType_ITEM_NAMES();
-	}
-	return EObjectType_value_by_name.at(name);
-}
-
-typedef std::map<ObjData::EObjectMaterial, std::string> EObjectMaterial_name_by_value_t;
-typedef std::map<const std::string, ObjData::EObjectMaterial> EObjectMaterial_value_by_name_t;
-EObjectMaterial_name_by_value_t EObjectMaterial_name_by_value;
-EObjectMaterial_value_by_name_t EObjectMaterial_value_by_name;
-void init_EObjectMaterial_ITEM_NAMES() {
-	EObjectMaterial_value_by_name.clear();
-	EObjectMaterial_name_by_value.clear();
-
-	EObjectMaterial_name_by_value[ObjData::EObjectMaterial::MAT_NONE] = "MAT_NONE";
-	EObjectMaterial_name_by_value[ObjData::EObjectMaterial::MAT_BULAT] = "MAT_BULAT";
-	EObjectMaterial_name_by_value[ObjData::EObjectMaterial::MAT_BRONZE] = "MAT_BRONZE";
-	EObjectMaterial_name_by_value[ObjData::EObjectMaterial::MAT_IRON] = "MAT_IRON";
-	EObjectMaterial_name_by_value[ObjData::EObjectMaterial::MAT_STEEL] = "MAT_STEEL";
-	EObjectMaterial_name_by_value[ObjData::EObjectMaterial::MAT_SWORDSSTEEL] = "MAT_SWORDSSTEEL";
-	EObjectMaterial_name_by_value[ObjData::EObjectMaterial::MAT_COLOR] = "MAT_COLOR";
-	EObjectMaterial_name_by_value[ObjData::EObjectMaterial::MAT_CRYSTALL] = "MAT_CRYSTALL";
-	EObjectMaterial_name_by_value[ObjData::EObjectMaterial::MAT_WOOD] = "MAT_WOOD";
-	EObjectMaterial_name_by_value[ObjData::EObjectMaterial::MAT_SUPERWOOD] = "MAT_SUPERWOOD";
-	EObjectMaterial_name_by_value[ObjData::EObjectMaterial::MAT_FARFOR] = "MAT_FARFOR";
-	EObjectMaterial_name_by_value[ObjData::EObjectMaterial::MAT_GLASS] = "MAT_GLASS";
-	EObjectMaterial_name_by_value[ObjData::EObjectMaterial::MAT_ROCK] = "MAT_ROCK";
-	EObjectMaterial_name_by_value[ObjData::EObjectMaterial::MAT_BONE] = "MAT_BONE";
-	EObjectMaterial_name_by_value[ObjData::EObjectMaterial::MAT_MATERIA] = "MAT_MATERIA";
-	EObjectMaterial_name_by_value[ObjData::EObjectMaterial::MAT_SKIN] = "MAT_SKIN";
-	EObjectMaterial_name_by_value[ObjData::EObjectMaterial::MAT_ORGANIC] = "MAT_ORGANIC";
-	EObjectMaterial_name_by_value[ObjData::EObjectMaterial::MAT_PAPER] = "MAT_PAPER";
-	EObjectMaterial_name_by_value[ObjData::EObjectMaterial::MAT_DIAMOND] = "MAT_DIAMOND";
-
-	for (const auto &i : EObjectMaterial_name_by_value) {
-		EObjectMaterial_value_by_name[i.second] = i.first;
-	}
-}
-
-template<>
-const std::string &NAME_BY_ITEM<ObjData::EObjectMaterial>(const ObjData::EObjectMaterial item) {
-	if (EObjectMaterial_name_by_value.empty()) {
-		init_EObjectMaterial_ITEM_NAMES();
-	}
-	return EObjectMaterial_name_by_value.at(item);
-}
-
-template<>
-ObjData::EObjectMaterial ITEM_BY_NAME(const std::string &name) {
-	if (EObjectMaterial_name_by_value.empty()) {
-		init_EObjectMaterial_ITEM_NAMES();
-	}
-	return EObjectMaterial_value_by_name.at(name);
 }
 
 namespace SetSystem {
@@ -1509,7 +1381,7 @@ void check_rented() {
 */
 bool is_big_set(const CObjectPrototype *obj, bool is_mini) {
 	unsigned int sets_items = is_mini ? MINI_SET_ITEMS : BIG_SET_ITEMS;
-	if (!obj->get_extra_flag(EExtraFlag::ITEM_SETSTUFF)) {
+	if (!obj->has_flag(EObjFlag::KSetItem)) {
 		return false;
 	}
 	for (id_to_set_info_map::const_iterator i = ObjData::set_table.begin(),
@@ -1597,7 +1469,7 @@ bool house_find_set_item(CharData *ch, const std::set<int> &vnum_list) {
 * Перс. хран, рента.
 */
 bool is_norent_set(CharData *ch, ObjData *obj, bool clan_chest) {
-	if (!obj->get_extra_flag(EExtraFlag::ITEM_SETSTUFF)) {
+	if (!obj->has_flag(EObjFlag::KSetItem)) {
 		return false;
 	}
 
@@ -1608,7 +1480,7 @@ bool is_norent_set(CharData *ch, ObjData *obj, bool clan_chest) {
 	}
 
 	// экипировка
-	for (int i = 0; i < NUM_WEARS; ++i) {
+	for (int i = 0; i < EEquipPos::kNumEquipPos; ++i) {
 		if (find_set_item(GET_EQ(ch, i))) {
 			return false;
 		}
@@ -1626,7 +1498,7 @@ bool is_norent_set(CharData *ch, ObjData *obj, bool clan_chest) {
 				continue;
 			}
 
-			for (int j = 0; j < NUM_WEARS; j++) {
+			for (int j = 0; j < EEquipPos::kNumEquipPos; j++) {
 				if (find_set_item(GET_EQ(k->ch, j))) {
 					return false;
 				}

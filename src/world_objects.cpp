@@ -86,7 +86,7 @@ WorldObjects::WorldObjects() :
 
 ObjData::shared_ptr WorldObjects::create_blank() {
 	const auto blank = create_from_prototype_by_rnum(0);
-	blank->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED);
+	blank->set_extra_flag(EObjFlag::kTransformed);
 	return blank; //вместо -1 вставим реальный объект
 }
 
@@ -108,15 +108,15 @@ ObjData::shared_ptr WorldObjects::create_from_prototype_by_rnum(ObjRnum rnum) {
 			// модификация объектов тестовой зоны
 			constexpr int TEST_OBJECT_TIMER = 30;
 			new_object->set_timer(TEST_OBJECT_TIMER);
-			new_object->set_extra_flag(EExtraFlag::ITEM_NOLOCATE);
-			new_object->set_extra_flag(EExtraFlag::ITEM_NOT_UNLIMIT_TIMER);
+			new_object->set_extra_flag(EObjFlag::kNolocate);
+			new_object->set_extra_flag(EObjFlag::KLimitedTimer);
 		}
 
 		new_object->clear_proto_script();
 
 		const auto id = max_id.allocate();
 		new_object->set_id(id);
-		if (new_object->get_type() == ObjData::ITEM_DRINKCON) {
+		if (new_object->get_type() == EObjType::kLiquidContainer) {
 			if (new_object->get_val(1) > 0) {
 				name_from_drinkcon(new_object.get());
 				name_to_drinkcon(new_object.get(), new_object->get_val(2));

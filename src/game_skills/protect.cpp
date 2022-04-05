@@ -32,7 +32,7 @@ void do_protect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (IS_NPC(ch) || !ch->get_skill(ESkill::kProtect)) {
+	if (ch->is_npc() || !ch->get_skill(ESkill::kProtect)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -41,7 +41,7 @@ void do_protect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	};
 
-	CharData *vict = get_char_vis(ch, arg, FIND_CHAR_ROOM);
+	CharData *vict = get_char_vis(ch, arg, EFind::kCharInRoom);
 	if (!vict) {
 		send_to_char("И кто так сильно мил вашему сердцу?\r\n", ch);
 		return;
@@ -65,15 +65,15 @@ void do_protect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	}
 
-	if (IS_NPC(vict) && tch
-		&& (!IS_NPC(tch)
-			|| (AFF_FLAGGED(tch, EAffectFlag::AFF_CHARM)
+	if (vict->is_npc() && tch
+		&& (!tch->is_npc()
+			|| (AFF_FLAGGED(tch, EAffect::kCharmed)
 				&& tch->has_master()
-				&& !IS_NPC(tch->get_master())))
-		&& (!IS_NPC(ch)
-			|| (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
+				&& !tch->get_master()->is_npc()))
+		&& (!ch->is_npc()
+			|| (AFF_FLAGGED(ch, EAffect::kCharmed)
 				&& ch->has_master()
-				&& !IS_NPC(ch->get_master())))) {
+				&& !ch->get_master()->is_npc()))) {
 		send_to_char("Вы пытаетесь прикрыть чужого противника.\r\n", ch);
 		return;
 	}
@@ -97,9 +97,9 @@ CharData *TryToFindProtector(CharData *victim, CharData *ch) {
 
 	for (const auto vict : world[IN_ROOM(victim)]->people) {
 		if (vict->get_protecting() == victim
-			&& !AFF_FLAGGED(vict, EAffectFlag::AFF_STOPFIGHT)
-			&& !AFF_FLAGGED(vict, EAffectFlag::AFF_MAGICSTOPFIGHT)
-			&& !AFF_FLAGGED(vict, EAffectFlag::AFF_BLIND)
+			&& !AFF_FLAGGED(vict, EAffect::kStopFight)
+			&& !AFF_FLAGGED(vict, EAffect::kMagicStopFight)
+			&& !AFF_FLAGGED(vict, EAffect::kBlind)
 			&& !GET_MOB_HOLD(vict)
 			&& GET_POS(vict) >= EPosition::kFight) {
 			if (vict == ch) {
@@ -111,12 +111,12 @@ CharData *TryToFindProtector(CharData *victim, CharData *ch) {
 					kToChar);
 				act("$N пытается напасть на вас! Лучше бы вам отойти.", false, victim, 0, vict, kToChar);
 				vict->set_protecting(0);
-				vict->BattleAffects.unset(kEafProtect);
+				vict->battle_affects.unset(kEafProtect);
 				WAIT_STATE(vict, kPulseViolence);
-				Affect<EApplyLocation> af;
+				Affect<EApply> af;
 				af.type = kSpellBattle;
-				af.bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
-				af.location = EApplyLocation::APPLY_NONE;
+				af.bitvector = to_underlying(EAffect::kStopFight);
+				af.location = EApply::kNone;
 				af.modifier = 0;
 				af.duration = CalcDuration(vict, 1, 0, 0, 0, 0);
 				af.battleflag = kAfBattledec | kAfPulsedec;
@@ -138,7 +138,7 @@ CharData *TryToFindProtector(CharData *victim, CharData *ch) {
 			if (vict->haveCooldown(ESkill::kProtect)) {
 				prob /= 2;
 			};
-			if (GET_GOD_FLAG(vict, GF_GODSCURSE)) {
+			if (GET_GOD_FLAG(vict, EGf::kGodscurse)) {
 				prob = 0;
 			}
 			bool success = prob >= percent;

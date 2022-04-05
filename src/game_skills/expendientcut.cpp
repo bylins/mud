@@ -9,10 +9,10 @@
 #include "game_skills/protect.h"
 
 void ApplyNoFleeAffect(CharData *ch, int duration) {
-	Affect<EApplyLocation> noflee;
+	Affect<EApply> noflee;
 	noflee.type = kSpellBattle;
-	noflee.bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
-	noflee.location = EApplyLocation::APPLY_NONE;
+	noflee.bitvector = to_underlying(EAffect::kNoFlee);
+	noflee.location = EApply::kNone;
 	noflee.modifier = 0;
 	noflee.duration = CalcDuration(ch, duration, 0, 0, 0, 0);;
 	noflee.battleflag = kAfBattledec | kAfPulsedec;
@@ -25,10 +25,10 @@ void PerformCutSuccess(AbilitySystem::TechniqueRoll &roll) {
 		false, roll.GetActor(), nullptr, roll.GetRival(), kToVict);
 	act("$n сделал$g неуловимое движение, сместившись за спину $N1.",
 		true, roll.GetActor(), nullptr, roll.GetRival(), kToNotVict | kToArenaListen);
-	Affect<EApplyLocation> cut;
+	Affect<EApply> cut;
 	cut.type = kSpellBattle;
-	cut.bitvector = to_underlying(EAffectFlag::AFF_HAEMORRAGIA);
-	cut.location = EApplyLocation::APPLY_RESIST_VITALITY;
+	cut.bitvector = to_underlying(EAffect::kHaemorrhage);
+	cut.location = EApply::kResistVitality;
 	cut.modifier = -std::min(25, number(1, roll.GetActorRating())/12) - (roll.IsCriticalSuccess() ? 10 : 0);
 	cut.duration = CalcDuration(roll.GetActor(), 3*number(2, 4), 0, 0, 0, 0);;
 	cut.battleflag = kAfBattledec | kAfPulsedec;
@@ -63,7 +63,7 @@ void GoExpedientCut(CharData *ch, CharData *vict) {
 	vict = TryToFindProtector(vict, ch);
 
 	AbilitySystem::TechniqueRoll roll;
-	roll.Init(ch, EXPEDIENT_CUT_FEAT, vict);
+	roll.Init(ch, EFeat::kCutting, vict);
 
 	if (roll.IsWrongConditions()) {
 		roll.SendDenyMsgToActor();
@@ -88,10 +88,10 @@ void GoExpedientCut(CharData *ch, CharData *vict) {
 		no_flee_duration = 3;
 	};
 	damage.dam = dmg;
-	damage.wielded = GET_EQ(ch, WEAR_WIELD);
+	damage.wielded = GET_EQ(ch, EEquipPos::kWield);
 	damage.Process(roll.GetActor(), roll.GetRival());
 	damage.dam = dmg;
-	damage.wielded = GET_EQ(ch, WEAR_HOLD);
+	damage.wielded = GET_EQ(ch, kHold);
 	damage.Process(roll.GetActor(), roll.GetRival());
 	ApplyNoFleeAffect(ch, no_flee_duration);
 	SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 2);
@@ -114,7 +114,7 @@ void SetExtraAttackCut(CharData *ch, CharData *victim) {
 
 void DoExpedientCut(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 
-	if (IS_NPC(ch) || (!can_use_feat(ch, EXPEDIENT_CUT_FEAT) && !IS_IMPL(ch))) {
+	if (ch->is_npc() || (!IsAbleToUseFeat(ch, EFeat::kCutting) && !IS_IMPL(ch))) {
 		send_to_char("Вы не владеете таким приемом.\r\n", ch);
 		return;
 	}
@@ -129,7 +129,7 @@ void DoExpedientCut(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) || IsUnableToAct(ch)) {
+	if (AFF_FLAGGED(ch, EAffect::kStopRight) || IsUnableToAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}

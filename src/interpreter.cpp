@@ -1101,9 +1101,9 @@ const char *reserved[] = {"a",
 
 void check_hiding_cmd(CharData *ch, int percent) {
 	int remove_hide = false;
-	if (affected_by_spell(ch, kSpellHide)) {
+	if (IsAffectedBySpell(ch, kSpellHide)) {
 		if (percent == -2) {
-			if (AFF_FLAGGED(ch, EAffectFlag::AFF_SNEAK)) {
+			if (AFF_FLAGGED(ch, EAffect::kSneak)) {
 				remove_hide = number(1, MUD::Skills()[ESkill::kSneak].difficulty) >
 					CalcCurrentSkill(ch, ESkill::kSneak, nullptr);
 			} else {
@@ -1119,7 +1119,7 @@ void check_hiding_cmd(CharData *ch, int percent) {
 
 		if (remove_hide) {
 			affect_from_char(ch, kSpellHide);
-			if (!AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE)) {
+			if (!AFF_FLAGGED(ch, EAffect::kHide)) {
 				send_to_char("Вы прекратили прятаться.\r\n", ch);
 				act("$n прекратил$g прятаться.", false, ch, nullptr, nullptr, kToRoom);
 			}
@@ -1159,19 +1159,19 @@ void command_interpreter(CharData *ch, char *argument) {
 	char *line;
 
 	// just drop to next line for hitting CR
-	CHECK_AGRO(ch) = 0;
+	ch->check_aggressive = 0;
 	skip_spaces(&argument);
 
 	if (!*argument)
 		return;
 
-	if (!IS_NPC(ch)) {
+	if (!ch->is_npc()) {
 		log("<%s, %d> {%5d} [%s]",
 			GET_NAME(ch),
 			GlobalObjects::heartbeat().pulse_number(),
 			GET_ROOM_VNUM(ch->in_room),
 			argument);
-		if (GetRealLevel(ch) >= kLvlImmortal || GET_GOD_FLAG(ch, GF_PERSLOG) || GET_GOD_FLAG(ch, GF_DEMIGOD))
+		if (GetRealLevel(ch) >= kLvlImmortal || GET_GOD_FLAG(ch, EGf::kPerslog) || GET_GOD_FLAG(ch, EGf::kDemigod))
 			pers_log(ch, "<%s> {%5d} [%s]", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room), argument);
 	}
 
@@ -1199,11 +1199,11 @@ void command_interpreter(CharData *ch, char *argument) {
 		*(argument + length - 1) = ' ';
 	}
 
-	if (!IS_NPC(ch)
+	if (!ch->is_npc()
 		&& !GET_INVIS_LEV(ch)
 		&& !GET_MOB_HOLD(ch)
-		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
-		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT)
+		&& !AFF_FLAGGED(ch, EAffect::kStopFight)
+		&& !AFF_FLAGGED(ch, EAffect::kMagicStopFight)
 		&& !(IS_GOD(ch) && !strcmp(arg, "invis")))  // let immortals switch to wizinvis to avoid broken command triggers
 	{
 		int cont;    // continue the command checks
@@ -1228,11 +1228,11 @@ void command_interpreter(CharData *ch, char *argument) {
 	for (cmd = 0; *cmd_info[cmd].command != '\n'; cmd++) {
 		if (hardcopy) {
 			if (!strcmp(cmd_info[cmd].command, arg))
-				if (Privilege::can_do_priv(ch, std::string(cmd_info[cmd].command), cmd, 0))
+				if (privilege::IsAbleToDoPrivilege(ch, std::string(cmd_info[cmd].command), cmd, 0))
 					break;
 		} else {
 			if (!strncmp(cmd_info[cmd].command, arg, length))
-				if (Privilege::can_do_priv(ch, std::string(cmd_info[cmd].command), cmd, 0))
+				if (privilege::IsAbleToDoPrivilege(ch, std::string(cmd_info[cmd].command), cmd, 0))
 					break;
 		}
 	}
@@ -1246,12 +1246,12 @@ void command_interpreter(CharData *ch, char *argument) {
 		}
 	}
 
-	if (((!IS_NPC(ch)
+	if (((!ch->is_npc()
 		&& (GET_FREEZE_LEV(ch) > GetRealLevel(ch))
-		&& (PLR_FLAGGED(ch, PLR_FROZEN)))
+		&& (PLR_FLAGGED(ch, EPlrFlag::kFrozen)))
 		|| GET_MOB_HOLD(ch)
-		|| AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
-		|| AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT))
+		|| AFF_FLAGGED(ch, EAffect::kStopFight)
+		|| AFF_FLAGGED(ch, EAffect::kMagicStopFight))
 		&& !check_frozen_cmd(ch, cmd)) {
 		send_to_char("Вы попытались, но не смогли сдвинуться с места...\r\n", ch);
 		return;
@@ -1262,7 +1262,7 @@ void command_interpreter(CharData *ch, char *argument) {
 		return;
 	}
 
-	if (!social && IS_NPC(ch) && cmd_info[cmd].minimum_level >= kLvlImmortal) {
+	if (!social && ch->is_npc() && cmd_info[cmd].minimum_level >= kLvlImmortal) {
 		send_to_char("Вы еще не БОГ, чтобы делать это.\r\n", ch);
 		return;
 	}
@@ -1298,8 +1298,8 @@ void command_interpreter(CharData *ch, char *argument) {
 		if (ch->purged()) {
 			return;
 		}
-		if (!IS_NPC(ch) && ch->in_room != kNowhere && CHECK_AGRO(ch)) {
-			CHECK_AGRO(ch) = false;
+		if (!ch->is_npc() && ch->in_room != kNowhere && ch->check_aggressive) {
+			ch->check_aggressive = false;
 			do_aggressive_room(ch, false);
 			if (ch->purged()) {
 				return;
@@ -1336,7 +1336,7 @@ void do_alias(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char *repl;
 	struct alias_data *a;
 
-	if (IS_NPC(ch))
+	if (ch->is_npc())
 		return;
 
 	repl = any_one_arg(argument, arg);
@@ -1459,7 +1459,7 @@ int perform_alias(DescriptorData *d, char *orig) {
 	struct alias_data *a, *tmp;
 
 	// Mobs don't have alaises. //
-	if (IS_NPC(d->character))
+	if (d->character->is_npc())
 		return (0);
 
 	// bail out immediately if the guy doesn't have any aliases //
@@ -1693,7 +1693,7 @@ int find_command(const char *command) {
 
 // int fnum - номер найденного в комнате спешиал-моба, для обработки нескольких спешиал-мобов в одной комнате //
 int special(CharData *ch, int cmd, char *arg, int fnum) {
-	if (ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)) {
+	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kHouse)) {
 		const auto clan = Clan::GetClanByRoom(ch->in_room);
 		if (!clan) {
 			return 0;
@@ -1712,7 +1712,7 @@ int special(CharData *ch, int cmd, char *arg, int fnum) {
 	}
 
 	// special in equipment list? //
-	for (j = 0; j < NUM_WEARS; j++) {
+	for (j = 0; j < EEquipPos::kNumEquipPos; j++) {
 		if (GET_EQ(ch, j) && GET_OBJ_SPEC(GET_EQ(ch, j)) != nullptr) {
 			if (GET_OBJ_SPEC(GET_EQ(ch, j))(ch, GET_EQ(ch, j), cmd, arg)) {
 				check_hiding_cmd(ch, -1);
@@ -1887,7 +1887,7 @@ int perform_dupe_check(DescriptorData *d) {
 	 */
 
 	character_list.foreach_on_copy([&](const CharData::shared_ptr &ch) {
-		if (IS_NPC(ch)) {
+		if (ch->is_npc()) {
 			return;
 		}
 
@@ -1915,7 +1915,7 @@ int perform_dupe_check(DescriptorData *d) {
 			char_from_room(ch);
 		}
 		char_to_room(ch, STRANGE_ROOM);
-		extract_char(ch.get(), false);
+		ExtractCharFromWorld(ch.get(), false);
 	});
 
 	// no target for switching into was found - allow login to continue //
@@ -1929,13 +1929,13 @@ int perform_dupe_check(DescriptorData *d) {
 	d->character->desc = d;
 	d->original = nullptr;
 	d->character->char_specials.timer = 0;
-	PLR_FLAGS(d->character).unset(PLR_MAILING);
-	PLR_FLAGS(d->character).unset(PLR_WRITING);
+	PLR_FLAGS(d->character).unset(EPlrFlag::kMailing);
+	PLR_FLAGS(d->character).unset(EPlrFlag::kWriting);
 	STATE(d) = CON_PLAYING;
 
 	switch (mode) {
 		case RECON: SEND_TO_Q("Пересоединяемся.\r\n", d);
-			check_light(d->character.get(), LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, 1);
+			CheckLight(d->character.get(), kLightNo, kLightNo, kLightNo, kLightNo, 1);
 			act("$n восстановил$g связь.",
 				true, d->character.get(), nullptr, nullptr, kToRoom);
 			sprintf(buf, "%s [%s] has reconnected.", GET_NAME(d->character), d->host);
@@ -2049,7 +2049,7 @@ int check_dupes_email(DescriptorData *d) {
 
 	for (const auto &ch : character_list) {
 		if (ch == d->character
-			|| IS_NPC(ch)) {
+			|| ch->is_npc()) {
 			continue;
 		}
 
@@ -2132,7 +2132,7 @@ void do_entergame(DescriptorData *d) {
 	if (GetRealLevel(d->character) >= kLvlImmortal && GetRealLevel(d->character) < kLvlImplementator) {
 		for (cmd = 0; *cmd_info[cmd].command != '\n'; cmd++) {
 			if (!strcmp(cmd_info[cmd].command, "syslog")) {
-				if (Privilege::can_do_priv(d->character.get(), std::string(cmd_info[cmd].command), cmd, 0)) {
+				if (privilege::IsAbleToDoPrivilege(d->character.get(), std::string(cmd_info[cmd].command), cmd, 0)) {
 					flag = 1;
 					break;
 				}
@@ -2145,27 +2145,27 @@ void do_entergame(DescriptorData *d) {
 	}
 
 	if (GetRealLevel(d->character) < kLvlImplementator) {
-		if (PLR_FLAGGED(d->character, PLR_INVSTART)) {
+		if (PLR_FLAGGED(d->character, EPlrFlag::kInvStart)) {
 			SET_INVIS_LEV(d->character, kLvlImmortal);
 		}
 		if (GET_INVIS_LEV(d->character) > GetRealLevel(d->character)) {
 			SET_INVIS_LEV(d->character, GetRealLevel(d->character));
 		}
 
-		if (PRF_FLAGGED(d->character, PRF_CODERINFO)) {
-			PRF_FLAGS(d->character).unset(PRF_CODERINFO);
+		if (PRF_FLAGGED(d->character, EPrf::kCoderinfo)) {
+			PRF_FLAGS(d->character).unset(EPrf::kCoderinfo);
 		}
 		if (GetRealLevel(d->character) < kLvlGod) {
-			if (PRF_FLAGGED(d->character, PRF_HOLYLIGHT)) {
-				PRF_FLAGS(d->character).unset(PRF_HOLYLIGHT);
+			if (PRF_FLAGGED(d->character, EPrf::kHolylight)) {
+				PRF_FLAGS(d->character).unset(EPrf::kHolylight);
 			}
 		}
 		if (GetRealLevel(d->character) < kLvlGod) {
-			if (PRF_FLAGGED(d->character, PRF_NOHASSLE)) {
-				PRF_FLAGS(d->character).unset(PRF_NOHASSLE);
+			if (PRF_FLAGGED(d->character, EPrf::kNohassle)) {
+				PRF_FLAGS(d->character).unset(EPrf::kNohassle);
 			}
-			if (PRF_FLAGGED(d->character, PRF_ROOMFLAGS)) {
-				PRF_FLAGS(d->character).unset(PRF_ROOMFLAGS);
+			if (PRF_FLAGGED(d->character, EPrf::kRoomFlags)) {
+				PRF_FLAGS(d->character).unset(EPrf::kRoomFlags);
 			}
 		}
 
@@ -2185,11 +2185,11 @@ void do_entergame(DescriptorData *d) {
 	 * We have to place the character in a room before equipping them
 	 * or equip_char() will gripe about the person in kNowhere.
 	 */
-	if (PLR_FLAGGED(d->character, PLR_HELLED))
+	if (PLR_FLAGGED(d->character, EPlrFlag::kHelled))
 		load_room = r_helled_start_room;
-	else if (PLR_FLAGGED(d->character, PLR_NAMED))
+	else if (PLR_FLAGGED(d->character, EPlrFlag::kNameDenied))
 		load_room = r_named_start_room;
-	else if (PLR_FLAGGED(d->character, PLR_FROZEN))
+	else if (PLR_FLAGGED(d->character, EPlrFlag::kFrozen))
 		load_room = r_frozen_start_room;
 	else if (!check_dupes_host(d))
 		load_room = r_unreg_start_room;
@@ -2199,7 +2199,7 @@ void do_entergame(DescriptorData *d) {
 		}
 		load_room = real_room(load_room);
 
-		if (!Clan::MayEnter(d->character.get(), load_room, HCE_PORTAL)) {
+		if (!Clan::MayEnter(d->character.get(), load_room, kHousePortal)) {
 			load_room = Clan::CloseRent(load_room);
 		}
 
@@ -2229,8 +2229,8 @@ void do_entergame(DescriptorData *d) {
 	if (!character) {
 		character_list.push_front(d->character);
 	} else {
-		MOB_FLAGS(character).unset(MOB_DELETE);
-		MOB_FLAGS(character).unset(MOB_FREE);
+		MOB_FLAGS(character).unset(EMobFlag::kMobDeleted);
+		MOB_FLAGS(character).unset(EMobFlag::kMobFreed);
 	}
 
 	log("Player %s enter at room %d", GET_NAME(d->character), GET_ROOM_VNUM(load_room));
@@ -2247,58 +2247,57 @@ void do_entergame(DescriptorData *d) {
 	Clan::clan_invoice(d->character.get(), true);
 
 	// Чистим стили если не знаем их
-	if (PRF_FLAGS(d->character).get(PRF_SHADOW_THROW)) {
-		PRF_FLAGS(d->character).unset(PRF_SHADOW_THROW);
+	if (PRF_FLAGS(d->character).get(EPrf::kShadowThrow)) {
+		PRF_FLAGS(d->character).unset(EPrf::kShadowThrow);
 	}
 
-	if (PRF_FLAGS(d->character).get(PRF_PUNCTUAL)
+	if (PRF_FLAGS(d->character).get(EPrf::kPunctual)
 		&& !d->character->get_skill(ESkill::kPunctual)) {
-		PRF_FLAGS(d->character).unset(PRF_PUNCTUAL);
+		PRF_FLAGS(d->character).unset(EPrf::kPunctual);
 	}
 
-	if (PRF_FLAGS(d->character).get(PRF_AWAKE)
+	if (PRF_FLAGS(d->character).get(EPrf::kAwake)
 		&& !d->character->get_skill(ESkill::kAwake)) {
-		PRF_FLAGS(d->character).unset(PRF_AWAKE);
+		PRF_FLAGS(d->character).unset(EPrf::kAwake);
 	}
 
-	if (PRF_FLAGS(d->character).get(PRF_POWERATTACK)
-		&& !can_use_feat(d->character.get(), POWER_ATTACK_FEAT)) {
-		PRF_FLAGS(d->character).unset(PRF_POWERATTACK);
+	if (PRF_FLAGS(d->character).get(EPrf::kPerformPowerAttack)
+		&& !IsAbleToUseFeat(d->character.get(), EFeat::kPowerAttack)) {
+		PRF_FLAGS(d->character).unset(EPrf::kPerformPowerAttack);
 	}
 
-	if (PRF_FLAGS(d->character).get(PRF_GREATPOWERATTACK)
-		&& !can_use_feat(d->character.get(), GREAT_POWER_ATTACK_FEAT)) {
-		PRF_FLAGS(d->character).unset(PRF_GREATPOWERATTACK);
+	if (PRF_FLAGS(d->character).get(EPrf::kPerformGreatPowerAttack)
+		&& !IsAbleToUseFeat(d->character.get(), EFeat::kGreatPowerAttack)) {
+		PRF_FLAGS(d->character).unset(EPrf::kPerformGreatPowerAttack);
 	}
 
-	if (PRF_FLAGS(d->character).get(PRF_AIMINGATTACK)
-		&& !can_use_feat(d->character.get(), AIMING_ATTACK_FEAT)) {
-		PRF_FLAGS(d->character).unset(PRF_AIMINGATTACK);
+	if (PRF_FLAGS(d->character).get(EPrf::kPerformAimingAttack)
+		&& !IsAbleToUseFeat(d->character.get(), EFeat::kAimingAttack)) {
+		PRF_FLAGS(d->character).unset(EPrf::kPerformAimingAttack);
 	}
 
-	if (PRF_FLAGS(d->character).get(PRF_GREATAIMINGATTACK)
-		&& !can_use_feat(d->character.get(), GREAT_AIMING_ATTACK_FEAT)) {
-		PRF_FLAGS(d->character).unset(PRF_GREATAIMINGATTACK);
+	if (PRF_FLAGS(d->character).get(EPrf::kPerformGreatAimingAttack)
+		&& !IsAbleToUseFeat(d->character.get(), EFeat::kGreatAimingAttack)) {
+		PRF_FLAGS(d->character).unset(EPrf::kPerformGreatAimingAttack);
 	}
-	if (PRF_FLAGS(d->character).get(PRF_DOUBLE_THROW)
-		&& !can_use_feat(d->character.get(), DOUBLE_THROW_FEAT)) {
-		PRF_FLAGS(d->character).unset(PRF_DOUBLE_THROW);
+	if (PRF_FLAGS(d->character).get(EPrf::kDoubleThrow)
+		&& !IsAbleToUseFeat(d->character.get(), EFeat::kDoubleThrower)) {
+		PRF_FLAGS(d->character).unset(EPrf::kDoubleThrow);
 	}
-	if (PRF_FLAGS(d->character).get(PRF_TRIPLE_THROW)
-		&& !can_use_feat(d->character.get(), TRIPLE_THROW_FEAT)) {
-		PRF_FLAGS(d->character).unset(PRF_TRIPLE_THROW);
+	if (PRF_FLAGS(d->character).get(EPrf::kTripleThrow)
+		&& !IsAbleToUseFeat(d->character.get(), EFeat::kTripleThrower)) {
+		PRF_FLAGS(d->character).unset(EPrf::kTripleThrow);
 	}
-	if (PRF_FLAGS(d->character).get(PRF_SKIRMISHER)) {
-		PRF_FLAGS(d->character).unset(PRF_SKIRMISHER);
+	if (PRF_FLAGS(d->character).get(EPrf::kSkirmisher)) {
+		PRF_FLAGS(d->character).unset(EPrf::kSkirmisher);
 	}
-	if (PRF_FLAGS(d->character).get(PRF_IRON_WIND)) {
-		PRF_FLAGS(d->character).unset(PRF_IRON_WIND);
+	if (PRF_FLAGS(d->character).get(EPrf::kIronWind)) {
+		PRF_FLAGS(d->character).unset(EPrf::kIronWind);
 	}
 
 	// Check & remove/add natural, race & unavailable features
-	for (int i = 1; i < kMaxFeats; i++) {
-		if (!HAVE_FEAT(d->character, i)
-			|| can_get_feat(d->character.get(), i)) {
+	for (auto i = EFeat::kFirstFeat; i <= EFeat::kLastFeat; ++i) {
+		if (!HAVE_FEAT(d->character, i) || IsAbleToGetFeat(d->character.get(), i)) {
 			if (feat_info[i].is_inborn[(int) GET_CLASS(d->character)][(int) GET_KIN(d->character)]) {
 				SET_FEAT(d->character, i);
 			}
@@ -2318,15 +2317,15 @@ void do_entergame(DescriptorData *d) {
 	//Заменяем закл !переместиться! на способность
 	if (GET_SPELL_TYPE(d->character, kSpellRelocate) == kSpellKnow && !IS_GOD(d->character)) {
 		GET_SPELL_TYPE(d->character, kSpellRelocate) = 0;
-		SET_FEAT(d->character, RELOCATE_FEAT);
+		SET_FEAT(d->character, EFeat::kRelocate);
 	}
 
 	//Проверим временные заклы пока нас не было
 	Temporary_Spells::update_char_times(d->character.get(), time(nullptr));
 
 	// Карачун. Редкая бага. Сбрасываем явно не нужные аффекты.
-	d->character->remove_affect(EAffectFlag::AFF_GROUP);
-	d->character->remove_affect(EAffectFlag::AFF_HORSE);
+	d->character->remove_affect(EAffect::kGroup);
+	d->character->remove_affect(EAffect::kHorse);
 
 	// изменяем порталы
 	check_portals(d->character.get());
@@ -2348,39 +2347,39 @@ void do_entergame(DescriptorData *d) {
 	greet_mtrigger(d->character.get(), -1);
 	greet_otrigger(d->character.get(), -1);
 	STATE(d) = CON_PLAYING;
-	PRF_FLAGS(d->character).set(PRF_COLOR_2); // цвет всегда полный
+	PRF_FLAGS(d->character).set(EPrf::kColor2); // цвет всегда полный
 // режимы по дефолту у нового чара
 	const bool new_char = GetRealLevel(d->character) <= 0 ? true : false;
 	if (new_char) {
-		PRF_FLAGS(d->character).set(PRF_DRAW_MAP);
-		PRF_FLAGS(d->character).set(PRF_GOAHEAD); //IAC GA
-		PRF_FLAGS(d->character).set(PRF_AUTOMEM);
-		PRF_FLAGS(d->character).set(PRF_AUTOLOOT);
-		PRF_FLAGS(d->character).set(PRF_PKL_MODE);
-		PRF_FLAGS(d->character).set(PRF_WORKMATE_MODE); // соклан
+		PRF_FLAGS(d->character).set(EPrf::kDrawMap);
+		PRF_FLAGS(d->character).set(EPrf::kGoAhead); //IAC GA
+		PRF_FLAGS(d->character).set(EPrf::kAutomem);
+		PRF_FLAGS(d->character).set(EPrf::kAutoloot);
+		PRF_FLAGS(d->character).set(EPrf::kPklMode);
+		PRF_FLAGS(d->character).set(EPrf::kClanmembersMode); // соклан
 		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_SHOP);
 		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_RENT);
 		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_BANK);
 		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_TEACH);
 		d->character->map_set_option(MapSystem::MAP_MODE_BIG);
-		PRF_FLAGS(d->character).set(PRF_ENTER_ZONE);
-		PRF_FLAGS(d->character).set(PRF_BOARD_MODE);
+		PRF_FLAGS(d->character).set(EPrf::kShowZoneNameOnEnter);
+		PRF_FLAGS(d->character).set(EPrf::kBoardMode);
 		d->character->set_last_exchange(time(nullptr));
 		do_start(d->character.get(), true);
-		GET_MANA_STORED(d->character) = 0;
+		d->character->mem_queue.stored = 0;
 		send_to_char(START_MESSG, d->character.get());
 	}
 
 	init_warcry(d->character.get());
 
 	// На входе в игру вешаем флаг (странно, что он до этого нигде не вешался
-	if (Privilege::god_list_check(GET_NAME(d->character), GET_UNIQUE(d->character))
+	if (privilege::IsContainedInGodsList(GET_NAME(d->character), GET_UNIQUE(d->character))
 		&& (GetRealLevel(d->character) < kLvlGod)) {
-		SET_GOD_FLAG(d->character, GF_DEMIGOD);
+		SET_GOD_FLAG(d->character, EGf::kDemigod);
 	}
 	// Насильственно забираем этот флаг у иммов (если он, конечно же, есть
-	if ((GET_GOD_FLAG(d->character, GF_DEMIGOD) && GetRealLevel(d->character) >= kLvlGod)) {
-		CLR_GOD_FLAG(d->character, GF_DEMIGOD);
+	if ((GET_GOD_FLAG(d->character, EGf::kDemigod) && GetRealLevel(d->character) >= kLvlGod)) {
+		CLR_GOD_FLAG(d->character, EGf::kDemigod);
 	}
 
 	switch (GET_SEX(d->character)) {
@@ -2399,7 +2398,7 @@ void do_entergame(DescriptorData *d) {
 	d->has_prompt = 0;
 	login_change_invoice(d->character.get());
 	affect_total(d->character.get());
-	check_light(d->character.get(), LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, 0);
+	CheckLight(d->character.get(), kLightNo, kLightNo, kLightNo, kLightNo, 0);
 	look_at_room(d->character.get(), 0);
 
 	if (new_char) {
@@ -2461,7 +2460,7 @@ void DoAfterPassword(DescriptorData *d) {
 	GET_BAD_PWS(d->character) = 0;
 	d->bad_pws = 0;
 
-	if (ban->is_banned(d->host) == BanList::BAN_SELECT && !PLR_FLAGGED(d->character, PLR_SITEOK)) {
+	if (ban->is_banned(d->host) == BanList::BAN_SELECT && !PLR_FLAGGED(d->character, EPlrFlag::kSiteOk)) {
 		SEND_TO_Q("Извините, вы не можете выбрать этого игрока с данного IP!\r\n", d);
 		STATE(d) = CON_CLOSE;
 		sprintf(buf, "Connection attempt for %s denied from %s", GET_NAME(d->character), d->host);
@@ -2493,7 +2492,7 @@ void DoAfterPassword(DescriptorData *d) {
 		if (subnets.count(inet_addr(d->host) & MASK) == 0) {
 			sprintf(buf, "Персонаж %s вошел с необычного места!", GET_NAME(d->character));
 			mudlog(buf, CMP, kLvlGod, SYSLOG, true);
-			if (PRF_FLAGGED(d->character, PRF_IPCONTROL)) {
+			if (PRF_FLAGGED(d->character, EPrf::kIpControl)) {
 				int random_number = number(1000000, 9999999);
 				new_loc_codes[GET_EMAIL(d->character)] = random_number;
 				std::string cmd_line =
@@ -2620,8 +2619,9 @@ void init_char(CharData *ch, PlayerIndexElement &element) {
 	for (auto save = ESaving::kFirst; save <= ESaving::kLast; ++save) {
 		SET_SAVE(ch, save, 0);
 	}
-	for (i = 0; i < MAX_NUMBER_RESISTANCE; i++)
+	for (i = EResist::kFirstResist; i <= EResist::kLastResist; ++i) {
 		GET_RESIST(ch, i) = 0;
+	}
 
 	if (GetRealLevel(ch) == kLvlImplementator) {
 		ch->set_str(25);
@@ -2638,14 +2638,14 @@ void init_char(CharData *ch, PlayerIndexElement &element) {
 	}
 	GET_LASTIP(ch)[0] = 0;
 	//	GET_LOADROOM(ch) = start_room;
-	PRF_FLAGS(ch).set(PRF_DISPHP);
-	PRF_FLAGS(ch).set(PRF_DISPMANA);
-	PRF_FLAGS(ch).set(PRF_DISPEXITS);
-	PRF_FLAGS(ch).set(PRF_DISPMOVE);
-	PRF_FLAGS(ch).set(PRF_DISPEXP);
-	PRF_FLAGS(ch).set(PRF_DISPFIGHT);
-	PRF_FLAGS(ch).unset(PRF_SUMMONABLE);
-	PRF_FLAGS(ch).set(PRF_COLOR_2);
+	PRF_FLAGS(ch).set(EPrf::kDispHp);
+	PRF_FLAGS(ch).set(EPrf::kDispMana);
+	PRF_FLAGS(ch).set(EPrf::kDispExits);
+	PRF_FLAGS(ch).set(EPrf::kDispMove);
+	PRF_FLAGS(ch).set(EPrf::kDispExp);
+	PRF_FLAGS(ch).set(EPrf::kDispFight);
+	PRF_FLAGS(ch).unset(EPrf::KSummonable);
+	PRF_FLAGS(ch).set(EPrf::kColor2);
 	STRING_LENGTH(ch) = 80;
 	STRING_WIDTH(ch) = 30;
 	NOTIFY_EXCH_PRICE(ch) = 0;
@@ -2899,10 +2899,10 @@ void nanny(DescriptorData *d, char *arg) {
 						return;
 					}
 
-					if (PLR_FLAGGED(d->character, PLR_DELETED)
+					if (PLR_FLAGGED(d->character, EPlrFlag::kDeleted)
 						|| !Password::compare_password(d->character.get(), pwd_pwd)) {
 						SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
-						if (!PLR_FLAGGED(d->character, PLR_DELETED)) {
+						if (!PLR_FLAGGED(d->character, EPlrFlag::kDeleted)) {
 							sprintf(buf, "Bad PW: %s [%s]", GET_NAME(d->character), d->host);
 							mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
 						}
@@ -2911,9 +2911,9 @@ void nanny(DescriptorData *d, char *arg) {
 						return;
 					}
 
-					PLR_FLAGS(d->character).unset(PLR_MAILING);
-					PLR_FLAGS(d->character).unset(PLR_WRITING);
-					PLR_FLAGS(d->character).unset(PLR_CRYO);
+					PLR_FLAGS(d->character).unset(EPlrFlag::kMailing);
+					PLR_FLAGS(d->character).unset(EPlrFlag::kWriting);
+					PLR_FLAGS(d->character).unset(EPlrFlag::kCryo);
 					d->character->set_pfilepos(player_i);
 					GET_ID(d->character) = GET_IDNUM(d->character);
 					DoAfterPassword(d);
@@ -2929,7 +2929,7 @@ void nanny(DescriptorData *d, char *arg) {
 					} else if (!Is_Valid_Dc(tmp_name)) {
 						player_i = load_char(tmp_name, d->character.get());
 						d->character->set_pfilepos(player_i);
-						if (IS_IMMORTAL(d->character) || PRF_FLAGGED(d->character, PRF_CODERINFO)) {
+						if (IS_IMMORTAL(d->character) || PRF_FLAGGED(d->character, EPrf::kCoderinfo)) {
 							SEND_TO_Q("Игрок с подобным именем является БЕССМЕРТНЫМ в игре.\r\n", d);
 						} else {
 							SEND_TO_Q("Игрок с подобным именем находится в игре.\r\n", d);
@@ -2946,7 +2946,7 @@ void nanny(DescriptorData *d, char *arg) {
 				if (player_i > -1) {
 					d->character->set_pfilepos(player_i);
 					if (PLR_FLAGGED(d->character,
-									PLR_DELETED))    // We get a false positive from the original deleted character.
+									 EPlrFlag::kDeleted))    // We get a false positive from the original deleted character.
 					{
 						d->character.reset();
 
@@ -2971,7 +2971,7 @@ void nanny(DescriptorData *d, char *arg) {
 						STATE(d) = CON_NAME_CNFRM;
 					} else    // undo it just in case they are set
 					{
-						if (IS_IMMORTAL(d->character) || PRF_FLAGGED(d->character, PRF_CODERINFO)) {
+						if (IS_IMMORTAL(d->character) || PRF_FLAGGED(d->character, EPrf::kCoderinfo)) {
 							SEND_TO_Q("Игрок с подобным именем является БЕССМЕРТНЫМ в игре.\r\n", d);
 							SEND_TO_Q("Во избежание недоразумений введите пару ИМЯ ПАРОЛЬ.\r\n", d);
 							SEND_TO_Q("Имя и пароль через пробел : ", d);
@@ -2980,9 +2980,9 @@ void nanny(DescriptorData *d, char *arg) {
 							return;
 						}
 
-						PLR_FLAGS(d->character).unset(PLR_MAILING);
-						PLR_FLAGS(d->character).unset(PLR_WRITING);
-						PLR_FLAGS(d->character).unset(PLR_CRYO);
+						PLR_FLAGS(d->character).unset(EPlrFlag::kMailing);
+						PLR_FLAGS(d->character).unset(EPlrFlag::kWriting);
+						PLR_FLAGS(d->character).unset(EPlrFlag::kCryo);
 						SEND_TO_Q("Персонаж с таким именем уже существует. Введите пароль : ", d);
 						d->idle_tics = 0;
 						STATE(d) = CON_PASSWORD;
@@ -3088,7 +3088,7 @@ void nanny(DescriptorData *d, char *arg) {
 			player_i = load_char(tmp_name, d->character.get());
 			is_player_deleted = false;
 			if (player_i > -1) {
-				is_player_deleted = PLR_FLAGGED(d->character, PLR_DELETED);
+				is_player_deleted = PLR_FLAGGED(d->character, EPlrFlag::kDeleted);
 				if (is_player_deleted) {
 					d->character.reset();
 					CreateChar(d);
@@ -3510,7 +3510,7 @@ void nanny(DescriptorData *d, char *arg) {
 
 					if (GET_REAL_REMORT(d->character) == 0
 						&& GetRealLevel(d->character) <= 25
-						&& !PLR_FLAGS(d->character).get(PLR_NODELETE)) {
+						&& !PLR_FLAGS(d->character).get(EPlrFlag::kNoDelete)) {
 						int timeout = -1;
 						for (int ci = 0; GetRealLevel(d->character) > pclean_criteria[ci].level; ci++) {
 							//if (GetRealLevel(d->character) == pclean_criteria[ci].level)
@@ -3577,8 +3577,8 @@ void nanny(DescriptorData *d, char *arg) {
 						break;
 					}
 
-					if (PLR_FLAGGED(d->character, PLR_HELLED)
-						|| PLR_FLAGGED(d->character, PLR_FROZEN)) {
+					if (PLR_FLAGGED(d->character, EPlrFlag::kHelled)
+						|| PLR_FLAGGED(d->character, EPlrFlag::kFrozen)) {
 						SEND_TO_Q("\r\nВы находитесь в АДУ!!! Амнистии подобным образом не будет.\r\n", d);
 						SEND_TO_Q(MENU, d);
 						break;
@@ -3607,13 +3607,13 @@ void nanny(DescriptorData *d, char *arg) {
 					break;
 
 				case '7':
-					if (!PRF_FLAGGED(d->character, PRF_BLIND)) {
-						PRF_FLAGS(d->character).set(PRF_BLIND);
+					if (!PRF_FLAGGED(d->character, EPrf::kBlindMode)) {
+						PRF_FLAGS(d->character).set(EPrf::kBlindMode);
 						SEND_TO_Q("\r\nСпециальный режим слепого игрока ВКЛЮЧЕН.\r\n", d);
 						SEND_TO_Q(MENU, d);
 						STATE(d) = CON_MENU;
 					} else {
-						PRF_FLAGS(d->character).unset(PRF_BLIND);
+						PRF_FLAGS(d->character).unset(EPrf::kBlindMode);
 						SEND_TO_Q("\r\nСпециальный режим слепого игрока ВЫКЛЮЧЕН.\r\n", d);
 						SEND_TO_Q(MENU, d);
 						STATE(d) = CON_MENU;
@@ -3662,7 +3662,7 @@ void nanny(DescriptorData *d, char *arg) {
 				|| !strcmp(arg, "YES")
 				|| !strcmp(arg, "да")
 				|| !strcmp(arg, "ДА")) {
-				if (PLR_FLAGGED(d->character, PLR_FROZEN)) {
+				if (PLR_FLAGGED(d->character, EPlrFlag::kFrozen)) {
 					SEND_TO_Q("Вы решились на суицид, но Боги остановили вас.\r\n", d);
 					SEND_TO_Q("Персонаж не удален.\r\n", d);
 					STATE(d) = CON_CLOSE;
@@ -4157,7 +4157,7 @@ void god_work_invoice() {
 	for (DescriptorData *d = descriptor_list; d; d = d->next) {
 		if (d->character && STATE(d) == CON_PLAYING) {
 			if (IS_IMMORTAL(d->character)
-				|| GET_GOD_FLAG(d->character, GF_DEMIGOD)) {
+				|| GET_GOD_FLAG(d->character, EGf::kDemigod)) {
 				single_god_invoice(d->character.get());
 			}
 		}

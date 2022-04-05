@@ -133,7 +133,7 @@ bool is_duplicate(int set_uid, int vnum) {
 
 void update_char_sets() {
 	for (const auto &ch : character_list) {
-		if (!IS_NPC(ch)
+		if (!ch->is_npc()
 			|| IS_CHARMICE(ch)) {
 			ch->obj_bonus().update(ch.get());
 		}
@@ -169,10 +169,10 @@ void init_obj_index() {
 
 /// сеты не вешаются на: кольца, ожерелья, браслеты, свет
 bool verify_wear_flag(const CObjectPrototype::shared_ptr & /*obj*/) {
-/*	if (CAN_WEAR(obj, ITEM_WEAR_FINGER)
-		|| CAN_WEAR(obj, ITEM_WEAR_NECK)
-		|| CAN_WEAR(obj, ITEM_WEAR_WRIST)
-		|| GET_OBJ_TYPE(obj) == ITEM_LIGHT)
+/*	if (CAN_WEAR(obj, kFinger)
+		|| CAN_WEAR(obj, kNeck)
+		|| CAN_WEAR(obj, kWrist)
+		|| GET_OBJ_TYPE(obj) == kLight)
 	{
 		return false;
 	}
@@ -224,7 +224,7 @@ void VerifySet(SetNode &set) {
 			set.enabled = false;
 		}
 		for (auto k = i->second.apply.begin(); k != i->second.apply.end(); ++k) {
-			if (k->location < 0 || k->location >= NUM_APPLIES) {
+			if (k->location < 0 || k->location >= EApply::kNumberApplies) {
 				err_log(
 					"Item set #%zu: incorrect affect apply (loc=%d, mod=%d, activ=%d).",
 					num, k->location, k->modifier, i->first);
@@ -375,7 +375,7 @@ void load() {
 				// заполняются только первые kMaxObjAffect
 				for (auto & i : tmp_activ.apply) {
 					if (i.location <= 0) {
-						i.location = static_cast<EApplyLocation>(parse::ReadAttrAsInt(apply_node, "loc"));
+						i.location = static_cast<EApply>(parse::ReadAttrAsInt(apply_node, "loc"));
 						i.modifier = parse::ReadAttrAsInt(apply_node, "mod");
 						break;
 					}
@@ -517,7 +517,7 @@ void save() {
 			}
 			// set/activ/apply
 			for (auto & m : k.second.apply) {
-				if (m.location > 0 && m.location < NUM_APPLIES && m.modifier) {
+				if (m.location > 0 && m.location < EApply::kNumberApplies && m.modifier) {
 					pugi::xml_node xml_apply = xml_activ.append_child("apply");
 					xml_apply.append_attribute("loc") = m.location;
 					xml_apply.append_attribute("mod") = m.modifier;
@@ -755,7 +755,7 @@ void print_identify(CharData *ch, const ObjData *obj) {
 		auto i = obj->get_activator();
 		if (i.second > 0) {
 			snprintf(buf_2, sizeof(buf_2), " (активно %d %s)",
-					 i.second, desc_count(i.second, WHAT_OBJECT));
+					 i.second, GetDeclensionInNumber(i.second, EWhat::kObject));
 		}
 
 		snprintf(buf_, sizeof(buf_), "Свойства набора%s: %sсправка %s%s\r\n",
@@ -938,10 +938,10 @@ std::string print_activ_help(const SetNode &set) {
 				PrinSetClasses(i.second.prof, prof_list);
 			}
 			snprintf(buf_, sizeof(buf_), "%d %s (%s)\r\n",
-					 i.first, desc_count(i.first, WHAT_OBJECT), prof_list.c_str());
+					 i.first, GetDeclensionInNumber(i.first, EWhat::kObject), prof_list.c_str());
 		} else {
 			snprintf(buf_, sizeof(buf_), "%d %s\r\n",
-					 i.first, desc_count(i.first, WHAT_OBJECT));
+					 i.first, GetDeclensionInNumber(i.first, EWhat::kObject));
 		}
 		out += buf_;
 		// аффекты
@@ -1087,11 +1087,11 @@ void WornSets::check(CharData *ch) {
 				// i->obj_list.size() - одето на чаре
 				if (k.first > i.obj_list.size()) {
 					continue;
-				} else if (!IS_NPC(ch)
+				} else if (!ch->is_npc()
 					&& prof_bit < k.second.prof.size()
 					&& !k.second.prof.test(prof_bit)) {
 					continue;
-				} else if (IS_NPC(ch)
+				} else if (ch->is_npc()
 					&& (!k.second.prof.all() && !k.second.npc)) {
 					continue;
 				}
@@ -1206,7 +1206,7 @@ WornSets worn_sets;
 
 void check_enchants(CharData *ch) {
 	ObjData *obj;
-	for (int i = 0; i < NUM_WEARS; i++) {
+	for (int i = 0; i < EEquipPos::kNumEquipPos; i++) {
 		obj = GET_EQ(ch, i);
 		if (obj) {
 			auto i = ch->obj_bonus().enchants.find(normalize_vnum(GET_OBJ_VNUM(obj)));
@@ -1222,7 +1222,7 @@ void check_enchants(CharData *ch) {
 void activ_sum::update(CharData *ch) {
 	this->clear();
 	worn_sets.clear();
-	for (int i = 0; i < NUM_WEARS; i++) {
+	for (int i = 0; i < EEquipPos::kNumEquipPos; i++) {
 		worn_sets.add(GET_EQ(ch, i));
 	}
 	worn_sets.check(ch);
@@ -1233,11 +1233,11 @@ void activ_sum::apply_affects(CharData *ch) const {
 	for (const auto &j : weapon_affect) {
 		if (j.aff_bitvector != 0
 			&& affects.get(j.aff_pos)) {
-			affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(j.aff_bitvector), true);
+			affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(j.aff_bitvector), true);
 		}
 	}
 	for (auto &&i : apply) {
-		affect_modify(ch, i.location, i.modifier, static_cast<EAffectFlag>(0), true);
+		affect_modify(ch, i.location, i.modifier, static_cast<EAffect>(0), true);
 	}
 }
 
@@ -1269,7 +1269,7 @@ bool is_set_item(ObjData *obj) {
 
 /// иммский slist
 void do_slist(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch)) {
+	if (ch->is_npc()) {
 		return;
 	}
 	obj_sets::do_slist(ch);

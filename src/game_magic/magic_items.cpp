@@ -6,8 +6,8 @@
 #include "spells_info.h"
 #include "magic_utils.h"
 
-const short DEFAULT_STAFF_LVL = 12;
-const short DEFAULT_WAND_LVL = 12;
+const short kDefaultStaffLvl = 12;
+const short kDefaultWandLvl = 12;
 
 extern char cast_argument[kMaxInputLength];
 
@@ -21,14 +21,14 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 	one_argument(argument, cast_argument);
 	level = GET_OBJ_VAL(obj, 0);
 	if (level == 0) {
-		if (GET_OBJ_TYPE(obj) == ObjData::ITEM_STAFF) {
-			level = DEFAULT_STAFF_LVL;
-		} else if (GET_OBJ_TYPE(obj) == ObjData::ITEM_WAND) {
-			level = DEFAULT_WAND_LVL;
+		if (GET_OBJ_TYPE(obj) == EObjType::kStaff) {
+			level = kDefaultStaffLvl;
+		} else if (GET_OBJ_TYPE(obj) == EObjType::kWand) {
+			level = kDefaultWandLvl;
 		}
 	}
 
-	if (obj->get_extra_flag(EExtraFlag::ITEM_TIMEDLVL)) {
+	if (obj->has_flag(EObjFlag::kTimedLvl)) {
 		int proto_timer = obj_proto[GET_OBJ_RNUM(obj)]->get_timer();
 		if (proto_timer != 0) {
 			level -= level * (proto_timer - obj->get_timer()) / proto_timer;
@@ -36,7 +36,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 	}
 
 	switch (GET_OBJ_TYPE(obj)) {
-		case ObjData::ITEM_STAFF:
+		case EObjType::kStaff:
 			if (!obj->get_action_description().empty()) {
 				act(obj->get_action_description().c_str(), false, ch, obj, nullptr, kToChar);
 				act(obj->get_action_description().c_str(), false, ch, obj, nullptr, kToRoom | kToArenaListen);
@@ -65,7 +65,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 
 			break;
 
-		case ObjData::ITEM_WAND: spellnum = GET_OBJ_VAL(obj, 3);
+		case EObjType::kWand: spellnum = GET_OBJ_VAL(obj, 3);
 
 			if (GET_OBJ_VAL(obj, 2) <= 0) {
 				send_to_char("Похоже, магия кончилась.\r\n", ch);
@@ -124,12 +124,12 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 			CallMagic(ch, tch, tobj, world[ch->in_room], GET_OBJ_VAL(obj, 3), level);
 			break;
 
-		case ObjData::ITEM_SCROLL:
-			if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)) {
+		case EObjType::kScroll:
+			if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
 				send_to_char("Вы немы, как рыба.\r\n", ch);
 				return;
 			}
-			if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
+			if (AFF_FLAGGED(ch, EAffect::kBlind)) {
 				send_to_char("Вы ослеплены.\r\n", ch);
 				return;
 			}
@@ -164,11 +164,11 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 			/*if (obj != nullptr) {
 				extract_obj(obj);
 			}*/
-			extract_obj(obj);
+			ExtractObjFromWorld(obj);
 			break;
 
-		case ObjData::ITEM_POTION:
-			if (AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)) {
+		case EObjType::kPorion:
+			if (AFF_FLAGGED(ch, EAffect::kStrangled)) {
 				send_to_char("Да вам сейчас и глоток воздуха не проглотить!\r\n", ch);
 				return;
 			}
@@ -191,7 +191,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 			/*if (obj != nullptr) {
 				extract_obj(obj);
 			}*/
-			extract_obj(obj);
+			ExtractObjFromWorld(obj);
 			break;
 
 		default: log("SYSERR: Unknown object_type %d in EmployMagicItem.", GET_OBJ_TYPE(obj));

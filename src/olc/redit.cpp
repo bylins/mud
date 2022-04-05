@@ -218,7 +218,7 @@ void redit_save_internally(DescriptorData *d) {
 				world[i]->portal_room++;
 			}
 
-			for (j = 0; j < kDirMaxNumber; j++) {
+			for (j = 0; j < EDirection::kMaxDirNum; j++) {
 				if (W_EXIT(i, j)) {
 					const auto to_room = W_EXIT(i, j)->to_room();
 
@@ -232,7 +232,7 @@ void redit_save_internally(DescriptorData *d) {
 		// * Update any rooms being edited.
 		for (auto dsc = descriptor_list; dsc; dsc = dsc->next) {
 			if (dsc->connected == CON_REDIT) {
-				for (j = 0; j < kDirMaxNumber; j++) {
+				for (j = 0; j < EDirection::kMaxDirNum; j++) {
 					if (OLC_ROOM(dsc)->dir_option[j]) {
 						const auto to_room = OLC_ROOM(dsc)->dir_option[j]->to_room();
 
@@ -249,11 +249,11 @@ void redit_save_internally(DescriptorData *d) {
 
 	// пока мы не удаляем комнаты через олц - проблем нету
 	// а вот в случае удаления надо будет обновлять указатели для списка слоу-дт и врат
-	if (ROOM_FLAGGED(room_num, ROOM_SLOWDEATH)
-		|| ROOM_FLAGGED(room_num, ROOM_ICEDEATH)) {
-		DeathTrap::add(world[room_num]);
+	if (ROOM_FLAGGED(room_num, ERoomFlag::kSlowDeathTrap)
+		|| ROOM_FLAGGED(room_num, ERoomFlag::kIceTrap)) {
+		deathtrap::add(world[room_num]);
 	} else {
-		DeathTrap::remove(world[room_num]);
+		deathtrap::remove(world[room_num]);
 	}
 
 	// Настало время добавить триггеры
@@ -302,7 +302,7 @@ void redit_save_to_disk(int zone_num) {
 					zone_table[room->zone_rn].vnum, buf2, room->sector_type);
 
 			// * Handle exits.
-			for (counter2 = 0; counter2 < kDirMaxNumber; counter2++) {
+			for (counter2 = 0; counter2 < EDirection::kMaxDirNum; counter2++) {
 				if (room->dir_option[counter2]) {
 					// * Again, strip out the garbage.
 					if (!room->dir_option[counter2]->general_description.empty()) {
@@ -329,9 +329,9 @@ void redit_save_to_disk(int zone_num) {
 					//Сохраним их, чтобы не поломать загруженную зону
 					byte old_exit_info = room->dir_option[counter2]->exit_info;
 
-					REMOVE_BIT(room->dir_option[counter2]->exit_info, EX_CLOSED);
-					REMOVE_BIT(room->dir_option[counter2]->exit_info, EX_LOCKED);
-					REMOVE_BIT(room->dir_option[counter2]->exit_info, EX_BROKEN);
+					REMOVE_BIT(room->dir_option[counter2]->exit_info, EExitFlag::kClosed);
+					REMOVE_BIT(room->dir_option[counter2]->exit_info, EExitFlag::kLocked);
+					REMOVE_BIT(room->dir_option[counter2]->exit_info, EExitFlag::kBrokenLock);
 					// * Ok, now wrote output to file.
 					fprintf(fp, "D%d\n%s~\n%s~\n%d %d %d %d\n",
 							counter2, buf1, buf2,
@@ -400,9 +400,9 @@ void redit_disp_exit_menu(DescriptorData *d) {
 	}
 
 	// * Weird door handling!
-	if (IS_SET(OLC_EXIT(d)->exit_info, EX_ISDOOR)) {
+	if (IS_SET(OLC_EXIT(d)->exit_info, EExitFlag::kHasDoor)) {
 		strcpy(buf2, "Дверь ");
-		if (IS_SET(OLC_EXIT(d)->exit_info, EX_PICKPROOF)) {
+		if (IS_SET(OLC_EXIT(d)->exit_info, EExitFlag::kPickroof)) {
 			strcat(buf2, "Невзламываемая ");
 		}
 		sprintf(buf2 + strlen(buf2), " (Сложность замка [%d])", OLC_EXIT(d)->lock_complexity);
@@ -410,7 +410,7 @@ void redit_disp_exit_menu(DescriptorData *d) {
 		strcpy(buf2, "Нет двери");
 	}
 
-	if (IS_SET(OLC_EXIT(d)->exit_info, EX_HIDDEN)) {
+	if (IS_SET(OLC_EXIT(d)->exit_info, EExitFlag::kHidden)) {
 		strcat(buf2, " (Выход скрыт)");
 	}
 
@@ -451,9 +451,9 @@ void redit_disp_exit_flag_menu(DescriptorData *d) {
 			"%s3%s) [%c]Скрытый выход\r\n"
 			"%s4%s) [%d]Сложность замка\r\n"
 			"Ваш выбор (0 - выход): ",
-			grn, nrm, IS_SET(OLC_EXIT(d)->exit_info, EX_ISDOOR) ? 'x' : ' ',
-			grn, nrm, IS_SET(OLC_EXIT(d)->exit_info, EX_PICKPROOF) ? 'x' : ' ',
-			grn, nrm, IS_SET(OLC_EXIT(d)->exit_info, EX_HIDDEN) ? 'x' : ' ',
+			grn, nrm, IS_SET(OLC_EXIT(d)->exit_info, EExitFlag::kHasDoor) ? 'x' : ' ',
+			grn, nrm, IS_SET(OLC_EXIT(d)->exit_info, EExitFlag::kPickroof) ? 'x' : ' ',
+			grn, nrm, IS_SET(OLC_EXIT(d)->exit_info, EExitFlag::kHidden) ? 'x' : ' ',
 			grn, nrm, OLC_EXIT(d)->lock_complexity);
 	send_to_char(buf, d->character.get());
 }
@@ -522,23 +522,23 @@ void redit_disp_menu(DescriptorData *d) {
 			 grn, nrm, room->name,
 			 grn, room->temp_description,
 			 grn, nrm, cyn, buf1, grn, nrm, cyn, buf2, grn, nrm, cyn,
-			 room->dir_option[kDirNorth] && room->dir_option[kDirNorth]->to_room() != kNowhere
-			 ? world[room->dir_option[kDirNorth]->to_room()]->room_vn : kNowhere,
+			 room->dir_option[EDirection::kNorth] && room->dir_option[EDirection::kNorth]->to_room() != kNowhere
+			 ? world[room->dir_option[EDirection::kNorth]->to_room()]->room_vn : kNowhere,
 			 grn, nrm, cyn,
-			 room->dir_option[kDirEast] && room->dir_option[kDirEast]->to_room() != kNowhere
-			 ? world[room->dir_option[kDirEast]->to_room()]->room_vn : kNowhere,
+			 room->dir_option[EDirection::kEast] && room->dir_option[EDirection::kEast]->to_room() != kNowhere
+			 ? world[room->dir_option[EDirection::kEast]->to_room()]->room_vn : kNowhere,
 			 grn, nrm, cyn,
-			 room->dir_option[kDirSouth] && room->dir_option[kDirSouth]->to_room() != kNowhere
-			 ? world[room->dir_option[kDirSouth]->to_room()]->room_vn : kNowhere,
+			 room->dir_option[EDirection::kSouth] && room->dir_option[EDirection::kSouth]->to_room() != kNowhere
+			 ? world[room->dir_option[EDirection::kSouth]->to_room()]->room_vn : kNowhere,
 			 grn, nrm, cyn,
-			 room->dir_option[kDirWest] && room->dir_option[kDirWest]->to_room() != kNowhere
-			 ? world[room->dir_option[kDirWest]->to_room()]->room_vn : kNowhere,
+			 room->dir_option[EDirection::kWest] && room->dir_option[EDirection::kWest]->to_room() != kNowhere
+			 ? world[room->dir_option[EDirection::kWest]->to_room()]->room_vn : kNowhere,
 			 grn, nrm, cyn,
-			 room->dir_option[kDirUp] && room->dir_option[kDirUp]->to_room() != kNowhere
-			 ? world[room->dir_option[kDirUp]->to_room()]->room_vn : kNowhere,
+			 room->dir_option[EDirection::kUp] && room->dir_option[EDirection::kUp]->to_room() != kNowhere
+			 ? world[room->dir_option[EDirection::kUp]->to_room()]->room_vn : kNowhere,
 			 grn, nrm, cyn,
-			 room->dir_option[kDirDown] && room->dir_option[kDirDown]->to_room() != kNowhere
-			 ? world[room->dir_option[kDirDown]->to_room()]->room_vn : kNowhere,
+			 room->dir_option[EDirection::kDown] && room->dir_option[EDirection::kDown]->to_room() != kNowhere
+			 ? world[room->dir_option[EDirection::kDown]->to_room()]->room_vn : kNowhere,
 			 grn, nrm, grn, nrm, cyn,
 			 !room->proto_script->empty() ? "Set." : "Not Set.",
 			 grn, nrm);
@@ -621,28 +621,28 @@ void redit_parse(DescriptorData *d, char *arg) {
 				case '4': redit_disp_sector_menu(d);
 					break;
 
-				case '5': OLC_VAL(d) = kDirNorth;
+				case '5': OLC_VAL(d) = EDirection::kNorth;
 					redit_disp_exit_menu(d);
 					break;
 
-				case '6': OLC_VAL(d) = kDirEast;
+				case '6': OLC_VAL(d) = EDirection::kEast;
 					redit_disp_exit_menu(d);
 					break;
 
-				case '7': OLC_VAL(d) = kDirSouth;
+				case '7': OLC_VAL(d) = EDirection::kSouth;
 					redit_disp_exit_menu(d);
 					break;
 
-				case '8': OLC_VAL(d) = kDirWest;
+				case '8': OLC_VAL(d) = EDirection::kWest;
 					redit_disp_exit_menu(d);
 					break;
 
-				case '9': OLC_VAL(d) = kDirUp;
+				case '9': OLC_VAL(d) = EDirection::kUp;
 					redit_disp_exit_menu(d);
 					break;
 
 				case 'a':
-				case 'A': OLC_VAL(d) = kDirDown;
+				case 'A': OLC_VAL(d) = EDirection::kDown;
 					redit_disp_exit_menu(d);
 					break;
 
@@ -769,15 +769,15 @@ void redit_parse(DescriptorData *d, char *arg) {
 				redit_disp_exit_menu(d);
 			else {
 				if (number == 1) {
-					if (IS_SET(OLC_EXIT(d)->exit_info, EX_ISDOOR)) {
+					if (IS_SET(OLC_EXIT(d)->exit_info, EExitFlag::kHasDoor)) {
 						OLC_EXIT(d)->exit_info = 0;
 						OLC_EXIT(d)->lock_complexity = 0;
 					} else
-						SET_BIT(OLC_EXIT(d)->exit_info, EX_ISDOOR);
+						SET_BIT(OLC_EXIT(d)->exit_info, EExitFlag::kHasDoor);
 				} else if (number == 2) {
-					TOGGLE_BIT(OLC_EXIT(d)->exit_info, EX_PICKPROOF);
+					TOGGLE_BIT(OLC_EXIT(d)->exit_info, EExitFlag::kPickroof);
 				} else if (number == 3) {
-					TOGGLE_BIT(OLC_EXIT(d)->exit_info, EX_HIDDEN);
+					TOGGLE_BIT(OLC_EXIT(d)->exit_info, EExitFlag::kHidden);
 				} else if (number == 4) {
 					OLC_MODE(d) = REDIT_LOCK_COMPLEXITY;
 					send_to_char("Введите сложность замка, (0-255): ", d->character.get());

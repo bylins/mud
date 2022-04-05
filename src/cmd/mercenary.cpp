@@ -90,7 +90,8 @@ void doBring(CharData *ch, CharData *boss, unsigned int pos, char *bank) {
 
 		if ((!isname(bank, "банк bank") && cost > ch->get_gold()) ||
 			(isname(bank, "банк bank") && cost > ch->get_bank())) {
-			sprintf(buf, "Мои услуги стоят %d %s - это тебе не по карману.", cost, desc_count(cost, WHAT_MONEYu));
+			sprintf(buf, "Мои услуги стоят %d %s - это тебе не по карману.", cost,
+					GetDeclensionInNumber(cost, EWhat::kMoneyU));
 			tell_to_char(boss, ch, buf);
 			return;
 		}
@@ -103,7 +104,7 @@ void doBring(CharData *ch, CharData *boss, unsigned int pos, char *bank) {
 			return;
 		}
 		mob = read_mobile(rnum, REAL);
-		char_to_room(mob, ch->in_room);
+		PlaceCharToRoom(mob, ch->in_room);
 		if (ch->get_class() == kCharmer) {
 			act("$n окрикнул$g своих парней и скрыл$u из виду.", true, boss, 0, 0, kToRoom);
 			act("Спустя некоторое время, взмыленная ватага вернулась, волоча на аркане $n3.", true, mob, 0, 0, kToRoom);
@@ -112,7 +113,7 @@ void doBring(CharData *ch, CharData *boss, unsigned int pos, char *bank) {
 			sprintf(buf, "Спустя некоторое время, %s вернул$U, ведя за собой $n3.", boss->get_npc_name().c_str());
 			act(buf, true, mob, 0, ch, kToRoom);
 		}
-		if (!WAITLESS(ch)) {
+		if (!IS_IMMORTAL(ch)) {
 			if (isname(bank, "банк bank"))
 				ch->remove_bank(cost);
 			else
@@ -168,7 +169,7 @@ unsigned int getPos(char *arg, CharData *ch, CharData *boss) {
 }
 
 int mercenary(CharData *ch, void * /*me*/, int cmd, char *argument) {
-	if (!ch || !ch->desc || IS_NPC(ch))
+	if (!ch || !ch->desc || ch->is_npc())
 		return 0;
 	if (!(CMD_IS("наемник") || CMD_IS("mercenary")))
 		return 0;

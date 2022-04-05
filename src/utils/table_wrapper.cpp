@@ -10,8 +10,8 @@ namespace table_wrapper {
 
 const int kDefaultLeftTableMargin = 1;	// Отступ таблицы от левого края окна
 
-void DecorateSimpleTable(CharData *ch, fort::char_table &table) {
-	if (PRF_FLAGGED(ch, PRF_BLIND)) {
+void DecorateSimpleTable(CharData *ch, Table &table) {
+	if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {
 		table.set_border_style(FT_EMPTY2_STYLE);
 	} else {
 		table.set_border_style(FT_BASIC_STYLE);
@@ -19,8 +19,8 @@ void DecorateSimpleTable(CharData *ch, fort::char_table &table) {
 	}
 }
 
-void DecorateNoBorderTable(CharData *ch, fort::char_table &table) {
-	if (PRF_FLAGGED(ch, PRF_BLIND)) {
+void DecorateNoBorderTable(CharData *ch, Table &table) {
+	if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {
 		table.set_border_style(FT_EMPTY2_STYLE);
 	} else {
 		table.set_border_style(FT_EMPTY_STYLE);
@@ -28,8 +28,8 @@ void DecorateNoBorderTable(CharData *ch, fort::char_table &table) {
 	}
 }
 
-void DecorateServiceTable(CharData *ch, fort::char_table &table) {
-	if (PRF_FLAGGED(ch, PRF_BLIND)) {
+void DecorateServiceTable(CharData *ch, Table &table) {
+	if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {
 		table.set_border_style(FT_EMPTY2_STYLE);
 	} else {
 		table.set_border_style(FT_PLAIN_STYLE);
@@ -42,8 +42,8 @@ void DecorateServiceTable(CharData *ch, fort::char_table &table) {
 	}
 }
 
-void DecorateCuteTable(CharData *ch, fort::char_table &table) {
-	if (PRF_FLAGGED(ch, PRF_BLIND)) {
+void DecorateCuteTable(CharData *ch, Table &table) {
+	if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {
 		table.set_border_style(FT_EMPTY2_STYLE);
 	} else {
 		table.set_border_style(FT_BASIC_STYLE);
@@ -78,8 +78,8 @@ void DecorateCuteTable(CharData *ch, fort::char_table &table) {
 	}
 }
 
-void DecorateZebraTable(CharData *ch, fort::char_table &table, fort::color color) {
-	if (PRF_FLAGGED(ch, PRF_BLIND)) {
+void DecorateZebraTable(CharData *ch, Table &table, Color color) {
+	if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {
 		table.set_border_style(FT_EMPTY2_STYLE);
 	} else {
 		table.set_border_style(FT_SIMPLE_STYLE);
@@ -92,8 +92,8 @@ void DecorateZebraTable(CharData *ch, fort::char_table &table, fort::color color
 	}
 }
 
-void DecorateZebraTextTable(CharData *ch, fort::char_table &table, fort::color color) {
-	if (PRF_FLAGGED(ch, PRF_BLIND)) {
+void DecorateZebraTextTable(CharData *ch, Table &table, Color color) {
+	if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {
 		table.set_border_style(FT_EMPTY2_STYLE);
 	} else {
 		table.set_border_style(FT_SIMPLE_STYLE);
@@ -106,7 +106,7 @@ void DecorateZebraTextTable(CharData *ch, fort::char_table &table, fort::color c
 	}
 }
 
-void PrintTableToChar(CharData *ch, fort::char_table &table) {
+void PrintTableToChar(CharData *ch, Table &table) {
 	try {
 		send_to_char(table.to_string(), ch);
 	} catch (std::runtime_error &e) {
@@ -114,7 +114,7 @@ void PrintTableToChar(CharData *ch, fort::char_table &table) {
 	}
 }
 
-void PrintTableToStream(std::ostringstream &out, fort::char_table &table) {
+void PrintTableToStream(std::ostringstream &out, Table &table) {
 	try {
 		out << table.to_string();
 	} catch (std::runtime_error &e) {

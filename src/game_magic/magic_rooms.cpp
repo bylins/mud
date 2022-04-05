@@ -20,7 +20,7 @@ std::list<RoomData *> affected_rooms;
 
 void RemoveSingleRoomAffect(long casterID, int spellnum);
 void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::shared_ptr &aff);
-void sendAffectOffMessageToRoom(int aff, RoomRnum room);
+void SendRemoveAffectMsgToRoom(int affectType, RoomRnum room);
 void AddRoomToAffected(RoomData *room);
 void affect_room_join_fspell(RoomData *room, const Affect<ERoomApply> &af);
 void affect_room_join(RoomData *room, Affect<ERoomApply> &af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod);
@@ -70,13 +70,14 @@ void ShowAffectedRooms(CharData *ch) {
 	std::stringstream out;
 	out << " Список комнат под аффектами:" << std::endl;
 
-	fort::char_table table;
-	table << fort::header << "#" << "Vnum" << "Spell" << "Caster name" << "Time (s)" << fort::endr;
+	table_wrapper::Table table;
+	table << table_wrapper::kHeader <<
+		"#" << "Vnum" << "Spell" << "Caster name" << "Time (s)" << table_wrapper::kEndRow;
 	int count = 1;
 	for (const auto r : affected_rooms) {
 		for (const auto &af : r->affected) {
 			table << count << r->room_vn << spell_info[af->type].name
-				<< get_name_by_id(af->caster_id) << af->duration * 2 << fort::endr;
+				<< get_name_by_id(af->caster_id) << af->duration * 2 << table_wrapper::kEndRow;
 			++count;
 		}
 	}
@@ -112,7 +113,7 @@ int RemoveAffectFromRooms(int spellnum, const F &filter) {
 	for (const auto room : affected_rooms) {
 		const auto &affect = std::find_if(room->affected.begin(), room->affected.end(), filter);
 		if (affect != room->affected.end()) {
-			sendAffectOffMessageToRoom((*affect)->type, real_room(room->room_vn));
+			SendRemoveAffectMsgToRoom((*affect)->type, real_room(room->room_vn));
 			spellnum = (*affect)->type;
 			RemoveAffect(room, affect);
 			return spellnum;
@@ -127,7 +128,7 @@ void RemoveSingleRoomAffect(long casterID, int spellnum) {
 	RemoveAffectFromRooms(spellnum, filter);
 }
 
-int removeControlledRoomAffect(CharData *ch) {
+int RemoveControlledRoomAffect(CharData *ch) {
 	long casterID = GET_ID(ch);
 	auto filter =
 		[&casterID](auto &af) {
@@ -136,7 +137,7 @@ int removeControlledRoomAffect(CharData *ch) {
 	return RemoveAffectFromRooms(0, filter);
 }
 
-void sendAffectOffMessageToRoom(int affectType, RoomRnum room) {
+void SendRemoveAffectMsgToRoom(int affectType, RoomRnum room) {
 	// TODO:" refactor and replace int affectType by ESpell
 	const std::string &msg = get_wear_off_text(static_cast<ESpell>(affectType));
 	if (affectType > 0 && affectType <= kSpellCount && !msg.empty()) {
@@ -294,7 +295,7 @@ void UpdateRoomsAffects() {
 					if (next_affect_i == affects.end()
 						|| (*next_affect_i)->type != affect->type
 						|| (*next_affect_i)->duration > 0) {
-						sendAffectOffMessageToRoom(affect->type, real_room((*room)->room_vn));
+						SendRemoveAffectMsgToRoom(affect->type, real_room((*room)->room_vn));
 					}
 				}
 				RemoveAffect(*room, affect_i);
@@ -321,7 +322,7 @@ void UpdateRoomsAffects() {
 // =============================================================== //
 
 // Применение заклинания к комнате //
-int ImposeSpellToRoom(int/* level*/, CharData *ch, RoomData *room, int spellnum) {
+int CastSpellToRoom(int/* level*/, CharData *ch, RoomData *room, int spellnum) {
 	bool accum_affect = false, accum_duration = false, success = true;
 	bool update_spell = false;
 	// Должен ли данный спелл быть только 1 в мире от этого кастера?
@@ -419,9 +420,9 @@ int ImposeSpellToRoom(int/* level*/, CharData *ch, RoomData *room, int spellnum)
 			break;
 
 		case kSpellRuneLabel:
-			if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)
-				|| ROOM_FLAGGED(ch->in_room, ROOM_TUNNEL)
-				|| ROOM_FLAGGED(ch->in_room, ROOM_NOTELEPORTIN)) {
+			if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kPeaceful)
+				|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kTunnel)
+				|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoTeleportIn)) {
 				to_char = "Вы начертали свое имя рунами на земле, знаки вспыхнули, но ничего не произошло.";
 				to_room = "$n начертил$g на земле несколько рун, знаки вспыхнули, но ничего не произошло.";
 				lag = 2;
@@ -462,7 +463,7 @@ int ImposeSpellToRoom(int/* level*/, CharData *ch, RoomData *room, int spellnum)
 			break;
 
 		case kSpellBlackTentacles:
-			if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_MONO) || ROOM_FLAGGED(IN_ROOM(ch), ROOM_POLY)) {
+			if (ROOM_FLAGGED(IN_ROOM(ch), ERoomFlag::kForMono) || ROOM_FLAGGED(IN_ROOM(ch), ERoomFlag::kForPoly)) {
 				success = false;
 				break;
 			}
@@ -485,7 +486,7 @@ int ImposeSpellToRoom(int/* level*/, CharData *ch, RoomData *room, int spellnum)
 	}
 	if (success) {
 		if (IS_SET(SpINFO.routines, kMagNeedControl)) {
-			int SplFound = removeControlledRoomAffect(ch);
+			int SplFound = RemoveControlledRoomAffect(ch);
 			if (SplFound) {
 				send_to_char(ch,
 							 "Вы прервали заклинание !%s! и приготовились применить !%s!\r\n",
@@ -530,7 +531,7 @@ int ImposeSpellToRoom(int/* level*/, CharData *ch, RoomData *room, int spellnum)
 	} else
 		send_to_char(NOEFFECT, ch);
 
-	if (!WAITLESS(ch))
+	if (!IS_IMMORTAL(ch))
 		WAIT_STATE(ch, lag * kPulseViolence);
 
 	return 0;

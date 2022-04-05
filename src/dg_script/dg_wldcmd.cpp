@@ -17,7 +17,7 @@
 #include "obj_prototypes.h"
 #include "game_skills/townportal.h"
 #include "game_magic/magic_utils.h"
-#include "entities/zone.h"
+//#include "entities/zone.h"
 #include "structs/global_objects.h"
 
 extern const char *dirs[];
@@ -83,7 +83,7 @@ void do_wasound(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	for (door = 0; door < kDirMaxNumber; door++) {
+	for (door = 0; door < EDirection::kMaxDirNum; door++) {
 		const auto &exit = room->dir_option[door];
 
 		if (exit
@@ -280,8 +280,8 @@ void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 		for (auto ch_i = next_ch; ch_i != people_copy.end(); ch_i = next_ch) {
 			const auto ch = *ch_i;
 			++next_ch;
-			char_from_room(ch);
-			char_to_room(ch, target);
+			ExtractCharFromRoom(ch);
+			PlaceCharToRoom(ch, target);
 			ch->dismount();
 			look_at_room(ch, true);
 		}
@@ -296,10 +296,10 @@ void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 		for (auto ch_i = next_ch; ch_i != people_copy.end(); ch_i = next_ch) {
 			const auto ch = *ch_i;
 			++next_ch;
-			if (IS_NPC(ch) && !IS_CHARMICE(ch))
+			if (ch->is_npc() && !IS_CHARMICE(ch))
 				continue;
-			char_from_room(ch);
-			char_to_room(ch, target);
+			ExtractCharFromRoom(ch);
+			PlaceCharToRoom(ch, target);
 			ch->dismount();
 			look_at_room(ch, true);
 		}
@@ -315,16 +315,16 @@ void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 			const auto people_copy = world[ch->in_room]->people;
 			for (const auto charmee : people_copy) {
 				if (IS_CHARMICE(charmee) && charmee->get_master() == ch) {
-					char_from_room(charmee);
-					char_to_room(charmee, target);
+					ExtractCharFromRoom(charmee);
+					PlaceCharToRoom(charmee, target);
 				}
 			}
 			if (!str_cmp(argument, "horse") && horse) {
-				char_from_room(horse);
-				char_to_room(horse, target);
+				ExtractCharFromRoom(horse);
+				PlaceCharToRoom(horse, target);
 			}
-			char_from_room(ch);
-			char_to_room(ch, target);
+			ExtractCharFromRoom(ch);
+			PlaceCharToRoom(ch, target);
 			ch->dismount();
 			look_at_room(ch, true);
 			greet_mtrigger(ch, -1);
@@ -353,7 +353,7 @@ void do_wforce(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 		//const auto people_copy = room->people;
 		//for (const auto ch : people_copy)
 		//{
-		//	if (IS_NPC(ch)
+		//	if (ch->is_npc()
 		//		|| GetRealLevel(ch) < kLevelImmortal)
 		//	{
 		//		command_interpreter(ch, line);
@@ -362,13 +362,13 @@ void do_wforce(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else {
 		const auto ch = get_char_by_room(room, arg1);
 		if (ch) {
-			if (!IS_NPC(ch)) {
+			if (!ch->is_npc()) {
 				if ((!ch->desc)) {
 					return;
 				}
 			}
 
-			if (IS_NPC(ch)) {
+			if (ch->is_npc()) {
 				if (mob_script_command_interpreter(ch, line)) {
 					wld_log(room, "Mob trigger commands in wforce. Please rewrite trigger.");
 					return;
@@ -422,14 +422,14 @@ void do_wpurge(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!(ch = get_char_by_room(room, arg))) {
 		if ((obj = get_obj_by_room(room, arg))) {
-			extract_obj(obj);
+			ExtractObjFromWorld(obj);
 		} else {
 			wld_log(room, "wpurge: bad argument");
 		}
 		return;
 	}
 
-	if (!IS_NPC(ch)) {
+	if (!ch->is_npc()) {
 		wld_log(room, "wpurge: purging a PC");
 		return;
 	}
@@ -438,7 +438,7 @@ void do_wpurge(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 		|| ch->get_master()) {
 		die_follower(ch);
 	}
-	extract_char(ch, false);
+	ExtractCharFromWorld(ch, false);
 }
 
 // loads a mobile or object into the room //
@@ -459,7 +459,7 @@ void do_wload(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 			wld_log(room, "wload: bad mob vnum");
 			return;
 		}
-		char_to_room(mob, real_room(room->room_vn));
+		PlaceCharToRoom(mob, real_room(room->room_vn));
 		load_mtrigger(mob);
 	} else if (utils::IsAbbrev(arg1, "obj")) {
 		const auto object = world_objects.create_from_prototype_by_vnum(number);
@@ -479,7 +479,7 @@ void do_wload(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 		log("Load obj #%d by %s (wload)", number, room->name);
 		object->set_vnum_zone_from(zone_table[room->zone_rn].vnum);
-		obj_to_room(object.get(), real_room(room->room_vn));
+		PlaceObjToRoom(object.get(), real_room(room->room_vn));
 		load_otrigger(object.get());
 	} else {
 		wld_log(room, "wload: bad type");
@@ -522,7 +522,7 @@ void do_wdamage(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 		update_pos(ch);
 		char_dam_message(dam, ch, ch, 0);
 		if (GET_POS(ch) == EPosition::kDead) {
-			if (!IS_NPC(ch)) {
+			if (!ch->is_npc()) {
 				sprintf(buf2, "%s killed by wdamage at %s [%d]", GET_NAME(ch),
 						ch->in_room == kNowhere ? "kNowhere" : world[ch->in_room]->name, GET_ROOM_VNUM(ch->in_room));
 				mudlog(buf2, BRF, kLvlBuilder, SYSLOG, true);
@@ -560,10 +560,10 @@ void do_wat(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_wfeatturn(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
-	int isFeat = 0;
+	bool isFeat = false;
 	CharData *ch;
 	char name[kMaxInputLength], featname[kMaxInputLength], amount[kMaxInputLength], *pos;
-	int featnum = 0, featdiff = 0;
+	int featdiff = 0;
 
 	one_argument(two_arguments(argument, name, featname), amount);
 
@@ -579,8 +579,9 @@ void do_wfeatturn(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 		*pos = ' ';
 	}
 
-	if ((featnum = FindFeatNum(featname)) > 0 && featnum < kMaxFeats) {
-		isFeat = 1;
+	const auto featnum = FindFeatNum(featname);
+	if (featnum >= EFeat::kFirstFeat && featnum <= EFeat::kLastFeat) {
+		isFeat = true;
 	} else {
 		wld_log(room, "wfeatturn: feature not found");
 		return;

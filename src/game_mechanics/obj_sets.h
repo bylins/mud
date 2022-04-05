@@ -42,7 +42,7 @@ class WornSets {
 	void check(CharData *ch);
 
  private:
-	std::array<idx_node, NUM_WEARS> idx_list_;
+	std::array<idx_node, EEquipPos::kNumEquipPos> idx_list_;
 };
 
 struct bonus_type {

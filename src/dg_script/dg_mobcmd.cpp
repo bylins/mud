@@ -126,7 +126,7 @@ void do_mportal(CharData *mob, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 // prints the argument to all the rooms aroud the mobile
 void do_masound(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	if (!*argument) {
@@ -137,7 +137,7 @@ void do_masound(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	skip_spaces(&argument);
 
 	const int temp_in_room = ch->in_room;
-	for (int door = 0; door < kDirMaxNumber; door++) {
+	for (int door = 0; door < EDirection::kMaxDirNum; door++) {
 		const auto &exit = world[temp_in_room]->dir_option[door];
 		if (exit
 			&& exit->to_room() != kNowhere
@@ -155,12 +155,12 @@ void do_mkill(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg[kMaxInputLength];
 	CharData *victim;
 
-	if (MOB_FLAGGED(ch, MOB_NOFIGHT)) {
+	if (MOB_FLAGGED(ch, EMobFlag::kNoFight)) {
 		mob_log(ch, "mkill called for mob with NOFIGHT flag");
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	one_argument(argument, arg);
@@ -187,8 +187,7 @@ void do_mkill(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (IS_AFFECTED(ch, AFF_CHARM)
-		&& ch->get_master() == victim) {
+	if (AFF_FLAGGED(ch, EAffect::kCharmed) && ch->get_master() == victim) {
 		mob_log(ch, "mkill: charmed mob attacking master");
 		return;
 	}
@@ -212,7 +211,7 @@ void do_mjunk(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	ObjData *obj;
 	ObjData *obj_next;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	one_argument(argument, arg);
@@ -225,25 +224,25 @@ void do_mjunk(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!str_cmp(arg, "all") || !str_cmp(arg, "все"))
 		junk_all = 1;
 
-	if ((find_all_dots(arg) == FIND_INDIV) && !junk_all) {
+	if ((find_all_dots(arg) == kFindIndiv) && !junk_all) {
 		if ((obj = get_object_in_equip_vis(ch, arg, ch->equipment, &pos)) != nullptr) {
-			unequip_char(ch, pos, CharEquipFlags());
-			extract_obj(obj);
+			UnequipChar(ch, pos, CharEquipFlags());
+			ExtractObjFromWorld(obj);
 			return;
 		}
 		if ((obj = get_obj_in_list_vis(ch, arg, ch->carrying)) != nullptr)
-			extract_obj(obj);
+			ExtractObjFromWorld(obj);
 		return;
 	} else {
 		for (obj = ch->carrying; obj != nullptr; obj = obj_next) {
 			obj_next = obj->get_next_content();
 			if (arg[3] == '\0' || isname(arg + 4, obj->get_aliases())) {
-				extract_obj(obj);
+				ExtractObjFromWorld(obj);
 			}
 		}
 		while ((obj = get_object_in_equip_vis(ch, arg, ch->equipment, &pos))) {
-			unequip_char(ch, pos, CharEquipFlags());
-			extract_obj(obj);
+			UnequipChar(ch, pos, CharEquipFlags());
+			ExtractObjFromWorld(obj);
 		}
 	}
 }
@@ -254,7 +253,7 @@ void do_mechoaround(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *victim;
 	char *p;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	p = one_argument(argument, arg);
@@ -293,7 +292,7 @@ void do_msend(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *victim;
 	char *p;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	p = one_argument(argument, arg);
@@ -330,7 +329,7 @@ void do_msend(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 void do_mecho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char *p;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	if (!*argument) {
@@ -359,7 +358,7 @@ void do_mload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int number = 0;
 	CharData *mob;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
+	if (AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		mob_log(ch, "mload: попытка почармленным мобом загрузать моба/предмет.");
 		return;
 	}
@@ -377,7 +376,7 @@ void do_mload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 		}
 		log("Load mob #%d by %s (mload)", number, GET_NAME(ch));
-		char_to_room(mob, ch->in_room);
+		PlaceCharToRoom(mob, ch->in_room);
 		load_mtrigger(mob);
 	} else if (utils::IsAbbrev(arg1, "obj")) {
 		const auto object = world_objects.create_from_prototype_by_vnum(number);
@@ -399,10 +398,10 @@ void do_mload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		log("Load obj #%d by %s (mload)", number, GET_NAME(ch));
 		object->set_vnum_zone_from(zone_table[world[ch->in_room]->zone_rn].vnum);
 
-		if (CAN_WEAR(object.get(), EWearFlag::ITEM_WEAR_TAKE)) {
-			obj_to_char(object.get(), ch);
+		if (CAN_WEAR(object.get(), EWearFlag::kTake)) {
+			PlaceObjToInventory(object.get(), ch);
 		} else {
-			obj_to_room(object.get(), ch->in_room);
+			PlaceObjToRoom(object.get(), ch->in_room);
 		}
 
 		load_otrigger(object.get());
@@ -420,7 +419,7 @@ void do_mpurge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *victim;
 	ObjData *obj;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	one_argument(argument, arg);
@@ -436,14 +435,14 @@ void do_mpurge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (victim == nullptr) {
 		if ((obj = get_obj_by_char(ch, arg))) {
-			extract_obj(obj);
+			ExtractObjFromWorld(obj);
 		} else {
 			mob_log(ch, "mpurge: bad argument");
 		}
 		return;
 	}
 
-	if (!IS_NPC(victim)) {
+	if (!victim->is_npc()) {
 		mob_log(ch, "mpurge: purging a PC");
 		return;
 	}
@@ -453,7 +452,7 @@ void do_mpurge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		die_follower(victim);
 	}
 
-	extract_char(victim, false);
+	ExtractCharFromWorld(victim, false);
 }
 
 // lets the mobile goto any location it wishes that is not private
@@ -461,7 +460,7 @@ void do_mgoto(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg[kMaxInputLength];
 	int location;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	one_argument(argument, arg);
@@ -482,8 +481,8 @@ void do_mgoto(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->get_fighting())
 		stop_fighting(ch, true);
 
-	char_from_room(ch);
-	char_to_room(ch, location);
+	ExtractCharFromRoom(ch);
+	PlaceCharToRoom(ch, location);
 }
 
 // lets the mobile do a command at another location. Very useful
@@ -492,7 +491,7 @@ void do_mat(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int location;
 	int original;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	argument = one_argument(argument, arg);
@@ -528,7 +527,7 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *vict, *horse;
 	RoomRnum from_room;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 	char *textstr = argument;
 	argument = two_arguments(argument, arg1, arg2);
@@ -557,10 +556,10 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				mob_log(ch, "mteleport transports from kNowhere");
 				return;
 			}
-			char_from_room(vict);
-			char_to_room(vict, target);
+			ExtractCharFromRoom(vict);
+			PlaceCharToRoom(vict, target);
 			// переделать чтоб чары смотрели в клетку после переноса, походу еще один цикл крутить, ну и мутево будет
-			if (!IS_NPC(vict))
+			if (!vict->is_npc())
 				look_at_room(vict, true);
 		}
 	} else if (!str_cmp(arg1, "allchar") || !str_cmp(arg1, "всечары")) {
@@ -574,10 +573,10 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				mob_log(ch, "mteleport transports allchar from kNowhere");
 				return;
 			}
-			if (IS_NPC(vict) && !IS_CHARMICE(vict))
+			if (vict->is_npc() && !IS_CHARMICE(vict))
 				continue;
-			char_from_room(vict);
-			char_to_room(vict, target);
+			ExtractCharFromRoom(vict);
+			PlaceCharToRoom(vict, target);
 			look_at_room(vict, true);
 		}
 	} else {
@@ -587,7 +586,7 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				mob_log(ch, buf);
 				return;
 			}
-		} else if (!(vict = get_char_vis(ch, arg1, FIND_CHAR_WORLD))) {
+		} else if (!(vict = get_char_vis(ch, arg1, EFind::kCharInWorld))) {
 			sprintf(buf, "mteleport: victim (%s) does not exist", arg1);
 			mob_log(ch, buf);
 			return;
@@ -597,8 +596,8 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		const auto people_copy = world[IN_ROOM(vict)]->people;
 		for (const auto charmee : people_copy) {
 			if (IS_CHARMICE(charmee) && charmee->get_master()  == vict) {
-				char_from_room(charmee);
-				char_to_room(charmee, target);
+				ExtractCharFromRoom(charmee);
+				PlaceCharToRoom(charmee, target);
 			}
 		}
 		if (vict->ahorse() || vict->has_horse(true)) {
@@ -607,23 +606,23 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			horse = nullptr;
 		}
 		if (!str_cmp(argument, "horse") && horse) {
-			char_from_room(horse);
-			char_to_room(horse, target);
+			ExtractCharFromRoom(horse);
+			PlaceCharToRoom(horse, target);
 		}
 		from_room = vict->in_room;
 //Polud реализуем режим followers. за аргументом телепорта перемешаются все последователи-NPC
 		if (!str_cmp(argument, "followers") && vict->followers) {
 			Follower *ft;
 			for (ft = vict->followers; ft; ft = ft->next) {
-				if (IN_ROOM(ft->ch) == from_room && IS_NPC(ft->ch)) {
-					char_from_room(ft->ch);
-					char_to_room(ft->ch, target);
+				if (IN_ROOM(ft->ch) == from_room && ft->ch->is_npc()) {
+					ExtractCharFromRoom(ft->ch);
+					PlaceCharToRoom(ft->ch, target);
 				}
 			}
 		}
 //-Polud
-		char_from_room(vict);
-		char_to_room(vict, target);
+		ExtractCharFromRoom(vict);
+		PlaceCharToRoom(vict, target);
 		vict->dismount();
 		look_at_room(vict, true);
 		greet_mtrigger(vict, -1);
@@ -638,7 +637,7 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 void do_mforce(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg[kMaxInputLength];
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	argument = one_argument(argument, arg);
@@ -667,7 +666,7 @@ void do_mforce(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!IS_NPC(victim)) {
+	if (!victim->is_npc()) {
 		if ((!victim->desc)) {
 			return;
 		}
@@ -678,7 +677,7 @@ void do_mforce(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (IS_NPC(victim)) {
+	if (victim->is_npc()) {
 		if (mob_script_command_interpreter(victim, argument)) {
 			mob_log(ch, "Mob trigger commands in mforce. Please rewrite trigger.");
 			return;
@@ -699,7 +698,7 @@ void do_mexp(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	mob_log(ch, "WARNING: mexp command is depracated! Use: %actor.exp(amount-to-add)%");
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	if (ch->desc && (GetRealLevel(ch->desc->original) < kLvlImplementator))
@@ -718,7 +717,7 @@ void do_mexp(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			mob_log(ch, buf);
 			return;
 		}
-	} else if (!(victim = get_char_vis(ch, name, FIND_CHAR_WORLD))) {
+	} else if (!(victim = get_char_vis(ch, name, EFind::kCharInWorld))) {
 		sprintf(buf, "mexp: victim (%s) does not exist", name);
 		mob_log(ch, buf);
 		return;
@@ -735,7 +734,7 @@ void do_mgold(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	mob_log(ch, "WARNING: mgold command is depracated! Use: %actor.gold(amount-to-add)%");
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	two_arguments(argument, name, amount);
@@ -751,7 +750,7 @@ void do_mgold(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			mob_log(ch, buf);
 			return;
 		}
-	} else if (!(victim = get_char_vis(ch, name, FIND_CHAR_WORLD))) {
+	} else if (!(victim = get_char_vis(ch, name, EFind::kCharInWorld))) {
 		sprintf(buf, "mgold: victim (%s) does not exist", name);
 		mob_log(ch, buf);
 		return;
@@ -772,11 +771,11 @@ void do_mgold(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg[kMaxInputLength];
 	CharData *m;
-	ObjData *obj[NUM_WEARS];
+	ObjData *obj[EEquipPos::kNumEquipPos];
 	int keep_hp = 1;    // new mob keeps the old mob's hp/max hp/exp
 	int pos;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	if (ch->desc) {
@@ -810,15 +809,15 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 //            c) удаляю m (на самом деле это данные ch в другой оболочке)
 
 
-		for (pos = 0; pos < NUM_WEARS; pos++) {
+		for (pos = 0; pos < EEquipPos::kNumEquipPos; pos++) {
 			if (GET_EQ(ch, pos))
-				obj[pos] = unequip_char(ch, pos, CharEquipFlags());
+				obj[pos] = UnequipChar(ch, pos, CharEquipFlags());
 			else
 				obj[pos] = nullptr;
 		}
 
 		// put the mob in the same room as ch so extract will work
-		char_to_room(m, ch->in_room);
+		PlaceCharToRoom(m, ch->in_room);
 
 // Обмен содержимым
 		CharData tmpmob(*m);
@@ -868,11 +867,11 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		ch->set_serial_num(m->get_serial_num());
 		m->set_serial_num(tmpmob.get_serial_num());
 
-		for (pos = 0; pos < NUM_WEARS; pos++) {
+		for (pos = 0; pos < EEquipPos::kNumEquipPos; pos++) {
 			if (obj[pos])
-				equip_char(ch, obj[pos], pos, CharEquipFlag::no_cast);
+				EquipObj(ch, obj[pos], pos, CharEquipFlag::no_cast);
 		}
-		extract_char(m, false);
+		ExtractCharFromWorld(m, false);
 	}
 }
 
@@ -894,7 +893,7 @@ void do_mdoor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			"\n"
 		};
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	argument = two_arguments(argument, target, direction);
@@ -979,9 +978,9 @@ void do_mfeatturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int isFeat = 0;
 	CharData *victim;
 	char name[kMaxInputLength], featname[kMaxInputLength], amount[kMaxInputLength], *pos;
-	int featnum = 0, featdiff = 0;
+	int featdiff = 0;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	one_argument(two_arguments(argument, name, featname), amount);
@@ -996,7 +995,8 @@ void do_mfeatturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	while ((pos = strchr(featname, '_')))
 		*pos = ' ';
 
-	if ((featnum = FindFeatNum(featname)) > 0 && featnum < kMaxFeats)
+	const auto feat_id = FindFeatNum(featname);
+	if (feat_id >= EFeat::kFirstFeat && feat_id <= EFeat::kLastFeat)
 		isFeat = 1;
 	else {
 		mob_log(ch, "mfeatturn: feature not found");
@@ -1018,14 +1018,14 @@ void do_mfeatturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			mob_log(ch, buf);
 			return;
 		}
-	} else if (!(victim = get_char_vis(ch, name, FIND_CHAR_WORLD))) {
+	} else if (!(victim = get_char_vis(ch, name, EFind::kCharInWorld))) {
 		sprintf(buf, "mfeatturn: victim (%s) does not exist", name);
 		mob_log(ch, buf);
 		return;
 	};
 
 	if (isFeat)
-		trg_featturn(victim, featnum, featdiff, last_trig_vnum);
+		trg_featturn(victim, feat_id, featdiff, last_trig_vnum);
 }
 
 void do_mskillturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -1034,7 +1034,7 @@ void do_mskillturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int recipenum = 0;
 	int skilldiff = 0;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
+	if (AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		return;
 	}
 
@@ -1070,7 +1070,7 @@ void do_mskillturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			mob_log(ch, buf);
 			return;
 		}
-	} else if (!(victim = get_char_vis(ch, name, FIND_CHAR_WORLD))) {
+	} else if (!(victim = get_char_vis(ch, name, EFind::kCharInWorld))) {
 		sprintf(buf, "mskillturn: victim (%s) does not exist", name);
 		mob_log(ch, buf);
 		return;
@@ -1095,7 +1095,7 @@ void do_mskilladd(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int recipenum = 0;
 	int skilldiff = 0;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
+	if (AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		return;
 	}
 
@@ -1122,7 +1122,7 @@ void do_mskilladd(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			mob_log(ch, buf);
 			return;
 		}
-	} else if (!(victim = get_char_vis(ch, name, FIND_CHAR_WORLD))) {
+	} else if (!(victim = get_char_vis(ch, name, EFind::kCharInWorld))) {
 		sprintf(buf, "mskilladd: victim (%s) does not exist", name);
 		mob_log(ch, buf);
 		return;
@@ -1140,7 +1140,7 @@ void do_mspellturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char name[kMaxInputLength], skillname[kMaxInputLength], amount[kMaxInputLength];
 	int skillnum = 0, skilldiff = 0;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
+	if (AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		return;
 	}
 
@@ -1166,7 +1166,7 @@ void do_mspellturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	if (*name == UID_CHAR) {
@@ -1175,7 +1175,7 @@ void do_mspellturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			mob_log(ch, buf);
 			return;
 		}
-	} else if (!(victim = get_char_vis(ch, name, FIND_CHAR_WORLD))) {
+	} else if (!(victim = get_char_vis(ch, name, EFind::kCharInWorld))) {
 		sprintf(buf, "mspellturn: victim (%s) does not exist", name);
 		mob_log(ch, buf);
 		return;
@@ -1189,7 +1189,7 @@ void do_mspellturntemp(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 	char name[kMaxInputLength], spellname[kMaxInputLength], amount[kMaxInputLength];
 	int spellnum = 0, spelltime = 0;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
+	if (AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		return;
 	}
 
@@ -1219,7 +1219,7 @@ void do_mspellturntemp(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 			mob_log(ch, buf);
 			return;
 		}
-	} else if (!(victim = get_char_vis(ch, name, FIND_CHAR_WORLD))) {
+	} else if (!(victim = get_char_vis(ch, name, EFind::kCharInWorld))) {
 		sprintf(buf, "mspellturntemp: victim (%s) does not exist", name);
 		mob_log(ch, buf);
 		return;
@@ -1233,7 +1233,7 @@ void do_mspelladd(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char name[kMaxInputLength], skillname[kMaxInputLength], amount[kMaxInputLength];
 	int skillnum = 0, skilldiff = 0;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	one_argument(two_arguments(argument, name, skillname), amount);
@@ -1256,7 +1256,7 @@ void do_mspelladd(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			mob_log(ch, buf);
 			return;
 		}
-	} else if (!(victim = get_char_vis(ch, name, FIND_CHAR_WORLD))) {
+	} else if (!(victim = get_char_vis(ch, name, EFind::kCharInWorld))) {
 		sprintf(buf, "mspelladd: victim (%s) does not exist", name);
 		mob_log(ch, buf);
 		return;
@@ -1270,7 +1270,7 @@ void do_mspellitem(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char name[kMaxInputLength], spellname[kMaxInputLength], type[kMaxInputLength], turn[kMaxInputLength];
 	int spellnum = 0, spelldiff = 0, spell = 0;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
+	if (AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		return;
 	}
 
@@ -1316,7 +1316,7 @@ void do_mspellitem(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			mob_log(ch, buf);
 			return;
 		}
-	} else if (!(victim = get_char_vis(ch, name, FIND_CHAR_WORLD))) {
+	} else if (!(victim = get_char_vis(ch, name, EFind::kCharInWorld))) {
 		sprintf(buf, "mspellitem: victim (%s) does not exist", name);
 		mob_log(ch, buf);
 		return;
@@ -1329,7 +1329,7 @@ void do_mdamage(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char name[kMaxInputLength], amount[kMaxInputLength];
 	int dam = 0;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
+	if (AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		return;
 	}
 
@@ -1362,7 +1362,7 @@ void do_mdamage(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		update_pos(victim);
 		char_dam_message(dam, victim, victim, 0);
 		if (GET_POS(victim) == EPosition::kDead) {
-			if (!IS_NPC(victim)) {
+			if (!victim->is_npc()) {
 				sprintf(buf2,
 						"%s killed by mobdamage at %s [%d]",
 						GET_NAME(victim),
@@ -1453,11 +1453,11 @@ bool mob_script_command_interpreter(CharData *ch, char *argument) {
 		cmd++;
 	}
 // damage mtrigger срабатывает всегда
-	if (!SCRIPT_CHECK(ch, MTRIG_DAMAGE)) {
+	if (!CheckScript(ch, MTRIG_DAMAGE)) {
 		if (!mob_cmd_info[cmd].use_in_lag && 
 				(GET_MOB_HOLD(ch)
-				|| AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
-				|| AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT))) {
+				|| AFF_FLAGGED(ch, EAffect::kStopFight)
+				|| AFF_FLAGGED(ch, EAffect::kMagicStopFight))) {
 		return false;
 		}
 	}

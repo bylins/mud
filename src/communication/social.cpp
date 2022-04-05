@@ -61,7 +61,7 @@ int do_social(CharData *ch, char *argument) {
 	if (!argument || !*argument)
 		return (false);
 
-	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB)) {
+	if (!ch->is_npc() && PLR_FLAGGED(ch, EPlrFlag::kDumbed)) {
 		send_to_char("Боги наказали вас и вы не можете выражать эмоции!\r\n", ch);
 		return (false);
 	}
@@ -87,7 +87,7 @@ int do_social(CharData *ch, char *argument) {
 		send_to_char("\r\n", ch);
 		for (const auto to : world[ch->in_room]->people) {
 			if (to == ch
-				|| ignores(to, ch, IGNORE_EMOTE)) {
+				|| ignores(to, ch, EIgnore::kEmote)) {
 				continue;
 			}
 
@@ -96,7 +96,7 @@ int do_social(CharData *ch, char *argument) {
 		}
 		return (true);
 	}
-	if (!(vict = get_char_vis(ch, buf, FIND_CHAR_ROOM))) {
+	if (!(vict = get_char_vis(ch, buf, EFind::kCharInRoom))) {
 		const auto message = action->not_found
 							 ? action->not_found
 							 : "Поищите кого-нибудь более доступного для этих целей.\r\n";
@@ -107,7 +107,7 @@ int do_social(CharData *ch, char *argument) {
 		send_to_char("\r\n", ch);
 		for (const auto to : world[ch->in_room]->people) {
 			if (to == ch
-				|| ignores(to, ch, IGNORE_EMOTE)) {
+				|| ignores(to, ch, EIgnore::kEmote)) {
 				continue;
 			}
 
@@ -128,7 +128,7 @@ int do_social(CharData *ch, char *argument) {
 // для глухих -- то же самое.
 			act(action->others_found, false, ch, nullptr, vict, kToNotVict | kToNotDeaf);
 			act(deaf_social, false, ch, nullptr, nullptr, kToRoom | kToDeaf);
-			if (!ignores(vict, ch, IGNORE_EMOTE))
+			if (!ignores(vict, ch, EIgnore::kEmote))
 				act(action->vict_found, false, ch, nullptr, vict, kToVict | kToNotDeaf);
 		}
 	}

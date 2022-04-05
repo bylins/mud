@@ -119,7 +119,7 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 	DescriptorData *d;
 
 	// * No screwing around as a mobile.
-	if (IS_NPC(ch))
+	if (ch->is_npc())
 		return;
 
 	if (subcmd == SCMD_OLC_SAVEINFO) {
@@ -157,7 +157,7 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 				save = 1;
 				number = atoi(buf2) * 100;
 			}
-		} else if (subcmd == SCMD_OLC_ZEDIT && (GetRealLevel(ch) >= kLvlBuilder || PRF_FLAGGED(ch, PRF_CODERINFO))) {
+		} else if (subcmd == SCMD_OLC_ZEDIT && (GetRealLevel(ch) >= kLvlBuilder || PRF_FLAGGED(ch, EPrf::kCoderinfo))) {
 			send_to_char("Создание новых зон отключено.\r\n", ch);
 			return;
 			/*
@@ -191,7 +191,7 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 	d = ch->desc;
 
 	// лок/анлок редактирования зон только 34м и по привилегии
-	if ((lock || unlock) && !IS_IMPL(ch) && !Privilege::check_flag(d->character.get(), Privilege::FULLZEDIT)) {
+	if ((lock || unlock) && !IS_IMPL(ch) && !privilege::CheckFlag(d->character.get(), privilege::kFullzedit)) {
 		send_to_char("Вы не можете использовать эту команду.\r\n", ch);
 		return;
 	}
@@ -236,7 +236,7 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 
 	// * Everyone but IMPLs can only edit zones they have been assigned.
 	if (GetRealLevel(ch) < kLvlImplementator) {
-		if (!Privilege::can_do_priv(ch, std::string(cmd_info[cmd].command), cmd, 0, false)) {
+		if (!privilege::IsAbleToDoPrivilege(ch, std::string(cmd_info[cmd].command), cmd, 0, false)) {
 			if (!GET_OLC_ZONE(ch) || (zone_table[OLC_ZNUM(d)].vnum != GET_OLC_ZONE(ch))) {
 				send_to_char("Вам запрещен доступ к сией зоне.\r\n", ch);
 				delete d->olc;
@@ -325,7 +325,7 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 	}
 	act("$n по локоть запустил$g руки в глубины Мира и начал$g что-то со скрежетом там поворачивать.",
 		true, d->character.get(), 0, 0, kToRoom);
-	PLR_FLAGS(ch).set(PLR_WRITING);
+	PLR_FLAGS(ch).set(EPlrFlag::kWriting);
 }
 
 // ------------------------------------------------------------
@@ -496,7 +496,7 @@ void cleanup_olc(DescriptorData *d, byte cleanup_type) {
 
 		// Restore descriptor playing status.
 		if (d->character) {
-			PLR_FLAGS(d->character).unset(PLR_WRITING);
+			PLR_FLAGS(d->character).unset(EPlrFlag::kWriting);
 			STATE(d) = CON_PLAYING;
 			act("$n закончил$g работу и удовлетворенно посмотрел$g в развороченные недра Мироздания.",
 				true, d->character.get(), 0, 0, kToRoom);

@@ -19,7 +19,7 @@ void set_weap_poison(ObjData *weapon, int liquid_num);
 std::string get_poison_by_spell(int spell);
 bool check_poison(int spell);
 
-int processPoisonDamage(CharData *ch, const Affect<EApplyLocation>::shared_ptr &af);
+int processPoisonDamage(CharData *ch, const Affect<EApply>::shared_ptr &af);
 
 #endif // POISON_HPP_INCLUDED
 

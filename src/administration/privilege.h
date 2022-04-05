@@ -12,24 +12,24 @@
 
 class CharData;    // to avoid inclusion of "char.hpp"
 
-namespace Privilege {
+namespace privilege {
 
-void load();
-bool god_list_check(const std::string &name, long unique);
-void load_god_boards();
-bool can_do_priv(CharData *ch, const std::string &cmd_name, int cmd_number, int mode, bool check_level = true);
-bool check_flag(const CharData *ch, int flag);
-bool check_spells(const CharData *ch, int spellnum);
-bool check_skills(const CharData *ch);
+void Load();
+bool IsContainedInGodsList(const std::string &name, long unique);
+void LoadGodBoards();
+bool IsAbleToDoPrivilege(CharData *ch, const std::string &cmd_name, int cmd_number, int mode, bool check_level = true);
+bool CheckFlag(const CharData *ch, int flag);
+bool CheckSpells(const CharData *ch, int spellnum);
+bool CheckSkills(const CharData *ch);
 
-extern const int BOARDS;
-extern const int USE_SKILLS;
-extern const int ARENA_MASTER;
-extern const int KRODER;
-extern const int FULLZEDIT;
-extern const int TITLE;
-extern const int MISPRINT;
-extern const int SUGGEST;
+extern const int kBoards;
+extern const int kUseSkills;
+extern const int kArenaMaster;
+extern const int kKroder;
+extern const int kFullzedit;
+extern const int kTitle;
+extern const int kMisprint;
+extern const int kSuggest;
 
 } // namespace Privilege
 

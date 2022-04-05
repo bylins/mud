@@ -234,7 +234,7 @@ extern RoomVnum helled_start_room;
 extern RoomVnum named_start_room;
 extern RoomVnum unreg_start_room;
 extern DescriptorData *descriptor_list;
-extern struct month_temperature_type year_temp[];
+extern struct MonthTemperature year_temp[];
 extern char *house_rank[];
 extern struct PCCleanCriteria pclean_criteria[];
 extern int class_stats_limit[kNumPlayerClasses][6];
@@ -334,10 +334,10 @@ bool check_unlimited_timer(const CObjectPrototype *obj) {
 	// куда одевается наш предмет
 	int item_wear = -1;
 	bool type_item = false;
-	if (GET_OBJ_TYPE(obj) == ObjData::ITEM_ARMOR
-		|| GET_OBJ_TYPE(obj) == ObjData::ITEM_STAFF
-		|| GET_OBJ_TYPE(obj) == ObjData::ITEM_WORN
-		|| GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON) {
+	if (GET_OBJ_TYPE(obj) == EObjType::kArmor
+		|| GET_OBJ_TYPE(obj) == EObjType::kStaff
+		|| GET_OBJ_TYPE(obj) == EObjType::kWorm
+		|| GET_OBJ_TYPE(obj) == EObjType::kWeapon) {
 		type_item = true;
 	}
 	// сумма для статов
@@ -345,68 +345,68 @@ bool check_unlimited_timer(const CObjectPrototype *obj) {
 	// сумма для аффектов
 	double sum_aff = 0;
 	// по другому чот не получилось
-	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_FINGER)) {
-		item_wear = exp_two(EWearFlag::ITEM_WEAR_FINGER);
+	if (obj->has_wear_flag(EWearFlag::kFinger)) {
+		item_wear = exp_two(EWearFlag::kFinger);
 	}
 
-	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_NECK)) {
-		item_wear = exp_two(EWearFlag::ITEM_WEAR_NECK);
+	if (obj->has_wear_flag(EWearFlag::kNeck)) {
+		item_wear = exp_two(EWearFlag::kNeck);
 	}
 
-	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_BODY)) {
-		item_wear = exp_two(EWearFlag::ITEM_WEAR_BODY);
+	if (obj->has_wear_flag(EWearFlag::kBody)) {
+		item_wear = exp_two(EWearFlag::kBody);
 	}
 
-	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_HEAD)) {
-		item_wear = exp_two(EWearFlag::ITEM_WEAR_HEAD);
+	if (obj->has_wear_flag(EWearFlag::kHead)) {
+		item_wear = exp_two(EWearFlag::kHead);
 	}
 
-	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_LEGS)) {
-		item_wear = exp_two(EWearFlag::ITEM_WEAR_LEGS);
+	if (obj->has_wear_flag(EWearFlag::kLegs)) {
+		item_wear = exp_two(EWearFlag::kLegs);
 	}
 
-	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_FEET)) {
-		item_wear = exp_two(EWearFlag::ITEM_WEAR_FEET);
+	if (obj->has_wear_flag(EWearFlag::kFeet)) {
+		item_wear = exp_two(EWearFlag::kFeet);
 	}
 
-	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_HANDS)) {
-		item_wear = exp_two(EWearFlag::ITEM_WEAR_HANDS);
+	if (obj->has_wear_flag(EWearFlag::kHands)) {
+		item_wear = exp_two(EWearFlag::kHands);
 	}
 
-	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_ARMS)) {
-		item_wear = exp_two(EWearFlag::ITEM_WEAR_ARMS);
+	if (obj->has_wear_flag(EWearFlag::kArms)) {
+		item_wear = exp_two(EWearFlag::kArms);
 	}
 
-	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_SHIELD)) {
-		item_wear = exp_two(EWearFlag::ITEM_WEAR_SHIELD);
+	if (obj->has_wear_flag(EWearFlag::kShield)) {
+		item_wear = exp_two(EWearFlag::kShield);
 	}
 
-	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_ABOUT)) {
-		item_wear = exp_two(EWearFlag::ITEM_WEAR_ABOUT);
+	if (obj->has_wear_flag(EWearFlag::kShoulders)) {
+		item_wear = exp_two(EWearFlag::kShoulders);
 	}
 
-	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_WAIST)) {
-		item_wear = exp_two(EWearFlag::ITEM_WEAR_WAIST);
+	if (obj->has_wear_flag(EWearFlag::kWaist)) {
+		item_wear = exp_two(EWearFlag::kWaist);
 	}
 
-	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_QUIVER)) {
-		item_wear = exp_two(EWearFlag::ITEM_WEAR_QUIVER);
+	if (obj->has_wear_flag(EWearFlag::kQuiver)) {
+		item_wear = exp_two(EWearFlag::kQuiver);
 	}
 
-	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_WRIST)) {
-		item_wear = exp_two(EWearFlag::ITEM_WEAR_WRIST);
+	if (obj->has_wear_flag(EWearFlag::kWrist)) {
+		item_wear = exp_two(EWearFlag::kWrist);
 	}
 
-	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_BOTHS)) {
-		item_wear = exp_two(EWearFlag::ITEM_WEAR_BOTHS);
+	if (obj->has_wear_flag(EWearFlag::kBoth)) {
+		item_wear = exp_two(EWearFlag::kBoth);
 	}
 
-	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_WIELD)) {
-		item_wear = exp_two(EWearFlag::ITEM_WEAR_WIELD);
+	if (obj->has_wear_flag(EWearFlag::kWield)) {
+		item_wear = exp_two(EWearFlag::kWield);
 	}
 
-	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_HOLD)) {
-		item_wear = exp_two(EWearFlag::ITEM_WEAR_HOLD);
+	if (obj->has_wear_flag(EWearFlag::kHold)) {
+		item_wear = exp_two(EWearFlag::kHold);
 	}
 
 	if (!type_item) {
@@ -421,23 +421,23 @@ bool check_unlimited_timer(const CObjectPrototype *obj) {
 		return false;
 	}
 	// если шмотка магическая или энчантнута таймер обычный
-	if (obj->get_extra_flag(EExtraFlag::ITEM_MAGIC)) {
+	if (obj->has_flag(EObjFlag::kMagic)) {
 		return false;
 	}
 	// если это сетовый предмет
-	if (obj->get_extra_flag(EExtraFlag::ITEM_SETSTUFF)) {
+	if (obj->has_flag(EObjFlag::KSetItem)) {
 		return false;
 	}
 	// !нерушима
-	if (obj->get_extra_flag(EExtraFlag::ITEM_NOT_UNLIMIT_TIMER)) {
+	if (obj->has_flag(EObjFlag::KLimitedTimer)) {
 		return false;
 	}
 	// рассыпется вне зоны
-	if (obj->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY)) {
+	if (obj->has_flag(EObjFlag::kZonedacay)) {
 		return false;
 	}
 	// рассыпется на репоп зоны
-	if (obj->get_extra_flag(EExtraFlag::ITEM_REPOP_DECAY)) {
+	if (obj->has_flag(EObjFlag::kRepopDecay)) {
 		return false;
 	}
 
@@ -447,9 +447,9 @@ bool check_unlimited_timer(const CObjectPrototype *obj) {
 	if (obj->get_minimum_remorts() > 0)
 		return false;
 	// проверяем дырки в предмете
-	if (obj->get_extra_flag(EExtraFlag::ITEM_WITH1SLOT)
-		|| obj->get_extra_flag(EExtraFlag::ITEM_WITH2SLOTS)
-		|| obj->get_extra_flag(EExtraFlag::ITEM_WITH3SLOTS)) {
+	if (obj->has_flag(EObjFlag::kHasOneSlot)
+		|| obj->has_flag(EObjFlag::kHasTwoSlots)
+		|| obj->has_flag(EObjFlag::kHasThreeSlots)) {
 		return false;
 	}
 	// если у объекта таймер ноль, то облом.
@@ -539,78 +539,78 @@ float count_koef_obj(const CObjectPrototype *obj, int item_wear) {
 float count_unlimited_timer(const CObjectPrototype *obj) {
 	float result = 0.0;
 	bool type_item = false;
-	if (GET_OBJ_TYPE(obj) == ObjData::ITEM_ARMOR
-		|| GET_OBJ_TYPE(obj) == ObjData::ITEM_STAFF
-		|| GET_OBJ_TYPE(obj) == ObjData::ITEM_WORN
-		|| GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON) {
+	if (GET_OBJ_TYPE(obj) == EObjType::kArmor
+		|| GET_OBJ_TYPE(obj) == EObjType::kStaff
+		|| GET_OBJ_TYPE(obj) == EObjType::kWorm
+		|| GET_OBJ_TYPE(obj) == EObjType::kWeapon) {
 		type_item = true;
 	}
 	// сумма для статов
 
 	result = 0.0;
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FINGER)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_FINGER));
+	if (CAN_WEAR(obj, EWearFlag::kFinger)) {
+		result += count_koef_obj(obj, exp_two(EWearFlag::kFinger));
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_NECK)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_NECK));
+	if (CAN_WEAR(obj, EWearFlag::kNeck)) {
+		result += count_koef_obj(obj, exp_two(EWearFlag::kNeck));
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BODY)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_BODY));
+	if (CAN_WEAR(obj, EWearFlag::kBody)) {
+		result += count_koef_obj(obj, exp_two(EWearFlag::kBody));
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HEAD)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_HEAD));
+	if (CAN_WEAR(obj, EWearFlag::kHead)) {
+		result += count_koef_obj(obj, exp_two(EWearFlag::kHead));
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_LEGS)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_LEGS));
+	if (CAN_WEAR(obj, EWearFlag::kLegs)) {
+		result += count_koef_obj(obj, exp_two(EWearFlag::kLegs));
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FEET)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_FEET));
+	if (CAN_WEAR(obj, EWearFlag::kFeet)) {
+		result += count_koef_obj(obj, exp_two(EWearFlag::kFeet));
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_HANDS));
+	if (CAN_WEAR(obj, EWearFlag::kHands)) {
+		result += count_koef_obj(obj, exp_two(EWearFlag::kHands));
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ARMS)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_ARMS));
+	if (CAN_WEAR(obj, EWearFlag::kArms)) {
+		result += count_koef_obj(obj, exp_two(EWearFlag::kArms));
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_SHIELD)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_SHIELD));
+	if (CAN_WEAR(obj, EWearFlag::kShield)) {
+		result += count_koef_obj(obj, exp_two(EWearFlag::kShield));
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ABOUT)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_ABOUT));
+	if (CAN_WEAR(obj, EWearFlag::kShoulders)) {
+		result += count_koef_obj(obj, exp_two(EWearFlag::kShoulders));
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WAIST)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_WAIST));
+	if (CAN_WEAR(obj, EWearFlag::kWaist)) {
+		result += count_koef_obj(obj, exp_two(EWearFlag::kWaist));
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_QUIVER)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_QUIVER));
+	if (CAN_WEAR(obj, EWearFlag::kQuiver)) {
+		result += count_koef_obj(obj, exp_two(EWearFlag::kQuiver));
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WRIST)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_WRIST));
+	if (CAN_WEAR(obj, EWearFlag::kWrist)) {
+		result += count_koef_obj(obj, exp_two(EWearFlag::kWrist));
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WIELD)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_WIELD));
+	if (CAN_WEAR(obj, EWearFlag::kWield)) {
+		result += count_koef_obj(obj, exp_two(EWearFlag::kWield));
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HOLD)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_HOLD));
+	if (CAN_WEAR(obj, EWearFlag::kHold)) {
+		result += count_koef_obj(obj, exp_two(EWearFlag::kHold));
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_BOTHS));
+	if (CAN_WEAR(obj, EWearFlag::kBoth)) {
+		result += count_koef_obj(obj, exp_two(EWearFlag::kBoth));
 	}
 
 	if (!type_item) {
@@ -629,8 +629,7 @@ float count_mort_requred(const CObjectPrototype *obj) {
 
 	result = 0.0;
 
-	if (ObjSystem::is_mob_item(obj)
-		|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF)) {
+	if (ObjSystem::is_mob_item(obj) || obj->has_flag(EObjFlag::KSetItem)) {
 		return result;
 	}
 
@@ -649,43 +648,43 @@ float count_mort_requred(const CObjectPrototype *obj) {
 				return 1000000;
 			}
 		}
-		if ((obj->get_affected(k).modifier > 0) && ((obj->get_affected(k).location != APPLY_AC) &&
-			(obj->get_affected(k).location != APPLY_SAVING_WILL) &&
-			(obj->get_affected(k).location != APPLY_SAVING_CRITICAL) &&
-			(obj->get_affected(k).location != APPLY_SAVING_STABILITY) &&
-			(obj->get_affected(k).location != APPLY_SAVING_REFLEX))) {
+		if ((obj->get_affected(k).modifier > 0) && ((obj->get_affected(k).location != EApply::kAc) &&
+			(obj->get_affected(k).location != EApply::kSavingWill) &&
+			(obj->get_affected(k).location != EApply::kSavingCritical) &&
+			(obj->get_affected(k).location != EApply::kSavingStability) &&
+			(obj->get_affected(k).location != EApply::kSavingReflex))) {
 			float weight =
 				ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, obj->get_affected(k).modifier);
 			total_weight += pow(weight, SQRT_MOD);
 		}
 			// савесы которые с минусом должны тогда понижать вес если в +
-		else if ((obj->get_affected(k).modifier > 0) && ((obj->get_affected(k).location == APPLY_AC) ||
-			(obj->get_affected(k).location == APPLY_SAVING_WILL) ||
-			(obj->get_affected(k).location == APPLY_SAVING_CRITICAL) ||
-			(obj->get_affected(k).location == APPLY_SAVING_STABILITY) ||
-			(obj->get_affected(k).location == APPLY_SAVING_REFLEX))) {
+		else if ((obj->get_affected(k).modifier > 0) && ((obj->get_affected(k).location == EApply::kAc) ||
+			(obj->get_affected(k).location == EApply::kSavingWill) ||
+			(obj->get_affected(k).location == EApply::kSavingCritical) ||
+			(obj->get_affected(k).location == EApply::kSavingStability) ||
+			(obj->get_affected(k).location == EApply::kSavingReflex))) {
 			float weight =
 				ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, 0 - obj->get_affected(k).modifier);
 			total_weight -= pow(weight, -SQRT_MOD);
 		}
 			//Добавленый кусок учет савесов с - значениями
 		else if ((obj->get_affected(k).modifier < 0)
-			&& ((obj->get_affected(k).location == APPLY_AC) ||
-				(obj->get_affected(k).location == APPLY_SAVING_WILL) ||
-				(obj->get_affected(k).location == APPLY_SAVING_CRITICAL) ||
-				(obj->get_affected(k).location == APPLY_SAVING_STABILITY) ||
-				(obj->get_affected(k).location == APPLY_SAVING_REFLEX))) {
+			&& ((obj->get_affected(k).location == EApply::kAc) ||
+				(obj->get_affected(k).location == EApply::kSavingWill) ||
+				(obj->get_affected(k).location == EApply::kSavingCritical) ||
+				(obj->get_affected(k).location == EApply::kSavingStability) ||
+				(obj->get_affected(k).location == EApply::kSavingReflex))) {
 			float weight =
 				ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, obj->get_affected(k).modifier);
 			total_weight += pow(weight, SQRT_MOD);
 		}
 			//Добавленый кусок учет отрицательного значения но не савесов
 		else if ((obj->get_affected(k).modifier < 0)
-			&& ((obj->get_affected(k).location != APPLY_AC) &&
-				(obj->get_affected(k).location != APPLY_SAVING_WILL) &&
-				(obj->get_affected(k).location != APPLY_SAVING_CRITICAL) &&
-				(obj->get_affected(k).location != APPLY_SAVING_STABILITY) &&
-				(obj->get_affected(k).location != APPLY_SAVING_REFLEX))) {
+			&& ((obj->get_affected(k).location != EApply::kAc) &&
+				(obj->get_affected(k).location != EApply::kSavingWill) &&
+				(obj->get_affected(k).location != EApply::kSavingCritical) &&
+				(obj->get_affected(k).location != EApply::kSavingStability) &&
+				(obj->get_affected(k).location != EApply::kSavingReflex))) {
 			float weight =
 				ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, 0 - obj->get_affected(k).modifier);
 			total_weight -= pow(weight, -SQRT_MOD);
@@ -694,15 +693,15 @@ float count_mort_requred(const CObjectPrototype *obj) {
 	// аффекты AFF_x через weapon_affect
 	for (const auto &m : weapon_affect) {
 		if (IS_OBJ_AFF(obj, m.aff_pos)) {
-			if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_AIRSHIELD) {
+			if (static_cast<EAffect>(m.aff_bitvector) == EAffect::kAirShield) {
 				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
-			} else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_FIRESHIELD) {
+			} else if (static_cast<EAffect>(m.aff_bitvector) == EAffect::kFireShield) {
 				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
-			} else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_ICESHIELD) {
+			} else if (static_cast<EAffect>(m.aff_bitvector) == EAffect::kIceShield) {
 				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
-			} else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_MAGICGLASS) {
+			} else if (static_cast<EAffect>(m.aff_bitvector) == EAffect::kMagicGlass) {
 				total_weight += pow(AFF_MAGICGLASS_MOD, SQRT_MOD);
-			} else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_BLINK) {
+			} else if (static_cast<EAffect>(m.aff_bitvector) == EAffect::kBlink) {
 				total_weight += pow(AFF_BLINK_MOD, SQRT_MOD);
 			}
 		}
@@ -1145,12 +1144,12 @@ void do_reboot(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else if (!str_cmp(arg, "emails"))
 		RegisterSystem::load();
 	else if (!str_cmp(arg, "privilege"))
-		Privilege::load();
+		privilege::Load();
 	else if (!str_cmp(arg, "mobraces"))
 		load_mobraces();
 	else if (!str_cmp(arg, "morphs"))
 		load_morphs();
-	else if (!str_cmp(arg, "depot") && PRF_FLAGGED(ch, PRF_CODERINFO)) {
+	else if (!str_cmp(arg, "depot") && PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
 		skip_spaces(&argument);
 		if (*argument) {
 			long uid = GetUniqueByName(std::string(argument));
@@ -1174,7 +1173,7 @@ void do_reboot(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (!str_cmp(arg, "celebrates")) {
 		//Celebrates::load(XMLLoad(LIB_MISC CELEBRATES_FILE, CELEBRATES_MAIN_TAG, CELEBRATES_ERROR_STR));
 		Celebrates::load();
-	} else if (!str_cmp(arg, "setsdrop") && PRF_FLAGGED(ch, PRF_CODERINFO)) {
+	} else if (!str_cmp(arg, "setsdrop") && PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
 		skip_spaces(&argument);
 		if (*argument && is_number(argument)) {
 			SetsDrop::reload(atoi(argument));
@@ -1259,8 +1258,8 @@ void init_portals(void) {
 /// конверт поля GET_OBJ_SKILL в емкостях TODO: 12.2013
 int convert_drinkcon_skill(CObjectPrototype *obj, bool proto) {
 	if (GET_OBJ_SKILL(obj) > 0
-		&& (GET_OBJ_TYPE(obj) == ObjData::ITEM_DRINKCON
-			|| GET_OBJ_TYPE(obj) == ObjData::ITEM_FOUNTAIN)) {
+		&& (GET_OBJ_TYPE(obj) == EObjType::kLiquidContainer
+			|| GET_OBJ_TYPE(obj) == EObjType::kFountain)) {
 		log("obj_skill: %d - %s (%d)", GET_OBJ_SKILL(obj),
 			GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_VNUM(obj));
 		// если емскости уже просетили какие-то заклы, то зелье
@@ -1268,7 +1267,7 @@ int convert_drinkcon_skill(CObjectPrototype *obj, bool proto) {
 		if (obj->get_value(ObjVal::EValueKey::POTION_PROTO_VNUM) < 0) {
 			const auto potion = world_objects.create_from_prototype_by_vnum(GET_OBJ_SKILL(obj));
 			if (potion
-				&& GET_OBJ_TYPE(potion) == ObjData::ITEM_POTION) {
+				&& GET_OBJ_TYPE(potion) == EObjType::kPorion) {
 				drinkcon::copy_potion_values(potion.get(), obj);
 				if (proto) {
 					// copy_potion_values сетит до кучи и внум из пошена,
@@ -1290,16 +1289,16 @@ void convert_obj_values() {
 	int save = 0;
 	for (const auto &i : obj_proto) {
 		save = std::max(save, convert_drinkcon_skill(i.get(), true));
-		if (i->get_extra_flag(EExtraFlag::ITEM_1INLAID)) {
-			i->unset_extraflag(EExtraFlag::ITEM_1INLAID);
+		if (i->has_flag(EObjFlag::k1inlaid)) {
+			i->unset_extraflag(EObjFlag::k1inlaid);
 			save = 1;
 		}
-		if (i->get_extra_flag(EExtraFlag::ITEM_2INLAID)) {
-			i->unset_extraflag(EExtraFlag::ITEM_2INLAID);
+		if (i->has_flag(EObjFlag::k2inlaid)) {
+			i->unset_extraflag(EObjFlag::k2inlaid);
 			save = 1;
 		}
-		if (i->get_extra_flag(EExtraFlag::ITEM_3INLAID)) {
-			i->unset_extraflag(EExtraFlag::ITEM_3INLAID);
+		if (i->has_flag(EObjFlag::k3inlaid)) {
+			i->unset_extraflag(EObjFlag::k3inlaid);
 			save = 1;
 		}
 		// ...
@@ -1660,7 +1659,7 @@ void ObjData::init_set_table() {
 						continue;
 					}
 
-					obj_affected_type tmpafcn(static_cast<EApplyLocation>(tmploc), (sbyte) tmpmodi);
+					obj_affected_type tmpafcn(static_cast<EApply>(tmploc), (sbyte) tmpmodi);
 
 					if (!isstream.eof()) {
 						cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr
@@ -1669,7 +1668,7 @@ void ObjData::init_set_table() {
 						continue;
 					}
 
-					if (tmpafcn.location <= APPLY_NONE || tmpafcn.location >= NUM_APPLIES) {
+					if (tmpafcn.location <= EApply::kNone || tmpafcn.location >= EApply::kNumberApplies) {
 						cppstr = "init_set_table:: Wrong apply location in line '" + tag + ":" + cppstr + "'";
 						mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 						continue;
@@ -1834,7 +1833,7 @@ void ObjData::init_set_table() {
 						continue;
 					}
 
-					if (!tmpoqty || tmpoqty > NUM_WEARS) {
+					if (!tmpoqty || tmpoqty > EEquipPos::kNumEquipPos) {
 						cppstr = "init_set_table:: Wrong object number in line '" + tag + ":" + cppstr + "'";
 						mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 						continue;
@@ -2067,7 +2066,7 @@ bool can_snoop(CharData *imm, CharData *vict) {
 	for (ClanMailType::const_iterator i = clan_list.begin(),
 			 iend = clan_list.end(); i != iend; ++i) {
 		std::set<std::string>::const_iterator k = i->second.find(GET_EMAIL(imm));
-		if (k != i->second.end() && CLAN(vict)->CheckPolitics(i->first) == POLITICS_WAR) {
+		if (k != i->second.end() && CLAN(vict)->CheckPolitics(i->first) == kPoliticsWar) {
 			return false;
 		}
 	}
@@ -2259,37 +2258,37 @@ void boot_db(void) {
 	log("Loading Criterion...");
 	pugi::xml_document doc1;
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "finger", "Error Loading Criterion.xml: <finger>", doc1),
-				   EWearFlag::ITEM_WEAR_FINGER);
+				   EWearFlag::kFinger);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "neck", "Error Loading Criterion.xml: <neck>", doc1),
-				   EWearFlag::ITEM_WEAR_NECK);
+				   EWearFlag::kNeck);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "body", "Error Loading Criterion.xml: <body>", doc1),
-				   EWearFlag::ITEM_WEAR_BODY);
+				   EWearFlag::kBody);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "head", "Error Loading Criterion.xml: <head>", doc1),
-				   EWearFlag::ITEM_WEAR_HEAD);
+				   EWearFlag::kHead);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "legs", "Error Loading Criterion.xml: <legs>", doc1),
-				   EWearFlag::ITEM_WEAR_LEGS);
+				   EWearFlag::kLegs);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "feet", "Error Loading Criterion.xml: <feet>", doc1),
-				   EWearFlag::ITEM_WEAR_FEET);
+				   EWearFlag::kFeet);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "hands", "Error Loading Criterion.xml: <hands>", doc1),
-				   EWearFlag::ITEM_WEAR_HANDS);
+				   EWearFlag::kHands);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "arms", "Error Loading Criterion.xml: <arms>", doc1),
-				   EWearFlag::ITEM_WEAR_ARMS);
+				   EWearFlag::kArms);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "shield", "Error Loading Criterion.xml: <shield>", doc1),
-				   EWearFlag::ITEM_WEAR_SHIELD);
+				   EWearFlag::kShield);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "about", "Error Loading Criterion.xml: <about>", doc1),
-				   EWearFlag::ITEM_WEAR_ABOUT);
+				   EWearFlag::kShoulders);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "waist", "Error Loading Criterion.xml: <waist>", doc1),
-				   EWearFlag::ITEM_WEAR_WAIST);
+				   EWearFlag::kWaist);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "waist", "Error Loading Criterion.xml: <quiver>", doc1),
-				   EWearFlag::ITEM_WEAR_QUIVER);
+				   EWearFlag::kQuiver);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "wrist", "Error Loading Criterion.xml: <wrist>", doc1),
-				   EWearFlag::ITEM_WEAR_WRIST);
+				   EWearFlag::kWrist);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "boths", "Error Loading Criterion.xml: <boths>", doc1),
-				   EWearFlag::ITEM_WEAR_BOTHS);
+				   EWearFlag::kBoth);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "wield", "Error Loading Criterion.xml: <wield>", doc1),
-				   EWearFlag::ITEM_WEAR_WIELD);
+				   EWearFlag::kWield);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "hold", "Error Loading Criterion.xml: <hold>", doc1),
-				   EWearFlag::ITEM_WEAR_HOLD);
+				   EWearFlag::kHold);
 
 	boot_profiler.next_step("Loading birthplaces definitions");
 	log("Loading birthplaces definitions.");
@@ -2460,7 +2459,7 @@ void boot_db(void) {
 
 	boot_profiler.next_step("Initializing DT list");
 	log("Init DeathTrap list.");
-	DeathTrap::load();
+	deathtrap::load();
 
 	boot_profiler.next_step("Loading titles list");
 	log("Load Title list.");
@@ -2472,7 +2471,7 @@ void boot_db(void) {
 
 	boot_profiler.next_step("Loading privileges and gods list");
 	log("Load privilege and god list.");
-	Privilege::load();
+	privilege::Load();
 
 	// должен идти до резета зон
 	boot_profiler.next_step("Initializing depot system");
@@ -2610,31 +2609,31 @@ void reset_time(void) {
 	time_info = *mud_time_passed(time(0), beginning_of_time);
 	// Calculate moon day
 	weather_info.moon_day =
-		((time_info.year * MONTHS_PER_YEAR + time_info.month) * DAYS_PER_MONTH + time_info.day) % MOON_CYCLE;
+		((time_info.year * kMonthsPerYear + time_info.month) * kDaysPerMonth + time_info.day) % kMoonCycle;
 	weather_info.week_day_mono =
-		((time_info.year * MONTHS_PER_YEAR + time_info.month) * DAYS_PER_MONTH + time_info.day) % WEEK_CYCLE;
+		((time_info.year * kMonthsPerYear + time_info.month) * kDaysPerMonth + time_info.day) % kWeekCycle;
 	weather_info.week_day_poly =
-		((time_info.year * MONTHS_PER_YEAR + time_info.month) * DAYS_PER_MONTH + time_info.day) % POLY_WEEK_CYCLE;
+		((time_info.year * kMonthsPerYear + time_info.month) * kDaysPerMonth + time_info.day) % kPolyWeekCycle;
 	// Calculate Easter
 	calc_easter();
 
 	if (time_info.hours < sunrise[time_info.month][0])
-		weather_info.sunlight = SUN_DARK;
+		weather_info.sunlight = kSunDark;
 	else if (time_info.hours == sunrise[time_info.month][0])
-		weather_info.sunlight = SUN_RISE;
+		weather_info.sunlight = kSunRise;
 	else if (time_info.hours < sunrise[time_info.month][1])
-		weather_info.sunlight = SUN_LIGHT;
+		weather_info.sunlight = kSunLight;
 	else if (time_info.hours == sunrise[time_info.month][1])
-		weather_info.sunlight = SUN_SET;
+		weather_info.sunlight = kSunSet;
 	else
-		weather_info.sunlight = SUN_DARK;
+		weather_info.sunlight = kSunDark;
 
 	log("   Current Gametime: %dH %dD %dM %dY.", time_info.hours, time_info.day, time_info.month, time_info.year);
 
 	weather_info.temperature = (year_temp[time_info.month].med * 4 +
 		number(year_temp[time_info.month].min, year_temp[time_info.month].max)) / 5;
 	weather_info.pressure = 960;
-	if ((time_info.month >= MONTH_MAY) && (time_info.month <= MONTH_NOVEMBER))
+	if ((time_info.month >= EMonth::kMay) && (time_info.month <= EMonth::kNovember))
 		weather_info.pressure += RollDices(1, 50);
 	else
 		weather_info.pressure += RollDices(1, 80);
@@ -2642,32 +2641,32 @@ void reset_time(void) {
 	weather_info.change = 0;
 	weather_info.weather_type = 0;
 
-	if (time_info.month >= MONTH_APRIL && time_info.month <= MONTH_MAY)
-		weather_info.season = SEASON_SPRING;
-	else if (time_info.month == MONTH_MART && weather_info.temperature >= 3)
-		weather_info.season = SEASON_SPRING;
-	else if (time_info.month >= MONTH_JUNE && time_info.month <= MONTH_AUGUST)
-		weather_info.season = SEASON_SUMMER;
-	else if (time_info.month >= MONTH_SEPTEMBER && time_info.month <= MONTH_OCTOBER)
-		weather_info.season = SEASON_AUTUMN;
-	else if (time_info.month == MONTH_NOVEMBER && weather_info.temperature >= 3)
-		weather_info.season = SEASON_AUTUMN;
+	if (time_info.month >= EMonth::kApril && time_info.month <= EMonth::kMay)
+		weather_info.season = ESeason::kSpring;
+	else if (time_info.month == EMonth::kMarch && weather_info.temperature >= 3)
+		weather_info.season = ESeason::kSpring;
+	else if (time_info.month >= EMonth::kJune && time_info.month <= EMonth::kAugust)
+		weather_info.season = ESeason::kSummer;
+	else if (time_info.month >= EMonth::kSeptember && time_info.month <= EMonth::kOctober)
+		weather_info.season = ESeason::kAutumn;
+	else if (time_info.month == EMonth::kNovember && weather_info.temperature >= 3)
+		weather_info.season = ESeason::kAutumn;
 	else
-		weather_info.season = SEASON_WINTER;
+		weather_info.season = ESeason::kWinter;
 
 	if (weather_info.pressure <= 980)
 		weather_info.sky = kSkyLightning;
 	else if (weather_info.pressure <= 1000) {
 		weather_info.sky = kSkyRaining;
-		if (time_info.month >= MONTH_APRIL && time_info.month <= MONTH_OCTOBER)
-			create_rainsnow(&weather_info.weather_type, WEATHER_LIGHTRAIN, 40, 40, 20);
-		else if (time_info.month >= MONTH_DECEMBER || time_info.month <= MONTH_FEBRUARY)
-			create_rainsnow(&weather_info.weather_type, WEATHER_LIGHTSNOW, 50, 40, 10);
-		else if (time_info.month == MONTH_NOVEMBER || time_info.month == MONTH_MART) {
+		if (time_info.month >= EMonth::kApril && time_info.month <= EMonth::kOctober)
+			create_rainsnow(&weather_info.weather_type, kWeatherLightrain, 40, 40, 20);
+		else if (time_info.month >= EMonth::kDecember || time_info.month <= EMonth::kFebruary)
+			create_rainsnow(&weather_info.weather_type, kWeatherLightsnow, 50, 40, 10);
+		else if (time_info.month == EMonth::kNovember || time_info.month == EMonth::kMarch) {
 			if (weather_info.temperature >= 3)
-				create_rainsnow(&weather_info.weather_type, WEATHER_LIGHTRAIN, 70, 30, 0);
+				create_rainsnow(&weather_info.weather_type, kWeatherLightrain, 70, 30, 0);
 			else
-				create_rainsnow(&weather_info.weather_type, WEATHER_LIGHTSNOW, 80, 20, 0);
+				create_rainsnow(&weather_info.weather_type, kWeatherLightsnow, 80, 20, 0);
 		}
 	} else if (weather_info.pressure <= 1020)
 		weather_info.sky = kSkyCloudy;
@@ -2764,16 +2763,16 @@ void GameLoader::prepare_global_structures(const EBootType mode, const int rec_c
 
 // * Проверки всяких несочетаемых флагов на комнатах.
 void check_room_flags(int rnum) {
-	if (DeathTrap::is_slow_dt(rnum)) {
+	if (deathtrap::IsSlowDeathtrap(rnum)) {
 		// снятие номагик и прочих флагов, запрещающих чару выбраться из комнаты без выходов при наличии медленного дт
-		GET_ROOM(rnum)->unset_flag(ROOM_NOMAGIC);
-		GET_ROOM(rnum)->unset_flag(ROOM_NOTELEPORTOUT);
-		GET_ROOM(rnum)->unset_flag(ROOM_NOSUMMON);
+		world[rnum]->unset_flag(ERoomFlag::kNoMagic);
+		world[rnum]->unset_flag(ERoomFlag::kNoTeleportOut);
+		world[rnum]->unset_flag(ERoomFlag::kNoSummonOut);
 	}
-	if (GET_ROOM(rnum)->get_flag(ROOM_HOUSE)
-		&& (SECT(rnum) == kSectMountain || SECT(rnum) == kSectHills)) {
+	if (world[rnum]->get_flag(ERoomFlag::kHouse)
+		&& (SECT(rnum) == ESector::kMountain || SECT(rnum) == ESector::kHills)) {
 		// шоб в замках умные не копали
-		SECT(rnum) = kSectInside;
+		SECT(rnum) = ESector::kInside;
 	}
 }
 
@@ -2840,7 +2839,7 @@ void add_vrooms_to_all_zones() {
 		new_room->set_name(std::string("Виртуальная комната"));
 		new_room->description_num = RoomDescription::add_desc(std::string("Похоже, здесь вам делать нечего."));
 		new_room->clear_flags();
-		new_room->sector_type = kSectSecret;
+		new_room->sector_type = ESector::kSecret;
 
 		new_room->affected_by.clear();
 		memset(&new_room->base_property, 0, sizeof(RoomState));
@@ -2861,7 +2860,7 @@ void renum_world(void) {
 	int room, door;
 
 	for (room = FIRST_ROOM; room <= top_of_world; room++) {
-		for (door = 0; door < kDirMaxNumber; door++) {
+		for (door = 0; door < EDirection::kMaxDirNum; door++) {
 			if (world[room]->dir_option[door]) {
 				if (world[room]->dir_option[door]->to_room() != kNowhere) {
 					const auto to_room = real_room(world[room]->dir_option[door]->to_room());
@@ -3066,18 +3065,18 @@ int dl_load_obj(ObjData *corpse, CharData *ch, CharData *chr, int DL_LOAD_TYPE) 
 						trans_obj_name(tobj.get(), ch);
 					}
 					// Добавлена проверка на отсутствие трупа
-					if (MOB_FLAGGED(ch, MOB_CORPSE)) {
+					if (MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
 						act("На земле остал$U лежать $o.", false, ch, tobj.get(), 0, kToRoom);
-						obj_to_room(tobj.get(), ch->in_room);
+						PlaceObjToRoom(tobj.get(), ch->in_room);
 					} else {
 						if ((DL_LOAD_TYPE == DL_SKIN) && (corpse->get_carried_by() == chr)) {
 							can_carry_obj(chr, tobj.get());
 						} else {
-							obj_to_obj(tobj.get(), corpse);
+							PlaceObjIntoObj(tobj.get(), corpse);
 						}
 					}
 				} else {
-					extract_obj(tobj.get());
+					ExtractObjFromWorld(tobj.get());
 					load = false;
 				}
 
@@ -3301,7 +3300,7 @@ int vnum_flag(char *searchname, CharData *ch) {
 
 	if (f) {
 		for (const auto &i : obj_proto) {
-			if (i->get_extra_flag(plane, 1 << plane_offset)) {
+			if (i->has_flag(plane, 1 << plane_offset)) {
 				snprintf(buf, kMaxStringLength, "%3d. [%5d] %s :   %s\r\n",
 						 ++found, i->get_vnum(), i->get_short_description().c_str(), extra_bits[counter]);
 				out += buf;
@@ -3319,7 +3318,7 @@ int vnum_flag(char *searchname, CharData *ch) {
 	if (f) {
 		for (const auto &i : obj_proto) {
 			for (plane = 0; plane < kMaxObjAffect; plane++) {
-				if (i->get_affected(plane).location == static_cast<EApplyLocation>(counter)) {
+				if (i->get_affected(plane).location == static_cast<EApply>(counter)) {
 					snprintf(buf, kMaxStringLength, "%3d. [%5d] %s : %s,  значение: %d\r\n",
 							 ++found, i->get_vnum(),
 							 i->get_short_description().c_str(),
@@ -3509,10 +3508,10 @@ CharData *read_mobile(MobVnum nr, int type) {                // and MobRnum
 
 	if (!mob->points.max_hit) {
 		mob->points.max_hit = std::max(1,
-									   RollDices(GET_MEM_TOTAL(mob), GET_MEM_COMPLETED(mob)) + mob->points.hit);
+									   RollDices(mob->mem_queue.total, mob->mem_queue.stored) + mob->points.hit);
 	} else {
 		mob->points.max_hit = std::max(1,
-									   number(mob->points.hit, GET_MEM_TOTAL(mob)));
+									   number(mob->points.hit, mob->mem_queue.total));
 	}
 
 	int test_hp = get_test_hp(GetRealLevel(mob));
@@ -3522,14 +3521,14 @@ CharData *read_mobile(MobVnum nr, int type) {                // and MobRnum
 	}
 
 	mob->points.hit = mob->points.max_hit;
-	GET_MEM_TOTAL(mob) = GET_MEM_COMPLETED(mob) = 0;
+	mob->mem_queue.total = mob->mem_queue.stored = 0;
 	GET_HORSESTATE(mob) = 800;
 	GET_LASTROOM(mob) = kNowhere;
 	if (mob->mob_specials.speed <= -1)
 		GET_ACTIVITY(mob) = number(0, kPulseMobile - 1);
 	else
 		GET_ACTIVITY(mob) = number(0, mob->mob_specials.speed);
-	EXTRACT_TIMER(mob) = 0;
+	mob->extract_timer = 0;
 	mob->points.move = mob->points.max_move;
 	mob->add_gold(RollDices(GET_GOLD_NoDs(mob), GET_GOLD_SiDs(mob)));
 
@@ -3543,19 +3542,19 @@ CharData *read_mobile(MobVnum nr, int type) {                // and MobRnum
 		mob_index[i].total_online++;
 		assign_triggers(mob, MOB_TRIGGER);
 	} else {
-		MOB_FLAGS(mob).set(MOB_PLAYER_SUMMON);
+		MOB_FLAGS(mob).set(EMobFlag::kSummoned);
 	}
 
 	i = mob_index[i].zone;
 	if (i != -1 && zone_table[i].under_construction) {
 		// mobile принадлежит тестовой зоне
-		MOB_FLAGS(mob).set(MOB_NOSUMMON);
+		MOB_FLAGS(mob).set(EMobFlag::kNoSummon);
 	}
 
 //Polud - поставим флаг стражнику
 	guardian_type::iterator it = guardian_list.find(GET_MOB_VNUM(mob));
 	if (it != guardian_list.end()) {
-		MOB_FLAGS(mob).set(MOB_GUARDIAN);
+		MOB_FLAGS(mob).set(EMobFlag::kCityGuardian);
 	}
 
 	return (mob);
@@ -3724,12 +3723,12 @@ bool can_be_reset(ZoneRnum zone) {
 }
 
 void paste_mob(CharData *ch, RoomRnum room) {
-	if (!IS_NPC(ch) || ch->get_fighting() || GET_POS(ch) < EPosition::kStun)
+	if (!ch->is_npc() || ch->get_fighting() || GET_POS(ch) < EPosition::kStun)
 		return;
 	if (IS_CHARMICE(ch)
-		|| AFF_FLAGGED(ch, EAffectFlag::AFF_HORSE)
-		|| AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD)
-		|| (EXTRACT_TIMER(ch) > 0)) {
+		|| AFF_FLAGGED(ch, EAffect::kHorse)
+		|| AFF_FLAGGED(ch, EAffect::kHold)
+		|| (ch->extract_timer > 0)) {
 		return;
 	}
 //	if (MOB_FLAGGED(ch, MOB_CORPSE))
@@ -3743,46 +3742,46 @@ void paste_mob(CharData *ch, RoomRnum room) {
 	bool no_month = true;
 	bool no_time = true;
 
-	if (MOB_FLAGGED(ch, MOB_LIKE_DAY)) {
-		if (weather_info.sunlight == SUN_RISE || weather_info.sunlight == SUN_LIGHT)
+	if (MOB_FLAGGED(ch, EMobFlag::kAppearsDay)) {
+		if (weather_info.sunlight == kSunRise || weather_info.sunlight == kSunLight)
 			time_ok = true;
 		need_move = true;
 		no_time = false;
 	}
-	if (MOB_FLAGGED(ch, MOB_LIKE_NIGHT)) {
-		if (weather_info.sunlight == SUN_SET || weather_info.sunlight == SUN_DARK)
+	if (MOB_FLAGGED(ch, EMobFlag::kAppearsNight)) {
+		if (weather_info.sunlight == kSunSet || weather_info.sunlight == kSunDark)
 			time_ok = true;
 		need_move = true;
 		no_time = false;
 	}
-	if (MOB_FLAGGED(ch, MOB_LIKE_FULLMOON)) {
-		if ((weather_info.sunlight == SUN_SET ||
-			weather_info.sunlight == SUN_DARK) &&
+	if (MOB_FLAGGED(ch, EMobFlag::kAppearsFullmoon)) {
+		if ((weather_info.sunlight == kSunSet ||
+			weather_info.sunlight == kSunDark) &&
 			(weather_info.moon_day >= 12 && weather_info.moon_day <= 15))
 			time_ok = true;
 		need_move = true;
 		no_time = false;
 	}
-	if (MOB_FLAGGED(ch, MOB_LIKE_WINTER)) {
-		if (weather_info.season == SEASON_WINTER)
+	if (MOB_FLAGGED(ch, EMobFlag::kAppearsWinter)) {
+		if (weather_info.season == ESeason::kWinter)
 			month_ok = true;
 		need_move = true;
 		no_month = false;
 	}
-	if (MOB_FLAGGED(ch, MOB_LIKE_SPRING)) {
-		if (weather_info.season == SEASON_SPRING)
+	if (MOB_FLAGGED(ch, EMobFlag::kAppearsSpring)) {
+		if (weather_info.season == ESeason::kSpring)
 			month_ok = true;
 		need_move = true;
 		no_month = false;
 	}
-	if (MOB_FLAGGED(ch, MOB_LIKE_SUMMER)) {
-		if (weather_info.season == SEASON_SUMMER)
+	if (MOB_FLAGGED(ch, EMobFlag::kAppearsSummer)) {
+		if (weather_info.season == ESeason::kSummer)
 			month_ok = true;
 		need_move = true;
 		no_month = false;
 	}
-	if (MOB_FLAGGED(ch, MOB_LIKE_AUTUMN)) {
-		if (weather_info.season == SEASON_AUTUMN)
+	if (MOB_FLAGGED(ch, EMobFlag::kAppearsAutumn)) {
+		if (weather_info.season == ESeason::kAutumn)
 			month_ok = true;
 		need_move = true;
 		no_month = false;
@@ -3795,24 +3794,24 @@ void paste_mob(CharData *ch, RoomRnum room) {
 				return;
 
 			if (GET_LASTROOM(ch) == kNowhere) {
-				extract_char(ch, false, true);
+				ExtractCharFromWorld(ch, false, true);
 				return;
 			}
 
-			char_from_room(ch);
-			char_to_room(ch, real_room(GET_LASTROOM(ch)));
+			ExtractCharFromRoom(ch);
+			PlaceCharToRoom(ch, real_room(GET_LASTROOM(ch)));
 		} else {
 			if (world[room]->room_vn == zone_table[world[room]->zone_rn].top)
 				return;
 
 			GET_LASTROOM(ch) = GET_ROOM_VNUM(room);
-			char_from_room(ch);
+			ExtractCharFromRoom(ch);
 			room = real_room(zone_table[world[room]->zone_rn].top);
 
 			if (room == kNowhere)
 				room = real_room(GET_LASTROOM(ch));
 
-			char_to_room(ch, room);
+			PlaceCharToRoom(ch, room);
 		}
 	}
 }
@@ -3830,25 +3829,25 @@ void paste_obj(ObjData *obj, RoomRnum room) {
 	bool no_time = true;
 	bool no_month = true;
 
-	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_DAY)) {
-		if (weather_info.sunlight == SUN_RISE
-			|| weather_info.sunlight == SUN_LIGHT) {
+	if (obj->has_flag(EObjFlag::kAppearsDay)) {
+		if (weather_info.sunlight == kSunRise
+			|| weather_info.sunlight == kSunLight) {
 			time_ok = true;
 		}
 		need_move = true;
 		no_time = false;
 	}
-	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_NIGHT)) {
-		if (weather_info.sunlight == SUN_SET
-			|| weather_info.sunlight == SUN_DARK) {
+	if (obj->has_flag(EObjFlag::kAppearsNight)) {
+		if (weather_info.sunlight == kSunSet
+			|| weather_info.sunlight == kSunDark) {
 			time_ok = true;
 		}
 		need_move = true;
 		no_time = false;
 	}
-	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_FULLMOON)) {
-		if ((weather_info.sunlight == SUN_SET
-			|| weather_info.sunlight == SUN_DARK)
+	if (obj->has_flag(EObjFlag::kAppearsFullmoon)) {
+		if ((weather_info.sunlight == kSunSet
+			|| weather_info.sunlight == kSunDark)
 			&& weather_info.moon_day >= 12
 			&& weather_info.moon_day <= 15) {
 			time_ok = true;
@@ -3856,29 +3855,29 @@ void paste_obj(ObjData *obj, RoomRnum room) {
 		need_move = true;
 		no_time = false;
 	}
-	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_WINTER)) {
-		if (weather_info.season == SEASON_WINTER) {
+	if (obj->has_flag(EObjFlag::kAppearsWinter)) {
+		if (weather_info.season == ESeason::kWinter) {
 			month_ok = true;
 		}
 		need_move = true;
 		no_month = false;
 	}
-	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SPRING)) {
-		if (weather_info.season == SEASON_SPRING) {
+	if (obj->has_flag(EObjFlag::kAppearsSpring)) {
+		if (weather_info.season == ESeason::kSpring) {
 			month_ok = true;
 		}
 		need_move = true;
 		no_month = false;
 	}
-	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SUMMER)) {
-		if (weather_info.season == SEASON_SUMMER) {
+	if (obj->has_flag(EObjFlag::kAppearsSummer)) {
+		if (weather_info.season == ESeason::kSummer) {
 			month_ok = true;
 		}
 		need_move = true;
 		no_month = false;
 	}
-	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_AUTUMN)) {
-		if (weather_info.season == SEASON_AUTUMN) {
+	if (obj->has_flag(EObjFlag::kAppearsAutumn)) {
+		if (weather_info.season == ESeason::kAutumn) {
 			month_ok = true;
 		}
 		need_move = true;
@@ -3892,22 +3891,22 @@ void paste_obj(ObjData *obj, RoomRnum room) {
 				return;
 			}
 			if (OBJ_GET_LASTROOM(obj) == kNowhere) {
-				extract_obj(obj);
+				ExtractObjFromWorld(obj);
 				return;
 			}
-			obj_from_room(obj);
-			obj_to_room(obj, real_room(OBJ_GET_LASTROOM(obj)));
+			ExtractObjFromRoom(obj);
+			PlaceObjToRoom(obj, real_room(OBJ_GET_LASTROOM(obj)));
 		} else {
 			if (world[room]->room_vn == zone_table[world[room]->zone_rn].top) {
 				return;
 			}
 			obj->set_room_was_in(GET_ROOM_VNUM(room));
-			obj_from_room(obj);
+			ExtractObjFromRoom(obj);
 			room = real_room(zone_table[world[room]->zone_rn].top);
 			if (room == kNowhere) {
 				room = real_room(OBJ_GET_LASTROOM(obj));
 			}
-			obj_to_room(obj, room);
+			PlaceObjToRoom(obj, room);
 		}
 	}
 }
@@ -3980,7 +3979,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum) {
 							}
 						}
 						load_mtrigger(mob);
-						char_to_room(mob, real_room((*room)->vnum));
+						PlaceCharToRoom(mob, real_room((*room)->vnum));
 						Celebrates::add_mob_to_load_list(mob->id, mob);
 						for (load_in = (*load)->objects.begin(); load_in != (*load)->objects.end(); ++load_in) {
 							ObjRnum rnum = real_object((*load_in)->vnum);
@@ -3988,7 +3987,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum) {
 							if (obj_proto.actual_count(rnum) < obj_proto[rnum]->get_max_in_world()) {
 								const auto obj = world_objects.create_from_prototype_by_vnum((*load_in)->vnum);
 								if (obj) {
-									obj_to_char(obj.get(), mob);
+									PlaceObjToInventory(obj.get(), mob);
 									obj->set_vnum_zone_from(zone_table[world[IN_ROOM(mob)]->zone_rn].vnum);
 
 									for (Celebrates::TrigList::iterator it = (*load_in)->triggers.begin();
@@ -4044,7 +4043,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum) {
 						load_otrigger(obj.get());
 						Celebrates::add_obj_to_load_list(obj->get_uid(), obj.get());
 
-						obj_to_room(obj.get(), real_room((*room)->vnum));
+						PlaceObjToRoom(obj.get(), real_room((*room)->vnum));
 
 						for (load_in = (*load)->objects.begin(); load_in != (*load)->objects.end(); ++load_in) {
 							ObjRnum rnum = real_object((*load_in)->vnum);
@@ -4052,8 +4051,8 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum) {
 							if (obj_proto.actual_count(rnum) < obj_proto[rnum]->get_max_in_world()) {
 								const auto obj_in = world_objects.create_from_prototype_by_vnum((*load_in)->vnum);
 								if (obj_in
-									&& GET_OBJ_TYPE(obj) == ObjData::ITEM_CONTAINER) {
-									obj_to_obj(obj_in.get(), obj.get());
+									&& GET_OBJ_TYPE(obj) == EObjType::kContainer) {
+									PlaceObjIntoObj(obj_in.get(), obj.get());
 									obj_in->set_vnum_zone_from(GET_OBJ_VNUM_ZONE_FROM(obj));
 
 									for (Celebrates::TrigList::iterator it = (*load_in)->triggers.begin();
@@ -4199,8 +4198,8 @@ bool ZoneReset::handle_zone_Q_command(const MobRnum rnum) {
 
 	utils::CExecutionTimer extract_timer;
 	for (const auto &mob : mobs) {
-		if (!MOB_FLAGGED(mob, MOB_RESURRECTED)) {
-			extract_char(mob.get(), false, true);
+		if (!MOB_FLAGGED(mob, EMobFlag::kResurrected)) {
+			ExtractCharFromWorld(mob.get(), false, true);
 			extracted = true;
 		}
 	}
@@ -4280,7 +4279,7 @@ void ZoneReset::reset_zone_essential() {
 							mob->set_level(rndlev);
 						}
 
-						char_to_room(mob, ZCMD.arg3);
+						PlaceCharToRoom(mob, ZCMD.arg3);
 						load_mtrigger(mob);
 						tmob = mob;
 						curr_state = 1;
@@ -4294,19 +4293,19 @@ void ZoneReset::reset_zone_essential() {
 					leader = nullptr;
 					if (ZCMD.arg1 >= FIRST_ROOM && ZCMD.arg1 <= top_of_world) {
 						for (const auto ch : world[ZCMD.arg1]->people) {
-							if (IS_NPC(ch) && GET_MOB_RNUM(ch) == ZCMD.arg2) {
+							if (ch->is_npc() && GET_MOB_RNUM(ch) == ZCMD.arg2) {
 								leader = ch;
 							}
 						}
 
 						if (leader) {
 							for (const auto ch : world[ZCMD.arg1]->people) {
-								if (IS_NPC(ch)
+								if (ch->is_npc()
 									&& GET_MOB_RNUM(ch) == ZCMD.arg3
 									&& leader != ch
 									&& !ch->makes_loop(leader)) {
 									if (ch->has_master()) {
-										stop_follower(ch, SF_EMPTY);
+										stop_follower(ch, kSfEmpty);
 									}
 
 									leader->add_follower(ch);
@@ -4361,8 +4360,8 @@ void ZoneReset::reset_zone_essential() {
 						const auto obj = world_objects.create_from_prototype_by_rnum(ZCMD.arg1);
 						obj->set_vnum_zone_from(zone_table[world[ZCMD.arg3]->zone_rn].vnum);
 
-						if (!obj_to_room(obj.get(), ZCMD.arg3)) {
-							extract_obj(obj.get());
+						if (!PlaceObjToRoom(obj.get(), ZCMD.arg3)) {
+							ExtractObjFromWorld(obj.get());
 							break;
 						}
 						load_otrigger(obj.get());
@@ -4370,7 +4369,7 @@ void ZoneReset::reset_zone_essential() {
 						tobj = obj.get();
 						curr_state = 1;
 
-						if (!obj->get_extra_flag(EExtraFlag::ITEM_NODECAY)) {
+						if (!obj->has_flag(EObjFlag::kNodecay)) {
 							sprintf(buf, "&YВНИМАНИЕ&G На землю загружен объект без флага NODECAY : %s (VNUM=%d)",
 									GET_OBJ_PNAME(obj, 0).c_str(), obj->get_vnum());
 							mudlog(buf, BRF, kLvlBuilder, ERRLOG, true);
@@ -4387,11 +4386,11 @@ void ZoneReset::reset_zone_essential() {
 						|| check_unlimited_timer(obj_proto[ZCMD.arg1].get()))
 						&& (ZCMD.arg4 <= 0
 							|| number(1, 100) <= ZCMD.arg4)) {
-						if (!(obj_to = get_obj_num(ZCMD.arg3))) {
+						if (!(obj_to = SearchObjByVnum(ZCMD.arg3))) {
 							ZONE_ERROR("target obj not found, command omited");
 							break;
 						}
-						if (GET_OBJ_TYPE(obj_to) != ObjData::ITEM_CONTAINER) {
+						if (GET_OBJ_TYPE(obj_to) != EObjType::kContainer) {
 							ZONE_ERROR("attempt put obj to non container, omited");
 							ZCMD.command = '*';
 							break;
@@ -4404,7 +4403,7 @@ void ZoneReset::reset_zone_essential() {
 						} else if (obj_to->get_carried_by()) {
 							obj->set_vnum_zone_from(zone_table[world[IN_ROOM(obj_to->get_carried_by())]->zone_rn].vnum);
 						}
-						obj_to_obj(obj.get(), obj_to);
+						PlaceObjIntoObj(obj.get(), obj_to);
 						load_otrigger(obj.get());
 						tobj = obj.get();
 						curr_state = 1;
@@ -4428,7 +4427,7 @@ void ZoneReset::reset_zone_essential() {
 						&& (ZCMD.arg4 <= 0
 							|| number(1, 100) <= ZCMD.arg4)) {
 						const auto obj = world_objects.create_from_prototype_by_rnum(ZCMD.arg1);
-						obj_to_char(obj.get(), mob);
+						PlaceObjToInventory(obj.get(), mob);
 						obj->set_vnum_zone_from(zone_table[world[IN_ROOM(mob)]->zone_rn].vnum);
 						tobj = obj.get();
 						load_otrigger(obj.get());
@@ -4452,7 +4451,7 @@ void ZoneReset::reset_zone_essential() {
 						&& (ZCMD.arg4 <= 0
 							|| number(1, 100) <= ZCMD.arg4)) {
 						if (ZCMD.arg3 < 0
-							|| ZCMD.arg3 >= NUM_WEARS) {
+							|| ZCMD.arg3 >= EEquipPos::kNumEquipPos) {
 							ZONE_ERROR("invalid equipment pos number");
 						} else {
 							const auto obj = world_objects.create_from_prototype_by_rnum(ZCMD.arg1);
@@ -4461,13 +4460,13 @@ void ZoneReset::reset_zone_essential() {
 							load_otrigger(obj.get());
 							if (wear_otrigger(obj.get(), mob, ZCMD.arg3)) {
 								obj->set_in_room(kNowhere);
-								equip_char(mob, obj.get(), ZCMD.arg3, CharEquipFlags());
+								EquipObj(mob, obj.get(), ZCMD.arg3, CharEquipFlags());
 							} else {
-								obj_to_char(obj.get(), mob);
+								PlaceObjToInventory(obj.get(), mob);
 							}
 							if (!(obj->get_carried_by() == mob)
 								&& !(obj->get_worn_by() == mob)) {
-								extract_obj(obj.get());
+								ExtractObjFromWorld(obj.get());
 								tobj = nullptr;
 							} else {
 								tobj = obj.get();
@@ -4489,9 +4488,9 @@ void ZoneReset::reset_zone_essential() {
 						break;
 					}
 
-					if (const auto obj = get_obj_in_list_num(ZCMD.arg2, world[ZCMD.arg1]->contents)) {
-						obj_from_room(obj);
-						extract_obj(obj);
+					if (const auto obj = GetObjByRnum(ZCMD.arg2, world[ZCMD.arg1]->contents)) {
+						ExtractObjFromRoom(obj);
+						ExtractObjFromWorld(obj);
 						curr_state = 1;
 					}
 					tmob = nullptr;
@@ -4509,31 +4508,31 @@ void ZoneReset::reset_zone_essential() {
 						break;
 					}
 
-					if (ZCMD.arg2 < 0 || ZCMD.arg2 >= kDirMaxNumber ||
+					if (ZCMD.arg2 < 0 || ZCMD.arg2 >= EDirection::kMaxDirNum ||
 						(world[ZCMD.arg1]->dir_option[ZCMD.arg2] == nullptr)) {
 						ZONE_ERROR("door does not exist, command disabled");
 						ZCMD.command = '*';
 					} else {
-						REMOVE_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->exit_info, EX_BROKEN);
+						REMOVE_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->exit_info, EExitFlag::kBrokenLock);
 						switch (ZCMD.arg3) {
 							case 0:
 								REMOVE_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->
-									exit_info, EX_LOCKED);
+									exit_info, EExitFlag::kLocked);
 								REMOVE_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->
-									exit_info, EX_CLOSED);
+									exit_info, EExitFlag::kClosed);
 								break;
-							case 1: SET_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->exit_info, EX_CLOSED);
+							case 1: SET_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->exit_info, EExitFlag::kClosed);
 								REMOVE_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->
-									exit_info, EX_LOCKED);
+									exit_info, EExitFlag::kLocked);
 								break;
-							case 2: SET_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->exit_info, EX_LOCKED);
-								SET_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->exit_info, EX_CLOSED);
+							case 2: SET_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->exit_info, EExitFlag::kLocked);
+								SET_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->exit_info, EExitFlag::kClosed);
 								break;
-							case 3: SET_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->exit_info, EX_HIDDEN);
+							case 3: SET_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->exit_info, EExitFlag::kHidden);
 								break;
 							case 4:
 								REMOVE_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->
-									exit_info, EX_HIDDEN);
+									exit_info, EExitFlag::kHidden);
 								break;
 						}
 						curr_state = 1;
@@ -4747,7 +4746,7 @@ bool is_empty(ZoneRnum zone_nr) {
 	for (; rnum_start <= rnum_stop; rnum_start++) {
 // num_pc_in_room() использовать нельзя, т.к. считает вместе с иммами.
 		for (const auto c : world[rnum_start]->people) {
-			if (!IS_NPC(c) && (GetRealLevel(c) < kLvlImmortal)) {
+			if (!c->is_npc() && (GetRealLevel(c) < kLvlImmortal)) {
 				return false;
 			}
 		}
@@ -4778,7 +4777,7 @@ int mobs_in_room(int m_num, int r_num) {
 
 	for (const auto &ch : world[r_num]->people) {
 		if (m_num == GET_MOB_RNUM(ch)
-			&& !MOB_FLAGGED(ch, MOB_RESURRECTED)) {
+			&& !MOB_FLAGGED(ch, EMobFlag::kResurrected)) {
 			count++;
 		}
 	}
@@ -5034,7 +5033,7 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	int i, place_of_destination, load_room = kNowhere;
 	const char *remort_msg2 = "$n вспыхнул$g ослепительным пламенем и пропал$g!\r\n";
 
-	if (IS_NPC(ch) || IS_IMMORTAL(ch)) {
+	if (ch->is_npc() || IS_IMMORTAL(ch)) {
 		send_to_char("Вам это, похоже, совсем ни к чему.\r\n", ch);
 		return;
 	}
@@ -5042,7 +5041,7 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		send_to_char("ЧАВО???\r\n", ch);
 		return;
 	}
-	if (Remort::need_torc(ch) && !PRF_FLAGGED(ch, PRF_CAN_REMORT)) {
+	if (Remort::need_torc(ch) && !PRF_FLAGGED(ch, EPrf::kCanRemort)) {
 		send_to_char(ch,
 					 "Вы должны подтвердить свои заслуги, пожертвовав Богам достаточное количество гривен.\r\n"
 					 "%s\r\n", Remort::WHERE_TO_REMORT_STR.c_str());
@@ -5084,7 +5083,7 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	if (ch->is_morphed()) ch->reset_morph();
 	ch->set_remort(ch->get_remort() + 1);
-	CLR_GOD_FLAG(ch, GF_REMORT);
+	CLR_GOD_FLAG(ch, EGf::kRemort);
 	ch->inc_str(1);
 	ch->inc_dex(1);
 	ch->inc_con(1);
@@ -5106,21 +5105,21 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 // Снимаем весь стафф
-	for (i = 0; i < NUM_WEARS; i++) {
+	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
 		if (GET_EQ(ch, i)) {
-			obj_to_char(unequip_char(ch, i, CharEquipFlags()), ch);
+			PlaceObjToInventory(UnequipChar(ch, i, CharEquipFlags()), ch);
 		}
 	}
 
 	while (ch->timed) {
-		timed_from_char(ch, ch->timed);
+		ExpireTimedSkill(ch, ch->timed);
 	}
 
 	while (ch->timed_feat) {
 		ExpireTimedFeat(ch, ch->timed_feat);
 	}
-	for (i = 1; i < kMaxFeats; i++) {
-		UNSET_FEAT(ch, i);
+	for (auto feat = EFeat::kFirstFeat; feat <= EFeat::kLastFeat; ++feat) {
+		UNSET_FEAT(ch, feat);
 	}
 
 	if (ch->get_remort() >= 9 && ch->get_remort() % 3 == 0) {
@@ -5143,26 +5142,26 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	GET_HIT(ch) = GET_MAX_HIT(ch) = 10;
 	GET_MOVE(ch) = GET_MAX_MOVE(ch) = 82;
-	GET_MEM_TOTAL(ch) = GET_MEM_COMPLETED(ch) = 0;
+	ch->mem_queue.total = ch->mem_queue.stored = 0;
 	ch->set_level(0);
 	GET_WIMP_LEV(ch) = 0;
 	GET_AC(ch) = 100;
 	GET_LOADROOM(ch) = calc_loadroom(ch, place_of_destination);
-	PRF_FLAGS(ch).unset(PRF_SUMMONABLE);
-	PRF_FLAGS(ch).unset(PRF_AWAKE);
-	PRF_FLAGS(ch).unset(PRF_PUNCTUAL);
-	PRF_FLAGS(ch).unset(PRF_POWERATTACK);
-	PRF_FLAGS(ch).unset(PRF_GREATPOWERATTACK);
-	PRF_FLAGS(ch).unset(PRF_AWAKE);
-	PRF_FLAGS(ch).unset(PRF_IRON_WIND);
-	PRF_FLAGS(ch).unset(PRF_DOUBLE_THROW);
-	PRF_FLAGS(ch).unset(PRF_TRIPLE_THROW);
-	PRF_FLAGS(ch).unset(PRF_SHADOW_THROW);
+	PRF_FLAGS(ch).unset(EPrf::KSummonable);
+	PRF_FLAGS(ch).unset(EPrf::kAwake);
+	PRF_FLAGS(ch).unset(EPrf::kPunctual);
+	PRF_FLAGS(ch).unset(EPrf::kPerformPowerAttack);
+	PRF_FLAGS(ch).unset(EPrf::kPerformGreatPowerAttack);
+	PRF_FLAGS(ch).unset(EPrf::kAwake);
+	PRF_FLAGS(ch).unset(EPrf::kIronWind);
+	PRF_FLAGS(ch).unset(EPrf::kDoubleThrow);
+	PRF_FLAGS(ch).unset(EPrf::kTripleThrow);
+	PRF_FLAGS(ch).unset(EPrf::kShadowThrow);
 	// Убираем все заученные порталы
 	check_portals(ch);
 	if (ch->get_protecting()) {
 		ch->set_protecting(0);
-		ch->BattleAffects.unset(kEafProtect);
+		ch->battle_affects.unset(kEafProtect);
 	}
 
 	//Обновляем статистику рипов для текущего перевоплощения
@@ -5185,11 +5184,11 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 	do_start(ch, false);
 	ch->save_char();
-	if (PLR_FLAGGED(ch, PLR_HELLED))
+	if (PLR_FLAGGED(ch, EPlrFlag::kHelled))
 		load_room = r_helled_start_room;
-	else if (PLR_FLAGGED(ch, PLR_NAMED))
+	else if (PLR_FLAGGED(ch, EPlrFlag::kNameDenied))
 		load_room = r_named_start_room;
-	else if (PLR_FLAGGED(ch, PLR_FROZEN))
+	else if (PLR_FLAGGED(ch, EPlrFlag::kFrozen))
 		load_room = r_frozen_start_room;
 	else {
 		if ((load_room = GET_LOADROOM(ch)) == kNowhere)
@@ -5202,14 +5201,14 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		else
 			load_room = r_mortal_start_room;
 	}
-	char_from_room(ch);
-	char_to_room(ch, load_room);
+	ExtractCharFromRoom(ch);
+	PlaceCharToRoom(ch, load_room);
 	look_at_room(ch, 0);
-	PLR_FLAGS(ch).set(PLR_NODELETE);
-	remove_rune_label(ch);
+	PLR_FLAGS(ch).set(EPlrFlag::kNoDelete);
+	RemoveRuneLabelFromWorld(ch, ESpell::kSpellRuneLabel);
 
 	// сброс всего, связанного с гривнами (замакс сохраняем)
-	PRF_FLAGS(ch).unset(PRF_CAN_REMORT);
+	PRF_FLAGS(ch).unset(EPrf::kCanRemort);
 	ch->set_ext_money(ExtMoney::kTorcGold, 0);
 	ch->set_ext_money(ExtMoney::kTorcSilver, 0);
 	ch->set_ext_money(ExtMoney::kTorcBronze, 0);
@@ -5271,11 +5270,11 @@ MobRnum real_mobile(MobVnum vnum) {
 int must_be_deleted(CharData *short_ch) {
 	int ci, timeout;
 
-	if (PLR_FLAGS(short_ch).get(PLR_NODELETE)) {
+	if (PLR_FLAGS(short_ch).get(EPlrFlag::kNoDelete)) {
 		return 0;
 	}
 
-	if (PLR_FLAGS(short_ch).get(PLR_DELETED)) {
+	if (PLR_FLAGS(short_ch).get(EPlrFlag::kDeleted)) {
 		return 1;
 	}
 
@@ -5291,7 +5290,7 @@ int must_be_deleted(CharData *short_ch) {
 		}
 	}
 	if (timeout >= 0) {
-		timeout *= SECS_PER_REAL_DAY;
+		timeout *= kSecsPerRealDay;
 		if ((time(0) - LAST_LOGON(short_ch)) > timeout) {
 			return (1);
 		}
@@ -5306,7 +5305,7 @@ void entrycount(char *name, const bool find_id /*= true*/) {
 	int deleted;
 	char filename[kMaxStringLength];
 
-	if (get_filename(name, filename, PLAYERS_FILE)) {
+	if (get_filename(name, filename, kPlayersFile)) {
 		Player t_short_ch;
 		Player *short_ch = &t_short_ch;
 		deleted = 1;
@@ -5330,7 +5329,7 @@ void entrycount(char *name, const bool find_id /*= true*/) {
 				element.remorts = short_ch->get_remort();
 				element.timer = nullptr;
 				element.plr_class = short_ch->get_class();
-				if (PLR_FLAGS(short_ch).get(PLR_DELETED)) {
+				if (PLR_FLAGS(short_ch).get(EPlrFlag::kDeleted)) {
 					element.last_logon = -1;
 					element.activity = -1;
 				} else {
@@ -5357,19 +5356,19 @@ void entrycount(char *name, const bool find_id /*= true*/) {
 			log("Player %s already deleted - kill player file", name);
 			remove(filename);
 			// 2) Remove all other files
-			get_filename(name, filename, ALIAS_FILE);
+			get_filename(name, filename, kAliasFile);
 			remove(filename);
-			get_filename(name, filename, SCRIPT_VARS_FILE);
+			get_filename(name, filename, kScriptVarsFile);
 			remove(filename);
-			get_filename(name, filename, PERS_DEPOT_FILE);
+			get_filename(name, filename, kPersDepotFile);
 			remove(filename);
-			get_filename(name, filename, SHARE_DEPOT_FILE);
+			get_filename(name, filename, kShareDepotFile);
 			remove(filename);
-			get_filename(name, filename, PURGE_DEPOT_FILE);
+			get_filename(name, filename, kPurgeDepotFile);
 			remove(filename);
-			get_filename(name, filename, TEXT_CRASH_FILE);
+			get_filename(name, filename, kTextCrashFile);
 			remove(filename);
-			get_filename(name, filename, TIME_CRASH_FILE);
+			get_filename(name, filename, kTimeCrashFile);
 			remove(filename);
 		}
 	}
@@ -5431,36 +5430,36 @@ void rename_char(CharData *ch, char *oname) {
 
 	// 1) Rename(if need) char and pkill file - directly
 	log("Rename char %s->%s", GET_NAME(ch), oname);
-	get_filename(oname, ofilename, PLAYERS_FILE);
-	get_filename(GET_NAME(ch), filename, PLAYERS_FILE);
+	get_filename(oname, ofilename, kPlayersFile);
+	get_filename(GET_NAME(ch), filename, kPlayersFile);
 	rename(ofilename, filename);
 
 	ch->save_char();
 
 	// 2) Rename all other files
-	get_filename(oname, ofilename, TEXT_CRASH_FILE);
-	get_filename(GET_NAME(ch), filename, TEXT_CRASH_FILE);
+	get_filename(oname, ofilename, kTextCrashFile);
+	get_filename(GET_NAME(ch), filename, kTextCrashFile);
 	rename(ofilename, filename);
 
-	get_filename(oname, ofilename, TIME_CRASH_FILE);
-	get_filename(GET_NAME(ch), filename, TIME_CRASH_FILE);
+	get_filename(oname, ofilename, kTimeCrashFile);
+	get_filename(GET_NAME(ch), filename, kTimeCrashFile);
 	rename(ofilename, filename);
 
-	get_filename(oname, ofilename, ALIAS_FILE);
-	get_filename(GET_NAME(ch), filename, ALIAS_FILE);
+	get_filename(oname, ofilename, kAliasFile);
+	get_filename(GET_NAME(ch), filename, kAliasFile);
 	rename(ofilename, filename);
 
-	get_filename(oname, ofilename, SCRIPT_VARS_FILE);
-	get_filename(GET_NAME(ch), filename, SCRIPT_VARS_FILE);
+	get_filename(oname, ofilename, kScriptVarsFile);
+	get_filename(GET_NAME(ch), filename, kScriptVarsFile);
 	rename(ofilename, filename);
 
 	// хранилища
 	Depot::rename_char(ch);
-	get_filename(oname, ofilename, PERS_DEPOT_FILE);
-	get_filename(GET_NAME(ch), filename, PERS_DEPOT_FILE);
+	get_filename(oname, ofilename, kPersDepotFile);
+	get_filename(GET_NAME(ch), filename, kPersDepotFile);
 	rename(ofilename, filename);
-	get_filename(oname, ofilename, PURGE_DEPOT_FILE);
-	get_filename(GET_NAME(ch), filename, PURGE_DEPOT_FILE);
+	get_filename(oname, ofilename, kPurgeDepotFile);
+	get_filename(GET_NAME(ch), filename, kPurgeDepotFile);
 	rename(ofilename, filename);
 }
 
@@ -5471,7 +5470,7 @@ void delete_char(const char *name) {
 	int id = load_char(name, st);
 
 	if (id >= 0) {
-		PLR_FLAGS(st).set(PLR_DELETED);
+		PLR_FLAGS(st).set(EPlrFlag::kDeleted);
 		NewNames::remove(st);
 		if (NAME_FINE(st)) {
 			player_table.name_adviser().add(GET_NAME(st));
@@ -5532,7 +5531,7 @@ void room_copy(RoomData *dst, RoomData *src)
 	dst->temp_description = 0; // так надо
 
 	// Выходы и входы
-	for (i = 0; i < kDirMaxNumber; ++i) {
+	for (i = 0; i < EDirection::kMaxDirNum; ++i) {
 		const auto &rdd = src->dir_option[i];
 		if (rdd) {
 			dst->dir_option[i].reset(new ExitData());
@@ -5584,7 +5583,7 @@ void room_free(RoomData *room)
 	}
 
 	// Выходы и входы
-	for (int i = 0; i < kDirMaxNumber; i++) {
+	for (int i = 0; i < EDirection::kMaxDirNum; i++) {
 		if (room->dir_option[i]) {
 			room->dir_option[i].reset();
 		}
@@ -5763,9 +5762,9 @@ void set_flag(CharData *ch) {
 	utils::ConvertToLow(mail);
 	auto i = std::find(block_list.begin(), block_list.end(), mail);
 	if (i != block_list.end()) {
-		PRF_FLAGS(ch).set(PRF_IGVA_PRONA);
+		PRF_FLAGS(ch).set(EPrf::kStopOfftop);
 	} else {
-		PRF_FLAGS(ch).unset(PRF_IGVA_PRONA);
+		PRF_FLAGS(ch).unset(EPrf::kStopOfftop);
 	}
 }
 

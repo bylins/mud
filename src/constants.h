@@ -52,7 +52,7 @@ struct WeaponApplies {
 
 struct pray_affect_type {
 	int metter;
-	EApplyLocation location;
+	EApply location;
 	int modifier;
 	uint32_t bitvector;
 	int battleflag;

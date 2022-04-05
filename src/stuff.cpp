@@ -21,8 +21,8 @@
 
 
 extern std::vector<RandomObj> random_objs;
-extern void set_obj_eff(ObjData *itemobj, const EApplyLocation type, int mod);
-extern void set_obj_aff(ObjData *itemobj, const EAffectFlag bitv);
+extern void set_obj_eff(ObjData *itemobj, const EApply type, int mod);
+extern void set_obj_aff(ObjData *itemobj, const EAffect bitv);
 extern int planebit(const char *str, int *plane, int *bit);
 
 void LoadRandomObj(ObjData *obj) {
@@ -56,7 +56,7 @@ void LoadRandomObj(ObjData *obj) {
 			for (auto aff : robj.extraffect) {
 				if (aff.chance < number(0, 1000)) {
 					obj->set_affected_location(aff.number,
-											   static_cast<EApplyLocation>(number(aff.min_val, aff.max_val)));
+											   static_cast<EApply>(number(aff.min_val, aff.max_val)));
 				}
 			}
 		}
@@ -156,36 +156,36 @@ ObjRnum ornum_by_info(const std::pair<ObjVnum, obj_load_info> &it) {
 int get_stat_mod(int stat) {
 	int mod = 0;
 	switch (stat) {
-		case APPLY_STR:
-		case APPLY_DEX:
-		case APPLY_INT:
-		case APPLY_WIS:
-		case APPLY_CON:
-		case APPLY_CHA: mod = 1;
+		case EApply::kStr:
+		case EApply::kDex:
+		case EApply::kInt:
+		case EApply::kWis:
+		case EApply::kCon:
+		case EApply::kCha: mod = 1;
 			break;
-		case APPLY_AC: mod = -10;
+		case EApply::kAc: mod = -10;
 			break;
-		case APPLY_HITROLL: mod = 2;
+		case EApply::kHitroll: mod = 2;
 			break;
-		case APPLY_DAMROLL: mod = 3;
+		case EApply::kDamroll: mod = 3;
 			break;
-		case APPLY_SAVING_WILL:
-		case APPLY_SAVING_CRITICAL:
-		case APPLY_SAVING_STABILITY:
-		case APPLY_SAVING_REFLEX: mod = -10;
+		case EApply::kSavingWill:
+		case EApply::kSavingCritical:
+		case EApply::kSavingStability:
+		case EApply::kSavingReflex: mod = -10;
 			break;
-		case APPLY_HITREG:
-		case APPLY_MANAREG: mod = 10;
+		case EApply::kHpRegen:
+		case EApply::kMamaRegen: mod = 10;
 			break;
-		case APPLY_MORALE:
-		case APPLY_INITIATIVE: mod = 3;
+		case EApply::kMorale:
+		case EApply::kInitiative: mod = 3;
 			break;
-		case APPLY_ABSORBE:
-		case APPLY_RESIST_MIND:
-		case APPLY_CAST_SUCCESS: mod = 5;
+		case EApply::kAbsorbe:
+		case EApply::kResistMind:
+		case EApply::kCastSuccess: mod = 5;
 			break;
-		case APPLY_AR:
-		case APPLY_MR: mod = 1;
+		case EApply::kAffectResist:
+		case EApply::kMagicResist: mod = 1;
 			break;
 	}
 	return mod;
@@ -214,13 +214,13 @@ void generate_book_upgrd(ObjData *obj) {
 }
 
 void generate_warrior_enchant(ObjData *obj) {
-	const auto main_list = make_array<EApplyLocation>(
-		APPLY_STR, APPLY_DEX, APPLY_CON, APPLY_AC, APPLY_DAMROLL);
+	const auto main_list = make_array<EApply>(
+		EApply::kStr, EApply::kDex, EApply::kCon, EApply::kAc, EApply::kDamroll);
 
-	const auto second_list = make_array<EApplyLocation>(
-		APPLY_HITROLL, APPLY_SAVING_WILL, APPLY_SAVING_CRITICAL,
-		APPLY_SAVING_STABILITY, APPLY_HITREG, APPLY_SAVING_REFLEX,
-		APPLY_MORALE, APPLY_INITIATIVE, APPLY_ABSORBE, APPLY_AR, APPLY_MR);
+	const auto second_list = make_array<EApply>(
+		EApply::kHitroll, EApply::kSavingWill, EApply::kSavingCritical,
+		EApply::kSavingStability, EApply::kHpRegen, EApply::kSavingReflex,
+		EApply::kMorale, EApply::kInitiative, EApply::kAbsorbe, EApply::kAffectResist, EApply::kMagicResist);
 
 	switch (GET_OBJ_VNUM(obj)) {
 		case GlobalDrop::WARR1_ENCHANT_VNUM: {
@@ -251,19 +251,19 @@ void generate_warrior_enchant(ObjData *obj) {
 }
 
 void generate_magic_enchant(ObjData *obj) {
-	const auto main_list = make_array<EApplyLocation>(
-		APPLY_STR, APPLY_DEX, APPLY_CON, APPLY_INT, APPLY_WIS,
-		APPLY_CHA, APPLY_AC, APPLY_DAMROLL, APPLY_AR, APPLY_MR);
+	const auto main_list = make_array<EApply>(
+		EApply::kStr, EApply::kDex, EApply::kCon, EApply::kInt, EApply::kWis,
+		EApply::kCha, EApply::kAc, EApply::kDamroll, EApply::kAffectResist, EApply::kMagicResist);
 
-	const auto second_list = make_array<EApplyLocation>(
-		APPLY_HITROLL, APPLY_SAVING_WILL, APPLY_SAVING_CRITICAL,
-		APPLY_SAVING_STABILITY, APPLY_HITREG, APPLY_SAVING_REFLEX,
-		APPLY_MORALE, APPLY_INITIATIVE, APPLY_ABSORBE, APPLY_AR, APPLY_MR,
-		APPLY_MANAREG, APPLY_CAST_SUCCESS, APPLY_RESIST_MIND, APPLY_DAMROLL);
+	const auto second_list = make_array<EApply>(
+		EApply::kHitroll, EApply::kSavingWill, EApply::kSavingCritical,
+		EApply::kSavingStability, EApply::kHpRegen, EApply::kSavingReflex,
+		EApply::kMorale, EApply::kInitiative, EApply::kAbsorbe, EApply::kAffectResist, EApply::kMagicResist,
+		EApply::kMamaRegen, EApply::kCastSuccess, EApply::kResistMind, EApply::kDamroll);
 
 	switch (GET_OBJ_VNUM(obj)) {
 		case GlobalDrop::MAGIC1_ENCHANT_VNUM: {
-			EApplyLocation effect = main_list[number(0, static_cast<int>(main_list.size()) - 1)];
+			EApply effect = main_list[number(0, static_cast<int>(main_list.size()) - 1)];
 			set_obj_eff(obj, effect, get_stat_mod(effect));
 			break;
 		}
@@ -314,7 +314,7 @@ void obj_to_corpse(ObjData *corpse, CharData *ch, int rnum, bool setload) {
 
 	if (!setload) {
 		switch (o->get_vnum()) {
-			case GlobalDrop::BOOK_UPGRD_VNUM: generate_book_upgrd(o.get());
+			case GlobalDrop::kSkillUpgradeBookVnum: generate_book_upgrd(o.get());
 				break;
 
 			case GlobalDrop::WARR1_ENCHANT_VNUM:
@@ -333,13 +333,13 @@ void obj_to_corpse(ObjData *corpse, CharData *ch, int rnum, bool setload) {
 		}
 	}
 	o->set_vnum_zone_from(99999);
-	if (MOB_FLAGGED(ch, MOB_CORPSE)) {
-		obj_to_room(o.get(), ch->in_room);
+	if (MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
+		PlaceObjToRoom(o.get(), ch->in_room);
 	} else {
-		obj_to_obj(o.get(), corpse);
+		PlaceObjIntoObj(o.get(), corpse);
 	}
 
-	if (!obj_decay(o.get())) {
+	if (!CheckObjDecay(o.get())) {
 		if (o->get_in_room() != kNowhere) {
 			act("На земле остал$U лежать $o.", false, ch, o.get(), 0, kToRoom);
 		}
@@ -349,8 +349,8 @@ void obj_to_corpse(ObjData *corpse, CharData *ch, int rnum, bool setload) {
 
 void obj_load_on_death(ObjData *corpse, CharData *ch) {
 	if (ch == nullptr
-		|| !IS_NPC(ch)
-		|| (!MOB_FLAGGED(ch, MOB_CORPSE)
+		|| !ch->is_npc()
+		|| (!MOB_FLAGGED(ch, EMobFlag::kCorpse)
 			&& corpse == nullptr)) {
 		return;
 	}
@@ -396,7 +396,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 	obj->set_PName(4, "острыми когтями");
 	obj->set_PName(5, "острых когтях");
 	obj->set_sex(ESex::kPoly);
-	obj->set_type(ObjData::ITEM_WEAPON);
+	obj->set_type(EObjType::kWeapon);
 	// среднее оружки
 	obj->set_val(1, floorf(diff/18.0)); // при 100 скила куб. = 5  	при 200 скила = 11
 	obj->set_val(2, floorf(diff/27.0)); // при 100 скила граней = d4  при 200 скила = d7
@@ -406,20 +406,20 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 	obj->set_rent_on(1);
 	obj->set_timer(9999);
 	//ставим флаги на шмотки
-	obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE));
-	obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_UNDEFINED)); // в теории никак не взять одежку
+	obj->set_wear_flags(to_underlying(EWearFlag::kTake));
+	obj->set_wear_flags(to_underlying(EWearFlag::kUndefined)); // в теории никак не взять одежку
 	// obj->set_no_flag(ENoFlag::ITEM_NO_MONO); // пресекаем всяких абузеров
 	// obj->set_no_flag(ENoFlag::ITEM_NO_POLY); // 
-	obj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
-	obj->set_extra_flag(EExtraFlag::ITEM_NOLOCATE);
-	obj->set_extra_flag(EExtraFlag::ITEM_DECAY);
-	obj->set_extra_flag(EExtraFlag::ITEM_NODISARM);
-	obj->set_extra_flag(EExtraFlag::ITEM_BLESS);
-	obj->set_extra_flag(EExtraFlag::ITEM_NODROP);
+	obj->set_extra_flag(EObjFlag::kNosell);
+	obj->set_extra_flag(EObjFlag::kNolocate);
+	obj->set_extra_flag(EObjFlag::kDecay);
+	obj->set_extra_flag(EObjFlag::kNodisarm);
+	obj->set_extra_flag(EObjFlag::kBless);
+	obj->set_extra_flag(EObjFlag::kNodrop);
 
 	obj->set_maximum_durability(5000);
 	obj->set_current_durability(5000);
-	obj->set_material(ObjData::MAT_CRYSTALL);
+	obj->set_material(EObjMaterial::kCrystal);
 
 	obj->set_weight(floorf(diff/9.0));
 
@@ -428,16 +428,16 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 	case ESkill::kClubs: // дубины
 		obj->set_val(3, 12);
 		obj->set_skill(141);
-		obj->set_extra_flag(EExtraFlag::ITEM_THROWING);
-		obj->set_affected(0, APPLY_STR, floorf(diff/12.0));
-		obj->set_affected(1, APPLY_SAVING_STABILITY, -floorf(diff/4.0));
+		obj->set_extra_flag(EObjFlag::kThrowing);
+		obj->set_affected(0, EApply::kStr, floorf(diff/12.0));
+		obj->set_affected(1, EApply::kSavingStability, -floorf(diff/4.0));
 		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
 		position = 16;
 		break;
 	case ESkill::kSpades: // копья
 		obj->set_val(3, 11);
 		obj->set_skill(148);
-		obj->set_extra_flag(EExtraFlag::ITEM_THROWING);
+		obj->set_extra_flag(EObjFlag::kThrowing);
 		create_charmice_stuff(ch, ESkill::kShieldBlock, diff);
 		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
 		position = 16;
@@ -445,18 +445,18 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 	case ESkill::kPicks: // стабер
 		obj->set_val(3, 11);
 		obj->set_skill(147);
-		obj->set_affected(0, APPLY_STR, floorf(diff/16.0));
-		obj->set_affected(1, APPLY_DEX, floorf(diff/10.0));
+		obj->set_affected(0, EApply::kStr, floorf(diff/16.0));
+		obj->set_affected(1, EApply::kDex, floorf(diff/10.0));
 		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
 		position = 16;
 		break;
 	case ESkill::kAxes: // секиры
 		obj->set_val(3, 8);
 		obj->set_skill(142);
-		obj->set_affected(0, APPLY_STR, floorf(diff/12.0));
-		obj->set_affected(1, APPLY_DEX, floorf(diff/15.0));
-		obj->set_affected(2, APPLY_DAMROLL, floorf(diff/10.0));
-		obj->set_affected(3, APPLY_HIT, 5*(diff));
+		obj->set_affected(0, EApply::kStr, floorf(diff/12.0));
+		obj->set_affected(1, EApply::kDex, floorf(diff/15.0));
+		obj->set_affected(2, EApply::kDamroll, floorf(diff/10.0));
+		obj->set_affected(3, EApply::kHp, 5*(diff));
 		create_charmice_stuff(ch, ESkill::kShieldBlock, diff);
 		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
 		position = 16;
@@ -464,8 +464,8 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 	case ESkill::kBows: // луки
 		obj->set_val(3, 2);
 		obj->set_skill(154);
-		obj->set_affected(0, APPLY_STR, floorf(diff/20.0));
-		obj->set_affected(1, APPLY_DEX, floorf(diff/15.0));
+		obj->set_affected(0, EApply::kStr, floorf(diff/20.0));
+		obj->set_affected(1, EApply::kDex, floorf(diff/15.0));
 		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
 		position = 18;
 		break;
@@ -473,29 +473,29 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 		obj->set_val(3, 1);
 		obj->set_skill(146);
 		obj->set_weight(floorf(diff/4.0)); // 50 вес при 200% скила
-		obj->set_affected(0, APPLY_STR, floorf(diff/15.0));
-		obj->set_affected(1, APPLY_DAMROLL, floorf(diff/13.0));
+		obj->set_affected(0, EApply::kStr, floorf(diff/15.0));
+		obj->set_affected(1, EApply::kDamroll, floorf(diff/13.0));
 		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
 		position = 18;
 		break;
 	case ESkill::kPunch: // кулачка
-		obj->set_type(ObjData::ITEM_ARMOR);
-		obj->set_affected(0, APPLY_DAMROLL, floorf(diff/10.0));
+		obj->set_type(EObjType::kArmor);
+		obj->set_affected(0, EApply::kDamroll, floorf(diff/10.0));
 		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
 		position = 9;
 		break;
 	case ESkill::kLongBlades: // длинные
 		obj->set_val(3, 10);
 		obj->set_skill(143);
-		obj->set_affected(0, APPLY_STR, floorf(diff/15.0));
-		obj->set_affected(1, APPLY_DEX, floorf(diff/12.0));
-		obj->set_affected(2, APPLY_SAVING_REFLEX, -floorf(diff/3.5));
+		obj->set_affected(0, EApply::kStr, floorf(diff/15.0));
+		obj->set_affected(1, EApply::kDex, floorf(diff/12.0));
+		obj->set_affected(2, EApply::kSavingReflex, -floorf(diff/3.5));
 		create_charmice_stuff(ch, ESkill::kIncorrect, -1); // так изощренно создаем обувку(-1), итак кэйсов наплодил
 		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
 		position = 16;
 		break;
 	case ESkill::kShieldBlock: // блок щитом ? делаем щит
-		obj->set_type(ObjData::ITEM_ARMOR);
+		obj->set_type(EObjType::kArmor);
 		obj->set_description("Роговые пластины лежат здесь.");
 		obj->set_ex_description(descr.c_str(), "Роговые пластины лежат здесь.");
 		obj->set_aliases("роговые пластины");
@@ -508,10 +508,10 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 		obj->set_PName(5, "роговых пластинах");
 		obj->set_val(1, floorf(diff/13.0));
 		obj->set_val(2, floorf(diff/8.0));
-		obj->set_affected(0, APPLY_SAVING_STABILITY, -floorf(diff/3.0));
-		obj->set_affected(1, APPLY_SAVING_CRITICAL, -floorf(diff/3.5));
-		obj->set_affected(2, APPLY_SAVING_REFLEX, -floorf(diff/3.0));
-		obj->set_affected(3, APPLY_SAVING_WILL, -floorf(diff/3.5));
+		obj->set_affected(0, EApply::kSavingStability, -floorf(diff/3.0));
+		obj->set_affected(1, EApply::kSavingCritical, -floorf(diff/3.5));
+		obj->set_affected(2, EApply::kSavingReflex, -floorf(diff/3.0));
+		obj->set_affected(3, EApply::kSavingWill, -floorf(diff/3.5));
 		position = 11; // слот щит
 		break;		
 	default: //ESkill::kIncorrect / тут шкура(армор)
@@ -526,7 +526,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 		obj->set_PName(3, "прочную шкуру");
 		obj->set_PName(4, "прочной шкурой");
 		obj->set_PName(5, "прочной шкуре");
-		obj->set_type(ObjData::ITEM_ARMOR);
+		obj->set_type(EObjType::kArmor);
 		if (diff == -1) { // тут делаем сапоги 
 			obj->set_sex(ESex::kPoly);
 			obj->set_weight(50);
@@ -545,17 +545,17 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 		}
 		obj->set_val(1, floorf(diff/11.0));
 		obj->set_val(2, floorf(diff/7.0));
-		obj->set_affected(0, APPLY_SAVING_STABILITY, -floorf(diff*0.7));
-		obj->set_affected(1, APPLY_SAVING_CRITICAL, -floorf(diff*0.7));
-		obj->set_affected(2, APPLY_SAVING_REFLEX, -floorf(diff*0.7));
-		obj->set_affected(3, APPLY_SAVING_WILL, -floorf(diff*0.6));
-		obj->set_affected(4, APPLY_MR, floorf(diff*0.16));
-		obj->set_affected(5, APPLY_PR, floorf(diff*0.15));
+		obj->set_affected(0, EApply::kSavingStability, -floorf(diff*0.7));
+		obj->set_affected(1, EApply::kSavingCritical, -floorf(diff*0.7));
+		obj->set_affected(2, EApply::kSavingReflex, -floorf(diff*0.7));
+		obj->set_affected(3, EApply::kSavingWill, -floorf(diff*0.6));
+		obj->set_affected(4, EApply::kMagicResist, floorf(diff*0.16));
+		obj->set_affected(5, EApply::kPhysicResist, floorf(diff*0.15));
 		position = 5; // слот тело
 		break;
 	}
 	// одеваем шмотки
-	equip_char(ch, obj.get(), position, CharEquipFlags());
+	EquipObj(ch, obj.get(), position, CharEquipFlags());
 }
 
 

@@ -19,15 +19,16 @@ void PerformShadowThrowSideAbilities(AbilitySystem::TechniqueRoll &technique) {
 	if (!weapon) {
 		return;
 	}
-	int feature_id = INCORRECT_FEAT;
+
+	auto feature_id{EFeat::kIncorrectFeat};
 	std::string to_char, to_vict, to_room;
 	void (*DoSideAction)(AbilitySystem::TechniqueRoll &technique);
-	Bitvector mob_no_flag = MOB_DELETE;
+	Bitvector mob_no_flag = EMobFlag::kMobDeleted;
 
 	switch (static_cast<ESkill>(weapon->get_skill())) {
 		case ESkill::kSpades:
-			mob_no_flag = MOB_NOBASH;
-			feature_id = SHADOW_SPEAR_FEAT;
+			mob_no_flag = EMobFlag::kNoBash;
+			feature_id = EFeat::kShadowSpear;
 			to_char = "Попадание копья повалило $n3 наземь.";
 			to_vict =
 				"Копье $N1 попало вам в колено. Вы рухнули наземь! Кажется, ваши приключения сейчас закончатся...";
@@ -43,29 +44,29 @@ void PerformShadowThrowSideAbilities(AbilitySystem::TechniqueRoll &technique) {
 			break;
 		case ESkill::kShortBlades:
 		case ESkill::kPicks:
-			mob_no_flag = MOB_NOSIELENCE;
-			feature_id = SHADOW_DAGGER_FEAT;
+			mob_no_flag = EMobFlag::kNoSilence;
+			feature_id = EFeat::kShadowDagger;
 			to_char = "Меткое попадание вашего кинжала заставило $n3 умолкнуть.";
 			to_vict = "Бросок $N1 угодил вам в горло. Вы прикусили язык!";
 			to_room = "Меткое попадание $N1 заставило $n3 умолкнуть!";
 			DoSideAction = ([](AbilitySystem::TechniqueRoll &technique) {
-				Affect<EApplyLocation> af;
+				Affect<EApply> af;
 				af.type = kSpellBattle;
-				af.bitvector = to_underlying(EAffectFlag::AFF_SILENCE);
+				af.bitvector = to_underlying(EAffect::kSilence);
 				af.duration = CalcDuration(technique.GetRival(), 2, GetRealLevel(technique.GetActor()), 9, 6, 2);
 				af.battleflag = kAfBattledec | kAfPulsedec;
 				affect_join(technique.GetRival(), af, false, false, false, false);
 			});
 			break;
-		case ESkill::kClubs:mob_no_flag = MOB_NOSTUPOR;
-			feature_id = SHADOW_CLUB_FEAT;
+		case ESkill::kClubs:mob_no_flag = EMobFlag::kNoOverwhelm;
+			feature_id = EFeat::kShadowClub;
 			to_char = "Попадание булавы ошеломило $n3.";
 			to_vict = "Брошенная $N4 булава врезалась вам в лоб! Какие красивые звёздочки вокруг...";
 			to_room = "Попадание булавы $N1 ошеломило $n3!";
 			DoSideAction = ([](AbilitySystem::TechniqueRoll &technique) {
-				Affect<EApplyLocation> af;
+				Affect<EApply> af;
 				af.type = kSpellBattle;
-				af.bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
+				af.bitvector = to_underlying(EAffect::kStopFight);
 				af.duration = CalcDuration(technique.GetRival(), 3, 0, 0, 0, 0);
 				af.battleflag = kAfBattledec | kAfPulsedec;
 				affect_join(technique.GetRival(), af, false, false, false, false);
@@ -73,11 +74,11 @@ void PerformShadowThrowSideAbilities(AbilitySystem::TechniqueRoll &technique) {
 			});
 			break;
 		default:
-			feature_id = INCORRECT_FEAT;
+			feature_id = EFeat::kIncorrectFeat;
 			break;
 	};
 
-	if (!can_use_feat(technique.GetActor(), feature_id)) {
+	if (!IsAbleToUseFeat(technique.GetActor(), feature_id)) {
 		return;
 	};
 	AbilitySystem::TechniqueRoll side_roll;
@@ -100,17 +101,17 @@ void PerformWeaponThrow(AbilitySystem::TechniqueRoll &technique, Damage &damage)
 			damage.flags.set(fight::kIgnoreArmor);
 			damage.flags.set(fight::kCritHit);
 		};
-		if (IsTimed(technique.GetActor(), SHADOW_THROW_FEAT)) {
-			decreaseFeatTimer(technique.GetActor(), SHADOW_THROW_FEAT);
+		if (IsTimed(technique.GetActor(), EFeat::kShadowThrower)) {
+			DecreaseFeatTimer(technique.GetActor(), EFeat::kShadowThrower);
 		};
-		if (technique.GetAbilityId() == SHADOW_THROW_FEAT) {
+		if (technique.GetAbilityId() == EFeat::kShadowThrower) {
 			PerformShadowThrowSideAbilities(technique);
 		};
 	} else {
 		if (technique.IsCriticalFail()) {
-			ObjData *weapon = unequip_char(technique.GetActor(), technique.GetWeaponEquipPosition(), CharEquipFlags());
+			ObjData *weapon = UnequipChar(technique.GetActor(), technique.GetWeaponEquipPosition(), CharEquipFlags());
 			if (weapon) {
-				obj_to_char(weapon, technique.GetActor());
+				PlaceObjToInventory(weapon, technique.GetActor());
 				send_to_char(technique.GetActor(), "&BВы выронили %s!&n\r\n", GET_OBJ_PNAME(weapon, 3).c_str());
 			};
 		};
@@ -126,21 +127,21 @@ void go_throw(CharData *ch, CharData *victim) {
 	}
 
 	// TODO: Возможно, стоит добавить простой тест на добавление целей.
-	int victims_amount = 1 + PRF_FLAGGED(ch, PRF_DOUBLE_THROW) + 2 * PRF_FLAGGED(ch, PRF_TRIPLE_THROW);
+	int victims_amount = 1 + PRF_FLAGGED(ch, EPrf::kDoubleThrow) + 2 * PRF_FLAGGED(ch, EPrf::kTripleThrow);
 
-	int technique_id = THROW_WEAPON_FEAT;
-	fight::DmgType dmg_type = fight::kPhysDmg;
-	if (PRF_FLAGGED(ch, PRF_SHADOW_THROW)) {
+	auto technique_id = EFeat::kThrowWeapon;
+	auto dmg_type = fight::kPhysDmg;
+	if (PRF_FLAGGED(ch, EPrf::kShadowThrow)) {
 		send_to_char("Рукоять оружия в вашей руке налилась неестественным холодом.\r\n", ch);
 		act("Оружие в руках $n1 окружила призрачная дымка.",
 			true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-		technique_id = SHADOW_THROW_FEAT;
+		technique_id = EFeat::kShadowThrower;
 		dmg_type = fight::kMagicDmg;
 		TimedFeat timed;
-		timed.feat = SHADOW_THROW_FEAT;
+		timed.feat = EFeat::kShadowThrower;
 		timed.time = 6;
 		ImposeTimedFeat(ch, &timed);
-		PRF_FLAGS(ch).unset(PRF_SHADOW_THROW);
+		PRF_FLAGS(ch).unset(EPrf::kShadowThrow);
 	}
 	AbilitySystem::TechniqueRoll roll;
 	Damage damage(SkillDmg(ESkill::kThrow), fight::kZeroDmg, dmg_type, nullptr); //х3 как тут с оружием
@@ -163,7 +164,7 @@ void go_throw(CharData *ch, CharData *victim) {
 	};
 
 	SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);
-	if (technique_id == THROW_WEAPON_FEAT) {
+	if (technique_id == EFeat::kThrowWeapon) {
 		SetSkillCooldownInFight(ch, ESkill::kThrow, 3);
 	}
 }
@@ -179,7 +180,7 @@ void do_throw(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	};
 /*
-	if (!IS_IMPL(ch) && !can_use_feat(ch, THROW_WEAPON_FEAT)) {
+	if (!IS_IMPL(ch) && !can_use_feat(ch, EFeat::kThrowWeapon)) {
 			send_to_char("Вы не умеете этого.\r\n", ch);
 			return;
 	}
@@ -203,11 +204,11 @@ void do_throw(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	if (subcmd == SCMD_SHADOW_THROW) {
-		if (IsTimed(ch, SHADOW_THROW_FEAT)) {
+		if (IsTimed(ch, EFeat::kShadowThrower)) {
 			send_to_char("Не стоит так часто беспокоить тёмные силы.\r\n", ch);
 			return;
 		}
-		PRF_FLAGS(ch).set(PRF_SHADOW_THROW);
+		PRF_FLAGS(ch).set(EPrf::kShadowThrow);
 	};
 
 	if (IS_IMPL(ch) || !ch->get_fighting()) {

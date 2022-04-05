@@ -124,7 +124,7 @@ void changelog_message() {
 }
 
 bool is_spamer(CharData *ch, const Board &board) {
-	if (IS_IMMORTAL(ch) || Privilege::check_flag(ch, Privilege::BOARDS)) {
+	if (IS_IMMORTAL(ch) || privilege::CheckFlag(ch, privilege::kBoards)) {
 		return false;
 	}
 	if (board.get_lastwrite() != GET_UNIQUE(ch)) {
@@ -147,7 +147,7 @@ void DoBoard(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
+	if (AFF_FLAGGED(ch, EAffect::kBlind)) {
 		send_to_char("Вы ослеплены!\r\n", ch);
 		return;
 	}
@@ -190,7 +190,7 @@ void DoBoard(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		if ((board.get_type() == NEWS_BOARD
 			|| board.get_type() == GODNEWS_BOARD
 			|| board.get_type() == CODER_BOARD)
-			&& !PRF_FLAGGED(ch, PRF_NEWS_MODE)) {
+			&& !PRF_FLAGGED(ch, EPrf::kNewsMode)) {
 			std::ostringstream body;
 			Board::Formatter::shared_ptr formatter = FormattersBuilder::create(board.get_type(), body, ch, date);
 			board.format_board(formatter);
@@ -199,7 +199,7 @@ void DoBoard(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			return;
 		}
 		// дрновости в ленточном варианте
-		if (board.get_type() == CLANNEWS_BOARD && !PRF_FLAGGED(ch, PRF_NEWS_MODE)) {
+		if (board.get_type() == CLANNEWS_BOARD && !PRF_FLAGGED(ch, EPrf::kNewsMode)) {
 			std::ostringstream body;
 			Board::Formatter::shared_ptr formatter = FormattersBuilder::create(board.get_type(), body, ch, date);
 			board.format_board(formatter);
@@ -267,7 +267,7 @@ void DoBoard(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		}
 		/// написание новостей от другого имени
 		std::string name = GET_NAME(ch);
-		if (PRF_FLAGGED(ch, PRF_CODERINFO)
+		if (PRF_FLAGGED(ch, EPrf::kCoderinfo)
 			&& (board.get_type() == NEWS_BOARD
 				|| board.get_type() == NOTICE_BOARD)) {
 			GetOneParam(buffer2, buffer);
@@ -282,7 +282,7 @@ void DoBoard(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		tempMessage->author = name;
 		tempMessage->unique = GET_UNIQUE(ch);
 		// для досок кроме клановых и персональных пишем левел автора (для возможной очистки кем-то)
-		PRF_FLAGGED(ch, PRF_CODERINFO) ? tempMessage->level = kLvlImplementator : tempMessage->level = GetRealLevel(ch);
+		PRF_FLAGGED(ch, EPrf::kCoderinfo) ? tempMessage->level = kLvlImplementator : tempMessage->level = GetRealLevel(ch);
 
 		// клановым еще ранг
 		if (CLAN(ch)) {
@@ -333,7 +333,7 @@ void DoBoard(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		} else if (board.get_type() != CLAN_BOARD
 			&& board.get_type() != CLANNEWS_BOARD
 			&& board.get_type() != PERS_BOARD
-			&& !PRF_FLAGGED(ch, PRF_CODERINFO)
+			&& !PRF_FLAGGED(ch, EPrf::kCoderinfo)
 			&& GetRealLevel(ch) < board.messages[messages_index]->level) {
 			// для простых досок сверяем левела (для контроля иммов)
 			// клановые ниже, у персональных смысла нет
@@ -471,7 +471,7 @@ bool Static::LoginInfo(CharData *ch) {
 		// доска не видна или можно только писать, опечатки тож не спамим
 		if (!can_read(ch, *board)
 			|| ((*board)->get_type() == MISPRINT_BOARD
-				&& !PRF_FLAGGED(ch, PRF_MISPRINT))
+				&& !PRF_FLAGGED(ch, EPrf::kShowUnread))
 			|| (*board)->get_type() == CODER_BOARD) {
 			continue;
 		}
@@ -596,10 +596,10 @@ void Static::new_message_notify(const Board::shared_ptr board) {
 		for (DescriptorData *f = descriptor_list; f; f = f->next) {
 			if (f->character
 				&& STATE(f) == CON_PLAYING
-				&& PRF_FLAGGED(f->character, PRF_BOARD_MODE)
+				&& PRF_FLAGGED(f->character, EPrf::kBoardMode)
 				&& can_read(f->character.get(), board)
 				&& (board->get_type() != MISPRINT_BOARD
-					|| PRF_FLAGGED(f->character, PRF_MISPRINT))) {
+					|| PRF_FLAGGED(f->character, EPrf::kShowUnread))) {
 				send_to_char(buf_, f->character.get());
 			}
 		}
@@ -696,7 +696,7 @@ void Static::init_god_board(long uid, std::string name) {
 // * Релоад всех досок разом.
 void Static::reload_all() {
 	BoardInit();
-	Privilege::load_god_boards();
+	privilege::LoadGodBoards();
 	ClanInit();
 }
 
@@ -708,7 +708,7 @@ std::string Static::print_stats(CharData *ch, const Board::shared_ptr board, int
 
 	std::string out;
 	if (IS_IMMORTAL(ch)
-		|| PRF_FLAGGED(ch, PRF_CODERINFO)
+		|| PRF_FLAGGED(ch, EPrf::kCoderinfo)
 		|| !board->get_blind()) {
 		const int unread = board->count_unread(ch->get_board_date(board->get_type()));
 		out += boost::str(boost::format
@@ -733,7 +733,7 @@ std::bitset<ACCESS_NUM> Static::get_access(CharData *ch, const Board::shared_ptr
 		case GENERAL_BOARD:
 		case IDEA_BOARD:
 			// все читают, пишут с мин.левела, 32 и по привилегии полный
-			if (IS_GOD(ch) || Privilege::check_flag(ch, Privilege::BOARDS)) {
+			if (IS_GOD(ch) || privilege::CheckFlag(ch, privilege::kBoards)) {
 				access.set();
 			} else {
 				access.set(ACCESS_CAN_SEE);
@@ -745,8 +745,8 @@ std::bitset<ACCESS_NUM> Static::get_access(CharData *ch, const Board::shared_ptr
 		case MISPRINT_BOARD:
 			// все пишут с мин.левела, 34 и по привилегии полный
 			if (IS_IMPL(ch)
-				|| Privilege::check_flag(ch, Privilege::BOARDS)
-				|| Privilege::check_flag(ch, Privilege::MISPRINT)) {
+				|| privilege::CheckFlag(ch, privilege::kBoards)
+				|| privilege::CheckFlag(ch, privilege::kMisprint)) {
 				access.set();
 			} else {
 				access.set(ACCESS_CAN_SEE);
@@ -756,7 +756,7 @@ std::bitset<ACCESS_NUM> Static::get_access(CharData *ch, const Board::shared_ptr
 			break;
 		case NEWS_BOARD:
 			// все читают, 34 и по привилегии полный
-			if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::BOARDS)) {
+			if (IS_IMPL(ch) || privilege::CheckFlag(ch, privilege::kBoards)) {
 				access.set();
 			} else {
 				access.set(ACCESS_CAN_SEE);
@@ -765,7 +765,7 @@ std::bitset<ACCESS_NUM> Static::get_access(CharData *ch, const Board::shared_ptr
 			break;
 		case GODNEWS_BOARD:
 			// 32 читают, 34 и по привилегии полный
-			if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::BOARDS)) {
+			if (IS_IMPL(ch) || privilege::CheckFlag(ch, privilege::kBoards)) {
 				access.set();
 			} else if (IS_GOD(ch)) {
 				access.set(ACCESS_CAN_SEE);
@@ -775,7 +775,7 @@ std::bitset<ACCESS_NUM> Static::get_access(CharData *ch, const Board::shared_ptr
 		case GODGENERAL_BOARD:
 		case GODPUNISH_BOARD:
 			// 32 читают/пишут, 34 полный
-			if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::BOARDS)) {
+			if (IS_IMPL(ch) || privilege::CheckFlag(ch, privilege::kBoards)) {
 				access.set();
 			} else if (IS_GOD(ch)) {
 				access.set(ACCESS_CAN_SEE);
@@ -786,7 +786,7 @@ std::bitset<ACCESS_NUM> Static::get_access(CharData *ch, const Board::shared_ptr
 		case GODBUILD_BOARD:
 		case GODCODE_BOARD:
 			// 33 читают/пишут, 34 и по привилегии полный
-			if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::BOARDS)) {
+			if (IS_IMPL(ch) || privilege::CheckFlag(ch, privilege::kBoards)) {
 				access.set();
 			} else if (IS_GRGOD(ch)) {
 				access.set(ACCESS_CAN_SEE);
@@ -826,7 +826,7 @@ std::bitset<ACCESS_NUM> Static::get_access(CharData *ch, const Board::shared_ptr
 			break;
 		case NOTICE_BOARD:
 			// 34+ и по привилегии полный, 32+ пишут/читают, остальные только читают
-			if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::BOARDS)) {
+			if (IS_IMPL(ch) || privilege::CheckFlag(ch, privilege::kBoards)) {
 				access.set();
 			} else if (IS_GOD(ch)) {
 				access.set(ACCESS_CAN_SEE);
@@ -840,8 +840,8 @@ std::bitset<ACCESS_NUM> Static::get_access(CharData *ch, const Board::shared_ptr
 		case SUGGEST_BOARD:
 			// по привилегии boards/suggest и 34 полный, остальным только запись с мин левела/морта
 			if (IS_IMPL(ch)
-				|| Privilege::check_flag(ch, Privilege::BOARDS)
-				|| Privilege::check_flag(ch, Privilege::SUGGEST)) {
+				|| privilege::CheckFlag(ch, privilege::kBoards)
+				|| privilege::CheckFlag(ch, privilege::kSuggest)) {
 				access.set();
 			} else {
 				access.set(ACCESS_CAN_SEE);
@@ -857,10 +857,10 @@ std::bitset<ACCESS_NUM> Static::get_access(CharData *ch, const Board::shared_ptr
 
 	// категории граждан, которые писать могут только на клан-доски
 	if (!IS_IMMORTAL(ch)
-		&& (PLR_FLAGGED(ch, PLR_HELLED)
-			|| PLR_FLAGGED(ch, PLR_NAMED)
-			|| PLR_FLAGGED(ch, PLR_DUMB)
-			|| PLR_FLAGGED(ch, PLR_MUTE)
+		&& (PLR_FLAGGED(ch, EPlrFlag::kHelled)
+			|| PLR_FLAGGED(ch, EPlrFlag::kNameDenied)
+			|| PLR_FLAGGED(ch, EPlrFlag::kDumbed)
+			|| PLR_FLAGGED(ch, EPlrFlag::kMuted)
 			|| lvl_no_write(ch))
 		&& (board->get_type() != CLAN_BOARD && board->get_type() != CLANNEWS_BOARD)) {
 		access.reset(ACCESS_CAN_WRITE);
@@ -871,7 +871,7 @@ std::bitset<ACCESS_NUM> Static::get_access(CharData *ch, const Board::shared_ptr
 }
 
 void DoBoardList(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch))
+	if (ch->is_npc())
 		return;
 
 	std::string out(
@@ -895,7 +895,7 @@ void DoBoardList(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 }
 
 void report_on_board(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
-	if (IS_NPC(ch)) return;
+	if (ch->is_npc()) return;
 	skip_spaces(&argument);
 	delete_doubledollar(argument);
 

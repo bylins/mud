@@ -233,10 +233,10 @@ AbilitiesInfo::AbilitiesInfoBuilder::AbilitiesInfoBuilder() {
 			};
 		circumstance_handlers_register_[ECirumstance::kDrawingAttention] =
 			[](CharData *ch, CharData */* victim */) -> bool {
-				return (AFF_FLAGGED(ch, EAffectFlag::AFF_STAIRS)
-					|| AFF_FLAGGED(ch, EAffectFlag::AFF_SANCTUARY)
-					|| AFF_FLAGGED(ch, EAffectFlag::AFF_SINGLELIGHT)
-					|| AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYLIGHT));
+				return (AFF_FLAGGED(ch, EAffect::kStairs)
+					|| AFF_FLAGGED(ch, EAffect::kSanctuary)
+					|| AFF_FLAGGED(ch, EAffect::kSingleLight)
+					|| AFF_FLAGGED(ch, EAffect::kHolyLight));
 			};
 		circumstance_handlers_register_[ECirumstance::kAmbushAttack] =
 			[](CharData *ch, CharData *victim) -> bool {
@@ -248,15 +248,15 @@ AbilitiesInfo::AbilitiesInfoBuilder::AbilitiesInfoBuilder() {
 			};
 		circumstance_handlers_register_[ECirumstance::kVictimAwareness] =
 			[](CharData * /* ch */, CharData *victim) -> bool {
-				return AFF_FLAGGED(victim, EAffectFlag::AFF_AWARNESS);
+				return AFF_FLAGGED(victim, EAffect::kAwarness);
 			};
 		circumstance_handlers_register_[ECirumstance::kVictimAwake] =
 			[](CharData * /* ch */, CharData *victim) -> bool {
-				return PRF_FLAGGED(victim, PRF_AWAKE);
+				return PRF_FLAGGED(victim, EPrf::kAwake);
 			};
 		circumstance_handlers_register_[ECirumstance::kVictimHold] =
 			[](CharData * /* ch */, CharData *victim) -> bool {
-				return AFF_FLAGGED(victim, EAffectFlag::AFF_HOLD);
+				return AFF_FLAGGED(victim, EAffect::kHold);
 			};
 		circumstance_handlers_register_[ECirumstance::kVictimSleep] =
 			[](CharData * /* ch */, CharData *victim) -> bool {
@@ -264,23 +264,23 @@ AbilitiesInfo::AbilitiesInfoBuilder::AbilitiesInfoBuilder() {
 			};
 		circumstance_handlers_register_[ECirumstance::kRoomInside] =
 			[](CharData *ch, CharData * /* victim */) -> bool {
-				return (SECT(ch->in_room) == kSectInside);
+				return (SECT(ch->in_room) == ESector::kInside);
 			};
 		circumstance_handlers_register_[ECirumstance::kRoomCity] =
 			[](CharData *ch, CharData * /* victim */) -> bool {
-				return (SECT(ch->in_room) == kSectCity);
+				return (SECT(ch->in_room) == ESector::kCity);
 			};
 		circumstance_handlers_register_[ECirumstance::kRoomForest] =
 			[](CharData *ch, CharData * /* victim */) -> bool {
-				return (SECT(ch->in_room) == kSectForest);
+				return (SECT(ch->in_room) == ESector::kForest);
 			};
 		circumstance_handlers_register_[ECirumstance::kRoomHills] =
 			[](CharData *ch, CharData * /* victim */) -> bool {
-				return (SECT(ch->in_room) == kSectHills);
+				return (SECT(ch->in_room) == ESector::kHills);
 			};
 		circumstance_handlers_register_[ECirumstance::kRoomMountain] =
 			[](CharData *ch, CharData * /* victim */) -> bool {
-				return (SECT(ch->in_room) == kSectMountain);
+				return (SECT(ch->in_room) == ESector::kMountain);
 			};
 		circumstance_handlers_register_[ECirumstance::kWeatherRaining] =
 			[](CharData *ch, CharData * /* victim */) -> bool {

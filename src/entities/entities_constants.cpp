@@ -10,30 +10,30 @@
 #include <map>
 
 std::unordered_map<int, std::string> SECTOR_TYPE_BY_VALUE = {
-	{kSectInside, "inside"},
-	{kSectCity, "city"},
-	{kSectField, "field"},
-	{kSectForest, "forest"},
-	{kSectHills, "hills"},
-	{kSectMountain, "mountain"},
-	{kSectWaterSwim, "swim water"},
-	{kSectWaterNoswim, "no swim water"},
-	{kSectOnlyFlying, "flying"},
-	{kSectUnderwater, "underwater"},
-	{kSectSecret, "secret"},
-	{kSectStoneroad, "stone road"},
-	{kSectRoad, "road"},
-	{kSectWildroad, "wild road"},
-	{kSectFieldSnow, "snow field"},
-	{kSectFieldRain, "rain field"},
-	{kSectForestSnow, "snow forest"},
-	{kSectForestRain, "rain forest"},
-	{kSectHillsSnow, "snow hills"},
-	{kSectHillsRain, "rain hills"},
-	{kSectMountainSnow, "snow mountain"},
-	{kSectThinIce, "thin ice"},
-	{kSectNormalIce, "normal ice"},
-	{kSectThickIce, "thick ice"}
+	{ESector::kInside, "inside"},
+	{ESector::kCity, "city"},
+	{ESector::kField, "field"},
+	{ESector::kForest, "forest"},
+	{ESector::kHills, "hills"},
+	{ESector::kMountain, "mountain"},
+	{ESector::kWaterSwim, "swim water"},
+	{ESector::kWaterNoswim, "no swim water"},
+	{ESector::kOnlyFlying, "flying"},
+	{ESector::kUnderwater, "underwater"},
+	{ESector::kSecret, "secret"},
+	{ESector::kStoneroad, "stone road"},
+	{ESector::kRoad, "road"},
+	{ESector::kWildroad, "wild road"},
+	{ESector::kFieldSnow, "snow field"},
+	{ESector::kFieldRain, "rain field"},
+	{ESector::kForestSnow, "snow forest"},
+	{ESector::kForestRain, "rain forest"},
+	{ESector::kHillsSnow, "snow hills"},
+	{ESector::kHillsRain, "rain hills"},
+	{ESector::kMountainSnow, "snow mountain"},
+	{ESector::kThinIce, "thin ice"},
+	{ESector::kNormalIce, "normal ice"},
+	{ESector::kThickIce, "thick ice"}
 };
 
 typedef std::map<ESex, std::string> ESex_name_by_value_t;
@@ -80,23 +80,23 @@ void init_EWearFlag_ITEM_NAMES() {
 	EWearFlag_name_by_value.clear();
 	EWearFlag_value_by_name.clear();
 
-	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_TAKE] = "ITEM_WEAR_TAKE";
-	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_FINGER] = "ITEM_WEAR_FINGER";
-	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_NECK] = "ITEM_WEAR_NECK";
-	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_BODY] = "ITEM_WEAR_BODY";
-	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_HEAD] = "ITEM_WEAR_HEAD";
-	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_LEGS] = "ITEM_WEAR_LEGS";
-	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_FEET] = "ITEM_WEAR_FEET";
-	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_HANDS] = "ITEM_WEAR_HANDS";
-	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_ARMS] = "ITEM_WEAR_ARMS";
-	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_SHIELD] = "ITEM_WEAR_SHIELD";
-	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_ABOUT] = "ITEM_WEAR_ABOUT";
-	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_WAIST] = "ITEM_WEAR_WAIST";
-	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_WRIST] = "ITEM_WEAR_WRIST";
-	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_WIELD] = "ITEM_WEAR_WIELD";
-	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_HOLD] = "ITEM_WEAR_HOLD";
-	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_BOTHS] = "ITEM_WEAR_BOTHS";
-	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_QUIVER] = "ITEM_WEAR_QUIVER";
+	EWearFlag_name_by_value[EWearFlag::kTake] = "kTake";
+	EWearFlag_name_by_value[EWearFlag::kFinger] = "kFinger";
+	EWearFlag_name_by_value[EWearFlag::kNeck] = "kNeck";
+	EWearFlag_name_by_value[EWearFlag::kBody] = "kBody";
+	EWearFlag_name_by_value[EWearFlag::kHead] = "kHead";
+	EWearFlag_name_by_value[EWearFlag::kLegs] = "kLegs";
+	EWearFlag_name_by_value[EWearFlag::kFeet] = "kFeet";
+	EWearFlag_name_by_value[EWearFlag::kHands] = "kHands";
+	EWearFlag_name_by_value[EWearFlag::kArms] = "kArms";
+	EWearFlag_name_by_value[EWearFlag::kShield] = "kShield";
+	EWearFlag_name_by_value[EWearFlag::kShoulders] = "kShoulders";
+	EWearFlag_name_by_value[EWearFlag::kWaist] = "kWaist";
+	EWearFlag_name_by_value[EWearFlag::kWrist] = "kWrist";
+	EWearFlag_name_by_value[EWearFlag::kWield] = "kWield";
+	EWearFlag_name_by_value[EWearFlag::kHold] = "kHold";
+	EWearFlag_name_by_value[EWearFlag::kBoth] = "kBoth";
+	EWearFlag_name_by_value[EWearFlag::kQuiver] = "kQuiver";
 
 	for (const auto &i : EWearFlag_name_by_value) {
 		EWearFlag_value_by_name[i.second] = i.first;
@@ -119,84 +119,84 @@ EWearFlag ITEM_BY_NAME<EWearFlag>(const std::string &name) {
 	return EWearFlag_value_by_name.at(name);
 }
 
-typedef std::map<EExtraFlag, std::string> EExtraFlag_name_by_value_t;
-typedef std::map<const std::string, EExtraFlag> EExtraFlag_value_by_name_t;
-EExtraFlag_name_by_value_t EExtraFlag_name_by_value;
-EExtraFlag_value_by_name_t EExtraFlag_value_by_name;
+typedef std::map<EObjFlag, std::string> EObjFlag_name_by_value_t;
+typedef std::map<const std::string, EObjFlag> EObjFlag_value_by_name_t;
+EObjFlag_name_by_value_t EObjFlag_name_by_value;
+EObjFlag_value_by_name_t EObjFlag_value_by_name;
 
-void init_EExtraFlag_ITEM_NAMES() {
-	EExtraFlag_name_by_value.clear();
-	EExtraFlag_value_by_name.clear();
+void init_EObjFlag_ITEM_NAMES() {
+	EObjFlag_name_by_value.clear();
+	EObjFlag_value_by_name.clear();
 
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_GLOW] = "ITEM_GLOW";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_HUM] = "ITEM_HUM";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_NORENT] = "ITEM_NORENT";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_NODONATE] = "ITEM_NODONATE";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_NOINVIS] = "ITEM_NOINVIS";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_INVISIBLE] = "ITEM_INVISIBLE";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_MAGIC] = "ITEM_MAGIC";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_NODROP] = "ITEM_NODROP";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_BLESS] = "ITEM_BLESS";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_NOSELL] = "ITEM_NOSELL";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_DECAY] = "ITEM_DECAY";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_ZONEDECAY] = "ITEM_ZONEDECAY";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_NODISARM] = "ITEM_NODISARM";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_NODECAY] = "ITEM_NODECAY";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_POISONED] = "ITEM_POISONED";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_SHARPEN] = "ITEM_SHARPEN";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_ARMORED] = "ITEM_ARMORED";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_DAY] = "ITEM_DAY";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_NIGHT] = "ITEM_NIGHT";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_FULLMOON] = "ITEM_FULLMOON";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_WINTER] = "ITEM_WINTER";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_SPRING] = "ITEM_SPRING";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_SUMMER] = "ITEM_SUMMER";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_AUTUMN] = "ITEM_AUTUMN";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_SWIMMING] = "ITEM_SWIMMING";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_FLYING] = "ITEM_FLYING";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_THROWING] = "ITEM_THROWING";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_TICKTIMER] = "ITEM_TICKTIMER";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_FIRE] = "ITEM_FIRE";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_REPOP_DECAY] = "ITEM_REPOP_DECAY";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_NOLOCATE] = "ITEM_NOLOCATE";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_TIMEDLVL] = "ITEM_TIMEDLVL";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_NOALTER] = "ITEM_NOALTER";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_WITH1SLOT] = "ITEM_WITH1SLOT";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_WITH2SLOTS] = "ITEM_WITH2SLOTS";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_WITH3SLOTS] = "ITEM_WITH3SLOTS";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_SETSTUFF] = "ITEM_SETSTUFF";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_NO_FAIL] = "ITEM_NO_FAIL";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_NAMED] = "ITEM_NAMED";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_BLOODY] = "ITEM_BLOODY";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_1INLAID] = "ITEM_1INLAID";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_2INLAID] = "ITEM_2INLAID";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_3INLAID] = "ITEM_3INLAID";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_NOPOUR] = "ITEM_NOPOUR";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_UNIQUE] = "ITEM_UNIQUE";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_TRANSFORMED] = "ITEM_TRANSFORMED";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_NOT_UNLIMIT_TIMER] = "ITEM_NOT_UNLIMIT_TIMER";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_UNIQUE_WHEN_PURCHASE] = "ITEM_UNIQUE_WHEN_PURCHASE";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_NOT_ONE_CLANCHEST] = "ITEM_NOT_ONE_CLANCHEST";
+	EObjFlag_name_by_value[EObjFlag::kGlow] = "kGlow";
+	EObjFlag_name_by_value[EObjFlag::kHum] = "kHum";
+	EObjFlag_name_by_value[EObjFlag::kNorent] = "kNorent";
+	EObjFlag_name_by_value[EObjFlag::kNodonate] = "kNodonate";
+	EObjFlag_name_by_value[EObjFlag::kNoinvis] = "kNoinvis";
+	EObjFlag_name_by_value[EObjFlag::kInvisible] = "kInvisible";
+	EObjFlag_name_by_value[EObjFlag::kMagic] = "kMagic";
+	EObjFlag_name_by_value[EObjFlag::kNodrop] = "kNodrop";
+	EObjFlag_name_by_value[EObjFlag::kBless] = "kBless";
+	EObjFlag_name_by_value[EObjFlag::kNosell] = "kNosell";
+	EObjFlag_name_by_value[EObjFlag::kDecay] = "kDecay";
+	EObjFlag_name_by_value[EObjFlag::kZonedacay] = "kZonedacay";
+	EObjFlag_name_by_value[EObjFlag::kNodisarm] = "kNodisarm";
+	EObjFlag_name_by_value[EObjFlag::kNodecay] = "kNodecay";
+	EObjFlag_name_by_value[EObjFlag::kPoisoned] = "kPoisoned";
+	EObjFlag_name_by_value[EObjFlag::kSharpen] = "kSharpen";
+	EObjFlag_name_by_value[EObjFlag::kArmored] = "kArmored";
+	EObjFlag_name_by_value[EObjFlag::kAppearsDay] = "kAppearsDay";
+	EObjFlag_name_by_value[EObjFlag::kAppearsNight] = "kAppearsNight";
+	EObjFlag_name_by_value[EObjFlag::kAppearsFullmoon] = "kAppearsFullmoon";
+	EObjFlag_name_by_value[EObjFlag::kAppearsWinter] = "kAppearsWinter";
+	EObjFlag_name_by_value[EObjFlag::kAppearsSpring] = "kAppearsSpring";
+	EObjFlag_name_by_value[EObjFlag::kAppearsSummer] = "kAppearsSummer";
+	EObjFlag_name_by_value[EObjFlag::kAppearsAutumn] = "kAppearsAutumn";
+	EObjFlag_name_by_value[EObjFlag::kSwimming] = "kSwimming";
+	EObjFlag_name_by_value[EObjFlag::kFlying] = "kFlying";
+	EObjFlag_name_by_value[EObjFlag::kThrowing] = "kThrowing";
+	EObjFlag_name_by_value[EObjFlag::kTicktimer] = "kTicktimer";
+	EObjFlag_name_by_value[EObjFlag::kFire] = "kFire";
+	EObjFlag_name_by_value[EObjFlag::kRepopDecay] = "kRepopDecay";
+	EObjFlag_name_by_value[EObjFlag::kNolocate] = "kNolocate";
+	EObjFlag_name_by_value[EObjFlag::kTimedLvl] = "kTimedLvl";
+	EObjFlag_name_by_value[EObjFlag::kNoalter] = "kNoalter";
+	EObjFlag_name_by_value[EObjFlag::kHasOneSlot] = "kHasOneSlot";
+	EObjFlag_name_by_value[EObjFlag::kHasTwoSlots] = "kHasTwoSlots";
+	EObjFlag_name_by_value[EObjFlag::kHasThreeSlots] = "kHasThreeSlots";
+	EObjFlag_name_by_value[EObjFlag::KSetItem] = "KSetItem";
+	EObjFlag_name_by_value[EObjFlag::KNofail] = "KNofail";
+	EObjFlag_name_by_value[EObjFlag::kNamed] = "kNamed";
+	EObjFlag_name_by_value[EObjFlag::kBloody] = "kBloody";
+	EObjFlag_name_by_value[EObjFlag::k1inlaid] = "k1inlaid";
+	EObjFlag_name_by_value[EObjFlag::k2inlaid] = "k2inlaid";
+	EObjFlag_name_by_value[EObjFlag::k3inlaid] = "k3inlaid";
+	EObjFlag_name_by_value[EObjFlag::kNopour] = "kNopour";
+	EObjFlag_name_by_value[EObjFlag::kUnique] = "kUnique";
+	EObjFlag_name_by_value[EObjFlag::kTransformed] = "kTransformed";
+	EObjFlag_name_by_value[EObjFlag::KLimitedTimer] = "KLimitedTimer";
+	EObjFlag_name_by_value[EObjFlag::kBindOnPurchase] = "kBindOnPurchase";
+	EObjFlag_name_by_value[EObjFlag::kNotOneInClanChest] = "kNotOneInClanChest";
 
-	for (const auto &i : EExtraFlag_name_by_value) {
-		EExtraFlag_value_by_name[i.second] = i.first;
+	for (const auto &i : EObjFlag_name_by_value) {
+		EObjFlag_value_by_name[i.second] = i.first;
 	}
 }
 
 template<>
-const std::string &NAME_BY_ITEM(const EExtraFlag item) {
-	if (EExtraFlag_name_by_value.empty()) {
-		init_EExtraFlag_ITEM_NAMES();
+const std::string &NAME_BY_ITEM(const EObjFlag item) {
+	if (EObjFlag_name_by_value.empty()) {
+		init_EObjFlag_ITEM_NAMES();
 	}
-	return EExtraFlag_name_by_value.at(item);
+	return EObjFlag_name_by_value.at(item);
 }
 
 template<>
-EExtraFlag ITEM_BY_NAME(const std::string &name) {
-	if (EExtraFlag_name_by_value.empty()) {
-		init_EExtraFlag_ITEM_NAMES();
+EObjFlag ITEM_BY_NAME(const std::string &name) {
+	if (EObjFlag_name_by_value.empty()) {
+		init_EObjFlag_ITEM_NAMES();
 	}
-	return EExtraFlag_value_by_name.at(name);
+	return EObjFlag_value_by_name.at(name);
 }
 
 typedef std::map<ENoFlag, std::string> ENoFlag_name_by_value_t;
@@ -207,46 +207,31 @@ void init_ENoFlag_ITEM_NAMES() {
 	ENoFlag_value_by_name.clear();
 	ENoFlag_name_by_value.clear();
 
-	ENoFlag_name_by_value[ENoFlag::ITEM_NO_MONO] = "ITEM_NO_MONO";
-	ENoFlag_name_by_value[ENoFlag::ITEM_NO_POLY] = "ITEM_NO_POLY";
-	ENoFlag_name_by_value[ENoFlag::ITEM_NO_NEUTRAL] = "ITEM_NO_NEUTRAL";
-	ENoFlag_name_by_value[ENoFlag::ITEM_NO_MAGIC_USER] = "ITEM_NO_MAGIC_USER";
-	ENoFlag_name_by_value[ENoFlag::ITEM_NO_CLERIC] = "ITEM_NO_CLERIC";
-	ENoFlag_name_by_value[ENoFlag::ITEM_NO_THIEF] = "ITEM_NO_THIEF";
-	ENoFlag_name_by_value[ENoFlag::ITEM_NO_WARRIOR] = "ITEM_NO_WARRIOR";
-	ENoFlag_name_by_value[ENoFlag::ITEM_NO_ASSASINE] = "ITEM_NO_ASSASINE";
-	ENoFlag_name_by_value[ENoFlag::ITEM_NO_GUARD] = "ITEM_NO_GUARD";
-	ENoFlag_name_by_value[ENoFlag::ITEM_NO_PALADINE] = "ITEM_NO_PALADINE";
-	ENoFlag_name_by_value[ENoFlag::ITEM_NO_RANGER] = "ITEM_NO_RANGER";
-	ENoFlag_name_by_value[ENoFlag::ITEM_NO_SMITH] = "ITEM_NO_SMITH";
-	ENoFlag_name_by_value[ENoFlag::ITEM_NO_MERCHANT] = "ITEM_NO_MERCHANT";
-	ENoFlag_name_by_value[ENoFlag::ITEM_NO_DRUID] = "ITEM_NO_DRUID";
-	ENoFlag_name_by_value[ENoFlag::ITEM_NO_BATTLEMAGE] = "ITEM_NO_BATTLEMAGE";
-	ENoFlag_name_by_value[ENoFlag::ITEM_NO_CHARMMAGE] = "ITEM_NO_CHARMMAGE";
-	ENoFlag_name_by_value[ENoFlag::ITEM_NO_DEFENDERMAGE] = "ITEM_NO_DEFENDERMAGE";
-	ENoFlag_name_by_value[ENoFlag::ITEM_NO_NECROMANCER] = "ITEM_NO_NECROMANCER";
-	ENoFlag_name_by_value[ENoFlag::ITEM_NO_FIGHTER_USER] = "ITEM_NO_FIGHTER_USER";
-	ENoFlag_name_by_value[ENoFlag::ITEM_NO_KILLER] = "ITEM_NO_KILLER";
-	ENoFlag_name_by_value[ENoFlag::ITEM_NO_COLORED] = "ITEM_NO_COLORED";
-	ENoFlag_name_by_value[ENoFlag::ITEM_NO_BD] = "ITEM_NO_BD";
-	ENoFlag_name_by_value[ENoFlag::ITEM_NO_MALE] = "ITEM_NO_MALE";
-	ENoFlag_name_by_value[ENoFlag::ITEM_NO_FEMALE] = "ITEM_NO_FEMALE";
-	ENoFlag_name_by_value[ENoFlag::ITEM_NO_CHARMICE] = "ITEM_NO_CHARMICE";
-	ENoFlag_name_by_value[ENoFlag::ITEM_NO_POLOVCI] = "ITEM_NO_POLOVCI";
-	ENoFlag_name_by_value[ENoFlag::ITEM_NO_PECHENEGI] = "ITEM_NO_PECHENEGI";
-	ENoFlag_name_by_value[ENoFlag::ITEM_NO_MONGOLI] = "ITEM_NO_MONGOLI";
-	ENoFlag_name_by_value[ENoFlag::ITEM_NO_YIGURI] = "ITEM_NO_YIGURI";
-	ENoFlag_name_by_value[ENoFlag::ITEM_NO_KANGARI] = "ITEM_NO_KANGARI";
-	ENoFlag_name_by_value[ENoFlag::ITEM_NO_XAZARI] = "ITEM_NO_XAZARI";
-	ENoFlag_name_by_value[ENoFlag::ITEM_NO_SVEI] = "ITEM_NO_SVEI";
-	ENoFlag_name_by_value[ENoFlag::ITEM_NO_DATCHANE] = "ITEM_NO_DATCHANE";
-	ENoFlag_name_by_value[ENoFlag::ITEM_NO_GETTI] = "ITEM_NO_GETTI";
-	ENoFlag_name_by_value[ENoFlag::ITEM_NO_UTTI] = "ITEM_NO_UTTI";
-	ENoFlag_name_by_value[ENoFlag::ITEM_NO_XALEIGI] = "ITEM_NO_XALEIGI";
-	ENoFlag_name_by_value[ENoFlag::ITEM_NO_NORVEZCI] = "ITEM_NO_NORVEZCI";
-	ENoFlag_name_by_value[ENoFlag::ITEM_NO_RUSICHI] = "ITEM_NO_RUSICHI";
-	ENoFlag_name_by_value[ENoFlag::ITEM_NO_STEPNYAKI] = "ITEM_NO_STEPNYAKI";
-	ENoFlag_name_by_value[ENoFlag::ITEM_NO_VIKINGI] = "ITEM_NO_VIKINGI";
+	ENoFlag_name_by_value[ENoFlag::kMono] = "kMono";
+	ENoFlag_name_by_value[ENoFlag::kPoly] = "kPoly";
+	ENoFlag_name_by_value[ENoFlag::kNeutral] = "kNeutral";
+	ENoFlag_name_by_value[ENoFlag::kMage] = "kMage";
+	ENoFlag_name_by_value[ENoFlag::kSorcerer] = "kSorcerer";
+	ENoFlag_name_by_value[ENoFlag::kThief] = "kThief";
+	ENoFlag_name_by_value[ENoFlag::kWarrior] = "kWarrior";
+	ENoFlag_name_by_value[ENoFlag::kAssasine] = "kAssasine";
+	ENoFlag_name_by_value[ENoFlag::kGuard] = "kGuard";
+	ENoFlag_name_by_value[ENoFlag::kPaladine] = "kPaladine";
+	ENoFlag_name_by_value[ENoFlag::kRanger] = "kRanger";
+	ENoFlag_name_by_value[ENoFlag::kVigilant] = "kVigilant";
+	ENoFlag_name_by_value[ENoFlag::kMerchant] = "kMerchant";
+	ENoFlag_name_by_value[ENoFlag::kMagus] = "kMagus";
+	ENoFlag_name_by_value[ENoFlag::kConjurer] = "kConjurer";
+	ENoFlag_name_by_value[ENoFlag::kCharmer] = "kCharmer";
+	ENoFlag_name_by_value[ENoFlag::kWIzard] = "kWIzard";
+	ENoFlag_name_by_value[ENoFlag::kNecromancer] = "kNecromancer";
+	ENoFlag_name_by_value[ENoFlag::kFighter] = "kFighter";
+	ENoFlag_name_by_value[ENoFlag::kKiller] = "kKiller";
+	ENoFlag_name_by_value[ENoFlag::kColored] = "kColored";
+	ENoFlag_name_by_value[ENoFlag::kBattle] = "kBattle";
+	ENoFlag_name_by_value[ENoFlag::kMale] = "kMale";
+	ENoFlag_name_by_value[ENoFlag::kFemale] = "kFemale";
+	ENoFlag_name_by_value[ENoFlag::kCharmice] = "kCharmice";
 
 	for (const auto &i : ENoFlag_name_by_value) {
 		ENoFlag_value_by_name[i.second] = i.first;
@@ -277,52 +262,32 @@ void init_EAntiFlag_ITEM_NAMES() {
 	EAntiFlag_value_by_name.clear();
 	EAntiFlag_name_by_value.clear();
 
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_MONO] = "ITEM_AN_MONO";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_POLY] = "ITEM_AN_POLY";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_NEUTRAL] = "ITEM_AN_NEUTRAL";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_MAGIC_USER] = "ITEM_AN_MAGIC_USER";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_CLERIC] = "ITEM_AN_CLERIC";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_THIEF] = "ITEM_AN_THIEF";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_WARRIOR] = "ITEM_AN_WARRIOR";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_ASSASINE] = "ITEM_AN_ASSASINE";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_GUARD] = "ITEM_AN_GUARD";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_PALADINE] = "ITEM_AN_PALADINE";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_RANGER] = "ITEM_AN_RANGER";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_SMITH] = "ITEM_AN_SMITH";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_MERCHANT] = "ITEM_AN_MERCHANT";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_DRUID] = "ITEM_AN_DRUID";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_BATTLEMAGE] = "ITEM_AN_BATTLEMAGE";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_CHARMMAGE] = "ITEM_AN_CHARMMAGE";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_DEFENDERMAGE] = "ITEM_AN_DEFENDERMAGE";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_NECROMANCER] = "ITEM_AN_NECROMANCER";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_FIGHTER_USER] = "ITEM_AN_FIGHTER_USER";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_KILLER] = "ITEM_AN_KILLER";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_COLORED] = "ITEM_AN_COLORED";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_BD] = "ITEM_AN_BD";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_SEVERANE] = "ITEM_AN_SEVERANE";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_POLANE] = "ITEM_AN_POLANE";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_KRIVICHI] = "ITEM_AN_KRIVICHI";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_VATICHI] = "ITEM_AN_VATICHI";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_VELANE] = "ITEM_AN_VELANE";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_DREVLANE] = "ITEM_AN_DREVLANE";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_MALE] = "ITEM_AN_MALE";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_FEMALE] = "ITEM_AN_FEMALE";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_CHARMICE] = "ITEM_AN_CHARMICE";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_POLOVCI] = "ITEM_AN_POLOVCI";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_PECHENEGI] = "ITEM_AN_PECHENEGI";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_MONGOLI] = "ITEM_AN_MONGOLI";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_YIGURI] = "ITEM_AN_YIGURI";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_KANGARI] = "ITEM_AN_KANGARI";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_XAZARI] = "ITEM_AN_XAZARI";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_SVEI] = "ITEM_AN_SVEI";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_DATCHANE] = "ITEM_AN_DATCHANE";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_GETTI] = "ITEM_AN_GETTI";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_UTTI] = "ITEM_AN_UTTI";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_XALEIGI] = "ITEM_AN_XALEIGI";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_NORVEZCI] = "ITEM_AN_NORVEZCI";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_RUSICHI] = "ITEM_AN_RUSICHI";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_STEPNYAKI] = "ITEM_AN_STEPNYAKI";
-	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_VIKINGI] = "ITEM_AN_VIKINGI";
+	EAntiFlag_name_by_value[EAntiFlag::kMono] = "kMono";
+	EAntiFlag_name_by_value[EAntiFlag::kPoly] = "kPoly";
+	EAntiFlag_name_by_value[EAntiFlag::kNeutral] = "kNeutral";
+	EAntiFlag_name_by_value[EAntiFlag::kMage] = "kMage";
+	EAntiFlag_name_by_value[EAntiFlag::kSorcerer] = "kSorcerer";
+	EAntiFlag_name_by_value[EAntiFlag::kThief] = "kThief";
+	EAntiFlag_name_by_value[EAntiFlag::kWarrior] = "kWarrior";
+	EAntiFlag_name_by_value[EAntiFlag::kAssasine] = "kAssasine";
+	EAntiFlag_name_by_value[EAntiFlag::kGuard] = "kGuard";
+	EAntiFlag_name_by_value[EAntiFlag::kPaladine] = "kPaladine";
+	EAntiFlag_name_by_value[EAntiFlag::kRanger] = "kRanger";
+	EAntiFlag_name_by_value[EAntiFlag::kVigilant] = "kVigilant";
+	EAntiFlag_name_by_value[EAntiFlag::kMerchant] = "kMerchant";
+	EAntiFlag_name_by_value[EAntiFlag::kMagus] = "kMagus";
+	EAntiFlag_name_by_value[EAntiFlag::kConjurer] = "kConjurer";
+	EAntiFlag_name_by_value[EAntiFlag::kCharmer] = "kCharmer";
+	EAntiFlag_name_by_value[EAntiFlag::kWizard] = "kWizard";
+	EAntiFlag_name_by_value[EAntiFlag::kNecromancer] = "kNecromancer";
+	EAntiFlag_name_by_value[EAntiFlag::kFighter] = "kFighter";
+	EAntiFlag_name_by_value[EAntiFlag::kKiller] = "kKiller";
+	EAntiFlag_name_by_value[EAntiFlag::kColored] = "kColored";
+	EAntiFlag_name_by_value[EAntiFlag::kBattle] = "kBattle";
+	EAntiFlag_name_by_value[EAntiFlag::kMale] = "kMale";
+	EAntiFlag_name_by_value[EAntiFlag::kFemale] = "kFemale";
+	EAntiFlag_name_by_value[EAntiFlag::kCharmice] = "kCharmice";
+	EAntiFlag_name_by_value[EAntiFlag::kNoPkClan] = "kNoPkClan";
 
 	for (const auto &i : EAntiFlag_name_by_value) {
 		EAntiFlag_value_by_name[i.second] = i.first;
@@ -436,6 +401,126 @@ EPosition operator--(const EPosition &p) {
 ESaving& operator++(ESaving &s) {
 	s =  static_cast<ESaving>(to_underlying(s) + 1);
 	return s;
+}
+
+typedef std::map<EObjType, std::string> EObjectType_name_by_value_t;
+typedef std::map<const std::string, EObjType> EObjectType_value_by_name_t;
+EObjectType_name_by_value_t EObjectType_name_by_value;
+EObjectType_value_by_name_t EObjectType_value_by_name;
+void init_EObjectType_ITEM_NAMES() {
+	EObjectType_value_by_name.clear();
+	EObjectType_name_by_value.clear();
+
+	EObjectType_name_by_value[EObjType::kLightSource] = "kLight";
+	EObjectType_name_by_value[EObjType::kScroll] = "kScroll";
+	EObjectType_name_by_value[EObjType::kWand] = "kWand";
+	EObjectType_name_by_value[EObjType::kStaff] = "kStaff";
+	EObjectType_name_by_value[EObjType::kWeapon] = "kWeapon";
+	EObjectType_name_by_value[EObjType::kElementWeapon] = "kElementWeapon";
+	EObjectType_name_by_value[EObjType::kMissile] = "kMissile";
+	EObjectType_name_by_value[EObjType::kTreasure] = "kTreasure";
+	EObjectType_name_by_value[EObjType::kArmor] = "kArmor";
+	EObjectType_name_by_value[EObjType::kPorion] = "kPorion";
+	EObjectType_name_by_value[EObjType::kWorm] = "kWorm";
+	EObjectType_name_by_value[EObjType::kOther] = "kOther";
+	EObjectType_name_by_value[EObjType::kTrash] = "kTrash";
+	EObjectType_name_by_value[EObjType::kTrap] = "kTrap";
+	EObjectType_name_by_value[EObjType::kContainer] = "kContainer";
+	EObjectType_name_by_value[EObjType::kNote] = "kNote";
+	EObjectType_name_by_value[EObjType::kLiquidContainer] = "kLiquidContainer";
+	EObjectType_name_by_value[EObjType::kKey] = "kKey";
+	EObjectType_name_by_value[EObjType::kFood] = "kFood";
+	EObjectType_name_by_value[EObjType::kMoney] = "kMoney";
+	EObjectType_name_by_value[EObjType::kPen] = "kPen";
+	EObjectType_name_by_value[EObjType::kBoat] = "kBoat";
+	EObjectType_name_by_value[EObjType::kFountain] = "kFounrain";
+	EObjectType_name_by_value[EObjType::kBook] = "kBook";
+	EObjectType_name_by_value[EObjType::kIngredient] = "kIngredient";
+	EObjectType_name_by_value[EObjType::kMagicIngredient] = "kMagicIngredient";
+	EObjectType_name_by_value[EObjType::kCraftMaterial] = "kCraftMaterial";
+	EObjectType_name_by_value[EObjType::kBandage] = "kBandage";
+	EObjectType_name_by_value[EObjType::kLightArmor] = "kLightArmor";
+	EObjectType_name_by_value[EObjType::kMediumArmor] = "kMediumArmor";
+	EObjectType_name_by_value[EObjType::kHeavyArmor] = "kHeavyArmor";
+	EObjectType_name_by_value[EObjType::kEnchant] = "kEnchant";
+	EObjectType_name_by_value[EObjType::kMagicMaterial] = "kMagicMaterial";
+	EObjectType_name_by_value[EObjType::kMagicArrow] = "kMagicArrow";
+	EObjectType_name_by_value[EObjType::kMagicContaner] = "kMagicContaner";
+	EObjectType_name_by_value[EObjType::kCraftMaterial2] = "kCraftMaterial2";
+
+	for (const auto &i : EObjectType_name_by_value) {
+		EObjectType_value_by_name[i.second] = i.first;
+	}
+}
+
+template<>
+const std::string &NAME_BY_ITEM<EObjType>(const EObjType item) {
+	if (EObjectType_name_by_value.empty()) {
+		init_EObjectType_ITEM_NAMES();
+	}
+	return EObjectType_name_by_value.at(item);
+}
+
+template<>
+EObjType ITEM_BY_NAME(const std::string &name) {
+	if (EObjectType_name_by_value.empty()) {
+		init_EObjectType_ITEM_NAMES();
+	}
+	return EObjectType_value_by_name.at(name);
+}
+
+typedef std::map<EObjMaterial, std::string> EObjMaterial_name_by_value_t;
+typedef std::map<const std::string, EObjMaterial> EObjMaterial_value_by_name_t;
+EObjMaterial_name_by_value_t EObjMaterial_name_by_value;
+EObjMaterial_value_by_name_t EObjMaterial_value_by_name;
+void init_EObjMaterial_ITEM_NAMES() {
+	EObjMaterial_value_by_name.clear();
+	EObjMaterial_name_by_value.clear();
+
+	EObjMaterial_name_by_value[EObjMaterial::kMaterialUndefined] = "kMaterialUndefined";
+	EObjMaterial_name_by_value[EObjMaterial::kBulat] = "kBulat";
+	EObjMaterial_name_by_value[EObjMaterial::kBronze] = "kBronze";
+	EObjMaterial_name_by_value[EObjMaterial::kIron] = "kIron";
+	EObjMaterial_name_by_value[EObjMaterial::kSteel] = "kSteel";
+	EObjMaterial_name_by_value[EObjMaterial::kForgedSteel] = "kForgedSteel";
+	EObjMaterial_name_by_value[EObjMaterial::kPreciousMetel] = "kPreciousMetel";
+	EObjMaterial_name_by_value[EObjMaterial::kCrystal] = "kCrystal";
+	EObjMaterial_name_by_value[EObjMaterial::kWood] = "kWood";
+	EObjMaterial_name_by_value[EObjMaterial::kHardWood] = "kSolidWood";
+	EObjMaterial_name_by_value[EObjMaterial::kCeramic] = "kCeramic";
+	EObjMaterial_name_by_value[EObjMaterial::kGlass] = "kGlass";
+	EObjMaterial_name_by_value[EObjMaterial::kStone] = "kStone";
+	EObjMaterial_name_by_value[EObjMaterial::kBone] = "kBone";
+	EObjMaterial_name_by_value[EObjMaterial::kCloth] = "kCloth";
+	EObjMaterial_name_by_value[EObjMaterial::kSkin] = "kSkin";
+	EObjMaterial_name_by_value[EObjMaterial::kOrganic] = "kOrganic";
+	EObjMaterial_name_by_value[EObjMaterial::kPaper] = "kPaper";
+	EObjMaterial_name_by_value[EObjMaterial::kDiamond] = "kDiamond";
+
+	for (const auto &i : EObjMaterial_name_by_value) {
+		EObjMaterial_value_by_name[i.second] = i.first;
+	}
+}
+
+template<>
+const std::string &NAME_BY_ITEM<EObjMaterial>(const EObjMaterial item) {
+	if (EObjMaterial_name_by_value.empty()) {
+		init_EObjMaterial_ITEM_NAMES();
+	}
+	return EObjMaterial_name_by_value.at(item);
+}
+
+template<>
+EObjMaterial ITEM_BY_NAME(const std::string &name) {
+	if (EObjMaterial_name_by_value.empty()) {
+		init_EObjMaterial_ITEM_NAMES();
+	}
+	return EObjMaterial_value_by_name.at(name);
+}
+
+EResist& operator++(EResist &r) {
+	r =  static_cast<EResist>(to_underlying(r) + 1);
+	return r;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

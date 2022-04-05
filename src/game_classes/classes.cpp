@@ -33,6 +33,8 @@
 #include "game_magic/spells_info.h"
 #include "structs/global_objects.h"
 
+const int kExpImpl = 2000000000;
+
 extern int siteok_everyone;
 extern double exp_coefficients[];
 
@@ -447,7 +449,7 @@ int thaco(int class_num, int level) {
 				case 32: return 0;
 				case 33: return 0;
 				case 34: return 0;
-				default: log("SYSERR: Missing level for cleric thac0.");
+				default: log("SYSERR: Missing level for sorcerer thac0.");
 					break;
 			}
 			 break;
@@ -1074,12 +1076,12 @@ void do_start(CharData *ch, int newbie) {
 		for (int & i : outfit_list) {
 			const ObjData::shared_ptr obj = world_objects.create_from_prototype_by_vnum(i);
 			if (obj) {
-				obj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
-				obj->set_extra_flag(EExtraFlag::ITEM_DECAY);
+				obj->set_extra_flag(EObjFlag::kNosell);
+				obj->set_extra_flag(EObjFlag::kDecay);
 				obj->set_cost(0);
 				obj->set_rent_off(0);
 				obj->set_rent_on(0);
-				obj_to_char(obj.get(), ch);
+				PlaceObjToInventory(obj.get(), ch);
 				Noob::equip_start_outfit(ch, obj.get());
 			}
 		}
@@ -1125,7 +1127,7 @@ void do_start(CharData *ch, int newbie) {
 	// проставим кличи
 	init_warcry(ch);
 	if (siteok_everyone) {
-		PLR_FLAGS(ch).set(PLR_SITEOK);
+		PLR_FLAGS(ch).set(EPlrFlag::kSiteOk);
 	}
 }
 
@@ -1137,9 +1139,9 @@ void check_max_hp(CharData *ch) {
 
 // * Обработка событий при левел-апе.
 void levelup_events(CharData *ch) {
-	if (SpamSystem::MIN_OFFTOP_LVL == GetRealLevel(ch)
+	if (antispam::kMinOfftopLvl == GetRealLevel(ch)
 		&& !ch->get_disposable_flag(DIS_OFFTOP_MESSAGE)) {
-		PRF_FLAGS(ch).set(PRF_OFFTOP_MODE);
+		PRF_FLAGS(ch).set(EPrf::kOfftopMode);
 		ch->set_disposable_flag(DIS_OFFTOP_MESSAGE);
 		send_to_char(ch,
 					 "%sТеперь вы можете пользоваться каналом оффтоп ('справка оффтоп').%s\r\n",
@@ -1190,7 +1192,7 @@ void advance_level(CharData *ch) {
 		for (i = 0; i < 3; i++) {
 			GET_COND(ch, i) = (char) -1;
 		}
-		PRF_FLAGS(ch).set(PRF_HOLYLIGHT);
+		PRF_FLAGS(ch).set(EPrf::kHolylight);
 	}
 
 	TopPlayer::Refresh(ch);
@@ -1227,7 +1229,7 @@ void decrease_level(CharData *ch) {
 
 	GET_WIMP_LEV(ch) = MAX(0, MIN(GET_WIMP_LEV(ch), GET_REAL_MAX_HIT(ch) / 2));
 	if (!IS_IMMORTAL(ch)) {
-		PRF_FLAGS(ch).unset(PRF_HOLYLIGHT);
+		PRF_FLAGS(ch).unset(EPrf::kHolylight);
 	}
 
 	TopPlayer::Refresh(ch);
@@ -1250,8 +1252,8 @@ int invalid_unique(CharData *ch, const ObjData *obj) {
 	}
 	if (!ch
 		|| !obj
-		|| (IS_NPC(ch)
-			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+		|| (ch->is_npc()
+			&& !AFF_FLAGGED(ch, EAffect::kCharmed))
 		|| IS_IMMORTAL(ch)
 		|| obj->get_owner() == 0
 		|| obj->get_owner() == GET_UNIQUE(ch)) {
@@ -1261,7 +1263,7 @@ int invalid_unique(CharData *ch, const ObjData *obj) {
 }
 
 bool unique_stuff(const CharData *ch, const ObjData *obj) {
-	for (unsigned int i = 0; i < NUM_WEARS; i++)
+	for (unsigned int i = 0; i < EEquipPos::kNumEquipPos; i++)
 		if (GET_EQ(ch, i) && (GET_OBJ_VNUM(GET_EQ(ch, i)) == GET_OBJ_VNUM(obj))) {
 			return true;
 		}
@@ -1276,81 +1278,81 @@ int invalid_anti_class(CharData *ch, const ObjData *obj) {
 			}
 		}
 	}
-	if (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMICE)
-		&& AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
+	if (IS_OBJ_ANTI(obj, EAntiFlag::kCharmice)
+		&& AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		return (true);
 	}
-	if ((IS_NPC(ch) || WAITLESS(ch)) && !IS_CHARMICE(ch)) {
+	if ((ch->is_npc() || IS_IMMORTAL(ch)) && !IS_CHARMICE(ch)) {
 		return (false);
 	}
-	if ((IS_OBJ_ANTI(obj, EAntiFlag::ITEM_NOT_FOR_NOPK) && char_to_pk_clan(ch))) {
+	if ((IS_OBJ_ANTI(obj, EAntiFlag::kNoPkClan) && char_to_pk_clan(ch))) {
 		return (true);
 	}
 
-	if ((IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MONO) && GET_RELIGION(ch) == kReligionMono)
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_POLY) && GET_RELIGION(ch) == kReligionPoly)
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MAGIC_USER) && IS_MAGIC_USER(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_BATTLEMAGE) && IS_CONJURER(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMMAGE) && IS_CHARMER(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_DEFENDERMAGE) && IS_WIZARD(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_NECROMANCER) && IS_NECROMANCER(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_FIGHTER_USER) && IS_FIGHTER_USER(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MALE) && IS_MALE(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_FEMALE) && IS_FEMALE(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CLERIC) && IS_SORCERER(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_WARRIOR) && IS_WARRIOR(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_GUARD) && IS_GUARD(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_THIEF) && IS_THIEF(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_ASSASINE) && IS_ASSASINE(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_PALADINE) && IS_PALADINE(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_RANGER) && IS_RANGER(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_SMITH) && IS_VIGILANT(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MERCHANT) && IS_MERCHANT(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_DRUID) && IS_MAGUS(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_KILLER) && PLR_FLAGGED(ch, PLR_KILLER))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_BD) && check_agrobd(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_COLORED) && IS_COLORED(ch))) {
+	if ((IS_OBJ_ANTI(obj, EAntiFlag::kMono) && GET_RELIGION(ch) == kReligionMono)
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kPoly) && GET_RELIGION(ch) == kReligionPoly)
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kMage) && IS_MAGIC_USER(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kConjurer) && IS_CONJURER(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kCharmer) && IS_CHARMER(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kWizard) && IS_WIZARD(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kNecromancer) && IS_NECROMANCER(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kFighter) && IS_FIGHTER_USER(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kMale) && IS_MALE(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kFemale) && IS_FEMALE(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kSorcerer) && IS_SORCERER(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kWarrior) && IS_WARRIOR(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kGuard) && IS_GUARD(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kThief) && IS_THIEF(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kAssasine) && IS_ASSASINE(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kPaladine) && IS_PALADINE(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kRanger) && IS_RANGER(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kVigilant) && IS_VIGILANT(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kMerchant) && IS_MERCHANT(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kMagus) && IS_MAGUS(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kKiller) && PLR_FLAGGED(ch, EPlrFlag::kKiller))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kBattle) && check_agrobd(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kColored) && IS_COLORED(ch))) {
 		return (true);
 	}
 	return (false);
 }
 
 int invalid_no_class(CharData *ch, const ObjData *obj) {
-	if (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CHARMICE)
-		&& AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
+	if (IS_OBJ_NO(obj, ENoFlag::kCharmice)
+		&& AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		return true;
 	}
 
 	if (!IS_CHARMICE(ch)
-		&& (IS_NPC(ch)
-			|| WAITLESS(ch))) {
+		&& (ch->is_npc()
+			|| IS_IMMORTAL(ch))) {
 		return false;
 	}
 
-	if ((IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MONO) && GET_RELIGION(ch) == kReligionMono)
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_POLY) && GET_RELIGION(ch) == kReligionPoly)
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MAGIC_USER) && IS_MAGIC_USER(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_BATTLEMAGE) && IS_CONJURER(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CHARMMAGE) && IS_CHARMER(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_DEFENDERMAGE) && IS_WIZARD(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_NECROMANCER) && IS_NECROMANCER(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_FIGHTER_USER) && IS_FIGHTER_USER(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MALE) && IS_MALE(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_FEMALE) && IS_FEMALE(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CLERIC) && IS_SORCERER(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_WARRIOR) && IS_WARRIOR(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_GUARD) && IS_GUARD(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_THIEF) && IS_THIEF(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_ASSASINE) && IS_ASSASINE(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_PALADINE) && IS_PALADINE(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_RANGER) && IS_RANGER(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_SMITH) && IS_VIGILANT(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MERCHANT) && IS_MERCHANT(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_DRUID) && IS_MAGUS(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_KILLER) && PLR_FLAGGED(ch, PLR_KILLER))
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_BD) && check_agrobd(ch))
-		|| (!IS_VIGILANT(ch) && (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SHARPEN) || OBJ_FLAGGED(obj, EExtraFlag::ITEM_ARMORED)))
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_COLORED) && IS_COLORED(ch))) {
+	if ((IS_OBJ_NO(obj, ENoFlag::kMono) && GET_RELIGION(ch) == kReligionMono)
+		|| (IS_OBJ_NO(obj, ENoFlag::kPoly) && GET_RELIGION(ch) == kReligionPoly)
+		|| (IS_OBJ_NO(obj, ENoFlag::kMage) && IS_MAGIC_USER(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::kConjurer) && IS_CONJURER(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::kCharmer) && IS_CHARMER(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::kWIzard) && IS_WIZARD(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::kNecromancer) && IS_NECROMANCER(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::kFighter) && IS_FIGHTER_USER(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::kMale) && IS_MALE(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::kFemale) && IS_FEMALE(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::kSorcerer) && IS_SORCERER(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::kWarrior) && IS_WARRIOR(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::kGuard) && IS_GUARD(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::kThief) && IS_THIEF(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::kAssasine) && IS_ASSASINE(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::kPaladine) && IS_PALADINE(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::kRanger) && IS_RANGER(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::kVigilant) && IS_VIGILANT(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::kMerchant) && IS_MERCHANT(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::kMagus) && IS_MAGUS(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::kKiller) && PLR_FLAGGED(ch, EPlrFlag::kKiller))
+		|| (IS_OBJ_NO(obj, ENoFlag::kBattle) && check_agrobd(ch))
+		|| (!IS_VIGILANT(ch) && (obj->has_flag(EObjFlag::kSharpen) || obj->has_flag(EObjFlag::kArmored)))
+		|| (IS_OBJ_NO(obj, ENoFlag::kColored) && IS_COLORED(ch))) {
 		return true;
 	}
 
@@ -1701,7 +1703,7 @@ int level_exp(CharData *ch, int level) {
 	 * changed, regardless of how many mortal or immortal levels exist.
 	 */
 	if (level > kLvlImmortal) {
-		return EXP_IMPL - ((kLvlImplementator - level) * 1000);
+		return kExpImpl - ((kLvlImplementator - level) * 1000);
 	}
 
 	// Exp required for normal mortals is below

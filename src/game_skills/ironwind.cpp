@@ -15,7 +15,7 @@ void go_iron_wind(CharData *ch, CharData *victim) {
 		send_to_char("Вам стоит встать на ноги.\r\n", ch);
 		return;
 	}
-	if (PRF_FLAGS(ch).get(PRF_IRON_WIND)) {
+	if (PRF_FLAGS(ch).get(EPrf::kIronWind)) {
 		send_to_char("Вы уже впали в неистовство.\r\n", ch);
 		return;
 	}
@@ -28,7 +28,7 @@ void go_iron_wind(CharData *ch, CharData *victim) {
 
 	act("Вас обуяло безумие боя, и вы бросились на $N3!\r\n", false, ch, nullptr, victim, kToChar);
 	ObjData *weapon;
-	if ((weapon = GET_EQ(ch, WEAR_WIELD)) || (weapon = GET_EQ(ch, WEAR_BOTHS))) {
+	if ((weapon = GET_EQ(ch, EEquipPos::kWield)) || (weapon = GET_EQ(ch, EEquipPos::kBoths))) {
 		strcpy(buf, "$n взревел$g и ринул$u на $N3, бешено размахивая $o4!");
 		strcpy(buf2, "$N взревел$G и ринул$U на вас, бешено размахивая $o4!");
 	} else {
@@ -39,20 +39,20 @@ void go_iron_wind(CharData *ch, CharData *victim) {
 	act(buf2, false, victim, weapon, ch, kToChar);
 
 	if (!ch->get_fighting()) {
-		PRF_FLAGS(ch).set(PRF_IRON_WIND);
+		PRF_FLAGS(ch).set(EPrf::kIronWind);
 		SET_AF_BATTLE(ch, kEafIronWind);
 		hit(ch, victim, ESkill::kUndefined, fight::kMainHand);
 		SetWait(ch, 2, true);
 		//ch->setSkillCooldown(ESkill::kGlobalCooldown, 2);
 		//ch->setSkillCooldown(ESkill::kIronwind, 2);
 	} else {
-		PRF_FLAGS(ch).set(PRF_IRON_WIND);
+		PRF_FLAGS(ch).set(EPrf::kIronWind);
 		SET_AF_BATTLE(ch, kEafIronWind);
 	}
 }
 
 void do_iron_wind(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch) || !ch->get_skill(ESkill::kIronwind)) {
+	if (ch->is_npc() || !ch->get_skill(ESkill::kIronwind)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	};
@@ -69,7 +69,7 @@ void do_iron_wind(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Вы слишком устали...\r\n", ch);
 		return;
 	}
-	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_COURAGE) && !IS_IMMORTAL(ch) && !GET_GOD_FLAG(ch, GF_GODSLIKE)) {
+	if (!AFF_FLAGGED(ch, EAffect::kCourage) && !IS_IMMORTAL(ch) && !GET_GOD_FLAG(ch, EGf::kGodsLike)) {
 		send_to_char("Вы слишком здравомыслящи для этого...\r\n", ch);
 		return;
 	};

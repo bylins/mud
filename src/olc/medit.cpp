@@ -105,15 +105,15 @@ const char *medit_get_mprog_type(struct mob_prog_data *mprog);
 
 //   Инициализация моба по-умолчанию
 void medit_mobile_init(CharData *mob) {
-	GET_HIT(mob) = GET_MEM_TOTAL(mob) = 1;
-	GET_MANA_STORED(mob) = GET_MAX_MOVE(mob) = 100;
+	GET_HIT(mob) = mob->mem_queue.total = 1;
+	mob->mem_queue.stored = GET_MAX_MOVE(mob) = 100;
 	GET_NDD(mob) = GET_SDD(mob) = 1;
 	GET_GOLD_NoDs(mob) = GET_GOLD_SiDs(mob) = 0;
 	GET_WEIGHT(mob) = 200;
 	GET_HEIGHT(mob) = 198;
 	GET_SIZE(mob) = 30;
 	mob->set_class(ECharClass::kNpcBase);
-	GET_RACE(mob) = NPC_RACE_BASIC;
+	GET_RACE(mob) = ENpcRace::kBasic;
 	GET_MR(mob) = GET_AR(mob) = GET_PR(mob) = 0;
 
 	mob->set_str(11);
@@ -123,10 +123,10 @@ void medit_mobile_init(CharData *mob) {
 	mob->set_cha(11);
 	mob->set_con(11);
 
-	MOB_FLAGS(mob).set(MOB_ISNPC);
+	MOB_FLAGS(mob).set(EMobFlag::kNpc);
 	mob->player_specials = player_special_data::s_for_mobiles;
 
-	for (auto i = 0; i < MAX_NUMBER_RESISTANCE; i++) {
+	for (auto i = EResist::kFirstResist; i <= EResist::kLastResist; ++i) {
 		GET_RESIST(mob, i) = 0;
 	}
 }
@@ -606,8 +606,8 @@ void medit_save_to_disk(int zone_num) {
 			fprintf(mob_file,
 					"%s%d E\n" "%d %d %d %dd%d+%d %dd%d+%d\n" "%dd%d+%ld %ld\n" "%d %d %d\n",
 					buf2, GET_ALIGNMENT(mob),
-					GetRealLevel(mob), 20 - GET_HR(mob), GET_AC(mob) / 10, GET_MEM_TOTAL(mob),
-					GET_MEM_COMPLETED(mob), GET_HIT(mob), GET_NDD(mob), GET_SDD(mob), GET_DR(mob), GET_GOLD_NoDs(mob),
+					GetRealLevel(mob), 20 - GET_HR(mob), GET_AC(mob) / 10, mob->mem_queue.total,
+					mob->mem_queue.stored, GET_HIT(mob), GET_NDD(mob), GET_SDD(mob), GET_DR(mob), GET_GOLD_NoDs(mob),
 					GET_GOLD_SiDs(mob), mob->get_gold(), GET_EXP(mob), static_cast<int>(GET_POS(mob)),
 					static_cast<int>(GET_DEFAULT_POS(mob)), static_cast<int>(GET_SEX(mob)));
 
@@ -682,7 +682,7 @@ void medit_save_to_disk(int zone_num) {
 			strcpy(buf1, "Special_Bitvector: ");
 			NPC_FLAGS(mob).tascii(4, buf1);
 			fprintf(mob_file, "%s\n", buf1);
-			for (c = 1; c < kMaxFeats; c++) {
+			for (c = EFeat::kFirstFeat; c <= EFeat::kLastFeat; ++c) {
 				if (HAVE_FEAT(mob, c))
 					fprintf(mob_file, "Feat: %d\n", c);
 			}
@@ -697,7 +697,7 @@ void medit_save_to_disk(int zone_num) {
 				}
 			}
 			std::stack<decltype(helper)> stack;
-			for (helper = GET_HELPER(mob); helper; helper = helper->next) {
+			for (helper = mob->helpers; helper; helper = helper->next) {
 				stack.push(helper);
 			}
 			while (!stack.empty()) {
@@ -985,23 +985,25 @@ void medit_disp_role(DescriptorData *d) {
 	send_to_char(out, d->character.get());
 }
 
-//-------------------------------------------------------------------
-// *  Display features - added by Gorrah
 void medit_disp_features(DescriptorData *d) {
-	int columns = 0, counter;
+	int columns = 0;
 
 	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
 
-	for (counter = 1; counter < kMaxFeats; counter++) {
-		if (!feat_info[counter].name || *feat_info[counter].name == '!')
+	for (auto counter = EFeat::kFirstFeat; counter <= EFeat::kLastFeat; ++counter) {
+		if (!feat_info[counter].name || *feat_info[counter].name == '!') {
 			continue;
-		if (HAVE_FEAT(OLC_MOB(d), counter))
+		}
+
+		if (HAVE_FEAT(OLC_MOB(d), counter)) {
 			sprintf(buf1, " %s[%s*%s]%s ", cyn, grn, cyn, nrm);
-		else
+		} else {
 			strcpy(buf1, "     ");
+		}
+
 		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, counter, nrm,
 				 feat_info[counter].name, buf1, !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character.get());
@@ -1010,9 +1012,6 @@ void medit_disp_features(DescriptorData *d) {
 	send_to_char("\r\nУкажите номер способности. (0 - конец) : ", d->character.get());
 }
 
-// Конец изменений Gorrah'ом
-
-//Polud npc race menu
 void medit_disp_race(DescriptorData *d) {
 	int i;
 
@@ -1021,13 +1020,12 @@ void medit_disp_race(DescriptorData *d) {
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
-	for (i = 0; i < NPC_RACE_NEXT - NPC_RACE_BASIC; i++) {
+	for (i = 0; i < ENpcRace::kLastNpcRace - ENpcRace::kBasic + 1; i++) {
 		sprintf(buf, "%s%2d%s) %s\r\n", grn, i, nrm, npc_race_types[i]);
 		send_to_char(buf, d->character.get());
 	}
 	send_to_char("Выберите расу моба : ", d->character.get());
 }
-//-Polud
 
 // * Display attack types menu.
 void medit_disp_attack_types(DescriptorData *d) {
@@ -1183,8 +1181,8 @@ void medit_disp_menu(DescriptorData *d) {
 			grn, nrm, cyn, GET_DR(mob), nrm,
 			grn, nrm, cyn, GET_NDD(mob), nrm,
 			grn, nrm, cyn, GET_SDD(mob), nrm,
-			grn, nrm, cyn, GET_MEM_TOTAL(mob), nrm,
-			grn, nrm, cyn, GET_MEM_COMPLETED(mob), nrm,
+			grn, nrm, cyn, mob->mem_queue.total, nrm,
+			grn, nrm, cyn, mob->mem_queue.stored, nrm,
 			grn, nrm, cyn, GET_HIT(mob), nrm,
 			grn, nrm, cyn, GET_AC(mob), nrm,
 			grn, nrm, cyn, GET_EXP(mob), nrm,
@@ -1268,7 +1266,7 @@ void medit_disp_menu(DescriptorData *d) {
 			 grn, nrm,
 			 grn, nrm,
 			 grn, nrm,
-			 grn, nrm, cyn, npc_race_types[GET_RACE(mob) - NPC_RACE_BASIC],
+			 grn, nrm, cyn, npc_race_types[GET_RACE(mob) - ENpcRace::kBasic],
 			 grn, nrm, cyn,
 			 grn, nrm, cyn, !mob->proto_script->empty() ? "Set." : "Not Set.",
 			 grn, nrm, cyn, mob->mob_specials.MaxFactor, nrm,
@@ -1374,7 +1372,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 	switch (OLC_MODE(d)) {
 		case MEDIT_CONFIRM_SAVESTRING:
 			// * Ensure mob has MOB_ISNPC set or things will go pair shaped.
-			MOB_FLAGS(OLC_MOB(d)).set(MOB_ISNPC);
+			MOB_FLAGS(OLC_MOB(d)).set(EMobFlag::kNpc);
 			switch (*arg) {
 				case 'y':
 				case 'Y':
@@ -1754,7 +1752,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 				return;
 			break;
 
-		case MEDIT_RACE: GET_RACE(OLC_MOB(d)) = MAX(NPC_RACE_BASIC, MIN(NPC_RACE_NEXT - 1, atoi(arg) + NPC_RACE_BASIC));
+		case MEDIT_RACE: GET_RACE(OLC_MOB(d)) = MAX(ENpcRace::kBasic, MIN(ENpcRace::kLastNpcRace, atoi(arg) + ENpcRace::kBasic));
 			break;
 
 		case MEDIT_ROLE: {
@@ -1767,14 +1765,13 @@ void medit_parse(DescriptorData *d, char *arg) {
 		}
 			break;
 
-		case MEDIT_FEATURES: number = atoi(arg);
+		case MEDIT_FEATURES: {
+			number = atoi(arg);
 			if (number == 0) {
 				break;
 			}
-			if (number >= kMaxFeats
-				|| number <= 0
-				|| !feat_info[number].name
-				|| *feat_info[number].name == '!') {
+			if (number < EFeat::kFirstFeat || number > EFeat::kLastFeat ||
+				!feat_info[number].name || *feat_info[number].name == '!') {
 				send_to_char("Неверный номер.\r\n", d->character.get());
 			} else if (HAVE_FEAT(OLC_MOB(d), number)) {
 				UNSET_FEAT(OLC_MOB(d), number);
@@ -1783,17 +1780,19 @@ void medit_parse(DescriptorData *d, char *arg) {
 			}
 			medit_disp_features(d);
 			return;
+		}
 
 		case MEDIT_RESISTANCES: number = atoi(arg);
 			if (number == 0) {
 				break;
 			}
-			if (number > MAX_NUMBER_RESISTANCE || number < 0) {
+			--number;
+			if (number < EResist::kFirstResist || number > EResist::kLastResist) {
 				send_to_char("Неверный номер.\r\n", d->character.get());
 			} else if (sscanf(arg, "%d %d", &plane, &bit) < 2) {
 				send_to_char("Не указан уровень сопротивления.\r\n", d->character.get());
 			} else {
-				GET_RESIST(OLC_MOB(d), number - 1) = MIN(100, MAX(-100, bit));
+				GET_RESIST(OLC_MOB(d), number) =  std::clamp(bit, kMinResistance, kMaxResistance);
 			}
 			medit_disp_resistances(d);
 			return;
@@ -1914,7 +1913,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 			} else {
 				OLC_MOB(d)->char_specials.saved.act.toggle_flag(plane, 1 << bit);
 				medit_disp_mob_flags(d);
-				if (MOB_FLAGGED(OLC_MOB(d), MOB_IGNORE_FORMATION)) {
+				if (MOB_FLAGGED(OLC_MOB(d), EMobFlag::kIgnoresFormation)) {
 					OLC_MOB(d)->set_role(MOB_ROLE_ROGUE, true);
 				}
 				return;
@@ -2079,10 +2078,10 @@ void medit_parse(DescriptorData *d, char *arg) {
 		case MEDIT_SDD: GET_SDD(OLC_MOB(d)) = MAX(0, MIN(127, atoi(arg)));
 			break;
 
-		case MEDIT_NUM_HP_DICE: GET_MEM_TOTAL(OLC_MOB(d)) = MAX(0, MIN(500, atoi(arg)));
+		case MEDIT_NUM_HP_DICE: OLC_MOB(d)->mem_queue.total = MAX(0, MIN(500, atoi(arg)));
 			break;
 
-		case MEDIT_SIZE_HP_DICE: GET_MANA_STORED(OLC_MOB(d)) = MAX(0, MIN(100000, atoi(arg)));
+		case MEDIT_SIZE_HP_DICE: OLC_MOB(d)->mem_queue.stored = MAX(0, MIN(100000, atoi(arg)));
 			break;
 
 		case MEDIT_ADD_HP: GET_HIT(OLC_MOB(d)) = MAX(0, MIN(5000000, atoi(arg)));

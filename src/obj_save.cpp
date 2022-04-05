@@ -229,7 +229,7 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 				object->set_current_durability(atoi(buffer));
 			} else if (!strcmp(read_line, "Mter")) {
 				*error = 18;
-				object->set_material(static_cast<ObjData::EObjectMaterial>(atoi(buffer)));
+				object->set_material(static_cast<EObjMaterial>(atoi(buffer)));
 			} else if (!strcmp(read_line, "Sexx")) {
 				*error = 19;
 				object->set_sex(static_cast<ESex>(atoi(buffer)));
@@ -265,7 +265,7 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 				object->set_wear_flags(wear_flags);
 			} else if (!strcmp(read_line, "Type")) {
 				*error = 28;
-				object->set_type(static_cast<ObjData::EObjectType>(atoi(buffer)));
+				object->set_type(static_cast<EObjType>(atoi(buffer)));
 			} else if (!strcmp(read_line, "Val0")) {
 				*error = 29;
 				object->set_val(0, atoi(buffer));
@@ -302,35 +302,35 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 			} else if (!strcmp(read_line, "Afc0")) {
 				*error = 40;
 				sscanf(buffer, "%d %d", t, t + 1);
-				object->set_affected(0, static_cast<EApplyLocation>(t[0]), t[1]);
+				object->set_affected(0, static_cast<EApply>(t[0]), t[1]);
 			} else if (!strcmp(read_line, "Afc1")) {
 				*error = 41;
 				sscanf(buffer, "%d %d", t, t + 1);
-				object->set_affected(1, static_cast<EApplyLocation>(t[0]), t[1]);
+				object->set_affected(1, static_cast<EApply>(t[0]), t[1]);
 			} else if (!strcmp(read_line, "Afc2")) {
 				*error = 42;
 				sscanf(buffer, "%d %d", t, t + 1);
-				object->set_affected(2, static_cast<EApplyLocation>(t[0]), t[1]);
+				object->set_affected(2, static_cast<EApply>(t[0]), t[1]);
 			} else if (!strcmp(read_line, "Afc3")) {
 				*error = 43;
 				sscanf(buffer, "%d %d", t, t + 1);
-				object->set_affected(3, static_cast<EApplyLocation>(t[0]), t[1]);
+				object->set_affected(3, static_cast<EApply>(t[0]), t[1]);
 			} else if (!strcmp(read_line, "Afc4")) {
 				*error = 44;
 				sscanf(buffer, "%d %d", t, t + 1);
-				object->set_affected(4, static_cast<EApplyLocation>(t[0]), t[1]);
+				object->set_affected(4, static_cast<EApply>(t[0]), t[1]);
 			} else if (!strcmp(read_line, "Afc5")) {
 				*error = 45;
 				sscanf(buffer, "%d %d", t, t + 1);
-				object->set_affected(5, static_cast<EApplyLocation>(t[0]), t[1]);
+				object->set_affected(5, static_cast<EApply>(t[0]), t[1]);
 			} else if (!strcmp(read_line, "Afc6")) {
 				*error = 456;
 				sscanf(buffer, "%d %d", t, t + 1);
-				object->set_affected(6, static_cast<EApplyLocation>(t[0]), t[1]);
+				object->set_affected(6, static_cast<EApply>(t[0]), t[1]);
 			} else if (!strcmp(read_line, "Afc7")) {
 				*error = 457;
 				sscanf(buffer, "%d %d", t, t + 1);
-				object->set_affected(7, static_cast<EApplyLocation>(t[0]), t[1]);
+				object->set_affected(7, static_cast<EApply>(t[0]), t[1]);
 			} else if (!strcmp(read_line, "Edes")) {
 				*error = 46;
 				ExtraDescription::shared_ptr new_descr(new ExtraDescription());
@@ -397,7 +397,7 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 								*error = 53;
 								return object;
 							}
-							tmp_affected.location = static_cast<EApplyLocation>(location);
+							tmp_affected.location = static_cast<EApply>(location);
 							tmp_aff.affected_.push_back(tmp_affected);
 							break;
 						}
@@ -499,27 +499,27 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 	*error = 0;
 
 	// Проверить вес фляг и т.п.
-	if (GET_OBJ_TYPE(object) == ObjData::ITEM_DRINKCON
-		|| GET_OBJ_TYPE(object) == ObjData::ITEM_FOUNTAIN) {
+	if (GET_OBJ_TYPE(object) == EObjType::kLiquidContainer
+		|| GET_OBJ_TYPE(object) == EObjType::kFountain) {
 		if (GET_OBJ_WEIGHT(object) < GET_OBJ_VAL(object, 1)) {
 			object->set_weight(GET_OBJ_VAL(object, 1) + 5);
 		}
 	}
 	// проставляем имя жидкости
-	if (GET_OBJ_TYPE(object) == ObjData::ITEM_DRINKCON) {
+	if (GET_OBJ_TYPE(object) == EObjType::kLiquidContainer) {
 		name_from_drinkcon(object.get());
 		if (GET_OBJ_VAL(object, 1) && GET_OBJ_VAL(object, 2)) {
 			name_to_drinkcon(object.get(), GET_OBJ_VAL(object, 2));
 		}
 	}
 	// Проверка на ингры
-	if (GET_OBJ_TYPE(object) == ObjData::ITEM_MING) {
+	if (GET_OBJ_TYPE(object) == EObjType::kMagicIngredient) {
 		int err = im_assign_power(object.get());
 		if (err) {
 			*error = 100 + err;
 		}
 	}
-	if (object->get_extra_flag(EExtraFlag::ITEM_NAMED))//Именной предмет
+	if (object->has_flag(EObjFlag::kNamed))//Именной предмет
 	{
 		object->cleanup_script();
 	}
@@ -609,7 +609,7 @@ ObjData::shared_ptr read_one_object(char **data, int *error) {
 
 	object->set_maximum_durability(t[1]);
 	object->set_current_durability(t[2]);
-	object->set_material(static_cast<ObjData::EObjectMaterial>(t[3]));
+	object->set_material(static_cast<EObjMaterial>(t[3]));
 
 	*error = 10;
 	if (!get_buf_line(data, buffer)
@@ -638,7 +638,7 @@ ObjData::shared_ptr read_one_object(char **data, int *error) {
 		|| sscanf(buffer, " %d %s %s", t, f1, f2) != 3) {
 		return object;
 	}
-	object->set_type(static_cast<ObjData::EObjectType>(t[0]));
+	object->set_type(static_cast<EObjType>(t[0]));
 	object->set_extra_flags(clear_flags);
 	object->set_wear_flags(0);
 	object->load_extra_flags(f1);
@@ -680,8 +680,8 @@ ObjData::shared_ptr read_one_object(char **data, int *error) {
 	object->set_owner(t[1]);
 
 	// Проверить вес фляг и т.п.
-	if (GET_OBJ_TYPE(object) == ObjData::ITEM_DRINKCON
-		|| GET_OBJ_TYPE(object) == ObjData::ITEM_FOUNTAIN) {
+	if (GET_OBJ_TYPE(object) == EObjType::kLiquidContainer
+		|| GET_OBJ_TYPE(object) == EObjType::kFountain) {
 		if (GET_OBJ_WEIGHT(object) < GET_OBJ_VAL(object, 1)) {
 			object->set_weight(GET_OBJ_VAL(object, 1) + 5);
 		}
@@ -694,10 +694,10 @@ ObjData::shared_ptr read_one_object(char **data, int *error) {
 		if (!get_buf_line(data, buffer)) {
 			*error = 0;
 			for (; j < kMaxObjAffect; j++) {
-				object->set_affected(j, APPLY_NONE, 0);
+				object->set_affected(j, EApply::kNone, 0);
 			}
 
-			if (GET_OBJ_TYPE(object) == ObjData::ITEM_MING) {
+			if (GET_OBJ_TYPE(object) == EObjType::kMagicIngredient) {
 				int err = im_assign_power(object.get());
 				if (err) {
 					*error = 100 + err;
@@ -735,7 +735,7 @@ ObjData::shared_ptr read_one_object(char **data, int *error) {
 					return object;
 				}
 				if (sscanf(buffer, " %d %d ", t, t + 1) == 2) {
-					object->set_affected(j, static_cast<EApplyLocation>(t[0]), t[1]);
+					object->set_affected(j, static_cast<EApply>(t[0]), t[1]);
 					j++;
 				}
 				break;
@@ -929,15 +929,15 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 		*buf = '\0';
 		*buf2 = '\0';
 		//Временно убираем флаг !окровавлен! с вещи, чтобы он не сохранялся
-		bool blooded = object->get_extra_flag(EExtraFlag::ITEM_BLOODY);
+		bool blooded = object->has_flag(EObjFlag::kBloody);
 		if (blooded) {
-			object->unset_extraflag(EExtraFlag::ITEM_BLOODY);
+			object->unset_extraflag(EObjFlag::kBloody);
 		}
 		GET_OBJ_EXTRA(object).tascii(4, buf);
 		GET_OBJ_EXTRA(proto).tascii(4, buf2);
 		if (blooded) //Возвращаем флаг назад
 		{
-			object->set_extra_flag(EExtraFlag::ITEM_BLOODY);
+			object->set_extra_flag(EObjFlag::kBloody);
 		}
 		if (str_cmp(buf, buf2)) {
 			out << "Extr: " << buf << "~\n";
@@ -1217,104 +1217,104 @@ int auto_equip(CharData *ch, ObjData *obj, int location) {
 	{
 		const int j = location - 1;
 		switch (j) {
-			case WEAR_LIGHT: break;
+			case EEquipPos::kLight: break;
 
-			case WEAR_FINGER_R:
-			case WEAR_FINGER_L:
-				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FINGER))    // not fitting
+			case EEquipPos::kFingerR:
+			case EEquipPos::kFingerL:
+				if (!CAN_WEAR(obj, EWearFlag::kFinger))    // not fitting
 				{
 					location = LOC_INVENTORY;
 				}
 				break;
 
-			case WEAR_NECK_1:
-			case WEAR_NECK_2:
-				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_NECK)) {
+			case EEquipPos::kNeck:
+			case EEquipPos::kChest:
+				if (!CAN_WEAR(obj, EWearFlag::kNeck)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
-			case WEAR_BODY:
-				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BODY)) {
+			case EEquipPos::kBody:
+				if (!CAN_WEAR(obj, EWearFlag::kBody)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
-			case WEAR_HEAD:
-				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HEAD)) {
+			case EEquipPos::kHead:
+				if (!CAN_WEAR(obj, EWearFlag::kHead)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
-			case WEAR_LEGS:
-				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_LEGS)) {
+			case EEquipPos::kLegs:
+				if (!CAN_WEAR(obj, EWearFlag::kLegs)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
-			case WEAR_FEET:
-				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FEET)) {
+			case EEquipPos::kFeet:
+				if (!CAN_WEAR(obj, EWearFlag::kFeet)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
-			case WEAR_HANDS:
-				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS)) {
+			case EEquipPos::kHands:
+				if (!CAN_WEAR(obj, EWearFlag::kHands)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
-			case WEAR_ARMS:
-				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ARMS)) {
+			case EEquipPos::kArms:
+				if (!CAN_WEAR(obj, EWearFlag::kArms)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
-			case WEAR_SHIELD:
-				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_SHIELD)) {
+			case EEquipPos::kShield:
+				if (!CAN_WEAR(obj, EWearFlag::kShield)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
-			case WEAR_ABOUT:
-				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ABOUT)) {
+			case EEquipPos::kShoulders:
+				if (!CAN_WEAR(obj, EWearFlag::kShoulders)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
-			case WEAR_WAIST:
-				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WAIST)) {
+			case EEquipPos::kWaist:
+				if (!CAN_WEAR(obj, EWearFlag::kWaist)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
-			case WEAR_QUIVER:
-				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_QUIVER)) {
+			case EEquipPos::kQuiver:
+				if (!CAN_WEAR(obj, EWearFlag::kQuiver)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
-			case WEAR_WRIST_R:
-			case WEAR_WRIST_L:
-				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WRIST)) {
+			case EEquipPos::kWristR:
+			case EEquipPos::kWristL:
+				if (!CAN_WEAR(obj, EWearFlag::kWrist)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
-			case WEAR_WIELD:
-				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WIELD)) {
+			case EEquipPos::kWield:
+				if (!CAN_WEAR(obj, EWearFlag::kWield)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
-			case WEAR_HOLD:
-				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HOLD)) {
+			case EEquipPos::kHold:
+				if (!CAN_WEAR(obj, EWearFlag::kHold)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
-			case WEAR_BOTHS:
-				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS)) {
+			case EEquipPos::kBoths:
+				if (!CAN_WEAR(obj, EWearFlag::kBoth)) {
 					location = LOC_INVENTORY;
 				}
 				break;
@@ -1327,11 +1327,11 @@ int auto_equip(CharData *ch, ObjData *obj, int location) {
 			if (!GET_EQ(ch, j)) {
 				// Check the characters's alignment to prevent them from being
 				// zapped through the auto-equipping.
-				if (invalid_align(ch, obj) || invalid_anti_class(ch, obj) || invalid_no_class(ch, obj)
+				if (HaveIncompatibleAlign(ch, obj) || invalid_anti_class(ch, obj) || invalid_no_class(ch, obj)
 					|| NamedStuff::check_named(ch, obj, 0)) {
 					location = LOC_INVENTORY;
 				} else {
-					equip_char(ch, obj, j, CharEquipFlag::no_cast | CharEquipFlag::skip_total);
+					EquipObj(ch, obj, j, CharEquipFlag::no_cast | CharEquipFlag::skip_total);
 //					log("Equipped with %s %d", (obj)->short_description, j);
 				}
 			} else    // Oops, saved a player with double equipment?
@@ -1345,7 +1345,7 @@ int auto_equip(CharData *ch, ObjData *obj, int location) {
 	}
 	if (location <= 0)    // Inventory
 	{
-		obj_to_char(obj, ch);
+		PlaceObjToInventory(obj, ch);
 	}
 	return (location);
 }
@@ -1362,7 +1362,7 @@ int Crash_delete_files(const std::size_t index) {
 	strcpy(name, player_table[index].name());
 
 	//удаляем файл описания объектов
-	if (!get_filename(name, filename, TEXT_CRASH_FILE)) {
+	if (!get_filename(name, filename, kTextCrashFile)) {
 		log("SYSERR: Error deleting objects file for %s - unable to resolve file name.", name);
 		retcode = false;
 	} else {
@@ -1382,7 +1382,7 @@ int Crash_delete_files(const std::size_t index) {
 	}
 
 	//удаляем файл таймеров
-	if (!get_filename(name, filename, TIME_CRASH_FILE)) {
+	if (!get_filename(name, filename, kTimeCrashFile)) {
 		log("SYSERR: Error deleting timer file for %s - unable to resolve file name.", name);
 		retcode = false;
 	} else {
@@ -1444,7 +1444,7 @@ int Crash_read_timer(const std::size_t index, int temp) {
 	struct SaveTimeInfo info;
 
 	strcpy(name, player_table[index].name());
-	if (!get_filename(name, fname, TIME_CRASH_FILE)) {
+	if (!get_filename(name, fname, kTimeCrashFile)) {
 		log("[ReadTimer] Error reading %s timer file - unable to resolve file name.", name);
 		return false;
 	}
@@ -1551,7 +1551,7 @@ int Crash_write_timer(const std::size_t index) {
 		log("SYSERR: Error writing %s timer file - no data.", name);
 		return false;
 	}
-	if (!get_filename(name, fname, TIME_CRASH_FILE)) {
+	if (!get_filename(name, fname, kTimeCrashFile)) {
 		log("SYSERR: Error writing %s timer file - unable to resolve file name.", name);
 		return false;
 	}
@@ -1587,11 +1587,11 @@ void Crash_timer_obj(const std::size_t index, long time) {
 	timer_dec = time - SAVEINFO(index)->rent.time;
 
 	//удаляем просроченные файлы ренты
-	if (rentcode == RENT_RENTED && timer_dec > rent_file_timeout * SECS_PER_REAL_DAY) {
+	if (rentcode == RENT_RENTED && timer_dec > rent_file_timeout * kSecsPerRealDay) {
 		Crash_clear_objects(index);
 		log("[TO] Deleting %s's rent info - time outed.", name);
 		return;
-	} else if (rentcode != RENT_CRYO && timer_dec > crash_file_timeout * SECS_PER_REAL_DAY) {
+	} else if (rentcode != RENT_CRYO && timer_dec > crash_file_timeout * kSecsPerRealDay) {
 		Crash_clear_objects(index);
 		strcpy(buf, "");
 		switch (rentcode) {
@@ -1607,7 +1607,7 @@ void Crash_timer_obj(const std::size_t index, long time) {
 		return;
 	}
 
-	timer_dec = (timer_dec / SECS_PER_MUD_HOUR) + (timer_dec % SECS_PER_MUD_HOUR ? 1 : 0);
+	timer_dec = (timer_dec / kSecsPerMudHour) + (timer_dec % kSecsPerMudHour ? 1 : 0);
 
 	//уменьшаем таймеры
 	nitems = player_table[index].timer->rent.nitems;
@@ -1657,8 +1657,8 @@ void Crash_list_objects(CharData *ch, int index) {
 		return;
 
 	timer_dec = time(0) - SAVEINFO(index)->rent.time;
-	num_of_days = (float) timer_dec / SECS_PER_REAL_DAY;
-	timer_dec = (timer_dec / SECS_PER_MUD_HOUR) + (timer_dec % SECS_PER_MUD_HOUR ? 1 : 0);
+	num_of_days = (float) timer_dec / kSecsPerRealDay;
+	timer_dec = (timer_dec / kSecsPerMudHour) + (timer_dec % kSecsPerMudHour ? 1 : 0);
 
 	strcpy(buf, "Код ренты - ");
 	switch (SAVEINFO(index)->rent.rentcode) {
@@ -1785,14 +1785,14 @@ int Crash_load(CharData *ch) {
 	mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 
 	//Деньги за постой
-	num_of_days = (float) (time(0) - SAVEINFO(index)->rent.time) / SECS_PER_REAL_DAY;
+	num_of_days = (float) (time(0) - SAVEINFO(index)->rent.time) / kSecsPerRealDay;
 	sprintf(buf, "%s was %1.2f days in rent.", GET_NAME(ch), num_of_days);
 	mudlog(buf, LGH, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 	cost = (int) (SAVEINFO(index)->rent.net_cost_per_diem * num_of_days);
 	cost = MAX(0, cost);
 	// added by WorM (Видолюб) 2010.06.04 сумма потраченная на найм(возвращается при креше)
 	if (RENTCODE(index) == RENT_CRASH) {
-		if (!IS_IMMORTAL(ch) && can_use_feat(ch, EMPLOYER_FEAT) && ch->player_specials->saved.HiredCost != 0) {
+		if (!IS_IMMORTAL(ch) && IsAbleToUseFeat(ch, EFeat::kEmployer) && ch->player_specials->saved.HiredCost != 0) {
 			if (ch->player_specials->saved.HiredCost < 0)
 				ch->add_bank(abs(ch->player_specials->saved.HiredCost), false);
 			else
@@ -1803,7 +1803,7 @@ int Crash_load(CharData *ch) {
 	// end by WorM
 	// Бесплатная рента, если выйти в течение 2 часов после ребута или креша
 	if (((RENTCODE(index) == RENT_CRASH || RENTCODE(index) == RENT_FORCED)
-		&& SAVEINFO(index)->rent.time + free_crashrent_period * SECS_PER_REAL_HOUR > time(0)) || free_rent) {
+		&& SAVEINFO(index)->rent.time + free_crashrent_period * kSecsPerRealHour > time(0)) || free_rent) {
 		sprintf(buf, "%s** На сей раз постой был бесплатным **%s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 		sprintf(buf, "%s entering game, free crashrent.", GET_NAME(ch));
@@ -1818,11 +1818,11 @@ int Crash_load(CharData *ch) {
 				RENTCODE(index) ==
 					RENT_TIMEDOUT ?
 				"Вас пришлось тащить до кровати, за это постой был дороже.\r\n"
-								  : "", cost, desc_count(cost, WHAT_MONEYu),
+								  : "", cost, GetDeclensionInNumber(cost, EWhat::kMoneyU),
 				SAVEINFO(index)->rent.net_cost_per_diem,
-				desc_count(SAVEINFO(index)->rent.net_cost_per_diem,
-						   WHAT_MONEYa), ch->get_gold() + ch->get_bank(),
-				desc_count(ch->get_gold() + ch->get_bank(), WHAT_MONEYa), CCNRM(ch, C_NRM));
+				GetDeclensionInNumber(SAVEINFO(index)->rent.net_cost_per_diem,
+									  EWhat::kMoneyA), ch->get_gold() + ch->get_bank(),
+				GetDeclensionInNumber(ch->get_gold() + ch->get_bank(), EWhat::kMoneyA), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 		sprintf(buf, "%s: rented equipment lost (no $).", GET_NAME(ch));
 		mudlog(buf, LGH, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
@@ -1840,16 +1840,16 @@ int Crash_load(CharData *ch) {
 					RENTCODE(index) ==
 						RENT_TIMEDOUT ?
 					"Вас пришлось тащить до кровати, за это постой был дороже.\r\n"
-									  : "", cost, desc_count(cost, WHAT_MONEYu),
+									  : "", cost, GetDeclensionInNumber(cost, EWhat::kMoneyU),
 					SAVEINFO(index)->rent.net_cost_per_diem,
-					desc_count(SAVEINFO(index)->rent.net_cost_per_diem, WHAT_MONEYa), CCNRM(ch, C_NRM));
+					GetDeclensionInNumber(SAVEINFO(index)->rent.net_cost_per_diem, EWhat::kMoneyA), CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
 		}
 		ch->remove_both_gold(cost);
 	}
 
 	//Чтение описаний объектов в буфер
-	if (!get_filename(GET_NAME(ch), fname, TEXT_CRASH_FILE) || !(fl = fopen(fname, "r+b"))) {
+	if (!get_filename(GET_NAME(ch), fname, kTextCrashFile) || !(fl = fopen(fname, "r+b"))) {
 		send_to_char("\r\n** Нет файла описания вещей **\r\n"
 					 "Проблемы с восстановлением ваших вещей из файла.\r\n"
 					 "Обращайтесь за помощью к Богам.\r\n", ch);
@@ -1892,7 +1892,7 @@ int Crash_load(CharData *ch) {
 
 	//Создание объектов
 	long timer_dec = time(0) - SAVEINFO(index)->rent.time;
-	timer_dec = (timer_dec / SECS_PER_MUD_HOUR) + (timer_dec % SECS_PER_MUD_HOUR ? 1 : 0);
+	timer_dec = (timer_dec / kSecsPerMudHour) + (timer_dec % kSecsPerMudHour ? 1 : 0);
 
 	for (fsize = 0, reccount = SAVEINFO(index)->rent.nitems;
 		 reccount > 0 && *data && *data != END_CHAR; reccount--, fsize++) {
@@ -1938,7 +1938,7 @@ int Crash_load(CharData *ch) {
 			send_to_char("Нет соответствия заголовков - чтение предметов прервано.\r\n", ch);
 			sprintf(buf, "SYSERR: Objects reading fail for %s (2), stop reading.", GET_NAME(ch));
 			mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
-			extract_obj(obj.get());
+			ExtractObjFromWorld(obj.get());
 			break;
 		}
 
@@ -1965,23 +1965,23 @@ int Crash_load(CharData *ch) {
 					 char_get_custom_label(obj.get(), ch).c_str(),
 					 GET_OBJ_SUF_2(obj));
 			send_to_char(buf, ch);
-			extract_obj(obj.get());
+			ExtractObjFromWorld(obj.get());
 
 			continue;
 		}
 
 		//очищаем ZoneDecay объедки
-		if (obj->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY)) {
+		if (obj->has_flag(EObjFlag::kZonedacay)) {
 			sprintf(buf, "%s рассыпал%s в прах.\r\n", cap.c_str(), GET_OBJ_SUF_2(obj));
 			send_to_char(buf, ch);
-			extract_obj(obj.get());
+			ExtractObjFromWorld(obj.get());
 			continue;
 		}
 		//очищаем RepopDecay объедки
-		if (obj->get_extra_flag(EExtraFlag::ITEM_REPOP_DECAY)) {
+		if (obj->has_flag(EObjFlag::kRepopDecay)) {
 			sprintf(buf, "%s рассыпал%s в прах.\r\n", cap.c_str(), GET_OBJ_SUF_2(obj));
 			send_to_char(buf, ch);
-			extract_obj(obj.get());
+			ExtractObjFromWorld(obj.get());
 			continue;
 		}
 
@@ -1992,13 +1992,13 @@ int Crash_load(CharData *ch) {
 			sprintf(buf, "%s рассыпал%s, как запрещенн%s для вас.\r\n",
 					cap.c_str(), GET_OBJ_SUF_2(obj), GET_OBJ_SUF_3(obj));
 			send_to_char(buf, ch);
-			extract_obj(obj.get());
+			ExtractObjFromWorld(obj.get());
 			continue;
 		}
 
 		//очищаем от крови
-		if (obj->get_extra_flag(EExtraFlag::ITEM_BLOODY)) {
-			obj->unset_extraflag(EExtraFlag::ITEM_BLOODY);
+		if (obj->has_flag(EObjFlag::kBloody)) {
+			obj->unset_extraflag(EObjFlag::kBloody);
 		}
 
 		obj->set_next_content(obj_list);
@@ -2014,7 +2014,7 @@ int Crash_load(CharData *ch) {
 		{
 			if (obj2
 				&& obj2->get_worn_on() < 0
-				&& GET_OBJ_TYPE(obj) == ObjData::ITEM_CONTAINER)    // This is container and it is not free
+				&& GET_OBJ_TYPE(obj) == EObjType::kContainer)    // This is container and it is not free
 			{
 				CREATE(tank, 1);
 				tank->next = tank_list;
@@ -2037,7 +2037,7 @@ int Crash_load(CharData *ch) {
 		} else {
 			if (obj2
 				&& obj2->get_worn_on() < obj->get_worn_on()
-				&& GET_OBJ_TYPE(obj) == ObjData::ITEM_CONTAINER)    // This is container and it is not free
+				&& GET_OBJ_TYPE(obj) == EObjType::kContainer)    // This is container and it is not free
 			{
 				tank_to = tank_list;
 				CREATE(tank, 1);
@@ -2059,9 +2059,9 @@ int Crash_load(CharData *ch) {
 			}
 			obj->set_worn_on(0);
 			if (tank_to) {
-				obj_to_obj(obj, tank_to->tank);
+				PlaceObjIntoObj(obj, tank_to->tank);
 			} else {
-				obj_to_char(obj, ch);
+				PlaceObjToInventory(obj, ch);
 			}
 			log("%s load_char_obj %d %d %u", GET_NAME(ch), GET_OBJ_VNUM(obj), obj->get_uid(), obj->get_timer());
 		}
@@ -2100,7 +2100,7 @@ void Crash_extract_objs(ObjData *obj) {
 		if (GET_OBJ_RNUM(obj) >= 0 && obj->get_timer() >= 0) {
 			obj_proto.inc_stored(GET_OBJ_RNUM(obj));
 		}
-		extract_obj(obj);
+		ExtractObjFromWorld(obj);
 	}
 }
 
@@ -2109,13 +2109,13 @@ int Crash_is_unrentable(CharData *ch, ObjData *obj) {
 		return false;
 	}
 
-	if (obj->get_extra_flag(EExtraFlag::ITEM_NORENT)
+	if (obj->has_flag(EObjFlag::kNorent)
 		|| GET_OBJ_RENT(obj) < 0
-		|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_REPOP_DECAY)
-		|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_ZONEDECAY)
+		|| obj->has_flag(EObjFlag::kRepopDecay)
+		|| obj->has_flag(EObjFlag::kZonedacay)
 		|| (GET_OBJ_RNUM(obj) <= kNothing
-			&& GET_OBJ_TYPE(obj) != ObjData::ITEM_MONEY)
-		|| GET_OBJ_TYPE(obj) == ObjData::ITEM_KEY
+			&& GET_OBJ_TYPE(obj) != EObjType::kMoney)
+		|| GET_OBJ_TYPE(obj) == EObjType::kKey
 		|| SetSystem::is_norent_set(ch, obj)) {
 		return true;
 	}
@@ -2129,19 +2129,19 @@ void Crash_extract_norents(CharData *ch, ObjData *obj) {
 		next = obj->get_next_content();
 		Crash_extract_norents(ch, obj->get_contains());
 		if (Crash_is_unrentable(ch, obj)) {
-			extract_obj(obj);
+			ExtractObjFromWorld(obj);
 		}
 	}
 }
 
 void Crash_extract_norent_eq(CharData *ch) {
-	for (int j = 0; j < NUM_WEARS; j++) {
+	for (int j = 0; j < EEquipPos::kNumEquipPos; j++) {
 		if (GET_EQ(ch, j) == nullptr) {
 			continue;
 		}
 
 		if (Crash_is_unrentable(ch, GET_EQ(ch, j))) {
-			obj_to_char(unequip_char(ch, j, CharEquipFlags()), ch);
+			PlaceObjToInventory(UnequipChar(ch, j, CharEquipFlags()), ch);
 		} else {
 			Crash_extract_norents(ch, GET_EQ(ch, j));
 		}
@@ -2155,13 +2155,13 @@ void Crash_extract_norent_charmee(CharData *ch) {
 				|| !k->ch->has_master()) {
 				continue;
 			}
-			for (int j = 0; j < NUM_WEARS; ++j) {
+			for (int j = 0; j < EEquipPos::kNumEquipPos; ++j) {
 				if (!GET_EQ(k->ch, j)) {
 					continue;
 				}
 
 				if (Crash_is_unrentable(k->ch, GET_EQ(k->ch, j))) {
-					obj_to_char(unequip_char(k->ch, j, CharEquipFlags()), k->ch);
+					PlaceObjToInventory(UnequipChar(k->ch, j, CharEquipFlags()), k->ch);
 				} else {
 					Crash_extract_norents(k->ch, GET_EQ(k->ch, j));
 				}
@@ -2199,7 +2199,7 @@ int Crash_calculate_charmee_rent(CharData *ch) {
 			}
 
 			cost = Crash_calculate_rent(k->ch->carrying);
-			for (int j = 0; j < NUM_WEARS; ++j) {
+			for (int j = 0; j < EEquipPos::kNumEquipPos; ++j) {
 				cost += Crash_calculate_rent_eq(GET_EQ(k->ch, j));
 			}
 		}
@@ -2222,7 +2222,7 @@ int Crash_calc_charmee_items(CharData *ch) {
 			if (!IS_CHARMICE(k->ch)
 				|| !k->ch->has_master())
 				continue;
-			for (int j = 0; j < NUM_WEARS; j++)
+			for (int j = 0; j < EEquipPos::kNumEquipPos; j++)
 				num += Crash_calcitems(GET_EQ(k->ch, j));
 			num += Crash_calcitems(k->ch->carrying);
 		}
@@ -2266,7 +2266,7 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 	struct SaveRentInfo rent;
 	int j, num = 0, iplayer = -1, cost;
 
-	if (IS_NPC(ch))
+	if (ch->is_npc())
 		return false;
 
 	if ((iplayer = GET_INDEX(ch)) < 0) {
@@ -2286,7 +2286,7 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 	}
 
 	// подсчет количества предметов
-	for (j = 0; j < NUM_WEARS; j++) {
+	for (j = 0; j < EEquipPos::kNumEquipPos; j++) {
 		num += Crash_calcitems(GET_EQ(ch, j));
 	}
 	num += Crash_calcitems(ch->carrying);
@@ -2307,7 +2307,7 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 
 	// цена ренты
 	cost = Crash_calculate_rent(ch->carrying);
-	for (j = 0; j < NUM_WEARS; j++) {
+	for (j = 0; j < EEquipPos::kNumEquipPos; j++) {
 		cost += Crash_calculate_rent_eq(GET_EQ(ch, j));
 	}
 	if (savetype == RENT_CRASH || savetype == RENT_FORCED) {
@@ -2349,7 +2349,7 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 	std::stringstream write_buffer;
 	write_buffer << "@ Items file\n";
 
-	for (j = 0; j < NUM_WEARS; j++) {
+	for (j = 0; j < EEquipPos::kNumEquipPos; j++) {
 		if (GET_EQ(ch, j)) {
 			crash_save_and_restore_weight(write_buffer, iplayer, GET_EQ(ch, j), j + 1, savetype);
 		}
@@ -2366,7 +2366,7 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 				continue;
 			}
 
-			for (j = 0; j < NUM_WEARS; j++) {
+			for (j = 0; j < EEquipPos::kNumEquipPos; j++) {
 				if (GET_EQ(k->ch, j)) {
 					crash_save_and_restore_weight(write_buffer, iplayer, GET_EQ(k->ch, j), 0, savetype);
 				}
@@ -2378,7 +2378,7 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 
 	// в принципе экстрактить здесь чармисовый шмот в случае ребута - смысла ноль
 	if (savetype != RENT_CRASH) {
-		for (j = 0; j < NUM_WEARS; j++) {
+		for (j = 0; j < EEquipPos::kNumEquipPos; j++) {
 			if (GET_EQ(ch, j)) {
 				Crash_extract_objs(GET_EQ(ch, j));
 			}
@@ -2386,7 +2386,7 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 		Crash_extract_objs(ch->carrying);
 	}
 
-	if (get_filename(GET_NAME(ch), fname, TEXT_CRASH_FILE)) {
+	if (get_filename(GET_NAME(ch), fname, kTextCrashFile)) {
 		std::ofstream file(fname);
 		if (!file.is_open()) {
 			snprintf(buf, kMaxStringLength, "[SYSERR] Store objects file '%s'- MAY BE LOCKED.", fname);
@@ -2454,13 +2454,14 @@ void Crash_rent_deadline(CharData *ch, CharData *recep, long cost) {
 	long depot_cost = static_cast<long>(Depot::get_total_cost_per_day(ch));
 	if (depot_cost) {
 		send_to_char(ch, "\"За вещи в хранилище придется доплатить %ld %s.\"\r\n",
-					 depot_cost, desc_count(depot_cost, WHAT_MONEYu));
+					 depot_cost, GetDeclensionInNumber(depot_cost, EWhat::kMoneyU));
 		cost += depot_cost;
 	}
 
-	send_to_char(ch, "\"Постой обойдется тебе в %ld %s.\"\r\n", cost, desc_count(cost, WHAT_MONEYu));
+	send_to_char(ch, "\"Постой обойдется тебе в %ld %s.\"\r\n", cost, GetDeclensionInNumber(cost, EWhat::kMoneyU));
 	rent_deadline = ((ch->get_gold() + ch->get_bank()) / cost);
-	send_to_char(ch, "\"Твоих денег хватит на %ld %s.\"\r\n", rent_deadline, desc_count(rent_deadline, WHAT_DAY));
+	send_to_char(ch, "\"Твоих денег хватит на %ld %s.\"\r\n", rent_deadline,
+				 GetDeclensionInNumber(rent_deadline, EWhat::kDay));
 }
 
 int Crash_report_unrentables(CharData *ch, CharData *recep, ObjData *obj) {
@@ -2517,7 +2518,8 @@ void Crash_report_rent_item(CharData *ch,
 				recursive ? "" : CCWHT(ch, C_SPR),
 				(equip ? GET_OBJ_RENTEQ(obj) * count : GET_OBJ_RENT(obj)) *
 					factor * count,
-				desc_count((equip ? GET_OBJ_RENTEQ(obj) * count : GET_OBJ_RENT(obj)) * factor * count, WHAT_MONEYa),
+				GetDeclensionInNumber((equip ? GET_OBJ_RENTEQ(obj) * count : GET_OBJ_RENT(obj)) * factor * count,
+									  EWhat::kMoneyA),
 				bf, OBJN(obj, ch, 3),
 				count > 1 ? bf2 : "",
 				recursive ? "" : CCNRM(ch, C_SPR));
@@ -2559,7 +2561,7 @@ void Crash_report_rent(CharData *ch, CharData *recep, ObjData *obj, int *cost,
 						factor,
 						desc_count((equip ? GET_OBJ_RENTEQ(obj) :
 									GET_OBJ_RENT(obj)) * factor,
-								   WHAT_MONEYa), bf, OBJN(obj, ch, 3),
+								   EWhat::MONEYa), bf, OBJN(obj, ch, 3),
 						recursive ? "" : CCNRM(ch, C_SPR));
 				act(buf, false, recep, 0, ch, TO_VICT);
 			}*/
@@ -2586,7 +2588,7 @@ void Crash_report_rent(CharData *ch, CharData *recep, ObjData *obj, int *cost,
 					if (!push) {
 						push = i;
 						push_count = 1;
-					} else if (!equal_obj(i, push)) {
+					} else if (!IsObjsStackable(i, push)) {
 						Crash_report_rent_item(ch, recep, push, push_count, factor, equip, recursive);
 						if (recursive) {
 							Crash_report_rent(ch,
@@ -2627,7 +2629,7 @@ int Crash_offer_rent(CharData *ch, CharData *receptionist, int rentshow, int fac
 
 	*totalcost = 0;
 	norent = Crash_report_unrentables(ch, receptionist, ch->carrying);
-	for (i = 0; i < NUM_WEARS; i++)
+	for (i = 0; i < EEquipPos::kNumEquipPos; i++)
 		norent += Crash_report_unrentables(ch, receptionist, GET_EQ(ch, i));
 	norent += Depot::report_unrentables(ch, receptionist);
 
@@ -2636,7 +2638,7 @@ int Crash_offer_rent(CharData *ch, CharData *receptionist, int rentshow, int fac
 
 	*totalcost = min_rent_cost(ch) * factor;
 
-	for (i = 0; i < NUM_WEARS; i++)
+	for (i = 0; i < EEquipPos::kNumEquipPos; i++)
 		Crash_report_rent(ch, receptionist, GET_EQ(ch, i), totalcost, &numitems, rentshow, factor, true, false);
 
 	numitems_weared = numitems;
@@ -2644,7 +2646,7 @@ int Crash_offer_rent(CharData *ch, CharData *receptionist, int rentshow, int fac
 
 	Crash_report_rent(ch, receptionist, ch->carrying, totalcost, &numitems, rentshow, factor, false, true);
 
-	for (i = 0; i < NUM_WEARS; i++)
+	for (i = 0; i < EEquipPos::kNumEquipPos; i++)
 		if (GET_EQ(ch, i)) {
 			Crash_report_rent(ch,
 							  receptionist,
@@ -2686,12 +2688,12 @@ int Crash_offer_rent(CharData *ch, CharData *receptionist, int rentshow, int fac
 		if (min_rent_cost(ch) > 0) {
 			sprintf(buf,
 					"$n сказал$g вам : \"И еще %d %s мне на сбитень с медовухой :)\"",
-					min_rent_cost(ch) * factor, desc_count(min_rent_cost(ch) * factor, WHAT_MONEYu));
+					min_rent_cost(ch) * factor, GetDeclensionInNumber(min_rent_cost(ch) * factor, EWhat::kMoneyU));
 			act(buf, false, receptionist, 0, ch, kToVict);
 		}
 
 		sprintf(buf, "$n сказал$g вам : \"В сумме это составит %d %s %s.\"",
-				*totalcost, desc_count(*totalcost, WHAT_MONEYu),
+				*totalcost, GetDeclensionInNumber(*totalcost, EWhat::kMoneyU),
 				(factor == RENT_FACTOR ? "в день " : ""));
 		act(buf, false, receptionist, 0, ch, kToVict);
 
@@ -2719,7 +2721,7 @@ int gen_receptionist(CharData *ch, CharData *recep, int cmd, char * /*arg*/, int
 	RoomRnum save_room;
 	int cost, rentshow = true;
 
-	if (!ch->desc || IS_NPC(ch))
+	if (!ch->desc || ch->is_npc())
 		return (false);
 
 	if (!cmd && !number(0, 5))
@@ -2773,11 +2775,11 @@ int gen_receptionist(CharData *ch, CharData *recep, int cmd, char * /*arg*/, int
 			if (mode == RENT_FACTOR)
 				sprintf(buf,
 						"$n сказал$g вам : \"Дневной постой обойдется тебе в! %d %s.\"",
-						cost, desc_count(cost, WHAT_MONEYu));
+						cost, GetDeclensionInNumber(cost, EWhat::kMoneyU));
 			else if (mode == CRYO_FACTOR)
 				sprintf(buf,
 						"$n сказал$g вам : \"Дневной постой обойдется тебе в %d %s (за пользование холодильником :)\"",
-						cost, desc_count(cost, WHAT_MONEYu));
+						cost, GetDeclensionInNumber(cost, EWhat::kMoneyU));
 			act(buf, false, recep, 0, ch, kToVict);
 
 			if (cost > ch->get_gold() + ch->get_bank()) {
@@ -2803,7 +2805,7 @@ int gen_receptionist(CharData *ch, CharData *recep, int cmd, char * /*arg*/, int
 				"Вы потеряли связь с окружающими вас...", false, recep, 0, ch, kToVict);
 			Crash_cryosave(ch, cost);
 			sprintf(buf, "%s has cryo-rented.", GET_NAME(ch));
-			PLR_FLAGS(ch).set(PLR_CRYO);
+			PLR_FLAGS(ch).set(EPlrFlag::kCryo);
 		}
 
 		mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
@@ -2818,7 +2820,7 @@ int gen_receptionist(CharData *ch, CharData *recep, int cmd, char * /*arg*/, int
 		}
 		Clan::clan_invoice(ch, false);
 		ch->save_char();
-		extract_char(ch, false);
+		ExtractCharFromWorld(ch, false);
 	} else if (CMD_IS("offer") || CMD_IS("предложение")) {
 		Crash_offer_rent(ch, recep, rentshow, mode, &cost);
 		act("$N предложил$G $n2 остановиться у н$S.", false, ch, 0, recep, kToRoom);
@@ -2861,10 +2863,10 @@ void Crash_frac_save_all(int frac_part) {
 	DescriptorData *d;
 
 	for (d = descriptor_list; d; d = d->next) {
-		if ((STATE(d) == CON_PLAYING) && !IS_NPC(d->character) && GET_ACTIVITY(d->character) == frac_part) {
+		if ((STATE(d) == CON_PLAYING) && !d->character->is_npc() && GET_ACTIVITY(d->character) == frac_part) {
 			Crash_crashsave(d->character.get());
 			d->character->save_char();
-			PLR_FLAGS(d->character).unset(PLR_CRASH);
+			PLR_FLAGS(d->character).unset(EPlrFlag::kCrashSave);
 		}
 	}
 }
@@ -2872,10 +2874,10 @@ void Crash_frac_save_all(int frac_part) {
 void Crash_save_all(void) {
 	DescriptorData *d;
 	for (d = descriptor_list; d; d = d->next) {
-		if ((STATE(d) == CON_PLAYING) && PLR_FLAGGED(d->character, PLR_CRASH)) {
+		if ((STATE(d) == CON_PLAYING) && PLR_FLAGGED(d->character, EPlrFlag::kCrashSave)) {
 			Crash_crashsave(d->character.get());
 			d->character->save_char();
-			PLR_FLAGS(d->character).unset(PLR_CRASH);
+			PLR_FLAGS(d->character).unset(EPlrFlag::kCrashSave);
 		}
 	}
 }
@@ -2888,14 +2890,14 @@ void Crash_save_all_rent(void) {
 	// свои грязные денежки.
 
 	character_list.foreach_on_copy([&](const auto &ch) {
-		if (!IS_NPC(ch)) {
+		if (!ch->is_npc()) {
 			save_char_objects(ch.get(), RENT_FORCED, 0);
 			log("Saving char: %s", GET_NAME(ch));
-			PLR_FLAGS(ch).unset(PLR_CRASH);
+			PLR_FLAGS(ch).unset(EPlrFlag::kCrashSave);
 			//AFF_FLAGS(ch.get()).unset(EAffectFlag::AFF_GROUP);
 			(ch.get())->removeGroupFlags();
-			AFF_FLAGS(ch.get()).unset(EAffectFlag::AFF_HORSE);
-			extract_char(ch.get(), false);
+			AFF_FLAGS(ch.get()).unset(EAffect::kHorse);
+			ExtractCharFromWorld(ch.get(), false);
 		}
 	});
 }

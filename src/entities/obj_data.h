@@ -24,8 +24,8 @@
 
 std::string print_obj_affects(const obj_affected_type &affect);
 void print_obj_affects(CharData *ch, const obj_affected_type &affect);
-void set_obj_eff(ObjData *itemobj, EApplyLocation type, int mod);
-void set_obj_aff(ObjData *itemobj, EAffectFlag bitv);
+void set_obj_eff(ObjData *itemobj, EApply type, int mod);
+void set_obj_aff(ObjData *itemobj, EAffect bitv);
 
 /// Чуть более гибкий, но не менее упоротый аналог GET_OBJ_VAL полей
 /// Если поле нужно сохранять в обж-файл - вписываем в TextId::init_obj_vals()
@@ -127,74 +127,12 @@ class CObjectPrototype {
  public:
 	using shared_ptr = std::shared_ptr<CObjectPrototype>;
 
-	enum EObjectType {
-		ITEM_UNDEFINED = 0,
-		ITEM_LIGHT = 1,            // Item is a light source  //
-		ITEM_SCROLL = 2,        // Item is a scroll     //
-		ITEM_WAND = 3,            // Item is a wand    //
-		ITEM_STAFF = 4,            // Item is a staff      //
-		ITEM_WEAPON = 5,        // Item is a weapon     //
-		ITEM_FIREWEAPON = 6,    // Unimplemented     //
-		ITEM_MISSILE = 7,        // Unimplemented     //
-		ITEM_TREASURE = 8,        // Item is a treasure, not gold  //
-		ITEM_ARMOR = 9,            // Item is armor     //
-		ITEM_POTION = 10,        // Item is a potion     //
-		ITEM_WORN = 11,            // Unimplemented     //
-		ITEM_OTHER = 12,        // Misc object       //
-		ITEM_TRASH = 13,        // Trash - shopkeeps won't buy   //
-		ITEM_TRAP = 14,            // Unimplemented     //
-		ITEM_CONTAINER = 15,    // Item is a container     //
-		ITEM_NOTE = 16,            // Item is note      //
-		ITEM_DRINKCON = 17,        // Item is a drink container  //
-		ITEM_KEY = 18,            // Item is a key     //
-		ITEM_FOOD = 19,            // Item is food         //
-		ITEM_MONEY = 20,        // Item is money (gold)    //
-		ITEM_PEN = 21,            // Item is a pen     //
-		ITEM_BOAT = 22,            // Item is a boat    //
-		ITEM_FOUNTAIN = 23,        // Item is a fountain      //
-		ITEM_BOOK = 24,            // Item is book //
-		ITEM_INGREDIENT = 25,    // Item is magical ingradient //
-		ITEM_MING = 26,            // Магический ингредиент //
-		ITEM_MATERIAL = 27,        // Материал для крафтовых умений //
-		ITEM_BANDAGE = 28,        // бинты для перевязки
-		ITEM_ARMOR_LIGHT = 29,    // легкий тип брони
-		ITEM_ARMOR_MEDIAN = 30,    // средний тип брони
-		ITEM_ARMOR_HEAVY = 31,    // тяжелый тип брони
-		ITEM_ENCHANT = 32,        // зачарование предмета
-		ITEM_MAGIC_MATERIAL = 33,    // Item is a material related to crafts system
-		ITEM_MAGIC_ARROW = 34,    // Item is a material related to crafts system
-		ITEM_MAGIC_CONTAINER = 35,    // Item is a material related to crafts system
-		ITEM_CRAFT_MATERIAL = 36,    // Item is a material related to crafts system
-	};
-
-	enum EObjectMaterial {
-		MAT_NONE = 0,
-		MAT_BULAT = 1,
-		MAT_BRONZE = 2,
-		MAT_IRON = 3,
-		MAT_STEEL = 4,
-		MAT_SWORDSSTEEL = 5,
-		MAT_COLOR = 6,
-		MAT_CRYSTALL = 7,
-		MAT_WOOD = 8,
-		MAT_SUPERWOOD = 9,
-		MAT_FARFOR = 10,
-		MAT_GLASS = 11,
-		MAT_ROCK = 12,
-		MAT_BONE = 13,
-		MAT_MATERIA = 14,
-		MAT_SKIN = 15,
-		MAT_ORGANIC = 16,
-		MAT_PAPER = 17,
-		MAT_DIAMOND = 18
-	};
-
 	constexpr static int DEFAULT_MAXIMUM_DURABILITY = 100;
 	constexpr static int DEFAULT_CURRENT_DURABILITY = DEFAULT_MAXIMUM_DURABILITY;
 	constexpr static int DEFAULT_LEVEL = 0;
 	constexpr static int DEFAULT_WEIGHT = INT_MAX;
-	constexpr static EObjectType DEFAULT_TYPE = ITEM_OTHER;
-	constexpr static EObjectMaterial DEFAULT_MATERIAL = MAT_NONE;
+	constexpr static EObjType DEFAULT_TYPE = kOther;
+	constexpr static EObjMaterial DEFAULT_MATERIAL = kMaterialUndefined;
 
 	constexpr static int NUM_PADS = 6;
 
@@ -238,7 +176,7 @@ class CObjectPrototype {
 										   m_current_durability(DEFAULT_CURRENT_DURABILITY),
 										   m_material(DEFAULT_MATERIAL),
 										   m_sex(ESex::kMale),
-										   m_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_UNDEFINED)),
+										   m_wear_flags(to_underlying(EWearFlag::kUndefined)),
 										   m_timer(DEFAULT_TIMER),
 										   m_minimum_remorts(DEFAULT_MINIMUM_REMORTS),  // для хранения количеста мортов. если отричательное тогда до какого морта
 											m_cost(DEFAULT_COST),
@@ -265,13 +203,13 @@ class CObjectPrototype {
 	auto get_wear_flags() const { return m_wear_flags; }
 	auto get_weight() const { return m_weight; }
 	auto serialize_values() const { return m_values.print_to_file(); }
-	bool can_wear_any() const { return m_wear_flags > 0 && m_wear_flags != to_underlying(EWearFlag::ITEM_WEAR_TAKE); }
-	bool get_affect(const EWeaponAffectFlag weapon_affect) const { return m_waffect_flags.get(weapon_affect); }
+	bool can_wear_any() const { return m_wear_flags > 0 && m_wear_flags != to_underlying(EWearFlag::kTake); }
+	bool get_affect(const EWeaponAffect weapon_affect) const { return m_waffect_flags.get(weapon_affect); }
 	bool get_affect(const uint32_t weapon_affect) const { return m_waffect_flags.get(weapon_affect); }
-	bool get_anti_flag(const EAntiFlag flag) const { return m_anti_flags.get(flag); }
-	bool get_extra_flag(const EExtraFlag packed_flag) const { return m_extra_flags.get(packed_flag); }
-	bool get_extra_flag(const size_t plane, const uint32_t flag) const { return m_extra_flags.get_flag(plane, flag); }
-	bool get_no_flag(const ENoFlag flag) const { return m_no_flags.get(flag); }
+	bool has_anti_flag(const EAntiFlag flag) const { return m_anti_flags.get(flag); }
+	bool has_flag(const EObjFlag packed_flag) const { return m_extra_flags.get(packed_flag); }
+	bool has_flag(const size_t plane, const uint32_t flag) const { return m_extra_flags.get_flag(plane, flag); }
+	bool has_no_flag(const ENoFlag flag) const { return m_no_flags.get(flag); }
 	bool has_wear_flag(const EWearFlag part) const;
 	bool get_wear_mask(const wear_flags_t part) const;
 	bool init_values_from_file(const char *str) { return m_values.init_from_file(str); }
@@ -300,7 +238,7 @@ class CObjectPrototype {
 	void add_val(const size_t index, const int amount) { m_vals[index] += amount; }
 	void add_weight(const int _) { m_weight += _; }
 	void clear_action_description() { m_action_description.clear(); }
-	void clear_affected(const size_t index) { m_affected[index].location = APPLY_NONE; }
+	void clear_affected(const size_t index) { m_affected[index].location = EApply::kNone; }
 	void clear_all_affected();
 	void clear_proto_script();
 	void dec_affected_value(const size_t index) { --m_affected[index].modifier; }
@@ -320,11 +258,11 @@ class CObjectPrototype {
 	void load_no_flags(const char *string) { m_no_flags.from_string(string); }
 	void remove_incorrect_values_keys(const int type) { m_values.remove_incorrect_keys(type); }
 	void set_action_description(const std::string &_) { m_action_description = _; }
-	void set_affect_flag(const EWeaponAffectFlag packed_flag) { m_waffect_flags.set(packed_flag); }
+	void set_affect_flag(const EWeaponAffect packed_flag) { m_waffect_flags.set(packed_flag); }
 	void set_affect_flags(const FlagData &flags) { m_waffect_flags = flags; }
-	void set_affected(const size_t index, const EApplyLocation location, const int modifier);
+	void set_affected(const size_t index, const EApply location, const int modifier);
 	void set_affected(const size_t index, const obj_affected_type &affect) { m_affected[index] = affect; }
-	void set_affected_location(const size_t index, const EApplyLocation _) { m_affected[index].location = _; }
+	void set_affected_location(const size_t index, const EApply _) { m_affected[index].location = _; }
 	void set_affected_modifier(const size_t index, const int _) { m_affected[index].modifier = _; }
 	void set_aliases(const std::string &_) { m_aliases = _; }
 	void set_all_affected(const affected_t &_) { m_affected = _; }
@@ -335,11 +273,11 @@ class CObjectPrototype {
 	void set_destroyer(const int _) { m_destroyer = _; }
 	void set_ex_description(const ExtraDescription::shared_ptr &_) { m_ex_description = _; }
 	void set_ex_description(ExtraDescription *_) { m_ex_description.reset(_); }
-	void set_extra_flag(const EExtraFlag packed_flag) { m_extra_flags.set(packed_flag); }
+	void set_extra_flag(const EObjFlag packed_flag) { m_extra_flags.set(packed_flag); }
 	void set_extra_flag(const size_t plane, const uint32_t flag) { m_extra_flags.set_flag(plane, flag); }
 	void set_extra_flags(const FlagData &flags) { m_extra_flags = flags; }
 	void set_level(const int _) { m_level = _; }
-	void set_material(const EObjectMaterial _) { m_material = _; }
+	void set_material(const EObjMaterial _) { m_material = _; }
 	void set_max_in_world(const int _) { m_max_in_world = _; }
 	void set_maximum_durability(const int _) { m_maximum_durability = _; }
 	void set_no_flag(const ENoFlag flag) { m_no_flags.set(flag); }
@@ -353,7 +291,7 @@ class CObjectPrototype {
 	void set_short_description(const std::string &_) { m_short_description = _; }
 	void set_skill(const int _) { m_skill = _; }
 	void set_spell(const int _) { m_spell = static_cast<ESpell>(_); }
-	void set_type(const EObjectType _) { m_type = _; }
+	void set_type(const EObjType _) { m_type = _; }
 	void set_sex(const ESex _) { m_sex = _; }
 	void set_value(const ObjVal::EValueKey key, const int value) { return m_values.set(key, value); }
 	void set_values(const ObjVal &_) { m_values = _; }
@@ -372,7 +310,7 @@ class CObjectPrototype {
 	void toggle_skill(const uint32_t skill);
 	void toggle_val_bit(const size_t index, const uint32_t bit);
 	void toggle_wear_flag(const uint32_t flag);
-	void unset_extraflag(const EExtraFlag packed_flag) { m_extra_flags.unset(packed_flag); }
+	void unset_extraflag(const EObjFlag packed_flag) { m_extra_flags.unset(packed_flag); }
 	void set_skill(ESkill skill_num, int percent);
 	int get_skill(ESkill skill_num) const;
 	void get_skills(skills_t &out_skills) const;
@@ -422,7 +360,7 @@ class CObjectPrototype {
  private:
 	ObjVnum m_vnum;
 
-	EObjectType m_type;
+	EObjType m_type;
 	int m_weight;
 
 	affected_t m_affected;    // affects //
@@ -449,7 +387,7 @@ class CObjectPrototype {
 	int m_maximum_durability;
 	int m_current_durability;
 
-	EObjectMaterial m_material;
+	EObjMaterial m_material;
 	ESex m_sex;
 
 	FlagData m_extra_flags;    // If it hums, glows, etc.      //
@@ -869,29 +807,18 @@ class ObjData : public CObjectPrototype {
 	std::unordered_set<UIDChangeObserver::shared_ptr> m_uid_change_observers;
 };
 
-template<>
-const std::string &NAME_BY_ITEM<ObjData::EObjectType>(const ObjData::EObjectType item);
-template<>
-ObjData::EObjectType ITEM_BY_NAME<ObjData::EObjectType>(const std::string &name);
-
-template<>
-const std::string &NAME_BY_ITEM<ObjData::EObjectMaterial>(const ObjData::EObjectMaterial item);
-template<>
-ObjData::EObjectMaterial ITEM_BY_NAME<ObjData::EObjectMaterial>(const std::string &name);
-
-inline void CObjectPrototype::set_affected(const size_t index, const EApplyLocation location, const int modifier) {
+inline void CObjectPrototype::set_affected(const size_t index, const EApply location, const int modifier) {
 	m_affected[index].location = location;
 	m_affected[index].modifier = modifier;
 }
 //void delete_item(const std::size_t pt_num, int vnum);
 inline bool CAN_WEAR(const CObjectPrototype *obj, const EWearFlag part) { return obj->has_wear_flag(part); }
 inline bool CAN_WEAR_ANY(const CObjectPrototype *obj) { return obj->can_wear_any(); }
-inline bool OBJ_FLAGGED(const CObjectPrototype *obj, const EExtraFlag flag) { return obj->get_extra_flag(flag); }
 inline void SET_OBJ_AFF(CObjectPrototype *obj, const uint32_t packed_flag) { return obj->set_obj_aff(packed_flag); }
 inline bool OBJ_AFFECT(const CObjectPrototype *obj,
 					   const uint32_t weapon_affect) { return obj->get_affect(weapon_affect); }
 
-inline bool OBJ_AFFECT(const CObjectPrototype *obj, const EWeaponAffectFlag weapon_affect) {
+inline bool OBJ_AFFECT(const CObjectPrototype *obj, const EWeaponAffect weapon_affect) {
 	return OBJ_AFFECT(obj, static_cast<uint32_t>(weapon_affect));
 }
 

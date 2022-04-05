@@ -43,16 +43,16 @@ class Affect {
 };
 
 template<>
-bool Affect<EApplyLocation>::removable() const;
+bool Affect<EApply>::removable() const;
 
 // Возможно эту структуру следует перенести в отдельный модуль для обкаста предметов.
 struct obj_affected_type {
-	EApplyLocation location;    // Which ability to change (APPLY_XXX) //
+	EApply location;    // Which ability to change (APPLY_XXX) //
 	int modifier;                // How much it changes by              //
 
-	obj_affected_type() : location(APPLY_NONE), modifier(0) {}
+	obj_affected_type() : location(EApply::kNone), modifier(0) {}
 
-	obj_affected_type(EApplyLocation __location, int __modifier)
+	obj_affected_type(EApply __location, int __modifier)
 		: location(__location), modifier(__modifier) {}
 
 	// для сравнения в sedit
@@ -70,12 +70,12 @@ void battle_affect_update(CharData *ch);
 void mobile_affect_update();
 
 void affect_total(CharData *ch);
-void affect_modify(CharData *ch, byte loc, int mod, EAffectFlag bitv, bool add);
-void affect_to_char(CharData *ch, const Affect<EApplyLocation> &af);
+void affect_modify(CharData *ch, byte loc, int mod, EAffect bitv, bool add);
+void affect_to_char(CharData *ch, const Affect<EApply> &af);
 void affect_from_char(CharData *ch, int type);
-bool affected_by_spell(CharData *ch, int type);
-void affect_join_fspell(CharData *ch, const Affect<EApplyLocation> &af);
-void affect_join(CharData *ch, Affect<EApplyLocation> &af, bool add_dur, bool max_dur, bool add_mod, bool max_mod);
+bool IsAffectedBySpell(CharData *ch, int type);
+void ImposeAffect(CharData *ch, const Affect<EApply> &af);
+void affect_join(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, bool add_mod, bool max_mod);
 void reset_affects(CharData *ch);
 bool no_bad_affects(ObjData *obj);
 

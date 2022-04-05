@@ -119,11 +119,11 @@ void Characters::remove(CharData *character) {
 void Characters::purge() {
 	m_purge_set.clear();
 	for (const auto &character : m_purge_list) {
-		if (IS_NPC(character)) {
+		if (character->is_npc()) {
 			clearMemory(character.get());
 		}
 
-		MOB_FLAGS(character).set(MOB_FREE);
+		MOB_FLAGS(character).set(EMobFlag::kMobFreed);
 	}
 
 	m_purge_list.clear();

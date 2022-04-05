@@ -194,7 +194,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (!CAN_SEE(ch, character) || GetRealLevel(character) < low || GetRealLevel(character) > high) {
 				continue;
 			}
-			if (outlaws && !PLR_FLAGGED((ch), PLR_KILLER)) {
+			if (outlaws && !PLR_FLAGGED((ch), EPlrFlag::kKiller)) {
 				continue;
 			}
 			if (showclass != ECharClass::kUndefined && showclass != character->get_class()) {
@@ -233,7 +233,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			strcpy(classname, "      -      ");
 		}
 
-		if (GetRealLevel(ch) < kLvlImplementator && !PRF_FLAGGED(ch, PRF_CODERINFO)) {
+		if (GetRealLevel(ch) < kLvlImplementator && !PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
 			strcpy(classname, "      -      ");
 		}
 
@@ -251,7 +251,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			&& STATE(d) == CON_PLAYING
 			&& !IS_GOD(d->character)) {
 			sprintf(idletime, "%-3d", d->character->char_specials.timer *
-				SECS_PER_MUD_HOUR / SECS_PER_REAL_MIN);
+				kSecsPerMudHour / kSecsPerRealMin);
 		} else {
 			strcpy(idletime, "   ");
 		}

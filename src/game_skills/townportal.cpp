@@ -83,7 +83,7 @@ void spell_townportal(CharData *ch, char *arg) {
 			return;
 		}
 
-		if (ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC) && !IS_GRGOD(ch)) {
+		if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoMagic) && !IS_GRGOD(ch)) {
 			send_to_char("Ваша магия потерпела неудачу и развеялась по воздуху.\r\n", ch);
 			act("Магия $n1 потерпела неудачу и развеялась по воздуху.", false, ch, 0, 0, kToRoom);
 			return;
@@ -112,7 +112,7 @@ void spell_townportal(CharData *ch, char *arg) {
 			// timed.time - это unsigned char, поэтому при уходе в минус будет вынос на 255 и ниже
 			int modif = ch->get_skill(ESkill::kTownportal) / 7 + number(1, 5);
 			timed.time = MAX(1, 25 - modif);
-			timed_to_char(ch, &timed);
+			ImposeTimedSkill(ch, &timed);
 		}
 		return;
 	}
@@ -149,7 +149,7 @@ void do_townportal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg2[kMaxInputLength];
 	int vnum = 0;
 
-	if (IS_NPC(ch) || !ch->get_skill(ESkill::kTownportal)) {
+	if (ch->is_npc() || !ch->get_skill(ESkill::kTownportal)) {
 		send_to_char("Прежде изучите секрет постановки врат.\r\n", ch);
 		return;
 	}

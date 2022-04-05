@@ -34,9 +34,9 @@ void go_rescue(CharData *ch, CharData *vict, CharData *tmp_ch) {
 	int prob = CalcCurrentSkill(ch, ESkill::kRescue, tmp_ch);
 	ImproveSkill(ch, ESkill::kRescue, prob >= percent, tmp_ch);
 
-	if (GET_GOD_FLAG(ch, GF_GODSLIKE))
+	if (GET_GOD_FLAG(ch, EGf::kGodsLike))
 		prob = percent;
-	if (GET_GOD_FLAG(ch, GF_GODSCURSE))
+	if (GET_GOD_FLAG(ch, EGf::kGodscurse))
 		prob = 0;
 
 	bool success = percent <= prob;
@@ -55,7 +55,7 @@ void go_rescue(CharData *ch, CharData *vict, CharData *tmp_ch) {
 	act("$n героически спас$q $N3!", true, ch, 0, vict, kToNotVict | kToArenaListen);
 
 	int hostilesCounter = 0;
-	if (can_use_feat(ch, LIVE_SHIELD_FEAT)) {
+	if (IsAbleToUseFeat(ch, EFeat::kLiveShield)) {
 		for (const auto i : world[ch->in_room]->people) {
 			if (i->get_fighting() == vict) {
 				fighting_rescue(ch, vict, i);
@@ -109,25 +109,25 @@ void do_rescue(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (IS_NPC(vict)
-		&& (!IS_NPC(enemy)
-			|| (AFF_FLAGGED(enemy, EAffectFlag::AFF_CHARM)
+	if (vict->is_npc()
+		&& (!enemy->is_npc()
+			|| (AFF_FLAGGED(enemy, EAffect::kCharmed)
 				&& enemy->has_master()
-				&& !IS_NPC(enemy->get_master())))
-		&& (!IS_NPC(ch)
-			|| (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
+				&& !enemy->get_master()->is_npc()))
+		&& (!ch->is_npc()
+			|| (AFF_FLAGGED(ch, EAffect::kCharmed)
 				&& ch->has_master()
-				&& !IS_NPC(ch->get_master())))) {
+				&& !ch->get_master()->is_npc()))) {
 		send_to_char("Вы пытаетесь спасти чужого противника.\r\n", ch);
 		return;
 	}
 
 	// Двойники и прочие очарки не в группе с тем, кого собираются спасать:
 	// Если тот, кто собирается спасать - "чармис" и у него существует хозяин
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && ch->has_master()) {
+	if (AFF_FLAGGED(ch, EAffect::kCharmed) && ch->has_master()) {
 		// Если спасаем "чармиса", то проверять надо на нахождение в одной
 		// группе хозянина спасющего и спасаемого.
-		if (AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
+		if (AFF_FLAGGED(vict, EAffect::kCharmed)
 			&& vict->has_master()
 			&& !same_group(vict->get_master(), ch->get_master())) {
 			act("Спасали бы вы лучше другов своих.", false, ch, 0, vict, kToChar);

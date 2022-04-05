@@ -98,7 +98,7 @@ const int MAX_MAIL_SIZE = 32768;
 //* routines.  Written by Jeremy Elson (jelson@circlemud.org)    *
 //****************************************************************
 int postmaster(CharData *ch, void *me, int cmd, char *argument) {
-	if (!ch->desc || IS_NPC(ch))
+	if (!ch->desc || ch->is_npc())
 		return (0);    // so mobs don't get caught here
 
 	if (!(CMD_IS("mail") || CMD_IS("check") || CMD_IS("receive")
@@ -161,7 +161,7 @@ void postmaster_send_mail(CharData *ch, CharData *mailman, int/* cmd*/, char *ar
 	int cost;
 	char buf[256];
 
-	IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO) ? cost = 0 : cost = STAMP_PRICE;
+	IS_IMMORTAL(ch) || PRF_FLAGGED(ch, EPrf::kCoderinfo) ? cost = 0 : cost = STAMP_PRICE;
 
 	if (GetRealLevel(ch) < MIN_MAIL_LEVEL) {
 		sprintf(buf,
@@ -208,7 +208,7 @@ void postmaster_send_mail(CharData *ch, CharData *mailman, int/* cmd*/, char *ar
 	if (ch->get_gold() < cost) {
 		sprintf(buf, "$n сказал$g вам, 'Письмо стоит %d %s.'\r\n"
 					 "$n сказал$g вам, '...которых у вас просто-напросто нет.'",
-				STAMP_PRICE, desc_count(STAMP_PRICE, WHAT_MONEYu));
+				STAMP_PRICE, GetDeclensionInNumber(STAMP_PRICE, EWhat::kMoneyU));
 		act(buf, false, mailman, 0, ch, kToVict);
 		return;
 	}
@@ -221,12 +221,12 @@ void postmaster_send_mail(CharData *ch, CharData *mailman, int/* cmd*/, char *ar
 		sprintf(buf,
 				"$n сказал$g вам, 'Отлично, с вас %d %s почтового сбора.'\r\n"
 				"$n сказал$g вам, 'Можете писать, (/s saves /h for help)'",
-				STAMP_PRICE, desc_count(STAMP_PRICE, WHAT_MONEYa));
+				STAMP_PRICE, GetDeclensionInNumber(STAMP_PRICE, EWhat::kMoneyA));
 	}
 
 	act(buf, false, mailman, 0, ch, kToVict);
 	ch->remove_gold(cost);
-	PLR_FLAGS(ch).set(PLR_MAILING);    // string_write() sets writing.
+	PLR_FLAGS(ch).set(EPlrFlag::kMailing);    // string_write() sets writing.
 
 	// Start writing!
 	utils::AbstractStringWriter::shared_ptr writer(new utils::StdStringWriter());
@@ -435,7 +435,7 @@ bool check_poster_cnt(CharData *ch) {
 	auto i = poster_list.find(ch->get_uid());
 	if (i != poster_list.end()) {
 		if (GET_REAL_REMORT(ch) <= 0
-			&& GetRealLevel(ch) <= NAME_LEVEL
+			&& GetRealLevel(ch) <= kNameLevel
 			&& i->second >= LOW_LVL_MAX_POST) {
 			return false;
 		}
@@ -511,17 +511,17 @@ void receive(CharData *ch, CharData *mailman) {
 		obj->set_PName(4, "письмом");
 		obj->set_PName(5, "письме");
 		obj->set_sex(ESex::kNeutral);
-		obj->set_type(ObjData::ITEM_NOTE);
-		obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE) | to_underlying(EWearFlag::ITEM_WEAR_HOLD));
+		obj->set_type(EObjType::kNote);
+		obj->set_wear_flags(to_underlying(EWearFlag::kTake) | to_underlying(EWearFlag::kHold));
 		obj->set_weight(1);
-		obj->set_material(ObjData::MAT_PAPER);
+		obj->set_material(EObjMaterial::kPaper);
 		obj->set_cost(0);
 		obj->set_rent_off(10);
 		obj->set_rent_on(10);
 		obj->set_timer(24 * 60);
-		obj->set_extra_flag(EExtraFlag::ITEM_NODONATE);
-		obj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
-		obj->set_extra_flag(EExtraFlag::ITEM_NORENT);
+		obj->set_extra_flag(EObjFlag::kNodonate);
+		obj->set_extra_flag(EObjFlag::kNosell);
+		obj->set_extra_flag(EObjFlag::kNorent);
 
 		char buf_date[kMaxInputLength];
 		strftime(buf_date, sizeof(buf_date), "%H:%M %d-%m-%Y", localtime(&i->second.date));
@@ -538,7 +538,7 @@ void receive(CharData *ch, CharData *mailman) {
 		boost::trim_if(text, ::isspace);
 		obj->set_action_description(buf_ + text + "\r\n\r\n");
 
-		obj_to_char(obj.get(), ch);
+		PlaceObjToInventory(obj.get(), ch);
 		act("$n дал$g вам письмо.", false, mailman, 0, ch, kToVict);
 		act("$N дал$G $n2 письмо.", false, ch, 0, mailman, kToRoom);
 

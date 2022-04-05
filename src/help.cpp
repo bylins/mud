@@ -105,16 +105,16 @@ std::string print_obj_affects(const CObjectPrototype *const obj) {
 		out << "Неудобства : " << buf2 << "\r\n";
 	}
 
-	if (GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON) {
+	if (GET_OBJ_TYPE(obj) == EObjType::kWeapon) {
 		const int drndice = GET_OBJ_VAL(obj, 1);
 		const int drsdice = GET_OBJ_VAL(obj, 2);
 		out << boost::format("Наносимые повреждения '%dD%d' среднее %.1f\r\n")
 			% drndice % drsdice % ((drsdice + 1) * drndice / 2.0);
 	}
 
-	if (GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON
-		|| CAN_WEAR(obj, EWearFlag::ITEM_WEAR_SHIELD)
-		|| CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS)) {
+	if (GET_OBJ_TYPE(obj) == EObjType::kWeapon
+		|| CAN_WEAR(obj, EWearFlag::kShield)
+		|| CAN_WEAR(obj, EWearFlag::kHands)) {
 		out << "Вес : " << GET_OBJ_WEIGHT(obj) << "\r\n";
 	}
 
@@ -185,7 +185,7 @@ std::string print_activator(class_to_act_map::const_iterator &activ, const CObje
 		out << " + Свойства :\r\n" << tmp_str;
 	}
 
-	if (GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON) {
+	if (GET_OBJ_TYPE(obj) == EObjType::kWeapon) {
 		int drndice = 0, drsdice = 0;
 		activ->second.get_dices(drsdice, drndice);
 		if (drsdice > 0 && drndice > 0) {
@@ -742,7 +742,7 @@ void do_help(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	UserSearch user_search(ch);
 	// trust_level справки для демигодов - kLevelImmortal
-	user_search.level = GET_GOD_FLAG(ch, GF_DEMIGOD) ? kLvlImmortal : GetRealLevel(ch);
+	user_search.level = GET_GOD_FLAG(ch, EGf::kDemigod) ? kLvlImmortal : GetRealLevel(ch);
 	// первый аргумент без пробелов, заодно в нижний регистр
 	one_argument(argument, arg);
 	// Получаем topic_num для индексации топика

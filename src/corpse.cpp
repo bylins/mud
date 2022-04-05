@@ -52,22 +52,6 @@ struct global_drop {
 	int chance; // процент выпадения (1..1000)
 	// список внумов с общим дропом (дропается первый возможный)
 	// для внумов из списка учитывается поле максимума в мире
-/*#define NPC_RACE_BASIC			100   - номера рас
-#define NPC_RACE_HUMAN			101
-#define NPC_RACE_HUMAN_ANIMAL	102
-#define NPC_RACE_BIRD			103
-#define NPC_RACE_ANIMAL			104
-#define NPC_RACE_REPTILE		105
-#define NPC_RACE_FISH			106
-#define NPC_RACE_INSECT			107
-#define NPC_RACE_PLANT			108
-#define NPC_RACE_THING			109
-#define NPC_RACE_ZOMBIE			110
-#define NPC_RACE_GHOST			111
-#define NPC_RACE_EVIL_SPIRIT	112
-#define NPC_RACE_SPIRIT			113
-#define NPC_RACE_MAGIC_CREATURE	114
-*/
 	OlistType olist;
 };
 
@@ -311,7 +295,7 @@ int get_obj_to_drop(DropListType::iterator &i) {
  * Если vnum отрицательный, то поиск идет по списку общего дропа.
  */
 bool check_mob(ObjData *corpse, CharData *mob) {
-	if (MOB_FLAGGED(mob, MOB_MOUNTING))
+	if (MOB_FLAGGED(mob, EMobFlag::kMounting))
 		return false;
 	for (size_t i = 0; i < tables_drop.size(); i++) {
 		if (tables_drop[i].check_mob(GET_MOB_VNUM(mob))) {
@@ -329,7 +313,7 @@ bool check_mob(ObjData *corpse, CharData *mob) {
 		}
 	}
 	for (DropListType::iterator i = drop_list.begin(), iend = drop_list.end(); i != iend; ++i) {
-		int day = time_info.month * DAYS_PER_MONTH + time_info.day + 1;
+		int day = time_info.month * kDaysPerMonth + time_info.day + 1;
 		if (GetRealLevel(mob) >= i->mob_lvl
 			&& (!i->max_mob_lvl
 				|| GetRealLevel(mob) <= i->max_mob_lvl)        // моб в диапазоне уровней
@@ -337,9 +321,9 @@ bool check_mob(ObjData *corpse, CharData *mob) {
 				|| (GET_RACE(mob) == i->race_mob)
 				|| (get_virtual_race(mob) == i->race_mob))        // совпадает раса или для всех
 			&& (i->day_start <= day && i->day_end >= day)            // временной промежуток
-			&& (!NPC_FLAGGED(mob, NPC_FREEDROP))  //не падают из фридропа
+			&& (!NPC_FLAGGED(mob, ENpcFlag::kFreeDrop))  //не падают из фридропа
 			&& (!mob->has_master()
-				|| IS_NPC(mob->get_master()))) // не чармис
+				|| mob->get_master()->is_npc())) // не чармис
 
 		{
 			++(i->mobs);
@@ -397,16 +381,16 @@ void make_arena_corpse(CharData *ch, CharData *killer) {
 	sprintf(buf2, "останках %s", GET_PAD(ch, 1));
 	corpse->set_PName(5, buf2);
 
-	corpse->set_type(ObjData::ITEM_CONTAINER);
-	corpse->set_wear_flag(EWearFlag::ITEM_WEAR_TAKE);
-	corpse->set_extra_flag(EExtraFlag::ITEM_NODONATE);
-	corpse->set_extra_flag(EExtraFlag::ITEM_NOSELL);
+	corpse->set_type(EObjType::kContainer);
+	corpse->set_wear_flag(EWearFlag::kTake);
+	corpse->set_extra_flag(EObjFlag::kNodonate);
+	corpse->set_extra_flag(EObjFlag::kNosell);
 	corpse->set_val(0, 0);    // You can't store stuff in a corpse
-	corpse->set_val(2, IS_NPC(ch) ? GET_MOB_VNUM(ch) : -1);
+	corpse->set_val(2, ch->is_npc() ? GET_MOB_VNUM(ch) : -1);
 	corpse->set_val(3, 1);    // corpse identifier
 	corpse->set_weight(GET_WEIGHT(ch));
 	corpse->set_rent_off(100000);
-	if (IS_NPC(ch) && !IS_CHARMICE(ch)) {
+	if (ch->is_npc() && !IS_CHARMICE(ch)) {
 		corpse->set_timer(5);
 	} else {
 		corpse->set_timer(0);
@@ -421,14 +405,14 @@ void make_arena_corpse(CharData *ch, CharData *killer) {
 	exdesc->description = str_dup(buf);    // косметика
 	exdesc->next = corpse->get_ex_description();
 	corpse->set_ex_description(exdesc);
-	obj_to_room(corpse.get(), ch->in_room);
+	PlaceObjToRoom(corpse.get(), ch->in_room);
 }
 
 ObjData *make_corpse(CharData *ch, CharData *killer) {
 	ObjData *o;
 	int i;
 
-	if (IS_NPC(ch) && MOB_FLAGGED(ch, MOB_CORPSE))
+	if (ch->is_npc() && MOB_FLAGGED(ch, EMobFlag::kCorpse))
 		return nullptr;
 	auto corpse = world_objects.create_blank();
 	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
@@ -451,28 +435,28 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 	sprintf(buf2, "трупе %s", GET_PAD(ch, 1));
 	corpse->set_PName(5, buf2);
 
-	corpse->set_type(ObjData::ITEM_CONTAINER);
-	corpse->set_wear_flag(EWearFlag::ITEM_WEAR_TAKE);
-	corpse->set_extra_flag(EExtraFlag::ITEM_NODONATE);
-	corpse->set_extra_flag(EExtraFlag::ITEM_NOSELL);
-	corpse->set_extra_flag(EExtraFlag::ITEM_NORENT);
+	corpse->set_type(EObjType::kContainer);
+	corpse->set_wear_flag(EWearFlag::kTake);
+	corpse->set_extra_flag(EObjFlag::kNodonate);
+	corpse->set_extra_flag(EObjFlag::kNosell);
+	corpse->set_extra_flag(EObjFlag::kNorent);
 	corpse->set_val(0, 0);    // You can't store stuff in a corpse
-	corpse->set_val(2, IS_NPC(ch) ? GET_MOB_VNUM(ch) : -1);
+	corpse->set_val(2, ch->is_npc() ? GET_MOB_VNUM(ch) : -1);
 	corpse->set_val(3, ObjData::CORPSE_INDICATOR);    // corpse identifier
 	corpse->set_rent_off(100000);
 
-	if (IS_NPC(ch) && !IS_CHARMICE(ch)) {
+	if (ch->is_npc() && !IS_CHARMICE(ch)) {
 		corpse->set_timer(max_npc_corpse_time * 2);
 	} else {
 		corpse->set_timer(max_pc_corpse_time * 2);
 	}
 
 	// transfer character's equipment to the corpse
-	for (i = 0; i < NUM_WEARS; i++) {
+	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
 		if (GET_EQ(ch, i)) {
 			remove_otrigger(GET_EQ(ch, i), ch);
 
-			obj_to_char(unequip_char(ch, i, CharEquipFlags()), ch);
+			PlaceObjToInventory(UnequipChar(ch, i, CharEquipFlags()), ch);
 		}
 	}
 
@@ -489,9 +473,9 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 	// transfer gold
 	// following 'if' clause added to fix gold duplication loophole
 	if (ch->get_gold() > 0) {
-		if (IS_NPC(ch)) {
+		if (ch->is_npc()) {
 			const auto money = create_money(ch->get_gold());
-			obj_to_obj(money.get(), corpse.get());
+			PlaceObjIntoObj(money.get(), corpse.get());
 		} else {
 			const int amount = ch->get_gold();
 			const auto money = create_money(amount);
@@ -499,13 +483,13 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 			if (amount >= 100) {
 				purse = system_obj::create_purse(ch, amount);
 				if (purse) {
-					obj_to_obj(money.get(), purse);
-					obj_to_obj(purse, corpse.get());
+					PlaceObjIntoObj(money.get(), purse);
+					PlaceObjIntoObj(purse, corpse.get());
 				}
 			}
 
 			if (!purse) {
-				obj_to_obj(money.get(), corpse.get());
+				PlaceObjIntoObj(money.get(), corpse.get());
 			}
 		}
 		ch->set_gold(0);
@@ -516,11 +500,11 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 	IS_CARRYING_W(ch) = 0;
 
 	//Polud привязываем загрузку ингров к расе (типу) моба
-	if (IS_NPC(ch) && GET_RACE(ch) > NPC_RACE_BASIC && !NPC_FLAGGED(ch, NPC_NOINGRDROP)
-		&& !ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)) {
+	if (ch->is_npc() && GET_RACE(ch) > ENpcRace::kBasic && !NPC_FLAGGED(ch, ENpcFlag::kNoIngrDrop)
+		&& !ROOM_FLAGGED(ch->in_room, ERoomFlag::kHouse)) {
 		ObjData *ingr = try_make_ingr(ch, 1000);
 		if (ingr) {
-			obj_to_obj(ingr, corpse.get());
+			PlaceObjIntoObj(ingr, corpse.get());
 		}
 	}
 
@@ -529,10 +513,10 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 	//	dl_load_obj (corpse, ch);
 
 	// если чармис убит палачом или на арене(и владелец не в бд) то труп попадает не в клетку а в инвентарь к владельцу чармиса
-	if (IS_CHARMICE(ch) && !MOB_FLAGGED(ch, MOB_CORPSE)
-		&& ((killer && PRF_FLAGGED(killer, PRF_EXECUTOR)) || (ROOM_FLAGGED(ch->in_room, ROOM_ARENA) && !NORENTABLE(ch->get_master())))) {
+	if (IS_CHARMICE(ch) && !MOB_FLAGGED(ch, EMobFlag::kCorpse)
+		&& ((killer && PRF_FLAGGED(killer, EPrf::kExecutor)) || (ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena) && !NORENTABLE(ch->get_master())))) {
 		if (ch->has_master()) {
-				obj_to_char(corpse.get(), ch->get_master());
+			PlaceObjToInventory(corpse.get(), ch->get_master());
 		}
 		return nullptr;
 	} else {
@@ -541,7 +525,7 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 			&& ch->get_was_in_room() != kNowhere) {
 			corpse_room = ch->get_was_in_room();
 		}
-		obj_to_room(corpse.get(), corpse_room);
+		PlaceObjToRoom(corpse.get(), corpse_room);
 		return corpse.get();
 	}
 }

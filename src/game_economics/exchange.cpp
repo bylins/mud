@@ -108,18 +108,18 @@ char info_message[] = ("базар выставить <предмет> <цена
 
 int exchange(CharData *ch, void * /*me*/, int cmd, char *argument) {
 	if (CMD_IS("exchange") || CMD_IS("базар")) {
-		if (IS_NPC(ch))
+		if (ch->is_npc())
 			return 0;
-		if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)) {
+		if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
 			send_to_char("Вы немы, как рыба об лед.\r\n", ch);
 			return 1;
 		}
-		if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB)) {
+		if (!ch->is_npc() && PLR_FLAGGED(ch, EPlrFlag::kDumbed)) {
 			send_to_char("Вам запрещено общаться с торговцами!\r\n", ch);
 			return 1;
 		}
 		/*
-				if (PLR_FLAGGED(ch, PLR_MUTE)) {
+				if (EPlrFlag::FLAGGED(ch, EPlrFlag::MUTE)) {
 					send_to_char("Вам не к лицу торговаться.\r\n", ch);
 					return 1;
 				}
@@ -210,22 +210,21 @@ int exchange_exhibit(CharData *ch, char *arg) {
 	}
 	if (!bloody::handle_transfer(ch, nullptr, obj))
 		return false;
-	if (item_cost > 400000 && OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF)) {
+	if (item_cost > 400000 && obj->has_flag(EObjFlag::KSetItem)) {
 		send_to_char("Никто не купит ЭТО за такую сумму.\r\n", ch);
 		return false;
 	}
-	if (GET_OBJ_TYPE(obj) != ObjData::ITEM_BOOK) {
-		if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_NORENT)
-			|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_NOSELL)
-			|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_ZONEDECAY)
-			|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_REPOP_DECAY)
+	if (GET_OBJ_TYPE(obj) != EObjType::kBook) {
+		if (obj->has_flag(EObjFlag::kNorent)
+			|| obj->has_flag(EObjFlag::kNosell)
+			|| obj->has_flag(EObjFlag::kZonedacay)
+			|| obj->has_flag(EObjFlag::kRepopDecay)
 			|| GET_OBJ_RNUM(obj) < 0) {
 			send_to_char("Этот предмет не предназначен для базара.\r\n", ch);
 			return false;
 		}
 	}
-	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_DECAY)
-		|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_NODROP)
+	if (obj->has_flag(EObjFlag::kDecay) || obj->has_flag(EObjFlag::kNodrop)
 		|| GET_OBJ_COST(obj) <= 0
 		|| obj->get_owner() > 0) {
 		send_to_char("Этот предмет не предназначен для базара.\r\n", ch);
@@ -246,7 +245,7 @@ int exchange_exhibit(CharData *ch, char *arg) {
 		item_cost = MAX(1, GET_OBJ_COST(obj));
 	}
 
-	tax = (GET_OBJ_TYPE(obj) != ObjData::ITEM_MING)
+	tax = (GET_OBJ_TYPE(obj) != EObjType::kMagicIngredient)
 		  ? EXCHANGE_EXHIBIT_PAY + (int) (item_cost * EXCHANGE_EXHIBIT_PAY_COEFF)
 		  : (int) (item_cost * EXCHANGE_EXHIBIT_PAY_COEFF / 2);
 	if ((ch->get_total_gold() < tax)
@@ -259,8 +258,8 @@ int exchange_exhibit(CharData *ch, char *arg) {
 		 j = next_thing) {
 		next_thing = j->next;
 		if (GET_EXCHANGE_ITEM_SELLERID(j) == GET_IDNUM(ch)) {
-			if (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ObjData::ITEM_MING
-				&& GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ObjData::ITEM_INGREDIENT) {
+			if (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kMagicIngredient
+				&& GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kIngredient) {
 				counter++;
 			} else {
 				counter_ming++;
@@ -291,13 +290,14 @@ int exchange_exhibit(CharData *ch, char *arg) {
 	if (check_unlimited_timer(obj)) // если нерушима таймер 1 неделя
 		obj->set_timer(10080);
 	GET_EXCHANGE_ITEM(item) = obj;
-	obj_from_char(obj);
+	ExtractObjFromChar(obj);
 
 	sprintf(tmpbuf, "Вы выставили на базар $O3 (лот %d) за %d %s.",
-			GET_EXCHANGE_ITEM_LOT(item), item_cost, desc_count(item_cost, WHAT_MONEYu));
+			GET_EXCHANGE_ITEM_LOT(item), item_cost, GetDeclensionInNumber(item_cost, EWhat::kMoneyU));
 	act(tmpbuf, false, ch, 0, obj, kToChar);
 	sprintf(tmpbuf, "Базар : новый лот (%d) - %s - цена %d %s. \r\n",
-			GET_EXCHANGE_ITEM_LOT(item), obj->get_PName(0).c_str(), item_cost, desc_count(item_cost, WHAT_MONEYa));
+			GET_EXCHANGE_ITEM_LOT(item), obj->get_PName(0).c_str(), item_cost,
+			GetDeclensionInNumber(item_cost, EWhat::kMoneyA));
 	message_exchange(tmpbuf, ch, item);
 
 	ch->remove_both_gold(tax);
@@ -363,7 +363,7 @@ int exchange_change_cost(CharData *ch, char *arg) {
 	sprintf(tmpbuf,
 			"Вы назначили цену %d %s за %s (лот %d).\r\n",
 			newcost,
-			desc_count(newcost, WHAT_MONEYu),
+			GetDeclensionInNumber(newcost, EWhat::kMoneyU),
 			GET_EXCHANGE_ITEM(item)->get_PName(3).c_str(),
 			GET_EXCHANGE_ITEM_LOT(item));
 	send_to_char(tmpbuf, ch);
@@ -372,7 +372,7 @@ int exchange_change_cost(CharData *ch, char *arg) {
 			GET_EXCHANGE_ITEM_LOT(item),
 			GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(),
 			newcost,
-			desc_count(newcost, WHAT_MONEYa));
+			GetDeclensionInNumber(newcost, EWhat::kMoneyA));
 	message_exchange(tmpbuf, ch, item);
 	SetWait(ch, 2, false);
 
@@ -421,7 +421,7 @@ int exchange_withdraw(CharData *ch, char *arg) {
 	message_exchange(tmpbuf, ch, item);
 	if (check_unlimited_timer(GET_EXCHANGE_ITEM(item))) // если нерушима фрешим таймер из прототипа
 		GET_EXCHANGE_ITEM(item)->set_timer(obj_proto.at(GET_OBJ_RNUM(GET_EXCHANGE_ITEM(item)))->get_timer());
-	obj_to_char(GET_EXCHANGE_ITEM(item), ch);
+	PlaceObjToInventory(GET_EXCHANGE_ITEM(item), ch);
 	clear_exchange_lot(item);
 
 	if (EXCHANGE_SAVEONEVERYOPERATION) {
@@ -459,8 +459,8 @@ int exchange_information(CharData *ch, char *arg) {
 	sprintf(buf, "Лот %d. Цена %d\r\n", GET_EXCHANGE_ITEM_LOT(item), GET_EXCHANGE_ITEM_COST(item));
 
 	sprintf(buf + strlen(buf), "Предмет \"%s\", ", GET_EXCHANGE_ITEM(item)->get_short_description().c_str());
-	if (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(item)) == ObjData::ITEM_WAND
-		|| GET_OBJ_TYPE(GET_EXCHANGE_ITEM(item)) == ObjData::ITEM_STAFF) {
+	if (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(item)) == EObjType::kWand
+		|| GET_OBJ_TYPE(GET_EXCHANGE_ITEM(item)) == EObjType::kStaff) {
 		if (GET_OBJ_VAL(GET_EXCHANGE_ITEM(item), 2) < GET_OBJ_VAL(GET_EXCHANGE_ITEM(item), 1)) {
 			strcat(buf, "(б/у), ");
 		}
@@ -482,7 +482,7 @@ int exchange_information(CharData *ch, char *arg) {
 		strcat(buf, buf2);
 		strcat(buf, "\n");
 	}
-	if (invalid_align(ch, GET_EXCHANGE_ITEM(item)) || invalid_no_class(ch, GET_EXCHANGE_ITEM(item))) {
+	if (HaveIncompatibleAlign(ch, GET_EXCHANGE_ITEM(item)) || invalid_no_class(ch, GET_EXCHANGE_ITEM(item))) {
 		sprintf(buf2, "Вы не сможете пользоваться этой вещью.");
 		strcat(buf, buf2);
 		strcat(buf, "\n");
@@ -538,14 +538,15 @@ int exchange_identify(CharData *ch, char *arg) {
 	mort_show_obj_values(GET_EXCHANGE_ITEM(item), ch, 200, full);    //200 - полное опознание
 	ch->remove_both_gold(EXCHANGE_IDENT_PAY);
 	send_to_char(ch, "\r\n%sЗа информацию о предмете с вашего банковского счета сняли %d %s%s\r\n",
-				 CCIGRN(ch, C_NRM), EXCHANGE_IDENT_PAY, desc_count(EXCHANGE_IDENT_PAY, WHAT_MONEYu), CCNRM(ch, C_NRM));
+				 CCIGRN(ch, C_NRM), EXCHANGE_IDENT_PAY,
+				 GetDeclensionInNumber(EXCHANGE_IDENT_PAY, EWhat::kMoneyU), CCNRM(ch, C_NRM));
 
 	return true;
 }
 
 CharData *get_char_by_id(int id) {
 	for (const auto &i : character_list) {
-		if (!IS_NPC(i) && GET_IDNUM(i) == id) {
+		if (!i->is_npc() && GET_IDNUM(i) == id) {
 			return i.get();
 		}
 	}
@@ -604,13 +605,13 @@ int exchange_purchase(CharData *ch, char *arg) {
 			act("Вы купили $O3 на базаре.\r\n", false, ch, 0, GET_EXCHANGE_ITEM(item), kToChar);
 			sprintf(tmpbuf, "Базар : лот %d(%s) продан%s за %d %s.\r\n", lot,
 					GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)),
-					GET_EXCHANGE_ITEM_COST(item), desc_count(GET_EXCHANGE_ITEM_COST(item), WHAT_MONEYu));
+					GET_EXCHANGE_ITEM_COST(item), GetDeclensionInNumber(GET_EXCHANGE_ITEM_COST(item), EWhat::kMoneyU));
 			//end by WorM
 
 			message_exchange(tmpbuf, ch, item);
 			if (check_unlimited_timer(GET_EXCHANGE_ITEM(item))) // если нерушима фрешим таймер из прототипа
 				GET_EXCHANGE_ITEM(item)->set_timer(obj_proto.at(GET_OBJ_RNUM(GET_EXCHANGE_ITEM(item)))->get_timer());
-			obj_to_char(GET_EXCHANGE_ITEM(item), ch);
+			PlaceObjToInventory(GET_EXCHANGE_ITEM(item), ch);
 			clear_exchange_lot(item);
 			if (EXCHANGE_SAVEONEVERYOPERATION) {
 				exchange_database_save();
@@ -627,7 +628,7 @@ int exchange_purchase(CharData *ch, char *arg) {
 		if (NOTIFY_EXCH_PRICE(seller) && GET_EXCHANGE_ITEM_COST(item) >= NOTIFY_EXCH_PRICE(seller)) {
 			sprintf(tmpbuf, "Базар : лот %d(%s) продан%s. %d %s переведено на ваш счет.\r\n", lot,
 					GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)),
-					GET_EXCHANGE_ITEM_COST(item), desc_count(GET_EXCHANGE_ITEM_COST(item), WHAT_MONEYa));
+					GET_EXCHANGE_ITEM_COST(item), GetDeclensionInNumber(GET_EXCHANGE_ITEM_COST(item), EWhat::kMoneyA));
 			mail::add_by_id(GET_EXCHANGE_ITEM_SELLERID(item), -1, tmpbuf);
 		}
 //-Polud
@@ -636,11 +637,11 @@ int exchange_purchase(CharData *ch, char *arg) {
 		act("Вы купили $O3 на базаре.\r\n", false, ch, 0, GET_EXCHANGE_ITEM(item), kToChar);
 		sprintf(tmpbuf, "Базар : лот %d(%s) продан%s за %d %s.\r\n", lot,
 				GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)),
-				GET_EXCHANGE_ITEM_COST(item), desc_count(GET_EXCHANGE_ITEM_COST(item), WHAT_MONEYu));
+				GET_EXCHANGE_ITEM_COST(item), GetDeclensionInNumber(GET_EXCHANGE_ITEM_COST(item), EWhat::kMoneyU));
 		message_exchange(tmpbuf, ch, item);
 		if (check_unlimited_timer(GET_EXCHANGE_ITEM(item))) // если нерушима фрешим таймер из прототипа
 			GET_EXCHANGE_ITEM(item)->set_timer(obj_proto.at(GET_OBJ_RNUM(GET_EXCHANGE_ITEM(item)))->get_timer());
-		obj_to_char(GET_EXCHANGE_ITEM(item), ch);
+		PlaceObjToInventory(GET_EXCHANGE_ITEM(item), ch);
 		clear_exchange_lot(item);
 		if (EXCHANGE_SAVEONEVERYOPERATION) {
 			exchange_database_save();
@@ -656,14 +657,14 @@ int exchange_purchase(CharData *ch, char *arg) {
 		act("Вы купили $O3 на базаре.\r\n", false, ch, 0, GET_EXCHANGE_ITEM(item), kToChar);
 		sprintf(tmpbuf, "Базар : лот %d(%s) продан%s за %d %s.\r\n", lot,
 				GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)),
-				GET_EXCHANGE_ITEM_COST(item), desc_count(GET_EXCHANGE_ITEM_COST(item), WHAT_MONEYu));
+				GET_EXCHANGE_ITEM_COST(item), GetDeclensionInNumber(GET_EXCHANGE_ITEM_COST(item), EWhat::kMoneyU));
 		message_exchange(tmpbuf, seller, item);
 		sprintf(tmpbuf, "Базар : лот %d(%s) продан%s. %d %s переведено на ваш счет.\r\n", lot,
 				GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)),
-				GET_EXCHANGE_ITEM_COST(item), desc_count(GET_EXCHANGE_ITEM_COST(item), WHAT_MONEYa));
+				GET_EXCHANGE_ITEM_COST(item), GetDeclensionInNumber(GET_EXCHANGE_ITEM_COST(item), EWhat::kMoneyA));
 		act(tmpbuf, false, seller, 0, nullptr, kToChar);
 
-		obj_to_char(GET_EXCHANGE_ITEM(item), ch);
+		PlaceObjToInventory(GET_EXCHANGE_ITEM(item), ch);
 		clear_exchange_lot(item);
 		if (EXCHANGE_SAVEONEVERYOPERATION) {
 			exchange_database_save();
@@ -943,7 +944,7 @@ void extract_exchange_item(ExchangeItem *item) {
 	if (item->comment)
 		free(item->comment);
 	if (item->obj)
-		extract_obj(item->obj);
+		ExtractObjFromWorld(item->obj);
 	free(item);
 
 }
@@ -1269,13 +1270,13 @@ void message_exchange(char *message, CharData *ch, ExchangeItem *j) {
 		if (STATE(i) == CON_PLAYING
 			&& (!ch || i != ch->desc)
 			&& i->character
-			&& !PRF_FLAGGED(i->character, PRF_NOEXCHANGE)
-			&& !PLR_FLAGGED(i->character, PLR_WRITING)
-			&& !ROOM_FLAGGED(IN_ROOM(i->character), ROOM_SOUNDPROOF)
+			&& !PRF_FLAGGED(i->character, EPrf::kNoExchange)
+			&& !PLR_FLAGGED(i->character, EPlrFlag::kWriting)
+			&& !ROOM_FLAGGED(IN_ROOM(i->character), ERoomFlag::kSoundproof)
 			&& GET_POS(i->character) > EPosition::kSleep) {
-			if (!PRF_FLAGGED(i->character, PRF_NOINGR_MODE)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ObjData::ITEM_INGREDIENT
-					|| GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ObjData::ITEM_MING)) {
+			if (!PRF_FLAGGED(i->character, EPrf::kNoIngrMode)
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == EObjType::kIngredient
+					|| GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == EObjType::kMagicIngredient)) {
 				continue;
 			}
 			ParseFilter params(ParseFilter::EXCHANGE);
@@ -1335,35 +1336,35 @@ void show_lots(char *filter, short int show_type, CharData *ch) {
 			|| ((show_type == 1)
 				&& (!isname(GET_NAME(ch), get_name_by_id(GET_EXCHANGE_ITEM_SELLERID(j)))))
 			|| ((show_type == 2)
-				&& ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ObjData::ITEM_INGREDIENT)
+				&& ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kIngredient)
 					|| (GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) < 200)
 					|| (GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) > 299)))
 			|| ((show_type == 3)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ObjData::ITEM_ARMOR)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ObjData::ITEM_ARMOR_LIGHT)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ObjData::ITEM_ARMOR_MEDIAN)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ObjData::ITEM_ARMOR_HEAVY))
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kArmor)
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kLightArmor)
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kMediumArmor)
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kHeavyArmor))
 			|| ((show_type == 4)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ObjData::ITEM_WEAPON))
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kWeapon))
 			|| ((show_type == 5)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ObjData::ITEM_BOOK))
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kBook))
 			|| (show_type == 6
-				&& GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ObjData::ITEM_MING
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ObjData::ITEM_INGREDIENT
+				&& GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kMagicIngredient
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kIngredient
 					|| (GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) >= 200
 						&& GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) <= 299)))
 			|| ((show_type == 7)
-				&& ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ObjData::ITEM_INGREDIENT)
+				&& ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == EObjType::kIngredient)
 					|| ObjSystem::is_armor_type(GET_EXCHANGE_ITEM(j))
-					|| (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ObjData::ITEM_WEAPON)
-					|| (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ObjData::ITEM_BOOK)
-					|| (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ObjData::ITEM_MING)))
+					|| (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == EObjType::kWeapon)
+					|| (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == EObjType::kBook)
+					|| (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == EObjType::kMagicIngredient)))
 			|| ((show_type == 8)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ObjData::ITEM_ARMOR_LIGHT))
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kLightArmor))
 			|| ((show_type == 9)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ObjData::ITEM_ARMOR_MEDIAN))
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kMediumArmor))
 			|| ((show_type == 10)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ObjData::ITEM_ARMOR_HEAVY))) {
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kHeavyArmor))) {
 			continue;
 		}
 		// ну идиотизм сидеть статить 5-10 страниц резных
@@ -1381,7 +1382,7 @@ void show_lots(char *filter, short int show_type, CharData *ch) {
 				for (int n = 0; n < kMaxObjAffect; n++) {
 					drndice = GET_EXCHANGE_ITEM(j)->get_affected(n).location;
 					drsdice = GET_EXCHANGE_ITEM(j)->get_affected(n).modifier;
-					if ((drndice != APPLY_NONE) && (drsdice != 0)) {
+					if ((drndice != EApply::kNone) && (drsdice != 0)) {
 						sprinttype(drndice, apply_types, buf2);
 						bool negative = false;
 						for (int k = 0; *apply_negative[k] != '\n'; k++) {
@@ -1417,7 +1418,7 @@ void show_lots(char *filter, short int show_type, CharData *ch) {
 						 GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0).c_str(), buf);
 			}
 		} else if (is_dig_stone(GET_EXCHANGE_ITEM(j))
-			&& GET_OBJ_MATER(GET_EXCHANGE_ITEM(j)) == ObjData::MAT_GLASS) {
+			&& GET_OBJ_MATER(GET_EXCHANGE_ITEM(j)) == EObjMaterial::kGlass) {
 			sprintf(tmpbuf,
 					"[%4d]   %s (стекло)",
 					GET_EXCHANGE_ITEM_LOT(j),
@@ -1455,7 +1456,7 @@ void show_lots(char *filter, short int show_type, CharData *ch) {
 		const int price = EXCHANGE_IDENT_PAY / 2;
 		ch->remove_both_gold(price);
 		send_to_char(ch, "\r\n%sЗа информацию об аффектах с вашего банковского счета сняли %d %s%s\r\n",
-					 CCIGRN(ch, C_NRM), price, desc_count(price, WHAT_MONEYu), CCNRM(ch, C_NRM));
+					 CCIGRN(ch, C_NRM), price, GetDeclensionInNumber(price, EWhat::kMoneyU), CCNRM(ch, C_NRM));
 	}
 	page_string(ch->desc, buffer);
 }
@@ -1537,7 +1538,7 @@ void do_exchange(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	char *arg = str_dup(argument);
 	argument = one_argument(argument, arg1);
 
-	if (IS_NPC(ch)) {
+	if (ch->is_npc()) {
 		send_to_char("Торговать?! Да вы же не человек!\r\n", ch);
 	} else if ((utils::IsAbbrev(arg1, "выставить") || utils::IsAbbrev(arg1, "exhibit")
 		|| utils::IsAbbrev(arg1, "цена") || utils::IsAbbrev(arg1, "cost")

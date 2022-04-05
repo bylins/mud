@@ -124,7 +124,7 @@ bool FindObjIDByVNUM::lookup_worn(const CharData *character) {
 		return false;
 	}
 
-	for (int i = 0; i < NUM_WEARS; ++i) {
+	for (int i = 0; i < EEquipPos::kNumEquipPos; ++i) {
 		const auto equipment = character->equipment[i];
 		if (equipment
 			&& equipment->get_vnum() == m_vnum) {

@@ -24,7 +24,7 @@ void write_aliases(CharData *ch) {
 	struct alias_data *temp;
 
 	log("Write alias %s", GET_NAME(ch));
-	get_filename(GET_NAME(ch), fn, ALIAS_FILE);
+	get_filename(GET_NAME(ch), fn, kAliasFile);
 	remove(fn);
 
 	if (GET_ALIASES(ch) == nullptr)
@@ -60,7 +60,7 @@ void read_aliases(CharData *ch) {
 	int length;
 
 	log("Read alias %s", GET_NAME(ch));
-	get_filename(GET_NAME(ch), xbuf, ALIAS_FILE);
+	get_filename(GET_NAME(ch), xbuf, kAliasFile);
 
 	if ((file = fopen(xbuf, "r")) == nullptr) {
 		if (errno != ENOENT) {

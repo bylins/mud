@@ -20,7 +20,7 @@ enchant::enchant(ObjData *obj) {
 	type_ = ENCHANT_FROM_OBJ;
 
 	for (int i = 0; i < kMaxObjAffect; i++) {
-		if (obj->get_affected(i).location != APPLY_NONE
+		if (obj->get_affected(i).location != EApply::kNone
 			&& obj->get_affected(i).modifier != 0) {
 			affected_.push_back(obj->get_affected(i));
 		}
@@ -28,7 +28,7 @@ enchant::enchant(ObjData *obj) {
 
 	affects_flags_ = GET_OBJ_AFFECTS(obj);
 	extra_flags_ = GET_OBJ_EXTRA(obj);
-	extra_flags_.unset(EExtraFlag::ITEM_TICKTIMER);
+	extra_flags_.unset(EObjFlag::kTicktimer);
 	no_flags_ = GET_OBJ_NO(obj);
 	weight_ = GET_OBJ_VAL(obj, 0);
 	ndice_ = 0;
@@ -119,7 +119,7 @@ void enchant::apply_to_obj(ObjData *obj) const {
 			if (obj->get_affected(k).location == i->location) {
 				obj->add_affected(k, i->modifier);
 				break;
-			} else if (obj->get_affected(k).location == APPLY_NONE) {
+			} else if (obj->get_affected(k).location == EApply::kNone) {
 				obj->set_affected(k, *i);
 				break;
 			}
@@ -131,7 +131,7 @@ void enchant::apply_to_obj(ObjData *obj) const {
 	obj->add_no_flags(no_flags_);
 	obj->add_weight(weight_);
 
-	if (GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON) {
+	if (GET_OBJ_TYPE(obj) == EObjType::kWeapon) {
 		obj->add_val(1, ndice_);
 		obj->add_val(2, sdice_);
 	}
@@ -180,7 +180,7 @@ void Enchants::update_set_bonus(ObjData *obj, const obj_sets::ench_type &set_enc
 				// вес
 				obj->add_weight(set_ench.weight - i->weight_);
 				// дайсы пушек
-				if (GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON) {
+				if (GET_OBJ_TYPE(obj) == EObjType::kWeapon) {
 					obj->add_val(1, set_ench.ndice - i->ndice_);
 					obj->add_val(2, set_ench.sdice - i->sdice_);
 				}
