@@ -3617,7 +3617,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 	hit_params.calc_base_hr(ch);
 	hit_params.calc_rand_hr(ch, victim);
 	hit_params.calc_ac(victim);
-	bool need_dice = false;
+	bool need_dice = true; // чтоб работали кубики
 	hit_params.calc_damage(ch, need_dice); // попытка все собрать в кучу
 
 	// рандом разброс базового дамага для красоты
