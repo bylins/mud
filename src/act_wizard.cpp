@@ -524,7 +524,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				sprintf(buf, "%sЛедяные оковы растаяли под добрым взглядом $N1.%s",
 						CCIYEL(vict, C_NRM), CCNRM(vict, C_NRM));
 
-				sprintf(buf2, "$n2 освободился из ледяного плена.");
+				sprintf(buf2, "$n освободил$u из ледяного плена.");
 				break;
 
 			case SCMD_DUMB:
