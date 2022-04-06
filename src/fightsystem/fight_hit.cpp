@@ -3331,7 +3331,7 @@ void HitData::add_hand_damage(CharData *ch, bool need_dice) {
 		if (ch->is_npc() || IsAbleToUseFeat(ch, EFeat::kBully)) {
 			modi = MAX(100, modi);
 		}
-		dam *= modi / 100;
+		dam = modi * dam / 100;
 	}
 }
 
