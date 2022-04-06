@@ -3308,7 +3308,7 @@ void HitData::add_weapon_damage(CharData *ch, bool need_dice) {
 void HitData::add_hand_damage(CharData *ch, bool need_dice) {
 
 	if (AFF_FLAGGED(ch, EAffect::kStoneHands)) {
-		dam += need_dice ? RollDices(2, 4) : 5;
+		dam += need_dice ? RollDices(2, 4) + GET_REAL_REMORT(ch) / 2  : 5 + GET_REAL_REMORT(ch) / 2;
 		if (IsAbleToUseFeat(ch, EFeat::kBully)) {
 			dam += GetRealLevel(ch) / 5;
 			dam += MAX(0, GET_REAL_STR(ch) - 25);
