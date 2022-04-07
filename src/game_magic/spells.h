@@ -383,6 +383,7 @@ enum ESpell : int {
 	kSpellFrostBreath = 245,
 	kSpellAcidBreath = 246,
 	kSpellLightingBreath = 247,
+	kSpellExpedientFail = 248,
 	kSpellIdentify = 351,
 	kSpellFullIdentify = 352,
 	kSpellQUest = 353,

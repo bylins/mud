@@ -10,7 +10,7 @@
 
 void ApplyNoFleeAffect(CharData *ch, int duration) {
 	Affect<EApply> noflee;
-	noflee.type = kSpellBattle;
+	noflee.type = kSpellExpedientFail;
 	noflee.bitvector = to_underlying(EAffect::kNoFlee);
 	noflee.location = EApply::kNone;
 	noflee.modifier = 0;
