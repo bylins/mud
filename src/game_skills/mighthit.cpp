@@ -21,7 +21,7 @@ void go_mighthit(CharData *ch, CharData *victim) {
 
 	victim = TryToFindProtector(victim, ch);
 
-	if (!ch->get_fighting()) {
+	if (!ch->GetEnemy()) {
 		SET_AF_BATTLE(ch, kEafHammer);
 		hit(ch, victim, ESkill::kHammer, fight::kMainHand);
 		if (ch->getSkillCooldown(ESkill::kHammer) > 0) {
@@ -31,13 +31,13 @@ void go_mighthit(CharData *ch, CharData *victim) {
 		return;
 	}
 
-	if ((victim->get_fighting() != ch) && (ch->get_fighting() != victim)) {
+	if ((victim->GetEnemy() != ch) && (ch->GetEnemy() != victim)) {
 		act("$N не сражается с вами, не трогайте $S.", false, ch, nullptr, victim, kToChar);
 	} else {
 		act("Вы попытаетесь нанести богатырский удар по $N2.", false, ch, nullptr, victim, kToChar);
-		if (ch->get_fighting() != victim) {
+		if (ch->GetEnemy() != victim) {
 			stop_fighting(ch, 2);
-			set_fighting(ch, victim);
+			SetFighting(ch, victim);
 			SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 2);
 			//set_wait(ch, 2, true);
 		}
@@ -50,7 +50,7 @@ void do_mighthit(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::kHammer)) {
+	if (ch->HasCooldown(ESkill::kHammer)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
@@ -67,11 +67,11 @@ void do_mighthit(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (GET_AF_BATTLE(ch, kEafTouch)) {
-		if (!ch->is_npc())
+		if (!ch->IsNpc())
 			send_to_char("Невозможно. Вы сосредоточены на захвате противника.\r\n", ch);
 		return;
 	}
-	if (!ch->is_npc() && !IS_IMMORTAL(ch)
+	if (!ch->IsNpc() && !IS_IMMORTAL(ch)
 		&& (GET_EQ(ch, EEquipPos::kBoths)
 			|| GET_EQ(ch, EEquipPos::kWield)
 			|| GET_EQ(ch, EEquipPos::kHold)

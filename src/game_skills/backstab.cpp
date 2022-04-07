@@ -15,12 +15,12 @@ void do_backstab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::kBackstab)) {
+	if (ch->HasCooldown(ESkill::kBackstab)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
 
-	if (ch->ahorse()) {
+	if (ch->IsOnHorse()) {
 		send_to_char("Верхом это сделать затруднительно.\r\n", ch);
 		return;
 	}
@@ -42,12 +42,12 @@ void do_backstab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!GET_EQ(ch, EEquipPos::kWield) && (!ch->is_npc() || IS_CHARMICE(ch))) {
+	if (!GET_EQ(ch, EEquipPos::kWield) && (!ch->IsNpc() || IS_CHARMICE(ch))) {
 		send_to_char("Требуется держать оружие в правой руке.\r\n", ch);
 		return;
 	}
 
-	if ((!ch->is_npc() || IS_CHARMICE(ch)) && GET_OBJ_VAL(GET_EQ(ch, EEquipPos::kWield), 3) != fight::type_pierce) {
+	if ((!ch->IsNpc() || IS_CHARMICE(ch)) && GET_OBJ_VAL(GET_EQ(ch, EEquipPos::kWield), 3) != fight::type_pierce) {
 		send_to_char("ЗаКОЛоть можно только КОЛющим оружием!\r\n", ch);
 		return;
 	}
@@ -57,7 +57,7 @@ void do_backstab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (vict->get_fighting() && !IsAbleToUseFeat(ch, EFeat::kThieveStrike)) {
+	if (vict->GetEnemy() && !IsAbleToUseFeat(ch, EFeat::kThieveStrike)) {
 		send_to_char("Ваша цель слишком быстро движется - вы можете пораниться!\r\n", ch);
 		return;
 	}
@@ -73,7 +73,7 @@ void do_backstab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 // Проверка на стаб в бою происходит до вызова этой функции
 void go_backstab(CharData *ch, CharData *vict) {
 
-	if (ch->isHorsePrevents())
+	if (ch->IsHorsePrevents())
 		return;
 
 	vict = TryToFindProtector(vict, ch);
@@ -103,7 +103,7 @@ void go_backstab(CharData *ch, CharData *vict) {
 			prob = prob + prob * 20 / 100;
 		};
 
-		if (vict->get_fighting()) {
+		if (vict->GetEnemy()) {
 			prob = prob * (GET_REAL_DEX(ch) + 50) / 100;
 		}
 

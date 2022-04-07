@@ -192,7 +192,7 @@ void do_mkill(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (ch->get_fighting()) {
+	if (ch->GetEnemy()) {
 		mob_log(ch, "mkill: already fighting");
 		return;
 	}
@@ -442,7 +442,7 @@ void do_mpurge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!victim->is_npc()) {
+	if (!victim->IsNpc()) {
 		mob_log(ch, "mpurge: purging a PC");
 		return;
 	}
@@ -478,7 +478,7 @@ void do_mgoto(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (ch->get_fighting())
+	if (ch->GetEnemy())
 		stop_fighting(ch, true);
 
 	ExtractCharFromRoom(ch);
@@ -559,7 +559,7 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			ExtractCharFromRoom(vict);
 			PlaceCharToRoom(vict, target);
 			// переделать чтоб чары смотрели в клетку после переноса, походу еще один цикл крутить, ну и мутево будет
-			if (!vict->is_npc())
+			if (!vict->IsNpc())
 				look_at_room(vict, true);
 		}
 	} else if (!str_cmp(arg1, "allchar") || !str_cmp(arg1, "всечары")) {
@@ -573,7 +573,7 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				mob_log(ch, "mteleport transports allchar from kNowhere");
 				return;
 			}
-			if (vict->is_npc() && !IS_CHARMICE(vict))
+			if (vict->IsNpc() && !IS_CHARMICE(vict))
 				continue;
 			ExtractCharFromRoom(vict);
 			PlaceCharToRoom(vict, target);
@@ -600,7 +600,7 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				PlaceCharToRoom(charmee, target);
 			}
 		}
-		if (vict->ahorse() || vict->has_horse(true)) {
+		if (vict->IsOnHorse() || vict->has_horse(true)) {
 			horse = vict->get_horse();
 		} else {
 			horse = nullptr;
@@ -614,7 +614,7 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (!str_cmp(argument, "followers") && vict->followers) {
 			Follower *ft;
 			for (ft = vict->followers; ft; ft = ft->next) {
-				if (IN_ROOM(ft->ch) == from_room && ft->ch->is_npc()) {
+				if (IN_ROOM(ft->ch) == from_room && ft->ch->IsNpc()) {
 					ExtractCharFromRoom(ft->ch);
 					PlaceCharToRoom(ft->ch, target);
 				}
@@ -666,7 +666,7 @@ void do_mforce(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!victim->is_npc()) {
+	if (!victim->IsNpc()) {
 		if ((!victim->desc)) {
 			return;
 		}
@@ -677,7 +677,7 @@ void do_mforce(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (victim->is_npc()) {
+	if (victim->IsNpc()) {
 		if (mob_script_command_interpreter(victim, argument)) {
 			mob_log(ch, "Mob trigger commands in mforce. Please rewrite trigger.");
 			return;
@@ -861,8 +861,8 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		IS_CARRYING_W(m) = IS_CARRYING_W(&tmpmob);
 		IS_CARRYING_N(ch) = IS_CARRYING_N(m);
 		IS_CARRYING_N(m) = IS_CARRYING_N(&tmpmob);
-		ch->set_fighting(m->get_fighting());
-		m->set_fighting(tmpmob.get_fighting());
+		ch->SetEnemy(m->GetEnemy());
+		m->SetEnemy(tmpmob.GetEnemy());
 		// для name_list
 		ch->set_serial_num(m->get_serial_num());
 		m->set_serial_num(tmpmob.get_serial_num());
@@ -1362,7 +1362,7 @@ void do_mdamage(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		update_pos(victim);
 		char_dam_message(dam, victim, victim, 0);
 		if (GET_POS(victim) == EPosition::kDead) {
-			if (!victim->is_npc()) {
+			if (!victim->IsNpc()) {
 				sprintf(buf2,
 						"%s killed by mobdamage at %s [%d]",
 						GET_NAME(victim),

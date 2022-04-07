@@ -55,19 +55,19 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	buf[0] = 0;
 	int god_level = PRF_FLAGGED(ch, EPrf::kCoderinfo) ? kLvlImplementator : GetRealLevel(ch);
 	int k_room = -1;
-	if (!virt && (god_level == kLvlImplementator || (god_level == kLvlGreatGod && !k->is_npc()))) {
+	if (!virt && (god_level == kLvlImplementator || (god_level == kLvlGreatGod && !k->IsNpc()))) {
 		k_room = GET_ROOM_VNUM(IN_ROOM(k));
 	}
 	// пишем пол  (мужчина)
 	sprinttype(to_underlying(GET_SEX(k)), genders, tmpbuf);
 	// пишем расу (Человек)
-	if (k->is_npc()) {
+	if (k->IsNpc()) {
 		sprinttype(GET_RACE(k) - ENpcRace::kBasic, npc_race_types, smallBuf);
 		sprintf(buf, "%s %s ", tmpbuf, smallBuf);
 	}
 	sprintf(buf2,
 			"%s '%s' IDNum: [%ld] В комнате [%d] Текущий Id:[%ld]",
-			(!k->is_npc() ? "PC" : (!IS_MOB(k) ? "NPC" : "MOB")),
+			(!k->IsNpc() ? "PC" : (!IS_MOB(k) ? "NPC" : "MOB")),
 			GET_NAME(k),
 			GET_IDNUM(k),
 			k_room,
@@ -93,7 +93,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 			GET_PAD(k, 5));
 	send_to_char(buf, ch);
 
-	if (!k->is_npc()) {
+	if (!k->IsNpc()) {
 
 		if (!NAME_GOD(k)) {
 			sprintf(buf, "Имя никем не одобрено!\r\n");
@@ -171,7 +171,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 
 	sprintf(buf, "Титул: %s\r\n", (k->player_data.title != "" ? k->player_data.title.c_str() : "<Нет>"));
 	send_to_char(buf, ch);
-	if (k->is_npc())
+	if (k->IsNpc())
 		sprintf(buf, "L-Des: %s", (k->player_data.long_descr != "" ? k->player_data.long_descr.c_str() : "<Нет>\r\n"));
 	else
 		sprintf(buf,
@@ -179,7 +179,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 				(k->player_data.description != "" ? k->player_data.description.c_str() : "<Нет>\r\n"));
 	send_to_char(buf, ch);
 
-	if (!k->is_npc()) {
+	if (!k->IsNpc()) {
 		strcpy(smallBuf, MUD::Classes()[k->get_class()].GetCName());
 		sprintf(buf, "Племя: %s, Род: %s, Профессия: %s",
 				PlayerRace::GetKinNameByNum(GET_KIN(k), GET_SEX(k)).c_str(),
@@ -210,7 +210,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 
 	send_to_char(buf, ch);
 
-	if (!k->is_npc()) {
+	if (!k->IsNpc()) {
 		if (CLAN(k)) {
 			send_to_char(ch, "Статус дружины: %s\r\n", GET_CLAN_STATUS(k));
 		}
@@ -304,7 +304,8 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 			GET_SAVE(k, ESaving::kStability), GET_SAVE(k, ESaving::kReflex),
 			GET_ABSORBE(k),
 			GET_REAL_SAVING_WILL(k), GET_REAL_SAVING_CRITICAL(k),
-			GET_REAL_SAVING_STABILITY(k), GET_REAL_SAVING_REFLEX(k));
+			GET_REAL_SAVING_STABILITY(k),
+			GET_REAL_SAVING_REFLEX(k));
 	send_to_char(buf, ch);
 	sprintf(buf,
 			"Резисты: [Огонь:%d/Воздух:%d/Вода:%d/Земля:%d/Жизнь:%d/Разум:%d/Иммунитет:%d/Тьма:%d]\r\n",
@@ -331,9 +332,9 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 
 	sprinttype(static_cast<int>(GET_POS(k)), position_types, smallBuf);
 	sprintf(buf, "Положение: %s, Сражается: %s, Экипирован в металл: %s",
-			smallBuf, (k->get_fighting() ? GET_NAME(k->get_fighting()) : "Нет"), (IsEquipInMetall(k) ? "Да" : "Нет"));
+			smallBuf, (k->GetEnemy() ? GET_NAME(k->GetEnemy()) : "Нет"), (IsEquipInMetall(k) ? "Да" : "Нет"));
 
-	if (k->is_npc()) {
+	if (k->IsNpc()) {
 		strcat(buf, ", Тип атаки: ");
 		strcat(buf, attack_hit_text[k->mob_specials.attack_type].singular);
 	}
@@ -352,7 +353,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	strcat(buf, buf2);
 	send_to_char(buf, ch);
 
-	if (k->is_npc()) {
+	if (k->IsNpc()) {
 		k->char_specials.saved.act.sprintbits(action_bits, smallBuf, ",", 4);
 		sprintf(buf, "MOB флаги: %s%s%s\r\n", CCCYN(ch, C_NRM), smallBuf, CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
@@ -466,7 +467,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	strcat(buf, buf2);
 	send_to_char(buf, ch);
 
-	if (!k->is_npc()) {
+	if (!k->IsNpc()) {
 		sprintf(buf, "Голод: %d, Жажда: %d, Опьянение: %d\r\n",
 				GET_COND(k, FULL), GET_COND(k, THIRST), GET_COND(k, DRUNK));
 		send_to_char(buf, ch);
@@ -522,7 +523,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	}
 
 	// check mobiles for a script
-	if (k->is_npc() && god_level >= kLvlBuilder) {
+	if (k->IsNpc() && god_level >= kLvlBuilder) {
 		do_sstat_character(ch, k);
 		if (MEMORY(k)) {
 			struct MemoryRecord *memchar;
@@ -1044,7 +1045,7 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 			continue;
 		}
 		sprintf(buf2, "%s %s(%s)", found++ ? "," : "", GET_NAME(k),
-				(!k->is_npc() ? "PC" : (!IS_MOB(k) ? "NPC" : "MOB")));
+				(!k->IsNpc() ? "PC" : (!IS_MOB(k) ? "NPC" : "MOB")));
 		strcat(buf, buf2);
 		if (strlen(buf) >= 62) {
 			if (counter != rm->people.size()) {

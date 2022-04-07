@@ -599,7 +599,7 @@ int get_filename(const char *orig_name, char *filename, int mode) {
 int num_pc_in_room(RoomData *room) {
 	int i = 0;
 	for (const auto ch : room->people) {
-		if (!ch->is_npc()) {
+		if (!ch->IsNpc()) {
 			i++;
 		}
 	}
@@ -853,7 +853,7 @@ const char *GetDeclensionInNumber(long amount, EWhat of_what) {
 }
 
 int check_moves(CharData *ch, int how_moves) {
-	if (IS_IMMORTAL(ch) || ch->is_npc())
+	if (IS_IMMORTAL(ch) || ch->IsNpc())
 		return (true);
 	if (GET_MOVE(ch) < how_moves) {
 		send_to_char("Вы слишком устали.\r\n", ch);
@@ -928,9 +928,9 @@ bool same_group(CharData *ch, CharData *tch) {
 		return false;
 
 	// Добавлены проверки чтобы не любой заследовавшийся моб считался согруппником (Купала)
-	if (ch->is_npc()
+	if (ch->IsNpc()
 		&& ch->has_master()
-		&& !ch->get_master()->is_npc()
+		&& !ch->get_master()->IsNpc()
 		&& (IS_HORSE(ch)
 			|| AFF_FLAGGED(ch, EAffect::kCharmed)
 			|| MOB_FLAGGED(ch, EMobFlag::kTutelar)
@@ -938,9 +938,9 @@ bool same_group(CharData *ch, CharData *tch) {
 		ch = ch->get_master();
 	}
 
-	if (tch->is_npc()
+	if (tch->IsNpc()
 		&& tch->has_master()
-		&& !tch->get_master()->is_npc()
+		&& !tch->get_master()->IsNpc()
 		&& (IS_HORSE(tch)
 			|| AFF_FLAGGED(tch, EAffect::kCharmed)
 			|| MOB_FLAGGED(tch, EMobFlag::kTutelar)
@@ -949,7 +949,7 @@ bool same_group(CharData *ch, CharData *tch) {
 	}
 
 	// NPC's always in same group
-	if ((ch->is_npc() && tch->is_npc())
+	if ((ch->IsNpc() && tch->IsNpc())
 		|| ch == tch) {
 		return true;
 	}
@@ -980,7 +980,7 @@ bool is_rent(RoomRnum room) {
 	}
 	// комната без рентера в ней
 	for (const auto ch : world[room]->people) {
-		if (ch->is_npc()
+		if (ch->IsNpc()
 			&& IS_RENTKEEPER(ch)) {
 			return true;
 		}
@@ -991,7 +991,7 @@ bool is_rent(RoomRnum room) {
 // Проверка является комната почтой.
 int is_post(RoomRnum room) {
 	for (const auto ch : world[room]->people) {
-		if (ch->is_npc()
+		if (ch->IsNpc()
 			&& IS_POSTKEEPER(ch)) {
 			return (true);
 		}
@@ -1233,7 +1233,7 @@ void can_carry_obj(CharData *ch, ObjData *obj) {
  */
 bool CAN_CARRY_OBJ(const CharData *ch, const ObjData *obj) {
 	// для анлимного лута мобами из трупов
-	if (ch->is_npc() && !IS_CHARMICE(ch)) {
+	if (ch->IsNpc() && !IS_CHARMICE(ch)) {
 		return true;
 	}
 
@@ -1247,7 +1247,7 @@ bool CAN_CARRY_OBJ(const CharData *ch, const ObjData *obj) {
 
 // shapirus: проверка, игнорирет ли чар who чара whom
 bool ignores(CharData *who, CharData *whom, unsigned int flag) {
-	if (who->is_npc()) return false;
+	if (who->IsNpc()) return false;
 
 	long ign_id;
 
@@ -1257,7 +1257,7 @@ bool ignores(CharData *who, CharData *whom, unsigned int flag) {
 	}
 
 // чармисы игнорируемого хозяина тоже должны быть проигнорированы
-	if (whom->is_npc()
+	if (whom->IsNpc()
 		&& AFF_FLAGGED(whom, EAffect::kCharmed)) {
 		return ignores(who, whom->get_master(), flag);
 	}
@@ -2022,7 +2022,7 @@ void sanity_check(void) {
 
 int GetRealLevel(const CharData *ch) {
 
-	if (ch->is_npc()) {
+	if (ch->IsNpc()) {
 		return std::clamp(ch->get_level() + ch->get_level_add(), 1, kMaxMobLevel);
 	}
 

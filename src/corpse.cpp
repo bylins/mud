@@ -323,7 +323,7 @@ bool check_mob(ObjData *corpse, CharData *mob) {
 			&& (i->day_start <= day && i->day_end >= day)            // временной промежуток
 			&& (!NPC_FLAGGED(mob, ENpcFlag::kFreeDrop))  //не падают из фридропа
 			&& (!mob->has_master()
-				|| mob->get_master()->is_npc())) // не чармис
+				|| mob->get_master()->IsNpc())) // не чармис
 
 		{
 			++(i->mobs);
@@ -386,11 +386,11 @@ void make_arena_corpse(CharData *ch, CharData *killer) {
 	corpse->set_extra_flag(EObjFlag::kNodonate);
 	corpse->set_extra_flag(EObjFlag::kNosell);
 	corpse->set_val(0, 0);    // You can't store stuff in a corpse
-	corpse->set_val(2, ch->is_npc() ? GET_MOB_VNUM(ch) : -1);
+	corpse->set_val(2, ch->IsNpc() ? GET_MOB_VNUM(ch) : -1);
 	corpse->set_val(3, 1);    // corpse identifier
 	corpse->set_weight(GET_WEIGHT(ch));
 	corpse->set_rent_off(100000);
-	if (ch->is_npc() && !IS_CHARMICE(ch)) {
+	if (ch->IsNpc() && !IS_CHARMICE(ch)) {
 		corpse->set_timer(5);
 	} else {
 		corpse->set_timer(0);
@@ -412,7 +412,7 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 	ObjData *o;
 	int i;
 
-	if (ch->is_npc() && MOB_FLAGGED(ch, EMobFlag::kCorpse))
+	if (ch->IsNpc() && MOB_FLAGGED(ch, EMobFlag::kCorpse))
 		return nullptr;
 	auto corpse = world_objects.create_blank();
 	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
@@ -441,11 +441,11 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 	corpse->set_extra_flag(EObjFlag::kNosell);
 	corpse->set_extra_flag(EObjFlag::kNorent);
 	corpse->set_val(0, 0);    // You can't store stuff in a corpse
-	corpse->set_val(2, ch->is_npc() ? GET_MOB_VNUM(ch) : -1);
+	corpse->set_val(2, ch->IsNpc() ? GET_MOB_VNUM(ch) : -1);
 	corpse->set_val(3, ObjData::CORPSE_INDICATOR);    // corpse identifier
 	corpse->set_rent_off(100000);
 
-	if (ch->is_npc() && !IS_CHARMICE(ch)) {
+	if (ch->IsNpc() && !IS_CHARMICE(ch)) {
 		corpse->set_timer(max_npc_corpse_time * 2);
 	} else {
 		corpse->set_timer(max_pc_corpse_time * 2);
@@ -473,7 +473,7 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 	// transfer gold
 	// following 'if' clause added to fix gold duplication loophole
 	if (ch->get_gold() > 0) {
-		if (ch->is_npc()) {
+		if (ch->IsNpc()) {
 			const auto money = create_money(ch->get_gold());
 			PlaceObjIntoObj(money.get(), corpse.get());
 		} else {
@@ -500,7 +500,7 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 	IS_CARRYING_W(ch) = 0;
 
 	//Polud привязываем загрузку ингров к расе (типу) моба
-	if (ch->is_npc() && GET_RACE(ch) > ENpcRace::kBasic && !NPC_FLAGGED(ch, ENpcFlag::kNoIngrDrop)
+	if (ch->IsNpc() && GET_RACE(ch) > ENpcRace::kBasic && !NPC_FLAGGED(ch, ENpcFlag::kNoIngrDrop)
 		&& !ROOM_FLAGGED(ch->in_room, ERoomFlag::kHouse)) {
 		ObjData *ingr = try_make_ingr(ch, 1000);
 		if (ingr) {

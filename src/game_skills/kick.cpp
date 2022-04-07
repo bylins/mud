@@ -15,7 +15,7 @@ void go_kick(CharData *ch, CharData *vict) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::kKick)) {
+	if (ch->HasCooldown(ESkill::kKick)) {
 		send_to_char("Вы уже все ноги себе отбили, отдохните слегка.\r\n", ch);
 		return;
 	};
@@ -32,7 +32,7 @@ void go_kick(CharData *ch, CharData *vict) {
 		if (GET_GOD_FLAG(vict, EGf::kGodscurse) || GET_MOB_HOLD(vict)) {
 			prob = percent;
 		}
-		if (GET_GOD_FLAG(ch, EGf::kGodscurse) || (!ch->ahorse() && vict->ahorse())) {
+		if (GET_GOD_FLAG(ch, EGf::kGodscurse) || (!ch->IsOnHorse() && vict->IsOnHorse())) {
 			prob = 0;
 		}
 		if (check_spell_on_player(ch, kSpellWeb)) {
@@ -50,13 +50,13 @@ void go_kick(CharData *ch, CharData *vict) {
 		cooldown = 2;
 	} else {
 		int dam = str_bonus(GET_REAL_STR(ch), STR_TO_DAM) + GetRealDamroll(ch) + GetRealLevel(ch) / 6;
-		if (!ch->is_npc() || (ch->is_npc() && GET_EQ(ch, EEquipPos::kFeet))) {
+		if (!ch->IsNpc() || (ch->IsNpc() && GET_EQ(ch, EEquipPos::kFeet))) {
 			int modi = MAX(0, (ch->get_skill(ESkill::kKick) + 4) / 5);
 			dam += number(0, modi * 2);
 			modi = 5 * (10 + (GET_EQ(ch, EEquipPos::kFeet) ? GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kFeet)) : 0));
 			dam = modi * dam / 100;
 		}
-		if (ch->ahorse() && (ch->get_skill(ESkill::kRiding) >= 150) && (ch->get_skill(ESkill::kKick) >= 150)) {
+		if (ch->IsOnHorse() && (ch->get_skill(ESkill::kRiding) >= 150) && (ch->get_skill(ESkill::kKick) >= 150)) {
 			Affect<EApply> af;
 			af.location = EApply::kNone;
 			af.type = kSpellBattle;
@@ -117,12 +117,12 @@ void go_kick(CharData *ch, CharData *vict) {
 				}
 			} else if (number(1, 1000) < (ch->get_skill(ESkill::kRiding) / 2)) {
 				dam *= 2;
-				if (!ch->is_npc())
+				if (!ch->IsNpc())
 					send_to_char("Вы привстали на стременах.\r\n", ch);
 			}
 
 			if (to_char) {
-				if (!ch->is_npc()) {
+				if (!ch->IsNpc()) {
 					sprintf(buf, "&G&q%s&Q&n", to_char);
 					act(buf, false, ch, nullptr, vict, kToChar);
 					sprintf(buf, "%s", to_room);
@@ -130,16 +130,16 @@ void go_kick(CharData *ch, CharData *vict) {
 				}
 			}
 			if (to_vict) {
-				if (!vict->is_npc()) {
+				if (!vict->IsNpc()) {
 					sprintf(buf, "&R&q%s&Q&n", to_vict);
 					act(buf, false, ch, nullptr, vict, kToVict);
 				}
 			}
-			affect_join(vict, af, true, false, true, false);
+			ImposeAffect(vict, af, true, false, true, false);
 		}
 
 		if (GET_AF_BATTLE(vict, kEafAwake)) {
-			dam >>= (2 - (ch->ahorse() ? 1 : 0));
+			dam >>= (2 - (ch->IsOnHorse() ? 1 : 0));
 		}
 		Damage dmg(SkillDmg(ESkill::kKick), dam, fight::kPhysDmg, nullptr);
 		dmg.Process(ch, vict);
@@ -154,7 +154,7 @@ void do_kick(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::kKick)) {
+	if (ch->HasCooldown(ESkill::kKick)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
@@ -175,11 +175,11 @@ void do_kick(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!check_pkill(ch, vict, arg))
 		return;
 
-	if (IS_IMPL(ch) || !ch->get_fighting()) {
+	if (IS_IMPL(ch) || !ch->GetEnemy()) {
 		go_kick(ch, vict);
 	} else if (IsHaveNoExtraAttack(ch)) {
 		act("Хорошо. Вы попытаетесь пнуть $N3.", false, ch, nullptr, vict, kToChar);
-		ch->set_extra_attack(kExtraAttackKick, vict);
+		ch->SetExtraAttack(kExtraAttackKick, vict);
 	}
 }
 

@@ -83,7 +83,7 @@ const char *ac_text[] =
 void DoScore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	skip_spaces(&argument);
 
-	if (ch->is_npc())
+	if (ch->IsNpc())
 		return;
 
 	if (utils::IsAbbrev(argument, "все") || utils::IsAbbrev(argument, "all")) {
@@ -180,7 +180,7 @@ void PrintScoreList(CharData *ch) {
 				 ch->get_hryvn(),
 				 GET_EXP(ch),
 				 IS_IMMORTAL(ch) ? 1: level_exp(ch, GetRealLevel(ch) + 1) - GET_EXP(ch));
-	if (!ch->ahorse())
+	if (!ch->IsOnHorse())
 		send_to_char(ch, "Ваша позиция: %s", GetPositionStr(ch));
 	else
 		send_to_char(ch, "Ваша позиция: Вы верхом на %s.\r\n", GET_PAD(ch->get_horse(), 5));
@@ -235,7 +235,7 @@ const std::string &InfoStrPrefix(CharData *ch) {
 
 void PrintHorseInfo(CharData *ch, std::ostringstream &out) {
 	if (ch->has_horse(false)) {
-		if (ch->ahorse()) {
+		if (ch->IsOnHorse()) {
 			out << InfoStrPrefix(ch) << "Вы верхом на " << GET_PAD(ch->get_horse(), 5) << "." << std::endl;
 		} else {
 			out << InfoStrPrefix(ch) << "У вас есть " << ch->get_horse()->get_name() << "." << std::endl;
@@ -802,7 +802,7 @@ void PrintScoreBase(CharData *ch) {
 			playing_time.hours, GetDeclensionInNumber(playing_time.hours, EWhat::kHour));
 	send_to_char(buf, ch);
 
-	if (!ch->ahorse())
+	if (!ch->IsOnHorse())
 		send_to_char(ch, "%s", GetPositionStr(ch));
 
 	strcpy(buf, CCIGRN(ch, C_NRM));
@@ -836,7 +836,7 @@ void PrintScoreBase(CharData *ch) {
 		strcat(buf, "Вы можете быть призваны.\r\n");
 
 	if (ch->has_horse(false)) {
-		if (ch->ahorse())
+		if (ch->IsOnHorse())
 			sprintf(buf + strlen(buf), "Вы верхом на %s.\r\n", GET_PAD(ch->get_horse(), 5));
 		else
 			sprintf(buf + strlen(buf), "У вас есть %s.\r\n", GET_NAME(ch->get_horse()));
@@ -1035,7 +1035,7 @@ int CalcHitroll(CharData *ch) {
 	if (PRF_FLAGGED(ch, EPrf::kPerformGreatAimingAttack)) {
 		hr += 4;
 	}
-	hr -= (ch->ahorse() ? (10 - GET_SKILL(ch, ESkill::kRiding) / 20) : 0);
+	hr -= (ch->IsOnHorse() ? (10 - GET_SKILL(ch, ESkill::kRiding) / 20) : 0);
 	hr *= ch->get_cond_penalty(P_HITROLL);
 	return hr;
 }
@@ -1057,8 +1057,8 @@ const char *GetPositionStr(CharData *ch) {
 		case EPosition::kSit:
 			return "Вы сидите.\r\n";
 		case EPosition::kFight:
-			if (ch->get_fighting()) {
-				sprintf(buf1, "Вы сражаетесь с %s.\r\n", GET_PAD(ch->get_fighting(), 4));
+			if (ch->GetEnemy()) {
+				sprintf(buf1, "Вы сражаетесь с %s.\r\n", GET_PAD(ch->GetEnemy(), 4));
 				return buf1;
 			}
 			else
@@ -1072,7 +1072,7 @@ const char *GetPositionStr(CharData *ch) {
 }
 
 const char *GetShortPositionStr(CharData *ch) {
-	if (!ch->ahorse()) {
+	if (!ch->IsOnHorse()) {
 		switch (GET_POS(ch)) {
 			case EPosition::kDead: return "Вы МЕРТВЫ!";
 			case EPosition::kPerish: return "Вы умираете!";
@@ -1082,7 +1082,7 @@ const char *GetShortPositionStr(CharData *ch) {
 			case EPosition::kRest: return "Вы отдыхаете.";
 			case EPosition::kSit: return "Вы сидите.";
 			case EPosition::kFight:
-				if (ch->get_fighting()) {
+				if (ch->GetEnemy()) {
 					return "Вы сражаетесь!";
 				} else {
 					return "Вы машете кулаками.";

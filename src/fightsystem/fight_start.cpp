@@ -13,7 +13,7 @@ int set_hit(CharData *ch, CharData *victim) {
 		return (false);
 	}
 
-	if (ch->get_fighting() || GET_MOB_HOLD(ch)) {
+	if (ch->GetEnemy() || GET_MOB_HOLD(ch)) {
 		return (false);
 	}
 	victim = TryToFindProtector(victim, ch);
@@ -27,7 +27,7 @@ int set_hit(CharData *ch, CharData *victim) {
 			victim->desc->writer->clear();
 		}
 		STATE(victim->desc) = CON_PLAYING;
-		if (!victim->is_npc()) {
+		if (!victim->IsNpc()) {
 			PLR_FLAGS(victim).unset(EPlrFlag::kWriting);
 		}
 		if (victim->desc->backstr) {
@@ -67,11 +67,11 @@ int set_hit(CharData *ch, CharData *victim) {
 	}
 
 	if (MOB_FLAGGED(ch, EMobFlag::kMemory) && GET_WAIT(ch) > 0) {
-		if (!victim->is_npc()) {
+		if (!victim->IsNpc()) {
 			mobRemember(ch, victim);
 		} else if (AFF_FLAGGED(victim, EAffect::kCharmed)
 			&& victim->has_master()
-			&& !victim->get_master()->is_npc()) {
+			&& !victim->get_master()->IsNpc()) {
 			if (MOB_FLAGGED(victim, EMobFlag::kClone)) {
 				mobRemember(ch, victim->get_master());
 			} else if (ch->isInSameRoom(victim->get_master()) && CAN_SEE(ch, victim->get_master())) {
@@ -116,23 +116,23 @@ void do_hit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
-	if (ch->get_fighting()) {
-		if (vict == ch->get_fighting()) {
+	if (ch->GetEnemy()) {
+		if (vict == ch->GetEnemy()) {
 			act("Вы уже сражаетесь с $N4.", false, ch, 0, vict, kToChar);
 			return;
 		}
-		if (ch != vict->get_fighting()) {
+		if (ch != vict->GetEnemy()) {
 			act("$N не сражается с вами, не трогайте $S.", false, ch, 0, vict, kToChar);
 			return;
 		}
 		vict = TryToFindProtector(vict, ch);
 		stop_fighting(ch, 2);
-		set_fighting(ch, vict);
+		SetFighting(ch, vict);
 		SetWait(ch, 2, true);
 		//ch->setSkillCooldown(kGlobalCooldown, 2);
 		return;
 	}
-	if ((GET_POS(ch) == EPosition::kStand) && (vict != ch->get_fighting())) {
+	if ((GET_POS(ch) == EPosition::kStand) && (vict != ch->GetEnemy())) {
 		set_hit(ch, vict);
 	} else {
 		send_to_char("Вам явно не до боя!\r\n", ch);

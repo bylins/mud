@@ -392,10 +392,10 @@ class CharData : public ProtectedCharData {
 
 	EExtraAttack get_extra_attack_mode() const;
 	CharData *get_extra_victim() const;
-	void set_extra_attack(EExtraAttack Attack, CharData *vict);
+	void SetExtraAttack(EExtraAttack Attack, CharData *vict);
 
-	CharData *get_fighting() const;
-	void set_fighting(CharData *vict);
+	CharData *GetEnemy() const;
+	void SetEnemy(CharData *enemy);
 
 	// TODO: касты можно сделать и красивее (+ troom не используется, CastSpell/cast_subst/cast_obj только по разу)
 	void set_cast(int spellnum, int spell_subst, CharData *tch, ObjData *tobj, RoomData *troom);
@@ -613,7 +613,7 @@ class CharData : public ProtectedCharData {
 	void setSkillCooldown(ESkill skillID, unsigned cooldown);
 	void decreaseSkillsCooldowns(unsigned value);
 	bool haveSkillCooldown(ESkill skillID);
-	bool haveCooldown(ESkill skillID);
+	bool HasCooldown(ESkill skillID);
 	int getSkillCooldownInPulses(ESkill skillID);
 	unsigned getSkillCooldown(ESkill skillID);
 
@@ -653,7 +653,7 @@ class CharData : public ProtectedCharData {
 
 	void cleanup_script();
 
-	bool is_npc() const { return char_specials.saved.act.get(EMobFlag::kNpc); }
+	bool IsNpc() const { return char_specials.saved.act.get(EMobFlag::kNpc); }
 	bool have_mind() const;
 
  private:
@@ -671,7 +671,7 @@ class CharData : public ProtectedCharData {
 	////////////////////////////////////////////////////////////////////////////
 	CharData *protecting_; // цель для 'прикрыть'
 	CharData *touching_;   // цель для 'перехватить'
-	CharData *fighting_;   // противник
+	CharData *enemy_;
 
 	struct extra_attack_type extra_attack_; // атаки типа баша, пинка и т.п.
 	struct cast_attack_type cast_attack_;   // каст заклинания
@@ -830,11 +830,11 @@ class CharData : public ProtectedCharData {
 	bool has_master() const { return nullptr != m_master; }
 	bool makes_loop(const CharData::ptr_t master) const;
 	// MOUNTS
-	bool ahorse() const;
+	bool IsOnHorse() const;
 	bool has_horse(bool same_room) const;
 	CharData *get_horse();
 	bool drop_from_horse();
-	bool isHorsePrevents();
+	bool IsHorsePrevents();
 	void dismount();
 };
 # define MAX_FIRSTAID_REMOVE 13
@@ -958,7 +958,7 @@ bool IS_POLY(const CharData *ch);
 
 inline int VPOSI_MOB(const CharData *ch, const EBaseStat stat_id, const int val) {
 	const int character_class = ch->get_class();
-	return ch->is_npc()
+	return ch->IsNpc()
 		   ? VPOSI(val, 1, 100)
 		   : VPOSI(val, 1, class_stats_limit[character_class][to_underlying(stat_id)]);
 }

@@ -725,7 +725,7 @@ bool IsAbleToUseFeat(const CharData *ch, EFeat feat) {
 	if ((feat == EFeat::kIncorrectFeat) || !HAVE_FEAT(ch, feat)) {
 		return false;
 	};
-	if (ch->is_npc()) {
+	if (ch->IsNpc()) {
 		return true;
 	};
 	if (NUM_LEV_FEAT(ch) < feat_info[feat].slot[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) {
@@ -997,10 +997,10 @@ void CheckBerserk(CharData *ch) {
 		send_to_char("Предсмертное исступление оставило вас.\r\n", ch);
 	}
 
-	if (IsAbleToUseFeat(ch, EFeat::kBerserker) && ch->get_fighting() &&
+	if (IsAbleToUseFeat(ch, EFeat::kBerserker) && ch->GetEnemy() &&
 		!IsTimed(ch, EFeat::kBerserker) && !AFF_FLAGGED(ch, EAffect::kBerserk)
 		&& (GET_HIT(ch) < GET_REAL_MAX_HIT(ch) / 4)) {
-		CharData *vict = ch->get_fighting();
+		CharData *vict = ch->GetEnemy();
 		timed.feat = EFeat::kBerserker;
 		timed.time = 4;
 		ImposeTimedFeat(ch, &timed);
@@ -1012,7 +1012,7 @@ void CheckBerserk(CharData *ch) {
 		af.location = EApply::kNone;
 		af.battleflag = 0;
 
-		prob = ch->is_npc() ? 601 : (751 - GetRealLevel(ch) * 5);
+		prob = ch->IsNpc() ? 601 : (751 - GetRealLevel(ch) * 5);
 		if (number(1, 1000) < prob) {
 			af.bitvector = to_underlying(EAffect::kBerserk);
 			act("Вас обуяла предсмертная ярость!", false, ch, nullptr, nullptr, kToChar);
@@ -1024,19 +1024,19 @@ void CheckBerserk(CharData *ch) {
 			act("$n0 истошно завопил$g, пытаясь напугать противника. Забавно...", false, ch, nullptr, vict, kToNotVict);
 			act("$n0 истошно завопил$g, пытаясь напугать вас. Забавно...", false, ch, nullptr, vict, kToVict);
 		}
-		affect_join(ch, af, true, false, true, false);
+		ImposeAffect(ch, af, true, false, true, false);
 	}
 }
 
 void do_lightwalk(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	struct TimedFeat timed;
 
-	if (ch->is_npc() || !IsAbleToUseFeat(ch, EFeat::kLightWalk)) {
+	if (ch->IsNpc() || !IsAbleToUseFeat(ch, EFeat::kLightWalk)) {
 		send_to_char("Вы не можете этого.\r\n", ch);
 		return;
 	}
 
-	if (ch->ahorse()) {
+	if (ch->IsOnHorse()) {
 		act("Позаботьтесь сперва о мягких тапочках для $N3...", false, ch, nullptr, ch->get_horse(), kToChar);
 		return;
 	}
@@ -1182,7 +1182,7 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	struct TimedFeat timed;
 
-	if (!IS_IMPL(ch) && (ch->is_npc() || !IsAbleToUseFeat(ch, EFeat::kSpellCapabler))) {
+	if (!IS_IMPL(ch) && (ch->IsNpc() || !IsAbleToUseFeat(ch, EFeat::kSpellCapabler))) {
 		send_to_char("Вы не столь могущественны.\r\n", ch);
 		return;
 	}
@@ -1195,7 +1195,7 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	char *s;
 	int spellnum;
 
-	if (ch->is_npc() && AFF_FLAGGED(ch, EAffect::kCharmed))
+	if (ch->IsNpc() && AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
@@ -1222,7 +1222,7 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if ((!IS_SET(GET_SPELL_TYPE(ch, spellnum), kSpellTemp | kSpellKnow) ||
 		GET_REAL_REMORT(ch) < MIN_CAST_REM(SpINFO, ch)) &&
-		(GetRealLevel(ch) < kLvlGreatGod) && (!ch->is_npc())) {
+		(GetRealLevel(ch) < kLvlGreatGod) && (!ch->IsNpc())) {
 		if (GetRealLevel(ch) < MIN_CAST_LEV(SpINFO, ch)
 			|| GET_REAL_REMORT(ch) < MIN_CAST_REM(SpINFO, ch)
 			|| CalcCircleSlotsAmount(ch, SpINFO.slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0) {
@@ -1265,7 +1265,7 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	act("$n принял$u делать какие-то пассы и что-то бормотать в сторону $N3.", false, ch, nullptr, follower, kToRoom);
 
 	GET_SPELL_MEM(ch, spellnum)--;
-	if (!ch->is_npc() && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, EPrf::kAutomem))
+	if (!ch->IsNpc() && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, EPrf::kAutomem))
 		MemQ_remember(ch, spellnum);
 
 	if (!IS_SET(SpINFO.routines, kMagDamage) || !SpINFO.violent ||

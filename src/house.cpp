@@ -910,7 +910,7 @@ const char *HOUSE_FORMAT[] =
 
 // обработка клановых привилегий (команда house)
 void DoHouse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->is_npc())
+	if (ch->IsNpc())
 		return;
 
 	std::string buffer = argument, buffer2;
@@ -1507,7 +1507,7 @@ void Clan::CharToChannel(CharData *ch, std::string text, int subcmd) {
 		return;
 	}
 
-	if (!ch->is_npc() && PLR_FLAGGED(ch, EPlrFlag::kDumbed)) {
+	if (!ch->IsNpc() && PLR_FLAGGED(ch, EPlrFlag::kDumbed)) {
 		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
 		return;
 	}
@@ -1599,7 +1599,7 @@ void Clan::CharToChannel(CharData *ch, std::string text, int subcmd) {
 // клановые БОГи ниже 34 не могут говорить другим дружинам, и им и остальным спокойнее
 // для канала союзников нужен обоюдный альянс дружин
 void DoClanChannel(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
-	if (ch->is_npc())
+	if (ch->IsNpc())
 		return;
 
 	std::string buffer = argument;
@@ -1648,7 +1648,7 @@ void DoClanChannel(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 // список зарегестрированных дружин с их онлайновым составом (опционально)
 void DoClanList(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->is_npc()) {
+	if (ch->IsNpc()) {
 		return;
 	}
 
@@ -1835,7 +1835,7 @@ bool char_to_pk_clan(CharData *ch) {
 
 //Polud будем показывать всем происходящие войны
 void DoShowWars(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->is_npc()) return;
+	if (ch->IsNpc()) return;
 	std::string buffer = argument;
 	boost::trim_if(buffer, boost::is_any_of(std::string(" \'")));
 
@@ -1884,7 +1884,7 @@ void DoShowWars(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 //-Polud
 
 void do_show_alliance(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->is_npc()) return;
+	if (ch->IsNpc()) return;
 	std::string buffer = argument;
 	boost::trim_if(buffer, boost::is_any_of(std::string(" \'")));
 
@@ -1934,7 +1934,7 @@ void do_show_alliance(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 // выводим информацию об отношениях дружин между собой
 void DoShowPolitics(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->is_npc() || !CLAN(ch)) {
+	if (ch->IsNpc() || !CLAN(ch)) {
 		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
@@ -2305,7 +2305,7 @@ void Clan::hcontrol_set_ingr_chest(CharData *ch, std::string &text) {
 
 // божественный hcontrol
 void DoHcontrol(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->is_npc())
+	if (ch->IsNpc())
 		return;
 
 	std::string buffer = argument, buffer2;
@@ -2586,7 +2586,7 @@ void Clan::DestroyClan(Clan::shared_ptr clan) {
 
 // ктодружина (список соклановцев, находящихся онлайн)
 void DoWhoClan(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (ch->is_npc() || !CLAN(ch)) {
+	if (ch->IsNpc() || !CLAN(ch)) {
 		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
@@ -2620,7 +2620,7 @@ const char *CLAN_PKLIST_FORMAT[] =
 */
 bool check_online_state(long uid) {
 	for (const auto &tch : character_list) {
-		if (tch->is_npc()
+		if (tch->IsNpc()
 			|| GET_UNIQUE(tch) != uid
 			|| (!tch->desc && !NORENTABLE(tch))) {
 			continue;
@@ -2646,7 +2646,7 @@ void print_pkl(CharData *ch, std::ostringstream &stream, ClanPkList::const_itera
 
 // пкл/дрл
 void DoClanPkList(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
-	if (ch->is_npc() || !CLAN(ch)) {
+	if (ch->IsNpc() || !CLAN(ch)) {
 		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
@@ -2664,7 +2664,7 @@ void DoClanPkList(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		ClanPkList::const_iterator it;
 		// вобщем чтобы словить чаров, находящихся в лд - придется гонять по чарактер-листу
 		for (const auto &tch : character_list) {
-			if (tch->is_npc())
+			if (tch->IsNpc())
 				continue;
 			// пкл
 			if (!subcmd) {
@@ -2911,7 +2911,7 @@ void DoClanPkList(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 // кладем в сундук (при наличии привилегии)
 // если предмет - деньги, то автоматом идут в клан-казну, контейнеры только пустые
 bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
-	const bool prohibited = ch->is_npc() || !CLAN(ch)
+	const bool prohibited = ch->IsNpc() || !CLAN(ch)
 		|| real_room(CLAN(ch)->chest_room) != ch->in_room
 		|| !CLAN(ch)->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_CHEST_PUT];
 	if (prohibited) {
@@ -3015,7 +3015,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 
 // берем из клан-сундука (при наличии привилегии)
 bool Clan::TakeChest(CharData *ch, ObjData *obj, ObjData *chest) {
-	if (ch->is_npc()
+	if (ch->IsNpc()
 		|| !CLAN(ch)
 		|| real_room(CLAN(ch)->chest_room) != ch->in_room
 		|| !CLAN(ch)->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_CHEST_TAKE]) {
@@ -3273,7 +3273,7 @@ void Clan::load_mod() {
 // казна дружины... команды теже самые с приставкой 'казна' в начале
 // смотреть/вкладывать могут все, снимать по привилегии, висит на стандартных банкирах
 bool Clan::BankManage(CharData *ch, char *arg) {
-	if (ch->is_npc() || !CLAN(ch) || GetRealLevel(ch) >= kLvlImmortal)
+	if (ch->IsNpc() || !CLAN(ch) || GetRealLevel(ch) >= kLvlImmortal)
 		return false;
 
 	std::string buffer = arg, buffer2;
@@ -4227,7 +4227,7 @@ void Clan::hcon_owner(CharData *ch, std::string &text) {
 }
 
 void Clan::CheckPkList(CharData *ch) {
-	if (ch->is_npc())
+	if (ch->IsNpc())
 		return;
 	ClanPkList::iterator it;
 	for (ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan) {
@@ -4248,7 +4248,7 @@ void Clan::CheckPkList(CharData *ch) {
 
 // вобщем это копи-паст из биржи + флаги
 void DoStoreHouse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->is_npc() || !CLAN(ch)) {
+	if (ch->IsNpc() || !CLAN(ch)) {
 		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
@@ -4726,7 +4726,7 @@ void Clan::SyncTopExp() {
 
 // установка режима оповещения об изменениях в хранилище
 void SetChestMode(CharData *ch, std::string &buffer) {
-	if (ch->is_npc())
+	if (ch->IsNpc())
 		return;
 	if (!CLAN(ch)) {
 		send_to_char("Для начала обзаведитесь дружиной.\r\n", ch);
@@ -4941,7 +4941,7 @@ bool ClanSystem::is_ingr_chest(ObjData *obj) {
 * \param enter 1 - вход чара, 0 - выход.
 */
 void Clan::clan_invoice(CharData *ch, bool enter) {
-	if (ch->is_npc() || !CLAN(ch)) {
+	if (ch->IsNpc() || !CLAN(ch)) {
 		return;
 	}
 
@@ -5031,7 +5031,7 @@ int Clan::print_spell_locate_object(CharData *ch, int count, std::string name) {
 
 int Clan::GetClanWars(CharData *ch) {
 	int result = 0, p1 = 0;
-	if (ch->is_npc() || !CLAN(ch)) {
+	if (ch->IsNpc() || !CLAN(ch)) {
 		return false;
 	}
 
@@ -5230,7 +5230,7 @@ void ClanSystem::save_ingr_chests() {
 }
 
 bool Clan::put_ingr_chest(CharData *ch, ObjData *obj, ObjData *chest) {
-	if (ch->is_npc()
+	if (ch->IsNpc()
 		|| !CLAN(ch)
 		|| CLAN(ch)->GetRent() / 100 != GET_ROOM_VNUM(ch->in_room) / 100) {
 		send_to_char("Не имеете таких правов!\r\n", ch);
@@ -5276,7 +5276,7 @@ bool Clan::put_ingr_chest(CharData *ch, ObjData *obj, ObjData *chest) {
 }
 
 bool Clan::take_ingr_chest(CharData *ch, ObjData *obj, ObjData *chest) {
-	if (ch->is_npc() || !CLAN(ch)
+	if (ch->IsNpc() || !CLAN(ch)
 		|| CLAN(ch)->GetRent() / 100 != GET_ROOM_VNUM(ch->in_room) / 100) {
 		send_to_char("Не имеете таких правов!\r\n", ch);
 		return false;
@@ -5588,7 +5588,7 @@ bool CHECK_CUSTOM_LABEL_CORE(const ObjData *obj, const CharData *ch) {
 bool CHECK_CUSTOM_LABEL(const char *arg, const ObjData *obj, const CharData *ch) {
 	return obj->get_custom_label()
 		&& obj->get_custom_label()->label_text
-		&& (ch->is_npc()
+		&& (ch->IsNpc()
 			? ((IS_CHARMICE(ch) && ch->has_master())
 			   ? CHECK_CUSTOM_LABEL_CORE(obj, ch->get_master())
 			   : 0)
@@ -5599,7 +5599,7 @@ bool CHECK_CUSTOM_LABEL(const char *arg, const ObjData *obj, const CharData *ch)
 bool AUTH_CUSTOM_LABEL(const ObjData *obj, const CharData *ch) {
 	return obj->get_custom_label()
 		&& obj->get_custom_label()->label_text
-		&& (ch->is_npc()
+		&& (ch->IsNpc()
 			? ((IS_CHARMICE(ch) && ch->has_master())
 			   ? CHECK_CUSTOM_LABEL_CORE(obj, ch->get_master())
 			   : 0)

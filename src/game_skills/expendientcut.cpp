@@ -16,7 +16,7 @@ void ApplyNoFleeAffect(CharData *ch, int duration) {
 	noflee.modifier = 0;
 	noflee.duration = CalcDuration(ch, duration, 0, 0, 0, 0);;
 	noflee.battleflag = kAfBattledec | kAfPulsedec;
-	affect_join(ch, noflee, true, false, true, false);
+	ImposeAffect(ch, noflee, true, false, true, false);
 	send_to_char("Вы выпали из ритма боя.\r\n", ch);
 }
 
@@ -32,7 +32,7 @@ void PerformCutSuccess(AbilitySystem::TechniqueRoll &roll) {
 	cut.modifier = -std::min(25, number(1, roll.GetActorRating())/12) - (roll.IsCriticalSuccess() ? 10 : 0);
 	cut.duration = CalcDuration(roll.GetActor(), 3*number(2, 4), 0, 0, 0, 0);;
 	cut.battleflag = kAfBattledec | kAfPulsedec;
-	affect_join(roll.GetRival(), cut, false, true, false, true);
+	ImposeAffect(roll.GetRival(), cut, false, true, false, true);
 }
 
 void PerformCutFail(AbilitySystem::TechniqueRoll &roll) {
@@ -49,13 +49,12 @@ void PerformCutFail(AbilitySystem::TechniqueRoll &roll) {
 }
 
 void GoExpedientCut(CharData *ch, CharData *vict) {
-
 	if (IsUnableToAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
 
-	if (ch->haveCooldown(ESkill::kGlobalCooldown)) {
+	if (ch->HasCooldown(ESkill::kGlobalCooldown)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	}
@@ -91,7 +90,7 @@ void GoExpedientCut(CharData *ch, CharData *vict) {
 	damage.wielded = GET_EQ(ch, EEquipPos::kWield);
 	damage.Process(roll.GetActor(), roll.GetRival());
 	damage.dam = dmg;
-	damage.wielded = GET_EQ(ch, kHold);
+	damage.wielded = GET_EQ(ch, EEquipPos::kHold);
 	damage.Process(roll.GetActor(), roll.GetRival());
 	ApplyNoFleeAffect(ch, no_flee_duration);
 	SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 2);
@@ -101,26 +100,25 @@ void SetExtraAttackCut(CharData *ch, CharData *victim) {
 	if (!pk_agro_action(ch, victim)) {
 		return;
 	}
-	if (!ch->get_fighting()) {
+	if (!ch->GetEnemy()) {
 		act("Ваше оружие свистнуло, когда вы бросились на $N3, применив \"порез\".",
 			false, ch, nullptr, victim, kToChar);
-		set_fighting(ch, victim);
-		ch->set_extra_attack(kExtraAttackCut, victim);
+		SetFighting(ch, victim);
+		ch->SetExtraAttack(kExtraAttackCut, victim);
 	} else {
 		act("Хорошо. Вы попытаетесь порезать $N3.", false, ch, nullptr, victim, kToChar);
-		ch->set_extra_attack(kExtraAttackCut, victim);
+		ch->SetExtraAttack(kExtraAttackCut, victim);
 	}
 }
 
 void DoExpedientCut(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 
-	if (ch->is_npc() || (!IsAbleToUseFeat(ch, EFeat::kCutting) && !IS_IMPL(ch))) {
+	if (ch->IsNpc() || (!IsAbleToUseFeat(ch, EFeat::kCutting) && !IS_IMPL(ch))) {
 		send_to_char("Вы не владеете таким приемом.\r\n", ch);
 		return;
 	}
 
-	if (ch->ahorse()) {
-		send_to_char("Верхом это сделать затруднительно.\r\n", ch);
+	if (ch->IsHorsePrevents()) {
 		return;
 	}
 
@@ -145,7 +143,7 @@ void DoExpedientCut(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		return;
 	}
 
-	if (ch->get_fighting() && vict->get_fighting() != ch) {
+	if (ch->GetEnemy() && vict->GetEnemy() != ch) {
 		act("$N не сражается с вами, не трогайте $S.", false, ch, nullptr, vict, kToChar);
 		return;
 	}

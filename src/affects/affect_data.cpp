@@ -56,7 +56,7 @@ int apply_ac(CharData *ch, int eq_pos) {
 			break;        // all others 10% //
 	}
 
-	if (ch->is_npc() && !AFF_FLAGGED(ch, EAffect::kCharmed))
+	if (ch->IsNpc() && !AFF_FLAGGED(ch, EAffect::kCharmed))
 		factor *= MOB_AC_MULT;
 
 	return (factor * GET_OBJ_VAL(GET_EQ(ch, eq_pos), 0));
@@ -85,7 +85,7 @@ int apply_armour(CharData *ch, int eq_pos) {
 			break;        // all others 10% //
 	}
 
-	if (ch->is_npc() && !AFF_FLAGGED(ch, EAffect::kCharmed))
+	if (ch->IsNpc() && !AFF_FLAGGED(ch, EAffect::kCharmed))
 		factor *= MOB_ARMOUR_MULT;
 
 	// чтобы не плюсовать левую броню на стафе с текущей прочностью выше максимальной
@@ -146,7 +146,7 @@ bool Affect<EApply>::removable() const {
 void pulse_affect_update(CharData *ch) {
 	bool pulse_aff = false;
 
-	if (ch->get_fighting()) {
+	if (ch->GetEnemy()) {
 		return;
 	}
 
@@ -161,7 +161,7 @@ void pulse_affect_update(CharData *ch) {
 
 		pulse_aff = true;
 		if (affect->duration >= 1) {
-			if (ch->is_npc()) {
+			if (ch->IsNpc()) {
 				affect->duration--;
 			} else {
 				affect->duration -= MIN(affect->duration, kSecsPerPlayerAffect * kPassesPerSec);
@@ -196,7 +196,7 @@ void player_affect_update() {
 		// такого цикла сейчас выглядит безопасным, чармисы если и есть, то они
 		// добавлялись в чар-лист в начало списка и идут до самого чара
 		if (i->purged()
-			|| i->is_npc()
+			|| i->IsNpc()
 			|| deathtrap::tunnel_damage(i.get())) {
 			return;
 		}
@@ -210,7 +210,7 @@ void player_affect_update() {
 			const auto &affect = *affect_i;
 
 			if (affect->duration >= 1) {
-				if (IS_SET(affect->battleflag, kAfSameTime) && !i->get_fighting()) {
+				if (IS_SET(affect->battleflag, kAfSameTime) && !i->GetEnemy()) {
 					// здесь плеера могут спуржить
 					if (processPoisonDamage(i.get(), affect) == -1) {
 						was_purged = true;
@@ -260,7 +260,7 @@ void battle_affect_update(CharData *ch) {
 		if (!IS_SET(affect->battleflag, kAfBattledec) && !IS_SET(affect->battleflag, kAfSameTime))
 			continue;
 
-		if (ch->is_npc() && affect->location == EApply::kPoison)
+		if (ch->IsNpc() && affect->location == EApply::kPoison)
 			continue;
 
 		if (affect->duration >= 1) {
@@ -273,7 +273,7 @@ void battle_affect_update(CharData *ch) {
 				}
 				affect->duration--;
 			} else {
-				if (ch->is_npc())
+				if (ch->IsNpc())
 					affect->duration--;
 				else
 					affect->duration -= MIN(affect->duration, kSecsPerMudHour / kSecsPerPlayerAffect);
@@ -300,7 +300,7 @@ void mobile_affect_update() {
 		int was_charmed = false, charmed_msg = false;
 		bool was_purged = false;
 
-		if (i->is_npc()) {
+		if (i->IsNpc()) {
 			auto next_affect_i = i->affected.begin();
 			for (auto affect_i = next_affect_i; affect_i != i->affected.end(); affect_i = next_affect_i) {
 				++next_affect_i;
@@ -308,7 +308,7 @@ void mobile_affect_update() {
 
 				if (affect->duration >= 1) {
 					if (IS_SET(affect->battleflag, kAfSameTime)
-						&& (!i->get_fighting() || affect->location == EApply::kPoison)) {
+						&& (!i->GetEnemy() || affect->location == EApply::kPoison)) {
 						// здесь плеера могут спуржить
 						if (processPoisonDamage(i.get(), affect) == -1) {
 							was_purged = true;
@@ -396,7 +396,7 @@ void affect_from_char(CharData *ch, int type) {
 		}
 	}
 
-	if (ch->is_npc() && type == kSpellCharm) {
+	if (ch->IsNpc() && type == kSpellCharm) {
 		ch->extract_timer = 5;
 		ch->mob_specials.hire_price = 0;// added by WorM (Видолюб) 2010.06.04 Сбрасываем цену найма
 	}
@@ -411,7 +411,7 @@ void affect_total(CharData *ch) {
 	}
 	bool domination = false;
 
-	if (!ch->is_npc() && ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
+	if (!ch->IsNpc() && ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
 		domination = true;
 	}
 	ObjData *obj;
@@ -424,7 +424,7 @@ void affect_total(CharData *ch) {
 	// PC's clear all affects, because recalc one
 	{
 		saved = ch->char_specials.saved.affected_by;
-		if (ch->is_npc())
+		if (ch->IsNpc())
 			ch->char_specials.saved.affected_by = mob_proto[GET_MOB_RNUM(ch)].char_specials.saved.affected_by;
 		else
 			ch->char_specials.saved.affected_by = clear_flags;
@@ -456,7 +456,7 @@ void affect_total(CharData *ch) {
 		ch->add_abils.presist += GET_REAL_REMORT(ch) - 19;
 	}
 	// Restore values for NPC - added by Adept
-	if (ch->is_npc()) {
+	if (ch->IsNpc()) {
 		(ch)->add_abils = (&mob_proto[GET_MOB_RNUM(ch)])->add_abils;
 	}
 	// move object modifiers
@@ -513,7 +513,7 @@ void affect_total(CharData *ch) {
 
 	// Обработка "выносливости" и "богатырского здоровья
 	// Знаю, что кривовато, придумаете, как лучше - делайте
-	if (!ch->is_npc()) {
+	if (!ch->IsNpc()) {
 		if (IsAbleToUseFeat(ch, EFeat::kEndurance))
 			affect_modify(ch, EApply::kMove, GetRealLevel(ch) * 2, static_cast<EAffect>(0), true);
 		if (IsAbleToUseFeat(ch, EFeat::kSplendidHealth))
@@ -529,7 +529,7 @@ void affect_total(CharData *ch) {
 	}
 
 	// move race and class modifiers
-	if (!ch->is_npc()) {
+	if (!ch->IsNpc()) {
 		if ((int) GET_CLASS(ch) >= 0 && (int) GET_CLASS(ch) < kNumPlayerClasses) {
 			for (auto i : *class_app[(int) GET_CLASS(ch)].extra_affects) {
 				affect_modify(ch, EApply::kNone, 0, i.affect, i.set_or_clear);
@@ -556,7 +556,7 @@ void affect_total(CharData *ch) {
 			}
 		}
 
-		if (!IS_IMMORTAL(ch) && ch->ahorse()) {
+		if (!IS_IMMORTAL(ch) && ch->IsOnHorse()) {
 			AFF_FLAGS(ch).unset(EAffect::kHide);
 			AFF_FLAGS(ch).unset(EAffect::kSneak);
 			AFF_FLAGS(ch).unset(EAffect::kDisguise);
@@ -567,7 +567,7 @@ void affect_total(CharData *ch) {
 	// correctize all weapon
 	if (!IS_IMMORTAL(ch)) {
 		if ((obj = GET_EQ(ch, EEquipPos::kBoths)) && !OK_BOTH(ch, obj)) {
-			if (!ch->is_npc()) {
+			if (!ch->IsNpc()) {
 				act("Вам слишком тяжело держать $o3 в обоих руках!", false, ch, obj, nullptr, kToChar);
 				message_str_need(ch, obj, STR_BOTH_W);
 			}
@@ -576,7 +576,7 @@ void affect_total(CharData *ch) {
 			return;
 		}
 		if ((obj = GET_EQ(ch, EEquipPos::kWield)) && !OK_WIELD(ch, obj)) {
-			if (!ch->is_npc()) {
+			if (!ch->IsNpc()) {
 				act("Вам слишком тяжело держать $o3 в правой руке!", false, ch, obj, nullptr, kToChar);
 				message_str_need(ch, obj, STR_WIELD_W);
 			}
@@ -595,7 +595,7 @@ void affect_total(CharData *ch) {
 			return;
 		}
 		if ((obj = GET_EQ(ch, EEquipPos::kHold)) && !OK_HELD(ch, obj)) {
-			if (!ch->is_npc()) {
+			if (!ch->IsNpc()) {
 				act("Вам слишком тяжело держать $o3 в левой руке!", false, ch, obj, nullptr, kToChar);
 				message_str_need(ch, obj, STR_HOLD_W);
 			}
@@ -604,7 +604,7 @@ void affect_total(CharData *ch) {
 			return;
 		}
 		if ((obj = GET_EQ(ch, EEquipPos::kShield)) && !OK_SHIELD(ch, obj)) {
-			if (!ch->is_npc()) {
+			if (!ch->IsNpc()) {
 				act("Вам слишком тяжело держать $o3 на левой руке!", false, ch, obj, nullptr, kToChar);
 				message_str_need(ch, obj, STR_SHIELD_W);
 			}
@@ -640,7 +640,7 @@ void affect_total(CharData *ch) {
 	{
 		// Calculate CASTER value
 		int i = 1;
-		for (ch->caster_level = 0; !ch->is_npc() && i <= kSpellCount; i++) {
+		for (ch->caster_level = 0; !ch->IsNpc() && i <= kSpellCount; i++) {
 			if (IS_SET(GET_SPELL_TYPE(ch, i), kSpellKnow | kSpellTemp)) {
 				ch->caster_level += (spell_info[i].danger * GET_SPELL_MEM(ch, i));
 			}
@@ -657,7 +657,7 @@ void affect_total(CharData *ch) {
 		}
 	}
 	CheckBerserk(ch);
-	if (ch->get_fighting() || IsAffectedBySpell(ch, kSpellGlitterDust)) {
+	if (ch->GetEnemy() || IsAffectedBySpell(ch, kSpellGlitterDust)) {
 		AFF_FLAGS(ch).unset(EAffect::kHide);
 		AFF_FLAGS(ch).unset(EAffect::kSneak);
 		AFF_FLAGS(ch).unset(EAffect::kDisguise);
@@ -665,12 +665,12 @@ void affect_total(CharData *ch) {
 	}
 }
 
-void affect_join(CharData *ch,
-				 Affect<EApply> &af,
-				 bool add_dur,
-				 bool max_dur,
-				 bool add_mod,
-				 bool max_mod) {
+void ImposeAffect(CharData *ch,
+				  Affect<EApply> &af,
+				  bool add_dur,
+				  bool max_dur,
+				  bool add_mod,
+				  bool max_mod) {
 	bool found = false;
 
 	if (af.location) {

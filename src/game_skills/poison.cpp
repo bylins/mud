@@ -91,14 +91,14 @@ bool weap_poison_vict(CharData *ch, CharData *vict, int spell_num) {
 		// скилл * 0.05 на чаров и + 5 на мобов. 4-10% и 9-15% (80-200 скила)
 		int percent = 0;
 		if (ch->get_skill(ESkill::kPoisoning) >= 80) {
-			percent = (ch->get_skill(ESkill::kPoisoning) * 5 / 100) + (vict->is_npc() ? 5 : 0);
+			percent = (ch->get_skill(ESkill::kPoisoning) * 5 / 100) + (vict->IsNpc() ? 5 : 0);
 		}
 		// -дамаг физ.атак и скиллы
 		af[0].location = EApply::kBelenaPoison;
 		af[0].modifier = percent;
 
 		// скилл * 0.05 + 5 на чаров и + 10 на мобов. 5.5-15% и 10.5-20% (10-200 скила)
-		percent = (ch->get_skill(ESkill::kPoisoning) * 5 / 100) + (vict->is_npc() ? 10 : 5);
+		percent = (ch->get_skill(ESkill::kPoisoning) * 5 / 100) + (vict->IsNpc() ? 10 : 5);
 		// -хитролы
 		int remove_hit = GET_REAL_HR(vict) * (percent / 100);
 		af[1].location = EApply::kHitroll;
@@ -137,13 +137,13 @@ bool weap_poison_vict(CharData *ch, CharData *vict, int spell_num) {
 		// скилл * 0.05 на чаров и + 5 на мобов. 4-10% и 9-15% (80-200 скила)
 		int percent = 0;
 		if (ch->get_skill(ESkill::kPoisoning) >= 80)
-			percent = (ch->get_skill(ESkill::kPoisoning) * 5 / 100) + (vict->is_npc() ? 5 : 0);
+			percent = (ch->get_skill(ESkill::kPoisoning) * 5 / 100) + (vict->IsNpc() ? 5 : 0);
 		// -дамаг заклов и скиллы
 		af[0].location = EApply::kDaturaPoison;
 		af[0].modifier = percent;
 
 		// скилл * 0.05 + 5 на чаров и + 10 на мобов. 5.5-15% и 10.5-20% (10-200 скила)
-		percent = (ch->get_skill(ESkill::kPoisoning) * 5 / 100) + (vict->is_npc() ? 10 : 5);
+		percent = (ch->get_skill(ESkill::kPoisoning) * 5 / 100) + (vict->IsNpc() ? 10 : 5);
 		// -каст
 		int remove_cast = GET_CAST_SUCCESS(vict) * (percent / 100);
 		af[1].location = EApply::kCastSuccess;
@@ -187,7 +187,7 @@ void weap_crit_poison(CharData *ch, CharData *vict, int/* spell_num*/) {
 			case 1:
 				// аналог баша с лагом
 				if (GET_POS(vict) >= EPosition::kFight) {
-					if (vict->ahorse()) {
+					if (vict->IsOnHorse()) {
 						send_to_char(ch, "%sОт действия вашего яда у %s закружилась голова!%s\r\n",
 									 CCGRN(ch, C_NRM), PERS(vict, ch, 1), CCNRM(ch, C_NRM));
 						send_to_char(vict, "Вы почувствовали сильное головокружение и не смогли усидеть на %s!\r\n",
@@ -217,7 +217,7 @@ void weap_crit_poison(CharData *ch, CharData *vict, int/* spell_num*/) {
 
 				for (int i = EApply::kStr; i <= EApply::kCha; i++) {
 					af.location = static_cast<EApply>(i);
-					affect_join(vict, af, false, false, false, false);
+					ImposeAffect(vict, af, false, false, false, false);
 				}
 
 				send_to_char(ch, "%sОт действия вашего яда %s побледнел%s!%s\r\n",
@@ -234,7 +234,7 @@ void weap_crit_poison(CharData *ch, CharData *vict, int/* spell_num*/) {
 				af.modifier = GetRealLevel(ch) / 6; //Polud с плюсом, поскольку здесь чем больше - тем хуже
 				af.bitvector = to_underlying(EAffect::kPoisoned);
 				af.battleflag = kAfSameTime;
-				affect_join(vict, af, false, false, false, false);
+				ImposeAffect(vict, af, false, false, false, false);
 				send_to_char(ch, "%sОт действия вашего яда %s стал%s хуже реагировать на движения противников!%s\r\n",
 							 CCGRN(ch, C_NRM), PERS(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), CCNRM(ch, C_NRM));
 				send_to_char(vict, "Вам стало труднее реагировать на движения противников!\r\n");
@@ -249,7 +249,7 @@ void weap_crit_poison(CharData *ch, CharData *vict, int/* spell_num*/) {
 				af.modifier = -GetRealLevel(ch) / 6;
 				af.bitvector = to_underlying(EAffect::kPoisoned);
 				af.battleflag = kAfSameTime;
-				affect_join(vict, af, false, false, false, false);
+				ImposeAffect(vict, af, false, false, false, false);
 				send_to_char(ch, "%sОт действия вашего яда %s стал%s заметно медленнее двигаться!%s\r\n",
 							 CCGRN(ch, C_NRM), PERS(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), CCNRM(ch, C_NRM));
 				send_to_char(vict, "Вы стали заметно медленнее двигаться!\r\n");
@@ -265,7 +265,7 @@ void weap_crit_poison(CharData *ch, CharData *vict, int/* spell_num*/) {
 				af.modifier = -GetRealLevel(ch) / 6;
 				af.bitvector = to_underlying(EAffect::kPoisoned);
 				af.battleflag = kAfSameTime;
-				affect_join(vict, af, false, false, false, false);
+				ImposeAffect(vict, af, false, false, false, false);
 				send_to_char(ch, "%sОт действия вашего яда %s стал%s хуже переносить повреждения!%s\r\n",
 							 CCGRN(ch, C_NRM), PERS(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), CCNRM(ch, C_NRM));
 				send_to_char(vict, "Вы стали хуже переносить повреждения!\r\n");
@@ -313,7 +313,7 @@ void poison_victim(CharData *ch, CharData *vict, int modifier) {
 	af[3].battleflag = kAfSameTime;
 
 	for (auto & i : af) {
-		affect_join(vict, i, false, false, false, false);
+		ImposeAffect(vict, i, false, false, false, false);
 	}
 	vict->poisoner = GET_ID(ch);
 
@@ -421,9 +421,9 @@ bool check_poison(int spell) {
 int processPoisonDamage(CharData *ch, const Affect<EApply>::shared_ptr &af) {
 	int result = 0;
 	if (af->location == EApply::kPoison) {
-		int poison_dmg = GET_POISON(ch) * (ch->is_npc() ? 4 : 5);
+		int poison_dmg = GET_POISON(ch) * (ch->IsNpc() ? 4 : 5);
 		// мобов яд ядит на тике, а чаров каждый батл тик соответсвенно если это не моб надо делить на 30 или тип того
-		if (!ch->is_npc())
+		if (!ch->IsNpc())
 			poison_dmg = poison_dmg / 30;
 		//poison_dmg = interpolate(poison_dmg, 2); // И как оно должно работать чото нифига не понял, понял только что оно не работает
 		Damage dmg(SpellDmg(kSpellPoison), poison_dmg, fight::kUndefDmg);

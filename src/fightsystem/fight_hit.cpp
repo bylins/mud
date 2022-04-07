@@ -25,7 +25,7 @@ int armor_class_limit(CharData *ch) {
 	if (IS_CHARMICE(ch)) {
 		return -200;
 	};
-	if (ch->is_npc()) {
+	if (ch->IsNpc()) {
 		return -300;
 	};
 	switch (GET_CLASS(ch)) {
@@ -59,7 +59,7 @@ int compute_armor_class(CharData *ch) {
 	if (AWAKE(ch)) {
 		int high_stat = GET_REAL_DEX(ch);
 		// у игроков для ац берется макс стат: ловкость или 3/4 инты
-		if (!ch->is_npc()) {
+		if (!ch->IsNpc()) {
 			high_stat = std::max(high_stat, GET_REAL_INT(ch) * 3 / 4);
 		}
 		armorclass -= dex_ac_bonus(high_stat) * 10;
@@ -123,7 +123,7 @@ void haemorragia(CharData *ch, int percent) {
 	af[2].battleflag = 0;
 
 	for (int i = 0; i < 3; i++) {
-		affect_join(ch, af[i], true, false, true, false);
+		ImposeAffect(ch, af[i], true, false, true, false);
 	}
 }
 
@@ -735,13 +735,13 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 				act(buf, true, ch, 0, victim, kToNotVict | kToArenaListen);
 				break;
 		}
-		if (!victim->is_npc() && ROOM_FLAGGED(IN_ROOM(victim), ERoomFlag::kArena))
+		if (!victim->IsNpc() && ROOM_FLAGGED(IN_ROOM(victim), ERoomFlag::kArena))
 			PlaceObjToInventory(obj, victim);
 		else
 			PlaceObjToRoom(obj, IN_ROOM(victim));
 		CheckObjDecay(obj);
 	}
-	if (!victim->is_npc()) {
+	if (!victim->IsNpc()) {
 		dam /= 5;
 	}
 	dam = ApplyResist(victim, EResist::kVitality, dam);
@@ -764,7 +764,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					af[i].duration += CalcDuration(victim, GET_REAL_REMORT(ch) / 2 + extra_duration, 0, 0, 0, 0);
 				}
 			}
-			affect_join(victim, af[i], true, false, true, false);
+			ImposeAffect(victim, af[i], true, false, true, false);
 		}
 	}
 }
@@ -777,7 +777,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 * Способность не плюсуется при железном ветре и оглушении.
 */
 int calculate_strconc_damage(CharData *ch, ObjData * /*wielded*/, int damage) {
-	if (ch->is_npc()
+	if (ch->IsNpc()
 		|| GET_REAL_STR(ch) <= 25
 		|| !IsAbleToUseFeat(ch, EFeat::kStrengthConcentration)
 		|| GET_AF_BATTLE(ch, kEafIronWind)
@@ -834,11 +834,11 @@ bool check_mighthit_weapon(CharData *ch) {
 
 // * При надуве выше х 1.5 в пк есть 1% того, что весь надув слетит одним ударом.
 void try_remove_extrahits(CharData *ch, CharData *victim) {
-	if (((!ch->is_npc() && ch != victim)
+	if (((!ch->IsNpc() && ch != victim)
 		|| (ch->has_master()
-			&& !ch->get_master()->is_npc()
+			&& !ch->get_master()->IsNpc()
 			&& ch->get_master() != victim))
-		&& !victim->is_npc()
+		&& !victim->IsNpc()
 		&& GET_POS(victim) != EPosition::kDead
 		&& GET_HIT(victim) > GET_REAL_MAX_HIT(victim) * 1.5
 		&& number(1, 100) == 5)// пусть будет 5, а то 1 по субъективным ощущениям выпадает как-то часто
@@ -859,8 +859,8 @@ void try_remove_extrahits(CharData *ch, CharData *victim) {
 * У чармисов 100% и 60% без остальных допов.
 */
 void addshot_damage(CharData *ch, ESkill type, fight::AttackType weapon) {
-	int prob = CalcCurrentSkill(ch, ESkill::kAddshot, ch->get_fighting());
-	TrainSkill(ch, ESkill::kAddshot, true, ch->get_fighting());
+	int prob = CalcCurrentSkill(ch, ESkill::kAddshot, ch->GetEnemy());
+	TrainSkill(ch, ESkill::kAddshot, true, ch->GetEnemy());
 	// ловка роляет только выше 21 (стартовый максимум охота) и до 50
 	// поставим кап в 50 ловки для допвыстрела
 	float dex_mod = static_cast<float>(MAX(MIN(GET_REAL_DEX(ch), 50) - 21, 0)) / 29 * 2;
@@ -888,19 +888,19 @@ void addshot_damage(CharData *ch, ESkill type, fight::AttackType weapon) {
 	int percent = number(1, difficulty);
 	// 1й доп - не более 100% при скилее 100+
 	if (prob * sit_mod >= percent / 2)
-		hit(ch, ch->get_fighting(), type, weapon);
+		hit(ch, ch->GetEnemy(), type, weapon);
 	percent = number(1, difficulty);
 	// 2й доп - 60% при скилле 100, до 100% при максимуме скилла и дексы
-	if ((prob * 3 + dex_mod * 100) * sit_mod > percent * 5 / 2 && ch->get_fighting())
-		hit(ch, ch->get_fighting(), type, weapon);
+	if ((prob * 3 + dex_mod * 100) * sit_mod > percent * 5 / 2 && ch->GetEnemy())
+		hit(ch, ch->GetEnemy(), type, weapon);
 	percent = number(1, difficulty);
 	// 3й доп - 30% при скилле 100, до 70% при максимуме скилла и дексы (при 5+ мортов)
-	if ((prob * 3 + dex_mod * 200) * remort_mod * sit_mod > percent * 5 && ch->get_fighting())
-		hit(ch, ch->get_fighting(), type, weapon);
+	if ((prob * 3 + dex_mod * 200) * remort_mod * sit_mod > percent * 5 && ch->GetEnemy())
+		hit(ch, ch->GetEnemy(), type, weapon);
 	percent = number(1, difficulty);
 	// 4й доп - 20% при скилле 100, до 60% при максимуме скилла и дексы (при 5+ мортов)
-	if ((prob + dex_mod * 100) * remort_mod * sit_mod > percent * 5 / 2 && ch->get_fighting())
-		hit(ch, ch->get_fighting(), type, weapon);
+	if ((prob + dex_mod * 100) * remort_mod * sit_mod > percent * 5 / 2 && ch->GetEnemy())
+		hit(ch, ch->GetEnemy(), type, weapon);
 }
 
 // бонусы/штрафы классам за юзание определенных видов оружия
@@ -1255,7 +1255,7 @@ int calculate_crit_backstab_percent(CharData *ch) {
  */
 double HitData::crit_backstab_multiplier(CharData *ch, CharData *victim) {
 	double bs_coeff = 1.0;
-	if (victim->is_npc()) {
+	if (victim->IsNpc()) {
 		if (IsAbleToUseFeat(ch, EFeat::kThieveStrike)) {
 			bs_coeff *= ch->get_skill(ESkill::kBackstab) / 15.0;
 		} else {
@@ -1265,7 +1265,7 @@ double HitData::crit_backstab_multiplier(CharData *ch, CharData *victim) {
 			bs_coeff *= (1 + (ch->get_skill(ESkill::kNoParryHit) * 0.00125));
 		}
 	} else if (IsAbleToUseFeat(ch, EFeat::kThieveStrike)) {
-		if (victim->get_fighting())
+		if (victim->GetEnemy())
 		{
 			bs_coeff *= (1.0 + (ch->get_skill(ESkill::kBackstab) * 0.00225));
 		} else {
@@ -1361,7 +1361,7 @@ void hit_touching(CharData *ch, CharData *vict, int *dam) {
 		&& !AFF_FLAGGED(vict, EAffect::kStopRight)
 		&& GET_WAIT(vict) <= 0
 		&& !GET_MOB_HOLD(vict)
-		&& (IS_IMMORTAL(vict) || vict->is_npc()
+		&& (IS_IMMORTAL(vict) || vict->IsNpc()
 			|| !(GET_EQ(vict, EEquipPos::kWield) || GET_EQ(vict, EEquipPos::kBoths)))
 		&& GET_POS(vict) > EPosition::kSleep) {
 		int percent = number(1, MUD::Skills()[ESkill::kIntercept].difficulty);
@@ -1442,7 +1442,7 @@ void hit_parry(CharData *ch, CharData *victim, ESkill skill, int hit_type, int *
 		&& GET_OBJ_TYPE(GET_EQ(victim, EEquipPos::kWield)) == EObjType::kWeapon
 		&& GET_EQ(victim, EEquipPos::kHold)
 		&& GET_OBJ_TYPE(GET_EQ(victim, EEquipPos::kHold)) == EObjType::kWeapon)
-		|| victim->is_npc()
+		|| victim->IsNpc()
 		|| IS_IMMORTAL(victim))) {
 		send_to_char("У вас нечем отклонить атаку противника\r\n", victim);
 		CLR_AF_BATTLE(victim, kEafParry);
@@ -1503,7 +1503,7 @@ void hit_multyparry(CharData *ch, CharData *victim, ESkill skill, int hit_type, 
 		&& GET_OBJ_TYPE(GET_EQ(victim, EEquipPos::kWield)) == EObjType::kWeapon
 		&& GET_EQ(victim, EEquipPos::kHold)
 		&& GET_OBJ_TYPE(GET_EQ(victim, EEquipPos::kHold)) == EObjType::kWeapon)
-		|| victim->is_npc()
+		|| victim->IsNpc()
 		|| IS_IMMORTAL(victim))) {
 		send_to_char("У вас нечем отклонять атаки противников\r\n", victim);
 	} else {
@@ -1550,7 +1550,7 @@ void hit_multyparry(CharData *ch, CharData *victim, ESkill skill, int hit_type, 
 
 void hit_block(CharData *ch, CharData *victim, int *dam) {
 	if (!(GET_EQ(victim, EEquipPos::kShield)
-		|| victim->is_npc()
+		|| victim->IsNpc()
 		|| IS_IMMORTAL(victim))) {
 		send_to_char("У вас нечем отразить атаку противника\r\n", victim);
 	} else {
@@ -1606,7 +1606,7 @@ void appear(CharData *ch) {
 	AFF_FLAGS(ch).unset(EAffect::kDisguise);
 
 	if (appear_msg) {
-		if (ch->is_npc()
+		if (ch->IsNpc()
 			|| GetRealLevel(ch) < kLvlImmortal) {
 			act("$n медленно появил$u из пустоты.", false, ch, 0, 0, kToRoom);
 		} else {
@@ -1791,12 +1791,12 @@ void Damage::dam_message(CharData *ch, CharData *victim) const {
 // моб может видеть их хозяина.
 void update_mob_memory(CharData *ch, CharData *victim) {
 	// первое -- бьют моба, он запоминает обидчика
-	if (victim->is_npc() && MOB_FLAGGED(victim, EMobFlag::kMemory)) {
-		if (!ch->is_npc()) {
+	if (victim->IsNpc() && MOB_FLAGGED(victim, EMobFlag::kMemory)) {
+		if (!ch->IsNpc()) {
 			mobRemember(victim, ch);
 		} else if (AFF_FLAGGED(ch, EAffect::kCharmed)
 			&& ch->has_master()
-			&& !ch->get_master()->is_npc()) {
+			&& !ch->get_master()->IsNpc()) {
 			if (MOB_FLAGGED(ch, EMobFlag::kClone)) {
 				mobRemember(victim, ch->get_master());
 			} else if (IN_ROOM(ch->get_master()) == IN_ROOM(victim)
@@ -1807,12 +1807,12 @@ void update_mob_memory(CharData *ch, CharData *victim) {
 	}
 
 	// второе -- бьет сам моб и запоминает, кого потом добивать :)
-	if (ch->is_npc() && MOB_FLAGGED(ch, EMobFlag::kMemory)) {
-		if (!victim->is_npc()) {
+	if (ch->IsNpc() && MOB_FLAGGED(ch, EMobFlag::kMemory)) {
+		if (!victim->IsNpc()) {
 			mobRemember(ch, victim);
 		} else if (AFF_FLAGGED(victim, EAffect::kCharmed)
 			&& victim->has_master()
-			&& !victim->get_master()->is_npc()) {
+			&& !victim->get_master()->IsNpc()) {
 			if (MOB_FLAGGED(victim, EMobFlag::kClone)) {
 				mobRemember(ch, victim->get_master());
 			} else if (IN_ROOM(victim->get_master()) == ch->in_room
@@ -1832,7 +1832,7 @@ bool Damage::magic_shields_dam(CharData *ch, CharData *victim) {
 	if (AFF_FLAGGED(victim, EAffect::kMagicGlass)
 		&& dmg_type == fight::kMagicDmg) {
 		int pct = 6;
-		if (victim->is_npc() && !IS_CHARMICE(victim)) {
+		if (victim->IsNpc() && !IS_CHARMICE(victim)) {
 			pct += 2;
 			if (victim->get_role(MOB_ROLE_BOSS)) {
 				pct += 2;
@@ -1841,7 +1841,7 @@ bool Damage::magic_shields_dam(CharData *ch, CharData *victim) {
 		// дамаг обратки
 		const int mg_damage = dam * pct / 100;
 		if (mg_damage > 0
-			&& victim->get_fighting()
+			&& victim->GetEnemy()
 			&& GET_POS(victim) > EPosition::kStun
 			&& IN_ROOM(victim) != kNowhere) {
 			flags.set(fight::kDrawBriefMagMirror);
@@ -1858,7 +1858,7 @@ bool Damage::magic_shields_dam(CharData *ch, CharData *victim) {
 		if (dmg_type == fight::kPhysDmg
 			&& !flags[fight::kIgnoreFireShield]) {
 			int pct = 15;
-			if (victim->is_npc() && !IS_CHARMICE(victim)) {
+			if (victim->IsNpc() && !IS_CHARMICE(victim)) {
 				pct += 5;
 				if (victim->get_role(MOB_ROLE_BOSS)) {
 					pct += 5;
@@ -2006,7 +2006,7 @@ void Damage::send_critical_message(CharData *ch, CharData *victim) {
 }
 
 void update_dps_stats(CharData *ch, int real_dam, int over_dam) {
-	if (!ch->is_npc()) {
+	if (!ch->IsNpc()) {
 		ch->dps_add_dmg(DpsSystem::PERS_DPS, real_dam, over_dam);
 		log("DmetrLog. Name(player): %s, class: %d, remort:%d, level:%d, dmg: %d, over_dmg:%d",
 			GET_NAME(ch),
@@ -2022,7 +2022,7 @@ void update_dps_stats(CharData *ch, int real_dam, int over_dam) {
 	} else if (IS_CHARMICE(ch)
 		&& ch->has_master()) {
 		ch->get_master()->dps_add_dmg(DpsSystem::PERS_CHARM_DPS, real_dam, over_dam, ch);
-		if (!ch->get_master()->is_npc()) {
+		if (!ch->get_master()->IsNpc()) {
 			log("DmetrLog. Name(charmice): %s, name(master): %s, class: %d, remort: %d, level: %d, dmg: %d, over_dmg:%d",
 				GET_NAME(ch), GET_NAME(ch->get_master()), GET_CLASS(ch->get_master()), GET_REAL_REMORT(ch->get_master()),
 				GetRealLevel(ch->get_master()), real_dam, over_dam);
@@ -2038,12 +2038,12 @@ void update_dps_stats(CharData *ch, int real_dam, int over_dam) {
 void try_angel_sacrifice(CharData *ch, CharData *victim) {
 	// если виктим в группе с кем-то с ангелом - вместо смерти виктима умирает ангел
 	if (GET_HIT(victim) <= 0
-		&& !victim->is_npc()
+		&& !victim->IsNpc()
 		&& AFF_FLAGGED(victim, EAffect::kGroup)) {
 		const auto people =
 			world[IN_ROOM(victim)]->people;    // make copy of people because keeper might be removed from this list inside the loop
 		for (const auto keeper : people) {
-			if (keeper->is_npc()
+			if (keeper->IsNpc()
 				&& MOB_FLAGGED(keeper, EMobFlag::kTutelar)
 				&& keeper->has_master()
 				&& AFF_FLAGGED(keeper->get_master(), EAffect::kGroup)) {
@@ -2080,16 +2080,16 @@ void update_pk_logs(CharData *ch, CharData *victim) {
 			IN_ROOM(victim) != kNowhere ? world[IN_ROOM(victim)]->name : "kNowhere", GET_ROOM_VNUM(IN_ROOM(victim)));
 	log("%s", buf2);
 
-	if ((!ch->is_npc()
+	if ((!ch->IsNpc()
 		|| (ch->has_master()
-			&& !ch->get_master()->is_npc()))
+			&& !ch->get_master()->IsNpc()))
 		&& NORENTABLE(victim)
 		&& !ROOM_FLAGGED(IN_ROOM(victim), ERoomFlag::kArena)) {
 		mudlog(buf2, BRF, kLvlImplementator, SYSLOG, 0);
-		if (ch->is_npc()
+		if (ch->IsNpc()
 			&& (AFF_FLAGGED(ch, EAffect::kCharmed) || IS_HORSE(ch))
 			&& ch->has_master()
-			&& !ch->get_master()->is_npc()) {
+			&& !ch->get_master()->IsNpc()) {
 			sprintf(buf2, "%s is following %s.", GET_NAME(ch), GET_PAD(ch->get_master(), 2));
 			mudlog(buf2, BRF, kLvlImplementator, SYSLOG, true);
 		}
@@ -2099,7 +2099,7 @@ void update_pk_logs(CharData *ch, CharData *victim) {
 void Damage::process_death(CharData *ch, CharData *victim) {
 	CharData *killer = nullptr;
 
-	if (victim->is_npc() || victim->desc) {
+	if (victim->IsNpc() || victim->desc) {
 		if (victim == ch && IN_ROOM(victim) != kNowhere) {
 			if (spell_num == kSpellPoison) {
 				for (const auto poisoner : world[IN_ROOM(victim)]->people) {
@@ -2110,7 +2110,7 @@ void Damage::process_death(CharData *ch, CharData *victim) {
 				}
 			} else if (msg_num == kTypeSuffering) {
 				for (const auto attacker : world[IN_ROOM(victim)]->people) {
-					if (attacker->get_fighting() == victim) {
+					if (attacker->GetEnemy() == victim) {
 						killer = attacker;
 					}
 				}
@@ -2158,7 +2158,7 @@ void Damage::process_death(CharData *ch, CharData *victim) {
 	// в файл пишутся все смерти чаров
 	// если чар убит палачем то тоже не спамим
 
-	if (!victim->is_npc() && !(killer && PRF_FLAGGED(killer, EPrf::kExecutor))) {
+	if (!victim->IsNpc() && !(killer && PRF_FLAGGED(killer, EPrf::kExecutor))) {
 		update_pk_logs(ch, victim);
 
 		for (const auto &ch_vict : world[ch->in_room]->people) {
@@ -2167,7 +2167,7 @@ void Damage::process_death(CharData *ch, CharData *victim) {
 				continue;
 			if (!HERE(ch_vict))
 				continue;
-			if (!ch_vict->is_npc())
+			if (!ch_vict->IsNpc())
 				continue;
 			if (MOB_FLAGGED(ch_vict, EMobFlag::kMemory)) {
 				mobForget(ch_vict, victim);
@@ -2219,8 +2219,8 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		return 0;    // -je, 7/7/92
 	}
 	// No fight mobiles
-	if ((ch->is_npc() && MOB_FLAGGED(ch, EMobFlag::kNoFight))
-		|| (victim->is_npc() && MOB_FLAGGED(victim, EMobFlag::kNoFight))) {
+	if ((ch->IsNpc() && MOB_FLAGGED(ch, EMobFlag::kNoFight))
+		|| (victim->IsNpc() && MOB_FLAGGED(victim, EMobFlag::kNoFight))) {
 		return 0;
 	}
 
@@ -2247,22 +2247,22 @@ int Damage::Process(CharData *ch, CharData *victim) {
 
 	if (victim != ch)    // Start the attacker fighting the victim
 	{
-		if (GET_POS(ch) > EPosition::kStun && (ch->get_fighting() == nullptr)) {
+		if (GET_POS(ch) > EPosition::kStun && (ch->GetEnemy() == nullptr)) {
 			if (!pk_agro_action(ch, victim))
 				return (0);
-			set_fighting(ch, victim);
+			SetFighting(ch, victim);
 			npc_groupbattle(ch);
 		}
 		// Start the victim fighting the attacker
-		if (GET_POS(victim) > EPosition::kDead && (victim->get_fighting() == nullptr)) {
-			set_fighting(victim, ch);
+		if (GET_POS(victim) > EPosition::kDead && (victim->GetEnemy() == nullptr)) {
+			SetFighting(victim, ch);
 			npc_groupbattle(victim);
 		}
 
 		// лошадь сбрасывает седока при уроне
-		if (ch->ahorse() && ch->get_horse() == victim) {
+		if (ch->IsOnHorse() && ch->get_horse() == victim) {
 			victim->drop_from_horse();
-		} else if (victim->ahorse() && victim->get_horse() == ch) {
+		} else if (victim->IsOnHorse() && victim->get_horse() == ch) {
 			ch->drop_from_horse();
 		}
 	}
@@ -2299,7 +2299,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 			}
 		}
 
-		if (victim->is_npc() && Bonus::is_bonus_active(Bonus::EBonusType::BONUS_DAMAGE)) {
+		if (victim->IsNpc() && Bonus::is_bonus_active(Bonus::EBonusType::BONUS_DAMAGE)) {
 			dam *= Bonus::get_mult_bonus();
 		}
 	}
@@ -2336,7 +2336,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	if (victim_start_pos < EPosition::kFight
 		&& !flags[fight::kVictimAirShield]
 		&& !(dmg_type == fight::kMagicDmg
-			&& ch->is_npc())) {
+			&& ch->IsNpc())) {
 		dam += dam * (EPosition::kFight - victim_start_pos) / 4;
 	}
 
@@ -2345,7 +2345,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	// изменение физ урона по холду
 	if (GET_MOB_HOLD(victim)
 		&& dmg_type == fight::kPhysDmg) {
-		if (ch->is_npc()
+		if (ch->IsNpc()
 			&& !IS_CHARMICE(ch)) {
 			dam = dam * 15 / 10;
 		} else {
@@ -2354,7 +2354,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	}
 
 	// тюнинг дамага чармисов по чарам
-	if (!victim->is_npc()
+	if (!victim->IsNpc()
 		&& IS_CHARMICE(ch)) {
 		dam = dam * 8 / 10;
 	}
@@ -2366,7 +2366,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	}
 
 	// added by WorM(Видолюб) поглощение физ.урона в %
-	//if(GET_PR(victim) && victim->is_npc()
+	//if(GET_PR(victim) && victim->IsNpc()
 	if (GET_PR(victim) && dmg_type == fight::kPhysDmg) {
 		int ResultDam = dam - (dam * GET_PR(victim) / 100);
 		ch->send_to_TC(false, true, false,
@@ -2398,7 +2398,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		armor_dam_reduce(victim);
 		// потом абсорб
 		bool armor_full_absorb = dam_absorb(ch, victim);
-		if (flags[fight::kCritHit] && (GetRealLevel(victim) >= 5 || !ch->is_npc())
+		if (flags[fight::kCritHit] && (GetRealLevel(victim) >= 5 || !ch->IsNpc())
 			&& !AFF_FLAGGED(victim, EAffect::kPrismaticAura)
 			&& !flags[fight::kVictimIceShield]) {
 			dam = MAX(dam, MIN(GET_REAL_MAX_HIT(victim) / 8, dam * 2)); //крит
@@ -2494,7 +2494,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	// запись в дметр фактического и овер дамага
 	update_dps_stats(ch, real_dam, over_dam);
 	// запись дамага в список атакеров
-	if (victim->is_npc()) {
+	if (victim->IsNpc()) {
 		victim->add_attacker(ch, ATTACKER_DAMAGE, real_dam);
 	}
 
@@ -2604,7 +2604,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 
 	// обратка от огненного щита
 	if (fs_damage > 0
-		&& victim->get_fighting()
+		&& victim->GetEnemy()
 		&& GET_POS(victim) > EPosition::kStun
 		&& IN_ROOM(victim) != kNowhere) {
 		Damage dmg(SpellDmg(kSpellFireShield), fs_damage, fight::kUndefDmg);
@@ -2656,7 +2656,7 @@ void HitData::try_mighthit_dam(CharData *ch, CharData *victim) {
 			af.modifier = 0;
 			af.duration = CalcDuration(victim, 1, 0, 0, 0, 0);
 			af.battleflag = kAfBattledec | kAfPulsedec;
-			affect_join(victim, af, true, false, true, false);
+			ImposeAffect(victim, af, true, false, true, false);
 			sprintf(buf, "&R&qВаше сознание затуманилось после удара %s.&Q&n\r\n", PERS(ch, victim, 1));
 			send_to_char(buf, victim);
 			act("$N содрогнул$U от богатырского удара $n1.", true, ch, 0, victim, kToNotVict | kToArenaListen);
@@ -2676,7 +2676,7 @@ void HitData::try_mighthit_dam(CharData *ch, CharData *victim) {
 			af.modifier = 0;
 			af.duration = CalcDuration(victim, 2, 0, 0, 0, 0);
 			af.battleflag = kAfBattledec | kAfPulsedec;
-			affect_join(victim, af, true, false, true, false);
+			ImposeAffect(victim, af, true, false, true, false);
 			sprintf(buf, "&R&qВаше сознание помутилось после удара %s.&Q&n\r\n", PERS(ch, victim, 1));
 			send_to_char(buf, victim);
 			act("$N пошатнул$U от богатырского удара $n1.", true, ch, 0, victim, kToNotVict | kToArenaListen);
@@ -2696,7 +2696,7 @@ void HitData::try_mighthit_dam(CharData *ch, CharData *victim) {
 			af.modifier = 0;
 			af.duration = CalcDuration(victim, 3, 0, 0, 0, 0);
 			af.battleflag = kAfBattledec | kAfPulsedec;
-			affect_join(victim, af, true, false, true, false);
+			ImposeAffect(victim, af, true, false, true, false);
 			sprintf(buf, "&R&qВаше сознание померкло после удара %s.&Q&n\r\n", PERS(ch, victim, 1));
 			send_to_char(buf, victim);
 			act("$N зашатал$U от богатырского удара $n1.", true, ch, 0, victim, kToNotVict | kToArenaListen);
@@ -2734,7 +2734,7 @@ void HitData::try_stupor_dam(CharData *ch, CharData *victim) {
 		send_to_char(buf, ch);
 		lag = 2;
 		int k = ch->get_skill(ESkill::kOverwhelm) / 30;
-		if (!victim->is_npc()) {
+		if (!victim->IsNpc()) {
 			k = MIN(2, k);
 		}
 		dam *= MAX(2, number(1, k));
@@ -2756,7 +2756,7 @@ void HitData::try_stupor_dam(CharData *ch, CharData *victim) {
 		}
 		lag = 2;
 		int k = ch->get_skill(ESkill::kOverwhelm) / 20;
-		if (!victim->is_npc()) {
+		if (!victim->IsNpc()) {
 			k = MIN(4, k);
 		}
 		dam *= MAX(3, number(1, k));
@@ -2803,7 +2803,7 @@ int HitData::extdamage(CharData *ch, CharData *victim) {
 		const int minimum_weapon_weigth = 19;
 		if (IS_IMMORTAL(ch)) {
 			try_stupor_dam(ch, victim);
-		} else if (ch->is_npc()) {
+		} else if (ch->IsNpc()) {
 			const bool wielded_with_bow = wielded && (static_cast<ESkill>(wielded->get_skill()) == ESkill::kBows);
 			if (AFF_FLAGGED(ch, EAffect::kCharmed) || AFF_FLAGGED(ch, EAffect::kHelper)) {
 				// проверка оружия для глуша чармисов
@@ -2846,7 +2846,7 @@ int HitData::extdamage(CharData *ch, CharData *victim) {
 	}
 		//* травящий ядом моб //
 	else if (dam
-		&& ch->is_npc()
+		&& ch->IsNpc()
 		&& NPC_FLAGGED(ch, ENpcFlag::kToxic)
 		&& !AFF_FLAGGED(ch, EAffect::kCharmed)
 		&& GET_WAIT(ch) <= 0
@@ -2925,7 +2925,7 @@ void HitData::init(CharData *ch, CharData *victim) {
 		hit_type = GET_OBJ_VAL(wielded, 3);
 	} else {
 		weapon_pos = 0;
-		if (ch->is_npc()) {
+		if (ch->IsNpc()) {
 			hit_type = ch->mob_specials.attack_type;
 		}
 	}
@@ -2945,7 +2945,7 @@ void HitData::calc_base_hr(CharData *ch) {
 	if (skill_num != ESkill::kThrow && skill_num != ESkill::kBackstab) {
 		if (wielded
 			&& GET_OBJ_TYPE(wielded) == EObjType::kWeapon
-			&& !ch->is_npc()) {
+			&& !ch->IsNpc()) {
 			// Apply HR for light weapon
 			int percent = 0;
 			switch (weapon_pos) {
@@ -2959,7 +2959,7 @@ void HitData::calc_base_hr(CharData *ch) {
 					break;
 			}
 			calc_thaco -= MIN(3, MAX(percent, 0));
-		} else if (!ch->is_npc()) {
+		} else if (!ch->IsNpc()) {
 			// кулаками у нас полагается бить только богатырям :)
 			if (!IsAbleToUseFeat(ch, EFeat::kBully))
 				calc_thaco += 4;
@@ -2989,7 +2989,7 @@ void HitData::calc_base_hr(CharData *ch) {
 		}
 	}
 
-	if (!ch->is_npc() && skill_num != ESkill::kThrow && skill_num != ESkill::kBackstab) {
+	if (!ch->IsNpc() && skill_num != ESkill::kThrow && skill_num != ESkill::kBackstab) {
 		// Casters use weather, int and wisdom
 		if (IS_CASTER(ch)) {
 			/*	  calc_thaco +=
@@ -3024,7 +3024,7 @@ void HitData::calc_base_hr(CharData *ch) {
 	}
 
 	// Calculate the THAC0 of the attacker
-	if (!ch->is_npc()) {
+	if (!ch->IsNpc()) {
 		calc_thaco += thaco((int) GET_CLASS(ch), GetRealLevel(ch));
 	} else {
 		// штраф мобам по рекомендации Триглава
@@ -3077,7 +3077,7 @@ void HitData::calc_rand_hr(CharData *ch, CharData *victim) {
 		&& skill_num != ESkill::kThrow
 		&& skill_num != ESkill::kBackstab
 		&& !(wielded && GET_OBJ_TYPE(wielded) == EObjType::kWeapon)
-		&& !ch->is_npc()) {
+		&& !ch->IsNpc()) {
 			calc_thaco += std::max(0, (CalcSkillMinCap(victim, ESkill::kLeftHit) - CalcCurrentSkill(ch, ESkill::kLeftHit, victim)) / 10);
 	}
 
@@ -3093,14 +3093,14 @@ void HitData::calc_rand_hr(CharData *ch, CharData *victim) {
 	}
 
 	// Horse modifier for attacker
-	if (!ch->is_npc() && skill_num != ESkill::kThrow && skill_num != ESkill::kBackstab && ch->ahorse()) {
+	if (!ch->IsNpc() && skill_num != ESkill::kThrow && skill_num != ESkill::kBackstab && ch->IsOnHorse()) {
 		TrainSkill(ch, ESkill::kRiding, true, victim);
 		calc_thaco += 10 - GET_SKILL(ch, ESkill::kRiding) / 20;
 	}
 
 	// not can see (blind, dark, etc)
 	if (!CAN_SEE(ch, victim))
-		calc_thaco += (IsAbleToUseFeat(ch, EFeat::kBlindFight) ? 2 : ch->is_npc() ? 6 : 10);
+		calc_thaco += (IsAbleToUseFeat(ch, EFeat::kBlindFight) ? 2 : ch->IsNpc() ? 6 : 10);
 	if (!CAN_SEE(victim, ch))
 		calc_thaco -= (IsAbleToUseFeat(victim, EFeat::kBlindFight) ? 2 : 8);
 
@@ -3115,9 +3115,9 @@ void HitData::calc_rand_hr(CharData *ch, CharData *victim) {
 		int prob = (ch->get_skill(weap_skill) + cha_app[GET_REAL_CHA(ch)].illusive) -
 			(victim->get_skill(weap_skill) + int_app[GET_REAL_INT(victim)].observation);
 		if (prob >= 30 && !GET_AF_BATTLE(victim, kEafAwake)
-			&& (ch->is_npc() || !GET_AF_BATTLE(ch, kEafPunctual))) {
+			&& (ch->IsNpc() || !GET_AF_BATTLE(ch, kEafPunctual))) {
 			calc_thaco -= (ch->get_skill(weap_skill) - victim->get_skill(weap_skill) > 60 ? 2 : 1) * p_hitroll;
-			if (!victim->is_npc())
+			if (!victim->IsNpc())
 				dam += (prob >= 70 ? 3 : (prob >= 50 ? 2 : 1));
 		}
 	}
@@ -3132,8 +3132,8 @@ void HitData::calc_rand_hr(CharData *ch, CharData *victim) {
 		if (success) {
 			// > и зачем так? кто балансом занимается поправте.
 			// воткнул мин. разницу, чтобы анализаторы не ругались
-			dam -= ch->is_npc() ? 5 : 4;
-			calc_thaco += ch->is_npc() ? 4 : 2;
+			dam -= ch->IsNpc() ? 5 : 4;
+			calc_thaco += ch->IsNpc() ? 4 : 2;
 		}
 		TrainSkill(victim, ESkill::kAwake, success, ch);
 	}
@@ -3157,7 +3157,7 @@ void HitData::calc_stat_hr(CharData *ch) {
 		&& skill_num != ESkill::kThrow
 		&& skill_num != ESkill::kBackstab
 		&& !(wielded && GET_OBJ_TYPE(wielded) == EObjType::kWeapon)
-		&& !ch->is_npc()) {
+		&& !ch->IsNpc()) {
 		calc_thaco += (MUD::Skills()[ESkill::kLeftHit].difficulty - ch->get_skill(ESkill::kLeftHit)) / 10;
 	}
 
@@ -3168,7 +3168,7 @@ void HitData::calc_stat_hr(CharData *ch) {
 	}
 
 	// Horse modifier for attacker
-	if (!ch->is_npc() && skill_num != ESkill::kThrow && skill_num != ESkill::kBackstab && ch->ahorse()) {
+	if (!ch->IsNpc() && skill_num != ESkill::kThrow && skill_num != ESkill::kBackstab && ch->IsOnHorse()) {
 		int prob = ch->get_skill(ESkill::kRiding);
 		int range = MUD::Skills()[ESkill::kRiding].difficulty / 2;
 
@@ -3197,7 +3197,7 @@ void HitData::calc_ac(CharData *victim) {
 	victim_ac += compute_armor_class(victim);
 	victim_ac /= 10;
 	//считаем штраф за голод
-	if (!victim->is_npc() && victim_ac < 5) { //для голодных
+	if (!victim->IsNpc() && victim_ac < 5) { //для голодных
 		int p_ac = (1 - victim->get_cond_penalty(P_AC)) * 40;
 		if (p_ac) {
 			if (victim_ac + p_ac > 5) {
@@ -3291,7 +3291,7 @@ void HitData::add_weapon_damage(CharData *ch, bool need_dice) {
 	} else {
 		damroll = (GET_OBJ_VAL(wielded, 1) * GET_OBJ_VAL(wielded, 2) + GET_OBJ_VAL(wielded, 1)) / 2;
 	}
-	if (ch->is_npc()
+	if (ch->IsNpc()
 		&& !AFF_FLAGGED(ch, EAffect::kCharmed)
 		&& !(MOB_FLAGGED(ch, EMobFlag::kTutelar) || MOB_FLAGGED(ch, EMobFlag::kMentalShadow))) {
 		damroll *= MOB_DAMAGE_MULT;
@@ -3328,7 +3328,7 @@ void HitData::add_hand_damage(CharData *ch, bool need_dice) {
 	{
 		int modi = 10 * (5 + (GET_EQ(ch, EEquipPos::kHands) ? MIN(GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kHands)), 18)
 															: 0)); //вес перчаток больше 18 не учитывается
-		if (ch->is_npc() || IsAbleToUseFeat(ch, EFeat::kBully)) {
+		if (ch->IsNpc() || IsAbleToUseFeat(ch, EFeat::kBully)) {
 			modi = MAX(100, modi);
 		}
 		dam = modi * dam / 100;
@@ -3341,8 +3341,8 @@ void HitData::calc_crit_chance(CharData *ch) {
 	int calc_critic = 0;
 
 	// Маги, волхвы и не-купеческие чармисы не умеют критать //
-	if ((!ch->is_npc() && !IS_MAGIC_USER(ch) && !IS_MAGUS(ch))
-		|| (ch->is_npc() && (!AFF_FLAGGED(ch, EAffect::kCharmed)
+	if ((!ch->IsNpc() && !IS_MAGIC_USER(ch) && !IS_MAGUS(ch))
+		|| (ch->IsNpc() && (!AFF_FLAGGED(ch, EAffect::kCharmed)
 			&& !AFF_FLAGGED(ch, EAffect::kHelper)))) {
 		calc_critic = std::min(ch->get_skill(weap_skill), 70);
 		if (IsAbleToUseFeat(ch, FindWeaponMasterFeat(weap_skill))) {
@@ -3351,11 +3351,11 @@ void HitData::calc_crit_chance(CharData *ch) {
 		if (IsAbleToUseFeat(ch, EFeat::kThieveStrike)) {
 			calc_critic += ch->get_skill(ESkill::kBackstab);
 		}
-		if (!ch->is_npc()) {
+		if (!ch->IsNpc()) {
 			calc_critic += static_cast<int>(ch->get_skill(ESkill::kPunctual) / 2);
 			calc_critic += static_cast<int>(ch->get_skill(ESkill::kNoParryHit) / 3);
 		}
-		if (ch->is_npc() && !AFF_FLAGGED(ch, EAffect::kCharmed)) {
+		if (ch->IsNpc() && !AFF_FLAGGED(ch, EAffect::kCharmed)) {
 			calc_critic += GetRealLevel(ch);
 		}
 	} else {
@@ -3406,7 +3406,7 @@ int HitData::calc_damage(CharData *ch, bool need_dice) {
 		}
 	}
 /*	// Horse modifier for attacker
-	if (!ch->is_npc() && skill_num != ESkill::kThrow && skill_num != ESkill::kBackstab && ch->ahorse()) {
+	if (!ch->IsNpc() && skill_num != ESkill::kThrow && skill_num != ESkill::kBackstab && ch->ahorse()) {
 		int prob = ch->get_skill(ESkill::kRiding);
 		dam += ((prob + 19) / 10);
 		send_to_char(ch, "&YДамага с учетом лошади == %d&n\r\n", dam);
@@ -3479,11 +3479,11 @@ int HitData::calc_damage(CharData *ch, bool need_dice) {
 				send_to_char(ch, "&YДамага с учетом берсерка== %d&n\r\n", dam);
 		}
 	}
-	if (ch->is_npc()) { // урон моба из олц
+	if (ch->IsNpc()) { // урон моба из олц
 		dam += RollDices(ch->mob_specials.damnodice, ch->mob_specials.damsizedice);
 	}
 
-	if (GET_SKILL(ch, ESkill::kRiding) > 100 && ch->ahorse()) {
+	if (GET_SKILL(ch, ESkill::kRiding) > 100 && ch->IsOnHorse()) {
 		dam *= 1 + (GET_SKILL(ch, ESkill::kRiding) - 100) / 500.0; // на лошадке до +20%
 		if (PRF_FLAGGED(ch, EPrf::kExecutor))
 			send_to_char(ch, "&YДамага с учетом лошади (при скилле 200 +20 процентов)== %d&n\r\n", dam);
@@ -3541,15 +3541,15 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 	}
 	// Do some sanity checking, in case someone flees, etc.
 	if (ch->in_room != IN_ROOM(victim) || ch->in_room == kNowhere) {
-		if (ch->get_fighting() && ch->get_fighting() == victim) {
+		if (ch->GetEnemy() && ch->GetEnemy() == victim) {
 			stop_fighting(ch, true);
 		}
 		return;
 	}
 	// Stand awarness mobs
 	if (CAN_SEE(victim, ch)
-		&& !victim->get_fighting()
-		&& ((victim->is_npc() && (GET_HIT(victim) < GET_MAX_HIT(victim)
+		&& !victim->GetEnemy()
+		&& ((victim->IsNpc() && (GET_HIT(victim) < GET_MAX_HIT(victim)
 			|| MOB_FLAGGED(victim, EMobFlag::kAware)))
 			|| AFF_FLAGGED(victim, EAffect::kAwarness))
 		&& !GET_MOB_HOLD(victim) && GET_WAIT(victim) <= 0) {
@@ -3562,10 +3562,10 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		spellnum = breathFlag2Spellnum(ch);
 		if (spellnum != ESpell::kSpellNoSpell) // защита от падения
 		{
-			if (!ch->get_fighting())
-				set_fighting(ch, victim);
-			if (!victim->get_fighting())
-				set_fighting(victim, ch);
+			if (!ch->GetEnemy())
+				SetFighting(ch, victim);
+			if (!victim->GetEnemy())
+				SetFighting(victim, ch);
 			// AOE атаки всегда магические. Раздаём каждому игроку и уходим.
 			if (MOB_FLAGGED(ch, EMobFlag::kAreaAttack)) {
 				const auto
@@ -3598,10 +3598,10 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 	//  дополнительный маг. дамаг независимо от попадания физ. атаки
 	if (AFF_FLAGGED(ch, EAffect::kCloudOfArrows)
 		&& hit_params.skill_num == ESkill::kUndefined
-		&& (ch->get_fighting()
+		&& (ch->GetEnemy()
 			|| (!GET_AF_BATTLE(ch, kEafHammer) && !GET_AF_BATTLE(ch, kEafOverwhelm)))) {
 		// здесь можно получить спурженного victim, но ch не умрет от зеркала
-    if (ch->is_npc()) {
+    if (ch->IsNpc()) {
 		mag_damage(std::min(kLvlImplementator, GetRealLevel(ch)), ch, victim, kSpellMagicMissile, ESaving::kReflex);
 	} else {
 		mag_damage(1, ch, victim, kSpellMagicMissile, ESaving::kReflex);
@@ -3631,7 +3631,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 	const int ch_lvl_miss = GetRealLevel(ch) + GET_REAL_REMORT(ch);
 
 	// собсно выяснение попали или нет
-	if (victim_lvl_miss - ch_lvl_miss <= 5 || (!ch->is_npc() && !victim->is_npc())) {
+	if (victim_lvl_miss - ch_lvl_miss <= 5 || (!ch->IsNpc() && !victim->IsNpc())) {
 		// 5% шанс промазать, если цель в пределах 5 уровней или пвп случай
 		if ((number(1, 100) <= 5)) {
 			hit_params.dam = 0;
@@ -3663,7 +3663,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		if (!GET_AF_BATTLE(ch, kEafHammer) && !GET_AF_BATTLE(ch, kEafOverwhelm)
 			&& (!(hit_params.skill_num == ESkill::kBackstab && IsAbleToUseFeat(ch, EFeat::kThieveStrike)))) {
 			ubyte blink;
-			if (victim->is_npc()) {
+			if (victim->IsNpc()) {
 				blink = 50;
 			} else {
 				blink = 10;
@@ -3709,10 +3709,10 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		} else {
 			hit_params.set_flag(fight::kHalfIgnoreArmor);
 		}
-		if (IsAbleToUseFeat(ch, EFeat::kShadowStrike) && victim->is_npc()) {
+		if (IsAbleToUseFeat(ch, EFeat::kShadowStrike) && victim->IsNpc()) {
 			hit_params.dam *= backstab_mult(GetRealLevel(ch)) * (1.0 + ch->get_skill(ESkill::kNoParryHit) / 200.0);
 		} else if (IsAbleToUseFeat(ch, EFeat::kThieveStrike)) {
-			if (victim->get_fighting()) {
+			if (victim->GetEnemy()) {
 				hit_params.dam *= backstab_mult(GetRealLevel(ch));
 			} else {
 				hit_params.dam *= backstab_mult(GetRealLevel(ch)) * 1.3;
@@ -3722,7 +3722,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		}
 
 		if (IsAbleToUseFeat(ch, EFeat::kShadowStrike) && !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)
-			&& victim->is_npc()
+			&& victim->IsNpc()
 			&& !(AFF_FLAGGED(victim, EAffect::kShield) && !(MOB_FLAGGED(victim, EMobFlag::kProtect)))
 			&& (number(1, 100) <= 6 * ch->get_cond_penalty(P_HITROLL))
 			&& !victim->get_role(MOB_ROLE_BOSS)) {
@@ -3745,7 +3745,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 
 		hit_params.dam = ApplyResist(victim, EResist::kVitality, hit_params.dam);
 		// режем стаб
-		if (IsAbleToUseFeat(ch, EFeat::kShadowStrike) && !ch->is_npc()) {
+		if (IsAbleToUseFeat(ch, EFeat::kShadowStrike) && !ch->IsNpc()) {
 			hit_params.dam = std::min(8000 + GET_REAL_REMORT(ch) * 20 * GetRealLevel(ch), hit_params.dam);
 		}
 
@@ -3758,7 +3758,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 	if (hit_params.skill_num == ESkill::kThrow) {
 		hit_params.set_flag(fight::kIgnoreFireShield);
 		hit_params.dam *= (CalcCurrentSkill(ch, ESkill::kThrow, victim) + 10) / 10;
-		if (ch->is_npc()) {
+		if (ch->IsNpc()) {
 			hit_params.dam = std::min(300, hit_params.dam);
 		}
 		hit_params.dam = ApplyResist(victim, EResist::kVitality, hit_params.dam);
@@ -3852,7 +3852,7 @@ void performIronWindAttacks(CharData *ch, fight::AttackType weapon) {
 		};
 	};
 	if (GET_AF_BATTLE(ch, kEafIronWind)) {
-		TrainSkill(ch, ESkill::kIronwind, true, ch->get_fighting());
+		TrainSkill(ch, ESkill::kIronwind, true, ch->GetEnemy());
 		if (weapon == fight::kMainHand) {
 			div = 100 + MIN(80, MAX(1, percent - 80));
 			prob = 100;
@@ -3862,7 +3862,7 @@ void performIronWindAttacks(CharData *ch, fight::AttackType weapon) {
 		};
 		while (div > 0) {
 			if (number(1, 100) < div)
-				hit(ch, ch->get_fighting(), ESkill::kUndefined, weapon);
+				hit(ch, ch->GetEnemy(), ESkill::kUndefined, weapon);
 			div -= prob;
 		};
 	};
@@ -3887,13 +3887,13 @@ void exthit(CharData *ch, ESkill type, fight::AttackType weapon) {
 		// Лук в обеих руках - юзаем доп. или двойной выстрел
 		if (IsAbleToUseFeat(ch, EFeat::kDoubleshot) && !ch->get_skill(ESkill::kAddshot)
 			&& MIN(850, 200 + ch->get_skill(ESkill::kBows) * 4 + GET_REAL_DEX(ch) * 5) >= number(1, 1000)) {
-			hit(ch, ch->get_fighting(), type, weapon);
+			hit(ch, ch->GetEnemy(), type, weapon);
 		} else if (ch->get_skill(ESkill::kAddshot) > 0) {
 			addshot_damage(ch, type, weapon);
 		}
 	}
 
-	hit(ch, ch->get_fighting(), type, weapon);
+	hit(ch, ch->GetEnemy(), type, weapon);
 }
 
 int CalcPcDamrollBonus(CharData *ch) {
@@ -3922,7 +3922,7 @@ int CalcNpcDamrollBonus(CharData *ch) {
 * еще есть рандом дамролы, в данный момент максимум 30d127
 */
 int GetRealDamroll(CharData *ch) {
-	if (ch->is_npc() && !IS_CHARMICE(ch)) {
+	if (ch->IsNpc() && !IS_CHARMICE(ch)) {
 		return std::max(0, GET_DR(ch) + GET_DR_ADD(ch) + CalcNpcDamrollBonus(ch));
 	}
 
@@ -3931,7 +3931,7 @@ int GetRealDamroll(CharData *ch) {
 }
 
 int GetAutoattackDamroll(CharData *ch, int weapon_skill) {
-	if (ch->is_npc() && !IS_CHARMICE(ch)) {
+	if (ch->IsNpc() && !IS_CHARMICE(ch)) {
 		return std::max(0, GET_DR(ch) + GET_DR_ADD(ch) + CalcNpcDamrollBonus(ch));
 	}
 	return std::min(GET_DR(ch) + GET_DR_ADD(ch) + 2 * CalcPcDamrollBonus(ch), weapon_skill / 2); //попробюуем так

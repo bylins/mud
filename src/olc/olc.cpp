@@ -119,7 +119,7 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 	DescriptorData *d;
 
 	// * No screwing around as a mobile.
-	if (ch->is_npc())
+	if (ch->IsNpc())
 		return;
 
 	if (subcmd == SCMD_OLC_SAVEINFO) {

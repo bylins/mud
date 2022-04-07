@@ -119,7 +119,7 @@ void Characters::remove(CharData *character) {
 void Characters::purge() {
 	m_purge_set.clear();
 	for (const auto &character : m_purge_list) {
-		if (character->is_npc()) {
+		if (character->IsNpc()) {
 			clearMemory(character.get());
 		}
 

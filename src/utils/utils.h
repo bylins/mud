@@ -272,10 +272,10 @@ short GET_REAL_REMORT(const CharData *ch);
 short GET_REAL_REMORT(const std::shared_ptr<CharData> *ch);
 short GET_REAL_REMORT(const std::shared_ptr<CharData> &ch);
 
-#define IS_IMMORTAL(ch)     (!(ch)->is_npc() && (ch)->get_level() >= kLvlImmortal)
-#define IS_GOD(ch)          (!(ch)->is_npc() && (ch)->get_level() >= kLvlGod)
-#define IS_GRGOD(ch)        (!(ch)->is_npc() && (ch)->get_level() >= kLvlGreatGod)
-#define IS_IMPL(ch)         (!(ch)->is_npc() && (ch)->get_level() >= kLvlImplementator)
+#define IS_IMMORTAL(ch)     (!(ch)->IsNpc() && (ch)->get_level() >= kLvlImmortal)
+#define IS_GOD(ch)          (!(ch)->IsNpc() && (ch)->get_level() >= kLvlGod)
+#define IS_GRGOD(ch)        (!(ch)->IsNpc() && (ch)->get_level() >= kLvlGreatGod)
+#define IS_IMPL(ch)         (!(ch)->IsNpc() && (ch)->get_level() >= kLvlImplementator)
 
 #define IS_BITS(mask, bitno) (IS_SET(mask,(1 << (bitno))))
 #define IS_CASTER(ch)        (IS_BITS(kMaskCaster,GET_CLASS(ch)))
@@ -433,10 +433,10 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
 #define EXTRA_FLAGS(ch) ((ch)->Temporary)
 #define SPELL_ROUTINES(spl) (spell_info[spl].routines)
 
-#define IS_MOB(ch)          ((ch)->is_npc() && (ch)->get_rnum() >= 0)
+#define IS_MOB(ch)          ((ch)->IsNpc() && (ch)->get_rnum() >= 0)
 
-#define MOB_FLAGGED(ch, flag)   ((ch)->is_npc() && MOB_FLAGS(ch).get(flag))
-#define PLR_FLAGGED(ch, flag)   (!(ch)->is_npc() && PLR_FLAGS(ch).get(flag))
+#define MOB_FLAGGED(ch, flag)   ((ch)->IsNpc() && MOB_FLAGS(ch).get(flag))
+#define PLR_FLAGGED(ch, flag)   (!(ch)->IsNpc() && PLR_FLAGS(ch).get(flag))
 #define PRF_FLAGGED(ch, flag)   (PRF_FLAGS(ch).get(flag))
 #define NPC_FLAGGED(ch, flag)   (NPC_FLAGS(ch).get(flag))
 #define EXTRA_FLAGGED(ch, flag) (EXTRA_FLAGS(ch).get(flag))
@@ -530,7 +530,7 @@ inline T VPOSI(const T val, const T min, const T max) {
 }
 
 // у чаров режет до 50, у мобов до ста
-//#define VPOSI_MOB(ch, stat_id, val)	ch->is_npc() ? val : VPOSI(val, 1, class_stats_limit[(int)GET_CLASS(ch)][stat_id])
+//#define VPOSI_MOB(ch, stat_id, val)	ch->IsNpc() ? val : VPOSI(val, 1, class_stats_limit[(int)GET_CLASS(ch)][stat_id])
 
 #define GET_CLASS(ch)   ((ch)->get_class())
 #define GET_KIN(ch)     ((ch)->player_data.Kin)
@@ -592,8 +592,8 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_PR(ch)        ((ch)->add_abils.presist) // added by WorM (Видолюб) поглощение физ.урона в %
 #define GET_LIKES(ch)     ((ch)->mob_specials.LikeWork)
 
-#define GET_REAL_SAVING_STABILITY(ch)	(dex_bonus(GET_REAL_CON(ch)) - GET_SAVE(ch, ESaving::kStability) + ((ch)->ahorse() ? 20 : 0))
-#define GET_REAL_SAVING_REFLEX(ch)	(dex_bonus(GET_REAL_DEX(ch)) - GET_SAVE(ch, ESaving::kReflex) + ((ch)->ahorse() ? -20 : 0))
+#define GET_REAL_SAVING_STABILITY(ch)	(dex_bonus(GET_REAL_CON(ch)) - GET_SAVE(ch, ESaving::kStability) + ((ch)->IsOnHorse() ? 20 : 0))
+#define GET_REAL_SAVING_REFLEX(ch)	(dex_bonus(GET_REAL_DEX(ch)) - GET_SAVE(ch, ESaving::kReflex) + ((ch)->IsOnHorse() ? -20 : 0))
 #define GET_REAL_SAVING_CRITICAL(ch)	(dex_bonus(GET_REAL_CON(ch)) - GET_SAVE(ch, ESaving::kCritical))
 #define GET_REAL_SAVING_WILL(ch)	(dex_bonus(GET_REAL_WIS(ch)) - GET_SAVE(ch, ESaving::kWill))
 
@@ -712,7 +712,7 @@ const int kNameLevel = 5;
 #define GET_LASTROOM(ch)    ((ch)->mob_specials.LastRoom)
 
 #define CAN_SEE_IN_DARK(ch) \
-   (AFF_FLAGGED(ch, EAffect::kInfravision) || (!(ch)->is_npc() && PRF_FLAGGED(ch, EPrf::kHolylight)))
+   (AFF_FLAGGED(ch, EAffect::kInfravision) || (!(ch)->IsNpc() && PRF_FLAGGED(ch, EPrf::kHolylight)))
 
 #define IS_GOOD(ch)          (GET_ALIGNMENT(ch) >= kAligGoodMore)
 #define IS_EVIL(ch)          (GET_ALIGNMENT(ch) <= kAligEvilLess)
@@ -923,7 +923,7 @@ const int kNameLevel = 5;
 #define OMHR(ch) (ESex::kNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::kMale ? "ему": (GET_OBJ_SEX(ch) == ESex::kFemale ? "ей" : "им")) :"ему")
 #define OYOU(ch) (ESex::kNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::kMale ? "ваш": (GET_OBJ_SEX(ch) == ESex::kFemale ? "ваша" : "ваши")) :"ваше")
 
-#define HERE(ch)  (((ch)->is_npc() || (ch)->desc || NORENTABLE(ch)))
+#define HERE(ch)  (((ch)->IsNpc() || (ch)->desc || NORENTABLE(ch)))
 
 // Can subject see character "obj" without light
 #define MORT_CAN_SEE_CHAR(sub, obj) (HERE(obj) && \
@@ -931,10 +931,10 @@ const int kNameLevel = 5;
                 )
 
 #define IMM_CAN_SEE_CHAR(sub, obj) \
-        (MORT_CAN_SEE_CHAR(sub, obj) || (!(sub)->is_npc() && PRF_FLAGGED(sub, EPrf::kHolylight)))
+        (MORT_CAN_SEE_CHAR(sub, obj) || (!(sub)->IsNpc() && PRF_FLAGGED(sub, EPrf::kHolylight)))
 
 #define CAN_SEE_CHAR(sub, obj) (IS_CODER(sub) || SELF(sub, obj) || \
-        ((GetRealLevel(sub) >= ((obj)->is_npc() ? 0 : GET_INVIS_LEV(obj))) && \
+        ((GetRealLevel(sub) >= ((obj)->IsNpc() ? 0 : GET_INVIS_LEV(obj))) && \
          IMM_CAN_SEE_CHAR(sub, obj)))
 // End of CAN_SEE
 
@@ -972,25 +972,25 @@ const int kNameLevel = 5;
           (EXIT(ch,door)->to_room() != kNowhere) && \
           !IS_SET(EXIT(ch, door)->exit_info, EExitFlag::kClosed))):0)
 
-#define IS_SORCERER(ch)		(!(ch)->is_npc() && (GET_CLASS(ch) == ECharClass::kSorcerer))
-#define IS_THIEF(ch)		(!(ch)->is_npc() && (GET_CLASS(ch) == ECharClass::kThief))
-#define IS_ASSASINE(ch)		(!(ch)->is_npc() && (GET_CLASS(ch) == ECharClass::kAssasine))
-#define IS_WARRIOR(ch)		(!(ch)->is_npc() && (GET_CLASS(ch) == ECharClass::kWarrior))
-#define IS_PALADINE(ch)		(!(ch)->is_npc() && (GET_CLASS(ch) == ECharClass::kPaladine))
-#define IS_RANGER(ch)		(!(ch)->is_npc() && (GET_CLASS(ch) == ECharClass::kRanger))
-#define IS_GUARD(ch)		(!(ch)->is_npc() && (GET_CLASS(ch) == ECharClass::kGuard))
-#define IS_VIGILANT(ch)		(!(ch)->is_npc() && (GET_CLASS(ch) == ECharClass::kVigilant))
-#define IS_MERCHANT(ch)		(!(ch)->is_npc() && (GET_CLASS(ch) == ECharClass::kMerchant))
-#define IS_MAGUS(ch)		(!(ch)->is_npc() && (GET_CLASS(ch) == ECharClass::kMagus))
-#define IS_CONJURER(ch)		(!(ch)->is_npc() && (GET_CLASS(ch) == ECharClass::kConjurer))
-#define IS_CHARMER(ch)		(!(ch)->is_npc() && (GET_CLASS(ch) == ECharClass::kCharmer))
-#define IS_WIZARD(ch)		(!(ch)->is_npc() && (GET_CLASS(ch) == ECharClass::kWizard))
-#define IS_NECROMANCER(ch)	(!(ch)->is_npc() && (GET_CLASS(ch) == ECharClass::kNecromancer))
+#define IS_SORCERER(ch)		(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kSorcerer))
+#define IS_THIEF(ch)		(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kThief))
+#define IS_ASSASINE(ch)		(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kAssasine))
+#define IS_WARRIOR(ch)		(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kWarrior))
+#define IS_PALADINE(ch)		(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kPaladine))
+#define IS_RANGER(ch)		(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kRanger))
+#define IS_GUARD(ch)		(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kGuard))
+#define IS_VIGILANT(ch)		(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kVigilant))
+#define IS_MERCHANT(ch)		(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kMerchant))
+#define IS_MAGUS(ch)		(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kMagus))
+#define IS_CONJURER(ch)		(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kConjurer))
+#define IS_CHARMER(ch)		(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kCharmer))
+#define IS_WIZARD(ch)		(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kWizard))
+#define IS_NECROMANCER(ch)	(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kNecromancer))
 
-#define IS_FIGHTER_USER(ch)  (!(ch)->is_npc() && (IS_BITS(kMaskFighter, (int) GET_CLASS(ch))))
-#define IS_MAGIC_USER(ch)	(!(ch)->is_npc() && (IS_BITS(kMaskMage, (int) GET_CLASS(ch))))
+#define IS_FIGHTER_USER(ch)  (!(ch)->IsNpc() && (IS_BITS(kMaskFighter, (int) GET_CLASS(ch))))
+#define IS_MAGIC_USER(ch)	(!(ch)->IsNpc() && (IS_BITS(kMaskMage, (int) GET_CLASS(ch))))
 
-#define IS_UNDEAD(ch) ((ch)->is_npc() && \
+#define IS_UNDEAD(ch) ((ch)->IsNpc() && \
     (MOB_FLAGGED(ch, EMobFlag::kResurrected) || \
 	(GET_RACE(ch) == ENpcRace::kZombie) ||  \
 	(GET_RACE(ch) == ENpcRace::kGhost)))

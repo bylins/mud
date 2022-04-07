@@ -48,7 +48,7 @@ void do_learn(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 			"способности"
 		};
 
-	if (ch->is_npc())
+	if (ch->IsNpc())
 		return;
 
 	// get: blank, spell name, target name

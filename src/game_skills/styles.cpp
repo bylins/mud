@@ -21,17 +21,17 @@ void go_touch(CharData *ch, CharData *vict) {
 }
 
 void do_touch(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->is_npc() || !ch->get_skill(ESkill::kIntercept)) {
+	if (ch->IsNpc() || !ch->get_skill(ESkill::kIntercept)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::kIntercept)) {
+	if (ch->HasCooldown(ESkill::kIntercept)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
 
 	ObjData *primary = GET_EQ(ch, EEquipPos::kWield) ? GET_EQ(ch, EEquipPos::kWield) : GET_EQ(ch, EEquipPos::kBoths);
-	if (!(IS_IMMORTAL(ch) || ch->is_npc() || GET_GOD_FLAG(ch, EGf::kGodsLike) || !primary)) {
+	if (!(IS_IMMORTAL(ch) || ch->IsNpc() || GET_GOD_FLAG(ch, EGf::kGodsLike) || !primary)) {
 		send_to_char("У вас заняты руки.\r\n", ch);
 		return;
 	}
@@ -40,18 +40,18 @@ void do_touch(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, arg);
 	if (!(vict = get_char_vis(ch, arg, EFind::kCharInRoom))) {
 		for (const auto i : world[ch->in_room]->people) {
-			if (i->get_fighting() == ch) {
+			if (i->GetEnemy() == ch) {
 				vict = i;
 				break;
 			}
 		}
 
 		if (!vict) {
-			if (!ch->get_fighting()) {
+			if (!ch->GetEnemy()) {
 				send_to_char("Но вы ни с кем не сражаетесь.\r\n", ch);
 				return;
 			} else {
-				vict = ch->get_fighting();
+				vict = ch->GetEnemy();
 			}
 		}
 	}
@@ -61,7 +61,7 @@ void do_touch(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char(", вы похожи на котенка, ловящего собственный хвост.\r\n", ch);
 		return;
 	}
-	if (vict->get_fighting() != ch && ch->get_fighting() != vict) {
+	if (vict->GetEnemy() != ch && ch->GetEnemy() != vict) {
 		act("Но вы не сражаетесь с $N4.", false, ch, nullptr, vict, kToChar);
 		return;
 	}
@@ -84,7 +84,7 @@ void go_deviate(CharData *ch) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
-	if (ch->isHorsePrevents()) {
+	if (ch->IsHorsePrevents()) {
 		return;
 	};
 	SET_AF_BATTLE(ch, kEafDodge);
@@ -92,21 +92,21 @@ void go_deviate(CharData *ch) {
 }
 
 void do_deviate(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (ch->is_npc() || !ch->get_skill(ESkill::kDodge)) {
+	if (ch->IsNpc() || !ch->get_skill(ESkill::kDodge)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::kDodge)) {
+	if (ch->HasCooldown(ESkill::kDodge)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
 
-	if (!(ch->get_fighting())) {
+	if (!(ch->GetEnemy())) {
 		send_to_char("Но вы ведь ни с кем не сражаетесь!\r\n", ch);
 		return;
 	}
 
-	if (ch->isHorsePrevents()) {
+	if (ch->IsHorsePrevents()) {
 		return;
 	}
 
@@ -127,7 +127,7 @@ const char *cstyles[] = {"normal",
 };
 
 void do_style(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->haveCooldown(ESkill::kGlobalCooldown)) {
+	if (ch->HasCooldown(ESkill::kGlobalCooldown)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
@@ -166,7 +166,7 @@ void do_style(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				PRF_FLAGS(ch).set(EPrf::kAwake);
 			}
 
-			if (ch->get_fighting() && !(AFF_FLAGGED(ch, EAffect::kCourage) ||
+			if (ch->GetEnemy() && !(AFF_FLAGGED(ch, EAffect::kCourage) ||
 				AFF_FLAGGED(ch, EAffect::kDrunked) || AFF_FLAGGED(ch, EAffect::kAbstinent))) {
 				CLR_AF_BATTLE(ch, kEafPunctual);
 				CLR_AF_BATTLE(ch, kEafAwake);

@@ -405,7 +405,7 @@ bool has_connected_bosses(CharData *ch) {
 	// если в комнате есть другие живые боссы
 	for (const auto i : world[ch->in_room]->people) {
 		if (i != ch
-			&& i->is_npc()
+			&& i->IsNpc()
 			&& !IS_CHARMICE(i)
 			&& i->get_role(MOB_ROLE_BOSS)) {
 			return true;
@@ -414,7 +414,7 @@ bool has_connected_bosses(CharData *ch) {
 	// если у данного моба есть живые последователи-боссы
 	for (Follower *i = ch->followers; i; i = i->next) {
 		if (i->ch != ch
-			&& i->ch->is_npc()
+			&& i->ch->IsNpc()
 			&& !IS_CHARMICE(i->ch)
 			&& i->ch->get_master() == ch
 			&& i->ch->get_role(MOB_ROLE_BOSS)) {
@@ -582,7 +582,7 @@ void drop_torc(CharData *mob) {
 	for (Follower *f = leader->followers; f; f = f->next) {
 		if (AFF_FLAGGED(f->ch, EAffect::kGroup)
 			&& f->ch->in_room == IN_ROOM(mob)
-			&& !f->ch->is_npc()) {
+			&& !f->ch->IsNpc()) {
 			++members;
 		}
 	}
@@ -603,7 +603,7 @@ void drop_torc(CharData *mob) {
 	for (Follower *f = leader->followers; f; f = f->next) {
 		if (AFF_FLAGGED(f->ch, EAffect::kGroup)
 			&& f->ch->in_room == IN_ROOM(mob)
-			&& !f->ch->is_npc()
+			&& !f->ch->IsNpc()
 			&& GET_GOD_FLAG(f->ch, EGf::kRemort)
 			&& mob->get_attacker(f->ch, ATTACKER_ROUNDS) >= damager.second / 2) {
 			gain_torc(f->ch, drop);
@@ -810,7 +810,7 @@ void message_low_torc(CharData *ch, unsigned type, int amount, const char *add_t
 
 // глашатаи
 int torc(CharData *ch, void *me, int cmd, char * /*argument*/) {
-	if (!ch->desc || ch->is_npc()) {
+	if (!ch->desc || ch->IsNpc()) {
 		return 0;
 	}
 	if (CMD_IS("менять") || CMD_IS("обмен") || CMD_IS("обменять")) {

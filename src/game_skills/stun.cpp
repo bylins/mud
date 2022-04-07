@@ -12,24 +12,24 @@ void do_stun(CharData *ch, char *argument, int, int) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::kStun)) {
+	if (ch->HasCooldown(ESkill::kStun)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
 
-	if (!ch->ahorse()) {
+	if (!ch->IsOnHorse()) {
 		send_to_char("Вы привстали на стременах и поняли: 'лошадь украли!!!'\r\n", ch);
 		return;
 	}
-	if ((GET_SKILL(ch, ESkill::kRiding) < 151) && (!ch->is_npc())) {
+	if ((GET_SKILL(ch, ESkill::kRiding) < 151) && (!ch->IsNpc())) {
 		send_to_char("Вы слишком неуверенно управляете лошадью, чтоб на ней пытаться ошеломить противника.\r\n", ch);
 		return;
 	}
-	if (IsTimedBySkill(ch, ESkill::kStun) && (!ch->is_npc())) {
+	if (IsTimedBySkill(ch, ESkill::kStun) && (!ch->IsNpc())) {
 		send_to_char("Ваш грозный вид не испугает даже мышь, попробуйте ошеломить попозже.\r\n", ch);
 		return;
 	}
-	if (!ch->is_npc() && !(GET_EQ(ch, EEquipPos::kWield) || GET_EQ(ch, EEquipPos::kBoths))) {
+	if (!ch->IsNpc() && !(GET_EQ(ch, EEquipPos::kWield) || GET_EQ(ch, EEquipPos::kBoths))) {
 		send_to_char("Вы должны держать оружие в основной руке.\r\n", ch);
 		return;
 	}

@@ -263,7 +263,7 @@ void mudlog(const char *str, LogMode type, int level, EOutputStream channel, int
 	strftime(time_buf, sizeof(time_buf), "%d-%m-%y %H:%M:%S", localtime(&ct));
 	snprintf(tmpbuf, sizeof(tmpbuf), "[%s][ %s ]\r\n", time_buf, str);
 	for (i = descriptor_list; i; i = i->next) {
-		if (STATE(i) != CON_PLAYING || i->character->is_npc())    // switch
+		if (STATE(i) != CON_PLAYING || i->character->IsNpc())    // switch
 			continue;
 		if (GET_LOGS(i->character)[channel] < type && type != DEF)
 			continue;

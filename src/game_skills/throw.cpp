@@ -34,7 +34,7 @@ void PerformShadowThrowSideAbilities(AbilitySystem::TechniqueRoll &technique) {
 				"Копье $N1 попало вам в колено. Вы рухнули наземь! Кажется, ваши приключения сейчас закончатся...";
 			to_room = "Копье $N1 сбило $n3 наземь!";
 			DoSideAction = ([](AbilitySystem::TechniqueRoll &technique) {
-				if (technique.GetRival()->ahorse()) { //если на лошади - падение с лагом 3
+				if (technique.GetRival()->IsOnHorse()) { //если на лошади - падение с лагом 3
 					technique.GetRival()->drop_from_horse();
 				} else { // иначе просто садится на попу с лагом 2
 					GET_POS(technique.GetRival()) = std::min(GET_POS(technique.GetRival()), EPosition::kSit);
@@ -55,7 +55,7 @@ void PerformShadowThrowSideAbilities(AbilitySystem::TechniqueRoll &technique) {
 				af.bitvector = to_underlying(EAffect::kSilence);
 				af.duration = CalcDuration(technique.GetRival(), 2, GetRealLevel(technique.GetActor()), 9, 6, 2);
 				af.battleflag = kAfBattledec | kAfPulsedec;
-				affect_join(technique.GetRival(), af, false, false, false, false);
+				ImposeAffect(technique.GetRival(), af, false, false, false, false);
 			});
 			break;
 		case ESkill::kClubs:mob_no_flag = EMobFlag::kNoOverwhelm;
@@ -69,7 +69,7 @@ void PerformShadowThrowSideAbilities(AbilitySystem::TechniqueRoll &technique) {
 				af.bitvector = to_underlying(EAffect::kStopFight);
 				af.duration = CalcDuration(technique.GetRival(), 3, 0, 0, 0, 0);
 				af.battleflag = kAfBattledec | kAfPulsedec;
-				affect_join(technique.GetRival(), af, false, false, false, false);
+				ImposeAffect(technique.GetRival(), af, false, false, false, false);
 				SetWait(technique.GetRival(), 3, false);
 			});
 			break;
@@ -175,7 +175,7 @@ void do_throw(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		send_to_char("Вы принялись метать икру. Это единственное, что вы умеете метать.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::kThrow)) {
+	if (ch->HasCooldown(ESkill::kThrow)) {
 		send_to_char("Так и рука отвалится, нужно передохнуть.\r\n", ch);
 		return;
 	};
@@ -211,13 +211,13 @@ void do_throw(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		PRF_FLAGS(ch).set(EPrf::kShadowThrow);
 	};
 
-	if (IS_IMPL(ch) || !ch->get_fighting()) {
+	if (IS_IMPL(ch) || !ch->GetEnemy()) {
 		go_throw(ch, victim);
 	} else {
 		if (IsHaveNoExtraAttack(ch)) {
 			act("Хорошо. Вы попытаетесь метнуть оружие в $N3.",
 				false, ch, nullptr, victim, kToChar);
-			ch->set_extra_attack(kExtraAttackThrow, victim);
+			ch->SetExtraAttack(kExtraAttackThrow, victim);
 		}
 	}
 }

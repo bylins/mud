@@ -98,7 +98,7 @@ const int MAX_MAIL_SIZE = 32768;
 //* routines.  Written by Jeremy Elson (jelson@circlemud.org)    *
 //****************************************************************
 int postmaster(CharData *ch, void *me, int cmd, char *argument) {
-	if (!ch->desc || ch->is_npc())
+	if (!ch->desc || ch->IsNpc())
 		return (0);    // so mobs don't get caught here
 
 	if (!(CMD_IS("mail") || CMD_IS("check") || CMD_IS("receive")

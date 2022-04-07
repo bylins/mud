@@ -56,7 +56,7 @@ void SaySpell(CharData *ch, int spellnum, CharData *tch, ObjData *tobj) {
 		mudlog(buf, CMP, kLvlGod, SYSLOG, true);
 		return;
 	}
-	if (ch->is_npc()) {
+	if (ch->IsNpc()) {
 		switch (GET_RACE(ch)) {
 			case ENpcRace::kBoggart:
 			case ENpcRace::kGhost:
@@ -87,7 +87,7 @@ void SaySpell(CharData *ch, int spellnum, CharData *tch, ObjData *tobj) {
 	} else {
 		//если включен режим без повторов (подавление ехо) не показываем
 		if (PRF_FLAGGED(ch, EPrf::kNoRepeat)) {
-			if (!ch->get_fighting()) //если персонаж не в бою, шлем строчку, если в бою ничего не шлем
+			if (!ch->GetEnemy()) //если персонаж не в бою, шлем строчку, если в бою ничего не шлем
 				send_to_char(OK, ch);
 		} else {
 			if (IS_SET(SpINFO.routines, kMagWarcry))
@@ -315,7 +315,7 @@ bool MayCastHere(CharData *caster, CharData *victim, int spellnum) {
 				return false;
 			}
 		} else {
-			if (!may_kill_here(caster, ch_vict->get_fighting(), NoArgument)) {
+			if (!may_kill_here(caster, ch_vict->GetEnemy(), NoArgument)) {
 				return false;
 			}
 		}
@@ -451,13 +451,13 @@ int FindCastTarget(int spellnum, const char *t, CharData *ch, CharData **tch, Ob
 		if (IS_SET(SpINFO.targets, kTarCharWorld)) {
 			if ((*tch = get_char_vis(ch, t, EFind::kCharInWorld)) != nullptr) {
 				// чтобы мобов не чекали
-				if (ch->is_npc() || !(*tch)->is_npc()) {
+				if (ch->IsNpc() || !(*tch)->IsNpc()) {
 					if (SpINFO.violent && !check_pkill(ch, *tch, t)) {
 						return false;
 					}
 					return true;
 				}
-				if (!ch->is_npc()) {
+				if (!ch->IsNpc()) {
 					struct Follower *k, *k_next;
 					char tmpname[kMaxInputLength];
 					char *tmp = tmpname;
@@ -505,13 +505,13 @@ int FindCastTarget(int spellnum, const char *t, CharData *ch, CharData **tch, Ob
 		}
 	} else {
 		if (IS_SET(SpINFO.targets, kTarFightSelf))
-			if (ch->get_fighting() != nullptr) {
+			if (ch->GetEnemy() != nullptr) {
 				*tch = ch;
 				return true;
 			}
 		if (IS_SET(SpINFO.targets, kTarFightVict))
-			if (ch->get_fighting() != nullptr) {
-				*tch = ch->get_fighting();
+			if (ch->GetEnemy() != nullptr) {
+				*tch = ch->GetEnemy();
 				return true;
 			}
 		if (IS_SET(SpINFO.targets, kTarCharRoom) && !SpINFO.violent) {
@@ -644,14 +644,14 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, int s
 		GET_SPELL_MEM(ch, spell_subst) = 0;
 	}
 	// если включен автомем
-	if (!ch->is_npc() && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, EPrf::kAutomem)) {
+	if (!ch->IsNpc() && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, EPrf::kAutomem)) {
 		MemQ_remember(ch, spell_subst);
 	}
 	// если НПЦ - уменьшаем его макс.количество кастуемых спеллов
-	if (ch->is_npc()) {
+	if (ch->IsNpc()) {
 		ch->caster_level -= (IS_SET(spell_info[spellnum].routines, NPC_CALCULATE) ? 1 : 0);
 	}
-	if (!ch->is_npc()) {
+	if (!ch->IsNpc()) {
 		affect_total(ch);
 	}
 
@@ -696,7 +696,7 @@ int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, int spellnum
 		prob += 50;
 	}
 
-	if (ch->is_npc() && (GetRealLevel(ch) >= kStrongMobLevel)) {
+	if (ch->IsNpc() && (GetRealLevel(ch) >= kStrongMobLevel)) {
 		prob += GetRealLevel(ch) - 20;
 	}
 

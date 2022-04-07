@@ -405,7 +405,7 @@ bool auction_drive(CharData *ch, char *argument) {
 				strcat(buf, buf2);
 				strcat(buf, "\n");
 			}
-			if ((!ch->is_npc() && HaveIncompatibleAlign(ch, obj))
+			if ((!ch->IsNpc() && HaveIncompatibleAlign(ch, obj))
 				|| invalid_no_class(ch, obj)) {
 				sprintf(buf2, "Вы не сможете пользоваться этой вещью.");
 				strcat(buf, buf2);

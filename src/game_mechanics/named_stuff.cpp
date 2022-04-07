@@ -104,7 +104,7 @@ bool check_named(CharData *ch, const ObjData *obj, const bool simple) {
 				}
 			}
 		}
-		if (ch->is_npc())
+		if (ch->IsNpc())
 			return true;
 		if (IS_IMMORTAL(ch)) // Имм
 			return false;

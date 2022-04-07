@@ -136,7 +136,7 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int vnum;
 	int old_wis, old_int;
 
-	if (ch->is_npc() || !ch->get_skill(ESkill::kDigging)) {
+	if (ch->IsNpc() || !ch->get_skill(ESkill::kDigging)) {
 		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -152,7 +152,7 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!IS_IMMORTAL(ch) && ch->ahorse()) {
+	if (!IS_IMMORTAL(ch) && ch->IsOnHorse()) {
 		send_to_char("Верхом это сделать затруднительно.\r\n", ch);
 		return;
 	}

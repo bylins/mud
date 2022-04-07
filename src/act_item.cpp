@@ -642,7 +642,7 @@ int other_pc_in_group(CharData *ch) {
 	CharData *k = ch->has_master() ? ch->get_master() : ch;
 	for (Follower *f = k->followers; f; f = f->next) {
 		if (AFF_FLAGGED(f->ch, EAffect::kGroup)
-			&& !f->ch->is_npc()
+			&& !f->ch->IsNpc()
 			&& IN_ROOM(f->ch) == ch->in_room) {
 			++num;
 		}
@@ -1108,7 +1108,7 @@ void perform_drop_gold(CharData *ch, int amount) {
 		}
 
 		// Если этот моб трупа не оставит, то не выводить сообщение иначе ужасно коряво смотрится в бою и в тригах
-		if (!ch->is_npc() || !MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
+		if (!ch->IsNpc() || !MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
 			send_to_char(ch, "Вы бросили %d %s на землю.\r\n",
 						 amount, GetDeclensionInNumber(amount, EWhat::kMoneyU));
 			sprintf(buf,
@@ -1267,7 +1267,7 @@ void perform_give(CharData *ch, CharData *vict, ObjData *obj) {
 	// передача объектов-денег и кошельков
 	get_check_money(vict, obj, 0);
 
-	if (!ch->is_npc() && !vict->is_npc()) {
+	if (!ch->IsNpc() && !vict->IsNpc()) {
 		ObjSaveSync::add(ch->get_uid(), vict->get_uid(), ObjSaveSync::CHAR_SAVE);
 	}
 }
@@ -1294,7 +1294,7 @@ void perform_give_gold(CharData *ch, CharData *vict, int amount) {
 		send_to_char("Ха-ха-ха (3 раза)...\r\n", ch);
 		return;
 	}
-	if (ch->get_gold() < amount && (ch->is_npc() || !IS_IMPL(ch))) {
+	if (ch->get_gold() < amount && (ch->IsNpc() || !IS_IMPL(ch))) {
 		send_to_char("И откуда вы их взять собираетесь?\r\n", ch);
 		return;
 	}
@@ -1307,7 +1307,7 @@ void perform_give_gold(CharData *ch, CharData *vict, int amount) {
 	act(buf, false, ch, 0, vict, kToVict);
 	sprintf(buf, "$n дал$g %s $N2.", money_desc(amount, 3));
 	act(buf, true, ch, 0, vict, kToNotVict | kToArenaListen);
-	if (!(ch->is_npc() || vict->is_npc())) {
+	if (!(ch->IsNpc() || vict->IsNpc())) {
 		sprintf(buf,
 				"<%s> {%d} передал %d кун при личной встрече c %s.",
 				ch->get_name().c_str(),
@@ -1316,11 +1316,11 @@ void perform_give_gold(CharData *ch, CharData *vict, int amount) {
 				GET_PAD(vict, 4));
 		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 	}
-	if (ch->is_npc() || !IS_IMPL(ch)) {
+	if (ch->IsNpc() || !IS_IMPL(ch)) {
 		ch->remove_gold(amount);
 	}
 	// если денег дает моб - снимаем клан-налог
-	if (ch->is_npc() && !IS_CHARMICE(ch)) {
+	if (ch->IsNpc() && !IS_CHARMICE(ch)) {
 		vict->add_gold(amount);
 		split_or_clan_tax(vict, amount);
 	} else {
@@ -1334,7 +1334,7 @@ void perform_give_nogat(CharData *ch, CharData *vict, int amount) {
 		send_to_char("Ха-ха-ха (3 раза)...\r\n", ch);
 		return;
 	}
-	if (ch->get_nogata() < amount && (ch->is_npc() || !IS_IMPL(ch))) {
+	if (ch->get_nogata() < amount && (ch->IsNpc() || !IS_IMPL(ch))) {
 		send_to_char("И откуда ты их взять собирался?\r\n", ch);
 		return;
 	}
@@ -1350,7 +1350,7 @@ void perform_give_nogat(CharData *ch, CharData *vict, int amount) {
 	else
 		sprintf(buf, "$n дал$g %s $N2.", GetDeclensionInNumber(amount, EWhat::kNogataU));
 	act(buf, true, ch, 0, vict, kToNotVict | kToArenaListen);
-	if (ch->is_npc() || !IS_IMPL(ch)) {
+	if (ch->IsNpc() || !IS_IMPL(ch)) {
 		ch->sub_nogata(amount);
 	}
 	vict->add_nogata(amount);
@@ -1459,7 +1459,7 @@ void do_fry(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		send_to_char("Что вы собрались поджарить?\r\n", ch);
 		return;
 	}
-	if (ch->get_fighting()) {
+	if (ch->GetEnemy()) {
 		send_to_char("Не стоит отвлекаться в бою.\r\n", ch);
 		return;
 	}
@@ -1509,20 +1509,20 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			return;
 		}
 	}
-	if (!ch->is_npc()
+	if (!ch->IsNpc()
 		&& subcmd == SCMD_DEVOUR) {
 		send_to_char("Вы же не зверь какой, пожирать трупы!\r\n", ch);
 		return;
 	}
 
-	if (ch->is_npc())        // Cannot use GET_COND() on mobs.
+	if (ch->IsNpc())        // Cannot use GET_COND() on mobs.
 		return;
 
 	if (!*arg) {
 		send_to_char("Чем вы собрались закусить?\r\n", ch);
 		return;
 	}
-	if (ch->get_fighting()) {
+	if (ch->GetEnemy()) {
 		send_to_char("Не стоит отвлекаться в бою.\r\n", ch);
 		return;
 	}
@@ -1603,14 +1603,14 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		af.location = EApply::kStr;
 		af.bitvector = to_underlying(EAffect::kPoisoned);
 		af.battleflag = kAfSameTime;
-		affect_join(ch, af, false, false, false, false);
+		ImposeAffect(ch, af, false, false, false, false);
 		af.type = kSpellPoison;
 		af.duration = CalcDuration(ch, amount == 1 ? amount : amount * 2, 0, 0, 0, 0);
 		af.modifier = amount * 3;
 		af.location = EApply::kPoison;
 		af.bitvector = to_underlying(EAffect::kPoisoned);
 		af.battleflag = kAfSameTime;
-		affect_join(ch, af, false, false, false, false);
+		ImposeAffect(ch, af, false, false, false, false);
 		ch->poisoner = 0;
 	}
 	if (subcmd == SCMD_EAT
@@ -1690,8 +1690,8 @@ void perform_wear(CharData *ch, ObjData *obj, int where) {
 		send_to_char("Вы не можете использовать более одной такой вещи.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::kGlobalCooldown)) {
-		if (ch->get_fighting() && (where == EEquipPos::kShield || GET_OBJ_TYPE(obj) == EObjType::kWeapon)) {
+	if (ch->HasCooldown(ESkill::kGlobalCooldown)) {
+		if (ch->GetEnemy() && (where == EEquipPos::kShield || GET_OBJ_TYPE(obj) == EObjType::kWeapon)) {
 			send_to_char("Вам нужно набраться сил.\r\n", ch);
 			return;
 		}
@@ -1902,7 +1902,7 @@ void do_wear(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	two_arguments(argument, arg1, arg2);
 
-	if (ch->is_npc()
+	if (ch->IsNpc()
 		&& AFF_FLAGGED(ch, EAffect::kCharmed)
 		&& (!NPC_FLAGGED(ch, ENpcFlag::kArmoring)
 			|| MOB_FLAGGED(ch, EMobFlag::kResurrected))) {
@@ -1966,7 +1966,7 @@ void do_wield(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	ObjData *obj;
 	int wear;
 
-	if (ch->is_npc() && (AFF_FLAGGED(ch, EAffect::kCharmed)
+	if (ch->IsNpc() && (AFF_FLAGGED(ch, EAffect::kCharmed)
 		&& (!NPC_FLAGGED(ch, ENpcFlag::kWielding) || MOB_FLAGGED(ch, EMobFlag::kResurrected))))
 		return;
 
@@ -1987,7 +1987,7 @@ void do_wield(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			send_to_char("Вы не можете вооружиться этим.\r\n", ch);
 		} else if (GET_OBJ_TYPE(obj) != EObjType::kWeapon) {
 			send_to_char("Это не оружие.\r\n", ch);
-		} else if (ch->is_npc()
+		} else if (ch->IsNpc()
 			&& AFF_FLAGGED(ch, EAffect::kCharmed)
 			&& MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
 			send_to_char("Ожившие трупы не могут вооружаться.\r\n", ch);
@@ -2047,7 +2047,7 @@ void do_grab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	ObjData *obj;
 	one_argument(argument, arg);
 
-	if (ch->is_npc() && !NPC_FLAGGED(ch, ENpcFlag::kWielding))
+	if (ch->IsNpc() && !NPC_FLAGGED(ch, ENpcFlag::kWielding))
 		return;
 
 	if (ch->is_morphed()) {
@@ -2081,7 +2081,7 @@ void do_grab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 			}
 
-			if (ch->is_npc()
+			if (ch->IsNpc()
 				&& AFF_FLAGGED(ch, EAffect::kCharmed)
 				&& MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
 				send_to_char("Ожившие трупы не могут вооружаться.\r\n", ch);
@@ -2126,7 +2126,7 @@ void RemoveEquipment(CharData *ch, int pos) {
 			if (!remove_otrigger(obj, ch)) {
 				return;
 			}
-			if (ch->get_fighting() && (GET_OBJ_TYPE(obj) == EObjType::kWeapon || pos == EEquipPos::kShield)) {
+			if (ch->GetEnemy() && (GET_OBJ_TYPE(obj) == EObjType::kWeapon || pos == EEquipPos::kShield)) {
 				ch->setSkillCooldown(ESkill::kGlobalCooldown, 2);
 			}
 			act("Вы прекратили использовать $o3.", false, ch, obj, 0, kToChar);
@@ -2498,7 +2498,7 @@ void do_fire(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (ch->ahorse()) {
+	if (ch->IsOnHorse()) {
 		send_to_char("Верхом это будет затруднительно.\r\n", ch);
 		return;
 	}
@@ -2556,7 +2556,7 @@ void do_extinguish(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			"\n"
 		};
 
-	if (ch->is_npc()) {
+	if (ch->IsNpc()) {
 		return;
 	}
 
@@ -2675,11 +2675,11 @@ void do_firstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	}
 
-	if (vict->get_fighting()) {
+	if (vict->GetEnemy()) {
 		act("$N сражается, $M не до ваших телячьих нежностей.", false, ch, 0, vict, kToChar);
 		return;
 	}
-	if (vict->is_npc() && !IS_CHARMICE(vict)) {
+	if (vict->IsNpc() && !IS_CHARMICE(vict)) {
 		send_to_char("Вы не красный крест лечить всех подряд.\r\n", ch);
 		return;
 	}
@@ -2857,7 +2857,7 @@ void do_repair(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	one_argument(argument, arg);
 
-	if (ch->get_fighting()) {
+	if (ch->GetEnemy()) {
 		send_to_char("Вы не можете сделать это в бою!\r\n", ch);
 		return;
 	}
@@ -3186,7 +3186,7 @@ void do_custom_label(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 	char *objname = nullptr;
 	char *labels = nullptr;
 
-	if (ch->is_npc())
+	if (ch->IsNpc())
 		return;
 
 	half_chop(argument, arg1, arg2);

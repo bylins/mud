@@ -190,7 +190,7 @@ unsigned int CharRemember::get_num_str() const {
 void do_remember_char(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg[kMaxInputLength];
 
-	if (ch->is_npc())
+	if (ch->IsNpc())
 		return;
 
 	// Если без аргумента - выдает личные теллы

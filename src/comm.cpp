@@ -1643,7 +1643,7 @@ char *make_prompt(DescriptorData *d) {
 				d->showstr_count);
 	} else if (d->writer) {
 		strcpy(prompt, "] ");
-	} else if (STATE(d) == CON_PLAYING && !d->character->is_npc()) {
+	} else if (STATE(d) == CON_PLAYING && !d->character->IsNpc()) {
 		int count = 0;
 		*prompt = '\0';
 
@@ -1768,8 +1768,8 @@ char *make_prompt(DescriptorData *d) {
 				count += sprintf(prompt + count, "Зо:%d ", IsTimed(d->character.get(), EFeat::kShadowThrower));
 		}
 
-		if (!d->character->get_fighting()
-			|| IN_ROOM(d->character) != IN_ROOM(d->character->get_fighting()))    // SHOW NON COMBAT INFO
+		if (!d->character->GetEnemy()
+			|| IN_ROOM(d->character) != IN_ROOM(d->character->GetEnemy()))    // SHOW NON COMBAT INFO
 		{
 
 			if (PRF_FLAGGED(d->character, EPrf::kDispLvl))
@@ -1797,18 +1797,18 @@ char *make_prompt(DescriptorData *d) {
 				count += sprintf(prompt + count, "%s", show_state(d->character.get(), d->character.get()));
 			}
 
-			if (d->character->get_fighting()->get_fighting()
-				&& d->character->get_fighting()->get_fighting() != d->character.get()) {
+			if (d->character->GetEnemy()->GetEnemy()
+				&& d->character->GetEnemy()->GetEnemy() != d->character.get()) {
 				count +=
 					sprintf(prompt + count, "%s",
-							show_state(d->character.get(), d->character->get_fighting()->get_fighting()));
+							show_state(d->character.get(), d->character->GetEnemy()->GetEnemy()));
 			}
 
-			count += sprintf(prompt + count, "%s", show_state(d->character.get(), d->character->get_fighting()));
+			count += sprintf(prompt + count, "%s", show_state(d->character.get(), d->character->GetEnemy()));
 		};
 		strcat(prompt, "> ");
 	} else if (STATE(d) == CON_PLAYING
-		&& d->character->is_npc()) {
+		&& d->character->IsNpc()) {
 		sprintf(prompt, "{%s}-> ", GET_NAME(d->character));
 	} else {
 		*prompt = '\0';
@@ -2287,10 +2287,10 @@ int process_output(DescriptorData *t) {
 	}
 
 	// add the extra CRLF if the person isn't in compact mode
-	if (STATE(t) == CON_PLAYING && t->character && !t->character->is_npc()
+	if (STATE(t) == CON_PLAYING && t->character && !t->character->IsNpc()
 		&& !PRF_FLAGGED(t->character, EPrf::kCompact)) {
 		strcat(i, "\r\n");
-	} else if (STATE(t) == CON_PLAYING && t->character && !t->character->is_npc()
+	} else if (STATE(t) == CON_PLAYING && t->character && !t->character->IsNpc()
 		&& PRF_FLAGGED(t->character, EPrf::kCompact)) {
 		// added by WorM (Видолюб)
 		//фикс сжатого режима добавляет в конец строки \r\n если его там нету, чтобы промпт был всегда на след. строке
@@ -3012,7 +3012,7 @@ int perform_subst(DescriptorData *t, char *orig, char *subst) {
 */
 bool any_other_ch(CharData *ch) {
 	for (const auto &vict : character_list) {
-		if (!vict->is_npc()
+		if (!vict->IsNpc()
 			&& vict.get() != ch
 			&& GET_UNIQUE(vict) == GET_UNIQUE(ch)) {
 			return true;
@@ -3081,7 +3081,7 @@ void close_socket(DescriptorData * d, int direct)
 
 	if (d->character) {
 		// Plug memory leak, from Eric Green.
-		if (!d->character->is_npc()
+		if (!d->character->IsNpc()
 			&& (PLR_FLAGGED(d->character, EPlrFlag::kMailing)
 				|| STATE(d) == CON_WRITEBOARD
 				|| STATE(d) == CON_WRITE_MOD)
@@ -3104,11 +3104,11 @@ void close_socket(DescriptorData * d, int direct)
 
 		if (STATE(d) == CON_PLAYING || STATE(d) == CON_DISCONNECT) {
 			act("$n потерял$g связь.", true, d->character.get(), 0, 0, kToRoom | kToArenaListen);
-			if (d->character->get_fighting() && PRF_FLAGGED(d->character, EPrf::kAntiDcMode)) {
+			if (d->character->GetEnemy() && PRF_FLAGGED(d->character, EPrf::kAntiDcMode)) {
 				snprintf(buf2, sizeof(buf2), "зачитать свиток.возврата");
 				command_interpreter(d->character.get(), buf2);
 			}
-			if (!d->character->is_npc()) {
+			if (!d->character->IsNpc()) {
 				d->character->save_char();
 				CheckLight(d->character.get(), kLightNo, kLightNo, kLightNo, kLightNo, -1);
 				Crash_ldsave(d->character.get());
@@ -3450,7 +3450,7 @@ void send_to_room(const char *messg, RoomRnum room, int to_awake) {
 
 	for (const auto i : world[room]->people) {
 		if (i->desc &&
-			!i->is_npc()
+			!i->IsNpc()
 			&& (!to_awake
 				|| AWAKE(i))) {
 			SEND_TO_Q(messg, i->desc);
@@ -3491,7 +3491,7 @@ void perform_act(const char *orig,
 						snprintf(nbuf,
 								 sizeof(nbuf),
 								 "&q%s&Q",
-								 (!ch->is_npc() && (IS_IMMORTAL(ch) || GET_INVIS_LEV(ch))) ? GET_NAME(ch) : APERS(ch,
+								 (!ch->IsNpc() && (IS_IMMORTAL(ch) || GET_INVIS_LEV(ch))) ? GET_NAME(ch) : APERS(ch,
 																												to,
 																												0,
 																												arena));
@@ -3501,7 +3501,7 @@ void perform_act(const char *orig,
 						snprintf(nbuf,
 								 sizeof(nbuf),
 								 "&q%s&Q",
-								 (!ch->is_npc() && (IS_IMMORTAL(ch) || GET_INVIS_LEV(ch))) ? GET_PAD(ch, padis)
+								 (!ch->IsNpc() && (IS_IMMORTAL(ch) || GET_INVIS_LEV(ch))) ? GET_PAD(ch, padis)
 																						 : APERS(ch, to, padis, arena));
 						i = nbuf;
 					}
@@ -3746,14 +3746,14 @@ void perform_act(const char *orig,
 		SEND_TO_Q(CAP(lbuf), to->desc);
 	}
 
-	if ((to->is_npc() && dg_act_check) && (to != ch))
+	if ((to->IsNpc() && dg_act_check) && (to != ch))
 		act_mtrigger(to, lbuf, ch, dg_victim, obj, dg_target, dg_arg);
 }
 
 // moved this to utils.h --- mah
 #ifndef SENDOK
 #define SENDOK(ch)	((ch)->desc && (to_sleeping || AWAKE(ch)) && \
-			(ch->is_npc() || !EPlrFlag::FLAGGED((ch), EPlrFlag::WRITING)))
+			(ch->IsNpc() || !EPlrFlag::FLAGGED((ch), EPlrFlag::WRITING)))
 #endif
 
 void act(const char *str,
@@ -3863,7 +3863,7 @@ void act(const char *str,
 			if (to_no_brief_shields && PRF_FLAGGED(to, EPrf::kBriefShields))
 				continue;
 			if (type == kToRoomSensors && !AFF_FLAGGED(to, EAffect::kDetectLife)
-				&& (to->is_npc() || !PRF_FLAGGED(to, EPrf::kHolylight)))
+				&& (to->IsNpc() || !PRF_FLAGGED(to, EPrf::kHolylight)))
 				continue;
 			if (type == kToRoomSensors && PRF_FLAGGED(to, EPrf::kHolylight)) {
 				std::string buffer = str;
@@ -3895,7 +3895,7 @@ void act(const char *str,
 					}
 					++stop_count;
 
-					if (!to->is_npc()) {
+					if (!to->IsNpc()) {
 						perform_act(str, ch, obj, vict_obj, to, to_arena, kick_type);
 					}
 				}

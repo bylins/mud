@@ -21,7 +21,7 @@ void go_stupor(CharData *ch, CharData *victim) {
 
 	victim = TryToFindProtector(victim, ch);
 
-	if (!ch->get_fighting()) {
+	if (!ch->GetEnemy()) {
 		SET_AF_BATTLE(ch, kEafOverwhelm);
 		hit(ch, victim, ESkill::kOverwhelm, fight::kMainHand);
 		//set_wait(ch, 2, true);
@@ -30,9 +30,9 @@ void go_stupor(CharData *ch, CharData *victim) {
 		}
 	} else {
 		act("Вы попытаетесь оглушить $N3.", false, ch, nullptr, victim, kToChar);
-		if (ch->get_fighting() != victim) {
+		if (ch->GetEnemy() != victim) {
 			stop_fighting(ch, false);
-			set_fighting(ch, victim);
+			SetFighting(ch, victim);
 			//set_wait(ch, 2, true);
 			SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 2);
 		}
@@ -45,7 +45,7 @@ void do_stupor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::kOverwhelm)) {
+	if (ch->HasCooldown(ESkill::kOverwhelm)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};

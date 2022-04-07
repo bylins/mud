@@ -302,10 +302,10 @@ void draw_mobs(const CharData *ch, int room_rnum, int next_y, int next_x) {
 			if (tch == ch) {
 				continue;
 			}
-			if (tch->is_npc() && !ch->map_check_option(MAP_MODE_MOBS)) {
+			if (tch->IsNpc() && !ch->map_check_option(MAP_MODE_MOBS)) {
 				continue;
 			}
-			if (!tch->is_npc() && !ch->map_check_option(MAP_MODE_PLAYERS)) {
+			if (!tch->IsNpc() && !ch->map_check_option(MAP_MODE_PLAYERS)) {
 				continue;
 			}
 			if (HERE(tch)
@@ -1014,7 +1014,7 @@ void Options::text_olc(CharData *ch, const char *arg) {
 } // namespace MapSystem
 
 void do_map(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->is_npc()) {
+	if (ch->IsNpc()) {
 		return;
 	}
 	if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {

@@ -203,7 +203,7 @@ void do_send_text_to_char(CharData *ch, char *argument, int, int) {
 		send_to_char("Кому и какой текст вы хотите отправить?\r\n", ch);
 	} else if (!(vict = get_player_vis(ch, buf, EFind::kCharInWorld))) {
 		send_to_char("Такого персонажа нет в игре.\r\n", ch);
-	} else if (vict->is_npc())
+	} else if (vict->IsNpc())
 		send_to_char("Такого персонажа нет в игре.\r\n", ch);
 	else {
 		snprintf(buf1, kMaxStringLength, "%s\r\n", buf2);
@@ -902,7 +902,7 @@ void is_empty_ch(ZoneRnum zone_nr, CharData *ch) {
 		// num_pc_in_room() использовать нельзя, т.к. считает вместе с иммами.
 		{
 			for (const auto c : world[rnum_start]->people) {
-				if (!c->is_npc() && (GetRealLevel(c) < kLvlImmortal)) {
+				if (!c->IsNpc() && (GetRealLevel(c) < kLvlImmortal)) {
 					sprintf(buf2,
 							"Проверка по списку чаров (с учетом linkdrop): в зоне vnum: %d клетка: %d находится персонаж: %s.\r\n",
 							zone_table[zone_nr].vnum,
@@ -1275,7 +1275,7 @@ void do_echo(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	} else {
 		if (subcmd == SCMD_EMOTE) {
 			// added by Pereplut
-			if (ch->is_npc() && AFF_FLAGGED(ch, EAffect::kCharmed)) {
+			if (ch->IsNpc() && AFF_FLAGGED(ch, EAffect::kCharmed)) {
 				if PLR_FLAGGED(ch->get_master(), EPlrFlag::kDumbed) {
 					// shapirus: правильно пишется не "так-же", а "так же".
 					// и запятая пропущена была :-P.
@@ -1760,7 +1760,7 @@ void do_switch(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		} else if (visible_character->desc) {
 			send_to_char("Это тело уже под контролем.\r\n", ch);
 		} else if (!IS_IMPL(ch)
-			&& !visible_character->is_npc()) {
+			&& !visible_character->IsNpc()) {
 			send_to_char("Вы не столь могущественны, чтобы контроолировать тело игрока.\r\n", ch);
 		} else if (GetRealLevel(ch) < kLvlGreatGod
 			&& ROOM_FLAGGED(IN_ROOM(visible_character), ERoomFlag::kGodsRoom)) {
@@ -1961,12 +1961,12 @@ void do_purge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (*buf) {        // argument supplied. destroy single object or char
 		if ((vict = get_char_vis(ch, buf, EFind::kCharInRoom)) != nullptr) {
-			if (!vict->is_npc() && GetRealLevel(ch) <= GetRealLevel(vict) && !PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
+			if (!vict->IsNpc() && GetRealLevel(ch) <= GetRealLevel(vict) && !PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
 				send_to_char("Да я вас за это...\r\n", ch);
 				return;
 			}
 			act("$n обратил$g в прах $N3.", false, ch, nullptr, vict, kToNotVict);
-			if (!vict->is_npc()) {
+			if (!vict->IsNpc()) {
 				sprintf(buf, "(GC) %s has purged %s.", GET_NAME(ch), GET_NAME(vict));
 				mudlog(buf, CMP, MAX(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s has purged %s.", GET_NAME(ch), GET_NAME(vict));
@@ -2001,7 +2001,7 @@ void do_purge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		const auto people_copy = world[ch->in_room]->people;
 		for (const auto vict : people_copy) {
-			if (vict->is_npc()) {
+			if (vict->IsNpc()) {
 				if (vict->followers
 					|| vict->has_master()) {
 					die_follower(vict);
@@ -2594,7 +2594,7 @@ void perform_immort_vis(CharData *ch) {
 }
 
 void perform_immort_invis(CharData *ch, int level) {
-	if (ch->is_npc()) {
+	if (ch->IsNpc()) {
 		return;
 	}
 
@@ -2622,7 +2622,7 @@ void perform_immort_invis(CharData *ch, int level) {
 void do_invis(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int level;
 
-	if (ch->is_npc()) {
+	if (ch->IsNpc()) {
 		send_to_char("Вы не можете сделать этого.\r\n", ch);
 		return;
 	}
@@ -2849,7 +2849,7 @@ void do_force(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		const auto vict = get_char_vis(ch, arg, EFind::kCharInWorld);
 		if (!vict) {
 			send_to_char(NOPERSON, ch);
-		} else if (!vict->is_npc() && GetRealLevel(ch) <= GetRealLevel(vict) && !PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
+		} else if (!vict->IsNpc() && GetRealLevel(ch) <= GetRealLevel(vict) && !PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
 			send_to_char("Господи, только не это!\r\n", ch);
 		} else {
 			char *pstr;
@@ -2872,7 +2872,7 @@ void do_force(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		const auto people_copy = world[ch->in_room]->people;
 		for (const auto vict : people_copy) {
-			if (!vict->is_npc()
+			if (!vict->IsNpc()
 				&& GetRealLevel(vict) >= GetRealLevel(ch)
 				&& !PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
 				continue;
@@ -2894,7 +2894,7 @@ void do_force(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			const auto vict = i->character;
 			if (STATE(i) != CON_PLAYING
 				|| !vict
-				|| (!vict->is_npc() && GetRealLevel(vict) >= GetRealLevel(ch)
+				|| (!vict->IsNpc() && GetRealLevel(vict) >= GetRealLevel(ch)
 					&& !PRF_FLAGGED(ch, EPrf::kCoderinfo))) {
 				continue;
 			}
@@ -3546,7 +3546,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			con = 0;
 			int motion = 0;
 			for (const auto &victim : character_list) {
-				if (victim->is_npc()) {
+				if (victim->IsNpc()) {
 					j++;
 				} else {
 					if (victim->is_active()) {
@@ -3642,7 +3642,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			send_to_char(buf, ch);
 			i = 0;
 			for (const auto &vict : character_list) {
-				if (IS_GOD(vict) || vict->is_npc() || vict->desc != nullptr || IN_ROOM(vict) == kNowhere) {
+				if (IS_GOD(vict) || vict->IsNpc() || vict->desc != nullptr || IN_ROOM(vict) == kNowhere) {
 					continue;
 				}
 				++i;
@@ -3951,7 +3951,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 
 	// Check to make sure all the levels are correct
 	if (!IS_IMPL(ch)) {
-		if (!vict->is_npc() && vict != ch) {
+		if (!vict->IsNpc() && vict != ch) {
 			if (!GET_GOD_FLAG(ch, EGf::kDemigod)) {
 				if (GetRealLevel(ch) <= GetRealLevel(vict) && !PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
 					send_to_char("Это не так просто, как вам кажется...\r\n", ch);
@@ -3971,10 +3971,10 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 	}
 
 	// Make sure the PC/NPC is correct
-	if (vict->is_npc() && !(set_fields[mode].pcnpc & NPC)) {
+	if (vict->IsNpc() && !(set_fields[mode].pcnpc & NPC)) {
 		send_to_char("Эта тварь недостойна такой чести!\r\n", ch);
 		return (0);
-	} else if (!vict->is_npc() && !(set_fields[mode].pcnpc & PC)) {
+	} else if (!vict->IsNpc() && !(set_fields[mode].pcnpc & PC)) {
 		act("Вы оскорбляете $S - $E ведь не моб!", false, ch, nullptr, vict, kToChar);
 		return (0);
 	}
@@ -4190,7 +4190,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			SET_OR_REMOVE(on, off, PRF_FLAGS(vict), EPrf::kColor2);
 			break;
 		case 35:
-			if (!IS_IMPL(ch) || !vict->is_npc()) {
+			if (!IS_IMPL(ch) || !vict->IsNpc()) {
 				return (0);
 			}
 			vict->set_idnum(value);
@@ -4608,7 +4608,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 		case 66: { // идентификатор чата телеграма
 
 			unsigned long int id = strtoul(val_arg, nullptr, 10);
-			if (!ch->is_npc() && id != 0) {
+			if (!ch->IsNpc() && id != 0) {
 				sprintf(buf, "Telegram chat_id изменен с %lu на %lu\r\n", vict->player_specials->saved.telegram_id, id);
 				send_to_char(buf, ch);
 				vict->setTelegramId(id);
@@ -4689,7 +4689,7 @@ void do_set(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		} else    // is_mob
 		{
 			if (!(vict = get_char_vis(ch, name, EFind::kCharInWorld))
-				|| !vict->is_npc()) {
+				|| !vict->IsNpc()) {
 				send_to_char("Нет такой твари Божьей.\r\n", ch);
 				return;
 			}
@@ -4735,11 +4735,11 @@ void do_set(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	retval = perform_set(ch, vict, mode, val_arg);
 
 	// save the character if a change was made
-	if (retval && !vict->is_npc()) {
+	if (retval && !vict->IsNpc()) {
 		if (retval == 2) {
 			rename_char(vict, OName);
 		} else {
-			if (!is_file && !vict->is_npc()) {
+			if (!is_file && !vict->IsNpc()) {
 				vict->save_char();
 			}
 			if (is_file) {
@@ -5291,7 +5291,7 @@ struct filter_type {
 } // namespace
 
 void do_print_armor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->is_npc() || (!IS_GRGOD(ch) && !PRF_FLAGGED(ch, EPrf::kCoderinfo))) {
+	if (ch->IsNpc() || (!IS_GRGOD(ch) && !PRF_FLAGGED(ch, EPrf::kCoderinfo))) {
 		send_to_char("Чаво?\r\n", ch);
 		return;
 	}

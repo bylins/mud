@@ -8,16 +8,16 @@
 
 // ******************* RESCUE PROCEDURES
 void fighting_rescue(CharData *ch, CharData *vict, CharData *tmp_ch) {
-	if (vict->get_fighting() == tmp_ch)
+	if (vict->GetEnemy() == tmp_ch)
 		stop_fighting(vict, false);
-	if (ch->get_fighting())
-		ch->set_fighting(tmp_ch);
+	if (ch->GetEnemy())
+		ch->SetEnemy(tmp_ch);
 	else
-		set_fighting(ch, tmp_ch);
-	if (tmp_ch->get_fighting())
-		tmp_ch->set_fighting(ch);
+		SetFighting(ch, tmp_ch);
+	if (tmp_ch->GetEnemy())
+		tmp_ch->SetEnemy(ch);
 	else
-		set_fighting(tmp_ch, ch);
+		SetFighting(tmp_ch, ch);
 }
 
 void go_rescue(CharData *ch, CharData *vict, CharData *tmp_ch) {
@@ -25,7 +25,7 @@ void go_rescue(CharData *ch, CharData *vict, CharData *tmp_ch) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
-	if (ch->ahorse()) {
+	if (ch->IsOnHorse()) {
 		send_to_char(ch, "Ну раскорячили вы ноги по сторонам, но спасти %s как?\r\n", GET_PAD(vict, 1));
 		return;
 	}
@@ -57,7 +57,7 @@ void go_rescue(CharData *ch, CharData *vict, CharData *tmp_ch) {
 	int hostilesCounter = 0;
 	if (IsAbleToUseFeat(ch, EFeat::kLiveShield)) {
 		for (const auto i : world[ch->in_room]->people) {
-			if (i->get_fighting() == vict) {
+			if (i->GetEnemy() == vict) {
 				fighting_rescue(ch, vict, i);
 				++hostilesCounter;
 			}
@@ -76,7 +76,7 @@ void do_rescue(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::kRescue)) {
+	if (ch->HasCooldown(ESkill::kRescue)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
@@ -91,14 +91,14 @@ void do_rescue(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Ваше спасение вы можете доверить только Богам.\r\n", ch);
 		return;
 	}
-	if (ch->get_fighting() == vict) {
+	if (ch->GetEnemy() == vict) {
 		send_to_char("Вы пытаетесь спасти атакующего вас?\r\n" "Это не о вас ли писали Марк и Лука?\r\n", ch);
 		return;
 	}
 
 	CharData *enemy = nullptr;
 	for (const auto i : world[ch->in_room]->people) {
-		if (i->get_fighting() == vict) {
+		if (i->GetEnemy() == vict) {
 			enemy = i;
 			break;
 		}
@@ -109,15 +109,15 @@ void do_rescue(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (vict->is_npc()
-		&& (!enemy->is_npc()
+	if (vict->IsNpc()
+		&& (!enemy->IsNpc()
 			|| (AFF_FLAGGED(enemy, EAffect::kCharmed)
 				&& enemy->has_master()
-				&& !enemy->get_master()->is_npc()))
-		&& (!ch->is_npc()
+				&& !enemy->get_master()->IsNpc()))
+		&& (!ch->IsNpc()
 			|| (AFF_FLAGGED(ch, EAffect::kCharmed)
 				&& ch->has_master()
-				&& !ch->get_master()->is_npc()))) {
+				&& !ch->get_master()->IsNpc()))) {
 		send_to_char("Вы пытаетесь спасти чужого противника.\r\n", ch);
 		return;
 	}

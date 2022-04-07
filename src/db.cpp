@@ -3723,7 +3723,7 @@ bool can_be_reset(ZoneRnum zone) {
 }
 
 void paste_mob(CharData *ch, RoomRnum room) {
-	if (!ch->is_npc() || ch->get_fighting() || GET_POS(ch) < EPosition::kStun)
+	if (!ch->IsNpc() || ch->GetEnemy() || GET_POS(ch) < EPosition::kStun)
 		return;
 	if (IS_CHARMICE(ch)
 		|| AFF_FLAGGED(ch, EAffect::kHorse)
@@ -4293,14 +4293,14 @@ void ZoneReset::reset_zone_essential() {
 					leader = nullptr;
 					if (ZCMD.arg1 >= FIRST_ROOM && ZCMD.arg1 <= top_of_world) {
 						for (const auto ch : world[ZCMD.arg1]->people) {
-							if (ch->is_npc() && GET_MOB_RNUM(ch) == ZCMD.arg2) {
+							if (ch->IsNpc() && GET_MOB_RNUM(ch) == ZCMD.arg2) {
 								leader = ch;
 							}
 						}
 
 						if (leader) {
 							for (const auto ch : world[ZCMD.arg1]->people) {
-								if (ch->is_npc()
+								if (ch->IsNpc()
 									&& GET_MOB_RNUM(ch) == ZCMD.arg3
 									&& leader != ch
 									&& !ch->makes_loop(leader)) {
@@ -4746,7 +4746,7 @@ bool is_empty(ZoneRnum zone_nr) {
 	for (; rnum_start <= rnum_stop; rnum_start++) {
 // num_pc_in_room() использовать нельзя, т.к. считает вместе с иммами.
 		for (const auto c : world[rnum_start]->people) {
-			if (!c->is_npc() && (GetRealLevel(c) < kLvlImmortal)) {
+			if (!c->IsNpc() && (GetRealLevel(c) < kLvlImmortal)) {
 				return false;
 			}
 		}
@@ -5033,7 +5033,7 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	int i, place_of_destination, load_room = kNowhere;
 	const char *remort_msg2 = "$n вспыхнул$g ослепительным пламенем и пропал$g!\r\n";
 
-	if (ch->is_npc() || IS_IMMORTAL(ch)) {
+	if (ch->IsNpc() || IS_IMMORTAL(ch)) {
 		send_to_char("Вам это, похоже, совсем ни к чему.\r\n", ch);
 		return;
 	}
@@ -5091,7 +5091,7 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	ch->inc_int(1);
 	ch->inc_cha(1);
 
-	if (ch->get_fighting())
+	if (ch->GetEnemy())
 		stop_fighting(ch, true);
 
 	die_follower(ch);

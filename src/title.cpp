@@ -64,7 +64,7 @@ DescriptorData *send_result_message(long unique, bool action);
 
 // * Команда титул, title. ACMD(do_title), для игроков и для иммов все одной командой.
 void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->is_npc()) return;
+	if (ch->IsNpc()) return;
 
 	if (!privilege::CheckFlag(ch, privilege::kTitle) && PLR_FLAGGED(ch, EPlrFlag::kNoTitle)) {
 		send_to_char("Вам запрещена работа с титулами.\r\n", ch);

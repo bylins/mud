@@ -90,7 +90,7 @@ int find_first_step(RoomRnum src, RoomRnum target, CharData *ch) {
 		return (kBfsAlreadyThere);
 
 	// clear marks first, some OLC systems will save the mark.
-	if (ch->is_npc()) {
+	if (ch->IsNpc()) {
 		// Запрещаем искать мобам  в другой зоне ...
 //		if (world[src]->zone != world[target]->zone)
 //			return (BFS_ERROR);
@@ -183,7 +183,7 @@ void do_sense(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int dir;
 
 	// The character must have the track skill.
-	if (ch->is_npc() || !ch->get_skill(ESkill::kSense)) {
+	if (ch->IsNpc() || !ch->get_skill(ESkill::kSense)) {
 		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}

@@ -738,7 +738,7 @@ void diag_char_to_char(CharData *i, CharData *ch) {
 	else
 		strcat(buf, " умирает");
 
-	if (!i->ahorse())
+	if (!i->IsOnHorse())
 		switch (GET_POS(i)) {
 			case EPosition::kPerish: strcat(buf, ".");
 				break;
@@ -755,7 +755,7 @@ void diag_char_to_char(CharData *i, CharData *ch) {
 			case EPosition::kStand: strcat(buf, IS_POLY(i) ? ", стоят." : ", стоит.");
 				break;
 			case EPosition::kFight:
-				if (i->get_fighting())
+				if (i->GetEnemy())
 					strcat(buf, IS_POLY(i) ? ", сражаются." : ", сражается.");
 				else
 					strcat(buf, IS_POLY(i) ? ", махают кулаками." : ", махает кулаками.");
@@ -785,11 +785,11 @@ void look_at_char(CharData *i, CharData *ch) {
 		return;
 
 	if (!i->player_data.description.empty()) {
-		if (i->is_npc())
+		if (i->IsNpc())
 			send_to_char(ch, " * %s", i->player_data.description.c_str());
 		else
 			send_to_char(ch, "*\r\n%s*\r\n", space_before_string(i->player_data.description).c_str());
-	} else if (!i->is_npc()) {
+	} else if (!i->IsNpc()) {
 		strcpy(buf, "\r\nЭто");
 		if (i->is_morphed())
 			strcat(buf, string(" " + i->get_morph_desc() + ".\r\n").c_str());
@@ -922,7 +922,7 @@ void look_at_char(CharData *i, CharData *ch) {
 				if (GET_EQ(i, j) && CAN_SEE_OBJ(ch, GET_EQ(i, j))) {
 					send_to_char(where[j], ch);
 					if (i->has_master()
-						&& i->is_npc()) {
+						&& i->IsNpc()) {
 						show_obj_to_char(GET_EQ(i, j), ch, 1, ch == i->get_master(), 1);
 					} else {
 						show_obj_to_char(GET_EQ(i, j), ch, 1, ch == i, 1);
@@ -988,7 +988,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			"стоят здесь. "
 		};
 
-	if (IS_HORSE(i) && i->get_master()->ahorse()) {
+	if (IS_HORSE(i) && i->get_master()->IsOnHorse()) {
 		if (ch == i->get_master()) {
 			if (!IS_POLY(i)) {
 				act("$N несет вас на своей спине.", false, ch, nullptr, i, kToChar);
@@ -1001,7 +1001,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 	}
 
 	if (mode == ESkill::kLooking) {
-		if (HERE(i) && INVIS_OK(ch, i) && GetRealLevel(ch) >= (i->is_npc() ? 0 : GET_INVIS_LEV(i))) {
+		if (HERE(i) && INVIS_OK(ch, i) && GetRealLevel(ch) >= (i->IsNpc() ? 0 : GET_INVIS_LEV(i))) {
 			if (GET_RACE(i) == ENpcRace::kConstruct && IS_IMMORTAL(ch)) {
 				sprintf(buf, "Вы разглядели %s.(предмет)\r\n", GET_PAD(i, 3));
 			} else {
@@ -1051,7 +1051,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		return;
 	}
 
-	if (i->is_npc()
+	if (i->IsNpc()
 		&& !i->player_data.long_descr.empty()
 		&& GET_POS(i) == GET_DEFAULT_POS(i)
 		&& ch->in_room == i->in_room
@@ -1069,7 +1069,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			}
 		}
 		if (AFF_FLAGGED(ch, EAffect::kDetectAlign)) {
-			if (i->is_npc()) {
+			if (i->IsNpc()) {
 				if (NPC_FLAGGED(i, ENpcFlag::kAirCreature))
 					sprintf(buf + strlen(buf), "%s(аура воздуха)%s ",
 							CCIBLU(ch, C_CMP), CCIRED(ch, C_CMP));
@@ -1192,7 +1192,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		return;
 	}
 
-	if (i->is_npc()) {
+	if (i->IsNpc()) {
 		strcpy(buf1, i->get_npc_name().c_str());
 		strcat(buf1, " ");
 		if (AFF_FLAGGED(i, EAffect::kHorse))
@@ -1209,13 +1209,13 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		sprintf(buf + strlen(buf), "(спрятал%s) ", GET_CH_SUF_2(i));
 	if (AFF_FLAGGED(i, EAffect::kDisguise))
 		sprintf(buf + strlen(buf), "(замаскировал%s) ", GET_CH_SUF_2(i));
-	if (!i->is_npc() && !i->desc)
+	if (!i->IsNpc() && !i->desc)
 		sprintf(buf + strlen(buf), "(потерял%s связь) ", GET_CH_SUF_1(i));
-	if (!i->is_npc() && PLR_FLAGGED(i, EPlrFlag::kWriting))
+	if (!i->IsNpc() && PLR_FLAGGED(i, EPlrFlag::kWriting))
 		strcat(buf, "(пишет) ");
 
 	if (GET_POS(i) != EPosition::kFight) {
-		if (i->ahorse()) {
+		if (i->IsOnHorse()) {
 			CharData *horse = i->get_horse();
 			if (horse) {
 				const char *msg =
@@ -1236,25 +1236,25 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		else
 			strcat(buf,
 				   IS_POLY(i) ? poly_positions[static_cast<int>(GET_POS(i))] : positions[static_cast<int>(GET_POS(i))]);
-		if (AFF_FLAGGED(ch, EAffect::kDetectMagic) && i->is_npc() && IsAffectedBySpell(i, kSpellCapable))
+		if (AFF_FLAGGED(ch, EAffect::kDetectMagic) && i->IsNpc() && IsAffectedBySpell(i, kSpellCapable))
 			sprintf(buf + strlen(buf), "(аура магии) ");
 	} else {
-		if (i->get_fighting()) {
+		if (i->GetEnemy()) {
 			strcat(buf, IS_POLY(i) ? "сражаются с " : "сражается с ");
-			if (i->in_room != i->get_fighting()->in_room)
+			if (i->in_room != i->GetEnemy()->in_room)
 				strcat(buf, "чьей-то тенью");
-			else if (i->get_fighting() == ch)
+			else if (i->GetEnemy() == ch)
 				strcat(buf, "ВАМИ");
 			else
-				strcat(buf, GET_PAD(i->get_fighting(), 4));
-			if (i->ahorse())
+				strcat(buf, GET_PAD(i->GetEnemy(), 4));
+			if (i->IsOnHorse())
 				sprintf(buf + strlen(buf), ", сидя верхом на %s! ", PERS(i->get_horse(), ch, 5));
 			else
 				strcat(buf, "! ");
 		} else        // NIL fighting pointer
 		{
 			strcat(buf, IS_POLY(i) ? "колотят по воздуху" : "колотит по воздуху");
-			if (i->ahorse())
+			if (i->IsOnHorse())
 				sprintf(buf + strlen(buf), ", сидя верхом на %s. ", PERS(i->get_horse(), ch, 5));
 			else
 				strcat(buf, ". ");
@@ -1267,7 +1267,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			strcat(buf, "(черная аура) ");
 	}
 	if (AFF_FLAGGED(ch, EAffect::kDetectAlign)) {
-		if (i->is_npc()) {
+		if (i->IsNpc()) {
 			if (IS_EVIL(i)) {
 				if (AFF_FLAGGED(ch, EAffect::kDetectMagic)
 					&& AFF_FLAGGED(i, EAffect::kForcesOfEvil))
@@ -1829,7 +1829,7 @@ void look_at_room(CharData *ch, int ignore_brief) {
 
 	send_to_char(CCICYN(ch, C_NRM), ch);
 
-	if (!ch->is_npc() && PRF_FLAGGED(ch, EPrf::kRoomFlags)) {
+	if (!ch->IsNpc() && PRF_FLAGGED(ch, EPrf::kRoomFlags)) {
 		// иммам рандомная * во флагах ломает мапер грят
 		const bool has_flag = ROOM_FLAGGED(ch->in_room, ERoomFlag::kBfsMark) ? true : false;
 		world[ch->in_room]->unset_flag(ERoomFlag::kBfsMark);
@@ -1855,12 +1855,12 @@ void look_at_room(CharData *ch, int ignore_brief) {
 
 	if (is_dark(ch->in_room) && !PRF_FLAGGED(ch, EPrf::kHolylight)) {
 		send_to_char("Слишком темно...\r\n", ch);
-	} else if ((!ch->is_npc() && !PRF_FLAGGED(ch, EPrf::kBrief)) || ignore_brief || ROOM_FLAGGED(ch->in_room, ERoomFlag::kDeathTrap)) {
+	} else if ((!ch->IsNpc() && !PRF_FLAGGED(ch, EPrf::kBrief)) || ignore_brief || ROOM_FLAGGED(ch->in_room, ERoomFlag::kDeathTrap)) {
 		show_extend_room(RoomDescription::show_desc(world[ch->in_room]->description_num).c_str(), ch);
 	}
 
 	// autoexits
-	if (!ch->is_npc() && PRF_FLAGGED(ch, EPrf::kAutoexit) && !PLR_FLAGGED(ch, EPlrFlag::kScriptWriter)) {
+	if (!ch->IsNpc() && PRF_FLAGGED(ch, EPrf::kAutoexit) && !PLR_FLAGGED(ch, EPlrFlag::kScriptWriter)) {
 		do_auto_exits(ch);
 	}
 
@@ -1949,7 +1949,7 @@ void look_at_room(CharData *ch, int ignore_brief) {
 	send_to_char("&Q&n", ch);
 
 	// вход в новую зону
-	if (!ch->is_npc()) {
+	if (!ch->IsNpc()) {
 		ZoneRnum inroom = world[ch->in_room]->zone_rn;
 		if (zone_table[world[ch->get_from_room()]->zone_rn].vnum != zone_table[inroom].vnum) {
 			if (PRF_FLAGGED(ch, EPrf::kShowZoneNameOnEnter))
@@ -2058,8 +2058,8 @@ void hear_in_direction(CharData *ch, int dir, int info_is) {
 			probe = CalcCurrentSkill(ch, ESkill::kHearing, tch);
 			TrainSkill(ch, ESkill::kHearing, probe >= percent, tch);
 			// Если сражаются то слышем только борьбу.
-			if (tch->get_fighting()) {
-				if (tch->is_npc()) {
+			if (tch->GetEnemy()) {
+				if (tch->IsNpc()) {
 					tmpstr += " Вы слышите шум чьей-то борьбы.\r\n";
 				} else {
 					tmpstr += " Вы слышите звуки чьих-то ударов.\r\n";
@@ -2073,7 +2073,7 @@ void hear_in_direction(CharData *ch, int dir, int info_is) {
 					&& (probe > percent * 2)))
 				&& (percent < 100 || IS_IMMORTAL(ch))
 				&& !fight_count) {
-				if (tch->is_npc()) {
+				if (tch->IsNpc()) {
 					if (GET_RACE(tch) == ENpcRace::kConstruct) {
 						if (GetRealLevel(tch) < 5)
 							tmpstr += " Вы слышите чье-то тихое поскрипывание.\r\n";
@@ -2836,7 +2836,7 @@ void do_equipment(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void do_time(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int day, month, days_go;
-	if (ch->is_npc())
+	if (ch->IsNpc())
 		return;
 	sprintf(buf, "Сейчас ");
 	switch (time_info.hours % 24) {
@@ -3123,7 +3123,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int all = 0;
 
 	for (const auto &tch: character_list) {
-		if (tch->is_npc()) {
+		if (tch->IsNpc()) {
 			continue;
 		}
 
@@ -3343,7 +3343,7 @@ void do_statistic(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 
 	int clan{0}, noclan{0}, hilvl{0}, lowlvl{0}, rem{0}, norem{0}, pk{0}, nopk{0}, total{0};
 	for (const auto &tch : character_list) {
-		if (tch->is_npc() || GetRealLevel(tch) >= kLvlImmortal || !HERE(tch)) {
+		if (tch->IsNpc() || GetRealLevel(tch) >= kLvlImmortal || !HERE(tch)) {
 			continue;
 		}
 		CLAN(tch) ? ++clan : ++noclan;
@@ -3691,7 +3691,7 @@ void perform_immort_where(CharData *ch, char *arg) {
 				found = 1;
 				sprintf(buf,
 						"%s%3d. %-25s - [%5d] %s. Название зоны: '%s'\r\n",
-						i->is_npc() ? "Моб:  " : "Игрок:",
+						i->IsNpc() ? "Моб:  " : "Игрок:",
 						num++,
 						GET_NAME(i),
 						GET_ROOM_VNUM(IN_ROOM(i)),
@@ -3721,7 +3721,7 @@ void do_levels(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int i;
 	char *ptr = &buf[0];
 
-	if (ch->is_npc()) {
+	if (ch->IsNpc()) {
 		send_to_char("Боги уже придумали ваш уровень.\r\n", ch);
 		return;
 	}
@@ -3757,7 +3757,7 @@ void do_consider(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Легко! Выберите параметр <Удалить персонаж>!\r\n", ch);
 		return;
 	}
-	if (!victim->is_npc()) {
+	if (!victim->IsNpc()) {
 		send_to_char("Оценивайте игроков сами - тут я не советчик.\r\n", ch);
 		return;
 	}
@@ -3799,8 +3799,8 @@ void do_diagnose(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		else
 			diag_char_to_char(vict, ch);
 	} else {
-		if (ch->get_fighting())
-			diag_char_to_char(ch->get_fighting(), ch);
+		if (ch->GetEnemy())
+			diag_char_to_char(ch->GetEnemy(), ch);
 		else
 			send_to_char("На кого вы хотите взглянуть?\r\n", ch);
 	}
@@ -3809,7 +3809,7 @@ void do_diagnose(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 const char *ctypes[] = {"выключен", "простой", "обычный", "полный", "\n"};
 
 void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (ch->is_npc())
+	if (ch->IsNpc())
 		return;
 	if (GET_WIMP_LEV(ch) == 0)
 		strcpy(buf2, "нет");

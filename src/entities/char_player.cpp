@@ -396,7 +396,7 @@ void Player::save_char() {
 	struct CharacterPortal *prt;
 	int tmp = time(0) - this->player_data.time.logon;
 
-	if (this->is_npc() || this->get_pfilepos() < 0)
+	if (this->IsNpc() || this->get_pfilepos() < 0)
 		return;
 	if (this->account == nullptr) {
 		this->account = Account::get_account(GET_EMAIL(this));

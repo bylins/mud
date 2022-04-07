@@ -17,7 +17,7 @@ void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 		send_to_char("Вам это не по силам.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::kTurnUndead)) {
+	if (ch->HasCooldown(ESkill::kTurnUndead)) {
 		send_to_char("Вам нужно набраться сил для применения этого навыка.\r\n", ch);
 		return;
 	};
@@ -79,8 +79,8 @@ void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 			af2.location = EApply::kHpRegen;
 			af2.bitvector = to_underlying(EAffect::kNoFlee);
 			af2.battleflag = 0;
-			affect_join(target, af1, true, false, true, false);
-			affect_join(target, af2, true, false, true, false);
+			ImposeAffect(target, af1, true, false, true, false);
+			ImposeAffect(target, af2, true, false, true, false);
 		};
 		damage.Process(ch, target);
 		if (!target->purged() && roll.IsSuccess() && !MOB_FLAGGED(target, EMobFlag::kNoFear)

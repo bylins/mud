@@ -161,7 +161,7 @@ void SpellCreateWater(int/* level*/, CharData *ch, CharData *victim, ObjData *ob
 			}
 		}
 	}
-	if (victim && !victim->is_npc() && !IS_IMMORTAL(victim)) {
+	if (victim && !victim->IsNpc() && !IS_IMMORTAL(victim)) {
 		GET_COND(victim, THIRST) = 0;
 		send_to_char("Вы полностью утолили жажду.\r\n", victim);
 		if (victim != ch) {
@@ -222,7 +222,7 @@ void SpellRecall(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 	RoomRnum to_room = kNowhere, fnd_room = kNowhere;
 	RoomRnum rnum_start, rnum_stop;
 
-	if (!victim || victim->is_npc() || ch->in_room != IN_ROOM(victim) || GetRealLevel(victim) >= kLvlImmortal) {
+	if (!victim || victim->IsNpc() || ch->in_room != IN_ROOM(victim) || GetRealLevel(victim) >= kLvlImmortal) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
@@ -239,14 +239,14 @@ void SpellRecall(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 				send_to_char(SUMMON_FAIL, ch);
 				return;
 			}
-		} else if (!ch->is_npc() || (ch->has_master()
-			&& !ch->get_master()->is_npc())) // игроки не в группе и  чармисы по приказу не могут реколить свитком
+		} else if (!ch->IsNpc() || (ch->has_master()
+			&& !ch->get_master()->IsNpc())) // игроки не в группе и  чармисы по приказу не могут реколить свитком
 		{
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
 
-		if ((ch->is_npc() && CalcGeneralSaving(ch, victim, ESaving::kWill, GET_REAL_INT(ch))) || IS_GOD(victim)) {
+		if ((ch->IsNpc() && CalcGeneralSaving(ch, victim, ESaving::kWill, GET_REAL_INT(ch))) || IS_GOD(victim)) {
 			return;
 		}
 	}
@@ -272,8 +272,8 @@ void SpellRecall(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 		return;
 	}
 
-	if (victim->get_fighting() && (victim != ch)) {
-		if (!pk_agro_action(ch, victim->get_fighting()))
+	if (victim->GetEnemy() && (victim != ch)) {
+		if (!pk_agro_action(ch, victim->GetEnemy()))
 			return;
 	}
 	if (!enter_wtrigger(world[fnd_room], ch, -1))
@@ -395,13 +395,13 @@ void SpellPortal(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 	}
 	// пентить чаров <=10 уровня, нельзя так-же нельзя пентать иммов
 	if (!IS_GOD(ch)) {
-		if ((!victim->is_npc() && GetRealLevel(victim) <= 10 && GET_REAL_REMORT(ch) < 9) || IS_IMMORTAL(victim)
+		if ((!victim->IsNpc() && GetRealLevel(victim) <= 10 && GET_REAL_REMORT(ch) < 9) || IS_IMMORTAL(victim)
 			|| AFF_FLAGGED(victim, EAffect::kNoTeleport)) {
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
 	}
-	if (victim->is_npc()) {
+	if (victim->IsNpc()) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
@@ -442,7 +442,7 @@ void SpellPortal(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(victim, EGf::kGodscurse)
 		// раньше было <= PK_ACTION_REVENGE, что вызывало абьюз при пенте на чара на арене,
 		// или пенте кидаемой с арены т.к. в данном случае использовалось PK_ACTION_NO которое меньше PK_ACTION_REVENGE
-		|| pkPortal || ((!victim->is_npc() || IS_CHARMICE(ch)) && PRF_FLAGGED(victim, EPrf::KSummonable))
+		|| pkPortal || ((!victim->IsNpc() || IS_CHARMICE(ch)) && PRF_FLAGGED(victim, EPrf::KSummonable))
 		|| same_group(ch, victim)) {
 		if (pkPortal) {
 			pk_increment_revenge(ch, victim);
@@ -505,21 +505,21 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 		return;
 	}
 
-	if (ch->is_npc() && victim->is_npc()) {
+	if (ch->IsNpc() && victim->IsNpc()) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
 
 	if (IS_IMMORTAL(victim)) {
-		if (ch->is_npc() || (!ch->is_npc() && GetRealLevel(ch) < GetRealLevel(victim))) {
+		if (ch->IsNpc() || (!ch->IsNpc() && GetRealLevel(ch) < GetRealLevel(victim))) {
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
 	}
 
-	if (!ch->is_npc() && victim->is_npc()) {
+	if (!ch->IsNpc() && victim->IsNpc()) {
 		if (victim->get_master() != ch  //поправим это, тут и так понято что чармис (Кудояр)
-			|| victim->get_fighting()
+			|| victim->GetEnemy()
 			|| GET_POS(victim) < EPosition::kRest) {
 			send_to_char(SUMMON_FAIL, ch);
 			return;
@@ -527,7 +527,7 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 	}
 
 	if (!IS_IMMORTAL(ch)) {
-		if (!ch->is_npc() || IS_CHARMICE(ch)) {
+		if (!ch->IsNpc() || IS_CHARMICE(ch)) {
 			if (AFF_FLAGGED(ch, EAffect::kShield)) {
 				send_to_char(SUMMON_FAIL3, ch);
 				return;
@@ -540,7 +540,7 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 				send_to_char(SUMMON_FAIL, ch);
 				return;
 			}
-			if (victim->get_fighting()) {
+			if (victim->GetEnemy()) {
 				send_to_char(SUMMON_FAIL4, ch);
 				return;
 			}
@@ -549,7 +549,7 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
-		if (!ch->is_npc() && !victim->is_npc() && GetRealLevel(victim) <= 10) {
+		if (!ch->IsNpc() && !victim->IsNpc() && GetRealLevel(victim) <= 10) {
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
@@ -572,7 +572,7 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 			return;
 		}
 
-		if (!ch->is_npc()) {
+		if (!ch->IsNpc()) {
 			if (ROOM_FLAGGED(vic_room, ERoomFlag::kNoSummonOut)
 				|| ROOM_FLAGGED(vic_room, ERoomFlag::kGodsRoom)
 				|| !Clan::MayEnter(ch, vic_room, kHousePortal)
@@ -589,7 +589,7 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 			}
 		}
 
-		if (ch->is_npc() && number(1, 100) < 30) {
+		if (ch->IsNpc() && number(1, 100) < 30) {
 			return;
 		}
 	}
@@ -609,7 +609,7 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 		k_next = k->next;
 		if (IN_ROOM(k->ch) == vic_room) {
 			if (AFF_FLAGGED(k->ch, EAffect::kCharmed)) {
-				if (!k->ch->get_fighting()) {
+				if (!k->ch->GetEnemy()) {
 					act("$n растворил$u на ваших глазах.",
 						true, k->ch, nullptr, nullptr, kToRoom | kToArenaListen);
 					ExtractCharFromRoom(k->ch);
@@ -704,7 +704,7 @@ void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *o
 		if (i->get_carried_by()) {
 			const auto carried_by = i->get_carried_by();
 			const auto same_zone = world[ch->in_room]->zone_rn == world[carried_by->in_room]->zone_rn;
-			if (!carried_by->is_npc() || same_zone || bloody_corpse) {
+			if (!carried_by->IsNpc() || same_zone || bloody_corpse) {
 				sprintf(buf, "%s наход%sся у %s в инвентаре.\r\n", i->get_short_description().c_str(),
 						GET_OBJ_POLY_1(ch, i), PERS(carried_by, ch, 1));
 			} else {
@@ -725,7 +725,7 @@ void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *o
 			} else {
 				if (!IS_GOD(ch)) {
 					if (i->get_in_obj()->get_carried_by()) {
-						if (i->get_in_obj()->get_carried_by()->is_npc() && i->has_flag(EObjFlag::kNolocate)) {
+						if (i->get_in_obj()->get_carried_by()->IsNpc() && i->has_flag(EObjFlag::kNolocate)) {
 							return false;
 						}
 					}
@@ -737,7 +737,7 @@ void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *o
 					}
 					if (i->get_in_obj()->get_worn_by()) {
 						const auto worn_by = i->get_in_obj()->get_worn_by();
-						if (worn_by->is_npc() && i->has_flag(EObjFlag::kNolocate) && !bloody_corpse) {
+						if (worn_by->IsNpc() && i->has_flag(EObjFlag::kNolocate) && !bloody_corpse) {
 							return false;
 						}
 					}
@@ -750,7 +750,7 @@ void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *o
 		} else if (i->get_worn_by()) {
 			const auto worn_by = i->get_worn_by();
 			const auto same_zone = world[ch->in_room]->zone_rn == world[worn_by->in_room]->zone_rn;
-			if (!worn_by->is_npc() || same_zone || bloody_corpse) {
+			if (!worn_by->IsNpc() || same_zone || bloody_corpse) {
 				sprintf(buf, "%s надет%s на %s.\r\n", i->get_short_description().c_str(),
 						GET_OBJ_SUF_6(i), PERS(worn_by, ch, 3));
 			} else {
@@ -885,7 +885,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 
 	if (victim == ch)
 		send_to_char("Вы просто очарованы своим внешним видом!\r\n", ch);
-	else if (!victim->is_npc()) {
+	else if (!victim->IsNpc()) {
 		send_to_char("Вы не можете очаровать реального игрока!\r\n", ch);
 		if (!pk_agro_action(ch, victim))
 			return;
@@ -912,7 +912,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 		send_to_char("Ваша магия потерпела неудачу.\r\n", ch);
 	else if (IS_HORSE(victim))
 		send_to_char("Это боевой скакун, а не хухры-мухры.\r\n", ch);
-	else if (victim->get_fighting() || GET_POS(victim) < EPosition::kRest)
+	else if (victim->GetEnemy() || GET_POS(victim) < EPosition::kRest)
 		act("$M сейчас, похоже, не до вас.", false, ch, nullptr, victim, kToChar);
 	else if (circle_follow(victim, ch))
 		send_to_char("Следование по кругу запрещено.\r\n", ch);
@@ -1349,9 +1349,9 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 
 		act("$n покорил$g ваше сердце настолько, что вы готовы на все ради н$s.",
 			false, ch, nullptr, victim, kToVict);
-		if (victim->is_npc()) {
+		if (victim->IsNpc()) {
 //Eli. Раздеваемся.
-			if (victim->is_npc() && !MOB_FLAGGED(victim, EMobFlag::kSummoned)) { // только если не маг зверьки (Кудояр)
+			if (victim->IsNpc() && !MOB_FLAGGED(victim, EMobFlag::kSummoned)) { // только если не маг зверьки (Кудояр)
 				for (int i = 0; i < EEquipPos::kNumEquipPos; i++) {
 					if (GET_EQ(victim, i)) {
 						if (!remove_otrigger(GET_EQ(victim, i), victim)) {
@@ -1807,14 +1807,14 @@ void mort_show_char_values(CharData *victim, CharData *ch, int fullness) {
 
 	sprintf(buf, "Имя: %s\r\n", GET_NAME(victim));
 	send_to_char(buf, ch);
-	if (!victim->is_npc() && victim == ch) {
+	if (!victim->IsNpc() && victim == ch) {
 		sprintf(buf, "Написание : %s/%s/%s/%s/%s/%s\r\n",
 				GET_PAD(victim, 0), GET_PAD(victim, 1), GET_PAD(victim, 2),
 				GET_PAD(victim, 3), GET_PAD(victim, 4), GET_PAD(victim, 5));
 		send_to_char(buf, ch);
 	}
 
-	if (!victim->is_npc() && victim == ch) {
+	if (!victim->IsNpc() && victim == ch) {
 		sprintf(buf,
 				"Возраст %s  : %d лет, %d месяцев, %d дней и %d часов.\r\n",
 				GET_PAD(victim, 1), age(victim)->year, age(victim)->month,
@@ -1856,7 +1856,7 @@ void mort_show_char_values(CharData *victim, CharData *ch, int fullness) {
 	send_to_char(ch, "Защита : %d, Броня : %d, Поглощение : %d\r\n",
 				 compute_armor_class(victim), GET_ARMOUR(victim), GET_ABSORBE(victim));
 
-	if (fullness < 100 || (ch != victim && !victim->is_npc()))
+	if (fullness < 100 || (ch != victim && !victim->IsNpc()))
 		return;
 
 	val0 = victim->get_str();
@@ -1869,7 +1869,7 @@ void mort_show_char_values(CharData *victim, CharData *ch, int fullness) {
 	sprintf(buf + strlen(buf), "Ловк: %d, Тел: %d, Обаян: %d\r\n", val0, val1, val2);
 	send_to_char(buf, ch);
 
-	if (fullness < 120 || (ch != victim && !victim->is_npc()))
+	if (fullness < 120 || (ch != victim && !victim->IsNpc()))
 		return;
 
 	int found = false;
@@ -2000,7 +2000,7 @@ void SpellFear(int/* level*/, CharData *ch, CharData *victim, ObjData* /*obj*/) 
 		if (!pk_agro_action(ch, victim))
 			return;
 	}
-	if (!ch->is_npc() && (GetRealLevel(ch) > 10))
+	if (!ch->IsNpc() && (GetRealLevel(ch) > 10))
 		modi += (GetRealLevel(ch) - 10);
 	if (PRF_FLAGGED(ch, EPrf::kAwake))
 		modi = modi - 50;
@@ -2020,7 +2020,7 @@ void SpellEnergydrain(int/* level*/, CharData *ch, CharData *victim, ObjData* /*
 		if (!pk_agro_action(ch, victim))
 			return;
 	}
-	if (!ch->is_npc() && (GetRealLevel(ch) > 10))
+	if (!ch->IsNpc() && (GetRealLevel(ch) > 10))
 		modi += (GetRealLevel(ch) - 10);
 	if (PRF_FLAGGED(ch, EPrf::kAwake))
 		modi = modi - 50;
@@ -2066,9 +2066,9 @@ void SpellSacrifice(int/* level*/, CharData *ch, CharData *victim, ObjData* /*ob
 		return;
 
 	do_sacrifice(ch, dam);
-	if (!ch->is_npc()) {
+	if (!ch->IsNpc()) {
 		for (f = ch->followers; f; f = f->next) {
-			if (f->ch->is_npc()
+			if (f->ch->IsNpc()
 				&& AFF_FLAGGED(f->ch, EAffect::kCharmed)
 				&& MOB_FLAGGED(f->ch, EMobFlag::kCorpse)
 				&& ch->in_room == IN_ROOM(f->ch)) {
@@ -2087,7 +2087,7 @@ void SpellHolystrike(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData*
 
 	const auto people_copy = world[ch->in_room]->people;
 	for (const auto tch : people_copy) {
-		if (tch->is_npc()) {
+		if (tch->IsNpc()) {
 			if (!MOB_FLAGGED(tch, EMobFlag::kCorpse)
 				&& GET_RACE(tch) != ENpcRace::kZombie
 				&& GET_RACE(tch) != ENpcRace::kBoggart) {
@@ -3208,7 +3208,7 @@ ESpell ITEM_BY_NAME(const std::string &name) {
 std::map<int /* vnum */, int /* count */> rune_list;
 
 void add_rune_stats(CharData *ch, int vnum, int spelltype) {
-	if (ch->is_npc() || kSpellRunes != spelltype) {
+	if (ch->IsNpc() || kSpellRunes != spelltype) {
 		return;
 	}
 	std::map<int, int>::iterator i = rune_list.find(vnum);

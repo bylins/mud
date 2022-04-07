@@ -6,7 +6,7 @@
 #include "fight_start.h"
 
 void do_assist(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->get_fighting()) {
+	if (ch->GetEnemy()) {
 		send_to_char("Невозможно. Вы сражаетесь сами.\r\n", ch);
 		return;
 	}
@@ -16,7 +16,7 @@ void do_assist(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!*arg) {
 		helpee = nullptr;
 		for (const auto i : world[ch->in_room]->people) {
-			if (i->get_fighting() && i->get_fighting() != ch
+			if (i->GetEnemy() && i->GetEnemy() != ch
 				&& ((ch->has_master() && ch->get_master() == i->get_master())
 					|| ch->get_master() == i || i->get_master() == ch
 					|| (AFF_FLAGGED(ch, EAffect::kCharmed) && ch->get_master() && ch->get_master()->get_master()
@@ -42,12 +42,12 @@ void do_assist(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (helpee->get_fighting()) {
-		opponent = helpee->get_fighting();
+	if (helpee->GetEnemy()) {
+		opponent = helpee->GetEnemy();
 	} else {
 		opponent = nullptr;
 		for (const auto i : world[ch->in_room]->people) {
-			if (i->get_fighting() == helpee) {
+			if (i->GetEnemy() == helpee) {
 				opponent = i;
 				break;
 			}

@@ -349,7 +349,7 @@ void obj_to_corpse(ObjData *corpse, CharData *ch, int rnum, bool setload) {
 
 void obj_load_on_death(ObjData *corpse, CharData *ch) {
 	if (ch == nullptr
-		|| !ch->is_npc()
+		|| !ch->IsNpc()
 		|| (!MOB_FLAGGED(ch, EMobFlag::kCorpse)
 			&& corpse == nullptr)) {
 		return;

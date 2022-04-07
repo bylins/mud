@@ -19,7 +19,7 @@ void go_iron_wind(CharData *ch, CharData *victim) {
 		send_to_char("Вы уже впали в неистовство.\r\n", ch);
 		return;
 	}
-	if (ch->get_fighting() && (ch->get_fighting() != victim)) {
+	if (ch->GetEnemy() && (ch->GetEnemy() != victim)) {
 		act("$N не сражается с вами, не трогайте $S.", false, ch, nullptr, victim, kToChar);
 		return;
 	}
@@ -38,7 +38,7 @@ void go_iron_wind(CharData *ch, CharData *victim) {
 	act(buf, false, ch, weapon, victim, kToNotVict | kToArenaListen);
 	act(buf2, false, victim, weapon, ch, kToChar);
 
-	if (!ch->get_fighting()) {
+	if (!ch->GetEnemy()) {
 		PRF_FLAGS(ch).set(EPrf::kIronWind);
 		SET_AF_BATTLE(ch, kEafIronWind);
 		hit(ch, victim, ESkill::kUndefined, fight::kMainHand);
@@ -52,11 +52,11 @@ void go_iron_wind(CharData *ch, CharData *victim) {
 }
 
 void do_iron_wind(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->is_npc() || !ch->get_skill(ESkill::kIronwind)) {
+	if (ch->IsNpc() || !ch->get_skill(ESkill::kIronwind)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	};
-	if (ch->haveCooldown(ESkill::kIronwind)) {
+	if (ch->HasCooldown(ESkill::kIronwind)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};

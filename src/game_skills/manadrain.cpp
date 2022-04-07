@@ -14,12 +14,12 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	one_argument(argument, arg);
 
-	if (ch->is_npc() || !ch->get_skill(ESkill::kJinx)) {
+	if (ch->IsNpc() || !ch->get_skill(ESkill::kJinx)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
 
-	if (IsTimedBySkill(ch, ESkill::kJinx) || ch->haveCooldown(ESkill::kJinx)) {
+	if (IsTimedBySkill(ch, ESkill::kJinx) || ch->HasCooldown(ESkill::kJinx)) {
 		send_to_char("Так часто не получится.\r\n", ch);
 		return;
 	}
@@ -40,7 +40,7 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!vict->is_npc()) {
+	if (!vict->IsNpc()) {
 		send_to_char("На живом человеке? Креста не вас нет!\r\n", ch);
 		return;
 	}

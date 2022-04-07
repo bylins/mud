@@ -16,21 +16,21 @@ void go_multyparry(CharData *ch) {
 }
 
 void do_multyparry(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (ch->is_npc() || !ch->get_skill(ESkill::kMultiparry)) {
+	if (ch->IsNpc() || !ch->get_skill(ESkill::kMultiparry)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::kMultiparry)) {
+	if (ch->HasCooldown(ESkill::kMultiparry)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
-	if (!ch->get_fighting()) {
+	if (!ch->GetEnemy()) {
 		send_to_char("Но вы ни с кем не сражаетесь?\r\n", ch);
 		return;
 	}
 
 	ObjData *primary = GET_EQ(ch, EEquipPos::kWield), *offhand = GET_EQ(ch, EEquipPos::kHold);
-	if (!(ch->is_npc()
+	if (!(ch->IsNpc()
 		|| (primary
 			&& GET_OBJ_TYPE(primary) == EObjType::kWeapon
 			&& offhand
@@ -59,16 +59,16 @@ void go_parry(CharData *ch) {
 }
 
 void do_parry(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (ch->is_npc() || !ch->get_skill(ESkill::kParry)) {
+	if (ch->IsNpc() || !ch->get_skill(ESkill::kParry)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::kParry)) {
+	if (ch->HasCooldown(ESkill::kParry)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
 
-	if (!ch->get_fighting()) {
+	if (!ch->GetEnemy()) {
 		send_to_char("Но вы ни с кем не сражаетесь?\r\n", ch);
 		return;
 	}

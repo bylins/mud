@@ -198,7 +198,7 @@ void do_oforce(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 			const auto people_copy = world[room]->people;
 			for (const auto ch : people_copy)
 			{
-				if (ch->is_npc()
+				if (ch->IsNpc()
 					|| GetRealLevel(ch) < kLevelImmortal)
 				{
 					command_interpreter(ch, line);
@@ -208,13 +208,13 @@ void do_oforce(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else {
 		if ((ch = get_char_by_obj(obj, arg1))) {
 			// если чар в ЛД
-			if (!ch->is_npc()) {
+			if (!ch->IsNpc()) {
 				if (!ch->desc) {
 					return;
 				}
 			}
 
-			if (ch->is_npc()) {
+			if (ch->IsNpc()) {
 				if (mob_script_command_interpreter(ch, line)) {
 					obj_log(obj, "Mob trigger commands in oforce. Please rewrite trigger.");
 					return;
@@ -356,7 +356,7 @@ void do_opurge(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!ch->is_npc()) {
+	if (!ch->IsNpc()) {
 		obj_log(obj, "opurge: purging a PC");
 		return;
 	}
@@ -428,7 +428,7 @@ void do_oteleport(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 				obj_log(obj, "oteleport transports allchar from kNowhere");
 				return;
 			}
-			if (ch->is_npc() && !IS_CHARMICE(ch))
+			if (ch->IsNpc() && !IS_CHARMICE(ch))
 				continue;
 			ExtractCharFromRoom(ch);
 			PlaceCharToRoom(ch, target);
@@ -440,7 +440,7 @@ void do_oteleport(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 			obj_log(obj, "oteleport: no target found");
 			return;
 		}
-		if (ch->ahorse() || ch->has_horse(true)) {
+		if (ch->IsOnHorse() || ch->has_horse(true)) {
 			horse = ch->get_horse();
 		} else {
 			horse = nullptr;
@@ -522,7 +522,7 @@ void ApplyDamage(CharData* target, int damage) {
 	update_pos(target);
 	char_dam_message(damage, target, target, 0);
 	if (GET_POS(target) == EPosition::kDead) {
-		if (!target->is_npc()) {
+		if (!target->IsNpc()) {
 			sprintf(buf2, "%s killed by odamage at %s [%d]", GET_NAME(target),
 					target->in_room == kNowhere ? "NOWHERE" : world[target->in_room]->name, GET_ROOM_VNUM(target->in_room));
 			mudlog(buf2, BRF, kLvlBuilder, SYSLOG, true);

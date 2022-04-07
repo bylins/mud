@@ -1165,7 +1165,7 @@ void command_interpreter(CharData *ch, char *argument) {
 	if (!*argument)
 		return;
 
-	if (!ch->is_npc()) {
+	if (!ch->IsNpc()) {
 		log("<%s, %d> {%5d} [%s]",
 			GET_NAME(ch),
 			GlobalObjects::heartbeat().pulse_number(),
@@ -1199,7 +1199,7 @@ void command_interpreter(CharData *ch, char *argument) {
 		*(argument + length - 1) = ' ';
 	}
 
-	if (!ch->is_npc()
+	if (!ch->IsNpc()
 		&& !GET_INVIS_LEV(ch)
 		&& !GET_MOB_HOLD(ch)
 		&& !AFF_FLAGGED(ch, EAffect::kStopFight)
@@ -1246,7 +1246,7 @@ void command_interpreter(CharData *ch, char *argument) {
 		}
 	}
 
-	if (((!ch->is_npc()
+	if (((!ch->IsNpc()
 		&& (GET_FREEZE_LEV(ch) > GetRealLevel(ch))
 		&& (PLR_FLAGGED(ch, EPlrFlag::kFrozen)))
 		|| GET_MOB_HOLD(ch)
@@ -1262,7 +1262,7 @@ void command_interpreter(CharData *ch, char *argument) {
 		return;
 	}
 
-	if (!social && ch->is_npc() && cmd_info[cmd].minimum_level >= kLvlImmortal) {
+	if (!social && ch->IsNpc() && cmd_info[cmd].minimum_level >= kLvlImmortal) {
 		send_to_char("Вы еще не БОГ, чтобы делать это.\r\n", ch);
 		return;
 	}
@@ -1298,7 +1298,7 @@ void command_interpreter(CharData *ch, char *argument) {
 		if (ch->purged()) {
 			return;
 		}
-		if (!ch->is_npc() && ch->in_room != kNowhere && ch->check_aggressive) {
+		if (!ch->IsNpc() && ch->in_room != kNowhere && ch->check_aggressive) {
 			ch->check_aggressive = false;
 			do_aggressive_room(ch, false);
 			if (ch->purged()) {
@@ -1336,7 +1336,7 @@ void do_alias(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char *repl;
 	struct alias_data *a;
 
-	if (ch->is_npc())
+	if (ch->IsNpc())
 		return;
 
 	repl = any_one_arg(argument, arg);
@@ -1459,7 +1459,7 @@ int perform_alias(DescriptorData *d, char *orig) {
 	struct alias_data *a, *tmp;
 
 	// Mobs don't have alaises. //
-	if (d->character->is_npc())
+	if (d->character->IsNpc())
 		return (0);
 
 	// bail out immediately if the guy doesn't have any aliases //
@@ -1887,7 +1887,7 @@ int perform_dupe_check(DescriptorData *d) {
 	 */
 
 	character_list.foreach_on_copy([&](const CharData::shared_ptr &ch) {
-		if (ch->is_npc()) {
+		if (ch->IsNpc()) {
 			return;
 		}
 
@@ -2049,7 +2049,7 @@ int check_dupes_email(DescriptorData *d) {
 
 	for (const auto &ch : character_list) {
 		if (ch == d->character
-			|| ch->is_npc()) {
+			|| ch->IsNpc()) {
 			continue;
 		}
 

@@ -21,14 +21,14 @@ void do_cast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	char *s, *t;
 	int i, spellnum, spell_subst, target = 0;
 
-	if (ch->is_npc() && AFF_FLAGGED(ch, EAffect::kCharmed))
+	if (ch->IsNpc() && AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
 		send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::kGlobalCooldown)) {
+	if (ch->HasCooldown(ESkill::kGlobalCooldown)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
@@ -77,7 +77,7 @@ void do_cast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	// Caster is lower than spell level
 	if ((!IS_SET(GET_SPELL_TYPE(ch, spellnum), kSpellTemp | kSpellKnow) ||
 		GET_REAL_REMORT(ch) < MIN_CAST_REM(spell_info[spellnum], ch)) &&
-		(GetRealLevel(ch) < kLvlGreatGod) && !ch->is_npc()) {
+		(GetRealLevel(ch) < kLvlGreatGod) && !ch->IsNpc()) {
 		if (GetRealLevel(ch) < MIN_CAST_LEV(spell_info[spellnum], ch)
 			|| GET_REAL_REMORT(ch) < MIN_CAST_REM(spell_info[spellnum], ch)
 			|| PlayerClass::CalcCircleSlotsAmount(ch,
@@ -144,7 +144,7 @@ void do_cast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		if (GET_SPELL_MEM(ch, spell_subst)) {
 			GET_SPELL_MEM(ch, spell_subst)--;
 		}
-		if (!ch->is_npc() && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, EPrf::kAutomem))
+		if (!ch->IsNpc() && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, EPrf::kAutomem))
 			MemQ_remember(ch, spell_subst);
 		//log("[DO_CAST->AFFECT_TOTAL] Start");
 		affect_total(ch);
@@ -153,7 +153,7 @@ void do_cast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 			send_to_char("Вы не смогли сосредоточиться!\r\n", ch);
 	} else        // cast spell returns 1 on success; subtract mana & set waitstate
 	{
-		if (ch->get_fighting() && !IS_IMPL(ch)) {
+		if (ch->GetEnemy() && !IS_IMPL(ch)) {
 			ch->set_cast(spellnum, spell_subst, tch, tobj, troom);
 			sprintf(buf,
 					"Вы приготовились применить заклинание %s'%s'%s%s.\r\n",

@@ -108,13 +108,13 @@ char info_message[] = ("базар выставить <предмет> <цена
 
 int exchange(CharData *ch, void * /*me*/, int cmd, char *argument) {
 	if (CMD_IS("exchange") || CMD_IS("базар")) {
-		if (ch->is_npc())
+		if (ch->IsNpc())
 			return 0;
 		if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
 			send_to_char("Вы немы, как рыба об лед.\r\n", ch);
 			return 1;
 		}
-		if (!ch->is_npc() && PLR_FLAGGED(ch, EPlrFlag::kDumbed)) {
+		if (!ch->IsNpc() && PLR_FLAGGED(ch, EPlrFlag::kDumbed)) {
 			send_to_char("Вам запрещено общаться с торговцами!\r\n", ch);
 			return 1;
 		}
@@ -546,7 +546,7 @@ int exchange_identify(CharData *ch, char *arg) {
 
 CharData *get_char_by_id(int id) {
 	for (const auto &i : character_list) {
-		if (!i->is_npc() && GET_IDNUM(i) == id) {
+		if (!i->IsNpc() && GET_IDNUM(i) == id) {
 			return i.get();
 		}
 	}
@@ -1538,7 +1538,7 @@ void do_exchange(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	char *arg = str_dup(argument);
 	argument = one_argument(argument, arg1);
 
-	if (ch->is_npc()) {
+	if (ch->IsNpc()) {
 		send_to_char("Торговать?! Да вы же не человек!\r\n", ch);
 	} else if ((utils::IsAbbrev(arg1, "выставить") || utils::IsAbbrev(arg1, "exhibit")
 		|| utils::IsAbbrev(arg1, "цена") || utils::IsAbbrev(arg1, "cost")

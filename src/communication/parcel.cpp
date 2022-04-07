@@ -264,7 +264,7 @@ void send_object(CharData *ch, CharData *mailman, long vict_uid, ObjData *obj) {
 
 // * Отправка предмета, дергается из спешиала почты ('отправить имя предмет)'.
 void send(CharData *ch, CharData *mailman, long vict_uid, char *arg) {
-	if (ch->is_npc()) return;
+	if (ch->IsNpc()) return;
 
 	if (GET_UNIQUE(ch) == vict_uid) {
 		act("$n сказал$g вам : 'Не загружай понапрасну почту!'", false, mailman, 0, ch, kToVict);

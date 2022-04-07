@@ -118,7 +118,7 @@ void smash_tilde(char *str) {
  */
 void string_write(DescriptorData *d, const utils::AbstractStringWriter::shared_ptr &writer,
 				  size_t len, int mailto, void *data) {
-	if (d->character && !d->character->is_npc()) {
+	if (d->character && !d->character->IsNpc()) {
 		PLR_FLAGS(d->character).set(EPlrFlag::kWriting);
 	}
 
@@ -811,7 +811,7 @@ void string_add(DescriptorData *d, char *str) {
 			SEND_TO_Q(MENU, d);
 			d->connected = CON_MENU;
 			//log("[SA] 7f");
-		} else if (!d->connected && d->character && !d->character->is_npc()) {
+		} else if (!d->connected && d->character && !d->character->IsNpc()) {
 			if (terminator == 1)    //log("[SA] 8s");
 			{
 				if (d->writer) {
@@ -832,7 +832,7 @@ void string_add(DescriptorData *d, char *str) {
 			}
 		}
 
-		if (d->character && !d->character->is_npc()) {
+		if (d->character && !d->character->IsNpc()) {
 			PLR_FLAGS(d->character).unset(EPlrFlag::kWriting);
 
 			PLR_FLAGS(d->character).unset(EPlrFlag::kMailing);
@@ -929,7 +929,7 @@ void do_featset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (vict->is_npc()) {
+	if (vict->IsNpc()) {
 		send_to_char("Вы не можете добавить способность NPC, используйте OLC.\r\n", ch);
 		return;
 	}
@@ -1037,7 +1037,7 @@ void do_skillset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Минимальное значение умения 0.\r\n", ch);
 		return;
 	}
-	if (vict->is_npc()) {
+	if (vict->IsNpc()) {
 		send_to_char("Вы не можете добавить умение для мобов.\r\n", ch);
 		return;
 	}

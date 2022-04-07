@@ -871,7 +871,7 @@ std::bitset<ACCESS_NUM> Static::get_access(CharData *ch, const Board::shared_ptr
 }
 
 void DoBoardList(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (ch->is_npc())
+	if (ch->IsNpc())
 		return;
 
 	std::string out(
@@ -895,7 +895,7 @@ void DoBoardList(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 }
 
 void report_on_board(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
-	if (ch->is_npc()) return;
+	if (ch->IsNpc()) return;
 	skip_spaces(&argument);
 	delete_doubledollar(argument);
 

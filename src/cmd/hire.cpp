@@ -156,7 +156,7 @@ int get_reformed_charmice_hp(CharData *ch, CharData *victim, int spellnum) {
 }
 
 void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->is_npc()
+	if (ch->IsNpc()
 		|| (!IS_IMMORTAL(ch) && !IsAbleToUseFeat(ch, EFeat::kEmployer))) {
 		send_to_char("Вам недоступно это!\r\n", ch);
 		return;
@@ -195,7 +195,7 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (helpee == ch)
 		send_to_char("И как вы это представляете - нанять самого себя?\r\n", ch);
-	else if (!helpee->is_npc())
+	else if (!helpee->IsNpc())
 		send_to_char("Вы не можете нанять реального игрока!\r\n", ch);
 	else if (!NPC_FLAGGED(helpee, ENpcFlag::kHelped))
 		act("$N не нанимается!", false, ch, 0, helpee, kToChar);
@@ -205,7 +205,7 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act("$N не слышит вас.", false, ch, 0, helpee, kToChar);
 	else if (IS_HORSE(helpee))
 		send_to_char("Это боевой скакун, а не хухры-мухры.\r\n", ch);
-	else if (helpee->get_fighting() || GET_POS(helpee) < EPosition::kRest)
+	else if (helpee->GetEnemy() || GET_POS(helpee) < EPosition::kRest)
 		act("$M сейчас, похоже, не до вас.", false, ch, 0, helpee, kToChar);
 	else if (circle_follow(helpee, ch))
 		send_to_char("Следование по кругу запрещено.\r\n", ch);
@@ -304,7 +304,7 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		sprintf(buf, "$n сказал$g вам : \"Приказывай, %s!\"", IS_FEMALE(ch) ? "хозяйка" : "хозяин");
 		act(buf, false, helpee, 0, ch, kToVict | kToNotDeaf);
 
-		if (helpee->is_npc()) {
+		if (helpee->IsNpc()) {
 			for (auto i = 0; i < EEquipPos::kNumEquipPos; i++) {
 				if (GET_EQ(helpee, i)) {
 					if (!remove_otrigger(GET_EQ(helpee, i), helpee))
@@ -330,7 +330,7 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_freehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (ch->is_npc()
+	if (ch->IsNpc()
 		|| (!IS_IMMORTAL(ch) && !IsAbleToUseFeat(ch, EFeat::kEmployer))) {
 		send_to_char("Вам недоступно это!\r\n", ch);
 		return;

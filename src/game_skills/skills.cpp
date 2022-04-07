@@ -500,7 +500,7 @@ int SendSkillMessages(int dam, CharData *ch, CharData *vict, int attacktype, std
 				brief.reflect = true;
 			}
 
-			if (!vict->is_npc() && (GetRealLevel(vict) >= kLvlImmortal) && !PLR_FLAGGED((ch), EPlrFlag::kWriting)) {
+			if (!vict->IsNpc() && (GetRealLevel(vict) >= kLvlImmortal) && !PLR_FLAGGED((ch), EPlrFlag::kWriting)) {
 				switch (attacktype) {
 					case to_underlying(ESkill::kBackstab) + kTypeHit:
 					case to_underlying(ESkill::kThrow) + kTypeHit:
@@ -667,7 +667,7 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kHammer: {
-			if (vict->is_npc())
+			if (vict->IsNpc())
 				rate -= size_app[GET_POS_SIZE(vict)].shocking / 2;
 			else
 				rate -= size_app[GET_POS_SIZE(vict)].shocking;
@@ -735,7 +735,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		return 0;
 	}
 
-	if (!ch->is_npc() && !ch->affected.empty()) {
+	if (!ch->IsNpc() && !ch->affected.empty()) {
 		for (const auto &aff: ch->affected) {
 			if (aff->location == EApply::kPlague) {
 				base_percent -= number(ch->get_skill(skill_id) * 0.4, ch->get_skill(skill_id) * 0.05);
@@ -743,7 +743,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 	}
 
-	if (!ch->is_npc()) {
+	if (!ch->IsNpc()) {
 		size = (MAX(0, GET_REAL_SIZE(ch) - 50));
 	} else {
 		size = size_app[GET_POS_SIZE(ch)].interpolate / 2;
@@ -806,7 +806,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kKick: {
-			if (!ch->ahorse() && vict->ahorse()) {
+			if (!ch->IsOnHorse() && vict->IsOnHorse()) {
 				base_percent = 0;
 			} else {
 				parameter_bonus += GET_REAL_STR(ch);
@@ -1216,7 +1216,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 		return 0;
 	}
 
-	if (!ch->is_npc() && !ch->affected.empty()) {
+	if (!ch->IsNpc() && !ch->affected.empty()) {
 		for (const auto &aff: ch->affected) {
 			if (aff->location == EApply::kPlague) {
 				base_percent -= number(ch->get_skill(skill_id) * 0.4, ch->get_skill(skill_id) * 0.05);
@@ -1225,7 +1225,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 	}
 
 	base_percent += int_app[GET_REAL_INT(ch)].to_skilluse;
-	if (!ch->is_npc()) {
+	if (!ch->IsNpc()) {
 		size = (MAX(0, GET_REAL_SIZE(ch) - 50));
 	} else {
 		size = size_app[GET_POS_SIZE(ch)].interpolate / 2;
@@ -1574,7 +1574,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 			victim_sav = -GET_REAL_SAVING_STABILITY(vict);
 			bonus = size + dex_bonus(GET_REAL_STR(ch));
 
-			if (vict->is_npc())
+			if (vict->IsNpc())
 				victim_modi -= (size_app[GET_POS_SIZE(vict)].shocking) / 2;
 			else
 				victim_modi -= size_app[GET_POS_SIZE(vict)].shocking;
@@ -1702,7 +1702,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kStun: {
 			victim_sav = -GET_REAL_SAVING_STABILITY(vict);
-			if (!vict->is_npc())
+			if (!vict->IsNpc())
 				victim_sav *= 2;
 			else
 				victim_sav -= GetRealLevel(vict);
@@ -1765,11 +1765,11 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 		return;
 	}
 
-	if (ch->is_npc() || ch->agrobd) {
+	if (ch->IsNpc() || ch->agrobd) {
 		return;
 	}
 
-	if ((skill == ESkill::kSteal) && (!victim->is_npc())) {
+	if ((skill == ESkill::kSteal) && (!victim->IsNpc())) {
 		return;
 	}
 
@@ -1777,7 +1777,7 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 		(MOB_FLAGGED(victim, EMobFlag::kNoSkillTrain)
 			|| MOB_FLAGGED(victim, EMobFlag::kMounting)
 			|| !OK_GAIN_EXP(ch, victim)
-			|| (victim->get_master() && !victim->get_master()->is_npc()))) {
+			|| (victim->get_master() && !victim->get_master()->IsNpc()))) {
 		return;
 	}
 
@@ -1819,18 +1819,18 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 			ch->set_morphed_skill(skill,
 								  (MIN(kSkillCapOnZeroRemort + GET_REAL_REMORT(ch) * 5, ch->get_trained_skill(skill))));
 		}
-		if (victim && victim->is_npc()) {
+		if (victim && victim->IsNpc()) {
 			MOB_FLAGS(victim).set(EMobFlag::kNoSkillTrain);
 		}
 	}
 }
 
 void TrainSkill(CharData *ch, const ESkill skill, bool success, CharData *vict) {
-	if (!ch->is_npc()) {
+	if (!ch->IsNpc()) {
 		if (skill != ESkill::kSideAttack
 			&& ch->get_trained_skill(skill) > 0
 			&& (!vict
-				|| (vict->is_npc()
+				|| (vict->IsNpc()
 					&& !MOB_FLAGGED(vict, EMobFlag::kProtect)
 					&& !MOB_FLAGGED(vict, EMobFlag::kNoSkillTrain)
 					&& !AFF_FLAGGED(vict, EAffect::kCharmed)
@@ -1854,7 +1854,7 @@ int CalculateSkillAwakeModifier(CharData *killer, CharData *victim) {
 	int result = 0;
 	if (!killer || !victim) {
 		log("SYSERROR: zero character in CalculateSkillAwakeModifier.");
-	} else if (killer->is_npc() || victim->is_npc()) {
+	} else if (killer->IsNpc() || victim->IsNpc()) {
 		result = victim->get_skill(ESkill::kAwake);
 	} else {
 		result = victim->get_skill(ESkill::kAwake) / 2;

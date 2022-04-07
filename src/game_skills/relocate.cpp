@@ -39,7 +39,7 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (victim->is_npc()) {
+	if (victim->IsNpc()) {
 		send_to_char("Попытка перемещения не удалась.\r\n", ch);
 		return;
 	}
