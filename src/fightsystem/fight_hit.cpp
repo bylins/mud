@@ -102,20 +102,20 @@ int compute_armor_class(CharData *ch) {
 void haemorragia(CharData *ch, int percent) {
 	Affect<EApply> af[3];
 
-	af[0].type = kSpellHaemorragis;
+	af[0].type = kSpellHaemorrhage;
 	af[0].location = EApply::kHpRegen;
 	af[0].modifier = -percent;
 	//TODO: Отрицательное время, если тело больше 31?
 	af[0].duration = CalcDuration(ch, number(1, 31 - GET_REAL_CON(ch)), 0, 0, 0, 0);
 	af[0].bitvector = 0;
 	af[0].battleflag = 0;
-	af[1].type = kSpellHaemorragis;
+	af[1].type = kSpellHaemorrhage;
 	af[1].location = EApply::kMoveRegen;
 	af[1].modifier = -percent;
 	af[1].duration = af[0].duration;
 	af[1].bitvector = 0;
 	af[1].battleflag = 0;
-	af[2].type = kSpellHaemorragis;
+	af[2].type = kSpellHaemorrhage;
 	af[2].location = EApply::kMamaRegen;
 	af[2].modifier = -percent;
 	af[2].duration = af[0].duration;

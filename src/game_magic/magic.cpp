@@ -3339,15 +3339,18 @@ int CastToPoints(int level, CharData *ch, CharData *victim, int spellnum, ESavin
 
 	switch (spellnum) {
 		case kSpellCureLight:
-			hit = GET_REAL_MAX_HIT(victim) / 100 * GET_REAL_INT(ch) / 3 + ch->get_skill(ESkill::kLifeMagic) / 2;
+			hit =
+				GET_REAL_MAX_HIT(victim) / 100 * GET_REAL_INT(ch) / 3 + ch->get_skill(ESkill::kLifeMagic) / 2;
 			send_to_char("Вы почувствовали себя немножко лучше.\r\n", victim);
 			break;
 		case kSpellCureSerious:
-			hit = GET_REAL_MAX_HIT(victim) / 100 * GET_REAL_INT(ch) / 2 + ch->get_skill(ESkill::kLifeMagic) / 2;
+			hit =
+				GET_REAL_MAX_HIT(victim) / 100 * GET_REAL_INT(ch) / 2 + ch->get_skill(ESkill::kLifeMagic) / 2;
 			send_to_char("Вы почувствовали себя намного лучше.\r\n", victim);
 			break;
 		case kSpellCureCritic:
-			hit = int(GET_REAL_MAX_HIT(victim) / 100 * GET_REAL_INT(ch) / 1.5) + ch->get_skill(ESkill::kLifeMagic) / 2;
+			hit = int(GET_REAL_MAX_HIT(victim) / 100 * GET_REAL_INT(ch) / 1.5) +
+					ch->get_skill(ESkill::kLifeMagic) / 2;
 			send_to_char("Вы почувствовали себя значительно лучше.\r\n", victim);
 			break;
 		case kSpellHeal:
@@ -3356,7 +3359,8 @@ int CastToPoints(int level, CharData *ch, CharData *victim, int spellnum, ESavin
 			break;
 		case kSpellPatronage: hit = (GetRealLevel(victim) + GET_REAL_REMORT(victim)) * 2;
 			break;
-		case kSpellWarcryOfPower: hit = MIN(200, (4 * ch->get_con() + ch->get_skill(ESkill::kWarcry)) / 2);
+		case kSpellWarcryOfPower: hit =
+				std::min(200, (4 * ch->get_con() + ch->get_skill(ESkill::kWarcry)) / 2);
 			send_to_char("По вашему телу начала струиться живительная сила.\r\n", victim);
 			break;
 		case kSpellExtraHits: extraHealing = true;
@@ -3386,7 +3390,7 @@ int CastToPoints(int level, CharData *ch, CharData *victim, int spellnum, ESavin
 			send_to_char("Вы полностью насытились.\r\n", victim);
 		}
 			break;
-		default: log("MAG_POINTS: Ошибка! Передан не определенный лечащий спелл spellnum: %d!\r\n", spellnum);
+		default: log("MAG_POINTS: Ошибка! Передан неопределенный лечащий спелл spellnum: %d!\r\n", spellnum);
 			return 0;
 			break;
 	}
@@ -3399,23 +3403,25 @@ int CastToPoints(int level, CharData *ch, CharData *victim, int spellnum, ESavin
 	}
 	// лечение
 	if (GET_HIT(victim) < kMaxHits && hit != 0) {
-		// просто лечим
-		if (!extraHealing && GET_HIT(victim) < GET_REAL_MAX_HIT(victim))
-			GET_HIT(victim) = MIN(GET_HIT(victim) + hit, GET_REAL_MAX_HIT(victim));
-		// добавляем фикс.хиты сверх максимума
+		if (!extraHealing && GET_HIT(victim) < GET_REAL_MAX_HIT(victim)) {
+			if (AFF_FLAGGED(victim, EAffect::kLacerations)) {
+				GET_HIT(victim) = std::min(GET_HIT(victim) + hit / 2, GET_REAL_MAX_HIT(victim));
+			} else {
+				GET_HIT(victim) = std::min(GET_HIT(victim) + hit, GET_REAL_MAX_HIT(victim));
+			}
+		}
 		if (extraHealing) {
-			// если макс.хп отрицательные - доводим до 1
-			if (GET_REAL_MAX_HIT(victim) <= 0)
-				GET_HIT(victim) = MAX(GET_HIT(victim), MIN(GET_HIT(victim) + hit, 1));
-			else
-				// лимит в треть от макс.хп сверху
-				GET_HIT(victim) = MAX(GET_HIT(victim),
-									  MIN(GET_HIT(victim) + hit,
-										  GET_REAL_MAX_HIT(victim) + GET_REAL_MAX_HIT(victim) * 33 / 100));
+			if (GET_REAL_MAX_HIT(victim) <= 0) {
+				GET_HIT(victim) = std::max(GET_HIT(victim), std::min(GET_HIT(victim) + hit, 1));
+			} else {
+				GET_HIT(victim) = std::clamp(GET_HIT(victim) + hit, GET_HIT(victim),
+											 GET_REAL_MAX_HIT(victim) + GET_REAL_MAX_HIT(victim) * 33 / 100);
+			}
 		}
 	}
-	if (move != 0 && GET_MOVE(victim) < GET_REAL_MAX_MOVE(victim))
-		GET_MOVE(victim) = MIN(GET_MOVE(victim) + move, GET_REAL_MAX_MOVE(victim));
+	if (move != 0 && GET_MOVE(victim) < GET_REAL_MAX_MOVE(victim)) {
+		GET_MOVE(victim) = std::min(GET_MOVE(victim) + move, GET_REAL_MAX_MOVE(victim));
+	}
 	update_pos(victim);
 
 	return 1;

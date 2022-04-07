@@ -2492,7 +2492,7 @@ std::string get_wear_off_text(ESpell spell)
 		{kSpellFullFeed, "Вам снова захотелось жареного, да с дымком."},
 		{kSpellColdWind, "Вы согрелись и подвижность вернулась к вам."},
 		{kSpellBattle, "К вам вернулась способность нормально сражаться."},
-		{kSpellHaemorragis, "Ваши кровоточащие раны затянулись."},
+		{kSpellHaemorrhage, "Ваши кровоточащие раны затянулись."},
 		{kSpellCourage, "Вы успокоились."},
 		{kSpellWaterbreath, "Вы более не способны дышать водой."},
 		{kSpellSlowdown, "Медлительность исчезла."},
@@ -2754,7 +2754,7 @@ std::optional<CastPhraseList> get_cast_phrase(int spell)
 		{kSpellFullFeed, {"брюхо полно", "... душа больше пищи, и тело - одежды."}},
 		{kSpellColdWind, {"веют ветры", "... подует северный холодный ветер."}},
 		{kSpellBattle, {"", ""}},
-		{kSpellHaemorragis, {"", ""}},
+		{kSpellHaemorrhage, {"", ""}},
 		{kSpellCourage, {"", ""}},
 		{kSpellWaterbreath, {"не затвори темне березе", "... дух дышит, где хочет."}},
 		{kSpellSlowdown, {"немочь", "...и помедлил еще семь дней других."}},
@@ -3052,7 +3052,7 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kSpellFullFeed] = "kSpellFullFeed";
 	ESpell_name_by_value[ESpell::kSpellColdWind] = "kSpellColdWind";
 	ESpell_name_by_value[ESpell::kSpellBattle] = "kSpellBattle";
-	ESpell_name_by_value[ESpell::kSpellHaemorragis] = "kSpellHaemorragis";
+	ESpell_name_by_value[ESpell::kSpellHaemorrhage] = "kSpellHaemorragis";
 	ESpell_name_by_value[ESpell::kSpellCourage] = "kSpellCourage";
 	ESpell_name_by_value[ESpell::kSpellWaterbreath] = "kSpellWaterbreath";
 	ESpell_name_by_value[ESpell::kSpellSlowdown] = "kSpellSlowdown";

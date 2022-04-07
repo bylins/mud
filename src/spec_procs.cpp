@@ -283,6 +283,7 @@ void list_feats(CharData *ch, CharData *vict, bool all_feats) {
 				case EFeat::kScirmisher:
 				case EFeat::kDoubleThrower:
 				case EFeat::kTripleThrower:
+				case EFeat::kSerratedBlade:
 					if (PRF_FLAGGED(ch, GetPrfWithFeatNumber(sortpos)))
 						sprintf(buf, "[-%s*%s-] ", CCIGRN(vict, C_NRM), CCNRM(vict, C_NRM));
 					else

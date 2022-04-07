@@ -873,6 +873,9 @@ void look_at_char(CharData *i, CharData *ch) {
 	if (AFF_FLAGGED(i, EAffect::kHaemorrhage)) {
 		act("$n покрыт$a кровоточащими ранами!", false, i, nullptr, ch, kToVict);
 	}
+	if (AFF_FLAGGED(i, EAffect::kLacerations)) {
+		act("$n покрыт$a рваными ранами!", false, i, nullptr, ch, kToVict);
+	}
 
 	if (AFF_FLAGGED(i, EAffect::kCharmed)
 		&& i->get_master() == ch) {

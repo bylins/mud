@@ -241,7 +241,7 @@ enum ESpell : int {
 	kSpellFullFeed = 103,
 	kSpellColdWind = 104,
 	kSpellBattle = 105,
-	kSpellHaemorragis = 106,
+	kSpellHaemorrhage = 106,
 	kSpellCourage = 107,
 	kSpellWaterbreath = 108,
 	kSpellSlowdown = 109,

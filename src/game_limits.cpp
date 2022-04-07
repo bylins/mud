@@ -661,14 +661,14 @@ void beat_points_update(int pulse) {
 		if (AFF_FLAGGED(i, EAffect::kBandage)) {
 			for (const auto &aff : i->affected) {
 				if (aff->type == kSpellBandage) {
-					restore += MIN(GET_REAL_MAX_HIT(i) / 10, aff->modifier);
+					restore += std::min(GET_REAL_MAX_HIT(i) / 10, aff->modifier);
 					break;
 				}
 			}
 		}
 
 		if (GET_HIT(i) < GET_REAL_MAX_HIT(i)) {
-			GET_HIT(i) = MIN(GET_HIT(i) + restore, GET_REAL_MAX_HIT(i));
+			GET_HIT(i) = std::min(GET_HIT(i) + restore, GET_REAL_MAX_HIT(i));
 		}
 
 		// Restore PC caster mem

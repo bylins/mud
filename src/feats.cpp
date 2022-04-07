@@ -537,6 +537,8 @@ void InitFeatures() {
 //135
 	InitFeat(EFeat::kLiveShield, "живой щит", EFeatType::kNormal, true, feat_app);
 // === Проскок номеров (типа резерв под татей) ===
+//137
+	InitFeat(EFeat::kSerratedBlade, "воровская заточка", EFeatType::kActivated, true, feat_app);
 //138
 	InitFeat(EFeat::kEvasion, "скользкий тип", EFeatType::kNormal, true, feat_app);
 //139
@@ -919,6 +921,9 @@ bool IsAbleToGetFeat(CharData *ch, EFeat feat) {
 		case EFeat::kDeadlyThrow:
 			return (HAVE_FEAT(ch, EFeat::kPowerThrow) &&
 				(ch->get_skill(ESkill::kThrow) > 110));
+			break;
+		case EFeat::kSerratedBlade:
+			return (HAVE_FEAT(ch, EFeat::kCutting));
 			break;
 		default: return true;
 			break;
@@ -1417,6 +1422,10 @@ void ActivateFeat(CharData *ch, EFeat feat_id) {
 			PRF_FLAGS(ch).unset(EPrf::kPerformGreatPowerAttack);
 			PRF_FLAGS(ch).set(EPrf::kPerformGreatAimingAttack);
 			break;
+		case EFeat::kSerratedBlade:
+			send_to_char("Вы перехватили свои клинки особым хватом.\r\n", ch);
+			PRF_FLAGS(ch).set(EPrf::kPerformSerratedBlade);
+			break;
 		case EFeat::kScirmisher:
 			if (!AFF_FLAGGED(ch, EAffect::kGroup)) {
 				send_to_char(ch,
@@ -1456,6 +1465,10 @@ void DeactivateFeature(CharData *ch, EFeat feat_id) {
 		case EFeat::kAimingAttack: PRF_FLAGS(ch).unset(EPrf::kPerformAimingAttack);
 			break;
 		case EFeat::kGreatAimingAttack: PRF_FLAGS(ch).unset(EPrf::kPerformGreatAimingAttack);
+			break;
+		case EFeat::kSerratedBlade:
+			send_to_char("Вы ловко прокрутили свои клинки в обычный прямой хват.\r\n", ch);
+			PRF_FLAGS(ch).unset(EPrf::kPerformSerratedBlade);
 			break;
 		case EFeat::kScirmisher: PRF_FLAGS(ch).unset(EPrf::kSkirmisher);
 			if (AFF_FLAGGED(ch, EAffect::kGroup)) {
@@ -1530,6 +1543,8 @@ Bitvector GetPrfWithFeatNumber(EFeat feat_id) {
 		case EFeat::kAimingAttack: return EPrf::kPerformAimingAttack;
 			break;
 		case EFeat::kGreatAimingAttack: return EPrf::kPerformGreatAimingAttack;
+			break;
+		case EFeat::kSerratedBlade: return EPrf::kPerformSerratedBlade;
 			break;
 		case EFeat::kScirmisher: return EPrf::kSkirmisher;
 			break;

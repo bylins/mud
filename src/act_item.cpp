@@ -2695,24 +2695,21 @@ void do_firstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	success = (prob >= percent);
 	need = false;
 
-	if ((GET_REAL_MAX_HIT(vict) > 0
-		&& (GET_HIT(vict) * 100 / GET_REAL_MAX_HIT(vict)) < 31)
-		|| (GET_REAL_MAX_HIT(vict) <= 0
-			&& GET_HIT(vict) < GET_REAL_MAX_HIT(vict))
-		|| (GET_HIT(vict) < GET_REAL_MAX_HIT(vict)
-			&& IsAbleToUseFeat(ch, EFeat::kHealer))) {
+	if ((GET_REAL_MAX_HIT(vict) > 0 && (GET_HIT(vict) * 100 / GET_REAL_MAX_HIT(vict)) < 31) ||
+		(GET_REAL_MAX_HIT(vict) <= 0 && GET_HIT(vict) < GET_REAL_MAX_HIT(vict)) ||
+		(GET_HIT(vict) < GET_REAL_MAX_HIT(vict) && IsAbleToUseFeat(ch, EFeat::kHealer))) {
 		need = true;
 		if (success) {
 			if (!PRF_FLAGGED(ch, EPrf::kTester)) {
 				int dif = GET_REAL_MAX_HIT(vict) - GET_HIT(vict);
-				int add = MIN(dif, (dif * (prob - percent) / 100) + 1);
+				int add = std::min(dif, (dif * (prob - percent) / 100) + 1);
 				GET_HIT(vict) += add;
 			} else {
 				percent = CalcCurrentSkill(ch, ESkill::kFirstAid, vict);
 				prob = GetRealLevel(ch) * percent * 0.5;
 				send_to_char(ch, "&RУровень цели %d Отхилено %d хитов, скилл %d\r\n", GetRealLevel(vict), prob, percent);
 				GET_HIT(vict) += prob;
-				GET_HIT(vict) = MIN(GET_HIT(vict), GET_REAL_MAX_HIT(vict));
+				GET_HIT(vict) = std::min(GET_HIT(vict), GET_REAL_MAX_HIT(vict));
 				update_pos(vict);
 			}
 		}

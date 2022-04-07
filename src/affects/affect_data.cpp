@@ -132,7 +132,7 @@ bool Affect<EApply>::removable() const {
 		|| type == kSpellPowerSilence
 		|| type == kSpellBlindness
 		|| type == kSpellPowerBlindness
-		|| type == kSpellHaemorragis
+		|| type == kSpellHaemorrhage
 		|| type == kSpellHold
 		|| type == kSpellPowerHold
 		|| type == kSpellPeaceful

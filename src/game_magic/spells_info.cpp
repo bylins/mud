@@ -586,7 +586,7 @@ void InitSpells() {
 			  kMagManual, 0, kTypeNeutral);
 
 //106
-	initSpell(kSpellHaemorragis, "!кровотечение!", "!set by programm!",
+	initSpell(kSpellHaemorrhage, "!кровотечение!", "!set by programm!",
 			  0, 0, 0, EPosition::kStand, 0, false,
 			  kMagManual, 0, kTypeNeutral);
 //107

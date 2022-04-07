@@ -20,19 +20,29 @@ void ApplyNoFleeAffect(CharData *ch, int duration) {
 	send_to_char("Вы выпали из ритма боя.\r\n", ch);
 }
 
+void ApplyHaemorrhageAffect(AbilitySystem::TechniqueRoll &roll) {
+	Affect<EApply> cut;
+	cut.type = kSpellBattle;
+	cut.duration = CalcDuration(roll.GetActor(), 3 * number(2, 4), 0, 0, 0, 0);;
+	cut.battleflag = kAfBattledec;
+	if (PRF_FLAGGED(roll.GetActor(), EPrf::kPerformSerratedBlade)) {
+		cut.modifier = 1;
+		cut.bitvector = to_underlying(EAffect::kLacerations);
+		cut.location = EApply::kNone;
+	} else {
+		cut.modifier = -std::min(25, number(1, roll.GetActorRating()) / 12) - (roll.IsCriticalSuccess() ? 10 : 0);
+		cut.bitvector = to_underlying(EAffect::kHaemorrhage);
+		cut.location = EApply::kResistVitality;
+	}
+	ImposeAffect(roll.GetRival(), cut, false, true, false, true);
+}
+
 void PerformCutSuccess(AbilitySystem::TechniqueRoll &roll) {
 	act("$n сделал$g неуловимое движение и на мгновение исчез$q из вида.",
 		false, roll.GetActor(), nullptr, roll.GetRival(), kToVict);
 	act("$n сделал$g неуловимое движение, сместившись за спину $N1.",
 		true, roll.GetActor(), nullptr, roll.GetRival(), kToNotVict | kToArenaListen);
-	Affect<EApply> cut;
-	cut.type = kSpellBattle;
-	cut.bitvector = to_underlying(EAffect::kHaemorrhage);
-	cut.location = EApply::kResistVitality;
-	cut.modifier = -std::min(25, number(1, roll.GetActorRating())/12) - (roll.IsCriticalSuccess() ? 10 : 0);
-	cut.duration = CalcDuration(roll.GetActor(), 3*number(2, 4), 0, 0, 0, 0);;
-	cut.battleflag = kAfBattledec;
-	ImposeAffect(roll.GetRival(), cut, false, true, false, true);
+	ApplyHaemorrhageAffect(roll);
 }
 
 void PerformCutFail(AbilitySystem::TechniqueRoll &roll) {

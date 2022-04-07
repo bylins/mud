@@ -840,7 +840,7 @@ class CharData : public ProtectedCharData {
 # define MAX_FIRSTAID_REMOVE 13
 inline int RemoveSpell(int num) {
 	int spell[MAX_FIRSTAID_REMOVE] = {kSpellSleep, kSpellPoison, kSpellWeaknes, kSpellCurse, kSpellFever,
-									  kSpellSllence, kSpellBlindness, kSpellHaemorragis, kSpellHold, kSpellPeaceful,
+									  kSpellSllence, kSpellBlindness, kSpellHaemorrhage, kSpellHold, kSpellPeaceful,
 									  kSpellColdWind, kSpellDeafness, kSpellBattle};
 	return spell[num];
 }
