@@ -31,7 +31,7 @@ void PerformCutSuccess(AbilitySystem::TechniqueRoll &roll) {
 	cut.location = EApply::kResistVitality;
 	cut.modifier = -std::min(25, number(1, roll.GetActorRating())/12) - (roll.IsCriticalSuccess() ? 10 : 0);
 	cut.duration = CalcDuration(roll.GetActor(), 3*number(2, 4), 0, 0, 0, 0);;
-	cut.battleflag = kAfBattledec | kAfPulsedec;
+	cut.battleflag = kAfBattledec;
 	ImposeAffect(roll.GetRival(), cut, false, true, false, true);
 }
 

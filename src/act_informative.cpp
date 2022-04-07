@@ -870,6 +870,10 @@ void look_at_char(CharData *i, CharData *ch) {
 	} else
 		act("\r\nНичего необычного в $n5 вы не заметили.", false, i, nullptr, ch, kToVict);
 
+	if (AFF_FLAGGED(i, EAffect::kHaemorrhage)) {
+		act("$n покрыт$a кровоточащими ранами!", false, i, nullptr, ch, kToVict);
+	}
+
 	if (AFF_FLAGGED(i, EAffect::kCharmed)
 		&& i->get_master() == ch) {
 		if (i->low_charm()) {
