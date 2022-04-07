@@ -46,19 +46,19 @@ void do_ban(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				case 'i':
 				case 'I': ban->ShowBannedProxy(BanList::SORT_BY_NAME, ch);
 					return;
-				default: send_to_char("Usage: ban proxy [[-N | -I] | ip] \r\n", ch);
-					send_to_char(" -N : Sort by banner name \r\n", ch);
-					send_to_char(" -I : Sort by banned ip \r\n", ch);
+				default: SendMsgToChar("Usage: ban proxy [[-N | -I] | ip] \r\n", ch);
+					SendMsgToChar(" -N : Sort by banner name \r\n", ch);
+					SendMsgToChar(" -I : Sort by banned ip \r\n", ch);
 					return;
 			};
 		std::string banned_ip(site);
 		std::string banner_name(GET_NAME(ch));
 
 		if (!ban->add_proxy_ban(banned_ip, banner_name)) {
-			send_to_char("The site is already in the proxy ban list.\r\n", ch);
+			SendMsgToChar("The site is already in the proxy ban list.\r\n", ch);
 			return;
 		}
-		send_to_char("Proxy banned.\r\n", ch);
+		SendMsgToChar("Proxy banned.\r\n", ch);
 		return;
 	}
 
@@ -77,18 +77,18 @@ void do_ban(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		};
 
 	if (!*flag || !*site) {
-		send_to_char("Usage: ban [[-N | -D | -I] | {all | select | new } ip duration [reason]] \r\n", ch);
-		send_to_char("or\r\n", ch);
-		send_to_char(" ban proxy [[-N | -I] | ip] \r\n", ch);
-		send_to_char(" -N : Sort by banner name \r\n", ch);
-		send_to_char(" -D : Sort by ban date \r\n", ch);
-		send_to_char(" -I : Sort by bannd ip \r\n", ch);
+		SendMsgToChar("Usage: ban [[-N | -D | -I] | {all | select | new } ip duration [reason]] \r\n", ch);
+		SendMsgToChar("or\r\n", ch);
+		SendMsgToChar(" ban proxy [[-N | -I] | ip] \r\n", ch);
+		SendMsgToChar(" -N : Sort by banner name \r\n", ch);
+		SendMsgToChar(" -D : Sort by ban date \r\n", ch);
+		SendMsgToChar(" -I : Sort by bannd ip \r\n", ch);
 		return;
 	}
 
 	if (!(!str_cmp(flag, "select") || !str_cmp(flag, "all")
 		|| !str_cmp(flag, "new"))) {
-		send_to_char("Flag must be ALL, SELECT, or NEW.\r\n", ch);
+		SendMsgToChar("Flag must be ALL, SELECT, or NEW.\r\n", ch);
 		return;
 	}
 
@@ -98,7 +98,7 @@ void do_ban(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	skip_spaces(&reason);
 	len = atoi(length);
 	if (!*length || len == 0) {
-		send_to_char("Usage: ban {all | select | new } ip duration [reason]\r\n", ch);
+		SendMsgToChar("Usage: ban {all | select | new } ip duration [reason]\r\n", ch);
 		return;
 	}
 	std::string banned_ip(site);
@@ -109,22 +109,22 @@ void do_ban(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			ban_type = i;
 
 	if (!ban->add_ban(banned_ip, ban_reason, banner_name, len, ban_type)) {
-		send_to_char("That site has already been banned -- unban it to change the ban type.\r\n", ch);
+		SendMsgToChar("That site has already been banned -- unban it to change the ban type.\r\n", ch);
 		return;
 	}
-	send_to_char("Site banned.\r\n", ch);
+	SendMsgToChar("Site banned.\r\n", ch);
 }
 
 void do_unban(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char site[kMaxInputLength];
 	one_argument(argument, site);
 	if (!*site) {
-		send_to_char("A site to unban might help.\r\n", ch);
+		SendMsgToChar("A site to unban might help.\r\n", ch);
 		return;
 	}
 	std::string unban_site(site);
 	if (!ban->unban(unban_site, ch)) {
-		send_to_char("The site is not currently banned.\r\n", ch);
+		SendMsgToChar("The site is not currently banned.\r\n", ch);
 		return;
 	}
 }
@@ -346,7 +346,7 @@ void do_proxy(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (CompareParam(buffer2, "add") || CompareParam(buffer2, "добавить")) {
 		GetOneParam(buffer, buffer2);
 		if (buffer2.empty()) {
-			send_to_char("Укажите регистрируемый IP адрес или параметр mask|маска.\r\n", ch);
+			SendMsgToChar("Укажите регистрируемый IP адрес или параметр mask|маска.\r\n", ch);
 			return;
 		}
 		// случай добавления диапазона ип
@@ -354,14 +354,14 @@ void do_proxy(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (CompareParam(buffer2, "mask") || CompareParam(buffer2, "маска")) {
 			GetOneParam(buffer, buffer2);
 			if (buffer2.empty()) {
-				send_to_char("Укажите начало диапазона.\r\n", ch);
+				SendMsgToChar("Укажите начало диапазона.\r\n", ch);
 				return;
 			}
 			textIp = buffer2;
 			// должен быть второй ип
 			GetOneParam(buffer, buffer2);
 			if (buffer2.empty()) {
-				send_to_char("Укажите конец диапазона.\r\n", ch);
+				SendMsgToChar("Укажите конец диапазона.\r\n", ch);
 				return;
 			}
 			textIp2 = buffer2;
@@ -370,18 +370,18 @@ void do_proxy(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		GetOneParam(buffer, buffer2);
 		if (buffer2.empty()) {
-			send_to_char("Укажите максимальное кол-во коннектов.\r\n", ch);
+			SendMsgToChar("Укажите максимальное кол-во коннектов.\r\n", ch);
 			return;
 		}
 		int num = atoi(buffer2.c_str());
 		if (num < 2 || num > MAX_PROXY_CONNECT) {
-			send_to_char(ch, "Некорректное число коннектов (2-%d).\r\n", MAX_PROXY_CONNECT);
+			SendMsgToChar(ch, "Некорректное число коннектов (2-%d).\r\n", MAX_PROXY_CONNECT);
 			return;
 		}
 
 		boost::trim_if(buffer, boost::is_any_of(std::string(" \'")));
 		if (buffer.empty()) {
-			send_to_char("Укажите причину регистрации.\r\n", ch);
+			SendMsgToChar("Укажите причину регистрации.\r\n", ch);
 			return;
 		}
 		char timeBuf[11];
@@ -396,33 +396,33 @@ void do_proxy(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		unsigned long ip = TxtToIp(textIp);
 		unsigned long ip2 = TxtToIp(textIp2);
 		if (ip2 && ((ip2 - ip) > 65535)) {
-			send_to_char("Слишком широкий диапазон. (Максимум x.x.0.0. до x.x.255.255).\r\n", ch);
+			SendMsgToChar("Слишком широкий диапазон. (Максимум x.x.0.0. до x.x.255.255).\r\n", ch);
 			return;
 		}
 		tempIp->ip2 = ip2;
 		proxyList[ip] = tempIp;
 		SaveProxyList();
-		send_to_char("Запись добавлена.\r\n", ch);
+		SendMsgToChar("Запись добавлена.\r\n", ch);
 
 	} else if (CompareParam(buffer2, "remove") || CompareParam(buffer2, "удалить")) {
 		GetOneParam(buffer, buffer2);
 		if (buffer2.empty()) {
-			send_to_char("Укажите удаляемый IP адрес или начало диапазона.\r\n", ch);
+			SendMsgToChar("Укажите удаляемый IP адрес или начало диапазона.\r\n", ch);
 			return;
 		}
 		unsigned long ip = TxtToIp(buffer2);
 		ProxyListType::iterator it;
 		it = proxyList.find(ip);
 		if (it == proxyList.end()) {
-			send_to_char("Данный IP/диапазон и так не зарегистрирован.\r\n", ch);
+			SendMsgToChar("Данный IP/диапазон и так не зарегистрирован.\r\n", ch);
 			return;
 		}
 		proxyList.erase(it);
 		SaveProxyList();
-		send_to_char("Запись удалена.\r\n", ch);
+		SendMsgToChar("Запись удалена.\r\n", ch);
 
 	} else
-		send_to_char("Формат: proxy <list|список>\r\n"
+		SendMsgToChar("Формат: proxy <list|список>\r\n"
 					 "        proxy <add|добавить> ip <количество коннектов> комментарий\r\n"
 					 "        proxy <add|добавить> <mask|маска> <начало диапазона> <конец диапазона> <количество коннектов> комментарий\r\n"
 					 "        proxy <remove|удалить> ip\r\n", ch);
@@ -837,7 +837,7 @@ bool BanList::save_proxy(void) {
 
 void BanList::ShowBannedIp(int sort_mode, CharData *ch) {
 	if (Ban_List.empty()) {
-		send_to_char("No sites are banned.\r\n", ch);
+		SendMsgToChar("No sites are banned.\r\n", ch);
 		return;
 	}
 
@@ -873,7 +873,7 @@ void BanList::ShowBannedIp(int sort_mode, CharData *ch) {
 void BanList::ShowBannedIpByMask(int sort_mode, CharData *ch, const char *mask) {
 	bool is_find = false;
 	if (Ban_List.empty()) {
-		send_to_char("No sites are banned.\r\n", ch);
+		SendMsgToChar("No sites are banned.\r\n", ch);
 		return;
 	}
 
@@ -909,28 +909,28 @@ void BanList::ShowBannedIpByMask(int sort_mode, CharData *ch, const char *mask) 
 	if (is_find) {
 		page_string(ch->desc, listbuf, 1);
 	} else {
-		send_to_char("No sites are banned.\r\n", ch);
+		SendMsgToChar("No sites are banned.\r\n", ch);
 	}
 	free(listbuf);
 }
 
 void BanList::ShowBannedProxy(int sort_mode, CharData *ch) {
 	if (Proxy_Ban_List.empty()) {
-		send_to_char("No proxies are banned.\r\n", ch);
+		SendMsgToChar("No proxies are banned.\r\n", ch);
 		return;
 	}
 	sort_proxy(sort_mode);
 	char format[kMaxInputLength];
 	strcpy(format, "%-25.25s  %-16.16s\r\n");
 	sprintf(buf, format, "Banned Site Name", "Banned By");
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 	sprintf(buf, format, "---------------------------------", "---------------------------------");
 
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 
 	for (std::list<ProxyBanNodePtr>::iterator i = Proxy_Ban_List.begin(); i != Proxy_Ban_List.end(); i++) {
 		sprintf(buf, format, (*i)->BannedIp.c_str(), (*i)->BannerName.c_str());
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 	}
 }
 
@@ -969,7 +969,7 @@ bool BanList::unban_ip(std::string ip, CharData *ch) {
 
 	if (i != Ban_List.end()) {
 ////////////////////////////////////////////////////////////////////////
-		send_to_char("Site unbanned.\r\n", ch);
+		SendMsgToChar("Site unbanned.\r\n", ch);
 		sprintf(buf, "%s removed the %s-player ban on %s.",
 				GET_NAME(ch), ban_types[(*i)->BanType], (*i)->BannedIp.c_str());
 		mudlog(buf, BRF, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
@@ -991,7 +991,7 @@ bool BanList::unban_proxy(std::string ip, CharData *ch) {
 
 	if (i != Proxy_Ban_List.end()) {
 ////////////////////////////////////////////////////////////////////////
-		send_to_char("Proxy unbanned.\r\n", ch);
+		SendMsgToChar("Proxy unbanned.\r\n", ch);
 		sprintf(buf, "%s removed the proxy ban on %s.", GET_NAME(ch), (*i)->BannedIp.c_str());
 		mudlog(buf, BRF, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 		imm_log("%s removed the proxy ban on %s.", GET_NAME(ch), (*i)->BannedIp.c_str());
@@ -1067,7 +1067,7 @@ void BanList::disconnectBannedIp(std::string Ip) {
 		if (d->host == Ip) {
 			if (STATE(d) == CON_DISCONNECT || STATE(d) == CON_CLOSE)
 				return;
-			//send_to_char will crash, it char has not been loaded/created yet.
+			//SendMsgToChar will crash, it char has not been loaded/created yet.
 			SEND_TO_Q("Your IP has been banned, disconnecting...\r\n", d);
 			if (STATE(d) == CON_PLAYING)
 				STATE(d) = CON_DISCONNECT;

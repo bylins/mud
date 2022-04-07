@@ -122,13 +122,13 @@ void load_from_file(CharData *ch)
 	}
 
 	if (ch) {
-		send_to_char(quest_loader.log_message(), ch);
-		send_to_char("\r\n", ch);
+		SendMsgToChar(quest_loader.log_message(), ch);
+		SendMsgToChar("\r\n", ch);
 
 		if (!quest_loader) {
 			std::stringstream log_message;
 			log_message << "Текущий список квестов оставлен без изменений. Количество квестов: " << GlobalObjects::daily_quests().size() << "\r\n";
-			send_to_char(log_message.str(), ch);
+			SendMsgToChar(log_message.str(), ch);
 		}
 	}
 }

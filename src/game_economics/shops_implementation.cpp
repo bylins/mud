@@ -283,7 +283,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 
 		if (!tmp_obj) {
 			log("SYSERROR : не удалось прочитать предмет (%s:%d)", __FILE__, __LINE__);
-			send_to_char("Ошибочка вышла.\r\n", ch);
+			SendMsgToChar("Ошибочка вышла.\r\n", ch);
 			return;
 		}
 
@@ -293,7 +293,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 	auto proto = (tmp_obj ? tmp_obj : get_object_prototype(item->vnum()).get());
 	if (!proto) {
 		log("SYSERROR : не удалось прочитать прототип (%s:%d)", __FILE__, __LINE__);
-		send_to_char("Ошибочка вышла.\r\n", ch);
+		SendMsgToChar("Ошибочка вышла.\r\n", ch);
 		return;
 	}
 
@@ -328,7 +328,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 				 "%s, я понимаю, своя ноша карман не тянет,\r\n"
 				 "но %s вам явно некуда положить.\r\n",
 				 GET_NAME(ch), name);
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 		return;
 	}
 
@@ -392,7 +392,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 				ch->sub_hryvn(price);
 				ch->spent_hryvn_sub(price);
 				if (ch->get_spent_hryvn() > 1000) {
-					send_to_char("Мессага о том, что гривны были сброшены.\r\n", ch);
+					SendMsgToChar("Мессага о том, что гривны были сброшены.\r\n", ch);
 					ch->reset_daily_quest();
 				}
 			} else {
@@ -405,7 +405,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 		} else {
 			log("SYSERROR : не удалось загрузить предмет ObjVnum=%d (%s:%d)",
 				GET_OBJ_VNUM(proto), __FILE__, __LINE__);
-			send_to_char("Ошибочка вышла.\r\n", ch);
+			SendMsgToChar("Ошибочка вышла.\r\n", ch);
 			return;
 		}
 	}
@@ -452,14 +452,14 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 					 price);
 			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 		}
-		send_to_char(ch, "Теперь вы стали %s %s.\r\n",
+		SendMsgToChar(ch, "Теперь вы стали %s %s.\r\n",
 					 IS_MALE(ch) ? "счастливым обладателем" : "счастливой обладательницей",
 					 obj->item_count_message(bought, 1).c_str());
 	}
 }
 
 void shop_node::print_shop_list(CharData *ch, const std::string &arg, int keeper_vnum) const {
-	send_to_char(ch,
+	SendMsgToChar(ch,
 				 " ##    Доступно   Предмет                                      Цена (%s)\r\n"
 				 "---------------------------------------------------------------------------\r\n",
 				 currency.c_str());
@@ -636,24 +636,24 @@ void shop_node::filter_shop_list(CharData *ch, const std::string &arg, int keepe
 	switch (first_simvol[0]) {
 		case 'Т':
 			if (!init_type(filtr_value, type)) {
-				send_to_char("Неверный тип предмета.\r\n", ch);
+				SendMsgToChar("Неверный тип предмета.\r\n", ch);
 				return;
 			}
 			break;
 
 		case 'О':
 			if (!init_wear(filtr_value, wear)) {
-				send_to_char("Неверное место одевания предмета.\r\n", ch);
+				SendMsgToChar("Неверное место одевания предмета.\r\n", ch);
 				return;
 			}
 			break;
 
-		default: send_to_char("Неверный фильтр. \r\n", ch);
+		default: SendMsgToChar("Неверный фильтр. \r\n", ch);
 			return;;
 			break;
 	};
 
-	send_to_char(ch,
+	SendMsgToChar(ch,
 				 " ##    Доступно   Предмет(фильтр)                              Цена (%s)\r\n"
 				 "---------------------------------------------------------------------------\r\n",
 				 currency.c_str());
@@ -749,7 +749,7 @@ void shop_node::process_cmd(CharData *ch, CharData *keeper, char *argument, cons
 		ObjData *obj = get_obj_in_list_vis(ch, buffer, ch->carrying);
 
 		if (!obj) {
-			send_to_char("У вас нет " + buffer + "!\r\n", ch);
+			SendMsgToChar("У вас нет " + buffer + "!\r\n", ch);
 			return;
 		}
 
@@ -776,7 +776,7 @@ void shop_node::process_cmd(CharData *ch, CharData *keeper, char *argument, cons
 						}
 						return;
 					}
-					send_to_char("У вас нет " + buffer2 + "!\r\n", ch);
+					SendMsgToChar("У вас нет " + buffer2 + "!\r\n", ch);
 					return;
 				}
 
@@ -798,7 +798,7 @@ void shop_node::process_cmd(CharData *ch, CharData *keeper, char *argument, cons
 			case kFindAlldot: {
 				auto obj = get_obj_in_list_vis(ch, buffer2, ch->carrying);
 				if (!obj) {
-					send_to_char("У вас нет " + buffer2 + "!\r\n", ch);
+					SendMsgToChar("У вас нет " + buffer2 + "!\r\n", ch);
 					return;
 				}
 
@@ -865,7 +865,7 @@ void shop_node::process_ident(CharData *ch, CharData *keeper, char *argument, co
 
 	if (!ident_obj) {
 		log("SYSERROR : не удалось получить объект (%s:%d)", __FILE__, __LINE__);
-		send_to_char("Ошибочка вышла.\r\n", ch);
+		SendMsgToChar("Ошибочка вышла.\r\n", ch);
 		return;
 	}
 
@@ -893,7 +893,7 @@ void shop_node::process_ident(CharData *ch, CharData *keeper, char *argument, co
 			tell.str(std::string());
 			tell << "Рассматривая " << ident_obj->get_short_description() << " вы смогли прочитать:\r\n";
 			tell << desc;
-			send_to_char(tell.str().c_str(), ch);
+			SendMsgToChar(tell.str().c_str(), ch);
 		}
 
 		if (invalid_anti_class(ch, ident_obj)
@@ -926,7 +926,7 @@ void shop_node::process_ident(CharData *ch, CharData *keeper, char *argument, co
 					 GetDeclensionInNumber(IDENTIFY_COST, EWhat::kMoneyU));
 			tell_to_char(keeper, ch, buf);
 
-			send_to_char(ch, "Характеристики предмета: %s\r\n", GET_OBJ_PNAME(ident_obj, 0).c_str());
+			SendMsgToChar(ch, "Характеристики предмета: %s\r\n", GET_OBJ_PNAME(ident_obj, 0).c_str());
 			bool full =  false;
 			mort_show_obj_values(ident_obj, ch, 200, full);
 			ch->remove_gold(IDENTIFY_COST);

@@ -106,7 +106,7 @@ void sub_write_to_char(CharData *ch, char *tokens[], void *otokens[], char type[
 	strcat(sb, "\n\r");
 // Ибо нефиг, достали прочерки ставить чтоб не аперкейсило в многостроковых сказаниях, пусть билдеры руками.
 //	sb[0] = UPPER(sb[0]);    // Библиотечный вызов toupper() глючит для русского
-	send_to_char(sb, ch);
+	SendMsgToChar(sb, ch);
 }
 
 void sub_write(char *arg, CharData *ch, byte find_invis, int targets) {

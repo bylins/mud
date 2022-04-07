@@ -112,7 +112,7 @@ void process_events(void) {
 void print_event_list(CharData *ch)
 {
 	sprintf(buf, "В данный момент выполняются следующие триггеры:\r\n");
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 
 	short trig_counter = 1;
 	TriggerEvent *e = event_list;
@@ -126,14 +126,14 @@ void print_event_list(CharData *ch)
 		if (GET_TRIG_WAIT(wed->trigger) && wed->trigger->curr_state != nullptr) {
 			sprintf(buf+strlen(buf), "    Wait: %d, Current line: %s\r\n", GET_TRIG_WAIT(wed->trigger)->time_remaining, wed->trigger->curr_state->cmd.c_str());
 		}
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 
 		++trig_counter;
 		e = e->next;
 	}
 
 	sprintf(buf, "Итого триггеров %d.\r\n", trig_counter - 1);
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

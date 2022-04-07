@@ -62,7 +62,7 @@ void AnimalMorph::set_skill(const ESkill skill_num, int percent) {
 					"%sВаши успехи сделали вас опытнее в оборотничестве.%s\r\n",
 					CCICYN(ch_, C_NRM),
 					CCINRM(ch_, C_NRM));
-			send_to_char(buf, ch_);
+			SendMsgToChar(buf, ch_);
 			skills_[ESkill::kMorph] += diff;
 		}
 	}
@@ -83,17 +83,17 @@ void NormalMorph::SetCon(int con) { ch_->set_con(con); }
 
 void ShowKnownMorphs(CharData *ch) {
 	if (ch->is_morphed()) {
-		send_to_char("Чтобы вернуть себе человеческий облик - нужно 'обернуться назад'\r\n", ch);
+		SendMsgToChar("Чтобы вернуть себе человеческий облик - нужно 'обернуться назад'\r\n", ch);
 		return;
 	}
 	const CharData::morphs_list_t &knownMorphs = ch->get_morphs();
 	if (knownMorphs.empty()) {
-		send_to_char("На сей момент никакие формы вам неизвестны...\r\n", ch);
+		SendMsgToChar("На сей момент никакие формы вам неизвестны...\r\n", ch);
 	} else {
-		send_to_char("Вы можете обернуться:\r\n", ch);
+		SendMsgToChar("Вы можете обернуться:\r\n", ch);
 
 		for (const auto &it : knownMorphs) {
-			send_to_char("   " + IdToMorphMap[it]->PadName() + "\r\n", ch);
+			SendMsgToChar("   " + IdToMorphMap[it]->PadName() + "\r\n", ch);
 		}
 	}
 }
@@ -176,7 +176,7 @@ void do_morph(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->is_npc())
 		return;
 	if (!ch->get_skill(ESkill::kMorph)) {
-		send_to_char("Вы не знаете как.\r\n", ch);
+		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
 
@@ -191,44 +191,44 @@ void do_morph(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->is_morphed()) {
 		if (utils::IsAbbrev(arg, "назад")) {
 			ch->reset_morph();
-			WAIT_STATE(ch, kPulseViolence);
+			SetWaitState(ch, kPulseViolence);
 			return;
 		}
-		send_to_char("Когти подстригите сначала...\r\n", ch);
+		SendMsgToChar("Когти подстригите сначала...\r\n", ch);
 		return;
 	}
 
 	std::string morphId = FindMorphId(ch, arg);
 	if (morphId.empty()) {
-		send_to_char("Обернуться в ЭТО вы не можете!\r\n", ch);
+		SendMsgToChar("Обернуться в ЭТО вы не можете!\r\n", ch);
 		return;
 	}
 
 	MorphPtr newMorph = MorphPtr(new AnimalMorph(*IdToMorphMap[morphId]));
 
-	send_to_char(str(boost::format(newMorph->GetMessageToChar()) % newMorph->PadName()) + "\r\n", ch);
+	SendMsgToChar(str(boost::format(newMorph->GetMessageToChar()) % newMorph->PadName()) + "\r\n", ch);
 	act(str(boost::format(newMorph->GetMessageToRoom()) % newMorph->PadName()).c_str(), true, ch, 0, 0, kToRoom);
 
 	ch->set_morph(newMorph);
 	if (ch->equipment[EEquipPos::kBoths]) {
-		send_to_char("Вы не можете держать в лапах " + ch->equipment[EEquipPos::kBoths]->get_PName(3) + ".\r\n", ch);
+		SendMsgToChar("Вы не можете держать в лапах " + ch->equipment[EEquipPos::kBoths]->get_PName(3) + ".\r\n", ch);
 		RemoveEquipment(ch, EEquipPos::kBoths);
 	}
 	if (ch->equipment[EEquipPos::kWield]) {
-		send_to_char("Ваша правая лапа бессильно опустила " + ch->equipment[EEquipPos::kWield]->get_PName(3) + ".\r\n", ch);
+		SendMsgToChar("Ваша правая лапа бессильно опустила " + ch->equipment[EEquipPos::kWield]->get_PName(3) + ".\r\n", ch);
 		RemoveEquipment(ch, EEquipPos::kWield);
 	}
 	if (ch->equipment[EEquipPos::kHold]) {
-		send_to_char("Ваша левая лапа не удержала " + ch->equipment[EEquipPos::kHold]->get_PName(3) + ".\r\n", ch);
+		SendMsgToChar("Ваша левая лапа не удержала " + ch->equipment[EEquipPos::kHold]->get_PName(3) + ".\r\n", ch);
 		RemoveEquipment(ch, EEquipPos::kHold);
 	}
-	WAIT_STATE(ch, 3 * kPulseViolence);
+	SetWaitState(ch, 3 * kPulseViolence);
 }
 
 void PrintAllMorphsList(CharData *ch) {
-	send_to_char("Существующие формы: \r\n", ch);
+	SendMsgToChar("Существующие формы: \r\n", ch);
 	for (MorphListType::const_iterator it = IdToMorphMap.begin(); it != IdToMorphMap.end(); ++it) {
-		send_to_char("   " + it->second->Name() + "\r\n", ch);
+		SendMsgToChar("   " + it->second->Name() + "\r\n", ch);
 	}
 }
 
@@ -238,13 +238,13 @@ void do_morphset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	argument = one_argument(argument, arg);
 
 	if (!*arg) {
-		send_to_char("Формат команды: morphset <имя игрока (только онлайн)> <название формы> \r\n", ch);
+		SendMsgToChar("Формат команды: morphset <имя игрока (только онлайн)> <название формы> \r\n", ch);
 		PrintAllMorphsList(ch);
 		return;
 	}
 
 	if (!(vict = get_char_vis(ch, arg, EFind::kCharInWorld))) {
-		send_to_char(NOPERSON, ch);
+		SendMsgToChar(NOPERSON, ch);
 		return;
 	}
 
@@ -253,13 +253,13 @@ void do_morphset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	std::string morphId = GetMorphIdByName(argument);
 
 	if (morphId.empty()) {
-		send_to_char("Форма '" + std::string(argument) + "' не найдена. \r\n", ch);
+		SendMsgToChar("Форма '" + std::string(argument) + "' не найдена. \r\n", ch);
 		PrintAllMorphsList(ch);
 		return;
 	}
 
 	if (vict->know_morph(morphId)) {
-		send_to_char(vict->get_name() + " уже знает эту форму. \r\n", ch);
+		SendMsgToChar(vict->get_name() + " уже знает эту форму. \r\n", ch);
 		return;
 	}
 
@@ -269,7 +269,7 @@ void do_morphset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	mudlog(buf2, BRF, -1, SYSLOG, true);
 	imm_log("%s add morph %s to %s.", GET_NAME(ch), IdToMorphMap[morphId]->Name().c_str(), GET_NAME(vict));
 
-	send_to_char(std::string("Вы добавили форму '") + IdToMorphMap[morphId]->Name() + "' персонажу " + vict->get_name()
+	SendMsgToChar(std::string("Вы добавили форму '") + IdToMorphMap[morphId]->Name() + "' персонажу " + vict->get_name()
 					 + " \r\n", ch);
 }
 

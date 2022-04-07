@@ -635,7 +635,7 @@ void UserSearch::print_not_found() const {
 			 "%s",
 			 arg_str.c_str(),
 			 HELP_USE_EXMAPLES);
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 }
 
 void UserSearch::print_curr_topic(const help_node &node) const {

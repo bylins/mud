@@ -112,7 +112,7 @@ bool compare_password(CharData *ch, const std::string &pwd) {
 			set_password(ch, pwd);
 			result = 1;
 		} else if (s == nullptr) {
-			send_to_char("Возникли проблемы при проверке вашего пароля. Обратитесь к старшим богам для его сброса.\r\n",
+			SendMsgToChar("Возникли проблемы при проверке вашего пароля. Обратитесь к старшим богам для его сброса.\r\n",
 						 ch);
 			result = 0;
 		}

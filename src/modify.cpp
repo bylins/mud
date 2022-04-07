@@ -626,11 +626,11 @@ void string_add(DescriptorData *d, char *str) {
 
 	if (!d->writer->get_string()) {
 		if (strlen(str) + 3 > d->max_str) {
-			send_to_char("Слишком длинная строка - усечена.\r\n", d->character.get());
+			SendMsgToChar("Слишком длинная строка - усечена.\r\n", d->character.get());
 			strcpy(&str[d->max_str - 3], "\r\n");
 			d->writer->set_string(str);
 		} else if (CON_WRITE_MOD == STATE(d) && strlen(str) + 3 > 80) {
-			send_to_char("Слишком длинная строка - усечена.\r\n", d->character.get());
+			SendMsgToChar("Слишком длинная строка - усечена.\r\n", d->character.get());
 			str[80 - 3] = '\0';
 			d->writer->set_string(str);
 		} else {
@@ -638,13 +638,13 @@ void string_add(DescriptorData *d, char *str) {
 		}
 	} else {
 		if (CON_WRITE_MOD == STATE(d) && strlen(str) + 3 > 80) {
-			send_to_char("Слишком длинная строка - усечена.\r\n", d->character.get());
+			SendMsgToChar("Слишком длинная строка - усечена.\r\n", d->character.get());
 			str[80 - 3] = '\0';
 		}
 
 		if (strlen(str) + d->writer->length() + 3 > d->max_str)    // \r\n\0 //
 		{
-			send_to_char(d->character.get(),
+			SendMsgToChar(d->character.get(),
 						 "Слишком длинное послание > %lu симв. Последняя строка проигнорирована.\r\n",
 						 d->max_str - 3);
 			action = true;
@@ -758,7 +758,7 @@ void string_add(DescriptorData *d, char *str) {
 				boost::trim(body);
 				if (body.empty()) {
 					CLAN(d->character)->write_mod(body);
-					send_to_char("Сообщение удалено.\r\n", d->character.get());
+					SendMsgToChar("Сообщение удалено.\r\n", d->character.get());
 				} else {
 					// за время редактирования могли лишиться привилегии/клана
 					if (d->character
@@ -879,23 +879,23 @@ void do_featset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		table_wrapper::PrintTableToStream(out, table);
 		out << std:: endl;
 
-		send_to_char(out.str().c_str(), ch);
+		SendMsgToChar(out.str().c_str(), ch);
 		return;
 	}
 
 	if (!(vict = get_char_vis(ch, name, EFind::kCharInWorld))) {
-		send_to_char(NOPERSON, ch);
+		SendMsgToChar(NOPERSON, ch);
 		return;
 	}
 	skip_spaces(&argument);
 
 	// If there is no entities in argument //
 	if (!*argument) {
-		send_to_char("Пропущено название способности.\r\n", ch);
+		SendMsgToChar("Пропущено название способности.\r\n", ch);
 		return;
 	}
 	if (*argument != '\'') {
-		send_to_char("Название способности надо заключить в символы : ''\r\n", ch);
+		SendMsgToChar("Название способности надо заключить в символы : ''\r\n", ch);
 		return;
 	}
 	// Locate the last quote and lowercase the magic words (if any) //
@@ -904,7 +904,7 @@ void do_featset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		argument[qend] = LOWER(argument[qend]);
 
 	if (argument[qend] != '\'') {
-		send_to_char("Название способности должно быть заключено в символы : ''\r\n", ch);
+		SendMsgToChar("Название способности должно быть заключено в символы : ''\r\n", ch);
 		return;
 	}
 	strcpy(help, (argument + 1));
@@ -912,7 +912,7 @@ void do_featset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	auto feat_id = FindFeatNum(help);
 	if (feat_id <= 0) {
-		send_to_char("Неизвестная способность.\r\n", ch);
+		SendMsgToChar("Неизвестная способность.\r\n", ch);
 		return;
 	}
 
@@ -920,17 +920,17 @@ void do_featset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	argument = one_argument(argument, buf);
 
 	if (!*buf) {
-		send_to_char("Не указан числовой параметр (0 или 1).\r\n", ch);
+		SendMsgToChar("Не указан числовой параметр (0 или 1).\r\n", ch);
 		return;
 	}
 	value = atoi(buf);
 	if (value < 0 || value > 1) {
-		send_to_char("Допустимые значения: 0 (снять), 1 (установить).\r\n", ch);
+		SendMsgToChar("Допустимые значения: 0 (снять), 1 (установить).\r\n", ch);
 		return;
 	}
 
 	if (vict->is_npc()) {
-		send_to_char("Вы не можете добавить способность NPC, используйте OLC.\r\n", ch);
+		SendMsgToChar("Вы не можете добавить способность NPC, используйте OLC.\r\n", ch);
 		return;
 	}
 
@@ -948,10 +948,10 @@ void do_featset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	sprintf(buf2, "Вы изменили для %s '%s' на '%s'.\r\n", GET_PAD(vict, 1),
 			feat_info[feat_id].name, value ? "доступно" : "недоступно");
 	if (!IsAbleToGetFeat(vict, feat_id) && value == 1) {
-		send_to_char("Эта способность не доступна данному персонажу и будет удалена при повторном входе в игру.\r\n",
+		SendMsgToChar("Эта способность не доступна данному персонажу и будет удалена при повторном входе в игру.\r\n",
 					 ch);
 	}
-	send_to_char(buf2, ch);
+	SendMsgToChar(buf2, ch);
 }
 
 // **********************************************************************
@@ -970,7 +970,7 @@ void do_skillset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	// * No arguments. print an informative text.
 	if (!*name)        // no arguments. print an informative text
 	{
-		send_to_char("Формат: skillset <игрок> '<умение/заклинание>' <значение>\r\n", ch);
+		SendMsgToChar("Формат: skillset <игрок> '<умение/заклинание>' <значение>\r\n", ch);
 		strcpy(help, "Возможные умения:\r\n");
 		for (qend = 0, i = 0; i <= kSpellCount; i++) {
 			if (spell_info[i].name == unused_spellname)    // This is valid.
@@ -978,29 +978,29 @@ void do_skillset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			sprintf(help + strlen(help), "%30s", spell_info[i].name);
 			if (qend++ % 4 == 3) {
 				strcat(help, "\r\n");
-				send_to_char(help, ch);
+				SendMsgToChar(help, ch);
 				*help = '\0';
 			}
 		}
 		if (*help)
-			send_to_char(help, ch);
-		send_to_char("\r\n", ch);
+			SendMsgToChar(help, ch);
+		SendMsgToChar("\r\n", ch);
 		return;
 	}
 
 	if (!(vict = get_char_vis(ch, name, EFind::kCharInWorld))) {
-		send_to_char(NOPERSON, ch);
+		SendMsgToChar(NOPERSON, ch);
 		return;
 	}
 	skip_spaces(&argument);
 
 	// If there is no entities in argument
 	if (!*argument) {
-		send_to_char("Пропущено название умения.\r\n", ch);
+		SendMsgToChar("Пропущено название умения.\r\n", ch);
 		return;
 	}
 	if (*argument != '\'') {
-		send_to_char("Умение надо заключить в символы : ''\r\n", ch);
+		SendMsgToChar("Умение надо заключить в символы : ''\r\n", ch);
 		return;
 	}
 	// Locate the last quote and lowercase the magic words (if any)
@@ -1010,7 +1010,7 @@ void do_skillset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (argument[qend] != '\'') {
-		send_to_char("Умение должно быть заключено в символы : ''\r\n", ch);
+		SendMsgToChar("Умение должно быть заключено в символы : ''\r\n", ch);
 		return;
 	}
 	strcpy(help, (argument + 1));
@@ -1022,27 +1022,27 @@ void do_skillset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (ESkill::kIncorrect == skill
 		&& spell < 0) {
-		send_to_char("Неизвестное умение/заклинание.\r\n", ch);
+		SendMsgToChar("Неизвестное умение/заклинание.\r\n", ch);
 		return;
 	}
 	argument += qend + 1;    // skip to next parameter
 	argument = one_argument(argument, buf);
 
 	if (!*buf) {
-		send_to_char("Пропущен уровень умения.\r\n", ch);
+		SendMsgToChar("Пропущен уровень умения.\r\n", ch);
 		return;
 	}
 	value = atoi(buf);
 	if (value < 0) {
-		send_to_char("Минимальное значение умения 0.\r\n", ch);
+		SendMsgToChar("Минимальное значение умения 0.\r\n", ch);
 		return;
 	}
 	if (vict->is_npc()) {
-		send_to_char("Вы не можете добавить умение для мобов.\r\n", ch);
+		SendMsgToChar("Вы не можете добавить умение для мобов.\r\n", ch);
 		return;
 	}
 	if (value > MUD::Skills()[skill].cap && spell < 0) {
-		send_to_char("Превышено максимально возможное значение умения.\r\n", ch);
+		SendMsgToChar("Превышено максимально возможное значение умения.\r\n", ch);
 		value = MUD::Skills()[skill].cap;
 	}
 
@@ -1069,7 +1069,7 @@ void do_skillset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	sprintf(buf2, "Вы изменили для %s '%s' на %d.\r\n", GET_PAD(vict, 1),
 			spell >= 0 ? spell_info[spell].name : MUD::Skills()[skill].GetName(), value);
-	send_to_char(buf2, ch);
+	SendMsgToChar(buf2, ch);
 }
 
 
@@ -1196,7 +1196,7 @@ void page_string(DescriptorData *d, char *str, int keep_internal) {
 		return;
 
 	if (!str || !*str) {
-		send_to_char("", d->character.get());
+		SendMsgToChar("", d->character.get());
 		return;
 	}
 	d->showstr_count = count_pages(str, d->character.get());
@@ -1256,13 +1256,13 @@ void show_string(DescriptorData *d, char *input) {
 	else if (a_isdigit(*buf)) {
 		d->showstr_page = MAX(0, MIN(atoi(buf) - 1, d->showstr_count - 1));
 	} else if (*buf) {
-		send_to_char("Листать : <RETURN>, Q<К>онец, R<П>овтор, B<Н>азад, или номер страницы.\r\n", d->character.get());
+		SendMsgToChar("Листать : <RETURN>, Q<К>онец, R<П>овтор, B<Н>азад, или номер страницы.\r\n", d->character.get());
 		return;
 	}
 	// If we're displaying the last page, just send it to the character, and
 	// then free up the space we used.
 	if (d->showstr_page + 1 >= d->showstr_count) {
-		send_to_char(d->showstr_vector[d->showstr_page], d->character.get());
+		SendMsgToChar(d->showstr_vector[d->showstr_page], d->character.get());
 		free(d->showstr_vector);
 		d->showstr_vector = nullptr;
 		d->showstr_count = 0;
@@ -1279,7 +1279,7 @@ void show_string(DescriptorData *d, char *input) {
 			diff = kMaxStringLength - 1;
 		strncpy(buffer, d->showstr_vector[d->showstr_page], diff);
 		buffer[diff] = '\0';
-		send_to_char(buffer, d->character.get());
+		SendMsgToChar(buffer, d->character.get());
 		d->showstr_page++;
 	}
 }

@@ -500,7 +500,7 @@ void draw_room(CharData *ch, const RoomData *room, int cur_depth, int y, int x) 
 			}
 			// можно утонуть
 			if (next_room->sector_type == ESector::kWaterNoswim) {
-				if (!has_boat(ch)) {
+				if (!HasBoat(ch)) {
 					check_position_and_put_on_screen(next_y, next_x, SCREEN_WATER_RED, cur_depth, i);
 				} else {
 					check_position_and_put_on_screen(next_y, next_x, SCREEN_WATER, cur_depth, i);
@@ -640,7 +640,7 @@ void print_map(CharData *ch, CharData *imm) {
 				} else if (screen[i][k] >= SCREEN_Y_OPEN
 					&& screen[i][k] <= SCREEN_Y_WALL) {
 					screen[i][k] = SCREEN_EMPTY;
-					send_to_char("Ошибка при генерации карты (1), сообщите богам!\r\n", ch);
+					SendMsgToChar("Ошибка при генерации карты (1), сообщите богам!\r\n", ch);
 				}
 			}
 		}
@@ -712,9 +712,9 @@ void print_map(CharData *ch, CharData *imm) {
 	out += "\r\n";
 
 	if (imm) {
-		send_to_char(out, imm);
+		SendMsgToChar(out, imm);
 	} else {
-		send_to_char(out, ch);
+		SendMsgToChar(out, ch);
 	}
 }
 
@@ -846,12 +846,12 @@ void Options::olc_menu(CharData *ch) {
 		<< ") Сохранить и выйти\r\n"
 		<< "Ваш выбор:";
 
-	send_to_char(out.str(), ch);
+	SendMsgToChar(out.str(), ch);
 }
 
 void Options::parse_menu(CharData *ch, const char *arg) {
 	if (!*arg) {
-		send_to_char("Неверный выбор!\r\n", ch);
+		SendMsgToChar("Неверный выбор!\r\n", ch);
 		olc_menu(ch);
 		return;
 	}
@@ -875,16 +875,16 @@ void Options::parse_menu(CharData *ch, const char *arg) {
 	} else if (num == TOTAL_MAP_OPTIONS + 2) {
 		ch->desc->map_options.reset();
 		STATE(ch->desc) = CON_PLAYING;
-		send_to_char("Редактирование отменено.\r\n", ch);
+		SendMsgToChar("Редактирование отменено.\r\n", ch);
 		return;
 	} else if (num == TOTAL_MAP_OPTIONS + 3) {
 		ch->map_olc_save();
 		ch->desc->map_options.reset();
 		STATE(ch->desc) = CON_PLAYING;
-		send_to_char("Изменения сохранены.\r\n", ch);
+		SendMsgToChar("Изменения сохранены.\r\n", ch);
 		return;
 	} else {
-		send_to_char("Неверный выбор!\r\n", ch);
+		SendMsgToChar("Неверный выбор!\r\n", ch);
 		olc_menu(ch);
 		return;
 	}
@@ -962,7 +962,7 @@ bool parse_text_olc(CharData *ch, const std::string &str, std::bitset<TOTAL_MAP_
 			bits[MAP_MODE_OBJS_CURR_ROOM] = flag;
 		} else {
 			error = true;
-			send_to_char(ch, "Неверный параметр: %s\r\n", k->c_str());
+			SendMsgToChar(ch, "Неверный параметр: %s\r\n", k->c_str());
 		}
 	}
 
@@ -978,24 +978,24 @@ void Options::text_olc(CharData *ch, const char *arg) {
 		|| isname(first_arg, "edit") || isname(first_arg, "options") || isname(first_arg, "menu")) {
 		ch->map_olc();
 	} else if (isname(first_arg, "справка") || isname(first_arg, "помощь")) {
-		send_to_char(message, ch);
+		SendMsgToChar(message, ch);
 	} else if (isname(first_arg, "включить") || isname(first_arg, "activate")
 		|| isname(first_arg, "выключить") || isname(first_arg, "deactivate")) {
 		if (str.empty()) {
-			send_to_char(message, ch);
-			send_to_char("\r\nУкажите нужные опции.\r\n", ch);
+			SendMsgToChar(message, ch);
+			SendMsgToChar("\r\nУкажите нужные опции.\r\n", ch);
 			return;
 		}
 
 		const bool flag = (isname(first_arg, "включить") || isname(first_arg, "activate")) ? true : false;
 		const bool error = parse_text_olc(ch, str, bit_list_, flag);
 		if (!error) {
-			send_to_char("Сделано.\r\n", ch);
+			SendMsgToChar("Сделано.\r\n", ch);
 		}
 	} else if (isname(first_arg, "показать") || isname(first_arg, "show")) {
 		if (str.empty()) {
-			send_to_char(message, ch);
-			send_to_char("\r\nУкажите нужные опции.\r\n", ch);
+			SendMsgToChar(message, ch);
+			SendMsgToChar("\r\nУкажите нужные опции.\r\n", ch);
 			return;
 		}
 
@@ -1007,7 +1007,7 @@ void Options::text_olc(CharData *ch, const char *arg) {
 		print_map(ch);
 		bit_list_ = saved_ch_bits;
 	} else {
-		send_to_char(message, ch);
+		SendMsgToChar(message, ch);
 	}
 }
 
@@ -1018,13 +1018,13 @@ void do_map(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {
-		send_to_char("В режиме слепого игрока карта недоступна.\r\n", ch);
+		SendMsgToChar("В режиме слепого игрока карта недоступна.\r\n", ch);
 		return;
 	} else if (AFF_FLAGGED(ch, EAffect::kBlind)) {
-		send_to_char("Слепому карта не поможет!\r\n", ch);
+		SendMsgToChar("Слепому карта не поможет!\r\n", ch);
 		return;
 	} else if (is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !IsAbleToUseFeat(ch, EFeat::kDarkReading)) {
-		send_to_char("Идем на ощупь и на запах!\r\n", ch);
+		SendMsgToChar("Идем на ощупь и на запах!\r\n", ch);
 		return;
 	}
 

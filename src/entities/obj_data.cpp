@@ -1264,7 +1264,7 @@ void print_obj_affects(CharData *ch, const obj_affected_type &affect) {
 			 CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM),
 			 CCCYN(ch, C_NRM),
 			 negative ? " ухудшает на " : " улучшает на ", abs(affect.modifier), CCNRM(ch, C_NRM));
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 }
 
 namespace SetSystem {

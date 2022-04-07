@@ -610,7 +610,7 @@ int perform_best_mob_attack(CharData *ch, int extmode) {
 	if (best) {
 		// если у игрока стоит олц на зону, в ней его не агрят
 		if (best->player_specials->saved.olc_zone == GET_MOB_VNUM(ch) / 100) {
-			send_to_char(best, "&GАгромоб, атака остановлена.\r\n");
+			SendMsgToChar(best, "&GАгромоб, атака остановлена.\r\n");
 			return (false);
 		}
 		if (GET_POS(ch) < EPosition::kFight && GET_POS(ch) > EPosition::kSleep) {
@@ -794,7 +794,7 @@ void do_aggressive_mob(CharData *ch, int check_sneak) {
 		}
 
 		// Is memory found ?
-		if (victim && !CHECK_WAIT(ch)) {
+		if (victim && ch->get_wait() <= 0) {
 			if (GET_POS(ch) < EPosition::kFight && GET_POS(ch) > EPosition::kSleep) {
 				act("$n вскочил$g.", false, ch, nullptr, nullptr, kToRoom);
 				GET_POS(ch) = EPosition::kStand;
@@ -1007,7 +1007,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		// If the mob has no specproc, do the default actions
 		if (ch->get_fighting() ||
 			GET_POS(ch) <= EPosition::kStun ||
-			GET_WAIT(ch) > 0 ||
+			ch->get_wait() > 0 ||
 			AFF_FLAGGED(ch, EAffect::kCharmed) ||
 			AFF_FLAGGED(ch, EAffect::kHold) || AFF_FLAGGED(ch, EAffect::kMagicStopFight) ||
 			AFF_FLAGGED(ch, EAffect::kStopFight) || AFF_FLAGGED(ch, EAffect::kSleep)) {
@@ -1091,7 +1091,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 
 		// if mob attack something
 		if (ch->get_fighting()
-			|| GET_WAIT(ch) > 0) {
+			|| ch->get_wait() > 0) {
 			return;
 		}
 
@@ -1167,7 +1167,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 				RoomData::exit_data_ptr rdata = EXIT(ch, door);
 				if (!rdata
 					|| rdata->to_room() == kNowhere
-					|| !legal_dir(ch.get(), door, true, false)
+					|| !IsCorrectDirection(ch.get(), door, true, false)
 					|| (is_room_forbidden(world[rdata->to_room()])
 						&& !MOB_FLAGGED(ch, EMobFlag::kIgnoreForbidden))
 					|| is_dark(rdata->to_room())
@@ -1224,7 +1224,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 			&& (door >= 0 && door < EDirection::kMaxDirNum)
 			&& EXIT(ch, door)
 			&& EXIT(ch, door)->to_room() != kNowhere
-			&& legal_dir(ch.get(), door, true, false)
+			&& IsCorrectDirection(ch.get(), door, true, false)
 			&& (!is_room_forbidden(world[EXIT(ch, door)->to_room()]) || MOB_FLAGGED(ch, EMobFlag::kIgnoreForbidden))
 			&& (!MOB_FLAGGED(ch, EMobFlag::kStayZone)
 				|| world[EXIT(ch, door)->to_room()]->zone_rn == world[ch->in_room]->zone_rn)

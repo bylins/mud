@@ -125,11 +125,11 @@ bool PlayerRace::FeatureCheck(int Kin, int Race, int Feat) {
 void PlayerRace::GetKinNamesList(CharData * /*ch*/) {
 	//char buf[kMaxInputLength];
 	//snprintf(buf, kMaxStringLength, " %d \r\n", PlayerKinList[0]->PlayerRaceList[0]->GetFeatNum());
-	//send_to_char(buf, ch);
+	//SendMsgToChar(buf, ch);
 	//for (PlayerKinListType::iterator it = PlayerKinList.begin();it != PlayerKinList.end();++it)
 	//{
 	//	snprintf(buf, kMaxStringLength, " %s \r\n", (*it)->KinHeName.c_str());
-	//	send_to_char(buf, ch);
+	//	SendMsgToChar(buf, ch);
 	//}
 	//test message
 	//char buf33[kMaxInputLength];

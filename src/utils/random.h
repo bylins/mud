@@ -8,7 +8,7 @@
 int number(int from, int to);
 int RollDices(int number, int size);
 int GaussIntNumber(double mean, double sigma, int min_val, int max_val);
-bool bernoulli_trial(double p);
+bool BernoulliTrial(double p);
 
 #endif // RANDOM_HPP_INCLUDED
 

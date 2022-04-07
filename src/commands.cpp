@@ -302,7 +302,7 @@ void ParentalHelp::execute(const CommandContext::shared_ptr &context,
 }
 
 void ReplyableContext::reply(const std::string &message) const {
-	send_to_char(message, m_character);
+	SendMsgToChar(message, m_character);
 }
 
 namespace {

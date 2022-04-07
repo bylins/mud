@@ -14,28 +14,28 @@ void do_order(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	half_chop(argument, name, message);
 	if (GET_GOD_FLAG(ch, EGf::kGodscurse)) {
-		send_to_char("Вы прокляты Богами и никто не слушается вас!\r\n", ch);
+		SendMsgToChar("Вы прокляты Богами и никто не слушается вас!\r\n", ch);
 		return;
 	}
 	if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
-		send_to_char("Вы не в состоянии приказывать сейчас.\r\n", ch);
+		SendMsgToChar("Вы не в состоянии приказывать сейчас.\r\n", ch);
 		return;
 	}
 	if (!*name || !*message)
-		send_to_char("Приказать что и кому?\r\n", ch);
+		SendMsgToChar("Приказать что и кому?\r\n", ch);
 	else if (!(vict = get_char_vis(ch, name, EFind::kCharInRoom)) &&
 		!utils::IsAbbrev(name, "followers") && !utils::IsAbbrev(name, "все") && !utils::IsAbbrev(name, "всем"))
-		send_to_char("Вы не видите такого персонажа.\r\n", ch);
+		SendMsgToChar("Вы не видите такого персонажа.\r\n", ch);
 	else if (ch == vict && !utils::IsAbbrev(name, "все") && !utils::IsAbbrev(name, "всем"))
-		send_to_char("Вы начали слышать императивные голоса - срочно к психиатру!\r\n", ch);
+		SendMsgToChar("Вы начали слышать императивные голоса - срочно к психиатру!\r\n", ch);
 	else {
 		if (vict && !vict->is_npc() && !IS_GOD(ch)) {
-			send_to_char(ch, "Игрокам приказывать могут только Боги!\r\n");
+			SendMsgToChar(ch, "Игрокам приказывать могут только Боги!\r\n");
 			return;
 		}
 
 		if (AFF_FLAGGED(ch, EAffect::kCharmed)) {
-			send_to_char("В таком состоянии вы не можете сами отдавать приказы.\r\n", ch);
+			SendMsgToChar("В таком состоянии вы не можете сами отдавать приказы.\r\n", ch);
 			return;
 		}
 
@@ -56,7 +56,7 @@ void do_order(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					act("$n безразлично смотрят по сторонам.", false, vict, 0, 0, kToRoom);
 				}
 			} else {
-				send_to_char(OK, ch);
+				SendMsgToChar(OK, ch);
 				if (vict->get_wait() <= 0) {
 					command_interpreter(vict, message);
 				} else if (vict->get_fighting()) {
@@ -92,9 +92,9 @@ void do_order(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 
 			if (found) {
-				send_to_char(OK, ch);
+				SendMsgToChar(OK, ch);
 			} else {
-				send_to_char("Вы страдаете манией величия!\r\n", ch);
+				SendMsgToChar("Вы страдаете манией величия!\r\n", ch);
 			}
 		}
 	}

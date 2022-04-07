@@ -181,7 +181,7 @@ void add_glory(long uid, int amount) {
 
 	DescriptorData *d = DescByUID(uid);
 	if (d) {
-		send_to_char(d->character.get(), "%sВы заслужили %d %s постоянной славы!%s\r\n",
+		SendMsgToChar(d->character.get(), "%sВы заслужили %d %s постоянной славы!%s\r\n",
 					 CCGRN(d->character, C_NRM),
 					 amount, GetDeclensionInNumber(amount, EWhat::kPoint),
 					 CCNRM(d->character, C_NRM));
@@ -233,18 +233,18 @@ void print_glory(CharData *ch, GloryListType::iterator &it) {
 		spent = spent + 1000 * i->second + 200 * (i->second - 1);
 	}
 	sprintf(buf + strlen(buf), "Свободных очков: %d. Вложено: %d\r\n", it->second->free_glory, spent);
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 }
 
 // * Показ свободной и вложенной славы у чара (glory имя).
 void print_to_god(CharData *ch, CharData *god) {
 	GloryListType::iterator it = glory_list.find(GET_UNIQUE(ch));
 	if (it == glory_list.end()) {
-		send_to_char(god, "У %s совсем не славы.\r\n", GET_PAD(ch, 1));
+		SendMsgToChar(god, "У %s совсем не славы.\r\n", GET_PAD(ch, 1));
 		return;
 	}
 
-	send_to_char(god, "Информация об очках славы %s:\r\n", GET_PAD(ch, 1));
+	SendMsgToChar(god, "Информация об очках славы %s:\r\n", GET_PAD(ch, 1));
 	print_glory(god, it);
 }
 
@@ -364,7 +364,7 @@ void spend_glory_menu(CharData *ch) {
 	out << "  " << CCIGRN(ch, C_SPR) << "Я" << CCNRM(ch, C_SPR)
 		<< ") Выйти без сохранения\r\n"
 		<< "  Ваш выбор: ";
-	send_to_char(out.str(), ch);
+	SendMsgToChar(out.str(), ch);
 }
 
 void olc_del_stat(CharData *ch, int stat) {
@@ -389,7 +389,7 @@ void olc_add_stat(CharData *ch, int stat) {
 					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[ch->get_class()][to_underlying(EBaseStat::kCon)])
 				ok = true;
 			else
-				send_to_char(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
+				SendMsgToChar(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
 			break;
 		case GLORY_STR:
 			if (ch->desc->glory_const->olc_free_glory >= need_glory
@@ -397,7 +397,7 @@ void olc_add_stat(CharData *ch, int stat) {
 					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[ch->get_class()][to_underlying(EBaseStat::kStr)])
 				ok = true;
 			else
-				send_to_char(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
+				SendMsgToChar(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
 			break;
 		case GLORY_DEX:
 			if (ch->desc->glory_const->olc_free_glory >= need_glory
@@ -405,7 +405,7 @@ void olc_add_stat(CharData *ch, int stat) {
 					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[ch->get_class()][to_underlying(EBaseStat::kDex)])
 				ok = true;
 			else
-				send_to_char(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
+				SendMsgToChar(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
 			break;
 		case GLORY_INT:
 			if (ch->desc->glory_const->olc_free_glory >= need_glory
@@ -413,7 +413,7 @@ void olc_add_stat(CharData *ch, int stat) {
 					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[ch->get_class()][to_underlying(EBaseStat::kInt)])
 				ok = true;
 			else
-				send_to_char(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
+				SendMsgToChar(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
 			break;
 		case GLORY_WIS:
 			if (ch->desc->glory_const->olc_free_glory >= need_glory
@@ -421,7 +421,7 @@ void olc_add_stat(CharData *ch, int stat) {
 					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[ch->get_class()][to_underlying(EBaseStat::kWis)])
 				ok = true;
 			else
-				send_to_char(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
+				SendMsgToChar(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
 			break;
 		case GLORY_CHA:
 			if (ch->desc->glory_const->olc_free_glory >= need_glory
@@ -429,7 +429,7 @@ void olc_add_stat(CharData *ch, int stat) {
 					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[ch->get_class()][to_underlying(EBaseStat::kCha)])
 				ok = true;
 			else
-				send_to_char(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
+				SendMsgToChar(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
 			break;
 		case GLORY_HIT:
 		case GLORY_SUCCESS:
@@ -536,7 +536,7 @@ bool parse_spend_glory_menu(CharData *ch, char *arg) {
 			if (glory_list.end() == it) {
 				log("SYSERROR : нет записи чара при выходе из олц постоянной славы name=%s (%s:%d)",
 					ch->get_name().c_str(), __FILE__, __LINE__);
-				send_to_char("Ошибка сохранения, сообщите Богам!\r\n", ch);
+				SendMsgToChar("Ошибка сохранения, сообщите Богам!\r\n", ch);
 				ch->desc->glory_const.reset();
 				STATE(ch->desc) = CON_PLAYING;
 				return 1;
@@ -563,7 +563,7 @@ bool parse_spend_glory_menu(CharData *ch, char *arg) {
 			ch->desc->glory_const.reset();
 			STATE(ch->desc) = CON_PLAYING;
 			check_max_hp(ch);
-			send_to_char("Ваши изменения сохранены.\r\n", ch);
+			SendMsgToChar("Ваши изменения сохранены.\r\n", ch);
 			ch->setGloryRespecTime(time(nullptr));
 			ch->save_char();
 			save();
@@ -571,7 +571,7 @@ bool parse_spend_glory_menu(CharData *ch, char *arg) {
 		}
 		case 'я': ch->desc->glory_const.reset();
 			STATE(ch->desc) = CON_PLAYING;
-			send_to_char("Редактирование прервано.\r\n", ch);
+			SendMsgToChar("Редактирование прервано.\r\n", ch);
 			return 1;
 		default: break;
 	}
@@ -586,14 +586,14 @@ const char *GLORY_CONST_FORMAT =
 void do_spend_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	GloryListType::iterator it = glory_list.find(GET_UNIQUE(ch));
 	if (glory_list.end() == it || IS_IMMORTAL(ch)) {
-		send_to_char("Вам это не нужно...\r\n", ch);
+		SendMsgToChar("Вам это не нужно...\r\n", ch);
 		return;
 	}
 
 	std::string buffer = argument, buffer2;
 	GetOneParam(buffer, buffer2);
 	if (CompareParam(buffer2, "информация")) {
-		send_to_char("Информация о вложенных вами очках славы:\r\n", ch);
+		SendMsgToChar("Информация о вложенных вами очках славы:\r\n", ch);
 		print_glory(ch, it);
 		return;
 	}
@@ -606,11 +606,11 @@ void do_spend_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		Player p_vict;
 		CharData *vict = &p_vict;
 		if (load_char(name.c_str(), vict) < 0) {
-			send_to_char(ch, "%s - некорректное имя персонажа.\r\n", name.c_str());
+			SendMsgToChar(ch, "%s - некорректное имя персонажа.\r\n", name.c_str());
 			return;
 		}
 		if (str_cmp(GET_EMAIL(ch), GET_EMAIL(vict))) {
-			send_to_char(ch, "Персонажи имеют разные email адреса.\r\n");
+			SendMsgToChar(ch, "Персонажи имеют разные email адреса.\r\n");
 			return;
 		}
 
@@ -619,13 +619,13 @@ void do_spend_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			amount = std::stoi(buffer);
 		}
 		catch (...) {
-			send_to_char(ch, "%s - некорректное количество для перевода.\r\n", buffer.c_str());
-			send_to_char(GLORY_CONST_FORMAT, ch);
+			SendMsgToChar(ch, "%s - некорректное количество для перевода.\r\n", buffer.c_str());
+			SendMsgToChar(GLORY_CONST_FORMAT, ch);
 			return;
 		}
 
 		if (amount < MIN_TRANSFER_TAX || amount > it->second->free_glory) {
-			send_to_char(ch,
+			SendMsgToChar(ch,
 						 "%d - некорректное количество для перевода.\r\n"
 						 "Вы можете перевести от %d до %d постоянной славы.\r\n",
 						 amount, MIN_TRANSFER_TAX, it->second->free_glory);
@@ -652,7 +652,7 @@ void do_spend_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		vict->save_char();
 		save();
 
-		send_to_char(ch, "%s переведено %d постоянной славы (%d комиссии).\r\n",
+		SendMsgToChar(ch, "%s переведено %d постоянной славы (%d комиссии).\r\n",
 					 GET_PAD(vict, 2), total_amount, tax);
 
 		// TODO: ну если в глори-лог или карму, то надо стоимость/налог
@@ -662,11 +662,11 @@ void do_spend_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	if (CompareParam(buffer2, "изменить")) {
 		if (it->second->free_glory < 1000 && it->second->stats.empty()) {
-			send_to_char("У вас недостаточно очков славы для использования этой команды.\r\n", ch);
+			SendMsgToChar("У вас недостаточно очков славы для использования этой команды.\r\n", ch);
 			return;
 		}
 		if (ch->getGloryRespecTime() != 0 && (time(0) - ch->getGloryRespecTime() < 86400)) {
-			send_to_char("Не прошло и суток, а вам неймется...\r\n", ch);
+			SendMsgToChar("Не прошло и суток, а вам неймется...\r\n", ch);
 			return;
 		}
 		std::shared_ptr<glory_olc> tmp_glory_olc(new glory_olc);
@@ -701,7 +701,7 @@ void do_spend_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		STATE(ch->desc) = CON_GLORY_CONST;
 		spend_glory_menu(ch);
 	} else {
-		send_to_char(GLORY_CONST_FORMAT, ch);
+		SendMsgToChar(GLORY_CONST_FORMAT, ch);
 	}
 }
 
@@ -752,7 +752,7 @@ bool reset_glory(CharData *ch) {
 
 void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!*argument) {
-		send_to_char("Формат команды : \r\n"
+		SendMsgToChar("Формат команды : \r\n"
 					 "   glory <имя> (информация по указанному персонажу)\r\n"
 					 "   glory <имя> +|-<кол-во славы> причина\r\n"
 					 "   glory <имя> reset причина (обнуление свободной и вложенной славы)\r\n", ch);
@@ -780,19 +780,19 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	skip_dots(&reason);
 
 	if (mode != SHOW_GLORY && (!reason || !*reason)) {
-		send_to_char("Укажите причину изменения славы?\r\n", ch);
+		SendMsgToChar("Укажите причину изменения славы?\r\n", ch);
 		return;
 	}
 
 	CharData *vict = get_player_vis(ch, arg, EFind::kCharInWorld);
 	if (vict && vict->desc && STATE(vict->desc) == CON_GLORY_CONST) {
-		send_to_char("Персонаж в данный момент редактирует свою славу.\r\n", ch);
+		SendMsgToChar("Персонаж в данный момент редактирует свою славу.\r\n", ch);
 		return;
 	}
 	Player t_vict; // TODO: мутно
 	if (!vict) {
 		if (load_char(arg, &t_vict) < 0) {
-			send_to_char("Такого персонажа не существует.\r\n", ch);
+			SendMsgToChar("Такого персонажа не существует.\r\n", ch);
 			return;
 		}
 		vict = &t_vict;
@@ -802,7 +802,7 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		case ADD_GLORY: {
 			int amount = atoi((num + 1));
 			add_glory(GET_UNIQUE(vict), amount);
-			send_to_char(ch, "%s добавлено %d у.е. постоянной славы (Всего: %d у.е.).\r\n",
+			SendMsgToChar(ch, "%s добавлено %d у.е. постоянной славы (Всего: %d у.е.).\r\n",
 						 GET_PAD(vict, 2), amount, get_glory(GET_UNIQUE(vict)));
 			// запись в карму, логи
 			sprintf(buf, "(GC) %s sets +%d const glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
@@ -816,10 +816,10 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		case SUB_GLORY: {
 			int amount = remove_glory(GET_UNIQUE(vict), atoi((num + 1)));
 			if (amount <= 0) {
-				send_to_char(ch, "У %s нет свободной постоянной славы.\r\n", GET_PAD(vict, 1));
+				SendMsgToChar(ch, "У %s нет свободной постоянной славы.\r\n", GET_PAD(vict, 1));
 				break;
 			}
-			send_to_char(ch, "У %s вычтено %d у.е. постоянной славы (Всего: %d у.е.).\r\n",
+			SendMsgToChar(ch, "У %s вычтено %d у.е. постоянной славы (Всего: %d у.е.).\r\n",
 						 GET_PAD(vict, 1), amount, get_glory(GET_UNIQUE(vict)));
 			// запись в карму, логи
 			sprintf(buf, "(GC) %s sets -%d const glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
@@ -832,7 +832,7 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 		case RESET_GLORY: {
 			if (reset_glory(vict)) {
-				send_to_char(ch, "%s - очищена запись постоянной славы.\r\n", vict->get_name().c_str());
+				SendMsgToChar(ch, "%s - очищена запись постоянной славы.\r\n", vict->get_name().c_str());
 				// запись в карму, логи
 				sprintf(buf, "(GC) %s reset const glory to %s.", GET_NAME(ch), GET_NAME(vict));
 				mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
@@ -841,7 +841,7 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				add_karma(vict, buf, reason);
 				GloryMisc::add_log(mode, 0, std::string(buf), std::string(reason), vict);
 			} else {
-				send_to_char(ch, "%s - запись постоянной славы и так пустая.\r\n", vict->get_name().c_str());
+				SendMsgToChar(ch, "%s - запись постоянной славы и так пустая.\r\n", vict->get_name().c_str());
 			}
 			break;
 		}
@@ -1040,7 +1040,7 @@ void show_stats(CharData *ch) {
 		free_glory += i->second->free_glory;
 		spend_glory += calculate_glory_in_stats(i);
 	}
-	send_to_char(ch,
+	SendMsgToChar(ch,
 				 "  Слава2: вложено %d, свободно %d, всего %d, комиссии %d\r\n"
 				 "  Всего потрачено славы в магазинах: %d\r\n",
 				 spend_glory, free_glory, free_glory + spend_glory, total_charge, total_spent);
@@ -1144,11 +1144,11 @@ void PrintGloryChart(CharData *ch) {
 		}
 	}
 
-	send_to_char(out.str().c_str(), ch);
+	SendMsgToChar(out.str().c_str(), ch);
 
 	if (print_hide) {
 		hide << "\r\n";
-		send_to_char(hide.str().c_str(), ch);
+		SendMsgToChar(hide.str().c_str(), ch);
 	}
 }
 

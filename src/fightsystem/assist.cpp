@@ -7,7 +7,7 @@
 
 void do_assist(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->get_fighting()) {
-		send_to_char("Невозможно. Вы сражаетесь сами.\r\n", ch);
+		SendMsgToChar("Невозможно. Вы сражаетесь сами.\r\n", ch);
 		return;
 	}
 
@@ -28,17 +28,17 @@ void do_assist(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		if (!helpee) {
-			send_to_char("Кому вы хотите помочь?\r\n", ch);
+			SendMsgToChar("Кому вы хотите помочь?\r\n", ch);
 			return;
 		}
 	} else {
 		if (!(helpee = get_char_vis(ch, arg, EFind::kCharInRoom))) {
-			send_to_char(NOPERSON, ch);
+			SendMsgToChar(NOPERSON, ch);
 			return;
 		}
 	}
 	if (helpee == ch) {
-		send_to_char("Вам могут помочь только Боги!\r\n", ch);
+		SendMsgToChar("Вам могут помочь только Боги!\r\n", ch);
 		return;
 	}
 

@@ -62,7 +62,7 @@ void InitMiningVars() {
 
 int make_hole(CharData *ch) {
 	if (roundup(world[ch->in_room]->holes / kHolesTime) >= dig_vars.hole_max_deep) {
-		send_to_char("Тут и так все перекопано.\r\n", ch);
+		SendMsgToChar("Тут и так все перекопано.\r\n", ch);
 		return 0;
 	}
 
@@ -87,7 +87,7 @@ void break_inst(CharData *ch) {
 			}
 			if (GET_OBJ_CUR(GET_EQ(ch, i)) <= 1 && number(1, 3) == 1) {
 				sprintf(buf, "Ваша %s трескается!\r\n", GET_EQ(ch, i)->get_short_description().c_str());
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 			}
 		}
 	}
@@ -113,14 +113,14 @@ void dig_obj(CharData *ch, ObjData *obj) {
 	if (GET_OBJ_MIW(obj) >= obj_proto.actual_count(obj->get_rnum())
 		|| GET_OBJ_MIW(obj) == ObjData::UNLIMITED_GLOBAL_MAXIMUM) {
 		sprintf(textbuf, "Вы нашли %s!\r\n", obj->get_PName(3).c_str());
-		send_to_char(textbuf, ch);
+		SendMsgToChar(textbuf, ch);
 		sprintf(textbuf, "$n выкопал$g %s!\r\n", obj->get_PName(3).c_str());
 		act(textbuf, false, ch, nullptr, nullptr, kToRoom);
 		if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
-			send_to_char("Вы не смогли унести столько предметов.\r\n", ch);
+			SendMsgToChar("Вы не смогли унести столько предметов.\r\n", ch);
 			PlaceObjToRoom(obj, ch->in_room);
 		} else if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj) > CAN_CARRY_W(ch)) {
-			send_to_char("Вы не смогли унести такой веc.\r\n", ch);
+			SendMsgToChar("Вы не смогли унести такой веc.\r\n", ch);
 			PlaceObjToRoom(obj, ch->in_room);
 		} else {
 			PlaceObjToInventory(obj, ch);
@@ -137,33 +137,33 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int old_wis, old_int;
 
 	if (ch->is_npc() || !ch->get_skill(ESkill::kDigging)) {
-		send_to_char("Но вы не знаете как.\r\n", ch);
+		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}
 
 	if (!check_for_dig(ch) && !IS_IMMORTAL(ch)) {
-		send_to_char("Вам бы лопату взять в руки... Или кирку...\r\n", ch);
+		SendMsgToChar("Вам бы лопату взять в руки... Или кирку...\r\n", ch);
 		return;
 	}
 
 	if (world[ch->in_room]->sector_type != ESector::kMountain &&
 		world[ch->in_room]->sector_type != ESector::kHills && !IS_IMMORTAL(ch)) {
-		send_to_char("Полезные минералы водятся только в гористой местности!\r\n", ch);
+		SendMsgToChar("Полезные минералы водятся только в гористой местности!\r\n", ch);
 		return;
 	}
 
 	if (!IS_IMMORTAL(ch) && ch->ahorse()) {
-		send_to_char("Верхом это сделать затруднительно.\r\n", ch);
+		SendMsgToChar("Верхом это сделать затруднительно.\r\n", ch);
 		return;
 	}
 
 	if (AFF_FLAGGED(ch, EAffect::kBlind) && !IS_IMMORTAL(ch)) {
-		send_to_char("Вы слепы и не видите где копать.\r\n", ch);
+		SendMsgToChar("Вы слепы и не видите где копать.\r\n", ch);
 		return;
 	}
 
 	if (is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !IS_IMMORTAL(ch)) {
-		send_to_char("Куда копать? Чего копать? Ничего не видно...\r\n", ch);
+		SendMsgToChar("Куда копать? Чего копать? Ничего не видно...\r\n", ch);
 		return;
 	}
 
@@ -175,7 +175,7 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 	world[ch->in_room]->holes += kHolesTime;
 
-	send_to_char("Вы стали усердно ковырять каменистую почву...\r\n", ch);
+	SendMsgToChar("Вы стали усердно ковырять каменистую почву...\r\n", ch);
 	act("$n стал$g усердно ковырять каменистую почву...", false, ch, nullptr, nullptr, kToRoom);
 
 	break_inst(ch);
@@ -183,10 +183,10 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	// копнули клад
 	if (number(1, dig_vars.treasure_chance) == 1) {
 		int gold = number(40000, 60000);
-		send_to_char("Вы нашли клад!\r\n", ch);
+		SendMsgToChar("Вы нашли клад!\r\n", ch);
 		act("$n выкопал$g клад!", false, ch, nullptr, nullptr, kToRoom);
 		sprintf(textbuf, "Вы насчитали %i монет.\r\n", gold);
-		send_to_char(textbuf, ch);
+		SendMsgToChar(textbuf, ch);
 		ch->add_gold(gold);
 		sprintf(buf, "<%s> {%d} нарыл %d кун.", ch->get_name().c_str(), GET_ROOM_VNUM(ch->in_room), gold);
 		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
@@ -201,14 +201,14 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			if (GetRealLevel(mob) <= GetRealLevel(ch)) {
 				MOB_FLAGS(mob).set(EMobFlag::kAgressive);
 				sprintf(textbuf, "Вы выкопали %s!\r\n", mob->player_data.PNames[3].c_str());
-				send_to_char(textbuf, ch);
+				SendMsgToChar(textbuf, ch);
 				sprintf(textbuf, "$n выкопал$g %s!\r\n", mob->player_data.PNames[3].c_str());
 				act(textbuf, false, ch, nullptr, nullptr, kToRoom);
 				PlaceCharToRoom(mob, ch->in_room);
 				return;
 			}
 		} else
-			send_to_char("Не найден прототип обжекта!", ch);
+			SendMsgToChar("Не найден прототип обжекта!", ch);
 	}
 	// копнули шкатулку пандоры
 	ObjData::shared_ptr obj;
@@ -219,7 +219,7 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		if (obj) {
 			dig_obj(ch, obj.get());
 		} else {
-			send_to_char("Не найден прототип обжекта!", ch);
+			SendMsgToChar("Не найден прототип обжекта!", ch);
 		}
 
 		return;
@@ -232,7 +232,7 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		if (obj) {
 			dig_obj(ch, obj.get());
 		} else {
-			send_to_char("Не найден прототип обжекта!", ch);
+			SendMsgToChar("Не найден прототип обжекта!", ch);
 		}
 
 		return;
@@ -248,10 +248,10 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	ch->set_int(old_int);
 	ch->set_wis(old_wis);
 
-	WAIT_STATE(ch, dig_vars.lag * kPulseViolence);
+	SetWaitState(ch, dig_vars.lag * kPulseViolence);
 
 	if (percent > prob / dig_vars.prob_divide) {
-		send_to_char("Вы только зря расковыряли землю и раскидали камни.\r\n", ch);
+		SendMsgToChar("Вы только зря расковыряли землю и раскидали камни.\r\n", ch);
 		act("$n отрыл$g смешную ямку.", false, ch, nullptr, nullptr, kToRoom);
 		return;
 	}
@@ -281,7 +281,7 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		stone_num = 0;
 
 	if (stone_num == 0) {
-		send_to_char("Вы долго копали, но так и не нашли ничего полезного.\r\n", ch);
+		SendMsgToChar("Вы долго копали, но так и не нашли ничего полезного.\r\n", ch);
 		act("$n долго копал$g землю, но все без толку.", false, ch, nullptr, nullptr, kToRoom);
 		return;
 	}
@@ -297,7 +297,7 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 		dig_obj(ch, obj.get());
 	} else {
-		send_to_char("Не найден прототип обжекта!", ch);
+		SendMsgToChar("Не найден прототип обжекта!", ch);
 	}
 }
 

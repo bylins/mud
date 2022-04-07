@@ -1066,35 +1066,35 @@ void do_rset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	// * No arguments. print an informative text.
 	if (!*name) {
-		send_to_char("Формат: rset <игрок> '<рецепт>' <значение>\r\n", ch);
+		SendMsgToChar("Формат: rset <игрок> '<рецепт>' <значение>\r\n", ch);
 		strcpy(help, "Зарегистрированные рецепты:\r\n");
 		for (qend = 0, i = 0; i <= top_imrecipes; i++) {
 			sprintf(help + strlen(help), "%30s", imrecipes[i].name);
 			if (qend++ % 2 == 1) {
 				strcat(help, "\r\n");
-				send_to_char(help, ch);
+				SendMsgToChar(help, ch);
 				*help = '\0';
 			}
 		}
 		if (*help)
-			send_to_char(help, ch);
-		send_to_char("\r\n", ch);
+			SendMsgToChar(help, ch);
+		SendMsgToChar("\r\n", ch);
 		return;
 	}
 
 	if (!(vict = get_char_vis(ch, name, EFind::kCharInWorld))) {
-		send_to_char(NOPERSON, ch);
+		SendMsgToChar(NOPERSON, ch);
 		return;
 	}
 	skip_spaces(&argument);
 
 	// If there is no entities in argument
 	if (!*argument) {
-		send_to_char("Пропущено название рецепта.\r\n", ch);
+		SendMsgToChar("Пропущено название рецепта.\r\n", ch);
 		return;
 	}
 	if (*argument != '\'') {
-		send_to_char("Рецепт надо заключить в символы : ''\r\n", ch);
+		SendMsgToChar("Рецепт надо заключить в символы : ''\r\n", ch);
 		return;
 	}
 	// Locate the last quote and lowercase the magic words (if any)
@@ -1103,7 +1103,7 @@ void do_rset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		argument[qend] = LOWER(argument[qend]);
 
 	if (argument[qend] != '\'') {
-		send_to_char("Рецепт должен быть заключен в символы : ''\r\n", ch);
+		SendMsgToChar("Рецепт должен быть заключен в символы : ''\r\n", ch);
 		return;
 	}
 	strcpy(help, (argument + 1));
@@ -1112,27 +1112,27 @@ void do_rset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	rcpt = im_get_recipe_by_name(help);
 
 	if (rcpt < 0) {
-		send_to_char("Неизвестный рецепт.\r\n", ch);
+		SendMsgToChar("Неизвестный рецепт.\r\n", ch);
 		return;
 	}
 	argument += qend + 1;    // skip to next parameter
 	argument = one_argument(argument, buf);
 
 	if (!*buf) {
-		send_to_char("Пропущен уровень рецепта.\r\n", ch);
+		SendMsgToChar("Пропущен уровень рецепта.\r\n", ch);
 		return;
 	}
 	value = atoi(buf);
 	if (value < 0) {
-		send_to_char("Минимальное значение рецепта 0.\r\n", ch);
+		SendMsgToChar("Минимальное значение рецепта 0.\r\n", ch);
 		return;
 	}
 	if (value > kMaxRecipeLevel) {
-		send_to_char("Превышено максимальное значение рецепта.\r\n", ch);
+		SendMsgToChar("Превышено максимальное значение рецепта.\r\n", ch);
 		value = kMaxRecipeLevel;
 	}
 	if (vict->is_npc()) {
-		send_to_char("Вы не можете добавить рецепт для мобов.\r\n", ch);
+		SendMsgToChar("Вы не можете добавить рецепт для мобов.\r\n", ch);
 		return;
 	}
 	// Задача - найти рецепт rcpt и установить его в value
@@ -1148,7 +1148,7 @@ void do_rset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	sprintf(buf2, "%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict), imrecipes[rcpt].name, value);
 	mudlog(buf2, BRF, -1, SYSLOG, true);
 	imm_log("%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict), imrecipes[rcpt].name, value);
-	send_to_char(buf2, ch);
+	SendMsgToChar(buf2, ch);
 }
 
 void im_improve_recipe(CharData *ch, im_rskill *rs, int success) {
@@ -1180,7 +1180,7 @@ void im_improve_recipe(CharData *ch, im_rskill *rs, int success) {
 				sprintf(buf,
 						"%sНеудача позволила вам осознать тонкости приготовления рецепта \"%s\".%s\r\n",
 						CCICYN(ch, C_NRM), imrecipes[rs->rid].name, CCNRM(ch, C_NRM));
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 			rs->perc += number(1, 2);
 			if (!IS_IMMORTAL(ch))
 				rs->perc = MIN(kSkillCapOnZeroRemort + GET_REAL_REMORT(ch) * 5, rs->perc);
@@ -1198,7 +1198,7 @@ ObjData **im_obtain_ingredients(CharData *ch, char *argument, int *count) {
 		argument = one_argument(argument, name);
 		if (!*name) {
 			if (!n) {
-				send_to_char("Укажите магические ингредиенты для рецепта.\r\n", ch);
+				SendMsgToChar("Укажите магические ингредиенты для рецепта.\r\n", ch);
 			}
 			count[0] = n;
 			return array;
@@ -1235,7 +1235,7 @@ ObjData **im_obtain_ingredients(CharData *ch, char *argument, int *count) {
 	if (array)
 		free(array);
 	imlog(NRM, buf);
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 	return nullptr;
 }
 
@@ -1259,17 +1259,17 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	// Определяем, что за рецепт пытаемся варить
 	skip_spaces(&argument);
 	if (!*argument) {
-		send_to_char("Пропущено название рецепта.\r\n", ch);
+		SendMsgToChar("Пропущено название рецепта.\r\n", ch);
 		return;
 	}
 	if (!IS_RECIPE_DELIM(*argument)) {
-		send_to_char("Рецепт надо заключить в символы : ' * или !\r\n", ch);
+		SendMsgToChar("Рецепт надо заключить в символы : ' * или !\r\n", ch);
 		return;
 	}
 	for (qend = 1; argument[qend] && !IS_RECIPE_DELIM(argument[qend]); qend++)
 		argument[qend] = LOWER(argument[qend]);
 	if (!IS_RECIPE_DELIM(argument[qend])) {
-		send_to_char("Рецепт должен быть заключен в символы : ' * или !\r\n", ch);
+		SendMsgToChar("Рецепт должен быть заключен в символы : ' * или !\r\n", ch);
 		return;
 	}
 	strcpy(name, (argument + 1));
@@ -1277,12 +1277,12 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	name[qend - 1] = '\0';
 	rcpt = im_get_recipe_by_name(name);
 	if (rcpt < 0) {
-		send_to_char("Вам такой рецепт неизвестен.\r\n", ch);
+		SendMsgToChar("Вам такой рецепт неизвестен.\r\n", ch);
 		return;
 	}
 	rs = im_get_char_rskill(ch, rcpt);
 	if (!rs) {
-		send_to_char("Вам такой рецепт неизвестен.\r\n", ch);
+		SendMsgToChar("Вам такой рецепт неизвестен.\r\n", ch);
 		return;
 	}
 	// rs - используемый рецепт
@@ -1318,7 +1318,7 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		int itype, ktype, osk;
 		if (i == num) {
 			imlog(NRM, "Не хватает основных ингредиентов");
-			send_to_char("Похоже, вам не хватает ингредиентов.\r\n", ch);
+			SendMsgToChar("Похоже, вам не хватает ингредиентов.\r\n", ch);
 			free(objs);
 			return;
 		}
@@ -1331,7 +1331,7 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		// ktype - требуемый тип, itype - подставляемый тип
 		if (!TypeListCheck(&imtypes[itype].tlst, ktype)) {
 			imlog(NRM, "Ингредиенты перепутаны");
-			send_to_char("Похоже, вы перепутали ингредиенты.\r\n", ch);
+			SendMsgToChar("Похоже, вы перепутали ингредиенты.\r\n", ch);
 			free(objs);
 			return;
 		}
@@ -1343,7 +1343,7 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		// минимальное качество ингров для варки рецепта (REQ рецепта/2)
 		int min_osk = osk / 2;
 		if (itype < min_osk) {
-			send_to_char(ch, "Качество %s ниже минимально допустимого.\r\n", GET_OBJ_PNAME(objs[i], 1).c_str());
+			SendMsgToChar(ch, "Качество %s ниже минимально допустимого.\r\n", GET_OBJ_PNAME(objs[i], 1).c_str());
 			sprintf(name, "Качество ингров ниже допустимого: itype=%d, min_osk=%d", itype, min_osk);
 			imlog(NRM, name);
 			free(objs);
@@ -1360,7 +1360,7 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	tgt = real_object(imrecipes[rs->rid].result);
 	if (tgt < 0) {
 		imlog(NRM, "Прототип утерян");
-		send_to_char("Результат рецепта утерян.\r\n", ch);
+		SendMsgToChar("Результат рецепта утерян.\r\n", ch);
 		free(objs);
 		return;
 	}
@@ -1379,7 +1379,7 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			break;
 
 		default: imlog(NRM, "Прототип имеет неверный тип");
-			send_to_char("Результат варева непредсказуем.\r\n", ch);
+			SendMsgToChar("Результат варева непредсказуем.\r\n", ch);
 			free(objs);
 			return;
 	}
@@ -1405,7 +1405,7 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	imlog(CMP, name);
 
 	if (prob < 0) {
-		send_to_char("С ингредиентами такого качества вам лучше даже не пытаться...\r\n", ch);
+		SendMsgToChar("С ингредиентами такого качества вам лучше даже не пытаться...\r\n", ch);
 		free(objs);
 		return;
 	}
@@ -1528,12 +1528,12 @@ void compose_recipe(CharData *ch, char *argument, int/* subcmd*/) {
 	// Определяем, что за рецепт пытаемся варить
 	skip_spaces(&argument);
 	if (!*argument) {
-		send_to_char("Пропущено название рецепта.\r\n", ch);
+		SendMsgToChar("Пропущено название рецепта.\r\n", ch);
 		return;
 	}
 
 	if (!IS_RECIPE_DELIM(*argument)) {
-		send_to_char("Рецепт надо заключить в символы : ' * или !\r\n", ch);
+		SendMsgToChar("Рецепт надо заключить в символы : ' * или !\r\n", ch);
 		return;
 	}
 
@@ -1542,7 +1542,7 @@ void compose_recipe(CharData *ch, char *argument, int/* subcmd*/) {
 	}
 
 	if (!IS_RECIPE_DELIM(argument[qend])) {
-		send_to_char("Рецепт должен быть заключен в символы : ' * или !\r\n", ch);
+		SendMsgToChar("Рецепт должен быть заключен в символы : ' * или !\r\n", ch);
 		return;
 	}
 
@@ -1551,28 +1551,28 @@ void compose_recipe(CharData *ch, char *argument, int/* subcmd*/) {
 	name[qend - 1] = '\0';
 	rcpt = im_get_recipe_by_name(name);
 	if (rcpt < 0) {
-		send_to_char("Вам такой рецепт неизвестен.\r\n", ch);
+		SendMsgToChar("Вам такой рецепт неизвестен.\r\n", ch);
 		return;
 	}
 
 	rs = im_get_char_rskill(ch, rcpt);
 	if (!rs) {
-		send_to_char("Вам такой рецепт неизвестен.\r\n", ch);
+		SendMsgToChar("Вам такой рецепт неизвестен.\r\n", ch);
 		return;
 	}
 
 	// rs - используемый рецепт
 
-	send_to_char("Вам потребуется :\r\n", ch);
+	SendMsgToChar("Вам потребуется :\r\n", ch);
 
 	// Этап 1. Основные компоненты
 	for (int i = 1, *req = imrecipes[rs->rid].require; *req != -1; req += 2, ++i) {
 		sprintf(name, "%s%d%s) %s%s%s\r\n", CCIGRN(ch, C_NRM), i,
 				CCNRM(ch, C_NRM), CCIYEL(ch, C_NRM), imtypes[*req].name, CCNRM(ch, C_NRM));
-		send_to_char(name, ch);
+		SendMsgToChar(name, ch);
 	}
 	sprintf(name, "для приготовления отвара '%s'\r\n", imrecipes[rs->rid].name);
-	send_to_char(name, ch);
+	SendMsgToChar(name, ch);
 
 	// Этап 2. Дополнительные компоненты *** НЕ ОБРАБАТЫВАЮТСЯ ***
 }
@@ -1587,18 +1587,18 @@ void forget_recipe(CharData *ch, char *argument, int/* subcmd*/) {
 
 	skip_spaces(&argument);
 	if (!*argument) {
-		send_to_char("Пропущено название рецепта.\r\n", ch);
+		SendMsgToChar("Пропущено название рецепта.\r\n", ch);
 		return;
 	}
 
 	if (!IS_RECIPE_DELIM(*argument)) {
-		send_to_char("Рецепт надо заключить в символы : ' * или !\r\n", ch);
+		SendMsgToChar("Рецепт надо заключить в символы : ' * или !\r\n", ch);
 		return;
 	}
 	for (qend = 1; argument[qend] && !IS_RECIPE_DELIM(argument[qend]); qend++)
 		argument[qend] = LOWER(argument[qend]);
 	if (!IS_RECIPE_DELIM(argument[qend])) {
-		send_to_char("Рецепт должен быть заключен в символы : ' * или !\r\n", ch);
+		SendMsgToChar("Рецепт должен быть заключен в символы : ' * или !\r\n", ch);
 		return;
 	}
 	strcpy(name, (argument + 1));
@@ -1613,18 +1613,18 @@ void forget_recipe(CharData *ch, char *argument, int/* subcmd*/) {
 	}
 
 	if (rcpt < 0) {
-		send_to_char("Неизвестный рецепт, введите название рецепта полностью.\r\n", ch);
+		SendMsgToChar("Неизвестный рецепт, введите название рецепта полностью.\r\n", ch);
 		return;
 	}
 
 	rs = im_get_char_rskill(ch, rcpt);
 	if (!rs || !rs->perc) {
-		send_to_char("Изучите сначала этот рецепт.\r\n", ch);
+		SendMsgToChar("Изучите сначала этот рецепт.\r\n", ch);
 		return;
 	}
 	rs->perc = 0;
 	sprintf(buf, "Вы забыли рецепт отвара '%s'.\r\n", imrecipes[rcpt].name);
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 }
 
 int im_ing_dump(int *ping, char *s) {
@@ -1689,7 +1689,7 @@ void trg_recipeturn(CharData *ch, int rid, int recipediff) {
 		if (recipediff)
 			return;
 		sprintf(buf, "Вас лишили рецепта '%s'.\r\n", imrecipes[rid].name);
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 		rs->perc = 0;
 	} else {
 		if (!recipediff)
@@ -1704,7 +1704,7 @@ void trg_recipeturn(CharData *ch, int rid, int recipediff) {
 		}
 // -newbook.patch (Alisher)
 		sprintf(buf, "Вы изучили рецепт '%s'.\r\n", imrecipes[rid].name);
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 		sprintf(buf, "RECIPE: игроку %s добавлен рецепт %s", GET_NAME(ch), imrecipes[rid].name);
 		log("%s", buf);
 	}
@@ -1727,11 +1727,11 @@ void AddRecipe(CharData *ch, int rid, int recipediff) {
 		sprintf(buf, "Вы повысили знание рецепта '%s'.\r\n", imrecipes[rid].name);
 	else
 		sprintf(buf, "Ваше знание рецепта '%s' осталось неизменным.\r\n", imrecipes[rid].name);
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 }
 
 void do_imlist(CharData *ch, char /**argument*/, int/* cmd*/, int/* subcmd*/) {
-	send_to_char("Команда отГлючена.\r\n", ch);
+	SendMsgToChar("Команда отГлючена.\r\n", ch);
 	return;
 /*
 	int zone, i, rnum;
@@ -1741,7 +1741,7 @@ void do_imlist(CharData *ch, char /**argument*/, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, buf);
 	if (!*buf)
 	{
-		send_to_char("Использование: исписок <номер зоны>\r\n", ch);
+		SendMsgToChar("Использование: исписок <номер зоны>\r\n", ch);
 		return;
 	}
 
@@ -1749,7 +1749,7 @@ void do_imlist(CharData *ch, char /**argument*/, int/* cmd*/, int/* subcmd*/) {
 
 	if ((zone < 0) || (zone > 999))
 	{
-		send_to_char("Номер зоны должен быть между 0 и 999.\n\r", ch);
+		SendMsgToChar("Номер зоны должен быть между 0 и 999.\n\r", ch);
 		return;
 	}
 
@@ -1799,7 +1799,7 @@ void do_imlist(CharData *ch, char /**argument*/, int/* cmd*/, int/* subcmd*/) {
 
 	if (!buf[0])
 	{
-		send_to_char("В зоне ингредиенты не загружаются", ch);
+		SendMsgToChar("В зоне ингредиенты не загружаются", ch);
 	}
 	else
 	{

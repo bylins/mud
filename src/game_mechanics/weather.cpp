@@ -57,26 +57,26 @@ void gods_day_now(CharData *ch) {
 		}
 
 		sprintf(mono + strlen(mono), "Пасха    : %d.%02d\r\n", EasterDay + 1, EasterMonth + 1);
-		send_to_char(poly, ch);
-		send_to_char(mono, ch);
+		SendMsgToChar(poly, ch);
+		SendMsgToChar(mono, ch);
 	} else if (GET_RELIGION(ch) == kReligionPoly) {
 		if (poly_name != "") {
 			sprintf(poly, "%s Сегодня %s. %s\r\n", CCWHT(ch, C_NRM),
 					poly_name.c_str(), CCNRM(ch, C_NRM));
-			send_to_char(poly, ch);
+			SendMsgToChar(poly, ch);
 		}
 	} else if (GET_RELIGION(ch) == kReligionMono) {
 		if (mono_name != "") {
 			sprintf(mono, "%s Сегодня %s. %s\r\n", CCWHT(ch, C_NRM),
 					mono_name.c_str(), CCNRM(ch, C_NRM));
-			send_to_char(mono, ch);
+			SendMsgToChar(mono, ch);
 		}
 	}
 	if (real_name != "") {
 		sprintf(real, "В реальном мире : %s %s. %s\r\n", CCWHT(ch, C_NRM),
 				real_name.c_str(), CCNRM(ch, C_NRM));
 	}
-	send_to_char(real, ch);
+	SendMsgToChar(real, ch);
 }
 
 void weather_and_time(int mode) {
@@ -105,22 +105,22 @@ void another_hour(int/* mode*/) {
 
 	if (time_info.hours == sunrise[time_info.month][0]) {
 		weather_info.sunlight = kSunRise;
-		send_to_outdoor("На востоке показались первые солнечные лучи.\r\n", SUN_CONTROL);
+		SendMsgToOutdoor("На востоке показались первые солнечные лучи.\r\n", SUN_CONTROL);
 		// Вы с дуба рухнули - каждый тик бегать по ~100-150к объектов в мире?
 		// Надо делать через собственный лист объектов с такими тригами в собственном же неймспейсе
 		// См. как сделаны slow DT например.
 		//script_timechange_trigger_check(25);//рассвет
 	} else if (time_info.hours == sunrise[time_info.month][0] + 1) {
 		weather_info.sunlight = kSunLight;
-		send_to_outdoor("Начался день.\r\n", SUN_CONTROL);
+		SendMsgToOutdoor("Начался день.\r\n", SUN_CONTROL);
 		//script_timechange_trigger_check(26);//день
 	} else if (time_info.hours == sunrise[time_info.month][1]) {
 		weather_info.sunlight = kSunSet;
-		send_to_outdoor("Солнце медленно исчезло за горизонтом.\r\n", SUN_CONTROL);
+		SendMsgToOutdoor("Солнце медленно исчезло за горизонтом.\r\n", SUN_CONTROL);
 		//script_timechange_trigger_check(27);//закат
 	} else if (time_info.hours == sunrise[time_info.month][1] + 1) {
 		weather_info.sunlight = kSunDark;
-		send_to_outdoor("Началась ночь.\r\n", SUN_CONTROL);
+		SendMsgToOutdoor("Началась ночь.\r\n", SUN_CONTROL);
 		//script_timechange_trigger_check(28);//ночь
 	}
 
@@ -156,7 +156,7 @@ void another_hour(int/* mode*/) {
 		weather_info.sunlight == kSunDark) &&
 		weather_info.sky == kSkyLightning &&
 		weather_info.moon_day >= kFullMoonStart && weather_info.moon_day <= kFullMoonStop) {
-		send_to_outdoor("Лунный свет заливает равнины тусклым светом.\r\n", SUN_CONTROL);
+		SendMsgToOutdoor("Лунный свет заливает равнины тусклым светом.\r\n", SUN_CONTROL);
 	}
 }
 
@@ -339,7 +339,7 @@ void weather_change(void) {
 
 
 	// Change some values for world
-	for (i = FIRST_ROOM; i <= top_of_world; i++) {
+	for (i = kFirstRoom; i <= top_of_world; i++) {
 		raincast = snowcast = 0;
 		if (ROOM_FLAGGED(i, ERoomFlag::kNoWeather))
 			continue;
@@ -758,7 +758,7 @@ void weather_change(void) {
 	}
 
 	if (*buf)
-		send_to_outdoor(buf, WEATHER_CONTROL);
+		SendMsgToOutdoor(buf, WEATHER_CONTROL);
 	weather_info.weather_type = cweather_type;
 }
 

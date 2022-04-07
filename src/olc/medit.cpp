@@ -512,7 +512,7 @@ void medit_save_internally(DescriptorData *d) {
 		}
 
 		// 5. Информация о выслеживании
-		for (j = FIRST_ROOM; j <= top_of_world; j++) {
+		for (j = kFirstRoom; j <= top_of_world; j++) {
 			struct TrackData *track;
 
 			for (track = world[j]->track; track; track = track->next) {
@@ -763,13 +763,13 @@ void medit_disp_positions(DescriptorData *d) {
 	get_char_cols(d->character.get());
 
 #if defined(CLEAR_SCREEN)
-	send_to_char("[H[J", d->character);
+	SendMsgToChar("[H[J", d->character);
 #endif
 	for (i = 0; *position_types[i] != '\n'; i++) {
 		sprintf(buf, "%s%2d%s) %s\r\n", grn, i, nrm, position_types[i]);
-		send_to_char(buf, d->character.get());
+		SendMsgToChar(buf, d->character.get());
 	}
-	send_to_char("Выберите положение : ", d->character.get());
+	SendMsgToChar("Выберите положение : ", d->character.get());
 }
 
 // *  Display add parameters - added by Adept
@@ -777,7 +777,7 @@ void medit_disp_add_parameters(DescriptorData *d) {
 	get_char_cols(d->character.get());
 
 #if defined(CLEAR_SCREEN)
-	send_to_char("[H[J", d->character);
+	SendMsgToChar("[H[J", d->character);
 #endif
 	sprintf(buf,
 			"%s1%s ) Регенерация : %s%d%s\r\n"
@@ -800,8 +800,8 @@ void medit_disp_add_parameters(DescriptorData *d) {
 			grn, nrm, cyn, GET_AR((OLC_MOB(d))), nrm,
 			grn, nrm, cyn, GET_MR((OLC_MOB(d))), nrm,
 			grn, nrm, cyn, GET_PR((OLC_MOB(d))), nrm);
-	send_to_char(buf, d->character.get());
-	send_to_char("Введите номер и величину параметра (0 - конец) : ", d->character.get());
+	SendMsgToChar(buf, d->character.get());
+	SendMsgToChar("Введите номер и величину параметра (0 - конец) : ", d->character.get());
 }
 
 // *  Display resistances - added by Adept
@@ -810,29 +810,29 @@ void medit_disp_resistances(DescriptorData *d) {
 
 	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
-	send_to_char("[H[J", d->character);
+	SendMsgToChar("[H[J", d->character);
 #endif
 	for (i = 0; *resistance_types[i] != '\n'; i++) {
 		sprintf(buf, "%s%2d%s) %s : %s%d%s\r\n",
 				grn, i + 1, nrm, resistance_types[i], cyn, GET_RESIST(OLC_MOB(d), i), nrm);
-		send_to_char(buf, d->character.get());
+		SendMsgToChar(buf, d->character.get());
 	}
-	send_to_char("Введите номер и величину сопротивления (-100..100\%) (0 - конец) : ", d->character.get());
+	SendMsgToChar("Введите номер и величину сопротивления (-100..100\%) (0 - конец) : ", d->character.get());
 }
 
 // *  Display saves
 void medit_disp_saves(DescriptorData *d) {
 	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
-	send_to_char("[H[J", d->character);
+	SendMsgToChar("[H[J", d->character);
 #endif
 	for (auto s = ESaving::kFirst; s <= ESaving::kLast; ++s) {
 		auto i = to_underlying(s);
 		sprintf(buf, "%s%2d%s) %s : %s%d%s\r\n",
 				grn, i+1, nrm, apply_negative[i+1], cyn, GET_SAVE(OLC_MOB(d), s), nrm);
-		send_to_char(buf, d->character.get());
+		SendMsgToChar(buf, d->character.get());
 	}
-	send_to_char("Введите номер и величину спас-броска, отрицательное улучшает (0 - конец) : ", d->character.get());
+	SendMsgToChar("Введите номер и величину спас-броска, отрицательное улучшает (0 - конец) : ", d->character.get());
 }
 
 #if defined(OASIS_MPROG)
@@ -877,13 +877,13 @@ void medit_disp_mprog(DescriptorData * d)
 	OLC_MTOTAL(d) = 1;
 
 #if defined(CLEAR_SCREEN)
-	send_to_char("^[[H^[[J", d->character);
+	SendMsgToChar("^[[H^[[J", d->character);
 #endif
 	while (mprog)
 	{
 		sprintf(buf, "%d) %s %s\r\n", OLC_MTOTAL(d),
 			medit_get_mprog_type(mprog), (mprog->arglist ? mprog->arglist : "NONE"));
-		send_to_char(buf, d->character);
+		SendMsgToChar(buf, d->character);
 		OLC_MTOTAL(d)++;
 		mprog = mprog->next;
 	}
@@ -891,7 +891,7 @@ void medit_disp_mprog(DescriptorData * d)
 		"%d) Создать новую Mob Prog\r\n"
 		"%d) Очистить Mob Prog\r\n"
 		"Введите номер для редактирования [0 - выход]:  ", OLC_MTOTAL(d), OLC_MTOTAL(d) + 1);
-	send_to_char(buf, d->character);
+	SendMsgToChar(buf, d->character);
 	OLC_MODE(d) = MEDIT_MPROG;
 }
 
@@ -901,7 +901,7 @@ void medit_disp_mprog(DescriptorData * d)
 void medit_change_mprog(DescriptorData * d)
 {
 #if defined(CLEAR_SCREEN)
-	send_to_char("^[[H^[[J", d->character);
+	SendMsgToChar("^[[H^[[J", d->character);
 #endif
 	sprintf(buf,
 		"1) Type: %s\r\n"
@@ -912,7 +912,7 @@ void medit_change_mprog(DescriptorData * d)
 		(OLC_MPROG(d)->arglist ? OLC_MPROG(d)->arglist : "NONE"),
 		(OLC_MPROG(d)->comlist ? OLC_MPROG(d)->comlist : "NONE"));
 
-	send_to_char(buf, d->character);
+	SendMsgToChar(buf, d->character);
 	OLC_MODE(d) = MEDIT_CHANGE_MPROG;
 }
 
@@ -925,15 +925,15 @@ void medit_disp_mprog_types(DescriptorData * d)
 
 	get_char_cols(d->character);
 #if defined(CLEAR_SCREEN)
-	send_to_char("^[[H^[[J", d->character);
+	SendMsgToChar("^[[H^[[J", d->character);
 #endif
 
 	for (i = 0; i < NUM_PROGS - 1; i++)
 	{
 		sprintf(buf, "%s%2d%s) %s\r\n", grn, i, nrm, mobprog_types[i]);
-		send_to_char(buf, d->character);
+		SendMsgToChar(buf, d->character);
 	}
-	send_to_char("Введите тип mob prog : ", d->character);
+	SendMsgToChar("Введите тип mob prog : ", d->character);
 	OLC_MODE(d) = MEDIT_MPROG_TYPE;
 }
 #endif
@@ -947,20 +947,20 @@ void medit_disp_sex(DescriptorData *d) {
 	get_char_cols(d->character.get());
 
 #if defined(CLEAR_SCREEN)
-	send_to_char("[H[J", d->character);
+	SendMsgToChar("[H[J", d->character);
 #endif
 	for (i = 0; i <= NUM_GENDERS; i++) {
 		sprintf(buf, "%s%2d%s) %s\r\n", grn, i, nrm, genders[i]);
-		send_to_char(buf, d->character.get());
+		SendMsgToChar(buf, d->character.get());
 	}
-	send_to_char("Выберите пол : ", d->character.get());
+	SendMsgToChar("Выберите пол : ", d->character.get());
 }
 
 void medit_disp_role(DescriptorData *d) {
 	get_char_cols(d->character.get());
 
 #if defined(CLEAR_SCREEN)
-	send_to_char("[H[J", d->character);
+	SendMsgToChar("[H[J", d->character);
 #endif
 
 	std::string out;
@@ -982,7 +982,7 @@ void medit_disp_role(DescriptorData *d) {
 	snprintf(tmp, sizeof(tmp), "%s\r\nВыберите роли моба (0 - выход) : ", nrm);
 	out += tmp;
 
-	send_to_char(out, d->character.get());
+	SendMsgToChar(out, d->character.get());
 }
 
 void medit_disp_features(DescriptorData *d) {
@@ -990,7 +990,7 @@ void medit_disp_features(DescriptorData *d) {
 
 	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
-	send_to_char("[H[J", d->character);
+	SendMsgToChar("[H[J", d->character);
 #endif
 
 	for (auto counter = EFeat::kFirstFeat; counter <= EFeat::kLastFeat; ++counter) {
@@ -1006,10 +1006,10 @@ void medit_disp_features(DescriptorData *d) {
 
 		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, counter, nrm,
 				 feat_info[counter].name, buf1, !(++columns % 2) ? "\r\n" : "");
-		send_to_char(buf, d->character.get());
+		SendMsgToChar(buf, d->character.get());
 	}
 
-	send_to_char("\r\nУкажите номер способности. (0 - конец) : ", d->character.get());
+	SendMsgToChar("\r\nУкажите номер способности. (0 - конец) : ", d->character.get());
 }
 
 void medit_disp_race(DescriptorData *d) {
@@ -1018,13 +1018,13 @@ void medit_disp_race(DescriptorData *d) {
 	get_char_cols(d->character.get());
 
 #if defined(CLEAR_SCREEN)
-	send_to_char("[H[J", d->character);
+	SendMsgToChar("[H[J", d->character);
 #endif
 	for (i = 0; i < ENpcRace::kLastNpcRace - ENpcRace::kBasic + 1; i++) {
 		sprintf(buf, "%s%2d%s) %s\r\n", grn, i, nrm, npc_race_types[i]);
-		send_to_char(buf, d->character.get());
+		SendMsgToChar(buf, d->character.get());
 	}
-	send_to_char("Выберите расу моба : ", d->character.get());
+	SendMsgToChar("Выберите расу моба : ", d->character.get());
 }
 
 // * Display attack types menu.
@@ -1033,13 +1033,13 @@ void medit_disp_attack_types(DescriptorData *d) {
 
 	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
-	send_to_char("[H[J", d->character);
+	SendMsgToChar("[H[J", d->character);
 #endif
 	for (i = 0; i < NUM_ATTACK_TYPES; i++) {
 		sprintf(buf, "%s%2d%s) %s\r\n", grn, i, nrm, attack_hit_text[i].singular);
-		send_to_char(buf, d->character.get());
+		SendMsgToChar(buf, d->character.get());
 	}
-	send_to_char("Выберите тип удара : ", d->character.get());
+	SendMsgToChar("Выберите тип удара : ", d->character.get());
 }
 
 //-------------------------------------------------------------------
@@ -1049,18 +1049,18 @@ void medit_disp_helpers(DescriptorData *d) {
 
 	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
-	send_to_char("[H[J", d->character);
+	SendMsgToChar("[H[J", d->character);
 #endif
-	send_to_char("Установлены мобы-помощники :\r\n", d->character.get());
+	SendMsgToChar("Установлены мобы-помощники :\r\n", d->character.get());
 	for (helper = OLC_MOB(d)->helpers; helper; helper = helper->next) {
 		sprintf(buf, "%s%6d%s %s", grn, helper->mob_vnum, nrm, !(++columns % 6) ? "\r\n" : "");
-		send_to_char(buf, d->character.get());
+		SendMsgToChar(buf, d->character.get());
 	}
 	if (!columns) {
 		sprintf(buf, "%sНЕТ%s", cyn, nrm);
-		send_to_char(buf, d->character.get());
+		SendMsgToChar(buf, d->character.get());
 	}
-	send_to_char("\r\nУкажите vnum моба-помощника (0 - конец) : ", d->character.get());
+	SendMsgToChar("\r\nУкажите vnum моба-помощника (0 - конец) : ", d->character.get());
 }
 
 void medit_disp_skills(DescriptorData *d) {
@@ -1068,7 +1068,7 @@ void medit_disp_skills(DescriptorData *d) {
 
 	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
-	send_to_char("[H[J", d->character);
+	SendMsgToChar("[H[J", d->character);
 #endif
 	for (const auto &skill : MUD::Skills()) {
 		if (skill.IsInvalid()) {
@@ -1083,9 +1083,9 @@ void medit_disp_skills(DescriptorData *d) {
 
 		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, to_underlying(skill.GetId()), nrm,
 				 skill.GetName(), buf1, !(++columns % 2) ? "\r\n" : "");
-		send_to_char(buf, d->character.get());
+		SendMsgToChar(buf, d->character.get());
 	}
-	send_to_char("\r\nУкажите номер и уровень владения умением (0 - конец) : ", d->character.get());
+	SendMsgToChar("\r\nУкажите номер и уровень владения умением (0 - конец) : ", d->character.get());
 }
 
 void medit_disp_spells(DescriptorData *d) {
@@ -1093,7 +1093,7 @@ void medit_disp_spells(DescriptorData *d) {
 
 	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
-	send_to_char("[H[J", d->character);
+	SendMsgToChar("[H[J", d->character);
 #endif
 	for (counter = 1; counter <= kSpellCount; counter++) {
 		if (!spell_info[counter].name
@@ -1107,9 +1107,9 @@ void medit_disp_spells(DescriptorData *d) {
 		}
 		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, counter, nrm,
 				 spell_info[counter].name, buf1, !(++columns % 2) ? "\r\n" : "");
-		send_to_char(buf, d->character.get());
+		SendMsgToChar(buf, d->character.get());
 	}
-	send_to_char("\r\nУкажите номер и количество заклинаний (0 - конец) : ", d->character.get());
+	SendMsgToChar("\r\nУкажите номер и количество заклинаний (0 - конец) : ", d->character.get());
 }
 
 // * Display mob-flags menu.
@@ -1117,14 +1117,14 @@ void medit_disp_mob_flags(DescriptorData *d) {
 	disp_planes_values(d, action_bits, 2);
 	OLC_MOB(d)->char_specials.saved.act.sprintbits(action_bits, buf1, ",", 5);
 	snprintf(buf, kMaxStringLength, "\r\nТекущие флаги : %s%s%s\r\nВыберите флаг (0 - выход) : ", cyn, buf1, nrm);
-	send_to_char(buf, d->character.get());
+	SendMsgToChar(buf, d->character.get());
 }
 
 void medit_disp_npc_flags(DescriptorData *d) {
 	disp_planes_values(d, function_bits, 2);
 	OLC_MOB(d)->mob_specials.npc_flags.sprintbits(function_bits, buf1, ",", 5);
 	snprintf(buf, kMaxStringLength, "\r\nТекущие флаги : %s%s%s\r\nВыберите флаг (0 - выход) : ", cyn, buf1, nrm);
-	send_to_char(buf, d->character.get());
+	SendMsgToChar(buf, d->character.get());
 }
 
 // * Display affection flags menu.
@@ -1132,7 +1132,7 @@ void medit_disp_aff_flags(DescriptorData *d) {
 	disp_planes_values(d, affected_bits, 2);
 	OLC_MOB(d)->char_specials.saved.affected_by.sprintbits(affected_bits, buf1, ",", 5);
 	snprintf(buf, kMaxStringLength, "\r\nCurrent flags   : %s%s%s\r\nEnter aff flags (0 to quit) : ", cyn, buf1, nrm);
-	send_to_char(buf, d->character.get());
+	SendMsgToChar(buf, d->character.get());
 }
 
 // * Display main menu.
@@ -1188,7 +1188,7 @@ void medit_disp_menu(DescriptorData *d) {
 			grn, nrm, cyn, GET_EXP(mob), nrm,
 			grn, nrm, cyn, mob->get_gold(), nrm,
 			grn, nrm, cyn, GET_GOLD_NoDs(mob), nrm, grn, nrm, cyn, GET_GOLD_SiDs(mob), nrm);
-	send_to_char(buf, d->character.get());
+	SendMsgToChar(buf, d->character.get());
 
 	mob->char_specials.saved.act.sprintbits(action_bits, buf1, ",", 4);
 	mob->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, ",", 4);
@@ -1201,7 +1201,7 @@ void medit_disp_menu(DescriptorData *d) {
 			 grn, nrm, yel, position_types[(int) GET_POS(mob)],
 			 grn, nrm, yel, position_types[(int) GET_DEFAULT_POS(mob)],
 			 grn, nrm, yel, attack_hit_text[GET_ATTACK(mob)].singular, grn, nrm, cyn, buf1, grn, nrm, cyn, buf2);
-	send_to_char(buf, d->character.get());
+	SendMsgToChar(buf, d->character.get());
 
 	mob->mob_specials.npc_flags.sprintbits(function_bits, buf1, ",", 4);
 	*buf2 = '\0';
@@ -1271,7 +1271,7 @@ void medit_disp_menu(DescriptorData *d) {
 			 grn, nrm, cyn, !mob->proto_script->empty() ? "Set." : "Not Set.",
 			 grn, nrm, cyn, mob->mob_specials.MaxFactor, nrm,
 			 grn, nrm);
-	send_to_char(buf, d->character.get());
+	SendMsgToChar(buf, d->character.get());
 
 	OLC_MODE(d) = MEDIT_MAIN_MENU;
 }
@@ -1296,7 +1296,7 @@ void disp_dl_list(DescriptorData *d) {
 			"\r\n-- Объекты загружаемые посмертно в моба [%s%d%s]\r\n"
 			"-- Предмет (VNUM,Вероятность,Тип загрузки,Спец.параметр) -- \r\n", cyn, OLC_NUM(d), nrm);
 
-	send_to_char(buf, d->character.get());
+	SendMsgToChar(buf, d->character.get());
 
 	if (mob->dl_list != nullptr) {
 		i = 0;
@@ -1315,11 +1315,11 @@ void disp_dl_list(DescriptorData *d) {
 			sprintf(buf, "%d. %s (%d,%d,%d,%d)\r\n",
 					i, objname, (*p)->obj_vnum, (*p)->load_prob, (*p)->load_type, (*p)->spec_param);
 
-			send_to_char(buf, d->character.get());
+			SendMsgToChar(buf, d->character.get());
 			p++;
 		}
 	} else {
-		send_to_char("Предметы не определены\r\n", d->character.get());
+		SendMsgToChar("Предметы не определены\r\n", d->character.get());
 	}
 	// Выводим
 	// A) Добавить.
@@ -1331,7 +1331,7 @@ void disp_dl_list(DescriptorData *d) {
 			"%sА%s) Добавить\r\n"
 			"%sБ%s) Удалить\r\n" "%sQ%s) Выход\r\n" "Ваш выбор:", grn, nrm, grn, nrm, grn, nrm);
 
-	send_to_char(buf, d->character.get());
+	SendMsgToChar(buf, d->character.get());
 }
 
 void medit_disp_clone_menu(DescriptorData *d) {
@@ -1351,7 +1351,7 @@ void medit_disp_clone_menu(DescriptorData *d) {
 			grn, nrm,
 			grn, nrm);
 
-	send_to_char(buf, d->character.get());
+	SendMsgToChar(buf, d->character.get());
 }
 
 // ************************************************************************
@@ -1364,7 +1364,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 
 	if (OLC_MODE(d) > MEDIT_NUMERICAL_RESPONSE) {
 		if (!*arg || (!a_isdigit(arg[0]) && ((*arg == '-') && (!a_isdigit(arg[1]))))) {
-			send_to_char("Это числовое поле, повторите ввод : ", d->character.get());
+			SendMsgToChar("Это числовое поле, повторите ввод : ", d->character.get());
 			return;
 		}
 	}
@@ -1379,14 +1379,14 @@ void medit_parse(DescriptorData *d, char *arg) {
 				case 'д':
 				case 'Д':
 					// * Save the mob in memory and to disk.
-					send_to_char("Saving mobile to memory.\r\n", d->character.get());
+					SendMsgToChar("Saving mobile to memory.\r\n", d->character.get());
 					medit_save_internally(d);
 					sprintf(buf, "OLC: %s edits mob %d", GET_NAME(d->character), OLC_NUM(d));
 					olc_log("%s edit mob %d", GET_NAME(d->character), OLC_NUM(d));
 					mudlog(buf, NRM, MAX(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
 					// * Do NOT free strings! Just the mob structure.
 					cleanup_olc(d, CLEANUP_STRUCTS);
-					send_to_char("Mob saved to memory.\r\n", d->character.get());
+					SendMsgToChar("Mob saved to memory.\r\n", d->character.get());
 					break;
 
 				case 'n':
@@ -1395,8 +1395,8 @@ void medit_parse(DescriptorData *d, char *arg) {
 				case 'Н': cleanup_olc(d, CLEANUP_ALL);
 					break;
 
-				default: send_to_char("Неверный выбор!\r\n", d->character.get());
-					send_to_char("Вы хотите сохранить моба? : ", d->character.get());
+				default: SendMsgToChar("Неверный выбор!\r\n", d->character.get());
+					SendMsgToChar("Вы хотите сохранить моба? : ", d->character.get());
 					break;
 			}
 			return;
@@ -1409,7 +1409,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 				case 'Q':
 					if (OLC_VAL(d))    // Anything been changed?
 					{
-						send_to_char("Вы желаете сохранить изменения моба? (y/n): ", d->character.get());
+						SendMsgToChar("Вы желаете сохранить изменения моба? (y/n): ", d->character.get());
 						OLC_MODE(d) = MEDIT_CONFIRM_SAVESTRING;
 					} else {
 						cleanup_olc(d, CLEANUP_ALL);
@@ -1420,13 +1420,13 @@ void medit_parse(DescriptorData *d, char *arg) {
 					medit_disp_sex(d);
 					return;
 
-				case '2': send_to_char("Введите синонимы : ", d->character.get());
+				case '2': SendMsgToChar("Введите синонимы : ", d->character.get());
 					OLC_MODE(d) = MEDIT_ALIAS;
 					i--;
 					break;
 
 				case '3':
-					send_to_char(d->character.get(),
+					SendMsgToChar(d->character.get(),
 								 "&S%s&s\r\nИменительный падеж [это КТО]: ",
 								 GET_PAD(OLC_MOB(d), 0));
 					OLC_MODE(d) = MEDIT_PAD0;
@@ -1434,7 +1434,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 					break;
 
 				case '4':
-					send_to_char(d->character.get(),
+					SendMsgToChar(d->character.get(),
 								 "&S%s&s\r\nРодительный падеж [нет КОГО] : ",
 								 GET_PAD(OLC_MOB(d), 1));
 					OLC_MODE(d) = MEDIT_PAD1;
@@ -1442,7 +1442,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 					break;
 
 				case '5':
-					send_to_char(d->character.get(),
+					SendMsgToChar(d->character.get(),
 								 "&S%s&s\r\nДательный падеж [дать КОМУ] : ",
 								 GET_PAD(OLC_MOB(d), 2));
 					OLC_MODE(d) = MEDIT_PAD2;
@@ -1450,7 +1450,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 					break;
 
 				case '6':
-					send_to_char(d->character.get(),
+					SendMsgToChar(d->character.get(),
 								 "&S%s&s\r\nВинительный падеж [ударить КОГО] : ",
 								 GET_PAD(OLC_MOB(d), 3));
 					OLC_MODE(d) = MEDIT_PAD3;
@@ -1458,7 +1458,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 					break;
 
 				case '7':
-					send_to_char(d->character.get(),
+					SendMsgToChar(d->character.get(),
 								 "&S%s&s\r\nТворительный падеж [следовать за КЕМ] : ",
 								 GET_PAD(OLC_MOB(d), 4));
 					OLC_MODE(d) = MEDIT_PAD4;
@@ -1466,7 +1466,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 					break;
 
 				case '8':
-					send_to_char(d->character.get(),
+					SendMsgToChar(d->character.get(),
 								 "&S%s&s\r\nПредложный падеж [говорить о КОМ] : ",
 								 GET_PAD(OLC_MOB(d), 5));
 					OLC_MODE(d) = MEDIT_PAD5;
@@ -1474,7 +1474,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 					break;
 
 				case '9':
-					send_to_char(d->character.get(),
+					SendMsgToChar(d->character.get(),
 								 "&S%s&s\r\nВведите длинное описание :-\r\n| ",
 								 GET_LDESC(OLC_MOB(d)).c_str());
 					OLC_MODE(d) = MEDIT_L_DESC;
@@ -1611,7 +1611,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 
 				case 'y':
 				case 'Y': OLC_MODE(d) = MEDIT_DESTINATION;
-					send_to_char("\r\nВведите новое значение (-1 очистить все): ", d->character.get());
+					SendMsgToChar("\r\nВведите новое значение (-1 очистить все): ", d->character.get());
 					return;
 					break;
 
@@ -1691,7 +1691,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 					break;
 
 				case 'н':
-				case 'Н': send_to_char(d->character.get(), "\r\nВведите новое значение от 0 до 100%% :");
+				case 'Н': SendMsgToChar(d->character.get(), "\r\nВведите новое значение от 0 до 100%% :");
 					OLC_MODE(d) = MEDIT_LIKE;
 					return;
 
@@ -1741,8 +1741,8 @@ void medit_parse(DescriptorData *d, char *arg) {
 			}
 
 			if (i != 0) {
-				send_to_char(i == 1 ? "\r\nВведите новое значение : " :
-							 i == -1 ? "\r\nВведите новый текст :\r\n] " : "\r\nОпаньки...:\r\n", d->character.get());
+				SendMsgToChar(i == 1 ? "\r\nВведите новое значение : " :
+							  i == -1 ? "\r\nВведите новый текст :\r\n] " : "\r\nОпаньки...:\r\n", d->character.get());
 				return;
 			}
 			break;
@@ -1772,7 +1772,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 			}
 			if (number < EFeat::kFirstFeat || number > EFeat::kLastFeat ||
 				!feat_info[number].name || *feat_info[number].name == '!') {
-				send_to_char("Неверный номер.\r\n", d->character.get());
+				SendMsgToChar("Неверный номер.\r\n", d->character.get());
 			} else if (HAVE_FEAT(OLC_MOB(d), number)) {
 				UNSET_FEAT(OLC_MOB(d), number);
 			} else {
@@ -1788,9 +1788,9 @@ void medit_parse(DescriptorData *d, char *arg) {
 			}
 			--number;
 			if (number < EResist::kFirstResist || number > EResist::kLastResist) {
-				send_to_char("Неверный номер.\r\n", d->character.get());
+				SendMsgToChar("Неверный номер.\r\n", d->character.get());
 			} else if (sscanf(arg, "%d %d", &plane, &bit) < 2) {
-				send_to_char("Не указан уровень сопротивления.\r\n", d->character.get());
+				SendMsgToChar("Не указан уровень сопротивления.\r\n", d->character.get());
 			} else {
 				GET_RESIST(OLC_MOB(d), number) =  std::clamp(bit, kMinResistance, kMaxResistance);
 			}
@@ -1803,7 +1803,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 			}
 
 			if (sscanf(arg, "%d %d", &plane, &bit) < 2) {
-				send_to_char("Не указана величина параметра.\r\n", d->character.get());
+				SendMsgToChar("Не указана величина параметра.\r\n", d->character.get());
 			} else
 				switch (number) {
 					case MEDIT_HPREG: GET_HITREG(OLC_MOB(d)) = MIN(200, MAX(-200, bit));
@@ -1836,7 +1836,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 					case MEDIT_PR: GET_PR(OLC_MOB(d)) = MIN(100, MAX(0, bit));
 						break;
 
-					default: send_to_char("Неверный номер.\r\n", d->character.get());
+					default: SendMsgToChar("Неверный номер.\r\n", d->character.get());
 				}
 			medit_disp_add_parameters(d);
 			return;
@@ -1848,9 +1848,9 @@ void medit_parse(DescriptorData *d, char *arg) {
 			};
 			auto saving = static_cast<ESaving>(number - 1);
 			if (saving < ESaving::kFirst || saving > ESaving::kLast) {
-				send_to_char("Неверный номер.\r\n", d->character.get());
+				SendMsgToChar("Неверный номер.\r\n", d->character.get());
 			} else if (sscanf(arg, "%d %d", &plane, &bit) < 2) {
-				send_to_char("Не указана величина спас-броска.\r\n", d->character.get());
+				SendMsgToChar("Не указана величина спас-броска.\r\n", d->character.get());
 			} else {
 				SET_SAVE(OLC_MOB(d), saving, std::clamp(bit, kMinSaving, kMaxSaving));
 			}
@@ -1893,7 +1893,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 			// * We should never get here.
 			cleanup_olc(d, CLEANUP_ALL);
 			mudlog("SYSERR: OLC: medit_parse(): Reached D_DESC case!", BRF, kLvlBuilder, SYSLOG, true);
-			send_to_char("Опаньки...\r\n", d->character.get());
+			SendMsgToChar("Опаньки...\r\n", d->character.get());
 			break;
 
 #if defined(OASIS_MPROG)
@@ -1972,7 +1972,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 				}
 				else if (i == OLC_MTOTAL(d) + 1)
 				{
-					send_to_char("Какого моба Вы хотите очистить? ", d->character);
+					SendMsgToChar("Какого моба Вы хотите очистить? ", d->character);
 					OLC_MODE(d) = MEDIT_PURGE_MPROG;
 				}
 				else
@@ -2004,12 +2004,12 @@ void medit_parse(DescriptorData *d, char *arg) {
 					medit_disp_mprog_types(d);
 				else if (i == 2)
 				{
-					send_to_char("Введите новый список аргументов: ", d->character);
+					SendMsgToChar("Введите новый список аргументов: ", d->character);
 					OLC_MODE(d) = MEDIT_MPROG_ARGS;
 				}
 				else if (i == 3)
 				{
-					send_to_char("Введите новую mob prog команду:\r\n", d->character);
+					SendMsgToChar("Введите новую mob prog команду:\r\n", d->character);
 					// * Pass control to modify.c for typing.
 					OLC_MODE(d) = MEDIT_MPROG_COMLIST;
 					d->backstr = NULL;
@@ -2125,7 +2125,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 				break;
 			}
 			if ((plane = real_room(number)) == kNowhere) {
-				send_to_char("Нет такой комнаты.\r\n", d->character.get());
+				SendMsgToChar("Нет такой комнаты.\r\n", d->character.get());
 			} else {
 				for (plane = 0; plane < OLC_MOB(d)->mob_specials.dest_count; plane++) {
 					if (number == OLC_MOB(d)->mob_specials.dest[plane]) {
@@ -2150,7 +2150,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 				break;
 			}
 			if ((plane = real_mobile(number)) < 0) {
-				send_to_char("Нет такого моба.", d->character.get());
+				SendMsgToChar("Нет такого моба.", d->character.get());
 			} else {
 				for (helper = OLC_MOB(d)->helpers; helper; helper = helper->next) {
 					if (helper->mob_vnum == number) {
@@ -2179,11 +2179,11 @@ void medit_parse(DescriptorData *d, char *arg) {
 			}
 			auto skill_id = static_cast<ESkill>(number);
 			if (MUD::Skills().IsInvalid(skill_id)) {
-				send_to_char("Неизвестное умение.\r\n", d->character.get());
+				SendMsgToChar("Неизвестное умение.\r\n", d->character.get());
 			} else if (OLC_MOB(d)->get_skill(skill_id)) {
 				OLC_MOB(d)->set_skill(skill_id, 0);
 			} else if (sscanf(arg, "%d %d", &plane, &bit) < 2) {
-				send_to_char("Не указан уровень владения умением.\r\n", d->character.get());
+				SendMsgToChar("Не указан уровень владения умением.\r\n", d->character.get());
 			} else {
 				OLC_MOB(d)->set_skill(skill_id, std::clamp(bit, 0, MUD::Skills()[skill_id].cap));
 			}
@@ -2196,9 +2196,9 @@ void medit_parse(DescriptorData *d, char *arg) {
 				break;
 			}
 			if (number < 0 || (number > kSpellCount || !spell_info[number].name || *spell_info[number].name == '!')) {
-				send_to_char("Неизвестное заклинание.\r\n", d->character.get());
+				SendMsgToChar("Неизвестное заклинание.\r\n", d->character.get());
 			} else if (sscanf(arg, "%d %d", &plane, &bit) < 2) {
-				send_to_char("Не указано количество заклинаний.\r\n", d->character.get());
+				SendMsgToChar("Не указано количество заклинаний.\r\n", d->character.get());
 			} else {
 				GET_SPELL_MEM(OLC_MOB(d), number) = MIN(200, MAX(0, bit));
 			}
@@ -2249,19 +2249,19 @@ void medit_parse(DescriptorData *d, char *arg) {
 					case 'А':
 						// Добавляем запись.
 						OLC_MODE(d) = MEDIT_DLIST_ADD;
-						send_to_char("\r\nVNUM - виртуальный номер прототипа\r\n"
-									 "LoadProb - процент загрузки\r\n"
-									 "LoadType - \r\n"
-									 "  0 - загружать всегда. \r\n"
-									 "  1 - загружать если предыдущий предмет списка был загружен. \r\n"
-									 "  2 - загружать всегда, не менять результата предыдущей загрузки. \r\n"
-									 "  3 - загружать если был загружен предыдущий, не менять результата.\r\n"
-									 "SpecParam - спец.параметр:\r\n"
-									 "  0 - загружать всегда. \r\n"
-									 "  1 - загружать с убывающей вероятностью. \r\n"
-									 "  2 - загружать при освежевании трупа NPC. \r\n"
-									 "Введите через пробел \r\n(VNUM LoadProb LoadType SpecParam):",
-									 d->character.get());
+						SendMsgToChar("\r\nVNUM - виртуальный номер прототипа\r\n"
+									  "LoadProb - процент загрузки\r\n"
+									  "LoadType - \r\n"
+									  "  0 - загружать всегда. \r\n"
+									  "  1 - загружать если предыдущий предмет списка был загружен. \r\n"
+									  "  2 - загружать всегда, не менять результата предыдущей загрузки. \r\n"
+									  "  3 - загружать если был загружен предыдущий, не менять результата.\r\n"
+									  "SpecParam - спец.параметр:\r\n"
+									  "  0 - загружать всегда. \r\n"
+									  "  1 - загружать с убывающей вероятностью. \r\n"
+									  "  2 - загружать при освежевании трупа NPC. \r\n"
+									  "Введите через пробел \r\n(VNUM LoadProb LoadType SpecParam):",
+									  d->character.get());
 
 						return;
 
@@ -2269,7 +2269,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 					case 'Б':
 						// Удаляем запись.
 						OLC_MODE(d) = MEDIT_DLIST_DEL;
-						send_to_char("\r\nВведите номер удаляемой записи:", d->character.get());
+						SendMsgToChar("\r\nВведите номер удаляемой записи:", d->character.get());
 						return;
 
 					case 'q':
@@ -2279,16 +2279,16 @@ void medit_parse(DescriptorData *d, char *arg) {
 				}
 
 			}
-			send_to_char("\r\nНеверный выбор.\r\n", d->character.get());
+			SendMsgToChar("\r\nНеверный выбор.\r\n", d->character.get());
 			OLC_MODE(d) = MEDIT_DLIST_MENU;
 			disp_dl_list(d);
 			return;
 
 		case MEDIT_DLIST_ADD:
 			if (!dl_parse(&OLC_MOB(d)->dl_list, arg))
-				send_to_char("\r\nНеверный ввод.\r\n", d->character.get());
+				SendMsgToChar("\r\nНеверный ввод.\r\n", d->character.get());
 			else {
-				send_to_char("\r\nЗапись добавлена.\r\n", d->character.get());
+				SendMsgToChar("\r\nЗапись добавлена.\r\n", d->character.get());
 				OLC_VAL(d) = 1;
 			}
 			OLC_MODE(d) = MEDIT_DLIST_MENU;
@@ -2298,7 +2298,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 		case MEDIT_DLIST_DEL: number = atoi(arg);
 			if (number != 0) {
 				if (OLC_MOB(d)->dl_list == nullptr || OLC_MOB(d)->dl_list->empty()) {
-					send_to_char("Список пуст!\r\n", d->character.get());
+					SendMsgToChar("Список пуст!\r\n", d->character.get());
 					OLC_MODE(d) = MEDIT_DLIST_MENU;
 					disp_dl_list(d);
 					return;
@@ -2312,14 +2312,14 @@ void medit_parse(DescriptorData *d, char *arg) {
 				}
 				if (i == number - 1) {
 					OLC_MOB(d)->dl_list->remove(*p);
-					send_to_char("\r\nЗапись удалена.\r\n", d->character.get());
+					SendMsgToChar("\r\nЗапись удалена.\r\n", d->character.get());
 					OLC_VAL(d) = 1;
 					if (OLC_MOB(d)->dl_list->empty()) {
 						delete (OLC_MOB(d)->dl_list);
 						OLC_MOB(d)->dl_list = nullptr;
 					}
 				} else
-					send_to_char("\r\nЗапись не найдена.\r\n", d->character.get());
+					SendMsgToChar("\r\nЗапись не найдена.\r\n", d->character.get());
 			}
 			OLC_MODE(d) = MEDIT_DLIST_MENU;
 			disp_dl_list(d);
@@ -2329,13 +2329,13 @@ void medit_parse(DescriptorData *d, char *arg) {
 		case MEDIT_CLONE:
 			switch (*arg) {
 				case '1': OLC_MODE(d) = MEDIT_CLONE_WITH_TRIGGERS;
-					send_to_char("Введите VNUM моба для клонирования:", d->character.get());
+					SendMsgToChar("Введите VNUM моба для клонирования:", d->character.get());
 					return;
 				case '2': OLC_MODE(d) = MEDIT_CLONE_WITHOUT_TRIGGERS;
-					send_to_char("Введите VNUM моба для клонирования:", d->character.get());
+					SendMsgToChar("Введите VNUM моба для клонирования:", d->character.get());
 					return;
 				case '3': OLC_MODE(d) = MEDIT_CLONE_PARTIAL;
-					send_to_char("Введите VNUM моба для клонирования:", d->character.get());
+					SendMsgToChar("Введите VNUM моба для клонирования:", d->character.get());
 					return;
 				case '4': break;    //to main menu
 				default: medit_disp_clone_menu(d);
@@ -2347,7 +2347,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 			auto rnum = real_mobile(atoi(arg));
 
 			if (rnum < 0) {
-				send_to_char("Нет моба с таким внумом. Повторите ввод:", d->character.get());
+				SendMsgToChar("Нет моба с таким внумом. Повторите ввод:", d->character.get());
 				return;
 			}
 
@@ -2362,7 +2362,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 			auto rnum = real_mobile(atoi(arg));
 
 			if (rnum < 0) {
-				send_to_char("Нет моба с таким внумом. Повторите ввод:", d->character.get());
+				SendMsgToChar("Нет моба с таким внумом. Повторите ввод:", d->character.get());
 				return;
 			}
 
@@ -2379,7 +2379,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 			auto rnum = real_mobile(atoi(arg));
 
 			if (rnum < 0) {
-				send_to_char("Нет моба с таким внумом. Повторите ввод:", d->character.get());
+				SendMsgToChar("Нет моба с таким внумом. Повторите ввод:", d->character.get());
 				return;
 			}
 
@@ -2398,7 +2398,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 			// * We should never get here.
 			cleanup_olc(d, CLEANUP_ALL);
 			mudlog("SYSERR: OLC: medit_parse(): Reached default case!", BRF, kLvlBuilder, SYSLOG, true);
-			send_to_char("Oops...\r\n", d->character.get());
+			SendMsgToChar("Oops...\r\n", d->character.get());
 			break;
 	}
 

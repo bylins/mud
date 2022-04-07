@@ -8,7 +8,7 @@
 class ObjData;
 
 void book_upgrd_fail_message(CharData *ch, ObjData *obj) {
-	send_to_char(ch, "Изучив %s от корки до корки вы так и не узнали ничего нового.\r\n",
+	SendMsgToChar(ch, "Изучив %s от корки до корки вы так и не узнали ничего нового.\r\n",
 				 obj->get_PName(3).c_str());
 	act("$n с интересом принял$u читать $o3.\r\n"
 		"Постепенно $s интерес начал угасать, и $e, плюясь, сунул$g $o3 обратно.",
@@ -55,14 +55,14 @@ void do_learn(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	one_argument(argument, arg);
 
 	if (!*arg) {
-		send_to_char("Вы принялись внимательно изучать свои ногти. Да, пора бы и подстричь.\r\n", ch);
+		SendMsgToChar("Вы принялись внимательно изучать свои ногти. Да, пора бы и подстричь.\r\n", ch);
 		act("$n удивленно уставил$u на свои ногти. Подстриг бы их кто-нибудь $m.",
 			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 		return;
 	}
 
 	if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-		send_to_char("А у вас этого нет.\r\n", ch);
+		SendMsgToChar("А у вас этого нет.\r\n", ch);
 		return;
 	}
 
@@ -84,7 +84,7 @@ void do_learn(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 
 	if (GET_OBJ_VAL(obj, 0) == EBook::kSpell
 		&& CalcCircleSlotsAmount(ch, 1) <= 0) {
-		send_to_char("Далась вам эта магия! Пошли-бы, водочки выпили...\r\n", ch);
+		SendMsgToChar("Далась вам эта магия! Пошли-бы, водочки выпили...\r\n", ch);
 		return;
 	}
 
@@ -93,7 +93,7 @@ void do_learn(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		&& GET_OBJ_VAL(obj, 0) != EBook::kSpell
 		&& GET_OBJ_VAL(obj, 0) != EBook::kFeat
 		&& GET_OBJ_VAL(obj, 0) != EBook::kReceipt) {
-		send_to_char("НЕКОРРЕКТНЫЙ УРОВЕНЬ - сообщите Богам!\r\n", ch);
+		SendMsgToChar("НЕКОРРЕКТНЫЙ УРОВЕНЬ - сообщите Богам!\r\n", ch);
 		return;
 	}
 
@@ -105,23 +105,23 @@ void do_learn(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	if ((GET_OBJ_VAL(obj, 0) == EBook::kSkill || GET_OBJ_VAL(obj, 0) == EBook::kSkillUpgrade)) {
 		skill_id = static_cast<ESkill>(GET_OBJ_VAL(obj, 1));
 		if (MUD::Skills().IsInvalid(skill_id)) {
-			send_to_char("УМЕНИЕ НЕ ОПРЕДЕЛЕНО - сообщите Богам!\r\n", ch);
+			SendMsgToChar("УМЕНИЕ НЕ ОПРЕДЕЛЕНО - сообщите Богам!\r\n", ch);
 			return;
 		}
 	}
 	if (GET_OBJ_VAL(obj, 0) == EBook::kReceipt && rcpt < 0) {
-		send_to_char("РЕЦЕПТ НЕ ОПРЕДЕЛЕН - сообщите Богам!\r\n", ch);
+		SendMsgToChar("РЕЦЕПТ НЕ ОПРЕДЕЛЕН - сообщите Богам!\r\n", ch);
 		return;
 	}
 	if (GET_OBJ_VAL(obj, 0) == EBook::kSpell && (GET_OBJ_VAL(obj, 1) < 1
 		|| GET_OBJ_VAL(obj, 1) > kSpellCount)) {
-		send_to_char("МАГИЯ НЕ ОПРЕДЕЛЕНА - сообщите Богам!\r\n", ch);
+		SendMsgToChar("МАГИЯ НЕ ОПРЕДЕЛЕНА - сообщите Богам!\r\n", ch);
 		return;
 	}
 	auto feat_id{EFeat::kIncorrectFeat};
 	if (GET_OBJ_VAL(obj, 0) == EBook::kFeat) {
 		if ((GET_OBJ_VAL(obj, 1) < EFeat::kFirstFeat || GET_OBJ_VAL(obj, 1) > EFeat::kLastFeat)) {
-			send_to_char("СПОСОБНОСТЬ НЕ ОПРЕДЕЛЕНА - сообщите Богам!\r\n", ch);
+			SendMsgToChar("СПОСОБНОСТЬ НЕ ОПРЕДЕЛЕНА - сообщите Богам!\r\n", ch);
 			return;
 		}
 		feat_id = static_cast<EFeat>(GET_OBJ_VAL(obj, 1));
@@ -144,7 +144,7 @@ void do_learn(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		rs = im_get_char_rskill(ch, spellnum);
 		spellname = imrecipes[spellnum].name;
 		if (imrecipes[spellnum].level == -1 || imrecipes[spellnum].remort == -1) {
-			send_to_char("Некорректная запись рецепта для вашего класса - сообщите Богам.\r\n", ch);
+			SendMsgToChar("Некорректная запись рецепта для вашего класса - сообщите Богам.\r\n", ch);
 			return;
 		}
 	} else if (GET_OBJ_VAL(obj, 0) == EBook::kFeat && IsAbleToGetFeat(ch, feat_id)) {
@@ -163,7 +163,7 @@ void do_learn(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 				number(0, 1) ? "пару строк" : "почти до конца",
 				stype1[GET_OBJ_VAL(obj, 0)],
 				spellname);
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 		act("$n с интересом принял$u читать $o3.\r\n"
 			"Постепенно $s интерес начал угасать, и $e, плюясь, сунул$g $o3 обратно.",
 			false, ch, obj, nullptr, kToRoom);
@@ -194,7 +194,7 @@ void do_learn(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 				"Полюбовавшись еще несколько минут на сию красоту, вы с чувством выполненного\r\n"
 				"долга закрыли %s. До %s вы еще не доросли.\r\n",
 				where, what, obj->get_PName(3).c_str(), whom);
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 		act("$n с интересом осмотрел$g $o3, крякнул$g от досады и положил$g обратно.",
 			false, ch, obj, nullptr, kToRoom);
 		return;
@@ -219,7 +219,7 @@ void do_learn(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 					 "буквы никак не хотели выстраиваться в понятные и доступные фразы.\r\n"
 					 "Промучившись несколько минут, вы бросили это унылое занятие,\r\n"
 					 "с удивлением отметив исчезновение %s.\r\n", obj->get_PName(3).c_str(), obj->get_PName(1).c_str());
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 	} else {
 		sprintf(buf, "Вы взяли в руки %s и начали изучать. Постепенно,\r\n"
 					 "незнакомые доселе, буквы стали складываться в понятные слова и фразы.\r\n"
@@ -228,7 +228,7 @@ void do_learn(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 				ch->get_skill(skill_id) ? stype0[1] : stype0[0],
 				stype2[GET_OBJ_VAL(obj, 0)],
 				spellname);
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 		sprintf(buf,
 				"LEARN: Игрок %s выучил %s %s \"%s\"",
 				GET_NAME(ch),

@@ -124,9 +124,9 @@ void ClanPkLog::print(CharData *ch) const {
 	}
 
 	if (!text.empty()) {
-		send_to_char(ch, "Последние пк-события с участием членов дружины:\r\n%s", text.c_str());
+		SendMsgToChar(ch, "Последние пк-события с участием членов дружины:\r\n%s", text.c_str());
 	} else {
-		send_to_char("Пусто.\r\n", ch);
+		SendMsgToChar("Пусто.\r\n", ch);
 	}
 }
 
@@ -304,15 +304,15 @@ void ClanExpHistory::fulldelete() {
 	list_.clear();
 }
 void ClanExpHistory::show(CharData *ch) const {
-	send_to_char(ch, "\r\nОпыт, набранный за три последних календарных месяца без учета минусов:\r\n");
+	SendMsgToChar(ch, "\r\nОпыт, набранный за три последних календарных месяца без учета минусов:\r\n");
 	size_t size = list_.size();
 	size_t count = 0;
 	for (HistoryExpListType::const_iterator i = list_.begin(), iend = list_.end(); i != iend; ++i, ++count) {
 		if (3 + count >= size) {
-			send_to_char(ch, "%s : %14s\r\n", i->first.c_str(), thousands_sep(i->second).c_str());
+			SendMsgToChar(ch, "%s : %14s\r\n", i->first.c_str(), thousands_sep(i->second).c_str());
 		}
 	}
-	send_to_char(ch, "Напоминаем, что в системе автоматической очистки неактивных кланов учитывается\r\n"
+	SendMsgToChar(ch, "Напоминаем, что в системе автоматической очистки неактивных кланов учитывается\r\n"
 					 "опыт, набранный за два последних ПОЛНЫХ календарных месяца ( >= %s в сумме);\r\n"
 					 "сейчас он составляет %s.\r\n",
 				 thousands_sep(MIN_EXP_HISTORY).c_str(),

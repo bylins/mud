@@ -111,16 +111,16 @@ int exchange(CharData *ch, void * /*me*/, int cmd, char *argument) {
 		if (ch->is_npc())
 			return 0;
 		if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
-			send_to_char("Вы немы, как рыба об лед.\r\n", ch);
+			SendMsgToChar("Вы немы, как рыба об лед.\r\n", ch);
 			return 1;
 		}
 		if (!ch->is_npc() && PLR_FLAGGED(ch, EPlrFlag::kDumbed)) {
-			send_to_char("Вам запрещено общаться с торговцами!\r\n", ch);
+			SendMsgToChar("Вам запрещено общаться с торговцами!\r\n", ch);
 			return 1;
 		}
 		/*
 				if (EPlrFlag::FLAGGED(ch, EPlrFlag::MUTE)) {
-					send_to_char("Вам не к лицу торговаться.\r\n", ch);
+					SendMsgToChar("Вам не к лицу торговаться.\r\n", ch);
 					return 1;
 				}
 		*/
@@ -128,11 +128,11 @@ int exchange(CharData *ch, void * /*me*/, int cmd, char *argument) {
 			sprintf(buf1,
 					"Вам стоит достичь хотя бы %d уровня, чтобы пользоваться базаром.\r\n",
 					EXCHANGE_MIN_CHAR_LEV);
-			send_to_char(buf1, ch);
+			SendMsgToChar(buf1, ch);
 			return 1;
 		}
 		if (NORENTABLE(ch)) {
-			send_to_char("Завершите сначала боевые действия.\r\n", ch);
+			SendMsgToChar("Завершите сначала боевые действия.\r\n", ch);
 			return 1;
 		}
 
@@ -163,7 +163,7 @@ int exchange(CharData *ch, void * /*me*/, int cmd, char *argument) {
 		else if (utils::IsAbbrev(arg1, "reloadbackup") && (GetRealLevel(ch) >= kLvlImplementator))
 			exchange_database_reload(true);
 		else
-			send_to_char(info_message, ch);
+			SendMsgToChar(info_message, ch);
 
 		return 1;
 	} else
@@ -184,34 +184,34 @@ int exchange_exhibit(CharData *ch, char *arg) {
 	int tax;    //налог
 
 	if (!*arg) {
-		send_to_char(info_message, ch);
+		SendMsgToChar(info_message, ch);
 		return false;
 	}
 	if (GetRealLevel(ch) >= kLvlImmortal && GetRealLevel(ch) < kLvlImplementator) {
-		send_to_char("Боже, не лезьте в экономику смертных, вам это не к чему.\r\n", ch);
+		SendMsgToChar("Боже, не лезьте в экономику смертных, вам это не к чему.\r\n", ch);
 		return false;
 	}
 
 	arg = one_argument(arg, obj_name);
 	arg = one_argument(arg, arg2);
 	if (!*obj_name) {
-		send_to_char("Формат: базар выставить предмет цена комментарий\r\n", ch);
+		SendMsgToChar("Формат: базар выставить предмет цена комментарий\r\n", ch);
 		return false;
 	}
 	if (!sscanf(arg2, "%d", &item_cost))
 		item_cost = 0;
 	if (!*obj_name) {
-		send_to_char("Не указан предмет.\r\n", ch);
+		SendMsgToChar("Не указан предмет.\r\n", ch);
 		return false;
 	}
 	if (!(obj = get_obj_in_list_vis(ch, obj_name, ch->carrying))) {
-		send_to_char("У вас этого нет.\r\n", ch);
+		SendMsgToChar("У вас этого нет.\r\n", ch);
 		return false;
 	}
 	if (!bloody::handle_transfer(ch, nullptr, obj))
 		return false;
 	if (item_cost > 400000 && obj->has_flag(EObjFlag::KSetItem)) {
-		send_to_char("Никто не купит ЭТО за такую сумму.\r\n", ch);
+		SendMsgToChar("Никто не купит ЭТО за такую сумму.\r\n", ch);
 		return false;
 	}
 	if (GET_OBJ_TYPE(obj) != EObjType::kBook) {
@@ -220,24 +220,24 @@ int exchange_exhibit(CharData *ch, char *arg) {
 			|| obj->has_flag(EObjFlag::kZonedacay)
 			|| obj->has_flag(EObjFlag::kRepopDecay)
 			|| GET_OBJ_RNUM(obj) < 0) {
-			send_to_char("Этот предмет не предназначен для базара.\r\n", ch);
+			SendMsgToChar("Этот предмет не предназначен для базара.\r\n", ch);
 			return false;
 		}
 	}
 	if (obj->has_flag(EObjFlag::kDecay) || obj->has_flag(EObjFlag::kNodrop)
 		|| GET_OBJ_COST(obj) <= 0
 		|| obj->get_owner() > 0) {
-		send_to_char("Этот предмет не предназначен для базара.\r\n", ch);
+		SendMsgToChar("Этот предмет не предназначен для базара.\r\n", ch);
 		return false;
 	}
 	if (obj->get_contains()) {
 		sprintf(tmpbuf, "Опустошите %s перед продажей.\r\n", obj->get_PName(3).c_str());
-		send_to_char(tmpbuf, ch);
+		SendMsgToChar(tmpbuf, ch);
 		return false;
 	} else if (SetSystem::is_big_set(obj, true)) {
 		snprintf(buf, kMaxStringLength, "%s является частью большого набора предметов.\r\n",
 				 obj->get_PName(0).c_str());
-		send_to_char(CAP(buf), ch);
+		SendMsgToChar(CAP(buf), ch);
 		return false;
 	}
 
@@ -250,7 +250,7 @@ int exchange_exhibit(CharData *ch, char *arg) {
 		  : (int) (item_cost * EXCHANGE_EXHIBIT_PAY_COEFF / 2);
 	if ((ch->get_total_gold() < tax)
 		&& (GetRealLevel(ch) < kLvlImplementator)) {
-		send_to_char("У вас не хватит денег на налоги!\r\n", ch);
+		SendMsgToChar("У вас не хватит денег на налоги!\r\n", ch);
 		return false;
 	}
 	for (j = exchange_item_list, counter = 0, counter_ming = 0;
@@ -268,12 +268,12 @@ int exchange_exhibit(CharData *ch, char *arg) {
 	}
 
 	if (counter + (counter_ming / 20) >= EXCHANGE_MAX_EXHIBIT_PER_CHAR + (GET_REAL_REMORT(ch) * 2)) {
-		send_to_char("Вы уже выставили на базар максимальное количество предметов!\r\n", ch);
+		SendMsgToChar("Вы уже выставили на базар максимальное количество предметов!\r\n", ch);
 		return false;
 	}
 
 	if ((lot = get_unique_lot()) <= 0) {
-		send_to_char("Базар переполнен!\r\n", ch);
+		SendMsgToChar("Базар переполнен!\r\n", ch);
 		return false;
 	}
 	item = create_exchange_item();
@@ -316,15 +316,15 @@ int exchange_change_cost(CharData *ch, char *arg) {
 	char tmpbuf[kMaxInputLength];
 
 	if (!*arg) {
-		send_to_char(info_message, ch);
+		SendMsgToChar(info_message, ch);
 		return false;
 	}
 	if (GetRealLevel(ch) >= kLvlImmortal && GetRealLevel(ch) < kLvlImplementator) {
-		send_to_char("Боже, не лезьте в экономику смертных, вам это не к чему.\r\n", ch);
+		SendMsgToChar("Боже, не лезьте в экономику смертных, вам это не к чему.\r\n", ch);
 		return false;
 	}
 	if (sscanf(arg, "%d %d", &lot, &newcost) != 2) {
-		send_to_char("Формат команды: базар цена <лот> <новая цена>.\r\n", ch);
+		SendMsgToChar("Формат команды: базар цена <лот> <новая цена>.\r\n", ch);
 		return false;
 	}
 	for (j = exchange_item_list; j && (!item); j = next_thing) {
@@ -333,25 +333,25 @@ int exchange_change_cost(CharData *ch, char *arg) {
 			item = j;
 	}
 	if ((lot < 0) || (!item)) {
-		send_to_char("Неверный номер лота.\r\n", ch);
+		SendMsgToChar("Неверный номер лота.\r\n", ch);
 		return false;
 	}
 	if ((GET_EXCHANGE_ITEM_SELLERID(item) != GET_IDNUM(ch)) && (GetRealLevel(ch) < kLvlImplementator)) {
-		send_to_char("Это не ваш лот.\r\n", ch);
+		SendMsgToChar("Это не ваш лот.\r\n", ch);
 		return false;
 	}
 	if (newcost == GET_EXCHANGE_ITEM_COST(item)) {
-		send_to_char("Ваша новая цена совпадает с текущей.\r\n", ch);
+		SendMsgToChar("Ваша новая цена совпадает с текущей.\r\n", ch);
 		return false;
 	}
 	if (newcost <= 0) {
-		send_to_char("Вы указали неправильную цену.\r\n", ch);
+		SendMsgToChar("Вы указали неправильную цену.\r\n", ch);
 		return false;
 	}
 	pay = newcost - GET_EXCHANGE_ITEM_COST(item);
 	if (pay > 0)
 		if ((ch->get_total_gold() < (pay * EXCHANGE_EXHIBIT_PAY_COEFF)) && (GetRealLevel(ch) < kLvlImplementator)) {
-			send_to_char("У вас не хватит денег на налоги!\r\n", ch);
+			SendMsgToChar("У вас не хватит денег на налоги!\r\n", ch);
 			return false;
 		}
 
@@ -366,7 +366,7 @@ int exchange_change_cost(CharData *ch, char *arg) {
 			GetDeclensionInNumber(newcost, EWhat::kMoneyU),
 			GET_EXCHANGE_ITEM(item)->get_PName(3).c_str(),
 			GET_EXCHANGE_ITEM_LOT(item));
-	send_to_char(tmpbuf, ch);
+	SendMsgToChar(tmpbuf, ch);
 	sprintf(tmpbuf,
 			"Базар : лот (%d) - %s - выставлен за новую цену %d %s.\r\n",
 			GET_EXCHANGE_ITEM_LOT(item),
@@ -385,16 +385,16 @@ int exchange_withdraw(CharData *ch, char *arg) {
 	char tmpbuf[kMaxInputLength];
 
 	if (!*arg) {
-		send_to_char(info_message, ch);
+		SendMsgToChar(info_message, ch);
 		return false;
 	}
 	if (GetRealLevel(ch) >= kLvlImmortal && GetRealLevel(ch) < kLvlImplementator) {
-		send_to_char("Боже, не лезьте в экономику смертных, вам это не к чему.\r\n", ch);
+		SendMsgToChar("Боже, не лезьте в экономику смертных, вам это не к чему.\r\n", ch);
 		return false;
 	}
 
 	if (!sscanf(arg, "%d", &lot)) {
-		send_to_char("Не указан номер лота.\r\n", ch);
+		SendMsgToChar("Не указан номер лота.\r\n", ch);
 		return false;
 	}
 	for (j = exchange_item_list; j && (!item); j = next_thing) {
@@ -403,11 +403,11 @@ int exchange_withdraw(CharData *ch, char *arg) {
 			item = j;
 	}
 	if ((lot < 0) || (!item)) {
-		send_to_char("Неверный номер лота.\r\n", ch);
+		SendMsgToChar("Неверный номер лота.\r\n", ch);
 		return false;
 	}
 	if ((GET_EXCHANGE_ITEM_SELLERID(item) != GET_IDNUM(ch)) && (GetRealLevel(ch) < kLvlImplementator)) {
-		send_to_char("Это не ваш лот.\r\n", ch);
+		SendMsgToChar("Это не ваш лот.\r\n", ch);
 		return false;
 	}
 	act("Вы сняли $O3 с базара.\r\n", false, ch, 0, GET_EXCHANGE_ITEM(item), kToChar);
@@ -439,11 +439,11 @@ int exchange_information(CharData *ch, char *arg) {
 	char buf[kMaxStringLength], buf2[kMaxInputLength];
 
 	if (!*arg) {
-		send_to_char(info_message, ch);
+		SendMsgToChar(info_message, ch);
 		return false;
 	}
 	if (!sscanf(arg, "%d", &lot)) {
-		send_to_char("Не указан номер лота.\r\n", ch);
+		SendMsgToChar("Не указан номер лота.\r\n", ch);
 		return false;
 	}
 	for (j = exchange_item_list; j && (!item); j = next_thing) {
@@ -452,7 +452,7 @@ int exchange_information(CharData *ch, char *arg) {
 			item = j;
 	}
 	if ((lot < 0) || (!item)) {
-		send_to_char("Неверный номер лота.\r\n", ch);
+		SendMsgToChar("Неверный номер лота.\r\n", ch);
 		return false;
 	}
 
@@ -501,7 +501,7 @@ int exchange_information(CharData *ch, char *arg) {
 		strcat(buf, buf2);
 		strcat(buf, "\n");
 	}
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 	return true;
 }
 
@@ -509,11 +509,11 @@ int exchange_identify(CharData *ch, char *arg) {
 	ExchangeItem *item = nullptr, *j, *next_thing = nullptr;
 	int lot;
 	if (!*arg) {
-		send_to_char(info_message, ch);
+		SendMsgToChar(info_message, ch);
 		return false;
 	}
 	if (!sscanf(arg, "%d", &lot)) {
-		send_to_char("Не указан номер лота.\r\n", ch);
+		SendMsgToChar("Не указан номер лота.\r\n", ch);
 		return false;
 	}
 	for (j = exchange_item_list; j && (!item); j = next_thing) {
@@ -522,22 +522,22 @@ int exchange_identify(CharData *ch, char *arg) {
 			item = j;
 	}
 	if ((lot < 0) || (!item)) {
-		send_to_char("Неверный номер лота.\r\n", ch);
+		SendMsgToChar("Неверный номер лота.\r\n", ch);
 		return false;
 	}
 
 	if (GetRealLevel(ch) >= kLvlImmortal && GetRealLevel(ch) < kLvlImplementator) {
-		send_to_char("Господи, а ведь смертные за это деньги платят.\r\n", ch);
+		SendMsgToChar("Господи, а ведь смертные за это деньги платят.\r\n", ch);
 		return false;
 	}
 	if ((ch->get_total_gold() < (EXCHANGE_IDENT_PAY)) && (GetRealLevel(ch) < kLvlImplementator)) {
-		send_to_char("У вас не хватит на это денег!\r\n", ch);
+		SendMsgToChar("У вас не хватит на это денег!\r\n", ch);
 		return false;
 	}
 	bool full = false;
 	mort_show_obj_values(GET_EXCHANGE_ITEM(item), ch, 200, full);    //200 - полное опознание
 	ch->remove_both_gold(EXCHANGE_IDENT_PAY);
-	send_to_char(ch, "\r\n%sЗа информацию о предмете с вашего банковского счета сняли %d %s%s\r\n",
+	SendMsgToChar(ch, "\r\n%sЗа информацию о предмете с вашего банковского счета сняли %d %s%s\r\n",
 				 CCIGRN(ch, C_NRM), EXCHANGE_IDENT_PAY,
 				 GetDeclensionInNumber(EXCHANGE_IDENT_PAY, EWhat::kMoneyU), CCNRM(ch, C_NRM));
 
@@ -560,16 +560,16 @@ int exchange_purchase(CharData *ch, char *arg) {
 	CharData *seller;
 
 	if (!*arg) {
-		send_to_char(info_message, ch);
+		SendMsgToChar(info_message, ch);
 		return false;
 	}
 	if (GetRealLevel(ch) >= kLvlImmortal && GetRealLevel(ch) < kLvlImplementator) {
-		send_to_char("Боже, не лезьте в экономику смертных, вам это не к чему.\r\n", ch);
+		SendMsgToChar("Боже, не лезьте в экономику смертных, вам это не к чему.\r\n", ch);
 		return false;
 	}
 
 	if (!sscanf(arg, "%d", &lot)) {
-		send_to_char("Не указан номер лота.\r\n", ch);
+		SendMsgToChar("Не указан номер лота.\r\n", ch);
 		return false;
 	}
 	for (j = exchange_item_list; j && (!item); j = next_thing) {
@@ -578,15 +578,15 @@ int exchange_purchase(CharData *ch, char *arg) {
 			item = j;
 	}
 	if ((lot < 0) || (!item)) {
-		send_to_char("Неверный номер лота.\r\n", ch);
+		SendMsgToChar("Неверный номер лота.\r\n", ch);
 		return false;
 	}
 	if (GET_EXCHANGE_ITEM_SELLERID(item) == GET_IDNUM(ch)) {
-		send_to_char("Это же ваш лот. Воспользуйтесь командой 'базар снять <лот>'\r\n", ch);
+		SendMsgToChar("Это же ваш лот. Воспользуйтесь командой 'базар снять <лот>'\r\n", ch);
 		return false;
 	}
 	if ((ch->get_total_gold() < (GET_EXCHANGE_ITEM_COST(item))) && (GetRealLevel(ch) < kLvlImplementator)) {
-		send_to_char("У вас в банке не хватает денег на этот лот!\r\n", ch);
+		SendMsgToChar("У вас в банке не хватает денег на этот лот!\r\n", ch);
 		return false;
 	}
 
@@ -685,7 +685,7 @@ int exchange_purchase(CharData *ch, char *arg) {
 */
 bool correct_filter_length(CharData *ch, const char *str) {
 	if (strlen(str) >= FILTER_LENGTH) {
-		send_to_char(ch, "Слишком длинный фильтр, максимальная длина: %d символа.\r\n", FILTER_LENGTH - 1);
+		SendMsgToChar(ch, "Слишком длинный фильтр, максимальная длина: %d символа.\r\n", FILTER_LENGTH - 1);
 		return false;
 	}
 	return true;
@@ -832,18 +832,18 @@ int exchange_offers(CharData *ch, char *arg) {
 */
 	else if (utils::IsAbbrev(arg1, "аффект") || utils::IsAbbrev(arg1, "affect")) {
 		if (ch->get_total_gold() < EXCHANGE_IDENT_PAY / 2 && GetRealLevel(ch) < kLvlImplementator) {
-			send_to_char("У вас не хватит на это денег!\r\n", ch);
+			SendMsgToChar("У вас не хватит на это денег!\r\n", ch);
 			return 0;
 		}
 		if (*arg2 == '\0') {
-			send_to_char("Пустое имя аффекта!\r\n", ch);
+			SendMsgToChar("Пустое имя аффекта!\r\n", ch);
 			return 0;
 		}
 		show_type = 11;
 		sprintf(buf, "%s", filter);
 		snprintf(filter, FILTER_LENGTH, "%s А%s", buf, arg2);
 	} else {
-		send_to_char(info_message, ch);
+		SendMsgToChar(info_message, ch);
 		return 0;
 	}
 
@@ -863,16 +863,16 @@ int exchange_offers(CharData *ch, char *arg) {
 int exchange_setfilter(CharData *ch, char *arg) {
 	if (!*arg) {
 		if (!EXCHANGE_FILTER(ch)) {
-			send_to_char("Ваш фильтр базара пуст.\r\n", ch);
+			SendMsgToChar("Ваш фильтр базара пуст.\r\n", ch);
 			return true;
 		}
 		ParseFilter params(ParseFilter::EXCHANGE);
 		if (!parse_exch_filter(params, EXCHANGE_FILTER(ch), false)) {
 			free(EXCHANGE_FILTER(ch));
 			EXCHANGE_FILTER(ch) = nullptr;
-			send_to_char("Ваш фильтр базара пуст\r\n", ch);
+			SendMsgToChar("Ваш фильтр базара пуст\r\n", ch);
 		} else {
-			send_to_char(ch, "Ваш текущий фильтр базара: %s.\r\n",
+			SendMsgToChar(ch, "Ваш текущий фильтр базара: %s.\r\n",
 						 EXCHANGE_FILTER(ch));
 		}
 		return true;
@@ -896,13 +896,13 @@ int exchange_setfilter(CharData *ch, char *arg) {
 		} else {
 			sprintf(tmpbuf, "Новый фильтр пуст.\r\n");
 		}
-		send_to_char(tmpbuf, ch);
+		SendMsgToChar(tmpbuf, ch);
 		return true;
 	}
 
 	ParseFilter params(ParseFilter::EXCHANGE);
 	if (!parse_exch_filter(params, filter, false)) {
-		send_to_char("Неверный формат фильтра. Прочтите справку.\r\n", ch);
+		SendMsgToChar("Неверный формат фильтра. Прочтите справку.\r\n", ch);
 		free(EXCHANGE_FILTER(ch));
 		EXCHANGE_FILTER(ch) = nullptr;
 		return false;
@@ -914,7 +914,7 @@ int exchange_setfilter(CharData *ch, char *arg) {
 	} else {
 		snprintf(tmpbuf, kMaxInputLength, "Ваш новый фильтр: %s.\r\n", filter);
 	}
-	send_to_char(tmpbuf, ch);
+	SendMsgToChar(tmpbuf, ch);
 
 	if (EXCHANGE_FILTER(ch))
 		free(EXCHANGE_FILTER(ch));
@@ -1284,13 +1284,13 @@ void message_exchange(char *message, CharData *ch, ExchangeItem *j) {
 				|| (parse_exch_filter(params, EXCHANGE_FILTER(i->character), false)
 					&& params.check(j))) {
 				if (COLOR_LEV(i->character) >= C_NRM) {
-					send_to_char("&Y&q", i->character.get());
+					SendMsgToChar("&Y&q", i->character.get());
 				}
 
 				act(message, false, i->character.get(), 0, 0, kToChar | kToSleep);
 
 				if (COLOR_LEV(i->character) >= C_NRM) {
-					send_to_char("&Q&n", i->character.get());
+					SendMsgToChar("&Q&n", i->character.get());
 				}
 			}
 		}
@@ -1318,7 +1318,7 @@ void show_lots(char *filter, short int show_type, CharData *ch) {
 
 	ParseFilter params(ParseFilter::EXCHANGE);
 	if (!parse_exch_filter(params, filter, true)) {
-		send_to_char("Неверная строка фильтрации!\r\n", ch);
+		SendMsgToChar("Неверная строка фильтрации!\r\n", ch);
 		log("Exchange: Player uses wrong filter '%s'", filter);
 		return;
 	}
@@ -1455,7 +1455,7 @@ void show_lots(char *filter, short int show_type, CharData *ch) {
 	} else if (show_type == 11) {
 		const int price = EXCHANGE_IDENT_PAY / 2;
 		ch->remove_both_gold(price);
-		send_to_char(ch, "\r\n%sЗа информацию об аффектах с вашего банковского счета сняли %d %s%s\r\n",
+		SendMsgToChar(ch, "\r\n%sЗа информацию об аффектах с вашего банковского счета сняли %d %s%s\r\n",
 					 CCIGRN(ch, C_NRM), price, GetDeclensionInNumber(price, EWhat::kMoneyU), CCNRM(ch, C_NRM));
 	}
 	page_string(ch->desc, buffer);
@@ -1539,12 +1539,12 @@ void do_exchange(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	argument = one_argument(argument, arg1);
 
 	if (ch->is_npc()) {
-		send_to_char("Торговать?! Да вы же не человек!\r\n", ch);
+		SendMsgToChar("Торговать?! Да вы же не человек!\r\n", ch);
 	} else if ((utils::IsAbbrev(arg1, "выставить") || utils::IsAbbrev(arg1, "exhibit")
 		|| utils::IsAbbrev(arg1, "цена") || utils::IsAbbrev(arg1, "cost")
 		|| utils::IsAbbrev(arg1, "снять") || utils::IsAbbrev(arg1, "withdraw")
 		|| utils::IsAbbrev(arg1, "купить") || utils::IsAbbrev(arg1, "purchase")) && !IS_IMPL(ch)) {
-		send_to_char("Вам необходимо находиться возле базарного торговца, чтобы воспользоваться этой командой.\r\n",
+		SendMsgToChar("Вам необходимо находиться возле базарного торговца, чтобы воспользоваться этой командой.\r\n",
 					 ch);
 	} else
 		exchange(ch, nullptr, cmd, arg);

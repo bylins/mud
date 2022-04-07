@@ -145,7 +145,7 @@ void SpellCreateWater(int/* level*/, CharData *ch, CharData *victim, ObjData *ob
 	if (obj
 		&& GET_OBJ_TYPE(obj) == EObjType::kLiquidContainer) {
 		if ((GET_OBJ_VAL(obj, 2) != LIQ_WATER) && (GET_OBJ_VAL(obj, 1) != 0)) {
-			send_to_char("Прекратите, ради бога, химичить.\r\n", ch);
+			SendMsgToChar("Прекратите, ради бога, химичить.\r\n", ch);
 			return;
 		} else {
 			water = MAX(GET_OBJ_VAL(obj, 0) - GET_OBJ_VAL(obj, 1), 0);
@@ -163,7 +163,7 @@ void SpellCreateWater(int/* level*/, CharData *ch, CharData *victim, ObjData *ob
 	}
 	if (victim && !victim->is_npc() && !IS_IMMORTAL(victim)) {
 		GET_COND(victim, THIRST) = 0;
-		send_to_char("Вы полностью утолили жажду.\r\n", victim);
+		SendMsgToChar("Вы полностью утолили жажду.\r\n", victim);
 		if (victim != ch) {
 			act("Вы напоили $N3.", false, ch, nullptr, victim, kToChar);
 		}
@@ -223,26 +223,26 @@ void SpellRecall(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 	RoomRnum rnum_start, rnum_stop;
 
 	if (!victim || victim->is_npc() || ch->in_room != IN_ROOM(victim) || GetRealLevel(victim) >= kLvlImmortal) {
-		send_to_char(SUMMON_FAIL, ch);
+		SendMsgToChar(SUMMON_FAIL, ch);
 		return;
 	}
 
 	if (!IS_GOD(ch)
 		&& (ROOM_FLAGGED(IN_ROOM(victim), ERoomFlag::kNoTeleportOut) || AFF_FLAGGED(victim, EAffect::kNoTeleport))) {
-		send_to_char(SUMMON_FAIL, ch);
+		SendMsgToChar(SUMMON_FAIL, ch);
 		return;
 	}
 
 	if (victim != ch) {
 		if (same_group(ch, victim)) {
 			if (number(1, 100) <= 5) {
-				send_to_char(SUMMON_FAIL, ch);
+				SendMsgToChar(SUMMON_FAIL, ch);
 				return;
 			}
 		} else if (!ch->is_npc() || (ch->has_master()
 			&& !ch->get_master()->is_npc())) // игроки не в группе и  чармисы по приказу не могут реколить свитком
 		{
-			send_to_char(SUMMON_FAIL, ch);
+			SendMsgToChar(SUMMON_FAIL, ch);
 			return;
 		}
 
@@ -255,7 +255,7 @@ void SpellRecall(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 		to_room = real_room(calc_loadroom(victim));
 
 	if (to_room == kNowhere) {
-		send_to_char(SUMMON_FAIL, ch);
+		SendMsgToChar(SUMMON_FAIL, ch);
 		return;
 	}
 
@@ -268,7 +268,7 @@ void SpellRecall(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 	}
 
 	if (fnd_room == kNowhere) {
-		send_to_char(SUMMON_FAIL, ch);
+		SendMsgToChar(SUMMON_FAIL, ch);
 		return;
 	}
 
@@ -294,14 +294,14 @@ void SpellTeleport(int /* level */, CharData *ch, CharData */*victim*/, ObjData 
 	RoomRnum rnum_start, rnum_stop;
 
 	if (!IS_GOD(ch) && (ROOM_FLAGGED(in_room, ERoomFlag::kNoTeleportOut) || AFF_FLAGGED(ch, EAffect::kNoTeleport))) {
-		send_to_char(SUMMON_FAIL, ch);
+		SendMsgToChar(SUMMON_FAIL, ch);
 		return;
 	}
 
 	get_zone_rooms(world[in_room]->zone_rn, &rnum_start, &rnum_stop);
 	fnd_room = GetTeleportTargetRoom(ch, rnum_start, rnum_stop);
 	if (fnd_room == kNowhere) {
-		send_to_char(SUMMON_FAIL, ch);
+		SendMsgToChar(SUMMON_FAIL, ch);
 		return;
 	}
 	if (!enter_wtrigger(world[fnd_room], ch, -1))
@@ -319,7 +319,7 @@ void SpellTeleport(int /* level */, CharData *ch, CharData */*victim*/, ObjData 
 void CheckAutoNosummon(CharData *ch) {
 	if (PRF_FLAGGED(ch, EPrf::kAutonosummon) && PRF_FLAGGED(ch, EPrf::KSummonable)) {
 		PRF_FLAGS(ch).unset(EPrf::KSummonable);
-		send_to_char("Режим автопризыв: вы защищены от призыва.\r\n", ch);
+		SendMsgToChar("Режим автопризыв: вы защищены от призыва.\r\n", ch);
 	}
 }
 
@@ -331,12 +331,12 @@ void SpellRelocate(int/* level*/, CharData *ch, CharData *victim, ObjData* /* ob
 
 	if (!IS_GOD(ch)) {
 		if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoTeleportOut)) {
-			send_to_char(SUMMON_FAIL, ch);
+			SendMsgToChar(SUMMON_FAIL, ch);
 			return;
 		}
 
 		if (AFF_FLAGGED(ch, EAffect::kNoTeleport)) {
-			send_to_char(SUMMON_FAIL, ch);
+			SendMsgToChar(SUMMON_FAIL, ch);
 			return;
 		}
 	}
@@ -344,7 +344,7 @@ void SpellRelocate(int/* level*/, CharData *ch, CharData *victim, ObjData* /* ob
 	to_room = IN_ROOM(victim);
 
 	if (to_room == kNowhere) {
-		send_to_char(SUMMON_FAIL, ch);
+		SendMsgToChar(SUMMON_FAIL, ch);
 		return;
 	}
 
@@ -355,7 +355,7 @@ void SpellRelocate(int/* level*/, CharData *ch, CharData *victim, ObjData* /* ob
 	}
 
 	if (fnd_room != to_room && !IS_GOD(ch)) {
-		send_to_char(SUMMON_FAIL, ch);
+		SendMsgToChar(SUMMON_FAIL, ch);
 		return;
 	}
 
@@ -366,20 +366,20 @@ void SpellRelocate(int/* level*/, CharData *ch, CharData *victim, ObjData* /* ob
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kTunnel) ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kNoRelocateIn) ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kIceTrap) || (ROOM_FLAGGED(fnd_room, ERoomFlag::kGodsRoom) && !IS_IMMORTAL(ch)))) {
-		send_to_char(SUMMON_FAIL, ch);
+		SendMsgToChar(SUMMON_FAIL, ch);
 		return;
 	}
 	if (!enter_wtrigger(world[fnd_room], ch, -1))
 		return;
 //	check_auto_nosummon(victim);
 	act("$n медленно исчез$q из виду.", true, ch, nullptr, nullptr, kToRoom);
-	send_to_char("Лазурные сполохи пронеслись перед вашими глазами.\r\n", ch);
+	SendMsgToChar("Лазурные сполохи пронеслись перед вашими глазами.\r\n", ch);
 	ExtractCharFromRoom(ch);
 	PlaceCharToRoom(ch, fnd_room);
 	ch->dismount();
 	look_at_room(ch, 0);
 	act("$n медленно появил$u откуда-то.", true, ch, nullptr, nullptr, kToRoom);
-	WAIT_STATE(ch, 2 * kPulseViolence);
+	SetWaitState(ch, 2 * kPulseViolence);
 	greet_mtrigger(ch, -1);
 	greet_otrigger(ch, -1);
 }
@@ -390,37 +390,37 @@ void SpellPortal(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 	if (victim == nullptr)
 		return;
 	if (GetRealLevel(victim) > GetRealLevel(ch) && !PRF_FLAGGED(victim, EPrf::KSummonable) && !same_group(ch, victim)) {
-		send_to_char(SUMMON_FAIL, ch);
+		SendMsgToChar(SUMMON_FAIL, ch);
 		return;
 	}
 	// пентить чаров <=10 уровня, нельзя так-же нельзя пентать иммов
 	if (!IS_GOD(ch)) {
 		if ((!victim->is_npc() && GetRealLevel(victim) <= 10 && GET_REAL_REMORT(ch) < 9) || IS_IMMORTAL(victim)
 			|| AFF_FLAGGED(victim, EAffect::kNoTeleport)) {
-			send_to_char(SUMMON_FAIL, ch);
+			SendMsgToChar(SUMMON_FAIL, ch);
 			return;
 		}
 	}
 	if (victim->is_npc()) {
-		send_to_char(SUMMON_FAIL, ch);
+		SendMsgToChar(SUMMON_FAIL, ch);
 		return;
 	}
 
 	fnd_room = IN_ROOM(victim);
 	if (fnd_room == kNowhere) {
-		send_to_char(SUMMON_FAIL, ch);
+		SendMsgToChar(SUMMON_FAIL, ch);
 		return;
 	}
 
 	if (!IS_GOD(ch) && (SECT(fnd_room) == ESector::kSecret || ROOM_FLAGGED(fnd_room, ERoomFlag::kDeathTrap) ||
 		ROOM_FLAGGED(fnd_room, ERoomFlag::kSlowDeathTrap) || ROOM_FLAGGED(fnd_room, ERoomFlag::kIceTrap) ||
 		ROOM_FLAGGED(fnd_room, ERoomFlag::kTunnel) || ROOM_FLAGGED(fnd_room, ERoomFlag::kGodsRoom))) {
-		send_to_char(SUMMON_FAIL, ch);
+		SendMsgToChar(SUMMON_FAIL, ch);
 		return;
 	}
 
 	if (ch->in_room == fnd_room) {
-		send_to_char("Может, вам лучше просто потоптаться на месте?\r\n", ch);
+		SendMsgToChar("Может, вам лучше просто потоптаться на месте?\r\n", ch);
 		return;
 	}
 
@@ -501,18 +501,18 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 	vic_room = IN_ROOM(victim);
 
 	if (ch_room == kNowhere || vic_room == kNowhere) {
-		send_to_char(SUMMON_FAIL, ch);
+		SendMsgToChar(SUMMON_FAIL, ch);
 		return;
 	}
 
 	if (ch->is_npc() && victim->is_npc()) {
-		send_to_char(SUMMON_FAIL, ch);
+		SendMsgToChar(SUMMON_FAIL, ch);
 		return;
 	}
 
 	if (IS_IMMORTAL(victim)) {
 		if (ch->is_npc() || (!ch->is_npc() && GetRealLevel(ch) < GetRealLevel(victim))) {
-			send_to_char(SUMMON_FAIL, ch);
+			SendMsgToChar(SUMMON_FAIL, ch);
 			return;
 		}
 	}
@@ -521,7 +521,7 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 		if (victim->get_master() != ch  //поправим это, тут и так понято что чармис (Кудояр)
 			|| victim->get_fighting()
 			|| GET_POS(victim) < EPosition::kRest) {
-			send_to_char(SUMMON_FAIL, ch);
+			SendMsgToChar(SUMMON_FAIL, ch);
 			return;
 		}
 	}
@@ -529,28 +529,28 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 	if (!IS_IMMORTAL(ch)) {
 		if (!ch->is_npc() || IS_CHARMICE(ch)) {
 			if (AFF_FLAGGED(ch, EAffect::kShield)) {
-				send_to_char(SUMMON_FAIL3, ch);
+				SendMsgToChar(SUMMON_FAIL3, ch);
 				return;
 			}
 			if (!PRF_FLAGGED(victim, EPrf::KSummonable) && !same_group(ch, victim)) {
-				send_to_char(SUMMON_FAIL2, ch);
+				SendMsgToChar(SUMMON_FAIL2, ch);
 				return;
 			}
 			if (NORENTABLE(victim)) {
-				send_to_char(SUMMON_FAIL, ch);
+				SendMsgToChar(SUMMON_FAIL, ch);
 				return;
 			}
 			if (victim->get_fighting()) {
-				send_to_char(SUMMON_FAIL4, ch);
+				SendMsgToChar(SUMMON_FAIL4, ch);
 				return;
 			}
 		}
-		if (GET_WAIT(victim) > 0) {
-			send_to_char(SUMMON_FAIL, ch);
+		if (victim->get_wait() > 0) {
+			SendMsgToChar(SUMMON_FAIL, ch);
 			return;
 		}
 		if (!ch->is_npc() && !victim->is_npc() && GetRealLevel(victim) <= 10) {
-			send_to_char(SUMMON_FAIL, ch);
+			SendMsgToChar(SUMMON_FAIL, ch);
 			return;
 		}
 
@@ -563,12 +563,12 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 			|| SECT(ch->in_room) == ESector::kSecret
 			|| (!same_group(ch, victim)
 				&& (ROOM_FLAGGED(ch_room, ERoomFlag::kPeaceful) || ROOM_FLAGGED(ch_room, ERoomFlag::kArena)))) {
-			send_to_char(SUMMON_FAIL, ch);
+			SendMsgToChar(SUMMON_FAIL, ch);
 			return;
 		}
 		// отдельно проверку на клан комнаты, своих чармисов призвать можем (Кудояр)
 		if (!Clan::MayEnter(victim, ch_room, kHousePortal) && !(victim->has_master()) && (victim->get_master() != ch)) {
-			send_to_char(SUMMON_FAIL, ch);
+			SendMsgToChar(SUMMON_FAIL, ch);
 			return;
 		}
 
@@ -579,12 +579,12 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 				|| AFF_FLAGGED(victim, EAffect::kNoTeleport)
 				|| (!same_group(ch, victim)
 					&& (ROOM_FLAGGED(vic_room, ERoomFlag::kTunnel) || ROOM_FLAGGED(vic_room, ERoomFlag::kArena)))) {
-				send_to_char(SUMMON_FAIL, ch);
+				SendMsgToChar(SUMMON_FAIL, ch);
 				return;
 			}
 		} else {
 			if (ROOM_FLAGGED(vic_room, ERoomFlag::kNoSummonOut) || AFF_FLAGGED(victim, EAffect::kNoTeleport)) {
-				send_to_char(SUMMON_FAIL, ch);
+				SendMsgToChar(SUMMON_FAIL, ch);
 				return;
 			}
 		}
@@ -761,7 +761,7 @@ void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *o
 		}
 
 //		CAP(buf); issue #59
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 
 		return true;
 	}, count);
@@ -780,7 +780,7 @@ void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *o
 	}
 
 	if (j == tmp_lvl) {
-		send_to_char("Вы ничего не чувствуете.\r\n", ch);
+		SendMsgToChar("Вы ничего не чувствуете.\r\n", ch);
 	}
 }
 
@@ -850,28 +850,28 @@ int CheckCharmices(CharData *ch, CharData *victim, int spellnum) {
 	}
 
 	if (spellnum == kSpellCharm && undead_in_group) {
-		send_to_char("Ваша жертва боится ваших последователей.\r\n", ch);
+		SendMsgToChar("Ваша жертва боится ваших последователей.\r\n", ch);
 		return (false);
 	}
 
 	if (spellnum != kSpellCharm && living_in_group) {
-		send_to_char("Ваш последователь мешает вам произнести это заклинание.\r\n", ch);
+		SendMsgToChar("Ваш последователь мешает вам произнести это заклинание.\r\n", ch);
 		return (false);
 	}
 
 	if (spellnum == kSpellClone && cha_summ >= MAX(1, (GetRealLevel(ch) + 4) / 5 - 2)) {
-		send_to_char("Вы не сможете управлять столькими последователями.\r\n", ch);
+		SendMsgToChar("Вы не сможете управлять столькими последователями.\r\n", ch);
 		return (false);
 	}
 
 	if (spellnum != kSpellClone && cha_summ >= (GetRealLevel(ch) + 9) / 10) {
-		send_to_char("Вы не сможете управлять столькими последователями.\r\n", ch);
+		SendMsgToChar("Вы не сможете управлять столькими последователями.\r\n", ch);
 		return (false);
 	}
 
 	if (spellnum != kSpellClone &&
 		reformed_hp_summ + get_reformed_charmice_hp(ch, victim, spellnum) >= get_player_charms(ch, spellnum)) {
-		send_to_char("Вам не под силу управлять такой боевой мощью.\r\n", ch);
+		SendMsgToChar("Вам не под силу управлять такой боевой мощью.\r\n", ch);
 		return (false);
 	}
 	return (true);
@@ -884,20 +884,20 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 		return;
 
 	if (victim == ch)
-		send_to_char("Вы просто очарованы своим внешним видом!\r\n", ch);
+		SendMsgToChar("Вы просто очарованы своим внешним видом!\r\n", ch);
 	else if (!victim->is_npc()) {
-		send_to_char("Вы не можете очаровать реального игрока!\r\n", ch);
+		SendMsgToChar("Вы не можете очаровать реального игрока!\r\n", ch);
 		if (!pk_agro_action(ch, victim))
 			return;
 	} else if (!IS_IMMORTAL(ch)
 		&& (AFF_FLAGGED(victim, EAffect::kSanctuary) || MOB_FLAGGED(victim, EMobFlag::kProtect)))
-		send_to_char("Ваша жертва освящена Богами!\r\n", ch);
+		SendMsgToChar("Ваша жертва освящена Богами!\r\n", ch);
 	else if (!IS_IMMORTAL(ch) && (AFF_FLAGGED(victim, EAffect::kShield) || MOB_FLAGGED(victim, EMobFlag::kProtect)))
-		send_to_char("Ваша жертва защищена Богами!\r\n", ch);
+		SendMsgToChar("Ваша жертва защищена Богами!\r\n", ch);
 	else if (!IS_IMMORTAL(ch) && MOB_FLAGGED(victim, EMobFlag::kNoCharm))
-		send_to_char("Ваша жертва устойчива к этому!\r\n", ch);
+		SendMsgToChar("Ваша жертва устойчива к этому!\r\n", ch);
 	else if (AFF_FLAGGED(ch, EAffect::kCharmed))
-		send_to_char("Вы сами очарованы кем-то и не можете иметь последователей.\r\n", ch);
+		SendMsgToChar("Вы сами очарованы кем-то и не можете иметь последователей.\r\n", ch);
 	else if (AFF_FLAGGED(victim, EAffect::kCharmed)
 		|| MOB_FLAGGED(victim, EMobFlag::kAgressive)
 		|| MOB_FLAGGED(victim, EMobFlag::kAgressiveMono)
@@ -909,16 +909,16 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 		|| MOB_FLAGGED(victim, EMobFlag::kAgressiveSpring)
 		|| MOB_FLAGGED(victim, EMobFlag::kAgressiveSummer)
 		|| MOB_FLAGGED(victim, EMobFlag::kAgressiveAutumn))
-		send_to_char("Ваша магия потерпела неудачу.\r\n", ch);
+		SendMsgToChar("Ваша магия потерпела неудачу.\r\n", ch);
 	else if (IS_HORSE(victim))
-		send_to_char("Это боевой скакун, а не хухры-мухры.\r\n", ch);
+		SendMsgToChar("Это боевой скакун, а не хухры-мухры.\r\n", ch);
 	else if (victim->get_fighting() || GET_POS(victim) < EPosition::kRest)
 		act("$M сейчас, похоже, не до вас.", false, ch, nullptr, victim, kToChar);
 	else if (circle_follow(victim, ch))
-		send_to_char("Следование по кругу запрещено.\r\n", ch);
+		SendMsgToChar("Следование по кругу запрещено.\r\n", ch);
 	else if (!IS_IMMORTAL(ch)
 		&& CalcGeneralSaving(ch, victim, ESaving::kWill, (GET_REAL_CHA(ch) - 10) * 4 + GET_REAL_REMORT(ch) * 3)) //предлагаю завязать на каст
-		send_to_char("Ваша магия потерпела неудачу.\r\n", ch);
+		SendMsgToChar("Ваша магия потерпела неудачу.\r\n", ch);
 	else {
 		if (!CheckCharmices(ch, victim, kSpellCharm)) {
 			return;
@@ -1400,7 +1400,7 @@ void show_weapon(CharData *ch, ObjData *obj) {
 		}
 
 		if (*buf) {
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 		}
 	}
 }
@@ -1413,10 +1413,10 @@ void print_book_uprgd_skill(CharData *ch, const ObjData *obj) {
 		return;
 	}
 	if (GET_OBJ_VAL(obj, 3) > 0) {
-		send_to_char(ch, "повышает умение \"%s\" (максимум %d)\r\n",
+		SendMsgToChar(ch, "повышает умение \"%s\" (максимум %d)\r\n",
 					 MUD::Skills()[skill_id].GetName(), GET_OBJ_VAL(obj, 3));
 	} else {
-		send_to_char(ch, "повышает умение \"%s\" (не больше максимума текущего перевоплощения)\r\n",
+		SendMsgToChar(ch, "повышает умение \"%s\" (не больше максимума текущего перевоплощения)\r\n",
 					 MUD::Skills()[skill_id].GetName());
 	}
 }
@@ -1425,16 +1425,16 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 	int i, found, drndice = 0, drsdice = 0, j;
 	long int li;
 
-	send_to_char("Вы узнали следующее:\r\n", ch);
+	SendMsgToChar("Вы узнали следующее:\r\n", ch);
 	sprintf(buf, "Предмет \"%s\", тип : ", obj->get_short_description().c_str());
 	sprinttype(GET_OBJ_TYPE(obj), item_types, buf2);
 	strcat(buf, buf2);
 	strcat(buf, "\r\n");
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 
 	strcpy(buf, diag_weapon_to_char(obj, 2));
 	if (*buf)
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 
 	if (fullness < 20)
 		return;
@@ -1443,53 +1443,53 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 
 	sprintf(buf, "Вес: %d, Цена: %d, Рента: %d(%d)\r\n",
 			GET_OBJ_WEIGHT(obj), GET_OBJ_COST(obj), GET_OBJ_RENT(obj), GET_OBJ_RENTEQ(obj));
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 
 	if (fullness < 30)
 		return;
 	sprinttype(obj->get_material(), material_name, buf2);
 	snprintf(buf, kMaxStringLength, "Материал : %s, макс.прочность : %d, тек.прочность : %d\r\n", buf2,
 			 obj->get_maximum_durability(), obj->get_current_durability());
-	send_to_char(buf, ch);
-	send_to_char(CCNRM(ch, C_NRM), ch);
+	SendMsgToChar(buf, ch);
+	SendMsgToChar(CCNRM(ch, C_NRM), ch);
 
 	if (fullness < 40)
 		return;
 
-	send_to_char("Неудобен : ", ch);
-	send_to_char(CCCYN(ch, C_NRM), ch);
+	SendMsgToChar("Неудобен : ", ch);
+	SendMsgToChar(CCCYN(ch, C_NRM), ch);
 	obj->get_no_flags().sprintbits(no_bits, buf, ",", IS_IMMORTAL(ch) ? 4 : 0);
 	strcat(buf, "\r\n");
-	send_to_char(buf, ch);
-	send_to_char(CCNRM(ch, C_NRM), ch);
+	SendMsgToChar(buf, ch);
+	SendMsgToChar(CCNRM(ch, C_NRM), ch);
 
 	if (fullness < 50)
 		return;
 
-	send_to_char("Недоступен : ", ch);
-	send_to_char(CCCYN(ch, C_NRM), ch);
+	SendMsgToChar("Недоступен : ", ch);
+	SendMsgToChar(CCCYN(ch, C_NRM), ch);
 	obj->get_anti_flags().sprintbits(anti_bits, buf, ",", IS_IMMORTAL(ch) ? 4 : 0);
 	strcat(buf, "\r\n");
-	send_to_char(buf, ch);
-	send_to_char(CCNRM(ch, C_NRM), ch);
+	SendMsgToChar(buf, ch);
+	SendMsgToChar(CCNRM(ch, C_NRM), ch);
 
 	if (obj->get_auto_mort_req() > 0) {
-		send_to_char(ch, "Требует перевоплощений : %s%d%s\r\n",
+		SendMsgToChar(ch, "Требует перевоплощений : %s%d%s\r\n",
 					 CCCYN(ch, C_NRM), obj->get_auto_mort_req(), CCNRM(ch, C_NRM));
 	} else if (obj->get_auto_mort_req() < -1) {
-		send_to_char(ch, "Максимальное количество перевоплощение : %s%d%s\r\n",
+		SendMsgToChar(ch, "Максимальное количество перевоплощение : %s%d%s\r\n",
 					 CCCYN(ch, C_NRM), abs(obj->get_minimum_remorts()), CCNRM(ch, C_NRM));
 	}
 
 	if (fullness < 60)
 		return;
 
-	send_to_char("Имеет экстрафлаги: ", ch);
-	send_to_char(CCCYN(ch, C_NRM), ch);
+	SendMsgToChar("Имеет экстрафлаги: ", ch);
+	SendMsgToChar(CCCYN(ch, C_NRM), ch);
 	GET_OBJ_EXTRA(obj).sprintbits(extra_bits, buf, ",", IS_IMMORTAL(ch) ? 4 : 0);
 	strcat(buf, "\r\n");
-	send_to_char(buf, ch);
-	send_to_char(CCNRM(ch, C_NRM), ch);
+	SendMsgToChar(buf, ch);
+	SendMsgToChar(CCNRM(ch, C_NRM), ch);
 //enhansed_scroll = true; //для теста
 	if (enhansed_scroll) {
 		if (check_unlimited_timer(obj))
@@ -1504,7 +1504,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 		}
 		snprintf(buf, kMaxStringLength, "&GСейчас в мире : %d. На постое : %d. Макс. в мире : %s. %s&n\r\n",
 				 obj_proto.CountInWorld(GET_OBJ_RNUM(obj)), obj_proto.stored(GET_OBJ_RNUM(obj)), miw, buf2);
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 	}
 	if (fullness < 75)
 		return;
@@ -1519,7 +1519,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 			if (GET_OBJ_VAL(obj, 3) >= 1 && GET_OBJ_VAL(obj, 3) <= kSpellCount)
 				sprintf(buf + strlen(buf), ", %s", GetSpellName(GET_OBJ_VAL(obj, 3)));
 			strcat(buf, "\r\n");
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 			break;
 
 		case EObjType::kWand:
@@ -1527,14 +1527,14 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 			if (GET_OBJ_VAL(obj, 3) >= 1 && GET_OBJ_VAL(obj, 3) <= kSpellCount)
 				sprintf(buf + strlen(buf), " %s\r\n", GetSpellName(GET_OBJ_VAL(obj, 3)));
 			sprintf(buf + strlen(buf), "Зарядов %d (осталось %d).\r\n", GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 			break;
 
 		case EObjType::kWeapon: drndice = GET_OBJ_VAL(obj, 1);
 			drsdice = GET_OBJ_VAL(obj, 2);
 			sprintf(buf, "Наносимые повреждения '%dD%d'", drndice, drsdice);
 			sprintf(buf + strlen(buf), " среднее %.1f.\r\n", ((drsdice + 1) * drndice / 2.0));
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 			break;
 
 		case EObjType::kArmor:
@@ -1543,9 +1543,9 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 		case EObjType::kHeavyArmor: drndice = GET_OBJ_VAL(obj, 0);
 			drsdice = GET_OBJ_VAL(obj, 1);
 			sprintf(buf, "защита (AC) : %d\r\n", drndice);
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 			sprintf(buf, "броня       : %d\r\n", drsdice);
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 			break;
 
 		case EObjType::kBook:
@@ -1558,9 +1558,9 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 						else
 							drsdice = CalcMinSpellLevel(ch, GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
 						sprintf(buf, "содержит заклинание        : \"%s\"\r\n", spell_info[drndice].name);
-						send_to_char(buf, ch);
+						SendMsgToChar(buf, ch);
 						sprintf(buf, "уровень изучения (для вас) : %d\r\n", drsdice);
-						send_to_char(buf, ch);
+						SendMsgToChar(buf, ch);
 					}
 					break;
 
@@ -1574,9 +1574,9 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 							drsdice = kLvlImplementator;
 						}
 						sprintf(buf, "содержит секрет умения     : \"%s\"\r\n", MUD::Skills()[skill_id].GetName());
-						send_to_char(buf, ch);
+						SendMsgToChar(buf, ch);
 						sprintf(buf, "уровень изучения (для вас) : %d\r\n", drsdice);
-						send_to_char(buf, ch);
+						SendMsgToChar(buf, ch);
 					}
 					break;
 				}
@@ -1590,17 +1590,17 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 						if (imrecipes[drndice].classknow[(int) GET_CLASS(ch)] != KNOW_RECIPE)
 							drsdice = kLvlImplementator;
 						sprintf(buf, "содержит рецепт отвара     : \"%s\"\r\n", imrecipes[drndice].name);
-						send_to_char(buf, ch);
+						SendMsgToChar(buf, ch);
 						if (drsdice == -1 || count == -1) {
-							send_to_char(CCIRED(ch, C_NRM), ch);
-							send_to_char("Некорректная запись рецепта для вашего класса - сообщите Богам.\r\n", ch);
-							send_to_char(CCNRM(ch, C_NRM), ch);
+							SendMsgToChar(CCIRED(ch, C_NRM), ch);
+							SendMsgToChar("Некорректная запись рецепта для вашего класса - сообщите Богам.\r\n", ch);
+							SendMsgToChar(CCNRM(ch, C_NRM), ch);
 						} else if (drsdice == kLvlImplementator) {
 							sprintf(buf, "уровень изучения (количество ремортов) : %d (--)\r\n", drsdice);
-							send_to_char(buf, ch);
+							SendMsgToChar(buf, ch);
 						} else {
 							sprintf(buf, "уровень изучения (количество ремортов) : %d (%d)\r\n", drsdice, count);
-							send_to_char(buf, ch);
+							SendMsgToChar(buf, ch);
 						}
 					}
 					break;
@@ -1614,27 +1614,27 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 							drsdice = kLvlImplementator;
 						}
 						sprintf(buf, "содержит секрет способности : \"%s\"\r\n", GetFeatName(feat_id));
-						send_to_char(buf, ch);
+						SendMsgToChar(buf, ch);
 						sprintf(buf, "уровень изучения (для вас) : %d\r\n", drsdice);
-						send_to_char(buf, ch);
+						SendMsgToChar(buf, ch);
 					}
 				}
 					break;
 
-				default: send_to_char(CCIRED(ch, C_NRM), ch);
-					send_to_char("НЕВЕРНО УКАЗАН ТИП КНИГИ - сообщите Богам\r\n", ch);
-					send_to_char(CCNRM(ch, C_NRM), ch);
+				default: SendMsgToChar(CCIRED(ch, C_NRM), ch);
+					SendMsgToChar("НЕВЕРНО УКАЗАН ТИП КНИГИ - сообщите Богам\r\n", ch);
+					SendMsgToChar(CCNRM(ch, C_NRM), ch);
 					break;
 			}
 			break;
 
 		case EObjType::kIngredient: sprintbit(GET_OBJ_SKILL(obj), ingradient_bits, buf2);
 			snprintf(buf, kMaxStringLength, "%s\r\n", buf2);
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 
 			if (IS_SET(GET_OBJ_SKILL(obj), kItemCheckUses)) {
 				sprintf(buf, "можно применить %d раз\r\n", GET_OBJ_VAL(obj, 2));
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 			}
 
 			if (IS_SET(GET_OBJ_SKILL(obj), kItemCheckLag)) {
@@ -1645,18 +1645,18 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 					li = GET_OBJ_VAL(obj, 3) + i - time(nullptr);
 					sprintf(buf + strlen(buf), "(осталось %ld сек).\r\n", li);
 				}
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 			}
 
 			if (IS_SET(GET_OBJ_SKILL(obj), kItemCheckLevel)) {
 				sprintf(buf, "можно применить с %d уровня.\r\n", (GET_OBJ_VAL(obj, 0) >> 8) & 0x1F);
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 			}
 
 			if ((i = real_object(GET_OBJ_VAL(obj, 1))) >= 0) {
 				sprintf(buf, "прототип %s%s%s.\r\n",
 						CCICYN(ch, C_NRM), obj_proto[i]->get_PName(0).c_str(), CCNRM(ch, C_NRM));
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 			}
 			break;
 
@@ -1665,10 +1665,10 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 				j++;
 			}
 			sprintf(buf, "Это ингредиент вида '%s%s%s'\r\n", CCCYN(ch, C_NRM), imtypes[j].name, CCNRM(ch, C_NRM));
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 			i = GET_OBJ_VAL(obj, IM_POWER_SLOT);
 			if (i > 45) { // тут явно опечатка была, кроме того у нас мобы и выше 40лвл
-				send_to_char("Вы не в состоянии определить качество этого ингредиента.\r\n", ch);
+				SendMsgToChar("Вы не в состоянии определить качество этого ингредиента.\r\n", ch);
 			} else {
 				sprintf(buf, "Качество ингредиента ");
 				if (i > 40)
@@ -1689,13 +1689,13 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 					strcat(buf, "весьма посредственное.\r\n");
 				else
 					strcat(buf, "хуже не бывает.\r\n");
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 			}
 			break;
 
 			//Информация о контейнерах (Купала)
 		case EObjType::kContainer: sprintf(buf, "Максимально вместимый вес: %d.\r\n", GET_OBJ_VAL(obj, 0));
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 			break;
 
 			//Информация о емкостях (Купала)
@@ -1706,7 +1706,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 		case EObjType::kMagicContaner: sprintf(buf, "Может вместить стрел: %d.\r\n", GET_OBJ_VAL(obj, 1));
 			sprintf(buf, "Осталось стрел: %s%d&n.\r\n",
 					GET_OBJ_VAL(obj, 2) > 3 ? "&G" : "&R", GET_OBJ_VAL(obj, 2));
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 			break;
 
 		default: break;
@@ -1716,12 +1716,12 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 		return;
 	}
 
-	send_to_char("Накладывает на вас аффекты: ", ch);
-	send_to_char(CCCYN(ch, C_NRM), ch);
+	SendMsgToChar("Накладывает на вас аффекты: ", ch);
+	SendMsgToChar(CCCYN(ch, C_NRM), ch);
 	obj->get_affect_flags().sprintbits(weapon_affects, buf, ",", IS_IMMORTAL(ch) ? 4 : 0);
 	strcat(buf, "\r\n");
-	send_to_char(buf, ch);
-	send_to_char(CCNRM(ch, C_NRM), ch);
+	SendMsgToChar(buf, ch);
+	SendMsgToChar(CCNRM(ch, C_NRM), ch);
 
 	if (fullness < 100) {
 		return;
@@ -1732,7 +1732,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 		if (obj->get_affected(i).location != EApply::kNone
 			&& obj->get_affected(i).modifier != 0) {
 			if (!found) {
-				send_to_char("Дополнительные свойства :\r\n", ch);
+				SendMsgToChar("Дополнительные свойства :\r\n", ch);
 				found = true;
 			}
 			print_obj_affects(ch, obj->get_affected(i));
@@ -1742,16 +1742,16 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 	if (GET_OBJ_TYPE(obj) == EObjType::kEnchant
 		&& GET_OBJ_VAL(obj, 0) != 0) {
 		if (!found) {
-			send_to_char("Дополнительные свойства :\r\n", ch);
+			SendMsgToChar("Дополнительные свойства :\r\n", ch);
 			found = true;
 		}
-		send_to_char(ch, "%s   %s вес предмета на %d%s\r\n", CCCYN(ch, C_NRM),
+		SendMsgToChar(ch, "%s   %s вес предмета на %d%s\r\n", CCCYN(ch, C_NRM),
 					 GET_OBJ_VAL(obj, 0) > 0 ? "увеличивает" : "уменьшает",
 					 abs(GET_OBJ_VAL(obj, 0)), CCNRM(ch, C_NRM));
 	}
 
 	if (obj->has_skills()) {
-		send_to_char("Меняет умения :\r\n", ch);
+		SendMsgToChar("Меняет умения :\r\n", ch);
 		CObjectPrototype::skills_t skills;
 		obj->get_skills(skills);
 		int percent;
@@ -1766,7 +1766,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 					CCCYN(ch, C_NRM), MUD::Skills()[skill_id].GetName(), CCNRM(ch, C_NRM),
 					CCCYN(ch, C_NRM),
 					percent < 0 ? " ухудшает на " : " улучшает на ", abs(percent), CCNRM(ch, C_NRM));
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 		}
 	}
 
@@ -1779,15 +1779,15 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 						CCNRM(ch, C_NRM),
 						it->second.get_name().c_str(),
 						CCNRM(ch, C_NRM));
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 				for (auto & vnum : it->second) {
 					const int r_num = real_object(vnum.first);
 					if (r_num < 0) {
-						send_to_char("Неизвестный объект!!!\r\n", ch);
+						SendMsgToChar("Неизвестный объект!!!\r\n", ch);
 						continue;
 					}
 					sprintf(buf, "   %s\r\n", obj_proto[r_num]->get_short_description().c_str());
-					send_to_char(buf, ch);
+					SendMsgToChar(buf, ch);
 				}
 				break;
 			}
@@ -1806,12 +1806,12 @@ void mort_show_char_values(CharData *victim, CharData *ch, int fullness) {
 	int val0, val1, val2;
 
 	sprintf(buf, "Имя: %s\r\n", GET_NAME(victim));
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 	if (!victim->is_npc() && victim == ch) {
 		sprintf(buf, "Написание : %s/%s/%s/%s/%s/%s\r\n",
 				GET_PAD(victim, 0), GET_PAD(victim, 1), GET_PAD(victim, 2),
 				GET_PAD(victim, 3), GET_PAD(victim, 4), GET_PAD(victim, 5));
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 	}
 
 	if (!victim->is_npc() && victim == ch) {
@@ -1819,7 +1819,7 @@ void mort_show_char_values(CharData *victim, CharData *ch, int fullness) {
 				"Возраст %s  : %d лет, %d месяцев, %d дней и %d часов.\r\n",
 				GET_PAD(victim, 1), age(victim)->year, age(victim)->month,
 				age(victim)->day, age(victim)->hours);
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 	}
 	if (fullness < 20 && ch != victim)
 		return;
@@ -1829,7 +1829,7 @@ void mort_show_char_values(CharData *victim, CharData *ch, int fullness) {
 	val2 = GET_SIZE(victim);
 	sprintf(buf, "Вес %d, Размер %d\r\n", val1,
 			val2);
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 	if (fullness < 60 && ch != victim)
 		return;
 
@@ -1837,8 +1837,8 @@ void mort_show_char_values(CharData *victim, CharData *ch, int fullness) {
 	val1 = GET_HIT(victim);
 	val2 = GET_REAL_MAX_HIT(victim);
 	sprintf(buf, "Уровень : %d, может выдержать повреждений : %d(%d), ", val0, val1, val2);
-	send_to_char(buf, ch);
-	send_to_char(ch, "Перевоплощений : %d\r\n", GET_REAL_REMORT(victim));
+	SendMsgToChar(buf, ch);
+	SendMsgToChar(ch, "Перевоплощений : %d\r\n", GET_REAL_REMORT(victim));
 	val0 = MIN(GET_AR(victim), 100);
 	val1 = MIN(GET_MR(victim), 100);
 	val2 = MIN(GET_PR(victim), 100);
@@ -1847,13 +1847,13 @@ void mort_show_char_values(CharData *victim, CharData *ch, int fullness) {
 			val0,
 			val1,
 			val2);
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 	if (fullness < 90 && ch != victim)
 		return;
 
-	send_to_char(ch, "Атака : %d, Повреждения : %d\r\n",
+	SendMsgToChar(ch, "Атака : %d, Повреждения : %d\r\n",
 				 GET_HR(victim), GET_DR(victim));
-	send_to_char(ch, "Защита : %d, Броня : %d, Поглощение : %d\r\n",
+	SendMsgToChar(ch, "Защита : %d, Броня : %d, Поглощение : %d\r\n",
 				 compute_armor_class(victim), GET_ARMOUR(victim), GET_ABSORBE(victim));
 
 	if (fullness < 100 || (ch != victim && !victim->is_npc()))
@@ -1867,7 +1867,7 @@ void mort_show_char_values(CharData *victim, CharData *ch, int fullness) {
 	val1 = victim->get_con();
 	val2 = victim->get_cha();
 	sprintf(buf + strlen(buf), "Ловк: %d, Тел: %d, Обаян: %d\r\n", val0, val1, val2);
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 
 	if (fullness < 120 || (ch != victim && !victim->is_npc()))
 		return;
@@ -1876,9 +1876,9 @@ void mort_show_char_values(CharData *victim, CharData *ch, int fullness) {
 	for (const auto &aff : victim->affected) {
 		if (aff->location != EApply::kNone && aff->modifier != 0) {
 			if (!found) {
-				send_to_char("Дополнительные свойства :\r\n", ch);
+				SendMsgToChar("Дополнительные свойства :\r\n", ch);
 				found = true;
-				send_to_char(CCIRED(ch, C_NRM), ch);
+				SendMsgToChar(CCIRED(ch, C_NRM), ch);
 			}
 			sprinttype(aff->location, apply_types, buf2);
 			snprintf(buf,
@@ -1887,17 +1887,17 @@ void mort_show_char_values(CharData *victim, CharData *ch, int fullness) {
 					 buf2,
 					 aff->modifier > 0 ? "+" : "",
 					 aff->modifier);
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 		}
 	}
-	send_to_char(CCNRM(ch, C_NRM), ch);
+	SendMsgToChar(CCNRM(ch, C_NRM), ch);
 
-	send_to_char("Аффекты :\r\n", ch);
-	send_to_char(CCICYN(ch, C_NRM), ch);
+	SendMsgToChar("Аффекты :\r\n", ch);
+	SendMsgToChar(CCICYN(ch, C_NRM), ch);
 	victim->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, "\r\n", IS_IMMORTAL(ch) ? 4 : 0);
 	snprintf(buf, kMaxStringLength, "%s\r\n", buf2);
-	send_to_char(buf, ch);
-	send_to_char(CCNRM(ch, C_NRM), ch);
+	SendMsgToChar(buf, ch);
+	SendMsgToChar(CCNRM(ch, C_NRM), ch);
 }
 
 void SkillIdentify(int/* level*/, CharData *ch, CharData *victim, ObjData *obj) {
@@ -1907,7 +1907,7 @@ void SkillIdentify(int/* level*/, CharData *ch, CharData *victim, ObjData *obj) 
 		TrainSkill(ch, ESkill::kIdentify, true, nullptr);
 	} else if (victim) {
 		if (GetRealLevel(victim) < 3) {
-			send_to_char("Вы можете опознать только персонажа, достигнувшего третьего уровня.\r\n", ch);
+			SendMsgToChar("Вы можете опознать только персонажа, достигнувшего третьего уровня.\r\n", ch);
 			return;
 		}
 		mort_show_char_values(victim, ch, CalcCurrentSkill(ch, ESkill::kIdentify, victim));
@@ -1921,7 +1921,7 @@ void SpellFullIdentify(int/* level*/, CharData *ch, CharData *victim, ObjData *o
 	if (obj)
 		mort_show_obj_values(obj, ch, 100, full);
 	else if (victim) {
-			send_to_char("С помощью магии нельзя опознать другое существо.\r\n", ch);
+		SendMsgToChar("С помощью магии нельзя опознать другое существо.\r\n", ch);
 			return;
 	}
 }
@@ -1932,11 +1932,11 @@ void SpellIdentify(int/* level*/, CharData *ch, CharData *victim, ObjData *obj) 
 		mort_show_obj_values(obj, ch, 100, full);
 	else if (victim) {
 		if (victim != ch) {
-			send_to_char("С помощью магии нельзя опознать другое существо.\r\n", ch);
+			SendMsgToChar("С помощью магии нельзя опознать другое существо.\r\n", ch);
 			return;
 		}
 		if (GetRealLevel(victim) < 3) {
-			send_to_char("Вы можете опознать себя только достигнув третьего уровня.\r\n", ch);
+			SendMsgToChar("Вы можете опознать себя только достигнув третьего уровня.\r\n", ch);
 			return;
 		}
 		mort_show_char_values(victim, ch, 100);
@@ -1980,7 +1980,7 @@ void SpellControlWeather(int/* level*/, CharData *ch, CharData* /*victim*/, ObjD
 	if (sky_info) {
 		duration = MAX(GetRealLevel(ch) / 8, 2);
 		zone = world[ch->in_room]->zone_rn;
-		for (i = FIRST_ROOM; i <= top_of_world; i++)
+		for (i = kFirstRoom; i <= top_of_world; i++)
 			if (world[i]->zone_rn == zone && SECT(i) != ESector::kInside && SECT(i) != ESector::kCity) {
 				world[i]->weather.sky = what_sky;
 				world[i]->weather.weather_type = sky_type;
@@ -2008,7 +2008,7 @@ void SpellFear(int/* level*/, CharData *ch, CharData *victim, ObjData* /*obj*/) 
 		modi -= 25;
 
 	if (!MOB_FLAGGED(victim, EMobFlag::kNoFear) && !CalcGeneralSaving(ch, victim, ESaving::kWill, modi))
-		go_flee(victim);
+		GoFlee(victim);
 }
 
 void SpellEnergydrain(int/* level*/, CharData *ch, CharData *victim, ObjData* /*obj*/) {
@@ -2029,9 +2029,9 @@ void SpellEnergydrain(int/* level*/, CharData *ch, CharData *victim, ObjData* /*
 		int i;
 		for (i = 0; i <= kSpellCount; GET_SPELL_MEM(victim, i++) = 0);
 		victim->caster_level = 0;
-		send_to_char("Внезапно вы осознали, что у вас напрочь отшибло память.\r\n", victim);
+		SendMsgToChar("Внезапно вы осознали, что у вас напрочь отшибло память.\r\n", victim);
 	} else
-		send_to_char(NOEFFECT, ch);
+		SendMsgToChar(NOEFFECT, ch);
 }
 
 // накачка хитов
@@ -2051,7 +2051,7 @@ void SpellSacrifice(int/* level*/, CharData *ch, CharData *victim, ObjData* /*ob
 	// *** мин 54 макс 66 (330)
 
 	if (IS_IMMORTAL(victim) || victim == ch || IS_CHARMICE(victim)) {
-		send_to_char(NOEFFECT, ch);
+		SendMsgToChar(NOEFFECT, ch);
 		return;
 	}
 
@@ -2133,7 +2133,7 @@ void SpellSummonAngel(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData
 	for (k = ch->followers; k; k = k_next) {
 		k_next = k->next;
 		if (MOB_FLAGGED(k->ch,
-						EMobFlag::kTutelar))    //send_to_char("Боги не обратили на вас никакого внимания!\r\n", ch);
+						EMobFlag::kTutelar))    //SendMsgToChar("Боги не обратили на вас никакого внимания!\r\n", ch);
 		{
 			//return;
 			//пуржим старого ангела
@@ -2145,11 +2145,11 @@ void SpellSummonAngel(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData
 	float additional_success_for_charisma = 1.5; // 50 at 16 charisma, 101 at 50 charisma
 
 	if (number(1, 100) > floorf(base_success + additional_success_for_charisma * eff_cha)) {
-		send_to_room("Яркая вспышка света! Несколько белых перьев кружась легли на землю...", ch->in_room, true);
+		SendMsgToRoom("Яркая вспышка света! Несколько белых перьев кружась легли на землю...", ch->in_room, true);
 		return;
 	};
 	if (!(mob = read_mobile(-mob_num, VIRTUAL))) {
-		send_to_char("Вы точно не помните, как создать данного монстра.\r\n", ch);
+		SendMsgToChar("Вы точно не помните, как создать данного монстра.\r\n", ch);
 		return;
 	}
 
@@ -2330,12 +2330,12 @@ void SpellMentalShadow(int/* level*/, CharData *ch, CharData* /*victim*/, ObjDat
 	float base_ac = 100;
 	float additional_ac = -1.5;
 	if (eff_int < 26 && !IS_IMMORTAL(ch)) {
-		send_to_char("Головные боли мешают работать!\r\n", ch);
+		SendMsgToChar("Головные боли мешают работать!\r\n", ch);
 		return;
 	};
 
 	if (!(mob = read_mobile(-mob_num, VIRTUAL))) {
-		send_to_char("Вы точно не помните, как создать данного монстра.\r\n", ch);
+		SendMsgToChar("Вы точно не помните, как создать данного монстра.\r\n", ch);
 		return;
 	}
 	Affect<EApply> af;
@@ -3272,7 +3272,7 @@ int CheckRecipeValues(CharData *ch, int spellnum, int spelltype, int showrecipe)
 		((item0 = real_object(items->items[0])) +
 			(item1 = real_object(items->items[1])) + (item2 = real_object(items->items[2])) < -2)) {
 		if (showrecipe)
-			send_to_char("Боги хранят в секрете этот рецепт.\n\r", ch);
+			SendMsgToChar("Боги хранят в секрете этот рецепт.\n\r", ch);
 		return (false);
 	}
 
@@ -3572,7 +3572,7 @@ int CheckRecipeItems(CharData *ch, int spellnum, int spelltype, int extract, con
 
 void print_rune_stats(CharData *ch) {
 	if (!IS_GRGOD(ch)) {
-		send_to_char(ch, "Только для иммов 33+.\r\n");
+		SendMsgToChar(ch, "Только для иммов 33+.\r\n");
 		return;
 	}
 
@@ -3589,7 +3589,7 @@ void print_rune_stats(CharData *ch) {
 			 iend = tmp_list.rend(); i != iend; ++i) {
 		out += boost::str(boost::format("%1% -> %2%\r\n") % i->second % i->first);
 	}
-	send_to_char(out, ch);
+	SendMsgToChar(out, ch);
 }
 
 void print_rune_log() {

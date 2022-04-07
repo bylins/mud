@@ -101,7 +101,7 @@ bool check(CharData *ch, int mode) {
 				return true;
 		};
 		text << ".\r\n";
-		send_to_char(text.str(), ch);
+		SendMsgToChar(text.str(), ch);
 		return false;
 	}
 	return true;

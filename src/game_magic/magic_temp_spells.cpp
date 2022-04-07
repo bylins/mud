@@ -73,7 +73,7 @@ void update_char_times(CharData *ch, time_t now) {
 				sprintf(buf,
 						"Вы забыли заклинание \"%s%s%s\".\r\n",
 						CCIMAG(ch, C_NRM), spell_info[it->first].name, CCNRM(ch, C_NRM));
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 			}
 
 			it = ch->temp_spells.erase(it);

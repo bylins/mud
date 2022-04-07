@@ -11,20 +11,20 @@ void do_identify(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int k, level = 0;
 
 	if (ch->is_npc() || ch->get_skill(ESkill::kIdentify) <= 0) {
-		send_to_char("Вам стоит сначала этому научиться.\r\n", ch);
+		SendMsgToChar("Вам стоит сначала этому научиться.\r\n", ch);
 		return;
 	}
 
 	one_argument(argument, arg);
 
 	if (IsTimedBySkill(ch, ESkill::kIdentify)) {
-		send_to_char("Вы же недавно опознавали - подождите чуток.\r\n", ch);
+		SendMsgToChar("Вы же недавно опознавали - подождите чуток.\r\n", ch);
 		return;
 	}
 
 	k = generic_find(arg, EFind::kCharInRoom | EFind::kObjInventory | EFind::kObjRoom | EFind::kObjEquip, caster, &cvict, &ovict);
 	if (!k) {
-		send_to_char("Похоже, здесь этого нет.\r\n", ch);
+		SendMsgToChar("Похоже, здесь этого нет.\r\n", ch);
 		return;
 	}
 	if (!IS_IMMORTAL(ch)) {

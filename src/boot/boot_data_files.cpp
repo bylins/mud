@@ -390,7 +390,7 @@ void WorldFile::read_entry(const int nr) {
 }
 
 void WorldFile::parse_room(int virtual_nr) {
-	static int room_nr = FIRST_ROOM;
+	static int room_nr = kFirstRoom;
 	static ZoneRnum zone = 0;
 
 	int t[10], i;

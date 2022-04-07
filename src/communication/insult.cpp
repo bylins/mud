@@ -13,16 +13,16 @@ void do_insult(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, arg);
 
 	if (!ch->is_npc() && PLR_FLAGGED(ch, EPlrFlag::kDumbed)) {
-		send_to_char("Боги наказали вас и вы не можете выражать эмоции!\r\n", ch);
+		SendMsgToChar("Боги наказали вас и вы не можете выражать эмоции!\r\n", ch);
 		return;
 	}
 	if (*arg) {
 		if (!(victim = get_char_vis(ch, arg, EFind::kCharInRoom)))
-			send_to_char("&KА он вас и не услышит :(&n\r\n", ch);
+			SendMsgToChar("&KА он вас и не услышит :(&n\r\n", ch);
 		else {
 			if (victim != ch) {
 				sprintf(buf, "&KВы оскорбили %s.&n\r\n", GET_PAD(victim, 3));
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 
 				switch (number(0, 2)) {
 					case 0:
@@ -57,11 +57,11 @@ void do_insult(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				act("&K$n оскорбил$g $N1. СМЕРТЕЛЬНО.&n", true, ch, nullptr, victim, kToNotVict);
 			} else    // ch == victim
 			{
-				send_to_char("&KВы почувствовали себя оскорбленным.&n\r\n", ch);
+				SendMsgToChar("&KВы почувствовали себя оскорбленным.&n\r\n", ch);
 			}
 		}
 	} else
-		send_to_char("&KВы уверены, что стоит оскорблять такими словами всех?&n\r\n", ch);
+		SendMsgToChar("&KВы уверены, что стоит оскорблять такими словами всех?&n\r\n", ch);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

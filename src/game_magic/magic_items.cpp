@@ -46,11 +46,11 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 			}
 
 			if (GET_OBJ_VAL(obj, 2) <= 0) {
-				send_to_char("Похоже, кончились заряды :)\r\n", ch);
+				SendMsgToChar("Похоже, кончились заряды :)\r\n", ch);
 				act("И ничего не случилось.", false, ch, obj, nullptr, kToRoom | kToArenaListen);
 			} else {
 				obj->dec_val(2);
-				WAIT_STATE(ch, kPulseViolence);
+				SetWaitState(ch, kPulseViolence);
 				if (HAS_SPELL_ROUTINE(GET_OBJ_VAL(obj, 3), kMagMasses | kMagAreas)) {
 					CallMagic(ch, nullptr, nullptr, world[ch->in_room], GET_OBJ_VAL(obj, 3), level);
 				} else {
@@ -68,7 +68,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 		case EObjType::kWand: spellnum = GET_OBJ_VAL(obj, 3);
 
 			if (GET_OBJ_VAL(obj, 2) <= 0) {
-				send_to_char("Похоже, магия кончилась.\r\n", ch);
+				SendMsgToChar("Похоже, магия кончилась.\r\n", ch);
 				return;
 			}
 
@@ -120,17 +120,17 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 			}
 
 			obj->dec_val(2);
-			WAIT_STATE(ch, kPulseViolence);
+			SetWaitState(ch, kPulseViolence);
 			CallMagic(ch, tch, tobj, world[ch->in_room], GET_OBJ_VAL(obj, 3), level);
 			break;
 
 		case EObjType::kScroll:
 			if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
-				send_to_char("Вы немы, как рыба.\r\n", ch);
+				SendMsgToChar("Вы немы, как рыба.\r\n", ch);
 				return;
 			}
 			if (AFF_FLAGGED(ch, EAffect::kBlind)) {
-				send_to_char("Вы ослеплены.\r\n", ch);
+				SendMsgToChar("Вы ослеплены.\r\n", ch);
 				return;
 			}
 
@@ -154,7 +154,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 				act("$n зачитал$g $o3.", false, ch, obj, nullptr, kToRoom | kToArenaListen);
 			}
 
-			WAIT_STATE(ch, kPulseViolence);
+			SetWaitState(ch, kPulseViolence);
 			for (i = 1; i <= 3; i++) {
 				if (CallMagic(ch, tch, tobj, world[ch->in_room], GET_OBJ_VAL(obj, i), level) <= 0) {
 					break;
@@ -169,7 +169,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 
 		case EObjType::kPorion:
 			if (AFF_FLAGGED(ch, EAffect::kStrangled)) {
-				send_to_char("Да вам сейчас и глоток воздуха не проглотить!\r\n", ch);
+				SendMsgToChar("Да вам сейчас и глоток воздуха не проглотить!\r\n", ch);
 				return;
 			}
 			tch = ch;
@@ -181,7 +181,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 				act("$n осушил$g $o3.", true, ch, obj, nullptr, kToRoom | kToArenaListen);
 			}
 
-			WAIT_STATE(ch, kPulseViolence);
+			SetWaitState(ch, kPulseViolence);
 			for (i = 1; i <= 3; i++) {
 				if (CallMagic(ch, ch, nullptr, world[ch->in_room], GET_OBJ_VAL(obj, i), level) <= 0) {
 					break;

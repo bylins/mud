@@ -505,32 +505,32 @@ int SendSkillMessages(int dam, CharData *ch, CharData *vict, int attacktype, std
 					case to_underlying(ESkill::kBackstab) + kTypeHit:
 					case to_underlying(ESkill::kThrow) + kTypeHit:
 					case to_underlying(ESkill::kBash) + kTypeHit:
-					case to_underlying(ESkill::kKick) + kTypeHit: send_to_char("&W&q", ch);
+					case to_underlying(ESkill::kKick) + kTypeHit: SendMsgToChar("&W&q", ch);
 						break;
 
-					default: send_to_char("&y&q", ch);
+					default: SendMsgToChar("&y&q", ch);
 						break;
 				}
 				brief.act_to_char(msg->god_msg.attacker_msg);
-				send_to_char("&Q&n", ch);
+				SendMsgToChar("&Q&n", ch);
 				brief.act_to_vict(msg->god_msg.victim_msg);
 				brief.act_to_room(msg->god_msg.room_msg);
 			} else if (dam != 0) {
 				if (GET_POS(vict) == EPosition::kDead) {
-					send_to_char("&Y&q", ch);
+					SendMsgToChar("&Y&q", ch);
 					brief.act_to_char(msg->die_msg.attacker_msg);
-					send_to_char("&Q&n", ch);
-					send_to_char("&R&q", vict);
+					SendMsgToChar("&Q&n", ch);
+					SendMsgToChar("&R&q", vict);
 					brief.act_to_vict(msg->die_msg.victim_msg);
-					send_to_char("&Q&n", vict);
+					SendMsgToChar("&Q&n", vict);
 					brief.act_to_room(msg->die_msg.room_msg);
 				} else {
-					send_to_char("&Y&q", ch);
+					SendMsgToChar("&Y&q", ch);
 					brief.act_to_char(msg->hit_msg.attacker_msg);
-					send_to_char("&Q&n", ch);
-					send_to_char("&R&q", vict);
+					SendMsgToChar("&Q&n", ch);
+					SendMsgToChar("&R&q", vict);
 					brief.act_to_vict(msg->hit_msg.victim_msg);
-					send_to_char("&Q&n", vict);
+					SendMsgToChar("&Q&n", vict);
 					brief.act_to_room(msg->hit_msg.room_msg);
 				}
 			} else if (ch != vict)    // Dam == 0
@@ -539,17 +539,17 @@ int SendSkillMessages(int dam, CharData *ch, CharData *vict, int attacktype, std
 					case to_underlying(ESkill::kBackstab) + kTypeHit:
 					case to_underlying(ESkill::kThrow) + kTypeHit:
 					case to_underlying(ESkill::kBash) + kTypeHit:
-					case to_underlying(ESkill::kKick) + kTypeHit: send_to_char("&W&q", ch);
+					case to_underlying(ESkill::kKick) + kTypeHit: SendMsgToChar("&W&q", ch);
 						break;
 
-					default: send_to_char("&y&q", ch);
+					default: SendMsgToChar("&y&q", ch);
 						break;
 				}
 				brief.act_to_char(msg->miss_msg.attacker_msg);
-				send_to_char("&Q&n", ch);
-				send_to_char("&r&q", vict);
+				SendMsgToChar("&Q&n", ch);
+				SendMsgToChar("&r&q", vict);
 				brief.act_to_vict(msg->miss_msg.victim_msg);
-				send_to_char("&Q&n", vict);
+				SendMsgToChar("&Q&n", vict);
 				brief.act_to_room(msg->miss_msg.room_msg);
 			}
 			return (1);
@@ -1089,7 +1089,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kStrangle: {
 			bonus = dex_bonus(GET_REAL_DEX(ch));
-			if (GET_MOB_HOLD(vict)) {
+			if (AFF_FLAGGED(vict, EAffect::kHold)) {
 				bonus += 30;
 			} else {
 				if (!CAN_SEE(ch, vict))
@@ -1689,7 +1689,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 		case ESkill::kStrangle: {
 			victim_sav = -GET_REAL_SAVING_REFLEX(vict);
 			bonus = dex_bonus(GET_REAL_DEX(ch));
-			if (GET_MOB_HOLD(vict)) {
+			if (AFF_FLAGGED(vict, EAffect::kHold)) {
 				bonus += (base_percent + bonus) / 2;
 			} else {
 				if (!CAN_SEE(ch, vict))
@@ -1813,7 +1813,7 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 			sprintf(buf, "%sПоняв свои ошибки, вы повысили уровень умения \"%s\".%s\r\n",
 					CCICYN(ch, C_NRM), MUD::Skills()[skill].GetName(), CCNRM(ch, C_NRM));
 		}
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 		ch->set_morphed_skill(skill, (trained_skill + number(1, 2)));
 		if (!IS_IMMORTAL(ch)) {
 			ch->set_morphed_skill(skill,

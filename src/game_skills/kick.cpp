@@ -12,11 +12,11 @@ void go_kick(CharData *ch, CharData *vict) {
 	const char *to_char = nullptr, *to_vict = nullptr, *to_room = nullptr;
 
 	if (IsUnableToAct(ch)) {
-		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
 	if (ch->haveCooldown(ESkill::kKick)) {
-		send_to_char("Вы уже все ноги себе отбили, отдохните слегка.\r\n", ch);
+		SendMsgToChar("Вы уже все ноги себе отбили, отдохните слегка.\r\n", ch);
 		return;
 	};
 
@@ -29,7 +29,7 @@ void go_kick(CharData *ch, CharData *vict) {
 	} else {
 		int percent = ((10 - (compute_armor_class(vict) / 10)) * 2) + number(1, MUD::Skills()[ESkill::kKick].difficulty);
 		int prob = CalcCurrentSkill(ch, ESkill::kKick, vict);
-		if (GET_GOD_FLAG(vict, EGf::kGodscurse) || GET_MOB_HOLD(vict)) {
+		if (GET_GOD_FLAG(vict, EGf::kGodscurse) || AFF_FLAGGED(vict, EAffect::kHold)) {
 			prob = percent;
 		}
 		if (GET_GOD_FLAG(ch, EGf::kGodscurse) || (!ch->ahorse() && vict->ahorse())) {
@@ -104,7 +104,7 @@ void go_kick(CharData *ch, CharData *vict) {
 						dam *= 2;
 						break;
 					case 4:
-					case 5:WAIT_STATE(vict, number(2, 5) * kPulseViolence);
+					case 5:SetWaitState(vict, number(2, 5) * kPulseViolence);
 						if (GET_POS(vict) > EPosition::kSit) {
 							GET_POS(vict) = EPosition::kSit;
 						}
@@ -118,7 +118,7 @@ void go_kick(CharData *ch, CharData *vict) {
 			} else if (number(1, 1000) < (ch->get_skill(ESkill::kRiding) / 2)) {
 				dam *= 2;
 				if (!ch->is_npc())
-					send_to_char("Вы привстали на стременах.\r\n", ch);
+					SendMsgToChar("Вы привстали на стременах.\r\n", ch);
 			}
 
 			if (to_char) {
@@ -151,22 +151,22 @@ void go_kick(CharData *ch, CharData *vict) {
 
 void do_kick(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->get_skill(ESkill::kKick) < 1) {
-		send_to_char("Вы не знаете как.\r\n", ch);
+		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
 	if (ch->haveCooldown(ESkill::kKick)) {
-		send_to_char("Вам нужно набраться сил.\r\n", ch);
+		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
 
 	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
-		send_to_char("Кто это так сильно путается под вашими ногами?\r\n", ch);
+		SendMsgToChar("Кто это так сильно путается под вашими ногами?\r\n", ch);
 		return;
 	}
 
 	if (vict == ch) {
-		send_to_char("Вы БОЛЬНО пнули себя! Поздравляю, вы сошли с ума...\r\n", ch);
+		SendMsgToChar("Вы БОЛЬНО пнули себя! Поздравляю, вы сошли с ума...\r\n", ch);
 		return;
 	}
 

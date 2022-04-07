@@ -521,7 +521,7 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 		return nullptr;
 	} else {
 		RoomRnum corpse_room = ch->in_room;
-		if (corpse_room == STRANGE_ROOM
+		if (corpse_room == kStrangeRoom
 			&& ch->get_was_in_room() != kNowhere) {
 			corpse_room = ch->get_was_in_room();
 		}

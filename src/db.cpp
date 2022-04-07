@@ -221,7 +221,7 @@ void create_rainsnow(int *wtype, int startvalue, int chance1, int chance2, int c
 void calc_easter(void);
 void do_start(CharData *ch, int newbie);
 extern void repop_decay(ZoneRnum zone);    // рассыпание обьектов ITEM_REPOP_DECAY
-int level_exp(CharData *ch, int level);
+long GetExpUntilNextLvl(CharData *ch, int level);
 //extern char *fread_action(FILE *fl, int nr);
 void load_mobraces();
 
@@ -1131,7 +1131,7 @@ void do_reboot(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (CompareParam(buffer, (*clan)->get_abbrev())) {
 				CreateFileName(buffer);
 				Clan::ClanReload(buffer);
-				send_to_char("Перезагрузка клана.\r\n", ch);
+				SendMsgToChar("Перезагрузка клана.\r\n", ch);
 				break;
 			}
 		}
@@ -1156,11 +1156,11 @@ void do_reboot(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (uid > 0) {
 				Depot::reload_char(uid, ch);
 			} else {
-				send_to_char("Указанный чар не найден\r\n"
+				SendMsgToChar("Указанный чар не найден\r\n"
 							 "Формат команды: reload depot <имя чара>.\r\n", ch);
 			}
 		} else {
-			send_to_char("Формат команды: reload depot <имя чара>.\r\n", ch);
+			SendMsgToChar("Формат команды: reload depot <имя чара>.\r\n", ch);
 		}
 	} else if (!str_cmp(arg, "globaldrop")) {
 		GlobalDrop::init();
@@ -1191,7 +1191,7 @@ void do_reboot(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (!str_cmp(arg, "daily")) {
 		DailyQuest::load_from_file(ch);
 	} else {
-		send_to_char("Неверный параметр для перезагрузки файлов.\r\n", ch);
+		SendMsgToChar("Неверный параметр для перезагрузки файлов.\r\n", ch);
 		return;
 	}
 
@@ -1199,7 +1199,7 @@ void do_reboot(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 									 % ch->get_name() % arg);
 	mudlog(str.c_str(), NRM, kLvlImmortal, SYSLOG, true);
 
-	send_to_char(OK, ch);
+	SendMsgToChar(OK, ch);
 }
 
 void init_portals(void) {
@@ -2718,7 +2718,7 @@ void GameLoader::prepare_global_structures(const EBootType mode, const int rec_c
 		case DB_BOOT_WLD: {
 			// Creating empty world with kNowhere room.
 			world.push_back(new RoomData);
-			top_of_world = FIRST_ROOM;
+			top_of_world = kFirstRoom;
 			const size_t rooms_bytes = sizeof(RoomData) * rec_count;
 			log("   %d rooms, %zd bytes.", rec_count, rooms_bytes);
 		}
@@ -2859,7 +2859,7 @@ void add_vrooms_to_all_zones() {
 void renum_world(void) {
 	int room, door;
 
-	for (room = FIRST_ROOM; room <= top_of_world; room++) {
+	for (room = kFirstRoom; room <= top_of_world; room++) {
 		for (door = 0; door < EDirection::kMaxDirNum; door++) {
 			if (world[room]->dir_option[door]) {
 				if (world[room]->dir_option[door]->to_room() != kNowhere) {
@@ -3251,7 +3251,7 @@ int vnum_mobile(char *searchname, CharData *ch) {
 	for (nr = 0; nr <= top_of_mobt; nr++) {
 		if (isname(searchname, mob_proto[nr].get_pc_name())) {
 			sprintf(buf, "%3d. [%5d] %s\r\n", ++found, mob_index[nr].vnum, mob_proto[nr].get_npc_name().c_str());
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 		}
 	}
 	return (found);
@@ -3266,7 +3266,7 @@ int vnum_object(char *searchname, CharData *ch) {
 			sprintf(buf, "%3d. [%5d] %s\r\n",
 					found, obj_proto[nr]->get_vnum(),
 					obj_proto[nr]->get_short_description().c_str());
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 		}
 	}
 	return (found);
@@ -3390,7 +3390,7 @@ int vnum_room(char *searchname, CharData *ch) {
 	for (nr = 0; nr <= top_of_world; nr++) {
 		if (isname(searchname, world[nr]->name)) {
 			sprintf(buf, "%3d. [%5d] %s\r\n", ++found, world[nr]->room_vn, world[nr]->name);
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 		}
 	}
 	return (found);
@@ -3411,7 +3411,7 @@ int vnum_obj_trig(char *searchname, CharData *ch) {
 	for (const auto &t : trigger->second) {
 		TrgRnum rnum = real_trigger(t);
 		sprintf(buf, "%3d. [%5d] %s\r\n", ++found, trig_index[rnum]->vnum, trig_index[rnum]->proto->get_name().c_str());
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 	}
 
 	return found;
@@ -4254,7 +4254,7 @@ void ZoneReset::reset_zone_essential() {
 					// read a mobile
 					// 'M' <flag> <MobVnum> <max_in_world> <RoomVnum> <max_in_room|-1>
 
-					if (ZCMD.arg3 < FIRST_ROOM) {
+					if (ZCMD.arg3 < kFirstRoom) {
 						sprintf(buf, "&YВНИМАНИЕ&G Попытка загрузить моба в 0 комнату. (VNUM = %d, ZONE = %d)",
 								mob_index[ZCMD.arg1].vnum, zone_table[m_zone_rnum].vnum);
 						mudlog(buf, BRF, kLvlBuilder, SYSLOG, true);
@@ -4291,7 +4291,7 @@ void ZoneReset::reset_zone_essential() {
 					// Follow mobiles
 					// 'F' <flag> <RoomVnum> <leader_vnum> <MobVnum>
 					leader = nullptr;
-					if (ZCMD.arg1 >= FIRST_ROOM && ZCMD.arg1 <= top_of_world) {
+					if (ZCMD.arg1 >= kFirstRoom && ZCMD.arg1 <= top_of_world) {
 						for (const auto ch : world[ZCMD.arg1]->people) {
 							if (ch->is_npc() && GET_MOB_RNUM(ch) == ZCMD.arg2) {
 								leader = ch;
@@ -4331,7 +4331,7 @@ void ZoneReset::reset_zone_essential() {
 					// 'O' <flag> <ObjVnum> <max_in_world> <RoomVnum|-1> <load%|-1>
 					// Проверка  - сколько всего таких же обьектов надо на эту клетку
 
-					if (ZCMD.arg3 < FIRST_ROOM) {
+					if (ZCMD.arg3 < kFirstRoom) {
 						sprintf(buf, "&YВНИМАНИЕ&G Попытка загрузить объект в 0 комнату. (VNUM = %d, ZONE = %d)",
 								obj_proto[ZCMD.arg1]->get_vnum(), zone_table[m_zone_rnum].vnum);
 						mudlog(buf, BRF, kLvlBuilder, SYSLOG, true);
@@ -4481,7 +4481,7 @@ void ZoneReset::reset_zone_essential() {
 					// rem obj from room
 					// 'R' <flag> <RoomVnum> <ObjVnum>
 
-					if (ZCMD.arg1 < FIRST_ROOM) {
+					if (ZCMD.arg1 < kFirstRoom) {
 						sprintf(buf, "&YВНИМАНИЕ&G Попытка удалить объект из 0 комнаты. (VNUM = %d, ZONE = %d)",
 								obj_proto[ZCMD.arg2]->get_vnum(), zone_table[m_zone_rnum].vnum);
 						mudlog(buf, BRF, kLvlBuilder, SYSLOG, true);
@@ -4501,7 +4501,7 @@ void ZoneReset::reset_zone_essential() {
 					// set state of door
 					// 'D' <flag> <RoomVnum> <door_pos> <door_state>
 
-					if (ZCMD.arg1 < FIRST_ROOM) {
+					if (ZCMD.arg1 < kFirstRoom) {
 						sprintf(buf, "&YВНИМАНИЕ&G Попытка установить двери в 0 комнате. (ZONE = %d)",
 								zone_table[m_zone_rnum].vnum);
 						mudlog(buf, BRF, kLvlBuilder, SYSLOG, true);
@@ -4584,7 +4584,7 @@ void ZoneReset::reset_zone_essential() {
 							curr_state = 1;
 						}
 					} else if (ZCMD.arg1 == WLD_TRIGGER) {
-						if (ZCMD.arg2 < FIRST_ROOM || ZCMD.arg2 > top_of_world) {
+						if (ZCMD.arg2 < kFirstRoom || ZCMD.arg2 > top_of_world) {
 							ZONE_ERROR("Invalid room number in variable assignment");
 						} else {
 							if (!SCRIPT(world[ZCMD.arg2])->has_triggers()) {
@@ -4673,7 +4673,7 @@ int get_zone_rooms(int zone_nr, int *first, int *last) {
 	*first = 0;
 	*last = 0;
 	auto numzone = zone_table[zone_nr].vnum * 100;
-	for (int nr = FIRST_ROOM; nr <= top_of_world; nr++) {
+	for (int nr = kFirstRoom; nr <= top_of_world; nr++) {
 		if (world[nr]->room_vn >= numzone && *first == 0) {
 			*first = world[nr]->room_vn;
 		}
@@ -4753,7 +4753,7 @@ bool is_empty(ZoneRnum zone_nr) {
 	}
 
 // теперь проверю всех товарищей в void комнате STRANGE_ROOM
-	for (const auto c : world[STRANGE_ROOM]->people) {
+	for (const auto c : world[kStrangeRoom]->people) {
 		const int was = c->get_was_in_room();
 
 		if (was == kNowhere
@@ -5034,25 +5034,25 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	const char *remort_msg2 = "$n вспыхнул$g ослепительным пламенем и пропал$g!\r\n";
 
 	if (ch->is_npc() || IS_IMMORTAL(ch)) {
-		send_to_char("Вам это, похоже, совсем ни к чему.\r\n", ch);
+		SendMsgToChar("Вам это, похоже, совсем ни к чему.\r\n", ch);
 		return;
 	}
-	if (GET_EXP(ch) < level_exp(ch, kLvlImmortal) - 1) {
-		send_to_char("ЧАВО???\r\n", ch);
+	if (GET_EXP(ch) < GetExpUntilNextLvl(ch, kLvlImmortal) - 1) {
+		SendMsgToChar("ЧАВО???\r\n", ch);
 		return;
 	}
 	if (Remort::need_torc(ch) && !PRF_FLAGGED(ch, EPrf::kCanRemort)) {
-		send_to_char(ch,
+		SendMsgToChar(ch,
 					 "Вы должны подтвердить свои заслуги, пожертвовав Богам достаточное количество гривен.\r\n"
 					 "%s\r\n", Remort::WHERE_TO_REMORT_STR.c_str());
 		return;
 	}
 	if (NORENTABLE(ch)) {
-		send_to_char("Вы не можете перевоплотиться в связи с боевыми действиями.\r\n", ch);
+		SendMsgToChar("Вы не можете перевоплотиться в связи с боевыми действиями.\r\n", ch);
 		return;
 	}
 	if (!subcmd) {
-		send_to_char(remort_msg, ch);
+		SendMsgToChar(remort_msg, ch);
 		return;
 	}
 
@@ -5062,7 +5062,7 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		sprintf(buf + strlen(buf),
 				"%s",
 				string(Birthplaces::ShowMenu(PlayerRace::GetRaceBirthPlaces(GET_KIN(ch), GET_RACE(ch)))).c_str());
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 		return;
 	} else {
 		// Сначала проверим по словам - может нам текстом сказали?
@@ -5071,7 +5071,7 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			//Нет, значит или ерунда в аргументе, или цифирь, смотрим
 			place_of_destination = PlayerRace::CheckBirthPlace(GET_KIN(ch), GET_RACE(ch), arg);
 			if (!Birthplaces::CheckId(place_of_destination)) {
-				send_to_char("Багдад далече, выберите себе местечко среди родных осин.\r\n", ch);
+				SendMsgToChar("Багдад далече, выберите себе местечко среди родных осин.\r\n", ch);
 				return;
 			}
 		}

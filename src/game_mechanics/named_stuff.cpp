@@ -162,12 +162,12 @@ bool parse_nedit_menu(CharData *ch, char *arg) {
 		return false;
 	}
 	if ((*buf1 < '1' || *buf1 > '8') && (LOWER(*buf1) != 'в' && LOWER(*buf1) != 'х' && LOWER(*buf1) != 'у')) {
-		send_to_char(ch, "Неверный параметр %c!\r\n", *buf1);
+		SendMsgToChar(ch, "Неверный параметр %c!\r\n", *buf1);
 		return false;
 	}
 	if (!*buf2 && LOWER(*buf1) != 'в' && LOWER(*buf1) != 'х' && LOWER(*buf1) != 'у') {
 		if (*buf1 < '5' || *buf1 > '8') {
-			send_to_char("Не указан второй параметр!\r\n", ch);
+			SendMsgToChar("Не указан второй параметр!\r\n", ch);
 		} else {
 			switch (*buf1) {
 				case '5': snprintf(i, 256, "&S%s&s\r\n", ch->desc->named_obj->wear_msg_v.c_str());
@@ -181,7 +181,7 @@ bool parse_nedit_menu(CharData *ch, char *arg) {
 				default: snprintf(i, 256, "&RОшибка.&n\r\n");
 					break;
 			}
-			send_to_char(i, ch);
+			SendMsgToChar(i, ch);
 		}
 		return false;
 	}
@@ -190,7 +190,7 @@ bool parse_nedit_menu(CharData *ch, char *arg) {
 		case '1':
 			if (a_isdigit(*buf2) && sscanf(buf2, "%d", &num)) {
 				if (real_object(num) < 0) {
-					send_to_char(ch, "Такого объекта не существует.\r\n");
+					SendMsgToChar(ch, "Такого объекта не существует.\r\n");
 					return false;
 				}
 				ch->desc->cur_vnum = num;
@@ -199,7 +199,7 @@ bool parse_nedit_menu(CharData *ch, char *arg) {
 
 		case '2': num = GetUniqueByName(buf2);
 			if (0 >= num) {
-				send_to_char(ch, "Такого персонажа не существует.\r\n");
+				SendMsgToChar(ch, "Такого персонажа не существует.\r\n");
 				return false;
 			}
 			ch->desc->named_obj->uid = num;
@@ -263,7 +263,7 @@ bool parse_nedit_menu(CharData *ch, char *arg) {
 				return false;
 			stuff_list.erase(ch->desc->old_vnum);
 			STATE(ch->desc) = CON_PLAYING;
-			send_to_char(OK, ch);
+			SendMsgToChar(OK, ch);
 			save();
 			return true;
 
@@ -279,12 +279,12 @@ bool parse_nedit_menu(CharData *ch, char *arg) {
 				stuff_list.erase(ch->desc->old_vnum);
 			stuff_list[ch->desc->cur_vnum] = tmp_node;
 			STATE(ch->desc) = CON_PLAYING;
-			send_to_char(OK, ch);
+			SendMsgToChar(OK, ch);
 			save();
 			return true;
 
 		case 'х': STATE(ch->desc) = CON_PLAYING;
-			send_to_char(OK, ch);
+			SendMsgToChar(OK, ch);
 			return true;
 
 		default: break;
@@ -317,7 +317,7 @@ void nedit_menu(CharData *ch) {
 	}
 	out << CCIGRN(ch, C_SPR) << "В" << CCNRM(ch, C_SPR) << ") Выйти и сохранить\r\n";
 	out << CCIGRN(ch, C_SPR) << "Х" << CCNRM(ch, C_SPR) << ") Выйти без сохранения\r\n";
-	send_to_char(out.str().c_str(), ch);
+	SendMsgToChar(out.str().c_str(), ch);
 }
 
 void do_named(CharData *ch, char *argument, int cmd, int subcmd) {
@@ -403,12 +403,12 @@ void do_named(CharData *ch, char *argument, int cmd, int subcmd) {
 				sprintf(buf, "Нет таких именных вещей.\r\nСинтаксис %s [vnum [vnum] | имя | email]\r\n", CMD_NAME);
 				out += buf;
 			}
-			send_to_char(out.c_str(), ch);
+			SendMsgToChar(out.c_str(), ch);
 			break;
 		case SCMD_NAMED_EDIT: int found = 0;
 			if ((first > 0 && first < 0x7fffffff) || uid != -1 || *buf) {
 				if (first > 0 && first < 0x7fffffff && real_object(first) < 0) {
-					send_to_char(ch, "Такого объекта не существует.\r\n");
+					SendMsgToChar(ch, "Такого объекта не существует.\r\n");
 					return;
 				}
 
@@ -461,7 +461,7 @@ void do_named(CharData *ch, char *argument, int cmd, int subcmd) {
 				}
 				if (have_missed_items) {
 					out += "\r\n\r\n";
-					send_to_char(out.c_str(), ch);
+					SendMsgToChar(out.c_str(), ch);
 				}
 				if (found) {
 					ch->desc->named_obj = tmp_node;
@@ -472,8 +472,8 @@ void do_named(CharData *ch, char *argument, int cmd, int subcmd) {
 				} else
 					tmp_node.reset();
 			}
-			send_to_char(ch, "Нет таких именных вещей.\r\nСинтаксис %s [vnum | имя | email]\r\n", CMD_NAME);
-			//send_to_char("Укажите VNUM для редактирования.\r\n", ch);
+			SendMsgToChar(ch, "Нет таких именных вещей.\r\nСинтаксис %s [vnum | имя | email]\r\n", CMD_NAME);
+			//SendMsgToChar("Укажите VNUM для редактирования.\r\n", ch);
 			break;
 	}
 }
@@ -493,7 +493,7 @@ void receive_items(CharData *ch, CharData *mailman) {
 	for (StuffListType::const_iterator it = stuff_list.begin(), iend = stuff_list.end(); it != iend; ++it) {
 		if ((it->second->uid == GET_UNIQUE(ch)) || (!strcmp(GET_EMAIL(ch), it->second->mail.c_str()))) {
 			if ((r_num = real_object(it->first)) < 0) {
-				send_to_char("Странно, но такого объекта не существует.\r\n", ch);
+				SendMsgToChar("Странно, но такого объекта не существует.\r\n", ch);
 				snprintf(buf1, kMaxStringLength, "объект не существует!!!");
 				continue;
 			}

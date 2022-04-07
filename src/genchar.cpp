@@ -131,10 +131,10 @@ void genchar_disp_menu(CharData *ch) {
 			ch->get_inborn_wis(), MIN_WIS(ch), MAX_WIS(ch),
 			ch->get_inborn_con(), MIN_CON(ch), MAX_CON(ch),
 			ch->get_inborn_cha(), MIN_CHA(ch), MAX_CHA(ch), kBaseStatsSum - CalcBasseStatsSum(ch));
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 	if (kBaseStatsSum == CalcBasseStatsSum(ch))
-		send_to_char("  В) Закончить генерацию\r\n", ch);
-	send_to_char(" Ваш выбор: ", ch);
+		SendMsgToChar("  В) Закончить генерацию\r\n", ch);
+	SendMsgToChar(" Ваш выбор: ", ch);
 }
 
 int genchar_parse(CharData *ch, char *arg) {
@@ -177,7 +177,7 @@ int genchar_parse(CharData *ch, char *arg) {
 		case 'н': ch->set_cha(std::min(ch->get_inborn_cha() + 1, MAX_CHA(ch)));
 			break;
 		case 'П':
-		case 'п': send_to_char(genchar_help, ch);
+		case 'п': SendMsgToChar(genchar_help, ch);
 			break;
 		case 'В':
 		case 'в':

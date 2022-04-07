@@ -21,34 +21,34 @@ void do_memorize(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	if (IS_IMMORTAL(ch)) {
-		send_to_char("Господи, хоть ты не подкалывай!\r\n", ch);
+		SendMsgToChar("Господи, хоть ты не подкалывай!\r\n", ch);
 		return;
 	}
 	s = strtok(argument, "'*!");
 	if (s == nullptr) {
-		send_to_char("Какое заклинание вы хотите заучить?\r\n", ch);
+		SendMsgToChar("Какое заклинание вы хотите заучить?\r\n", ch);
 		return;
 	}
 	s = strtok(nullptr, "'*!");
 	if (s == nullptr) {
-		send_to_char("Название заклинания должно быть заключено в символы : ' или * или !\r\n", ch);
+		SendMsgToChar("Название заклинания должно быть заключено в символы : ' или * или !\r\n", ch);
 		return;
 	}
 	spellnum = FixNameAndFindSpellNum(s);
 
 	if (spellnum < 1 || spellnum > kSpellCount) {
-		send_to_char("И откуда вы набрались таких выражений?\r\n", ch);
+		SendMsgToChar("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
 	}
 	// Caster is lower than spell level
 	if (GetRealLevel(ch) < MIN_CAST_LEV(spell_info[spellnum], ch)
 		|| GET_REAL_REMORT(ch) < MIN_CAST_REM(spell_info[spellnum], ch)
 		|| CalcCircleSlotsAmount(ch, spell_info[spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0) {
-		send_to_char("Рано еще вам бросаться такими словами!\r\n", ch);
+		SendMsgToChar("Рано еще вам бросаться такими словами!\r\n", ch);
 		return;
 	};
 	if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), kSpellKnow | kSpellTemp)) {
-		send_to_char("Было бы неплохо изучить, для начала, это заклинание...\r\n", ch);
+		SendMsgToChar("Было бы неплохо изучить, для начала, это заклинание...\r\n", ch);
 		return;
 	}
 	MemQ_remember(ch, spellnum);
@@ -172,5 +172,5 @@ void show_wizdom(CharData *ch, int bitset) {
 		sprintf(buf2 + gcount, "\r\n");
 	}
 	//page_string(ch->desc, buf2, 1);
-	send_to_char(buf2, ch);
+	SendMsgToChar(buf2, ch);
 }

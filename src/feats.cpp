@@ -994,7 +994,7 @@ void CheckBerserk(CharData *ch) {
 	if (IsAffectedBySpell(ch, kSpellBerserk) &&
 		(GET_HIT(ch) > GET_REAL_MAX_HIT(ch) / 2)) {
 		affect_from_char(ch, kSpellBerserk);
-		send_to_char("Предсмертное исступление оставило вас.\r\n", ch);
+		SendMsgToChar("Предсмертное исступление оставило вас.\r\n", ch);
 	}
 
 	if (IsAbleToUseFeat(ch, EFeat::kBerserker) && ch->get_fighting() &&
@@ -1032,7 +1032,7 @@ void do_lightwalk(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 	struct TimedFeat timed;
 
 	if (ch->is_npc() || !IsAbleToUseFeat(ch, EFeat::kLightWalk)) {
-		send_to_char("Вы не можете этого.\r\n", ch);
+		SendMsgToChar("Вы не можете этого.\r\n", ch);
 		return;
 	}
 
@@ -1042,11 +1042,11 @@ void do_lightwalk(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 	}
 
 	if (IsAffectedBySpell(ch, kSpellLightWalk)) {
-		send_to_char("Вы уже двигаетесь легким шагом.\r\n", ch);
+		SendMsgToChar("Вы уже двигаетесь легким шагом.\r\n", ch);
 		return;
 	}
 	if (IsTimed(ch, EFeat::kLightWalk)) {
-		send_to_char("Вы слишком утомлены для этого.\r\n", ch);
+		SendMsgToChar("Вы слишком утомлены для этого.\r\n", ch);
 		return;
 	}
 
@@ -1056,7 +1056,7 @@ void do_lightwalk(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 	timed.time = 24;
 	ImposeTimedFeat(ch, &timed);
 
-	send_to_char("Хорошо, вы попытаетесь идти, не оставляя лишних следов.\r\n", ch);
+	SendMsgToChar("Хорошо, вы попытаетесь идти, не оставляя лишних следов.\r\n", ch);
 	Affect<EApply> af;
 	af.type = kSpellLightWalk;
 	af.duration = CalcDuration(ch, 2, GetRealLevel(ch), 5, 2, 8);
@@ -1065,10 +1065,10 @@ void do_lightwalk(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 	af.battleflag = 0;
 	if (number(1, 1000) > number(1, GET_REAL_DEX(ch) * 50)) {
 		af.bitvector = 0;
-		send_to_char("Вам не хватает ловкости...\r\n", ch);
+		SendMsgToChar("Вам не хватает ловкости...\r\n", ch);
 	} else {
 		af.bitvector = to_underlying(EAffect::kLightWalk);
-		send_to_char("Ваши шаги стали легче перышка.\r\n", ch);
+		SendMsgToChar("Ваши шаги стали легче перышка.\r\n", ch);
 	}
 	affect_to_char(ch, af);
 }
@@ -1081,17 +1081,17 @@ void do_fit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	//отключено пока для не-иммов
 	if (GetRealLevel(ch) < kLvlImmortal) {
-		send_to_char("Вы не можете этого.", ch);
+		SendMsgToChar("Вы не можете этого.", ch);
 		return;
 	};
 
 	//Может ли игрок использовать эту способность?
 	if ((subcmd == SCMD_DO_ADAPT) && !IsAbleToUseFeat(ch, EFeat::kToFitItem)) {
-		send_to_char("Вы не умеете этого.", ch);
+		SendMsgToChar("Вы не умеете этого.", ch);
 		return;
 	};
 	if ((subcmd == SCMD_MAKE_OVER) && !IsAbleToUseFeat(ch, EFeat::kToFitClotches)) {
-		send_to_char("Вы не умеете этого.", ch);
+		SendMsgToChar("Вы не умеете этого.", ch);
 		return;
 	};
 
@@ -1099,32 +1099,32 @@ void do_fit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	argument = one_argument(argument, arg1);
 
 	if (!*arg1) {
-		send_to_char("Что вы хотите переделать?\r\n", ch);
+		SendMsgToChar("Что вы хотите переделать?\r\n", ch);
 		return;
 	};
 
 	if (!(obj = get_obj_in_list_vis(ch, arg1, ch->carrying))) {
 		sprintf(buf, "У вас нет \'%s\'.\r\n", arg1);
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 		return;
 	};
 
 	//На кого переделываем?
 	argument = one_argument(argument, arg2);
 	if (!(vict = get_char_vis(ch, arg2, EFind::kCharInRoom))) {
-		send_to_char("Под кого вы хотите переделать эту вещь?\r\n Нет такого создания в округе!\r\n", ch);
+		SendMsgToChar("Под кого вы хотите переделать эту вещь?\r\n Нет такого создания в округе!\r\n", ch);
 		return;
 	};
 
 	//Предмет уже имеет владельца
 	if (GET_OBJ_OWNER(obj) != 0) {
-		send_to_char("У этой вещи уже есть владелец.\r\n", ch);
+		SendMsgToChar("У этой вещи уже есть владелец.\r\n", ch);
 		return;
 
 	};
 
 	if ((GET_OBJ_WEAR(obj) <= 1) || obj->has_flag(EObjFlag::KSetItem)) {
-		send_to_char("Этот предмет невозможно переделать.\r\n", ch);
+		SendMsgToChar("Этот предмет невозможно переделать.\r\n", ch);
 		return;
 	}
 
@@ -1142,7 +1142,7 @@ void do_fit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 				&& GET_OBJ_MATER(obj) != EObjMaterial::kGlass) {
 				sprintf(buf, "К сожалению %s сделан%s из неподходящего материала.\r\n",
 						GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_SUF_6(obj));
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 				return;
 			}
 			break;
@@ -1153,12 +1153,12 @@ void do_fit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 				&& GET_OBJ_MATER(obj) != EObjMaterial::kOrganic) {
 				sprintf(buf, "К сожалению %s сделан%s из неподходящего материала.\r\n",
 						GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_SUF_6(obj));
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 				return;
 			}
 			break;
 		default:
-			send_to_char("Это какая-то ошибка...\r\n", ch);
+			SendMsgToChar("Это какая-то ошибка...\r\n", ch);
 			return;
 			break;
 	};
@@ -1168,7 +1168,7 @@ void do_fit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	sprintf(buf + strlen(buf), "В конце-концов подогнали %s точно по мерке %s.\r\n",
 			GET_OBJ_PNAME(obj, 3).c_str(), GET_PAD(vict, 1));
 
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 
 }
 
@@ -1183,12 +1183,12 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	struct TimedFeat timed;
 
 	if (!IS_IMPL(ch) && (ch->is_npc() || !IsAbleToUseFeat(ch, EFeat::kSpellCapabler))) {
-		send_to_char("Вы не столь могущественны.\r\n", ch);
+		SendMsgToChar("Вы не столь могущественны.\r\n", ch);
 		return;
 	}
 
 	if (IsTimed(ch, EFeat::kSpellCapabler) && !IS_IMPL(ch)) {
-		send_to_char("Невозможно использовать это так часто.\r\n", ch);
+		SendMsgToChar("Невозможно использовать это так часто.\r\n", ch);
 		return;
 	}
 
@@ -1199,24 +1199,24 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 
 	if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
-		send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
+		SendMsgToChar("Вы не смогли вымолвить и слова.\r\n", ch);
 		return;
 	}
 
 	s = strtok(argument, "'*!");
 	if (s == nullptr) {
-		send_to_char("ЧТО вы хотите колдовать?\r\n", ch);
+		SendMsgToChar("ЧТО вы хотите колдовать?\r\n", ch);
 		return;
 	}
 	s = strtok(nullptr, "'*!");
 	if (s == nullptr) {
-		send_to_char("Название заклинания должно быть заключено в символы : ' или * или !\r\n", ch);
+		SendMsgToChar("Название заклинания должно быть заключено в символы : ' или * или !\r\n", ch);
 		return;
 	}
 
 	spellnum = FixNameAndFindSpellNum(s);
 	if (spellnum < 1 || spellnum > kSpellCount) {
-		send_to_char("И откуда вы набрались таких выражений?\r\n", ch);
+		SendMsgToChar("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
 	}
 
@@ -1226,16 +1226,16 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		if (GetRealLevel(ch) < MIN_CAST_LEV(SpINFO, ch)
 			|| GET_REAL_REMORT(ch) < MIN_CAST_REM(SpINFO, ch)
 			|| CalcCircleSlotsAmount(ch, SpINFO.slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0) {
-			send_to_char("Рано еще вам бросаться такими словами!\r\n", ch);
+			SendMsgToChar("Рано еще вам бросаться такими словами!\r\n", ch);
 			return;
 		} else {
-			send_to_char("Было бы неплохо изучить, для начала, это заклинание...\r\n", ch);
+			SendMsgToChar("Было бы неплохо изучить, для начала, это заклинание...\r\n", ch);
 			return;
 		}
 	}
 
 	if (!GET_SPELL_MEM(ch, spellnum) && !IS_IMMORTAL(ch)) {
-		send_to_char("Вы совершенно не помните, как произносится это заклинание...\r\n", ch);
+		SendMsgToChar("Вы совершенно не помните, как произносится это заклинание...\r\n", ch);
 		return;
 	}
 
@@ -1252,12 +1252,12 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 	}
 	if (!GET_SPELL_MEM(ch, spellnum) && !IS_IMMORTAL(ch)) {
-		send_to_char("Вы совершенно не помните, как произносится это заклинание...\r\n", ch);
+		SendMsgToChar("Вы совершенно не помните, как произносится это заклинание...\r\n", ch);
 		return;
 	}
 
 	if (!follower) {
-		send_to_char("Хорошо бы найти подходящую цель для этого.\r\n", ch);
+		SendMsgToChar("Хорошо бы найти подходящую цель для этого.\r\n", ch);
 		return;
 	}
 
@@ -1271,7 +1271,7 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (!IS_SET(SpINFO.routines, kMagDamage) || !SpINFO.violent ||
 		IS_SET(SpINFO.routines, kMagMasses) || IS_SET(SpINFO.routines, kMagGroups) ||
 		IS_SET(SpINFO.routines, kMagAreas)) {
-		send_to_char("Вы конечно мастер, но не такой магии.\r\n", ch);
+		SendMsgToChar("Вы конечно мастер, но не такой магии.\r\n", ch);
 		return;
 	}
 	affect_from_char(ch, EFeat::kSpellCapabler);
@@ -1419,17 +1419,17 @@ void ActivateFeat(CharData *ch, EFeat feat_id) {
 			break;
 		case EFeat::kScirmisher:
 			if (!AFF_FLAGGED(ch, EAffect::kGroup)) {
-				send_to_char(ch,
+				SendMsgToChar(ch,
 							 "Голос десятника Никифора вдруг рявкнул: \"%s, тюрюхайло! 'В шеренгу по одному' иначе сполняется!\"\r\n",
 							 ch->get_name().c_str());
 				return;
 			}
 			if (PRF_FLAGGED(ch, EPrf::kSkirmisher)) {
-				send_to_char("Вы уже стоите в передовом строю.\r\n", ch);
+				SendMsgToChar("Вы уже стоите в передовом строю.\r\n", ch);
 				return;
 			}
 			PRF_FLAGS(ch).set(EPrf::kSkirmisher);
-			send_to_char("Вы протиснулись вперед и встали в строй.\r\n", ch);
+			SendMsgToChar("Вы протиснулись вперед и встали в строй.\r\n", ch);
 			act("$n0 протиснул$u вперед и встал$g в строй.", false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 			break;
 		case EFeat::kDoubleThrower: PRF_FLAGS(ch).unset(EPrf::kTripleThrow);
@@ -1440,7 +1440,7 @@ void ActivateFeat(CharData *ch, EFeat feat_id) {
 			break;
 		default: break;
 	}
-	send_to_char(ch,
+	SendMsgToChar(ch,
 				 "%sВы решили использовать способность '%s'.%s\r\n",
 				 CCIGRN(ch, C_SPR),
 				 feat_info[feat_id].name,
@@ -1459,7 +1459,7 @@ void DeactivateFeature(CharData *ch, EFeat feat_id) {
 			break;
 		case EFeat::kScirmisher: PRF_FLAGS(ch).unset(EPrf::kSkirmisher);
 			if (AFF_FLAGGED(ch, EAffect::kGroup)) {
-				send_to_char("Вы решили, что в обозе вам будет спокойней.\r\n", ch);
+				SendMsgToChar("Вы решили, что в обозе вам будет спокойней.\r\n", ch);
 				act("$n0 тактически отступил$g в тыл отряда.",
 					false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 			}
@@ -1470,17 +1470,17 @@ void DeactivateFeature(CharData *ch, EFeat feat_id) {
 			break;
 		default: break;
 	}
-	send_to_char(ch, "%sВы прекратили использовать способность '%s'.%s\r\n",
+	SendMsgToChar(ch, "%sВы прекратили использовать способность '%s'.%s\r\n",
 				 CCIGRN(ch, C_SPR), feat_info[feat_id].name, CCNRM(ch, C_OFF));
 }
 
 bool CheckAccessActivatedFeat(CharData *ch, EFeat feat_id) {
 	if (!IsAbleToUseFeat(ch, feat_id)) {
-		send_to_char("Вы не в состоянии использовать эту способность.\r\n", ch);
+		SendMsgToChar("Вы не в состоянии использовать эту способность.\r\n", ch);
 		return false;
 	}
 	if (feat_info[feat_id].type != EFeatType::kActivated) {
-		send_to_char("Эту способность невозможно применить таким образом.\r\n", ch);
+		SendMsgToChar("Эту способность невозможно применить таким образом.\r\n", ch);
 		return false;
 	}
 

@@ -138,7 +138,7 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 			case SCMD_OLC_TRIGEDIT:
 			case SCMD_OLC_OEDIT:
 			case SCMD_OLC_MEDIT: sprintf(buf, "Укажите %s VNUM для редактирования.\r\n", olc_scmd_info[subcmd].text);
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 				return;
 		}
 	} else if (!a_isdigit(*buf1)) {
@@ -150,7 +150,7 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 					save = 1;
 					number = (GET_OLC_ZONE(ch) * 100);
 				} else {
-					send_to_char("И какую зону писать?\r\n", ch);
+					SendMsgToChar("И какую зону писать?\r\n", ch);
 					return;
 				}
 			} else {
@@ -158,17 +158,17 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 				number = atoi(buf2) * 100;
 			}
 		} else if (subcmd == SCMD_OLC_ZEDIT && (GetRealLevel(ch) >= kLvlBuilder || PRF_FLAGGED(ch, EPrf::kCoderinfo))) {
-			send_to_char("Создание новых зон отключено.\r\n", ch);
+			SendMsgToChar("Создание новых зон отключено.\r\n", ch);
 			return;
 			/*
 			          if ((strn_cmp("new", buf1, 3) == 0) && *buf2)
 			 	         zedit_new_zone(ch, atoi(buf2));
 			          else
-			 	         send_to_char("Укажите номер новой зоны.\r\n", ch);
+			 	         SendMsgToChar("Укажите номер новой зоны.\r\n", ch);
 			          return;
 			*/
 		} else {
-			send_to_char("Уточните, что вы хотите делать!\r\n", ch);
+			SendMsgToChar("Уточните, что вы хотите делать!\r\n", ch);
 			return;
 		}
 	}
@@ -183,7 +183,7 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 			if (d->olc && OLC_NUM(d) == number) {
 				sprintf(buf, "%s в настоящий момент редактируется %s.\r\n",
 						olc_scmd_info[subcmd].text, GET_PAD(d->character, 4));
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 				return;
 			}
 		}
@@ -192,7 +192,7 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 
 	// лок/анлок редактирования зон только 34м и по привилегии
 	if ((lock || unlock) && !IS_IMPL(ch) && !privilege::CheckFlag(d->character.get(), privilege::kFullzedit)) {
-		send_to_char("Вы не можете использовать эту команду.\r\n", ch);
+		SendMsgToChar("Вы не можете использовать эту команду.\r\n", ch);
 		return;
 	}
 
@@ -201,14 +201,14 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 
 	// * Find the zone.
 	if ((OLC_ZNUM(d) = get_zone_rnum_by_room_vnum(number)) == -1) {
-		send_to_char("Звыняйтэ, такойи зоны нэмае.\r\n", ch);
+		SendMsgToChar("Звыняйтэ, такойи зоны нэмае.\r\n", ch);
 		delete d->olc;
 		return;
 	}
 
 	if (lock) {
 		zone_table[OLC_ZNUM(d)].locked = true;
-		send_to_char("Защищаю зону от записи.\r\n", ch);
+		SendMsgToChar("Защищаю зону от записи.\r\n", ch);
 		sprintf(buf, "(GC) %s has locked zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].vnum);
 		olc_log("%s locks zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].vnum);
 		mudlog(buf, LGH, kLvlImplementator, SYSLOG, true);
@@ -219,7 +219,7 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 
 	if (unlock) {
 		zone_table[OLC_ZNUM(d)].locked = false;
-		send_to_char("Снимаю защиту от записи.\r\n", ch);
+		SendMsgToChar("Снимаю защиту от записи.\r\n", ch);
 		sprintf(buf, "(GC) %s has unlocked zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].vnum);
 		olc_log("%s unlocks zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].vnum);
 		mudlog(buf, LGH, kLvlImplementator, SYSLOG, true);
@@ -229,7 +229,7 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 	}
 	// Check if zone is protected from editing
 	if ((zone_table[OLC_ZNUM(d)].locked) && (GetRealLevel(ch) != 34)) {
-		send_to_char("Зона защищена от записи. С вопросами к старшим богам.\r\n", ch);
+		SendMsgToChar("Зона защищена от записи. С вопросами к старшим богам.\r\n", ch);
 		delete d->olc;
 		return;
 	}
@@ -238,7 +238,7 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 	if (GetRealLevel(ch) < kLvlImplementator) {
 		if (!privilege::IsAbleToDoPrivilege(ch, std::string(cmd_info[cmd].command), cmd, 0, false)) {
 			if (!GET_OLC_ZONE(ch) || (zone_table[OLC_ZNUM(d)].vnum != GET_OLC_ZONE(ch))) {
-				send_to_char("Вам запрещен доступ к сией зоне.\r\n", ch);
+				SendMsgToChar("Вам запрещен доступ к сией зоне.\r\n", ch);
 				delete d->olc;
 				return;
 			}
@@ -258,11 +258,11 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 				break;
 		}
 		if (!type) {
-			send_to_char("Родной(ая,ое), объясни по людски - что записать.\r\n", ch);
+			SendMsgToChar("Родной(ая,ое), объясни по людски - что записать.\r\n", ch);
 			return;
 		}
 		sprintf(buf, "Saving all %ss in zone %d.\r\n", type, zone_table[OLC_ZNUM(d)].vnum);
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 		sprintf(buf, "OLC: %s saves %s info for zone %d.", GET_NAME(ch), type, zone_table[OLC_ZNUM(d)].vnum);
 		olc_log("%s save %s in Z%d", GET_NAME(ch), type, zone_table[OLC_ZNUM(d)].vnum);
 		mudlog(buf, LGH, MAX(kLvlBuilder, GET_INVIS_LEV(ch)), SYSLOG, true);
@@ -300,7 +300,7 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 			break;
 		case SCMD_OLC_ZEDIT:
 			if ((real_num = real_room(number)) == kNowhere) {
-				send_to_char("Желательно создать комнату прежде, чем начинаете ее редактировать.\r\n", ch);
+				SendMsgToChar("Желательно создать комнату прежде, чем начинаете ее редактировать.\r\n", ch);
 				delete d->olc;
 				return;
 			}
@@ -336,14 +336,14 @@ void olc_saveinfo(CharData *ch) {
 	struct olc_save_info *entry;
 
 	if (olc_save_list) {
-		send_to_char("The following OLC components need saving:-\r\n", ch);
+		SendMsgToChar("The following OLC components need saving:-\r\n", ch);
 	} else {
-		send_to_char("The database is up to date.\r\n", ch);
+		SendMsgToChar("The database is up to date.\r\n", ch);
 	}
 
 	for (entry = olc_save_list; entry; entry = entry->next) {
 		sprintf(buf, " - %s for zone %d.\r\n", save_info_msg[(int) entry->type], entry->zone);
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 	}
 }
 
@@ -406,7 +406,7 @@ void disp_planes_values(DescriptorData *d, const char *names[], short num_column
 		} else
 			c++;
 		sprintf(buf, "&g%c%d&n) %-30.30s %s", c, plane, names[counter], !(++column % num_column) ? "\r\n" : "");
-		send_to_char(buf, d->character.get());
+		SendMsgToChar(buf, d->character.get());
 	}
 }
 
@@ -509,14 +509,14 @@ void xedit_disp_ing(DescriptorData *d, int *ping) {
 	char str[128];
 	int i = 0;
 
-	send_to_char("Ингредиенты:\r\n", d->character.get());
+	SendMsgToChar("Ингредиенты:\r\n", d->character.get());
 	for (; im_ing_dump(ping, str + 5); ping += 2) {
 		sprintf(str, "% 4d", i++);
 		str[4] = ' ';
-		send_to_char(str, d->character.get());
-		send_to_char("\r\n", d->character.get());
+		SendMsgToChar(str, d->character.get());
+		SendMsgToChar("\r\n", d->character.get());
 	}
-	send_to_char("у <номер> - [у]далить ингредиент\r\n"
+	SendMsgToChar("у <номер> - [у]далить ингредиент\r\n"
 				 "у *       - [у]далить все ингредиенты\r\n"
 				 "д <ингр>  - [д]обавить ингредиенты\r\n" "в         - [в]ыход\r\n" "Команда> ", d->character.get());
 }

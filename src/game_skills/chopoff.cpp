@@ -11,12 +11,12 @@
 // ************************* CHOPOFF PROCEDURES
 void go_chopoff(CharData *ch, CharData *vict) {
 	if (IsUnableToAct(ch)) {
-		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
 
 	if (PRF_FLAGS(ch).get(EPrf::kIronWind)) {
-		send_to_char("Вы не можете применять этот прием в таком состоянии!\r\n", ch);
+		SendMsgToChar("Вы не можете применять этот прием в таком состоянии!\r\n", ch);
 		return;
 	}
 
@@ -25,7 +25,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 
 	if ((GET_POS(vict) < EPosition::kFight)) {
 		if (number(1, 100) < ch->get_skill(ESkill::kUndercut)) {
-			send_to_char("Вы приготовились провести подсечку, но вовремя остановились.\r\n", ch);
+			SendMsgToChar("Вы приготовились провести подсечку, но вовремя остановились.\r\n", ch);
 			ch->setSkillCooldown(ESkill::kUndercut, kPulseViolence / 6);
 			return;
 		}
@@ -41,7 +41,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 		prob /= 3;
 	}
 	if (GET_GOD_FLAG(ch, EGf::kGodsLike)
-		|| GET_MOB_HOLD(vict)
+		|| AFF_FLAGGED(vict, EAffect::kHold)
 		|| GET_GOD_FLAG(vict, EGf::kGodscurse)) {
 		prob = percent;
 	}
@@ -73,7 +73,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 			affect_join(ch, af, false, false, false, false);
 			af.location = EApply::kMagicResist;
 			affect_join(ch, af, false, false, false, false);
-			send_to_char(ch,
+			SendMsgToChar(ch,
 						 "%sВы покатились по земле, пытаясь избежать атак %s.%s\r\n",
 						 CCIGRN(ch, C_NRM),
 						 GET_PAD(vict, 1),
@@ -82,7 +82,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 			act("$n покатил$u по земле, пытаясь избежать атак $N1.", true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 		}
 	} else {
-		send_to_char(ch,
+		SendMsgToChar(ch,
 					 "%sВы провели подсечку, ловко усадив %s на землю.%s\r\n",
 					 CCIBLU(ch, C_NRM),
 					 GET_PAD(vict, 3),
@@ -116,27 +116,27 @@ void go_chopoff(CharData *ch, CharData *vict) {
 
 void do_chopoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->get_skill(ESkill::kUndercut) < 1) {
-		send_to_char("Вы не знаете как.\r\n", ch);
+		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
 	if (ch->haveCooldown(ESkill::kUndercut)) {
-		send_to_char("Вам нужно набраться сил.\r\n", ch);
+		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
 
 	if (ch->ahorse()) {
-		send_to_char("Верхом это сделать затруднительно.\r\n", ch);
+		SendMsgToChar("Верхом это сделать затруднительно.\r\n", ch);
 		return;
 	}
 
 	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
-		send_to_char("Кого вы собираетесь подсечь?\r\n", ch);
+		SendMsgToChar("Кого вы собираетесь подсечь?\r\n", ch);
 		return;
 	}
 
 	if (vict == ch) {
-		send_to_char("Вы можете воспользоваться командой <сесть>.\r\n", ch);
+		SendMsgToChar("Вы можете воспользоваться командой <сесть>.\r\n", ch);
 		return;
 	}
 
