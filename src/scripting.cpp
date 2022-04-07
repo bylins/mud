@@ -149,7 +149,7 @@ class CharacterWrapper : public Wrapper<CharacterData> {
 
 	void send(const std::string &msg) {
 		Ensurer ch(*this);
-		send_to_char(msg, (CharacterData *) ch);
+		SendMsgToChar(msg, (CharacterData *) ch);
 	}
 
 	void _page_string(const std::string &msg) {
@@ -2587,25 +2587,25 @@ bool check_command_on_list(const python_command_list_t &lst,
 
 		//Copied from interpreter.cpp
 		if (ch->is_npc() && i->minimum_level >= LVL_IMMORT) {
-			send_to_char("Вы еще не БОГ, чтобы делать это.\r\n", ch);
+			SendMsgToChar("Вы еще не БОГ, чтобы делать это.\r\n", ch);
 			return true;
 		}
 		if (GET_POS(ch) < i->minimum_position) {
 			switch (GET_POS(ch)) {
-				case POS_DEAD: send_to_char("Очень жаль - ВЫ МЕРТВЫ !!! :-(\r\n", ch);
+				case POS_DEAD: SendMsgToChar("Очень жаль - ВЫ МЕРТВЫ !!! :-(\r\n", ch);
 					break;
 				case POS_INCAP:
-				case POS_MORTALLYW: send_to_char("Вы в критическом состоянии и не можете ничего делать!\r\n", ch);
+				case POS_MORTALLYW: SendMsgToChar("Вы в критическом состоянии и не можете ничего делать!\r\n", ch);
 					break;
-				case POS_STUNNED: send_to_char("Вы слишком слабы, чтобы сделать это!\r\n", ch);
+				case POS_STUNNED: SendMsgToChar("Вы слишком слабы, чтобы сделать это!\r\n", ch);
 					break;
-				case POS_SLEEPING: send_to_char("Сделать это в ваших снах?\r\n", ch);
+				case POS_SLEEPING: SendMsgToChar("Сделать это в ваших снах?\r\n", ch);
 					break;
-				case POS_RESTING: send_to_char("Нет... Вы слишком расслаблены..\r\n", ch);
+				case POS_RESTING: SendMsgToChar("Нет... Вы слишком расслаблены..\r\n", ch);
 					break;
-				case POS_SITTING: send_to_char("Пожалуй, вам лучше встать на ноги.\r\n", ch);
+				case POS_SITTING: SendMsgToChar("Пожалуй, вам лучше встать на ноги.\r\n", ch);
 					break;
-				case POS_FIGHTING: send_to_char("Ни за что! Вы сражаетесь за свою жизнь!\r\n", ch);
+				case POS_FIGHTING: SendMsgToChar("Ни за что! Вы сражаетесь за свою жизнь!\r\n", ch);
 					break;
 			}
 			return true;

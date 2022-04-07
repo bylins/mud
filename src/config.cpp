@@ -47,7 +47,7 @@
  *
  */
 
-int level_exp(CharData *ch, int level);
+long GetExpUntilNextLvl(CharData *ch, int level);
 
 // GAME PLAY OPTIONS
 
@@ -282,14 +282,14 @@ const char *START_MESSG =
 int max_exp_gain_pc(CharData *ch) {
 	int result = 1;
 	if (!ch->is_npc()) {
-		int max_per_lev = level_exp(ch, ch->get_level() + 1) - level_exp(ch, ch->get_level() + 0); //тут берем левел без плюсов от стафа
+		int max_per_lev = GetExpUntilNextLvl(ch, ch->get_level() + 1) - GetExpUntilNextLvl(ch, ch->get_level() + 0); //тут берем левел без плюсов от стафа
 		result = max_per_lev / (10 + GET_REAL_REMORT(ch));
 	}
 	return result;
 }
 
 int max_exp_loss_pc(CharData *ch) {
-	return (ch->is_npc() ? 1 : (level_exp(ch, GetRealLevel(ch) + 1) - level_exp(ch, GetRealLevel(ch) + 0)) / 3);
+	return (ch->is_npc() ? 1 : (GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - GetExpUntilNextLvl(ch, GetRealLevel(ch) + 0)) / 3);
 }
 
 int calc_loadroom(const CharData *ch, int bplace_mode /*= BIRTH_PLACE_UNDEFINED*/) {

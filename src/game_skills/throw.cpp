@@ -97,7 +97,7 @@ void PerformWeaponThrow(AbilitySystem::TechniqueRoll &technique, Damage &damage)
 	if (technique.IsSuccess()) {
 		damage.dam = technique.CalcDamage();
 		if (technique.IsCriticalSuccess()) {
-			send_to_char("&GВ яблочко!&n\r\n", technique.GetActor());
+			SendMsgToChar("&GВ яблочко!&n\r\n", technique.GetActor());
 			damage.flags.set(fight::kIgnoreArmor);
 			damage.flags.set(fight::kCritHit);
 		};
@@ -112,7 +112,7 @@ void PerformWeaponThrow(AbilitySystem::TechniqueRoll &technique, Damage &damage)
 			ObjData *weapon = UnequipChar(technique.GetActor(), technique.GetWeaponEquipPosition(), CharEquipFlags());
 			if (weapon) {
 				PlaceObjToInventory(weapon, technique.GetActor());
-				send_to_char(technique.GetActor(), "&BВы выронили %s!&n\r\n", GET_OBJ_PNAME(weapon, 3).c_str());
+				SendMsgToChar(technique.GetActor(), "&BВы выронили %s!&n\r\n", GET_OBJ_PNAME(weapon, 3).c_str());
 			};
 		};
 	};
@@ -122,7 +122,7 @@ void PerformWeaponThrow(AbilitySystem::TechniqueRoll &technique, Damage &damage)
 void go_throw(CharData *ch, CharData *victim) {
 
 	if (IsUnableToAct(ch)) {
-		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
 
@@ -132,7 +132,7 @@ void go_throw(CharData *ch, CharData *victim) {
 	auto technique_id = EFeat::kThrowWeapon;
 	auto dmg_type = fight::kPhysDmg;
 	if (PRF_FLAGGED(ch, EPrf::kShadowThrow)) {
-		send_to_char("Рукоять оружия в вашей руке налилась неестественным холодом.\r\n", ch);
+		SendMsgToChar("Рукоять оружия в вашей руке налилась неестественным холодом.\r\n", ch);
 		act("Оружие в руках $n1 окружила призрачная дымка.",
 			true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 		technique_id = EFeat::kShadowThrower;
@@ -172,27 +172,27 @@ void go_throw(CharData *ch, CharData *victim) {
 void do_throw(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	//Svent TODO: Не забыть убрать заглушку после дописывания навыков
 	if (!ch->get_skill(ESkill::kThrow)) {
-		send_to_char("Вы принялись метать икру. Это единственное, что вы умеете метать.\r\n", ch);
+		SendMsgToChar("Вы принялись метать икру. Это единственное, что вы умеете метать.\r\n", ch);
 		return;
 	}
 	if (ch->haveCooldown(ESkill::kThrow)) {
-		send_to_char("Так и рука отвалится, нужно передохнуть.\r\n", ch);
+		SendMsgToChar("Так и рука отвалится, нужно передохнуть.\r\n", ch);
 		return;
 	};
 /*
 	if (!IS_IMPL(ch) && !can_use_feat(ch, EFeat::kThrowWeapon)) {
-			send_to_char("Вы не умеете этого.\r\n", ch);
+			SendMsgToChar("Вы не умеете этого.\r\n", ch);
 			return;
 	}
 */
 	CharData *victim = FindVictim(ch, argument);
 	if (!victim) {
-		send_to_char("В кого мечем?\r\n", ch);
+		SendMsgToChar("В кого мечем?\r\n", ch);
 		return;
 	}
 
 	if (ch == victim) {
-		send_to_char("Вы начали метаться как белка в колесе.\r\n", ch);
+		SendMsgToChar("Вы начали метаться как белка в колесе.\r\n", ch);
 		return;
 	}
 
@@ -205,7 +205,7 @@ void do_throw(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	if (subcmd == SCMD_SHADOW_THROW) {
 		if (IsTimed(ch, EFeat::kShadowThrower)) {
-			send_to_char("Не стоит так часто беспокоить тёмные силы.\r\n", ch);
+			SendMsgToChar("Не стоит так часто беспокоить тёмные силы.\r\n", ch);
 			return;
 		}
 		PRF_FLAGS(ch).set(EPrf::kShadowThrow);

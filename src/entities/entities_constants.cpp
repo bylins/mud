@@ -523,4 +523,9 @@ EResist& operator++(EResist &r) {
 	return r;
 }
 
+EDirection& operator++(EDirection &d) {
+	d =  static_cast<EDirection>(to_underlying(d) + 1);
+	return d;
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

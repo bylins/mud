@@ -221,7 +221,7 @@ char *CAP(char *txt);
 void look_at_room(CharData *ch, int mode);
 
 // in act.movmement.cpp //
-int do_simple_move(CharData *ch, int dir, int following, CharData *leader, bool is_flee);
+int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is_flee);
 int perform_move(CharData *ch, int dir, int following, int checkmob, CharData *leader);
 
 // in limits.cpp //
@@ -229,7 +229,7 @@ int mana_gain(const CharData *ch);
 int hit_gain(CharData *ch);
 int move_gain(CharData *ch);
 void advance_level(CharData *ch);
-void gain_exp(CharData *ch, int gain);
+void EndowExpToChar(CharData *ch, int gain);
 void gain_exp_regardless(CharData *ch, int gain);
 void gain_condition(CharData *ch, unsigned condition, int value);
 void check_idling(CharData *ch);
@@ -858,8 +858,6 @@ const int kNameLevel = 5;
 #define GET_OBJ_POLY_1(ch, obj) ((GET_OBJ_SEX(obj) == ESex::kPoly) ? "ят" : "ит")
 
 #define PUNCTUAL_WAIT_STATE(ch, cycle) do { GET_PUNCTUAL_WAIT_STATE(ch) = (cycle); } while(0)
-#define CHECK_WAIT(ch)        ((ch)->get_wait() > 0)
-#define GET_WAIT(ch)          (ch)->get_wait()
 #define GET_PUNCTUAL_WAIT(ch)          GET_PUNCTUAL_WAIT_STATE(ch)
 
 // New, preferred macro

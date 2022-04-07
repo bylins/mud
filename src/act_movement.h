@@ -6,7 +6,7 @@
 class CharData;    // to avoid inclusion
 class ObjData;
 
-enum DOOR_SCMD : int {
+enum EDoorScmd : int {
 	SCMD_OPEN = 0,    // открыть
 	SCMD_CLOSE = 1,   // закрыть
 	SCMD_UNLOCK = 2,  // отпереть
@@ -22,7 +22,7 @@ enum FD_RESULT : int {
 	FD_DOORNAME_WRONG = -5   // -5 НЕПРАВИЛЬНО НАЗВАЛИ ДВЕРЬ
 };
 
-void do_doorcmd(CharData *ch, ObjData *obj, int door, DOOR_SCMD scmd);
+void do_doorcmd(CharData *ch, ObjData *obj, int door, EDoorScmd scmd);
 void do_gen_door(CharData *ch, char *argument, int cmd, int subcmd);
 void do_enter(CharData *ch, char *argument, int cmd, int subcmd);
 void do_stand(CharData *ch, char *argument, int cmd, int subcmd);
@@ -31,10 +31,10 @@ void do_rest(CharData *ch, char *argument, int cmd, int subcmd);
 void do_sleep(CharData *ch, char *argument, int cmd, int subcmd);
 void do_wake(CharData *ch, char *argument, int cmd, int subcmd);
 
-int has_boat(CharData *ch);
-int has_key(CharData *ch, ObjVnum key);
+int HasKey(CharData *ch, ObjVnum key);
+bool HasBoat(CharData *ch);
 bool ok_pick(CharData* ch, ObjVnum keynum, ObjData* obj, int door, int scmd);
-int legal_dir(CharData *ch, int dir, int need_specials_check, int show_msg);
+bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_msg);
 
 int skip_hiding(CharData *ch, CharData *vict);
 int skip_sneaking(CharData *ch, CharData *vict);

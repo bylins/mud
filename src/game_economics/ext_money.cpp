@@ -181,7 +181,7 @@ void torc_exch_menu(CharData *ch) {
 		<< CCNRM(ch, C_NRM) << " Подтвердить обмен и выйти\r\n\r\n"
 		<< "   Ваш выбор:";
 
-	send_to_char(out.str(), ch);
+	SendMsgToChar(out.str(), ch);
 }
 
 // обмен в сторону больших гривен
@@ -197,22 +197,22 @@ void parse_inc_exch(CharData *ch, int amount, int num) {
 
 	if (ch->desc->ext_money[torc_from] < amount) {
 		if (ch->desc->ext_money[torc_from] < torc_rate) {
-			send_to_char("Нет необходимого количества гривен!\r\n", ch);
+			SendMsgToChar("Нет необходимого количества гривен!\r\n", ch);
 		} else {
 			amount = ch->desc->ext_money[torc_from] / torc_rate * torc_rate;
-			send_to_char(ch, "Количество меняемых гривен уменьшено до %d.\r\n", amount);
+			SendMsgToChar(ch, "Количество меняемых гривен уменьшено до %d.\r\n", amount);
 			ch->desc->ext_money[torc_from] -= amount;
 			ch->desc->ext_money[torc_to] += amount / torc_rate;
-			send_to_char(ch, "Произведен обмен: %d -> %d.\r\n", amount, amount / torc_rate);
+			SendMsgToChar(ch, "Произведен обмен: %d -> %d.\r\n", amount, amount / torc_rate);
 		}
 	} else {
 		int real_amount = amount / torc_rate * torc_rate;
 		if (real_amount != amount) {
-			send_to_char(ch, "Количество меняемых гривен уменьшено до %d.\r\n", real_amount);
+			SendMsgToChar(ch, "Количество меняемых гривен уменьшено до %d.\r\n", real_amount);
 		}
 		ch->desc->ext_money[torc_from] -= real_amount;
 		ch->desc->ext_money[torc_to] += real_amount / torc_rate;
-		send_to_char(ch, "Произведен обмен: %d -> %d.\r\n", real_amount, real_amount / torc_rate);
+		SendMsgToChar(ch, "Произведен обмен: %d -> %d.\r\n", real_amount, real_amount / torc_rate);
 	}
 }
 
@@ -229,19 +229,19 @@ void parse_dec_exch(CharData *ch, int amount, int num) {
 
 	if (ch->desc->ext_money[torc_from] < amount) {
 		if (ch->desc->ext_money[torc_from] < 1) {
-			send_to_char("Нет необходимого количества гривен!\r\n", ch);
+			SendMsgToChar("Нет необходимого количества гривен!\r\n", ch);
 		} else {
 			amount = ch->desc->ext_money[torc_from];
-			send_to_char(ch, "Количество меняемых гривен уменьшено до %d.\r\n", amount);
+			SendMsgToChar(ch, "Количество меняемых гривен уменьшено до %d.\r\n", amount);
 
 			ch->desc->ext_money[torc_from] -= amount;
 			ch->desc->ext_money[torc_to] += amount * torc_rate;
-			send_to_char(ch, "Произведен обмен: %d -> %d.\r\n", amount, amount * torc_rate);
+			SendMsgToChar(ch, "Произведен обмен: %d -> %d.\r\n", amount, amount * torc_rate);
 		}
 	} else {
 		ch->desc->ext_money[torc_from] -= amount;
 		ch->desc->ext_money[torc_to] += amount * torc_rate;
-		send_to_char(ch, "Произведен обмен: %d -> %d.\r\n", amount, amount * torc_rate);
+		SendMsgToChar(ch, "Произведен обмен: %d -> %d.\r\n", amount, amount * torc_rate);
 	}
 }
 
@@ -283,7 +283,7 @@ bool check_equal_exch(CharData *ch) {
 // парс ввода при обмене гривен
 void torc_exch_parse(CharData *ch, const char *arg) {
 	if (!*arg || !a_isdigit(*arg)) {
-		send_to_char("Неверный выбор!\r\n", ch);
+		SendMsgToChar("Неверный выбор!\r\n", ch);
 		torc_exch_menu(ch);
 		return;
 	}
@@ -304,7 +304,7 @@ void torc_exch_parse(CharData *ch, const char *arg) {
 		log("SYSERROR: invalid_argument arg=%s (%s %s %d)",
 			arg, __FILE__, __func__, __LINE__);
 
-		send_to_char("Неверный выбор!\r\n", ch);
+		SendMsgToChar("Неверный выбор!\r\n", ch);
 		torc_exch_menu(ch);
 		return;
 	}
@@ -314,7 +314,7 @@ void torc_exch_parse(CharData *ch, const char *arg) {
 		// ввели два числа - проверка пользовательского ввода кол-ва гривен
 		int min_amount = check_input_amount(ch, num1, amount);
 		if (min_amount > 0) {
-			send_to_char(ch, "Минимальное количество гривен для данного обмена: %d.", min_amount);
+			SendMsgToChar(ch, "Минимальное количество гривен для данного обмена: %d.", min_amount);
 			torc_exch_menu(ch);
 			return;
 		}
@@ -333,21 +333,21 @@ void torc_exch_parse(CharData *ch, const char *arg) {
 		parse_dec_exch(ch, amount, num1);
 	} else if (num1 == 5) {
 		STATE(ch->desc) = CON_PLAYING;
-		send_to_char("Обмен отменен.\r\n", ch);
+		SendMsgToChar("Обмен отменен.\r\n", ch);
 		return;
 	} else if (num1 == 6) {
 		if (!check_equal_exch(ch)) {
-			send_to_char("Обмен отменен по техническим причинам, обратитесь к Богам.\r\n", ch);
+			SendMsgToChar("Обмен отменен по техническим причинам, обратитесь к Богам.\r\n", ch);
 		} else {
 			for (unsigned i = 0; i < kTotalTypes; ++i) {
 				ch->set_ext_money(i, ch->desc->ext_money[i]);
 			}
 			STATE(ch->desc) = CON_PLAYING;
-			send_to_char("Обмен произведен.\r\n", ch);
+			SendMsgToChar("Обмен произведен.\r\n", ch);
 		}
 		return;
 	} else {
-		send_to_char("Неверный выбор!\r\n", ch);
+		SendMsgToChar("Неверный выбор!\r\n", ch);
 	}
 	torc_exch_menu(ch);
 }
@@ -549,7 +549,7 @@ void gain_torc(CharData *ch, int drop) {
 	ch->set_ext_money(kTorcBronze, bronze + ch->get_ext_money(kTorcBronze));
 
 	std::string out = create_message(ch, gold, silver, bronze);
-	send_to_char(ch, "В награду за свершенный подвиг вы получили от Богов %s.\r\n", out.c_str());
+	SendMsgToChar(ch, "В награду за свершенный подвиг вы получили от Богов %s.\r\n", out.c_str());
 
 }
 
@@ -722,7 +722,7 @@ void show_config(CharData *ch) {
 		<< "BRONZE_DROP_AMOUNT_ADD_PER_LVL = " << type_list[kTorcBronze].DROP_AMOUNT_ADD_PER_LVL << "\r\n"
 		<< "BRONZE_MINIMUM_DAYS = " << type_list[kTorcBronze].MINIMUM_DAYS << "\r\n";
 
-	send_to_char(out.str(), ch);
+	SendMsgToChar(out.str(), ch);
 }
 
 // возвращает требование гривен на морт в пересчете на бронзу
@@ -767,23 +767,23 @@ void donat_torc(CharData *ch, const std::string &mob_name, unsigned type, int am
 	ch->set_ext_money(type, balance);
 	PRF_FLAGS(ch).set(EPrf::kCanRemort);
 
-	send_to_char(ch, "Вы пожертвовали %d %s %s.\r\n",
+	SendMsgToChar(ch, "Вы пожертвовали %d %s %s.\r\n",
 				 amount, GetDeclensionInNumber(amount, type_list[type].DESC_MESSAGE_NUM),
 				 GetDeclensionInNumber(amount, EWhat::kTorc));
 
 	std::string name = mob_name;
 	name_convert(name);
 
-	send_to_char(ch,
+	SendMsgToChar(ch,
 				 "%s оценил ваши заслуги перед князем и народом земли русской и вознес вам хвалу.\r\n"
 				 "Вы почувствовали себя значительно опытней.\r\n", name.c_str());
 
 	if (GET_GOD_FLAG(ch, EGf::kRemort)) {
-		send_to_char(ch,
+		SendMsgToChar(ch,
 					 "%sПоздравляем, вы получили право на перевоплощение!%s\r\n",
 					 CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 	} else {
-		send_to_char(ch,
+		SendMsgToChar(ch,
 					 "Вы подтвердили свое право на следующее перевоплощение,\r\n"
 					 "для его совершения вам нужно набрать максимальное количество опыта.\r\n");
 	}
@@ -793,7 +793,7 @@ void donat_torc(CharData *ch, const std::string &mob_name, unsigned type, int am
 void message_low_torc(CharData *ch, unsigned type, int amount, const char *add_text) {
 	if (type < kTotalTypes) {
 		const int money = ch->get_ext_money(type);
-		send_to_char(ch,
+		SendMsgToChar(ch,
 					 "Для подтверждения права на перевоплощение вы должны пожертвовать %d %s %s.\r\n"
 					 "У вас в данный момент %d %s %s%s\r\n",
 					 amount,
@@ -836,15 +836,15 @@ int torc(CharData *ch, void *me, int cmd, char * /*argument*/) {
 	if (CMD_IS("жертвовать")) {
 		if (!need_torc(ch)) {
 			// от чара для реморта ничего не требуется
-			send_to_char(
+			SendMsgToChar(
 				"Вам не нужно подтверждать свое право на перевоплощение, просто наберите 'перевоплотиться'.\r\n", ch);
 		} else if (PRF_FLAGGED(ch, EPrf::kCanRemort)) {
 			// чар на этом морте уже жертвовал необходимое кол-во гривен
 			if (GET_GOD_FLAG(ch, EGf::kRemort)) {
-				send_to_char(
+				SendMsgToChar(
 					"Вы уже подтвердили свое право на перевоплощение, просто наберите 'перевоплотиться'.\r\n", ch);
 			} else {
-				send_to_char(
+				SendMsgToChar(
 					"Вы уже пожертвовали достаточное количество гривен.\r\n"
 					"Для совершения перевоплощения вам нужно набрать максимальное количество опыта.\r\n", ch);
 			}

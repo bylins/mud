@@ -67,13 +67,13 @@ void go_autoassist(CharData *ch) {
 	for (k = ch_lider->followers; k; k = k->next) {
 		if (PRF_FLAGGED(k->ch, EPrf::kAutoassist) &&
 			(IN_ROOM(k->ch) == IN_ROOM(ch)) && !k->ch->get_fighting() &&
-			(GET_POS(k->ch) == EPosition::kStand) && !CHECK_WAIT(k->ch)) {
+			(GET_POS(k->ch) == EPosition::kStand) && k->ch->get_wait() <= 0) {
 			// Здесь проверяем на кастеров
 			if (IS_CASTER(k->ch)) {
 				// здесь проходим по чармисам кастера, и если находим их, то вписываем в драку
 				for (d = k->ch->followers; d; d = d->next)
 					if ((IN_ROOM(d->ch) == IN_ROOM(ch)) && !d->ch->get_fighting() &&
-						(GET_POS(d->ch) == EPosition::kStand) && !CHECK_WAIT(d->ch))
+						(GET_POS(d->ch) == EPosition::kStand) && d->ch->get_wait() <= 0)
 						do_assist(d->ch, buf2, 0, 0);
 			} else {
 				do_assist(k->ch, buf2, 0, 0);
@@ -90,7 +90,7 @@ void go_autoassist(CharData *ch) {
 void update_pos(CharData *victim) {
 	if ((GET_HIT(victim) > 0) && (GET_POS(victim) > EPosition::kStun))
 		GET_POS(victim) = GET_POS(victim);
-	else if (GET_HIT(victim) > 0 && GET_WAIT(victim) <= 0 && !GET_MOB_HOLD(victim))
+	else if (GET_HIT(victim) > 0 && victim->get_wait() <= 0 && !AFF_FLAGGED(victim, EAffect::kHold))
 		GET_POS(victim) = EPosition::kStand;
 	else if (GET_HIT(victim) <= -11)
 		GET_POS(victim) = EPosition::kDead;
@@ -98,7 +98,7 @@ void update_pos(CharData *victim) {
 		GET_POS(victim) = EPosition::kPerish;
 	else if (GET_HIT(victim) <= -3)
 		GET_POS(victim) = EPosition::kIncap;
-	else if (GET_POS(victim) == EPosition::kIncap && GET_WAIT(victim) > 0)
+	else if (GET_POS(victim) == EPosition::kIncap && victim->get_wait() > 0)
 		GET_POS(victim) = EPosition::kIncap;
 	else
 		GET_POS(victim) = EPosition::kStun;
@@ -120,8 +120,8 @@ void set_battle_pos(CharData *ch) {
 		case EPosition::kRest:
 		case EPosition::kSit:
 		case EPosition::kSleep:
-			if (GET_WAIT(ch) <= 0 &&
-				!GET_MOB_HOLD(ch) && !AFF_FLAGGED(ch, EAffect::kSleep)
+			if (ch->get_wait() <= 0 &&
+				!AFF_FLAGGED(ch, EAffect::kHold) && !AFF_FLAGGED(ch, EAffect::kSleep)
 				&& !AFF_FLAGGED(ch, EAffect::kCharmed)) {
 				if (ch->is_npc()) {
 					act("$n поднял$u.", false, ch, 0, 0, kToRoom | kToArenaListen);
@@ -150,8 +150,8 @@ void restore_battle_pos(CharData *ch) {
 		case EPosition::kSit:
 		case EPosition::kSleep:
 			if (ch->is_npc() &&
-				GET_WAIT(ch) <= 0 &&
-				!GET_MOB_HOLD(ch) && !AFF_FLAGGED(ch, EAffect::kSleep)
+				ch->get_wait() <= 0 &&
+				!AFF_FLAGGED(ch, EAffect::kHold) && !AFF_FLAGGED(ch, EAffect::kSleep)
 				&& !AFF_FLAGGED(ch, EAffect::kCharmed)) {
 				act("$n поднял$u.", false, ch, 0, 0, kToRoom | kToArenaListen);
 				GET_POS(ch) = EPosition::kStand;
@@ -182,11 +182,11 @@ void set_fighting(CharData *ch, CharData *vict) {
 	//    return;
 
 	if (AFF_FLAGGED(ch, EAffect::kBandage)) {
-		send_to_char("Перевязка была прервана!\r\n", ch);
+		SendMsgToChar("Перевязка была прервана!\r\n", ch);
 		affect_from_char(ch, kSpellBandage);
 	}
 	if (AFF_FLAGGED(ch, EAffect::kMemorizeSpells)) {
-		send_to_char("Вы забыли о концентрации и ринулись в бой!\r\n", ch);
+		SendMsgToChar("Вы забыли о концентрации и ринулись в бой!\r\n", ch);
 		affect_from_char(ch, kSpellRecallSpells);
 	}
 
@@ -212,11 +212,11 @@ void set_fighting(CharData *ch, CharData *vict) {
 	// если до начала боя на мобе есть лаг, то мы его выравниваем до целых
 	// раундов в большую сторону (для подножки, должно давать чару зазор в две
 	// секунды после подножки, чтобы моб всеравно встал только на 3й раунд)
-	if (ch->is_npc() && GET_WAIT(ch) > 0) {
+	if (ch->is_npc() && ch->get_wait() > 0) {
 //		div_t tmp = div(static_cast<const int>(ch->get_wait()), static_cast<const int>(kPulseViolence));
 		auto tmp = div(ch->get_wait(), kPulseViolence);
 		if (tmp.rem > 0) {
-			WAIT_STATE(ch, (tmp.quot + 1) * kPulseViolence);
+			SetWaitState(ch, (tmp.quot + 1) * kPulseViolence);
 		}
 	}
 	if (!ch->is_npc() && (!ch->get_skill(ESkill::kAwake))) {
@@ -298,7 +298,7 @@ void stop_fighting(CharData *ch, int switch_others) {
 		if ((ch->get_fighting() == nullptr) && PRF_FLAGS(ch).get(EPrf::kIronWind)) {
 			PRF_FLAGS(ch).unset(EPrf::kIronWind);
 			if (GET_POS(ch) > EPosition::kIncap) {
-				send_to_char("Безумие боя отпустило вас, и враз навалилась усталость...\r\n", ch);
+				SendMsgToChar("Безумие боя отпустило вас, и враз навалилась усталость...\r\n", ch);
 				act("$n шумно выдохнул$g и остановил$u, переводя дух после боя.",
 					false,
 					ch,
@@ -321,7 +321,7 @@ int GET_MAXDAMAGE(CharData *ch) {
 int GET_MAXCASTER(CharData *ch) {
 	if (AFF_FLAGGED(ch, EAffect::kHold) || AFF_FLAGGED(ch, EAffect::kSilence)
 		|| AFF_FLAGGED(ch, EAffect::kStrangled)
-		|| GET_WAIT(ch) > 0)
+		|| ch->get_wait() > 0)
 		return 0;
 	else
 		return IS_IMMORTAL(ch) ? 1 : ch->caster_level;
@@ -984,7 +984,7 @@ void mob_casting(CharData *ch) {
 		|| AFF_FLAGGED(ch, EAffect::kHold)
 		|| AFF_FLAGGED(ch, EAffect::kSilence)
 		|| AFF_FLAGGED(ch, EAffect::kStrangled)
-		|| GET_WAIT(ch) > 0)
+		|| ch->get_wait() > 0)
 		return;
 
 	memset(&battle_spells, 0, sizeof(battle_spells));
@@ -1153,9 +1153,10 @@ void mob_casting(CharData *ch) {
 }
 
 #define  MAY_LIKES(ch)   ((!AFF_FLAGGED(ch, EAffect::kCharmed) || AFF_FLAGGED(ch, EAffect::kHelper)) && \
-                          AWAKE(ch) && GET_WAIT(ch) <= 0)
+                          AWAKE(ch) && ch->get_wait() <= 0)
 
-#define    MAY_ACT(ch)    (!(AFF_FLAGGED(ch, EAffect::kStopFight) || AFF_FLAGGED(ch, EAffect::kMagicStopFight) || GET_MOB_HOLD(ch) || GET_WAIT(ch)))
+#define    MAY_ACT(ch)    (!(AFF_FLAGGED(ch, EAffect::kStopFight) || AFF_FLAGGED(ch, EAffect::kMagicStopFight) || \
+							AFF_FLAGGED(ch, EAffect::kHold) || (ch)->get_wait()))
 
 void summon_mob_helpers(CharData *ch) {
 	for (struct Helper *helpee = ch->helpers;
@@ -1169,7 +1170,7 @@ void summon_mob_helpers(CharData *ch) {
 				|| AFF_FLAGGED(vict, EAffect::kHold)
 				|| AFF_FLAGGED(vict, EAffect::kCharmed)
 				|| AFF_FLAGGED(vict, EAffect::kBlind)
-				|| GET_WAIT(vict) > 0
+				|| vict->get_wait() > 0
 				|| GET_POS(vict) < EPosition::kStand
 				|| IN_ROOM(vict) == kNowhere
 				|| vict->get_fighting()) {
@@ -1205,9 +1206,9 @@ void check_mob_helpers() {
 			stop_fighting(ch, true);
 			continue;
 		}
-		if (GET_MOB_HOLD(ch)
+		if (AFF_FLAGGED(ch, EAffect::kHold)
 			|| !ch->is_npc()
-			|| GET_WAIT(ch) > 0
+			|| ch->get_wait() > 0
 			|| GET_POS(ch) < EPosition::kFight
 			|| AFF_FLAGGED(ch, EAffect::kCharmed)
 			|| AFF_FLAGGED(ch, EAffect::kMagicStopFight)
@@ -1339,7 +1340,7 @@ int calc_initiative(CharData *ch, bool mode) {
 		initiative -= 10;
 	if (AFF_FLAGGED(ch, EAffect::kHaste))
 		initiative += 10;
-	if (GET_WAIT(ch) > 0)
+	if (ch->get_wait() > 0)
 		initiative -= 1;
 	if (calc_leadership(ch))
 		initiative += 5;
@@ -1591,7 +1592,7 @@ void using_mob_skills(CharData *ch) {
 							&& (AFF_FLAGGED(vict, EAffect::kHold)
 								|| AFF_FLAGGED(vict, EAffect::kSilence)
 								|| AFF_FLAGGED(vict, EAffect::kStrangled)
-								|| GET_WAIT(vict) > 0))) {
+								|| vict->get_wait() > 0))) {
 						continue;
 					}
 					if (!caster
@@ -1610,7 +1611,7 @@ void using_mob_skills(CharData *ch) {
 				&& caster->caster_level > POOR_CASTER
 				&& (sk_num == ESkill::kBash || sk_num == ESkill::kUndercut)) {
 				if (sk_num == ESkill::kBash) {
-//send_to_char(caster, "Баш предфункция\r\n");
+//SendMsgToChar(caster, "Баш предфункция\r\n");
 //sprintf(buf, "%s башат предфункция\r\n",GET_NAME(caster));
 //mudlog(buf, LGH, MAX(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 					if (GET_POS(caster) >= EPosition::kFight
@@ -1619,7 +1620,7 @@ void using_mob_skills(CharData *ch) {
 						go_bash(ch, caster);
 					}
 				} else {
-//send_to_char(caster, "Подножка предфункция\r\n");
+//SendMsgToChar(caster, "Подножка предфункция\r\n");
 //sprintf(buf, "%s подсекают предфункция\r\n",GET_NAME(caster));
 //                mudlog(buf, LGH, MAX(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 
@@ -1702,16 +1703,9 @@ void update_round_affs() {
 
 		if (GET_AF_BATTLE(ch, kEafBlock)) {
 			CLR_AF_BATTLE(ch, kEafBlock);
-			if (!IS_IMMORTAL(ch) && GET_WAIT(ch) < kPulseViolence)
-				WAIT_STATE(ch, 1 * kPulseViolence);
+			if (!IS_IMMORTAL(ch) && ch->get_wait() < kPulseViolence)
+				SetWaitState(ch, 1 * kPulseViolence);
 		}
-
-//		if (GET_AF_BATTLE(ch, EAF_DEVIATE))
-//		{
-//			CLR_AF_BATTLE(ch, EAF_DEVIATE);
-//			if (!IS_IMMORTAL(ch) && GET_WAIT(ch) < kPulseViolence)
-//				WAIT_STATE(ch, 1 * kPulseViolence);
-//		}
 
 		if (GET_AF_BATTLE(ch, kEafPoisoned)) {
 			CLR_AF_BATTLE(ch, kEafPoisoned);
@@ -1809,7 +1803,7 @@ void process_npc_attack(CharData *ch) {
 
 		bool extra_attack_used = no_extra_attack;
 		//* применение экстра скилл-атак
-		if (!extra_attack_used && ch->get_extra_victim() && GET_WAIT(ch) <= 0) {
+		if (!extra_attack_used && ch->get_extra_victim() && ch->get_wait() <= 0) {
 			extra_attack_used = using_extra_attack(ch);
 			if (extra_attack_used) {
 				ch->set_extra_attack(kExtraAttackUnused, 0);
@@ -1853,7 +1847,7 @@ void process_player_attack(CharData *ch, int min_init) {
 		&& GET_POS(ch) < EPosition::kFight
 		&& GET_AF_BATTLE(ch, kEafStand)) {
 		sprintf(buf, "%sВам лучше встать на ноги!%s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 		CLR_AF_BATTLE(ch, kEafStand);
 	}
 
@@ -1861,9 +1855,9 @@ void process_player_attack(CharData *ch, int min_init) {
 	Bitvector trigger_code = fight_otrigger(ch);
 
 	//* каст заклинания
-	if (ch->get_cast_spell() && GET_WAIT(ch) <= 0 && !IS_SET(trigger_code, kNoCastMagic)) {
+	if (ch->get_cast_spell() && ch->get_wait() <= 0 && !IS_SET(trigger_code, kNoCastMagic)) {
 		if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
-			send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
+			SendMsgToChar("Вы не смогли вымолвить и слова.\r\n", ch);
 			ch->set_cast(0, 0, 0, 0, 0);
 		} else {
 			CastSpell(ch, ch->get_cast_char(), ch->get_cast_obj(),
@@ -1871,8 +1865,8 @@ void process_player_attack(CharData *ch, int min_init) {
 
 			if (!(IS_IMMORTAL(ch)
 				|| GET_GOD_FLAG(ch, EGf::kGodsLike)
-				|| CHECK_WAIT(ch))) {
-				WAIT_STATE(ch, kPulseViolence);
+				|| ch->get_wait() > 0)) {
+				SetWaitState(ch, kPulseViolence);
 			}
 			ch->set_cast(0, 0, 0, 0, 0);
 		}
@@ -1887,7 +1881,7 @@ void process_player_attack(CharData *ch, int min_init) {
 
 	//* применение экстра скилл-атак (пнуть, оглушить и прочая)
 	if (!IS_SET(trigger_code, kNoExtraAttack) && ch->get_extra_victim()
-		&& GET_WAIT(ch) <= 0 && using_extra_attack(ch)) {
+		&& ch->get_wait() <= 0 && using_extra_attack(ch)) {
 		ch->set_extra_attack(kExtraAttackUnused, nullptr);
 		if (ch->initiative > min_init) {
 			--(ch->initiative);
@@ -1981,7 +1975,7 @@ bool stuff_before_round(CharData *ch) {
 	if (ch->in_room == kNowhere)
 		return false;
 
-	if (GET_MOB_HOLD(ch)
+	if (AFF_FLAGGED(ch, EAffect::kHold)
 		|| AFF_FLAGGED(ch, EAffect::kStopFight)
 		|| AFF_FLAGGED(ch, EAffect::kMagicStopFight)) {
 		try_angel_rescue(ch);
@@ -1991,8 +1985,8 @@ bool stuff_before_round(CharData *ch) {
 	// Mobs stand up and players sit
 	if (GET_POS(ch) < EPosition::kFight
 		&& GET_POS(ch) > EPosition::kStun
-		&& GET_WAIT(ch) <= 0
-		&& !GET_MOB_HOLD(ch)
+		&& ch->get_wait() <= 0
+		&& !AFF_FLAGGED(ch, EAffect::kHold)
 		&& !AFF_FLAGGED(ch, EAffect::kSleep)) {
 		stand_up_or_sit(ch);
 	}

@@ -17,10 +17,10 @@
 
 const char *circlemud_version = "CircleMUD, version 3.00 beta patchlevel 16";
 
-int HORSE_VNUM = 4014;
-int HORSE_COST = 100;
-int START_BREAD = 125;
-int CREATE_LIGHT = 126;
+const MobVnum kHorseVnum = 4014;
+const ObjVnum kStartBread = 125;
+const ObjVnum kCreateLight = 126;
+const int kHorseCost = 100;
 
 //Experience multiplication coefficients
 double exp_coefficients[] =

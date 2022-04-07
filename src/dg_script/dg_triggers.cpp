@@ -433,7 +433,7 @@ int command_mtrigger(CharData *actor, char *cmd, const char *argument) {
 					if (!actor->is_npc()
 						&& (GET_POS(actor) == EPosition::kSleep))   // command триггер не будет срабатывать если игрок спит
 					{
-						send_to_char("Сделать это в ваших снах?\r\n", actor);
+						SendMsgToChar("Сделать это в ваших снах?\r\n", actor);
 						return 1;
 					}
 
@@ -939,7 +939,7 @@ int cmd_otrig(ObjData *obj, CharData *actor, char *cmd, const char *argument, in
 				if (!actor->is_npc()
 					&& (GET_POS(actor) == EPosition::kSleep))   // command триггер не будет срабатывать если игрок спит
 				{
-					send_to_char("Сделать это в ваших снах?\r\n", actor);
+					SendMsgToChar("Сделать это в ваших снах?\r\n", actor);
 					return 1;
 				}
 				ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
@@ -1306,12 +1306,12 @@ int command_wtrigger(CharData *actor, char *cmd, const char *argument) {
 			if (!actor->is_npc()
 				&& (GET_POS(actor) == EPosition::kSleep))   // command триггер не будет срабатывать если игрок спит
 			{
-				send_to_char("Сделать это в ваших снах?\r\n", actor);
+				SendMsgToChar("Сделать это в ваших снах?\r\n", actor);
 				return 1;
 			}
 // в идеале бы в триггере бой проверять а не хардкодом, ленивые скотины....
 			if (GET_POS(actor) == EPosition::kFight && t->arglist[0] != '*') {
-				send_to_char("Вы не можете это сделать в бою.\r\n", actor); //command триггер не будет работать в бою
+				SendMsgToChar("Вы не можете это сделать в бою.\r\n", actor); //command триггер не будет работать в бою
 				return 1;
 			}
 

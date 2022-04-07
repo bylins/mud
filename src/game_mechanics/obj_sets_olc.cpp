@@ -282,7 +282,7 @@ void sedit::show_main(CharData *ch) {
 	} else {
 		size_t idx = setidx_by_uid(olc_set.uid);
 		if (idx >= sets_list.size()) {
-			send_to_char("Редактирование прервано: набор был удален.\r\n", ch);
+			SendMsgToChar("Редактирование прервано: набор был удален.\r\n", ch);
 			ch->desc->sedit.reset();
 			STATE(ch->desc) = CON_PLAYING;
 			return;
@@ -336,7 +336,7 @@ void sedit::show_main(CharData *ch) {
 			 CCGRN(ch, C_NRM), i++, CCNRM(ch, C_NRM));
 	out += buf_;
 
-	send_to_char(out, ch);
+	SendMsgToChar(out, ch);
 }
 
 void sedit::show_obj_edit(CharData *ch) {
@@ -344,7 +344,7 @@ void sedit::show_obj_edit(CharData *ch) {
 
 	auto obj = olc_set.obj_list.find(obj_edit);
 	if (obj == olc_set.obj_list.end()) {
-		send_to_char(ch,
+		SendMsgToChar(ch,
 					 "Ошибка: предмет не в наборе %s:%d (%s).\r\n",
 					 __FILE__, __LINE__, __func__);
 		show_main(ch);
@@ -376,7 +376,7 @@ void sedit::show_obj_edit(CharData *ch) {
 			 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), msg.room_on_msg.c_str(),
 			 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), msg.room_off_msg.c_str(),
 			 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-	send_to_char(buf_, ch);
+	SendMsgToChar(buf_, ch);
 }
 
 void sedit::show_activ_edit(CharData *ch) {
@@ -384,7 +384,7 @@ void sedit::show_activ_edit(CharData *ch) {
 
 	auto i = olc_set.activ_list.find(activ_edit);
 	if (i == olc_set.activ_list.end()) {
-		send_to_char(ch, "Ошибка: активатор не найден %s:%d (%s).\r\n", __FILE__, __LINE__, __func__);
+		SendMsgToChar(ch, "Ошибка: активатор не найден %s:%d (%s).\r\n", __FILE__, __LINE__, __func__);
 		show_main(ch);
 		return;
 	}
@@ -492,7 +492,7 @@ void sedit::show_activ_edit(CharData *ch) {
 			 CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM));
 	out += buf_;
 
-	send_to_char(out, ch);
+	SendMsgToChar(out, ch);
 }
 
 bool sedit::changed() {
@@ -520,7 +520,7 @@ void sedit::save_olc(CharData *ch) {
 		save();
 		init_obj_index();
 	} else {
-		send_to_char("Ошибка сохранения: набор был удален.", ch);
+		SendMsgToChar("Ошибка сохранения: набор был удален.", ch);
 	}
 }
 
@@ -533,17 +533,17 @@ void parse_main_exit(CharData *ch, const char *arg) {
 		case 'Д': STATE(ch->desc) = CON_PLAYING;
 			ch->desc->sedit->save_olc(ch);
 			ch->desc->sedit.reset();
-			send_to_char("Изменения сохранены.\r\n", ch);
+			SendMsgToChar("Изменения сохранены.\r\n", ch);
 			break;
 		case 'n':
 		case 'N':
 		case 'н':
 		case 'Н': ch->desc->sedit.reset();
 			STATE(ch->desc) = CON_PLAYING;
-			send_to_char("Редактирование отменено.\r\n", ch);
+			SendMsgToChar("Редактирование отменено.\r\n", ch);
 			break;
 		default:
-			send_to_char(
+			SendMsgToChar(
 				"Неверный выбор!\r\n"
 				"Вы хотите сохранить изменения? Y(Д)/N(Н) : ", ch);
 			break;
@@ -562,7 +562,7 @@ void parse_set_remove(CharData *ch, const char *arg) {
 					sets_list.erase(i);
 					save();
 					init_obj_index();
-					send_to_char("Набор удален.\r\n", ch);
+					SendMsgToChar("Набор удален.\r\n", ch);
 					break;
 				}
 			}
@@ -573,11 +573,11 @@ void parse_set_remove(CharData *ch, const char *arg) {
 		case 'n':
 		case 'N':
 		case 'н':
-		case 'Н': send_to_char("Удаление отменено.\r\n", ch);
+		case 'Н': SendMsgToChar("Удаление отменено.\r\n", ch);
 			ch->desc->sedit->show_main(ch);
 			break;
 		default:
-			send_to_char(
+			SendMsgToChar(
 				"Неверный выбор!\r\n"
 				"Подтвердите удаление набора Y(Д)/N(Н) : ", ch);
 			break;
@@ -594,7 +594,7 @@ void sedit::parse_obj_remove(CharData *ch, const char *arg) {
 			auto i = olc_set.obj_list.find(obj_edit);
 			if (i != olc_set.obj_list.end()) {
 				olc_set.obj_list.erase(i);
-				send_to_char("Предмет удален из набора.\r\n", ch);
+				SendMsgToChar("Предмет удален из набора.\r\n", ch);
 			}
 			obj_edit = -1;
 			show_main(ch);
@@ -603,11 +603,11 @@ void sedit::parse_obj_remove(CharData *ch, const char *arg) {
 		case 'n':
 		case 'N':
 		case 'н':
-		case 'Н': send_to_char("Удаление отменено.\r\n", ch);
+		case 'Н': SendMsgToChar("Удаление отменено.\r\n", ch);
 			show_obj_edit(ch);
 			break;
-		default: send_to_char("Неверный выбор!\r\n", ch);
-			send_to_char("Подтвердите удаление предмета Y(Д)/N(Н) :", ch);
+		default: SendMsgToChar("Неверный выбор!\r\n", ch);
+			SendMsgToChar("Подтвердите удаление предмета Y(Д)/N(Н) :", ch);
 			break;
 	}
 }
@@ -622,7 +622,7 @@ void sedit::parse_activ_remove(CharData *ch, const char *arg) {
 			auto i = olc_set.activ_list.find(activ_edit);
 			if (i != olc_set.activ_list.end()) {
 				olc_set.activ_list.erase(i);
-				send_to_char("Активатор удален из набора.\r\n", ch);
+				SendMsgToChar("Активатор удален из набора.\r\n", ch);
 			}
 			activ_edit = -1;
 			show_main(ch);
@@ -631,11 +631,11 @@ void sedit::parse_activ_remove(CharData *ch, const char *arg) {
 		case 'n':
 		case 'N':
 		case 'н':
-		case 'Н': send_to_char("Удаление отменено.\r\n", ch);
+		case 'Н': SendMsgToChar("Удаление отменено.\r\n", ch);
 			show_activ_edit(ch);
 			break;
-		default: send_to_char("Неверный выбор!\r\n", ch);
-			send_to_char("Подтвердите удаление активатора Y(Д)/N(Н) :", ch);
+		default: SendMsgToChar("Неверный выбор!\r\n", ch);
+			SendMsgToChar("Подтвердите удаление активатора Y(Д)/N(Н) :", ch);
 			break;
 	}
 }
@@ -657,13 +657,13 @@ void sedit::show_global_msg(CharData *ch) {
 			 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), msg_edit.room_on_msg.c_str(),
 			 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), msg_edit.room_off_msg.c_str(),
 			 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-	send_to_char(buf_, ch);
+	SendMsgToChar(buf_, ch);
 }
 
 void sedit::parse_global_msg(CharData *ch, const char *arg) {
 	skip_spaces(&arg);
 	if (!*arg) {
-		send_to_char("Неверный выбор!\r\n", ch);
+		SendMsgToChar("Неверный выбор!\r\n", ch);
 		show_global_msg(ch);
 		return;
 	}
@@ -674,15 +674,15 @@ void sedit::parse_global_msg(CharData *ch, const char *arg) {
 			case 'В':
 			case 'в':
 				if (msg_edit != global_msg) {
-					send_to_char("Вы хотите сохранить изменения? Y(Д)/N(Н) : ", ch);
+					SendMsgToChar("Вы хотите сохранить изменения? Y(Д)/N(Н) : ", ch);
 					state = STATE_GLOBAL_MSG_EXIT;
 				} else {
-					send_to_char("Редактирование отменено.\r\n", ch);
+					SendMsgToChar("Редактирование отменено.\r\n", ch);
 					ch->desc->sedit.reset();
 					STATE(ch->desc) = CON_PLAYING;
 				}
 				break;
-			default: send_to_char("Неверный выбор!\r\n", ch);
+			default: SendMsgToChar("Неверный выбор!\r\n", ch);
 				show_global_msg(ch);
 				break;
 		}
@@ -692,29 +692,29 @@ void sedit::parse_global_msg(CharData *ch, const char *arg) {
 	unsigned num = atoi(arg);
 
 	switch (num) {
-		case 1: send_to_char("Сообщение персонажу при активации : ", ch);
+		case 1: SendMsgToChar("Сообщение персонажу при активации : ", ch);
 			state = STATE_GLBMSG_CHAR_ON;
 			break;
-		case 2: send_to_char("Сообщение персонажу при деактивации : ", ch);
+		case 2: SendMsgToChar("Сообщение персонажу при деактивации : ", ch);
 			state = STATE_GLBMSG_CHAR_OFF;
 			break;
-		case 3: send_to_char("Сообщение в комнату при активации : ", ch);
+		case 3: SendMsgToChar("Сообщение в комнату при активации : ", ch);
 			state = STATE_GLBMSG_ROOM_ON;
 			break;
-		case 4: send_to_char("Сообщение в комнату при деактивации : ", ch);
+		case 4: SendMsgToChar("Сообщение в комнату при деактивации : ", ch);
 			state = STATE_GLBMSG_ROOM_OFF;
 			break;
 		case 5:
 			if (msg_edit != global_msg) {
-				send_to_char("Вы хотите сохранить изменения? Y(Д)/N(Н) : ", ch);
+				SendMsgToChar("Вы хотите сохранить изменения? Y(Д)/N(Н) : ", ch);
 				state = STATE_GLOBAL_MSG_EXIT;
 			} else {
-				send_to_char("Редактирование отменено.\r\n", ch);
+				SendMsgToChar("Редактирование отменено.\r\n", ch);
 				ch->desc->sedit.reset();
 				STATE(ch->desc) = CON_PLAYING;
 			}
 			break;
-		default: send_to_char("Неверный выбор!\r\n", ch);
+		default: SendMsgToChar("Неверный выбор!\r\n", ch);
 			show_global_msg(ch);
 			break;
 	}
@@ -730,17 +730,17 @@ void parse_global_msg_exit(CharData *ch, const char *arg) {
 			global_msg = ch->desc->sedit->msg_edit;
 			save();
 			ch->desc->sedit.reset();
-			send_to_char("Изменения сохранены.\r\n", ch);
+			SendMsgToChar("Изменения сохранены.\r\n", ch);
 			break;
 		case 'n':
 		case 'N':
 		case 'н':
 		case 'Н': ch->desc->sedit.reset();
 			STATE(ch->desc) = CON_PLAYING;
-			send_to_char("Редактирование отменено.\r\n", ch);
+			SendMsgToChar("Редактирование отменено.\r\n", ch);
 			break;
 		default:
-			send_to_char(
+			SendMsgToChar(
 				"Неверный выбор!\r\n"
 				"Вы хотите сохранить изменения? Y(Д)/N(Н) : ", ch);
 			break;
@@ -750,7 +750,7 @@ void parse_global_msg_exit(CharData *ch, const char *arg) {
 void sedit::parse_main(CharData *ch, const char *arg) {
 	skip_spaces(&arg);
 	if (!*arg) {
-		send_to_char("Неверный выбор!\r\n", ch);
+		SendMsgToChar("Неверный выбор!\r\n", ch);
 		show_main(ch);
 		return;
 	}
@@ -761,15 +761,15 @@ void sedit::parse_main(CharData *ch, const char *arg) {
 			case 'В':
 			case 'в':
 				if (new_entry || changed()) {
-					send_to_char("Вы хотите сохранить изменения? Y(Д)/N(Н) : ", ch);
+					SendMsgToChar("Вы хотите сохранить изменения? Y(Д)/N(Н) : ", ch);
 					state = STATE_MAIN_EXIT;
 				} else {
-					send_to_char("Редактирование отменено.\r\n", ch);
+					SendMsgToChar("Редактирование отменено.\r\n", ch);
 					ch->desc->sedit.reset();
 					STATE(ch->desc) = CON_PLAYING;
 				}
 				break;
-			default: send_to_char("Неверный выбор!\r\n", ch);
+			default: SendMsgToChar("Неверный выбор!\r\n", ch);
 				show_main(ch);
 				break;
 		}
@@ -779,33 +779,33 @@ void sedit::parse_main(CharData *ch, const char *arg) {
 	unsigned num = atoi(arg);
 
 	switch (num) {
-		case MAIN_SET_REMOVE: send_to_char("Подтвердите удаление набора Y(Д)/N(Н) : ", ch);
+		case MAIN_SET_REMOVE: SendMsgToChar("Подтвердите удаление набора Y(Д)/N(Н) : ", ch);
 			state = STATE_SET_REMOVE;
 			return;
 		case MAIN_ENABLED: olc_set.enabled = !olc_set.enabled;
 			show_main(ch);
 			return;
-		case MAIN_NAME: send_to_char("Имя набора (опознание, справка сеты) : ", ch);
+		case MAIN_NAME: SendMsgToChar("Имя набора (опознание, справка сеты) : ", ch);
 			state = STATE_NAME;
 			return;
 		case MAIN_ALIAS:
-			send_to_char(
+			SendMsgToChar(
 				"Алиасы набора для справки (через запятую и/или пробел) : ", ch);
 			state = STATE_ALIAS;
 			return;
-		case MAIN_COMMENT: send_to_char("Ваш комментарий до 40 символов (виден по slist) : ", ch);
+		case MAIN_COMMENT: SendMsgToChar("Ваш комментарий до 40 символов (виден по slist) : ", ch);
 			state = STATE_COMMENT;
 			return;
-		case MAIN_MSG_CHAR_ON: send_to_char("Сообщение персонажу при активации : ", ch);
+		case MAIN_MSG_CHAR_ON: SendMsgToChar("Сообщение персонажу при активации : ", ch);
 			state = STATE_SETMSG_CHAR_ON;
 			return;
-		case MAIN_MSG_CHAR_OFF: send_to_char("Сообщение персонажу при деактивации : ", ch);
+		case MAIN_MSG_CHAR_OFF: SendMsgToChar("Сообщение персонажу при деактивации : ", ch);
 			state = STATE_SETMSG_CHAR_OFF;
 			return;
-		case MAIN_MSG_ROOM_ON: send_to_char("Сообщение в комнату при активации : ", ch);
+		case MAIN_MSG_ROOM_ON: SendMsgToChar("Сообщение в комнату при активации : ", ch);
 			state = STATE_SETMSG_ROOM_ON;
 			return;
-		case MAIN_MSG_ROOM_OFF: send_to_char("Сообщение в комнату при деактивации : ", ch);
+		case MAIN_MSG_ROOM_OFF: SendMsgToChar("Сообщение в комнату при деактивации : ", ch);
 			state = STATE_SETMSG_ROOM_OFF;
 			return;
 		default: break;
@@ -818,7 +818,7 @@ void sedit::parse_main(CharData *ch, const char *arg) {
 
 	// после статичного меню идут предметы, за ними активаторы
 	if (num == NUM_ADD_OBJ) {
-		send_to_char(
+		SendMsgToChar(
 			"Vnum добавляемого предмета (несколько через пробел) : ", ch);
 		state = STATE_OBJ_ADD;
 	} else if (!olc_set.obj_list.empty()
@@ -834,10 +834,10 @@ void sedit::parse_main(CharData *ch, const char *arg) {
 		show_obj_edit(ch);
 	} else if (num == NUM_TOTAL_ACTIV) {
 		state = STATE_TOTAL_ACTIV;
-		send_to_char(print_total_activ(olc_set), ch);
-		send_to_char("Введите любую команду для продолжения : ", ch);
+		SendMsgToChar(print_total_activ(olc_set), ch);
+		SendMsgToChar("Введите любую команду для продолжения : ", ch);
 	} else if (num == NUM_ADD_ACTIV) {
-		send_to_char(ch,
+		SendMsgToChar(ch,
 					 "Укажите кол-во предметов для активации (%u-%u) : ",
 					 MIN_ACTIVE_SIZE, MAX_ACTIVE_SIZE);
 		state = STATE_ACTIV_ADD;
@@ -854,15 +854,15 @@ void sedit::parse_main(CharData *ch, const char *arg) {
 		show_activ_edit(ch);
 	} else if (num == NUM_QUIT) {
 		if (new_entry || changed()) {
-			send_to_char("Вы хотите сохранить изменения? Y(Д)/N(Н) : ", ch);
+			SendMsgToChar("Вы хотите сохранить изменения? Y(Д)/N(Н) : ", ch);
 			state = STATE_MAIN_EXIT;
 		} else {
-			send_to_char("Редактирование отменено.\r\n", ch);
+			SendMsgToChar("Редактирование отменено.\r\n", ch);
 			ch->desc->sedit.reset();
 			STATE(ch->desc) = CON_PLAYING;
 		}
 	} else {
-		send_to_char("Неверный выбор!\r\n", ch);
+		SendMsgToChar("Неверный выбор!\r\n", ch);
 		show_main(ch);
 	}
 }
@@ -870,7 +870,7 @@ void sedit::parse_main(CharData *ch, const char *arg) {
 void sedit::parse_setname(CharData *ch, const char *arg) {
 	skip_spaces(&arg);
 	if (!*arg) {
-		send_to_char("Имя набора удалено.\r\n", ch);
+		SendMsgToChar("Имя набора удалено.\r\n", ch);
 		olc_set.name.clear();
 	} else {
 		olc_set.name = arg;
@@ -881,7 +881,7 @@ void sedit::parse_setname(CharData *ch, const char *arg) {
 void sedit::parse_setalias(CharData *ch, const char *arg) {
 	skip_spaces(&arg);
 	if (!*arg) {
-		send_to_char("Алиас набора удален.\r\n", ch);
+		SendMsgToChar("Алиас набора удален.\r\n", ch);
 		olc_set.alias.clear();
 	} else {
 		olc_set.alias = arg;
@@ -892,7 +892,7 @@ void sedit::parse_setalias(CharData *ch, const char *arg) {
 void sedit::parse_setcomment(CharData *ch, const char *arg) {
 	skip_spaces(&arg);
 	if (!*arg) {
-		send_to_char("Комментарий набора удален.\r\n", ch);
+		SendMsgToChar("Комментарий набора удален.\r\n", ch);
 		olc_set.comment.clear();
 	} else {
 		olc_set.comment = arg;
@@ -931,25 +931,25 @@ void sedit::parse_setmsg(CharData *ch, const char *arg) {
 		case STATE_OBJMSG_CHAR_ON:
 		case STATE_GLBMSG_CHAR_ON:
 			if ((msg.char_on_msg = arg).empty())
-				send_to_char("Сообщение активатора персонажу удалено.\r\n", ch);
+				SendMsgToChar("Сообщение активатора персонажу удалено.\r\n", ch);
 			break;
 		case STATE_SETMSG_CHAR_OFF:
 		case STATE_OBJMSG_CHAR_OFF:
 		case STATE_GLBMSG_CHAR_OFF:
 			if ((msg.char_off_msg = arg).empty())
-				send_to_char("Сообщение деактиватора персонажу удалено.\r\n", ch);
+				SendMsgToChar("Сообщение деактиватора персонажу удалено.\r\n", ch);
 			break;
 		case STATE_SETMSG_ROOM_ON:
 		case STATE_OBJMSG_ROOM_ON:
 		case STATE_GLBMSG_ROOM_ON:
 			if ((msg.room_on_msg = arg).empty())
-				send_to_char("Сообщение активатора в комнату удалено.\r\n", ch);
+				SendMsgToChar("Сообщение активатора в комнату удалено.\r\n", ch);
 			break;
 		case STATE_SETMSG_ROOM_OFF:
 		case STATE_OBJMSG_ROOM_OFF:
 		case STATE_GLBMSG_ROOM_OFF:
 			if ((msg.room_off_msg = arg).empty())
-				send_to_char("Сообщение деактиватора в комнату удалено.\r\n", ch);
+				SendMsgToChar("Сообщение деактиватора в комнату удалено.\r\n", ch);
 			break;
 		default: break;
 	}
@@ -969,16 +969,16 @@ void sedit::parse_activ_add(CharData *ch, const char *arg) {
 	if (!*arg || !a_isdigit(*arg)
 		|| (num = atoi(arg)) < MIN_ACTIVE_SIZE
 		|| num > MAX_ACTIVE_SIZE) {
-		send_to_char("Некорректное кол-во предметов для активации.\r\n", ch);
+		SendMsgToChar("Некорректное кол-во предметов для активации.\r\n", ch);
 		show_main(ch);
 		return;
 	}
 	auto i = olc_set.activ_list.find(num);
 	if (i != olc_set.activ_list.end()) {
-		send_to_char(ch, "В наборе уже есть активатор на %d %s.\r\n",
+		SendMsgToChar(ch, "В наборе уже есть активатор на %d %s.\r\n",
 					 num, GetDeclensionInNumber(num, EWhat::kObject));
 	} else {
-		send_to_char(ch, "Активатор на %d %s добавлен в набор.\r\n",
+		SendMsgToChar(ch, "Активатор на %d %s добавлен в набор.\r\n",
 					 num, GetDeclensionInNumber(num, EWhat::kObject));
 		ActivNode node;
 		// GCC 4.4
@@ -992,7 +992,7 @@ void sedit::show_activ_ench_vnum(CharData *ch) {
 	state = STATE_ACTIV_ENCH_VNUM;
 	std::string out = main_menu_objlist(ch, olc_set, 1);
 	out += "Укажите vnum предмета (0 - удалить и выйти, пустой ввод - выход) :";
-	send_to_char(out, ch);
+	SendMsgToChar(out, ch);
 }
 
 void sedit::parse_activ_ench_vnum(CharData *ch, const char *arg) {
@@ -1027,11 +1027,11 @@ void sedit::parse_activ_ench_vnum(CharData *ch, const char *arg) {
 	} else {
 		rnum = real_object(vnum);
 		if (rnum < 0) {
-			send_to_char(ch, "Предметов с vnum %d не существует.\r\n", vnum);
+			SendMsgToChar(ch, "Предметов с vnum %d не существует.\r\n", vnum);
 			show_activ_ench_vnum(ch);
 			return;
 		} else if (olc_set.obj_list.find(vnum) == olc_set.obj_list.end()) {
-			send_to_char(ch,
+			SendMsgToChar(ch,
 						 "В данном наборе нет предмета с vnum %d.\r\n", vnum);
 			show_activ_ench_vnum(ch);
 			return;
@@ -1043,12 +1043,12 @@ void sedit::parse_activ_ench_vnum(CharData *ch, const char *arg) {
 	if (rnum >= 0
 		&& GET_OBJ_TYPE(obj_proto[rnum]) == EObjType::kWeapon) {
 		state = STATE_ACTIV_ENCH_NDICE;
-		send_to_char("Укажите изменение бросков кубика (0 - без изменений) :", ch);
+		SendMsgToChar("Укажите изменение бросков кубика (0 - без изменений) :", ch);
 	} else {
 		olc_set.activ_list.at(activ_edit).enchant.second.ndice = 0;
 		olc_set.activ_list.at(activ_edit).enchant.second.sdice = 0;
 		state = STATE_ACTIV_ENCH_WEIGHT;
-		send_to_char("Укажите прибавляемый вес (0 - без изменений) :", ch);
+		SendMsgToChar("Укажите прибавляемый вес (0 - без изменений) :", ch);
 	}
 }
 
@@ -1070,7 +1070,7 @@ void sedit::parse_activ_ench_ndice(CharData *ch, const char *arg) {
 		std::max(std::min(ndice, 100), -100);
 
 	state = STATE_ACTIV_ENCH_SDICE;
-	send_to_char("Укажите изменение граней кубиков (0 - без изменений) :", ch);
+	SendMsgToChar("Укажите изменение граней кубиков (0 - без изменений) :", ch);
 }
 
 void sedit::parse_activ_ench_sdice(CharData *ch, const char *arg) {
@@ -1081,14 +1081,14 @@ void sedit::parse_activ_ench_sdice(CharData *ch, const char *arg) {
 		std::max(std::min(sdice, 100), -100);
 
 	state = STATE_ACTIV_ENCH_WEIGHT;
-	send_to_char("Укажите прибавляемый вес (0 - без изменений) :", ch);
+	SendMsgToChar("Укажите прибавляемый вес (0 - без изменений) :", ch);
 }
 
 void sedit::parse_obj_add(CharData *ch, const char *arg) {
 	skip_spaces(&arg);
 
 	if (!*arg || !a_isdigit(*arg)) {
-		send_to_char("Некорректный виртуальный номер предмета.\r\n", ch);
+		SendMsgToChar("Некорректный виртуальный номер предмета.\r\n", ch);
 		show_main(ch);
 		return;
 	}
@@ -1100,16 +1100,16 @@ void sedit::parse_obj_add(CharData *ch, const char *arg) {
 		const int vnum = atoi(i->c_str());
 		const int rnum = real_object(vnum);
 		if (olc_set.obj_list.size() >= MAX_OBJ_LIST) {
-			send_to_char(
+			SendMsgToChar(
 				"Набор уже содержит максимальное кол-во предметов.\r\n", ch);
 		} else if (rnum < 0) {
-			send_to_char(ch, "Предметов с vnum %d не существует.\r\n", vnum);
+			SendMsgToChar(ch, "Предметов с vnum %d не существует.\r\n", vnum);
 		} else if (is_duplicate(olc_set.uid, vnum)) {
-			send_to_char(ch,
+			SendMsgToChar(ch,
 						 "Предмет '%s' уже является частью другого набора.\r\n",
 						 obj_proto[rnum]->get_short_description().c_str());
 		} else if (!verify_wear_flag(obj_proto[rnum])) {
-			send_to_char(ch,
+			SendMsgToChar(ch,
 						 "Предмет '%s' имеет запрещенный слот для надевания.\r\n",
 						 obj_proto[rnum]->get_short_description().c_str());
 		} else {
@@ -1117,7 +1117,7 @@ void sedit::parse_obj_add(CharData *ch, const char *arg) {
 			// GCC 4.4
 			//olc_set.obj_list.emplace(vnum, empty_msg);
 			olc_set.obj_list.insert(std::make_pair(vnum, empty_msg));
-			send_to_char(ch,
+			SendMsgToChar(ch,
 						 "Предмет '%s' добавлен в набор.\r\n",
 						 obj_proto[rnum]->get_short_description().c_str());
 		}
@@ -1129,7 +1129,7 @@ void sedit::parse_obj_add(CharData *ch, const char *arg) {
 void sedit::parse_obj_edit(CharData *ch, const char *arg) {
 	skip_spaces(&arg);
 	if (!*arg) {
-		send_to_char("Неверный выбор!\r\n", ch);
+		SendMsgToChar("Неверный выбор!\r\n", ch);
 		show_obj_edit(ch);
 		return;
 	}
@@ -1140,7 +1140,7 @@ void sedit::parse_obj_edit(CharData *ch, const char *arg) {
 			case 'В':
 			case 'в': show_main(ch);
 				break;
-			default: send_to_char("Неверный выбор!\r\n", ch);
+			default: SendMsgToChar("Неверный выбор!\r\n", ch);
 				show_obj_edit(ch);
 				break;
 		}
@@ -1149,27 +1149,27 @@ void sedit::parse_obj_edit(CharData *ch, const char *arg) {
 
 	unsigned num = atoi(arg);
 	switch (num) {
-		case 1: send_to_char("Подтвердите удаление предмета Y(Д)/N(Н) :", ch);
+		case 1: SendMsgToChar("Подтвердите удаление предмета Y(Д)/N(Н) :", ch);
 			state = STATE_OBJ_REMOVE;
 			break;
-		case 2: send_to_char("Виртуальный номер нового предмета : ", ch);
+		case 2: SendMsgToChar("Виртуальный номер нового предмета : ", ch);
 			state = STATE_OBJ_CHANGE;
 			break;
-		case 3: send_to_char("Сообщение персонажу при активации : ", ch);
+		case 3: SendMsgToChar("Сообщение персонажу при активации : ", ch);
 			state = STATE_OBJMSG_CHAR_ON;
 			break;
-		case 4: send_to_char("Сообщение персонажу при деактивации : ", ch);
+		case 4: SendMsgToChar("Сообщение персонажу при деактивации : ", ch);
 			state = STATE_OBJMSG_CHAR_OFF;
 			break;
-		case 5: send_to_char("Сообщение в комнату при активации : ", ch);
+		case 5: SendMsgToChar("Сообщение в комнату при активации : ", ch);
 			state = STATE_OBJMSG_ROOM_ON;
 			break;
-		case 6: send_to_char("Сообщение в комнату при деактивации : ", ch);
+		case 6: SendMsgToChar("Сообщение в комнату при деактивации : ", ch);
 			state = STATE_OBJMSG_ROOM_OFF;
 			break;
 		case 7: show_main(ch);
 			break;
-		default: send_to_char("Неверный выбор!\r\n", ch);
+		default: SendMsgToChar("Неверный выбор!\r\n", ch);
 			show_obj_edit(ch);
 			break;
 	}
@@ -1202,8 +1202,8 @@ void sedit::show_activ_skill(CharData *ch) {
 				 MUD::Skills()[i].GetName(), !(++col % 2) ? "\r\n" : "");
 		out += buf_;
 	}
-	send_to_char(out, ch);
-	send_to_char(
+	SendMsgToChar(out, ch);
+	SendMsgToChar(
 		"\r\nУкажите номер и уровень владения умением (0 - конец) : ", ch);
 }
 
@@ -1233,13 +1233,13 @@ void sedit::show_activ_prof(CharData *ch) {
 	out += CCNRM(ch, C_NRM);
 	out += "\r\nВыберите профессии для данного активатора (0 - выход) : ";
 
-	send_to_char(out, ch);
+	SendMsgToChar(out, ch);
 }
 
 void sedit::parse_activ_prof(CharData *ch, const char *arg) {
 	skip_spaces(&arg);
 	if (!*arg || !a_isdigit(*arg)) {
-		send_to_char("Некорректный ввод.\r\n", ch);
+		SendMsgToChar("Некорректный ввод.\r\n", ch);
 		show_activ_prof(ch);
 		return;
 	}
@@ -1258,7 +1258,7 @@ void sedit::parse_activ_prof(CharData *ch, const char *arg) {
 	} else if (num == bits.size() + 2) {
 		bits.set();
 	} else {
-		send_to_char("Некорректный ввод.\r\n", ch);
+		SendMsgToChar("Некорректный ввод.\r\n", ch);
 	}
 	show_activ_prof(ch);
 }
@@ -1276,13 +1276,13 @@ void sedit::parse_activ_skill(CharData *ch, const char *arg) {
 	}
 
 	if (sscanf(arg, "%d %d", &ssnum, &ssval) < 2) {
-		send_to_char("Не указан уровень владения умением.\r\n", ch);
+		SendMsgToChar("Не указан уровень владения умением.\r\n", ch);
 		show_activ_skill(ch);
 		return;
 	}
 	auto skill_id = static_cast<ESkill>(ssnum);
 	if (MUD::Skills().IsInvalid(skill_id)) {
-		send_to_char("Неизвестное умение.\r\n", ch);
+		SendMsgToChar("Неизвестное умение.\r\n", ch);
 		show_activ_skill(ch);
 	} else if (ssval == 0) {
 		skill.first = ESkill::kIncorrect;
@@ -1324,7 +1324,7 @@ void sedit::parse_activ_mage_dmg(CharData *ch, const char *arg) {
 void sedit::parse_activ_edit(CharData *ch, const char *arg) {
 	auto i = olc_set.activ_list.find(activ_edit);
 	if (i == olc_set.activ_list.end()) {
-		send_to_char(ch,
+		SendMsgToChar(ch,
 					 "Ошибка: активатор не найден %s:%d (%s).\r\n",
 					 __FILE__, __LINE__, __func__);
 		show_main(ch);
@@ -1334,7 +1334,7 @@ void sedit::parse_activ_edit(CharData *ch, const char *arg) {
 
 	skip_spaces(&arg);
 	if (!*arg) {
-		send_to_char("Неверный выбор!\r\n", ch);
+		SendMsgToChar("Неверный выбор!\r\n", ch);
 		show_activ_edit(ch);
 		return;
 	}
@@ -1345,7 +1345,7 @@ void sedit::parse_activ_edit(CharData *ch, const char *arg) {
 			case 'В':
 			case 'в': show_main(ch);
 				break;
-			default: send_to_char("Неверный выбор!\r\n", ch);
+			default: SendMsgToChar("Неверный выбор!\r\n", ch);
 				show_activ_edit(ch);
 				break;
 		}
@@ -1355,10 +1355,10 @@ void sedit::parse_activ_edit(CharData *ch, const char *arg) {
 	unsigned num = atoi(arg);
 	switch (num) {
 		case 1: state = STATE_ACTIV_REMOVE;
-			send_to_char("Подтвердите удаление активатора Y(Д)/N(Н) :", ch);
+			SendMsgToChar("Подтвердите удаление активатора Y(Д)/N(Н) :", ch);
 			return;
 		case 2: state = STATE_ACTIV_CHANGE;
-			send_to_char("Введите новое кол-во предметов для активации :", ch);
+			SendMsgToChar("Введите новое кол-во предметов для активации :", ch);
 			return;
 		case 3: show_activ_prof(ch);
 			return;
@@ -1377,23 +1377,23 @@ void sedit::parse_activ_edit(CharData *ch, const char *arg) {
 		show_activ_ench_vnum(ch);
 	} else if (num == offset + activ.apply.size() + 3) {
 		state = STATE_ACTIV_PHYS_DMG;
-		send_to_char("Укажите процент прибавляемого физ. урона :", ch);
+		SendMsgToChar("Укажите процент прибавляемого физ. урона :", ch);
 	} else if (num == offset + activ.apply.size() + 4) {
 		state = STATE_ACTIV_MAGE_DMG;
-		send_to_char("Укажите процент прибавляемого маг. урона :", ch);
+		SendMsgToChar("Укажите процент прибавляемого маг. урона :", ch);
 	} else if (num == offset + activ.apply.size() + 5) {
 		if (activ.npc) {
-			send_to_char("Теперь НЕ активится на мобах.", ch);
+			SendMsgToChar("Теперь НЕ активится на мобах.", ch);
 			i->second.npc = false;
 		} else {
-			send_to_char("Теперь активится на мобах.", ch);
+			SendMsgToChar("Теперь активится на мобах.", ch);
 			i->second.npc = true;
 		}
 		show_activ_edit(ch);
 	} else if (num == offset + activ.apply.size() + 6) {
 		show_main(ch);
 	} else {
-		send_to_char("Некорректный ввод.\r\n", ch);
+		SendMsgToChar("Некорректный ввод.\r\n", ch);
 		show_activ_edit(ch);
 	}
 }
@@ -1426,12 +1426,12 @@ void sedit::parse_activ_apply_loc(CharData *ch, const char *arg) {
 		apply.modifier = 0;
 		show_activ_edit(ch);
 	} else if (num < 0 || num >= EApply::kNumberApplies) {
-		send_to_char("Некорректный ввод.\r\n", ch);
+		SendMsgToChar("Некорректный ввод.\r\n", ch);
 		show_apply_olc(ch->desc);
 	} else {
 		apply.location = static_cast<EApply>(num);
 		state = STATE_ACTIV_APPLY_MOD;
-		send_to_char("Введите модификатор : ", ch);
+		SendMsgToChar("Введите модификатор : ", ch);
 	}
 }
 
@@ -1455,14 +1455,14 @@ void sedit::parse_activ_apply_mod(CharData *ch, const char *arg) {
 void sedit::parse_obj_change(CharData *ch, const char *arg) {
 	skip_spaces(&arg);
 	if (!*arg || !a_isdigit(*arg)) {
-		send_to_char("Некорректный виртуальный номер предмета.\r\n", ch);
+		SendMsgToChar("Некорректный виртуальный номер предмета.\r\n", ch);
 		show_obj_edit(ch);
 		return;
 	}
 
 	const int vnum = atoi(arg);
 	if (vnum == obj_edit) {
-		send_to_char("Вы и так редактируете данный предмет.\r\n", ch);
+		SendMsgToChar("Вы и так редактируете данный предмет.\r\n", ch);
 		show_obj_edit(ch);
 		return;
 	}
@@ -1472,9 +1472,9 @@ void sedit::parse_obj_change(CharData *ch, const char *arg) {
 					  ? MISSING_OBJECT_NAME
 					  : obj_proto[rnum]->get_short_description().c_str();
 	if (is_duplicate(olc_set.uid, vnum)) {
-		send_to_char(ch, "Предмет '%s' уже является частью другого набора.\r\n", name);
+		SendMsgToChar(ch, "Предмет '%s' уже является частью другого набора.\r\n", name);
 	} else if (olc_set.obj_list.find(vnum) != olc_set.obj_list.end()) {
-		send_to_char(ch, "Предмет '%s' уже является частью данного набора.\r\n", name);
+		SendMsgToChar(ch, "Предмет '%s' уже является частью данного набора.\r\n", name);
 	} else {
 		SetMsgNode msg;
 		auto i = olc_set.obj_list.find(obj_edit);
@@ -1485,7 +1485,7 @@ void sedit::parse_obj_change(CharData *ch, const char *arg) {
 		obj_edit = vnum;
 
 		olc_set.obj_list.insert(std::make_pair(vnum, msg));
-		send_to_char(ch, "Предмет '%s' добавлен в набор.\r\n", name);
+		SendMsgToChar(ch, "Предмет '%s' добавлен в набор.\r\n", name);
 	}
 
 	show_obj_edit(ch);
@@ -1494,16 +1494,16 @@ void sedit::parse_obj_change(CharData *ch, const char *arg) {
 void sedit::parse_activ_change(CharData *ch, const char *arg) {
 	skip_spaces(&arg);
 	if (!*arg || !a_isdigit(*arg)) {
-		send_to_char("Некорректное кол-во предметов для активации.\r\n", ch);
+		SendMsgToChar("Некорректное кол-во предметов для активации.\r\n", ch);
 		show_activ_edit(ch);
 		return;
 	}
 
 	const int num = atoi(arg);
 	if (num == activ_edit) {
-		send_to_char("Кол-во предметов активации не изменилось.\r\n", ch);
+		SendMsgToChar("Кол-во предметов активации не изменилось.\r\n", ch);
 	} else if (olc_set.activ_list.find(num) != olc_set.activ_list.end()) {
-		send_to_char(ch,
+		SendMsgToChar(ch,
 					 "Набор уже содержит активатор на %d %s.\r\n",
 					 num, GetDeclensionInNumber(num, EWhat::kObject));
 	} else {
@@ -1517,7 +1517,7 @@ void sedit::parse_activ_change(CharData *ch, const char *arg) {
 		// GCC 4.4
 		//olc_set.activ_list.emplace(num, activ);
 		olc_set.activ_list.insert(std::make_pair(num, activ));
-		send_to_char(ch, "Активатор на %d %s добавлен в набор.\r\n",
+		SendMsgToChar(ch, "Активатор на %d %s добавлен в набор.\r\n",
 					 num, GetDeclensionInNumber(num, EWhat::kObject));
 	}
 	show_activ_edit(ch);
@@ -1601,7 +1601,7 @@ void parse_input(CharData *ch, const char *arg) {
 			break;
 		default: ch->desc->sedit.reset();
 			STATE(ch->desc) = CON_PLAYING;
-			send_to_char(ch,
+			SendMsgToChar(ch,
 						 "Ошибка: не найден STATE, редактирование отменено %s:%d (%s).\r\n",
 						 __FILE__, __LINE__, __func__);
 			break;
@@ -1654,8 +1654,8 @@ void do_sedit(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		} else {
 			// по внуму предмета
 			if (real_object(num) < 0) {
-				send_to_char(SEDIT_HELP, ch);
-				send_to_char(ch, "Предметов с vnum %s не существует.\r\n",
+				SendMsgToChar(SEDIT_HELP, ch);
+				SendMsgToChar(ch, "Предметов с vnum %s не существует.\r\n",
 							 argument);
 				return;
 			}
@@ -1663,8 +1663,8 @@ void do_sedit(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (idx < sets_list.size()) {
 				start_sedit(ch, idx);
 			} else {
-				send_to_char(SEDIT_HELP, ch);
-				send_to_char(ch,
+				SendMsgToChar(SEDIT_HELP, ch);
+				SendMsgToChar(ch,
 							 "В сетах предметов с vnum %s не найдено.\r\n", argument);
 			}
 		}
@@ -1675,7 +1675,7 @@ void do_sedit(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		ch->desc->sedit->msg_edit = global_msg;
 		ch->desc->sedit->show_global_msg(ch);
 	} else {
-		send_to_char(SEDIT_HELP, ch);
+		SendMsgToChar(SEDIT_HELP, ch);
 	}
 }
 

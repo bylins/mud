@@ -12,11 +12,11 @@ void do_telegram(CharData *ch, char *argument, int, int) {
 
 	half_chop(argument, playerName, output);
 	if (!*playerName) {
-		send_to_char(ch, "Не указано имя игрока.\r\n");
+		SendMsgToChar(ch, "Не указано имя игрока.\r\n");
 		return;
 	}
 	if (strlen(output) < 10) {
-		send_to_char(ch, "Коротковато сообщеньице!\r\n");
+		SendMsgToChar(ch, "Коротковато сообщеньице!\r\n");
 		return;
 	}
 	for (const auto &character : character_list) {
@@ -29,32 +29,32 @@ void do_telegram(CharData *ch, char *argument, int, int) {
 	}
 	Player p_vict;
 	if (!found) {
-//        send_to_char(ch, "Не нашли онлайн, ищем в файле.\r\n");
+//        SendMsgToChar(ch, "Не нашли онлайн, ищем в файле.\r\n");
 		if (load_char(playerName, &p_vict) == -1) {
-			send_to_char("Ошибочка вышла..\r\n", ch);
+			SendMsgToChar("Ошибочка вышла..\r\n", ch);
 			return;
 		}
 		tgId = p_vict.getTelegramId();
 	}
 
 	if (tgId == 0) {
-		send_to_char(ch, "Звыняйте, барин, нэмае у той телеги колесьев...\r\n");
+		SendMsgToChar(ch, "Звыняйте, барин, нэмае у той телеги колесьев...\r\n");
 		return;
 	}
 
 	snprintf(smallBuf, kMaxInputLength, "Поступила телега от %s, сообщают следующее:\r\n%s", GET_NAME(ch), output);
 	koi_to_utf8(const_cast<char *>(smallBuf), utfBuf);
 	if (strlen(utfBuf) < 10) {
-		send_to_char("Ошибочка вышла..\r\n", ch);
+		SendMsgToChar("Ошибочка вышла..\r\n", ch);
 		return;
 	}
 	if (!system_obj::bot->sendMessage(tgId, utfBuf)) {
-		send_to_char("Ошибочка вышла..\r\n", ch);
+		SendMsgToChar("Ошибочка вышла..\r\n", ch);
 		return;
 	};
-	send_to_char("Ваша телега успешно уехала в адрес.\r\n", ch);
+	SendMsgToChar("Ваша телега успешно уехала в адрес.\r\n", ch);
 #else
-	send_to_char("Звыняйте, телегу украли цыгане.\r\n", ch);
+	SendMsgToChar("Звыняйте, телегу украли цыгане.\r\n", ch);
 #endif
 }
 

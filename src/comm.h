@@ -28,14 +28,14 @@ class CharData;    // forward declaration to avoid inclusion of char.hpp and any
 extern DescriptorData *descriptor_list;
 
 // comm.cpp
-void send_to_all(const char *messg);
-void send_to_char(const char *messg, const CharData *ch);
-void send_to_char(const CharData *ch, const char *messg, ...) __attribute__((format(printf, 2, 3)));
-void send_to_char(const std::string &buffer, const CharData *ch);
+void SendMsgToAll(const char *msg);
+void SendMsgToChar(const char *msg, const CharData *ch);
+void SendMsgToChar(const CharData *ch, const char *msg, ...) __attribute__((format(printf, 2, 3)));
+void SendMsgToChar(const std::string &msg, const CharData *ch);
 void send_stat_char(const CharData *ch);
-void send_to_room(const char *messg, RoomRnum room, int to_awake);
-void send_to_outdoor(const char *messg, int control);
-void send_to_gods(const char *messg);
+void SendMsgToRoom(const char *msg, RoomRnum room, int to_awake);
+void SendMsgToOutdoor(const char *msg, int control);
+void SendMsgToGods(const char *msg);
 void perform_to_all(const char *messg, CharData *ch);
 #ifdef HAS_EPOLL
 void close_socket(DescriptorData *d, int direct, int epoll, struct epoll_event *events, int n_ev);

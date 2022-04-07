@@ -262,7 +262,7 @@ void ShowStats(CharData *ch) {
 	}
 
 	out << std::endl;
-	send_to_char(out.str(), ch);
+	SendMsgToChar(out.str(), ch);
 }
 
 void UpdateMobNode(std::list<MobMonthKillStat> &node_list, int members) {
@@ -390,7 +390,7 @@ void ShowZoneMobKillsStat(CharData *ch, ZoneVnum zone_vnum, int months) {
 		out << std::endl;
 	}
 
-	send_to_char(out.str().c_str(), ch);
+	SendMsgToChar(out.str().c_str(), ch);
 }
 
 } // namespace mob_stat

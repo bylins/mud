@@ -378,10 +378,10 @@ bool pk_agro_action(CharData *agressor, CharData *victim) {
 		act("$n был$g выдворен$a за пределы замка!", true, agressor, 0, 0, kToRoom);
 		ExtractCharFromRoom(agressor);
 		if (IS_FEMALE(agressor))
-			send_to_char("Охолонись малая, на своих бросаться не дело!\r\n", agressor);
+			SendMsgToChar("Охолонись малая, на своих бросаться не дело!\r\n", agressor);
 		else
-			send_to_char("Охолонись малец, на своих бросаться не дело!\r\n", agressor);
-		send_to_char("Защитная магия взяла вас за шиворот и выкинула вон из замка!\r\n", agressor);
+			SendMsgToChar("Охолонись малец, на своих бросаться не дело!\r\n", agressor);
+		SendMsgToChar("Защитная магия взяла вас за шиворот и выкинула вон из замка!\r\n", agressor);
 		PlaceCharToRoom(agressor, real_room(CLAN(agressor)->out_rent));
 		look_at_room(agressor, real_room(CLAN(agressor)->out_rent));
 		act("$n свалил$u с небес, выкрикивая какие-то ругательства!", true, agressor, 0, 0, kToRoom);
@@ -703,9 +703,9 @@ void do_revenge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		if (found) {
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 		} else {
-			send_to_char("Ни у кого нет права мести вам.\r\n", ch);
+			SendMsgToChar("Ни у кого нет права мести вам.\r\n", ch);
 		}
 
 		return;
@@ -740,8 +740,8 @@ void do_revenge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 
 				if (!found)
-					send_to_char("Вы имеете право отомстить :\r\n", ch);
-				send_to_char(buf, ch);
+					SendMsgToChar("Вы имеете право отомстить :\r\n", ch);
+				SendMsgToChar(buf, ch);
 				found = true;
 				break;
 			}
@@ -749,7 +749,7 @@ void do_revenge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (!found) {
-		send_to_char("Вам некому мстить.\r\n", ch);
+		SendMsgToChar("Вам некому мстить.\r\n", ch);
 	}
 }
 
@@ -761,13 +761,13 @@ void do_forgive(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 
 	if (NORENTABLE(ch)) {
-		send_to_char("Вам сначала стоит завершить боевые действия.\r\n", ch);
+		SendMsgToChar("Вам сначала стоит завершить боевые действия.\r\n", ch);
 		return;
 	}
 
 	one_argument(argument, arg);
 	if (!*arg) {
-		send_to_char("Кого вы хотите простить?\r\n", ch);
+		SendMsgToChar("Кого вы хотите простить?\r\n", ch);
 		return;
 	}
 
@@ -821,9 +821,9 @@ void do_forgive(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	} else {
 		if (bForgive) {
-			send_to_char("Для отпущения грехов Боги рекомендуют воспользоваться церковью.\r\n", ch);
+			SendMsgToChar("Для отпущения грехов Боги рекомендуют воспользоваться церковью.\r\n", ch);
 		} else {
-			send_to_char("Похоже, этого игрока нет в игре.\r\n", ch);
+			SendMsgToChar("Похоже, этого игрока нет в игре.\r\n", ch);
 		}
 	}
 }
@@ -887,7 +887,7 @@ int may_kill_here(CharData *ch, CharData *victim, char *argument) {
 	}
 	//запрет на любые агры
 	if (ch != victim && (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoBattle) || ROOM_FLAGGED(victim->in_room, ERoomFlag::kNoBattle))) {
-		send_to_char("Высшие силы воспретили здесь сражаться!\r\n", ch);
+		SendMsgToChar("Высшие силы воспретили здесь сражаться!\r\n", ch);
 		return (false);
 	}
 	// не агрим чарами <=10 на чаров >=20
@@ -911,12 +911,12 @@ int may_kill_here(CharData *ch, CharData *victim, char *argument) {
 		if (MOB_FLAGGED(ch, EMobFlag::kIgnoresPeaceRoom) && !IS_CHARMICE(ch))
 			return true;
 		// моб по триггеру имеет право
-		if (ch->is_npc() && ch->get_rnum() == real_mobile(DG_CASTER_PROXY))
+		if (ch->is_npc() && ch->get_rnum() == real_mobile(kDgCasterProxy))
 			return true;
 		// богам, мстящим и продолжающим агро-бд можно
 		if (IS_GOD(ch) || pk_action_type(ch, victim) & (PK_ACTION_REVENGE | PK_ACTION_FIGHT))
 			return true;
-		send_to_char("Здесь слишком мирно, чтобы начинать драку...\r\n", ch);
+		SendMsgToChar("Здесь слишком мирно, чтобы начинать драку...\r\n", ch);
 		return false;
 	}
 	//Проверка на чармиса(своего или группы)
@@ -924,7 +924,7 @@ int may_kill_here(CharData *ch, CharData *victim, char *argument) {
 		skip_spaces(&argument);
 		if (victim && IS_CHARMICE(victim) && victim->get_master() && !victim->get_master()->is_npc()) {
 			if (!name_cmp(victim, argument)) {
-				send_to_char(ch, "Для исключения незапланированной агрессии введите имя жертвы полностью.\r\n");
+				SendMsgToChar(ch, "Для исключения незапланированной агрессии введите имя жертвы полностью.\r\n");
 				return false;
 			}
 		}
@@ -982,7 +982,7 @@ int check_pkill(CharData *ch, CharData *opponent, const char *arg) {
 		return true;
 
 	// Совпадений не нашел
-	send_to_char(ch, "Для исключения незапланированной агрессии введите имя жертвы полностью.\r\n");
+	SendMsgToChar(ch, "Для исключения незапланированной агрессии введите имя жертвы полностью.\r\n");
 	return false;
 }
 int check_pkill(CharData *ch, CharData *opponent, const std::string &arg) {
@@ -1008,7 +1008,7 @@ int check_pkill(CharData *ch, CharData *opponent, const std::string &arg) {
 	}
 
 	// Совпадений не нашел
-	send_to_char("Для исключения незапланированной агрессии введите имя жертвы полностью.\r\n", ch);
+	SendMsgToChar("Для исключения незапланированной агрессии введите имя жертвы полностью.\r\n", ch);
 	return false;
 }
 

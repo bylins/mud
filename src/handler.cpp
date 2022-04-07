@@ -305,7 +305,7 @@ void ProcessRoomAffectsOnEntry(CharData *ch, RoomRnum room) {
 			if (!ch->is_npc() && (number (1, 100) > (23 + 2*mkof))) {
 				return;
 			}
-			send_to_char("Вы уставились на огненный узор, как баран на новые ворота.", ch);
+			SendMsgToChar("Вы уставились на огненный узор, как баран на новые ворота.", ch);
 			act("$n0 уставил$u на огненный узор, как баран на новые ворота.",
 				true, ch, nullptr, ch, kToRoom | kToArenaListen);
 			CallMagic(caster, ch, nullptr, nullptr, kSpellSleep, GetRealLevel(caster));
@@ -325,7 +325,7 @@ void PlaceCharToRoom(CharData *ch, RoomRnum room) {
 	}
 
 	if (!ch->is_npc() && NORENTABLE(ch) && ROOM_FLAGGED(room, ERoomFlag::kArena) && !IS_IMMORTAL(ch)) {
-		send_to_char("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
+		SendMsgToChar("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
 		room = ch->get_from_room();
 	}
 	world[room]->people.push_front(ch);
@@ -348,7 +348,7 @@ void PlaceCharToRoom(CharData *ch, RoomRnum room) {
 				CCMAG(ch, C_NRM), CCICYN(ch, C_NRM), weather_info.sky,
 				CCWHT(ch, C_NRM), CCIWHT(ch, C_NRM), weather_info.sunlight,
 				CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), weather_info.moon_day, CCNRM(ch, C_NRM));
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 	}
 	// Stop fighting now, if we left.
 	if (ch->get_fighting() && ch->in_room != IN_ROOM(ch->get_fighting())) {
@@ -391,7 +391,7 @@ void FleeToRoom(CharData *ch, RoomRnum room) {
 	}
 
 	if (!ch->is_npc() && NORENTABLE(ch) && ROOM_FLAGGED(room, ERoomFlag::kArena) && !IS_IMMORTAL(ch)) {
-		send_to_char("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
+		SendMsgToChar("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
 		room = ch->get_from_room();
 	}
 	world[room]->people.push_front(ch);
@@ -414,7 +414,7 @@ void FleeToRoom(CharData *ch, RoomRnum room) {
 				CCMAG(ch, C_NRM), CCICYN(ch, C_NRM), weather_info.sky,
 				CCWHT(ch, C_NRM), CCIWHT(ch, C_NRM), weather_info.sunlight,
 				CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), weather_info.moon_day, CCNRM(ch, C_NRM));
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 	}
 	// Stop fighting now, if we left.
 	if (ch->get_fighting() && ch->in_room != IN_ROOM(ch->get_fighting())) {
@@ -461,8 +461,7 @@ void RestoreObject(ObjData *obj, CharData *ch) {
 	}
 }
 
-// выясняет, стокаются ли объекты с метками
-bool IsLabeledObjsStsckable(ObjData *obj_one, ObjData *obj_two) {
+bool IsLabelledObjsStackable(ObjData *obj_one, ObjData *obj_two) {
 	// без меток стокаются
 	if (!obj_one->get_custom_label() && !obj_two->get_custom_label())
 		return true;
@@ -492,7 +491,6 @@ bool IsLabeledObjsStsckable(ObjData *obj_one, ObjData *obj_two) {
 	return false;
 }
 
-// выяснение стокаются ли предметы
 bool IsObjsStackable(ObjData *obj_one, ObjData *obj_two) {
 	if (GET_OBJ_VNUM(obj_one) != GET_OBJ_VNUM(obj_two)
 		|| strcmp(obj_one->get_short_description().c_str(), obj_two->get_short_description().c_str())
@@ -503,7 +501,7 @@ bool IsObjsStackable(ObjData *obj_one, ObjData *obj_two) {
 		|| GET_OBJ_VNUM(obj_two) == -1
 		|| (GET_OBJ_TYPE(obj_one) == EObjType::kBook
 			&& GET_OBJ_VAL(obj_one, 1) != GET_OBJ_VAL(obj_two, 1))
-		|| !IsLabeledObjsStsckable(obj_one, obj_two)) {
+		|| !IsLabelledObjsStackable(obj_one, obj_two)) {
 		return false;
 	}
 
@@ -961,7 +959,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 	} else if ((!ch->is_npc() || IS_CHARMICE(ch)) && obj->has_flag(EObjFlag::kNamed)
 		&& NamedStuff::check_named(ch, obj, true)) {
 		if (!NamedStuff::wear_msg(ch, obj))
-			send_to_char("Просьба не трогать! Частная собственность!\r\n", ch);
+			SendMsgToChar("Просьба не трогать! Частная собственность!\r\n", ch);
 		if (!obj->get_carried_by()) {
 			PlaceObjToInventory(obj, ch);
 		}
@@ -983,7 +981,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 		CharData *master = IS_CHARMICE(ch) && ch->has_master() ? ch->get_master() : ch;
 		if ((obj->get_auto_mort_req() >= 0) && (obj->get_auto_mort_req() > GET_REAL_REMORT(master))
 			&& !IS_IMMORTAL(master)) {
-			send_to_char(master, "Для использования %s требуется %d %s.\r\n",
+			SendMsgToChar(master, "Для использования %s требуется %d %s.\r\n",
 						 GET_OBJ_PNAME(obj, 1).c_str(),
 						 obj->get_auto_mort_req(),
 						 GetDeclensionInNumber(obj->get_auto_mort_req(), EWhat::kRemort));
@@ -994,7 +992,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 			return;
 		} else if ((obj->get_auto_mort_req() < -1) && (abs(obj->get_auto_mort_req()) < GET_REAL_REMORT(master))
 			&& !IS_IMMORTAL(master)) {
-			send_to_char(master, "Максимально количество перевоплощений для использования %s равно %d.\r\n",
+			SendMsgToChar(master, "Максимально количество перевоплощений для использования %s равно %d.\r\n",
 						 GET_OBJ_PNAME(obj, 1).c_str(),
 						 abs(obj->get_auto_mort_req()));
 			act("$n попытал$u использовать $o3, но у н$s ничего не получилось.",
@@ -1459,7 +1457,7 @@ const int kScriptDestroyTimer = 10; // * !!! Never set less than ONE * //
 */
 bool PlaceObjToRoom(ObjData *object, RoomRnum room) {
 //	int sect = 0;
-	if (!object || room < FIRST_ROOM || room > top_of_world) {
+	if (!object || room < kFirstRoom || room > top_of_world) {
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
 		log("SYSERR: Illegal value(s) passed to PlaceObjToRoom. (Room #%d/%d, obj %p)",
 			room, top_of_world, object);
@@ -2100,7 +2098,7 @@ ObjData *get_obj_in_list_vis(CharData *ch, const char *name, ObjData *list, bool
 			|| CHECK_CUSTOM_LABEL(tmp, i, ch)) {
 			if (CAN_SEE_OBJ(ch, i)) {
 				// sprintf(buf,"Show obj %d %s %x ", number, i->name, i);
-				// send_to_char(buf,ch);
+				// SendMsgToChar(buf,ch);
 				if (!locate_item) {
 					if (++j == number)
 						return (i);
@@ -2799,7 +2797,7 @@ int get_player_charms(CharData *ch, int spellnum) {
 	}
 
 	if (PRF_FLAGGED(ch, EPrf::kTester))
-		send_to_char(ch, "&Gget_player_charms Расчет чарма r_hp = %f \r\n&n", r_hp);
+		SendMsgToChar(ch, "&Gget_player_charms Расчет чарма r_hp = %f \r\n&n", r_hp);
 	return (int) r_hp;
 }
 
@@ -2888,7 +2886,7 @@ int MemQ_learn(CharData *ch) {
 	free(i);
 	sprintf(buf, "Вы выучили заклинание \"%s%s%s\".\r\n",
 			CCICYN(ch, C_NRM), spell_info[num].name, CCNRM(ch, C_NRM));
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 	return num;
 }
 
@@ -2904,7 +2902,7 @@ void MemQ_remember(CharData *ch, int num) {
 	slotcnt -= slots[slotn];    // кол-во свободных слотов
 
 	if (slotcnt <= 0) {
-		send_to_char("У вас нет свободных ячеек этого круга.", ch);
+		SendMsgToChar("У вас нет свободных ячеек этого круга.", ch);
 		return;
 	}
 
@@ -2914,7 +2912,7 @@ void MemQ_remember(CharData *ch, int num) {
 	else
 		sprintf(buf, "Вы занесли заклинание \"%s%s%s\" в свои резы.\r\n",
 				CCIMAG(ch, C_NRM), spell_info[num].name, CCNRM(ch, C_NRM));
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 
 	ch->mem_queue.total += mag_manacost(ch, num);
 	while (*pi)
@@ -2934,7 +2932,7 @@ void MemQ_forget(CharData *ch, int num) {
 	}
 
 	if (q == nullptr) {
-		send_to_char("Вы и не собирались заучить это заклинание.\r\n", ch);
+		SendMsgToChar("Вы и не собирались заучить это заклинание.\r\n", ch);
 	} else {
 		struct SpellMemQueueItem *ptr;
 		if (q == &ch->mem_queue.queue)
@@ -2946,7 +2944,7 @@ void MemQ_forget(CharData *ch, int num) {
 		sprintf(buf,
 				"Вы вычеркнули заклинание \"%s%s%s\" из списка для запоминания.\r\n",
 				CCIMAG(ch, C_NRM), spell_info[num].name, CCNRM(ch, C_NRM));
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 	}
 }
 
@@ -3099,7 +3097,7 @@ void RemoveRuneLabelFromWorld(CharData *ch, ESpell spell_id) {
 		const auto aff = room_spells::FindAffect(affected_room, spell_id);
 		if (aff != affected_room->affected.end()) {
 			room_spells::RemoveAffect(affected_room, aff);
-			send_to_char("Ваша рунная метка удалена.\r\n", ch);
+			SendMsgToChar("Ваша рунная метка удалена.\r\n", ch);
 		}
 	}
 }

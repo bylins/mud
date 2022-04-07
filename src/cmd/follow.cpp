@@ -171,18 +171,18 @@ void do_follow(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (*smallBuf) {
 		if (!str_cmp(smallBuf, "я") || !str_cmp(smallBuf, "self") || !str_cmp(smallBuf, "me")) {
 			if (!ch->has_master()) {
-				send_to_char("Но вы ведь ни за кем не следуете...\r\n", ch);
+				SendMsgToChar("Но вы ведь ни за кем не следуете...\r\n", ch);
 			} else {
 				stop_follower(ch, kSfEmpty);
 			}
 			return;
 		}
 		if (!(leader = get_char_vis(ch, smallBuf, EFind::kCharInRoom))) {
-			send_to_char(NOPERSON, ch);
+			SendMsgToChar(NOPERSON, ch);
 			return;
 		}
 	} else {
-		send_to_char("За кем вы хотите следовать?\r\n", ch);
+		SendMsgToChar("За кем вы хотите следовать?\r\n", ch);
 		return;
 	}
 
@@ -198,13 +198,13 @@ void do_follow(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	{
 		if (leader == ch) {
 			if (!ch->has_master()) {
-				send_to_char("Вы уже следуете за собой.\r\n", ch);
+				SendMsgToChar("Вы уже следуете за собой.\r\n", ch);
 				return;
 			}
 			stop_follower(ch, kSfEmpty);
 		} else {
 			if (circle_follow(ch, leader)) {
-				send_to_char("Так у вас целый хоровод получится.\r\n", ch);
+				SendMsgToChar("Так у вас целый хоровод получится.\r\n", ch);
 				return;
 			}
 

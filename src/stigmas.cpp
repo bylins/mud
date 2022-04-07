@@ -14,7 +14,7 @@ void do_touch_stigma(CharacterData *ch, char* argument, int, int)
 
 	if (!*buf)
 	{
-		send_to_char(ch, "Вы прикоснулись к себе. Приятно!\r\n");
+		SendMsgToChar(ch, "Вы прикоснулись к себе. Приятно!\r\n");
 		return;
 	}
 
@@ -25,7 +25,7 @@ void do_touch_stigma(CharacterData *ch, char* argument, int, int)
 	else
 	{
 		sprintf(buf, "Вы прикоснулись к %s. Ничего не произошло.\r\n", vict->get_name().c_str());
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 	}
 }
 
@@ -37,8 +37,8 @@ std::string StigmaWear::get_name() const
 // стигма огненный дракон
 void stigma_fire_dragon(CharacterData *ch)
 {
-	send_to_char(ch, "Вы прикоснулись к стигме с изображением огненного дракона.\r\n");
-	send_to_char(ch, "Рисунок вспыхнул и вы почуствовали небольшую боль.");
+	SendMsgToChar(ch, "Вы прикоснулись к стигме с изображением огненного дракона.\r\n");
+	SendMsgToChar(ch, "Рисунок вспыхнул и вы почуствовали небольшую боль.");
 }
 
 // инициализация стигм

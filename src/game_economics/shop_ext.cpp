@@ -399,7 +399,7 @@ int shop_ext(CharData *ch, void *me, int cmd, char *argument) {
 
 	if (!shop) {
 		log("SYSERROR : магазин не найден mob_vnum=%d (%s:%d)", GET_MOB_VNUM(keeper), __FILE__, __LINE__);
-		send_to_char("Ошибочка вышла.\r\n", ch);
+		SendMsgToChar("Ошибочка вышла.\r\n", ch);
 
 		return 1;
 	}
@@ -491,7 +491,7 @@ void do_shops_list(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 	for (size_t i = 0; i < n; i++) {
 		out << std::to_string(i + 1) << " " << dic->GetNameByNID(i) << " " << dic->GetTIDByNID(i) + "\r\n";
 	}
-	send_to_char(out.str().c_str(), ch);
+	SendMsgToChar(out.str().c_str(), ch);
 }
 
 void fill_shop_dictionary(DictionaryType &dic) {

@@ -10,12 +10,12 @@
 // ************************* STUPOR PROCEDURES
 void go_stupor(CharData *ch, CharData *victim) {
 	if (IsUnableToAct(ch)) {
-		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
 
 	if (PRF_FLAGS(ch).get(EPrf::kIronWind)) {
-		send_to_char("Вы не можете применять этот прием в таком состоянии!\r\n", ch);
+		SendMsgToChar("Вы не можете применять этот прием в таком состоянии!\r\n", ch);
 		return;
 	}
 
@@ -42,22 +42,22 @@ void go_stupor(CharData *ch, CharData *victim) {
 
 void do_stupor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->get_skill(ESkill::kOverwhelm) < 1) {
-		send_to_char("Вы не знаете как.\r\n", ch);
+		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
 	if (ch->haveCooldown(ESkill::kOverwhelm)) {
-		send_to_char("Вам нужно набраться сил.\r\n", ch);
+		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
 
 	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
-		send_to_char("Кого вы хотите оглушить?\r\n", ch);
+		SendMsgToChar("Кого вы хотите оглушить?\r\n", ch);
 		return;
 	}
 
 	if (vict == ch) {
-		send_to_char("Вы громко заорали, заглушая свой собственный голос.\r\n", ch);
+		SendMsgToChar("Вы громко заорали, заглушая свой собственный голос.\r\n", ch);
 		return;
 	}
 

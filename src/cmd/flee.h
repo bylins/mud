@@ -3,8 +3,8 @@
 
 class CharData;
 
-void go_flee(CharData *ch);
-void do_flee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void GoFlee(CharData *ch);
+void DoFlee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 
 #endif //BYLINS_FLEE_H
 

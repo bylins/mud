@@ -195,7 +195,7 @@ void do_remember_char(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	// Если без аргумента - выдает личные теллы
 	if (!*argument) {
-		send_to_char(ch->remember_get(Remember::PERSONAL), ch);
+		SendMsgToChar(ch->remember_get(Remember::PERSONAL), ch);
 		return;
 	}
 
@@ -203,46 +203,46 @@ void do_remember_char(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (utils::IsAbbrev(arg, "воззвать")) {
 		if (IS_IMMORTAL(ch) || PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
-			send_to_char(ch->remember_get(Remember::PRAY), ch);
+			SendMsgToChar(ch->remember_get(Remember::PRAY), ch);
 		} else {
-			send_to_char(ch->remember_get(Remember::PRAY_PERSONAL), ch);
+			SendMsgToChar(ch->remember_get(Remember::PRAY_PERSONAL), ch);
 		}
 	} else if ((GetRealLevel(ch) < kLvlImmortal || IS_IMPL(ch)) && utils::IsAbbrev(arg, "оффтоп")) {
 		if (!PRF_FLAGGED(ch, EPrf::kStopOfftop)) {
-			send_to_char(ch->remember_get(Remember::OFFTOP), ch);
+			SendMsgToChar(ch->remember_get(Remember::OFFTOP), ch);
 		} else {
-			send_to_char(ch, "Вам нечего вспомнить.\r\n");
+			SendMsgToChar(ch, "Вам нечего вспомнить.\r\n");
 		}
 	} else if (utils::IsAbbrev(arg, "болтать") || utils::IsAbbrev(arg, "орать")) {
-		send_to_char(ch->remember_get(Remember::GOSSIP), ch);
+		SendMsgToChar(ch->remember_get(Remember::GOSSIP), ch);
 	} else if (utils::IsAbbrev(arg, "группа") || utils::IsAbbrev(arg, "ггруппа"))
 	{
-		send_to_char(ch->remember_get(Remember::GROUP), ch);
+		SendMsgToChar(ch->remember_get(Remember::GROUP), ch);
 	} else if (utils::IsAbbrev(arg, "клан") || utils::IsAbbrev(arg, "гдругам")) {
 		if (CLAN(ch)) {
-			send_to_char(CLAN(ch)->get_remember(ch->remember_get_num(), Remember::CLAN), ch);
+			SendMsgToChar(CLAN(ch)->get_remember(ch->remember_get_num(), Remember::CLAN), ch);
 		} else {
-			send_to_char(ch, "Вам нечего вспомнить.\r\n");
+			SendMsgToChar(ch, "Вам нечего вспомнить.\r\n");
 		}
 		return;
 	} else if (utils::IsAbbrev(arg, "союзники") || utils::IsAbbrev(arg, "альянс") || utils::IsAbbrev(arg, "гсоюзникам")) {
 		if (CLAN(ch)) {
-			send_to_char(CLAN(ch)->get_remember(ch->remember_get_num(), Remember::ALLY), ch);
+			SendMsgToChar(CLAN(ch)->get_remember(ch->remember_get_num(), Remember::ALLY), ch);
 		} else {
-			send_to_char(ch, "Вам нечего вспомнить.\r\n");
+			SendMsgToChar(ch, "Вам нечего вспомнить.\r\n");
 		}
 		return;
 	} else if (utils::IsAbbrev(arg, "гбогам") && IS_IMMORTAL(ch)) {
-		send_to_char(get_from_flaged_cont(wiznet_, ch->remember_get_num(), GetRealLevel(ch)), ch);
+		SendMsgToChar(get_from_flaged_cont(wiznet_, ch->remember_get_num(), GetRealLevel(ch)), ch);
 		return;
 	} else if (utils::IsAbbrev(arg, "все")) {
-		send_to_char(ch->remember_get(Remember::ALL), ch);
+		SendMsgToChar(ch->remember_get(Remember::ALL), ch);
 		return;
 	} else {
 		if (IS_IMMORTAL(ch) && !IS_IMPL(ch))
-			send_to_char("Формат команды: вспомнить [без параметров|болтать|воззвать|гг|гд|гс|гб|все]\r\n", ch);
+			SendMsgToChar("Формат команды: вспомнить [без параметров|болтать|воззвать|гг|гд|гс|гб|все]\r\n", ch);
 		else
-			send_to_char("Формат команды: вспомнить [без параметров|болтать|оффтоп|гг|гд|гс|все]\r\n", ch);
+			SendMsgToChar("Формат команды: вспомнить [без параметров|болтать|оффтоп|гг|гд|гс|все]\r\n", ch);
 	}
 }
 

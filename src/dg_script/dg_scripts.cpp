@@ -34,7 +34,7 @@
 #include <chrono>
 //#include <string>
 extern int max_exp_gain_pc(CharData *ch);
-extern int level_exp(CharData *ch, int level);
+extern long GetExpUntilNextLvl(CharData *ch, int level);
 constexpr long long kPulsesPerMudHour = kSecsPerMudHour*kPassesPerSec;
 
 inline bool IS_CHARMED(CharData* ch) {return (IS_HORSE(ch) || AFF_FLAGGED(ch, EAffect::kCharmed));};
@@ -384,7 +384,7 @@ ObjData *find_obj_by_id(const object_id_t id) {
 RoomData *find_room(long n) {
 	n = real_room(n - kRoomToBase);
 
-	if ((n >= FIRST_ROOM) && (n <= top_of_world))
+	if ((n >= kFirstRoom) && (n <= top_of_world))
 		return world[n];
 
 	return nullptr;
@@ -755,7 +755,7 @@ void script_trigger_check() {
 	alarge_amount = 0;
 	sum = 0;
 	RoomData *where = nullptr;
-	for (std::size_t nr = FIRST_ROOM; nr <= static_cast<std::size_t>(top_of_world); nr++) {
+	for (std::size_t nr = kFirstRoom; nr <= static_cast<std::size_t>(top_of_world); nr++) {
 		if (SCRIPT(world[nr])->has_triggers()) {
 			auto room = world[nr];
 			auto sc = SCRIPT(room).get();
@@ -807,7 +807,7 @@ void script_timechange_trigger_check(const int time) {
 		}
 	});
 
-	for (std::size_t nr = FIRST_ROOM; nr <= static_cast<std::size_t>(top_of_world); nr++) {
+	for (std::size_t nr = kFirstRoom; nr <= static_cast<std::size_t>(top_of_world); nr++) {
 		if (SCRIPT(world[nr])->has_triggers()) {
 			auto room = world[nr];
 			auto sc = SCRIPT(room).get();
@@ -848,19 +848,19 @@ void do_stat_trigger(CharData *ch, Trigger *trig) {
 	sprintf(sb, "Name: '%s%s%s',  VNum: [%s%5d%s], RNum: [%5d]\r\n",
 			CCYEL(ch, C_NRM), GET_TRIG_NAME(trig), CCNRM(ch, C_NRM),
 			CCGRN(ch, C_NRM), GET_TRIG_VNUM(trig), CCNRM(ch, C_NRM), GET_TRIG_RNUM(trig));
-	send_to_char(sb, ch);
+	SendMsgToChar(sb, ch);
 
 	if (trig->get_attach_type() == MOB_TRIGGER) {
-		send_to_char("Trigger Intended Assignment: Mobiles\r\n", ch);
+		SendMsgToChar("Trigger Intended Assignment: Mobiles\r\n", ch);
 		sprintbit(GET_TRIG_TYPE(trig), trig_types, buf);
 	} else if (trig->get_attach_type() == OBJ_TRIGGER) {
-		send_to_char("Trigger Intended Assignment: Objects\r\n", ch);
+		SendMsgToChar("Trigger Intended Assignment: Objects\r\n", ch);
 		sprintbit(GET_TRIG_TYPE(trig), otrig_types, buf);
 	} else if (trig->get_attach_type() == WLD_TRIGGER) {
-		send_to_char("Trigger Intended Assignment: Rooms\r\n", ch);
+		SendMsgToChar("Trigger Intended Assignment: Rooms\r\n", ch);
 		sprintbit(GET_TRIG_TYPE(trig), wtrig_types, buf);
 	} else {
-		send_to_char(ch, "Trigger Intended Assignment: undefined (attach_type=%d)\r\n",
+		SendMsgToChar(ch, "Trigger Intended Assignment: undefined (attach_type=%d)\r\n",
 					 static_cast<int>(trig->get_attach_type()));
 	}
 
@@ -938,9 +938,9 @@ void script_stat(CharData *ch, Script *sc) {
 	char namebuf[kMaxInputLength];
 
 	sprintf(buf, "Global Variables: %s\r\n", sc->global_vars ? "" : "None");
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 	sprintf(buf, "Global context: %ld\r\n", sc->context);
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 
 	for (tv = sc->global_vars; tv; tv = tv->next) {
 		sprintf(namebuf, "%s:%ld", tv->name, tv->context);
@@ -949,26 +949,26 @@ void script_stat(CharData *ch, Script *sc) {
 			sprintf(buf, "    %15s:  %s\r\n", tv->context ? namebuf : tv->name, name);
 		} else
 			sprintf(buf, "    %15s:  %s\r\n", tv->context ? namebuf : tv->name, tv->value);
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 	}
 
 	for (auto t : sc->trig_list) {
 		sprintf(buf, "\r\n  Trigger: %s%s%s, VNum: [%s%5d%s], RNum: [%5d]\r\n",
 				CCYEL(ch, C_NRM), GET_TRIG_NAME(t), CCNRM(ch, C_NRM),
 				CCGRN(ch, C_NRM), GET_TRIG_VNUM(t), CCNRM(ch, C_NRM), GET_TRIG_RNUM(t));
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 
 		if (t->get_attach_type() == MOB_TRIGGER) {
-			send_to_char("  Trigger Intended Assignment: Mobiles\r\n", ch);
+			SendMsgToChar("  Trigger Intended Assignment: Mobiles\r\n", ch);
 			sprintbit(GET_TRIG_TYPE(t), trig_types, buf1);
 		} else if (t->get_attach_type() == OBJ_TRIGGER) {
-			send_to_char("  Trigger Intended Assignment: Objects\r\n", ch);
+			SendMsgToChar("  Trigger Intended Assignment: Objects\r\n", ch);
 			sprintbit(GET_TRIG_TYPE(t), otrig_types, buf1);
 		} else if (t->get_attach_type() == WLD_TRIGGER) {
-			send_to_char("  Trigger Intended Assignment: Rooms\r\n", ch);
+			SendMsgToChar("  Trigger Intended Assignment: Rooms\r\n", ch);
 			sprintbit(GET_TRIG_TYPE(t), wtrig_types, buf1);
 		} else {
-			send_to_char(ch, "Trigger Intended Assignment: undefined (attach_type=%d)\r\n",
+			SendMsgToChar(ch, "Trigger Intended Assignment: undefined (attach_type=%d)\r\n",
 						 static_cast<int>(t->get_attach_type()));
 		}
 		std::stringstream buffer;
@@ -976,20 +976,20 @@ void script_stat(CharData *ch, Script *sc) {
 			   << " , Arg list:" << !t->arglist.empty() ? t->arglist.c_str() : "None";
 //		sprintf(buf, "  Trigger Type: %s, Numeric Arg: %d, Arg list: %s\r\n",
 //			buf1, GET_TRIG_NARG(t), !t->arglist.empty() ? t->arglist.c_str() : "None");
-		send_to_char(buffer.str(), ch);
+		SendMsgToChar(buffer.str(), ch);
 
 		if (GET_TRIG_WAIT(t)) {
 			if (t->curr_state != nullptr) {
 				sprintf(buf, "    Wait: %d, Current line: %s\r\n",
 						GET_TRIG_WAIT(t)->time_remaining, t->curr_state->cmd.c_str());
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 			} else {
 				sprintf(buf, "    Wait: %d\r\n", GET_TRIG_WAIT(t)->time_remaining);
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 			}
 
 			sprintf(buf, "  Variables: %s\r\n", GET_TRIG_VARS(t) ? "" : "None");
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 
 			for (tv = GET_TRIG_VARS(t); tv; tv = tv->next) {
 				const std::string var_name = print_variable_name(tv->name);
@@ -1000,7 +1000,7 @@ void script_stat(CharData *ch, Script *sc) {
 					} else {
 						sprintf(buf, "    %15s:  %s\r\n", var_name.c_str(), tv->value);
 					}
-					send_to_char(buf, ch);
+					SendMsgToChar(buf, ch);
 				}
 			}
 		}
@@ -1015,9 +1015,9 @@ void do_sstat_room(CharData *ch) {
 }
 
 void do_sstat_room(RoomData *rm, CharData *ch) {
-	send_to_char("Script information:\r\n", ch);
+	SendMsgToChar("Script information:\r\n", ch);
 	if (!SCRIPT(rm)->has_triggers()) {
-		send_to_char("  None.\r\n", ch);
+		SendMsgToChar("  None.\r\n", ch);
 		return;
 	}
 
@@ -1025,9 +1025,9 @@ void do_sstat_room(RoomData *rm, CharData *ch) {
 }
 
 void do_sstat_object(CharData *ch, ObjData *j) {
-	send_to_char("Script information:\r\n", ch);
+	SendMsgToChar("Script information:\r\n", ch);
 	if (!j->get_script()->has_triggers()) {
-		send_to_char("  None.\r\n", ch);
+		SendMsgToChar("  None.\r\n", ch);
 		return;
 	}
 
@@ -1035,9 +1035,9 @@ void do_sstat_object(CharData *ch, ObjData *j) {
 }
 
 void do_sstat_character(CharData *ch, CharData *k) {
-	send_to_char("Script information:\r\n", ch);
+	SendMsgToChar("Script information:\r\n", ch);
 	if (!SCRIPT(k)->has_triggers()) {
-		send_to_char("  None.\r\n", ch);
+		SendMsgToChar("  None.\r\n", ch);
 		return;
 	}
 
@@ -1048,7 +1048,7 @@ void print_worlds_vars(CharData *ch, std::optional<long> context)
 {
 	TriggerVar *current;
 
-	send_to_char("Worlds vars list:\r\n", ch);
+	SendMsgToChar("Worlds vars list:\r\n", ch);
 	for (current = worlds_vars; current; current = current->next) {
 		if (context && context.value() != current->context) {
 			continue;
@@ -1060,7 +1060,7 @@ void print_worlds_vars(CharData *ch, std::optional<long> context)
 		str_out << ", Value: " << (current->value ? current->value : "[not set]");
 		str_out << "\r\n";
 
-		send_to_char(str_out.str(), ch);
+		SendMsgToChar(str_out.str(), ch);
 	}
 }
 
@@ -1097,7 +1097,7 @@ void do_attach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	two_arguments(argument, targ_name, loc_name);
 
 	if (!*arg || !*targ_name || !*trig_name) {
-		send_to_char("Usage: attach { mtr | otr | wtr } { trigger } { name } [ location ]\r\n", ch);
+		SendMsgToChar("Usage: attach { mtr | otr | wtr } { trigger } { name } [ location ]\r\n", ch);
 		return;
 	}
 
@@ -1116,7 +1116,7 @@ void do_attach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				GET_TRIG_NAME(trig_index[rn]->proto),
 				attach_name[(int) trig_index[rn]->proto->get_attach_type()],
 				attach_name[tn]);
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 		return;
 	}
 	if (utils::IsAbbrev(arg, "mtr")) {
@@ -1126,18 +1126,18 @@ void do_attach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				rn = real_trigger(tn);
 				if ((rn >= 0) && (trig = read_trigger(rn))) {
 					sprintf(buf, "Trigger %d (%s) attached to %s.\r\n", tn, GET_TRIG_NAME(trig), GET_SHORT(victim));
-					send_to_char(buf, ch);
+					SendMsgToChar(buf, ch);
 
 					if (!add_trigger(SCRIPT(victim).get(), trig, loc)) {
 						extract_trigger(trig);
 					}
 				} else {
-					send_to_char("That trigger does not exist.\r\n", ch);
+					SendMsgToChar("That trigger does not exist.\r\n", ch);
 				}
 			} else
-				send_to_char("Players can't have scripts.\r\n", ch);
+				SendMsgToChar("Players can't have scripts.\r\n", ch);
 		} else {
-			send_to_char("That mob does not exist.\r\n", ch);
+			SendMsgToChar("That mob does not exist.\r\n", ch);
 		}
 	} else if (utils::IsAbbrev(arg, "otr")) {
 		if ((object = get_obj_vis(ch, targ_name)))    // have a valid obj, now get trigger
@@ -1148,15 +1148,15 @@ void do_attach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						tn, GET_TRIG_NAME(trig),
 						(!object->get_short_description().empty() ? object->get_short_description().c_str()
 																  : object->get_aliases().c_str()));
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 
 				if (!add_trigger(object->get_script().get(), trig, loc)) {
 					extract_trigger(trig);
 				}
 			} else
-				send_to_char("That trigger does not exist.\r\n", ch);
+				SendMsgToChar("That trigger does not exist.\r\n", ch);
 		} else
-			send_to_char("That object does not exist.\r\n", ch);
+			SendMsgToChar("That object does not exist.\r\n", ch);
 	} else if (utils::IsAbbrev(arg, "wtr")) {
 		if (a_isdigit(*targ_name) && !strchr(targ_name, '.')) {
 			if ((room = find_target_room(ch, targ_name, 0)) != kNowhere)    // have a valid room, now get trigger
@@ -1165,20 +1165,20 @@ void do_attach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				if ((rn >= 0) && (trig = read_trigger(rn))) {
 					sprintf(buf, "Trigger %d (%s) attached to room %d.\r\n",
 							tn, GET_TRIG_NAME(trig), world[room]->room_vn);
-					send_to_char(buf, ch);
+					SendMsgToChar(buf, ch);
 
 					if (!add_trigger(world[room]->script.get(), trig, loc)) {
 						extract_trigger(trig);
 					}
 				} else {
-					send_to_char("That trigger does not exist.\r\n", ch);
+					SendMsgToChar("That trigger does not exist.\r\n", ch);
 				}
 			}
 		} else {
-			send_to_char("You need to supply a room number.\r\n", ch);
+			SendMsgToChar("You need to supply a room number.\r\n", ch);
 		}
 	} else {
-		send_to_char("Please specify 'mtr', otr', or 'wtr'.\r\n", ch);
+		SendMsgToChar("Please specify 'mtr', otr', or 'wtr'.\r\n", ch);
 	}
 }
 
@@ -1194,36 +1194,36 @@ void do_detach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, arg3);
 
 	if (!*arg1 || !*arg2) {
-		send_to_char("Usage: detach [ mob | object | room ] { target } { trigger |" " 'all' }\r\n", ch);
+		SendMsgToChar("Usage: detach [ mob | object | room ] { target } { trigger |" " 'all' }\r\n", ch);
 		return;
 	}
 
 	if (!str_cmp(arg1, "room")) {
 		room = world[ch->in_room];
 		if (!SCRIPT(room)->has_triggers()) {
-			send_to_char("This room does not have any triggers.\r\n", ch);
+			SendMsgToChar("This room does not have any triggers.\r\n", ch);
 		} else if (!str_cmp(arg2, "all") || !str_cmp(arg2, "все")) {
 			room->cleanup_script();
 
-			send_to_char("All triggers removed from room.\r\n", ch);
+			SendMsgToChar("All triggers removed from room.\r\n", ch);
 		} else if (SCRIPT(room)->remove_trigger(arg2)) {
-			send_to_char("Trigger removed.\r\n", ch);
+			SendMsgToChar("Trigger removed.\r\n", ch);
 		} else {
-			send_to_char("That trigger was not found.\r\n", ch);
+			SendMsgToChar("That trigger was not found.\r\n", ch);
 		}
 	} else {
 		if (utils::IsAbbrev(arg1, "mob")) {
 			if (!(victim = get_char_vis(ch, arg2, EFind::kCharInWorld)))
-				send_to_char("No such mobile around.\r\n", ch);
+				SendMsgToChar("No such mobile around.\r\n", ch);
 			else if (!*arg3)
-				send_to_char("You must specify a trigger to remove.\r\n", ch);
+				SendMsgToChar("You must specify a trigger to remove.\r\n", ch);
 			else
 				trigger = arg3;
 		} else if (utils::IsAbbrev(arg1, "object")) {
 			if (!(object = get_obj_vis(ch, arg2)))
-				send_to_char("No such object around.\r\n", ch);
+				SendMsgToChar("No such object around.\r\n", ch);
 			else if (!*arg3)
-				send_to_char("You must specify a trigger to remove.\r\n", ch);
+				SendMsgToChar("You must specify a trigger to remove.\r\n", ch);
 			else
 				trigger = arg3;
 		} else {
@@ -1234,38 +1234,38 @@ void do_detach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			else if ((victim = get_char_vis(ch, arg1, EFind::kCharInWorld)));
 			else if ((object = get_obj_vis(ch, arg1)));
 			else
-				send_to_char("Nothing around by that name.\r\n", ch);
+				SendMsgToChar("Nothing around by that name.\r\n", ch);
 			trigger = arg2;
 		}
 
 		if (victim) {
 			if (!victim->is_npc()) {
-				send_to_char("Players don't have triggers.\r\n", ch);
+				SendMsgToChar("Players don't have triggers.\r\n", ch);
 			} else if (!SCRIPT(victim)->has_triggers()) {
-				send_to_char("That mob doesn't have any triggers.\r\n", ch);
+				SendMsgToChar("That mob doesn't have any triggers.\r\n", ch);
 			} else if (!str_cmp(arg2, "all") || !str_cmp(arg2, "все")) {
 				victim->cleanup_script();
 				sprintf(buf, "All triggers removed from %s.\r\n", GET_SHORT(victim));
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 			} else if (trigger
 				&& SCRIPT(victim)->remove_trigger(trigger)) {
-				send_to_char("Trigger removed.\r\n", ch);
+				SendMsgToChar("Trigger removed.\r\n", ch);
 			} else {
-				send_to_char("That trigger was not found.\r\n", ch);
+				SendMsgToChar("That trigger was not found.\r\n", ch);
 			}
 		} else if (object) {
 			if (!object->get_script()->has_triggers()) {
-				send_to_char("That object doesn't have any triggers.\r\n", ch);
+				SendMsgToChar("That object doesn't have any triggers.\r\n", ch);
 			} else if (!str_cmp(arg2, "all") || !str_cmp(arg2, "все")) {
 				object->cleanup_script();
 				sprintf(buf, "All triggers removed from %s.\r\n",
 						!object->get_short_description().empty() ? object->get_short_description().c_str()
 																 : object->get_aliases().c_str());
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 			} else if (object->get_script()->remove_trigger(trigger)) {
-				send_to_char("Trigger removed.\r\n", ch);
+				SendMsgToChar("Trigger removed.\r\n", ch);
 			} else {
-				send_to_char("That trigger was not found.\r\n", ch);
+				SendMsgToChar("That trigger was not found.\r\n", ch);
 			}
 		}
 	}
@@ -2300,7 +2300,7 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "dispel")) {
 			if (!c->affected.empty()) {
-				send_to_char("Вы словно заново родились!\r\n", c);
+				SendMsgToChar("Вы словно заново родились!\r\n", c);
 			}
 
 			while (!c->affected.empty()) {
@@ -2369,9 +2369,9 @@ void find_replacement(void *go,
 							}
 							sprintf(buf, "Вы разделили %d %s на %d  -  по %d каждому.\r\n",
 									val, GetDeclensionInNumber(val, EWhat::kNogataU), num, share);
-							send_to_char(buf, c);
+							SendMsgToChar(buf, c);
 							if (rest > 0) {
-								send_to_char(c, "Как истинный еврей вы оставили %d %s (которые не смогли разделить нацело) себе.\r\n",
+								SendMsgToChar(c, "Как истинный еврей вы оставили %d %s (которые не смогли разделить нацело) себе.\r\n",
 											 rest,
 											 GetDeclensionInNumber(rest, EWhat::kNogataU));
 							}
@@ -2427,7 +2427,7 @@ void find_replacement(void *go,
 			if (!str_cmp(field, "questbodrich")) {
 				if (*subfield) {
 					if(IS_CHARMICE(c)) {
-//						send_to_char(c->get_master(), "Квест чармисом, берем мастера\r\n");
+//						SendMsgToChar(c->get_master(), "Квест чармисом, берем мастера\r\n");
 						c->get_master()->dquest(atoi(subfield));
 					}
 					else {
@@ -2437,7 +2437,7 @@ void find_replacement(void *go,
 			} else {
 				if (*subfield) {
 					if (*subfield == '-') {
-						gain_exp(c, -MAX(1, atoi(subfield + 1)));
+						EndowExpToChar(c, -MAX(1, atoi(subfield + 1)));
 						sprintf(buf,
 								"SCRIPT_LOG (exp) у %s уменьшен опыт на %d в триггере %d",
 								GET_NAME(c),
@@ -2445,7 +2445,7 @@ void find_replacement(void *go,
 								GET_TRIG_VNUM(trig));
 						mudlog(buf, BRF, kLvlGreatGod, ERRLOG, 1);
 					} else if (*subfield == '+') {
-						gain_exp(c, +MAX(1, atoi(subfield + 1)));
+						EndowExpToChar(c, +MAX(1, atoi(subfield + 1)));
 						sprintf(buf,
 								"SCRIPT_LOG (exp) у %s увеличен опыт на %d в триггере %d",
 								GET_NAME(c),
@@ -2466,7 +2466,7 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "max_gain_exp")) {
 			sprintf(str, "%ld", (long) max_exp_gain_pc(c));
 		} else if (!str_cmp(field, "tnl_exp")) {
-			sprintf(str, "%ld", level_exp(c, c->get_level() + 1) - GET_EXP(c));
+			sprintf(str, "%ld", GetExpUntilNextLvl(c, c->get_level() + 1) - GET_EXP(c));
 		} else if (!str_cmp(field, "sex"))
 			sprintf(str, "%d", (int) GET_SEX(c));
 		else if (!str_cmp(field, "clan")) {
@@ -2793,9 +2793,9 @@ void find_replacement(void *go,
 			int pos;
 
 			if (!*subfield || (pos = atoi(subfield)) <= 0) {
-				sprintf(str, "%d", GET_WAIT(c));
+				sprintf(str, "%d", c->get_wait());
 			} else if (!IS_IMMORTAL(c)) {
-				WAIT_STATE(c, pos * kPulseViolence);
+				SetWaitState(c, pos * kPulseViolence);
 			}
 		} else if (!str_cmp(field, "apply_value")) {
 			int num;
@@ -4872,7 +4872,7 @@ void do_vdelete(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	skip_spaces(&uid_p);
 
 	if (!*buf || !*buf2) {
-		send_to_char("Usage: vdelete <variablename> <id>\r\n", ch);
+		SendMsgToChar("Usage: vdelete <variablename> <id>\r\n", ch);
 		return;
 	}
 
@@ -4880,7 +4880,7 @@ void do_vdelete(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	// find the target script from the uid number
 	uid = atoi(buf2 + 1);
 	if (uid <= 0) {
-		send_to_char("vdelete: illegal id specified.\r\n", ch);
+		SendMsgToChar("vdelete: illegal id specified.\r\n", ch);
 		return;
 	}
 
@@ -4891,20 +4891,20 @@ void do_vdelete(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if ((obj = get_obj(buf2))) {
 		sc_remote = obj->get_script().get();
 	} else {
-		send_to_char("vdelete: cannot resolve specified id.\r\n", ch);
+		SendMsgToChar("vdelete: cannot resolve specified id.\r\n", ch);
 		return;
 	}
 
 	if ((sc_remote == nullptr) || (sc_remote->global_vars == nullptr)) {
-		send_to_char("That id represents no global variables.\r\n", ch);
+		SendMsgToChar("That id represents no global variables.\r\n", ch);
 		return;
 	}
 
 	// find the global
 	if (remove_var_cntx(&(sc_remote->global_vars), var, 0)) {
-		send_to_char("Deleted.\r\n", ch);
+		SendMsgToChar("Deleted.\r\n", ch);
 	} else {
-		send_to_char("That variable cannot be located.\r\n", ch);
+		SendMsgToChar("That variable cannot be located.\r\n", ch);
 	}
 }
 
@@ -5403,12 +5403,12 @@ void do_tlist(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	first = atoi(buf);
 
 	if (!(privilege::IsAbleToDoPrivilege(ch, std::string(cmd_info[cmd].command), 0, 0, false)) && (GET_OLC_ZONE(ch) != first)) {
-		send_to_char("Чаво?\r\n", ch);
+		SendMsgToChar("Чаво?\r\n", ch);
 		return;
 	}
 
 	if (!*buf) {
-		send_to_char("Usage: tlist <begining number or zone> [<ending number>]\r\n", ch);
+		SendMsgToChar("Usage: tlist <begining number or zone> [<ending number>]\r\n", ch);
 		return;
 	}
 
@@ -5422,16 +5422,16 @@ void do_tlist(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 
 	if ((first < 0) || (first > MAX_PROTO_NUMBER) || (last < 0) || (last > MAX_PROTO_NUMBER)) {
 		sprintf(buf, "Значения должны быть между 0 и %d.\n\r", MAX_PROTO_NUMBER);
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 	}
 
 	if (first >= last) {
-		send_to_char("Второе значение должно быть больше первого.\n\r", ch);
+		SendMsgToChar("Второе значение должно быть больше первого.\n\r", ch);
 		return;
 	}
 
 	if (first + 200 < last) {
-		send_to_char("Максимальный показываемый промежуток - 200.\n\r", ch);
+		SendMsgToChar("Максимальный показываемый промежуток - 200.\n\r", ch);
 		return;
 	}
 	char trgtypes[256];
@@ -5483,7 +5483,7 @@ void do_tlist(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	}
 
 	if (!found) {
-		send_to_char("No triggers were found in those parameters.\n\r", ch);
+		SendMsgToChar("No triggers were found in those parameters.\n\r", ch);
 	} else {
 		page_string(ch->desc, pagebuf, true);
 	}
@@ -5510,7 +5510,7 @@ void do_tstat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 
 	auto first = atoi(str);
 	if (!(privilege::IsAbleToDoPrivilege(ch, std::string(cmd_info[cmd].command), 0, 0, false)) && (GET_OLC_ZONE(ch) != first)) {
-		send_to_char("Чаво?\r\n", ch);
+		SendMsgToChar("Чаво?\r\n", ch);
 		return;
 	}
 
@@ -5518,13 +5518,13 @@ void do_tstat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		vnum = atoi(str);
 		rnum = real_trigger(vnum);
 		if (rnum < 0) {
-			send_to_char("That vnum does not exist.\r\n", ch);
+			SendMsgToChar("That vnum does not exist.\r\n", ch);
 			return;
 		}
 
 		do_stat_trigger(ch, trig_index[rnum]->proto);
 	} else
-		send_to_char("Usage: tstat <vnum>\r\n", ch);
+		SendMsgToChar("Usage: tstat <vnum>\r\n", ch);
 }
 
 // read a line in from a file, return the number of entities read

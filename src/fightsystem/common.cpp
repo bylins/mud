@@ -32,7 +32,7 @@ int IsHaveNoExtraAttack(CharData *ch) {
 
 void SetWait(CharData *ch, int waittime, int victim_in_room) {
 	if (!IS_IMMORTAL(ch) && (!victim_in_room || (ch->get_fighting() && ch->isInSameRoom(ch->get_fighting())))) {
-		WAIT_STATE(ch, waittime * kPulseViolence);
+		SetWaitState(ch, waittime * kPulseViolence);
 	}
 }
 
@@ -46,7 +46,7 @@ void SetSkillCooldownInFight(CharData *ch, ESkill skill, int pulses) {
 	if (ch->get_fighting() && ch->isInSameRoom(ch->get_fighting())) {
 		SetSkillCooldown(ch, skill, pulses);
 	} else {
-		WAIT_STATE(ch, kPulseViolence / 6);
+		SetWaitState(ch, kPulseViolence / 6);
 	}
 }
 

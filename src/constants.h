@@ -118,31 +118,31 @@ extern const char *godslike_bits[];
 extern const char *weapon_class[];
 
 //The number of changing coefficients (the others are unchanged)
-const int MAX_EXP_COEFFICIENTS_USED = 15;
+const int kMaxExpCoefficientsUsed = 15;
 // unless you change this, Puff casts all your dg spells
-const int DG_CASTER_PROXY = 113;
+const int kDgCasterProxy = 113;
 
-const int FIRST_ROOM = 1;
-const int STRANGE_ROOM = 3;
-const int FIRE_MOVES = 20;
-const int LOOKING_MOVES = 5;
-const int HEARING_MOVES = 2;
-const int LOOKHIDE_MOVES = 3;
-const int SNEAK_MOVES = 1;
-const int CAMOUFLAGE_MOVES = 1;
-const int PICKLOCK_MOVES = 10;
-const int TRACK_MOVES = 3;
-const int SENSE_MOVES = 4;
-const int HIDETRACK_MOVES = 10;
-const int MOB_ARMOUR_MULT = 5;
-const int MOB_AC_MULT = 5;
-const int MOB_DAMAGE_MULT = 3;
-const int MAX_GROUPED_FOLLOWERS = 7;
+const int kFirstRoom = 1;
+const int kStrangeRoom = 3;
+const int kFireMoves = 20;
+const int kLookingMoves = 5;
+const int kHearingMoves = 2;
+const int kLookhideMoves = 3;
+const int kSneakMoves = 1;
+const int kCamouflageMoves = 1;
+const int kPicklockMoves = 10;
+const int kTrackMoves = 3;
+const int kSenseMoves = 4;
+const int kHidetrackMoves = 10;
+const int kMobArmourMult = 5;
+const int kMobAcMult = 5;
+const int kMobDamageMult = 3;
+const int kMaxGroupedFollowers = 7;
 
-extern int HORSE_VNUM;
-extern int HORSE_COST;
-extern int START_BREAD;
-extern int CREATE_LIGHT;
+extern const MobVnum kHorseVnum;
+extern const ObjVnum kStartBread;
+extern const ObjVnum kCreateLight;
+extern const int kHorseCost;
 
 #endif // CONSTANTS_H_
 

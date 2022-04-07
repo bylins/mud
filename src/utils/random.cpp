@@ -69,7 +69,7 @@ int RollDices(int number, int size) {
 	return sum;
 }
 
-bool bernoulli_trial(double p) {
+bool BernoulliTrial(double p) {
 	return Random::rnd.BernoulliTrial(p);
 }
 

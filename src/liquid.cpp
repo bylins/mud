@@ -251,7 +251,7 @@ int cast_potion_spell(CharData *ch, ObjData *obj, int num) {
 // Выпил яду
 void do_drink_poison(CharData *ch, ObjData *jar, int amount) {
 	if ((GET_OBJ_VAL(jar, 3) == 1) && !IS_GOD(ch)) {
-		send_to_char("Что-то вкус какой-то странный!\r\n", ch);
+		SendMsgToChar("Что-то вкус какой-то странный!\r\n", ch);
 		act("$n поперхнул$u и закашлял$g.", true, ch, 0, 0, kToRoom);
 		Affect<EApply> af;
 		af.type = kSpellPoison;
@@ -275,14 +275,14 @@ void do_drink_poison(CharData *ch, ObjData *jar, int amount) {
 int cast_potion(CharData *ch, ObjData *jar) {
 	if (is_potion(jar) && jar->get_value(ObjVal::EValueKey::POTION_PROTO_VNUM) >= 0) {
 		act("$n выпил$g зелья из $o1.", true, ch, jar, 0, kToRoom);
-		send_to_char(ch, "Вы выпили зелья из %s.\r\n", OBJN(jar, ch, 1));
+		SendMsgToChar(ch, "Вы выпили зелья из %s.\r\n", OBJN(jar, ch, 1));
 
 		//не очень понятно, но так было
 		for (int i = 1; i <= 3; ++i)
 			if (cast_potion_spell(ch, jar, i) <= 0)
 				break;
 
-		WAIT_STATE(ch, kPulseViolence);
+		SetWaitState(ch, kPulseViolence);
 		jar->dec_weight();
 		// все выпито
 		jar->dec_val(1);
@@ -302,32 +302,32 @@ int cast_potion(CharData *ch, ObjData *jar) {
 int do_drink_check(CharData *ch, ObjData *jar) {
 	//Проверка в бою?
 	if (PRF_FLAGS(ch).get(EPrf::kIronWind)) {
-		send_to_char("Не стоит отвлекаться в бою!\r\n", ch);
+		SendMsgToChar("Не стоит отвлекаться в бою!\r\n", ch);
 		return 0;
 	}
 
 	//Сообщение на случай попытки проглотить ингры
 	if (GET_OBJ_TYPE(jar) == EObjType::kMagicIngredient) {
-		send_to_char("Не можешь приготовить - покупай готовое!\r\n", ch);
+		SendMsgToChar("Не можешь приготовить - покупай готовое!\r\n", ch);
 		return 0;
 	}
 	//Проверяем можно ли из этого пить
 
 	if (GET_OBJ_TYPE(jar) != EObjType::kLiquidContainer
 		&& GET_OBJ_TYPE(jar) != EObjType::kFountain) {
-		send_to_char("Не стоит. Козлят и так много!\r\n", ch);
+		SendMsgToChar("Не стоит. Козлят и так много!\r\n", ch);
 		return 0;
 	}
 
 	// Если удушение - пить нельзя
 	if (AFF_FLAGGED(ch, EAffect::kStrangled)) {
-		send_to_char("Да вам сейчас и глоток воздуха не проглотить!\r\n", ch);
+		SendMsgToChar("Да вам сейчас и глоток воздуха не проглотить!\r\n", ch);
 		return 0;
 	}
 
 	// Пустой контейнер
 	if (!GET_OBJ_VAL(jar, 1)) {
-		send_to_char("Пусто.\r\n", ch);
+		SendMsgToChar("Пусто.\r\n", ch);
 		return 0;
 	}
 
@@ -339,12 +339,12 @@ ObjData *do_drink_get_jar(CharData *ch, char *jar_name) {
 	ObjData *jar = nullptr;
 	if (!(jar = get_obj_in_list_vis(ch, jar_name, ch->carrying))) {
 		if (!(jar = get_obj_in_list_vis(ch, arg, world[ch->in_room]->contents))) {
-			send_to_char("Вы не смогли это найти!\r\n", ch);
+			SendMsgToChar("Вы не смогли это найти!\r\n", ch);
 			return jar;
 		}
 
 		if (GET_OBJ_TYPE(jar) == EObjType::kLiquidContainer) {
-			send_to_char("Прежде это стоит поднять.\r\n", ch);
+			SendMsgToChar("Прежде это стоит поднять.\r\n", ch);
 			return jar;
 		}
 	}
@@ -400,7 +400,7 @@ int do_drink_check_conditions(CharData *ch, ObjData *jar, int amount) {
 		drink_aff[GET_OBJ_VAL(jar, 2)][THIRST] > 0 &&
 			GET_COND_M(ch, THIRST) > 5 // Когда попить уже хочется сильней чем выпить :)
 		) {
-		send_to_char("У вас пересохло в горле, нужно что-то попить.\r\n", ch);
+		SendMsgToChar("У вас пересохло в горле, нужно что-то попить.\r\n", ch);
 		return 0;
 	}
 
@@ -410,11 +410,11 @@ int do_drink_check_conditions(CharData *ch, ObjData *jar, int amount) {
 		// Если у чара бадун - пусть похмеляется, бухать нельзя
 		if (AFF_FLAGGED(ch, EAffect::kAbstinent)) {
 			if (GET_SKILL(ch, ESkill::kHangovering) > 0) {//если опохмел есть
-				send_to_char(
+				SendMsgToChar(
 					"Вас передернуло от одной мысли о том что бы выпить.\r\nПохоже, вам стоит опохмелиться.\r\n",
 					ch);
 			} else {//если опохмела нет
-				send_to_char("Вы пытались... но не смогли заставить себя выпить...\r\n", ch);
+				SendMsgToChar("Вы пытались... но не смогли заставить себя выпить...\r\n", ch);
 			}
 			return 0;
 		}
@@ -422,7 +422,7 @@ int do_drink_check_conditions(CharData *ch, ObjData *jar, int amount) {
 		if (GET_COND(ch, DRUNK) >= kDrunked) {
 			// Если допился до кондиции или уже начал трезветь
 			if (GET_DRUNK_STATE(ch) == kMortallyDrunked || GET_COND(ch, DRUNK) < GET_DRUNK_STATE(ch)) {
-				send_to_char("На сегодня вам достаточно, крошки уже плавают...\r\n", ch);
+				SendMsgToChar("На сегодня вам достаточно, крошки уже плавают...\r\n", ch);
 				return 0;
 			}
 		}
@@ -430,13 +430,13 @@ int do_drink_check_conditions(CharData *ch, ObjData *jar, int amount) {
 
 	// Не хочет пить, ну вот вообще не лезет больше
 	if (amount <= 0 && !IS_GOD(ch)) {
-		send_to_char("В вас больше не лезет.\r\n", ch);
+		SendMsgToChar("В вас больше не лезет.\r\n", ch);
 		return 0;
 	}
 
 	// Нельзя пить в бою
 	if (ch->get_fighting()) {
-		send_to_char("Не стоит отвлекаться в бою.\r\n", ch);
+		SendMsgToChar("Не стоит отвлекаться в бою.\r\n", ch);
 		return 0;
 	}
 	return 1;
@@ -453,9 +453,9 @@ void do_drink_drunk(CharData *ch, ObjData *jar, int amount) {
 
 	if (GET_COND(ch, DRUNK) >= kDrunked) {
 		if (GET_COND(ch, DRUNK) >= kMortallyDrunked) {
-			send_to_char("Напилися вы пьяны, не дойти вам до дому....\r\n", ch);
+			SendMsgToChar("Напилися вы пьяны, не дойти вам до дому....\r\n", ch);
 		} else {
-			send_to_char("Приятное тепло разлилось по вашему телу.\r\n", ch);
+			SendMsgToChar("Приятное тепло разлилось по вашему телу.\r\n", ch);
 		}
 
 		duration = 2 + MAX(0, GET_COND(ch, DRUNK) - kDrunked);
@@ -466,7 +466,7 @@ void do_drink_drunk(CharData *ch, ObjData *jar, int amount) {
 		if (!AFF_FLAGGED(ch, EAffect::kAbstinent)
 			&& GET_DRUNK_STATE(ch) < kMaxCondition
 			&& GET_DRUNK_STATE(ch) == GET_COND(ch, DRUNK)) {
-			send_to_char("Винные пары ударили вам в голову.\r\n", ch);
+			SendMsgToChar("Винные пары ударили вам в голову.\r\n", ch);
 			// **** Decrease AC ***** //
 			Affect<EApply> af;
 			af.type = kSpellDrunked;
@@ -507,7 +507,7 @@ void do_drink(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	one_argument(argument, arg);
 
 	if (!*arg) {
-		send_to_char("Пить из чего?\r\n", ch);
+		SendMsgToChar("Пить из чего?\r\n", ch);
 		return;
 	}
 
@@ -534,11 +534,11 @@ void do_drink(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		sprintf(buf, "$n выпил$g %s из $o1.", drinks[GET_OBJ_VAL(jar, 2)]);
 		act(buf, true, ch, jar, 0, kToRoom);
 		sprintf(buf, "Вы выпили %s из %s.\r\n", drinks[GET_OBJ_VAL(jar, 2)], OBJN(jar, ch, 1));
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 	} else {
 		act("$n отхлебнул$g из $o1.", true, ch, jar, 0, kToRoom);
 		sprintf(buf, "Вы узнали вкус %s.\r\n", drinks[GET_OBJ_VAL(jar, 2)]);
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 	}
 
 	// вес отнимаемый вес не моежт быть больше веса контейнера
@@ -564,13 +564,13 @@ void do_drink(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (drink_aff[GET_OBJ_VAL(jar, 2)][FULL] != 0) {
 		gain_condition(ch, FULL, drink_aff[GET_OBJ_VAL(jar, 2)][FULL] * amount);
 		if (drink_aff[GET_OBJ_VAL(jar, 2)][FULL] < 0 && GET_COND(ch, FULL) <= kNormCondition)
-			send_to_char("Вы чувствуете приятную тяжесть в желудке.\r\n", ch);
+			SendMsgToChar("Вы чувствуете приятную тяжесть в желудке.\r\n", ch);
 	}
 
 	if (drink_aff[GET_OBJ_VAL(jar, 2)][THIRST] != 0) {
 		gain_condition(ch, THIRST, drink_aff[GET_OBJ_VAL(jar, 2)][THIRST] * amount);
 		if (drink_aff[GET_OBJ_VAL(jar, 2)][THIRST] < 0 && GET_COND(ch, THIRST) <= kNormCondition)
-			send_to_char("Вы не чувствуете жажды.\r\n", ch);
+			SendMsgToChar("Вы не чувствуете жажды.\r\n", ch);
 	}
 
 	// Опьянение
@@ -603,22 +603,22 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 
 	if (ch->get_fighting()) {
-		send_to_char("Не стоит отвлекаться в бою.\r\n", ch);
+		SendMsgToChar("Не стоит отвлекаться в бою.\r\n", ch);
 		return;
 	}
 
 	if (AFF_FLAGGED(ch, EAffect::kDrunked)) {
-		send_to_char("Вы хотите испортить себе весь кураж?\r\n" "Это не есть по русски!\r\n", ch);
+		SendMsgToChar("Вы хотите испортить себе весь кураж?\r\n" "Это не есть по русски!\r\n", ch);
 		return;
 	}
 
 	if (!AFF_FLAGGED(ch, EAffect::kAbstinent) && GET_COND(ch, DRUNK) < kDrunked) {
-		send_to_char("Не стоит делать этого на трезвую голову.\r\n", ch);
+		SendMsgToChar("Не стоит делать этого на трезвую голову.\r\n", ch);
 		return;
 	}
 
 	if (IsTimedBySkill(ch, ESkill::kHangovering)) {
-		send_to_char("Вы не в состоянии так часто похмеляться.\r\n"
+		SendMsgToChar("Вы не в состоянии так часто похмеляться.\r\n"
 					 "Попросите Богов закодировать вас.\r\n", ch);
 		return;
 	}
@@ -632,12 +632,12 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		}
 		if (!obj) {
-			send_to_char("У вас нет подходящего напитка для похмелья.\r\n", ch);
+			SendMsgToChar("У вас нет подходящего напитка для похмелья.\r\n", ch);
 			return;
 		}
 	} else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
 		if (!(obj = get_obj_in_list_vis(ch, arg, world[ch->in_room]->contents))) {
-			send_to_char("Вы не смогли это найти!\r\n", ch);
+			SendMsgToChar("Вы не смогли это найти!\r\n", ch);
 			return;
 		} else {
 			on_ground = 1;
@@ -646,17 +646,17 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (GET_OBJ_TYPE(obj) != EObjType::kLiquidContainer
 		&& GET_OBJ_TYPE(obj) != EObjType::kFountain) {
-		send_to_char("Этим вы вряд-ли сможете похмелиться.\r\n", ch);
+		SendMsgToChar("Этим вы вряд-ли сможете похмелиться.\r\n", ch);
 		return;
 	}
 
 	if (on_ground && (GET_OBJ_TYPE(obj) == EObjType::kLiquidContainer)) {
-		send_to_char("Прежде это стоит поднять.\r\n", ch);
+		SendMsgToChar("Прежде это стоит поднять.\r\n", ch);
 		return;
 	}
 
 	if (!GET_OBJ_VAL(obj, 1)) {
-		send_to_char("Пусто.\r\n", ch);
+		SendMsgToChar("Пусто.\r\n", ch);
 		return;
 	}
 
@@ -668,13 +668,13 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		case LIQ_BRANDY:
 		case LIQ_VODKA:
 		case LIQ_BRAGA: break;
-		default: send_to_char("Вспомните народную мудрость :\r\n" "\"Клин вышибают клином...\"\r\n", ch);
+		default: SendMsgToChar("Вспомните народную мудрость :\r\n" "\"Клин вышибают клином...\"\r\n", ch);
 			return;
 	}
 
 	amount = MAX(1, GET_WEIGHT(ch) / 50);
 	if (amount > GET_OBJ_VAL(obj, 1)) {
-		send_to_char("Вам точно не хватит этого количества для опохмела...\r\n", ch);
+		SendMsgToChar("Вам точно не хватит этого количества для опохмела...\r\n", ch);
 		return;
 	}
 
@@ -927,27 +927,27 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (subcmd == SCMD_POUR) {
 		if (!*arg1)    // No arguments //
 		{
-			send_to_char("Откуда переливаем?\r\n", ch);
+			SendMsgToChar("Откуда переливаем?\r\n", ch);
 			return;
 		}
 		if (!(from_obj = get_obj_in_list_vis(ch, arg1, ch->carrying))) {
-			send_to_char("У вас нет этого!\r\n", ch);
+			SendMsgToChar("У вас нет этого!\r\n", ch);
 			return;
 		}
 		if (GET_OBJ_TYPE(from_obj) != EObjType::kLiquidContainer
 			&& GET_OBJ_TYPE(from_obj) != EObjType::kPorion) {
-			send_to_char("Вы не можете из этого переливать!\r\n", ch);
+			SendMsgToChar("Вы не можете из этого переливать!\r\n", ch);
 			return;
 		}
 	}
 	if (subcmd == SCMD_FILL) {
 		if (!*arg1)    // no arguments //
 		{
-			send_to_char("Что и из чего вы хотели бы наполнить?\r\n", ch);
+			SendMsgToChar("Что и из чего вы хотели бы наполнить?\r\n", ch);
 			return;
 		}
 		if (!(to_obj = get_obj_in_list_vis(ch, arg1, ch->carrying))) {
-			send_to_char("У вас этого нет!\r\n", ch);
+			SendMsgToChar("У вас этого нет!\r\n", ch);
 			return;
 		}
 		if (GET_OBJ_TYPE(to_obj) != EObjType::kLiquidContainer) {
@@ -961,7 +961,7 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		}
 		if (!(from_obj = get_obj_in_list_vis(ch, arg2, world[ch->in_room]->contents))) {
 			sprintf(buf, "Вы не видите здесь '%s'.\r\n", arg2);
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 			return;
 		}
 		if (GET_OBJ_TYPE(from_obj) != EObjType::kFountain) {
@@ -976,7 +976,7 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (subcmd == SCMD_POUR)    // pour //
 	{
 		if (!*arg2) {
-			send_to_char("Куда вы хотите лить? На землю или во что-то?\r\n", ch);
+			SendMsgToChar("Куда вы хотите лить? На землю или во что-то?\r\n", ch);
 			return;
 		}
 		if (!str_cmp(arg2, "out") || !str_cmp(arg2, "земля")) {
@@ -995,32 +995,32 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			return;
 		}
 		if (!(to_obj = get_obj_in_list_vis(ch, arg2, ch->carrying))) {
-			send_to_char("Вы не можете этого найти!\r\n", ch);
+			SendMsgToChar("Вы не можете этого найти!\r\n", ch);
 			return;
 		}
 		if (GET_OBJ_TYPE(to_obj) != EObjType::kLiquidContainer
 			&& GET_OBJ_TYPE(to_obj) != EObjType::kFountain) {
-			send_to_char("Вы не сможете в это налить.\r\n", ch);
+			SendMsgToChar("Вы не сможете в это налить.\r\n", ch);
 			return;
 		}
 	}
 	if (to_obj == from_obj) {
-		send_to_char("Более тупого действа вы придумать, конечно, не могли.\r\n", ch);
+		SendMsgToChar("Более тупого действа вы придумать, конечно, не могли.\r\n", ch);
 		return;
 	}
 
 	if (GET_OBJ_VAL(to_obj, 1) != 0
 		&& GET_OBJ_TYPE(from_obj) != EObjType::kPorion
 		&& GET_OBJ_VAL(to_obj, 2) != GET_OBJ_VAL(from_obj, 2)) {
-		send_to_char("Вы станете неплохим Химиком, но не в нашей игре.\r\n", ch);
+		SendMsgToChar("Вы станете неплохим Химиком, но не в нашей игре.\r\n", ch);
 		return;
 	}
 	if (GET_OBJ_VAL(to_obj, 1) >= GET_OBJ_VAL(to_obj, 0)) {
-		send_to_char("Там нет места.\r\n", ch);
+		SendMsgToChar("Там нет места.\r\n", ch);
 		return;
 	}
 	if (from_obj->has_flag(EObjFlag::kNopour)) {
-		send_to_char(ch, "Вы перевернули %s, потрусили, но ничего перелить не удалось.\r\n",
+		SendMsgToChar(ch, "Вы перевернули %s, потрусили, но ничего перелить не удалось.\r\n",
 					 GET_OBJ_PNAME(from_obj, 3).c_str());
 		return;
 	}
@@ -1030,7 +1030,7 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (GET_OBJ_TYPE(from_obj) == EObjType::kPorion) {
 		int result = check_equal_potions(from_obj, to_obj);
 		if (GET_OBJ_VAL(to_obj, 1) == 0 || result > 0) {
-			send_to_char(ch, "Вы занялись переливанием зелья в %s.\r\n",
+			SendMsgToChar(ch, "Вы занялись переливанием зелья в %s.\r\n",
 						 OBJN(to_obj, ch, 3));
 			int n1 = GET_OBJ_VAL(from_obj, 1);
 			int n2 = GET_OBJ_VAL(to_obj, 1);
@@ -1039,7 +1039,7 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			to_obj->set_val(3,
 							(n1 * t1 + n2 * t2)
 								/ (n1 + n2)); //усредним таймер в зависимости от наполненности обоих емкостей
-//				send_to_char(ch, "n1 == %d, n2 == %d, t1 == %d, t2== %d, результат %d\r\n", n1, n2, t1, t2, GET_OBJ_VAL(to_obj, 3));
+//				SendMsgToChar(ch, "n1 == %d, n2 == %d, t1 == %d, t2== %d, результат %d\r\n", n1, n2, t1, t2, GET_OBJ_VAL(to_obj, 3));
 			if (GET_OBJ_VAL(to_obj, 1) == 0) {
 				copy_potion_values(from_obj, to_obj);
 				// определение названия зелья по содержащемуся заклинанию //
@@ -1050,10 +1050,10 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			ExtractObjFromWorld(from_obj);
 			return;
 		} else if (result < 0) {
-			send_to_char("Не пытайтесь подмешать более слабое зелье!\r\n", ch);
+			SendMsgToChar("Не пытайтесь подмешать более слабое зелье!\r\n", ch);
 			return;
 		} else {
-			send_to_char(
+			SendMsgToChar(
 				"Смешивать разные зелья?! Да вы, батенька, гурман!\r\n", ch);
 			return;
 		}
@@ -1068,10 +1068,10 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		} else {
 			const int result = check_equal_drinkcon(from_obj, to_obj);
 			if (result < 0) {
-				send_to_char("Не пытайтесь подмешать более слабое зелье!\r\n", ch);
+				SendMsgToChar("Не пытайтесь подмешать более слабое зелье!\r\n", ch);
 				return;
 			} else if (!result) {
-				send_to_char(
+				SendMsgToChar(
 					"Смешивать разные зелья?! Да вы, батенька, гурман!\r\n", ch);
 				return;
 			}
@@ -1080,7 +1080,7 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 //Конец изменений Adept'ом
 
 	if (subcmd == SCMD_POUR) {
-		send_to_char(ch, "Вы занялись переливанием %s в %s.\r\n",
+		SendMsgToChar(ch, "Вы занялись переливанием %s в %s.\r\n",
 					 drinks[GET_OBJ_VAL(from_obj, 2)], OBJN(to_obj, ch, 3));
 	}
 	if (subcmd == SCMD_FILL) {
@@ -1096,7 +1096,7 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	int t1 = GET_OBJ_VAL(from_obj, 3);
 	int t2 = GET_OBJ_VAL(to_obj, 3);
 	to_obj->set_val(3, (n1 * t1 + n2 * t2) / (n1 + n2)); //усредним таймер в зависимости от наполненности обоих емкостей
-//	send_to_char(ch, "n1 == %d, n2 == %d, t1 == %d, t2== %d, результат %d\r\n", n1, n2, t1, t2, GET_OBJ_VAL(to_obj, 3));
+//	SendMsgToChar(ch, "n1 == %d, n2 == %d, t1 == %d, t2== %d, результат %d\r\n", n1, n2, t1, t2, GET_OBJ_VAL(to_obj, 3));
 
 	// New alias //
 	if (GET_OBJ_VAL(to_obj, 1) == 0)
@@ -1277,7 +1277,7 @@ void identify(CharData *ch, const ObjData *obj) {
 		sprintf(buf1, "Качество: %s \r\n", diag_liquid_timer(obj)); // состояние жижки
 		out += buf1;
 	}
-	send_to_char(out, ch);
+	SendMsgToChar(out, ch);
 }
 
 } // namespace drinkcon

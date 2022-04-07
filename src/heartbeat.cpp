@@ -162,7 +162,7 @@ void CheckScheduledRebootCall::perform(int, int) {
 	if (uptime_minutes >= (shutdown_parameters.get_reboot_uptime() - 30)
 		&& shutdown_parameters.get_shutdown_timeout() == 0) {
 		//reboot after 30 minutes minimum. Auto reboot cannot run earlier.
-		send_to_all("АВТОМАТИЧЕСКАЯ ПЕРЕЗАГРУЗКА ЧЕРЕЗ 30 МИНУТ.\r\n");
+		SendMsgToAll("АВТОМАТИЧЕСКАЯ ПЕРЕЗАГРУЗКА ЧЕРЕЗ 30 МИНУТ.\r\n");
 		shutdown_parameters.reboot(1800);
 	}
 }

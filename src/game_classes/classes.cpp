@@ -43,7 +43,7 @@ byte saving_throws(int class_num, int type, int level);
 int thaco(int class_num, int level);
 void do_start(CharData *ch, int newbie);
 int invalid_anti_class(CharData *ch, const ObjData *obj);
-int level_exp(CharData *ch, int level);
+long GetExpUntilNextLvl(CharData *ch, int level);
 byte extend_saving_throws(int class_num, ESaving save, int level);
 int invalid_unique(CharData *ch, const ObjData *obj);
 void mspell_level(char *name, int spell, int kin, int chclass, int level);
@@ -1143,7 +1143,7 @@ void levelup_events(CharData *ch) {
 		&& !ch->get_disposable_flag(DIS_OFFTOP_MESSAGE)) {
 		PRF_FLAGS(ch).set(EPrf::kOfftopMode);
 		ch->set_disposable_flag(DIS_OFFTOP_MESSAGE);
-		send_to_char(ch,
+		SendMsgToChar(ch,
 					 "%sТеперь вы можете пользоваться каналом оффтоп ('справка оффтоп').%s\r\n",
 					 CCIGRN(ch, C_SPR), CCNRM(ch, C_SPR));
 	}
@@ -1151,7 +1151,7 @@ void levelup_events(CharData *ch) {
 		&& !ch->get_disposable_flag(DIS_EXCHANGE_MESSAGE)) {
 		// по умолчанию базар у всех включен, поэтому не спамим даже однократно
 		if (GET_REAL_REMORT(ch) <= 0) {
-			send_to_char(ch,
+			SendMsgToChar(ch,
 						 "%sТеперь вы можете покупать и продавать вещи на базаре ('справка базар!').%s\r\n",
 						 CCIGRN(ch, C_SPR), CCNRM(ch, C_SPR));
 		}
@@ -1692,7 +1692,7 @@ int GroupPenalties::init() {
  */
 
 // Function to return the exp required for each class/level
-int level_exp(CharData *ch, int level) {
+long GetExpUntilNextLvl(CharData *ch, int level) {
 	if (level > kLvlImplementator || level < 0) {
 		log("SYSERR: Requesting exp for invalid level %d!", level);
 		return 0;
@@ -1708,10 +1708,10 @@ int level_exp(CharData *ch, int level) {
 
 	// Exp required for normal mortals is below
 	float exp_modifier;
-	if (GET_REAL_REMORT(ch) < MAX_EXP_COEFFICIENTS_USED) {
+	if (GET_REAL_REMORT(ch) < kMaxExpCoefficientsUsed) {
 		exp_modifier = static_cast<float>(exp_coefficients[GET_REAL_REMORT(ch)]);
 	} else {
-		exp_modifier = static_cast<float>(exp_coefficients[MAX_EXP_COEFFICIENTS_USED]);
+		exp_modifier = static_cast<float>(exp_coefficients[kMaxExpCoefficientsUsed]);
 	}
 
 	switch (GET_CLASS(ch)) {

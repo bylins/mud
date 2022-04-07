@@ -100,7 +100,7 @@ extern void show_code_date(CharData *ch);
 extern int nameserver_is_slow; //config.cpp
 extern std::vector<City> cities;
 // extern functions
-int level_exp(CharData *ch, int level);
+long GetExpUntilNextLvl(CharData *ch, int level);
 // local functions
 const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_state, int how);
 void list_obj_to_char(ObjData *list, CharData *ch, int mode, int show);
@@ -155,7 +155,7 @@ char *daig_filling_drink(const ObjData *obj, const CharData *ch);
 
 void do_quest(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
-	send_to_char("У Вас нет никаких ежедневных поручений.\r\nЧтобы взять новые, наберите &Wпоручения получить&n.\r\n",
+	SendMsgToChar("У Вас нет никаких ежедневных поручений.\r\nЧтобы взять новые, наберите &Wпоручения получить&n.\r\n",
 				 ch);
 }
 
@@ -184,7 +184,7 @@ const char *ObjState[8][2] = {{"рассыпается", "рассыпается
 
 void do_check(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (!login_change_invoice(ch))
-		send_to_char("Проверка показала: новых сообщений нет.\r\n", ch);
+		SendMsgToChar("Проверка показала: новых сообщений нет.\r\n", ch);
 }
 
 char *diag_obj_to_char(CharData *i, ObjData *obj, int mode) {
@@ -496,7 +496,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 				strcat(buf, space_before_string(object->get_action_description().c_str()).c_str());
 				page_string(ch->desc, buf, 1);
 			} else {
-				send_to_char("Чисто.\r\n", ch);
+				SendMsgToChar("Чисто.\r\n", ch);
 			}
 			return nullptr;
 		} else if (GET_OBJ_TYPE(object) == EObjType::kBandage) {
@@ -627,7 +627,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 }
 
 void do_cities(CharData *ch, char *, int, int) {
-	send_to_char("Города на Руси:\r\n", ch);
+	SendMsgToChar("Города на Руси:\r\n", ch);
 	for (unsigned int i = 0; i < cities.size(); i++) {
 		sprintf(buf, "%3d.", i + 1);
 		if (IS_IMMORTAL(ch)) {
@@ -639,7 +639,7 @@ void do_cities(CharData *ch, char *, int, int) {
 				cities[i].name.c_str(),
 				(ch->check_city(i) ? "&gВы были там.&n" : "&rВы еще не были там.&n"));
 		strcat(buf, buf1);
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 	}
 }
 
@@ -692,11 +692,11 @@ void list_obj_to_char(ObjData *list, CharData *ch, int mode, int show) {
 	}
 	if (!found && show) {
 		if (show == 1)
-			send_to_char(" Внутри ничего нет.\r\n", ch);
+			SendMsgToChar(" Внутри ничего нет.\r\n", ch);
 		else if (show == 2)
-			send_to_char(" Вы ничего не несете.\r\n", ch);
+			SendMsgToChar(" Вы ничего не несете.\r\n", ch);
 		else if (show == 3) {
-			send_to_char(" Пусто...\r\n", ch);
+			SendMsgToChar(" Пусто...\r\n", ch);
 			return;
 		}
 	}
@@ -773,7 +773,7 @@ void diag_char_to_char(CharData *i, CharData *ch) {
 		}
 
 	strcat(buf, "\r\n");
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 
 }
 
@@ -786,9 +786,9 @@ void look_at_char(CharData *i, CharData *ch) {
 
 	if (!i->player_data.description.empty()) {
 		if (i->is_npc())
-			send_to_char(ch, " * %s", i->player_data.description.c_str());
+			SendMsgToChar(ch, " * %s", i->player_data.description.c_str());
 		else
-			send_to_char(ch, "*\r\n%s*\r\n", space_before_string(i->player_data.description).c_str());
+			SendMsgToChar(ch, "*\r\n%s*\r\n", space_before_string(i->player_data.description).c_str());
 	} else if (!i->is_npc()) {
 		strcpy(buf, "\r\nЭто");
 		if (i->is_morphed())
@@ -866,7 +866,7 @@ void look_at_char(CharData *i, CharData *ch) {
 					strcat(buf, " длиннющий, похожий на жердь мужчина.\r\n");
 			}
 		}
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 	} else
 		act("\r\nНичего необычного в $n5 вы не заметили.", false, i, nullptr, ch, kToVict);
 
@@ -899,16 +899,16 @@ void look_at_char(CharData *i, CharData *ch) {
 			strcat(buf, "в хорошем состоянии.\r\n");
 		else
 			strcat(buf, "выглядит совсем свежим.\r\n");
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 	};
 
 	diag_char_to_char(i, ch);
 
 	if (i->is_morphed()) {
-		send_to_char("\r\n", ch);
+		SendMsgToChar("\r\n", ch);
 		std::string coverDesc = "$n покрыт$a " + i->get_cover_desc() + ".";
 		act(coverDesc.c_str(), false, i, nullptr, ch, kToVict);
-		send_to_char("\r\n", ch);
+		SendMsgToChar("\r\n", ch);
 	} else {
 		found = false;
 		for (j = 0; !found && j < EEquipPos::kNumEquipPos; j++)
@@ -916,11 +916,11 @@ void look_at_char(CharData *i, CharData *ch) {
 				found = true;
 
 		if (found) {
-			send_to_char("\r\n", ch);
+			SendMsgToChar("\r\n", ch);
 			act("$n одет$a :", false, i, nullptr, ch, kToVict);
 			for (j = 0; j < EEquipPos::kNumEquipPos; j++) {
 				if (GET_EQ(i, j) && CAN_SEE_OBJ(ch, GET_EQ(i, j))) {
-					send_to_char(where[j], ch);
+					SendMsgToChar(where[j], ch);
 					if (i->has_master()
 						&& i->is_npc()) {
 						show_obj_to_char(GET_EQ(i, j), ch, 1, ch == i->get_master(), 1);
@@ -953,7 +953,7 @@ void look_at_char(CharData *i, CharData *ch) {
 		if (push && push_count)
 			show_obj_to_char(push, ch, 1, ch == i, push_count);
 		if (!found)
-			send_to_char("...и ничего не обнаружили.\r\n", ch);
+			SendMsgToChar("...и ничего не обнаружили.\r\n", ch);
 	}
 }
 
@@ -1007,7 +1007,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			} else {
 				sprintf(buf, "Вы разглядели %s.\r\n", GET_PAD(i, 3));
 			}
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 		}
 		return;
 	}
@@ -1047,7 +1047,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			sprintf(buf + strlen(buf), "бряцание металла%s", mode_flags ? ", " : " ");
 		}
 		strcat(buf, "выдает чье-то присутствие.\r\n");
-		send_to_char(CAP(buf), ch);
+		SendMsgToChar(CAP(buf), ch);
 		return;
 	}
 
@@ -1096,7 +1096,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			strcat(buf, "(под седлом) ");
 
 		strcat(buf, i->player_data.long_descr.c_str());
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 
 		*aura_txt = '\0';
 		if (AFF_FLAGGED(i, EAffect::kShield)) {
@@ -1296,7 +1296,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			sprintf(buf + strlen(buf), "(отравлен%s) ", GET_CH_SUF_6(i));
 
 	strcat(buf, "\r\n");
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 
 	*aura_txt = '\0';
 	if (AFF_FLAGGED(i, EAffect::kShield)) {
@@ -1415,7 +1415,7 @@ void list_char_to_char(const RoomData::people_t &list, CharData *ch) {
 				&& i->in_room == ch->in_room
 				&& !CAN_SEE_IN_DARK(ch)
 				&& AFF_FLAGGED(i, EAffect::kInfravision)) {
-				send_to_char("Пара светящихся глаз смотрит на вас.\r\n", ch);
+				SendMsgToChar("Пара светящихся глаз смотрит на вас.\r\n", ch);
 			}
 		}
 	}
@@ -1453,7 +1453,7 @@ void do_auto_exits(CharData *ch) {
 	}
 	sprintf(buf2, "%s[ Exits: %s]%s\r\n", CCCYN(ch, C_NRM), *buf ? buf : "None! ", CCNRM(ch, C_NRM));
 
-	send_to_char(buf2, ch);
+	SendMsgToChar(buf2, ch);
 }
 
 void do_exits(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
@@ -1467,7 +1467,7 @@ void do_exits(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	if (AFF_FLAGGED(ch, EAffect::kBlind)) {
-		send_to_char("Вы слепы, как котенок!\r\n", ch);
+		SendMsgToChar("Вы слепы, как котенок!\r\n", ch);
 		return;
 	}
 	for (door = 0; door < EDirection::kMaxDirNum; door++)
@@ -1492,11 +1492,11 @@ void do_exits(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			}
 			strcat(buf, CAP(buf2));
 		}
-	send_to_char("Видимые выходы:\r\n", ch);
+	SendMsgToChar("Видимые выходы:\r\n", ch);
 	if (*buf)
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 	else
-		send_to_char(" Замуровали, ДЕМОНЫ!\r\n", ch);
+		SendMsgToChar(" Замуровали, ДЕМОНЫ!\r\n", ch);
 }
 void do_blind_exits(CharData *ch) {
 	int door;
@@ -1505,7 +1505,7 @@ void do_blind_exits(CharData *ch) {
 	*buf2 = '\0';
 
 	if (AFF_FLAGGED(ch, EAffect::kBlind)) {
-		send_to_char("Вы слепы, как котенок!\r\n", ch);
+		SendMsgToChar("Вы слепы, как котенок!\r\n", ch);
 		return;
 	}
 	for (door = 0; door < EDirection::kMaxDirNum; door++)
@@ -1530,11 +1530,11 @@ void do_blind_exits(CharData *ch) {
 			}
 			strcat(buf, CAP(buf2));
 		}
-	send_to_char("Видимые выходы:\r\n", ch);
+	SendMsgToChar("Видимые выходы:\r\n", ch);
 	if (*buf)
-		send_to_char(ch, "%s&n\r\n", buf);
+		SendMsgToChar(ch, "%s&n\r\n", buf);
 	else
-		send_to_char("&W Замуровали, ДЕМОНЫ!&n\r\n", ch);
+		SendMsgToChar("&W Замуровали, ДЕМОНЫ!&n\r\n", ch);
 }
 
 #define MAX_FIRES 6
@@ -1655,8 +1655,8 @@ void show_extend_room(const char *const description, CharData *ch) {
 			*--pos = '\0';
 	}
 
-	send_to_char(buf, ch);
-	send_to_char("\r\n", ch);
+	SendMsgToChar(buf, ch);
+	SendMsgToChar("\r\n", ch);
 }
 
 bool put_delim(std::stringstream &out, bool delim) {
@@ -1688,7 +1688,7 @@ void print_zone_info(CharData *ch) {
 	}
 	out << ".\r\n";
 
-	send_to_char(out.str(), ch);
+	SendMsgToChar(out.str(), ch);
 }
 
 void show_glow_objs(CharData *ch) {
@@ -1707,7 +1707,7 @@ void show_glow_objs(CharData *ch) {
 	const char *str = cnt > 1 ?
 					  "Вы видите очертания каких-то блестящих предметов.\r\n" :
 					  "Вы видите очертания какого-то блестящего предмета.\r\n";
-	send_to_char(str, ch);
+	SendMsgToChar(str, ch);
 }
 
 void show_room_affects(CharData *ch, const char *name_affects[], const char *name_self_affects[]) {
@@ -1800,7 +1800,7 @@ void show_room_affects(CharData *ch, const char *name_affects[], const char *nam
 	auto affects = buffer.str();
 	if (!affects.empty()) {
 		affects.append("\r\n");
-		send_to_char(affects.c_str(), ch);
+		SendMsgToChar(affects.c_str(), ch);
 	}
 }
 
@@ -1809,11 +1809,11 @@ void look_at_room(CharData *ch, int ignore_brief) {
 		return;
 
 	if (is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !IsAbleToUseFeat(ch, EFeat::kDarkReading)) {
-		send_to_char("Слишком темно...\r\n", ch);
+		SendMsgToChar("Слишком темно...\r\n", ch);
 		show_glow_objs(ch);
 		return;
 	} else if (AFF_FLAGGED(ch, EAffect::kBlind)) {
-		send_to_char("Вы все еще слепы...\r\n", ch);
+		SendMsgToChar("Вы все еще слепы...\r\n", ch);
 		return;
 	} else if (GET_POS(ch) < EPosition::kSleep) {
 		return;
@@ -1827,7 +1827,7 @@ void look_at_room(CharData *ch, int ignore_brief) {
 		ch->map_print_to_snooper(ch->desc->snoop_by->character.get());
 	}
 
-	send_to_char(CCICYN(ch, C_NRM), ch);
+	SendMsgToChar(CCICYN(ch, C_NRM), ch);
 
 	if (!ch->is_npc() && PRF_FLAGGED(ch, EPrf::kRoomFlags)) {
 		// иммам рандомная * во флагах ломает мапер грят
@@ -1836,7 +1836,7 @@ void look_at_room(CharData *ch, int ignore_brief) {
 
 		world[ch->in_room]->flags_sprint(buf, ";");
 		snprintf(buf2, kMaxStringLength, "[%5d] %s [%s]", GET_ROOM_VNUM(ch->in_room), world[ch->in_room]->name, buf);
-		send_to_char(buf2, ch);
+		SendMsgToChar(buf2, ch);
 
 		if (has_flag) {
 			world[ch->in_room]->set_flag(ERoomFlag::kBfsMark);
@@ -1845,16 +1845,16 @@ void look_at_room(CharData *ch, int ignore_brief) {
 		if (PRF_FLAGGED(ch, EPrf::kMapper) && !PLR_FLAGGED(ch, EPlrFlag::kScriptWriter)
 			&& !ROOM_FLAGGED(ch->in_room, ERoomFlag::kMoMapper)) {
 			sprintf(buf2, "%s [%d]", world[ch->in_room]->name, GET_ROOM_VNUM(ch->in_room));
-			send_to_char(buf2, ch);
+			SendMsgToChar(buf2, ch);
 		} else
-			send_to_char(world[ch->in_room]->name, ch);
+			SendMsgToChar(world[ch->in_room]->name, ch);
 	}
 
-	send_to_char(CCNRM(ch, C_NRM), ch);
-	send_to_char("\r\n", ch);
+	SendMsgToChar(CCNRM(ch, C_NRM), ch);
+	SendMsgToChar("\r\n", ch);
 
 	if (is_dark(ch->in_room) && !PRF_FLAGGED(ch, EPrf::kHolylight)) {
-		send_to_char("Слишком темно...\r\n", ch);
+		SendMsgToChar("Слишком темно...\r\n", ch);
 	} else if ((!ch->is_npc() && !PRF_FLAGGED(ch, EPrf::kBrief)) || ignore_brief || ROOM_FLAGGED(ch->in_room, ERoomFlag::kDeathTrap)) {
 		show_extend_room(RoomDescription::show_desc(world[ch->in_room]->description_num).c_str(), ch);
 	}
@@ -1875,7 +1875,7 @@ void look_at_room(CharData *ch, int ignore_brief) {
 	if (world[ch->in_room]->fires) {
 		sprintf(buf, "%sВ центре %s.%s\r\n",
 				CCRED(ch, C_NRM), Fires[MIN(world[ch->in_room]->fires, MAX_FIRES - 1)], CCNRM(ch, C_NRM));
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 	}
 
 	if (world[ch->in_room]->portal_time) {
@@ -1887,14 +1887,14 @@ void look_at_room(CharData *ch, int ignore_brief) {
 					CCIBLU(ch, C_NRM), CCNRM(ch, C_NRM));
 		}
 
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 	}
 
 	if (world[ch->in_room]->holes) {
 		const int ar = roundup(world[ch->in_room]->holes / kHolesTime);
 		sprintf(buf, "%sЗдесь выкопана ямка глубиной примерно в %i аршин%s.%s\r\n",
 				CCYEL(ch, C_NRM), ar, (ar == 1 ? "" : (ar < 5 ? "а" : "ов")), (CCNRM(ch, C_NRM)));
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 	}
 
 	if (ch->in_room != kNowhere && !ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoWeather)
@@ -1932,21 +1932,21 @@ void look_at_room(CharData *ch, int ignore_brief) {
 				break;
 		};
 		if (*buf) {
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 		}
 	}
-	send_to_char("&Y&q", ch);
+	SendMsgToChar("&Y&q", ch);
 	if (ch->get_skill(ESkill::kTownportal)) {
 		if (find_portal_by_vnum(GET_ROOM_VNUM(ch->in_room))) {
-			send_to_char("Рунный камень с изображением пентаграммы немного выступает из земли.\r\n", ch);
+			SendMsgToChar("Рунный камень с изображением пентаграммы немного выступает из земли.\r\n", ch);
 		}
 	}
 	list_obj_to_char(world[ch->in_room]->contents, ch, 0, false);
 	list_char_to_char_thing(world[ch->in_room]->people,
 							ch);  //добавим отдельный вызов если моб типа предмет выводим желтым
-	send_to_char("&R&q", ch);
+	SendMsgToChar("&R&q", ch);
 	list_char_to_char(world[ch->in_room]->people, ch);
-	send_to_char("&Q&n", ch);
+	SendMsgToChar("&Q&n", ch);
 
 	// вход в новую зону
 	if (!ch->is_npc()) {
@@ -1991,15 +1991,15 @@ void look_in_direction(CharData *ch, int dir, int info_is) {
 				}
 			}
 
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 			return;
 		}
 
 		if (is_dark(rdata->to_room())) {
 			count += sprintf(buf + count, " слишком темно.\r\n");
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 			if (info_is & EXIT_SHOW_LOOKING) {
-				send_to_char("&R&q", ch);
+				SendMsgToChar("&R&q", ch);
 				count = 0;
 				for (const auto tch : world[rdata->to_room()]->people) {
 					percent = number(1, MUD::Skills()[ESkill::kLooking].difficulty);
@@ -2016,9 +2016,9 @@ void look_in_direction(CharData *ch, int dir, int info_is) {
 				}
 
 				if (!count) {
-					send_to_char("Вы ничего не смогли разглядеть!\r\n", ch);
+					SendMsgToChar("Вы ничего не смогли разглядеть!\r\n", ch);
 				}
-				send_to_char("&Q&n", ch);
+				SendMsgToChar("&Q&n", ch);
 			}
 		} else {
 			if (!rdata->general_description.empty()) {
@@ -2026,13 +2026,13 @@ void look_in_direction(CharData *ch, int dir, int info_is) {
 			} else {
 				count += sprintf(buf + count, "%s\r\n", world[rdata->to_room()]->name);
 			}
-			send_to_char(buf, ch);
-			send_to_char("&R&q", ch);
+			SendMsgToChar(buf, ch);
+			SendMsgToChar("&R&q", ch);
 			list_char_to_char(world[rdata->to_room()]->people, ch);
-			send_to_char("&Q&n", ch);
+			SendMsgToChar("&Q&n", ch);
 		}
 	} else if (info_is & EXIT_SHOW_WALL)
-		send_to_char("И что вы там мечтаете увидеть?\r\n", ch);
+		SendMsgToChar("И что вы там мечтаете увидеть?\r\n", ch);
 }
 
 void hear_in_direction(CharData *ch, int dir, int info_is) {
@@ -2042,7 +2042,7 @@ void hear_in_direction(CharData *ch, int dir, int info_is) {
 	string tmpstr;
 
 	if (AFF_FLAGGED(ch, EAffect::kDeafness)) {
-		send_to_char("Вы забыли, что вы глухи?\r\n", ch);
+		SendMsgToChar("Вы забыли, что вы глухи?\r\n", ch);
 		return;
 	}
 	if (CAN_GO(ch, dir)
@@ -2051,7 +2051,7 @@ void hear_in_direction(CharData *ch, int dir, int info_is) {
 		rdata = EXIT(ch, dir);
 		count += sprintf(buf, "%s%s:%s ", CCYEL(ch, C_NRM), Dirs[dir], CCNRM(ch, C_NRM));
 		count += sprintf(buf + count, "\r\n%s", CCGRN(ch, C_NRM));
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 		count = 0;
 		for (const auto tch : world[rdata->to_room()]->people) {
 			percent = number(1, MUD::Skills()[ESkill::kHearing].difficulty);
@@ -2110,15 +2110,15 @@ void hear_in_direction(CharData *ch, int dir, int info_is) {
 		}
 
 		if ((!count) && (!fight_count)) {
-			send_to_char(" Тишина и покой.\r\n", ch);
+			SendMsgToChar(" Тишина и покой.\r\n", ch);
 		} else {
-			send_to_char(tmpstr.c_str(), ch);
+			SendMsgToChar(tmpstr.c_str(), ch);
 		}
 
-		send_to_char(CCNRM(ch, C_NRM), ch);
+		SendMsgToChar(CCNRM(ch, C_NRM), ch);
 	} else {
 		if (info_is & EXIT_SHOW_WALL) {
-			send_to_char("И что вы там хотите услышать?\r\n", ch);
+			SendMsgToChar("И что вы там хотите услышать?\r\n", ch);
 		}
 	}
 }
@@ -2131,7 +2131,7 @@ void look_in_obj(CharData *ch, char *arg) {
 	int where_bits = EFind::kObjInventory | EFind::kObjRoom | EFind::kObjEquip;
 
 	if (!*arg)
-		send_to_char("Смотреть во что?\r\n", ch);
+		SendMsgToChar("Смотреть во что?\r\n", ch);
 	else
 		half_chop(arg, whatp, where);
 
@@ -2146,11 +2146,11 @@ void look_in_obj(CharData *ch, char *arg) {
 
 	if ((obj == nullptr) || !bits) {
 		sprintf(buf, "Вы не видите здесь '%s'.\r\n", arg);
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 	} else if (GET_OBJ_TYPE(obj) != EObjType::kLiquidContainer
 		&& GET_OBJ_TYPE(obj) != EObjType::kFountain
 		&& GET_OBJ_TYPE(obj) != EObjType::kContainer) {
-		send_to_char("Ничего в нем нет!\r\n", ch);
+		SendMsgToChar("Ничего в нем нет!\r\n", ch);
 	} else {
 		if (Clan::ChestShow(obj, ch)) {
 			return;
@@ -2180,22 +2180,22 @@ void look_in_obj(CharData *ch, char *arg) {
 						const PickProbabilityInformation &pbi = get_pick_probability(ch, GET_OBJ_VAL(obj, 3));
 						count += sprintf(buf + count, "%s\r\n", pbi.text.c_str());
 					}
-					send_to_char(buf, ch);
+					SendMsgToChar(buf, ch);
 				}
 			} else {
-				send_to_char(OBJN(obj, ch, 0), ch);
+				SendMsgToChar(OBJN(obj, ch, 0), ch);
 				switch (bits) {
-					case EFind::kObjInventory: send_to_char("(в руках)\r\n", ch);
+					case EFind::kObjInventory: SendMsgToChar("(в руках)\r\n", ch);
 						break;
-					case EFind::kObjRoom: send_to_char("(на земле)\r\n", ch);
+					case EFind::kObjRoom: SendMsgToChar("(на земле)\r\n", ch);
 						break;
-					case EFind::kObjEquip: send_to_char("(в амуниции)\r\n", ch);
+					case EFind::kObjEquip: SendMsgToChar("(в амуниции)\r\n", ch);
 						break;
-					default: send_to_char("(неведомо где)\r\n", ch);
+					default: SendMsgToChar("(неведомо где)\r\n", ch);
 						break;
 				}
 				if (!obj->get_contains())
-					send_to_char(" Внутри ничего нет.\r\n", ch);
+					SendMsgToChar(" Внутри ничего нет.\r\n", ch);
 				else {
 					if (GET_OBJ_VAL(obj, 0) > 0 && bits != EFind::kObjRoom) {
 						/* amt - индекс массива из 6 элементов (0..5) с описанием наполненности
@@ -2204,14 +2204,14 @@ void look_in_obj(CharData *ch, char *arg) {
 						*/
 						amt = std::clamp((GET_OBJ_WEIGHT(obj) * 100) / (GET_OBJ_VAL(obj, 0) * 20), 0, 5);
 						sprintf(buf, "Заполнен%s содержимым %s:\r\n", GET_OBJ_SUF_6(obj), fullness[amt]);
-						send_to_char(buf, ch);
+						SendMsgToChar(buf, ch);
 					}
 					list_obj_to_char(obj->get_contains(), ch, 1, bits != EFind::kObjRoom);
 				}
 			}
 		} else {
 			// item must be a fountain or drink container
-			send_to_char(ch, "%s.\r\n", daig_filling_drink(obj, ch));
+			SendMsgToChar(ch, "%s.\r\n", daig_filling_drink(obj, ch));
 
 		}
 	}
@@ -2362,7 +2362,7 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 	}
 
 	if (!*arg) {
-		send_to_char("На что вы так мечтаете посмотреть?\r\n", ch);
+		SendMsgToChar("На что вы так мечтаете посмотреть?\r\n", ch);
 		return false;
 	}
 
@@ -2382,26 +2382,26 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 		(port = get_portal(GET_ROOM_VNUM(ch->in_room), nullptr)) != nullptr && IS_SET(where_bits, EFind::kObjRoom)) {
 
 		if (has_char_portal(ch, GET_ROOM_VNUM(ch->in_room))) {
-			send_to_char("На камне огненными буквами написано слово '&R", ch);
-			send_to_char(port->wrd, ch);
-			send_to_char("&n'.\r\n", ch);
+			SendMsgToChar("На камне огненными буквами написано слово '&R", ch);
+			SendMsgToChar(port->wrd, ch);
+			SendMsgToChar("&n'.\r\n", ch);
 			return 0;
 		} else if (GetRealLevel(ch) < MAX(1, port->level - GET_REAL_REMORT(ch) / 2)) {
-			send_to_char("На камне что-то написано огненными буквами.\r\n", ch);
-			send_to_char("Но вы еще недостаточно искусны, чтобы разобрать слово.\r\n", ch);
+			SendMsgToChar("На камне что-то написано огненными буквами.\r\n", ch);
+			SendMsgToChar("Но вы еще недостаточно искусны, чтобы разобрать слово.\r\n", ch);
 			return false;
 		} else {
 			for (tmp = GET_PORTALS(ch); tmp; tmp = tmp->next) {
 				cn++;
 			}
 			if (cn >= MAX_PORTALS(ch)) {
-				send_to_char
+				SendMsgToChar
 					("Все доступные вам камни уже запомнены, удалите и попробуйте еще.\r\n", ch);
 				return false;
 			}
-			send_to_char("На камне огненными буквами написано слово '&R", ch);
-			send_to_char(port->wrd, ch);
-			send_to_char("&n'.\r\n", ch);
+			SendMsgToChar("На камне огненными буквами написано слово '&R", ch);
+			SendMsgToChar(port->wrd, ch);
+			SendMsgToChar("&n'.\r\n", ch);
 			// теперь добавляем в память чара
 			add_portal_to_char(ch, GET_ROOM_VNUM(ch->in_room));
 			check_portals(ch);
@@ -2413,10 +2413,10 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 	if (isname(whatp, "пентаграмма") && world[ch->in_room]->portal_time && IS_SET(where_bits, EFind::kObjRoom)) {
 		const auto r = ch->in_room;
 		const auto to_room = world[r]->portal_room;
-		send_to_char("Приблизившись к пентаграмме, вы осторожно заглянули в нее.\r\n\r\n", ch);
+		SendMsgToChar("Приблизившись к пентаграмме, вы осторожно заглянули в нее.\r\n\r\n", ch);
 		act("$n0 осторожно заглянул$g в пентаграмму.\r\n", true, ch, nullptr, nullptr, kToRoom);
 		if (world[to_room]->portal_time && (r == world[to_room]->portal_room)) {
-			send_to_char
+			SendMsgToChar
 				("Яркий свет, идущий с противоположного конца прохода, застилает вам глаза.\r\n\r\n", ch);
 			return false;
 		}
@@ -2429,7 +2429,7 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 	bits = generic_find(what, where_bits, ch, &found_char, &found_obj);
 	// Is the target a character?
 	if (found_char != nullptr) {
-		if (subcmd == SCMD_LOOK_HIDE && !check_moves(ch, LOOKHIDE_MOVES))
+		if (subcmd == SCMD_LOOK_HIDE && !check_moves(ch, kLookhideMoves))
 			return false;
 		look_at_char(found_char, ch);
 		if (ch != found_char) {
@@ -2438,7 +2438,7 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 				found = CalcCurrentSkill(ch, ESkill::kPry, found_char);
 				TrainSkill(ch, ESkill::kPry, found < fnum, found_char);
 				if (!IS_IMMORTAL(ch))
-					WAIT_STATE(ch, 1 * kPulseViolence);
+					SetWaitState(ch, 1 * kPulseViolence);
 				if (found >= fnum && (fnum < 100 || IS_IMMORTAL(ch)) && !IS_IMMORTAL(found_char))
 					return false;
 			}
@@ -2451,7 +2451,7 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 
 	// Strip off "number." from 2.foo and friends.
 	if (!(fnum = get_number(&what))) {
-		send_to_char("Что осматриваем?\r\n", ch);
+		SendMsgToChar("Что осматриваем?\r\n", ch);
 		return false;
 	}
 
@@ -2480,15 +2480,15 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 		if (!(desc = find_exdesc(what, found_obj->get_ex_description()))) {
 			show_obj_to_char(found_obj, ch, 5, true, 1);    // Show no-description
 		} else {
-			send_to_char(desc, ch);
+			SendMsgToChar(desc, ch);
 			show_obj_to_char(found_obj, ch, 6, true, 1);    // Find hum, glow etc
 		}
 
 		*buf = '\0';
 		obj_info(ch, found_obj, buf);
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 	} else
-		send_to_char("Похоже, этого здесь нет!\r\n", ch);
+		SendMsgToChar("Похоже, этого здесь нет!\r\n", ch);
 
 	return false;
 }
@@ -2500,7 +2500,7 @@ void skip_hide_on_look(CharData *ch) {
 				CalcCurrentSkill(ch, ESkill::kPry, nullptr) - 2 * (ch->get_wis() - 9)) > 0)))) {
 		affect_from_char(ch, kSpellHide);
 		if (!AFF_FLAGGED(ch, EAffect::kHide)) {
-			send_to_char("Вы прекратили прятаться.\r\n", ch);
+			SendMsgToChar("Вы прекратили прятаться.\r\n", ch);
 			act("$n прекратил$g прятаться.", false, ch, nullptr, nullptr, kToRoom);
 		}
 	}
@@ -2514,9 +2514,9 @@ void do_look(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 
 	if (GET_POS(ch) < EPosition::kSleep) {
-		send_to_char("Виделся часто сон беспокойный...\r\n", ch);
+		SendMsgToChar("Виделся часто сон беспокойный...\r\n", ch);
 	} else if (AFF_FLAGGED(ch, EAffect::kBlind)) {
-		send_to_char("Вы ослеплены!\r\n", ch);
+		SendMsgToChar("Вы ослеплены!\r\n", ch);
 	} else if (is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch)) {
 		if (GetRealLevel(ch) > 30) {
 			sprintf(buf,
@@ -2531,11 +2531,11 @@ void do_look(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 					CCMAG(ch, C_NRM), CCICYN(ch, C_NRM), weather_info.sky,
 					CCWHT(ch, C_NRM), CCIWHT(ch, C_NRM), weather_info.sunlight,
 					CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), weather_info.moon_day, CCNRM(ch, C_NRM));
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 		}
 		skip_hide_on_look(ch);
 
-		send_to_char("Слишком темно...\r\n", ch);
+		SendMsgToChar("Слишком темно...\r\n", ch);
 		list_char_to_char(world[ch->in_room]->people, ch);    // glowing red eyes
 		show_glow_objs(ch);
 	} else {
@@ -2545,7 +2545,7 @@ void do_look(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 		if (subcmd == SCMD_READ) {
 			if (!*arg)
-				send_to_char("Что вы хотите прочитать?\r\n", ch);
+				SendMsgToChar("Что вы хотите прочитать?\r\n", ch);
 			else
 				look_at_target(ch, arg, subcmd);
 			return;
@@ -2576,12 +2576,12 @@ void do_sides(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 
 	if (GET_POS(ch) <= EPosition::kSleep)
-		send_to_char("Виделся часто сон беспокойный...\r\n", ch);
+		SendMsgToChar("Виделся часто сон беспокойный...\r\n", ch);
 	else if (AFF_FLAGGED(ch, EAffect::kBlind))
-		send_to_char("Вы ослеплены!\r\n", ch);
+		SendMsgToChar("Вы ослеплены!\r\n", ch);
 	else {
 		skip_hide_on_look(ch);
-		send_to_char("Вы посмотрели по сторонам.\r\n", ch);
+		SendMsgToChar("Вы посмотрели по сторонам.\r\n", ch);
 		for (i = 0; i < EDirection::kMaxDirNum; i++) {
 			look_in_direction(ch, i, 0);
 		}
@@ -2595,21 +2595,21 @@ void do_looking(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 		return;
 
 	if (GET_POS(ch) < EPosition::kSleep)
-		send_to_char("Белый Ангел возник перед вами, маняще помахивая крыльями.\r\n", ch);
+		SendMsgToChar("Белый Ангел возник перед вами, маняще помахивая крыльями.\r\n", ch);
 	if (GET_POS(ch) == EPosition::kSleep)
-		send_to_char("Виделся часто сон беспокойный...\r\n", ch);
+		SendMsgToChar("Виделся часто сон беспокойный...\r\n", ch);
 	else if (AFF_FLAGGED(ch, EAffect::kBlind))
-		send_to_char("Вы ослеплены!\r\n", ch);
+		SendMsgToChar("Вы ослеплены!\r\n", ch);
 	else if (ch->get_skill(ESkill::kLooking)) {
-		if (check_moves(ch, LOOKING_MOVES)) {
-			send_to_char("Вы напрягли зрение и начали присматриваться по сторонам.\r\n", ch);
+		if (check_moves(ch, kLookingMoves)) {
+			SendMsgToChar("Вы напрягли зрение и начали присматриваться по сторонам.\r\n", ch);
 			for (i = 0; i < EDirection::kMaxDirNum; i++)
 				look_in_direction(ch, i, EXIT_SHOW_LOOKING);
 			if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike)))
-				WAIT_STATE(ch, 1 * kPulseViolence);
+				SetWaitState(ch, 1 * kPulseViolence);
 		}
 	} else
-		send_to_char("Вам явно не хватает этого умения.\r\n", ch);
+		SendMsgToChar("Вам явно не хватает этого умения.\r\n", ch);
 }
 
 void do_hearing(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
@@ -2619,24 +2619,24 @@ void do_hearing(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 		return;
 
 	if (AFF_FLAGGED(ch, EAffect::kDeafness)) {
-		send_to_char("Вы глухи и все равно ничего не услышите.\r\n", ch);
+		SendMsgToChar("Вы глухи и все равно ничего не услышите.\r\n", ch);
 		return;
 	}
 
 	if (GET_POS(ch) < EPosition::kSleep)
-		send_to_char("Вам начали слышаться голоса предков, зовущие вас к себе.\r\n", ch);
+		SendMsgToChar("Вам начали слышаться голоса предков, зовущие вас к себе.\r\n", ch);
 	if (GET_POS(ch) == EPosition::kSleep)
-		send_to_char("Морфей медленно задумчиво провел рукой по струнам и заиграл колыбельную.\r\n", ch);
+		SendMsgToChar("Морфей медленно задумчиво провел рукой по струнам и заиграл колыбельную.\r\n", ch);
 	else if (ch->get_skill(ESkill::kHearing)) {
-		if (check_moves(ch, HEARING_MOVES)) {
-			send_to_char("Вы начали сосредоточенно прислушиваться.\r\n", ch);
+		if (check_moves(ch, kHearingMoves)) {
+			SendMsgToChar("Вы начали сосредоточенно прислушиваться.\r\n", ch);
 			for (i = 0; i < EDirection::kMaxDirNum; i++)
 				hear_in_direction(ch, i, 0);
 			if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike)))
-				WAIT_STATE(ch, 1 * kPulseViolence);
+				SetWaitState(ch, 1 * kPulseViolence);
 		}
 	} else
-		send_to_char("Выучите сначала как это следует делать.\r\n", ch);
+		SendMsgToChar("Выучите сначала как это следует делать.\r\n", ch);
 }
 
 void do_examine(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
@@ -2646,17 +2646,17 @@ void do_examine(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	int where_bits = EFind::kObjInventory | EFind::kObjRoom | EFind::kObjEquip | EFind::kCharInRoom | EFind::kObjExtraDesc;
 
 	if (GET_POS(ch) < EPosition::kSleep) {
-		send_to_char("Виделся часто сон беспокойный...\r\n", ch);
+		SendMsgToChar("Виделся часто сон беспокойный...\r\n", ch);
 		return;
 	} else if (AFF_FLAGGED(ch, EAffect::kBlind)) {
-		send_to_char("Вы ослеплены!\r\n", ch);
+		SendMsgToChar("Вы ослеплены!\r\n", ch);
 		return;
 	}
 
 	two_arguments(argument, arg, where);
 
 	if (!*arg) {
-		send_to_char("Что вы желаете осмотреть?\r\n", ch);
+		SendMsgToChar("Что вы желаете осмотреть?\r\n", ch);
 		return;
 	}
 
@@ -2692,12 +2692,12 @@ void do_examine(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 void do_gold(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (ch->get_gold() == 0)
-		send_to_char("Вы разорены!\r\n", ch);
+		SendMsgToChar("Вы разорены!\r\n", ch);
 	else if (ch->get_gold() == 1)
-		send_to_char("У вас есть всего лишь одна куна.\r\n", ch);
+		SendMsgToChar("У вас есть всего лишь одна куна.\r\n", ch);
 	else {
 		sprintf(buf, "У Вас есть %ld %s.\r\n", ch->get_gold(), GetDeclensionInNumber(ch->get_gold(), EWhat::kMoneyA));
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 	}
 }
 
@@ -2707,7 +2707,7 @@ void ClearMyStat(CharData *ch) {
 	GET_RIP_DTTHIS(ch) = GET_EXP_DTTHIS (ch) = GET_RIP_DT(ch) = GET_EXP_DT(ch) =
 	GET_RIP_OTHERTHIS(ch) = GET_EXP_OTHERTHIS(ch) = GET_RIP_OTHER(ch) = GET_EXP_OTHER(ch) =
 	GET_WIN_ARENA(ch) = GET_RIP_ARENA(ch) = GET_EXP_ARENA(ch) = 0;
-	send_to_char("Статистика очищена.\r\n", ch);
+	SendMsgToChar("Статистика очищена.\r\n", ch);
 }
 
 void PrintMyStat(CharData *ch) {
@@ -2781,7 +2781,7 @@ void do_mystat(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_inventory(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	send_to_char("Вы несете:\r\n", ch);
+	SendMsgToChar("Вы несете:\r\n", ch);
 	list_obj_to_char(ch->carrying, ch, 1, 2);
 }
 
@@ -2789,16 +2789,16 @@ void do_equipment(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int i, found = 0;
 	skip_spaces(&argument);
 
-	send_to_char("На вас надето:\r\n", ch);
+	SendMsgToChar("На вас надето:\r\n", ch);
 	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
 		if (GET_EQ(ch, i)) {
 			if (CAN_SEE_OBJ(ch, GET_EQ(ch, i))) {
-				send_to_char(where[i], ch);
+				SendMsgToChar(where[i], ch);
 				show_obj_to_char(GET_EQ(ch, i), ch, 1, true, 1);
 				found = true;
 			} else {
-				send_to_char(where[i], ch);
-				send_to_char("что-то.\r\n", ch);
+				SendMsgToChar(where[i], ch);
+				SendMsgToChar("что-то.\r\n", ch);
 				found = true;
 			}
 		} else {
@@ -2819,18 +2819,18 @@ void do_equipment(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					if ((i == 17) || (i == 18))
 						continue;
 				}
-				send_to_char(where[i], ch);
+				SendMsgToChar(where[i], ch);
 				sprintf(buf, "%s[ Ничего ]%s\r\n", CCINRM(ch, C_NRM), CCNRM(ch, C_NRM));
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 				found = true;
 			}
 		}
 	}
 	if (!found) {
 		if (IS_FEMALE(ch))
-			send_to_char("Костюм Евы вам очень идет :)\r\n", ch);
+			SendMsgToChar("Костюм Евы вам очень идет :)\r\n", ch);
 		else
-			send_to_char(" Вы голы, аки сокол.\r\n", ch);
+			SendMsgToChar(" Вы голы, аки сокол.\r\n", ch);
 	}
 }
 
@@ -2889,7 +2889,7 @@ void do_time(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			break;
 	}
 	strcat(buf, ".\r\n");
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 
 	day = time_info.day + 1;    // day in [1..30]
 	*buf = '\0';
@@ -2921,7 +2921,7 @@ void do_time(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			break;
 	}
 	strcat(buf, ".\r\n");
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 	gods_day_now(ch);
 }
 
@@ -2994,9 +2994,9 @@ void do_weather(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 		else if (IS_SET(weather_type, kWeatherLightrain))
 			strcat(buf, "Моросит дождик.\r\n");
 
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 	} else {
-		send_to_char("Вы ничего не можете сказать о погоде сегодня.\r\n", ch);
+		SendMsgToChar("Вы ничего не можете сказать о погоде сегодня.\r\n", ch);
 	}
 	if (IS_GOD(ch)) {
 		sprintf(buf, "День: %d Месяц: %s Час: %d Такт = %d\r\n"
@@ -3012,7 +3012,7 @@ void do_weather(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 				world[ch->in_room]->weather.snowlevel, weather_info.icelevel,
 				world[ch->in_room]->weather.icelevel,
 				weather_info.weather_type, world[ch->in_room]->weather.weather_type);
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 	}
 }
 
@@ -3094,9 +3094,9 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				case '?':
 				default:
 					if (IS_IMMORTAL(ch) || PRF_FLAGGED(ch, EPrf::kCoderinfo))
-						send_to_char(IMM_WHO_FORMAT, ch);
+						SendMsgToChar(IMM_WHO_FORMAT, ch);
 					else
-						send_to_char(MORT_WHO_FORMAT, ch);
+						SendMsgToChar(MORT_WHO_FORMAT, ch);
 					return;
 			}    // end of switch
 		} else    // endif
@@ -3263,7 +3263,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}            // end of for
 
 	if (morts_num + imms_num + demigods_num == 0) {
-		send_to_char("\r\nВы никого не видите.\r\n", ch);
+		SendMsgToChar("\r\nВы никого не видите.\r\n", ch);
 		// !!!
 		return;
 	}
@@ -3415,7 +3415,7 @@ void do_statistic(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 	out << " Времени с перезагрузки: ";
 	PrintUptime(out);
 
-	send_to_char(out.str(), ch);
+	SendMsgToChar(out.str(), ch);
 }
 
 void sendWhoami(CharData *ch) {
@@ -3429,10 +3429,10 @@ void sendWhoami(CharData *ch) {
 	time_t birt = ch->player_data.time.birth;
 	sprintf(buf + strlen(buf), "Дата вашего рождения : %s\r\n", rustime(localtime(&birt)));
 	sprintf(buf + strlen(buf), "Ваш IP-адрес : %s\r\n", ch->desc ? ch->desc->host : "Unknown");
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 	if (!NAME_GOD(ch)) {
 		sprintf(buf, "Имя никем не одобрено!\r\n");
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 	} else {
 		const int god_level = NAME_GOD(ch) > 1000 ? NAME_GOD(ch) - 1000 : NAME_GOD(ch);
 		sprintf(buf1, "%s", get_name_by_id(NAME_ID_GOD(ch)));
@@ -3446,13 +3446,13 @@ void sendWhoami(CharData *ch) {
 			snprintf(buf, kMaxStringLength, "&RИмя запрещено %s %s&n\r\n", by_rank, buf1);
 		else
 			snprintf(buf, kMaxStringLength, "&WИмя одобрено %s %s&n\r\n", by_rank, buf1);
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 	}
 	sprintf(buf, "Перевоплощений: %d\r\n", GET_REAL_REMORT(ch));
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 	Clan::CheckPkList(ch);
 	if (ch->player_specials->saved.telegram_id != 0) { //тут прямое обращение, ибо базовый класс, а не наследник
-		send_to_char(ch, "Подключен Телеграм, chat_id: %lu\r\n", ch->player_specials->saved.telegram_id);
+		SendMsgToChar(ch, "Подключен Телеграм, chat_id: %lu\r\n", ch->player_specials->saved.telegram_id);
 	}
 
 }
@@ -3475,7 +3475,7 @@ void do_gen_ps(CharData *ch, char * /*argument*/, int/* cmd*/, int subcmd) {
 			break;
 		case SCMD_RULES: page_string(ch->desc, rules, 0);
 			break;
-		case SCMD_CLEAR: send_to_char("\033[H\033[J", ch);
+		case SCMD_CLEAR: SendMsgToChar("\033[H\033[J", ch);
 			break;
 		case SCMD_VERSION: show_code_date(ch);
 			break;
@@ -3491,11 +3491,11 @@ void do_gen_ps(CharData *ch, char * /*argument*/, int/* cmd*/, int subcmd) {
 void perform_mortal_where(CharData *ch, char *arg) {
 	DescriptorData *d;
 
-	send_to_char("Кто много знает, тот плохо спит.\r\n", ch);
+	SendMsgToChar("Кто много знает, тот плохо спит.\r\n", ch);
 	return;
 
 	if (!*arg) {
-		send_to_char("Игроки, находящиеся в зоне\r\n--------------------\r\n", ch);
+		SendMsgToChar("Игроки, находящиеся в зоне\r\n--------------------\r\n", ch);
 		for (d = descriptor_list; d; d = d->next) {
 			if (STATE(d) != CON_PLAYING
 				|| d->character.get() == ch) {
@@ -3517,7 +3517,7 @@ void perform_mortal_where(CharData *ch, char *arg) {
 			}
 
 			sprintf(buf, "%-20s - %s\r\n", GET_NAME(i), world[i->in_room]->name);
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 		}
 	} else        // print only FIRST char, not all.
 	{
@@ -3537,10 +3537,10 @@ void perform_mortal_where(CharData *ch, char *arg) {
 			}
 
 			sprintf(buf, "%-25s - %s\r\n", GET_NAME(i), world[i->in_room]->name);
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 			return;
 		}
-		send_to_char("Никого похожего с этим именем нет.\r\n", ch);
+		SendMsgToChar("Никого похожего с этим именем нет.\r\n", ch);
 	}
 }
 
@@ -3562,21 +3562,21 @@ bool print_object_location(int num, const ObjData *obj, CharData *ch) {
 	if (obj->get_in_room() > kNowhere) {
 		sprintf(buf + strlen(buf), "[%5d] %s", GET_ROOM_VNUM(obj->get_in_room()), world[obj->get_in_room()]->name);
 		strcat(buf, "\r\n");
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 	} else if (obj->get_carried_by()) {
 		sprintf(buf + strlen(buf), "затарено %s[%d] в комнате [%d]",
 				PERS(obj->get_carried_by(), ch, 4),
 				GET_MOB_VNUM(obj->get_carried_by()),
 				world[obj->get_carried_by()->in_room]->room_vn);
 		strcat(buf, "\r\n");
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 	} else if (obj->get_worn_by()) {
 		sprintf(buf + strlen(buf), "надет на %s[%d] в комнате [%d]",
 				PERS(obj->get_worn_by(), ch, 3),
 				GET_MOB_VNUM(obj->get_worn_by()),
 				world[obj->get_worn_by()->in_room]->room_vn);
 		strcat(buf, "\r\n");
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 	} else if (obj->get_in_obj()) {
 		if (Clan::is_clan_chest(obj->get_in_obj()))// || Clan::is_ingr_chest(obj->get_in_obj())) сделать отдельный поиск
 		{
@@ -3584,14 +3584,14 @@ bool print_object_location(int num, const ObjData *obj, CharData *ch) {
 		} else {
 			sprintf(buf + strlen(buf), "лежит в [%d]%s, который находится \r\n",
 					GET_OBJ_VNUM(obj->get_in_obj()), obj->get_in_obj()->get_PName(5).c_str());
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 			print_object_location(0, obj->get_in_obj(), ch);
 		}
 	} else {
 		for (ExchangeItem *j = exchange_item_list; j; j = j->next) {
 			if (GET_EXCHANGE_ITEM(j)->get_uid() == obj->get_uid()) {
 				sprintf(buf + strlen(buf), "продается на базаре, лот #%d\r\n", GET_EXCHANGE_ITEM_LOT(j));
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 				return true;
 			}
 		}
@@ -3604,7 +3604,7 @@ bool print_object_location(int num, const ObjData *obj, CharData *ch) {
 				}
 				if (item_list.node(i)->uid() == obj->get_uid()) {
 					sprintf(buf + strlen(buf), "можно купить в магазине: %s\r\n", shop->GetDictionaryName().c_str());
-					send_to_char(buf, ch);
+					SendMsgToChar(buf, ch);
 					return true;
 				}
 			}
@@ -3613,7 +3613,7 @@ bool print_object_location(int num, const ObjData *obj, CharData *ch) {
 		}
 		sprintf(buf + strlen(buf), "находится где-то там, далеко-далеко.\r\n");
 //		strcat(buf, buf1);
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 		return true;
 	}
 
@@ -3660,9 +3660,9 @@ void perform_immort_where(CharData *ch, char *arg) {
 
 	if (!*arg) {
 		if (GetRealLevel(ch) < kLvlImplementator && !PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
-			send_to_char("Где КТО конкретно?", ch);
+			SendMsgToChar("Где КТО конкретно?", ch);
 		} else {
-			send_to_char("ИГРОКИ\r\n------\r\n", ch);
+			SendMsgToChar("ИГРОКИ\r\n------\r\n", ch);
 			for (d = descriptor_list; d; d = d->next) {
 				if (STATE(d) == CON_PLAYING) {
 					const auto i = d->get_character();
@@ -3677,7 +3677,7 @@ void perform_immort_where(CharData *ch, char *arg) {
 							sprintf(buf, "%-20s - [%5d] %s\r\n", GET_NAME(i),
 									GET_ROOM_VNUM(IN_ROOM(i)), world[i->in_room]->name);
 						}
-						send_to_char(buf, ch);
+						SendMsgToChar(buf, ch);
 					}
 				}
 			}
@@ -3697,13 +3697,13 @@ void perform_immort_where(CharData *ch, char *arg) {
 						GET_ROOM_VNUM(IN_ROOM(i)),
 						world[IN_ROOM(i)]->name,
 						zone->name);
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 			}
 		}
 
 		if (!print_imm_where_obj(ch, arg, num)
 			&& !found) {
-			send_to_char("Нет ничего похожего.\r\n", ch);
+			SendMsgToChar("Нет ничего похожего.\r\n", ch);
 		}
 	}
 }
@@ -3722,7 +3722,7 @@ void do_levels(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	char *ptr = &buf[0];
 
 	if (ch->is_npc()) {
-		send_to_char("Боги уже придумали ваш уровень.\r\n", ch);
+		SendMsgToChar("Боги уже придумали ваш уровень.\r\n", ch);
 		return;
 	}
 	*ptr = '\0';
@@ -3730,15 +3730,15 @@ void do_levels(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	ptr += sprintf(ptr, "Уровень          Опыт            Макс на урв.\r\n");
 	for (i = 1; i < kLvlImmortal; i++) {
 		ptr += sprintf(ptr, "%s[%2d] %13s-%-13s %-13s%s\r\n", (GetRealLevel(ch) == i) ? CCICYN(ch, C_NRM) : "", i,
-					   thousands_sep(level_exp(ch, i)).c_str(),
-					   thousands_sep(level_exp(ch, i + 1) - 1).c_str(),
-					   thousands_sep((int) (level_exp(ch, i + 1) - level_exp(ch, i)) / (10 + GET_REAL_REMORT(ch))).c_str(),
+					   thousands_sep(GetExpUntilNextLvl(ch, i)).c_str(),
+					   thousands_sep(GetExpUntilNextLvl(ch, i + 1) - 1).c_str(),
+					   thousands_sep((int) (GetExpUntilNextLvl(ch, i + 1) - GetExpUntilNextLvl(ch, i)) / (10 + GET_REAL_REMORT(ch))).c_str(),
 					   (GetRealLevel(ch) == i) ? CCNRM(ch, C_NRM) : "");
 	}
 
 	ptr += sprintf(ptr, "%s[%2d] %13s               (БЕССМЕРТИЕ)%s\r\n",
 				   (GetRealLevel(ch) >= kLvlImmortal) ? CCICYN(ch, C_NRM) : "", kLvlImmortal,
-				   thousands_sep(level_exp(ch, kLvlImmortal)).c_str(),
+				   thousands_sep(GetExpUntilNextLvl(ch, kLvlImmortal)).c_str(),
 				   (GetRealLevel(ch) >= kLvlImmortal) ? CCNRM(ch, C_NRM) : "");
 	page_string(ch->desc, buf, 1);
 }
@@ -3750,41 +3750,41 @@ void do_consider(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, buf);
 
 	if (!(victim = get_char_vis(ch, buf, EFind::kCharInRoom))) {
-		send_to_char("Кого вы хотите оценить?\r\n", ch);
+		SendMsgToChar("Кого вы хотите оценить?\r\n", ch);
 		return;
 	}
 	if (victim == ch) {
-		send_to_char("Легко! Выберите параметр <Удалить персонаж>!\r\n", ch);
+		SendMsgToChar("Легко! Выберите параметр <Удалить персонаж>!\r\n", ch);
 		return;
 	}
 	if (!victim->is_npc()) {
-		send_to_char("Оценивайте игроков сами - тут я не советчик.\r\n", ch);
+		SendMsgToChar("Оценивайте игроков сами - тут я не советчик.\r\n", ch);
 		return;
 	}
 	diff = (GetRealLevel(victim) - GetRealLevel(ch) - GET_REAL_REMORT(ch));
 
 	if (diff <= -10)
-		send_to_char("Ути-пути, моя рыбонька.\r\n", ch);
+		SendMsgToChar("Ути-пути, моя рыбонька.\r\n", ch);
 	else if (diff <= -5)
-		send_to_char("\"Сделаем без шуму и пыли!\"\r\n", ch);
+		SendMsgToChar("\"Сделаем без шуму и пыли!\"\r\n", ch);
 	else if (diff <= -2)
-		send_to_char("Легко.\r\n", ch);
+		SendMsgToChar("Легко.\r\n", ch);
 	else if (diff <= -1)
-		send_to_char("Сравнительно легко.\r\n", ch);
+		SendMsgToChar("Сравнительно легко.\r\n", ch);
 	else if (diff == 0)
-		send_to_char("Равный поединок!\r\n", ch);
+		SendMsgToChar("Равный поединок!\r\n", ch);
 	else if (diff <= 1)
-		send_to_char("Вам понадобится немного удачи!\r\n", ch);
+		SendMsgToChar("Вам понадобится немного удачи!\r\n", ch);
 	else if (diff <= 2)
-		send_to_char("Вам потребуется везение!\r\n", ch);
+		SendMsgToChar("Вам потребуется везение!\r\n", ch);
 	else if (diff <= 3)
-		send_to_char("Удача и хорошее снаряжение вам сильно пригодятся!\r\n", ch);
+		SendMsgToChar("Удача и хорошее снаряжение вам сильно пригодятся!\r\n", ch);
 	else if (diff <= 5)
-		send_to_char("Вы берете на себя слишком много.\r\n", ch);
+		SendMsgToChar("Вы берете на себя слишком много.\r\n", ch);
 	else if (diff <= 10)
-		send_to_char("Ладно, войдете еще раз.\r\n", ch);
+		SendMsgToChar("Ладно, войдете еще раз.\r\n", ch);
 	else if (diff <= 100)
-		send_to_char("Срочно к психиатру - вы страдаете манией величия!\r\n", ch);
+		SendMsgToChar("Срочно к психиатру - вы страдаете манией величия!\r\n", ch);
 
 }
 
@@ -3795,14 +3795,14 @@ void do_diagnose(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (*buf) {
 		if (!(vict = get_char_vis(ch, buf, EFind::kCharInRoom)))
-			send_to_char(NOPERSON, ch);
+			SendMsgToChar(NOPERSON, ch);
 		else
 			diag_char_to_char(vict, ch);
 	} else {
 		if (ch->get_fighting())
 			diag_char_to_char(ch->get_fighting(), ch);
 		else
-			send_to_char("На кого вы хотите взглянуть?\r\n", ch);
+			SendMsgToChar("На кого вы хотите взглянуть?\r\n", ch);
 	}
 }
 
@@ -3832,7 +3832,7 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 				 ONOFF(nameserver_is_slow),
 				 ONOFF(PRF_FLAGGED(ch, EPrf::kCoderinfo)),
 				 ONOFF(PRF_FLAGGED(ch, EPrf::kShowUnread)));
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 	}
 
 	snprintf(buf, kMaxStringLength,
@@ -3912,13 +3912,13 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			 ONOFF(PRF_FLAGGED(ch, EPrf::kAntiDcMode)),
 			 ONOFF(PRF_FLAGGED(ch, EPrf::kNoIngrMode)),
 			 ch->remember_get_num());
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 	if (NOTIFY_EXCH_PRICE(ch) > 0) {
 		sprintf(buf, " Уведомления   : %-7ld ", NOTIFY_EXCH_PRICE(ch));
 	} else {
 		sprintf(buf, " Уведомления   : %-7s ", "Нет");
 	}
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 	snprintf(buf, kMaxStringLength,
 			 " Карта         : %-3s     "
 			 " Вход в зону   : %-3s   \r\n"
@@ -3932,12 +3932,12 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			 ONOFF(PRF_FLAGGED(ch, EPrf::kAutonosummon)),
 			 ONOFF(PRF_FLAGGED(ch, EPrf::kMapper)),
 			 ONOFF(PRF_FLAGGED(ch, EPrf::kIpControl)));
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 	if (GET_GOD_FLAG(ch, EGf::kAllowTesterMode))
 		sprintf(buf, " Тестер        : %-3s\r\n", ONOFF(PRF_FLAGGED(ch, EPrf::kTester)));
 	else
 		sprintf(buf, "\r\n");
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 }
 
 void do_zone(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
@@ -3951,7 +3951,7 @@ void do_zone(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 	if ((IS_IMMORTAL(ch) || PRF_FLAGGED(ch, EPrf::kCoderinfo))
 		&& zone_table[world[ch->in_room]->zone_rn].comment) {
-		send_to_char(ch, "Комментарий: %s.\r\n",
+		SendMsgToChar(ch, "Комментарий: %s.\r\n",
 					 zone_table[world[ch->in_room]->zone_rn].comment);
 	}
 }
@@ -4039,7 +4039,7 @@ void do_commands(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		}
 
 	strcat(buf, "\r\n");
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 }
 
 std::array<EAffect, 3> hiding = {EAffect::kSneak,
@@ -4057,7 +4057,7 @@ void do_affects(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 
 	aff_copy.sprintbits(affected_bits, buf2, ",");
 	snprintf(buf, kMaxStringLength, "Аффекты: %s%s%s\r\n", CCIYEL(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 
 	// Routine to show what spells a char is affected by
 	if (!ch->affected.empty()) {
@@ -4112,7 +4112,7 @@ void do_affects(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 					strcat(buf, CCNRM(ch, C_NRM));
 				}
 			}
-			send_to_char(strcat(buf, "\r\n"), ch);
+			SendMsgToChar(strcat(buf, "\r\n"), ch);
 		}
 // отображение наград
 		for (const auto &aff : ch->affected) {
@@ -4142,20 +4142,20 @@ void do_affects(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 							aff->modifier, CCIRED(ch, C_NRM), apply_types[(int) aff->location], CCNRM(ch, C_NRM));
 					strcat(buf, buf2);
 				}
-				send_to_char(strcat(buf, "\r\n"), ch);
+				SendMsgToChar(strcat(buf, "\r\n"), ch);
 			}
 		}
 	}
 
 	if (ch->is_morphed()) {
 		*buf2 = '\0';
-		send_to_char("Автоаффекты звериной формы: ", ch);
+		SendMsgToChar("Автоаффекты звериной формы: ", ch);
 		const IMorph::affects_list_t &affs = ch->GetMorphAffects();
 		for (auto it = affs.cbegin(); it != affs.cend();) {
 			sprintbit(to_underlying(*it), affected_bits, buf2);
-			send_to_char(string(CCIYEL(ch, C_NRM)) + string(buf2) + string(CCNRM(ch, C_NRM)), ch);
+			SendMsgToChar(string(CCIYEL(ch, C_NRM)) + string(buf2) + string(CCNRM(ch, C_NRM)), ch);
 			if (++it != affs.end()) {
-				send_to_char(", ", ch);
+				SendMsgToChar(", ", ch);
 			}
 		}
 	}

@@ -10,7 +10,7 @@
 // ************** PROTECT PROCEDURES
 void go_protect(CharData *ch, CharData *vict) {
 	if (IsUnableToAct(ch)) {
-		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
 
@@ -25,35 +25,35 @@ void do_protect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (ch->get_protecting()) {
 			CLR_AF_BATTLE(ch, kEafProtect);
 			ch->set_protecting(0);
-			send_to_char("Вы перестали прикрывать своего товарища.\r\n", ch);
+			SendMsgToChar("Вы перестали прикрывать своего товарища.\r\n", ch);
 		} else {
-			send_to_char("Вы никого не прикрываете.\r\n", ch);
+			SendMsgToChar("Вы никого не прикрываете.\r\n", ch);
 		}
 		return;
 	}
 
 	if (ch->is_npc() || !ch->get_skill(ESkill::kProtect)) {
-		send_to_char("Вы не знаете как.\r\n", ch);
+		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
 	if (ch->haveCooldown(ESkill::kProtect)) {
-		send_to_char("Вам нужно набраться сил.\r\n", ch);
+		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
 
 	CharData *vict = get_char_vis(ch, arg, EFind::kCharInRoom);
 	if (!vict) {
-		send_to_char("И кто так сильно мил вашему сердцу?\r\n", ch);
+		SendMsgToChar("И кто так сильно мил вашему сердцу?\r\n", ch);
 		return;
 	};
 
 	if (vict == ch) {
-		send_to_char("Попробуйте парировать удары или защищаться щитом.\r\n", ch);
+		SendMsgToChar("Попробуйте парировать удары или защищаться щитом.\r\n", ch);
 		return;
 	}
 
 	if (ch->get_fighting() == vict) {
-		send_to_char("Вы явно пацифист, или мазохист.\r\n", ch);
+		SendMsgToChar("Вы явно пацифист, или мазохист.\r\n", ch);
 		return;
 	}
 
@@ -74,7 +74,7 @@ void do_protect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			|| (AFF_FLAGGED(ch, EAffect::kCharmed)
 				&& ch->has_master()
 				&& !ch->get_master()->is_npc()))) {
-		send_to_char("Вы пытаетесь прикрыть чужого противника.\r\n", ch);
+		SendMsgToChar("Вы пытаетесь прикрыть чужого противника.\r\n", ch);
 		return;
 	}
 
@@ -100,7 +100,7 @@ CharData *TryToFindProtector(CharData *victim, CharData *ch) {
 			&& !AFF_FLAGGED(vict, EAffect::kStopFight)
 			&& !AFF_FLAGGED(vict, EAffect::kMagicStopFight)
 			&& !AFF_FLAGGED(vict, EAffect::kBlind)
-			&& !GET_MOB_HOLD(vict)
+			&& !AFF_FLAGGED(vict, EAffect::kHold)
 			&& GET_POS(vict) >= EPosition::kFight) {
 			if (vict == ch) {
 				act("Вы попытались напасть на того, кого прикрывали, и замерли в глубокой задумчивости.",
@@ -112,7 +112,7 @@ CharData *TryToFindProtector(CharData *victim, CharData *ch) {
 				act("$N пытается напасть на вас! Лучше бы вам отойти.", false, victim, 0, vict, kToChar);
 				vict->set_protecting(0);
 				vict->battle_affects.unset(kEafProtect);
-				WAIT_STATE(vict, kPulseViolence);
+				SetWaitState(vict, kPulseViolence);
 				Affect<EApply> af;
 				af.type = kSpellBattle;
 				af.bitvector = to_underlying(EAffect::kStopFight);
@@ -125,7 +125,7 @@ CharData *TryToFindProtector(CharData *victim, CharData *ch) {
 			}
 
 			if (protect) {
-				send_to_char(vict,
+				SendMsgToChar(vict,
 							 "Чьи-то широкие плечи помешали вам прикрыть %s.\r\n",
 							 GET_PAD(vict->get_protecting(), 3));
 				continue;

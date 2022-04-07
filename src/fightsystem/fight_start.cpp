@@ -9,11 +9,11 @@
 
 int set_hit(CharData *ch, CharData *victim) {
 	if (IsUnableToAct(ch)) {
-		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
 		return (false);
 	}
 
-	if (ch->get_fighting() || GET_MOB_HOLD(ch)) {
+	if (ch->get_fighting() || AFF_FLAGGED(ch, EAffect::kHold)) {
 		return (false);
 	}
 	victim = TryToFindProtector(victim, ch);
@@ -63,10 +63,10 @@ int set_hit(CharData *ch, CharData *victim) {
 	}
 
 	if (message) {
-		send_to_char(victim, "На вас было совершено нападение, редактирование отменено!\r\n");
+		SendMsgToChar(victim, "На вас было совершено нападение, редактирование отменено!\r\n");
 	}
 
-	if (MOB_FLAGGED(ch, EMobFlag::kMemory) && GET_WAIT(ch) > 0) {
+	if (MOB_FLAGGED(ch, EMobFlag::kMemory) && ch->get_wait() > 0) {
 		if (!victim->is_npc()) {
 			mobRemember(ch, victim);
 		} else if (AFF_FLAGGED(victim, EAffect::kCharmed)
@@ -90,11 +90,11 @@ int set_hit(CharData *ch, CharData *victim) {
 void do_hit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
-		send_to_char("Вы не видите цели.\r\n", ch);
+		SendMsgToChar("Вы не видите цели.\r\n", ch);
 		return;
 	}
 	if (vict == ch) {
-		send_to_char("Вы ударили себя... Ведь больно же!\r\n", ch);
+		SendMsgToChar("Вы ударили себя... Ведь больно же!\r\n", ch);
 		act("$n ударил$g себя, и громко завопил$g 'Мамочка, больно ведь...'",
 			false,
 			ch,
@@ -135,7 +135,7 @@ void do_hit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if ((GET_POS(ch) == EPosition::kStand) && (vict != ch->get_fighting())) {
 		set_hit(ch, vict);
 	} else {
-		send_to_char("Вам явно не до боя!\r\n", ch);
+		SendMsgToChar("Вам явно не до боя!\r\n", ch);
 	}
 }
 
@@ -146,15 +146,15 @@ void do_kill(CharData *ch, char *argument, int cmd, int subcmd) {
 	};
 	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
-		send_to_char("Кого вы жизни лишить хотите-то?\r\n", ch);
+		SendMsgToChar("Кого вы жизни лишить хотите-то?\r\n", ch);
 		return;
 	}
 	if (ch == vict) {
-		send_to_char("Вы мазохист... :(\r\n", ch);
+		SendMsgToChar("Вы мазохист... :(\r\n", ch);
 		return;
 	};
 	if (IS_IMPL(vict) || PRF_FLAGGED(vict, EPrf::kCoderinfo)) {
-		send_to_char("А если он вас чайником долбанет? Думай, Господи, думай!\r\n", ch);
+		SendMsgToChar("А если он вас чайником долбанет? Думай, Господи, думай!\r\n", ch);
 	} else {
 		act("Вы обратили $N3 в прах! Взглядом! Одним!", false, ch, 0, vict, kToChar);
 		act("$N обратил$g вас в прах своим ненавидящим взором!", false, vict, 0, ch, kToChar);

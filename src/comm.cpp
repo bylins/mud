@@ -563,7 +563,7 @@ void medit_save_to_disk(int zone_num);
 void zedit_save_to_disk(int zone_num);
 void Crash_ldsave(CharData *ch);
 void Crash_save_all_rent();
-int level_exp(CharData *ch, int level);
+long GetExpUntilNextLvl(CharData *ch, int level);
 unsigned long TxtToIp(const char *text);
 
 #ifdef __CXREF__
@@ -1124,7 +1124,7 @@ int shutting_down(void) {
 			sprintf(buf + strlen(buf), "%d %s.\r\n", wait, GetDeclensionInNumber(wait, EWhat::kSec));
 		else
 			sprintf(buf + strlen(buf), "%d %s.\r\n", wait / 60, GetDeclensionInNumber(wait / 60, EWhat::kMinU));
-		send_to_all(buf);
+		SendMsgToAll(buf);
 		lastmessage = time(nullptr);
 		// на десятой секунде засейвим нужное нам в сислог
 		if (wait == 10)
@@ -1682,8 +1682,8 @@ char *make_prompt(DescriptorData *d) {
 				count += sprintf(prompt + count, "??? ");
 			else
 				count += sprintf(prompt + count, "%ldо ",
-								 level_exp(d->character.get(),
-										   GetRealLevel(d->character) + 1) - GET_EXP(d->character));
+								 GetExpUntilNextLvl(d->character.get(),
+													GetRealLevel(d->character) + 1) - GET_EXP(d->character));
 		}
 		// Mem Info
 		if (PRF_FLAGGED(d->character, EPrf::kDispMana)
@@ -3038,7 +3038,7 @@ void close_socket(DescriptorData * d, int direct)
 	//	return;
 	// Нельзя делать лд при wait_state
 	if (d->character && !direct) {
-		if (CHECK_WAIT(d->character))
+		if (d->character->get_wait() > 0)
 			return;
 	}
 
@@ -3368,43 +3368,44 @@ void send_stat_char(const CharData *ch) {
 	SEND_TO_Q(fline, ch->desc);
 }
 
-void send_to_char(const char *messg, const CharData *ch) {
-	if (ch->desc && messg)
-		SEND_TO_Q(messg, ch->desc);
+void SendMsgToChar(const char *msg, const CharData *ch) {
+	if (ch->desc && msg)
+		SEND_TO_Q(msg, ch->desc);
 }
 
 // New edition :)
-void send_to_char(const CharData *ch, const char *messg, ...) {
+void SendMsgToChar(const CharData *ch, const char *msg, ...) {
 	va_list args;
 	char tmpbuf[kMaxStringLength];
 
-	va_start(args, messg);
-	vsnprintf(tmpbuf, sizeof(tmpbuf), messg, args);
+	va_start(args, msg);
+	vsnprintf(tmpbuf, sizeof(tmpbuf), msg, args);
 	va_end(args);
-	send_to_char(tmpbuf, ch);
+	SendMsgToChar(tmpbuf, ch);
 }
 
 // а вот те еще одна едишн Ж)
-void send_to_char(const std::string &buffer, const CharData *ch) {
-	if (ch->desc && !buffer.empty())
-		send_to_char(buffer.c_str(), ch);
+void SendMsgToChar(const std::string &msg, const CharData *ch) {
+	if (ch->desc && !msg.empty())
+		SendMsgToChar(msg.c_str(), ch);
 }
 
-void send_to_all(const char *messg) {
-	if (messg == nullptr)
+void SendMsgToAll(const char *msg) {
+	if (msg == nullptr) {
 		return;
+	}
 	for (auto i = descriptor_list; i; i = i->next) {
 		if (STATE(i) == CON_PLAYING) {
-			SEND_TO_Q(messg, i);
+			SEND_TO_Q(msg, i);
 		}
 	}
 }
 
-void send_to_outdoor(const char *messg, int control) {
+void SendMsgToOutdoor(const char *msg, int control) {
 	int room;
 	DescriptorData *i;
 
-	if (!messg || !*messg)
+	if (!msg || !*msg)
 		return;
 
 	for (i = descriptor_list; i; i = i->next) {
@@ -3423,28 +3424,28 @@ void send_to_outdoor(const char *messg, int control) {
 				&& SECT(room) != ESector::kUnderwater
 				&& !ROOM_FLAGGED(room, ERoomFlag::kNoWeather)
 				&& world[IN_ROOM(i->character)]->weather.duration <= 0)) {
-			SEND_TO_Q(messg, i);
+			SEND_TO_Q(msg, i);
 		}
 	}
 }
 
-void send_to_gods(const char *messg) {
+void SendMsgToGods(const char *msg) {
 	DescriptorData *i;
 
-	if (!messg || !*messg)
+	if (!msg || !*msg) {
 		return;
+	}
 
 	for (i = descriptor_list; i; i = i->next) {
-		if (STATE(i) != CON_PLAYING || i->character == nullptr)
+		if (STATE(i) != CON_PLAYING || i->character == nullptr || !IS_GOD(i->character)) {
 			continue;
-		if (!IS_GOD(i->character))
-			continue;
-		SEND_TO_Q(messg, i);
+		}
+		SEND_TO_Q(msg, i);
 	}
 }
 
-void send_to_room(const char *messg, RoomRnum room, int to_awake) {
-	if (messg == nullptr) {
+void SendMsgToRoom(const char *msg, RoomRnum room, int to_awake) {
+	if (msg == nullptr) {
 		return;
 	}
 
@@ -3453,7 +3454,7 @@ void send_to_room(const char *messg, RoomRnum room, int to_awake) {
 			!i->is_npc()
 			&& (!to_awake
 				|| AWAKE(i))) {
-			SEND_TO_Q(messg, i->desc);
+			SEND_TO_Q(msg, i->desc);
 			SEND_TO_Q("\r\n", i->desc);
 		}
 	}
