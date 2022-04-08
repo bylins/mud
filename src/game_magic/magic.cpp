@@ -3343,22 +3343,13 @@ int CastToPoints(int level, CharData *ch, CharData *victim, int spellnum, ESavin
 		case kSpellCureLight:
 			hit = GET_REAL_MAX_HIT(victim) / 100 * GET_REAL_INT(ch) / 3 + ch->get_skill(ESkill::kLifeMagic) / 2;
 			SendMsgToChar("Вы почувствовали себя немножко лучше.\r\n", victim);
-			hit =
-				GET_REAL_MAX_HIT(victim) / 100 * GET_REAL_INT(ch) / 3 + ch->get_skill(ESkill::kLifeMagic) / 2;
-			SendMsgToChar("Вы почувствовали себя немножко лучше.\r\n", victim);
 			break;
 		case kSpellCureSerious:
 			hit = GET_REAL_MAX_HIT(victim) / 100 * GET_REAL_INT(ch) / 2 + ch->get_skill(ESkill::kLifeMagic) / 2;
 			SendMsgToChar("Вы почувствовали себя намного лучше.\r\n", victim);
-			hit =
-				GET_REAL_MAX_HIT(victim) / 100 * GET_REAL_INT(ch) / 2 + ch->get_skill(ESkill::kLifeMagic) / 2;
-			SendMsgToChar("Вы почувствовали себя намного лучше.\r\n", victim);
 			break;
 		case kSpellCureCritic:
 			hit = int(GET_REAL_MAX_HIT(victim) / 100 * GET_REAL_INT(ch) / 1.5) + ch->get_skill(ESkill::kLifeMagic) / 2;
-			SendMsgToChar("Вы почувствовали себя значительно лучше.\r\n", victim);
-			hit = int(GET_REAL_MAX_HIT(victim) / 100 * GET_REAL_INT(ch) / 1.5) +
-					ch->get_skill(ESkill::kLifeMagic) / 2;
 			SendMsgToChar("Вы почувствовали себя значительно лучше.\r\n", victim);
 			break;
 		case kSpellHeal:
@@ -3422,7 +3413,7 @@ int CastToPoints(int level, CharData *ch, CharData *victim, int spellnum, ESavin
 				GET_HIT(victim) = std::max(GET_HIT(victim), std::min(GET_HIT(victim) + hit, 1));
 			} else {
 				GET_HIT(victim) = std::clamp(GET_HIT(victim) + hit, GET_HIT(victim),
-											 GET_REAL_MAX_HIT(victim) + GET_REAL_MAX_HIT(victim) * 33 / 100);
+						GET_REAL_MAX_HIT(victim) + GET_REAL_MAX_HIT(victim) * 33 / 100);
 			}
 		}
 	}
