@@ -43,7 +43,7 @@
 #define C_SPR    1
 #define C_NRM    2
 #define C_CMP    3
-#define _clrlevel(ch) (!(ch)->is_npc() ? (PRF_FLAGGED((ch), EPrf::kColor1) ? 1 : 0) + \
+#define _clrlevel(ch) (!(ch)->IsNpc() ? (PRF_FLAGGED((ch), EPrf::kColor1) ? 1 : 0) + \
                                      (PRF_FLAGGED((ch), EPrf::kColor2) ? 2 : 0) : 0)
 #define clr(ch, lvl) (_clrlevel(ch) >= (lvl))
 #define CCNRM(ch, lvl)  (clr((ch),(lvl))?KNRM:KNUL)

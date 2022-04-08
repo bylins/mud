@@ -266,10 +266,10 @@ void ExtractCharFromRoom(CharData *ch) {
 		return;
 	}
 
-	if (ch->get_fighting() != nullptr)
+	if (ch->GetEnemy() != nullptr)
 		stop_fighting(ch, true);
 
-	if (!ch->is_npc())
+	if (!ch->IsNpc())
 		ch->set_from_room(ch->in_room);
 
 	CheckLight(ch, kLightNo, kLightNo, kLightNo, kLightNo, -1);
@@ -294,7 +294,7 @@ void ProcessRoomAffectsOnEntry(CharData *ch, RoomRnum room) {
 			&& !AFF_FLAGGED(ch, EAffect::kBlind)){
 			// отсекаем всяких непонятных личностей типо двойников и проч. (Кудояр)
 			if  ((GET_MOB_VNUM(ch) >= 3000 && GET_MOB_VNUM(ch) < 4000) || GET_MOB_VNUM(ch) == 108 ) return;
-			if (ch->has_master() && !ch->get_master()->is_npc() && ch->is_npc()) {
+			if (ch->has_master() && !ch->get_master()->IsNpc() && ch->IsNpc()) {
 				return;
 			}
 			// если вошел игрок - ПвП - делаем проверку на шанс в зависимости от % магии кастующего (Кудояр)
@@ -302,7 +302,7 @@ void ProcessRoomAffectsOnEntry(CharData *ch, RoomRnum room) {
 			// иначе пве, и просто кастим сон на входящего
 			float mkof = CalcModCoef(kSpellHypnoticPattern, caster->get_skill(GetMagicSkillId(
 				kSpellHypnoticPattern)));
-			if (!ch->is_npc() && (number (1, 100) > (23 + 2*mkof))) {
+			if (!ch->IsNpc() && (number (1, 100) > (23 + 2*mkof))) {
 				return;
 			}
 			SendMsgToChar("Вы уставились на огненный узор, как баран на новые ворота.", ch);
@@ -320,11 +320,11 @@ void PlaceCharToRoom(CharData *ch, RoomRnum room) {
 		return;
 	}
 
-	if (!ch->is_npc() && !Clan::MayEnter(ch, room, kHousePortal)) {
+	if (!ch->IsNpc() && !Clan::MayEnter(ch, room, kHousePortal)) {
 		room = ch->get_from_room();
 	}
 
-	if (!ch->is_npc() && NORENTABLE(ch) && ROOM_FLAGGED(room, ERoomFlag::kArena) && !IS_IMMORTAL(ch)) {
+	if (!ch->IsNpc() && NORENTABLE(ch) && ROOM_FLAGGED(room, ERoomFlag::kArena) && !IS_IMMORTAL(ch)) {
 		SendMsgToChar("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
 		room = ch->get_from_room();
 	}
@@ -351,12 +351,12 @@ void PlaceCharToRoom(CharData *ch, RoomRnum room) {
 		SendMsgToChar(buf, ch);
 	}
 	// Stop fighting now, if we left.
-	if (ch->get_fighting() && ch->in_room != IN_ROOM(ch->get_fighting())) {
-		stop_fighting(ch->get_fighting(), false);
+	if (ch->GetEnemy() && ch->in_room != IN_ROOM(ch->GetEnemy())) {
+		stop_fighting(ch->GetEnemy(), false);
 		stop_fighting(ch, true);
 	}
 
-	if (!ch->is_npc()) {
+	if (!ch->IsNpc()) {
 		zone_table[world[room]->zone_rn].used = true;
 		zone_table[world[room]->zone_rn].activity++;
 	} else {
@@ -386,11 +386,11 @@ void FleeToRoom(CharData *ch, RoomRnum room) {
 		return;
 	}
 
-	if (!ch->is_npc() && !Clan::MayEnter(ch, room, kHousePortal)) {
+	if (!ch->IsNpc() && !Clan::MayEnter(ch, room, kHousePortal)) {
 		room = ch->get_from_room();
 	}
 
-	if (!ch->is_npc() && NORENTABLE(ch) && ROOM_FLAGGED(room, ERoomFlag::kArena) && !IS_IMMORTAL(ch)) {
+	if (!ch->IsNpc() && NORENTABLE(ch) && ROOM_FLAGGED(room, ERoomFlag::kArena) && !IS_IMMORTAL(ch)) {
 		SendMsgToChar("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
 		room = ch->get_from_room();
 	}
@@ -417,12 +417,12 @@ void FleeToRoom(CharData *ch, RoomRnum room) {
 		SendMsgToChar(buf, ch);
 	}
 	// Stop fighting now, if we left.
-	if (ch->get_fighting() && ch->in_room != IN_ROOM(ch->get_fighting())) {
-		stop_fighting(ch->get_fighting(), false);
+	if (ch->GetEnemy() && ch->in_room != IN_ROOM(ch->GetEnemy())) {
+		stop_fighting(ch->GetEnemy(), false);
 		stop_fighting(ch, true);
 	}
 
-	if (!ch->is_npc()) {
+	if (!ch->IsNpc()) {
 		zone_table[world[room]->zone_rn].used = true;
 		zone_table[world[room]->zone_rn].activity++;
 	} else {
@@ -593,9 +593,9 @@ void PlaceObjToInventory(ObjData *object, CharData *ch) {
 			PlaceObjToRoom(object, ch->in_room);
 			return;
 		}
-		if (!ch->is_npc()
+		if (!ch->IsNpc()
 			|| (ch->has_master()
-				&& !ch->get_master()->is_npc())) {
+				&& !ch->get_master()->IsNpc())) {
 			if (object && GET_OBJ_UID(object) != 0 && object->get_timer() > 0) {
 				tuid = GET_OBJ_UID(object);
 				inworld = 1;
@@ -634,9 +634,9 @@ void PlaceObjToInventory(ObjData *object, CharData *ch) {
 			}
 		}
 
-		if (!ch->is_npc()
+		if (!ch->IsNpc()
 			|| (ch->has_master()
-				&& !ch->get_master()->is_npc())) {
+				&& !ch->get_master()->IsNpc())) {
 			object->set_extra_flag(EObjFlag::kTicktimer);    // start timer unconditionally when character picks item up.
 			ArrangeObjs(object, &ch->carrying);
 		} else {
@@ -650,11 +650,11 @@ void PlaceObjToInventory(ObjData *object, CharData *ch) {
 		IS_CARRYING_W(ch) += GET_OBJ_WEIGHT(object);
 		IS_CARRYING_N(ch)++;
 
-		if (!ch->is_npc()) {
+		if (!ch->IsNpc()) {
 			log("obj_to_char: %s -> %d", ch->get_name().c_str(), GET_OBJ_VNUM(object));
 		}
 		// set flag for crash-save system, but not on mobs!
-		if (!ch->is_npc()) {
+		if (!ch->IsNpc()) {
 			PLR_FLAGS(ch).set(EPlrFlag::kCrashSave);
 		}
 	} else
@@ -670,7 +670,7 @@ void ExtractObjFromChar(ObjData *object) {
 	object->remove_me_from_contains_list(object->get_carried_by()->carrying);
 
 	// set flag for crash-save system, but not on mobs!
-	if (!object->get_carried_by()->is_npc()) {
+	if (!object->get_carried_by()->IsNpc()) {
 		PLR_FLAGS(object->get_carried_by()).set(EPlrFlag::kCrashSave);
 		log("obj_from_char: %s -> %d", object->get_carried_by()->get_name().c_str(), GET_OBJ_VNUM(object));
 	}
@@ -682,7 +682,7 @@ void ExtractObjFromChar(ObjData *object) {
 }
 
 bool HaveIncompatibleAlign(CharData *ch, ObjData *obj) {
-	if (ch->is_npc() || IS_IMMORTAL(ch)) {
+	if (ch->IsNpc() || IS_IMMORTAL(ch)) {
 		return false;
 	}
 	if (IS_OBJ_ANTI(obj, EAntiFlag::kMono) && GET_RELIGION(ch) == kReligionMono) {
@@ -760,7 +760,7 @@ void DisplayWearMsg(CharData *ch, ObjData *obj, int position) {
 
 	act(wear_messages[position][1], false, ch, obj, nullptr, kToChar);
 	act(wear_messages[position][0],
-		ch->is_npc() && !AFF_FLAGGED(ch, EAffect::kCharmed) ? false : true,
+		ch->IsNpc() && !AFF_FLAGGED(ch, EAffect::kCharmed) ? false : true,
 		ch, obj, nullptr, kToRoom | kToArenaListen);
 }
 
@@ -769,7 +769,7 @@ int GetFlagDataByCharClass(const CharData *ch) {
 		return 0;
 	}
 
-	return flag_data_by_num(ch->is_npc() ? kNumPlayerClasses * kNumKins : GET_CLASS(ch)
+	return flag_data_by_num(ch->IsNpc() ? kNumPlayerClasses * kNumKins : GET_CLASS(ch)
 		+ kNumPlayerClasses * GET_KIN(ch));
 }
 
@@ -827,7 +827,7 @@ unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const
 					if (show_msg) {
 						act(act_msg.substr(0, delim).c_str(), false, ch, GET_EQ(ch, pos), nullptr, kToChar);
 						act(act_msg.erase(0, delim + 1).c_str(),
-							ch->is_npc() && !AFF_FLAGGED(ch, EAffect::kCharmed) ? false : true,
+							ch->IsNpc() && !AFF_FLAGGED(ch, EAffect::kCharmed) ? false : true,
 							ch, GET_EQ(ch, pos), nullptr, kToRoom);
 					}
 
@@ -956,7 +956,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 		PlaceObjToRoom(obj, ch->in_room);
 		CheckObjDecay(obj);
 		return;
-	} else if ((!ch->is_npc() || IS_CHARMICE(ch)) && obj->has_flag(EObjFlag::kNamed)
+	} else if ((!ch->IsNpc() || IS_CHARMICE(ch)) && obj->has_flag(EObjFlag::kNamed)
 		&& NamedStuff::check_named(ch, obj, true)) {
 		if (!NamedStuff::wear_msg(ch, obj))
 			SendMsgToChar("Просьба не трогать! Частная собственность!\r\n", ch);
@@ -966,7 +966,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 		return;
 	}
 
-	if ((!ch->is_npc() && HaveIncompatibleAlign(ch, obj)) || invalid_no_class(ch, obj) ||
+	if ((!ch->IsNpc() && HaveIncompatibleAlign(ch, obj)) || invalid_no_class(ch, obj) ||
 		(AFF_FLAGGED(ch, EAffect::kCharmed) && (obj->has_flag(EObjFlag::kSharpen) ||
 		obj->has_flag(EObjFlag::kArmored)))) {
 		act("$o0 явно не предназначен$A для вас.", false, ch, obj, nullptr, kToChar);
@@ -977,14 +977,14 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 		return;
 	}
 
-	if (!ch->is_npc() || IS_CHARMICE(ch)) {
+	if (!ch->IsNpc() || IS_CHARMICE(ch)) {
 		CharData *master = IS_CHARMICE(ch) && ch->has_master() ? ch->get_master() : ch;
 		if ((obj->get_auto_mort_req() >= 0) && (obj->get_auto_mort_req() > GET_REAL_REMORT(master))
 			&& !IS_IMMORTAL(master)) {
 			SendMsgToChar(master, "Для использования %s требуется %d %s.\r\n",
-						 GET_OBJ_PNAME(obj, 1).c_str(),
-						 obj->get_auto_mort_req(),
-						 GetDeclensionInNumber(obj->get_auto_mort_req(), EWhat::kRemort));
+						  GET_OBJ_PNAME(obj, 1).c_str(),
+						  obj->get_auto_mort_req(),
+						  GetDeclensionInNumber(obj->get_auto_mort_req(), EWhat::kRemort));
 			act("$n попытал$u использовать $o3, но у н$s ничего не получилось.", false, ch, obj, nullptr, kToRoom);
 			if (!obj->get_carried_by()) {
 				PlaceObjToInventory(obj, ch);
@@ -993,8 +993,8 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 		} else if ((obj->get_auto_mort_req() < -1) && (abs(obj->get_auto_mort_req()) < GET_REAL_REMORT(master))
 			&& !IS_IMMORTAL(master)) {
 			SendMsgToChar(master, "Максимально количество перевоплощений для использования %s равно %d.\r\n",
-						 GET_OBJ_PNAME(obj, 1).c_str(),
-						 abs(obj->get_auto_mort_req()));
+						  GET_OBJ_PNAME(obj, 1).c_str(),
+						  abs(obj->get_auto_mort_req()));
 			act("$n попытал$u использовать $o3, но у н$s ничего не получилось.",
 				false, ch, obj, nullptr, kToRoom);
 			if (!obj->get_carried_by()) {
@@ -1079,7 +1079,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 
 	// Раз показываем сообщение, значит, предмет надевает сам персонаж
 	// А вообще эта порнография из-за того, что одна функция используется с кучей флагов в разных вариантах
-	if (show_msg && ch->get_fighting() && (GET_OBJ_TYPE(obj) == EObjType::kWeapon || pos == kShield)) {
+	if (show_msg && ch->GetEnemy() && (GET_OBJ_TYPE(obj) == EObjType::kWeapon || pos == kShield)) {
 		SetSkillCooldown(ch, ESkill::kGlobalCooldown, 2);
 	}
 }
@@ -1139,7 +1139,7 @@ unsigned int DeactivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::con
 							if (show_msg) {
 								act(act_msg.substr(0, delim).c_str(), false, ch, GET_EQ(ch, pos), nullptr, kToChar);
 								act(act_msg.erase(0, delim + 1).c_str(),
-									ch->is_npc() && !AFF_FLAGGED(ch, EAffect::kCharmed) ? false : true,
+									ch->IsNpc() && !AFF_FLAGGED(ch, EAffect::kCharmed) ? false : true,
 									ch, GET_EQ(ch, pos), nullptr, kToRoom);
 							}
 
@@ -1186,7 +1186,7 @@ unsigned int DeactivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::con
 					if (show_msg) {
 						act(deact_msg.substr(0, delim).c_str(), false, ch, GET_EQ(ch, pos), nullptr, kToChar);
 						act(deact_msg.erase(0, delim + 1).c_str(),
-							ch->is_npc() && !AFF_FLAGGED(ch, EAffect::kCharmed) ? false : true,
+							ch->IsNpc() && !AFF_FLAGGED(ch, EAffect::kCharmed) ? false : true,
 							ch, GET_EQ(ch, pos), nullptr, kToRoom);
 					}
 
@@ -1296,7 +1296,7 @@ ObjData *UnequipChar(CharData *ch, int pos, const CharEquipFlags& equip_flags) {
 				if (j.aff_bitvector == 0 || !IS_OBJ_AFF(obj, j.aff_pos)) {
 					continue;
 				}
-				if (ch->is_npc()
+				if (ch->IsNpc()
 					&& AFF_FLAGGED(&mob_proto[GET_MOB_RNUM(ch)], static_cast<EAffect>(j.aff_bitvector))) {
 					continue;
 				}
@@ -1651,7 +1651,7 @@ void ExtractObjFromWorld(ObjData *obj) {
 		ExtractObjFromObj(temp);
 
 		if (obj->get_carried_by()) {
-			if (obj->get_carried_by()->is_npc()
+			if (obj->get_carried_by()->IsNpc()
 				|| (IS_CARRYING_N(obj->get_carried_by()) >= CAN_CARRY_N(obj->get_carried_by()))) {
 				PlaceObjToRoom(temp, IN_ROOM(obj->get_carried_by()));
 				CheckObjDecay(temp);
@@ -1659,7 +1659,7 @@ void ExtractObjFromWorld(ObjData *obj) {
 				PlaceObjToInventory(temp, obj->get_carried_by());
 			}
 		} else if (obj->get_worn_by() != nullptr) {
-			if (obj->get_worn_by()->is_npc()
+			if (obj->get_worn_by()->IsNpc()
 				|| (IS_CARRYING_N(obj->get_worn_by()) >= CAN_CARRY_N(obj->get_worn_by()))) {
 				PlaceObjToRoom(temp, IN_ROOM(obj->get_worn_by()));
 				CheckObjDecay(temp);
@@ -1782,7 +1782,7 @@ void DropObjOnZoneReset(CharData *ch, ObjData *obj, bool inv, bool zone_reset) {
 		// Если этот моб трупа не оставит, то не выводить сообщение
 		// иначе ужасно коряво смотрится в бою и в тригах
 		bool msgShown = false;
-		if (!ch->is_npc() || !MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
+		if (!ch->IsNpc() || !MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
 			if (inv)
 				act("$n бросил$g $o3 на землю.", false, ch, obj, nullptr, kToRoom);
 			else
@@ -1807,7 +1807,7 @@ void change_npc_leader(CharData *ch) {
 	std::vector<CharData *> tmp_list;
 
 	for (Follower *i = ch->followers; i; i = i->next) {
-		if (i->ch->is_npc()
+		if (i->ch->IsNpc()
 			&& !IS_CHARMICE(i->ch)
 			&& i->ch->get_master() == ch) {
 			tmp_list.push_back(i->ch);
@@ -1849,7 +1849,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 	std::string name = GET_NAME(ch);
 	DescriptorData *t_desc;
 	log("[Extract char] Start function for char %s VNUM: %d", name.c_str(), GET_MOB_VNUM(ch));
-	if (!ch->is_npc() && !ch->desc) {
+	if (!ch->IsNpc() && !ch->desc) {
 //		log("[Extract char] Extract descriptors");
 		for (t_desc = descriptor_list; t_desc; t_desc = t_desc->next) {
 			if (t_desc->original.get() == ch) {
@@ -1895,18 +1895,18 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 		DropObjOnZoneReset(ch, obj, true, zone_reset);
 	}
 
-	if (ch->is_npc()) {
+	if (ch->IsNpc()) {
 		// дроп гривен до изменений последователей за мобом
 		ExtMoney::drop_torc(ch);
 	}
 
-	if (!ch->is_npc()
+	if (!ch->IsNpc()
 		&& !ch->has_master()
 		&& ch->followers
 		&& AFF_FLAGGED(ch, EAffect::kGroup)) {
 //		log("[Extract char] Change group leader");
 		change_leader(ch, nullptr);
-	} else if (ch->is_npc()
+	} else if (ch->IsNpc()
 		&& !IS_CHARMICE(ch)
 		&& !ch->has_master()
 		&& ch->followers) {
@@ -1922,7 +1922,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 	}
 
 //	log("[Extract char] Stop fighting self");
-	if (ch->get_fighting()) {
+	if (ch->GetEnemy()) {
 		stop_fighting(ch, true);
 	}
 
@@ -1939,7 +1939,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 		do_return(ch, nullptr, 0, 0);
 	}
 
-	const bool is_npc = ch->is_npc();
+	const bool is_npc = ch->IsNpc();
 	if (!is_npc) {
 //		log("[Extract char] All save for PC");
 		check_auction(ch, nullptr);
@@ -1960,7 +1960,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 		&& ch->desc != nullptr) {
 		STATE(ch->desc) = CON_MENU;
 		SEND_TO_Q(MENU, ch->desc);
-		if (!ch->is_npc() && NORENTABLE(ch) && clear_objs) {
+		if (!ch->IsNpc() && NORENTABLE(ch) && clear_objs) {
 			do_entergame(ch->desc);
 			left_in_game = true;
 		}
@@ -1980,7 +1980,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 
 CharData *get_player_vis(CharData *ch, const char *name, int inroom) {
 	for (const auto &i : character_list) {
-		if (i->is_npc())
+		if (i->IsNpc())
 			continue;
 		if (!HERE(i))
 			continue;
@@ -2000,7 +2000,7 @@ CharData *get_player_vis(CharData *ch, const char *name, int inroom) {
 
 CharData *get_player_pun(CharData *ch, const char *name, int inroom) {
 	for (const auto &i : character_list) {
-		if (i->is_npc())
+		if (i->IsNpc())
 			continue;
 		if ((inroom & EFind::kCharInRoom) && i->in_room != ch->in_room)
 			continue;
@@ -2271,7 +2271,7 @@ bool try_locate_obj(CharData *ch, ObjData *i) {
 	} else if (i->has_flag(EObjFlag::kNolocate)) //если флаг !локейт и ее нет в комнате/инвентаре - пропустим ее
 	{
 		return false;
-	} else if (i->get_carried_by() && i->get_carried_by()->is_npc()) {
+	} else if (i->get_carried_by() && i->get_carried_by()->IsNpc()) {
 		if (world[IN_ROOM(i->get_carried_by())]->zone_rn
 			== world[ch->in_room]->zone_rn) //шмотки у моба можно локейтить только в одной зоне
 		{
@@ -2287,7 +2287,7 @@ bool try_locate_obj(CharData *ch, ObjData *i) {
 		} else {
 			return false;
 		}
-	} else if (i->get_worn_by() && i->get_worn_by()->is_npc()) {
+	} else if (i->get_worn_by() && i->get_worn_by()->IsNpc()) {
 		if (world[IN_ROOM(i->get_worn_by())]->zone_rn == world[ch->in_room]->zone_rn) {
 			return true;
 		} else {
@@ -2299,7 +2299,7 @@ bool try_locate_obj(CharData *ch, ObjData *i) {
 		} else {
 			const auto in_obj = i->get_in_obj();
 			if (in_obj->get_carried_by()) {
-				if (in_obj->get_carried_by()->is_npc()) {
+				if (in_obj->get_carried_by()->IsNpc()) {
 					if (world[IN_ROOM(in_obj->get_carried_by())]->zone_rn == world[ch->in_room]->zone_rn) {
 						return true;
 					} else {
@@ -2316,7 +2316,7 @@ bool try_locate_obj(CharData *ch, ObjData *i) {
 				}
 			} else if (in_obj->get_worn_by()) {
 				const auto worn_by = i->get_in_obj()->get_worn_by();
-				if (worn_by->is_npc()) {
+				if (worn_by->IsNpc()) {
 					if (world[worn_by->in_room]->zone_rn == world[ch->in_room]->zone_rn) {
 						return true;
 					} else {
@@ -3005,7 +3005,7 @@ int *MemQ_slots(CharData *ch) {
 int IsEquipInMetall(CharData *ch) {
 	int i, wgt = 0;
 
-	if (ch->is_npc() && !AFF_FLAGGED(ch, EAffect::kCharmed))
+	if (ch->IsNpc() && !AFF_FLAGGED(ch, EAffect::kCharmed))
 		return (false);
 	if (IS_GOD(ch))
 		return (false);
@@ -3025,7 +3025,7 @@ int IsEquipInMetall(CharData *ch) {
 }
 
 bool IsAwakeOthers(CharData *ch) {
-	if ((ch->is_npc() && !AFF_FLAGGED(ch, EAffect::kCharmed)) || IS_GOD(ch)) {
+	if ((ch->IsNpc() && !AFF_FLAGGED(ch, EAffect::kCharmed)) || IS_GOD(ch)) {
 		return false;
 	}
 
@@ -3045,7 +3045,7 @@ int ApplyResist(CharData *ch, int resist_type, int effect) {
 	if (resistance <= 0) {
 		return effect - resistance*effect/100;
 	}
-	if (!ch->is_npc()) {
+	if (!ch->IsNpc()) {
 		resistance = std::min(kMaxPlayerResist, resistance);
 	}
 	auto result = static_cast<int>(effect - (resistance + number(0, resistance))*effect/200.0);

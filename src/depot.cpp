@@ -605,9 +605,9 @@ void CharNode::update_online_item() {
 				// входе в игру, чтобы уж точно увидел
 				if (ch->desc && STATE(ch->desc) == CON_PLAYING) {
 					SendMsgToChar(ch, "[Персональное хранилище]: %s'%s%s рассыпал%s в прах'%s\r\n",
-								 CCIRED(ch, C_NRM), (*obj_it)->get_short_description().c_str(),
-								 char_get_custom_label(obj_it->get(), ch).c_str(),
-								 GET_OBJ_SUF_2((*obj_it)), CCNRM(ch, C_NRM));
+								  CCIRED(ch, C_NRM), (*obj_it)->get_short_description().c_str(),
+								  char_get_custom_label(obj_it->get(), ch).c_str(),
+								  GET_OBJ_SUF_2((*obj_it)), CCNRM(ch, C_NRM));
 				} else {
 					add_purged_message(GET_UNIQUE(ch), GET_OBJ_VNUM(obj_it->get()), GET_OBJ_UID(obj_it->get()));
 				}
@@ -887,7 +887,7 @@ DepotListType::iterator create_depot(long uid, CharData *ch = 0) {
 
 // * Выводим персональное хранилище вместо просмотра контейнера.
 void show_depot(CharData *ch) {
-	if (ch->is_npc()) return;
+	if (ch->IsNpc()) return;
 
 #ifndef TEST_BUILD
 	if (IS_IMMORTAL(ch) && !IS_IMPL(ch)) {
@@ -898,7 +898,7 @@ void show_depot(CharData *ch) {
 
 	if (NORENTABLE(ch)) {
 		SendMsgToChar(ch, "%sХранилище недоступно в связи с боевыми действиями.%s\r\n",
-					 CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
+					  CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 		return;
 	}
 
@@ -971,7 +971,7 @@ unsigned count_inrg(const ObjListType &cont) {
 
 // * Кладем шмотку в хранилище (мобов посылаем лесом), деньги автоматом на счет в банке.
 bool put_depot(CharData *ch, const ObjData::shared_ptr &obj) {
-	if (ch->is_npc()) return 0;
+	if (ch->IsNpc()) return 0;
 
 #ifndef TEST_BUILD
 	if (IS_IMMORTAL(ch) && !IS_IMPL(ch)) {
@@ -982,8 +982,8 @@ bool put_depot(CharData *ch, const ObjData::shared_ptr &obj) {
 
 	if (NORENTABLE(ch)) {
 		SendMsgToChar(ch,
-					 "%sХранилище недоступно в связи с боевыми действиями.%s\r\n",
-					 CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
+					  "%sХранилище недоступно в связи с боевыми действиями.%s\r\n",
+					  CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 		return 0;
 	}
 
@@ -1042,7 +1042,7 @@ bool put_depot(CharData *ch, const ObjData::shared_ptr &obj) {
 
 // * Взятие чего-то из персонального хранилища.
 void take_depot(CharData *vict, char *arg, int howmany) {
-	if (vict->is_npc()) return;
+	if (vict->IsNpc()) return;
 
 #ifndef TEST_BUILD
 	if (IS_IMMORTAL(vict) && !IS_IMPL(vict)) {
@@ -1053,7 +1053,7 @@ void take_depot(CharData *vict, char *arg, int howmany) {
 
 	if (NORENTABLE(vict)) {
 		SendMsgToChar(vict, "%sХранилище недоступно в связи с боевыми действиями.%s\r\n",
-					 CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
+					  CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
 		return;
 	}
 
@@ -1289,8 +1289,8 @@ void enter_char(CharData *ch) {
 		// снимаем бабло, если что-то было потрачено на ренту
 		if (it->second.money_spend > 0) {
 			SendMsgToChar(ch, "%sХранилище: за время вашего отсутствия удержано %ld %s.%s\r\n\r\n",
-						 CCWHT(ch, C_NRM), it->second.money_spend,
-						 GetDeclensionInNumber(it->second.money_spend, EWhat::kMoneyA), CCNRM(ch, C_NRM));
+						  CCWHT(ch, C_NRM), it->second.money_spend,
+						  GetDeclensionInNumber(it->second.money_spend, EWhat::kMoneyA), CCNRM(ch, C_NRM));
 
 			long rest = ch->remove_both_gold(it->second.money_spend);
 			if (rest > 0) {
@@ -1302,7 +1302,7 @@ void enter_char(CharData *ch) {
 				// файл убьется позже при ребуте на пустом хране,
 				// даже если не будет никаких перезаписей по ходу игры
 				SendMsgToChar(ch, "%sХранилище: у вас не хватило денег на постой.%s\r\n\r\n",
-							 CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
+							  CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 			}
 		}
 		// грузим хранилище, сохранять его тут вроде как смысла нет
@@ -1442,12 +1442,12 @@ int print_imm_where_obj(CharData *ch, char *arg, int num) {
 			 ++obj_it) {
 			if (isname(arg, (*obj_it)->get_aliases())) {
 				SendMsgToChar(ch,
-							 "%2d. [%6d] %-25s - наход%sся в персональном хранилище (%s).\r\n",
-							 num++,
-							 GET_OBJ_VNUM((*obj_it).get()),
-							 (*obj_it)->get_short_description().c_str(),
-							 GET_OBJ_POLY_1(ch, (*obj_it)),
-							 it->second.name.c_str());
+							  "%2d. [%6d] %-25s - наход%sся в персональном хранилище (%s).\r\n",
+							  num++,
+							  GET_OBJ_VNUM((*obj_it).get()),
+							  (*obj_it)->get_short_description().c_str(),
+							  GET_OBJ_POLY_1(ch, (*obj_it)),
+							  it->second.name.c_str());
 			}
 		}
 	}

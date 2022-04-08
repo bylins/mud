@@ -133,8 +133,8 @@ class Damage {
 
 // fight.cpp
 
-void set_fighting(CharData *ch, CharData *victim);
-inline void set_fighting(const CharData::shared_ptr &ch, CharData *victim) { set_fighting(ch.get(), victim); }
+void SetFighting(CharData *ch, CharData *vict);
+inline void set_fighting(const CharData::shared_ptr &ch, CharData *victim) { SetFighting(ch.get(), victim); }
 
 void stop_fighting(CharData *ch, int switch_others);
 void perform_violence();

@@ -308,7 +308,7 @@ void add_glory(long uid, int amount) {
 	DescriptorData *d = DescByUID(uid);
 	if (d)
 		SendMsgToChar(d->character.get(), "Вы заслужили %d %s славы.\r\n",
-					 amount, GetDeclensionInNumber(amount, EWhat::kPoint));
+					  amount, GetDeclensionInNumber(amount, EWhat::kPoint));
 }
 
 /**
@@ -949,10 +949,10 @@ bool remove_stats(CharData *ch, CharData *god, int amount) {
 	}
 	imm_log("(GC) %s sets -%d stats to %s.", GET_NAME(god), removed, GET_NAME(ch));
 	SendMsgToChar(god,
-				 "С %s снято %d %s вложенной ранее славы.\r\n",
-				 GET_PAD(ch, 1),
-				 removed,
-				 GetDeclensionInNumber(removed, EWhat::kPoint));
+				  "С %s снято %d %s вложенной ранее славы.\r\n",
+				  GET_PAD(ch, 1),
+				  removed,
+				  GetDeclensionInNumber(removed, EWhat::kPoint));
 	// надо пересчитать хп на случай снятия с тела
 	check_max_hp(ch);
 	save_glory();
@@ -1094,7 +1094,7 @@ void show_stats(CharData *ch) {
 		spend_glory += it.second->spend_glory * 1000;
 	}
 	SendMsgToChar(ch, "  Слава: вложено %d, свободно %d, всего %d\r\n",
-				 spend_glory, free_glory, free_glory + spend_glory);
+				  spend_glory, free_glory, free_glory + spend_glory);
 }
 
 // * Распечатка топа славы. У иммов дополнительно печатается список чаров, не вошедших в топ (hide).

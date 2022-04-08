@@ -147,7 +147,7 @@ int mana_gain(const CharData *ch) {
 	int gain = 0, restore = int_app[GET_REAL_INT(ch)].mana_per_tic, percent = 100;
 	int stopmem = false;
 
-	if (ch->is_npc()) {
+	if (ch->IsNpc()) {
 		gain = GetRealLevel(ch);
 	} else {
 		if (!ch->desc || STATE(ch->desc) != CON_PLAYING)
@@ -180,7 +180,7 @@ int mana_gain(const CharData *ch) {
 
 
 	// Position calculations
-	if (ch->get_fighting()) {
+	if (ch->GetEnemy()) {
 		if (IS_MANA_CASTER(ch))
 			percent -= 50;
 		else
@@ -218,7 +218,7 @@ int mana_gain(const CharData *ch) {
 		percent += GET_MANAREG(ch);
 	if (AFF_FLAGGED(ch, EAffect::kPoisoned) && percent > 0)
 		percent /= 4;
-	if (!ch->is_npc())
+	if (!ch->IsNpc())
 		percent *= ch->get_cond_penalty(P_MEM_GAIN);
 	percent = MAX(0, MIN(1000, percent));
 	gain = gain * percent / 100;
@@ -230,7 +230,7 @@ int mana_gain(const CharData::shared_ptr &ch) { return mana_gain(ch.get()); }
 int hit_gain(CharData *ch) {
 	int gain = 0, restore = MAX(10, GET_REAL_CON(ch) * 3 / 2), percent = 100;
 
-	if (ch->is_npc())
+	if (ch->IsNpc())
 		gain = GetRealLevel(ch) + GET_REAL_CON(ch);
 	else {
 		if (!ch->desc || STATE(ch->desc) != CON_PLAYING)
@@ -278,11 +278,11 @@ int hit_gain(CharData *ch) {
 	if (AFF_FLAGGED(ch, EAffect::kPoisoned) && percent > 0)
 		percent /= 4;
 
-	if (!ch->is_npc())
+	if (!ch->IsNpc())
 		percent *= ch->get_cond_penalty(P_HIT_GAIN);
 	percent = MAX(0, MIN(250, percent));
 	gain = gain * percent / 100;
-	if (!ch->is_npc()) {
+	if (!ch->IsNpc()) {
 		if (GET_POS(ch) == EPosition::kIncap || GET_POS(ch) == EPosition::kPerish)
 			gain = 0;
 	}
@@ -294,7 +294,7 @@ int hit_gain(const CharData::shared_ptr &ch) { return hit_gain(ch.get()); }
 int move_gain(CharData *ch) {
 	int gain = 0, restore = GET_REAL_CON(ch) / 2, percent = 100;
 
-	if (ch->is_npc())
+	if (ch->IsNpc())
 		gain = GetRealLevel(ch);
 	else {
 		if (!ch->desc || STATE(ch->desc) != CON_PLAYING)
@@ -336,7 +336,7 @@ int move_gain(CharData *ch) {
 	if (AFF_FLAGGED(ch, EAffect::kPoisoned) && percent > 0)
 		percent /= 4;
 
-	if (!ch->is_npc())
+	if (!ch->IsNpc())
 		percent *= ch->get_cond_penalty(P_HIT_GAIN);
 	percent = MAX(0, MIN(250, percent));
 	gain = gain * percent / 100;
@@ -622,7 +622,7 @@ void beat_points_update(int pulse) {
 
 	// only for PC's
 	character_list.foreach_on_copy([&](const auto &i) {
-		if (i->is_npc())
+		if (i->IsNpc())
 			return;
 
 		if (IN_ROOM(i) == kNowhere) {
@@ -661,14 +661,14 @@ void beat_points_update(int pulse) {
 		if (AFF_FLAGGED(i, EAffect::kBandage)) {
 			for (const auto &aff : i->affected) {
 				if (aff->type == kSpellBandage) {
-					restore += MIN(GET_REAL_MAX_HIT(i) / 10, aff->modifier);
+					restore += std::min(GET_REAL_MAX_HIT(i) / 10, aff->modifier);
 					break;
 				}
 			}
 		}
 
 		if (GET_HIT(i) < GET_REAL_MAX_HIT(i)) {
-			GET_HIT(i) = MIN(GET_HIT(i) + restore, GET_REAL_MAX_HIT(i));
+			GET_HIT(i) = std::min(GET_HIT(i) + restore, GET_REAL_MAX_HIT(i));
 		}
 
 		// Restore PC caster mem
@@ -752,7 +752,7 @@ void EndowExpToChar(CharData *ch, int gain) {
 	int num_levels = 0;
 	char buf[128];
 
-	if (ch->is_npc()) {
+	if (ch->IsNpc()) {
 		ch->set_exp(ch->get_exp() + gain);
 		return;
 	} else {
@@ -760,7 +760,7 @@ void EndowExpToChar(CharData *ch, int gain) {
 		ZoneExpStat::add(zone_table[world[ch->in_room]->zone_rn].vnum, gain);
 	}
 
-	if (!ch->is_npc() && ((GetRealLevel(ch) < 1 || GetRealLevel(ch) >= kLvlImmortal))) {
+	if (!ch->IsNpc() && ((GetRealLevel(ch) < 1 || GetRealLevel(ch) >= kLvlImmortal))) {
 		return;
 	}
 
@@ -771,11 +771,11 @@ void EndowExpToChar(CharData *ch, int gain) {
 			if (!GET_GOD_FLAG(ch, EGf::kRemort) && GET_REAL_REMORT(ch) < kMaxRemort) {
 				if (Remort::can_remort_now(ch)) {
 					SendMsgToChar(ch, "%sПоздравляем, вы получили право на перевоплощение!%s\r\n",
-								 CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+								  CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 				} else {
 					SendMsgToChar(ch,
-								 "%sПоздравляем, вы набрали максимальное количество опыта!\r\n"
-								 "%s%s\r\n", CCIGRN(ch, C_NRM), Remort::WHERE_TO_REMORT_STR.c_str(), CCNRM(ch, C_NRM));
+								  "%sПоздравляем, вы набрали максимальное количество опыта!\r\n"
+								  "%s%s\r\n", CCIGRN(ch, C_NRM), Remort::WHERE_TO_REMORT_STR.c_str(), CCNRM(ch, C_NRM));
 				}
 				SET_GOD_FLAG(ch, EGf::kRemort);
 			}
@@ -820,7 +820,7 @@ void EndowExpToChar(CharData *ch, int gain) {
 		&& (GetRealLevel(ch) < kLvlImmortal)) {
 		if (Remort::can_remort_now(ch)) {
 			SendMsgToChar(ch, "%sВы потеряли право на перевоплощение!%s\r\n",
-						 CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
+						  CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 		}
 		CLR_GOD_FLAG(ch, EGf::kRemort);
 	}
@@ -835,7 +835,7 @@ void gain_exp_regardless(CharData *ch, int gain) {
 	int num_levels = 0;
 
 	ch->set_exp(ch->get_exp() + gain);
-	if (!ch->is_npc()) {
+	if (!ch->IsNpc()) {
 		if (gain > 0) {
 			while (GetRealLevel(ch) < kLvlImplementator && GET_EXP(ch) >= GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1)) {
 				ch->set_level(ch->get_level() + 1);
@@ -887,7 +887,7 @@ void gain_condition(CharData *ch, unsigned condition, int value) {
 		return;
 	}
 
-	if (ch->is_npc() || GET_COND(ch, condition) == -1) {
+	if (ch->IsNpc() || GET_COND(ch, condition) == -1) {
 		return;
 	}
 
@@ -988,8 +988,8 @@ void check_idling(CharData *ch) {
 					ch->save_char();
 				}
 				ch->set_was_in_room(ch->in_room);
-				if (ch->get_fighting()) {
-					stop_fighting(ch->get_fighting(), false);
+				if (ch->GetEnemy()) {
+					stop_fighting(ch->GetEnemy(), false);
 					stop_fighting(ch, true);
 				}
 				act("$n растворил$u в пустоте.", true, ch, 0, 0, kToRoom);
@@ -1229,11 +1229,11 @@ void clan_chest_invoice(ObjData *j) {
 			&& CLAN(d->character)
 			&& CLAN(d->character)->GetRent() == room) {
 			SendMsgToChar(d->character.get(), "[Хранилище]: %s'%s%s рассыпал%s в прах'%s\r\n",
-						 CCIRED(d->character, C_NRM),
-						 j->get_short_description().c_str(),
-						 clan_get_custom_label(j, CLAN(d->character)).c_str(),
-						 GET_OBJ_SUF_2(j),
-						 CCNRM(d->character, C_NRM));
+						  CCIRED(d->character, C_NRM),
+						  j->get_short_description().c_str(),
+						  clan_get_custom_label(j, CLAN(d->character)).c_str(),
+						  GET_OBJ_SUF_2(j),
+						  CCNRM(d->character, C_NRM));
 		}
 	}
 
@@ -1315,10 +1315,10 @@ void charmee_obj_decay_tell(CharData *charmee, ObjData *obj, int where) {
 			 GET_OBJ_SUF_2(obj),
 			 buf1);
 	SendMsgToChar(charmee->get_master(),
-				 "%s%s%s\r\n",
-				 CCICYN(charmee->get_master(), C_NRM),
-				 CAP(buf),
-				 CCNRM(charmee->get_master(), C_NRM));
+				  "%s%s%s\r\n",
+				  CCICYN(charmee->get_master(), C_NRM),
+				  CAP(buf),
+				  CCNRM(charmee->get_master(), C_NRM));
 }
 
 void obj_point_update() {
@@ -1568,7 +1568,7 @@ void point_update() {
 	for (const auto &character : character_list) {
 		const auto i = character.get();
 
-		if (i->is_npc()) {
+		if (i->IsNpc()) {
 			i->inc_restore_timer(kSecsPerMudHour);
 		}
 
@@ -1581,7 +1581,7 @@ void point_update() {
 			act("$n попытал$u очнуться, но снова заснул$a и упал$a наземь.", true, i, 0, 0, kToRoom);
 		}
 
-		if (!i->is_npc()) {
+		if (!i->IsNpc()) {
 			gain_condition(i, DRUNK, -1);
 
 			if (average_day_temp() < -20) {
@@ -1607,7 +1607,7 @@ void point_update() {
 
 		if (GET_POS(i) >= EPosition::kStun)    // Restore hit points
 		{
-			if (i->is_npc()
+			if (i->IsNpc()
 				|| !UPDATE_PC_ON_BEAT) {
 				const int count = hit_gain(i);
 				if (GET_HIT(i) < GET_REAL_MAX_HIT(i)) {
@@ -1616,8 +1616,8 @@ void point_update() {
 			}
 
 			// Restore mobs
-			if (i->is_npc()
-				&& !i->get_fighting())    // Restore horse
+			if (i->IsNpc()
+				&& !i->GetEnemy())    // Restore horse
 			{
 				if (IS_HORSE(i)) {
 					int mana = 0;
@@ -1655,7 +1655,7 @@ void point_update() {
 						default: mana = 10;
 					}
 
-					if (i->get_master()->ahorse()) {
+					if (i->get_master()->IsOnHorse()) {
 						mana /= 2;
 					}
 
@@ -1666,7 +1666,7 @@ void point_update() {
 				for (mem = MEMORY(i), pmem = nullptr; mem; mem = nmem) {
 					nmem = mem->next;
 					if (mem->time <= 0
-						&& i->get_fighting()) {
+						&& i->GetEnemy()) {
 						pmem = mem;
 						continue;
 					}
@@ -1704,7 +1704,7 @@ void point_update() {
 			}
 
 			// Restore moves
-			if (i->is_npc()
+			if (i->IsNpc()
 				|| !UPDATE_PC_ON_BEAT) {
 				if (GET_MOVE(i) < GET_REAL_MAX_MOVE(i)) {
 					GET_MOVE(i) = MIN(GET_MOVE(i) + move_gain(i), GET_REAL_MAX_MOVE(i));
@@ -1733,7 +1733,7 @@ void point_update() {
 
 		UpdateCharObjects(i);
 
-		if (!i->is_npc()
+		if (!i->IsNpc()
 			&& GetRealLevel(i) < idle_max_level
 			&& !PRF_FLAGGED(i, EPrf::kCoderinfo)) {
 			check_idling(i);

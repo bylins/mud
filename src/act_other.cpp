@@ -128,7 +128,7 @@ void do_antigods(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 void do_quit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	DescriptorData *d, *next_d;
 
-	if (ch->is_npc() || !ch->desc)
+	if (ch->IsNpc() || !ch->desc)
 		return;
 
 	if (subcmd != SCMD_QUIT)
@@ -164,12 +164,12 @@ void do_quit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		long depot_cost = static_cast<long>(Depot::get_total_cost_per_day(ch));
 		if (depot_cost) {
 			SendMsgToChar(ch,
-						 "За вещи в хранилище придется заплатить %ld %s в день.\r\n",
-						 depot_cost,
-						 GetDeclensionInNumber(depot_cost, EWhat::kMoneyU));
+						  "За вещи в хранилище придется заплатить %ld %s в день.\r\n",
+						  depot_cost,
+						  GetDeclensionInNumber(depot_cost, EWhat::kMoneyU));
 			long deadline = ((ch->get_gold() + ch->get_bank()) / depot_cost);
 			SendMsgToChar(ch, "Твоих денег хватит на %ld %s.\r\n", deadline,
-						 GetDeclensionInNumber(deadline, EWhat::kDay));
+						  GetDeclensionInNumber(deadline, EWhat::kDay));
 		}
 		Depot::exit_char(ch);
 		Clan::clan_invoice(ch, false);
@@ -212,7 +212,7 @@ void do_summon(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_save(CharData *ch, char * /*argument*/, int cmd, int/* subcmd*/) {
-	if (ch->is_npc() || !ch->desc) {
+	if (ch->IsNpc() || !ch->desc) {
 		return;
 	}
 
@@ -313,7 +313,7 @@ int awaking(CharData *ch, int mode) {
 int char_humming(CharData *ch) {
 	int i;
 
-	if (ch->is_npc() && !AFF_FLAGGED(ch, EAffect::kCharmed))
+	if (ch->IsNpc() && !AFF_FLAGGED(ch, EAffect::kCharmed))
 		return (false);
 
 	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
@@ -326,12 +326,12 @@ int char_humming(CharData *ch) {
 void do_sneak(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int prob, percent;
 
-	if (ch->is_npc() || !ch->get_skill(ESkill::kSneak)) {
+	if (ch->IsNpc() || !ch->get_skill(ESkill::kSneak)) {
 		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}
 
-	if (ch->ahorse()) {
+	if (ch->IsOnHorse()) {
 		act("Вам стоит подумать о мягкой обуви для $N1", false, ch, nullptr, ch->get_horse(), kToChar);
 		return;
 	}
@@ -372,12 +372,12 @@ void do_camouflage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 	struct TimedSkill timed;
 	int prob, percent;
 
-	if (ch->is_npc() || !ch->get_skill(ESkill::kDisguise)) {
+	if (ch->IsNpc() || !ch->get_skill(ESkill::kDisguise)) {
 		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}
 
-	if (ch->ahorse()) {
+	if (ch->IsOnHorse()) {
 		SendMsgToChar("Вы замаскировались под статую Юрия Долгорукого.\r\n", ch);
 		return;
 	}
@@ -430,12 +430,12 @@ void do_camouflage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 void do_hide(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int prob, percent;
 
-	if (ch->is_npc() || !ch->get_skill(ESkill::kHide)) {
+	if (ch->IsNpc() || !ch->get_skill(ESkill::kHide)) {
 		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}
 
-	if (ch->ahorse()) {
+	if (ch->IsOnHorse()) {
 		act("А куда вы хотите спрятать $N3?", false, ch, nullptr, ch->get_horse(), kToChar);
 		return;
 	}
@@ -486,7 +486,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 		return;
 	}
 
-	if (!IS_IMMORTAL(ch) && vict->get_fighting()) {
+	if (!IS_IMMORTAL(ch) && vict->GetEnemy()) {
 		act("$N слишком быстро перемещается.", false, ch, nullptr, vict, kToChar);
 		return;
 	}
@@ -650,7 +650,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 	if (!IS_IMMORTAL(ch) && ohoh)
 		SetWaitState(ch, 3 * kPulseViolence);
 	pk_thiefs_action(ch, vict);
-	if (ohoh && vict->is_npc() && AWAKE(vict) && CAN_SEE(vict, ch) && MAY_ATTACK(vict))
+	if (ohoh && vict->IsNpc() && AWAKE(vict) && CAN_SEE(vict, ch) && MAY_ATTACK(vict))
 		hit(vict, ch, ESkill::kUndefined, fight::kMainHand);
 }
 
@@ -658,11 +658,11 @@ void do_steal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *vict;
 	char vict_name[kMaxInputLength], obj_name[kMaxInputLength];
 
-	if (ch->is_npc() || !ch->get_skill(ESkill::kSteal)) {
+	if (ch->IsNpc() || !ch->get_skill(ESkill::kSteal)) {
 		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (!IS_IMMORTAL(ch) && ch->ahorse()) {
+	if (!IS_IMMORTAL(ch) && ch->IsOnHorse()) {
 		SendMsgToChar("Верхом это сделать затруднительно.\r\n", ch);
 		return;
 	}
@@ -682,7 +682,7 @@ void do_steal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Воровать у своих? Это мерзко...\r\n", ch);
 		return;
 	}
-	if (vict->is_npc() && (MOB_FLAGGED(vict, EMobFlag::kNoFight) || AFF_FLAGGED(vict, EAffect::kShield)
+	if (vict->IsNpc() && (MOB_FLAGGED(vict, EMobFlag::kNoFight) || AFF_FLAGGED(vict, EAffect::kShield)
 		|| MOB_FLAGGED(vict, EMobFlag::kProtect))
 		&& !(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike))) {
 		SendMsgToChar("А ежели поймают? Посодют ведь!\r\nПодумав так, вы отказались от сего намеренья.\r\n", ch);
@@ -692,7 +692,7 @@ void do_steal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_features(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->is_npc())
+	if (ch->IsNpc())
 		return;
 	skip_spaces(&argument);
 	if (utils::IsAbbrev(argument, "все") || utils::IsAbbrev(argument, "all"))
@@ -702,7 +702,7 @@ void do_features(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_skills(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->is_npc()) {
+	if (ch->IsNpc()) {
 		return;
 	}
 
@@ -729,7 +729,7 @@ void do_skills(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_spells(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->is_npc())
+	if (ch->IsNpc())
 		return;
 	skip_spaces(&argument);
 	if (utils::IsAbbrev(argument, "все") || utils::IsAbbrev(argument, "all"))
@@ -759,7 +759,7 @@ void do_courage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	int prob, dur;
 	struct TimedSkill timed;
 	int i;
-	if (ch->is_npc())        // Cannot use GET_COND() on mobs.
+	if (ch->IsNpc())        // Cannot use GET_COND() on mobs.
 		return;
 
 	if (!ch->get_skill(ESkill::kCourage)) {
@@ -804,7 +804,7 @@ void do_courage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	af[3].battleflag = 0;
 
 	for (i = 0; i < 4; i++) {
-		affect_join(ch, af[i], false, false, false, false);
+		ImposeAffect(ch, af[i], false, false, false, false);
 	}
 
 	SendMsgToChar("Вы пришли в ярость.\r\n", ch);
@@ -825,7 +825,7 @@ int max_group_size(CharData *ch) {
 }
 
 bool is_group_member(CharData *ch, CharData *vict) {
-	if (vict->is_npc()
+	if (vict->IsNpc()
 		|| !AFF_FLAGGED(vict, EAffect::kGroup)
 		|| vict->get_master() != ch) {
 		return false;
@@ -860,7 +860,7 @@ int perform_group(CharData *ch, CharData *vict) {
 * произошла смерть старого лидера и новый выбирается по наибольшей лидерке.
 */
 void change_leader(CharData *ch, CharData *vict) {
-	if (ch->is_npc()
+	if (ch->IsNpc()
 		|| ch->has_master()
 		|| !ch->followers) {
 		return;
@@ -975,7 +975,7 @@ void print_one_line(CharData *ch, CharData *k, int leader, int header) {
 							   "Стоит"
 	};
 
-	if (k->is_npc()) {
+	if (k->IsNpc()) {
 		if (!header)
 //       SendMsgToChar("Персонаж       | Здоровье |Рядом| Доп | Положение     | Лояльн.\r\n",ch);
 			SendMsgToChar("Персонаж            | Здоровье |Рядом| Аффект | Положение\r\n", ch);
@@ -1010,8 +1010,7 @@ void print_one_line(CharData *ch, CharData *k, int leader, int header) {
 		act(buf, false, ch, nullptr, k, kToChar);
 	} else {
 		if (!header)
-			SendMsgToChar
-				("Персонаж            | Здоровье |Энергия|Рядом|Учить| Аффект | Кто | Держит строй | Положение \r\n",
+			SendMsgToChar("Персонаж            | Здоровье |Энергия|Рядом|Учить| Аффект | Кто | Держит строй | Положение \r\n",
 				 ch);
 
 		std::string name = GET_NAME(k);
@@ -1074,7 +1073,7 @@ void print_one_line(CharData *ch, CharData *k, int leader, int header) {
 				CCIBLU(ch, C_NRM),
 				AFF_FLAGGED(k, EAffect::kFly) ? "Л" : " ",
 				CCYEL(ch, C_NRM),
-				k->ahorse() ? "В" : " ",
+				k->IsOnHorse() ? "В" : " ",
 				CCNRM(ch, C_NRM));
 
 		sprintf(buf + strlen(buf), "%5s|", leader ? "Лидер" : "");
@@ -1120,7 +1119,7 @@ void print_group(CharData *ch) {
 	struct Follower *f, *g;
 
 	k = ch->has_master() ? ch->get_master() : ch;
-	if (!ch->is_npc())
+	if (!ch->IsNpc())
 		ch->desc->msdp_report(msdp::constants::GROUP);
 
 	if (AFF_FLAGGED(ch, EAffect::kGroup)) {
@@ -1166,7 +1165,7 @@ void print_group(CharData *ch) {
 
 				// shapirus: при включенном режиме не показываем клонов и хранителей
 				if (PRF_FLAGGED(ch, EPrf::kNoClones)
-					&& f->ch->is_npc()
+					&& f->ch->IsNpc()
 					&& (MOB_FLAGGED(f->ch, EMobFlag::kClone)
 						|| GET_MOB_VNUM(f->ch) == kMobKeeper)) {
 					continue;
@@ -1187,7 +1186,7 @@ void print_group(CharData *ch) {
 
 				// shapirus: при включенном режиме не показываем клонов и хранителей
 				if (PRF_FLAGGED(ch, EPrf::kNoClones)
-					&& g->ch->is_npc()
+					&& g->ch->IsNpc()
 					&& (MOB_FLAGGED(g->ch, EMobFlag::kClone)
 						|| GET_MOB_VNUM(g->ch) == kMobKeeper)) {
 					continue;
@@ -1264,11 +1263,11 @@ void do_group(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		// added by WorM (Видолюб) Если найден клон и его хозяин персонаж
 		// а то чото как-то глючно Двойник %1 не является членом вашей группы.
 		if (vict
-			&& vict->is_npc()
+			&& vict->IsNpc()
 			&& MOB_FLAGGED(vict, EMobFlag::kClone)
 			&& AFF_FLAGGED(vict, EAffect::kCharmed)
 			&& vict->has_master()
-			&& !vict->get_master()->is_npc()) {
+			&& !vict->get_master()->IsNpc()) {
 			if (CAN_SEE(ch, vict->get_master())) {
 				vict = vict->get_master();
 			} else {
@@ -1340,7 +1339,7 @@ void do_ungroup(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				f->ch->removeGroupFlags();
 				SendMsgToChar(buf2, f->ch);
 				if (!AFF_FLAGGED(f->ch, EAffect::kCharmed)
-					&& !(f->ch->is_npc()
+					&& !(f->ch->IsNpc()
 						&& AFF_FLAGGED(f->ch, EAffect::kHorse))) {
 					stop_follower(f->ch, kSfEmpty);
 				}
@@ -1426,7 +1425,7 @@ void do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, int cur
 	CharData *k;
 	struct Follower *f;
 
-	if (ch->is_npc())
+	if (ch->IsNpc())
 		return;
 
 	one_argument(argument, buf);
@@ -1462,7 +1461,7 @@ void do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, int cur
 
 		for (f = k->followers; f; f = f->next) {
 			if (AFF_FLAGGED(f->ch, EAffect::kGroup)
-				&& !f->ch->is_npc()
+				&& !f->ch->IsNpc()
 				&& IN_ROOM(f->ch) == ch->in_room) {
 				num++;
 			}
@@ -1486,7 +1485,7 @@ void do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, int cur
 
 		sprintf(buf, "%s разделил%s %d %s; вам досталось %d.\r\n",
 				GET_NAME(ch), GET_CH_SUF_1(ch), amount, GetDeclensionInNumber(amount, what_currency), share);
-		if (AFF_FLAGGED(k, EAffect::kGroup) && IN_ROOM(k) == ch->in_room && !k->is_npc() && k != ch) {
+		if (AFF_FLAGGED(k, EAffect::kGroup) && IN_ROOM(k) == ch->in_room && !k->IsNpc() && k != ch) {
 			SendMsgToChar(buf, k);
 			switch (currency) {
 				case currency::ICE : {
@@ -1501,7 +1500,7 @@ void do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, int cur
 		}
 		for (f = k->followers; f; f = f->next) {
 			if (AFF_FLAGGED(f->ch, EAffect::kGroup)
-				&& !f->ch->is_npc()
+				&& !f->ch->IsNpc()
 				&& IN_ROOM(f->ch) == ch->in_room
 				&& f->ch != ch) {
 				SendMsgToChar(buf, f->ch);
@@ -1546,7 +1545,7 @@ void do_wimpy(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int wimp_lev;
 
 	// 'wimp_level' is a player_special. -gg 2/25/98
-	if (ch->is_npc())
+	if (ch->IsNpc())
 		return;
 
 	one_argument(argument, arg);
@@ -1568,8 +1567,7 @@ void do_wimpy(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			else if (wimp_lev > GET_REAL_MAX_HIT(ch))
 				SendMsgToChar("Осталось только дожить до такого количества ХП.\r\n", ch);
 			else if (wimp_lev > (GET_REAL_MAX_HIT(ch) / 2))
-				SendMsgToChar
-					("Размечтались. Сбечь то можно, но не более половины максимальных ХП.\r\n", ch);
+				SendMsgToChar("Размечтались. Сбечь то можно, но не более половины максимальных ХП.\r\n", ch);
 			else {
 				sprintf(buf, "Ладушки. Вы сбегите (или сбежите) по достижению %d ХП.\r\n", wimp_lev);
 				SendMsgToChar(buf, ch);
@@ -1580,8 +1578,7 @@ void do_wimpy(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			GET_WIMP_LEV(ch) = 0;
 		}
 	} else
-		SendMsgToChar
-			("Уточните, при достижении какого количества ХП вы планируете сбежать (0 - драться до смерти)\r\n",
+		SendMsgToChar("Уточните, при достижении какого количества ХП вы планируете сбежать (0 - драться до смерти)\r\n",
 			 ch);
 }
 
@@ -1617,7 +1614,7 @@ const char *DISPLAY_HELP =
 	"Формат: статус { { Ж | Э | З | В | Д | У | О | Б | П | К } | все | нет }\r\n";
 
 void do_display(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->is_npc()) {
+	if (ch->IsNpc()) {
 		SendMsgToChar("И зачем это монстру? Не юродствуйте.\r\n", ch);
 		return;
 	}
@@ -1807,7 +1804,7 @@ struct gen_tog_param_type {
 	};
 
 void do_mode(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->is_npc()) {
+	if (ch->IsNpc()) {
 		return;
 	}
 
@@ -1846,7 +1843,7 @@ void do_mode(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 // установки экрана flag: 0 - ширина, 1 - высота
 void SetScreen(CharData *ch, char *argument, int flag) {
-	if (ch->is_npc())
+	if (ch->IsNpc())
 		return;
 	skip_spaces(&argument);
 	int size = atoi(argument);
@@ -1912,14 +1909,14 @@ void setNotifyEchange(CharData *ch, char *argument) {
 	long size = atol(argument);
 	if (size >= 100) {
 		SendMsgToChar(ch,
-					 "Вам будут приходить уведомления о продаже с базара ваших лотов стоимостью не менее чем %ld %s.\r\n",
-					 size,
-					 GetDeclensionInNumber(size, EWhat::kMoneyA));
+					  "Вам будут приходить уведомления о продаже с базара ваших лотов стоимостью не менее чем %ld %s.\r\n",
+					  size,
+					  GetDeclensionInNumber(size, EWhat::kMoneyA));
 		NOTIFY_EXCH_PRICE(ch) = size;
 		ch->save_char();
 	} else if (size >= 0 && size < 100) {
 		SendMsgToChar(ch,
-					 "Вам не будут приходить уведомления о продаже с базара ваших лотов, так как указана цена меньше 100 кун.\r\n");
+					  "Вам не будут приходить уведомления о продаже с базара ваших лотов, так как указана цена меньше 100 кун.\r\n");
 		NOTIFY_EXCH_PRICE(ch) = 0;
 		ch->save_char();
 	} else {
@@ -2045,7 +2042,7 @@ void do_gen_tog(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			 "Режим контроля смены IP-адреса персонажа включен.\r\n"}
 		};
 
-	if (ch->is_npc())
+	if (ch->IsNpc())
 		return;
 
 	switch (subcmd) {
@@ -2183,8 +2180,8 @@ void do_gen_tog(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 				ch->save_char();
 			} else {
 				SendMsgToChar(ch,
-							 "Количество строк для вывода может быть в пределах от 1 до %d.\r\n",
-							 Remember::MAX_REMEMBER_NUM);
+							  "Количество строк для вывода может быть в пределах от 1 до %d.\r\n",
+							  Remember::MAX_REMEMBER_NUM);
 			}
 			return;
 		}
@@ -2223,7 +2220,7 @@ void do_pray(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	ObjData *obj = nullptr;
 	struct TimedSkill timed;
 
-	if (ch->is_npc()) {
+	if (ch->IsNpc()) {
 		return;
 	}
 
@@ -2316,7 +2313,7 @@ void do_pray(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			af.location = i.location;
 			af.bitvector = i.bitvector;
 			af.battleflag = i.battleflag;
-			affect_join(ch, af, false, false, false, false);
+			ImposeAffect(ch, af, false, false, false, false);
 		}
 	}
 
@@ -2337,7 +2334,7 @@ void do_pray(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 }
 
 void do_recall(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (ch->is_npc()) {
+	if (ch->IsNpc()) {
 		SendMsgToChar("Монстрам некуда возвращаться!\r\n", ch);
 		return;
 	}
@@ -2404,7 +2401,7 @@ void do_beep(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!*buf)
 		SendMsgToChar("Кого вызывать?\r\n", ch);
-	else if (!(vict = get_char_vis(ch, buf, EFind::kCharInWorld)) || vict->is_npc())
+	else if (!(vict = get_char_vis(ch, buf, EFind::kCharInWorld)) || vict->IsNpc())
 		SendMsgToChar(NOPERSON, ch);
 	else if (ch == vict)
 		SendMsgToChar("\007\007Вы вызвали себя!\r\n", ch);
@@ -2412,7 +2409,7 @@ void do_beep(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вы не можете пищать в режиме обращения.\r\n", ch);
 	else if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kSoundproof))
 		SendMsgToChar("Стены заглушили ваш писк.\r\n", ch);
-	else if (!vict->is_npc() && !vict->desc)    // linkless
+	else if (!vict->IsNpc() && !vict->desc)    // linkless
 		act("$N потерял связь.", false, ch, nullptr, vict, kToChar | kToSleep);
 	else if (PLR_FLAGGED(vict, EPlrFlag::kWriting))
 		act("$N пишет сейчас; Попищите позже.", false, ch, nullptr, vict, kToChar | kToSleep);
@@ -2423,14 +2420,14 @@ void do_beep(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 extern struct IndexData *obj_index;
 
 void do_bandage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (ch->is_npc()) {
+	if (ch->IsNpc()) {
 		return;
 	}
 	if (GET_HIT(ch) == GET_REAL_MAX_HIT(ch)) {
 		SendMsgToChar("Вы не нуждаетесь в перевязке!\r\n", ch);
 		return;
 	}
-	if (ch->get_fighting()) {
+	if (ch->GetEnemy()) {
 		SendMsgToChar("Вы не можете перевязывать раны во время боя!\r\n", ch);
 		return;
 	}
@@ -2465,14 +2462,14 @@ void do_bandage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	af.duration = CalcDuration(ch, 10, 0, 0, 0, 0);
 	af.bitvector = to_underlying(EAffect::kBandage);
 	af.battleflag = kAfPulsedec;
-	affect_join(ch, af, false, false, false, false);
+	ImposeAffect(ch, af, false, false, false, false);
 
 	af.type = kSpellNoBandage;
 	af.location = EApply::kNone;
 	af.duration = CalcDuration(ch, 60, 0, 0, 0, 0);
 	af.bitvector = to_underlying(EAffect::kCannotBeBandaged);
 	af.battleflag = kAfPulsedec;
-	affect_join(ch, af, false, false, false, false);
+	ImposeAffect(ch, af, false, false, false, false);
 
 	bandage->set_weight(bandage->get_weight() - 1);
 	IS_CARRYING_W(ch) -= 1;

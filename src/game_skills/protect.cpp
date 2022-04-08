@@ -32,11 +32,11 @@ void do_protect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (ch->is_npc() || !ch->get_skill(ESkill::kProtect)) {
+	if (ch->IsNpc() || !ch->get_skill(ESkill::kProtect)) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::kProtect)) {
+	if (ch->HasCooldown(ESkill::kProtect)) {
 		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
@@ -52,34 +52,34 @@ void do_protect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (ch->get_fighting() == vict) {
+	if (ch->GetEnemy() == vict) {
 		SendMsgToChar("Вы явно пацифист, или мазохист.\r\n", ch);
 		return;
 	}
 
 	CharData *tch = nullptr;
 	for (const auto i : world[ch->in_room]->people) {
-		if (i->get_fighting() == vict) {
+		if (i->GetEnemy() == vict) {
 			tch = i;
 			break;
 		}
 	}
 
-	if (vict->is_npc() && tch
-		&& (!tch->is_npc()
+	if (vict->IsNpc() && tch
+		&& (!tch->IsNpc()
 			|| (AFF_FLAGGED(tch, EAffect::kCharmed)
 				&& tch->has_master()
-				&& !tch->get_master()->is_npc()))
-		&& (!ch->is_npc()
+				&& !tch->get_master()->IsNpc()))
+		&& (!ch->IsNpc()
 			|| (AFF_FLAGGED(ch, EAffect::kCharmed)
 				&& ch->has_master()
-				&& !ch->get_master()->is_npc()))) {
+				&& !ch->get_master()->IsNpc()))) {
 		SendMsgToChar("Вы пытаетесь прикрыть чужого противника.\r\n", ch);
 		return;
 	}
 
 	for (const auto tch : world[ch->in_room]->people) {
-		if (tch->get_fighting() == vict && !may_kill_here(ch, tch, argument)) {
+		if (tch->GetEnemy() == vict && !may_kill_here(ch, tch, argument)) {
 			return;
 		}
 	}
@@ -92,7 +92,7 @@ CharData *TryToFindProtector(CharData *victim, CharData *ch) {
 	int prob = 0;
 	bool protect = false;
 
-	if (ch->get_fighting() == victim)
+	if (ch->GetEnemy() == victim)
 		return victim;
 
 	for (const auto vict : world[IN_ROOM(victim)]->people) {
@@ -120,14 +120,14 @@ CharData *TryToFindProtector(CharData *victim, CharData *ch) {
 				af.modifier = 0;
 				af.duration = CalcDuration(vict, 1, 0, 0, 0, 0);
 				af.battleflag = kAfBattledec | kAfPulsedec;
-				affect_join(vict, af, true, false, true, false);
+				ImposeAffect(vict, af, true, false, true, false);
 				return victim;
 			}
 
 			if (protect) {
 				SendMsgToChar(vict,
-							 "Чьи-то широкие плечи помешали вам прикрыть %s.\r\n",
-							 GET_PAD(vict->get_protecting(), 3));
+							  "Чьи-то широкие плечи помешали вам прикрыть %s.\r\n",
+							  GET_PAD(vict->get_protecting(), 3));
 				continue;
 			}
 
@@ -135,7 +135,7 @@ CharData *TryToFindProtector(CharData *victim, CharData *ch) {
 			percent = number(1, MUD::Skills()[ESkill::kProtect].difficulty);
 			prob = CalcCurrentSkill(vict, ESkill::kProtect, victim);
 			prob = prob * 8 / 10;
-			if (vict->haveCooldown(ESkill::kProtect)) {
+			if (vict->HasCooldown(ESkill::kProtect)) {
 				prob /= 2;
 			};
 			if (GET_GOD_FLAG(vict, EGf::kGodscurse)) {
@@ -145,7 +145,7 @@ CharData *TryToFindProtector(CharData *victim, CharData *ch) {
 			ImproveSkill(vict, ESkill::kProtect, success, ch);
 			SendSkillBalanceMsg(ch, MUD::Skills()[ESkill::kProtect].name, percent, prob, success);
 
-			if ((vict->get_fighting() != ch) && (ch != victim)) {
+			if ((vict->GetEnemy() != ch) && (ch != victim)) {
 				// агрим жертву после чего можно будет проверить возможно ли его здесь прикрыть(костыли конечно)
 				if (!pk_agro_action(ch, victim))
 					return victim;
@@ -153,7 +153,7 @@ CharData *TryToFindProtector(CharData *victim, CharData *ch) {
 					continue;
 				// Вписываемся в противника прикрываемого ...
 				stop_fighting(vict, false);
-				set_fighting(vict, ch);
+				SetFighting(vict, ch);
 			}
 
 			if (!success) {

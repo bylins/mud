@@ -47,20 +47,20 @@ void go_disarm(CharData *ch, CharData *vict) {
 	SendSkillBalanceMsg(ch, MUD::Skills()[ESkill::kDisarm].name, percent, prob, success);
 	if (!success || GET_EQ(vict, pos)->has_flag(EObjFlag::kNodisarm)) {
 		SendMsgToChar(ch,
-					 "%sВы не сумели обезоружить %s...%s\r\n",
-					 CCWHT(ch, C_NRM),
-					 GET_PAD(vict, 3),
-					 CCNRM(ch, C_NRM));
+					  "%sВы не сумели обезоружить %s...%s\r\n",
+					  CCWHT(ch, C_NRM),
+					  GET_PAD(vict, 3),
+					  CCNRM(ch, C_NRM));
 		prob = 3;
 	} else {
 		wielded = GET_EQ(vict, pos);
 		SendMsgToChar(ch, "%sВы ловко выбили %s из рук %s!%s\r\n",
-					 CCIBLU(ch, C_NRM), wielded->get_PName(3).c_str(), GET_PAD(vict, 1), CCNRM(ch, C_NRM));
+					  CCIBLU(ch, C_NRM), wielded->get_PName(3).c_str(), GET_PAD(vict, 1), CCNRM(ch, C_NRM));
 		SendMsgToChar(vict, "Ловкий удар %s выбил %s%s из ваших рук.\r\n",
-					 GET_PAD(ch, 1), wielded->get_PName(3).c_str(), char_get_custom_label(wielded, vict).c_str());
+					  GET_PAD(ch, 1), wielded->get_PName(3).c_str(), char_get_custom_label(wielded, vict).c_str());
 		act("$n ловко выбил$g $o3 из рук $N1.", true, ch, wielded, vict, kToNotVict | kToArenaListen);
 		UnequipChar(vict, pos, CharEquipFlags());
-		SetSkillCooldown(ch, ESkill::kGlobalCooldown, vict->is_npc() ? 1 : 2);
+		SetSkillCooldown(ch, ESkill::kGlobalCooldown, vict->IsNpc() ? 1 : 2);
 		prob = 2;
 
 		if (ROOM_FLAGGED(IN_ROOM(vict), ERoomFlag::kArena) || (!IS_MOB(vict)) || vict->has_master()) {
@@ -72,7 +72,7 @@ void go_disarm(CharData *ch, CharData *vict) {
 	}
 
 	appear(ch);
-	if (vict->is_npc() && CAN_SEE(vict, ch) && vict->have_mind() && ch->get_wait() <= 0) {
+	if (vict->IsNpc() && CAN_SEE(vict, ch) && vict->have_mind() && ch->get_wait() <= 0) {
 		set_hit(vict, ch);
 	}
 	SetSkillCooldown(ch, ESkill::kDisarm, prob);
@@ -80,11 +80,11 @@ void go_disarm(CharData *ch, CharData *vict) {
 }
 
 void do_disarm(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->is_npc() || !ch->get_skill(ESkill::kDisarm)) {
+	if (ch->IsNpc() || !ch->get_skill(ESkill::kDisarm)) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::kDisarm)) {
+	if (ch->HasCooldown(ESkill::kDisarm)) {
 		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
@@ -115,11 +115,11 @@ void do_disarm(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (IS_IMPL(ch) || !ch->get_fighting()) {
+	if (IS_IMPL(ch) || !ch->GetEnemy()) {
 		go_disarm(ch, vict);
 	} else if (IsHaveNoExtraAttack(ch)) {
 		act("Хорошо. Вы попытаетесь разоружить $N3.", false, ch, nullptr, vict, kToChar);
-		ch->set_extra_attack(kExtraAttackDisarm, vict);
+		ch->SetExtraAttack(kExtraAttackDisarm, vict);
 	}
 }
 

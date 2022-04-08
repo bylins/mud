@@ -3,7 +3,7 @@
 
 // ***************** STOPFIGHT
 void do_retreat(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (!ch->get_fighting() || ch->is_npc()) {
+	if (!ch->GetEnemy() || ch->IsNpc()) {
 		SendMsgToChar("Но вы же ни с кем не сражаетесь.\r\n", ch);
 		return;
 	}
@@ -20,7 +20,7 @@ void do_retreat(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 
 	CharData *tmp_ch = nullptr;
 	for (const auto i : world[ch->in_room]->people) {
-		if (i->get_fighting() == ch) {
+		if (i->GetEnemy() == ch) {
 			tmp_ch = i;
 			break;
 		}

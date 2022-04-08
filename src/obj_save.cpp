@@ -1902,7 +1902,7 @@ int Crash_load(CharData *ch) {
 			// Формат новый => используем новую функцию
 			obj = read_one_object_new(&data, &error);
 			if (!obj) {
-				//SendMsgToChar ("Ошибка при чтении - чтение предметов прервано.\r\n", ch);
+				//SendMsgToChar("Ошибка при чтении - чтение предметов прервано.\r\n", ch);
 				SendMsgToChar("Ошибка при чтении файла объектов.\r\n", ch);
 				sprintf(buf, "SYSERR: Objects reading fail for %s error %d, stop reading.", GET_NAME(ch), error);
 				mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
@@ -1913,7 +1913,7 @@ int Crash_load(CharData *ch) {
 			// Формат старый => используем старую функцию
 			obj = read_one_object(&data, &error);
 			if (!obj) {
-				//SendMsgToChar ("Ошибка при чтении - чтение предметов прервано.\r\n", ch);
+				//SendMsgToChar("Ошибка при чтении - чтение предметов прервано.\r\n", ch);
 				SendMsgToChar("Ошибка при чтении файла объектов.\r\n", ch);
 				sprintf(buf, "SYSERR: Objects reading fail for %s error %d, stop reading.",
 						GET_NAME(ch), error);
@@ -2266,7 +2266,7 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 	struct SaveRentInfo rent;
 	int j, num = 0, iplayer = -1, cost;
 
-	if (ch->is_npc())
+	if (ch->IsNpc())
 		return false;
 
 	if ((iplayer = GET_INDEX(ch)) < 0) {
@@ -2454,14 +2454,14 @@ void Crash_rent_deadline(CharData *ch, CharData *recep, long cost) {
 	long depot_cost = static_cast<long>(Depot::get_total_cost_per_day(ch));
 	if (depot_cost) {
 		SendMsgToChar(ch, "\"За вещи в хранилище придется доплатить %ld %s.\"\r\n",
-					 depot_cost, GetDeclensionInNumber(depot_cost, EWhat::kMoneyU));
+					  depot_cost, GetDeclensionInNumber(depot_cost, EWhat::kMoneyU));
 		cost += depot_cost;
 	}
 
 	SendMsgToChar(ch, "\"Постой обойдется тебе в %ld %s.\"\r\n", cost, GetDeclensionInNumber(cost, EWhat::kMoneyU));
 	rent_deadline = ((ch->get_gold() + ch->get_bank()) / cost);
 	SendMsgToChar(ch, "\"Твоих денег хватит на %ld %s.\"\r\n", rent_deadline,
-				 GetDeclensionInNumber(rent_deadline, EWhat::kDay));
+				  GetDeclensionInNumber(rent_deadline, EWhat::kDay));
 }
 
 int Crash_report_unrentables(CharData *ch, CharData *recep, ObjData *obj) {
@@ -2721,7 +2721,7 @@ int gen_receptionist(CharData *ch, CharData *recep, int cmd, char * /*arg*/, int
 	RoomRnum save_room;
 	int cost, rentshow = true;
 
-	if (!ch->desc || ch->is_npc())
+	if (!ch->desc || ch->IsNpc())
 		return (false);
 
 	if (!cmd && !number(0, 5))
@@ -2759,7 +2759,7 @@ int gen_receptionist(CharData *ch, CharData *recep, int cmd, char * /*arg*/, int
 		SendMsgToChar("В связи с боевыми действиями эвакуация временно прекращена.\r\n", ch);
 		return (true);
 	}
-	if (ch->get_fighting()) {
+	if (ch->GetEnemy()) {
 		return (false);
 	}
 	if (free_rent) {
@@ -2863,7 +2863,7 @@ void Crash_frac_save_all(int frac_part) {
 	DescriptorData *d;
 
 	for (d = descriptor_list; d; d = d->next) {
-		if ((STATE(d) == CON_PLAYING) && !d->character->is_npc() && GET_ACTIVITY(d->character) == frac_part) {
+		if ((STATE(d) == CON_PLAYING) && !d->character->IsNpc() && GET_ACTIVITY(d->character) == frac_part) {
 			Crash_crashsave(d->character.get());
 			d->character->save_char();
 			PLR_FLAGS(d->character).unset(EPlrFlag::kCrashSave);
@@ -2890,7 +2890,7 @@ void Crash_save_all_rent(void) {
 	// свои грязные денежки.
 
 	character_list.foreach_on_copy([&](const auto &ch) {
-		if (!ch->is_npc()) {
+		if (!ch->IsNpc()) {
 			save_char_objects(ch.get(), RENT_FORCED, 0);
 			log("Saving char: %s", GET_NAME(ch));
 			PLR_FLAGS(ch).unset(EPlrFlag::kCrashSave);

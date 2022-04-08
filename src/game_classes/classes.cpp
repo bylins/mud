@@ -1144,16 +1144,16 @@ void levelup_events(CharData *ch) {
 		PRF_FLAGS(ch).set(EPrf::kOfftopMode);
 		ch->set_disposable_flag(DIS_OFFTOP_MESSAGE);
 		SendMsgToChar(ch,
-					 "%sТеперь вы можете пользоваться каналом оффтоп ('справка оффтоп').%s\r\n",
-					 CCIGRN(ch, C_SPR), CCNRM(ch, C_SPR));
+					  "%sТеперь вы можете пользоваться каналом оффтоп ('справка оффтоп').%s\r\n",
+					  CCIGRN(ch, C_SPR), CCNRM(ch, C_SPR));
 	}
 	if (EXCHANGE_MIN_CHAR_LEV == GetRealLevel(ch)
 		&& !ch->get_disposable_flag(DIS_EXCHANGE_MESSAGE)) {
 		// по умолчанию базар у всех включен, поэтому не спамим даже однократно
 		if (GET_REAL_REMORT(ch) <= 0) {
 			SendMsgToChar(ch,
-						 "%sТеперь вы можете покупать и продавать вещи на базаре ('справка базар!').%s\r\n",
-						 CCIGRN(ch, C_SPR), CCNRM(ch, C_SPR));
+						  "%sТеперь вы можете покупать и продавать вещи на базаре ('справка базар!').%s\r\n",
+						  CCIGRN(ch, C_SPR), CCNRM(ch, C_SPR));
 		}
 		ch->set_disposable_flag(DIS_EXCHANGE_MESSAGE);
 	}
@@ -1252,7 +1252,7 @@ int invalid_unique(CharData *ch, const ObjData *obj) {
 	}
 	if (!ch
 		|| !obj
-		|| (ch->is_npc()
+		|| (ch->IsNpc()
 			&& !AFF_FLAGGED(ch, EAffect::kCharmed))
 		|| IS_IMMORTAL(ch)
 		|| obj->get_owner() == 0
@@ -1282,7 +1282,7 @@ int invalid_anti_class(CharData *ch, const ObjData *obj) {
 		&& AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		return (true);
 	}
-	if ((ch->is_npc() || IS_IMMORTAL(ch)) && !IS_CHARMICE(ch)) {
+	if ((ch->IsNpc() || IS_IMMORTAL(ch)) && !IS_CHARMICE(ch)) {
 		return (false);
 	}
 	if ((IS_OBJ_ANTI(obj, EAntiFlag::kNoPkClan) && char_to_pk_clan(ch))) {
@@ -1324,7 +1324,7 @@ int invalid_no_class(CharData *ch, const ObjData *obj) {
 	}
 
 	if (!IS_CHARMICE(ch)
-		&& (ch->is_npc()
+		&& (ch->IsNpc()
 			|| IS_IMMORTAL(ch))) {
 		return false;
 	}

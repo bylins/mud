@@ -237,7 +237,7 @@ void Dps::PrintGroupStats(CharData *ch, CharData *coder) {
 	CharData *leader = ch->has_master() ? ch->get_master() : ch;
 	for (Follower *f = leader->followers; f; f = f->next) {
 		if (f->ch
-			&& !f->ch->is_npc()
+			&& !f->ch->IsNpc()
 			&& AFF_FLAGGED(f->ch, EAffect::kGroup)) {
 			AddTmpGroupList(f->ch);
 		}
@@ -418,7 +418,7 @@ void PlayerDpsNode::print_group_charm_stats(CharData *ch) const {
 
 // * Подсчет дамаги за предыдущий раунд, дергается в начале раунда и по окончанию боя.
 void check_round(CharData *ch) {
-	if (!ch->is_npc()) {
+	if (!ch->IsNpc()) {
 		ch->dps_end_round(DpsSystem::PERS_DPS);
 		if (AFF_FLAGGED(ch, EAffect::kGroup)) {
 			CharData *leader = ch->has_master() ? ch->get_master() : ch;
@@ -451,7 +451,7 @@ const char *DMETR_FORMAT =
 * 'дметр очистить группа' - очистка групповой статистики (только лидер).
 */
 void do_dmeter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->is_npc()) {
+	if (ch->IsNpc()) {
 		return;
 	}
 

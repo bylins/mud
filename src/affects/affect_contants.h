@@ -101,7 +101,7 @@ enum class EAffect : Bitvector {
 	kMemorizeSpells = kIntTwo | (1u << 18),
 	kNoobRegen = kIntTwo | (1u << 19),
 	kVampirism = kIntTwo | (1u << 20),
-	kExpediend = kIntTwo | (1u << 21), // не используется, можно переименовать и использовать
+	kLacerations = kIntTwo | (1u << 21),
 	kCommander = kIntTwo | (1u << 22),
 	kEarthAura = kIntTwo | (1u << 23),
 };

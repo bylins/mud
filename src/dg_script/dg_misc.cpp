@@ -96,13 +96,13 @@ int find_dg_cast_target(int spellnum, const char *t, CharData *ch, CharData **tc
 				return true;
 	} else {
 		if (IS_SET(spell_info[spellnum].targets, kTarFightSelf))
-			if (ch->get_fighting() != nullptr) {
+			if (ch->GetEnemy() != nullptr) {
 				*tch = ch;
 				return true;
 			}
 		if (IS_SET(spell_info[spellnum].targets, kTarFightVict))
-			if (ch->get_fighting() != nullptr) {
-				*tch = ch->get_fighting();
+			if (ch->GetEnemy() != nullptr) {
+				*tch = ch->GetEnemy();
 				return true;
 			}
 		if (IS_SET(spell_info[spellnum].targets, kTarCharRoom) && !spell_info[spellnum].violent) {

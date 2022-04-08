@@ -26,7 +26,7 @@ void TopPlayer::Remove(CharData *short_ch) {
 // данная функция работает в том числе и с неполностью загруженным персонажем
 // подробности в комментарии к load_char_ascii
 void TopPlayer::Refresh(CharData *short_ch, bool reboot) {
-	if (short_ch->is_npc()
+	if (short_ch->IsNpc()
 		|| PLR_FLAGS(short_ch).get(EPlrFlag::kFrozen)
 		|| PLR_FLAGS(short_ch).get(EPlrFlag::kDeleted)
 		|| IS_IMMORTAL(short_ch)) {
@@ -136,7 +136,7 @@ void TopPlayer::PrintHelp(CharData *ch) {
 }
 
 void DoBest(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->is_npc()) {
+	if (ch->IsNpc()) {
 		return;
 	}
 

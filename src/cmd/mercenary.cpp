@@ -43,8 +43,8 @@ void doList(CharData *ch, CharData *boss, bool isFavList) {
 	}
 	tell_to_char(boss, ch, buf);
 	SendMsgToChar(ch,
-				 " ##   Имя                                                   \r\n"
-				 "------------------------------------------------------------\r\n");
+				  " ##   Имя                                                   \r\n"
+				  "------------------------------------------------------------\r\n");
 	std::map<int, MERCDATA>::iterator it = m->begin();
 	std::stringstream out;
 	std::string format_str = "%3d)  %-54s\r\n";
@@ -169,7 +169,7 @@ unsigned int getPos(char *arg, CharData *ch, CharData *boss) {
 }
 
 int mercenary(CharData *ch, void * /*me*/, int cmd, char *argument) {
-	if (!ch || !ch->desc || ch->is_npc())
+	if (!ch || !ch->desc || ch->IsNpc())
 		return 0;
 	if (!(CMD_IS("наемник") || CMD_IS("mercenary")))
 		return 0;

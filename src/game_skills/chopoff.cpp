@@ -20,7 +20,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (ch->isHorsePrevents())
+	if (ch->IsHorsePrevents())
 		return;
 
 	if ((GET_POS(vict) < EPosition::kFight)) {
@@ -48,7 +48,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 
 	if (GET_GOD_FLAG(ch, EGf::kGodscurse) ||
 		GET_GOD_FLAG(vict, EGf::kGodsLike) ||
-		vict->ahorse() || GET_POS(vict) < EPosition::kFight || MOB_FLAGGED(vict, EMobFlag::kNoUndercut) || IS_IMMORTAL(vict))
+		vict->IsOnHorse() || GET_POS(vict) < EPosition::kFight || MOB_FLAGGED(vict, EMobFlag::kNoUndercut) || IS_IMMORTAL(vict))
 		prob = 0;
 
 	bool success = percent <= prob;
@@ -68,25 +68,25 @@ void go_chopoff(CharData *ch, CharData *vict) {
 			af.modifier = 50;
 			af.duration = CalcDuration(ch, 3, 0, 0, 0, 0);
 			af.battleflag = kAfBattledec | kAfPulsedec;
-			affect_join(ch, af, false, false, false, false);
+			ImposeAffect(ch, af, false, false, false, false);
 			af.location = EApply::kAffectResist;
-			affect_join(ch, af, false, false, false, false);
+			ImposeAffect(ch, af, false, false, false, false);
 			af.location = EApply::kMagicResist;
-			affect_join(ch, af, false, false, false, false);
+			ImposeAffect(ch, af, false, false, false, false);
 			SendMsgToChar(ch,
-						 "%sВы покатились по земле, пытаясь избежать атак %s.%s\r\n",
-						 CCIGRN(ch, C_NRM),
-						 GET_PAD(vict, 1),
-						 CCNRM(ch, C_NRM));
+						  "%sВы покатились по земле, пытаясь избежать атак %s.%s\r\n",
+						  CCIGRN(ch, C_NRM),
+						  GET_PAD(vict, 1),
+						  CCNRM(ch, C_NRM));
 			act("$n покатил$u по земле, пытаясь избежать ваших атак.", false, ch, nullptr, vict, kToVict);
 			act("$n покатил$u по земле, пытаясь избежать атак $N1.", true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 		}
 	} else {
 		SendMsgToChar(ch,
-					 "%sВы провели подсечку, ловко усадив %s на землю.%s\r\n",
-					 CCIBLU(ch, C_NRM),
-					 GET_PAD(vict, 3),
-					 CCNRM(ch, C_NRM));
+					  "%sВы провели подсечку, ловко усадив %s на землю.%s\r\n",
+					  CCIBLU(ch, C_NRM),
+					  GET_PAD(vict, 3),
+					  CCNRM(ch, C_NRM));
 		act("$n ловко подсек$q вас, усадив на попу.", false, ch, nullptr, vict, kToVict);
 		act("$n ловко подсек$q $N3, уронив $S на землю.", true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 		SetWait(vict, 3, false);
@@ -95,14 +95,14 @@ void go_chopoff(CharData *ch, CharData *vict) {
 			GET_POS(vict) = EPosition::kSit;
 		}
 
-		if (IS_HORSE(vict) && vict->get_master()->ahorse()) {
+		if (IS_HORSE(vict) && vict->get_master()->IsOnHorse()) {
 			vict->drop_from_horse();
 		}
 		prob = 1;
 	}
 
 	appear(ch);
-	if (vict->is_npc() && CAN_SEE(vict, ch) && vict->have_mind() && vict->get_wait() <= 0) {
+	if (vict->IsNpc() && CAN_SEE(vict, ch) && vict->have_mind() && vict->get_wait() <= 0) {
 		set_hit(vict, ch);
 	}
 
@@ -119,12 +119,12 @@ void do_chopoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::kUndercut)) {
+	if (ch->HasCooldown(ESkill::kUndercut)) {
 		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
 
-	if (ch->ahorse()) {
+	if (ch->IsOnHorse()) {
 		SendMsgToChar("Верхом это сделать затруднительно.\r\n", ch);
 		return;
 	}
@@ -145,11 +145,11 @@ void do_chopoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!check_pkill(ch, vict, arg))
 		return;
 
-	if (IS_IMPL(ch) || !ch->get_fighting())
+	if (IS_IMPL(ch) || !ch->GetEnemy())
 		go_chopoff(ch, vict);
 	else if (IsHaveNoExtraAttack(ch)) {
-		if (!ch->is_npc())
+		if (!ch->IsNpc())
 			act("Хорошо. Вы попытаетесь подсечь $N3.", false, ch, nullptr, vict, kToChar);
-		ch->set_extra_attack(kExtraAttackUndercut, vict);
+		ch->SetExtraAttack(kExtraAttackUndercut, vict);
 	}
 }

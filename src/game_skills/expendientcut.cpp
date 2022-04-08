@@ -10,14 +10,31 @@
 
 void ApplyNoFleeAffect(CharData *ch, int duration) {
 	Affect<EApply> noflee;
-	noflee.type = kSpellBattle;
+	noflee.type = kSpellExpedientFail;
 	noflee.bitvector = to_underlying(EAffect::kNoFlee);
 	noflee.location = EApply::kNone;
 	noflee.modifier = 0;
 	noflee.duration = CalcDuration(ch, duration, 0, 0, 0, 0);;
 	noflee.battleflag = kAfBattledec | kAfPulsedec;
-	affect_join(ch, noflee, true, false, true, false);
+	ImposeAffect(ch, noflee, true, false, true, false);
 	SendMsgToChar("Вы выпали из ритма боя.\r\n", ch);
+}
+
+void ApplyDebuffs(AbilitySystem::TechniqueRoll &roll) {
+	Affect<EApply> cut;
+	cut.type = kSpellBattle;
+	cut.duration = CalcDuration(roll.GetActor(), 3 * number(2, 4), 0, 0, 0, 0);;
+	cut.battleflag = kAfBattledec;
+	if (PRF_FLAGGED(roll.GetActor(), EPrf::kPerformSerratedBlade)) {
+		cut.modifier = 1;
+		cut.bitvector = to_underlying(EAffect::kLacerations);
+		cut.location = EApply::kNone;
+	} else {
+		cut.modifier = -std::min(25, number(1, roll.GetActorRating()) / 12) - (roll.IsCriticalSuccess() ? 10 : 0);
+		cut.bitvector = to_underlying(EAffect::kHaemorrhage);
+		cut.location = EApply::kResistVitality;
+	}
+	ImposeAffect(roll.GetRival(), cut, false, true, false, true);
 }
 
 void PerformCutSuccess(AbilitySystem::TechniqueRoll &roll) {
@@ -25,14 +42,9 @@ void PerformCutSuccess(AbilitySystem::TechniqueRoll &roll) {
 		false, roll.GetActor(), nullptr, roll.GetRival(), kToVict);
 	act("$n сделал$g неуловимое движение, сместившись за спину $N1.",
 		true, roll.GetActor(), nullptr, roll.GetRival(), kToNotVict | kToArenaListen);
-	Affect<EApply> cut;
-	cut.type = kSpellBattle;
-	cut.bitvector = to_underlying(EAffect::kHaemorrhage);
-	cut.location = EApply::kResistVitality;
-	cut.modifier = -std::min(25, number(1, roll.GetActorRating())/12) - (roll.IsCriticalSuccess() ? 10 : 0);
-	cut.duration = CalcDuration(roll.GetActor(), 3*number(2, 4), 0, 0, 0, 0);;
-	cut.battleflag = kAfBattledec | kAfPulsedec;
-	affect_join(roll.GetRival(), cut, false, true, false, true);
+	if (!IS_UNDEAD(roll.GetRival()) && GET_RACE(roll.GetRival()) != ENpcRace::kConstruct) {
+		ApplyDebuffs(roll);
+	}
 }
 
 void PerformCutFail(AbilitySystem::TechniqueRoll &roll) {
@@ -49,13 +61,12 @@ void PerformCutFail(AbilitySystem::TechniqueRoll &roll) {
 }
 
 void GoExpedientCut(CharData *ch, CharData *vict) {
-
 	if (IsUnableToAct(ch)) {
 		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
 
-	if (ch->haveCooldown(ESkill::kGlobalCooldown)) {
+	if (ch->HasCooldown(ESkill::kGlobalCooldown)) {
 		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	}
@@ -91,7 +102,7 @@ void GoExpedientCut(CharData *ch, CharData *vict) {
 	damage.wielded = GET_EQ(ch, EEquipPos::kWield);
 	damage.Process(roll.GetActor(), roll.GetRival());
 	damage.dam = dmg;
-	damage.wielded = GET_EQ(ch, kHold);
+	damage.wielded = GET_EQ(ch, EEquipPos::kHold);
 	damage.Process(roll.GetActor(), roll.GetRival());
 	ApplyNoFleeAffect(ch, no_flee_duration);
 	SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 2);
@@ -101,26 +112,24 @@ void SetExtraAttackCut(CharData *ch, CharData *victim) {
 	if (!pk_agro_action(ch, victim)) {
 		return;
 	}
-	if (!ch->get_fighting()) {
+	if (!ch->GetEnemy()) {
 		act("Ваше оружие свистнуло, когда вы бросились на $N3, применив \"порез\".",
 			false, ch, nullptr, victim, kToChar);
-		set_fighting(ch, victim);
-		ch->set_extra_attack(kExtraAttackCut, victim);
+		SetFighting(ch, victim);
+		ch->SetExtraAttack(kExtraAttackCut, victim);
 	} else {
 		act("Хорошо. Вы попытаетесь порезать $N3.", false, ch, nullptr, victim, kToChar);
-		ch->set_extra_attack(kExtraAttackCut, victim);
+		ch->SetExtraAttack(kExtraAttackCut, victim);
 	}
 }
 
 void DoExpedientCut(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
-
-	if (ch->is_npc() || (!IsAbleToUseFeat(ch, EFeat::kCutting) && !IS_IMPL(ch))) {
+	if (ch->IsNpc() || (!IsAbleToUseFeat(ch, EFeat::kCutting) && !IS_IMPL(ch))) {
 		SendMsgToChar("Вы не владеете таким приемом.\r\n", ch);
 		return;
 	}
 
-	if (ch->ahorse()) {
-		SendMsgToChar("Верхом это сделать затруднительно.\r\n", ch);
+	if (ch->IsHorsePrevents()) {
 		return;
 	}
 
@@ -145,7 +154,7 @@ void DoExpedientCut(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		return;
 	}
 
-	if (ch->get_fighting() && vict->get_fighting() != ch) {
+	if (ch->GetEnemy() && vict->GetEnemy() != ch) {
 		act("$N не сражается с вами, не трогайте $S.", false, ch, nullptr, vict, kToChar);
 		return;
 	}

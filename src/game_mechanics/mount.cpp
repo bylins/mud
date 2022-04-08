@@ -20,7 +20,7 @@ void make_horse(CharData *horse, CharData *ch) {
 void do_horseon(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *horse;
 
-	if (ch->is_npc())
+	if (ch->IsNpc())
 		return;
 
 	if (!ch->get_horse()) {
@@ -28,7 +28,7 @@ void do_horseon(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (ch->ahorse()) {
+	if (ch->IsOnHorse()) {
 		SendMsgToChar("Не пытайтесь усидеть на двух стульях.\r\n", ch);
 		return;
 	}
@@ -70,14 +70,14 @@ void do_horseon(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 void do_horseoff(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	CharData *horse;
 
-	if (ch->is_npc())
+	if (ch->IsNpc())
 		return;
 	if (!(horse = ch->get_horse())) {
 		SendMsgToChar("У вас нет скакуна.\r\n", ch);
 		return;
 	}
 
-	if (!ch->ahorse()) {
+	if (!ch->IsOnHorse()) {
 		SendMsgToChar("Вы ведь и так не на лошади.", ch);
 		return;
 	}
@@ -88,7 +88,7 @@ void do_horseoff(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 void do_horseget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *horse;
 
-	if (ch->is_npc())
+	if (ch->IsNpc())
 		return;
 
 	if (!ch->get_horse()) {
@@ -96,7 +96,7 @@ void do_horseget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (ch->ahorse()) {
+	if (ch->IsOnHorse()) {
 		SendMsgToChar("Вы уже сидите на скакуне.\r\n", ch);
 		return;
 	}
@@ -127,14 +127,14 @@ void do_horseget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 void do_horseput(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *horse;
 
-	if (ch->is_npc())
+	if (ch->IsNpc())
 		return;
 	if (!ch->get_horse()) {
 		SendMsgToChar("У вас нет скакуна.\r\n", ch);
 		return;
 	}
 
-	if (ch->ahorse()) {
+	if (ch->IsOnHorse()) {
 		SendMsgToChar("Вам стоит слезть со скакуна.\r\n", ch);
 		return;
 	}
@@ -164,7 +164,7 @@ void do_horseput(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 void do_horsetake(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *horse = nullptr;
 
-	if (ch->is_npc())
+	if (ch->IsNpc())
 		return;
 
 	if (ch->get_horse()) {
@@ -185,7 +185,7 @@ void do_horsetake(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (horse == nullptr) {
 		SendMsgToChar(NOPERSON, ch);
 		return;
-	} else if (!horse->is_npc()) {
+	} else if (!horse->IsNpc()) {
 		SendMsgToChar("Господи, не чуди...\r\n", ch);
 		return;
 	}
@@ -221,7 +221,7 @@ void do_horsetake(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 void do_givehorse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *horse, *victim;
 
-	if (ch->is_npc())
+	if (ch->IsNpc())
 		return;
 
 	if (!(horse = ch->get_horse())) {
@@ -240,7 +240,7 @@ void do_givehorse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!(victim = get_char_vis(ch, arg, EFind::kCharInRoom))) {
 		SendMsgToChar("Вам некому передать скакуна.\r\n", ch);
 		return;
-	} else if (victim->is_npc()) {
+	} else if (victim->IsNpc()) {
 		SendMsgToChar("Он и без этого обойдется.\r\n", ch);
 		return;
 	}
@@ -248,7 +248,7 @@ void do_givehorse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act("У $N1 уже есть скакун.\r\n", false, ch, 0, victim, kToChar);
 		return;
 	}
-	if (ch->ahorse()) {
+	if (ch->IsOnHorse()) {
 		SendMsgToChar("Вам стоит слезть со скакуна.\r\n", ch);
 		return;
 	}
@@ -268,7 +268,7 @@ void do_givehorse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 void do_stophorse(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	CharData *horse;
 
-	if (ch->is_npc())
+	if (ch->IsNpc())
 		return;
 
 	if (!(horse = ch->get_horse())) {
@@ -279,7 +279,7 @@ void do_stophorse(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 		SendMsgToChar("Ваш скакун далеко от вас.\r\n", ch);
 		return;
 	}
-	if (ch->ahorse()) {
+	if (ch->IsOnHorse()) {
 		SendMsgToChar("Вам стоит слезть со скакуна.\r\n", ch);
 		return;
 	}

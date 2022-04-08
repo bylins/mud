@@ -167,9 +167,8 @@ enum EFeat : int {
 	RESERVED = 134,		//
 	RESERVED = 135,		//
 	RESERVED = 136,		//
-	RESERVED = 137,		//
 */
-
+	kSerratedBlade = 137,		//воровская заточка
 	kEvasion = 138,				//скользский тип
 	kCutting = 139,				//порез
 	kFInesseShot = 140,			//ловкий выстрел

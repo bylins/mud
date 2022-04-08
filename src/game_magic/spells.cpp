@@ -161,7 +161,7 @@ void SpellCreateWater(int/* level*/, CharData *ch, CharData *victim, ObjData *ob
 			}
 		}
 	}
-	if (victim && !victim->is_npc() && !IS_IMMORTAL(victim)) {
+	if (victim && !victim->IsNpc() && !IS_IMMORTAL(victim)) {
 		GET_COND(victim, THIRST) = 0;
 		SendMsgToChar("Вы полностью утолили жажду.\r\n", victim);
 		if (victim != ch) {
@@ -222,7 +222,7 @@ void SpellRecall(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 	RoomRnum to_room = kNowhere, fnd_room = kNowhere;
 	RoomRnum rnum_start, rnum_stop;
 
-	if (!victim || victim->is_npc() || ch->in_room != IN_ROOM(victim) || GetRealLevel(victim) >= kLvlImmortal) {
+	if (!victim || victim->IsNpc() || ch->in_room != IN_ROOM(victim) || GetRealLevel(victim) >= kLvlImmortal) {
 		SendMsgToChar(SUMMON_FAIL, ch);
 		return;
 	}
@@ -239,14 +239,14 @@ void SpellRecall(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 				SendMsgToChar(SUMMON_FAIL, ch);
 				return;
 			}
-		} else if (!ch->is_npc() || (ch->has_master()
-			&& !ch->get_master()->is_npc())) // игроки не в группе и  чармисы по приказу не могут реколить свитком
+		} else if (!ch->IsNpc() || (ch->has_master()
+			&& !ch->get_master()->IsNpc())) // игроки не в группе и  чармисы по приказу не могут реколить свитком
 		{
 			SendMsgToChar(SUMMON_FAIL, ch);
 			return;
 		}
 
-		if ((ch->is_npc() && CalcGeneralSaving(ch, victim, ESaving::kWill, GET_REAL_INT(ch))) || IS_GOD(victim)) {
+		if ((ch->IsNpc() && CalcGeneralSaving(ch, victim, ESaving::kWill, GET_REAL_INT(ch))) || IS_GOD(victim)) {
 			return;
 		}
 	}
@@ -272,8 +272,8 @@ void SpellRecall(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 		return;
 	}
 
-	if (victim->get_fighting() && (victim != ch)) {
-		if (!pk_agro_action(ch, victim->get_fighting()))
+	if (victim->GetEnemy() && (victim != ch)) {
+		if (!pk_agro_action(ch, victim->GetEnemy()))
 			return;
 	}
 	if (!enter_wtrigger(world[fnd_room], ch, -1))
@@ -395,13 +395,13 @@ void SpellPortal(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 	}
 	// пентить чаров <=10 уровня, нельзя так-же нельзя пентать иммов
 	if (!IS_GOD(ch)) {
-		if ((!victim->is_npc() && GetRealLevel(victim) <= 10 && GET_REAL_REMORT(ch) < 9) || IS_IMMORTAL(victim)
+		if ((!victim->IsNpc() && GetRealLevel(victim) <= 10 && GET_REAL_REMORT(ch) < 9) || IS_IMMORTAL(victim)
 			|| AFF_FLAGGED(victim, EAffect::kNoTeleport)) {
 			SendMsgToChar(SUMMON_FAIL, ch);
 			return;
 		}
 	}
-	if (victim->is_npc()) {
+	if (victim->IsNpc()) {
 		SendMsgToChar(SUMMON_FAIL, ch);
 		return;
 	}
@@ -442,7 +442,7 @@ void SpellPortal(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(victim, EGf::kGodscurse)
 		// раньше было <= PK_ACTION_REVENGE, что вызывало абьюз при пенте на чара на арене,
 		// или пенте кидаемой с арены т.к. в данном случае использовалось PK_ACTION_NO которое меньше PK_ACTION_REVENGE
-		|| pkPortal || ((!victim->is_npc() || IS_CHARMICE(ch)) && PRF_FLAGGED(victim, EPrf::KSummonable))
+		|| pkPortal || ((!victim->IsNpc() || IS_CHARMICE(ch)) && PRF_FLAGGED(victim, EPrf::KSummonable))
 		|| same_group(ch, victim)) {
 		if (pkPortal) {
 			pk_increment_revenge(ch, victim);
@@ -505,21 +505,21 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 		return;
 	}
 
-	if (ch->is_npc() && victim->is_npc()) {
+	if (ch->IsNpc() && victim->IsNpc()) {
 		SendMsgToChar(SUMMON_FAIL, ch);
 		return;
 	}
 
 	if (IS_IMMORTAL(victim)) {
-		if (ch->is_npc() || (!ch->is_npc() && GetRealLevel(ch) < GetRealLevel(victim))) {
+		if (ch->IsNpc() || (!ch->IsNpc() && GetRealLevel(ch) < GetRealLevel(victim))) {
 			SendMsgToChar(SUMMON_FAIL, ch);
 			return;
 		}
 	}
 
-	if (!ch->is_npc() && victim->is_npc()) {
+	if (!ch->IsNpc() && victim->IsNpc()) {
 		if (victim->get_master() != ch  //поправим это, тут и так понято что чармис (Кудояр)
-			|| victim->get_fighting()
+			|| victim->GetEnemy()
 			|| GET_POS(victim) < EPosition::kRest) {
 			SendMsgToChar(SUMMON_FAIL, ch);
 			return;
@@ -527,7 +527,7 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 	}
 
 	if (!IS_IMMORTAL(ch)) {
-		if (!ch->is_npc() || IS_CHARMICE(ch)) {
+		if (!ch->IsNpc() || IS_CHARMICE(ch)) {
 			if (AFF_FLAGGED(ch, EAffect::kShield)) {
 				SendMsgToChar(SUMMON_FAIL3, ch);
 				return;
@@ -540,7 +540,7 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 				SendMsgToChar(SUMMON_FAIL, ch);
 				return;
 			}
-			if (victim->get_fighting()) {
+			if (victim->GetEnemy()) {
 				SendMsgToChar(SUMMON_FAIL4, ch);
 				return;
 			}
@@ -549,7 +549,7 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 			SendMsgToChar(SUMMON_FAIL, ch);
 			return;
 		}
-		if (!ch->is_npc() && !victim->is_npc() && GetRealLevel(victim) <= 10) {
+		if (!ch->IsNpc() && !victim->IsNpc() && GetRealLevel(victim) <= 10) {
 			SendMsgToChar(SUMMON_FAIL, ch);
 			return;
 		}
@@ -572,7 +572,7 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 			return;
 		}
 
-		if (!ch->is_npc()) {
+		if (!ch->IsNpc()) {
 			if (ROOM_FLAGGED(vic_room, ERoomFlag::kNoSummonOut)
 				|| ROOM_FLAGGED(vic_room, ERoomFlag::kGodsRoom)
 				|| !Clan::MayEnter(ch, vic_room, kHousePortal)
@@ -589,7 +589,7 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 			}
 		}
 
-		if (ch->is_npc() && number(1, 100) < 30) {
+		if (ch->IsNpc() && number(1, 100) < 30) {
 			return;
 		}
 	}
@@ -609,7 +609,7 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 		k_next = k->next;
 		if (IN_ROOM(k->ch) == vic_room) {
 			if (AFF_FLAGGED(k->ch, EAffect::kCharmed)) {
-				if (!k->ch->get_fighting()) {
+				if (!k->ch->GetEnemy()) {
 					act("$n растворил$u на ваших глазах.",
 						true, k->ch, nullptr, nullptr, kToRoom | kToArenaListen);
 					ExtractCharFromRoom(k->ch);
@@ -704,7 +704,7 @@ void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *o
 		if (i->get_carried_by()) {
 			const auto carried_by = i->get_carried_by();
 			const auto same_zone = world[ch->in_room]->zone_rn == world[carried_by->in_room]->zone_rn;
-			if (!carried_by->is_npc() || same_zone || bloody_corpse) {
+			if (!carried_by->IsNpc() || same_zone || bloody_corpse) {
 				sprintf(buf, "%s наход%sся у %s в инвентаре.\r\n", i->get_short_description().c_str(),
 						GET_OBJ_POLY_1(ch, i), PERS(carried_by, ch, 1));
 			} else {
@@ -725,7 +725,7 @@ void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *o
 			} else {
 				if (!IS_GOD(ch)) {
 					if (i->get_in_obj()->get_carried_by()) {
-						if (i->get_in_obj()->get_carried_by()->is_npc() && i->has_flag(EObjFlag::kNolocate)) {
+						if (i->get_in_obj()->get_carried_by()->IsNpc() && i->has_flag(EObjFlag::kNolocate)) {
 							return false;
 						}
 					}
@@ -737,7 +737,7 @@ void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *o
 					}
 					if (i->get_in_obj()->get_worn_by()) {
 						const auto worn_by = i->get_in_obj()->get_worn_by();
-						if (worn_by->is_npc() && i->has_flag(EObjFlag::kNolocate) && !bloody_corpse) {
+						if (worn_by->IsNpc() && i->has_flag(EObjFlag::kNolocate) && !bloody_corpse) {
 							return false;
 						}
 					}
@@ -750,7 +750,7 @@ void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *o
 		} else if (i->get_worn_by()) {
 			const auto worn_by = i->get_worn_by();
 			const auto same_zone = world[ch->in_room]->zone_rn == world[worn_by->in_room]->zone_rn;
-			if (!worn_by->is_npc() || same_zone || bloody_corpse) {
+			if (!worn_by->IsNpc() || same_zone || bloody_corpse) {
 				sprintf(buf, "%s надет%s на %s.\r\n", i->get_short_description().c_str(),
 						GET_OBJ_SUF_6(i), PERS(worn_by, ch, 3));
 			} else {
@@ -885,7 +885,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 
 	if (victim == ch)
 		SendMsgToChar("Вы просто очарованы своим внешним видом!\r\n", ch);
-	else if (!victim->is_npc()) {
+	else if (!victim->IsNpc()) {
 		SendMsgToChar("Вы не можете очаровать реального игрока!\r\n", ch);
 		if (!pk_agro_action(ch, victim))
 			return;
@@ -912,7 +912,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 		SendMsgToChar("Ваша магия потерпела неудачу.\r\n", ch);
 	else if (IS_HORSE(victim))
 		SendMsgToChar("Это боевой скакун, а не хухры-мухры.\r\n", ch);
-	else if (victim->get_fighting() || GET_POS(victim) < EPosition::kRest)
+	else if (victim->GetEnemy() || GET_POS(victim) < EPosition::kRest)
 		act("$M сейчас, похоже, не до вас.", false, ch, nullptr, victim, kToChar);
 	else if (circle_follow(victim, ch))
 		SendMsgToChar("Следование по кругу запрещено.\r\n", ch);
@@ -1349,9 +1349,9 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 
 		act("$n покорил$g ваше сердце настолько, что вы готовы на все ради н$s.",
 			false, ch, nullptr, victim, kToVict);
-		if (victim->is_npc()) {
+		if (victim->IsNpc()) {
 //Eli. Раздеваемся.
-			if (victim->is_npc() && !MOB_FLAGGED(victim, EMobFlag::kSummoned)) { // только если не маг зверьки (Кудояр)
+			if (victim->IsNpc() && !MOB_FLAGGED(victim, EMobFlag::kSummoned)) { // только если не маг зверьки (Кудояр)
 				for (int i = 0; i < EEquipPos::kNumEquipPos; i++) {
 					if (GET_EQ(victim, i)) {
 						if (!remove_otrigger(GET_EQ(victim, i), victim)) {
@@ -1414,10 +1414,10 @@ void print_book_uprgd_skill(CharData *ch, const ObjData *obj) {
 	}
 	if (GET_OBJ_VAL(obj, 3) > 0) {
 		SendMsgToChar(ch, "повышает умение \"%s\" (максимум %d)\r\n",
-					 MUD::Skills()[skill_id].GetName(), GET_OBJ_VAL(obj, 3));
+					  MUD::Skills()[skill_id].GetName(), GET_OBJ_VAL(obj, 3));
 	} else {
 		SendMsgToChar(ch, "повышает умение \"%s\" (не больше максимума текущего перевоплощения)\r\n",
-					 MUD::Skills()[skill_id].GetName());
+					  MUD::Skills()[skill_id].GetName());
 	}
 }
 
@@ -1475,10 +1475,10 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 
 	if (obj->get_auto_mort_req() > 0) {
 		SendMsgToChar(ch, "Требует перевоплощений : %s%d%s\r\n",
-					 CCCYN(ch, C_NRM), obj->get_auto_mort_req(), CCNRM(ch, C_NRM));
+					  CCCYN(ch, C_NRM), obj->get_auto_mort_req(), CCNRM(ch, C_NRM));
 	} else if (obj->get_auto_mort_req() < -1) {
 		SendMsgToChar(ch, "Максимальное количество перевоплощение : %s%d%s\r\n",
-					 CCCYN(ch, C_NRM), abs(obj->get_minimum_remorts()), CCNRM(ch, C_NRM));
+					  CCCYN(ch, C_NRM), abs(obj->get_minimum_remorts()), CCNRM(ch, C_NRM));
 	}
 
 	if (fullness < 60)
@@ -1746,8 +1746,8 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 			found = true;
 		}
 		SendMsgToChar(ch, "%s   %s вес предмета на %d%s\r\n", CCCYN(ch, C_NRM),
-					 GET_OBJ_VAL(obj, 0) > 0 ? "увеличивает" : "уменьшает",
-					 abs(GET_OBJ_VAL(obj, 0)), CCNRM(ch, C_NRM));
+					  GET_OBJ_VAL(obj, 0) > 0 ? "увеличивает" : "уменьшает",
+					  abs(GET_OBJ_VAL(obj, 0)), CCNRM(ch, C_NRM));
 	}
 
 	if (obj->has_skills()) {
@@ -1807,14 +1807,14 @@ void mort_show_char_values(CharData *victim, CharData *ch, int fullness) {
 
 	sprintf(buf, "Имя: %s\r\n", GET_NAME(victim));
 	SendMsgToChar(buf, ch);
-	if (!victim->is_npc() && victim == ch) {
+	if (!victim->IsNpc() && victim == ch) {
 		sprintf(buf, "Написание : %s/%s/%s/%s/%s/%s\r\n",
 				GET_PAD(victim, 0), GET_PAD(victim, 1), GET_PAD(victim, 2),
 				GET_PAD(victim, 3), GET_PAD(victim, 4), GET_PAD(victim, 5));
 		SendMsgToChar(buf, ch);
 	}
 
-	if (!victim->is_npc() && victim == ch) {
+	if (!victim->IsNpc() && victim == ch) {
 		sprintf(buf,
 				"Возраст %s  : %d лет, %d месяцев, %d дней и %d часов.\r\n",
 				GET_PAD(victim, 1), age(victim)->year, age(victim)->month,
@@ -1852,11 +1852,11 @@ void mort_show_char_values(CharData *victim, CharData *ch, int fullness) {
 		return;
 
 	SendMsgToChar(ch, "Атака : %d, Повреждения : %d\r\n",
-				 GET_HR(victim), GET_DR(victim));
+				  GET_HR(victim), GET_DR(victim));
 	SendMsgToChar(ch, "Защита : %d, Броня : %d, Поглощение : %d\r\n",
-				 compute_armor_class(victim), GET_ARMOUR(victim), GET_ABSORBE(victim));
+				  compute_armor_class(victim), GET_ARMOUR(victim), GET_ABSORBE(victim));
 
-	if (fullness < 100 || (ch != victim && !victim->is_npc()))
+	if (fullness < 100 || (ch != victim && !victim->IsNpc()))
 		return;
 
 	val0 = victim->get_str();
@@ -1869,7 +1869,7 @@ void mort_show_char_values(CharData *victim, CharData *ch, int fullness) {
 	sprintf(buf + strlen(buf), "Ловк: %d, Тел: %d, Обаян: %d\r\n", val0, val1, val2);
 	SendMsgToChar(buf, ch);
 
-	if (fullness < 120 || (ch != victim && !victim->is_npc()))
+	if (fullness < 120 || (ch != victim && !victim->IsNpc()))
 		return;
 
 	int found = false;
@@ -2000,7 +2000,7 @@ void SpellFear(int/* level*/, CharData *ch, CharData *victim, ObjData* /*obj*/) 
 		if (!pk_agro_action(ch, victim))
 			return;
 	}
-	if (!ch->is_npc() && (GetRealLevel(ch) > 10))
+	if (!ch->IsNpc() && (GetRealLevel(ch) > 10))
 		modi += (GetRealLevel(ch) - 10);
 	if (PRF_FLAGGED(ch, EPrf::kAwake))
 		modi = modi - 50;
@@ -2020,7 +2020,7 @@ void SpellEnergydrain(int/* level*/, CharData *ch, CharData *victim, ObjData* /*
 		if (!pk_agro_action(ch, victim))
 			return;
 	}
-	if (!ch->is_npc() && (GetRealLevel(ch) > 10))
+	if (!ch->IsNpc() && (GetRealLevel(ch) > 10))
 		modi += (GetRealLevel(ch) - 10);
 	if (PRF_FLAGGED(ch, EPrf::kAwake))
 		modi = modi - 50;
@@ -2066,9 +2066,9 @@ void SpellSacrifice(int/* level*/, CharData *ch, CharData *victim, ObjData* /*ob
 		return;
 
 	do_sacrifice(ch, dam);
-	if (!ch->is_npc()) {
+	if (!ch->IsNpc()) {
 		for (f = ch->followers; f; f = f->next) {
-			if (f->ch->is_npc()
+			if (f->ch->IsNpc()
 				&& AFF_FLAGGED(f->ch, EAffect::kCharmed)
 				&& MOB_FLAGGED(f->ch, EMobFlag::kCorpse)
 				&& ch->in_room == IN_ROOM(f->ch)) {
@@ -2087,7 +2087,7 @@ void SpellHolystrike(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData*
 
 	const auto people_copy = world[ch->in_room]->people;
 	for (const auto tch : people_copy) {
-		if (tch->is_npc()) {
+		if (tch->IsNpc()) {
 			if (!MOB_FLAGGED(tch, EMobFlag::kCorpse)
 				&& GET_RACE(tch) != ENpcRace::kZombie
 				&& GET_RACE(tch) != ENpcRace::kBoggart) {
@@ -2492,7 +2492,7 @@ std::string get_wear_off_text(ESpell spell)
 		{kSpellFullFeed, "Вам снова захотелось жареного, да с дымком."},
 		{kSpellColdWind, "Вы согрелись и подвижность вернулась к вам."},
 		{kSpellBattle, "К вам вернулась способность нормально сражаться."},
-		{kSpellHaemorragis, "Ваши кровоточащие раны затянулись."},
+		{kSpellHaemorrhage, "Ваши кровоточащие раны затянулись."},
 		{kSpellCourage, "Вы успокоились."},
 		{kSpellWaterbreath, "Вы более не способны дышать водой."},
 		{kSpellSlowdown, "Медлительность исчезла."},
@@ -2629,7 +2629,8 @@ std::string get_wear_off_text(ESpell spell)
 		{kSpellWarcryOfPhysdamage, "Действие клича 'точность' закончилось."},
 		{kSpellMassFailure, "Удача снова повернулась к вам лицом... и залепила пощечину."},
 		{kSpellSnare, "Покрывавшие вас сети колдовской западни растаяли."},
-		{kSpellQUest, "Наложенные на вас чары рассеялись."}
+		{kSpellQUest, "Наложенные на вас чары рассеялись."},
+		{kSpellExpedientFail, "Вы восстановили равновесие."}
 	};
 
 	if (!spell_to_text.count(spell)) {
@@ -2753,7 +2754,7 @@ std::optional<CastPhraseList> get_cast_phrase(int spell)
 		{kSpellFullFeed, {"брюхо полно", "... душа больше пищи, и тело - одежды."}},
 		{kSpellColdWind, {"веют ветры", "... подует северный холодный ветер."}},
 		{kSpellBattle, {"", ""}},
-		{kSpellHaemorragis, {"", ""}},
+		{kSpellHaemorrhage, {"", ""}},
 		{kSpellCourage, {"", ""}},
 		{kSpellWaterbreath, {"не затвори темне березе", "... дух дышит, где хочет."}},
 		{kSpellSlowdown, {"немочь", "...и помедлил еще семь дней других."}},
@@ -2925,7 +2926,9 @@ std::optional<CastPhraseList> get_cast_phrase(int spell)
 		{kSpellMassFailure, {"...отче Велес, очи отвержеши!",
 							 "...надежда тщетна: не упадешь ли от одного взгляда его?"}},
 		{kSpellSnare, {"Заклинати поврещение в сети заскопиены!",
-					   "...будет трапеза их сетью им, и мирное пиршество их - западнею."}}
+					   "...будет трапеза их сетью им, и мирное пиршество их - западнею."}},
+		 {kSpellExpedientFail, {"!Провалил боевой прием!",
+						"!Провалил боевой прием!"}}
 	};
 
 	if (!cast_to_text.count(static_cast<ESpell>(spell))) {
@@ -2943,246 +2946,247 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_value_by_name.clear();
 	ESpell_name_by_value.clear();
 
-	ESpell_name_by_value[ESpell::kSpellNoSpell] = "SPELL_NO_SPELL";
-	ESpell_name_by_value[ESpell::kSpellArmor] = "SPELL_ARMOR";
-	ESpell_name_by_value[ESpell::kSpellTeleport] = "SPELL_TELEPORT";
-	ESpell_name_by_value[ESpell::kSpellBless] = "SPELL_BLESS";
-	ESpell_name_by_value[ESpell::kSpellBlindness] = "SPELL_BLINDNESS";
-	ESpell_name_by_value[ESpell::kSpellBurningHands] = "SPELL_BURNING_HANDS";
-	ESpell_name_by_value[ESpell::kSpellCallLighting] = "SPELL_CALL_LIGHTNING";
-	ESpell_name_by_value[ESpell::kSpellCharm] = "SPELL_CHARM";
-	ESpell_name_by_value[ESpell::kSpellChillTouch] = "SPELL_CHILL_TOUCH";
-	ESpell_name_by_value[ESpell::kSpellClone] = "SPELL_CLONE";
-	ESpell_name_by_value[ESpell::kSpellIceBolts] = "SPELL_COLOR_SPRAY";
-	ESpell_name_by_value[ESpell::kSpellControlWeather] = "SPELL_CONTROL_WEATHER";
-	ESpell_name_by_value[ESpell::kSpellCreateFood] = "SPELL_CREATE_FOOD";
-	ESpell_name_by_value[ESpell::kSpellCreateWater] = "SPELL_CREATE_WATER";
-	ESpell_name_by_value[ESpell::kSpellCureBlind] = "SPELL_CURE_BLIND";
-	ESpell_name_by_value[ESpell::kSpellCureCritic] = "SPELL_CURE_CRITIC";
-	ESpell_name_by_value[ESpell::kSpellCureLight] = "SPELL_CURE_LIGHT";
-	ESpell_name_by_value[ESpell::kSpellCurse] = "SPELL_CURSE";
-	ESpell_name_by_value[ESpell::kSpellDetectAlign] = "SPELL_DETECT_ALIGN";
-	ESpell_name_by_value[ESpell::kSpellDetectInvis] = "SPELL_DETECT_INVIS";
-	ESpell_name_by_value[ESpell::kSpellDetectMagic] = "SPELL_DETECT_MAGIC";
-	ESpell_name_by_value[ESpell::kSpellDetectPoison] = "SPELL_DETECT_POISON";
-	ESpell_name_by_value[ESpell::kSpellDispelEvil] = "SPELL_DISPEL_EVIL";
-	ESpell_name_by_value[ESpell::kSpellEarthquake] = "SPELL_EARTHQUAKE";
-	ESpell_name_by_value[ESpell::kSpellEnchantWeapon] = "SPELL_ENCHANT_WEAPON";
-	ESpell_name_by_value[ESpell::kSpellEnergyDrain] = "SPELL_ENERGY_DRAIN";
-	ESpell_name_by_value[ESpell::kSpellFireball] = "SPELL_FIREBALL";
-	ESpell_name_by_value[ESpell::kSpellHarm] = "SPELL_HARM";
-	ESpell_name_by_value[ESpell::kSpellHeal] = "SPELL_HEAL";
-	ESpell_name_by_value[ESpell::kSpellInvisible] = "SPELL_INVISIBLE";
-	ESpell_name_by_value[ESpell::kSpellLightingBolt] = "SPELL_LIGHTNING_BOLT";
-	ESpell_name_by_value[ESpell::kSpellLocateObject] = "SPELL_LOCATE_OBJECT";
-	ESpell_name_by_value[ESpell::kSpellMagicMissile] = "SPELL_MAGIC_MISSILE";
-	ESpell_name_by_value[ESpell::kSpellPoison] = "SPELL_POISON";
-	ESpell_name_by_value[ESpell::kSpellProtectFromEvil] = "SPELL_PROT_FROM_EVIL";
-	ESpell_name_by_value[ESpell::kSpellRemoveCurse] = "SPELL_REMOVE_CURSE";
-	ESpell_name_by_value[ESpell::kSpellSanctuary] = "SPELL_SANCTUARY";
-	ESpell_name_by_value[ESpell::kSpellShockingGasp] = "SPELL_SHOCKING_GRASP";
-	ESpell_name_by_value[ESpell::kSpellSleep] = "SPELL_SLEEP";
-	ESpell_name_by_value[ESpell::kSpellStrength] = "SPELL_STRENGTH";
-	ESpell_name_by_value[ESpell::kSpellSummon] = "SPELL_SUMMON";
-	ESpell_name_by_value[ESpell::kSpellPatronage] = "SPELL_PATRONAGE";
-	ESpell_name_by_value[ESpell::kSpellWorldOfRecall] = "SPELL_WORD_OF_RECALL";
-	ESpell_name_by_value[ESpell::kSpellRemovePoison] = "SPELL_REMOVE_POISON";
-	ESpell_name_by_value[ESpell::kSpellSenseLife] = "SPELL_SENSE_LIFE";
-	ESpell_name_by_value[ESpell::kSpellAnimateDead] = "SPELL_ANIMATE_DEAD";
-	ESpell_name_by_value[ESpell::kSpellDispelGood] = "SPELL_DISPEL_GOOD";
-	ESpell_name_by_value[ESpell::kSpellGroupArmor] = "SPELL_GROUP_ARMOR";
-	ESpell_name_by_value[ESpell::kSpellGroupHeal] = "SPELL_GROUP_HEAL";
-	ESpell_name_by_value[ESpell::kSpellGroupRecall] = "SPELL_GROUP_RECALL";
-	ESpell_name_by_value[ESpell::kSpellInfravision] = "SPELL_INFRAVISION";
-	ESpell_name_by_value[ESpell::kSpellWaterwalk] = "SPELL_WATERWALK";
-	ESpell_name_by_value[ESpell::kSpellCureSerious] = "SPELL_CURE_SERIOUS";
-	ESpell_name_by_value[ESpell::kSpellGroupStrength] = "SPELL_GROUP_STRENGTH";
-	ESpell_name_by_value[ESpell::kSpellHold] = "SPELL_HOLD";
-	ESpell_name_by_value[ESpell::kSpellPowerHold] = "SPELL_POWER_HOLD";
-	ESpell_name_by_value[ESpell::kSpellMassHold] = "SPELL_MASS_HOLD";
-	ESpell_name_by_value[ESpell::kSpellFly] = "SPELL_FLY";
-	ESpell_name_by_value[ESpell::kSpellBrokenChains] = "SPELL_BROKEN_CHAINS";
-	ESpell_name_by_value[ESpell::kSpellNoflee] = "SPELL_NOFLEE";
-	ESpell_name_by_value[ESpell::kSpellCreateLight] = "SPELL_CREATE_LIGHT";
-	ESpell_name_by_value[ESpell::kSpellDarkness] = "SPELL_DARKNESS";
-	ESpell_name_by_value[ESpell::kSpellStoneSkin] = "SPELL_STONESKIN";
-	ESpell_name_by_value[ESpell::kSpellCloudly] = "SPELL_CLOUDLY";
-	ESpell_name_by_value[ESpell::kSpellSllence] = "SPELL_SILENCE";
-	ESpell_name_by_value[ESpell::kSpellLight] = "SPELL_LIGHT";
-	ESpell_name_by_value[ESpell::kSpellChainLighting] = "SPELL_CHAIN_LIGHTNING";
-	ESpell_name_by_value[ESpell::kSpellFireBlast] = "SPELL_FIREBLAST";
-	ESpell_name_by_value[ESpell::kSpellGodsWrath] = "SPELL_IMPLOSION";
-	ESpell_name_by_value[ESpell::kSpellWeaknes] = "SPELL_WEAKNESS";
-	ESpell_name_by_value[ESpell::kSpellGroupInvisible] = "SPELL_GROUP_INVISIBLE";
-	ESpell_name_by_value[ESpell::kSpellShadowCloak] = "SPELL_SHADOW_CLOAK";
-	ESpell_name_by_value[ESpell::kSpellAcid] = "SPELL_ACID";
-	ESpell_name_by_value[ESpell::kSpellRepair] = "SPELL_REPAIR";
-	ESpell_name_by_value[ESpell::kSpellEnlarge] = "SPELL_ENLARGE";
-	ESpell_name_by_value[ESpell::kSpellFear] = "SPELL_FEAR";
-	ESpell_name_by_value[ESpell::kSpellSacrifice] = "SPELL_SACRIFICE";
-	ESpell_name_by_value[ESpell::kSpellWeb] = "SPELL_WEB";
-	ESpell_name_by_value[ESpell::kSpellBlink] = "SPELL_BLINK";
-	ESpell_name_by_value[ESpell::kSpellRemoveHold] = "SPELL_REMOVE_HOLD";
-	ESpell_name_by_value[ESpell::kSpellCamouflage] = "SPELL_CAMOUFLAGE";
-	ESpell_name_by_value[ESpell::kSpellPowerBlindness] = "SPELL_POWER_BLINDNESS";
-	ESpell_name_by_value[ESpell::kSpellMassBlindness] = "SPELL_MASS_BLINDNESS";
-	ESpell_name_by_value[ESpell::kSpellPowerSilence] = "SPELL_POWER_SILENCE";
-	ESpell_name_by_value[ESpell::kSpellExtraHits] = "SPELL_EXTRA_HITS";
-	ESpell_name_by_value[ESpell::kSpellResurrection] = "SPELL_RESSURECTION";
-	ESpell_name_by_value[ESpell::kSpellMagicShield] = "SPELL_MAGICSHIELD";
-	ESpell_name_by_value[ESpell::kSpellForbidden] = "SPELL_FORBIDDEN";
-	ESpell_name_by_value[ESpell::kSpellMassSilence] = "SPELL_MASS_SILENCE";
-	ESpell_name_by_value[ESpell::kSpellRemoveSilence] = "SPELL_REMOVE_SILENCE";
-	ESpell_name_by_value[ESpell::kSpellDamageLight] = "SPELL_DAMAGE_LIGHT";
-	ESpell_name_by_value[ESpell::kSpellDamageSerious] = "SPELL_DAMAGE_SERIOUS";
-	ESpell_name_by_value[ESpell::kSpellDamageCritic] = "SPELL_DAMAGE_CRITIC";
-	ESpell_name_by_value[ESpell::kSpellMassCurse] = "SPELL_MASS_CURSE";
-	ESpell_name_by_value[ESpell::kSpellArmageddon] = "SPELL_ARMAGEDDON";
-	ESpell_name_by_value[ESpell::kSpellGroupFly] = "SPELL_GROUP_FLY";
-	ESpell_name_by_value[ESpell::kSpellGroupBless] = "SPELL_GROUP_BLESS";
-	ESpell_name_by_value[ESpell::kSpellResfresh] = "SPELL_REFRESH";
-	ESpell_name_by_value[ESpell::kSpellStunning] = "SPELL_STUNNING";
-	ESpell_name_by_value[ESpell::kSpellHide] = "SPELL_HIDE";
-	ESpell_name_by_value[ESpell::kSpellSneak] = "SPELL_SNEAK";
-	ESpell_name_by_value[ESpell::kSpellDrunked] = "SPELL_DRUNKED";
-	ESpell_name_by_value[ESpell::kSpellAbstinent] = "SPELL_ABSTINENT";
-	ESpell_name_by_value[ESpell::kSpellFullFeed] = "SPELL_FULL";
-	ESpell_name_by_value[ESpell::kSpellColdWind] = "SPELL_CONE_OF_COLD";
-	ESpell_name_by_value[ESpell::kSpellBattle] = "SPELL_BATTLE";
-	ESpell_name_by_value[ESpell::kSpellHaemorragis] = "SPELL_HAEMORRAGIA";
-	ESpell_name_by_value[ESpell::kSpellCourage] = "SPELL_COURAGE";
-	ESpell_name_by_value[ESpell::kSpellWaterbreath] = "SPELL_WATERBREATH";
-	ESpell_name_by_value[ESpell::kSpellSlowdown] = "SPELL_SLOW";
-	ESpell_name_by_value[ESpell::kSpellHaste] = "SPELL_HASTE";
-	ESpell_name_by_value[ESpell::kSpellMassSlow] = "SPELL_MASS_SLOW";
-	ESpell_name_by_value[ESpell::kSpellGroupHaste] = "SPELL_GROUP_HASTE";
-	ESpell_name_by_value[ESpell::kSpellGodsShield] = "SPELL_SHIELD";
-	ESpell_name_by_value[ESpell::kSpellFever] = "SPELL_PLAQUE";
-	ESpell_name_by_value[ESpell::kSpellCureFever] = "SPELL_CURE_PLAQUE";
-	ESpell_name_by_value[ESpell::kSpellAwareness] = "SPELL_AWARNESS";
-	ESpell_name_by_value[ESpell::kSpellReligion] = "SPELL_RELIGION";
-	ESpell_name_by_value[ESpell::kSpellAirShield] = "SPELL_AIR_SHIELD";
-	ESpell_name_by_value[ESpell::kSpellPortal] = "SPELL_PORTAL";
-	ESpell_name_by_value[ESpell::kSpellDispellMagic] = "SPELL_DISPELL_MAGIC";
-	ESpell_name_by_value[ESpell::kSpellSummonKeeper] = "SPELL_SUMMON_KEEPER";
-	ESpell_name_by_value[ESpell::kSpellFastRegeneration] = "SPELL_FAST_REGENERATION";
-	ESpell_name_by_value[ESpell::kSpellCreateWeapon] = "SPELL_CREATE_WEAPON";
-	ESpell_name_by_value[ESpell::kSpellFireShield] = "SPELL_FIRE_SHIELD";
-	ESpell_name_by_value[ESpell::kSpellRelocate] = "SPELL_RELOCATE";
-	ESpell_name_by_value[ESpell::kSpellSummonFirekeeper] = "SPELL_SUMMON_FIREKEEPER";
-	ESpell_name_by_value[ESpell::kSpellIceShield] = "SPELL_ICE_SHIELD";
-	ESpell_name_by_value[ESpell::kSpellIceStorm] = "SPELL_ICESTORM";
-	ESpell_name_by_value[ESpell::kSpellLessening] = "SPELL_ENLESS";
-	ESpell_name_by_value[ESpell::kSpellShineFlash] = "SPELL_SHINEFLASH";
-	ESpell_name_by_value[ESpell::kSpellMadness] = "SPELL_MADNESS";
-	ESpell_name_by_value[ESpell::kSpellGroupMagicGlass] = "SPELL_GROUP_MAGICGLASS";
-	ESpell_name_by_value[ESpell::kSpellCloudOfArrows] = "SPELL_CLOUD_OF_ARROWS";
-	ESpell_name_by_value[ESpell::kSpellVacuum] = "SPELL_VACUUM";
-	ESpell_name_by_value[ESpell::kSpellMeteorStorm] = "SPELL_METEORSTORM";
-	ESpell_name_by_value[ESpell::kSpellStoneHands] = "SPELL_STONEHAND";
-	ESpell_name_by_value[ESpell::kSpellMindless] = "SPELL_MINDLESS";
-	ESpell_name_by_value[ESpell::kSpellPrismaticAura] = "SPELL_PRISMATICAURA";
-	ESpell_name_by_value[ESpell::kSpellEviless] = "SPELL_EVILESS";
-	ESpell_name_by_value[ESpell::kSpellAirAura] = "SPELL_AIR_AURA";
-	ESpell_name_by_value[ESpell::kSpellFireAura] = "SPELL_FIRE_AURA";
-	ESpell_name_by_value[ESpell::kSpellIceAura] = "SPELL_ICE_AURA";
-	ESpell_name_by_value[ESpell::kSpellShock] = "SPELL_SHOCK";
-	ESpell_name_by_value[ESpell::kSpellMagicGlass] = "SPELL_MAGICGLASS";
-	ESpell_name_by_value[ESpell::kSpellGroupSanctuary] = "SPELL_GROUP_SANCTUARY";
-	ESpell_name_by_value[ESpell::kSpellGroupPrismaticAura] = "SPELL_GROUP_PRISMATICAURA";
-	ESpell_name_by_value[ESpell::kSpellDeafness] = "SPELL_DEAFNESS";
-	ESpell_name_by_value[ESpell::kSpellPowerDeafness] = "SPELL_POWER_DEAFNESS";
-	ESpell_name_by_value[ESpell::kSpellRemoveDeafness] = "SPELL_REMOVE_DEAFNESS";
-	ESpell_name_by_value[ESpell::kSpellMassDeafness] = "SPELL_MASS_DEAFNESS";
-	ESpell_name_by_value[ESpell::kSpellDustStorm] = "SPELL_DUSTSTORM";
-	ESpell_name_by_value[ESpell::kSpellEarthfall] = "SPELL_EARTHFALL";
-	ESpell_name_by_value[ESpell::kSpellSonicWave] = "SPELL_SONICWAVE";
-	ESpell_name_by_value[ESpell::kSpellHolystrike] = "SPELL_HOLYSTRIKE";
-	ESpell_name_by_value[ESpell::kSpellSumonAngel] = "SPELL_ANGEL";
-	ESpell_name_by_value[ESpell::kSpellMassFear] = "SPELL_MASS_FEAR";
-	ESpell_name_by_value[ESpell::kSpellFascination] = "SPELL_FASCINATION";
-	ESpell_name_by_value[ESpell::kSpellCrying] = "SPELL_CRYING";
-	ESpell_name_by_value[ESpell::kSpellOblivion] = "SPELL_OBLIVION";
-	ESpell_name_by_value[ESpell::kSpellBurdenOfTime] = "SPELL_BURDEN_OF_TIME";
-	ESpell_name_by_value[ESpell::kSpellGroupRefresh] = "SPELL_GROUP_REFRESH";
-	ESpell_name_by_value[ESpell::kSpellPeaceful] = "SPELL_PEACEFUL";
-	ESpell_name_by_value[ESpell::kSpellMagicBattle] = "SPELL_MAGICBATTLE";
-	ESpell_name_by_value[ESpell::kSpellBerserk] = "SPELL_BERSERK";
-	ESpell_name_by_value[ESpell::kSpellStoneBones] = "SPELL_STONEBONES";
-	ESpell_name_by_value[ESpell::kSpellRoomLight] = "SPELL_ERoomFlag::kAlwaysLit";
-	ESpell_name_by_value[ESpell::kSpellPoosinedFog] = "SPELL_POISONED_FOG";
-	ESpell_name_by_value[ESpell::kSpellThunderstorm] = "SPELL_THUNDERSTORM";
-	ESpell_name_by_value[ESpell::kSpellLightWalk] = "SPELL_LIGHT_WALK";
-	ESpell_name_by_value[ESpell::kSpellFailure] = "SPELL_FAILURE";
-	ESpell_name_by_value[ESpell::kSpellClanPray] = "SPELL_CLANPRAY";
-	ESpell_name_by_value[ESpell::kSpellGlitterDust] = "SPELL_GLITTERDUST";
-	ESpell_name_by_value[ESpell::kSpellScream] = "SPELL_SCREAM";
-	ESpell_name_by_value[ESpell::kSpellCatGrace] = "SPELL_CATS_GRACE";
-	ESpell_name_by_value[ESpell::kSpellBullBody] = "SPELL_BULL_BODY";
-	ESpell_name_by_value[ESpell::kSpellSnakeWisdom] = "SPELL_SNAKE_WISDOM";
-	ESpell_name_by_value[ESpell::kSpellGimmicry] = "SPELL_GIMMICKRY";
-	ESpell_name_by_value[ESpell::kSpellWarcryOfChallenge] = "SPELL_WC_OF_CHALLENGE";
-	ESpell_name_by_value[ESpell::kSpellWarcryOfMenace] = "SPELL_WC_OF_MENACE";
-	ESpell_name_by_value[ESpell::kSpellWarcryOfRage] = "SPELL_WC_OF_RAGE";
-	ESpell_name_by_value[ESpell::kSpellWarcryOfMadness] = "SPELL_WC_OF_MADNESS";
-	ESpell_name_by_value[ESpell::kSpellWarcryOfThunder] = "SPELL_WC_OF_THUNDER";
-	ESpell_name_by_value[ESpell::kSpellWarcryOfDefence] = "SPELL_WC_OF_DEFENSE";
-	ESpell_name_by_value[ESpell::kSpellWarcryOfBattle] = "SPELL_WC_OF_BATTLE";
-	ESpell_name_by_value[ESpell::kSpellWarcryOfPower] = "SPELL_WC_OF_POWER";
-	ESpell_name_by_value[ESpell::kSpellWarcryOfBless] = "SPELL_WC_OF_BLESS";
-	ESpell_name_by_value[ESpell::kSpellWarcryOfCourage] = "SPELL_WC_OF_COURAGE";
-	ESpell_name_by_value[ESpell::kSpellRuneLabel] = "SPELL_RUNE_LABEL";
-	ESpell_name_by_value[ESpell::kSpellAconitumPoison] = "SPELL_ACONITUM_POISON";
-	ESpell_name_by_value[ESpell::kSpellScopolaPoison] = "SPELL_SCOPOLIA_POISON";
-	ESpell_name_by_value[ESpell::kSpellBelenaPoison] = "SPELL_BELENA_POISON";
-	ESpell_name_by_value[ESpell::kSpellDaturaPoison] = "SPELL_DATURA_POISON";
-	ESpell_name_by_value[ESpell::kSpellTimerRestore] = "SPELL_TIMER_REPAIR";
-	ESpell_name_by_value[ESpell::kSpellLucky] = "SPELL_LACKY";
-	ESpell_name_by_value[ESpell::kSpellBandage] = "SPELL_BANDAGE";
-	ESpell_name_by_value[ESpell::kSpellNoBandage] = "SPELL_NO_BANDAGE";
-	ESpell_name_by_value[ESpell::kSpellCapable] = "SPELL_CAPABLE";
-	ESpell_name_by_value[ESpell::kSpellStrangle] = "SPELL_STRANGLE";
-	ESpell_name_by_value[ESpell::kSpellRecallSpells] = "SPELL_RECALL_SPELLS";
-	ESpell_name_by_value[ESpell::kSpellHypnoticPattern] = "SPELL_HYPNOTIC_PATTERN";
-	ESpell_name_by_value[ESpell::kSpellSolobonus] = "SPELL_SOLOBONUS";
-	ESpell_name_by_value[ESpell::kSpellVampirism] = "SPELL_VAMPIRE";
-	ESpell_name_by_value[ESpell::kSpellRestoration] = "SPELLS_RESTORATION";
-	ESpell_name_by_value[ESpell::kSpellDeathAura] = "SPELL_AURA_DEATH";
-	ESpell_name_by_value[ESpell::kSpellRecovery] = "SPELL_RECOVERY";
-	ESpell_name_by_value[ESpell::kSpellMassRecovery] = "SPELL_MASS_RECOVERY";
-	ESpell_name_by_value[ESpell::kSpellAuraOfEvil] = "SPELL_AURA_EVIL";
-	ESpell_name_by_value[ESpell::kSpellMentalShadow] = "SPELL_MENTAL_SHADOW";
-	ESpell_name_by_value[ESpell::kSpellBlackTentacles] = "SPELL_EVARDS_BLACK_TENTACLES";
-	ESpell_name_by_value[ESpell::kSpellWhirlwind] = "SPELL_WHIRLWIND";
-	ESpell_name_by_value[ESpell::kSpellIndriksTeeth] = "SPELL_INDRIKS_TEETH";
-	ESpell_name_by_value[ESpell::kSpellAcidArrow] = "SPELL_MELFS_ACID_ARROW";
-	ESpell_name_by_value[ESpell::kSpellThunderStone] = "SPELL_THUNDERSTONE";
-	ESpell_name_by_value[ESpell::kSpellClod] = "SPELL_CLOD";
-	ESpell_name_by_value[ESpell::kSpellExpedient] = "SPELL_EXPEDIENT";
-	ESpell_name_by_value[ESpell::kSpellSightOfDarkness] = "SPELL_SIGHT_OF_DARKNESS";
-	ESpell_name_by_value[ESpell::kSpellGroupSincerity] = "SPELL_GENERAL_SINCERITY";
-	ESpell_name_by_value[ESpell::kSpellMagicalGaze] = "SPELL_MAGICAL_GAZE";
-	ESpell_name_by_value[ESpell::kSpellAllSeeingEye] = "SPELL_ALL_SEEING_EYE";
-	ESpell_name_by_value[ESpell::kSpellEyeOfGods] = "SPELL_EYE_OF_GODS";
-	ESpell_name_by_value[ESpell::kSpellBreathingAtDepth] = "SPELL_BREATHING_AT_DEPTH";
-	ESpell_name_by_value[ESpell::kSpellGeneralRecovery] = "SPELL_GENERAL_RECOVERY";
-	ESpell_name_by_value[ESpell::kSpellCommonMeal] = "SPELL_COMMON_MEAL";
-	ESpell_name_by_value[ESpell::kSpellStoneWall] = "SPELL_STONE_WALL";
-	ESpell_name_by_value[ESpell::kSpellSnakeEyes] = "SPELL_SNAKE_EYES";
-	ESpell_name_by_value[ESpell::kSpellEarthAura] = "SPELL_EARTH_AURA";
-	ESpell_name_by_value[ESpell::kSpellGroupProtectFromEvil] = "SPELL_GROUP_PROT_FROM_EVIL";
-	ESpell_name_by_value[ESpell::kSpellArrowsFire] = "SPELL_ARROWS_FIRE";
-	ESpell_name_by_value[ESpell::kSpellArrowsWater] = "SPELL_ARROWS_WATER";
-	ESpell_name_by_value[ESpell::kSpellArrowsEarth] = "SPELL_ARROWS_EARTH";
-	ESpell_name_by_value[ESpell::kSpellArrowsAir] = "SPELL_ARROWS_AIR";
-	ESpell_name_by_value[ESpell::kSpellArrowsDeath] = "SPELL_ARROWS_DEATH";
-	ESpell_name_by_value[ESpell::kSpellPaladineInspiration] = "SPELL_PALADINE_INSPIRATION";
-	ESpell_name_by_value[ESpell::kSpellDexterity] = "SPELL_DEXTERITY";
-	ESpell_name_by_value[ESpell::kSpellGroupBlink] = "SPELL_GROUP_BLINK";
-	ESpell_name_by_value[ESpell::kSpellGroupCloudly] = "SPELL_GROUP_CLOUDLY";
-	ESpell_name_by_value[ESpell::kSpellGroupAwareness] = "SPELL_GROUP_AWARNESS";
-	ESpell_name_by_value[ESpell::kSpellMassFailure] = "SPELL_MASS_FAILURE";
-	ESpell_name_by_value[ESpell::kSpellSnare] = "SPELL_MASS_NOFLEE";
+	ESpell_name_by_value[ESpell::kSpellNoSpell] = "kSpellNoSpell";
+	ESpell_name_by_value[ESpell::kSpellArmor] = "kSpellArmor";
+	ESpell_name_by_value[ESpell::kSpellTeleport] = "kSpellTeleport";
+	ESpell_name_by_value[ESpell::kSpellBless] = "kSpellBless";
+	ESpell_name_by_value[ESpell::kSpellBlindness] = "kSpellBlindness";
+	ESpell_name_by_value[ESpell::kSpellBurningHands] = "kSpellBurningHands";
+	ESpell_name_by_value[ESpell::kSpellCallLighting] = "kSpellCallLighting";
+	ESpell_name_by_value[ESpell::kSpellCharm] = "kSpellCharm";
+	ESpell_name_by_value[ESpell::kSpellChillTouch] = "kSpellChillTouch";
+	ESpell_name_by_value[ESpell::kSpellClone] = "kSpellClone";
+	ESpell_name_by_value[ESpell::kSpellIceBolts] = "kSpellIceBolts";
+	ESpell_name_by_value[ESpell::kSpellControlWeather] = "kSpellControlWeather";
+	ESpell_name_by_value[ESpell::kSpellCreateFood] = "kSpellCreateFood";
+	ESpell_name_by_value[ESpell::kSpellCreateWater] = "kSpellCreateWater";
+	ESpell_name_by_value[ESpell::kSpellCureBlind] = "kSpellCureBlind";
+	ESpell_name_by_value[ESpell::kSpellCureCritic] = "kSpellCureCritic";
+	ESpell_name_by_value[ESpell::kSpellCureLight] = "kSpellCureLight";
+	ESpell_name_by_value[ESpell::kSpellCurse] = "kSpellCurse";
+	ESpell_name_by_value[ESpell::kSpellDetectAlign] = "kSpellDetectAlign";
+	ESpell_name_by_value[ESpell::kSpellDetectInvis] = "kSpellDetectInvis";
+	ESpell_name_by_value[ESpell::kSpellDetectMagic] = "kSpellDetectMagic";
+	ESpell_name_by_value[ESpell::kSpellDetectPoison] = "kSpellDetectPoison";
+	ESpell_name_by_value[ESpell::kSpellDispelEvil] = "kSpellDispelEvil";
+	ESpell_name_by_value[ESpell::kSpellEarthquake] = "kSpellEarthquake";
+	ESpell_name_by_value[ESpell::kSpellEnchantWeapon] = "kSpellEnchantWeapon";
+	ESpell_name_by_value[ESpell::kSpellEnergyDrain] = "kSpellEnergyDrain";
+	ESpell_name_by_value[ESpell::kSpellFireball] = "kSpellFireball";
+	ESpell_name_by_value[ESpell::kSpellHarm] = "kSpellHarm";
+	ESpell_name_by_value[ESpell::kSpellHeal] = "kSpellHeal";
+	ESpell_name_by_value[ESpell::kSpellInvisible] = "kSpellInvisible";
+	ESpell_name_by_value[ESpell::kSpellLightingBolt] = "kSpellLightingBolt";
+	ESpell_name_by_value[ESpell::kSpellLocateObject] = "kSpellLocateObject";
+	ESpell_name_by_value[ESpell::kSpellMagicMissile] = "kSpellMagicMissile";
+	ESpell_name_by_value[ESpell::kSpellPoison] = "kSpellPoison";
+	ESpell_name_by_value[ESpell::kSpellProtectFromEvil] = "kSpellProtectFromEvil";
+	ESpell_name_by_value[ESpell::kSpellRemoveCurse] = "kSpellRemoveCurse";
+	ESpell_name_by_value[ESpell::kSpellSanctuary] = "kSpellSanctuary";
+	ESpell_name_by_value[ESpell::kSpellShockingGasp] = "kSpellShockingGasp";
+	ESpell_name_by_value[ESpell::kSpellSleep] = "kSpellSleep";
+	ESpell_name_by_value[ESpell::kSpellStrength] = "kSpellStrength";
+	ESpell_name_by_value[ESpell::kSpellSummon] = "kSpellSummon";
+	ESpell_name_by_value[ESpell::kSpellPatronage] = "kSpellPatronage";
+	ESpell_name_by_value[ESpell::kSpellWorldOfRecall] = "kSpellWorldOfRecall";
+	ESpell_name_by_value[ESpell::kSpellRemovePoison] = "kSpellRemovePoison";
+	ESpell_name_by_value[ESpell::kSpellSenseLife] = "kSpellSenseLife";
+	ESpell_name_by_value[ESpell::kSpellAnimateDead] = "kSpellAnimateDead";
+	ESpell_name_by_value[ESpell::kSpellDispelGood] = "kSpellDispelGood";
+	ESpell_name_by_value[ESpell::kSpellGroupArmor] = "kSpellGroupArmor";
+	ESpell_name_by_value[ESpell::kSpellGroupHeal] = "kSpellGroupHeal";
+	ESpell_name_by_value[ESpell::kSpellGroupRecall] = "kSpellGroupRecall";
+	ESpell_name_by_value[ESpell::kSpellInfravision] = "kSpellInfravision";
+	ESpell_name_by_value[ESpell::kSpellWaterwalk] = "kSpellWaterwalk";
+	ESpell_name_by_value[ESpell::kSpellCureSerious] = "kSpellCureSerious";
+	ESpell_name_by_value[ESpell::kSpellGroupStrength] = "kSpellGroupStrength";
+	ESpell_name_by_value[ESpell::kSpellHold] = "kSpellHold";
+	ESpell_name_by_value[ESpell::kSpellPowerHold] = "kSpellPowerHold";
+	ESpell_name_by_value[ESpell::kSpellMassHold] = "kSpellMassHold";
+	ESpell_name_by_value[ESpell::kSpellFly] = "kSpellFly";
+	ESpell_name_by_value[ESpell::kSpellBrokenChains] = "kSpellBrokenChains";
+	ESpell_name_by_value[ESpell::kSpellNoflee] = "kSpellNoflee";
+	ESpell_name_by_value[ESpell::kSpellCreateLight] = "kSpellCreateLight";
+	ESpell_name_by_value[ESpell::kSpellDarkness] = "kSpellDarkness";
+	ESpell_name_by_value[ESpell::kSpellStoneSkin] = "kSpellStoneSkin";
+	ESpell_name_by_value[ESpell::kSpellCloudly] = "kSpellCloudly";
+	ESpell_name_by_value[ESpell::kSpellSllence] = "kSpellSllence";
+	ESpell_name_by_value[ESpell::kSpellLight] = "kSpellLight";
+	ESpell_name_by_value[ESpell::kSpellChainLighting] = "kSpellChainLighting";
+	ESpell_name_by_value[ESpell::kSpellFireBlast] = "kSpellFireBlast";
+	ESpell_name_by_value[ESpell::kSpellGodsWrath] = "kSpellGodsWrath";
+	ESpell_name_by_value[ESpell::kSpellWeaknes] = "kSpellWeaknes";
+	ESpell_name_by_value[ESpell::kSpellGroupInvisible] = "kSpellGroupInvisible";
+	ESpell_name_by_value[ESpell::kSpellShadowCloak] = "kSpellShadowCloak";
+	ESpell_name_by_value[ESpell::kSpellAcid] = "kSpellAcid";
+	ESpell_name_by_value[ESpell::kSpellRepair] = "kSpellRepair";
+	ESpell_name_by_value[ESpell::kSpellEnlarge] = "kSpellEnlarge";
+	ESpell_name_by_value[ESpell::kSpellFear] = "kSpellFear";
+	ESpell_name_by_value[ESpell::kSpellSacrifice] = "kSpellSacrifice";
+	ESpell_name_by_value[ESpell::kSpellWeb] = "kSpellWeb";
+	ESpell_name_by_value[ESpell::kSpellBlink] = "kSpellBlink";
+	ESpell_name_by_value[ESpell::kSpellRemoveHold] = "kSpellRemoveHold";
+	ESpell_name_by_value[ESpell::kSpellCamouflage] = "kSpellCamouflage";
+	ESpell_name_by_value[ESpell::kSpellPowerBlindness] = "kSpellPowerBlindness";
+	ESpell_name_by_value[ESpell::kSpellMassBlindness] = "kSpellMassBlindness";
+	ESpell_name_by_value[ESpell::kSpellPowerSilence] = "kSpellPowerSilence";
+	ESpell_name_by_value[ESpell::kSpellExtraHits] = "kSpellExtraHits";
+	ESpell_name_by_value[ESpell::kSpellResurrection] = "kSpellResurrection";
+	ESpell_name_by_value[ESpell::kSpellMagicShield] = "kSpellMagicShield";
+	ESpell_name_by_value[ESpell::kSpellForbidden] = "kSpellForbidden";
+	ESpell_name_by_value[ESpell::kSpellMassSilence] = "kSpellMassSilence";
+	ESpell_name_by_value[ESpell::kSpellRemoveSilence] = "kSpellRemoveSilence";
+	ESpell_name_by_value[ESpell::kSpellDamageLight] = "kSpellDamageLight";
+	ESpell_name_by_value[ESpell::kSpellDamageSerious] = "kSpellDamageSerious";
+	ESpell_name_by_value[ESpell::kSpellDamageCritic] = "kSpellDamageCritic";
+	ESpell_name_by_value[ESpell::kSpellMassCurse] = "kSpellMassCurse";
+	ESpell_name_by_value[ESpell::kSpellArmageddon] = "kSpellArmageddon";
+	ESpell_name_by_value[ESpell::kSpellGroupFly] = "kSpellGroupFly";
+	ESpell_name_by_value[ESpell::kSpellGroupBless] = "kSpellGroupBless";
+	ESpell_name_by_value[ESpell::kSpellResfresh] = "kSpellResfresh";
+	ESpell_name_by_value[ESpell::kSpellStunning] = "kSpellStunning";
+	ESpell_name_by_value[ESpell::kSpellHide] = "kSpellHide";
+	ESpell_name_by_value[ESpell::kSpellSneak] = "kSpellSneak";
+	ESpell_name_by_value[ESpell::kSpellDrunked] = "kSpellDrunked";
+	ESpell_name_by_value[ESpell::kSpellAbstinent] = "kSpellAbstinent";
+	ESpell_name_by_value[ESpell::kSpellFullFeed] = "kSpellFullFeed";
+	ESpell_name_by_value[ESpell::kSpellColdWind] = "kSpellColdWind";
+	ESpell_name_by_value[ESpell::kSpellBattle] = "kSpellBattle";
+	ESpell_name_by_value[ESpell::kSpellHaemorrhage] = "kSpellHaemorragis";
+	ESpell_name_by_value[ESpell::kSpellCourage] = "kSpellCourage";
+	ESpell_name_by_value[ESpell::kSpellWaterbreath] = "kSpellWaterbreath";
+	ESpell_name_by_value[ESpell::kSpellSlowdown] = "kSpellSlowdown";
+	ESpell_name_by_value[ESpell::kSpellHaste] = "kSpellHaste";
+	ESpell_name_by_value[ESpell::kSpellMassSlow] = "kSpellMassSlow";
+	ESpell_name_by_value[ESpell::kSpellGroupHaste] = "kSpellGroupHaste";
+	ESpell_name_by_value[ESpell::kSpellGodsShield] = "kSpellGodsShield";
+	ESpell_name_by_value[ESpell::kSpellFever] = "kSpellFever";
+	ESpell_name_by_value[ESpell::kSpellCureFever] = "kSpellCureFever";
+	ESpell_name_by_value[ESpell::kSpellAwareness] = "kSpellAwareness";
+	ESpell_name_by_value[ESpell::kSpellReligion] = "kSpellReligion";
+	ESpell_name_by_value[ESpell::kSpellAirShield] = "kSpellAirShield";
+	ESpell_name_by_value[ESpell::kSpellPortal] = "kSpellPortal";
+	ESpell_name_by_value[ESpell::kSpellDispellMagic] = "kSpellDispellMagic";
+	ESpell_name_by_value[ESpell::kSpellSummonKeeper] = "kSpellSummonKeeper";
+	ESpell_name_by_value[ESpell::kSpellFastRegeneration] = "kSpellFastRegeneration";
+	ESpell_name_by_value[ESpell::kSpellCreateWeapon] = "kSpellCreateWeapon";
+	ESpell_name_by_value[ESpell::kSpellFireShield] = "kSpellFireShield";
+	ESpell_name_by_value[ESpell::kSpellRelocate] = "kSpellRelocate";
+	ESpell_name_by_value[ESpell::kSpellSummonFirekeeper] = "kSpellSummonFirekeeper";
+	ESpell_name_by_value[ESpell::kSpellIceShield] = "kSpellIceShield";
+	ESpell_name_by_value[ESpell::kSpellIceStorm] = "kSpellIceStorm";
+	ESpell_name_by_value[ESpell::kSpellLessening] = "kSpellLessening";
+	ESpell_name_by_value[ESpell::kSpellShineFlash] = "kSpellShineFlash";
+	ESpell_name_by_value[ESpell::kSpellMadness] = "kSpellMadness";
+	ESpell_name_by_value[ESpell::kSpellGroupMagicGlass] = "kSpellGroupMagicGlass";
+	ESpell_name_by_value[ESpell::kSpellCloudOfArrows] = "kSpellCloudOfArrows";
+	ESpell_name_by_value[ESpell::kSpellVacuum] = "kSpellVacuum";
+	ESpell_name_by_value[ESpell::kSpellMeteorStorm] = "kSpellMeteorStorm";
+	ESpell_name_by_value[ESpell::kSpellStoneHands] = "kSpellStoneHands";
+	ESpell_name_by_value[ESpell::kSpellMindless] = "kSpellMindless";
+	ESpell_name_by_value[ESpell::kSpellPrismaticAura] = "kSpellPrismaticAura";
+	ESpell_name_by_value[ESpell::kSpellEviless] = "kSpellEviless";
+	ESpell_name_by_value[ESpell::kSpellAirAura] = "kSpellAirAura";
+	ESpell_name_by_value[ESpell::kSpellFireAura] = "kSpellFireAura";
+	ESpell_name_by_value[ESpell::kSpellIceAura] = "kSpellIceAura";
+	ESpell_name_by_value[ESpell::kSpellShock] = "kSpellShock";
+	ESpell_name_by_value[ESpell::kSpellMagicGlass] = "kSpellMagicGlass";
+	ESpell_name_by_value[ESpell::kSpellGroupSanctuary] = "kSpellGroupSanctuary";
+	ESpell_name_by_value[ESpell::kSpellGroupPrismaticAura] = "kSpellGroupPrismaticAura";
+	ESpell_name_by_value[ESpell::kSpellDeafness] = "kSpellDeafness";
+	ESpell_name_by_value[ESpell::kSpellPowerDeafness] = "kSpellPowerDeafness";
+	ESpell_name_by_value[ESpell::kSpellRemoveDeafness] = "kSpellRemoveDeafness";
+	ESpell_name_by_value[ESpell::kSpellMassDeafness] = "kSpellMassDeafness";
+	ESpell_name_by_value[ESpell::kSpellDustStorm] = "kSpellDustStorm";
+	ESpell_name_by_value[ESpell::kSpellEarthfall] = "kSpellEarthfall";
+	ESpell_name_by_value[ESpell::kSpellSonicWave] = "kSpellSonicWave";
+	ESpell_name_by_value[ESpell::kSpellHolystrike] = "kSpellHolystrike";
+	ESpell_name_by_value[ESpell::kSpellSumonAngel] = "kSpellSumonAngel";
+	ESpell_name_by_value[ESpell::kSpellMassFear] = "kSpellMassFear";
+	ESpell_name_by_value[ESpell::kSpellFascination] = "kSpellFascination";
+	ESpell_name_by_value[ESpell::kSpellCrying] = "kSpellCrying";
+	ESpell_name_by_value[ESpell::kSpellOblivion] = "kSpellOblivion";
+	ESpell_name_by_value[ESpell::kSpellBurdenOfTime] = "kSpellBurdenOfTime";
+	ESpell_name_by_value[ESpell::kSpellGroupRefresh] = "kSpellGroupRefresh";
+	ESpell_name_by_value[ESpell::kSpellPeaceful] = "kSpellPeaceful";
+	ESpell_name_by_value[ESpell::kSpellMagicBattle] = "kSpellMagicBattle";
+	ESpell_name_by_value[ESpell::kSpellBerserk] = "kSpellBerserk";
+	ESpell_name_by_value[ESpell::kSpellStoneBones] = "kSpellStoneBones";
+	ESpell_name_by_value[ESpell::kSpellRoomLight] = "kSpellRoomLight";
+	ESpell_name_by_value[ESpell::kSpellPoosinedFog] = "kSpellPoosinedFog";
+	ESpell_name_by_value[ESpell::kSpellThunderstorm] = "kSpellThunderstorm";
+	ESpell_name_by_value[ESpell::kSpellLightWalk] = "kSpellLightWalk";
+	ESpell_name_by_value[ESpell::kSpellFailure] = "kSpellFailure";
+	ESpell_name_by_value[ESpell::kSpellClanPray] = "kSpellClanPray";
+	ESpell_name_by_value[ESpell::kSpellGlitterDust] = "kSpellGlitterDust";
+	ESpell_name_by_value[ESpell::kSpellScream] = "kSpellScream";
+	ESpell_name_by_value[ESpell::kSpellCatGrace] = "kSpellCatGrace";
+	ESpell_name_by_value[ESpell::kSpellBullBody] = "kSpellBullBody";
+	ESpell_name_by_value[ESpell::kSpellSnakeWisdom] = "kSpellSnakeWisdom";
+	ESpell_name_by_value[ESpell::kSpellGimmicry] = "kSpellGimmicry";
+	ESpell_name_by_value[ESpell::kSpellWarcryOfChallenge] = "kSpellWarcryOfChallenge";
+	ESpell_name_by_value[ESpell::kSpellWarcryOfMenace] = "kSpellWarcryOfMenace";
+	ESpell_name_by_value[ESpell::kSpellWarcryOfRage] = "kSpellWarcryOfRage";
+	ESpell_name_by_value[ESpell::kSpellWarcryOfMadness] = "kSpellWarcryOfMadness";
+	ESpell_name_by_value[ESpell::kSpellWarcryOfThunder] = "kSpellWarcryOfThunder";
+	ESpell_name_by_value[ESpell::kSpellWarcryOfDefence] = "kSpellWarcryOfDefence";
+	ESpell_name_by_value[ESpell::kSpellWarcryOfBattle] = "kSpellWarcryOfBattle";
+	ESpell_name_by_value[ESpell::kSpellWarcryOfPower] = "kSpellWarcryOfPower";
+	ESpell_name_by_value[ESpell::kSpellWarcryOfBless] = "kSpellWarcryOfBless";
+	ESpell_name_by_value[ESpell::kSpellWarcryOfCourage] = "kSpellWarcryOfCourage";
+	ESpell_name_by_value[ESpell::kSpellRuneLabel] = "kSpellRuneLabel";
+	ESpell_name_by_value[ESpell::kSpellAconitumPoison] = "kSpellAconitumPoison";
+	ESpell_name_by_value[ESpell::kSpellScopolaPoison] = "kSpellScopolaPoison";
+	ESpell_name_by_value[ESpell::kSpellBelenaPoison] = "kSpellBelenaPoison";
+	ESpell_name_by_value[ESpell::kSpellDaturaPoison] = "kSpellDaturaPoison";
+	ESpell_name_by_value[ESpell::kSpellTimerRestore] = "kSpellTimerRestore";
+	ESpell_name_by_value[ESpell::kSpellLucky] = "kSpellLucky";
+	ESpell_name_by_value[ESpell::kSpellBandage] = "kSpellBandage";
+	ESpell_name_by_value[ESpell::kSpellNoBandage] = "kSpellNoBandage";
+	ESpell_name_by_value[ESpell::kSpellCapable] = "kSpellCapable";
+	ESpell_name_by_value[ESpell::kSpellStrangle] = "kSpellStrangle";
+	ESpell_name_by_value[ESpell::kSpellRecallSpells] = "kSpellRecallSpells";
+	ESpell_name_by_value[ESpell::kSpellHypnoticPattern] = "kSpellHypnoticPattern";
+	ESpell_name_by_value[ESpell::kSpellSolobonus] = "kSpellSolobonus";
+	ESpell_name_by_value[ESpell::kSpellVampirism] = "kSpellVampirism";
+	ESpell_name_by_value[ESpell::kSpellRestoration] = "kSpellRestoration";
+	ESpell_name_by_value[ESpell::kSpellDeathAura] = "kSpellDeathAura";
+	ESpell_name_by_value[ESpell::kSpellRecovery] = "kSpellRecovery";
+	ESpell_name_by_value[ESpell::kSpellMassRecovery] = "kSpellMassRecovery";
+	ESpell_name_by_value[ESpell::kSpellAuraOfEvil] = "kSpellAuraOfEvil";
+	ESpell_name_by_value[ESpell::kSpellMentalShadow] = "kSpellMentalShadow";
+	ESpell_name_by_value[ESpell::kSpellBlackTentacles] = "kSpellBlackTentacles";
+	ESpell_name_by_value[ESpell::kSpellWhirlwind] = "kSpellWhirlwind";
+	ESpell_name_by_value[ESpell::kSpellIndriksTeeth] = "kSpellIndriksTeeth";
+	ESpell_name_by_value[ESpell::kSpellAcidArrow] = "kSpellAcidArrow";
+	ESpell_name_by_value[ESpell::kSpellThunderStone] = "kSpellThunderStone";
+	ESpell_name_by_value[ESpell::kSpellClod] = "kSpellClod";
+	ESpell_name_by_value[ESpell::kSpellExpedient] = "kSpellExpedient";
+	ESpell_name_by_value[ESpell::kSpellSightOfDarkness] = "kSpellSightOfDarkness";
+	ESpell_name_by_value[ESpell::kSpellGroupSincerity] = "kSpellGroupSincerity";
+	ESpell_name_by_value[ESpell::kSpellMagicalGaze] = "kSpellMagicalGaze";
+	ESpell_name_by_value[ESpell::kSpellAllSeeingEye] = "kSpellAllSeeingEye";
+	ESpell_name_by_value[ESpell::kSpellEyeOfGods] = "kSpellEyeOfGods";
+	ESpell_name_by_value[ESpell::kSpellBreathingAtDepth] = "kSpellBreathingAtDepth";
+	ESpell_name_by_value[ESpell::kSpellGeneralRecovery] = "kSpellGeneralRecovery";
+	ESpell_name_by_value[ESpell::kSpellCommonMeal] = "kSpellCommonMeal";
+	ESpell_name_by_value[ESpell::kSpellStoneWall] = "kSpellStoneWall";
+	ESpell_name_by_value[ESpell::kSpellSnakeEyes] = "kSpellSnakeEyes";
+	ESpell_name_by_value[ESpell::kSpellEarthAura] = "kSpellEarthAura";
+	ESpell_name_by_value[ESpell::kSpellGroupProtectFromEvil] = "kSpellGroupProtectFromEvil";
+	ESpell_name_by_value[ESpell::kSpellArrowsFire] = "kSpellArrowsFire";
+	ESpell_name_by_value[ESpell::kSpellArrowsWater] = "kSpellArrowsWater";
+	ESpell_name_by_value[ESpell::kSpellArrowsEarth] = "kSpellArrowsEarth";
+	ESpell_name_by_value[ESpell::kSpellArrowsAir] = "kSpellArrowsAir";
+	ESpell_name_by_value[ESpell::kSpellArrowsDeath] = "kSpellArrowsDeath";
+	ESpell_name_by_value[ESpell::kSpellPaladineInspiration] = "kSpellPaladineInspiration";
+	ESpell_name_by_value[ESpell::kSpellDexterity] = "kSpellDexterity";
+	ESpell_name_by_value[ESpell::kSpellGroupBlink] = "kSpellGroupBlink";
+	ESpell_name_by_value[ESpell::kSpellGroupCloudly] = "kSpellGroupCloudly";
+	ESpell_name_by_value[ESpell::kSpellGroupAwareness] = "kSpellGroupAwareness";
+	ESpell_name_by_value[ESpell::kSpellMassFailure] = "kSpellMassFailure";
+	ESpell_name_by_value[ESpell::kSpellSnare] = "kSpellSnare";
+	ESpell_name_by_value[ESpell::kSpellExpedientFail] = "kSpellExpedientFail";
 
 	for (const auto &i : ESpell_name_by_value) {
 		ESpell_value_by_name[i.second] = i.first;
@@ -3208,7 +3212,7 @@ ESpell ITEM_BY_NAME(const std::string &name) {
 std::map<int /* vnum */, int /* count */> rune_list;
 
 void add_rune_stats(CharData *ch, int vnum, int spelltype) {
-	if (ch->is_npc() || kSpellRunes != spelltype) {
+	if (ch->IsNpc() || kSpellRunes != spelltype) {
 		return;
 	}
 	std::map<int, int>::iterator i = rune_list.find(vnum);

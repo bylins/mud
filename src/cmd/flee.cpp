@@ -36,7 +36,7 @@ void GoFlee(CharData *ch) {
 		SetWaitState(ch, kPulseViolence);
 	}
 
-	if (ch->ahorse() && (GET_POS(ch->get_horse()) < EPosition::kFight ||
+	if (ch->IsOnHorse() && (GET_POS(ch->get_horse()) < EPosition::kFight ||
 		AFF_FLAGGED(ch->get_horse(), EAffect::kHold))) {
 		SendMsgToChar("Ваш скакун не в состоянии вынести вас из боя!\r\n", ch);
 		return;
@@ -44,19 +44,19 @@ void GoFlee(CharData *ch) {
 
 	auto direction = SelectRndDirection(ch, IsAbleToUseFeat(ch, EFeat::kRetreat) ? 0 : 50);
 	if (direction != EDirection::kIncorrectDir) {
-		const auto was_fighting = ch->get_fighting();
+		const auto was_fighting = ch->GetEnemy();
 		const auto was_in = ch->in_room;
 
 		if (DoSimpleMove(ch, direction, true, nullptr, true)) {
 			act("$n запаниковал$g и пытал$u сбежать!",
 				true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-			if (ch->ahorse()) {
+			if (ch->IsOnHorse()) {
 				act("Верн$W $N вынес$Q вас из боя.", false, ch, nullptr, ch->get_horse(), kToChar);
 			} else {
 				SendMsgToChar("Вы быстро убежали с поля битвы.\r\n", ch);
 			}
 
-			if (was_fighting && !ch->is_npc()) {
+			if (was_fighting && !ch->IsNpc()) {
 				ReduceExpAfterFlee(ch, was_fighting, was_in);
 			}
 		} else {
@@ -92,12 +92,12 @@ void GoDirectFlee(CharData *ch, int direction) {
 		&& !ROOM_FLAGGED(EXIT(ch, direction)->to_room(), ERoomFlag::kDeathTrap)) {
 		if (DoSimpleMove(ch, direction, true, nullptr, true)) {
 			const auto was_in = ch->in_room;
-			const auto was_fighting = ch->get_fighting();
+			const auto was_fighting = ch->GetEnemy();
 
 			act("$n запаниковал$g и попытал$u убежать.",
 				false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 			SendMsgToChar("Вы быстро убежали с поля битвы.\r\n", ch);
-			if (was_fighting && !ch->is_npc()) {
+			if (was_fighting && !ch->IsNpc()) {
 				ReduceExpAfterFlee(ch, was_fighting, was_in);
 			}
 
@@ -120,7 +120,7 @@ const char *flee_dirs[] = {"север",
 
 void DoFlee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int direction = -1;
-	if (!ch->get_fighting()) {
+	if (!ch->GetEnemy()) {
 		SendMsgToChar("Но вы ведь ни с кем не сражаетесь!\r\n", ch);
 		return;
 	}

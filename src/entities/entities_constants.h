@@ -229,7 +229,8 @@ enum EPrf : Bitvector {
 	kTripleThrow = kIntTwo | 1 << 15,        // готов использовать тройной бросок
 	kShadowThrow = kIntTwo | 1 << 16,        // применяет "теневой бросок"
 	kDispCooldowns = kIntTwo | 1 << 17,        // Показывать кулдауны скиллов в промпте
-	kTelegram = kIntTwo | 1 << 18            // Активирует телеграм-канал у персонажа
+	kTelegram = kIntTwo | 1 << 18,           // Активирует телеграм-канал у персонажа
+	kPerformSerratedBlade = kIntTwo | 1 << 19 // Активирована "воровская заточка".
 };
 
 // при добавлении не забываем про preference_bits[]

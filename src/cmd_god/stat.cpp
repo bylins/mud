@@ -55,19 +55,19 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	buf[0] = 0;
 	int god_level = PRF_FLAGGED(ch, EPrf::kCoderinfo) ? kLvlImplementator : GetRealLevel(ch);
 	int k_room = -1;
-	if (!virt && (god_level == kLvlImplementator || (god_level == kLvlGreatGod && !k->is_npc()))) {
+	if (!virt && (god_level == kLvlImplementator || (god_level == kLvlGreatGod && !k->IsNpc()))) {
 		k_room = GET_ROOM_VNUM(IN_ROOM(k));
 	}
 	// пишем пол  (мужчина)
 	sprinttype(to_underlying(GET_SEX(k)), genders, tmpbuf);
 	// пишем расу (Человек)
-	if (k->is_npc()) {
+	if (k->IsNpc()) {
 		sprinttype(GET_RACE(k) - ENpcRace::kBasic, npc_race_types, smallBuf);
 		sprintf(buf, "%s %s ", tmpbuf, smallBuf);
 	}
 	sprintf(buf2,
 			"%s '%s' IDNum: [%ld] В комнате [%d] Текущий Id:[%ld]",
-			(!k->is_npc() ? "PC" : (!IS_MOB(k) ? "NPC" : "MOB")),
+			(!k->IsNpc() ? "PC" : (!IS_MOB(k) ? "NPC" : "MOB")),
 			GET_NAME(k),
 			GET_IDNUM(k),
 			k_room,
@@ -93,7 +93,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 			GET_PAD(k, 5));
 	SendMsgToChar(buf, ch);
 
-	if (!k->is_npc()) {
+	if (!k->IsNpc()) {
 
 		if (!NAME_GOD(k)) {
 			sprintf(buf, "Имя никем не одобрено!\r\n");
@@ -171,7 +171,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 
 	sprintf(buf, "Титул: %s\r\n", (k->player_data.title != "" ? k->player_data.title.c_str() : "<Нет>"));
 	SendMsgToChar(buf, ch);
-	if (k->is_npc())
+	if (k->IsNpc())
 		sprintf(buf, "L-Des: %s", (k->player_data.long_descr != "" ? k->player_data.long_descr.c_str() : "<Нет>\r\n"));
 	else
 		sprintf(buf,
@@ -179,7 +179,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 				(k->player_data.description != "" ? k->player_data.description.c_str() : "<Нет>\r\n"));
 	SendMsgToChar(buf, ch);
 
-	if (!k->is_npc()) {
+	if (!k->IsNpc()) {
 		strcpy(smallBuf, MUD::Classes()[k->get_class()].GetCName());
 		sprintf(buf, "Племя: %s, Род: %s, Профессия: %s",
 				PlayerRace::GetKinNameByNum(GET_KIN(k), GET_SEX(k)).c_str(),
@@ -210,7 +210,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 
 	SendMsgToChar(buf, ch);
 
-	if (!k->is_npc()) {
+	if (!k->IsNpc()) {
 		if (CLAN(k)) {
 			SendMsgToChar(ch, "Статус дружины: %s\r\n", GET_CLAN_STATUS(k));
 		}
@@ -331,9 +331,9 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 
 	sprinttype(static_cast<int>(GET_POS(k)), position_types, smallBuf);
 	sprintf(buf, "Положение: %s, Сражается: %s, Экипирован в металл: %s",
-			smallBuf, (k->get_fighting() ? GET_NAME(k->get_fighting()) : "Нет"), (IsEquipInMetall(k) ? "Да" : "Нет"));
+			smallBuf, (k->GetEnemy() ? GET_NAME(k->GetEnemy()) : "Нет"), (IsEquipInMetall(k) ? "Да" : "Нет"));
 
-	if (k->is_npc()) {
+	if (k->IsNpc()) {
 		strcat(buf, ", Тип атаки: ");
 		strcat(buf, attack_hit_text[k->mob_specials.attack_type].singular);
 	}
@@ -352,7 +352,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	strcat(buf, buf2);
 	SendMsgToChar(buf, ch);
 
-	if (k->is_npc()) {
+	if (k->IsNpc()) {
 		k->char_specials.saved.act.sprintbits(action_bits, smallBuf, ",", 4);
 		sprintf(buf, "MOB флаги: %s%s%s\r\n", CCCYN(ch, C_NRM), smallBuf, CCNRM(ch, C_NRM));
 		SendMsgToChar(buf, ch);
@@ -360,20 +360,20 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		sprintf(buf, "NPC флаги: %s%s%s\r\n", CCCYN(ch, C_NRM), smallBuf, CCNRM(ch, C_NRM));
 		SendMsgToChar(buf, ch);
 		SendMsgToChar(ch,
-					 "Количество атак: %s%d%s. ",
-					 CCCYN(ch, C_NRM),
-					 k->mob_specials.ExtraAttack + 1,
-					 CCNRM(ch, C_NRM));
+					  "Количество атак: %s%d%s. ",
+					  CCCYN(ch, C_NRM),
+					  k->mob_specials.ExtraAttack + 1,
+					  CCNRM(ch, C_NRM));
 		SendMsgToChar(ch,
-					 "Вероятность использования умений: %s%d%%%s. ",
-					 CCCYN(ch, C_NRM),
-					 k->mob_specials.LikeWork,
-					 CCNRM(ch, C_NRM));
+					  "Вероятность использования умений: %s%d%%%s. ",
+					  CCCYN(ch, C_NRM),
+					  k->mob_specials.LikeWork,
+					  CCNRM(ch, C_NRM));
 		SendMsgToChar(ch,
-					 "Убить до начала замакса: %s%d%s\r\n",
-					 CCCYN(ch, C_NRM),
-					 k->mob_specials.MaxFactor,
-					 CCNRM(ch, C_NRM));
+					  "Убить до начала замакса: %s%d%s\r\n",
+					  CCCYN(ch, C_NRM),
+					  k->mob_specials.MaxFactor,
+					  CCNRM(ch, C_NRM));
 		SendMsgToChar(ch, "Умения:&c");
 		for (const auto &skill : MUD::Skills()) {
 			if (skill.IsValid() && k->get_skill(skill.GetId())) {
@@ -418,16 +418,16 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 			}
 
 			SendMsgToChar(ch,
-						 "Заданные путевые точки: %s%s%s\r\n",
-						 CCCYN(ch, C_NRM),
-						 str_dest_list.str().c_str(),
-						 CCNRM(ch, C_NRM));
+						  "Заданные путевые точки: %s%s%s\r\n",
+						  CCCYN(ch, C_NRM),
+						  str_dest_list.str().c_str(),
+						  CCNRM(ch, C_NRM));
 			if (!virt) {
 				SendMsgToChar(ch,
-							"Предполагаемый маршрут: %s%s%s\r\n",
-							CCCYN(ch, C_NRM),
-							str_predictive_path.str().c_str(),
-							CCNRM(ch, C_NRM));
+							  "Предполагаемый маршрут: %s%s%s\r\n",
+							  CCCYN(ch, C_NRM),
+							  str_predictive_path.str().c_str(),
+							  CCNRM(ch, C_NRM));
 			}
 		}
 	} else {
@@ -466,7 +466,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	strcat(buf, buf2);
 	SendMsgToChar(buf, ch);
 
-	if (!k->is_npc()) {
+	if (!k->IsNpc()) {
 		sprintf(buf, "Голод: %d, Жажда: %d, Опьянение: %d\r\n",
 				GET_COND(k, FULL), GET_COND(k, THIRST), GET_COND(k, DRUNK));
 		SendMsgToChar(buf, ch);
@@ -522,7 +522,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	}
 
 	// check mobiles for a script
-	if (k->is_npc() && god_level >= kLvlBuilder) {
+	if (k->IsNpc() && god_level >= kLvlBuilder) {
 		do_sstat_character(ch, k);
 		if (MEMORY(k)) {
 			struct MemoryRecord *memchar;
@@ -613,7 +613,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	}
 
 	SendMsgToChar(ch, "VNum: [%s%5d%s], RNum: [%5d], UID: [%d], Id: [%ld]\r\n",
-				 CCGRN(ch, C_NRM), vnum, CCNRM(ch, C_NRM), GET_OBJ_RNUM(j), GET_OBJ_UID(j), j->get_id());
+				  CCGRN(ch, C_NRM), vnum, CCNRM(ch, C_NRM), GET_OBJ_RNUM(j), GET_OBJ_UID(j), j->get_id());
 
 	SendMsgToChar(ch, "Расчет критерия: %f, мортов: (%f) \r\n", j->show_koef_obj(), j->show_mort_req());
 	SendMsgToChar(ch, "Тип: %s, СпецПроцедура: %s", buf1, buf2);
@@ -1044,7 +1044,7 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 			continue;
 		}
 		sprintf(buf2, "%s %s(%s)", found++ ? "," : "", GET_NAME(k),
-				(!k->is_npc() ? "PC" : (!IS_MOB(k) ? "NPC" : "MOB")));
+				(!k->IsNpc() ? "PC" : (!IS_MOB(k) ? "NPC" : "MOB")));
 		strcat(buf, buf2);
 		if (strlen(buf) >= 62) {
 			if (counter != rm->people.size()) {

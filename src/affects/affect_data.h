@@ -75,7 +75,7 @@ void affect_to_char(CharData *ch, const Affect<EApply> &af);
 void affect_from_char(CharData *ch, int type);
 bool IsAffectedBySpell(CharData *ch, int type);
 void ImposeAffect(CharData *ch, const Affect<EApply> &af);
-void affect_join(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, bool add_mod, bool max_mod);
+void ImposeAffect(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, bool add_mod, bool max_mod);
 void reset_affects(CharData *ch);
 bool no_bad_affects(ObjData *obj);
 

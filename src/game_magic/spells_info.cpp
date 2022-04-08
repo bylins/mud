@@ -586,7 +586,7 @@ void InitSpells() {
 			  kMagManual, 0, kTypeNeutral);
 
 //106
-	initSpell(kSpellHaemorragis, "!кровотечение!", "!set by programm!",
+	initSpell(kSpellHaemorrhage, "!кровотечение!", "!set by programm!",
 			  0, 0, 0, EPosition::kStand, 0, false,
 			  kMagManual, 0, kTypeNeutral);
 //107
@@ -1223,6 +1223,9 @@ void InitSpells() {
 			  0, 0, 0, EPosition::kStand, kTarIgnore, true,
 			  kMagDamage, 3, kTypeDark);
 //248
+	initSpell(kSpellExpedientFail, "!неудачный прием!", "!set by programm!",
+			  0, 0, 0, EPosition::kStand, 0, false,
+			  kMagManual, 0, kTypeNeutral);
 
 //351
 	initSpell(kSpellIdentify, "идентификация", "identify",

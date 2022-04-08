@@ -31,14 +31,14 @@ void AbilityRoll::PerformAbilityTest() {
 	ProcessingResult(roll_result, roll);
 	if (PRF_FLAGGED(actor_, EPrf::kTester)) {
 		SendMsgToChar(actor_,
-					 "&CНавык: %s, Рейтинг навыка: %d, Рейтинг цели: %d, Сложность: %d Бросок d100: %d, Итог: %d (%s)&n\r\n",
-					 ability_->name,
-					 actor_rating_,
-					 target_rating,
-					 difficulty,
-					 roll,
-					 roll_result,
-					 success_ ? "успех" : "провал");
+					  "&CНавык: %s, Рейтинг навыка: %d, Рейтинг цели: %d, Сложность: %d Бросок d100: %d, Итог: %d (%s)&n\r\n",
+					  ability_->name,
+					  actor_rating_,
+					  target_rating,
+					  difficulty,
+					  roll,
+					  roll_result,
+					  success_ ? "успех" : "провал");
 	}
 };
 

@@ -161,7 +161,7 @@ void GroupReporter::append_char(const std::shared_ptr<ArrayValue> &group,
 								const CharData *character,
 								const bool leader) {
 	if (PRF_FLAGGED(ch, EPrf::kNoClones)
-		&& character->is_npc()
+		&& character->IsNpc()
 		&& (MOB_FLAGGED(character, EMobFlag::kClone)
 			|| GET_MOB_VNUM(character) == kMobKeeper)) {
 		return;
@@ -209,11 +209,11 @@ void GroupReporter::append_char(const std::shared_ptr<ArrayValue> &group,
 		affects += "Л";
 	}
 
-	if (!character->is_npc() && character->ahorse()) {
+	if (!character->IsNpc() && character->IsOnHorse()) {
 		affects += "В";
 	}
 
-	if (character->is_npc()
+	if (character->IsNpc()
 		&& character->low_charm()) {
 		affects += "Т";
 	}
@@ -221,7 +221,7 @@ void GroupReporter::append_char(const std::shared_ptr<ArrayValue> &group,
 	descriptor()->string_to_client_encoding(affects.c_str(), buffer);
 	member->add(std::make_shared<Variable>("AFFECTS", std::make_shared<StringValue>(buffer)));
 
-	const auto leader_value = leader ? "leader" : (character->is_npc() ? "npc" : "pc");
+	const auto leader_value = leader ? "leader" : (character->IsNpc() ? "npc" : "pc");
 	member->add(std::make_shared<Variable>("ROLE", std::make_shared<StringValue>(leader_value)));
 
 	char position[kMaxInputLength];
@@ -235,7 +235,7 @@ void GroupReporter::append_char(const std::shared_ptr<ArrayValue> &group,
 int GroupReporter::get_mem(const CharData *character) const {
 	int result = 0;
 	int div = 0;
-	if (!character->is_npc()
+	if (!character->IsNpc()
 		&& ((!IS_MANA_CASTER(character) && !character->mem_queue.Empty())
 			|| (IS_MANA_CASTER(character) && character->mem_queue.stored < GET_MAX_MANA(character)))) {
 		div = mana_gain(character);

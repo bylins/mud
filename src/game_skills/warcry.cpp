@@ -8,7 +8,7 @@
 void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int spellnum, cnt;
 
-	if (ch->is_npc() && AFF_FLAGGED(ch, EAffect::kCharmed))
+	if (ch->IsNpc() && AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
 	if (!ch->get_skill(ESkill::kWarcry)) {
@@ -97,8 +97,9 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (CallMagic(ch, nullptr, nullptr, nullptr, spellnum, GetRealLevel(ch)) >= 0) {
 		if (!IS_IMMORTAL(ch)) {
-			if (ch->get_wait() < 0)
+			if (ch->get_wait() <= 0) {
 				SetWaitState(ch, kPulseViolence);
+			}
 			ImposeTimedSkill(ch, &timed);
 			GET_MOVE(ch) -= spell_info[spellnum].mana_max;
 		}

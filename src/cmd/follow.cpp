@@ -29,7 +29,7 @@ bool stop_follower(CharData *ch, int mode) {
 	}
 
 	//log("[Stop ch] Stop horse");
-	if (ch->get_master()->get_horse() == ch && ch->get_master()->ahorse()) {
+	if (ch->get_master()->get_horse() == ch && ch->get_master()->IsOnHorse()) {
 		ch->drop_from_horse();
 	} else {
 		act("$n прекратил$g следовать за вами.", true, ch, 0, ch->get_master(), kToVict);
@@ -73,11 +73,11 @@ bool stop_follower(CharData *ch, int mode) {
 		ch->extract_timer = 5;
 		AFF_FLAGS(ch).unset(EAffect::kCharmed);
 
-		if (ch->get_fighting()) {
+		if (ch->GetEnemy()) {
 			stop_fighting(ch, true);
 		}
 
-		if (ch->is_npc()) {
+		if (ch->IsNpc()) {
 			if (MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
 				act("Налетевший ветер развеял $n3, не оставив и следа.", true, ch, 0, 0, kToRoom | kToArenaListen);
 				GET_LASTROOM(ch) = GET_ROOM_VNUM(ch->in_room);
@@ -90,7 +90,7 @@ bool stop_follower(CharData *ch, int mode) {
 			}
 		}
 	}
-	if (ch->is_npc() && MOB_FLAGGED(ch, EMobFlag::kSummoned)) { // фул рестор моба (Кудояр)
+	if (ch->IsNpc() && MOB_FLAGGED(ch, EMobFlag::kSummoned)) { // фул рестор моба (Кудояр)
 		act("Магия подпитующая $n3 развеялась, и $n0 вернул$u в норму.", true, ch, 0, 0, kToRoom | kToArenaListen);
 		ch->restore_npc();
 			// сначало бросаем лишнее
@@ -117,7 +117,7 @@ bool stop_follower(CharData *ch, int mode) {
 	}
 	
 	 
-	if (ch->is_npc()
+	if (ch->IsNpc()
 		//&& !MOB_FLAGGED(ch, MOB_PLAYER_SUMMON)    //Не ресетим флаги, если моб призван игроком
 		&& (i = GET_MOB_RNUM(ch)) >= 0) {
 		MOB_FLAGS(ch) = MOB_FLAGS(mob_proto + i);
@@ -135,7 +135,7 @@ bool die_follower(CharData *ch) {
 		return true;
 	}
 
-	if (ch->ahorse()) {
+	if (ch->IsOnHorse()) {
 		AFF_FLAGS(ch).unset(EAffect::kHorse);
 	}
 
@@ -166,7 +166,7 @@ void do_follow(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	struct Follower *f;
 	one_argument(argument, smallBuf);
 
-	if (ch->is_npc() && AFF_FLAGGED(ch, EAffect::kCharmed) && ch->get_fighting())
+	if (ch->IsNpc() && AFF_FLAGGED(ch, EAffect::kCharmed) && ch->GetEnemy())
 		return;
 	if (*smallBuf) {
 		if (!str_cmp(smallBuf, "я") || !str_cmp(smallBuf, "self") || !str_cmp(smallBuf, "me")) {

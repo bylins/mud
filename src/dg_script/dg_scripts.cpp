@@ -441,14 +441,14 @@ CharData *get_char(char *name, int/* vnum*/) {
 	if (*name == UID_CHAR || *name == UID_CHAR_ALL) {
 		i = find_char(atoi(name + 1));
 
-		if (i && (i->is_npc() || !GET_INVIS_LEV(i))) {
+		if (i && (i->IsNpc() || !GET_INVIS_LEV(i))) {
 			return i;
 		}
 	} else {
 		for (const auto &character : character_list) {
 			const auto i = character.get();
 			if (isname(name, i->get_pc_name())
-				&& (i->is_npc()
+				&& (i->IsNpc()
 					|| !GET_INVIS_LEV(i))) {
 				return i;
 			}
@@ -503,26 +503,26 @@ CharData *get_char_by_obj(ObjData *obj, char *name) {
 	if (*name == UID_CHAR || *name == UID_CHAR_ALL) {
 		ch = find_char(atoi(name + 1));
 
-		if (ch && (ch->is_npc() || !GET_INVIS_LEV(ch)))
+		if (ch && (ch->IsNpc() || !GET_INVIS_LEV(ch)))
 			return ch;
 	} else {
 		if (obj->get_carried_by()
 			&& isname(name, obj->get_carried_by()->get_pc_name())
-			&& (obj->get_carried_by()->is_npc()
+			&& (obj->get_carried_by()->IsNpc()
 				|| !GET_INVIS_LEV(obj->get_carried_by()))) {
 			return obj->get_carried_by();
 		}
 
 		if (obj->get_worn_by()
 			&& isname(name, obj->get_worn_by()->get_pc_name())
-			&& (obj->get_worn_by()->is_npc()
+			&& (obj->get_worn_by()->IsNpc()
 				|| !GET_INVIS_LEV(obj->get_worn_by()))) {
 			return obj->get_worn_by();
 		}
 
 		for (const auto &ch : character_list) {
 			if (isname(name, ch->get_pc_name())
-				&& (ch->is_npc()
+				&& (ch->IsNpc()
 					|| !GET_INVIS_LEV(ch))) {
 				return ch.get();
 			}
@@ -548,14 +548,14 @@ CharData *get_char_by_room(RoomData *room, char *name) {
 		ch = find_char(atoi(name + 1));
 
 		if (ch
-			&& (ch->is_npc()
+			&& (ch->IsNpc()
 				|| !GET_INVIS_LEV(ch))) {
 			return ch;
 		}
 	} else {
 		for (const auto &ch : room->people) {
 			if (isname(name, ch->get_pc_name())
-				&& (ch->is_npc()
+				&& (ch->IsNpc()
 					|| !GET_INVIS_LEV(ch))) {
 				return ch;
 			}
@@ -563,7 +563,7 @@ CharData *get_char_by_room(RoomData *room, char *name) {
 
 		for (const auto &ch : character_list) {
 			if (isname(name, ch->get_pc_name())
-				&& (ch->is_npc()
+				&& (ch->IsNpc()
 					|| !GET_INVIS_LEV(ch))) {
 				return ch.get();
 			}
@@ -861,7 +861,7 @@ void do_stat_trigger(CharData *ch, Trigger *trig) {
 		sprintbit(GET_TRIG_TYPE(trig), wtrig_types, buf);
 	} else {
 		SendMsgToChar(ch, "Trigger Intended Assignment: undefined (attach_type=%d)\r\n",
-					 static_cast<int>(trig->get_attach_type()));
+					  static_cast<int>(trig->get_attach_type()));
 	}
 
 	sprintf(sb, "Trigger Type: %s, Numeric Arg: %d, Arg list: %s\r\n",
@@ -969,7 +969,7 @@ void script_stat(CharData *ch, Script *sc) {
 			sprintbit(GET_TRIG_TYPE(t), wtrig_types, buf1);
 		} else {
 			SendMsgToChar(ch, "Trigger Intended Assignment: undefined (attach_type=%d)\r\n",
-						 static_cast<int>(t->get_attach_type()));
+						  static_cast<int>(t->get_attach_type()));
 		}
 		std::stringstream buffer;
 		buffer << "  Trigger Type: " << buf1 << ", Numeric Arg:" << GET_TRIG_NARG(t)
@@ -1121,7 +1121,7 @@ void do_attach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	if (utils::IsAbbrev(arg, "mtr")) {
 		if ((victim = get_char_vis(ch, targ_name, EFind::kCharInWorld))) {
-			if (victim->is_npc())    // have a valid mob, now get trigger
+			if (victim->IsNpc())    // have a valid mob, now get trigger
 			{
 				rn = real_trigger(tn);
 				if ((rn >= 0) && (trig = read_trigger(rn))) {
@@ -1239,7 +1239,7 @@ void do_detach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		if (victim) {
-			if (!victim->is_npc()) {
+			if (!victim->IsNpc()) {
 				SendMsgToChar("Players don't have triggers.\r\n", ch);
 			} else if (!SCRIPT(victim)->has_triggers()) {
 				SendMsgToChar("That mob doesn't have any triggers.\r\n", ch);
@@ -1667,7 +1667,7 @@ void find_replacement(void *go,
 					sprintf(str, "%c", num > 0 ? '1' : '0');
 			} else if (!str_cmp(field, "pc")) {
 				for (const auto &tch : character_list) {
-					if (tch->is_npc())
+					if (tch->IsNpc())
 						continue;
 					if (IN_ROOM(tch) == kNowhere || !tch->desc)
 						continue;
@@ -1703,7 +1703,7 @@ void find_replacement(void *go,
 				int from = 0, to = 0;
 				get_zone_rooms(zone_rnum_from_vnum(num), &from , &to);
 				for (const auto &tch : character_list) {
-					if ((tch->is_npc() && !IS_CHARMICE(tch)) && (tch->in_room >= from && tch->in_room <= to)) {
+					if ((tch->IsNpc() && !IS_CHARMICE(tch)) && (tch->in_room >= from && tch->in_room <= to)) {
 						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(tch));
 					}
 				}
@@ -1711,9 +1711,9 @@ void find_replacement(void *go,
 				int from = 0, to = 0;
 				get_zone_rooms(zone_rnum_from_vnum(num), &from , &to);
 				for (const auto &tch : character_list) {
-					if (!tch->is_npc() && !tch->desc)
+					if (!tch->IsNpc() && !tch->desc)
 						continue;
-					if ((IS_CHARMICE(tch) || !tch->is_npc()) && (tch->in_room >= from && tch->in_room <= to)) {
+					if ((IS_CHARMICE(tch) || !tch->IsNpc()) && (tch->in_room >= from && tch->in_room <= to)) {
 						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(tch));
 					}
 				}
@@ -1721,7 +1721,7 @@ void find_replacement(void *go,
 				int from = 0, to = 0;
 				get_zone_rooms(zone_rnum_from_vnum(num), &from , &to);
 				for (const auto &tch : character_list) {
-					if (tch->is_npc())
+					if (tch->IsNpc())
 						continue;
 					if (!tch->desc)
 						continue;
@@ -1733,7 +1733,7 @@ void find_replacement(void *go,
 				int from =0, to = 0;
 				get_zone_rooms(zone_rnum_from_vnum(num), &from , &to);
 				for (const auto &tch : character_list) {
-					if (!tch->is_npc() && !tch->desc)
+					if (!tch->IsNpc() && !tch->desc)
 						continue;
 					if (tch->in_room >= from && tch->in_room <= to) {
 						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(tch));
@@ -1882,9 +1882,9 @@ void find_replacement(void *go,
 						}
 
 						if ((*field == 'a')
-							|| (*field == 'p' && !c->is_npc())
-							|| (*field == 'n' && c->is_npc() && !IS_CHARMED(c))
-							|| (*field == 'c' && (!c->is_npc() || IS_CHARMED(c)))) {
+							|| (*field == 'p' && !c->IsNpc())
+							|| (*field == 'n' && c->IsNpc() && !IS_CHARMED(c))
+							|| (*field == 'c' && (!c->IsNpc() || IS_CHARMED(c)))) {
 							if (!number(0, count)) {
 								rndm = c;
 							}
@@ -1899,9 +1899,9 @@ void find_replacement(void *go,
 						}
 
 						if ((*field == 'a')
-							|| (*field == 'p' && !c->is_npc())
-							|| (*field == 'n' && c->is_npc() && !IS_CHARMED(c))
-							|| (*field == 'c' && (!c->is_npc() || IS_CHARMED(c)))) {
+							|| (*field == 'p' && !c->IsNpc())
+							|| (*field == 'n' && c->IsNpc() && !IS_CHARMED(c))
+							|| (*field == 'c' && (!c->IsNpc() || IS_CHARMED(c)))) {
 							if (!number(0, count)) {
 								rndm = c;
 							}
@@ -1916,9 +1916,9 @@ void find_replacement(void *go,
 						}
 
 						if ((*field == 'a')
-							|| (*field == 'p' && !c->is_npc())
-							|| (*field == 'n' && c->is_npc() && !IS_CHARMED(c))
-							|| (*field == 'c' && (!c->is_npc() || IS_CHARMED(c)))) {
+							|| (*field == 'p' && !c->IsNpc())
+							|| (*field == 'n' && c->IsNpc() && !IS_CHARMED(c))
+							|| (*field == 'c' && (!c->IsNpc() || IS_CHARMED(c)))) {
 							if (!number(0, count)) {
 								rndm = c;
 							}
@@ -2011,7 +2011,7 @@ void find_replacement(void *go,
 	}
 
 	if (c) {
-		if (!c->is_npc() && !c->desc && name && *name == UID_CHAR) {
+		if (!c->IsNpc() && !c->desc && name && *name == UID_CHAR) {
 			CharacterLinkDrop = true;
 		}
 		if (name && *name == UID_CHAR_ALL) {
@@ -2025,7 +2025,7 @@ void find_replacement(void *go,
 			return;
 		} else if (!str_cmp(field, "global"))    // get global of something else
 		{
-			if (c->is_npc()) {
+			if (c->IsNpc()) {
 				find_replacement(go, c->script.get(), nullptr, MOB_TRIGGER, subfield, nullptr, nullptr, str);
 			}
 		} else if (!str_cmp(field, "iname")) {
@@ -2113,7 +2113,7 @@ void find_replacement(void *go,
 		else if (!str_cmp(field, "id"))
 			sprintf(str, "%c%ld", uid_type, GET_ID(c));
 		else if (!str_cmp(field, "uniq")) {
-			if (!c->is_npc())
+			if (!c->IsNpc())
 				sprintf(str, "%d", GET_UNIQUE(c));
 		} 
 		else if (!str_cmp(field, "level"))
@@ -2131,7 +2131,7 @@ void find_replacement(void *go,
 			int arena_hp = GET_HIT(c);
 			int can_use = 0;
 
-			if (!c->is_npc()) {
+			if (!c->IsNpc()) {
 				k = (c->has_master() ? c->get_master() : c);
 				if (GET_CLASS(c) == 8)//чернок может дрыниться
 				{
@@ -2140,7 +2140,7 @@ void find_replacement(void *go,
 				{
 					can_use = 1;
 				} else if (AFF_FLAGGED(k, EAffect::kGroup)) {
-					if (!k->is_npc()
+					if (!k->IsNpc()
 						&& (GET_CLASS(k) == 8
 							|| GET_CLASS(k) == 13) //чернок или волхв может использовать ужи на согруппов
 						&& world[IN_ROOM(k)]->zone_rn == world[IN_ROOM(c)]->zone_rn) //но только если находится в той же зоне
@@ -2149,7 +2149,7 @@ void find_replacement(void *go,
 					}
 					if (!can_use) {
 						for (f = k->followers; f; f = f->next) {
-							if (f->ch->is_npc()
+							if (f->ch->IsNpc()
 								|| !AFF_FLAGGED(f->ch, EAffect::kGroup)) {
 								continue;
 							}
@@ -2181,13 +2181,13 @@ void find_replacement(void *go,
 			else
 				sprintf(str, "%d", GET_HIT_ADD(c));
 		} else if (!str_cmp(field, "maxhitp")) {
-			if (*subfield && c->is_npc()) // доступно тока мобам
+			if (*subfield && c->IsNpc()) // доступно тока мобам
 				GET_MAX_HIT(c) = (int) gm_char_field(c, field, subfield, (long) GET_MAX_HIT(c));
 			else
 				sprintf(str, "%d", GET_MAX_HIT(c));
 		} else if (!str_cmp(field, "mana")) {
 			if (*subfield) {
-				if (!c->is_npc())
+				if (!c->IsNpc())
 					c->mem_queue.stored = std::max(0L, gm_char_field(c, field, subfield, (long) c->mem_queue.stored));
 			} else
 				sprintf(str, "%d", c->mem_queue.stored);
@@ -2221,7 +2221,7 @@ void find_replacement(void *go,
 			else
 				sprintf(str, "%d", GET_CAST_SUCCESS(c));
 		} else if (!str_cmp(field, "age")) {
-			if (!c->is_npc())
+			if (!c->IsNpc())
 				sprintf(str, "%d", GET_REAL_AGE(c));
 		} else if (!str_cmp(field, "hrbase")) {
 			sprintf(str, "%d", GET_HR(c));
@@ -2270,7 +2270,7 @@ void find_replacement(void *go,
 			else
 				sprintf(str, "%d", GET_INITIATIVE(c));
 		} else if (!str_cmp(field, "linkdrop")) {
-			if (!c->is_npc() && !c->desc){
+			if (!c->IsNpc() && !c->desc){
 				sprintf(str, "1");
 				CharacterLinkDrop = false; // чтоб триггер тут не прерывался для упавших в ЛД
 			}
@@ -2352,18 +2352,18 @@ void find_replacement(void *go,
 						}
 						for (auto f = k->followers; f; f = f->next) {
 							if (AFF_FLAGGED(f->ch, EAffect::kGroup)
-									&& !f->ch->is_npc() && IN_ROOM(f->ch) == c->in_room) {
+									&& !f->ch->IsNpc() && IN_ROOM(f->ch) == c->in_room) {
 								num++;
 							}
 						}
 						if (num > 1) {
 							int share = val / num;
 							int rest = val % num;
-							if (AFF_FLAGGED(k, EAffect::kGroup) && IN_ROOM(k) == c->in_room && !k->is_npc() && k != c)
+							if (AFF_FLAGGED(k, EAffect::kGroup) && IN_ROOM(k) == c->in_room && !k->IsNpc() && k != c)
 								k->add_nogata(share);
 							for (auto f = k->followers; f; f = f->next) {
 								if (AFF_FLAGGED(f->ch, EAffect::kGroup)
-										&& !f->ch->is_npc() && IN_ROOM(f->ch) == c->in_room && f->ch != c) {
+										&& !f->ch->IsNpc() && IN_ROOM(f->ch) == c->in_room && f->ch != c) {
 									f->ch->add_nogata(share);
 								}
 							}
@@ -2372,8 +2372,8 @@ void find_replacement(void *go,
 							SendMsgToChar(buf, c);
 							if (rest > 0) {
 								SendMsgToChar(c, "Как истинный еврей вы оставили %d %s (которые не смогли разделить нацело) себе.\r\n",
-											 rest,
-											 GetDeclensionInNumber(rest, EWhat::kNogataU));
+											  rest,
+											  GetDeclensionInNumber(rest, EWhat::kNogataU));
 							}
 							c->add_nogata(share+rest);
 						}
@@ -2405,7 +2405,7 @@ void find_replacement(void *go,
 				const long diff = c->get_gold() - before;
 				split_or_clan_tax(c, diff);
 				// стата для show money
-				if (!c->is_npc() && IN_ROOM(c) > 0) {
+				if (!c->IsNpc() && IN_ROOM(c) > 0) {
 					MoneyDropStat::add(zone_table[world[IN_ROOM(c)]->zone_rn].vnum, diff);
 				}
 			} else
@@ -2418,7 +2418,7 @@ void find_replacement(void *go,
 				const long diff = c->get_bank() - before;
 				split_or_clan_tax(c, diff);
 				// стата для show money
-				if (!c->is_npc() && IN_ROOM(c) > 0) {
+				if (!c->IsNpc() && IN_ROOM(c) > 0) {
 					MoneyDropStat::add(zone_table[world[IN_ROOM(c)]->zone_rn].vnum, diff);
 				} 
 			} else
@@ -2525,8 +2525,8 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "race")) {
 			sprintf(str, "%d", (int) GET_RACE(c));
 		} else if (!str_cmp(field, "fighting")) {
-			if (c->get_fighting()) {
-				sprintf(str, "%c%ld", UID_CHAR, GET_ID(c->get_fighting()));
+			if (c->GetEnemy()) {
+				sprintf(str, "%c%ld", UID_CHAR, GET_ID(c->GetEnemy()));
 			}
 		} else if (!str_cmp(field, "is_killer")) {
 			if (PLR_FLAGGED(c, EPlrFlag::kKiller)) {
@@ -2547,7 +2547,7 @@ void find_replacement(void *go,
 				strcpy(str, "0");
 			}
 		} else if (!str_cmp(field, "rentable")) {
-			if (!c->is_npc() && NORENTABLE(c)) {
+			if (!c->IsNpc() && NORENTABLE(c)) {
 				strcpy(str, "0");
 			} else {
 				strcpy(str, "1");
@@ -2645,13 +2645,13 @@ void find_replacement(void *go,
 				sprintf(str, "%c%ld", uid_type, GET_ID(c->get_horse()));
 			}
 		} else if (!str_cmp(field, "riden_by")) {
-			if (IS_HORSE(c) && c->get_master()->ahorse() && (GET_ID(c->get_master()->get_horse()) == GET_ID(c))) {
+			if (IS_HORSE(c) && c->get_master()->IsOnHorse() && (GET_ID(c->get_master()->get_horse()) == GET_ID(c))) {
 				sprintf(str, "%c%ld", UID_CHAR, GET_ID(c->get_master()));
 			}
 		} else if (!str_cmp(field, "realroom"))
 			sprintf(str, "%d", world[IN_ROOM(c)]->room_vn);
 		else if (!str_cmp(field, "loadroom")) {
-			if (!c->is_npc()) {
+			if (!c->IsNpc()) {
 				if (!*subfield)
 					sprintf(str, "%d", GET_LOADROOM(c));
 				else {
@@ -2783,7 +2783,7 @@ void find_replacement(void *go,
 			} else {
 				auto pos = std::clamp(static_cast<EPosition>(atoi(subfield)), EPosition::kPerish, --EPosition::kLast);
 				if (!IS_IMMORTAL(c)) {
-					if (c->ahorse()) {
+					if (c->IsOnHorse()) {
 						c->dismount();
 					}
 					GET_POS(c) = pos;
@@ -2830,7 +2830,7 @@ void find_replacement(void *go,
 				sprintf(str, "%d", (int) IsAffectedBySpell(c, num));
 			}
 		} else if (!str_cmp(field, "action")) {
-			if (c->is_npc()) {
+			if (c->IsNpc()) {
 				c->char_specials.saved.act.gm_flag(subfield, action_bits, str);
 			}
 		} else if (!str_cmp(field, "leader")) {
@@ -2859,7 +2859,7 @@ void find_replacement(void *go,
 			CharData *t;
 			size_t str_length = strlen(str);
 			for (t = combat_list; t; t = t->next_fighting) {
-				if (t->get_fighting() != c) {
+				if (t->GetEnemy() != c) {
 					continue;
 				}
 				int n = snprintf(tmp, kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(t));
@@ -2921,13 +2921,13 @@ void find_replacement(void *go,
 				}
 
 				if ((*field == 'a')
-					|| (!rndm->is_npc()
+					|| (!rndm->IsNpc()
 						&& *field != 'n'
 						&& rndm->desc)
-					|| (rndm->is_npc()
+					|| (rndm->IsNpc()
 						&& IS_CHARMED(rndm)
 						&& *field == 'c')
-					|| (rndm->is_npc()
+					|| (rndm->IsNpc()
 						&& !IS_CHARMED(rndm)
 						&& *field == 'n')) {
 					int n = snprintf(tmp, kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(rndm));
@@ -3182,12 +3182,12 @@ void find_replacement(void *go,
 					continue;
 
 				if ((*field == 'a')
-					|| (!rndm->is_npc()
+					|| (!rndm->IsNpc()
 						&& *field != 'n')
-					|| (rndm->is_npc()
+					|| (rndm->IsNpc()
 						&& IS_CHARMED(rndm)
 						&& *field == 'c')
-					|| (rndm->is_npc()
+					|| (rndm->IsNpc()
 						&& !IS_CHARMED(rndm)
 						&& *field == 'n')) {
 					int n = snprintf(tmp, kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(rndm));
@@ -3355,12 +3355,12 @@ void find_replacement(void *go,
 					continue;
 
 				if ((*field == 'a')
-					|| (!rndm->is_npc()
+					|| (!rndm->IsNpc()
 						&& *field != 'n')
-					|| (rndm->is_npc()
+					|| (rndm->IsNpc()
 						&& IS_CHARMED(rndm)
 						&& *field == 'c')
-					|| (rndm->is_npc()
+					|| (rndm->IsNpc()
 						&& !IS_CHARMED(rndm)
 						&& *field == 'n')) {
 					int n = snprintf(tmp, kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(rndm));
@@ -4138,7 +4138,7 @@ void process_attach(void *go, Script *sc, Trigger *trig, int type, char *cmd) {
 			}
 		}
 	} else {
-		if (!c->is_npc()) {
+		if (!c->IsNpc()) {
 				sprintf(buf2, "attach: триггер нельзя прикрепить к игроку");
 				trig_log(trig, buf2);
 				return;
@@ -4589,7 +4589,7 @@ void charuid_var(void * /*go*/, Script * /*sc*/, Trigger *trig, char *cmd) {
 	}
 
 	for (const auto &tch : character_list) {
-		if (tch->is_npc()
+		if (tch->IsNpc()
 			|| !HERE(tch)
 			|| !isname(who, GET_NAME(tch))) {
 			continue;
@@ -4633,7 +4633,7 @@ void charuidall_var(void * /*go*/, Script * /*sc*/, Trigger *trig, char *cmd) {
 		return;
 	}
 	for (const auto &tch : character_list) {
-		if (tch->is_npc()) {
+		if (tch->IsNpc()) {
 			continue;
 		}
 		if (str_cmp(who, GET_NAME(tch))) {
@@ -4834,7 +4834,7 @@ void process_remote(Script *sc, Trigger *trig, char *cmd) {
 		sc_remote = SCRIPT(room).get();
 	} else if ((mob = get_char(buf2))) {
 		sc_remote = SCRIPT(mob).get();
-		if (!mob->is_npc()) {
+		if (!mob->IsNpc()) {
 			context = 0;
 		}
 	} else if ((obj = get_obj(buf2))) {
@@ -5595,7 +5595,7 @@ void save_char_vars(CharData *ch) {
 	struct TriggerVar *vars;
 
 	// we should never be called for an NPC, but just in case...
-	if (ch->is_npc())
+	if (ch->IsNpc())
 		return;
 
 	get_filename(GET_NAME(ch), fn, kScriptVarsFile);

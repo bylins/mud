@@ -14,19 +14,19 @@ void go_block(CharData *ch) {
 }
 
 void do_block(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (ch->is_npc() || !ch->get_skill(ESkill::kShieldBlock)) {
+	if (ch->IsNpc() || !ch->get_skill(ESkill::kShieldBlock)) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::kShieldBlock)) {
+	if (ch->HasCooldown(ESkill::kShieldBlock)) {
 		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
-	if (!ch->get_fighting()) {
+	if (!ch->GetEnemy()) {
 		SendMsgToChar("Но вы ни с кем не сражаетесь!\r\n", ch);
 		return;
 	};
-	if (!(ch->is_npc()
+	if (!(ch->IsNpc()
 		|| GET_EQ(ch, kShield)
 		|| IS_IMMORTAL(ch)
 		|| GET_GOD_FLAG(ch, EGf::kGodsLike))) {

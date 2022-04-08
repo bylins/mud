@@ -276,7 +276,7 @@ void greet_mtrigger(CharData *actor, int dir) {
 		const auto mask = MTRIG_GREET | MTRIG_GREET_ALL | MTRIG_GREET_PC | MTRIG_GREET_PC_ALL;
 		if (!CheckScript(ch, mask)
 			|| !AWAKE(ch)
-			|| ch->get_fighting()
+			|| ch->GetEnemy()
 			|| ch == actor
 			|| !CAN_START_MTRIG(ch)
 			|| GET_INVIS_LEV(actor)) {
@@ -288,9 +288,9 @@ void greet_mtrigger(CharData *actor, int dir) {
 				&& CAN_SEE(ch, actor))
 				|| IS_SET(GET_TRIG_TYPE(t), MTRIG_GREET_ALL)
 				|| (IS_SET(GET_TRIG_TYPE(t), MTRIG_GREET_PC)
-					&& !actor->is_npc() && CAN_SEE(ch, actor))
+					&& !actor->IsNpc() && CAN_SEE(ch, actor))
 				|| (IS_SET(GET_TRIG_TYPE(t), MTRIG_GREET_PC_ALL)
-					&& !actor->is_npc())) && !GET_TRIG_DEPTH(t)
+					&& !actor->IsNpc())) && !GET_TRIG_DEPTH(t)
 				&& (number(1, 100) <= GET_TRIG_NARG(t))) {
 				if (dir >= 0) {
 					add_var_cntx(&GET_TRIG_VARS(t), "direction", dirs[rev_dir[dir]], 0);
@@ -322,7 +322,7 @@ void income_mtrigger(CharData *ch, int dir) {
 	}
 
 	for (const auto i : world[ch->in_room]->people) {
-		if ((!i->is_npc()
+		if ((!i->IsNpc()
 			&& CAN_SEE(ch, i)) && !GET_INVIS_LEV(i)) {
 			ispcinroom = 1;
 			actor = i;
@@ -430,7 +430,7 @@ int command_mtrigger(CharData *actor, char *cmd, const char *argument) {
 				}
 
 				if (compare_cmd(GET_TRIG_NARG(t), t->arglist.c_str(), cmd)) {
-					if (!actor->is_npc()
+					if (!actor->IsNpc()
 						&& (GET_POS(actor) == EPosition::kSleep))   // command триггер не будет срабатывать если игрок спит
 					{
 						SendMsgToChar("Сделать это в ваших снах?\r\n", actor);
@@ -548,14 +548,14 @@ int fight_mtrigger(CharData *ch) {
 		return 1;
 	}
 
-	if (!CheckScript(ch, MTRIG_FIGHT) || !ch->get_fighting() || !CAN_START_MTRIG(ch))
+	if (!CheckScript(ch, MTRIG_FIGHT) || !ch->GetEnemy() || !CAN_START_MTRIG(ch))
 		return 1;
 
 	for (auto t : SCRIPT(ch)->trig_list) {
 		if (TRIGGER_CHECK(t, MTRIG_FIGHT) && (number(1, 100) <= GET_TRIG_NARG(t))) {
 			snprintf(buf, kMaxInputLength, "%d", ch->round_counter);
 			add_var_cntx(&GET_TRIG_VARS(t), "round", buf, 0);
-			ADD_UID_CHAR_VAR(buf, t, ch->get_fighting(), "actor", 0);
+			ADD_UID_CHAR_VAR(buf, t, ch->GetEnemy(), "actor", 0);
 			return script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
 			break;
 		}
@@ -604,13 +604,13 @@ void hitprcnt_mtrigger(CharData *ch) {
 
 	char buf[kMaxInputLength];
 
-	if (!CheckScript(ch, MTRIG_HITPRCNT) || !ch->get_fighting() || !CAN_START_MTRIG(ch))
+	if (!CheckScript(ch, MTRIG_HITPRCNT) || !ch->GetEnemy() || !CAN_START_MTRIG(ch))
 		return;
 
 	for (auto t : SCRIPT(ch)->trig_list) {
 		if (TRIGGER_CHECK(t, MTRIG_HITPRCNT) && GET_MAX_HIT(ch) &&
 			(((GET_HIT(ch) * 100) / GET_MAX_HIT(ch)) <= GET_TRIG_NARG(t))) {
-			ADD_UID_CHAR_VAR(buf, t, ch->get_fighting(), "actor", 0);
+			ADD_UID_CHAR_VAR(buf, t, ch->GetEnemy(), "actor", 0);
 			script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
 			break;
 		}
@@ -936,7 +936,7 @@ int cmd_otrig(ObjData *obj, CharData *actor, char *cmd, const char *argument, in
 			if (IS_SET(GET_TRIG_NARG(t), type)
 				&& (t->arglist[0] == '*'
 				|| 0 == strn_cmp(t->arglist.c_str(), cmd, t->arglist.size()))) {
-				if (!actor->is_npc()
+				if (!actor->IsNpc()
 					&& (GET_POS(actor) == EPosition::kSleep))   // command триггер не будет срабатывать если игрок спит
 				{
 					SendMsgToChar("Сделать это в ваших снах?\r\n", actor);
@@ -1164,7 +1164,7 @@ void greet_otrigger(CharData *actor, int dir) {
 	ObjData *obj;
 	int rev_dir[] = {EDirection::kSouth, EDirection::kWest, EDirection::kNorth, EDirection::kEast, EDirection::kDown, EDirection::kUp};
 
-	if (actor->is_npc() || GET_INVIS_LEV(actor)) {
+	if (actor->IsNpc() || GET_INVIS_LEV(actor)) {
 		return;
 	}
 
@@ -1249,7 +1249,7 @@ int enter_wtrigger(RoomData *room, CharData *actor, int dir) {
 	for (auto t : SCRIPT(room)->trig_list) {
 		if ((TRIGGER_CHECK(t, WTRIG_ENTER)
 			|| (TRIGGER_CHECK(t, WTRIG_ENTER_PC)
-				&& !actor->is_npc()))
+				&& !actor->IsNpc()))
 			&& (number(1, 100) <= GET_TRIG_NARG(t))) {
 			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
 			if (dir >= 0) {
@@ -1303,7 +1303,7 @@ int command_wtrigger(CharData *actor, char *cmd, const char *argument) {
 		}
 
 		if (compare_cmd(GET_TRIG_NARG(t), t->arglist.c_str(), cmd)) {
-			if (!actor->is_npc()
+			if (!actor->IsNpc()
 				&& (GET_POS(actor) == EPosition::kSleep))   // command триггер не будет срабатывать если игрок спит
 			{
 				SendMsgToChar("Сделать это в ваших снах?\r\n", actor);

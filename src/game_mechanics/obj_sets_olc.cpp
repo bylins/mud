@@ -345,8 +345,8 @@ void sedit::show_obj_edit(CharData *ch) {
 	auto obj = olc_set.obj_list.find(obj_edit);
 	if (obj == olc_set.obj_list.end()) {
 		SendMsgToChar(ch,
-					 "Ошибка: предмет не в наборе %s:%d (%s).\r\n",
-					 __FILE__, __LINE__, __func__);
+					  "Ошибка: предмет не в наборе %s:%d (%s).\r\n",
+					  __FILE__, __LINE__, __func__);
 		show_main(ch);
 		return;
 	}
@@ -838,8 +838,8 @@ void sedit::parse_main(CharData *ch, const char *arg) {
 		SendMsgToChar("Введите любую команду для продолжения : ", ch);
 	} else if (num == NUM_ADD_ACTIV) {
 		SendMsgToChar(ch,
-					 "Укажите кол-во предметов для активации (%u-%u) : ",
-					 MIN_ACTIVE_SIZE, MAX_ACTIVE_SIZE);
+					  "Укажите кол-во предметов для активации (%u-%u) : ",
+					  MIN_ACTIVE_SIZE, MAX_ACTIVE_SIZE);
 		state = STATE_ACTIV_ADD;
 	} else if (!olc_set.activ_list.empty()
 		&& num > NUM_ADD_ACTIV
@@ -976,10 +976,10 @@ void sedit::parse_activ_add(CharData *ch, const char *arg) {
 	auto i = olc_set.activ_list.find(num);
 	if (i != olc_set.activ_list.end()) {
 		SendMsgToChar(ch, "В наборе уже есть активатор на %d %s.\r\n",
-					 num, GetDeclensionInNumber(num, EWhat::kObject));
+					  num, GetDeclensionInNumber(num, EWhat::kObject));
 	} else {
 		SendMsgToChar(ch, "Активатор на %d %s добавлен в набор.\r\n",
-					 num, GetDeclensionInNumber(num, EWhat::kObject));
+					  num, GetDeclensionInNumber(num, EWhat::kObject));
 		ActivNode node;
 		// GCC 4.4
 		//olc_set.activ_list.emplace(num, node);
@@ -1032,7 +1032,7 @@ void sedit::parse_activ_ench_vnum(CharData *ch, const char *arg) {
 			return;
 		} else if (olc_set.obj_list.find(vnum) == olc_set.obj_list.end()) {
 			SendMsgToChar(ch,
-						 "В данном наборе нет предмета с vnum %d.\r\n", vnum);
+						  "В данном наборе нет предмета с vnum %d.\r\n", vnum);
 			show_activ_ench_vnum(ch);
 			return;
 		}
@@ -1106,20 +1106,20 @@ void sedit::parse_obj_add(CharData *ch, const char *arg) {
 			SendMsgToChar(ch, "Предметов с vnum %d не существует.\r\n", vnum);
 		} else if (is_duplicate(olc_set.uid, vnum)) {
 			SendMsgToChar(ch,
-						 "Предмет '%s' уже является частью другого набора.\r\n",
-						 obj_proto[rnum]->get_short_description().c_str());
+						  "Предмет '%s' уже является частью другого набора.\r\n",
+						  obj_proto[rnum]->get_short_description().c_str());
 		} else if (!verify_wear_flag(obj_proto[rnum])) {
 			SendMsgToChar(ch,
-						 "Предмет '%s' имеет запрещенный слот для надевания.\r\n",
-						 obj_proto[rnum]->get_short_description().c_str());
+						  "Предмет '%s' имеет запрещенный слот для надевания.\r\n",
+						  obj_proto[rnum]->get_short_description().c_str());
 		} else {
 			SetMsgNode empty_msg;
 			// GCC 4.4
 			//olc_set.obj_list.emplace(vnum, empty_msg);
 			olc_set.obj_list.insert(std::make_pair(vnum, empty_msg));
 			SendMsgToChar(ch,
-						 "Предмет '%s' добавлен в набор.\r\n",
-						 obj_proto[rnum]->get_short_description().c_str());
+						  "Предмет '%s' добавлен в набор.\r\n",
+						  obj_proto[rnum]->get_short_description().c_str());
 		}
 	}
 
@@ -1325,8 +1325,8 @@ void sedit::parse_activ_edit(CharData *ch, const char *arg) {
 	auto i = olc_set.activ_list.find(activ_edit);
 	if (i == olc_set.activ_list.end()) {
 		SendMsgToChar(ch,
-					 "Ошибка: активатор не найден %s:%d (%s).\r\n",
-					 __FILE__, __LINE__, __func__);
+					  "Ошибка: активатор не найден %s:%d (%s).\r\n",
+					  __FILE__, __LINE__, __func__);
 		show_main(ch);
 		return;
 	}
@@ -1504,8 +1504,8 @@ void sedit::parse_activ_change(CharData *ch, const char *arg) {
 		SendMsgToChar("Кол-во предметов активации не изменилось.\r\n", ch);
 	} else if (olc_set.activ_list.find(num) != olc_set.activ_list.end()) {
 		SendMsgToChar(ch,
-					 "Набор уже содержит активатор на %d %s.\r\n",
-					 num, GetDeclensionInNumber(num, EWhat::kObject));
+					  "Набор уже содержит активатор на %d %s.\r\n",
+					  num, GetDeclensionInNumber(num, EWhat::kObject));
 	} else {
 		ActivNode activ;
 		auto i = olc_set.activ_list.find(activ_edit);
@@ -1518,7 +1518,7 @@ void sedit::parse_activ_change(CharData *ch, const char *arg) {
 		//olc_set.activ_list.emplace(num, activ);
 		olc_set.activ_list.insert(std::make_pair(num, activ));
 		SendMsgToChar(ch, "Активатор на %d %s добавлен в набор.\r\n",
-					 num, GetDeclensionInNumber(num, EWhat::kObject));
+					  num, GetDeclensionInNumber(num, EWhat::kObject));
 	}
 	show_activ_edit(ch);
 }
@@ -1602,8 +1602,8 @@ void parse_input(CharData *ch, const char *arg) {
 		default: ch->desc->sedit.reset();
 			STATE(ch->desc) = CON_PLAYING;
 			SendMsgToChar(ch,
-						 "Ошибка: не найден STATE, редактирование отменено %s:%d (%s).\r\n",
-						 __FILE__, __LINE__, __func__);
+						  "Ошибка: не найден STATE, редактирование отменено %s:%d (%s).\r\n",
+						  __FILE__, __LINE__, __func__);
 			break;
 	} // switch
 }
@@ -1636,7 +1636,7 @@ const char *SEDIT_HELP =
 
 /// иммский sedit, см. SEDIT_HELP
 void do_sedit(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->is_npc()) {
+	if (ch->IsNpc()) {
 		return;
 	}
 
@@ -1656,7 +1656,7 @@ void do_sedit(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (real_object(num) < 0) {
 				SendMsgToChar(SEDIT_HELP, ch);
 				SendMsgToChar(ch, "Предметов с vnum %s не существует.\r\n",
-							 argument);
+							  argument);
 				return;
 			}
 			size_t idx = setidx_by_objvnum(num);
@@ -1665,7 +1665,7 @@ void do_sedit(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			} else {
 				SendMsgToChar(SEDIT_HELP, ch);
 				SendMsgToChar(ch,
-							 "В сетах предметов с vnum %s не найдено.\r\n", argument);
+							  "В сетах предметов с vnum %s не найдено.\r\n", argument);
 			}
 		}
 	} else if (!str_cmp(argument, "msg_set") || !str_cmp(argument, "messages")) {

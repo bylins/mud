@@ -1165,7 +1165,7 @@ void command_interpreter(CharData *ch, char *argument) {
 	if (!*argument)
 		return;
 
-	if (!ch->is_npc()) {
+	if (!ch->IsNpc()) {
 		log("<%s, %d> {%5d} [%s]",
 			GET_NAME(ch),
 			GlobalObjects::heartbeat().pulse_number(),
@@ -1199,7 +1199,7 @@ void command_interpreter(CharData *ch, char *argument) {
 		*(argument + length - 1) = ' ';
 	}
 
-	if (!ch->is_npc()
+	if (!ch->IsNpc()
 		&& !GET_INVIS_LEV(ch)
 		&& !AFF_FLAGGED(ch, EAffect::kHold)
 		&& !AFF_FLAGGED(ch, EAffect::kStopFight)
@@ -1246,7 +1246,7 @@ void command_interpreter(CharData *ch, char *argument) {
 		}
 	}
 
-	if (((!ch->is_npc()
+	if (((!ch->IsNpc()
 		&& (GET_FREEZE_LEV(ch) > GetRealLevel(ch))
 		&& (PLR_FLAGGED(ch, EPlrFlag::kFrozen)))
 		|| AFF_FLAGGED(ch, EAffect::kHold)
@@ -1262,7 +1262,7 @@ void command_interpreter(CharData *ch, char *argument) {
 		return;
 	}
 
-	if (!social && ch->is_npc() && cmd_info[cmd].minimum_level >= kLvlImmortal) {
+	if (!social && ch->IsNpc() && cmd_info[cmd].minimum_level >= kLvlImmortal) {
 		SendMsgToChar("Вы еще не БОГ, чтобы делать это.\r\n", ch);
 		return;
 	}
@@ -1298,7 +1298,7 @@ void command_interpreter(CharData *ch, char *argument) {
 		if (ch->purged()) {
 			return;
 		}
-		if (!ch->is_npc() && ch->in_room != kNowhere && ch->check_aggressive) {
+		if (!ch->IsNpc() && ch->in_room != kNowhere && ch->check_aggressive) {
 			ch->check_aggressive = false;
 			do_aggressive_room(ch, false);
 			if (ch->purged()) {
@@ -1336,7 +1336,7 @@ void do_alias(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char *repl;
 	struct alias_data *a;
 
-	if (ch->is_npc())
+	if (ch->IsNpc())
 		return;
 
 	repl = any_one_arg(argument, arg);
@@ -1459,7 +1459,7 @@ int perform_alias(DescriptorData *d, char *orig) {
 	struct alias_data *a, *tmp;
 
 	// Mobs don't have alaises. //
-	if (d->character->is_npc())
+	if (d->character->IsNpc())
 		return (0);
 
 	// bail out immediately if the guy doesn't have any aliases //
@@ -1887,7 +1887,7 @@ int perform_dupe_check(DescriptorData *d) {
 	 */
 
 	character_list.foreach_on_copy([&](const CharData::shared_ptr &ch) {
-		if (ch->is_npc()) {
+		if (ch->IsNpc()) {
 			return;
 		}
 
@@ -2013,10 +2013,10 @@ int check_dupes_host(DescriptorData *d, bool autocheck = false) {
 						return 0;
 					}
 					SendMsgToChar(d->character.get(),
-								 "&RВы вошли с игроком %s с одного IP(%s)!\r\n"
-								 "Вам необходимо обратиться к Богам для регистрации.\r\n"
-								 "Пока вы будете помещены в комнату для незарегистрированных игроков.&n\r\n",
-								 GET_PAD(i->character, 4), i->host);
+								  "&RВы вошли с игроком %s с одного IP(%s)!\r\n"
+								  "Вам необходимо обратиться к Богам для регистрации.\r\n"
+								  "Пока вы будете помещены в комнату для незарегистрированных игроков.&n\r\n",
+								  GET_PAD(i->character, 4), i->host);
 					sprintf(buf,
 							"! ВХОД С ОДНОГО IP ! незарегистрированного игрока.\r\n"
 							"Вошел - %s, в игре - %s, IP - %s.\r\n"
@@ -2049,7 +2049,7 @@ int check_dupes_email(DescriptorData *d) {
 
 	for (const auto &ch : character_list) {
 		if (ch == d->character
-			|| ch->is_npc()) {
+			|| ch->IsNpc()) {
 			continue;
 		}
 
@@ -2261,32 +2261,33 @@ void do_entergame(DescriptorData *d) {
 		PRF_FLAGS(d->character).unset(EPrf::kAwake);
 	}
 
-	if (PRF_FLAGS(d->character).get(EPrf::kPerformPowerAttack)
-		&& !IsAbleToUseFeat(d->character.get(), EFeat::kPowerAttack)) {
+	if (PRF_FLAGS(d->character).get(EPrf::kPerformPowerAttack) &&
+		!IsAbleToUseFeat(d->character.get(), EFeat::kPowerAttack)) {
 		PRF_FLAGS(d->character).unset(EPrf::kPerformPowerAttack);
 	}
-
-	if (PRF_FLAGS(d->character).get(EPrf::kPerformGreatPowerAttack)
-		&& !IsAbleToUseFeat(d->character.get(), EFeat::kGreatPowerAttack)) {
+	if (PRF_FLAGS(d->character).get(EPrf::kPerformGreatPowerAttack) &&
+		!IsAbleToUseFeat(d->character.get(), EFeat::kGreatPowerAttack)) {
 		PRF_FLAGS(d->character).unset(EPrf::kPerformGreatPowerAttack);
 	}
-
-	if (PRF_FLAGS(d->character).get(EPrf::kPerformAimingAttack)
-		&& !IsAbleToUseFeat(d->character.get(), EFeat::kAimingAttack)) {
+	if (PRF_FLAGS(d->character).get(EPrf::kPerformAimingAttack) &&
+	!IsAbleToUseFeat(d->character.get(), EFeat::kAimingAttack)) {
 		PRF_FLAGS(d->character).unset(EPrf::kPerformAimingAttack);
 	}
-
-	if (PRF_FLAGS(d->character).get(EPrf::kPerformGreatAimingAttack)
-		&& !IsAbleToUseFeat(d->character.get(), EFeat::kGreatAimingAttack)) {
+	if (PRF_FLAGS(d->character).get(EPrf::kPerformGreatAimingAttack) &&
+		!IsAbleToUseFeat(d->character.get(), EFeat::kGreatAimingAttack)) {
 		PRF_FLAGS(d->character).unset(EPrf::kPerformGreatAimingAttack);
 	}
-	if (PRF_FLAGS(d->character).get(EPrf::kDoubleThrow)
-		&& !IsAbleToUseFeat(d->character.get(), EFeat::kDoubleThrower)) {
+	if (PRF_FLAGS(d->character).get(EPrf::kDoubleThrow) &&
+		!IsAbleToUseFeat(d->character.get(), EFeat::kDoubleThrower)) {
 		PRF_FLAGS(d->character).unset(EPrf::kDoubleThrow);
 	}
-	if (PRF_FLAGS(d->character).get(EPrf::kTripleThrow)
-		&& !IsAbleToUseFeat(d->character.get(), EFeat::kTripleThrower)) {
+	if (PRF_FLAGS(d->character).get(EPrf::kTripleThrow) &&
+		!IsAbleToUseFeat(d->character.get(), EFeat::kTripleThrower)) {
 		PRF_FLAGS(d->character).unset(EPrf::kTripleThrow);
+	}
+	if (PRF_FLAGS(d->character).get(EPrf::kPerformSerratedBlade) &&
+		!IsAbleToUseFeat(d->character.get(), EFeat::kSerratedBlade)) {
+		PRF_FLAGS(d->character).unset(EPrf::kPerformSerratedBlade);
 	}
 	if (PRF_FLAGS(d->character).get(EPrf::kSkirmisher)) {
 		PRF_FLAGS(d->character).unset(EPrf::kSkirmisher);

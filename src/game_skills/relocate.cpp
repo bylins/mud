@@ -39,7 +39,7 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (victim->is_npc()) {
+	if (victim->IsNpc()) {
 		SendMsgToChar("Попытка перемещения не удалась.\r\n", ch);
 		return;
 	}
@@ -99,7 +99,7 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!(PRF_FLAGGED(victim, EPrf::KSummonable) || same_group(ch, victim) || IS_IMMORTAL(ch)
 		|| ROOM_FLAGGED(fnd_room, ERoomFlag::kArena))) {
 		SendMsgToChar(ch, "%sВаш поступок был расценен как потенциально агрессивный.%s\r\n",
-					 CCIRED(ch, C_NRM), CCINRM(ch, C_NRM));
+					  CCIRED(ch, C_NRM), CCINRM(ch, C_NRM));
 		pkPortal(ch);
 		timed.time = 18 - MIN(GET_REAL_REMORT(ch), 15);
 		SetWaitState(ch, 3 * kPulseViolence);

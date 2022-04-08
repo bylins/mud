@@ -29,7 +29,7 @@ void do_order(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else if (ch == vict && !utils::IsAbbrev(name, "все") && !utils::IsAbbrev(name, "всем"))
 		SendMsgToChar("Вы начали слышать императивные голоса - срочно к психиатру!\r\n", ch);
 	else {
-		if (vict && !vict->is_npc() && !IS_GOD(ch)) {
+		if (vict && !vict->IsNpc() && !IS_GOD(ch)) {
 			SendMsgToChar(ch, "Игрокам приказывать могут только Боги!\r\n");
 			return;
 		}
@@ -59,7 +59,7 @@ void do_order(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SendMsgToChar(OK, ch);
 				if (vict->get_wait() <= 0) {
 					command_interpreter(vict, message);
-				} else if (vict->get_fighting()) {
+				} else if (vict->GetEnemy()) {
 					if (vict->last_comm != nullptr) {
 						free(vict->last_comm);
 					}
@@ -82,7 +82,7 @@ void do_order(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					found = true;
 					if (follower->get_wait() <= 0) {
 						command_interpreter(follower, message);
-					} else if (follower->get_fighting()) {
+					} else if (follower->GetEnemy()) {
 						if (follower->last_comm != nullptr) {
 							free(follower->last_comm);
 						}

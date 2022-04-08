@@ -261,13 +261,13 @@ void do_drink_poison(CharData *ch, ObjData *jar, int amount) {
 		af.location = EApply::kStr;
 		af.bitvector = to_underlying(EAffect::kPoisoned);
 		af.battleflag = kAfSameTime;
-		affect_join(ch, af, false, false, false, false);
+		ImposeAffect(ch, af, false, false, false, false);
 		af.type = kSpellPoison;
 		af.modifier = amount == 0 ? GetRealLevel(ch) * 3 : amount * 3;
 		af.location = EApply::kPoison;
 		af.bitvector = to_underlying(EAffect::kPoisoned);
 		af.battleflag = kAfSameTime;
-		affect_join(ch, af, false, false, false, false);
+		ImposeAffect(ch, af, false, false, false, false);
 		ch->poisoner = 0;
 	}
 }
@@ -435,7 +435,7 @@ int do_drink_check_conditions(CharData *ch, ObjData *jar, int amount) {
 	}
 
 	// Нельзя пить в бою
-	if (ch->get_fighting()) {
+	if (ch->GetEnemy()) {
 		SendMsgToChar("Не стоит отвлекаться в бою.\r\n", ch);
 		return 0;
 	}
@@ -475,7 +475,7 @@ void do_drink_drunk(CharData *ch, ObjData *jar, int amount) {
 			af.location = EApply::kAc;
 			af.bitvector = to_underlying(EAffect::kDrunked);
 			af.battleflag = 0;
-			affect_join(ch, af, false, false, false, false);
+			ImposeAffect(ch, af, false, false, false, false);
 			// **** Decrease HR ***** //
 			af.type = kSpellDrunked;
 			af.duration = CalcDuration(ch, duration, 0, 0, 0, 0);
@@ -483,7 +483,7 @@ void do_drink_drunk(CharData *ch, ObjData *jar, int amount) {
 			af.location = EApply::kHitroll;
 			af.bitvector = to_underlying(EAffect::kDrunked);
 			af.battleflag = 0;
-			affect_join(ch, af, false, false, false, false);
+			ImposeAffect(ch, af, false, false, false, false);
 			// **** Increase DR ***** //
 			af.type = kSpellDrunked;
 			af.duration = CalcDuration(ch, duration, 0, 0, 0, 0);
@@ -491,7 +491,7 @@ void do_drink_drunk(CharData *ch, ObjData *jar, int amount) {
 			af.location = EApply::kDamroll;
 			af.bitvector = to_underlying(EAffect::kDrunked);
 			af.battleflag = 0;
-			affect_join(ch, af, false, false, false, false);
+			ImposeAffect(ch, af, false, false, false, false);
 		}
 	}
 }
@@ -501,7 +501,7 @@ void do_drink(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	int amount;
 
 	//мобы не пьют
-	if (ch->is_npc())
+	if (ch->IsNpc())
 		return;
 
 	one_argument(argument, arg);
@@ -599,10 +599,10 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int amount, weight, prob, percent, duration;
 	int on_ground = 0;
 
-	if (ch->is_npc())        // Cannot use GET_COND() on mobs. //
+	if (ch->IsNpc())        // Cannot use GET_COND() on mobs. //
 		return;
 
-	if (ch->get_fighting()) {
+	if (ch->GetEnemy()) {
 		SendMsgToChar("Не стоит отвлекаться в бою.\r\n", ch);
 		return;
 	}
@@ -734,7 +734,7 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				break;
 		}
 		for (prob = 0; prob < 3; prob++) {
-			affect_join(ch, af[prob], true, false, true, false);
+			ImposeAffect(ch, af[prob], true, false, true, false);
 		}
 		gain_condition(ch, DRUNK, amount);
 	} else {
@@ -1021,7 +1021,7 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 	if (from_obj->has_flag(EObjFlag::kNopour)) {
 		SendMsgToChar(ch, "Вы перевернули %s, потрусили, но ничего перелить не удалось.\r\n",
-					 GET_OBJ_PNAME(from_obj, 3).c_str());
+					  GET_OBJ_PNAME(from_obj, 3).c_str());
 		return;
 	}
 //Added by Adept - переливание зелья из бутылки или емкости в емкость
@@ -1031,7 +1031,7 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		int result = check_equal_potions(from_obj, to_obj);
 		if (GET_OBJ_VAL(to_obj, 1) == 0 || result > 0) {
 			SendMsgToChar(ch, "Вы занялись переливанием зелья в %s.\r\n",
-						 OBJN(to_obj, ch, 3));
+						  OBJN(to_obj, ch, 3));
 			int n1 = GET_OBJ_VAL(from_obj, 1);
 			int n2 = GET_OBJ_VAL(to_obj, 1);
 			int t1 = GET_OBJ_VAL(from_obj, 3);
@@ -1081,7 +1081,7 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	if (subcmd == SCMD_POUR) {
 		SendMsgToChar(ch, "Вы занялись переливанием %s в %s.\r\n",
-					 drinks[GET_OBJ_VAL(from_obj, 2)], OBJN(to_obj, ch, 3));
+					  drinks[GET_OBJ_VAL(from_obj, 2)], OBJN(to_obj, ch, 3));
 	}
 	if (subcmd == SCMD_FILL) {
 		act("Вы наполнили $o3 из $O1.", false, ch, to_obj, from_obj, kToChar);

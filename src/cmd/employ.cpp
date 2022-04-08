@@ -135,7 +135,7 @@ void apply_enchant(CharData *ch, ObjData *obj, std::string text) {
 
 	if (target->get_enchants().check(ObjectEnchant::ENCHANT_FROM_OBJ)) {
 		SendMsgToChar(ch, "На %s уже наложено зачарование.\r\n",
-					 target->get_PName(3).c_str());
+					  target->get_PName(3).c_str());
 		return;
 	}
 

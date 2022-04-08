@@ -182,9 +182,9 @@ void add_glory(long uid, int amount) {
 	DescriptorData *d = DescByUID(uid);
 	if (d) {
 		SendMsgToChar(d->character.get(), "%sВы заслужили %d %s постоянной славы!%s\r\n",
-					 CCGRN(d->character, C_NRM),
-					 amount, GetDeclensionInNumber(amount, EWhat::kPoint),
-					 CCNRM(d->character, C_NRM));
+					  CCGRN(d->character, C_NRM),
+					  amount, GetDeclensionInNumber(amount, EWhat::kPoint),
+					  CCNRM(d->character, C_NRM));
 	}
 	save();
 }
@@ -626,9 +626,9 @@ void do_spend_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		if (amount < MIN_TRANSFER_TAX || amount > it->second->free_glory) {
 			SendMsgToChar(ch,
-						 "%d - некорректное количество для перевода.\r\n"
-						 "Вы можете перевести от %d до %d постоянной славы.\r\n",
-						 amount, MIN_TRANSFER_TAX, it->second->free_glory);
+						  "%d - некорректное количество для перевода.\r\n"
+						  "Вы можете перевести от %d до %d постоянной славы.\r\n",
+						  amount, MIN_TRANSFER_TAX, it->second->free_glory);
 			return;
 		}
 
@@ -653,7 +653,7 @@ void do_spend_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		save();
 
 		SendMsgToChar(ch, "%s переведено %d постоянной славы (%d комиссии).\r\n",
-					 GET_PAD(vict, 2), total_amount, tax);
+					  GET_PAD(vict, 2), total_amount, tax);
 
 		// TODO: ну если в глори-лог или карму, то надо стоимость/налог
 		// на трансфер ставить, чтобы не заспамили.
@@ -803,7 +803,7 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			int amount = atoi((num + 1));
 			add_glory(GET_UNIQUE(vict), amount);
 			SendMsgToChar(ch, "%s добавлено %d у.е. постоянной славы (Всего: %d у.е.).\r\n",
-						 GET_PAD(vict, 2), amount, get_glory(GET_UNIQUE(vict)));
+						  GET_PAD(vict, 2), amount, get_glory(GET_UNIQUE(vict)));
 			// запись в карму, логи
 			sprintf(buf, "(GC) %s sets +%d const glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
 			mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
@@ -820,7 +820,7 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				break;
 			}
 			SendMsgToChar(ch, "У %s вычтено %d у.е. постоянной славы (Всего: %d у.е.).\r\n",
-						 GET_PAD(vict, 1), amount, get_glory(GET_UNIQUE(vict)));
+						  GET_PAD(vict, 1), amount, get_glory(GET_UNIQUE(vict)));
 			// запись в карму, логи
 			sprintf(buf, "(GC) %s sets -%d const glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
 			mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
@@ -1041,9 +1041,9 @@ void show_stats(CharData *ch) {
 		spend_glory += calculate_glory_in_stats(i);
 	}
 	SendMsgToChar(ch,
-				 "  Слава2: вложено %d, свободно %d, всего %d, комиссии %d\r\n"
-				 "  Всего потрачено славы в магазинах: %d\r\n",
-				 spend_glory, free_glory, free_glory + spend_glory, total_charge, total_spent);
+				  "  Слава2: вложено %d, свободно %d, всего %d, комиссии %d\r\n"
+				  "  Всего потрачено славы в магазинах: %d\r\n",
+				  spend_glory, free_glory, free_glory + spend_glory, total_charge, total_spent);
 }
 
 void add_total_spent(int amount) {

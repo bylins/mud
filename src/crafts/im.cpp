@@ -364,7 +364,7 @@ ObjData *load_ingredient(int index, int power, int rnum)
 void im_translate_rskill_to_id(void) {
 	im_rskill *rs;
 	for (const auto &ch : character_list) {
-		if (ch->is_npc()) {
+		if (ch->IsNpc()) {
 			continue;
 		}
 
@@ -378,7 +378,7 @@ void im_translate_rskill_to_rid(void) {
 	im_rskill *rs, **prs;
 	int rid;
 	for (const auto &ch : character_list) {
-		if (ch->is_npc())
+		if (ch->IsNpc())
 			continue;
 		prs = &GET_RSKILL(ch);
 		while ((rs = *prs) != nullptr) {
@@ -1046,7 +1046,7 @@ void list_recipes(CharData *ch, bool all_recipes) {
 }
 
 void do_recipes(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->is_npc())
+	if (ch->IsNpc())
 		return;
 	skip_spaces(&argument);
 	if (utils::IsAbbrev(argument, "все") || utils::IsAbbrev(argument, "all"))
@@ -1131,7 +1131,7 @@ void do_rset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Превышено максимальное значение рецепта.\r\n", ch);
 		value = kMaxRecipeLevel;
 	}
-	if (vict->is_npc()) {
+	if (vict->IsNpc()) {
 		SendMsgToChar("Вы не можете добавить рецепт для мобов.\r\n", ch);
 		return;
 	}
@@ -1154,7 +1154,7 @@ void do_rset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 void im_improve_recipe(CharData *ch, im_rskill *rs, int success) {
 	int prob, div, diff;
 
-	if (ch->is_npc() || (rs->perc >= kMaxRecipeLevel))
+	if (ch->IsNpc() || (rs->perc >= kMaxRecipeLevel))
 		return;
 
 	if (ch->in_room != kNowhere && (CalcSkillWisdomCap(ch) - rs->perc > 0)) {

@@ -1427,56 +1427,56 @@ void medit_parse(DescriptorData *d, char *arg) {
 
 				case '3':
 					SendMsgToChar(d->character.get(),
-								 "&S%s&s\r\nИменительный падеж [это КТО]: ",
-								 GET_PAD(OLC_MOB(d), 0));
+								  "&S%s&s\r\nИменительный падеж [это КТО]: ",
+								  GET_PAD(OLC_MOB(d), 0));
 					OLC_MODE(d) = MEDIT_PAD0;
 					i--;
 					break;
 
 				case '4':
 					SendMsgToChar(d->character.get(),
-								 "&S%s&s\r\nРодительный падеж [нет КОГО] : ",
-								 GET_PAD(OLC_MOB(d), 1));
+								  "&S%s&s\r\nРодительный падеж [нет КОГО] : ",
+								  GET_PAD(OLC_MOB(d), 1));
 					OLC_MODE(d) = MEDIT_PAD1;
 					i--;
 					break;
 
 				case '5':
 					SendMsgToChar(d->character.get(),
-								 "&S%s&s\r\nДательный падеж [дать КОМУ] : ",
-								 GET_PAD(OLC_MOB(d), 2));
+								  "&S%s&s\r\nДательный падеж [дать КОМУ] : ",
+								  GET_PAD(OLC_MOB(d), 2));
 					OLC_MODE(d) = MEDIT_PAD2;
 					i--;
 					break;
 
 				case '6':
 					SendMsgToChar(d->character.get(),
-								 "&S%s&s\r\nВинительный падеж [ударить КОГО] : ",
-								 GET_PAD(OLC_MOB(d), 3));
+								  "&S%s&s\r\nВинительный падеж [ударить КОГО] : ",
+								  GET_PAD(OLC_MOB(d), 3));
 					OLC_MODE(d) = MEDIT_PAD3;
 					i--;
 					break;
 
 				case '7':
 					SendMsgToChar(d->character.get(),
-								 "&S%s&s\r\nТворительный падеж [следовать за КЕМ] : ",
-								 GET_PAD(OLC_MOB(d), 4));
+								  "&S%s&s\r\nТворительный падеж [следовать за КЕМ] : ",
+								  GET_PAD(OLC_MOB(d), 4));
 					OLC_MODE(d) = MEDIT_PAD4;
 					i--;
 					break;
 
 				case '8':
 					SendMsgToChar(d->character.get(),
-								 "&S%s&s\r\nПредложный падеж [говорить о КОМ] : ",
-								 GET_PAD(OLC_MOB(d), 5));
+								  "&S%s&s\r\nПредложный падеж [говорить о КОМ] : ",
+								  GET_PAD(OLC_MOB(d), 5));
 					OLC_MODE(d) = MEDIT_PAD5;
 					i--;
 					break;
 
 				case '9':
 					SendMsgToChar(d->character.get(),
-								 "&S%s&s\r\nВведите длинное описание :-\r\n| ",
-								 GET_LDESC(OLC_MOB(d)).c_str());
+								  "&S%s&s\r\nВведите длинное описание :-\r\n| ",
+								  GET_LDESC(OLC_MOB(d)).c_str());
 					OLC_MODE(d) = MEDIT_L_DESC;
 					i--;
 					break;

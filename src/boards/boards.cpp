@@ -44,8 +44,8 @@ bool lvl_no_write(CharData *ch) {
 void message_no_write(CharData *ch) {
 	if (lvl_no_write(ch)) {
 		SendMsgToChar(ch,
-					 "Вам нужно достигнуть %d уровня, чтобы писать в этот раздел.\r\n",
-					 MIN_WRITE_LEVEL);
+					  "Вам нужно достигнуть %d уровня, чтобы писать в этот раздел.\r\n",
+					  MIN_WRITE_LEVEL);
 	} else {
 		SendMsgToChar("У вас нет возможности писать в этот раздел.\r\n", ch);
 	}
@@ -440,8 +440,8 @@ int Static::Special(CharData *ch, void *me, int cmd, char *argument) {
 			for (auto i = board_list.begin(); i != board_list.end(); ++i) {
 				if (isname(buffer2, (*i)->get_name())) {
 					SendMsgToChar(ch,
-								 "Первое слово вашего заголовка совпадает с названием одной из досок сообщений,\r\n"
-								 "Во избежание недоразумений воспользуйтесь форматом '<имя-доски> писать <заголовок>'.\r\n");
+								  "Первое слово вашего заголовка совпадает с названием одной из досок сообщений,\r\n"
+								  "Во избежание недоразумений воспользуйтесь форматом '<имя-доски> писать <заголовок>'.\r\n");
 					return 1;
 				}
 			}
@@ -871,7 +871,7 @@ std::bitset<ACCESS_NUM> Static::get_access(CharData *ch, const Board::shared_ptr
 }
 
 void DoBoardList(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (ch->is_npc())
+	if (ch->IsNpc())
 		return;
 
 	std::string out(
@@ -895,7 +895,7 @@ void DoBoardList(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 }
 
 void report_on_board(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
-	if (ch->is_npc()) return;
+	if (ch->IsNpc()) return;
 	skip_spaces(&argument);
 	delete_doubledollar(argument);
 
@@ -935,10 +935,10 @@ void report_on_board(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 //	(*board)->renumerate_messages();
 //	(*board)->Save();
 	SendMsgToChar(ch,
-				 "Текст сообщения:\r\n"
-				 "%s\r\n\r\n"
-				 "Записали. Заранее благодарны.\r\n"
-				 "                        Боги.\r\n", argument);
+				  "Текст сообщения:\r\n"
+				  "%s\r\n\r\n"
+				  "Записали. Заранее благодарны.\r\n"
+				  "                        Боги.\r\n", argument);
 }
 
 } // namespace Boards

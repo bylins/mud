@@ -489,9 +489,9 @@ int CastSpellToRoom(int/* level*/, CharData *ch, RoomData *room, int spellnum) {
 			int SplFound = RemoveControlledRoomAffect(ch);
 			if (SplFound) {
 				SendMsgToChar(ch,
-							 "Вы прервали заклинание !%s! и приготовились применить !%s!\r\n",
-							 spell_info[SplFound].name,
-							 SpINFO.name);
+							  "Вы прервали заклинание !%s! и приготовились применить !%s!\r\n",
+							  spell_info[SplFound].name,
+							  SpINFO.name);
 			}
 		} else {
 			auto RoomAffect_i = FindAffect(room, spellnum);

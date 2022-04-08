@@ -36,7 +36,7 @@ void do_bonus_info(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 }
 
 bool can_get_bonus_exp(CharData *ch) {
-	if (ch->is_npc()) {
+	if (ch->IsNpc()) {
 		return false;
 	}
 

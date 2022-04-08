@@ -170,7 +170,7 @@ bool auction_drive(CharData *ch, char *argument) {
 				}
 				/*	  if (IS_NPC (tch))
 						{
-						  SendMsgToChar ("О этом персонаже позаботятся Боги.\r\n", ch);
+						  SendMsgToChar("О этом персонаже позаботятся Боги.\r\n", ch);
 						  return false;
 						}*/
 				if (ch == tch) {
@@ -405,7 +405,7 @@ bool auction_drive(CharData *ch, char *argument) {
 				strcat(buf, buf2);
 				strcat(buf, "\n");
 			}
-			if ((!ch->is_npc() && HaveIncompatibleAlign(ch, obj))
+			if ((!ch->IsNpc() && HaveIncompatibleAlign(ch, obj))
 				|| invalid_no_class(ch, obj)) {
 				sprintf(buf2, "Вы не сможете пользоваться этой вещью.");
 				strcat(buf, buf2);
@@ -456,11 +456,11 @@ bool auction_drive(CharData *ch, char *argument) {
 			mort_show_obj_values(iobj, ch, 200, full);    //200 - весь текст
 			ch->remove_both_gold(AUCTION_IDENT_PAY);
 			SendMsgToChar(ch,
-						 "\r\n%sЗа информацию о предмете с вашего счета сняли %d %s%s\r\n",
-						 CCIGRN(ch, C_NRM),
-						 AUCTION_IDENT_PAY,
-						 GetDeclensionInNumber(AUCTION_IDENT_PAY, EWhat::kMoneyU),
-						 CCNRM(ch, C_NRM));
+						  "\r\n%sЗа информацию о предмете с вашего счета сняли %d %s%s\r\n",
+						  CCIGRN(ch, C_NRM),
+						  AUCTION_IDENT_PAY,
+						  GetDeclensionInNumber(AUCTION_IDENT_PAY, EWhat::kMoneyU),
+						  CCNRM(ch, C_NRM));
 
 			return true;
 			break;

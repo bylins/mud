@@ -83,7 +83,7 @@ const char *ac_text[] =
 void DoScore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	skip_spaces(&argument);
 
-	if (ch->is_npc())
+	if (ch->IsNpc())
 		return;
 
 	if (utils::IsAbbrev(argument, "все") || utils::IsAbbrev(argument, "all")) {
@@ -104,22 +104,22 @@ void PrintScoreList(CharData *ch) {
 	sprintf(buf1, "%s", religion_name[GET_RELIGION(ch)][static_cast<int>(GET_SEX(ch))]);
 	buf1[0] = LOWER(buf1[0]);
 	SendMsgToChar(ch, "Вы %s, %s, %s, %s, уровень %d, перевоплощений %d.\r\n", ch->get_name().c_str(),
-				 buf,
-				 MUD::Classes()[ch->get_class()].GetCName(),
-				 buf1,
-				 GetRealLevel(ch),
-				 GET_REAL_REMORT(ch));
+				  buf,
+				  MUD::Classes()[ch->get_class()].GetCName(),
+				  buf1,
+				  GetRealLevel(ch),
+				  GET_REAL_REMORT(ch));
 	SendMsgToChar(ch, "Ваш возраст: %d, размер: %d(%d), рост: %d(%d), вес %d(%d).\r\n",
-				 GET_AGE(ch),
-				 GET_SIZE(ch), GET_REAL_SIZE(ch),
-				 GET_HEIGHT(ch), GET_REAL_HEIGHT(ch),
-				 GET_WEIGHT(ch), GET_REAL_WEIGHT(ch));
+				  GET_AGE(ch),
+				  GET_SIZE(ch), GET_REAL_SIZE(ch),
+				  GET_HEIGHT(ch), GET_REAL_HEIGHT(ch),
+				  GET_WEIGHT(ch), GET_REAL_WEIGHT(ch));
 	SendMsgToChar(ch, "Вы можете выдержать %d(%d) %s повреждений, и пройти %d(%d) %s по ровной местности.\r\n",
-				 GET_HIT(ch), GET_REAL_MAX_HIT(ch), GetDeclensionInNumber(GET_HIT(ch), EWhat::kOneU),
-				 GET_MOVE(ch), GET_REAL_MAX_MOVE(ch), GetDeclensionInNumber(GET_MOVE(ch), EWhat::kMoveU));
+				  GET_HIT(ch), GET_REAL_MAX_HIT(ch), GetDeclensionInNumber(GET_HIT(ch), EWhat::kOneU),
+				  GET_MOVE(ch), GET_REAL_MAX_MOVE(ch), GetDeclensionInNumber(GET_MOVE(ch), EWhat::kMoveU));
 	if (IS_MANA_CASTER(ch)) {
 		SendMsgToChar(ch, "Ваша магическая энергия %d(%d) и вы восстанавливаете %d в сек.\r\n",
-					 ch->mem_queue.stored, GET_MAX_MANA(ch), mana_gain(ch));
+					  ch->mem_queue.stored, GET_MAX_MANA(ch), mana_gain(ch));
 	}
 	SendMsgToChar(ch, "Ваша сила: %d(%d), ловкость: %d(%d), телосложение: %d(%d), ум: %d(%d), мудрость: %d(%d), обаяние: %d(%d).\r\n",
 				 ch->get_str(), GET_REAL_STR(ch),
@@ -136,51 +136,51 @@ void PrintScoreList(CharData *ch) {
 	int max_dam = hit_params.calc_damage(ch, need_dice); // без кубиков
 
 	SendMsgToChar(ch, "Попадание: %d, повреждение: %d, запоминание: %d, успех колдовства: %d, удача: %d, маг.урон: %d, физ. урон: %d.\r\n",
-				CalcHitroll(ch),
-				max_dam,
-				int (GET_MANAREG(ch) * ch->get_cond_penalty(P_CAST)),
-				CalcAntiSavings(ch),
-				ch->calc_morale(),
-				ch->add_abils.percent_magdam_add + ch->obj_bonus().calc_mage_dmg(100),
-				ch->add_abils.percent_physdam_add + ch->obj_bonus().calc_phys_dmg(100));
+				  CalcHitroll(ch),
+				  max_dam,
+				  int(GET_MANAREG(ch) * ch->get_cond_penalty(P_CAST)),
+				  CalcAntiSavings(ch),
+				  ch->calc_morale(),
+				  ch->add_abils.percent_magdam_add + ch->obj_bonus().calc_mage_dmg(100),
+				  ch->add_abils.percent_physdam_add + ch->obj_bonus().calc_phys_dmg(100));
 	SendMsgToChar(ch, "Сопротивление: огню: %d, воздуху: %d, воде: %d, земле: %d, тьме: %d, живучесть: %d, разум: %d, иммунитет: %d.\r\n",
-				 MIN(GET_RESIST(ch, EResist::kFire), 75),
-				 MIN(GET_RESIST(ch, EResist::kAir), 75),
-				 MIN(GET_RESIST(ch, EResist::kWater), 75),
-				 MIN(GET_RESIST(ch, EResist::kEarth), 75),
-				 MIN(GET_RESIST(ch, EResist::kDark), 75),
-				 MIN(GET_RESIST(ch, EResist::kVitality), 75),
-				 MIN(GET_RESIST(ch, EResist::kMind), 75),
-				 MIN(GET_RESIST(ch, EResist::kImmunity), 75));
+				  MIN(GET_RESIST(ch, EResist::kFire), 75),
+				  MIN(GET_RESIST(ch, EResist::kAir), 75),
+				  MIN(GET_RESIST(ch, EResist::kWater), 75),
+				  MIN(GET_RESIST(ch, EResist::kEarth), 75),
+				  MIN(GET_RESIST(ch, EResist::kDark), 75),
+				  MIN(GET_RESIST(ch, EResist::kVitality), 75),
+				  MIN(GET_RESIST(ch, EResist::kMind), 75),
+				  MIN(GET_RESIST(ch, EResist::kImmunity), 75));
 	SendMsgToChar(ch, "Спас броски: воля: %d, здоровье: %d, стойкость: %d, реакция: %d, маг.резист: %d, физ.резист %d, отчар.резист: %d.\r\n",
-				 GET_REAL_SAVING_WILL(ch),
-				 GET_REAL_SAVING_CRITICAL(ch),
-				 GET_REAL_SAVING_STABILITY(ch),
-				 GET_REAL_SAVING_REFLEX(ch),
-				 GET_MR(ch),
-				 GET_PR(ch),
-				 GET_AR(ch));
+				  GET_REAL_SAVING_WILL(ch),
+				  GET_REAL_SAVING_CRITICAL(ch),
+				  GET_REAL_SAVING_STABILITY(ch),
+				  GET_REAL_SAVING_REFLEX(ch),
+				  GET_MR(ch),
+				  GET_PR(ch),
+				  GET_AR(ch));
 	SendMsgToChar(ch, "Восстановление: жизни: +%d%% (+%d), сил: +%d%% (+%d).\r\n",
-				 GET_HITREG(ch),
-				 hit_gain(ch),
-				 GET_MOVEREG(ch),
-				 move_gain(ch));
+				  GET_HITREG(ch),
+				  hit_gain(ch),
+				  GET_MOVEREG(ch),
+				  move_gain(ch));
 	int ac = compute_armor_class(ch) / 10;
 	if (ac < 5) {
 		const int mod = (1 - ch->get_cond_penalty(P_AC)) * 40;
 		ac = ac + mod > 5 ? 5 : ac + mod;
 	}
 	SendMsgToChar(ch, "Броня: %d, защита: %d, поглощение %d.\r\n",
-				 GET_ARMOUR(ch),
-				 ac,
-				 GET_ABSORBE(ch));
+				  GET_ARMOUR(ch),
+				  ac,
+				  GET_ABSORBE(ch));
 	SendMsgToChar(ch, "Вы имеете кун: на руках: %ld, на счету %ld. Гривны: %d, опыт: %ld, ДСУ: %ld.\r\n",
-				 ch->get_gold(),
-				 ch->get_bank(),
-				 ch->get_hryvn(),
-				 GET_EXP(ch),
+				  ch->get_gold(),
+				  ch->get_bank(),
+				  ch->get_hryvn(),
+				  GET_EXP(ch),
 				 IS_IMMORTAL(ch) ? 1: GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - GET_EXP(ch));
-	if (!ch->ahorse())
+	if (!ch->IsOnHorse())
 		SendMsgToChar(ch, "Ваша позиция: %s", GetPositionStr(ch));
 	else
 		SendMsgToChar(ch, "Ваша позиция: Вы верхом на %s.\r\n", GET_PAD(ch->get_horse(), 5));
@@ -210,13 +210,13 @@ void PrintScoreList(CharData *ch) {
 		SendMsgToChar(ch, "ВНИМАНИЕ! ваше имя запрещено богами. Очень скоро вы прекратите получать опыт.\r\n");
 	}
 	SendMsgToChar(ch, "Вы можете вступить в группу с максимальной разницей в %2d %-75s\r\n",
-				 grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REAL_REMORT(ch))],
-				 (std::string(
-					 GetDeclensionInNumber(grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REAL_REMORT(
-						 ch))], EWhat::kLvl)
-							 + std::string(" без потерь для опыта.")).substr(0, 76).c_str()));
+				  grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REAL_REMORT(ch))],
+				  (std::string(
+					  GetDeclensionInNumber(grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REAL_REMORT(
+						  ch))], EWhat::kLvl)
+						  + std::string(" без потерь для опыта.")).substr(0, 76).c_str()));
 
-	SendMsgToChar(ch,"Вы можете принять в группу максимум %d соратников.\r\n", max_group_size(ch));
+	SendMsgToChar(ch, "Вы можете принять в группу максимум %d соратников.\r\n", max_group_size(ch));
 }
 
 /*
@@ -235,7 +235,7 @@ const std::string &InfoStrPrefix(CharData *ch) {
 
 void PrintHorseInfo(CharData *ch, std::ostringstream &out) {
 	if (ch->has_horse(false)) {
-		if (ch->ahorse()) {
+		if (ch->IsOnHorse()) {
 			out << InfoStrPrefix(ch) << "Вы верхом на " << GET_PAD(ch->get_horse(), 5) << "." << std::endl;
 		} else {
 			out << InfoStrPrefix(ch) << "У вас есть " << ch->get_horse()->get_name() << "." << std::endl;
@@ -803,7 +803,7 @@ void PrintScoreBase(CharData *ch) {
 			playing_time.hours, GetDeclensionInNumber(playing_time.hours, EWhat::kHour));
 	SendMsgToChar(buf, ch);
 
-	if (!ch->ahorse())
+	if (!ch->IsOnHorse())
 		SendMsgToChar(ch, "%s", GetPositionStr(ch));
 
 	strcpy(buf, CCIGRN(ch, C_NRM));
@@ -837,7 +837,7 @@ void PrintScoreBase(CharData *ch) {
 		strcat(buf, "Вы можете быть призваны.\r\n");
 
 	if (ch->has_horse(false)) {
-		if (ch->ahorse())
+		if (ch->IsOnHorse())
 			sprintf(buf + strlen(buf), "Вы верхом на %s.\r\n", GET_PAD(ch->get_horse(), 5));
 		else
 			sprintf(buf + strlen(buf), "У вас есть %s.\r\n", GET_NAME(ch->get_horse()));
@@ -1036,7 +1036,7 @@ int CalcHitroll(CharData *ch) {
 	if (PRF_FLAGGED(ch, EPrf::kPerformGreatAimingAttack)) {
 		hr += 4;
 	}
-	hr -= (ch->ahorse() ? (10 - GET_SKILL(ch, ESkill::kRiding) / 20) : 0);
+	hr -= (ch->IsOnHorse() ? (10 - GET_SKILL(ch, ESkill::kRiding) / 20) : 0);
 	hr *= ch->get_cond_penalty(P_HITROLL);
 	return hr;
 }
@@ -1058,8 +1058,8 @@ const char *GetPositionStr(CharData *ch) {
 		case EPosition::kSit:
 			return "Вы сидите.\r\n";
 		case EPosition::kFight:
-			if (ch->get_fighting()) {
-				sprintf(buf1, "Вы сражаетесь с %s.\r\n", GET_PAD(ch->get_fighting(), 4));
+			if (ch->GetEnemy()) {
+				sprintf(buf1, "Вы сражаетесь с %s.\r\n", GET_PAD(ch->GetEnemy(), 4));
 				return buf1;
 			}
 			else
@@ -1073,7 +1073,7 @@ const char *GetPositionStr(CharData *ch) {
 }
 
 const char *GetShortPositionStr(CharData *ch) {
-	if (!ch->ahorse()) {
+	if (!ch->IsOnHorse()) {
 		switch (GET_POS(ch)) {
 			case EPosition::kDead: return "Вы МЕРТВЫ!";
 			case EPosition::kPerish: return "Вы умираете!";
@@ -1083,7 +1083,7 @@ const char *GetShortPositionStr(CharData *ch) {
 			case EPosition::kRest: return "Вы отдыхаете.";
 			case EPosition::kSit: return "Вы сидите.";
 			case EPosition::kFight:
-				if (ch->get_fighting()) {
+				if (ch->GetEnemy()) {
 					return "Вы сражаетесь!";
 				} else {
 					return "Вы машете кулаками.";

@@ -16,7 +16,7 @@ void go_strangle(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (ch->get_fighting()) {
+	if (ch->GetEnemy()) {
 		SendMsgToChar("Вы не можете делать это в бою!\r\n", ch);
 		return;
 	}
@@ -48,7 +48,7 @@ void go_strangle(CharData *ch, CharData *vict) {
 	} else {
 		Affect<EApply> af;
 		af.type = kSpellStrangle;
-		af.duration = vict->is_npc() ? 8 : 15;
+		af.duration = vict->IsNpc() ? 8 : 15;
 		af.modifier = 0;
 		af.location = EApply::kNone;
 		af.battleflag = kAfSameTime;
@@ -57,13 +57,13 @@ void go_strangle(CharData *ch, CharData *vict) {
 
 		int dam =
 			(GET_MAX_HIT(vict) * GaussIntNumber((300 + 5 * ch->get_skill(ESkill::kStrangle)) / 70, 7.0, 1, 30)) / 100;
-		dam = (vict->is_npc() ? MIN(dam, 6 * GET_MAX_HIT(ch)) : MIN(dam, 2 * GET_MAX_HIT(ch)));
+		dam = (vict->IsNpc() ? MIN(dam, 6 * GET_MAX_HIT(ch)) : MIN(dam, 2 * GET_MAX_HIT(ch)));
 		Damage dmg(SkillDmg(ESkill::kStrangle), dam, fight::kPhysDmg, nullptr);
 		dmg.flags.set(fight::kIgnoreArmor);
 		dmg.Process(ch, vict);
 		if (GET_POS(vict) > EPosition::kDead) {
 			SetWait(vict, 2, true);
-			if (vict->ahorse()) {
+			if (vict->IsOnHorse()) {
 				act("Рванув на себя, $N стащил$G Вас на землю.", false, vict, nullptr, ch, kToChar);
 				act("Рванув на себя, Вы стащили $n3 на землю.", false, vict, nullptr, ch, kToVict);
 				act("Рванув на себя, $N стащил$G $n3 на землю.",
@@ -93,7 +93,7 @@ void do_strangle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (IsTimedBySkill(ch, ESkill::kStrangle) || ch->haveCooldown(ESkill::kStrangle)) {
+	if (IsTimedBySkill(ch, ESkill::kStrangle) || ch->HasCooldown(ESkill::kStrangle)) {
 		SendMsgToChar("Так часто душить нельзя - человеки кончатся.\r\n", ch);
 		return;
 	}
