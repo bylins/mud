@@ -14,39 +14,39 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	one_argument(argument, arg);
 
-	if (ch->IsNpc() || !ch->get_skill(ESkill::kJinx)) {
-		send_to_char("Вы не знаете как.\r\n", ch);
+	if (ch->is_npc() || !ch->get_skill(ESkill::kJinx)) {
+		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
 
-	if (IsTimedBySkill(ch, ESkill::kJinx) || ch->HasCooldown(ESkill::kJinx)) {
-		send_to_char("Так часто не получится.\r\n", ch);
+	if (IsTimedBySkill(ch, ESkill::kJinx) || ch->haveCooldown(ESkill::kJinx)) {
+		SendMsgToChar("Так часто не получится.\r\n", ch);
 		return;
 	}
 
 	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
-		send_to_char("Кого вы столь сильно ненавидите?\r\n", ch);
+		SendMsgToChar("Кого вы столь сильно ненавидите?\r\n", ch);
 		return;
 	}
 
 	if (ch == vict) {
-		send_to_char("Вы укусили себя за левое ухо.\r\n", ch);
+		SendMsgToChar("Вы укусили себя за левое ухо.\r\n", ch);
 		return;
 	}
 
 	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kPeaceful) || ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoBattle)) {
-		send_to_char("Поищите другое место для выражения своих кровожадных наклонностей.\r\n", ch);
+		SendMsgToChar("Поищите другое место для выражения своих кровожадных наклонностей.\r\n", ch);
 		return;
 	}
 
-	if (!vict->IsNpc()) {
-		send_to_char("На живом человеке? Креста не вас нет!\r\n", ch);
+	if (!vict->is_npc()) {
+		SendMsgToChar("На живом человеке? Креста не вас нет!\r\n", ch);
 		return;
 	}
 
 	if (IsAffectedBySpell(vict, kSpellGodsShield) || MOB_FLAGGED(vict, EMobFlag::kProtect)) {
-		send_to_char("Боги хранят вашу жертву.\r\n", ch);
+		SendMsgToChar("Боги хранят вашу жертву.\r\n", ch);
 		return;
 	}
 

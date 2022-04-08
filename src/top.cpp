@@ -63,7 +63,7 @@ const PlayerChart &TopPlayer::Chart() {
 };
 
 void TopPlayer::PrintPlayersChart(CharData *ch) {
-	send_to_char(" Лучшие персонажи игроков:\r\n", ch);
+	SendMsgToChar(" Лучшие персонажи игроков:\r\n", ch);
 
 	table_wrapper::Table table;
 	for (const auto &it: TopPlayer::Chart()) {
@@ -105,11 +105,11 @@ void TopPlayer::PrintClassChart(CharData *ch, ECharClass id) {
 		}
 		++count;
 	}
-	send_to_char(out.str(), ch);
+	SendMsgToChar(out.str(), ch);
 }
 
 void TopPlayer::PrintHelp(CharData *ch) {
-	send_to_char(" Лучшими могут быть:\n", ch);
+	SendMsgToChar(" Лучшими могут быть:\n", ch);
 
 	table_wrapper::Table table;
 	const int columns_num{2};

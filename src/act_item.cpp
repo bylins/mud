@@ -123,7 +123,7 @@ int perform_put(CharData *ch, ObjData::shared_ptr obj, ObjData *cont) {
 		act("$O : $o не помещается туда.", false, ch, obj.get(), cont, kToChar);
 	} 
 	else if (GET_OBJ_TYPE(obj) == EObjType::kContainer && obj->get_contains()) {
-		send_to_char(ch, "В %s что-то лежит.\r\n", obj->get_PName(5).c_str());
+		SendMsgToChar(ch, "В %s что-то лежит.\r\n", obj->get_PName(5).c_str());
 	} 
 	else if (obj->has_flag(EObjFlag::kNodrop)) {
 		act("Неведомая сила помешала положить $o3 в $O3.", false, ch, obj.get(), cont, kToChar);
@@ -432,11 +432,11 @@ void do_put(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (theobj && (!strn_cmp("coin", theobj, 4) || !strn_cmp("кун", theobj, 3))) {
 		money_mode = true;
 		if (howmany <= 0) {
-			send_to_char("Следует указать чиста конкретную сумму.\r\n", ch);
+			SendMsgToChar("Следует указать чиста конкретную сумму.\r\n", ch);
 			return;
 		}
 		if (ch->get_gold() < howmany) {
-			send_to_char("Нет у вас такой суммы.\r\n", ch);
+			SendMsgToChar("Нет у вас такой суммы.\r\n", ch);
 			return;
 		}
 		obj_dotmode = kFindIndiv;
@@ -446,17 +446,17 @@ void do_put(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	cont_dotmode = find_all_dots(thecont);
 
 	if (!*theobj)
-		send_to_char("Положить что и куда?\r\n", ch);
+		SendMsgToChar("Положить что и куда?\r\n", ch);
 	else if (cont_dotmode != kFindIndiv)
-		send_to_char("Вы можете положить вещь только в один контейнер.\r\n", ch);
+		SendMsgToChar("Вы можете положить вещь только в один контейнер.\r\n", ch);
 	else if (!*thecont) {
 		sprintf(buf, "Куда вы хотите положить '%s'?\r\n", theobj);
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 	} else {
 		generic_find(thecont, where_bits, ch, &tmp_char, &cont);
 		if (!cont) {
 			sprintf(buf, "Вы не видите здесь '%s'.\r\n", thecont);
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 		} else if (GET_OBJ_TYPE(cont) != EObjType::kContainer) {
 			act("В $o3 нельзя ничего положить.", false, ch, cont, 0, kToChar);
 		} else if (OBJVAL_FLAGGED(cont, EContainerFlag::kShutted)) {
@@ -491,9 +491,9 @@ void do_put(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					auto obj = get_obj_in_list_vis(ch, theobj, ch->carrying);
 					if (!obj) {
 						sprintf(buf, "У вас нет '%s'.\r\n", theobj);
-						send_to_char(buf, ch);
+						SendMsgToChar(buf, ch);
 					} else if (obj == cont) {
-						send_to_char("Вам будет трудно запихнуть вещь саму в себя.\r\n", ch);
+						SendMsgToChar("Вам будет трудно запихнуть вещь саму в себя.\r\n", ch);
 					} else {
 						ObjData *next_obj;
 						while (obj && howmany--) {
@@ -524,12 +524,12 @@ void do_put(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 				if (!found) {
 					if (obj_dotmode == kFindAll)
-						send_to_char
+						SendMsgToChar
 							("Чтобы положить что-то ненужное нужно купить что-то ненужное.\r\n",
 							 ch);
 					else {
 						sprintf(buf, "Вы не видите ничего похожего на '%s'.\r\n", theobj);
-						send_to_char(buf, ch);
+						SendMsgToChar(buf, ch);
 					}
 				}
 			}
@@ -548,15 +548,15 @@ void do_refill(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!*arg1)    // No arguments //
 	{
-		send_to_char("Откуда брать стрелы?\r\n", ch);
+		SendMsgToChar("Откуда брать стрелы?\r\n", ch);
 		return;
 	}
 	if (!(from_obj = get_obj_in_list_vis(ch, arg1, ch->carrying))) {
-		send_to_char("У вас нет этого!\r\n", ch);
+		SendMsgToChar("У вас нет этого!\r\n", ch);
 		return;
 	}
 	if (GET_OBJ_TYPE(from_obj) != EObjType::kMagicArrow) {
-		send_to_char("И как вы себе это представляете?\r\n", ch);
+		SendMsgToChar("И как вы себе это представляете?\r\n", ch);
 		return;
 	}
 	if (GET_OBJ_VAL(from_obj, 1) == 0) {
@@ -564,31 +564,31 @@ void do_refill(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	if (!*arg2) {
-		send_to_char("Куда вы хотите их засунуть?\r\n", ch);
+		SendMsgToChar("Куда вы хотите их засунуть?\r\n", ch);
 		return;
 	}
 	if (!(to_obj = get_obj_in_list_vis(ch, arg2, ch->carrying))) {
-		send_to_char("Вы не можете этого найти!\r\n", ch);
+		SendMsgToChar("Вы не можете этого найти!\r\n", ch);
 		return;
 	}
 	if (!((GET_OBJ_TYPE(to_obj) == EObjType::kMagicContaner)
 		|| GET_OBJ_TYPE(to_obj) == EObjType::kMagicArrow)) {
-		send_to_char("Вы не сможете в это сложить стрелы.\r\n", ch);
+		SendMsgToChar("Вы не сможете в это сложить стрелы.\r\n", ch);
 		return;
 	}
 
 	if (to_obj == from_obj) {
-		send_to_char("Нечем заняться? На печи ездить еще не научились?\r\n", ch);
+		SendMsgToChar("Нечем заняться? На печи ездить еще не научились?\r\n", ch);
 		return;
 	}
 
 	if (GET_OBJ_VAL(to_obj, 2) >= GET_OBJ_VAL(to_obj, 1)) {
-		send_to_char("Там нет места.\r\n", ch);
+		SendMsgToChar("Там нет места.\r\n", ch);
 		return;
 	} else //вроде прошли все проверки. начинаем перекладывать
 	{
 		if (GET_OBJ_VAL(from_obj, 0) != GET_OBJ_VAL(to_obj, 0)) {
-			send_to_char("Хамово ремесло еще не известно на руси.\r\n", ch);
+			SendMsgToChar("Хамово ремесло еще не известно на руси.\r\n", ch);
 			return;
 		}
 		int t1 = GET_OBJ_VAL(from_obj, 3);  // количество зарядов
@@ -597,18 +597,18 @@ void do_refill(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (delta >= t1) //объем колчана больше пучка
 		{
 			to_obj->add_val(2, t1);
-			send_to_char("Вы аккуратно сложили стрелы в колчан.\r\n", ch);
+			SendMsgToChar("Вы аккуратно сложили стрелы в колчан.\r\n", ch);
 			ExtractObjFromWorld(from_obj);
 			return;
 		} else {
 			to_obj->add_val(2, (t2 - GET_OBJ_VAL(to_obj, 2)));
-			send_to_char("Вы аккуратно переложили несколько стрел в колчан.\r\n", ch);
+			SendMsgToChar("Вы аккуратно переложили несколько стрел в колчан.\r\n", ch);
 			from_obj->add_val(2, (GET_OBJ_VAL(to_obj, 2) - t2));
 			return;
 		}
 	}
 
-	send_to_char("С таким успехом надо пополнять соседние камни, для разговоров по ним.\r\n", ch);
+	SendMsgToChar("С таким успехом надо пополнять соседние камни, для разговоров по ним.\r\n", ch);
 	return;
 
 }
@@ -679,7 +679,7 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 
 	if (curr_type == currency::ICE) {
 		sprintf(buf, "Это составило %d %s.\r\n", value, GetDeclensionInNumber(value, EWhat::kIceU));
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 		ch->add_ice_currency(value);
 		//Делить лед ВСЕГДА!
 		if (AFF_FLAGGED(ch, EAffect::kGroup) && other_pc_in_group(ch) > 0) {
@@ -698,7 +698,7 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 	}
 */
 	sprintf(buf, "Это составило %d %s.\r\n", value, GetDeclensionInNumber(value, EWhat::kMoneyU));
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 
 	// все, что делится на группу - идет через налог (из кошельков не делится)
 	if (AFF_FLAGGED(ch, EAffect::kGroup) && other_pc_in_group(ch) > 0 &&
@@ -811,7 +811,7 @@ void get_from_container(CharData *ch, ObjData *cont, char *arg, int mode, int ho
 		}
 	} else {
 		if (obj_dotmode == kFindAlldot && !*arg) {
-			send_to_char("Взять что \"все\"?\r\n", ch);
+			SendMsgToChar("Взять что \"все\"?\r\n", ch);
 			return;
 		}
 		for (obj = cont->get_contains(); obj; obj = next_obj) {
@@ -868,7 +868,7 @@ void get_from_room(CharData *ch, char *arg, int howmany) {
 
 	// Are they trying to take something in a room extra description?
 	if (find_exdesc(arg, world[ch->in_room]->ex_description) != nullptr) {
-		send_to_char("Вы не можете это взять.\r\n", ch);
+		SendMsgToChar("Вы не можете это взять.\r\n", ch);
 		return;
 	}
 
@@ -877,7 +877,7 @@ void get_from_room(CharData *ch, char *arg, int howmany) {
 	if (dotmode == kFindIndiv) {
 		if (!(obj = get_obj_in_list_vis(ch, arg, world[ch->in_room]->contents))) {
 			sprintf(buf, "Вы не видите здесь '%s'.\r\n", arg);
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 		} else {
 			ObjData *obj_next;
 			while (obj && howmany--) {
@@ -888,7 +888,7 @@ void get_from_room(CharData *ch, char *arg, int howmany) {
 		}
 	} else {
 		if (dotmode == kFindAlldot && !*arg) {
-			send_to_char("Взять что \"все\"?\r\n", ch);
+			SendMsgToChar("Взять что \"все\"?\r\n", ch);
 			return;
 		}
 		for (obj = world[ch->in_room]->contents; obj; obj = next_obj) {
@@ -903,10 +903,10 @@ void get_from_room(CharData *ch, char *arg, int howmany) {
 		}
 		if (!found) {
 			if (dotmode == kFindAll) {
-				send_to_char("Похоже, здесь ничего нет.\r\n", ch);
+				SendMsgToChar("Похоже, здесь ничего нет.\r\n", ch);
 			} else {
 				sprintf(buf, "Вы не нашли здесь '%s'.\r\n", arg);
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 			}
 		}
 	}
@@ -923,23 +923,23 @@ void do_mark(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	argument = two_arguments(argument, arg1, arg2);
 
 	if (!*arg1) {
-		send_to_char("Что вы хотите маркировать?\r\n", ch);
+		SendMsgToChar("Что вы хотите маркировать?\r\n", ch);
 	} else if (!*arg2 || !is_number(arg2)) {
-		send_to_char("Не указан или неверный маркер.\r\n", ch);
+		SendMsgToChar("Не указан или неверный маркер.\r\n", ch);
 	} else {
 		cont_dotmode = find_all_dots(arg1);
 		if (cont_dotmode == kFindIndiv) {
 			generic_find(arg1, EFind::kObjInventory | EFind::kObjRoom | EFind::kObjEquip, ch, &tmp_char, &cont);
 			if (!cont) {
 				sprintf(buf, "У вас нет '%s'.\r\n", arg1);
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 				return;
 			}
 			cont->set_owner(atoi(arg2));
 			act("Вы пометили $o3.", false, ch, cont, 0, kToChar);
 		} else {
 			if (cont_dotmode == kFindAlldot && !*arg1) {
-				send_to_char("Пометить что \"все\"?\r\n", ch);
+				SendMsgToChar("Пометить что \"все\"?\r\n", ch);
 				return;
 			}
 			for (cont = ch->carrying; cont; cont = cont->get_next_content()) {
@@ -962,10 +962,10 @@ void do_mark(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			if (!found) {
 				if (cont_dotmode == kFindAll) {
-					send_to_char("Вы не смогли найти ничего для маркировки.\r\n", ch);
+					SendMsgToChar("Вы не смогли найти ничего для маркировки.\r\n", ch);
 				} else {
 					sprintf(buf, "Вы что-то не видите здесь '%s'.\r\n", arg1);
-					send_to_char(buf, ch);
+					SendMsgToChar(buf, ch);
 				}
 			}
 		}
@@ -988,16 +988,16 @@ void do_get(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	argument = two_arguments(argument, arg3, arg4);
 
 	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
-		send_to_char("У вас заняты руки!\r\n", ch);
+		SendMsgToChar("У вас заняты руки!\r\n", ch);
 	else if (!*arg1)
-		send_to_char("Что вы хотите взять?\r\n", ch);
+		SendMsgToChar("Что вы хотите взять?\r\n", ch);
 	else if (!*arg2 || isname(arg2, "земля комната ground room"))
 		get_from_room(ch, arg1, 1);
 	else if (is_number(arg1) && (!*arg3 || isname(arg3, "земля комната ground room")))
 		get_from_room(ch, arg2, atoi(arg1));
 	else if ((!*arg3 && isname(arg2, "инвентарь экипировка inventory equipment")) ||
 		(is_number(arg1) && !*arg4 && isname(arg3, "инвентарь экипировка inventory equipment")))
-		send_to_char("Вы уже подобрали этот предмет!\r\n", ch);
+		SendMsgToChar("Вы уже подобрали этот предмет!\r\n", ch);
 	else {
 		if (is_number(arg1)) {
 			amount = atoi(arg1);
@@ -1022,7 +1022,7 @@ void do_get(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			mode = generic_find(thecont, where_bits, ch, &tmp_char, &cont);
 			if (!cont) {
 				sprintf(buf, "Вы не видите '%s'.\r\n", arg2);
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 			} else if (GET_OBJ_TYPE(cont) != EObjType::kContainer) {
 				act("$o - не контейнер.", false, ch, cont, 0, kToChar);
 			} else {
@@ -1031,7 +1031,7 @@ void do_get(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		} else {
 			if (cont_dotmode == kFindAlldot
 				&& !*thecont) {
-				send_to_char("Взять из чего \"всего\"?\r\n", ch);
+				SendMsgToChar("Взять из чего \"всего\"?\r\n", ch);
 				return;
 			}
 			for (cont = ch->carrying; cont && IS_SET(where_bits, EFind::kObjInventory); cont = cont->get_next_content()) {
@@ -1065,10 +1065,10 @@ void do_get(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			if (!found) {
 				if (cont_dotmode == kFindAll) {
-					send_to_char("Вы не смогли найти ни одного контейнера.\r\n", ch);
+					SendMsgToChar("Вы не смогли найти ни одного контейнера.\r\n", ch);
 				} else {
 					sprintf(buf, "Вы что-то не видите здесь '%s'.\r\n", thecont);
-					send_to_char(buf, ch);
+					SendMsgToChar(buf, ch);
 				}
 			}
 		}
@@ -1077,11 +1077,11 @@ void do_get(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void perform_drop_gold(CharData *ch, int amount) {
 	if (amount <= 0) {
-		send_to_char("Да, похоже вы слишком переиграли сегодня.\r\n", ch);
+		SendMsgToChar("Да, похоже вы слишком переиграли сегодня.\r\n", ch);
 	} else if (ch->get_gold() < amount) {
-		send_to_char("У вас нет такой суммы!\r\n", ch);
+		SendMsgToChar("У вас нет такой суммы!\r\n", ch);
 	} else {
-		WAIT_STATE(ch, kPulseViolence);    // to prevent coin-bombing
+		SetWaitState(ch, kPulseViolence);    // to prevent coin-bombing
 		if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoItem)) {
 			act("Неведомая сила помешала вам сделать это!", false, ch, 0, 0, kToChar);
 			return;
@@ -1108,8 +1108,8 @@ void perform_drop_gold(CharData *ch, int amount) {
 		}
 
 		// Если этот моб трупа не оставит, то не выводить сообщение иначе ужасно коряво смотрится в бою и в тригах
-		if (!ch->IsNpc() || !MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
-			send_to_char(ch, "Вы бросили %d %s на землю.\r\n",
+		if (!ch->is_npc() || !MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
+			SendMsgToChar(ch, "Вы бросили %d %s на землю.\r\n",
 						 amount, GetDeclensionInNumber(amount, EWhat::kMoneyU));
 			sprintf(buf,
 					"<%s> {%d} выбросил %d %s на землю.",
@@ -1162,7 +1162,7 @@ void do_drop(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 
 	if (!*arg) {
 		sprintf(buf, "Что вы хотите %s?\r\n", drop_op[0]);
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 		return;
 	} else if (is_number(arg)) {
 		int multi = atoi(arg);
@@ -1170,13 +1170,13 @@ void do_drop(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		if (!str_cmp("coins", arg) || !str_cmp("coin", arg) || !str_cmp("кун", arg) || !str_cmp("денег", arg))
 			perform_drop_gold(ch, multi);
 		else if (multi <= 0)
-			send_to_char("Не имеет смысла.\r\n", ch);
+			SendMsgToChar("Не имеет смысла.\r\n", ch);
 		else if (!*arg) {
 			sprintf(buf, "%s %d чего?\r\n", drop_op[0], multi);
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 		} else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
 			snprintf(buf, kMaxInputLength, "У вас нет ничего похожего на %s.\r\n", arg);
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 		} else {
 			do {
 				next_obj = get_obj_in_list_vis(ch, arg, obj->get_next_content());
@@ -1189,7 +1189,7 @@ void do_drop(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		// Can't junk or donate all
 		if (dotmode == kFindAll) {
 			if (!ch->carrying)
-				send_to_char("А у вас ничего и нет.\r\n", ch);
+				SendMsgToChar("А у вас ничего и нет.\r\n", ch);
 			else
 				for (obj = ch->carrying; obj; obj = next_obj) {
 					next_obj = obj->get_next_content();
@@ -1198,12 +1198,12 @@ void do_drop(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		} else if (dotmode == kFindAlldot) {
 			if (!*arg) {
 				sprintf(buf, "%s \"все\" какого типа предметов?\r\n", drop_op[0]);
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 				return;
 			}
 			if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
 				snprintf(buf, kMaxInputLength, "У вас нет ничего похожего на '%s'.\r\n", arg);
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 			}
 			while (obj) {
 				next_obj = get_obj_in_list_vis(ch, arg, obj->get_next_content());
@@ -1213,7 +1213,7 @@ void do_drop(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		} else {
 			if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
 				snprintf(buf, kMaxInputLength, "У вас нет '%s'.\r\n", arg);
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 			} else
 				perform_drop(ch, obj);
 		}
@@ -1277,13 +1277,13 @@ CharData *give_find_vict(CharData *ch, char *arg) {
 	CharData *vict;
 
 	if (!*arg) {
-		send_to_char("Кому?\r\n", ch);
+		SendMsgToChar("Кому?\r\n", ch);
 		return (nullptr);
 	} else if (!(vict = get_char_vis(ch, arg, EFind::kCharInRoom))) {
-		send_to_char(NOPERSON, ch);
+		SendMsgToChar(NOPERSON, ch);
 		return (nullptr);
 	} else if (vict == ch) {
-		send_to_char("Вы переложили ЭТО из одного кармана в другой.\r\n", ch);
+		SendMsgToChar("Вы переложили ЭТО из одного кармана в другой.\r\n", ch);
 		return (nullptr);
 	} else
 		return (vict);
@@ -1291,18 +1291,18 @@ CharData *give_find_vict(CharData *ch, char *arg) {
 
 void perform_give_gold(CharData *ch, CharData *vict, int amount) {
 	if (amount <= 0) {
-		send_to_char("Ха-ха-ха (3 раза)...\r\n", ch);
+		SendMsgToChar("Ха-ха-ха (3 раза)...\r\n", ch);
 		return;
 	}
-	if (ch->get_gold() < amount && (ch->IsNpc() || !IS_IMPL(ch))) {
-		send_to_char("И откуда вы их взять собираетесь?\r\n", ch);
+	if (ch->get_gold() < amount && (ch->is_npc() || !IS_IMPL(ch))) {
+		SendMsgToChar("И откуда вы их взять собираетесь?\r\n", ch);
 		return;
 	}
 	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoItem) && !IS_GOD(ch)) {
 		act("Неведомая сила помешала вам сделать это!", false, ch, 0, 0, kToChar);
 		return;
 	}
-	send_to_char(OK, ch);
+	SendMsgToChar(OK, ch);
 	sprintf(buf, "$n дал$g вам %d %s.", amount, GetDeclensionInNumber(amount, EWhat::kMoneyU));
 	act(buf, false, ch, 0, vict, kToVict);
 	sprintf(buf, "$n дал$g %s $N2.", money_desc(amount, 3));
@@ -1331,18 +1331,18 @@ void perform_give_gold(CharData *ch, CharData *vict, int amount) {
 
 void perform_give_nogat(CharData *ch, CharData *vict, int amount) {
 	if (amount <= 0) {
-		send_to_char("Ха-ха-ха (3 раза)...\r\n", ch);
+		SendMsgToChar("Ха-ха-ха (3 раза)...\r\n", ch);
 		return;
 	}
-	if (ch->get_nogata() < amount && (ch->IsNpc() || !IS_IMPL(ch))) {
-		send_to_char("И откуда ты их взять собирался?\r\n", ch);
+	if (ch->get_nogata() < amount && (ch->is_npc() || !IS_IMPL(ch))) {
+		SendMsgToChar("И откуда ты их взять собирался?\r\n", ch);
 		return;
 	}
 	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoItem) && !IS_GOD(ch)) {
 		act("Неведомая сила помешала вам сделать это!", false, ch, 0, 0, kToChar);
 		return;
 	}
-	send_to_char(OK, ch);
+	SendMsgToChar(OK, ch);
 	sprintf(buf, "$n дал$g вам %d %s.", amount, GetDeclensionInNumber(amount, EWhat::kNogataU));
 	act(buf, false, ch, 0, vict, kToVict);
 	if (amount > 4)
@@ -1364,7 +1364,7 @@ void do_give(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	argument = one_argument(argument, arg);
 
 	if (!*arg)
-		send_to_char("Дать что и кому?\r\n", ch);
+		SendMsgToChar("Дать что и кому?\r\n", ch);
 	else if (is_number(arg)) {
 		amount = atoi(arg);
 		argument = one_argument(argument, arg);
@@ -1382,12 +1382,12 @@ void do_give(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 		if (!*arg) {
 			sprintf(buf, "Чего %d вы хотите дать?\r\n", amount);
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 		} else if (!(vict = give_find_vict(ch, argument))) {
 			return;
 		} else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
 			snprintf(buf, kMaxInputLength, "У вас нет '%s'.\r\n", arg);
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 		} else {
 			while (obj && amount--) {
 				next_obj = get_obj_in_list_vis(ch, arg, obj->get_next_content());
@@ -1403,16 +1403,16 @@ void do_give(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (dotmode == kFindIndiv) {
 			if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
 				snprintf(buf, kMaxInputLength, "У вас нет '%s'.\r\n", arg);
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 			} else
 				perform_give(ch, vict, obj);
 		} else {
 			if (dotmode == kFindAlldot && !*arg) {
-				send_to_char("Дать \"все\" какого типа предметов?\r\n", ch);
+				SendMsgToChar("Дать \"все\" какого типа предметов?\r\n", ch);
 				return;
 			}
 			if (!ch->carrying)
-				send_to_char("У вас ведь ничего нет.\r\n", ch);
+				SendMsgToChar("У вас ведь ничего нет.\r\n", ch);
 			else {
 				bool has_items = false;
 				for (obj = ch->carrying; obj; obj = next_obj) {
@@ -1426,7 +1426,7 @@ void do_give(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					}
 				}
 				if (!has_items) {
-					send_to_char(ch, "У вас нет '%s'.\r\n", arg);
+					SendMsgToChar(ch, "У вас нет '%s'.\r\n", arg);
 				}
 			}
 		}
@@ -1456,31 +1456,31 @@ void do_fry(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	ObjData *meet;
 	one_argument(argument, arg);
 	if (!*arg) {
-		send_to_char("Что вы собрались поджарить?\r\n", ch);
+		SendMsgToChar("Что вы собрались поджарить?\r\n", ch);
 		return;
 	}
-	if (ch->GetEnemy()) {
-		send_to_char("Не стоит отвлекаться в бою.\r\n", ch);
+	if (ch->get_fighting()) {
+		SendMsgToChar("Не стоит отвлекаться в бою.\r\n", ch);
 		return;
 	}
 	if (!(meet = get_obj_in_list_vis(ch, arg, ch->carrying))) {
 		snprintf(buf, kMaxStringLength, "У вас нет '%s'.\r\n", arg);
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 		return;
 	}
 	if (!world[ch->in_room]->fires) {
-		send_to_char(ch, "На чем вы собрались жарить, огня то нет!\r\n");
+		SendMsgToChar(ch, "На чем вы собрались жарить, огня то нет!\r\n");
 		return;
 	}
 	if (world[ch->in_room]->fires > 2) {
-		send_to_char(ch, "Костер слишком силен, сгорит!\r\n");
+		SendMsgToChar(ch, "Костер слишком силен, сгорит!\r\n");
 		return;
 	}
 
 	const auto meet_vnum = GET_OBJ_VNUM(meet);
 	if (!meat_mapping.has(meet_vnum)) // не нашлось в массиве
 	{
-		send_to_char(ch, "%s не подходит для жарки.\r\n", GET_OBJ_PNAME(meet, 0).c_str());
+		SendMsgToChar(ch, "%s не подходит для жарки.\r\n", GET_OBJ_PNAME(meet, 0).c_str());
 		return;
 	}
 
@@ -1490,7 +1490,7 @@ void do_fry(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	if (tobj) {
 		can_carry_obj(ch, tobj.get());
 		ExtractObjFromWorld(meet);
-		WAIT_STATE(ch, 1 * kPulseViolence);
+		SetWaitState(ch, 1 * kPulseViolence);
 	} else {
 		mudlog("Не возможно загрузить жаренное мясо в act.item.cpp::do_fry!", NRM, kLvlGreatGod, ERRLOG, true);
 	}
@@ -1511,7 +1511,7 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 	if (!ch->IsNpc()
 		&& subcmd == SCMD_DEVOUR) {
-		send_to_char("Вы же не зверь какой, пожирать трупы!\r\n", ch);
+		SendMsgToChar("Вы же не зверь какой, пожирать трупы!\r\n", ch);
 		return;
 	}
 
@@ -1519,17 +1519,17 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 
 	if (!*arg) {
-		send_to_char("Чем вы собрались закусить?\r\n", ch);
+		SendMsgToChar("Чем вы собрались закусить?\r\n", ch);
 		return;
 	}
-	if (ch->GetEnemy()) {
-		send_to_char("Не стоит отвлекаться в бою.\r\n", ch);
+	if (ch->get_fighting()) {
+		SendMsgToChar("Не стоит отвлекаться в бою.\r\n", ch);
 		return;
 	}
 
 	if (!(food = get_obj_in_list_vis(ch, arg, ch->carrying))) {
 		snprintf(buf, kMaxInputLength, "У вас нет '%s'.\r\n", arg);
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 		return;
 	}
 	if (subcmd == SCMD_TASTE
@@ -1542,19 +1542,19 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (!IS_GOD(ch)) {
 		if (GET_OBJ_TYPE(food) == EObjType::kMagicIngredient) //Сообщение на случай попытки проглотить ингры
 		{
-			send_to_char("Не можешь приготовить - покупай готовое!\r\n", ch);
+			SendMsgToChar("Не можешь приготовить - покупай готовое!\r\n", ch);
 			return;
 		}
 		if (GET_OBJ_TYPE(food) != EObjType::kFood
 			&& GET_OBJ_TYPE(food) != EObjType::kNote) {
-			send_to_char("Это несъедобно!\r\n", ch);
+			SendMsgToChar("Это несъедобно!\r\n", ch);
 			return;
 		}
 	}
 	if (GET_COND(ch, FULL) == 0
 		&& GET_OBJ_TYPE(food) != EObjType::kNote)    // Stomach full
 	{
-		send_to_char("Вы слишком сыты для этого!\r\n", ch);
+		SendMsgToChar("Вы слишком сыты для этого!\r\n", ch);
 		return;
 	}
 	if (subcmd == SCMD_EAT
@@ -1574,7 +1574,7 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	gain_condition(ch, FULL, -2 * amount);
 
 	if (GET_COND(ch, FULL) == 0) {
-		send_to_char("Вы наелись.\r\n", ch);
+		SendMsgToChar("Вы наелись.\r\n", ch);
 	}
 
 	for (int i = 0; i < kMaxObjAffect; i++) {
@@ -1593,7 +1593,7 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	if ((GET_OBJ_VAL(food, 3) == 1) && !IS_IMMORTAL(ch))    // The shit was poisoned !
 	{
-		send_to_char("Однако, какой странный вкус!\r\n", ch);
+		SendMsgToChar("Однако, какой странный вкус!\r\n", ch);
 		act("$n закашлял$u и начал$g отплевываться.", false, ch, 0, 0, kToRoom | kToArenaListen);
 
 		Affect<EApply> af;
@@ -1620,7 +1620,7 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	} else {
 		food->set_val(0, food->get_val(0) - 1);
 		if (!food->get_val(0)) {
-			send_to_char("Вы доели все!\r\n", ch);
+			SendMsgToChar("Вы доели все!\r\n", ch);
 			ExtractObjFromWorld(food);
 		}
 	}
@@ -1687,12 +1687,12 @@ void perform_wear(CharData *ch, ObjData *obj, int where) {
 		return;
 	}
 	if (unique_stuff(ch, obj) && obj->has_flag(EObjFlag::kUnique)) {
-		send_to_char("Вы не можете использовать более одной такой вещи.\r\n", ch);
+		SendMsgToChar("Вы не можете использовать более одной такой вещи.\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kGlobalCooldown)) {
-		if (ch->GetEnemy() && (where == EEquipPos::kShield || GET_OBJ_TYPE(obj) == EObjType::kWeapon)) {
-			send_to_char("Вам нужно набраться сил.\r\n", ch);
+	if (ch->haveCooldown(ESkill::kGlobalCooldown)) {
+		if (ch->get_fighting() && (where == EEquipPos::kShield || GET_OBJ_TYPE(obj) == EObjType::kWeapon)) {
+			SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 			return;
 		}
 	};
@@ -1710,7 +1710,7 @@ void perform_wear(CharData *ch, ObjData *obj, int where) {
 				|| GET_EQ(ch, EEquipPos::kShield) || GET_EQ(ch, EEquipPos::kWield))) ||
 			// не может держать свет если двуручник или держит
 			(where == EEquipPos::kLight && (GET_EQ(ch, EEquipPos::kHold) || GET_EQ(ch, EEquipPos::kBoths)))) {
-		send_to_char("У вас заняты руки.\r\n", ch);
+		SendMsgToChar("У вас заняты руки.\r\n", ch);
 		return;
 	}
 	if (   // не может одеть колчан если одет не лук
@@ -1718,7 +1718,7 @@ void perform_wear(CharData *ch, ObjData *obj, int where) {
 			!(GET_EQ(ch, EEquipPos::kBoths) &&
 				(((GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kBoths))) == EObjType::kWeapon)
 					&& (static_cast<ESkill>GET_OBJ_SKILL(GET_EQ(ch, EEquipPos::kBoths)) == ESkill::kBows))))) {
-		send_to_char("А стрелять чем будете?\r\n", ch);
+		SendMsgToChar("А стрелять чем будете?\r\n", ch);
 		return;
 	}
 	// нельзя надеть щит, если недостаточно силы
@@ -1730,7 +1730,7 @@ void perform_wear(CharData *ch, ObjData *obj, int where) {
 			where++;
 
 	if (GET_EQ(ch, where)) {
-		send_to_char(already_wearing[where], ch);
+		SendMsgToChar(already_wearing[where], ch);
 		return;
 	}
 	if (!wear_otrigger(obj, ch, where))
@@ -1886,7 +1886,7 @@ int find_eq_pos(CharData *ch, ObjData *obj, char *arg) {
 		if (where < 0
 			|| *arg == '!') {
 			sprintf(buf, "'%s'? Странная анатомия у этих русских!\r\n", arg);
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 			return -1;
 		}
 	}
@@ -1910,17 +1910,17 @@ void do_wear(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (!*arg1) {
-		send_to_char("Что вы собрались надеть?\r\n", ch);
+		SendMsgToChar("Что вы собрались надеть?\r\n", ch);
 		return;
 	}
 	dotmode = find_all_dots(arg1);
 
 	if (*arg2 && (dotmode != kFindIndiv)) {
-		send_to_char("И на какую часть тела вы желаете это надеть?!\r\n", ch);
+		SendMsgToChar("И на какую часть тела вы желаете это надеть?!\r\n", ch);
 		return;
 	}
 	if (dotmode == kFindAll) {
-		for (obj = ch->carrying; obj && !GET_MOB_HOLD(ch) && GET_POS(ch) > EPosition::kSleep; obj = next_obj) {
+		for (obj = ch->carrying; obj && !AFF_FLAGGED(ch, EAffect::kHold) && GET_POS(ch) > EPosition::kSleep; obj = next_obj) {
 			next_obj = obj->get_next_content();
 			if (CAN_SEE_OBJ(ch, obj)
 				&& (where = find_eq_pos(ch, obj, 0)) >= 0) {
@@ -1929,18 +1929,18 @@ void do_wear(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		}
 		if (!items_worn) {
-			send_to_char("Увы, но надеть вам нечего.\r\n", ch);
+			SendMsgToChar("Увы, но надеть вам нечего.\r\n", ch);
 		}
 	} else if (dotmode == kFindAlldot) {
 		if (!*arg1) {
-			send_to_char("Надеть \"все\" чего?\r\n", ch);
+			SendMsgToChar("Надеть \"все\" чего?\r\n", ch);
 			return;
 		}
 		if (!(obj = get_obj_in_list_vis(ch, arg1, ch->carrying))) {
 			sprintf(buf, "У вас нет ничего похожего на '%s'.\r\n", arg1);
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 		} else
-			while (obj && !GET_MOB_HOLD(ch) && GET_POS(ch) > EPosition::kSleep) {
+			while (obj && !AFF_FLAGGED(ch, EAffect::kHold) && GET_POS(ch) > EPosition::kSleep) {
 				next_obj = get_obj_in_list_vis(ch, arg1, obj->get_next_content());
 				if ((where = find_eq_pos(ch, obj, 0)) >= 0) {
 					perform_wear(ch, obj, where);
@@ -1952,7 +1952,7 @@ void do_wear(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else {
 		if (!(obj = get_obj_in_list_vis(ch, arg1, ch->carrying))) {
 			sprintf(buf, "У вас нет ничего похожего на '%s'.\r\n", arg1);
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 		} else {
 			if ((where = find_eq_pos(ch, obj, arg2)) >= 0)
 				perform_wear(ch, obj, where);
@@ -1971,26 +1971,26 @@ void do_wield(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 
 	if (ch->is_morphed()) {
-		send_to_char("Лапами неудобно держать оружие.\r\n", ch);
+		SendMsgToChar("Лапами неудобно держать оружие.\r\n", ch);
 		return;
 	}
 	argument = one_argument(argument, arg);
 
 	if (!*arg)
-		send_to_char("Вооружиться чем?\r\n", ch);
+		SendMsgToChar("Вооружиться чем?\r\n", ch);
 	else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
 		snprintf(buf, kMaxInputLength, "Вы не видите ничего похожего на \'%s\'.\r\n", arg);
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 	} else {
 		if (!CAN_WEAR(obj, EWearFlag::kWield)
 			&& !CAN_WEAR(obj, EWearFlag::kBoth)) {
-			send_to_char("Вы не можете вооружиться этим.\r\n", ch);
+			SendMsgToChar("Вы не можете вооружиться этим.\r\n", ch);
 		} else if (GET_OBJ_TYPE(obj) != EObjType::kWeapon) {
-			send_to_char("Это не оружие.\r\n", ch);
-		} else if (ch->IsNpc()
+			SendMsgToChar("Это не оружие.\r\n", ch);
+		} else if (ch->is_npc()
 			&& AFF_FLAGGED(ch, EAffect::kCharmed)
 			&& MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
-			send_to_char("Ожившие трупы не могут вооружаться.\r\n", ch);
+			SendMsgToChar("Ожившие трупы не могут вооружаться.\r\n", ch);
 		} else {
 			one_argument(argument, arg);
 			if (!str_cmp(arg, "обе")
@@ -2051,15 +2051,15 @@ void do_grab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 
 	if (ch->is_morphed()) {
-		send_to_char("Лапами неудобно это держать.\r\n", ch);
+		SendMsgToChar("Лапами неудобно это держать.\r\n", ch);
 		return;
 	}
 
 	if (!*arg)
-		send_to_char("Вы заорали : 'Держи его!!! Хватай его!!!'\r\n", ch);
+		SendMsgToChar("Вы заорали : 'Держи его!!! Хватай его!!!'\r\n", ch);
 	else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
 		snprintf(buf, kMaxInputLength, "У вас нет ничего похожего на '%s'.\r\n", arg);
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 	} else {
 		if (GET_OBJ_TYPE(obj) == EObjType::kLightSource) {
 			perform_wear(ch, obj, EEquipPos::kLight);
@@ -2069,14 +2069,14 @@ void do_grab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				&& GET_OBJ_TYPE(obj) != EObjType::kStaff
 				&& GET_OBJ_TYPE(obj) != EObjType::kScroll
 				&& GET_OBJ_TYPE(obj) != EObjType::kPorion) {
-				send_to_char("Вы не можете это держать.\r\n", ch);
+				SendMsgToChar("Вы не можете это держать.\r\n", ch);
 				return;
 			}
 
 			if (GET_OBJ_TYPE(obj) == EObjType::kWeapon) {
 				if (static_cast<ESkill>GET_OBJ_SKILL(obj) == ESkill::kTwohands
 					|| static_cast<ESkill>GET_OBJ_SKILL(obj) == ESkill::kBows) {
-					send_to_char("Данный тип оружия держать невозможно.", ch);
+					SendMsgToChar("Данный тип оружия держать невозможно.", ch);
 					return;
 				}
 			}
@@ -2084,7 +2084,7 @@ void do_grab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (ch->IsNpc()
 				&& AFF_FLAGGED(ch, EAffect::kCharmed)
 				&& MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
-				send_to_char("Ожившие трупы не могут вооружаться.\r\n", ch);
+				SendMsgToChar("Ожившие трупы не могут вооружаться.\r\n", ch);
 				return;
 			}
 			if (!IS_IMMORTAL(ch)
@@ -2143,7 +2143,7 @@ void do_remove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, arg);
 
 	if (!*arg) {
-		send_to_char("Снять что?\r\n", ch);
+		SendMsgToChar("Снять что?\r\n", ch);
 		return;
 	}
 	dotmode = find_all_dots(arg);
@@ -2157,12 +2157,12 @@ void do_remove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		}
 		if (!found) {
-			send_to_char("На вас не надето предметов этого типа.\r\n", ch);
+			SendMsgToChar("На вас не надето предметов этого типа.\r\n", ch);
 			return;
 		}
 	} else if (dotmode == kFindAlldot) {
 		if (!*arg) {
-			send_to_char("Снять все вещи какого типа?\r\n", ch);
+			SendMsgToChar("Снять все вещи какого типа?\r\n", ch);
 			return;
 		} else {
 			found = 0;
@@ -2177,7 +2177,7 @@ void do_remove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			if (!found) {
 				snprintf(buf, kMaxStringLength, "Вы не используете ни одного '%s'.\r\n", arg);
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 				return;
 			}
 		}
@@ -2187,18 +2187,18 @@ void do_remove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			// если предмет не найден, то возможно игрок ввел "левая" или "правая"
 			if (!str_cmp("правая", arg)) {
 				if (!GET_EQ(ch, EEquipPos::kWield)) {
-					send_to_char("В правой руке ничего нет.\r\n", ch);
+					SendMsgToChar("В правой руке ничего нет.\r\n", ch);
 				} else {
 					RemoveEquipment(ch, EEquipPos::kWield);
 				}
 			} else if (!str_cmp("левая", arg)) {
 				if (!GET_EQ(ch, EEquipPos::kHold))
-					send_to_char("В левой руке ничего нет.\r\n", ch);
+					SendMsgToChar("В левой руке ничего нет.\r\n", ch);
 				else
 					RemoveEquipment(ch, EEquipPos::kHold);
 			} else {
 				snprintf(buf, kMaxInputLength, "Вы не используете '%s'.\r\n", arg);
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 				return;
 			}
 		} else {
@@ -2207,7 +2207,7 @@ void do_remove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	//мы что-то да снимали. значит проверю я доп слот
 	if ((obj = GET_EQ(ch, EEquipPos::kQuiver)) && !GET_EQ(ch, EEquipPos::kBoths)) {
-		send_to_char("Нету лука, нет и стрел.\r\n", ch);
+		SendMsgToChar("Нету лука, нет и стрел.\r\n", ch);
 		act("$n прекратил$g использовать $o3.", false, ch, obj, 0, kToRoom);
 		PlaceObjToInventory(UnequipChar(ch, EEquipPos::kQuiver, CharEquipFlags()), ch);
 		return;
@@ -2219,34 +2219,34 @@ void do_upgrade(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int weight, add_hr, add_dr, prob, percent, min_mod, max_mod, i;
 	bool oldstate;
 	if (!ch->get_skill(ESkill::kSharpening)) {
-		send_to_char("Вы не умеете этого.", ch);
+		SendMsgToChar("Вы не умеете этого.", ch);
 		return;
 	}
 
 	one_argument(argument, arg);
 
 	if (!*arg) {
-		send_to_char("Что вы хотите заточить?\r\n", ch);
+		SendMsgToChar("Что вы хотите заточить?\r\n", ch);
 	}
 
 	if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
 		snprintf(buf, kMaxInputLength, "У вас нет \'%s\'.\r\n", arg);
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 		return;
 	};
 
 	if (GET_OBJ_TYPE(obj) != EObjType::kWeapon) {
-		send_to_char("Вы можете заточить только оружие.\r\n", ch);
+		SendMsgToChar("Вы можете заточить только оружие.\r\n", ch);
 		return;
 	}
 
 	if (static_cast<ESkill>GET_OBJ_SKILL(obj) == ESkill::kBows) {
-		send_to_char("Невозможно заточить этот тип оружия.\r\n", ch);
+		SendMsgToChar("Невозможно заточить этот тип оружия.\r\n", ch);
 		return;
 	}
 
 	if (obj->has_flag(EObjFlag::kMagic)) {
-		send_to_char("Вы не можете заточить заколдованный предмет.\r\n", ch);
+		SendMsgToChar("Вы не можете заточить заколдованный предмет.\r\n", ch);
 		return;
 	}
 
@@ -2255,7 +2255,7 @@ void do_upgrade(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if ((obj->get_affected(i).location != EApply::kNone)
 			&& (obj->get_affected(i).location != EApply::kHitroll)
 			&& (obj->get_affected(i).location != EApply::kDamroll)) {
-			send_to_char("Этот предмет не может быть заточен.\r\n", ch);
+			SendMsgToChar("Этот предмет не может быть заточен.\r\n", ch);
 			return;
 		}
 	}
@@ -2284,7 +2284,7 @@ void do_upgrade(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			break;
 
 		default: sprintf(buf, "К сожалению, %s сделан из неподходящего материала.\r\n", OBJN(obj, ch, 0));
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 			return;
 	}
 	bool change_weight = true;
@@ -2349,35 +2349,35 @@ void do_armored(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	const auto &strengthening = GlobalObjects::strengthening();
 
 	if (!ch->get_skill(ESkill::kArmoring)) {
-		send_to_char("Вы не умеете этого.", ch);
+		SendMsgToChar("Вы не умеете этого.", ch);
 		return;
 	}
 
 	two_arguments(argument, arg, arg2);
 
 	if (!*arg)
-		send_to_char("Что вы хотите укрепить?\r\n", ch);
+		SendMsgToChar("Что вы хотите укрепить?\r\n", ch);
 
 	if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
 		snprintf(buf, kMaxInputLength, "У вас нет \'%s\'.\r\n", arg);
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 		return;
 	}
 
 	if (!ObjSystem::is_armor_type(obj)) {
-		send_to_char("Вы можете укрепить только доспех.\r\n", ch);
+		SendMsgToChar("Вы можете укрепить только доспех.\r\n", ch);
 		return;
 	}
 
 	if (obj->has_flag(EObjFlag::kMagic) || obj->has_flag(EObjFlag::kArmored)) {
-		send_to_char("Вы не можете укрепить этот предмет.\r\n", ch);
+		SendMsgToChar("Вы не можете укрепить этот предмет.\r\n", ch);
 		return;
 	}
 
 	// Make sure no other affections.
 	for (i = 0; i < kMaxObjAffect; i++)
 		if (obj->get_affected(i).location != EApply::kNone) {
-			send_to_char("Этот предмет не может быть укреплен.\r\n", ch);
+			SendMsgToChar("Этот предмет не может быть укреплен.\r\n", ch);
 			return;
 		}
 
@@ -2391,11 +2391,11 @@ void do_armored(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	if (obj->get_owner() != GET_UNIQUE(ch)) {
-		send_to_char(ch, "Укрепить можно только лично сделанный предмет.\r\n");
+		SendMsgToChar(ch, "Укрепить можно только лично сделанный предмет.\r\n");
 		return;
 	}
 	if (!*arg2 && (GET_SKILL(ch, ESkill::kArmoring) >= 100)) {
-		send_to_char(ch,
+		SendMsgToChar(ch,
 					 "Укажите параметр для улучшения: поглощение, здоровье, живучесть (сопротивление), стойкость (сопротивление), огня (сопротивление), воздуха (сопротивление), воды (сопротивление), земли (сопротивление)\r\n");
 		return;
 	}
@@ -2416,7 +2416,7 @@ void do_armored(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			break;
 
 		default: sprintf(buf, "К сожалению, %s сделан из неподходящего материала.\r\n", OBJN(obj, ch, 0));
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 			return;
 	}
 
@@ -2432,58 +2432,58 @@ void do_armored(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (CompareParam(arg2, "поглощение")) {
 			armorvalue = strengthening((GET_SKILL(ch, ESkill::kArmoring) / 10 * 10), Strengthening::ABSORBTION);
 			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
-//			send_to_char(ch, "увеличиваю поглот на %d\r\n", armorvalue);
+//			SendMsgToChar(ch, "увеличиваю поглот на %d\r\n", armorvalue);
 			obj->set_affected(1, EApply::kAbsorbe, armorvalue);
 		} else if (CompareParam(arg2, "здоровье")) {
 			armorvalue = strengthening((GET_SKILL(ch, ESkill::kArmoring) / 10 * 10), Strengthening::HEALTH);
 			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
 			armorvalue *= -1;
-//			send_to_char(ch, "увеличиваю здоровье на %d\r\n", armorvalue);
+//			SendMsgToChar(ch, "увеличиваю здоровье на %d\r\n", armorvalue);
 			obj->set_affected(1, EApply::kSavingCritical, armorvalue);
 		} else if (CompareParam(arg2, "живучесть"))// резисты в - лучше
 		{
 			armorvalue = strengthening((GET_SKILL(ch, ESkill::kArmoring) / 10 * 10), Strengthening::VITALITY);
 			armorvalue = -MAX(0, number(armorvalue, armorvalue - 2));
 			armorvalue *= -1;
-//			send_to_char(ch, "увеличиваю живучесть на %d\r\n", armorvalue);
+//			SendMsgToChar(ch, "увеличиваю живучесть на %d\r\n", armorvalue);
 			obj->set_affected(1, EApply::kResistVitality, armorvalue);
 		} else if (CompareParam(arg2, "стойкость")) {
 			armorvalue = strengthening((GET_SKILL(ch, ESkill::kArmoring) / 10 * 10), Strengthening::STAMINA);
 			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
 			armorvalue *= -1;
-//			send_to_char(ch, "увеличиваю стойкость на %d\r\n", armorvalue);
+//			SendMsgToChar(ch, "увеличиваю стойкость на %d\r\n", armorvalue);
 			obj->set_affected(1, EApply::kSavingStability, armorvalue);
 		} else if (CompareParam(arg2, "воздуха")) {
 			armorvalue = strengthening((GET_SKILL(ch, ESkill::kArmoring) / 10 * 10), Strengthening::AIR_PROTECTION);
 			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
-//			send_to_char(ch, "увеличиваю сопр воздуха на %d\r\n", armorvalue);
+//			SendMsgToChar(ch, "увеличиваю сопр воздуха на %d\r\n", armorvalue);
 			obj->set_affected(1, EApply::kResistAir, armorvalue);
 		} else if (CompareParam(arg2, "воды")) {
 			armorvalue = strengthening((GET_SKILL(ch, ESkill::kArmoring) / 10 * 10), Strengthening::WATER_PROTECTION);
 			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
-//			send_to_char(ch, "увеличиваю сопр воды на %d\r\n", armorvalue);
+//			SendMsgToChar(ch, "увеличиваю сопр воды на %d\r\n", armorvalue);
 			obj->set_affected(1, EApply::kResistWater, armorvalue);
 		} else if (CompareParam(arg2, "огня")) {
 			armorvalue = strengthening((GET_SKILL(ch, ESkill::kArmoring) / 10 * 10), Strengthening::FIRE_PROTECTION);
 			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
-//			send_to_char(ch, "увеличиваю сопр огню на %d\r\n", armorvalue);
+//			SendMsgToChar(ch, "увеличиваю сопр огню на %d\r\n", armorvalue);
 			obj->set_affected(1, EApply::kResistFire, armorvalue);
 		} else if (CompareParam(arg2, "земли")) {
 			armorvalue = strengthening((GET_SKILL(ch, ESkill::kArmoring) / 10 * 10), Strengthening::EARTH_PROTECTION);
 			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
-//			send_to_char(ch, "увеличиваю сопр земли на %d\r\n", armorvalue);
+//			SendMsgToChar(ch, "увеличиваю сопр земли на %d\r\n", armorvalue);
 			obj->set_affected(1, EApply::kResistEarth, armorvalue);
 		} else {
-			send_to_char(ch, "Но не поняли что улучшать.\r\n");
+			SendMsgToChar(ch, "Но не поняли что улучшать.\r\n");
 			return;
 		}
 		armorvalue = strengthening((GET_SKILL(ch, ESkill::kArmoring) / 10 * 10), Strengthening::TIMER);
 		int timer =
 			obj->get_timer() * strengthening((GET_SKILL(ch, ESkill::kArmoring) / 10 * 10), Strengthening::TIMER) / 100;
 		obj->set_timer(timer);
-//		send_to_char(ch, "увеличиваю таймер на %d%, устанавливаю таймер %d\r\n", armorvalue, timer);
+//		SendMsgToChar(ch, "увеличиваю таймер на %d%, устанавливаю таймер %d\r\n", armorvalue, timer);
 		armorvalue = strengthening((GET_SKILL(ch, ESkill::kArmoring) / 10 * 10), Strengthening::ARMOR);
-//		send_to_char(ch, "увеличиваю армор на %d скилл равен %d  значение берем %d\r\n", armorvalue, GET_SKILL(ch, ESkill::kArmoring), (GET_SKILL(ch, ESkill::kArmoring) / 10 * 10) );
+//		SendMsgToChar(ch, "увеличиваю армор на %d скилл равен %d  значение берем %d\r\n", armorvalue, GET_SKILL(ch, ESkill::kArmoring), (GET_SKILL(ch, ESkill::kArmoring) / 10 * 10) );
 		obj->set_affected(2, EApply::kArmour, armorvalue);
 		obj->set_extra_flag(EObjFlag::kArmored);
 		obj->set_extra_flag(EObjFlag::kTransformed); // установили флажок трансформации кодом
@@ -2494,22 +2494,22 @@ void do_armored(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 void do_fire(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int percent, prob;
 	if (!ch->get_skill(ESkill::kCampfire)) {
-		send_to_char("Но вы не знаете как.\r\n", ch);
+		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}
 
-	if (ch->IsOnHorse()) {
-		send_to_char("Верхом это будет затруднительно.\r\n", ch);
+	if (ch->ahorse()) {
+		SendMsgToChar("Верхом это будет затруднительно.\r\n", ch);
 		return;
 	}
 
 	if (AFF_FLAGGED(ch, EAffect::kBlind)) {
-		send_to_char("Вы ничего не видите!\r\n", ch);
+		SendMsgToChar("Вы ничего не видите!\r\n", ch);
 		return;
 	}
 
 	if (world[ch->in_room]->fires) {
-		send_to_char("Здесь уже горит огонь.\r\n", ch);
+		SendMsgToChar("Здесь уже горит огонь.\r\n", ch);
 		return;
 	}
 
@@ -2519,21 +2519,21 @@ void do_fire(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		SECT(ch->in_room) == ESector::kWaterNoswim ||
 		SECT(ch->in_room) == ESector::kOnlyFlying ||
 		SECT(ch->in_room) == ESector::kUnderwater || SECT(ch->in_room) == ESector::kSecret) {
-		send_to_char("В этой комнате нельзя разжечь костер.\r\n", ch);
+		SendMsgToChar("В этой комнате нельзя разжечь костер.\r\n", ch);
 		return;
 	}
 
-	if (!check_moves(ch, FIRE_MOVES))
+	if (!check_moves(ch, kFireMoves))
 		return;
 
 	percent = number(1, MUD::Skills()[ESkill::kCampfire].difficulty);
 	prob = CalcCurrentSkill(ch, ESkill::kCampfire, 0);
 	if (percent > prob) {
-		send_to_char("Вы попытались разжечь костер, но у вас ничего не вышло.\r\n", ch);
+		SendMsgToChar("Вы попытались разжечь костер, но у вас ничего не вышло.\r\n", ch);
 		return;
 	} else {
 		world[ch->in_room]->fires = MAX(0, (prob - percent) / 5) + 1;
-		send_to_char("Вы набрали хворосту и разожгли огонь.\n\r", ch);
+		SendMsgToChar("Вы набрали хворосту и разожгли огонь.\n\r", ch);
 		act("$n развел$g огонь.", false, ch, 0, 0, kToRoom | kToArenaListen);
 		ImproveSkill(ch, ESkill::kCampfire, true, 0);
 	}
@@ -2563,7 +2563,7 @@ void do_extinguish(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, arg);
 
 	if ((!*arg) || ((tp = search_block(arg, targets, false)) == -1)) {
-		send_to_char("Что вы хотите затоптать?\r\n", ch);
+		SendMsgToChar("Что вы хотите затоптать?\r\n", ch);
 		return;
 	}
 	tp >>= 2;
@@ -2575,15 +2575,15 @@ void do_extinguish(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					--world[ch->in_room]->fires;
 				else
 					world[ch->in_room]->fires = 4;
-				send_to_char("Вы затоптали костер.\r\n", ch);
+				SendMsgToChar("Вы затоптали костер.\r\n", ch);
 				act("$n затоптал$g костер.", false, ch, 0, 0, kToRoom | kToArenaListen);
 				if (world[ch->in_room]->fires == 0) {
-					send_to_char("Костер потух.\r\n", ch);
+					SendMsgToChar("Костер потух.\r\n", ch);
 					act("Костер потух.", false, ch, 0, 0, kToRoom | kToArenaListen);
 				}
 				lag = 1;
 			} else {
-				send_to_char("А тут топтать и нечего :)\r\n", ch);
+				SendMsgToChar("А тут топтать и нечего :)\r\n", ch);
 			}
 			break;
 
@@ -2614,7 +2614,7 @@ void do_extinguish(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				&& (AFF_FLAGGED(ch, EAffect::kDetectMagic)
 					|| IS_IMMORTAL(ch)
 					|| PRF_FLAGGED(ch, EPrf::kCoderinfo))) {
-				send_to_char("Шаркнув несколько раз по земле, вы стерли светящуюся надпись.\r\n", ch);
+				SendMsgToChar("Шаркнув несколько раз по земле, вы стерли светящуюся надпись.\r\n", ch);
 				act("$n шаркнул$g несколько раз по светящимся рунам, полностью их уничтожив.",
 					false,
 					ch,
@@ -2632,20 +2632,20 @@ void do_extinguish(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						sprintf(buf,
 								"Послышался далекий звук лопнувшей струны, и перед вами промельнул призрачный облик %s.\r\n",
 								GET_PAD(ch, 1));
-						send_to_char(buf, caster);
+						SendMsgToChar(buf, caster);
 					}
 				}
 				room_spells::RemoveAffect(world[ch->in_room], aff_i);
 				lag = 3;
 			} else {
-				send_to_char("А тут топтать и нечего :)\r\n", ch);
+				SendMsgToChar("А тут топтать и нечего :)\r\n", ch);
 			}
 			break;
 	}
 
 	//Выдадим-ка лаг за эти дела.
 	if (!IS_IMMORTAL(ch)) {
-		WAIT_STATE(ch, lag * kPulseViolence);
+		SetWaitState(ch, lag * kPulseViolence);
 	}
 }
 
@@ -2654,11 +2654,11 @@ void do_firstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	struct TimedSkill timed;
 
 	if (!ch->get_skill(ESkill::kFirstAid)) {
-		send_to_char("Вам следует этому научиться.\r\n", ch);
+		SendMsgToChar("Вам следует этому научиться.\r\n", ch);
 		return;
 	}
 	if (!IS_GOD(ch) && IsTimedBySkill(ch, ESkill::kFirstAid)) {
-		send_to_char("Так много лечить нельзя - больных не останется.\r\n", ch);
+		SendMsgToChar("Так много лечить нельзя - больных не останется.\r\n", ch);
 		return;
 	}
 
@@ -2670,7 +2670,7 @@ void do_firstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else {
 		vict = get_char_vis(ch, arg, EFind::kCharInRoom);
 		if (!vict) {
-			send_to_char("Кого вы хотите подлечить?\r\n", ch);
+			SendMsgToChar("Кого вы хотите подлечить?\r\n", ch);
 			return;
 		}
 	}
@@ -2679,8 +2679,8 @@ void do_firstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act("$N сражается, $M не до ваших телячьих нежностей.", false, ch, 0, vict, kToChar);
 		return;
 	}
-	if (vict->IsNpc() && !IS_CHARMICE(vict)) {
-		send_to_char("Вы не красный крест лечить всех подряд.\r\n", ch);
+	if (vict->is_npc() && !IS_CHARMICE(vict)) {
+		SendMsgToChar("Вы не красный крест лечить всех подряд.\r\n", ch);
 		return;
 	}
 	int percent = number(1, MUD::Skills()[ESkill::kFirstAid].difficulty);
@@ -2707,7 +2707,7 @@ void do_firstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			} else {
 				percent = CalcCurrentSkill(ch, ESkill::kFirstAid, vict);
 				prob = GetRealLevel(ch) * percent * 0.5;
-				send_to_char(ch, "&RУровень цели %d Отхилено %d хитов, скилл %d\r\n", GetRealLevel(vict), prob, percent);
+				SendMsgToChar(ch, "&RУровень цели %d Отхилено %d хитов, скилл %d\r\n", GetRealLevel(vict), prob, percent);
 				GET_HIT(vict) += prob;
 				GET_HIT(vict) = std::min(GET_HIT(vict), GET_REAL_MAX_HIT(vict));
 				update_pos(vict);
@@ -2718,10 +2718,10 @@ void do_firstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int count = 0;
 	if (PRF_FLAGGED(ch, EPrf::kTester)) {
 		count = (GET_SKILL(ch, ESkill::kFirstAid) - 20) / 30;
-		send_to_char(ch, "Снимаю %d аффектов\r\n", count);
+		SendMsgToChar(ch, "Снимаю %d аффектов\r\n", count);
 
 		const auto remove_count = vict->remove_random_affects(count);
-		send_to_char(ch, "Снято %ld аффектов\r\n", remove_count);
+		SendMsgToChar(ch, "Снято %ld аффектов\r\n", remove_count);
 
 		//
 		need = true;
@@ -2782,7 +2782,7 @@ void do_firstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void do_poisoned(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!ch->get_skill(ESkill::kPoisoning)) {
-		send_to_char("Вы не умеете этого.", ch);
+		SendMsgToChar("Вы не умеете этого.", ch);
 		return;
 	}
 
@@ -2790,10 +2790,10 @@ void do_poisoned(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	skip_spaces(&argument);
 
 	if (!*arg) {
-		send_to_char("Что вы хотите отравить?\r\n", ch);
+		SendMsgToChar("Что вы хотите отравить?\r\n", ch);
 		return;
 	} else if (!*argument) {
-		send_to_char("Из чего вы собираете взять яд?\r\n", ch);
+		SendMsgToChar("Из чего вы собираете взять яд?\r\n", ch);
 		return;
 	}
 
@@ -2802,25 +2802,25 @@ void do_poisoned(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int result = generic_find(arg, EFind::kObjInventory | EFind::kObjEquip, ch, &dummy, &weapon);
 
 	if (!weapon || !result) {
-		send_to_char(ch, "У вас нет \'%s\'.\r\n", arg);
+		SendMsgToChar(ch, "У вас нет \'%s\'.\r\n", arg);
 		return;
 	} else if (GET_OBJ_TYPE(weapon) != EObjType::kWeapon) {
-		send_to_char("Вы можете нанести яд только на оружие.\r\n", ch);
+		SendMsgToChar("Вы можете нанести яд только на оружие.\r\n", ch);
 		return;
 	}
 
 	ObjData *cont = get_obj_in_list_vis(ch, argument, ch->carrying);
 	if (!cont) {
-		send_to_char(ch, "У вас нет \'%s\'.\r\n", argument);
+		SendMsgToChar(ch, "У вас нет \'%s\'.\r\n", argument);
 		return;
 	} else if (GET_OBJ_TYPE(cont) != EObjType::kLiquidContainer) {
-		send_to_char(ch, "%s не является емкостью.\r\n", cont->get_PName(0).c_str());
+		SendMsgToChar(ch, "%s не является емкостью.\r\n", cont->get_PName(0).c_str());
 		return;
 	} else if (GET_OBJ_VAL(cont, 1) <= 0) {
-		send_to_char(ch, "В %s нет никакой жидкости.\r\n", cont->get_PName(5).c_str());
+		SendMsgToChar(ch, "В %s нет никакой жидкости.\r\n", cont->get_PName(5).c_str());
 		return;
 	} else if (!poison_in_vessel(GET_OBJ_VAL(cont, 2))) {
-		send_to_char(ch, "В %s нет подходящего яда.\r\n", cont->get_PName(5).c_str());
+		SendMsgToChar(ch, "В %s нет подходящего яда.\r\n", cont->get_PName(5).c_str());
 		return;
 	}
 
@@ -2844,29 +2844,29 @@ void do_repair(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	struct TimedSkill timed;
 
 	if (!ch->get_skill(ESkill::kRepair)) {
-		send_to_char("Вы не умеете этого.\r\n", ch);
+		SendMsgToChar("Вы не умеете этого.\r\n", ch);
 		return;
 	}
 	if (IsTimedBySkill(ch, ESkill::kRepair)) {
-		send_to_char("У вас недостаточно сил для ремонта.\r\n", ch);
+		SendMsgToChar("У вас недостаточно сил для ремонта.\r\n", ch);
 		return;
 	}
 
 	one_argument(argument, arg);
 
-	if (ch->GetEnemy()) {
-		send_to_char("Вы не можете сделать это в бою!\r\n", ch);
+	if (ch->get_fighting()) {
+		SendMsgToChar("Вы не можете сделать это в бою!\r\n", ch);
 		return;
 	}
 
 	if (!*arg) {
-		send_to_char("Что вы хотите ремонтировать?\r\n", ch);
+		SendMsgToChar("Что вы хотите ремонтировать?\r\n", ch);
 		return;
 	}
 
 	if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
 		snprintf(buf, kMaxInputLength, "У вас нет \'%s\'.\r\n", arg);
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 		return;
 	};
 
@@ -2876,7 +2876,7 @@ void do_repair(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	if (GET_OBJ_TYPE(obj) != EObjType::kWeapon
 		&& !ObjSystem::is_armor_type(obj)) {
-		send_to_char("Вы можете отремонтировать только оружие или броню.\r\n", ch);
+		SendMsgToChar("Вы можете отремонтировать только оружие или броню.\r\n", ch);
 		return;
 	}
 
@@ -2914,7 +2914,7 @@ void do_repair(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		timed.time = MAX(1, 25 - modif);
 		ImposeTimedSkill(ch, &timed);
 		obj->set_current_durability(MIN(GET_OBJ_MAX(obj), GET_OBJ_CUR(obj) * percent / prob + 1));
-		send_to_char(ch, "Теперь %s выгляд%s лучше.\r\n", obj->get_PName(0).c_str(), GET_OBJ_POLY_1(ch, obj));
+		SendMsgToChar(ch, "Теперь %s выгляд%s лучше.\r\n", obj->get_PName(0).c_str(), GET_OBJ_POLY_1(ch, obj));
 		act("$n умело починил$g $o3.", false, ch, obj, 0, kToRoom | kToArenaListen);
 	}
 }
@@ -2933,7 +2933,7 @@ bool skill_to_skin(CharData *mob, CharData *ch) {
 					return true;
 			} else {
 				sprintf(buf, "Ваше умение слишком низкое, чтобы содрать шкуру %s.\r\n", GET_PAD(mob, 1));
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 				return false;
 			}
 
@@ -2945,7 +2945,7 @@ bool skill_to_skin(CharData *mob, CharData *ch) {
 					return true;
 			} else {
 				sprintf(buf, "Ваше умение слишком низкое, чтобы содрать шкуру %s.\r\n", GET_PAD(mob, 1));
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 				return false;
 			}
 			break;
@@ -2957,7 +2957,7 @@ bool skill_to_skin(CharData *mob, CharData *ch) {
 					return true;
 			} else {
 				sprintf(buf, "Ваше умение слишком низкое, чтобы содрать шкуру %s.\r\n", GET_PAD(mob, 1));
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 				return false;
 			}
 			break;
@@ -2969,7 +2969,7 @@ bool skill_to_skin(CharData *mob, CharData *ch) {
 					return true;
 			} else {
 				sprintf(buf, "Ваше умение слишком низкое, чтобы содрать шкуру %s.\r\n", GET_PAD(mob, 1));
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 				return false;
 			}
 			break;
@@ -2987,13 +2987,13 @@ bool skill_to_skin(CharData *mob, CharData *ch) {
 
 void do_makefood(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!ch->get_skill(ESkill::kSkinning)) {
-		send_to_char("Вы не умеете этого.\r\n", ch);
+		SendMsgToChar("Вы не умеете этого.\r\n", ch);
 		return;
 	}
 
 	one_argument(argument, arg);
 	if (!*arg) {
-		send_to_char("Что вы хотите освежевать?\r\n", ch);
+		SendMsgToChar("Что вы хотите освежевать?\r\n", ch);
 		return;
 	}
 
@@ -3002,7 +3002,7 @@ void do_makefood(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		obj = get_obj_in_list_vis(ch, arg, world[ch->in_room]->contents);
 		if (!obj) {
 			snprintf(buf, kMaxInputLength, "Вы не видите здесь '%s'.\r\n", arg);
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 			return;
 		}
 	}
@@ -3022,12 +3022,12 @@ void do_makefood(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		&& GET_RACE(mob) != ENpcRace::kFish
 		&& GET_RACE(mob) != ENpcRace::kBird
 		&& GET_RACE(mob) != ENpcRace::kBeastman) {
-		send_to_char("Этот труп невозможно освежевать.\r\n", ch);
+		SendMsgToChar("Этот труп невозможно освежевать.\r\n", ch);
 		return;
 	}
 
 	if (GET_WEIGHT(mob) < 11) {
-		send_to_char("Этот труп слишком маленький, ничего не получится.\r\n", ch);
+		SendMsgToChar("Этот труп слишком маленький, ничего не получится.\r\n", ch);
 		return;
 	}
 
@@ -3100,7 +3100,7 @@ void feed_charmice(CharData *ch, char *arg) {
 	}
 
 	if (reformed_hp_summ >= get_player_charms(ch->get_master(), kSpellAnimateDead)) {
-		send_to_char("Вы не можете управлять столькими последователями.\r\n", ch->get_master());
+		SendMsgToChar("Вы не можете управлять столькими последователями.\r\n", ch->get_master());
 		ExtractCharFromWorld(ch, false);
 		return;
 	}
@@ -3217,11 +3217,11 @@ void do_custom_label(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 	}
 
 	if (no_target) {
-		send_to_char("На чем царапаем?\r\n", ch);
+		SendMsgToChar("На чем царапаем?\r\n", ch);
 	} else {
 		if (!(target = get_obj_in_list_vis(ch, objname, ch->carrying))) {
 			sprintf(buf, "У вас нет \'%s\'.\r\n", objname);
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 		} else {
 			if (erase_only) {
 				target->remove_custom_label();

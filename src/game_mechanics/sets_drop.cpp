@@ -1015,7 +1015,7 @@ void reload_by_timer() {
 void message_for_players() {
 	for (DescriptorData *i = descriptor_list; i; i = i->next) {
 		if (STATE(i) == CON_PLAYING && i->character) {
-			send_to_char(i->character.get(), "%s%s%s\r\n",
+			SendMsgToChar(i->character.get(), "%s%s%s\r\n",
 						 CCICYN(i->character, C_NRM), RESET_MESSAGE,
 						 CCNRM(i->character, C_NRM));
 		}
@@ -1184,7 +1184,7 @@ void print_timer_str(CharData *ch) {
 	}
 	out << "\r\n";
 
-	send_to_char(out.str().c_str(), ch);
+	SendMsgToChar(out.str().c_str(), ch);
 }
 
 } // namespace SetsDrop

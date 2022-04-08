@@ -272,9 +272,9 @@ void check_crc(const char *filename, int mode, long uid) {
 // * Вывод лога событий имму по show crc.
 void show(CharData *ch) {
 	if (message.empty())
-		send_to_char("Вроде ничего не происходило...\r\n", ch);
+		SendMsgToChar("Вроде ничего не происходило...\r\n", ch);
 	else
-		send_to_char(message.c_str(), ch);
+		SendMsgToChar(message.c_str(), ch);
 }
 
 } // namespace FileCRC

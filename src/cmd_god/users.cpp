@@ -94,7 +94,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					sorting = *(arg + 2);
 					strcpy(buf, buf1);
 					break;
-				default: send_to_char(USERS_FORMAT, ch);
+				default: SendMsgToChar(USERS_FORMAT, ch);
 					return;
 			}    // end of switch
 
@@ -111,7 +111,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		strcpy(line, "Ном Професс    Имя                  Состояние         Idl Логин    Сайт\r\n");
 	}
 	strcat(line, "--- ---------- -------------------- ----------------- --- -------- ----------------------------\r\n");
-	send_to_char(line, ch);
+	SendMsgToChar(line, ch);
 
 	one_argument(argument, arg);
 
@@ -321,7 +321,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		if (STATE(d) != CON_PLAYING || (STATE(d) == CON_PLAYING && d->character && CAN_SEE(ch, d->character))) {
-			send_to_char(line, ch);
+			SendMsgToChar(line, ch);
 			num_can_see++;
 		}
 	}

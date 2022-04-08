@@ -212,9 +212,9 @@ void NewNames::remove(const std::string &name, CharData *actor) {
 	NewNameListType::iterator it = NewNameList.find(name);
 	if (it != NewNameList.end()) {
 		NewNameList.erase(it);
-		send_to_char("Запись удалена.\r\n", actor);
+		SendMsgToChar("Запись удалена.\r\n", actor);
 	} else
-		send_to_char("В списке нет такого имени.\r\n", actor);
+		SendMsgToChar("В списке нет такого имени.\r\n", actor);
 
 	save();
 }
@@ -258,7 +258,7 @@ bool NewNames::show(CharData *actor) {
 			   << "&s Пол: " << genders[sex] << "\r\n";
 	}
 	buffer << CCNRM(actor, C_NRM);
-	send_to_char(buffer.str(), actor);
+	SendMsgToChar(buffer.str(), actor);
 	return true;
 }
 
@@ -365,7 +365,7 @@ static void go_name(CharData *ch, CharData *vict, int action) {
 	int god_level = PRF_FLAGGED(ch, EPrf::kCoderinfo) ? kLvlImplementator : GetRealLevel(ch);
 
 	if (GetRealLevel(vict) > god_level) {
-		send_to_char("А он ведь старше вас...\r\n", ch);
+		SendMsgToChar("А он ведь старше вас...\r\n", ch);
 		return;
 	}
 
@@ -374,19 +374,19 @@ static void go_name(CharData *ch, CharData *vict, int action) {
 	if (lev > 1000)
 		lev = lev - 1000;
 	if (lev > god_level) {
-		send_to_char("Об этом имени уже позаботился бог старше вас.\r\n", ch);
+		SendMsgToChar("Об этом имени уже позаботился бог старше вас.\r\n", ch);
 		return;
 	}
 
 	if (lev == god_level)
 		if (NAME_ID_GOD(vict) != GET_IDNUM(ch))
-			send_to_char("Об этом имени уже позаботился другой бог вашего уровня.\r\n", ch);
+			SendMsgToChar("Об этом имени уже позаботился другой бог вашего уровня.\r\n", ch);
 
 	if (action == NAME_AGREE) {
 		NAME_GOD(vict) = god_level + 1000;
 		NAME_ID_GOD(vict) = GET_IDNUM(ch);
-		//send_to_char("Имя одобрено!\r\n", ch);
-		send_to_char(vict, "&GВаше имя одобрено!&n\r\n");
+		//SendMsgToChar("Имя одобрено!\r\n", ch);
+		SendMsgToChar(vict, "&GВаше имя одобрено!&n\r\n");
 		agree_name(vict, GET_NAME(ch), god_level);
 		sprintf(buf, "&c%s одобрил%s имя игрока %s.&n\r\n", GET_NAME(ch), GET_CH_SUF_1(ch), GET_NAME(vict));
 		send_to_gods(buf, true);
@@ -396,8 +396,8 @@ static void go_name(CharData *ch, CharData *vict, int action) {
 	} else {
 		NAME_GOD(vict) = god_level;
 		NAME_ID_GOD(vict) = GET_IDNUM(ch);
-		//send_to_char("Имя запрещено!\r\n", ch);
-		send_to_char(vict, "&RВаше имя запрещено!&n\r\n");
+		//SendMsgToChar("Имя запрещено!\r\n", ch);
+		SendMsgToChar(vict, "&RВаше имя запрещено!&n\r\n");
 		disagree_name(vict, GET_NAME(ch), god_level);
 		sprintf(buf, "&c%s запретил%s имя игрока %s.&n\r\n", GET_NAME(ch), GET_CH_SUF_1(ch), GET_NAME(vict));
 		send_to_gods(buf, true);
@@ -421,7 +421,7 @@ void do_name(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (!NewNameList.empty())
 			NewNames::show(ch);
 		else
-			send_to_char(MORTAL_DO_TITLE_FORMAT, ch);
+			SendMsgToChar(MORTAL_DO_TITLE_FORMAT, ch);
 		return;
 	}
 
@@ -435,7 +435,7 @@ void do_name(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		action = NAME_DELETE;
 
 	if (action < 0) {
-		send_to_char(MORTAL_DO_TITLE_FORMAT, ch);
+		SendMsgToChar(MORTAL_DO_TITLE_FORMAT, ch);
 		return;
 	}
 
@@ -448,14 +448,14 @@ void do_name(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *vict;
 	if ((vict = get_player_vis(ch, name, EFind::kCharInWorld)) != nullptr) {
 		if (!(vict = get_player_pun(ch, name, EFind::kCharInWorld))) {
-			send_to_char("Нет такого игрока.\r\n", ch);
+			SendMsgToChar("Нет такого игрока.\r\n", ch);
 			return;
 		}
 		go_name(ch, vict, action);
 	} else {
 		vict = new Player; // TODO: переделать на стек
 		if (load_char(name.c_str(), vict) < 0) {
-			send_to_char("Такого персонажа не существует.\r\n", ch);
+			SendMsgToChar("Такого персонажа не существует.\r\n", ch);
 			delete vict;
 			return;
 		}

@@ -78,7 +78,7 @@ void print_undelivered(CharData *ch) {
 			"Количество писем: ");
 		out += boost::lexical_cast<std::string>(i->second.total_num);
 		out += ", Адресаты:\r\n " + i->second.names + "\r\n";
-		send_to_char(out, ch);
+		SendMsgToChar(out, ch);
 	}
 }
 
@@ -400,7 +400,7 @@ void print_notices() {
 		}
 		DescriptorData *d = DescByUID(*i);
 		if (d) {
-			send_to_char(d->character.get(),
+			SendMsgToChar(d->character.get(),
 						 "%sВам пришло письмо, зайдите на почту и распишитесь!%s\r\n",
 						 CCWHT(d->character, C_NRM), CCNRM(d->character, C_NRM));
 		}

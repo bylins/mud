@@ -307,7 +307,7 @@ void add_glory(long uid, int amount) {
 	save_glory();
 	DescriptorData *d = DescByUID(uid);
 	if (d)
-		send_to_char(d->character.get(), "Вы заслужили %d %s славы.\r\n",
+		SendMsgToChar(d->character.get(), "Вы заслужили %d %s славы.\r\n",
 					 amount, GetDeclensionInNumber(amount, EWhat::kPoint));
 }
 
@@ -341,7 +341,7 @@ int remove_glory(long uid, int amount) {
 
 // * Просто, чтобы не дублировать в разных местах одно и тоже.
 void print_denial_message(CharData *ch, int denial) {
-	send_to_char(ch, "Вы не сможете изменить уже вложенные очки славы (%s).\r\n", time_format(denial).c_str());
+	SendMsgToChar(ch, "Вы не сможете изменить уже вложенные очки славы (%s).\r\n", time_format(denial).c_str());
 }
 
 /**
@@ -603,7 +603,7 @@ bool parse_spend_glory_menu(CharData *ch, const char *arg) {
 				// остальное - за время сидения в олц что-то изменилось, дали славу, просрочились статы и т.п.
 				ch->desc->glory.reset();
 				STATE(ch->desc) = CON_PLAYING;
-				send_to_char("Редактирование отменено из-за внешних изменений.\r\n", ch);
+				SendMsgToChar("Редактирование отменено из-за внешних изменений.\r\n", ch);
 				return true;
 			}
 
@@ -637,13 +637,13 @@ bool parse_spend_glory_menu(CharData *ch, const char *arg) {
 			ch->desc->glory.reset();
 			STATE(ch->desc) = CON_PLAYING;
 			check_max_hp(ch);
-			send_to_char("Ваши изменения сохранены.\r\n", ch);
+			SendMsgToChar("Ваши изменения сохранены.\r\n", ch);
 			return true;
 		}
 		case 'Х':
 		case 'х': ch->desc->glory.reset();
 			STATE(ch->desc) = CON_PLAYING;
-			send_to_char("Редактирование прервано.\r\n", ch);
+			SendMsgToChar("Редактирование прервано.\r\n", ch);
 			return true;
 		default: break;
 	}
@@ -726,7 +726,7 @@ void spend_glory_menu(CharData *ch) {
 		<< CCIGRN(ch, C_SPR) << "Х" << CCNRM(ch, C_SPR)
 		<< ") Выйти без сохранения\r\n"
 		<< " Ваш выбор: ";
-	send_to_char(out.str(), ch);
+	SendMsgToChar(out.str(), ch);
 }
 
 // * Распечатка 'слава информация'.
@@ -750,28 +750,28 @@ void print_glory(CharData *ch, GloryListType::iterator &it) {
 		}
 	}
 	out << "Свободных очков: " << it->second->free_glory << "\r\n";
-	send_to_char(out.str(), ch);
+	SendMsgToChar(out.str(), ch);
 }
 
 // * Команда 'слава' - вложение имеющейся у игрока славы в статы без участия иммов.
 void do_spend_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	auto it = glory_list.find(GET_UNIQUE(ch));
 	if (it == glory_list.end() || IS_IMMORTAL(ch)) {
-		send_to_char("Вам это не нужно...\r\n", ch);
+		SendMsgToChar("Вам это не нужно...\r\n", ch);
 		return;
 	}
 
 	std::string buffer = argument, buffer2;
 	GetOneParam(buffer, buffer2);
 	if (CompareParam(buffer2, "информация")) {
-		send_to_char("Информация о вложенных вами очках славы:\r\n", ch);
+		SendMsgToChar("Информация о вложенных вами очках славы:\r\n", ch);
 		print_glory(ch, it);
 		return;
 	}
 
 	if (it->second->free_glory < 1000) {
 		if (!it->second->spend_glory) {
-			send_to_char("У вас недостаточно очков славы для использования этой команды.\r\n", ch);
+			SendMsgToChar("У вас недостаточно очков славы для использования этой команды.\r\n", ch);
 			return;
 		} else if (it->second->denial) {
 			print_denial_message(ch, it->second->denial);
@@ -779,7 +779,7 @@ void do_spend_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	}
 	if (it->second->spend_glory >= MAX_STATS_BY_GLORY && it->second->denial) {
-		send_to_char("У вас уже вложено максимально допустимое количество славы.\r\n", ch);
+		SendMsgToChar("У вас уже вложено максимально допустимое количество славы.\r\n", ch);
 		print_denial_message(ch, it->second->denial);
 		return;
 	}
@@ -875,7 +875,7 @@ void timers_update() {
 		if (removed) {
 			DescriptorData *d = DescByUID(it.first);
 			if (d) {
-				send_to_char("Вы долго не совершали достойных деяний и слава вас покинула...\r\n",
+				SendMsgToChar("Вы долго не совершали достойных деяний и слава вас покинула...\r\n",
 							 d->character.get());
 			}
 		}
@@ -896,7 +896,7 @@ void timers_update() {
 				if ((*d_it)->timer <= 0) {
 					d->glory.reset();
 					STATE(d) = CON_PLAYING;
-					send_to_char("Редактирование отменено из-за внешних изменений.\r\n", d->character.get());
+					SendMsgToChar("Редактирование отменено из-за внешних изменений.\r\n", d->character.get());
 					return;
 				}
 			}
@@ -911,15 +911,15 @@ void timers_update() {
 bool remove_stats(CharData *ch, CharData *god, int amount) {
 	auto it = glory_list.find(GET_UNIQUE(ch));
 	if (it == glory_list.end()) {
-		send_to_char(god, "У %s нет вложенной славы.\r\n", GET_PAD(ch, 1));
+		SendMsgToChar(god, "У %s нет вложенной славы.\r\n", GET_PAD(ch, 1));
 		return false;
 	}
 	if (amount > it->second->spend_glory) {
-		send_to_char(god, "У %s нет столько вложенной славы.\r\n", GET_PAD(ch, 1));
+		SendMsgToChar(god, "У %s нет столько вложенной славы.\r\n", GET_PAD(ch, 1));
 		return false;
 	}
 	if (amount <= 0) {
-		send_to_char(god, "Некорректное количество статов (%d).\r\n", amount);
+		SendMsgToChar(god, "Некорректное количество статов (%d).\r\n", amount);
 		return false;
 	}
 
@@ -948,7 +948,7 @@ bool remove_stats(CharData *ch, CharData *god, int amount) {
 			break;
 	}
 	imm_log("(GC) %s sets -%d stats to %s.", GET_NAME(god), removed, GET_NAME(ch));
-	send_to_char(god,
+	SendMsgToChar(god,
 				 "С %s снято %d %s вложенной ранее славы.\r\n",
 				 GET_PAD(ch, 1),
 				 removed,
@@ -965,24 +965,24 @@ bool remove_stats(CharData *ch, CharData *god, int amount) {
 */
 void transfer_stats(CharData *ch, CharData *god, const std::string& name, char *reason) {
 	if (IS_IMMORTAL(ch)) {
-		send_to_char(god, "Трансфер славы с бессмертных на других персонажей запрещен.\r\n");
+		SendMsgToChar(god, "Трансфер славы с бессмертных на других персонажей запрещен.\r\n");
 		return;
 	}
 
 	auto it = glory_list.find(GET_UNIQUE(ch));
 	if (it == glory_list.end()) {
-		send_to_char(god, "У %s нет славы.\r\n", GET_PAD(ch, 1));
+		SendMsgToChar(god, "У %s нет славы.\r\n", GET_PAD(ch, 1));
 		return;
 	}
 
 	if (it->second->denial) {
-		send_to_char(god, "У %s активен таймер, запрещающий переброску вложенных очков славы.\r\n", GET_PAD(ch, 1));
+		SendMsgToChar(god, "У %s активен таймер, запрещающий переброску вложенных очков славы.\r\n", GET_PAD(ch, 1));
 		return;
 	}
 
 	long vict_uid = GetUniqueByName(name);
 	if (!vict_uid) {
-		send_to_char(god, "Некорректное имя персонажа (%s), принимающего славу.\r\n", name.c_str());
+		SendMsgToChar(god, "Некорректное имя персонажа (%s), принимающего славу.\r\n", name.c_str());
 		return;
 	}
 
@@ -994,7 +994,7 @@ void transfer_stats(CharData *ch, CharData *god, const std::string& name, char *
 		// принимающий оффлайн
 		CharData::shared_ptr t_vict(new Player); // TODO: переделать на стек
 		if (load_char(name.c_str(), t_vict.get()) < 0) {
-			send_to_char(god, "Некорректное имя персонажа (%s), принимающего славу.\r\n", name.c_str());
+			SendMsgToChar(god, "Некорректное имя персонажа (%s), принимающего славу.\r\n", name.c_str());
 			return;
 		}
 
@@ -1003,12 +1003,12 @@ void transfer_stats(CharData *ch, CharData *god, const std::string& name, char *
 
 	// дальше у нас принимающий vict в любом случае
 	if (IS_IMMORTAL(vict)) {
-		send_to_char(god, "Трансфер славы на бессмертного - это глупо.\r\n");
+		SendMsgToChar(god, "Трансфер славы на бессмертного - это глупо.\r\n");
 		return;
 	}
 
 	if (str_cmp(GET_EMAIL(ch), GET_EMAIL(vict))) {
-		send_to_char(god, "Персонажи имеют разные email адреса.\r\n");
+		SendMsgToChar(god, "Персонажи имеют разные email адреса.\r\n");
 		return;
 	}
 
@@ -1078,11 +1078,11 @@ void transfer_stats(CharData *ch, CharData *god, const std::string& name, char *
 void show_glory(CharData *ch, CharData *god) {
 	auto it = glory_list.find(GET_UNIQUE(ch));
 	if (it == glory_list.end()) {
-		send_to_char(god, "У %s совсем не славы.\r\n", GET_PAD(ch, 1));
+		SendMsgToChar(god, "У %s совсем не славы.\r\n", GET_PAD(ch, 1));
 		return;
 	}
 
-	send_to_char(god, "Информация об очках славы %s:\r\n", GET_PAD(ch, 1));
+	SendMsgToChar(god, "Информация об очках славы %s:\r\n", GET_PAD(ch, 1));
 	print_glory(god, it);
 }
 
@@ -1093,7 +1093,7 @@ void show_stats(CharData *ch) {
 		free_glory += it.second->free_glory;
 		spend_glory += it.second->spend_glory * 1000;
 	}
-	send_to_char(ch, "  Слава: вложено %d, свободно %d, всего %d\r\n",
+	SendMsgToChar(ch, "  Слава: вложено %d, свободно %d, всего %d\r\n",
 				 spend_glory, free_glory, free_glory + spend_glory);
 }
 
@@ -1125,11 +1125,11 @@ void print_glory_top(CharData *ch) {
 		t_it->second->name[0] = UPPER(t_it->second->name[0]);
 		out << class_format % t_it->second->name % (t_it->second->free_glory + t_it->second->spend_glory * 1000);
 	}
-	send_to_char(out.str().c_str(), ch);
+	SendMsgToChar(out.str().c_str(), ch);
 
 	if (print_hide) {
 		hide << "\r\n";
-		send_to_char(hide.str().c_str(), ch);
+		SendMsgToChar(hide.str().c_str(), ch);
 	}
 }
 
@@ -1149,10 +1149,10 @@ void hide_char(CharData *vict, CharData *god, char const *const mode) {
 	}
 	if (ok) {
 		std::string text = it->second->hide ? "исключен из топа" : "присутствует в топе";
-		send_to_char(god, "%s теперь %s прославленных персонажей\r\n", GET_NAME(vict), text.c_str());
+		SendMsgToChar(god, "%s теперь %s прославленных персонажей\r\n", GET_NAME(vict), text.c_str());
 		save_glory();
 	} else {
-		send_to_char(god, "Некорректный параметр %s, hide может быть только on или off.\r\n", mode);
+		SendMsgToChar(god, "Некорректный параметр %s, hide может быть только on или off.\r\n", mode);
 	}
 }
 

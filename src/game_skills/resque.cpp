@@ -22,11 +22,11 @@ void fighting_rescue(CharData *ch, CharData *vict, CharData *tmp_ch) {
 
 void go_rescue(CharData *ch, CharData *vict, CharData *tmp_ch) {
 	if (IsUnableToAct(ch)) {
-		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
-	if (ch->IsOnHorse()) {
-		send_to_char(ch, "Ну раскорячили вы ноги по сторонам, но спасти %s как?\r\n", GET_PAD(vict, 1));
+	if (ch->ahorse()) {
+		SendMsgToChar(ch, "Ну раскорячили вы ноги по сторонам, но спасти %s как?\r\n", GET_PAD(vict, 1));
 		return;
 	}
 
@@ -73,26 +73,26 @@ void go_rescue(CharData *ch, CharData *vict, CharData *tmp_ch) {
 
 void do_rescue(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!ch->get_skill(ESkill::kRescue)) {
-		send_to_char("Но вы не знаете как.\r\n", ch);
+		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kRescue)) {
-		send_to_char("Вам нужно набраться сил.\r\n", ch);
+	if (ch->haveCooldown(ESkill::kRescue)) {
+		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
 
 	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
-		send_to_char("Кто это так сильно путается под вашими ногами?\r\n", ch);
+		SendMsgToChar("Кто это так сильно путается под вашими ногами?\r\n", ch);
 		return;
 	}
 
 	if (vict == ch) {
-		send_to_char("Ваше спасение вы можете доверить только Богам.\r\n", ch);
+		SendMsgToChar("Ваше спасение вы можете доверить только Богам.\r\n", ch);
 		return;
 	}
-	if (ch->GetEnemy() == vict) {
-		send_to_char("Вы пытаетесь спасти атакующего вас?\r\n" "Это не о вас ли писали Марк и Лука?\r\n", ch);
+	if (ch->get_fighting() == vict) {
+		SendMsgToChar("Вы пытаетесь спасти атакующего вас?\r\n" "Это не о вас ли писали Марк и Лука?\r\n", ch);
 		return;
 	}
 
@@ -117,8 +117,8 @@ void do_rescue(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		&& (!ch->IsNpc()
 			|| (AFF_FLAGGED(ch, EAffect::kCharmed)
 				&& ch->has_master()
-				&& !ch->get_master()->IsNpc()))) {
-		send_to_char("Вы пытаетесь спасти чужого противника.\r\n", ch);
+				&& !ch->get_master()->is_npc()))) {
+		SendMsgToChar("Вы пытаетесь спасти чужого противника.\r\n", ch);
 		return;
 	}
 

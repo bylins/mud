@@ -30,7 +30,7 @@ void deathtrap::load() {
 	// на случай релоада, свапать смысла нету
 	room_list.clear();
 
-	for (int i = FIRST_ROOM; i <= top_of_world; ++i)
+	for (int i = kFirstRoom; i <= top_of_world; ++i)
 		if (ROOM_FLAGGED(i, ERoomFlag::kSlowDeathTrap) || ROOM_FLAGGED(i, ERoomFlag::kIceTrap))
 			room_list.push_back(world[i]);
 }
@@ -107,7 +107,7 @@ int deathtrap::check_death_trap(CharData *ch) {
 				&& !AFF_FLAGGED(ch, EAffect::kFly))
 			|| (real_sector(ch->in_room) == ESector::kWaterNoswim && !ch->IsNpc()
 				&& !IS_GOD(ch)
-				&& !has_boat(ch))) {
+				&& !HasBoat(ch))) {
 			ObjData *corpse;
 			deathtrap::log_death_trap(ch);
 

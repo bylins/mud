@@ -1693,14 +1693,14 @@ void Crash_list_objects(CharData *ch, int index) {
 		}
 	}
 
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 	sprintf(buf, "Время в ренте: %ld тиков.\r\n", timer_dec);
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 	sprintf(buf, "Предметов: %d. Стоимость: (%d в день) * (%1.2f дней) = %d. ИНГРИДИЕНТЫ НЕ ВЫВОДЯТСЯ.\r\n",
 			SAVEINFO(index)->rent.nitems,
 			SAVEINFO(index)->rent.net_cost_per_diem, num_of_days,
 			(int) (num_of_days * SAVEINFO(index)->rent.net_cost_per_diem));
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 }
 
 void Crash_listrent(CharData *ch, char *name) {
@@ -1709,26 +1709,26 @@ void Crash_listrent(CharData *ch, char *name) {
 	index = get_ptable_by_name(name);
 
 	if (index < 0) {
-		send_to_char("Нет такого игрока.\r\n", ch);
+		SendMsgToChar("Нет такого игрока.\r\n", ch);
 		return;
 	}
 
 	if (!SAVEINFO(index)) {
 		if (!Crash_read_timer(index, true)) {
 			sprintf(buf, "Ubable to read %s timer file.\r\n", name);
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 		} else if (!SAVEINFO(index)) {
 			sprintf(buf, "%s не имеет файла ренты.\r\n", CAP(name));
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 		} else {
 			sprintf(buf, "%s находится в игре. Содержимое файла ренты:\r\n", CAP(name));
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 			Crash_list_objects(ch, index);
 			clear_saveinfo(index);
 		}
 	} else {
 		sprintf(buf, "%s находится в ренте. Содержимое файла ренты:\r\n", CAP(name));
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 		Crash_list_objects(ch, index);
 	}
 }
@@ -1775,9 +1775,9 @@ int Crash_load(CharData *ch) {
 			break;
 		default: sprintf(buf, "SYSERR: %s entering game with undefined rent code %d.", GET_NAME(ch), RENTCODE(index));
 			mudlog(buf, BRF, MAX(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
-			send_to_char("\r\n** Неизвестный код ренты **\r\n"
-						 "Проблемы с восстановлением ваших вещей из файла.\r\n"
-						 "Обращайтесь за помощью к Богам.\r\n", ch);
+			SendMsgToChar("\r\n** Неизвестный код ренты **\r\n"
+						  "Проблемы с восстановлением ваших вещей из файла.\r\n"
+						  "Обращайтесь за помощью к Богам.\r\n", ch);
 			Crash_clear_objects(index);
 			return (1);
 			break;
@@ -1805,7 +1805,7 @@ int Crash_load(CharData *ch) {
 	if (((RENTCODE(index) == RENT_CRASH || RENTCODE(index) == RENT_FORCED)
 		&& SAVEINFO(index)->rent.time + free_crashrent_period * kSecsPerRealHour > time(0)) || free_rent) {
 		sprintf(buf, "%s** На сей раз постой был бесплатным **%s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 		sprintf(buf, "%s entering game, free crashrent.", GET_NAME(ch));
 		mudlog(buf, NRM, MAX(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 	} else if (cost > ch->get_gold() + ch->get_bank()) {
@@ -1823,7 +1823,7 @@ int Crash_load(CharData *ch) {
 				GetDeclensionInNumber(SAVEINFO(index)->rent.net_cost_per_diem,
 									  EWhat::kMoneyA), ch->get_gold() + ch->get_bank(),
 				GetDeclensionInNumber(ch->get_gold() + ch->get_bank(), EWhat::kMoneyA), CCNRM(ch, C_NRM));
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 		sprintf(buf, "%s: rented equipment lost (no $).", GET_NAME(ch));
 		mudlog(buf, LGH, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 		ch->set_bank(0);
@@ -1843,16 +1843,16 @@ int Crash_load(CharData *ch) {
 									  : "", cost, GetDeclensionInNumber(cost, EWhat::kMoneyU),
 					SAVEINFO(index)->rent.net_cost_per_diem,
 					GetDeclensionInNumber(SAVEINFO(index)->rent.net_cost_per_diem, EWhat::kMoneyA), CCNRM(ch, C_NRM));
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 		}
 		ch->remove_both_gold(cost);
 	}
 
 	//Чтение описаний объектов в буфер
 	if (!get_filename(GET_NAME(ch), fname, kTextCrashFile) || !(fl = fopen(fname, "r+b"))) {
-		send_to_char("\r\n** Нет файла описания вещей **\r\n"
-					 "Проблемы с восстановлением ваших вещей из файла.\r\n"
-					 "Обращайтесь за помощью к Богам.\r\n", ch);
+		SendMsgToChar("\r\n** Нет файла описания вещей **\r\n"
+					  "Проблемы с восстановлением ваших вещей из файла.\r\n"
+					  "Обращайтесь за помощью к Богам.\r\n", ch);
 		Crash_clear_objects(index);
 		return (1);
 	}
@@ -1860,9 +1860,9 @@ int Crash_load(CharData *ch) {
 	fsize = ftell(fl);
 	if (!fsize) {
 		fclose(fl);
-		send_to_char("\r\n** Файл описания вещей пустой **\r\n"
-					 "Проблемы с восстановлением ваших вещей из файла.\r\n"
-					 "Обращайтесь за помощью к Богам.\r\n", ch);
+		SendMsgToChar("\r\n** Файл описания вещей пустой **\r\n"
+					  "Проблемы с восстановлением ваших вещей из файла.\r\n"
+					  "Обращайтесь за помощью к Богам.\r\n", ch);
 		Crash_clear_objects(index);
 		return (1);
 	}
@@ -1872,9 +1872,9 @@ int Crash_load(CharData *ch) {
 	if (!fread(readdata, fsize, 1, fl) || ferror(fl) || !readdata) {
 		fclose(fl);
 		FileCRC::check_crc(fname, FileCRC::TEXTOBJS, GET_UNIQUE(ch));
-		send_to_char("\r\n** Ошибка чтения файла описания вещей **\r\n"
-					 "Проблемы с восстановлением ваших вещей из файла.\r\n"
-					 "Обращайтесь за помощью к Богам.\r\n", ch);
+		SendMsgToChar("\r\n** Ошибка чтения файла описания вещей **\r\n"
+					  "Проблемы с восстановлением ваших вещей из файла.\r\n"
+					  "Обращайтесь за помощью к Богам.\r\n", ch);
 		log("Memory error or cann't read %s(%d)...", fname, fsize);
 		free(readdata);
 		Crash_clear_objects(index);
@@ -1902,8 +1902,8 @@ int Crash_load(CharData *ch) {
 			// Формат новый => используем новую функцию
 			obj = read_one_object_new(&data, &error);
 			if (!obj) {
-				//send_to_char ("Ошибка при чтении - чтение предметов прервано.\r\n", ch);
-				send_to_char("Ошибка при чтении файла объектов.\r\n", ch);
+				//SendMsgToChar ("Ошибка при чтении - чтение предметов прервано.\r\n", ch);
+				SendMsgToChar("Ошибка при чтении файла объектов.\r\n", ch);
 				sprintf(buf, "SYSERR: Objects reading fail for %s error %d, stop reading.", GET_NAME(ch), error);
 				mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
 
@@ -1913,8 +1913,8 @@ int Crash_load(CharData *ch) {
 			// Формат старый => используем старую функцию
 			obj = read_one_object(&data, &error);
 			if (!obj) {
-				//send_to_char ("Ошибка при чтении - чтение предметов прервано.\r\n", ch);
-				send_to_char("Ошибка при чтении файла объектов.\r\n", ch);
+				//SendMsgToChar ("Ошибка при чтении - чтение предметов прервано.\r\n", ch);
+				SendMsgToChar("Ошибка при чтении файла объектов.\r\n", ch);
 				sprintf(buf, "SYSERR: Objects reading fail for %s error %d, stop reading.",
 						GET_NAME(ch), error);
 				mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
@@ -1935,7 +1935,7 @@ int Crash_load(CharData *ch) {
 		}
 
 		if (obj->get_vnum() != SAVEINFO(index)->time[fsize].vnum) {
-			send_to_char("Нет соответствия заголовков - чтение предметов прервано.\r\n", ch);
+			SendMsgToChar("Нет соответствия заголовков - чтение предметов прервано.\r\n", ch);
 			sprintf(buf, "SYSERR: Objects reading fail for %s (2), stop reading.", GET_NAME(ch));
 			mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
 			ExtractObjFromWorld(obj.get());
@@ -1964,7 +1964,7 @@ int Crash_load(CharData *ch) {
 					 cap.c_str(),
 					 char_get_custom_label(obj.get(), ch).c_str(),
 					 GET_OBJ_SUF_2(obj));
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 			ExtractObjFromWorld(obj.get());
 
 			continue;
@@ -1973,14 +1973,14 @@ int Crash_load(CharData *ch) {
 		//очищаем ZoneDecay объедки
 		if (obj->has_flag(EObjFlag::kZonedacay)) {
 			sprintf(buf, "%s рассыпал%s в прах.\r\n", cap.c_str(), GET_OBJ_SUF_2(obj));
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 			ExtractObjFromWorld(obj.get());
 			continue;
 		}
 		//очищаем RepopDecay объедки
 		if (obj->has_flag(EObjFlag::kRepopDecay)) {
 			sprintf(buf, "%s рассыпал%s в прах.\r\n", cap.c_str(), GET_OBJ_SUF_2(obj));
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 			ExtractObjFromWorld(obj.get());
 			continue;
 		}
@@ -1991,7 +1991,7 @@ int Crash_load(CharData *ch) {
 			|| NamedStuff::check_named(ch, obj.get(), 0)) {
 			sprintf(buf, "%s рассыпал%s, как запрещенн%s для вас.\r\n",
 					cap.c_str(), GET_OBJ_SUF_2(obj), GET_OBJ_SUF_3(obj));
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 			ExtractObjFromWorld(obj.get());
 			continue;
 		}
@@ -2445,7 +2445,7 @@ void Crash_rent_deadline(CharData *ch, CharData *recep, long cost) {
 	long rent_deadline;
 
 	if (!cost) {
-		send_to_char("Ты сможешь жить у меня до второго пришествия.\r\n", ch);
+		SendMsgToChar("Ты сможешь жить у меня до второго пришествия.\r\n", ch);
 		return;
 	}
 
@@ -2453,14 +2453,14 @@ void Crash_rent_deadline(CharData *ch, CharData *recep, long cost) {
 
 	long depot_cost = static_cast<long>(Depot::get_total_cost_per_day(ch));
 	if (depot_cost) {
-		send_to_char(ch, "\"За вещи в хранилище придется доплатить %ld %s.\"\r\n",
+		SendMsgToChar(ch, "\"За вещи в хранилище придется доплатить %ld %s.\"\r\n",
 					 depot_cost, GetDeclensionInNumber(depot_cost, EWhat::kMoneyU));
 		cost += depot_cost;
 	}
 
-	send_to_char(ch, "\"Постой обойдется тебе в %ld %s.\"\r\n", cost, GetDeclensionInNumber(cost, EWhat::kMoneyU));
+	SendMsgToChar(ch, "\"Постой обойдется тебе в %ld %s.\"\r\n", cost, GetDeclensionInNumber(cost, EWhat::kMoneyU));
 	rent_deadline = ((ch->get_gold() + ch->get_bank()) / cost);
-	send_to_char(ch, "\"Твоих денег хватит на %ld %s.\"\r\n", rent_deadline,
+	SendMsgToChar(ch, "\"Твоих денег хватит на %ld %s.\"\r\n", rent_deadline,
 				 GetDeclensionInNumber(rent_deadline, EWhat::kDay));
 }
 
@@ -2744,7 +2744,7 @@ int gen_receptionist(CharData *ch, CharData *recep, int cmd, char * /*arg*/, int
 
 	if (!AWAKE(recep)) {
 		sprintf(buf, "%s не в состоянии говорить с вами...\r\n", HSSH(recep));
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 		return (true);
 	}
 	if (!CAN_SEE(recep, ch)) {
@@ -2756,7 +2756,7 @@ int gen_receptionist(CharData *ch, CharData *recep, int cmd, char * /*arg*/, int
 		return (true);
 	}
 	if (NORENTABLE(ch)) {
-		send_to_char("В связи с боевыми действиями эвакуация временно прекращена.\r\n", ch);
+		SendMsgToChar("В связи с боевыми действиями эвакуация временно прекращена.\r\n", ch);
 		return (true);
 	}
 	if (ch->GetEnemy()) {
@@ -2844,7 +2844,7 @@ int gen_receptionist(CharData *ch, CharData *recep, int cmd, char * /*arg*/, int
 					GET_ROOM_VNUM(save_room));
 			GET_LOADROOM(ch) = GET_ROOM_VNUM(save_room);
 			mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
-			WAIT_STATE(ch, 1 * kPulseViolence);
+			SetWaitState(ch, 1 * kPulseViolence);
 			ch->save_char();
 		}
 	}

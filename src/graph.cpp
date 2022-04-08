@@ -79,9 +79,9 @@ int find_first_step(RoomRnum src, RoomRnum target, CharData *ch) {
 	bool through_locked_doors = false;
 	bool through_closed_doors = false;
 	bool through_notrack = false;
-	RoomRnum curr_room, rnum_start = FIRST_ROOM, rnum_stop = top_of_world;
+	RoomRnum curr_room, rnum_start = kFirstRoom, rnum_stop = top_of_world;
 
-	if (src < FIRST_ROOM || src > top_of_world || target < FIRST_ROOM || target > top_of_world) {
+	if (src < kFirstRoom || src > top_of_world || target < kFirstRoom || target > top_of_world) {
 		log("SYSERR: Illegal value %d or %d passed to find_first_step. (%s)", src, target, __FILE__);
 		return (kBfsError);
 	}
@@ -183,35 +183,35 @@ void do_sense(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int dir;
 
 	// The character must have the track skill.
-	if (ch->IsNpc() || !ch->get_skill(ESkill::kSense)) {
-		send_to_char("Но вы не знаете как.\r\n", ch);
+	if (ch->is_npc() || !ch->get_skill(ESkill::kSense)) {
+		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}
 
 	if (AFF_FLAGGED(ch, EAffect::kBlind)) {
-		send_to_char("Вы слепы как крот.\r\n", ch);
+		SendMsgToChar("Вы слепы как крот.\r\n", ch);
 		return;
 	}
 
-	if (!check_moves(ch, IsAbleToUseFeat(ch, EFeat::kTracker) ? SENSE_MOVES / 2 : SENSE_MOVES))
+	if (!check_moves(ch, IsAbleToUseFeat(ch, EFeat::kTracker) ? kSenseMoves / 2 : kSenseMoves))
 		return;
 
 	one_argument(argument, arg);
 
 	if (!*arg) {
-		send_to_char("Кого вы хотите найти?\r\n", ch);
+		SendMsgToChar("Кого вы хотите найти?\r\n", ch);
 		return;
 	}
 	// The person can't see the victim.
 	if (!(vict = get_char_vis(ch, arg, EFind::kCharInWorld))) {
-		send_to_char("Ваши чувства молчат.\r\n", ch);
+		SendMsgToChar("Ваши чувства молчат.\r\n", ch);
 		return;
 	}
 
 	// We can't track the victim.
 	//Старый комментарий. Раньше было много !трека, теперь его мало
 	if (AFF_FLAGGED(vict, EAffect::kNoTrack)) {
-		send_to_char("Ваши чувства молчат.\r\n", ch);
+		SendMsgToChar("Ваши чувства молчат.\r\n", ch);
 		return;
 	}
 	act("Похоже, $n кого-то ищет.", false, ch, 0, 0, kToRoom);

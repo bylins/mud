@@ -85,7 +85,7 @@ class CharacterReporter : public AbstractErrorReporter {
 };
 
 void CharacterReporter::report(const std::string &message) {
-	send_to_char(message.c_str(), m_character);
+	SendMsgToChar(message.c_str(), m_character);
 }
 
 class MudlogReporter : public AbstractErrorReporter {
@@ -116,7 +116,7 @@ void do_bonus(const AbstractErrorReporter::shared_ptr &reporter, const char *arg
 
 				default: {
 					const std::string &message = bonus.broadcast_message();
-					send_to_all(message.c_str());
+					SendMsgToAll(message.c_str());
 					std::stringstream ss;
 					ss << "&W" << message << "&n\r\n";
 					bonus_log_add(ss.str());
@@ -125,7 +125,7 @@ void do_bonus(const AbstractErrorReporter::shared_ptr &reporter, const char *arg
 			}
 			break;
 
-		case ArgumentsParser::ER_STOP: send_to_all(bonus.broadcast_message().c_str());
+		case ArgumentsParser::ER_STOP: SendMsgToAll(bonus.broadcast_message().c_str());
 			bonus_info.time_bonus = -1;
 			break;
 	}
@@ -183,12 +183,12 @@ void timer_bonus() {
 	}
 	bonus_info.time_bonus--;
 	if (bonus_info.time_bonus < 1) {
-		send_to_all("&WБонус закончился...&n\r\n");
+		SendMsgToAll("&WБонус закончился...&n\r\n");
 		bonus_info.time_bonus = -1;
 		return;
 	}
 	std::string bonus_str = "&W" + time_to_bonus_end_as_string() + "&n\r\n";
-	send_to_all(bonus_str.c_str());
+	SendMsgToAll(bonus_str.c_str());
 }
 
 // проверка на тип бонуса
@@ -221,7 +221,7 @@ void bonus_log_load() {
 // выводит весь лог в обратном порядке
 void show_log(CharData *ch) {
 	if (bonus_log.empty()) {
-		send_to_char(ch, "Лог пустой!\r\n");
+		SendMsgToChar(ch, "Лог пустой!\r\n");
 		return;
 	}
 

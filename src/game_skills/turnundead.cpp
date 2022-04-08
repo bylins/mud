@@ -14,11 +14,11 @@ using namespace AbilitySystem;
 void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 	if (!ch->get_skill(ESkill::kTurnUndead)) {
-		send_to_char("Вам это не по силам.\r\n", ch);
+		SendMsgToChar("Вам это не по силам.\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kTurnUndead)) {
-		send_to_char("Вам нужно набраться сил для применения этого навыка.\r\n", ch);
+	if (ch->haveCooldown(ESkill::kTurnUndead)) {
+		SendMsgToChar("Вам нужно набраться сил для применения этого навыка.\r\n", ch);
 		return;
 	};
 
@@ -32,12 +32,12 @@ void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 		timed.time = IsTimedBySkill(ch, ESkill::kTurnUndead) + kHoursPerTurnUndead;
 	}
 	if (timed.time > kHoursPerDay) {
-		send_to_char("Вам пока не по силам изгонять нежить, нужно отдохнуть.\r\n", ch);
+		SendMsgToChar("Вам пока не по силам изгонять нежить, нужно отдохнуть.\r\n", ch);
 		return;
 	}
 	ImposeTimedSkill(ch, &timed);
 
-	send_to_char(ch, "Вы свели руки в магическом жесте и отовсюду хлынули яркие лучи света.\r\n");
+	SendMsgToChar(ch, "Вы свели руки в магическом жесте и отовсюду хлынули яркие лучи света.\r\n");
 	act("$n свел$g руки в магическом жесте и отовсюду хлынули яркие лучи света.\r\n",
 		false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 
@@ -54,7 +54,7 @@ void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 		roll.Init(ch, EFeat::kUndeadsTurn, target);
 		if (roll.IsSuccess()) {
 			if (roll.IsCriticalSuccess() && GetRealLevel(ch) > target->get_level() + RollDices(1, 5)) {
-				send_to_char(ch, "&GВы окончательно изгнали %s из мира!&n\r\n", GET_PAD(target, 3));
+				SendMsgToChar(ch, "&GВы окончательно изгнали %s из мира!&n\r\n", GET_PAD(target, 3));
 				damage.dam = std::max(1, GET_HIT(target) + 11);
 			} else {
 				damage.dam = roll.CalcDamage();
@@ -85,7 +85,7 @@ void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 		damage.Process(ch, target);
 		if (!target->purged() && roll.IsSuccess() && !MOB_FLAGGED(target, EMobFlag::kNoFear)
 			&& !CalcGeneralSaving(ch, target, ESaving::kWill, GET_REAL_WIS(ch) + GET_REAL_INT(ch))) {
-			go_flee(target);
+			GoFlee(target);
 		};
 		--victims_amount;
 		if (victims_amount == 0 || victims_hp_amount <= 0) {

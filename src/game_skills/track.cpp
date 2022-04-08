@@ -78,17 +78,17 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char name[kMaxInputLength];
 
 	// The character must have the track skill.
-	if (ch->IsNpc() || !ch->get_skill(ESkill::kTrack)) {
-		send_to_char("Но вы не знаете как.\r\n", ch);
+	if (ch->is_npc() || !ch->get_skill(ESkill::kTrack)) {
+		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}
 
 	if (AFF_FLAGGED(ch, EAffect::kBlind)) {
-		send_to_char("Вы слепы как крот.\r\n", ch);
+		SendMsgToChar("Вы слепы как крот.\r\n", ch);
 		return;
 	}
 
-	if (!check_moves(ch, IsAbleToUseFeat(ch, EFeat::kTracker) ? TRACK_MOVES / 2 : TRACK_MOVES))
+	if (!check_moves(ch, IsAbleToUseFeat(ch, EFeat::kTracker) ? kTrackMoves / 2 : kTrackMoves))
 		return;
 
 	calc_track = CalcCurrentSkill(ch, ESkill::kTrack, nullptr);
@@ -118,12 +118,12 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 				sprintf(buf, "%s : следы %s.\r\n", name,
 						track_when[age_track(ch, track_t, calc_track)]);
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 				found = true;
 			}
 		}
 		if (!found)
-			send_to_char("Вы не видите ничьих следов.\r\n", ch);
+			SendMsgToChar("Вы не видите ничьих следов.\r\n", ch);
 		return;
 	}
 
@@ -153,7 +153,7 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (calc_track < number(1, 40) || !*name || ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoTrack)) {
-		send_to_char("Вы не видите похожих следов.\r\n", ch);
+		SendMsgToChar("Вы не видите похожих следов.\r\n", ch);
 		return;
 	}
 
@@ -188,15 +188,15 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!found) {
 		sprintf(buf, "След неожиданно оборвался.\r\n");
 	}
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 }
 
 void do_hidetrack(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	struct TrackData *track[EDirection::kMaxDirNum + 1], *temp;
 	int percent, prob, i, croom, found = false, dir, rdir;
 
-	if (ch->IsNpc() || !ch->get_skill(ESkill::kHideTrack)) {
-		send_to_char("Но вы не знаете как.\r\n", ch);
+	if (ch->is_npc() || !ch->get_skill(ESkill::kHideTrack)) {
+		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}
 
@@ -229,19 +229,19 @@ void do_hidetrack(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 		}
 
 	if (!found) {
-		send_to_char("Вы не видите своих следов.\r\n", ch);
+		SendMsgToChar("Вы не видите своих следов.\r\n", ch);
 		return;
 	}
-	if (!check_moves(ch, IsAbleToUseFeat(ch, EFeat::kStealthy) ? HIDETRACK_MOVES / 2 : HIDETRACK_MOVES))
+	if (!check_moves(ch, IsAbleToUseFeat(ch, EFeat::kStealthy) ? kHidetrackMoves / 2 : kHidetrackMoves))
 		return;
 	percent = number(1, MUD::Skills()[ESkill::kHideTrack].difficulty);
 	prob = CalcCurrentSkill(ch, ESkill::kHideTrack, nullptr);
 	if (percent > prob) {
-		send_to_char("Вы безуспешно попытались замести свои следы.\r\n", ch);
+		SendMsgToChar("Вы безуспешно попытались замести свои следы.\r\n", ch);
 		if (!number(0, 25 - IsTimedBySkill(ch, ESkill::kHideTrack) ? 0 : 15))
 			ImproveSkill(ch, ESkill::kHideTrack, false, nullptr);
 	} else {
-		send_to_char("Вы успешно замели свои следы.\r\n", ch);
+		SendMsgToChar("Вы успешно замели свои следы.\r\n", ch);
 		if (!number(0, 25 - IsTimedBySkill(ch, ESkill::kHideTrack) ? 0 : 15))
 			ImproveSkill(ch, ESkill::kHideTrack, true, nullptr);
 		prob -= percent;
@@ -255,7 +255,7 @@ void do_hidetrack(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 						track[i]->time_outgone[rdir] <<= MIN(31, prob);
 					}
 				//sprintf(buf,"Заметены следы %d\r\n",i);
-				//send_to_char(buf,ch);
+				//SendMsgToChar(buf,ch);
 			}
 	}
 

@@ -108,9 +108,9 @@ void DecorateZebraTextTable(CharData *ch, Table &table, Color color) {
 
 void PrintTableToChar(CharData *ch, Table &table) {
 	try {
-		send_to_char(table.to_string(), ch);
+		SendMsgToChar(table.to_string(), ch);
 	} catch (std::runtime_error &e) {
-		send_to_char(e.what(), ch);
+		SendMsgToChar(e.what(), ch);
 	}
 }
 

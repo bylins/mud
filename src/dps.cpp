@@ -180,7 +180,7 @@ void Dps::PrintStats(CharData *ch, CharData *coder) {
 	out << std::endl;
 	PrintPersonalExpStat(out);
 
-	send_to_char(out.str(), coder);
+	SendMsgToChar(out.str(), coder);
 }
 
 /**
@@ -267,7 +267,7 @@ void Dps::PrintGroupStats(CharData *ch, CharData *coder) {
 
 	table_wrapper::DecorateZebraTable(ch, table, table_wrapper::color::kBlue);
 	out << table.to_string() << std::endl;
-	send_to_char(out.str(), coder);
+	SendMsgToChar(out.str(), coder);
 }
 
 void Dps::AddGroupDmg(CharData *ch, int dmg, int over_dmg) {
@@ -463,14 +463,14 @@ void do_dmeter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (isname(arg, "очистить")) {
 		if (!*name) {
 			ch->dps_clear(DpsSystem::PERS_DPS);
-			send_to_char("Персональная статистика очищена.\r\n", ch);
+			SendMsgToChar("Персональная статистика очищена.\r\n", ch);
 		} else if (isname(name, "группа")) {
 			if (!AFF_FLAGGED(ch, EAffect::kGroup)) {
-				send_to_char("Вы не состоите в группе.\r\n", ch);
+				SendMsgToChar("Вы не состоите в группе.\r\n", ch);
 				return;
 			}
 			if (ch->has_master()) {
-				send_to_char("Вы не являетесь лидером группы.\r\n", ch);
+				SendMsgToChar("Вы не являетесь лидером группы.\r\n", ch);
 				return;
 			}
 			ch->dps_clear(DpsSystem::GROUP_DPS);
@@ -481,10 +481,10 @@ void do_dmeter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (vict) {
 			vict->dps_print_stats(ch);
 		} else {
-			send_to_char("Нет такого персонажа.\r\n", ch);
+			SendMsgToChar("Нет такого персонажа.\r\n", ch);
 		}
 	} else {
-		send_to_char(DMETR_FORMAT, ch);
+		SendMsgToChar(DMETR_FORMAT, ch);
 	}
 }
 

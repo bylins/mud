@@ -42,7 +42,7 @@ void doList(CharData *ch, CharData *boss, bool isFavList) {
 				isFavList ? "краткий список" : "полный список");
 	}
 	tell_to_char(boss, ch, buf);
-	send_to_char(ch,
+	SendMsgToChar(ch,
 				 " ##   Имя                                                   \r\n"
 				 "------------------------------------------------------------\r\n");
 	std::map<int, MERCDATA>::iterator it = m->begin();
@@ -58,7 +58,7 @@ void doList(CharData *ch, CharData *boss, bool isFavList) {
 		out << boost::str(boost::format(format_str) % num % mobname);
 	}
 	page_string(ch->desc, out.str());
-	send_to_char(ch, "------------------------------------------------------------\r\n");
+	SendMsgToChar(ch, "------------------------------------------------------------\r\n");
 	sprintf(buf,
 			"А всего за %d кун моя ватага приведёт тебе любого из них живым и невредимым.",
 			1000 * (GET_REAL_REMORT(ch) + 1));

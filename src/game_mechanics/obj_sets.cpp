@@ -763,7 +763,7 @@ void print_identify(CharData *ch, const ObjData *obj) {
 				 CCWHT(ch, C_NRM), cur_set.help.c_str(), CCNRM(ch, C_NRM));
 		out += buf_;
 
-		send_to_char(out, ch);
+		SendMsgToChar(out, ch);
 	}
 }
 

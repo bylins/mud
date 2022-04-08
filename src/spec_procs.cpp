@@ -194,13 +194,13 @@ void list_feats(CharData *ch, CharData *vict, bool all_feats) {
 	auto sortpos{EFeat::kIncorrectFeat};
 	if (all_feats) {
 		if (clr(vict, C_NRM)) // реж цвет >= обычный
-			send_to_char(" Список способностей, доступных с текущим числом перевоплощений.\r\n"
+			SendMsgToChar(" Список способностей, доступных с текущим числом перевоплощений.\r\n"
 						 " &gЗеленым цветом и пометкой [И] выделены уже изученные способности.\r\n&n"
 						 " Пометкой [Д] выделены доступные для изучения способности.\r\n"
 						 " &rКрасным цветом и пометкой [Н] выделены способности, недоступные вам в настоящий момент.&n\r\n\r\n",
 						 vict);
 		else
-			send_to_char(" Список способностей, доступных с текущим числом перевоплощений.\r\n"
+			SendMsgToChar(" Список способностей, доступных с текущим числом перевоплощений.\r\n"
 						 " Пометкой [И] выделены уже изученные способности.\r\n"
 						 " Пометкой [Д] выделены доступные для изучения способности.\r\n"
 						 " Пометкой [Н] выделены способности, недоступные вам в настоящий момент.\r\n\r\n", vict);
@@ -239,10 +239,10 @@ void list_feats(CharData *ch, CharData *vict, bool all_feats) {
 			sprintf(buf1 + strlen(buf1), "%s", names[i]);
 		}
 
-		send_to_char(buf1, vict);
+		SendMsgToChar(buf1, vict);
 //		page_string(ch->desc, buf, 1);
 		if (j)
-			send_to_char(buf2, vict);
+			SendMsgToChar(buf2, vict);
 
 		for (int k = 0; k < max_slot; k++)
 			delete[] names[k];
@@ -336,10 +336,10 @@ void list_feats(CharData *ch, CharData *vict, bool all_feats) {
 			break;
 		sprintf(buf1 + strlen(buf1), "%s", names[i]);
 	}
-	send_to_char(buf1, vict);
+	SendMsgToChar(buf1, vict);
 
 	if (j)
-		send_to_char(buf2, vict);
+		SendMsgToChar(buf2, vict);
 
 	for (int k = 0; k < max_slot; k++)
 		delete[] names[k];
@@ -431,7 +431,7 @@ void list_skills(CharData *ch, CharData *vict, const char *filter/* = nullptr*/)
 			buf2_length += i->length();
 		}
 	}
-	send_to_char(buf2, vict);
+	SendMsgToChar(buf2, vict);
 
 }
 const char *spells_color(int spellnum) {
@@ -581,7 +581,7 @@ void list_spells(CharData *ch, CharData *vict, int all_spells) {
 		gcount += sprintf(buf2 + gcount, "\r\nВ настоящее время магия вам недоступна!");
 	gcount += sprintf(buf2 + gcount, "\r\n");
 	//page_string(ch->desc, buf2, 1);
-	send_to_char(buf2, vict);
+	SendMsgToChar(buf2, vict);
 }
 
 struct guild_learn_type {
@@ -909,7 +909,7 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 					act("$N сказал$G : 'Похоже, твои знания полнее моих.'", false, ch, 0, victim, kToChar);
 					return (1);
 				} else {
-					send_to_char(buf, ch);
+					SendMsgToChar(buf, ch);
 					return (1);
 				}
 			}
@@ -1208,7 +1208,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 					act("$N сказал$G : 'Похоже, я не смогу тебе помочь.'", false, ch, 0, victim, kToChar);
 					return (1);
 				} else {
-					send_to_char(buf, ch);
+					SendMsgToChar(buf, ch);
 					return (1);
 				}
 			}
@@ -1464,7 +1464,7 @@ int horse_keeper(CharData *ch, void *me, int cmd, char *argument) {
 		return (0);
 
 	if (ch->is_morphed()) {
-		send_to_char("Лошадка испугается вас в таком виде... \r\n", ch);
+		SendMsgToChar("Лошадка испугается вас в таком виде... \r\n", ch);
 		return (true);
 	}
 
@@ -1477,7 +1477,7 @@ int horse_keeper(CharData *ch, void *me, int cmd, char *argument) {
 			return (true);
 		}
 		sprintf(buf, "$N сказал$G : \"Я продам тебе скакуна за %d %s.\"",
-				HORSE_COST, GetDeclensionInNumber(HORSE_COST, EWhat::kMoneyA));
+				kHorseCost, GetDeclensionInNumber(kHorseCost, EWhat::kMoneyA));
 		act(buf, false, ch, 0, victim, kToChar);
 		return (true);
 	}
@@ -1487,12 +1487,12 @@ int horse_keeper(CharData *ch, void *me, int cmd, char *argument) {
 			act("$N засмеял$U : \"$n, ты шутишь, у тебя же есть скакун.\"", false, ch, 0, victim, kToChar);
 			return (true);
 		}
-		if (ch->get_gold() < HORSE_COST) {
+		if (ch->get_gold() < kHorseCost) {
 			act("\"Ступай отсюда, злыдень, у тебя нет таких денег!\"-заорал$G $N",
 				false, ch, 0, victim, kToChar);
 			return (true);
 		}
-		if (!(horse = read_mobile(HORSE_VNUM, VIRTUAL))) {
+		if (!(horse = read_mobile(kHorseVnum, VIRTUAL))) {
 			act("\"Извини, у меня нет для тебя скакуна.\"-смущенно произнес$Q $N",
 				false, ch, 0, victim, kToChar);
 			return (true);
@@ -1503,7 +1503,7 @@ int horse_keeper(CharData *ch, void *me, int cmd, char *argument) {
 		act(buf, false, ch, 0, victim, kToChar);
 		sprintf(buf, "$N оседлал$G %s и отдал$G %s $n2.", GET_PAD(horse, 3), HSHR(horse));
 		act(buf, false, ch, 0, victim, kToRoom);
-		ch->remove_gold(HORSE_COST);
+		ch->remove_gold(kHorseCost);
 		PLR_FLAGS(ch).set(EPlrFlag::kCrashSave);
 		return (true);
 	}
@@ -1519,7 +1519,7 @@ int horse_keeper(CharData *ch, void *me, int cmd, char *argument) {
 			return (true);
 		}
 
-		if (!(horse = ch->get_horse()) || GET_MOB_VNUM(horse) != HORSE_VNUM) {
+		if (!(horse = ch->get_horse()) || GET_MOB_VNUM(horse) != kHorseVnum) {
 			act("\"Извини, твой скакун мне не подходит.\"- заявил$G $N", false, ch, 0, victim, kToChar);
 			return (true);
 		}
@@ -1534,7 +1534,7 @@ int horse_keeper(CharData *ch, void *me, int cmd, char *argument) {
 		sprintf(buf, "$N расседлал$G %s и отвел$G %s в стойло.", GET_PAD(horse, 3), HSHR(horse));
 		act(buf, false, ch, 0, victim, kToRoom);
 		ExtractCharFromWorld(horse, false);
-		ch->add_gold((HORSE_COST >> 1));
+		ch->add_gold((kHorseCost >> 1));
 		PLR_FLAGS(ch).set(EPlrFlag::kCrashSave);
 		return (true);
 	}
@@ -1634,7 +1634,7 @@ int npc_scavenge(CharData *ch) {
 
 				// Заперто, открываем, если есть ключ
 				if (OBJVAL_FLAGGED(obj, EContainerFlag::kLockedUp)
-					&& has_key(ch, GET_OBJ_VAL(obj, 2))) {
+					&& HasKey(ch, GET_OBJ_VAL(obj, 2))) {
 					do_doorcmd(ch, obj, 0, SCMD_UNLOCK);
 				}
 
@@ -1768,7 +1768,7 @@ int npc_loot(CharData *ch) {
 
 						// Есть ключ?
 						if (OBJVAL_FLAGGED(loot_obj, EContainerFlag::kLockedUp)
-							&& has_key(ch, GET_OBJ_VAL(loot_obj, 2))) {
+							&& HasKey(ch, GET_OBJ_VAL(loot_obj, 2))) {
 							loot_obj->toggle_val_bit(1, EContainerFlag::kLockedUp);
 						}
 
@@ -1828,7 +1828,7 @@ int npc_move(CharData *ch, int dir, int/* need_specials_check*/) {
 		const auto &rdata = EXIT(ch, dir);
 
 		if (EXIT_FLAGGED(rdata, EExitFlag::kLocked)) {
-			if (has_key(ch, rdata->key)
+			if (HasKey(ch, rdata->key)
 				|| (!EXIT_FLAGGED(rdata, EExitFlag::kPickroof)
 					&& !EXIT_FLAGGED(rdata, EExitFlag::kBrokenLock)
 					&& CalcCurrentSkill(ch, ESkill::kPicks, 0) >= number(0, 100))) {
@@ -2426,10 +2426,10 @@ int dump(CharData *ch, void * /*me*/, int cmd, char *argument) {
 	}
 
 	if (value) {
-		send_to_char("Боги оценили вашу жертву.\r\n", ch);
+		SendMsgToChar("Боги оценили вашу жертву.\r\n", ch);
 		act("$n оценен$y Богами.", true, ch, 0, 0, kToRoom);
 		if (GetRealLevel(ch) < 3)
-			gain_exp(ch, value);
+			EndowExpToChar(ch, value);
 		else
 			ch->add_gold(value);
 	}
@@ -2653,7 +2653,7 @@ int guild_guard(CharData *ch, void *me, int cmd, char * /*argument*/) {
 	for (i = 0; guild_info[i][0] != -1; i++) {
 		if ((ch->IsNpc() || GET_CLASS(ch) != guild_info[i][0]) &&
 			GET_ROOM_VNUM(ch->in_room) == guild_info[i][1] && cmd == guild_info[i][2]) {
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 			act(buf2, false, ch, 0, 0, kToRoom);
 			return (true);
 		}
@@ -2775,10 +2775,10 @@ int pet_shops(CharData *ch, void * /*me*/, int cmd, char *argument) {
 	pet_room = ch->in_room + 1;
 
 	if (CMD_IS("list")) {
-		send_to_char("Available pets are:\r\n", ch);
+		SendMsgToChar("Available pets are:\r\n", ch);
 		for (const auto pet : world[pet_room]->people) {
 			sprintf(buf, "%8d - %s\r\n", PET_PRICE(pet), GET_NAME(pet));
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 		}
 
 		return (true);
@@ -2786,11 +2786,11 @@ int pet_shops(CharData *ch, void * /*me*/, int cmd, char *argument) {
 		two_arguments(argument, buf, pet_name);
 
 		if (!(pet = SearchCharInRoomByName(buf, pet_room))) {
-			send_to_char("There is no such pet!\r\n", ch);
+			SendMsgToChar("There is no such pet!\r\n", ch);
 			return (true);
 		}
 		if (ch->get_gold() < PET_PRICE(pet)) {
-			send_to_char("You don't have enough gold!\r\n", ch);
+			SendMsgToChar("You don't have enough gold!\r\n", ch);
 			return (true);
 		}
 		ch->remove_gold(PET_PRICE(pet));
@@ -2818,7 +2818,7 @@ int pet_shops(CharData *ch, void * /*me*/, int cmd, char *argument) {
 		IS_CARRYING_W(pet) = 1000;
 		IS_CARRYING_N(pet) = 100;
 
-		send_to_char("May you enjoy your pet.\r\n", ch);
+		SendMsgToChar("May you enjoy your pet.\r\n", ch);
 		act("$n buys $N as a pet.", false, ch, 0, pet, kToRoom);
 
 		return (1);
@@ -2857,67 +2857,67 @@ int bank(CharData *ch, void * /*me*/, int cmd, char *argument) {
 					ch->get_bank(), GetDeclensionInNumber(ch->get_bank(), EWhat::kMoneyA));
 		else
 			sprintf(buf, "У вас нет денег.\r\n");
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 		return (1);
 	} else if (CMD_IS("deposit") || CMD_IS("вложить") || CMD_IS("вклад")) {
 		if ((amount = atoi(argument)) <= 0) {
-			send_to_char("Сколько вы хотите вложить?\r\n", ch);
+			SendMsgToChar("Сколько вы хотите вложить?\r\n", ch);
 			return (1);
 		}
 		if (ch->get_gold() < amount) {
-			send_to_char("О такой сумме вы можете только мечтать!\r\n", ch);
+			SendMsgToChar("О такой сумме вы можете только мечтать!\r\n", ch);
 			return (1);
 		}
 		ch->remove_gold(amount, false);
 		ch->add_bank(amount, false);
 		sprintf(buf, "Вы вложили %d %s.\r\n", amount, GetDeclensionInNumber(amount, EWhat::kMoneyU));
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 		act("$n произвел$g финансовую операцию.", true, ch, nullptr, nullptr, kToRoom);
 		return (1);
 	} else if (CMD_IS("withdraw") || CMD_IS("получить")) {
 		if ((amount = atoi(argument)) <= 0) {
-			send_to_char("Уточните количество денег, которые вы хотите получить?\r\n", ch);
+			SendMsgToChar("Уточните количество денег, которые вы хотите получить?\r\n", ch);
 			return (1);
 		}
 		if (ch->get_bank() < amount) {
-			send_to_char("Да вы отродясь столько денег не видели!\r\n", ch);
+			SendMsgToChar("Да вы отродясь столько денег не видели!\r\n", ch);
 			return (1);
 		}
 		ch->add_gold(amount, false);
 		ch->remove_bank(amount, false);
 		sprintf(buf, "Вы сняли %d %s.\r\n", amount, GetDeclensionInNumber(amount, EWhat::kMoneyU));
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 		act("$n произвел$g финансовую операцию.", true, ch, nullptr, nullptr, kToRoom);
 		return (1);
 	} else if (CMD_IS("transfer") || CMD_IS("перевести")) {
 		argument = one_argument(argument, arg);
 		amount = atoi(argument);
 		if (IS_GOD(ch) && !IS_IMPL(ch)) {
-			send_to_char("Почитить захотелось?\r\n", ch);
+			SendMsgToChar("Почитить захотелось?\r\n", ch);
 			return (1);
 
 		}
 		if (!*arg) {
-			send_to_char("Уточните кому вы хотите перевести?\r\n", ch);
+			SendMsgToChar("Уточните кому вы хотите перевести?\r\n", ch);
 			return (1);
 		}
 		if (amount <= 0) {
-			send_to_char("Уточните количество денег, которые вы хотите получить?\r\n", ch);
+			SendMsgToChar("Уточните количество денег, которые вы хотите получить?\r\n", ch);
 			return (1);
 		}
 		if (amount <= 100) {
 			if (ch->get_bank() < (amount + 5)) {
-				send_to_char("У вас не хватит денег на налоги!\r\n", ch);
+				SendMsgToChar("У вас не хватит денег на налоги!\r\n", ch);
 				return (1);
 			}
 		}
 
 		if (ch->get_bank() < amount) {
-			send_to_char("Да вы отродясь столько денег не видели!\r\n", ch);
+			SendMsgToChar("Да вы отродясь столько денег не видели!\r\n", ch);
 			return (1);
 		}
 		if (ch->get_bank() < amount + ((amount * 5) / 100)) {
-			send_to_char("У вас не хватит денег на налоги!\r\n", ch);
+			SendMsgToChar("У вас не хватит денег на налоги!\r\n", ch);
 			return (1);
 		}
 
@@ -2927,11 +2927,11 @@ int bank(CharData *ch, void * /*me*/, int cmd, char *argument) {
 			else ch->remove_bank(((amount * 5) / 100));
 			sprintf(buf, "%sВы перевели %d кун %s%s.\r\n", CCWHT(ch, C_NRM), amount,
 					GET_PAD(vict, 2), CCNRM(ch, C_NRM));
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 			vict->add_bank(amount);
 			sprintf(buf, "%sВы получили %d кун банковским переводом от %s%s.\r\n", CCWHT(ch, C_NRM), amount,
 					GET_PAD(ch, 1), CCNRM(ch, C_NRM));
-			send_to_char(buf, vict);
+			SendMsgToChar(buf, vict);
 			sprintf(buf,
 					"<%s> {%d} перевел %d кун банковским переводом %s.",
 					ch->get_name().c_str(),
@@ -2944,7 +2944,7 @@ int bank(CharData *ch, void * /*me*/, int cmd, char *argument) {
 		} else {
 			vict = new Player; // TODO: переделать на стек
 			if (load_char(arg, vict) < 0) {
-				send_to_char("Такого персонажа не существует.\r\n", ch);
+				SendMsgToChar("Такого персонажа не существует.\r\n", ch);
 				delete vict;
 				return (1);
 			}
@@ -2954,7 +2954,7 @@ int bank(CharData *ch, void * /*me*/, int cmd, char *argument) {
 			else ch->remove_bank(((amount * 5) / 100));
 			sprintf(buf, "%sВы перевели %d кун %s%s.\r\n", CCWHT(ch, C_NRM), amount,
 					GET_PAD(vict, 2), CCNRM(ch, C_NRM));
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 			sprintf(buf,
 					"<%s> {%d} перевел %d кун банковским переводом %s.",
 					ch->get_name().c_str(),

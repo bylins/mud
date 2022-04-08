@@ -271,7 +271,7 @@ void do_oexp(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if ((ch = get_char_by_obj(obj, name))) {
-		gain_exp(ch, atoi(amount));
+		EndowExpToChar(ch, atoi(amount));
 		sprintf(buf, "oexp: victim (%s) получил опыт %d", GET_NAME(ch), atoi(amount));
 		obj_log(obj, buf);
 	} else {
@@ -551,7 +551,7 @@ void do_odamage(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (IS_IMMORTAL(ch)) {
-		send_to_char("Being the cool immortal you are, you sidestep a trap, obviously placed to kill you.", ch);
+		SendMsgToChar("Being the cool immortal you are, you sidestep a trap, obviously placed to kill you.", ch);
 		return;
 	}
 

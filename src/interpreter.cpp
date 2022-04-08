@@ -474,7 +474,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"базар", EPosition::kRest, do_exchange, 1, 0, -1},
 		{"баланс", EPosition::kStand, do_not_here, 1, 0, 0},
 		{"баги", EPosition::kDead, Boards::DoBoard, 1, Boards::ERROR_BOARD, 0},
-		{"бежать", EPosition::kFight, do_flee, 1, 0, -1},
+		{"бежать", EPosition::kFight, DoFlee, 1, 0, -1},
 		{"бинтовать", EPosition::kRest, do_bandage, 0, 0, 0},
 		{"билдер", EPosition::kDead, Boards::DoBoard, 1, Boards::GODBUILD_BOARD, -1},
 		{"блок", EPosition::kFight, do_block, 0, 0, -1},
@@ -490,7 +490,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"вече", EPosition::kDead, Boards::DoBoard, 1, Boards::GENERAL_BOARD, -1},
 		{"взять", EPosition::kRest, do_get, 0, 0, 200},
 		{"взглянуть", EPosition::kRest, do_diagnose, 0, 0, 100},
-		{"взломать", EPosition::kStand, do_gen_door, 1, DOOR_SCMD::SCMD_PICK, -1},
+		{"взломать", EPosition::kStand, do_gen_door, 1, EDoorScmd::SCMD_PICK, -1},
 		{"вихрь", EPosition::kFight, do_iron_wind, 0, 0, -1},
 		{"вложить", EPosition::kStand, do_not_here, 1, 0, -1},
 		{"вернуть", EPosition::kStand, do_not_here, 0, 0, -1},
@@ -643,7 +643,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"отразить", EPosition::kFight, do_multyparry, 0, 0, -1},
 		{"отвязать", EPosition::kDead, do_horseget, 0, 0, -1},
 		{"отдохнуть", EPosition::kRest, do_rest, 0, 0, -1},
-		{"открыть", EPosition::kSit, do_gen_door, 0, DOOR_SCMD::SCMD_OPEN, 500},
+		{"открыть", EPosition::kSit, do_gen_door, 0, EDoorScmd::SCMD_OPEN, 500},
 		{"отпереть", EPosition::kSit, do_gen_door, 0, SCMD_UNLOCK, 500},
 		{"отпустить", EPosition::kSit, do_stophorse, 0, 0, -1},
 		{"отравить", EPosition::kFight, do_poisoned, 0, 0, -1},
@@ -855,7 +855,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"features", EPosition::kSleep, do_features, 0, 0, 0},
 		{"fill", EPosition::kStand, do_pour, 0, SCMD_FILL, 500},
 		{"fit", EPosition::kRest, do_fit, 0, SCMD_DO_ADAPT, 500},
-		{"flee", EPosition::kFight, do_flee, 1, 0, -1},
+		{"flee", EPosition::kFight, DoFlee, 1, 0, -1},
 		{"follow", EPosition::kRest, do_follow, 0, 0, -1},
 		{"force", EPosition::kSleep, do_force, kLvlGreatGod, 0, 0},
 		{"forcetime", EPosition::kDead, do_forcetime, kLvlImplementator, 0, 0},
@@ -1120,7 +1120,7 @@ void check_hiding_cmd(CharData *ch, int percent) {
 		if (remove_hide) {
 			affect_from_char(ch, kSpellHide);
 			if (!AFF_FLAGGED(ch, EAffect::kHide)) {
-				send_to_char("Вы прекратили прятаться.\r\n", ch);
+				SendMsgToChar("Вы прекратили прятаться.\r\n", ch);
 				act("$n прекратил$g прятаться.", false, ch, nullptr, nullptr, kToRoom);
 			}
 		}
@@ -1201,7 +1201,7 @@ void command_interpreter(CharData *ch, char *argument) {
 
 	if (!ch->IsNpc()
 		&& !GET_INVIS_LEV(ch)
-		&& !GET_MOB_HOLD(ch)
+		&& !AFF_FLAGGED(ch, EAffect::kHold)
 		&& !AFF_FLAGGED(ch, EAffect::kStopFight)
 		&& !AFF_FLAGGED(ch, EAffect::kMagicStopFight)
 		&& !(IS_GOD(ch) && !strcmp(arg, "invis")))  // let immortals switch to wizinvis to avoid broken command triggers
@@ -1241,7 +1241,7 @@ void command_interpreter(CharData *ch, char *argument) {
 		if (find_action(arg) >= 0)
 			social = true;
 		else {
-			send_to_char("Чаво?\r\n", ch);
+			SendMsgToChar("Чаво?\r\n", ch);
 			return;
 		}
 	}
@@ -1249,42 +1249,42 @@ void command_interpreter(CharData *ch, char *argument) {
 	if (((!ch->IsNpc()
 		&& (GET_FREEZE_LEV(ch) > GetRealLevel(ch))
 		&& (PLR_FLAGGED(ch, EPlrFlag::kFrozen)))
-		|| GET_MOB_HOLD(ch)
+		|| AFF_FLAGGED(ch, EAffect::kHold)
 		|| AFF_FLAGGED(ch, EAffect::kStopFight)
 		|| AFF_FLAGGED(ch, EAffect::kMagicStopFight))
 		&& !check_frozen_cmd(ch, cmd)) {
-		send_to_char("Вы попытались, но не смогли сдвинуться с места...\r\n", ch);
+		SendMsgToChar("Вы попытались, но не смогли сдвинуться с места...\r\n", ch);
 		return;
 	}
 
 	if (!social && cmd_info[cmd].command_pointer == nullptr) {
-		send_to_char("Извините, не смог разобрать команду.\r\n", ch);
+		SendMsgToChar("Извините, не смог разобрать команду.\r\n", ch);
 		return;
 	}
 
 	if (!social && ch->IsNpc() && cmd_info[cmd].minimum_level >= kLvlImmortal) {
-		send_to_char("Вы еще не БОГ, чтобы делать это.\r\n", ch);
+		SendMsgToChar("Вы еще не БОГ, чтобы делать это.\r\n", ch);
 		return;
 	}
 
 	if (!social && GET_POS(ch) < cmd_info[cmd].minimum_position) {
 		switch (GET_POS(ch)) {
-			case EPosition::kDead: send_to_char("Очень жаль - ВЫ МЕРТВЫ!!! :-(\r\n", ch);
+			case EPosition::kDead: SendMsgToChar("Очень жаль - ВЫ МЕРТВЫ!!! :-(\r\n", ch);
 				break;
 			case EPosition::kIncap:
-			case EPosition::kPerish: send_to_char("Вы в критическом состоянии и не можете ничего делать!\r\n", ch);
+			case EPosition::kPerish: SendMsgToChar("Вы в критическом состоянии и не можете ничего делать!\r\n", ch);
 				break;
-			case EPosition::kStun: send_to_char("Вы слишком слабы, чтобы сделать это!\r\n", ch);
+			case EPosition::kStun: SendMsgToChar("Вы слишком слабы, чтобы сделать это!\r\n", ch);
 				break;
-			case EPosition::kSleep: send_to_char("Сделать это в ваших снах?\r\n", ch);
+			case EPosition::kSleep: SendMsgToChar("Сделать это в ваших снах?\r\n", ch);
 				break;
-			case EPosition::kRest: send_to_char("Нет... Вы слишком расслаблены...\r\n", ch);
+			case EPosition::kRest: SendMsgToChar("Нет... Вы слишком расслаблены...\r\n", ch);
 				break;
-			case EPosition::kSit: send_to_char("Пожалуй, вам лучше встать на ноги.\r\n", ch);
+			case EPosition::kSit: SendMsgToChar("Пожалуй, вам лучше встать на ноги.\r\n", ch);
 				break;
-			case EPosition::kFight: send_to_char("Ни за что! Вы сражаетесь за свою жизнь!\r\n", ch);
+			case EPosition::kFight: SendMsgToChar("Ни за что! Вы сражаетесь за свою жизнь!\r\n", ch);
 				break;
-			default: send_to_char("Вы не в том состоянии, чтобы это сделать...\r\n", ch);
+			default: SendMsgToChar("Вы не в том состоянии, чтобы это сделать...\r\n", ch);
 				break;
 		}
 		return;
@@ -1343,13 +1343,13 @@ void do_alias(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!*arg)        // no argument specified -- list currently defined aliases
 	{
-		send_to_char("Определены следующие алиасы:\r\n", ch);
+		SendMsgToChar("Определены следующие алиасы:\r\n", ch);
 		if ((a = GET_ALIASES(ch)) == nullptr)
-			send_to_char(" Нет алиасов.\r\n", ch);
+			SendMsgToChar(" Нет алиасов.\r\n", ch);
 		else {
 			while (a != nullptr) {
 				sprintf(buf, "%-15s %s\r\n", a->alias, a->replacement);
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 				a = a->next;
 			}
 		}
@@ -1363,12 +1363,12 @@ void do_alias(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		// if no replacement string is specified, assume we want to delete
 		if (!*repl) {
 			if (a == nullptr)
-				send_to_char("Такой алиас не определен.\r\n", ch);
+				SendMsgToChar("Такой алиас не определен.\r\n", ch);
 			else
-				send_to_char("Алиас успешно удален.\r\n", ch);
+				SendMsgToChar("Алиас успешно удален.\r\n", ch);
 		} else {
 			if (!str_cmp(arg, "alias")) {
-				send_to_char("Вы не можете определить алиас 'alias'.\r\n", ch);
+				SendMsgToChar("Вы не можете определить алиас 'alias'.\r\n", ch);
 				return;
 			}
 			CREATE(a, 1);
@@ -1381,9 +1381,9 @@ void do_alias(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				a->type = ALIAS_SIMPLE;
 			a->next = GET_ALIASES(ch);
 			GET_ALIASES(ch) = a;
-			send_to_char("Алиас успешно добавлен.\r\n", ch);
+			SendMsgToChar("Алиас успешно добавлен.\r\n", ch);
 		}
-		WAIT_STATE(ch, 1 * kPulseViolence);
+		SetWaitState(ch, 1 * kPulseViolence);
 		write_aliases(ch);
 	}
 }
@@ -1914,7 +1914,7 @@ int perform_dupe_check(DescriptorData *d) {
 		if (ch->in_room != kNowhere) {
 			char_from_room(ch);
 		}
-		char_to_room(ch, STRANGE_ROOM);
+		char_to_room(ch, kStrangeRoom);
 		ExtractCharFromWorld(ch.get(), false);
 	});
 
@@ -2012,7 +2012,7 @@ int check_dupes_host(DescriptorData *d, bool autocheck = false) {
 						|| d->character->get_was_in_room() == r_unreg_start_room) {
 						return 0;
 					}
-					send_to_char(d->character.get(),
+					SendMsgToChar(d->character.get(),
 								 "&RВы вошли с игроком %s с одного IP(%s)!\r\n"
 								 "Вам необходимо обратиться к Богам для регистрации.\r\n"
 								 "Пока вы будете помещены в комнату для незарегистрированных игроков.&n\r\n",
@@ -2029,9 +2029,9 @@ int check_dupes_host(DescriptorData *d, bool autocheck = false) {
 					if (autocheck) {
 						return 1;
 					}
-					send_to_char("&RС вашего IP адреса находится максимально допустимое количество игроков.\r\n"
-								 "Обратитесь к Богам для увеличения лимита игроков с вашего адреса.&n",
-								 d->character.get());
+					SendMsgToChar("&RС вашего IP адреса находится максимально допустимое количество игроков.\r\n"
+								  "Обратитесь к Богам для увеличения лимита игроков с вашего адреса.&n",
+								  d->character.get());
 					return 0;
 
 				default: return 1;
@@ -2056,7 +2056,7 @@ int check_dupes_email(DescriptorData *d) {
 		if (!IS_IMMORTAL(ch)
 			&& (!str_cmp(GET_EMAIL(ch), GET_EMAIL(d->character)))) {
 			sprintf(buf, "Персонаж с таким email уже находится в игре, вы не можете войти одновременно с ним!");
-			send_to_char(buf, d->character.get());
+			SendMsgToChar(buf, d->character.get());
 			return (0);
 		}
 	}
@@ -2216,7 +2216,7 @@ void do_entergame(DescriptorData *d) {
 			load_room = r_mortal_start_room;
 	}
 
-	send_to_char(WELC_MESSG, d->character.get());
+	SendMsgToChar(WELC_MESSG, d->character.get());
 
 	CharData *character = nullptr;
 	for (const auto &character_i : character_list) {
@@ -2367,7 +2367,7 @@ void do_entergame(DescriptorData *d) {
 		d->character->set_last_exchange(time(nullptr));
 		do_start(d->character.get(), true);
 		d->character->mem_queue.stored = 0;
-		send_to_char(START_MESSG, d->character.get());
+		SendMsgToChar(START_MESSG, d->character.get());
 	}
 
 	init_warcry(d->character.get());
@@ -2402,9 +2402,9 @@ void do_entergame(DescriptorData *d) {
 	look_at_room(d->character.get(), 0);
 
 	if (new_char) {
-		send_to_char("\r\nВоспользуйтесь командой НОВИЧОК для получения вводной информации игроку.\r\n",
-					 d->character.get());
-		send_to_char(
+		SendMsgToChar("\r\nВоспользуйтесь командой НОВИЧОК для получения вводной информации игроку.\r\n",
+					  d->character.get());
+		SendMsgToChar(
 			"Включен режим автоматического показа карты, наберите 'справка карта' для ознакомления.\r\n"
 			"Если вы заблудились и не можете самостоятельно найти дорогу назад - прочтите 'справка возврат'.\r\n",
 			d->character.get());
@@ -2842,7 +2842,7 @@ void nanny(DescriptorData *d, char *arg) {
 				obj_sets_olc::parse_input(d->character.get(), arg);
 			}
 			catch (const std::out_of_range &e) {
-				send_to_char(d->character.get(), "Редактирование прервано: %s", e.what());
+				SendMsgToChar(d->character.get(), "Редактирование прервано: %s", e.what());
 				d->sedit.reset();
 				STATE(d) = CON_PLAYING;
 			}
@@ -4175,11 +4175,11 @@ bool login_change_invoice(CharData *ch) {
 
 	if (mail::has_mail(ch->get_uid())) {
 		hasMessages = true;
-		send_to_char("&RВас ожидает письмо. ЗАЙДИТЕ НА ПОЧТУ!&n\r\n", ch);
+		SendMsgToChar("&RВас ожидает письмо. ЗАЙДИТЕ НА ПОЧТУ!&n\r\n", ch);
 	}
 	if (Parcel::has_parcel(ch)) {
 		hasMessages = true;
-		send_to_char("&RВас ожидает посылка. ЗАЙДИТЕ НА ПОЧТУ!&n\r\n", ch);
+		SendMsgToChar("&RВас ожидает посылка. ЗАЙДИТЕ НА ПОЧТУ!&n\r\n", ch);
 	}
 	hasMessages |= Depot::show_purged_message(ch);
 	if (CLAN(ch)) {
@@ -4215,7 +4215,7 @@ bool who_spamcontrol(CharData *ch, unsigned short int mode = WHO_LISTALL) {
 	int last = ch->get_who_last();
 
 #ifdef WHO_DEBUG
-	send_to_char(boost::str(boost::format("\r\nСпам-контроль:\r\n  было маны: %u, расход: %u\r\n") % ch->get_who_mana() % cost).c_str(), ch);
+	SendMsgToChar(boost::str(boost::format("\r\nСпам-контроль:\r\n  было маны: %u, расход: %u\r\n") % ch->get_who_mana() % cost).c_str(), ch);
 #endif
 
 	// рестим ману, в БД скорость реста маны удваивается
@@ -4224,7 +4224,7 @@ bool who_spamcontrol(CharData *ch, unsigned short int mode = WHO_LISTALL) {
 				   + (ctime - last) * WHO_MANA_REST_PER_SECOND * (NORENTABLE(ch) ? 1 : 0));
 
 #ifdef WHO_DEBUG
-	send_to_char(boost::str(boost::format("  прошло %u с, восстановили %u, мана после регена: %u\r\n") %
+	SendMsgToChar(boost::str(boost::format("  прошло %u с, восстановили %u, мана после регена: %u\r\n") %
 										  (ctime - last) % (mana - ch->get_who_mana()) % mana).c_str(), ch);
 #endif
 
@@ -4232,14 +4232,14 @@ bool who_spamcontrol(CharData *ch, unsigned short int mode = WHO_LISTALL) {
 	ch->set_who_last(ctime);
 
 	if (mana < cost) {
-		send_to_char("Запрос обрабатывается, ожидайте...\r\n", ch);
+		SendMsgToChar("Запрос обрабатывается, ожидайте...\r\n", ch);
 		return true;
 	} else {
 		mana -= cost;
 		ch->set_who_mana(mana);
 	}
 #ifdef WHO_DEBUG
-	send_to_char(boost::str(boost::format("  осталось маны: %u\r\n") % mana).c_str(), ch);
+	SendMsgToChar(boost::str(boost::format("  осталось маны: %u\r\n") % mana).c_str(), ch);
 #endif
 	return false;
 }

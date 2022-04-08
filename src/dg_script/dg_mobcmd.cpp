@@ -724,7 +724,7 @@ void do_mexp(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	sprintf(buf, "mexp: victim (%s) получил опыт %d", name, atoi(amount));
 	mob_log(ch, buf);
-	gain_exp(victim, atoi(amount));
+	EndowExpToChar(victim, atoi(amount));
 }
 
 // increases the target's gold
@@ -779,7 +779,7 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 
 	if (ch->desc) {
-		send_to_char("You've got no VNUM to return to, dummy! try 'switch'\r\n", ch);
+		SendMsgToChar("You've got no VNUM to return to, dummy! try 'switch'\r\n", ch);
 		return;
 	}
 
@@ -1349,13 +1349,13 @@ void do_mdamage(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		if (IS_IMMORTAL(ch) && dam > 0) {
-			send_to_char
+			SendMsgToChar
 				("Будучи очень крутым, вы сделали шаг в сторону и не получили повреждений...\r\n", victim);
 			return;
 		}
 		GET_HIT(victim) -= dam;
 		if (dam < 0) {
-			send_to_char("Вы почувствовали себя лучше.\r\n", victim);
+			SendMsgToChar("Вы почувствовали себя лучше.\r\n", victim);
 			return;
 		}
 
@@ -1455,7 +1455,7 @@ bool mob_script_command_interpreter(CharData *ch, char *argument) {
 // damage mtrigger срабатывает всегда
 	if (!CheckScript(ch, MTRIG_DAMAGE)) {
 		if (!mob_cmd_info[cmd].use_in_lag && 
-				(GET_MOB_HOLD(ch)
+				(AFF_FLAGGED(ch, EAffect::kHold)
 				|| AFF_FLAGGED(ch, EAffect::kStopFight)
 				|| AFF_FLAGGED(ch, EAffect::kMagicStopFight))) {
 		return false;

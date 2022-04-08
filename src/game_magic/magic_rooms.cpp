@@ -141,7 +141,7 @@ void SendRemoveAffectMsgToRoom(int affectType, RoomRnum room) {
 	// TODO:" refactor and replace int affectType by ESpell
 	const std::string &msg = get_wear_off_text(static_cast<ESpell>(affectType));
 	if (affectType > 0 && affectType <= kSpellCount && !msg.empty()) {
-		send_to_room(msg.c_str(), room, 0);
+		SendMsgToRoom(msg.c_str(), room, 0);
 	};
 }
 
@@ -179,7 +179,7 @@ void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::sh
 
 			break;
 
-		case kSpellMeteorStorm: send_to_char("Раскаленные громовые камни рушатся с небес!\r\n", ch);
+		case kSpellMeteorStorm: SendMsgToChar("Раскаленные громовые камни рушатся с небес!\r\n", ch);
 			act("Раскаленные громовые камни рушатся с небес!\r\n",
 				false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 			CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellThunderStone, GetRealLevel(ch));
@@ -193,49 +193,49 @@ void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::sh
 						break;
 					}
 					what_sky = kSkyCloudy;
-					send_to_char("Стремительно налетевшие черные тучи сгустились над вами.\r\n", ch);
+					SendMsgToChar("Стремительно налетевшие черные тучи сгустились над вами.\r\n", ch);
 					act("Стремительно налетевшие черные тучи сгустились над вами.\r\n",
 						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 					break;
-				case 7: send_to_char("Раздался чудовищный раскат грома!\r\n", ch);
+				case 7: SendMsgToChar("Раздался чудовищный раскат грома!\r\n", ch);
 					act("Раздался чудовищный удар грома!\r\n",
 						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 					CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellDeafness, GetRealLevel(ch));
 					break;
-				case 6: send_to_char("Порывы мокрого ледяного ветра обрушились из туч!\r\n", ch);
+				case 6: SendMsgToChar("Порывы мокрого ледяного ветра обрушились из туч!\r\n", ch);
 					act("Порывы мокрого ледяного ветра обрушились на вас!\r\n",
 						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 					CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellColdWind, GetRealLevel(ch));
 					break;
-				case 5: send_to_char("Из туч хлынул дождь кислоты!\r\n", ch);
+				case 5: SendMsgToChar("Из туч хлынул дождь кислоты!\r\n", ch);
 					act("Из туч хлынул дождь кислоты!\r\n",
 						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 					CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellAcid, GetRealLevel(ch));
 					break;
-				case 4: send_to_char("Из туч ударили разряды молний!\r\n", ch);
+				case 4: SendMsgToChar("Из туч ударили разряды молний!\r\n", ch);
 					act("Из туч ударили разряды молний!\r\n",
 						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 					CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellLightingBolt, GetRealLevel(ch));
 					break;
-				case 3: send_to_char("Из тучи посыпались шаровые молнии!\r\n", ch);
+				case 3: SendMsgToChar("Из тучи посыпались шаровые молнии!\r\n", ch);
 					act("Из тучи посыпались шаровые молнии!\r\n",
 						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 					CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellCallLighting, GetRealLevel(ch));
 					break;
-				case 2: send_to_char("Буря завыла, закручиваясь в вихри!\r\n", ch);
+				case 2: SendMsgToChar("Буря завыла, закручиваясь в вихри!\r\n", ch);
 					act("Буря завыла, закручиваясь в вихри!\r\n",
 						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 					CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellWhirlwind, GetRealLevel(ch));
 					break;
 				case 1: what_sky = kSkyCloudless;
 					break;
-				default: send_to_char("Из туч ударили разряды молний!\r\n", ch);
+				default: SendMsgToChar("Из туч ударили разряды молний!\r\n", ch);
 					act("Из туч ударили разряды молний!\r\n", false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 					CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellLightingBolt, GetRealLevel(ch));
 			}
 			break;
 
-		case kSpellBlackTentacles: send_to_char("Мертвые руки навей шарят в поисках добычи!\r\n", ch);
+		case kSpellBlackTentacles: SendMsgToChar("Мертвые руки навей шарят в поисках добычи!\r\n", ch);
 			act("Мертвые руки навей шарят в поисках добычи!\r\n",
 				false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 			CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellDamageSerious, GetRealLevel(ch));
@@ -488,7 +488,7 @@ int CastSpellToRoom(int/* level*/, CharData *ch, RoomData *room, int spellnum) {
 		if (IS_SET(SpINFO.routines, kMagNeedControl)) {
 			int SplFound = RemoveControlledRoomAffect(ch);
 			if (SplFound) {
-				send_to_char(ch,
+				SendMsgToChar(ch,
 							 "Вы прервали заклинание !%s! и приготовились применить !%s!\r\n",
 							 spell_info[SplFound].name,
 							 SpINFO.name);
@@ -529,10 +529,10 @@ int CastSpellToRoom(int/* level*/, CharData *ch, RoomData *room, int spellnum) {
 			act(to_char, true, ch, nullptr, nullptr, kToChar);
 		return 1;
 	} else
-		send_to_char(NOEFFECT, ch);
+		SendMsgToChar(NOEFFECT, ch);
 
 	if (!IS_IMMORTAL(ch))
-		WAIT_STATE(ch, lag * kPulseViolence);
+		SetWaitState(ch, lag * kPulseViolence);
 
 	return 0;
 

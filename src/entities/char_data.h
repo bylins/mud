@@ -870,7 +870,7 @@ inline int GET_INVIS_LEV(const CharData::shared_ptr &ch) { return GET_INVIS_LEV(
 inline void SET_INVIS_LEV(const CharData *ch, const int level) { ch->player_specials->saved.invis_level = level; }
 inline void SET_INVIS_LEV(const CharData::shared_ptr &ch, const int level) { SET_INVIS_LEV(ch.get(), level); }
 
-inline void WAIT_STATE(CharData *ch, const unsigned cycle) {
+inline void SetWaitState(CharData *ch, const unsigned cycle) {
 	if (ch->get_wait() < cycle) {
 		ch->set_wait(cycle);
 	}
@@ -931,10 +931,6 @@ bool IS_MORTIFIER(const CharData *ch);
 
 bool MAY_ATTACK(const CharData *sub);
 inline bool MAY_ATTACK(const CharData::shared_ptr &sub) { return MAY_ATTACK(sub.get()); }
-
-inline bool GET_MOB_HOLD(const CharData *ch) {
-	return AFF_FLAGGED(ch, EAffect::kHold);
-}
 
 bool AWAKE(const CharData *ch);
 inline bool AWAKE(const CharData::shared_ptr &ch) { return AWAKE(ch.get()); }

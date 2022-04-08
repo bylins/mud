@@ -288,7 +288,7 @@ bool show_purged_message(CharData *ch) {
 		}
 		std::ostringstream out;
 		out << "\r\n" << file.rdbuf();
-		send_to_char(out.str(), ch);
+		SendMsgToChar(out.str(), ch);
 		remove(name.c_str());
 		purged_list.erase(it);
 		need_save_purged_list = true;
@@ -604,7 +604,7 @@ void CharNode::update_online_item() {
 				// если чар в лд или еще чего - лучше записать и выдать это ему при след
 				// входе в игру, чтобы уж точно увидел
 				if (ch->desc && STATE(ch->desc) == CON_PLAYING) {
-					send_to_char(ch, "[Персональное хранилище]: %s'%s%s рассыпал%s в прах'%s\r\n",
+					SendMsgToChar(ch, "[Персональное хранилище]: %s'%s%s рассыпал%s в прах'%s\r\n",
 								 CCIRED(ch, C_NRM), (*obj_it)->get_short_description().c_str(),
 								 char_get_custom_label(obj_it->get(), ch).c_str(),
 								 GET_OBJ_SUF_2((*obj_it)), CCNRM(ch, C_NRM));
@@ -891,20 +891,20 @@ void show_depot(CharData *ch) {
 
 #ifndef TEST_BUILD
 	if (IS_IMMORTAL(ch) && !IS_IMPL(ch)) {
-		send_to_char("И без хранилища обойдешься...\r\n", ch);
+		SendMsgToChar("И без хранилища обойдешься...\r\n", ch);
 		return;
 	}
 #endif
 
 	if (NORENTABLE(ch)) {
-		send_to_char(ch, "%sХранилище недоступно в связи с боевыми действиями.%s\r\n",
+		SendMsgToChar(ch, "%sХранилище недоступно в связи с боевыми действиями.%s\r\n",
 					 CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 		return;
 	}
 
 	DepotListType::iterator it = create_depot(GET_UNIQUE(ch), ch);
 	if (it == depot_list.end()) {
-		send_to_char("Ошибочка, сообщие богам...\r\n", ch);
+		SendMsgToChar("Ошибочка, сообщие богам...\r\n", ch);
 		log("Хранилище: UID %d, name: %s - возвращен некорректный уид персонажа.", GET_UNIQUE(ch), GET_NAME(ch));
 		return;
 	}
@@ -926,7 +926,7 @@ void put_gold_chest(CharData *ch, const ObjData::shared_ptr &obj) {
 	ch->add_bank(gold);
 	ExtractObjFromChar(obj.get());
 	ExtractObjFromWorld(obj.get());
-	send_to_char(ch, "Вы вложили %ld %s.\r\n", gold, GetDeclensionInNumber(gold, EWhat::kMoneyU));
+	SendMsgToChar(ch, "Вы вложили %ld %s.\r\n", gold, GetDeclensionInNumber(gold, EWhat::kMoneyU));
 }
 
 /**
@@ -944,15 +944,15 @@ bool can_put_chest(CharData *ch, ObjData *obj) {
 		|| GET_OBJ_RNUM(obj) <= kNothing
 		|| NamedStuff::check_named(ch, obj, 0)) {
 //		|| (NamedStuff::check_named(ch, obj, 0) && GET_UNIQUE(ch) != GET_OBJ_OWNER(obj))) {
-		send_to_char(ch, "Неведомая сила помешала положить %s в хранилище.\r\n", obj->get_PName(3).c_str());
+		SendMsgToChar(ch, "Неведомая сила помешала положить %s в хранилище.\r\n", obj->get_PName(3).c_str());
 		return 0;
 	} else if (GET_OBJ_TYPE(obj) == EObjType::kContainer
 		&& obj->get_contains()) {
-		send_to_char(ch, "В %s что-то лежит.\r\n", obj->get_PName(5).c_str());
+		SendMsgToChar(ch, "В %s что-то лежит.\r\n", obj->get_PName(5).c_str());
 		return 0;
 	} else if (SetSystem::is_norent_set(ch, obj)) {
 		snprintf(buf, kMaxStringLength, "%s - требуется две и более вещи из набора.\r\n", obj->get_PName(0).c_str());
-		send_to_char(CAP(buf), ch);
+		SendMsgToChar(CAP(buf), ch);
 		return 0;
 	}
 	return 1;
@@ -975,13 +975,13 @@ bool put_depot(CharData *ch, const ObjData::shared_ptr &obj) {
 
 #ifndef TEST_BUILD
 	if (IS_IMMORTAL(ch) && !IS_IMPL(ch)) {
-		send_to_char("И без хранилища обойдешься...\r\n", ch);
+		SendMsgToChar("И без хранилища обойдешься...\r\n", ch);
 		return 0;
 	}
 #endif
 
 	if (NORENTABLE(ch)) {
-		send_to_char(ch,
+		SendMsgToChar(ch,
 					 "%sХранилище недоступно в связи с боевыми действиями.%s\r\n",
 					 CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 		return 0;
@@ -999,7 +999,7 @@ bool put_depot(CharData *ch, const ObjData::shared_ptr &obj) {
 
 	DepotListType::iterator it = create_depot(GET_UNIQUE(ch), ch);
 	if (it == depot_list.end()) {
-		send_to_char("Ошибочка, сообщие богам...\r\n", ch);
+		SendMsgToChar("Ошибочка, сообщие богам...\r\n", ch);
 		log("Хранилище: UID %d, name: %s - возвращен некорректный уид персонажа.",
 			GET_UNIQUE(ch), GET_NAME(ch));
 		return 0;
@@ -1011,15 +1011,15 @@ bool put_depot(CharData *ch, const ObjData::shared_ptr &obj) {
 		|| GET_OBJ_TYPE(obj) == EObjType::kCraftMaterial;
 
 	if (is_ingr && ingr_cnt >= (MAX_PERS_SLOTS(ch) * 2)) {
-		send_to_char("В вашем хранилище совсем не осталось места для ингредиентов :(.\r\n", ch);
+		SendMsgToChar("В вашем хранилище совсем не осталось места для ингредиентов :(.\r\n", ch);
 		return 0;
 	} else if (!is_ingr && staff_cnt >= get_max_pers_slots(ch)) {
-		send_to_char("В вашем хранилище совсем не осталось места для вещей :(.\r\n", ch);
+		SendMsgToChar("В вашем хранилище совсем не осталось места для вещей :(.\r\n", ch);
 		return 0;
 	}
 
 	if (!ch->get_bank() && !ch->get_gold()) {
-		send_to_char(ch, "У вас ведь совсем нет денег, чем вы собираетесь расплачиваться за хранение вещей?\r\n");
+		SendMsgToChar(ch, "У вас ведь совсем нет денег, чем вы собираетесь расплачиваться за хранение вещей?\r\n");
 		return 0;
 	}
 
@@ -1046,20 +1046,20 @@ void take_depot(CharData *vict, char *arg, int howmany) {
 
 #ifndef TEST_BUILD
 	if (IS_IMMORTAL(vict) && !IS_IMPL(vict)) {
-		send_to_char("И без хранилища обойдешься...\r\n", vict);
+		SendMsgToChar("И без хранилища обойдешься...\r\n", vict);
 		return;
 	}
 #endif
 
 	if (NORENTABLE(vict)) {
-		send_to_char(vict, "%sХранилище недоступно в связи с боевыми действиями.%s\r\n",
+		SendMsgToChar(vict, "%sХранилище недоступно в связи с боевыми действиями.%s\r\n",
 					 CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
 		return;
 	}
 
 	DepotListType::iterator it = depot_list.find(GET_UNIQUE(vict));
 	if (it == depot_list.end()) {
-		send_to_char("В данный момент ваше хранилище абсолютно пусто.\r\n", vict);
+		SendMsgToChar("В данный момент ваше хранилище абсолютно пусто.\r\n", vict);
 		return;
 	}
 
@@ -1112,7 +1112,7 @@ void CharNode::take_item(CharData *vict, char *arg, int howmany) {
 	if (obj_dotmode == kFindIndiv) {
 		bool result = obj_from_obj_list(arg, vict);
 		if (!result) {
-			send_to_char(vict, "Вы не видите '%s' в хранилище.\r\n", arg);
+			SendMsgToChar(vict, "Вы не видите '%s' в хранилище.\r\n", arg);
 			return;
 		}
 		while (result && --howmany) {
@@ -1120,7 +1120,7 @@ void CharNode::take_item(CharData *vict, char *arg, int howmany) {
 		}
 	} else {
 		if (obj_dotmode == kFindAlldot && !*arg) {
-			send_to_char("Взять что \"все\"?\r\n", vict);
+			SendMsgToChar("Взять что \"все\"?\r\n", vict);
 			return;
 		}
 		bool found = 0;
@@ -1140,7 +1140,7 @@ void CharNode::take_item(CharData *vict, char *arg, int howmany) {
 		}
 
 		if (!found) {
-			send_to_char(vict, "Вы не видите ничего похожего на '%s' в хранилище.\r\n", arg);
+			SendMsgToChar(vict, "Вы не видите ничего похожего на '%s' в хранилище.\r\n", arg);
 			return;
 		}
 	}
@@ -1181,7 +1181,7 @@ void show_stats(CharData *ch) {
 	out << "  Хранилищ: " << depot_list.size() << ", "
 		<< "в персональных: " << pers_count << ", "
 		<< "в оффлайне: " << offline_count << "\r\n";
-	send_to_char(out.str().c_str(), ch);
+	SendMsgToChar(out.str().c_str(), ch);
 }
 
 /**
@@ -1288,7 +1288,7 @@ void enter_char(CharData *ch) {
 	if (it != depot_list.end()) {
 		// снимаем бабло, если что-то было потрачено на ренту
 		if (it->second.money_spend > 0) {
-			send_to_char(ch, "%sХранилище: за время вашего отсутствия удержано %ld %s.%s\r\n\r\n",
+			SendMsgToChar(ch, "%sХранилище: за время вашего отсутствия удержано %ld %s.%s\r\n\r\n",
 						 CCWHT(ch, C_NRM), it->second.money_spend,
 						 GetDeclensionInNumber(it->second.money_spend, EWhat::kMoneyA), CCNRM(ch, C_NRM));
 
@@ -1301,7 +1301,7 @@ void enter_char(CharData *ch) {
 				it->second.reset();
 				// файл убьется позже при ребуте на пустом хране,
 				// даже если не будет никаких перезаписей по ходу игры
-				send_to_char(ch, "%sХранилище: у вас не хватило денег на постой.%s\r\n\r\n",
+				SendMsgToChar(ch, "%sХранилище: у вас не хватило денег на постой.%s\r\n\r\n",
 							 CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 			}
 		}
@@ -1381,7 +1381,7 @@ void reload_char(long uid, CharData *ch) {
 		const CharData::shared_ptr t_vict(new Player);
 		if (load_char(it->second.name.c_str(), t_vict.get()) < 0) {
 			// вообще эт нереальная ситуация после проверки в do_reboot
-			send_to_char(ch, "Некорректное имя персонажа (%s).\r\n", it->second.name.c_str());
+			SendMsgToChar(ch, "Некорректное имя персонажа (%s).\r\n", it->second.name.c_str());
 		}
 		vict = t_vict;
 	}
@@ -1426,7 +1426,7 @@ int print_spell_locate_object(CharData *ch, int count, std::string name) {
 			snprintf(buf, kMaxStringLength, "%s наход%sся у кого-то в персональном хранилище.\r\n",
 					 (*obj_it)->get_short_description().c_str(), GET_OBJ_POLY_1(ch, (*obj_it)));
 //			CAP(buf); issue #59
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 
 			if (--count <= 0) {
 				return count;
@@ -1441,7 +1441,7 @@ int print_imm_where_obj(CharData *ch, char *arg, int num) {
 		for (ObjListType::iterator obj_it = it->second.pers_online.begin(); obj_it != it->second.pers_online.end();
 			 ++obj_it) {
 			if (isname(arg, (*obj_it)->get_aliases())) {
-				send_to_char(ch,
+				SendMsgToChar(ch,
 							 "%2d. [%6d] %-25s - наход%sся в персональном хранилище (%s).\r\n",
 							 num++,
 							 GET_OBJ_VNUM((*obj_it).get()),

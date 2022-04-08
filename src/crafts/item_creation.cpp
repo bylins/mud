@@ -135,7 +135,7 @@ const char *create_weapon_quality[] = {"RESERVED",
 MakeReceptList make_recepts;
 // Функция вывода в поток //
 CharData *&operator<<(CharData *&ch, string p) {
-	send_to_char(p.c_str(), ch);
+	SendMsgToChar(p.c_str(), ch);
 	return ch;
 }
 
@@ -156,7 +156,7 @@ void mredit_parse(DescriptorData *d, char *arg) {
 		case MREDIT_MAIN_MENU:
 			// Ввод главного меню.
 			if (sagr == "1") {
-				send_to_char("Введите VNUM изготавливаемого предмета : ", d->character.get());
+				SendMsgToChar("Введите VNUM изготавливаемого предмета : ", d->character.get());
 				OLC_MODE(d) = MREDIT_OBJ_PROTO;
 				return;
 			}
@@ -171,13 +171,13 @@ void mredit_parse(DescriptorData *d, char *arg) {
 					i++;
 				}
 				tmpstr += "Введите номер умения : ";
-				send_to_char(tmpstr.c_str(), d->character.get());
+				SendMsgToChar(tmpstr.c_str(), d->character.get());
 				OLC_MODE(d) = MREDIT_SKILL;
 				return;
 			}
 
 			if (sagr == "3") {
-				send_to_char("Блокировать рецепт? (y/n): ", d->character.get());
+				SendMsgToChar("Блокировать рецепт? (y/n): ", d->character.get());
 				OLC_MODE(d) = MREDIT_LOCK;
 				return;
 			}
@@ -191,7 +191,7 @@ void mredit_parse(DescriptorData *d, char *arg) {
 			}
 
 			if (sagr == "d") {
-				send_to_char("Удалить рецепт? (y/n):", d->character.get());
+				SendMsgToChar("Удалить рецепт? (y/n):", d->character.get());
 				OLC_MODE(d) = MREDIT_DEL;
 				return;
 			}
@@ -199,7 +199,7 @@ void mredit_parse(DescriptorData *d, char *arg) {
 			if (sagr == "s") {
 				// Сохраняем рецепты в файл
 				make_recepts.save();
-				send_to_char("Рецепты сохранены.\r\n", d->character.get());
+				SendMsgToChar("Рецепты сохранены.\r\n", d->character.get());
 				mredit_disp_menu(d);
 				OLC_VAL(d) = 0;
 				return;
@@ -208,7 +208,7 @@ void mredit_parse(DescriptorData *d, char *arg) {
 			if (sagr == "q") {
 				// Проверяем не производилось ли изменение
 				if (OLC_VAL(d)) {
-					send_to_char("Вы желаете сохранить изменения в рецепте? (y/n) : ", d->character.get());
+					SendMsgToChar("Вы желаете сохранить изменения в рецепте? (y/n) : ", d->character.get());
 					OLC_MODE(d) = MREDIT_CONFIRM_SAVE;
 					return;
 				} else {
@@ -221,14 +221,14 @@ void mredit_parse(DescriptorData *d, char *arg) {
 				}
 			}
 
-			send_to_char("Неверный ввод.\r\n", d->character.get());
+			SendMsgToChar("Неверный ввод.\r\n", d->character.get());
 			mredit_disp_menu(d);
 			break;
 
 		case MREDIT_OBJ_PROTO:
 			i = atoi(sagr.c_str());
 			if (real_object(i) < 0) {
-				send_to_char("Прототип выбранного вами объекта не существует.\r\n", d->character.get());
+				SendMsgToChar("Прототип выбранного вами объекта не существует.\r\n", d->character.get());
 			} else {
 				trec->obj_proto = i;
 				OLC_VAL(d) = 1;
@@ -248,13 +248,13 @@ void mredit_parse(DescriptorData *d, char *arg) {
 				}
 				i++;
 			}
-			send_to_char("Выбрано некорректное умение.\r\n", d->character.get());
+			SendMsgToChar("Выбрано некорректное умение.\r\n", d->character.get());
 			mredit_disp_menu(d);
 			break;
 		}
 		case MREDIT_DEL: {
 			if (sagr == "Y" || sagr == "y") {
-				send_to_char("Рецепт удален. Рецепты сохранены.\r\n", d->character.get());
+				SendMsgToChar("Рецепт удален. Рецепты сохранены.\r\n", d->character.get());
 				make_recepts.del(trec);
 				make_recepts.save();
 				make_recepts.load();
@@ -262,24 +262,24 @@ void mredit_parse(DescriptorData *d, char *arg) {
 				cleanup_olc(d, CLEANUP_ALL);
 				return;
 			} else if (sagr == "N" || sagr == "n") {
-				send_to_char("Рецепт не удален.\r\n", d->character.get());
+				SendMsgToChar("Рецепт не удален.\r\n", d->character.get());
 			} else {
-				send_to_char("Неверный ввод.\r\n", d->character.get());
+				SendMsgToChar("Неверный ввод.\r\n", d->character.get());
 			}
 			mredit_disp_menu(d);
 			break;
 		}
 		case MREDIT_LOCK: {
 			if (sagr == "Y" || sagr == "y") {
-				send_to_char("Рецепт заблокирован от использования.\r\n", d->character.get());
+				SendMsgToChar("Рецепт заблокирован от использования.\r\n", d->character.get());
 				trec->locked = true;
 				OLC_VAL(d) = 1;
 			} else if (sagr == "N" || sagr == "n") {
-				send_to_char("Рецепт разблокирован и может использоваться.\r\n", d->character.get());
+				SendMsgToChar("Рецепт разблокирован и может использоваться.\r\n", d->character.get());
 				trec->locked = false;
 				OLC_VAL(d) = 1;
 			} else {
-				send_to_char("Неверный ввод.\r\n", d->character.get());
+				SendMsgToChar("Неверный ввод.\r\n", d->character.get());
 			}
 			mredit_disp_menu(d);
 			break;
@@ -287,19 +287,19 @@ void mredit_parse(DescriptorData *d, char *arg) {
 		case MREDIT_INGR_MENU: {
 			// Ввод меню ингридиентов.
 			if (sagr == "1") {
-				send_to_char("Введите VNUM ингредиента : ", d->character.get());
+				SendMsgToChar("Введите VNUM ингредиента : ", d->character.get());
 				OLC_MODE(d) = MREDIT_INGR_PROTO;
 				return;
 			}
 
 			if (sagr == "2") {
-				send_to_char("Введите мин.вес ингредиента : ", d->character.get());
+				SendMsgToChar("Введите мин.вес ингредиента : ", d->character.get());
 				OLC_MODE(d) = MREDIT_INGR_WEIGHT;
 				return;
 			}
 
 			if (sagr == "3") {
-				send_to_char("Введите мин.силу ингредиента : ", d->character.get());
+				SendMsgToChar("Введите мин.силу ингредиента : ", d->character.get());
 				OLC_MODE(d) = MREDIT_INGR_POWER;
 				return;
 			}
@@ -309,7 +309,7 @@ void mredit_parse(DescriptorData *d, char *arg) {
 				return;
 			}
 
-			send_to_char("Неверный ввод.\r\n", d->character.get());
+			SendMsgToChar("Неверный ввод.\r\n", d->character.get());
 			mredit_disp_ingr_menu(d);
 			break;
 		}
@@ -322,7 +322,7 @@ void mredit_parse(DescriptorData *d, char *arg) {
 				trec->parts[OLC_NUM(d)].min_weight = 0;
 				trec->parts[OLC_NUM(d)].min_power = 0;
 			} else if (real_object(i) < 0) {
-				send_to_char("Прототип выбранного вами ингредиента не существует.\r\n", d->character.get());
+				SendMsgToChar("Прототип выбранного вами ингредиента не существует.\r\n", d->character.get());
 			} else {
 				trec->parts[OLC_NUM(d)].proto = i;
 				OLC_VAL(d) = 1;
@@ -346,18 +346,18 @@ void mredit_parse(DescriptorData *d, char *arg) {
 		}
 		case MREDIT_CONFIRM_SAVE: {
 			if (sagr == "Y" || sagr == "y") {
-				send_to_char("Рецепты сохранены.\r\n", d->character.get());
+				SendMsgToChar("Рецепты сохранены.\r\n", d->character.get());
 				make_recepts.save();
 				make_recepts.load();
 				// Очищаем структуры OLC выходим в нормальный режим работы
 				cleanup_olc(d, CLEANUP_ALL);
 				return;
 			} else if (sagr == "N" || sagr == "n") {
-				send_to_char("Рецепт не был сохранен.\r\n", d->character.get());
+				SendMsgToChar("Рецепт не был сохранен.\r\n", d->character.get());
 				cleanup_olc(d, CLEANUP_ALL);
 				return;
 			} else {
-				send_to_char("Неверный ввод.\r\n", d->character.get());
+				SendMsgToChar("Неверный ввод.\r\n", d->character.get());
 			}
 			mredit_disp_menu(d);
 			break;
@@ -376,7 +376,7 @@ void do_edit_make(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	for (d = descriptor_list; d; d = d->next) {
 		if (d->olc && STATE(d) == CON_MREDIT) {
 			sprintf(tmpbuf, "Рецепты в настоящий момент редактируются %s.\r\n", GET_PAD(d->character, 4));
-			send_to_char(tmpbuf, ch);
+			SendMsgToChar(tmpbuf, ch);
 			return;
 		}
 	}
@@ -398,7 +398,7 @@ void do_edit_make(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	size_t i = atoi(tmpbuf);
 	if ((i > make_recepts.size()) || (i <= 0)) {
-		send_to_char("Выбранного рецепта не существует.", ch);
+		SendMsgToChar("Выбранного рецепта не существует.", ch);
 		return;
 	}
 
@@ -446,7 +446,7 @@ void mredit_disp_ingr_menu(DescriptorData *d) {
 	tmpstr = string(tmpbuf);
 	tmpstr += string(grn) + "q" + string(nrm) + ") Выход\r\n";
 	tmpstr += "Ваш выбор : ";
-	send_to_char(tmpstr.c_str(), d->character.get());
+	SendMsgToChar(tmpstr.c_str(), d->character.get());
 	OLC_MODE(d) = MREDIT_INGR_MENU;
 }
 
@@ -502,7 +502,7 @@ void mredit_disp_menu(DescriptorData *d) {
 	tmpstr += string(grn) + "s" + string(nrm) + ") Сохранить\r\n";
 	tmpstr += string(grn) + "q" + string(nrm) + ") Выход\r\n";
 	tmpstr += "Ваш выбор : ";
-	send_to_char(tmpstr.c_str(), d->character.get());
+	SendMsgToChar(tmpstr.c_str(), d->character.get());
 	OLC_MODE(d) = MREDIT_MAIN_MENU;
 }
 
@@ -511,7 +511,7 @@ void do_list_make(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 	char tmpbuf[kMaxInputLength];
 	MakeRecept *trec;
 	if (make_recepts.size() == 0) {
-		send_to_char("Рецепты в этом мире не определены.", ch);
+		SendMsgToChar("Рецепты в этом мире не определены.", ch);
 		return;
 	}
 	// Выдаем список рецептов всех рецептов как в магазине.
@@ -574,7 +574,7 @@ void do_make_item(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	// Сварить отвар
 	// Сшить одежду
 	if ((subcmd == MAKE_WEAR) && (!ch->get_skill(ESkill::kMakeWear))) {
-		send_to_char("Вас этому никто не научил.\r\n", ch);
+		SendMsgToChar("Вас этому никто не научил.\r\n", ch);
 		return;
 	}
 	string tmpstr;
@@ -608,7 +608,7 @@ void do_make_item(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 	if (canlist.size() == 0) {
 		// Чар не может сделать ничего.
-		send_to_char("Вы ничего не можете сделать.\r\n", ch);
+		SendMsgToChar("Вы ничего не можете сделать.\r\n", ch);
 		return;
 	}
 	if (!*tmpbuf) {
@@ -620,7 +620,7 @@ void do_make_item(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			sprintf(tmpbuf, "%zd) %s\r\n", i + 1, tobj->get_PName(0).c_str());
 			tmpstr += string(tmpbuf);
 		};
-		send_to_char(tmpstr.c_str(), ch);
+		SendMsgToChar(tmpstr.c_str(), ch);
 		return;
 	}
 	// Адресуемся по списку либо по номеру, либо по названию с номером.
@@ -633,7 +633,7 @@ void do_make_item(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		trec = canlist.get_by_name(tmpstr);
 		if (trec == nullptr) {
 			tmpstr = "Похоже, у вас творческий кризис.\r\n";
-			send_to_char(tmpstr.c_str(), ch);
+			SendMsgToChar(tmpstr.c_str(), ch);
 			return;
 		}
 	};
@@ -660,13 +660,13 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 		weight = MIN(GET_OBJ_WEIGHT(obj) - 2, GET_OBJ_WEIGHT(obj) * prob / percent);
 	}
 	if (weight < created_item[obj_type].min_weight) {
-		send_to_char("У вас не хватило материала.\r\n", ch);
+		SendMsgToChar("У вас не хватило материала.\r\n", ch);
 	} else if (prob * 5 < percent) {
-		send_to_char("У вас ничего не получилось.\r\n", ch);
+		SendMsgToChar("У вас ничего не получилось.\r\n", ch);
 	} else {
 		const auto tobj = world_objects.create_from_prototype_by_vnum(created_item[obj_type].obj_vnum);
 		if (!tobj) {
-			send_to_char("Образец был невозвратимо утерян.\r\n", ch);
+			SendMsgToChar("Образец был невозвратимо утерян.\r\n", ch);
 		} else {
 			tobj->set_weight(MIN(weight, created_item[obj_type].max_weight));
 			tobj->set_cost(2 * GET_OBJ_COST(obj) / 3);
@@ -805,11 +805,11 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 			}
 
 			if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
-				send_to_char("Вы не сможете унести столько предметов.\r\n", ch);
+				SendMsgToChar("Вы не сможете унести столько предметов.\r\n", ch);
 				PlaceObjToRoom(tobj.get(), ch->in_room);
 				CheckObjDecay(tobj.get());
 			} else if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(tobj) > CAN_CARRY_W(ch)) {
-				send_to_char("Вы не сможете унести такой вес.\r\n", ch);
+				SendMsgToChar("Вы не сможете унести такой вес.\r\n", ch);
 				PlaceObjToRoom(tobj.get(), ch->in_room);
 				CheckObjDecay(tobj.get());
 			} else {
@@ -841,17 +841,17 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 			break;
 	}
 
-	if (ch->IsNpc() || !ch->get_skill(skill_id)) {
-		send_to_char("Вас этому никто не научил.\r\n", ch);
+	if (ch->is_npc() || !ch->get_skill(skill_id)) {
+		SendMsgToChar("Вас этому никто не научил.\r\n", ch);
 		return;
 	}
 
 	argument = one_argument(argument, arg1);
 	if (!*arg1) {
 		switch (skill_id) {
-			case ESkill::kReforging: send_to_char("Во что вы хотите перековать?\r\n", ch);
+			case ESkill::kReforging: SendMsgToChar("Во что вы хотите перековать?\r\n", ch);
 				break;
-			case ESkill::kCreateBow: send_to_char("Что вы хотите смастерить?\r\n", ch);
+			case ESkill::kCreateBow: SendMsgToChar("Что вы хотите смастерить?\r\n", ch);
 				break;
 			default: break;
 		}
@@ -860,25 +860,25 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 	obj_type = search_block(arg1, create_item_name, false);
 	if (-1 == obj_type) {
 		switch (skill_id) {
-			case ESkill::kReforging: send_to_char("Перековать можно в :\r\n", ch);
+			case ESkill::kReforging: SendMsgToChar("Перековать можно в :\r\n", ch);
 				break;
-			case ESkill::kCreateBow: send_to_char("Смастерить можно :\r\n", ch);
+			case ESkill::kCreateBow: SendMsgToChar("Смастерить можно :\r\n", ch);
 				break;
 			default: break;
 		}
 		for (obj_type = 0; *create_item_name[obj_type] != '\n'; obj_type++) {
 			if (created_item[obj_type].skill == skill_id) {
 				sprintf(buf, "- %s\r\n", create_item_name[obj_type]);
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 			}
 		}
 		return;
 	}
 	if (created_item[obj_type].skill != skill_id) {
 		switch (skill_id) {
-			case ESkill::kReforging: send_to_char("Данный предмет выковать нельзя.\r\n", ch);
+			case ESkill::kReforging: SendMsgToChar("Данный предмет выковать нельзя.\r\n", ch);
 				break;
-			case ESkill::kCreateBow: send_to_char("Данный предмет смастерить нельзя.\r\n", ch);
+			case ESkill::kCreateBow: SendMsgToChar("Данный предмет смастерить нельзя.\r\n", ch);
 				break;
 			default: break;
 		}
@@ -887,12 +887,12 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 	for (i = 0; i < MAX_PROTO; proto[i++] = nullptr);
 	argument = one_argument(argument, arg2);
 	if (!*arg2) {
-		send_to_char("Вам нечего перековывать.\r\n", ch);
+		SendMsgToChar("Вам нечего перековывать.\r\n", ch);
 		return;
 	}
 	if (!(obj = get_obj_in_list_vis(ch, arg2, ch->carrying))) {
 		sprintf(buf, "У Вас нет '%s'.\r\n", arg2);
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 		return;
 	}
 	if (obj->get_contains()) {
@@ -937,7 +937,7 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 			}
 			if (!IS_IMMORTAL(ch)) {
 				if (!ROOM_FLAGGED(ch->in_room, ERoomFlag::kForge)) {
-					send_to_char("Вам нужно попасть в кузницу для этого.\r\n", ch);
+					SendMsgToChar("Вам нужно попасть в кузницу для этого.\r\n", ch);
 					return;
 				}
 				for (coal = ch->carrying; coal; coal = coal->get_next_content()) {
@@ -1231,17 +1231,17 @@ int MakeRecept::can_make(CharData *ch) {
 		}
 		if (real_object(parts[i].proto) < 0)
 			return (false);
-		//send_to_char("Образец был невозвратимо утерян.\r\n",ch); //леший знает чего тут надо писать
+		//SendMsgToChar("Образец был невозвратимо утерян.\r\n",ch); //леший знает чего тут надо писать
 		if (!(ingrobj = get_obj_in_list_ingr(parts[i].proto, ch->carrying))) {
 			//sprintf(tmpbuf,"Для '%d' у вас нет '%d'.\r\n",obj_proto,parts[i].proto);
-			//send_to_char(tmpbuf,ch);
+			//SendMsgToChar(tmpbuf,ch);
 			return (false);
 		}
 		int ingr_lev = get_ingr_lev(ingrobj);
 		// Если чар ниже уровня ингридиента то он не может делать рецепты с его
 		// участием.
 		if (!IS_IMPL(ch) && (ingr_lev > (GetRealLevel(ch) + 2 * GET_REAL_REMORT(ch)))) {
-			send_to_char("Вы слишком малого уровня и вам что-то не подходит для шитья.\r\n", ch);
+			SendMsgToChar("Вы слишком малого уровня и вам что-то не подходит для шитья.\r\n", ch);
 			return (false);
 		}
 	}
@@ -1579,17 +1579,17 @@ int MakeRecept::make(CharData *ch) {
 	int dam = 0;
 	bool make_fail;
 	// 1. Проверить есть ли скилл у чара
-	if (ch->IsNpc() || !ch->get_skill(skill)) {
-		send_to_char("Странно что вам вообще пришло в голову cделать это.\r\n", ch);
+	if (ch->is_npc() || !ch->get_skill(skill)) {
+		SendMsgToChar("Странно что вам вообще пришло в голову cделать это.\r\n", ch);
 		return (false);
 	}
 	// 2. Проверить есть ли ингры у чара
 	if (!can_make(ch)) {
-		send_to_char("У вас нет составляющих для этого.\r\n", ch);
+		SendMsgToChar("У вас нет составляющих для этого.\r\n", ch);
 		return (false);
 	}
 	if (GET_MOVE(ch) < MIN_MAKE_MOVE) {
-		send_to_char("Вы слишком устали и вам ничего не хочется делать.\r\n", ch);
+		SendMsgToChar("Вы слишком устали и вам ничего не хочется делать.\r\n", ch);
 		return (false);
 	}
 	auto tobj = get_object_prototype(obj_proto);
@@ -1613,7 +1613,7 @@ int MakeRecept::make(CharData *ch) {
 		if (!IS_IMPL(ch) && (ingr_lev > (GetRealLevel(ch) + 2 * GET_REAL_REMORT(ch)))) {
 			tmpstr = "Вы побоялись испортить " + ingrs[i]->get_PName(3)
 				+ "\r\n и прекратили работу над " + tobj->get_PName(4) + ".\r\n";
-			send_to_char(tmpstr.c_str(), ch);
+			SendMsgToChar(tmpstr.c_str(), ch);
 			return (false);
 		};
 		ingr_pow = get_ingr_pow(ingrs[i]);
@@ -1631,7 +1631,7 @@ int MakeRecept::make(CharData *ch) {
 		case ESkill::kMakeArmor:
 			// Проверяем есть ли тут наковальня или комната кузня.
 			if ((!ROOM_FLAGGED(ch->in_room, ERoomFlag::kForge)) && (!IS_IMMORTAL(ch))) {
-				send_to_char("Вам нужно попасть в кузницу для этого.\r\n", ch);
+				SendMsgToChar("Вам нужно попасть в кузницу для этого.\r\n", ch);
 				return (false);
 			}
 			charwork = "Вы поместили заготовку на наковальню и начали ковать $o3.";
@@ -1758,7 +1758,7 @@ int MakeRecept::make(CharData *ch) {
 		// Шанс испортить не ингредиент всетаки есть.
 		if ((number(0, 30) < (5 + ingr_lev - GetRealLevel(ch) - 2 * GET_REAL_REMORT(ch))) && !IS_IMPL(ch)) {
 			tmpstr = "Вы испортили " + ingrs[i]->get_PName(3) + ".\r\n";
-			send_to_char(tmpstr.c_str(), ch);
+			SendMsgToChar(tmpstr.c_str(), ch);
 			//extract_obj(ingrs[i]); //заменим на обнуление веса
 			//чтобы не крешило дальше в обработке фейла (Купала)
 			IS_CARRYING_W(ch) -= GET_OBJ_WEIGHT(ingrs[i]);
@@ -1774,7 +1774,7 @@ int MakeRecept::make(CharData *ch) {
 		GET_MOVE(ch) = 0;
 		// Вам не хватило сил доделать.
 		tmpstr = "Вам не хватило сил доделать " + tobj->get_PName(3) + ".\r\n";
-		send_to_char(tmpstr.c_str(), ch);
+		SendMsgToChar(tmpstr.c_str(), ch);
 		make_fail = true;
 	} else {
 		if (!IS_IMPL(ch)) {
@@ -1791,7 +1791,7 @@ int MakeRecept::make(CharData *ch) {
 				IS_CARRYING_W(ch) -= GET_OBJ_WEIGHT(ingrs[0]);
 				ingrs[0]->set_weight(0);  // шкуру дикеим полностью
 				tmpstr = "Вы раскроили полностью " + ingrs[0]->get_PName(3) + ".\r\n";
-				send_to_char(tmpstr.c_str(), ch);
+				SendMsgToChar(tmpstr.c_str(), ch);
 				continue;
 			}
 			//
@@ -1812,14 +1812,14 @@ int MakeRecept::make(CharData *ch) {
 			// если не хватает то удаляем игридиент и фейлим.
 			int state = craft_weight;
 			// Обсчет веса ингров в цикле, если не хватило веса берем следующий ингр в инве, если не хватает, делаем фэйл (make_fail) и брекаем внешний цикл, смысл дальше ингры смотреть?
-			//send_to_char(ch, "Требуется вес %d вес ингра %d требуемое кол ингров %d\r\n", state, GET_OBJ_WEIGHT(ingrs[i]), ingr_cnt);
+			//SendMsgToChar(ch, "Требуется вес %d вес ингра %d требуемое кол ингров %d\r\n", state, GET_OBJ_WEIGHT(ingrs[i]), ingr_cnt);
 			int obj_vnum_tmp = GET_OBJ_VNUM(ingrs[i]);
 			while (state > 0) {
 				//Переделаем слегка логику итераций
 				//Сперва проверяем сколько нам нужно. Если вес ингра больше, чем требуется, то вычитаем вес и останавливаем итерацию.
 				if (GET_OBJ_WEIGHT(ingrs[i]) > state) {
 					ingrs[i]->sub_weight(state);
-					send_to_char(ch, "Вы использовали %s.\r\n", ingrs[i]->get_PName(3).c_str());
+					SendMsgToChar(ch, "Вы использовали %s.\r\n", ingrs[i]->get_PName(3).c_str());
 					IS_CARRYING_W(ch) -= state;
 					break;
 				}
@@ -1827,14 +1827,14 @@ int MakeRecept::make(CharData *ch) {
 				else if (GET_OBJ_WEIGHT(ingrs[i]) == state) {
 					IS_CARRYING_W(ch) -= GET_OBJ_WEIGHT(ingrs[i]);
 					ingrs[i]->set_weight(0);
-					send_to_char(ch, "Вы полностью использовали %s.\r\n", ingrs[i]->get_PName(3).c_str());
+					SendMsgToChar(ch, "Вы полностью использовали %s.\r\n", ingrs[i]->get_PName(3).c_str());
 					//extract_obj(ingrs[i]);
 					break;
 				}
 					//Если вес ингра меньше, чем требуется, то вычтем этот вес из того, сколько требуется.
 				else {
 					state = state - GET_OBJ_WEIGHT(ingrs[i]);
-					send_to_char(ch,
+					SendMsgToChar(ch,
 								 "Вы полностью использовали %s и начали искать следующий ингредиент.\r\n",
 								 ingrs[i]->get_PName(3).c_str());
 					std::string tmpname = std::string(ingrs[i]->get_PName(1).c_str());
@@ -1844,7 +1844,7 @@ int MakeRecept::make(CharData *ch) {
 					ingrs[i] = nullptr;
 					//Если некст ингра в инве нет, то сообщаем об этом и идем в фэйл. Некст ингры все равно проверяем
 					if (!get_obj_in_list_ingr(obj_vnum_tmp, ch->carrying)) {
-						send_to_char(ch, "У вас в инвентаре больше нет %s.\r\n", tmpname.c_str());
+						SendMsgToChar(ch, "У вас в инвентаре больше нет %s.\r\n", tmpname.c_str());
 						make_fail = true;
 						break;
 					}
@@ -1870,7 +1870,7 @@ int MakeRecept::make(CharData *ch) {
 			dam = number(0, dam);
 			// Наносим дамаг.
 			if (GetRealLevel(ch) >= kLvlImmortal && dam > 0) {
-				send_to_char("Будучи бессмертным, вы избежали повреждения...", ch);
+				SendMsgToChar("Будучи бессмертным, вы избежали повреждения...", ch);
 				return (false);
 			}
 			GET_HIT(ch) -= dam;
@@ -2049,10 +2049,10 @@ int MakeRecept::make(CharData *ch) {
 	obj->set_crafter_uid(GET_UNIQUE(ch));
 	// 9. Проверяем минимум 2
 	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
-		send_to_char("Вы не сможете унести столько предметов.\r\n", ch);
+		SendMsgToChar("Вы не сможете унести столько предметов.\r\n", ch);
 		PlaceObjToRoom(obj.get(), ch->in_room);
 	} else if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj) > CAN_CARRY_W(ch)) {
-		send_to_char("Вы не сможете унести такой вес.\r\n", ch);
+		SendMsgToChar("Вы не сможете унести такой вес.\r\n", ch);
 		PlaceObjToRoom(obj.get(), ch->in_room);
 	} else {
 		PlaceObjToInventory(obj.get(), ch);

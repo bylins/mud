@@ -88,7 +88,7 @@ void SaySpell(CharData *ch, int spellnum, CharData *tch, ObjData *tobj) {
 		//если включен режим без повторов (подавление ехо) не показываем
 		if (PRF_FLAGGED(ch, EPrf::kNoRepeat)) {
 			if (!ch->GetEnemy()) //если персонаж не в бою, шлем строчку, если в бою ничего не шлем
-				send_to_char(OK, ch);
+				SendMsgToChar(OK, ch);
 		} else {
 			if (IS_SET(SpINFO.routines, kMagWarcry))
 				sprintf(buf, "Вы выкрикнули \"%s%s%s\".\r\n",
@@ -96,7 +96,7 @@ void SaySpell(CharData *ch, int spellnum, CharData *tch, ObjData *tobj) {
 			else
 				sprintf(buf, "Вы произнесли заклинание \"%s%s%s\".\r\n",
 						SpINFO.violent ? CCIRED(ch, C_NRM) : CCIGRN(ch, C_NRM), SpINFO.name, CCNRM(ch, C_NRM));
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 		}
 		const std::string &cast_phrase = GET_RELIGION(ch) ? cast_phrase_list->text_for_christian : cast_phrase_list->text_for_heathen;
 		if (!cast_phrase.empty()) {
@@ -341,7 +341,7 @@ int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict
 //	}
 
 	if (ROOM_FLAGGED(IN_ROOM(caster), ERoomFlag::kNoMagic) && !MayCastInNomagic(caster, spellnum)) {
-		send_to_char("Ваша магия потерпела неудачу и развеялась по воздуху.\r\n", caster);
+		SendMsgToChar("Ваша магия потерпела неудачу и развеялась по воздуху.\r\n", caster);
 		act("Магия $n1 потерпела неудачу и развеялась по воздуху.",
 			false, caster, nullptr, nullptr, kToRoom | kToArenaListen);
 		return 0;
@@ -349,11 +349,11 @@ int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict
 
 	if (!MayCastHere(caster, cvict, spellnum)) {
 		if (IS_SET(SpINFO.routines, kMagWarcry)) {
-			send_to_char("Ваш громовой глас сотряс воздух, но ничего не произошло!\r\n", caster);
+			SendMsgToChar("Ваш громовой глас сотряс воздух, но ничего не произошло!\r\n", caster);
 			act("Вы вздрогнули от неожиданного крика, но ничего не произошло.",
 				false, caster, nullptr, nullptr, kToRoom | kToArenaListen);
 		} else {
-			send_to_char("Ваша магия обратилась всего лишь в яркую вспышку!\r\n", caster);
+			SendMsgToChar("Ваша магия обратилась всего лишь в яркую вспышку!\r\n", caster);
 			act("Яркая вспышка на миг осветила комнату, и тут же погасла.",
 				false, caster, nullptr, nullptr, kToRoom | kToArenaListen);
 		}
@@ -419,7 +419,7 @@ int FindCastTarget(int spellnum, const char *t, CharData *ch, CharData **tch, Ob
 	*troom = world[ch->in_room];
 	if (spellnum == kSpellControlWeather) {
 		if ((what_sky = search_block(t, what_sky_type, false)) < 0) {
-			send_to_char("Не указан тип погоды.\r\n", ch);
+			SendMsgToChar("Не указан тип погоды.\r\n", ch);
 			return false;
 		} else
 			what_sky >>= 1;
@@ -427,7 +427,7 @@ int FindCastTarget(int spellnum, const char *t, CharData *ch, CharData **tch, Ob
 
 	if (spellnum == kSpellCreateWeapon) {
 		if ((what_sky = search_block(t, what_weapon, false)) < 0) {
-			send_to_char("Не указан тип оружия.\r\n", ch);
+			SendMsgToChar("Не указан тип оружия.\r\n", ch);
 			return false;
 		} else
 			what_sky = 5 + (what_sky >> 1);
@@ -528,7 +528,7 @@ int FindCastTarget(int spellnum, const char *t, CharData *ch, CharData **tch, Ob
 		sprintf(buf, "На %s Вы хотите ЭТО колдовать?\r\n",
 				IS_SET(SpINFO.targets, kTarObjRoom | kTarObjInv | kTarObjWorld | kTarObjEquip)
 				? "ЧТО" : "КОГО");
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 	return false;
 }
 
@@ -560,32 +560,32 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, int s
 
 	if (GET_POS(ch) < SpINFO.min_position) {
 		switch (GET_POS(ch)) {
-			case EPosition::kSleep: send_to_char("Вы спите и не могете думать больше ни о чем.\r\n", ch);
+			case EPosition::kSleep: SendMsgToChar("Вы спите и не могете думать больше ни о чем.\r\n", ch);
 				break;
-			case EPosition::kRest: send_to_char("Вы расслаблены и отдыхаете. И далась вам эта магия?\r\n", ch);
+			case EPosition::kRest: SendMsgToChar("Вы расслаблены и отдыхаете. И далась вам эта магия?\r\n", ch);
 				break;
-			case EPosition::kSit: send_to_char("Похоже, в этой позе Вы много не наколдуете.\r\n", ch);
+			case EPosition::kSit: SendMsgToChar("Похоже, в этой позе Вы много не наколдуете.\r\n", ch);
 				break;
-			case EPosition::kFight: send_to_char("Невозможно! Вы сражаетесь! Это вам не шухры-мухры.\r\n", ch);
+			case EPosition::kFight: SendMsgToChar("Невозможно! Вы сражаетесь! Это вам не шухры-мухры.\r\n", ch);
 				break;
-			default: send_to_char("Вам вряд ли это удастся.\r\n", ch);
+			default: SendMsgToChar("Вам вряд ли это удастся.\r\n", ch);
 				break;
 		}
 		return (0);
 	}
 
 	if (AFF_FLAGGED(ch, EAffect::kCharmed) && ch->get_master() == tch) {
-		send_to_char("Вы не посмеете поднять руку на вашего повелителя!\r\n", ch);
+		SendMsgToChar("Вы не посмеете поднять руку на вашего повелителя!\r\n", ch);
 		return (0);
 	}
 
 	if (tch != ch && !IS_IMMORTAL(ch) && IS_SET(SpINFO.targets, kTarSelfOnly)) {
-		send_to_char("Вы можете колдовать это только на себя!\r\n", ch);
+		SendMsgToChar("Вы можете колдовать это только на себя!\r\n", ch);
 		return (0);
 	}
 
 	if (tch == ch && IS_SET(SpINFO.targets, kTarNotSelf)) {
-		send_to_char("Колдовать? ЭТО? На себя?! Да вы с ума сошли!\r\n", ch);
+		SendMsgToChar("Колдовать? ЭТО? На себя?! Да вы с ума сошли!\r\n", ch);
 		return (0);
 	}
 
@@ -594,7 +594,7 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, int s
 			   kTarCharRoom | kTarCharWorld | kTarFightSelf | kTarFightVict
 				   | kTarObjInv | kTarObjRoom | kTarObjWorld | kTarObjEquip | kTarRoomThis
 				   | kTarRoomDir)) {
-		send_to_char("Цель заклинания недоступна.\r\n", ch);
+		SendMsgToChar("Цель заклинания недоступна.\r\n", ch);
 		return (0);
 	}
 
@@ -602,7 +602,7 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, int s
 	//if (tch != nullptr && IN_ROOM(tch) != ch->in_room) {
 	if (tch != nullptr && IN_ROOM(tch) != ch->in_room) {
 		if (!IS_SET(SpINFO.targets, kTarCharWorld)) {
-			send_to_char("Цель заклинания недоступна.\r\n", ch);
+			SendMsgToChar("Цель заклинания недоступна.\r\n", ch);
 			return (0);
 		}
 	}
@@ -612,19 +612,19 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, int s
 			IS_SET(SpINFO.routines, kMagMasses) || IS_SET(SpINFO.routines, kMagGroups);
 		if (ignore) { // индивидуальная цель
 			if (SpINFO.violent) {
-				send_to_char("Ваша душа полна смирения, и вы не желаете творить зло.\r\n", ch);
+				SendMsgToChar("Ваша душа полна смирения, и вы не желаете творить зло.\r\n", ch);
 				return false;    // нельзя злые кастовать
 			}
 		}
 		for (const auto ch_vict : world[ch->in_room]->people) {
 			if (SpINFO.violent) {
 				if (ch_vict == tch) {
-					send_to_char("Ваша душа полна смирения, и вы не желаете творить зло.\r\n", ch);
+					SendMsgToChar("Ваша душа полна смирения, и вы не желаете творить зло.\r\n", ch);
 					return false;
 				}
 			} else {
 				if (ch_vict == tch && !same_group(ch, ch_vict)) {
-					send_to_char("Ваша душа полна смирения, и вы не желаете творить зло.\r\n", ch);
+					SendMsgToChar("Ваша душа полна смирения, и вы не желаете творить зло.\r\n", ch);
 					return false;
 				}
 			}

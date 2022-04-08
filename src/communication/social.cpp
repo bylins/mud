@@ -61,8 +61,8 @@ int do_social(CharData *ch, char *argument) {
 	if (!argument || !*argument)
 		return (false);
 
-	if (!ch->IsNpc() && PLR_FLAGGED(ch, EPlrFlag::kDumbed)) {
-		send_to_char("Боги наказали вас и вы не можете выражать эмоции!\r\n", ch);
+	if (!ch->is_npc() && PLR_FLAGGED(ch, EPlrFlag::kDumbed)) {
+		SendMsgToChar("Боги наказали вас и вы не можете выражать эмоции!\r\n", ch);
 		return (false);
 	}
 
@@ -73,7 +73,7 @@ int do_social(CharData *ch, char *argument) {
 
 	action = &soc_mess_list[act_nr];
 	if (GET_POS(ch) < action->ch_min_pos || GET_POS(ch) > action->ch_max_pos) {
-		send_to_char("Вам крайне неудобно это сделать.\r\n", ch);
+		SendMsgToChar("Вам крайне неудобно это сделать.\r\n", ch);
 		return (true);
 	}
 
@@ -83,8 +83,8 @@ int do_social(CharData *ch, char *argument) {
 		*buf = '\0';
 
 	if (!*buf) {
-		send_to_char(action->char_no_arg, ch);
-		send_to_char("\r\n", ch);
+		SendMsgToChar(action->char_no_arg, ch);
+		SendMsgToChar("\r\n", ch);
 		for (const auto to : world[ch->in_room]->people) {
 			if (to == ch
 				|| ignores(to, ch, EIgnore::kEmote)) {
@@ -100,11 +100,11 @@ int do_social(CharData *ch, char *argument) {
 		const auto message = action->not_found
 							 ? action->not_found
 							 : "Поищите кого-нибудь более доступного для этих целей.\r\n";
-		send_to_char(message, ch);
-		send_to_char("\r\n", ch);
+		SendMsgToChar(message, ch);
+		SendMsgToChar("\r\n", ch);
 	} else if (vict == ch) {
-		send_to_char(action->char_no_arg, ch);
-		send_to_char("\r\n", ch);
+		SendMsgToChar(action->char_no_arg, ch);
+		SendMsgToChar("\r\n", ch);
 		for (const auto to : world[ch->in_room]->people) {
 			if (to == ch
 				|| ignores(to, ch, EIgnore::kEmote)) {

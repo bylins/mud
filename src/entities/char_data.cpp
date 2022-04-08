@@ -794,7 +794,7 @@ bool MAY_ATTACK(const CharData *sub) {
 		&& !AFF_FLAGGED((sub), EAffect::kHold)
 		&& !AFF_FLAGGED((sub), EAffect::kSleep)
 		&& !MOB_FLAGGED((sub), EMobFlag::kNoFight)
-		&& GET_WAIT(sub) <= 0
+		&& sub->get_wait() <= 0
 		&& !sub->GetEnemy()
 		&& GET_POS(sub) >= EPosition::kRest);
 }
@@ -1651,7 +1651,7 @@ void CharData::set_morph(MorphPtr morph) {
 
 void CharData::reset_morph() {
 	int value = this->get_trained_skill(ESkill::kMorph);
-	send_to_char(str(boost::format(current_morph_->GetMessageToChar()) % "человеком") + "\r\n", this);
+	SendMsgToChar(str(boost::format(current_morph_->GetMessageToChar()) % "человеком") + "\r\n", this);
 	act(str(boost::format(current_morph_->GetMessageToRoom()) % "человеком").c_str(), true, this, 0, 0, kToRoom);
 	this->current_morph_ = GetNormalMorphNew(this);
 	this->set_morphed_skill(ESkill::kMorph, (MIN(kSkillCapOnZeroRemort + GET_REAL_REMORT(this) * 5, value)));
@@ -2048,7 +2048,7 @@ void CharData::send_to_TC(bool to_impl, bool to_tester, bool to_coder, const cha
 		return;
 	}
 	// проверка на нпц была ранее. Шлем хозяину чармиса или самому тестеру
-	send_to_char(tmpbuf, IS_CHARMICE(this) ? this->get_master() : this);
+	SendMsgToChar(tmpbuf, IS_CHARMICE(this) ? this->get_master() : this);
 }
 
 bool CharData::have_mind() const {
@@ -2102,7 +2102,7 @@ bool CharData::drop_from_horse() {
 	sprintf(buf, "%s свалил%s со своего скакуна.", GET_PAD(plr, 0), GET_CH_SUF_2(plr));
 	act(buf, false, plr, 0, 0, kToRoom | kToArenaListen);
 	AFF_FLAGS(plr).unset(EAffect::kHorse);
-	WAIT_STATE(this, 3 * kPulseViolence);
+	SetWaitState(this, 3 * kPulseViolence);
 	if (GET_POS(plr) > EPosition::kSit)
 		GET_POS(plr) = EPosition::kSit;
 	return true;

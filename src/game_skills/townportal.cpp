@@ -69,22 +69,22 @@ void spell_townportal(CharData *ch, char *arg) {
 	}
 	if (port && (has_char_portal(ch, port->vnum) || has_label_portal)) {
 		if (IsTimedBySkill(ch, ESkill::kTownportal)) {
-			send_to_char("У вас недостаточно сил для постановки врат.\r\n", ch);
+			SendMsgToChar("У вас недостаточно сил для постановки врат.\r\n", ch);
 			return;
 		}
 
 		if (find_portal_by_vnum(GET_ROOM_VNUM(ch->in_room))) {
-			send_to_char("Камень рядом с вами мешает вашей магии.\r\n", ch);
+			SendMsgToChar("Камень рядом с вами мешает вашей магии.\r\n", ch);
 			return;
 		}
 
 		if (room_spells::IsRoomAffected(world[ch->in_room], kSpellRuneLabel)) {
-			send_to_char("Начертанные на земле магические руны подавляют вашу магию!\r\n", ch);
+			SendMsgToChar("Начертанные на земле магические руны подавляют вашу магию!\r\n", ch);
 			return;
 		}
 
 		if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoMagic) && !IS_GRGOD(ch)) {
-			send_to_char("Ваша магия потерпела неудачу и развеялась по воздуху.\r\n", ch);
+			SendMsgToChar("Ваша магия потерпела неудачу и развеялась по воздуху.\r\n", ch);
 			act("Магия $n1 потерпела неудачу и развеялась по воздуху.", false, ch, 0, 0, kToRoom);
 			return;
 		}
@@ -149,8 +149,8 @@ void do_townportal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg2[kMaxInputLength];
 	int vnum = 0;
 
-	if (ch->IsNpc() || !ch->get_skill(ESkill::kTownportal)) {
-		send_to_char("Прежде изучите секрет постановки врат.\r\n", ch);
+	if (ch->is_npc() || !ch->get_skill(ESkill::kTownportal)) {
+		SendMsgToChar("Прежде изучите секрет постановки врат.\r\n", ch);
 		return;
 	}
 
@@ -166,7 +166,7 @@ void do_townportal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 				free(tmp);
 				sprintf(buf, "Вы полностью забыли, как выглядит камень '&R%s&n'.\r\n", arg2);
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 				break;
 			}
 			dlt = tmp;

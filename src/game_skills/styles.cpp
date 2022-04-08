@@ -12,7 +12,7 @@
 // ************* TOUCH PROCEDURES
 void go_touch(CharData *ch, CharData *vict) {
 	if (IsUnableToAct(ch)) {
-		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
 	act("Вы попытаетесь перехватить следующую атаку $N1.", false, ch, nullptr, vict, kToChar);
@@ -21,18 +21,18 @@ void go_touch(CharData *ch, CharData *vict) {
 }
 
 void do_touch(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsNpc() || !ch->get_skill(ESkill::kIntercept)) {
-		send_to_char("Вы не знаете как.\r\n", ch);
+	if (ch->is_npc() || !ch->get_skill(ESkill::kIntercept)) {
+		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kIntercept)) {
-		send_to_char("Вам нужно набраться сил.\r\n", ch);
+	if (ch->haveCooldown(ESkill::kIntercept)) {
+		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
 
 	ObjData *primary = GET_EQ(ch, EEquipPos::kWield) ? GET_EQ(ch, EEquipPos::kWield) : GET_EQ(ch, EEquipPos::kBoths);
-	if (!(IS_IMMORTAL(ch) || ch->IsNpc() || GET_GOD_FLAG(ch, EGf::kGodsLike) || !primary)) {
-		send_to_char("У вас заняты руки.\r\n", ch);
+	if (!(IS_IMMORTAL(ch) || ch->is_npc() || GET_GOD_FLAG(ch, EGf::kGodsLike) || !primary)) {
+		SendMsgToChar("У вас заняты руки.\r\n", ch);
 		return;
 	}
 
@@ -47,8 +47,8 @@ void do_touch(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		if (!vict) {
-			if (!ch->GetEnemy()) {
-				send_to_char("Но вы ни с кем не сражаетесь.\r\n", ch);
+			if (!ch->get_fighting()) {
+				SendMsgToChar("Но вы ни с кем не сражаетесь.\r\n", ch);
 				return;
 			} else {
 				vict = ch->GetEnemy();
@@ -57,8 +57,8 @@ void do_touch(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (ch == vict) {
-		send_to_char(GET_NAME(ch), ch);
-		send_to_char(", вы похожи на котенка, ловящего собственный хвост.\r\n", ch);
+		SendMsgToChar(GET_NAME(ch), ch);
+		SendMsgToChar(", вы похожи на котенка, ловящего собственный хвост.\r\n", ch);
 		return;
 	}
 	if (vict->GetEnemy() != ch && ch->GetEnemy() != vict) {
@@ -66,7 +66,7 @@ void do_touch(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	if (GET_AF_BATTLE(ch, kEafHammer)) {
-		send_to_char("Невозможно. Вы приготовились к богатырскому удару.\r\n", ch);
+		SendMsgToChar("Невозможно. Вы приготовились к богатырскому удару.\r\n", ch);
 		return;
 	}
 
@@ -81,28 +81,28 @@ void do_touch(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 // ************* DEVIATE PROCEDURES
 void go_deviate(CharData *ch) {
 	if (IsUnableToAct(ch)) {
-		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
 	if (ch->IsHorsePrevents()) {
 		return;
 	};
 	SET_AF_BATTLE(ch, kEafDodge);
-	send_to_char("Хорошо, вы попытаетесь уклониться от следующей атаки!\r\n", ch);
+	SendMsgToChar("Хорошо, вы попытаетесь уклониться от следующей атаки!\r\n", ch);
 }
 
 void do_deviate(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsNpc() || !ch->get_skill(ESkill::kDodge)) {
-		send_to_char("Вы не знаете как.\r\n", ch);
+	if (ch->is_npc() || !ch->get_skill(ESkill::kDodge)) {
+		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kDodge)) {
-		send_to_char("Вам нужно набраться сил.\r\n", ch);
+	if (ch->haveCooldown(ESkill::kDodge)) {
+		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
 
-	if (!(ch->GetEnemy())) {
-		send_to_char("Но вы ведь ни с кем не сражаетесь!\r\n", ch);
+	if (!(ch->get_fighting())) {
+		SendMsgToChar("Но вы ведь ни с кем не сражаетесь!\r\n", ch);
 		return;
 	}
 
@@ -111,7 +111,7 @@ void do_deviate(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	}
 
 	if (GET_AF_BATTLE(ch, kEafDodge)) {
-		send_to_char("Вы и так вертитесь, как волчок.\r\n", ch);
+		SendMsgToChar("Вы и так вертитесь, как волчок.\r\n", ch);
 		return;
 	};
 	go_deviate(ch);
@@ -127,15 +127,15 @@ const char *cstyles[] = {"normal",
 };
 
 void do_style(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->HasCooldown(ESkill::kGlobalCooldown)) {
-		send_to_char("Вам нужно набраться сил.\r\n", ch);
+	if (ch->haveCooldown(ESkill::kGlobalCooldown)) {
+		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
 	int tp;
 	one_argument(argument, arg);
 
 	if (!*arg) {
-		send_to_char(ch, "Вы сражаетесь %s стилем.\r\n",
+		SendMsgToChar(ch, "Вы сражаетесь %s стилем.\r\n",
 					 PRF_FLAGS(ch).get(EPrf::kPunctual) ? "точным" : PRF_FLAGS(ch).get(EPrf::kAwake) ? "осторожным"
 																									 : "обычным");
 		return;
@@ -144,12 +144,12 @@ void do_style(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	if ((tp = search_block(arg, cstyles, false)) == -1) {
-		send_to_char("Формат: стиль { название стиля }\r\n", ch);
+		SendMsgToChar("Формат: стиль { название стиля }\r\n", ch);
 		return;
 	}
 	tp >>= 1;
 	if ((tp == 1 && !ch->get_skill(ESkill::kPunctual)) || (tp == 2 && !ch->get_skill(ESkill::kAwake))) {
-		send_to_char("Вам неизвестен такой стиль боя.\r\n", ch);
+		SendMsgToChar("Вам неизвестен такой стиль боя.\r\n", ch);
 		return;
 	}
 
@@ -175,7 +175,7 @@ void do_style(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				else if (tp == 2)
 					SET_AF_BATTLE(ch, kEafAwake);
 			}
-			send_to_char(ch, "Вы выбрали %s%s%s стиль боя.\r\n",
+			SendMsgToChar(ch, "Вы выбрали %s%s%s стиль боя.\r\n",
 						 CCRED(ch, C_SPR), tp == 0 ? "обычный" : tp == 1 ? "точный" : "осторожный", CCNRM(ch, C_OFF));
 			break;
 	}

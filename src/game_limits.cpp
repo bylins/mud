@@ -60,7 +60,7 @@ int average_day_temp(void);
 
 // local functions
 int graf(int age, int p0, int p1, int p2, int p3, int p4, int p5, int p6);
-int level_exp(CharData *ch, int level);
+long GetExpUntilNextLvl(CharData *ch, int level);
 void UpdateCharObjects(CharData *ch);    // handler.cpp
 // Delete this, if you delete overflow fix in beat_points_update below.
 void die(CharData *ch, CharData *killer);
@@ -112,7 +112,7 @@ void handle_recall_spells(CharData *ch) {
 			next = i->link;
 			if (spell_info[i->spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] == slot_to_restore) {
 				if (!found_spells) {
-					send_to_char("Ваша голова прояснилась, в памяти всплыло несколько новых заклинаний.\r\n", ch);
+					SendMsgToChar("Ваша голова прояснилась, в памяти всплыло несколько новых заклинаний.\r\n", ch);
 					found_spells = true;
 				}
 				if (prev) prev->link = next;
@@ -123,7 +123,7 @@ void handle_recall_spells(CharData *ch) {
 				ch->mem_queue.total = std::max(0, ch->mem_queue.total - mag_manacost(ch, i->spellnum));
 				sprintf(buf, "Вы вспомнили заклинание \"%s%s%s\".\r\n",
 						CCICYN(ch, C_NRM), spell_info[i->spellnum].name, CCNRM(ch, C_NRM));
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 				GET_SPELL_MEM(ch, i->spellnum)++;
 				free(i);
 			} else prev = i;
@@ -382,7 +382,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 		GET_HELL_LEV(i) = 0;
 		HELL_GODID(i) = 0;
 		HELL_DURATION(i) = 0;
-		send_to_char("Вас выпустили из темницы.\r\n", i.get());
+		SendMsgToChar("Вас выпустили из темницы.\r\n", i.get());
 		if ((restore = GET_LOADROOM(i)) == kNowhere)
 			restore = calc_loadroom(i.get());
 		restore = real_room(restore);
@@ -409,7 +409,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 		GET_NAME_LEV(i) = 0;
 		NAME_GODID(i) = 0;
 		NAME_DURATION(i) = 0;
-		send_to_char("Вас выпустили из КОМНАТЫ ИМЕНИ.\r\n", i.get());
+		SendMsgToChar("Вас выпустили из КОМНАТЫ ИМЕНИ.\r\n", i.get());
 
 		if ((restore = GET_LOADROOM(i)) == kNowhere) {
 			restore = calc_loadroom(i.get());
@@ -441,7 +441,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 		GET_MUTE_LEV(i) = 0;
 		MUTE_GODID(i) = 0;
 		MUTE_DURATION(i) = 0;
-		send_to_char("Вы можете орать.\r\n", i.get());
+		SendMsgToChar("Вы можете орать.\r\n", i.get());
 	}
 
 	if (PLR_FLAGGED(i, EPlrFlag::kDumbed)
@@ -454,7 +454,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 		GET_DUMB_LEV(i) = 0;
 		DUMB_GODID(i) = 0;
 		DUMB_DURATION(i) = 0;
-		send_to_char("Вы можете говорить.\r\n", i.get());
+		SendMsgToChar("Вы можете говорить.\r\n", i.get());
 	}
 
 	if (!PLR_FLAGGED(i, EPlrFlag::kRegistred)
@@ -467,7 +467,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 		GET_UNREG_LEV(i) = 0;
 		UNREG_GODID(i) = 0;
 		UNREG_DURATION(i) = 0;
-		send_to_char("Ваша регистрация восстановлена.\r\n", i.get());
+		SendMsgToChar("Ваша регистрация восстановлена.\r\n", i.get());
 
 		if (IN_ROOM(i) == r_unreg_start_room) {
 			if ((restore = GET_LOADROOM(i)) == kNowhere) {
@@ -498,14 +498,14 @@ void beat_punish(const CharData::shared_ptr &i) {
 		&& GCURSE_DURATION(i) != 0
 		&& GCURSE_DURATION(i) <= time(nullptr)) {
 		CLR_GOD_FLAG(i, EGf::kGodsLike);
-		send_to_char("Вы более не под защитой Богов.\r\n", i.get());
+		SendMsgToChar("Вы более не под защитой Богов.\r\n", i.get());
 	}
 
 	if (GET_GOD_FLAG(i, EGf::kGodscurse)
 		&& GCURSE_DURATION(i) != 0
 		&& GCURSE_DURATION(i) <= time(nullptr)) {
 		CLR_GOD_FLAG(i, EGf::kGodscurse);
-		send_to_char("Боги более не в обиде на вас.\r\n", i.get());
+		SendMsgToChar("Боги более не в обиде на вас.\r\n", i.get());
 	}
 
 	if (PLR_FLAGGED(i, EPlrFlag::kFrozen)
@@ -519,7 +519,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 		GET_FREEZE_LEV(i) = 0;
 		FREEZE_GODID(i) = 0;
 		FREEZE_DURATION(i) = 0;
-		send_to_char("Вы оттаяли.\r\n", i.get());
+		SendMsgToChar("Вы оттаяли.\r\n", i.get());
 		Glory::remove_freeze(GET_UNIQUE(i));
 		if ((restore = GET_LOADROOM(i)) == kNowhere) {
 			restore = calc_loadroom(i.get());
@@ -539,7 +539,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 	}
 
 	// Проверяем а там ли мы где должны быть по флагам.
-	if (IN_ROOM(i) == STRANGE_ROOM) {
+	if (IN_ROOM(i) == kStrangeRoom) {
 		restore = i->get_was_in_room();
 	} else {
 		restore = IN_ROOM(i);
@@ -547,10 +547,10 @@ void beat_punish(const CharData::shared_ptr &i) {
 
 	if (PLR_FLAGGED(i, EPlrFlag::kHelled)) {
 		if (restore != r_helled_start_room) {
-			if (IN_ROOM(i) == STRANGE_ROOM) {
+			if (IN_ROOM(i) == kStrangeRoom) {
 				i->set_was_in_room(r_helled_start_room);
 			} else {
-				send_to_char("Чья-то злая воля вернула вас в темницу.\r\n", i.get());
+				SendMsgToChar("Чья-то злая воля вернула вас в темницу.\r\n", i.get());
 				act("$n возвращен$a в темницу.", false, i.get(), 0, 0, kToRoom);
 
 				char_from_room(i);
@@ -562,10 +562,10 @@ void beat_punish(const CharData::shared_ptr &i) {
 		}
 	} else if (PLR_FLAGGED(i, EPlrFlag::kNameDenied)) {
 		if (restore != r_named_start_room) {
-			if (IN_ROOM(i) == STRANGE_ROOM) {
+			if (IN_ROOM(i) == kStrangeRoom) {
 				i->set_was_in_room(r_named_start_room);
 			} else {
-				send_to_char("Чья-то злая воля вернула вас в комнату имени.\r\n", i.get());
+				SendMsgToChar("Чья-то злая воля вернула вас в комнату имени.\r\n", i.get());
 				act("$n возвращен$a в комнату имени.", false, i.get(), 0, 0, kToRoom);
 				char_from_room(i);
 				char_to_room(i, r_named_start_room);
@@ -579,7 +579,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 			&& !NORENTABLE(i)
 			&& !deathtrap::IsSlowDeathtrap(IN_ROOM(i))
 			&& !check_dupes_host(i->desc, 1)) {
-			if (IN_ROOM(i) == STRANGE_ROOM) {
+			if (IN_ROOM(i) == kStrangeRoom) {
 				i->set_was_in_room(r_unreg_start_room);
 			} else {
 				act("$n водворен$a в комнату для незарегистрированных игроков, играющих через прокси.\r\n",
@@ -592,7 +592,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 				i->set_was_in_room(kNowhere);
 			};
 		} else if (restore == r_unreg_start_room && check_dupes_host(i->desc, 1) && !IS_IMMORTAL(i)) {
-			send_to_char("Неведомая вытолкнула вас из комнаты для незарегистрированных игроков.\r\n", i.get());
+			SendMsgToChar("Неведомая вытолкнула вас из комнаты для незарегистрированных игроков.\r\n", i.get());
 			act("$n появил$u в центре комнаты, правда без штампика регистрации...\r\n",
 				false, i.get(), 0, 0, kToRoom);
 			restore = i->get_was_in_room();
@@ -690,10 +690,10 @@ void beat_points_update(int pulse) {
 
 			if (i->mem_queue.Empty()) {
 				if (GET_RELIGION(i) == kReligionMono) {
-					send_to_char("Наконец ваши занятия окончены. Вы с улыбкой захлопнули свой часослов.\r\n", i.get());
+					SendMsgToChar("Наконец ваши занятия окончены. Вы с улыбкой захлопнули свой часослов.\r\n", i.get());
 					act("Окончив занятия, $n с улыбкой захлопнул$g часослов.", false, i.get(), 0, 0, kToRoom);
 				} else {
-					send_to_char("Наконец ваши занятия окончены. Вы с улыбкой убрали свои резы.\r\n", i.get());
+					SendMsgToChar("Наконец ваши занятия окончены. Вы с улыбкой убрали свои резы.\r\n", i.get());
 					act("Окончив занятия, $n с улыбкой убрал$g резы.", false, i.get(), 0, 0, kToRoom);
 				}
 			}
@@ -709,7 +709,7 @@ void beat_points_update(int pulse) {
 			i->mem_queue.stored += mana_gain(i);
 			if (i->mem_queue.stored >= GET_MAX_MANA(i.get())) {
 				i->mem_queue.stored = GET_MAX_MANA(i.get());
-				send_to_char("Ваша магическая энергия полностью восстановилась\r\n", i.get());
+				SendMsgToChar("Ваша магическая энергия полностью восстановилась\r\n", i.get());
 			}
 		}
 
@@ -747,7 +747,7 @@ void update_clan_exp(CharData *ch, int gain) {
 	}
 }
 
-void gain_exp(CharData *ch, int gain) {
+void EndowExpToChar(CharData *ch, int gain) {
 	int is_altered = false;
 	int num_levels = 0;
 	char buf[128];
@@ -760,31 +760,32 @@ void gain_exp(CharData *ch, int gain) {
 		ZoneExpStat::add(zone_table[world[ch->in_room]->zone_rn].vnum, gain);
 	}
 
-	if (!ch->IsNpc() && ((GetRealLevel(ch) < 1 || GetRealLevel(ch) >= kLvlImmortal)))
+	if (!ch->is_npc() && ((GetRealLevel(ch) < 1 || GetRealLevel(ch) >= kLvlImmortal))) {
 		return;
+	}
 
 	if (gain > 0 && GetRealLevel(ch) < kLvlImmortal) {
-		gain = MIN(max_exp_gain_pc(ch), gain);    // put a cap on the max gain per kill
+		gain = std::min(max_exp_gain_pc(ch), gain);    // put a cap on the max gain per kill
 		ch->set_exp(ch->get_exp() + gain);
-		if (GET_EXP(ch) >= level_exp(ch, kLvlImmortal)) {
+		if (ch->get_exp() >= GetExpUntilNextLvl(ch, kLvlImmortal)) {
 			if (!GET_GOD_FLAG(ch, EGf::kRemort) && GET_REAL_REMORT(ch) < kMaxRemort) {
 				if (Remort::can_remort_now(ch)) {
-					send_to_char(ch, "%sПоздравляем, вы получили право на перевоплощение!%s\r\n",
+					SendMsgToChar(ch, "%sПоздравляем, вы получили право на перевоплощение!%s\r\n",
 								 CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 				} else {
-					send_to_char(ch,
+					SendMsgToChar(ch,
 								 "%sПоздравляем, вы набрали максимальное количество опыта!\r\n"
 								 "%s%s\r\n", CCIGRN(ch, C_NRM), Remort::WHERE_TO_REMORT_STR.c_str(), CCNRM(ch, C_NRM));
 				}
 				SET_GOD_FLAG(ch, EGf::kRemort);
 			}
 		}
-		ch->set_exp(MIN(GET_EXP(ch), level_exp(ch, kLvlImmortal) - 1));
-		while (GetRealLevel(ch) < kLvlImmortal && GET_EXP(ch) >= level_exp(ch, GetRealLevel(ch) + 1)) {
+		ch->set_exp(std::min(ch->get_exp(), GetExpUntilNextLvl(ch, kLvlImmortal) - 1));
+		while (GetRealLevel(ch) < kLvlImmortal && GET_EXP(ch) >= GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1)) {
 			ch->set_level(ch->get_level() + 1);
 			num_levels++;
 			sprintf(buf, "%sВы достигли следующего уровня!%s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 			advance_level(ch);
 			is_altered = true;
 		}
@@ -795,15 +796,15 @@ void gain_exp(CharData *ch, int gain) {
 			mudlog(buf, BRF, kLvlImplementator, SYSLOG, true);
 		}
 	} else if (gain < 0 && GetRealLevel(ch) < kLvlImmortal) {
-		gain = MAX(-max_exp_loss_pc(ch), gain);    // Cap max exp lost per death
+		gain = std::max(-max_exp_loss_pc(ch), gain);    // Cap max exp lost per death
 		ch->set_exp(ch->get_exp() + gain);
-		while (GetRealLevel(ch) > 1 && GET_EXP(ch) < level_exp(ch, GetRealLevel(ch))) {
+		while (GetRealLevel(ch) > 1 && GET_EXP(ch) < GetExpUntilNextLvl(ch, GetRealLevel(ch))) {
 			ch->set_level(ch->get_level() - 1);
 			num_levels++;
 			sprintf(buf,
 					"%sВы потеряли уровень. Вам должно быть стыдно!%s\r\n",
 					CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 			decrease_level(ch);
 			is_altered = true;
 		}
@@ -813,12 +814,12 @@ void gain_exp(CharData *ch, int gain) {
 			mudlog(buf, BRF, kLvlImplementator, SYSLOG, true);
 		}
 	}
-	if ((GET_EXP(ch) < level_exp(ch, kLvlImmortal) - 1)
+	if ((GET_EXP(ch) < GetExpUntilNextLvl(ch, kLvlImmortal) - 1)
 		&& GET_GOD_FLAG(ch, EGf::kRemort)
 		&& gain
 		&& (GetRealLevel(ch) < kLvlImmortal)) {
 		if (Remort::can_remort_now(ch)) {
-			send_to_char(ch, "%sВы потеряли право на перевоплощение!%s\r\n",
+			SendMsgToChar(ch, "%sВы потеряли право на перевоплощение!%s\r\n",
 						 CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 		}
 		CLR_GOD_FLAG(ch, EGf::kRemort);
@@ -836,12 +837,12 @@ void gain_exp_regardless(CharData *ch, int gain) {
 	ch->set_exp(ch->get_exp() + gain);
 	if (!ch->IsNpc()) {
 		if (gain > 0) {
-			while (GetRealLevel(ch) < kLvlImplementator && GET_EXP(ch) >= level_exp(ch, GetRealLevel(ch) + 1)) {
+			while (GetRealLevel(ch) < kLvlImplementator && GET_EXP(ch) >= GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1)) {
 				ch->set_level(ch->get_level() + 1);
 				num_levels++;
 				sprintf(buf, "%sВы достигли следующего уровня!%s\r\n",
 						CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 
 				advance_level(ch);
 				is_altered = true;
@@ -858,13 +859,13 @@ void gain_exp_regardless(CharData *ch, int gain) {
 			//			GET_EXP(ch) += gain;
 			//			if (GET_EXP(ch) < 0)
 			//				GET_EXP(ch) = 0;
-			while (GetRealLevel(ch) > 1 && GET_EXP(ch) < level_exp(ch, GetRealLevel(ch))) {
+			while (GetRealLevel(ch) > 1 && GET_EXP(ch) < GetExpUntilNextLvl(ch, GetRealLevel(ch))) {
 				ch->set_level(ch->get_level() - 1);
 				num_levels++;
 				sprintf(buf,
 						"%sВы потеряли уровень!%s\r\n",
 						CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 				decrease_level(ch);
 				is_altered = true;
 			}
@@ -922,11 +923,11 @@ void gain_condition(CharData *ch, unsigned condition, int value) {
 			}
 
 			if (cond_value < 30) {
-				send_to_char("Вы голодны.\r\n", ch);
+				SendMsgToChar("Вы голодны.\r\n", ch);
 			} else if (cond_value < 40) {
-				send_to_char("Вы очень голодны.\r\n", ch);
+				SendMsgToChar("Вы очень голодны.\r\n", ch);
 			} else {
-				send_to_char("Вы готовы сожрать быка.\r\n", ch);
+				SendMsgToChar("Вы готовы сожрать быка.\r\n", ch);
 				//сюда оповещение можно вставить что бы люди видели что чар страдает
 			}
 			return;
@@ -937,11 +938,11 @@ void gain_condition(CharData *ch, unsigned condition, int value) {
 			}
 
 			if (cond_value < 30) {
-				send_to_char("Вас мучает жажда.\r\n", ch);
+				SendMsgToChar("Вас мучает жажда.\r\n", ch);
 			} else if (cond_value < 40) {
-				send_to_char("Вас сильно мучает жажда.\r\n", ch);
+				SendMsgToChar("Вас сильно мучает жажда.\r\n", ch);
 			} else {
-				send_to_char("Вам хочется выпить озеро.\r\n", ch);
+				SendMsgToChar("Вам хочется выпить озеро.\r\n", ch);
 				//сюда оповещение можно вставить что бы люди видели что чар страдает
 			}
 			return;
@@ -949,7 +950,7 @@ void gain_condition(CharData *ch, unsigned condition, int value) {
 		case DRUNK:
 			//Если чара прекратило штормить, шлем сообщение
 			if (cond_state >= kMortallyDrunked && GET_COND(ch, DRUNK) < kMortallyDrunked) {
-				send_to_char("Наконец-то вы протрезвели.\r\n", ch);
+				SendMsgToChar("Наконец-то вы протрезвели.\r\n", ch);
 			}
 			return;
 
@@ -992,16 +993,16 @@ void check_idling(CharData *ch) {
 					stop_fighting(ch, true);
 				}
 				act("$n растворил$u в пустоте.", true, ch, 0, 0, kToRoom);
-				send_to_char("Вы пропали в пустоте этого мира.\r\n", ch);
+				SendMsgToChar("Вы пропали в пустоте этого мира.\r\n", ch);
 
 				Crash_crashsave(ch);
 				ExtractCharFromRoom(ch);
-				PlaceCharToRoom(ch, STRANGE_ROOM);
+				PlaceCharToRoom(ch, kStrangeRoom);
 				RemoveRuneLabelFromWorld(ch, ESpell::kSpellRuneLabel);
 			} else if (ch->char_specials.timer > idle_rent_time) {
 				if (ch->in_room != kNowhere)
 					ExtractCharFromRoom(ch);
-				PlaceCharToRoom(ch, STRANGE_ROOM);
+				PlaceCharToRoom(ch, kStrangeRoom);
 				Crash_idlesave(ch);
 				Depot::exit_char(ch);
 				Clan::clan_invoice(ch, false);
@@ -1081,7 +1082,7 @@ void hour_update(void) {
 
 void room_point_update() {
 	int mana;
-	for (int count = FIRST_ROOM; count <= top_of_world; count++) {
+	for (int count = kFirstRoom; count <= top_of_world; count++) {
 		if (world[count]->fires) {
 			switch (get_room_sky(count)) {
 				case kSkyCloudy:
@@ -1227,7 +1228,7 @@ void clan_chest_invoice(ObjData *j) {
 			&& PRF_FLAGGED(d->character, EPrf::kDecayMode)
 			&& CLAN(d->character)
 			&& CLAN(d->character)->GetRent() == room) {
-			send_to_char(d->character.get(), "[Хранилище]: %s'%s%s рассыпал%s в прах'%s\r\n",
+			SendMsgToChar(d->character.get(), "[Хранилище]: %s'%s%s рассыпал%s в прах'%s\r\n",
 						 CCIRED(d->character, C_NRM),
 						 j->get_short_description().c_str(),
 						 clan_get_custom_label(j, CLAN(d->character)).c_str(),
@@ -1313,7 +1314,7 @@ void charmee_obj_decay_tell(CharData *charmee, ObjData *obj, int where) {
 			 char_get_custom_label(obj, charmee->get_master()).c_str(),
 			 GET_OBJ_SUF_2(obj),
 			 buf1);
-	send_to_char(charmee->get_master(),
+	SendMsgToChar(charmee->get_master(),
 				 "%s%s%s\r\n",
 				 CCICYN(charmee->get_master(), C_NRM),
 				 CAP(buf),
@@ -1576,7 +1577,7 @@ void point_update() {
 		if (AFF_FLAGGED(i, EAffect::kSleep)
 			&& GET_POS(i) > EPosition::kSleep) {
 			GET_POS(i) = EPosition::kSleep;
-			send_to_char("Вы попытались очнуться, но снова заснули и упали наземь.\r\n", i);
+			SendMsgToChar("Вы попытались очнуться, но снова заснули и упали наземь.\r\n", i);
 			act("$n попытал$u очнуться, но снова заснул$a и упал$a наземь.", true, i, 0, 0, kToRoom);
 		}
 

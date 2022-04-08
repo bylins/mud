@@ -1,141 +1,138 @@
 #include "flee.h"
 
 #include "act_movement.h"
-#include "features.h"
-#include "utils/random.h"
 #include "entities/char_data.h"
-#include "entities/entities_constants.h"
-#include <cmath>
 
-void reduce_exp_after_flee(CharData *ch, CharData *victim, RoomRnum room) {
-	if (IsAbleToUseFeat(ch, EFeat::kRetreat) || ROOM_FLAGGED(room, ERoomFlag::kArena))
+EDirection SelectRndDirection(CharData *ch, int fail_chance);
+
+void ReduceExpAfterFlee(CharData *ch, CharData *victim, RoomRnum room) {
+	if (IsAbleToUseFeat(ch, EFeat::kRetreat) || ROOM_FLAGGED(room, ERoomFlag::kArena)) {
 		return;
+	}
 
-	const auto loss = MAX(1, GET_REAL_MAX_HIT(victim) - GET_HIT(victim)) * GetRealLevel(victim);
-	gain_exp(ch, -loss);
+	const auto loss = std::max(1, GET_REAL_MAX_HIT(victim) - GET_HIT(victim)) * GetRealLevel(victim);
+	EndowExpToChar(ch, -loss);
 }
 
 // ********************* FLEE PROCEDURE
-void go_flee(CharData *ch) {
-	if (AFF_FLAGGED(ch, EAffect::kHold) || GET_WAIT(ch) > 0) {
+void GoFlee(CharData *ch) {
+	if (AFF_FLAGGED(ch, EAffect::kHold) || ch->get_wait() > 0) {
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffect::kNoFlee) || AFF_FLAGGED(ch, EAffect::kLacky)
-		|| PRF_FLAGS(ch).get(EPrf::kIronWind)) {
-		send_to_char("Невидимые оковы мешают вам сбежать.\r\n", ch);
+	if (AFF_FLAGGED(ch, EAffect::kNoFlee) ||
+		AFF_FLAGGED(ch, EAffect::kLacky) ||
+		PRF_FLAGS(ch).get(EPrf::kIronWind)) {
+		SendMsgToChar("Невидимые оковы мешают вам сбежать.\r\n", ch);
 		return;
 	}
 
 	if (GET_POS(ch) < EPosition::kFight) {
-		send_to_char("Вы не можете сбежать из этого положения.\r\n", ch);
+		SendMsgToChar("Вы не можете сбежать из этого положения.\r\n", ch);
 		return;
 	}
 
-	if (!IS_IMMORTAL(ch))
-		WAIT_STATE(ch, kPulseViolence);
+	if (!IS_IMMORTAL(ch)) {
+		SetWaitState(ch, kPulseViolence);
+	}
 
-	if (ch->IsOnHorse() && (GET_POS(ch->get_horse()) < EPosition::kFight || GET_MOB_HOLD(ch->get_horse()))) {
-		send_to_char("Ваш скакун не в состоянии вынести вас из боя!\r\n", ch);
+	if (ch->IsOnHorse() && (GET_POS(ch->get_horse()) < EPosition::kFight ||
+		AFF_FLAGGED(ch->get_horse(), EAffect::kHold))) {
+		SendMsgToChar("Ваш скакун не в состоянии вынести вас из боя!\r\n", ch);
 		return;
 	}
 
-	int dirs[EDirection::kMaxDirNum];
-	int correct_dirs = 0;
-
-	for (auto i = 0; i < EDirection::kMaxDirNum; ++i) {
-		if (legal_dir(ch, i, true, false) && !ROOM_FLAGGED(EXIT(ch, i)->to_room(), ERoomFlag::kDeathTrap)) {
-			dirs[correct_dirs] = i;
-			++correct_dirs;
-		}
-	}
-
-	if (correct_dirs > 0
-		&& !bernoulli_trial(std::pow((1.0 - static_cast<double>(correct_dirs) / EDirection::kMaxDirNum), EDirection::kMaxDirNum))) {
-		const auto direction = dirs[number(0, correct_dirs - 1)];
+	auto direction = SelectRndDirection(ch, IsAbleToUseFeat(ch, EFeat::kRetreat) ? 0 : 50);
+	if (direction != EDirection::kIncorrectDir) {
 		const auto was_fighting = ch->GetEnemy();
 		const auto was_in = ch->in_room;
 
-		if (do_simple_move(ch, direction, true, 0, true)) {
-			act("$n запаниковал$g и пытал$u сбежать!", true, ch, 0, 0, kToRoom | kToArenaListen);
-			send_to_char("Вы быстро убежали с поля битвы.\r\n", ch);
+		if (DoSimpleMove(ch, direction, true, nullptr, true)) {
+			act("$n запаниковал$g и пытал$u сбежать!",
+				true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 			if (ch->IsOnHorse()) {
-				act("Верн$W $N вынес$Q вас из боя.", false, ch, 0, ch->get_horse(), kToChar);
+				act("Верн$W $N вынес$Q вас из боя.", false, ch, nullptr, ch->get_horse(), kToChar);
+			} else {
+				SendMsgToChar("Вы быстро убежали с поля битвы.\r\n", ch);
 			}
 
 			if (was_fighting && !ch->IsNpc()) {
-				reduce_exp_after_flee(ch, was_fighting, was_in);
+				ReduceExpAfterFlee(ch, was_fighting, was_in);
 			}
 		} else {
-			act("$n запаниковал$g и попытал$u убежать, но не смог$q!", false, ch, 0, 0, kToRoom | kToArenaListen);
-			send_to_char("ПАНИКА ОВЛАДЕЛА ВАМИ. Вы не смогли сбежать!\r\n", ch);
+			act("$n запаниковал$g и попытал$u убежать, но не смог$q!",
+				false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+			SendMsgToChar("ПАНИКА ОВЛАДЕЛА ВАМИ. Вы не смогли сбежать!\r\n", ch);
 		}
 	} else {
-		act("$n запаниковал$g и попытал$u убежать, но не смог$q!", false, ch, 0, 0, kToRoom | kToArenaListen);
-		send_to_char("ПАНИКА ОВЛАДЕЛА ВАМИ. Вы не смогли сбежать!\r\n", ch);
+		act("$n запаниковал$g и попытал$u убежать, но не смог$q!",
+			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		SendMsgToChar("ПАНИКА ОВЛАДЕЛА ВАМИ. Вы не смогли сбежать!\r\n", ch);
 	}
 }
 
-void go_dir_flee(CharData *ch, int direction) {
-	if (GET_MOB_HOLD(ch) || GET_WAIT(ch) > 0) {
+void GoDirectFlee(CharData *ch, int direction) {
+	if (AFF_FLAGGED(ch, EAffect::kHold) || ch->get_wait() > 0) {
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffect::kNoFlee) || AFF_FLAGGED(ch, EAffect::kLacky)
-		|| PRF_FLAGS(ch).get(EPrf::kIronWind)) {
-		send_to_char("Невидимые оковы мешают вам сбежать.\r\n", ch);
+	if (AFF_FLAGGED(ch, EAffect::kNoFlee) ||
+		AFF_FLAGGED(ch, EAffect::kLacky) ||
+		PRF_FLAGS(ch).get(EPrf::kIronWind)) {
+		SendMsgToChar("Невидимые оковы мешают вам сбежать.\r\n", ch);
 		return;
 	}
 
 	if (GET_POS(ch) < EPosition::kFight) {
-		send_to_char("Вы не сможете сбежать из этого положения.\r\n", ch);
+		SendMsgToChar("Вы не сможете сбежать из этого положения.\r\n", ch);
 		return;
 	}
 
-	if (legal_dir(ch, direction, true, false)
+	if (IsCorrectDirection(ch, direction, true, false)
 		&& !ROOM_FLAGGED(EXIT(ch, direction)->to_room(), ERoomFlag::kDeathTrap)) {
-		if (do_simple_move(ch, direction, true, 0, true)) {
+		if (DoSimpleMove(ch, direction, true, nullptr, true)) {
 			const auto was_in = ch->in_room;
 			const auto was_fighting = ch->GetEnemy();
 
-			act("$n запаниковал$g и попытал$u убежать.", false, ch, 0, 0, kToRoom | kToArenaListen);
-			send_to_char("Вы быстро убежали с поля битвы.\r\n", ch);
+			act("$n запаниковал$g и попытал$u убежать.",
+				false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+			SendMsgToChar("Вы быстро убежали с поля битвы.\r\n", ch);
 			if (was_fighting && !ch->IsNpc()) {
-				reduce_exp_after_flee(ch, was_fighting, was_in);
+				ReduceExpAfterFlee(ch, was_fighting, was_in);
 			}
 
 			if (!IS_IMMORTAL(ch)) {
-				WAIT_STATE(ch, 1 * kPulseViolence);
+				SetWaitState(ch, 1 * kPulseViolence);
 			}
 			return;
 		}
 	}
-	go_flee(ch);
+	GoFlee(ch);
 }
 
-const char *FleeDirs[] = {"север",
-						  "восток",
-						  "юг",
-						  "запад",
-						  "вверх",
-						  "вниз",
-						  "\n"};
+const char *flee_dirs[] = {"север",
+						   "восток",
+						   "юг",
+						   "запад",
+						   "вверх",
+						   "вниз",
+						   "\n"};
 
-void do_flee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void DoFlee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int direction = -1;
 	if (!ch->GetEnemy()) {
-		send_to_char("Но вы ведь ни с кем не сражаетесь!\r\n", ch);
+		SendMsgToChar("Но вы ведь ни с кем не сражаетесь!\r\n", ch);
 		return;
 	}
 	if (IsAbleToUseFeat(ch, EFeat::kCalmness) || GET_GOD_FLAG(ch, EGf::kGodsLike)) {
 		one_argument(argument, arg);
 		if ((direction = search_block(arg, dirs, false)) >= 0 ||
-			(direction = search_block(arg, FleeDirs, false)) >= 0) {
-			go_dir_flee(ch, direction);
+			(direction = search_block(arg, flee_dirs, false)) >= 0) {
+			GoDirectFlee(ch, direction);
 			return;
 		}
 	}
-	go_flee(ch);
+	GoFlee(ch);
 }
 
 

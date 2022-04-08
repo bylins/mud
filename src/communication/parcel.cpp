@@ -97,7 +97,7 @@ void invoice(long uid) {
 	DescriptorData *d = DescByUID(uid);
 	if (d) {
 		if (!has_parcel(d->character.get())) {
-			send_to_char(d->character.get(), "%sВам пришла посылка, зайдите на почту и распишитесь!%s\r\n",
+			SendMsgToChar(d->character.get(), "%sВам пришла посылка, зайдите на почту и распишитесь!%s\r\n",
 						 CCWHT(d->character, C_NRM), CCNRM(d->character, C_NRM));
 		}
 	}
@@ -236,7 +236,7 @@ void send_object(CharData *ch, CharData *mailman, long vict_uid, ObjData *obj) {
 	if (SetSystem::is_norent_set(ch, obj)
 		&& SetSystem::is_norent_set(GET_OBJ_VNUM(obj), get_objs(GET_UNIQUE(ch)))) {
 		snprintf(buf, kMaxStringLength, "%s - требуется две и более вещи из набора.\r\n", obj->get_PName(0).c_str());
-		send_to_char(CAP(buf), ch);
+		SendMsgToChar(CAP(buf), ch);
 		return;
 	}
 	name_convert(name);
@@ -293,7 +293,7 @@ void send(CharData *ch, CharData *mailman, long vict_uid, char *arg) {
 			return;
 		} else if (!str_cmp("все", tmp_arg2) || !str_cmp("all", tmp_arg2)) {
 			if (!ch->carrying) {
-				send_to_char("У вас ведь ничего нет.\r\n", ch);
+				SendMsgToChar("У вас ведь ничего нет.\r\n", ch);
 				return;
 			}
 			for (obj = ch->carrying; obj && amount; obj = next_obj) {
@@ -302,9 +302,9 @@ void send(CharData *ch, CharData *mailman, long vict_uid, char *arg) {
 				send_object(ch, mailman, vict_uid, obj);
 			}
 		} else if (!*tmp_arg2) {
-			send_to_char(ch, "Чего %d вы хотите отправить?\r\n", amount);
+			SendMsgToChar(ch, "Чего %d вы хотите отправить?\r\n", amount);
 		} else if (!(obj = get_obj_in_list_vis(ch, tmp_arg2, ch->carrying))) {
-			send_to_char(ch, "У вас нет '%s'.\r\n", tmp_arg2);
+			SendMsgToChar(ch, "У вас нет '%s'.\r\n", tmp_arg2);
 		} else {
 			while (obj && amount--) {
 				next_obj = get_obj_in_list_vis(ch, tmp_arg2, obj->get_next_content());
@@ -316,17 +316,17 @@ void send(CharData *ch, CharData *mailman, long vict_uid, char *arg) {
 		int dotmode = find_all_dots(tmp_arg);
 		if (dotmode == kFindIndiv) {
 			if (!(obj = get_obj_in_list_vis(ch, tmp_arg, ch->carrying))) {
-				send_to_char(ch, "У вас нет '%s'.\r\n", tmp_arg);
+				SendMsgToChar(ch, "У вас нет '%s'.\r\n", tmp_arg);
 				return;
 			}
 			send_object(ch, mailman, vict_uid, obj);
 		} else {
 			if (dotmode == kFindAlldot && !*tmp_arg) {
-				send_to_char("Отправить \"все\" какого типа предметов?\r\n", ch);
+				SendMsgToChar("Отправить \"все\" какого типа предметов?\r\n", ch);
 				return;
 			}
 			if (!ch->carrying) {
-				send_to_char("У вас ведь ничего нет.\r\n", ch);
+				SendMsgToChar("У вас ведь ничего нет.\r\n", ch);
 			} else {
 				bool has_items = false;
 				for (obj = ch->carrying; obj; obj = next_obj) {
@@ -339,7 +339,7 @@ void send(CharData *ch, CharData *mailman, long vict_uid, char *arg) {
 					}
 				}
 				if (!has_items)
-					send_to_char(ch, "У вас нет '%s'.\r\n", tmp_arg);
+					SendMsgToChar(ch, "У вас нет '%s'.\r\n", tmp_arg);
 			}
 		}
 	}
@@ -349,7 +349,7 @@ void send(CharData *ch, CharData *mailman, long vict_uid, char *arg) {
 				 send_cost_buffer, GetDeclensionInNumber(send_cost_buffer, EWhat::kMoneyA),
 				 send_reserved_buffer, GetDeclensionInNumber(send_reserved_buffer, EWhat::kMoneyA));
 		send_buffer += buf;
-		send_to_char(send_buffer.c_str(), ch);
+		SendMsgToChar(send_buffer.c_str(), ch);
 
 		send_buffer = "";
 		send_cost_buffer = 0;
@@ -380,7 +380,7 @@ void print_sending_stuff(CharData *ch) {
 		}
 	}
 	if (print)
-		send_to_char(out.str(), ch);
+		SendMsgToChar(out.str(), ch);
 }
 
 // * Для учитывания предметов на почте в локейте.
@@ -406,7 +406,7 @@ int print_spell_locate_object(CharData *ch, int count, std::string name) {
 				snprintf(buf, kMaxStringLength, "%s наход%sся у почтового голубя в инвентаре.\r\n",
 						 it3->obj_->get_short_description().c_str(), GET_OBJ_POLY_1(ch, it3->obj_));
 //				CAP(buf); issue #59
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 
 				if (--count <= 0) {
 					return count;
@@ -437,7 +437,7 @@ void return_money(std::string const &name, int money, bool add) {
 	if ((vict = get_player_of_name(name.c_str()))) {
 		if (add) {
 			vict->add_bank(money);
-			send_to_char(vict, "%sВы получили %d %s банковским переводом от почтовой службы%s.\r\n",
+			SendMsgToChar(vict, "%sВы получили %d %s банковским переводом от почтовой службы%s.\r\n",
 						 CCWHT(vict, C_NRM), money, GetDeclensionInNumber(money, EWhat::kMoneyU), CCNRM(vict, C_NRM));
 		}
 	} else {
@@ -545,7 +545,7 @@ void create_mail(int to_uid, int from_uid, char *text) {
 	mail::add(to_uid, from_uid, text);
 	const DescriptorData *i = DescByUID(to_uid);
 	if (i) {
-		send_to_char(i->character.get(), "%sВам пришло письмо, зайдите на почту и распишитесь!%s\r\n",
+		SendMsgToChar(i->character.get(), "%sВам пришло письмо, зайдите на почту и распишитесь!%s\r\n",
 					 CCWHT(i->character, C_NRM), CCNRM(i->character, C_NRM));
 	}
 }
@@ -801,7 +801,7 @@ void show_stats(CharData *ch) {
 			}
 		}
 	}
-	send_to_char(ch, "  Почта: предметов в ожидании %d, доставлено с ребута %d\r\n", objs, was_sended);
+	SendMsgToChar(ch, "  Почта: предметов в ожидании %d, доставлено с ребута %d\r\n", objs, was_sended);
 }
 
 int delete_obj(int vnum) {
@@ -828,7 +828,7 @@ int print_imm_where_obj(CharData *ch, char *arg, int num) {
 					std::string target = GetNameByUnique(it->first);
 					std::string sender = GetNameByUnique(it2->first);
 
-					send_to_char(ch, "%2d. [%6d] %-25s - наход%sся на почте (отправитель: %s, получатель: %s).\r\n",
+					SendMsgToChar(ch, "%2d. [%6d] %-25s - наход%sся на почте (отправитель: %s, получатель: %s).\r\n",
 								 num++,
 								 GET_OBJ_VNUM(it3->obj_.get()),
 								 it3->obj_->get_short_description().c_str(),

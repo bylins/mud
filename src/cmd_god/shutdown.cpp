@@ -16,7 +16,7 @@ bool Shutdown::parse_arguments() {
 	two_arguments(m_argument, m_argument_buffer, buffer);
 
 	if (!*m_argument_buffer) {
-		send_to_char(HELP_MESSAGE, m_character);
+		SendMsgToChar(HELP_MESSAGE, m_character);
 		return false;
 	}
 
@@ -30,7 +30,7 @@ bool Shutdown::parse_arguments() {
 void Shutdown::reboot() const {
 	const auto timeout = MAX(30, m_timeout);
 	sprintf(buf, "[ПЕРЕЗАГРУЗКА через %d %s]\r\n", timeout, GetDeclensionInNumber(timeout, EWhat::kSec));
-	send_to_all(buf);
+	SendMsgToAll(buf);
 	log("(GC) Reboot by %s.", GET_NAME(m_character));
 	imm_log("Reboot by %s.", GET_NAME(m_character));
 	touch(FASTBOOT_FILE);
@@ -40,7 +40,7 @@ void Shutdown::reboot() const {
 void Shutdown::die() const {
 	const auto timeout = MAX(30, m_timeout);
 	sprintf(buf, "[ОСТАНОВКА через %d %s]\r\n", timeout, GetDeclensionInNumber(timeout, EWhat::kSec));
-	send_to_all(buf);
+	SendMsgToAll(buf);
 	log("(GC) Shutdown die by %s.", GET_NAME(m_character));
 	imm_log("Shutdown die by %s.", GET_NAME(m_character));
 	touch(KILLSCRIPT_FILE);
@@ -50,7 +50,7 @@ void Shutdown::die() const {
 void Shutdown::pause() const {
 	const auto timeout = MAX(30, m_timeout);
 	sprintf(buf, "[ОСТАНОВКА через %d %s]\r\n", timeout, GetDeclensionInNumber(timeout, EWhat::kSec));
-	send_to_all(buf);
+	SendMsgToAll(buf);
 	log("(GC) Shutdown pause by %s.", GET_NAME(m_character));
 	imm_log("Shutdown pause by %s.", GET_NAME(m_character));
 	touch(PAUSE_FILE);
@@ -61,7 +61,7 @@ void Shutdown::shutdown_now() const {
 	sprintf(buf, "(GC) Shutdown NOW by %s.", GET_NAME(m_character));
 	log("%s", buf);
 	imm_log("Shutdown NOW by %s.", GET_NAME(m_character));
-	send_to_all("ПЕРЕЗАГРУЗКА.. Вернетесь через пару минут.\r\n");
+	SendMsgToAll("ПЕРЕЗАГРУЗКА.. Вернетесь через пару минут.\r\n");
 	m_shutdown_parameters.shutdown_now();
 }
 
@@ -69,7 +69,7 @@ void Shutdown::schedule_shutdown() const {
 	const auto boot_time = m_shutdown_parameters.get_boot_time();
 	if (m_timeout <= 0) {
 		const auto tmp_time = boot_time + (time_t) (60 * m_shutdown_parameters.get_reboot_uptime());
-		send_to_char(m_character, "Сервер будет автоматически перезагружен в %s\r\n", rustime(localtime(&tmp_time)));
+		SendMsgToChar(m_character, "Сервер будет автоматически перезагружен в %s\r\n", rustime(localtime(&tmp_time)));
 		return;
 	}
 
@@ -78,7 +78,7 @@ void Shutdown::schedule_shutdown() const {
 	m_shutdown_parameters.cancel_shutdown();
 
 	const auto tmp_time = boot_time + (time_t) (60 * m_shutdown_parameters.get_reboot_uptime());
-	send_to_char(m_character, "Сервер будет автоматически перезагружен в %s\r\n", rustime(localtime(&tmp_time)));
+	SendMsgToChar(m_character, "Сервер будет автоматически перезагружен в %s\r\n", rustime(localtime(&tmp_time)));
 	log("(GC) Shutdown scheduled by %s.", GET_NAME(m_character));
 	imm_log("Shutdown scheduled by %s.", GET_NAME(m_character));
 }
@@ -86,7 +86,7 @@ void Shutdown::schedule_shutdown() const {
 void Shutdown::cancel_shutdown() const {
 	log("(GC) Shutdown canceled by %s.", GET_NAME(m_character));
 	imm_log("Shutdown canceled by %s.", GET_NAME(m_character));
-	send_to_all("ПЕРЕЗАГРУЗКА ОТМЕНЕНА.\r\n");
+	SendMsgToAll("ПЕРЕЗАГРУЗКА ОТМЕНЕНА.\r\n");
 	m_shutdown_parameters.cancel_shutdown();
 }
 
@@ -108,7 +108,7 @@ void Shutdown::execute() const {
 	if (nullptr != handler) {
 		(this->*handler)();
 	} else {
-		send_to_char(HELP_MESSAGE, m_character);
+		SendMsgToChar(HELP_MESSAGE, m_character);
 	}
 }
 

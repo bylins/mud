@@ -33,7 +33,7 @@
 #include <sstream>
 #include <bitset>*/
 
-int level_exp(CharData *ch, int level);
+long GetExpUntilNextLvl(CharData *ch, int level);
 extern std::vector<City> cities;
 extern std::string default_str_cities;
 namespace {
@@ -215,21 +215,21 @@ void Player::sub_nogata(int value) {
 
 void Player::add_nogata(int value) {
 	this->nogata += value;
-	send_to_char(this, "Вы получили %ld %s.\r\n", static_cast<long>(value),
+	SendMsgToChar(this, "Вы получили %ld %s.\r\n", static_cast<long>(value),
 				 GetDeclensionInNumber(value, EWhat::kNogataU));
 
 }
 
 void Player::add_hryvn(int value) {
 	if (GET_REAL_REMORT(this) < 6) {
-		send_to_char(this, "Глянув на непонятный слиток, Вы решили выкинуть его...\r\n");
+		SendMsgToChar(this, "Глянув на непонятный слиток, Вы решили выкинуть его...\r\n");
 		return;
 	} else if ((this->get_hryvn() + value) > cap_hryvn) {
 		value = cap_hryvn - this->get_hryvn();
-		send_to_char(this, "Вы получили только %ld %s, так как в вашу копилку больше не лезет...\r\n",
+		SendMsgToChar(this, "Вы получили только %ld %s, так как в вашу копилку больше не лезет...\r\n",
 					 static_cast<long>(value), GetDeclensionInNumber(value, EWhat::kTorcU));
 	} else if (value > 0) {
-		send_to_char(this, "Вы получили %ld %s.\r\n",
+		SendMsgToChar(this, "Вы получили %ld %s.\r\n",
 					 static_cast<long>(value), GetDeclensionInNumber(value, EWhat::kTorcU));
 	} else if (value == 0) {
 		return;
@@ -247,7 +247,7 @@ void Player::dquest(const int id) {
 	}
 
 	if (!this->account->quest_is_available(id)) {
-		send_to_char(this, "Сегодня вы уже получали гривны за выполнение этого задания.\r\n");
+		SendMsgToChar(this, "Сегодня вы уже получали гривны за выполнение этого задания.\r\n");
 		return;
 	}
 	int value = quest->second.reward + number(1, 3);
@@ -336,7 +336,7 @@ void Player::show_mobmax() {
 	mobmax_.get_stats(stats);
 	int i = 0;
 	for (const auto &item : stats) {
-		send_to_char(this,
+		SendMsgToChar(this,
 					 "%2d. Уровень: %d; Убито: %d; Всего до размакса: %d\n",
 					 ++i,
 					 item.first,
@@ -1105,8 +1105,8 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	// если с загруженными выше полями что-то хочется делать после лоада - делайте это здесь
 
 	//Indexing experience - if his exp is lover than required for his level - set it to required
-	if (GET_EXP(this) < level_exp(this, GetRealLevel(this))) {
-		set_exp(level_exp(this, GetRealLevel(this)));
+	if (GET_EXP(this) < GetExpUntilNextLvl(this, GetRealLevel(this))) {
+		set_exp(GetExpUntilNextLvl(this, GetRealLevel(this)));
 	}
 
 	if (reboot) {

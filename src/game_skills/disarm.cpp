@@ -15,7 +15,7 @@ void go_disarm(CharData *ch, CharData *vict) {
 					   GET_EQ(vict, EEquipPos::kBoths), *helded = GET_EQ(vict, EEquipPos::kHold);
 
 	if (IsUnableToAct(ch)) {
-		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
 
@@ -46,7 +46,7 @@ void go_disarm(CharData *ch, CharData *vict) {
 	TrainSkill(ch, ESkill::kDisarm, success, vict);
 	SendSkillBalanceMsg(ch, MUD::Skills()[ESkill::kDisarm].name, percent, prob, success);
 	if (!success || GET_EQ(vict, pos)->has_flag(EObjFlag::kNodisarm)) {
-		send_to_char(ch,
+		SendMsgToChar(ch,
 					 "%sВы не сумели обезоружить %s...%s\r\n",
 					 CCWHT(ch, C_NRM),
 					 GET_PAD(vict, 3),
@@ -54,9 +54,9 @@ void go_disarm(CharData *ch, CharData *vict) {
 		prob = 3;
 	} else {
 		wielded = GET_EQ(vict, pos);
-		send_to_char(ch, "%sВы ловко выбили %s из рук %s!%s\r\n",
+		SendMsgToChar(ch, "%sВы ловко выбили %s из рук %s!%s\r\n",
 					 CCIBLU(ch, C_NRM), wielded->get_PName(3).c_str(), GET_PAD(vict, 1), CCNRM(ch, C_NRM));
-		send_to_char(vict, "Ловкий удар %s выбил %s%s из ваших рук.\r\n",
+		SendMsgToChar(vict, "Ловкий удар %s выбил %s%s из ваших рук.\r\n",
 					 GET_PAD(ch, 1), wielded->get_PName(3).c_str(), char_get_custom_label(wielded, vict).c_str());
 		act("$n ловко выбил$g $o3 из рук $N1.", true, ch, wielded, vict, kToNotVict | kToArenaListen);
 		UnequipChar(vict, pos, CharEquipFlags());
@@ -72,7 +72,7 @@ void go_disarm(CharData *ch, CharData *vict) {
 	}
 
 	appear(ch);
-	if (vict->IsNpc() && CAN_SEE(vict, ch) && vict->have_mind() && GET_WAIT(ch) <= 0) {
+	if (vict->is_npc() && CAN_SEE(vict, ch) && vict->have_mind() && ch->get_wait() <= 0) {
 		set_hit(vict, ch);
 	}
 	SetSkillCooldown(ch, ESkill::kDisarm, prob);
@@ -80,23 +80,23 @@ void go_disarm(CharData *ch, CharData *vict) {
 }
 
 void do_disarm(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsNpc() || !ch->get_skill(ESkill::kDisarm)) {
-		send_to_char("Вы не знаете как.\r\n", ch);
+	if (ch->is_npc() || !ch->get_skill(ESkill::kDisarm)) {
+		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kDisarm)) {
-		send_to_char("Вам нужно набраться сил.\r\n", ch);
+	if (ch->haveCooldown(ESkill::kDisarm)) {
+		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
 
 	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
-		send_to_char("Кого обезоруживаем?\r\n", ch);
+		SendMsgToChar("Кого обезоруживаем?\r\n", ch);
 		return;
 	}
 
 	if (ch == vict) {
-		send_to_char("Попробуйте набрать \"снять <название.оружия>\".\r\n", ch);
+		SendMsgToChar("Попробуйте набрать \"снять <название.оружия>\".\r\n", ch);
 		return;
 	}
 
@@ -111,7 +111,7 @@ void do_disarm(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			&& GET_OBJ_TYPE(GET_EQ(vict, EEquipPos::kHold)) != EObjType::kLightSource)
 		|| (GET_EQ(vict, EEquipPos::kBoths)
 			&& GET_OBJ_TYPE(GET_EQ(vict, EEquipPos::kBoths)) != EObjType::kLightSource))) {
-		send_to_char("Вы не можете обезоружить безоружное создание.\r\n", ch);
+		SendMsgToChar("Вы не можете обезоружить безоружное создание.\r\n", ch);
 		return;
 	}
 

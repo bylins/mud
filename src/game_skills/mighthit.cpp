@@ -10,12 +10,12 @@
 // ************************* MIGHTHIT PROCEDURES
 void go_mighthit(CharData *ch, CharData *victim) {
 	if (IsUnableToAct(ch)) {
-		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
 
 	if (PRF_FLAGS(ch).get(EPrf::kIronWind)) {
-		send_to_char("Вы не можете применять этот прием в таком состоянии!\r\n", ch);
+		SendMsgToChar("Вы не можете применять этот прием в таком состоянии!\r\n", ch);
 		return;
 	}
 
@@ -47,28 +47,28 @@ void go_mighthit(CharData *ch, CharData *victim) {
 
 void do_mighthit(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->get_skill(ESkill::kHammer) < 1) {
-		send_to_char("Вы не знаете как.\r\n", ch);
+		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kHammer)) {
-		send_to_char("Вам нужно набраться сил.\r\n", ch);
+	if (ch->haveCooldown(ESkill::kHammer)) {
+		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
 
 	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
-		send_to_char("Кого вы хотите СИЛЬНО ударить?\r\n", ch);
+		SendMsgToChar("Кого вы хотите СИЛЬНО ударить?\r\n", ch);
 		return;
 	}
 
 	if (vict == ch) {
-		send_to_char("Вы СИЛЬНО ударили себя. Но вы и не спали.\r\n", ch);
+		SendMsgToChar("Вы СИЛЬНО ударили себя. Но вы и не спали.\r\n", ch);
 		return;
 	}
 
 	if (GET_AF_BATTLE(ch, kEafTouch)) {
-		if (!ch->IsNpc())
-			send_to_char("Невозможно. Вы сосредоточены на захвате противника.\r\n", ch);
+		if (!ch->is_npc())
+			SendMsgToChar("Невозможно. Вы сосредоточены на захвате противника.\r\n", ch);
 		return;
 	}
 	if (!ch->IsNpc() && !IS_IMMORTAL(ch)
@@ -77,7 +77,7 @@ void do_mighthit(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			|| GET_EQ(ch, EEquipPos::kHold)
 			|| GET_EQ(ch, EEquipPos::kShield)
 			|| GET_EQ(ch, EEquipPos::kLight))) {
-		send_to_char("Ваша экипировка мешает вам нанести удар.\r\n", ch);
+		SendMsgToChar("Ваша экипировка мешает вам нанести удар.\r\n", ch);
 		return;
 	}
 

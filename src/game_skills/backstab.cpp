@@ -12,53 +12,53 @@
 // делегат обработки команды заколоть
 void do_backstab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->get_skill(ESkill::kBackstab) < 1) {
-		send_to_char("Вы не знаете как.\r\n", ch);
+		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
 	if (ch->HasCooldown(ESkill::kBackstab)) {
-		send_to_char("Вам нужно набраться сил.\r\n", ch);
+		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
 
-	if (ch->IsOnHorse()) {
-		send_to_char("Верхом это сделать затруднительно.\r\n", ch);
+	if (ch->ahorse()) {
+		SendMsgToChar("Верхом это сделать затруднительно.\r\n", ch);
 		return;
 	}
 
 	if (GET_POS(ch) < EPosition::kFight) {
-		send_to_char("Вам стоит встать на ноги.\r\n", ch);
+		SendMsgToChar("Вам стоит встать на ноги.\r\n", ch);
 		return;
 	}
 
 	one_argument(argument, arg);
 	CharData *vict = get_char_vis(ch, arg, EFind::kCharInRoom);
 	if (!vict) {
-		send_to_char("Кого вы так сильно ненавидите, что хотите заколоть?\r\n", ch);
+		SendMsgToChar("Кого вы так сильно ненавидите, что хотите заколоть?\r\n", ch);
 		return;
 	}
 
 	if (vict == ch) {
-		send_to_char("Вы, определенно, садомазохист!\r\n", ch);
+		SendMsgToChar("Вы, определенно, садомазохист!\r\n", ch);
 		return;
 	}
 
-	if (!GET_EQ(ch, EEquipPos::kWield) && (!ch->IsNpc() || IS_CHARMICE(ch))) {
-		send_to_char("Требуется держать оружие в правой руке.\r\n", ch);
+	if (!GET_EQ(ch, EEquipPos::kWield) && (!ch->is_npc() || IS_CHARMICE(ch))) {
+		SendMsgToChar("Требуется держать оружие в правой руке.\r\n", ch);
 		return;
 	}
 
-	if ((!ch->IsNpc() || IS_CHARMICE(ch)) && GET_OBJ_VAL(GET_EQ(ch, EEquipPos::kWield), 3) != fight::type_pierce) {
-		send_to_char("ЗаКОЛоть можно только КОЛющим оружием!\r\n", ch);
+	if ((!ch->is_npc() || IS_CHARMICE(ch)) && GET_OBJ_VAL(GET_EQ(ch, EEquipPos::kWield), 3) != fight::type_pierce) {
+		SendMsgToChar("ЗаКОЛоть можно только КОЛющим оружием!\r\n", ch);
 		return;
 	}
 
 	if (AFF_FLAGGED(ch, EAffect::kStopRight) || IsUnableToAct(ch)) {
-		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
 
-	if (vict->GetEnemy() && !IsAbleToUseFeat(ch, EFeat::kThieveStrike)) {
-		send_to_char("Ваша цель слишком быстро движется - вы можете пораниться!\r\n", ch);
+	if (vict->get_fighting() && !IsAbleToUseFeat(ch, EFeat::kThieveStrike)) {
+		SendMsgToChar("Ваша цель слишком быстро движется - вы можете пораниться!\r\n", ch);
 		return;
 	}
 
@@ -110,7 +110,7 @@ void go_backstab(CharData *ch, CharData *vict) {
 		if (AFF_FLAGGED(ch, EAffect::kHide)) {
 			prob += 5;
 		}
-		if (GET_MOB_HOLD(vict)) {
+		if (AFF_FLAGGED(vict, EAffect::kHold)) {
 			prob = prob * 5 / 4;
 		}
 		if (GET_GOD_FLAG(vict, EGf::kGodscurse)) {

@@ -17,7 +17,7 @@ void ApplyNoFleeAffect(CharData *ch, int duration) {
 	noflee.duration = CalcDuration(ch, duration, 0, 0, 0, 0);;
 	noflee.battleflag = kAfBattledec | kAfPulsedec;
 	ImposeAffect(ch, noflee, true, false, true, false);
-	send_to_char("Вы выпали из ритма боя.\r\n", ch);
+	SendMsgToChar("Вы выпали из ритма боя.\r\n", ch);
 }
 
 void ApplyHaemorrhageAffect(AbilitySystem::TechniqueRoll &roll) {
@@ -49,7 +49,7 @@ void PerformCutFail(AbilitySystem::TechniqueRoll &roll) {
 	act("Ваши свистящие удары пропали втуне, не задев $N3.",
 		false, roll.GetActor(), nullptr, roll.GetRival(), kToChar);
 	if (roll.IsCriticalFail()) {
-		send_to_char(roll.GetActor(), "%sВы поскользнулись и потеряли равновесие.%s", BWHT, KNRM);
+		SendMsgToChar(roll.GetActor(), "%sВы поскользнулись и потеряли равновесие.%s", BWHT, KNRM);
 		act("$n поскользнул$u и потерял$g равновесие.",
 			false, roll.GetActor(), nullptr, roll.GetRival(), kToVict);
 		act("$n поскользнул$u и потерял$g равновесие.",
@@ -60,12 +60,12 @@ void PerformCutFail(AbilitySystem::TechniqueRoll &roll) {
 
 void GoExpedientCut(CharData *ch, CharData *vict) {
 	if (IsUnableToAct(ch)) {
-		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
 
-	if (ch->HasCooldown(ESkill::kGlobalCooldown)) {
-		send_to_char("Вам нужно набраться сил.\r\n", ch);
+	if (ch->haveCooldown(ESkill::kGlobalCooldown)) {
+		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	}
 
@@ -87,7 +87,7 @@ void GoExpedientCut(CharData *ch, CharData *vict) {
 		dmg = roll.CalcDamage();
 		damage.flags.set(fight::kIgnoreFireShield);
 		if (roll.IsCriticalSuccess()) {
-			send_to_char("&GТочно в становую жилу!&n\r\n", roll.GetActor());
+			SendMsgToChar("&GТочно в становую жилу!&n\r\n", roll.GetActor());
 			damage.flags.set(fight::kCritHit);
 		};
 		no_flee_duration = 2;
@@ -123,8 +123,8 @@ void SetExtraAttackCut(CharData *ch, CharData *victim) {
 
 void DoExpedientCut(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 
-	if (ch->IsNpc() || (!IsAbleToUseFeat(ch, EFeat::kCutting) && !IS_IMPL(ch))) {
-		send_to_char("Вы не владеете таким приемом.\r\n", ch);
+	if (ch->is_npc() || (!IsAbleToUseFeat(ch, EFeat::kCutting) && !IS_IMPL(ch))) {
+		SendMsgToChar("Вы не владеете таким приемом.\r\n", ch);
 		return;
 	}
 
@@ -133,23 +133,23 @@ void DoExpedientCut(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	}
 
 	if (GET_POS(ch) < EPosition::kFight) {
-		send_to_char("Вам стоит встать на ноги.\r\n", ch);
+		SendMsgToChar("Вам стоит встать на ноги.\r\n", ch);
 		return;
 	}
 
 	if (AFF_FLAGGED(ch, EAffect::kStopRight) || IsUnableToAct(ch)) {
-		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
 
 	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
-		send_to_char("Кого вы хотите порезать?\r\n", ch);
+		SendMsgToChar("Кого вы хотите порезать?\r\n", ch);
 		return;
 	}
 
 	if (vict == ch) {
-		send_to_char("Вы таки да? Ой-вей, но тут Древняя Русь, а не Палестина!\r\n", ch);
+		SendMsgToChar("Вы таки да? Ой-вей, но тут Древняя Русь, а не Палестина!\r\n", ch);
 		return;
 	}
 

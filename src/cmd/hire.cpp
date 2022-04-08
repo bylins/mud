@@ -151,14 +151,14 @@ int get_reformed_charmice_hp(CharData *ch, CharData *victim, int spellnum) {
 	}
 
 	if (PRF_FLAGGED(ch, EPrf::kTester))
-		send_to_char(ch, "&Gget_reformed_charmice_hp Расчет чарма r_hp = %f \r\n&n", r_hp);
+		SendMsgToChar(ch, "&Gget_reformed_charmice_hp Расчет чарма r_hp = %f \r\n&n", r_hp);
 	return (int) r_hp;
 }
 
 void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc()
 		|| (!IS_IMMORTAL(ch) && !IsAbleToUseFeat(ch, EFeat::kEmployer))) {
-		send_to_char("Вам недоступно это!\r\n", ch);
+		SendMsgToChar("Вам недоступно это!\r\n", ch);
 		return;
 	}
 
@@ -182,7 +182,7 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	const auto helpee = get_char_vis(ch, arg, EFind::kCharInRoom);
 	if (!helpee) {
-		send_to_char("Вы не видите никого похожего.\r\n", ch);
+		SendMsgToChar("Вы не видите никого похожего.\r\n", ch);
 		return;
 	}
 
@@ -194,9 +194,9 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (helpee == ch)
-		send_to_char("И как вы это представляете - нанять самого себя?\r\n", ch);
+		SendMsgToChar("И как вы это представляете - нанять самого себя?\r\n", ch);
 	else if (!helpee->IsNpc())
-		send_to_char("Вы не можете нанять реального игрока!\r\n", ch);
+		SendMsgToChar("Вы не можете нанять реального игрока!\r\n", ch);
 	else if (!NPC_FLAGGED(helpee, ENpcFlag::kHelped))
 		act("$N не нанимается!", false, ch, 0, helpee, kToChar);
 	else if (AFF_FLAGGED(helpee, EAffect::kCharmed) && (!k || (k && helpee != k->ch)))
@@ -204,11 +204,11 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else if (AFF_FLAGGED(helpee, EAffect::kDeafness))
 		act("$N не слышит вас.", false, ch, 0, helpee, kToChar);
 	else if (IS_HORSE(helpee))
-		send_to_char("Это боевой скакун, а не хухры-мухры.\r\n", ch);
+		SendMsgToChar("Это боевой скакун, а не хухры-мухры.\r\n", ch);
 	else if (helpee->GetEnemy() || GET_POS(helpee) < EPosition::kRest)
 		act("$M сейчас, похоже, не до вас.", false, ch, 0, helpee, kToChar);
 	else if (circle_follow(helpee, ch))
-		send_to_char("Следование по кругу запрещено.\r\n", ch);
+		SendMsgToChar("Следование по кругу запрещено.\r\n", ch);
 	else if (GET_REAL_REMORT(ch) < GET_REAL_REMORT(helpee))
 		act("$N сказал вам: \"Ты слишком слаб, чтобы нанять меня\".", false, ch, 0, helpee, kToChar);
 	else {
@@ -233,7 +233,7 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		if (times > MAX_HIRE_TIME) {
-			send_to_char("Пожизненный найм запрещен!\r\n", ch);
+			SendMsgToChar("Пожизненный найм запрещен!\r\n", ch);
 			times = MAX_HIRE_TIME;
 		}
 
@@ -332,7 +332,7 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 void do_freehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc()
 		|| (!IS_IMMORTAL(ch) && !IsAbleToUseFeat(ch, EFeat::kEmployer))) {
-		send_to_char("Вам недоступно это!\r\n", ch);
+		SendMsgToChar("Вам недоступно это!\r\n", ch);
 		return;
 	}
 

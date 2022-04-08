@@ -30,7 +30,7 @@ void AbilityRoll::PerformAbilityTest() {
 	int roll_result = difficulty - roll;
 	ProcessingResult(roll_result, roll);
 	if (PRF_FLAGGED(actor_, EPrf::kTester)) {
-		send_to_char(actor_,
+		SendMsgToChar(actor_,
 					 "&CНавык: %s, Рейтинг навыка: %d, Рейтинг цели: %d, Сложность: %d Бросок d100: %d, Итог: %d (%s)&n\r\n",
 					 ability_->name,
 					 actor_rating_,
@@ -67,7 +67,7 @@ void AbilityRoll::DetermineBaseSkill() {
 }
 
 void AbilityRoll::SendDenyMsgToActor() {
-	send_to_char(deny_msg_, actor_);
+	SendMsgToChar(deny_msg_, actor_);
 };
 
 void AbilityRoll::ProcessingResult(int result, int roll) {

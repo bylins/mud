@@ -28,7 +28,7 @@
 
 // extern
 void perform_drop_gold(CharData *ch, int amount);
-int level_exp(CharData *ch, int chlevel);
+long GetExpUntilNextLvl(CharData *ch, int level);
 int max_exp_gain_pc(CharData *ch);
 int max_exp_loss_pc(CharData *ch);
 void get_from_container(CharData *ch, ObjData *cont, char *arg, int mode, int amount, bool autoloot);
@@ -269,7 +269,7 @@ bool stone_rebirth(CharData *ch, CharData *killer) {
 		if (rm->contents) {
 			for (ObjData *j = rm->contents; j; j = j->get_next_content()) {
 				if (j->get_vnum() == 1000) { // камень возрождения
-					send_to_char("Божественная сила спасла вашу жизнь!\r\n", ch);
+					SendMsgToChar("Божественная сила спасла вашу жизнь!\r\n", ch);
 //					enter_wtrigger(world[rnum_start], ch, -1);
 					ExtractCharFromRoom(ch);
 					PlaceCharToRoom(ch, rnum_start);
@@ -286,7 +286,7 @@ bool stone_rebirth(CharData *ch, CharData *killer) {
 					greet_mtrigger(ch, -1);
 					greet_otrigger(ch, -1);
 					act("$n медленно появил$u откуда-то.", false, ch, nullptr, nullptr, kToRoom);
-					WAIT_STATE(ch, 10 * kPulseViolence);
+					SetWaitState(ch, 10 * kPulseViolence);
 					return true;
 				}
 			}
@@ -315,11 +315,11 @@ bool check_tester_death(CharData *ch, CharData *killer) {
 	act("$n погиб$q смертью храбрых.", false, ch, nullptr, nullptr, kToRoom);
 	const int rent_room = real_room(GET_LOADROOM(ch));
 	if (rent_room == kNowhere) {
-		send_to_char("Вам некуда возвращаться!\r\n", ch);
+		SendMsgToChar("Вам некуда возвращаться!\r\n", ch);
 		return true;
 	}
 //	enter_wtrigger(world[rent_room], ch, -1);
-	send_to_char("Божественная сила спасла вашу жизнь.!\r\n", ch);
+	SendMsgToChar("Божественная сила спасла вашу жизнь.!\r\n", ch);
 	ExtractCharFromRoom(ch);
 	PlaceCharToRoom(ch, rent_room);
 	ch->dismount();
@@ -359,7 +359,7 @@ void die(CharData *ch, CharData *killer) {
 	{
 		act("$n глупо погиб$q не закончив обучение.", false, ch, nullptr, nullptr, kToRoom);
 //		sprintf(buf, "Вы погибли смертью глупых в бою! Боги возродили вас, но вы пока не можете двигаться\r\n");
-//		send_to_char(buf, ch);  // все мессаги писать в грит триггере
+//		SendMsgToChar(buf, ch);  // все мессаги писать в грит триггере
 //		enter_wtrigger(world[real_room(75989)], ch, -1);
 		ExtractCharFromRoom(ch);
 		PlaceCharToRoom(ch, real_room(75989));
@@ -384,15 +384,15 @@ void die(CharData *ch, CharData *killer) {
 		{
 			if (!NORENTABLE(ch))
 				dec_exp =
-					(level_exp(ch, GetRealLevel(ch) + 1) - level_exp(ch, GetRealLevel(ch))) / (3 + MIN(3, GET_REAL_REMORT(ch) / 5))
+					(GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - GetExpUntilNextLvl(ch, GetRealLevel(ch))) / (3 + MIN(3, GET_REAL_REMORT(ch) / 5))
 						/ ch->death_player_count();
 			else
-				dec_exp = (level_exp(ch, GetRealLevel(ch) + 1) - level_exp(ch, GetRealLevel(ch)))
+				dec_exp = (GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - GetExpUntilNextLvl(ch, GetRealLevel(ch)))
 					/ (3 + MIN(3, GET_REAL_REMORT(ch) / 5));
-			gain_exp(ch, -dec_exp);
+			EndowExpToChar(ch, -dec_exp);
 			dec_exp = char_exp - GET_EXP(ch);
 			sprintf(buf, "Вы потеряли %ld %s опыта.\r\n", dec_exp, GetDeclensionInNumber(dec_exp, EWhat::kPoint));
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 		}
 
 		// Вычисляем замакс по мобам
@@ -459,8 +459,8 @@ void forget_all_spells(CharData *ch) {
    чтобы не было лута под холдом или в слепи             */
 int can_loot(CharData *ch) {
 	if (ch != nullptr) {
-		if (!ch->IsNpc()
-			&& GET_MOB_HOLD(ch) == 0 // если под холдом
+		if (!ch->is_npc()
+			&& AFF_FLAGGED(ch, EAffect::kHold) == 0 // если под холдом
 			&& !AFF_FLAGGED(ch, EAffect::kStopFight) // парализован точкой
 			&& !AFF_FLAGGED(ch, EAffect::kBlind)    // слеп
 			&& (GET_POS(ch) >= EPosition::kRest)) // мертв, умирает, без сознания, спит
@@ -631,8 +631,8 @@ bool change_rep(CharData *ch, CharData *killer) {
 	int rep_ch = CLAN(ch)->get_rep() * 0.1 + 1;
 	CLAN(ch)->set_rep(CLAN(ch)->get_rep() - rep_ch);
 	CLAN(killer)->set_rep(CLAN(killer)->get_rep() + rep_ch);
-	send_to_char("Вы потеряли очко репутации своего клана! Стыд и позор вам.\r\n", ch);
-	send_to_char("Вы заработали очко репутации для своего клана! Честь и похвала вам.\r\n", killer);
+	SendMsgToChar("Вы потеряли очко репутации своего клана! Стыд и позор вам.\r\n", ch);
+	SendMsgToChar("Вы заработали очко репутации для своего клана! Честь и похвала вам.\r\n", killer);
 	// проверяем репу клана у убитого
 	if (CLAN(ch)->get_rep() < 1) {
 		// сам распустится
@@ -707,7 +707,7 @@ void raw_kill(CharData *ch, CharData *killer) {
 
 	for (CharData *hitter = combat_list; hitter; hitter = hitter->next_fighting) {
 		if (hitter->GetEnemy() == ch) {
-			WAIT_STATE(hitter, 0);
+			SetWaitState(hitter, 0);
 		}
 	}
 
@@ -817,7 +817,7 @@ int get_extend_exp(int exp, CharData *ch, CharData *victim) {
 	exp = exp * MAX(15, koef) / 100;
 
 	// делим на реморты
-	exp /= std::max(1.0, 0.5 * (GET_REAL_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED));
+	exp /= std::max(1.0, 0.5 * (GET_REAL_REMORT(ch) - kMaxExpCoefficientsUsed));
 	return (exp);
 }
 
@@ -842,7 +842,7 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 // Странно, но для NPC эта функция тоже должна работать
 //  if (ch->IsNpc() || !OK_GAIN_EXP(ch,victim))
 	if (!OK_GAIN_EXP(ch, victim)) {
-		send_to_char("Ваше деяние никто не оценил.\r\n", ch);
+		SendMsgToChar("Ваше деяние никто не оценил.\r\n", ch);
 		return;
 	}
 
@@ -904,7 +904,7 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 				default: mess = "Ваша удача выше звезд! Опыт повышен!\r\n";
 					break;
 			}
-			send_to_char(mess.c_str(), ch);
+			SendMsgToChar(mess.c_str(), ch);
 		}
 		if (long_live_exp_bounus_miltiplier >= 10) {
 			const CharData *ch_with_bonus = ch->IsNpc() ? ch->get_master() : ch;
@@ -917,11 +917,11 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 		}
 
 		exp = MIN(max_exp_gain_pc(ch), exp);
-		send_to_char(ch, "Ваш опыт повысился на %d %s.\r\n", exp, GetDeclensionInNumber(exp, EWhat::kPoint));
+		SendMsgToChar(ch, "Ваш опыт повысился на %d %s.\r\n", exp, GetDeclensionInNumber(exp, EWhat::kPoint));
 	} else if (exp == 1) {
-		send_to_char("Ваш опыт повысился всего лишь на маленькую единичку.\r\n", ch);
+		SendMsgToChar("Ваш опыт повысился всего лишь на маленькую единичку.\r\n", ch);
 	}
-	gain_exp(ch, exp);
+	EndowExpToChar(ch, exp);
 	change_alignment(ch, victim);
 	TopPlayer::Refresh(ch);
 
@@ -1069,13 +1069,13 @@ void gain_battle_exp(CharData *ch, CharData *victim, int dam) {
 	// получение игроками экспы
 	if (!ch->IsNpc() && OK_GAIN_EXP(ch, victim)) {
 		int max_exp = MIN(max_exp_gain_pc(ch), (GetRealLevel(victim) * GET_MAX_HIT(victim) + 4) /
-			(5 * MAX(1, GET_REAL_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1)));
+			(5 * MAX(1, GET_REAL_REMORT(ch) - kMaxExpCoefficientsUsed - 1)));
 		double coeff = MIN(dam, GET_HIT(victim)) / static_cast<double>(GET_MAX_HIT(victim));
 		int battle_exp = MAX(1, static_cast<int>(max_exp * coeff));
 		if (Bonus::is_bonus_active(Bonus::EBonusType::BONUS_WEAPON_EXP) && Bonus::can_get_bonus_exp(ch)) {
 			battle_exp *= Bonus::get_mult_bonus();
 		}
-		gain_exp(ch, battle_exp);
+		EndowExpToChar(ch, battle_exp);
 		ch->dps_add_exp(battle_exp, true);
 	}
 
@@ -1086,14 +1086,14 @@ void gain_battle_exp(CharData *ch, CharData *victim, int dam) {
 		// проверяем что есть мастер и он может получать экспу с данной цели
 		if (master && OK_GAIN_EXP(master, victim)) {
 			int max_exp = MIN(max_exp_gain_pc(master), (GetRealLevel(victim) * GET_MAX_HIT(victim) + 4) /
-				(5 * MAX(1, GET_REAL_REMORT(master) - MAX_EXP_COEFFICIENTS_USED - 1)));
+				(5 * MAX(1, GET_REAL_REMORT(master) - kMaxExpCoefficientsUsed - 1)));
 
 			double coeff = MIN(dam, GET_HIT(victim)) / static_cast<double>(GET_MAX_HIT(victim));
 			int battle_exp = MAX(1, static_cast<int>(max_exp * coeff));
 			if (Bonus::is_bonus_active(Bonus::EBonusType::BONUS_WEAPON_EXP) && Bonus::can_get_bonus_exp(master)) {
 				battle_exp *= Bonus::get_mult_bonus();
 			}
-			gain_exp(master, battle_exp);
+			EndowExpToChar(master, battle_exp);
 			master->dps_add_exp(battle_exp, true);
 		}
 	}
@@ -1225,7 +1225,7 @@ void char_dam_message(int dam, CharData *ch, CharData *victim, bool noflee) {
 			else
 				act("$n смертельно ранен$a и умрет, если $m не помогут.",
 					true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-			send_to_char("Вы смертельно ранены и умрете, если вам не помогут.\r\n", victim);
+			SendMsgToChar("Вы смертельно ранены и умрете, если вам не помогут.\r\n", victim);
 			break;
 		case EPosition::kIncap:
 			if (IS_POLY(victim))
@@ -1234,7 +1234,7 @@ void char_dam_message(int dam, CharData *ch, CharData *victim, bool noflee) {
 			else
 				act("$n без сознания и медленно умирает. Помогите же $m.",
 					true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-			send_to_char("Вы без сознания и медленно умираете, брошенные без помощи.\r\n", victim);
+			SendMsgToChar("Вы без сознания и медленно умираете, брошенные без помощи.\r\n", victim);
 			break;
 		case EPosition::kStun:
 			if (IS_POLY(victim))
@@ -1243,12 +1243,12 @@ void char_dam_message(int dam, CharData *ch, CharData *victim, bool noflee) {
 			else
 				act("$n без сознания, но возможно $e еще повоюет (попозже :).",
 					true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-			send_to_char("Сознание покинуло вас. В битве от вас пока проку мало.\r\n", victim);
+			SendMsgToChar("Сознание покинуло вас. В битве от вас пока проку мало.\r\n", victim);
 			break;
 		case EPosition::kDead:
 			if (victim->IsNpc() && (MOB_FLAGGED(victim, EMobFlag::kCorpse))) {
 				act("$n вспыхнул$g и рассыпал$u в прах.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-				send_to_char("Похоже вас убили и даже тела не оставили!\r\n", victim);
+				SendMsgToChar("Похоже вас убили и даже тела не оставили!\r\n", victim);
 			} else {
 				if (IS_POLY(victim))
 					act("$n мертвы, их души медленно подымаются в небеса.",
@@ -1256,19 +1256,19 @@ void char_dam_message(int dam, CharData *ch, CharData *victim, bool noflee) {
 				else
 					act("$n мертв$a, $s душа медленно подымается в небеса.",
 						false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-				send_to_char("Вы мертвы! Нам очень жаль...\r\n", victim);
+				SendMsgToChar("Вы мертвы! Нам очень жаль...\r\n", victim);
 			}
 			break;
 		default:        // >= POSITION SLEEPING
 			if (dam > (GET_REAL_MAX_HIT(victim) / 4)) {
-				send_to_char("Это действительно БОЛЬНО!\r\n", victim);
+				SendMsgToChar("Это действительно БОЛЬНО!\r\n", victim);
 			}
 
 			if (dam > 0
 				&& GET_HIT(victim) < (GET_REAL_MAX_HIT(victim) / 4)) {
 				sprintf(buf2, "%s Вы желаете, чтобы ваши раны не кровоточили так сильно! %s\r\n",
 						CCRED(victim, C_SPR), CCNRM(victim, C_SPR));
-				send_to_char(buf2, victim);
+				SendMsgToChar(buf2, victim);
 			}
 
 			if (ch != victim
@@ -1277,7 +1277,7 @@ void char_dam_message(int dam, CharData *ch, CharData *victim, bool noflee) {
 				&& MOB_FLAGGED(victim, EMobFlag::kWimpy)
 				&& !noflee
 				&& GET_POS(victim) > EPosition::kSit) {
-				do_flee(victim, nullptr, 0, 0);
+				DoFlee(victim, nullptr, 0, 0);
 			}
 
 			if (ch != victim
@@ -1287,8 +1287,8 @@ void char_dam_message(int dam, CharData *ch, CharData *victim, bool noflee) {
 				&& GET_WIMP_LEV(victim)
 				&& GET_HIT(victim) < GET_WIMP_LEV(victim)
 				&& !noflee) {
-				send_to_char("Вы запаниковали и попытались убежать!\r\n", victim);
-				do_flee(victim, nullptr, 0, 0);
+				SendMsgToChar("Вы запаниковали и попытались убежать!\r\n", victim);
+				DoFlee(victim, nullptr, 0, 0);
 			}
 
 			break;
@@ -1375,7 +1375,7 @@ void do_show_mobmax(CharData *ch, char *, int, int) {
 		// написать в лог, что show_mobmax была вызвана не игроком
 		return;
 	}
-	send_to_char(ch, "&BВ стадии тестирования!!!&n\n");
+	SendMsgToChar(ch, "&BВ стадии тестирования!!!&n\n");
 	player->show_mobmax();
 }
 

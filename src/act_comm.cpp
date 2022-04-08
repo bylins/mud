@@ -52,17 +52,17 @@ void do_say(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	skip_spaces(&argument);
 
 	if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
-		send_to_char(SIELENCE, ch);
+		SendMsgToChar(SIELENCE, ch);
 		return;
 	}
 
-	if (!ch->IsNpc() && PLR_FLAGGED(ch, EPlrFlag::kDumbed)) {
-		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
+	if (!ch->is_npc() && PLR_FLAGGED(ch, EPlrFlag::kDumbed)) {
+		SendMsgToChar("Вам запрещено обращаться к другим игрокам!\r\n", ch);
 		return;
 	}
 
 	if (!*argument)
-		send_to_char("Вы задумались: \"Чего бы такого сказать?\"\r\n", ch);
+		SendMsgToChar("Вы задумались: \"Чего бы такого сказать?\"\r\n", ch);
 	else {
 		sprintf(buf, "$n сказал$g : '%s'", argument);
 
@@ -75,12 +75,12 @@ void do_say(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			act(buf, false, ch, 0, to, kToVict | DG_NO_TRIG | kToNotDeaf);
 		}
 
-		if (!ch->IsNpc() && PRF_FLAGGED(ch, EPrf::kNoRepeat)) {
-			send_to_char(OK, ch);
+		if (!ch->is_npc() && PRF_FLAGGED(ch, EPrf::kNoRepeat)) {
+			SendMsgToChar(OK, ch);
 		} else {
 			delete_doubledollar(argument);
 			sprintf(buf, "Вы сказали : '%s'\r\n", argument);
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 		}
 		speech_mtrigger(ch, argument);
 		speech_wtrigger(ch, argument);
@@ -93,24 +93,24 @@ void do_gsay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (AFF_FLAGGED(ch, EAffect::kSilence)
 		|| AFF_FLAGGED(ch, EAffect::kStrangled)) {
-		send_to_char(SIELENCE, ch);
+		SendMsgToChar(SIELENCE, ch);
 		return;
 	}
 
-	if (!ch->IsNpc() && PLR_FLAGGED(ch, EPlrFlag::kDumbed)) {
-		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
+	if (!ch->is_npc() && PLR_FLAGGED(ch, EPlrFlag::kDumbed)) {
+		SendMsgToChar("Вам запрещено обращаться к другим игрокам!\r\n", ch);
 		return;
 	}
 
 	skip_spaces(&argument);
 
 	if (!AFF_FLAGGED(ch, EAffect::kGroup)) {
-		send_to_char("Вы не являетесь членом группы!\r\n", ch);
+		SendMsgToChar("Вы не являетесь членом группы!\r\n", ch);
 		return;
 	}
 
 	if (!*argument) {
-		send_to_char("О чем вы хотите сообщить своей группе?\r\n", ch);
+		SendMsgToChar("О чем вы хотите сообщить своей группе?\r\n", ch);
 	} else {
 		if (ch->has_master()) {
 			k = ch->get_master();
@@ -158,10 +158,10 @@ void do_gsay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		if (PRF_FLAGGED(ch, EPrf::kNoRepeat))
-			send_to_char(OK, ch);
+			SendMsgToChar(OK, ch);
 		else {
 			sprintf(buf, "Вы сообщили группе : '%s'\r\n", argument);
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 			// added by WorM  групптелы 2010.10.13
 			ch->remember_add(buf, Remember::ALL);
 			ch->remember_add(buf, Remember::GROUP);
@@ -196,8 +196,8 @@ void perform_tell(CharData *ch, CharData *vict, char *arg) {
 		snprintf(buf, kMaxStringLength, "Кто-то сказал вам : '%s'", arg);
 	}
 	snprintf(buf1, kMaxStringLength, "%s%s%s\r\n", CCICYN(vict, C_NRM), CAP(buf), CCNRM(vict, C_NRM));
-	send_to_char(buf1, vict);
-	if (!vict->IsNpc()) {
+	SendMsgToChar(buf1, vict);
+	if (!vict->is_npc()) {
 		vict->remember_add(buf1, Remember::ALL);
 	}
 
@@ -207,13 +207,13 @@ void perform_tell(CharData *ch, CharData *vict, char *arg) {
 		vict->remember_add(buf, Remember::PERSONAL);
 	}
 
-	if (!ch->IsNpc() && PRF_FLAGGED(ch, EPrf::kNoRepeat)) {
-		send_to_char(OK, ch);
+	if (!ch->is_npc() && PRF_FLAGGED(ch, EPrf::kNoRepeat)) {
+		SendMsgToChar(OK, ch);
 	} else {
 		snprintf(buf, kMaxStringLength, "%sВы сказали %s : '%s'%s\r\n", CCICYN(ch, C_NRM),
 				 tell_can_see(vict, ch) ? vict->player_data.PNames[2].c_str() : "кому-то", arg, CCNRM(ch, C_NRM));
-		send_to_char(buf, ch);
-		if (!ch->IsNpc()) {
+		SendMsgToChar(buf, ch);
+		if (!ch->is_npc()) {
 			ch->remember_add(buf, Remember::ALL);
 		}
 	}
@@ -225,10 +225,10 @@ void perform_tell(CharData *ch, CharData *vict, char *arg) {
 
 int is_tell_ok(CharData *ch, CharData *vict) {
 	if (ch == vict) {
-		send_to_char("Вы начали потихоньку разговаривать с самим собой.\r\n", ch);
+		SendMsgToChar("Вы начали потихоньку разговаривать с самим собой.\r\n", ch);
 		return (false);
-	} else if (!ch->IsNpc() && PLR_FLAGGED(ch, EPlrFlag::kDumbed)) {
-		send_to_char("Вам запрещено обращаться к другим игрокам.\r\n", ch);
+	} else if (!ch->is_npc() && PLR_FLAGGED(ch, EPlrFlag::kDumbed)) {
+		SendMsgToChar("Вам запрещено обращаться к другим игрокам.\r\n", ch);
 		return (false);
 	} else if (!vict->IsNpc() && !vict->desc)    // linkless
 	{
@@ -243,8 +243,8 @@ int is_tell_ok(CharData *ch, CharData *vict) {
 		return (true);
 
 	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kSoundproof))
-		send_to_char(SOUNDPROOF, ch);
-	else if ((!vict->IsNpc() &&
+		SendMsgToChar(SOUNDPROOF, ch);
+	else if ((!vict->is_npc() &&
 		(PRF_FLAGGED(vict, EPrf::kNoTell) || ignores(vict, ch, EIgnore::kTell))) ||
 		ROOM_FLAGGED(vict->in_room, ERoomFlag::kSoundproof))
 		act("$N не сможет вас услышать.", false, ch, 0, vict, kToChar | kToSleep);
@@ -267,14 +267,14 @@ void do_tell(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 
 	if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
-		send_to_char(SIELENCE, ch);
+		SendMsgToChar(SIELENCE, ch);
 		return;
 	}
 
 	/* Непонятно нафига нужно
 	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kTribune))
 	{
-		send_to_char(SOUNDPROOF, ch);
+		SendMsgToChar(SOUNDPROOF, ch);
 		return;
 	}
 	*/
@@ -282,14 +282,14 @@ void do_tell(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	half_chop(argument, buf, buf2);
 
 	if (!*buf || !*buf2) {
-		send_to_char("Что и кому вы хотите сказать?\r\n", ch);
+		SendMsgToChar("Что и кому вы хотите сказать?\r\n", ch);
 	} else if (!(vict = get_player_vis(ch, buf, EFind::kCharInWorld))) {
-		send_to_char(NOPERSON, ch);
-	} else if (vict->IsNpc())
-		send_to_char(NOPERSON, ch);
+		SendMsgToChar(NOPERSON, ch);
+	} else if (vict->is_npc())
+		SendMsgToChar(NOPERSON, ch);
 	else if (is_tell_ok(ch, vict)) {
 		if (PRF_FLAGGED(ch, EPrf::kNoTell))
-			send_to_char("Ответить вам не смогут!\r\n", ch);
+			SendMsgToChar("Ответить вам не смогут!\r\n", ch);
 		perform_tell(ch, vict, buf2);
 	}
 }
@@ -299,21 +299,21 @@ void do_reply(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 
 	if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
-		send_to_char(SIELENCE, ch);
+		SendMsgToChar(SIELENCE, ch);
 		return;
 	}
 
-	if (!ch->IsNpc() && PLR_FLAGGED(ch, EPlrFlag::kDumbed)) {
-		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
+	if (!ch->is_npc() && PLR_FLAGGED(ch, EPlrFlag::kDumbed)) {
+		SendMsgToChar("Вам запрещено обращаться к другим игрокам!\r\n", ch);
 		return;
 	}
 
 	skip_spaces(&argument);
 
 	if (ch->get_answer_id() == kNobody)
-		send_to_char("Вам некому ответить!\r\n", ch);
+		SendMsgToChar("Вам некому ответить!\r\n", ch);
 	else if (!*argument)
-		send_to_char("Что вы собираетесь ответить?\r\n", ch);
+		SendMsgToChar("Что вы собираетесь ответить?\r\n", ch);
 	else {
 		/*
 		 * Make sure the person you're replying to is still playing by searching
@@ -342,7 +342,7 @@ void do_reply(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		if (!found) {
-			send_to_char("Этого игрока уже нет в игре.\r\n", ch);
+			SendMsgToChar("Этого игрока уже нет в игре.\r\n", ch);
 		}
 	}
 }
@@ -353,12 +353,12 @@ void do_spec_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	char vict3[kMaxInputLength];
 
 	if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
-		send_to_char(SIELENCE, ch);
+		SendMsgToChar(SIELENCE, ch);
 		return;
 	}
 
-	if (!ch->IsNpc() && PLR_FLAGGED(ch, EPlrFlag::kDumbed)) {
-		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
+	if (!ch->is_npc() && PLR_FLAGGED(ch, EPlrFlag::kDumbed)) {
+		SendMsgToChar("Вам запрещено обращаться к другим игрокам!\r\n", ch);
 		return;
 	}
 
@@ -380,14 +380,14 @@ void do_spec_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	if (!*buf || !*buf2) {
 		sprintf(buf, "Что вы хотите %s.. и %s?\r\n", action_sing, vict1);
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 	} else if (!(vict = get_char_vis(ch, buf, EFind::kCharInRoom)))
-		send_to_char(NOPERSON, ch);
+		SendMsgToChar(NOPERSON, ch);
 	else if (vict == ch)
-		send_to_char("От ваших уст до ушей - всего одна ладонь...\r\n", ch);
+		SendMsgToChar("От ваших уст до ушей - всего одна ладонь...\r\n", ch);
 	else if (ignores(vict, ch, subcmd == SCMD_WHISPER ? EIgnore::kWhisper : EIgnore::kAsk)) {
 		sprintf(buf, "%s не желает вас слышать.\r\n", GET_NAME(vict));
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 	} else {
 		if (subcmd == SCMD_WHISPER)
 			sprintf(vict3, "%s", GET_PAD(vict, 2));
@@ -400,12 +400,12 @@ void do_spec_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		act(buffer.str().c_str(), false, ch, 0, vict, kToVict | kToNotDeaf);
 
 		if (PRF_FLAGGED(ch, EPrf::kNoRepeat))
-			send_to_char(OK, ch);
+			SendMsgToChar(OK, ch);
 		else {
 			std::stringstream buffer;
 			buffer << "Вы " << action_plur << "и " << vict3 << " : '" << buf2 << "'" << std::endl;
 //			sprintf(buf, "Вы %sи %s : '%s'\r\n", action_plur, vict3, buf2);
-			send_to_char(buffer.str(), ch);
+			SendMsgToChar(buffer.str(), ch);
 		}
 
 		act(action_others, false, ch, 0, vict, kToNotVict);
@@ -428,26 +428,26 @@ void do_write(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!*papername)    // nothing was delivered
 	{
-		send_to_char("Написать?  Чем?  И на чем?\r\n", ch);
+		SendMsgToChar("Написать?  Чем?  И на чем?\r\n", ch);
 		return;
 	}
 	if (*penname)        // there were two arguments
 	{
 		if (!(paper = get_obj_in_list_vis(ch, papername, ch->carrying))) {
 			sprintf(buf, "У вас нет %s.\r\n", papername);
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 			return;
 		}
 		if (!(pen = get_obj_in_list_vis(ch, penname, ch->carrying))) {
 			sprintf(buf, "У вас нет %s.\r\n", penname);
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 			return;
 		}
 	} else        // there was one arg.. let's see what we can find
 	{
 		if (!(paper = get_obj_in_list_vis(ch, papername, ch->carrying))) {
 			sprintf(buf, "Вы не видите %s в инвентаре.\r\n", papername);
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 			return;
 		}
 		if (GET_OBJ_TYPE(paper) == EObjType::kPen)    // oops, a pen..
@@ -455,17 +455,17 @@ void do_write(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			pen = paper;
 			paper = nullptr;
 		} else if (GET_OBJ_TYPE(paper) != EObjType::kNote) {
-			send_to_char("Вы не можете на ЭТОМ писать.\r\n", ch);
+			SendMsgToChar("Вы не можете на ЭТОМ писать.\r\n", ch);
 			return;
 		}
 		// One object was found.. now for the other one.
 		if (!GET_EQ(ch, kHold)) {
 			sprintf(buf, "Вы нечем писать!\r\n");
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 			return;
 		}
 		if (!CAN_SEE_OBJ(ch, GET_EQ(ch, kHold))) {
-			send_to_char("Вы держите что-то невидимое!  Жаль, но писать этим трудно!!\r\n", ch);
+			SendMsgToChar("Вы держите что-то невидимое!  Жаль, но писать этим трудно!!\r\n", ch);
 			return;
 		}
 		if (pen)
@@ -481,7 +481,7 @@ void do_write(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (GET_OBJ_TYPE(paper) != EObjType::kNote) {
 		act("Вы не можете писать на $o5.", false, ch, paper, 0, kToChar);
 	} else if (!paper->get_action_description().empty()) {
-		send_to_char("Там уже что-то записано.\r\n", ch);
+		SendMsgToChar("Там уже что-то записано.\r\n", ch);
 	} else            // we can write - hooray!
 	{
 		/* this is the PERFECT code example of how to set up:
@@ -489,14 +489,14 @@ void do_write(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		 * b) the abort buffer if the player aborts the message
 		 */
 		ch->desc->backstr = nullptr;
-		send_to_char("Можете писать.  (/s СОХРАНИТЬ ЗАПИСЬ  /h ПОМОЩЬ)\r\n", ch);
+		SendMsgToChar("Можете писать.  (/s СОХРАНИТЬ ЗАПИСЬ  /h ПОМОЩЬ)\r\n", ch);
 		// ok, here we check for a message ALREADY on the paper
 		if (!paper->get_action_description().empty())    // we str_dup the original text to the descriptors->backstr
 		{
 			ch->desc->backstr = str_dup(paper->get_action_description().c_str());
 			// send to the player what was on the paper (cause this is already
 			// loaded into the editor)
-			send_to_char(paper->get_action_description().c_str(), ch);
+			SendMsgToChar(paper->get_action_description().c_str(), ch);
 		}
 		act("$n начал$g писать.", true, ch, 0, 0, kToRoom);
 		// assign the descriptor's->str the value of the pointer to the text
@@ -513,10 +513,10 @@ void do_page(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	half_chop(argument, arg, buf2);
 
-	if (ch->IsNpc())
-		send_to_char("Создания-не-персонажи этого не могут.. ступайте.\r\n", ch);
+	if (ch->is_npc())
+		SendMsgToChar("Создания-не-персонажи этого не могут.. ступайте.\r\n", ch);
 	else if (!*arg)
-		send_to_char("Whom do you wish to page?\r\n", ch);
+		SendMsgToChar("Whom do you wish to page?\r\n", ch);
 	else {
 		std::stringstream buffer;
 		buffer << "\007\007*$n*" << buf2;
@@ -529,18 +529,18 @@ void do_page(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					}
 				}
 			} else {
-				send_to_char("Это доступно только БОГАМ!\r\n", ch);
+				SendMsgToChar("Это доступно только БОГАМ!\r\n", ch);
 			}
 			return;
 		}
 		if ((vict = get_char_vis(ch, arg, EFind::kCharInWorld)) != nullptr) {
 			act(buffer.str().c_str(), false, ch, 0, vict, kToVict);
 			if (PRF_FLAGGED(ch, EPrf::kNoRepeat))
-				send_to_char(OK, ch);
+				SendMsgToChar(OK, ch);
 			else
 				act(buffer.str().c_str(), false, ch, 0, vict, kToChar);
 		} else
-			send_to_char("Такой игрок отсутствует!\r\n", ch);
+			SendMsgToChar("Такой игрок отсутствует!\r\n", ch);
 	}
 }
 
@@ -624,22 +624,22 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 
 	if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
-		send_to_char(SIELENCE, ch);
+		SendMsgToChar(SIELENCE, ch);
 		return;
 	}
 
-	if (!ch->IsNpc() && PLR_FLAGGED(ch, EPlrFlag::kDumbed)) {
-		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
+	if (!ch->is_npc() && PLR_FLAGGED(ch, EPlrFlag::kDumbed)) {
+		SendMsgToChar("Вам запрещено обращаться к другим игрокам!\r\n", ch);
 		return;
 	}
 
 	if (PLR_FLAGGED(ch, EPlrFlag::kMuted) && subcmd != SCMD_AUCTION) {
-		send_to_char(com_msgs[subcmd].muted_msg, ch);
+		SendMsgToChar(com_msgs[subcmd].muted_msg, ch);
 		return;
 	}
 	//if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kSoundproof) || ROOM_FLAGGED(ch->in_room, ERoomFlag::kTribune))
 	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kSoundproof)) {
-		send_to_char(SOUNDPROOF, ch);
+		SendMsgToChar(SOUNDPROOF, ch);
 		return;
 	}
 
@@ -647,13 +647,13 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		sprintf(buf1,
 				"Вам стоит достичь хотя бы %d уровня, чтобы вы могли %s.\r\n",
 				com_msgs[subcmd].min_lev, com_msgs[subcmd].action);
-		send_to_char(buf1, ch);
+		SendMsgToChar(buf1, ch);
 		return;
 	}
 
 	// make sure the char is on the channel
 	if (PRF_FLAGS(ch).get(com_msgs[subcmd].noflag)) {
-		send_to_char(com_msgs[subcmd].no_channel, ch);
+		SendMsgToChar(com_msgs[subcmd].no_channel, ch);
 		return;
 	}
 
@@ -663,7 +663,7 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	// make sure that there is something there to say!
 	if (!*argument && subcmd != SCMD_AUCTION) {
 		sprintf(buf1, "ЛЕГКО! Но, Ярило вас побери, ЧТО %s???\r\n", com_msgs[subcmd].action);
-		send_to_char(buf1, ch);
+		SendMsgToChar(buf1, ch);
 		return;
 	}
 
@@ -694,7 +694,7 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		}
 		// фильтруем одинаковые сообщения в эфире
 		if (!str_cmp(ch->get_last_tell().c_str(), argument)) {
-			send_to_char("Но вы же недавно говорили тоже самое?!\r\n", ch);
+			SendMsgToChar("Но вы же недавно говорили тоже самое?!\r\n", ch);
 			return;
 		}
 		ch->set_last_tell(argument);
@@ -715,12 +715,12 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		/* Непонятный запрет
 		if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kTribune))
 		{
-			send_to_char(SOUNDPROOF, ch);
+			SendMsgToChar(SOUNDPROOF, ch);
 			return;
 		}
 		*/
 		if (PRF_FLAGS(ch).get(EPrf::kNoRepeat))
-			send_to_char(OK, ch);
+			SendMsgToChar(OK, ch);
 		else {
 			if (COLOR_LEV(ch) >= C_CMP) {
 				snprintf(buf1, kMaxStringLength, "%sВы %s : '%s'%s", color_on,
@@ -789,12 +789,12 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			}
 
 			if (COLOR_LEV(i->character) >= C_NRM) {
-				send_to_char(color_on, i->character.get());
+				SendMsgToChar(color_on, i->character.get());
 			}
 
 			act(out_str, false, ch, 0, i->character.get(), kToVict | kToSleep | kToNotDeaf);
 			if (COLOR_LEV(i->character) >= C_NRM) {
-				send_to_char(KNRM, i->character.get());
+				SendMsgToChar(KNRM, i->character.get());
 			}
 
 			const std::string text = Remember::format_gossip(ch, i->character.get(), subcmd, argument);
@@ -823,13 +823,13 @@ void do_mobshout(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			&& !PLR_FLAGGED(i->character, EPlrFlag::kWriting)
 			&& GET_POS(i->character) > EPosition::kSleep) {
 			if (COLOR_LEV(i->character) >= C_NRM) {
-				send_to_char(KIYEL, i->character.get());
+				SendMsgToChar(KIYEL, i->character.get());
 			}
 
 			act(buf, false, ch, 0, i->character.get(), kToVict | kToSleep | kToNotDeaf);
 
 			if (COLOR_LEV(i->character) >= C_NRM) {
-				send_to_char(KNRM, i->character.get());
+				SendMsgToChar(KNRM, i->character.get());
 			}
 		}
 	}
@@ -842,8 +842,8 @@ void do_pray_gods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	skip_spaces(&argument);
 
-	if (!ch->IsNpc() && (PLR_FLAGGED(ch, EPlrFlag::kDumbed) || PLR_FLAGGED(ch, EPlrFlag::kMuted))) {
-		send_to_char("Вам запрещено обращаться к Богам, вероятно, вы их замучили...\r\n", ch);
+	if (!ch->is_npc() && (PLR_FLAGGED(ch, EPlrFlag::kDumbed) || PLR_FLAGGED(ch, EPlrFlag::kMuted))) {
+		SendMsgToChar("Вам запрещено обращаться к Богам, вероятно, вы их замучили...\r\n", ch);
 		return;
 	}
 
@@ -852,23 +852,23 @@ void do_pray_gods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		argument = one_argument(argument, arg1);
 		skip_spaces(&argument);
 		if (!*arg1) {
-			send_to_char("Какому смертному вы собираетесь ответить?\r\n", ch);
+			SendMsgToChar("Какому смертному вы собираетесь ответить?\r\n", ch);
 			return;
 		}
 		victim = get_player_vis(ch, arg1, EFind::kCharInWorld);
 		if (victim == nullptr) {
-			send_to_char("Такого нет в игре!\r\n", ch);
+			SendMsgToChar("Такого нет в игре!\r\n", ch);
 			return;
 		}
 	}
 
 	if (!*argument) {
 		sprintf(buf, "С чем вы хотите обратиться к Богам?\r\n");
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 		return;
 	}
 	if (PRF_FLAGGED(ch, EPrf::kNoRepeat))
-		send_to_char(OK, ch);
+		SendMsgToChar(OK, ch);
 	else {
 		if (ch->IsNpc())
 			return;
@@ -878,13 +878,13 @@ void do_pray_gods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			sprintf(buf, "&RВы воззвали к Богам с сообщением : '%s'&n\r\n", argument);
 			SetWait(ch, 3, false);
 		}
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 		ch->remember_add(buf, Remember::PRAY_PERSONAL);
 	}
 
 	if (IS_IMMORTAL(ch)) {
 		sprintf(buf, "&R%s ответил%s вам : '%s'&n\r\n", GET_NAME(ch), GET_CH_SUF_1(ch), argument);
-		send_to_char(buf, victim);
+		SendMsgToChar(buf, victim);
 		victim->remember_add(buf, Remember::PRAY_PERSONAL);
 
 		snprintf(buf1, kMaxStringLength, "&R%s ответил%s %s : '%s&n\r\n",
@@ -908,7 +908,7 @@ void do_pray_gods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				|| (GET_GOD_FLAG(i->character.get(), EGf::kDemigod)
 					&& (GetRealLevel(ch) < 6)))
 				&& (i->character.get() != ch)) {
-				send_to_char(buf, i->character.get());
+				SendMsgToChar(buf, i->character.get());
 				i->character->remember_add(buf, Remember::ALL);
 			}
 		}
@@ -919,37 +919,37 @@ void do_pray_gods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 * Канал оффтоп. Не виден иммам, всегда видно кто говорит, вкл/выкл режим оффтоп.
 */
 void do_offtop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsNpc() || GetRealLevel(ch) >= kLvlImmortal || PRF_FLAGGED(ch, EPrf::kStopOfftop)) {
-		send_to_char("Чаво?\r\n", ch);
+	if (ch->is_npc() || GetRealLevel(ch) >= kLvlImmortal || PRF_FLAGGED(ch, EPrf::kStopOfftop)) {
+		SendMsgToChar("Чаво?\r\n", ch);
 		return;
 	}
 
 	if (PLR_FLAGGED(ch, EPlrFlag::kDumbed) || PLR_FLAGGED(ch, EPlrFlag::kMuted)) {
-		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
+		SendMsgToChar("Вам запрещено обращаться к другим игрокам!\r\n", ch);
 		return;
 	}
 	//if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kSoundproof) || ROOM_FLAGGED(ch->in_room, ERoomFlag::kTribune))
 	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kSoundproof)) {
-		send_to_char(SOUNDPROOF, ch);
+		SendMsgToChar(SOUNDPROOF, ch);
 		return;
 	}
 	if (GetRealLevel(ch) < antispam::kMinOfftopLvl && !GET_REAL_REMORT(ch)) {
-		send_to_char(ch, "Вам стоит достичь хотя бы %d уровня, чтобы вы могли оффтопить.\r\n",
+		SendMsgToChar(ch, "Вам стоит достичь хотя бы %d уровня, чтобы вы могли оффтопить.\r\n",
 					 antispam::kMinOfftopLvl);
 		return;
 	}
 	if (!PRF_FLAGGED(ch, EPrf::kOfftopMode)) {
-		send_to_char("Вы вне видимости канала.\r\n", ch);
+		SendMsgToChar("Вы вне видимости канала.\r\n", ch);
 		return;
 	}
 	skip_spaces(&argument);
 	if (!*argument) {
-		send_to_char(ch, "Раз нечего сказать, то лучше уж помолчать.");
+		SendMsgToChar(ch, "Раз нечего сказать, то лучше уж помолчать.");
 		return;
 	}
 	utils::ConvertToLow(argument);
 	if (!strcmp(ch->get_last_tell().c_str(), argument)) {
-		send_to_char("Но вы же недавно говорили тоже самое!?!\r\n", ch);
+		SendMsgToChar("Но вы же недавно говорили тоже самое!?!\r\n", ch);
 		return;
 	}
 	// эта проверка должна идти последней и послее нее мессага полюбому идет в эфир
@@ -970,7 +970,7 @@ void do_offtop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			&& PRF_FLAGGED(i->character, EPrf::kOfftopMode)
 			&& !PRF_FLAGGED(i->character, EPrf::kStopOfftop)
 			&& !ignores(i->character.get(), ch, EIgnore::kOfftop)) {
-			send_to_char(i->character.get(), "%s%s%s", KCYN, buf, KNRM);
+			SendMsgToChar(i->character.get(), "%s%s%s", KCYN, buf, KNRM);
 			i->character->remember_add(buf1, Remember::ALL);
 		}
 	}
@@ -979,7 +979,7 @@ void do_offtop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 // shapirus
 void ignore_usage(CharData *ch) {
-	send_to_char("Формат команды: игнорировать <имя|все> <режим|все> <добавить|убрать>\r\n"
+	SendMsgToChar("Формат команды: игнорировать <имя|все> <режим|все> <добавить|убрать>\r\n"
 				 "Доступные режимы:\r\n"
 				 "  сказать говорить шептать спросить эмоция кричать\r\n"
 				 "  болтать орать группа дружина союзники\r\n", ch);
@@ -1059,7 +1059,7 @@ void do_ignore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 // при вызове без параметров выведем весь список
 	if (!arg1[0] && !arg2[0] && !arg3[0]) {
 		sprintf(buf, "%sВы игнорируете следующих персонажей:%s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 		for (const auto &ignore : ch->get_ignores()) {
 			if (!ignore->id)
 				continue;
@@ -1070,15 +1070,15 @@ void do_ignore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				name[0] = UPPER(name[0]);
 			}
 			sprintf(buf, "  %s: ", name);
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 			mode = ignore->mode;
-			send_to_char(text_ignore_modes(mode, buf), ch);
-			send_to_char("\r\n", ch);
+			SendMsgToChar(text_ignore_modes(mode, buf), ch);
+			SendMsgToChar("\r\n", ch);
 			list_empty = 0;
 		}
 
 		if (list_empty) {
-			send_to_char("  список пуст.\r\n", ch);
+			SendMsgToChar("  список пуст.\r\n", ch);
 		}
 		return;
 	}
@@ -1121,9 +1121,9 @@ void do_ignore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		// убедимся, что добавляемый чар на данный момент существует
 		// и он не имм, а заодно получим его id
 		switch (ign_find_id(arg1, &vict_id)) {
-			case 0: send_to_char("Нельзя игнорировать Богов, это плохо кончится.\r\n", ch);
+			case 0: SendMsgToChar("Нельзя игнорировать Богов, это плохо кончится.\r\n", ch);
 				return;
-			case -1: send_to_char("Нет такого персонажа, уточните имя.\r\n", ch);
+			case -1: SendMsgToChar("Нет такого персонажа, уточните имя.\r\n", ch);
 				return;
 		}
 	}
@@ -1167,14 +1167,14 @@ void do_ignore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (utils::IsAbbrev(arg3, "убрать")) {
 		if (!ignore || ignore->id != vict_id) {
 			if (vict_id == -1) {
-				send_to_char("Вы и так не игнорируете всех сразу.\r\n", ch);
+				SendMsgToChar("Вы и так не игнорируете всех сразу.\r\n", ch);
 			} else {
 				strcpy(name, ign_find_name(vict_id));
 				name[0] = UPPER(name[0]);
 				sprintf(buf,
 						"Вы и так не игнорируете "
 						"персонажа %s%s%s.\r\n", CCWHT(ch, C_NRM), name, CCNRM(ch, C_NRM));
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 			}
 			return;
 		}
@@ -1194,23 +1194,23 @@ void do_ignore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (mode) {
 		if (ignore->id == -1) {
 			sprintf(buf, "Для всех сразу вы игнорируете:%s.\r\n", text_ignore_modes(ignore->mode, buf1));
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 		} else {
 			strcpy(name, ign_find_name(ignore->id));
 			name[0] = UPPER(name[0]);
 			sprintf(buf, "Для персонажа %s%s%s вы игнорируете:%s.\r\n",
 					CCWHT(ch, C_NRM), name, CCNRM(ch, C_NRM), text_ignore_modes(ignore->mode, buf1));
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 		}
 	} else {
 		if (vict_id == -1) {
-			send_to_char("Вы больше не игнорируете всех сразу.\r\n", ch);
+			SendMsgToChar("Вы больше не игнорируете всех сразу.\r\n", ch);
 		} else {
 			strcpy(name, ign_find_name(vict_id));
 			name[0] = UPPER(name[0]);
 			sprintf(buf, "Вы больше не игнорируете персонажа %s%s%s.\r\n",
 					CCWHT(ch, C_NRM), name, CCNRM(ch, C_NRM));
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 		}
 	}
 }

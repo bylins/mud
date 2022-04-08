@@ -9,18 +9,18 @@
 // ************************* BASH PROCEDURES
 void go_bash(CharData *ch, CharData *vict) {
 	if (IsUnableToAct(ch) || AFF_FLAGGED(ch, EAffect::kStopLeft)) {
-		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
 
-	if (!(ch->IsNpc() || GET_EQ(ch, kShield) || IS_IMMORTAL(ch) || GET_MOB_HOLD(vict)
+	if (!(ch->is_npc() || GET_EQ(ch, kShield) || IS_IMMORTAL(ch) || AFF_FLAGGED(vict, EAffect::kHold)
 		|| GET_GOD_FLAG(vict, EGf::kGodscurse))) {
-		send_to_char("Вы не можете сделать этого без щита.\r\n", ch);
+		SendMsgToChar("Вы не можете сделать этого без щита.\r\n", ch);
 		return;
 	};
 
 	if (PRF_FLAGS(ch).get(EPrf::kIronWind)) {
-		send_to_char("Вы не можете применять этот прием в таком состоянии!\r\n", ch);
+		SendMsgToChar("Вы не можете применять этот прием в таком состоянии!\r\n", ch);
 		return;
 	}
 
@@ -28,12 +28,12 @@ void go_bash(CharData *ch, CharData *vict) {
 		return;
 
 	if (ch == vict) {
-		send_to_char("Ваш сокрушающий удар поверг вас наземь... Вы почувствовали себя глупо.\r\n", ch);
+		SendMsgToChar("Ваш сокрушающий удар поверг вас наземь... Вы почувствовали себя глупо.\r\n", ch);
 		return;
 	}
 
 	if (GET_POS(ch) < EPosition::kFight) {
-		send_to_char("Вам стоит встать на ноги.\r\n", ch);
+		SendMsgToChar("Вам стоит встать на ноги.\r\n", ch);
 		return;
 	}
 
@@ -42,7 +42,7 @@ void go_bash(CharData *ch, CharData *vict) {
 	int percent = number(1, MUD::Skills()[ESkill::kBash].difficulty);
 	int prob = CalcCurrentSkill(ch, ESkill::kBash, vict);
 
-	if (GET_MOB_HOLD(vict) || GET_GOD_FLAG(vict, EGf::kGodscurse)) {
+	if (AFF_FLAGGED(vict, EAffect::kHold) || GET_GOD_FLAG(vict, EGf::kGodscurse)) {
 		prob = percent;
 	}
 	if (MOB_FLAGGED(vict, EMobFlag::kNoBash) || GET_GOD_FLAG(ch, EGf::kGodscurse)) {
@@ -59,8 +59,8 @@ void go_bash(CharData *ch, CharData *vict) {
 		prob = 3;
 	} else {
 		//не дадим башить мобов в лаге которые спят, оглушены и прочее
-		if (GET_POS(vict) <= EPosition::kStun && GET_WAIT(vict) > 0) {
-			send_to_char("Ваша жертва и так слишком слаба, надо быть милосерднее.\r\n", ch);
+		if (GET_POS(vict) <= EPosition::kStun && vict->get_wait() > 0) {
+			SendMsgToChar("Ваша жертва и так слишком слаба, надо быть милосерднее.\r\n", ch);
 			ch->setSkillCooldown(ESkill::kGlobalCooldown, kPulseViolence);
 			return;
 		}
@@ -79,10 +79,10 @@ void go_bash(CharData *ch, CharData *vict) {
 			&& !AFF_FLAGGED(vict, EAffect::kStopFight)
 			&& !AFF_FLAGGED(vict, EAffect::kMagicStopFight)
 			&& !AFF_FLAGGED(vict, EAffect::kStopLeft)
-			&& GET_WAIT(vict) <= 0
-			&& GET_MOB_HOLD(vict) == 0) {
-			if (!(GET_EQ(vict, kShield) || vict->IsNpc() || IS_IMMORTAL(vict) || GET_GOD_FLAG(vict, EGf::kGodsLike)))
-				send_to_char("У вас нечем отразить атаку противника.\r\n", vict);
+			&& vict->get_wait() <= 0
+			&& AFF_FLAGGED(vict, EAffect::kHold) == 0) {
+			if (!(GET_EQ(vict, kShield) || vict->is_npc() || IS_IMMORTAL(vict) || GET_GOD_FLAG(vict, EGf::kGodsLike)))
+				SendMsgToChar("У вас нечем отразить атаку противника.\r\n", vict);
 			else {
 				int range, prob2;
 				range = number(1, MUD::Skills()[ESkill::kShieldBlock].difficulty);
@@ -131,28 +131,28 @@ void go_bash(CharData *ch, CharData *vict) {
 }
 
 void do_bash(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if ((ch->IsNpc() && (!AFF_FLAGGED(ch, EAffect::kHelper))) || !ch->get_skill(ESkill::kBash)) {
-		send_to_char("Вы не знаете как.\r\n", ch);
+	if ((ch->is_npc() && (!AFF_FLAGGED(ch, EAffect::kHelper))) || !ch->get_skill(ESkill::kBash)) {
+		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kBash)) {
-		send_to_char("Вам нужно набраться сил.\r\n", ch);
+	if (ch->haveCooldown(ESkill::kBash)) {
+		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
 
-	if (ch->IsOnHorse()) {
-		send_to_char("Верхом это сделать затруднительно.\r\n", ch);
+	if (ch->ahorse()) {
+		SendMsgToChar("Верхом это сделать затруднительно.\r\n", ch);
 		return;
 	}
 
 	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
-		send_to_char("Кого же вы так сильно желаете сбить?\r\n", ch);
+		SendMsgToChar("Кого же вы так сильно желаете сбить?\r\n", ch);
 		return;
 	}
 
 	if (vict == ch) {
-		send_to_char("Ваш сокрушающий удар поверг вас наземь... Вы почувствовали себя глупо.\r\n", ch);
+		SendMsgToChar("Ваш сокрушающий удар поверг вас наземь... Вы почувствовали себя глупо.\r\n", ch);
 		return;
 	}
 

@@ -7,25 +7,25 @@
 // **************** MULTYPARRY PROCEDURES
 void go_multyparry(CharData *ch) {
 	if (AFF_FLAGGED(ch, EAffect::kStopRight) || AFF_FLAGGED(ch, EAffect::kStopLeft) || IsUnableToAct(ch)) {
-		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
 
 	SET_AF_BATTLE(ch, kEafMultyparry);
-	send_to_char("Вы попробуете использовать веерную защиту.\r\n", ch);
+	SendMsgToChar("Вы попробуете использовать веерную защиту.\r\n", ch);
 }
 
 void do_multyparry(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsNpc() || !ch->get_skill(ESkill::kMultiparry)) {
-		send_to_char("Вы не знаете как.\r\n", ch);
+	if (ch->is_npc() || !ch->get_skill(ESkill::kMultiparry)) {
+		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
 	if (ch->HasCooldown(ESkill::kMultiparry)) {
-		send_to_char("Вам нужно набраться сил.\r\n", ch);
+		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
 	if (!ch->GetEnemy()) {
-		send_to_char("Но вы ни с кем не сражаетесь?\r\n", ch);
+		SendMsgToChar("Но вы ни с кем не сражаетесь?\r\n", ch);
 		return;
 	}
 
@@ -37,11 +37,11 @@ void do_multyparry(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 			&& GET_OBJ_TYPE(offhand) == EObjType::kWeapon)
 		|| IS_IMMORTAL(ch)
 		|| GET_GOD_FLAG(ch, EGf::kGodsLike))) {
-		send_to_char("Вы не можете отражать атаки безоружным.\r\n", ch);
+		SendMsgToChar("Вы не можете отражать атаки безоружным.\r\n", ch);
 		return;
 	}
 	if (GET_AF_BATTLE(ch, kEafOverwhelm)) {
-		send_to_char("Невозможно! Вы стараетесь оглушить противника.\r\n", ch);
+		SendMsgToChar("Невозможно! Вы стараетесь оглушить противника.\r\n", ch);
 		return;
 	}
 	go_multyparry(ch);
@@ -50,32 +50,32 @@ void do_multyparry(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 // **************** PARRY PROCEDURES
 void go_parry(CharData *ch) {
 	if (AFF_FLAGGED(ch, EAffect::kStopRight) || AFF_FLAGGED(ch, EAffect::kStopLeft) || IsUnableToAct(ch)) {
-		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
 
 	SET_AF_BATTLE(ch, kEafParry);
-	send_to_char("Вы попробуете отклонить следующую атаку.\r\n", ch);
+	SendMsgToChar("Вы попробуете отклонить следующую атаку.\r\n", ch);
 }
 
 void do_parry(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsNpc() || !ch->get_skill(ESkill::kParry)) {
-		send_to_char("Вы не знаете как.\r\n", ch);
+	if (ch->is_npc() || !ch->get_skill(ESkill::kParry)) {
+		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
 	if (ch->HasCooldown(ESkill::kParry)) {
-		send_to_char("Вам нужно набраться сил.\r\n", ch);
+		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
 
 	if (!ch->GetEnemy()) {
-		send_to_char("Но вы ни с кем не сражаетесь?\r\n", ch);
+		SendMsgToChar("Но вы ни с кем не сражаетесь?\r\n", ch);
 		return;
 	}
 
 	if (!IS_IMMORTAL(ch) && !GET_GOD_FLAG(ch, EGf::kGodsLike)) {
 		if (GET_EQ(ch, EEquipPos::kBoths)) {
-			send_to_char("Вы не можете отклонить атаку двуручным оружием.\r\n", ch);
+			SendMsgToChar("Вы не можете отклонить атаку двуручным оружием.\r\n", ch);
 			return;
 		}
 
@@ -88,16 +88,16 @@ void do_parry(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		if (!prim && !offh) {
-			send_to_char("Вы не можете отклонить атаку безоружным.\r\n", ch);
+			SendMsgToChar("Вы не можете отклонить атаку безоружным.\r\n", ch);
 			return;
 		} else if (!prim || !offh) {
-			send_to_char("Вы можете отклонить атаку только с двумя оружиями в руках.\r\n", ch);
+			SendMsgToChar("Вы можете отклонить атаку только с двумя оружиями в руках.\r\n", ch);
 			return;
 		}
 	}
 
 	if (GET_AF_BATTLE(ch, kEafOverwhelm)) {
-		send_to_char("Невозможно! Вы стараетесь оглушить противника.\r\n", ch);
+		SendMsgToChar("Невозможно! Вы стараетесь оглушить противника.\r\n", ch);
 		return;
 	}
 	go_parry(ch);

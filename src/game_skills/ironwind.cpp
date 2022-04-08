@@ -8,15 +8,15 @@
 
 void go_iron_wind(CharData *ch, CharData *victim) {
 	if (IsUnableToAct(ch)) {
-		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
 	if (GET_POS(ch) < EPosition::kFight) {
-		send_to_char("Вам стоит встать на ноги.\r\n", ch);
+		SendMsgToChar("Вам стоит встать на ноги.\r\n", ch);
 		return;
 	}
 	if (PRF_FLAGS(ch).get(EPrf::kIronWind)) {
-		send_to_char("Вы уже впали в неистовство.\r\n", ch);
+		SendMsgToChar("Вы уже впали в неистовство.\r\n", ch);
 		return;
 	}
 	if (ch->GetEnemy() && (ch->GetEnemy() != victim)) {
@@ -52,35 +52,35 @@ void go_iron_wind(CharData *ch, CharData *victim) {
 }
 
 void do_iron_wind(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsNpc() || !ch->get_skill(ESkill::kIronwind)) {
-		send_to_char("Вы не знаете как.\r\n", ch);
+	if (ch->is_npc() || !ch->get_skill(ESkill::kIronwind)) {
+		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	};
-	if (ch->HasCooldown(ESkill::kIronwind)) {
-		send_to_char("Вам нужно набраться сил.\r\n", ch);
+	if (ch->haveCooldown(ESkill::kIronwind)) {
+		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
 	if (GET_AF_BATTLE(ch, kEafOverwhelm) || GET_AF_BATTLE(ch, kEafHammer)) {
-		send_to_char("Невозможно! Вы слишкм заняты боем!\r\n", ch);
+		SendMsgToChar("Невозможно! Вы слишкм заняты боем!\r\n", ch);
 		return;
 	};
 	int moves = GET_MAX_MOVE(ch) / (2 + MAX(15, ch->get_skill(ESkill::kIronwind)) / 15);
 	if (GET_MAX_MOVE(ch) < moves * 2) {
-		send_to_char("Вы слишком устали...\r\n", ch);
+		SendMsgToChar("Вы слишком устали...\r\n", ch);
 		return;
 	}
 	if (!AFF_FLAGGED(ch, EAffect::kCourage) && !IS_IMMORTAL(ch) && !GET_GOD_FLAG(ch, EGf::kGodsLike)) {
-		send_to_char("Вы слишком здравомыслящи для этого...\r\n", ch);
+		SendMsgToChar("Вы слишком здравомыслящи для этого...\r\n", ch);
 		return;
 	};
 	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
-		send_to_char("Кого вам угодно изрубить в капусту?\r\n", ch);
+		SendMsgToChar("Кого вам угодно изрубить в капусту?\r\n", ch);
 		return;
 	}
 
 	if (vict == ch) {
-		send_to_char("Вы с чувством собственного достоинства мощно пустили ветры... Железные.\r\n", ch);
+		SendMsgToChar("Вы с чувством собственного достоинства мощно пустили ветры... Железные.\r\n", ch);
 		return;
 	}
 

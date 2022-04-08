@@ -12,17 +12,17 @@
 
 void go_strangle(CharData *ch, CharData *vict) {
 	if (AFF_FLAGGED(ch, EAffect::kStopRight) || IsUnableToAct(ch)) {
-		send_to_char("Сейчас у вас не получится выполнить этот прием.\r\n", ch);
+		SendMsgToChar("Сейчас у вас не получится выполнить этот прием.\r\n", ch);
 		return;
 	}
 
-	if (ch->GetEnemy()) {
-		send_to_char("Вы не можете делать это в бою!\r\n", ch);
+	if (ch->get_fighting()) {
+		SendMsgToChar("Вы не можете делать это в бою!\r\n", ch);
 		return;
 	}
 
 	if (GET_POS(ch) < EPosition::kFight) {
-		send_to_char("Вам стоит встать на ноги.\r\n", ch);
+		SendMsgToChar("Вам стоит встать на ноги.\r\n", ch);
 		return;
 	}
 
@@ -89,23 +89,23 @@ void go_strangle(CharData *ch, CharData *vict) {
 
 void do_strangle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!ch->get_skill(ESkill::kStrangle)) {
-		send_to_char("Вы не умеете этого.\r\n", ch);
+		SendMsgToChar("Вы не умеете этого.\r\n", ch);
 		return;
 	}
 
-	if (IsTimedBySkill(ch, ESkill::kStrangle) || ch->HasCooldown(ESkill::kStrangle)) {
-		send_to_char("Так часто душить нельзя - человеки кончатся.\r\n", ch);
+	if (IsTimedBySkill(ch, ESkill::kStrangle) || ch->haveCooldown(ESkill::kStrangle)) {
+		SendMsgToChar("Так часто душить нельзя - человеки кончатся.\r\n", ch);
 		return;
 	}
 
 	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
-		send_to_char("Кого вы жаждете удавить?\r\n", ch);
+		SendMsgToChar("Кого вы жаждете удавить?\r\n", ch);
 		return;
 	}
 
 	if (AFF_FLAGGED(vict, EAffect::kStrangled)) {
-		send_to_char("Ваша жертва хватается руками за горло - не подобраться!\r\n", ch);
+		SendMsgToChar("Ваша жертва хватается руками за горло - не подобраться!\r\n", ch);
 		return;
 	}
 
@@ -113,12 +113,12 @@ void do_strangle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		|| GET_RACE(vict) == ENpcRace::kFish
 		|| GET_RACE(vict) == ENpcRace::kPlant
 		|| GET_RACE(vict) == ENpcRace::kConstruct) {
-		send_to_char("Вы бы еще верстовой столб удавить попробовали...\r\n", ch);
+		SendMsgToChar("Вы бы еще верстовой столб удавить попробовали...\r\n", ch);
 		return;
 	}
 
 	if (vict == ch) {
-		send_to_char("Воспользуйтесь услугами княжеского палача. Постоянным клиентам - скидки!\r\n", ch);
+		SendMsgToChar("Воспользуйтесь услугами княжеского палача. Постоянным клиентам - скидки!\r\n", ch);
 		return;
 	}
 

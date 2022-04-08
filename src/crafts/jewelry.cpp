@@ -63,80 +63,80 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 
 	argument = two_arguments(argument, arg1, arg2);
 
-	if (ch->IsNpc() || !ch->get_skill(ESkill::kJewelry)) {
-		send_to_char("Но вы не знаете как.\r\n", ch);
+	if (ch->is_npc() || !ch->get_skill(ESkill::kJewelry)) {
+		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}
 
 	if (!IS_IMMORTAL(ch)) {
 		if (!ROOM_FLAGGED(ch->in_room, ERoomFlag::kForge)) {
-			send_to_char("Вам нужно попасть в кузницу для этого.\r\n", ch);
+			SendMsgToChar("Вам нужно попасть в кузницу для этого.\r\n", ch);
 			return;
 		}
 	}
 
 	if (AFF_FLAGGED(ch, EAffect::kBlind)) {
-		send_to_char("Вы слепы!\r\n", ch);
+		SendMsgToChar("Вы слепы!\r\n", ch);
 		return;
 	}
 
 	if (is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !IS_IMMORTAL(ch)) {
-		send_to_char("Да тут темно хоть глаза выколи...\r\n", ch);
+		SendMsgToChar("Да тут темно хоть глаза выколи...\r\n", ch);
 		return;
 	}
 
 	if (!IS_IMMORTAL(ch) && ch->IsOnHorse()) {
-		send_to_char("Верхом это сделать затруднительно.\r\n", ch);
+		SendMsgToChar("Верхом это сделать затруднительно.\r\n", ch);
 		return;
 	}
 
 	if (!*arg1) {
-		send_to_char("Вплавить что?\r\n", ch);
+		SendMsgToChar("Вплавить что?\r\n", ch);
 		return;
 	} else
 		gem = arg1;
 
 	if (!(gemobj = get_obj_in_list_vis(ch, gem, ch->carrying))) {
 		sprintf(buf, "У вас нет '%s'.\r\n", gem);
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 		return;
 	}
 
 	if (!is_dig_stone(gemobj)) {
 		sprintf(buf, "Вы не умеете вплавлять %s.\r\n", gemobj->get_PName(3).c_str());
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 		return;
 	}
 
 	if (!*arg2) {
-		send_to_char("Вплавить во что?\r\n", ch);
+		SendMsgToChar("Вплавить во что?\r\n", ch);
 		return;
 	} else
 		item = arg2;
 
 	if (!(itemobj = get_obj_in_list_vis(ch, item, ch->carrying))) {
 		sprintf(buf, "У вас нет '%s'.\r\n", item);
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 		return;
 	}
 	if (GET_OBJ_MATER(itemobj) == EObjMaterial::kMaterialUndefined || (GET_OBJ_MATER(itemobj) > EObjMaterial::kPreciousMetel)) {
 		if (!(GET_OBJ_MATER(itemobj) == EObjMaterial::kBone || GET_OBJ_MATER(itemobj) == EObjMaterial::kStone)) {
 			sprintf(buf, "%s состоит из неподходящего материала.\r\n", itemobj->get_PName(0).c_str());
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 			return;
 		}
 	}
 	if (!itemobj->has_flag(EObjFlag::kHasOneSlot)
 		&& !itemobj->has_flag(EObjFlag::kHasTwoSlots)
 		&& !itemobj->has_flag(EObjFlag::kHasThreeSlots)) {
-		send_to_char("Вы не видите куда здесь можно вплавить камень.\r\n", ch);
+		SendMsgToChar("Вы не видите куда здесь можно вплавить камень.\r\n", ch);
 		return;
 	}
 
 	percent = number(1, MUD::Skills()[ESkill::kJewelry].difficulty);
 	prob = ch->get_skill(ESkill::kJewelry);
 
-	WAIT_STATE(ch, kPulseViolence);
+	SetWaitState(ch, kPulseViolence);
 
 	for (int i = 0; i < kMaxObjAffect; i++) {
 		if (itemobj->get_affected(i).location == EApply::kNone) {
@@ -160,7 +160,7 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 			sprintf(buf, "Вы неудачно попытались вплавить %s в %s, испортив камень...\r\n",
 					gemobj->get_short_description().c_str(),
 					itemobj->get_PName(3).c_str());
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 			sprintf(buf, "$n испортил$g %s, вплавляя его в %s!\r\n",
 					gemobj->get_PName(3).c_str(),
 					itemobj->get_PName(3).c_str());
@@ -168,7 +168,7 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 			ExtractObjFromWorld(gemobj);
 			if (number(1, 100) <= insgem_vars.dikey_percent) {
 				sprintf(buf, "...и испортив хорошую вещь!\r\n");
-				send_to_char(buf, ch);
+				SendMsgToChar(buf, ch);
 				sprintf(buf, "$n испортил$g %s!\r\n", itemobj->get_PName(3).c_str());
 				act(buf, false, ch, nullptr, nullptr, kToRoom);
 				ExtractObjFromWorld(itemobj);
@@ -178,13 +178,13 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	} else {
 		if (ch->get_skill(ESkill::kJewelry) < 80) {
 			sprintf(buf, "Вы должны достигнуть мастерства в умении ювелир, чтобы вплавлять желаемые аффекты!\r\n");
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 			return;
 
 		}
 		if (GET_OBJ_OWNER(itemobj) != GET_UNIQUE(ch) && (ch->get_skill(ESkill::kJewelry) < 130)) {
 			sprintf(buf, "Вы недостаточно искусны и можете вплавлять желаемые аффекты только в перековку!\r\n");
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 			return;
 		}
 
@@ -201,7 +201,7 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 			sprintf(buf, "Вы неудачно попытались вплавить %s в %s, испортив камень...\r\n",
 					gemobj->get_short_description().c_str(),
 					itemobj->get_PName(3).c_str());
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 			sprintf(buf, "$n испортил$g %s, вплавляя его в %s!\r\n",
 					gemobj->get_PName(3).c_str(),
 					itemobj->get_PName(3).c_str());
@@ -212,7 +212,7 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	}
 
 	sprintf(buf, "Вы вплавили %s в %s!\r\n", gemobj->get_PName(3).c_str(), itemobj->get_PName(3).c_str());
-	send_to_char(buf, ch);
+	SendMsgToChar(buf, ch);
 	sprintf(buf, "$n вплавил$g %s в %s.\r\n", gemobj->get_PName(3).c_str(), itemobj->get_PName(3).c_str());
 	act(buf, false, ch, nullptr, nullptr, kToRoom);
 
@@ -278,10 +278,10 @@ void insert_wanted_gem::show(CharData *ch, int gem_vnum) {
 	const auto it = content.find(gem_vnum);
 	if (it == content.end()) return;
 
-	send_to_char("Будучи искусным ювелиром, вы можете выбрать, какого эффекта вы желаете добиться: \r\n", ch);
+	SendMsgToChar("Будучи искусным ювелиром, вы можете выбрать, какого эффекта вы желаете добиться: \r\n", ch);
 	for (alias_it = it->second.begin(); alias_it != it->second.end(); ++alias_it) {
 		sprintf(buf, " %s\r\n", alias_it->first.c_str());
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 	}
 }
 

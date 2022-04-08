@@ -9,38 +9,38 @@
 
 void do_stun(CharData *ch, char *argument, int, int) {
 	if (ch->get_skill(ESkill::kStun) < 1) {
-		send_to_char("Вы не знаете как.\r\n", ch);
+		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kStun)) {
-		send_to_char("Вам нужно набраться сил.\r\n", ch);
+	if (ch->haveCooldown(ESkill::kStun)) {
+		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
 
-	if (!ch->IsOnHorse()) {
-		send_to_char("Вы привстали на стременах и поняли: 'лошадь украли!!!'\r\n", ch);
+	if (!ch->ahorse()) {
+		SendMsgToChar("Вы привстали на стременах и поняли: 'лошадь украли!!!'\r\n", ch);
 		return;
 	}
-	if ((GET_SKILL(ch, ESkill::kRiding) < 151) && (!ch->IsNpc())) {
-		send_to_char("Вы слишком неуверенно управляете лошадью, чтоб на ней пытаться ошеломить противника.\r\n", ch);
+	if ((GET_SKILL(ch, ESkill::kRiding) < 151) && (!ch->is_npc())) {
+		SendMsgToChar("Вы слишком неуверенно управляете лошадью, чтоб на ней пытаться ошеломить противника.\r\n", ch);
 		return;
 	}
-	if (IsTimedBySkill(ch, ESkill::kStun) && (!ch->IsNpc())) {
-		send_to_char("Ваш грозный вид не испугает даже мышь, попробуйте ошеломить попозже.\r\n", ch);
+	if (IsTimedBySkill(ch, ESkill::kStun) && (!ch->is_npc())) {
+		SendMsgToChar("Ваш грозный вид не испугает даже мышь, попробуйте ошеломить попозже.\r\n", ch);
 		return;
 	}
-	if (!ch->IsNpc() && !(GET_EQ(ch, EEquipPos::kWield) || GET_EQ(ch, EEquipPos::kBoths))) {
-		send_to_char("Вы должны держать оружие в основной руке.\r\n", ch);
+	if (!ch->is_npc() && !(GET_EQ(ch, EEquipPos::kWield) || GET_EQ(ch, EEquipPos::kBoths))) {
+		SendMsgToChar("Вы должны держать оружие в основной руке.\r\n", ch);
 		return;
 	}
 	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
-		send_to_char("Кто это так сильно путается у вас под руками?\r\n", ch);
+		SendMsgToChar("Кто это так сильно путается у вас под руками?\r\n", ch);
 		return;
 	}
 
 	if (vict == ch) {
-		send_to_char("Вы БОЛЬНО стукнули себя по голове! 'А еще я туда ем', - подумали вы...\r\n", ch);
+		SendMsgToChar("Вы БОЛЬНО стукнули себя по голове! 'А еще я туда ем', - подумали вы...\r\n", ch);
 		return;
 	}
 
@@ -107,7 +107,7 @@ void go_stun(CharData *ch, CharData *vict) {
 				nullptr, vict, kToNotVict | kToArenaListen);
 		}
 		GET_POS(vict) = EPosition::kIncap;
-		WAIT_STATE(vict, (2 + GET_REAL_REMORT(ch) / 5) * kPulseViolence);
+		SetWaitState(vict, (2 + GET_REAL_REMORT(ch) / 5) * kPulseViolence);
 		ch->setSkillCooldown(ESkill::kStun, 3 * kPulseViolence);
 		set_hit(ch, vict);
 	}

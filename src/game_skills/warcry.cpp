@@ -12,12 +12,12 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 
 	if (!ch->get_skill(ESkill::kWarcry)) {
-		send_to_char("Но вы не знаете как.\r\n", ch);
+		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}
 
 	if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
-		send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
+		SendMsgToChar("Вы не смогли вымолвить и слова.\r\n", ch);
 		return;
 	}
 	
@@ -46,7 +46,7 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						spell_info[spellnum].violent ? KIRED : KIGRN, realname, KNRM);
 			}
 		}
-		send_to_char(buf, ch);
+		SendMsgToChar(buf, ch);
 		return;
 	}
 
@@ -62,7 +62,7 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (spellnum < 1 || spellnum > kSpellCount
 		|| (ch->get_skill(ESkill::kWarcry) < spell_info[spellnum].mana_change)
 		|| !IS_SET(GET_SPELL_TYPE(ch, spellnum), kSpellKnow | kSpellTemp)) {
-		send_to_char("И откуда вы набрались таких выражений?\r\n", ch);
+		SendMsgToChar("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
 	}
 
@@ -75,7 +75,7 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		std::stringstream str_log;
 		str_log << "Для клича #" << spellnum << ", установлены некорректные цели: " << spell_info[spellnum].targets;
 		mudlog(str_log.str(), BRF, kLvlGod, SYSLOG, true);
-		send_to_char("Вы ничего не смогли выкрикнуть. Обратитесь к богам.\r\n", ch);
+		SendMsgToChar("Вы ничего не смогли выкрикнуть. Обратитесь к богам.\r\n", ch);
 		return;
 	}
 
@@ -84,12 +84,12 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	timed.time = IsTimedBySkill(ch, ESkill::kWarcry) + kHoursPerWarcry;
 
 	if (timed.time > kHoursPerDay) {
-		send_to_char("Вы охрипли и не можете кричать.\r\n", ch);
+		SendMsgToChar("Вы охрипли и не можете кричать.\r\n", ch);
 		return;
 	}
 
 	if (GET_MOVE(ch) < spell_info[spellnum].mana_max) {
-		send_to_char("У вас не хватит сил для этого.\r\n", ch);
+		SendMsgToChar("У вас не хватит сил для этого.\r\n", ch);
 		return;
 	}
 
@@ -97,8 +97,8 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (CallMagic(ch, nullptr, nullptr, nullptr, spellnum, GetRealLevel(ch)) >= 0) {
 		if (!IS_IMMORTAL(ch)) {
-			if (!CHECK_WAIT(ch))
-				WAIT_STATE(ch, kPulseViolence);
+			if (ch->get_wait() < 0)
+				SetWaitState(ch, kPulseViolence);
 			ImposeTimedSkill(ch, &timed);
 			GET_MOVE(ch) -= spell_info[spellnum].mana_max;
 		}

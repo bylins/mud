@@ -57,7 +57,7 @@ int apply_ac(CharData *ch, int eq_pos) {
 	}
 
 	if (ch->IsNpc() && !AFF_FLAGGED(ch, EAffect::kCharmed))
-		factor *= MOB_AC_MULT;
+		factor *= kMobAcMult;
 
 	return (factor * GET_OBJ_VAL(GET_EQ(ch, eq_pos), 0));
 }
@@ -86,7 +86,7 @@ int apply_armour(CharData *ch, int eq_pos) {
 	}
 
 	if (ch->IsNpc() && !AFF_FLAGGED(ch, EAffect::kCharmed))
-		factor *= MOB_ARMOUR_MULT;
+		factor *= kMobArmourMult;
 
 	// чтобы не плюсовать левую броню на стафе с текущей прочностью выше максимальной
 	int cur_dur = MIN(GET_OBJ_MAX(obj), GET_OBJ_CUR(obj));
@@ -447,7 +447,7 @@ void affect_total(CharData *ch) {
 				+ (VPOSI_MOB(ch, EBaseStat::kCon, ch->get_con()) - class_app[GET_CLASS(ch)].base_con)
 				* class_app[GET_CLASS(ch)].koef_con / 100.0 + 3;
 	 	GET_HIT_ADD(ch) = static_cast<int>(add_hp_per_level * (30 - ch->get_level()));
-//		send_to_char(ch, "add per level %f hitadd %d  level %d\r\n", add_hp_per_level, GET_HIT_ADD(ch), ch->get_level());
+//		SendMsgToChar(ch, "add per level %f hitadd %d  level %d\r\n", add_hp_per_level, GET_HIT_ADD(ch), ch->get_level());
 	}
 
 	// бонусы от морта
@@ -613,7 +613,7 @@ void affect_total(CharData *ch) {
 			return;
 		}
 		if ((obj = GET_EQ(ch, EEquipPos::kQuiver)) && !GET_EQ(ch, EEquipPos::kBoths)) {
-			send_to_char("Нету лука, нет и стрел.\r\n", ch);
+			SendMsgToChar("Нету лука, нет и стрел.\r\n", ch);
 			act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, kToRoom);
 			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kQuiver, CharEquipFlags()), ch);
 			return;

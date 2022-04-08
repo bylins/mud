@@ -119,7 +119,7 @@ void add_log(int type, int num, std::string punish, std::string reason, CharData
 */
 void show_log(CharData *ch, char const *const value) {
 	if (glory_log.empty()) {
-		send_to_char("Пусто, слава те господи!\r\n", ch);
+		SendMsgToChar("Пусто, слава те господи!\r\n", ch);
 		return;
 	}
 

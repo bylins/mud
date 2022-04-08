@@ -856,7 +856,7 @@ int check_moves(CharData *ch, int how_moves) {
 	if (IS_IMMORTAL(ch) || ch->IsNpc())
 		return (true);
 	if (GET_MOVE(ch) < how_moves) {
-		send_to_char("Вы слишком устали.\r\n", ch);
+		SendMsgToChar("Вы слишком устали.\r\n", ch);
 		return (false);
 	}
 	GET_MOVE(ch) -= how_moves;
@@ -1211,13 +1211,13 @@ int roundup(float fl) {
 // в инвентарь игрока или в комнату, где игрок находится
 void can_carry_obj(CharData *ch, ObjData *obj) {
 	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
-		send_to_char("Вы не можете нести столько предметов.", ch);
+		SendMsgToChar("Вы не можете нести столько предметов.", ch);
 		PlaceObjToRoom(obj, ch->in_room);
 		CheckObjDecay(obj);
 	} else {
 		if (GET_OBJ_WEIGHT(obj) + IS_CARRYING_W(ch) > CAN_CARRY_W(ch)) {
 			sprintf(buf, "Вам слишком тяжело нести еще и %s.", obj->get_PName(3).c_str());
-			send_to_char(buf, ch);
+			SendMsgToChar(buf, ch);
 			PlaceObjToRoom(obj, ch->in_room);
 			// obj_decay(obj);
 		} else {
@@ -1517,7 +1517,7 @@ void add(int zone_vnum, long money) {
 
 void print(CharData *ch) {
 	if (!IS_GRGOD(ch)) {
-		send_to_char(ch, "Только для иммов 33+.\r\n");
+		SendMsgToChar(ch, "Только для иммов 33+.\r\n");
 		return;
 	}
 
@@ -1528,19 +1528,19 @@ void print(CharData *ch) {
 		}
 	}
 	if (!tmp_list.empty()) {
-		send_to_char(ch,
+		SendMsgToChar(ch,
 					 "Money drop stats:\r\n"
 					 "Total zones: %lu\r\n"
 					 "  vnum - money\r\n"
 					 "================\r\n", tmp_list.size());
 	} else {
-		send_to_char(ch, "Empty.\r\n");
+		SendMsgToChar(ch, "Empty.\r\n");
 		return;
 	}
 	std::stringstream out;
 	for (std::map<long, int>::const_reverse_iterator i = tmp_list.rbegin(), iend = tmp_list.rend(); i != iend; ++i) {
 		out << "  " << std::setw(4) << i->second << " - " << i->first << "\r\n";
-//		send_to_char(ch, "  %4d - %ld\r\n", i->second, i->first);
+//		SendMsgToChar(ch, "  %4d - %ld\r\n", i->second, i->first);
 	}
 	page_string(ch->desc, out.str());
 }
@@ -1596,7 +1596,7 @@ void add(int zone_vnum, long exp) {
 
 void print_gain(CharData *ch) {
 	if (!PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
-		send_to_char(ch, "Пока в разработке.\r\n");
+		SendMsgToChar(ch, "Пока в разработке.\r\n");
 		return;
 	}
 
@@ -1607,13 +1607,13 @@ void print_gain(CharData *ch) {
 		}
 	}
 	if (!tmp_list.empty()) {
-		send_to_char(ch,
+		SendMsgToChar(ch,
 					 "Gain exp stats:\r\n"
 					 "Total zones: %lu\r\n"
 					 "  vnum - exp\r\n"
 					 "================\r\n", tmp_list.size());
 	} else {
-		send_to_char(ch, "Empty.\r\n");
+		SendMsgToChar(ch, "Empty.\r\n");
 		return;
 	}
 	std::stringstream out;
@@ -1891,7 +1891,7 @@ void message_str_need(CharData *ch, ObjData *obj, int type) {
 				__FILE__, __func__, __LINE__);
 			return;
 	}
-	send_to_char(ch, "Для этого требуется %d %s.\r\n",
+	SendMsgToChar(ch, "Для этого требуется %d %s.\r\n",
 				 need_str, GetDeclensionInNumber(need_str, EWhat::kStr));
 }
 
@@ -1961,7 +1961,7 @@ void tell_to_char(CharData *keeper, CharData *ch, const char *arg) {
 	}
 	snprintf(local_buf, kMaxInputLength,
 			 "%s сказал%s вам : '%s'", GET_NAME(keeper), GET_CH_SUF_1(keeper), arg);
-	send_to_char(ch, "%s%s%s\r\n",
+	SendMsgToChar(ch, "%s%s%s\r\n",
 				 CCICYN(ch, C_NRM), CAP(local_buf), CCNRM(ch, C_NRM));
 }
 

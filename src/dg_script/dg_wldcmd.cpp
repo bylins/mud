@@ -399,7 +399,7 @@ void do_wexp(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if ((ch = get_char_by_room(room, name))) {
-		gain_exp(ch, atoi(amount));
+		EndowExpToChar(ch, atoi(amount));
 		sprintf(buf, "wexp: victim (%s) получил опыт %d", GET_NAME(ch), atoi(amount));
 		wld_log(room, buf);
 	} else {
@@ -510,12 +510,12 @@ void do_wdamage(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		if (IS_IMMORTAL(ch) && dam > 0) {
-			send_to_char("Будучи бессмертным, вы избежали повреждения...\r\n", ch);
+			SendMsgToChar("Будучи бессмертным, вы избежали повреждения...\r\n", ch);
 			return;
 		}
 		GET_HIT(ch) -= dam;
 		if (dam < 0) {
-			send_to_char("Вы почувствовали себя лучше.\r\n", ch);
+			SendMsgToChar("Вы почувствовали себя лучше.\r\n", ch);
 			return;
 		}
 
