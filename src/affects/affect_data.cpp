@@ -287,7 +287,15 @@ void battle_affect_update(CharData *ch) {
 						show_spell_off(affect->type, ch);
 				}
 			}
-
+			if (ch->IsNpc() && MOB_FLAGGED(ch, EMobFlag::kTutelar)) {
+				if (affect->modifier) {
+					log("АНГЕЛ снимается модификатор %d, апплай %s", affect->modifier, apply_types[(int) affect->location]);
+				}
+				if (affect->bitvector) {
+					sprintbit(affect->bitvector, affected_bits, buf2);
+					log("АНГЕЛ снимается спелл %s", buf2);
+				}
+			}
 			ch->affect_remove(affect_i);
 		}
 	}

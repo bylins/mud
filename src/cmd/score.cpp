@@ -135,12 +135,13 @@ void PrintScoreList(CharData *ch) {
 	bool need_dice = false;
 	int max_dam = hit_params.calc_damage(ch, need_dice); // без кубиков
 
-	SendMsgToChar(ch, "Попадание: %d, повреждение: %d, запоминание: %d, успех колдовства: %d, удача: %d, маг.урон: %d, физ. урон: %d.\r\n",
+	SendMsgToChar(ch, "Попадание: %d, повреждение: %d, запоминание: %d, успех колдовства: %d, удача: %d, инициатива: %d, маг.урон: %d, физ. урон: %d.\r\n",
 				  CalcHitroll(ch),
 				  max_dam,
 				  int(GET_MANAREG(ch) * ch->get_cond_penalty(P_CAST)),
 				  CalcAntiSavings(ch),
 				  ch->calc_morale(),
+				  calc_initiative(ch, false),
 				  ch->add_abils.percent_magdam_add + ch->obj_bonus().calc_mage_dmg(100),
 				  ch->add_abils.percent_physdam_add + ch->obj_bonus().calc_phys_dmg(100));
 	SendMsgToChar(ch, "Сопротивление: огню: %d, воздуху: %d, воде: %d, земле: %d, тьме: %d, живучесть: %d, разум: %d, иммунитет: %d.\r\n",
