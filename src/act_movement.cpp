@@ -568,8 +568,7 @@ EDirection SelectRndDirection(CharData *ch, int fail_chance) {
 			directions.push_back(dir);
 		}
 	}
-
-	if (number(1, 100 + 25*directions.size()) < fail_chance) {
+	if (directions.empty() || number(1, 100 + 25 * directions.size()) < fail_chance) {
 		return EDirection::kIncorrectDir;
 	}
 	return directions[number(0, directions.size() - 1)];
