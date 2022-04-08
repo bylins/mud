@@ -478,9 +478,8 @@ void list_spells(CharData *ch, CharData *vict, int all_spells) {
 
 	char names[kMaxSlot][kMaxStringLength];
 	std::string time_str;
-	int slots[kMaxSlot], i, max_slot = 0, slot_num, is_full, gcount = 0, can_cast = 1;
-
-	is_full = 0;
+	int slots[kMaxSlot], i, max_slot = 0, slot_num, gcount = 0, can_cast = 1;
+	bool is_full = false;
 	max_slot = 0;
 	for (i = 0; i < kMaxSlot; i++) {
 		*names[i] = '\0';
@@ -489,7 +488,7 @@ void list_spells(CharData *ch, CharData *vict, int all_spells) {
 	for (i = 1; i <= kSpellCount; i++) {
 		if (!GET_SPELL_TYPE(ch, i) && !all_spells)
 			continue;
-		if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
+		if (!IS_MANA_CASTER(ch) && !IS_GOD(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
 			if (!IS_SET(GET_SPELL_TYPE(ch, i), kSpellTemp) && !all_spells)
 				continue;
 		}
@@ -563,7 +562,7 @@ void list_spells(CharData *ch, CharData *vict, int all_spells) {
 				spell_info[i].name,
 				time_str.c_str());
 		}
-		is_full++;
+		is_full = true;
 	};
 	gcount = sprintf(buf2 + gcount, "  %sВам доступна следующая магия :%s", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
 	if (is_full) {
