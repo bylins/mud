@@ -175,7 +175,7 @@ void do_throw(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		SendMsgToChar("Вы принялись метать икру. Это единственное, что вы умеете метать.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::kThrow)) {
+	if (ch->HasCooldown(ESkill::kThrow)) {
 		SendMsgToChar("Так и рука отвалится, нужно передохнуть.\r\n", ch);
 		return;
 	};

@@ -1021,7 +1021,7 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 	if (from_obj->has_flag(EObjFlag::kNopour)) {
 		SendMsgToChar(ch, "Вы перевернули %s, потрусили, но ничего перелить не удалось.\r\n",
-					 GET_OBJ_PNAME(from_obj, 3).c_str());
+					  GET_OBJ_PNAME(from_obj, 3).c_str());
 		return;
 	}
 //Added by Adept - переливание зелья из бутылки или емкости в емкость
@@ -1031,7 +1031,7 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		int result = check_equal_potions(from_obj, to_obj);
 		if (GET_OBJ_VAL(to_obj, 1) == 0 || result > 0) {
 			SendMsgToChar(ch, "Вы занялись переливанием зелья в %s.\r\n",
-						 OBJN(to_obj, ch, 3));
+						  OBJN(to_obj, ch, 3));
 			int n1 = GET_OBJ_VAL(from_obj, 1);
 			int n2 = GET_OBJ_VAL(to_obj, 1);
 			int t1 = GET_OBJ_VAL(from_obj, 3);
@@ -1081,7 +1081,7 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	if (subcmd == SCMD_POUR) {
 		SendMsgToChar(ch, "Вы занялись переливанием %s в %s.\r\n",
-					 drinks[GET_OBJ_VAL(from_obj, 2)], OBJN(to_obj, ch, 3));
+					  drinks[GET_OBJ_VAL(from_obj, 2)], OBJN(to_obj, ch, 3));
 	}
 	if (subcmd == SCMD_FILL) {
 		act("Вы наполнили $o3 из $O1.", false, ch, to_obj, from_obj, kToChar);

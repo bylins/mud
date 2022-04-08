@@ -13,7 +13,7 @@ void go_bash(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (!(ch->is_npc() || GET_EQ(ch, kShield) || IS_IMMORTAL(ch) || AFF_FLAGGED(vict, EAffect::kHold)
+	if (!(ch->IsNpc() || GET_EQ(ch, kShield) || IS_IMMORTAL(ch) || AFF_FLAGGED(vict, EAffect::kHold)
 		|| GET_GOD_FLAG(vict, EGf::kGodscurse))) {
 		SendMsgToChar("Вы не можете сделать этого без щита.\r\n", ch);
 		return;
@@ -81,7 +81,7 @@ void go_bash(CharData *ch, CharData *vict) {
 			&& !AFF_FLAGGED(vict, EAffect::kStopLeft)
 			&& vict->get_wait() <= 0
 			&& AFF_FLAGGED(vict, EAffect::kHold) == 0) {
-			if (!(GET_EQ(vict, kShield) || vict->is_npc() || IS_IMMORTAL(vict) || GET_GOD_FLAG(vict, EGf::kGodsLike)))
+			if (!(GET_EQ(vict, kShield) || vict->IsNpc() || IS_IMMORTAL(vict) || GET_GOD_FLAG(vict, EGf::kGodsLike)))
 				SendMsgToChar("У вас нечем отразить атаку противника.\r\n", vict);
 			else {
 				int range, prob2;
@@ -131,16 +131,16 @@ void go_bash(CharData *ch, CharData *vict) {
 }
 
 void do_bash(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if ((ch->is_npc() && (!AFF_FLAGGED(ch, EAffect::kHelper))) || !ch->get_skill(ESkill::kBash)) {
+	if ((ch->IsNpc() && (!AFF_FLAGGED(ch, EAffect::kHelper))) || !ch->get_skill(ESkill::kBash)) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::kBash)) {
+	if (ch->HasCooldown(ESkill::kBash)) {
 		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
 
-	if (ch->ahorse()) {
+	if (ch->IsOnHorse()) {
 		SendMsgToChar("Верхом это сделать затруднительно.\r\n", ch);
 		return;
 	}

@@ -64,7 +64,7 @@ void GoExpedientCut(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (ch->haveCooldown(ESkill::kGlobalCooldown)) {
+	if (ch->HasCooldown(ESkill::kGlobalCooldown)) {
 		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	}
@@ -123,7 +123,7 @@ void SetExtraAttackCut(CharData *ch, CharData *victim) {
 
 void DoExpedientCut(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 
-	if (ch->is_npc() || (!IsAbleToUseFeat(ch, EFeat::kCutting) && !IS_IMPL(ch))) {
+	if (ch->IsNpc() || (!IsAbleToUseFeat(ch, EFeat::kCutting) && !IS_IMPL(ch))) {
 		SendMsgToChar("Вы не владеете таким приемом.\r\n", ch);
 		return;
 	}

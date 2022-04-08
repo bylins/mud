@@ -25,7 +25,7 @@ void go_rescue(CharData *ch, CharData *vict, CharData *tmp_ch) {
 		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
-	if (ch->ahorse()) {
+	if (ch->IsOnHorse()) {
 		SendMsgToChar(ch, "Ну раскорячили вы ноги по сторонам, но спасти %s как?\r\n", GET_PAD(vict, 1));
 		return;
 	}
@@ -76,7 +76,7 @@ void do_rescue(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::kRescue)) {
+	if (ch->HasCooldown(ESkill::kRescue)) {
 		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
@@ -91,7 +91,7 @@ void do_rescue(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Ваше спасение вы можете доверить только Богам.\r\n", ch);
 		return;
 	}
-	if (ch->get_fighting() == vict) {
+	if (ch->GetEnemy() == vict) {
 		SendMsgToChar("Вы пытаетесь спасти атакующего вас?\r\n" "Это не о вас ли писали Марк и Лука?\r\n", ch);
 		return;
 	}
@@ -117,7 +117,7 @@ void do_rescue(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		&& (!ch->IsNpc()
 			|| (AFF_FLAGGED(ch, EAffect::kCharmed)
 				&& ch->has_master()
-				&& !ch->get_master()->is_npc()))) {
+				&& !ch->get_master()->IsNpc()))) {
 		SendMsgToChar("Вы пытаетесь спасти чужого противника.\r\n", ch);
 		return;
 	}

@@ -861,7 +861,7 @@ void do_stat_trigger(CharData *ch, Trigger *trig) {
 		sprintbit(GET_TRIG_TYPE(trig), wtrig_types, buf);
 	} else {
 		SendMsgToChar(ch, "Trigger Intended Assignment: undefined (attach_type=%d)\r\n",
-					 static_cast<int>(trig->get_attach_type()));
+					  static_cast<int>(trig->get_attach_type()));
 	}
 
 	sprintf(sb, "Trigger Type: %s, Numeric Arg: %d, Arg list: %s\r\n",
@@ -969,7 +969,7 @@ void script_stat(CharData *ch, Script *sc) {
 			sprintbit(GET_TRIG_TYPE(t), wtrig_types, buf1);
 		} else {
 			SendMsgToChar(ch, "Trigger Intended Assignment: undefined (attach_type=%d)\r\n",
-						 static_cast<int>(t->get_attach_type()));
+						  static_cast<int>(t->get_attach_type()));
 		}
 		std::stringstream buffer;
 		buffer << "  Trigger Type: " << buf1 << ", Numeric Arg:" << GET_TRIG_NARG(t)
@@ -1239,7 +1239,7 @@ void do_detach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		if (victim) {
-			if (!victim->is_npc()) {
+			if (!victim->IsNpc()) {
 				SendMsgToChar("Players don't have triggers.\r\n", ch);
 			} else if (!SCRIPT(victim)->has_triggers()) {
 				SendMsgToChar("That mob doesn't have any triggers.\r\n", ch);
@@ -2372,8 +2372,8 @@ void find_replacement(void *go,
 							SendMsgToChar(buf, c);
 							if (rest > 0) {
 								SendMsgToChar(c, "Как истинный еврей вы оставили %d %s (которые не смогли разделить нацело) себе.\r\n",
-											 rest,
-											 GetDeclensionInNumber(rest, EWhat::kNogataU));
+											  rest,
+											  GetDeclensionInNumber(rest, EWhat::kNogataU));
 							}
 							c->add_nogata(share+rest);
 						}

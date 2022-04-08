@@ -74,19 +74,19 @@ void go_chopoff(CharData *ch, CharData *vict) {
 			af.location = EApply::kMagicResist;
 			ImposeAffect(ch, af, false, false, false, false);
 			SendMsgToChar(ch,
-						 "%sВы покатились по земле, пытаясь избежать атак %s.%s\r\n",
-						 CCIGRN(ch, C_NRM),
-						 GET_PAD(vict, 1),
-						 CCNRM(ch, C_NRM));
+						  "%sВы покатились по земле, пытаясь избежать атак %s.%s\r\n",
+						  CCIGRN(ch, C_NRM),
+						  GET_PAD(vict, 1),
+						  CCNRM(ch, C_NRM));
 			act("$n покатил$u по земле, пытаясь избежать ваших атак.", false, ch, nullptr, vict, kToVict);
 			act("$n покатил$u по земле, пытаясь избежать атак $N1.", true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 		}
 	} else {
 		SendMsgToChar(ch,
-					 "%sВы провели подсечку, ловко усадив %s на землю.%s\r\n",
-					 CCIBLU(ch, C_NRM),
-					 GET_PAD(vict, 3),
-					 CCNRM(ch, C_NRM));
+					  "%sВы провели подсечку, ловко усадив %s на землю.%s\r\n",
+					  CCIBLU(ch, C_NRM),
+					  GET_PAD(vict, 3),
+					  CCNRM(ch, C_NRM));
 		act("$n ловко подсек$q вас, усадив на попу.", false, ch, nullptr, vict, kToVict);
 		act("$n ловко подсек$q $N3, уронив $S на землю.", true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 		SetWait(vict, 3, false);
@@ -119,12 +119,12 @@ void do_chopoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::kUndercut)) {
+	if (ch->HasCooldown(ESkill::kUndercut)) {
 		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
 
-	if (ch->ahorse()) {
+	if (ch->IsOnHorse()) {
 		SendMsgToChar("Верхом это сделать затруднительно.\r\n", ch);
 		return;
 	}

@@ -67,7 +67,7 @@ int set_hit(CharData *ch, CharData *victim) {
 	}
 
 	if (MOB_FLAGGED(ch, EMobFlag::kMemory) && ch->get_wait() > 0) {
-		if (!victim->is_npc()) {
+		if (!victim->IsNpc()) {
 			mobRemember(ch, victim);
 		} else if (AFF_FLAGGED(victim, EAffect::kCharmed)
 			&& victim->has_master()

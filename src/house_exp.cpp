@@ -313,10 +313,10 @@ void ClanExpHistory::show(CharData *ch) const {
 		}
 	}
 	SendMsgToChar(ch, "Напоминаем, что в системе автоматической очистки неактивных кланов учитывается\r\n"
-					 "опыт, набранный за два последних ПОЛНЫХ календарных месяца ( >= %s в сумме);\r\n"
-					 "сейчас он составляет %s.\r\n",
-				 thousands_sep(MIN_EXP_HISTORY).c_str(),
-				 thousands_sep(calc_exp_history()).c_str());
+					  "опыт, набранный за два последних ПОЛНЫХ календарных месяца ( >= %s в сумме);\r\n"
+					  "сейчас он составляет %s.\r\n",
+				  thousands_sep(MIN_EXP_HISTORY).c_str(),
+				  thousands_sep(calc_exp_history()).c_str());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -841,7 +841,7 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 			break;
 	}
 
-	if (ch->is_npc() || !ch->get_skill(skill_id)) {
+	if (ch->IsNpc() || !ch->get_skill(skill_id)) {
 		SendMsgToChar("Вас этому никто не научил.\r\n", ch);
 		return;
 	}
@@ -1579,7 +1579,7 @@ int MakeRecept::make(CharData *ch) {
 	int dam = 0;
 	bool make_fail;
 	// 1. Проверить есть ли скилл у чара
-	if (ch->is_npc() || !ch->get_skill(skill)) {
+	if (ch->IsNpc() || !ch->get_skill(skill)) {
 		SendMsgToChar("Странно что вам вообще пришло в голову cделать это.\r\n", ch);
 		return (false);
 	}
@@ -1835,8 +1835,8 @@ int MakeRecept::make(CharData *ch) {
 				else {
 					state = state - GET_OBJ_WEIGHT(ingrs[i]);
 					SendMsgToChar(ch,
-								 "Вы полностью использовали %s и начали искать следующий ингредиент.\r\n",
-								 ingrs[i]->get_PName(3).c_str());
+								  "Вы полностью использовали %s и начали искать следующий ингредиент.\r\n",
+								  ingrs[i]->get_PName(3).c_str());
 					std::string tmpname = std::string(ingrs[i]->get_PName(1).c_str());
 					IS_CARRYING_W(ch) -= GET_OBJ_WEIGHT(ingrs[i]);
 					ingrs[i]->set_weight(0);

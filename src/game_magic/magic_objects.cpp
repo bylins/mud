@@ -70,21 +70,21 @@ void check_spell_remove(ObjData *obj, int spell, bool send_message) {
 			case kSpellBelenaPoison:
 			case kSpellDaturaPoison:
 				SendMsgToChar(ch, "С %s испарились последние капельки яда.\r\n",
-							 GET_OBJ_PNAME(obj, 1).c_str());
+							  GET_OBJ_PNAME(obj, 1).c_str());
 				break;
 
 			case kSpellFly:
 				SendMsgToChar(ch, "Ваш%s %s перестал%s парить в воздухе.\r\n",
-							 GET_OBJ_VIS_SUF_7(obj, ch),
-							 GET_OBJ_PNAME(obj, 0).c_str(),
-							 GET_OBJ_VIS_SUF_1(obj, ch));
+							  GET_OBJ_VIS_SUF_7(obj, ch),
+							  GET_OBJ_PNAME(obj, 0).c_str(),
+							  GET_OBJ_VIS_SUF_1(obj, ch));
 				break;
 
 			case kSpellLight:
 				SendMsgToChar(ch, "Ваш%s %s перестал%s светиться.\r\n",
-							 GET_OBJ_VIS_SUF_7(obj, ch),
-							 GET_OBJ_PNAME(obj, 0).c_str(),
-							 GET_OBJ_VIS_SUF_1(obj, ch));
+							  GET_OBJ_VIS_SUF_7(obj, ch),
+							  GET_OBJ_PNAME(obj, 0).c_str(),
+							  GET_OBJ_VIS_SUF_1(obj, ch));
 				break;
 		}
 	}

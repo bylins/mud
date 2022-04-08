@@ -164,12 +164,12 @@ void do_quit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		long depot_cost = static_cast<long>(Depot::get_total_cost_per_day(ch));
 		if (depot_cost) {
 			SendMsgToChar(ch,
-						 "За вещи в хранилище придется заплатить %ld %s в день.\r\n",
-						 depot_cost,
-						 GetDeclensionInNumber(depot_cost, EWhat::kMoneyU));
+						  "За вещи в хранилище придется заплатить %ld %s в день.\r\n",
+						  depot_cost,
+						  GetDeclensionInNumber(depot_cost, EWhat::kMoneyU));
 			long deadline = ((ch->get_gold() + ch->get_bank()) / depot_cost);
 			SendMsgToChar(ch, "Твоих денег хватит на %ld %s.\r\n", deadline,
-						 GetDeclensionInNumber(deadline, EWhat::kDay));
+						  GetDeclensionInNumber(deadline, EWhat::kDay));
 		}
 		Depot::exit_char(ch);
 		Clan::clan_invoice(ch, false);
@@ -326,7 +326,7 @@ int char_humming(CharData *ch) {
 void do_sneak(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int prob, percent;
 
-	if (ch->is_npc() || !ch->get_skill(ESkill::kSneak)) {
+	if (ch->IsNpc() || !ch->get_skill(ESkill::kSneak)) {
 		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -372,12 +372,12 @@ void do_camouflage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 	struct TimedSkill timed;
 	int prob, percent;
 
-	if (ch->is_npc() || !ch->get_skill(ESkill::kDisguise)) {
+	if (ch->IsNpc() || !ch->get_skill(ESkill::kDisguise)) {
 		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}
 
-	if (ch->ahorse()) {
+	if (ch->IsOnHorse()) {
 		SendMsgToChar("Вы замаскировались под статую Юрия Долгорукого.\r\n", ch);
 		return;
 	}
@@ -430,7 +430,7 @@ void do_camouflage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 void do_hide(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int prob, percent;
 
-	if (ch->is_npc() || !ch->get_skill(ESkill::kHide)) {
+	if (ch->IsNpc() || !ch->get_skill(ESkill::kHide)) {
 		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -658,11 +658,11 @@ void do_steal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *vict;
 	char vict_name[kMaxInputLength], obj_name[kMaxInputLength];
 
-	if (ch->is_npc() || !ch->get_skill(ESkill::kSteal)) {
+	if (ch->IsNpc() || !ch->get_skill(ESkill::kSteal)) {
 		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (!IS_IMMORTAL(ch) && ch->ahorse()) {
+	if (!IS_IMMORTAL(ch) && ch->IsOnHorse()) {
 		SendMsgToChar("Верхом это сделать затруднительно.\r\n", ch);
 		return;
 	}
@@ -1010,8 +1010,7 @@ void print_one_line(CharData *ch, CharData *k, int leader, int header) {
 		act(buf, false, ch, nullptr, k, kToChar);
 	} else {
 		if (!header)
-			SendMsgToChar
-				("Персонаж            | Здоровье |Энергия|Рядом|Учить| Аффект | Кто | Держит строй | Положение \r\n",
+			SendMsgToChar("Персонаж            | Здоровье |Энергия|Рядом|Учить| Аффект | Кто | Держит строй | Положение \r\n",
 				 ch);
 
 		std::string name = GET_NAME(k);
@@ -1486,7 +1485,7 @@ void do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, int cur
 
 		sprintf(buf, "%s разделил%s %d %s; вам досталось %d.\r\n",
 				GET_NAME(ch), GET_CH_SUF_1(ch), amount, GetDeclensionInNumber(amount, what_currency), share);
-		if (AFF_FLAGGED(k, EAffect::kGroup) && IN_ROOM(k) == ch->in_room && !k->is_npc() && k != ch) {
+		if (AFF_FLAGGED(k, EAffect::kGroup) && IN_ROOM(k) == ch->in_room && !k->IsNpc() && k != ch) {
 			SendMsgToChar(buf, k);
 			switch (currency) {
 				case currency::ICE : {
@@ -1568,8 +1567,7 @@ void do_wimpy(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			else if (wimp_lev > GET_REAL_MAX_HIT(ch))
 				SendMsgToChar("Осталось только дожить до такого количества ХП.\r\n", ch);
 			else if (wimp_lev > (GET_REAL_MAX_HIT(ch) / 2))
-				SendMsgToChar
-					("Размечтались. Сбечь то можно, но не более половины максимальных ХП.\r\n", ch);
+				SendMsgToChar("Размечтались. Сбечь то можно, но не более половины максимальных ХП.\r\n", ch);
 			else {
 				sprintf(buf, "Ладушки. Вы сбегите (или сбежите) по достижению %d ХП.\r\n", wimp_lev);
 				SendMsgToChar(buf, ch);
@@ -1580,8 +1578,7 @@ void do_wimpy(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			GET_WIMP_LEV(ch) = 0;
 		}
 	} else
-		SendMsgToChar
-			("Уточните, при достижении какого количества ХП вы планируете сбежать (0 - драться до смерти)\r\n",
+		SendMsgToChar("Уточните, при достижении какого количества ХП вы планируете сбежать (0 - драться до смерти)\r\n",
 			 ch);
 }
 
@@ -1617,7 +1614,7 @@ const char *DISPLAY_HELP =
 	"Формат: статус { { Ж | Э | З | В | Д | У | О | Б | П | К } | все | нет }\r\n";
 
 void do_display(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->is_npc()) {
+	if (ch->IsNpc()) {
 		SendMsgToChar("И зачем это монстру? Не юродствуйте.\r\n", ch);
 		return;
 	}
@@ -1912,14 +1909,14 @@ void setNotifyEchange(CharData *ch, char *argument) {
 	long size = atol(argument);
 	if (size >= 100) {
 		SendMsgToChar(ch,
-					 "Вам будут приходить уведомления о продаже с базара ваших лотов стоимостью не менее чем %ld %s.\r\n",
-					 size,
-					 GetDeclensionInNumber(size, EWhat::kMoneyA));
+					  "Вам будут приходить уведомления о продаже с базара ваших лотов стоимостью не менее чем %ld %s.\r\n",
+					  size,
+					  GetDeclensionInNumber(size, EWhat::kMoneyA));
 		NOTIFY_EXCH_PRICE(ch) = size;
 		ch->save_char();
 	} else if (size >= 0 && size < 100) {
 		SendMsgToChar(ch,
-					 "Вам не будут приходить уведомления о продаже с базара ваших лотов, так как указана цена меньше 100 кун.\r\n");
+					  "Вам не будут приходить уведомления о продаже с базара ваших лотов, так как указана цена меньше 100 кун.\r\n");
 		NOTIFY_EXCH_PRICE(ch) = 0;
 		ch->save_char();
 	} else {
@@ -2183,8 +2180,8 @@ void do_gen_tog(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 				ch->save_char();
 			} else {
 				SendMsgToChar(ch,
-							 "Количество строк для вывода может быть в пределах от 1 до %d.\r\n",
-							 Remember::MAX_REMEMBER_NUM);
+							  "Количество строк для вывода может быть в пределах от 1 до %d.\r\n",
+							  Remember::MAX_REMEMBER_NUM);
 			}
 			return;
 		}
@@ -2337,7 +2334,7 @@ void do_pray(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 }
 
 void do_recall(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (ch->is_npc()) {
+	if (ch->IsNpc()) {
 		SendMsgToChar("Монстрам некуда возвращаться!\r\n", ch);
 		return;
 	}
@@ -2404,7 +2401,7 @@ void do_beep(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!*buf)
 		SendMsgToChar("Кого вызывать?\r\n", ch);
-	else if (!(vict = get_char_vis(ch, buf, EFind::kCharInWorld)) || vict->is_npc())
+	else if (!(vict = get_char_vis(ch, buf, EFind::kCharInWorld)) || vict->IsNpc())
 		SendMsgToChar(NOPERSON, ch);
 	else if (ch == vict)
 		SendMsgToChar("\007\007Вы вызвали себя!\r\n", ch);
@@ -2412,7 +2409,7 @@ void do_beep(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вы не можете пищать в режиме обращения.\r\n", ch);
 	else if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kSoundproof))
 		SendMsgToChar("Стены заглушили ваш писк.\r\n", ch);
-	else if (!vict->is_npc() && !vict->desc)    // linkless
+	else if (!vict->IsNpc() && !vict->desc)    // linkless
 		act("$N потерял связь.", false, ch, nullptr, vict, kToChar | kToSleep);
 	else if (PLR_FLAGGED(vict, EPlrFlag::kWriting))
 		act("$N пишет сейчас; Попищите позже.", false, ch, nullptr, vict, kToChar | kToSleep);
@@ -2430,7 +2427,7 @@ void do_bandage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 		SendMsgToChar("Вы не нуждаетесь в перевязке!\r\n", ch);
 		return;
 	}
-	if (ch->get_fighting()) {
+	if (ch->GetEnemy()) {
 		SendMsgToChar("Вы не можете перевязывать раны во время боя!\r\n", ch);
 		return;
 	}

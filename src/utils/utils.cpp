@@ -1529,10 +1529,10 @@ void print(CharData *ch) {
 	}
 	if (!tmp_list.empty()) {
 		SendMsgToChar(ch,
-					 "Money drop stats:\r\n"
-					 "Total zones: %lu\r\n"
-					 "  vnum - money\r\n"
-					 "================\r\n", tmp_list.size());
+					  "Money drop stats:\r\n"
+					  "Total zones: %lu\r\n"
+					  "  vnum - money\r\n"
+					  "================\r\n", tmp_list.size());
 	} else {
 		SendMsgToChar(ch, "Empty.\r\n");
 		return;
@@ -1608,10 +1608,10 @@ void print_gain(CharData *ch) {
 	}
 	if (!tmp_list.empty()) {
 		SendMsgToChar(ch,
-					 "Gain exp stats:\r\n"
-					 "Total zones: %lu\r\n"
-					 "  vnum - exp\r\n"
-					 "================\r\n", tmp_list.size());
+					  "Gain exp stats:\r\n"
+					  "Total zones: %lu\r\n"
+					  "  vnum - exp\r\n"
+					  "================\r\n", tmp_list.size());
 	} else {
 		SendMsgToChar(ch, "Empty.\r\n");
 		return;
@@ -1892,7 +1892,7 @@ void message_str_need(CharData *ch, ObjData *obj, int type) {
 			return;
 	}
 	SendMsgToChar(ch, "Для этого требуется %d %s.\r\n",
-				 need_str, GetDeclensionInNumber(need_str, EWhat::kStr));
+				  need_str, GetDeclensionInNumber(need_str, EWhat::kStr));
 }
 
 bool GetAffectNumByName(const std::string &affName, EAffect &result) {
@@ -1962,7 +1962,7 @@ void tell_to_char(CharData *keeper, CharData *ch, const char *arg) {
 	snprintf(local_buf, kMaxInputLength,
 			 "%s сказал%s вам : '%s'", GET_NAME(keeper), GET_CH_SUF_1(keeper), arg);
 	SendMsgToChar(ch, "%s%s%s\r\n",
-				 CCICYN(ch, C_NRM), CAP(local_buf), CCNRM(ch, C_NRM));
+				  CCICYN(ch, C_NRM), CAP(local_buf), CCNRM(ch, C_NRM));
 }
 
 int CAN_CARRY_N(const CharData *ch) {

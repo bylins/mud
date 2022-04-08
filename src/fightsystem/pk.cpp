@@ -911,7 +911,7 @@ int may_kill_here(CharData *ch, CharData *victim, char *argument) {
 		if (MOB_FLAGGED(ch, EMobFlag::kIgnoresPeaceRoom) && !IS_CHARMICE(ch))
 			return true;
 		// моб по триггеру имеет право
-		if (ch->is_npc() && ch->get_rnum() == real_mobile(kDgCasterProxy))
+		if (ch->IsNpc() && ch->get_rnum() == real_mobile(kDgCasterProxy))
 			return true;
 		// богам, мстящим и продолжающим агро-бд можно
 		if (IS_GOD(ch) || pk_action_type(ch, victim) & (PK_ACTION_REVENGE | PK_ACTION_FIGHT))

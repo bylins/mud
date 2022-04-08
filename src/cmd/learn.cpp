@@ -9,7 +9,7 @@ class ObjData;
 
 void book_upgrd_fail_message(CharData *ch, ObjData *obj) {
 	SendMsgToChar(ch, "Изучив %s от корки до корки вы так и не узнали ничего нового.\r\n",
-				 obj->get_PName(3).c_str());
+				  obj->get_PName(3).c_str());
 	act("$n с интересом принял$u читать $o3.\r\n"
 		"Постепенно $s интерес начал угасать, и $e, плюясь, сунул$g $o3 обратно.",
 		false, ch, obj, nullptr, kToRoom);

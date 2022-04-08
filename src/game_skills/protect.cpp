@@ -32,11 +32,11 @@ void do_protect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (ch->is_npc() || !ch->get_skill(ESkill::kProtect)) {
+	if (ch->IsNpc() || !ch->get_skill(ESkill::kProtect)) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::kProtect)) {
+	if (ch->HasCooldown(ESkill::kProtect)) {
 		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
@@ -52,7 +52,7 @@ void do_protect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (ch->get_fighting() == vict) {
+	if (ch->GetEnemy() == vict) {
 		SendMsgToChar("Вы явно пацифист, или мазохист.\r\n", ch);
 		return;
 	}
@@ -73,7 +73,7 @@ void do_protect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		&& (!ch->IsNpc()
 			|| (AFF_FLAGGED(ch, EAffect::kCharmed)
 				&& ch->has_master()
-				&& !ch->get_master()->is_npc()))) {
+				&& !ch->get_master()->IsNpc()))) {
 		SendMsgToChar("Вы пытаетесь прикрыть чужого противника.\r\n", ch);
 		return;
 	}
@@ -126,8 +126,8 @@ CharData *TryToFindProtector(CharData *victim, CharData *ch) {
 
 			if (protect) {
 				SendMsgToChar(vict,
-							 "Чьи-то широкие плечи помешали вам прикрыть %s.\r\n",
-							 GET_PAD(vict->get_protecting(), 3));
+							  "Чьи-то широкие плечи помешали вам прикрыть %s.\r\n",
+							  GET_PAD(vict->get_protecting(), 3));
 				continue;
 			}
 

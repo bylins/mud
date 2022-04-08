@@ -401,8 +401,8 @@ void print_notices() {
 		DescriptorData *d = DescByUID(*i);
 		if (d) {
 			SendMsgToChar(d->character.get(),
-						 "%sВам пришло письмо, зайдите на почту и распишитесь!%s\r\n",
-						 CCWHT(d->character, C_NRM), CCNRM(d->character, C_NRM));
+						  "%sВам пришло письмо, зайдите на почту и распишитесь!%s\r\n",
+						  CCWHT(d->character, C_NRM), CCNRM(d->character, C_NRM));
 		}
 	}
 	notice_list.clear();

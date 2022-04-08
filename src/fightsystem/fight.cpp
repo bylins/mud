@@ -149,7 +149,7 @@ void restore_battle_pos(CharData *ch) {
 		case EPosition::kRest:
 		case EPosition::kSit:
 		case EPosition::kSleep:
-			if (ch->is_npc() &&
+			if (ch->IsNpc() &&
 				ch->get_wait() <= 0 &&
 				!AFF_FLAGGED(ch, EAffect::kHold) && !AFF_FLAGGED(ch, EAffect::kSleep)
 				&& !AFF_FLAGGED(ch, EAffect::kCharmed)) {
@@ -214,7 +214,7 @@ void SetFighting(CharData *ch, CharData *vict) {
 	// если до начала боя на мобе есть лаг, то мы его выравниваем до целых
 	// раундов в большую сторону (для подножки, должно давать чару зазор в две
 	// секунды после подножки, чтобы моб всеравно встал только на 3й раунд)
-	if (ch->is_npc() && ch->get_wait() > 0) {
+	if (ch->IsNpc() && ch->get_wait() > 0) {
 //		div_t tmp = div(static_cast<const int>(ch->get_wait()), static_cast<const int>(kPulseViolence));
 		auto tmp = div(ch->get_wait(), kPulseViolence);
 		if (tmp.rem > 0) {
@@ -1076,7 +1076,7 @@ void mob_casting(CharData *ch) {
 			&& spellnum > 0 && spellnum <= kSpellCount)    // sprintf(buf,"$n using spell '%s', %d from %d",
 		{
 			//         spell_name(spellnum), sp_num, spells);
-			// act(buf,false,ch,0,ch->get_fighting(),TO_VICT);
+			// act(buf,false,ch,0,ch->GetEnemy(),TO_VICT);
 			if (spell_info[spellnum].routines & kNpcDamagePcMinhp) {
 				if (!AFF_FLAGGED(ch, EAffect::kCharmed))
 					victim = find_target(ch);
@@ -1209,7 +1209,7 @@ void check_mob_helpers() {
 			continue;
 		}
 		if (AFF_FLAGGED(ch, EAffect::kHold)
-			|| !ch->is_npc()
+			|| !ch->IsNpc()
 			|| ch->get_wait() > 0
 			|| GET_POS(ch) < EPosition::kFight
 			|| AFF_FLAGGED(ch, EAffect::kCharmed)

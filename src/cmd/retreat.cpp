@@ -3,7 +3,7 @@
 
 // ***************** STOPFIGHT
 void do_retreat(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (!ch->GetEnemy() || ch->is_npc()) {
+	if (!ch->GetEnemy() || ch->IsNpc()) {
 		SendMsgToChar("Но вы же ни с кем не сражаетесь.\r\n", ch);
 		return;
 	}

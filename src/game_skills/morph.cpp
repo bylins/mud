@@ -270,7 +270,7 @@ void do_morphset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	imm_log("%s add morph %s to %s.", GET_NAME(ch), IdToMorphMap[morphId]->Name().c_str(), GET_NAME(vict));
 
 	SendMsgToChar(std::string("Вы добавили форму '") + IdToMorphMap[morphId]->Name() + "' персонажу " + vict->get_name()
-					 + " \r\n", ch);
+					  + " \r\n", ch);
 }
 
 void load_morphs() {

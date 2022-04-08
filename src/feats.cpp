@@ -1036,7 +1036,7 @@ void CheckBerserk(CharData *ch) {
 void do_lightwalk(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	struct TimedFeat timed;
 
-	if (ch->is_npc() || !IsAbleToUseFeat(ch, EFeat::kLightWalk)) {
+	if (ch->IsNpc() || !IsAbleToUseFeat(ch, EFeat::kLightWalk)) {
 		SendMsgToChar("Вы не можете этого.\r\n", ch);
 		return;
 	}
@@ -1187,7 +1187,7 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	struct TimedFeat timed;
 
-	if (!IS_IMPL(ch) && (ch->is_npc() || !IsAbleToUseFeat(ch, EFeat::kSpellCapabler))) {
+	if (!IS_IMPL(ch) && (ch->IsNpc() || !IsAbleToUseFeat(ch, EFeat::kSpellCapabler))) {
 		SendMsgToChar("Вы не столь могущественны.\r\n", ch);
 		return;
 	}
@@ -1422,15 +1422,16 @@ void ActivateFeat(CharData *ch, EFeat feat_id) {
 			PRF_FLAGS(ch).unset(EPrf::kPerformGreatPowerAttack);
 			PRF_FLAGS(ch).set(EPrf::kPerformGreatAimingAttack);
 			break;
-		case EFeat::kSerratedBlade:
-			send_to_char("Вы перехватили свои клинки особым хватом.\r\n", ch);
+		case EFeat::kSerratedBlade: SendMsgToChar("Вы перехватили свои клинки особым хватом.\r\n", ch);
+			act("$n0 ловко прокрутил$g между пальцев свои клинки.",
+				false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 			PRF_FLAGS(ch).set(EPrf::kPerformSerratedBlade);
 			break;
 		case EFeat::kScirmisher:
 			if (!AFF_FLAGGED(ch, EAffect::kGroup)) {
 				SendMsgToChar(ch,
-							 "Голос десятника Никифора вдруг рявкнул: \"%s, тюрюхайло! 'В шеренгу по одному' иначе сполняется!\"\r\n",
-							 ch->get_name().c_str());
+							  "Голос десятника Никифора вдруг рявкнул: \"%s, тюрюхайло! 'В шеренгу по одному' иначе сполняется!\"\r\n",
+							  ch->get_name().c_str());
 				return;
 			}
 			if (PRF_FLAGGED(ch, EPrf::kSkirmisher)) {
@@ -1450,10 +1451,10 @@ void ActivateFeat(CharData *ch, EFeat feat_id) {
 		default: break;
 	}
 	SendMsgToChar(ch,
-				 "%sВы решили использовать способность '%s'.%s\r\n",
-				 CCIGRN(ch, C_SPR),
-				 feat_info[feat_id].name,
-				 CCNRM(ch, C_OFF));
+				  "%sВы решили использовать способность '%s'.%s\r\n",
+				  CCIGRN(ch, C_SPR),
+				  feat_info[feat_id].name,
+				  CCNRM(ch, C_OFF));
 }
 
 void DeactivateFeature(CharData *ch, EFeat feat_id) {
@@ -1466,8 +1467,9 @@ void DeactivateFeature(CharData *ch, EFeat feat_id) {
 			break;
 		case EFeat::kGreatAimingAttack: PRF_FLAGS(ch).unset(EPrf::kPerformGreatAimingAttack);
 			break;
-		case EFeat::kSerratedBlade:
-			send_to_char("Вы ловко прокрутили свои клинки в обычный прямой хват.\r\n", ch);
+		case EFeat::kSerratedBlade: SendMsgToChar("Вы ловко прокрутили свои клинки в обычный прямой хват.\r\n", ch);
+			act("$n0 ловко прокрутил$g между пальцев свои клинки.",
+				false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 			PRF_FLAGS(ch).unset(EPrf::kPerformSerratedBlade);
 			break;
 		case EFeat::kScirmisher: PRF_FLAGS(ch).unset(EPrf::kSkirmisher);
@@ -1484,7 +1486,7 @@ void DeactivateFeature(CharData *ch, EFeat feat_id) {
 		default: break;
 	}
 	SendMsgToChar(ch, "%sВы прекратили использовать способность '%s'.%s\r\n",
-				 CCIGRN(ch, C_SPR), feat_info[feat_id].name, CCNRM(ch, C_OFF));
+				  CCIGRN(ch, C_SPR), feat_info[feat_id].name, CCNRM(ch, C_OFF));
 }
 
 bool CheckAccessActivatedFeat(CharData *ch, EFeat feat_id) {

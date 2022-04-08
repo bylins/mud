@@ -203,7 +203,7 @@ void do_send_text_to_char(CharData *ch, char *argument, int, int) {
 		SendMsgToChar("Кому и какой текст вы хотите отправить?\r\n", ch);
 	} else if (!(vict = get_player_vis(ch, buf, EFind::kCharInWorld))) {
 		SendMsgToChar("Такого персонажа нет в игре.\r\n", ch);
-	} else if (vict->is_npc())
+	} else if (vict->IsNpc())
 		SendMsgToChar("Такого персонажа нет в игре.\r\n", ch);
 	else {
 		snprintf(buf1, kMaxStringLength, "%s\r\n", buf2);
@@ -336,8 +336,8 @@ void do_showzonestats(CharData *ch, char *argument, int, int) {
 		return;
 	}
 	SendMsgToChar(ch,
-				 "Статистика с %sДля создания новой таблицы введите команду 'очистить'.\r\n",
-				 asctime(localtime(&zones_stat_date)));
+				  "Статистика с %sДля создания новой таблицы введите команду 'очистить'.\r\n",
+				  asctime(localtime(&zones_stat_date)));
 	for (ZoneRnum i = 0; i < static_cast<ZoneRnum>(zone_table.size()); i++) {
 		sprintf(buf, "Zone: %5d, count_reset с ребута: %3d, посещено: %5d, назвение зоны: %s",
 				zone_table[i].vnum,
@@ -1382,7 +1382,7 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			int amount = atoi((num + 1));
 			Glory::add_glory(GET_UNIQUE(vict), amount);
 			SendMsgToChar(ch, "%s добавлено %d у.е. славы (Всего: %d у.е.).\r\n",
-						 GET_PAD(vict, 2), amount, Glory::get_glory(GET_UNIQUE(vict)));
+						  GET_PAD(vict, 2), amount, Glory::get_glory(GET_UNIQUE(vict)));
 			imm_log("(GC) %s sets +%d glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
 			// запись в карму
 			sprintf(buf, "Change glory +%d by %s", amount, GET_NAME(ch));
@@ -1397,7 +1397,7 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				break;
 			}
 			SendMsgToChar(ch, "У %s вычтено %d у.е. славы (Всего: %d у.е.).\r\n",
-						 GET_PAD(vict, 1), amount, Glory::get_glory(GET_UNIQUE(vict)));
+						  GET_PAD(vict, 1), amount, Glory::get_glory(GET_UNIQUE(vict)));
 			imm_log("(GC) %s sets -%d glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
 			// запись в карму
 			sprintf(buf, "Change glory -%d by %s", amount, GET_NAME(ch));
@@ -1760,7 +1760,7 @@ void do_switch(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		} else if (visible_character->desc) {
 			SendMsgToChar("Это тело уже под контролем.\r\n", ch);
 		} else if (!IS_IMPL(ch)
-			&& !visible_character->is_npc()) {
+			&& !visible_character->IsNpc()) {
 			SendMsgToChar("Вы не столь могущественны, чтобы контроолировать тело игрока.\r\n", ch);
 		} else if (GetRealLevel(ch) < kLvlGreatGod
 			&& ROOM_FLAGGED(IN_ROOM(visible_character), ERoomFlag::kGodsRoom)) {
@@ -1961,7 +1961,7 @@ void do_purge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (*buf) {        // argument supplied. destroy single object or char
 		if ((vict = get_char_vis(ch, buf, EFind::kCharInRoom)) != nullptr) {
-			if (!vict->is_npc() && GetRealLevel(ch) <= GetRealLevel(vict) && !PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
+			if (!vict->IsNpc() && GetRealLevel(ch) <= GetRealLevel(vict) && !PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
 				SendMsgToChar("Да я вас за это...\r\n", ch);
 				return;
 			}
@@ -2117,7 +2117,7 @@ void inspecting() {
 
 		if (!*it->second->req) {
 			SendMsgToChar(ch,
-						 "Ошибка: пустой параметр для поиска");//впринципе никогда не должно вылезти, но на всякий случай воткнул проверку
+						  "Ошибка: пустой параметр для поиска");//впринципе никогда не должно вылезти, но на всякий случай воткнул проверку
 			break;
 		}
 
@@ -2147,10 +2147,10 @@ void inspecting() {
 				vict.reset(new Player);
 				if (load_char(player_table[it->second->pos].name(), vict.get()) < 0) {
 					SendMsgToChar(ch,
-								 "Некорректное имя персонажа (%s) inspecting %s: %s.\r\n",
-								 player_table[it->second->pos].name(),
-								 (it->second->sfor == IMAIL ? "mail" : (it->second->sfor == IIP ? "ip" : "char")),
-								 it->second->req);
+								  "Некорректное имя персонажа (%s) inspecting %s: %s.\r\n",
+								  player_table[it->second->pos].name(),
+								  (it->second->sfor == IMAIL ? "mail" : (it->second->sfor == IIP ? "ip" : "char")),
+								  it->second->req);
 					continue;
 				}
 			}
@@ -2189,7 +2189,7 @@ void inspecting() {
 					for (const auto &ch_log : it->second->ip_log) {
 						if (!ch_log.ip) {
 							SendMsgToChar(ch,
-										 "Ошибка: пустой ip\r\n");//поиск прерываеться если криво заполнено поле ip для поиска
+										  "Ошибка: пустой ip\r\n");//поиск прерываеться если криво заполнено поле ip для поиска
 							break;
 						}
 
@@ -2622,7 +2622,7 @@ void perform_immort_invis(CharData *ch, int level) {
 void do_invis(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int level;
 
-	if (ch->is_npc()) {
+	if (ch->IsNpc()) {
 		SendMsgToChar("Вы не можете сделать этого.\r\n", ch);
 		return;
 	}
@@ -2849,7 +2849,7 @@ void do_force(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		const auto vict = get_char_vis(ch, arg, EFind::kCharInWorld);
 		if (!vict) {
 			SendMsgToChar(NOPERSON, ch);
-		} else if (!vict->is_npc() && GetRealLevel(ch) <= GetRealLevel(vict) && !PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
+		} else if (!vict->IsNpc() && GetRealLevel(ch) <= GetRealLevel(vict) && !PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
 			SendMsgToChar("Господи, только не это!\r\n", ch);
 		} else {
 			char *pstr;
@@ -3971,7 +3971,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 	}
 
 	// Make sure the PC/NPC is correct
-	if (vict->is_npc() && !(set_fields[mode].pcnpc & NPC)) {
+	if (vict->IsNpc() && !(set_fields[mode].pcnpc & NPC)) {
 		SendMsgToChar("Эта тварь недостойна такой чести!\r\n", ch);
 		return (0);
 	} else if (!vict->IsNpc() && !(set_fields[mode].pcnpc & PC)) {
@@ -4689,7 +4689,7 @@ void do_set(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		} else    // is_mob
 		{
 			if (!(vict = get_char_vis(ch, name, EFind::kCharInWorld))
-				|| !vict->is_npc()) {
+				|| !vict->IsNpc()) {
 				SendMsgToChar("Нет такой твари Божьей.\r\n", ch);
 				return;
 			}
@@ -5291,7 +5291,7 @@ struct filter_type {
 } // namespace
 
 void do_print_armor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->is_npc() || (!IS_GRGOD(ch) && !PRF_FLAGGED(ch, EPrf::kCoderinfo))) {
+	if (ch->IsNpc() || (!IS_GRGOD(ch) && !PRF_FLAGGED(ch, EPrf::kCoderinfo))) {
 		SendMsgToChar("Чаво?\r\n", ch);
 		return;
 	}

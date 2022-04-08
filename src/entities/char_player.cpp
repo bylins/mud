@@ -216,7 +216,7 @@ void Player::sub_nogata(int value) {
 void Player::add_nogata(int value) {
 	this->nogata += value;
 	SendMsgToChar(this, "Вы получили %ld %s.\r\n", static_cast<long>(value),
-				 GetDeclensionInNumber(value, EWhat::kNogataU));
+				  GetDeclensionInNumber(value, EWhat::kNogataU));
 
 }
 
@@ -227,10 +227,10 @@ void Player::add_hryvn(int value) {
 	} else if ((this->get_hryvn() + value) > cap_hryvn) {
 		value = cap_hryvn - this->get_hryvn();
 		SendMsgToChar(this, "Вы получили только %ld %s, так как в вашу копилку больше не лезет...\r\n",
-					 static_cast<long>(value), GetDeclensionInNumber(value, EWhat::kTorcU));
+					  static_cast<long>(value), GetDeclensionInNumber(value, EWhat::kTorcU));
 	} else if (value > 0) {
 		SendMsgToChar(this, "Вы получили %ld %s.\r\n",
-					 static_cast<long>(value), GetDeclensionInNumber(value, EWhat::kTorcU));
+					  static_cast<long>(value), GetDeclensionInNumber(value, EWhat::kTorcU));
 	} else if (value == 0) {
 		return;
 	}
@@ -337,11 +337,11 @@ void Player::show_mobmax() {
 	int i = 0;
 	for (const auto &item : stats) {
 		SendMsgToChar(this,
-					 "%2d. Уровень: %d; Убито: %d; Всего до размакса: %d\n",
-					 ++i,
-					 item.first,
-					 item.second,
-					 get_max_kills(item.first));
+					  "%2d. Уровень: %d; Убито: %d; Всего до размакса: %d\n",
+					  ++i,
+					  item.first,
+					  item.second,
+					  get_max_kills(item.first));
 	}
 }
 

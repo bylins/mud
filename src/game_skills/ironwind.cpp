@@ -52,11 +52,11 @@ void go_iron_wind(CharData *ch, CharData *victim) {
 }
 
 void do_iron_wind(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->is_npc() || !ch->get_skill(ESkill::kIronwind)) {
+	if (ch->IsNpc() || !ch->get_skill(ESkill::kIronwind)) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	};
-	if (ch->haveCooldown(ESkill::kIronwind)) {
+	if (ch->HasCooldown(ESkill::kIronwind)) {
 		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};

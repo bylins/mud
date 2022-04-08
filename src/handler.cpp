@@ -324,7 +324,7 @@ void PlaceCharToRoom(CharData *ch, RoomRnum room) {
 		room = ch->get_from_room();
 	}
 
-	if (!ch->is_npc() && NORENTABLE(ch) && ROOM_FLAGGED(room, ERoomFlag::kArena) && !IS_IMMORTAL(ch)) {
+	if (!ch->IsNpc() && NORENTABLE(ch) && ROOM_FLAGGED(room, ERoomFlag::kArena) && !IS_IMMORTAL(ch)) {
 		SendMsgToChar("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
 		room = ch->get_from_room();
 	}
@@ -390,7 +390,7 @@ void FleeToRoom(CharData *ch, RoomRnum room) {
 		room = ch->get_from_room();
 	}
 
-	if (!ch->is_npc() && NORENTABLE(ch) && ROOM_FLAGGED(room, ERoomFlag::kArena) && !IS_IMMORTAL(ch)) {
+	if (!ch->IsNpc() && NORENTABLE(ch) && ROOM_FLAGGED(room, ERoomFlag::kArena) && !IS_IMMORTAL(ch)) {
 		SendMsgToChar("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
 		room = ch->get_from_room();
 	}
@@ -982,9 +982,9 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 		if ((obj->get_auto_mort_req() >= 0) && (obj->get_auto_mort_req() > GET_REAL_REMORT(master))
 			&& !IS_IMMORTAL(master)) {
 			SendMsgToChar(master, "Для использования %s требуется %d %s.\r\n",
-						 GET_OBJ_PNAME(obj, 1).c_str(),
-						 obj->get_auto_mort_req(),
-						 GetDeclensionInNumber(obj->get_auto_mort_req(), EWhat::kRemort));
+						  GET_OBJ_PNAME(obj, 1).c_str(),
+						  obj->get_auto_mort_req(),
+						  GetDeclensionInNumber(obj->get_auto_mort_req(), EWhat::kRemort));
 			act("$n попытал$u использовать $o3, но у н$s ничего не получилось.", false, ch, obj, nullptr, kToRoom);
 			if (!obj->get_carried_by()) {
 				PlaceObjToInventory(obj, ch);
@@ -993,8 +993,8 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 		} else if ((obj->get_auto_mort_req() < -1) && (abs(obj->get_auto_mort_req()) < GET_REAL_REMORT(master))
 			&& !IS_IMMORTAL(master)) {
 			SendMsgToChar(master, "Максимально количество перевоплощений для использования %s равно %d.\r\n",
-						 GET_OBJ_PNAME(obj, 1).c_str(),
-						 abs(obj->get_auto_mort_req()));
+						  GET_OBJ_PNAME(obj, 1).c_str(),
+						  abs(obj->get_auto_mort_req()));
 			act("$n попытал$u использовать $o3, но у н$s ничего не получилось.",
 				false, ch, obj, nullptr, kToRoom);
 			if (!obj->get_carried_by()) {

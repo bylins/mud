@@ -104,22 +104,22 @@ void PrintScoreList(CharData *ch) {
 	sprintf(buf1, "%s", religion_name[GET_RELIGION(ch)][static_cast<int>(GET_SEX(ch))]);
 	buf1[0] = LOWER(buf1[0]);
 	SendMsgToChar(ch, "Вы %s, %s, %s, %s, уровень %d, перевоплощений %d.\r\n", ch->get_name().c_str(),
-				 buf,
-				 MUD::Classes()[ch->get_class()].GetCName(),
-				 buf1,
-				 GetRealLevel(ch),
-				 GET_REAL_REMORT(ch));
+				  buf,
+				  MUD::Classes()[ch->get_class()].GetCName(),
+				  buf1,
+				  GetRealLevel(ch),
+				  GET_REAL_REMORT(ch));
 	SendMsgToChar(ch, "Ваш возраст: %d, размер: %d(%d), рост: %d(%d), вес %d(%d).\r\n",
-				 GET_AGE(ch),
-				 GET_SIZE(ch), GET_REAL_SIZE(ch),
-				 GET_HEIGHT(ch), GET_REAL_HEIGHT(ch),
-				 GET_WEIGHT(ch), GET_REAL_WEIGHT(ch));
+				  GET_AGE(ch),
+				  GET_SIZE(ch), GET_REAL_SIZE(ch),
+				  GET_HEIGHT(ch), GET_REAL_HEIGHT(ch),
+				  GET_WEIGHT(ch), GET_REAL_WEIGHT(ch));
 	SendMsgToChar(ch, "Вы можете выдержать %d(%d) %s повреждений, и пройти %d(%d) %s по ровной местности.\r\n",
-				 GET_HIT(ch), GET_REAL_MAX_HIT(ch), GetDeclensionInNumber(GET_HIT(ch), EWhat::kOneU),
-				 GET_MOVE(ch), GET_REAL_MAX_MOVE(ch), GetDeclensionInNumber(GET_MOVE(ch), EWhat::kMoveU));
+				  GET_HIT(ch), GET_REAL_MAX_HIT(ch), GetDeclensionInNumber(GET_HIT(ch), EWhat::kOneU),
+				  GET_MOVE(ch), GET_REAL_MAX_MOVE(ch), GetDeclensionInNumber(GET_MOVE(ch), EWhat::kMoveU));
 	if (IS_MANA_CASTER(ch)) {
 		SendMsgToChar(ch, "Ваша магическая энергия %d(%d) и вы восстанавливаете %d в сек.\r\n",
-					 ch->mem_queue.stored, GET_MAX_MANA(ch), mana_gain(ch));
+					  ch->mem_queue.stored, GET_MAX_MANA(ch), mana_gain(ch));
 	}
 	SendMsgToChar(ch, "Ваша сила: %d(%d), ловкость: %d(%d), телосложение: %d(%d), ум: %d(%d), мудрость: %d(%d), обаяние: %d(%d).\r\n",
 				 ch->get_str(), GET_REAL_STR(ch),
@@ -136,49 +136,49 @@ void PrintScoreList(CharData *ch) {
 	int max_dam = hit_params.calc_damage(ch, need_dice); // без кубиков
 
 	SendMsgToChar(ch, "Попадание: %d, повреждение: %d, запоминание: %d, успех колдовства: %d, удача: %d, маг.урон: %d, физ. урон: %d.\r\n",
-				CalcHitroll(ch),
-				max_dam,
-				int (GET_MANAREG(ch) * ch->get_cond_penalty(P_CAST)),
-				CalcAntiSavings(ch),
-				ch->calc_morale(),
-				ch->add_abils.percent_magdam_add + ch->obj_bonus().calc_mage_dmg(100),
-				ch->add_abils.percent_physdam_add + ch->obj_bonus().calc_phys_dmg(100));
+				  CalcHitroll(ch),
+				  max_dam,
+				  int(GET_MANAREG(ch) * ch->get_cond_penalty(P_CAST)),
+				  CalcAntiSavings(ch),
+				  ch->calc_morale(),
+				  ch->add_abils.percent_magdam_add + ch->obj_bonus().calc_mage_dmg(100),
+				  ch->add_abils.percent_physdam_add + ch->obj_bonus().calc_phys_dmg(100));
 	SendMsgToChar(ch, "Сопротивление: огню: %d, воздуху: %d, воде: %d, земле: %d, тьме: %d, живучесть: %d, разум: %d, иммунитет: %d.\r\n",
-				 MIN(GET_RESIST(ch, EResist::kFire), 75),
-				 MIN(GET_RESIST(ch, EResist::kAir), 75),
-				 MIN(GET_RESIST(ch, EResist::kWater), 75),
-				 MIN(GET_RESIST(ch, EResist::kEarth), 75),
-				 MIN(GET_RESIST(ch, EResist::kDark), 75),
-				 MIN(GET_RESIST(ch, EResist::kVitality), 75),
-				 MIN(GET_RESIST(ch, EResist::kMind), 75),
-				 MIN(GET_RESIST(ch, EResist::kImmunity), 75));
+				  MIN(GET_RESIST(ch, EResist::kFire), 75),
+				  MIN(GET_RESIST(ch, EResist::kAir), 75),
+				  MIN(GET_RESIST(ch, EResist::kWater), 75),
+				  MIN(GET_RESIST(ch, EResist::kEarth), 75),
+				  MIN(GET_RESIST(ch, EResist::kDark), 75),
+				  MIN(GET_RESIST(ch, EResist::kVitality), 75),
+				  MIN(GET_RESIST(ch, EResist::kMind), 75),
+				  MIN(GET_RESIST(ch, EResist::kImmunity), 75));
 	SendMsgToChar(ch, "Спас броски: воля: %d, здоровье: %d, стойкость: %d, реакция: %d, маг.резист: %d, физ.резист %d, отчар.резист: %d.\r\n",
-				 GET_REAL_SAVING_WILL(ch),
-				 GET_REAL_SAVING_CRITICAL(ch),
-				 GET_REAL_SAVING_STABILITY(ch),
-				 GET_REAL_SAVING_REFLEX(ch),
-				 GET_MR(ch),
-				 GET_PR(ch),
-				 GET_AR(ch));
+				  GET_REAL_SAVING_WILL(ch),
+				  GET_REAL_SAVING_CRITICAL(ch),
+				  GET_REAL_SAVING_STABILITY(ch),
+				  GET_REAL_SAVING_REFLEX(ch),
+				  GET_MR(ch),
+				  GET_PR(ch),
+				  GET_AR(ch));
 	SendMsgToChar(ch, "Восстановление: жизни: +%d%% (+%d), сил: +%d%% (+%d).\r\n",
-				 GET_HITREG(ch),
-				 hit_gain(ch),
-				 GET_MOVEREG(ch),
-				 move_gain(ch));
+				  GET_HITREG(ch),
+				  hit_gain(ch),
+				  GET_MOVEREG(ch),
+				  move_gain(ch));
 	int ac = compute_armor_class(ch) / 10;
 	if (ac < 5) {
 		const int mod = (1 - ch->get_cond_penalty(P_AC)) * 40;
 		ac = ac + mod > 5 ? 5 : ac + mod;
 	}
 	SendMsgToChar(ch, "Броня: %d, защита: %d, поглощение %d.\r\n",
-				 GET_ARMOUR(ch),
-				 ac,
-				 GET_ABSORBE(ch));
+				  GET_ARMOUR(ch),
+				  ac,
+				  GET_ABSORBE(ch));
 	SendMsgToChar(ch, "Вы имеете кун: на руках: %ld, на счету %ld. Гривны: %d, опыт: %ld, ДСУ: %ld.\r\n",
-				 ch->get_gold(),
-				 ch->get_bank(),
-				 ch->get_hryvn(),
-				 GET_EXP(ch),
+				  ch->get_gold(),
+				  ch->get_bank(),
+				  ch->get_hryvn(),
+				  GET_EXP(ch),
 				 IS_IMMORTAL(ch) ? 1: GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - GET_EXP(ch));
 	if (!ch->IsOnHorse())
 		SendMsgToChar(ch, "Ваша позиция: %s", GetPositionStr(ch));
@@ -210,13 +210,13 @@ void PrintScoreList(CharData *ch) {
 		SendMsgToChar(ch, "ВНИМАНИЕ! ваше имя запрещено богами. Очень скоро вы прекратите получать опыт.\r\n");
 	}
 	SendMsgToChar(ch, "Вы можете вступить в группу с максимальной разницей в %2d %-75s\r\n",
-				 grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REAL_REMORT(ch))],
-				 (std::string(
-					 GetDeclensionInNumber(grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REAL_REMORT(
-						 ch))], EWhat::kLvl)
-							 + std::string(" без потерь для опыта.")).substr(0, 76).c_str()));
+				  grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REAL_REMORT(ch))],
+				  (std::string(
+					  GetDeclensionInNumber(grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REAL_REMORT(
+						  ch))], EWhat::kLvl)
+						  + std::string(" без потерь для опыта.")).substr(0, 76).c_str()));
 
-	SendMsgToChar(ch,"Вы можете принять в группу максимум %d соратников.\r\n", max_group_size(ch));
+	SendMsgToChar(ch, "Вы можете принять в группу максимум %d соратников.\r\n", max_group_size(ch));
 }
 
 /*

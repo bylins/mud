@@ -16,7 +16,7 @@ void go_strangle(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (ch->get_fighting()) {
+	if (ch->GetEnemy()) {
 		SendMsgToChar("Вы не можете делать это в бою!\r\n", ch);
 		return;
 	}
@@ -93,7 +93,7 @@ void do_strangle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (IsTimedBySkill(ch, ESkill::kStrangle) || ch->haveCooldown(ESkill::kStrangle)) {
+	if (IsTimedBySkill(ch, ESkill::kStrangle) || ch->HasCooldown(ESkill::kStrangle)) {
 		SendMsgToChar("Так часто душить нельзя - человеки кончатся.\r\n", ch);
 		return;
 	}

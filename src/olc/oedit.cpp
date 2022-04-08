@@ -1275,8 +1275,8 @@ bool parse_val_spell_num(DescriptorData *d, const ObjVal::EValueKey key, int val
 	}
 	OLC_OBJ(d)->set_value(key, val);
 	SendMsgToChar(d->character.get(), "Выбранное заклинание: %s\r\n"
-									 "Ведите уровень заклинания от 1 до 50 (0 - выход) :",
-				 GetSpellName(val));
+									  "Ведите уровень заклинания от 1 до 50 (0 - выход) :",
+				  GetSpellName(val));
 	return true;
 }
 
@@ -1381,49 +1381,49 @@ void oedit_parse(DescriptorData *d, char *arg) {
 
 				case '2':
 					SendMsgToChar(d->character.get(),
-								 "&S%s&s\r\nИменительный падеж [это ЧТО] : ",
-								 OLC_OBJ(d)->get_PName(0).c_str());
+								  "&S%s&s\r\nИменительный падеж [это ЧТО] : ",
+								  OLC_OBJ(d)->get_PName(0).c_str());
 					OLC_MODE(d) = OEDIT_PAD0;
 					break;
 
 				case '3':
 					SendMsgToChar(d->character.get(),
-								 "&S%s&s\r\nРодительный падеж [нет ЧЕГО] : ",
-								 OLC_OBJ(d)->get_PName(1).c_str());
+								  "&S%s&s\r\nРодительный падеж [нет ЧЕГО] : ",
+								  OLC_OBJ(d)->get_PName(1).c_str());
 					OLC_MODE(d) = OEDIT_PAD1;
 					break;
 
 				case '4':
 					SendMsgToChar(d->character.get(),
-								 "&S%s&s\r\nДательный падеж [прикрепить к ЧЕМУ] : ",
-								 OLC_OBJ(d)->get_PName(2).c_str());
+								  "&S%s&s\r\nДательный падеж [прикрепить к ЧЕМУ] : ",
+								  OLC_OBJ(d)->get_PName(2).c_str());
 					OLC_MODE(d) = OEDIT_PAD2;
 					break;
 
 				case '5':
 					SendMsgToChar(d->character.get(),
-								 "&S%s&s\r\nВинительный падеж [держать ЧТО] : ",
-								 OLC_OBJ(d)->get_PName(3).c_str());
+								  "&S%s&s\r\nВинительный падеж [держать ЧТО] : ",
+								  OLC_OBJ(d)->get_PName(3).c_str());
 					OLC_MODE(d) = OEDIT_PAD3;
 					break;
 
 				case '6':
 					SendMsgToChar(d->character.get(),
-								 "&S%s&s\r\nТворительный падеж [вооружиться ЧЕМ] : ",
-								 OLC_OBJ(d)->get_PName(4).c_str());
+								  "&S%s&s\r\nТворительный падеж [вооружиться ЧЕМ] : ",
+								  OLC_OBJ(d)->get_PName(4).c_str());
 					OLC_MODE(d) = OEDIT_PAD4;
 					break;
 				case '7':
 					SendMsgToChar(d->character.get(),
-								 "&S%s&s\r\nПредложный падеж [писать на ЧЕМ] : ",
-								 OLC_OBJ(d)->get_PName(5).c_str());
+								  "&S%s&s\r\nПредложный падеж [писать на ЧЕМ] : ",
+								  OLC_OBJ(d)->get_PName(5).c_str());
 					OLC_MODE(d) = OEDIT_PAD5;
 					break;
 
 				case '8':
 					SendMsgToChar(d->character.get(),
-								 "&S%s&s\r\nВведите длинное описание :-\r\n| ",
-								 OLC_OBJ(d)->get_description().c_str());
+								  "&S%s&s\r\nВведите длинное описание :-\r\n| ",
+								  OLC_OBJ(d)->get_description().c_str());
 					OLC_MODE(d) = OEDIT_LONGDESC;
 					break;
 

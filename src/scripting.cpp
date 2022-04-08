@@ -2586,7 +2586,7 @@ bool check_command_on_list(const python_command_list_t &lst,
 		if (!boost::starts_with(i->command_koi8r, command)) continue;
 
 		//Copied from interpreter.cpp
-		if (ch->is_npc() && i->minimum_level >= LVL_IMMORT) {
+		if (ch->IsNpc() && i->minimum_level >= LVL_IMMORT) {
 			SendMsgToChar("Вы еще не БОГ, чтобы делать это.\r\n", ch);
 			return true;
 		}

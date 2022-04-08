@@ -760,7 +760,7 @@ void EndowExpToChar(CharData *ch, int gain) {
 		ZoneExpStat::add(zone_table[world[ch->in_room]->zone_rn].vnum, gain);
 	}
 
-	if (!ch->is_npc() && ((GetRealLevel(ch) < 1 || GetRealLevel(ch) >= kLvlImmortal))) {
+	if (!ch->IsNpc() && ((GetRealLevel(ch) < 1 || GetRealLevel(ch) >= kLvlImmortal))) {
 		return;
 	}
 
@@ -771,11 +771,11 @@ void EndowExpToChar(CharData *ch, int gain) {
 			if (!GET_GOD_FLAG(ch, EGf::kRemort) && GET_REAL_REMORT(ch) < kMaxRemort) {
 				if (Remort::can_remort_now(ch)) {
 					SendMsgToChar(ch, "%sПоздравляем, вы получили право на перевоплощение!%s\r\n",
-								 CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+								  CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 				} else {
 					SendMsgToChar(ch,
-								 "%sПоздравляем, вы набрали максимальное количество опыта!\r\n"
-								 "%s%s\r\n", CCIGRN(ch, C_NRM), Remort::WHERE_TO_REMORT_STR.c_str(), CCNRM(ch, C_NRM));
+								  "%sПоздравляем, вы набрали максимальное количество опыта!\r\n"
+								  "%s%s\r\n", CCIGRN(ch, C_NRM), Remort::WHERE_TO_REMORT_STR.c_str(), CCNRM(ch, C_NRM));
 				}
 				SET_GOD_FLAG(ch, EGf::kRemort);
 			}
@@ -820,7 +820,7 @@ void EndowExpToChar(CharData *ch, int gain) {
 		&& (GetRealLevel(ch) < kLvlImmortal)) {
 		if (Remort::can_remort_now(ch)) {
 			SendMsgToChar(ch, "%sВы потеряли право на перевоплощение!%s\r\n",
-						 CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
+						  CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 		}
 		CLR_GOD_FLAG(ch, EGf::kRemort);
 	}
@@ -1229,11 +1229,11 @@ void clan_chest_invoice(ObjData *j) {
 			&& CLAN(d->character)
 			&& CLAN(d->character)->GetRent() == room) {
 			SendMsgToChar(d->character.get(), "[Хранилище]: %s'%s%s рассыпал%s в прах'%s\r\n",
-						 CCIRED(d->character, C_NRM),
-						 j->get_short_description().c_str(),
-						 clan_get_custom_label(j, CLAN(d->character)).c_str(),
-						 GET_OBJ_SUF_2(j),
-						 CCNRM(d->character, C_NRM));
+						  CCIRED(d->character, C_NRM),
+						  j->get_short_description().c_str(),
+						  clan_get_custom_label(j, CLAN(d->character)).c_str(),
+						  GET_OBJ_SUF_2(j),
+						  CCNRM(d->character, C_NRM));
 		}
 	}
 
@@ -1315,10 +1315,10 @@ void charmee_obj_decay_tell(CharData *charmee, ObjData *obj, int where) {
 			 GET_OBJ_SUF_2(obj),
 			 buf1);
 	SendMsgToChar(charmee->get_master(),
-				 "%s%s%s\r\n",
-				 CCICYN(charmee->get_master(), C_NRM),
-				 CAP(buf),
-				 CCNRM(charmee->get_master(), C_NRM));
+				  "%s%s%s\r\n",
+				  CCICYN(charmee->get_master(), C_NRM),
+				  CAP(buf),
+				  CCNRM(charmee->get_master(), C_NRM));
 }
 
 void obj_point_update() {

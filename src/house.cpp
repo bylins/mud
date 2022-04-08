@@ -1181,9 +1181,9 @@ void Clan::HouseAdd(CharData *ch, std::string &buffer) {
 					editedChar = d->character;
 					Clan::SetClanData(d->character.get());
 					SendMsgToChar(d->character.get(), "%sВаше звание изменили, теперь вы %s.%s\r\n",
-								 CCWHT(d->character, C_NRM),
-								 (*it).c_str(),
-								 CCNRM(d->character, C_NRM));
+								  CCWHT(d->character, C_NRM),
+								  (*it).c_str(),
+								  CCNRM(d->character, C_NRM));
 				}
 
 				// оповещение соклановцев о изменении звания
@@ -1193,9 +1193,9 @@ void Clan::HouseAdd(CharData *ch, std::string &buffer) {
 						&& CLAN(d->character)->GetRent() == this->GetRent()
 						&& editedChar != d->character) {
 						SendMsgToChar(d->character.get(), "%s%s теперь %s.%s\r\n",
-									 CCWHT(d->character, C_NRM),
-									 it_member->second->name.c_str(), (*it).c_str(),
-									 CCNRM(d->character, C_NRM));
+									  CCWHT(d->character, C_NRM),
+									  it_member->second->name.c_str(), (*it).c_str(),
+									  CCNRM(d->character, C_NRM));
 					}
 				}
 
@@ -1408,7 +1408,7 @@ void Clan::hcon_outcast(CharData *ch, std::string &buffer) {
 		if (it != clan->m_members.end()) {
 			if (!it->second->rank_num) {
 				SendMsgToChar(ch,
-							 "Вы не можете исключить воеводу, для удаления дружины существует hcontrol destroy.\r\n");
+							  "Вы не можете исключить воеводу, для удаления дружины существует hcontrol destroy.\r\n");
 				return;
 			}
 			clan->remove_member(member_uid);
@@ -1439,16 +1439,16 @@ void Clan::GodToChannel(CharData *ch, std::string text, int subcmd) {
 					&& CLAN(d->character).get() == this
 					&& !AFF_FLAGGED(d->character, EAffect::kDeafness)) {
 					SendMsgToChar(d->character.get(), "%s ВАШЕЙ ДРУЖИНЕ: %s'%s'%s\r\n",
-								 GET_NAME(ch), CCIRED(d->character, C_NRM), text.c_str(), CCNRM(d->character, C_NRM));
+								  GET_NAME(ch), CCIRED(d->character, C_NRM), text.c_str(), CCNRM(d->character, C_NRM));
 				}
 			}
 
 			SendMsgToChar(ch,
-						 "Вы дружине %s: %s'%s'.%s\r\n",
-						 this->abbrev.c_str(),
-						 CCIRED(ch, C_NRM),
-						 text.c_str(),
-						 CCNRM(ch, C_NRM));
+						  "Вы дружине %s: %s'%s'.%s\r\n",
+						  this->abbrev.c_str(),
+						  CCIRED(ch, C_NRM),
+						  text.c_str(),
+						  CCNRM(ch, C_NRM));
 
 			break;
 
@@ -1466,28 +1466,28 @@ void Clan::GodToChannel(CharData *ch, std::string text, int subcmd) {
 						if (CLAN(d->character).get() != this) {
 							if (CLAN(d->character)->CheckPolitics(this->rent) == kPoliticsAlliance) {
 								SendMsgToChar(d->character.get(),
-											 "%s ВАШИМ СОЮЗНИКАМ: %s'%s'%s\r\n",
-											 GET_NAME(ch),
-											 CCIGRN(d->character, C_NRM),
-											 text.c_str(),
-											 CCNRM(d->character, C_NRM));
+											  "%s ВАШИМ СОЮЗНИКАМ: %s'%s'%s\r\n",
+											  GET_NAME(ch),
+											  CCIGRN(d->character, C_NRM),
+											  text.c_str(),
+											  CCNRM(d->character, C_NRM));
 							}
 						}
 							// первоначальному клану выдается всегда
 						else {
 							SendMsgToChar(d->character.get(),
-										 "%s ВАШИМ СОЮЗНИКАМ: %s'%s'%s\r\n",
-										 GET_NAME(ch),
-										 CCIGRN(d->character, C_NRM),
-										 text.c_str(),
-										 CCNRM(d->character, C_NRM));
+										  "%s ВАШИМ СОЮЗНИКАМ: %s'%s'%s\r\n",
+										  GET_NAME(ch),
+										  CCIGRN(d->character, C_NRM),
+										  text.c_str(),
+										  CCNRM(d->character, C_NRM));
 						}
 					}
 				}
 			}
 
 			SendMsgToChar(ch, "Вы союзникам %s: %s'%s'.%s\r\n",
-						 abbrev.c_str(), CCIGRN(ch, C_NRM), text.c_str(), CCNRM(ch, C_NRM));
+						  abbrev.c_str(), CCIGRN(ch, C_NRM), text.c_str(), CCNRM(ch, C_NRM));
 
 			break;
 	}
@@ -1993,8 +1993,8 @@ void Clan::ManagePolitics(CharData *ch, std::string &buffer) {
 	else if (CompareParam(buffer2, "нейтралитет")) {
 		if (CheckPolitics((*vict)->rent) == kPoliticsNeutral) {
 			SendMsgToChar(ch,
-						 "Ваша дружина уже находится в состоянии нейтралитета с дружиной %s.\r\n",
-						 (*vict)->abbrev.c_str());
+						  "Ваша дружина уже находится в состоянии нейтралитета с дружиной %s.\r\n",
+						  (*vict)->abbrev.c_str());
 			return;
 		}
 		SetPolitics((*vict)->rent, kPoliticsNeutral);
@@ -2006,10 +2006,10 @@ void Clan::ManagePolitics(CharData *ch, std::string &buffer) {
 				&& PRF_FLAGGED(d->character, EPrf::kPolitMode)) {
 				if (CLAN(d->character) == *vict) {
 					SendMsgToChar(d->character.get(), "%sДружина %s заключила с вашей дружиной нейтралитет!%s\r\n",
-								 CCWHT(d->character, C_NRM), this->abbrev.c_str(), CCNRM(d->character, C_NRM));
+								  CCWHT(d->character, C_NRM), this->abbrev.c_str(), CCNRM(d->character, C_NRM));
 				} else if (CLAN(d->character) == CLAN(ch)) {
 					SendMsgToChar(d->character.get(), "%sВаша дружина заключила с дружиной %s нейтралитет!%s\r\n",
-								 CCWHT(d->character, C_NRM), (*vict)->abbrev.c_str(), CCNRM(d->character, C_NRM));
+								  CCWHT(d->character, C_NRM), (*vict)->abbrev.c_str(), CCNRM(d->character, C_NRM));
 				}
 			}
 		}
@@ -2017,7 +2017,7 @@ void Clan::ManagePolitics(CharData *ch, std::string &buffer) {
 		if (!PRF_FLAGGED(ch, EPrf::kPolitMode)) // а то сам может не увидеть нафик
 		{
 			SendMsgToChar(ch, "%sВаша дружина заключила с дружиной %s нейтралитет!%s\r\n",
-						 CCWHT(ch, C_NRM), (*vict)->abbrev.c_str(), CCNRM(ch, C_NRM));
+						  CCWHT(ch, C_NRM), (*vict)->abbrev.c_str(), CCNRM(ch, C_NRM));
 		}
 	} else if (CompareParam(buffer2, "война")) {
 		if (CheckPolitics((*vict)->rent) == kPoliticsWar) {
@@ -2035,26 +2035,26 @@ void Clan::ManagePolitics(CharData *ch, std::string &buffer) {
 				&& PRF_FLAGGED(d->character, EPrf::kPolitMode)) {
 				if (CLAN(d->character) == *vict) {
 					SendMsgToChar(d->character.get(),
-								 "%sДружина %s объявила вашей дружине войну!%s\r\n",
-								 CCIRED(d->character, C_NRM),
-								 this->abbrev.c_str(),
-								 CCNRM(d->character, C_NRM));
+								  "%sДружина %s объявила вашей дружине войну!%s\r\n",
+								  CCIRED(d->character, C_NRM),
+								  this->abbrev.c_str(),
+								  CCNRM(d->character, C_NRM));
 				} else if (CLAN(d->character) == CLAN(ch)) {
 					SendMsgToChar(d->character.get(),
-								 "%sВаша дружина объявила дружине %s войну!%s\r\n",
-								 CCIRED(d->character, C_NRM),
-								 (*vict)->abbrev.c_str(),
-								 CCNRM(d->character, C_NRM));
+								  "%sВаша дружина объявила дружине %s войну!%s\r\n",
+								  CCIRED(d->character, C_NRM),
+								  (*vict)->abbrev.c_str(),
+								  CCNRM(d->character, C_NRM));
 				}
 			}
 		}
 
 		if (!PRF_FLAGGED(ch, EPrf::kPolitMode)) {
 			SendMsgToChar(ch,
-						 "%sВаша дружина объявила дружине %s войну!%s\r\n",
-						 CCIRED(ch, C_NRM),
-						 (*vict)->abbrev.c_str(),
-						 CCNRM(ch, C_NRM));
+						  "%sВаша дружина объявила дружине %s войну!%s\r\n",
+						  CCIRED(ch, C_NRM),
+						  (*vict)->abbrev.c_str(),
+						  CCNRM(ch, C_NRM));
 		}
 	} else if (CompareParam(buffer2, "альянс")) {
 		if (CheckPolitics((*vict)->rent) == kPoliticsAlliance) {
@@ -2070,23 +2070,23 @@ void Clan::ManagePolitics(CharData *ch, std::string &buffer) {
 			if (d->character && STATE(d) == CON_PLAYING && PRF_FLAGGED(d->character, EPrf::kPolitMode)) {
 				if (CLAN(d->character) == *vict) {
 					SendMsgToChar(d->character.get(),
-								 "%sДружина %s заключила с вашей дружиной альянс!%s\r\n",
-								 CCGRN(d->character, C_NRM),
-								 this->abbrev.c_str(),
-								 CCNRM(d->character, C_NRM));
+								  "%sДружина %s заключила с вашей дружиной альянс!%s\r\n",
+								  CCGRN(d->character, C_NRM),
+								  this->abbrev.c_str(),
+								  CCNRM(d->character, C_NRM));
 				} else if (CLAN(d->character) == CLAN(ch)) {
 					SendMsgToChar(d->character.get(),
-								 "%sВаша дружина заключила альянс с дружиной %s!%s\r\n",
-								 CCGRN(d->character, C_NRM),
-								 (*vict)->abbrev.c_str(),
-								 CCNRM(d->character, C_NRM));
+								  "%sВаша дружина заключила альянс с дружиной %s!%s\r\n",
+								  CCGRN(d->character, C_NRM),
+								  (*vict)->abbrev.c_str(),
+								  CCNRM(d->character, C_NRM));
 				}
 			}
 		}
 
 		if (!PRF_FLAGGED(ch, EPrf::kPolitMode)) {
 			SendMsgToChar(ch, "%sВаша дружина заключила альянс с дружиной %s!%s\r\n",
-						 CCGRN(ch, C_NRM), (*vict)->abbrev.c_str(), CCNRM(ch, C_NRM));
+						  CCGRN(ch, C_NRM), (*vict)->abbrev.c_str(), CCNRM(ch, C_NRM));
 		}
 	}
 }
@@ -2658,9 +2658,9 @@ void DoClanPkList(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (buffer2.empty()) {
 		// выводим список тех, кто онлайн
 		SendMsgToChar(ch,
-					 "%sОтображаются только находящиеся в игре персонажи:%s\r\n\r\n",
-					 CCWHT(ch, C_NRM),
-					 CCNRM(ch, C_NRM));
+					  "%sОтображаются только находящиеся в игре персонажи:%s\r\n\r\n",
+					  CCWHT(ch, C_NRM),
+					  CCNRM(ch, C_NRM));
 		ClanPkList::const_iterator it;
 		// вобщем чтобы словить чаров, находящихся в лд - придется гонять по чарактер-листу
 		for (const auto &tch : character_list) {
@@ -2769,16 +2769,16 @@ void DoClanPkList(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		if (d && PRF_FLAGGED(d->character, EPrf::kPklMode)) {
 			if (!subcmd) {
 				SendMsgToChar(d->character.get(),
-							 "%sДружина '%s' добавила вас в список своих врагов!%s\r\n",
-							 CCIRED(d->character, C_NRM),
-							 CLAN(ch)->name.c_str(),
-							 CCNRM(d->character, C_NRM));
+							  "%sДружина '%s' добавила вас в список своих врагов!%s\r\n",
+							  CCIRED(d->character, C_NRM),
+							  CLAN(ch)->name.c_str(),
+							  CCNRM(d->character, C_NRM));
 			} else {
 				SendMsgToChar(d->character.get(),
-							 "%sДружина '%s' добавила вас в список своих друзей!%s\r\n",
-							 CCGRN(d->character, C_NRM),
-							 CLAN(ch)->name.c_str(),
-							 CCNRM(d->character, C_NRM));
+							  "%sДружина '%s' добавила вас в список своих друзей!%s\r\n",
+							  CCGRN(d->character, C_NRM),
+							  CLAN(ch)->name.c_str(),
+							  CCNRM(d->character, C_NRM));
 			}
 			SetWait(ch, 1, false);
 		}
@@ -2846,16 +2846,16 @@ void DoClanPkList(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 				&& PRF_FLAGGED(d->character, EPrf::kPklMode)) {
 				if (!subcmd) {
 					SendMsgToChar(d->character.get(),
-								 "%sДружина '%s' удалила вас из списка своих врагов!%s\r\n",
-								 CCGRN(d->character, C_NRM),
-								 CLAN(ch)->name.c_str(),
-								 CCNRM(d->character, C_NRM));
+								  "%sДружина '%s' удалила вас из списка своих врагов!%s\r\n",
+								  CCGRN(d->character, C_NRM),
+								  CLAN(ch)->name.c_str(),
+								  CCNRM(d->character, C_NRM));
 				} else {
 					SendMsgToChar(d->character.get(),
-								 "%sДружина '%s' удалила вас из списка своих друзей!%s\r\n",
-								 CCIRED(d->character, C_NRM),
-								 CLAN(ch)->name.c_str(),
-								 CCNRM(d->character, C_NRM));
+								  "%sДружина '%s' удалила вас из списка своих друзей!%s\r\n",
+								  CCIRED(d->character, C_NRM),
+								  CLAN(ch)->name.c_str(),
+								  CCNRM(d->character, C_NRM));
 				}
 				SetWait(ch, 1, false);
 			}
@@ -2871,9 +2871,9 @@ void DoClanPkList(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 		if (online)
 			SendMsgToChar(ch,
-						 "%sОтображаются только находящиеся в игре персонажи:%s\r\n\r\n",
-						 CCWHT(ch, C_NRM),
-						 CCNRM(ch, C_NRM));
+						  "%sОтображаются только находящиеся в игре персонажи:%s\r\n\r\n",
+						  CCWHT(ch, C_NRM),
+						  CCNRM(ch, C_NRM));
 		else
 			SendMsgToChar(ch, "%sСписок отображается полностью:%s\r\n\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 
@@ -2926,7 +2926,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 			ExtractObjFromWorld(obj);
 			ch->add_gold(gold);
 			SendMsgToChar(ch, "Вам это не положено! Вы вновь обрели %ld %s.\r\n",
-						 gold, GetDeclensionInNumber(gold, EWhat::kMoneyU));
+						  gold, GetDeclensionInNumber(gold, EWhat::kMoneyU));
 			return true;
 		}
 		// здесь и далее: в случае переполнения  - кладем сколько можем, остальное возвращаем чару
@@ -2939,9 +2939,9 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 			ExtractObjFromChar(obj);
 			ExtractObjFromWorld(obj);
 			SendMsgToChar(ch,
-						 "Вам удалось вложить в казну дружины только %ld %s.\r\n",
-						 over,
-						 GetDeclensionInNumber(over, EWhat::kMoneyU));
+						  "Вам удалось вложить в казну дружины только %ld %s.\r\n",
+						  over,
+						  GetDeclensionInNumber(over, EWhat::kMoneyU));
 			return true;
 		}
 		CLAN(ch)->bank += gold;
@@ -2996,10 +2996,10 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 				&& CLAN(d->character) == CLAN(ch)
 				&& PRF_FLAGGED(d->character, EPrf::kTakeMode)) {
 				SendMsgToChar(d->character.get(), "[Хранилище]: %s'%s сдал%s %s%s.'%s\r\n",
-							 CCIRED(d->character, C_NRM), GET_NAME(ch), GET_CH_SUF_1(ch),
-							 obj->get_PName(3).c_str(),
-							 clan_get_custom_label(obj, CLAN(ch)).c_str(),
-							 CCNRM(d->character, C_NRM));
+							  CCIRED(d->character, C_NRM), GET_NAME(ch), GET_CH_SUF_1(ch),
+							  obj->get_PName(3).c_str(),
+							  clan_get_custom_label(obj, CLAN(ch)).c_str(),
+							  CCNRM(d->character, C_NRM));
 			}
 		}
 
@@ -3042,10 +3042,10 @@ bool Clan::TakeChest(CharData *ch, ObjData *obj, ObjData *chest) {
 				&& CLAN(d->character) == CLAN(ch)
 				&& PRF_FLAGGED(d->character, EPrf::kTakeMode)) {
 				SendMsgToChar(d->character.get(), "[Хранилище]: %s'%s забрал%s %s%s.'%s\r\n",
-							 CCIRED(d->character, C_NRM), GET_NAME(ch), GET_CH_SUF_1(ch),
-							 obj->get_PName(3).c_str(),
-							 clan_get_custom_label(obj, CLAN(d->character)).c_str(),
-							 CCNRM(d->character, C_NRM));
+							  CCIRED(d->character, C_NRM), GET_NAME(ch), GET_CH_SUF_1(ch),
+							  obj->get_PName(3).c_str(),
+							  clan_get_custom_label(obj, CLAN(d->character)).c_str(),
+							  CCNRM(d->character, C_NRM));
 			}
 		}
 
@@ -3247,7 +3247,7 @@ void Clan::write_mod(const std::string &arg) {
 bool Clan::print_mod(CharData *ch) const {
 	if (!mod_text.empty()) {
 		SendMsgToChar(ch, "\r\n%s%s%s\r\n",
-					 CCWHT(ch, C_NRM), mod_text.c_str(), CCNRM(ch, C_NRM));
+					  CCWHT(ch, C_NRM), mod_text.c_str(), CCNRM(ch, C_NRM));
 		return true;
 	}
 
@@ -3281,9 +3281,9 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 
 	if (CompareParam(buffer2, "баланс") || CompareParam(buffer2, "balance")) {
 		SendMsgToChar(ch,
-					 "На счету вашей дружины ровно %ld %s.\r\n",
-					 CLAN(ch)->bank,
-					 GetDeclensionInNumber(CLAN(ch)->bank, EWhat::kMoneyA));
+					  "На счету вашей дружины ровно %ld %s.\r\n",
+					  CLAN(ch)->bank,
+					  GetDeclensionInNumber(CLAN(ch)->bank, EWhat::kMoneyA));
 		return true;
 
 	} else if (CompareParam(buffer2, "вложить") || CompareParam(buffer2, "deposit")) {
@@ -3311,9 +3311,9 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 			CLAN(ch)->m_members.add_money(GET_UNIQUE(ch), over);
 			ch->remove_gold(over);
 			SendMsgToChar(ch,
-						 "Вам удалось вложить в казну дружины только %ld %s.\r\n",
-						 over,
-						 GetDeclensionInNumber(over, EWhat::kMoneyU));
+						  "Вам удалось вложить в казну дружины только %ld %s.\r\n",
+						  over,
+						  GetDeclensionInNumber(over, EWhat::kMoneyU));
 			act("$n произвел$g финансовую операцию.", true, ch, nullptr, nullptr, kToRoom);
 			std::string log_text = boost::str(boost::format("%s вложил%s в казну %ld %s\r\n")
 												  % GET_NAME(ch) % GET_CH_SUF_1(ch) % over
@@ -4074,17 +4074,17 @@ void Clan::ClanAddMember(CharData *ch, int rank) {
 			&& this->GetRent() == CLAN(d->character)->GetRent()
 			&& ch != d->character.get()) {
 			SendMsgToChar(d->character.get(),
-						 "%s%s приписан%s к вашей дружине, статус - '%s'.%s\r\n",
-						 CCWHT(d->character, C_NRM),
-						 GET_NAME(ch),
-						 GET_CH_SUF_6(ch),
-						 (this->ranks[rank]).c_str(),
-						 CCNRM(d->character, C_NRM));
+						  "%s%s приписан%s к вашей дружине, статус - '%s'.%s\r\n",
+						  CCWHT(d->character, C_NRM),
+						  GET_NAME(ch),
+						  GET_CH_SUF_6(ch),
+						  (this->ranks[rank]).c_str(),
+						  CCNRM(d->character, C_NRM));
 		}
 	}
 
 	SendMsgToChar(ch, "%sВас приписали к дружине '%s', статус - '%s'.%s\r\n",
-				 CCWHT(ch, C_NRM), this->name.c_str(), (this->ranks[rank]).c_str(), CCNRM(ch, C_NRM));
+				  CCWHT(ch, C_NRM), this->name.c_str(), (this->ranks[rank]).c_str(), CCNRM(ch, C_NRM));
 
 	return;
 }
@@ -4204,18 +4204,18 @@ void Clan::hcon_owner(CharData *ch, std::string &text) {
 	if (d && d->character) {
 		Clan::SetClanData(d->character.get());
 		SendMsgToChar(d->character.get(), "%sВы стали новым воеводой дружины %s. Желаем удачи!%s\r\n",
-					 CCIGRN(d->character, C_NRM), (*clan)->get_abbrev().c_str(), CCNRM(d->character, C_NRM));
+					  CCIGRN(d->character, C_NRM), (*clan)->get_abbrev().c_str(), CCNRM(d->character, C_NRM));
 	}
 	if ((*clan)->m_members.size() > 0) {
 		// оповещение
 		for (DescriptorData *d = descriptor_list; d; d = d->next) {
 			if (d->character && CLAN(d->character) && CLAN(d->character)->GetRent() == (*clan)->GetRent()) {
 				SendMsgToChar(d->character.get(),
-							 "%sОсуществлена принудительная смена воеводы вашей дружины: %s -> %s.%s\r\n",
-							 CCIGRN(d->character, C_NRM),
-							 (*clan)->owner.c_str(),
-							 name.c_str(),
-							 CCNRM(d->character, C_NRM));
+							  "%sОсуществлена принудительная смена воеводы вашей дружины: %s -> %s.%s\r\n",
+							  CCIGRN(d->character, C_NRM),
+							  (*clan)->owner.c_str(),
+							  name.c_str(),
+							  CCNRM(d->character, C_NRM));
 			}
 		}
 	} else {
@@ -4234,15 +4234,15 @@ void Clan::CheckPkList(CharData *ch) {
 		// пкл
 		if ((it = (*clan)->pkList.find(GET_UNIQUE(ch))) != (*clan)->pkList.end())
 			SendMsgToChar(ch,
-						 "Находитесь в списке врагов дружины '%s', добавивший: %s.\r\n",
-						 (*clan)->name.c_str(),
-						 it->second->authorName.c_str());
+						  "Находитесь в списке врагов дружины '%s', добавивший: %s.\r\n",
+						  (*clan)->name.c_str(),
+						  it->second->authorName.c_str());
 		// дрл
 		if ((it = (*clan)->frList.find(GET_UNIQUE(ch))) != (*clan)->frList.end())
 			SendMsgToChar(ch,
-						 "Находитесь в списке друзей дружины '%s', добавивший: %s.\r\n",
-						 (*clan)->name.c_str(),
-						 it->second->authorName.c_str());
+						  "Находитесь в списке друзей дружины '%s', добавивший: %s.\r\n",
+						  (*clan)->name.c_str(),
+						  it->second->authorName.c_str());
 	}
 }
 
@@ -4287,11 +4287,11 @@ void DoStoreHouse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					mort_show_obj_values(tmp_obj, ch, 200, full);
 					ch->remove_bank(kChestIdentPay);
 					SendMsgToChar(ch,
-								 "%sЗа информацию о предмете с вашего банковского счета сняли %d %s%s\r\n",
-								 CCIGRN(ch, C_NRM),
-								 kChestIdentPay,
-								 GetDeclensionInNumber(kChestIdentPay, EWhat::kMoneyU),
-								 CCNRM(ch, C_NRM));
+								  "%sЗа информацию о предмете с вашего банковского счета сняли %d %s%s\r\n",
+								  CCIGRN(ch, C_NRM),
+								  kChestIdentPay,
+								  GetDeclensionInNumber(kChestIdentPay, EWhat::kMoneyU),
+								  CCNRM(ch, C_NRM));
 					return;
 				}
 			}
@@ -4592,9 +4592,9 @@ void Clan::ChestInvoice() {
 				&& CLAN(d->character)
 				&& CLAN(d->character) == *clan) {
 				SendMsgToChar(d->character.get(),
-							 "[Хранилище]: %s'Напоминаю, что средств в казне дружины хватит менее, чем на сутки!'%s\r\n",
-							 CCIRED(d->character, C_NRM),
-							 CCNRM(d->character, C_NRM));
+							  "[Хранилище]: %s'Напоминаю, что средств в казне дружины хватит менее, чем на сутки!'%s\r\n",
+							  CCIRED(d->character, C_NRM),
+							  CCNRM(d->character, C_NRM));
 			}
 		}
 	}
@@ -4637,10 +4637,10 @@ bool Clan::ChestShow(ObjData *obj, CharData *ch) {
 		SendMsgToChar("Хранилище вашей дружины:\r\n", ch);
 		int cost = CLAN(ch)->ChestTax();
 		SendMsgToChar(ch,
-					 "Всего вещей: %d, Рента в день: %d %s\r\n\r\n",
-					 CLAN(ch)->chest_objcount,
-					 cost,
-					 GetDeclensionInNumber(cost, EWhat::kMoneyA));
+					  "Всего вещей: %d, Рента в день: %d %s\r\n\r\n",
+					  CLAN(ch)->chest_objcount,
+					  cost,
+					  GetDeclensionInNumber(cost, EWhat::kMoneyA));
 		list_obj_to_char(obj->get_contains(), ch, 1, 3);
 	} else {
 		SendMsgToChar("Не на что тут глазеть, пусто, вот те крест.\r\n",
@@ -4673,8 +4673,8 @@ void Clan::SetClanExp(CharData *ch, int add) {
 				&& CLAN(d->character)
 				&& CLAN(d->character)->GetRent() == this->rent) {
 				SendMsgToChar(d->character.get(),
-							 "&GВаш замок достиг нового, %d уровня! Поздравляем!&n\r\n",
-							 this->clan_level);
+							  "&GВаш замок достиг нового, %d уровня! Поздравляем!&n\r\n",
+							  this->clan_level);
 			}
 		}
 	} else if (this->clan_exp < clan_level_exp[this->clan_level]
@@ -4686,9 +4686,9 @@ void Clan::SetClanExp(CharData *ch, int add) {
 				&& CLAN(d->character)
 				&& CLAN(d->character)->GetRent() == this->rent) {
 				SendMsgToChar(d->character.get(),
-							 "%sВаш замок потерял уровень! Теперь он %d уровня! Поздравляем!%s\r\n",
-							 CCIRED(d->character, C_NRM), this->clan_level,
-							 CCNRM(d->character, C_NRM));
+							  "%sВаш замок потерял уровень! Теперь он %d уровня! Поздравляем!%s\r\n",
+							  CCIRED(d->character, C_NRM), this->clan_level,
+							  CCNRM(d->character, C_NRM));
 			}
 		}
 	}
@@ -4953,12 +4953,12 @@ void Clan::clan_invoice(CharData *ch, bool enter) {
 			&& PRF_FLAGGED(d->character, EPrf::kClanmembersMode)) {
 			if (enter) {
 				SendMsgToChar(d->character.get(), "%sДружинни%s %s вош%s в мир.%s\r\n",
-							 CCINRM(d->character, C_NRM), IS_MALE(ch) ? "к" : "ца", GET_NAME(ch),
-							 GET_CH_SUF_5(ch), CCNRM(d->character, C_NRM));
+							  CCINRM(d->character, C_NRM), IS_MALE(ch) ? "к" : "ца", GET_NAME(ch),
+							  GET_CH_SUF_5(ch), CCNRM(d->character, C_NRM));
 			} else {
 				SendMsgToChar(d->character.get(), "%sДружинни%s %s покинул%s мир.%s\r\n",
-							 CCINRM(d->character, C_NRM), IS_MALE(ch) ? "к" : "ца", GET_NAME(ch),
-							 GET_CH_SUF_1(ch), CCNRM(d->character, C_NRM));
+							  CCINRM(d->character, C_NRM), IS_MALE(ch) ? "к" : "ца", GET_NAME(ch),
+							  GET_CH_SUF_1(ch), CCNRM(d->character, C_NRM));
 			}
 		}
 	}
@@ -4974,12 +4974,12 @@ int Clan::print_imm_where_obj(CharData *ch, const char *name, int count) {
 						continue;
 					}
 					SendMsgToChar(ch,
-								"%2d. [%6d] %-25s - наход%sся в хранилище дружины '%s'.\r\n",
-								count++,
-								GET_OBJ_VNUM(chest_content),
-								chest_content->get_short_description().c_str(),
-								GET_OBJ_POLY_1(ch, (chest_content)),
-								ptr_clan->GetAbbrev());
+								  "%2d. [%6d] %-25s - наход%sся в хранилище дружины '%s'.\r\n",
+								  count++,
+								  GET_OBJ_VNUM(chest_content),
+								  chest_content->get_short_description().c_str(),
+								  GET_OBJ_POLY_1(ch, (chest_content)),
+								  ptr_clan->GetAbbrev());
 				}
 			}
 		}
@@ -5240,7 +5240,7 @@ bool Clan::put_ingr_chest(CharData *ch, ObjData *obj, ObjData *chest) {
 	if (GET_OBJ_TYPE(obj) != EObjType::kMagicIngredient
 		&& GET_OBJ_TYPE(obj) != EObjType::kCraftMaterial) {
 		SendMsgToChar(ch, "%s - Хранилище ингредиентов не предназначено для предметов данного типа.\r\n",
-					 GET_OBJ_PNAME(obj, 0).c_str());
+					  GET_OBJ_PNAME(obj, 0).c_str());
 
 		if (GET_OBJ_TYPE(obj) == EObjType::kMoney) {
 			int howmany = GET_OBJ_VAL(obj, 0);
@@ -5302,8 +5302,8 @@ bool ClanSystem::show_ingr_chest(ObjData *obj, CharData *ch) {
 		SendMsgToChar("Хранилище ингредиентов вашей дружины:\r\n", ch);
 		int cost = CLAN(ch)->ingr_chest_tax();
 		SendMsgToChar(ch, "Всего вещей: %d/%d, Рента в день: %d %s\r\n\r\n",
-					 CLAN(ch)->get_ingr_chest_objcount(), CLAN(ch)->ingr_chest_max_objects(),
-					 cost, GetDeclensionInNumber(cost, EWhat::kMoneyA));
+					  CLAN(ch)->get_ingr_chest_objcount(), CLAN(ch)->ingr_chest_max_objects(),
+					  cost, GetDeclensionInNumber(cost, EWhat::kMoneyA));
 		list_obj_to_char(obj->get_contains(), ch, 1, 4);
 	} else {
 		SendMsgToChar("Не на что тут глазеть, пусто, вот те крест.\r\n", ch);
@@ -5486,7 +5486,7 @@ void tax_manage(CharData *ch, std::string &buffer) {
 		}
 	} else {
 		SendMsgToChar(ch, "Текущий налог для ратников дружины: %d%%\r\n%s",
-					 CLAN(ch)->get_gold_tax_pct(), GOLD_TAX_FORMAT);
+					  CLAN(ch)->get_gold_tax_pct(), GOLD_TAX_FORMAT);
 	}
 }
 
@@ -5505,16 +5505,16 @@ long do_gold_tax(CharData *ch, long gold) {
 			|| tax % 10 >= 5
 			|| tax % 10 == 0) {
 			SendMsgToChar(ch,
-						 "%ld %s было немедленно отправлено в казну вашей дружины.\r\n",
-						 tax, GetDeclensionInNumber(tax, EWhat::kMoneyA));
+						  "%ld %s было немедленно отправлено в казну вашей дружины.\r\n",
+						  tax, GetDeclensionInNumber(tax, EWhat::kMoneyA));
 		} else if (tax % 10 == 1) {
 			SendMsgToChar(ch,
-						 "%ld %s была немедленно отправлена в казну вашей дружины.\r\n",
-						 tax, GetDeclensionInNumber(tax, EWhat::kMoneyA));
+						  "%ld %s была немедленно отправлена в казну вашей дружины.\r\n",
+						  tax, GetDeclensionInNumber(tax, EWhat::kMoneyA));
 		} else {
 			SendMsgToChar(ch,
-						 "%ld %s были немедленно отправлены в казну вашей дружины.\r\n",
-						 tax, GetDeclensionInNumber(tax, EWhat::kMoneyA));
+						  "%ld %s были немедленно отправлены в казну вашей дружины.\r\n",
+						  tax, GetDeclensionInNumber(tax, EWhat::kMoneyA));
 		}
 		// 1 куну за транзакцию, если сумма налога позволяет
 		const long real_tax = tax > 1 ? tax - 1 : tax;

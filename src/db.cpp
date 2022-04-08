@@ -5033,7 +5033,7 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	int i, place_of_destination, load_room = kNowhere;
 	const char *remort_msg2 = "$n вспыхнул$g ослепительным пламенем и пропал$g!\r\n";
 
-	if (ch->is_npc() || IS_IMMORTAL(ch)) {
+	if (ch->IsNpc() || IS_IMMORTAL(ch)) {
 		SendMsgToChar("Вам это, похоже, совсем ни к чему.\r\n", ch);
 		return;
 	}
@@ -5043,8 +5043,8 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 	if (Remort::need_torc(ch) && !PRF_FLAGGED(ch, EPrf::kCanRemort)) {
 		SendMsgToChar(ch,
-					 "Вы должны подтвердить свои заслуги, пожертвовав Богам достаточное количество гривен.\r\n"
-					 "%s\r\n", Remort::WHERE_TO_REMORT_STR.c_str());
+					  "Вы должны подтвердить свои заслуги, пожертвовав Богам достаточное количество гривен.\r\n"
+					  "%s\r\n", Remort::WHERE_TO_REMORT_STR.c_str());
 		return;
 	}
 	if (NORENTABLE(ch)) {

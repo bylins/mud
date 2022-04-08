@@ -15,7 +15,7 @@ void go_kick(CharData *ch, CharData *vict) {
 		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::kKick)) {
+	if (ch->HasCooldown(ESkill::kKick)) {
 		SendMsgToChar("Вы уже все ноги себе отбили, отдохните слегка.\r\n", ch);
 		return;
 	};
@@ -117,7 +117,7 @@ void go_kick(CharData *ch, CharData *vict) {
 				}
 			} else if (number(1, 1000) < (ch->get_skill(ESkill::kRiding) / 2)) {
 				dam *= 2;
-				if (!ch->is_npc())
+				if (!ch->IsNpc())
 					SendMsgToChar("Вы привстали на стременах.\r\n", ch);
 			}
 
@@ -154,7 +154,7 @@ void do_kick(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::kKick)) {
+	if (ch->HasCooldown(ESkill::kKick)) {
 		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};

@@ -459,7 +459,7 @@ void forget_all_spells(CharData *ch) {
    чтобы не было лута под холдом или в слепи             */
 int can_loot(CharData *ch) {
 	if (ch != nullptr) {
-		if (!ch->is_npc()
+		if (!ch->IsNpc()
 			&& AFF_FLAGGED(ch, EAffect::kHold) == 0 // если под холдом
 			&& !AFF_FLAGGED(ch, EAffect::kStopFight) // парализован точкой
 			&& !AFF_FLAGGED(ch, EAffect::kBlind)    // слеп

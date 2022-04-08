@@ -21,17 +21,17 @@ void go_touch(CharData *ch, CharData *vict) {
 }
 
 void do_touch(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->is_npc() || !ch->get_skill(ESkill::kIntercept)) {
+	if (ch->IsNpc() || !ch->get_skill(ESkill::kIntercept)) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::kIntercept)) {
+	if (ch->HasCooldown(ESkill::kIntercept)) {
 		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
 
 	ObjData *primary = GET_EQ(ch, EEquipPos::kWield) ? GET_EQ(ch, EEquipPos::kWield) : GET_EQ(ch, EEquipPos::kBoths);
-	if (!(IS_IMMORTAL(ch) || ch->is_npc() || GET_GOD_FLAG(ch, EGf::kGodsLike) || !primary)) {
+	if (!(IS_IMMORTAL(ch) || ch->IsNpc() || GET_GOD_FLAG(ch, EGf::kGodsLike) || !primary)) {
 		SendMsgToChar("У вас заняты руки.\r\n", ch);
 		return;
 	}
@@ -47,7 +47,7 @@ void do_touch(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		if (!vict) {
-			if (!ch->get_fighting()) {
+			if (!ch->GetEnemy()) {
 				SendMsgToChar("Но вы ни с кем не сражаетесь.\r\n", ch);
 				return;
 			} else {
@@ -92,16 +92,16 @@ void go_deviate(CharData *ch) {
 }
 
 void do_deviate(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (ch->is_npc() || !ch->get_skill(ESkill::kDodge)) {
+	if (ch->IsNpc() || !ch->get_skill(ESkill::kDodge)) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::kDodge)) {
+	if (ch->HasCooldown(ESkill::kDodge)) {
 		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
 
-	if (!(ch->get_fighting())) {
+	if (!(ch->GetEnemy())) {
 		SendMsgToChar("Но вы ведь ни с кем не сражаетесь!\r\n", ch);
 		return;
 	}
@@ -127,7 +127,7 @@ const char *cstyles[] = {"normal",
 };
 
 void do_style(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->haveCooldown(ESkill::kGlobalCooldown)) {
+	if (ch->HasCooldown(ESkill::kGlobalCooldown)) {
 		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
@@ -136,8 +136,8 @@ void do_style(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!*arg) {
 		SendMsgToChar(ch, "Вы сражаетесь %s стилем.\r\n",
-					 PRF_FLAGS(ch).get(EPrf::kPunctual) ? "точным" : PRF_FLAGS(ch).get(EPrf::kAwake) ? "осторожным"
-																									 : "обычным");
+					  PRF_FLAGS(ch).get(EPrf::kPunctual) ? "точным" : PRF_FLAGS(ch).get(EPrf::kAwake) ? "осторожным"
+																									  : "обычным");
 		return;
 	}
 	if (TryFlipActivatedFeature(ch, argument)) {
@@ -176,7 +176,7 @@ void do_style(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					SET_AF_BATTLE(ch, kEafAwake);
 			}
 			SendMsgToChar(ch, "Вы выбрали %s%s%s стиль боя.\r\n",
-						 CCRED(ch, C_SPR), tp == 0 ? "обычный" : tp == 1 ? "точный" : "осторожный", CCNRM(ch, C_OFF));
+						  CCRED(ch, C_SPR), tp == 0 ? "обычный" : tp == 1 ? "точный" : "осторожный", CCNRM(ch, C_OFF));
 			break;
 	}
 

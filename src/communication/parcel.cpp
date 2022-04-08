@@ -98,7 +98,7 @@ void invoice(long uid) {
 	if (d) {
 		if (!has_parcel(d->character.get())) {
 			SendMsgToChar(d->character.get(), "%sВам пришла посылка, зайдите на почту и распишитесь!%s\r\n",
-						 CCWHT(d->character, C_NRM), CCNRM(d->character, C_NRM));
+						  CCWHT(d->character, C_NRM), CCNRM(d->character, C_NRM));
 		}
 	}
 }
@@ -438,7 +438,7 @@ void return_money(std::string const &name, int money, bool add) {
 		if (add) {
 			vict->add_bank(money);
 			SendMsgToChar(vict, "%sВы получили %d %s банковским переводом от почтовой службы%s.\r\n",
-						 CCWHT(vict, C_NRM), money, GetDeclensionInNumber(money, EWhat::kMoneyU), CCNRM(vict, C_NRM));
+						  CCWHT(vict, C_NRM), money, GetDeclensionInNumber(money, EWhat::kMoneyU), CCNRM(vict, C_NRM));
 		}
 	} else {
 		vict = new Player; // TODO: переделать на стек
@@ -546,7 +546,7 @@ void create_mail(int to_uid, int from_uid, char *text) {
 	const DescriptorData *i = DescByUID(to_uid);
 	if (i) {
 		SendMsgToChar(i->character.get(), "%sВам пришло письмо, зайдите на почту и распишитесь!%s\r\n",
-					 CCWHT(i->character, C_NRM), CCNRM(i->character, C_NRM));
+					  CCWHT(i->character, C_NRM), CCNRM(i->character, C_NRM));
 	}
 }
 
@@ -829,12 +829,12 @@ int print_imm_where_obj(CharData *ch, char *arg, int num) {
 					std::string sender = GetNameByUnique(it2->first);
 
 					SendMsgToChar(ch, "%2d. [%6d] %-25s - наход%sся на почте (отправитель: %s, получатель: %s).\r\n",
-								 num++,
-								 GET_OBJ_VNUM(it3->obj_.get()),
-								 it3->obj_->get_short_description().c_str(),
-								 GET_OBJ_POLY_1(ch, it3->obj_),
-								 sender.c_str(),
-								 target.c_str());
+								  num++,
+								  GET_OBJ_VNUM(it3->obj_.get()),
+								  it3->obj_->get_short_description().c_str(),
+								  GET_OBJ_POLY_1(ch, it3->obj_),
+								  sender.c_str(),
+								  target.c_str());
 				}
 			}
 		}

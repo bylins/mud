@@ -1902,7 +1902,7 @@ int Crash_load(CharData *ch) {
 			// Формат новый => используем новую функцию
 			obj = read_one_object_new(&data, &error);
 			if (!obj) {
-				//SendMsgToChar ("Ошибка при чтении - чтение предметов прервано.\r\n", ch);
+				//SendMsgToChar("Ошибка при чтении - чтение предметов прервано.\r\n", ch);
 				SendMsgToChar("Ошибка при чтении файла объектов.\r\n", ch);
 				sprintf(buf, "SYSERR: Objects reading fail for %s error %d, stop reading.", GET_NAME(ch), error);
 				mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
@@ -1913,7 +1913,7 @@ int Crash_load(CharData *ch) {
 			// Формат старый => используем старую функцию
 			obj = read_one_object(&data, &error);
 			if (!obj) {
-				//SendMsgToChar ("Ошибка при чтении - чтение предметов прервано.\r\n", ch);
+				//SendMsgToChar("Ошибка при чтении - чтение предметов прервано.\r\n", ch);
 				SendMsgToChar("Ошибка при чтении файла объектов.\r\n", ch);
 				sprintf(buf, "SYSERR: Objects reading fail for %s error %d, stop reading.",
 						GET_NAME(ch), error);
@@ -2454,14 +2454,14 @@ void Crash_rent_deadline(CharData *ch, CharData *recep, long cost) {
 	long depot_cost = static_cast<long>(Depot::get_total_cost_per_day(ch));
 	if (depot_cost) {
 		SendMsgToChar(ch, "\"За вещи в хранилище придется доплатить %ld %s.\"\r\n",
-					 depot_cost, GetDeclensionInNumber(depot_cost, EWhat::kMoneyU));
+					  depot_cost, GetDeclensionInNumber(depot_cost, EWhat::kMoneyU));
 		cost += depot_cost;
 	}
 
 	SendMsgToChar(ch, "\"Постой обойдется тебе в %ld %s.\"\r\n", cost, GetDeclensionInNumber(cost, EWhat::kMoneyU));
 	rent_deadline = ((ch->get_gold() + ch->get_bank()) / cost);
 	SendMsgToChar(ch, "\"Твоих денег хватит на %ld %s.\"\r\n", rent_deadline,
-				 GetDeclensionInNumber(rent_deadline, EWhat::kDay));
+				  GetDeclensionInNumber(rent_deadline, EWhat::kDay));
 }
 
 int Crash_report_unrentables(CharData *ch, CharData *recep, ObjData *obj) {

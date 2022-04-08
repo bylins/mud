@@ -1131,7 +1131,7 @@ void do_rset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Превышено максимальное значение рецепта.\r\n", ch);
 		value = kMaxRecipeLevel;
 	}
-	if (vict->is_npc()) {
+	if (vict->IsNpc()) {
 		SendMsgToChar("Вы не можете добавить рецепт для мобов.\r\n", ch);
 		return;
 	}

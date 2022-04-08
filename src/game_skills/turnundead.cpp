@@ -17,7 +17,7 @@ void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 		SendMsgToChar("Вам это не по силам.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::kTurnUndead)) {
+	if (ch->HasCooldown(ESkill::kTurnUndead)) {
 		SendMsgToChar("Вам нужно набраться сил для применения этого навыка.\r\n", ch);
 		return;
 	};

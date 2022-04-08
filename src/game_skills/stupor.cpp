@@ -45,7 +45,7 @@ void do_stupor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::kOverwhelm)) {
+	if (ch->HasCooldown(ESkill::kOverwhelm)) {
 		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};

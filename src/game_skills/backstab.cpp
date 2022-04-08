@@ -20,7 +20,7 @@ void do_backstab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	};
 
-	if (ch->ahorse()) {
+	if (ch->IsOnHorse()) {
 		SendMsgToChar("Верхом это сделать затруднительно.\r\n", ch);
 		return;
 	}
@@ -42,12 +42,12 @@ void do_backstab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!GET_EQ(ch, EEquipPos::kWield) && (!ch->is_npc() || IS_CHARMICE(ch))) {
+	if (!GET_EQ(ch, EEquipPos::kWield) && (!ch->IsNpc() || IS_CHARMICE(ch))) {
 		SendMsgToChar("Требуется держать оружие в правой руке.\r\n", ch);
 		return;
 	}
 
-	if ((!ch->is_npc() || IS_CHARMICE(ch)) && GET_OBJ_VAL(GET_EQ(ch, EEquipPos::kWield), 3) != fight::type_pierce) {
+	if ((!ch->IsNpc() || IS_CHARMICE(ch)) && GET_OBJ_VAL(GET_EQ(ch, EEquipPos::kWield), 3) != fight::type_pierce) {
 		SendMsgToChar("ЗаКОЛоть можно только КОЛющим оружием!\r\n", ch);
 		return;
 	}
@@ -57,7 +57,7 @@ void do_backstab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (vict->get_fighting() && !IsAbleToUseFeat(ch, EFeat::kThieveStrike)) {
+	if (vict->GetEnemy() && !IsAbleToUseFeat(ch, EFeat::kThieveStrike)) {
 		SendMsgToChar("Ваша цель слишком быстро движется - вы можете пораниться!\r\n", ch);
 		return;
 	}

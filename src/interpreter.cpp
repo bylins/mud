@@ -2013,10 +2013,10 @@ int check_dupes_host(DescriptorData *d, bool autocheck = false) {
 						return 0;
 					}
 					SendMsgToChar(d->character.get(),
-								 "&RВы вошли с игроком %s с одного IP(%s)!\r\n"
-								 "Вам необходимо обратиться к Богам для регистрации.\r\n"
-								 "Пока вы будете помещены в комнату для незарегистрированных игроков.&n\r\n",
-								 GET_PAD(i->character, 4), i->host);
+								  "&RВы вошли с игроком %s с одного IP(%s)!\r\n"
+								  "Вам необходимо обратиться к Богам для регистрации.\r\n"
+								  "Пока вы будете помещены в комнату для незарегистрированных игроков.&n\r\n",
+								  GET_PAD(i->character, 4), i->host);
 					sprintf(buf,
 							"! ВХОД С ОДНОГО IP ! незарегистрированного игрока.\r\n"
 							"Вошел - %s, в игре - %s, IP - %s.\r\n"
@@ -2261,32 +2261,33 @@ void do_entergame(DescriptorData *d) {
 		PRF_FLAGS(d->character).unset(EPrf::kAwake);
 	}
 
-	if (PRF_FLAGS(d->character).get(EPrf::kPerformPowerAttack)
-		&& !IsAbleToUseFeat(d->character.get(), EFeat::kPowerAttack)) {
+	if (PRF_FLAGS(d->character).get(EPrf::kPerformPowerAttack) &&
+		!IsAbleToUseFeat(d->character.get(), EFeat::kPowerAttack)) {
 		PRF_FLAGS(d->character).unset(EPrf::kPerformPowerAttack);
 	}
-
-	if (PRF_FLAGS(d->character).get(EPrf::kPerformGreatPowerAttack)
-		&& !IsAbleToUseFeat(d->character.get(), EFeat::kGreatPowerAttack)) {
+	if (PRF_FLAGS(d->character).get(EPrf::kPerformGreatPowerAttack) &&
+		!IsAbleToUseFeat(d->character.get(), EFeat::kGreatPowerAttack)) {
 		PRF_FLAGS(d->character).unset(EPrf::kPerformGreatPowerAttack);
 	}
-
-	if (PRF_FLAGS(d->character).get(EPrf::kPerformAimingAttack)
-		&& !IsAbleToUseFeat(d->character.get(), EFeat::kAimingAttack)) {
+	if (PRF_FLAGS(d->character).get(EPrf::kPerformAimingAttack) &&
+	!IsAbleToUseFeat(d->character.get(), EFeat::kAimingAttack)) {
 		PRF_FLAGS(d->character).unset(EPrf::kPerformAimingAttack);
 	}
-
-	if (PRF_FLAGS(d->character).get(EPrf::kPerformGreatAimingAttack)
-		&& !IsAbleToUseFeat(d->character.get(), EFeat::kGreatAimingAttack)) {
+	if (PRF_FLAGS(d->character).get(EPrf::kPerformGreatAimingAttack) &&
+		!IsAbleToUseFeat(d->character.get(), EFeat::kGreatAimingAttack)) {
 		PRF_FLAGS(d->character).unset(EPrf::kPerformGreatAimingAttack);
 	}
-	if (PRF_FLAGS(d->character).get(EPrf::kDoubleThrow)
-		&& !IsAbleToUseFeat(d->character.get(), EFeat::kDoubleThrower)) {
+	if (PRF_FLAGS(d->character).get(EPrf::kDoubleThrow) &&
+		!IsAbleToUseFeat(d->character.get(), EFeat::kDoubleThrower)) {
 		PRF_FLAGS(d->character).unset(EPrf::kDoubleThrow);
 	}
-	if (PRF_FLAGS(d->character).get(EPrf::kTripleThrow)
-		&& !IsAbleToUseFeat(d->character.get(), EFeat::kTripleThrower)) {
+	if (PRF_FLAGS(d->character).get(EPrf::kTripleThrow) &&
+		!IsAbleToUseFeat(d->character.get(), EFeat::kTripleThrower)) {
 		PRF_FLAGS(d->character).unset(EPrf::kTripleThrow);
+	}
+	if (PRF_FLAGS(d->character).get(EPrf::kPerformSerratedBlade) &&
+		!IsAbleToUseFeat(d->character.get(), EFeat::kSerratedBlade)) {
+		PRF_FLAGS(d->character).unset(EPrf::kPerformSerratedBlade);
 	}
 	if (PRF_FLAGS(d->character).get(EPrf::kSkirmisher)) {
 		PRF_FLAGS(d->character).unset(EPrf::kSkirmisher);

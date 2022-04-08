@@ -845,7 +845,7 @@ void try_remove_extrahits(CharData *ch, CharData *victim) {
 	{
 		GET_HIT(victim) = GET_REAL_MAX_HIT(victim);
 		SendMsgToChar(victim, "%s'Будь%s тощ%s аки прежде' - мелькнула чужая мысль в вашей голове.%s\r\n",
-					 CCWHT(victim, C_NRM), GET_CH_POLY_1(victim), GET_CH_EXSUF_1(victim), CCNRM(victim, C_NRM));
+					  CCWHT(victim, C_NRM), GET_CH_POLY_1(victim), GET_CH_EXSUF_1(victim), CCNRM(victim, C_NRM));
 		act("Вы прервали золотистую нить, питающую $N3 жизнью.", false, ch, 0, victim, kToChar);
 		act("$n прервал$g золотистую нить, питающую $N3 жизнью.", false, ch, 0, victim, kToNotVict | kToArenaListen);
 	}
@@ -1361,7 +1361,7 @@ void hit_touching(CharData *ch, CharData *vict, int *dam) {
 		&& !AFF_FLAGGED(vict, EAffect::kStopRight)
 		&& vict->get_wait() <= 0
 		&& !AFF_FLAGGED(vict, EAffect::kHold)
-		&& (IS_IMMORTAL(vict) || vict->is_npc()
+		&& (IS_IMMORTAL(vict) || vict->IsNpc()
 			|| !(GET_EQ(vict, EEquipPos::kWield) || GET_EQ(vict, EEquipPos::kBoths)))
 		&& GET_POS(vict) > EPosition::kSleep) {
 		int percent = number(1, MUD::Skills()[ESkill::kIntercept].difficulty);
@@ -2061,7 +2061,7 @@ void try_angel_sacrifice(CharData *ch, CharData *victim) {
 					log("angel_sacrifice: Nmae (ch): %s, Name(charmice): %s, name(victim): %s", GET_NAME(ch), GET_NAME(keeper), GET_NAME(victim));
 
 					SendMsgToChar(victim, "%s пожертвовал%s своей жизнью, вытаскивая вас с того света!\r\n",
-								 GET_PAD(keeper, 0), GET_CH_SUF_1(keeper));
+								  GET_PAD(keeper, 0), GET_CH_SUF_1(keeper));
 					snprintf(buf, kMaxStringLength, "%s пожертвовал%s своей жизнью, вытаскивая %s с того света!",
 							 GET_PAD(keeper, 0), GET_CH_SUF_1(keeper), GET_PAD(victim, 3));
 					act(buf, false, victim, 0, 0, kToRoom | kToArenaListen);
@@ -2590,7 +2590,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 
 	// Stop someone from fighting if they're stunned or worse
 	/*if ((GET_POS(victim) <= EPosition::kStun)
-		&& (victim->get_fighting() != NULL))
+		&& (victim->GetEnemy() != NULL))
 	{
 		stop_fighting(victim, GET_POS(victim) <= EPosition::kDead);
 	} */
@@ -3406,7 +3406,7 @@ int HitData::calc_damage(CharData *ch, bool need_dice) {
 		}
 	}
 /*	// Horse modifier for attacker
-	if (!ch->IsNpc() && skill_num != ESkill::kThrow && skill_num != ESkill::kBackstab && ch->ahorse()) {
+	if (!ch->IsNpc() && skill_num != ESkill::kThrow && skill_num != ESkill::kBackstab && ch->IsOnHorse()) {
 		int prob = ch->get_skill(ESkill::kRiding);
 		dam += ((prob + 19) / 10);
 		SendMsgToChar(ch, "&YДамага с учетом лошади == %d&n\r\n", dam);

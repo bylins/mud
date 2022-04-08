@@ -524,9 +524,7 @@ void do_put(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 				if (!found) {
 					if (obj_dotmode == kFindAll)
-						SendMsgToChar
-							("Чтобы положить что-то ненужное нужно купить что-то ненужное.\r\n",
-							 ch);
+						SendMsgToChar("Чтобы положить что-то ненужное нужно купить что-то ненужное.\r\n", ch);
 					else {
 						sprintf(buf, "Вы не видите ничего похожего на '%s'.\r\n", theobj);
 						SendMsgToChar(buf, ch);
@@ -1108,9 +1106,9 @@ void perform_drop_gold(CharData *ch, int amount) {
 		}
 
 		// Если этот моб трупа не оставит, то не выводить сообщение иначе ужасно коряво смотрится в бою и в тригах
-		if (!ch->is_npc() || !MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
+		if (!ch->IsNpc() || !MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
 			SendMsgToChar(ch, "Вы бросили %d %s на землю.\r\n",
-						 amount, GetDeclensionInNumber(amount, EWhat::kMoneyU));
+						  amount, GetDeclensionInNumber(amount, EWhat::kMoneyU));
 			sprintf(buf,
 					"<%s> {%d} выбросил %d %s на землю.",
 					ch->get_name().c_str(),
@@ -1294,7 +1292,7 @@ void perform_give_gold(CharData *ch, CharData *vict, int amount) {
 		SendMsgToChar("Ха-ха-ха (3 раза)...\r\n", ch);
 		return;
 	}
-	if (ch->get_gold() < amount && (ch->is_npc() || !IS_IMPL(ch))) {
+	if (ch->get_gold() < amount && (ch->IsNpc() || !IS_IMPL(ch))) {
 		SendMsgToChar("И откуда вы их взять собираетесь?\r\n", ch);
 		return;
 	}
@@ -1334,7 +1332,7 @@ void perform_give_nogat(CharData *ch, CharData *vict, int amount) {
 		SendMsgToChar("Ха-ха-ха (3 раза)...\r\n", ch);
 		return;
 	}
-	if (ch->get_nogata() < amount && (ch->is_npc() || !IS_IMPL(ch))) {
+	if (ch->get_nogata() < amount && (ch->IsNpc() || !IS_IMPL(ch))) {
 		SendMsgToChar("И откуда ты их взять собирался?\r\n", ch);
 		return;
 	}
@@ -1459,7 +1457,7 @@ void do_fry(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		SendMsgToChar("Что вы собрались поджарить?\r\n", ch);
 		return;
 	}
-	if (ch->get_fighting()) {
+	if (ch->GetEnemy()) {
 		SendMsgToChar("Не стоит отвлекаться в бою.\r\n", ch);
 		return;
 	}
@@ -1522,7 +1520,7 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		SendMsgToChar("Чем вы собрались закусить?\r\n", ch);
 		return;
 	}
-	if (ch->get_fighting()) {
+	if (ch->GetEnemy()) {
 		SendMsgToChar("Не стоит отвлекаться в бою.\r\n", ch);
 		return;
 	}
@@ -1690,8 +1688,8 @@ void perform_wear(CharData *ch, ObjData *obj, int where) {
 		SendMsgToChar("Вы не можете использовать более одной такой вещи.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::kGlobalCooldown)) {
-		if (ch->get_fighting() && (where == EEquipPos::kShield || GET_OBJ_TYPE(obj) == EObjType::kWeapon)) {
+	if (ch->HasCooldown(ESkill::kGlobalCooldown)) {
+		if (ch->GetEnemy() && (where == EEquipPos::kShield || GET_OBJ_TYPE(obj) == EObjType::kWeapon)) {
 			SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 			return;
 		}
@@ -1987,7 +1985,7 @@ void do_wield(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar("Вы не можете вооружиться этим.\r\n", ch);
 		} else if (GET_OBJ_TYPE(obj) != EObjType::kWeapon) {
 			SendMsgToChar("Это не оружие.\r\n", ch);
-		} else if (ch->is_npc()
+		} else if (ch->IsNpc()
 			&& AFF_FLAGGED(ch, EAffect::kCharmed)
 			&& MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
 			SendMsgToChar("Ожившие трупы не могут вооружаться.\r\n", ch);
@@ -2396,7 +2394,7 @@ void do_armored(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	if (!*arg2 && (GET_SKILL(ch, ESkill::kArmoring) >= 100)) {
 		SendMsgToChar(ch,
-					 "Укажите параметр для улучшения: поглощение, здоровье, живучесть (сопротивление), стойкость (сопротивление), огня (сопротивление), воздуха (сопротивление), воды (сопротивление), земли (сопротивление)\r\n");
+					  "Укажите параметр для улучшения: поглощение, здоровье, живучесть (сопротивление), стойкость (сопротивление), огня (сопротивление), воздуха (сопротивление), воды (сопротивление), земли (сопротивление)\r\n");
 		return;
 	}
 	switch (obj->get_material()) {
@@ -2498,7 +2496,7 @@ void do_fire(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (ch->ahorse()) {
+	if (ch->IsOnHorse()) {
 		SendMsgToChar("Верхом это будет затруднительно.\r\n", ch);
 		return;
 	}
@@ -2679,8 +2677,8 @@ void do_firstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act("$N сражается, $M не до ваших телячьих нежностей.", false, ch, 0, vict, kToChar);
 		return;
 	}
-	if (vict->is_npc() && !IS_CHARMICE(vict)) {
-		SendMsgToChar("Вы не красный крест лечить всех подряд.\r\n", ch);
+	if (vict->IsNpc() && !IS_CHARMICE(vict)) {
+		SendMsgToChar("Вы не красный крест - лечить всех подряд.\r\n", ch);
 		return;
 	}
 	int percent = number(1, MUD::Skills()[ESkill::kFirstAid].difficulty);
@@ -2854,7 +2852,7 @@ void do_repair(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	one_argument(argument, arg);
 
-	if (ch->get_fighting()) {
+	if (ch->GetEnemy()) {
 		SendMsgToChar("Вы не можете сделать это в бою!\r\n", ch);
 		return;
 	}

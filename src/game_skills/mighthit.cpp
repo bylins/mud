@@ -50,7 +50,7 @@ void do_mighthit(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::kHammer)) {
+	if (ch->HasCooldown(ESkill::kHammer)) {
 		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
@@ -67,7 +67,7 @@ void do_mighthit(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (GET_AF_BATTLE(ch, kEafTouch)) {
-		if (!ch->is_npc())
+		if (!ch->IsNpc())
 			SendMsgToChar("Невозможно. Вы сосредоточены на захвате противника.\r\n", ch);
 		return;
 	}

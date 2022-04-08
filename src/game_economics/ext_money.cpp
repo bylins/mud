@@ -768,24 +768,24 @@ void donat_torc(CharData *ch, const std::string &mob_name, unsigned type, int am
 	PRF_FLAGS(ch).set(EPrf::kCanRemort);
 
 	SendMsgToChar(ch, "Вы пожертвовали %d %s %s.\r\n",
-				 amount, GetDeclensionInNumber(amount, type_list[type].DESC_MESSAGE_NUM),
-				 GetDeclensionInNumber(amount, EWhat::kTorc));
+				  amount, GetDeclensionInNumber(amount, type_list[type].DESC_MESSAGE_NUM),
+				  GetDeclensionInNumber(amount, EWhat::kTorc));
 
 	std::string name = mob_name;
 	name_convert(name);
 
 	SendMsgToChar(ch,
-				 "%s оценил ваши заслуги перед князем и народом земли русской и вознес вам хвалу.\r\n"
-				 "Вы почувствовали себя значительно опытней.\r\n", name.c_str());
+				  "%s оценил ваши заслуги перед князем и народом земли русской и вознес вам хвалу.\r\n"
+				  "Вы почувствовали себя значительно опытней.\r\n", name.c_str());
 
 	if (GET_GOD_FLAG(ch, EGf::kRemort)) {
 		SendMsgToChar(ch,
-					 "%sПоздравляем, вы получили право на перевоплощение!%s\r\n",
-					 CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+					  "%sПоздравляем, вы получили право на перевоплощение!%s\r\n",
+					  CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 	} else {
 		SendMsgToChar(ch,
-					 "Вы подтвердили свое право на следующее перевоплощение,\r\n"
-					 "для его совершения вам нужно набрать максимальное количество опыта.\r\n");
+					  "Вы подтвердили свое право на следующее перевоплощение,\r\n"
+					  "для его совершения вам нужно набрать максимальное количество опыта.\r\n");
 	}
 }
 
@@ -794,15 +794,15 @@ void message_low_torc(CharData *ch, unsigned type, int amount, const char *add_t
 	if (type < kTotalTypes) {
 		const int money = ch->get_ext_money(type);
 		SendMsgToChar(ch,
-					 "Для подтверждения права на перевоплощение вы должны пожертвовать %d %s %s.\r\n"
-					 "У вас в данный момент %d %s %s%s\r\n",
-					 amount,
-					 GetDeclensionInNumber(amount, type_list[type].DESC_MESSAGE_U_NUM),
-					 GetDeclensionInNumber(amount, EWhat::kTorc),
-					 money,
-					 GetDeclensionInNumber(money, type_list[type].DESC_MESSAGE_NUM),
-					 GetDeclensionInNumber(money, EWhat::kTorc),
-					 add_text);
+					  "Для подтверждения права на перевоплощение вы должны пожертвовать %d %s %s.\r\n"
+					  "У вас в данный момент %d %s %s%s\r\n",
+					  amount,
+					  GetDeclensionInNumber(amount, type_list[type].DESC_MESSAGE_U_NUM),
+					  GetDeclensionInNumber(amount, EWhat::kTorc),
+					  money,
+					  GetDeclensionInNumber(money, type_list[type].DESC_MESSAGE_NUM),
+					  GetDeclensionInNumber(money, EWhat::kTorc),
+					  add_text);
 	}
 }
 

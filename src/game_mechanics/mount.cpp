@@ -185,7 +185,7 @@ void do_horsetake(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (horse == nullptr) {
 		SendMsgToChar(NOPERSON, ch);
 		return;
-	} else if (!horse->is_npc()) {
+	} else if (!horse->IsNpc()) {
 		SendMsgToChar("Господи, не чуди...\r\n", ch);
 		return;
 	}
@@ -240,7 +240,7 @@ void do_givehorse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!(victim = get_char_vis(ch, arg, EFind::kCharInRoom))) {
 		SendMsgToChar("Вам некому передать скакуна.\r\n", ch);
 		return;
-	} else if (victim->is_npc()) {
+	} else if (victim->IsNpc()) {
 		SendMsgToChar("Он и без этого обойдется.\r\n", ch);
 		return;
 	}

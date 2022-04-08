@@ -538,8 +538,8 @@ int exchange_identify(CharData *ch, char *arg) {
 	mort_show_obj_values(GET_EXCHANGE_ITEM(item), ch, 200, full);    //200 - полное опознание
 	ch->remove_both_gold(EXCHANGE_IDENT_PAY);
 	SendMsgToChar(ch, "\r\n%sЗа информацию о предмете с вашего банковского счета сняли %d %s%s\r\n",
-				 CCIGRN(ch, C_NRM), EXCHANGE_IDENT_PAY,
-				 GetDeclensionInNumber(EXCHANGE_IDENT_PAY, EWhat::kMoneyU), CCNRM(ch, C_NRM));
+				  CCIGRN(ch, C_NRM), EXCHANGE_IDENT_PAY,
+				  GetDeclensionInNumber(EXCHANGE_IDENT_PAY, EWhat::kMoneyU), CCNRM(ch, C_NRM));
 
 	return true;
 }
@@ -873,7 +873,7 @@ int exchange_setfilter(CharData *ch, char *arg) {
 			SendMsgToChar("Ваш фильтр базара пуст\r\n", ch);
 		} else {
 			SendMsgToChar(ch, "Ваш текущий фильтр базара: %s.\r\n",
-						 EXCHANGE_FILTER(ch));
+						  EXCHANGE_FILTER(ch));
 		}
 		return true;
 	}
@@ -1456,7 +1456,7 @@ void show_lots(char *filter, short int show_type, CharData *ch) {
 		const int price = EXCHANGE_IDENT_PAY / 2;
 		ch->remove_both_gold(price);
 		SendMsgToChar(ch, "\r\n%sЗа информацию об аффектах с вашего банковского счета сняли %d %s%s\r\n",
-					 CCIGRN(ch, C_NRM), price, GetDeclensionInNumber(price, EWhat::kMoneyU), CCNRM(ch, C_NRM));
+					  CCIGRN(ch, C_NRM), price, GetDeclensionInNumber(price, EWhat::kMoneyU), CCNRM(ch, C_NRM));
 	}
 	page_string(ch->desc, buffer);
 }

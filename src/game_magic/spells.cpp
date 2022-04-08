@@ -222,7 +222,7 @@ void SpellRecall(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 	RoomRnum to_room = kNowhere, fnd_room = kNowhere;
 	RoomRnum rnum_start, rnum_stop;
 
-	if (!victim || victim->is_npc() || ch->in_room != IN_ROOM(victim) || GetRealLevel(victim) >= kLvlImmortal) {
+	if (!victim || victim->IsNpc() || ch->in_room != IN_ROOM(victim) || GetRealLevel(victim) >= kLvlImmortal) {
 		SendMsgToChar(SUMMON_FAIL, ch);
 		return;
 	}
@@ -401,7 +401,7 @@ void SpellPortal(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 			return;
 		}
 	}
-	if (victim->is_npc()) {
+	if (victim->IsNpc()) {
 		SendMsgToChar(SUMMON_FAIL, ch);
 		return;
 	}
@@ -505,13 +505,13 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 		return;
 	}
 
-	if (ch->is_npc() && victim->is_npc()) {
+	if (ch->IsNpc() && victim->IsNpc()) {
 		SendMsgToChar(SUMMON_FAIL, ch);
 		return;
 	}
 
 	if (IS_IMMORTAL(victim)) {
-		if (ch->is_npc() || (!ch->is_npc() && GetRealLevel(ch) < GetRealLevel(victim))) {
+		if (ch->IsNpc() || (!ch->IsNpc() && GetRealLevel(ch) < GetRealLevel(victim))) {
 			SendMsgToChar(SUMMON_FAIL, ch);
 			return;
 		}
@@ -549,7 +549,7 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 			SendMsgToChar(SUMMON_FAIL, ch);
 			return;
 		}
-		if (!ch->is_npc() && !victim->is_npc() && GetRealLevel(victim) <= 10) {
+		if (!ch->IsNpc() && !victim->IsNpc() && GetRealLevel(victim) <= 10) {
 			SendMsgToChar(SUMMON_FAIL, ch);
 			return;
 		}
@@ -885,7 +885,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 
 	if (victim == ch)
 		SendMsgToChar("Вы просто очарованы своим внешним видом!\r\n", ch);
-	else if (!victim->is_npc()) {
+	else if (!victim->IsNpc()) {
 		SendMsgToChar("Вы не можете очаровать реального игрока!\r\n", ch);
 		if (!pk_agro_action(ch, victim))
 			return;
@@ -1414,10 +1414,10 @@ void print_book_uprgd_skill(CharData *ch, const ObjData *obj) {
 	}
 	if (GET_OBJ_VAL(obj, 3) > 0) {
 		SendMsgToChar(ch, "повышает умение \"%s\" (максимум %d)\r\n",
-					 MUD::Skills()[skill_id].GetName(), GET_OBJ_VAL(obj, 3));
+					  MUD::Skills()[skill_id].GetName(), GET_OBJ_VAL(obj, 3));
 	} else {
 		SendMsgToChar(ch, "повышает умение \"%s\" (не больше максимума текущего перевоплощения)\r\n",
-					 MUD::Skills()[skill_id].GetName());
+					  MUD::Skills()[skill_id].GetName());
 	}
 }
 
@@ -1475,10 +1475,10 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 
 	if (obj->get_auto_mort_req() > 0) {
 		SendMsgToChar(ch, "Требует перевоплощений : %s%d%s\r\n",
-					 CCCYN(ch, C_NRM), obj->get_auto_mort_req(), CCNRM(ch, C_NRM));
+					  CCCYN(ch, C_NRM), obj->get_auto_mort_req(), CCNRM(ch, C_NRM));
 	} else if (obj->get_auto_mort_req() < -1) {
 		SendMsgToChar(ch, "Максимальное количество перевоплощение : %s%d%s\r\n",
-					 CCCYN(ch, C_NRM), abs(obj->get_minimum_remorts()), CCNRM(ch, C_NRM));
+					  CCCYN(ch, C_NRM), abs(obj->get_minimum_remorts()), CCNRM(ch, C_NRM));
 	}
 
 	if (fullness < 60)
@@ -1746,8 +1746,8 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 			found = true;
 		}
 		SendMsgToChar(ch, "%s   %s вес предмета на %d%s\r\n", CCCYN(ch, C_NRM),
-					 GET_OBJ_VAL(obj, 0) > 0 ? "увеличивает" : "уменьшает",
-					 abs(GET_OBJ_VAL(obj, 0)), CCNRM(ch, C_NRM));
+					  GET_OBJ_VAL(obj, 0) > 0 ? "увеличивает" : "уменьшает",
+					  abs(GET_OBJ_VAL(obj, 0)), CCNRM(ch, C_NRM));
 	}
 
 	if (obj->has_skills()) {
@@ -1807,7 +1807,7 @@ void mort_show_char_values(CharData *victim, CharData *ch, int fullness) {
 
 	sprintf(buf, "Имя: %s\r\n", GET_NAME(victim));
 	SendMsgToChar(buf, ch);
-	if (!victim->is_npc() && victim == ch) {
+	if (!victim->IsNpc() && victim == ch) {
 		sprintf(buf, "Написание : %s/%s/%s/%s/%s/%s\r\n",
 				GET_PAD(victim, 0), GET_PAD(victim, 1), GET_PAD(victim, 2),
 				GET_PAD(victim, 3), GET_PAD(victim, 4), GET_PAD(victim, 5));
@@ -1852,9 +1852,9 @@ void mort_show_char_values(CharData *victim, CharData *ch, int fullness) {
 		return;
 
 	SendMsgToChar(ch, "Атака : %d, Повреждения : %d\r\n",
-				 GET_HR(victim), GET_DR(victim));
+				  GET_HR(victim), GET_DR(victim));
 	SendMsgToChar(ch, "Защита : %d, Броня : %d, Поглощение : %d\r\n",
-				 compute_armor_class(victim), GET_ARMOUR(victim), GET_ABSORBE(victim));
+				  compute_armor_class(victim), GET_ARMOUR(victim), GET_ABSORBE(victim));
 
 	if (fullness < 100 || (ch != victim && !victim->IsNpc()))
 		return;

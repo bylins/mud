@@ -1570,7 +1570,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 
 		case kSpellGroupPrismaticAura:
 		case kSpellPrismaticAura:
-			if (!ch->is_npc() && !same_group(ch, victim)) {
+			if (!ch->IsNpc() && !same_group(ch, victim)) {
 				SendMsgToChar("Только на себя или одногруппника!\r\n", ch);
 				return 0;
 			}
@@ -3367,10 +3367,7 @@ int CastToPoints(int level, CharData *ch, CharData *victim, int spellnum, ESavin
 			break;
 		case kSpellPatronage: hit = (GetRealLevel(victim) + GET_REAL_REMORT(victim)) * 2;
 			break;
-		case kSpellWarcryOfPower: hit = MIN(200, (4 * ch->get_con() + ch->get_skill(ESkill::kWarcry)) / 2);
-			SendMsgToChar("По вашему телу начала струиться живительная сила.\r\n", victim);
-		case kSpellWarcryOfPower: hit =
-				std::min(200, (4 * ch->get_con() + ch->get_skill(ESkill::kWarcry)) / 2);
+		case kSpellWarcryOfPower: hit = std::min(200, (4 * ch->get_con() + ch->get_skill(ESkill::kWarcry)) / 2);
 			SendMsgToChar("По вашему телу начала струиться живительная сила.\r\n", victim);
 			break;
 		case kSpellExtraHits: extraHealing = true;
@@ -4452,10 +4449,10 @@ int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, int spellnum
 				level = MAX(1, level - levelDecay);
 				if (PRF_FLAGGED(ch, EPrf::kTester)) {
 					SendMsgToChar(ch,
-								 "&GМакс. целей: %d, Каст: %d, Уровень заклинания: %d.&n\r\n",
-								 targetsAmount,
-								 GET_CAST_SUCCESS(ch),
-								 level);
+								  "&GМакс. целей: %d, Каст: %d, Уровень заклинания: %d.&n\r\n",
+								  targetsAmount,
+								  GET_CAST_SUCCESS(ch),
+								  level);
 				}
 			};
 		};

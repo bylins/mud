@@ -453,16 +453,16 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 		}
 		SendMsgToChar(ch, "Теперь вы стали %s %s.\r\n",
-					 IS_MALE(ch) ? "счастливым обладателем" : "счастливой обладательницей",
-					 obj->item_count_message(bought, 1).c_str());
+					  IS_MALE(ch) ? "счастливым обладателем" : "счастливой обладательницей",
+					  obj->item_count_message(bought, 1).c_str());
 	}
 }
 
 void shop_node::print_shop_list(CharData *ch, const std::string &arg, int keeper_vnum) const {
 	SendMsgToChar(ch,
-				 " ##    Доступно   Предмет                                      Цена (%s)\r\n"
-				 "---------------------------------------------------------------------------\r\n",
-				 currency.c_str());
+				  " ##    Доступно   Предмет                                      Цена (%s)\r\n"
+				  "---------------------------------------------------------------------------\r\n",
+				  currency.c_str());
 	int num = 1;
 	std::stringstream out;
 	std::string print_value;
@@ -654,9 +654,9 @@ void shop_node::filter_shop_list(CharData *ch, const std::string &arg, int keepe
 	};
 
 	SendMsgToChar(ch,
-				 " ##    Доступно   Предмет(фильтр)                              Цена (%s)\r\n"
-				 "---------------------------------------------------------------------------\r\n",
-				 currency.c_str());
+				  " ##    Доступно   Предмет(фильтр)                              Цена (%s)\r\n"
+				  "---------------------------------------------------------------------------\r\n",
+				  currency.c_str());
 
 	std::stringstream out;
 	for (auto k = 0u; k < m_items_list.size();) {

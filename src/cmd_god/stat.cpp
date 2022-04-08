@@ -171,7 +171,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 
 	sprintf(buf, "Титул: %s\r\n", (k->player_data.title != "" ? k->player_data.title.c_str() : "<Нет>"));
 	SendMsgToChar(buf, ch);
-	if (k->is_npc())
+	if (k->IsNpc())
 		sprintf(buf, "L-Des: %s", (k->player_data.long_descr != "" ? k->player_data.long_descr.c_str() : "<Нет>\r\n"));
 	else
 		sprintf(buf,
@@ -360,20 +360,20 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		sprintf(buf, "NPC флаги: %s%s%s\r\n", CCCYN(ch, C_NRM), smallBuf, CCNRM(ch, C_NRM));
 		SendMsgToChar(buf, ch);
 		SendMsgToChar(ch,
-					 "Количество атак: %s%d%s. ",
-					 CCCYN(ch, C_NRM),
-					 k->mob_specials.ExtraAttack + 1,
-					 CCNRM(ch, C_NRM));
+					  "Количество атак: %s%d%s. ",
+					  CCCYN(ch, C_NRM),
+					  k->mob_specials.ExtraAttack + 1,
+					  CCNRM(ch, C_NRM));
 		SendMsgToChar(ch,
-					 "Вероятность использования умений: %s%d%%%s. ",
-					 CCCYN(ch, C_NRM),
-					 k->mob_specials.LikeWork,
-					 CCNRM(ch, C_NRM));
+					  "Вероятность использования умений: %s%d%%%s. ",
+					  CCCYN(ch, C_NRM),
+					  k->mob_specials.LikeWork,
+					  CCNRM(ch, C_NRM));
 		SendMsgToChar(ch,
-					 "Убить до начала замакса: %s%d%s\r\n",
-					 CCCYN(ch, C_NRM),
-					 k->mob_specials.MaxFactor,
-					 CCNRM(ch, C_NRM));
+					  "Убить до начала замакса: %s%d%s\r\n",
+					  CCCYN(ch, C_NRM),
+					  k->mob_specials.MaxFactor,
+					  CCNRM(ch, C_NRM));
 		SendMsgToChar(ch, "Умения:&c");
 		for (const auto &skill : MUD::Skills()) {
 			if (skill.IsValid() && k->get_skill(skill.GetId())) {
@@ -418,16 +418,16 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 			}
 
 			SendMsgToChar(ch,
-						 "Заданные путевые точки: %s%s%s\r\n",
-						 CCCYN(ch, C_NRM),
-						 str_dest_list.str().c_str(),
-						 CCNRM(ch, C_NRM));
+						  "Заданные путевые точки: %s%s%s\r\n",
+						  CCCYN(ch, C_NRM),
+						  str_dest_list.str().c_str(),
+						  CCNRM(ch, C_NRM));
 			if (!virt) {
 				SendMsgToChar(ch,
-							"Предполагаемый маршрут: %s%s%s\r\n",
-							CCCYN(ch, C_NRM),
-							str_predictive_path.str().c_str(),
-							CCNRM(ch, C_NRM));
+							  "Предполагаемый маршрут: %s%s%s\r\n",
+							  CCCYN(ch, C_NRM),
+							  str_predictive_path.str().c_str(),
+							  CCNRM(ch, C_NRM));
 			}
 		}
 	} else {
@@ -613,7 +613,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	}
 
 	SendMsgToChar(ch, "VNum: [%s%5d%s], RNum: [%5d], UID: [%d], Id: [%ld]\r\n",
-				 CCGRN(ch, C_NRM), vnum, CCNRM(ch, C_NRM), GET_OBJ_RNUM(j), GET_OBJ_UID(j), j->get_id());
+				  CCGRN(ch, C_NRM), vnum, CCNRM(ch, C_NRM), GET_OBJ_RNUM(j), GET_OBJ_UID(j), j->get_id());
 
 	SendMsgToChar(ch, "Расчет критерия: %f, мортов: (%f) \r\n", j->show_koef_obj(), j->show_mort_req());
 	SendMsgToChar(ch, "Тип: %s, СпецПроцедура: %s", buf1, buf2);

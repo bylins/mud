@@ -1349,8 +1349,8 @@ void do_mdamage(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		if (IS_IMMORTAL(ch) && dam > 0) {
-			SendMsgToChar
-				("Будучи очень крутым, вы сделали шаг в сторону и не получили повреждений...\r\n", victim);
+			SendMsgToChar("Будучи очень крутым, вы сделали шаг в сторону и не получили повреждений...\r\n",
+						  victim);
 			return;
 		}
 		GET_HIT(victim) -= dam;

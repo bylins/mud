@@ -149,7 +149,7 @@ void do_townportal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg2[kMaxInputLength];
 	int vnum = 0;
 
-	if (ch->is_npc() || !ch->get_skill(ESkill::kTownportal)) {
+	if (ch->IsNpc() || !ch->get_skill(ESkill::kTownportal)) {
 		SendMsgToChar("Прежде изучите секрет постановки врат.\r\n", ch);
 		return;
 	}

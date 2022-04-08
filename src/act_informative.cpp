@@ -785,11 +785,11 @@ void look_at_char(CharData *i, CharData *ch) {
 		return;
 
 	if (!i->player_data.description.empty()) {
-		if (i->is_npc())
+		if (i->IsNpc())
 			SendMsgToChar(ch, " * %s", i->player_data.description.c_str());
 		else
 			SendMsgToChar(ch, "*\r\n%s*\r\n", space_before_string(i->player_data.description).c_str());
-	} else if (!i->is_npc()) {
+	} else if (!i->IsNpc()) {
 		strcpy(buf, "\r\nЭто");
 		if (i->is_morphed())
 			strcat(buf, string(" " + i->get_morph_desc() + ".\r\n").c_str());
@@ -1862,7 +1862,7 @@ void look_at_room(CharData *ch, int ignore_brief) {
 
 	if (is_dark(ch->in_room) && !PRF_FLAGGED(ch, EPrf::kHolylight)) {
 		SendMsgToChar("Слишком темно...\r\n", ch);
-	} else if ((!ch->is_npc() && !PRF_FLAGGED(ch, EPrf::kBrief)) || ignore_brief || ROOM_FLAGGED(ch->in_room, ERoomFlag::kDeathTrap)) {
+	} else if ((!ch->IsNpc() && !PRF_FLAGGED(ch, EPrf::kBrief)) || ignore_brief || ROOM_FLAGGED(ch->in_room, ERoomFlag::kDeathTrap)) {
 		show_extend_room(RoomDescription::show_desc(world[ch->in_room]->description_num).c_str(), ch);
 	}
 
@@ -3728,7 +3728,7 @@ void do_levels(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int i;
 	char *ptr = &buf[0];
 
-	if (ch->is_npc()) {
+	if (ch->IsNpc()) {
 		SendMsgToChar("Боги уже придумали ваш уровень.\r\n", ch);
 		return;
 	}
@@ -3764,7 +3764,7 @@ void do_consider(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Легко! Выберите параметр <Удалить персонаж>!\r\n", ch);
 		return;
 	}
-	if (!victim->is_npc()) {
+	if (!victim->IsNpc()) {
 		SendMsgToChar("Оценивайте игроков сами - тут я не советчик.\r\n", ch);
 		return;
 	}
@@ -3959,7 +3959,7 @@ void do_zone(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if ((IS_IMMORTAL(ch) || PRF_FLAGGED(ch, EPrf::kCoderinfo))
 		&& zone_table[world[ch->in_room]->zone_rn].comment) {
 		SendMsgToChar(ch, "Комментарий: %s.\r\n",
-					 zone_table[world[ch->in_room]->zone_rn].comment);
+					  zone_table[world[ch->in_room]->zone_rn].comment);
 	}
 }
 

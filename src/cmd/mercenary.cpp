@@ -43,8 +43,8 @@ void doList(CharData *ch, CharData *boss, bool isFavList) {
 	}
 	tell_to_char(boss, ch, buf);
 	SendMsgToChar(ch,
-				 " ##   Имя                                                   \r\n"
-				 "------------------------------------------------------------\r\n");
+				  " ##   Имя                                                   \r\n"
+				  "------------------------------------------------------------\r\n");
 	std::map<int, MERCDATA>::iterator it = m->begin();
 	std::stringstream out;
 	std::string format_str = "%3d)  %-54s\r\n";

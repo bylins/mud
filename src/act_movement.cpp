@@ -401,7 +401,7 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 			if (!Clan::MayEnter(ch, EXIT(ch, dir)->to_room(), kHouseAtrium)) {
 				if (show_msg)
 					SendMsgToChar("Частная собственность! Вход воспрещен!\r\n", ch);
-				return false;
+				return (false);
 			}
 		}
 
@@ -410,7 +410,7 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 			if (!HasBoat(ch)) {
 				if (show_msg)
 					SendMsgToChar("Вам нужна лодка, чтобы попасть туда.\r\n", ch);
-				return false;
+				return (false);
 			}
 		}
 		if (real_sector(EXIT(ch, dir)->to_room()) == ESector::kOnlyFlying
@@ -451,12 +451,12 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 			if (!Clan::MayEnter(ch, EXIT(ch, dir)->to_room(), kHouseAtrium)) {
 				if (show_msg)
 					SendMsgToChar("Частная собственность! Вход воспрещен!\r\n", ch);
-				return false;
+				return (false);
 			}
 		}
 
 		//чтобы конь не лез в комнату с флагом !лошадь
-		if (ch->ahorse() && !IsCorrectDirection(ch->get_horse(), dir, check_specials, false)) {
+		if (ch->IsOnHorse() && !IsCorrectDirection(ch->get_horse(), dir, check_specials, false)) {
 			if (show_msg) {
 				act("$Z $N отказывается туда идти, и вам пришлось соскочить.",
 					false, ch, nullptr, ch->get_horse(), kToChar);
@@ -468,7 +468,7 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 			(num_pc_in_room((world[EXIT(ch, dir)->to_room()])) > 0)) {
 			if (show_msg)
 				SendMsgToChar("Слишком мало места.\r\n", ch);
-			return false;
+			return (false);
 		}
 
 		if (ch->IsOnHorse() && GET_HORSESTATE(ch->get_horse()) <= 0) {
@@ -555,7 +555,6 @@ void PerformDunkSong(CharData *ch) {
 
 /**
  * Выбор случайной комнаты из списка выходов комнаты, в которой находится персонаж.
- *
  * Результатом может быть kIncorrectDir.
  * @param ch - персонаж, для которого производится выбор.
  * @param fail_chance - шанс не найти выход. Сравнивается со случайным числом от 1 до 100 + 25*число выходов.
@@ -570,7 +569,7 @@ EDirection SelectRndDirection(CharData *ch, int fail_chance) {
 		}
 	}
 
-	if (number(1, 100 + 25*directions.size()) > fail_chance) {
+	if (number(1, 100 + 25*directions.size()) < fail_chance) {
 		return EDirection::kIncorrectDir;
 	}
 	return directions[number(0, directions.size() - 1)];
@@ -578,8 +577,8 @@ EDirection SelectRndDirection(CharData *ch, int fail_chance) {
 
 int SelectDrunkDirection(CharData *ch, int direction) {
 	auto drunk_dir{direction};
-	if (!ch->is_npc() && GET_COND(ch, DRUNK) >= kMortallyDrunked &&
-		!ch->ahorse() && GET_COND(ch, DRUNK) >= number(kDrunked, 50)) {
+	if (!ch->IsNpc() && GET_COND(ch, DRUNK) >= kMortallyDrunked &&
+		!ch->IsOnHorse() && GET_COND(ch, DRUNK) >= number(kDrunked, 50)) {
 		drunk_dir = SelectRndDirection(ch, 60);
 	}
 
@@ -600,7 +599,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 		return false;
 	}
 	// если не моб и не ведут за ручку - проверка на пьяные выкрутасы
-	if (!ch->is_npc() && !leader) {
+	if (!ch->IsNpc() && !leader) {
 		dir = SelectDrunkDirection(ch, dir);
 	}
 	PerformDunkSong(ch);
@@ -707,7 +706,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 		stop_fighting(ch, true);
 	}
 
-	if (!ch->is_npc() && IS_BITS(ch->track_dirs, dir)) {
+	if (!ch->IsNpc() && IS_BITS(ch->track_dirs, dir)) {
 		SendMsgToChar("Вы двинулись по следу.\r\n", ch);
 		ImproveSkill(ch, ESkill::kTrack, true, nullptr);
 	}
@@ -1465,7 +1464,7 @@ void do_gen_door(CharData *ch, char *argument, int, int subcmd) {
 			return;
 		}
 		keynum = DOOR_KEY(ch, obj, door);
-		if ((subcmd == SCMD_CLOSE || subcmd == SCMD_LOCK) && !ch->is_npc() && NORENTABLE(ch))
+		if ((subcmd == SCMD_CLOSE || subcmd == SCMD_LOCK) && !ch->IsNpc() && NORENTABLE(ch))
 			SendMsgToChar("Ведите себя достойно во время боевых действий!\r\n", ch);
 		else if (!(DOOR_IS_OPENABLE(ch, obj, door)))
 			act("Вы никогда не сможете $F это!", false, ch, nullptr, a_cmd_door[subcmd], kToChar);
@@ -1505,7 +1504,7 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			else {
 				from_room = ch->in_room;
 				door = world[ch->in_room]->portal_room;
-				if (ch->ahorse() && AFF_FLAGGED(ch->get_horse(), EAffect::kHold)) {
+				if (ch->IsOnHorse() && AFF_FLAGGED(ch->get_horse(), EAffect::kHold)) {
 					act("$Z $N не в состоянии нести вас на себе.\r\n",
 						false, ch, nullptr, ch->get_horse(), kToChar);
 					return;
@@ -1516,7 +1515,7 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					return;
 				}
 				// Если чар под местью, и портал односторонний, то не пускать
-				if (NORENTABLE(ch) && !ch->is_npc() && !world[door]->portal_time) {
+				if (NORENTABLE(ch) && !ch->IsNpc() && !world[door]->portal_time) {
 					SendMsgToChar("Грехи мешают вам воспользоваться вратами.\r\n", ch);
 					return;
 				}
@@ -1564,7 +1563,7 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				if (world[from_room]->pkPenterUnique && world[from_room]->pkPenterUnique != GET_UNIQUE(ch)
 					&& !IS_IMMORTAL(ch)) {
 					SendMsgToChar(ch, "%sВаш поступок был расценен как потенциально агрессивный.%s\r\n",
-								 CCIRED(ch, C_NRM), CCINRM(ch, C_NRM));
+								  CCIRED(ch, C_NRM), CCINRM(ch, C_NRM));
 					pkPortal(ch);
 				}
 				ExtractCharFromRoom(ch);
@@ -1577,7 +1576,7 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				for (k = ch->followers; k; k = k_next) {
 					k_next = k->next;
 					if (IS_HORSE(k->ch) &&
-						!k->ch->get_fighting() &&
+						!k->ch->GetEnemy() &&
 						!AFF_FLAGGED(k->ch, EAffect::kHold) &&
 						IN_ROOM(k->ch) == from_room && AWAKE(k->ch)) {
 						if (!ROOM_FLAGGED(door, ERoomFlag::kNohorse)) {
