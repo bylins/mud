@@ -20,7 +20,7 @@ void ApplyNoFleeAffect(CharData *ch, int duration) {
 	SendMsgToChar("Вы выпали из ритма боя.\r\n", ch);
 }
 
-void ApplyHaemorrhageAffect(AbilitySystem::TechniqueRoll &roll) {
+void ApplyDebuffs(AbilitySystem::TechniqueRoll &roll) {
 	Affect<EApply> cut;
 	cut.type = kSpellBattle;
 	cut.duration = CalcDuration(roll.GetActor(), 3 * number(2, 4), 0, 0, 0, 0);;
@@ -42,7 +42,9 @@ void PerformCutSuccess(AbilitySystem::TechniqueRoll &roll) {
 		false, roll.GetActor(), nullptr, roll.GetRival(), kToVict);
 	act("$n сделал$g неуловимое движение, сместившись за спину $N1.",
 		true, roll.GetActor(), nullptr, roll.GetRival(), kToNotVict | kToArenaListen);
-	ApplyHaemorrhageAffect(roll);
+	if (!IS_UNDEAD(roll.GetRival()) && GET_RACE(roll.GetRival()) != ENpcRace::kConstruct) {
+		ApplyDebuffs(roll);
+	}
 }
 
 void PerformCutFail(AbilitySystem::TechniqueRoll &roll) {
@@ -122,7 +124,6 @@ void SetExtraAttackCut(CharData *ch, CharData *victim) {
 }
 
 void DoExpedientCut(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
-
 	if (ch->IsNpc() || (!IsAbleToUseFeat(ch, EFeat::kCutting) && !IS_IMPL(ch))) {
 		SendMsgToChar("Вы не владеете таким приемом.\r\n", ch);
 		return;
