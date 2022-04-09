@@ -721,7 +721,9 @@ void raw_kill(CharData *ch, CharData *killer) {
 			   true);
 		return;
 	}
-	reset_affects(ch);
+	if (!ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
+		reset_affects(ch);
+	}
 	// для начала проверяем, активны ли евенты
 	if ((!killer || death_mtrigger(ch, killer)) && ch->in_room != kNowhere) {
 		death_cry(ch, killer);
