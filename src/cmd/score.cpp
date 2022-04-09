@@ -135,15 +135,17 @@ void PrintScoreList(CharData *ch) {
 	bool need_dice = false;
 	int max_dam = hit_params.calc_damage(ch, need_dice); // без кубиков
 
-	SendMsgToChar(ch, "Попадание: %d, повреждение: %d, запоминание: %d, успех колдовства: %d, удача: %d, инициатива: %d, маг.урон: %d, физ. урон: %d.\r\n",
+	SendMsgToChar(ch, "Попадание: %d, повреждение: %d, запоминание: %d, успех колдовства: %d, удача: %d, инициатива: %d.\r\n",
 				  CalcHitroll(ch),
 				  max_dam,
 				  int(GET_MANAREG(ch) * ch->get_cond_penalty(P_CAST)),
 				  CalcAntiSavings(ch),
 				  ch->calc_morale(),
-				  calc_initiative(ch, false),
+				  calc_initiative(ch, false));
+	SendMsgToChar(ch, "Бонусы в процентах: маг.урон: %d, физ. урон: %d, опыт: %d\r\n",
 				  ch->add_abils.percent_magdam_add + ch->obj_bonus().calc_mage_dmg(100),
-				  ch->add_abils.percent_physdam_add + ch->obj_bonus().calc_phys_dmg(100));
+				  ch->add_abils.percent_physdam_add + ch->obj_bonus().calc_phys_dmg(100),
+				  ch->add_abils.percent_exp_add);
 	SendMsgToChar(ch, "Сопротивление: огню: %d, воздуху: %d, воде: %d, земле: %d, тьме: %d, живучесть: %d, разум: %d, иммунитет: %d.\r\n",
 				  MIN(GET_RESIST(ch, EResist::kFire), 75),
 				  MIN(GET_RESIST(ch, EResist::kAir), 75),
@@ -747,7 +749,8 @@ void PrintScoreBase(CharData *ch) {
 								   "  Броня/Поглощение : %4d/%d&n\r\n",
 				ac, ac_text[ac_t], GET_ARMOUR(ch), GET_ABSORBE(ch));
 	}
-	sprintf(buf + strlen(buf), "Ваш опыт - %ld %s. ", GET_EXP(ch), GetDeclensionInNumber(GET_EXP(ch), EWhat::kPoint));
+	sprintf(buf + strlen(buf), "Ваш опыт - %ld %s, бонус %d процентов.", GET_EXP(ch),
+			GetDeclensionInNumber(GET_EXP(ch), EWhat::kPoint), ch->add_abils.percent_exp_add);
 	if (GetRealLevel(ch) < kLvlImmortal) {
 		if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {
 			sprintf(buf + strlen(buf), "\r\n");
