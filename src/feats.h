@@ -304,7 +304,7 @@ struct FeatureInfo {
 
 	int (*GetBaseParameter)(const CharData *ch);
 	int (*GetEffectParameter)(const CharData *ch);
-	float (*CalcSituationalDamageFactor)(CharData * /* ch */);
+	int (*CalcSituationalDamageFactor)(CharData * /* ch */);
 	int (*CalcSituationalRollBonus)(CharData * /* ch */, CharData * /* enemy */);
 };
 

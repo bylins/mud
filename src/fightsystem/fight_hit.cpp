@@ -1606,11 +1606,11 @@ void appear(CharData *ch) {
 	AFF_FLAGS(ch).unset(EAffect::kDisguise);
 
 	if (appear_msg) {
-		if (ch->IsNpc()
-			|| GetRealLevel(ch) < kLvlImmortal) {
-			act("$n медленно появил$u из пустоты.", false, ch, 0, 0, kToRoom);
+		if (ch->IsNpc() || GetRealLevel(ch) < kLvlImmortal) {
+			act("$n медленно появил$u из пустоты.", false, ch, nullptr, nullptr, kToRoom);
 		} else {
-			act("Вы почувствовали странное присутствие $n1.", false, ch, 0, 0, kToRoom);
+			act("Вы почувствовали странное присутствие $n1.",
+				false, ch, nullptr, nullptr, kToRoom);
 		}
 	}
 }
@@ -2204,9 +2204,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		return 0;
 	}
 
-	if (IN_ROOM(victim) == kNowhere
-		|| ch->in_room == kNowhere
-		|| ch->in_room != IN_ROOM(victim)) {
+	if (victim->in_room == kNowhere || ch->in_room == kNowhere || ch->in_room != victim->in_room) {
 		log("SYSERR: Attempt to damage '%s' in room kNowhere by '%s'.",
 			GET_NAME(victim), GET_NAME(ch));
 		return 0;
@@ -2216,7 +2214,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		log("SYSERR: Attempt to damage corpse '%s' in room #%d by '%s'.",
 			GET_NAME(victim), GET_ROOM_VNUM(IN_ROOM(victim)), GET_NAME(ch));
 		die(victim, nullptr);
-		return 0;    // -je, 7/7/92
+		return 0;
 	}
 	// No fight mobiles
 	if ((ch->IsNpc() && MOB_FLAGGED(ch, EMobFlag::kNoFight))
@@ -2225,13 +2223,13 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	}
 
 	if (dam > 0) {
-		// You can't damage an immortal!
-		if (IS_GOD(victim))
+		if (IS_GOD(victim)) {
 			dam = 0;
-		else if (IS_IMMORTAL(victim) || GET_GOD_FLAG(victim, EGf::kGodsLike))
+		} else if (IS_IMMORTAL(victim) || GET_GOD_FLAG(victim, EGf::kGodsLike)) {
 			dam /= 4;
-		else if (GET_GOD_FLAG(victim, EGf::kGodscurse))
+		} else if (GET_GOD_FLAG(victim, EGf::kGodscurse)) {
 			dam *= 2;
+		}
 	}
 
 	// запоминание мобами обидчиков и жертв
@@ -2242,14 +2240,15 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	appear(victim);
 
 	// If you attack a pet, it hates your guts
-	if (!same_group(ch, victim))
+	if (!same_group(ch, victim)) {
 		check_agro_follower(ch, victim);
+	}
 
-	if (victim != ch)    // Start the attacker fighting the victim
-	{
+	if (victim != ch) {
 		if (GET_POS(ch) > EPosition::kStun && (ch->GetEnemy() == nullptr)) {
-			if (!pk_agro_action(ch, victim))
-				return (0);
+			if (!pk_agro_action(ch, victim)) {
+				return 0;
+			}
 			SetFighting(ch, victim);
 			npc_groupbattle(ch);
 		}
@@ -2268,11 +2267,8 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	}
 
 	// If negative damage - return
-	if (dam < 0
-		|| ch->in_room == kNowhere
-		|| IN_ROOM(victim) == kNowhere
-		|| ch->in_room != IN_ROOM(victim)) {
-		return (0);
+	if (dam < 0 || ch->in_room == kNowhere || victim->in_room == kNowhere || ch->in_room != victim->in_room) {
+		return 0;
 	}
 
 	// нельзя драться в состоянии нестояния
@@ -2282,16 +2278,16 @@ int Damage::Process(CharData *ch, CharData *victim) {
 
 	// санка/призма для физ и маг урона
 	if (dam >= 2) {
-		if (AFF_FLAGGED(victim, EAffect::kPrismaticAura)
-			&& !(skill_id == ESkill::kBackstab && IsAbleToUseFeat(ch, EFeat::kThieveStrike))) {
+		if (AFF_FLAGGED(victim, EAffect::kPrismaticAura) &&
+			!(skill_id == ESkill::kBackstab && IsAbleToUseFeat(ch, EFeat::kThieveStrike))) {
 			if (dmg_type == fight::kPhysDmg) {
 				dam *= 2;
 			} else if (dmg_type == fight::kMagicDmg) {
 				dam /= 2;
 			}
 		}
-		if (AFF_FLAGGED(victim, EAffect::kSanctuary)
-			&& !(skill_id == ESkill::kBackstab && IsAbleToUseFeat(ch, EFeat::kThieveStrike))) {
+		if (AFF_FLAGGED(victim, EAffect::kSanctuary) &&
+			!(skill_id == ESkill::kBackstab && IsAbleToUseFeat(ch, EFeat::kThieveStrike))) {
 			if (dmg_type == fight::kPhysDmg) {
 				dam /= 2;
 			} else if (dmg_type == fight::kMagicDmg) {
@@ -2325,8 +2321,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	// values of the POSITION_XXX constants.
 
 	// физ дамага атакера из сидячего положения
-	if (ch_start_pos < EPosition::kFight
-		&& dmg_type == fight::kPhysDmg) {
+	if (ch_start_pos < EPosition::kFight && dmg_type == fight::kPhysDmg) {
 		dam -= dam * (EPosition::kFight - ch_start_pos) / 4;
 	}
 
@@ -2342,31 +2337,22 @@ int Damage::Process(CharData *ch, CharData *victim) {
 
 	// прочие множители
 
-	// изменение физ урона по холду
-	if (AFF_FLAGGED(victim, EAffect::kHold)
-		&& dmg_type == fight::kPhysDmg) {
-		if (ch->IsNpc()
-			&& !IS_CHARMICE(ch)) {
+	if (AFF_FLAGGED(victim, EAffect::kHold) && dmg_type == fight::kPhysDmg) {
+		if (ch->IsNpc() && !IS_CHARMICE(ch)) {
 			dam = dam * 15 / 10;
 		} else {
 			dam = dam * 125 / 100;
 		}
 	}
 
-	// тюнинг дамага чармисов по чарам
-	if (!victim->IsNpc()
-		&& IS_CHARMICE(ch)) {
+	if (!victim->IsNpc() && IS_CHARMICE(ch)) {
 		dam = dam * 8 / 10;
 	}
 
-	// яд белены для физ урона
-	if (AFF_FLAGGED(ch, EAffect::kBelenaPoison)
-		&& dmg_type == fight::kPhysDmg) {
+	if (AFF_FLAGGED(ch, EAffect::kBelenaPoison) && dmg_type == fight::kPhysDmg) {
 		dam -= dam * GET_POISON(ch) / 100;
 	}
 
-	// added by WorM(Видолюб) поглощение физ.урона в %
-	//if(GET_PR(victim) && victim->IsNpc()
 	if (GET_PR(victim) && dmg_type == fight::kPhysDmg) {
 		int ResultDam = dam - (dam * GET_PR(victim) / 100);
 		ch->send_to_TC(false, true, false,
@@ -2376,19 +2362,15 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		dam = ResultDam;
 	}
 
-	// ЗБ
 	if (!IS_IMMORTAL(ch) && AFF_FLAGGED(victim, EAffect::kShield)) {
 		if (skill_id == ESkill::kBash) {
 			SendSkillMessages(dam, ch, victim, msg_num);
 		}
-		act("Магический кокон полностью поглотил удар $N1.", false, victim, 0, ch, kToChar);
-		act("Магический кокон вокруг $N1 полностью поглотил ваш удар.", false, ch, 0, victim, kToChar);
+		act("Магический кокон полностью поглотил удар $N1.", false, victim, nullptr, ch, kToChar);
+		act("Магический кокон вокруг $N1 полностью поглотил ваш удар.",
+			false, ch, nullptr, victim, kToChar);
 		act("Магический кокон вокруг $N1 полностью поглотил удар $n1.",
-			true,
-			ch,
-			0,
-			victim,
-			kToNotVict | kToArenaListen);
+			true, ch, nullptr, victim, kToNotVict | kToArenaListen);
 		return 0;
 	}
 	// щиты, броня, поглощение
@@ -2415,7 +2397,6 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		return 0;
 	}
 
-	// зб на мобе
 	if (MOB_FLAGGED(victim, EMobFlag::kProtect)) {
 		if (victim != ch) {
 			act("$n находится под защитой Богов.", false, victim, 0, 0, kToRoom);
@@ -2423,9 +2404,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		return 0;
 	}
 
-	// яд скополии
-	if (skill_id != ESkill::kBackstab
-		&& AFF_FLAGGED(victim, EAffect::kScopolaPoison)) {
+	if (skill_id != ESkill::kBackstab && AFF_FLAGGED(victim, EAffect::kScopolaPoison)) {
 		dam += dam * GET_POISON(victim) / 100;
 	}
 
@@ -2476,17 +2455,16 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	GET_HIT(victim) -= dam;
 	// если на чармисе вампир
 	if (AFF_FLAGGED(ch, EAffect::kVampirism)) {
-		GET_HIT(ch) = MAX(GET_HIT(ch), MIN(GET_HIT(ch) + MAX(1, dam * 0.1), GET_REAL_MAX_HIT(ch)
-			+ GET_REAL_MAX_HIT(ch) * GetRealLevel(ch) / 10));
+		GET_HIT(ch) = std::clamp(GET_HIT(ch) + std::max(1, dam / 10),
+								 GET_HIT(ch), GET_REAL_MAX_HIT(ch) + GET_REAL_MAX_HIT(ch) * GetRealLevel(ch) / 10);
 		// если есть родство душ, то чару отходит по 5% от дамаги к хп
 		if (ch->has_master()) {
 			if (IsAbleToUseFeat(ch->get_master(), EFeat::kSoulLink)) {
-				GET_HIT(ch->get_master()) = MAX(GET_HIT(ch->get_master()),
-												MIN(GET_HIT(ch->get_master()) + MAX(1, dam * 0.05),
-													GET_REAL_MAX_HIT(ch->get_master())
-														+ GET_REAL_MAX_HIT(ch->get_master())
-															* GetRealLevel(ch->get_master())
-															/ 10));
+				GET_HIT(ch->get_master()) = std::max(GET_HIT(ch->get_master()),
+					std::min(GET_HIT(ch->get_master()) + std::max(1, dam / 20 ),
+						GET_REAL_MAX_HIT(ch->get_master()) +
+						GET_REAL_MAX_HIT(ch->get_master()) *
+						GetRealLevel(ch->get_master()) / 10));
 			}
 		}
 	}
@@ -2521,17 +2499,11 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		}
 	}
 	// сбивание надува черноков //
-	if (spell_num != kSpellPoison
-		&& dam > 0
-		&& !flags[fight::kMagicReflect]) {
+	if (spell_num != kSpellPoison && dam > 0 && !flags[fight::kMagicReflect]) {
 		try_remove_extrahits(ch, victim);
 	}
 
-	// сообщения о крит ударах //
-	if (dam
-		&& flags[fight::kCritHit]
-		&& !dam_critic
-		&& spell_num != kSpellPoison) {
+	if (dam && flags[fight::kCritHit] && !dam_critic && spell_num != kSpellPoison) {
 		send_critical_message(ch, victim);
 	}
 
@@ -2584,7 +2556,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	// Думаю, простой проверки достаточно.
 	// Примечание, если сбежал в FIRESHIELD,
 	// то обратного повреждения по атакующему не будет
-	if (ch->in_room != IN_ROOM(victim)) {
+	if (ch->in_room != victim->in_room) {
 		return dam;
 	}
 
