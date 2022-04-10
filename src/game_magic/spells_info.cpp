@@ -30,7 +30,7 @@ void InitUnusedSpell(int spl) {
 		for (j = 0; j < kNumKins; j++) {
 			spell_info[spl].min_remort[i][j] = kMaxRemort;
 			spell_info[spl].min_level[i][j] = kLvlImplementator + 1;
-			spell_info[spl].slot_forc[i][j] = kMaxSlot;
+			spell_info[spl].slot_forc[i][j] = kMaxMemoryCircle;
 			spell_info[spl].class_change[i][j] = 0;
 		}
 	}
@@ -70,7 +70,7 @@ void initSpell(int spl, const char *name, const char *syn,
 		for (j = 0; j < kNumKins; j++) {
 			spell_info[spl].min_remort[i][j] = kMaxRemort;
 			spell_info[spl].min_level[i][j] = kLvlImplementator;
-			spell_info[spl].slot_forc[i][j] = kMaxSlot;
+			spell_info[spl].slot_forc[i][j] = kMaxMemoryCircle;
 			spell_info[spl].class_change[i][j] = 0;
 		}
 	}

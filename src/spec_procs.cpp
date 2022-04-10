@@ -476,12 +476,12 @@ const char *spells_color(int spellnum) {
 void list_spells(CharData *ch, CharData *vict, int all_spells) {
 	using PlayerClass::CalcCircleSlotsAmount;
 
-	char names[kMaxSlot][kMaxStringLength];
+	char names[kMaxMemoryCircle][kMaxStringLength];
 	std::string time_str;
-	int slots[kMaxSlot], i, max_slot = 0, slot_num, gcount = 0, can_cast = 1;
+	int slots[kMaxMemoryCircle], i, max_slot = 0, slot_num, gcount = 0, can_cast = 1;
 	bool is_full = false;
 	max_slot = 0;
-	for (i = 0; i < kMaxSlot; i++) {
+	for (i = 0; i < kMaxMemoryCircle; i++) {
 		*names[i] = '\0';
 		slots[i] = 0;
 	}
@@ -512,7 +512,7 @@ void list_spells(CharData *ch, CharData *vict, int all_spells) {
 		}
 
 		if (MIN_CAST_REM(spell_info[i], ch) > GET_REAL_REMORT(ch))
-			slot_num = kMaxSlot - 1;
+			slot_num = kMaxMemoryCircle - 1;
 		else
 			slot_num = spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;
 		max_slot = MAX(slot_num + 1, max_slot);

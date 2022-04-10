@@ -395,7 +395,7 @@ ESpell ITEM_BY_NAME<ESpell>(const std::string &name);
 template<>
 const std::string &NAME_BY_ITEM<ESpell>(const ESpell spell);
 
-const int kMaxSlot = 13;
+const int kMaxMemoryCircle = 13;
 
 const int kTypeHit = 400;
 const int kTypeMagic = 420;

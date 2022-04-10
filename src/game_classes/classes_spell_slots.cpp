@@ -10,7 +10,7 @@ namespace PlayerClass {
 
 const short SPELL_SLOTS_FOR_IMMORTAL = 10;
 
-const int kMageSlots[][kMaxSlot] = {{2, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 1
+const int kMageSlots[][kMaxMemoryCircle] = {{2, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 1
 								   {2, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 2
 								   {3, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 3
 								   {3, 1, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 4
@@ -42,7 +42,7 @@ const int kMageSlots[][kMaxSlot] = {{2, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 1
 								   {8, 8, 7, 6, 6, 5, 4, 2, 1, 0},    // lvl 30
 };
 
-const int kNecromancerSlots[][kMaxSlot] = {{2, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 1
+const int kNecromancerSlots[][kMaxMemoryCircle] = {{2, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 1
 										   {2, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 2
 										   {3, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 3
 										   {3, 1, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 4
@@ -1163,7 +1163,7 @@ MaxClassSlot max_slots;
 int CalcCircleSlotsAmount(CharData *ch, int slot_num) {
 	int wis_is = -1, wis_line, wis_block;
 
-	if (slot_num < 1 || slot_num > kMaxSlot || GetRealLevel(ch) < 1 || ch->IsNpc()) {
+	if (slot_num < 1 || slot_num > kMaxMemoryCircle || GetRealLevel(ch) < 1 || ch->IsNpc()) {
 		return -1;
 	}
 
@@ -1236,7 +1236,7 @@ void mspell_slot(char */*name*/, int spell, int kin, int chclass, int slot) {
 		bad = 1;
 	}
 
-	if (slot < 1 || slot > kMaxSlot) {
+	if (slot < 1 || slot > kMaxMemoryCircle) {
 		log("SYSERR: assigning '%s' to illegal slot %d/%d.", GetSpellName(spell), slot, kLvlImplementator);
 		bad = 1;
 	}

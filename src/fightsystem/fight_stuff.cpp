@@ -415,9 +415,9 @@ void forget_all_spells(CharData *ch) {
 	using PlayerClass::CalcCircleSlotsAmount;
 
 	ch->mem_queue.stored = 0;
-	int slots[kMaxSlot];
+	int slots[kMaxMemoryCircle];
 	int max_slot = 0;
-	for (unsigned i = 0; i < kMaxSlot; ++i) {
+	for (unsigned i = 0; i < kMaxMemoryCircle; ++i) {
 		slots[i] = CalcCircleSlotsAmount(ch, i + 1);
 		if (slots[i]) max_slot = i + 1;
 	}

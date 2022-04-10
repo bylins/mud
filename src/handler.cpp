@@ -2950,11 +2950,11 @@ void MemQ_forget(CharData *ch, int num) {
 
 int *MemQ_slots(CharData *ch) {
 	struct SpellMemQueueItem **q, *qt;
-	static int slots[kMaxSlot];
+	static int slots[kMaxMemoryCircle];
 	int i, n, sloti;
 
 	// инициализация
-	for (i = 0; i < kMaxSlot; ++i)
+	for (i = 0; i < kMaxMemoryCircle; ++i)
 		slots[i] = CalcCircleSlotsAmount(ch, i + 1);
 
 	for (i = kSpellCount; i >= 1; --i) {
@@ -2996,7 +2996,7 @@ int *MemQ_slots(CharData *ch) {
 		}
 	}
 
-	for (i = 0; i < kMaxSlot; ++i)
+	for (i = 0; i < kMaxMemoryCircle; ++i)
 		slots[i] = CalcCircleSlotsAmount(ch, i + 1) - slots[i];
 
 	return slots;

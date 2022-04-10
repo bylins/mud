@@ -1900,7 +1900,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 				kSpellItems | kSpellKnow | kSpellRunes | kSpellScroll | kSpellPotion | kSpellWand;
 	} else if (!IS_IMMORTAL(this)) {
 		for (i = 0; i <= kSpellCount; i++) {
-			if (spell_info[i].slot_forc[(int) GET_CLASS(this)][(int) GET_KIN(this)] == kMaxSlot)
+			if (spell_info[i].slot_forc[(int) GET_CLASS(this)][(int) GET_KIN(this)] == kMaxMemoryCircle)
 				REMOVE_BIT(GET_SPELL_TYPE(this, i), kSpellKnow | kSpellTemp);
 // shapirus: изученное не убираем на всякий случай, но из мема выкидываем,
 // если мортов мало

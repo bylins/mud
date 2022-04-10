@@ -10,6 +10,7 @@
 
 #include "boot/cfg_manager.h"
 #include "game_classes/classes_constants.h"
+#include "game_magic/spells.h"
 #include "game_skills/skills.h"
 #include "structs/info_container.h"
 
@@ -27,6 +28,15 @@ class ClassesLoader : virtual public cfg_manager::ICfgLoader {
 	void Reload(parser_wrapper::DataNode data) final;
 };
 
+template<class T, class E>
+struct ClassTalentInfo {
+	using Ptr = std::unique_ptr<T>;
+
+	E id{E::kIncorrect};
+	int min_level{kLvlImplementator};
+	int min_remort{kMaxRemort + 1};
+};
+
 struct ClassSkillInfo {
 	using Ptr = std::unique_ptr<ClassSkillInfo>;
 
@@ -34,6 +44,17 @@ struct ClassSkillInfo {
 	int min_level{kLvlImplementator};
 	int min_remort{kMaxRemort + 1};
 	long improve{kMinImprove};
+};
+
+struct ClassSpellInfo {
+	using Ptr = std::unique_ptr<ClassSpellInfo>;
+
+	ESpell id{ESpell::kSpellNoSpell};
+	int min_level{kLvlImplementator};
+	int min_remort{kMaxRemort + 1};
+	int circle{kMaxMemoryCircle};
+	int mem_mod{0};
+	int cast_mod{0};
 };
 
 struct CharClassInfo : public info_container::IItem<ECharClass>{
@@ -56,12 +77,12 @@ struct CharClassInfo : public info_container::IItem<ECharClass>{
 	[[nodiscard]] const std::string &GetPluralName(ECase name_case = ECase::kNom) const;
 	[[nodiscard]] const std::string &GetAbbr() const;
 
-	/*
+	/**
 	 *  Строка в C-стиле. По возможности используйте std::string.
 	 */
 	[[nodiscard]] const char *GetCName(ECase name_case = ECase::kNom) const;
 
-	/*
+	/**
 	 *  Строка в C-стиле. По возможности используйте std::string.
 	 */
 	[[nodiscard]] const char *GetPluralCName(ECase name_case = ECase::kNom) const;
@@ -77,6 +98,18 @@ struct CharClassInfo : public info_container::IItem<ECharClass>{
 	[[nodiscard]] int GetMinLevel(ESkill id) const;
 	[[nodiscard]] int GetSkillLevelDecrement() const { return skills_level_decrement; };
 	[[nodiscard]] long GetImprove(ESkill id) const;
+
+	/* заклинания класса */
+	using Spells = std::unordered_map<ESkill, ClassSkillInfo::Ptr>;
+	using SpellsPtr = std::unique_ptr<Skills>;
+	SpellsPtr spells;
+	[[nodiscard]] bool HasSpell(ESpell id) const;
+	[[nodiscard]] bool HasntSpell(const ESpell spell_id) const { return !HasSpell(spell_id); };
+	[[nodiscard]] int GetMinRemort(ESpell id) const;
+	[[nodiscard]] int GetMinLevel(ESpell id) const;
+	[[nodiscard]] int GetCircle(ESpell id) const;
+	[[nodiscard]] int GetMemMod(ESpell id) const;
+	[[nodiscard]] int GetCastMod(ESpell id) const;
 
 	/* Прочее */
 	void Print(std::stringstream &buffer) const;
