@@ -33,6 +33,10 @@ struct CharClassInfo : public info_container::IItem<ECharClass> {
 	template<class E, class T>
 	class ClassTalentInfo {
 	public:
+		ClassTalentInfo() = delete;
+		ClassTalentInfo(E id, int min_level, int min_remort)
+			: id_{id}, min_level_{min_level}, min_remort_{min_remort} {};
+
 		using Ptr = std::unique_ptr<T>;
 		[[nodiscard]] bool HasItem(E item_id) const { return talents_.contains(item_id); };
 		[[nodiscard]] bool HasNoItem(E item_id) const { return !HasItem(item_id); };
@@ -54,7 +58,7 @@ struct CharClassInfo : public info_container::IItem<ECharClass> {
 		};
 
 	 protected:
-		static std::unordered_map<E, Ptr> talents_;
+		static inline std::unordered_map<E, Ptr> talents_;
 
 		E id_{E::kIncorrect};
 		int min_level_{kLvlImplementator};
@@ -62,23 +66,39 @@ struct CharClassInfo : public info_container::IItem<ECharClass> {
 	};
 
 	class ClassSkillInfo : public ClassTalentInfo<ESkill, ClassSkillInfo> {
+	 public:
+		ClassSkillInfo() = delete;
+		ClassSkillInfo(ESkill id, int min_level, int min_remort, long improve)
+			: ClassTalentInfo(id, min_level, min_remort),
+			improve_{improve} {
+			talents_.try_emplace(id, std::make_unique<ClassSkillInfo>(*this));
+		};
+
+		[[nodiscard]] static long GetImprove(ESkill skill_id) ;
+		[[nodiscard]] static int GetLevelDecrement() { return level_decrement_; };
+
+	 private:
 		long improve_{kMinImprove};
 		static int level_decrement_;
-
-	 public:
-		[[nodiscard]] long GetImprove(ESkill skill_id) const;
-		[[nodiscard]] static int GetLevelDecrement() { return level_decrement_; };
 	};
 
-	class ClassSpellInfo : public ClassTalentInfo<ESkill, ClassSpellInfo> {
-		int circle_{kMaxMemoryCircle};
-		int mem_mod_{0};
-		int cast_mod_{0};
-
+	class ClassSpellInfo : public ClassTalentInfo<ESpell, ClassSpellInfo> {
 	 public:
+		ClassSpellInfo() = delete;
+		ClassSpellInfo(ESpell id, int min_level, int min_remort, int circle, int mem_mod, int cast_mod)
+			: ClassTalentInfo(id, min_level, min_remort),
+			circle_{circle}, mem_mod_{mem_mod}, cast_mod_{cast_mod} {
+			talents_.try_emplace(id, std::make_unique<ClassSpellInfo>(*this));
+		};
+
 		[[nodiscard]] int GetCircle() const { return circle_; }; // \todo Не забыть реализовать
 		[[nodiscard]] int GetMemMod() const { return mem_mod_; };
 		[[nodiscard]] int GetCastMod() const { return cast_mod_; };
+
+	 private:
+		int circle_{kMaxMemoryCircle};
+		int mem_mod_{0};
+		int cast_mod_{0};
 	};
 
 	CharClassInfo() {
@@ -125,9 +145,10 @@ class CharClassInfoBuilder : public info_container::IItemBuilder<CharClassInfo> 
 	static void ParseClass(ItemOptional &info, parser_wrapper::DataNode &node);
 	static void ParseName(ItemOptional &info, parser_wrapper::DataNode &node);
 	static void ParseSkills(ItemOptional &info, parser_wrapper::DataNode &node);
-	static void ParseSkillsLevelDecrement(ItemOptional &info, parser_wrapper::DataNode &node);
+	static int ParseSkillsLevelDecrement(ECharClass class_id, parser_wrapper::DataNode &node);
 	static void ParseSingleSkill(ItemOptional &info, parser_wrapper::DataNode &node);
-	static void ParseSkillVals(CharClassInfo::ClassSkillInfo::Ptr &info, parser_wrapper::DataNode &node);
+	static std::optional<ESkill> ParseSkillId(parser_wrapper::DataNode &node);
+	static std::tuple<int, int, long> ParseSkillVals(ESkill id, parser_wrapper::DataNode &node);
 };
 
 using ClassesInfo = info_container::InfoContainer<ECharClass, CharClassInfo, CharClassInfoBuilder>;

@@ -17,7 +17,7 @@ namespace classes {
 using DataNode = parser_wrapper::DataNode;
 using Optional = CharClassInfoBuilder::ItemOptional;
 
-long CharClassInfo::ClassSkillInfo::GetImprove(ESkill skill_id) const {
+long CharClassInfo::ClassSkillInfo::GetImprove(ESkill skill_id) {
 	try {
 		return talents_.at(skill_id)->improve_;
 	} catch (const std::out_of_range &) {
@@ -95,44 +95,55 @@ void CharClassInfoBuilder::ParseName(Optional &info, DataNode &node) {
 }
 
 void CharClassInfoBuilder::ParseSkills(Optional &info, DataNode &node) {
-	ParseSkillsLevelDecrement(info, node);
+	auto decrement = ParseSkillsLevelDecrement(info.value()->id, node);
 
 	for (auto &skill_node : node.Children("skill")) {
 		ParseSingleSkill(info, skill_node);
 	}
 }
 
-void CharClassInfoBuilder::ParseSkillsLevelDecrement(Optional &info, DataNode &node) {
+int CharClassInfoBuilder::ParseSkillsLevelDecrement(ECharClass class_id, DataNode &node) {
 	try {
-		info.value()->skills.level_decrement_ = parse::ReadAsInt(node.GetValue("level_decrement"));
+		return parse::ReadAsInt(node.GetValue("level_decrement"));
 	} catch (std::exception &e) {
 		err_log("Incorrect skill decrement (class %s), set default.",
-				NAME_BY_ITEM<ECharClass>(info.value()->id).c_str());
+				NAME_BY_ITEM<ECharClass>(class_id).c_str());
+		return 1;
 	}
 }
 
 void CharClassInfoBuilder::ParseSingleSkill(Optional &info, DataNode &node) {
-	auto skill_info = std::make_unique<ClassSkillInfo>();
-	try {
-		skill_info->id_ = parse::ReadAsConstant<ESkill>(node.GetValue("id"));
-	} catch (std::exception &e) {
-		err_log("Incorrect skill id (%s) in class %s.",
-				e.what(), NAME_BY_ITEM<ECharClass>(info.value()->id).c_str());
+	auto id = ParseSkillId(node);
+	if (!id) {
 		return;
 	}
-	ParseSkillVals(skill_info, node);
-	info.value()->skills.talents_.try_emplace(skill_info->id_, std::move(skill_info));
+
+	auto [min_level, min_remort, improve] = ParseSkillVals(id.value(), node);
+	auto skill = CharClassInfo::ClassSkillInfo(id, min_level, min_remort, improve);
+	info.value()->skills(id, min_level, min_remort, improve);
 }
 
-void CharClassInfoBuilder::ParseSkillVals(CharClassInfo::ClassSkillInfo::Ptr &info, DataNode &node) {
+std::optional<ESkill> CharClassInfoBuilder::ParseSkillId(DataNode &node) {
 	try {
-		info->min_level_ = parse::ReadAsInt(node.GetValue("level"));
-		info->min_remort_ = parse::ReadAsInt(node.GetValue("remort"));
-		info->improve_ = parse::ReadAsInt(node.GetValue("improve"));
+		return std::make_optional<ESkill>(parse::ReadAsConstant<ESkill>(node.GetValue("id")));
+	} catch (std::exception &e) {
+		err_log("Incorrect skill id (%s) had been detected.", e.what());
+		return std::nullopt;
+	}
+}
+
+std::tuple<int, int, long> CharClassInfoBuilder::ParseSkillVals(ESkill id, DataNode &node) {
+	int min_level{0}, min_remort{0};
+	long improve{kMinImprove};
+	try {
+		min_level = parse::ReadAsInt(node.GetValue("level"));
+		min_remort = parse::ReadAsInt(node.GetValue("remort"));
+		improve = parse::ReadAsInt(node.GetValue("improve"));
 	} catch (std::exception &) {
 		err_log("Incorrect skill min level, remort or improve (skill: %s). Set by default.",
-				NAME_BY_ITEM<ESkill>(info->id_).c_str());
+				NAME_BY_ITEM<ESkill>(id).c_str());
 	};
+	return {min_level, min_remort, improve};
 };
 
 void CharClassInfo::Print(std::stringstream &buffer) const {
