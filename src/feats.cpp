@@ -139,8 +139,8 @@ void InitFeatByDefault(EFeat feat_id) {
 	feat_info[feat_id].GetBaseParameter = &GET_REAL_INT;
 	feat_info[feat_id].GetEffectParameter = &GET_REAL_STR;
 	feat_info[feat_id].CalcSituationalDamageFactor =
-		([](CharData *) -> float {
-			return 1.00;
+		([](CharData *) -> int {
+			return 0;
 		});
 	feat_info[feat_id].CalcSituationalRollBonus =
 		([](CharData *, CharData *) -> int {
@@ -543,14 +543,13 @@ void InitFeatures() {
 	InitFeat(EFeat::kEvasion, "скользкий тип", EFeatType::kNormal, true, feat_app);
 //139
 	InitFeat(EFeat::kCutting, "порез", EFeatType::kTechnique, true, feat_app,
-			 90, ESkill::kPunch, ESaving::kReflex);
+			 110, ESkill::kPunch, ESaving::kReflex);
 	feat_info[EFeat::kCutting].GetBaseParameter = &GET_REAL_DEX;
 	feat_info[EFeat::kCutting].GetEffectParameter = &GET_REAL_STR;
 	feat_info[EFeat::kCutting].uses_weapon_skill = true;
 	feat_info[EFeat::kCutting].always_available = false;
-	feat_info[EFeat::kCutting].damage_bonus = 3;
-	feat_info[EFeat::kCutting].success_degree_damage_bonus = 7;
-	feat_info[EFeat::kCutting].CalcSituationalDamageFactor = ([](CharData */*ch*/) -> float { return 1.0; });
+	feat_info[EFeat::kCutting].damage_bonus = 15;
+	feat_info[EFeat::kCutting].success_degree_damage_bonus = 5;
 	feat_info[EFeat::kCutting].CalcSituationalRollBonus =
 		([](CharData */*ch*/, CharData * enemy) -> int {
 			int bonus{0};
@@ -604,12 +603,11 @@ void InitFeatures() {
 	feat_info[EFeat::kThrowWeapon].GetEffectParameter = &GET_REAL_STR;
 	feat_info[EFeat::kThrowWeapon].uses_weapon_skill = false;
 	feat_info[EFeat::kThrowWeapon].always_available = true;
-	feat_info[EFeat::kThrowWeapon].damage_bonus = 5;
+	feat_info[EFeat::kThrowWeapon].damage_bonus = 20;
 	feat_info[EFeat::kThrowWeapon].success_degree_damage_bonus = 5;
 	feat_info[EFeat::kThrowWeapon].CalcSituationalDamageFactor =
-		([](CharData *ch) -> float {
-			return static_cast<float>(0.1* IsAbleToUseFeat(ch, EFeat::kPowerThrow) +
-				0.1* IsAbleToUseFeat(ch, EFeat::kDeadlyThrow));
+		([](CharData *ch) -> int {
+			return (IsAbleToUseFeat(ch, EFeat::kPowerThrow) + IsAbleToUseFeat(ch, EFeat::kDeadlyThrow));
 		});
 	feat_info[EFeat::kThrowWeapon].CalcSituationalRollBonus =
 		([](CharData *ch, CharData * /* enemy */) -> int {

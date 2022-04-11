@@ -30,7 +30,7 @@ void ApplyDebuffs(AbilitySystem::TechniqueRoll &roll) {
 		cut.bitvector = to_underlying(EAffect::kLacerations);
 		cut.location = EApply::kNone;
 	} else {
-		cut.modifier = -std::min(25, number(1, roll.GetActorRating()) / 12) - (roll.IsCriticalSuccess() ? 10 : 0);
+		cut.modifier = -std::min(25, number(1, roll.GetActorRating()) / 10) - (roll.IsCriticalSuccess() ? 10 : 0);
 		cut.bitvector = to_underlying(EAffect::kHaemorrhage);
 		cut.location = EApply::kResistVitality;
 	}
@@ -81,7 +81,7 @@ void GoExpedientCut(CharData *ch, CharData *vict) {
 		return;
 	};
 
-	Damage damage(SkillDmg(roll.GetBaseSkill()), fight::kZeroDmg, fight::kPhysDmg, nullptr);
+	Damage damage(SkillDmg(ESkill::kCutting), fight::kZeroDmg, fight::kPhysDmg, nullptr);
 	int no_flee_duration;
 	int dmg;
 	if (roll.IsSuccess()) {
@@ -113,7 +113,7 @@ void SetExtraAttackCut(CharData *ch, CharData *victim) {
 		return;
 	}
 	if (!ch->GetEnemy()) {
-		act("Ваше оружие свистнуло, когда вы бросились на $N3, применив \"порез\".",
+		act("Вы решили порезать $N3 ровными кусочками.",
 			false, ch, nullptr, victim, kToChar);
 		SetFighting(ch, victim);
 		ch->SetExtraAttack(kExtraAttackCut, victim);

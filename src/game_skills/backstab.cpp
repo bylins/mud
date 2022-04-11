@@ -125,7 +125,7 @@ void go_backstab(CharData *ch, CharData *vict) {
 
 	TrainSkill(ch, ESkill::kBackstab, success, vict);
 	if (!success) {
-		Damage dmg(SkillDmg(ESkill::kBackstab), fight::kZeroDmg, fight::kPhysDmg, GET_EQ(ch, EEquipPos::kWield));
+		Damage dmg(SkillDmg(ESkill::kBackstab), fight::kZeroDmg, fight::kPhysDmg, ch->equipment[EEquipPos::kWield]);
 		dmg.Process(ch, vict);
 	} else {
 		hit(ch, vict, ESkill::kBackstab, fight::kMainHand);

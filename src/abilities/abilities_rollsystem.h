@@ -55,9 +55,9 @@ class AbilityRoll {
 	virtual int CalcActorRating();
 	virtual int CalcBaseDamage();
 	virtual int CalcAddDamage();
-	virtual float CalcAbilityDamageFactor();
-	virtual float CalcSuccessDegreeDamageFactor();
-	virtual float CalcSituationalDamageFactor();
+	virtual int CalcAbilityDamageBonus(int dmg);
+	virtual int CalcSuccessDegreeDamageBonus(int dmg);
+	virtual int CalcSituationalDamageBonus(int dmg);
 	virtual void TrainBaseSkill(bool success) = 0;
 
  public:

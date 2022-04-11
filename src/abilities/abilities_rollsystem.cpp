@@ -42,7 +42,7 @@ void AbilityRoll::PerformAbilityTest() {
 	}
 };
 
-// TODO Лобавить возмодность проверки вполнения "специальныз условимй" для конкретной абилки, а не только оружия
+// TODO Добавить возмодность проверки вполнения "специальныз условимй" для конкретной абилки, а не только оружия
 bool AbilityRoll::TryRevealWrongConditions() {
 	if (IsActorCantUseAbility()) {
 		return true;
@@ -159,7 +159,6 @@ void TechniqueRoll::DetermineBaseSkill() {
 }
 
 bool TechniqueRoll::CheckTechniqueKit() {
-	//const TechniqueItemKitsGroupType &kitsGroup = _ability->techniqueItemKitsGroup;
 	if (ability_->item_kits.empty()) {
 		return true;
 	};
@@ -180,12 +179,12 @@ bool TechniqueRoll::CheckTechniqueKit() {
 };
 
 bool TechniqueRoll::IsSuitableItem(const TechniqueItem &item) {
-	ObjData *char_item = GET_EQ(actor_, item.wear_position);
+	ObjData *char_item = actor_->equipment[item.wear_position];
 	if (item == char_item) {
-		if (GET_OBJ_TYPE(char_item) == EObjType::kWeapon) {
+		if (char_item->get_type() == EObjType::kWeapon) {
 			weapon_equip_position_ = item.wear_position;
 			if (ability_->uses_weapon_skill) {
-				base_skill_ = static_cast<ESkill>GET_OBJ_SKILL(char_item);
+				base_skill_ = static_cast<ESkill>(char_item->get_skill());
 			};
 		};
 		return true;
@@ -196,7 +195,7 @@ bool TechniqueRoll::IsSuitableItem(const TechniqueItem &item) {
 //	TODO: Привести подсчет дамага к одному знаменателю с несколькими возможными точками входа.
 int AbilityRoll::CalcBaseDamage() {
 	int base_parameter = ability_->GetBaseParameter(actor_);
-	int dice_num = GET_SKILL(actor_, base_skill_) / abilities::kDmgDicepoolSkillDivider;
+	int dice_num = actor_->get_skill(base_skill_) / abilities::kDmgDicepoolSkillDivider;
 	dice_num = std::min(dice_num, base_parameter);
 	return RollDices(std::max(1, dice_num), abilities::kDmgDiceSize);
 };
@@ -208,7 +207,7 @@ int AbilityRoll::CalcAddDamage() {
 }
 
 int TechniqueRoll::CalcAddDamage() {
-	ObjData *weapon = GET_EQ(actor_, weapon_equip_position_);
+	ObjData *weapon = actor_->equipment[weapon_equip_position_];
 	if (weapon) {
 		int dice_num = ability_->GetEffectParameter(actor_) + GET_OBJ_VAL(weapon, 1);
 		int dice_size = GET_OBJ_VAL(weapon, 2);
@@ -218,25 +217,22 @@ int TechniqueRoll::CalcAddDamage() {
 	return AgainstRivalRoll::CalcAddDamage();
 };
 
-float AbilityRoll::CalcAbilityDamageFactor() {
-	return static_cast<float>(ability_->damage_bonus/100.0);
+int AbilityRoll::CalcAbilityDamageBonus(int dmg) {
+	return (dmg*ability_->damage_bonus/100);
 };
 
-float AbilityRoll::CalcSuccessDegreeDamageFactor() {
-	return static_cast<float>(success_degree_*ability_->success_degree_damage_bonus/ 100.0);
+int AbilityRoll::CalcSuccessDegreeDamageBonus(int dmg) {
+	return (dmg*success_degree_*ability_->success_degree_damage_bonus/100);
 };
 
-float AbilityRoll::CalcSituationalDamageFactor() {
-	return ability_->CalcSituationalDamageFactor(actor_);
+int AbilityRoll::CalcSituationalDamageBonus(int dmg) {
+	return (dmg*ability_->CalcSituationalDamageFactor(actor_)/100);
 };
 
 int TechniqueRoll::CalcDamage() {
-	int damage = CalcBaseDamage() + CalcAddDamage();
-	float ability_factor = CalcAbilityDamageFactor();
-	float degree_factor = CalcSuccessDegreeDamageFactor();
-	float situational_factor = CalcSituationalDamageFactor();
-	damage += damage*ability_factor + damage*degree_factor + damage*situational_factor;
-	return damage;
+	int dmg = CalcBaseDamage() + CalcAddDamage();
+	dmg += CalcAbilityDamageBonus(dmg) + CalcSuccessDegreeDamageBonus(dmg) + CalcSituationalDamageBonus(dmg);
+	return dmg;
 };
 
 }; // namespace AbilitySystem
