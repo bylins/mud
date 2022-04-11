@@ -647,7 +647,7 @@ void do_wskillturn(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) 
 	}
 
 	if (is_skill) {
-		if (MUD::Classes()[ch->get_class()].HasSkill(skill_id)) {
+		if (MUD::Classes()[ch->get_class()].skills.HasItem(skill_id)) {
 			trg_skillturn(ch, skill_id, skilldiff, last_trig_vnum);
 		} else {
 			sprintf(buf, "wskillturn: skill and character class mismatch");

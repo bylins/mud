@@ -2309,7 +2309,7 @@ void do_entergame(DescriptorData *d) {
 
 	if (!IS_IMMORTAL(d->character)) {
 		for (const auto &skill : MUD::Skills()) {
-			if (MUD::Classes()[(d->character)->get_class()].HasntSkill(skill.GetId())) {
+			if (MUD::Classes()[(d->character)->get_class()].skills.HasNoItem(skill.GetId())) {
 				d->character->set_skill(skill.GetId(), 0);
 			}
 		}

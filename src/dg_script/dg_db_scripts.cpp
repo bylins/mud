@@ -319,7 +319,7 @@ void trg_skillturn(CharData *ch, const ESkill skillnum, int skilldiff, int vnum)
 		ch->set_skill(skillnum, 0);
 		SendMsgToChar(ch, "Вас лишили умения '%s'.\r\n", MUD::Skills()[skillnum].GetName());
 		log("Remove %s from %s (trigskillturn)", MUD::Skills()[skillnum].GetName(), GET_NAME(ch));
-	} else if (skilldiff && MUD::Classes()[ch_class].HasSkill(skillnum)) {
+	} else if (skilldiff && MUD::Classes()[ch_class].skills.HasItem(skillnum)) {
 		ch->set_skill(skillnum, 5);
 		SendMsgToChar(ch, "Вы изучили умение '%s'.\r\n", MUD::Skills()[skillnum].GetName());
 		log("Add %s to %s (trigskillturn) trigvnum %d", MUD::Skills()[skillnum].GetName(), GET_NAME(ch), vnum);

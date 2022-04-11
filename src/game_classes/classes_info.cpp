@@ -17,6 +17,14 @@ namespace classes {
 using DataNode = parser_wrapper::DataNode;
 using Optional = CharClassInfoBuilder::ItemOptional;
 
+long CharClassInfo::ClassSkillInfo::GetImprove(ESkill skill_id) const {
+	try {
+		return talents_.at(skill_id)->improve_;
+	} catch (const std::out_of_range &) {
+		return kMinImprove;
+	}
+}
+
 void ClassesLoader::Load(DataNode data) {
 	MUD::Classes().Init(data.Children());
 }
@@ -24,34 +32,6 @@ void ClassesLoader::Load(DataNode data) {
 void ClassesLoader::Reload(DataNode data) {
 	MUD::Classes().Reload(data.Children());
 }
-
-bool CharClassInfo::HasSkill(ESkill skill_id) const {
-	return skills->contains(skill_id);
-};
-
-int CharClassInfo::GetMinRemort(const ESkill skill_id) const {
-	try {
-		return skills->at(skill_id)->min_remort;
-	} catch (const std::out_of_range &) {
-		return kMaxRemort + 1;
-	}
-};
-
-int CharClassInfo::GetMinLevel(const ESkill skill_id) const {
-	try {
-		return skills->at(skill_id)->min_level;
-	} catch (const std::out_of_range &) {
-		return kLvlImplementator;
-	}
-};
-
-long CharClassInfo::GetImprove(const ESkill skill_id) const {
-	try {
-		return skills->at(skill_id)->improve;
-	} catch (const std::out_of_range &) {
-		return kMinImprove;
-	}
-};
 
 Optional CharClassInfoBuilder::Build(DataNode &node) {
 	auto class_info = MUD::Classes().MakeItemOptional();
@@ -124,7 +104,7 @@ void CharClassInfoBuilder::ParseSkills(Optional &info, DataNode &node) {
 
 void CharClassInfoBuilder::ParseSkillsLevelDecrement(Optional &info, DataNode &node) {
 	try {
-		info.value()->skills_level_decrement = parse::ReadAsInt(node.GetValue("level_decrement"));
+		info.value()->skills.level_decrement_ = parse::ReadAsInt(node.GetValue("level_decrement"));
 	} catch (std::exception &e) {
 		err_log("Incorrect skill decrement (class %s), set default.",
 				NAME_BY_ITEM<ECharClass>(info.value()->id).c_str());
@@ -134,24 +114,24 @@ void CharClassInfoBuilder::ParseSkillsLevelDecrement(Optional &info, DataNode &n
 void CharClassInfoBuilder::ParseSingleSkill(Optional &info, DataNode &node) {
 	auto skill_info = std::make_unique<ClassSkillInfo>();
 	try {
-		skill_info->id = parse::ReadAsConstant<ESkill>(node.GetValue("id"));
+		skill_info->id_ = parse::ReadAsConstant<ESkill>(node.GetValue("id"));
 	} catch (std::exception &e) {
 		err_log("Incorrect skill id (%s) in class %s.",
 				e.what(), NAME_BY_ITEM<ECharClass>(info.value()->id).c_str());
 		return;
 	}
 	ParseSkillVals(skill_info, node);
-	info.value()->skills->try_emplace(skill_info->id, std::move(skill_info));
+	info.value()->skills.talents_.try_emplace(skill_info->id_, std::move(skill_info));
 }
 
-void CharClassInfoBuilder::ParseSkillVals(ClassSkillInfo::Ptr &info, DataNode &node) {
+void CharClassInfoBuilder::ParseSkillVals(CharClassInfo::ClassSkillInfo::Ptr &info, DataNode &node) {
 	try {
-		info->min_level = parse::ReadAsInt(node.GetValue("level"));
-		info->min_remort = parse::ReadAsInt(node.GetValue("remort"));
-		info->improve = parse::ReadAsInt(node.GetValue("improve"));
+		info->min_level_ = parse::ReadAsInt(node.GetValue("level"));
+		info->min_remort_ = parse::ReadAsInt(node.GetValue("remort"));
+		info->improve_ = parse::ReadAsInt(node.GetValue("improve"));
 	} catch (std::exception &) {
 		err_log("Incorrect skill min level, remort or improve (skill: %s). Set by default.",
-				NAME_BY_ITEM<ESkill>(info->id).c_str());
+				NAME_BY_ITEM<ESkill>(info->id_).c_str());
 	};
 };
 
@@ -166,13 +146,14 @@ void CharClassInfo::Print(std::stringstream &buffer) const {
 		   << "/" << names->GetSingular(ECase::kAcc)
 		   << "/" << names->GetSingular(ECase::kIns)
 		   << "/" << names->GetSingular(ECase::kPre) << KNRM << std::endl
-			<< "    Available skills (level decrement " << skills_level_decrement << "):" << std::endl;
-	for (const auto &skill : *skills) {
+			<< "    Available skills (level decrement " << ClassSkillInfo::GetLevelDecrement() << "):" << std::endl;
+	// \todo Перенести в класс скиллинфо
+/*	for (const auto &skill : skills) {
 		buffer << KNRM << "        Skill: " << KCYN << MUD::Skills()[skill.first].name
 		<< KNRM << " level: " << KGRN << skill.second->min_level << KNRM
 		<< KNRM << " remort: " << KGRN << skill.second->min_remort << KNRM
 		<< KNRM << " improve: " << KGRN << skill.second->improve << KNRM << std::endl;
-	}
+	}*/
 	buffer << std::endl;
 }
 

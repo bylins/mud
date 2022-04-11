@@ -1,5 +1,5 @@
 /**
- * \file Contains implementation of crafts model for Bylins MUD.
+ * \file HasItem implementation of crafts model for Bylins MUD.
  * \date 2015/12/28
  * \author Anton Gorev <kvirund@gmail.com>
  */

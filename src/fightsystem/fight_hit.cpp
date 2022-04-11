@@ -3510,7 +3510,7 @@ int HitData::calc_damage(CharData *ch, bool need_dice) {
 }
 
 ESpell breathFlag2Spellnum(CharData *ch) {
-	ESpell t = kSpellNoSpell;
+	ESpell t = kIncorrect;
 	// наркоманский код с объездом в двух циклах битвекторов флагов заменил на читаемый код
 	// извините..
 	if (MOB_FLAGGED(ch, (EMobFlag::kFireBreath)))
@@ -3560,7 +3560,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 	if (type == ESkill::kUndefined) {
 		ESpell spellnum;
 		spellnum = breathFlag2Spellnum(ch);
-		if (spellnum != ESpell::kSpellNoSpell) // защита от падения
+		if (spellnum != ESpell::kIncorrect) // защита от падения
 		{
 			if (!ch->GetEnemy())
 				SetFighting(ch, victim);

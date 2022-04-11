@@ -1568,7 +1568,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 					auto skill_id = static_cast<ESkill>(GET_OBJ_VAL(obj, 1));
 					if (MUD::Skills().IsValid(skill_id)) {
 						drndice = GET_OBJ_VAL(obj, 1);
-						if (MUD::Classes()[ch->get_class()].HasSkill(skill_id)) {
+						if (MUD::Classes()[ch->get_class()].skills.HasItem(skill_id)) {
 							drsdice = GetSkillMinLevel(ch, skill_id, GET_OBJ_VAL(obj, 2));
 						} else {
 							drsdice = kLvlImplementator;
@@ -2946,7 +2946,7 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_value_by_name.clear();
 	ESpell_name_by_value.clear();
 
-	ESpell_name_by_value[ESpell::kSpellNoSpell] = "kSpellNoSpell";
+	ESpell_name_by_value[ESpell::kIncorrect] = "kSpellNoSpell";
 	ESpell_name_by_value[ESpell::kSpellArmor] = "kSpellArmor";
 	ESpell_name_by_value[ESpell::kSpellTeleport] = "kSpellTeleport";
 	ESpell_name_by_value[ESpell::kSpellBless] = "kSpellBless";

@@ -127,7 +127,7 @@ void do_learn(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		feat_id = static_cast<EFeat>(GET_OBJ_VAL(obj, 1));
 	}
 
-	int spellnum = kSpellNoSpell;
+	int spellnum = kIncorrect;
 	if ((GET_OBJ_VAL(obj, 0) == EBook::kSkill
 		&& IsAbleToGetSkill(ch, skill_id, GET_OBJ_VAL(obj, 2)))
 		|| GET_OBJ_VAL(obj, 0) == EBook::kSkillUpgrade) {
@@ -184,7 +184,7 @@ void do_learn(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		}
 	}
 
-	if (!spellnum && MUD::Classes()[ch->get_class()].HasntSkill(skill_id)) {
+	if (!spellnum && MUD::Classes()[ch->get_class()].skills.HasNoItem(skill_id)) {
 		const char *where = number(0, 1) ? "вон та" : (number(0, 1) ? "вот эта" : "пятая справа");
 		const char *what = number(0, 1) ? "жука" : (number(0, 1) ? "бабочку" : "русалку");
 		const char

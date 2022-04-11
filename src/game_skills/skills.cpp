@@ -1793,13 +1793,13 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 	int INT_PLAYER = (ch->get_trained_skill(skill) < 51
 		&& (AFF_FLAGGED(ch, EAffect::kNoobRegen))) ? 50 : GET_REAL_INT(ch);
 
-	int div = int_app[INT_PLAYER].improve;
+	long div = int_app[INT_PLAYER].improve;
 	if ((ch)->get_class() >= ECharClass::kFirst && (ch)->get_class() <= ECharClass::kLast) {
-		div += MUD::Classes()[(ch)->get_class()].GetImprove(skill) / 100;
+		div += MUD::Classes()[(ch)->get_class()].skills.GetImprove(skill)/100;
 	}
 
 	int prob = success ? 20000 : 15000;
-	prob /= std::max(1, div);
+	prob /= std::max(1L, div);
 	prob -= 5 * wis_bonus(GET_REAL_WIS(ch), WIS_MAX_SKILLS);
 	prob += number(1, trained_skill * 5);
 
@@ -1865,9 +1865,9 @@ int CalculateSkillAwakeModifier(CharData *killer, CharData *victim) {
 //Определим мин уровень для изучения скилла из книги
 //req_lvl - требуемый уровень из книги
 int GetSkillMinLevel(CharData *ch, ESkill skill, int req_lvl) {
-	int min_lvl = MAX(req_lvl, MUD::Classes()[ch->get_class()].GetMinLevel(skill))
-		- std::max(0, GET_REAL_REMORT(ch) / MUD::Classes()[ch->get_class()].GetSkillLevelDecrement());
-	return MAX(1, min_lvl);
+	int min_lvl = std::max(req_lvl, MUD::Classes()[ch->get_class()].skills.GetMinLevel(skill))
+		- std::max(0, GET_REAL_REMORT(ch) / MUD::Classes()[ch->get_class()].skills.GetLevelDecrement());
+	return std::max(1, min_lvl);
 };
 
 /*
@@ -1875,14 +1875,14 @@ int GetSkillMinLevel(CharData *ch, ESkill skill, int req_lvl) {
  * \TODO нужно перенести в класс "инфа о классе персонажа" (как и требования по классу, собственно)
  */
 int GetSkillMinLevel(CharData *ch, ESkill skill) {
-	int min_lvl = MUD::Classes()[ch->get_class()].GetMinLevel(skill)
-		- std::max(0, GET_REAL_REMORT(ch) / MUD::Classes()[ch->get_class()].GetSkillLevelDecrement());
+	int min_lvl = MUD::Classes()[ch->get_class()].skills.GetMinLevel(skill)
+		- std::max(0, GET_REAL_REMORT(ch) / MUD::Classes()[ch->get_class()].skills.GetLevelDecrement());
 	return MAX(1, min_lvl);
 };
 
 bool IsAbleToGetSkill(CharData *ch, ESkill skill, int req_lvl) {
-	if (GET_REAL_REMORT(ch) < MUD::Classes()[ch->get_class()].GetMinRemort(skill)
-		|| MUD::Classes()[ch->get_class()].HasntSkill(skill)) {
+	if (GET_REAL_REMORT(ch) < MUD::Classes()[ch->get_class()].skills.GetMinRemort(skill)
+		|| MUD::Classes()[ch->get_class()].skills.HasNoItem(skill)) {
 		return false;
 	}
 	if (GetRealLevel(ch) < GetSkillMinLevel(ch, skill, req_lvl)) {
@@ -1892,8 +1892,8 @@ bool IsAbleToGetSkill(CharData *ch, ESkill skill, int req_lvl) {
 }
 
 bool IsAbleToGetSkill(CharData *ch, ESkill skill) {
-	if (GET_REAL_REMORT(ch) < MUD::Classes()[ch->get_class()].GetMinRemort(skill)
-		|| MUD::Classes()[ch->get_class()].HasntSkill(skill)) {
+	if (GET_REAL_REMORT(ch) < MUD::Classes()[ch->get_class()].skills.GetMinRemort(skill)
+		|| MUD::Classes()[ch->get_class()].skills.HasNoItem(skill)) {
 		return false;
 	}
 	if (GetRealLevel(ch) < GetSkillMinLevel(ch, skill)) {

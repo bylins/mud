@@ -28,39 +28,61 @@ class ClassesLoader : virtual public cfg_manager::ICfgLoader {
 	void Reload(parser_wrapper::DataNode data) final;
 };
 
-template<class T, class E>
-struct ClassTalentInfo {
-	using Ptr = std::unique_ptr<T>;
+struct CharClassInfo : public info_container::IItem<ECharClass> {
 
-	E id{E::kIncorrect};
-	int min_level{kLvlImplementator};
-	int min_remort{kMaxRemort + 1};
-};
+	template<class E, class T>
+	class ClassTalentInfo {
+	public:
+		using Ptr = std::unique_ptr<T>;
+		[[nodiscard]] bool HasItem(E item_id) const { return talents_.contains(item_id); };
+		[[nodiscard]] bool HasNoItem(E item_id) const { return !HasItem(item_id); };
 
-struct ClassSkillInfo {
-	using Ptr = std::unique_ptr<ClassSkillInfo>;
+		[[nodiscard]] int GetMinRemort(E item_id) const {
+			try {
+				return talents_.at(item_id)->min_remort_;
+			} catch (const std::out_of_range &) {
+				return kMaxRemort + 1;
+			}
+		};
 
-	ESkill id{ESkill::kIncorrect};
-	int min_level{kLvlImplementator};
-	int min_remort{kMaxRemort + 1};
-	long improve{kMinImprove};
-};
+		[[nodiscard]] int GetMinLevel(E item_id) const {
+			try {
+				return talents_.at(item_id)->min_level_;
+			} catch (const std::out_of_range &) {
+				return kLvlImplementator;
+			}
+		};
 
-struct ClassSpellInfo {
-	using Ptr = std::unique_ptr<ClassSpellInfo>;
+	 protected:
+		static std::unordered_map<E, Ptr> talents_;
 
-	ESpell id{ESpell::kSpellNoSpell};
-	int min_level{kLvlImplementator};
-	int min_remort{kMaxRemort + 1};
-	int circle{kMaxMemoryCircle};
-	int mem_mod{0};
-	int cast_mod{0};
-};
+		E id_{E::kIncorrect};
+		int min_level_{kLvlImplementator};
+		int min_remort_{kMaxRemort + 1};
+	};
 
-struct CharClassInfo : public info_container::IItem<ECharClass>{
+	class ClassSkillInfo : public ClassTalentInfo<ESkill, ClassSkillInfo> {
+		long improve_{kMinImprove};
+		static int level_decrement_;
+
+	 public:
+		[[nodiscard]] long GetImprove(ESkill skill_id) const;
+		[[nodiscard]] static int GetLevelDecrement() { return level_decrement_; };
+	};
+
+	class ClassSpellInfo : public ClassTalentInfo<ESkill, ClassSpellInfo> {
+		int circle_{kMaxMemoryCircle};
+		int mem_mod_{0};
+		int cast_mod_{0};
+
+	 public:
+		[[nodiscard]] int GetCircle() const { return circle_; }; // \todo Не забыть реализовать
+		[[nodiscard]] int GetMemMod() const { return mem_mod_; };
+		[[nodiscard]] int GetCastMod() const { return cast_mod_; };
+	};
+
 	CharClassInfo() {
 		names = std::make_unique<base_structs::ItemName>();
-		skills = std::make_unique<Skills>();
 	}
 
 	/* Базовые поля */
@@ -87,33 +109,11 @@ struct CharClassInfo : public info_container::IItem<ECharClass>{
 	 */
 	[[nodiscard]] const char *GetPluralCName(ECase name_case = ECase::kNom) const;
 
-	/* Умения класса */
-	using Skills = std::unordered_map<ESkill, ClassSkillInfo::Ptr>;
-	using SkillsPtr = std::unique_ptr<Skills>;
-	SkillsPtr skills;
-	int skills_level_decrement{1};
-	[[nodiscard]] bool HasSkill(ESkill id) const;
-	[[nodiscard]] bool HasntSkill(const ESkill skill_id) const { return !HasSkill(skill_id); };
-	[[nodiscard]] int GetMinRemort(ESkill id) const;
-	[[nodiscard]] int GetMinLevel(ESkill id) const;
-	[[nodiscard]] int GetSkillLevelDecrement() const { return skills_level_decrement; };
-	[[nodiscard]] long GetImprove(ESkill id) const;
-
-	/* заклинания класса */
-	using Spells = std::unordered_map<ESkill, ClassSkillInfo::Ptr>;
-	using SpellsPtr = std::unique_ptr<Skills>;
-	SpellsPtr spells;
-	[[nodiscard]] bool HasSpell(ESpell id) const;
-	[[nodiscard]] bool HasntSpell(const ESpell spell_id) const { return !HasSpell(spell_id); };
-	[[nodiscard]] int GetMinRemort(ESpell id) const;
-	[[nodiscard]] int GetMinLevel(ESpell id) const;
-	[[nodiscard]] int GetCircle(ESpell id) const;
-	[[nodiscard]] int GetMemMod(ESpell id) const;
-	[[nodiscard]] int GetCastMod(ESpell id) const;
+	ClassSkillInfo skills;
+	ClassSpellInfo spells;
 
 	/* Прочее */
 	void Print(std::stringstream &buffer) const;
-
 };
 
 class CharClassInfoBuilder : public info_container::IItemBuilder<CharClassInfo> {
@@ -127,7 +127,7 @@ class CharClassInfoBuilder : public info_container::IItemBuilder<CharClassInfo> 
 	static void ParseSkills(ItemOptional &info, parser_wrapper::DataNode &node);
 	static void ParseSkillsLevelDecrement(ItemOptional &info, parser_wrapper::DataNode &node);
 	static void ParseSingleSkill(ItemOptional &info, parser_wrapper::DataNode &node);
-	static void ParseSkillVals(ClassSkillInfo::Ptr &info, parser_wrapper::DataNode &node);
+	static void ParseSkillVals(CharClassInfo::ClassSkillInfo::Ptr &info, parser_wrapper::DataNode &node);
 };
 
 using ClassesInfo = info_container::InfoContainer<ECharClass, CharClassInfo, CharClassInfoBuilder>;

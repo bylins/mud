@@ -3261,7 +3261,7 @@ int mag_summons(int level, CharData *ch, ObjData *obj, int spellnum, int savetyp
 		}
 		if (eff_wis >= 75) {
 			Affect<EApply> af;
-			af.type = kSpellNoSpell;
+			af.type = kIncorrect;
 			af.duration = duration * (1 + GET_REAL_REMORT(ch));
 			af.modifier = 0;
 			af.location = EApply::kNone;

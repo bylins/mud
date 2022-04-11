@@ -532,7 +532,7 @@ int CharData::get_skill(const ESkill skill_num) const {
 // всем остальным -- не более 5% с шмотки
 int CharData::get_equipped_skill(const ESkill skill_num) const {
 	int skill = 0;
-	bool is_native = this->IsNpc() || MUD::Classes()[chclass_].HasSkill(skill_num);
+	bool is_native = this->IsNpc() || MUD::Classes()[chclass_].skills.HasItem(skill_num);
 	for (auto i : equipment) {
 		if (i) {
 			if (is_native) {
@@ -569,7 +569,7 @@ int CharData::get_inborn_skill(const ESkill skill_num) {
 
 int CharData::get_trained_skill(const ESkill skill_num) const {
 	if (ROOM_FLAGGED(this->in_room, ERoomFlag::kDominationArena)) {
-		if (MUD::Classes()[chclass_].HasSkill(skill_num)) {
+		if (MUD::Classes()[chclass_].skills.HasItem(skill_num)) {
 			return 100;
 		}
 	}

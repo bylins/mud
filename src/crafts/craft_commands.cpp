@@ -11,7 +11,7 @@ using xml::loading::CHelper;
 
 extern CCraftModel model;    ///< to avoid moving #model into headers
 
-/// Contains handlers of crafts subcommands
+/// HasItem handlers of crafts subcommands
 namespace cmd {
 const char *CRAFT_COMMAND = "crafts";
 
