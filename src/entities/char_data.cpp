@@ -524,6 +524,9 @@ int CharData::get_skill(const ESkill skill_num) const {
 	if (AFF_FLAGGED(this, EAffect::kSkillReduce)) {
 		skill -= skill * GET_POISON(this) / 100;
 	}
+	if (ROOM_FLAGGED(this->in_room, ERoomFlag::kDominationArena)) {
+		return std::clamp(skill, 0, CalcSkillRemortCap(this));
+	}
 	return std::clamp(skill, 0, MUD::Skills()[skill_num].cap);
 }
 
