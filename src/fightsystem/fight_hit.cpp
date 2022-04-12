@@ -3636,7 +3636,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 			&& (!(hit_params.skill_num == ESkill::kBackstab && IsAbleToUseFeat(ch, EFeat::kThieveStrike)))) {
 			ubyte blink;
 			if (victim->IsNpc()) {
-				blink = 50;
+				blink = 25;
 			} else {
 				blink = 10;
 			}
