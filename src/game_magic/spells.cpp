@@ -77,16 +77,17 @@ ESkill GetMagicSkillId(int spellnum) {
 //Определим мин уровень для изучения спелла из книги
 //req_lvl - требуемый уровень из книги
 int CalcMinSpellLevel(CharData *ch, int spellnum, int req_lvl) {
-	int min_lvl = MAX(req_lvl, BASE_CAST_LEV(spell_info[spellnum], ch))
-		- (MAX(GET_REAL_REMORT(ch) - MIN_CAST_REM(spell_info[spellnum], ch), 0) / 3);
+	int min_lvl = std::max(req_lvl, BASE_CAST_LEV(spell_info[spellnum], ch))
+		- (std::max(GET_REAL_REMORT(ch) - MIN_CAST_REM(spell_info[spellnum], ch), 0) / 3);
 
-	return MAX(1, min_lvl);
+	return std::max(1, min_lvl);
 }
 
 bool IsAbleToGetSpell(CharData *ch, int spellnum, int req_lvl) {
-	if (CalcMinSpellLevel(ch, spellnum, req_lvl) > GetRealLevel(ch)
-		|| MIN_CAST_REM(spell_info[spellnum], ch) > GET_REAL_REMORT(ch))
+	if (CalcMinSpellLevel(ch, spellnum, req_lvl) > GetRealLevel(ch) ||
+		MIN_CAST_REM(spell_info[spellnum], ch) > GET_REAL_REMORT(ch)) {
 		return false;
+	}
 
 	return true;
 };
@@ -94,8 +95,9 @@ bool IsAbleToGetSpell(CharData *ch, int spellnum, int req_lvl) {
 // Функция определяет возможность изучения спелла из книги или в гильдии
 bool IsAbleToGetSpell(CharData *ch, int spellnum) {
 	if (MIN_CAST_LEV(spell_info[spellnum], ch) > GetRealLevel(ch)
-		|| MIN_CAST_REM(spell_info[spellnum], ch) > GET_REAL_REMORT(ch))
+		|| MIN_CAST_REM(spell_info[spellnum], ch) > GET_REAL_REMORT(ch)) {
 		return false;
+	}
 
 	return true;
 };

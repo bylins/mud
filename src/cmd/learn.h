@@ -3,7 +3,7 @@
 
 class CharData;
 
-void do_learn(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/);
+void DoLearn(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/);
 
 #endif //BYLINS_RETREAT_H
 

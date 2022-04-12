@@ -569,7 +569,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"игнорировать", EPosition::kDead, do_ignore, 0, 0, 0},
 		{"идеи", EPosition::kDead, Boards::DoBoard, 1, Boards::IDEA_BOARD, 0},
 		{"изгнать нежить", EPosition::kRest, do_turn_undead, 0, 0, -1},
-		{"изучить", EPosition::kSit, do_learn, 0, 0, 0},
+		{"изучить", EPosition::kSit, DoLearn, 0, 0, 0},
 		{"информация", EPosition::kSleep, do_gen_ps, 0, SCMD_INFO, 0},
 		{"испить", EPosition::kRest, do_employ, 0, SCMD_QUAFF, 500},
 		{"использовать", EPosition::kRest, do_style, 0, 0, 0},
