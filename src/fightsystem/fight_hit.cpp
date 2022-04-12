@@ -3654,6 +3654,9 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 				sprintf(buf, "%sНа мгновение вы исчезли из поля зрения противника.%s\r\n",
 						CCINRM(victim, C_NRM), CCNRM(victim, C_NRM));
 				SendMsgToChar(buf, victim);
+				act("$n исчез$q из вашего поля зрения.", true, victim, nullptr, ch, kToVict);
+				act("$n исчез$q из поля зрения $N3.", true, victim, nullptr, ch, kToNotVict);
+
 				hit_params.dam = 0;
 				hit_params.extdamage(ch, victim);
 				return;
