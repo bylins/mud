@@ -19,8 +19,6 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim_all.hpp>
 
-//using namespace abilities;
-
 extern const char *unused_spellname;
 
 struct FeatureInfo feat_info[EFeat::kLastFeat + 1];
@@ -531,7 +529,8 @@ void InitFeatures() {
 	feat_info[EFeat::kScirmisher].GetBaseParameter = &GET_REAL_DEX;
 	feat_info[EFeat::kScirmisher].CalcSituationalRollBonus = &CalcRollBonusOfGroupFormation;
 //134
-	InitFeat(EFeat::kTactician, "десяцкий", EFeatType::kActivated, true, feat_app, 90, ESkill::kLeadership, ESaving::kReflex);
+	InitFeat(EFeat::kTactician, "десяцкий", EFeatType::kActivated, true, feat_app,
+			 90, ESkill::kLeadership, ESaving::kReflex);
 	feat_info[EFeat::kTactician].GetBaseParameter = &GET_REAL_CHA;
 	feat_info[EFeat::kTactician].CalcSituationalRollBonus = &CalcRollBonusOfGroupFormation;
 //135
@@ -763,8 +762,6 @@ bool IsAbleToUseFeat(const CharData *ch, EFeat feat) {
 			break;
 		case EFeat::kAnimalMaster: return (ch->get_skill(ESkill::kMindMagic) > 79);
 			break;
-			// Костыльный блок работы скирмишера где не нужно
-			// Svent TODO Для абилок не забыть реализовать провкрку состояния персонажа
 		case EFeat::kScirmisher:
 			return !(AFF_FLAGGED(ch, EAffect::kStopFight)
 				|| AFF_FLAGGED(ch, EAffect::kMagicStopFight)
@@ -886,8 +883,7 @@ bool IsAbleToGetFeat(CharData *ch, EFeat feat) {
 			return (HAVE_FEAT(ch, EFeat::kShortsMaster) ||
 				HAVE_FEAT(ch, EFeat::kPicksMaster) ||
 				HAVE_FEAT(ch, EFeat::kLongsMaster) ||
-				HAVE_FEAT(ch, EFeat::kSpadesMaster) ||
-				HAVE_FEAT(ch, EFeat::kTwohandsMaster));
+				HAVE_FEAT(ch, EFeat::kSpadesMaster));
 			break;
 		case EFeat::kScirmisher:
 			return (ch->get_skill(ESkill::kRescue));
