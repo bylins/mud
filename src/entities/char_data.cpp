@@ -3,14 +3,14 @@
 // Part of Bylins http://www.mud.ru
 
 #include "world_characters.h"
-#include "fightsystem/pk.h"
+#include "game_fight/pk.h"
 #include "handler.h"
 #include "administration/privilege.h"
 #include "char_player.h"
 #include "player_races.h"
 #include "game_mechanics/celebrates.h"
 #include "cache.h"
-#include "fightsystem/fight.h"
+#include "game_fight/fight.h"
 #include "house.h"
 #include "msdp/msdp_constants.h"
 #include "backtrace.h"

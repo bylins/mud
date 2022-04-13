@@ -5,7 +5,7 @@
 #ifndef ROOM_HPP_INCLUDED
 #define ROOM_HPP_INCLUDED
 
-#include "affects/affect_data.h"
+#include "game_affects/affect_data.h"
 #include "constants.h"
 #include "dg_script/dg_scripts.h"
 #include "entities/entities_constants.h"

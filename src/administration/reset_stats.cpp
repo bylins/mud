@@ -13,7 +13,7 @@ extern bool ValidateStats(DescriptorData *d);
 extern int check_dupes_email(DescriptorData *d);
 extern void do_entergame(DescriptorData *d);
 
-namespace ResetStats {
+namespace stats_reset {
 
 const char *CONFIG_FILE = LIB_MISC"reset_stats.xml";
 

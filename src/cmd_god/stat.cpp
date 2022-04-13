@@ -6,8 +6,9 @@
 #include "entities/player_races.h"
 #include "utils/utils_char_obj.inl"
 #include "description.h"
-#include "fightsystem/fight_hit.h"
-#include "fightsystem/pk.h"
+#include "game_fight/fight_hit.h"
+#include "game_fight/pk.h"
+#include "handler.h"
 #include "olc/olc.h"
 #include "game_mechanics/glory.h"
 #include "game_mechanics/glory_const.h"
@@ -16,9 +17,8 @@
 #include "liquid.h"
 #include "obj_prototypes.h"
 #include "color.h"
-#include "mob_stat.h"
+#include "statistics/mob_stat.h"
 #include "modify.h"
-//#include "entities/zone.h"
 #include "game_magic/spells_info.h"
 #include "structs/global_objects.h"
 #include "depot.h"
@@ -858,7 +858,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 		case EObjType::kFountain:sprinttype(GET_OBJ_VAL(j, 2), drinks, smallBuf);
 			{
 				std::string spells = drinkcon::print_spells(ch, j);
-				boost::trim(spells);
+				utils::Trim(spells);
 				sprintf(buf, "Обьем: %d, Содержит: %d, Таймер (если 1 отравлено): %d, Жидкость: %s\r\n%s",
 						GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 3), smallBuf, spells.c_str());
 			}

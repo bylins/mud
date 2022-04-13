@@ -21,7 +21,7 @@
 #include "db.h"
 #include "olc.h"
 #include "dg_script/dg_olc.h"
-#include "crafts/im.h"
+#include "game_crafts/im.h"
 #include "features.h"
 #include "depot.h"
 #include "entities/char_data.h"

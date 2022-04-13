@@ -1,7 +1,7 @@
 #ifndef MORPH_HPP_INCLUDED
 #define MORPH_HPP_INCLUDED
 
-#include "affects/affect_contants.h"
+#include "game_affects/affect_contants.h"
 #include "comm.h"
 #include "game_skills/skills.h"
 

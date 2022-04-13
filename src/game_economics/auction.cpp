@@ -14,7 +14,7 @@
 #include "color.h"
 #include "handler.h"
 #include "game_mechanics/named_stuff.h"
-#include "fightsystem/pk.h"
+#include "game_fight/pk.h"
 
 const int kMaxAuctionLot = 3;
 const int kMaxAuctionTactBuy = 5;

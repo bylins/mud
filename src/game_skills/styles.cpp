@@ -5,8 +5,8 @@
 #include "styles.h"
 #include "color.h"
 #include "handler.h"
-#include "fightsystem/pk.h"
-#include "fightsystem/common.h"
+#include "game_fight/pk.h"
+#include "game_fight/common.h"
 #include "game_skills/parry.h"
 
 // ************* TOUCH PROCEDURES

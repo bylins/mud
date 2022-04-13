@@ -8,7 +8,7 @@
 #include "conf.h"
 #include "sysdep.h"
 #include "structs/structs.h"
-#include "affects/affect_data.h"
+#include "game_affects/affect_data.h"
 
 void poison_victim(CharData *ch, CharData *vict, int modifier);
 void try_weap_poison(CharData *ch, CharData *vict, int spell_num);

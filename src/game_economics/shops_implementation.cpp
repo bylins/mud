@@ -12,7 +12,7 @@
 #include "handler.h"
 #include "modify.h"
 #include "game_mechanics/named_stuff.h"
-#include "fightsystem/pk.h"
+#include "game_fight/pk.h"
 #include "entities/zone.h"
 
 #include <boost/lexical_cast.hpp>

@@ -7,11 +7,12 @@
 #include "utils/file_crc.h"
 #include "communication/ignores_loader.h"
 #include "olc/olc.h"
-#include "fightsystem/pk.h"
-#include "diskio.h"
+#include "game_fight/pk.h"
+#include "utils/diskio.h"
 #include "genchar.h"
+#include "handler.h"
 #include "structs/global_objects.h"
-#include "affects/affect_handler.h"
+#include "game_affects/affect_handler.h"
 #include "player_races.h"
 #include "game_economics/ext_money.h"
 #include "game_magic/magic_temp_spells.h"
@@ -881,16 +882,16 @@ void Player::save_char() {
 	fprintf(saved, "TrcB: %d\n", ext_money_[ExtMoney::kTorcBronze]);
 	fprintf(saved, "TrcL: %d %d\n", today_torc_.first, today_torc_.second);
 
-	if (get_reset_stats_cnt(ResetStats::Type::MAIN_STATS) > 0) {
-		fprintf(saved, "CntS: %d\n", get_reset_stats_cnt(ResetStats::Type::MAIN_STATS));
+	if (get_reset_stats_cnt(stats_reset::Type::MAIN_STATS) > 0) {
+		fprintf(saved, "CntS: %d\n", get_reset_stats_cnt(stats_reset::Type::MAIN_STATS));
 	}
 
-	if (get_reset_stats_cnt(ResetStats::Type::RACE) > 0) {
-		fprintf(saved, "CntR: %d\n", get_reset_stats_cnt(ResetStats::Type::RACE));
+	if (get_reset_stats_cnt(stats_reset::Type::RACE) > 0) {
+		fprintf(saved, "CntR: %d\n", get_reset_stats_cnt(stats_reset::Type::RACE));
 	}
 
-	if (get_reset_stats_cnt(ResetStats::Type::FEATS) > 0) {
-		fprintf(saved, "CntF: %d\n", get_reset_stats_cnt(ResetStats::Type::FEATS));
+	if (get_reset_stats_cnt(stats_reset::Type::FEATS) > 0) {
+		fprintf(saved, "CntF: %d\n", get_reset_stats_cnt(stats_reset::Type::FEATS));
 	}
 
 	std::map<int, MERCDATA>::iterator it = this->charmeeHistory.begin();
@@ -1351,11 +1352,11 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 				} else if (!strcmp(tag, "Con "))
 					this->set_con(num);
 				else if (!strcmp(tag, "CntS"))
-					this->reset_stats_cnt_[ResetStats::Type::MAIN_STATS] = num;
+					this->reset_stats_cnt_[stats_reset::Type::MAIN_STATS] = num;
 				else if (!strcmp(tag, "CntR"))
-					this->reset_stats_cnt_[ResetStats::Type::RACE] = num;
+					this->reset_stats_cnt_[stats_reset::Type::RACE] = num;
 				else if (!strcmp(tag, "CntF"))
-					this->reset_stats_cnt_[ResetStats::Type::FEATS] = num;
+					this->reset_stats_cnt_[stats_reset::Type::FEATS] = num;
 				else if (!strcmp(tag, "Cits")) {
 					std::string buffer_cities = std::string(line);
 					// это на тот случай, если вдруг количество городов поменялось
@@ -2040,7 +2041,7 @@ void Player::add_today_torc(int num) {
 	}
 }
 
-int Player::get_reset_stats_cnt(ResetStats::Type type) const {
+int Player::get_reset_stats_cnt(stats_reset::Type type) const {
 	return reset_stats_cnt_.at(type);
 }
 
@@ -2133,7 +2134,7 @@ int Player::death_player_count() {
 	return (*it).second;
 }
 
-void Player::inc_reset_stats_cnt(ResetStats::Type type) {
+void Player::inc_reset_stats_cnt(stats_reset::Type type) {
 	reset_stats_cnt_.at(type) += 1;
 }
 

@@ -11,7 +11,7 @@
 #include "handler.h"
 #include "color.h"
 #include "game_mechanics/celebrates.h"
-#include "fightsystem/pk.h"
+#include "game_fight/pk.h"
 #include "cache.h"
 #include "depot.h"
 #include "house.h"

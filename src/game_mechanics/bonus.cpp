@@ -3,6 +3,8 @@
 
 #include "bonus.h"
 
+#include <boost/algorithm/string.hpp>
+
 #include "bonus_command_parser.h"
 #include "handler.h"
 #include "modify.h"

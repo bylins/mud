@@ -8,7 +8,7 @@
  *  2. Подумать и, вероятно, удалить контейнеры гетеров/сетеров. Этот класс не должен знать архитектуру обработчиков.
  */
 
-#include "abilities/abilities_info.h"
+#include "game_abilities/abilities_info.h"
 
 #include "entities/char_data.h"
 #include "color.h"

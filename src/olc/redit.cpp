@@ -14,7 +14,7 @@
 #include "olc.h"
 #include "dg_script/dg_olc.h"
 #include "constants.h"
-#include "crafts/im.h"
+#include "game_crafts/im.h"
 #include "description.h"
 #include "game_mechanics/deathtrap.h"
 #include "entities/char_data.h"

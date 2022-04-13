@@ -8,7 +8,7 @@
 #include "entities/char_data.h"
 #include "liquid.h"
 #include "color.h"
-#include "fightsystem/fight.h"
+#include "game_fight/fight.h"
 #include "structs/global_objects.h"
 
 extern int interpolate(int min_value, int pulse);

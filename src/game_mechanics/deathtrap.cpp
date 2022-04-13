@@ -9,8 +9,8 @@
 #include "handler.h"
 #include "house.h"
 #include "corpse.h"
-#include "fightsystem/fight.h"
-#include "fightsystem/fight_stuff.h"
+#include "game_fight/fight.h"
+#include "game_fight/fight_stuff.h"
 #include "act_movement.h"
 
 extern void death_cry(CharData *ch, CharData *killer);

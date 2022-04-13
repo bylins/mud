@@ -1,30 +1,26 @@
 #include "name_adviser.h"
 
-#include "db.h"
-#include "utils/logger.h"
-#include "utils/utils.h"
-#include "boot/boot_constants.h"
+#include <random>
 
-#include <algorithm>
-#include <fstream>
-#include <sstream>
 #include "entities/char_player.h"
 
 NameAdviser::NameAdviser() {
-	std::srand(static_cast<unsigned int>((std::time(0))));
+	std::srand(static_cast<unsigned int>((std::time(nullptr))));
 }
 
-void NameAdviser::add(const std::string &free_name)
-{
-	const size_t name_counter =  std::count(m_list_of_free_names.begin(), m_list_of_free_names.end(), free_name);
+void NameAdviser::add(const std::string &free_name) {
+	const size_t name_counter = std::count(m_list_of_free_names.begin(), m_list_of_free_names.end(), free_name);
 
 	if (!name_counter) {
 		// extract all known similar names
 		std::list<std::string> similar_names;
-		std::copy_if(m_list_of_removed_names.begin(), m_list_of_removed_names.end(), std::back_inserter(similar_names), [this, &free_name](const std::string &name) {
-			return is_names_similar(free_name, name);
-		});
-		m_list_of_removed_names.remove_if([&free_name, this](const std::string &name) {
+		std::copy_if(m_list_of_removed_names.begin(),
+					 m_list_of_removed_names.end(),
+					 std::back_inserter(similar_names),
+					 [&free_name](const std::string &name) {
+						 return is_names_similar(free_name, name);
+					 });
+		m_list_of_removed_names.remove_if([&free_name](const std::string &name) {
 			return is_names_similar(free_name, name);
 		});
 
@@ -38,8 +34,7 @@ void NameAdviser::add(const std::string &free_name)
 	remove_duplicates();
 }
 
-void NameAdviser::remove(const std::string &name_to_remove)
-{
+void NameAdviser::remove(const std::string &name_to_remove) {
 	std::list<std::string> removed_similar_names;
 
 	m_list_of_free_names.remove(name_to_remove);
@@ -48,13 +43,16 @@ void NameAdviser::remove(const std::string &name_to_remove)
 	m_list_of_removed_names.remove(name_to_remove);
 
 	// search for similar names
-	std::copy_if(m_list_of_free_names.begin(), m_list_of_free_names.end(), std::back_inserter(removed_similar_names), [this, &name_to_remove](const std::string &name) {
-		return is_names_similar(name_to_remove, name);
-	});
+	std::copy_if(m_list_of_free_names.begin(),
+				 m_list_of_free_names.end(),
+				 std::back_inserter(removed_similar_names),
+				 [&name_to_remove](const std::string &name) {
+					 return is_names_similar(name_to_remove, name);
+				 });
 
 	// if similar names exists - remove and remember them
 	if (!removed_similar_names.empty()) {
-		m_list_of_free_names.remove_if([&name_to_remove, this](const std::string &name) {
+		m_list_of_free_names.remove_if([&name_to_remove](const std::string &name) {
 			return is_names_similar(name_to_remove, name);
 		});
 
@@ -67,8 +65,7 @@ void NameAdviser::remove(const std::string &name_to_remove)
 	remove_duplicates();
 }
 
-std::vector<std::string> NameAdviser::get_random_name_list()
-{
+std::vector<std::string> NameAdviser::get_random_name_list() {
 	static const short suggestion_counter = 4;
 
 	std::vector<std::string> result;
@@ -83,7 +80,7 @@ std::vector<std::string> NameAdviser::get_random_name_list()
 		});
 
 		// extract random names
-		std::random_shuffle(unique_numbers.begin(), unique_numbers.end());
+		std::shuffle(unique_numbers.begin(), unique_numbers.end(), std::mt19937(std::random_device()()));
 		for (short i = 0; i < suggestion_counter; i++) {
 			auto it_name = m_list_of_free_names.begin();
 			std::advance(it_name, unique_numbers.at(i));
@@ -94,8 +91,7 @@ std::vector<std::string> NameAdviser::get_random_name_list()
 	return result;
 }
 
-void NameAdviser::init()
-{
+void NameAdviser::init() {
 	m_list_of_free_names.clear();
 	m_list_of_removed_names.clear();
 
@@ -128,27 +124,25 @@ void NameAdviser::init()
 	approved_names_file.close();
 }
 
-bool NameAdviser::is_names_similar(const std::string &left, const std::string &right)
-{
+bool NameAdviser::is_names_similar(const std::string &left, const std::string &right) {
 	if ((left.length() < kMinNameLength) || (right.length() < kMinNameLength)) {
 		return false;
 	}
 
 	std::string short_left = left.substr(0, kMinNameLength);
-	for (auto &ch : short_left) {
+	for (auto &ch: short_left) {
 		ch = UPPER(ch);
 	}
 
 	std::string short_rigth = right.substr(0, kMinNameLength);
-	for (auto &ch : short_rigth) {
+	for (auto &ch: short_rigth) {
 		ch = UPPER(ch);
 	}
 
 	return short_left == short_rigth;
 }
 
-void NameAdviser::remove_duplicates()
-{
+void NameAdviser::remove_duplicates() {
 	m_list_of_free_names.sort();
 	m_list_of_free_names.unique();
 

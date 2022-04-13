@@ -1,5 +1,5 @@
 #include "retreat.h"
-#include "fightsystem/fight.h"
+#include "game_fight/fight.h"
 
 // ***************** STOPFIGHT
 void do_retreat(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {

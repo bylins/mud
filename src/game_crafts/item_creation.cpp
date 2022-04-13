@@ -12,7 +12,7 @@
 #include "handler.h"
 #include "olc/olc.h"
 #include "modify.h"
-#include "fightsystem/fight.h"
+#include "game_fight/fight.h"
 #include "entities/entities_constants.h"
 #include "structs/global_objects.h"
 

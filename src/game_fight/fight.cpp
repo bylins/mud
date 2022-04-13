@@ -26,7 +26,7 @@
 #include "assist.h"
 #include "entities/world_characters.h"
 #include "fight_hit.h"
-#include "fightsystem/mobact.h"
+#include "game_fight/mobact.h"
 #include "handler.h"
 #include "color.h"
 #include "utils/random.h"

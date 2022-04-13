@@ -10,7 +10,7 @@
 
 // Реализация ингредиентной магии
 
-#include "crafts/im.h"
+#include "game_crafts/im.h"
 
 #include "entities/world_characters.h"
 #include "world_objects.h"

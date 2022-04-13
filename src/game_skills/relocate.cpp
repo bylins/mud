@@ -4,7 +4,7 @@
 #include "house.h"
 #include "color.h"
 #include "handler.h"
-#include "fightsystem/pk.h"
+#include "game_fight/pk.h"
 
 extern void CheckAutoNosummon(CharData *ch);
 

@@ -17,14 +17,14 @@
 
 //#include "db.h"
 
-#include "abilities/abilities_info.h"
+#include "game_abilities/abilities_info.h"
 #include "cmd_god/ban.h"
 #include "boards/boards.h"
 #include "boot/boot_data_files.h"
 #include "boot/boot_index.h"
 #include "communication/social.h"
-#include "crafts/jewelry.h"
-#include "crafts/mining.h"
+#include "game_crafts/jewelry.h"
+#include "game_crafts/mining.h"
 #include "game_mechanics/celebrates.h"
 #include "entities/char_data.h"
 #include "entities/player_races.h"
@@ -37,8 +37,8 @@
 #include "depot.h"
 #include "game_economics/ext_money.h"
 #include "game_mechanics/bonus.h"
-#include "fightsystem/fight.h"
-#include "fightsystem/mobact.h"
+#include "game_fight/fight.h"
+#include "game_fight/mobact.h"
 #include "utils/file_crc.h"
 #include "structs/global_objects.h"
 #include "game_mechanics/glory.h"
@@ -47,13 +47,13 @@
 #include "handler.h"
 #include "help.h"
 #include "house.h"
-#include "crafts/item_creation.h"
+#include "game_crafts/item_creation.h"
 #include "liquid.h"
 #include "communication/mail.h"
-#include "mob_stat.h"
+#include "statistics/mob_stat.h"
 #include "modify.h"
 #include "game_mechanics/named_stuff.h"
-#include "names.h"
+#include "administration/names.h"
 #include "noob.h"
 #include "obj_prototypes.h"
 #include "olc/olc.h"
@@ -67,10 +67,11 @@
 #include "utils/utils_time.h"
 #include "utils/id_converter.h"
 #include "title.h"
-#include "top.h"
+#include "statistics/top.h"
 #include "game_magic/spells_info.h"
 
 #include <boost/format.hpp>
+#include <boost/algorithm/string.hpp>
 #include <sys/stat.h>
 
 #include <boost/lexical_cast.hpp>
@@ -1070,7 +1071,7 @@ void do_reboot(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		HelpSystem::reload_all();
 		Remort::init();
 		Noob::init();
-		ResetStats::init();
+		stats_reset::init();
 		Bonus::bonus_log_load();
 		DailyQuest::load_from_file();
 	} else if (!str_cmp(arg, "portals"))
@@ -1185,7 +1186,7 @@ void do_reboot(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (!str_cmp(arg, "noob_help.xml")) {
 		Noob::init();
 	} else if (!str_cmp(arg, "reset_stats.xml")) {
-		ResetStats::init();
+		stats_reset::init();
 	} else if (!str_cmp(arg, "obj_sets.xml")) {
 		obj_sets::load();
 	} else if (!str_cmp(arg, "daily")) {
@@ -2577,7 +2578,7 @@ void boot_db(void) {
 
 	boot_profiler.next_step("Loading reset_stats.xml");
 	log("Load reset_stats.xml");
-	ResetStats::init();
+	stats_reset::init();
 
 	boot_profiler.next_step("Loading mail.xml");
 	log("Load mail.xml");
@@ -5067,7 +5068,7 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	} else {
 		// Сначала проверим по словам - может нам текстом сказали?
 		place_of_destination = Birthplaces::ParseSelect(arg);
-		if (place_of_destination == BIRTH_PLACE_UNDEFINED) {
+		if (place_of_destination == kBirthplaceUndefined) {
 			//Нет, значит или ерунда в аргументе, или цифирь, смотрим
 			place_of_destination = PlayerRace::CheckBirthPlace(GET_KIN(ch), GET_RACE(ch), arg);
 			if (!Birthplaces::CheckId(place_of_destination)) {

@@ -5,13 +5,15 @@
 #include "game_magic/spells_info.h"
 #include "structs/global_objects.h"
 
+namespace do_learn {
+
 class LearningError : public std::exception {};
 class LowRemortOrLvl : public std::exception {};
 class LearningFail : public std::exception {};
 class AlreadyKnown : public std::runtime_error {
  public:
 	AlreadyKnown() = delete;
-	explicit AlreadyKnown(const std::string& known_what)
+	explicit AlreadyKnown(const std::string &known_what)
 		: std::runtime_error(known_what) {};
 };
 
@@ -28,24 +30,25 @@ bool IsLearningFailed(CharData *ch, ObjData *obj) {
 
 void SendSuccessLearningMessage(CharData *ch, ObjData *book, const std::string &talent_name) {
 	static const std::string stype0[] = {"несколько секретов", "секрет"};
-	static const std::string stype2[] = {"заклинания", "умения", "умения", "рецепта", "способности" };
+	static const std::string stype2[] = {"заклинания", "умения", "умения", "рецепта", "способности"};
 
 	std::ostringstream out;
 	out << "Вы взяли в руки " << book->get_PName(3) << " и начали изучать." << std::endl <<
-		   "Постепенно, незнакомые доселе, буквы стали складываться в понятные слова и фразы." << std::endl <<
-		   "Буквально через несколько минут вы узнали " <<
-		   ((GET_OBJ_VAL(book, 0) == EBook::kSkillUpgrade) ? stype0[0] : stype0[1]) <<
-		   " " << stype2[GET_OBJ_VAL(book, 0)] << " \"" << talent_name << "\"." << std::endl;
+		"Постепенно, незнакомые доселе, буквы стали складываться в понятные слова и фразы." << std::endl <<
+		"Буквально через несколько минут вы узнали " <<
+		((GET_OBJ_VAL(book, 0) == EBook::kSkillUpgrade) ? stype0[0] : stype0[1]) <<
+		" " << stype2[GET_OBJ_VAL(book, 0)] << " \"" << talent_name << "\"." << std::endl;
 	SendMsgToChar(out.str(), ch);
 	out.str(std::string());
 
-	act("$n взял$g в руки $o3 и принял$u изучать. Спустя некоторое время $s лицо озарилось пониманием.\r\n"
+	act("$n взял$g в руки $o3 и принял$u изучать.\r\n"
+		"Спустя некоторое время $s лицо озарилось пониманием.\r\n"
 		"Вы с удивлением увидели, как $o замерцал$G и растаял$G.",
 		false, ch, book, nullptr, kToRoom);
 
 	out << "LEARN: Игрок" << ch->get_name() << "выучил " <<
-	((GET_OBJ_VAL(book, 0) == EBook::kSkillUpgrade) ? stype0[1] : stype0[0]) << " " <<
-	stype2[GET_OBJ_VAL(book, 0)] << " \"" << talent_name << "\"";
+		((GET_OBJ_VAL(book, 0) == EBook::kSkillUpgrade) ? stype0[1] : stype0[0]) << " " <<
+		stype2[GET_OBJ_VAL(book, 0)] << " \"" << talent_name << "\"";
 	log("%s", out.str().c_str());
 }
 
@@ -274,7 +277,7 @@ void ProcessLearningFailException(CharData *ch, ObjData *book) {
 	sprintf(buf, "Вы взяли в руки %s и начали изучать.\r\n"
 				 "Непослушные буквы никак не хотели выстраиваться в понятные и доступные фразы.\r\n"
 				 "Промучившись несколько минут, вы бросили это унылое занятие, с удивлением отметив исчезновение %s.\r\n",
-				 book->get_PName(3).c_str(), book->get_PName(1).c_str());
+			book->get_PName(3).c_str(), book->get_PName(1).c_str());
 	SendMsgToChar(buf, ch);
 	act("$n взял$g в руки $o3 и принял$u изучать, но, промучившись несколько минут, бросил$g это занятие.\r\n"
 		"Вы с удивлением увидели, как $o замерцал$G и растаял$G.",
@@ -320,21 +323,23 @@ void ProcessExceptions(CharData *ch, ObjData *book) {
 	}
 }
 
+} // namespace do_learn
+
 void DoLearn(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	if (ch->IsNpc()) {
 		return;
 	}
 
-	auto book = FindBook(ch, argument);
+	auto book = do_learn::FindBook(ch, argument);
 	if (!book) {
 		return;
 	}
 
 	try {
-		LearnBook(ch, book);
+		do_learn::LearnBook(ch, book);
 		ExtractObjFromWorld(book);
 	} catch (const std::exception &e) {
-		ProcessExceptions(ch, book);
+		do_learn::ProcessExceptions(ch, book);
 	}
 }
 

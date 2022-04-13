@@ -1,6 +1,6 @@
 // Part of Bylins http://www.mud.ru
 
-#include "affects/affect_data.h"
+#include "game_affects/affect_data.h"
 #include "mobact.h"
 #include "entities/obj_data.h"
 #include "cmd/flee.h"
@@ -15,10 +15,10 @@
 #include "stuff.h"
 
 #include <random>
-#include "top.h"
+#include "statistics/top.h"
 #include "color.h"
 #include "game_magic/magic.h"
-#include "mob_stat.h"
+#include "statistics/mob_stat.h"
 #include "game_mechanics/bonus.h"
 #include "backtrace.h"
 #include "game_magic/magic_utils.h"

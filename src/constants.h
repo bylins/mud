@@ -50,7 +50,7 @@ struct WeaponApplies {
 	int parrying;
 };
 
-struct pray_affect_type {
+struct PrayAffect {
 	int metter;
 	EApply location;
 	int modifier;
@@ -105,7 +105,7 @@ extern const size_t INT_APP_SIZE;
 extern struct ChaApplies cha_app[];
 extern struct SizeApplies size_app[];
 extern struct WeaponApplies weapon_app[];
-extern std::vector<pray_affect_type> pray_affect;
+extern std::vector<PrayAffect> pray_affect;
 extern int rev_dir[];
 extern int movement_loss[];
 

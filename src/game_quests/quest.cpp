@@ -1,7 +1,7 @@
 // by bodrich (2014)
 // http://mud.ru
 
-#include "quests/quest.h"
+#include "game_quests/quest.h"
 
 #include <vector>
 #include <string>

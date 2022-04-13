@@ -22,8 +22,8 @@
 
 #include "game_magic/magic_utils.h"
 #include "handler.h"
-#include "fightsystem/pk.h"
-#include "top.h"
+#include "game_fight/pk.h"
+#include "statistics/top.h"
 #include "spam.h"
 #include "color.h"
 #include "entities/char_player.h"

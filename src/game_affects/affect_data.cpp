@@ -3,12 +3,12 @@
 #include "affect_data.h"
 #include "entities/char_player.h"
 #include "entities/world_characters.h"
-#include "fightsystem/fight_hit.h"
+#include "game_fight/fight_hit.h"
 #include "game_classes/classes.h"
-#include "cmd/follow.h"
 #include "game_mechanics/deathtrap.h"
 #include "game_magic/magic.h"
 #include "game_skills/poison.h"
+#include "handler.h"
 
 bool no_bad_affects(ObjData *obj) {
 	static std::list<EWeaponAffect> bad_waffects =
@@ -219,12 +219,11 @@ void player_affect_update() {
 				}
 				affect->duration--;
 			} else if (affect->duration != -1) {
-				if ((affect->type > 0) && (affect->type <= kSpellCount)) {
+				if ((affect->type > ESpell::kSpellNoSpell) && (affect->type <= ESpell::kSpellCount)) {
 					if (next_affect_i == i->affected.end()
 						|| (*next_affect_i)->type != affect->type
 						|| (*next_affect_i)->duration > 0) {
-						if (affect->type > 0
-							&& affect->type <= kSpellCount) {
+						if (affect->type > ESpell::kSpellNoSpell && affect->type <= ESpell::kSpellCount) {
 							//чтобы не выдавалось, "что теперь вы можете сражаться",
 							//хотя на самом деле не можете :)
 							if (!(affect->type == kSpellMagicBattle

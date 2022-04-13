@@ -2,7 +2,7 @@
 
 #include "modify.h"
 #include "handler.h"
-#include "fightsystem/pk.h"
+#include "game_fight/pk.h"
 
 namespace OneWayPortal {
 

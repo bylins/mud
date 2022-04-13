@@ -9,12 +9,12 @@
 
 //#include "feats.h"
 
-#include "abilities/abilities_constants.h"
+#include "game_abilities/abilities_constants.h"
 #include "action_targeting.h"
 #include "handler.h"
 #include "entities/player_races.h"
 #include "color.h"
-#include "fightsystem/pk.h"
+#include "game_fight/pk.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim_all.hpp>

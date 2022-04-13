@@ -1,6 +1,6 @@
 #include "world_characters.h"
 
-#include "fightsystem/mobact.h"
+#include "game_fight/mobact.h"
 /*#include "config.h"
 #include "logger.h"
 #include "utils/utils.h"*/

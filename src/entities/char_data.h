@@ -11,11 +11,11 @@
 #include "entities/entities_constants.h"
 #include "room_data.h"
 #include "communication/ignores.h"
-#include "crafts/im.h"
+#include "game_crafts/im.h"
 #include "game_skills/skills.h"
 #include "utils/utils.h"
 #include "conf.h"
-#include "affects/affect_data.h"
+#include "game_affects/affect_data.h"
 
 #include <boost/dynamic_bitset.hpp>
 

@@ -1,11 +1,11 @@
 #include "expendientcut.h"
 
-#include "abilities/abilities_rollsystem.h"
+#include "game_abilities/abilities_rollsystem.h"
 #include "color.h"
-#include "fightsystem/common.h"
-#include "fightsystem/fight.h"
-#include "fightsystem/fight_hit.h"
-#include "fightsystem/pk.h"
+#include "game_fight/common.h"
+#include "game_fight/fight.h"
+#include "game_fight/fight_hit.h"
+#include "game_fight/pk.h"
 #include "game_skills/protect.h"
 
 void ApplyNoFleeAffect(CharData *ch, int duration) {

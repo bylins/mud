@@ -55,7 +55,7 @@
 #include "game_economics/shop_ext.h"
 #include "game_mechanics/sets_drop.h"
 #include "communication/mail.h"
-#include "mob_stat.h"
+#include "statistics/mob_stat.h"
 #include "utils/utils_char_obj.inl"
 #include "utils/id_converter.h"
 #include "utils/logger.h"

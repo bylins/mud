@@ -1,7 +1,7 @@
 #include "block.h"
 
-#include "fightsystem/pk.h"
-#include "fightsystem/fight_hit.h"
+#include "game_fight/pk.h"
+#include "game_fight/fight_hit.h"
 
 // ******************* BLOCK PROCEDURES
 void go_block(CharData *ch) {

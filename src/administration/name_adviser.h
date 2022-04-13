@@ -26,7 +26,7 @@ public:
 	void init();
 
 private:
-	bool is_names_similar(const std::string &left, const std::string &right);
+	static bool is_names_similar(const std::string &left, const std::string &right);
 	void remove_duplicates();
 
 private:

@@ -1,16 +1,17 @@
 #include "boot/boot_data_files.h"
 
+#include <boost/algorithm/string.hpp>
+
 #include "obj_prototypes.h"
 #include "dg_script/dg_scripts.h"
 #include "dg_script/dg_olc.h"
 #include "boards/boards.h"
 #include "communication/social.h"
 #include "description.h"
-#include "crafts/im.h"
+#include "game_crafts/im.h"
 #include "entities/char_data.h"
 #include "help.h"
 #include "dg_script/dg_db_scripts.h"
-//#include "entities/zone.h"
 #include "game_magic/spells_info.h"
 #include "structs/global_objects.h"
 

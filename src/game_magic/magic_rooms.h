@@ -1,7 +1,7 @@
 #ifndef MAGIC_ROOMS_HPP_
 #define MAGIC_ROOMS_HPP_
 
-#include "affects/affect_data.h"
+#include "game_affects/affect_data.h"
 #include "spells.h"
 
 #include <list>

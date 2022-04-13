@@ -20,7 +20,7 @@
 #include "cmd/follow.h"
 #include "cmd/hire.h"
 #include "depot.h"
-#include "fightsystem/mobact.h"
+#include "game_fight/mobact.h"
 #include "handler.h"
 #include "house.h"
 #include "liquid.h"
