@@ -97,7 +97,7 @@ void asciiflag_conv(const char *flag, void *to) {
 }
 
 void FlagData::from_string(const char *flag) {
-	uint32_t is_number = 1;
+	Bitvector is_number = 1;
 	int i;
 
 	for (const char *p = flag; *p; p += i + 1) {

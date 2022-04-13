@@ -250,11 +250,11 @@ void CObjectPrototype::toggle_skill(const uint32_t skill) {
 	TOGGLE_BIT(m_skill, skill);
 }
 
-void CObjectPrototype::toggle_val_bit(const size_t index, const uint32_t bit) {
+void CObjectPrototype::toggle_val_bit(const size_t index, const Bitvector bit) {
 	TOGGLE_BIT(m_vals[index], bit);
 }
 
-void CObjectPrototype::toggle_wear_flag(const uint32_t flag) {
+void CObjectPrototype::toggle_wear_flag(const Bitvector flag) {
 	TOGGLE_BIT(m_wear_flags, flag);
 }
 

@@ -54,7 +54,7 @@ struct PrayAffect {
 	int metter;
 	EApply location;
 	int modifier;
-	uint32_t bitvector;
+	Bitvector bitvector;
 	int battleflag;
 };
 

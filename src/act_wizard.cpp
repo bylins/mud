@@ -3849,7 +3849,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 #define BINARY    1
 #define NUMBER    2
 
-inline void SET_OR_REMOVE(const bool on, const bool off, FlagData &flagset, const uint32_t packed_flag) {
+inline void SET_OR_REMOVE(const bool on, const bool off, FlagData &flagset, const Bitvector packed_flag) {
 	if (on) {
 		flagset.set(packed_flag);
 	} else if (off) {
