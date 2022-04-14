@@ -1375,7 +1375,8 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 			MOB_FLAGS(victim).set(EMobFlag::kNoSkillTrain);
 			victim->set_skill(ESkill::kPunctual, 0);
 			// по идее при речарме и последующем креше можно оказаться с сейвом без шмота на чармисе -- Krodo
-			ch->updateCharmee(GET_MOB_VNUM(victim), 0);
+			if (!NPC_FLAGGED(ch, ENpcFlag::kNoMercList))
+				ch->updateCharmee(GET_MOB_VNUM(victim), 0);
 			Crash_crashsave(ch);
 			ch->save_char();
 		}
