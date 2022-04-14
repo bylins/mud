@@ -321,8 +321,8 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			PRF_FLAGS(helpee).unset(EPrf::kPunctual);
 			MOB_FLAGS(helpee).set(EMobFlag::kNoSkillTrain);
 			helpee->set_skill(ESkill::kPunctual, 0);
-			ch->updateCharmee(GET_MOB_VNUM(helpee), cost);
-
+			if (!NPC_FLAGGED(ch, ENpcFlag::kNoMercList))
+				ch->updateCharmee(GET_MOB_VNUM(helpee), cost);
 			Crash_crashsave(ch);
 			ch->save_char();
 		}
