@@ -167,7 +167,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 			ExtractObjFromWorld(obj);
 			break;
 
-		case EObjType::kPorion:
+		case EObjType::kPotion:
 			if (AFF_FLAGGED(ch, EAffect::kStrangled)) {
 				SendMsgToChar("Да вам сейчас и глоток воздуха не проглотить!\r\n", ch);
 				return;

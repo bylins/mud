@@ -537,7 +537,7 @@ bool init_type(const std::string &str, int &type) {
 		type = EObjType::kCraftMaterial;
 	} else if (utils::IsAbbrev(str, "напиток")
 		|| utils::IsAbbrev(str, "potion")) {
-		type = EObjType::kPorion;
+		type = EObjType::kPotion;
 	} else if (utils::IsAbbrev(str, "прочее")
 		|| utils::IsAbbrev(str, "другое")
 		|| utils::IsAbbrev(str, "other")) {

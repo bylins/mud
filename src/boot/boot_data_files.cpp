@@ -902,7 +902,7 @@ bool ObjectFile::check_object(ObjData *obj) {
 			break;
 
 		case EObjType::kScroll:
-		case EObjType::kPorion: error = error || check_object_level(obj, 0);
+		case EObjType::kPotion: error = error || check_object_level(obj, 0);
 			error = error || check_object_spell_number(obj, 1);
 			error = error || check_object_spell_number(obj, 2);
 			error = error || check_object_spell_number(obj, 3);

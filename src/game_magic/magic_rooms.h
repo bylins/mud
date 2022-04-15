@@ -10,6 +10,9 @@ class CharData;
 
 namespace room_spells {
 
+// Константа, определяющая скорость таймера аффектов
+const int kSecsPerRoomAffect = 2;
+
 // Битвекторы аффектов комнат - порождаются заклинаниями и не сохраняются в файле.
 enum ERoomAffect : Bitvector {
 	kLight = 1 << 0,

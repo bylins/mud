@@ -9,11 +9,14 @@
 
 #include "structs/structs.h"
 
+// Константа, определяющая скорость таймера аффектов
+const int kSecsPerPlayerAffect = 2;
+
 // Типы таймеров аффектов.
-constexpr Bitvector kAfBattledec = 1 << 1;
-constexpr Bitvector kAfDeadkeep = 1 << 2;
-constexpr Bitvector kAfPulsedec = 1 << 3;
-constexpr Bitvector kAfSameTime = 1 << 4; // тикает раз в две секунды или во время раунда в бою (чтобы не между раундами)
+constexpr Bitvector kAfBattledec = 1u << 0;
+constexpr Bitvector kAfDeadkeep = 1u << 1;
+constexpr Bitvector kAfPulsedec = 1u << 2;
+constexpr Bitvector kAfSameTime = 1u << 3; // тикает раз в две секунды или во время раунда в бою (чтобы не между раундами)
 
 /**
  * Affect bits: used in char_data.char_specials.saved.affected_by //
@@ -260,8 +263,8 @@ const std::string &NAME_BY_ITEM<EApply>(EApply item);
 template<>
 EApply ITEM_BY_NAME<EApply>(const std::string &name);
 
-using weapon_affect_t = std::array<WeaponAffect, kWeaponAffectCount>;
-extern weapon_affect_t weapon_affect;
+using WeaponAffectArray = std::array<WeaponAffect, kWeaponAffectCount>;
+extern WeaponAffectArray weapon_affect;
 extern const char *affected_bits[];
 extern const char *apply_types[];
 

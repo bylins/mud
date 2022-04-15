@@ -1959,7 +1959,7 @@ int MakeRecept::make(CharData *ch) {
 			// Считаем поглощение.
 			obj->set_val(1, stat_modify(ch, GET_OBJ_VAL(obj, 1), 1));
 			break;
-		case EObjType::kPorion:
+		case EObjType::kPotion:
 			// Считаем уровень итоговый напитка
 			obj->set_val(0, stat_modify(ch, GET_OBJ_VAL(obj, 0), 1));
 			break;

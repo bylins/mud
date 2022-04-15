@@ -347,7 +347,7 @@ Heartbeat::steps_t &pulse_steps() {
 							 0,
 							 std::make_shared<SimpleCall>(tact_auction)),
 		Heartbeat::PulseStep("Room affect update",
-							 kSecsPerRoomAffect * kPassesPerSec,
+							 room_spells::kSecsPerRoomAffect * kPassesPerSec,
 							 0,
 							 std::make_shared<SimpleCall>(room_spells::UpdateRoomsAffects)),
 		Heartbeat::PulseStep("Player affect update",

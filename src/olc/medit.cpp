@@ -772,7 +772,6 @@ void medit_disp_positions(DescriptorData *d) {
 	SendMsgToChar("Выберите положение : ", d->character.get());
 }
 
-// *  Display add parameters - added by Adept
 void medit_disp_add_parameters(DescriptorData *d) {
 	get_char_cols(d->character.get());
 
@@ -804,7 +803,6 @@ void medit_disp_add_parameters(DescriptorData *d) {
 	SendMsgToChar("Введите номер и величину параметра (0 - конец) : ", d->character.get());
 }
 
-// *  Display resistances - added by Adept
 void medit_disp_resistances(DescriptorData *d) {
 	int i;
 

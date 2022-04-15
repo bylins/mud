@@ -641,7 +641,7 @@ void oedit_disp_val1_menu(DescriptorData *d) {
 		case EObjType::kScroll:
 		case EObjType::kWand:
 		case EObjType::kStaff:
-		case EObjType::kPorion: SendMsgToChar("Уровень заклинания : ", d->character.get());
+		case EObjType::kPotion: SendMsgToChar("Уровень заклинания : ", d->character.get());
 			break;
 
 		case EObjType::kWeapon:
@@ -728,7 +728,7 @@ void oedit_disp_val2_menu(DescriptorData *d) {
 	OLC_MODE(d) = OEDIT_VALUE_2;
 	switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
 		case EObjType::kScroll:
-		case EObjType::kPorion: oedit_disp_spells_menu(d);
+		case EObjType::kPotion: oedit_disp_spells_menu(d);
 			break;
 
 		case EObjType::kWand:
@@ -818,7 +818,7 @@ void oedit_disp_val3_menu(DescriptorData *d) {
 			break;
 
 		case EObjType::kScroll:
-		case EObjType::kPorion: oedit_disp_spells_menu(d);
+		case EObjType::kPotion: oedit_disp_spells_menu(d);
 			break;
 
 		case EObjType::kWand:
@@ -867,7 +867,7 @@ void oedit_disp_val4_menu(DescriptorData *d) {
 	OLC_MODE(d) = OEDIT_VALUE_4;
 	switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
 		case EObjType::kScroll:
-		case EObjType::kPorion:
+		case EObjType::kPotion:
 		case EObjType::kWand:
 		case EObjType::kStaff: oedit_disp_spells_menu(d);
 			break;
@@ -1798,7 +1798,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			number = atoi(arg);
 			switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
 				case EObjType::kScroll:
-				case EObjType::kPorion:
+				case EObjType::kPotion:
 					if (number < 1
 						|| number > kSpellCount) {
 						oedit_disp_val2_menu(d);
@@ -1889,7 +1889,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			// * Quick'n'easy error checking.
 			switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
 				case EObjType::kScroll:
-				case EObjType::kPorion: min_val = -1;
+				case EObjType::kPotion: min_val = -1;
 					max_val = kSpellCount;
 					break;
 
@@ -1922,7 +1922,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 		case OEDIT_VALUE_4: number = atoi(arg);
 			switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
 				case EObjType::kScroll:
-				case EObjType::kPorion: min_val = -1;
+				case EObjType::kPotion: min_val = -1;
 					max_val = kSpellCount;
 					break;
 

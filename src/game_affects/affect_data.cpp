@@ -212,7 +212,7 @@ void player_affect_update() {
 			if (affect->duration >= 1) {
 				if (IS_SET(affect->battleflag, kAfSameTime) && !i->GetEnemy()) {
 					// здесь плеера могут спуржить
-					if (processPoisonDamage(i.get(), affect) == -1) {
+					if (ProcessPoisonDmg(i.get(), affect) == -1) {
 						was_purged = true;
 						break;
 					}
@@ -251,47 +251,53 @@ void player_affect_update() {
 
 // This file update battle affects only
 void battle_affect_update(CharData *ch) {
+	if (ch->affected.empty()) {
+		return;
+	}
 	auto next_affect_i = ch->affected.begin();
 	for (auto affect_i = next_affect_i; affect_i != ch->affected.end(); affect_i = next_affect_i) {
 		++next_affect_i;
-		const auto &affect = *affect_i;
 
-		if (!IS_SET(affect->battleflag, kAfBattledec) && !IS_SET(affect->battleflag, kAfSameTime))
+		if (!IS_SET((*affect_i)->battleflag, kAfBattledec) && !IS_SET((*affect_i)->battleflag, kAfSameTime)) {
 			continue;
-
-		if (ch->IsNpc() && affect->location == EApply::kPoison)
+		}
+		if (ch->IsNpc() && (*affect_i)->location == EApply::kPoison) {
 			continue;
+		}
 
-		if (affect->duration >= 1) {
-			if (IS_SET(affect->battleflag, kAfSameTime)) {
-				if (processPoisonDamage(ch, affect) == -1) // жертва умерла
-					return;
-				if (ch->purged()) {
-					mudlog("Некому обновлять аффект, чар уже спуржен.", BRF, kLvlImplementator, SYSLOG, true);
+		if ((*affect_i)->duration >= 1) {
+			if (IS_SET((*affect_i)->battleflag, kAfSameTime)) {
+				if (ProcessPoisonDmg(ch, (*affect_i)) == -1) {// жертва умерла
 					return;
 				}
-				affect->duration--;
+				if (ch->purged()) {
+					mudlog("Некому обновлять аффект, чар уже спуржен.",
+						   BRF, kLvlImplementator, SYSLOG, true);
+					return;
+				}
+				--((*affect_i)->duration);
 			} else {
 				if (ch->IsNpc())
-					affect->duration--;
+					--((*affect_i)->duration);
 				else
-					affect->duration -= MIN(affect->duration, kSecsPerMudHour / kSecsPerPlayerAffect);
+					(*affect_i)->duration -= std::min((*affect_i)->duration, kSecsPerMudHour / kSecsPerPlayerAffect);
 			}
-		} else if (affect->duration != -1) {
-			if (affect->type > 0 && affect->type <= kSpellCount) {
-				if (next_affect_i == ch->affected.end()
-					|| (*next_affect_i)->type != affect->type
-					|| (*next_affect_i)->duration > 0) {
-					if (affect->type > 0 && affect->type <= kSpellCount)
-						show_spell_off(affect->type, ch);
+		} else if ((*affect_i)->duration != -1) {
+			if ((*affect_i)->type > 0 && (*affect_i)->type <= ESpell::kSpellCount) {
+				if (next_affect_i == ch->affected.end() ||
+				(*next_affect_i)->type != (*affect_i)->type ||
+				(*next_affect_i)->duration > 0) {
+					if ((*affect_i)->type > ESpell::kSpellNoSpell && (*affect_i)->type <= ESpell::kSpellCount)
+						show_spell_off((*affect_i)->type, ch);
 				}
 			}
 			if (ch->IsNpc() && MOB_FLAGGED(ch, EMobFlag::kTutelar)) {
-				if (affect->modifier) {
-					log("АНГЕЛ снимается модификатор %d, апплай %s", affect->modifier, apply_types[(int) affect->location]);
+				if ((*affect_i)->modifier) {
+					log("АНГЕЛ снимается модификатор %d, апплай %s",
+						(*affect_i)->modifier, apply_types[(int) (*affect_i)->location]);
 				}
-				if (affect->bitvector) {
-					sprintbit(affect->bitvector, affected_bits, buf2);
+				if ((*affect_i)->bitvector) {
+					sprintbit((*affect_i)->bitvector, affected_bits, buf2);
 					log("АНГЕЛ снимается спелл %s", buf2);
 				}
 			}
@@ -317,7 +323,7 @@ void mobile_affect_update() {
 					if (IS_SET(affect->battleflag, kAfSameTime)
 						&& (!i->GetEnemy() || affect->location == EApply::kPoison)) {
 						// здесь плеера могут спуржить
-						if (processPoisonDamage(i.get(), affect) == -1) {
+						if (ProcessPoisonDmg(i.get(), affect) == -1) {
 							was_purged = true;
 
 							break;
@@ -413,7 +419,6 @@ void affect_from_char(CharData *ch, int type) {
 // restoring original abilities, and then affecting all again
 void affect_total(CharData *ch) {
 	if (ch->purged()) {
-		// we don't care of affects of removed character.
 		return;
 	}
 	bool domination = false;
@@ -431,10 +436,11 @@ void affect_total(CharData *ch) {
 	// PC's clear all affects, because recalc one
 	{
 		saved = ch->char_specials.saved.affected_by;
-		if (ch->IsNpc())
+		if (ch->IsNpc()) {
 			ch->char_specials.saved.affected_by = mob_proto[GET_MOB_RNUM(ch)].char_specials.saved.affected_by;
-		else
+		} else {
 			ch->char_specials.saved.affected_by = clear_flags;
+		}
 		for (const auto &i : char_saved_aff) {
 			if (saved.get(i)) {
 				AFF_FLAGS(ch).set(i);
@@ -462,12 +468,12 @@ void affect_total(CharData *ch) {
 		ch->add_abils.mresist += GET_REAL_REMORT(ch) - 19;
 		ch->add_abils.presist += GET_REAL_REMORT(ch) - 19;
 	}
-	// Restore values for NPC - added by Adept
+
 	if (ch->IsNpc()) {
 		(ch)->add_abils = (&mob_proto[GET_MOB_RNUM(ch)])->add_abils;
 	}
 	// move object modifiers
-	for (int i = 0; i < EEquipPos::kNumEquipPos; i++) {
+	for (int i = EEquipPos::kFirstEquipPos; i < EEquipPos::kNumEquipPos; i++) {
 		if ((obj = GET_EQ(ch, i))) {
 			if (ObjSystem::is_armor_type(obj)) {
 				GET_AC_ADD(ch) -= apply_ac(ch, i);
@@ -475,7 +481,8 @@ void affect_total(CharData *ch) {
 			}
 			// Update weapon applies
 			for (int j = 0; j < kMaxObjAffect; j++) {
-				affect_modify(ch, GET_EQ(ch, i)->get_affected(j).location, GET_EQ(ch, i)->get_affected(j).modifier, static_cast<EAffect>(0), true);
+				affect_modify(ch, GET_EQ(ch, i)->get_affected(j).location,
+							  GET_EQ(ch, i)->get_affected(j).modifier, static_cast<EAffect>(0), true);
 			}
 			// Update weapon bitvectors
 			for (const auto &j : weapon_affect) {

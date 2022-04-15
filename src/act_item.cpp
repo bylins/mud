@@ -2066,7 +2066,7 @@ void do_grab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				&& GET_OBJ_TYPE(obj) != EObjType::kWand
 				&& GET_OBJ_TYPE(obj) != EObjType::kStaff
 				&& GET_OBJ_TYPE(obj) != EObjType::kScroll
-				&& GET_OBJ_TYPE(obj) != EObjType::kPorion) {
+				&& GET_OBJ_TYPE(obj) != EObjType::kPotion) {
 				SendMsgToChar("Вы не можете это держать.\r\n", ch);
 				return;
 			}

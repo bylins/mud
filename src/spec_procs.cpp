@@ -1547,7 +1547,7 @@ bool item_nouse(ObjData *obj) {
 			break;
 
 		case EObjType::kScroll:
-		case EObjType::kPorion:
+		case EObjType::kPotion:
 			if (!GET_OBJ_VAL(obj, 1)
 				&& !GET_OBJ_VAL(obj, 2)
 				&& !GET_OBJ_VAL(obj, 3)) {

@@ -1268,7 +1268,7 @@ int convert_drinkcon_skill(CObjectPrototype *obj, bool proto) {
 		if (obj->get_value(ObjVal::EValueKey::POTION_PROTO_VNUM) < 0) {
 			const auto potion = world_objects.create_from_prototype_by_vnum(GET_OBJ_SKILL(obj));
 			if (potion
-				&& GET_OBJ_TYPE(potion) == EObjType::kPorion) {
+				&& GET_OBJ_TYPE(potion) == EObjType::kPotion) {
 				drinkcon::copy_potion_values(potion.get(), obj);
 				if (proto) {
 					// copy_potion_values сетит до кучи и внум из пошена,

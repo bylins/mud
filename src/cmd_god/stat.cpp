@@ -809,7 +809,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 			break;
 
 		case EObjType::kScroll:
-		case EObjType::kPorion:
+		case EObjType::kPotion:
 			sprintf(buf, "Заклинания: (Уровень %d) %s, %s, %s",
 					GET_OBJ_VAL(j, 0),
 					GetSpellName(GET_OBJ_VAL(j, 1)),

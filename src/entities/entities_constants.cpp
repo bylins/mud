@@ -420,7 +420,7 @@ void init_EObjectType_ITEM_NAMES() {
 	EObjectType_name_by_value[EObjType::kMissile] = "kMissile";
 	EObjectType_name_by_value[EObjType::kTreasure] = "kTreasure";
 	EObjectType_name_by_value[EObjType::kArmor] = "kArmor";
-	EObjectType_name_by_value[EObjType::kPorion] = "kPorion";
+	EObjectType_name_by_value[EObjType::kPotion] = "kPorion";
 	EObjectType_name_by_value[EObjType::kWorm] = "kWorm";
 	EObjectType_name_by_value[EObjType::kOther] = "kOther";
 	EObjectType_name_by_value[EObjType::kTrash] = "kTrash";
