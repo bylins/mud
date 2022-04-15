@@ -386,7 +386,7 @@ template<typename T>
 struct UNIMPLEMENTED {};
 
 template<typename T>
-inline bool IS_SET(const T flag, const uint32_t bit) {
+inline bool IS_SET(const T flag, const Bitvector bit) {
 	return 0 != (flag & 0x3FFFFFFF & bit);
 }
 
@@ -396,7 +396,7 @@ inline void SET_BIT(T &var, const EnumType bit) {
 }
 
 template<typename T>
-inline void SET_BIT(T &var, const uint32_t bit) {
+inline void SET_BIT(T &var, const Bitvector bit) {
 	var |= (bit & 0x3FFFFFFF);
 }
 
@@ -411,7 +411,7 @@ inline void REMOVE_BIT(T &var, const EnumType bit) {
 }
 
 template<typename T>
-inline void REMOVE_BIT(T &var, const uint32_t bit) {
+inline void REMOVE_BIT(T &var, const Bitvector bit) {
 	var &= ~(bit & 0x3FFFFFFF);
 }
 
@@ -421,7 +421,7 @@ inline void REMOVE_BIT(T &var, const int bit) {
 }
 
 template<typename T>
-inline void TOGGLE_BIT(T &var, const uint32_t bit) {
+inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 	var = var ^ (bit & 0x3FFFFFFF);
 }
 

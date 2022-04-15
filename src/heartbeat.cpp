@@ -1,11 +1,13 @@
 //#include "heartbeat.h"
 
+#include <boost/algorithm/string.hpp>
+
 #include "game_economics/auction.h"
 #include "game_mechanics/deathtrap.h"
 #include "communication/parcel.h"
-#include "fightsystem/pk.h"
+#include "game_fight/pk.h"
 #include "game_mechanics/celebrates.h"
-#include "fightsystem/fight.h"
+#include "game_fight/fight.h"
 #include "help.h"
 #include "game_mechanics/bonus.h"
 #include "game_magic/magic_temp_spells.h"
@@ -19,10 +21,10 @@
 #include "utils/file_crc.h"
 #include "game_mechanics/sets_drop.h"
 #include "communication/mail.h"
-#include "mob_stat.h"
+#include "statistics/mob_stat.h"
 #include "game_magic/magic.h"
 #include "game_limits.h"
-#include "fightsystem/mobact.h"
+#include "game_fight/mobact.h"
 #include "dg_script/dg_event.h"
 #include "corpse.h"
 #include "cmd_god/shutdown_parameters.h"
@@ -345,7 +347,7 @@ Heartbeat::steps_t &pulse_steps() {
 							 0,
 							 std::make_shared<SimpleCall>(tact_auction)),
 		Heartbeat::PulseStep("Room affect update",
-							 kSecsPerRoomAffect * kPassesPerSec,
+							 room_spells::kSecsPerRoomAffect * kPassesPerSec,
 							 0,
 							 std::make_shared<SimpleCall>(room_spells::UpdateRoomsAffects)),
 		Heartbeat::PulseStep("Player affect update",

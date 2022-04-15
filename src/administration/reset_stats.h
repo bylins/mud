@@ -11,7 +11,7 @@
 ///
 /// Платный сброс/перераспределение характеристик персонажа через главное меню.
 ///
-namespace ResetStats {
+namespace stats_reset {
 
 enum Type : int {
 	MAIN_STATS,
@@ -25,7 +25,7 @@ void init();
 void print_menu(DescriptorData *d);
 void parse_menu(DescriptorData *d, const char *arg);
 
-} // namespace ResetStats
+} // namespace stats_reset
 
 #endif // RESET_STATS_HPP_INCLUDED
 

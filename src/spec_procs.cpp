@@ -12,6 +12,8 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
+#include <boost/algorithm/string.hpp>
+
 #include "act_movement.h"
 #include "utils/utils_char_obj.inl"
 #include "entities/char_player.h"
@@ -20,21 +22,16 @@
 #include "entities/world_characters.h"
 #include "cmd/follow.h"
 #include "depot.h"
-#include "fightsystem/fight.h"
-#include "fightsystem/fight_hit.h"
+#include "game_fight/fight.h"
+#include "game_fight/fight_hit.h"
+#include "handler.h"
 #include "house.h"
-//#include "logger.h"
 #include "game_magic/magic.h"
 #include "color.h"
 #include "game_magic/magic_utils.h"
 #include "game_magic/magic_temp_spells.h"
 #include "structs/global_objects.h"
 
-//   external vars
-/*extern DescriptorData *descriptor_list;
-extern IndexData *mob_index;
-extern TimeInfoData time_info;
-extern struct spell_create_type spell_create[];*/
 extern int guild_info[][3];
 
 typedef int special_f(CharData *, void *, int, char *);
@@ -1550,7 +1547,7 @@ bool item_nouse(ObjData *obj) {
 			break;
 
 		case EObjType::kScroll:
-		case EObjType::kPorion:
+		case EObjType::kPotion:
 			if (!GET_OBJ_VAL(obj, 1)
 				&& !GET_OBJ_VAL(obj, 2)
 				&& !GET_OBJ_VAL(obj, 3)) {

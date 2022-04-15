@@ -200,9 +200,9 @@ const char *resistance_types[] = {"Защита от стихии огня",
 								  "Защита от стихии воздуха",
 								  "Защита от стихии воды",
 								  "Защита от стихии земли",
-								  "Живучесть",
-								  "Разум",
-								  "Иммунитет",
+								  "Защита от тяжелых ран",
+								  "Защита от магии разума",
+								  "Защита от ядов и болезней",
 								  "Защита от стихии тьмы",
 								  "\n"
 };
@@ -1643,7 +1643,7 @@ const char *pray_whom[] = {"Яриле",
 };
 
 // Fields : whom location modifier bitvector battleflag
-std::vector<pray_affect_type> pray_affect =
+std::vector<PrayAffect> pray_affect =
 	{
 		{0, EApply::kNone, 0, to_underlying(EAffect::kInfravision), 0},    // Ярило
 		{1, EApply::kHpRegen, 50, 0, 0},    // Мокошь

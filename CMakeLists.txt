@@ -10,11 +10,11 @@ endif ()
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set(SOURCES
-		src/blocking_queue.cpp
+		src/structs/blocking_queue.cpp
 		src/influxdb.cpp
 		src/heartbeat.cpp
 		src/heartbeat_commands.cpp
-		src/abilities/abilities_rollsystem.cpp
+		src/game_abilities/abilities_rollsystem.cpp
 		src/administration/accounts.cpp
 		src/action_targeting.cpp
 		src/act_comm.cpp
@@ -24,12 +24,12 @@ set(SOURCES
 		src/act_other.cpp
 		src/communication/social.cpp
 		src/act_wizard.cpp
-		src/affects/affect_handler.cpp
+		src/game_affects/affect_handler.cpp
 		src/alias.cpp
 		src/game_economics/auction.cpp
 		src/backtrace.cpp
 		src/cmd_god/ban.cpp
-		src/birthplaces.cpp
+        src/game_mechanics/birthplaces.cpp
 		src/boards/boards_changelog_loaders.cpp
 		src/boards/boards_constants.cpp
 		src/boards/boards.cpp
@@ -53,8 +53,8 @@ set(SOURCES
 		src/config.cpp
 		src/constants.cpp
 		src/corpse.cpp
-		src/quests/quest.cpp
-		src/quests/daily_quest.cpp
+		src/game_quests/quest.cpp
+		src/game_quests/daily_quest.cpp
 		src/db.cpp
 		src/game_mechanics/deathtrap.cpp
 		src/depot.cpp
@@ -72,17 +72,17 @@ set(SOURCES
 		src/dg_script/dg_triggers.cpp
 		src/dg_script/dg_wldcmd.cpp
 		src/game_economics/dictionary.cpp
-		src/diskio.cpp
-		src/dps.cpp
+		src/utils/diskio.cpp
+        src/statistics/dps.cpp
         src/entities/entities_constants.cpp
 		src/game_economics/exchange.cpp
 		src/game_economics/ext_money.cpp
 		src/external_trigger.cpp
 		src/feats.cpp
-		src/fightsystem/fight.cpp
-		src/fightsystem/fight_hit.cpp
-		src/fightsystem/fight_penalties.cpp
-		src/fightsystem/fight_stuff.cpp
+		src/game_fight/fight.cpp
+		src/game_fight/fight_hit.cpp
+		src/game_fight/fight_penalties.cpp
+		src/game_fight/fight_stuff.cpp
 		src/utils/file_crc.cpp
 		src/genchar.cpp
 		src/game_mechanics/glory_const.cpp
@@ -95,9 +95,9 @@ set(SOURCES
 		src/house_exp.cpp
 		src/communication/ignores.cpp
 		src/communication/ignores_loader.cpp
-		src/crafts/im.cpp
+		src/game_crafts/im.cpp
 		src/interpreter.cpp
-		src/crafts/item_creation.cpp
+		src/game_crafts/item_creation.cpp
 		src/game_limits.cpp
 		src/utils/levenshtein.cpp
 		src/liquid.cpp
@@ -113,15 +113,15 @@ set(SOURCES
 		src/mapsystem.cpp
 		src/meat_maker.cpp
 		src/olc/medit.cpp
-		src/fightsystem/mobact.cpp
+		src/game_fight/mobact.cpp
 		src/mobmax.cpp
-		src/mob_stat.cpp
+        src/statistics/mob_stat.cpp
 		src/modify.cpp
 		src/game_skills/morph.cpp
-		src/name_adviser.cpp
+        src/administration/name_adviser.cpp
 		src/game_mechanics/named_stuff.cpp
 		src/name_list.cpp
-		src/names.cpp
+		src/administration/names.cpp
 		src/noob.cpp
 		src/entities/obj_data.cpp
 		src/obj_enchant.cpp
@@ -135,15 +135,15 @@ set(SOURCES
 		src/communication/parcel.cpp
 		src/utils/parse.cpp
 		src/administration/password.cpp
-		src/fightsystem/pk.cpp
+		src/game_fight/pk.cpp
 		src/entities/player_races.cpp
 		src/administration/privilege.cpp
 		src/utils/pugixml/pugixml.cpp
-		src/quests/quested.cpp
+		src/game_quests/quested.cpp
 		src/utils/random.cpp
 		src/olc/redit.cpp
 		src/communication/remember.cpp
-		src/reset_stats.cpp
+		src/administration/reset_stats.cpp
 		src/entities/room_data.cpp
 		src/game_mechanics/sets_drop.cpp
 		src/game_economics/shop_ext.cpp
@@ -160,7 +160,7 @@ set(SOURCES
 		src/utils/id_converter.cpp
 		src/utils/utils_time.cpp
 		src/title.cpp
-		src/top.cpp
+        src/statistics/top.cpp
 		src/utils/utils.cpp
 		src/version.cpp
         src/game_mechanics/weather.cpp
@@ -179,7 +179,6 @@ set(SOURCES
         src/structs/radix_trie.cpp
         src/structs/compact_trie.cpp
 		src/id.cpp
-		src/stigmas.cpp
 		src/entities/zone.cpp
 		src/strengthening.cpp
 		src/game_skills/backstab.cpp
@@ -208,14 +207,14 @@ set(SOURCES
 		src/game_skills/identify.cpp
 		src/game_skills/relocate.cpp
 		src/game_mechanics/mount.cpp
-		src/fightsystem/assist.cpp
-		src/fightsystem/fight_start.cpp
+		src/game_fight/assist.cpp
+		src/game_fight/fight_start.cpp
 		src/game_skills/styles.cpp
-		src/fightsystem/common.cpp
+		src/game_fight/common.cpp
 		src/cmd/retreat.cpp
 		src/cmd/order.cpp
 		src/cmd/mercenary.cpp
-		src/affects/affect_data.cpp
+		src/game_affects/affect_data.cpp
 		src/game_skills/track.cpp
 		src/cmd/flee.cpp
 		src/cmd/hire.cpp
@@ -231,19 +230,19 @@ set(SOURCES
 		src/cmd/employ.cpp
         src/cmd/follow.cpp
 		src/structs/flag_data.cpp
-        src/crafts/jewelry.cpp
-		src/crafts/mining.cpp
+		src/game_crafts/jewelry.cpp
+		src/game_crafts/mining.cpp
 		src/game_classes/classes_constants.cpp
         src/structs/extra_description.cpp
 		src/communication/insult.cpp
-		src/abilities/abilities_info.cpp
-		src/abilities/abilities_constants.cpp
+		src/game_abilities/abilities_info.cpp
+		src/game_abilities/abilities_constants.cpp
 		src/game_classes/classes_info.cpp
 		src/utils/objects_filter.cpp
 		src/structs/info_container.cpp
 		src/utils/parser_wrapper.cpp
 		src/boot/cfg_manager.cpp
-		src/affects/affect_contants.cpp
+		src/game_affects/affect_contants.cpp
 		src/cmd_god/users.cpp
 		src/utils/table_wrapper.cpp
 		src/cmd/score.cpp)
@@ -262,11 +261,11 @@ set(HEADERS
 		src/cmd/mixture.h
 		src/cmd/cast.h
 		src/cmd/employ.h
-		src/affects/affect_data.h
+		src/game_affects/affect_data.h
 		src/game_skills/track.h
-		src/fightsystem/common.h
-		src/fightsystem/assist.h
-		src/fightsystem/fight_start.h
+		src/game_fight/common.h
+		src/game_fight/assist.h
+		src/game_fight/fight_start.h
 		src/cmd/retreat.h
 		src/cmd/order.h
 		src/cmd/mercenary.h
@@ -288,12 +287,12 @@ set(HEADERS
 		src/game_skills/relocate.h
 		src/act_movement.h
 		src/strengthening.h
-		src/abilities/abilities_constants.h
-		src/abilities/abilities_rollsystem.h
+		src/game_abilities/abilities_constants.h
+		src/game_abilities/abilities_rollsystem.h
 		src/game_mechanics/mount.h
 		src/administration/accounts.h
 		src/action_targeting.h
-		src/blocking_queue.h
+		src/structs/blocking_queue.h
 		src/influxdb.h
 		src/heartbeat_commands.h
         src/game_mechanics/weather.h
@@ -313,11 +312,11 @@ set(HEADERS
 		src/world_objects.h
 		src/utils/utils_string.h
 		src/act_other.h
-		src/affects/affect_handler.h
+		src/game_affects/affect_handler.h
 		src/game_economics/auction.h
 		src/backtrace.h
 		src/cmd_god/ban.h
-		src/birthplaces.h
+        src/game_mechanics/birthplaces.h
 		src/boards/boards_changelog_loaders.h
 		src/boards/boards_constants.h
 		src/boards/boards_formatters.h
@@ -345,8 +344,8 @@ set(HEADERS
 		src/constants.h
 		src/coredump.h
 		src/corpse.h
-		src/quests/daily_quest.h
-		src/quests/quest.h
+		src/game_quests/daily_quest.h
+		src/game_quests/quest.h
 		src/db.h
 		src/game_mechanics/deathtrap.h
 		src/depot.h
@@ -357,19 +356,19 @@ set(HEADERS
 		src/dg_script/dg_olc.h
 		src/dg_script/dg_scripts.h
 		src/game_economics/dictionary.h
-		src/diskio.h
+		src/utils/diskio.h
 		src/structs/structs_double_map.h
-		src/dps.h
+        src/statistics/dps.h
 		src/game_economics/exchange.h
 		src/game_economics/ext_money.h
 		src/external_trigger.h
-		src/abilities/abilities_items_set.h
+		src/game_abilities/abilities_items_set.h
 		src/feats.h
-		src/fightsystem/fight_constants.h
-		src/fightsystem/fight.h
-		src/fightsystem/fight_hit.h
-		src/fightsystem/fight_stuff.h
-		src/fightsystem/fight_penalties.h
+		src/game_fight/fight_constants.h
+		src/game_fight/fight.h
+		src/game_fight/fight_hit.h
+		src/game_fight/fight_stuff.h
+		src/game_fight/fight_penalties.h
 		src/utils/file_crc.h
 		src/genchar.h
 		src/game_mechanics/glory_const.h
@@ -381,9 +380,9 @@ set(HEADERS
 		src/house.h
 		src/communication/ignores.h
 		src/communication/ignores_loader.h
-		src/crafts/im.h
+		src/game_crafts/im.h
 		src/interpreter.h
-		src/crafts/item_creation.h
+		src/game_crafts/item_creation.h
 		src/utils/levenshtein.h
 		src/liquid.h
 		src/utils/logger.h
@@ -397,11 +396,11 @@ set(HEADERS
 		src/communication/mail.h
 		src/mapsystem.h
 		src/meat_maker.h
-		src/fightsystem/mobact.h
+		src/game_fight/mobact.h
 		src/mobmax.h
-		src/mob_stat.h
+        src/statistics/mob_stat.h
 		src/modify.h
-		src/name_adviser.h
+        src/administration/name_adviser.h
 		src/game_mechanics/named_stuff.h
 		src/name_list.h
 		src/noob.h
@@ -414,16 +413,16 @@ set(HEADERS
 		src/communication/parcel.h
 		src/utils/parse.h
 		src/administration/password.h
-		src/fightsystem/pk.h
+		src/game_fight/pk.h
 		src/entities/player_i.h
 		src/entities/player_races.h
 		src/administration/privilege.h
 		src/utils/pugixml/pugiconfig.h
 		src/utils/pugixml/pugixml.h
-		src/quests/quested.h
+		src/game_quests/quested.h
 		src/utils/random.h
 		src/communication/remember.h
-		src/reset_stats.h
+		src/administration/reset_stats.h
 		src/entities/room_data.h
 		src/color.h
 		src/game_mechanics/sets_drop.h
@@ -439,11 +438,10 @@ set(HEADERS
 		src/telnet.h
 		src/utils/utils_time.h
 		src/title.h
-		src/top.h
+        src/statistics/top.h
 		src/utils/utils.h
 		src/utils/xml_loading_helper.h
 		src/utils/utils_debug.h
-		src/stigmas.h
 		src/entities/zone.h
 		src/game_skills/backstab.h
 		src/game_skills/bash.h
@@ -457,13 +455,13 @@ set(HEADERS
 		src/graph.h
 		src/structs/flag_data.h
         src/entities/entities_constants.h
-		src/crafts/jewelry.h
-		src/crafts/mining.h
-		src/affects/affect_contants.h
+		src/game_crafts/jewelry.h
+		src/game_crafts/mining.h
+		src/game_affects/affect_contants.h
         src/structs/extra_description.h
 		src/communication/insult.h
 		src/communication/social.h
-		src/abilities/abilities_info.h
+		src/game_abilities/abilities_info.h
 		src/game_classes/classes_info.h
 		src/utils/objects_filter.h
 		src/structs/info_container.h
@@ -614,15 +612,15 @@ set(CRAFT_TEMPLATE_FILES
 	lib.template/misc/craft/recipe_template.xml)
 set(CRAFT_PROTOTYPES)
 set(CRAFT_SOURCE_FILES
-		src/crafts/craft_commands.cpp
-		src/crafts/craft.cpp
-		src/crafts/craft_logger.cpp
-		src/crafts/craft_static.cpp)
+		src/game_crafts/craft_commands.cpp
+		src/game_crafts/craft.cpp
+		src/game_crafts/craft_logger.cpp
+		src/game_crafts/craft_static.cpp)
 set(CRAFT_HEADER_FILES
-		src/crafts/craft_commands.h
-		src/crafts/craft.h
-		src/crafts/craft_logger.h
-		src/crafts/craft_static.h)
+		src/game_crafts/craft_commands.h
+		src/game_crafts/craft.h
+		src/game_crafts/craft_logger.h
+		src/game_crafts/craft_static.h)
 
 source_group("Craft\\Configuration" FILES ${CRAFT_GENERAL_FILES})
 source_group("Craft\\Configuration\\Tailoring" FILES ${CRAFT_TAILORING_FILES})

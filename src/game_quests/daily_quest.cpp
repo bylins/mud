@@ -1,4 +1,4 @@
-#include "quests/daily_quest.h"
+#include "game_quests/daily_quest.h"
 
 #include "entities/char_data.h"
 #include "structs/global_objects.h"

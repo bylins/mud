@@ -20,7 +20,7 @@
 #include "cmd/follow.h"
 #include "cmd/hire.h"
 #include "depot.h"
-#include "fightsystem/mobact.h"
+#include "game_fight/mobact.h"
 #include "handler.h"
 #include "house.h"
 #include "liquid.h"
@@ -1514,7 +1514,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 
 	switch (GET_OBJ_TYPE(obj)) {
 		case EObjType::kScroll:
-		case EObjType::kPorion: sprintf(buf, "Содержит заклинание: ");
+		case EObjType::kPotion: sprintf(buf, "Содержит заклинание: ");
 			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) <= kSpellCount)
 				sprintf(buf + strlen(buf), " %s", GetSpellName(GET_OBJ_VAL(obj, 1)));
 			if (GET_OBJ_VAL(obj, 2) >= 1 && GET_OBJ_VAL(obj, 2) <= kSpellCount)

@@ -24,18 +24,18 @@
 #include "game_skills/protect.h"
 #include "game_skills/track.h"
 
-#include "abilities/abilities_rollsystem.h"
+#include "game_abilities/abilities_rollsystem.h"
 #include "action_targeting.h"
 #include "act_movement.h"
 #include "entities/world_characters.h"
 #include "world_objects.h"
 #include "handler.h"
 #include "game_magic/magic.h"
-#include "fightsystem/pk.h"
+#include "game_fight/pk.h"
 #include "utils/random.h"
 #include "house.h"
-#include "fightsystem/fight.h"
-#include "fightsystem/fight_hit.h"
+#include "game_fight/fight.h"
+#include "game_fight/fight_hit.h"
 
 const int kMobMemKoeff = kSecsPerMudHour;
 

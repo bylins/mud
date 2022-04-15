@@ -12,7 +12,7 @@
 #include "conf.h"
 #include "structs/structs.h"
 #include "sysdep.h"
-#include "reset_stats.h"
+#include "administration/reset_stats.h"
 
 struct MERCDATA;
 
@@ -110,8 +110,8 @@ class PlayerI {
 	virtual int get_today_torc() { return 0; };
 	virtual void add_today_torc(int/* num*/) {};
 
-	virtual int get_reset_stats_cnt(ResetStats::Type/* type*/) const { return 0; };
-	virtual void inc_reset_stats_cnt(ResetStats::Type/* type*/) {};
+	virtual int get_reset_stats_cnt(stats_reset::Type/* type*/) const { return 0; };
+	virtual void inc_reset_stats_cnt(stats_reset::Type/* type*/) {};
 
 	virtual time_t get_board_date(Boards::BoardTypes/* type*/) const { return 0; };
 	virtual void set_board_date(Boards::BoardTypes/* type*/, time_t/* date*/) {};

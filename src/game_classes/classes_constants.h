@@ -5,7 +5,7 @@
 	Константы классов персонажей
 */
 
-#include "affects/affect_contants.h"
+#include "game_affects/affect_contants.h"
 
 enum ECharClass : int {
 	kUndefined = -1,

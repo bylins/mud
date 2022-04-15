@@ -4,7 +4,7 @@
 #ifndef OBJ_ENCHANT_HPP_INCLUDED
 #define OBJ_ENCHANT_HPP_INCLUDED
 
-#include "affects/affect_data.h"
+#include "game_affects/affect_data.h"
 #include "structs/flag_data.h"
 #include "sysdep.h"
 #include "conf.h"

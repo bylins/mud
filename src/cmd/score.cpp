@@ -13,7 +13,7 @@
 #include "entities/char_data.h"
 #include "entities/char_player.h"
 #include "entities/player_races.h"
-#include "fightsystem/fight_hit.h"
+#include "game_fight/fight_hit.h"
 #include "game_classes/classes.h"
 #include "game_mechanics/bonus.h"
 #include "game_mechanics/glory.h"

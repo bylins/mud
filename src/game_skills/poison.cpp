@@ -8,7 +8,7 @@
 #include "entities/char_data.h"
 #include "liquid.h"
 #include "color.h"
-#include "fightsystem/fight.h"
+#include "game_fight/fight.h"
 #include "structs/global_objects.h"
 
 extern int interpolate(int min_value, int pulse);
@@ -418,7 +418,7 @@ bool check_poison(int spell) {
 * APPLY_POISON - у плеера раз в 2 секунды везде, у моба раз в минуту везде.
 * Остальные аффекты - у плеера раз в 2 секунды везде, у моба в бою раз в 2 секунды, вне боя - раз в минуту.
 */
-int processPoisonDamage(CharData *ch, const Affect<EApply>::shared_ptr &af) {
+int ProcessPoisonDmg(CharData *ch, const Affect<EApply>::shared_ptr &af) {
 	int result = 0;
 	if (af->location == EApply::kPoison) {
 		int poison_dmg = GET_POISON(ch) * (ch->IsNpc() ? 4 : 5);

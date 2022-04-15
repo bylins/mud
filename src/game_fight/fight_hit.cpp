@@ -4,13 +4,13 @@
 #include "color.h"
 #include "game_magic/magic.h"
 #include "pk.h"
-#include "dps.h"
+#include "statistics/dps.h"
 #include "house_exp.h"
 #include "game_skills/poison.h"
 #include "game_mechanics/bonus.h"
 #include "mobact.h"
-#include "fightsystem/common.h"
-#include "fightsystem/fight.h"
+#include "game_fight/common.h"
+#include "game_fight/fight.h"
 #include "structs/global_objects.h"
 
 // extern

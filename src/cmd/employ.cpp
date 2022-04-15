@@ -52,7 +52,7 @@ void do_employ(CharData *ch, char *argument, int cmd, int subcmd) {
 				SendMsgToChar("Не стоит отвлекаться в бою!\r\n", ch);
 				return;
 			}
-			if (GET_OBJ_TYPE(mag_item) != EObjType::kPorion) {
+			if (GET_OBJ_TYPE(mag_item) != EObjType::kPotion) {
 				SendMsgToChar("Осушить вы можете только напиток (ну, Богам еще пЫво по вкусу ;)\r\n", ch);
 				return;
 			}

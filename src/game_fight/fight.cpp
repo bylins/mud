@@ -26,7 +26,7 @@
 #include "assist.h"
 #include "entities/world_characters.h"
 #include "fight_hit.h"
-#include "fightsystem/mobact.h"
+#include "game_fight/mobact.h"
 #include "handler.h"
 #include "color.h"
 #include "utils/random.h"
@@ -1018,7 +1018,7 @@ void mob_casting(CharData *ch) {
 				}
 				break;
 
-			case EObjType::kPorion:
+			case EObjType::kPotion:
 				for (int i = 1; i <= 3; i++) {
 					if (GET_OBJ_VAL(item, i) < 0 || GET_OBJ_VAL(item, i) > kSpellCount) {
 						log("SYSERR: Не верно указано значение спела в напитке vnum %d %s, позиция: %d, значение: %d ",
@@ -1119,7 +1119,7 @@ void mob_casting(CharData *ch) {
 					}
 					break;
 
-				case EObjType::kPorion:
+				case EObjType::kPotion:
 					for (int i = 1; i <= 3; i++) {
 						if (GET_OBJ_VAL(item, i) == spellnum) {
 							if (ch != victim) {

@@ -17,7 +17,7 @@
 
 #include "boot/boot_constants.h"
 #include "conf.h"    // to get definition of build type: (CIRCLE_AMIGA|CIRCLE_UNIX|CIRCLE_WINDOWS|CIRCLE_ACORN|CIRCLE_VMS)
-#include "name_adviser.h"
+#include "administration/name_adviser.h"
 #include "obj_save.h"
 #include "entities/obj_data.h"
 #include "structs/descriptor_data.h"

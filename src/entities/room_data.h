@@ -5,7 +5,7 @@
 #ifndef ROOM_HPP_INCLUDED
 #define ROOM_HPP_INCLUDED
 
-#include "affects/affect_data.h"
+#include "game_affects/affect_data.h"
 #include "constants.h"
 #include "dg_script/dg_scripts.h"
 #include "entities/entities_constants.h"
@@ -112,10 +112,10 @@ struct RoomData {
 
 	int poison;        // Степень заражения территории в SPELL_POISONED_FOG //
 
-	bool get_flag(const uint32_t flag) const { return m_room_flags.get(flag); }
-	void set_flag(const uint32_t flag) { m_room_flags.set(flag); }
-	void unset_flag(const uint32_t flag) { m_room_flags.unset(flag); }
-	bool toggle_flag(const size_t plane, const uint32_t flag) { return m_room_flags.toggle_flag(plane, flag); }
+	bool get_flag(const Bitvector flag) const { return m_room_flags.get(flag); }
+	void set_flag(const Bitvector flag) { m_room_flags.set(flag); }
+	void unset_flag(const Bitvector flag) { m_room_flags.unset(flag); }
+	bool toggle_flag(const size_t plane, const Bitvector flag) { return m_room_flags.toggle_flag(plane, flag); }
 	void clear_flags() { m_room_flags.clear(); }
 
 	void flags_from_string(const char *flag) { m_room_flags.from_string(flag); };

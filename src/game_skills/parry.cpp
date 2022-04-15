@@ -1,8 +1,8 @@
 #include "parry.h"
 
-#include "fightsystem/pk.h"
-#include "fightsystem/fight_hit.h"
-#include "fightsystem/common.h"
+#include "game_fight/pk.h"
+#include "game_fight/fight_hit.h"
+#include "game_fight/common.h"
 
 // **************** MULTYPARRY PROCEDURES
 void go_multyparry(CharData *ch) {

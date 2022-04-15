@@ -2,17 +2,15 @@
 // Copyright (c) 2013 Krodo
 // Part of Bylins http://www.mud.ru
 
+#include "boost/multi_array.hpp"
+#include <boost/algorithm/string.hpp>
+#include <boost/format.hpp>
+
 #include "act_movement.h"
 #include "color.h"
 #include "entities/char_player.h"
 #include "noob.h"
 #include "utils/utils_char_obj.inl"
-#include "entities/zone.h"
-
-#include "boost/multi_array.hpp"
-#include <boost/format.hpp>
-
-#include <iomanip>
 
 int shop_ext(CharData *ch, void *me, int cmd, char *argument);
 int receptionist(CharData *ch, void *me, int cmd, char *argument);

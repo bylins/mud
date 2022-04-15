@@ -10,7 +10,7 @@
 
 // Реализация ингредиентной магии
 
-#include "crafts/im.h"
+#include "game_crafts/im.h"
 
 #include "entities/world_characters.h"
 #include "world_objects.h"
@@ -1367,7 +1367,7 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	switch (GET_OBJ_TYPE(obj_proto[tgt])) {
 		case EObjType::kScroll:
-		case EObjType::kPorion: param[0] = GET_OBJ_VAL(obj_proto[tgt], 0);    // уровень
+		case EObjType::kPotion: param[0] = GET_OBJ_VAL(obj_proto[tgt], 0);    // уровень
 			param[1] = 1;    // количество
 			param[2] = obj_proto[tgt]->get_timer();    // таймер
 			break;
@@ -1488,7 +1488,7 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (result) {
 			switch (GET_OBJ_TYPE(result)) {
 				case EObjType::kScroll:
-				case EObjType::kPorion:
+				case EObjType::kPotion:
 					if (val[0] > 0) {
 						result->set_val(0, val[0]);
 					}

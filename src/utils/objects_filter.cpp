@@ -33,7 +33,7 @@ bool ParseFilter::init_type(const char *str) {
 		type = EObjType::kArmor;
 	} else if (utils::IsAbbrev(str, "напиток")
 		|| utils::IsAbbrev(str, "potion")) {
-		type = EObjType::kPorion;
+		type = EObjType::kPotion;
 	} else if (utils::IsAbbrev(str, "прочее")
 		|| utils::IsAbbrev(str, "другое")
 		|| utils::IsAbbrev(str, "other")) {

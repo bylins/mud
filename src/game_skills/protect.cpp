@@ -1,9 +1,9 @@
 #include "protect.h"
 
-#include "fightsystem/pk.h"
-#include "fightsystem/fight.h"
-#include "fightsystem/common.h"
-#include "fightsystem/fight_hit.h"
+#include "game_fight/pk.h"
+#include "game_fight/fight.h"
+#include "game_fight/common.h"
+#include "game_fight/fight_hit.h"
 #include "handler.h"
 #include "structs/global_objects.h"
 

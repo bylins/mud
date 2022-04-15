@@ -16,7 +16,7 @@
 
 #include "action_targeting.h"
 #include "cmd_god/ban.h"
-#include "birthplaces.h"
+#include "game_mechanics/birthplaces.h"
 #include "game_mechanics/celebrates.h"
 #include "utils/utils_char_obj.inl"
 #include "entities/char_data.h"
@@ -38,8 +38,8 @@
 #include "dg_script/dg_scripts.h"
 #include "dg_script/dg_event.h"
 #include "game_economics/ext_money.h"
-#include "fightsystem/fight.h"
-#include "fightsystem/pk.h"
+#include "game_fight/fight.h"
+#include "game_fight/pk.h"
 #include "utils/file_crc.h"
 #include "genchar.h"
 #include "structs/global_objects.h"
@@ -50,14 +50,14 @@
 #include "handler.h"
 #include "heartbeat.h"
 #include "house.h"
-#include "crafts/im.h"
+#include "game_crafts/im.h"
 #include "interpreter.h"
 #include "liquid.h"
 #include "utils/logger.h"
 #include "communication/mail.h"
-#include "mob_stat.h"
+#include "statistics/mob_stat.h"
 #include "modify.h"
-#include "names.h"
+#include "administration/names.h"
 #include "noob.h"
 #include "entities/obj_data.h"
 #include "obj_prototypes.h"
@@ -77,7 +77,7 @@
 #include "sysdep.h"
 #include "utils/utils_time.h"
 #include "title.h"
-#include "top.h"
+#include "statistics/top.h"
 #include "utils/utils.h"
 #include "utils/id_converter.h"
 #include "world_objects.h"
@@ -3849,7 +3849,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 #define BINARY    1
 #define NUMBER    2
 
-inline void SET_OR_REMOVE(const bool on, const bool off, FlagData &flagset, const uint32_t packed_flag) {
+inline void SET_OR_REMOVE(const bool on, const bool off, FlagData &flagset, const Bitvector packed_flag) {
 	if (on) {
 		flagset.set(packed_flag);
 	} else if (off) {

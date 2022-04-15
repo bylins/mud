@@ -26,7 +26,7 @@
 #include "entities/obj_data.h"
 #include "comm.h"
 #include "handler.h"
-#include "fightsystem/pk.h"
+#include "game_fight/pk.h"
 #include "color.h"
 #include "boards/boards.h"
 #include "game_skills/skills.h"

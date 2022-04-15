@@ -11,7 +11,7 @@
 #define __BAN_HPP__
 
 #include "conf.h"
-#include "diskio.h"
+#include "utils/diskio.h"
 
 #include <algorithm>
 #include <list>

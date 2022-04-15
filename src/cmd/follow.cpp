@@ -1,6 +1,6 @@
 #include "cmd/follow.h"
 
-#include "fightsystem/fight.h"
+#include "game_fight/fight.h"
 #include "handler.h"
 
 void perform_drop_gold(CharData *ch, int amount);

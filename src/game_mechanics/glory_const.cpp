@@ -16,7 +16,7 @@
 #include "handler.h"
 #include "entities/char_player.h"
 #include "glory_misc.h"
-#include "top.h"
+#include "statistics/top.h"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>

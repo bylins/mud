@@ -9,7 +9,7 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#include "interpreter.h"
+//#include "interpreter.h"
 #include "handler.h"
 #include "color.h"
 #include "entities/char_player.h"
@@ -425,7 +425,8 @@ void do_name(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	boost::trim(command);
+	//boost::trim(command);
+	utils::Trim(command);
 	int action = -1;
 	if (CompareParam(command, "одобрить"))
 		action = NAME_AGREE;

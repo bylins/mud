@@ -33,9 +33,9 @@ class Affect {
 	int duration;    // For how long its effects will last      //
 	int modifier;        // This is added to appropriate ability     //
 	TLocation location;        // Tells which ability to change(APPLY_XXX) //
-	long battleflag;       //*** SUCH AS HOLD,SIELENCE etc
-	FlagData aff;
+	Bitvector battleflag;       //*** SUCH AS HOLD,SIELENCE etc
 	Bitvector bitvector;        // Tells which bits to set (AFF_XXX) //
+	FlagData aff;
 	long caster_id; //Unique caster ID //
 	bool must_handled; // Указывает муду что для аффекта должен быть вызван обработчик (пока только для комнат) //
 	sh_int apply_time; // Указывает сколько аффект висит (пока используется только в комнатах) //

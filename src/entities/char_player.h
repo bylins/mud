@@ -13,16 +13,15 @@
 #include "conf.h"
 #include "sysdep.h"
 #include "structs/structs.h"
-#include "quests/quested.h"
+#include "game_quests/quest.h"
+#include "game_quests/quested.h"
 #include "mobmax.h"
 #include "communication/remember.h"
 #include "char_data.h"
-#include "dps.h"
+#include "statistics/dps.h"
 #include "mapsystem.h"
-#include "reset_stats.h"
+#include "administration/reset_stats.h"
 #include "boards/boards_types.h"
-#include "quests/quest.h"
-#include "stigmas.h"
 #include "cmd/mercenary.h"
 
 // кол-во сохраняемых стартовых статов в файле
@@ -120,8 +119,8 @@ class Player : public CharData {
 	int get_today_torc();
 	void add_today_torc(int num);
 
-	int get_reset_stats_cnt(ResetStats::Type type) const;
-	void inc_reset_stats_cnt(ResetStats::Type type);
+	int get_reset_stats_cnt(stats_reset::Type type) const;
+	void inc_reset_stats_cnt(stats_reset::Type type);
 
 	time_t get_board_date(Boards::BoardTypes type) const;
 	void set_board_date(Boards::BoardTypes type, time_t date);
@@ -214,7 +213,7 @@ class Player : public CharData {
 	// сколько гривн, в пересчете на бронзу, сегодня уже собрано
 	std::pair<uint8_t /* day 1-31 */, int> today_torc_;
 	// кол-во сбросов характеристик через меню
-	std::array<int, ResetStats::Type::TOTAL_NUM> reset_stats_cnt_;
+	std::array<int, stats_reset::Type::TOTAL_NUM> reset_stats_cnt_;
 	// временнЫе отметки о прочитанных сообщениях на досках
 	std::array<time_t, Boards::TYPES_NUM> board_date_;
 	// лед (доп. валюта)

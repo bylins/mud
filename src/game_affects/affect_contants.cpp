@@ -286,7 +286,7 @@ const std::string &NAME_BY_ITEM(const EWeaponAffect item) {
 	return EWeaponAffectFlag_name_by_value.at(item);
 }
 
-weapon_affect_t weapon_affect = {
+WeaponAffectArray weapon_affect = {
 	WeaponAffect{EWeaponAffect::kBlindness, 0, kSpellBlindness},
 	WeaponAffect{EWeaponAffect::kInvisibility, to_underlying(EAffect::kInvisible), 0},
 	WeaponAffect{EWeaponAffect::kDetectAlign, to_underlying(EAffect::kDetectAlign), 0},

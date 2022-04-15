@@ -23,7 +23,7 @@ int ext_search_block(const char *arg, const char *const *list, int exact);
 class FlagData {
  public:
 	static constexpr size_t kPlanesNumber = 4;
-	using flags_t = std::array<uint32_t, kPlanesNumber>;
+	using flags_t = std::array<Bitvector, kPlanesNumber>;
 	static constexpr size_t PLANE_SIZE = 8 * sizeof(flags_t::value_type) - 2;    // 2 bits spent for plane number
 
 	FlagData() { clear(); }
@@ -43,16 +43,16 @@ class FlagData {
 	bool get(const T packed_flag) const {
 		return 0 != (m_flags[to_underlying(packed_flag) >> 30] & (to_underlying(packed_flag) & 0x3fffffff));
 	}
-	bool get_flag(const size_t plane, const uint32_t flag) const { return 0 != (m_flags[plane] & (flag & 0x3fffffff)); }
-	uint32_t get_plane(const size_t number) const { return m_flags[number]; }
+	bool get_flag(const size_t plane, const Bitvector flag) const { return 0 != (m_flags[plane] & (flag & 0x3fffffff)); }
+	Bitvector get_plane(const size_t number) const { return m_flags[number]; }
 	bool plane_not_empty(const int packet_flag) const { return 0 != m_flags[packet_flag >> 30]; }
 
 	template<class T>
 	void set(const T packed_flag) {
 		m_flags[to_underlying(packed_flag) >> 30] |= to_underlying(packed_flag) & 0x3fffffff;
 	}
-	void set_flag(const size_t plane, const uint32_t flag) { m_flags[plane] |= flag; }
-	void set_plane(const size_t number, const uint32_t value) { m_flags[number] = value; }
+	void set_flag(const size_t plane, const Bitvector flag) { m_flags[plane] |= flag; }
+	void set_plane(const size_t number, const Bitvector value) { m_flags[number] = value; }
 
 	template<class T>
 	void unset(const T packed_flag) {
@@ -64,7 +64,7 @@ class FlagData {
 		return 0 != ((m_flags[to_underlying(packed_flag) >> 30] ^= (to_underlying(packed_flag) & 0x3fffffff))
 			& (to_underlying(packed_flag) & 0x3fffffff));
 	}
-	bool toggle_flag(const size_t plane, const uint32_t flag) { return 0 != ((m_flags[plane] ^= flag) & flag); }
+	bool toggle_flag(const size_t plane, const Bitvector flag) { return 0 != ((m_flags[plane] ^= flag) & flag); }
 
 	void from_string(const char *flag);
 	void tascii(int num_planes, char *ascii) const;
@@ -80,29 +80,29 @@ class FlagData {
 	void gm_flag(const char *subfield, const char *const *const list, char *res);
 
  protected:
-	std::array<uint32_t, kPlanesNumber> m_flags;
+	std::array<Bitvector, kPlanesNumber> m_flags;
 };
 
 template<>
-inline bool FlagData::get(const uint32_t packed_flag) const {
+inline bool FlagData::get(const Bitvector packed_flag) const {
 	return 0 != (m_flags[packed_flag >> 30] & (packed_flag & 0x3fffffff));
 }
 template<>
-inline bool FlagData::get(const int packed_flag) const { return get(static_cast<uint32_t>(packed_flag)); }
+inline bool FlagData::get(const int packed_flag) const { return get(static_cast<Bitvector>(packed_flag)); }
 template<>
-inline void FlagData::set(const uint32_t packed_flag) { m_flags[packed_flag >> 30] |= packed_flag & 0x3fffffff; }
+inline void FlagData::set(const Bitvector packed_flag) { m_flags[packed_flag >> 30] |= packed_flag & 0x3fffffff; }
 template<>
-inline void FlagData::set(const int packed_flag) { set(static_cast<uint32_t>(packed_flag)); }
+inline void FlagData::set(const int packed_flag) { set(static_cast<Bitvector>(packed_flag)); }
 template<>
-inline void FlagData::unset(const uint32_t packed_flag) { m_flags[packed_flag >> 30] &= ~(packed_flag & 0x3fffffff); }
+inline void FlagData::unset(const Bitvector packed_flag) { m_flags[packed_flag >> 30] &= ~(packed_flag & 0x3fffffff); }
 template<>
-inline void FlagData::unset(const int packed_flag) { unset(static_cast<uint32_t>(packed_flag)); }
+inline void FlagData::unset(const int packed_flag) { unset(static_cast<Bitvector>(packed_flag)); }
 template<>
-inline bool FlagData::toggle(const uint32_t packed_flag) {
+inline bool FlagData::toggle(const Bitvector packed_flag) {
 	return 0 != ((m_flags[packed_flag >> 30] ^= (packed_flag & 0x3fffffff)) & (packed_flag & 0x3fffffff));
 }
 template<>
-inline bool FlagData::toggle(const int packed_flag) { return toggle(static_cast<uint32_t>(packed_flag)); }
+inline bool FlagData::toggle(const int packed_flag) { return toggle(static_cast<Bitvector>(packed_flag)); }
 
 inline FlagData &FlagData::operator+=(const FlagData &r) {
 	m_flags[0] |= r.m_flags[0];
@@ -149,7 +149,7 @@ inline bool unique_bit_flag_data::operator>(const unique_bit_flag_data &r) const
 			|| m_flags[3] > r.m_flags[3]);
 }
 
-void tascii(const uint32_t *pointer, int num_planes, char *ascii);
+void tascii(const Bitvector *pointer, int num_planes, char *ascii);
 
 inline int flag_data_by_num(const int &num) {
 	return num < 0 ? 0 :

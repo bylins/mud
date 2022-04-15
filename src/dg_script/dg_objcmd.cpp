@@ -11,8 +11,8 @@
 
 #include "entities/char_data.h"
 #include "cmd/follow.h"
-#include "fightsystem/fight.h"
-#include "fightsystem/pk.h"
+#include "game_fight/fight.h"
+#include "game_fight/pk.h"
 #include "handler.h"
 #include "obj_prototypes.h"
 #include "game_magic/magic_utils.h"

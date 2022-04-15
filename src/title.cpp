@@ -5,9 +5,11 @@
 #include "title.h"
 
 #include <cmath>
+#include <boost/algorithm/string.hpp>
 
 #include "entities/char_player.h"
-#include "fightsystem/pk.h"
+#include "game_fight/pk.h"
+#include "handler.h"
 #include "administration/privilege.h"
 #include "color.h"
 

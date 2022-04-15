@@ -935,7 +935,7 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			return;
 		}
 		if (GET_OBJ_TYPE(from_obj) != EObjType::kLiquidContainer
-			&& GET_OBJ_TYPE(from_obj) != EObjType::kPorion) {
+			&& GET_OBJ_TYPE(from_obj) != EObjType::kPotion) {
 			SendMsgToChar("Вы не можете из этого переливать!\r\n", ch);
 			return;
 		}
@@ -1010,7 +1010,7 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	if (GET_OBJ_VAL(to_obj, 1) != 0
-		&& GET_OBJ_TYPE(from_obj) != EObjType::kPorion
+		&& GET_OBJ_TYPE(from_obj) != EObjType::kPotion
 		&& GET_OBJ_VAL(to_obj, 2) != GET_OBJ_VAL(from_obj, 2)) {
 		SendMsgToChar("Вы станете неплохим Химиком, но не в нашей игре.\r\n", ch);
 		return;
@@ -1024,14 +1024,12 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 					  GET_OBJ_PNAME(from_obj, 3).c_str());
 		return;
 	}
-//Added by Adept - переливание зелья из бутылки или емкости в емкость
 
 	//Переливает из бутылки с зельем в емкость
-	if (GET_OBJ_TYPE(from_obj) == EObjType::kPorion) {
+	if (GET_OBJ_TYPE(from_obj) == EObjType::kPotion) {
 		int result = check_equal_potions(from_obj, to_obj);
 		if (GET_OBJ_VAL(to_obj, 1) == 0 || result > 0) {
-			SendMsgToChar(ch, "Вы занялись переливанием зелья в %s.\r\n",
-						  OBJN(to_obj, ch, 3));
+			SendMsgToChar(ch, "Вы занялись переливанием зелья в %s.\r\n", OBJN(to_obj, ch, 3));
 			int n1 = GET_OBJ_VAL(from_obj, 1);
 			int n2 = GET_OBJ_VAL(to_obj, 1);
 			int t1 = GET_OBJ_VAL(from_obj, 3);
@@ -1077,7 +1075,6 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			}
 		}
 	}
-//Конец изменений Adept'ом
 
 	if (subcmd == SCMD_POUR) {
 		SendMsgToChar(ch, "Вы занялись переливанием %s в %s.\r\n",

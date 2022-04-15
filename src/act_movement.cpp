@@ -15,9 +15,9 @@
 
 #include "game_mechanics/deathtrap.h"
 #include "entities/entities_constants.h"
-#include "fightsystem/fight.h"
-#include "fightsystem/pk.h"
-#include "fightsystem/mobact.h"
+#include "game_fight/fight.h"
+#include "game_fight/pk.h"
+#include "game_fight/mobact.h"
 #include "handler.h"
 #include "house.h"
 #include "game_mechanics/named_stuff.h"

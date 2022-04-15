@@ -10,7 +10,7 @@
 #ifndef ITEM_CREATION_HPP_
 #define ITEM_CREATION_HPP_
 
-#include "affects/affect_data.h"
+#include "game_affects/affect_data.h"
 #include "conf.h"
 #include "entities/entities_constants.h"
 #include "features.h"

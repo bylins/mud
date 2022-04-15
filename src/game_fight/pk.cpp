@@ -17,7 +17,7 @@
 #include "color.h"
 #include "house.h"
 #include "handler.h"
-#include "fightsystem/fight.h"
+#include "game_fight/fight.h"
 #include "game_classes/classes.h"
 
 void SetWait(CharData *ch, int waittime, int victim_in_room);

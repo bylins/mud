@@ -4,7 +4,7 @@
 #define _FIGHT_HIT_HPP_
 
 #include "fight_constants.h"
-#include "affects/affect_handler.h"
+#include "game_affects/affect_handler.h"
 #include "utils/utils.h"
 #include "conf.h"
 #include "sysdep.h"

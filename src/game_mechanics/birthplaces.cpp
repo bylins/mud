@@ -59,7 +59,7 @@ int Birthplaces::GetLoadRoom(short Id) {
 	if (BPPtr)
 		return BPPtr->LoadRoom();
 
-	return DEFAULT_LOADROOM;
+	return kDefaultLoadroom;
 };
 
 // Получение списка предметов, которые выдаются в этой точке при первом входе в игру
@@ -108,7 +108,7 @@ short Birthplaces::ParseSelect(char *arg) {
 		if (select == (*it)->Description())
 			return (*it)->Id();
 
-	return BIRTH_PLACE_UNDEFINED;
+	return kBirthplaceUndefined;
 };
 
 // Проверка наличия точки входа с указанным ID

@@ -12,7 +12,7 @@
 #include "handler.h"
 #include "olc/olc.h"
 #include "modify.h"
-#include "fightsystem/fight.h"
+#include "game_fight/fight.h"
 #include "entities/entities_constants.h"
 #include "structs/global_objects.h"
 
@@ -1959,7 +1959,7 @@ int MakeRecept::make(CharData *ch) {
 			// Считаем поглощение.
 			obj->set_val(1, stat_modify(ch, GET_OBJ_VAL(obj, 1), 1));
 			break;
-		case EObjType::kPorion:
+		case EObjType::kPotion:
 			// Считаем уровень итоговый напитка
 			obj->set_val(0, stat_modify(ch, GET_OBJ_VAL(obj, 0), 1));
 			break;

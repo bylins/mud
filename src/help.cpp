@@ -4,15 +4,16 @@
 
 #include "help.h"
 
+#include <boost/format.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/range/algorithm/remove_if.hpp>
+
 #include "obj_prototypes.h"
 #include "modify.h"
 #include "house.h"
 #include "game_mechanics/sets_drop.h"
 #include "color.h"
 #include "structs/global_objects.h"
-
-#include <boost/format.hpp>
-#include <boost/range/algorithm/remove_if.hpp>
 
 extern char *help;
 

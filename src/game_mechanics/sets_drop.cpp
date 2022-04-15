@@ -3,6 +3,9 @@
 
 #include "sets_drop.h"
 
+#include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
+
 #include "obj_prototypes.h"
 #include "entities/char_data.h"
 #include "utils/pugixml/pugixml.h"
@@ -10,10 +13,8 @@
 #include "color.h"
 #include "help.h"
 #include "utils/parse.h"
-#include "mob_stat.h"
+#include "statistics/mob_stat.h"
 #include "entities/zone.h"
-
-#include <boost/lexical_cast.hpp>
 
 namespace SetsDrop {
 // список сетин на дроп

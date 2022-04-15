@@ -9,7 +9,7 @@
 #ifndef FILE_FEATURES_H_INCLUDED
 #define FILE_FEATURES_H_INCLUDED
 
-#include "abilities/abilities_items_set.h"
+#include "game_abilities/abilities_items_set.h"
 #include "game_skills/skills.h"
 #include "structs/structs.h"
 #include "conf.h"
