@@ -452,7 +452,7 @@ enum ENpcFlag : Bitvector {
 	kHelped = 1 << 24,
 	kFreeDrop = 1 << 25,
 	kNoIngrDrop = 1 << 26,
-
+	kNoMercList = 1 << 27,
 	kStealing = kIntOne | (1 << 0),
 	kWielding = kIntOne | (1 << 1),
 	kArmoring = kIntOne | (1 << 2),
