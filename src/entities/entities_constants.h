@@ -136,7 +136,8 @@ enum EEquipPos : int {
 	kHold = 17,      // левая рука
 	kBoths = 18,      // обе руки
 	kQuiver = 19,      // под лук (колчан)
-	kNumEquipPos = 20    // This must be the # of eq positions!! //
+	kFirstEquipPos = kLight,
+	kNumEquipPos = 20    // This must be the # of eq positions!!
 };
 
 /*
@@ -452,7 +453,7 @@ enum ENpcFlag : Bitvector {
 	kHelped = 1 << 24,
 	kFreeDrop = 1 << 25,
 	kNoIngrDrop = 1 << 26,
-
+	kNoMercList = 1 << 27,
 	kStealing = kIntOne | (1 << 0),
 	kWielding = kIntOne | (1 << 1),
 	kArmoring = kIntOne | (1 << 2),
@@ -605,7 +606,7 @@ enum EObjType {
 	kMissile = 7,			// Unimplemented     //
 	kTreasure = 8,			// Item is a treasure, not gold  //
 	kArmor = 9,				// Item is armor     //
-	kPorion = 10,			// Item is a potion     //
+	kPotion = 10,			// Item is a potion     //
 	kWorm = 11,				// Unimplemented     //
 	kOther = 12,			// Misc object       //
 	kTrash = 13,			// Trash - shopkeeps won't buy   //

@@ -3,7 +3,7 @@
 */
 
 #include "action_targeting.h"
-#include "fightsystem/pk.h"
+#include "game_fight/pk.h"
 
 /*
 	2. Добавить возможность сформировать список группы без учета комнаты.

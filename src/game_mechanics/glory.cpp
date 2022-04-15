@@ -12,7 +12,7 @@
 #include "administration/password.h"
 #include "genchar.h"
 #include "color.h"
-#include "top.h"
+#include "statistics/top.h"
 #include "entities/char_data.h"
 #include "entities/char_player.h"
 #include "modify.h"

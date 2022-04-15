@@ -299,7 +299,7 @@ int calc_loadroom(const CharData *ch, int bplace_mode /*= BIRTH_PLACE_UNDEFINED*
 		return (frozen_start_room);
 	} else {
 		const int loadroom = Birthplaces::GetLoadRoom(bplace_mode);
-		if (loadroom != BIRTH_PLACE_UNDEFINED) {
+		if (loadroom != kBirthplaceUndefined) {
 			return loadroom;
 		}
 	}

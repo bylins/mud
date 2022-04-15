@@ -1,7 +1,7 @@
 #ifndef MAGIC_ROOMS_HPP_
 #define MAGIC_ROOMS_HPP_
 
-#include "affects/affect_data.h"
+#include "game_affects/affect_data.h"
 #include "spells.h"
 
 #include <list>
@@ -9,6 +9,9 @@
 class CharData;
 
 namespace room_spells {
+
+// Константа, определяющая скорость таймера аффектов
+const int kSecsPerRoomAffect = 2;
 
 // Битвекторы аффектов комнат - порождаются заклинаниями и не сохраняются в файле.
 enum ERoomAffect : Bitvector {

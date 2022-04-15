@@ -56,7 +56,6 @@ enum class ESkill : int {
 	kRiding = 8,
 	kHideTrack = 9,
 	kSkinning = 11,
-						/* Просвет в 1 номер */
 	kMultiparry = 12,
 	kReforging = 13,
 						/* Просвет почему-то */
@@ -75,6 +74,7 @@ enum class ESkill : int {
 	kCampfire = 32,
 	kCreateBow = 33,
 						/* Снова просвет */
+	kCutting = 129,		// Скилл-заглушка для способности "порез", иначе некорректно выдаются сообщения
 	kThrow = 130,
 	kBackstab = 131,
 	kBash = 132,

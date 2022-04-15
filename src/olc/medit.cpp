@@ -17,14 +17,14 @@
 #include "dg_script/dg_olc.h"
 #include "constants.h"
 #include "features.h"
-#include "crafts/im.h"
+#include "game_crafts/im.h"
 #include "entities/char_data.h"
 #include "game_skills/skills.h"
 #include "name_list.h"
 #include "entities/room_data.h"
 #include "corpse.h"
 #include "game_mechanics/sets_drop.h"
-#include "fightsystem/fight.h"
+#include "game_fight/fight.h"
 #include "entities/zone.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
@@ -772,7 +772,6 @@ void medit_disp_positions(DescriptorData *d) {
 	SendMsgToChar("Выберите положение : ", d->character.get());
 }
 
-// *  Display add parameters - added by Adept
 void medit_disp_add_parameters(DescriptorData *d) {
 	get_char_cols(d->character.get());
 
@@ -804,7 +803,6 @@ void medit_disp_add_parameters(DescriptorData *d) {
 	SendMsgToChar("Введите номер и величину параметра (0 - конец) : ", d->character.get());
 }
 
-// *  Display resistances - added by Adept
 void medit_disp_resistances(DescriptorData *d) {
 	int i;
 

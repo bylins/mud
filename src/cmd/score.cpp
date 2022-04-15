@@ -13,7 +13,7 @@
 #include "entities/char_data.h"
 #include "entities/char_player.h"
 #include "entities/player_races.h"
-#include "fightsystem/fight_hit.h"
+#include "game_fight/fight_hit.h"
 #include "game_classes/classes.h"
 #include "game_mechanics/bonus.h"
 #include "game_mechanics/glory.h"
@@ -749,7 +749,7 @@ void PrintScoreBase(CharData *ch) {
 								   "  Броня/Поглощение : %4d/%d&n\r\n",
 				ac, ac_text[ac_t], GET_ARMOUR(ch), GET_ABSORBE(ch));
 	}
-	sprintf(buf + strlen(buf), "Ваш опыт - %ld %s, бонус %d процентов.", GET_EXP(ch),
+	sprintf(buf + strlen(buf), "Ваш опыт - %ld %s, бонус %d процентов. ", GET_EXP(ch),
 			GetDeclensionInNumber(GET_EXP(ch), EWhat::kPoint), ch->add_abils.percent_exp_add);
 	if (GetRealLevel(ch) < kLvlImmortal) {
 		if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {

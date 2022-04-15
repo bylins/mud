@@ -1,8 +1,7 @@
 #include "create.h"
 
-#include "crafts/im.h"
+#include "game_crafts/im.h"
 #include "game_magic/spells.h"
-#include "comm.h"
 #include "game_magic/magic_utils.h"
 #include "handler.h"
 

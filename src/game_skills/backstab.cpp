@@ -1,10 +1,10 @@
 #include "backstab.h"
 
-#include "fightsystem/pk.h"
-#include "fightsystem/fight.h"
-#include "fightsystem/common.h"
-#include "fightsystem/fight_hit.h"
-#include "fightsystem/fight_start.h"
+#include "game_fight/pk.h"
+#include "game_fight/fight.h"
+#include "game_fight/common.h"
+#include "game_fight/fight_hit.h"
+#include "game_fight/fight_start.h"
 #include "handler.h"
 #include "protect.h"
 #include "structs/global_objects.h"
@@ -125,7 +125,7 @@ void go_backstab(CharData *ch, CharData *vict) {
 
 	TrainSkill(ch, ESkill::kBackstab, success, vict);
 	if (!success) {
-		Damage dmg(SkillDmg(ESkill::kBackstab), fight::kZeroDmg, fight::kPhysDmg, GET_EQ(ch, EEquipPos::kWield));
+		Damage dmg(SkillDmg(ESkill::kBackstab), fight::kZeroDmg, fight::kPhysDmg, ch->equipment[EEquipPos::kWield]);
 		dmg.Process(ch, vict);
 	} else {
 		hit(ch, vict, ESkill::kBackstab, fight::kMainHand);

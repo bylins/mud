@@ -11,7 +11,7 @@
 
 #include "entities/char_data.h"
 #include "cmd/follow.h"
-#include "fightsystem/fight.h"
+#include "game_fight/fight.h"
 #include "handler.h"
 #include "utils/id_converter.h"
 #include "obj_prototypes.h"

@@ -2,8 +2,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include <boost/lexical_cast.hpp>
-
-//#include <iostream>
+#include <boost/algorithm/string.hpp>
 
 #include "entities/world_characters.h"
 #include "obj_prototypes.h"

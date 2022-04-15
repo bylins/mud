@@ -10,6 +10,9 @@
 
 #include "mail.h"
 
+#include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
+
 #include "world_objects.h"
 #include "handler.h"
 #include "parcel.h"
@@ -18,8 +21,6 @@
 #include "utils/parse.h"
 #include "color.h"
 #include "utils/pugixml/pugixml.h"
-
-#include <boost/lexical_cast.hpp>
 
 extern RoomRnum r_helled_start_room;
 extern RoomRnum r_named_start_room;

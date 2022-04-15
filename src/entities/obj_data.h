@@ -205,10 +205,10 @@ class CObjectPrototype {
 	auto serialize_values() const { return m_values.print_to_file(); }
 	bool can_wear_any() const { return m_wear_flags > 0 && m_wear_flags != to_underlying(EWearFlag::kTake); }
 	bool get_affect(const EWeaponAffect weapon_affect) const { return m_waffect_flags.get(weapon_affect); }
-	bool get_affect(const uint32_t weapon_affect) const { return m_waffect_flags.get(weapon_affect); }
+	bool get_affect(const Bitvector weapon_affect) const { return m_waffect_flags.get(weapon_affect); }
 	bool has_anti_flag(const EAntiFlag flag) const { return m_anti_flags.get(flag); }
 	bool has_flag(const EObjFlag packed_flag) const { return m_extra_flags.get(packed_flag); }
-	bool has_flag(const size_t plane, const uint32_t flag) const { return m_extra_flags.get_flag(plane, flag); }
+	bool has_flag(const size_t plane, const Bitvector flag) const { return m_extra_flags.get_flag(plane, flag); }
 	bool has_no_flag(const ENoFlag flag) const { return m_no_flags.get(flag); }
 	bool has_wear_flag(const EWearFlag part) const;
 	bool get_wear_mask(const wear_flags_t part) const;
@@ -274,7 +274,7 @@ class CObjectPrototype {
 	void set_ex_description(const ExtraDescription::shared_ptr &_) { m_ex_description = _; }
 	void set_ex_description(ExtraDescription *_) { m_ex_description.reset(_); }
 	void set_extra_flag(const EObjFlag packed_flag) { m_extra_flags.set(packed_flag); }
-	void set_extra_flag(const size_t plane, const uint32_t flag) { m_extra_flags.set_flag(plane, flag); }
+	void set_extra_flag(const size_t plane, const Bitvector flag) { m_extra_flags.set_flag(plane, flag); }
 	void set_extra_flags(const FlagData &flags) { m_extra_flags = flags; }
 	void set_level(const int _) { m_level = _; }
 	void set_material(const EObjMaterial _) { m_material = _; }
@@ -282,7 +282,7 @@ class CObjectPrototype {
 	void set_maximum_durability(const int _) { m_maximum_durability = _; }
 	void set_no_flag(const ENoFlag flag) { m_no_flags.set(flag); }
 	void set_no_flags(const FlagData &flags) { m_no_flags = flags; }
-	void set_obj_aff(const uint32_t packed_flag) { m_waffect_flags.set(packed_flag); }
+	void set_obj_aff(const Bitvector packed_flag) { m_waffect_flags.set(packed_flag); }
 	void set_PName(const size_t index, const char *_) { m_pnames[index] = _; }
 	void set_PName(const size_t index, const std::string &_) { m_pnames[index] = _; }
 	void set_PNames(const pnames_t &_) { m_pnames = _; }
@@ -303,13 +303,13 @@ class CObjectPrototype {
 	void sub_val(const size_t index, const int amount) { m_vals[index] -= amount; }
 	void sub_weight(const int _) { m_weight -= _; }
 	void swap_proto_script(triggers_list_t &_) { m_proto_script->swap(_); }
-	void toggle_affect_flag(const size_t plane, const uint32_t flag) { m_waffect_flags.toggle_flag(plane, flag); }
-	void toggle_anti_flag(const size_t plane, const uint32_t flag) { m_anti_flags.toggle_flag(plane, flag); }
-	void toggle_extra_flag(const size_t plane, const uint32_t flag) { m_extra_flags.toggle_flag(plane, flag); }
-	void toggle_no_flag(const size_t plane, const uint32_t flag) { m_no_flags.toggle_flag(plane, flag); }
+	void toggle_affect_flag(const size_t plane, const Bitvector flag) { m_waffect_flags.toggle_flag(plane, flag); }
+	void toggle_anti_flag(const size_t plane, const Bitvector flag) { m_anti_flags.toggle_flag(plane, flag); }
+	void toggle_extra_flag(const size_t plane, const Bitvector flag) { m_extra_flags.toggle_flag(plane, flag); }
+	void toggle_no_flag(const size_t plane, const Bitvector flag) { m_no_flags.toggle_flag(plane, flag); }
 	void toggle_skill(const uint32_t skill);
-	void toggle_val_bit(const size_t index, const uint32_t bit);
-	void toggle_wear_flag(const uint32_t flag);
+	void toggle_val_bit(const size_t index, const Bitvector bit);
+	void toggle_wear_flag(const Bitvector flag);
 	void unset_extraflag(const EObjFlag packed_flag) { m_extra_flags.unset(packed_flag); }
 	void set_skill(ESkill skill_num, int percent);
 	int get_skill(ESkill skill_num) const;
@@ -814,12 +814,12 @@ inline void CObjectPrototype::set_affected(const size_t index, const EApply loca
 //void delete_item(const std::size_t pt_num, int vnum);
 inline bool CAN_WEAR(const CObjectPrototype *obj, const EWearFlag part) { return obj->has_wear_flag(part); }
 inline bool CAN_WEAR_ANY(const CObjectPrototype *obj) { return obj->can_wear_any(); }
-inline void SET_OBJ_AFF(CObjectPrototype *obj, const uint32_t packed_flag) { return obj->set_obj_aff(packed_flag); }
+inline void SET_OBJ_AFF(CObjectPrototype *obj, const Bitvector packed_flag) { return obj->set_obj_aff(packed_flag); }
 inline bool OBJ_AFFECT(const CObjectPrototype *obj,
-					   const uint32_t weapon_affect) { return obj->get_affect(weapon_affect); }
+					   const Bitvector weapon_affect) { return obj->get_affect(weapon_affect); }
 
 inline bool OBJ_AFFECT(const CObjectPrototype *obj, const EWeaponAffect weapon_affect) {
-	return OBJ_AFFECT(obj, static_cast<uint32_t>(weapon_affect));
+	return OBJ_AFFECT(obj, static_cast<Bitvector>(weapon_affect));
 }
 
 class CActionDescriptionWriter : public utils::AbstractStringWriter {

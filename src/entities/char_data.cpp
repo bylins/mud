@@ -3,14 +3,14 @@
 // Part of Bylins http://www.mud.ru
 
 #include "world_characters.h"
-#include "fightsystem/pk.h"
+#include "game_fight/pk.h"
 #include "handler.h"
 #include "administration/privilege.h"
 #include "char_player.h"
 #include "player_races.h"
 #include "game_mechanics/celebrates.h"
 #include "cache.h"
-#include "fightsystem/fight.h"
+#include "game_fight/fight.h"
 #include "house.h"
 #include "msdp/msdp_constants.h"
 #include "backtrace.h"
@@ -523,6 +523,9 @@ int CharData::get_skill(const ESkill skill_num) const {
 	int skill = get_trained_skill(skill_num) + get_equipped_skill(skill_num);
 	if (AFF_FLAGGED(this, EAffect::kSkillReduce)) {
 		skill -= skill * GET_POISON(this) / 100;
+	}
+	if (ROOM_FLAGGED(this->in_room, ERoomFlag::kDominationArena)) {
+		return std::clamp(skill, 0, CalcSkillRemortCap(this));
 	}
 	return std::clamp(skill, 0, MUD::Skills()[skill_num].cap);
 }

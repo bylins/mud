@@ -1,9 +1,9 @@
 #ifndef GLOBAL_OBJECTS_HPP_
 #define GLOBAL_OBJECTS_HPP_
 
-#include "abilities/abilities_info.h"
+#include "game_abilities/abilities_info.h"
 #include "game_classes/classes_info.h"
-#include "fightsystem/pk.h"
+#include "game_fight/pk.h"
 #include "game_mechanics/celebrates.h"
 #include "utils/logger.h"
 #include "heartbeat.h"
@@ -15,7 +15,7 @@
 #include "act_wizard.h"
 #include "influxdb.h"
 #include "entities/zone.h"
-#include "quests/daily_quest.h"
+#include "game_quests/daily_quest.h"
 #include "game_skills/skills_info.h"
 #include "strengthening.h"
 #include "boot/cfg_manager.h"

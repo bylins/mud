@@ -20,7 +20,7 @@
 #include "cmd/follow.h"
 #include "cmd/hire.h"
 #include "depot.h"
-#include "fightsystem/mobact.h"
+#include "game_fight/mobact.h"
 #include "handler.h"
 #include "house.h"
 #include "liquid.h"
@@ -77,16 +77,17 @@ ESkill GetMagicSkillId(int spellnum) {
 //Определим мин уровень для изучения спелла из книги
 //req_lvl - требуемый уровень из книги
 int CalcMinSpellLevel(CharData *ch, int spellnum, int req_lvl) {
-	int min_lvl = MAX(req_lvl, BASE_CAST_LEV(spell_info[spellnum], ch))
-		- (MAX(GET_REAL_REMORT(ch) - MIN_CAST_REM(spell_info[spellnum], ch), 0) / 3);
+	int min_lvl = std::max(req_lvl, BASE_CAST_LEV(spell_info[spellnum], ch))
+		- (std::max(GET_REAL_REMORT(ch) - MIN_CAST_REM(spell_info[spellnum], ch), 0) / 3);
 
-	return MAX(1, min_lvl);
+	return std::max(1, min_lvl);
 }
 
 bool IsAbleToGetSpell(CharData *ch, int spellnum, int req_lvl) {
-	if (CalcMinSpellLevel(ch, spellnum, req_lvl) > GetRealLevel(ch)
-		|| MIN_CAST_REM(spell_info[spellnum], ch) > GET_REAL_REMORT(ch))
+	if (CalcMinSpellLevel(ch, spellnum, req_lvl) > GetRealLevel(ch) ||
+		MIN_CAST_REM(spell_info[spellnum], ch) > GET_REAL_REMORT(ch)) {
 		return false;
+	}
 
 	return true;
 };
@@ -94,8 +95,9 @@ bool IsAbleToGetSpell(CharData *ch, int spellnum, int req_lvl) {
 // Функция определяет возможность изучения спелла из книги или в гильдии
 bool IsAbleToGetSpell(CharData *ch, int spellnum) {
 	if (MIN_CAST_LEV(spell_info[spellnum], ch) > GetRealLevel(ch)
-		|| MIN_CAST_REM(spell_info[spellnum], ch) > GET_REAL_REMORT(ch))
+		|| MIN_CAST_REM(spell_info[spellnum], ch) > GET_REAL_REMORT(ch)) {
 		return false;
+	}
 
 	return true;
 };
@@ -1373,7 +1375,8 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 			MOB_FLAGS(victim).set(EMobFlag::kNoSkillTrain);
 			victim->set_skill(ESkill::kPunctual, 0);
 			// по идее при речарме и последующем креше можно оказаться с сейвом без шмота на чармисе -- Krodo
-			ch->updateCharmee(GET_MOB_VNUM(victim), 0);
+			if (!NPC_FLAGGED(ch, ENpcFlag::kNoMercList))
+				ch->updateCharmee(GET_MOB_VNUM(victim), 0);
 			Crash_crashsave(ch);
 			ch->save_char();
 		}
@@ -1511,7 +1514,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 
 	switch (GET_OBJ_TYPE(obj)) {
 		case EObjType::kScroll:
-		case EObjType::kPorion: sprintf(buf, "Содержит заклинание: ");
+		case EObjType::kPotion: sprintf(buf, "Содержит заклинание: ");
 			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) <= kSpellCount)
 				sprintf(buf + strlen(buf), " %s", GetSpellName(GET_OBJ_VAL(obj, 1)));
 			if (GET_OBJ_VAL(obj, 2) >= 1 && GET_OBJ_VAL(obj, 2) <= kSpellCount)

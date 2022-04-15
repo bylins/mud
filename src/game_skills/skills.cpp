@@ -381,6 +381,7 @@ void init_ESkill_ITEM_NAMES() {
 	ESkill_name_by_value[ESkill::kReligion] = "kReligion";
 	ESkill_name_by_value[ESkill::kSkinning] = "kSkinning";
 	ESkill_name_by_value[ESkill::kMultiparry] = "kMultiparry";
+	ESkill_name_by_value[ESkill::kCutting] = "kCutting";
 	ESkill_name_by_value[ESkill::kReforging] = "kReforging";
 	ESkill_name_by_value[ESkill::kLeadership] = "kLeadership";
 	ESkill_name_by_value[ESkill::kPunctual] = "kPunctual";

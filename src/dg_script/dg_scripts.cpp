@@ -29,7 +29,7 @@
 #include "game_mechanics/bonus.h"
 #include "olc/olc.h"
 #include "administration/privilege.h"
-#include "fightsystem/fight_hit.h"
+#include "game_fight/fight_hit.h"
 
 #include <chrono>
 //#include <string>

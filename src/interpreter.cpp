@@ -40,16 +40,16 @@
 #include "cmd/employ.h"
 #include "comm.h"
 #include "constants.h"
-#include "crafts/craft_commands.h"
-#include "crafts/jewelry.h"
+#include "game_crafts/craft_commands.h"
+#include "game_crafts/jewelry.h"
 #include "db.h"
 #include "depot.h"
 #include "dg_script/dg_scripts.h"
 #include "feats.h"
-#include "fightsystem/assist.h"
-#include "fightsystem/mobact.h"
-#include "fightsystem/pk.h"
-#include "fightsystem/fight_start.h"
+#include "game_fight/assist.h"
+#include "game_fight/mobact.h"
+#include "game_fight/pk.h"
+#include "game_fight/fight_start.h"
 #include "genchar.h"
 #include "game_classes/classes.h"
 #include "game_mechanics/glory.h"
@@ -58,14 +58,14 @@
 #include "handler.h"
 #include "heartbeat_commands.h"
 #include "house.h"
-#include "crafts/item_creation.h"
+#include "game_crafts/item_creation.h"
 #include "liquid.h"
 #include "utils/logger.h"
 #include "communication/mail.h"
 #include "modify.h"
 #include "name_list.h"
 #include "game_mechanics/named_stuff.h"
-#include "names.h"
+#include "administration/names.h"
 #include "entities/obj_data.h"
 #include "obj_prototypes.h"
 #include "olc/olc.h"
@@ -97,19 +97,19 @@
 #include "game_magic/spells.h"
 #include "time.h"
 #include "title.h"
-#include "top.h"
+#include "statistics/top.h"
 #include "game_skills/skills_info.h"
 
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"
 #endif
 #include "entities/player_races.h"
-#include "birthplaces.h"
+#include "game_mechanics/birthplaces.h"
 #include "help.h"
 #include "mapsystem.h"
 #include "game_economics/ext_money.h"
 #include "noob.h"
-#include "reset_stats.h"
+#include "administration/reset_stats.h"
 #include "game_mechanics/obj_sets.h"
 #include "utils/utils.h"
 #include "game_magic/magic_temp_spells.h"
@@ -120,7 +120,7 @@
 #include "utils/utils_debug.h"
 #include "structs/global_objects.h"
 #include "administration/accounts.h"
-#include "fightsystem/pk.h"
+#include "game_fight/pk.h"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
@@ -569,7 +569,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"игнорировать", EPosition::kDead, do_ignore, 0, 0, 0},
 		{"идеи", EPosition::kDead, Boards::DoBoard, 1, Boards::IDEA_BOARD, 0},
 		{"изгнать нежить", EPosition::kRest, do_turn_undead, 0, 0, -1},
-		{"изучить", EPosition::kSit, do_learn, 0, 0, 0},
+		{"изучить", EPosition::kSit, DoLearn, 0, 0, 0},
 		{"информация", EPosition::kSleep, do_gen_ps, 0, SCMD_INFO, 0},
 		{"испить", EPosition::kRest, do_employ, 0, SCMD_QUAFF, 500},
 		{"использовать", EPosition::kRest, do_style, 0, 0, 0},
@@ -3602,7 +3602,7 @@ void nanny(DescriptorData *d, char *arg) {
 						SEND_TO_Q(MENU, d);
 						STATE(d) = CON_MENU;
 					} else {
-						ResetStats::print_menu(d);
+						stats_reset::print_menu(d);
 						STATE(d) = CON_MENU_STATS;
 					}
 					break;
@@ -3891,7 +3891,7 @@ void nanny(DescriptorData *d, char *arg) {
 
 			break;
 
-		case CON_MENU_STATS: ResetStats::parse_menu(d, arg);
+		case CON_MENU_STATS: stats_reset::parse_menu(d, arg);
 			break;
 
 		case CON_RESET_RELIGION:

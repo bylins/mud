@@ -1,10 +1,10 @@
 #include "strangle.h"
 #include "chopoff.h"
 
-#include "fightsystem/pk.h"
-#include "fightsystem/fight.h"
-#include "fightsystem/fight_hit.h"
-#include "fightsystem/common.h"
+#include "game_fight/pk.h"
+#include "game_fight/fight.h"
+#include "game_fight/fight_hit.h"
+#include "game_fight/common.h"
 #include "handler.h"
 #include "utils/random.h"
 #include "protect.h"
@@ -34,7 +34,7 @@ void go_strangle(CharData *ch, CharData *vict) {
 	act("Вы попытались накинуть удавку на шею $N2.\r\n", false, ch, nullptr, vict, kToChar);
 
 	int prob = CalcCurrentSkill(ch, ESkill::kStrangle, vict);
-	int delay = 6 - MIN(4, (ch->get_skill(ESkill::kStrangle) + 30) / 50);
+	int delay = 6 - std::min(4, (ch->get_skill(ESkill::kStrangle) + 30) / 50);
 	int percent = number(1, MUD::Skills()[ESkill::kStrangle].difficulty);
 
 	bool success = percent <= prob;
@@ -55,23 +55,21 @@ void go_strangle(CharData *ch, CharData *vict) {
 		af.bitvector = to_underlying(EAffect::kStrangled);
 		affect_to_char(vict, af);
 
-		int dam =
-			(GET_MAX_HIT(vict) * GaussIntNumber((300 + 5 * ch->get_skill(ESkill::kStrangle)) / 70, 7.0, 1, 30)) / 100;
-		dam = (vict->IsNpc() ? MIN(dam, 6 * GET_MAX_HIT(ch)) : MIN(dam, 2 * GET_MAX_HIT(ch)));
+		int dam = (GET_MAX_HIT(vict) * GaussIntNumber((300 + 5 * ch->get_skill(ESkill::kStrangle)) / 70,
+													  7.0, 1, 30)) / 100;
+		dam = (vict->IsNpc() ? std::min(dam, 6 * GET_MAX_HIT(ch)) : std::min(dam, 2 * GET_MAX_HIT(ch)));
 		Damage dmg(SkillDmg(ESkill::kStrangle), dam, fight::kPhysDmg, nullptr);
 		dmg.flags.set(fight::kIgnoreArmor);
 		dmg.Process(ch, vict);
 		if (GET_POS(vict) > EPosition::kDead) {
 			SetWait(vict, 2, true);
 			if (vict->IsOnHorse()) {
-				act("Рванув на себя, $N стащил$G Вас на землю.", false, vict, nullptr, ch, kToChar);
-				act("Рванув на себя, Вы стащили $n3 на землю.", false, vict, nullptr, ch, kToVict);
+				act("Рванув на себя, $N стащил$G Вас на землю.",
+					false, vict, nullptr, ch, kToChar);
+				act("Рванув на себя, Вы стащили $n3 на землю.",
+					false, vict, nullptr, ch, kToVict);
 				act("Рванув на себя, $N стащил$G $n3 на землю.",
-					false,
-					vict,
-					nullptr,
-					ch,
-					kToNotVict | kToArenaListen);
+					false, vict, nullptr, ch, kToNotVict | kToArenaListen);
 				vict->drop_from_horse();
 			}
 			if (ch->get_skill(ESkill::kUndercut) && ch->isInSameRoom(vict)) {
@@ -109,10 +107,8 @@ void do_strangle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (IS_UNDEAD(vict)
-		|| GET_RACE(vict) == ENpcRace::kFish
-		|| GET_RACE(vict) == ENpcRace::kPlant
-		|| GET_RACE(vict) == ENpcRace::kConstruct) {
+	if (IS_UNDEAD(vict) || GET_RACE(vict) == ENpcRace::kFish ||
+		GET_RACE(vict) == ENpcRace::kPlant || GET_RACE(vict) == ENpcRace::kConstruct) {
 		SendMsgToChar("Вы бы еще верстовой столб удавить попробовали...\r\n", ch);
 		return;
 	}

@@ -26,16 +26,16 @@
 #include "db.h"
 #include "game_magic/spells.h"
 #include "game_skills/skills.h"
-#include "fightsystem/fight.h"
-#include "fightsystem/fight_hit.h"
+#include "game_fight/fight.h"
+#include "game_fight/fight_hit.h"
 #include "color.h"
 #include "constants.h"
-#include "fightsystem/pk.h"
+#include "game_fight/pk.h"
 #include "dg_script/dg_scripts.h"
 #include "communication/mail.h"
 #include "communication/parcel.h"
 #include "feats.h"
-#include "crafts/im.h"
+#include "game_crafts/im.h"
 #include "house.h"
 #include "description.h"
 #include "administration/privilege.h"
@@ -57,7 +57,7 @@
 #include "help.h"
 #include "mapsystem.h"
 #include "game_economics/ext_money.h"
-#include "mob_stat.h"
+#include "statistics/mob_stat.h"
 #include "utils/utils_char_obj.inl"
 #include "game_classes/classes.h"
 #include "entities/zone.h"
@@ -71,11 +71,11 @@
 #include "game_magic/magic_rooms.h"
 #include "game_economics/exchange.h"
 #include "act_other.h"
-#include "crafts/mining.h"
+#include "game_crafts/mining.h"
 #include "structs/global_objects.h"
 
 //#include <boost/lexical_cast.hpp>
-//#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string.hpp>
 //#include <boost/format.hpp>
 #include <iomanip>
 

@@ -15,9 +15,9 @@
 
 #include "game_mechanics/deathtrap.h"
 #include "entities/entities_constants.h"
-#include "fightsystem/fight.h"
-#include "fightsystem/pk.h"
-#include "fightsystem/mobact.h"
+#include "game_fight/fight.h"
+#include "game_fight/pk.h"
+#include "game_fight/mobact.h"
 #include "handler.h"
 #include "house.h"
 #include "game_mechanics/named_stuff.h"
@@ -555,19 +555,19 @@ void PerformDunkSong(CharData *ch) {
 
 /**
  * Выбор случайной комнаты из списка выходов комнаты, в которой находится персонаж.
- * Результатом может быть kIncorrectDir.
  * @param ch - персонаж, для которого производится выбор.
  * @param fail_chance - шанс не найти выход. Сравнивается со случайным числом от 1 до 100 + 25*число выходов.
  * @return Выбранное направление. Может быть kIncorrectDir в случае неудачи.
  */
 EDirection SelectRndDirection(CharData *ch, int fail_chance) {
 	std::vector<EDirection> directions;
-	for (auto dir = EDirection::kFirstDir; dir < EDirection::kLastDir; ++dir) {
+	for (auto dir = EDirection::kFirstDir; dir <= EDirection::kLastDir; ++dir) {
 		if (IsCorrectDirection(ch, dir, true, false) &&
 			!ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kDeathTrap)) {
 			directions.push_back(dir);
 		}
 	}
+
 	if (directions.empty() || number(1, 100 + 25 * directions.size()) < fail_chance) {
 		return EDirection::kIncorrectDir;
 	}

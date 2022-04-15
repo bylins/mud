@@ -16,12 +16,12 @@
 #include "obj_prototypes.h"
 #include "entities/char_data.h"
 #include "depot.h"
-#include "fightsystem/fight.h"
+#include "game_fight/fight.h"
 #include "handler.h"
 #include "house.h"
 #include "liquid.h"
 #include "game_mechanics/named_stuff.h"
-#include "fightsystem/pk.h"
+#include "game_fight/pk.h"
 #include "game_skills/poison.h"
 #include "meat_maker.h"
 #include "utils/utils_char_obj.inl"
@@ -2066,7 +2066,7 @@ void do_grab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				&& GET_OBJ_TYPE(obj) != EObjType::kWand
 				&& GET_OBJ_TYPE(obj) != EObjType::kStaff
 				&& GET_OBJ_TYPE(obj) != EObjType::kScroll
-				&& GET_OBJ_TYPE(obj) != EObjType::kPorion) {
+				&& GET_OBJ_TYPE(obj) != EObjType::kPotion) {
 				SendMsgToChar("Вы не можете это держать.\r\n", ch);
 				return;
 			}

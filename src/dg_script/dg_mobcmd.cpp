@@ -25,8 +25,8 @@
 
 #include "entities/char_data.h"
 #include "cmd/follow.h"
-#include "fightsystem/fight.h"
-#include "fightsystem/fight_hit.h"
+#include "game_fight/fight.h"
+#include "game_fight/fight_hit.h"
 #include "handler.h"
 #include "obj_prototypes.h"
 #include "game_magic/magic_utils.h"
@@ -1348,7 +1348,7 @@ void do_mdamage(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 		}
 
-		if (IS_IMMORTAL(ch) && dam > 0) {
+		if (IS_IMMORTAL(victim) && dam > 0) {
 			SendMsgToChar("Будучи очень крутым, вы сделали шаг в сторону и не получили повреждений...\r\n",
 						  victim);
 			return;

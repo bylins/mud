@@ -12,7 +12,7 @@
 #include "handler.h"
 #include "modify.h"
 #include "game_mechanics/named_stuff.h"
-#include "fightsystem/pk.h"
+#include "game_fight/pk.h"
 #include "entities/zone.h"
 
 #include <boost/lexical_cast.hpp>
@@ -537,7 +537,7 @@ bool init_type(const std::string &str, int &type) {
 		type = EObjType::kCraftMaterial;
 	} else if (utils::IsAbbrev(str, "напиток")
 		|| utils::IsAbbrev(str, "potion")) {
-		type = EObjType::kPorion;
+		type = EObjType::kPotion;
 	} else if (utils::IsAbbrev(str, "прочее")
 		|| utils::IsAbbrev(str, "другое")
 		|| utils::IsAbbrev(str, "other")) {
