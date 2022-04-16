@@ -18,6 +18,8 @@ void init_EItemMode_ITEM_NAMES() {
 	EItemMode_value_by_name.clear();
 
 	EItemMode_name_by_value[EItemMode::kDisabled] = "kDisabled";
+	EItemMode_name_by_value[EItemMode::kService] = "kService";
+	EItemMode_name_by_value[EItemMode::kFrozen] = "kkFrozen";
 	EItemMode_name_by_value[EItemMode::kTesting] = "kTesting";
 	EItemMode_name_by_value[EItemMode::kEnabled] = "kEnabled";
 
