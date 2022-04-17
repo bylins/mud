@@ -3860,7 +3860,7 @@ void exthit(CharData *ch, ESkill type, fight::AttackType weapon) {
 		&& static_cast<ESkill>(wielded->get_skill()) == ESkill::kBows
 		&& GET_EQ(ch, EEquipPos::kBoths)) {
 		// Лук в обеих руках - юзаем доп. или двойной выстрел
-		if (IsAbleToUseFeat(ch, EFeat::kDoubleshot) && !ch->get_skill(ESkill::kAddshot)
+		if (IsAbleToUseFeat(ch, EFeat::kDoubleShot) && !ch->get_skill(ESkill::kAddshot)
 			&& MIN(850, 200 + ch->get_skill(ESkill::kBows) * 4 + GET_REAL_DEX(ch) * 5) >= number(1, 1000)) {
 			hit(ch, ch->GetEnemy(), type, weapon);
 		} else if (ch->get_skill(ESkill::kAddshot) > 0) {

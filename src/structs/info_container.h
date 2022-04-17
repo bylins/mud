@@ -42,7 +42,7 @@ namespace info_container {
  */
 template<typename E>
 class IItem {
- public:
+  public:
 	[[nodiscard]] virtual EItemMode GetMode() const = 0;
 	[[nodiscard]] virtual E GetId() const = 0;
 	/**
@@ -135,8 +135,8 @@ class InfoContainer {
 	 * Обычный const_iterator не блокирует возможность изменить значение,
 	 * на которое указывает указатель, поэтому была применена обертка.
 	 */
-	auto begin();
-	auto end();
+	auto begin() const;
+	auto end() const;
 	/**
 	 * Найти элемент, соответствующий числу, скастованному в индекс элемента.
 	 * @return - элемент или элемент kUndefined.
@@ -237,13 +237,13 @@ typename InfoContainer<E, I, B>::ItemOptional InfoContainer<E, I, B>::MakeItemOp
 }
 
 template<typename E, typename I, typename B>
-auto InfoContainer<E, I, B>::begin() {
+auto InfoContainer<E, I, B>::begin() const {
 	iterators::ConstIterator<decltype(items_->begin()), I> it(items_->begin());
 	return it;
 }
 
 template<typename E, typename I, typename B>
-auto InfoContainer<E, I, B>::end() {
+auto InfoContainer<E, I, B>::end() const {
 	iterators::ConstIterator<decltype(items_->end()), I> it(items_->end());
 	return it;
 }
@@ -310,7 +310,7 @@ typename InfoContainer<E, I, B>::RegisterOptional InfoContainer<E, I, B>::Regist
 }
 
 template<typename E, typename I, typename B>
-void InfoContainer<E, I, B>::InfoContainer<E, I, B>::RegisterBuilder::EmplaceItem(Register &items, ItemPtr &item) {
+void InfoContainer<E, I, B>::RegisterBuilder::EmplaceItem(Register &items, ItemPtr &item) {
 	auto id = item->GetId();
 	auto it = items.try_emplace(id, std::move(item));
 	if (!it.second) {
@@ -320,7 +320,7 @@ void InfoContainer<E, I, B>::InfoContainer<E, I, B>::RegisterBuilder::EmplaceIte
 }
 
 template<typename E, typename I, typename B>
-void InfoContainer<E, I, B>::InfoContainer<E, I, B>::RegisterBuilder::EmplaceDefaultItems(Register &items) {
+void InfoContainer<E, I, B>::RegisterBuilder::EmplaceDefaultItems(Register &items) {
 	items.try_emplace(E::kUndefined, std::make_shared<I>());
 }
 

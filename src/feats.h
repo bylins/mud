@@ -99,7 +99,7 @@ enum EFeat : int {
 	kBowsFocus = 77,			//любимое оружие: лук
 	kAimingAttack = 78,			//прицельная атака
 	kGreatAimingAttack = 79,	//улучшенная прицельная атака
-	kDoubleshot = 80,			//двойной выстрел
+	kDoubleShot = 80,			//двойной выстрел
 	kPorter = 81,				//тяжеловоз
 	kSecretRunes = 82,			//тайные руны
 /*

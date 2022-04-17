@@ -58,7 +58,7 @@ void LearnSpellBook(CharData *ch, ObjData *obj) {
 		throw LearningError();
 	}
 	auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(obj, 1));
-	if (spell_id <= ESpell::kSpellNoSpell || spell_id > ESpell::kSpellCount) {
+	if (spell_id <= ESpell::kIncorrect || spell_id > ESpell::kSpellCount) {
 		SendMsgToChar("МАГИЯ НЕ ОПРЕДЕЛЕНА - сообщите Богам!\r\n", ch);
 		throw LearningError();
 	}

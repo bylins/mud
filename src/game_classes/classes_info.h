@@ -29,67 +29,50 @@ class ClassesLoader : virtual public cfg_manager::ICfgLoader {
 };
 
 struct CharClassInfo : public info_container::IItem<ECharClass> {
-
-	template<class E, class T>
-	class ClassTalentInfo {
+	template<typename E>
+	class TalentInfo : public info_container::IItem<E> {
 	public:
-		ClassTalentInfo() = delete;
-		ClassTalentInfo(E id, int min_level, int min_remort)
+		TalentInfo() = default;
+		TalentInfo(E id, int min_level, int min_remort)
 			: id_{id}, min_level_{min_level}, min_remort_{min_remort} {};
 
-		using Ptr = std::unique_ptr<T>;
-		[[nodiscard]] bool HasItem(E item_id) const { return talents_.contains(item_id); };
-		[[nodiscard]] bool HasNoItem(E item_id) const { return !HasItem(item_id); };
-
-		[[nodiscard]] int GetMinRemort(E item_id) const {
-			try {
-				return talents_.at(item_id)->min_remort_;
-			} catch (const std::out_of_range &) {
-				return kMaxRemort + 1;
-			}
-		};
-
-		[[nodiscard]] int GetMinLevel(E item_id) const {
-			try {
-				return talents_.at(item_id)->min_level_;
-			} catch (const std::out_of_range &) {
-				return kLvlImplementator;
-			}
-		};
+		[[nodiscard]] E GetId() const final { return id_; };
+		[[nodiscard]] int GetMinLevel() const { return min_level_; };
+		[[nodiscard]] int GetMinRemort() const { return min_remort_; };
 
 	 protected:
-		static inline std::unordered_map<E, Ptr> talents_;
-
 		E id_{E::kIncorrect};
 		int min_level_{kLvlImplementator};
 		int min_remort_{kMaxRemort + 1};
 	};
 
-	class ClassSkillInfo : public ClassTalentInfo<ESkill, ClassSkillInfo> {
+	class SkillInfo : public TalentInfo<ESkill> {
 	 public:
-		ClassSkillInfo() = delete;
-		ClassSkillInfo(ESkill id, int min_level, int min_remort, long improve)
-			: ClassTalentInfo(id, min_level, min_remort),
-			improve_{improve} {
-			talents_.try_emplace(id, std::make_unique<ClassSkillInfo>(*this));
-		};
+		SkillInfo() = default;
+		SkillInfo(ESkill id, int min_level, int min_remort, long improve, EItemMode mode)
+			: TalentInfo(id, min_level, min_remort), mode_{mode}, improve_{improve} {};
 
-		[[nodiscard]] static long GetImprove(ESkill skill_id) ;
-		[[nodiscard]] static int GetLevelDecrement() { return level_decrement_; };
+		[[nodiscard]] EItemMode GetMode() const final { return mode_; };
+		[[nodiscard]] long GetImprove() const { return improve_; };
+		void Print(std::stringstream &buffer) const;
 
 	 private:
+		EItemMode mode_{EItemMode::kEnabled};
 		long improve_{kMinImprove};
-		static int level_decrement_;
 	};
 
-	class ClassSpellInfo : public ClassTalentInfo<ESpell, ClassSpellInfo> {
+	class SkillsInfoBuilder : public info_container::IItemBuilder<SkillInfo> {
 	 public:
-		ClassSpellInfo() = delete;
-		ClassSpellInfo(ESpell id, int min_level, int min_remort, int circle, int mem_mod, int cast_mod)
-			: ClassTalentInfo(id, min_level, min_remort),
-			circle_{circle}, mem_mod_{mem_mod}, cast_mod_{cast_mod} {
-			talents_.try_emplace(id, std::make_unique<ClassSpellInfo>(*this));
-		};
+		ItemOptional Build(parser_wrapper::DataNode &node) final;
+	};
+
+	using Skills = info_container::InfoContainer<ESkill, SkillInfo, SkillsInfoBuilder>;
+
+	class SpellInfo : public TalentInfo<ESpell> {
+	 public:
+		SpellInfo() = default;
+		SpellInfo(ESpell id, int min_level, int min_remort, int circle, int mem_mod, int cast_mod)
+			: TalentInfo(id, min_level, min_remort), circle_{circle}, mem_mod_{mem_mod}, cast_mod_{cast_mod} {};
 
 		[[nodiscard]] int GetCircle() const { return circle_; }; // \todo Не забыть реализовать
 		[[nodiscard]] int GetMemMod() const { return mem_mod_; };
@@ -100,6 +83,15 @@ struct CharClassInfo : public info_container::IItem<ECharClass> {
 		int mem_mod_{0};
 		int cast_mod_{0};
 	};
+
+	class SpellsInfoBuilder : public info_container::IItemBuilder<SpellInfo> {
+	 public:
+		ItemOptional Build(parser_wrapper::DataNode &node) final;
+	};
+
+	using Spells = info_container::InfoContainer<ESpell, SpellInfo, SpellsInfoBuilder>;
+
+// =====================================================================================================================
 
 	CharClassInfo() {
 		names = std::make_unique<base_structs::ItemName>();
@@ -129,8 +121,14 @@ struct CharClassInfo : public info_container::IItem<ECharClass> {
 	 */
 	[[nodiscard]] const char *GetPluralCName(ECase name_case = ECase::kNom) const;
 
-	ClassSkillInfo skills;
-	ClassSpellInfo spells;
+	/* Всякого рода таланты класса - скиллы, спеллы и проч. */
+	Skills skills;
+	int skill_level_decrement_{kMinSkillLevelDecrement};
+	[[nodiscard]] int GetSkillLvlDecrement() const { return skill_level_decrement_; };
+
+	Spells spells;
+	int spell_level_decrement_{kMinSkillLevelDecrement}; // \todo Не забыть заменить на спелл
+	[[nodiscard]] int GetSpellLvlDecrement() const { return spell_level_decrement_; };
 
 	/* Прочее */
 	void Print(std::stringstream &buffer) const;
@@ -146,9 +144,6 @@ class CharClassInfoBuilder : public info_container::IItemBuilder<CharClassInfo> 
 	static void ParseName(ItemOptional &info, parser_wrapper::DataNode &node);
 	static void ParseSkills(ItemOptional &info, parser_wrapper::DataNode &node);
 	static int ParseSkillsLevelDecrement(ECharClass class_id, parser_wrapper::DataNode &node);
-	static void ParseSingleSkill(ItemOptional &info, parser_wrapper::DataNode &node);
-	static std::optional<ESkill> ParseSkillId(parser_wrapper::DataNode &node);
-	static std::tuple<int, int, long> ParseSkillVals(ESkill id, parser_wrapper::DataNode &node);
 };
 
 using ClassesInfo = info_container::InfoContainer<ECharClass, CharClassInfo, CharClassInfoBuilder>;

@@ -17,14 +17,6 @@ namespace classes {
 using DataNode = parser_wrapper::DataNode;
 using Optional = CharClassInfoBuilder::ItemOptional;
 
-long CharClassInfo::ClassSkillInfo::GetImprove(ESkill skill_id) {
-	try {
-		return talents_.at(skill_id)->improve_;
-	} catch (const std::out_of_range &) {
-		return kMinImprove;
-	}
-}
-
 void ClassesLoader::Load(DataNode data) {
 	MUD::Classes().Init(data.Children());
 }
@@ -95,76 +87,35 @@ void CharClassInfoBuilder::ParseName(Optional &info, DataNode &node) {
 }
 
 void CharClassInfoBuilder::ParseSkills(Optional &info, DataNode &node) {
-	auto decrement = ParseSkillsLevelDecrement(info.value()->id, node);
-
-	for (auto &skill_node : node.Children("skill")) {
-		ParseSingleSkill(info, skill_node);
-	}
+	info.value()->skill_level_decrement_ = ParseSkillsLevelDecrement(info.value()->id, node);
+	info.value()->skills.Init(node.Children());
 }
 
 int CharClassInfoBuilder::ParseSkillsLevelDecrement(ECharClass class_id, DataNode &node) {
 	try {
 		return parse::ReadAsInt(node.GetValue("level_decrement"));
 	} catch (std::exception &e) {
-		err_log("Incorrect skill decrement (class %s), set default.",
+		err_log("Incorrect skill level decrement (class %s), set by default.",
 				NAME_BY_ITEM<ECharClass>(class_id).c_str());
-		return 1;
+		return kMinSkillLevelDecrement;
 	}
 }
-
-void CharClassInfoBuilder::ParseSingleSkill(Optional &info, DataNode &node) {
-	auto id = ParseSkillId(node);
-	if (!id) {
-		return;
-	}
-
-	auto [min_level, min_remort, improve] = ParseSkillVals(id.value(), node);
-	auto skill = CharClassInfo::ClassSkillInfo(id, min_level, min_remort, improve);
-	info.value()->skills(id, min_level, min_remort, improve);
-}
-
-std::optional<ESkill> CharClassInfoBuilder::ParseSkillId(DataNode &node) {
-	try {
-		return std::make_optional<ESkill>(parse::ReadAsConstant<ESkill>(node.GetValue("id")));
-	} catch (std::exception &e) {
-		err_log("Incorrect skill id (%s) had been detected.", e.what());
-		return std::nullopt;
-	}
-}
-
-std::tuple<int, int, long> CharClassInfoBuilder::ParseSkillVals(ESkill id, DataNode &node) {
-	int min_level{0}, min_remort{0};
-	long improve{kMinImprove};
-	try {
-		min_level = parse::ReadAsInt(node.GetValue("level"));
-		min_remort = parse::ReadAsInt(node.GetValue("remort"));
-		improve = parse::ReadAsInt(node.GetValue("improve"));
-	} catch (std::exception &) {
-		err_log("Incorrect skill min level, remort or improve (skill: %s). Set by default.",
-				NAME_BY_ITEM<ESkill>(id).c_str());
-	};
-	return {min_level, min_remort, improve};
-};
 
 void CharClassInfo::Print(std::stringstream &buffer) const {
 	buffer << "Print class:" << "\n"
 		   << "    Id: " << KGRN << NAME_BY_ITEM<ECharClass>(id) << KNRM << std::endl
 		   << "    Mode: " << KGRN << NAME_BY_ITEM<EItemMode>(mode) << KNRM << std::endl
-		   << "    Abbr: " << KGRN << GetAbbr()
+		   << "    Abbr: " << KGRN << GetAbbr() << KNRM << std::endl
 		   << "    Name: " << KGRN << GetName()
 		   << "/" << names->GetSingular(ECase::kGen)
 		   << "/" << names->GetSingular(ECase::kDat)
 		   << "/" << names->GetSingular(ECase::kAcc)
 		   << "/" << names->GetSingular(ECase::kIns)
 		   << "/" << names->GetSingular(ECase::kPre) << KNRM << std::endl
-			<< "    Available skills (level decrement " << ClassSkillInfo::GetLevelDecrement() << "):" << std::endl;
-	// \todo Перенести в класс скиллинфо
-/*	for (const auto &skill : skills) {
-		buffer << KNRM << "        Skill: " << KCYN << MUD::Skills()[skill.first].name
-		<< KNRM << " level: " << KGRN << skill.second->min_level << KNRM
-		<< KNRM << " remort: " << KGRN << skill.second->min_remort << KNRM
-		<< KNRM << " improve: " << KGRN << skill.second->improve << KNRM << std::endl;
-	}*/
+		   << "    Available skills (level decrement " << GetSkillLvlDecrement() << "):" << std::endl;
+	for (const auto &skill : skills) {
+		skill.Print(buffer);
+	}
 	buffer << std::endl;
 }
 
@@ -186,6 +137,54 @@ const char *CharClassInfo::GetCName(ECase name_case) const {
 
 const char *CharClassInfo::GetPluralCName(ECase name_case) const {
 	return names->GetPlural(name_case).c_str();
+}
+
+void CharClassInfo::SkillInfo::Print(std::stringstream &buffer) const {
+	buffer << KNRM << "        Skill: " << KCYN << MUD::Skills()[id_].name
+		<< KNRM << " level: " << KGRN << min_level_ << KNRM
+		<< KNRM << " remort: " << KGRN << min_remort_ << KNRM
+		<< KNRM << " improve: " << KGRN << improve_ << KNRM << std::endl;
+}
+
+CharClassInfo::SkillsInfoBuilder::ItemOptional ParseSingleSkill(DataNode &node) {
+	auto id{ESkill::kIncorrect};
+	try {
+		id = parse::ReadAsConstant<ESkill>(node.GetValue("id"));
+	} catch (std::exception &e) {
+		err_log("Incorrect skill id (%s).", e.what());
+		return std::nullopt;
+	}
+	auto mode{EItemMode::kEnabled};
+	try {
+		mode = parse::ReadAsConstant<EItemMode>(node.GetValue("mode"));
+	} catch (std::exception &) {
+	}
+	int min_lvl, min_remort;
+	long improve;
+	try {
+		min_lvl = parse::ReadAsInt(node.GetValue("level"));
+		min_remort = parse::ReadAsInt(node.GetValue("remort"));
+		improve = parse::ReadAsInt(node.GetValue("improve"));
+	} catch (std::exception &) {
+		err_log("Incorrect skill min level, remort or improve (skill: %s). Set by default.",
+				NAME_BY_ITEM<ESkill>(id).c_str());
+	};
+
+	// \todo Нужно подумать, как переделать интерфейс, возможно - через ссылку на метод или лямбду
+	return std::make_optional(std::make_shared<CharClassInfo::SkillInfo>(id, min_lvl, min_remort, improve, mode));
+}
+
+CharClassInfo::SkillsInfoBuilder::ItemOptional CharClassInfo::SkillsInfoBuilder::Build(DataNode &node) {
+	try {
+		return ParseSingleSkill(node);
+	} catch (std::exception &e) {
+		err_log("Incorrect value or id '%s' was detected.", e.what());
+		return std::nullopt;
+	}
+}
+
+CharClassInfo::SpellsInfoBuilder::ItemOptional CharClassInfo::SpellsInfoBuilder::Build(DataNode &node) {
+	return SpellsInfoBuilder::ItemOptional();
 }
 
 } // namespace clases

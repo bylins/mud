@@ -533,13 +533,13 @@ int CharData::get_skill(const ESkill skill_num) const {
 //  Скилл со шмоток.
 // мобам и тем классам, у которых скилл является родным, учитываем скилл с каждой шмотки полностью,
 // всем остальным -- не более 5% с шмотки
-int CharData::get_equipped_skill(const ESkill skill_num) const {
+int CharData::get_equipped_skill(const ESkill skill_id) const {
 	int skill = 0;
-	bool is_native = this->IsNpc() || MUD::Classes()[chclass_].skills.HasItem(skill_num);
+	bool is_native = this->IsNpc() || MUD::Classes()[chclass_].skills[skill_id].IsAvailable();
 	for (auto i : equipment) {
 		if (i) {
 			if (is_native) {
-				skill += i->get_skill(skill_num);
+				skill += i->get_skill(skill_id);
 			}
 			// На новый год включаем
 			/*else
@@ -549,9 +549,9 @@ int CharData::get_equipped_skill(const ESkill skill_num) const {
 		}
 	}
 	if (is_native) {
-		skill += obj_bonus_.get_skill(skill_num);
+		skill += obj_bonus_.get_skill(skill_id);
 	}
-	if(get_trained_skill(skill_num) > 0) {
+	if(get_trained_skill(skill_id) > 0) {
 		skill += get_skill_bonus();
 	}
 	
@@ -570,14 +570,14 @@ int CharData::get_inborn_skill(const ESkill skill_num) {
 	return 0;
 }
 
-int CharData::get_trained_skill(const ESkill skill_num) const {
+int CharData::get_trained_skill(const ESkill skill_id) const {
 	if (ROOM_FLAGGED(this->in_room, ERoomFlag::kDominationArena)) {
-		if (MUD::Classes()[chclass_].skills.HasItem(skill_num)) {
+		if (MUD::Classes()[chclass_].skills[skill_id].IsAvailable()) {
 			return 100;
 		}
 	}
 	if (privilege::CheckSkills(this)) {
-		return std::clamp(current_morph_->get_trained_skill(skill_num), 0, MUD::Skills()[skill_num].cap);
+		return std::clamp(current_morph_->get_trained_skill(skill_id), 0, MUD::Skills()[skill_id].cap);
 	}
 	return 0;
 }

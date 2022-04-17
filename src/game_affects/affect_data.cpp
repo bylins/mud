@@ -219,11 +219,11 @@ void player_affect_update() {
 				}
 				affect->duration--;
 			} else if (affect->duration != -1) {
-				if ((affect->type > ESpell::kSpellNoSpell) && (affect->type <= ESpell::kSpellCount)) {
+				if ((affect->type > ESpell::kIncorrect) && (affect->type <= ESpell::kSpellCount)) {
 					if (next_affect_i == i->affected.end()
 						|| (*next_affect_i)->type != affect->type
 						|| (*next_affect_i)->duration > 0) {
-						if (affect->type > ESpell::kSpellNoSpell && affect->type <= ESpell::kSpellCount) {
+						if (affect->type > ESpell::kIncorrect && affect->type <= ESpell::kSpellCount) {
 							//чтобы не выдавалось, "что теперь вы можете сражаться",
 							//хотя на самом деле не можете :)
 							if (!(affect->type == kSpellMagicBattle
@@ -287,7 +287,7 @@ void battle_affect_update(CharData *ch) {
 				if (next_affect_i == ch->affected.end() ||
 				(*next_affect_i)->type != (*affect_i)->type ||
 				(*next_affect_i)->duration > 0) {
-					if ((*affect_i)->type > ESpell::kSpellNoSpell && (*affect_i)->type <= ESpell::kSpellCount)
+					if ((*affect_i)->type > ESpell::kIncorrect && (*affect_i)->type <= ESpell::kSpellCount)
 						show_spell_off((*affect_i)->type, ch);
 				}
 			}

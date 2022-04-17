@@ -310,19 +310,19 @@ void trg_featturn(CharData *ch, EFeat feat_id, int featdiff, int vnum) {
 	}
 }
 
-void trg_skillturn(CharData *ch, const ESkill skillnum, int skilldiff, int vnum) {
+void trg_skillturn(CharData *ch, const ESkill skill_id, int skilldiff, int vnum) {
 	const auto ch_class = static_cast<ECharClass>(GET_CLASS(ch));
-	if (ch->get_trained_skill(skillnum)) {
+	if (ch->get_trained_skill(skill_id)) {
 		if (skilldiff) {
 			return;
 		}
-		ch->set_skill(skillnum, 0);
-		SendMsgToChar(ch, "Вас лишили умения '%s'.\r\n", MUD::Skills()[skillnum].GetName());
-		log("Remove %s from %s (trigskillturn)", MUD::Skills()[skillnum].GetName(), GET_NAME(ch));
-	} else if (skilldiff && MUD::Classes()[ch_class].skills.HasItem(skillnum)) {
-		ch->set_skill(skillnum, 5);
-		SendMsgToChar(ch, "Вы изучили умение '%s'.\r\n", MUD::Skills()[skillnum].GetName());
-		log("Add %s to %s (trigskillturn) trigvnum %d", MUD::Skills()[skillnum].GetName(), GET_NAME(ch), vnum);
+		ch->set_skill(skill_id, 0);
+		SendMsgToChar(ch, "Вас лишили умения '%s'.\r\n", MUD::Skills()[skill_id].GetName());
+		log("Remove %s from %s (trigskillturn)", MUD::Skills()[skill_id].GetName(), GET_NAME(ch));
+	} else if (skilldiff && MUD::Classes()[ch_class].skills[skill_id].IsAvailable()) {
+		ch->set_skill(skill_id, 5);
+		SendMsgToChar(ch, "Вы изучили умение '%s'.\r\n", MUD::Skills()[skill_id].GetName());
+		log("Add %s to %s (trigskillturn) trigvnum %d", MUD::Skills()[skill_id].GetName(), GET_NAME(ch), vnum);
 	}
 }
 

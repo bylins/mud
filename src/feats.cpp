@@ -399,7 +399,7 @@ void InitFeatures() {
 	InitFeat(EFeat::kShortsFocus, "любимое_оружие: нож", EFeatType::kSkillMod, true,
 			 feat_app, 0, ESkill::kShortBlades);
 //73
-	InitFeat(EFeat::kNonstandartsFocus, "любимое_оружие: необычное", EFeatType::kSkillMod, true,
+		InitFeat(EFeat::kNonstandartsFocus, "любимое_оружие: необычное", EFeatType::kSkillMod, true,
 			 feat_app, 0, ESkill::kNonstandart);
 //74
 	InitFeat(EFeat::kTwohandsFocus, "любимое_оружие: двуручник", EFeatType::kSkillMod, true,
@@ -418,7 +418,7 @@ void InitFeatures() {
 //79
 	InitFeat(EFeat::kGreatAimingAttack, "улучшенная прицельная атака", EFeatType::kActivated, true, feat_app);
 //80
-	InitFeat(EFeat::kDoubleshot, "двойной выстрел", EFeatType::kNormal, true, feat_app);
+	InitFeat(EFeat::kDoubleShot, "двойной выстрел", EFeatType::kNormal, true, feat_app);
 //81
 	InitFeat(EFeat::kPorter, "тяжеловоз", EFeatType::kNormal, true, feat_app);
 //82
@@ -748,7 +748,7 @@ bool IsAbleToUseFeat(const CharData *ch, EFeat feat) {
 			break;
 		case EFeat::kGreatAimingAttack: return (GET_REAL_DEX(ch) > 17);
 			break;
-		case EFeat::kDoubleshot: return (ch->get_skill(ESkill::kBows) > 39);
+		case EFeat::kDoubleShot: return (ch->get_skill(ESkill::kBows) > 39);
 			break;
 		case EFeat::kJeweller: return (ch->get_skill(ESkill::kJewelry) > 59);
 			break;
@@ -872,7 +872,7 @@ bool IsAbleToGetFeat(CharData *ch, EFeat feat) {
 		case EFeat::kGreatAimingAttack:
 			return (HAVE_FEAT(ch, EFeat::kAimingAttack));
 			break;
-		case EFeat::kDoubleshot:
+		case EFeat::kDoubleShot:
 			return (HAVE_FEAT(ch, EFeat::kBowsFocus) &&
 				ch->get_skill(ESkill::kBows) > 39);
 			break;

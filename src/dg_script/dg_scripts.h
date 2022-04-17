@@ -478,7 +478,7 @@ int close_wtrigger(RoomData *room, CharData *actor, int dir, int lock);
 int timechange_wtrigger(RoomData *room, const int time);
 
 void trg_featturn(CharData *ch, EFeat feat_id, int featdiff, int vnum);
-void trg_skillturn(CharData *ch, const ESkill skillnum, int skilldiff, int vnum);
+void trg_skillturn(CharData *ch, const ESkill skill_id, int skilldiff, int vnum);
 void AddSkill(CharData *ch, const ESkill skillnum, int skilldiff, int vnum);
 void trg_spellturn(CharData *ch, int spellnum, int spelldiff, int vnum);
 void trg_spellturntemp(CharData *ch, int spellnum, int spelltime, int vnum);
