@@ -143,7 +143,8 @@ void CharClassInfo::SkillInfo::Print(std::stringstream &buffer) const {
 	buffer << KNRM << "        Skill: " << KCYN << MUD::Skills()[id_].name
 		<< KNRM << " level: " << KGRN << min_level_ << KNRM
 		<< KNRM << " remort: " << KGRN << min_remort_ << KNRM
-		<< KNRM << " improve: " << KGRN << improve_ << KNRM << std::endl;
+		<< KNRM << " improve: " << KGRN << improve_ << KNRM
+		<< KNRM << " mode: " << KGRN << NAME_BY_ITEM<EItemMode>(mode_) << KNRM << std::endl;
 }
 
 CharClassInfo::SkillsInfoBuilder::ItemOptional ParseSingleSkill(DataNode &node) {

@@ -57,7 +57,7 @@ struct CharClassInfo : public info_container::IItem<ECharClass> {
 		void Print(std::stringstream &buffer) const;
 
 	 private:
-		EItemMode mode_{EItemMode::kEnabled};
+		EItemMode mode_{EItemMode::kDisabled};
 		long improve_{kMinImprove};
 	};
 

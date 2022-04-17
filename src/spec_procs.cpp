@@ -20,7 +20,6 @@
 #include "game_mechanics/mount.h"
 #include "entities/player_races.h"
 #include "entities/world_characters.h"
-#include "cmd/follow.h"
 #include "depot.h"
 #include "game_fight/fight.h"
 #include "game_fight/fight_hit.h"
@@ -1167,17 +1166,14 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 
 					const ESkill skill_no = (guild_poly_info[info_num] + i)->skill_no;
 					bits = to_underlying(skill_no);
-					if (ESkill::kIncorrect != skill_no
-						&& (!ch->get_trained_skill(skill_no)
-							|| IS_GRGOD(ch))
-						&& IsAbleToGetSkill(ch, skill_no)) {
+					if (ESkill::kIncorrect != skill_no &&
+						(!ch->get_trained_skill(skill_no) || IS_GRGOD(ch)) && IsAbleToGetSkill(ch, skill_no)) {
 						gcount += sprintf(buf + gcount, "- умение %s\"%s\"%s\r\n",
 										  CCCYN(ch, C_NRM), MUD::Skills()[skill_no].GetName(), CCNRM(ch, C_NRM));
 						found = true;
 					}
 
-					if (!(bits = -2 * bits)
-						|| bits == kSpellTemp) {
+					if (!(bits = -2 * bits) || bits == kSpellTemp) {
 						bits = kSpellKnow;
 					}
 
