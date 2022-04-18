@@ -21,7 +21,7 @@
 
 extern const int kSkillCapOnZeroRemort;
 extern const int kSkillCapBonusPerRemort;
-extern const int kMinSkillLevelDecrement;
+extern const int kMinTalentLevelDecrement;
 extern const long kMinImprove;
 
 class CharData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.

@@ -33,10 +33,11 @@ struct CharClassInfo : public info_container::IItem<ECharClass> {
 	class TalentInfo : public info_container::IItem<E> {
 	public:
 		TalentInfo() = default;
-		TalentInfo(E id, int min_level, int min_remort)
-			: id_{id}, min_level_{min_level}, min_remort_{min_remort} {};
+		TalentInfo(E id, int min_level, int min_remort, EItemMode mode)
+			: id_{id}, min_level_{min_level}, min_remort_{min_remort}, mode_{mode} {};
 
 		[[nodiscard]] E GetId() const final { return id_; };
+		[[nodiscard]] EItemMode GetMode() const final { return mode_; };
 		[[nodiscard]] int GetMinLevel() const { return min_level_; };
 		[[nodiscard]] int GetMinRemort() const { return min_remort_; };
 
@@ -44,20 +45,19 @@ struct CharClassInfo : public info_container::IItem<ECharClass> {
 		E id_{E::kIncorrect};
 		int min_level_{kLvlImplementator};
 		int min_remort_{kMaxRemort + 1};
+		EItemMode mode_{EItemMode::kDisabled};
 	};
 
 	class SkillInfo : public TalentInfo<ESkill> {
 	 public:
 		SkillInfo() = default;
 		SkillInfo(ESkill id, int min_level, int min_remort, long improve, EItemMode mode)
-			: TalentInfo(id, min_level, min_remort), mode_{mode}, improve_{improve} {};
+			: TalentInfo(id, min_level, min_remort, mode), improve_{improve} {};
 
-		[[nodiscard]] EItemMode GetMode() const final { return mode_; };
 		[[nodiscard]] long GetImprove() const { return improve_; };
 		void Print(std::stringstream &buffer) const;
 
 	 private:
-		EItemMode mode_{EItemMode::kDisabled};
 		long improve_{kMinImprove};
 	};
 
@@ -71,12 +71,13 @@ struct CharClassInfo : public info_container::IItem<ECharClass> {
 	class SpellInfo : public TalentInfo<ESpell> {
 	 public:
 		SpellInfo() = default;
-		SpellInfo(ESpell id, int min_level, int min_remort, int circle, int mem_mod, int cast_mod)
-			: TalentInfo(id, min_level, min_remort), circle_{circle}, mem_mod_{mem_mod}, cast_mod_{cast_mod} {};
+		SpellInfo(ESpell id, int min_level, int min_remort, int circle, int mem_mod, int cast_mod, EItemMode mode)
+			: TalentInfo(id, min_level, min_remort, mode), circle_{circle}, mem_mod_{mem_mod}, cast_mod_{cast_mod} {};
 
-		[[nodiscard]] int GetCircle() const { return circle_; }; // \todo Не забыть реализовать
+		[[nodiscard]] int GetCircle() const { return circle_; };
 		[[nodiscard]] int GetMemMod() const { return mem_mod_; };
 		[[nodiscard]] int GetCastMod() const { return cast_mod_; };
+		void Print(std::stringstream &buffer) const;
 
 	 private:
 		int circle_{kMaxMemoryCircle};
@@ -123,11 +124,11 @@ struct CharClassInfo : public info_container::IItem<ECharClass> {
 
 	/* Всякого рода таланты класса - скиллы, спеллы и проч. */
 	Skills skills;
-	int skill_level_decrement_{kMinSkillLevelDecrement};
+	int skill_level_decrement_{kMinTalentLevelDecrement};
 	[[nodiscard]] int GetSkillLvlDecrement() const { return skill_level_decrement_; };
 
 	Spells spells;
-	int spell_level_decrement_{kMinSkillLevelDecrement}; // \todo Не забыть заменить на спелл
+	int spell_level_decrement_{kMinTalentLevelDecrement}; // \todo Не забыть заменить на спелл
 	[[nodiscard]] int GetSpellLvlDecrement() const { return spell_level_decrement_; };
 
 	/* Прочее */
@@ -143,7 +144,8 @@ class CharClassInfoBuilder : public info_container::IItemBuilder<CharClassInfo> 
 	static void ParseClass(ItemOptional &info, parser_wrapper::DataNode &node);
 	static void ParseName(ItemOptional &info, parser_wrapper::DataNode &node);
 	static void ParseSkills(ItemOptional &info, parser_wrapper::DataNode &node);
-	static int ParseSkillsLevelDecrement(ECharClass class_id, parser_wrapper::DataNode &node);
+	static void ParseSpells(ItemOptional &info, parser_wrapper::DataNode &node);
+	static int ParseLevelDecrement(ECharClass class_id, parser_wrapper::DataNode &node);
 };
 
 using ClassesInfo = info_container::InfoContainer<ECharClass, CharClassInfo, CharClassInfoBuilder>;

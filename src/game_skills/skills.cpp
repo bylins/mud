@@ -33,7 +33,7 @@ const short kDummyKnight = 390;
 const short kDummyShield = 391;
 const short kDummyWeapon = 392;
 
-const int kMinSkillLevelDecrement = -1;
+const int kMinTalentLevelDecrement = -1;
 const long kMinImprove = 0L;
 
 enum class ELuckTestResult {
