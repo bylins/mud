@@ -749,8 +749,8 @@ void PrintScoreBase(CharData *ch) {
 								   "  Броня/Поглощение : %4d/%d&n\r\n",
 				ac, ac_text[ac_t], GET_ARMOUR(ch), GET_ABSORBE(ch));
 	}
-	sprintf(buf + strlen(buf), "Ваш опыт - %ld %s, бонус %d процентов. ", GET_EXP(ch),
-			GetDeclensionInNumber(GET_EXP(ch), EWhat::kPoint), ch->add_abils.percent_exp_add);
+	sprintf(buf + strlen(buf), "Ваш опыт - %ld %s, бонус %d %c. ", GET_EXP(ch),
+			GetDeclensionInNumber(GET_EXP(ch), EWhat::kPoint), ch->add_abils.percent_exp_add, '%');
 	if (GetRealLevel(ch) < kLvlImmortal) {
 		if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {
 			sprintf(buf + strlen(buf), "\r\n");

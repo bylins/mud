@@ -251,6 +251,9 @@ void player_affect_update() {
 
 // This file update battle affects only
 void battle_affect_update(CharData *ch) {
+	if (ch->IsNpc() && MOB_FLAGGED(ch, EMobFlag::kTutelar)) {
+		log("АНГЕЛ batle affect update start");
+	}
 	if (ch->affected.empty()) {
 		return;
 	}

@@ -247,11 +247,13 @@ int is_tell_ok(CharData *ch, CharData *vict) {
 	else if ((!vict->IsNpc() &&
 		(PRF_FLAGGED(vict, EPrf::kNoTell) || ignores(vict, ch, EIgnore::kTell))) ||
 		ROOM_FLAGGED(vict->in_room, ERoomFlag::kSoundproof)) {
-		if (ROOM_FLAGGED(vict->in_room, ERoomFlag::kSoundproof)) {
-			log("NOTELL: name %s room %d soundproof", GET_NAME(vict), GET_ROOM_VNUM(vict->in_room));
+		if (ch->IsNpc()) {
+			if (ROOM_FLAGGED(vict->in_room, ERoomFlag::kSoundproof)) {
+				log("NOTELL: name %s room %d soundproof", GET_NAME(vict), GET_ROOM_VNUM(vict->in_room));
+			}
+			if (PRF_FLAGGED(vict, EPrf::kNoTell))
+				log("NOTELL: name %s глух как пробка", GET_NAME(vict));
 		}
-		if (PRF_FLAGGED(vict, EPrf::kNoTell))
-			log("NOTELL: name %s глух как пробка", GET_NAME(vict));
 		act("$N не сможет вас услышать.", false, ch, 0, vict, kToChar | kToSleep);
 	}
 	else if (GET_POS(vict) < EPosition::kRest || AFF_FLAGGED(vict, EAffect::kDeafness))
