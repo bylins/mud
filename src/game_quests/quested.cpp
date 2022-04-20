@@ -10,12 +10,15 @@
 
 void smash_tilde(char *str);
 
+
 // * Добавление выполненного квеста номер/строка данных (kMaxTrglineLength символов).
+
 void Quested::add(CharData *ch, int vnum, char *text) {
 	if (!ch->IsNpc() && !IS_IMMORTAL(ch)) {
 		smash_tilde(text);
 		skip_spaces(&text);
 		std::string text_node = *text ? text : "";
+
 		if (text_node.size() > kMaxTrglineLength) {
 			text_node = text_node.substr(0, kMaxTrglineLength);
 		}
