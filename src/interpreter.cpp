@@ -4042,7 +4042,6 @@ DescriptorData *DescByUID(int uid) {
 */
 DescriptorData *get_desc_by_id(long id, bool playing) {
 	DescriptorData *d = nullptr;
-
 	if (playing) {
 		for (d = descriptor_list; d; d = d->next)
 			if (d->character && STATE(d) == CON_PLAYING && GET_IDNUM(d->character) == id)
