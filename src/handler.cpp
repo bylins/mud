@@ -764,12 +764,13 @@ void DisplayWearMsg(CharData *ch, ObjData *obj, int position) {
 		ch, obj, nullptr, kToRoom | kToArenaListen);
 }
 
+// \todo Это часть системы сетов, туда и надо вынести.
 int GetFlagDataByCharClass(const CharData *ch) {
 	if (ch == nullptr) {
 		return 0;
 	}
 
-	return flag_data_by_num(ch->IsNpc() ? kNumPlayerClasses * kNumKins : GET_CLASS(ch)
+	return flag_data_by_num(ch->IsNpc() ? kNumPlayerClasses * kNumKins : to_underlying(ch->get_class())
 		+ kNumPlayerClasses * GET_KIN(ch));
 }
 
@@ -2702,7 +2703,7 @@ float get_effective_cha(CharData *ch) {
 	int key_value, key_value_add;
 
 	key_value = ch->get_cha();
-	auto max_cha = class_stats_limit[ch->get_class()][5];
+	auto max_cha = class_stats_limit[to_underlying(ch->get_class())][5];
 	key_value_add = std::min(max_cha - ch->get_cha(), GET_CHA_ADD(ch));
 
 	float eff_cha = 0.0;
@@ -2722,7 +2723,7 @@ float get_effective_cha(CharData *ch) {
 float get_effective_wis(CharData *ch, int spellnum) {
 	int key_value, key_value_add;
 
-	auto max_wis = class_stats_limit[ch->get_class()][3];
+	auto max_wis = class_stats_limit[to_underlying(ch->get_class())][3];
 
 	if (spellnum == kSpellResurrection || spellnum == kSpellAnimateDead) {
 		key_value = ch->get_wis();
@@ -2751,7 +2752,7 @@ float get_effective_int(CharData *ch) {
 	int key_value, key_value_add;
 
 	key_value = ch->get_int();
-	auto max_int = class_stats_limit[ch->get_class()][4];
+	auto max_int = class_stats_limit[to_underlying(ch->get_class())][4];
 	key_value_add = std::min(max_int - ch->get_int(), GET_INT_ADD(ch));
 
 	float eff_int = 0.0;
@@ -2775,9 +2776,9 @@ int get_player_charms(CharData *ch, int spellnum) {
 
 	if (spellnum == kSpellResurrection || spellnum == kSpellAnimateDead) {
 		eff_cha = get_effective_wis(ch, spellnum);
-		max_cha = class_stats_limit[ch->get_class()][3];
+		max_cha = class_stats_limit[to_underlying(ch->get_class())][3];
 	} else {
-		max_cha = class_stats_limit[ch->get_class()][5];
+		max_cha = class_stats_limit[to_underlying(ch->get_class())][5];
 		eff_cha = get_effective_cha(ch);
 	}
 
@@ -2844,7 +2845,8 @@ int mag_manacost(const CharData *ch, int spellnum) {
 						std::min(99, abs(SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])));
 			}
 //		Меняем мем на коэффициент скилла магии
-			if (GET_CLASS(ch) == kPaladine || GET_CLASS(ch) == kMerchant) {
+// \todo ABYRVALG Нужно ввести общую для витязя и купца способность, а эту похабень убрать.
+			if (GET_CLASS(ch) == ECharClass::kPaladine || GET_CLASS(ch) == ECharClass::kMerchant) {
 				return result;
 			}
 		}

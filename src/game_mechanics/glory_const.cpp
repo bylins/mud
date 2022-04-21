@@ -386,7 +386,7 @@ void olc_add_stat(CharData *ch, int stat) {
 		case GLORY_CON:
 			if (ch->desc->glory_const->olc_free_glory >= need_glory
 				&& ch->desc->glory_const->stat_cur[stat]
-					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[ch->get_class()][to_underlying(EBaseStat::kCon)])
+					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[to_underlying(ch->get_class())][to_underlying(EBaseStat::kCon)])
 				ok = true;
 			else
 				SendMsgToChar(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
@@ -394,7 +394,7 @@ void olc_add_stat(CharData *ch, int stat) {
 		case GLORY_STR:
 			if (ch->desc->glory_const->olc_free_glory >= need_glory
 				&& ch->desc->glory_const->stat_cur[stat]
-					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[ch->get_class()][to_underlying(EBaseStat::kStr)])
+					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[to_underlying(ch->get_class())][to_underlying(EBaseStat::kStr)])
 				ok = true;
 			else
 				SendMsgToChar(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
@@ -402,7 +402,7 @@ void olc_add_stat(CharData *ch, int stat) {
 		case GLORY_DEX:
 			if (ch->desc->glory_const->olc_free_glory >= need_glory
 				&& ch->desc->glory_const->stat_cur[stat]
-					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[ch->get_class()][to_underlying(EBaseStat::kDex)])
+					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[to_underlying(ch->get_class())][to_underlying(EBaseStat::kDex)])
 				ok = true;
 			else
 				SendMsgToChar(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
@@ -410,7 +410,7 @@ void olc_add_stat(CharData *ch, int stat) {
 		case GLORY_INT:
 			if (ch->desc->glory_const->olc_free_glory >= need_glory
 				&& ch->desc->glory_const->stat_cur[stat]
-					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[ch->get_class()][to_underlying(EBaseStat::kInt)])
+					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[to_underlying(ch->get_class())][to_underlying(EBaseStat::kInt)])
 				ok = true;
 			else
 				SendMsgToChar(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
@@ -418,7 +418,7 @@ void olc_add_stat(CharData *ch, int stat) {
 		case GLORY_WIS:
 			if (ch->desc->glory_const->olc_free_glory >= need_glory
 				&& ch->desc->glory_const->stat_cur[stat]
-					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[ch->get_class()][to_underlying(EBaseStat::kWis)])
+					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[to_underlying(ch->get_class())][to_underlying(EBaseStat::kWis)])
 				ok = true;
 			else
 				SendMsgToChar(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
@@ -426,7 +426,7 @@ void olc_add_stat(CharData *ch, int stat) {
 		case GLORY_CHA:
 			if (ch->desc->glory_const->olc_free_glory >= need_glory
 				&& ch->desc->glory_const->stat_cur[stat]
-					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[ch->get_class()][to_underlying(EBaseStat::kCha)])
+					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[to_underlying(ch->get_class())][to_underlying(EBaseStat::kCha)])
 				ok = true;
 			else
 				SendMsgToChar(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");

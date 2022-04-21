@@ -2094,10 +2094,10 @@ void add_logon_record(DescriptorData *d) {
 
 // * Проверка на доступные религии конкретной профе (из текущей генерации чара).
 void check_religion(CharData *ch) {
-	if (class_religion[ch->get_class()] == kReligionPoly && GET_RELIGION(ch) != kReligionPoly) {
+	if (class_religion[to_underlying(ch->get_class())] == kReligionPoly && GET_RELIGION(ch) != kReligionPoly) {
 		GET_RELIGION(ch) = kReligionPoly;
 		log("Change religion to poly: %s", ch->get_name().c_str());
-	} else if (class_religion[ch->get_class()] == kReligionMono && GET_RELIGION(ch) != kReligionMono) {
+	} else if (class_religion[to_underlying(ch->get_class())] == kReligionMono && GET_RELIGION(ch) != kReligionMono) {
 		GET_RELIGION(ch) = kReligionMono;
 		log("Change religion to mono: %s", ch->get_name().c_str());
 	}
@@ -2761,7 +2761,7 @@ void DisplaySelectCharClassMenu(DescriptorData *d) {
 	}
 	std::sort(char_classes.begin(), char_classes.end());
 	for (const auto &it : char_classes) {
-		out << "  " << KCYN << std::right << std::setw(3) << it + 1 << KNRM << ") "
+		out << "  " << KCYN << std::right << std::setw(3) << to_underlying(it) + 1 << KNRM << ") "
 		<< KGRN << std::left << MUD::Classes()[it].GetName() << std::endl << KNRM;
 	}
 	write_to_output(out.str().c_str(), d);
@@ -3327,7 +3327,8 @@ void nanny(DescriptorData *d, char *arg) {
 
 			SEND_TO_Q("\r\nКакой род вам ближе всего по духу:\r\n", d);
 			SEND_TO_Q(string(PlayerRace::ShowRacesMenu(GET_KIN(d->character))).c_str(), d);
-			sprintf(buf, "Для вашей профессией больше всего подходит %s", default_race[GET_CLASS(d->character)]);
+			sprintf(buf, "Для вашей профессией больше всего подходит %s",
+					default_race[to_underlying(d->character->get_class())]);
 			SEND_TO_Q(buf, d);
 			SEND_TO_Q("\r\nИз чьих вы будете : ", d);
 			STATE(d) = CON_RACE;

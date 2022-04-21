@@ -14,7 +14,16 @@
 #ifndef UTILS_H_
 #define UTILS_H_
 
+#include <string>
+#include <list>
+#include <new>
+#include <vector>
+#include <sstream>
+
+#include <boost/dynamic_bitset.hpp>
+
 #include "game_classes/classes_constants.h"
+#include "game_classes/classes.h"
 #include "conf.h"
 #include "config.h"
 #include "entities/entities_constants.h"
@@ -23,13 +32,6 @@
 #include "game_mechanics/weather.h"
 #include "utils_string.h"
 #include "entities/zone.h"
-#include <boost/dynamic_bitset.hpp>
-
-#include <string>
-#include <list>
-#include <new>
-#include <vector>
-#include <sstream>
 
 struct RoomData;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 class CharData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
@@ -278,8 +280,6 @@ short GET_REAL_REMORT(const std::shared_ptr<CharData> &ch);
 #define IS_IMPL(ch)         (!(ch)->IsNpc() && (ch)->get_level() >= kLvlImplementator)
 
 #define IS_BITS(mask, bitno) (IS_SET(mask,(1 << (bitno))))
-#define IS_CASTER(ch)        (IS_BITS(kMaskCaster,GET_CLASS(ch)))
-#define IS_MAGE(ch)          (IS_BITS(kMaskMage, GET_CLASS(ch)))
 
 extern int receptionist(CharData *, void *, int, char *);
 extern int postmaster(CharData *, void *, int, char *);
@@ -985,9 +985,6 @@ const int kNameLevel = 5;
 #define IS_WIZARD(ch)		(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kWizard))
 #define IS_NECROMANCER(ch)	(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kNecromancer))
 
-#define IS_FIGHTER_USER(ch)  (!(ch)->IsNpc() && (IS_BITS(kMaskFighter, (int) GET_CLASS(ch))))
-#define IS_MAGIC_USER(ch)	(!(ch)->IsNpc() && (IS_BITS(kMaskMage, (int) GET_CLASS(ch))))
-
 #define IS_UNDEAD(ch) ((ch)->IsNpc() && \
     (MOB_FLAGGED(ch, EMobFlag::kResurrected) || \
 	(GET_RACE(ch) == ENpcRace::kZombie) ||  \
@@ -995,7 +992,7 @@ const int kNameLevel = 5;
 
 // \todo Ввести для комнат флаг а-ля "место отдыха", а это убрать.
 #define LIKE_ROOM(ch) ((IS_SORCERER(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForSorcerers)) || \
-                       (IS_MAGIC_USER(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForMages)) || \
+                       (IsMagicUser(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForMages)) || \
                        (IS_WARRIOR(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForWarriors)) || \
                        (IS_THIEF(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForThieves)) || \
                        (IS_ASSASINE(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForAssasines)) || \

@@ -25,9 +25,9 @@ void doList(CharData *ch, CharData *boss, bool isFavList) {
 	std::map<int, MERCDATA> *m;
 	m = ch->getMercList();
 	if (m->empty()) {
-		if (ch->get_class() == kMerchant)
+		if (IsAbleToUseFeat(ch, EFeat::kEmployer))
 			tell_to_char(boss, ch, "Ступай, поначалу заведи знакомства, потом ко мне приходи.");
-		else if (ch->get_class() == kCharmer)
+		else if (ch->get_class() == ECharClass::kCharmer)
 			tell_to_char(boss, ch, "Поищи себе марионетку, да потренируйся, а затем ко мне приходи.");
 		else if (IS_IMMORTAL(ch))
 			tell_to_char(boss, ch, "Не гневайся, боже, но не было у тебя последователей еще.");
@@ -36,10 +36,10 @@ void doList(CharData *ch, CharData *boss, bool isFavList) {
 	if (IS_IMMORTAL(ch)) {
 		sprintf(buf, "Вот, господи, %s тварей земных, чьим разумом ты владел:",
 				isFavList ? "краткий список" : "полный список");
-	} else if (ch->get_class() == kMerchant) {
+	} else if (IsAbleToUseFeat(ch, EFeat::kEmployer)) {
 		sprintf(buf, "%s тех, с кем знакомство ты водишь:",
 				isFavList ? "Краткий список" : "Полный список");
-	} else if (ch->get_class() == kCharmer) {
+	} else if (ch->get_class() == ECharClass::kCharmer) {
 		sprintf(buf, "Вот %s тварей земных, чьим разумом ты владел с помощью чар колдовских:",
 				isFavList ? "краткий список" : "полный список");
 	}
@@ -47,7 +47,7 @@ void doList(CharData *ch, CharData *boss, bool isFavList) {
 	SendMsgToChar(ch,
 				  " ##   Имя                                                   \r\n"
 				  "------------------------------------------------------------\r\n");
-	std::map<int, MERCDATA>::iterator it = m->begin();
+	auto it = m->begin();
 	std::stringstream out;
 	std::string format_str = "%3d)  %-54s\r\n";
 	std::string mobname;
@@ -107,13 +107,16 @@ void doBring(CharData *ch, CharData *boss, unsigned int pos, char *bank) {
 		}
 		mob = read_mobile(rnum, REAL);
 		PlaceCharToRoom(mob, ch->in_room);
-		if (ch->get_class() == kCharmer) {
-			act("$n окрикнул$g своих парней и скрыл$u из виду.", true, boss, 0, 0, kToRoom);
-			act("Спустя некоторое время, взмыленная ватага вернулась, волоча на аркане $n3.", true, mob, 0, 0, kToRoom);
+		if (ch->get_class() == ECharClass::kCharmer) {
+			act("$n окрикнул$g своих парней и скрыл$u из виду.",
+				true, boss, nullptr, nullptr, kToRoom);
+			act("Спустя некоторое время, взмыленная ватага вернулась, волоча на аркане $n3.",
+				true, mob, nullptr, nullptr, kToRoom);
 		} else {
-			act("$n вскочил$g и скрыл$u из виду.", true, boss, 0, 0, kToRoom);
+			act("$n вскочил$g и скрыл$u из виду.",
+				true, boss, nullptr, nullptr, kToRoom);
 			sprintf(buf, "Спустя некоторое время, %s вернул$U, ведя за собой $n3.", boss->get_npc_name().c_str());
-			act(buf, true, mob, 0, ch, kToRoom);
+			act(buf, true, mob, nullptr, ch, kToRoom);
 		}
 		if (!IS_IMMORTAL(ch)) {
 			if (isname(bank, "банк bank"))
@@ -179,7 +182,7 @@ int mercenary(CharData *ch, void * /*me*/, int cmd, char *argument) {
 	CharData *boss = MERC::findMercboss(ch->in_room);
 	if (!boss) return 0;
 
-	if (!IS_IMMORTAL(ch) && ch->get_class() != kMerchant && ch->get_class() != kCharmer) {
+	if (!IS_IMMORTAL(ch) && !IsAbleToUseFeat(ch, EFeat::kEmployer) && ch->get_class() != ECharClass::kCharmer) {
 		tell_to_char(boss, ch, "Эти знания тебе недоступны, ступай с миром");
 		return 0;
 	}

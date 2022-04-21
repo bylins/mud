@@ -1171,13 +1171,13 @@ int CalcCircleSlotsAmount(CharData *ch, int slot_num) {
 		return SPELL_SLOTS_FOR_IMMORTAL;
 	}
 
-	if (max_slots.get(GET_CLASS(ch), GET_KIN(ch)) < slot_num) {
+	if (max_slots.get(ch) < slot_num) {
 		return 0;
 	}
 
 	slot_num--;
 
-	switch (GET_CLASS(ch)) {
+	switch (ch->get_class()) {
 		case ECharClass::kConjurer:
 		case ECharClass::kWizard:
 		case ECharClass::kCharmer: wis_is = kMageSlots[GetRealLevel(ch) - 1][slot_num];
@@ -1263,18 +1263,15 @@ void MaxClassSlot::init(int chclass, int kin, int slot) {
 	}
 }
 
-int MaxClassSlot::get(int chclass, int kin) const {
-	if (kin < 0
-		|| kin >= kNumKins
-		|| chclass < 0
-		|| chclass >= kNumPlayerClasses) {
+int MaxClassSlot::get(ECharClass chclass) const {
+	if (chclass < ECharClass::kFirst || chclass > ECharClass::kLast) {
 		return 0;
 	}
-	return _max_class_slot[chclass][kin];
+	return _max_class_slot[to_underlying(chclass)][0];
 }
 
 int MaxClassSlot::get(const CharData *ch) const {
-	return this->get(GET_CLASS(ch), GET_KIN(ch));
+	return this->get(ch->get_class());
 }
 
 }; // namespace ClassPlayer

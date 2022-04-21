@@ -2,7 +2,6 @@
 
 #include "cmd/follow.h"
 #include "handler.h"
-#include <cmath>
 
 constexpr short MAX_HIRE_TIME = 10080 / 2;
 constexpr long MAX_HIRE_PRICE = LONG_MAX / (MAX_HIRE_TIME + 1);
@@ -130,9 +129,9 @@ int get_reformed_charmice_hp(CharData *ch, CharData *victim, int spellnum) {
 
 	if (spellnum == kSpellResurrection || spellnum == kSpellAnimateDead) {
 		eff_cha = get_effective_wis(ch, spellnum);
-		max_cha = class_stats_limit[ch->get_class()][3];
+		max_cha = class_stats_limit[to_underlying(ch->get_class())][3];
 	} else {
-		max_cha = class_stats_limit[ch->get_class()][5];
+		max_cha = class_stats_limit[to_underlying(ch->get_class())][5];
 		eff_cha = get_effective_cha(ch);
 	}
 

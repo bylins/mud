@@ -982,7 +982,7 @@ void CharData::set_class(ECharClass chclass) {
 	// Почему классы не пронумеровать подряд - загадка...
 	// && chclass != ECharClass::kNpcBase && chclass != ECharClass::kMob
 	if (chclass < ECharClass::kFirst || chclass > ECharClass::kNpcLast) {
-		log("WARNING: chclass=%d (%s:%d %s)", chclass, __FILE__, __LINE__, __func__);
+		log("WARNING: chclass=%d (%s:%d %s)", to_underlying(chclass), __FILE__, __LINE__, __func__);
 	}
 	chclass_ = chclass;
 }

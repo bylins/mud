@@ -107,7 +107,7 @@ void list_obj_to_char(ObjData *list, CharData *ch, int mode, int show);
 char *diag_obj_to_char(CharData *i, ObjData *obj, int mode);
 const char *diag_obj_timer(const ObjData *obj);
 char *diag_timer_to_char(const ObjData *obj);
-int thaco(int class_num, int level);
+int GetThac0(ECharClass class_id, int level);
 
 void do_affects(CharData *ch, char *argument, int cmd, int subcmd);
 void do_look(CharData *ch, char *argument, int cmd, int subcmd);
@@ -384,7 +384,7 @@ char *diag_uses_to_char(ObjData *obj, CharData *ch) {
 	*out_str = 0;
 	if (GET_OBJ_TYPE(obj) == EObjType::kIngredient
 		&& IS_SET(GET_OBJ_SKILL(obj), kItemCheckUses)
-		&& GET_CLASS(ch) == kMagus) {
+		&& IS_MANA_CASTER(ch)) {
 		int i = -1;
 		if ((i = real_object(GET_OBJ_VAL(obj, 1))) >= 0) {
 			sprintf(out_str, "Прототип: %s%s%s.\r\n",
@@ -401,7 +401,7 @@ char *diag_shot_to_char(ObjData *obj, CharData *ch) {
 
 	*out_str = 0;
 	if (GET_OBJ_TYPE(obj) == EObjType::kMagicContaner
-		&& (GET_CLASS(ch) == kRanger || GET_CLASS(ch) == kCharmer || GET_CLASS(ch) == kMagus)) {
+		&& (ch->get_class() == ECharClass::kRanger || ch->get_class() == ECharClass::kCharmer || IS_MANA_CASTER(ch))) {
 		sprintf(out_str + strlen(out_str), "Осталось стрел: %s%d&n.\r\n",
 				GET_OBJ_VAL(obj, 2) > 3 ? "&G" : "&R", GET_OBJ_VAL(obj, 2));
 	}

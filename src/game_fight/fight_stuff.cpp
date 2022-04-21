@@ -941,13 +941,6 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 	}
 }
 
-int grouping_koef(int player_class, int player_remort) {
-	if ((player_class >= kNumPlayerClasses) || (player_class < 0))
-		return 1;
-	return grouping[player_class][player_remort];
-
-}
-
 /*++
    Функция расчитывает всякие бонусы для группы при получении опыта,
  после чего вызывает функцию получения опыта для всех членов группы

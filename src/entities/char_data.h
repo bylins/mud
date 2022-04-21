@@ -431,8 +431,6 @@ class CharData : public ProtectedCharData {
 	ECharClass get_class() const;
 	void set_class(ECharClass chclass);
 
-	bool is_druid() const { return chclass_ == kMagus; }
-
 	int get_level() const;
 	int get_level_add() const;
 	void set_level(int level);
@@ -953,10 +951,9 @@ inline bool IS_NOSEXY(const CharData::shared_ptr &ch) { return IS_NOSEXY(ch.get(
 bool IS_POLY(const CharData *ch);
 
 inline int VPOSI_MOB(const CharData *ch, const EBaseStat stat_id, const int val) {
-	const int character_class = ch->get_class();
 	return ch->IsNpc()
 		   ? VPOSI(val, 1, 100)
-		   : VPOSI(val, 1, class_stats_limit[character_class][to_underlying(stat_id)]);
+		   : VPOSI(val, 1, class_stats_limit[to_underlying(ch->get_class())][to_underlying(stat_id)]);
 }
 inline int VPOSI_MOB(const CharData::shared_ptr &ch, const EBaseStat stat_id, const int val) {
 	return VPOSI_MOB(ch.get(), stat_id, val);

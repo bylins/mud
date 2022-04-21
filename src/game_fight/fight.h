@@ -144,7 +144,7 @@ int calc_initiative(CharData *ch, bool mode);
 
 int compute_armor_class(CharData *ch);
 bool check_mighthit_weapon(CharData *ch);
-void apply_weapon_bonus(int ch_class, const ESkill skill, int *damroll, int *hitroll);
+void GetClassWeaponMod(ECharClass class_id, const ESkill skill, int *damroll, int *hitroll);
 
 // fight_stuff.cpp
 

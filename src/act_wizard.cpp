@@ -365,7 +365,7 @@ void do_arena_restore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		} else {
 			vict->mem_queue.stored = vict->mem_queue.total;
 		}
-		if (GET_CLASS(vict) == kWarrior) {
+		if (vict->get_skill(ESkill::kWarcry) > 0) {
 			struct TimedSkill wctimed;
 			wctimed.skill = ESkill::kWarcry;
 			wctimed.time = 0;
@@ -2547,7 +2547,7 @@ void do_restore(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		} else {
 			vict->mem_queue.stored = vict->mem_queue.total;
 		}
-		if (GET_CLASS(vict) == kWarrior) {
+		if (vict->get_skill(ESkill::kWarcry) > 0) {
 			struct TimedSkill wctimed;
 			wctimed.skill = ESkill::kWarcry;
 			wctimed.time = 0;

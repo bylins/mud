@@ -96,7 +96,7 @@ struct CharClassInfo : public info_container::IItem<ECharClass> {
 
 	CharClassInfo() {
 		names = std::make_unique<base_structs::ItemName>();
-	}
+	};
 
 	/* Базовые поля */
 	ECharClass id{ECharClass::kFirst};
@@ -128,8 +128,41 @@ struct CharClassInfo : public info_container::IItem<ECharClass> {
 	[[nodiscard]] int GetSkillLvlDecrement() const { return skill_level_decrement_; };
 
 	Spells spells;
-	int spell_level_decrement_{kMinTalentLevelDecrement}; // \todo Не забыть заменить на спелл
+	int spell_level_decrement_{kMinTalentLevelDecrement};
 	[[nodiscard]] int GetSpellLvlDecrement() const { return spell_level_decrement_; };
+
+	/* базовые параметры */
+	// \todo Не забыть добавить парсинг
+	struct BaseStatLimits {
+		int start_min{kDefaultBaseStatMin};
+		int start_max{kDefaultBaseStatMax};
+		int auto_gen{kDefaultBaseStatAutoGen};
+		int cap{kDefaultBaseStatCap};
+	};
+	std::unordered_map<EBaseStat, BaseStatLimits> base_stats;
+
+	/* вторичные параметры */
+
+	/* врожденные аффекты */
+	struct InbornAffect {
+		EAffect affect{EAffect::kIncorrect};
+		int mod{0};
+		bool add{true};
+	};
+	std::vector<InbornAffect> inborn_affects;
+
+	/* Какая-то вторичная дичь, определяющая бонусы-штрафы */
+	// \todo Нужно будет посмотреть, можно ли это переработать или вообще избавиться
+	struct ClassApplies {
+		ClassApplies() = default;
+		ClassApplies(int koef_con, int base_con, int min_con, int max_con)
+			: koef_con{koef_con}, base_con{base_con}, min_con{min_con}, max_con{max_con} {};
+		int koef_con{0};
+		int base_con{0};
+		int min_con{0};
+		int max_con{0};
+	};
+	ClassApplies applies;
 
 	/* Прочее */
 	void Print(std::stringstream &buffer) const;
@@ -146,6 +179,8 @@ class CharClassInfoBuilder : public info_container::IItemBuilder<CharClassInfo> 
 	static void ParseSkills(ItemOptional &info, parser_wrapper::DataNode &node);
 	static void ParseSpells(ItemOptional &info, parser_wrapper::DataNode &node);
 	static int ParseLevelDecrement(ECharClass class_id, parser_wrapper::DataNode &node);
+	// временная функция
+	static void TemporarySetStat(ItemOptional &info);
 };
 
 using ClassesInfo = info_container::InfoContainer<ECharClass, CharClassInfo, CharClassInfoBuilder>;

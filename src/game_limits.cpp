@@ -161,8 +161,9 @@ int mana_gain(const CharData *ch) {
 		}
 
 		// Room specification
-		if (LIKE_ROOM(ch))
+		if (LIKE_ROOM(ch)) {
 			percent += 25;
+		}
 		// Weather specification
 		if (average_day_temp() < -20)
 			percent -= 10;

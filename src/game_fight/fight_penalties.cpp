@@ -38,7 +38,6 @@ int GroupPenaltyCalculator::get() const {
 
 bool GroupPenaltyCalculator::penalty_by_leader(const CharData *player, int &penalty) const {
 	const int player_remorts = static_cast<int>(GET_REAL_REMORT(player));
-	const int player_class = static_cast<int>(GET_CLASS(player));
 	const int player_level = GetRealLevel(player);
 
 	if (player->IsNpc()) {
@@ -49,10 +48,10 @@ bool GroupPenaltyCalculator::penalty_by_leader(const CharData *player, int &pena
 		return true;
 	}
 
-	if (0 > player_class
-		|| player_class > kNumPlayerClasses) {
+	const auto player_class = player->get_class();
+	if (player_class < ECharClass::kFirst || player_class > ECharClass::kLast) {
 		log("LOGIC ERROR: wrong player class: %d for player [%s]",
-			player_class,
+			to_underlying(player_class),
 			player->get_name().c_str());
 		penalty = DEFAULT_PENALTY;
 		return true;

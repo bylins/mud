@@ -32,8 +32,8 @@ extern int what_sky;
 extern int interpolate(int min_value, int pulse);
 extern int attack_best(CharData *ch, CharData *victim);
 
-byte saving_throws(int class_num, ESaving saving, int level);    // class.cpp
-byte extend_saving_throws(int class_num, ESaving save, int level);
+byte GetSavingThrows(ECharClass class_id, ESaving type, int level);    // class.cpp
+byte GetExtendSavingThrows(ECharClass class_id, ESaving save, int level);
 int CheckCharmices(CharData *ch, CharData *victim, int spellnum);
 void ReactToCast(CharData *victim, CharData *caster, int spellnum);
 
@@ -85,18 +85,17 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply
 	}
 
 	// NPCs use warrior tables according to some book
-	int save;
-	int class_sav = victim->get_class();
-
+	auto class_sav = victim->get_class();
 	if (victim->IsNpc()) {
 		class_sav = ECharClass::kMob;    // неизвестный класс моба
 	} else {
-		if (class_sav < 0 || class_sav >= kNumPlayerClasses)
-			class_sav = ECharClass::kWarrior;    // неизвестный класс игрока
+		if (class_sav < ECharClass::kFirst || class_sav > ECharClass::kLast) {
+			class_sav = ECharClass::kWarrior;
+		}
 	}
 
 	// Базовые спасброски профессии/уровня
-	save = extend_saving_throws(class_sav, saving, GetRealLevel(victim));
+	auto save = GetExtendSavingThrows(class_sav, saving, GetRealLevel(victim));
 
 	switch (saving) {
 		case ESaving::kReflex:
@@ -157,7 +156,7 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply
 						   GET_NAME(victim),
 						   GET_MOB_VNUM(victim),
 						   GetRealLevel(victim),
-						   extend_saving_throws(class_sav, saving, GetRealLevel(victim)),
+						   GetExtendSavingThrows(class_sav, saving, GetRealLevel(victim)),
 						   temp_save_stat,
 						   temp_awake_mod,
 						   GET_SAVE(victim, saving),
@@ -172,7 +171,7 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply
 						   GET_NAME(victim),
 						   GET_MOB_VNUM(victim),
 						   GetRealLevel(victim),
-						   extend_saving_throws(class_sav, saving, GetRealLevel(victim)),
+						   GetExtendSavingThrows(class_sav, saving, GetRealLevel(victim)),
 						   temp_save_stat,
 						   temp_awake_mod,
 						   GET_SAVE(victim, saving),

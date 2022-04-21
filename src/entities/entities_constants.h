@@ -71,6 +71,11 @@ const std::string &NAME_BY_ITEM<EBaseStat>(EBaseStat item);
 template<>
 EBaseStat ITEM_BY_NAME<EBaseStat>(const std::string &name);
 
+const int kDefaultBaseStatMin{1};
+const int kDefaultBaseStatMax{25};
+const int kDefaultBaseStatAutoGen{10};
+const int kDefaultBaseStatCap{50};
+
 /*
  * Character savings ids.
  */

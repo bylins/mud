@@ -1277,7 +1277,7 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	timed.feat = EFeat::kSpellCapabler;
 
-	switch (SpINFO.slot_forc[GET_CLASS(ch)][GET_KIN(ch)]) {
+	switch (SpINFO.slot_forc[to_underlying(ch->get_class())][GET_KIN(ch)]) {
 		case 1:
 		case 2:
 		case 3:

@@ -59,11 +59,11 @@ void init() {
 	// <class id="">
 	for (cur_node = root_node.child("class");
 		 cur_node; cur_node = cur_node.next_sibling("class")) {
+		auto id{ECharClass::kUndefined};
 		std::string id_str = parse::ReadAattrAsStr(cur_node, "id");
-		if (id_str.empty()) return;
-
-		const int id = text_id::ToNum(text_id::kCharClass, id_str);
-		if (id == ECharClass::kUndefined) {
+		try {
+			id = parse::ReadAsConstant<ECharClass>(id_str.c_str());
+		} catch (std::exception &) {
 			snprintf(buf, kMaxStringLength, "...<class id='%s'> convert fail", id_str.c_str());
 			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 			return;
@@ -73,7 +73,7 @@ void init() {
 			 obj_node; obj_node = obj_node.next_sibling("obj")) {
 			int vnum = parse::ReadAttrAsInt(obj_node, "vnum");
 			if (parse::IsValidObjVnum(vnum)) {
-				tmp_class_list[id].push_back(vnum);
+				tmp_class_list[to_underlying(id)].push_back(vnum);
 			}
 		}
 	}
@@ -118,7 +118,7 @@ std::string print_start_outfit(CharData *ch) {
 std::vector<int> get_start_outfit(CharData *ch) {
 	// стаф из noob_help.xml
 	std::vector<int> out_list;
-	const int ch_class = ch->get_class();
+	const int ch_class = to_underlying(ch->get_class());
 	if (ch_class < kNumPlayerClasses) {
 		out_list.insert(out_list.end(),
 						class_list.at(ch_class).begin(), class_list.at(ch_class).end());
@@ -179,7 +179,7 @@ void equip_start_outfit(CharData *ch, ObjData *obj) {
 		if (where >= 0) {
 			EquipObj(ch, obj, where, CharEquipFlags());
 			// богатырям в перчатках сетим кулачный бой вместо пушек
-			if (where == EEquipPos::kHands && GET_CLASS(ch) == kWarrior) {
+			if (where == EEquipPos::kHands && GET_CLASS(ch) == ECharClass::kWarrior) {
 				ch->set_skill(ESkill::kPunch, 10);
 			}
 		}

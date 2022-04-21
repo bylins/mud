@@ -14,6 +14,7 @@
 
 #include "magic_utils.h"
 
+#include "game_classes/classes.h"
 #include "structs/global_objects.h"
 #include "handler.h"
 #include "color.h"
@@ -668,7 +669,7 @@ int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, int spellnum
 	switch (saving) {
 		case ESaving::kStability:
 			prob = wis_bonus(GET_REAL_WIS(ch), WIS_FAILS) + GET_CAST_SUCCESS(ch);
-			if ((IS_MAGE(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ERoomFlag::kForMages))
+			if ((IsMagicUser(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ERoomFlag::kForMages))
 				|| (IS_SORCERER(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ERoomFlag::kForSorcerers))
 				|| (IS_PALADINE(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ERoomFlag::kForPaladines))
 				|| (IS_MERCHANT(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ERoomFlag::kForMerchants))) {

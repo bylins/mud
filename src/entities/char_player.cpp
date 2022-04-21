@@ -590,7 +590,7 @@ void Player::save_char() {
 
 	// спелы
 	// волхвам всеравно известны тупо все спеллы, смысла их писать не вижу
-	if (GetRealLevel(this) < kLvlImmortal && GET_CLASS(this) != kMagus) {
+	if (GetRealLevel(this) < kLvlImmortal && GET_CLASS(this) != ECharClass::kMagus) {
 		fprintf(saved, "Spel:\n");
 		for (i = 1; i <= kSpellCount; i++)
 			if (GET_SPELL_TYPE(this, i))
@@ -598,7 +598,7 @@ void Player::save_char() {
 		fprintf(saved, "0 0\n");
 	}
 
-	if (GetRealLevel(this) < kLvlImmortal && GET_CLASS(this) != kMagus) {
+	if (GetRealLevel(this) < kLvlImmortal && GET_CLASS(this) != ECharClass::kMagus) {
 		fprintf(saved, "TSpl:\n");
 		for (auto it = this->temp_spells.begin(); it != this->temp_spells.end(); ++it) {
 			fprintf(saved,
@@ -897,7 +897,7 @@ void Player::save_char() {
 	std::map<int, MERCDATA>::iterator it = this->charmeeHistory.begin();
 	// перечень чармисов кудеса и купца
 	if (this->charmeeHistory.size() > 0 &&
-		(this->get_class() == kCharmer || this->get_class() == kMerchant || IS_IMMORTAL(this))) {
+		(this->get_class() == ECharClass::kCharmer || IsAbleToUseFeat(this, EFeat::kEmployer) || IS_IMMORTAL(this))) {
 		fprintf(saved, "Chrm:\n");
 		for (; it != this->charmeeHistory.end(); ++it) {
 			fprintf(saved, "%d %d %d %d %d %d\n",
@@ -1129,7 +1129,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	this->real_abils.Feats.reset();
 
 	// волхвам сетим все спеллы на рунах, остальные инит нулями
-	if (GET_CLASS(this) != kMagus)
+	if (GET_CLASS(this) != ECharClass::kMagus)
 		for (i = 1; i <= kSpellCount; i++)
 			GET_SPELL_TYPE(this, i) = 0;
 	else
@@ -2152,9 +2152,9 @@ namespace PlayerSystem {
 /// \return кол-во хп, втыкаемых чару от родного тела
 ///
 int con_natural_hp(CharData *ch) {
-	double add_hp_per_level = class_app[GET_CLASS(ch)].base_con
-		+ (VPOSI_MOB(ch, EBaseStat::kCon, ch->get_con()) - class_app[GET_CLASS(ch)].base_con)
-			* class_app[GET_CLASS(ch)].koef_con / 100.0 + 3;
+	double add_hp_per_level = MUD::Classes()[ch->get_class()].applies.base_con
+		+ (VPOSI_MOB(ch, EBaseStat::kCon, ch->get_con()) - MUD::Classes()[ch->get_class()].applies.base_con)
+			* MUD::Classes()[ch->get_class()].applies.koef_con / 100.0 + 3;
 	return 10 + static_cast<int>(add_hp_per_level * GetRealLevel(ch));
 }
 
@@ -2162,8 +2162,8 @@ int con_natural_hp(CharData *ch) {
 /// \return кол-во хп, втыкаемых чару от добавленного шмотом/аффектами тела
 ///
 int con_add_hp(CharData *ch) {
-	int con_add = MAX(0, GET_REAL_CON(ch) - ch->get_con());
-	return class_app[(int) GET_CLASS(ch)].koef_con * con_add * GetRealLevel(ch) / 100;
+	int con_add = std::max(0, GET_REAL_CON(ch) - ch->get_con());
+	return MUD::Classes()[ch->get_class()].applies.koef_con * con_add * GetRealLevel(ch) / 100;
 }
 
 ///

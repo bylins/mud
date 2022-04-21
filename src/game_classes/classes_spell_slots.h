@@ -19,7 +19,7 @@ class MaxClassSlot {
 	MaxClassSlot();
 
 	void init(int chclass, int kin, int slot);
-	int get(int chclass, int kin) const;
+	int get(ECharClass chclass) const;
 	int get(const CharData *ch) const;
 
  private:

@@ -33,7 +33,7 @@ int CalcHitroll(CharData *ch);
 int CalcAntiSavings(CharData *ch);
 int calc_initiative(CharData *ch, bool mode);
 TimeInfoData *real_time_passed(time_t t2, time_t t1);
-void apply_weapon_bonus(int ch_class, ESkill skill, int *damroll, int *hitroll);
+void GetClassWeaponMod(ECharClass class_id, const ESkill skill, int *damroll, int *hitroll);
 
 const char *ac_text[] =
 	{
@@ -213,9 +213,9 @@ void PrintScoreList(CharData *ch) {
 		SendMsgToChar(ch, "ВНИМАНИЕ! ваше имя запрещено богами. Очень скоро вы прекратите получать опыт.\r\n");
 	}
 	SendMsgToChar(ch, "Вы можете вступить в группу с максимальной разницей в %2d %-75s\r\n",
-				  grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REAL_REMORT(ch))],
+				  grouping[ch->get_class()][static_cast<int>(GET_REAL_REMORT(ch))],
 				  (std::string(
-					  GetDeclensionInNumber(grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REAL_REMORT(
+					  GetDeclensionInNumber(grouping[ch->get_class()][static_cast<int>(GET_REAL_REMORT(
 						  ch))], EWhat::kLvl)
 						  + std::string(" без потерь для опыта.")).substr(0, 76).c_str()));
 
@@ -315,8 +315,8 @@ void PrintBlindModeInfo(CharData *ch, std::ostringstream &out) {
 void PrintGroupMembershipInfo(CharData *ch, std::ostringstream &out) {
 	if (GetRealLevel(ch) < kLvlImmortal) {
 		out << InfoStrPrefix(ch) << "Вы можете вступить в группу с максимальной разницей "
-			<< grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REAL_REMORT(ch))] << " "
-			<< GetDeclensionInNumber(grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REAL_REMORT(ch))],
+			<< grouping[ch->get_class()][static_cast<int>(GET_REAL_REMORT(ch))] << " "
+			<< GetDeclensionInNumber(grouping[ch->get_class()][static_cast<int>(GET_REAL_REMORT(ch))],
 									 EWhat::kLvl)
 			<< " без потерь для опыта." << std::endl;
 
@@ -777,8 +777,8 @@ void PrintScoreBase(CharData *ch) {
 	if (GetRealLevel(ch) < kLvlImmortal) {
 		sprintf(buf + strlen(buf),
 				"Вы можете вступить в группу с максимальной разницей в %d %s без потерь для опыта.\r\n",
-				grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REAL_REMORT(ch))],
-				GetDeclensionInNumber(grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REAL_REMORT(ch))],
+				grouping[ch->get_class()][static_cast<int>(GET_REAL_REMORT(ch))],
+				GetDeclensionInNumber(grouping[ch->get_class()][static_cast<int>(GET_REAL_REMORT(ch))],
 									  EWhat::kLvl));
 	}
 
@@ -988,7 +988,7 @@ int CalcHitroll(CharData *ch) {
 			if (ch->get_skill(skill) == 0) {
 				hr -= (50 - std::min(50, GET_REAL_INT(ch))) / 3;
 			} else {
-				apply_weapon_bonus(GET_CLASS(ch), skill, &max_dam, &hr);
+				GetClassWeaponMod(ch->get_class(), skill, &max_dam, &hr);
 			}
 		}
 	} else {
@@ -999,7 +999,7 @@ int CalcHitroll(CharData *ch) {
 				if (ch->get_skill(skill) == 0) {
 					hr -= (50 - std::min(50, GET_REAL_INT(ch))) / 3;
 				} else {
-					apply_weapon_bonus(GET_CLASS(ch), skill, &max_dam, &hr);
+					GetClassWeaponMod(ch->get_class(), skill, &max_dam, &hr);
 				}
 			}
 		}
@@ -1010,7 +1010,7 @@ int CalcHitroll(CharData *ch) {
 				if (ch->get_skill(skill) == 0) {
 					hr -= (50 - std::min(50, GET_REAL_INT(ch))) / 3;
 				} else {
-					apply_weapon_bonus(GET_CLASS(ch), skill, &max_dam, &hr);
+					GetClassWeaponMod(ch->get_class(), skill, &max_dam, &hr);
 				}
 			}
 		}
@@ -1027,7 +1027,7 @@ int CalcHitroll(CharData *ch) {
 	} else {
 		hr += str_bonus(GET_REAL_STR(ch), STR_TO_HIT);
 	}
-	hr += GET_REAL_HR(ch) - thaco(static_cast<int>(GET_CLASS(ch)), GetRealLevel(ch));
+	hr += GET_REAL_HR(ch) - GetThac0(ch->get_class(), GetRealLevel(ch));
 	if (PRF_FLAGGED(ch, EPrf::kPerformPowerAttack)) {
 		hr -= 2;
 	}

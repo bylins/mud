@@ -192,7 +192,7 @@ int genchar_parse(CharData *ch, char *arg) {
 			ch->set_start_stat(G_CHA, ch->get_inborn_cha());
 			return kGencharExit;
 		case 'О':
-		case 'о': tmp_class = GET_CLASS(ch);
+		case 'о': tmp_class = to_underlying(ch->get_class());
 			ch->set_str(auto_stats[tmp_class][0]);
 			ch->set_dex(auto_stats[tmp_class][1]);
 			ch->set_int(auto_stats[tmp_class][2]);

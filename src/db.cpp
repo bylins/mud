@@ -1726,10 +1726,11 @@ void ObjData::init_set_table() {
 						int i = 0;
 
 						while (isstream >> std::skipws >> i)
-							if (i < 0 || i > kNumPlayerClasses * kNumKins)
+							if (i < 0 || i > kNumPlayerClasses * kNumKins) {
 								break;
-							else
+							} else {
 								tmpclss.set(flag_data_by_num(i));
+							}
 
 						if (i < 0 || i > kNumPlayerClasses * kNumKins) {
 							cppstr = "init_set_table:: Wrong class in line '" + tag + ":" + cppstr + "'";
@@ -5126,13 +5127,13 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (ch->get_remort() >= 9 && ch->get_remort() % 3 == 0) {
 		ch->clear_skills();
 		for (i = 1; i <= kSpellCount; i++) {
-			GET_SPELL_TYPE(ch, i) = (GET_CLASS(ch) == kMagus ? kSpellRunes : 0);
+			GET_SPELL_TYPE(ch, i) = (GET_CLASS(ch) == ECharClass::kMagus ? kSpellRunes : 0);
 			GET_SPELL_MEM(ch, i) = 0;
 		}
 	} else {
 		ch->set_skill(ch->get_remort());
 		for (i = 1; i <= kSpellCount; i++) {
-			if (GET_CLASS(ch) == kMagus) {
+			if (GET_CLASS(ch) == ECharClass::kMagus) {
 				GET_SPELL_TYPE(ch, i) = kSpellRunes;
 			} else if (spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] >= 8) {
 				GET_SPELL_TYPE(ch, i) = 0;
@@ -5827,6 +5828,7 @@ void load_speedwalk() {
 
 }
 
+// \todo ABYRVALG - не забыть вырезать
 void load_class_limit() {
 	pugi::xml_document doc_sw;
 	pugi::xml_node child_, object_, file_sw;
@@ -5842,39 +5844,43 @@ void load_class_limit() {
 
 	for (child_ = file_sw.child("stats_limit").child("class"); child_; child_ = child_.next_sibling("class")) {
 		std::string id_str = parse::ReadAattrAsStr(child_, "id");
-		if (id_str.empty())
+		if (id_str.empty()) {
 			continue;
+		}
 
-		const int id = text_id::ToNum(text_id::kCharClass, id_str);
-		if (id == ECharClass::kUndefined) {
+		auto id{ECharClass::kUndefined};
+		try {
+			id = parse::ReadAsConstant<ECharClass>(id_str.c_str());
+		} catch (std::exception &) {
 			snprintf(buf, kMaxStringLength, "...<class id='%s'> convert fail", id_str.c_str());
 			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 			continue;
 		}
 
+		auto class_num = static_cast<int>(id);
 		int val = parse::ReadChildValueAsInt(child_, "str");
 		if (val > 0)
-			class_stats_limit[id][0] = val;
+			class_stats_limit[class_num][0] = val;
 
 		val = parse::ReadChildValueAsInt(child_, "dex");
 		if (val > 0)
-			class_stats_limit[id][1] = val;
+			class_stats_limit[class_num][1] = val;
 
 		val = parse::ReadChildValueAsInt(child_, "con");
 		if (val > 0)
-			class_stats_limit[id][2] = val;
+			class_stats_limit[class_num][2] = val;
 
 		val = parse::ReadChildValueAsInt(child_, "wis");
 		if (val > 0)
-			class_stats_limit[id][3] = val;
+			class_stats_limit[class_num][3] = val;
 
 		val = parse::ReadChildValueAsInt(child_, "int");
 		if (val > 0)
-			class_stats_limit[id][4] = val;
+			class_stats_limit[class_num][4] = val;
 
 		val = parse::ReadChildValueAsInt(child_, "cha");
 		if (val > 0)
-			class_stats_limit[id][5] = val;
+			class_stats_limit[class_num][5] = val;
 	}
 }
 

@@ -2125,56 +2125,6 @@ void find_replacement(void *go,
 				GET_HIT(c) = (int) MAX(1, gm_char_field(c, field, subfield, (long) GET_HIT(c)));
 			else
 				sprintf(str, "%d", GET_HIT(c));
-		} else if (!str_cmp(field, "arenahp")) {
-			CharData *k;
-			struct Follower *f;
-			int arena_hp = GET_HIT(c);
-			int can_use = 0;
-
-			if (!c->IsNpc()) {
-				k = (c->has_master() ? c->get_master() : c);
-				if (GET_CLASS(c) == 8)//чернок может дрыниться
-				{
-					can_use = 2;
-				} else if (GET_CLASS(c) == 0 || GET_CLASS(c) == 13)//Клер или волхв может использовать покровительство
-				{
-					can_use = 1;
-				} else if (AFF_FLAGGED(k, EAffect::kGroup)) {
-					if (!k->IsNpc()
-						&& (GET_CLASS(k) == 8
-							|| GET_CLASS(k) == 13) //чернок или волхв может использовать ужи на согруппов
-						&& world[IN_ROOM(k)]->zone_rn == world[IN_ROOM(c)]->zone_rn) //но только если находится в той же зоне
-					{
-						can_use = 1;
-					}
-					if (!can_use) {
-						for (f = k->followers; f; f = f->next) {
-							if (f->ch->IsNpc()
-								|| !AFF_FLAGGED(f->ch, EAffect::kGroup)) {
-								continue;
-							}
-							if ((GET_CLASS(f->ch) == 8
-								|| GET_CLASS(f->ch) == 13) //чернок или волхв может использовать ужи на согруппов
-								&& world[IN_ROOM(f->ch)]->zone_rn
-									== world[IN_ROOM(c)]->zone_rn) //но только если находится в той же зоне
-							{
-								can_use = 1;
-								break;
-							}
-						}
-					}
-				}
-				if (can_use == 2)//дрын
-				{
-					arena_hp = GET_REAL_MAX_HIT(c) + GET_REAL_MAX_HIT(c) * GetRealLevel(c) / 10;
-				} else if (can_use == 1)//ужи и покров
-				{
-					arena_hp = GET_REAL_MAX_HIT(c) + GET_REAL_MAX_HIT(c) * 33 / 100;
-				} else {
-					arena_hp = GET_REAL_MAX_HIT(c);
-				}
-			}
-			sprintf(str, "%d", arena_hp);
 		} else if (!str_cmp(field, "hitpadd")) {
 			if (*subfield)
 				GET_HIT_ADD(c) = (int) gm_char_field(c, field, subfield, (long) GET_HIT_ADD(c));

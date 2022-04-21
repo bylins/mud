@@ -8,6 +8,7 @@
 #include "game_mechanics/deathtrap.h"
 #include "game_magic/magic.h"
 #include "game_skills/poison.h"
+#include "structs/global_objects.h"
 #include "handler.h"
 
 bool no_bad_affects(ObjData *obj) {
@@ -456,9 +457,9 @@ void affect_total(CharData *ch) {
 		ch->set_int_add(ch->get_remort_add());
 		ch->set_wis_add(ch->get_remort_add());
 		ch->set_cha_add(ch->get_remort_add());
-		double add_hp_per_level = class_app[GET_CLASS(ch)].base_con
-				+ (VPOSI_MOB(ch, EBaseStat::kCon, ch->get_con()) - class_app[GET_CLASS(ch)].base_con)
-				* class_app[GET_CLASS(ch)].koef_con / 100.0 + 3;
+		double add_hp_per_level = MUD::Classes()[ch->get_class()].applies.base_con
+				+ (VPOSI_MOB(ch, EBaseStat::kCon, ch->get_con()) - MUD::Classes()[ch->get_class()].applies.base_con)
+				* MUD::Classes()[ch->get_class()].applies.koef_con / 100.0 + 3;
 	 	GET_HIT_ADD(ch) = static_cast<int>(add_hp_per_level * (30 - ch->get_level()));
 //		SendMsgToChar(ch, "add per level %f hitadd %d  level %d\r\n", add_hp_per_level, GET_HIT_ADD(ch), ch->get_level());
 	}
@@ -544,9 +545,9 @@ void affect_total(CharData *ch) {
 
 	// move race and class modifiers
 	if (!ch->IsNpc()) {
-		if ((int) GET_CLASS(ch) >= 0 && (int) GET_CLASS(ch) < kNumPlayerClasses) {
-			for (auto i : *class_app[(int) GET_CLASS(ch)].extra_affects) {
-				affect_modify(ch, EApply::kNone, 0, i.affect, i.set_or_clear);
+		if (ch->get_class() >= ECharClass::kFirst && ch->get_class() <= ECharClass::kLast) {
+			for (const auto aff : MUD::Classes()[ch->get_class()].inborn_affects) {
+				affect_modify(ch, EApply::kNone, aff.mod, aff.affect, aff.add);
 			}
 		}
 
@@ -555,7 +556,7 @@ void affect_total(CharData *ch) {
 		if (wdex != 0) {
 			ch->set_dex_add(ch->get_dex_add() - wdex);
 		}
-		GET_DR_ADD(ch) += extra_damroll((int) GET_CLASS(ch), GetRealLevel(ch));
+		GET_DR_ADD(ch) += GetExtraDamroll(ch->get_class(), GetRealLevel(ch));
 		if (!AFF_FLAGGED(ch, EAffect::kNoobRegen)) {
 			GET_HITREG(ch) += (GetRealLevel(ch) + 4) / 5 * 10;
 		}

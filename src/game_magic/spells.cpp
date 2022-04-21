@@ -78,7 +78,7 @@ ESkill GetMagicSkillId(int spellnum) {
 //req_lvl - требуемый уровень из книги
 int CalcMinSpellLevel(CharData *ch, int spellnum, int req_lvl) {
 	int min_lvl = std::max(req_lvl, BASE_CAST_LEV(spell_info[spellnum], ch))
-		- (std::max(GET_REAL_REMORT(ch) - MIN_CAST_REM(spell_info[spellnum], ch), 0) / 3);
+		- (std::max(0, GET_REAL_REMORT(ch)/MUD::Classes()[ch->get_class()].GetSpellLvlDecrement()));
 
 	return std::max(1, min_lvl);
 }

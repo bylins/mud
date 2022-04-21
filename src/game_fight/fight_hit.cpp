@@ -6,6 +6,7 @@
 #include "pk.h"
 #include "statistics/dps.h"
 #include "house_exp.h"
+#include "game_classes/classes.h"
 #include "game_skills/poison.h"
 #include "game_mechanics/bonus.h"
 #include "mobact.h"
@@ -14,9 +15,9 @@
 #include "structs/global_objects.h"
 
 // extern
-int extra_aco(int class_num, int level);
+int GetExtraAc0(ECharClass class_id, int level);
 void alt_equip(CharData *ch, int pos, int dam, int chance);
-int thaco(int class_num, int level);
+int GetThac0(ECharClass class_id, int level);
 void npc_groupbattle(CharData *ch);
 void SetWait(CharData *ch, int waittime, int victim_in_room);
 void go_autoassist(CharData *ch);
@@ -63,7 +64,7 @@ int compute_armor_class(CharData *ch) {
 			high_stat = std::max(high_stat, GET_REAL_INT(ch) * 3 / 4);
 		}
 		armorclass -= dex_ac_bonus(high_stat) * 10;
-		armorclass += extra_aco((int) GET_CLASS(ch), GetRealLevel(ch));
+		armorclass += GetExtraAc0(ch->get_class(), GetRealLevel(ch));
 	};
 
 	if (AFF_FLAGGED(ch, EAffect::kBerserk)) {
@@ -904,11 +905,11 @@ void addshot_damage(CharData *ch, ESkill type, fight::AttackType weapon) {
 }
 
 // бонусы/штрафы классам за юзание определенных видов оружия
-void apply_weapon_bonus(int ch_class, const ESkill skill, int *damroll, int *hitroll) {
+void GetClassWeaponMod(ECharClass class_id, const ESkill skill, int *damroll, int *hitroll) {
 	int dam = *damroll;
 	int calc_thaco = *hitroll;
 
-	switch (ch_class) {
+	switch (class_id) {
 		case ECharClass::kSorcerer:
 			switch (skill) {
 				case ESkill::kClubs: calc_thaco -= 0;
@@ -2010,7 +2011,7 @@ void update_dps_stats(CharData *ch, int real_dam, int over_dam) {
 		ch->dps_add_dmg(DpsSystem::PERS_DPS, real_dam, over_dam);
 		log("DmetrLog. Name(player): %s, class: %d, remort:%d, level:%d, dmg: %d, over_dmg:%d",
 			GET_NAME(ch),
-			GET_CLASS(ch),
+			to_underlying(ch->get_class()),
 			GET_REAL_REMORT(ch),
 			GetRealLevel(ch),
 			real_dam,
@@ -2963,7 +2964,7 @@ void HitData::calc_base_hr(CharData *ch) {
 
 	if (!ch->IsNpc() && skill_num != ESkill::kThrow && skill_num != ESkill::kBackstab) {
 		// Casters use weather, int and wisdom
-		if (IS_CASTER(ch)) {
+		if (IsCaster(ch)) {
 			/*	  calc_thaco +=
 				    (10 -
 				     complex_skill_modifier (ch, kAny, GAPPLY_ESkill::SKILL_SUCCESS,
@@ -2997,7 +2998,7 @@ void HitData::calc_base_hr(CharData *ch) {
 
 	// Calculate the THAC0 of the attacker
 	if (!ch->IsNpc()) {
-		calc_thaco += thaco((int) GET_CLASS(ch), GetRealLevel(ch));
+		calc_thaco += GetThac0(ch->get_class(), GetRealLevel(ch));
 	} else {
 		// штраф мобам по рекомендации Триглава
 		calc_thaco += (25 - GetRealLevel(ch) / 3);
@@ -3313,7 +3314,7 @@ void HitData::calc_crit_chance(CharData *ch) {
 	int calc_critic = 0;
 
 	// Маги, волхвы и не-купеческие чармисы не умеют критать //
-	if ((!ch->IsNpc() && !IS_MAGIC_USER(ch) && !IS_MAGUS(ch))
+	if ((!ch->IsNpc() && !IsMagicUser(ch) && !IS_MAGUS(ch))
 		|| (ch->IsNpc() && (!AFF_FLAGGED(ch, EAffect::kCharmed)
 			&& !AFF_FLAGGED(ch, EAffect::kHelper)))) {
 		calc_critic = std::min(ch->get_skill(weap_skill), 70);
@@ -3348,7 +3349,7 @@ int HitData::calc_damage(CharData *ch, bool need_dice) {
 		calc_thaco += (50 - MIN(50, GET_REAL_INT(ch))) / 3;
 		dam -= (50 - MIN(50, GET_REAL_INT(ch))) / 6;
 	} else {
-		apply_weapon_bonus(GET_CLASS(ch), weap_skill, &dam, &calc_thaco);
+		GetClassWeaponMod(GET_CLASS(ch), weap_skill, &dam, &calc_thaco);
 	}
 	if (ch->get_skill(weap_skill) >= 60) { //от уровня скилла
 		dam += ((ch->get_skill(weap_skill) - 50) / 10);

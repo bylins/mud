@@ -390,7 +390,7 @@ CharData *find_best_stupidmob_victim(CharData *ch, int extmode) {
 			min_lvl = vict;
 		}
 
-		if (IS_CASTER(vict) &&
+		if (IsCaster(vict) &&
 			(!caster	|| caster->caster_level * GET_REAL_CHA(vict) < GET_REAL_CHA(caster)*vict->caster_level)) {
 			caster = vict;
 		}
@@ -449,7 +449,7 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 
 	currentVictim = ch->GetEnemy();
 	if (currentVictim && !currentVictim->IsNpc()) {
-		if (IS_CASTER(currentVictim)) {
+		if (IsCaster(currentVictim)) {
 			return currentVictim;
 		}
 	}
@@ -547,7 +547,7 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 		if (GET_HIT(vict) <= kCharacterHPForMobPriorityAttack) {
 			return vict;
 		}
-		if (IS_CASTER(vict)) {
+		if (IsCaster(vict)) {
 			caster = vict;
 			continue;
 		}

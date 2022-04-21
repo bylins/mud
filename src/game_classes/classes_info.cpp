@@ -13,6 +13,8 @@
 #include "game_magic/spells_info.h"
 #include "structs/global_objects.h"
 
+#include <iostream>
+
 namespace classes {
 
 using DataNode = parser_wrapper::DataNode;
@@ -72,15 +74,14 @@ void CharClassInfoBuilder::ParseClass(Optional &info, DataNode &node) {
 		info.value()->mode = parse::ReadAsConstant<EItemMode>(node.GetValue("mode"));
 	} catch (std::exception &) {
 	}
-	node.GoToChild("name");
 	ParseName(info, node);
-	node.GoToSibling("skills");
 	ParseSkills(info, node);
-	node.GoToSibling("spells");
 	ParseSpells(info, node);
+	TemporarySetStat(info);			// Временное проставление параметроа не из файла, а вручную
 }
 
 void CharClassInfoBuilder::ParseName(Optional &info, DataNode &node) {
+	node.GoToChild("name");
 	try {
 		info.value()->abbr = parse::ReadAsStr(node.GetValue("abbr"));
 	} catch (std::exception &) {
@@ -90,6 +91,7 @@ void CharClassInfoBuilder::ParseName(Optional &info, DataNode &node) {
 }
 
 void CharClassInfoBuilder::ParseSkills(Optional &info, DataNode &node) {
+	node.GoToSibling("skills");
 	info.value()->skill_level_decrement_ = ParseLevelDecrement(info.value()->id, node);
 	info.value()->skills.Init(node.Children());
 }
@@ -207,6 +209,7 @@ void CharClassInfo::SpellInfo::Print(std::stringstream &buffer) const {
 }
 
 CharClassInfo::SpellsInfoBuilder::ItemOptional ParseSingleSpell(DataNode &node) {
+	node.GoToSibling("spells");
 	auto id{ESpell::kIncorrect};
 	try {
 		id = parse::ReadAsConstant<ESpell>(node.GetValue("id"));
@@ -244,6 +247,87 @@ CharClassInfo::SpellsInfoBuilder::ItemOptional CharClassInfo::SpellsInfoBuilder:
 	}
 }
 
+/*
+ *  Ниже следует функцияя, проставляющая некоторые параметры класса
+ *  На самом деле, почти все проставляемые тут параметры должны быть прочитаны из конфига,
+ *  но пока сделано так. Постепенно нужно все это вынести в конфиг.
+ */
+void CharClassInfoBuilder::TemporarySetStat(Optional &info) {
+	switch (info.value()->id) {
+		case ECharClass::kSorcerer: {
+			info.value()->applies = {40, 10, 12, 50};
+		}
+			break;
+		case ECharClass::kConjurer: {
+			info.value()->inborn_affects.push_back({EAffect::kInfravision, 0, true});
+			info.value()->applies = {35, 10, 10, 50};
+		}
+			break;
+		case ECharClass::kThief: {
+			info.value()->inborn_affects.push_back({EAffect::kInfravision, 0, true});
+			info.value()->inborn_affects.push_back({EAffect::kDetectLife, 0, true});
+			info.value()->inborn_affects.push_back({EAffect::kBlink, 0, true});
+			info.value()->applies = {55, 10, 14, 50};
+		}
+			break;
+		case ECharClass::kWarrior: {
+			info.value()->applies = {105, 10, 22, 50};
+		}
+			break;
+		case ECharClass::kAssasine: {
+			info.value()->inborn_affects.push_back({EAffect::kInfravision, 0, true});
+			info.value()->applies = {50, 10, 14, 50};
+		}
+			break;
+		case ECharClass::kGuard: {
+			info.value()->applies = {105, 10, 17, 50};
+		}
+			break;
+		case ECharClass::kCharmer: {
+			info.value()->applies = {35, 10, 10, 50};
+		}
+			break;
+		case ECharClass::kWizard: {
+			info.value()->applies = {35, 10, 10, 50};
+		}
+			break;
+		case ECharClass::kNecromancer: {
+			info.value()->inborn_affects.push_back({EAffect::kInfravision, 0, true});
+			info.value()->applies = {35, 10, 11, 50};
+		}
+			break;
+		case ECharClass::kPaladine: {
+			info.value()->applies = {100, 10, 14, 50};
+		}
+			break;
+		case ECharClass::kRanger: {
+			info.value()->inborn_affects.push_back({EAffect::kInfravision, 0, true});
+			info.value()->inborn_affects.push_back({EAffect::kDetectLife, 0, true});
+			info.value()->applies = {100, 10, 14, 50};
+		}
+			break;
+		case ECharClass::kVigilant: {
+			info.value()->applies = {100, 10, 14, 50};
+		}
+			break;
+		case ECharClass::kMerchant: {
+			info.value()->applies = {50, 10, 14, 50};
+		}
+			break;
+		case ECharClass::kMagus: {
+			info.value()->applies = {40, 10, 12, 50};
+		}
+			break;
+		default: break;
+	}
+}
+
 } // namespace clases
+
+// \todo Не забыть в парсинге умений, заклинаний и так далее убрать обработку исключения
+// т.к. если спелл/скилл кривой, то описание класса в целом должно быть забраковано
+// \todo В конфиг фитов недо перенести feat_slot_for_remort из feat.h
+// \todo Не забыть добавить level_decrement для заклинаний
+// Не забыть исправить int GroupPenalties::init()
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

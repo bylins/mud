@@ -15,7 +15,6 @@
 namespace text_id {
 
 enum EIdType {
-	kCharClass,
 	kObjVals,
 	kTextIdCount
 };

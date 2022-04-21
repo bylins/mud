@@ -1376,7 +1376,7 @@ void do_report(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("И перед кем вы отчитываетесь?\r\n", ch);
 		return;
 	}
-	if (ch->is_druid()) {
+	if (IS_MANA_CASTER(ch)) {
 		sprintf(buf, "%s доложил%s : %d(%d)H, %d(%d)V, %d(%d)M\r\n",
 				GET_NAME(ch), GET_CH_SUF_1(ch),
 				GET_HIT(ch), GET_REAL_MAX_HIT(ch),

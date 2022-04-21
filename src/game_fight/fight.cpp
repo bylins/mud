@@ -69,7 +69,7 @@ void go_autoassist(CharData *ch) {
 			(IN_ROOM(k->ch) == IN_ROOM(ch)) && !k->ch->GetEnemy() &&
 			(GET_POS(k->ch) == EPosition::kStand) && k->ch->get_wait() <= 0) {
 			// Здесь проверяем на кастеров
-			if (IS_CASTER(k->ch)) {
+			if (IsCaster(k->ch)) {
 				// здесь проходим по чармисам кастера, и если находим их, то вписываем в драку
 				for (d = k->ch->followers; d; d = d->next)
 					if ((IN_ROOM(d->ch) == IN_ROOM(ch)) && !d->ch->GetEnemy() &&
@@ -825,7 +825,7 @@ CharData *find_target(CharData *ch) {
 		return nullptr;
 	}
 
-	if (IS_CASTER(currentVictim) && !currentVictim->IsNpc()) {
+	if (IsCaster(currentVictim) && !currentVictim->IsNpc()) {
 		return currentVictim;
 	}
 
@@ -865,7 +865,7 @@ CharData *find_target(CharData *ch) {
 			return vict;
 		}
 
-		if (IS_CASTER(vict)) {
+		if (IsCaster(vict)) {
 			caster = vict;
 			continue;
 		}
@@ -1590,7 +1590,7 @@ void using_mob_skills(CharData *ch) {
 						continue;
 					}
 					if ((AFF_FLAGGED(vict, EAffect::kHold) && GET_POS(vict) < EPosition::kFight)
-						|| (IS_CASTER(vict)
+						|| (IsCaster(vict)
 							&& (AFF_FLAGGED(vict, EAffect::kHold)
 								|| AFF_FLAGGED(vict, EAffect::kSilence)
 								|| AFF_FLAGGED(vict, EAffect::kStrangled)
@@ -1598,7 +1598,7 @@ void using_mob_skills(CharData *ch) {
 						continue;
 					}
 					if (!caster
-						|| (IS_CASTER(vict) && vict->caster_level > caster->caster_level)) {
+						|| (IsCaster(vict) && vict->caster_level > caster->caster_level)) {
 						caster = vict;
 					}
 					if (!damager || vict->damage_level > damager->damage_level) {

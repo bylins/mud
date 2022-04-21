@@ -54,7 +54,6 @@ int dump(CharData *ch, void *me, int cmd, char *argument);
 int mayor(CharData *ch, void *me, int cmd, char *argument);
 //int thief(CharacterData *ch, void *me, int cmd, char* argument);
 int magic_user(CharData *ch, void *me, int cmd, char *argument);
-int guild_guard(CharData *ch, void *me, int cmd, char *argument);
 int fido(CharData *ch, void *me, int cmd, char *argument);
 int janitor(CharData *ch, void *me, int cmd, char *argument);
 int cityguard(CharData *ch, void *me, int cmd, char *argument);
@@ -116,23 +115,6 @@ char *how_good(int skill_level, int skill_cap) {
 	sprintf(out_str + strlen(out_str), " %d", skill_level);
 	return out_str;
 }
-
-const char *prac_types[] = {"spell",
-							"skill"
-};
-
-#define LEARNED_LEVEL    0    // % known which is considered "learned" //
-#define MAX_PER_PRAC    1    // max percent gain in skill per practice //
-#define MIN_PER_PRAC    2    // min percent gain in skill per practice //
-#define PRAC_TYPE    3    // should it say 'spell' or 'skill'?     //
-
-// actual prac_params are in class.cpp //
-extern int prac_params[4][kNumPlayerClasses];
-
-#define LEARNED(ch) (prac_params[LEARNED_LEVEL][(int)GET_CLASS(ch)])
-#define MINGAIN(ch) (prac_params[MIN_PER_PRAC][(int)GET_CLASS(ch)])
-#define MAXGAIN(ch) (prac_params[MAX_PER_PRAC][(int)GET_CLASS(ch)])
-#define SPLSKL(ch) (prac_types[prac_params[PRAC_TYPE][(int)GET_CLASS(ch)]])
 
 int feat_slot_lvl(int remort, int slot_for_remort, int slot) {
 	int result = 0;
@@ -854,7 +836,7 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 	}
 
 	info_num--;
-	if (!IS_BITS(guild_mono_info[info_num].classes, GET_CLASS(ch))
+	if (!IS_BITS(guild_mono_info[info_num].classes, to_underlying(ch->get_class()))
 		|| !IS_BITS(guild_mono_info[info_num].races, GET_RACE(ch))
 		|| !IS_BITS(guild_mono_info[info_num].religion, GET_RELIGION(ch))) {
 		act("$N сказал$g : '$n, я не учу таких, как ты.'", false, ch, nullptr, victim, kToChar);
@@ -1159,7 +1141,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 						continue;
 					}
 
-					if (!IS_BITS((guild_poly_info[info_num] + i)->classes, GET_CLASS(ch))
+					if (!IS_BITS((guild_poly_info[info_num] + i)->classes, to_underlying(ch->get_class()))
 						|| !IS_BITS((guild_poly_info[info_num] + i)->races, GET_RACE(ch))
 						|| !IS_BITS((guild_poly_info[info_num] + i)->religion, GET_RELIGION(ch)))
 						continue;
@@ -1211,7 +1193,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 					if ((guild_poly_info[info_num] + i)->level > GetRealLevel(ch)) {
 						continue;
 					}
-					if (!IS_BITS((guild_poly_info[info_num] + i)->classes, GET_CLASS(ch))
+					if (!IS_BITS((guild_poly_info[info_num] + i)->classes, to_underlying(ch->get_class()))
 						|| !IS_BITS((guild_poly_info[info_num] + i)->races, GET_RACE(ch))
 						|| !IS_BITS((guild_poly_info[info_num] + i)->religion, GET_RELIGION(ch))) {
 						continue;
@@ -1287,7 +1269,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 					if ((guild_poly_info[info_num] + i)->level > GetRealLevel(ch)) {
 						continue;
 					}
-					if (!IS_BITS((guild_poly_info[info_num] + i)->classes, GET_CLASS(ch))
+					if (!IS_BITS((guild_poly_info[info_num] + i)->classes, to_underlying(ch->get_class()))
 						|| !IS_BITS((guild_poly_info[info_num] + i)->races, GET_RACE(ch))
 						|| !IS_BITS((guild_poly_info[info_num] + i)->religion, GET_RELIGION(ch))) {
 						continue;
@@ -1328,7 +1310,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 					if ((guild_poly_info[info_num] + i)->level > GetRealLevel(ch)) {
 						continue;
 					}
-					if (!IS_BITS((guild_poly_info[info_num] + i)->classes, GET_CLASS(ch))
+					if (!IS_BITS((guild_poly_info[info_num] + i)->classes, to_underlying(ch->get_class()))
 						|| !IS_BITS((guild_poly_info[info_num] + i)->races, GET_RACE(ch))
 						|| !IS_BITS((guild_poly_info[info_num] + i)->religion, GET_RELIGION(ch))) {
 						continue;
@@ -1371,7 +1353,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 						|| bits == kSpellTemp) {
 						bits = kSpellKnow;
 					}
-					if (!IS_BITS((guild_poly_info[info_num] + i)->classes, GET_CLASS(ch))
+					if (!IS_BITS((guild_poly_info[info_num] + i)->classes, to_underlying(ch->get_class()))
 						|| !IS_BITS((guild_poly_info[info_num] + i)->races, GET_RACE(ch))
 						|| !IS_BITS((guild_poly_info[info_num] + i)->religion, GET_RELIGION(ch))) {
 						continue;
@@ -2629,7 +2611,33 @@ int magic_user(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 // *  Special procedures for mobiles                                  *
 // ********************************************************************
 
-int guild_guard(CharData *ch, void *me, int cmd, char * /*argument*/) {
+/*
+ * ...And the appropriate rooms for each guildmaster/guildguard; controls
+ * which types of people the various guildguards let through.  i.e., the
+ * first line shows that from room 3017, only MAGIC_USERS are allowed
+ * to go south.
+ *
+ * Don't forget to visit spec_assign.cpp if you create any new mobiles that
+ * should be a guild master or guard so they can act appropriately. If you
+ * "recycle" the existing mobs that are used in other guilds for your new
+ * guild, then you don't have to change that file, only here.
+ */
+/*int guild_info[][3] =
+	{
+		// Midgaard
+		{ECharClass::kConjurer, 3017, SCMD_SOUTH},
+		{ECharClass::kSorcerer, 3004, SCMD_NORTH},
+		{ECharClass::kThief, 3027, SCMD_EAST},
+		{ECharClass::kWarrior, 3021, SCMD_EAST},
+
+		// Brass Dragon
+		{-999 *//* all *//* , 5065, SCMD_WEST},
+
+		// this must go last -- add new guards above!
+		{-1, -1, -1}
+	};*/
+
+/*int guild_guard(CharData *ch, void *me, int cmd, char * *//*argument*//*) {
 	int i;
 	CharData *guard = (CharData *) me;
 	const char *buf = "Охранник остановил вас, преградив дорогу.\r\n";
@@ -2652,7 +2660,7 @@ int guild_guard(CharData *ch, void *me, int cmd, char * /*argument*/) {
 	}
 
 	return (false);
-}
+}*/
 
 // TODO: повырезать все это
 int puff(CharData * /*ch*/, void * /*me*/, int/* cmd*/, char * /*argument*/) {

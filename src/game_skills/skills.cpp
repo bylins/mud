@@ -1878,7 +1878,7 @@ int GetSkillMinLevel(CharData *ch, ESkill skill, int req_lvl) {
  */
 int GetSkillMinLevel(CharData *ch, ESkill skill) {
 	int min_lvl = MUD::Classes()[ch->get_class()].skills[skill].GetMinLevel() -
-		std::max(0, GET_REAL_REMORT(ch) / MUD::Classes()[ch->get_class()].GetSkillLvlDecrement());
+		std::max(0, GET_REAL_REMORT(ch)/MUD::Classes()[ch->get_class()].GetSkillLvlDecrement());
 	return MAX(1, min_lvl);
 };
 

@@ -7,24 +7,27 @@
 #include <array>
 
 int invalid_no_class(CharData *ch, const ObjData *obj);
-int extra_damroll(int class_num, int level);
+int GetExtraDamroll(ECharClass class_id, int level);
 long GetExpUntilNextLvl(CharData *ch, int level);
 ECharClass FindAvailableCharClassId(const std::string &class_name);
 
 class GroupPenalties {
  public:
-	using class_penalties_t = std::array<int, kMaxRemort + 1>;
-	using penalties_t = std::array<class_penalties_t, kNumPlayerClasses>;
+	using ClassPenalties = std::array<int, kMaxRemort + 1>;
+	using Penalties = std::unordered_map<ECharClass, ClassPenalties>;
 
 	int init();
-	const auto &operator[](const size_t character_class) const { return m_grouping[character_class]; }
+	const auto &operator[](const ECharClass class_id) const { return grouping_.at(class_id); }
 
  private:
-	penalties_t m_grouping;
+	Penalties grouping_;
 };
 
 extern GroupPenalties grouping;
-int thaco(int class_num, int level);
+int GetThac0(ECharClass class_id, int level);
+bool IsMagicUser(const CharData *ch);
+bool IsCaster(const CharData *ch);
+bool IsFighterUser(const CharData *ch);
 
 #endif // CLASS_HPP_
 
