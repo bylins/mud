@@ -1301,7 +1301,7 @@ void Clan::HouseAdd(CharData *ch, std::string &buffer) {
 * Отписывание персонажа от клана с оповещением всех заинтересованных сторон,
 * выдворением за пределы замка и изменением ренты при необходимости.
 */
-void Clan::remove_member(const ClanMembersList::key_type &key) {
+void Clan::remove_member(const ClanMembersList::key_type &key, char *reason) {
 	const auto it = m_members.find(key);
 	std::string name = it->second->name;
 	long unique = it->first;
@@ -1312,7 +1312,7 @@ void Clan::remove_member(const ClanMembersList::key_type &key) {
 		Clan::SetClanData(k->character.get());
 		SendMsgToChar(k->character.get(), "Вас исключили из дружины '%s'!\r\n", this->name.c_str());
 		sprintf(buf, "Исключен(а) из дружины '%s'",  this->name.c_str());
-		add_karma(k->character.get(), buf, "");
+		add_karma(k->character.get(), buf, reason);
 		const auto clan = Clan::GetClanByRoom(IN_ROOM(k->character));
 		if (clan) {
 			char_from_room(k->character);
@@ -1333,7 +1333,7 @@ void Clan::remove_member(const ClanMembersList::key_type &key) {
 		CharData *vict = &p_vict;
 		if (load_char(name.c_str(), vict) > -1) {
 			sprintf(buf, "Исключен(а) из дружины '%s'",  this->name.c_str());
-			add_karma(vict, buf, "");
+			add_karma(vict, buf, reason);
 			vict->save_char();
 		}
 	}
@@ -1367,7 +1367,9 @@ void Clan::HouseRemove(CharData *ch, std::string &buffer) {
 	} else if (it->second->rank_num <= CLAN_MEMBER(ch)->rank_num) {
 		SendMsgToChar("Вы можете исключить из дружины только персонажа со званием ниже вашего.\r\n", ch);
 	} else {
-		remove_member(it->first);
+		char tmpstr[kMaxInputLength];
+		sprintf(tmpstr, "%s", GET_NAME(ch));
+		remove_member(it->first, tmpstr);
 	}
 }
 
@@ -1381,7 +1383,9 @@ void Clan::HouseLeave(CharData *ch) {
 	const auto member_id = GET_UNIQUE(ch);
 	const auto it = this->m_members.find(member_id);
 	if (it != this->m_members.end()) {
-		remove_member(member_id);
+		char tmpstr[kMaxInputLength];
+		sprintf(tmpstr, "самовыход");
+		remove_member(member_id, tmpstr);
 	}
 }
 
@@ -1421,7 +1425,9 @@ void Clan::hcon_outcast(CharData *ch, std::string &buffer) {
 							  "Вы не можете исключить воеводу, для удаления дружины существует hcontrol destroy.\r\n");
 				return;
 			}
-			clan->remove_member(member_uid);
+			char tmpstr[kMaxInputLength];
+			sprintf(tmpstr, "Богом %s", GET_NAME(ch));
+			clan->remove_member(member_uid, tmpstr);
 			name[0] = UPPER(name[0]);
 			SendMsgToChar(ch, "%s исключен(a) из дружины '%s'.\r\n", name.c_str(), clan->name.c_str());
 			return;
@@ -4196,7 +4202,9 @@ void Clan::hcon_owner(CharData *ch, std::string &text) {
 		if (!it.second->rank_num) {
 			const auto member_uid = it.first;
 			// ахтунг, удаляется элемент дерева, по которому мы и идем в цикле
-			(*clan)->remove_member(member_uid);
+			char tmpstr[kMaxInputLength];
+			sprintf(tmpstr, "смена воеводы");
+			(*clan)->remove_member(member_uid, tmpstr);
 			break;
 		}
 	}
