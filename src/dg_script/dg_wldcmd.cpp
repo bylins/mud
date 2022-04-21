@@ -29,7 +29,7 @@ CharData *get_char_by_room(RoomData *room, char *name);
 RoomData *get_room(char *name);
 ObjData *get_obj_by_room(RoomData *room, char *name);
 
-bool mob_script_command_interpreter(CharData *ch, char *argument);
+bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig);
 
 extern int reloc_target;
 extern Trigger *cur_trig;
@@ -336,7 +336,7 @@ void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, T
 	}
 }
 
-void do_wforce(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
+void do_wforce(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *trig) {
 	char arg1[kMaxInputLength], *line;
 
 	line = one_argument(argument, arg1);
@@ -359,7 +359,7 @@ void do_wforce(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trig
 			}
 
 			if (ch->IsNpc()) {
-				if (mob_script_command_interpreter(ch, line)) {
+				if (mob_script_command_interpreter(ch, line, trig)) {
 					wld_log(room, "Mob trigger commands in wforce. Please rewrite trigger.");
 					return;
 				}
@@ -445,11 +445,6 @@ void do_wload(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 		wld_log(room, "wload: bad syntax");
 		return;
 	}
-
-
-	sprintf(uid, "%s", "а вот и созданная переменная");
-
-
 	if (utils::IsAbbrev(arg1, "mob")) {
 		if ((mob = read_mobile(number, VIRTUAL)) == nullptr) {
 			wld_log(room, "wload: bad mob vnum");

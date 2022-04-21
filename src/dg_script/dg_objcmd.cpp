@@ -29,16 +29,16 @@ CharData *get_char_by_obj(ObjData *obj, char *name);
 ObjData *get_obj_by_obj(ObjData *obj, char *name);
 void sub_write(char *arg, CharData *ch, byte find_invis, int targets);
 void die(CharData *ch, CharData *killer);
-void obj_command_interpreter(ObjData *obj, char *argument);
+void obj_command_interpreter(ObjData *obj, char *argument, Trigger *trig);
 void send_to_zone(char *messg, int zone_rnum);
 
 RoomData *get_room(char *name);
 
-bool mob_script_command_interpreter(CharData *ch, char *argument);
+bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig);
 
 struct obj_command_info {
 	const char *command;
-	typedef void(*handler_f)(ObjData *obj, char *argument, int cmd, int subcmd);
+	typedef void(*handler_f)(ObjData *obj, char *argument, int cmd, int subcmd, Trigger *trig);
 	handler_f command_pointer;
 	int subcmd;
 };
@@ -100,7 +100,7 @@ int find_obj_target_room(ObjData *obj, char *rawroomstr) {
 	return location;
 }
 
-void do_oportal(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_oportal(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	int target, howlong, curroom, nr;
 	char arg1[kMaxInputLength], arg2[kMaxInputLength];
 
@@ -136,7 +136,7 @@ void do_oportal(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		false, world[curroom]->first_character(), 0, 0, kToRoom);
 }
 // Object commands
-void do_oecho(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_oecho(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	skip_spaces(&argument);
 
 	int room;
@@ -148,7 +148,7 @@ void do_oecho(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	}
 }
-void do_oat(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_oat(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *trig) {
 //	int location;
 	char roomstr[kMaxInputLength];
 	RoomRnum location = kNowhere;
@@ -168,11 +168,11 @@ void do_oat(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	argument = one_argument(argument, roomstr);
 	auto tmp_obj = world_objects.create_from_prototype_by_vnum(obj->get_vnum());
 	tmp_obj->set_in_room(location);
-	obj_command_interpreter(tmp_obj.get(), argument);
+	obj_command_interpreter(tmp_obj.get(), argument, trig);
 	world_objects.remove(tmp_obj);
 }
 
-void do_oforce(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_oforce(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *trig) {
 	CharData *ch;
 	char arg1[kMaxInputLength], *line;
 
@@ -215,7 +215,7 @@ void do_oforce(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 
 			if (ch->IsNpc()) {
-				if (mob_script_command_interpreter(ch, line)) {
+				if (mob_script_command_interpreter(ch, line, trig)) {
 					obj_log(obj, "Mob trigger commands in oforce. Please rewrite trigger.");
 					return;
 				}
@@ -232,7 +232,7 @@ void do_oforce(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_osend(ObjData *obj, char *argument, int/* cmd*/, int subcmd) {
+void do_osend(ObjData *obj, char *argument, int/* cmd*/, int subcmd, Trigger *) {
 	char buf[kMaxInputLength], *msg;
 	CharData *ch;
 
@@ -259,7 +259,7 @@ void do_osend(ObjData *obj, char *argument, int/* cmd*/, int subcmd) {
 }
 
 // increases the target's exp
-void do_oexp(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_oexp(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	CharData *ch;
 	char name[kMaxInputLength], amount[kMaxInputLength];
 
@@ -281,7 +281,7 @@ void do_oexp(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 // set the object's timer value
-void do_otimer(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_otimer(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	char arg[kMaxInputLength];
 
 	one_argument(argument, arg);
@@ -298,7 +298,7 @@ void do_otimer(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 // transform into a different object
 // note: this shouldn't be used with containers unless both objects
 // are containers!
-void do_otransform(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_otransform(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	char arg[kMaxInputLength];
 	CharData *wearer = nullptr;
 	int pos = -1;
@@ -337,7 +337,7 @@ void do_otransform(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 // purge all objects an npcs in room, or specified object or mob
-void do_opurge(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_opurge(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	char arg[kMaxInputLength];
 	CharData *ch;
 	ObjData *o;
@@ -368,7 +368,7 @@ void do_opurge(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	ExtractCharFromWorld(ch, false);
 }
 
-void do_oteleport(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_oteleport(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	CharData *ch, *horse;
 	int target, rm;
 	char arg1[kMaxInputLength], arg2[kMaxInputLength];
@@ -468,10 +468,12 @@ void do_oteleport(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_dgoload(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_dgoload(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *trig) {
 	char arg1[kMaxInputLength], arg2[kMaxInputLength];
-	int number = 0, room;
 	CharData *mob;
+	char uid[kMaxInputLength], varname[kMaxInputLength] = "loaded_uid";
+	char uid_type;
+	int number = 0, idnum, room;
 
 	two_arguments(argument, arg1, arg2);
 
@@ -490,6 +492,8 @@ void do_dgoload(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 			obj_log(obj, "oload: bad mob vnum");
 			return;
 		}
+		uid_type = UID_CHAR;
+		idnum = mob->id;
 		PlaceCharToRoom(mob, room);
 		load_mtrigger(mob);
 	} else if (utils::IsAbbrev(arg1, "obj")) {
@@ -498,7 +502,6 @@ void do_dgoload(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 			obj_log(obj, "oload: bad object vnum");
 			return;
 		}
-
 		if (GET_OBJ_MIW(obj_proto[object->get_rnum()]) >= 0
 			&& obj_proto.actual_count(object->get_rnum()) > GET_OBJ_MIW(obj_proto[object->get_rnum()])) {
 			if (!check_unlimited_timer(obj_proto[object->get_rnum()].get())) {
@@ -510,11 +513,16 @@ void do_dgoload(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 		log("Load obj #%d by %s (oload)", number, obj->get_aliases().c_str());
 		object->set_vnum_zone_from(zone_table[world[room]->zone_rn].vnum);
+		uid_type = UID_OBJ;
+		idnum = object->get_id();
 		PlaceObjToRoom(object.get(), room);
 		load_otrigger(object.get());
 	} else {
 		obj_log(obj, "oload: bad type");
+		return;
 	}
+	sprintf(uid, "%c%d", uid_type, idnum);
+	add_var_cntx(&GET_TRIG_VARS(trig), varname, uid, 0);
 }
 
 void ApplyDamage(CharData* target, int damage) {
@@ -531,7 +539,7 @@ void ApplyDamage(CharData* target, int damage) {
 	}
 }
 
-void do_odamage(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_odamage(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	char name[kMaxInputLength], amount[kMaxInputLength], damage_type[kMaxInputLength];
 	three_arguments(argument, name, amount, damage_type);
 	if (!*name || !*amount || !a_isdigit(*amount)) {
@@ -581,7 +589,7 @@ void do_odamage(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_odoor(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_odoor(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	char target[kMaxInputLength], direction[kMaxInputLength];
 	char field[kMaxInputLength], *value;
 	RoomData *rm;
@@ -671,7 +679,7 @@ void do_odoor(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_osetval(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_osetval(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	char arg1[kMaxInputLength], arg2[kMaxInputLength];
 	int position, new_value;
 
@@ -690,7 +698,7 @@ void do_osetval(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_ofeatturn(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_ofeatturn(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	int isFeat = 0;
 	CharData *ch;
 	char name[kMaxInputLength], featname[kMaxInputLength], amount[kMaxInputLength], *pos;
@@ -735,7 +743,7 @@ void do_ofeatturn(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		trg_featturn(ch, feat_id, featdiff, last_trig_vnum);
 }
 
-void do_oskillturn(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_oskillturn(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	CharData *ch;
 	char name[kMaxInputLength], skill_name[kMaxInputLength], amount[kMaxInputLength];
 	int recipenum = 0;
@@ -784,7 +792,7 @@ void do_oskillturn(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_oskilladd(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_oskilladd(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	bool isSkill = false;
 	CharData *ch;
 	char name[kMaxInputLength], skillname[kMaxInputLength], amount[kMaxInputLength];
@@ -820,7 +828,7 @@ void do_oskilladd(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_ospellturn(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_ospellturn(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	CharData *ch;
 	char name[kMaxInputLength], spellname[kMaxInputLength], amount[kMaxInputLength];
 	int spellnum = 0, spelldiff = 0;
@@ -854,7 +862,7 @@ void do_ospellturn(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_ospellturntemp(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_ospellturntemp(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	CharData *ch;
 	char name[kMaxInputLength], spellname[kMaxInputLength], amount[kMaxInputLength];
 	int spellnum = 0, spelltime = 0;
@@ -886,7 +894,7 @@ void do_ospellturntemp(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/
 	}
 }
 
-void do_ospelladd(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_ospelladd(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	CharData *ch;
 	char name[kMaxInputLength], spellname[kMaxInputLength], amount[kMaxInputLength];
 	int spellnum = 0, spelldiff = 0;
@@ -913,7 +921,7 @@ void do_ospelladd(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_ospellitem(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_ospellitem(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	CharData *ch;
 	char name[kMaxInputLength], spellname[kMaxInputLength], type[kMaxInputLength], turn[kMaxInputLength];
 	int spellnum = 0, spelldiff = 0, spell = 0;
@@ -962,7 +970,7 @@ void do_ospellitem(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_ozoneecho(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_ozoneecho(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	ZoneRnum zone;
 	char zone_name[kMaxInputLength], buf[kMaxInputLength], *msg;
 
@@ -1011,7 +1019,7 @@ const struct obj_command_info obj_cmd_info[] =
 	};
 
 // *  This is the command interpreter used by objects, called by script_driver.
-void obj_command_interpreter(ObjData *obj, char *argument) {
+void obj_command_interpreter(ObjData *obj, char *argument, Trigger *trig) {
 	char *line, arg[kMaxInputLength];
 
 	skip_spaces(&argument);
@@ -1037,7 +1045,7 @@ void obj_command_interpreter(ObjData *obj, char *argument) {
 		obj_log(obj, buf2, LGH);
 	} else {
 		const obj_command_info::handler_f &command = obj_cmd_info[cmd].command_pointer;
-		command(obj, line, cmd, obj_cmd_info[cmd].subcmd);
+		command(obj, line, cmd, obj_cmd_info[cmd].subcmd, trig);
 	}
 }
 
