@@ -11,8 +11,6 @@
 #include "utils/utils_char_obj.inl"
 #include "spells_info.h"
 
-#include <boost/format.hpp>
-
 /*
 Система следующая:
 хотим что-то сделать при касте на шмотку - пишем в mag_alter_objs()
@@ -98,36 +96,26 @@ std::string print_spell_str(CharData *ch, int spell, int timer) {
 		return "";
 	}
 
-	std::string out;
+	std::stringstream out;
 	switch (spell) {
 		case kSpellAconitumPoison:
 		case kSpellScopolaPoison:
 		case kSpellBelenaPoison:
 		case kSpellDaturaPoison:
-			out = boost::str(boost::format("%1%Отравлено %2% еще %3% %4%.%5%\r\n")
-								 % CCGRN(ch, C_NRM)
-								 % get_poison_by_spell(spell)
-								 % timer
-								 % GetDeclensionInNumber(timer, EWhat::kMinU)
-								 % CCNRM(ch, C_NRM));
+			out << CCGRN(ch, C_NRM) << "Отравлено " << get_poison_by_spell(spell) << " еще " << timer << " "
+					<< GetDeclensionInNumber(timer, EWhat::kMinU) << ".\r\n" << CCNRM(ch, C_NRM);
 			break;
 
 		default:
 			if (timer == -1) {
-				out = boost::str(boost::format("%1%Наложено постоянное заклинание '%2%'.%3%\r\n")
-									 % CCCYN(ch, C_NRM)
-									 % (spell_info[spell].name ? spell_info[spell].name : "<null>")
-									 % CCNRM(ch, C_NRM));
+				out << CCCYN(ch, C_NRM) << "Наложено постоянное заклинание '" << (spell_info[spell].name ? spell_info[spell].name : "<null>") << "'" << ".\r\n" << CCNRM(ch, C_NRM);
 			} else {
-				out = boost::str(boost::format("%1%Наложено заклинание '%2%' (%3%).%4%\r\n")
-									 % CCCYN(ch, C_NRM)
-									 % (spell_info[spell].name ? spell_info[spell].name : "<null>")
-									 % time_format(timer, true)
-									 % CCNRM(ch, C_NRM));
+				out << CCCYN(ch, C_NRM) << "Наложено заклинание '" << (spell_info[spell].name ? spell_info[spell].name : "<null>") << "' ("
+						<< time_format(timer, true) << ").\r\n" << CCNRM(ch, C_NRM);
 			}
 			break;
 	}
-	return out;
+	return out.str();
 }
 
 } // namespace

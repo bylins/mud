@@ -32,6 +32,7 @@
 #include "structs/global_objects.h"
 
 extern int guild_info[][3];
+extern CharData *get_player_of_name(const char *name);
 
 typedef int special_f(CharData *, void *, int, char *);
 
@@ -2826,22 +2827,6 @@ int pet_shops(CharData *ch, void * /*me*/, int cmd, char *argument) {
 
 	// All commands except list and buy
 	return (0);
-}
-
-CharData *get_player_of_name(const char *name) {
-	for (const auto &i : character_list) {
-		if (i->IsNpc()) {
-			continue;
-		}
-
-		if (!isname(name, i->get_pc_name())) {
-			continue;
-		}
-
-		return i.get();
-	}
-
-	return nullptr;
 }
 
 // ********************************************************************

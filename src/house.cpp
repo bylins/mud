@@ -55,6 +55,8 @@ extern void SetWait(CharData *ch, int waittime, int victim_in_room);
 extern const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_state, int how);
 extern void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool enhansed_scroll);
 extern bool char_to_pk_clan(CharData *ch);
+extern void add_karma(CharData *ch, const char *punish, const char *reason);
+
 void fix_ingr_chest_rnum(const int room_rnum)//Нужно чтоб позиция короба не съехала
 {
 	for (const auto &i : Clan::ClanList) {
@@ -1309,7 +1311,8 @@ void Clan::remove_member(const ClanMembersList::key_type &key) {
 	if (k && k->character) {
 		Clan::SetClanData(k->character.get());
 		SendMsgToChar(k->character.get(), "Вас исключили из дружины '%s'!\r\n", this->name.c_str());
-
+		sprintf(buf, "Исключен(а) из дружины '%s'",  this->name.c_str());
+		add_karma(k->character.get(), buf, "");
 		const auto clan = Clan::GetClanByRoom(IN_ROOM(k->character));
 		if (clan) {
 			char_from_room(k->character);
@@ -1325,11 +1328,20 @@ void Clan::remove_member(const ClanMembersList::key_type &key) {
 				kToRoom);
 		}
 	}
-
+	else {
+		Player p_vict;
+		CharData *vict = &p_vict;
+		if (load_char(name.c_str(), vict) > -1) {
+			sprintf(buf, "Исключен(а) из дружины '%s'",  this->name.c_str());
+			add_karma(vict, buf, "");
+			vict->save_char();
+		}
+	}
 	for (DescriptorData *d = descriptor_list; d; d = d->next) {
 		if (d->character
 			&& CLAN(d->character)
 			&& CLAN(d->character)->GetRent() == this->GetRent()) {
+			name[0] = UPPER(name[0]);
 			SendMsgToChar(d->character.get(), "%s более не является членом вашей дружины.\r\n", name.c_str());
 		}
 	}
@@ -1397,12 +1409,10 @@ void Clan::hcon_outcast(CharData *ch, std::string &buffer) {
 	std::string name;
 	GetOneParam(buffer, name);
 	long member_uid = GetUniqueByName(name);
-
 	if (!member_uid) {
 		SendMsgToChar("Неизвестный персонаж.\r\n", ch);
 		return;
 	}
-
 	for (const auto &clan : Clan::ClanList) {
 		const auto it = clan->m_members.find(member_uid);
 		if (it != clan->m_members.end()) {
@@ -1412,11 +1422,11 @@ void Clan::hcon_outcast(CharData *ch, std::string &buffer) {
 				return;
 			}
 			clan->remove_member(member_uid);
+			name[0] = UPPER(name[0]);
 			SendMsgToChar(ch, "%s исключен(a) из дружины '%s'.\r\n", name.c_str(), clan->name.c_str());
 			return;
 		}
 	}
-
 	SendMsgToChar("Он и так не состоит ни в какой дружине.\r\n", ch);
 }
 
@@ -4063,7 +4073,6 @@ void Clan::ClanAddMember(CharData *ch, int rank) {
 	}
 
 	this->add_offline_member(ch->get_name_str(), GET_UNIQUE(ch), rank);
-
 	Clan::SetClanData(ch);
 	DescriptorData *d;
 	for (d = descriptor_list; d; d = d->next) {
@@ -4084,8 +4093,9 @@ void Clan::ClanAddMember(CharData *ch, int rank) {
 	}
 
 	SendMsgToChar(ch, "%sВас приписали к дружине '%s', статус - '%s'.%s\r\n",
-				  CCWHT(ch, C_NRM), this->name.c_str(), (this->ranks[rank]).c_str(), CCNRM(ch, C_NRM));
-
+			CCWHT(ch, C_NRM), this->name.c_str(), (this->ranks[rank]).c_str(), CCNRM(ch, C_NRM));
+	sprintf(buf, "Принят в дружину '%s', статус - '%s'",  this->name.c_str(), (this->ranks[rank]).c_str());
+	add_karma(ch, buf, "");
 	return;
 }
 

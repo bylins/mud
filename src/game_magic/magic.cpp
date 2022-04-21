@@ -276,9 +276,6 @@ int CalcMagicSkillDam(CharData *ch, CharData *victim, int spellnum, int dam) {
 	auto skill_id = GetMagicSkillId(spellnum);
 	if (MUD::Skills().IsValid(skill_id)) {
 		if (ch->IsNpc()) {
-			victim->send_to_TC(false, true, true, "&CВраг: %s.МагДамага магии %d&n\r\n", GET_NAME(ch), dam);
-			dam += (int) dam * ((GET_REAL_WIS(ch) - 22) * 5) / 100.0;
-//			SendMsgToChar(victim, "&CМагДамага магии с мудростью %d&n\r\n", dam);
 			dam += (int) dam * ch->get_skill(skill_id) / 300.0;
 			victim->send_to_TC(false, true, true,  "&CВраг по вам: %s. МагДамага магии с умением  и мудростью %d&n\r\n",
 					GET_NAME(ch), dam);

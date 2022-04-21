@@ -2007,9 +2007,9 @@ void find_replacement(void *go,
 			else if (!str_cmp(field, "push")) {}
 			else if (!str_cmp(field, "unshift")) {}
 			*/
+			sprintf(str, "%s", "array some error");
 		}
 	}
-
 	if (c) {
 		if (!c->IsNpc() && !c->desc && name && *name == UID_CHAR) {
 			CharacterLinkDrop = true;

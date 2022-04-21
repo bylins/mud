@@ -6,18 +6,21 @@
 
 #include "entities/char_data.h"
 
-#include <boost/algorithm/string/predicate.hpp>
+//#include <boost/algorithm/string/predicate.hpp>
 
 void smash_tilde(char *str);
 
-// * Добавление выполненного квеста номер/строка данных (128 символов).
+
+// * Добавление выполненного квеста номер/строка данных (kMaxTrglineLength символов).
+
 void Quested::add(CharData *ch, int vnum, char *text) {
 	if (!ch->IsNpc() && !IS_IMMORTAL(ch)) {
 		smash_tilde(text);
 		skip_spaces(&text);
 		std::string text_node = *text ? text : "";
-		if (text_node.size() > 128) {
-			text_node = text_node.substr(0, 128);
+
+		if (text_node.size() > kMaxTrglineLength) {
+			text_node = text_node.substr(0, kMaxTrglineLength);
 		}
 		quested_[vnum] = text_node;
 	}
@@ -45,6 +48,11 @@ bool Quested::get(int vnum) const {
 std::string Quested::get_text(int vnum) const {
 	QuestedType::const_iterator it = quested_.find(vnum);
 	if (it != quested_.end()) {
+		if (it->second[0] == '@') {
+			std::string tmp = it->second;
+			tmp.erase(0,1);
+			return tmp;
+		}
 		return it->second;
 	}
 	return "";
@@ -67,7 +75,7 @@ void Quested::save(FILE *saved) const {
 void Quested::clear() {
 	QuestedType::const_iterator it = quested_.begin();
 	while (it != quested_.end()) {
-		if (!boost::starts_with((*it).second, "@")) {
+		if (it->second[0] != '@') {
 			it = quested_.erase(it);
 		} else {
 			++it;

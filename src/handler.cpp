@@ -1979,6 +1979,20 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 * which incorporate the actual player-data                               *.
 *********************************************************************** */
 
+// ищем по имени в character list
+CharData *get_player_of_name(const char *name) {
+	for (const auto &i : character_list) {
+		if (i->IsNpc()) {
+			continue;
+		}
+		if (!isname(name, i->get_pc_name())) {
+			continue;
+		}
+		return i.get();
+	}
+	return nullptr;
+}
+
 CharData *get_player_vis(CharData *ch, const char *name, int inroom) {
 	for (const auto &i : character_list) {
 		if (i->IsNpc())
@@ -1992,10 +2006,8 @@ CharData *get_player_vis(CharData *ch, const char *name, int inroom) {
 		if (!isname(name, i->get_pc_name())) {
 			continue;
 		}
-
 		return i.get();
 	}
-
 	return nullptr;
 }
 
@@ -2010,7 +2022,6 @@ CharData *get_player_pun(CharData *ch, const char *name, int inroom) {
 		}
 		return i.get();
 	}
-
 	return nullptr;
 }
 
@@ -2025,15 +2036,12 @@ CharData *get_char_room_vis(CharData *ch, const char *name) {
 		|| !str_cmp(name, "себя")) {
 		return (ch);
 	}
-
 	// 0.<name> means PC with name
 	strl_cpy(tmp, name, kMaxInputLength);
-
 	const int number = get_number(&tmp);
 	if (0 == number) {
 		return get_player_vis(ch, tmp, EFind::kCharInRoom);
 	}
-
 	int j = 0;
 	for (const auto i : world[ch->in_room]->people) {
 		if (HERE(i) && CAN_SEE(ch, i)
@@ -2043,7 +2051,6 @@ CharData *get_char_room_vis(CharData *ch, const char *name) {
 			}
 		}
 	}
-
 	return nullptr;
 }
 
