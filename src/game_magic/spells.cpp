@@ -13,9 +13,6 @@
 ************************************************************************ */
 
 #include "spells.h"
-
-#include <boost/format.hpp>
-
 #include "structs/global_objects.h"
 #include "cmd/follow.h"
 #include "cmd/hire.h"
@@ -3588,15 +3585,15 @@ void print_rune_stats(CharData *ch) {
 			 iend = rune_list.end(); i != iend; ++i) {
 		tmp_list.insert(std::make_pair(i->second, i->first));
 	}
-	std::string out(
-		"Rune stats:\r\n"
-		"vnum -> count\r\n"
-		"--------------\r\n");
+	std::stringstream out;
+	out << "Rune stats:\r\n" << "vnum -> count\r\n" << "--------------\r\n";
+
 	for (std::multimap<int, int>::const_reverse_iterator i = tmp_list.rbegin(),
 			 iend = tmp_list.rend(); i != iend; ++i) {
-		out += boost::str(boost::format("%1% -> %2%\r\n") % i->second % i->first);
+		
+		out << i->second << " -> " << i->first << "\r\n";
 	}
-	SendMsgToChar(out, ch);
+	SendMsgToChar(out.str(), ch);
 }
 
 void print_rune_log() {
