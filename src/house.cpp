@@ -1327,7 +1327,15 @@ void Clan::remove_member(const ClanMembersList::key_type &key) {
 				nullptr,
 				kToRoom);
 		}
-		k->character.get()->save_char();
+	}
+	else {
+		Player p_vict;
+		CharData *vict = &p_vict;
+		if (load_char(name.c_str(), vict) > -1) {
+			sprintf(buf, "Исключен(а) из дружины '%s'",  this->name.c_str());
+			add_karma(vict, buf, "");
+			vict->save_char();
+		}
 	}
 	for (DescriptorData *d = descriptor_list; d; d = d->next) {
 		if (d->character
