@@ -8,12 +8,10 @@
 #include "classes_info.h"
 
 #include "color.h"
-//#include "utils/parse.h"
 #include "utils/pugixml/pugixml.h"
 #include "game_magic/spells_info.h"
 #include "structs/global_objects.h"
-
-#include <iostream>
+#include "utils/table_wrapper.h"
 
 namespace classes {
 
@@ -115,25 +113,21 @@ void CharClassInfoBuilder::ParseSpells(Optional &info, DataNode &node) {
 	info.value()->spells.Init(node.Children());
 }
 
-void CharClassInfo::Print(std::stringstream &buffer) const {
+void CharClassInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 	buffer << "Print class:" << "\n"
-		   << "    Id: " << KGRN << NAME_BY_ITEM<ECharClass>(id) << KNRM << std::endl
-		   << "    Mode: " << KGRN << NAME_BY_ITEM<EItemMode>(mode) << KNRM << std::endl
-		   << "    Abbr: " << KGRN << GetAbbr() << KNRM << std::endl
-		   << "    Name: " << KGRN << GetName()
+		   << " Id: " << KGRN << NAME_BY_ITEM<ECharClass>(id) << KNRM << std::endl
+		   << " Mode: " << KGRN << NAME_BY_ITEM<EItemMode>(mode) << KNRM << std::endl
+		   << " Abbr: " << KGRN << GetAbbr() << KNRM << std::endl
+		   << " Name: " << KGRN << GetName()
 		   << "/" << names->GetSingular(ECase::kGen)
 		   << "/" << names->GetSingular(ECase::kDat)
 		   << "/" << names->GetSingular(ECase::kAcc)
 		   << "/" << names->GetSingular(ECase::kIns)
-		   << "/" << names->GetSingular(ECase::kPre) << KNRM << std::endl
-		   << "    Available skills (level decrement " << GetSkillLvlDecrement() << "):" << std::endl;
-	for (const auto &skill : skills) {
-		skill.Print(buffer);
-	}
-	buffer	<< "    Available spells (level decrement " << GetSpellLvlDecrement() << "):" << std::endl;
-	for (const auto &spell : spells) {
-		spell.Print(buffer);
-	}
+		   << "/" << names->GetSingular(ECase::kPre) << KNRM << std::endl;
+
+	PrintSkillsTable(ch, buffer);
+	PrintSpellsTable(ch, buffer);
+
 	buffer << std::endl;
 }
 
@@ -157,12 +151,21 @@ const char *CharClassInfo::GetPluralCName(ECase name_case) const {
 	return names->GetPlural(name_case).c_str();
 }
 
-void CharClassInfo::SkillInfo::Print(std::stringstream &buffer) const {
-	buffer << KNRM << "        Skill: " << KCYN << MUD::Skills()[id_].name
-		<< KNRM << " level: " << KGRN << min_level_ << KNRM
-		<< KNRM << " remort: " << KGRN << min_remort_ << KNRM
-		<< KNRM << " improve: " << KGRN << improve_ << KNRM
-		<< KNRM << " mode: " << KGRN << NAME_BY_ITEM<EItemMode>(mode_) << KNRM << std::endl;
+void CharClassInfo::PrintSkillsTable(CharData *ch, std::ostringstream &buffer) const {
+	buffer << std::endl << " Available skills (level decrement " << GetSkillLvlDecrement() << "):" << std::endl;
+
+	table_wrapper::Table table;
+	table << table_wrapper::kHeader << "Skill" << "Lvl" << "Rem" << "Improve" << "Mode" << table_wrapper::kEndRow;
+	for (const auto &skill : skills) {
+		table << MUD::Skills()[skill.GetId()].name
+			   << skill.GetMinLevel()
+			   << skill.GetMinRemort()
+			   << skill.GetImprove()
+			   << NAME_BY_ITEM<EItemMode>(skill.GetMode()) << table_wrapper::kEndRow;
+	}
+	table_wrapper::DecorateNoBorderTable(ch, table);
+	table_wrapper::PrintTableToStream(buffer, table);
+	buffer << std::endl;
 }
 
 CharClassInfo::SkillInfoBuilder::ItemOptional CharClassInfo::SkillInfoBuilder::Build(DataNode &node) {
@@ -186,14 +189,24 @@ CharClassInfo::SkillInfoBuilder::ItemOptional CharClassInfo::SkillInfoBuilder::B
 	return std::make_optional(std::make_shared<CharClassInfo::SkillInfo>(skill_id, min_lvl, min_remort, improve, skill_mode));
 }
 
-void CharClassInfo::SpellInfo::Print(std::stringstream &buffer) const {
-	buffer << KNRM << "        Spell: " << KCYN << spell_info[id_].name
-			<< KNRM << " circle: " << KGRN << circle_ << KNRM
-			<< KNRM << " level: " << KGRN << min_level_ << KNRM
-			<< KNRM << " remort: " << KGRN << min_remort_ << KNRM
-			<< KNRM << " mem mod: " << KGRN << mem_mod_ << KNRM
-			<< KNRM << " cast mod: " << KGRN << cast_mod_ << KNRM
-			<< KNRM << " mode: " << KGRN << NAME_BY_ITEM<EItemMode>(mode_) << KNRM << std::endl;
+void CharClassInfo::PrintSpellsTable(CharData *ch, std::ostringstream &buffer) const {
+	buffer << std::endl << " Available spells (level decrement " << GetSpellLvlDecrement() << "):" << std::endl;
+
+	table_wrapper::Table table;
+	table << table_wrapper::kHeader
+		<< "Spell" << "Lvl" << "Rem" << "Circle" << "Mem" << "Cast" << "Mode" << table_wrapper::kEndRow;
+	for (const auto &spell : spells) {
+		table << spell_info[spell.GetId()].name
+			  << spell.GetMinLevel()
+			  << spell.GetMinRemort()
+			  << spell.GetCircle()
+			  << spell.GetMemMod()
+			  << spell.GetCastMod()
+			  << NAME_BY_ITEM<EItemMode>(spell.GetMode()) << table_wrapper::kEndRow;
+	}
+	table_wrapper::DecorateNoBorderTable(ch, table);
+	table_wrapper::PrintTableToStream(buffer, table);
+	buffer << std::endl;
 }
 
 CharClassInfo::SpellInfoBuilder::ItemOptional CharClassInfo::SpellInfoBuilder::Build(DataNode &node) {

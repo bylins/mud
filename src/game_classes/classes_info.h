@@ -55,7 +55,6 @@ struct CharClassInfo : public info_container::IItem<ECharClass> {
 			: TalentInfo(id, min_level, min_remort, mode), improve_{improve} {};
 
 		[[nodiscard]] long GetImprove() const { return improve_; };
-		void Print(std::stringstream &buffer) const;
 
 	 private:
 		long improve_{kMinImprove};
@@ -77,7 +76,6 @@ struct CharClassInfo : public info_container::IItem<ECharClass> {
 		[[nodiscard]] int GetCircle() const { return circle_; };
 		[[nodiscard]] int GetMemMod() const { return mem_mod_; };
 		[[nodiscard]] int GetCastMod() const { return cast_mod_; };
-		void Print(std::stringstream &buffer) const;
 
 	 private:
 		int circle_{kMaxMemoryCircle};
@@ -126,10 +124,12 @@ struct CharClassInfo : public info_container::IItem<ECharClass> {
 	Skills skills;
 	int skill_level_decrement_{kMinTalentLevelDecrement};
 	[[nodiscard]] int GetSkillLvlDecrement() const { return skill_level_decrement_; };
+	void PrintSkillsTable(CharData *ch, std::ostringstream &buffer) const;
 
 	Spells spells;
 	int spell_level_decrement_{kMinTalentLevelDecrement};
 	[[nodiscard]] int GetSpellLvlDecrement() const { return spell_level_decrement_; };
+	void PrintSpellsTable(CharData *ch, std::ostringstream &buffer) const;
 
 	/* базовые параметры */
 	// \todo Не забыть добавить парсинг
@@ -165,7 +165,7 @@ struct CharClassInfo : public info_container::IItem<ECharClass> {
 	ClassApplies applies;
 
 	/* Прочее */
-	void Print(std::stringstream &buffer) const;
+	void Print(CharData *ch, std::ostringstream &buffer) const;
 };
 
 class CharClassInfoBuilder : public info_container::IItemBuilder<CharClassInfo> {
