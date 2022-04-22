@@ -5128,9 +5128,9 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 	unsigned long loops = 0;
 	Trigger *prev_trig;
 
-	void mob_command_interpreter(CharData *ch, char *argument);
-	void obj_command_interpreter(ObjData *obj, char *argument);
-	void wld_command_interpreter(RoomData *room, char *argument);
+	void mob_command_interpreter(CharData *ch, char *argument, Trigger *trig);
+	void obj_command_interpreter(ObjData *obj, char *argument, Trigger *trig);
+	void wld_command_interpreter(RoomData *room, char *argument, Trigger *trig);
 
 	if (depth > kMaxScriptDepth) {
 		trig_log(trig, "Triggers recursed beyond maximum allowed depth.");
@@ -5358,17 +5358,17 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 				switch (type) {
 					case MOB_TRIGGER:
 						//last_trig_vnum = GET_TRIG_VNUM(trig);
-						mob_command_interpreter((CharData *) (go), cmd);
+						mob_command_interpreter((CharData *) (go), cmd, trig);
 						break;
 
 					case OBJ_TRIGGER:
 						//last_trig_vnum = GET_TRIG_VNUM(trig);
-						obj_command_interpreter((ObjData *) go, cmd);
+						obj_command_interpreter((ObjData *) go, cmd, trig);
 						break;
 
 					case WLD_TRIGGER:
 						//last_trig_vnum = GET_TRIG_VNUM(trig);
-						wld_command_interpreter((RoomData *) go, cmd);
+						wld_command_interpreter((RoomData *) go, cmd, trig);
 						break;
 				}
 			}
