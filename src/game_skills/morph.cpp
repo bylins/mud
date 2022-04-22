@@ -326,7 +326,7 @@ void load_morphs() {
 		for (pugi::xml_node skill = skillsList.child("skill"); skill; skill = skill.next_sibling("skill")) {
 			std::string strt(skill.child_value());
 			const ESkill skillNum = FixNameFndFindSkillNum(strt);
-			if (skillNum != ESkill::kIncorrect) {
+			if (skillNum != ESkill::kUndefined) {
 				skills[skillNum] = 0;//init-им скилы нулями, потом проставим при превращении
 			} else {
 				snprintf(buf, kMaxStringLength, "...skills read fail for morph %s", name.c_str());

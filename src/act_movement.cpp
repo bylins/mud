@@ -316,7 +316,7 @@ int calculate_move_cost(CharData *ch, int dir) {
 
 bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_msg) {
 	buf2[0] = '\0';
-	if (dir == EDirection::kIncorrectDir) {
+	if (dir == EDirection::kUndefinedDir) {
 		return false;
 	}
 	if (check_specials && special(ch, dir + 1, buf2, 1)) {
@@ -557,7 +557,7 @@ void PerformDunkSong(CharData *ch) {
  * Выбор случайной комнаты из списка выходов комнаты, в которой находится персонаж.
  * @param ch - персонаж, для которого производится выбор.
  * @param fail_chance - шанс не найти выход. Сравнивается со случайным числом от 1 до 100 + 25*число выходов.
- * @return Выбранное направление. Может быть kIncorrectDir в случае неудачи.
+ * @return Выбранное направление. Может быть kUndefinedDir в случае неудачи.
  */
 EDirection SelectRndDirection(CharData *ch, int fail_chance) {
 	std::vector<EDirection> directions;
@@ -569,7 +569,7 @@ EDirection SelectRndDirection(CharData *ch, int fail_chance) {
 	}
 
 	if (directions.empty() || number(1, 100 + 25 * directions.size()) < fail_chance) {
-		return EDirection::kIncorrectDir;
+		return EDirection::kUndefinedDir;
 	}
 	return directions[number(0, directions.size() - 1)];
 }

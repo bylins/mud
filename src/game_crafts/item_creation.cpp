@@ -39,8 +39,8 @@ struct create_item_type created_item[] =
 		{302, 0x7E, 8, 25, {{COAL_PROTO, 0, 0}}, ESkill::kReforging, WEAR_TAKE_DUAL},
 		{303, 0x7E, 5, 13, {{COAL_PROTO, 0, 0}}, ESkill::kReforging, WEAR_TAKE_HOLD},
 		{304, 0x7E, 10, 35, {{COAL_PROTO, 0, 0}}, ESkill::kReforging, WEAR_TAKE_BOTHS_WIELD},
-		{305, 0, 8, 15, {{0, 0, 0}}, ESkill::kIncorrect, WEAR_TAKE_BOTHS_WIELD},
-		{306, 0, 8, 20, {{0, 0, 0}}, ESkill::kIncorrect, WEAR_TAKE_BOTHS_WIELD},
+		{305, 0, 8, 15, {{0, 0, 0}}, ESkill::kUndefined, WEAR_TAKE_BOTHS_WIELD},
+		{306, 0, 8, 20, {{0, 0, 0}}, ESkill::kUndefined, WEAR_TAKE_BOTHS_WIELD},
 		{307, 0x3A, 10, 20, {{COAL_PROTO, 0, 0}}, ESkill::kReforging, WEAR_TAKE_BODY},
 		{308, 0x3A, 4, 10, {{COAL_PROTO, 0, 0}}, ESkill::kReforging, WEAR_TAKE_ARMS},
 		{309, 0x3A, 6, 12, {{COAL_PROTO, 0, 0}}, ESkill::kReforging, WEAR_TAKE_LEGS},
@@ -71,7 +71,7 @@ const struct make_skill_type make_skills[] =
 		{"смастерить диковину", "артеф.", ESkill::kMakeJewel},
 		{"смастерить оберег", "оберег", ESkill::kMakeAmulet},
 //  { "сварить отвар","варево", ESkill::kMakePotion },
-		{"\n", "\n", ESkill::kIncorrect}        // Терминатор
+		{"\n", "\n", ESkill::kUndefined}        // Терминатор
 	};
 const char *create_weapon_quality[] = {"RESERVED",
 									   "RESERVED",
@@ -165,7 +165,7 @@ void mredit_parse(DescriptorData *d, char *arg) {
 				// Выводить список умений ... или давать вводить ручками.
 				tmpstr = "\r\nСписок доступных умений:\r\n";
 				i = 0;
-				while (make_skills[i].num != ESkill::kIncorrect) {
+				while (make_skills[i].num != ESkill::kUndefined) {
 					sprintf(tmpbuf, "%s%d%s) %s.\r\n", grn, i + 1, nrm, make_skills[i].name);
 					tmpstr += string(tmpbuf);
 					i++;
@@ -239,7 +239,7 @@ void mredit_parse(DescriptorData *d, char *arg) {
 		case MREDIT_SKILL: {
 			auto skill_num = atoi(sagr.c_str());
 			i = 0;
-			while (make_skills[i].num != ESkill::kIncorrect) {
+			while (make_skills[i].num != ESkill::kUndefined) {
 				if (skill_num == i + 1) {
 					trec->skill = make_skills[i].num;
 					OLC_VAL(d) = 1;
@@ -467,7 +467,7 @@ void mredit_disp_menu(DescriptorData *d) {
 	int i = 0;
 	//
 	skillname = "Нет";
-	while (make_skills[i].num != ESkill::kIncorrect) {
+	while (make_skills[i].num != ESkill::kUndefined) {
 		if (make_skills[i].num == trec->skill) {
 			skillname = string(make_skills[i].name);
 			break;
@@ -526,7 +526,7 @@ void do_list_make(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 		if (obj) {
 			obj_name = obj->get_PName(0).substr(0, 11);
 		}
-		while (make_skills[j].num != ESkill::kIncorrect) {
+		while (make_skills[j].num != ESkill::kUndefined) {
 			if (make_skills[j].num == trec->skill) {
 				skill_name = string(make_skills[j].short_name);
 				break;
@@ -829,7 +829,7 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 	ObjData *obj = nullptr, *coal, *proto[MAX_PROTO];
 	int obj_type, i, found, rnum;
 
-	ESkill skill_id{ESkill::kIncorrect};
+	ESkill skill_id{ESkill::kUndefined};
 	switch (subcmd) {
 		case SCMD_TRANSFORMWEAPON:
 			skill_id = ESkill::kReforging;
@@ -1199,7 +1199,7 @@ ObjData *get_obj_in_list_ingr(int num,
 	}
 	return nullptr;
 }
-MakeRecept::MakeRecept() : skill(ESkill::kIncorrect) {
+MakeRecept::MakeRecept() : skill(ESkill::kUndefined) {
 	locked = true;        // по умолчанию рецепт залочен.
 	obj_proto = 0;
 	for (int i = 0; i < MAX_PARTS; i++) {

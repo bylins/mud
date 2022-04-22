@@ -203,7 +203,7 @@ ESkill FindSkillId(const char *name) {
 		}
 	}
 
-	return ESkill::kIncorrect;
+	return ESkill::kUndefined;
 }
 
 int FindSpellNum(const char *name) {
@@ -633,7 +633,7 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, int s
 	}
 
 	ESkill skillnum = GetMagicSkillId(spellnum);
-	if (skillnum != ESkill::kIncorrect && skillnum != ESkill::kUndefined) {
+	if (skillnum != ESkill::kUndefined) {
 		TrainSkill(ch, skillnum, true, tch);
 	}
 	// Комнату тут в SaySpell не обрабатываем - будет сказал "что-то"
@@ -702,7 +702,7 @@ int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, int spellnum
 	}
 
 	const ESkill skill_number = GetMagicSkillId(spellnum);
-	if (skill_number != ESkill::kIncorrect) {
+	if (skill_number != ESkill::kUndefined) {
 		prob += ch->get_skill(skill_number) / 20;
 	}
 

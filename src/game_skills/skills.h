@@ -42,10 +42,9 @@ enum EExtraAttack {
  * скилл с таким id и не находит его).
  */
 enum class ESkill : int {
-	kReligion = -4,			// Таймер молитвы тикает за счет TimedSkill. Нужно придумать, как от этого избавиться
-	kAny = -3,    			// "Какой угодно" скилл. (Например, удар можно нанести любым видом оружия).  //
-	kUndefined = -2,		// Неопределенный скилл.
-	kIncorrect = -1,		// Неизвестный, но некорректный скилл.
+	kReligion = -3,			// Таймер молитвы тикает за счет TimedSkill. Нужно придумать, как от этого избавиться
+	kAny = -2,    			// "Какой угодно" скилл. (Например, удар можно нанести любым видом оружия).  //
+	kUndefined = -1,		// Неопределенный или некорректный скилл.
 	kGlobalCooldown = 0,	// Internal - ID for global ability cooldown //
 	kProtect = 1,
 	kIntercept = 2,
@@ -157,7 +156,7 @@ struct SkillRollResult {
 };
 
 struct TimedSkill {
-	ESkill skill{ESkill::kIncorrect};	// Used skill //
+	ESkill skill{ESkill::kUndefined};	// Used skill //
 	ubyte time{0};						// Time for next using //
 	TimedSkill *next{nullptr};
 };

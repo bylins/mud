@@ -67,7 +67,7 @@ ESkill GetMagicSkillId(int spellnum) {
 		case kTypeLife: return ESkill::kLifeMagic;
 			break;
 		case kTypeNeutral: [[fallthrough]];
-		default: return ESkill::kIncorrect;
+		default: return ESkill::kUndefined;
 	}
 }
 
@@ -878,7 +878,7 @@ int CheckCharmices(CharData *ch, CharData *victim, int spellnum) {
 
 void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/) {
 	int k_skills = 0;
-	ESkill skill_id = ESkill::kIncorrect;
+	ESkill skill_id = ESkill::kUndefined;
 	if (victim == nullptr || ch == nullptr)
 		return;
 
@@ -2946,7 +2946,7 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_value_by_name.clear();
 	ESpell_name_by_value.clear();
 
-	ESpell_name_by_value[ESpell::kIncorrect] = "kIncorrect";
+	ESpell_name_by_value[ESpell::kUndefined] = "kUndefined";
 	ESpell_name_by_value[ESpell::kSpellArmor] = "kSpellArmor";
 	ESpell_name_by_value[ESpell::kSpellTeleport] = "kSpellTeleport";
 	ESpell_name_by_value[ESpell::kSpellBless] = "kSpellBless";
@@ -3393,7 +3393,7 @@ int CheckRecipeItems(CharData *ch, int spellnum, int spelltype, int extract, con
 	ObjData *obj0 = nullptr, *obj1 = nullptr, *obj2 = nullptr, *obj3 = nullptr, *objo = nullptr;
 	int item0 = -1, item1 = -1, item2 = -1, item3 = -1;
 	int create = 0, obj_num = -1, percent = 0, num = 0;
-	ESkill skill_id = ESkill::kIncorrect;
+	auto skill_id{ESkill::kUndefined};
 	struct SpellCreateItem *items;
 
 	if (spellnum <= 0

@@ -43,7 +43,7 @@ void GoFlee(CharData *ch) {
 	}
 
 	auto direction = SelectRndDirection(ch, IsAbleToUseFeat(ch, EFeat::kRetreat) ? 0 : 50);
-	if (direction != EDirection::kIncorrectDir) {
+	if (direction != EDirection::kUndefinedDir) {
 		const auto was_fighting = ch->GetEnemy();
 		const auto was_in = ch->in_room;
 

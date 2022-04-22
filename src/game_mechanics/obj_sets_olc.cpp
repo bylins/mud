@@ -1269,7 +1269,7 @@ void sedit::parse_activ_skill(CharData *ch, const char *arg) {
 	int num = atoi(arg), ssnum = 0, ssval = 0;
 
 	if (num == 0) {
-		skill.first = ESkill::kIncorrect;
+		skill.first = ESkill::kUndefined;
 		skill.second = 0;
 		show_activ_edit(ch);
 		return;
@@ -1285,7 +1285,7 @@ void sedit::parse_activ_skill(CharData *ch, const char *arg) {
 		SendMsgToChar("Неизвестное умение.\r\n", ch);
 		show_activ_skill(ch);
 	} else if (ssval == 0) {
-		skill.first = ESkill::kIncorrect;
+		skill.first = ESkill::kUndefined;
 		skill.second = 0;
 		show_activ_edit(ch);
 	} else {

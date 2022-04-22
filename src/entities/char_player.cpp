@@ -470,7 +470,7 @@ void Player::save_char() {
 		fprintf(saved, "Name: %s\n", GET_NAME(this));
 	}
 	fprintf(saved, "Levl: %d\n", this->get_level());
-	fprintf(saved, "Clas: %d\n", GET_CLASS(this));
+	fprintf(saved, "Clas: %d\n", to_underlying(this->get_class()));
 	fprintf(saved, "UIN : %d\n", GET_UNIQUE(this));
 	fprintf(saved, "LstL: %ld\n", static_cast<long int>(LAST_LOGON(this)));
 	// сохраняем last_ip, который должен содержать айпишник с последнего удачного входа

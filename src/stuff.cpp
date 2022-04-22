@@ -431,7 +431,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 		obj->set_extra_flag(EObjFlag::kThrowing);
 		obj->set_affected(0, EApply::kStr, floorf(diff/12.0));
 		obj->set_affected(1, EApply::kSavingStability, -floorf(diff/4.0));
-		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
+		create_charmice_stuff(ch, ESkill::kUndefined, diff);
 		position = 16;
 		break;
 	case ESkill::kSpades: // копья
@@ -439,7 +439,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 		obj->set_skill(148);
 		obj->set_extra_flag(EObjFlag::kThrowing);
 		create_charmice_stuff(ch, ESkill::kShieldBlock, diff);
-		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
+		create_charmice_stuff(ch, ESkill::kUndefined, diff);
 		position = 16;
 		break;
 	case ESkill::kPicks: // стабер
@@ -447,7 +447,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 		obj->set_skill(147);
 		obj->set_affected(0, EApply::kStr, floorf(diff/16.0));
 		obj->set_affected(1, EApply::kDex, floorf(diff/10.0));
-		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
+		create_charmice_stuff(ch, ESkill::kUndefined, diff);
 		position = 16;
 		break;
 	case ESkill::kAxes: // секиры
@@ -458,7 +458,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 		obj->set_affected(2, EApply::kDamroll, floorf(diff/10.0));
 		obj->set_affected(3, EApply::kHp, 5*(diff));
 		create_charmice_stuff(ch, ESkill::kShieldBlock, diff);
-		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
+		create_charmice_stuff(ch, ESkill::kUndefined, diff);
 		position = 16;
 		break;
 	case ESkill::kBows: // луки
@@ -466,7 +466,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 		obj->set_skill(154);
 		obj->set_affected(0, EApply::kStr, floorf(diff/20.0));
 		obj->set_affected(1, EApply::kDex, floorf(diff/15.0));
-		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
+		create_charmice_stuff(ch, ESkill::kUndefined, diff);
 		position = 18;
 		break;
 	case ESkill::kTwohands: // двуруч
@@ -475,13 +475,13 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 		obj->set_weight(floorf(diff/4.0)); // 50 вес при 200% скила
 		obj->set_affected(0, EApply::kStr, floorf(diff/15.0));
 		obj->set_affected(1, EApply::kDamroll, floorf(diff/13.0));
-		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
+		create_charmice_stuff(ch, ESkill::kUndefined, diff);
 		position = 18;
 		break;
 	case ESkill::kPunch: // кулачка
 		obj->set_type(EObjType::kArmor);
 		obj->set_affected(0, EApply::kDamroll, floorf(diff/10.0));
-		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
+		create_charmice_stuff(ch, ESkill::kUndefined, diff);
 		position = 9;
 		break;
 	case ESkill::kLongBlades: // длинные
@@ -490,8 +490,8 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 		obj->set_affected(0, EApply::kStr, floorf(diff/15.0));
 		obj->set_affected(1, EApply::kDex, floorf(diff/12.0));
 		obj->set_affected(2, EApply::kSavingReflex, -floorf(diff/3.5));
-		create_charmice_stuff(ch, ESkill::kIncorrect, -1); // так изощренно создаем обувку(-1), итак кэйсов наплодил
-		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
+		create_charmice_stuff(ch, ESkill::kUndefined, -1); // так изощренно создаем обувку(-1), итак кэйсов наплодил
+		create_charmice_stuff(ch, ESkill::kUndefined, diff);
 		position = 16;
 		break;
 	case ESkill::kShieldBlock: // блок щитом ? делаем щит
@@ -514,7 +514,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 		obj->set_affected(3, EApply::kSavingWill, -floorf(diff/3.5));
 		position = 11; // слот щит
 		break;		
-	default: //ESkill::kIncorrect / тут шкура(армор)
+	default: //ESkill::kUndefined / тут шкура(армор)
 		obj->set_sex(ESex::kFemale);
 		obj->set_description("Прочная шкура лежит здесь.");
 		obj->set_ex_description(descr.c_str(), "Прочная шкура лежит здесь.");

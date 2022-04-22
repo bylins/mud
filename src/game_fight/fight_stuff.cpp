@@ -1353,11 +1353,11 @@ void Damage::post_init(CharData *ch, CharData *victim) {
 		}
 	}
 
-	if (ch_start_pos == EPosition::kIncorrect) {
+	if (ch_start_pos == EPosition::kUndefined) {
 		ch_start_pos = GET_POS(ch);
 	}
 
-	if (victim_start_pos == EPosition::kIncorrect) {
+	if (victim_start_pos == EPosition::kUndefined) {
 		victim_start_pos = GET_POS(victim);
 	}
 
@@ -1384,8 +1384,8 @@ void Damage::zero_init() {
 	spell_num = -1;
 	hit_type = -1;
 	msg_num = -1;
-	ch_start_pos = EPosition::kIncorrect;
-	victim_start_pos = EPosition::kIncorrect;
+	ch_start_pos = EPosition::kUndefined;
+	victim_start_pos = EPosition::kUndefined;
 	wielded = nullptr;
 }
 

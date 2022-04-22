@@ -8,7 +8,7 @@
 #include "classes_info.h"
 
 #include "color.h"
-#include "utils/parse.h"
+//#include "utils/parse.h"
 #include "utils/pugixml/pugixml.h"
 #include "game_magic/spells_info.h"
 #include "structs/global_objects.h"
@@ -34,7 +34,7 @@ Optional CharClassInfoBuilder::Build(DataNode &node) {
 	try {
 		ParseClass(class_info, class_node);
 	} catch (std::exception &e) {
-		err_log("Incorrect value or id '%s' was detected.", e.what());
+		err_log("Classes parsing error: '%s'", e.what());
 		class_info = std::nullopt;
 	}
 	return class_info;
@@ -70,18 +70,25 @@ void CharClassInfoBuilder::ParseClass(Optional &info, DataNode &node) {
 		info = std::nullopt;
 		return;
 	}
+
 	try {
 		info.value()->mode = parse::ReadAsConstant<EItemMode>(node.GetValue("mode"));
 	} catch (std::exception &) {
 	}
+
+	node.GoToChild("name");
 	ParseName(info, node);
+
+	node.GoToSibling("skills");
 	ParseSkills(info, node);
+
+	node.GoToSibling("spells");
 	ParseSpells(info, node);
+
 	TemporarySetStat(info);			// Временное проставление параметроа не из файла, а вручную
 }
 
 void CharClassInfoBuilder::ParseName(Optional &info, DataNode &node) {
-	node.GoToChild("name");
 	try {
 		info.value()->abbr = parse::ReadAsStr(node.GetValue("abbr"));
 	} catch (std::exception &) {
@@ -90,25 +97,22 @@ void CharClassInfoBuilder::ParseName(Optional &info, DataNode &node) {
 	info.value()->names = base_structs::ItemName::Build(node);
 }
 
+int ParseLevelDecrement(DataNode &node) {
+	try {
+		return parse::ReadAsInt(node.GetValue("level_decrement"));
+	} catch (std::exception &e) {
+		return kMinTalentLevelDecrement;
+	}
+}
+
 void CharClassInfoBuilder::ParseSkills(Optional &info, DataNode &node) {
-	node.GoToSibling("skills");
-	info.value()->skill_level_decrement_ = ParseLevelDecrement(info.value()->id, node);
+	info.value()->skill_level_decrement_ = ParseLevelDecrement(node);
 	info.value()->skills.Init(node.Children());
 }
 
 void CharClassInfoBuilder::ParseSpells(Optional &info, DataNode &node) {
-	info.value()->spell_level_decrement_ = ParseLevelDecrement(info.value()->id, node);
+	info.value()->spell_level_decrement_ = ParseLevelDecrement(node);
 	info.value()->spells.Init(node.Children());
-}
-
-int CharClassInfoBuilder::ParseLevelDecrement(ECharClass class_id, DataNode &node) {
-	try {
-		return parse::ReadAsInt(node.GetValue("level_decrement"));
-	} catch (std::exception &e) {
-		err_log("Incorrect skill/spell level decrement (class %s), set by default.",
-				NAME_BY_ITEM<ECharClass>(class_id).c_str());
-		return kMinTalentLevelDecrement;
-	}
 }
 
 void CharClassInfo::Print(std::stringstream &buffer) const {
@@ -126,7 +130,7 @@ void CharClassInfo::Print(std::stringstream &buffer) const {
 	for (const auto &skill : skills) {
 		skill.Print(buffer);
 	}
-	buffer	<< "    Available spells (level decrement " << GetSkillLvlDecrement() << "):" << std::endl;
+	buffer	<< "    Available spells (level decrement " << GetSpellLvlDecrement() << "):" << std::endl;
 	for (const auto &spell : spells) {
 		spell.Print(buffer);
 	}
@@ -161,41 +165,25 @@ void CharClassInfo::SkillInfo::Print(std::stringstream &buffer) const {
 		<< KNRM << " mode: " << KGRN << NAME_BY_ITEM<EItemMode>(mode_) << KNRM << std::endl;
 }
 
-CharClassInfo::SkillsInfoBuilder::ItemOptional ParseSingleSkill(DataNode &node) {
-	auto id{ESkill::kIncorrect};
-	try {
-		id = parse::ReadAsConstant<ESkill>(node.GetValue("id"));
-	} catch (std::exception &e) {
-		err_log("Incorrect skill id (%s).", e.what());
-		return std::nullopt;
-	}
-	auto mode{EItemMode::kEnabled};
-	try {
-		mode = parse::ReadAsConstant<EItemMode>(node.GetValue("mode"));
-	} catch (std::exception &) {
-	}
+CharClassInfo::SkillInfoBuilder::ItemOptional CharClassInfo::SkillInfoBuilder::Build(DataNode &node) {
+	auto skill_id{ESkill::kUndefined};
 	int min_lvl, min_remort;
 	long improve;
 	try {
+		skill_id = parse::ReadAsConstant<ESkill>(node.GetValue("id"));
 		min_lvl = parse::ReadAsInt(node.GetValue("level"));
 		min_remort = parse::ReadAsInt(node.GetValue("remort"));
 		improve = parse::ReadAsInt(node.GetValue("improve"));
-	} catch (std::exception &) {
-		err_log("Incorrect skill min level, remort or improve (skill: %s). Set by default.",
-				NAME_BY_ITEM<ESkill>(id).c_str());
-	};
+	} catch (std::exception &e) {
+		std::ostringstream out;
+		out << "Incorrect skill format (wrong value: " << e.what() << ").";
+		throw std::runtime_error(out.str());
+	}
+
+	auto skill_mode = SkillInfoBuilder::ParseItemMode(node, EItemMode::kEnabled);
 
 	// \todo Нужно подумать, как переделать интерфейс, возможно - через ссылку на метод или лямбду
-	return std::make_optional(std::make_shared<CharClassInfo::SkillInfo>(id, min_lvl, min_remort, improve, mode));
-}
-
-CharClassInfo::SkillsInfoBuilder::ItemOptional CharClassInfo::SkillsInfoBuilder::Build(DataNode &node) {
-	try {
-		return ParseSingleSkill(node);
-	} catch (std::exception &e) {
-		err_log("Incorrect value or id '%s' was detected.", e.what());
-		return std::nullopt;
-	}
+	return std::make_optional(std::make_shared<CharClassInfo::SkillInfo>(skill_id, min_lvl, min_remort, improve, skill_mode));
 }
 
 void CharClassInfo::SpellInfo::Print(std::stringstream &buffer) const {
@@ -208,43 +196,26 @@ void CharClassInfo::SpellInfo::Print(std::stringstream &buffer) const {
 			<< KNRM << " mode: " << KGRN << NAME_BY_ITEM<EItemMode>(mode_) << KNRM << std::endl;
 }
 
-CharClassInfo::SpellsInfoBuilder::ItemOptional ParseSingleSpell(DataNode &node) {
-	node.GoToSibling("spells");
-	auto id{ESpell::kIncorrect};
-	try {
-		id = parse::ReadAsConstant<ESpell>(node.GetValue("id"));
-	} catch (std::exception &e) {
-		err_log("Incorrect spell id (%s).", e.what());
-		return std::nullopt;
-	}
-	auto mode{EItemMode::kEnabled};
-	try {
-		mode = parse::ReadAsConstant<EItemMode>(node.GetValue("mode"));
-	} catch (std::exception &) {
-	}
+CharClassInfo::SpellInfoBuilder::ItemOptional CharClassInfo::SpellInfoBuilder::Build(DataNode &node) {
+	auto spell_id{ESpell::kUndefined};
 	int min_lvl, min_remort, circle, mem, cast;
 	try {
+		spell_id = parse::ReadAsConstant<ESpell>(node.GetValue("id"));
 		min_lvl = parse::ReadAsInt(node.GetValue("level"));
 		min_remort = parse::ReadAsInt(node.GetValue("remort"));
 		circle = parse::ReadAsInt(node.GetValue("circle"));
 		mem = parse::ReadAsInt(node.GetValue("mem"));
 		cast = parse::ReadAsInt(node.GetValue("cast"));
-	} catch (std::exception &) {
-		err_log("Incorrect skill min level, remort or improve (skill: %s). Set by default.",
-				NAME_BY_ITEM<ESpell>(id).c_str());
-	};
+	} catch (std::exception &e) {
+		std::ostringstream out;
+		out << "Incorrect spell format (wrong value: " << e.what() << ").";
+		throw std::runtime_error(out.str());
+	}
+
+	auto spell_mode = SpellInfoBuilder::ParseItemMode(node, EItemMode::kEnabled);
 
 	// \todo Нужно подумать, как переделать интерфейс, возможно - через ссылку на метод или лямбду
-	return std::make_optional(std::make_shared<CharClassInfo::SpellInfo>(id, min_lvl, min_remort, circle, mem, cast, mode));
-}
-
-CharClassInfo::SpellsInfoBuilder::ItemOptional CharClassInfo::SpellsInfoBuilder::Build(DataNode &node) {
-	try {
-		return ParseSingleSpell(node);
-	} catch (std::exception &e) {
-		err_log("Incorrect value or id '%s' was detected.", e.what());
-		return std::nullopt;
-	}
+	return std::make_optional(std::make_shared<CharClassInfo::SpellInfo>(spell_id, min_lvl, min_remort, circle, mem, cast, spell_mode));
 }
 
 /*
@@ -327,7 +298,9 @@ void CharClassInfoBuilder::TemporarySetStat(Optional &info) {
 // \todo Не забыть в парсинге умений, заклинаний и так далее убрать обработку исключения
 // т.к. если спелл/скилл кривой, то описание класса в целом должно быть забраковано
 // \todo В конфиг фитов недо перенести feat_slot_for_remort из feat.h
-// \todo Не забыть добавить level_decrement для заклинаний
 // Не забыть исправить int GroupPenalties::init()
+// Перенести парсинг режима куда-нибудь в шаблон ( не забыть поправить парсинг в скилл_инфо!)
+// bool IsMagicUser(const CharData *ch); - не забыть переименовать
+// на сервере в конфиге скиллов не забыть инкоррект поменять на андефайнед
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

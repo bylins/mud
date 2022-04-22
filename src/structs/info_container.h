@@ -13,6 +13,7 @@
 #include <unordered_map>
 
 #include "utils/logger.h"
+#include "utils/parse.h"
 #include "utils/parser_wrapper.h"
 
 /**
@@ -68,7 +69,9 @@ class IItemBuilder {
  public:
 	using ItemPtr = std::shared_ptr<I>;
 	using ItemOptional = std::optional<ItemPtr>;
+
 	virtual ItemOptional Build(parser_wrapper::DataNode &node) = 0;
+	static EItemMode ParseItemMode(parser_wrapper::DataNode &node, EItemMode default_mode);
 };
 
 template<typename E, typename I, typename B>
@@ -272,6 +275,15 @@ const I &InfoContainer<E, I, B>::FindAvailableItem(const int num) const {
  * 	Реализация RegisterBuilder
  ---------------------------------------------------------------------- */
 
+template<typename I>
+EItemMode IItemBuilder<I>::ParseItemMode(parser_wrapper::DataNode &node, EItemMode default_mode) {
+	try {
+		return parse::ReadAsConstant<EItemMode>(node.GetValue("mode"));
+	} catch (std::exception &) {
+		return default_mode;
+	}
+};
+
 template<typename E, typename I, typename B>
 typename InfoContainer<E, I, B>::RegisterOptional InfoContainer<E, I, B>::RegisterBuilder::StrictBuild(const NodeRange &data) {
 	strict_pasring_ = true;
@@ -286,25 +298,25 @@ typename InfoContainer<E, I, B>::RegisterOptional InfoContainer<E, I, B>::Regist
 
 template<typename E, typename I, typename B>
 typename InfoContainer<E, I, B>::RegisterOptional InfoContainer<E, I, B>::RegisterBuilder::Build(const NodeRange &data) {
-	if (data.begin().IsEmpty()) {
-		return std::nullopt;
+	auto items = Parse(data);
+	if (items) {
+		EmplaceDefaultItems(*items.value());
 	}
-	return Parse(data);
+	return items;
 }
 
 template<typename E, typename I, typename B>
 typename InfoContainer<E, I, B>::RegisterOptional InfoContainer<E, I, B>::RegisterBuilder::Parse(const NodeRange &data) {
 	auto items = std::make_optional(std::make_unique<Register>());
-	ItemOptional item;
+
 	for (auto &node : data) {
-		item = item_builder_.Build(node);
+		auto item = item_builder_.Build(node);
 		if (item) {
 			EmplaceItem(*items.value(), item.value());
 		} else if (strict_pasring_) {
 			return std::nullopt;
 		}
 	}
-	EmplaceDefaultItems(*items.value());
 
 	return items;
 }
@@ -321,7 +333,8 @@ void InfoContainer<E, I, B>::RegisterBuilder::EmplaceItem(Register &items, ItemP
 
 template<typename E, typename I, typename B>
 void InfoContainer<E, I, B>::RegisterBuilder::EmplaceDefaultItems(Register &items) {
-	items.try_emplace(E::kUndefined, std::make_shared<I>());
+	auto default_item = std::make_shared<I>();
+	items.try_emplace(E::kUndefined, std::move(default_item));
 }
 
 } // info_container

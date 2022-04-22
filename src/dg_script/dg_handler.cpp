@@ -74,7 +74,7 @@ const char *skill_percent(Trigger *trig, CharData *ch, char *skill) {
 		sprintf(retval, "%d", rs->perc);
 		return retval;
 	}
-	if ((skill_id == ESkill::kIncorrect) && (rid < 0)) {
+	if ((skill_id == ESkill::kUndefined) && (rid < 0)) {
 		sprintf(buf2, "Wrong skill\recipe name: %s", skill);
 		trig_log(trig, buf2);
 	}

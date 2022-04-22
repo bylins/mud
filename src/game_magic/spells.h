@@ -135,8 +135,7 @@ constexpr Bitvector kMiLevel16 = 1 << 12;
 
 // PLAYER SPELLS -- Numbered from 1 to SPELLS_COUNT //
 enum ESpell : int {
-	kUndefined = -1,
-	kIncorrect = 0,
+	kUndefined = 0,
 	kSpellArmor = 1,
 	kSpellTeleport = 2,
 	kSpellBless = 3,

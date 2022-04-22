@@ -42,7 +42,7 @@ struct CharClassInfo : public info_container::IItem<ECharClass> {
 		[[nodiscard]] int GetMinRemort() const { return min_remort_; };
 
 	 protected:
-		E id_{E::kIncorrect};
+		E id_{E::kUndefined};
 		int min_level_{kLvlImplementator};
 		int min_remort_{kMaxRemort + 1};
 		EItemMode mode_{EItemMode::kDisabled};
@@ -61,12 +61,12 @@ struct CharClassInfo : public info_container::IItem<ECharClass> {
 		long improve_{kMinImprove};
 	};
 
-	class SkillsInfoBuilder : public info_container::IItemBuilder<SkillInfo> {
+	class SkillInfoBuilder : public info_container::IItemBuilder<SkillInfo> {
 	 public:
 		ItemOptional Build(parser_wrapper::DataNode &node) final;
 	};
 
-	using Skills = info_container::InfoContainer<ESkill, SkillInfo, SkillsInfoBuilder>;
+	using Skills = info_container::InfoContainer<ESkill, SkillInfo, SkillInfoBuilder>;
 
 	class SpellInfo : public TalentInfo<ESpell> {
 	 public:
@@ -85,12 +85,12 @@ struct CharClassInfo : public info_container::IItem<ECharClass> {
 		int cast_mod_{0};
 	};
 
-	class SpellsInfoBuilder : public info_container::IItemBuilder<SpellInfo> {
+	class SpellInfoBuilder : public info_container::IItemBuilder<SpellInfo> {
 	 public:
 		ItemOptional Build(parser_wrapper::DataNode &node) final;
 	};
 
-	using Spells = info_container::InfoContainer<ESpell, SpellInfo, SpellsInfoBuilder>;
+	using Spells = info_container::InfoContainer<ESpell, SpellInfo, SpellInfoBuilder>;
 
 // =====================================================================================================================
 
@@ -134,9 +134,9 @@ struct CharClassInfo : public info_container::IItem<ECharClass> {
 	/* базовые параметры */
 	// \todo Не забыть добавить парсинг
 	struct BaseStatLimits {
-		int start_min{kDefaultBaseStatMin};
-		int start_max{kDefaultBaseStatMax};
-		int auto_gen{kDefaultBaseStatAutoGen};
+		int gen_min{kDefaultBaseStatMin};
+		int gen_max{kDefaultBaseStatMax};
+		int gen_auto{kDefaultBaseStatAutoGen};
 		int cap{kDefaultBaseStatCap};
 	};
 	std::unordered_map<EBaseStat, BaseStatLimits> base_stats;
@@ -145,7 +145,7 @@ struct CharClassInfo : public info_container::IItem<ECharClass> {
 
 	/* врожденные аффекты */
 	struct InbornAffect {
-		EAffect affect{EAffect::kIncorrect};
+		EAffect affect{EAffect::kUndefinded};
 		int mod{0};
 		bool add{true};
 	};
@@ -178,7 +178,6 @@ class CharClassInfoBuilder : public info_container::IItemBuilder<CharClassInfo> 
 	static void ParseName(ItemOptional &info, parser_wrapper::DataNode &node);
 	static void ParseSkills(ItemOptional &info, parser_wrapper::DataNode &node);
 	static void ParseSpells(ItemOptional &info, parser_wrapper::DataNode &node);
-	static int ParseLevelDecrement(ECharClass class_id, parser_wrapper::DataNode &node);
 	// временная функция
 	static void TemporarySetStat(ItemOptional &info);
 };

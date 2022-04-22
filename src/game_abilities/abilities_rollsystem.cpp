@@ -48,7 +48,7 @@ bool AbilityRoll::TryRevealWrongConditions() {
 		return true;
 	};
 	DetermineBaseSkill();
-	if (base_skill_ == ESkill::kIncorrect) {
+	if (base_skill_ == ESkill::kUndefined) {
 		return true;
 	};
 	return false;
@@ -149,7 +149,7 @@ int AgainstRivalRoll::CalcRollBonus() {
 
 void TechniqueRoll::DetermineBaseSkill() {
 	if (CheckTechniqueKit()) {
-		if (base_skill_ == ESkill::kIncorrect) {
+		if (base_skill_ == ESkill::kUndefined) {
 			base_skill_ = ability_->base_skill;
 		}
 	} else {

@@ -39,7 +39,7 @@ const std::string &NAME_BY_ITEM(ESex item);
  * Character positions.
  */
 enum class EPosition {
-	kIncorrect = -1, // Это неправильно, но в классах Hit и Damage есть позиция -1, надо переделывать.
+	kUndefined = -1, // Это неправильно, но в классах Hit и Damage есть позиция -1, надо переделывать.
 	kDead = 0,
 	kPerish = 1,	// mortally wounded  //
 	kIncap = 2,
@@ -478,7 +478,7 @@ extern std::unordered_map<int, std::string> SECTOR_TYPE_BY_VALUE;
  * The cardinal directions: used as index to room_data.dir_option[]
  */
 enum EDirection : int {
-	kIncorrectDir = -1,
+	kUndefinedDir = -1,
 	kNorth = 0,
 	kEast = 1,
 	kSouth = 2,

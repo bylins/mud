@@ -1278,7 +1278,7 @@ int convert_drinkcon_skill(CObjectPrototype *obj, bool proto) {
 				}
 			}
 		}
-		obj->set_skill(to_underlying(ESkill::kIncorrect));
+		obj->set_skill(to_underlying(ESkill::kUndefined));
 
 		return 1;
 	}

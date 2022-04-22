@@ -963,7 +963,7 @@ void do_skillset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char name[kMaxInputLength], buf2[128];
 	char buf[kMaxInputLength], help[kMaxStringLength];
 	int spell = -1, value, i, qend;
-	ESkill skill = ESkill::kIncorrect;
+	ESkill skill = ESkill::kUndefined;
 
 	argument = one_argument(argument, name);
 
@@ -1016,12 +1016,11 @@ void do_skillset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	strcpy(help, (argument + 1));
 	help[qend - 1] = '\0';
 
-	if (ESkill::kIncorrect == (skill = FixNameAndFindSkillNum(help))) {
+	if (ESkill::kUndefined == (skill = FixNameAndFindSkillNum(help))) {
 		spell = FixNameAndFindSpellNum(help);
 	}
 
-	if (ESkill::kIncorrect == skill
-		&& spell < 0) {
+	if (ESkill::kUndefined == skill && spell < 0) {
 		SendMsgToChar("Неизвестное умение/заклинание.\r\n", ch);
 		return;
 	}
@@ -1064,7 +1063,7 @@ void do_skillset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			Temporary_Spells::add_spell(vict, spell, time(nullptr), 3600);
 		}
 		GET_SPELL_TYPE(vict, spell) = value;
-	} else if (ESkill::kIncorrect != skill && skill <= ESkill::kLast) {
+	} else if (ESkill::kUndefined != skill && skill <= ESkill::kLast) {
 		vict->set_skill(skill, value);
 	}
 	sprintf(buf2, "Вы изменили для %s '%s' на %d.\r\n", GET_PAD(vict, 1),

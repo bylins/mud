@@ -71,11 +71,11 @@ EFeat FindFeatNum(const char *name, bool alias) {
 			return index;
 		}
 	}
-	return EFeat::kIncorrectFeat;
+	return EFeat::kUndefinedFeat;
 }
 
 void InitFeat(EFeat feat, const char *name, EFeatType type, bool can_up_slot, CFeatArray app,
-			  int roll_bonus = abilities::kMaxRollBonus, ESkill base_skill = ESkill::kIncorrect,
+			  int roll_bonus = abilities::kMaxRollBonus, ESkill base_skill = ESkill::kUndefined,
 			  ESaving saving = ESaving::kStability) {
 	int i, j;
 	for (i = 0; i < kNumPlayerClasses; i++) {
@@ -125,7 +125,7 @@ void InitFeatByDefault(EFeat feat_id) {
 	feat_info[feat_id].success_degree_damage_bonus = 5;
 	feat_info[feat_id].saving = ESaving::kStability;
 	feat_info[feat_id].diceroll_bonus = abilities::kMaxRollBonus;
-	feat_info[feat_id].base_skill = ESkill::kIncorrect;
+	feat_info[feat_id].base_skill = ESkill::kUndefined;
 	feat_info[feat_id].critfail_threshold = abilities::kDefaultCritfailThreshold;
 	feat_info[feat_id].critsuccess_threshold = abilities::kDefaultCritsuccessThreshold;
 
@@ -709,7 +709,7 @@ const char *GetFeatName(EFeat id) {
 	if (id >= EFeat::kFirstFeat && id <= EFeat::kLastFeat) {
 		return (feat_info[id].name);
 	} else {
-		if (id == EFeat::kIncorrectFeat) {
+		if (id == EFeat::kUndefinedFeat) {
 			return "UNUSED";
 		} else {
 			return "UNDEFINED";
@@ -721,7 +721,7 @@ bool IsAbleToUseFeat(const CharData *ch, EFeat feat) {
 	if (feat_info[feat].always_available) {
 		return true;
 	};
-	if ((feat == EFeat::kIncorrectFeat) || !HAVE_FEAT(ch, feat)) {
+	if ((feat == EFeat::kUndefinedFeat) || !HAVE_FEAT(ch, feat)) {
 		return false;
 	};
 	if (ch->IsNpc()) {
@@ -1378,7 +1378,7 @@ void CFeatArray::clear() {
 
 bool TryFlipActivatedFeature(CharData *ch, char *argument) {
 	auto feat_id = GetFeatureNum(argument);
-	if (feat_id <= EFeat::kIncorrectFeat) {
+	if (feat_id <= EFeat::kUndefinedFeat) {
 		return false;
 	}
 	if (!CheckAccessActivatedFeat(ch, feat_id)) {
@@ -1523,7 +1523,7 @@ EFeat FindWeaponMasterFeat(ESkill skill) {
 			break;
 		case ESkill::kBows: return EFeat::kBowsMaster;
 			break;
-		default: return EFeat::kIncorrectFeat;
+		default: return EFeat::kUndefinedFeat;
 	}
 }
 

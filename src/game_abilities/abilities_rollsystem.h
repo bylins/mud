@@ -37,7 +37,7 @@ class AbilityRoll {
 		critical_fail_{false},
 		critical_success_{false},
 		wrong_conditions_(false),
-		base_skill_{ESkill::kIncorrect},
+		base_skill_{ESkill::kUndefined},
 		deny_msg_{"Если вы это прочитали, значит, у кодера проблема.\r\n"} {};
 
 	virtual void Init(CharData *actor, EFeat ability_id);

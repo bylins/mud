@@ -2504,7 +2504,7 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "can_get_skill")) {
 			auto skill_id = FixNameAndFindSkillNum(subfield);
-			if (skill_id > ESkill::kIncorrect) {
+			if (skill_id > ESkill::kUndefined) {
 				if (IsAbleToGetSkill(c, skill_id)) {
 					strcpy(str, "1");
 				} else {
@@ -2614,7 +2614,7 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "maxskill")) {
 			const ESkill skillnum = FixNameAndFindSkillNum(subfield);
-			if (skillnum > ESkill::kIncorrect) {
+			if (skillnum > ESkill::kUndefined) {
 				sprintf(str, "%d", CalcSkillHardCap(c, skillnum));
 			} else {
 				strcpy(str, "0");

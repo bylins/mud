@@ -20,7 +20,7 @@ void PerformShadowThrowSideAbilities(AbilitySystem::TechniqueRoll &technique) {
 		return;
 	}
 
-	auto feature_id{EFeat::kIncorrectFeat};
+	auto feature_id{EFeat::kUndefinedFeat};
 	std::string to_char, to_vict, to_room;
 	void (*DoSideAction)(AbilitySystem::TechniqueRoll &technique);
 	Bitvector mob_no_flag = EMobFlag::kMobDeleted;
@@ -74,7 +74,7 @@ void PerformShadowThrowSideAbilities(AbilitySystem::TechniqueRoll &technique) {
 			});
 			break;
 		default:
-			feature_id = EFeat::kIncorrectFeat;
+			feature_id = EFeat::kUndefinedFeat;
 			break;
 	};
 

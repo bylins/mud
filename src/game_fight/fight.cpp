@@ -1432,7 +1432,7 @@ void using_charmice_skills(CharData *ch) {
 }
 
 void using_mob_skills(CharData *ch) {
-	ESkill sk_num = ESkill::kIncorrect;
+	auto sk_num{ESkill::kUndefined};
 	for (int sk_use = GET_REAL_INT(ch); MAY_LIKES(ch) && sk_use > 0; sk_use--) {
 		int do_this = number(0, 100);
 		if (do_this > GET_LIKES(ch)) {
@@ -1463,7 +1463,7 @@ void using_mob_skills(CharData *ch) {
 		}
 
 		if (ch->get_skill(sk_num) <= 0) {
-			sk_num = ESkill::kIncorrect;
+			sk_num = ESkill::kUndefined;
 		}
 
 		////////////////////////////////////////////////////////////////////////

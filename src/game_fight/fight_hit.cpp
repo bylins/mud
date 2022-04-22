@@ -939,7 +939,6 @@ void GetClassWeaponMod(ECharClass class_id, const ESkill skill, int *damroll, in
 				case ESkill::kBows: calc_thaco -= 0;
 					dam += 0;
 					break;
-
 				default: break;
 			}
 			break;
@@ -1191,6 +1190,7 @@ void GetClassWeaponMod(ECharClass class_id, const ESkill skill, int *damroll, in
 				default: break;
 			}
 			break;
+		default: break;
 	}
 
 	*damroll = dam;
@@ -1953,7 +1953,7 @@ void Damage::armor_dam_reduce(CharData *victim) {
  */
 bool Damage::dam_absorb(CharData *ch, CharData *victim) {
 	if (dmg_type == fight::kPhysDmg
-		&& skill_id < ESkill::kIncorrect
+		&& skill_id < ESkill::kFirst
 		&& spell_num < 0
 		&& dam > 0
 		&& GET_ABSORBE(victim) > 0) {
@@ -2025,8 +2025,8 @@ void update_dps_stats(CharData *ch, int real_dam, int over_dam) {
 		ch->get_master()->dps_add_dmg(DpsSystem::PERS_CHARM_DPS, real_dam, over_dam, ch);
 		if (!ch->get_master()->IsNpc()) {
 			log("DmetrLog. Name(charmice): %s, name(master): %s, class: %d, remort: %d, level: %d, dmg: %d, over_dmg:%d",
-				GET_NAME(ch), GET_NAME(ch->get_master()), GET_CLASS(ch->get_master()), GET_REAL_REMORT(ch->get_master()),
-				GetRealLevel(ch->get_master()), real_dam, over_dam);
+				ch->get_name().c_str(), ch->get_master()->get_name().c_str(), to_underlying(ch->get_master()->get_class()),
+				GET_REAL_REMORT(ch->get_master()), GetRealLevel(ch->get_master()), real_dam, over_dam);
 		}
 
 		if (AFF_FLAGGED(ch->get_master(), EAffect::kGroup)) {
@@ -3386,7 +3386,7 @@ int HitData::calc_damage(CharData *ch, bool need_dice) {
 	}
 */
 	// обработка по факту попадания
-	if (skill_num < ESkill::kIncorrect) {
+	if (skill_num < ESkill::kFirst) {
 		dam += GetAutoattackDamroll(ch, ch->get_skill(weap_skill));
 	if (PRF_FLAGGED(ch, EPrf::kExecutor))
 		SendMsgToChar(ch, "&YДамага +дамролы автоатаки == %d&n\r\n", dam);
@@ -3483,20 +3483,19 @@ int HitData::calc_damage(CharData *ch, bool need_dice) {
 }
 
 ESpell breathFlag2Spellnum(CharData *ch) {
-	ESpell t = kIncorrect;
-	// наркоманский код с объездом в двух циклах битвекторов флагов заменил на читаемый код
-	// извините..
-	if (MOB_FLAGGED(ch, (EMobFlag::kFireBreath)))
-		t = ESpell::kSpellFireBreath;
-	if (MOB_FLAGGED(ch, (EMobFlag::kGasBreath)))
-		t = ESpell::kSpellGasBreath;
-	if (MOB_FLAGGED(ch, (EMobFlag::kFrostBreath)))
-		t = ESpell::kSpellFrostBreath;
-	if (MOB_FLAGGED(ch, (EMobFlag::kAcidBreath)))
-		t = ESpell::kSpellAcidBreath;
-	if (MOB_FLAGGED(ch, (EMobFlag::kLightingBreath)))
-		t = ESpell::kSpellLightingBreath;
-	return t;
+	if (MOB_FLAGGED(ch, (EMobFlag::kFireBreath))) {
+		return ESpell::kSpellFireBreath;
+	} else if (MOB_FLAGGED(ch, (EMobFlag::kGasBreath))) {
+		return ESpell::kSpellGasBreath;
+	} else if (MOB_FLAGGED(ch, (EMobFlag::kFrostBreath))) {
+		return ESpell::kSpellFrostBreath;
+	} else if (MOB_FLAGGED(ch, (EMobFlag::kAcidBreath))) {
+		return ESpell::kSpellAcidBreath;
+	} else if (MOB_FLAGGED(ch, (EMobFlag::kLightingBreath))) {
+		return ESpell::kSpellLightingBreath;
+	}
+
+	return ESpell::kUndefined;
 }
 
 /**
@@ -3533,7 +3532,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 	if (type == ESkill::kUndefined) {
 		ESpell spellnum;
 		spellnum = breathFlag2Spellnum(ch);
-		if (spellnum != ESpell::kIncorrect) // защита от падения
+		if (spellnum != ESpell::kUndefined) // защита от падения
 		{
 			if (!ch->GetEnemy())
 				SetFighting(ch, victim);

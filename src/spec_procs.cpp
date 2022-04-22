@@ -170,7 +170,7 @@ void list_feats(CharData *ch, CharData *vict, bool all_feats) {
 
 	sprintf(buf2, "\r\nВрожденные способности :\r\n");
 	j = 0;
-	auto sortpos{EFeat::kIncorrectFeat};
+	auto sortpos{EFeat::kUndefinedFeat};
 	if (all_feats) {
 		if (clr(vict, C_NRM)) // реж цвет >= обычный
 			SendMsgToChar(" Список способностей, доступных с текущим числом перевоплощений.\r\n"
@@ -600,7 +600,7 @@ void init_guilds() {
 	char name[kMaxInputLength],
 		line[256], line1[256], line2[256], line3[256], line4[256], line5[256], line6[256], *pos;
 	int i, spellnum, featnum, num, type = 0, lines = 0, level, pgcount = 0, mgcount = 0;
-	ESkill skill_id = ESkill::kIncorrect;
+	ESkill skill_id = ESkill::kUndefined;
 	std::unique_ptr<struct guild_poly_type, decltype(free) *> poly_guild(nullptr, free);
 	struct guild_mono_type mono_guild;
 	std::unique_ptr<struct guild_learn_type, decltype(free) *> mono_guild_learn(nullptr, free);
@@ -670,7 +670,7 @@ void init_guilds() {
 					log("Create mono guild %d", GUILDS_MONO_USED + 1);
 					mono_guild.learn_info = mono_guild_learn.release();
 					RECREATE(mono_guild.learn_info, mgcount + 1);
-					(mono_guild.learn_info + mgcount)->skill_no = ESkill::kIncorrect;
+					(mono_guild.learn_info + mgcount)->skill_no = ESkill::kUndefined;
 					(mono_guild.learn_info + mgcount)->feat_no = -1;
 					(mono_guild.learn_info + mgcount)->spell_no = -1;
 					(mono_guild.learn_info + mgcount)->level = -1;
@@ -691,9 +691,9 @@ void init_guilds() {
 					log("Create poly guild %d", GUILDS_POLY_USED + 1);
 					auto ptr = poly_guild.release();
 					RECREATE(ptr, pgcount + 1);
-					(ptr + pgcount)->feat_no = -1;
-					(ptr + pgcount)->skill_no = ESkill::kIncorrect;
-					(ptr + pgcount)->spell_no = -1;
+					(ptr + pgcount)->feat_no = EFeat::kUndefinedFeat;
+					(ptr + pgcount)->skill_no = ESkill::kUndefined;
+					(ptr + pgcount)->spell_no = ESpell::kUndefined;
 					(ptr + pgcount)->level = -1;
 					guild_poly_info[GUILDS_POLY_USED] = ptr;
 					GUILDS_POLY_USED++;
@@ -857,7 +857,7 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 
 					const auto skill_no = (guild_mono_info[info_num].learn_info + i)->skill_no;
 					bits = to_underlying(skill_no);
-					if (ESkill::kIncorrect != skill_no && (!ch->get_trained_skill(skill_no)
+					if (ESkill::kUndefined != skill_no && (!ch->get_trained_skill(skill_no)
 						|| IS_GRGOD(ch)) && IsAbleToGetSkill(ch, skill_no)) {
 						gcount += sprintf(buf + gcount, "- умение %s\"%s\"%s\r\n",
 										  CCCYN(ch, C_NRM), MUD::Skills()[skill_no].GetName(), CCNRM(ch, C_NRM));
@@ -900,7 +900,7 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 
 					const ESkill skill_no = (guild_mono_info[info_num].learn_info + i)->skill_no;
 					bits = to_underlying(skill_no);
-					if (ESkill::kIncorrect != skill_no
+					if (ESkill::kUndefined != skill_no
 						&& !ch->get_trained_skill(skill_no))    // sprintf(buf, "$N научил$G вас умению %s\"%s\"\%s",
 					{
 						//             CCCYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
@@ -1149,7 +1149,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 
 					const ESkill skill_no = (guild_poly_info[info_num] + i)->skill_no;
 					bits = to_underlying(skill_no);
-					if (ESkill::kIncorrect != skill_no &&
+					if (ESkill::kUndefined != skill_no &&
 						(!ch->get_trained_skill(skill_no) || IS_GRGOD(ch)) && IsAbleToGetSkill(ch, skill_no)) {
 						gcount += sprintf(buf + gcount, "- умение %s\"%s\"%s\r\n",
 										  CCCYN(ch, C_NRM), MUD::Skills()[skill_no].GetName(), CCNRM(ch, C_NRM));
@@ -1202,7 +1202,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 
 					const ESkill skill_no = (guild_poly_info[info_num] + i)->skill_no;
 					bits = to_underlying(skill_no);
-					if (ESkill::kIncorrect != skill_no
+					if (ESkill::kUndefined != skill_no
 						&& !ch->get_trained_skill(skill_no))    // sprintf(buf, "$N научил$G вас умению %s\"%s\"\%s",
 					{
 						//             CCCYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
@@ -1265,7 +1265,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 			}
 
 			const ESkill skill_no = FixNameAndFindSkillNum(argument);
-			if (ESkill::kIncorrect != skill_no && skill_no <= ESkill::kLast) {
+			if (ESkill::kUndefined != skill_no && skill_no <= ESkill::kLast) {
 				for (i = 0, found = false; (guild_poly_info[info_num] + i)->spell_no >= 0; i++) {
 					if ((guild_poly_info[info_num] + i)->level > GetRealLevel(ch)) {
 						continue;

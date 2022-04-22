@@ -220,11 +220,11 @@ void player_affect_update() {
 				}
 				affect->duration--;
 			} else if (affect->duration != -1) {
-				if ((affect->type > ESpell::kIncorrect) && (affect->type <= ESpell::kSpellCount)) {
+				if ((affect->type > ESpell::kUndefined) && (affect->type <= ESpell::kSpellCount)) {
 					if (next_affect_i == i->affected.end()
 						|| (*next_affect_i)->type != affect->type
 						|| (*next_affect_i)->duration > 0) {
-						if (affect->type > ESpell::kIncorrect && affect->type <= ESpell::kSpellCount) {
+						if (affect->type > ESpell::kUndefined && affect->type <= ESpell::kSpellCount) {
 							//чтобы не выдавалось, "что теперь вы можете сражаться",
 							//хотя на самом деле не можете :)
 							if (!(affect->type == kSpellMagicBattle
@@ -291,7 +291,7 @@ void battle_affect_update(CharData *ch) {
 				if (next_affect_i == ch->affected.end() ||
 				(*next_affect_i)->type != (*affect_i)->type ||
 				(*next_affect_i)->duration > 0) {
-					if ((*affect_i)->type > ESpell::kIncorrect && (*affect_i)->type <= ESpell::kSpellCount)
+					if ((*affect_i)->type > ESpell::kUndefined && (*affect_i)->type <= ESpell::kSpellCount)
 						show_spell_off((*affect_i)->type, ch);
 				}
 			}
@@ -505,7 +505,7 @@ void affect_total(CharData *ch) {
 		if (IsAbleToUseFeat(ch, i) && (feat_info[i].type == EFeatType::kAffect)) {
 			for (int j = 0; j < kMaxFeatAffect; ++j) {
 				affect_modify(ch, feat_info[i].affected[j].location, feat_info[i].affected[j].modifier,
-							  EAffect::kIncorrect, true);
+							  EAffect::kUndefinded, true);
 			}
 		}
 	}
@@ -516,17 +516,17 @@ void affect_total(CharData *ch) {
 			affect_modify(ch,
 						  feat_info[EFeat::kImpregnable].affected[j].location,
 						  std::min(9, feat_info[EFeat::kImpregnable].affected[j].modifier * GET_REAL_REMORT(ch)),
-						  EAffect::kIncorrect,
+						  EAffect::kUndefinded,
 						  true);
 		}
 	}
 
 	// Обработка изворотливости (с) Числобог
 	if (IsAbleToUseFeat(ch, EFeat::kDodger)) {
-		affect_modify(ch, EApply::kSavingReflex, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), EAffect::kIncorrect, true);
-		affect_modify(ch, EApply::kSavingWill, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), EAffect::kIncorrect, true);
-		affect_modify(ch, EApply::kSavingStability, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), EAffect::kIncorrect, true);
-		affect_modify(ch, EApply::kSavingCritical, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), EAffect::kIncorrect, true);
+		affect_modify(ch, EApply::kSavingReflex, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), EAffect::kUndefinded, true);
+		affect_modify(ch, EApply::kSavingWill, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), EAffect::kUndefinded, true);
+		affect_modify(ch, EApply::kSavingStability, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), EAffect::kUndefinded, true);
+		affect_modify(ch, EApply::kSavingCritical, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), EAffect::kUndefinded, true);
 	}
 
 	// Обработка "выносливости" и "богатырского здоровья

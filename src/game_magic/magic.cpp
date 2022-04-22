@@ -95,7 +95,7 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply
 	}
 
 	// Базовые спасброски профессии/уровня
-	auto save = GetExtendSavingThrows(class_sav, saving, GetRealLevel(victim));
+	int save = GetExtendSavingThrows(class_sav, saving, GetRealLevel(victim));
 
 	switch (saving) {
 		case ESaving::kReflex:
@@ -3257,7 +3257,7 @@ int mag_summons(int level, CharData *ch, ObjData *obj, int spellnum, int savetyp
 		}
 		if (eff_wis >= 75) {
 			Affect<EApply> af;
-			af.type = kIncorrect;
+			af.type = ESpell::kUndefined;
 			af.duration = duration * (1 + GET_REAL_REMORT(ch));
 			af.modifier = 0;
 			af.location = EApply::kNone;

@@ -19,7 +19,7 @@
 #include <bitset>
 
 enum EFeat : int {
-	kIncorrectFeat = 0,			//DO NOT USE
+	kUndefinedFeat = 0,			//DO NOT USE
 	kBerserker = 1,				//предсмертная ярость
 	kParryArrow = 2,			//отбить стрелу
 	kBlindFight = 3,			//слепой бой
@@ -220,7 +220,7 @@ const int kFeatTimer = 1;
 //const int FEAT_SKILL = 2;
 
 struct TimedFeat {
-	int feat{kIncorrectFeat};	// Used feature //
+	int feat{kUndefinedFeat};	// Used feature //
 	ubyte time{0};				// Time for next using //
 	struct TimedFeat *next{nullptr};
 };
