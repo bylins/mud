@@ -29,14 +29,14 @@ CharData *get_char_by_room(RoomData *room, char *name);
 RoomData *get_room(char *name);
 ObjData *get_obj_by_room(RoomData *room, char *name);
 
-bool mob_script_command_interpreter(CharData *ch, char *argument);
+bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig);
 
 extern int reloc_target;
 extern Trigger *cur_trig;
 
 struct wld_command_info {
 	const char *command;
-	typedef void (*handler_f)(RoomData *room, char *argument, int cmd, int subcmd);
+	typedef void (*handler_f)(RoomData *room, char *argument, int cmd, int subcmd, Trigger *trig);
 	handler_f command_pointer;
 	int subcmd;
 };
@@ -73,7 +73,7 @@ void act_to_room(char *str, RoomData *room) {
 // World commands
 
 // prints the argument to all the rooms aroud the room
-void do_wasound(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_wasound(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	int door;
 
 	skip_spaces(&argument);
@@ -94,7 +94,7 @@ void do_wasound(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_wecho(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_wecho(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	skip_spaces(&argument);
 
 	if (!*argument)
@@ -103,7 +103,7 @@ void do_wecho(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act_to_room(argument, room);
 }
 
-void do_wsend(RoomData *room, char *argument, int/* cmd*/, int subcmd) {
+void do_wsend(RoomData *room, char *argument, int/* cmd*/, int subcmd, Trigger *) {
 	char buf[kMaxInputLength], *msg;
 	CharData *ch;
 
@@ -136,7 +136,7 @@ void do_wsend(RoomData *room, char *argument, int/* cmd*/, int subcmd) {
 		wld_log(room, "no target found for wsend", LGH);
 }
 
-void do_wzoneecho(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_wzoneecho(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	ZoneRnum zone;
 	char zone_name[kMaxInputLength], buf[kMaxInputLength], *msg;
 
@@ -156,7 +156,7 @@ void do_wzoneecho(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_wdoor(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_wdoor(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	char target[kMaxInputLength], direction[kMaxInputLength];
 	char field[kMaxInputLength], *value;
 	RoomData *rm;
@@ -244,7 +244,7 @@ void do_wdoor(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	CharData *ch, *horse;
 	int target, nr;
 	char arg1[kMaxInputLength], arg2[kMaxInputLength];
@@ -336,7 +336,7 @@ void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_wforce(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_wforce(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *trig) {
 	char arg1[kMaxInputLength], *line;
 
 	line = one_argument(argument, arg1);
@@ -349,16 +349,6 @@ void do_wforce(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!str_cmp(arg1, "all") || !str_cmp(arg1, "все")) {
 		wld_log(room, "ERROR: \'wforce all\' command disabled.");
 		return;
-
-		//const auto people_copy = room->people;
-		//for (const auto ch : people_copy)
-		//{
-		//	if (ch->IsNpc()
-		//		|| GetRealLevel(ch) < kLevelImmortal)
-		//	{
-		//		command_interpreter(ch, line);
-		//	}
-		//}
 	} else {
 		const auto ch = get_char_by_room(room, arg1);
 		if (ch) {
@@ -369,7 +359,7 @@ void do_wforce(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 
 			if (ch->IsNpc()) {
-				if (mob_script_command_interpreter(ch, line)) {
+				if (mob_script_command_interpreter(ch, line, trig)) {
 					wld_log(room, "Mob trigger commands in wforce. Please rewrite trigger.");
 					return;
 				}
@@ -387,7 +377,7 @@ void do_wforce(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 // increases the target's exp //
-void do_wexp(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_wexp(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	CharData *ch;
 	char name[kMaxInputLength], amount[kMaxInputLength];
 
@@ -409,7 +399,7 @@ void do_wexp(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 // purge all objects an npcs in room, or specified object or mob //
-void do_wpurge(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_wpurge(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	char arg[kMaxInputLength];
 	CharData *ch /*, *next_ch */;
 	ObjData *obj /*, *next_obj */;
@@ -442,9 +432,11 @@ void do_wpurge(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 // loads a mobile or object into the room //
-void do_wload(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_wload(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *trig) {
 	char arg1[kMaxInputLength], arg2[kMaxInputLength];
-	int number = 0;
+	char uid[kMaxInputLength], varname[kMaxInputLength] = "loaded_uid";
+	char uid_type;
+	int number = 0, idnum;
 	CharData *mob;
 
 	two_arguments(argument, arg1, arg2);
@@ -453,12 +445,13 @@ void do_wload(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 		wld_log(room, "wload: bad syntax");
 		return;
 	}
-
 	if (utils::IsAbbrev(arg1, "mob")) {
 		if ((mob = read_mobile(number, VIRTUAL)) == nullptr) {
 			wld_log(room, "wload: bad mob vnum");
 			return;
 		}
+		uid_type = UID_CHAR;
+		idnum = mob->id;
 		PlaceCharToRoom(mob, real_room(room->room_vn));
 		load_mtrigger(mob);
 	} else if (utils::IsAbbrev(arg1, "obj")) {
@@ -467,7 +460,6 @@ void do_wload(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 			wld_log(room, "wload: bad object vnum");
 			return;
 		}
-
 		if (GET_OBJ_MIW(obj_proto[object->get_rnum()]) >= 0
 			&& obj_proto.actual_count(object->get_rnum()) > GET_OBJ_MIW(obj_proto[object->get_rnum()])) {
 			if (!check_unlimited_timer(obj_proto[object->get_rnum()].get())) {
@@ -479,18 +471,23 @@ void do_wload(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 		log("Load obj #%d by %s (wload)", number, room->name);
 		object->set_vnum_zone_from(zone_table[room->zone_rn].vnum);
+		uid_type = UID_OBJ;
+		idnum = object->get_id();
 		PlaceObjToRoom(object.get(), real_room(room->room_vn));
 		load_otrigger(object.get());
 	} else {
 		wld_log(room, "wload: bad type");
+		return;
 	}
+	sprintf(uid, "%c%d", uid_type, idnum);
+	add_var_cntx(&GET_TRIG_VARS(trig), varname, uid, 0);
 }
 
 // increases spells & skills //
 const char *GetSpellName(int num);
 ESpell FixNameAndFindSpellNum(char *name);
 
-void do_wdamage(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_wdamage(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	char name[kMaxInputLength], amount[kMaxInputLength];
 	int dam = 0;
 	CharData *ch;
@@ -534,12 +531,12 @@ void do_wdamage(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_wat(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_wat(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *trig) {
 	char location[kMaxInputLength], arg2[kMaxInputLength];
 	int vnum, rnum = 0;
 //    room_data *r2;
 
-	void wld_command_interpreter(RoomData *room, char *argument);
+	void wld_command_interpreter(RoomData *room, char *argument, Trigger *trig);
 
 	half_chop(argument, location, arg2);
 
@@ -555,11 +552,11 @@ void do_wat(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	reloc_target = rnum;
-	wld_command_interpreter(world[rnum], arg2);
+	wld_command_interpreter(world[rnum], arg2, trig);
 	reloc_target = -1;
 }
 
-void do_wfeatturn(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_wfeatturn(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	bool isFeat = false;
 	CharData *ch;
 	char name[kMaxInputLength], featname[kMaxInputLength], amount[kMaxInputLength], *pos;
@@ -609,7 +606,7 @@ void do_wfeatturn(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
  *  Данная функция практически без изменения скопирована в команды мобов и предметов.
  *  \todo Нужно избавиться от дублирования кода (вероятно, оно не только тут).
  */
-void do_wskillturn(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_wskillturn(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	CharData *ch;
 	char name[kMaxInputLength], skill_name[kMaxInputLength], amount[kMaxInputLength];
 	int recipenum = 0;
@@ -658,7 +655,7 @@ void do_wskillturn(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) 
 	}
 }
 
-void do_wskilladd(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_wskilladd(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	CharData *ch;
 	char name[kMaxInputLength], skillname[kMaxInputLength], amount[kMaxInputLength];
 	int recipenum = 0;
@@ -695,7 +692,7 @@ void do_wskilladd(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_wspellturn(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_wspellturn(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	CharData *ch;
 	char name[kMaxInputLength], spellname[kMaxInputLength], amount[kMaxInputLength];
 	int spellnum = 0, spelldiff = 0;
@@ -731,7 +728,7 @@ void do_wspellturn(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) 
 	}
 }
 
-void do_wspellturntemp(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_wspellturntemp(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	CharData *ch;
 	char name[kMaxInputLength], spellname[kMaxInputLength], amount[kMaxInputLength];
 	int spellnum = 0, spelltime = 0;
@@ -764,7 +761,7 @@ void do_wspellturntemp(RoomData *room, char *argument, int/* cmd*/, int/* subcmd
 	}
 }
 
-void do_wspelladd(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_wspelladd(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	CharData *ch;
 	char name[kMaxInputLength], spellname[kMaxInputLength], amount[kMaxInputLength];
 	int spellnum = 0, spelldiff = 0;
@@ -791,7 +788,7 @@ void do_wspelladd(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_wspellitem(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_wspellitem(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	CharData *ch;
 	char name[kMaxInputLength], spellname[kMaxInputLength], type[kMaxInputLength], turn[kMaxInputLength];
 	int spellnum = 0, spelldiff = 0, spell = 0;
@@ -843,7 +840,7 @@ void do_wspellitem(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) 
 /* Команда открывает пентаграмму из текущей комнаты в заданную комнату
    синтаксис wportal <номер комнаты> <длительность портала>
 */
-void do_wportal(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_wportal(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	int target, howlong, curroom, nr;
 	char arg1[kMaxInputLength], arg2[kMaxInputLength];
 
@@ -903,7 +900,7 @@ const struct wld_command_info wld_cmd_info[] =
 	};
 
 // *  This is the command interpreter used by rooms, called by script_driver.
-void wld_command_interpreter(RoomData *room, char *argument) {
+void wld_command_interpreter(RoomData *room, char *argument, Trigger *trig) {
 	char *line, arg[kMaxInputLength];
 
 	skip_spaces(&argument);
@@ -929,7 +926,7 @@ void wld_command_interpreter(RoomData *room, char *argument) {
 		wld_log(room, buf2, LGH);
 	} else {
 		const wld_command_info::handler_f &command = wld_cmd_info[cmd].command_pointer;
-		command(room, line, cmd, wld_cmd_info[cmd].subcmd);
+		command(room, line, cmd, wld_cmd_info[cmd].subcmd, trig);
 	}
 }
 

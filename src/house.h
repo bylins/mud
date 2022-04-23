@@ -326,7 +326,7 @@ class Clan {
 	void HouseOwner(CharData *ch, std::string &buffer);
 	void HouseLeave(CharData *ch);
 	void HouseStat(CharData *ch, std::string &buffer);
-	void remove_member(const ClanMembersList::key_type &it);
+	void remove_member(const ClanMembersList::key_type &it, char *reason);
 	void save_clan_file(const std::string &filename) const;
 	void house_web_url(CharData *ch, const std::string &buffer);
 
