@@ -708,7 +708,7 @@ void do_ofeatturn(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	while ((pos = strchr(featname, '_')))
 		*pos = ' ';
 
-	const auto feat_id = FindFeatNum(featname);
+	const auto feat_id = FindFeatId(featname);
 	if (feat_id >= EFeat::kFirstFeat && feat_id <= EFeat::kLastFeat)
 		isFeat = 1;
 	else {
@@ -832,7 +832,7 @@ void do_ospellturn(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellCount) {
+	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellLast) {
 		obj_log(obj, "ospellturn: spell not found");
 		return;
 	}
@@ -866,7 +866,7 @@ void do_ospellturntemp(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/
 		return;
 	}
 
-	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellCount) {
+	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellLast) {
 		obj_log(obj, "ospellturntemp: spell not found");
 		return;
 	}
@@ -898,7 +898,7 @@ void do_ospelladd(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellCount) {
+	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellLast) {
 		obj_log(obj, "ospelladd: spell not found");
 		return;
 	}
@@ -925,7 +925,7 @@ void do_ospellitem(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellCount) {
+	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellLast) {
 		obj_log(obj, "ospellitem: spell not found");
 		return;
 	}

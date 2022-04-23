@@ -677,7 +677,7 @@ void ObjectFile::parse_object(const int nr) {
 		tobj->set_extra_flag(EObjFlag::kTicktimer);
 	}
 	tobj->set_timer(timer);
-	tobj->set_spell(t[2] < 1 || t[2] > kSpellCount ? ESpell::kUndefined : t[2]);
+	tobj->set_spell(t[2] < 1 || t[2] > kSpellLast ? ESpell::kUndefined : t[2]);
 	tobj->set_level(t[3]);
 
 	if (!get_line(file(), m_line)) {
@@ -959,7 +959,7 @@ bool ObjectFile::check_object_spell_number(ObjData *obj, unsigned val) {
 	if (GET_OBJ_VAL(obj, val) < 0) {
 		error = true;
 	}
-	if (GET_OBJ_VAL(obj, val) > kSpellCount) {
+	if (GET_OBJ_VAL(obj, val) > kSpellLast) {
 		error = true;
 	}
 	if (error) {
@@ -1408,11 +1408,12 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			log("SYSERROR : Excepted format <#> for FEAT in MOB #%d", i);
 			return;
 		}
-		if (t[0] < EFeat::kFirstFeat || t[0] > EFeat::kLastFeat) {
+		auto feat_id = static_cast<EFeat>(t[0]);
+		if (feat_id < EFeat::kFirstFeat || feat_id > EFeat::kLastFeat) {
 			log("SYSERROR : Unknown feat No %d for MOB #%d", t[0], i);
 			return;
 		}
-		SET_FEAT(mob_proto + i, t[0]);
+		(mob_proto + i)->SetFeat(feat_id);
 	}
 
 	CASE("Skill") {
@@ -1434,7 +1435,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			log("SYSERROR : Excepted format <#> for SPELL in MOB #%d", i);
 			return;
 		}
-		if (t[0] > kSpellCount || t[0] < 1) {
+		if (t[0] > kSpellLast || t[0] < 1) {
 			log("SYSERROR : Unknown spell No %d for MOB #%d", t[0], i);
 			return;
 		}

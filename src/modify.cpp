@@ -910,8 +910,8 @@ void do_featset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	strcpy(help, (argument + 1));
 	help[qend - 1] = '\0';
 
-	auto feat_id = FindFeatNum(help);
-	if (feat_id <= 0) {
+	auto feat_id = FindFeatId(help);
+	if (feat_id == EFeat::kUndefinedFeat) {
 		SendMsgToChar("Неизвестная способность.\r\n", ch);
 		return;
 	}
@@ -940,9 +940,9 @@ void do_featset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	imm_log("%s", buf2);
 	if (feat_id >= EFeat::kFirstFeat && feat_id <= EFeat::kLastFeat) {
 		if (value) {
-			SET_FEAT(vict, feat_id);
+			vict->SetFeat(feat_id);
 		} else {
-			UNSET_FEAT(vict, feat_id);
+			vict->UnsetFeat(feat_id);
 		}
 	}
 	sprintf(buf2, "Вы изменили для %s '%s' на '%s'.\r\n", GET_PAD(vict, 1),
@@ -972,7 +972,7 @@ void do_skillset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	{
 		SendMsgToChar("Формат: skillset <игрок> '<умение/заклинание>' <значение>\r\n", ch);
 		strcpy(help, "Возможные умения:\r\n");
-		for (qend = 0, i = 0; i <= kSpellCount; i++) {
+		for (qend = 0, i = 0; i <= kSpellLast; i++) {
 			if (spell_info[i].name == unused_spellname)    // This is valid.
 				continue;
 			sprintf(help + strlen(help), "%30s", spell_info[i].name);
@@ -1050,7 +1050,7 @@ void do_skillset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	sprintf(buf2, "%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict),
 			spell >= 0 ? spell_info[spell].name : MUD::Skills()[skill].GetName(), value);
 	mudlog(buf2, BRF, kLvlImmortal, SYSLOG, true);
-	if (spell >= 0 && spell <= kSpellCount) {
+	if (spell >= 0 && spell <= kSpellLast) {
 		if (value == 0 && IS_SET(GET_SPELL_TYPE(vict, spell), kSpellTemp)) {
 			for (auto it = vict->temp_spells.begin(); it != vict->temp_spells.end();) {
 				if (it->second.spell == spell) {

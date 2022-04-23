@@ -69,7 +69,7 @@ void do_create(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	spellnum = FixNameAndFindSpellNum(s);
 
 	// Unknown spell
-	if (spellnum < 1 || spellnum > kSpellCount) {
+	if (spellnum < 1 || spellnum > kSpellLast) {
 		SendMsgToChar("И откуда вы набрались рецептов?\r\n", ch);
 		return;
 	}

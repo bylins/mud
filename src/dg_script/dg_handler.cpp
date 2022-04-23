@@ -82,17 +82,16 @@ const char *skill_percent(Trigger *trig, CharData *ch, char *skill) {
 }
 
 bool feat_owner(Trigger *trig, CharData *ch, char *feat) {
-	int featnum;
-
-	featnum = FindFeatNum(feat);
-	if (featnum > 0) {
-		if (HAVE_FEAT(ch, featnum))
-			return 1;
+	auto featnum = FindFeatId(feat);
+	if (featnum != EFeat::kUndefinedFeat) {
+		if (ch->HaveFeat(featnum)) {
+			return true;
+		}
 	} else {
 		sprintf(buf2, "Wrong feat name: %s", feat);
 		trig_log(trig, buf2);
 	}
-	return 0;
+	return false;
 }
 
 const char *spell_count(Trigger *trig, CharData *ch, char *spell) {

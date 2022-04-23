@@ -18,7 +18,7 @@
 #include <array>
 #include <bitset>
 
-enum EFeat : int {
+enum class EFeat {
 	kUndefinedFeat = 0,			//DO NOT USE
 	kBerserker = 1,				//предсмертная ярость
 	kParryArrow = 2,			//отбить стрелу
@@ -212,24 +212,22 @@ enum class EFeatType {
 const int feat_slot_for_remort[kNumPlayerClasses] = {5, 6, 4, 4, 4, 4, 6, 6, 6, 4, 4, 4, 4, 5};
 // Количество пар "параметр-значение" у способности
 const int kMaxFeatAffect = 5;
-// Максимально доступное на морте количество не-врожденных способностей
-#define MAX_ACC_FEAT(ch)    ((int) 1+(kLvlImmortal-1)*(5+GET_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)])/28)
 
 // Поля изменений для способностей (кроме EFeatType::kAffect, для них используются стардартные поля APPLY)
 const int kFeatTimer = 1;
 //const int FEAT_SKILL = 2;
 
 struct TimedFeat {
-	int feat{kUndefinedFeat};	// Used feature //
+	EFeat feat{EFeat::kUndefinedFeat};	// Used feature //
 	ubyte time{0};				// Time for next using //
 	struct TimedFeat *next{nullptr};
 };
 
-extern struct FeatureInfo feat_info[EFeat::kLastFeat + 1];
-
 const char *GetFeatName(EFeat id);
+int CalcFeatLvl(const CharData *ch);
+int CalcFeatSlotsAmount(CharData *ch);
 int GetModifier(EFeat feat_id, int location);
-EFeat FindFeatNum(const char *name, bool alias = false);
+EFeat FindFeatId(const char *name, bool alias = false);
 EFeat FindWeaponMasterFeat(ESkill skill);
 void InitFeatures();
 void CheckBerserk(CharData *ch);
@@ -307,6 +305,8 @@ struct FeatureInfo {
 	int (*CalcSituationalDamageFactor)(CharData * /* ch */);
 	int (*CalcSituationalRollBonus)(CharData * /* ch */, CharData * /* enemy */);
 };
+
+extern std::unordered_map<EFeat, FeatureInfo> feat_info;
 
 #endif // __FEATURES_HPP__
 

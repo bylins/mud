@@ -1760,12 +1760,12 @@ char *make_prompt(DescriptorData *d) {
 			if (d->character->get_skill(ESkill::kStun))
 				count += sprintf(prompt + count, "Ош:%d ", IsTimedBySkill(d->character.get(), ESkill::kStun));
 
-			if (HAVE_FEAT(d->character, EFeat::kRelocate))
-				count += sprintf(prompt + count, "Пр:%d ", IsTimed(d->character.get(), EFeat::kRelocate));
-			if (HAVE_FEAT(d->character, EFeat::kSpellCapabler))
-				count += sprintf(prompt + count, "Зч:%d ", IsTimed(d->character.get(), EFeat::kSpellCapabler));
-			if (HAVE_FEAT(d->character, EFeat::kShadowThrower))
-				count += sprintf(prompt + count, "Зо:%d ", IsTimed(d->character.get(), EFeat::kShadowThrower));
+			if (d->character->HaveFeat(EFeat::kRelocate))
+				count += sprintf(prompt + count, "Пр:%d ", IsTimedByFeat(d->character.get(), EFeat::kRelocate));
+			if (d->character->HaveFeat(EFeat::kSpellCapabler))
+				count += sprintf(prompt + count, "Зч:%d ", IsTimedByFeat(d->character.get(), EFeat::kSpellCapabler));
+			if (d->character->HaveFeat(EFeat::kShadowThrower))
+				count += sprintf(prompt + count, "Зо:%d ", IsTimedByFeat(d->character.get(), EFeat::kShadowThrower));
 		}
 
 		if (!d->character->GetEnemy()

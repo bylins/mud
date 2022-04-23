@@ -28,7 +28,7 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (wc_name.empty()) {
 		sprintf(buf, "Вам доступны :\r\n");
-		for (cnt = spellnum = 1; spellnum <= kSpellCount; spellnum++) {
+		for (cnt = spellnum = 1; spellnum <= kSpellLast; spellnum++) {
 			const char *realname = spell_info[spellnum].name
 									   && *spell_info[spellnum].name ? spell_info[spellnum].name :
 								   spell_info[spellnum].syn
@@ -59,7 +59,7 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	spellnum = FixNameAndFindSpellNum(wc_name);
 
 	// Unknown warcry
-	if (spellnum < 1 || spellnum > kSpellCount
+	if (spellnum < 1 || spellnum > kSpellLast
 		|| (ch->get_skill(ESkill::kWarcry) < spell_info[spellnum].mana_change)
 		|| !IS_SET(GET_SPELL_TYPE(ch, spellnum), kSpellKnow | kSpellTemp)) {
 		SendMsgToChar("И откуда вы набрались таких выражений?\r\n", ch);

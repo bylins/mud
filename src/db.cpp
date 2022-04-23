@@ -29,7 +29,6 @@
 #include "entities/char_data.h"
 #include "entities/player_races.h"
 #include "entities/world_characters.h"
-#include "game_classes/classes.h"
 #include "cmd/follow.h"
 #include "corpse.h"
 #include "game_mechanics/deathtrap.h"
@@ -58,7 +57,6 @@
 #include "obj_prototypes.h"
 #include "olc/olc.h"
 #include "communication/parcel.h"
-#include "utils/parse.h"
 #include "administration/privilege.h"
 #include "game_mechanics/sets_drop.h"
 #include "game_economics/shop_ext.h"
@@ -5021,9 +5019,9 @@ int file_to_string(const char *name, char *buf) {
 void clear_char_skills(CharData *ch) {
 	int i;
 	ch->real_abils.Feats.reset();
-	for (i = 0; i <= kSpellCount; i++)
+	for (i = 0; i <= kSpellLast; i++)
 		ch->real_abils.SplKnw[i] = 0;
-	for (i = 0; i <= kSpellCount; i++)
+	for (i = 0; i <= kSpellLast; i++)
 		ch->real_abils.SplMem[i] = 0;
 	ch->clear_skills();
 }
@@ -5121,18 +5119,18 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		ExpireTimedFeat(ch, ch->timed_feat);
 	}
 	for (auto feat = EFeat::kFirstFeat; feat <= EFeat::kLastFeat; ++feat) {
-		UNSET_FEAT(ch, feat);
+		ch->UnsetFeat(feat);
 	}
 
 	if (ch->get_remort() >= 9 && ch->get_remort() % 3 == 0) {
 		ch->clear_skills();
-		for (i = 1; i <= kSpellCount; i++) {
+		for (i = 1; i <= kSpellLast; i++) {
 			GET_SPELL_TYPE(ch, i) = (GET_CLASS(ch) == ECharClass::kMagus ? kSpellRunes : 0);
 			GET_SPELL_MEM(ch, i) = 0;
 		}
 	} else {
 		ch->set_skill(ch->get_remort());
-		for (i = 1; i <= kSpellCount; i++) {
+		for (i = 1; i <= kSpellLast; i++) {
 			if (GET_CLASS(ch) == ECharClass::kMagus) {
 				GET_SPELL_TYPE(ch, i) = kSpellRunes;
 			} else if (spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] >= 8) {

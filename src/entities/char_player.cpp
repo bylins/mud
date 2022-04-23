@@ -437,7 +437,7 @@ void Player::save_char() {
 				const auto &aff = *aff_i;
 				if (aff->type == kSpellArmageddon
 					|| aff->type < 1
-					|| aff->type > kSpellCount) {
+					|| aff->type > kSpellLast) {
 					i--;
 				} else {
 					tmp_aff[i] = *aff;
@@ -547,8 +547,8 @@ void Player::save_char() {
 	if (GetRealLevel(this) < kLvlImmortal) {
 		fprintf(saved, "Feat:\n");
 		for (auto feat = EFeat::kFirstFeat; feat <= EFeat::kLastFeat; ++feat) {
-			if (HAVE_FEAT(this, feat))
-				fprintf(saved, "%d %s\n", feat, feat_info[feat].name);
+			if (this->HaveFeat(feat))
+				fprintf(saved, "%d %s\n", to_underlying(feat), feat_info[feat].name);
 		}
 		fprintf(saved, "0 0\n");
 	}
@@ -592,7 +592,7 @@ void Player::save_char() {
 	// волхвам всеравно известны тупо все спеллы, смысла их писать не вижу
 	if (GetRealLevel(this) < kLvlImmortal && GET_CLASS(this) != ECharClass::kMagus) {
 		fprintf(saved, "Spel:\n");
-		for (i = 1; i <= kSpellCount; i++)
+		for (i = 1; i <= kSpellLast; i++)
 			if (GET_SPELL_TYPE(this, i))
 				fprintf(saved, "%d %d %s\n", i, GET_SPELL_TYPE(this, i), spell_info[i].name);
 		fprintf(saved, "0 0\n");
@@ -614,7 +614,7 @@ void Player::save_char() {
 	// Замемленые спелы
 	if (GetRealLevel(this) < kLvlImmortal) {
 		fprintf(saved, "SpMe:\n");
-		for (i = 1; i <= kSpellCount; i++) {
+		for (i = 1; i <= kSpellLast; i++) {
 			if (GET_SPELL_MEM(this, i))
 				fprintf(saved, "%d %d\n", i, GET_SPELL_MEM(this, i));
 		}
@@ -1130,13 +1130,13 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 
 	// волхвам сетим все спеллы на рунах, остальные инит нулями
 	if (GET_CLASS(this) != ECharClass::kMagus)
-		for (i = 1; i <= kSpellCount; i++)
+		for (i = 1; i <= kSpellLast; i++)
 			GET_SPELL_TYPE(this, i) = 0;
 	else
-		for (i = 1; i <= kSpellCount; i++)
+		for (i = 1; i <= kSpellLast; i++)
 			GET_SPELL_TYPE(this, i) = kSpellRunes;
 
-	for (i = 1; i <= kSpellCount; i++)
+	for (i = 1; i <= kSpellLast; i++)
 		GET_SPELL_MEM(this, i) = 0;
 	this->char_specials.saved.affected_by = clear_flags;
 	POOFIN(this) = nullptr;
@@ -1408,8 +1408,6 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 					EXCHANGE_FILTER(this) = str_dup(line);
 				else if (!strcmp(tag, "EMal"))
 					strcpy(GET_EMAIL(this), line);
-//29.11.09. (c) Василиса
-//edited by WorM 2011.05.21
 				else if (!strcmp(tag, "Expa"))
 					GET_EXP_ARENA(this) = llnum;
 				else if (!strcmp(tag, "Expm"))
@@ -1428,8 +1426,6 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 					GET_EXP_DT(this) = llnum;
 				else if (!strcmp(tag, "Exdt"))
 					GET_EXP_DTTHIS(this) = llnum;
-//end by WorM
-//Конец правки (с) Василиса
 				break;
 
 			case 'F':
@@ -1440,10 +1436,11 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 					do {
 						fbgetline(fl, line);
 						sscanf(line, "%d", &num);
-						if (num >= EFeat::kFirstFeat && num <= EFeat::kLastFeat) {
-							if (feat_info[num].is_known[(int) GET_CLASS(this)][(int) GET_KIN(this)] ||
+						auto feat_id = static_cast<EFeat>(num);
+						if (feat_id >= EFeat::kFirstFeat && feat_id <= EFeat::kLastFeat) {
+							if (feat_info[feat_id].is_known[(int) GET_CLASS(this)][(int) GET_KIN(this)] ||
 								PlayerRace::FeatureCheck((int) GET_KIN(this), (int) GET_RACE(this), num)) {
-								SET_FEAT(this, num);
+								this->SetFeat(feat_id);
 							}
 						}
 					} while (num != 0);
@@ -1452,7 +1449,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 						fbgetline(fl, line);
 						sscanf(line, "%d %d", &num, &num2);
 						if (num != 0) {
-							timed_feat.feat = num;
+							timed_feat.feat = static_cast<EFeat>(num);
 							timed_feat.time = num2;
 							ImposeTimedFeat(this, &timed_feat);
 						}
@@ -1896,11 +1893,11 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	SetInbornFeats(this);
 
 	if (IS_GRGOD(this)) {
-		for (i = 0; i <= kSpellCount; i++)
+		for (i = 0; i <= kSpellLast; i++)
 			GET_SPELL_TYPE(this, i) = GET_SPELL_TYPE(this, i) |
 				kSpellItems | kSpellKnow | kSpellRunes | kSpellScroll | kSpellPotion | kSpellWand;
 	} else if (!IS_IMMORTAL(this)) {
-		for (i = 0; i <= kSpellCount; i++) {
+		for (i = 0; i <= kSpellLast; i++) {
 			if (spell_info[i].slot_forc[(int) GET_CLASS(this)][(int) GET_KIN(this)] == kMaxMemoryCircle)
 				REMOVE_BIT(GET_SPELL_TYPE(this, i), kSpellKnow | kSpellTemp);
 // shapirus: изученное не убираем на всякий случай, но из мема выкидываем,

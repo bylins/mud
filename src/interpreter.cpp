@@ -2298,9 +2298,9 @@ void do_entergame(DescriptorData *d) {
 
 	// Check & remove/add natural, race & unavailable features
 	for (auto i = EFeat::kFirstFeat; i <= EFeat::kLastFeat; ++i) {
-		if (!HAVE_FEAT(d->character, i) || IsAbleToGetFeat(d->character.get(), i)) {
+		if (!d->character->HaveFeat(i) || IsAbleToGetFeat(d->character.get(), i)) {
 			if (feat_info[i].is_inborn[(int) GET_CLASS(d->character)][(int) GET_KIN(d->character)]) {
-				SET_FEAT(d->character, i);
+				d->character->SetFeat(i);
 			}
 		}
 	}
@@ -2318,7 +2318,6 @@ void do_entergame(DescriptorData *d) {
 	//Заменяем закл !переместиться! на способность
 	if (GET_SPELL_TYPE(d->character, kSpellRelocate) == kSpellKnow && !IS_GOD(d->character)) {
 		GET_SPELL_TYPE(d->character, kSpellRelocate) = 0;
-		SET_FEAT(d->character, EFeat::kRelocate);
 	}
 
 	//Проверим временные заклы пока нас не было
@@ -2609,7 +2608,7 @@ void init_char(CharData *ch, PlayerIndexElement &element) {
 		set_god_morphs(ch);
 	}
 
-	for (i = 1; i <= kSpellCount; i++) {
+	for (i = 1; i <= kSpellLast; i++) {
 		if (GetRealLevel(ch) < kLvlGreatGod)
 			GET_SPELL_TYPE(ch, i) = 0;
 		else

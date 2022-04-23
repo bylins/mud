@@ -318,7 +318,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 		&& spellnum != kSpellAcidBreath)
 		|| ch == victim) {
 		if (!IS_SET(spell_info[spellnum].routines, kMagWarcry)) {
-			if (ch != victim && spellnum <= kSpellCount &&
+			if (ch != victim && spellnum <= kSpellLast &&
 				((AFF_FLAGGED(victim, EAffect::kMagicGlass) && number(1, 100) < (GetRealLevel(victim) / 3)))) {
 				act("Магическое зеркало $N1 отразило вашу магию!", false, ch, nullptr, victim, kToChar);
 				act("Магическое зеркало $N1 отразило магию $n1!", false, ch, nullptr, victim, kToNotVict);
@@ -330,7 +330,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 				return (mag_damage(level, ch, ch, spellnum, savetype));
 			}
 		} else {
-			if (ch != victim && spellnum <= kSpellCount && IS_GOD(victim)
+			if (ch != victim && spellnum <= kSpellLast && IS_GOD(victim)
 				&& (ch->IsNpc() || GetRealLevel(victim) > GetRealLevel(ch))) {
 				act("Звуковой барьер $N1 отразил ваш крик!", false, ch, nullptr, victim, kToChar);
 				act("Звуковой барьер $N1 отразил крик $n1!", false, ch, nullptr, victim, kToNotVict);
@@ -340,7 +340,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 		}
 
 		if (!IS_SET(spell_info[spellnum].routines, kMagWarcry) && AFF_FLAGGED(victim, EAffect::kShadowCloak)
-			&& spellnum <= kSpellCount && number(1, 100) < 21) {
+			&& spellnum <= kSpellLast && number(1, 100) < 21) {
 			act("Густая тень вокруг $N1 жадно поглотила вашу магию.", false, ch, nullptr, victim, kToChar);
 			act("Густая тень вокруг $N1 жадно поглотила магию $n1.", false, ch, nullptr, victim, kToNotVict);
 			act("Густая тень вокруг вас поглотила магию $n1.", false, ch, nullptr, victim, kToVict);

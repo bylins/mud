@@ -6,7 +6,6 @@
 #include "pk.h"
 #include "statistics/dps.h"
 #include "house_exp.h"
-#include "game_classes/classes.h"
 #include "game_skills/poison.h"
 #include "game_mechanics/bonus.h"
 #include "mobact.h"
@@ -1291,61 +1290,61 @@ bool can_auto_block(CharData *ch) {
 void HitData::CheckWeapFeats(const CharData *ch, ESkill weap_skill, int &calc_thaco, int &dam) {
 	switch (weap_skill) {
 		case ESkill::kPunch:
-			if (HAVE_FEAT(ch, EFeat::kPunchFocus)) {
+			if (ch->HaveFeat(EFeat::kPunchFocus)) {
 				calc_thaco -= 2;
 				dam += 2;
 			}
 			break;
 		case ESkill::kClubs:
-			if (HAVE_FEAT(ch, EFeat::kClubsFocus)) {
+			if (ch->HaveFeat(EFeat::kClubsFocus)) {
 				calc_thaco -= 2;
 				dam += 2;
 			}
 			break;
 		case ESkill::kAxes:
-			if (HAVE_FEAT(ch, EFeat::kAxesFocus)) {
+			if (ch->HaveFeat(EFeat::kAxesFocus)) {
 				calc_thaco -= 1;
 				dam += 2;
 			}
 			break;
 		case ESkill::kLongBlades:
-			if (HAVE_FEAT(ch, EFeat::kLongsFocus)) {
+			if (ch->HaveFeat(EFeat::kLongsFocus)) {
 				calc_thaco -= 1;
 				dam += 2;
 			}
 			break;
 		case ESkill::kShortBlades:
-			if (HAVE_FEAT(ch, EFeat::kShortsFocus)) {
+			if (ch->HaveFeat(EFeat::kShortsFocus)) {
 				calc_thaco -= 2;
 				dam += 3;
 			}
 			break;
 		case ESkill::kNonstandart:
-			if (HAVE_FEAT(ch, EFeat::kNonstandartsFocus)) {
+			if (ch->HaveFeat(EFeat::kNonstandartsFocus)) {
 				calc_thaco -= 1;
 				dam += 3;
 			}
 			break;
 		case ESkill::kTwohands:
-			if (HAVE_FEAT(ch, EFeat::kTwohandsFocus)) {
+			if (ch->HaveFeat(EFeat::kTwohandsFocus)) {
 				calc_thaco -= 1;
 				dam += 3;
 			}
 			break;
 		case ESkill::kPicks:
-			if (HAVE_FEAT(ch, EFeat::kPicksFocus)) {
+			if (ch->HaveFeat(EFeat::kPicksFocus)) {
 				calc_thaco -= 2;
 				dam += 3;
 			}
 			break;
 		case ESkill::kSpades:
-			if (HAVE_FEAT(ch, EFeat::kSpadesFocus)) {
+			if (ch->HaveFeat(EFeat::kSpadesFocus)) {
 				calc_thaco -= 1;
 				dam += 2;
 			}
 			break;
 		case ESkill::kBows:
-			if (HAVE_FEAT(ch, EFeat::kBowsFocus)) {
+			if (ch->HaveFeat(EFeat::kBowsFocus)) {
 				calc_thaco -= 7;
 				dam += 4;
 			}

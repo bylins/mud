@@ -4,8 +4,8 @@
 
 const char *unused_spellname = "!UNUSED!";
 
-struct SpellInfo spell_info[kSpellCount + 1];
-struct SpellCreate spell_create[kSpellCount + 1];
+struct SpellInfo spell_info[kSpellLast + 1];
+struct SpellCreate spell_create[kSpellLast + 1];
 
 void InitUnusedSpell(int spl);
 void InitSpell(int spl, const char *name, const char *syn,
@@ -13,7 +13,7 @@ void InitSpell(int spl, const char *name, const char *syn,
 			   int minpos, int targets, int violent, int routines, int danger, int spell_class);
 
 const char *GetSpellName(int num) {
-	if (num > 0 && num <= kSpellCount) {
+	if (num > 0 && num <= kSpellLast) {
 		return (spell_info[num].name);
 	} else {
 		if (num == -1) {
@@ -134,7 +134,7 @@ void initSpell(int spl, const char *name, const char *syn,
 
 void InitSpells() {
 
-	for (int i = 0; i <= kSpellCount; i++) {
+	for (int i = 0; i <= kSpellLast; i++) {
 		InitUnusedSpell(i);
 	}
 

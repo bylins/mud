@@ -428,7 +428,7 @@ void forget_all_spells(CharData *ch) {
 	}
 	int slotn;
 
-	for (int i = 0; i <= kSpellCount; i++) {
+	for (int i = 0; i <= kSpellLast; i++) {
 		if (PRF_FLAGGED(ch, EPrf::kAutomem) && ch->real_abils.SplMem[i]) {
 			slotn = spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;
 			for (unsigned j = 0; (slots[slotn] > 0 && j < ch->real_abils.SplMem[i]); ++j, --slots[slotn]) {

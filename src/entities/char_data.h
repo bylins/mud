@@ -92,9 +92,9 @@ struct char_played_ability_data {
 
 // Char's abilities.
 struct char_ability_data {
-	std::array<ubyte, kSpellCount + 1> SplKnw; // array of SPELL_KNOW_TYPE
-	std::array<ubyte, kSpellCount + 1> SplMem; // array of MEMed SPELLS
-	std::bitset<EFeat::kLastFeat + 1> Feats;
+	std::array<ubyte, kSpellLast + 1> SplKnw; // array of SPELL_KNOW_TYPE
+	std::array<ubyte, kSpellLast + 1> SplMem; // array of MEMed SPELLS
+	std::bitset<to_underlying(EFeat::kLastFeat) + 1> Feats;
 	sbyte size;
 	int hitroll;
 	int damroll;
@@ -368,6 +368,10 @@ class CharData : public ProtectedCharData {
 
 	friend void do_mtransform(CharData *ch, char *argument, int cmd, int subcmd);
 	friend void medit_mobile_copy(CharData *dst, CharData *src);
+
+	void SetFeat(EFeat feat_id) { real_abils.Feats.set(to_underlying(feat_id)); };
+	void UnsetFeat(EFeat feat_id) { real_abils.Feats.reset(to_underlying(feat_id)); };
+	bool HaveFeat(EFeat feat_id) const { return real_abils.Feats.test(to_underlying(feat_id)); };
 
 	void set_skill(const ESkill skill_id, int percent);
 	void set_skill(short remort);

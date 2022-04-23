@@ -680,11 +680,6 @@ const int kNameLevel = 5;
 #define GET_SPELL_TYPE(ch, i) ((ch)->real_abils.SplKnw[i])
 #define GET_SPELL_MEM(ch, i)  ((ch)->real_abils.SplMem[i])
 #define SET_SPELL(ch, i, pct) ((ch)->real_abils.SplMem[i] = (pct))
-#define SET_FEAT(ch, feat) ((ch)->real_abils.Feats.set(feat))
-#define UNSET_FEAT(ch, feat) ((ch)->real_abils.Feats.reset(feat))
-#define HAVE_FEAT(ch, feat) ((ch)->real_abils.Feats.test(feat))
-#define    NUM_LEV_FEAT(ch) ((int) 1+GetRealLevel(ch)*(5+GET_REAL_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)])/28)
-#define FEAT_SLOT(ch, feat) (feat_info[feat].slot[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
 
 #define MOD_CAST_LEV(sp, ch) (BASE_CAST_LEV(sp, ch) - (std::max(GET_REAL_REMORT(ch) - MIN_CAST_REM(sp,ch),0) / 3))
 
@@ -1279,7 +1274,7 @@ void message_str_need(CharData *ch, ObjData *obj, int type);
 int wis_bonus(int stat, int type);
 int CAN_CARRY_N(const CharData *ch);
 
-#define CAN_CARRY_W(ch) ((str_bonus(GET_REAL_STR(ch), STR_CARRY_W) * (HAVE_FEAT(ch, EFeat::kPorter) ? 110 : 100))/100)
+#define CAN_CARRY_W(ch) ((str_bonus(GET_REAL_STR(ch), STR_CARRY_W) * ((ch)->HaveFeat(EFeat::kPorter) ? 110 : 100))/100)
 
 #define OK_BOTH(ch, obj)  (GET_OBJ_WEIGHT(obj) <= \
                           str_bonus(GET_REAL_STR(ch), STR_WIELD_W) + str_bonus(GET_REAL_STR(ch), STR_HOLD_W))

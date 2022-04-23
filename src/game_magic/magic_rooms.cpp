@@ -140,7 +140,7 @@ int RemoveControlledRoomAffect(CharData *ch) {
 void SendRemoveAffectMsgToRoom(int affectType, RoomRnum room) {
 	// TODO:" refactor and replace int affectType by ESpell
 	const std::string &msg = get_wear_off_text(static_cast<ESpell>(affectType));
-	if (affectType > 0 && affectType <= kSpellCount && !msg.empty()) {
+	if (affectType > 0 && affectType <= kSpellLast && !msg.empty()) {
 		SendMsgToRoom(msg.c_str(), room, 0);
 	};
 }
@@ -291,7 +291,7 @@ void UpdateRoomsAffects() {
 			} else if (affect->duration == -1) {
 				affect->duration = -1;
 			} else {
-				if (affect->type > 0 && affect->type <= kSpellCount) {
+				if (affect->type > 0 && affect->type <= kSpellLast) {
 					if (next_affect_i == affects.end()
 						|| (*next_affect_i)->type != affect->type
 						|| (*next_affect_i)->duration > 0) {
@@ -485,13 +485,13 @@ int CastSpellToRoom(int/* level*/, CharData *ch, RoomData *room, int spellnum) {
 			break;
 	}
 	if (success) {
-		if (IS_SET(SpINFO.routines, kMagNeedControl)) {
+		if (IS_SET(spell_info[spellnum].routines, kMagNeedControl)) {
 			int SplFound = RemoveControlledRoomAffect(ch);
 			if (SplFound) {
 				SendMsgToChar(ch,
 							  "Вы прервали заклинание !%s! и приготовились применить !%s!\r\n",
 							  spell_info[SplFound].name,
-							  SpINFO.name);
+							  spell_info[spellnum].name);
 			}
 		} else {
 			auto RoomAffect_i = FindAffect(room, spellnum);

@@ -682,16 +682,16 @@ void medit_save_to_disk(int zone_num) {
 			strcpy(buf1, "Special_Bitvector: ");
 			NPC_FLAGS(mob).tascii(4, buf1);
 			fprintf(mob_file, "%s\n", buf1);
-			for (c = EFeat::kFirstFeat; c <= EFeat::kLastFeat; ++c) {
-				if (HAVE_FEAT(mob, c))
-					fprintf(mob_file, "Feat: %d\n", c);
+			for (auto feat_id = EFeat::kFirstFeat; feat_id <= EFeat::kLastFeat; ++feat_id) {
+				if (mob->HaveFeat(feat_id))
+					fprintf(mob_file, "Feat: %d\n", to_underlying(feat_id));
 			}
 			for (const auto &skill : MUD::Skills()) {
 				if (mob->get_skill(skill.GetId()) && skill.IsValid()) {
 					fprintf(mob_file, "Skill: %d %d\n", to_underlying(skill.GetId()), mob->get_skill(skill.GetId()));
 				}
 			}
-			for (c = 1; c <= kSpellCount; c++) {
+			for (c = 1; c <= kSpellLast; c++) {
 				for (j = 1; j <= GET_SPELL_MEM(mob, c); j++) {
 					fprintf(mob_file, "Spell: %d\n", c);
 				}
@@ -996,7 +996,7 @@ void medit_disp_features(DescriptorData *d) {
 			continue;
 		}
 
-		if (HAVE_FEAT(OLC_MOB(d), counter)) {
+		if (OLC_MOB(d)->HaveFeat(counter)) {
 			sprintf(buf1, " %s[%s*%s]%s ", cyn, grn, cyn, nrm);
 		} else {
 			strcpy(buf1, "     ");
@@ -1093,7 +1093,7 @@ void medit_disp_spells(DescriptorData *d) {
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
-	for (counter = 1; counter <= kSpellCount; counter++) {
+	for (counter = 1; counter <= kSpellLast; counter++) {
 		if (!spell_info[counter].name
 			|| *spell_info[counter].name == '!') {
 			continue;
@@ -1768,13 +1768,14 @@ void medit_parse(DescriptorData *d, char *arg) {
 			if (number == 0) {
 				break;
 			}
-			if (number < EFeat::kFirstFeat || number > EFeat::kLastFeat ||
-				!feat_info[number].name || *feat_info[number].name == '!') {
+			auto feat_id = static_cast<EFeat>(number);
+			if (feat_id < EFeat::kFirstFeat || feat_id > EFeat::kLastFeat ||
+				!feat_info[feat_id].name || *feat_info[feat_id].name == '!') {
 				SendMsgToChar("Неверный номер.\r\n", d->character.get());
-			} else if (HAVE_FEAT(OLC_MOB(d), number)) {
-				UNSET_FEAT(OLC_MOB(d), number);
+			} else if (OLC_MOB(d)->HaveFeat(feat_id)) {
+				OLC_MOB(d)->UnsetFeat(feat_id);
 			} else {
-				SET_FEAT(OLC_MOB(d), number);
+				OLC_MOB(d)->SetFeat(feat_id);
 			}
 			medit_disp_features(d);
 			return;
@@ -2193,7 +2194,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 			if (number == 0) {
 				break;
 			}
-			if (number < 0 || (number > kSpellCount || !spell_info[number].name || *spell_info[number].name == '!')) {
+			if (number < 0 || (number > kSpellLast || !spell_info[number].name || *spell_info[number].name == '!')) {
 				SendMsgToChar("Неизвестное заклинание.\r\n", d->character.get());
 			} else if (sscanf(arg, "%d %d", &plane, &bit) < 2) {
 				SendMsgToChar("Не указано количество заклинаний.\r\n", d->character.get());

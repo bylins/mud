@@ -20,7 +20,7 @@
 
 class CharData;
 class ObjData;
-class RoomData;
+struct RoomData;
 
 // VNUM'ы мобов для заклинаний, создающих мобов
 const int kMobDouble = 3000; //внум прототипа для клона
@@ -40,8 +40,6 @@ const int kMobKeeper = 3021;
 const int kMobFirekeeper = 3022;
 
 const int kMaxSpellAffects = 16; // change it if you need more
-
-#define SpINFO spell_info[spellnum]
 
 bool is_room_forbidden(RoomData *room);
 void mobile_affect_update(void);

@@ -114,8 +114,7 @@ bool PlayerRace::FeatureCheck(int Kin, int Race, int Feat) {
 	PlayerRacePtr RacePtr = PlayerRace::GetPlayerRace(Kin, Race);
 	if (RacePtr == nullptr)
 		return false;
-	std::vector<int>::iterator
-		RaceFeature = find(RacePtr->_RaceFeatureList.begin(), RacePtr->_RaceFeatureList.end(), Feat);
+	auto RaceFeature = find(RacePtr->_RaceFeatureList.begin(), RacePtr->_RaceFeatureList.end(), Feat);
 	if (RaceFeature != RacePtr->_RaceFeatureList.end())
 		return true;
 

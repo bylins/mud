@@ -996,7 +996,7 @@ void do_start(CharData *ch, int newbie) {
 	}
 
 	if (newbie && GET_CLASS(ch) == ECharClass::kMagus) {
-		for (int i = 1; i <= kSpellCount; i++) {
+		for (int i = 1; i <= kSpellLast; i++) {
 			GET_SPELL_TYPE(ch, i) = kSpellRunes;
 		}
 	}
@@ -1300,7 +1300,7 @@ void InitSpellLevels() {
 
 	FILE *magic;
 	char line1[256], line2[256], line3[256], name[256];
-	int i[15], j, sp_num;
+	int i[15], j;
 
 	if (!(magic = fopen(LIB_MISC "class.spells.lst", "r"))) {
 		log("Can't open class spells file...");
@@ -1308,6 +1308,7 @@ void InitSpellLevels() {
 		graceful_exit(1);
 	}
 
+	auto sp_num{ESpell::kUndefined};;
 	while (get_line(magic, name)) {
 		if (!name[0] || name[0] == ';')
 			continue;
@@ -1325,7 +1326,7 @@ void InitSpellLevels() {
 			strcat(name, line2);
 		}
 
-		if ((sp_num = FixNameAndFindSpellNum(name)) < 0) {
+		if ((sp_num = FixNameAndFindSpellNum(name)) == ESpell::kUndefined) {
 			log("Spell '%s' not found...", name);
 			graceful_exit(1);
 		}
@@ -1420,6 +1421,7 @@ void InitSpellLevels() {
 		log("Cann't open features list file...");
 		graceful_exit(1);
 	}
+	auto feat_id{EFeat::kUndefinedFeat};
 	while (get_line(magic, name)) {
 		if (!name[0] || name[0] == ';')
 			continue;
@@ -1436,37 +1438,37 @@ void InitSpellLevels() {
 			*(name + strlen(name) + 0) = ' ';
 			strcat(name, line2);
 		}
-		if ((sp_num = FindFeatNum(name)) <= 0) {
+		if ((feat_id = FindFeatId(name)) == EFeat::kUndefinedFeat) {
 			log("Feat '%s' not found...", name);
 			graceful_exit(1);
 		}
 		for (j = 0; j < kNumKins; j++)
 			if (i[j] < 0 || i[j] > 1) {
-				log("Bad race feat know type for feat \"%s\"... 0 or 1 expected", feat_info[sp_num].name);
+				log("Bad race feat know type for feat \"%s\"... 0 or 1 expected", feat_info[feat_id].name);
 				graceful_exit(1);
 			}
 		if (i[3] < 0 || i[3] >= kNumPlayerClasses) {
-			log("Bad class type for feat \"%s\"...", feat_info[sp_num].name);
+			log("Bad class type for feat \"%s\"...", feat_info[feat_id].name);
 			graceful_exit(1);
 		}
 		if (i[4] < 0 || i[4] >= kMaxRemort) {
-			log("Bad remort type for feat \"%s\"...", feat_info[sp_num].name);
+			log("Bad remort type for feat \"%s\"...", feat_info[feat_id].name);
 			graceful_exit(1);
 		}
 		if (i[6] < 0 || i[6] > 1) {
-			log("Bad natural classfeat type for feat \"%s\"... 0 or 1 expected", feat_info[sp_num].name);
+			log("Bad natural classfeat type for feat \"%s\"... 0 or 1 expected", feat_info[feat_id].name);
 			graceful_exit(1);
 		}
 		for (j = 0; j < kNumKins; j++)
 			if (i[j] == 1) {
 				//log("Setting up feat '%s'", feat_info[sp_num].name);
-				feat_info[sp_num].is_known[i[3]][j] = true;
+				feat_info[feat_id].is_known[i[3]][j] = true;
 /*				log("Classknow feat set '%s': %d kin: %d classes: %d Remort: %d Level: %d Natural: %d",
 					feat_info[sp_num].name, sp_num, j, i[3], i[4], i[5], i[6]);*/
 
-				feat_info[sp_num].min_remort[i[3]][j] = i[4];
-				feat_info[sp_num].slot[i[3]][j] = i[5];
-				feat_info[sp_num].is_inborn[i[3]][j] = i[6] ? true : false;
+				feat_info[feat_id].min_remort[i[3]][j] = i[4];
+				feat_info[feat_id].slot[i[3]][j] = i[5];
+				feat_info[feat_id].is_inborn[i[3]][j] = i[6] ? true : false;
 			}
 	}
 	fclose(magic);
@@ -1856,8 +1858,8 @@ long GetExpUntilNextLvl(CharData *ch, int level) {
 void mspell_remort(char */*name*/, int spell, int kin, int chclass, int remort) {
 	int bad = 0;
 
-	if (spell < 0 || spell > kSpellCount) {
-		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, kSpellCount);
+	if (spell < 0 || spell > kSpellLast) {
+		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, kSpellLast);
 		return;
 	}
 	if (kin < 0 || kin >= kNumKins) {
@@ -1881,8 +1883,8 @@ void mspell_remort(char */*name*/, int spell, int kin, int chclass, int remort) 
 void mspell_level(char */*name*/, int spell, int kin, int chclass, int level) {
 	int bad = 0;
 
-	if (spell < 0 || spell > kSpellCount) {
-		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, kSpellCount);
+	if (spell < 0 || spell > kSpellLast) {
+		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, kSpellLast);
 		return;
 	}
 
@@ -1910,8 +1912,8 @@ void mspell_level(char */*name*/, int spell, int kin, int chclass, int level) {
 void mspell_change(char */*name*/, int spell, int kin, int chclass, int class_change) {
 	int bad = 0;
 
-	if (spell < 0 || spell > kSpellCount) {
-		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, kSpellCount);
+	if (spell < 0 || spell > kSpellLast) {
+		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, kSpellLast);
 		return;
 	}
 

@@ -58,7 +58,7 @@ void LearnSpellBook(CharData *ch, ObjData *obj) {
 		throw LearningError();
 	}
 	auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(obj, 1));
-	if (spell_id <= ESpell::kUndefined || spell_id > ESpell::kSpellCount) {
+	if (spell_id <= ESpell::kUndefined || spell_id > ESpell::kSpellLast) {
 		SendMsgToChar("МАГИЯ НЕ ОПРЕДЕЛЕНА - сообщите Богам!\r\n", ch);
 		throw LearningError();
 	}
@@ -176,7 +176,7 @@ void LearnFeatBook(CharData *ch, ObjData *obj) {
 	}
 
 	auto feat_name = GetFeatName(feat_id);
-	if (HAVE_FEAT(ch, feat_id)) {
+	if (ch->HaveFeat(feat_id)) {
 		throw AlreadyKnown(feat_name);
 	}
 
@@ -189,7 +189,7 @@ void LearnFeatBook(CharData *ch, ObjData *obj) {
 	}
 
 	SendSuccessLearningMessage(ch, obj, feat_name);
-	SET_FEAT(ch, feat_id);
+	ch->SetFeat(feat_id);
 }
 
 void LearnBook(CharData *ch, ObjData *obj) {

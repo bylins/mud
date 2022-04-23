@@ -794,7 +794,7 @@ std::pair<bool, int> ObjData::get_activator() const {
 }
 
 void ObjData::add_timed_spell(const int spell, const int time) {
-	if (spell < 1 || spell >= kSpellCount) {
+	if (spell < 1 || spell >= kSpellLast) {
 		log("SYSERROR: func: %s, spell = %d, time = %d", __func__, spell, time);
 		return;
 	}

@@ -166,11 +166,11 @@ void ImposeAffect(CharData *ch, const Affect<EApply> &af) {
 	}
 }
 
-void DecreaseFeatTimer(CharData *ch, int featureID) {
+void DecreaseFeatTimer(CharData *ch, EFeat feat_id) {
 	for (auto *skj = ch->timed_feat; skj; skj = skj->next) {
-		if (skj->feat == featureID) {
+		if (skj->feat == feat_id) {
 			if (skj->time >= 1) {
-				skj->time--;
+				--(skj->time);
 			} else {
 				ExpireTimedFeat(ch, skj);
 			}
@@ -206,7 +206,7 @@ void ExpireTimedFeat(CharData *ch, TimedFeat *timed) {
 	free(timed);
 }
 
-int IsTimed(CharData *ch, int feat) {
+int IsTimedByFeat(CharData *ch, EFeat feat) {
 	struct TimedFeat *hjp;
 
 	for (hjp = ch->timed_feat; hjp; hjp = hjp->next)
@@ -2834,22 +2834,22 @@ int mag_manacost(const CharData *ch, int spellnum) {
 			* (float) mana_gain_cs[VPOSI(55 - GET_REAL_INT(ch), 10, 50)]
 			/ (float) int_app[VPOSI(55 - GET_REAL_INT(ch), 10, 50)].mana_per_tic
 			* 60
-			* std::max(SpINFO.mana_max
-					  - (SpINFO.mana_change
+			* std::max(spell_info[spellnum].mana_max
+					  - (spell_info[spellnum].mana_change
 						  * (GetRealLevel(ch)
 							  - spell_create[spellnum].runes.min_caster_level)),
-				  SpINFO.mana_min));
+				  spell_info[spellnum].mana_min));
 	} else {
-		if (!IS_MANA_CASTER(ch) && GetRealLevel(ch) >= MIN_CAST_LEV(SpINFO, ch)
-			&& GET_REAL_REMORT(ch) >= MIN_CAST_REM(SpINFO, ch)) {
-			result = std::max(SpINFO.mana_max - (SpINFO.mana_change * (GetRealLevel(ch) - MIN_CAST_LEV(SpINFO, ch))),
-							  SpINFO.mana_min);
-			if (SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] < 0) {
+		if (!IS_MANA_CASTER(ch) && GetRealLevel(ch) >= MIN_CAST_LEV(spell_info[spellnum], ch)
+			&& GET_REAL_REMORT(ch) >= MIN_CAST_REM(spell_info[spellnum], ch)) {
+			result = std::max(spell_info[spellnum].mana_max - (spell_info[spellnum].mana_change * (GetRealLevel(ch) - MIN_CAST_LEV(spell_info[spellnum], ch))),
+							  spell_info[spellnum].mana_min);
+			if (spell_info[spellnum].class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] < 0) {
 				result = result * (100 -
-						std::min(99, abs(SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]))) / 100;
+						std::min(99, abs(spell_info[spellnum].class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]))) / 100;
 			} else {
 				result = result * 100 / (100 -
-						std::min(99, abs(SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])));
+						std::min(99, abs(spell_info[spellnum].class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])));
 			}
 //		Меняем мем на коэффициент скилла магии
 // \todo ABYRVALG Нужно ввести общую для витязя и купца способность, а эту похабень убрать.
@@ -2966,7 +2966,7 @@ int *MemQ_slots(CharData *ch) {
 	for (i = 0; i < kMaxMemoryCircle; ++i)
 		slots[i] = CalcCircleSlotsAmount(ch, i + 1);
 
-	for (i = kSpellCount; i >= 1; --i) {
+	for (i = kSpellLast; i >= 1; --i) {
 		if (!IS_SET(GET_SPELL_TYPE(ch, i), kSpellKnow | kSpellTemp))
 			continue;
 		if ((n = GET_SPELL_MEM(ch, i)) == 0)
@@ -3085,7 +3085,7 @@ int GetResisTypeWithSpellClass(int spell_class) {
 };
 
 int GetResistType(int spellnum) {
-	return GetResisTypeWithSpellClass(SpINFO.spell_class);
+	return GetResisTypeWithSpellClass(spell_info[spellnum].spell_class);
 }
 
 // * Берется минимальная цена ренты шмотки, не важно, одетая она будет или снятая.

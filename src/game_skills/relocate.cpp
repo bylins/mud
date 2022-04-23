@@ -16,7 +16,7 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (IsTimed(ch, EFeat::kRelocate)
+	if (IsTimedByFeat(ch, EFeat::kRelocate)
 #ifdef TEST_BUILD
 		&& !IS_IMMORTAL(ch)
 #endif

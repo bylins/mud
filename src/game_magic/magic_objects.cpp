@@ -91,7 +91,7 @@ void check_spell_remove(ObjData *obj, int spell, bool send_message) {
 // * Распечатка строки с заклинанием и таймером при осмотре шмотки.
 std::string print_spell_str(CharData *ch, int spell, int timer) {
 	if (spell < 1
-		|| spell > kSpellCount) {
+		|| spell > kSpellLast) {
 		log("SYSERROR: %s, spell = %d, time = %d", __func__, spell, timer);
 		return "";
 	}

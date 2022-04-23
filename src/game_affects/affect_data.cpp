@@ -4,7 +4,6 @@
 #include "entities/char_player.h"
 #include "entities/world_characters.h"
 #include "game_fight/fight_hit.h"
-#include "game_classes/classes.h"
 #include "game_mechanics/deathtrap.h"
 #include "game_magic/magic.h"
 #include "game_skills/poison.h"
@@ -171,12 +170,12 @@ void pulse_affect_update(CharData *ch) {
 		{
 			affect->duration = -1;    // GODs only! unlimited //
 		} else {
-			if ((affect->type > 0) && (affect->type <= kSpellCount)) {
+			if ((affect->type > 0) && (affect->type <= kSpellLast)) {
 				if (next_affect_i == ch->affected.end()
 					|| (*next_affect_i)->type != affect->type
 					|| (*next_affect_i)->duration > 0) {
 					if (affect->type > 0
-						&& affect->type <= kSpellCount) {
+						&& affect->type <= kSpellLast) {
 						show_spell_off(affect->type, ch);
 					}
 				}
@@ -220,11 +219,11 @@ void player_affect_update() {
 				}
 				affect->duration--;
 			} else if (affect->duration != -1) {
-				if ((affect->type > ESpell::kUndefined) && (affect->type <= ESpell::kSpellCount)) {
+				if ((affect->type > ESpell::kUndefined) && (affect->type <= ESpell::kSpellLast)) {
 					if (next_affect_i == i->affected.end()
 						|| (*next_affect_i)->type != affect->type
 						|| (*next_affect_i)->duration > 0) {
-						if (affect->type > ESpell::kUndefined && affect->type <= ESpell::kSpellCount) {
+						if (affect->type > ESpell::kUndefined && affect->type <= ESpell::kSpellLast) {
 							//чтобы не выдавалось, "что теперь вы можете сражаться",
 							//хотя на самом деле не можете :)
 							if (!(affect->type == kSpellMagicBattle
@@ -287,11 +286,11 @@ void battle_affect_update(CharData *ch) {
 					(*affect_i)->duration -= std::min((*affect_i)->duration, kSecsPerMudHour / kSecsPerPlayerAffect);
 			}
 		} else if ((*affect_i)->duration != -1) {
-			if ((*affect_i)->type > 0 && (*affect_i)->type <= ESpell::kSpellCount) {
+			if ((*affect_i)->type > 0 && (*affect_i)->type <= ESpell::kSpellLast) {
 				if (next_affect_i == ch->affected.end() ||
 				(*next_affect_i)->type != (*affect_i)->type ||
 				(*next_affect_i)->duration > 0) {
-					if ((*affect_i)->type > ESpell::kUndefined && (*affect_i)->type <= ESpell::kSpellCount)
+					if ((*affect_i)->type > ESpell::kUndefined && (*affect_i)->type <= ESpell::kSpellLast)
 						show_spell_off((*affect_i)->type, ch);
 				}
 			}
@@ -348,12 +347,12 @@ void mobile_affect_update() {
 					affect->duration = -1;    // GODS - unlimited
 				} else {
 					if (affect->type > 0
-						&& affect->type <= kSpellCount) {
+						&& affect->type <= kSpellLast) {
 						if (next_affect_i == i->affected.end()
 							|| (*next_affect_i)->type != affect->type
 							|| (*next_affect_i)->duration > 0) {
 							if (affect->type > 0
-								&& affect->type <= kSpellCount) {
+								&& affect->type <= kSpellLast) {
 								show_spell_off(affect->type, i.get());
 								if (affect->type == kSpellCharm
 									|| affect->bitvector == to_underlying(EAffect::kCharmed)) {
@@ -510,7 +509,7 @@ void affect_total(CharData *ch) {
 		}
 	}
 
-	// IMPREGNABLE_FEAT учитывается дважды: выше начисляем единичку за 0 мортов, а теперь по 1 за каждый морт
+	// EFeat::kImpregnable учитывается дважды: выше начисляем единичку за 0 мортов, а теперь по 1 за каждый морт
 	if (IsAbleToUseFeat(ch, EFeat::kImpregnable)) {
 		for (int j = 0; j < kMaxFeatAffect; j++) {
 			affect_modify(ch,
@@ -658,7 +657,7 @@ void affect_total(CharData *ch) {
 	{
 		// Calculate CASTER value
 		int i = 1;
-		for (ch->caster_level = 0; !ch->IsNpc() && i <= kSpellCount; i++) {
+		for (ch->caster_level = 0; !ch->IsNpc() && i <= kSpellLast; i++) {
 			if (IS_SET(GET_SPELL_TYPE(ch, i), kSpellKnow | kSpellTemp)) {
 				ch->caster_level += (spell_info[i].danger * GET_SPELL_MEM(ch, i));
 			}

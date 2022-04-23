@@ -38,7 +38,7 @@ void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	spellnum = FixNameAndFindSpellNum(s);
 
-	if (spellnum < 1 || spellnum > kSpellCount) {
+	if (spellnum < 1 || spellnum > kSpellLast) {
 		SendMsgToChar("И откуда вы набрались рецептов?\r\n", ch);
 		return;
 	}

@@ -21,7 +21,8 @@
 
 extern const char *unused_spellname;
 
-struct FeatureInfo feat_info[EFeat::kLastFeat + 1];
+//struct FeatureInfo feat_info[to_underlying(EFeat::kLastFeat) + 1];
+std::unordered_map<EFeat, FeatureInfo> feat_info;
 
 /* Служебные функции */
 void InitFeatByDefault(EFeat feat_id);
@@ -52,7 +53,7 @@ EFeat& operator++(EFeat &f) {
 /// \param alias = false
 /// true для поиска при вводе имени способности игроком у учителей
 ///
-EFeat FindFeatNum(const char *name, bool alias) {
+EFeat FindFeatId(const char *name, bool alias) {
 	for (auto index = EFeat::kFirstFeat; index <= EFeat::kLastFeat; ++index) {
 		bool flag = true;
 		std::string name_feat(alias ? feat_info[index].alias.c_str() : feat_info[index].name);
@@ -244,43 +245,43 @@ void InitFeatures() {
 //28
 	InitFeat(EFeat::kCombatCasting, "боевое колдовство", EFeatType::kNormal, true, feat_app);
 //29
-	feat_app.insert(EFeat::kPunchFocus, 1);
+	feat_app.insert(to_underlying(EFeat::kPunchFocus), 1);
 	InitFeat(EFeat::kPunchMaster, "мастер кулачного боя", EFeatType::kNormal, true, feat_app);
 	feat_app.clear();
 //30
-	feat_app.insert(EFeat::kClubsFocus, 1);
+	feat_app.insert(to_underlying(EFeat::kClubsFocus), 1);
 	InitFeat(EFeat::kClubsMaster, "мастер палицы", EFeatType::kNormal, true, feat_app);
 	feat_app.clear();
 //31
-	feat_app.insert(EFeat::kAxesFocus, 1);
+	feat_app.insert(to_underlying(EFeat::kAxesFocus), 1);
 	InitFeat(EFeat::kAxesMaster, "мастер секиры", EFeatType::kNormal, true, feat_app);
 	feat_app.clear();
 //32
-	feat_app.insert(EFeat::kLongsFocus, 1);
+	feat_app.insert(to_underlying(EFeat::kLongsFocus), 1);
 	InitFeat(EFeat::kLongsMaster, "мастер меча", EFeatType::kNormal, true, feat_app);
 	feat_app.clear();
 //33
-	feat_app.insert(EFeat::kShortsFocus, 1);
+	feat_app.insert(to_underlying(EFeat::kShortsFocus), 1);
 	InitFeat(EFeat::kShortsMaster, "мастер ножа", EFeatType::kNormal, true, feat_app);
 	feat_app.clear();
 //34
-	feat_app.insert(EFeat::kNonstandartsFocus, 1);
+	feat_app.insert(to_underlying(EFeat::kNonstandartsFocus), 1);
 	InitFeat(EFeat::kNonstandartsMaster, "мастер необычного оружия", EFeatType::kNormal, true, feat_app);
 	feat_app.clear();
 //35
-	feat_app.insert(EFeat::kTwohandsFocus, 1);
+	feat_app.insert(to_underlying(EFeat::kTwohandsFocus), 1);
 	InitFeat(EFeat::kTwohandsMaster, "мастер двуручника", EFeatType::kNormal, true, feat_app);
 	feat_app.clear();
 //36
-	feat_app.insert(EFeat::kPicksFocus, 1);
+	feat_app.insert(to_underlying(EFeat::kPicksFocus), 1);
 	InitFeat(EFeat::kPicksMaster, "мастер кинжала", EFeatType::kNormal, true, feat_app);
 	feat_app.clear();
 //37
-	feat_app.insert(EFeat::kSpadesFocus, 1);
+	feat_app.insert(to_underlying(EFeat::kSpadesFocus), 1);
 	InitFeat(EFeat::kSpadesMaster, "мастер копья", EFeatType::kNormal, true, feat_app);
 	feat_app.clear();
 //38
-	feat_app.insert(EFeat::kBowsFocus, 1);
+	feat_app.insert(to_underlying(EFeat::kBowsFocus), 1);
 	InitFeat(EFeat::kBowsMaster, "мастер лучник", EFeatType::kNormal, true, feat_app);
 	feat_app.clear();
 //39
@@ -721,13 +722,13 @@ bool IsAbleToUseFeat(const CharData *ch, EFeat feat) {
 	if (feat_info[feat].always_available) {
 		return true;
 	};
-	if ((feat == EFeat::kUndefinedFeat) || !HAVE_FEAT(ch, feat)) {
+	if ((feat == EFeat::kUndefinedFeat) || !ch->HaveFeat(feat)) {
 		return false;
 	};
 	if (ch->IsNpc()) {
 		return true;
 	};
-	if (NUM_LEV_FEAT(ch) < feat_info[feat].slot[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) {
+	if (CalcFeatLvl(ch) < feat_info[feat].slot[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) {
 		return false;
 	};
 	if (GET_REAL_REMORT(ch) < feat_info[feat].min_remort[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) {
@@ -776,9 +777,6 @@ bool IsAbleToUseFeat(const CharData *ch, EFeat feat) {
 bool IsAbleToGetFeat(CharData *ch, EFeat feat) {
 	int i, count = 0;
 	if (feat < EFeat::kFirstFeat || feat > EFeat::kLastFeat) {
-		sprintf(buf, "Неверный номер способности (feat=%d, ch=%s) передан в features::can_get_feat!",
-				feat, ch->get_name().c_str());
-		mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
 		return false;
 	}
 	// Фит доступен всем и всегда, незачем его куда-то заучиввать.
@@ -786,7 +784,7 @@ bool IsAbleToGetFeat(CharData *ch, EFeat feat) {
 		return false;
 	};
 	if ((!feat_info[feat].is_known[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]
-		&& !PlayerRace::FeatureCheck(GET_KIN(ch), GET_RACE(ch), feat))
+		&& !PlayerRace::FeatureCheck(GET_KIN(ch), GET_RACE(ch), to_underlying(feat)))
 		|| (GET_REAL_REMORT(ch) < feat_info[feat].min_remort[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])) {
 		return false;
 	}
@@ -826,11 +824,12 @@ bool IsAbleToGetFeat(CharData *ch, EFeat feat) {
 		case EFeat::kPicksMaster:
 		case EFeat::kSpadesMaster:
 		case EFeat::kBowsMaster:
-			if (!HAVE_FEAT(ch, (ubyte) feat_info[feat].affected[0].location)) {
+// \todo Вынести счетчик в отдельную функцию и перестать страдать фигней с хранением перка фокуса в инфе о перке мастера
+			if (!ch->HaveFeat(static_cast<EFeat>(feat_info[feat].affected[0].location))) {
 				return false;
 			}
-			for (i = EFeat::kPunchMaster; i <= EFeat::kBowsMaster; i++) {
-				if (HAVE_FEAT(ch, i)) {
+			for (auto master_feat = EFeat::kPunchMaster; master_feat <= EFeat::kBowsMaster; ++master_feat) {
+				if (ch->HaveFeat(master_feat)) {
 					count++;
 				}
 			}
@@ -838,12 +837,12 @@ bool IsAbleToGetFeat(CharData *ch, EFeat feat) {
 				return false;
 			}
 			break;
-		case EFeat::kWarriorSpirit: return (HAVE_FEAT(ch, EFeat::kGreatFortitude));
+		case EFeat::kWarriorSpirit: return (ch->HaveFeat(EFeat::kGreatFortitude));
 			break;
 		case EFeat::kNimbleFingers:
 			return (ch->get_skill(ESkill::kSteal) || ch->get_skill(ESkill::kPickLock));
 			break;
-		case EFeat::kGreatPowerAttack: return (HAVE_FEAT(ch, EFeat::kPowerAttack));
+		case EFeat::kGreatPowerAttack: return (ch->HaveFeat(EFeat::kPowerAttack));
 			break;
 		case EFeat::kPunchFocus:
 		case EFeat::kClubsFocus:
@@ -859,8 +858,8 @@ bool IsAbleToGetFeat(CharData *ch, EFeat feat) {
 				return false;
 			}
 
-			for (i = EFeat::kPunchFocus; i <= EFeat::kBowsFocus; i++) {
-				if (HAVE_FEAT(ch, i)) {
+			for (auto feat_id = EFeat::kPunchFocus; feat_id <= EFeat::kBowsFocus; ++feat_id) {
+				if (ch->HaveFeat(feat_id)) {
 					count++;
 				}
 			}
@@ -870,20 +869,20 @@ bool IsAbleToGetFeat(CharData *ch, EFeat feat) {
 			}
 			break;
 		case EFeat::kGreatAimingAttack:
-			return (HAVE_FEAT(ch, EFeat::kAimingAttack));
+			return (ch->HaveFeat(EFeat::kAimingAttack));
 			break;
 		case EFeat::kDoubleShot:
-			return (HAVE_FEAT(ch, EFeat::kBowsFocus) &&
+			return (ch->HaveFeat(EFeat::kBowsFocus) &&
 				ch->get_skill(ESkill::kBows) > 39);
 			break;
 		case EFeat::kJeweller:
 			return (ch->get_skill(ESkill::kJewelry) > 59);
 			break;
 		case EFeat::kCutting:
-			return (HAVE_FEAT(ch, EFeat::kShortsMaster) ||
-				HAVE_FEAT(ch, EFeat::kPicksMaster) ||
-				HAVE_FEAT(ch, EFeat::kLongsMaster) ||
-				HAVE_FEAT(ch, EFeat::kSpadesMaster));
+			return (ch->HaveFeat(EFeat::kShortsMaster) ||
+				ch->HaveFeat(EFeat::kPicksMaster) ||
+				ch->HaveFeat(EFeat::kLongsMaster) ||
+				ch->HaveFeat(EFeat::kSpadesMaster));
 			break;
 		case EFeat::kScirmisher:
 			return (ch->get_skill(ESkill::kRescue));
@@ -892,32 +891,32 @@ bool IsAbleToGetFeat(CharData *ch, EFeat feat) {
 			return (ch->get_skill(ESkill::kLeadership) > 99);
 			break;
 		case EFeat::kShadowThrower:
-			return (HAVE_FEAT(ch, EFeat::kPowerThrow) &&
+			return (ch->HaveFeat(EFeat::kPowerThrow) &&
 				(ch->get_skill(ESkill::kDarkMagic) > 120));
 			break;
 		case EFeat::kShadowDagger:
 		case EFeat::kShadowSpear: [[fallthrough]];
 		case EFeat::kShadowClub:
-			return (HAVE_FEAT(ch, EFeat::kShadowThrower) &&
+			return (ch->HaveFeat(EFeat::kShadowThrower) &&
 				(ch->get_skill(ESkill::kDarkMagic) > 130));
 			break;
 		case EFeat::kDoubleThrower:
-			return (HAVE_FEAT(ch, EFeat::kPowerThrow) &&
+			return (ch->HaveFeat(EFeat::kPowerThrow) &&
 				(ch->get_skill(ESkill::kThrow) > 100));
 			break;
 		case EFeat::kTripleThrower:
-			return (HAVE_FEAT(ch, EFeat::kDeadlyThrow) &&
+			return (ch->HaveFeat(EFeat::kDeadlyThrow) &&
 				(ch->get_skill(ESkill::kThrow) > 130));
 			break;
 		case EFeat::kPowerThrow:
 			return (ch->get_skill(ESkill::kThrow) > 90);
 			break;
 		case EFeat::kDeadlyThrow:
-			return (HAVE_FEAT(ch, EFeat::kPowerThrow) &&
+			return (ch->HaveFeat(EFeat::kPowerThrow) &&
 				(ch->get_skill(ESkill::kThrow) > 110));
 			break;
 		case EFeat::kSerratedBlade:
-			return (HAVE_FEAT(ch, EFeat::kCutting));
+			return (ch->HaveFeat(EFeat::kCutting));
 			break;
 		default: return true;
 			break;
@@ -927,30 +926,30 @@ bool IsAbleToGetFeat(CharData *ch, EFeat feat) {
 }
 
 bool CheckVacantFeatSlot(CharData *ch, EFeat feat_id) {
-	int i, lowfeat, hifeat;
-
 	if (feat_info[feat_id].is_inborn[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]
-		|| PlayerRace::FeatureCheck(GET_KIN(ch), GET_RACE(ch), feat_id))
+		|| PlayerRace::FeatureCheck(GET_KIN(ch), GET_RACE(ch), to_underlying(feat_id))) {
 		return true;
+	}
 
 	//сколько у нас вообще способностей, у которых слот меньше требуемого, и сколько - тех, у которых больше или равно?
-	lowfeat = 0;
-	hifeat = 0;
+	int lowfeat = 0;
+	int hifeat = 0;
 
 	//Мы не можем просто учесть кол-во способностей меньше требуемого и больше требуемого,
 	//т.к. возможны свободные слоты меньше требуемого, и при этом верхние заняты все
 	auto slot_list = std::vector<int>();
-	for (i = EFeat::kFirstFeat; i <= EFeat::kLastFeat; ++i) {
+	for (auto i = EFeat::kFirstFeat; i <= EFeat::kLastFeat; ++i) {
 		if (feat_info[i].is_inborn[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] ||
-			PlayerRace::FeatureCheck(GET_KIN(ch), GET_RACE(ch), i)) {
+			PlayerRace::FeatureCheck(GET_KIN(ch), GET_RACE(ch), to_underlying(i))) {
 			continue;
 		}
 
-		if (HAVE_FEAT(ch, i)) {
-			if (FEAT_SLOT(ch, i) >= FEAT_SLOT(ch, feat_id)) {
+		if (ch->HaveFeat(i)) {
+			if (feat_info[i].slot[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] >=
+				feat_info[feat_id].slot[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) {
 				++hifeat;
 			} else {
-				slot_list.push_back(FEAT_SLOT(ch, i));
+				slot_list.push_back(feat_info[i].slot[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]);
 			}
 		}
 	}
@@ -970,8 +969,10 @@ bool CheckVacantFeatSlot(CharData *ch, EFeat feat_id) {
 	//число высоких слотов, занятых низкоуровневыми способностями,
 	//с учетом, что низкоуровневые могут и не занимать слотов выше им положенных,
 	//а также собственно число слотов, занятых высокоуровневыми способностями
-	if (NUM_LEV_FEAT(ch) - FEAT_SLOT(ch, feat_id) - hifeat - MAX(0, lowfeat - FEAT_SLOT(ch, feat_id)) > 0)
+	if (CalcFeatLvl(ch) - feat_info[feat_id].slot[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] -
+		hifeat - std::max(0, lowfeat - feat_info[feat_id].slot[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) > 0) {
 		return true;
+	}
 
 	//oops.. слотов нет
 	return false;
@@ -997,7 +998,7 @@ void CheckBerserk(CharData *ch) {
 	}
 
 	if (IsAbleToUseFeat(ch, EFeat::kBerserker) && ch->GetEnemy() &&
-		!IsTimed(ch, EFeat::kBerserker) && !AFF_FLAGGED(ch, EAffect::kBerserk)
+		!IsTimedByFeat(ch, EFeat::kBerserker) && !AFF_FLAGGED(ch, EAffect::kBerserk)
 		&& (GET_HIT(ch) < GET_REAL_MAX_HIT(ch) / 4)) {
 		CharData *vict = ch->GetEnemy();
 		timed.feat = EFeat::kBerserker;
@@ -1044,7 +1045,7 @@ void do_lightwalk(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 		SendMsgToChar("Вы уже двигаетесь легким шагом.\r\n", ch);
 		return;
 	}
-	if (IsTimed(ch, EFeat::kLightWalk)) {
+	if (IsTimedByFeat(ch, EFeat::kLightWalk)) {
 		SendMsgToChar("Вы слишком утомлены для этого.\r\n", ch);
 		return;
 	}
@@ -1168,12 +1169,11 @@ void do_fit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			GET_OBJ_PNAME(obj, 3).c_str(), GET_PAD(vict, 1));
 
 	SendMsgToChar(buf, ch);
-
 }
 
 #include "game_classes/classes_spell_slots.h" // удалить после вырезания do_spell_capable
 #include "game_magic/spells_info.h"
-#define SpINFO spell_info[spellnum]
+
 // Вложить закл в клона
 void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
@@ -1186,7 +1186,7 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (IsTimed(ch, EFeat::kSpellCapabler) && !IS_IMPL(ch)) {
+	if (IsTimedByFeat(ch, EFeat::kSpellCapabler) && !IS_IMPL(ch)) {
 		SendMsgToChar("Невозможно использовать это так часто.\r\n", ch);
 		return;
 	}
@@ -1214,17 +1214,17 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	spellnum = FixNameAndFindSpellNum(s);
-	if (spellnum < 1 || spellnum > kSpellCount) {
+	if (spellnum < 1 || spellnum > kSpellLast) {
 		SendMsgToChar("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
 	}
 
 	if ((!IS_SET(GET_SPELL_TYPE(ch, spellnum), kSpellTemp | kSpellKnow) ||
-		GET_REAL_REMORT(ch) < MIN_CAST_REM(SpINFO, ch)) &&
+		GET_REAL_REMORT(ch) < MIN_CAST_REM(spell_info[spellnum], ch)) &&
 		(GetRealLevel(ch) < kLvlGreatGod) && (!ch->IsNpc())) {
-		if (GetRealLevel(ch) < MIN_CAST_LEV(SpINFO, ch)
-			|| GET_REAL_REMORT(ch) < MIN_CAST_REM(SpINFO, ch)
-			|| CalcCircleSlotsAmount(ch, SpINFO.slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0) {
+		if (GetRealLevel(ch) < MIN_CAST_LEV(spell_info[spellnum], ch)
+			|| GET_REAL_REMORT(ch) < MIN_CAST_REM(spell_info[spellnum], ch)
+			|| CalcCircleSlotsAmount(ch, spell_info[spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0) {
 			SendMsgToChar("Рано еще вам бросаться такими словами!\r\n", ch);
 			return;
 		} else {
@@ -1267,17 +1267,17 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (!ch->IsNpc() && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, EPrf::kAutomem))
 		MemQ_remember(ch, spellnum);
 
-	if (!IS_SET(SpINFO.routines, kMagDamage) || !SpINFO.violent ||
-		IS_SET(SpINFO.routines, kMagMasses) || IS_SET(SpINFO.routines, kMagGroups) ||
-		IS_SET(SpINFO.routines, kMagAreas)) {
+	if (!IS_SET(spell_info[spellnum].routines, kMagDamage) || !spell_info[spellnum].violent ||
+		IS_SET(spell_info[spellnum].routines, kMagMasses) || IS_SET(spell_info[spellnum].routines, kMagGroups) ||
+		IS_SET(spell_info[spellnum].routines, kMagAreas)) {
 		SendMsgToChar("Вы конечно мастер, но не такой магии.\r\n", ch);
 		return;
 	}
-	affect_from_char(ch, EFeat::kSpellCapabler);
+	affect_from_char(ch, to_underlying(EFeat::kSpellCapabler));
 
 	timed.feat = EFeat::kSpellCapabler;
 
-	switch (SpINFO.slot_forc[to_underlying(ch->get_class())][GET_KIN(ch)]) {
+	switch (spell_info[spellnum].slot_forc[to_underlying(ch->get_class())][GET_KIN(ch)]) {
 		case 1:
 		case 2:
 		case 3:
@@ -1320,24 +1320,25 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 // \todo Надо как-то переделать загрузку родовых способностей, чтобы там было не int, а сразу EFeat
 void SetRaceFeats(CharData *ch) {
 	auto race_features = PlayerRace::GetRaceFeatures((int) GET_KIN(ch), (int) GET_RACE(ch));
-	for (int &i: race_features) {
-		if (IsAbleToGetFeat(ch, static_cast<EFeat>(i))) {
-			SET_FEAT(ch, i);
+	for (int i : race_features) {
+		auto feat_id = static_cast<EFeat>(i);
+		if (IsAbleToGetFeat(ch, feat_id)) {
+			ch->SetFeat(feat_id);
 		}
 	}
 }
 
 void UnsetRaceFeats(CharData *ch) {
 	auto race_features = PlayerRace::GetRaceFeatures((int) GET_KIN(ch), (int) GET_RACE(ch));
-	for (int &i: race_features) {
-		UNSET_FEAT(ch, i);
+	for (int i : race_features) {
+		ch->UnsetFeat(static_cast<EFeat>(i));
 	}
 }
 
 void SetInbornClassFeats(CharData *ch) {
 	for (auto i = EFeat::kBerserker; i <= EFeat::kLastFeat; ++i) {
 		if (IsAbleToGetFeat(ch, i) && feat_info[i].is_inborn[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) {
-			SET_FEAT(ch, i);
+			ch->SetFeat(i);
 		}
 	}
 }
@@ -1498,7 +1499,7 @@ bool CheckAccessActivatedFeat(CharData *ch, EFeat feat_id) {
 
 EFeat GetFeatureNum(char *feat_name) {
 	skip_spaces(&feat_name);
-	return FindFeatNum(feat_name);
+	return FindFeatId(feat_name);
 }
 
 EFeat FindWeaponMasterFeat(ESkill skill) {
@@ -1565,9 +1566,17 @@ int CalcRollBonusOfGroupFormation(CharData *ch, CharData * /* enemy */) {
 	int skirmishers = roster.count([](CharData *ch) { return PRF_FLAGGED(ch, EPrf::kSkirmisher); });
 	int uncoveredSquadMembers = roster.amount() - skirmishers;
 	if (AFF_FLAGGED(ch, EAffect::kBlind)) {
-		return (skirmishers * 2 - uncoveredSquadMembers) * abilities::kCircumstanceFactor - 40;
+		return (skirmishers*2 - uncoveredSquadMembers)*abilities::kCircumstanceFactor - 40;
 	};
-	return (skirmishers * 2 - uncoveredSquadMembers) * abilities::kCircumstanceFactor;
+	return (skirmishers*2 - uncoveredSquadMembers)*abilities::kCircumstanceFactor;
 };
+
+int CalcFeatLvl(const CharData *ch) {
+	return (1+GetRealLevel(ch)*(5+GET_REAL_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)])/28);
+}
+
+int CalcFeatSlotsAmount(CharData *ch) {
+ return	(1 + (kLvlImmortal - 1)*(5 + GET_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)])/28);
+}
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

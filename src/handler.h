@@ -50,11 +50,11 @@ int GetResistType(int spellnum);
 // handling the affected-structures //
 void ImposeTimedFeat(CharData *ch, TimedFeat *timed);
 void ExpireTimedFeat(CharData *ch, TimedFeat *timed);
-int IsTimed(CharData *ch, int feat);
+int IsTimedByFeat(CharData *ch, EFeat feat);
 void ImposeTimedSkill(CharData *ch, struct TimedSkill *timed);
 void ExpireTimedSkill(CharData *ch, struct TimedSkill *timed);
 int IsTimedBySkill(CharData *ch, ESkill id);
-void DecreaseFeatTimer(CharData *ch, int featureID);
+void DecreaseFeatTimer(CharData *ch, EFeat feat_id);
 
 // utility //
 char *money_desc(int amount, int padis);

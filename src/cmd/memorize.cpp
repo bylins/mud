@@ -36,7 +36,7 @@ void do_memorize(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	spellnum = FixNameAndFindSpellNum(s);
 
-	if (spellnum < 1 || spellnum > kSpellCount) {
+	if (spellnum < 1 || spellnum > kSpellLast) {
 		SendMsgToChar("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
 	}
@@ -66,7 +66,7 @@ void show_wizdom(CharData *ch, int bitset) {
 	}
 	if (bitset & 0x01) {
 		is_full = 0;
-		for (i = 1, max_slot = 0; i <= kSpellCount; i++) {
+		for (i = 1, max_slot = 0; i <= kSpellLast; i++) {
 			if (!GET_SPELL_TYPE(ch, i))
 				continue;
 			if (!spell_info[i].name || *spell_info[i].name == '!')
@@ -109,8 +109,8 @@ void show_wizdom(CharData *ch, int bitset) {
 		}
 
 		if (!ch->mem_queue.Empty()) {
-			unsigned char cnt[kSpellCount + 1];
-			memset(cnt, 0, kSpellCount + 1);
+			unsigned char cnt[kSpellLast + 1];
+			memset(cnt, 0, kSpellLast + 1);
 			timestr[0] = 0;
 			if (!IS_MANA_CASTER(ch)) {
 				int div, min, sec;

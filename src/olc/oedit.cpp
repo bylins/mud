@@ -536,7 +536,7 @@ void oedit_disp_spells_menu(DescriptorData *d) {
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
-	for (counter = 0; counter <= kSpellCount; counter++) {
+	for (counter = 0; counter <= kSpellLast; counter++) {
 		if (!spell_info[counter].name || *spell_info[counter].name == '!' || *spell_info[counter].name == '*')
 			continue;
 		sprintf(buf, "%s%2d%s) %s%-30.30s %s", grn, counter, nrm, yel,
@@ -595,7 +595,7 @@ void oedit_disp_feats_menu(DescriptorData *d) {
 			continue;
 		}
 
-		sprintf(buf, "%s%2d%s) %s%-20.20s %s", grn, counter, nrm, yel,
+		sprintf(buf, "%s%2d%s) %s%-20.20s %s", grn, to_underlying(counter), nrm, yel,
 				feat_info[counter].name, !(++columns % 3) ? "\r\n" : "");
 		SendMsgToChar(buf, d->character.get());
 	}
@@ -1263,7 +1263,7 @@ void check_potion_proto(ObjData *obj) {
 
 bool parse_val_spell_num(DescriptorData *d, const ObjVal::EValueKey key, int val) {
 	if (val < 1
-		|| val > kSpellCount) {
+		|| val > kSpellLast) {
 		if (val != 0) {
 			SendMsgToChar("Неверный выбор.\r\n", d->character.get());
 		}
@@ -1800,7 +1800,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 				case EObjType::kScroll:
 				case EObjType::kPotion:
 					if (number < 1
-						|| number > kSpellCount) {
+						|| number > kSpellLast) {
 						oedit_disp_val2_menu(d);
 					} else {
 						OLC_OBJ(d)->set_val(1, number);
@@ -1831,7 +1831,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 								oedit_disp_menu(d);
 								return;
 							}
-							if (number < 0 || (number > kSpellCount || !spell_info[number].name
+							if (number < 0 || (number > kSpellLast || !spell_info[number].name
 								|| *spell_info[number].name == '!')) {
 								SendMsgToChar("Неизвестное заклинание, повторите.\r\n", d->character.get());
 								oedit_disp_val2_menu(d);
@@ -1870,8 +1870,9 @@ void oedit_parse(DescriptorData *d, char *arg) {
 								oedit_disp_menu(d);
 								return;
 							}
-							if (number < EFeat::kFirstFeat || number > EFeat::kLastFeat ||
-								!feat_info[number].name || *feat_info[number].name == '!') {
+							auto feat_id = static_cast<EFeat>(number);
+							if (feat_id < EFeat::kFirstFeat || feat_id > EFeat::kLastFeat ||
+								!feat_info[feat_id].name || *feat_info[feat_id].name == '!') {
 								SendMsgToChar("Неизвестная способность, повторите.\r\n", d->character.get());
 								oedit_disp_val2_menu(d);
 								return;
@@ -1890,7 +1891,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
 				case EObjType::kScroll:
 				case EObjType::kPotion: min_val = -1;
-					max_val = kSpellCount;
+					max_val = kSpellLast;
 					break;
 
 				case EObjType::kWeapon: min_val = 1;
@@ -1923,12 +1924,12 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
 				case EObjType::kScroll:
 				case EObjType::kPotion: min_val = -1;
-					max_val = kSpellCount;
+					max_val = kSpellLast;
 					break;
 
 				case EObjType::kWand:
 				case EObjType::kStaff: min_val = 1;
-					max_val = kSpellCount;
+					max_val = kSpellLast;
 					break;
 
 				case EObjType::kWeapon: min_val = 0;

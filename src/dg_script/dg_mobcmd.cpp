@@ -972,7 +972,7 @@ void do_mdoor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 // increases spells & skills
 const char *GetSpellName(int num);
-int FixNameAndFindSpellNum(char *name);
+ESpell FixNameAndFindSpellNum(char *name);
 
 void do_mfeatturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int isFeat = 0;
@@ -995,7 +995,7 @@ void do_mfeatturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	while ((pos = strchr(featname, '_')))
 		*pos = ' ';
 
-	const auto feat_id = FindFeatNum(featname);
+	const auto feat_id = FindFeatId(featname);
 	if (feat_id >= EFeat::kFirstFeat && feat_id <= EFeat::kLastFeat)
 		isFeat = 1;
 	else {
@@ -1152,7 +1152,7 @@ void do_mspellturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if ((skillnum = FixNameAndFindSpellNum(skillname)) < 0 || skillnum == 0 || skillnum > kSpellCount) {
+	if ((skillnum = FixNameAndFindSpellNum(skillname)) < 0 || skillnum == 0 || skillnum > kSpellLast) {
 		mob_log(ch, "mspellturn: spell not found");
 		return;
 	}
@@ -1201,7 +1201,7 @@ void do_mspellturntemp(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 		return;
 	}
 
-	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellCount) {
+	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellLast) {
 		mob_log(ch, "mspellturntemp: spell not found");
 		return;
 	}
@@ -1243,7 +1243,7 @@ void do_mspelladd(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if ((skillnum = FixNameAndFindSpellNum(skillname)) < 0 || skillnum == 0 || skillnum > kSpellCount) {
+	if ((skillnum = FixNameAndFindSpellNum(skillname)) < 0 || skillnum == 0 || skillnum > kSpellLast) {
 		mob_log(ch, "mspelladd: skill not found");
 		return;
 	}
@@ -1281,7 +1281,7 @@ void do_mspellitem(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellCount) {
+	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellLast) {
 		mob_log(ch, "mspellitem: spell not found");
 		return;
 	}

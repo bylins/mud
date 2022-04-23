@@ -69,7 +69,7 @@ void do_cast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	spell_subst = spellnum;
 
 	// Unknown spell
-	if (spellnum < 1 || spellnum > kSpellCount) {
+	if (spellnum < 1 || spellnum > kSpellLast) {
 		SendMsgToChar("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
 	}
@@ -96,7 +96,7 @@ void do_cast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		if (IsAbleToUseFeat(ch, EFeat::kSpellSubstitute)
 			&& (spellnum == kSpellCureLight || spellnum == kSpellCureSerious
 				|| spellnum == kSpellCureCritic || spellnum == kSpellHeal)) {
-			for (i = 1; i <= kSpellCount; i++) {
+			for (i = 1; i <= kSpellLast; i++) {
 				if (GET_SPELL_MEM(ch, i) &&
 					spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] ==
 						spell_info[spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) {
@@ -104,7 +104,7 @@ void do_cast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 					break;
 				}
 			}
-			if (i > kSpellCount) {
+			if (i > kSpellLast) {
 				SendMsgToChar("У вас нет заученных заклинаний этого круга.\r\n", ch);
 				return;
 			}

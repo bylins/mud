@@ -1560,8 +1560,8 @@ void obj_point_update() {
 void point_update() {
 	MemoryRecord *mem, *nmem, *pmem;
 
-	std::vector<int> real_spell(kSpellCount + 1);
-	for (int count = 0; count <= kSpellCount; count++) {
+	std::vector<int> real_spell(kSpellLast + 1);
+	for (int count = 0; count <= kSpellLast; count++) {
 		real_spell[count] = count;
 	}
 	std::shuffle(real_spell.begin(), real_spell.end(), std::mt19937(std::random_device()()));
@@ -1691,7 +1691,7 @@ void point_update() {
 					int mana = 0;
 					int count = 0;
 					const auto max_mana = GET_REAL_INT(i) * 10;
-					while (count <= kSpellCount && mana < max_mana) {
+					while (count <= kSpellLast && mana < max_mana) {
 						const auto spellnum = real_spell[count];
 						if (GET_SPELL_MEM(mob_proto + mob_num, spellnum) > GET_SPELL_MEM(i, spellnum)) {
 							GET_SPELL_MEM(i, spellnum)++;

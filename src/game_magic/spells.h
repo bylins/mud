@@ -387,7 +387,8 @@ enum ESpell : int {
 	kSpellIdentify = 351,
 	kSpellFullIdentify = 352,
 	kSpellQUest = 353,
-	kSpellCount = kSpellQUest //last
+	kSpellFirst = kSpellArmor,
+	kSpellLast = kSpellQUest	// Не забываем менять
 };
 
 template<>
@@ -470,7 +471,7 @@ std::optional<CastPhraseList> get_cast_phrase(int spell);
 
 // basic magic calling functions
 
-int FixNameAndFindSpellNum(char *name);
+ESpell FixNameAndFindSpellNum(char *name);
 
 bool CatchBloodyCorpse(ObjData *l);
 

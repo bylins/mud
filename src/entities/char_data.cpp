@@ -14,7 +14,6 @@
 #include "house.h"
 #include "msdp/msdp_constants.h"
 #include "backtrace.h"
-#include "zone.h"
 #include "structs/global_objects.h"
 #include "liquid.h"
 
@@ -1857,7 +1856,7 @@ void CharData::restore_mob() {
 	GET_MOVE(this) = GET_REAL_MAX_MOVE(this);
 	update_pos(this);
 
-	for (int i = 0; i <= kSpellCount; ++i) {
+	for (int i = 0; i <= kSpellLast; ++i) {
 		GET_SPELL_MEM(this, i) = GET_SPELL_MEM(&mob_proto[GET_MOB_RNUM(this)], i);
 	}
 	this->caster_level = (&mob_proto[GET_MOB_RNUM(this)])->caster_level;
@@ -1918,7 +1917,7 @@ void CharData::restore_npc() {
 	this->set_con(GET_REAL_CON(proto));
 	this->set_cha(GET_REAL_CHA(proto));
 	// ресторим мем	
-	for (int i = 0; i <= kSpellCount; ++i) {
+	for (int i = 0; i <= kSpellLast; ++i) {
 		GET_SPELL_MEM(this, i) = GET_SPELL_MEM(proto, i);
 	}
 	// рестор для скилов
@@ -1929,9 +1928,9 @@ void CharData::restore_npc() {
 	}
 	// рестор для фитов
 	for (auto i = EFeat::kFirstFeat; i <= EFeat::kLastFeat; ++i) {
-		if (!HAVE_FEAT(proto, i)) {
-				UNSET_FEAT(this, i);
-			}
+		if (!proto->HaveFeat(i)) {
+				this->UnsetFeat(i);
+		}
 	}
 	this->caster_level = proto->caster_level;
 }

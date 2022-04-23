@@ -5193,7 +5193,7 @@ void SpellUsage::AddSpellStat(ECharClass char_class, int spellnum) {
 	if (!is_active) {
 		return;
 	}
-	if (MUD::Classes().IsUnavailable(char_class) || spellnum > kSpellCount) {
+	if (MUD::Classes().IsUnavailable(char_class) || spellnum > kSpellLast) {
 		return;
 	}
 	usage[char_class][spellnum]++;

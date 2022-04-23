@@ -101,7 +101,7 @@ void PerformWeaponThrow(AbilitySystem::TechniqueRoll &technique, Damage &damage)
 			damage.flags.set(fight::kIgnoreArmor);
 			damage.flags.set(fight::kCritHit);
 		};
-		if (IsTimed(technique.GetActor(), EFeat::kShadowThrower)) {
+		if (IsTimedByFeat(technique.GetActor(), EFeat::kShadowThrower)) {
 			DecreaseFeatTimer(technique.GetActor(), EFeat::kShadowThrower);
 		};
 		if (technique.GetAbilityId() == EFeat::kShadowThrower) {
@@ -204,7 +204,7 @@ void do_throw(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	if (subcmd == SCMD_SHADOW_THROW) {
-		if (IsTimed(ch, EFeat::kShadowThrower)) {
+		if (IsTimedByFeat(ch, EFeat::kShadowThrower)) {
 			SendMsgToChar("Не стоит так часто беспокоить тёмные силы.\r\n", ch);
 			return;
 		}

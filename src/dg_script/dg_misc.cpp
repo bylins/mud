@@ -165,7 +165,7 @@ void do_dg_cast(void *go, Script * /*sc*/, Trigger *trig, int type, char *cmd) {
 
 	// spellnum = search_block(s, spells, 0);
 	spellnum = FixNameAndFindSpellNum(s);
-	if ((spellnum < 1) || (spellnum > kSpellCount)) {
+	if ((spellnum < 1) || (spellnum > kSpellLast)) {
 		sprintf(buf2, "dg_cast: invalid spell name (%s)", cmd);
 		trig_log(trig, buf2);
 		return;

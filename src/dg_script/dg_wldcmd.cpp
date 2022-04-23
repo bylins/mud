@@ -488,7 +488,7 @@ void do_wload(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 // increases spells & skills //
 const char *GetSpellName(int num);
-int FixNameAndFindSpellNum(char *name);
+ESpell FixNameAndFindSpellNum(char *name);
 
 void do_wdamage(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char name[kMaxInputLength], amount[kMaxInputLength];
@@ -579,7 +579,7 @@ void do_wfeatturn(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 		*pos = ' ';
 	}
 
-	const auto featnum = FindFeatNum(featname);
+	const auto featnum = FindFeatId(featname);
 	if (featnum >= EFeat::kFirstFeat && featnum <= EFeat::kLastFeat) {
 		isFeat = true;
 	} else {
@@ -709,7 +709,7 @@ void do_wspellturn(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) 
 		return;
 	}
 
-	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellCount) {
+	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellLast) {
 		wld_log(room, "wspellturn: spell not found");
 		return;
 	}
@@ -744,7 +744,7 @@ void do_wspellturntemp(RoomData *room, char *argument, int/* cmd*/, int/* subcmd
 		return;
 	}
 
-	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellCount) {
+	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellLast) {
 		wld_log(room, "wspellturntemp: spell not found");
 		return;
 	}
@@ -776,7 +776,7 @@ void do_wspelladd(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellCount) {
+	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellLast) {
 		wld_log(room, "wspelladd: spell not found");
 		return;
 	}
@@ -803,7 +803,7 @@ void do_wspellitem(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) 
 		return;
 	}
 
-	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellCount) {
+	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellLast) {
 		wld_log(room, "wspellitem: spell not found");
 		return;
 	}
