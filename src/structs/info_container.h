@@ -326,7 +326,7 @@ void InfoContainer<E, I, B>::RegisterBuilder::EmplaceItem(Register &items, ItemP
 	auto id = item->GetId();
 	auto it = items.try_emplace(id, std::move(item));
 	if (!it.second) {
-		err_log("Item '%s' has already exist. Redundant definition had been ignored.\n",
+		err_log("Item '%s' has already exist. Redundant definition had been ignored.",
 				NAME_BY_ITEM<E>(id).c_str());
 	}
 }

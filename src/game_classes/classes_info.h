@@ -10,6 +10,7 @@
 
 #include "boot/cfg_manager.h"
 #include "game_classes/classes_constants.h"
+#include "feats.h"
 #include "game_magic/spells.h"
 #include "game_skills/skills.h"
 #include "structs/info_container.h"
@@ -89,6 +90,27 @@ struct CharClassInfo : public info_container::IItem<ECharClass> {
 	};
 
 	using Spells = info_container::InfoContainer<ESpell, SpellInfo, SpellInfoBuilder>;
+/*
+	class FeatInfo : public TalentInfo<EFeat> {
+	 public:
+		FeatInfo() = default;
+		FeatInfo(EFeat id, int min_level, int min_remort, int slot, bool inborn, EItemMode mode)
+			: TalentInfo(id, min_level, min_remort, mode), slot_{slot}, inborn_{inborn} {};
+
+		[[nodiscard]] int GetSlot() const { return slot_; };
+		[[nodiscard]] bool IsInborn() const { return inborn_; };
+
+	 private:
+		int slot_{kMaxMemoryCircle};
+		bool inborn_{false};
+	};
+
+	class FeatInfoBuilder : public info_container::IItemBuilder<FeatInfo> {
+	 public:
+		ItemOptional Build(parser_wrapper::DataNode &node) final;
+	};
+
+	using Feats = info_container::InfoContainer<EFeat, FeatInfo, FeatInfoBuilder>;*/
 
 // =====================================================================================================================
 

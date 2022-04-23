@@ -28,8 +28,8 @@ void ClassesLoader::Reload(DataNode data) {
 
 Optional CharClassInfoBuilder::Build(DataNode &node) {
 	auto class_info = MUD::Classes().MakeItemOptional();
-	auto class_node = SelectDataNode(node);
 	try {
+		auto class_node = SelectDataNode(node);
 		ParseClass(class_info, class_node);
 	} catch (std::exception &e) {
 		err_log("Classes parsing error: '%s'", e.what());
@@ -83,7 +83,7 @@ void CharClassInfoBuilder::ParseClass(Optional &info, DataNode &node) {
 	node.GoToSibling("spells");
 	ParseSpells(info, node);
 
-	TemporarySetStat(info);			// Временное проставление параметроа не из файла, а вручную
+	TemporarySetStat(info);	// Временное проставление параметроа не из файла, а вручную
 }
 
 void CharClassInfoBuilder::ParseName(Optional &info, DataNode &node) {
@@ -103,14 +103,17 @@ int ParseLevelDecrement(DataNode &node) {
 	}
 }
 
+// Для парсинга талантов всегда используем Reload (строгий парсинг), потому что класс с неверно прописанными
+// талантами не должен быть загружен, иначе при некорректном файле у игроков постираются выученные таланты.
+
 void CharClassInfoBuilder::ParseSkills(Optional &info, DataNode &node) {
 	info.value()->skill_level_decrement_ = ParseLevelDecrement(node);
-	info.value()->skills.Init(node.Children());
+	info.value()->skills.Reload(node.Children());
 }
 
 void CharClassInfoBuilder::ParseSpells(Optional &info, DataNode &node) {
 	info.value()->spell_level_decrement_ = ParseLevelDecrement(node);
-	info.value()->spells.Init(node.Children());
+	info.value()->spells.Reload(node.Children());
 }
 
 void CharClassInfo::Print(CharData *ch, std::ostringstream &buffer) const {
@@ -152,7 +155,8 @@ const char *CharClassInfo::GetPluralCName(ECase name_case) const {
 }
 
 void CharClassInfo::PrintSkillsTable(CharData *ch, std::ostringstream &buffer) const {
-	buffer << std::endl << " Available skills (level decrement " << GetSkillLvlDecrement() << "):" << std::endl;
+	buffer << std::endl
+		<< KGRN << " Available skills (level decrement " << GetSkillLvlDecrement() << "):" << KNRM << std::endl;
 
 	table_wrapper::Table table;
 	table << table_wrapper::kHeader << "Skill" << "Lvl" << "Rem" << "Improve" << "Mode" << table_wrapper::kEndRow;
@@ -165,7 +169,6 @@ void CharClassInfo::PrintSkillsTable(CharData *ch, std::ostringstream &buffer) c
 	}
 	table_wrapper::DecorateNoBorderTable(ch, table);
 	table_wrapper::PrintTableToStream(buffer, table);
-	buffer << std::endl;
 }
 
 CharClassInfo::SkillInfoBuilder::ItemOptional CharClassInfo::SkillInfoBuilder::Build(DataNode &node) {
@@ -190,7 +193,8 @@ CharClassInfo::SkillInfoBuilder::ItemOptional CharClassInfo::SkillInfoBuilder::B
 }
 
 void CharClassInfo::PrintSpellsTable(CharData *ch, std::ostringstream &buffer) const {
-	buffer << std::endl << " Available spells (level decrement " << GetSpellLvlDecrement() << "):" << std::endl;
+	buffer << std::endl
+		<< KGRN << " Available spells (level decrement " << GetSpellLvlDecrement() << "):" << KNRM << std::endl;
 
 	table_wrapper::Table table;
 	table << table_wrapper::kHeader
@@ -206,7 +210,6 @@ void CharClassInfo::PrintSpellsTable(CharData *ch, std::ostringstream &buffer) c
 	}
 	table_wrapper::DecorateNoBorderTable(ch, table);
 	table_wrapper::PrintTableToStream(buffer, table);
-	buffer << std::endl;
 }
 
 CharClassInfo::SpellInfoBuilder::ItemOptional CharClassInfo::SpellInfoBuilder::Build(DataNode &node) {
@@ -314,6 +317,7 @@ void CharClassInfoBuilder::TemporarySetStat(Optional &info) {
 // Не забыть исправить int GroupPenalties::init()
 // Перенести парсинг режима куда-нибудь в шаблон ( не забыть поправить парсинг в скилл_инфо!)
 // bool IsMagicUser(const CharData *ch); - не забыть переименовать
+// добавить коассрвым скиллам поле inborn для автопроставления
 // на сервере в конфиге скиллов не забыть инкоррект поменять на андефайнед
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
