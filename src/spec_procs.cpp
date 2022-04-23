@@ -120,13 +120,13 @@ char *how_good(int skill_level, int skill_cap) {
 int feat_slot_lvl(int remort, int slot_for_remort, int slot) {
 	int result = 0;
 	for (result = 1; result < kLvlImmortal; result++) {
-		if (result * (5 + remort / slot_for_remort) / 28 == slot) {
+		if (result * (5 + remort / slot_for_remort) / kLastFeatSlotLvl == slot) {
 			break;
 		}
 	}
 	/*
 	  ВНИМАНИЕ: формула содрана с CalcFeatLvl (feats.h)!
-	  (1+GetRealLevel(ch)*(5+GET_REAL_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)])/28)
+	  (1+GetRealLevel(ch)*(5+GET_REAL_REMORT(ch)/MUD::Classes()[ch->get_class()].GetRemortsNumForFeatSlot()/kLastFeatSlotLvl)
 	  сделано это потому, что "обратная" формула, использованная ранее в list_feats,
 	  выдавала неверные результаты ввиду нюансов округления
 	  */
@@ -162,7 +162,7 @@ void list_feats(CharData *ch, CharData *vict, bool all_feats) {
 	for (i = 1; i < max_slot; i++)
 		if (all_feats) {
 			j = feat_slot_lvl(GET_REMORT(ch),
-							  feat_slot_for_remort[(int) GET_CLASS(ch)],
+							  MUD::Classes()[ch->get_class()].GetRemortsNumForFeatSlot(),
 							  i); // на каком уровне будет слот i?
 			sprintf(names[i], "\r\nКруг %-2d (%-2d уровень):\r\n", i + 1, j);
 		} else
@@ -170,7 +170,7 @@ void list_feats(CharData *ch, CharData *vict, bool all_feats) {
 
 	sprintf(buf2, "\r\nВрожденные способности :\r\n");
 	j = 0;
-	auto sortpos{EFeat::kUndefinedFeat};
+	auto sortpos{EFeat::kUndefined};
 	if (all_feats) {
 		if (clr(vict, C_NRM)) // реж цвет >= обычный
 			SendMsgToChar(" Список способностей, доступных с текущим числом перевоплощений.\r\n"
@@ -610,7 +610,7 @@ void init_guilds() {
 		return;
 	}
 	auto spellnum{ESpell::kUndefined};
-	auto featnum{EFeat::kUndefinedFeat};
+	auto featnum{EFeat::kUndefined};
 	while (get_line(magic, name)) {
 		if (!name[0] || name[0] == ';')
 			continue;
@@ -673,7 +673,7 @@ void init_guilds() {
 					mono_guild.learn_info = mono_guild_learn.release();
 					RECREATE(mono_guild.learn_info, mgcount + 1);
 					(mono_guild.learn_info + mgcount)->skill_no = ESkill::kUndefined;
-					(mono_guild.learn_info + mgcount)->feat_no = EFeat::kUndefinedFeat;
+					(mono_guild.learn_info + mgcount)->feat_no = EFeat::kUndefined;
 					(mono_guild.learn_info + mgcount)->spell_no = ESpell::kUndefined;
 					(mono_guild.learn_info + mgcount)->level = -1;
 					guild_mono_info[GUILDS_MONO_USED] = mono_guild;
@@ -693,7 +693,7 @@ void init_guilds() {
 					log("Create poly guild %d", GUILDS_POLY_USED + 1);
 					auto ptr = poly_guild.release();
 					RECREATE(ptr, pgcount + 1);
-					(ptr + pgcount)->feat_no = EFeat::kUndefinedFeat;
+					(ptr + pgcount)->feat_no = EFeat::kUndefined;
 					(ptr + pgcount)->skill_no = ESkill::kUndefined;
 					(ptr + pgcount)->spell_no = ESpell::kUndefined;
 					(ptr + pgcount)->level = -1;
@@ -798,7 +798,7 @@ void init_guilds() {
 					*pos = ' ';
 
 				featnum = FindFeatId(line1);
-				sprintf(buf, "feature number 2: %d", featnum);
+				sprintf(buf, "feature number 2: %d", to_underlying(featnum));
 				featnum = FindFeatId(line5);
 			}
 			if (MUD::Skills().IsInvalid(skill_id) && spellnum < ESpell::kSpellFirst && featnum < EFeat::kFirstFeat) {
@@ -882,7 +882,7 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 					}
 
 					const auto feat_no = static_cast<EFeat>((guild_mono_info[info_num].learn_info + i)->feat_no);
-					if (feat_no > EFeat::kUndefinedFeat && !ch->HaveFeat(feat_no) && IsAbleToGetFeat(ch, feat_no)) {
+					if (feat_no > EFeat::kUndefined && !ch->HaveFeat(feat_no) && IsAbleToGetFeat(ch, feat_no)) {
 						gcount += sprintf(buf + gcount, "- способность %s\"%s\"%s\r\n",
 										  CCCYN(ch, C_NRM), GetFeatName(feat_no), CCNRM(ch, C_NRM));
 						found = true;

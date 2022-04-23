@@ -556,7 +556,7 @@ void Player::save_char() {
 	if (GetRealLevel(this) < kLvlImmortal) {
 		fprintf(saved, "FtTm:\n");
 		for (auto tf = this->timed_feat; tf; tf = tf->next) {
-			fprintf(saved, "%d %d %s\n", tf->feat, tf->time, feat_info[tf->feat].name);
+			fprintf(saved, "%d %d %s\n", to_underlying(tf->feat), tf->time, feat_info[tf->feat].name);
 		}
 		fprintf(saved, "0 0\n");
 	}

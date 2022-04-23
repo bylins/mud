@@ -1002,7 +1002,7 @@ void medit_disp_features(DescriptorData *d) {
 			strcpy(buf1, "     ");
 		}
 
-		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, counter, nrm,
+		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, to_underlying(counter), nrm,
 				 feat_info[counter].name, buf1, !(++columns % 2) ? "\r\n" : "");
 		SendMsgToChar(buf, d->character.get());
 	}

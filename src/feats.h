@@ -19,7 +19,7 @@
 #include <bitset>
 
 enum class EFeat {
-	kUndefinedFeat = 0,			//DO NOT USE
+	kUndefined = 0,			//DO NOT USE
 	kBerserker = 1,				//предсмертная ярость
 	kParryArrow = 2,			//отбить стрелу
 	kBlindFight = 3,			//слепой бой
@@ -192,6 +192,11 @@ enum class EFeat {
 	kLastFeat = kAnimalMaster	// !!! Не забываем менять !!!
 };
 
+template<>
+const std::string &NAME_BY_ITEM<EFeat>(EFeat item);
+template<>
+EFeat ITEM_BY_NAME<EFeat>(const std::string &name);
+
 EFeat& operator++(EFeat &f);
 
 enum class EFeatType {
@@ -203,22 +208,16 @@ enum class EFeatType {
 	kTechnique = 4,
 };
 
-/* Константы и формулы, определяющие число способностей у персонажа
-   Скорость появления новых слотов можно задавать для каждого класса
-      индивидуально, но последний слот персонаж всегда получает на 28 уровне */
-
-//Раз в сколько ремортов появляется новый слот под способность
-
-const int feat_slot_for_remort[kNumPlayerClasses] = {5, 6, 4, 4, 4, 4, 6, 6, 6, 4, 4, 4, 4, 5};
 // Количество пар "параметр-значение" у способности
 const int kMaxFeatAffect = 5;
+const int kLastFeatSlotLvl = 28;
 
 // Поля изменений для способностей (кроме EFeatType::kAffect, для них используются стардартные поля APPLY)
 const int kFeatTimer = 1;
 //const int FEAT_SKILL = 2;
 
 struct TimedFeat {
-	EFeat feat{EFeat::kUndefinedFeat};	// Used feature //
+	EFeat feat{EFeat::kUndefined};	// Used feature //
 	ubyte time{0};				// Time for next using //
 	struct TimedFeat *next{nullptr};
 };

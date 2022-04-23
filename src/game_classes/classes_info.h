@@ -90,7 +90,7 @@ struct CharClassInfo : public info_container::IItem<ECharClass> {
 	};
 
 	using Spells = info_container::InfoContainer<ESpell, SpellInfo, SpellInfoBuilder>;
-/*
+
 	class FeatInfo : public TalentInfo<EFeat> {
 	 public:
 		FeatInfo() = default;
@@ -110,7 +110,7 @@ struct CharClassInfo : public info_container::IItem<ECharClass> {
 		ItemOptional Build(parser_wrapper::DataNode &node) final;
 	};
 
-	using Feats = info_container::InfoContainer<EFeat, FeatInfo, FeatInfoBuilder>;*/
+	using Feats = info_container::InfoContainer<EFeat, FeatInfo, FeatInfoBuilder>;
 
 // =====================================================================================================================
 
@@ -152,6 +152,11 @@ struct CharClassInfo : public info_container::IItem<ECharClass> {
 	int spell_level_decrement_{kMinTalentLevelDecrement};
 	[[nodiscard]] int GetSpellLvlDecrement() const { return spell_level_decrement_; };
 	void PrintSpellsTable(CharData *ch, std::ostringstream &buffer) const;
+
+	Feats feats;
+	int remorts_for_feat_slot_{kMaxRemort};
+	[[nodiscard]] int GetRemortsNumForFeatSlot() const { return remorts_for_feat_slot_; };
+	void PrintFeatsTable(CharData *ch, std::ostringstream &buffer) const;
 
 	/* базовые параметры */
 	// \todo Не забыть добавить парсинг
@@ -200,6 +205,7 @@ class CharClassInfoBuilder : public info_container::IItemBuilder<CharClassInfo> 
 	static void ParseName(ItemOptional &info, parser_wrapper::DataNode &node);
 	static void ParseSkills(ItemOptional &info, parser_wrapper::DataNode &node);
 	static void ParseSpells(ItemOptional &info, parser_wrapper::DataNode &node);
+	static void ParseFeats(ItemOptional &info, parser_wrapper::DataNode &node);
 	// временная функция
 	static void TemporarySetStat(ItemOptional &info);
 };

@@ -83,7 +83,7 @@ const char *skill_percent(Trigger *trig, CharData *ch, char *skill) {
 
 bool feat_owner(Trigger *trig, CharData *ch, char *feat) {
 	auto featnum = FindFeatId(feat);
-	if (featnum != EFeat::kUndefinedFeat) {
+	if (featnum != EFeat::kUndefined) {
 		if (ch->HaveFeat(featnum)) {
 			return true;
 		}

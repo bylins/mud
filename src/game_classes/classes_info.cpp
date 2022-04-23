@@ -83,6 +83,9 @@ void CharClassInfoBuilder::ParseClass(Optional &info, DataNode &node) {
 	node.GoToSibling("spells");
 	ParseSpells(info, node);
 
+	node.GoToSibling("feats");
+	ParseFeats(info, node);
+
 	TemporarySetStat(info);	// Временное проставление параметроа не из файла, а вручную
 }
 
@@ -116,6 +119,15 @@ void CharClassInfoBuilder::ParseSpells(Optional &info, DataNode &node) {
 	info.value()->spells.Reload(node.Children());
 }
 
+void CharClassInfoBuilder::ParseFeats(Optional &info, DataNode &node) {
+	try {
+		info.value()->remorts_for_feat_slot_ = parse::ReadAsInt(node.GetValue("remorts_for_slot"));
+	} catch (std::exception &e) {
+		info.value()->remorts_for_feat_slot_ = kMaxRemort;
+	}
+	info.value()->feats.Reload(node.Children());
+}
+
 void CharClassInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 	buffer << "Print class:" << "\n"
 		   << " Id: " << KGRN << NAME_BY_ITEM<ECharClass>(id) << KNRM << std::endl
@@ -130,6 +142,7 @@ void CharClassInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 
 	PrintSkillsTable(ch, buffer);
 	PrintSpellsTable(ch, buffer);
+	PrintFeatsTable(ch, buffer);
 
 	buffer << std::endl;
 }
@@ -194,7 +207,7 @@ CharClassInfo::SkillInfoBuilder::ItemOptional CharClassInfo::SkillInfoBuilder::B
 
 void CharClassInfo::PrintSpellsTable(CharData *ch, std::ostringstream &buffer) const {
 	buffer << std::endl
-		<< KGRN << " Available spells (level decrement " << GetSpellLvlDecrement() << "):" << KNRM << std::endl;
+		   << KGRN << " Available spells (level decrement " << GetSpellLvlDecrement() << "):" << KNRM << std::endl;
 
 	table_wrapper::Table table;
 	table << table_wrapper::kHeader
@@ -232,6 +245,46 @@ CharClassInfo::SpellInfoBuilder::ItemOptional CharClassInfo::SpellInfoBuilder::B
 
 	// \todo Нужно подумать, как переделать интерфейс, возможно - через ссылку на метод или лямбду
 	return std::make_optional(std::make_shared<CharClassInfo::SpellInfo>(spell_id, min_lvl, min_remort, circle, mem, cast, spell_mode));
+}
+
+void CharClassInfo::PrintFeatsTable(CharData *ch, std::ostringstream &buffer) const {
+	buffer << std::endl << KGRN << " Available feats (new slot every "
+		   << GetRemortsNumForFeatSlot() << " remort(s)):" << KNRM << std::endl;
+
+	table_wrapper::Table table;
+	table << table_wrapper::kHeader
+		  << "Feature" << "Lvl" << "Rem" << "Slot" << "Inborn" << "Mode" << table_wrapper::kEndRow;
+	for (const auto &feat : feats) {
+		table << feat_info[feat.GetId()].name
+			  << feat.GetMinLevel()
+			  << feat.GetMinRemort()
+			  << feat.GetSlot()
+			  << (feat.IsInborn() ? "yes" : "no")
+			  << NAME_BY_ITEM<EItemMode>(feat.GetMode()) << table_wrapper::kEndRow;
+	}
+	table_wrapper::DecorateNoBorderTable(ch, table);
+	table_wrapper::PrintTableToStream(buffer, table);
+}
+
+CharClassInfo::FeatInfoBuilder::ItemOptional CharClassInfo::FeatInfoBuilder::Build(DataNode &node) {
+	auto feat_id{EFeat::kUndefined};
+	int min_lvl, min_remort, slot;
+	bool inborn{false};
+	try {
+		feat_id = parse::ReadAsConstant<EFeat>(node.GetValue("id"));
+		min_lvl = parse::ReadAsInt(node.GetValue("level"));
+		min_remort = parse::ReadAsInt(node.GetValue("remort"));
+		slot = parse::ReadAsInt(node.GetValue("slot"));
+		inborn = parse::ReadAsBool(node.GetValue("inborn"));
+	} catch (std::exception &e) {
+		std::ostringstream out;
+		out << "Incorrect feat format (wrong value: " << e.what() << ").";
+		throw std::runtime_error(out.str());
+	}
+
+	auto feat_mode = FeatInfoBuilder::ParseItemMode(node, EItemMode::kEnabled);
+	// \todo Нужно подумать, как переделать интерфейс, возможно - через ссылку на метод или лямбду
+	return std::make_optional(std::make_shared<CharClassInfo::FeatInfo>(feat_id, min_lvl, min_remort, slot, inborn, feat_mode));
 }
 
 /*
@@ -313,12 +366,12 @@ void CharClassInfoBuilder::TemporarySetStat(Optional &info) {
 
 // \todo Не забыть в парсинге умений, заклинаний и так далее убрать обработку исключения
 // т.к. если спелл/скилл кривой, то описание класса в целом должно быть забраковано
-// \todo В конфиг фитов недо перенести feat_slot_for_remort из feat.h
 // Не забыть исправить int GroupPenalties::init()
 // Перенести парсинг режима куда-нибудь в шаблон ( не забыть поправить парсинг в скилл_инфо!)
 // bool IsMagicUser(const CharData *ch); - не забыть переименовать
 // добавить классовым скиллам поле inborn для автопроставления и общее поле величины врожденного скилла
 // на сервере в конфиге скиллов не забыть инкоррект поменять на андефайнед
 // armor_class_limit - перенести сюда
+// вытащить константы фитов в отдельный файл
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

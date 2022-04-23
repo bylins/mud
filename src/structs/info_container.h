@@ -220,7 +220,7 @@ const I &InfoContainer<E, I, B>::operator[](E id) const {
 	try {
 		return *(items_->at(id));
 	} catch (const std::out_of_range &) {
-		err_log("Incorrect id (%d) passed into %s.", to_underlying(id), typeid(this).name());
+		//err_log("Incorrect id (%d) passed into %s.", to_underlying(id), typeid(this).name()); ABYRVALG
 		return *(items_->at(E::kUndefined));
 	}
 };

@@ -911,7 +911,7 @@ void do_featset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	help[qend - 1] = '\0';
 
 	auto feat_id = FindFeatId(help);
-	if (feat_id == EFeat::kUndefinedFeat) {
+	if (feat_id == EFeat::kUndefined) {
 		SendMsgToChar("Неизвестная способность.\r\n", ch);
 		return;
 	}

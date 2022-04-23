@@ -2528,7 +2528,7 @@ void find_replacement(void *go,
 				strcpy(str, "0");
 			}
 		} else if (!str_cmp(field, "can_get_feat")) {
-			if (auto id = FindFeatId(subfield); id != EFeat::kUndefinedFeat) {
+			if (auto id = FindFeatId(subfield); id != EFeat::kUndefined) {
 				if (IsAbleToGetFeat(c, id))
 					strcpy(str, "1");
 				else

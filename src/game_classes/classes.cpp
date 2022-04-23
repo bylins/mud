@@ -1421,7 +1421,7 @@ void InitSpellLevels() {
 		log("Cann't open features list file...");
 		graceful_exit(1);
 	}
-	auto feat_id{EFeat::kUndefinedFeat};
+	auto feat_id{EFeat::kUndefined};
 	while (get_line(magic, name)) {
 		if (!name[0] || name[0] == ';')
 			continue;
@@ -1438,7 +1438,7 @@ void InitSpellLevels() {
 			*(name + strlen(name) + 0) = ' ';
 			strcat(name, line2);
 		}
-		if ((feat_id = FindFeatId(name)) == EFeat::kUndefinedFeat) {
+		if ((feat_id = FindFeatId(name)) == EFeat::kUndefined) {
 			log("Feat '%s' not found...", name);
 			graceful_exit(1);
 		}
