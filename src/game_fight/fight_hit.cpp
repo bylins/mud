@@ -3313,7 +3313,7 @@ void HitData::calc_crit_chance(CharData *ch) {
 	int calc_critic = 0;
 
 	// Маги, волхвы и не-купеческие чармисы не умеют критать //
-	if ((!ch->IsNpc() && !IsMagicUser(ch) && !IS_MAGUS(ch))
+	if ((!ch->IsNpc() && !IsMage(ch) && !IS_MAGUS(ch))
 		|| (ch->IsNpc() && (!AFF_FLAGGED(ch, EAffect::kCharmed)
 			&& !AFF_FLAGGED(ch, EAffect::kHelper)))) {
 		calc_critic = std::min(ch->get_skill(weap_skill), 70);

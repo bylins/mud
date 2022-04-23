@@ -25,9 +25,9 @@ class GroupPenalties {
 
 extern GroupPenalties grouping;
 int GetThac0(ECharClass class_id, int level);
-bool IsMagicUser(const CharData *ch);
+bool IsMage(const CharData *ch);
 bool IsCaster(const CharData *ch);
-bool IsFighterUser(const CharData *ch);
+bool IsFighter(const CharData *ch);
 
 #endif // CLASS_HPP_
 

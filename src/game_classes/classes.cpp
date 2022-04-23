@@ -1221,12 +1221,12 @@ int invalid_anti_class(CharData *ch, const ObjData *obj) {
 
 	if ((IS_OBJ_ANTI(obj, EAntiFlag::kMono) && GET_RELIGION(ch) == kReligionMono)
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::kPoly) && GET_RELIGION(ch) == kReligionPoly)
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::kMage) && IsMagicUser(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kMage) && IsMage(ch))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::kConjurer) && IS_CONJURER(ch))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::kCharmer) && IS_CHARMER(ch))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::kWizard) && IS_WIZARD(ch))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::kNecromancer) && IS_NECROMANCER(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::kFighter) && IsFighterUser(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kFighter) && IsFighter(ch))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::kMale) && IS_MALE(ch))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::kFemale) && IS_FEMALE(ch))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::kSorcerer) && IS_SORCERER(ch))
@@ -1261,12 +1261,12 @@ int invalid_no_class(CharData *ch, const ObjData *obj) {
 
 	if ((IS_OBJ_NO(obj, ENoFlag::kMono) && GET_RELIGION(ch) == kReligionMono)
 		|| (IS_OBJ_NO(obj, ENoFlag::kPoly) && GET_RELIGION(ch) == kReligionPoly)
-		|| (IS_OBJ_NO(obj, ENoFlag::kMage) && IsMagicUser(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::kMage) && IsMage(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::kConjurer) && IS_CONJURER(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::kCharmer) && IS_CHARMER(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::kWIzard) && IS_WIZARD(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::kNecromancer) && IS_NECROMANCER(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::kFighter) && IsFighterUser(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::kFighter) && IsFighter(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::kMale) && IS_MALE(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::kFemale) && IS_FEMALE(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::kSorcerer) && IS_SORCERER(ch))
@@ -1933,7 +1933,7 @@ void mspell_change(char */*name*/, int spell, int kin, int chclass, int class_ch
 
 GroupPenalties grouping;    ///< TODO: get rid of this global variable.
 
-bool IsMagicUser(const CharData *ch) {
+bool IsMage(const CharData *ch) {
 	static const std::set<ECharClass> magic_classes{
 		ECharClass::kConjurer,
 		ECharClass::kWizard,
@@ -1955,7 +1955,7 @@ bool IsCaster(const CharData *ch) {
 	return caster_classes.contains(ch->get_class());
 }
 
-bool IsFighterUser(const CharData *ch) {
+bool IsFighter(const CharData *ch) {
 	static const std::set<ECharClass> fight_classes{
 		ECharClass::kThief,
 		ECharClass::kWarrior,
