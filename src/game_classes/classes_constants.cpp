@@ -34,7 +34,6 @@ void init_ECharClass_ITEM_NAMES() {
 	ECharClass_name_by_value[ECharClass::kWizard] = "kWizard";
 	ECharClass_name_by_value[ECharClass::kMob] = "kMob";
 	ECharClass_name_by_value[ECharClass::kNpcBase] = "kNpcBase";
-	ECharClass_name_by_value[ECharClass::kNpcLast] = "kNpcLast";
 
 	for (const auto &i : ECharClass_name_by_value) {
 		ECharClass_value_by_name[i.second] = i.first;
