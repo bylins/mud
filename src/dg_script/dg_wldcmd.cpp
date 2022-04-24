@@ -577,7 +577,7 @@ void do_wfeatturn(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, T
 	}
 
 	const auto featnum = FindFeatId(featname);
-	if (featnum >= EFeat::kFirstFeat && featnum <= EFeat::kLastFeat) {
+	if (featnum >= EFeat::kFirst && featnum <= EFeat::kLast) {
 		isFeat = true;
 	} else {
 		wld_log(room, "wfeatturn: feature not found");

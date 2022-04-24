@@ -546,9 +546,10 @@ void Player::save_char() {
 
 	if (GetRealLevel(this) < kLvlImmortal) {
 		fprintf(saved, "Feat:\n");
-		for (auto feat = EFeat::kFirstFeat; feat <= EFeat::kLastFeat; ++feat) {
-			if (this->HaveFeat(feat))
-				fprintf(saved, "%d %s\n", to_underlying(feat), feat_info[feat].name);
+		for (auto feat : MUD::Classes()[this->get_class()].feats) {
+			if (this->HaveFeat(feat.GetId())) {
+				fprintf(saved, "%d %s\n", to_underlying(feat.GetId()), feat_info[feat.GetId()].name);
+			}
 		}
 		fprintf(saved, "0 0\n");
 	}
@@ -1437,7 +1438,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 						fbgetline(fl, line);
 						sscanf(line, "%d", &num);
 						auto feat_id = static_cast<EFeat>(num);
-						if (feat_id >= EFeat::kFirstFeat && feat_id <= EFeat::kLastFeat) {
+						if (feat_id >= EFeat::kFirst && feat_id <= EFeat::kLast) {
 							if (MUD::Classes()[this->get_class()].feats.IsAvailable(feat_id) ||
 								PlayerRace::FeatureCheck((int) GET_KIN(this), (int) GET_RACE(this), num)) {
 								this->SetFeat(feat_id);

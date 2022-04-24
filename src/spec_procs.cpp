@@ -152,25 +152,28 @@ void list_feats(CharData *ch, CharData *vict, bool all_feats) {
 	//Найдем максимальный слот, который вобще может потребоваться данному персонажу на текущем морте
 	max_slot = CalcFeatSlotsAmount(ch);
 	char **names = new char *[max_slot];
-	for (int k = 0; k < max_slot; k++)
+
+	for (int k = 0; k < max_slot; k++) {
 		names[k] = new char[kMaxStringLength];
+	}
 
 	if (all_feats) {
 		sprintf(names[0], "\r\nКруг 1  (1  уровень):\r\n");
-	} else
+	} else {
 		*names[0] = '\0';
-	for (i = 1; i < max_slot; i++)
+	}
+	for (i = 1; i < max_slot; i++) {
 		if (all_feats) {
-			j = feat_slot_lvl(GET_REMORT(ch),
-							  MUD::Classes()[ch->get_class()].GetRemortsNumForFeatSlot(),
-							  i); // на каком уровне будет слот i?
+			// на каком уровне будет слот i?
+			j = feat_slot_lvl(GET_REMORT(ch), MUD::Classes()[ch->get_class()].GetRemortsNumForFeatSlot(), i);
 			sprintf(names[i], "\r\nКруг %-2d (%-2d уровень):\r\n", i + 1, j);
-		} else
+		} else {
 			*names[i] = '\0';
+		}
+	}
 
 	sprintf(buf2, "\r\nВрожденные способности :\r\n");
 	j = 0;
-	auto sortpos{EFeat::kUndefined};
 	if (all_feats) {
 		if (clr(vict, C_NRM)) // реж цвет >= обычный
 			SendMsgToChar(" Список способностей, доступных с текущим числом перевоплощений.\r\n"
@@ -183,30 +186,31 @@ void list_feats(CharData *ch, CharData *vict, bool all_feats) {
 						 " Пометкой [И] выделены уже изученные способности.\r\n"
 						 " Пометкой [Д] выделены доступные для изучения способности.\r\n"
 						 " Пометкой [Н] выделены способности, недоступные вам в настоящий момент.\r\n\r\n", vict);
-		for (sortpos = EFeat::kFirstFeat; sortpos <= EFeat::kLastFeat; ++sortpos) {
-			if (MUD::Classes()[ch->get_class()].feats.IsUnavailable(sortpos) &&
-				!PlayerRace::FeatureCheck((int) GET_KIN(ch), (int) GET_RACE(ch), to_underlying(sortpos)))
+		for (const auto &feat : MUD::Classes()[ch->get_class()].feats) {
+			if (feat.IsUnavailable() &&
+				!PlayerRace::FeatureCheck((int) GET_KIN(ch), (int) GET_RACE(ch), to_underlying(feat.GetId()))) {
 				continue;
-			if (clr(vict, C_NRM))
+			}
+			if (clr(vict, C_NRM)) {
 				sprintf(buf, "        %s%s %-30s%s\r\n",
-						ch->HaveFeat(sortpos) ? KGRN :
-						IsAbleToGetFeat(ch, sortpos) ? KNRM : KRED,
-						ch->HaveFeat(sortpos) ? "[И]" :
-						IsAbleToGetFeat(ch, sortpos) ? "[Д]" : "[Н]",
-						feat_info[sortpos].name, KNRM);
-			else
+						ch->HaveFeat(feat.GetId()) ? KGRN :
+						IsAbleToGetFeat(ch, feat.GetId()) ? KNRM : KRED,
+						ch->HaveFeat(feat.GetId()) ? "[И]" :
+						IsAbleToGetFeat(ch, feat.GetId()) ? "[Д]" : "[Н]",
+						feat_info[feat.GetId()].name, KNRM);
+			} else {
 				sprintf(buf, "    %s %-30s\r\n",
-						ch->HaveFeat(sortpos) ? "[И]" :
-						IsAbleToGetFeat(ch, sortpos) ? "[Д]" : "[Н]",
-						feat_info[sortpos].name);
+						ch->HaveFeat(feat.GetId()) ? "[И]" :
+						IsAbleToGetFeat(ch, feat.GetId()) ? "[Д]" : "[Н]",
+						feat_info[feat.GetId()].name);
+			}
 
-			if (MUD::Classes()[ch->get_class()].feats[sortpos].IsInborn() ||
-				PlayerRace::FeatureCheck((int) GET_KIN(ch), (int) GET_RACE(ch), to_underlying(sortpos))) {
+			if (feat.IsInborn() ||
+				PlayerRace::FeatureCheck((int) GET_KIN(ch), (int) GET_RACE(ch), to_underlying(feat.GetId()))) {
 				strcat(buf2, buf);
 				j++;
-			} else if (MUD::Classes()[ch->get_class()].feats[sortpos].GetSlot() < max_slot) {
-				const auto slot = MUD::Classes()[ch->get_class()].feats[sortpos].GetSlot();
-				strcat(names[slot], buf);
+			} else if (feat.GetSlot() < max_slot) {
+				strcat(names[feat.GetSlot()], buf);
 			}
 		}
 		sprintf(buf1, "--------------------------------------");
@@ -235,25 +239,26 @@ void list_feats(CharData *ch, CharData *vict, bool all_feats) {
 
 	sprintf(buf1, "Вы обладаете следующими способностями :\r\n");
 
-	for (sortpos = EFeat::kFirstFeat; sortpos <= EFeat::kLastFeat; ++sortpos) {
+	for (const auto &feat : MUD::Classes()[ch->get_class()].feats) {
 		if (strlen(buf2) >= kMaxStringLength - 60) {
 			strcat(buf2, "***ПЕРЕПОЛНЕНИЕ***\r\n");
 			break;
 		}
-		if (ch->HaveFeat(sortpos)) {
-			if (!feat_info[sortpos].name || *feat_info[sortpos].name == '!')
+		if (ch->HaveFeat(feat.GetId())) {
+			if (!feat_info[feat.GetId()].name || *feat_info[feat.GetId()].name == '!')
 				continue;
 
-			switch (sortpos) {
+			switch (feat.GetId()) {
 				case EFeat::kBerserker:
 				case EFeat::kLightWalk:
 				case EFeat::kSpellCapabler:
 				case EFeat::kRelocate:
 				case EFeat::kShadowThrower:
-					if (IsTimedByFeat(ch, sortpos))
-						sprintf(buf, "[%3d] ", IsTimedByFeat(ch, sortpos));
-					else
+					if (IsTimedByFeat(ch, feat.GetId())) {
+						sprintf(buf, "[%3d] ", IsTimedByFeat(ch, feat.GetId()));
+					} else {
 						sprintf(buf, "[-!-] ");
+					}
 					break;
 				case EFeat::kPowerAttack:
 				case EFeat::kGreatPowerAttack:
@@ -263,27 +268,29 @@ void list_feats(CharData *ch, CharData *vict, bool all_feats) {
 				case EFeat::kDoubleThrower:
 				case EFeat::kTripleThrower:
 				case EFeat::kSerratedBlade:
-					if (PRF_FLAGGED(ch, GetPrfWithFeatNumber(sortpos)))
+					if (PRF_FLAGGED(ch, GetPrfWithFeatNumber(feat.GetId()))) {
 						sprintf(buf, "[-%s*%s-] ", CCIGRN(vict, C_NRM), CCNRM(vict, C_NRM));
-					else
+					} else {
 						sprintf(buf, "[-:-] ");
+					}
 					break;
 				default: sprintf(buf, "      ");
 			}
-			if (IsAbleToUseFeat(ch, sortpos))
+			if (IsAbleToUseFeat(ch, feat.GetId())) {
 				sprintf(buf + strlen(buf), "%s%s%s\r\n",
-						CCIYEL(vict, C_NRM), feat_info[sortpos].name, CCNRM(vict, C_NRM));
-			else if (clr(vict, C_NRM))
-				sprintf(buf + strlen(buf), "%s\r\n", feat_info[sortpos].name);
-			else
-				sprintf(buf, "[-Н-] %s\r\n", feat_info[sortpos].name);
-			if (MUD::Classes()[ch->get_class()].feats[sortpos].IsInborn() ||
-				PlayerRace::FeatureCheck((int) GET_KIN(ch), (int) GET_RACE(ch), to_underlying(sortpos))) {
+						CCIYEL(vict, C_NRM), feat_info[feat.GetId()].name, CCNRM(vict, C_NRM));
+			} else if (clr(vict, C_NRM)) {
+				sprintf(buf + strlen(buf), "%s\r\n", feat_info[feat.GetId()].name);
+			} else {
+				sprintf(buf, "[-Н-] %s\r\n", feat_info[feat.GetId()].name);
+			}
+			if (feat.IsInborn() ||
+				PlayerRace::FeatureCheck((int) GET_KIN(ch), (int) GET_RACE(ch), to_underlying(feat.GetId()))) {
 				sprintf(buf2 + strlen(buf2), "    ");
 				strcat(buf2, buf);
 				j++;
 			} else {
-				slot = MUD::Classes()[ch->get_class()].feats[sortpos].GetSlot();
+				slot = feat.GetSlot();
 				sfound = false;
 				while (slot < max_slot) {
 					if (*names[slot] == '\0') {
@@ -292,16 +299,17 @@ void list_feats(CharData *ch, CharData *vict, bool all_feats) {
 						strcat(names[slot], buf);
 						sfound = true;
 						break;
-					} else
+					} else {
 						slot++;
+					}
 				}
 				if (!sfound) {
 					// Если способность не врожденная и под нее нет слота - удаляем нафик
 					//	чтобы можно было менять слоты на лету и чтобы не читерили :)
 					sprintf(msg, "WARNING: Unset out of slots feature '%s' for character '%s'!",
-							feat_info[sortpos].name, GET_NAME(ch));
+							feat_info[feat.GetId()].name, GET_NAME(ch));
 					mudlog(msg, BRF, kLvlImplementator, SYSLOG, true);
-					ch->UnsetFeat(sortpos);
+					ch->UnsetFeat(feat.GetId());
 				}
 			}
 		}
@@ -720,13 +728,13 @@ void init_guilds() {
 			}
 
 			featnum = static_cast<EFeat>(atoi(line));
-			if (featnum < EFeat::kFirstFeat || featnum >= EFeat::kLastFeat) {
+			if (featnum < EFeat::kFirst || featnum >= EFeat::kLast) {
 				if ((pos = strchr(line1, '.')))
 					*pos = ' ';
 				featnum = FindFeatId(line1);
 			}
 
-			if (MUD::Skills().IsInvalid(skill_id) && spellnum < ESpell::kSpellFirst && featnum < EFeat::kFirstFeat) {
+			if (MUD::Skills().IsInvalid(skill_id) && spellnum < ESpell::kSpellFirst && featnum < EFeat::kFirst) {
 				log("Unknown skill, spell or feat for monoguild");
 				graceful_exit(1);
 			}
@@ -793,7 +801,7 @@ void init_guilds() {
 			}
 
 			featnum = static_cast<EFeat>(atoi(line4));
-			if (featnum < EFeat::kFirstFeat || featnum > EFeat::kLastFeat) {
+			if (featnum < EFeat::kFirst || featnum > EFeat::kLast) {
 				if ((pos = strchr(line5, '.')))
 					*pos = ' ';
 
@@ -801,7 +809,7 @@ void init_guilds() {
 				sprintf(buf, "feature number 2: %d", to_underlying(featnum));
 				featnum = FindFeatId(line5);
 			}
-			if (MUD::Skills().IsInvalid(skill_id) && spellnum < ESpell::kSpellFirst && featnum < EFeat::kFirstFeat) {
+			if (MUD::Skills().IsInvalid(skill_id) && spellnum < ESpell::kSpellFirst && featnum < EFeat::kFirst) {
 				log("Unknown skill, spell or feat for polyguild - \'%s\'", line5);
 				graceful_exit(1);
 			}
@@ -947,7 +955,7 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 					}
 
 					const auto feat_no = static_cast<EFeat>((guild_mono_info[info_num].learn_info + i)->feat_no);
-					if (feat_no >= EFeat::kFirstFeat && feat_no <= EFeat::kLastFeat) {
+					if (feat_no >= EFeat::kFirst && feat_no <= EFeat::kLast) {
 						if (!ch->HaveFeat(feat_no) && IsAbleToGetFeat(ch, feat_no)) {
 							sfound = true;
 						}
@@ -968,8 +976,8 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 			}
 
 			const auto feat_no = FindFeatId(argument);
-			if (feat_no >= EFeat::kFirstFeat && feat_no <= EFeat::kLastFeat) {
-				for (i = 0, found = false; (guild_mono_info[info_num].learn_info + i)->feat_no >= EFeat::kFirstFeat; i++) {
+			if (feat_no >= EFeat::kFirst && feat_no <= EFeat::kLast) {
+				for (i = 0, found = false; (guild_mono_info[info_num].learn_info + i)->feat_no >= EFeat::kFirst; i++) {
 					if ((guild_mono_info[info_num].learn_info + i)->level > GetRealLevel(ch)) {
 						continue;
 					}
@@ -1176,7 +1184,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 					}
 
 					const auto feat_no = static_cast<EFeat>((guild_poly_info[info_num] + i)->feat_no);
-					if (feat_no >= EFeat::kFirstFeat && feat_no <= EFeat::kLastFeat) {
+					if (feat_no >= EFeat::kFirst && feat_no <= EFeat::kLast) {
 						if (!ch->HaveFeat(feat_no) && IsAbleToGetFeat(ch, feat_no)) {
 							gcount += sprintf(buf + gcount, "- способность %s\"%s\"%s\r\n",
 											  CCCYN(ch, C_NRM), GetFeatName(feat_no), CCNRM(ch, C_NRM));
@@ -1218,7 +1226,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 					}
 
 					const auto feat_no = static_cast<EFeat>((guild_poly_info[info_num] + i)->feat_no);
-					if (feat_no >= EFeat::kFirstFeat && feat_no <= EFeat::kLastFeat) {
+					if (feat_no >= EFeat::kFirst && feat_no <= EFeat::kLast) {
 						if (!ch->HaveFeat(feat_no) && IsAbleToGetFeat(ch, feat_no)) {
 							sfound = true;
 						}
@@ -1306,14 +1314,14 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 			}
 
 			auto feat_no = FindFeatId(argument);
-			if (feat_no < EFeat::kFirstFeat || feat_no > EFeat::kLastFeat) {
+			if (feat_no < EFeat::kFirst || feat_no > EFeat::kLast) {
 				std::string str(argument);
 				std::replace_if(str.begin(), str.end(), boost::is_any_of("_:"), ' ');
 				feat_no = FindFeatId(str.c_str(), true);
 			}
 
-			if (feat_no >= EFeat::kFirstFeat && feat_no <= EFeat::kLastFeat) {
-				for (i = 0, found = false; (guild_poly_info[info_num] + i)->feat_no >= EFeat::kFirstFeat; i++) {
+			if (feat_no >= EFeat::kFirst && feat_no <= EFeat::kLast) {
+				for (i = 0, found = false; (guild_poly_info[info_num] + i)->feat_no >= EFeat::kFirst; i++) {
 					if ((guild_poly_info[info_num] + i)->level > GetRealLevel(ch)) {
 						continue;
 					}

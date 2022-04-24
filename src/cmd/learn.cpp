@@ -170,7 +170,7 @@ void LearnReceiptBook(CharData *ch, ObjData *obj) {
 
 void LearnFeatBook(CharData *ch, ObjData *obj) {
 	auto feat_id = static_cast<EFeat>(GET_OBJ_VAL(obj, 1));
-	if (feat_id < EFeat::kFirstFeat || feat_id > EFeat::kLastFeat) {
+	if (feat_id < EFeat::kFirst || feat_id > EFeat::kLast) {
 		SendMsgToChar("СПОСОБНОСТЬ НЕ ОПРЕДЕЛЕНА - сообщите Богам!\r\n", ch);
 		throw LearningError();
 	}

@@ -1607,7 +1607,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 
 				case EBook::kFeat: {
 					const auto feat_id = static_cast<EFeat>(GET_OBJ_VAL(obj, 1));
-					if (feat_id >= EFeat::kFirstFeat && feat_id <= EFeat::kLastFeat) {
+					if (feat_id >= EFeat::kFirst && feat_id <= EFeat::kLast) {
 						if (IsAbleToGetFeat(ch, feat_id)) {
 							drsdice = MUD::Classes()[ch->get_class()].feats[feat_id].GetSlot();
 						} else {

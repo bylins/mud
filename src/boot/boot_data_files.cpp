@@ -1409,7 +1409,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			return;
 		}
 		auto feat_id = static_cast<EFeat>(t[0]);
-		if (feat_id < EFeat::kFirstFeat || feat_id > EFeat::kLastFeat) {
+		if (feat_id < EFeat::kFirst || feat_id > EFeat::kLast) {
 			log("SYSERROR : Unknown feat No %d for MOB #%d", t[0], i);
 			return;
 		}

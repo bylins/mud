@@ -866,7 +866,7 @@ void do_featset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			<< "Возможные способности:" << std:: endl;
 
 		table_wrapper::Table table;
-		for (auto feat = EFeat::kFirstFeat; feat <= EFeat::kLastFeat; ++feat) {
+		for (auto feat = EFeat::kFirst; feat <= EFeat::kLast; ++feat) {
 			if (feat_info[feat].type == EFeatType::kUnused) {
 				continue;
 			}
@@ -938,7 +938,7 @@ void do_featset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			feat_info[feat_id].name, value ? "enabled" : "disabled");
 	mudlog(buf2, BRF, -1, SYSLOG, true);
 	imm_log("%s", buf2);
-	if (feat_id >= EFeat::kFirstFeat && feat_id <= EFeat::kLastFeat) {
+	if (feat_id >= EFeat::kFirst && feat_id <= EFeat::kLast) {
 		if (value) {
 			vict->SetFeat(feat_id);
 		} else {

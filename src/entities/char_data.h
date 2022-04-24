@@ -94,7 +94,7 @@ struct char_played_ability_data {
 struct char_ability_data {
 	std::array<ubyte, kSpellLast + 1> SplKnw; // array of SPELL_KNOW_TYPE
 	std::array<ubyte, kSpellLast + 1> SplMem; // array of MEMed SPELLS
-	std::bitset<to_underlying(EFeat::kLastFeat) + 1> Feats;
+	std::bitset<to_underlying(EFeat::kLast) + 1> Feats;
 	sbyte size;
 	int hitroll;
 	int damroll;

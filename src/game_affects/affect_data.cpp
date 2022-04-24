@@ -500,7 +500,7 @@ void affect_total(CharData *ch) {
 	ch->obj_bonus().apply_affects(ch);
 
 	// move features modifiers
-	for (auto i = EFeat::kFirstFeat; i <= EFeat::kLastFeat; ++i) {
+	for (auto i = EFeat::kFirst; i <= EFeat::kLast; ++i) {
 		if (IsAbleToUseFeat(ch, i) && (feat_info[i].type == EFeatType::kAffect)) {
 			for (int j = 0; j < kMaxFeatAffect; ++j) {
 				affect_modify(ch, feat_info[i].affected[j].location, feat_info[i].affected[j].modifier,

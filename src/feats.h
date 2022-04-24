@@ -188,8 +188,8 @@ enum class EFeat {
 	kMultipleCast = 154,		//уменьшение штрафа за число циелей для масскастов
 	kMagicalShield = 155,		//заговоренный щит" - фит для витязей, защита от директ спеллов
 	kAnimalMaster = 156,		//хозяин животных
-	kFirstFeat = kBerserker,
-	kLastFeat = kAnimalMaster	// !!! Не забываем менять !!!
+	kFirst = kBerserker,
+	kLast = kAnimalMaster	// !!! Не забываем менять !!!
 };
 
 template<>

@@ -771,7 +771,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 					break;
 				case EBook::kFeat: {
 					const auto id = static_cast<EFeat>(GET_OBJ_VAL(j, 1));
-					if (id >= EFeat::kFirstFeat && id <= EFeat::kLastFeat) {
+					if (id >= EFeat::kFirst && id <= EFeat::kLast) {
 						sprintf(buf, "содержит секрет способности : \"%s\"", GetFeatName(id));
 					} else {
 						sprintf(buf, "неверный номер способности");

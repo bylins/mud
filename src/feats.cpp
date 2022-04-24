@@ -55,7 +55,7 @@ EFeat& operator++(EFeat &f) {
 /// true для поиска при вводе имени способности игроком у учителей
 ///
 EFeat FindFeatId(const char *name, bool alias) {
-	for (auto index = EFeat::kFirstFeat; index <= EFeat::kLastFeat; ++index) {
+	for (auto index = EFeat::kFirst; index <= EFeat::kLast; ++index) {
 		bool flag = true;
 		std::string name_feat(alias ? feat_info[index].alias.c_str() : feat_info[index].name);
 		std::vector<std::string> strs_feat, strs_args;
@@ -129,7 +129,7 @@ void InitFeatByDefault(EFeat feat_id) {
 
 void InitFeatures() {
 	CFeatArray feat_app;
-	for (auto i = EFeat::kUndefined; i <= EFeat::kLastFeat; ++i) {
+	for (auto i = EFeat::kUndefined; i <= EFeat::kLast; ++i) {
 		InitFeatByDefault(i);
 	}
 //1
@@ -688,7 +688,7 @@ void InitFeatures() {
 }
 
 const char *GetFeatName(EFeat id) {
-	if (id >= EFeat::kFirstFeat && id <= EFeat::kLastFeat) {
+	if (id >= EFeat::kFirst && id <= EFeat::kLast) {
 		return (feat_info[id].name);
 	} else {
 		if (id == EFeat::kUndefined) {
@@ -757,10 +757,9 @@ bool IsAbleToUseFeat(const CharData *ch, EFeat feat) {
 
 bool IsAbleToGetFeat(CharData *ch, EFeat feat) {
 	int count = 0;
-	if (feat < EFeat::kFirstFeat || feat > EFeat::kLastFeat) {
+	if (feat < EFeat::kFirst || feat > EFeat::kLast) {
 		return false;
 	}
-	// Фит доступен всем и всегда, незачем его куда-то заучиввать.
 	if (feat_info[feat].always_available) {
 		return false;
 	};
@@ -919,18 +918,16 @@ bool CheckVacantFeatSlot(CharData *ch, EFeat feat_id) {
 	//Мы не можем просто учесть кол-во способностей меньше требуемого и больше требуемого,
 	//т.к. возможны свободные слоты меньше требуемого, и при этом верхние заняты все
 	auto slot_list = std::vector<int>();
-	for (auto i = EFeat::kFirstFeat; i <= EFeat::kLastFeat; ++i) {
-		if (MUD::Classes()[ch->get_class()].feats[i].IsInborn() ||
-			PlayerRace::FeatureCheck(GET_KIN(ch), GET_RACE(ch), to_underlying(i))) {
+	for (const auto &feat : MUD::Classes()[ch->get_class()].feats) {
+		if (feat.IsInborn() || PlayerRace::FeatureCheck(GET_KIN(ch), GET_RACE(ch), to_underlying(feat.GetId()))) {
 			continue;
 		}
 
-		if (ch->HaveFeat(i)) {
-			if (MUD::Classes()[ch->get_class()].feats[i].GetSlot() >=
-				MUD::Classes()[ch->get_class()].feats[feat_id].GetSlot()) {
+		if (ch->HaveFeat(feat.GetId())) {
+			if (feat.GetSlot() >= MUD::Classes()[ch->get_class()].feats[feat_id].GetSlot()) {
 				++hifeat;
 			} else {
-				slot_list.push_back(MUD::Classes()[ch->get_class()].feats[i].GetSlot());
+				slot_list.push_back(feat.GetSlot());
 			}
 		}
 	}
@@ -1330,7 +1327,7 @@ void SetInbornAndRaceFeats(CharData *ch) {
 }
 
 void UnsetInaccessibleFeats(CharData *ch) {
-	for (auto feat_id = EFeat::kFirstFeat; feat_id <= EFeat::kLastFeat; ++feat_id) {
+	for (auto feat_id = EFeat::kFirst; feat_id <= EFeat::kLast; ++feat_id) {
 		if (ch->HaveFeat(feat_id)) {
 			if (MUD::Classes()[ch->get_class()].feats.IsUnavailable(feat_id)) {
 				ch->UnsetFeat(feat_id);

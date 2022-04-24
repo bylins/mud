@@ -1927,7 +1927,7 @@ void CharData::restore_npc() {
 		}
 	}
 	// рестор для фитов
-	for (auto i = EFeat::kFirstFeat; i <= EFeat::kLastFeat; ++i) {
+	for (auto i = EFeat::kFirst; i <= EFeat::kLast; ++i) {
 		if (!proto->HaveFeat(i)) {
 				this->UnsetFeat(i);
 		}

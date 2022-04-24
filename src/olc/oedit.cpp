@@ -590,7 +590,7 @@ void oedit_disp_feats_menu(DescriptorData *d) {
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
-	for (auto counter = EFeat::kFirstFeat; counter < EFeat::kLastFeat; ++counter) {
+	for (auto counter = EFeat::kFirst; counter < EFeat::kLast; ++counter) {
 		if (!feat_info[counter].name || *feat_info[counter].name == '!') {
 			continue;
 		}
@@ -1871,7 +1871,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 								return;
 							}
 							auto feat_id = static_cast<EFeat>(number);
-							if (feat_id < EFeat::kFirstFeat || feat_id > EFeat::kLastFeat ||
+							if (feat_id < EFeat::kFirst || feat_id > EFeat::kLast ||
 								!feat_info[feat_id].name || *feat_info[feat_id].name == '!') {
 								SendMsgToChar("Неизвестная способность, повторите.\r\n", d->character.get());
 								oedit_disp_val2_menu(d);

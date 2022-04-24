@@ -682,7 +682,7 @@ void medit_save_to_disk(int zone_num) {
 			strcpy(buf1, "Special_Bitvector: ");
 			NPC_FLAGS(mob).tascii(4, buf1);
 			fprintf(mob_file, "%s\n", buf1);
-			for (auto feat_id = EFeat::kFirstFeat; feat_id <= EFeat::kLastFeat; ++feat_id) {
+			for (auto feat_id = EFeat::kFirst; feat_id <= EFeat::kLast; ++feat_id) {
 				if (mob->HaveFeat(feat_id))
 					fprintf(mob_file, "Feat: %d\n", to_underlying(feat_id));
 			}
@@ -991,7 +991,7 @@ void medit_disp_features(DescriptorData *d) {
 	SendMsgToChar("[H[J", d->character);
 #endif
 
-	for (auto counter = EFeat::kFirstFeat; counter <= EFeat::kLastFeat; ++counter) {
+	for (auto counter = EFeat::kFirst; counter <= EFeat::kLast; ++counter) {
 		if (!feat_info[counter].name || *feat_info[counter].name == '!') {
 			continue;
 		}
@@ -1769,7 +1769,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 				break;
 			}
 			auto feat_id = static_cast<EFeat>(number);
-			if (feat_id < EFeat::kFirstFeat || feat_id > EFeat::kLastFeat ||
+			if (feat_id < EFeat::kFirst || feat_id > EFeat::kLast ||
 				!feat_info[feat_id].name || *feat_info[feat_id].name == '!') {
 				SendMsgToChar("Неверный номер.\r\n", d->character.get());
 			} else if (OLC_MOB(d)->HaveFeat(feat_id)) {
