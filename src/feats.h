@@ -230,9 +230,11 @@ EFeat FindFeatId(const char *name, bool alias = false);
 EFeat FindWeaponMasterFeat(ESkill skill);
 void InitFeatures();
 void CheckBerserk(CharData *ch);
+
+void UnsetInaccessibleFeats(CharData *ch);
 void SetRaceFeats(CharData *ch);
 void UnsetRaceFeats(CharData *ch);
-void SetInbornFeats(CharData *ch);
+void SetInbornAndRaceFeats(CharData *ch);
 bool IsAbleToUseFeat(const CharData *ch, EFeat feat);
 bool IsAbleToGetFeat(CharData *ch, EFeat feat);
 bool TryFlipActivatedFeature(CharData *ch, char *argument);
@@ -277,11 +279,6 @@ class CFeatArray {
 struct FeatureInfo {
 	EFeat id;
 	EFeatType type;
-	int min_remort[kNumPlayerClasses][kNumKins];
-	int slot[kNumPlayerClasses][kNumKins];
-	bool is_known[kNumPlayerClasses][kNumKins];
-	bool is_inborn[kNumPlayerClasses][kNumKins];
-	bool up_slot;
 	bool uses_weapon_skill;
 	bool always_available;
 	const char *name;

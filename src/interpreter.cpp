@@ -2297,15 +2297,8 @@ void do_entergame(DescriptorData *d) {
 	}
 
 	// Check & remove/add natural, race & unavailable features
-	for (auto i = EFeat::kFirstFeat; i <= EFeat::kLastFeat; ++i) {
-		if (!d->character->HaveFeat(i) || IsAbleToGetFeat(d->character.get(), i)) {
-			if (feat_info[i].is_inborn[(int) GET_CLASS(d->character)][(int) GET_KIN(d->character)]) {
-				d->character->SetFeat(i);
-			}
-		}
-	}
-
-	SetRaceFeats(d->character.get());
+	UnsetInaccessibleFeats(d->character.get());
+	SetInbornAndRaceFeats(d->character.get());
 
 	if (!IS_IMMORTAL(d->character)) {
 		for (const auto &skill : MUD::Skills()) {
@@ -2315,7 +2308,6 @@ void do_entergame(DescriptorData *d) {
 		}
 	}
 
-	//Заменяем закл !переместиться! на способность
 	if (GET_SPELL_TYPE(d->character, kSpellRelocate) == kSpellKnow && !IS_GOD(d->character)) {
 		GET_SPELL_TYPE(d->character, kSpellRelocate) = 0;
 	}

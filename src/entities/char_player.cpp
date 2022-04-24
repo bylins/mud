@@ -1438,7 +1438,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 						sscanf(line, "%d", &num);
 						auto feat_id = static_cast<EFeat>(num);
 						if (feat_id >= EFeat::kFirstFeat && feat_id <= EFeat::kLastFeat) {
-							if (feat_info[feat_id].is_known[(int) GET_CLASS(this)][(int) GET_KIN(this)] ||
+							if (MUD::Classes()[this->get_class()].feats.IsAvailable(feat_id) ||
 								PlayerRace::FeatureCheck((int) GET_KIN(this), (int) GET_RACE(this), num)) {
 								this->SetFeat(feat_id);
 							}
@@ -1890,7 +1890,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 		GET_LOADROOM(this) = kNowhere;
 	}
 
-	SetInbornFeats(this);
+	SetInbornAndRaceFeats(this);
 
 	if (IS_GRGOD(this)) {
 		for (i = 0; i <= kSpellLast; i++)

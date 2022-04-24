@@ -300,7 +300,7 @@ void trg_featturn(CharData *ch, EFeat feat_id, int featdiff, int vnum) {
 		}
 	} else {
 		if (featdiff) {
-			if (feat_info[feat_id].is_known[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) {
+			if (MUD::Classes()[ch->get_class()].feats.IsAvailable(feat_id)) {
 				sprintf(buf, "Вы обрели способность '%s'.\r\n", feat_info[feat_id].name);
 				SendMsgToChar(buf, ch);
 				log("Add %s to %s (trigfeatturn) trigvnum %d", feat_info[feat_id].name, GET_NAME(ch), vnum);

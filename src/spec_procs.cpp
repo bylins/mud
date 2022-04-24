@@ -184,8 +184,8 @@ void list_feats(CharData *ch, CharData *vict, bool all_feats) {
 						 " Пометкой [Д] выделены доступные для изучения способности.\r\n"
 						 " Пометкой [Н] выделены способности, недоступные вам в настоящий момент.\r\n\r\n", vict);
 		for (sortpos = EFeat::kFirstFeat; sortpos <= EFeat::kLastFeat; ++sortpos) {
-			if (!feat_info[sortpos].is_known[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]
-				&& !PlayerRace::FeatureCheck((int) GET_KIN(ch), (int) GET_RACE(ch), to_underlying(sortpos)))
+			if (MUD::Classes()[ch->get_class()].feats.IsUnavailable(sortpos) &&
+				!PlayerRace::FeatureCheck((int) GET_KIN(ch), (int) GET_RACE(ch), to_underlying(sortpos)))
 				continue;
 			if (clr(vict, C_NRM))
 				sprintf(buf, "        %s%s %-30s%s\r\n",
@@ -200,12 +200,12 @@ void list_feats(CharData *ch, CharData *vict, bool all_feats) {
 						IsAbleToGetFeat(ch, sortpos) ? "[Д]" : "[Н]",
 						feat_info[sortpos].name);
 
-			if (feat_info[sortpos].is_inborn[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]
-				|| PlayerRace::FeatureCheck((int) GET_KIN(ch), (int) GET_RACE(ch), to_underlying(sortpos))) {
+			if (MUD::Classes()[ch->get_class()].feats[sortpos].IsInborn() ||
+				PlayerRace::FeatureCheck((int) GET_KIN(ch), (int) GET_RACE(ch), to_underlying(sortpos))) {
 				strcat(buf2, buf);
 				j++;
-			} else if (feat_info[sortpos].slot[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] < max_slot) {
-				const auto slot = feat_info[sortpos].slot[(int) GET_CLASS(ch)][(int) GET_KIN(ch)];
+			} else if (MUD::Classes()[ch->get_class()].feats[sortpos].GetSlot() < max_slot) {
+				const auto slot = MUD::Classes()[ch->get_class()].feats[sortpos].GetSlot();
 				strcat(names[slot], buf);
 			}
 		}
@@ -277,13 +277,13 @@ void list_feats(CharData *ch, CharData *vict, bool all_feats) {
 				sprintf(buf + strlen(buf), "%s\r\n", feat_info[sortpos].name);
 			else
 				sprintf(buf, "[-Н-] %s\r\n", feat_info[sortpos].name);
-			if (feat_info[sortpos].is_inborn[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]
-				|| PlayerRace::FeatureCheck((int) GET_KIN(ch), (int) GET_RACE(ch), to_underlying(sortpos))) {
+			if (MUD::Classes()[ch->get_class()].feats[sortpos].IsInborn() ||
+				PlayerRace::FeatureCheck((int) GET_KIN(ch), (int) GET_RACE(ch), to_underlying(sortpos))) {
 				sprintf(buf2 + strlen(buf2), "    ");
 				strcat(buf2, buf);
 				j++;
 			} else {
-				slot = feat_info[sortpos].slot[(int) GET_CLASS(ch)][(int) GET_KIN(ch)];
+				slot = MUD::Classes()[ch->get_class()].feats[sortpos].GetSlot();
 				sfound = false;
 				while (slot < max_slot) {
 					if (*names[slot] == '\0') {

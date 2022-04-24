@@ -1116,7 +1116,7 @@ void advance_level(CharData *ch) {
 	check_max_hp(ch);
 	ch->points.max_move += std::max(1, add_move);
 
-	SetInbornFeats(ch);
+	SetInbornAndRaceFeats(ch);
 
 	if (IS_IMMORTAL(ch)) {
 		for (i = 0; i < 3; i++) {
@@ -1415,61 +1415,6 @@ void InitSpellLevels() {
 			log("Unknown items option : %s", line3);
 			graceful_exit(1);
 		}
-	}
-	fclose(magic);
-	if (!(magic = fopen(LIB_MISC "class.features.lst", "r"))) {
-		log("Cann't open features list file...");
-		graceful_exit(1);
-	}
-	auto feat_id{EFeat::kUndefined};
-	while (get_line(magic, name)) {
-		if (!name[0] || name[0] == ';')
-			continue;
-		if (sscanf(name, "%s %s %d %d %d %d %d %d %d", line1, line2, i, i + 1, i + 2, i + 3, i + 4, i + 5, i + 6)
-			!= 9) {
-			log("Bad format for feature string!\r\n"
-				"Format : <feature name (%%s %%s)>  <kin (%%d %%d %%d)> <class (%%d)> <remort (%%d)> <level (%%d)> <naturalfeat (%%d)>!");
-			graceful_exit(1);
-		}
-		name[0] = '\0';
-		strcat(name, line1);
-		if (*line2 != '*') {
-			*(name + strlen(name) + 1) = '\0';
-			*(name + strlen(name) + 0) = ' ';
-			strcat(name, line2);
-		}
-		if ((feat_id = FindFeatId(name)) == EFeat::kUndefined) {
-			log("Feat '%s' not found...", name);
-			graceful_exit(1);
-		}
-		for (j = 0; j < kNumKins; j++)
-			if (i[j] < 0 || i[j] > 1) {
-				log("Bad race feat know type for feat \"%s\"... 0 or 1 expected", feat_info[feat_id].name);
-				graceful_exit(1);
-			}
-		if (i[3] < 0 || i[3] >= kNumPlayerClasses) {
-			log("Bad class type for feat \"%s\"...", feat_info[feat_id].name);
-			graceful_exit(1);
-		}
-		if (i[4] < 0 || i[4] >= kMaxRemort) {
-			log("Bad remort type for feat \"%s\"...", feat_info[feat_id].name);
-			graceful_exit(1);
-		}
-		if (i[6] < 0 || i[6] > 1) {
-			log("Bad natural classfeat type for feat \"%s\"... 0 or 1 expected", feat_info[feat_id].name);
-			graceful_exit(1);
-		}
-		for (j = 0; j < kNumKins; j++)
-			if (i[j] == 1) {
-				//log("Setting up feat '%s'", feat_info[sp_num].name);
-				feat_info[feat_id].is_known[i[3]][j] = true;
-/*				log("Classknow feat set '%s': %d kin: %d classes: %d Remort: %d Level: %d Natural: %d",
-					feat_info[sp_num].name, sp_num, j, i[3], i[4], i[5], i[6]);*/
-
-				feat_info[feat_id].min_remort[i[3]][j] = i[4];
-				feat_info[feat_id].slot[i[3]][j] = i[5];
-				feat_info[feat_id].is_inborn[i[3]][j] = i[6] ? true : false;
-			}
 	}
 	fclose(magic);
 }

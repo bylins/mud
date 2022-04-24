@@ -99,7 +99,7 @@ void reset_stats(CharData *ch, Type type) {
 			ch->set_race(99);
 			break;
 		case Type::FEATS: ch->real_abils.Feats.reset();
-			SetInbornFeats(ch);
+			SetInbornAndRaceFeats(ch);
 			break;
 		case Type::RELIGION: ch->player_data.Religion = 2; //kReligionMono + 1
 			break;
