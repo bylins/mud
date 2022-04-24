@@ -763,7 +763,16 @@ bool IsAbleToGetFeat(CharData *ch, EFeat feat) {
 	if (feat_info[feat].always_available) {
 		return false;
 	};
-	if ((!MUD::Classes()[ch->get_class()].feats[feat].IsInborn() &&
+
+/*	std::ostringstream out;
+	out << "Сопосбность: "
+		<< feat_info[feat].name << " "
+		<< " Врожденная: " << (MUD::Classes()[ch->get_class()].feats[feat].IsInborn() ? "Y" : "N") << " "
+		<< " Мин. уровень: " << MUD::Classes()[ch->get_class()].feats[feat].GetMinLevel() << " "
+		<< " Мин. реморт: " << MUD::Classes()[ch->get_class()].feats[feat].GetMinRemort() << std::endl;
+	SendMsgToChar(out.str(), ch);*/
+
+	if ((!MUD::Classes()[ch->get_class()].feats[feat].IsAvailable() &&
 		!PlayerRace::FeatureCheck(GET_KIN(ch), GET_RACE(ch), to_underlying(feat))) ||
 		(GET_REAL_REMORT(ch) < MUD::Classes()[ch->get_class()].feats[feat].GetMinRemort())) {
 		return false;
