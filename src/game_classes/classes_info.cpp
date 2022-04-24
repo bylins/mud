@@ -74,7 +74,10 @@ void CharClassInfoBuilder::ParseClass(Optional &info, DataNode &node) {
 	} catch (std::exception &) {
 	}
 
-	node.GoToChild("name");
+	node.GoToChild("stats");
+	ParseStats(info, node);
+
+	node.GoToSibling("name");
 	ParseName(info, node);
 
 	node.GoToSibling("skills");
@@ -87,6 +90,51 @@ void CharClassInfoBuilder::ParseClass(Optional &info, DataNode &node) {
 	ParseFeats(info, node);
 
 	TemporarySetStat(info);	// Временное проставление параметроа не из файла, а вручную
+}
+
+void CharClassInfoBuilder::ParseStats(Optional &info, DataNode &node) {
+	node.GoToChild("base_stats");
+	ParseBaseStats(info, node);
+
+	node.GoToParent();
+}
+
+void CharClassInfoBuilder::ParseBaseStats(Optional &info, DataNode &node) {
+	auto base_stat_limits = CharClassInfo::BaseStatLimits();
+	for (const auto &stat_node : node.Children("stat")) {
+		EBaseStat id;
+		try {
+			id = parse::ReadAsConstant<EBaseStat>(stat_node.GetValue("id"));
+			base_stat_limits.gen_min = parse::ReadAsInt(stat_node.GetValue("gen_min"));
+			base_stat_limits.gen_max = parse::ReadAsInt(stat_node.GetValue("gen_max"));
+			base_stat_limits.gen_auto = parse::ReadAsInt(stat_node.GetValue("auto"));
+			base_stat_limits.cap = parse::ReadAsInt(stat_node.GetValue("cap"));
+		} catch (std::exception &e) {
+			std::ostringstream out;
+			out << "Incorrect base stat limits format (wrong value: " << e.what() << ").";
+			throw std::runtime_error(out.str());
+		}
+		info.value()->base_stats[id] = base_stat_limits;
+	}
+}
+
+void CharClassInfo::PrintBaseStatsTable(CharData *ch, std::ostringstream &buffer) const {
+	buffer << std::endl
+		   << KGRN << " Base stats limits:" << KNRM << std::endl;
+
+	table_wrapper::Table table;
+	table << table_wrapper::kHeader
+		  << "Stat" << "Gen Min" << "Gen Max" << "Gen Auto" << "Cap" << table_wrapper::kEndRow;
+	for (const auto &base_stat : base_stats) {
+		table << NAME_BY_ITEM<EBaseStat>(base_stat.first)
+			  << base_stat.second.gen_min
+			  << base_stat.second.gen_max
+			  << base_stat.second.gen_auto
+			  << base_stat.second.cap
+			  << table_wrapper::kEndRow;
+	}
+	table_wrapper::DecorateNoBorderTable(ch, table);
+	table_wrapper::PrintTableToStream(buffer, table);
 }
 
 void CharClassInfoBuilder::ParseName(Optional &info, DataNode &node) {
@@ -140,6 +188,7 @@ void CharClassInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 		   << "/" << names->GetSingular(ECase::kIns)
 		   << "/" << names->GetSingular(ECase::kPre) << KNRM << std::endl;
 
+	PrintBaseStatsTable(ch, buffer);
 	PrintSkillsTable(ch, buffer);
 	PrintSpellsTable(ch, buffer);
 	PrintFeatsTable(ch, buffer);
@@ -372,5 +421,8 @@ void CharClassInfoBuilder::TemporarySetStat(Optional &info) {
 // на сервере в конфиге скиллов не забыть инкоррект поменять на андефайнед
 // armor_class_limit - перенести сюда
 // вытащить константы фитов в отдельный файл
+// Возможно, функции типа IsMage стоит завязать тоже на конфиг классов
+// Перенести функции распечатки под орбщий интерфейс, чтобы не захламлять - а точно ли надо?
+// Распечатать в таблицу не только название, но такде ид название скиллов и прочего
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

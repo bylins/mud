@@ -54,7 +54,7 @@ enum class EPosition {
 int operator-(EPosition p1,  EPosition p2);
 EPosition operator--(const EPosition &p);
 
-/*
+/**
  * Character base stats ids.
  */
 enum class EBaseStat : int {
@@ -64,16 +64,20 @@ enum class EBaseStat : int {
 	kWis = 3,
 	kInt = 4,
 	kCha = 5,
+	kFirst = kStr,
+	kLast = kCha
 };
+
+EBaseStat& operator++(EBaseStat &s);
 
 template<>
 const std::string &NAME_BY_ITEM<EBaseStat>(EBaseStat item);
 template<>
 EBaseStat ITEM_BY_NAME<EBaseStat>(const std::string &name);
 
-const int kDefaultBaseStatMin{1};
+const int kDefaultBaseStatMin{10};
 const int kDefaultBaseStatMax{25};
-const int kDefaultBaseStatAutoGen{10};
+const int kDefaultBaseStatAutoGen{12};
 const int kDefaultBaseStatCap{50};
 
 /*

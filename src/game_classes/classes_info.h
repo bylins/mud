@@ -116,6 +116,10 @@ struct CharClassInfo : public info_container::IItem<ECharClass> {
 
 	CharClassInfo() {
 		names = std::make_unique<base_structs::ItemName>();
+
+		for (auto stat = EBaseStat::kFirst; stat <= EBaseStat::kLast; ++stat) {
+			base_stats[stat] = CharClassInfo::BaseStatLimits();
+		}
 	};
 
 	/* Базовые поля */
@@ -159,7 +163,6 @@ struct CharClassInfo : public info_container::IItem<ECharClass> {
 	void PrintFeatsTable(CharData *ch, std::ostringstream &buffer) const;
 
 	/* базовые параметры */
-	// \todo Не забыть добавить парсинг
 	struct BaseStatLimits {
 		int gen_min{kDefaultBaseStatMin};
 		int gen_max{kDefaultBaseStatMax};
@@ -167,6 +170,7 @@ struct CharClassInfo : public info_container::IItem<ECharClass> {
 		int cap{kDefaultBaseStatCap};
 	};
 	std::unordered_map<EBaseStat, BaseStatLimits> base_stats;
+	void PrintBaseStatsTable(CharData *ch, std::ostringstream &buffer) const;
 
 	/* вторичные параметры */
 
@@ -202,6 +206,8 @@ class CharClassInfoBuilder : public info_container::IItemBuilder<CharClassInfo> 
 	static parser_wrapper::DataNode SelectDataNode(parser_wrapper::DataNode &node);
 	static std::optional<std::string> GetCfgFileName(parser_wrapper::DataNode &node);
 	static void ParseClass(ItemOptional &info, parser_wrapper::DataNode &node);
+	static void ParseStats(ItemOptional &info, parser_wrapper::DataNode &node);
+	static void ParseBaseStats(ItemOptional &info, parser_wrapper::DataNode &node);
 	static void ParseName(ItemOptional &info, parser_wrapper::DataNode &node);
 	static void ParseSkills(ItemOptional &info, parser_wrapper::DataNode &node);
 	static void ParseSpells(ItemOptional &info, parser_wrapper::DataNode &node);

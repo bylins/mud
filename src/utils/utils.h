@@ -987,7 +987,7 @@ const int kNameLevel = 5;
 
 // \todo Ввести для комнат флаг а-ля "место отдыха", а это убрать.
 #define LIKE_ROOM(ch) ((IS_SORCERER(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForSorcerers)) || \
-                       (IsMagicUser(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForMages)) || \
+                       (IsMage(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForMages)) || \
                        (IS_WARRIOR(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForWarriors)) || \
                        (IS_THIEF(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForThieves)) || \
                        (IS_ASSASINE(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForAssasines)) || \
