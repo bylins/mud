@@ -579,18 +579,18 @@ struct guild_learn_type {
 
 struct guild_mono_type {
 	guild_mono_type() : races(0), classes(0), religion(0), alignment(0), learn_info(0) {};
-	int races;        // bitvector //
-	int classes;        // bitvector //
-	int religion;        // bitvector //
-	int alignment;        // bitvector //
+	Bitvector races;        // bitvector //
+	Bitvector classes;        // bitvector //
+	Bitvector religion;        // bitvector //
+	Bitvector alignment;        // bitvector //
 	struct guild_learn_type *learn_info;
 };
 
 struct guild_poly_type {
-	int races;        // bitvector //
-	int classes;        // bitvector //
-	int religion;        // bitvector //
-	int alignment;        // bitvector //
+	Bitvector races;        // bitvector //
+	Bitvector classes;        // bitvector //
+	Bitvector religion;        // bitvector //
+	Bitvector alignment;        // bitvector //
 	EFeat feat_no;
 	ESkill skill_no;
 	ESpell spell_no;
@@ -617,8 +617,8 @@ void init_guilds() {
 		log("Cann't open guilds list file...");
 		return;
 	}
-	auto spellnum{ESpell::kUndefined};
-	auto featnum{EFeat::kUndefined};
+	auto spell_id{ESpell::kUndefined};
+	auto feat_id{EFeat::kUndefined};
 	while (get_line(magic, name)) {
 		if (!name[0] || name[0] == ';')
 			continue;
@@ -717,9 +717,9 @@ void init_guilds() {
 				log("You need use 3 arguments for monoguild");
 				graceful_exit(1);
 			}
-			spellnum = static_cast<ESpell>(atoi(line));
-			if (spellnum < ESpell::kSpellFirst  || spellnum > ESpell::kSpellLast) {
-				spellnum = FixNameAndFindSpellNum(line);
+			spell_id = static_cast<ESpell>(atoi(line));
+			if (spell_id < ESpell::kSpellFirst  || spell_id > ESpell::kSpellLast) {
+				spell_id = FixNameAndFindSpellNum(line);
 			}
 
 			skill_id = static_cast<ESkill>(atoi(line1));
@@ -727,14 +727,14 @@ void init_guilds() {
 				skill_id = FixNameAndFindSkillNum(line1);
 			}
 
-			featnum = static_cast<EFeat>(atoi(line));
-			if (featnum < EFeat::kFirst || featnum >= EFeat::kLast) {
+			feat_id = static_cast<EFeat>(atoi(line));
+			if (feat_id < EFeat::kFirst || feat_id >= EFeat::kLast) {
 				if ((pos = strchr(line1, '.')))
 					*pos = ' ';
-				featnum = FindFeatId(line1);
+				feat_id = FindFeatId(line1);
 			}
 
-			if (MUD::Skills().IsInvalid(skill_id) && spellnum < ESpell::kSpellFirst && featnum < EFeat::kFirst) {
+			if (MUD::Skills().IsInvalid(skill_id) && spell_id < ESpell::kSpellFirst && feat_id < EFeat::kFirst) {
 				log("Unknown skill, spell or feat for monoguild");
 				graceful_exit(1);
 			}
@@ -753,9 +753,9 @@ void init_guilds() {
 			mono_guild_learn.reset(ptr);
 
 			ptr += mgcount;
-			ptr->spell_no = spellnum;
+			ptr->spell_no = spell_id;
 			ptr->skill_no = skill_id;
-			ptr->feat_no = featnum;
+			ptr->feat_no = feat_id;
 			ptr->level = level;
 			// log("->%d %d %d<-",spellnum,skill_id,level);
 			mgcount++;
@@ -790,9 +790,9 @@ void init_guilds() {
 				if (strchr("!1xX", *(line3 + i)))
 					SET_BIT(ptr->alignment, (1 << i));
 
-			spellnum = static_cast<ESpell>(atoi(line4));
-			if (spellnum < ESpell::kSpellFirst || spellnum > ESpell::kSpellLast) {
-				spellnum = FixNameAndFindSpellNum(line4);
+			spell_id = static_cast<ESpell>(atoi(line4));
+			if (spell_id < ESpell::kSpellFirst || spell_id > ESpell::kSpellLast) {
+				spell_id = FixNameAndFindSpellNum(line4);
 			}
 
 			skill_id = static_cast<ESkill>(atoi(line5));
@@ -800,16 +800,16 @@ void init_guilds() {
 				skill_id = FixNameAndFindSkillNum(line5);
 			}
 
-			featnum = static_cast<EFeat>(atoi(line4));
-			if (featnum < EFeat::kFirst || featnum > EFeat::kLast) {
+			feat_id = static_cast<EFeat>(atoi(line4));
+			if (feat_id < EFeat::kFirst || feat_id > EFeat::kLast) {
 				if ((pos = strchr(line5, '.')))
 					*pos = ' ';
 
-				featnum = FindFeatId(line1);
-				sprintf(buf, "feature number 2: %d", to_underlying(featnum));
-				featnum = FindFeatId(line5);
+				feat_id = FindFeatId(line1);
+				sprintf(buf, "feature number 2: %d", to_underlying(feat_id));
+				feat_id = FindFeatId(line5);
 			}
-			if (MUD::Skills().IsInvalid(skill_id) && spellnum < ESpell::kSpellFirst && featnum < EFeat::kFirst) {
+			if (MUD::Skills().IsInvalid(skill_id) && spell_id < ESpell::kSpellFirst && feat_id < EFeat::kFirst) {
 				log("Unknown skill, spell or feat for polyguild - \'%s\'", line5);
 				graceful_exit(1);
 			}
@@ -817,9 +817,9 @@ void init_guilds() {
 				log("Use 1-%d level for guilds", kLvlImmortal);
 				graceful_exit(1);
 			}
-			ptr->spell_no = spellnum;
+			ptr->spell_no = spell_id;
 			ptr->skill_no = skill_id;
-			ptr->feat_no = featnum;
+			ptr->feat_no = feat_id;
 			ptr->level = level;
 			// log("->%d %d %d<-",spellnum,skill_id,level);
 			pgcount++;
@@ -889,7 +889,7 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 						found = true;
 					}
 
-					const auto feat_no = static_cast<EFeat>((guild_mono_info[info_num].learn_info + i)->feat_no);
+					const auto feat_no = (guild_mono_info[info_num].learn_info + i)->feat_no;
 					if (feat_no > EFeat::kUndefined && !ch->HaveFeat(feat_no) && IsAbleToGetFeat(ch, feat_no)) {
 						gcount += sprintf(buf + gcount, "- способность %s\"%s\"%s\r\n",
 										  CCCYN(ch, C_NRM), GetFeatName(feat_no), CCNRM(ch, C_NRM));
@@ -954,7 +954,7 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 						found = true;
 					}
 
-					const auto feat_no = static_cast<EFeat>((guild_mono_info[info_num].learn_info + i)->feat_no);
+					const auto feat_no = (guild_mono_info[info_num].learn_info + i)->feat_no;
 					if (feat_no >= EFeat::kFirst && feat_no <= EFeat::kLast) {
 						if (!ch->HaveFeat(feat_no) && IsAbleToGetFeat(ch, feat_no)) {
 							sfound = true;
@@ -1183,7 +1183,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 						found = true;
 					}
 
-					const auto feat_no = static_cast<EFeat>((guild_poly_info[info_num] + i)->feat_no);
+					const auto feat_no = (guild_poly_info[info_num] + i)->feat_no;
 					if (feat_no >= EFeat::kFirst && feat_no <= EFeat::kLast) {
 						if (!ch->HaveFeat(feat_no) && IsAbleToGetFeat(ch, feat_no)) {
 							gcount += sprintf(buf + gcount, "- способность %s\"%s\"%s\r\n",
@@ -1225,7 +1225,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 						sfound = true;
 					}
 
-					const auto feat_no = static_cast<EFeat>((guild_poly_info[info_num] + i)->feat_no);
+					const auto feat_no = (guild_poly_info[info_num] + i)->feat_no;
 					if (feat_no >= EFeat::kFirst && feat_no <= EFeat::kLast) {
 						if (!ch->HaveFeat(feat_no) && IsAbleToGetFeat(ch, feat_no)) {
 							sfound = true;
@@ -1278,7 +1278,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 				return (1);
 			}
 
-			const ESkill skill_no = FixNameAndFindSkillNum(argument);
+			const auto skill_no = FixNameAndFindSkillNum(argument);
 			if (ESkill::kUndefined != skill_no && skill_no <= ESkill::kLast) {
 				for (i = 0, found = false; (guild_poly_info[info_num] + i)->spell_no >= 0; i++) {
 					if ((guild_poly_info[info_num] + i)->level > GetRealLevel(ch)) {
@@ -1292,9 +1292,11 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 
 					if (skill_no == (guild_poly_info[info_num] + i)->skill_no) {
 						if (ch->get_trained_skill(skill_no)) {
-							act("$N сказал$G вам : 'Ты уже владеешь этим умением.'", false, ch, 0, victim, kToChar);
+							act("$N сказал$G вам : 'Ты уже владеешь этим умением.'",
+								false, ch, 0, victim, kToChar);
 						} else if (!IsAbleToGetSkill(ch, skill_no)) {
-							act("$N сказал$G : 'Я не могу тебя этому научить.'", false, ch, 0, victim, kToChar);
+							act("$N сказал$G : 'Я не могу тебя этому научить.'",
+								false, ch, 0, victim, kToChar);
 						} else {
 							sprintf(buf, "$N научил$G вас умению %s\"%s\"%s",
 									CCCYN(ch, C_NRM), MUD::Skills()[skill_no].GetName(), CCNRM(ch, C_NRM));
@@ -1305,23 +1307,20 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 					}
 				}
 
-				if (!found) {
-					//				found_skill = false;
-					//				act("$N сказал$G : 'Мне не ведомо такое умение.'", false, ch, 0, victim, TO_CHAR);
-				} else {
-					return (1);
+				if (found) {
+					return 1;
 				}
 			}
 
 			auto feat_no = FindFeatId(argument);
-			if (feat_no < EFeat::kFirst || feat_no > EFeat::kLast) {
+			if (feat_no == EFeat::kUndefined) {
 				std::string str(argument);
 				std::replace_if(str.begin(), str.end(), boost::is_any_of("_:"), ' ');
 				feat_no = FindFeatId(str.c_str(), true);
 			}
 
-			if (feat_no >= EFeat::kFirst && feat_no <= EFeat::kLast) {
-				for (i = 0, found = false; (guild_poly_info[info_num] + i)->feat_no >= EFeat::kFirst; i++) {
+			if (feat_no != EFeat::kUndefined) {
+				for (i = 0, found = false; (guild_poly_info[info_num] + i)->spell_no >= 0; i++) {
 					if ((guild_poly_info[info_num] + i)->level > GetRealLevel(ch)) {
 						continue;
 					}
@@ -1330,31 +1329,25 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 						|| !IS_BITS((guild_poly_info[info_num] + i)->religion, GET_RELIGION(ch))) {
 						continue;
 					}
+
 					if (feat_no == (guild_poly_info[info_num] + i)->feat_no) {
 						if (ch->HaveFeat(feat_no)) {
 							act("$N сказал$G вам : 'Ничем помочь не могу, ты уже владеешь этой способностью.'",
-								false,
-								ch,
-								0,
-								victim,
-								kToChar);
+								false, ch, nullptr, victim, kToChar);
 						} else if (!IsAbleToGetFeat(ch, feat_no)) {
 							act("$N сказал$G : 'Я не могу тебя этому научить.'", false, ch, 0, victim, kToChar);
 						} else {
 							sprintf(buf, "$N научил$G вас способности %s\"%s\"%s",
 									CCCYN(ch, C_NRM), GetFeatName(feat_no), CCNRM(ch, C_NRM));
-							act(buf, false, ch, 0, victim, kToChar);
+							act(buf, false, ch, nullptr, victim, kToChar);
 							ch->SetFeat(feat_no);
 						}
 						found = true;
 					}
 				}
 
-				if (!found) {
-					//				found_feat = false;
-					//				act("$N сказал$G : 'Мне не ведомо такое умение.'", false, ch, 0, victim, TO_CHAR);
-				} else {
-					return (1);
+				if (found) {
+					return 1;
 				}
 			}
 
@@ -1428,11 +1421,8 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 					}
 				}
 
-				if (!found) {
-					//				found_spell = false;
-					//				act("$N сказал$G : 'Я и сам$G не знаю такого заклинания.'", false, ch, 0, victim, TO_CHAR);
-				} else {
-					return (1);
+				if (found) {
+					return 1;
 				}
 			}
 
