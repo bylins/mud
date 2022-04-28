@@ -881,8 +881,8 @@ void do_ospellturntemp(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/
 
 	spelltime = atoi(amount);
 
-	if (spelltime < 0) {
-		obj_log(obj, "ospellturntemp: time is negative");
+	if (spelltime <= 0) {
+		obj_log(obj, "ospellturntemp: time is zero or negative");
 		return;
 	}
 
