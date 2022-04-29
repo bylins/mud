@@ -2863,7 +2863,8 @@ void HitData::init(CharData *ch, CharData *victim) {
 		weapon_pos = EEquipPos::kHold;
 		if (!wielded) { // удар второй рукой
 			weap_skill = ESkill::kLeftHit;
-			weap_skill_is = CalcCurrentSkill(ch, weap_skill, victim);
+// зачем вычисления и спам в лог если ниже переопределяется
+//			weap_skill_is = CalcCurrentSkill(ch, weap_skill, victim);
 			TrainSkill(ch, weap_skill, true, victim);
 		}
 	}
