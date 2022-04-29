@@ -1976,6 +1976,11 @@ bool Damage::dam_absorb(CharData *ch, CharData *victim) {
 			}
 		}
 	}
+	if (dmg_type == fight::kMagicDmg
+		&& !flags[fight::kIgnoreAbsorbe]) {
+// поглота магии
+		dam -= (int) dam * MIN(25, GET_ABSORBE(victim) / 2) / 100.;
+	}
 	return false;
 }
 
