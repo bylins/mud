@@ -1976,6 +1976,14 @@ bool Damage::dam_absorb(CharData *ch, CharData *victim) {
 			}
 		}
 	}
+	if (dmg_type == fight::kMagicDmg
+		&& dam > 0
+		&& GET_ABSORBE(victim) > 0
+		&& !flags[fight::kIgnoreAbsorbe]) {
+// маг урон - по 1% за каждые 2 абсорба, максимум 25% (цифры из mag_damage)
+		int absorb = MIN(GET_ABSORBE(victim) / 2, 25);
+		dam -= dam * absorb / 100;
+	}
 	return false;
 }
 
