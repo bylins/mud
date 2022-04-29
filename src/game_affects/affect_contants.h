@@ -7,7 +7,7 @@
 #ifndef BYLINS_SRC_AFFECTS_AFFECT_CONTANTS_H_
 #define BYLINS_SRC_AFFECTS_AFFECT_CONTANTS_H_
 
-#include "structs/structs.h"
+#include "game_magic/spells_constants.h"
 
 // Константа, определяющая скорость таймера аффектов
 const int kSecsPerPlayerAffect = 2;
@@ -177,7 +177,7 @@ const std::string &NAME_BY_ITEM(EWeaponAffect item);
 struct WeaponAffect {
 	EWeaponAffect aff_pos;
 	Bitvector aff_bitvector;
-	int aff_spell;
+	ESpell aff_spell;
 };
 
 // Applies используются как в предметах, так и в аффектах. Разумней разместить их тут, т.к. по сути

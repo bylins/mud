@@ -5189,14 +5189,14 @@ void SpellUsage::save() {
 	file.close();
 }
 
-void SpellUsage::AddSpellStat(ECharClass char_class, int spellnum) {
+void SpellUsage::AddSpellStat(ECharClass char_class, ESpell spell_id) {
 	if (!is_active) {
 		return;
 	}
-	if (MUD::Classes().IsUnavailable(char_class) || spellnum > kSpellLast) {
+	if (MUD::Classes().IsUnavailable(char_class) || spell_id > kSpellLast) {
 		return;
 	}
-	usage[char_class][spellnum]++;
+	++usage[char_class][spell_id];
 }
 
 void do_spellstat(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {

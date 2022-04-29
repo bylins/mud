@@ -134,7 +134,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 	int unequip_pos = 0;
 
 	for (int i = 0; i < 4; i++) {
-		af[i].type = 0;
+		af[i].type = ESpell::kUndefined;
 		af[i].location = EApply::kNone;
 		af[i].bitvector = 0;
 		af[i].modifier = 0;
@@ -1882,7 +1882,7 @@ bool Damage::magic_shields_dam(CharData *ch, CharData *victim) {
 	if (dam
 		&& flags[fight::kCritHit] && flags[fight::kVictimIceShield]
 		&& !dam_critic
-		&& spell_num != kSpellPoison
+		&& spell_id != kSpellPoison
 		&& number(0, 100) < 94) {
 		act("Ваше меткое попадания частично утонуло в ледяной пелене вокруг $N1.",
 			false, ch, 0, victim, kToChar | kToNoBriefShields);
@@ -1953,7 +1953,7 @@ void Damage::armor_dam_reduce(CharData *victim) {
 bool Damage::dam_absorb(CharData *ch, CharData *victim) {
 	if (dmg_type == fight::kPhysDmg
 		&& skill_id < ESkill::kFirst
-		&& spell_num < 0
+		&& spell_id < 0
 		&& dam > 0
 		&& GET_ABSORBE(victim) > 0) {
 		// шансы поглощения: непробиваемый в осторожке 15%, остальные 10%
@@ -2101,7 +2101,7 @@ void Damage::process_death(CharData *ch, CharData *victim) {
 
 	if (victim->IsNpc() || victim->desc) {
 		if (victim == ch && IN_ROOM(victim) != kNowhere) {
-			if (spell_num == kSpellPoison) {
+			if (spell_id == kSpellPoison) {
 				for (const auto poisoner : world[IN_ROOM(victim)]->people) {
 					if (poisoner != victim
 						&& GET_ID(poisoner) == victim->poisoner) {
@@ -2302,8 +2302,8 @@ int Damage::Process(CharData *ch, CharData *victim) {
 
 	//учет резистов для магического урона
 	if (dmg_type == fight::kMagicDmg) {
-		if (spell_num > 0) {
-			dam = ApplyResist(victim, GetResistType(spell_num), dam);
+		if (spell_id > 0) {
+			dam = ApplyResist(victim, GetResistType(spell_id), dam);
 		} else {
 			dam = ApplyResist(victim, GetResisTypeWithSpellClass(magic_type), dam);
 		};
@@ -2436,7 +2436,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 			if (!damage_mtrigger(ch, victim, dam, MUD::Skills()[skill_id].GetName(), 1, wielded))
 				return 0;
 		} else if (dmg_type == fight::kMagicDmg) {
-			if (!damage_mtrigger(ch, victim, dam, GetSpellName(spell_num), 0, wielded))
+			if (!damage_mtrigger(ch, victim, dam, GetSpellName(spell_id), 0, wielded))
 				return 0;
 		}
 	}
@@ -2499,11 +2499,11 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		}
 	}
 	// сбивание надува черноков //
-	if (spell_num != kSpellPoison && dam > 0 && !flags[fight::kMagicReflect]) {
+	if (spell_id != kSpellPoison && dam > 0 && !flags[fight::kMagicReflect]) {
 		try_remove_extrahits(ch, victim);
 	}
 
-	if (dam && flags[fight::kCritHit] && !dam_critic && spell_num != kSpellPoison) {
+	if (dam && flags[fight::kCritHit] && !dam_critic && spell_id != kSpellPoison) {
 		send_critical_message(ch, victim);
 	}
 
@@ -2533,7 +2533,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	}
 
 	// сообщения об ударах //
-	if (MUD::Skills().IsValid(skill_id) || spell_num >= 0 || hit_type < 0) {
+	if (MUD::Skills().IsValid(skill_id) || spell_id >= 0 || hit_type < 0) {
 		// скилл, спелл, необычный дамаг
 		SendSkillMessages(dam, ch, victim, msg_num, brief_shields_);
 	} else {
@@ -3529,9 +3529,9 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 
 	// дышащий моб может оглушить, и нанесёт физ.дамаг!!
 	if (type == ESkill::kUndefined) {
-		ESpell spellnum;
-		spellnum = breathFlag2Spellnum(ch);
-		if (spellnum != ESpell::kUndefined) // защита от падения
+		ESpell spell_id;
+		spell_id = breathFlag2Spellnum(ch);
+		if (spell_id != ESpell::kUndefined) // защита от падения
 		{
 			if (!ch->GetEnemy())
 				SetFighting(ch, victim);
@@ -3545,13 +3545,13 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 					if (IS_IMMORTAL(tch) || ch->in_room == kNowhere || IN_ROOM(tch) == kNowhere)
 						continue;
 					if (tch != ch && !same_group(ch, tch)) {
-						mag_damage(GetRealLevel(ch), ch, tch, spellnum, ESaving::kStability);
+						mag_damage(GetRealLevel(ch), ch, tch, spell_id, ESaving::kStability);
 					}
 				}
 				return;
 			}
 			// а теперь просто дышащие
-			mag_damage(GetRealLevel(ch), ch, victim, spellnum, ESaving::kStability);
+			mag_damage(GetRealLevel(ch), ch, victim, spell_id, ESaving::kStability);
 			return;
 		}
 	}

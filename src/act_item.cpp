@@ -53,7 +53,7 @@ bool perform_get_from_container(CharData *ch, ObjData *obj, ObjData *cont, int m
 void RemoveEquipment(CharData *ch, int pos);
 int invalid_anti_class(CharData *ch, const ObjData *obj);
 void feed_charmice(CharData *ch, char *arg);
-int get_player_charms(CharData *ch, int spellnum);
+int CalcCharmPoint(CharData *ch, ESpell spell_id);
 ObjData *create_skin(CharData *mob);
 int invalid_unique(CharData *ch, const ObjData *obj);
 bool unique_stuff(const CharData *ch, const ObjData *obj);
@@ -2648,7 +2648,7 @@ void do_extinguish(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_firstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	int success = false, need = false, spellnum = 0;
+	bool success = false, need = false;
 	struct TimedSkill timed;
 
 	if (!ch->get_skill(ESkill::kFirstAid)) {
@@ -2713,7 +2713,8 @@ void do_firstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	}
 
-	int count = 0;
+	auto count{0};
+	auto spell_id{ESpell::kUndefined};
 	if (PRF_FLAGGED(ch, EPrf::kTester)) {
 		count = (GET_SKILL(ch, ESkill::kFirstAid) - 20) / 30;
 		SendMsgToChar(ch, "Снимаю %d аффектов\r\n", count);
@@ -2725,13 +2726,13 @@ void do_firstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		need = true;
 		prob = true;
 	} else {
-		count = MIN(MAX_FIRSTAID_REMOVE, MAX_FIRSTAID_REMOVE * prob / 100);
+		count = std::min(MAX_FIRSTAID_REMOVE, MAX_FIRSTAID_REMOVE * prob / 100);
 
 		for (percent = 0, prob = need; !need && percent < MAX_FIRSTAID_REMOVE && RemoveSpell(percent); percent++) {
 			if (IsAffectedBySpell(vict, RemoveSpell(percent))) {
 				need = true;
 				if (percent < count) {
-					spellnum = RemoveSpell(percent);
+					spell_id = RemoveSpell(percent);
 					prob = true;
 				}
 			}
@@ -2752,8 +2753,8 @@ void do_firstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				act("Вы оказали первую помощь $N2.", false, ch, 0, vict, kToChar);
 				act("$N оказал$G вам первую помощь.", false, vict, 0, ch, kToChar);
 				act("$n оказал$g первую помощь $N2.", true, ch, 0, vict, kToNotVict | kToArenaListen);
-				if (spellnum)
-					affect_from_char(vict, spellnum);
+				if (spell_id)
+					affect_from_char(vict, spell_id);
 			} else {
 				act("Вы безрезультатно попытались оказать первую помощь $N2.",
 					false, ch, 0, vict, kToChar);
@@ -2766,8 +2767,8 @@ void do_firstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (success) {
 				act("Вы оказали себе первую помощь.", false, ch, 0, 0, kToChar);
 				act("$n оказал$g себе первую помощь.", false, ch, 0, 0, kToRoom | kToArenaListen);
-				if (spellnum)
-					affect_from_char(vict, spellnum);
+				if (spell_id)
+					affect_from_char(vict, spell_id);
 			} else {
 				act("Вы безрезультатно попытались оказать себе первую помощь.",
 					false, ch, 0, vict, kToChar);
@@ -3093,11 +3094,11 @@ void feed_charmice(CharData *ch, char *arg) {
 	for (k = ch->get_master()->followers; k; k = k->next) {
 		if (AFF_FLAGGED(k->ch, EAffect::kCharmed)
 			&& k->ch->get_master() == ch->get_master()) {
-			reformed_hp_summ += get_reformed_charmice_hp(ch->get_master(), k->ch, kSpellAnimateDead);
+			reformed_hp_summ += GetReformedCharmiceHp(ch->get_master(), k->ch, kSpellAnimateDead);
 		}
 	}
 
-	if (reformed_hp_summ >= get_player_charms(ch->get_master(), kSpellAnimateDead)) {
+	if (reformed_hp_summ >= CalcCharmPoint(ch->get_master(), kSpellAnimateDead)) {
 		SendMsgToChar("Вы не можете управлять столькими последователями.\r\n", ch->get_master());
 		ExtractCharFromWorld(ch, false);
 		return;

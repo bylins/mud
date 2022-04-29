@@ -956,28 +956,24 @@ bool ObjectFile::check_object_spell_number(ObjData *obj, unsigned val) {
 	* Check for negative spells, spells beyond the top define, and any
 	* spell which is actually a skill.
 	*/
-	if (GET_OBJ_VAL(obj, val) < 0) {
+	auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(obj, val));
+	if (spell_id == ESpell::kUndefined) {
 		error = true;
 	}
-	if (GET_OBJ_VAL(obj, val) > kSpellLast) {
-		error = true;
-	}
+
 	if (error) {
 		log("SYSERR: Object #%d (%s) has out of range spell #%d.",
 			GET_OBJ_VNUM(obj), obj->get_short_description().c_str(), GET_OBJ_VAL(obj, val));
 	}
 
-	if (scheck)        // Spell names don't exist in syntax check mode.
-	{
+	// Spell names don't exist in syntax check mode.
+	if (scheck) {
 		return error;
 	}
 
 	// Now check for unnamed spells.
-	spellname = GetSpellName(GET_OBJ_VAL(obj, val));
-
-	if (error
-		&& (spellname == unused_spellname
-			|| !str_cmp("UNDEFINED", spellname))) {
+	spellname = GetSpellName(spell_id);
+	if (error && (spellname == unused_spellname || !str_cmp("UNDEFINED", spellname))) {
 		log("SYSERR: Object #%d (%s) uses '%s' spell #%d.", GET_OBJ_VNUM(obj),
 			obj->get_short_description().c_str(), spellname, GET_OBJ_VAL(obj, val));
 	}
@@ -1372,7 +1368,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 	}
 
 	CASE("LikeWork") {
-		mob_proto[i].mob_specials.LikeWork = std::clamp<byte>(num_arg, 0, 100);
+		mob_proto[i].mob_specials.like_work = std::clamp<byte>(num_arg, 0, 100);
 	}
 
 	CASE("MaxFactor") {
@@ -1380,7 +1376,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 	}
 
 	CASE("ExtraAttack") {
-		mob_proto[i].mob_specials.ExtraAttack = std::clamp<byte>(num_arg, 0, 127);
+		mob_proto[i].mob_specials.extra_attack = std::clamp<byte>(num_arg, 0, 127);
 	}
 
 	CASE("MobRemort") {
@@ -1439,8 +1435,9 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			log("SYSERROR : Unknown spell No %d for MOB #%d", t[0], i);
 			return;
 		}
-		GET_SPELL_MEM(mob_proto + i, t[0]) += 1;
-		(mob_proto + i)->caster_level += (IS_SET(spell_info[t[0]].routines, NPC_CALCULATE) ? 1 : 0);
+		auto spell_id = static_cast<ESpell>(t[0]);
+		GET_SPELL_MEM(mob_proto + i, spell_id) += 1;
+		(mob_proto + i)->caster_level += (IS_SET(spell_info[spell_id].routines, NPC_CALCULATE) ? 1 : 0);
 	}
 
 	CASE("Helper") {

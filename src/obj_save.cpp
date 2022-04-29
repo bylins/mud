@@ -362,7 +362,7 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 						*error = 50;
 						return object;
 					}
-					object->add_timed_spell(t[0], t[1]);
+					object->add_timed_spell(static_cast<ESpell>(t[0]), t[1]);
 				}
 			} else if (!strcmp(read_line, "Mort")) {
 				*error = 51;

@@ -45,7 +45,7 @@
 #include <stack>
 
 // * External variable declarations.
-extern const char *item_types[];
+/*extern const char *item_types[];
 extern const char *wear_bits[];
 extern const char *extra_bits[];
 extern const char *drinks[];
@@ -56,8 +56,7 @@ extern const char *no_bits[];
 extern const char *weapon_affects[];
 extern const char *material_name[];
 extern const char *ingradient_bits[];
-extern const char *magic_container_bits[];
-extern struct SpellInfo spell_info[];
+extern const char *magic_container_bits[];*/
 extern DescriptorData *descriptor_list;
 extern int top_imrecipes;
 extern void ExtractObjFromWorld(ObjData *obj);
@@ -530,17 +529,17 @@ void oedit_disp_weapon_menu(DescriptorData *d) {
 
 // * Spell type.
 void oedit_disp_spells_menu(DescriptorData *d) {
-	int counter, columns = 0;
+	int columns = 0;
 
 	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
-	for (counter = 0; counter <= kSpellLast; counter++) {
-		if (!spell_info[counter].name || *spell_info[counter].name == '!' || *spell_info[counter].name == '*')
+	for (auto spell_id = ESpell::kSpellFirst; spell_id <= ESpell::kSpellLast; ++spell_id) {
+		if (!spell_info[spell_id].name || *spell_info[spell_id].name == '!' || *spell_info[spell_id].name == '*')
 			continue;
-		sprintf(buf, "%s%2d%s) %s%-30.30s %s", grn, counter, nrm, yel,
-				spell_info[counter].name, !(++columns % 4) ? "\r\n" : "");
+		sprintf(buf, "%s%2d%s) %s%-30.30s %s", grn, to_underlying(spell_id), nrm, yel,
+				spell_info[spell_id].name, !(++columns % 4) ? "\r\n" : "");
 		SendMsgToChar(buf, d->character.get());
 	}
 	sprintf(buf, "\r\n%sВыберите магию (0 - выход) : ", nrm);
@@ -1051,7 +1050,8 @@ std::string print_spell_value(ObjData *obj, const ObjVal::EValueKey key1, const 
 		return "нет";
 	}
 	char buf_[kMaxInputLength];
-	snprintf(buf_, sizeof(buf_), "%s:%d", GetSpellName(obj->get_value(key1)), obj->get_value(key2));
+	snprintf(buf_, sizeof(buf_), "%s:%d",
+			 GetSpellName(static_cast<ESpell>(obj->get_value(key1))), obj->get_value(key2));
 	return buf_;
 }
 
@@ -1276,7 +1276,7 @@ bool parse_val_spell_num(DescriptorData *d, const ObjVal::EValueKey key, int val
 	OLC_OBJ(d)->set_value(key, val);
 	SendMsgToChar(d->character.get(), "Выбранное заклинание: %s\r\n"
 									  "Ведите уровень заклинания от 1 до 50 (0 - выход) :",
-				  GetSpellName(val));
+				  GetSpellName(static_cast<ESpell>(val)));
 	return true;
 }
 
@@ -1825,19 +1825,21 @@ void oedit_parse(DescriptorData *d, char *arg) {
 
 				case EObjType::kBook:
 					switch (GET_OBJ_VAL(OLC_OBJ(d), 0)) {
-						case EBook::kSpell:
+						case EBook::kSpell: {
 							if (number == 0) {
 								OLC_VAL(d) = 0;
 								oedit_disp_menu(d);
 								return;
 							}
-							if (number < 0 || (number > kSpellLast || !spell_info[number].name
-								|| *spell_info[number].name == '!')) {
+							auto spell_id = static_cast<ESpell>(number);
+							if (spell_id < ESpell::kSpellFirst || (number > ESpell::kSpellLast ||
+								!spell_info[spell_id].name || *spell_info[spell_id].name == '!')) {
 								SendMsgToChar("Неизвестное заклинание, повторите.\r\n", d->character.get());
 								oedit_disp_val2_menu(d);
 								return;
 							}
 							break;
+						}
 
 						case EBook::kSkill:
 						case EBook::kSkillUpgrade:

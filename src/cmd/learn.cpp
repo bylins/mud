@@ -67,14 +67,14 @@ void LearnSpellBook(CharData *ch, ObjData *obj) {
 		throw LowRemortOrLvl();
 	}
 	auto spell_name = spell_info[spell_id].name;
-	if (GET_SPELL_TYPE(ch, spell_id) & kSpellKnow) {
+	if (GET_SPELL_TYPE(ch, spell_id) & ESpellType::kKnow) {
 		throw AlreadyKnown(spell_name);
 	}
 	if (IsLearningFailed(ch, obj)) {
 		throw LearningFail();
 	}
 
-	GET_SPELL_TYPE(ch, spell_id) |= kSpellKnow;
+	GET_SPELL_TYPE(ch, spell_id) |= ESpellType::kKnow;
 	SendSuccessLearningMessage(ch, obj, spell_name);
 }
 

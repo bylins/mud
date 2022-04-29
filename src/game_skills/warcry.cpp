@@ -6,8 +6,6 @@
 #include "game_magic/spells_info.h"
 
 void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	int spellnum, cnt;
-
 	if (ch->IsNpc() && AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
@@ -28,22 +26,23 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (wc_name.empty()) {
 		sprintf(buf, "Вам доступны :\r\n");
-		for (cnt = spellnum = 1; spellnum <= kSpellLast; spellnum++) {
-			const char *realname = spell_info[spellnum].name
-									   && *spell_info[spellnum].name ? spell_info[spellnum].name :
-								   spell_info[spellnum].syn
-									   && *spell_info[spellnum].syn
-								   ? spell_info[spellnum].syn
+		auto cnt{0};;
+		for (auto spell_id = ESpell::kSpellFirst; spell_id <= ESpell::kSpellLast; ++spell_id) {
+			const char *realname = spell_info[spell_id].name
+									   && *spell_info[spell_id].name ? spell_info[spell_id].name :
+								   spell_info[spell_id].syn
+									   && *spell_info[spell_id].syn
+								   ? spell_info[spell_id].syn
 								   : nullptr;
 
 			if (realname
-				&& IS_SET(spell_info[spellnum].routines, kMagWarcry)
-				&& ch->get_skill(ESkill::kWarcry) >= spell_info[spellnum].mana_change) {
-				if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), kSpellKnow | kSpellTemp))
+				&& IS_SET(spell_info[spell_id].routines, kMagWarcry)
+				&& ch->get_skill(ESkill::kWarcry) >= spell_info[spell_id].mana_change) {
+				if (!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow | ESpellType::kTemp))
 					continue;
 				sprintf(buf + strlen(buf), "%s%2d%s) %s%s%s\r\n",
 						KGRN, cnt++, KNRM,
-						spell_info[spellnum].violent ? KIRED : KIGRN, realname, KNRM);
+						spell_info[spell_id].violent ? KIRED : KIGRN, realname, KNRM);
 			}
 		}
 		SendMsgToChar(buf, ch);
@@ -56,12 +55,11 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		wc_name = "клич " + wc_name;
 	}
 
-	spellnum = FixNameAndFindSpellNum(wc_name);
+	auto spell_id = FixNameAndFindSpellId(wc_name);
 
-	// Unknown warcry
-	if (spellnum < 1 || spellnum > kSpellLast
-		|| (ch->get_skill(ESkill::kWarcry) < spell_info[spellnum].mana_change)
-		|| !IS_SET(GET_SPELL_TYPE(ch, spellnum), kSpellKnow | kSpellTemp)) {
+	if (spell_id == ESpell::kUndefined
+		|| (ch->get_skill(ESkill::kWarcry) < spell_info[spell_id].mana_change)
+		|| !IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow | ESpellType::kTemp)) {
 		SendMsgToChar("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
 	}
@@ -71,9 +69,9 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	// например как сделано с заклинаниями - брать клич в !!
 	// либо гарантировать что все кличи будут всегда из 1 слова
 
-	if (spell_info[spellnum].targets != kTarIgnore) {
+	if (spell_info[spell_id].targets != kTarIgnore) {
 		std::stringstream str_log;
-		str_log << "Для клича #" << spellnum << ", установлены некорректные цели: " << spell_info[spellnum].targets;
+		str_log << "Для клича #" << spell_id << ", установлены некорректные цели: " << spell_info[spell_id].targets;
 		mudlog(str_log.str(), BRF, kLvlGod, SYSLOG, true);
 		SendMsgToChar("Вы ничего не смогли выкрикнуть. Обратитесь к богам.\r\n", ch);
 		return;
@@ -88,20 +86,20 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (GET_MOVE(ch) < spell_info[spellnum].mana_max) {
+	if (GET_MOVE(ch) < spell_info[spell_id].mana_max) {
 		SendMsgToChar("У вас не хватит сил для этого.\r\n", ch);
 		return;
 	}
 
-	SaySpell(ch, spellnum, nullptr, nullptr);
+	SaySpell(ch, spell_id, nullptr, nullptr);
 
-	if (CallMagic(ch, nullptr, nullptr, nullptr, spellnum, GetRealLevel(ch)) >= 0) {
+	if (CallMagic(ch, nullptr, nullptr, nullptr, spell_id, GetRealLevel(ch)) >= 0) {
 		if (!IS_IMMORTAL(ch)) {
 			if (ch->get_wait() <= 0) {
 				SetWaitState(ch, kPulseViolence);
 			}
 			ImposeTimedSkill(ch, &timed);
-			GET_MOVE(ch) -= spell_info[spellnum].mana_max;
+			GET_MOVE(ch) -= spell_info[spell_id].mana_max;
 		}
 		TrainSkill(ch, ESkill::kWarcry, true, nullptr);
 	}

@@ -9,11 +9,9 @@
 using PlayerClass::CalcCircleSlotsAmount;
 
 void show_wizdom(CharData *ch, int bitset);
-void do_memorize(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 
 void do_memorize(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char *s;
-	int spellnum;
 
 	// get: blank, spell name, target name
 	if (!argument || !(*argument)) {
@@ -34,25 +32,24 @@ void do_memorize(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Название заклинания должно быть заключено в символы : ' или * или !\r\n", ch);
 		return;
 	}
-	spellnum = FixNameAndFindSpellNum(s);
 
-	if (spellnum < 1 || spellnum > kSpellLast) {
+	auto spell_id = FixNameAndFindSpellId(s);
+	if (spell_id == ESpell::kUndefined) {
 		SendMsgToChar("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
 	}
-	// Caster is lower than spell level
-	if (GetRealLevel(ch) < MIN_CAST_LEV(spell_info[spellnum], ch)
-		|| GET_REAL_REMORT(ch) < MIN_CAST_REM(spell_info[spellnum], ch)
-		|| CalcCircleSlotsAmount(ch, spell_info[spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0) {
+
+	if (GetRealLevel(ch) < MIN_CAST_LEV(spell_info[spell_id], ch)
+		|| GET_REAL_REMORT(ch) < MIN_CAST_REM(spell_info[spell_id], ch)
+		|| CalcCircleSlotsAmount(ch, spell_info[spell_id].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0) {
 		SendMsgToChar("Рано еще вам бросаться такими словами!\r\n", ch);
 		return;
 	};
-	if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), kSpellKnow | kSpellTemp)) {
+	if (!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow | ESpellType::kTemp)) {
 		SendMsgToChar("Было бы неплохо изучить, для начала, это заклинание...\r\n", ch);
 		return;
 	}
-	MemQ_remember(ch, spellnum);
-	return;
+	MemQ_remember(ch, spell_id);
 }
 
 void show_wizdom(CharData *ch, int bitset) {
@@ -66,22 +63,25 @@ void show_wizdom(CharData *ch, int bitset) {
 	}
 	if (bitset & 0x01) {
 		is_full = 0;
-		for (i = 1, max_slot = 0; i <= kSpellLast; i++) {
-			if (!GET_SPELL_TYPE(ch, i))
+		max_slot = 0;
+		for (auto spell_id = ESpell::kSpellFirst; spell_id <= ESpell::kSpellLast; ++spell_id) {
+			if (!GET_SPELL_TYPE(ch, spell_id)) {
 				continue;
-			if (!spell_info[i].name || *spell_info[i].name == '!')
+			}
+			if (!spell_info[spell_id].name || *spell_info[spell_id].name == '!') {
 				continue;
-			count = GET_SPELL_MEM(ch, i);
+			}
+			count = GET_SPELL_MEM(ch, spell_id);
 			if (IS_IMMORTAL(ch))
 				count = 10;
 			if (!count)
 				continue;
-			slot_num = spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;
-			max_slot = MAX(slot_num, max_slot);
+			slot_num = spell_info[spell_id].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;
+			max_slot = std::max(slot_num, max_slot);
 			slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
 									   "%2s|[%2d] %-31s|",
 									   slots[slot_num] % 80 <
-										   10 ? "\r\n" : "  ", count, spell_info[i].name);
+										   10 ? "\r\n" : "  ", count, spell_info[spell_id].name);
 			is_full++;
 		};
 
@@ -109,8 +109,8 @@ void show_wizdom(CharData *ch, int bitset) {
 		}
 
 		if (!ch->mem_queue.Empty()) {
-			unsigned char cnt[kSpellLast + 1];
-			memset(cnt, 0, kSpellLast + 1);
+			ESpell cnt[kSpellLast + 1];
+			memset(cnt, 0, to_underlying(ESpell::kSpellLast) + 1);
 			timestr[0] = 0;
 			if (!IS_MANA_CASTER(ch)) {
 				int div, min, sec;
@@ -129,21 +129,23 @@ void show_wizdom(CharData *ch, int bitset) {
 				}
 			}
 
-			for (q = ch->mem_queue.queue; q; q = q->link) {
-				++cnt[q->spellnum];
+			for (q = ch->mem_queue.queue; q; q = q->next) {
+				++cnt[q->spell_id];
 			}
 
-			for (q = ch->mem_queue.queue; q; q = q->link) {
-				i = q->spellnum;
-				if (cnt[i] == 0)
+			for (q = ch->mem_queue.queue; q; q = q->next) {
+				auto spell_id = q->spell_id;
+				auto index = to_underlying(spell_id);
+				if (cnt[index] == ESpell::kUndefined) {
 					continue;
-				slot_num = spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;
+				}
+				slot_num = spell_info[spell_id].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;
 				slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
 										   "%2s|[%2d] %-26s%5s|",
 										   slots[slot_num] % 80 <
-											   10 ? "\r\n" : "  ", cnt[i],
-										   spell_info[i].name, q == ch->mem_queue.queue ? timestr : "");
-				cnt[i] = 0;
+											   10 ? "\r\n" : "  ", cnt[index],
+										   spell_info[spell_id].name, q == ch->mem_queue.queue ? timestr : "");
+				cnt[index] = ESpell::kUndefined;
 			}
 
 			gcount +=

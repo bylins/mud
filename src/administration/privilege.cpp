@@ -335,14 +335,15 @@ bool CheckFlag(const CharData *ch, int flag) {
 * Группа skills без ограничений. Группа arena только призыв, пента и слово возврата и только на клетках арены.
 * У морталов и 34х проверка не производится.
 */
-bool CheckSpells(const CharData *ch, int spellnum) {
-	// флаг use_skills - везде и что угодно
-	if (!IS_IMMORTAL(ch) || IS_IMPL(ch) || CheckFlag(ch, kUseSkills))
+bool IsSpellPermit(const CharData *ch, ESpell spell_id) {
+	if (!IS_IMMORTAL(ch) || IS_IMPL(ch) || CheckFlag(ch, kUseSkills)) {
 		return true;
-	// флаг arena_master - только на арене и только для призыва/пенты
-	if (spellnum == kSpellPortal || spellnum == kSpellSummon || spellnum == kSpellWorldOfRecall)
-		if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena) && CheckFlag(ch, kArenaMaster))
+	}
+	if (spell_id == kSpellPortal || spell_id == kSpellSummon || spell_id == kSpellWorldOfRecall) {
+		if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena) && CheckFlag(ch, kArenaMaster)) {
 			return true;
+		}
+	}
 	return false;
 }
 

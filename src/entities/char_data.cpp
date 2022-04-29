@@ -363,7 +363,7 @@ void CharData::zero_init() {
 	agrobd = false;
 
 	memset(&extra_attack_, 0, sizeof(extra_attack_type));
-	memset(&cast_attack_, 0, sizeof(cast_attack_type));
+	memset(&cast_attack_, 0, sizeof(CastAttack));
 	//memset(&player_data, 0, sizeof(char_player_data));
 	//player_data char_player_data();
 	memset(&add_abils, 0, sizeof(char_played_ability_data));
@@ -726,31 +726,31 @@ EExtraAttack CharData::get_extra_attack_mode() const {
 	return extra_attack_.used_attack;
 }
 
-CharData *CharData::get_extra_victim() const {
+CharData *CharData::GetExtraVictim() const {
 	return extra_attack_.victim;
 }
 
-void CharData::set_cast(int spellnum, int spell_subst, CharData *tch, ObjData *tobj, RoomData *troom) {
-	cast_attack_.spellnum = spellnum;
+void CharData::SetCast(ESpell spell_id, ESpell spell_subst, CharData *tch, ObjData *tobj, RoomData *troom) {
+	cast_attack_.spell_id = spell_id;
 	cast_attack_.spell_subst = spell_subst;
 	cast_attack_.tch = tch;
 	cast_attack_.tobj = tobj;
 	cast_attack_.troom = troom;
 }
 
-int CharData::get_cast_spell() const {
-	return cast_attack_.spellnum;
+ESpell CharData::GetCastSpell() const {
+	return cast_attack_.spell_id;
 }
 
-int CharData::get_cast_subst() const {
+ESpell CharData::GetCastSubst() const {
 	return cast_attack_.spell_subst;
 }
 
-CharData *CharData::get_cast_char() const {
+CharData *CharData::GetCastChar() const {
 	return cast_attack_.tch;
 }
 
-ObjData *CharData::get_cast_obj() const {
+ObjData *CharData::GetCastObj() const {
 	return cast_attack_.tobj;
 }
 
@@ -863,12 +863,12 @@ void change_fighting(CharData *ch, int need_stop) {
 			CLR_AF_BATTLE(k, kEafProtect);
 		}
 
-		if (k->get_extra_victim() == ch) {
+		if (k->GetExtraVictim() == ch) {
 			k->SetExtraAttack(kExtraAttackUnused, 0);
 		}
 
-		if (k->get_cast_char() == ch) {
-			k->set_cast(0, 0, 0, 0, 0);
+		if (k->GetCastChar() == ch) {
+			k->SetCast(ESpell::kUndefined, ESpell::kUndefined, 0, 0, 0);
 		}
 
 		if (k->GetEnemy() == ch && IN_ROOM(k) != kNowhere) {
@@ -1856,12 +1856,12 @@ void CharData::restore_mob() {
 	GET_MOVE(this) = GET_REAL_MAX_MOVE(this);
 	update_pos(this);
 
-	for (int i = 0; i <= kSpellLast; ++i) {
-		GET_SPELL_MEM(this, i) = GET_SPELL_MEM(&mob_proto[GET_MOB_RNUM(this)], i);
+	for (auto spell_id = ESpell::kSpellFirst; spell_id <= ESpell::kSpellLast; ++spell_id) {
+		GET_SPELL_MEM(this, spell_id) = GET_SPELL_MEM(&mob_proto[GET_MOB_RNUM(this)], spell_id);
 	}
 	this->caster_level = (&mob_proto[GET_MOB_RNUM(this)])->caster_level;
 }
-// Кудояр 
+//
 void CharData::restore_npc() {
 	if(!this->IsNpc()) return;
 	
@@ -1900,7 +1900,7 @@ void CharData::restore_npc() {
     // кубики // екстра атаки
 	this->mob_specials.damnodice = proto->mob_specials.damnodice;
 	this->mob_specials.damsizedice = proto->mob_specials.damsizedice;
-	this->mob_specials.ExtraAttack = proto->mob_specials.ExtraAttack;
+	this->mob_specials.extra_attack = proto->mob_specials.extra_attack;
 	// this->mob_specials.damnodice = 1;
 	// this->mob_specials.damsizedice = 1;
 	// this->mob_specials.ExtraAttack = 0;
@@ -1917,8 +1917,8 @@ void CharData::restore_npc() {
 	this->set_con(GET_REAL_CON(proto));
 	this->set_cha(GET_REAL_CHA(proto));
 	// ресторим мем	
-	for (int i = 0; i <= kSpellLast; ++i) {
-		GET_SPELL_MEM(this, i) = GET_SPELL_MEM(proto, i);
+	for (auto spell_id = ESpell::kSpellFirst; spell_id <= ESpell::kSpellLast; ++spell_id) {
+		GET_SPELL_MEM(this, spell_id) = GET_SPELL_MEM(proto, spell_id);
 	}
 	// рестор для скилов
 	for (const auto &skill : MUD::Skills()) {

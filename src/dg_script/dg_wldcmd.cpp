@@ -484,8 +484,8 @@ void do_wload(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 }
 
 // increases spells & skills //
-const char *GetSpellName(int num);
-ESpell FixNameAndFindSpellNum(char *name);
+const char *GetSpellName(ESpell spell_id);
+ESpell FixNameAndFindSpellId(char *name);
 
 void do_wdamage(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	char name[kMaxInputLength], amount[kMaxInputLength];
@@ -619,7 +619,7 @@ void do_wskillturn(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, 
 		return;
 	}
 
-	auto skill_id = FixNameAndFindSkillNum(skill_name);
+	auto skill_id = FixNameAndFindSkillId(skill_name);
 	bool is_skill = false;
 	if (MUD::Skills().IsValid(skill_id)) {
 		is_skill = true;
@@ -668,7 +668,7 @@ void do_wskilladd(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, T
 		return;
 	}
 
-	auto skill_id = FixNameAndFindSkillNum(skillname);
+	auto skill_id = FixNameAndFindSkillId(skillname);
 	bool is_skill = false;
 	if (MUD::Skills().IsValid(skill_id)) {
 		is_skill = true;
@@ -695,7 +695,6 @@ void do_wskilladd(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, T
 void do_wspellturn(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	CharData *ch;
 	char name[kMaxInputLength], spellname[kMaxInputLength], amount[kMaxInputLength];
-	int spellnum = 0, spelldiff = 0;
 
 //    one_argument (two_arguments(argument, name, spellname), amount);
 	argument = one_argument(argument, name);
@@ -706,11 +705,13 @@ void do_wspellturn(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, 
 		return;
 	}
 
-	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellLast) {
+	auto spell_id = FixNameAndFindSpellId(spellname);
+	if (spell_id == ESpell::kUndefined) {
 		wld_log(room, "wspellturn: spell not found");
 		return;
 	}
 
+	auto spelldiff{0};
 	if (!str_cmp(amount, "set")) {
 		spelldiff = 1;
 	} else if (!str_cmp(amount, "clear")) {
@@ -721,7 +722,7 @@ void do_wspellturn(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, 
 	}
 
 	if ((ch = get_char_by_room(room, name))) {
-		trg_spellturn(ch, spellnum, spelldiff, last_trig_vnum);
+		trg_spellturn(ch, spell_id, spelldiff, last_trig_vnum);
 	} else {
 		wld_log(room, "wspellturn: target not found");
 		return;
@@ -731,7 +732,6 @@ void do_wspellturn(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, 
 void do_wspellturntemp(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	CharData *ch;
 	char name[kMaxInputLength], spellname[kMaxInputLength], amount[kMaxInputLength];
-	int spellnum = 0, spelltime = 0;
 
 	argument = one_argument(argument, name);
 	two_arguments(argument, spellname, amount);
@@ -741,20 +741,20 @@ void do_wspellturntemp(RoomData *room, char *argument, int/* cmd*/, int/* subcmd
 		return;
 	}
 
-	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellLast) {
-		wld_log(room, "wspellturntemp: spell not found");
+	auto spell_id = FixNameAndFindSpellId(spellname);
+	if (spell_id == ESpell::kUndefined) {
+		wld_log(room, "mspellturntemp: spell not found");
 		return;
 	}
 
-	spelltime = atoi(amount);
-
+	auto spelltime = atoi(amount);
 	if (spelltime < 0) {
 		wld_log(room, "wspellturntemp: time is negative");
 		return;
 	}
 
 	if ((ch = get_char_by_room(room, name))) {
-		trg_spellturntemp(ch, spellnum, spelltime, last_trig_vnum);
+		trg_spellturntemp(ch, spell_id, spelltime, last_trig_vnum);
 	} else {
 		wld_log(room, "wspellturntemp: target not found");
 		return;
@@ -764,24 +764,22 @@ void do_wspellturntemp(RoomData *room, char *argument, int/* cmd*/, int/* subcmd
 void do_wspelladd(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	CharData *ch;
 	char name[kMaxInputLength], spellname[kMaxInputLength], amount[kMaxInputLength];
-	int spellnum = 0, spelldiff = 0;
 
 	one_argument(two_arguments(argument, name, spellname), amount);
-
 	if (!*name || !*spellname || !*amount) {
 		wld_log(room, "wspelladd: too few arguments");
 		return;
 	}
 
-	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellLast) {
+	auto spell_id = FixNameAndFindSpellId(spellname);
+	if (spell_id == ESpell::kUndefined) {
 		wld_log(room, "wspelladd: spell not found");
 		return;
 	}
 
-	spelldiff = atoi(amount);
-
+	auto spelldiff = atoi(amount);
 	if ((ch = get_char_by_room(room, name))) {
-		trg_spelladd(ch, spellnum, spelldiff, last_trig_vnum);
+		trg_spelladd(ch, spell_id, spelldiff, last_trig_vnum);
 	} else {
 		wld_log(room, "wspelladd: target not found");
 		return;
@@ -791,7 +789,6 @@ void do_wspelladd(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, T
 void do_wspellitem(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	CharData *ch;
 	char name[kMaxInputLength], spellname[kMaxInputLength], type[kMaxInputLength], turn[kMaxInputLength];
-	int spellnum = 0, spelldiff = 0, spell = 0;
 
 	two_arguments(two_arguments(argument, name, spellname), type, turn);
 
@@ -800,26 +797,29 @@ void do_wspellitem(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, 
 		return;
 	}
 
-	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellLast) {
-		wld_log(room, "wspellitem: spell not found");
+	auto spell_id = FixNameAndFindSpellId(spellname);
+	if (spell_id == ESpell::kUndefined) {
+		wld_log(room, "mspellturntemp: spell not found");
 		return;
 	}
 
+	ESpellType spell;
 	if (!str_cmp(type, "potion")) {
-		spell = kSpellPotion;
+		spell = ESpellType::kPotionCast;
 	} else if (!str_cmp(type, "wand")) {
-		spell = kSpellWand;
+		spell = ESpellType::kWandCast;
 	} else if (!str_cmp(type, "scroll")) {
-		spell = kSpellScroll;
+		spell = ESpellType::kScrollCast;
 	} else if (!str_cmp(type, "items")) {
-		spell = kSpellItems;
+		spell = ESpellType::kItemCast;
 	} else if (!str_cmp(type, "runes")) {
-		spell = kSpellRunes;
+		spell = ESpellType::kRunes;
 	} else {
 		wld_log(room, "wspellitem: type spell not found");
 		return;
 	}
 
+	auto spelldiff{0};
 	if (!str_cmp(turn, "set")) {
 		spelldiff = 1;
 	} else if (!str_cmp(turn, "clear")) {
@@ -830,7 +830,7 @@ void do_wspellitem(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, 
 	}
 
 	if ((ch = get_char_by_room(room, name))) {
-		trg_spellitem(ch, spellnum, spelldiff, spell);
+		trg_spellitem(ch, spell_id, spelldiff, spell);
 	} else {
 		wld_log(room, "wspellitem: target not found");
 		return;

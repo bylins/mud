@@ -55,6 +55,7 @@ void check_spell_remove(ObjData *obj, int spell, bool send_message) {
 
 		case kSpellLight: remove_tmp_extra(obj, EObjFlag::kGlow);
 			break;
+		default: break;
 	} // switch
 
 	// онлайн уведомление чару
@@ -84,34 +85,38 @@ void check_spell_remove(ObjData *obj, int spell, bool send_message) {
 							  GET_OBJ_PNAME(obj, 0).c_str(),
 							  GET_OBJ_VIS_SUF_1(obj, ch));
 				break;
+			default: break;
 		}
 	}
 }
 
 // * Распечатка строки с заклинанием и таймером при осмотре шмотки.
-std::string print_spell_str(CharData *ch, int spell, int timer) {
-	if (spell < 1
-		|| spell > kSpellLast) {
-		log("SYSERROR: %s, spell = %d, time = %d", __func__, spell, timer);
+std::string print_spell_str(CharData *ch, ESpell spell_id, int timer) {
+	if (spell_id < 1
+		|| spell_id > kSpellLast) {
+		log("SYSERROR: %s, spell = %d, time = %d", __func__, spell_id, timer);
 		return "";
 	}
 
 	std::stringstream out;
-	switch (spell) {
+	switch (spell_id) {
 		case kSpellAconitumPoison:
 		case kSpellScopolaPoison:
 		case kSpellBelenaPoison:
 		case kSpellDaturaPoison:
-			out << CCGRN(ch, C_NRM) << "Отравлено " << get_poison_by_spell(spell) << " еще " << timer << " "
-					<< GetDeclensionInNumber(timer, EWhat::kMinU) << ".\r\n" << CCNRM(ch, C_NRM);
+			out << CCGRN(ch, C_NRM) << "Отравлено " << get_poison_by_spell(spell_id) << " еще " << timer << " "
+				<< GetDeclensionInNumber(timer, EWhat::kMinU) << ".\r\n" << CCNRM(ch, C_NRM);
 			break;
 
 		default:
 			if (timer == -1) {
-				out << CCCYN(ch, C_NRM) << "Наложено постоянное заклинание '" << (spell_info[spell].name ? spell_info[spell].name : "<null>") << "'" << ".\r\n" << CCNRM(ch, C_NRM);
+				out << CCCYN(ch, C_NRM) << "Наложено постоянное заклинание '"
+					<< (spell_info[spell_id].name ? spell_info[spell_id].name : "<null>")
+					<< "'" << ".\r\n" << CCNRM(ch, C_NRM);
 			} else {
-				out << CCCYN(ch, C_NRM) << "Наложено заклинание '" << (spell_info[spell].name ? spell_info[spell].name : "<null>") << "' ("
-						<< time_format(timer, true) << ").\r\n" << CCNRM(ch, C_NRM);
+				out << CCCYN(ch, C_NRM) << "Наложено заклинание '"
+					<< (spell_info[spell_id].name ? spell_info[spell_id].name : "<null>") << "' ("
+					<< time_format(timer, true) << ").\r\n" << CCNRM(ch, C_NRM);
 			}
 			break;
 	}
@@ -125,10 +130,10 @@ std::string print_spell_str(CharData *ch, int spell, int timer) {
  * Удаление заклинания со шмотки с проверкой на действия/сообщения
  * при снятии обкаста.
  */
-void TimedSpell::del(ObjData *obj, int spell, bool message) {
-	std::map<int, int>::iterator i = spell_list_.find(spell);
+void TimedSpell::del(ObjData *obj, ESpell spell_id, bool message) {
+	auto i = spell_list_.find(spell_id);
 	if (i != spell_list_.end()) {
-		check_spell_remove(obj, spell, message);
+		check_spell_remove(obj, spell_id, message);
 		spell_list_.erase(i);
 	}
 }
@@ -137,19 +142,19 @@ void TimedSpell::del(ObjData *obj, int spell, bool message) {
 * Сет доп.спела с таймером на шмотку.
 * \param time = -1 для постоянного обкаста
 */
-void TimedSpell::add(ObjData *obj, int spell, int time) {
+void TimedSpell::add(ObjData *obj, ESpell spell_id, int time) {
 	// замещение ядов друг другом
-	if (spell == kSpellAconitumPoison
-		|| spell == kSpellScopolaPoison
-		|| spell == kSpellBelenaPoison
-		|| spell == kSpellDaturaPoison) {
+	if (spell_id == kSpellAconitumPoison
+		|| spell_id == kSpellScopolaPoison
+		|| spell_id == kSpellBelenaPoison
+		|| spell_id == kSpellDaturaPoison) {
 		del(obj, kSpellAconitumPoison, false);
 		del(obj, kSpellScopolaPoison, false);
 		del(obj, kSpellBelenaPoison, false);
 		del(obj, kSpellDaturaPoison, false);
 	}
 
-	spell_list_[spell] = time;
+	spell_list_[spell_id] = time;
 }
 
 // * Вывод оставшегося времени яда на пушке при осмотре.
@@ -159,9 +164,8 @@ std::string TimedSpell::diag_to_char(CharData *ch) {
 	}
 
 	std::string out;
-	for (std::map<int, int>::iterator i = spell_list_.begin(),
-			 iend = spell_list_.end(); i != iend; ++i) {
-		out += print_spell_str(ch, i->first, i->second);
+	for (auto & i : spell_list_) {
+		out += print_spell_str(ch, i.first, i.second);
 	}
 	return out;
 }
@@ -171,10 +175,9 @@ std::string TimedSpell::diag_to_char(CharData *ch) {
  * \return -1 если яда нет, spell_num если есть.
  */
 int TimedSpell::is_spell_poisoned() const {
-	for (std::map<int, int>::const_iterator i = spell_list_.begin(),
-			 iend = spell_list_.end(); i != iend; ++i) {
-		if (check_poison(i->first)) {
-			return i->first;
+	for (auto i : spell_list_) {
+		if (check_poison(i.first)) {
+			return i.first;
 		}
 	}
 	return -1;
@@ -190,9 +193,8 @@ std::string TimedSpell::print() const {
 	std::stringstream out;
 
 	out << "TSpl: ";
-	for (std::map<int, int>::const_iterator i = spell_list_.begin(),
-			 iend = spell_list_.end(); i != iend; ++i) {
-		out << i->first << " " << i->second << "\n";
+	for (auto i : spell_list_) {
+		out << i.first << " " << i.second << "\n";
 	}
 	out << "~\n";
 
@@ -200,8 +202,8 @@ std::string TimedSpell::print() const {
 }
 
 // * Поиск заклинания по spell_num.
-bool TimedSpell::check_spell(int spell) const {
-	std::map<int, int>::const_iterator i = spell_list_.find(spell);
+bool TimedSpell::check_spell(ESpell spell_id) const {
+	auto i = spell_list_.find(spell_id);
 	if (i != spell_list_.end()) {
 		return true;
 	}
@@ -213,8 +215,7 @@ bool TimedSpell::check_spell(int spell) const {
 * \param time по дефолту = 1.
 */
 void TimedSpell::dec_timer(ObjData *obj, int time) {
-	for (std::map<int, int>::iterator i = spell_list_.begin();
-		 i != spell_list_.end(); /* empty */) {
+	for (auto i = spell_list_.begin(); i != spell_list_.end(); /* empty */) {
 		if (i->second != -1) {
 			i->second -= time;
 			if (i->second <= 0) {

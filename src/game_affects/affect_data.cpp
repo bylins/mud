@@ -656,10 +656,10 @@ void affect_total(CharData *ch) {
 
 	{
 		// Calculate CASTER value
-		int i = 1;
-		for (ch->caster_level = 0; !ch->IsNpc() && i <= kSpellLast; i++) {
-			if (IS_SET(GET_SPELL_TYPE(ch, i), kSpellKnow | kSpellTemp)) {
-				ch->caster_level += (spell_info[i].danger * GET_SPELL_MEM(ch, i));
+		auto spell_id{ESpell::kSpellFirst};
+		for (ch->caster_level = 0; !ch->IsNpc() && spell_id <= ESpell::kSpellLast; ++spell_id) {
+			if (IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow | ESpellType::kTemp)) {
+				ch->caster_level += (spell_info[spell_id].danger * GET_SPELL_MEM(ch, spell_id));
 			}
 		}
 	}

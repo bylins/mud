@@ -362,12 +362,12 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		SendMsgToChar(ch,
 					  "Количество атак: %s%d%s. ",
 					  CCCYN(ch, C_NRM),
-					  k->mob_specials.ExtraAttack + 1,
+					  k->mob_specials.extra_attack + 1,
 					  CCNRM(ch, C_NRM));
 		SendMsgToChar(ch,
 					  "Вероятность использования умений: %s%d%%%s. ",
 					  CCCYN(ch, C_NRM),
-					  k->mob_specials.LikeWork,
+					  k->mob_specials.like_work,
 					  CCNRM(ch, C_NRM));
 		SendMsgToChar(ch,
 					  "Убить до начала замакса: %s%d%s\r\n",
@@ -740,12 +740,14 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 		case EObjType::kBook:
 
 			switch (GET_OBJ_VAL(j, 0)) {
-				case EBook::kSpell:
+				case EBook::kSpell: {
+					auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(j, 1));
 					if (GET_OBJ_VAL(j, 1) >= 1 && GET_OBJ_VAL(j, 1) <= kSpellLast) {
-						sprintf(buf, "содержит заклинание        : \"%s\"", spell_info[GET_OBJ_VAL(j, 1)].name);
+						sprintf(buf, "содержит заклинание        : \"%s\"", GetSpellName(spell_id));
 					} else
 						sprintf(buf, "неверный номер заклинания");
 					break;
+				}
 				case EBook::kSkill: {
 					auto skill_id = static_cast<ESkill>(GET_OBJ_VAL(j, 1));
 					if (MUD::Skills().IsValid(skill_id)) {
@@ -770,9 +772,9 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 				}
 					break;
 				case EBook::kFeat: {
-					const auto id = static_cast<EFeat>(GET_OBJ_VAL(j, 1));
-					if (id >= EFeat::kFirst && id <= EFeat::kLast) {
-						sprintf(buf, "содержит секрет способности : \"%s\"", GetFeatName(id));
+					const auto feat_id = static_cast<EFeat>(GET_OBJ_VAL(j, 1));
+					if (feat_id >= EFeat::kFirst && feat_id <= EFeat::kLast) {
+						sprintf(buf, "содержит секрет способности : \"%s\"", GetFeatName(feat_id));
 					} else {
 						sprintf(buf, "неверный номер способности");
 					}
@@ -812,15 +814,15 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 		case EObjType::kPotion:
 			sprintf(buf, "Заклинания: (Уровень %d) %s, %s, %s",
 					GET_OBJ_VAL(j, 0),
-					GetSpellName(GET_OBJ_VAL(j, 1)),
-					GetSpellName(GET_OBJ_VAL(j, 2)),
-					GetSpellName(GET_OBJ_VAL(j, 3)));
+					GetSpellName(static_cast<ESpell>(GET_OBJ_VAL(j, 1))),
+					GetSpellName(static_cast<ESpell>(GET_OBJ_VAL(j, 2))),
+					GetSpellName(static_cast<ESpell>(GET_OBJ_VAL(j, 3))));
 			break;
 
 		case EObjType::kWand:
 		case EObjType::kStaff:
 			sprintf(buf, "Заклинание: %s уровень %d, %d (из %d) зарядов осталось",
-					GetSpellName(GET_OBJ_VAL(j, 3)),
+					GetSpellName(static_cast<ESpell>(GET_OBJ_VAL(j, 3))),
 					GET_OBJ_VAL(j, 0),
 					GET_OBJ_VAL(j, 2),
 					GET_OBJ_VAL(j, 1));
@@ -914,7 +916,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 		case EObjType::kMagicContaner:
 		case EObjType::kMagicArrow:
 			sprintf(buf, "Заклинание: [%s]. Объем [%d]. Осталось стрел[%d].",
-					GetSpellName(GET_OBJ_VAL(j, 0)), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2));
+					GetSpellName(static_cast<ESpell>(GET_OBJ_VAL(j, 0))), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2));
 			break;
 
 		default:

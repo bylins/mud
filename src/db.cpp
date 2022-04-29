@@ -5124,18 +5124,18 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	if (ch->get_remort() >= 9 && ch->get_remort() % 3 == 0) {
 		ch->clear_skills();
-		for (i = 1; i <= kSpellLast; i++) {
-			GET_SPELL_TYPE(ch, i) = (GET_CLASS(ch) == ECharClass::kMagus ? kSpellRunes : 0);
-			GET_SPELL_MEM(ch, i) = 0;
+		for (auto spell_id = ESpell::kSpellFirst; spell_id <= ESpell::kSpellLast; ++spell_id) {
+			GET_SPELL_TYPE(ch, spell_id) = (IS_MANA_CASTER(ch) ? ESpellType::kRunes : 0);
+			GET_SPELL_MEM(ch, spell_id) = 0;
 		}
 	} else {
 		ch->set_skill(ch->get_remort());
-		for (i = 1; i <= kSpellLast; i++) {
-			if (GET_CLASS(ch) == ECharClass::kMagus) {
-				GET_SPELL_TYPE(ch, i) = kSpellRunes;
-			} else if (spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] >= 8) {
-				GET_SPELL_TYPE(ch, i) = 0;
-				GET_SPELL_MEM(ch, i) = 0;
+		for (auto spell_id = ESpell::kSpellFirst; spell_id <= ESpell::kSpellLast; ++spell_id) {
+			if (IS_MANA_CASTER(ch)) {
+				GET_SPELL_TYPE(ch, spell_id) = ESpellType::kRunes;
+			} else if (spell_info[spell_id].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] >= 8) {
+				GET_SPELL_TYPE(ch, spell_id) = ESpellType::kUnknowm;
+				GET_SPELL_MEM(ch, spell_id) = 0;
 			}
 		}
 	}

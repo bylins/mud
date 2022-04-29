@@ -6,34 +6,34 @@
 #include "spells_info.h"
 
 namespace Temporary_Spells {
-void add_spell(CharData *ch, int spellnum, time_t set_time, time_t duration) {
-	temporary_spell_data sp;
-	sp.spell = spellnum;
+void AddSpell(CharData *ch, ESpell spell_id, time_t set_time, time_t duration) {
+	TemporarySpell sp;
+	sp.spell = spell_id;
 	sp.set_time = set_time;
 	sp.duration = duration;
-	auto it = ch->temp_spells.find(spellnum);
+	auto it = ch->temp_spells.find(spell_id);
 	if (it != ch->temp_spells.end()) {
 		if ((it->second.set_time + it->second.duration) < (set_time + duration)) {
 			it->second.set_time = set_time;
 			it->second.duration = duration;
 		}
 	} else {
-		SET_BIT(GET_SPELL_TYPE(ch, spellnum), kSpellTemp);
-		ch->temp_spells[spellnum] = sp;
+		SET_BIT(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp);
+		ch->temp_spells[spell_id] = sp;
 	}
 }
 
-time_t spell_left_time(CharData *ch, int spellnum) {
-	auto it = ch->temp_spells.find(spellnum);
+time_t GetSpellLeftTime(CharData *ch, ESpell spell_id) {
+	auto it = ch->temp_spells.find(spell_id);
 	if (it != ch->temp_spells.end()) {
-		return (it->second.set_time + it->second.duration) - time(0);
+		return (it->second.set_time + it->second.duration) - time(nullptr);
 	}
 
 	return -1;
 }
 
 void update_times() {
-	time_t now = time(0);
+	time_t now = time(nullptr);
 	for (const auto &ch : character_list) {
 		if (ch->IsNpc()
 			|| IS_IMMORTAL(ch)) {
@@ -49,21 +49,21 @@ void update_char_times(CharData *ch, time_t now) {
 
 	for (auto it = ch->temp_spells.begin(); it != ch->temp_spells.end();) {
 		if ((it->second.set_time + it->second.duration) < now) {
-			REMOVE_BIT(GET_SPELL_TYPE(ch, it->first), kSpellTemp);
+			REMOVE_BIT(GET_SPELL_TYPE(ch, it->first), ESpellType::kTemp);
 
 			//Если заклинание за это время не стало постоянным, то удалим из мема
-			if (!IS_SET(GET_SPELL_TYPE(ch, it->first), kSpellKnow)) {
+			if (!IS_SET(GET_SPELL_TYPE(ch, it->first), ESpellType::kKnow)) {
 				//Удаляем из мема
 				for (i = &ch->mem_queue.queue; *i;) {
-					if (i[0]->spellnum == it->first) {
+					if (i[0]->spell_id == it->first) {
 						if (i == &ch->mem_queue.queue)
 							ch->mem_queue.stored = 0;
-						ch->mem_queue.total = std::max(0, ch->mem_queue.total - mag_manacost(ch, it->first));
+						ch->mem_queue.total = std::max(0, ch->mem_queue.total - CalcSpellManacost(ch, it->first));
 						ptr = i[0];
-						i[0] = i[0]->link;
+						i[0] = i[0]->next;
 						free(ptr);
 					} else {
-						i = &(i[0]->link);
+						i = &(i[0]->next);
 					}
 				}
 

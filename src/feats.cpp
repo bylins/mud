@@ -1179,8 +1179,6 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	char *s;
-	int spellnum;
-
 	if (ch->IsNpc() && AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
@@ -1200,18 +1198,18 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	spellnum = FixNameAndFindSpellNum(s);
-	if (spellnum < 1 || spellnum > kSpellLast) {
+	auto spell_id = FixNameAndFindSpellId(s);
+	if (spell_id == ESpell::kUndefined) {
 		SendMsgToChar("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
 	}
 
-	if ((!IS_SET(GET_SPELL_TYPE(ch, spellnum), kSpellTemp | kSpellKnow) ||
-		GET_REAL_REMORT(ch) < MIN_CAST_REM(spell_info[spellnum], ch)) &&
+	if ((!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp | ESpellType::kKnow) ||
+		GET_REAL_REMORT(ch) < MIN_CAST_REM(spell_info[spell_id], ch)) &&
 		(GetRealLevel(ch) < kLvlGreatGod) && (!ch->IsNpc())) {
-		if (GetRealLevel(ch) < MIN_CAST_LEV(spell_info[spellnum], ch)
-			|| GET_REAL_REMORT(ch) < MIN_CAST_REM(spell_info[spellnum], ch)
-			|| CalcCircleSlotsAmount(ch, spell_info[spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0) {
+		if (GetRealLevel(ch) < MIN_CAST_LEV(spell_info[spell_id], ch)
+			|| GET_REAL_REMORT(ch) < MIN_CAST_REM(spell_info[spell_id], ch)
+			|| CalcCircleSlotsAmount(ch, spell_info[spell_id].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0) {
 			SendMsgToChar("Рано еще вам бросаться такими словами!\r\n", ch);
 			return;
 		} else {
@@ -1220,7 +1218,7 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 	}
 
-	if (!GET_SPELL_MEM(ch, spellnum) && !IS_IMMORTAL(ch)) {
+	if (!GET_SPELL_MEM(ch, spell_id) && !IS_IMMORTAL(ch)) {
 		SendMsgToChar("Вы совершенно не помните, как произносится это заклинание...\r\n", ch);
 		return;
 	}
@@ -1237,7 +1235,7 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			break;
 		}
 	}
-	if (!GET_SPELL_MEM(ch, spellnum) && !IS_IMMORTAL(ch)) {
+	if (!GET_SPELL_MEM(ch, spell_id) && !IS_IMMORTAL(ch)) {
 		SendMsgToChar("Вы совершенно не помните, как произносится это заклинание...\r\n", ch);
 		return;
 	}
@@ -1250,13 +1248,13 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	act("Вы принялись зачаровывать $N3.", false, ch, nullptr, follower, kToChar);
 	act("$n принял$u делать какие-то пассы и что-то бормотать в сторону $N3.", false, ch, nullptr, follower, kToRoom);
 
-	GET_SPELL_MEM(ch, spellnum)--;
+	GET_SPELL_MEM(ch, spell_id)--;
 	if (!ch->IsNpc() && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, EPrf::kAutomem))
-		MemQ_remember(ch, spellnum);
+		MemQ_remember(ch, spell_id);
 
-	if (!IS_SET(spell_info[spellnum].routines, kMagDamage) || !spell_info[spellnum].violent ||
-		IS_SET(spell_info[spellnum].routines, kMagMasses) || IS_SET(spell_info[spellnum].routines, kMagGroups) ||
-		IS_SET(spell_info[spellnum].routines, kMagAreas)) {
+	if (!IS_SET(spell_info[spell_id].routines, kMagDamage) || !spell_info[spell_id].violent ||
+		IS_SET(spell_info[spell_id].routines, kMagMasses) || IS_SET(spell_info[spell_id].routines, kMagGroups) ||
+		IS_SET(spell_info[spell_id].routines, kMagAreas)) {
 		SendMsgToChar("Вы конечно мастер, но не такой магии.\r\n", ch);
 		return;
 	}
@@ -1264,7 +1262,7 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	timed.feat = EFeat::kSpellCapabler;
 
-	switch (spell_info[spellnum].slot_forc[to_underlying(ch->get_class())][GET_KIN(ch)]) {
+	switch (spell_info[spell_id].slot_forc[to_underlying(ch->get_class())][GET_KIN(ch)]) {
 		case 1:
 		case 2:
 		case 3:
@@ -1301,7 +1299,7 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	af.battleflag = 0;
 	af.bitvector = 0;
 	affect_to_char(follower, af);
-	follower->mob_specials.capable_spell = spellnum;
+	follower->mob_specials.capable_spell = spell_id;
 }
 
 // \todo Надо как-то переделать загрузку родовых способностей, чтобы там было не int, а сразу EFeat

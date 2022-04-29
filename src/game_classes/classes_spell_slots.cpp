@@ -1218,31 +1218,31 @@ int CalcCircleSlotsAmount(CharData *ch, int slot_num) {
 													: 0);
 }
 
-void mspell_slot(char */*name*/, int spell, int kin, int chclass, int slot) {
+void mspell_slot(char */*name*/, ESpell spell_id, int kin, int chclass, int slot) {
 	int bad = 0;
 
-	if (spell < 0 || spell > kSpellLast) {
-		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, kSpellLast);
+	if (spell_id < 0 || spell_id > kSpellLast) {
+		log("SYSERR: attempting assign to illegal spell id %d/%d", to_underlying(spell_id), kSpellLast);
 		return;
 	}
 
 	if (kin < 0 || kin >= kNumKins) {
-		log("SYSERR: assigning '%s' to illegal kin %d/%d.", GetSpellName(spell), chclass, kNumKins);
+		log("SYSERR: assigning '%s' to illegal kin %d/%d.", GetSpellName(spell_id), chclass, kNumKins);
 		bad = 1;
 	}
 
 	if (chclass < 0 || chclass >= kNumPlayerClasses) {
-		log("SYSERR: assigning '%s' to illegal class %d/%d.", GetSpellName(spell), chclass, kNumPlayerClasses - 1);
+		log("SYSERR: assigning '%s' to illegal class %d/%d.", GetSpellName(spell_id), chclass, kNumPlayerClasses - 1);
 		bad = 1;
 	}
 
 	if (slot < 1 || slot > kMaxMemoryCircle) {
-		log("SYSERR: assigning '%s' to illegal slot %d/%d.", GetSpellName(spell), slot, kLvlImplementator);
+		log("SYSERR: assigning '%s' to illegal slot %d/%d.", GetSpellName(spell_id), slot, kLvlImplementator);
 		bad = 1;
 	}
 
 	if (!bad) {
-		spell_info[spell].slot_forc[chclass][kin] = slot;
+		spell_info[spell_id].slot_forc[chclass][kin] = slot;
 		max_slots.init(chclass, kin, slot);
 		//log("SLOT set '%s' kin '%d' classes %d value %d", name, kin, chclass, slot);
 	}

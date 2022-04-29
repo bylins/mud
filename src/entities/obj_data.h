@@ -612,17 +612,17 @@ typedef std::map<int, set_info> id_to_set_info_map;
 // * Временное заклинание на предмете (одно).
 class TimedSpell {
  public:
-	bool check_spell(int spell) const;
-	int is_spell_poisoned() const;
-	bool empty() const;
-	std::string print() const;
+	[[nodiscard]] bool check_spell(ESpell spell_id) const;
+	[[nodiscard]] int is_spell_poisoned() const;
+	[[nodiscard]] bool empty() const;
+	[[nodiscard]] std::string print() const;
 	void dec_timer(ObjData *obj, int time = 1);
-	void add(ObjData *obj, int spell, int time);
-	void del(ObjData *obj, int spell, bool message);
+	void add(ObjData *obj, ESpell spell_id, int time);
+	void del(ObjData *obj, ESpell spell_id, bool message);
 	std::string diag_to_char(CharData *ch);
 
  private:
-	std::map<int /* номер заклинания (SPELL_ХХХ) */, int /* таймер в минутах */> spell_list_;
+	std::map<ESpell /* номер заклинания (SPELL_ХХХ) */, int /* таймер в минутах */> spell_list_;
 };
 
 // метки для команды "нацарапать"
@@ -686,8 +686,8 @@ class ObjData : public CObjectPrototype {
 	const TimedSpell &timed_spell() const { return m_timed_spell; }
 	std::string diag_ts_to_char(CharData *character) { return m_timed_spell.diag_to_char(character); }
 	bool has_timed_spell() const { return !m_timed_spell.empty(); }
-	void add_timed_spell(const int spell, const int time);
-	void del_timed_spell(const int spell, const bool message);
+	void add_timed_spell(const ESpell spell_id, const int time);
+	void del_timed_spell(const ESpell spell_id, const bool message);
 
 	auto get_carried_by() const { return m_carried_by; }
 	auto get_contains() const { return m_contains; }

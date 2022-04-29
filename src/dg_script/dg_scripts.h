@@ -363,7 +363,7 @@ void load_otrigger(ObjData *obj);
 void purge_otrigger(ObjData *obj);
 int start_fight_mtrigger(CharData *ch, CharData *actor);
 void round_num_mtrigger(CharData *ch, CharData *actor);
-int cast_mtrigger(CharData *ch, CharData *actor, int spellnum);
+int cast_mtrigger(CharData *ch, CharData *actor, ESpell spell_id);
 void kill_pc_wtrigger(CharData *killer, CharData *victim);
 
 // function prototypes from scripts.cpp //
@@ -480,10 +480,10 @@ int timechange_wtrigger(RoomData *room, const int time);
 void trg_featturn(CharData *ch, EFeat feat_id, int featdiff, int vnum);
 void trg_skillturn(CharData *ch, const ESkill skill_id, int skilldiff, int vnum);
 void AddSkill(CharData *ch, const ESkill skillnum, int skilldiff, int vnum);
-void trg_spellturn(CharData *ch, int spellnum, int spelldiff, int vnum);
-void trg_spellturntemp(CharData *ch, int spellnum, int spelltime, int vnum);
-void trg_spelladd(CharData *ch, int spellnum, int spelldiff, int vnum);
-void trg_spellitem(CharData *ch, int spellnum, int spelldiff, int spell);
+void trg_spellturn(CharData *ch, ESpell spell_id, int spelldiff, int vnum);
+void trg_spellturntemp(CharData *ch, ESpell spell_id, int spelldiff, int vnum);
+void trg_spelladd(CharData *ch, ESpell spell_id, int spelldiff, int vnum);
+void trg_spellitem(CharData *ch, ESpell spell_id, int spelldiff, ESpellType spell_type);
 
 // external vars from db.cpp //
 extern int top_of_trigt;

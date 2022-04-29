@@ -18,7 +18,7 @@ void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	ObjData *tobj;
 	RoomData *troom;
 	char *s, *t;
-	int spellnum, target = 0;
+	int target = 0;
 
 	// get: blank, spell name, target name
 	s = strtok(argument, "'*!");
@@ -36,25 +36,24 @@ void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 	t = strtok(nullptr, "\0");
 
-	spellnum = FixNameAndFindSpellNum(s);
-
-	if (spellnum < 1 || spellnum > kSpellLast) {
+	auto spell_id = FixNameAndFindSpellId(s);
+	if (spell_id == ESpell::kUndefined) {
 		SendMsgToChar("И откуда вы набрались рецептов?\r\n", ch);
 		return;
 	}
 
-	if (((!IS_SET(GET_SPELL_TYPE(ch, spellnum), kSpellItems)
+	if (((!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kItemCast)
 		&& subcmd == SCMD_ITEMS)
-		|| (!IS_SET(GET_SPELL_TYPE(ch, spellnum), kSpellRunes)
+		|| (!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kRunes)
 			&& subcmd == SCMD_RUNES)) && !IS_GOD(ch)) {
 		SendMsgToChar("Это блюдо вам явно не понравится.\r\n" "Научитесь его правильно готовить.\r\n", ch);
 		return;
 	}
 
-	if (!CheckRecipeValues(ch, spellnum, subcmd == SCMD_ITEMS ? kSpellItems : kSpellRunes, false))
+	if (!CheckRecipeValues(ch, spell_id, subcmd == SCMD_ITEMS ? ESpellType::kItemCast : ESpellType::kRunes, false))
 		return;
 
-	if (!CheckRecipeItems(ch, spellnum, subcmd == SCMD_ITEMS ? kSpellItems : kSpellRunes, false)) {
+	if (!CheckRecipeItems(ch, spell_id, subcmd == SCMD_ITEMS ? ESpellType::kItemCast : ESpellType::kRunes, false)) {
 		if (subcmd == SCMD_ITEMS)
 			SendMsgToChar("У вас нет нужных ингредиентов!\r\n", ch);
 		else if (subcmd == SCMD_RUNES)
@@ -68,9 +67,9 @@ void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	else
 		*arg = '\0';
 
-	target = FindCastTarget(spellnum, arg, ch, &tch, &tobj, &troom);
+	target = FindCastTarget(spell_id, arg, ch, &tch, &tobj, &troom);
 
-	if (target && (tch == ch) && spell_info[spellnum].violent) {
+	if (target && (tch == ch) && spell_info[spell_id].violent) {
 		SendMsgToChar("Лекари не рекомендуют использовать ЭТО на себя!\r\n", ch);
 		return;
 	}
@@ -80,36 +79,36 @@ void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
-	if (tch != ch && !IS_IMMORTAL(ch) && IS_SET(spell_info[spellnum].targets, kTarSelfOnly)) {
+	if (tch != ch && !IS_IMMORTAL(ch) && IS_SET(spell_info[spell_id].targets, kTarSelfOnly)) {
 		SendMsgToChar("Вы можете колдовать это только на себя!\r\n", ch);
 		return;
 	}
 
 	if (IS_MANA_CASTER(ch)) {
-		if (GetRealLevel(ch) < CalcRequiredLevel(ch, spellnum)) {
+		if (GetRealLevel(ch) < CalcRequiredLevel(ch, spell_id)) {
 			SendMsgToChar("Вы еще слишком малы, чтобы колдовать такое.\r\n", ch);
 			return;
 		}
 
-		if (ch->mem_queue.stored < GET_MANA_COST(ch, spellnum)) {
+		if (ch->mem_queue.stored < CalcSpellManacost(ch, spell_id)) {
 			SendMsgToChar("У вас маловато магической энергии!\r\n", ch);
 			return;
 		} else {
-			ch->mem_queue.stored = ch->mem_queue.stored - GET_MANA_COST(ch, spellnum);
+			ch->mem_queue.stored = ch->mem_queue.stored - CalcSpellManacost(ch, spell_id);
 		}
 	}
 
-	if (CheckRecipeItems(ch, spellnum, subcmd == SCMD_ITEMS ? kSpellItems : kSpellRunes, true, tch)) {
-		if (!CalcCastSuccess(ch, tch, ESaving::kStability, spellnum)) {
+	if (CheckRecipeItems(ch, spell_id, subcmd == SCMD_ITEMS ? ESpellType::kItemCast : ESpellType::kRunes, true, tch)) {
+		if (!CalcCastSuccess(ch, tch, ESaving::kStability, spell_id)) {
 			SetWaitState(ch, kPulseViolence);
-			if (!tch || !SendSkillMessages(0, ch, tch, spellnum)) {
+			if (!tch || !SendSkillMessages(0, ch, tch, spell_id)) {
 				if (subcmd == SCMD_ITEMS)
 					SendMsgToChar("Вы неправильно смешали ингредиенты!\r\n", ch);
 				else if (subcmd == SCMD_RUNES)
 					SendMsgToChar("Вы не смогли правильно истолковать значение рун!\r\n", ch);
 			}
 		} else {
-			if (CallMagic(ch, tch, tobj, world[ch->in_room], spellnum, GetRealLevel(ch)) >= 0) {
+			if (CallMagic(ch, tch, tobj, world[ch->in_room], spell_id, GetRealLevel(ch)) >= 0) {
 				if (!(IS_IMMORTAL(ch) || ch->get_wait() > 0 ))
 					SetWaitState(ch, kPulseViolence);
 			}

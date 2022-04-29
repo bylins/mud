@@ -6,6 +6,7 @@
 #include "game_magic/spells_info.h"
 #include "handler.h"
 #include "color.h"
+#include "structs/global_objects.h"
 
 /*
  * do_cast is the entry point for PC-casted spells.  It parses the arguments,
@@ -19,7 +20,7 @@ void do_cast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	RoomData *troom;
 
 	char *s, *t;
-	int i, spellnum, spell_subst, target = 0;
+	int target = 0;
 
 	if (ch->IsNpc() && AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
@@ -65,23 +66,19 @@ void do_cast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	}
 	t = strtok(nullptr, "\0");
 
-	spellnum = FixNameAndFindSpellNum(s);
-	spell_subst = spellnum;
-
-	// Unknown spell
-	if (spellnum < 1 || spellnum > kSpellLast) {
+	const auto spell_id = FixNameAndFindSpellId(s);
+	if (spell_id == ESpell::kUndefined) {
 		SendMsgToChar("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
 	}
 
-	// Caster is lower than spell level
-	if ((!IS_SET(GET_SPELL_TYPE(ch, spellnum), kSpellTemp | kSpellKnow) ||
-		GET_REAL_REMORT(ch) < MIN_CAST_REM(spell_info[spellnum], ch)) &&
+	if ((!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp | ESpellType::kKnow) ||
+		GET_REAL_REMORT(ch) < MIN_CAST_REM(spell_info[spell_id], ch)) &&
 		(GetRealLevel(ch) < kLvlGreatGod) && !ch->IsNpc()) {
-		if (GetRealLevel(ch) < MIN_CAST_LEV(spell_info[spellnum], ch)
-			|| GET_REAL_REMORT(ch) < MIN_CAST_REM(spell_info[spellnum], ch)
+		if (GetRealLevel(ch) < MIN_CAST_LEV(spell_info[spell_id], ch)
+			|| GET_REAL_REMORT(ch) < MIN_CAST_REM(spell_info[spell_id], ch)
 			|| PlayerClass::CalcCircleSlotsAmount(ch,
-												  spell_info[spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
+												  spell_info[spell_id].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
 				<= 0) {
 			SendMsgToChar("Рано еще вам бросаться такими словами!\r\n", ch);
 			return;
@@ -91,20 +88,21 @@ void do_cast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		}
 	}
 
-	// Caster havn't slot
-	if (!GET_SPELL_MEM(ch, spellnum) && !IS_IMMORTAL(ch)) {
+	auto spell_subst{ESpell::kUndefined};
+	if (!GET_SPELL_MEM(ch, spell_id) && !IS_IMMORTAL(ch)) {
 		if (IsAbleToUseFeat(ch, EFeat::kSpellSubstitute)
-			&& (spellnum == kSpellCureLight || spellnum == kSpellCureSerious
-				|| spellnum == kSpellCureCritic || spellnum == kSpellHeal)) {
-			for (i = 1; i <= kSpellLast; i++) {
-				if (GET_SPELL_MEM(ch, i) &&
-					spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] ==
-						spell_info[spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) {
-					spell_subst = i;
+			&& (spell_id == kSpellCureLight || spell_id == kSpellCureSerious
+				|| spell_id == kSpellCureCritic || spell_id == kSpellHeal)) {
+			for (const auto &spell : MUD::Classes()[ch->get_class()].spells) {
+				auto subst_spell_id = spell.GetId();
+				if (GET_SPELL_MEM(ch, subst_spell_id) &&
+					spell_info[subst_spell_id].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] ==
+						spell_info[spell_id].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) {
+					spell_subst = subst_spell_id;
 					break;
 				}
 			}
-			if (i > kSpellLast) {
+			if (spell_subst == ESpell::kUndefined) {
 				SendMsgToChar("У вас нет заученных заклинаний этого круга.\r\n", ch);
 				return;
 			}
@@ -120,9 +118,9 @@ void do_cast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	else
 		*arg = '\0';
 
-	target = FindCastTarget(spellnum, arg, ch, &tch, &tobj, &troom);
+	target = FindCastTarget(spell_id, arg, ch, &tch, &tobj, &troom);
 
-	if (target && (tch == ch) && spell_info[spellnum].violent) {
+	if (target && (tch == ch) && spell_info[spell_id].violent) {
 		SendMsgToChar("Лекари не рекомендуют использовать ЭТО на себя!\r\n", ch);
 		return;
 	}
@@ -130,37 +128,36 @@ void do_cast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		SendMsgToChar("Тяжеловато найти цель вашего заклинания!\r\n", ch);
 		return;
 	}
-	if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), kSpellTemp) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
+	if (!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
 		SendMsgToChar("На данной арене вы можете колдовать только временные заклинания!\r\n", ch);
 		return;
 	}
 
 	// You throws the dice and you takes your chances.. 101% is total failure
 	// Чтобы в бой не вступал с уже взведенной заклинашкой !!!
-	ch->set_cast(0, 0, 0, 0, 0);
-	if (!CalcCastSuccess(ch, tch, ESaving::kStability, spellnum)) {
+	ch->SetCast(ESpell::kUndefined, ESpell::kUndefined, nullptr, nullptr, nullptr);
+	if (!CalcCastSuccess(ch, tch, ESaving::kStability, spell_id)) {
 		if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike)))
 			SetWaitState(ch, kPulseViolence);
 		if (GET_SPELL_MEM(ch, spell_subst)) {
 			GET_SPELL_MEM(ch, spell_subst)--;
 		}
-		if (!ch->IsNpc() && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, EPrf::kAutomem))
+		if (!ch->IsNpc() && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, EPrf::kAutomem)) {
 			MemQ_remember(ch, spell_subst);
-		//log("[DO_CAST->AFFECT_TOTAL] Start");
+		}
 		affect_total(ch);
-		//log("[DO_CAST->AFFECT_TOTAL] Stop");
-		if (!tch || !SendSkillMessages(0, ch, tch, spellnum))
+		if (!tch || !SendSkillMessages(0, ch, tch, spell_id))
 			SendMsgToChar("Вы не смогли сосредоточиться!\r\n", ch);
 	} else        // cast spell returns 1 on success; subtract mana & set waitstate
 	{
 		if (ch->GetEnemy() && !IS_IMPL(ch)) {
-			ch->set_cast(spellnum, spell_subst, tch, tobj, troom);
+			ch->SetCast(spell_id, spell_subst, tch, tobj, troom);
 			sprintf(buf,
 					"Вы приготовились применить заклинание %s'%s'%s%s.\r\n",
-					CCCYN(ch, C_NRM), spell_info[spellnum].name, CCNRM(ch, C_NRM),
+					CCCYN(ch, C_NRM), spell_info[spell_id].name, CCNRM(ch, C_NRM),
 					tch == ch ? " на себя" : tch ? " на $N3" : tobj ? " на $o3" : troom ? " на всех" : "");
 			act(buf, false, ch, tobj, tch, kToChar);
-		} else if (CastSpell(ch, tch, tobj, troom, spellnum, spell_subst) >= 0) {
+		} else if (CastSpell(ch, tch, tobj, troom, spell_id, spell_subst) >= 0) {
 			if (!(IS_IMMORTAL(ch) || ch->get_wait() > 0))
 				SetWaitState(ch, kPulseViolence);
 		}

@@ -423,24 +423,24 @@ void forget_all_spells(CharData *ch) {
 	}
 	struct SpellMemQueueItem *qi_cur, **qi = &ch->mem_queue.queue;
 	while (*qi) {
-		--slots[spell_info[(*(qi))->spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1];
-		qi = &((*qi)->link);
+		--slots[spell_info[(*(qi))->spell_id].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1];
+		qi = &((*qi)->next);
 	}
 	int slotn;
 
-	for (int i = 0; i <= kSpellLast; i++) {
-		if (PRF_FLAGGED(ch, EPrf::kAutomem) && ch->real_abils.SplMem[i]) {
-			slotn = spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;
-			for (unsigned j = 0; (slots[slotn] > 0 && j < ch->real_abils.SplMem[i]); ++j, --slots[slotn]) {
-				ch->mem_queue.total += mag_manacost(ch, i);
+	for (auto spell_id = ESpell::kSpellFirst ; spell_id <= ESpell::kSpellLast; ++spell_id) {
+		if (PRF_FLAGGED(ch, EPrf::kAutomem) && ch->real_abils.SplMem[spell_id]) {
+			slotn = spell_info[spell_id].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;
+			for (unsigned j = 0; (slots[slotn] > 0 && j < ch->real_abils.SplMem[spell_id]); ++j, --slots[slotn]) {
+				ch->mem_queue.total += CalcSpellManacost(ch, spell_id);
 				CREATE(qi_cur, 1);
 				*qi = qi_cur;
-				qi_cur->spellnum = i;
-				qi_cur->link = nullptr;
-				qi = &qi_cur->link;
+				qi_cur->spell_id = spell_id;
+				qi_cur->next = nullptr;
+				qi = &qi_cur->next;
 			}
 		}
-		ch->real_abils.SplMem[i] = 0;
+		ch->real_abils.SplMem[spell_id] = 0;
 	}
 	if (max_slot) {
 		Affect<EApply> af;
@@ -1344,8 +1344,8 @@ void Damage::post_init(CharData *ch, CharData *victim) {
 		// ABYRVALG тут нужно переделать на взятие сообщения из структуры абилок
 		if (MUD::Skills().IsValid(skill_id)) {
 			msg_num = to_underlying(skill_id) + kTypeHit;
-		} else if (spell_num >= 0) {
-			msg_num = spell_num;
+		} else if (spell_id >= 0) {
+			msg_num = spell_id;
 		} else if (hit_type >= 0) {
 			msg_num = hit_type + kTypeHit;
 		} else {
@@ -1381,7 +1381,7 @@ void Damage::zero_init() {
 	magic_type = 0;
 	dmg_type = -1;
 	skill_id = ESkill::kUndefined;
-	spell_num = -1;
+	spell_id = ESpell::kUndefined;
 	hit_type = -1;
 	msg_num = -1;
 	ch_start_pos = EPosition::kUndefined;

@@ -48,7 +48,7 @@ extern RoomRnum r_mortal_start_room;
 extern RoomRnum r_immort_start_room;
 extern RoomRnum r_helled_start_room;
 extern RoomRnum r_named_start_room;
-extern struct SpellCreate spell_create[];
+extern std::unordered_map<ESpell, SpellCreate> spell_create;
 extern const unsigned RECALL_SPELLS_INTERVAL;
 extern int CheckProxy(DescriptorData *ch);
 extern int check_death_ice(int room, CharData *ch);
@@ -109,22 +109,22 @@ void handle_recall_spells(CharData *ch) {
 		bool found_spells = false;
 		struct SpellMemQueueItem *next = nullptr, *prev = nullptr, *i = ch->mem_queue.queue;
 		while (i) {
-			next = i->link;
-			if (spell_info[i->spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] == slot_to_restore) {
+			next = i->next;
+			if (spell_info[i->spell_id].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] == slot_to_restore) {
 				if (!found_spells) {
 					SendMsgToChar("Ваша голова прояснилась, в памяти всплыло несколько новых заклинаний.\r\n", ch);
 					found_spells = true;
 				}
-				if (prev) prev->link = next;
+				if (prev) prev->next = next;
 				if (i == ch->mem_queue.queue) {
 					ch->mem_queue.queue = next;
 					ch->mem_queue.stored = 0;
 				}
-				ch->mem_queue.total = std::max(0, ch->mem_queue.total - mag_manacost(ch, i->spellnum));
+				ch->mem_queue.total = std::max(0, ch->mem_queue.total - CalcSpellManacost(ch, i->spell_id));
 				sprintf(buf, "Вы вспомнили заклинание \"%s%s%s\".\r\n",
-						CCICYN(ch, C_NRM), spell_info[i->spellnum].name, CCNRM(ch, C_NRM));
+						CCICYN(ch, C_NRM), spell_info[i->spell_id].name, CCNRM(ch, C_NRM));
 				SendMsgToChar(buf, ch);
-				GET_SPELL_MEM(ch, i->spellnum)++;
+				GET_SPELL_MEM(ch, i->spell_id)++;
 				free(i);
 			} else prev = i;
 			i = next;
@@ -683,10 +683,9 @@ void beat_points_update(int pulse) {
 			}
 
 			while (i->mem_queue.stored > GET_MEM_CURRENT(i.get()) && !i->mem_queue.Empty()) {
-				int spellnum;
-				spellnum = MemQ_learn(i);
-				GET_SPELL_MEM(i, spellnum)++;
-				i->caster_level += spell_info[spellnum].danger;
+				auto spell_id = MemQ_learn(i);
+				++GET_SPELL_MEM(i, spell_id);
+				i->caster_level += spell_info[spell_id].danger;
 			}
 
 			if (i->mem_queue.Empty()) {
@@ -1128,7 +1127,7 @@ void room_point_update() {
 		world[count]->gdark = MAX(0, world[count]->gdark);
 
 		struct TrackData *track, *next_track, *temp;
-		int spellnum;
+		auto time_decrease{2};
 		for (track = world[count]->track, temp = nullptr; track; track = next_track) {
 			next_track = track->next;
 			switch (real_sector(count)) {
@@ -1136,42 +1135,42 @@ void room_point_update() {
 				case ESector::kUnderwater:
 				case ESector::kSecret:
 				case ESector::kWaterSwim:
-				case ESector::kWaterNoswim: spellnum = 31;
+				case ESector::kWaterNoswim: time_decrease = 31;
 					break;
 				case ESector::kThickIce:
 				case ESector::kNormalIce:
-				case ESector::kThinIce: spellnum = 16;
+				case ESector::kThinIce: time_decrease = 16;
 					break;
-				case ESector::kCity: spellnum = 4;
+				case ESector::kCity: time_decrease = 4;
 					break;
 				case ESector::kField:
-				case ESector::kFieldRain: spellnum = 2;
+				case ESector::kFieldRain: time_decrease = 2;
 					break;
-				case ESector::kFieldSnow: spellnum = 1;
+				case ESector::kFieldSnow: time_decrease = 1;
 					break;
 				case ESector::kForest:
-				case ESector::kForestRain: spellnum = 2;
+				case ESector::kForestRain: time_decrease = 2;
 					break;
-				case ESector::kForestSnow: spellnum = 1;
+				case ESector::kForestSnow: time_decrease = 1;
 					break;
 				case ESector::kHills:
-				case ESector::kHillsRain: spellnum = 3;
+				case ESector::kHillsRain: time_decrease = 3;
 					break;
-				case ESector::kHillsSnow: spellnum = 1;
+				case ESector::kHillsSnow: time_decrease = 1;
 					break;
-				case ESector::kMountain: spellnum = 4;
+				case ESector::kMountain: time_decrease = 4;
 					break;
-				case ESector::kMountainSnow: spellnum = 1;
+				case ESector::kMountainSnow: time_decrease = 1;
 					break;
-				default: spellnum = 2;
+				default: time_decrease = 2;
 			}
 
 			int restore;
 			for (mana = 0, restore = false; mana < EDirection::kMaxDirNum; mana++) {
-				if ((track->time_income[mana] <<= spellnum)) {
+				if ((track->time_income[mana] <<= time_decrease)) {
 					restore = true;
 				}
-				if ((track->time_outgone[mana] <<= spellnum)) {
+				if ((track->time_outgone[mana] <<= time_decrease)) {
 					restore = true;
 				}
 			}
@@ -1560,9 +1559,11 @@ void obj_point_update() {
 void point_update() {
 	MemoryRecord *mem, *nmem, *pmem;
 
-	std::vector<int> real_spell(kSpellLast + 1);
-	for (int count = 0; count <= kSpellLast; count++) {
-		real_spell[count] = count;
+	std::vector<ESpell> real_spell(kSpellLast + 1);
+	auto count{0};
+	for (auto spell_id = ESpell::kSpellFirst; spell_id <= ESpell::kSpellLast; ++spell_id) {
+		real_spell[count] = spell_id;
+		++count;
 	}
 	std::shuffle(real_spell.begin(), real_spell.end(), std::mt19937(std::random_device()()));
 
@@ -1692,11 +1693,11 @@ void point_update() {
 					int count = 0;
 					const auto max_mana = GET_REAL_INT(i) * 10;
 					while (count <= kSpellLast && mana < max_mana) {
-						const auto spellnum = real_spell[count];
-						if (GET_SPELL_MEM(mob_proto + mob_num, spellnum) > GET_SPELL_MEM(i, spellnum)) {
-							GET_SPELL_MEM(i, spellnum)++;
-							mana += ((spell_info[spellnum].mana_max + spell_info[spellnum].mana_min) / 2);
-							i->caster_level += (IS_SET(spell_info[spellnum].routines, NPC_CALCULATE) ? 1 : 0);
+						const auto spell_id = real_spell[count];
+						if (GET_SPELL_MEM(mob_proto + mob_num, spell_id) > GET_SPELL_MEM(i, spell_id)) {
+							GET_SPELL_MEM(i, spell_id)++;
+							mana += ((spell_info[spell_id].mana_max + spell_info[spell_id].mana_min) / 2);
+							i->caster_level += (IS_SET(spell_info[spell_id].routines, NPC_CALCULATE) ? 1 : 0);
 						}
 
 						++count;

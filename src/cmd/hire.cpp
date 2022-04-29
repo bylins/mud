@@ -11,7 +11,7 @@ float get_damage_per_round(CharData *victim) {
 	float dam_per_attack = GET_DR(victim) + str_bonus(victim->get_str(), STR_TO_DAM)
 		+ victim->mob_specials.damnodice * (victim->mob_specials.damsizedice + 1) / 2.0
 		+ (AFF_FLAGGED(victim, EAffect::kCloudOfArrows) ? 14 : 0);
-	int num_attacks = 1 + victim->mob_specials.ExtraAttack
+	int num_attacks = 1 + victim->mob_specials.extra_attack
 		+ (victim->get_skill(ESkill::kAddshot) ? 2 : 0);
 
 	float dam_per_round = dam_per_attack * num_attacks;
@@ -98,7 +98,7 @@ long calc_hire_price(CharData *ch, CharData *victim) {
 	// дамаг
 	int m_dr = ((victim->mob_specials.damnodice * victim->mob_specials.damsizedice + victim->mob_specials.damnodice) / 2
 		+ GET_DR(victim)) * 10;
-	float extraAttack = victim->mob_specials.ExtraAttack * m_dr;
+	float extraAttack = victim->mob_specials.extra_attack * m_dr;
 
 	ch->send_to_TC(true, true, true, "Остальные статы: Luck:%d Ini:%d AR:%d MR:%d PR:%d DR:%d ExAttack:%.4lf\r\n",
 				   m_luck, m_ini, m_ar, m_mr, m_pr, m_dr, extraAttack);
@@ -122,20 +122,20 @@ long calc_hire_price(CharData *ch, CharData *victim) {
 	return std::min(finalPrice, MAX_HIRE_PRICE);
 }
 
-int get_reformed_charmice_hp(CharData *ch, CharData *victim, int spellnum) {
+int GetReformedCharmiceHp(CharData *ch, CharData *victim, ESpell spell_id) {
 	float r_hp = 0;
 	float eff_cha = 0.0;
 	float max_cha;
 
-	if (spellnum == kSpellResurrection || spellnum == kSpellAnimateDead) {
-		eff_cha = get_effective_wis(ch, spellnum);
+	if (spell_id == kSpellResurrection || spell_id == kSpellAnimateDead) {
+		eff_cha = CalcEffectiveWis(ch, spell_id);
 		max_cha = class_stats_limit[to_underlying(ch->get_class())][3];
 	} else {
 		max_cha = class_stats_limit[to_underlying(ch->get_class())][5];
 		eff_cha = get_effective_cha(ch);
 	}
 
-	if (spellnum != kSpellCharm) {
+	if (spell_id != kSpellCharm) {
 		eff_cha = std::min(max_cha, eff_cha + 2); // Все кроме чарма кастится с бонусом в 2
 	}
 

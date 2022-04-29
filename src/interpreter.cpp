@@ -2308,8 +2308,8 @@ void do_entergame(DescriptorData *d) {
 		}
 	}
 
-	if (GET_SPELL_TYPE(d->character, kSpellRelocate) == kSpellKnow && !IS_GOD(d->character)) {
-		GET_SPELL_TYPE(d->character, kSpellRelocate) = 0;
+	if (GET_SPELL_TYPE(d->character, kSpellRelocate) == ESpellType::kKnow && !IS_GOD(d->character)) {
+		GET_SPELL_TYPE(d->character, kSpellRelocate) = ESpellType::kUnknowm;
 	}
 
 	//Проверим временные заклы пока нас не было
@@ -2600,11 +2600,12 @@ void init_char(CharData *ch, PlayerIndexElement &element) {
 		set_god_morphs(ch);
 	}
 
-	for (i = 1; i <= kSpellLast; i++) {
-		if (GetRealLevel(ch) < kLvlGreatGod)
-			GET_SPELL_TYPE(ch, i) = 0;
-		else
-			GET_SPELL_TYPE(ch, i) = kSpellKnow;
+	for (auto spell_id = ESpell::kSpellFirst; spell_id <= ESpell::kSpellLast; ++spell_id) {
+		if (GetRealLevel(ch) < kLvlGreatGod) {
+			GET_SPELL_TYPE(ch, spell_id) = ESpellType::kUnknowm;
+		} else {
+			GET_SPELL_TYPE(ch, spell_id) = ESpellType::kKnow;
+		}
 	}
 
 	ch->char_specials.saved.affected_by = clear_flags;

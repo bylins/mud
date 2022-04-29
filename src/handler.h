@@ -45,7 +45,7 @@ void CheckLight(CharData *ch, int was_equip, int was_single, int was_holylight, 
 // Resistance calculate //
 int ApplyResist(CharData *ch, int resist_type, int effect);
 int GetResisTypeWithSpellClass(int spell_class);
-int GetResistType(int spellnum);
+int GetResistType(ESpell spell_id);
 
 // handling the affected-structures //
 void ImposeTimedFeat(CharData *ch, TimedFeat *timed);
@@ -198,18 +198,24 @@ struct Portal *get_portal(int vnum, char *wrd);
 // charm //
 
 float get_effective_cha(CharData *ch);
-float get_effective_wis(CharData *ch, int spellnum);
+float CalcEffectiveWis(CharData *ch, ESpell spell_id);
 float get_effective_int(CharData *ch);
-int get_player_charms(CharData *ch, int spellnum);
+int CalcCharmPoint(CharData *ch, ESpell spell_id);
 
 // mem queue //
-int mag_manacost(const CharData *ch, int spellnum);
+
+struct SpellMemQueueItem {
+	ESpell spell_id{ESpell::kUndefined};
+	struct SpellMemQueueItem *next{nullptr};
+};
+
+int CalcSpellManacost(const CharData *ch, ESpell spell_id);
 void MemQ_init(CharData *ch);
 void MemQ_flush(CharData *ch);
-int MemQ_learn(CharData *ch);
-inline int MemQ_learn(const CharData::shared_ptr &ch) { return MemQ_learn(ch.get()); }
-void MemQ_remember(CharData *ch, int num);
-void MemQ_forget(CharData *ch, int num);
+ESpell MemQ_learn(CharData *ch);
+inline ESpell MemQ_learn(const CharData::shared_ptr &ch) { return MemQ_learn(ch.get()); }
+void MemQ_remember(CharData *ch, ESpell spell_id);
+void MemQ_forget(CharData *ch, ESpell spell_id);
 int *MemQ_slots(CharData *ch);
 
 int get_object_low_rent(ObjData *obj);

@@ -444,7 +444,7 @@ void Player::save_char() {
 				}
 				++aff_i;
 			} else {
-				tmp_aff[i].type = 0;    // Zero signifies not used
+				tmp_aff[i].type = ESpell::kUndefined;
 				tmp_aff[i].duration = 0;
 				tmp_aff[i].modifier = 0;
 				tmp_aff[i].location = EApply::kNone;
@@ -589,13 +589,14 @@ void Player::save_char() {
 		fprintf(saved, "0 0\n");
 	}
 
-	// спелы
-	// волхвам всеравно известны тупо все спеллы, смысла их писать не вижу
-	if (GetRealLevel(this) < kLvlImmortal && GET_CLASS(this) != ECharClass::kMagus) {
+	if (GetRealLevel(this) < kLvlImmortal && !IS_MANA_CASTER(this)) {
 		fprintf(saved, "Spel:\n");
-		for (i = 1; i <= kSpellLast; i++)
-			if (GET_SPELL_TYPE(this, i))
-				fprintf(saved, "%d %d %s\n", i, GET_SPELL_TYPE(this, i), spell_info[i].name);
+		for (auto spell_id = ESpell::kSpellFirst; spell_id <= ESpell::kSpellLast; ++spell_id) {
+			if (GET_SPELL_TYPE(this, spell_id)) {
+				fprintf(saved, "%d %d %s\n", to_underlying(spell_id),
+						GET_SPELL_TYPE(this, spell_id), spell_info[spell_id].name);
+			}
+		}
 		fprintf(saved, "0 0\n");
 	}
 
@@ -615,9 +616,9 @@ void Player::save_char() {
 	// Замемленые спелы
 	if (GetRealLevel(this) < kLvlImmortal) {
 		fprintf(saved, "SpMe:\n");
-		for (i = 1; i <= kSpellLast; i++) {
-			if (GET_SPELL_MEM(this, i))
-				fprintf(saved, "%d %d\n", i, GET_SPELL_MEM(this, i));
+		for (auto spell_id = ESpell::kSpellFirst; spell_id <= ESpell::kSpellLast; ++spell_id) {
+			if (GET_SPELL_MEM(this, spell_id))
+				fprintf(saved, "%d %d\n", to_underlying(spell_id), GET_SPELL_MEM(this, spell_id));
 		}
 		fprintf(saved, "0 0\n");
 	}
@@ -625,8 +626,8 @@ void Player::save_char() {
 	// Мемящиеся спелы
 	if (GetRealLevel(this) < kLvlImmortal) {
 		fprintf(saved, "SpTM:\n");
-		for (struct SpellMemQueueItem *qi = this->mem_queue.queue; qi != nullptr; qi = qi->link)
-			fprintf(saved, "%d\n", qi->spellnum);
+		for (struct SpellMemQueueItem *qi = this->mem_queue.queue; qi != nullptr; qi = qi->next)
+			fprintf(saved, "%d\n", qi->spell_id);
 		fprintf(saved, "0\n");
 	}
 
@@ -1129,16 +1130,19 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 
 	this->real_abils.Feats.reset();
 
-	// волхвам сетим все спеллы на рунах, остальные инит нулями
-	if (GET_CLASS(this) != ECharClass::kMagus)
-		for (i = 1; i <= kSpellLast; i++)
-			GET_SPELL_TYPE(this, i) = 0;
-	else
-		for (i = 1; i <= kSpellLast; i++)
-			GET_SPELL_TYPE(this, i) = kSpellRunes;
+	if (IS_MANA_CASTER(this)) {
+		for (auto spell_id = ESpell::kSpellFirst; spell_id <= ESpell::kSpellLast; ++spell_id) {
+			GET_SPELL_TYPE(this, spell_id) = ESpellType::kRunes;
+		}
+	} else {
+		for (auto spell_id = ESpell::kSpellFirst; spell_id <= ESpell::kSpellLast; ++spell_id) {
+			GET_SPELL_TYPE(this, spell_id) = ESpellType::kUnknowm;
+		}
+	}
 
-	for (i = 1; i <= kSpellLast; i++)
-		GET_SPELL_MEM(this, i) = 0;
+	for (auto spell_id = ESpell::kSpellFirst; spell_id <= ESpell::kSpellLast; ++spell_id) {
+		GET_SPELL_MEM(this, spell_id) = 0;
+	}
 	this->char_specials.saved.affected_by = clear_flags;
 	POOFIN(this) = nullptr;
 	POOFOUT(this) = nullptr;
@@ -1275,7 +1279,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 						sscanf(line, "%d %d %d %d %d %d", &num, &num2, &num3, &num4, &num5, &num6);
 						if (num > 0) {
 							Affect<EApply> af;
-							af.type = num;
+							af.type = static_cast<ESpell>(num);;
 							af.duration = num2;
 							af.modifier = num3;
 							af.location = static_cast<EApply>(num4);
@@ -1784,29 +1788,33 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 					do {
 						fbgetline(fl, line);
 						sscanf(line, "%d %d", &num, &num2);
-						if (num != 0 && spell_info[num].name)
-							GET_SPELL_TYPE(this, num) = num2;
+						auto spell_id = static_cast<ESpell>(num);
+						if (spell_id > ESpell::kUndefined && spell_info[spell_id].name) {
+							GET_SPELL_TYPE(this, spell_id) = num2;
+						}
 					} while (num != 0);
 				} else if (!strcmp(tag, "SpMe")) {
 					do {
 						fbgetline(fl, line);
 						sscanf(line, "%d %d", &num, &num2);
-						if (num != 0)
-							GET_SPELL_MEM(this, num) = num2;
+						auto spell_id = static_cast<ESpell>(num);
+						if (spell_id > ESpell::kUndefined) {
+							GET_SPELL_MEM(this, spell_id) = num2;
+						}
 					} while (num != 0);
 				} else if (!strcmp(tag, "SpTM")) {
 					struct SpellMemQueueItem *qi_cur, **qi = &mem_queue.queue;
 					while (*qi)
-						qi = &((*qi)->link);
+						qi = &((*qi)->next);
 					do {
 						fbgetline(fl, line);
 						sscanf(line, "%d", &num);
 						if (num != 0) {
 							CREATE(qi_cur, 1);
 							*qi = qi_cur;
-							qi_cur->spellnum = num;
-							qi_cur->link = nullptr;
-							qi = &qi_cur->link;
+							qi_cur->spell_id = static_cast<ESpell>(num);
+							qi_cur->next = nullptr;
+							qi = &qi_cur->next;
 						}
 					} while (num != 0);
 				} else if (!strcmp(tag, "Str "))
@@ -1855,8 +1863,9 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 					do {
 						fbgetline(fl, line);
 						sscanf(line, "%d %ld %ld", &num, &lnum, &lnum3);
-						if (num != 0 && spell_info[num].name) {
-							Temporary_Spells::add_spell(this, num, lnum, lnum3);
+						auto spell_id = static_cast<ESpell>(num);
+						if (num != 0 && spell_info[spell_id].name) {
+							Temporary_Spells::AddSpell(this, spell_id, lnum, lnum3);
 						}
 					} while (num != 0);
 				}
@@ -1894,17 +1903,17 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	SetInbornAndRaceFeats(this);
 
 	if (IS_GRGOD(this)) {
-		for (i = 0; i <= kSpellLast; i++)
-			GET_SPELL_TYPE(this, i) = GET_SPELL_TYPE(this, i) |
-				kSpellItems | kSpellKnow | kSpellRunes | kSpellScroll | kSpellPotion | kSpellWand;
+		for (auto spell_id = ESpell::kSpellFirst; spell_id <= ESpell::kSpellLast; ++spell_id) {
+			GET_SPELL_TYPE(this, spell_id) = GET_SPELL_TYPE(this, spell_id) |
+				ESpellType::kItemCast | ESpellType::kKnow | ESpellType::kRunes | ESpellType::kScrollCast
+				| ESpellType::kPotionCast | ESpellType::kWandCast;
+		}
 	} else if (!IS_IMMORTAL(this)) {
-		for (i = 0; i <= kSpellLast; i++) {
-			if (spell_info[i].slot_forc[(int) GET_CLASS(this)][(int) GET_KIN(this)] == kMaxMemoryCircle)
-				REMOVE_BIT(GET_SPELL_TYPE(this, i), kSpellKnow | kSpellTemp);
-// shapirus: изученное не убираем на всякий случай, но из мема выкидываем,
-// если мортов мало
-			if (GET_REAL_REMORT(this) < MIN_CAST_REM(spell_info[i], this))
-				GET_SPELL_MEM(this, i) = 0;
+		for (const auto &spell : MUD::Classes()[this->get_class()].spells) {
+			if (spell_info[spell.GetId()].slot_forc[(int) GET_CLASS(this)][(int) GET_KIN(this)] == kMaxMemoryCircle)
+				REMOVE_BIT(GET_SPELL_TYPE(this, spell.GetId()), ESpellType::kKnow | ESpellType::kTemp);
+			if (GET_REAL_REMORT(this) < MIN_CAST_REM(spell_info[spell.GetId()], this))
+				GET_SPELL_MEM(this, spell.GetId()) = 0;
 		}
 	}
 

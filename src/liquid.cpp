@@ -239,11 +239,11 @@ void copy_potion_values(const CObjectPrototype *from_obj, CObjectPrototype *to_o
 using namespace drinkcon;
 
 int cast_potion_spell(CharData *ch, ObjData *obj, int num) {
-	const int spell = obj->get_value(init_spell_num(num));
+	const auto spell_id = static_cast<ESpell>(obj->get_value(init_spell_num(num)));
 	const int level = obj->get_value(init_spell_lvl(num));
 
-	if (spell >= 0 && level >= 0) {
-		return CallMagic(ch, ch, nullptr, world[ch->in_room], spell, level);
+	if (spell_id > ESpell::kUndefined) {
+		return CallMagic(ch, ch, nullptr, world[ch->in_room], spell_id, level);
 	}
 	return 1;
 }
@@ -1197,7 +1197,7 @@ std::string print_spell(CharData *ch, const ObjData *obj, int num) {
 	char buf_[kMaxInputLength];
 	snprintf(buf_, sizeof(buf_), "Содержит заклинание: %s%s (%d ур.)%s\r\n",
 			 CCCYN(ch, C_NRM),
-			 GetSpellName(obj->get_value(spell)),
+			 GetSpellName(static_cast<ESpell>(obj->get_value(spell))),
 			 obj->get_value(level),
 			 CCNRM(ch, C_NRM));
 

@@ -90,7 +90,7 @@ bool stop_follower(CharData *ch, int mode) {
 			}
 		}
 	}
-	if (ch->IsNpc() && MOB_FLAGGED(ch, EMobFlag::kSummoned)) { // фул рестор моба (Кудояр)
+	if (ch->IsNpc() && MOB_FLAGGED(ch, EMobFlag::kSummoned)) {
 		act("Магия подпитующая $n3 развеялась, и $n0 вернул$u в норму.", true, ch, 0, 0, kToRoom | kToArenaListen);
 		ch->restore_npc();
 			// сначало бросаем лишнее

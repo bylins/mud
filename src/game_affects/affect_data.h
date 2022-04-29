@@ -24,12 +24,12 @@ class Affect {
  public:
 	using shared_ptr = std::shared_ptr<Affect<TLocation>>;
 
-	Affect() : type(0), duration(0), modifier(0), location(static_cast<TLocation>(0)),
+	Affect() : type(ESpell::kUndefined), duration(0), modifier(0), location(static_cast<TLocation>(0)),
 			   battleflag(0), bitvector(0), caster_id(0), must_handled(false),
 			   apply_time(0) {};
 	[[nodiscard]] bool removable() const;
 
-	sh_int type;        // The type of spell that caused this      //
+	ESpell type;        // The type of spell that caused this      //
 	int duration;    // For how long its effects will last      //
 	int modifier;        // This is added to appropriate ability     //
 	TLocation location;        // Tells which ability to change(APPLY_XXX) //

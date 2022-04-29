@@ -10,7 +10,7 @@
 
 #include "dg_scripts.h"
 
-#include <chrono>
+//#include <chrono>
 
 #include "structs/global_objects.h"
 #include "utils/utils_find_obj_id_by_vnum.h"
@@ -31,8 +31,6 @@
 #include "administration/privilege.h"
 #include "game_fight/fight_hit.h"
 
-#include <chrono>
-//#include <string>
 extern int max_exp_gain_pc(CharData *ch);
 extern long GetExpUntilNextLvl(CharData *ch, int level);
 constexpr long long kPulsesPerMudHour = kSecsPerMudHour*kPassesPerSec;
@@ -57,7 +55,7 @@ extern const char *genders[];
 extern const char *exit_bits[];
 extern IndexData *mob_index;
 extern TimeInfoData time_info;
-const char *GetSpellName(int num);
+const char *GetSpellName(ESpell spell_id);
 
 extern int can_take_obj(CharData *ch, ObjData *obj);
 extern void split_or_clan_tax(CharData *ch, long amount);
@@ -2503,7 +2501,7 @@ void find_replacement(void *go,
 				strcpy(str, "1");
 			}
 		} else if (!str_cmp(field, "can_get_skill")) {
-			auto skill_id = FixNameAndFindSkillNum(subfield);
+			auto skill_id = FixNameAndFindSkillId(subfield);
 			if (skill_id > ESkill::kUndefined) {
 				if (IsAbleToGetSkill(c, skill_id)) {
 					strcpy(str, "1");
@@ -2516,8 +2514,9 @@ void find_replacement(void *go,
 				strcpy(str, "0");
 			}
 		} else if (!str_cmp(field, "can_get_spell")) {
-			if ((num = FixNameAndFindSpellNum(subfield)) > 0) {
-				if (IsAbleToGetSpell(c, num)) {
+			auto spell_id = FixNameAndFindSpellId(subfield);
+			if (spell_id > ESpell::kUndefined) {
+				if (IsAbleToGetSpell(c, spell_id)) {
 					strcpy(str, "1");
 				} else {
 					strcpy(str, "0");
@@ -2613,7 +2612,7 @@ void find_replacement(void *go,
 				}
 			}
 		} else if (!str_cmp(field, "maxskill")) {
-			const ESkill skillnum = FixNameAndFindSkillNum(subfield);
+			const ESkill skillnum = FixNameAndFindSkillId(subfield);
 			if (skillnum > ESkill::kUndefined) {
 				sprintf(str, "%d", CalcSkillHardCap(c, skillnum));
 			} else {
@@ -2776,7 +2775,7 @@ void find_replacement(void *go,
 			//тупизм какой-то проверять аффекты обездвижен,летит и т.п.
 			//к тому же они в том списке не все кличи например никак там не отображаются
 		else if (!str_cmp(field, "affected_by")) {
-			if ((num = FixNameAndFindSpellNum(subfield)) > 0) {
+			if ((num = FixNameAndFindSpellId(subfield)) > 0) {
 				sprintf(str, "%d", (int) IsAffectedBySpell(c, num));
 			}
 		} else if (!str_cmp(field, "action")) {

@@ -43,10 +43,10 @@ void ShowAffectedRooms(CharData *ch);
 void RemoveAffect(RoomData *room, const RoomAffectIt &affect);
 bool IsRoomAffected(RoomData *room, ESpell spell);
 bool IsZoneRoomAffected(int zone_vnum, ESpell spell);
-int CastSpellToRoom(int level, CharData *ch, RoomData *room, int spellnum);
-int GetUniqueAffectDuration(long caster_id, int spellnum);
+int CastSpellToRoom(int level, CharData *ch, RoomData *room, ESpell spell_id);
+int GetUniqueAffectDuration(long caster_id, ESpell spell_id);
 RoomAffectIt FindAffect(RoomData *room, int type);
-RoomData *FindAffectedRoom(long caster_id, int spellnum);
+RoomData *FindAffectedRoom(long caster_id, ESpell spell_id);
 
 }
 

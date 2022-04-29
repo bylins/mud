@@ -15,14 +15,8 @@
 
 #include "dg_scripts.h"
 #include "handler.h"
-#include "interpreter.h"
 #include "game_magic/spells_info.h"
-#include "entities/obj_data.h"
-#include "entities/entities_constants.h"
 #include "olc/olc.h"
-
-//extrernal functions
-extern void mob_command_interpreter(CharData *ch, char *argument);
 
 extern const char *dirs[];
 
@@ -768,9 +762,9 @@ void round_num_mtrigger(CharData *ch, CharData *actor) {
 * Реакиця на каст в моба.
 * \param ch - моб
 * \param actor - кастер, идет в скрипт как %actor%
-* \param spellnum - номер закла, идет в скрипт как %cast_num% и %castname%
+* \param spell_id - номер закла, идет в скрипт как %cast_num% и %castname%
 */
-int cast_mtrigger(CharData *ch, CharData *actor, int spellnum) {
+int cast_mtrigger(CharData *ch, CharData *actor, ESpell spell_id) {
 	if (!ch || ch->purged() || !actor || actor->purged()) {
 //		log("SYSERROR: ch_purged: ch = %s, actor = %s (%s:%d)", ch ? (ch->purged() ? "purged" : "true") : "false",
 //			actor ? (actor->purged() ? "purged" : "true") : "false",
@@ -787,9 +781,9 @@ int cast_mtrigger(CharData *ch, CharData *actor, int spellnum) {
 		if (TRIGGER_CHECK(t, MTRIG_CAST)
 			&& (number(1, 100) <= GET_TRIG_NARG(t))) {
 			ADD_UID_CHAR_VAR(local_buf, t, actor, "actor", 0);
-			sprintf(buf, "%d", spellnum);
+			sprintf(buf, "%d", to_underlying(spell_id));
 			add_var_cntx(&GET_TRIG_VARS(t), "castnum", buf, 0);
-			add_var_cntx(&GET_TRIG_VARS(t), "castname", spell_info[spellnum].name, 0);
+			add_var_cntx(&GET_TRIG_VARS(t), "castname", spell_info[spell_id].name, 0);
 			return script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
 		}
 	}

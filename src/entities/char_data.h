@@ -47,10 +47,10 @@ struct char_player_data {
 	ubyte Race;        // PC / NPC's race
 };
 
-struct temporary_spell_data {
-	int spell;
-	time_t set_time;
-	time_t duration;
+struct TemporarySpell {
+	ESpell spell{ESpell::kUndefined};
+	time_t set_time{0};
+	time_t duration{0};
 };
 // кол-во +слотов со шмоток
 const int MAX_ADD_SLOTS = 10;
@@ -152,8 +152,8 @@ struct mob_special_data {
 	int dest_count;
 	int activity;
 	FlagData npc_flags;
-	byte ExtraAttack;
-	byte LikeWork;
+	byte extra_attack;
+	byte like_work;
 	int MaxFactor;
 	int GoldNoDs;
 	int GoldSiDs;
@@ -161,15 +161,15 @@ struct mob_special_data {
 	int LastRoom;
 	char *Questor;
 	int speed;
-	int hire_price;// added by WorM (Видолюб) 2010.06.04 Цена найма чармиса
-	int capable_spell;// added by WorM (Видолюб) Закл в мобе
+	int hire_price;
+	ESpell capable_spell;
 };
 
 // очередь запоминания заклинаний
 struct SpellMemQueue {
-	struct SpellMemQueueItem *queue;
-	int stored;        // накоплено манны
-	int total;            // полное время мема всей очереди
+	struct SpellMemQueueItem *queue{nullptr};
+	int stored{0};        // накоплено манны
+	int total{0};            // полное время мема всей очереди
 
 	[[nodiscard]] bool Empty() const { return queue == nullptr; };
 };
@@ -177,15 +177,15 @@ struct SpellMemQueue {
 // Structure used for extra_attack - bash, kick, diasrm, chopoff, etc
 struct extra_attack_type {
 	EExtraAttack used_attack;
-	CharData *victim;
+	CharData *victim{nullptr};
 };
 
-struct cast_attack_type {
-	int spellnum;
-	int spell_subst;
-	CharData *tch;
-	ObjData *tobj;
-	RoomData *troom;
+struct CastAttack {
+	ESpell spell_id{ESpell::kUndefined};
+	ESpell spell_subst{ESpell::kUndefined};
+	CharData *tch{nullptr};
+	ObjData *tobj{nullptr};
+	RoomData *troom{nullptr};
 };
 
 struct player_special_data_saved {
@@ -210,7 +210,6 @@ struct player_special_data_saved {
 	int stringLength;
 	int stringWidth;
 
-	// 29.11.09 переменные для подсчета количества рипов (с) Василиса
 	int Rip_arena; //рипы на арене
 	int rip_arena_dom; //рипы на арене доминирования
 	int kill_arena_dom; //рипы на арене доминирования
@@ -324,8 +323,8 @@ class CharacterRNum_ChangeObserver {
  public:
 	using shared_ptr = std::shared_ptr<CharacterRNum_ChangeObserver>;
 
-	CharacterRNum_ChangeObserver() {}
-	virtual ~CharacterRNum_ChangeObserver() {}
+	CharacterRNum_ChangeObserver() = default;
+	virtual ~CharacterRNum_ChangeObserver() = default;
 
 	virtual void notify(ProtectedCharData &character, const MobRnum old_rnum) = 0;
 };
@@ -395,18 +394,18 @@ class CharData : public ProtectedCharData {
 	void set_protecting(CharData *vict);
 
 	EExtraAttack get_extra_attack_mode() const;
-	CharData *get_extra_victim() const;
+	CharData *GetExtraVictim() const;
 	void SetExtraAttack(EExtraAttack Attack, CharData *vict);
 
 	CharData *GetEnemy() const;
 	void SetEnemy(CharData *enemy);
 
 	// TODO: касты можно сделать и красивее (+ troom не используется, CastSpell/cast_subst/cast_obj только по разу)
-	void set_cast(int spellnum, int spell_subst, CharData *tch, ObjData *tobj, RoomData *troom);
-	int get_cast_spell() const;
-	int get_cast_subst() const;
-	CharData *get_cast_char() const;
-	ObjData *get_cast_obj() const;
+	void SetCast(ESpell spell_id, ESpell spell_subst, CharData *tch, ObjData *tobj, RoomData *troom);
+	ESpell GetCastSpell() const;
+	ESpell GetCastSubst() const;
+	CharData *GetCastChar() const;
+	ObjData *GetCastObj() const;
 
 	////////////////////////////////////////////////////////////////////////////
 
@@ -676,7 +675,7 @@ class CharData : public ProtectedCharData {
 	CharData *enemy_;
 
 	struct extra_attack_type extra_attack_; // атаки типа баша, пинка и т.п.
-	struct cast_attack_type cast_attack_;   // каст заклинания
+	struct CastAttack cast_attack_;   // каст заклинания
 	////////////////////////////////////////////////////////////////////////////
 	int serial_num_; // порядковый номер в списке чаров (для name_list)
 	// true - чар очищен и ждет вызова delete для оболочки
@@ -821,7 +820,7 @@ class CharData : public ProtectedCharData {
 	OnDeadLoadList *dl_list;    // загружаемые в труп предметы
 	bool agrobd;        // показывает, агробд или нет
 
-	std::map<int, temporary_spell_data> temp_spells;
+	std::map<ESpell, TemporarySpell> temp_spells;
 
 	std::vector<int> kill_list; //used only for MTRIG_KILL
  public:
@@ -840,8 +839,8 @@ class CharData : public ProtectedCharData {
 	void dismount();
 };
 # define MAX_FIRSTAID_REMOVE 13
-inline int RemoveSpell(int num) {
-	int spell[MAX_FIRSTAID_REMOVE] = {kSpellSleep, kSpellPoison, kSpellWeaknes, kSpellCurse, kSpellFever,
+inline ESpell RemoveSpell(int num) {
+	ESpell spell[MAX_FIRSTAID_REMOVE] = {kSpellSleep, kSpellPoison, kSpellWeaknes, kSpellCurse, kSpellFever,
 									  kSpellSllence, kSpellBlindness, kSpellHaemorrhage, kSpellHold, kSpellPeaceful,
 									  kSpellColdWind, kSpellDeafness, kSpellBattle};
 	return spell[num];

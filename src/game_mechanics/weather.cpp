@@ -825,7 +825,7 @@ void calc_easter(void) {
 const int moon_modifiers[28] = {-10, -9, -7, -5, -3, 0, 0, 0, 0, 0, 0, 0, 1, 5, 10, 5, 1, 0, 0, 0, 0, 0,
 								0, 0, -2, -5, -7, -9};
 
-int day_spell_modifier(CharData *ch, int/* spellnum*/, int type, int value) {
+int CalcDaySpellMod(CharData *ch, ESpell /* spell_id */, int type, int value) {
 	int modi = value;
 	if (ch->IsNpc() || ch->in_room == kNowhere)
 		return (modi);
@@ -839,7 +839,7 @@ int day_spell_modifier(CharData *ch, int/* spellnum*/, int type, int value) {
 	return (modi);
 }
 
-int weather_spell_modifier(CharData *ch, int spellnum, int type, int value) {
+int CalcWeatherSpellMod(CharData *ch, ESpell spell_id, int type, int value) {
 	int modi = value, sky = weather_info.sky;
 	auto season = weather_info.season;
 
@@ -857,7 +857,7 @@ int weather_spell_modifier(CharData *ch, int spellnum, int type, int value) {
 	switch (type) {
 		case GAPPLY_SPELL_SUCCESS:
 		case GAPPLY_SPELL_EFFECT:
-			switch (spellnum)    // Огненные спеллы - лето, день, безоблачно
+			switch (spell_id)    // Огненные спеллы - лето, день, безоблачно
 			{
 				case kSpellBurningHands:
 				case kSpellShockingGasp:
@@ -895,6 +895,7 @@ int weather_spell_modifier(CharData *ch, int spellnum, int type, int value) {
 							modi += (modi * number(10, 25) / 100);
 					}
 					break;
+				default: break;
 			}
 			break;
 	}
@@ -903,10 +904,10 @@ int weather_spell_modifier(CharData *ch, int spellnum, int type, int value) {
 	return (modi);
 }
 
-int complex_spell_modifier(CharData *ch, int spellnum, int type, int value) {
+int CalcComplexSpellMod(CharData *ch, ESpell spell_id, int type, int value) {
 	int modi = value;
-	modi = day_spell_modifier(ch, spellnum, type, modi);
-	modi = weather_spell_modifier(ch, spellnum, type, modi);
+	modi = CalcDaySpellMod(ch, spell_id, type, modi);
+	modi = CalcWeatherSpellMod(ch, spell_id, type, modi);
 	return (modi);
 }
 
@@ -957,7 +958,7 @@ int weather_skill_modifier(CharData *ch, ESkill skillnum, int type, int value) {
 	return (modi);
 }
 
-int GetComplexSkillModifier(CharData *ch, ESkill skillnum, int type, int value) {
+int GetComplexSkillMod(CharData *ch, ESkill skillnum, int type, int value) {
 	int modi = value;
 	modi = day_skill_modifier(ch, skillnum, type, modi);
 	modi = weather_skill_modifier(ch, skillnum, type, modi);

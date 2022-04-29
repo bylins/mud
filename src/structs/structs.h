@@ -301,14 +301,6 @@ struct LoadingItem {
 };
 
 using OnDeadLoadList = std::list<struct LoadingItem *>;
-// ===============================================================
-
-// Перенести в работу с очередью мема
-struct SpellMemQueueItem {
-	int spellnum = 0;
-	struct SpellMemQueueItem *link = nullptr;
-};
-
 // descriptor-related structures ****************************************
 
 struct TextBlock {

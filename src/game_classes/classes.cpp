@@ -44,9 +44,9 @@ void do_start(CharData *ch, int newbie);
 int invalid_anti_class(CharData *ch, const ObjData *obj);
 byte GetExtendSavingThrows(ECharClass class_id, ESaving save, int level);
 int invalid_unique(CharData *ch, const ObjData *obj);
-void mspell_level(char *name, int spell, int kin, int chclass, int level);
-void mspell_remort(char *name, int spell, int kin, int chclass, int remort);
-void mspell_change(char *name, int spell, int kin, int chclass, int class_change);
+void mspell_level(char *, ESpell spell_id, int kin, int chclass, int level);
+void mspell_remort(char *, ESpell spell_id, int kin, int chclass, int remort);
+void mspell_change(char *, ESpell spell_id, int kin, int chclass, int class_change);
 extern bool char_to_pk_clan(CharData *ch);
 // Names first
 
@@ -971,18 +971,18 @@ int GetExtraDamroll(ECharClass class_id, int level) {
 void init_warcry(CharData *ch) // проставление кличей в обход античита
 {
 	if (GET_CLASS(ch) == ECharClass::kGuard)
-		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfDefence), kSpellKnow); // клич призыв к обороне
+		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfDefence), ESpellType::kKnow); // клич призыв к обороне
 
 	if (GET_CLASS(ch) == ECharClass::kRanger) {
-		SET_BIT(GET_SPELL_TYPE(ch, kSpellWatctyOfExpirence), kSpellKnow); // клич опыта
-		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfLuck), kSpellKnow); // клич удачи
-		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfPhysdamage), kSpellKnow); // клич +дамага
+		SET_BIT(GET_SPELL_TYPE(ch, kSpellWatctyOfExpirence), ESpellType::kKnow); // клич опыта
+		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfLuck), ESpellType::kKnow); // клич удачи
+		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfPhysdamage), ESpellType::kKnow); // клич +дамага
 	}
 	if (GET_CLASS(ch) == ECharClass::kWarrior) {
-		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfBattle), kSpellKnow); // клич призыв битвы
-		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfPower), kSpellKnow); // клич призыв мощи
-		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfBless), kSpellKnow); // клич призывы доблести
-		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfCourage), kSpellKnow); // клич призыв отваги
+		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfBattle), ESpellType::kKnow); // клич призыв битвы
+		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfPower), ESpellType::kKnow); // клич призыв мощи
+		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfBless), ESpellType::kKnow); // клич призывы доблести
+		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfCourage), ESpellType::kKnow); // клич призыв отваги
 	}
 
 }
@@ -995,9 +995,9 @@ void do_start(CharData *ch, int newbie) {
 		ch->set_skill(ESkill::kHangovering, 10);
 	}
 
-	if (newbie && GET_CLASS(ch) == ECharClass::kMagus) {
-		for (int i = 1; i <= kSpellLast; i++) {
-			GET_SPELL_TYPE(ch, i) = kSpellRunes;
+	if (newbie && IS_MANA_CASTER(ch)) {
+		for (auto spell_id = ESpell::kSpellFirst; spell_id <= ESpell::kSpellLast; ++spell_id) {
+			GET_SPELL_TYPE(ch, spell_id) = ESpellType::kRunes;
 		}
 	}
 
@@ -1300,7 +1300,7 @@ void InitSpellLevels() {
 
 	FILE *magic;
 	char line1[256], line2[256], line3[256], name[256];
-	int i[15], j;
+	int i[15];
 
 	if (!(magic = fopen(LIB_MISC "class.spells.lst", "r"))) {
 		log("Can't open class spells file...");
@@ -1326,7 +1326,7 @@ void InitSpellLevels() {
 			strcat(name, line2);
 		}
 
-		if ((sp_num = FixNameAndFindSpellNum(name)) == ESpell::kUndefined) {
+		if ((sp_num = FixNameAndFindSpellId(name)) == ESpell::kUndefined) {
 			log("Spell '%s' not found...", name);
 			graceful_exit(1);
 		}
@@ -1371,7 +1371,7 @@ void InitSpellLevels() {
 			*(name + strlen(name) + 0) = ' ';
 			strcat(name, line2);
 		}
-		if ((sp_num = FixNameAndFindSpellNum(name)) < 0) {
+		if ((sp_num = FixNameAndFindSpellId(name)) < 0) {
 			log("Spell '%s' not found...", name);
 			graceful_exit(1);
 		}
@@ -1800,79 +1800,75 @@ long GetExpUntilNextLvl(CharData *ch, int level) {
 	return 123456;
 }
 
-void mspell_remort(char */*name*/, int spell, int kin, int chclass, int remort) {
+void mspell_remort(char */*name*/, ESpell spell_id, int kin, int chclass, int remort) {
 	int bad = 0;
 
-	if (spell < 0 || spell > kSpellLast) {
-		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, kSpellLast);
-		return;
-	}
 	if (kin < 0 || kin >= kNumKins) {
-		log("SYSERR: assigning '%s' to illegal kin %d/%d.", spell_info[spell].name, chclass, kNumKins);
+		log("SYSERR: assigning '%s' to illegal kin %d/%d.", spell_info[spell_id].name, chclass, kNumKins);
 		bad = 1;
 	}
 	if (chclass < 0 || chclass >= kNumPlayerClasses) {
-		log("SYSERR: assigning '%s' to illegal class %d/%d.", spell_info[spell].name, chclass, kNumPlayerClasses - 1);
+		log("SYSERR: assigning '%s' to illegal class %d/%d.", spell_info[spell_id].name, chclass, kNumPlayerClasses - 1);
 		bad = 1;
 	}
 	if (remort < 0 || remort > kMaxRemort) {
-		log("SYSERR: assigning '%s' to illegal remort %d/%d.", spell_info[spell].name, remort, kMaxRemort);
+		log("SYSERR: assigning '%s' to illegal remort %d/%d.", spell_info[spell_id].name, remort, kMaxRemort);
 		bad = 1;
 	}
 	if (!bad) {
-		spell_info[spell].min_remort[chclass][kin] = remort;
+		spell_info[spell_id].min_remort[chclass][kin] = remort;
 		//log("REMORT set '%s' kin '%d' classes %d value %d", name, kin, chclass, remort);
 	}
 }
 
-void mspell_level(char */*name*/, int spell, int kin, int chclass, int level) {
+void mspell_level(char */*name*/, ESpell spell_id, int kin, int chclass, int level) {
 	int bad = 0;
 
-	if (spell < 0 || spell > kSpellLast) {
-		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, kSpellLast);
+	if (spell_id < 0 || spell_id > kSpellLast) {
+		log("SYSERR: attempting assign to illegal spell id %d/%d", to_underlying(spell_id), kSpellLast);
 		return;
 	}
 
 	if (kin < 0 || kin >= kNumKins) {
-		log("SYSERR: assigning '%s' to illegal kin %d/%d.", spell_info[spell].name, chclass, kNumKins);
+		log("SYSERR: assigning '%s' to illegal kin %d/%d.", spell_info[spell_id].name, chclass, kNumKins);
 		bad = 1;
 	}
 
 	if (chclass < 0 || chclass >= kNumPlayerClasses) {
-		log("SYSERR: assigning '%s' to illegal class %d/%d.", spell_info[spell].name, chclass, kNumPlayerClasses - 1);
+		log("SYSERR: assigning '%s' to illegal class %d/%d.", spell_info[spell_id].name, chclass, kNumPlayerClasses - 1);
 		bad = 1;
 	}
 
 	if (level < 1 || level > kLvlImplementator) {
-		log("SYSERR: assigning '%s' to illegal level %d/%d.", spell_info[spell].name, level, kLvlImplementator);
+		log("SYSERR: assigning '%s' to illegal level %d/%d.", spell_info[spell_id].name, level, kLvlImplementator);
 		bad = 1;
 	}
 
 	if (!bad) {
-		spell_info[spell].min_level[chclass][kin] = level;
+		spell_info[spell_id].min_level[chclass][kin] = level;
 		//log("LEVEL set '%s' kin '%d' classes %d value %d", name, kin, chclass, level);
 	}
 }
 
-void mspell_change(char */*name*/, int spell, int kin, int chclass, int class_change) {
+void mspell_change(char */*name*/, ESpell spell_id, int kin, int chclass, int class_change) {
 	int bad = 0;
 
-	if (spell < 0 || spell > kSpellLast) {
-		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, kSpellLast);
+	if (spell_id < 0 || spell_id > kSpellLast) {
+		log("SYSERR: attempting assign to illegal spell id %d/%d", to_underlying(spell_id), kSpellLast);
 		return;
 	}
 
 	if (kin < 0 || kin >= kNumKins) {
-		log("SYSERR: assigning '%s' to illegal kin %d/%d.", spell_info[spell].name, chclass, kNumKins);
+		log("SYSERR: assigning '%s' to illegal kin %d/%d.", spell_info[spell_id].name, chclass, kNumKins);
 		bad = 1;
 	}
 
 	if (chclass < 0 || chclass >= kNumPlayerClasses) {
-		log("SYSERR: assigning '%s' to illegal class %d/%d.", spell_info[spell].name, chclass, kNumPlayerClasses - 1);
+		log("SYSERR: assigning '%s' to illegal class %d/%d.", spell_info[spell_id].name, chclass, kNumPlayerClasses - 1);
 		bad = 1;
 	}
 	if (!bad) {
-		spell_info[spell].class_change[chclass][kin] = class_change;
+		spell_info[spell_id].class_change[chclass][kin] = class_change;
 	}
 }
 

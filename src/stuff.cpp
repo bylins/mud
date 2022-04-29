@@ -380,7 +380,6 @@ void obj_load_on_death(ObjData *corpse, CharData *ch) {
 	}
 }
 
-// готовим прототипы шмоток для зверюшек (Кудояр)
 void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 	const auto obj = world_objects.create_blank();
 	int position = 0;

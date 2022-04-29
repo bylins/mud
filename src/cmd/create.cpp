@@ -1,13 +1,11 @@
 #include "create.h"
 
 #include "game_crafts/im.h"
-#include "game_magic/spells.h"
 #include "game_magic/magic_utils.h"
 #include "handler.h"
 
 void do_create(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	char *s;
-	int spellnum, itemnum = 0;
 
 	if (ch->IsNpc())
 		return;
@@ -24,12 +22,13 @@ void do_create(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	size_t i = strlen(arg);
+	ESpellType itemnum;
 	if (!strn_cmp(arg, "potion", i) || !strn_cmp(arg, "напиток", i))
-		itemnum = kSpellPotion;
+		itemnum = ESpellType::kPotionCast;
 	else if (!strn_cmp(arg, "wand", i) || !strn_cmp(arg, "палочка", i))
-		itemnum = kSpellWand;
+		itemnum = ESpellType::kWandCast;
 	else if (!strn_cmp(arg, "scroll", i) || !strn_cmp(arg, "свиток", i))
-		itemnum = kSpellScroll;
+		itemnum = ESpellType::kScrollCast;
 	else if (!strn_cmp(arg, "recipe", i) || !strn_cmp(arg, "рецепт", i) ||
 		!strn_cmp(arg, "отвар", i)) {
 		if (subcmd != SCMD_RECIPE) {
@@ -44,7 +43,7 @@ void do_create(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			SendMsgToChar("Руны требуется сложить.\r\n", ch);
 			return;
 		}
-		itemnum = kSpellRunes;
+		itemnum = ESpellType::kRunes;
 	} else {
 		if (subcmd == SCMD_RECIPE)
 			snprintf(buf, kMaxInputLength, "Состав '%s' уже давно утерян.\r\n", arg);
@@ -66,31 +65,29 @@ void do_create(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
-	spellnum = FixNameAndFindSpellNum(s);
-
-	// Unknown spell
-	if (spellnum < 1 || spellnum > kSpellLast) {
+	auto spell_id = FixNameAndFindSpellId(s);
+	if (spell_id == ESpell::kUndefined) {
 		SendMsgToChar("И откуда вы набрались рецептов?\r\n", ch);
 		return;
 	}
 
 	// Caster is don't know this recipe
-	if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), itemnum) && !IS_IMMORTAL(ch)) {
+	if (!IS_SET(GET_SPELL_TYPE(ch, spell_id), itemnum) && !IS_IMMORTAL(ch)) {
 		SendMsgToChar("Было бы неплохо прежде всего выучить этот состав.\r\n", ch);
 		return;
 	}
 
 	if (subcmd == SCMD_RECIPE) {
-		CheckRecipeValues(ch, spellnum, itemnum, true);
+		CheckRecipeValues(ch, spell_id, itemnum, true);
 		return;
 	}
 
-	if (!CheckRecipeValues(ch, spellnum, itemnum, false)) {
+	if (!CheckRecipeValues(ch, spell_id, itemnum, false)) {
 		SendMsgToChar("Боги хранят в тайне этот состав.\r\n", ch);
 		return;
 	}
 
-	if (!CheckRecipeItems(ch, spellnum, itemnum, true)) {
+	if (!CheckRecipeItems(ch, spell_id, itemnum, true)) {
 		SendMsgToChar("У вас нет нужных ингредиентов!\r\n", ch);
 		return;
 	}

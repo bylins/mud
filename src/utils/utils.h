@@ -472,8 +472,7 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 #define GET_NAME(ch)    ((ch)->get_name().c_str())
 #define GET_TITLE(ch)   ((ch)->player_data.title)
 #define GET_MAX_MANA(ch)      (mana[MIN(50, GET_REAL_WIS(ch))])
-#define GET_MANA_COST(ch, spellnum)      mag_manacost(ch,spellnum)
-#define GET_MEM_CURRENT(ch)   (((ch)->mem_queue.queue == nullptr) ? 0 : mag_manacost(ch,(ch)->mem_queue.queue->spellnum))
+#define GET_MEM_CURRENT(ch)   ((ch)->mem_queue.Empty() ? 0 : CalcSpellManacost(ch, (ch)->mem_queue.queue->spell_id))
 #define IS_CODER(ch)    (GetRealLevel(ch) < kLvlImmortal && PRF_FLAGGED(ch, EPrf::kCoderinfo))
 #define IS_COLORED(ch)    (pk_count (ch))
 #define MAX_PORTALS(ch)  ((GetRealLevel(ch)/3)+GET_REAL_REMORT(ch))
@@ -590,7 +589,7 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_AR(ch)        ((ch)->add_abils.aresist)
 #define GET_MR(ch)        ((ch)->add_abils.mresist)
 #define GET_PR(ch)        ((ch)->add_abils.presist) // added by WorM (Видолюб) поглощение физ.урона в %
-#define GET_LIKES(ch)     ((ch)->mob_specials.LikeWork)
+#define GET_LIKES(ch)     ((ch)->mob_specials.like_work)
 
 #define GET_REAL_SAVING_STABILITY(ch)	(dex_bonus(GET_REAL_CON(ch)) - GET_SAVE(ch, ESaving::kStability) + ((ch)->IsOnHorse() ? 20 : 0))
 #define GET_REAL_SAVING_REFLEX(ch)	(dex_bonus(GET_REAL_DEX(ch)) - GET_SAVE(ch, ESaving::kReflex) + ((ch)->IsOnHorse() ? -20 : 0))
@@ -677,9 +676,9 @@ const int kNameLevel = 5;
 #define CLAN_MEMBER(ch)        ((ch)->player_specials->clan_member)
 #define GET_CLAN_STATUS(ch)    ((ch)->player_specials->clanStatus)
 
-#define GET_SPELL_TYPE(ch, i) ((ch)->real_abils.SplKnw[i])
-#define GET_SPELL_MEM(ch, i)  ((ch)->real_abils.SplMem[i])
-#define SET_SPELL(ch, i, pct) ((ch)->real_abils.SplMem[i] = (pct))
+#define GET_SPELL_TYPE(ch, i) ((ch)->real_abils.SplKnw[to_underlying(i)])
+#define GET_SPELL_MEM(ch, i)  ((ch)->real_abils.SplMem[to_underlying(i)])
+#define SET_SPELL(ch, i, pct) ((ch)->real_abils.SplMem[to_underlying(i)] = (pct))
 
 #define MOD_CAST_LEV(sp, ch) (BASE_CAST_LEV(sp, ch) - (std::max(GET_REAL_REMORT(ch) - MIN_CAST_REM(sp,ch),0) / 3))
 
@@ -1013,11 +1012,6 @@ int is_post(RoomRnum room);
 bool is_rent(RoomRnum room);
 
 int CalcDuration(CharData *ch, int cnst, int level, int level_divisor, int min, int max);
-
-// Modifier functions
-int day_spell_modifier(CharData *ch, int spellnum, int type, int value);
-int weather_spell_modifier(CharData *ch, int spellnum, int type, int value);
-int complex_spell_modifier(CharData *ch, int spellnum, int type, int value);
 
 void can_carry_obj(CharData *ch, ObjData *obj);
 bool CAN_CARRY_OBJ(const CharData *ch, const ObjData *obj);

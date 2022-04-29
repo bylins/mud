@@ -15,7 +15,7 @@
  * obj.process(ch, victim);
  */
 struct SkillDmg {
-	SkillDmg(ESkill id) : skill_id(id) {};
+	explicit SkillDmg(ESkill id) : skill_id(id) {};
 	ESkill skill_id;
 };
 
@@ -25,8 +25,8 @@ struct SkillDmg {
  * obj.process(ch, victim);
  */
 struct SpellDmg {
-	SpellDmg(int num) : spell_num(num) {};
-	int spell_num;
+	explicit SpellDmg(ESpell spell_id) : spell_id(spell_id) {};
+	ESpell spell_id;
 };
 
 /**
@@ -65,7 +65,7 @@ class Damage {
 	// заклинания
 	Damage(SpellDmg obj, int in_dam, fight::DmgType in_dmg_type) {
 		zero_init();
-		spell_num = obj.spell_num;
+		spell_id = obj.spell_id;
 		dam = in_dam;
 		dmg_type = in_dmg_type;
 	};
@@ -90,7 +90,7 @@ class Damage {
 	// см. описание в HitData
 	ESkill skill_id;
 	// номер заклинания, если >= 0
-	int spell_num;
+	ESpell spell_id;
 	// Какой стихией магии наносится урон.
 	// Применяется, если урон магический, но наносится не спеллом.
 	// Если спеллом - тип урона берется из самого спелла.

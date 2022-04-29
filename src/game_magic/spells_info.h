@@ -39,10 +39,9 @@ struct SpellCreate {
 	struct SpellCreateItem runes;
 };
 
-extern struct SpellInfo spell_info[];
-extern struct SpellCreate spell_create[];
+extern std::unordered_map<ESpell, SpellInfo> spell_info;
+extern std::unordered_map<ESpell, SpellCreate> spell_create;
 
 void InitSpells();
-const char *GetSpellName(int num);
 
 #endif //SPELLS_INFO_H_
