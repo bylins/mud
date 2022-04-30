@@ -1722,14 +1722,20 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 		default: break;
 	}
-
+	std::string LuckTempStr;
 	if (!ignore_luck) {
 		switch (MakeLuckTest(ch, vict)) {
-			case ELuckTestResult::kLuckTestSuccess: break;
-			case ELuckTestResult::kLuckTestFail: base_percent = 0;
+			case ELuckTestResult::kLuckTestSuccess: 
+				LuckTempStr = "Удача прошла";
+				break;
+			case ELuckTestResult::kLuckTestFail: 
+				LuckTempStr = "Удача фэйл";
+				base_percent = 0;
 				bonus = 0;
 				break;
-			case ELuckTestResult::kLuckTestCriticalSuccess: base_percent = CalcSkillHardCap(ch, skill_id);
+			case ELuckTestResult::kLuckTestCriticalSuccess: 
+				base_percent = MUD::Skills()[skill_id].cap;
+				LuckTempStr = "Удача крит";
 				break;
 		}
 	}
@@ -1748,14 +1754,15 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 	}
 
 	ch->send_to_TC(false, true, true,
-			"&CTarget: %s, skill: %s, base_percent: %d, bonus: %d, victim_save: %d, victim_modi: %d, total_percent: %d&n\r\n",
+			"&CTarget: %s, skill: %s, base_percent: %d, bonus: %d, victim_save: %d, victim_modi: %d, total_percent: %d, удача: %s&n\r\n",
 			vict ? GET_NAME(vict) : "NULL",
 			MUD::Skills()[skill_id].GetName(),
 			base_percent,
 			bonus,
 			victim_sav,
 			victim_modi / 2,
-			total_percent);
+			total_percent,
+			LuckTempStr.c_str());
 	return (total_percent);
 }
 
