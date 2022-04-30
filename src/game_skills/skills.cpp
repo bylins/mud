@@ -1722,7 +1722,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 		default: break;
 	}
-	std::string LuckTempStr;
+	std::string LuckTempStr = "Удача игнор";
 	if (!ignore_luck) {
 		switch (MakeLuckTest(ch, vict)) {
 			case ELuckTestResult::kLuckTestSuccess: 
