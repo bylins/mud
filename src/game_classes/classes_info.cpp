@@ -267,7 +267,7 @@ void CharClassInfo::PrintSpellsTable(CharData *ch, std::ostringstream &buffer) c
 	table << table_wrapper::kHeader
 		<< "Spell" << "Lvl" << "Rem" << "Circle" << "Mem" << "Cast" << "Mode" << table_wrapper::kEndRow;
 	for (const auto &spell : spells) {
-		table << spell_info[spell.GetId()].name
+		table << GetSpellName(spell.GetId())
 			  << spell.GetMinLevel()
 			  << spell.GetMinRemort()
 			  << spell.GetCircle()

@@ -7,11 +7,6 @@ const char *unused_spellname = "!UNUSED!";
 std::unordered_map<ESpell, SpellInfo> spell_info;
 std::unordered_map<ESpell, SpellCreate> spell_create;
 
-void InitUnusedSpell(ESpell spell_id);
-void InitSpell(ESpell spell_id, const char *name, const char *syn,
-			   int max_mana, int min_mana, int mana_change,
-			   int minpos, int targets, int violent, int routines, int danger, int spell_class);
-
 const char *GetSpellName(ESpell spell_id) {
 	if (spell_info.contains(spell_id)) {
 		return (spell_info[spell_id].name);
@@ -130,23 +125,23 @@ void InitSpell(ESpell spell_id, const char *name, const char *syn,
 
 void InitSpells() {
 
-	for (auto spell_id = ESpell::kFirst ; spell_id <= ESpell::kLast; ++spell_id) {
+	for (auto spell_id = ESpell::kUndefined; spell_id <= ESpell::kLast; ++spell_id) {
 		InitUnusedSpell(spell_id);
 	}
 
 
 //1
-	InitSpell (ESpell::kArmor, "защита", "armor", 40, 30, 1,
-			  EPosition::kFight, kTarCharRoom | kTarFightSelf, false, kMagAffects | kNpcAffectNpc,
-			  0, kTypeLight);
+	InitSpell(ESpell::kArmor, "защита", "armor", 40, 30, 1,
+			  EPosition::kFight, kTarCharRoom | kTarFightSelf, false,
+			  kMagAffects | kNpcAffectNpc, 0, kTypeLight);
 //2
-	InitSpell (ESpell::kTeleport, "прыжок", "teleport",
+	InitSpell(ESpell::kTeleport, "прыжок", "teleport",
 			  140, 120, 2, EPosition::kStand, kTarCharRoom, false,
 			  kMagManual | kNpcDamagePc, 1, kTypeAir);
 //3
-	InitSpell(ESpell::kBless, "доблесть", "bless", 55, 40, 1, EPosition::kFight,
-			  kTarCharRoom | kTarFightSelf | kTarObjInv | kTarObjEquip,
-			  false, kMagAffects | kMagAlterObjs | kNpcAffectNpc, 0, kTypeLight);
+	InitSpell(ESpell::kBless, "доблесть", "bless", 55, 40, 1,
+			  EPosition::kFight, kTarCharRoom | kTarFightSelf | kTarObjInv | kTarObjEquip, false,
+			  kMagAffects | kMagAlterObjs | kNpcAffectNpc, 0, kTypeLight);
 //4
 	InitSpell(ESpell::kBlindness, "слепота", "blind",
 			  70, 40, 2, EPosition::kFight, kTarCharRoom | kTarFightVict,
