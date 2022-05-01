@@ -90,15 +90,15 @@ bool PoisonVictWithWeapon(CharData *ch, CharData *vict, ESpell spell_id) {
 		Affect<EApply> af[3];
 		// скилл * 0.05 на чаров и + 5 на мобов. 4-10% и 9-15% (80-200 скила)
 		int percent = 0;
-		if (ch->get_skill(ESkill::kPoisoning) >= 80) {
-			percent = (ch->get_skill(ESkill::kPoisoning) * 5 / 100) + (vict->IsNpc() ? 5 : 0);
+		if (ch->GetSkill(ESkill::kPoisoning) >= 80) {
+			percent = (ch->GetSkill(ESkill::kPoisoning) * 5 / 100) + (vict->IsNpc() ? 5 : 0);
 		}
 		// -дамаг физ.атак и скиллы
 		af[0].location = EApply::kBelenaPoison;
 		af[0].modifier = percent;
 
 		// скилл * 0.05 + 5 на чаров и + 10 на мобов. 5.5-15% и 10.5-20% (10-200 скила)
-		percent = (ch->get_skill(ESkill::kPoisoning) * 5 / 100) + (vict->IsNpc() ? 10 : 5);
+		percent = (ch->GetSkill(ESkill::kPoisoning) * 5 / 100) + (vict->IsNpc() ? 10 : 5);
 		// -хитролы
 		int remove_hit = GET_REAL_HR(vict) * (percent / 100);
 		af[1].location = EApply::kHitroll;
@@ -136,14 +136,14 @@ bool PoisonVictWithWeapon(CharData *ch, CharData *vict, ESpell spell_id) {
 		Affect<EApply> af[3];
 		// скилл * 0.05 на чаров и + 5 на мобов. 4-10% и 9-15% (80-200 скила)
 		int percent = 0;
-		if (ch->get_skill(ESkill::kPoisoning) >= 80)
-			percent = (ch->get_skill(ESkill::kPoisoning) * 5 / 100) + (vict->IsNpc() ? 5 : 0);
+		if (ch->GetSkill(ESkill::kPoisoning) >= 80)
+			percent = (ch->GetSkill(ESkill::kPoisoning) * 5 / 100) + (vict->IsNpc() ? 5 : 0);
 		// -дамаг заклов и скиллы
 		af[0].location = EApply::kDaturaPoison;
 		af[0].modifier = percent;
 
 		// скилл * 0.05 + 5 на чаров и + 10 на мобов. 5.5-15% и 10.5-20% (10-200 скила)
-		percent = (ch->get_skill(ESkill::kPoisoning) * 5 / 100) + (vict->IsNpc() ? 10 : 5);
+		percent = (ch->GetSkill(ESkill::kPoisoning) * 5 / 100) + (vict->IsNpc() ? 10 : 5);
 		// -каст
 		int remove_cast = GET_CAST_SUCCESS(vict) * (percent / 100);
 		af[1].location = EApply::kCastSuccess;
@@ -180,7 +180,7 @@ bool PoisonVictWithWeapon(CharData *ch, CharData *vict, ESpell spell_id) {
 // * Крит при отравлении с пушек.
 void ProcessCritWeaponPoison(CharData *ch, CharData *vict, ESpell/* spell_num*/) {
 	Affect<EApply> af;
-	int percent = number(1, MUD::Skills()[ESkill::kPoisoning].difficulty * 3);
+	int percent = number(1, MUD::Skills(ESkill::kPoisoning).difficulty * 3);
 	int prob = CalcCurrentSkill(ch, ESkill::kPoisoning, vict);
 	if (prob >= percent) {
 		switch (number(1, 5)) {

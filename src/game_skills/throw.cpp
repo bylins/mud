@@ -171,7 +171,7 @@ void go_throw(CharData *ch, CharData *victim) {
 
 void do_throw(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	//Svent TODO: Не забыть убрать заглушку после дописывания навыков
-	if (!ch->get_skill(ESkill::kThrow)) {
+	if (!ch->GetSkill(ESkill::kThrow)) {
 		SendMsgToChar("Вы принялись метать икру. Это единственное, что вы умеете метать.\r\n", ch);
 		return;
 	}

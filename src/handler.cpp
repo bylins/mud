@@ -285,7 +285,7 @@ void ProcessRoomAffectsOnEntry(CharData *ch, RoomRnum room) {
 			// без магии и ниже 80%: шанс 25%, на 100% - 27%, на 200% - 37% ,при 300% - 47%
 			// иначе пве, и просто кастим сон на входящего
 			float mkof = CalcModCoef(ESpell::kHypnoticPattern,
-									 caster->get_skill(GetMagicSkillId(ESpell::kHypnoticPattern)));
+									 caster->GetSkill(GetMagicSkillId(ESpell::kHypnoticPattern)));
 			if (!ch->IsNpc() && (number (1, 100) > (23 + 2*mkof))) {
 				return;
 			}
@@ -754,7 +754,7 @@ int GetFlagDataByCharClass(const CharData *ch) {
 		return 0;
 	}
 
-	return flag_data_by_num(ch->IsNpc() ? kNumPlayerClasses * kNumKins : to_underlying(ch->get_class())
+	return flag_data_by_num(ch->IsNpc() ? kNumPlayerClasses * kNumKins : to_underlying(ch->GetClass())
 		+ kNumPlayerClasses * GET_KIN(ch));
 }
 
@@ -2692,7 +2692,7 @@ float get_effective_cha(CharData *ch) {
 	int key_value, key_value_add;
 
 	key_value = ch->get_cha();
-	auto max_cha = class_stats_limit[to_underlying(ch->get_class())][5];
+	auto max_cha = class_stats_limit[to_underlying(ch->GetClass())][5];
 	key_value_add = std::min(max_cha - ch->get_cha(), GET_CHA_ADD(ch));
 
 	float eff_cha = 0.0;
@@ -2712,7 +2712,7 @@ float get_effective_cha(CharData *ch) {
 float CalcEffectiveWis(CharData *ch, ESpell spell_id) {
 	int key_value, key_value_add;
 
-	auto max_wis = class_stats_limit[to_underlying(ch->get_class())][3];
+	auto max_wis = class_stats_limit[to_underlying(ch->GetClass())][3];
 
 	if (spell_id == ESpell::kResurrection || spell_id == ESpell::kAnimateDead) {
 		key_value = ch->get_wis();
@@ -2741,7 +2741,7 @@ float get_effective_int(CharData *ch) {
 	int key_value, key_value_add;
 
 	key_value = ch->get_int();
-	auto max_int = class_stats_limit[to_underlying(ch->get_class())][4];
+	auto max_int = class_stats_limit[to_underlying(ch->GetClass())][4];
 	key_value_add = std::min(max_int - ch->get_int(), GET_INT_ADD(ch));
 
 	float eff_int = 0.0;
@@ -2765,9 +2765,9 @@ int CalcCharmPoint(CharData *ch, ESpell spell_id) {
 
 	if (spell_id == ESpell::kResurrection || spell_id == ESpell::kAnimateDead) {
 		eff_cha = CalcEffectiveWis(ch, spell_id);
-		max_cha = class_stats_limit[to_underlying(ch->get_class())][3];
+		max_cha = class_stats_limit[to_underlying(ch->GetClass())][3];
 	} else {
-		max_cha = class_stats_limit[to_underlying(ch->get_class())][5];
+		max_cha = class_stats_limit[to_underlying(ch->GetClass())][5];
 		eff_cha = get_effective_cha(ch);
 	}
 
@@ -2841,7 +2841,7 @@ int CalcSpellManacost(const CharData *ch, ESpell spell_id) {
 		}
 	}
 	if (result > 0)
-		return result * koef_skill_magic(ch->get_skill(GetMagicSkillId(spell_id))) / 100;
+		return result * koef_skill_magic(ch->GetSkill(GetMagicSkillId(spell_id))) / 100;
 				// при скилле 200 + 25%, чем меньше тем лучше
 	else 
 		return 99999;

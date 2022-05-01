@@ -75,7 +75,7 @@ ESkill GetMagicSkillId(ESpell spell_id) {
 //req_lvl - требуемый уровень из книги
 int CalcMinSpellLevel(CharData *ch, ESpell spell_id, int req_lvl) {
 	int min_lvl = std::max(req_lvl, BASE_CAST_LEV(spell_info[spell_id], ch))
-		- (std::max(0, GET_REAL_REMORT(ch)/MUD::Classes()[ch->get_class()].GetSpellLvlDecrement()));
+		- (std::max(0, GET_REAL_REMORT(ch)/MUD::Classes(ch->GetClass()).GetSpellLvlDecrement()));
 
 	return std::max(1, min_lvl);
 }
@@ -364,7 +364,8 @@ void SpellRelocate(int/* level*/, CharData *ch, CharData *victim, ObjData* /* ob
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kSlowDeathTrap) ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kTunnel) ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kNoRelocateIn) ||
-			ROOM_FLAGGED(fnd_room, ERoomFlag::kIceTrap) || (ROOM_FLAGGED(fnd_room, ERoomFlag::kGodsRoom) && !IS_IMMORTAL(ch)))) {
+			ROOM_FLAGGED(fnd_room, ERoomFlag::kIceTrap) || (ROOM_FLAGGED(fnd_room, ERoomFlag::kGodsRoom) && !IS_IMMORTAL(
+			ch)))) {
 		SendMsgToChar(SUMMON_FAIL, ch);
 		return;
 	}
@@ -963,7 +964,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 			// начинаем модификации victim
 			// создаем переменные модификаторов
 			int r_cha = GET_REAL_CHA(ch);
-			int perc = ch->get_skill(GetMagicSkillId(ESpell::kCharm));
+			int perc = ch->GetSkill(GetMagicSkillId(ESpell::kCharm));
 			ch->send_to_TC(false, true, false, "Значение хари:  %d.\r\n", r_cha);
 			ch->send_to_TC(false, true, false, "Значение скила магии: %d.\r\n", perc);
 			
@@ -1414,10 +1415,10 @@ void print_book_uprgd_skill(CharData *ch, const ObjData *obj) {
 	}
 	if (GET_OBJ_VAL(obj, 3) > 0) {
 		SendMsgToChar(ch, "повышает умение \"%s\" (максимум %d)\r\n",
-					  MUD::Skills()[skill_id].GetName(), GET_OBJ_VAL(obj, 3));
+					  MUD::Skills(skill_id).GetName(), GET_OBJ_VAL(obj, 3));
 	} else {
 		SendMsgToChar(ch, "повышает умение \"%s\" (не больше максимума текущего перевоплощения)\r\n",
-					  MUD::Skills()[skill_id].GetName());
+					  MUD::Skills(skill_id).GetName());
 	}
 }
 
@@ -1566,12 +1567,12 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 					auto skill_id = static_cast<ESkill>(GET_OBJ_VAL(obj, 1));
 					if (MUD::Skills().IsValid(skill_id)) {
 						drndice = GET_OBJ_VAL(obj, 1);
-						if (MUD::Classes()[ch->get_class()].skills[skill_id].IsAvailable()) {
+						if (MUD::Classes(ch->GetClass()).skills[skill_id].IsAvailable()) {
 							drsdice = GetSkillMinLevel(ch, skill_id, GET_OBJ_VAL(obj, 2));
 						} else {
 							drsdice = kLvlImplementator;
 						}
-						sprintf(buf, "содержит секрет умения     : \"%s\"\r\n", MUD::Skills()[skill_id].GetName());
+						sprintf(buf, "содержит секрет умения     : \"%s\"\r\n", MUD::Skills(skill_id).GetName());
 						SendMsgToChar(buf, ch);
 						sprintf(buf, "уровень изучения (для вас) : %d\r\n", drsdice);
 						SendMsgToChar(buf, ch);
@@ -1607,7 +1608,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 					const auto feat_id = static_cast<EFeat>(GET_OBJ_VAL(obj, 1));
 					if (feat_id >= EFeat::kFirst && feat_id <= EFeat::kLast) {
 						if (IsAbleToGetFeat(ch, feat_id)) {
-							drsdice = MUD::Classes()[ch->get_class()].feats[feat_id].GetSlot();
+							drsdice = MUD::Classes(ch->GetClass()).feats[feat_id].GetSlot();
 						} else {
 							drsdice = kLvlImplementator;
 						}
@@ -1761,7 +1762,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 				continue;
 
 			sprintf(buf, "   %s%s%s%s%s%d%%%s\r\n",
-					CCCYN(ch, C_NRM), MUD::Skills()[skill_id].GetName(), CCNRM(ch, C_NRM),
+					CCCYN(ch, C_NRM), MUD::Skills(skill_id).GetName(), CCNRM(ch, C_NRM),
 					CCCYN(ch, C_NRM),
 					percent < 0 ? " ухудшает на " : " улучшает на ", abs(percent), CCNRM(ch, C_NRM));
 			SendMsgToChar(buf, ch);
@@ -2281,7 +2282,7 @@ void SpellSummonAngel(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData
 	SET_SPELL(mob, ESpell::kRemovePoison, base_spell);
 	SET_SPELL(mob, ESpell::kHeal, floorf(base_heal + additional_heal_for_charisma * eff_cha));
 
-	if (mob->get_skill(ESkill::kAwake)) {
+	if (mob->GetSkill(ESkill::kAwake)) {
 		PRF_FLAGS(mob).set(EPrf::kAwake);
 	}
 
@@ -2369,7 +2370,7 @@ void SpellMentalShadow(int/* level*/, CharData *ch, CharData* /*victim*/, ObjDat
 		af.bitvector = to_underlying(EAffect::kBrokenChains);
 		affect_to_char(mob, af);
 	}
-	if (mob->get_skill(ESkill::kAwake)) {
+	if (mob->GetSkill(ESkill::kAwake)) {
 		PRF_FLAGS(mob).set(EPrf::kAwake);
 	}
 	mob->set_level(GetRealLevel(ch));
@@ -2665,7 +2666,7 @@ int CheckRecipeItems(CharData *ch, ESpell spell_id, ESpellType spell_type, int e
 			if (!obj) {
 				return false;
 			} else {
-				percent = number(1, MUD::Skills()[skill_id].difficulty);
+				percent = number(1, MUD::Skills(skill_id).difficulty);
 				auto prob = CalcCurrentSkill(ch, skill_id, nullptr);
 
 				if (MUD::Skills().IsValid(skill_id) && percent > prob) {

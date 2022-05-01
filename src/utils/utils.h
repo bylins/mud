@@ -270,10 +270,10 @@ short GET_REAL_REMORT(const CharData *ch);
 short GET_REAL_REMORT(const std::shared_ptr<CharData> *ch);
 short GET_REAL_REMORT(const std::shared_ptr<CharData> &ch);
 
-#define IS_IMMORTAL(ch)     (!(ch)->IsNpc() && (ch)->get_level() >= kLvlImmortal)
-#define IS_GOD(ch)          (!(ch)->IsNpc() && (ch)->get_level() >= kLvlGod)
-#define IS_GRGOD(ch)        (!(ch)->IsNpc() && (ch)->get_level() >= kLvlGreatGod)
-#define IS_IMPL(ch)         (!(ch)->IsNpc() && (ch)->get_level() >= kLvlImplementator)
+#define IS_IMMORTAL(ch)     (!(ch)->IsNpc() && (ch)->GetLevel() >= kLvlImmortal)
+#define IS_GOD(ch)          (!(ch)->IsNpc() && (ch)->GetLevel() >= kLvlGod)
+#define IS_GRGOD(ch)        (!(ch)->IsNpc() && (ch)->GetLevel() >= kLvlGreatGod)
+#define IS_IMPL(ch)         (!(ch)->IsNpc() && (ch)->GetLevel() >= kLvlImplementator)
 
 #define IS_BITS(mask, bitno) (IS_SET(mask,(1 << (bitno))))
 
@@ -460,7 +460,7 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 #define GET_ROOM_SPEC(room) (VALID_RNUM(room) ? world[(room)]->func : nullptr)
 
 // char utils ***********************************************************
-#define IS_MANA_CASTER(ch) (GET_CLASS(ch) == ECharClass::kMagus)
+#define IS_MANA_CASTER(ch) ((ch)->GetClass() == ECharClass::kMagus)
 #define IN_ROOM(ch)  ((ch)->in_room)
 #define GET_AGE(ch)     (age(ch)->year)
 #define GET_REAL_AGE(ch) (age(ch)->year + GET_AGE_ADD(ch))
@@ -478,7 +478,7 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 #define CLR_AF_BATTLE(ch, flag) ((ch)->battle_affects.unset(flag))
 #define NUL_AF_BATTLE(ch)      ((ch)->battle_affects.clear())
 #define GET_REMORT(ch)         ((ch)->get_remort())
-#define GET_SKILL(ch, skill)   ((ch)->get_skill(skill))
+#define GET_SKILL(ch, skill)   ((ch)->GetSkill(skill))
 #define GET_EMAIL(ch)          ((ch)->player_specials->saved.EMail)
 #define GET_LASTIP(ch)         ((ch)->player_specials->saved.LastIP)
 #define GET_GOD_FLAG(ch, flag)  (IS_SET((ch)->player_specials->saved.GodsLike, flag))
@@ -527,7 +527,7 @@ inline T VPOSI(const T val, const T min, const T max) {
 // у чаров режет до 50, у мобов до ста
 //#define VPOSI_MOB(ch, stat_id, val)	ch->IsNpc() ? val : VPOSI(val, 1, class_stats_limit[(int)GET_CLASS(ch)][stat_id])
 
-#define GET_CLASS(ch)   ((ch)->get_class())
+#define GET_CLASS(ch)   ((ch)->GetClass())
 #define GET_KIN(ch)     ((ch)->player_data.Kin)
 #define GET_HEIGHT(ch)  ((ch)->player_data.height)
 #define GET_HEIGHT_ADD(ch) ((ch)->add_abils.height_add)

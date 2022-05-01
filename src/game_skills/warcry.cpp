@@ -9,7 +9,7 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc() && AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
-	if (!ch->get_skill(ESkill::kWarcry)) {
+	if (!ch->GetSkill(ESkill::kWarcry)) {
 		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -37,7 +37,7 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 			if (realname
 				&& IS_SET(spell_info[spell_id].routines, kMagWarcry)
-				&& ch->get_skill(ESkill::kWarcry) >= spell_info[spell_id].mana_change) {
+				&& ch->GetSkill(ESkill::kWarcry) >= spell_info[spell_id].mana_change) {
 				if (!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow | ESpellType::kTemp))
 					continue;
 				sprintf(buf + strlen(buf), "%s%2d%s) %s%s%s\r\n",
@@ -58,7 +58,7 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	auto spell_id = FixNameAndFindSpellId(wc_name);
 
 	if (spell_id == ESpell::kUndefined
-		|| (ch->get_skill(ESkill::kWarcry) < spell_info[spell_id].mana_change)
+		|| (ch->GetSkill(ESkill::kWarcry) < spell_info[spell_id].mana_change)
 		|| !IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow | ESpellType::kTemp)) {
 		SendMsgToChar("И откуда вы набрались таких выражений?\r\n", ch);
 		return;

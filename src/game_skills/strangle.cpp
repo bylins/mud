@@ -34,12 +34,12 @@ void go_strangle(CharData *ch, CharData *vict) {
 	act("Вы попытались накинуть удавку на шею $N2.\r\n", false, ch, nullptr, vict, kToChar);
 
 	int prob = CalcCurrentSkill(ch, ESkill::kStrangle, vict);
-	int delay = 6 - std::min(4, (ch->get_skill(ESkill::kStrangle) + 30) / 50);
-	int percent = number(1, MUD::Skills()[ESkill::kStrangle].difficulty);
+	int delay = 6 - std::min(4, (ch->GetSkill(ESkill::kStrangle) + 30) / 50);
+	int percent = number(1, MUD::Skills(ESkill::kStrangle).difficulty);
 
 	bool success = percent <= prob;
 	TrainSkill(ch, ESkill::kStrangle, success, vict);
-	SendSkillBalanceMsg(ch, MUD::Skills()[ESkill::kStrangle].name, percent, prob, success);
+	SendSkillBalanceMsg(ch, MUD::Skills(ESkill::kStrangle).name, percent, prob, success);
 	if (!success) {
 		Damage dmg(SkillDmg(ESkill::kStrangle), fight::kZeroDmg, fight::kPhysDmg, nullptr);
 		dmg.flags.set(fight::kIgnoreArmor);
@@ -55,7 +55,7 @@ void go_strangle(CharData *ch, CharData *vict) {
 		af.bitvector = to_underlying(EAffect::kStrangled);
 		affect_to_char(vict, af);
 
-		int dam = (GET_MAX_HIT(vict) * GaussIntNumber((300 + 5 * ch->get_skill(ESkill::kStrangle)) / 70,
+		int dam = (GET_MAX_HIT(vict) * GaussIntNumber((300 + 5 * ch->GetSkill(ESkill::kStrangle)) / 70,
 													  7.0, 1, 30)) / 100;
 		dam = (vict->IsNpc() ? std::min(dam, 6 * GET_MAX_HIT(ch)) : std::min(dam, 2 * GET_MAX_HIT(ch)));
 		Damage dmg(SkillDmg(ESkill::kStrangle), dam, fight::kPhysDmg, nullptr);
@@ -72,7 +72,7 @@ void go_strangle(CharData *ch, CharData *vict) {
 					false, vict, nullptr, ch, kToNotVict | kToArenaListen);
 				vict->drop_from_horse();
 			}
-			if (ch->get_skill(ESkill::kUndercut) && ch->isInSameRoom(vict)) {
+			if (ch->GetSkill(ESkill::kUndercut) && ch->isInSameRoom(vict)) {
 				go_chopoff(ch, vict);
 			}
 			SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 2);
@@ -86,7 +86,7 @@ void go_strangle(CharData *ch, CharData *vict) {
 }
 
 void do_strangle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (!ch->get_skill(ESkill::kStrangle)) {
+	if (!ch->GetSkill(ESkill::kStrangle)) {
 		SendMsgToChar("Вы не умеете этого.\r\n", ch);
 		return;
 	}

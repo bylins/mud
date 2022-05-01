@@ -105,7 +105,7 @@ void PrintScoreList(CharData *ch) {
 	buf1[0] = LOWER(buf1[0]);
 	SendMsgToChar(ch, "Вы %s, %s, %s, %s, уровень %d, перевоплощений %d.\r\n", ch->get_name().c_str(),
 				  buf,
-				  MUD::Classes()[ch->get_class()].GetCName(),
+				  MUD::Classes(ch->GetClass()).GetCName(),
 				  buf1,
 				  GetRealLevel(ch),
 				  GET_REAL_REMORT(ch));
@@ -182,7 +182,7 @@ void PrintScoreList(CharData *ch) {
 				  ch->get_bank(),
 				  ch->get_hryvn(),
 				  GET_EXP(ch),
-				 IS_IMMORTAL(ch) ? 1: GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - GET_EXP(ch));
+				  IS_IMMORTAL(ch) ? 1 : GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - GET_EXP(ch));
 	if (!ch->IsOnHorse())
 		SendMsgToChar(ch, "Ваша позиция: %s", GetPositionStr(ch));
 	else
@@ -213,9 +213,9 @@ void PrintScoreList(CharData *ch) {
 		SendMsgToChar(ch, "ВНИМАНИЕ! ваше имя запрещено богами. Очень скоро вы прекратите получать опыт.\r\n");
 	}
 	SendMsgToChar(ch, "Вы можете вступить в группу с максимальной разницей в %2d %-75s\r\n",
-				  grouping[ch->get_class()][static_cast<int>(GET_REAL_REMORT(ch))],
+				  grouping[ch->GetClass()][static_cast<int>(GET_REAL_REMORT(ch))],
 				  (std::string(
-					  GetDeclensionInNumber(grouping[ch->get_class()][static_cast<int>(GET_REAL_REMORT(
+					  GetDeclensionInNumber(grouping[ch->GetClass()][static_cast<int>(GET_REAL_REMORT(
 						  ch))], EWhat::kLvl)
 						  + std::string(" без потерь для опыта.")).substr(0, 76).c_str()));
 
@@ -315,8 +315,8 @@ void PrintBlindModeInfo(CharData *ch, std::ostringstream &out) {
 void PrintGroupMembershipInfo(CharData *ch, std::ostringstream &out) {
 	if (GetRealLevel(ch) < kLvlImmortal) {
 		out << InfoStrPrefix(ch) << "Вы можете вступить в группу с максимальной разницей "
-			<< grouping[ch->get_class()][static_cast<int>(GET_REAL_REMORT(ch))] << " "
-			<< GetDeclensionInNumber(grouping[ch->get_class()][static_cast<int>(GET_REAL_REMORT(ch))],
+			<< grouping[ch->GetClass()][static_cast<int>(GET_REAL_REMORT(ch))] << " "
+			<< GetDeclensionInNumber(grouping[ch->GetClass()][static_cast<int>(GET_REAL_REMORT(ch))],
 									 EWhat::kLvl)
 			<< " без потерь для опыта." << std::endl;
 
@@ -342,9 +342,9 @@ void PrintRentableInfo(CharData *ch, std::ostringstream &out) {
 // \todo Сделать авторазмещение в комнате-кузнице горна и убрать эту функцию.
 void PrinForgeInfo(CharData *ch, std::ostringstream &out) {
 	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kForge)
-		&& (ch->get_skill(ESkill::kJewelry)
-		|| ch->get_skill(ESkill::kRepair)
-		|| ch->get_skill(ESkill::kReforging))) {
+		&& (ch->GetSkill(ESkill::kJewelry)
+		|| ch->GetSkill(ESkill::kRepair)
+		|| ch->GetSkill(ESkill::kReforging))) {
 		out << InfoStrPrefix(ch) << KIYEL << "Это место отлично подходит для занятий кузнечным делом."
 			<< KNRM << std::endl;
 	}
@@ -485,7 +485,7 @@ int PrintBaseInfoToTable(CharData *ch, table_wrapper::Table &table, std::size_t 
 	table[++row][col] = std::string("Уровень: ") + std::to_string(GetRealLevel(ch));
 	table[++row][col] = std::string("Перевоплощений: ") + std::to_string(GET_REAL_REMORT(ch));
 	table[++row][col] = std::string("Возраст: ") + std::to_string(GET_AGE(ch));
-	if (ch->get_level() < kLvlImmortal) {
+	if (ch->GetLevel() < kLvlImmortal) {
 		table[++row][col] = std::string("Опыт: ") + PrintNumberByDigits(GET_EXP(ch));
 		table[++row][col] = std::string("ДСУ: ") + PrintNumberByDigits(
 			GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - GET_EXP(ch));
@@ -657,7 +657,7 @@ void PrintAdditionalInfo(CharData *ch, std::ostringstream &out) {
 void PrintScoreAll(CharData *ch) {
 	// Пишем заголовок таблицы (увы, библиоетка таблиц их не поддерживает)
 	std::ostringstream out;
-	out << "  Вы " << ch->get_name() << ", " << MUD::Classes()[ch->get_class()].GetName() << ". Ваши показатели:" << std::endl;
+	out << "  Вы " << ch->get_name() << ", " << MUD::Classes(ch->GetClass()).GetName() << ". Ваши показатели:" << std::endl;
 
 	// Заполняем основную таблицу и выводим в поток
 	table_wrapper::Table table;
@@ -682,7 +682,7 @@ void PrintScoreBase(CharData *ch) {
 		<< PlayerRace::GetKinNameByNum(GET_KIN(ch), GET_SEX(ch)) << ", "
 		<< PlayerRace::GetRaceNameByNum(GET_KIN(ch), GET_RACE(ch), GET_SEX(ch)) << ", "
 		<< religion_name[GET_RELIGION(ch)][static_cast<int>(GET_SEX(ch))] << ", "
-		<< MUD::Classes()[ch->get_class()].GetCName() <<  " "
+		<< MUD::Classes(ch->GetClass()).GetCName() << " "
 		<< GetRealLevel(ch) << " уровня)." << std::endl;
 
 	PrintNameStatusInfo(ch, out);
@@ -777,8 +777,8 @@ void PrintScoreBase(CharData *ch) {
 	if (GetRealLevel(ch) < kLvlImmortal) {
 		sprintf(buf + strlen(buf),
 				"Вы можете вступить в группу с максимальной разницей в %d %s без потерь для опыта.\r\n",
-				grouping[ch->get_class()][static_cast<int>(GET_REAL_REMORT(ch))],
-				GetDeclensionInNumber(grouping[ch->get_class()][static_cast<int>(GET_REAL_REMORT(ch))],
+				grouping[ch->GetClass()][static_cast<int>(GET_REAL_REMORT(ch))],
+				GetDeclensionInNumber(grouping[ch->GetClass()][static_cast<int>(GET_REAL_REMORT(ch))],
 									  EWhat::kLvl));
 	}
 
@@ -859,7 +859,7 @@ void PrintScoreBase(CharData *ch) {
 	}
 
 	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kForge)
-		&& (ch->get_skill(ESkill::kJewelry) || ch->get_skill(ESkill::kRepair) || ch->get_skill(ESkill::kReforging))) {
+		&& (ch->GetSkill(ESkill::kJewelry) || ch->GetSkill(ESkill::kRepair) || ch->GetSkill(ESkill::kReforging))) {
 		sprintf(buf,
 				"%sЭто место отлично подходит для занятий кузнечным делом.%s\r\n",
 				CCIGRN(ch, C_NRM),
@@ -985,10 +985,10 @@ int CalcHitroll(CharData *ch) {
 	if (weapon) {
 		if (GET_OBJ_TYPE(weapon) == EObjType::kWeapon) {
 			skill = static_cast<ESkill>(GET_OBJ_SKILL(weapon));
-			if (ch->get_skill(skill) == 0) {
+			if (ch->GetSkill(skill) == 0) {
 				hr -= (50 - std::min(50, GET_REAL_INT(ch))) / 3;
 			} else {
-				GetClassWeaponMod(ch->get_class(), skill, &max_dam, &hr);
+				GetClassWeaponMod(ch->GetClass(), skill, &max_dam, &hr);
 			}
 		}
 	} else {
@@ -996,10 +996,10 @@ int CalcHitroll(CharData *ch) {
 		if (weapon) {
 			if (GET_OBJ_TYPE(weapon) == EObjType::kWeapon) {
 				skill = static_cast<ESkill>(GET_OBJ_SKILL(weapon));
-				if (ch->get_skill(skill) == 0) {
+				if (ch->GetSkill(skill) == 0) {
 					hr -= (50 - std::min(50, GET_REAL_INT(ch))) / 3;
 				} else {
-					GetClassWeaponMod(ch->get_class(), skill, &max_dam, &hr);
+					GetClassWeaponMod(ch->GetClass(), skill, &max_dam, &hr);
 				}
 			}
 		}
@@ -1007,10 +1007,10 @@ int CalcHitroll(CharData *ch) {
 		if (weapon) {
 			if (GET_OBJ_TYPE(weapon) == EObjType::kWeapon) {
 				skill = static_cast<ESkill>(GET_OBJ_SKILL(weapon));
-				if (ch->get_skill(skill) == 0) {
+				if (ch->GetSkill(skill) == 0) {
 					hr -= (50 - std::min(50, GET_REAL_INT(ch))) / 3;
 				} else {
-					GetClassWeaponMod(ch->get_class(), skill, &max_dam, &hr);
+					GetClassWeaponMod(ch->GetClass(), skill, &max_dam, &hr);
 				}
 			}
 		}
@@ -1027,7 +1027,7 @@ int CalcHitroll(CharData *ch) {
 	} else {
 		hr += str_bonus(GET_REAL_STR(ch), STR_TO_HIT);
 	}
-	hr += GET_REAL_HR(ch) - GetThac0(ch->get_class(), GetRealLevel(ch));
+	hr += GET_REAL_HR(ch) - GetThac0(ch->GetClass(), GetRealLevel(ch));
 	if (PRF_FLAGGED(ch, EPrf::kPerformPowerAttack)) {
 		hr -= 2;
 	}

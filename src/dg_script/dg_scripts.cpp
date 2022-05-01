@@ -2414,7 +2414,7 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "max_gain_exp")) {
 			sprintf(str, "%ld", (long) max_exp_gain_pc(c));
 		} else if (!str_cmp(field, "tnl_exp")) {
-			sprintf(str, "%ld", GetExpUntilNextLvl(c, c->get_level() + 1) - GET_EXP(c));
+			sprintf(str, "%ld", GetExpUntilNextLvl(c, c->GetLevel() + 1) - GET_EXP(c));
 		} else if (!str_cmp(field, "sex"))
 			sprintf(str, "%d", (int) GET_SEX(c));
 		else if (!str_cmp(field, "clan")) {

@@ -709,10 +709,10 @@ bool IsAbleToUseFeat(const CharData *ch, EFeat feat) {
 	if (ch->IsNpc()) {
 		return true;
 	};
-	if (CalcFeatLvl(ch) < MUD::Classes()[ch->get_class()].feats[feat].GetSlot()) {
+	if (CalcFeatLvl(ch) < MUD::Classes(ch->GetClass()).feats[feat].GetSlot()) {
 		return false;
 	};
-	if (GET_REAL_REMORT(ch) < MUD::Classes()[ch->get_class()].feats[feat].GetMinRemort()) {
+	if (GET_REAL_REMORT(ch) < MUD::Classes(ch->GetClass()).feats[feat].GetMinRemort()) {
 		return false;
 	};
 
@@ -730,19 +730,19 @@ bool IsAbleToUseFeat(const CharData *ch, EFeat feat) {
 			break;
 		case EFeat::kGreatAimingAttack: return (GET_REAL_DEX(ch) > 17);
 			break;
-		case EFeat::kDoubleShot: return (ch->get_skill(ESkill::kBows) > 39);
+		case EFeat::kDoubleShot: return (ch->GetSkill(ESkill::kBows) > 39);
 			break;
-		case EFeat::kJeweller: return (ch->get_skill(ESkill::kJewelry) > 59);
+		case EFeat::kJeweller: return (ch->GetSkill(ESkill::kJewelry) > 59);
 			break;
 		case EFeat::kSkilledTrader: return ((GetRealLevel(ch) + GET_REAL_REMORT(ch) / 3) > 19);
 			break;
 		case EFeat::kMagicUser: return (GetRealLevel(ch) < 25);
 			break;
-		case EFeat::kLiveShield: return (ch->get_skill(ESkill::kRescue) > 124);
+		case EFeat::kLiveShield: return (ch->GetSkill(ESkill::kRescue) > 124);
 			break;
-		case EFeat::kShadowThrower: return (ch->get_skill(ESkill::kDarkMagic) > 120);
+		case EFeat::kShadowThrower: return (ch->GetSkill(ESkill::kDarkMagic) > 120);
 			break;
-		case EFeat::kAnimalMaster: return (ch->get_skill(ESkill::kMindMagic) > 79);
+		case EFeat::kAnimalMaster: return (ch->GetSkill(ESkill::kMindMagic) > 79);
 			break;
 		case EFeat::kScirmisher:
 			return !(AFF_FLAGGED(ch, EAffect::kStopFight)
@@ -767,14 +767,14 @@ bool IsAbleToGetFeat(CharData *ch, EFeat feat) {
 /*	std::ostringstream out;
 	out << "Сопосбность: "
 		<< feat_info[feat].name << " "
-		<< " Врожденная: " << (MUD::Classes()[ch->get_class()].feats[feat].IsInborn() ? "Y" : "N") << " "
-		<< " Мин. уровень: " << MUD::Classes()[ch->get_class()].feats[feat].GetMinLevel() << " "
-		<< " Мин. реморт: " << MUD::Classes()[ch->get_class()].feats[feat].GetMinRemort() << std::endl;
+		<< " Врожденная: " << (MUD::Classes(ch->get_class()).feats[feat].IsInborn() ? "Y" : "N") << " "
+		<< " Мин. уровень: " << MUD::Classes(ch->get_class()).feats[feat].GetMinLevel() << " "
+		<< " Мин. реморт: " << MUD::Classes(ch->get_class()).feats[feat].GetMinRemort() << std::endl;
 	SendMsgToChar(out.str(), ch);*/
 
-	if ((!MUD::Classes()[ch->get_class()].feats[feat].IsAvailable() &&
+	if ((!MUD::Classes(ch->GetClass()).feats[feat].IsAvailable() &&
 		!PlayerRace::FeatureCheck(GET_KIN(ch), GET_RACE(ch), to_underlying(feat))) ||
-		(GET_REAL_REMORT(ch) < MUD::Classes()[ch->get_class()].feats[feat].GetMinRemort())) {
+		(GET_REAL_REMORT(ch) < MUD::Classes(ch->GetClass()).feats[feat].GetMinRemort())) {
 		return false;
 	}
 
@@ -784,24 +784,24 @@ bool IsAbleToGetFeat(CharData *ch, EFeat feat) {
 
 	switch (feat) {
 		case EFeat::kParryArrow:
-			return (ch->get_skill(ESkill::kMultiparry) || ch->get_skill(ESkill::kParry));
+			return (ch->GetSkill(ESkill::kMultiparry) || ch->GetSkill(ESkill::kParry));
 			break;
 		case EFeat::kConnoiseur:
-			return (ch->get_skill(ESkill::kIdentify));
+			return (ch->GetSkill(ESkill::kIdentify));
 			break;
 		case EFeat::kExorcist:
-			return (ch->get_skill(ESkill::kTurnUndead));
+			return (ch->GetSkill(ESkill::kTurnUndead));
 			break;
 		case EFeat::kHealer:
-			return (ch->get_skill(ESkill::kFirstAid));
+			return (ch->GetSkill(ESkill::kFirstAid));
 			break;
 		case EFeat::kStealthy:
-			return (ch->get_skill(ESkill::kHide) ||
-				ch->get_skill(ESkill::kSneak) ||
-				ch->get_skill(ESkill::kDisguise));
+			return (ch->GetSkill(ESkill::kHide) ||
+				ch->GetSkill(ESkill::kSneak) ||
+				ch->GetSkill(ESkill::kDisguise));
 			break;
 		case EFeat::kTracker:
-			return (ch->get_skill(ESkill::kTrack) || ch->get_skill(ESkill::kSense));
+			return (ch->GetSkill(ESkill::kTrack) || ch->GetSkill(ESkill::kSense));
 			break;
 		case EFeat::kPunchMaster:
 		case EFeat::kClubsMaster:
@@ -829,7 +829,7 @@ bool IsAbleToGetFeat(CharData *ch, EFeat feat) {
 		case EFeat::kWarriorSpirit: return (ch->HaveFeat(EFeat::kGreatFortitude));
 			break;
 		case EFeat::kNimbleFingers:
-			return (ch->get_skill(ESkill::kSteal) || ch->get_skill(ESkill::kPickLock));
+			return (ch->GetSkill(ESkill::kSteal) || ch->GetSkill(ESkill::kPickLock));
 			break;
 		case EFeat::kGreatPowerAttack: return (ch->HaveFeat(EFeat::kPowerAttack));
 			break;
@@ -843,7 +843,7 @@ bool IsAbleToGetFeat(CharData *ch, EFeat feat) {
 		case EFeat::kPicksFocus:
 		case EFeat::kSpadesFocus:
 		case EFeat::kBowsFocus:
-			if (!ch->get_skill(feat_info[feat].base_skill)) {
+			if (!ch->GetSkill(feat_info[feat].base_skill)) {
 				return false;
 			}
 
@@ -862,10 +862,10 @@ bool IsAbleToGetFeat(CharData *ch, EFeat feat) {
 			break;
 		case EFeat::kDoubleShot:
 			return (ch->HaveFeat(EFeat::kBowsFocus) &&
-				ch->get_skill(ESkill::kBows) > 39);
+				ch->GetSkill(ESkill::kBows) > 39);
 			break;
 		case EFeat::kJeweller:
-			return (ch->get_skill(ESkill::kJewelry) > 59);
+			return (ch->GetSkill(ESkill::kJewelry) > 59);
 			break;
 		case EFeat::kCutting:
 			return (ch->HaveFeat(EFeat::kShortsMaster) ||
@@ -874,35 +874,35 @@ bool IsAbleToGetFeat(CharData *ch, EFeat feat) {
 				ch->HaveFeat(EFeat::kSpadesMaster));
 			break;
 		case EFeat::kScirmisher:
-			return (ch->get_skill(ESkill::kRescue));
+			return (ch->GetSkill(ESkill::kRescue));
 			break;
 		case EFeat::kTactician:
-			return (ch->get_skill(ESkill::kLeadership) > 99);
+			return (ch->GetSkill(ESkill::kLeadership) > 99);
 			break;
 		case EFeat::kShadowThrower:
 			return (ch->HaveFeat(EFeat::kPowerThrow) &&
-				(ch->get_skill(ESkill::kDarkMagic) > 120));
+				(ch->GetSkill(ESkill::kDarkMagic) > 120));
 			break;
 		case EFeat::kShadowDagger:
 		case EFeat::kShadowSpear: [[fallthrough]];
 		case EFeat::kShadowClub:
 			return (ch->HaveFeat(EFeat::kShadowThrower) &&
-				(ch->get_skill(ESkill::kDarkMagic) > 130));
+				(ch->GetSkill(ESkill::kDarkMagic) > 130));
 			break;
 		case EFeat::kDoubleThrower:
 			return (ch->HaveFeat(EFeat::kPowerThrow) &&
-				(ch->get_skill(ESkill::kThrow) > 100));
+				(ch->GetSkill(ESkill::kThrow) > 100));
 			break;
 		case EFeat::kTripleThrower:
 			return (ch->HaveFeat(EFeat::kDeadlyThrow) &&
-				(ch->get_skill(ESkill::kThrow) > 130));
+				(ch->GetSkill(ESkill::kThrow) > 130));
 			break;
 		case EFeat::kPowerThrow:
-			return (ch->get_skill(ESkill::kThrow) > 90);
+			return (ch->GetSkill(ESkill::kThrow) > 90);
 			break;
 		case EFeat::kDeadlyThrow:
 			return (ch->HaveFeat(EFeat::kPowerThrow) &&
-				(ch->get_skill(ESkill::kThrow) > 110));
+				(ch->GetSkill(ESkill::kThrow) > 110));
 			break;
 		case EFeat::kSerratedBlade:
 			return (ch->HaveFeat(EFeat::kCutting));
@@ -915,7 +915,7 @@ bool IsAbleToGetFeat(CharData *ch, EFeat feat) {
 }
 
 bool CheckVacantFeatSlot(CharData *ch, EFeat feat_id) {
-	if (MUD::Classes()[ch->get_class()].feats[feat_id].IsInborn()
+	if (MUD::Classes(ch->GetClass()).feats[feat_id].IsInborn()
 		|| PlayerRace::FeatureCheck(GET_KIN(ch), GET_RACE(ch), to_underlying(feat_id))) {
 		return true;
 	}
@@ -927,13 +927,13 @@ bool CheckVacantFeatSlot(CharData *ch, EFeat feat_id) {
 	//Мы не можем просто учесть кол-во способностей меньше требуемого и больше требуемого,
 	//т.к. возможны свободные слоты меньше требуемого, и при этом верхние заняты все
 	auto slot_list = std::vector<int>();
-	for (const auto &feat : MUD::Classes()[ch->get_class()].feats) {
+	for (const auto &feat : MUD::Classes(ch->GetClass()).feats) {
 		if (feat.IsInborn() || PlayerRace::FeatureCheck(GET_KIN(ch), GET_RACE(ch), to_underlying(feat.GetId()))) {
 			continue;
 		}
 
 		if (ch->HaveFeat(feat.GetId())) {
-			if (feat.GetSlot() >= MUD::Classes()[ch->get_class()].feats[feat_id].GetSlot()) {
+			if (feat.GetSlot() >= MUD::Classes(ch->GetClass()).feats[feat_id].GetSlot()) {
 				++hifeat;
 			} else {
 				slot_list.push_back(feat.GetSlot());
@@ -956,8 +956,8 @@ bool CheckVacantFeatSlot(CharData *ch, EFeat feat_id) {
 	//число высоких слотов, занятых низкоуровневыми способностями,
 	//с учетом, что низкоуровневые могут и не занимать слотов выше им положенных,
 	//а также собственно число слотов, занятых высокоуровневыми способностями
-	if (CalcFeatLvl(ch) - MUD::Classes()[ch->get_class()].feats[feat_id].GetSlot() -
-		hifeat - std::max(0, lowfeat - MUD::Classes()[ch->get_class()].feats[feat_id].GetSlot()) > 0) {
+	if (CalcFeatLvl(ch) - MUD::Classes(ch->GetClass()).feats[feat_id].GetSlot() -
+		hifeat - std::max(0, lowfeat - MUD::Classes(ch->GetClass()).feats[feat_id].GetSlot()) > 0) {
 		return true;
 	}
 
@@ -1263,7 +1263,7 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	timed.feat = EFeat::kSpellCapabler;
 
-	switch (spell_info[spell_id].slot_forc[to_underlying(ch->get_class())][GET_KIN(ch)]) {
+	switch (spell_info[spell_id].slot_forc[to_underlying(ch->GetClass())][GET_KIN(ch)]) {
 		case 1:
 		case 2:
 		case 3:
@@ -1322,7 +1322,7 @@ void UnsetRaceFeats(CharData *ch) {
 }
 
 void SetInbornFeats(CharData *ch) {
-	for (const auto &feat : MUD::Classes()[ch->get_class()].feats) {
+	for (const auto &feat : MUD::Classes(ch->GetClass()).feats) {
 		if (feat.IsInborn() && !ch->HaveFeat(feat.GetId()) && IsAbleToGetFeat(ch, feat.GetId())) {
 			ch->SetFeat(feat.GetId());
 		}
@@ -1337,7 +1337,7 @@ void SetInbornAndRaceFeats(CharData *ch) {
 void UnsetInaccessibleFeats(CharData *ch) {
 	for (auto feat_id = EFeat::kFirst; feat_id <= EFeat::kLast; ++feat_id) {
 		if (ch->HaveFeat(feat_id)) {
-			if (MUD::Classes()[ch->get_class()].feats.IsUnavailable(feat_id)) {
+			if (MUD::Classes(ch->GetClass()).feats.IsUnavailable(feat_id)) {
 				ch->UnsetFeat(feat_id);
 			}
 		}
@@ -1569,12 +1569,12 @@ int CalcRollBonusOfGroupFormation(CharData *ch, CharData * /* enemy */) {
 
 int CalcFeatLvl(const CharData *ch) {
 	return (1+GetRealLevel(ch)*(5+GET_REAL_REMORT(ch)/
-		MUD::Classes()[ch->get_class()].GetRemortsNumForFeatSlot()/kLastFeatSlotLvl));
+		MUD::Classes(ch->GetClass()).GetRemortsNumForFeatSlot()/kLastFeatSlotLvl));
 }
 
 int CalcFeatSlotsAmount(CharData *ch) {
  return	(1 + (kLvlImmortal - 1)*(5 + GET_REMORT(ch)/
- 	MUD::Classes()[ch->get_class()].GetRemortsNumForFeatSlot())/kLastFeatSlotLvl);
+ 	MUD::Classes(ch->GetClass()).GetRemortsNumForFeatSlot())/kLastFeatSlotLvl);
 }
 
 typedef std::map<EFeat, std::string> EFeat_name_by_value_t;

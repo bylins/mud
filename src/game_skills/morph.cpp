@@ -175,7 +175,7 @@ MorphPtr GetNormalMorphNew(CharData *ch) {
 void do_morph(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc())
 		return;
-	if (!ch->get_skill(ESkill::kMorph)) {
+	if (!ch->GetSkill(ESkill::kMorph)) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}

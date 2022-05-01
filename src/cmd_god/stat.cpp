@@ -19,7 +19,6 @@
 #include "color.h"
 #include "statistics/mob_stat.h"
 #include "modify.h"
-#include "game_magic/spells_info.h"
 #include "structs/global_objects.h"
 #include "depot.h"
 
@@ -180,7 +179,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	SendMsgToChar(buf, ch);
 
 	if (!k->IsNpc()) {
-		strcpy(smallBuf, MUD::Classes()[k->get_class()].GetCName());
+		strcpy(smallBuf, MUD::Classes(k->GetClass()).GetCName());
 		sprintf(buf, "Племя: %s, Род: %s, Профессия: %s",
 				PlayerRace::GetKinNameByNum(GET_KIN(k), GET_SEX(k)).c_str(),
 				k->get_race_name().c_str(),
@@ -376,8 +375,8 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 					  CCNRM(ch, C_NRM));
 		SendMsgToChar(ch, "Умения:&c");
 		for (const auto &skill : MUD::Skills()) {
-			if (skill.IsValid() && k->get_skill(skill.GetId())) {
-				SendMsgToChar(ch, " %s:[%3d]", skill.GetName(), k->get_skill(skill.GetId()));
+			if (skill.IsValid() && k->GetSkill(skill.GetId())) {
+				SendMsgToChar(ch, " %s:[%3d]", skill.GetName(), k->GetSkill(skill.GetId()));
 			}
 		}
 		SendMsgToChar(ch, CCNRM(ch, C_NRM));
@@ -750,8 +749,8 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 				}
 				case EBook::kSkill: {
 					auto skill_id = static_cast<ESkill>(GET_OBJ_VAL(j, 1));
-					if (MUD::Skills().IsValid(skill_id)) {
-						sprintf(buf, "содержит секрет умения     : \"%s\"", MUD::Skills()[skill_id].GetName());
+					if (MUD::Skills(skill_id).IsValid()) {
+						sprintf(buf, "содержит секрет умения     : \"%s\"", MUD::Skills(skill_id).GetName());
 					} else
 						sprintf(buf, "неверный номер умения");
 					break;
@@ -761,10 +760,10 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 					if (MUD::Skills().IsValid(skill_id)) {
 						if (GET_OBJ_VAL(j, 3) > 0) {
 							sprintf(buf, "повышает умение \"%s\" (максимум %d)",
-									MUD::Skills()[skill_id].GetName(), GET_OBJ_VAL(j, 3));
+									MUD::Skills(skill_id).GetName(), GET_OBJ_VAL(j, 3));
 						} else {
 							sprintf(buf, "повышает умение \"%s\" (не больше максимума текущего перевоплощения)",
-									MUD::Skills()[skill_id].GetName());
+									MUD::Skills(skill_id).GetName());
 						}
 					} else {
 						sprintf(buf, "неверный номер повышаемоего умения");
@@ -971,7 +970,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 			if (it.second == 0) {
 				continue;
 			}
-			sprintf(buf, " %+d%% to %s", it.second, MUD::Skills()[it.first].GetName());
+			sprintf(buf, " %+d%% to %s", it.second, MUD::Skills(it.first).GetName());
 			SendMsgToChar(buf, ch);
 		}
 	}

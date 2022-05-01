@@ -616,7 +616,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 	if (!IS_IMMORTAL(ch) && !ch->IsNpc())
 		GET_MOVE(ch) -= calculate_move_cost(ch, dir);
 
-	i = MUD::Skills()[ESkill::kSneak].difficulty;
+	i = MUD::Skills(ESkill::kSneak).difficulty;
 	if (AFF_FLAGGED(ch, EAffect::kSneak) && !is_flee) {
 		if (ch->IsNpc())
 			invis = 1;
@@ -626,7 +626,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 			invis = 1;
 	}
 
-	i = MUD::Skills()[ESkill::kDisguise].difficulty;
+	i = MUD::Skills(ESkill::kDisguise).difficulty;
 	if (AFF_FLAGGED(ch, EAffect::kDisguise) && !is_flee) {
 		if (ch->IsNpc())
 			invis = 1;
@@ -981,7 +981,7 @@ void do_hidemove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int dir = 0, sneaking = IsAffectedBySpell(ch, ESpell::kSneak);
 
 	skip_spaces(&argument);
-	if (!ch->get_skill(ESkill::kSneak)) {
+	if (!ch->GetSkill(ESkill::kSneak)) {
 		SendMsgToChar("Вы не умеете этого.\r\n", ch);
 		return;
 	}
@@ -1006,7 +1006,7 @@ void do_hidemove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		af.modifier = 0;
 		af.duration = 1;
 		const int calculated_skill = CalcCurrentSkill(ch, ESkill::kSneak, nullptr);
-		const int chance = number(1, MUD::Skills()[ESkill::kSneak].difficulty);
+		const int chance = number(1, MUD::Skills(ESkill::kSneak).difficulty);
 		af.bitvector = (chance < calculated_skill) ? to_underlying(EAffect::kSneak) : 0;
 		af.battleflag = 0;
 		ImposeAffect(ch, af, false, false, false, false);
@@ -1405,7 +1405,7 @@ void do_gen_door(CharData *ch, char *argument, int, int subcmd) {
 		return;
 	}
 
-	if (subcmd == SCMD_PICK && !ch->get_skill(ESkill::kPickLock)) {
+	if (subcmd == SCMD_PICK && !ch->GetSkill(ESkill::kPickLock)) {
 		SendMsgToChar("Это умение вам недоступно.\r\n", ch);
 		return;
 	}

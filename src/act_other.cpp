@@ -326,7 +326,7 @@ int char_humming(CharData *ch) {
 void do_sneak(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int prob, percent;
 
-	if (ch->IsNpc() || !ch->get_skill(ESkill::kSneak)) {
+	if (ch->IsNpc() || !ch->GetSkill(ESkill::kSneak)) {
 		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -350,7 +350,7 @@ void do_sneak(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 	SendMsgToChar("Хорошо, вы попытаетесь двигаться бесшумно.\r\n", ch);
 	EXTRA_FLAGS(ch).unset(EXTRA_FAILSNEAK);
-	percent = number(1, MUD::Skills()[ESkill::kSneak].difficulty);
+	percent = number(1, MUD::Skills(ESkill::kSneak).difficulty);
 	prob = CalcCurrentSkill(ch, ESkill::kSneak, nullptr);
 
 	Affect<EApply> af;
@@ -372,7 +372,7 @@ void do_camouflage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 	struct TimedSkill timed;
 	int prob, percent;
 
-	if (ch->IsNpc() || !ch->get_skill(ESkill::kDisguise)) {
+	if (ch->IsNpc() || !ch->GetSkill(ESkill::kDisguise)) {
 		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -403,7 +403,7 @@ void do_camouflage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 
 	SendMsgToChar("Вы начали усиленно маскироваться.\r\n", ch);
 	EXTRA_FLAGS(ch).unset(EXTRA_FAILCAMOUFLAGE);
-	percent = number(1, MUD::Skills()[ESkill::kDisguise].difficulty);
+	percent = number(1, MUD::Skills(ESkill::kDisguise).difficulty);
 	prob = CalcCurrentSkill(ch, ESkill::kDisguise, nullptr);
 
 	Affect<EApply> af;
@@ -430,7 +430,7 @@ void do_camouflage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 void do_hide(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int prob, percent;
 
-	if (ch->IsNpc() || !ch->get_skill(ESkill::kHide)) {
+	if (ch->IsNpc() || !ch->GetSkill(ESkill::kHide)) {
 		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -459,7 +459,7 @@ void do_hide(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 	SendMsgToChar("Хорошо, вы попытаетесь спрятаться.\r\n", ch);
 	EXTRA_FLAGS(ch).unset(EXTRA_FAILHIDE);
-	percent = number(1, MUD::Skills()[ESkill::kHide].difficulty);
+	percent = number(1, MUD::Skills(ESkill::kHide).difficulty);
 	prob = CalcCurrentSkill(ch, ESkill::kHide, nullptr);
 
 	Affect<EApply> af;
@@ -497,7 +497,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 	}
 
 	// 101% is a complete failure
-	percent = number(1, MUD::Skills()[ESkill::kSteal].difficulty);
+	percent = number(1, MUD::Skills(ESkill::kSteal).difficulty);
 
 	if (IS_IMMORTAL(ch) || (GET_POS(vict) <= EPosition::kSleep && !AFF_FLAGGED(vict, EAffect::kSleep)))
 		success = 1;    // ALWAYS SUCCESS, unless heavy object.
@@ -615,7 +615,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 				return;
 			} else {
 				// Считаем вероятность крит-воровства (воровства всех денег)
-				if ((number(1, 100) - ch->get_skill(ESkill::kSteal) -
+				if ((number(1, 100) - ch->GetSkill(ESkill::kSteal) -
 					ch->get_dex() + vict->get_wis() + vict->get_gold() / 500) < 0) {
 					act("Тугой кошелек $N1 перекочевал к вам.", true, ch, nullptr, vict, kToChar);
 					gold = vict->get_gold();
@@ -658,7 +658,7 @@ void do_steal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *vict;
 	char vict_name[kMaxInputLength], obj_name[kMaxInputLength];
 
-	if (ch->IsNpc() || !ch->get_skill(ESkill::kSteal)) {
+	if (ch->IsNpc() || !ch->GetSkill(ESkill::kSteal)) {
 		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -762,7 +762,7 @@ void do_courage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	if (ch->IsNpc())        // Cannot use GET_COND() on mobs.
 		return;
 
-	if (!ch->get_skill(ESkill::kCourage)) {
+	if (!ch->GetSkill(ESkill::kCourage)) {
 		SendMsgToChar("Вам это не по силам.\r\n", ch);
 		return;
 	}
@@ -776,7 +776,7 @@ void do_courage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	timed.time = 6;
 	ImposeTimedSkill(ch, &timed);
 	prob = CalcCurrentSkill(ch, ESkill::kCourage, nullptr) / 20;
-	dur = 1 + MIN(5, ch->get_skill(ESkill::kCourage) / 40);
+	dur = 1 + MIN(5, ch->GetSkill(ESkill::kCourage) / 40);
 	Affect<EApply> af[4];
 	af[0].type = ESpell::kCourage;
 	af[0].duration = CalcDuration(ch, dur, 0, 0, 0, 0);
@@ -820,8 +820,8 @@ int max_group_size(CharData *ch) {
 	int bonus_commander = 0;
 //	if (AFF_FLAGGED(ch, EAffectFlag::AFF_COMMANDER))
 //		bonus_commander = VPOSI((ch->get_skill(ESkill::kLeadership) - 120) / 10, 0, 8);
-	bonus_commander = VPOSI((ch->get_skill(ESkill::kLeadership) - 200) / 8, 0, 8);
-	return kMaxGroupedFollowers + (int) VPOSI((ch->get_skill(ESkill::kLeadership) - 80) / 5, 0, 4) + bonus_commander;
+	bonus_commander = VPOSI((ch->GetSkill(ESkill::kLeadership) - 200) / 8, 0, 8);
+	return kMaxGroupedFollowers + (int) VPOSI((ch->GetSkill(ESkill::kLeadership) - 80) / 5, 0, 4) + bonus_commander;
 }
 
 bool is_group_member(CharData *ch, CharData *vict) {
@@ -874,7 +874,7 @@ void change_leader(CharData *ch, CharData *vict) {
 				continue;
 			if (!leader)
 				leader = l->ch;
-			else if (l->ch->get_skill(ESkill::kLeadership) > leader->get_skill(ESkill::kLeadership))
+			else if (l->ch->GetSkill(ESkill::kLeadership) > leader->GetSkill(ESkill::kLeadership))
 				leader = l->ch;
 		}
 	}

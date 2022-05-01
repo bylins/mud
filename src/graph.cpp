@@ -165,7 +165,7 @@ int go_sense(CharData *ch, CharData *victim) {
 		- MAX(1, (GET_REAL_REMORT(victim) - GET_REAL_REMORT(ch)) * 5); // разница в ремортах *5 вычитается из текущего умения
 	skill = skill - MAX(1, (GetRealLevel(victim) - GetRealLevel(ch)) * 5);
 	skill = MAX(0, skill);
-	percent = number(0, MUD::Skills()[ESkill::kSense].difficulty);
+	percent = number(0, MUD::Skills(ESkill::kSense).difficulty);
 	if (percent > skill) {
 		int tries = 10;
 		do {
@@ -183,7 +183,7 @@ void do_sense(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int dir;
 
 	// The character must have the track skill.
-	if (ch->IsNpc() || !ch->get_skill(ESkill::kSense)) {
+	if (ch->IsNpc() || !ch->GetSkill(ESkill::kSense)) {
 		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}

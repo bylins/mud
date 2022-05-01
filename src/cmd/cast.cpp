@@ -93,7 +93,7 @@ void do_cast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		if (IsAbleToUseFeat(ch, EFeat::kSpellSubstitute)
 			&& (spell_id == ESpell::kCureLight || spell_id == ESpell::kCureSerious
 				|| spell_id == ESpell::kCureCritic || spell_id == ESpell::kHeal)) {
-			for (const auto &spell : MUD::Classes()[ch->get_class()].spells) {
+			for (const auto &spell : MUD::Classes(ch->GetClass()).spells) {
 				auto subst_spell_id = spell.GetId();
 				if (GET_SPELL_MEM(ch, subst_spell_id) &&
 					spell_info[subst_spell_id].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] ==

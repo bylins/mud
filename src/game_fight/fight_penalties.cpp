@@ -48,7 +48,7 @@ bool GroupPenaltyCalculator::penalty_by_leader(const CharData *player, int &pena
 		return true;
 	}
 
-	const auto player_class = player->get_class();
+	const auto player_class = player->GetClass();
 	if (player_class < ECharClass::kFirst || player_class > ECharClass::kLast) {
 		log("LOGIC ERROR: wrong player class: %d for player [%s]",
 			to_underlying(player_class),

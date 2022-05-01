@@ -401,7 +401,7 @@ char *diag_shot_to_char(ObjData *obj, CharData *ch) {
 
 	*out_str = 0;
 	if (GET_OBJ_TYPE(obj) == EObjType::kMagicContaner
-		&& (ch->get_class() == ECharClass::kRanger || ch->get_class() == ECharClass::kCharmer || IS_MANA_CASTER(ch))) {
+		&& (ch->GetClass() == ECharClass::kRanger || ch->GetClass() == ECharClass::kCharmer || IS_MANA_CASTER(ch))) {
 		sprintf(out_str + strlen(out_str), "Осталось стрел: %s%d&n.\r\n",
 				GET_OBJ_VAL(obj, 2) > 3 ? "&G" : "&R", GET_OBJ_VAL(obj, 2));
 	}
@@ -939,7 +939,7 @@ void look_at_char(CharData *i, CharData *ch) {
 		}
 	}
 
-	if (ch != i && (ch->get_skill(ESkill::kPry) || IS_IMMORTAL(ch))) {
+	if (ch != i && (ch->GetSkill(ESkill::kPry) || IS_IMMORTAL(ch))) {
 		found = false;
 		act("\r\nВы попытались заглянуть в $s ношу:", false, i, nullptr, ch, kToVict);
 		for (tmp_obj = i->carrying; tmp_obj; tmp_obj = tmp_obj->get_next_content()) {
@@ -1943,7 +1943,7 @@ void look_at_room(CharData *ch, int ignore_brief) {
 		}
 	}
 	SendMsgToChar("&Y&q", ch);
-	if (ch->get_skill(ESkill::kTownportal)) {
+	if (ch->GetSkill(ESkill::kTownportal)) {
 		if (find_portal_by_vnum(GET_ROOM_VNUM(ch->in_room))) {
 			SendMsgToChar("Рунный камень с изображением пентаграммы немного выступает из земли.\r\n", ch);
 		}
@@ -1961,7 +1961,7 @@ void look_at_room(CharData *ch, int ignore_brief) {
 		if (zone_table[world[ch->get_from_room()]->zone_rn].vnum != zone_table[inroom].vnum) {
 			if (PRF_FLAGGED(ch, EPrf::kShowZoneNameOnEnter))
 				print_zone_info(ch);
-			if ((ch->get_level() < kLvlImmortal) && !ch->get_master())
+			if ((ch->GetLevel() < kLvlImmortal) && !ch->get_master())
 				++zone_table[inroom].traffic;
 		}
 	}
@@ -1983,7 +1983,7 @@ void look_in_direction(CharData *ch, int dir, int info_is) {
 				count += sprintf(buf + count, " закрыто (вероятно дверь).\r\n");
 			}
 
-			const int skill_pick = ch->get_skill(ESkill::kPickLock);
+			const int skill_pick = ch->GetSkill(ESkill::kPickLock);
 			if (EXIT_FLAGGED(rdata, EExitFlag::kLocked) && skill_pick) {
 				if (EXIT_FLAGGED(rdata, EExitFlag::kPickroof)) {
 					count += sprintf(buf + count - 2,
@@ -2009,7 +2009,7 @@ void look_in_direction(CharData *ch, int dir, int info_is) {
 				SendMsgToChar("&R&q", ch);
 				count = 0;
 				for (const auto tch : world[rdata->to_room()]->people) {
-					percent = number(1, MUD::Skills()[ESkill::kLooking].difficulty);
+					percent = number(1, MUD::Skills(ESkill::kLooking).difficulty);
 					probe = CalcCurrentSkill(ch, ESkill::kLooking, tch);
 					TrainSkill(ch, ESkill::kLooking, probe >= percent, tch);
 					if (HERE(tch) && INVIS_OK(ch, tch) && probe >= percent
@@ -2061,7 +2061,7 @@ void hear_in_direction(CharData *ch, int dir, int info_is) {
 		SendMsgToChar(buf, ch);
 		count = 0;
 		for (const auto tch : world[rdata->to_room()]->people) {
-			percent = number(1, MUD::Skills()[ESkill::kHearing].difficulty);
+			percent = number(1, MUD::Skills(ESkill::kHearing).difficulty);
 			probe = CalcCurrentSkill(ch, ESkill::kHearing, tch);
 			TrainSkill(ch, ESkill::kHearing, probe >= percent, tch);
 			// Если сражаются то слышем только борьбу.
@@ -2173,7 +2173,7 @@ void look_in_obj(CharData *ch, char *arg) {
 		if (GET_OBJ_TYPE(obj) == EObjType::kContainer) {
 			if (OBJVAL_FLAGGED(obj, EContainerFlag::kShutted)) {
 				act("Закрыт$A.", false, ch, obj, nullptr, kToChar);
-				const int skill_pick = ch->get_skill(ESkill::kPickLock);
+				const int skill_pick = ch->GetSkill(ESkill::kPickLock);
 				int count = sprintf(buf, "Заперт%s.", GET_OBJ_SUF_6(obj));
 				if (OBJVAL_FLAGGED(obj, EContainerFlag::kLockedUp) && skill_pick) {
 					if (OBJVAL_FLAGGED(obj, EContainerFlag::kUncrackable))
@@ -2277,7 +2277,7 @@ const char *diag_liquid_timer(const ObjData *obj) {
 //buf это буфер в который дописывать инфу, в нем уже может быть что-то иначе надо перед вызовом присвоить *buf='\0'
 void obj_info(CharData *ch, ObjData *obj, char buf[kMaxStringLength]) {
 	int j;
-	if (IsAbleToUseFeat(ch, EFeat::kSkilledTrader) || PRF_FLAGGED(ch, EPrf::kHolylight) || ch->get_skill(ESkill::kJewelry)) {
+	if (IsAbleToUseFeat(ch, EFeat::kSkilledTrader) || PRF_FLAGGED(ch, EPrf::kHolylight) || ch->GetSkill(ESkill::kJewelry)) {
 		sprintf(buf + strlen(buf), "Материал : %s", CCCYN(ch, C_NRM));
 		sprinttype(obj->get_material(), material_name, buf + strlen(buf));
 		sprintf(buf + strlen(buf), "\r\n%s", CCNRM(ch, C_NRM));
@@ -2385,7 +2385,7 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 
 	// для townportal
 	if (isname(whatp, "камень") &&
-		ch->get_skill(ESkill::kTownportal) &&
+		ch->GetSkill(ESkill::kTownportal) &&
 		(port = get_portal(GET_ROOM_VNUM(ch->in_room), nullptr)) != nullptr && IS_SET(where_bits, EFind::kObjRoom)) {
 
 		if (has_char_portal(ch, GET_ROOM_VNUM(ch->in_room))) {
@@ -2440,8 +2440,8 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 			return false;
 		look_at_char(found_char, ch);
 		if (ch != found_char) {
-			if (subcmd == SCMD_LOOK_HIDE && ch->get_skill(ESkill::kPry) > 0) {
-				fnum = number(1, MUD::Skills()[ESkill::kPry].difficulty);
+			if (subcmd == SCMD_LOOK_HIDE && ch->GetSkill(ESkill::kPry) > 0) {
+				fnum = number(1, MUD::Skills(ESkill::kPry).difficulty);
 				found = CalcCurrentSkill(ch, ESkill::kPry, found_char);
 				TrainSkill(ch, ESkill::kPry, found < fnum, found_char);
 				if (!IS_IMMORTAL(ch))
@@ -2502,7 +2502,7 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 
 void skip_hide_on_look(CharData *ch) {
 	if (AFF_FLAGGED(ch, EAffect::kHide) &&
-		((!ch->get_skill(ESkill::kPry) ||
+		((!ch->GetSkill(ESkill::kPry) ||
 			((number(1, 100) -
 				CalcCurrentSkill(ch, ESkill::kPry, nullptr) - 2 * (ch->get_wis() - 9)) > 0)))) {
 		RemoveAffectFromChar(ch, ESpell::kHide);
@@ -2607,7 +2607,7 @@ void do_looking(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 		SendMsgToChar("Виделся часто сон беспокойный...\r\n", ch);
 	else if (AFF_FLAGGED(ch, EAffect::kBlind))
 		SendMsgToChar("Вы ослеплены!\r\n", ch);
-	else if (ch->get_skill(ESkill::kLooking)) {
+	else if (ch->GetSkill(ESkill::kLooking)) {
 		if (check_moves(ch, kLookingMoves)) {
 			SendMsgToChar("Вы напрягли зрение и начали присматриваться по сторонам.\r\n", ch);
 			for (i = 0; i < EDirection::kMaxDirNum; i++)
@@ -2634,7 +2634,7 @@ void do_hearing(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 		SendMsgToChar("Вам начали слышаться голоса предков, зовущие вас к себе.\r\n", ch);
 	if (GET_POS(ch) == EPosition::kSleep)
 		SendMsgToChar("Морфей медленно задумчиво провел рукой по струнам и заиграл колыбельную.\r\n", ch);
-	else if (ch->get_skill(ESkill::kHearing)) {
+	else if (ch->GetSkill(ESkill::kHearing)) {
 		if (check_moves(ch, kHearingMoves)) {
 			SendMsgToChar("Вы начали сосредоточенно прислушиваться.\r\n", ch);
 			for (i = 0; i < EDirection::kMaxDirNum; i++)
@@ -2683,7 +2683,7 @@ void do_examine(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 
 	if (isname(arg, "камень") &&
-		ch->get_skill(ESkill::kTownportal) &&
+		ch->GetSkill(ESkill::kTownportal) &&
 		(get_portal(GET_ROOM_VNUM(ch->in_room), nullptr)) != nullptr && IS_SET(where_bits, EFind::kObjRoom))
 		return;
 
@@ -3155,7 +3155,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (who_room && (tch->in_room != ch->in_room)) {
 			continue;
 		}
-		if (showclass != ECharClass::kUndefined && showclass != tch->get_class()) {
+		if (showclass != ECharClass::kUndefined && showclass != tch->GetClass()) {
 			continue;
 		}
 		if (showname && !(!NAME_GOD(tch) && GetRealLevel(tch) <= kNameLevel)) {
@@ -3175,7 +3175,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (IS_IMPL(ch) || PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
 				sprintf(buf, "%s[%2d %s] %-30s%s",
 						IS_GOD(tch) ? CCWHT(ch, C_SPR) : "",
-						GetRealLevel(tch), MUD::Classes()[tch->get_class()].GetCName(),
+						GetRealLevel(tch), MUD::Classes(tch->GetClass()).GetCName(),
 						tmp, IS_GOD(tch) ? CCNRM(ch, C_SPR) : "");
 			} else {
 				sprintf(buf, "%s%-30s%s",
@@ -3189,7 +3189,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "",
 						GetRealLevel(tch),
 						GET_REAL_REMORT(tch),
-						MUD::Classes()[tch->get_class()].GetAbbr().c_str(),
+						MUD::Classes(tch->GetClass()).GetAbbr().c_str(),
 						tch->get_pfilepos(),
 						CCPK(ch, C_NRM, tch),
 						IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "", tch->race_or_title().c_str(), CCNRM(ch, C_NRM));
@@ -3358,10 +3358,10 @@ void do_statistic(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 		pk_count(tch.get()) >= 1 ? ++pk : ++nopk;
 
 		if (GetRealLevel(tch) >= 25) {
-			++players[(tch->get_class())].first;
+			++players[(tch->GetClass())].first;
 			++hilvl;
 		} else {
-			++players[(tch->get_class())].second;
+			++players[(tch->GetClass())].second;
 			++lowlvl;
 		}
 		++total;
@@ -3378,7 +3378,7 @@ void do_statistic(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 	const int class_name_col_width{15};
 	const int number_col_width{3};
 	for (const auto &it : players) {
-		out << std::left << std::setw(class_name_col_width) << MUD::Classes()[it.first].GetPluralName() << " "
+		out << std::left << std::setw(class_name_col_width) << MUD::Classes(it.first).GetPluralName() << " "
 			<< KIRED << "[" << KICYN
 			<< std::setw(number_col_width) << std::right << it.second.first + it.second.second
 			<< KIRED << "|" << KICYN

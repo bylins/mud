@@ -11,7 +11,7 @@
 
 // делегат обработки команды заколоть
 void do_backstab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->get_skill(ESkill::kBackstab) < 1) {
+	if (ch->GetSkill(ESkill::kBackstab) < 1) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -96,7 +96,7 @@ void go_backstab(CharData *ch, CharData *vict) {
 	} else 
 */
 {
-		int percent = number(1, MUD::Skills()[ESkill::kBackstab].difficulty);
+		int percent = number(1, MUD::Skills(ESkill::kBackstab).difficulty);
 		int prob = CalcCurrentSkill(ch, ESkill::kBackstab, vict);
 
 		if (IsAbleToUseFeat(ch, EFeat::kShadowStrike)) {
@@ -120,7 +120,7 @@ void go_backstab(CharData *ch, CharData *vict) {
 			prob = 0;
 		}
 		success = percent <= prob;
-		SendSkillBalanceMsg(ch, MUD::Skills()[ESkill::kBackstab].name, percent, prob, success);
+		SendSkillBalanceMsg(ch, MUD::Skills(ESkill::kBackstab).name, percent, prob, success);
 	}
 
 	TrainSkill(ch, ESkill::kBackstab, success, vict);

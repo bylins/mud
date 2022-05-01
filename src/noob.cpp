@@ -118,7 +118,7 @@ std::string print_start_outfit(CharData *ch) {
 std::vector<int> get_start_outfit(CharData *ch) {
 	// стаф из noob_help.xml
 	std::vector<int> out_list;
-	const int ch_class = to_underlying(ch->get_class());
+	const int ch_class = to_underlying(ch->GetClass());
 	if (ch_class < kNumPlayerClasses) {
 		out_list.insert(out_list.end(),
 						class_list.at(ch_class).begin(), class_list.at(ch_class).end());

@@ -35,10 +35,12 @@ class BanList;    // to avoid inclusion of ban.hpp
 */
 class GlobalObjects {
  public:
+	static cfg_manager::CfgManager &CfgManager();
 	static abilities::AbilitiesInfo &Abilities();
 	static SkillsInfo &Skills();
-	static cfg_manager::CfgManager &CfgManager();
+	static const SkillInfo &Skills(ESkill skill_id);
 	static classes::ClassesInfo &Classes();
+	static const classes::CharClassInfo &Classes(ECharClass class_id);
 	static WorldObjects &world_objects();
 	static ShopExt::ShopListType &Shops();
 	static Characters &characters();

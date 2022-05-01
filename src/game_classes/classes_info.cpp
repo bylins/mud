@@ -223,7 +223,7 @@ void CharClassInfo::PrintSkillsTable(CharData *ch, std::ostringstream &buffer) c
 	table_wrapper::Table table;
 	table << table_wrapper::kHeader << "Skill" << "Lvl" << "Rem" << "Improve" << "Mode" << table_wrapper::kEndRow;
 	for (const auto &skill : skills) {
-		table << MUD::Skills()[skill.GetId()].name
+		table << MUD::Skills(skill.GetId()).name
 			   << skill.GetMinLevel()
 			   << skill.GetMinRemort()
 			   << skill.GetImprove()

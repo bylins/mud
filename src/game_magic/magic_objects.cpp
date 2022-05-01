@@ -39,7 +39,7 @@ void remove_tmp_extra(ObjData *obj, EObjFlag flag) {
  */
 void PrepareSpellRemoving(ObjData *obj, ESpell spell_id, bool send_message) {
 	if (!obj) {
-		log("SYSERROR: NULL object %s:%d, spell = %d", __FILE__, __LINE__, spell_id);
+		log("SYSERROR: NULL object %s:%d, spell = %d", __FILE__, __LINE__, to_underlying(spell_id));
 		return;
 	}
 
@@ -93,7 +93,7 @@ void PrepareSpellRemoving(ObjData *obj, ESpell spell_id, bool send_message) {
 // * Распечатка строки с заклинанием и таймером при осмотре шмотки.
 std::string print_spell_str(CharData *ch, ESpell spell_id, int timer) {
 	if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast) {
-		log("SYSERROR: %s, spell = %d, time = %d", __func__, spell_id, timer);
+		log("SYSERROR: %s, spell = %d, time = %d", __func__, to_underlying(spell_id), timer);
 		return "";
 	}
 

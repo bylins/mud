@@ -682,7 +682,7 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	timed.time = IsAbleToUseFeat(ch, EFeat::kDrunkard) ? GetModifier(EFeat::kDrunkard, kFeatTimer) : 12;
 	ImposeTimedSkill(ch, &timed);
 
-	percent = number(1, MUD::Skills()[ESkill::kHangovering].difficulty);
+	percent = number(1, MUD::Skills(ESkill::kHangovering).difficulty);
 	prob = CalcCurrentSkill(ch, ESkill::kHangovering, nullptr);
 	TrainSkill(ch, ESkill::kHangovering, percent <= prob, nullptr);
 	amount = MIN(amount, GET_OBJ_VAL(obj, 1));
@@ -720,7 +720,7 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		af[2].location = EApply::kAc;
 		af[2].bitvector = to_underlying(EAffect::kAbstinent);
 		af[2].battleflag = 0;
-		switch (number(0, ch->get_skill(ESkill::kHangovering) / 20)) {
+		switch (number(0, ch->GetSkill(ESkill::kHangovering) / 20)) {
 			case 0:
 			case 1: af[0].modifier = -2;
 				break;

@@ -14,7 +14,7 @@ void go_block(CharData *ch) {
 }
 
 void do_block(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsNpc() || !ch->get_skill(ESkill::kShieldBlock)) {
+	if (ch->IsNpc() || !ch->GetSkill(ESkill::kShieldBlock)) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}

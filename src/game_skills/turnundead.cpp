@@ -13,7 +13,7 @@ using namespace AbilitySystem;
 
 void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
-	if (!ch->get_skill(ESkill::kTurnUndead)) {
+	if (!ch->GetSkill(ESkill::kTurnUndead)) {
 		SendMsgToChar("Вам это не по силам.\r\n", ch);
 		return;
 	}
@@ -22,7 +22,7 @@ void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 		return;
 	};
 
-	int skill = ch->get_skill(ESkill::kTurnUndead);
+	int skill = ch->GetSkill(ESkill::kTurnUndead);
 	TimedSkill timed;
 	timed.skill = ESkill::kTurnUndead;
 	if (IsAbleToUseFeat(ch, EFeat::kExorcist)) {
@@ -53,7 +53,7 @@ void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 		damage.dam = fight::kZeroDmg;
 		roll.Init(ch, EFeat::kUndeadsTurn, target);
 		if (roll.IsSuccess()) {
-			if (roll.IsCriticalSuccess() && GetRealLevel(ch) > target->get_level() + RollDices(1, 5)) {
+			if (roll.IsCriticalSuccess() && GetRealLevel(ch) > target->GetLevel() + RollDices(1, 5)) {
 				SendMsgToChar(ch, "&GВы окончательно изгнали %s из мира!&n\r\n", GET_PAD(target, 3));
 				damage.dam = std::max(1, GET_HIT(target) + 11);
 			} else {

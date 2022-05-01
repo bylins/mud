@@ -2216,7 +2216,7 @@ void do_upgrade(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	ObjData *obj;
 	int weight, add_hr, add_dr, prob, percent, min_mod, max_mod, i;
 	bool oldstate;
-	if (!ch->get_skill(ESkill::kSharpening)) {
+	if (!ch->GetSkill(ESkill::kSharpening)) {
 		SendMsgToChar("Вы не умеете этого.", ch);
 		return;
 	}
@@ -2297,7 +2297,7 @@ void do_upgrade(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		obj->set_extra_flag(EObjFlag::kTransformed); // установили флажок трансформации кодом
 	}
 
-	percent = number(1, MUD::Skills()[ESkill::kSharpening].difficulty);
+	percent = number(1, MUD::Skills(ESkill::kSharpening).difficulty);
 	prob = CalcCurrentSkill(ch, ESkill::kSharpening, nullptr);
 	TrainSkill(ch, ESkill::kSharpening, percent <= prob, nullptr);
 	if (obj->get_timer() == 0) // не ждем рассыпания на тике
@@ -2346,7 +2346,7 @@ void do_armored(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int add_ac, prob, percent, i, armorvalue;
 	const auto &strengthening = GlobalObjects::strengthening();
 
-	if (!ch->get_skill(ESkill::kArmoring)) {
+	if (!ch->GetSkill(ESkill::kArmoring)) {
 		SendMsgToChar("Вы не умеете этого.", ch);
 		return;
 	}
@@ -2418,7 +2418,7 @@ void do_armored(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 	}
 
-	percent = number(1, MUD::Skills()[ESkill::kArmoring].difficulty);
+	percent = number(1, MUD::Skills(ESkill::kArmoring).difficulty);
 	prob = CalcCurrentSkill(ch, ESkill::kArmoring, nullptr);
 	TrainSkill(ch, ESkill::kArmoring, percent <= prob, nullptr);
 	add_ac = IS_IMMORTAL(ch) ? -20 : -number(1, (GetRealLevel(ch) + 4) / 5);
@@ -2491,7 +2491,7 @@ void do_armored(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void do_fire(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int percent, prob;
-	if (!ch->get_skill(ESkill::kCampfire)) {
+	if (!ch->GetSkill(ESkill::kCampfire)) {
 		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -2524,7 +2524,7 @@ void do_fire(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (!check_moves(ch, kFireMoves))
 		return;
 
-	percent = number(1, MUD::Skills()[ESkill::kCampfire].difficulty);
+	percent = number(1, MUD::Skills(ESkill::kCampfire).difficulty);
 	prob = CalcCurrentSkill(ch, ESkill::kCampfire, 0);
 	if (percent > prob) {
 		SendMsgToChar("Вы попытались разжечь костер, но у вас ничего не вышло.\r\n", ch);
@@ -2651,7 +2651,7 @@ void do_firstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	bool success = false, need = false;
 	struct TimedSkill timed;
 
-	if (!ch->get_skill(ESkill::kFirstAid)) {
+	if (!ch->GetSkill(ESkill::kFirstAid)) {
 		SendMsgToChar("Вам следует этому научиться.\r\n", ch);
 		return;
 	}
@@ -2681,7 +2681,7 @@ void do_firstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вы не красный крест - лечить всех подряд.\r\n", ch);
 		return;
 	}
-	int percent = number(1, MUD::Skills()[ESkill::kFirstAid].difficulty);
+	int percent = number(1, MUD::Skills(ESkill::kFirstAid).difficulty);
 	int prob = CalcCurrentSkill(ch, ESkill::kFirstAid, vict);
 
 	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike) || GET_GOD_FLAG(vict, EGf::kGodsLike)) {
@@ -2783,7 +2783,7 @@ void do_firstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_poisoned(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (!ch->get_skill(ESkill::kPoisoning)) {
+	if (!ch->GetSkill(ESkill::kPoisoning)) {
 		SendMsgToChar("Вы не умеете этого.", ch);
 		return;
 	}
@@ -2845,7 +2845,7 @@ void do_repair(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int prob, percent = 0, decay;
 	struct TimedSkill timed;
 
-	if (!ch->get_skill(ESkill::kRepair)) {
+	if (!ch->GetSkill(ESkill::kRepair)) {
 		SendMsgToChar("Вы не умеете этого.\r\n", ch);
 		return;
 	}
@@ -2882,7 +2882,7 @@ void do_repair(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	prob = number(1, MUD::Skills()[ESkill::kRepair].difficulty);
+	prob = number(1, MUD::Skills(ESkill::kRepair).difficulty);
 	percent = CalcCurrentSkill(ch, ESkill::kRepair, nullptr);
 	TrainSkill(ch, ESkill::kRepair, prob <= percent, nullptr);
 	if (prob > percent) {
@@ -2890,7 +2890,7 @@ void do_repair(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 //Потому что 0 уничтожает шмотку полностью даже при скиле 100+ и
 //состоянии шмотки <очень хорошо>
 		if (!percent) {
-			percent = ch->get_skill(ESkill::kRepair) / 10;
+			percent = ch->GetSkill(ESkill::kRepair) / 10;
 		}
 //-Polos.repair_bug
 		obj->set_current_durability(MAX(0, obj->get_current_durability() * percent / prob));
@@ -2912,7 +2912,7 @@ void do_repair(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else {
 		timed.skill = ESkill::kRepair;
 		// timed.time - это unsigned char, поэтому при уходе в минус будет вынос на 255 и ниже
-		int modif = ch->get_skill(ESkill::kRepair) / 7 + number(1, 5);
+		int modif = ch->GetSkill(ESkill::kRepair) / 7 + number(1, 5);
 		timed.time = MAX(1, 25 - modif);
 		ImposeTimedSkill(ch, &timed);
 		obj->set_current_durability(MIN(GET_OBJ_MAX(obj), GET_OBJ_CUR(obj) * percent / prob + 1));
@@ -2929,7 +2929,7 @@ bool skill_to_skin(CharData *mob, CharData *ch) {
 				return true;
 			break;
 		case 1:
-			if (ch->get_skill(ESkill::kSkinning) >= 40) {
+			if (ch->GetSkill(ESkill::kSkinning) >= 40) {
 				num = 20 * animals_levels[1] / 701;
 				if (number(1, 100) <= num)
 					return true;
@@ -2941,7 +2941,7 @@ bool skill_to_skin(CharData *mob, CharData *ch) {
 
 			break;
 		case 2:
-			if (ch->get_skill(ESkill::kSkinning) >= 80) {
+			if (ch->GetSkill(ESkill::kSkinning) >= 80) {
 				num = 10 * animals_levels[2] / 594;
 				if (number(1, 100) <= num)
 					return true;
@@ -2953,7 +2953,7 @@ bool skill_to_skin(CharData *mob, CharData *ch) {
 			break;
 
 		case 3:
-			if (ch->get_skill(ESkill::kSkinning) >= 120) {
+			if (ch->GetSkill(ESkill::kSkinning) >= 120) {
 				num = 8 * animals_levels[3] / 209;
 				if (number(1, 100) <= num)
 					return true;
@@ -2965,7 +2965,7 @@ bool skill_to_skin(CharData *mob, CharData *ch) {
 			break;
 
 		case 4:
-			if (ch->get_skill(ESkill::kSkinning) >= 160) {
+			if (ch->GetSkill(ESkill::kSkinning) >= 160) {
 				num = 25 * animals_levels[4] / 20;
 				if (number(1, 100) <= num)
 					return true;
@@ -2988,7 +2988,7 @@ bool skill_to_skin(CharData *mob, CharData *ch) {
 }
 
 void do_makefood(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (!ch->get_skill(ESkill::kSkinning)) {
+	if (!ch->GetSkill(ESkill::kSkinning)) {
 		SendMsgToChar("Вы не умеете этого.\r\n", ch);
 		return;
 	}
@@ -3033,7 +3033,7 @@ void do_makefood(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	const auto prob = number(1, MUD::Skills()[ESkill::kSkinning].difficulty);
+	const auto prob = number(1, MUD::Skills(ESkill::kSkinning).difficulty);
 	const auto percent = CalcCurrentSkill(ch, ESkill::kSkinning, mob)
 		+ number(1, GET_REAL_DEX(ch)) + number(1, GET_REAL_STR(ch));
 	TrainSkill(ch, ESkill::kSkinning, percent <= prob, mob);
@@ -3065,7 +3065,7 @@ void do_makefood(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		}
 
-		entrails.push_back(try_make_ingr(mob, 1000 - ch->get_skill(ESkill::kSkinning) * 2));  // ингры со всех
+		entrails.push_back(try_make_ingr(mob, 1000 - ch->GetSkill(ESkill::kSkinning) * 2));  // ингры со всех
 
 		for (const auto &it : entrails) {
 			if (it) {

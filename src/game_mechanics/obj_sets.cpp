@@ -1081,7 +1081,7 @@ void WornSets::check(CharData *ch) {
 		int max_activ = 0;
 		if (cur_set->enabled) {
 			for (const auto & k : cur_set->activ_list) {
-				const size_t prof_bit = to_underlying(ch->get_class());
+				const size_t prof_bit = to_underlying(ch->GetClass());
 				// k->first - кол-во для активации,
 				// i->obj_list.size() - одето на чаре
 				if (k.first > i.obj_list.size()) {

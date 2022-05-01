@@ -1104,7 +1104,7 @@ void check_hiding_cmd(CharData *ch, int percent) {
 	if (IsAffectedBySpell(ch, ESpell::kHide)) {
 		if (percent == -2) {
 			if (AFF_FLAGGED(ch, EAffect::kSneak)) {
-				remove_hide = number(1, MUD::Skills()[ESkill::kSneak].difficulty) >
+				remove_hide = number(1, MUD::Skills(ESkill::kSneak).difficulty) >
 					CalcCurrentSkill(ch, ESkill::kSneak, nullptr);
 			} else {
 				percent = 500;
@@ -2094,10 +2094,10 @@ void add_logon_record(DescriptorData *d) {
 
 // * Проверка на доступные религии конкретной профе (из текущей генерации чара).
 void check_religion(CharData *ch) {
-	if (class_religion[to_underlying(ch->get_class())] == kReligionPoly && GET_RELIGION(ch) != kReligionPoly) {
+	if (class_religion[to_underlying(ch->GetClass())] == kReligionPoly && GET_RELIGION(ch) != kReligionPoly) {
 		GET_RELIGION(ch) = kReligionPoly;
 		log("Change religion to poly: %s", ch->get_name().c_str());
-	} else if (class_religion[to_underlying(ch->get_class())] == kReligionMono && GET_RELIGION(ch) != kReligionMono) {
+	} else if (class_religion[to_underlying(ch->GetClass())] == kReligionMono && GET_RELIGION(ch) != kReligionMono) {
 		GET_RELIGION(ch) = kReligionMono;
 		log("Change religion to mono: %s", ch->get_name().c_str());
 	}
@@ -2252,12 +2252,12 @@ void do_entergame(DescriptorData *d) {
 	}
 
 	if (PRF_FLAGS(d->character).get(EPrf::kPunctual)
-		&& !d->character->get_skill(ESkill::kPunctual)) {
+		&& !d->character->GetSkill(ESkill::kPunctual)) {
 		PRF_FLAGS(d->character).unset(EPrf::kPunctual);
 	}
 
 	if (PRF_FLAGS(d->character).get(EPrf::kAwake)
-		&& !d->character->get_skill(ESkill::kAwake)) {
+		&& !d->character->GetSkill(ESkill::kAwake)) {
 		PRF_FLAGS(d->character).unset(EPrf::kAwake);
 	}
 
@@ -2302,7 +2302,7 @@ void do_entergame(DescriptorData *d) {
 
 	if (!IS_IMMORTAL(d->character)) {
 		for (const auto &skill : MUD::Skills()) {
-			if (MUD::Classes()[(d->character)->get_class()].skills[skill.GetId()].IsUnavailable()) {
+			if (MUD::Classes((d->character)->GetClass()).skills[skill.GetId()].IsUnavailable()) {
 				d->character->set_skill(skill.GetId(), 0);
 			}
 		}
@@ -2754,7 +2754,7 @@ void DisplaySelectCharClassMenu(DescriptorData *d) {
 	std::sort(char_classes.begin(), char_classes.end());
 	for (const auto &it : char_classes) {
 		out << "  " << KCYN << std::right << std::setw(3) << to_underlying(it) + 1 << KNRM << ") "
-		<< KGRN << std::left << MUD::Classes()[it].GetName() << std::endl << KNRM;
+		<< KGRN << std::left << MUD::Classes(it).GetName() << std::endl << KNRM;
 	}
 	write_to_output(out.str().c_str(), d);
 }
@@ -3320,7 +3320,7 @@ void nanny(DescriptorData *d, char *arg) {
 			SEND_TO_Q("\r\nКакой род вам ближе всего по духу:\r\n", d);
 			SEND_TO_Q(string(PlayerRace::ShowRacesMenu(GET_KIN(d->character))).c_str(), d);
 			sprintf(buf, "Для вашей профессией больше всего подходит %s",
-					default_race[to_underlying(d->character->get_class())]);
+					default_race[to_underlying(d->character->GetClass())]);
 			SEND_TO_Q(buf, d);
 			SEND_TO_Q("\r\nИз чьих вы будете : ", d);
 			STATE(d) = CON_RACE;

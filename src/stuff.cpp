@@ -198,7 +198,7 @@ void generate_book_upgrd(ObjData *obj) {
 		ESkill::kWarcry, ESkill::kIronwind, ESkill::kStrangle);
 
 	auto skill_id = skill_list[number(0, skill_list.size() - 1)];
-	std::string book_name = MUD::Skills()[skill_id].name;
+	std::string book_name = MUD::Skills(skill_id).name;
 
 	obj->set_val(1, to_underlying(skill_id));
 	obj->set_aliases("книга секретов умения: " + book_name);

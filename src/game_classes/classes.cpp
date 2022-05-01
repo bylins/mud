@@ -1035,7 +1035,7 @@ void do_start(CharData *ch, int newbie) {
 		case ECharClass::kPaladine:
 		case ECharClass::kWarrior:
 		case ECharClass::kRanger:
-			if (ch->get_skill(ESkill::kRiding) == 0)
+			if (ch->GetSkill(ESkill::kRiding) == 0)
 				ch->set_skill(ESkill::kRiding, 10);
 			ch->set_skill(ESkill::kSideAttack, 95);
 			break;
@@ -1881,7 +1881,7 @@ bool IsMage(const CharData *ch) {
 		ECharClass::kCharmer,
 		ECharClass::kNecromancer};
 
-	return magic_classes.contains(ch->get_class());
+	return magic_classes.contains(ch->GetClass());
 }
 
 bool IsCaster(const CharData *ch) {
@@ -1893,7 +1893,7 @@ bool IsCaster(const CharData *ch) {
 		ECharClass::kNecromancer,
 		ECharClass::kMagus};
 
-	return caster_classes.contains(ch->get_class());
+	return caster_classes.contains(ch->GetClass());
 }
 
 bool IsFighter(const CharData *ch) {
@@ -1906,7 +1906,7 @@ bool IsFighter(const CharData *ch) {
 		ECharClass::kRanger,
 		ECharClass::kVigilant};
 
-	return fight_classes.contains(ch->get_class());
+	return fight_classes.contains(ch->GetClass());
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

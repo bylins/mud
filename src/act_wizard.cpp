@@ -365,7 +365,7 @@ void do_arena_restore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		} else {
 			vict->mem_queue.stored = vict->mem_queue.total;
 		}
-		if (vict->get_skill(ESkill::kWarcry) > 0) {
+		if (vict->GetSkill(ESkill::kWarcry) > 0) {
 			struct TimedSkill wctimed;
 			wctimed.skill = ESkill::kWarcry;
 			wctimed.time = 0;
@@ -2214,7 +2214,7 @@ void inspecting() {
 
 		if (*buf1 || mail_found) {
 			const auto &player = player_table[it->second->pos];
-			strcpy(smallBuf, MUD::Classes()[player.plr_class].GetCName());
+			strcpy(smallBuf, MUD::Classes(player.plr_class).GetCName());
 			mytime = player_table[it->second->pos].last_logon;
 			Player vict;
 			char clanstatus[kMaxInputLength];
@@ -2361,7 +2361,7 @@ void do_inspect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (CLAN(&vict))
 				sprintf(clanstatus, "%s", (&vict)->player_specials->clan->GetAbbrev());
 		}
-		strcpy(smallBuf, MUD::Classes()[player_table[i].plr_class].GetCName());
+		strcpy(smallBuf, MUD::Classes(player_table[i].plr_class).GetCName());
 		time_t mytime = player_table[i].last_logon;
 		sprintf(buf1, "Last: %s. Level %d, Remort %d, Проф: %s, Клан: %s.\r\n",
 				rustime(localtime(&mytime)),
@@ -2547,7 +2547,7 @@ void do_restore(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		} else {
 			vict->mem_queue.stored = vict->mem_queue.total;
 		}
-		if (vict->get_skill(ESkill::kWarcry) > 0) {
+		if (vict->GetSkill(ESkill::kWarcry) > 0) {
 			struct TimedSkill wctimed;
 			wctimed.skill = ESkill::kWarcry;
 			wctimed.time = 0;
@@ -2828,7 +2828,7 @@ void do_last(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		time_t tmp_time = LAST_LOGON(chdata);
 		sprintf(buf, "[%5ld] [%2d %s] %-12s : %-18s : %-20s\r\n",
 				GET_IDNUM(chdata), GetRealLevel(chdata),
-				MUD::Classes()[chdata->get_class()].GetAbbr().c_str(), GET_NAME(chdata),
+				MUD::Classes(chdata->GetClass()).GetAbbr().c_str(), GET_NAME(chdata),
 				GET_LASTIP(chdata)[0] ? GET_LASTIP(chdata) : "Unknown", ctime(&tmp_time));
 		SendMsgToChar(buf, ch);
 	}
@@ -4886,7 +4886,7 @@ void print(CharData *ch, int first, int last, const std::string &options) {
 				   ? mob_proto[i].get_name_str().substr(0, 45)
 				   : mob_proto[i].get_name_str())
 				% mob_index[i].vnum
-				% mob_proto[i].get_level()
+				% mob_proto[i].GetLevel()
 				% print_flag(ch, mob_proto + i, options);
 			if (!mob_proto[i].proto_script->empty()) {
 				out << " - есть скрипты -";
@@ -5167,7 +5167,7 @@ std::string statToPrint() {
 	char *end_time = str_dup(rustime(localtime(&now)));
 	out << rustime(localtime(&SpellUsage::start)) << " - " << end_time << "\n";
 	for (auto & it : SpellUsage::usage) {
-		out << std::setw(35) << MUD::Classes()[it.first].GetName() << std::endl;
+		out << std::setw(35) << MUD::Classes(it.first).GetName() << std::endl;
 		for (auto & itt : it.second) {
 			out << std::setw(25) << spell_info[itt.first].name << " : " << itt.second << std::endl;
 		}

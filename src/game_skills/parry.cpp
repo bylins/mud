@@ -16,7 +16,7 @@ void go_multyparry(CharData *ch) {
 }
 
 void do_multyparry(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsNpc() || !ch->get_skill(ESkill::kMultiparry)) {
+	if (ch->IsNpc() || !ch->GetSkill(ESkill::kMultiparry)) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -59,7 +59,7 @@ void go_parry(CharData *ch) {
 }
 
 void do_parry(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsNpc() || !ch->get_skill(ESkill::kParry)) {
+	if (ch->IsNpc() || !ch->GetSkill(ESkill::kParry)) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}

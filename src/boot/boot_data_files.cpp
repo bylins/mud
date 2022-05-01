@@ -1098,7 +1098,7 @@ void MobileFile::parse_mobile(const int nr) {
 
 	mob_proto[i].set_rnum(i);
 	mob_proto[i].desc = nullptr;
-	if ((mob_proto + 1)->get_level() == 0)
+	if ((mob_proto + 1)->GetLevel() == 0)
 		set_test_data(mob_proto + i);
 
 	top_of_mobt = i++;
@@ -1422,7 +1422,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			log("SYSERROR : Unknown skill No %d for MOB #%d", t[0], nr);
 			return;
 		}
-		t[1] = std::clamp(t[1], 0, MUD::Skills()[skill_id].cap);
+		t[1] = std::clamp(t[1], 0, MUD::Skills(skill_id).cap);
 		(mob_proto + i)->set_skill(skill_id, t[1]);
 	}
 

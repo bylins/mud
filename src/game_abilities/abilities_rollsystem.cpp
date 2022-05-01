@@ -195,7 +195,7 @@ bool TechniqueRoll::IsSuitableItem(const TechniqueItem &item) {
 //	TODO: Привести подсчет дамага к одному знаменателю с несколькими возможными точками входа.
 int AbilityRoll::CalcBaseDamage() {
 	int base_parameter = ability_->GetBaseParameter(actor_);
-	int dice_num = actor_->get_skill(base_skill_) / abilities::kDmgDicepoolSkillDivider;
+	int dice_num = actor_->GetSkill(base_skill_) / abilities::kDmgDicepoolSkillDivider;
 	dice_num = std::min(dice_num, base_parameter);
 	return RollDices(std::max(1, dice_num), abilities::kDmgDiceSize);
 };

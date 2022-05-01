@@ -485,12 +485,11 @@ void CharData::purge() {
 			free(KARMA(this));
 
 		free(GET_LOGS(this));
-// shapirus: подчистим за криворукуми кодерами memory leak,
-// вызванный неосвобождением фильтра базара...
+
 		if (EXCHANGE_FILTER(this)) {
 			free(EXCHANGE_FILTER(this));
 		}
-		EXCHANGE_FILTER(this) = nullptr;    // на всякий случай
+		EXCHANGE_FILTER(this) = nullptr;
 
 		clear_ignores();
 
@@ -518,15 +517,15 @@ void CharData::purge() {
 }
 
 // * Скилл с учетом всех плюсов и минусов от шмоток/яда.
-int CharData::get_skill(const ESkill skill_num) const {
-	int skill = get_trained_skill(skill_num) + get_equipped_skill(skill_num);
+int CharData::GetSkill(const ESkill skill_id) const {
+	int skill = get_trained_skill(skill_id) + get_equipped_skill(skill_id);
 	if (AFF_FLAGGED(this, EAffect::kSkillReduce)) {
 		skill -= skill * GET_POISON(this) / 100;
 	}
 	if (ROOM_FLAGGED(this->in_room, ERoomFlag::kDominationArena)) {
 		return std::clamp(skill, 0, CalcSkillRemortCap(this));
 	}
-	return std::clamp(skill, 0, MUD::Skills()[skill_num].cap);
+	return std::clamp(skill, 0, MUD::Skills(skill_id).cap);
 }
 
 //  Скилл со шмоток.
@@ -534,7 +533,7 @@ int CharData::get_skill(const ESkill skill_num) const {
 // всем остальным -- не более 5% с шмотки
 int CharData::get_equipped_skill(const ESkill skill_id) const {
 	int skill = 0;
-	bool is_native = this->IsNpc() || MUD::Classes()[chclass_].skills[skill_id].IsAvailable();
+	bool is_native = this->IsNpc() || MUD::Classes(chclass_).skills[skill_id].IsAvailable();
 	for (auto i : equipment) {
 		if (i) {
 			if (is_native) {
@@ -563,7 +562,7 @@ int CharData::get_inborn_skill(const ESkill skill_num) {
 		auto it = skills.find(skill_num);
 		if (it != skills.end()) {
 			//return normalize_skill(it->second.skillLevel, skill_num);
-			return std::clamp(it->second.skillLevel, 0, MUD::Skills()[skill_num].cap);
+			return std::clamp(it->second.skillLevel, 0, MUD::Skills(skill_num).cap);
 		}
 	}
 	return 0;
@@ -571,12 +570,12 @@ int CharData::get_inborn_skill(const ESkill skill_num) {
 
 int CharData::get_trained_skill(const ESkill skill_id) const {
 	if (ROOM_FLAGGED(this->in_room, ERoomFlag::kDominationArena)) {
-		if (MUD::Classes()[chclass_].skills[skill_id].IsAvailable()) {
+		if (MUD::Classes(chclass_).skills[skill_id].IsAvailable()) {
 			return 100;
 		}
 	}
 	if (privilege::CheckSkills(this)) {
-		return std::clamp(current_morph_->get_trained_skill(skill_id), 0, MUD::Skills()[skill_id].cap);
+		return std::clamp(current_morph_->get_trained_skill(skill_id), 0, MUD::Skills(skill_id).cap);
 	}
 	return 0;
 }
@@ -972,7 +971,7 @@ void CharData::set_description(const char *s) {
 	player_data.description = std::string(s);
 }
 
-ECharClass CharData::get_class() const {
+ECharClass CharData::GetClass() const {
 	return chclass_;
 }
 
@@ -986,7 +985,7 @@ void CharData::set_class(ECharClass chclass) {
 	chclass_ = chclass;
 }
 
-int CharData::get_level() const {
+int CharData::GetLevel() const {
 	return level_;
 }
 
@@ -1587,7 +1586,7 @@ std::string CharData::only_title_noclan() {
 	if (!pre_title.empty())
 		result = pre_title + " " + result;
 
-	if (!title.empty() && this->get_level() >= MIN_TITLE_LEV)
+	if (!title.empty() && this->GetLevel() >= MIN_TITLE_LEV)
 		result = result + ", " + title;
 
 	return result;
@@ -1646,7 +1645,7 @@ std::string CharData::get_cover_desc() {
 
 void CharData::set_morph(MorphPtr morph) {
 	morph->SetChar(this);
-	morph->InitSkills(this->get_skill(ESkill::kMorph));
+	morph->InitSkills(this->GetSkill(ESkill::kMorph));
 	morph->InitAbils();
 	this->current_morph_ = morph;
 };

@@ -782,7 +782,7 @@ void EndowExpToChar(CharData *ch, int gain) {
 		}
 		ch->set_exp(std::min(ch->get_exp(), GetExpUntilNextLvl(ch, kLvlImmortal) - 1));
 		while (GetRealLevel(ch) < kLvlImmortal && GET_EXP(ch) >= GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1)) {
-			ch->set_level(ch->get_level() + 1);
+			ch->set_level(ch->GetLevel() + 1);
 			num_levels++;
 			sprintf(buf, "%sВы достигли следующего уровня!%s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 			SendMsgToChar(buf, ch);
@@ -799,7 +799,7 @@ void EndowExpToChar(CharData *ch, int gain) {
 		gain = std::max(-max_exp_loss_pc(ch), gain);    // Cap max exp lost per death
 		ch->set_exp(ch->get_exp() + gain);
 		while (GetRealLevel(ch) > 1 && GET_EXP(ch) < GetExpUntilNextLvl(ch, GetRealLevel(ch))) {
-			ch->set_level(ch->get_level() - 1);
+			ch->set_level(ch->GetLevel() - 1);
 			num_levels++;
 			sprintf(buf,
 					"%sВы потеряли уровень. Вам должно быть стыдно!%s\r\n",
@@ -838,7 +838,7 @@ void gain_exp_regardless(CharData *ch, int gain) {
 	if (!ch->IsNpc()) {
 		if (gain > 0) {
 			while (GetRealLevel(ch) < kLvlImplementator && GET_EXP(ch) >= GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1)) {
-				ch->set_level(ch->get_level() + 1);
+				ch->set_level(ch->GetLevel() + 1);
 				num_levels++;
 				sprintf(buf, "%sВы достигли следующего уровня!%s\r\n",
 						CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
@@ -860,7 +860,7 @@ void gain_exp_regardless(CharData *ch, int gain) {
 			//			if (GET_EXP(ch) < 0)
 			//				GET_EXP(ch) = 0;
 			while (GetRealLevel(ch) > 1 && GET_EXP(ch) < GetExpUntilNextLvl(ch, GetRealLevel(ch))) {
-				ch->set_level(ch->get_level() - 1);
+				ch->set_level(ch->GetLevel() - 1);
 				num_levels++;
 				sprintf(buf,
 						"%sВы потеряли уровень!%s\r\n",

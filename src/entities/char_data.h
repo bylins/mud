@@ -375,7 +375,7 @@ class CharData : public ProtectedCharData {
 	void set_skill(const ESkill skill_id, int percent);
 	void set_skill(short remort);
 	void clear_skills();
-	int get_skill(const ESkill skill_num) const;
+	int GetSkill(const ESkill skill_id) const;
 	int get_skills_count() const;
 	int get_equipped_skill(const ESkill skill_id) const;
 	int get_trained_skill(const ESkill skill_id) const;
@@ -431,10 +431,10 @@ class CharData : public ProtectedCharData {
 	void set_long_descr(const char *);
 	const char *get_description() const;
 	void set_description(const char *);
-	ECharClass get_class() const;
+	ECharClass GetClass() const;
 	void set_class(ECharClass chclass);
 
-	int get_level() const;
+	int GetLevel() const;
 	int get_level_add() const;
 	void set_level(int level);
 	void set_level_add(int level);
@@ -961,7 +961,7 @@ bool IS_POLY(const CharData *ch);
 inline int VPOSI_MOB(const CharData *ch, const EBaseStat stat_id, const int val) {
 	return ch->IsNpc()
 		   ? VPOSI(val, 1, 100)
-		   : VPOSI(val, 1, class_stats_limit[to_underlying(ch->get_class())][to_underlying(stat_id)]);
+		   : VPOSI(val, 1, class_stats_limit[to_underlying(ch->GetClass())][to_underlying(stat_id)]);
 }
 inline int VPOSI_MOB(const CharData::shared_ptr &ch, const EBaseStat stat_id, const int val) {
 	return VPOSI_MOB(ch.get(), stat_id, val);

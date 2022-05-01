@@ -126,7 +126,7 @@ int feat_slot_lvl(int remort, int slot_for_remort, int slot) {
 	}
 	/*
 	  ВНИМАНИЕ: формула содрана с CalcFeatLvl (feats.h)!
-	  (1+GetRealLevel(ch)*(5+GET_REAL_REMORT(ch)/MUD::Classes()[ch->get_class()].GetRemortsNumForFeatSlot()/kLastFeatSlotLvl)
+	  (1+GetRealLevel(ch)*(5+GET_REAL_REMORT(ch)/MUD::Classes(ch->get_class()).GetRemortsNumForFeatSlot()/kLastFeatSlotLvl)
 	  сделано это потому, что "обратная" формула, использованная ранее в list_feats,
 	  выдавала неверные результаты ввиду нюансов округления
 	  */
@@ -165,7 +165,7 @@ void list_feats(CharData *ch, CharData *vict, bool all_feats) {
 	for (i = 1; i < max_slot; i++) {
 		if (all_feats) {
 			// на каком уровне будет слот i?
-			j = feat_slot_lvl(GET_REMORT(ch), MUD::Classes()[ch->get_class()].GetRemortsNumForFeatSlot(), i);
+			j = feat_slot_lvl(GET_REMORT(ch), MUD::Classes(ch->GetClass()).GetRemortsNumForFeatSlot(), i);
 			sprintf(names[i], "\r\nКруг %-2d (%-2d уровень):\r\n", i + 1, j);
 		} else {
 			*names[i] = '\0';
@@ -186,7 +186,7 @@ void list_feats(CharData *ch, CharData *vict, bool all_feats) {
 						 " Пометкой [И] выделены уже изученные способности.\r\n"
 						 " Пометкой [Д] выделены доступные для изучения способности.\r\n"
 						 " Пометкой [Н] выделены способности, недоступные вам в настоящий момент.\r\n\r\n", vict);
-		for (const auto &feat : MUD::Classes()[ch->get_class()].feats) {
+		for (const auto &feat : MUD::Classes(ch->GetClass()).feats) {
 			if (feat.IsUnavailable() &&
 				!PlayerRace::FeatureCheck((int) GET_KIN(ch), (int) GET_RACE(ch), to_underlying(feat.GetId()))) {
 				continue;
@@ -239,7 +239,7 @@ void list_feats(CharData *ch, CharData *vict, bool all_feats) {
 
 	sprintf(buf1, "Вы обладаете следующими способностями :\r\n");
 
-	for (const auto &feat : MUD::Classes()[ch->get_class()].feats) {
+	for (const auto &feat : MUD::Classes(ch->GetClass()).feats) {
 		if (strlen(buf2) >= kMaxStringLength - 60) {
 			strcat(buf2, "***ПЕРЕПОЛНЕНИЕ***\r\n");
 			break;
@@ -343,7 +343,7 @@ void list_skills(CharData *ch, CharData *vict, const char *filter/* = nullptr*/)
 	skills_t skills;
 
 	for (const auto &skill : MUD::Skills()) {
-		if (ch->get_skill(skill.GetId())) {
+		if (ch->GetSkill(skill.GetId())) {
 			// filter out skills without name or name beginning with '!' character
 			if (skill.IsInvalid()) {
 				continue;
@@ -388,7 +388,7 @@ void list_skills(CharData *ch, CharData *vict, const char *filter/* = nullptr*/)
 
 			sprintf(buf + strlen(buf), "%-23s %s (%d)%s \r\n",
 					skill.GetName(),
-					how_good(ch->get_skill(skill_id), CalcSkillHardCap(ch, skill_id)),
+					how_good(ch->GetSkill(skill_id), CalcSkillHardCap(ch, skill_id)),
 					CalcSkillMinCap(ch, skill_id),
 					CCNRM(ch, C_NRM));
 
@@ -464,7 +464,7 @@ void list_spells(CharData *ch, CharData *vict, int all_spells) {
 		*names[i] = '\0';
 		slots[i] = 0;
 	}
-	for (const auto &spell : MUD::Classes()[ch->get_class()].spells) {
+	for (const auto &spell : MUD::Classes(ch->GetClass()).spells) {
 		auto spell_id = spell.GetId();
 		if (!GET_SPELL_TYPE(ch, spell_id) && !all_spells)
 			continue;
@@ -843,7 +843,7 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 	}
 
 	info_num--;
-	if (!IS_BITS(guild_mono_info[info_num].classes, to_underlying(ch->get_class()))
+	if (!IS_BITS(guild_mono_info[info_num].classes, to_underlying(ch->GetClass()))
 		|| !IS_BITS(guild_mono_info[info_num].races, GET_RACE(ch))
 		|| !IS_BITS(guild_mono_info[info_num].religion, GET_RELIGION(ch))) {
 		act("$N сказал$g : '$n, я не учу таких, как ты.'", false, ch, nullptr, victim, kToChar);
@@ -866,7 +866,7 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 					if (ESkill::kUndefined != skill_no && (!ch->get_trained_skill(skill_no)
 						|| IS_GRGOD(ch)) && IsAbleToGetSkill(ch, skill_no)) {
 						gcount += sprintf(buf + gcount, "- умение %s\"%s\"%s\r\n",
-										  CCCYN(ch, C_NRM), MUD::Skills()[skill_no].GetName(), CCNRM(ch, C_NRM));
+										  CCCYN(ch, C_NRM), MUD::Skills(skill_no).GetName(), CCNRM(ch, C_NRM));
 						found = true;
 					}
 
@@ -875,7 +875,8 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 					}
 
 					const auto spell_no = (guild_mono_info[info_num].learn_info + i)->spell_no;
-					if (spell_no > ESpell::kUndefined && (!((GET_SPELL_TYPE(ch, spell_no) & bits) == bits) || IS_GRGOD(ch))) {
+					if (spell_no > ESpell::kUndefined && (!((GET_SPELL_TYPE(ch, spell_no) & bits) == bits) || IS_GRGOD(
+						ch))) {
 						gcount += sprintf(buf + gcount, "- магия %s\"%s\"%s\r\n",
 										  CCCYN(ch, C_NRM), GetSpellName(spell_no), CCNRM(ch, C_NRM));
 						found = true;
@@ -1020,7 +1021,7 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 							act("$N сказал$G : 'Я не могу тебя этому научить.'", false, ch, 0, victim, kToChar);
 						} else {
 							sprintf(buf, "$N научил$G вас умению %s\"%s\"%s",
-									CCCYN(ch, C_NRM), MUD::Skills()[skill_no].GetName(), CCNRM(ch, C_NRM));
+									CCCYN(ch, C_NRM), MUD::Skills(skill_no).GetName(), CCNRM(ch, C_NRM));
 							act(buf, false, ch, nullptr, victim, kToChar);
 							ch->set_skill(skill_no, 10);
 						}
@@ -1147,7 +1148,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 						continue;
 					}
 
-					if (!IS_BITS((guild_poly_info[info_num] + i)->classes, to_underlying(ch->get_class()))
+					if (!IS_BITS((guild_poly_info[info_num] + i)->classes, to_underlying(ch->GetClass()))
 						|| !IS_BITS((guild_poly_info[info_num] + i)->races, GET_RACE(ch))
 						|| !IS_BITS((guild_poly_info[info_num] + i)->religion, GET_RELIGION(ch)))
 						continue;
@@ -1157,7 +1158,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 					if (ESkill::kUndefined != skill_no &&
 						(!ch->get_trained_skill(skill_no) || IS_GRGOD(ch)) && IsAbleToGetSkill(ch, skill_no)) {
 						gcount += sprintf(buf + gcount, "- умение %s\"%s\"%s\r\n",
-										  CCCYN(ch, C_NRM), MUD::Skills()[skill_no].GetName(), CCNRM(ch, C_NRM));
+										  CCCYN(ch, C_NRM), MUD::Skills(skill_no).GetName(), CCNRM(ch, C_NRM));
 						found = true;
 					}
 
@@ -1199,7 +1200,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 					if ((guild_poly_info[info_num] + i)->level > GetRealLevel(ch)) {
 						continue;
 					}
-					if (!IS_BITS((guild_poly_info[info_num] + i)->classes, to_underlying(ch->get_class()))
+					if (!IS_BITS((guild_poly_info[info_num] + i)->classes, to_underlying(ch->GetClass()))
 						|| !IS_BITS((guild_poly_info[info_num] + i)->races, GET_RACE(ch))
 						|| !IS_BITS((guild_poly_info[info_num] + i)->religion, GET_RELIGION(ch))) {
 						continue;
@@ -1275,7 +1276,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 					if ((guild_poly_info[info_num] + i)->level > GetRealLevel(ch)) {
 						continue;
 					}
-					if (!IS_BITS((guild_poly_info[info_num] + i)->classes, to_underlying(ch->get_class()))
+					if (!IS_BITS((guild_poly_info[info_num] + i)->classes, to_underlying(ch->GetClass()))
 						|| !IS_BITS((guild_poly_info[info_num] + i)->races, GET_RACE(ch))
 						|| !IS_BITS((guild_poly_info[info_num] + i)->religion, GET_RELIGION(ch))) {
 						continue;
@@ -1290,7 +1291,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 								false, ch, 0, victim, kToChar);
 						} else {
 							sprintf(buf, "$N научил$G вас умению %s\"%s\"%s",
-									CCCYN(ch, C_NRM), MUD::Skills()[skill_no].GetName(), CCNRM(ch, C_NRM));
+									CCCYN(ch, C_NRM), MUD::Skills(skill_no).GetName(), CCNRM(ch, C_NRM));
 							act(buf, false, ch, 0, victim, kToChar);
 							ch->set_skill(skill_no, 10);
 						}
@@ -1315,7 +1316,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 					if ((guild_poly_info[info_num] + i)->level > GetRealLevel(ch)) {
 						continue;
 					}
-					if (!IS_BITS((guild_poly_info[info_num] + i)->classes, to_underlying(ch->get_class()))
+					if (!IS_BITS((guild_poly_info[info_num] + i)->classes, to_underlying(ch->GetClass()))
 						|| !IS_BITS((guild_poly_info[info_num] + i)->races, GET_RACE(ch))
 						|| !IS_BITS((guild_poly_info[info_num] + i)->religion, GET_RELIGION(ch))) {
 						continue;
@@ -1352,7 +1353,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 						|| bits == ESpellType::kTemp) {
 						bits = ESpellType::kKnow;
 					}
-					if (!IS_BITS((guild_poly_info[info_num] + i)->classes, to_underlying(ch->get_class()))
+					if (!IS_BITS((guild_poly_info[info_num] + i)->classes, to_underlying(ch->GetClass()))
 						|| !IS_BITS((guild_poly_info[info_num] + i)->races, GET_RACE(ch))
 						|| !IS_BITS((guild_poly_info[info_num] + i)->religion, GET_RELIGION(ch))) {
 						continue;
@@ -1610,7 +1611,7 @@ int npc_scavenge(CharData *ch) {
 
 				// Заперто, взламываем, если умеем
 				if (OBJVAL_FLAGGED(obj, EContainerFlag::kLockedUp)
-					&& ch->get_skill(ESkill::kPickLock)
+					&& ch->GetSkill(ESkill::kPickLock)
 					&& ok_pick(ch, 0, obj, 0, SCMD_PICK)) {
 					do_doorcmd(ch, obj, 0, SCMD_PICK);
 				}
@@ -1744,7 +1745,7 @@ int npc_loot(CharData *ch) {
 
 						// ...или взломаем?
 						if (OBJVAL_FLAGGED(loot_obj, EContainerFlag::kLockedUp)
-							&& ch->get_skill(ESkill::kPickLock)
+							&& ch->GetSkill(ESkill::kPickLock)
 							&& ok_pick(ch, 0, loot_obj, 0, SCMD_PICK)) {
 							loot_obj->toggle_val_bit(1, EContainerFlag::kLockedUp);
 						}
@@ -1899,8 +1900,8 @@ void npc_wield(CharData *ch) {
 	if (!NPC_FLAGGED(ch, ENpcFlag::kWielding))
 		return;
 
-	if (ch->get_skill(ESkill::kHammer) > 0
-		&& ch->get_skill(ESkill::kOverwhelm) < ch->get_skill(ESkill::kHammer)) {
+	if (ch->GetSkill(ESkill::kHammer) > 0
+		&& ch->GetSkill(ESkill::kOverwhelm) < ch->GetSkill(ESkill::kHammer)) {
 		return;
 	}
 

@@ -1177,7 +1177,7 @@ int CalcCircleSlotsAmount(CharData *ch, int slot_num) {
 
 	slot_num--;
 
-	switch (ch->get_class()) {
+	switch (ch->GetClass()) {
 		case ECharClass::kConjurer:
 		case ECharClass::kWizard:
 		case ECharClass::kCharmer: wis_is = kMageSlots[GetRealLevel(ch) - 1][slot_num];
@@ -1271,7 +1271,7 @@ int MaxClassSlot::get(ECharClass chclass) const {
 }
 
 int MaxClassSlot::get(const CharData *ch) const {
-	return this->get(ch->get_class());
+	return this->get(ch->GetClass());
 }
 
 }; // namespace ClassPlayer

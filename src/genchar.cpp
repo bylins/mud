@@ -192,7 +192,7 @@ int genchar_parse(CharData *ch, char *arg) {
 			ch->set_start_stat(G_CHA, ch->get_inborn_cha());
 			return kGencharExit;
 		case 'О':
-		case 'о': tmp_class = to_underlying(ch->get_class());
+		case 'о': tmp_class = to_underlying(ch->GetClass());
 			ch->set_str(auto_stats[tmp_class][0]);
 			ch->set_dex(auto_stats[tmp_class][1]);
 			ch->set_int(auto_stats[tmp_class][2]);
@@ -217,7 +217,7 @@ int genchar_parse(CharData *ch, char *arg) {
  * which priority will be given for the best to worst stats.
  */
 void roll_real_abils(CharData *ch) {
-	switch (ch->get_class()) {
+	switch (ch->GetClass()) {
 		case ECharClass::kSorcerer: ch->set_cha(10);
 			do {
 				ch->set_con(12 + number(0, 3));

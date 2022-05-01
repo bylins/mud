@@ -24,7 +24,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 		return;
 
 	if ((GET_POS(vict) < EPosition::kFight)) {
-		if (number(1, 100) < ch->get_skill(ESkill::kUndercut)) {
+		if (number(1, 100) < ch->GetSkill(ESkill::kUndercut)) {
 			SendMsgToChar("Вы приготовились провести подсечку, но вовремя остановились.\r\n", ch);
 			ch->setSkillCooldown(ESkill::kUndercut, kPulseViolence / 6);
 			return;
@@ -34,7 +34,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 	if (!pk_agro_action(ch, vict))
 		return;
 
-	int percent = number(1, MUD::Skills()[ESkill::kUndercut].difficulty);
+	int percent = number(1, MUD::Skills(ESkill::kUndercut).difficulty);
 	int prob = CalcCurrentSkill(ch, ESkill::kUndercut, vict);
 
 	if (IsAffectedBySpell(ch, ESpell::kWeb)) {
@@ -48,12 +48,13 @@ void go_chopoff(CharData *ch, CharData *vict) {
 
 	if (GET_GOD_FLAG(ch, EGf::kGodscurse) ||
 		GET_GOD_FLAG(vict, EGf::kGodsLike) ||
-		vict->IsOnHorse() || GET_POS(vict) < EPosition::kFight || MOB_FLAGGED(vict, EMobFlag::kNoUndercut) || IS_IMMORTAL(vict))
+		vict->IsOnHorse() || GET_POS(vict) < EPosition::kFight || MOB_FLAGGED(vict, EMobFlag::kNoUndercut) || IS_IMMORTAL(
+		vict))
 		prob = 0;
 
 	bool success = percent <= prob;
 	TrainSkill(ch, ESkill::kUndercut, success, vict);
-	SendSkillBalanceMsg(ch, MUD::Skills()[ESkill::kUndercut].name, percent, prob, success);
+	SendSkillBalanceMsg(ch, MUD::Skills(ESkill::kUndercut).name, percent, prob, success);
 	if (!success) {
 		sprintf(buf, "%sВы попытались подсечь $N3, но упали сами...%s", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 		act(buf, false, ch, nullptr, vict, kToChar);
@@ -115,7 +116,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 }
 
 void do_chopoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->get_skill(ESkill::kUndercut) < 1) {
+	if (ch->GetSkill(ESkill::kUndercut) < 1) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}

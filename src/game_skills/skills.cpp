@@ -723,8 +723,8 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 	}
 
-	if (!MUD::Skills()[skill_id].autosuccess) {
-		rate -= static_cast<int>(round(GET_SAVE(vict, MUD::Skills()[skill_id].save_type) * kSaveWeight));
+	if (!MUD::Skills(skill_id).autosuccess) {
+		rate -= static_cast<int>(round(GET_SAVE(vict, MUD::Skills(skill_id).save_type) * kSaveWeight));
 	}
 
 	return rate;
@@ -735,7 +735,7 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 // потому что по-хорошему половина этих параметров должна находиться в описании соответствующей абилки
 // которого не имеется и которое сейчас вводить не время.
 int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
-	int base_percent = ch->get_skill(skill_id);
+	int base_percent = ch->GetSkill(skill_id);
 	int parameter_bonus = 0; // бонус от ключевого параметра
 	int bonus = 0; // бонус от дополнительных параметров.
 	int size = 0; // бонусы/штрафы размера (не спрашивайте...)
@@ -747,7 +747,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 	if (!ch->IsNpc() && !ch->affected.empty()) {
 		for (const auto &aff: ch->affected) {
 			if (aff->location == EApply::kPlague) {
-				base_percent -= number(ch->get_skill(skill_id) * 0.4, ch->get_skill(skill_id) * 0.05);
+				base_percent -= number(ch->GetSkill(skill_id) * 0.4, ch->GetSkill(skill_id) * 0.05);
 			}
 		}
 	}
@@ -906,7 +906,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		case ESkill::kParry: {
 			parameter_bonus += dex_bonus(GET_REAL_DEX(ch));
 			if (GET_AF_BATTLE(ch, kEafAwake)) {
-				bonus += ch->get_skill(ESkill::kAwake);
+				bonus += ch->GetSkill(ESkill::kAwake);
 			}
 			if (GET_EQ(ch, EEquipPos::kHold)
 				&& GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kHold)) == EObjType::kWeapon) {
@@ -1164,7 +1164,7 @@ SkillRollResult MakeSkillTest(CharData *ch, ESkill skill_id, CharData *vict) {
 	int actor_rate = CalculateSkillRate(ch, skill_id, vict);
 	int victim_rate = CalculateVictimRate(ch, skill_id, vict);
 
-	int success_threshold = std::max(0, actor_rate - victim_rate - MUD::Skills()[skill_id].difficulty);
+	int success_threshold = std::max(0, actor_rate - victim_rate - MUD::Skills(skill_id).difficulty);
 	int dice_roll = number(1, kSkillDiceSize);
 
 	// \TODO Механика критфейла и критуспеха пока не реализована.
@@ -1182,11 +1182,11 @@ void SendSkillRollMsg(CharData *ch, CharData *victim, ESkill skill_id,
 	int actor_rate, int victim_rate, int threshold, int roll, SkillRollResult &result) {
 	std::stringstream buffer;
 	buffer << KICYN
-		   << "Skill: '" << MUD::Skills()[skill_id].name << "'"
+		   << "Skill: '" << MUD::Skills(skill_id).name << "'"
 		   << " Rate: " << actor_rate
 		   << " Victim: " << victim->get_name()
 		   << " V.Rate: " << victim_rate
-		   << " Difficulty: " << MUD::Skills()[skill_id].difficulty
+		   << " Difficulty: " << MUD::Skills(skill_id).difficulty
 		   << " Threshold: " << threshold
 		   << " Roll: " << roll
 		   << " Success: " << (result.success ? "&Gyes&C" : "&Rno&C")
@@ -1213,7 +1213,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 		return 0;
 	}
 
-	int base_percent = ch->get_skill(skill_id);
+	int base_percent = ch->GetSkill(skill_id);
 	int total_percent = 0;
 	int victim_sav = 0; // савис жертвы,
 	int victim_modi = 0; // другие модификаторы, влияющие на прохождение
@@ -1228,7 +1228,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 	if (!ch->IsNpc() && !ch->affected.empty()) {
 		for (const auto &aff: ch->affected) {
 			if (aff->location == EApply::kPlague) {
-				base_percent -= number(ch->get_skill(skill_id) * 0.4, ch->get_skill(skill_id) * 0.05);
+				base_percent -= number(ch->GetSkill(skill_id) * 0.4, ch->GetSkill(skill_id) * 0.05);
 			}
 		}
 	}
@@ -1429,7 +1429,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 			victim_sav = dex_bonus(GET_REAL_DEX(vict));
 			bonus = dex_bonus(GET_REAL_DEX(ch));
 			if (GET_AF_BATTLE(ch, kEafAwake)) {
-				bonus += ch->get_skill(ESkill::kAwake);
+				bonus += ch->GetSkill(ESkill::kAwake);
 			}
 
 			if (GET_EQ(ch, EEquipPos::kHold)
@@ -1742,21 +1742,21 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 				bonus = 0;
 				break;
 			case ELuckTestResult::kLuckTestCriticalSuccess: 
-				base_percent = MUD::Skills()[skill_id].cap;
+				base_percent = MUD::Skills(skill_id).cap;
 				LuckTempStr = "Удача крит";
 				break;
 		}
 	}
 
 	auto percent = base_percent + bonus + victim_sav + victim_modi/2;
-	total_percent = std::clamp(percent, 0, MUD::Skills()[skill_id].cap);
+	total_percent = std::clamp(percent, 0, MUD::Skills(skill_id).cap);
 
 	if (PRF_FLAGGED(ch, EPrf::kAwake) && (skill_id == ESkill::kBash)) {
 		total_percent /= 2;
 	}
 
 	if (GET_GOD_FLAG(ch, EGf::kGodsLike) || (vict && GET_GOD_FLAG(vict, EGf::kGodscurse))) {
-		total_percent = MUD::Skills()[skill_id].cap;
+		total_percent = MUD::Skills(skill_id).cap;
 	} else if (GET_GOD_FLAG(ch, EGf::kGodscurse)) {
 		total_percent = 0;
 	}
@@ -1764,7 +1764,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 	ch->send_to_TC(false, true, true,
 			"&CTarget: %s, skill: %s, base_percent: %d, bonus: %d, victim_save: %d, victim_modi: %d, total_percent: %d, удача: %s&n\r\n",
 			vict ? GET_NAME(vict) : "NULL",
-			MUD::Skills()[skill_id].GetName(),
+			MUD::Skills(skill_id).GetName(),
 			base_percent,
 			bonus,
 			victim_sav,
@@ -1810,8 +1810,8 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 		&& (AFF_FLAGGED(ch, EAffect::kNoobRegen))) ? 50 : GET_REAL_INT(ch);
 
 	long div = int_app[INT_PLAYER].improve;
-	if ((ch)->get_class() >= ECharClass::kFirst && (ch)->get_class() <= ECharClass::kLast) {
-		div += MUD::Classes()[(ch)->get_class()].skills[skill].GetImprove()/100;
+	if ((ch)->GetClass() >= ECharClass::kFirst && (ch)->GetClass() <= ECharClass::kLast) {
+		div += MUD::Classes((ch)->GetClass()).skills[skill].GetImprove()/100;
 	}
 
 	int prob = success ? 20000 : 15000;
@@ -1824,10 +1824,10 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 		|| (!victim && skill_is <= GET_REAL_INT(ch))) {
 		if (success) {
 			sprintf(buf, "%sВы повысили уровень умения \"%s\".%s\r\n",
-					CCICYN(ch, C_NRM), MUD::Skills()[skill].GetName(), CCNRM(ch, C_NRM));
+					CCICYN(ch, C_NRM), MUD::Skills(skill).GetName(), CCNRM(ch, C_NRM));
 		} else {
 			sprintf(buf, "%sПоняв свои ошибки, вы повысили уровень умения \"%s\".%s\r\n",
-					CCICYN(ch, C_NRM), MUD::Skills()[skill].GetName(), CCNRM(ch, C_NRM));
+					CCICYN(ch, C_NRM), MUD::Skills(skill).GetName(), CCNRM(ch, C_NRM));
 		}
 		SendMsgToChar(buf, ch);
 		ch->set_morphed_skill(skill, (trained_skill + number(1, 2)));
@@ -1854,9 +1854,9 @@ void TrainSkill(CharData *ch, const ESkill skill, bool success, CharData *vict) 
 			ImproveSkill(ch, skill, success, vict);
 		}
 	} else if (!IS_CHARMICE(ch)) {
-		if (ch->get_skill(skill) > 0
+		if (ch->GetSkill(skill) > 0
 			&& GET_REAL_INT(ch) <= number(0, 1000 - 20 * GET_REAL_WIS(ch))
-			&& ch->get_skill(skill) < MUD::Skills()[skill].difficulty) {
+			&& ch->GetSkill(skill) < MUD::Skills(skill).difficulty) {
 			ch->set_skill(skill, ch->get_trained_skill(skill) + 1);
 		}
 	}
@@ -1871,9 +1871,9 @@ int CalculateSkillAwakeModifier(CharData *killer, CharData *victim) {
 	if (!killer || !victim) {
 		log("SYSERROR: zero character in CalculateSkillAwakeModifier.");
 	} else if (killer->IsNpc() || victim->IsNpc()) {
-		result = victim->get_skill(ESkill::kAwake);
+		result = victim->GetSkill(ESkill::kAwake);
 	} else {
-		result = victim->get_skill(ESkill::kAwake) / 2;
+		result = victim->GetSkill(ESkill::kAwake) / 2;
 	}
 	return result;
 }
@@ -1881,8 +1881,8 @@ int CalculateSkillAwakeModifier(CharData *killer, CharData *victim) {
 //Определим мин уровень для изучения скилла из книги
 //req_lvl - требуемый уровень из книги
 int GetSkillMinLevel(CharData *ch, ESkill skill, int req_lvl) {
-	int min_lvl = std::max(req_lvl, MUD::Classes()[ch->get_class()].skills[skill].GetMinLevel())
-		- std::max(0, GET_REAL_REMORT(ch) / MUD::Classes()[ch->get_class()].GetSkillLvlDecrement());
+	int min_lvl = std::max(req_lvl, MUD::Classes(ch->GetClass()).skills[skill].GetMinLevel())
+		- std::max(0, GET_REAL_REMORT(ch) / MUD::Classes(ch->GetClass()).GetSkillLvlDecrement());
 	return std::max(1, min_lvl);
 };
 
@@ -1891,14 +1891,14 @@ int GetSkillMinLevel(CharData *ch, ESkill skill, int req_lvl) {
  * \TODO нужно перенести в класс "инфа о классе персонажа" (как и требования по классу, собственно)
  */
 int GetSkillMinLevel(CharData *ch, ESkill skill) {
-	int min_lvl = MUD::Classes()[ch->get_class()].skills[skill].GetMinLevel() -
-		std::max(0, GET_REAL_REMORT(ch)/MUD::Classes()[ch->get_class()].GetSkillLvlDecrement());
+	int min_lvl = MUD::Classes(ch->GetClass()).skills[skill].GetMinLevel() -
+		std::max(0, GET_REAL_REMORT(ch)/MUD::Classes(ch->GetClass()).GetSkillLvlDecrement());
 	return MAX(1, min_lvl);
 };
 
 bool IsAbleToGetSkill(CharData *ch, ESkill skill, int req_lvl) {
-	if (GET_REAL_REMORT(ch) < MUD::Classes()[ch->get_class()].skills[skill].GetMinRemort() ||
-		MUD::Classes()[ch->get_class()].skills[skill].IsUnavailable()) {
+	if (GET_REAL_REMORT(ch) < MUD::Classes(ch->GetClass()).skills[skill].GetMinRemort() ||
+		MUD::Classes(ch->GetClass()).skills[skill].IsUnavailable()) {
 		return false;
 	}
 	if (GetRealLevel(ch) < GetSkillMinLevel(ch, skill, req_lvl)) {
@@ -1908,8 +1908,8 @@ bool IsAbleToGetSkill(CharData *ch, ESkill skill, int req_lvl) {
 }
 
 bool IsAbleToGetSkill(CharData *ch, ESkill skill) {
-	if (GET_REAL_REMORT(ch) < MUD::Classes()[ch->get_class()].skills[skill].GetMinRemort() ||
-		MUD::Classes()[ch->get_class()].skills[skill].IsUnavailable()) {
+	if (GET_REAL_REMORT(ch) < MUD::Classes(ch->GetClass()).skills[skill].GetMinRemort() ||
+		MUD::Classes(ch->GetClass()).skills[skill].IsUnavailable()) {
 		return false;
 	}
 	if (GetRealLevel(ch) < GetSkillMinLevel(ch, skill)) {
@@ -1928,11 +1928,11 @@ int CalcSkillWisdomCap(const CharData *ch) {
 }
 
 int CalcSkillHardCap(const CharData *ch, const ESkill skill) {
-	return std::min(CalcSkillRemortCap(ch), MUD::Skills()[skill].cap);
+	return std::min(CalcSkillRemortCap(ch), MUD::Skills(skill).cap);
 }
 
 int CalcSkillMinCap(const CharData *ch, const ESkill skill) {
-	return std::min(CalcSkillWisdomCap(ch), MUD::Skills()[skill].cap);
+	return std::min(CalcSkillWisdomCap(ch), MUD::Skills(skill).cap);
 }
 
 const ESkill &operator++(ESkill &s) {

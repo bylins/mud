@@ -52,7 +52,7 @@ void go_iron_wind(CharData *ch, CharData *victim) {
 }
 
 void do_iron_wind(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsNpc() || !ch->get_skill(ESkill::kIronwind)) {
+	if (ch->IsNpc() || !ch->GetSkill(ESkill::kIronwind)) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	};
@@ -64,7 +64,7 @@ void do_iron_wind(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Невозможно! Вы слишкм заняты боем!\r\n", ch);
 		return;
 	};
-	int moves = GET_MAX_MOVE(ch) / (2 + MAX(15, ch->get_skill(ESkill::kIronwind)) / 15);
+	int moves = GET_MAX_MOVE(ch) / (2 + MAX(15, ch->GetSkill(ESkill::kIronwind)) / 15);
 	if (GET_MAX_MOVE(ch) < moves * 2) {
 		SendMsgToChar("Вы слишком устали...\r\n", ch);
 		return;

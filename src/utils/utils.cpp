@@ -2013,14 +2013,14 @@ void sanity_check(void) {
 int GetRealLevel(const CharData *ch) {
 
 	if (ch->IsNpc()) {
-		return std::clamp(ch->get_level() + ch->get_level_add(), 1, kMaxMobLevel);
+		return std::clamp(ch->GetLevel() + ch->get_level_add(), 1, kMaxMobLevel);
 	}
 
 	if (IS_IMMORTAL(ch)) {
-		return ch->get_level();
+		return ch->GetLevel();
 	}
 
-	return std::clamp(ch->get_level() + ch->get_level_add(), 0, kLvlImmortal - 1);
+	return std::clamp(ch->GetLevel() + ch->get_level_add(), 0, kLvlImmortal - 1);
 }
 
 int GetRealLevel(const std::shared_ptr<CharData> &ch) {

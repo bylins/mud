@@ -450,17 +450,17 @@ void affect_total(CharData *ch) {
 	}
 	if (domination) {
 		ch->set_remort_add(20 - ch->get_remort());
-		ch->set_level_add(30 - ch->get_level());
+		ch->set_level_add(30 - ch->GetLevel());
 		ch->set_str_add(ch->get_remort_add());
 		ch->set_dex_add(ch->get_remort_add());
 		ch->set_con_add(ch->get_remort_add()); 
 		ch->set_int_add(ch->get_remort_add());
 		ch->set_wis_add(ch->get_remort_add());
 		ch->set_cha_add(ch->get_remort_add());
-		double add_hp_per_level = MUD::Classes()[ch->get_class()].applies.base_con
-				+ (VPOSI_MOB(ch, EBaseStat::kCon, ch->get_con()) - MUD::Classes()[ch->get_class()].applies.base_con)
-				* MUD::Classes()[ch->get_class()].applies.koef_con / 100.0 + 3;
-	 	GET_HIT_ADD(ch) = static_cast<int>(add_hp_per_level * (30 - ch->get_level()));
+		double add_hp_per_level = MUD::Classes(ch->GetClass()).applies.base_con
+				+ (VPOSI_MOB(ch, EBaseStat::kCon, ch->get_con()) - MUD::Classes(ch->GetClass()).applies.base_con)
+				* MUD::Classes(ch->GetClass()).applies.koef_con / 100.0 + 3;
+	 	GET_HIT_ADD(ch) = static_cast<int>(add_hp_per_level * (30 - ch->GetLevel()));
 //		SendMsgToChar(ch, "add per level %f hitadd %d  level %d\r\n", add_hp_per_level, GET_HIT_ADD(ch), ch->get_level());
 	}
 
@@ -545,8 +545,8 @@ void affect_total(CharData *ch) {
 
 	// move race and class modifiers
 	if (!ch->IsNpc()) {
-		if (ch->get_class() >= ECharClass::kFirst && ch->get_class() <= ECharClass::kLast) {
-			for (const auto aff : MUD::Classes()[ch->get_class()].inborn_affects) {
+		if (ch->GetClass() >= ECharClass::kFirst && ch->GetClass() <= ECharClass::kLast) {
+			for (const auto aff : MUD::Classes(ch->GetClass()).inborn_affects) {
 				affect_modify(ch, EApply::kNone, aff.mod, aff.affect, aff.add);
 			}
 		}
@@ -556,7 +556,7 @@ void affect_total(CharData *ch) {
 		if (wdex != 0) {
 			ch->set_dex_add(ch->get_dex_add() - wdex);
 		}
-		GET_DR_ADD(ch) += GetExtraDamroll(ch->get_class(), GetRealLevel(ch));
+		GET_DR_ADD(ch) += GetExtraDamroll(ch->GetClass(), GetRealLevel(ch));
 		if (!AFF_FLAGGED(ch, EAffect::kNoobRegen)) {
 			GET_HITREG(ch) += (GetRealLevel(ch) + 4) / 5 * 10;
 		}

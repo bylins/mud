@@ -12,7 +12,7 @@ float get_damage_per_round(CharData *victim) {
 		+ victim->mob_specials.damnodice * (victim->mob_specials.damsizedice + 1) / 2.0
 		+ (AFF_FLAGGED(victim, EAffect::kCloudOfArrows) ? 14 : 0);
 	int num_attacks = 1 + victim->mob_specials.extra_attack
-		+ (victim->get_skill(ESkill::kAddshot) ? 2 : 0);
+		+ (victim->GetSkill(ESkill::kAddshot) ? 2 : 0);
 
 	float dam_per_round = dam_per_attack * num_attacks;
 
@@ -50,7 +50,7 @@ long calc_hire_price(CharData *ch, CharData *victim) {
 	price += m_str + m_int + m_wis + m_dex + m_con + m_cha;
 
 	float m_hit = victim->get_max_hit() * 2;
-	float m_lvl = victim->get_level() * 50;
+	float m_lvl = victim->GetLevel() * 50;
 	float m_ac = GET_AC(victim) * (-5);
 	float m_hr = GET_HR(victim) * 50;
 	float m_armor = GET_ARMOUR(victim) * 25;
@@ -129,9 +129,9 @@ int GetReformedCharmiceHp(CharData *ch, CharData *victim, ESpell spell_id) {
 
 	if (spell_id == ESpell::kResurrection || spell_id == ESpell::kAnimateDead) {
 		eff_cha = CalcEffectiveWis(ch, spell_id);
-		max_cha = class_stats_limit[to_underlying(ch->get_class())][3];
+		max_cha = class_stats_limit[to_underlying(ch->GetClass())][3];
 	} else {
-		max_cha = class_stats_limit[to_underlying(ch->get_class())][5];
+		max_cha = class_stats_limit[to_underlying(ch->GetClass())][5];
 		eff_cha = get_effective_cha(ch);
 	}
 

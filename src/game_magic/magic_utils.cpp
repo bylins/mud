@@ -359,7 +359,7 @@ int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict
 	}
 
 	if (SpellUsage::is_active) {
-		SpellUsage::AddSpellStat(caster->get_class(), spell_id);
+		SpellUsage::AddSpellStat(caster->GetClass(), spell_id);
 	}
 
 	if (IS_SET(spell_info[spell_id].routines, kMagAreas) || IS_SET(spell_info[spell_id].routines, kMagMasses)) {
@@ -701,7 +701,7 @@ int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell
 
 	const ESkill skill_number = GetMagicSkillId(spell_id);
 	if (skill_number != ESkill::kUndefined) {
-		prob += ch->get_skill(skill_number) / 20;
+		prob += ch->GetSkill(skill_number) / 20;
 	}
 
 	return (prob > number(0, 100));

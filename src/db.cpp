@@ -2004,7 +2004,7 @@ void set_zone_mob_level() {
 		for (int nr = 0; nr <= top_of_mobt; ++nr) {
 			if (mob_index[nr].vnum >= zone_table[i].vnum * 100
 				&& mob_index[nr].vnum <= zone_table[i].vnum * 100 + 99) {
-				level += mob_proto[nr].get_level();
+				level += mob_proto[nr].GetLevel();
 				++count;
 			}
 		}
@@ -3193,14 +3193,14 @@ void set_test_data(CharData *mob) {
 			// log("test1: %s - %d -> %d", mob->get_name(), mob->get_level(), 50);
 			mob->set_level(50);
 		} else {
-			if (mob->get_level() == 0) {
+			if (mob->GetLevel() == 0) {
 				for (int i = 0; i < 50; ++i) {
 					if (test_levels[i] >= GET_EXP(mob)) {
 						// log("test2: %s - %d -> %d", mob->get_name(), mob->get_level(), i + 1);
 						mob->set_level(i + 1);
 
 						// -10..-86
-						int min_save = -(10 + 4 * (mob->get_level() - 31));
+						int min_save = -(10 + 4 * (mob->GetLevel() - 31));
 						min_save = calc_boss_value(mob, min_save);
 
 						for (auto s = ESaving::kFirst; s <= ESaving::kLast; ++s) {
@@ -3209,7 +3209,7 @@ void set_test_data(CharData *mob) {
 							}
 						}
 						// 20..77
-						int min_cast = 20 + 3 * (mob->get_level() - 31);
+						int min_cast = 20 + 3 * (mob->GetLevel() - 31);
 						min_cast = calc_boss_value(mob, min_cast);
 
 						if (GET_CAST_SUCCESS(mob) < min_cast) {
@@ -3217,7 +3217,7 @@ void set_test_data(CharData *mob) {
 							GET_CAST_SUCCESS(mob) = min_cast;
 						}
 
-						int min_absorbe = calc_boss_value(mob, mob->get_level());
+						int min_absorbe = calc_boss_value(mob, mob->GetLevel());
 						if (GET_ABSORBE(mob) < min_absorbe) {
 							GET_ABSORBE(mob) = min_absorbe;
 						}
@@ -3358,7 +3358,7 @@ int vnum_flag(char *searchname, CharData *ch) {
 	f = false;
 	ESkill skill_id;
 	for (skill_id = ESkill::kFirst; skill_id <= ESkill::kLast; ++skill_id) {
-		if (utils::IsAbbrev(searchname, MUD::Skills()[skill_id].GetName())) {
+		if (utils::IsAbbrev(searchname, MUD::Skills(skill_id).GetName())) {
 			f = true;
 			break;
 		}
@@ -3371,7 +3371,7 @@ int vnum_flag(char *searchname, CharData *ch) {
 					snprintf(buf, kMaxStringLength, "%3d. [%5d] %s : %s,  значение: %d\r\n",
 							 ++found, i->get_vnum(),
 							 i->get_short_description().c_str(),
-							 MUD::Skills()[skill_id].GetName(), it->second);
+							 MUD::Skills(skill_id).GetName(), it->second);
 					out += buf;
 				}
 			}
@@ -4274,7 +4274,7 @@ void ZoneReset::reset_zone_essential() {
 							return;
 						}
 						if (!mob_proto[mob->get_rnum()].get_role_bits().any()) {
-							int rndlev = mob->get_level();
+							int rndlev = mob->GetLevel();
 							rndlev += number(-2, +2);
 							mob->set_level(rndlev);
 						}
@@ -5327,7 +5327,7 @@ void entrycount(char *name, const bool find_id /*= true*/) {
 				element.level = GetRealLevel(short_ch);
 				element.remorts = short_ch->get_remort();
 				element.timer = nullptr;
-				element.plr_class = short_ch->get_class();
+				element.plr_class = short_ch->GetClass();
 				if (PLR_FLAGS(short_ch).get(EPlrFlag::kDeleted)) {
 					element.last_logon = -1;
 					element.activity = -1;

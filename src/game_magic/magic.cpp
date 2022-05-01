@@ -85,7 +85,7 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply
 	}
 
 	// NPCs use warrior tables according to some book
-	auto class_sav = victim->get_class();
+	auto class_sav = victim->GetClass();
 	if (victim->IsNpc()) {
 		class_sav = ECharClass::kMob;    // неизвестный класс моба
 	} else {
@@ -131,8 +131,8 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply
 	// Учет осторожного стиля
 	if (PRF_FLAGGED(victim, EPrf::kAwake)) {
 		if (IsAbleToUseFeat(victim, EFeat::kImpregnable)) {
-			save -= std::max(0, victim->get_skill(ESkill::kAwake) - 80) / 2;
-			temp_awake_mod = std::max(0, victim->get_skill(ESkill::kAwake) - 80) / 2;
+			save -= std::max(0, victim->GetSkill(ESkill::kAwake) - 80) / 2;
+			temp_awake_mod = std::max(0, victim->GetSkill(ESkill::kAwake) - 80) / 2;
 		}
 		temp_awake_mod += CalculateSkillAwakeModifier(killer, victim);
 		save -= CalculateSkillAwakeModifier(killer, victim);
@@ -283,12 +283,12 @@ int CalcMagicSkillDam(CharData *ch, CharData *victim, ESpell spell_id, int dam) 
 	auto skill_id = GetMagicSkillId(spell_id);
 	if (MUD::Skills().IsValid(skill_id)) {
 		if (ch->IsNpc()) {
-			dam += (int) dam * ch->get_skill(skill_id) / 300.0;
+			dam += (int) dam * ch->GetSkill(skill_id) / 300.0;
 			victim->send_to_TC(false, true, true,  "&CВраг по вам: %s. МагДамага магии с умением  и мудростью %d&n\r\n",
 					GET_NAME(ch), dam);
 			return (dam);
 		}
-		float tmp = (1 + std::min(CalcSkillMinCap(ch, skill_id), ch->get_skill(skill_id)) / 300.0);
+		float tmp = (1 + std::min(CalcSkillMinCap(ch, skill_id), ch->GetSkill(skill_id)) / 300.0);
 		dam = (int) dam * tmp;
 //	SendMsgToChar(ch, "&CМагДамага магии со скилом %d, скилл %d, бонус %f&n\r\n", dam, ch->get_skill(skill_id), tmp);
 	}
@@ -356,10 +356,10 @@ int mag_damage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 		// Блочим маг дамагу от директ спелов для Витязей : шанс (скил/20 + вес.щита/2) ~ 30% при 200 скила и 40вес щита
 		if (!IS_SET(spell_info[spell_id].routines, kMagWarcry) && !IS_SET(spell_info[spell_id].routines, kMagMasses)
 			&& !IS_SET(spell_info[spell_id].routines, kMagAreas)
-			&& (victim->get_skill(ESkill::kShieldBlock) > 100) && GET_EQ(victim, kShield)
+			&& (victim->GetSkill(ESkill::kShieldBlock) > 100) && GET_EQ(victim, kShield)
 			&& IsAbleToUseFeat(victim, EFeat::kMagicalShield)
 			&& (number(1, 100)
-				< ((victim->get_skill(ESkill::kShieldBlock)) / 20 + GET_OBJ_WEIGHT(GET_EQ(victim, kShield)) / 2))) {
+				< ((victim->GetSkill(ESkill::kShieldBlock)) / 20 + GET_OBJ_WEIGHT(GET_EQ(victim, kShield)) / 2))) {
 			act("Ловким движением $N0 отразил щитом вашу магию.", false, ch, nullptr, victim, kToChar);
 			act("Ловким движением $N0 отразил щитом магию $n1.", false, ch, nullptr, victim, kToNotVict);
 			act("Вы отразили своим щитом магию $n1.", false, ch, nullptr, victim, kToVict);
@@ -388,7 +388,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 
 	// вводим переменную-модификатор владения школы магии	
 	const int
-		ms_mod = CalcModCoef(spell_id, ch->get_skill(GetMagicSkillId(spell_id))); // к кубикам от % владения магии
+		ms_mod = CalcModCoef(spell_id, ch->GetSkill(GetMagicSkillId(spell_id))); // к кубикам от % владения магии
 
 //расчет на 30 морт 30 левел 90 мудры
 
@@ -1150,9 +1150,9 @@ int CastMagicAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, 
 	//  блочим директ аффекты вредных спелов для Витязей  шанс = (скил/20 + вес.щита/2)  ()
 	if (ch != victim && spell_info[spell_id].violent && !IS_SET(spell_info[spell_id].routines, kMagWarcry)
 		&& !IS_SET(spell_info[spell_id].routines, kMagMasses) && !IS_SET(spell_info[spell_id].routines, kMagAreas)
-		&& (victim->get_skill(ESkill::kShieldBlock) > 100) && GET_EQ(victim, EEquipPos::kShield)
+		&& (victim->GetSkill(ESkill::kShieldBlock) > 100) && GET_EQ(victim, EEquipPos::kShield)
 		&& IsAbleToUseFeat(victim, EFeat::kMagicalShield)
-		&& (number(1, 100) < ((victim->get_skill(ESkill::kShieldBlock)) / 20
+		&& (number(1, 100) < ((victim->GetSkill(ESkill::kShieldBlock)) / 20
 			+ GET_OBJ_WEIGHT(GET_EQ(victim, EEquipPos::kShield)) / 2))) {
 		act("Ваши чары повисли на щите $N1, и затем развеялись.", false, ch, nullptr, victim, kToChar);
 		act("Щит $N1 поглотил злые чары $n1.", false, ch, nullptr, victim, kToNotVict);
@@ -1191,8 +1191,8 @@ int CastMagicAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, 
 		modi = modi - 50;
 	}
 
-	const auto koef_duration = CalcDurationCoef(spell_id, ch->get_skill(GetMagicSkillId(spell_id)));
-	const auto koef_modifier = CalcModCoef(spell_id, ch->get_skill(GetMagicSkillId(spell_id)));
+	const auto koef_duration = CalcDurationCoef(spell_id, ch->GetSkill(GetMagicSkillId(spell_id)));
+	const auto koef_modifier = CalcModCoef(spell_id, ch->GetSkill(GetMagicSkillId(spell_id)));
 
 	switch (spell_id) {
 		case ESpell::kChillTouch: savetype = ESaving::kStability;
@@ -2657,24 +2657,24 @@ int CastMagicAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, 
 
 		case ESpell::kWarcryOfLuck: {
 			af[0].location = EApply::kMorale;
-			af[0].modifier = MAX(1, ch->get_skill(ESkill::kWarcry) / 20.0);
-			af[0].duration = CalcDuration(victim, 2, ch->get_skill(ESkill::kWarcry), 20, 10, 0) * koef_duration;
+			af[0].modifier = MAX(1, ch->GetSkill(ESkill::kWarcry) / 20.0);
+			af[0].duration = CalcDuration(victim, 2, ch->GetSkill(ESkill::kWarcry), 20, 10, 0) * koef_duration;
 			to_room = nullptr;
 			break;
 		}
 
 		case ESpell::kWarcryOfExperience: {
 			af[0].location = EApply::kExpPercent;
-			af[0].modifier = MAX(1, ch->get_skill(ESkill::kWarcry) / 20.0);
-			af[0].duration = CalcDuration(victim, 2, ch->get_skill(ESkill::kWarcry), 20, 10, 0) * koef_duration;
+			af[0].modifier = MAX(1, ch->GetSkill(ESkill::kWarcry) / 20.0);
+			af[0].duration = CalcDuration(victim, 2, ch->GetSkill(ESkill::kWarcry), 20, 10, 0) * koef_duration;
 			to_room = nullptr;
 			break;
 		}
 
 		case ESpell::kWarcryOfPhysdamage: {
 			af[0].location = EApply::kPhysicDamagePercent;
-			af[0].modifier = MAX(1, ch->get_skill(ESkill::kWarcry) / 20.0);
-			af[0].duration = CalcDuration(victim, 2, ch->get_skill(ESkill::kWarcry), 20, 10, 0) * koef_duration;
+			af[0].modifier = MAX(1, ch->GetSkill(ESkill::kWarcry) / 20.0);
+			af[0].duration = CalcDuration(victim, 2, ch->GetSkill(ESkill::kWarcry), 20, 10, 0) * koef_duration;
 			to_room = nullptr;
 			break;
 		}
@@ -2682,24 +2682,24 @@ int CastMagicAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, 
 		case ESpell::kWarcryOfBattle: {
 			af[0].location = EApply::kAc;
 			af[0].modifier = -(10 + MIN(20, 2 * GET_REAL_REMORT(ch)));
-			af[0].duration = CalcDuration(victim, 2, ch->get_skill(ESkill::kWarcry), 20, 10, 0) * koef_duration;
+			af[0].duration = CalcDuration(victim, 2, ch->GetSkill(ESkill::kWarcry), 20, 10, 0) * koef_duration;
 			to_room = nullptr;
 			break;
 		}
 
 		case ESpell::kWarcryOfDefence: {
 			af[0].location = EApply::kSavingCritical;
-			af[0].modifier -= ch->get_skill(ESkill::kWarcry) / 10.0;
-			af[0].duration = CalcDuration(victim, 2, ch->get_skill(ESkill::kWarcry), 20, 10, 0) * koef_duration;
+			af[0].modifier -= ch->GetSkill(ESkill::kWarcry) / 10.0;
+			af[0].duration = CalcDuration(victim, 2, ch->GetSkill(ESkill::kWarcry), 20, 10, 0) * koef_duration;
 			af[1].location = EApply::kSavingReflex;
-			af[1].modifier -= ch->get_skill(ESkill::kWarcry) / 10;
-			af[1].duration = CalcDuration(victim, 2, ch->get_skill(ESkill::kWarcry), 20, 10, 0) * koef_duration;
+			af[1].modifier -= ch->GetSkill(ESkill::kWarcry) / 10;
+			af[1].duration = CalcDuration(victim, 2, ch->GetSkill(ESkill::kWarcry), 20, 10, 0) * koef_duration;
 			af[2].location = EApply::kSavingStability;
-			af[2].modifier -= ch->get_skill(ESkill::kWarcry) / 10;
-			af[2].duration = CalcDuration(victim, 2, ch->get_skill(ESkill::kWarcry), 20, 10, 0) * koef_duration;
+			af[2].modifier -= ch->GetSkill(ESkill::kWarcry) / 10;
+			af[2].duration = CalcDuration(victim, 2, ch->GetSkill(ESkill::kWarcry), 20, 10, 0) * koef_duration;
 			af[3].location = EApply::kSavingWill;
-			af[3].modifier -= ch->get_skill(ESkill::kWarcry) / 10;
-			af[3].duration = CalcDuration(victim, 2, ch->get_skill(ESkill::kWarcry), 20, 10, 0) * koef_duration;
+			af[3].modifier -= ch->GetSkill(ESkill::kWarcry) / 10;
+			af[3].duration = CalcDuration(victim, 2, ch->GetSkill(ESkill::kWarcry), 20, 10, 0) * koef_duration;
 			//to_vict = nullptr;
 			to_room = nullptr;
 			break;
@@ -2707,8 +2707,8 @@ int CastMagicAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, 
 
 		case ESpell::kWarcryOfPower: {
 			af[0].location = EApply::kHp;
-			af[0].modifier = MIN(200, (4 * ch->get_con() + ch->get_skill(ESkill::kWarcry)) / 2);
-			af[0].duration = CalcDuration(victim, 2, ch->get_skill(ESkill::kWarcry), 20, 10, 0) * koef_duration;
+			af[0].modifier = MIN(200, (4 * ch->get_con() + ch->GetSkill(ESkill::kWarcry)) / 2);
+			af[0].duration = CalcDuration(victim, 2, ch->GetSkill(ESkill::kWarcry), 20, 10, 0) * koef_duration;
 			to_vict = nullptr;
 			to_room = nullptr;
 			break;
@@ -2716,8 +2716,8 @@ int CastMagicAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, 
 
 		case ESpell::kWarcryOfBless: {
 			af[0].location = EApply::kSavingStability;
-			af[0].modifier = -(4 * ch->get_con() + ch->get_skill(ESkill::kWarcry)) / 24;
-			af[0].duration = CalcDuration(victim, 2, ch->get_skill(ESkill::kWarcry), 20, 10, 0) * koef_duration;
+			af[0].modifier = -(4 * ch->get_con() + ch->GetSkill(ESkill::kWarcry)) / 24;
+			af[0].duration = CalcDuration(victim, 2, ch->GetSkill(ESkill::kWarcry), 20, 10, 0) * koef_duration;
 			af[1].location = EApply::kSavingWill;
 			af[1].modifier = af[0].modifier;
 			af[1].duration = af[0].duration;
@@ -2728,10 +2728,10 @@ int CastMagicAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, 
 
 		case ESpell::kWarcryOfCourage: {
 			af[0].location = EApply::kHitroll;
-			af[0].modifier = (44 + ch->get_skill(ESkill::kWarcry)) / 45;
-			af[0].duration = CalcDuration(victim, 2, ch->get_skill(ESkill::kWarcry), 20, 10, 0) * koef_duration;
+			af[0].modifier = (44 + ch->GetSkill(ESkill::kWarcry)) / 45;
+			af[0].duration = CalcDuration(victim, 2, ch->GetSkill(ESkill::kWarcry), 20, 10, 0) * koef_duration;
 			af[1].location = EApply::kDamroll;
-			af[1].modifier = (29 + ch->get_skill(ESkill::kWarcry)) / 30;
+			af[1].modifier = (29 + ch->GetSkill(ESkill::kWarcry)) / 30;
 			af[1].duration = af[0].duration;
 			to_vict = nullptr;
 			to_room = nullptr;
@@ -3225,7 +3225,7 @@ int mag_summons(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool nee
 		GET_DEFAULT_POS(mob) = EPosition::kStand;
 		mob->set_sex(ESex::kMale);
 
-		mob->set_class(ch->get_class());
+		mob->set_class(ch->GetClass());
 		GET_WEIGHT(mob) = GET_WEIGHT(ch);
 		GET_HEIGHT(mob) = GET_HEIGHT(ch);
 		GET_SIZE(mob) = GET_SIZE(ch);
@@ -3281,7 +3281,7 @@ int mag_summons(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool nee
 	if (spell_id == ESpell::kSummonKeeper) {
 		// Svent TODO: не забыть перенести это в ability
 		mob->set_level(GetRealLevel(ch));
-		int rating = (ch->get_skill(ESkill::kLightMagic) + GET_REAL_CHA(ch)) / 2;
+		int rating = (ch->GetSkill(ESkill::kLightMagic) + GET_REAL_CHA(ch)) / 2;
 		GET_MAX_HIT(mob) = GET_HIT(mob) = 50 + RollDices(10, 10) + rating * 6;
 		mob->set_skill(ESkill::kPunch, 10 + rating * 1.5);
 		mob->set_skill(ESkill::kRescue, 50 + rating);
@@ -3347,15 +3347,15 @@ int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id, ESa
 
 	switch (spell_id) {
 		case ESpell::kCureLight:
-			hit = GET_REAL_MAX_HIT(victim) / 100 * GET_REAL_INT(ch) / 3 + ch->get_skill(ESkill::kLifeMagic) / 2;
+			hit = GET_REAL_MAX_HIT(victim) / 100 * GET_REAL_INT(ch) / 3 + ch->GetSkill(ESkill::kLifeMagic) / 2;
 			SendMsgToChar("Вы почувствовали себя немножко лучше.\r\n", victim);
 			break;
 		case ESpell::kCureSerious:
-			hit = GET_REAL_MAX_HIT(victim) / 100 * GET_REAL_INT(ch) / 2 + ch->get_skill(ESkill::kLifeMagic) / 2;
+			hit = GET_REAL_MAX_HIT(victim) / 100 * GET_REAL_INT(ch) / 2 + ch->GetSkill(ESkill::kLifeMagic) / 2;
 			SendMsgToChar("Вы почувствовали себя намного лучше.\r\n", victim);
 			break;
 		case ESpell::kCureCritic:
-			hit = int(GET_REAL_MAX_HIT(victim) / 100 * GET_REAL_INT(ch) / 1.5) + ch->get_skill(ESkill::kLifeMagic) / 2;
+			hit = int(GET_REAL_MAX_HIT(victim) / 100 * GET_REAL_INT(ch) / 1.5) + ch->GetSkill(ESkill::kLifeMagic) / 2;
 			SendMsgToChar("Вы почувствовали себя значительно лучше.\r\n", victim);
 			break;
 		case ESpell::kHeal:
@@ -3364,7 +3364,7 @@ int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id, ESa
 			break;
 		case ESpell::kPatronage: hit = (GetRealLevel(victim) + GET_REAL_REMORT(victim)) * 2;
 			break;
-		case ESpell::kWarcryOfPower: hit = std::min(200, (4 * ch->get_con() + ch->get_skill(ESkill::kWarcry)) / 2);
+		case ESpell::kWarcryOfPower: hit = std::min(200, (4 * ch->get_con() + ch->GetSkill(ESkill::kWarcry)) / 2);
 			SendMsgToChar("По вашему телу начала струиться живительная сила.\r\n", victim);
 			break;
 		case ESpell::kExtraHits: extraHealing = true;
@@ -3659,10 +3659,10 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id, 
 					|| GetObjByVnum(GlobalDrop::MAGIC2_ENCHANT_VNUM, reagobj)
 					|| GetObjByVnum(GlobalDrop::MAGIC3_ENCHANT_VNUM, reagobj))) {
 				// у нас имеется доп символ для зачарования
-				obj->set_enchant(ch->get_skill(ESkill::kLightMagic), reagobj);
+				obj->set_enchant(ch->GetSkill(ESkill::kLightMagic), reagobj);
 				ProcessMatComponents(ch, reagobj->get_rnum(), spell_id); //может неправильный вызов
 			} else {
-				obj->set_enchant(ch->get_skill(ESkill::kLightMagic));
+				obj->set_enchant(ch->GetSkill(ESkill::kLightMagic));
 			}
 			if (GET_RELIGION(ch) == kReligionMono) {
 				to_char = "$o вспыхнул$G на миг голубым светом и тут же потух$Q.";
@@ -4399,7 +4399,7 @@ int TrySendCastMessages(CharData *ch, CharData *victim, RoomData *room, ESpell s
 };
 
 int CalcAmountOfTargets(const CharData *ch, const int msg_index, const ESpell spell_id) {
-	auto amount = ch->get_skill(GetMagicSkillId(spell_id));
+	auto amount = ch->GetSkill(GetMagicSkillId(spell_id));
 	amount = RollDices(amount/mag_messages[msg_index].skillDivisor, mag_messages[msg_index].diceSize);
 	return mag_messages[msg_index].minTargetsAmount + std::min(amount, mag_messages[msg_index].maxTargetsAmount);
 }

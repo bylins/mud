@@ -32,7 +32,7 @@ void do_protect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (ch->IsNpc() || !ch->get_skill(ESkill::kProtect)) {
+	if (ch->IsNpc() || !ch->GetSkill(ESkill::kProtect)) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -132,7 +132,7 @@ CharData *TryToFindProtector(CharData *victim, CharData *ch) {
 			}
 
 			protect = true;
-			percent = number(1, MUD::Skills()[ESkill::kProtect].difficulty);
+			percent = number(1, MUD::Skills(ESkill::kProtect).difficulty);
 			prob = CalcCurrentSkill(vict, ESkill::kProtect, victim);
 			prob = prob * 8 / 10;
 			if (vict->HasCooldown(ESkill::kProtect)) {
@@ -143,7 +143,7 @@ CharData *TryToFindProtector(CharData *victim, CharData *ch) {
 			}
 			bool success = prob >= percent;
 			ImproveSkill(vict, ESkill::kProtect, success, ch);
-			SendSkillBalanceMsg(ch, MUD::Skills()[ESkill::kProtect].name, percent, prob, success);
+			SendSkillBalanceMsg(ch, MUD::Skills(ESkill::kProtect).name, percent, prob, success);
 
 			if ((vict->GetEnemy() != ch) && (ch != victim)) {
 				// агрим жертву после чего можно будет проверить возможно ли его здесь прикрыть(костыли конечно)

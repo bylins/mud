@@ -21,7 +21,7 @@ void go_touch(CharData *ch, CharData *vict) {
 }
 
 void do_touch(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsNpc() || !ch->get_skill(ESkill::kIntercept)) {
+	if (ch->IsNpc() || !ch->GetSkill(ESkill::kIntercept)) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -92,7 +92,7 @@ void go_deviate(CharData *ch) {
 }
 
 void do_deviate(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsNpc() || !ch->get_skill(ESkill::kDodge)) {
+	if (ch->IsNpc() || !ch->GetSkill(ESkill::kDodge)) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -148,7 +148,7 @@ void do_style(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	tp >>= 1;
-	if ((tp == 1 && !ch->get_skill(ESkill::kPunctual)) || (tp == 2 && !ch->get_skill(ESkill::kAwake))) {
+	if ((tp == 1 && !ch->GetSkill(ESkill::kPunctual)) || (tp == 2 && !ch->GetSkill(ESkill::kAwake))) {
 		SendMsgToChar("Вам неизвестен такой стиль боя.\r\n", ch);
 		return;
 	}

@@ -131,36 +131,36 @@ int extra_aggressive(CharData *ch, CharData *victim) {
 int attack_best(CharData *ch, CharData *victim) {
 	ObjData *wielded = GET_EQ(ch, EEquipPos::kWield);
 	if (victim) {
-		if (ch->get_skill(ESkill::kStrangle) && !IsTimedBySkill(ch, ESkill::kStrangle)) {
+		if (ch->GetSkill(ESkill::kStrangle) && !IsTimedBySkill(ch, ESkill::kStrangle)) {
 			go_strangle(ch, victim);
 			return (true);
 		}
-		if (ch->get_skill(ESkill::kBackstab) && !victim->GetEnemy()) {
+		if (ch->GetSkill(ESkill::kBackstab) && !victim->GetEnemy()) {
 			go_backstab(ch, victim);
 			return (true);
 		}
-		if (ch->get_skill(ESkill::kHammer)) {
+		if (ch->GetSkill(ESkill::kHammer)) {
 			go_mighthit(ch, victim);
 			return (true);
 		}
-		if (ch->get_skill(ESkill::kOverwhelm)) {
+		if (ch->GetSkill(ESkill::kOverwhelm)) {
 			go_stupor(ch, victim);
 			return (true);
 		}
-		if (ch->get_skill(ESkill::kBash)) {
+		if (ch->GetSkill(ESkill::kBash)) {
 			go_bash(ch, victim);
 			return (true);
 		}
-		if (ch->get_skill(ESkill::kThrow)
+		if (ch->GetSkill(ESkill::kThrow)
 			&& wielded
 			&& GET_OBJ_TYPE(wielded) == EObjType::kWeapon
 			&& wielded->has_flag(EObjFlag::kThrowing)) {
 			go_throw(ch, victim);
 		}
-		if (ch->get_skill(ESkill::kDisarm)) {
+		if (ch->GetSkill(ESkill::kDisarm)) {
 			go_disarm(ch, victim);
 		}
-		if (ch->get_skill(ESkill::kUndercut)) {
+		if (ch->GetSkill(ESkill::kUndercut)) {
 			go_chopoff(ch, victim);
 		}
 		if (!ch->GetEnemy()) {
@@ -706,10 +706,10 @@ int perform_mob_switch(CharData *ch) {
 	SetFighting(ch, best);
 	SetWait(ch, 2, false);
 
-	if (ch->get_skill(ESkill::kHammer)
+	if (ch->GetSkill(ESkill::kHammer)
 		&& check_mighthit_weapon(ch)) {
 		SET_AF_BATTLE(ch, kEafHammer);
-	} else if (ch->get_skill(ESkill::kOverwhelm)) {
+	} else if (ch->GetSkill(ESkill::kOverwhelm)) {
 		SET_AF_BATTLE(ch, ESkill::kOverwhelm);
 	}
 
@@ -1206,7 +1206,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 			door = npc_walk(ch.get());
 		}
 
-		if (MEMORY(ch) && door == kBfsError && GET_POS(ch) > EPosition::kFight && ch->get_skill(ESkill::kTrack))
+		if (MEMORY(ch) && door == kBfsError && GET_POS(ch) > EPosition::kFight && ch->GetSkill(ESkill::kTrack))
 			door = npc_track(ch.get());
 
 		if (door == kBfsAlreadyThere) {
@@ -1309,7 +1309,7 @@ void mobRemember(CharData *ch, CharData *victim) {
 
 	if (!IsTimedBySkill(victim, ESkill::kHideTrack)) {
 		timed.skill = ESkill::kHideTrack;
-		timed.time = ch->get_skill(ESkill::kTrack) ? 6 : 3;
+		timed.time = ch->GetSkill(ESkill::kTrack) ? 6 : 3;
 		ImposeTimedSkill(victim, &timed);
 	}
 }

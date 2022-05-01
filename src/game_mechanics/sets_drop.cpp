@@ -528,7 +528,7 @@ void filter_dupe_names() {
 				continue;
 			}
 			if (k->type == GROUP_MOB
-				&& mob_proto[k->rnum].get_level() < MIN_GROUP_MOB_LVL) {
+				&& mob_proto[k->rnum].GetLevel() < MIN_GROUP_MOB_LVL) {
 				continue;
 			}
 			// редко появляющиеся мобы, мобы без экспы
@@ -554,13 +554,13 @@ void filter_dupe_names() {
 			}
 
 			vnum = mob_index[k->rnum].vnum;
-			level = mob_proto[k->rnum].get_level();
+			level = mob_proto[k->rnum].GetLevel();
 			unique_mobs.insert(std::make_pair(vnum, level));
 
 			// проверка на левел моба
 			if (k->type == SOLO_MOB
-				&& (mob_proto[k->rnum].get_level() < MIN_SOLO_MOB_LVL
-					|| mob_proto[k->rnum].get_level() > MAX_SOLO_MOB_LVL)) {
+				&& (mob_proto[k->rnum].GetLevel() < MIN_SOLO_MOB_LVL
+					|| mob_proto[k->rnum].GetLevel() > MAX_SOLO_MOB_LVL)) {
 				continue;
 			}
 

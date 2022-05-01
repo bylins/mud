@@ -16,7 +16,7 @@
 // This is test command for different testings
 void do_godtest(CharData *ch, char */*argument*/, int /* cmd */, int /* subcmd */) {
 	std::ostringstream out;
-	MUD::Classes()[ECharClass::kPaladine].Print(ch, out);
+	MUD::Classes(ECharClass::kPaladine).Print(ch, out);
 	page_string(ch->desc, out.str());
 
 /*	std:: ostringstream out;

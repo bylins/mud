@@ -225,7 +225,7 @@ void update_leadership(CharData *ch, CharData *killer) {
 		if (!killer->IsNpc() // Убил загрупленный чар
 			&& AFF_FLAGGED(killer, EAffect::kGroup)
 			&& killer->has_master()
-			&& killer->get_master()->get_skill(ESkill::kLeadership) > 0
+			&& killer->get_master()->GetSkill(ESkill::kLeadership) > 0
 			&& IN_ROOM(killer) == IN_ROOM(killer->get_master())) {
 			ImproveSkill(killer->get_master(), ESkill::kLeadership, number(0, 1), ch);
 		} else if (killer->IsNpc() // Убил чармис загрупленного чара
@@ -233,7 +233,7 @@ void update_leadership(CharData *ch, CharData *killer) {
 			&& killer->has_master()
 			&& AFF_FLAGGED(killer->get_master(), EAffect::kGroup)) {
 			if (killer->get_master()->has_master() // Владелец чармиса НЕ лидер
-				&& killer->get_master()->get_master()->get_skill(ESkill::kLeadership) > 0
+				&& killer->get_master()->get_master()->GetSkill(ESkill::kLeadership) > 0
 				&& IN_ROOM(killer) == IN_ROOM(killer->get_master())
 				&& IN_ROOM(killer) == IN_ROOM(killer->get_master()->get_master())) {
 				ImproveSkill(killer->get_master()->get_master(), ESkill::kLeadership, number(0, 1), ch);

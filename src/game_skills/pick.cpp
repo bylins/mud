@@ -6,12 +6,12 @@
 PickProbabilityInformation get_pick_probability(CharData *ch, int lock_complexity) {
 	// для прокачки умения скилл должен быть в промежутке от -10 сложности замка, до сложности замка
 	const int allowed_difference = 10;
-	const bool skill_train_allowed = (lock_complexity > ch->get_skill(ESkill::kPickLock)) &&
-		(ch->get_skill(ESkill::kPickLock) + allowed_difference >= lock_complexity);
+	const bool skill_train_allowed = (lock_complexity > ch->GetSkill(ESkill::kPickLock)) &&
+		(ch->GetSkill(ESkill::kPickLock) + allowed_difference >= lock_complexity);
 
 	// используем сложность скила для дополнительного ограничения шанса прокачки
 	const int skill = CalcCurrentSkill(ch, ESkill::kPickLock, nullptr);
-	const int prob_diff = number(1, MUD::Skills()[ESkill::kPickLock].difficulty);
+	const int prob_diff = number(1, MUD::Skills(ESkill::kPickLock).difficulty);
 
 	// высчитываем дополнительный шанс ограничения прокачки (от сложности скила)
 	const int min_chance = 50;
@@ -19,7 +19,7 @@ PickProbabilityInformation get_pick_probability(CharData *ch, int lock_complexit
 	const bool complexity_restriction = number(1, 100) > restriction_percent ? true : false;
 
 	// разница между скилом и сложностью замка
-	const int skill_difference = static_cast<int>(ch->get_skill(ESkill::kPickLock)) - static_cast<int>(lock_complexity);
+	const int skill_difference = static_cast<int>(ch->GetSkill(ESkill::kPickLock)) - static_cast<int>(lock_complexity);
 
 	// считаем шанс взлома
 	int pick_probability_percent = 0;
