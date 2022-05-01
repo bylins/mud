@@ -1976,6 +1976,14 @@ bool Damage::dam_absorb(CharData *ch, CharData *victim) {
 			}
 		}
 	}
+	if (dmg_type == fight::kMagicDmg
+		&& dam > 0
+		&& GET_ABSORBE(victim) > 0
+		&& !flags[fight::kIgnoreAbsorbe]) {
+// маг урон - по 1% за каждые 2 абсорба, максимум 25% (цифры из mag_damage)
+		int absorb = MIN(GET_ABSORBE(victim) / 2, 25);
+		dam -= dam * absorb / 100;
+	}
 	return false;
 }
 
@@ -2852,7 +2860,8 @@ void HitData::init(CharData *ch, CharData *victim) {
 		weapon_pos = EEquipPos::kHold;
 		if (!wielded) { // удар второй рукой
 			weap_skill = ESkill::kLeftHit;
-			weap_skill_is = CalcCurrentSkill(ch, weap_skill, victim);
+// зачем вычисления и спам в лог если ниже переопределяется
+//			weap_skill_is = CalcCurrentSkill(ch, weap_skill, victim);
 			TrainSkill(ch, weap_skill, true, victim);
 		}
 	}

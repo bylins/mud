@@ -748,7 +748,7 @@ void do_wspellturntemp(RoomData *room, char *argument, int/* cmd*/, int/* subcmd
 	}
 
 	auto spelltime = atoi(amount);
-	if (spelltime < 0) {
+	if (spelltime <= 0) {
 		wld_log(room, "wspellturntemp: time is negative");
 		return;
 	}

@@ -585,8 +585,8 @@ int PrintProtectiveStatsToTable(CharData *ch, table_wrapper::Table &table, std::
 	table[++row][col] = "Защита";			table[row][col + 1] = std::to_string(ac);
 	table[++row][col] = "Поглощение";		table[row][col + 1] = std::to_string(GET_ABSORBE(ch));
 	table[++row][col] = "Сопротивления: ";	table[row][col + 1] = " ";
-	table[++row][col] = "Урону";			table[row][col + 1] = std::to_string(GET_MR(ch));
-	table[++row][col] = "Заклинаниям";		table[row][col + 1] = std::to_string(GET_PR(ch));
+	table[++row][col] = "Урону";			table[row][col + 1] = std::to_string(GET_PR(ch));
+	table[++row][col] = "Заклинаниям";		table[row][col + 1] = std::to_string(GET_MR(ch));
 	table[++row][col] = "Магии огня";		table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kFire), kMaxPlayerResist));
 	table[++row][col] = "Магии воды";		table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kWater), kMaxPlayerResist));
 	table[++row][col] = "Магии земли";		table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kEarth), kMaxPlayerResist));
