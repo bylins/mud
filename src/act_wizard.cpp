@@ -380,9 +380,9 @@ void do_arena_restore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			vict->set_cha(25);
 		}
 		update_pos(vict);
-		affect_from_char(vict, kSpellDrunked);
+		RemoveAffectFromChar(vict, ESpell::kDrunked);
 		GET_DRUNK_STATE(vict) = GET_COND(vict, DRUNK) = 0;
-		affect_from_char(vict, kSpellAbstinent);
+		RemoveAffectFromChar(vict, ESpell::kAbstinent);
 
 		//сброс таймеров скиллов и фитов
 		while (vict->timed)
@@ -868,7 +868,7 @@ void is_empty_ch(ZoneRnum zone_nr, CharData *ch) {
 	int rnum_start, rnum_stop;
 	bool found = false;
 
-	if (room_spells::IsZoneRoomAffected(zone_nr, kSpellRuneLabel)) {
+	if (room_spells::IsZoneRoomAffected(zone_nr, ESpell::kRuneLabel)) {
 		SendMsgToChar("В зоне имеется рунная метка.\r\n", ch);
 	}
 
@@ -2562,9 +2562,9 @@ void do_restore(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			vict->set_cha(25);
 		}
 		update_pos(vict);
-		affect_from_char(vict, kSpellDrunked);
+		RemoveAffectFromChar(vict, ESpell::kDrunked);
 		GET_DRUNK_STATE(vict) = GET_COND(vict, DRUNK) = 0;
-		affect_from_char(vict, kSpellAbstinent);
+		RemoveAffectFromChar(vict, ESpell::kAbstinent);
 
 		//сброс таймеров скиллов и фитов
 		while (vict->timed)
@@ -5193,7 +5193,7 @@ void SpellUsage::AddSpellStat(ECharClass char_class, ESpell spell_id) {
 	if (!is_active) {
 		return;
 	}
-	if (MUD::Classes().IsUnavailable(char_class) || spell_id > kSpellLast) {
+	if (MUD::Classes().IsUnavailable(char_class) || spell_id > ESpell::kLast) {
 		return;
 	}
 	++usage[char_class][spell_id];

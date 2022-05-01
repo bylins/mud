@@ -848,27 +848,27 @@ int CheckCharmices(CharData *ch, CharData *victim, ESpell spell_id) {
 		return (false);
 	}
 
-	if (spell_id == kSpellCharm && undead_in_group) {
+	if (spell_id == ESpell::kCharm && undead_in_group) {
 		SendMsgToChar("Ваша жертва боится ваших последователей.\r\n", ch);
 		return (false);
 	}
 
-	if (spell_id != kSpellCharm && living_in_group) {
+	if (spell_id != ESpell::kCharm && living_in_group) {
 		SendMsgToChar("Ваш последователь мешает вам произнести это заклинание.\r\n", ch);
 		return (false);
 	}
 
-	if (spell_id == kSpellClone && cha_summ >= MAX(1, (GetRealLevel(ch) + 4) / 5 - 2)) {
+	if (spell_id == ESpell::kClone && cha_summ >= MAX(1, (GetRealLevel(ch) + 4) / 5 - 2)) {
 		SendMsgToChar("Вы не сможете управлять столькими последователями.\r\n", ch);
 		return (false);
 	}
 
-	if (spell_id != kSpellClone && cha_summ >= (GetRealLevel(ch) + 9) / 10) {
+	if (spell_id != ESpell::kClone && cha_summ >= (GetRealLevel(ch) + 9) / 10) {
 		SendMsgToChar("Вы не сможете управлять столькими последователями.\r\n", ch);
 		return (false);
 	}
 
-	if (spell_id != kSpellClone &&
+	if (spell_id != ESpell::kClone &&
 		reformed_hp_summ + GetReformedCharmiceHp(ch, victim, spell_id) >= CalcCharmPoint(ch, spell_id)) {
 		SendMsgToChar("Вам не под силу управлять такой боевой мощью.\r\n", ch);
 		return (false);
@@ -919,7 +919,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 		&& CalcGeneralSaving(ch, victim, ESaving::kWill, (GET_REAL_CHA(ch) - 10) * 4 + GET_REAL_REMORT(ch) * 3)) //предлагаю завязать на каст
 		SendMsgToChar("Ваша магия потерпела неудачу.\r\n", ch);
 	else {
-		if (!CheckCharmices(ch, victim, kSpellCharm)) {
+		if (!CheckCharmices(ch, victim, ESpell::kCharm)) {
 			return;
 		}
 
@@ -937,10 +937,10 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 		if (MOB_FLAGGED(victim, EMobFlag::kNoGroup))
 			MOB_FLAGS(victim).unset(EMobFlag::kNoGroup);
 
-		affect_from_char(victim, kSpellCharm);
+		RemoveAffectFromChar(victim, ESpell::kCharm);
 		ch->add_follower(victim);
 		Affect<EApply> af;
-		af.type = kSpellCharm;
+		af.type = ESpell::kCharm;
 
 		if (GET_REAL_INT(victim) > GET_REAL_INT(ch)) {
 			af.duration = CalcDuration(victim, GET_REAL_CHA(ch), 0, 0, 0, 0);
@@ -963,7 +963,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 			// начинаем модификации victim
 			// создаем переменные модификаторов
 			int r_cha = GET_REAL_CHA(ch);
-			int perc = ch->get_skill(GetMagicSkillId(kSpellCharm));
+			int perc = ch->get_skill(GetMagicSkillId(ESpell::kCharm));
 			ch->send_to_TC(false, true, false, "Значение хари:  %d.\r\n", r_cha);
 			ch->send_to_TC(false, true, false, "Значение скила магии: %d.\r\n", perc);
 			
@@ -1546,20 +1546,22 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 
 		case EObjType::kBook:
 			switch (GET_OBJ_VAL(obj, 0)) {
-				case EBook::kSpell:
-					if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) <= kSpellLast) {
+				case EBook::kSpell: {
+					auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(obj, 1));
+					if (spell_id >= ESpell::kFirst && spell_id <= ESpell::kLast) {
 						drndice = GET_OBJ_VAL(obj, 1);
-						if (MIN_CAST_REM(spell_info[static_cast<ESpell>(GET_OBJ_VAL(obj, 1))], ch) > GET_REAL_REMORT(ch))
+						if (MIN_CAST_REM(spell_info[spell_id], ch) > GET_REAL_REMORT(ch)) {
 							drsdice = 34;
-						else
-							drsdice = CalcMinSpellLevel(ch, static_cast<ESpell>(GET_OBJ_VAL(obj, 1)), GET_OBJ_VAL(obj, 2));
-						sprintf(buf, "содержит заклинание        : \"%s\"\r\n", GetSpellName(static_cast<ESpell>(drndice)));
+						} else {
+							drsdice = CalcMinSpellLevel(ch, spell_id, GET_OBJ_VAL(obj, 2));
+						}
+						sprintf(buf, "содержит заклинание        : \"%s\"\r\n", GetSpellName(spell_id));
 						SendMsgToChar(buf, ch);
 						sprintf(buf, "уровень изучения (для вас) : %d\r\n", drsdice);
 						SendMsgToChar(buf, ch);
 					}
 					break;
-
+				}
 				case EBook::kSkill: {
 					auto skill_id = static_cast<ESkill>(GET_OBJ_VAL(obj, 1));
 					if (MUD::Skills().IsValid(skill_id)) {
@@ -2022,7 +2024,7 @@ void SpellEnergydrain(int/* level*/, CharData *ch, CharData *victim, ObjData* /*
 		modi = modi - 50;
 
 	if (ch == victim || !CalcGeneralSaving(ch, victim, ESaving::kWill, CALC_SUCCESS(modi, 33))) {
-		for (auto spell_id = ESpell::kSpellFirst ; spell_id <= ESpell::kSpellLast; ++spell_id) {
+		for (auto spell_id = ESpell::kFirst ; spell_id <= ESpell::kLast; ++spell_id) {
 			GET_SPELL_MEM(victim, spell_id) = 0;
 		}
 		victim->caster_level = 0;
@@ -2052,7 +2054,7 @@ void SpellSacrifice(int/* level*/, CharData *ch, CharData *victim, ObjData* /*ob
 		return;
 	}
 
-	dam = mag_damage(GetRealLevel(ch), ch, victim, kSpellSacrifice, ESaving::kStability);
+	dam = mag_damage(GetRealLevel(ch), ch, victim, ESpell::kSacrifice, ESaving::kStability);
 	// victim может быть спуржен
 
 	if (dam < 0)
@@ -2098,8 +2100,8 @@ void SpellHolystrike(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData*
 			}
 		}
 
-		CastMagicAffect(GetRealLevel(ch), ch, tch, kSpellHolystrike, ESaving::kStability);
-		mag_damage(GetRealLevel(ch), ch, tch, kSpellHolystrike, ESaving::kStability);
+		CastMagicAffect(GetRealLevel(ch), ch, tch, ESpell::kHolystrike, ESaving::kStability);
+		mag_damage(GetRealLevel(ch), ch, tch, ESpell::kHolystrike, ESaving::kStability);
 	}
 
 	act(msg2, false, ch, nullptr, nullptr, kToChar);
@@ -2170,9 +2172,9 @@ void SpellSummonAngel(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData
 	float base_armour = 0;
 	float additional_armour_for_charisma = 0.5; // 8 armour for 16 charisma, 25 armour for 50 charisma
 
-	clear_char_skills(mob);
+	ClearCharTalents(mob);
 	Affect<EApply> af;
-	af.type = kSpellCharm;
+	af.type = ESpell::kCharm;
 	af.duration = CalcDuration(mob, floorf(base_ttl + additional_ttl_for_charisma * eff_cha), 0, 0, 0, 0);
 	af.modifier = 0;
 	af.location = EApply::kNone;
@@ -2274,10 +2276,10 @@ void SpellSummonAngel(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData
 	mob->set_skill(ESkill::kAwake, floorf(base_awake + additional_awake_for_charisma * eff_cha));
 	mob->set_skill(ESkill::kMultiparry, floorf(base_multiparry + additional_multiparry_for_charisma * eff_cha));
 	int base_spell = 2;
-	SET_SPELL(mob, kSpellCureBlind, base_spell);
-	SET_SPELL(mob, kSpellRemoveHold, base_spell);
-	SET_SPELL(mob, kSpellRemovePoison, base_spell);
-	SET_SPELL(mob, kSpellHeal, floorf(base_heal + additional_heal_for_charisma * eff_cha));
+	SET_SPELL(mob, ESpell::kCureBlind, base_spell);
+	SET_SPELL(mob, ESpell::kRemoveHold, base_spell);
+	SET_SPELL(mob, ESpell::kRemovePoison, base_spell);
+	SET_SPELL(mob, ESpell::kHeal, floorf(base_heal + additional_heal_for_charisma * eff_cha));
 
 	if (mob->get_skill(ESkill::kAwake)) {
 		PRF_FLAGS(mob).set(EPrf::kAwake);
@@ -2336,7 +2338,7 @@ void SpellMentalShadow(int/* level*/, CharData *ch, CharData* /*victim*/, ObjDat
 		return;
 	}
 	Affect<EApply> af;
-	af.type = kSpellCharm;
+	af.type = ESpell::kCharm;
 	af.duration = CalcDuration(mob, 5 + (int) VPOSI<float>((get_effective_int(ch) - 16.0) / 2, 0, 50), 0, 0, 0, 0);
 	af.modifier = 0;
 	af.location = EApply::kNone;
@@ -2349,19 +2351,19 @@ void SpellMentalShadow(int/* level*/, CharData *ch, CharData* /*victim*/, ObjDat
 	GET_AC(mob) = floorf(base_ac + additional_ac * eff_int);
 	// Добавление заклов и аффектов в зависимости от интелекта кудеса
 	if (eff_int >= 28 && eff_int < 32) {
-     	SET_SPELL(mob, kSpellRemoveSilence, 1);
+     	SET_SPELL(mob, ESpell::kRemoveSilence, 1);
 	} else if (eff_int >= 32 && eff_int < 38) {
-		SET_SPELL(mob, kSpellRemoveSilence, 1);
+		SET_SPELL(mob, ESpell::kRemoveSilence, 1);
 		af.bitvector = to_underlying(EAffect::kShadowCloak);
 		affect_to_char(mob, af);
 
 	} else if(eff_int >= 38 && eff_int < 44) {
-		SET_SPELL(mob, kSpellRemoveSilence, 2);
+		SET_SPELL(mob, ESpell::kRemoveSilence, 2);
 		af.bitvector = to_underlying(EAffect::kShadowCloak);
 		affect_to_char(mob, af);
 		
 	} else if(eff_int >= 44) {
-		SET_SPELL(mob, kSpellRemoveSilence, 3);
+		SET_SPELL(mob, ESpell::kRemoveSilence, 3);
 		af.bitvector = to_underlying(EAffect::kShadowCloak);
 		affect_to_char(mob, af);
 		af.bitvector = to_underlying(EAffect::kBrokenChains);
@@ -2428,8 +2430,9 @@ int CheckRecipeValues(CharData *ch, ESpell spell_id, ESpellType spell_type, int 
 	int item0 = -1, item1 = -1, item2 = -1, obj_num = -1;
 	struct SpellCreateItem *items;
 
-	if (spell_id <= 0 || spell_id > kSpellLast)
+	if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast) {
 		return (false);
+	}
 	if (spell_type == ESpellType::kItemCast) {
 		items = &spell_create[spell_id].items;
 	} else if (spell_type == ESpellType::kPotionCast) {

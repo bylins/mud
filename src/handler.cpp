@@ -122,24 +122,6 @@ void CheckLight(CharData *ch, int was_equip, int was_single, int was_holylight, 
 	}
 }
 
-bool IsAffectedBySpell(CharData *ch, int type) {
-	if (type == kSpellPowerHold) {
-		type = kSpellHold;
-	} else if (type == kSpellPowerSilence) {
-		type = kSpellSllence;
-	} else if (type == kSpellPowerBlindness) {
-		type = kSpellBlindness;
-	}
-
-	for (const auto &affect : ch->affected) {
-		if (affect->type == type) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
 void ImposeAffect(CharData *ch, const Affect<EApply> &af) {
 	bool found = false;
 	for (const auto &affect : ch->affected) {
@@ -286,7 +268,7 @@ void ProcessRoomAffectsOnEntry(CharData *ch, RoomRnum room) {
 		return;
 	}
 
-	const auto affect_on_room = room_spells::FindAffect(world[room], kSpellHypnoticPattern);
+	const auto affect_on_room = room_spells::FindAffect(world[room], ESpell::kHypnoticPattern);
 	if (affect_on_room != world[room]->affected.end()) {
 		CharData *caster = find_char((*affect_on_room)->caster_id);
 		// если не в гопе, и не слепой
@@ -302,15 +284,15 @@ void ProcessRoomAffectsOnEntry(CharData *ch, RoomRnum room) {
 			// если вошел игрок - ПвП - делаем проверку на шанс в зависимости от % магии кастующего
 			// без магии и ниже 80%: шанс 25%, на 100% - 27%, на 200% - 37% ,при 300% - 47%
 			// иначе пве, и просто кастим сон на входящего
-			float mkof = CalcModCoef(kSpellHypnoticPattern, caster->get_skill(GetMagicSkillId(
-				kSpellHypnoticPattern)));
+			float mkof = CalcModCoef(ESpell::kHypnoticPattern,
+									 caster->get_skill(GetMagicSkillId(ESpell::kHypnoticPattern)));
 			if (!ch->IsNpc() && (number (1, 100) > (23 + 2*mkof))) {
 				return;
 			}
 			SendMsgToChar("Вы уставились на огненный узор, как баран на новые ворота.", ch);
 			act("$n0 уставил$u на огненный узор, как баран на новые ворота.",
 				true, ch, nullptr, ch, kToRoom | kToArenaListen);
-			CallMagic(caster, ch, nullptr, nullptr, kSpellSleep, GetRealLevel(caster));
+			CallMagic(caster, ch, nullptr, nullptr, ESpell::kSleep, GetRealLevel(caster));
 		}
 	}
 }
@@ -841,7 +823,7 @@ unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const
 
 					if (ch->in_room != kNowhere) {
 						for (const auto &i : weapon_affect) {
-							if (i.aff_spell == 0 || !IS_OBJ_AFF(GET_EQ(ch, pos), i.aff_pos)) {
+							if (i.aff_spell == ESpell::kUndefined || !IS_OBJ_AFF(GET_EQ(ch, pos), i.aff_pos)) {
 								continue;
 							}
 							if (!no_cast) {
@@ -872,8 +854,7 @@ unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const
 
 				if (ch->in_room != kNowhere) {
 					for (const auto &i : weapon_affect) {
-						if (i.aff_spell == 0
-							|| !IS_OBJ_AFF(obj, i.aff_pos)) {
+						if (i.aff_spell == ESpell::kUndefined || !IS_OBJ_AFF(obj, i.aff_pos)) {
 							continue;
 						}
 						if (!no_cast) {
@@ -1053,8 +1034,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 
 		if (ch->in_room != kNowhere) {
 			for (const auto &j : weapon_affect) {
-				if (j.aff_spell == 0
-					|| !IS_OBJ_AFF(obj, j.aff_pos)) {
+				if (j.aff_spell == ESpell::kUndefined || !IS_OBJ_AFF(obj, j.aff_pos)) {
 					continue;
 				}
 
@@ -2734,7 +2714,7 @@ float CalcEffectiveWis(CharData *ch, ESpell spell_id) {
 
 	auto max_wis = class_stats_limit[to_underlying(ch->get_class())][3];
 
-	if (spell_id == kSpellResurrection || spell_id == kSpellAnimateDead) {
+	if (spell_id == ESpell::kResurrection || spell_id == ESpell::kAnimateDead) {
 		key_value = ch->get_wis();
 		key_value_add = std::min(max_wis - ch->get_wis(), GET_WIS_ADD(ch));
 	} else {
@@ -2783,7 +2763,7 @@ int CalcCharmPoint(CharData *ch, ESpell spell_id) {
 	float eff_cha = 0.0;
 	float max_cha;
 
-	if (spell_id == kSpellResurrection || spell_id == kSpellAnimateDead) {
+	if (spell_id == ESpell::kResurrection || spell_id == ESpell::kAnimateDead) {
 		eff_cha = CalcEffectiveWis(ch, spell_id);
 		max_cha = class_stats_limit[to_underlying(ch->get_class())][3];
 	} else {
@@ -2791,7 +2771,7 @@ int CalcCharmPoint(CharData *ch, ESpell spell_id) {
 		eff_cha = get_effective_cha(ch);
 	}
 
-	if (spell_id != kSpellCharm) {
+	if (spell_id != ESpell::kCharm) {
 		eff_cha = std::min(max_cha, eff_cha + 2); // Все кроме чарма кастится с бонусом в 2
 	}
 
@@ -2970,8 +2950,8 @@ int *MemQ_slots(CharData *ch) {
 	}
 
 	// ABYRVALG непонятно, зачем тут цикл через декремент. Поменял на инкремент, надеюсь, глюков не будет
-	//for (auto spell_id = ESpell::kSpellLast; spell_id >= ESpell::kSpellFirst; --spell_id) {
-	for (auto spell_id = ESpell::kSpellFirst ; spell_id <= ESpell::kSpellLast; ++spell_id) {
+	//for (auto spell_id = ESpell::kLast; spell_id >= ESpell::kFirst; --spell_id) {
+	for (auto spell_id = ESpell::kFirst ; spell_id <= ESpell::kLast; ++spell_id) {
 		if (!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow | ESpellType::kTemp))
 			continue;
 		if ((n = GET_SPELL_MEM(ch, spell_id)) == 0)

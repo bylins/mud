@@ -524,7 +524,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 					sprintf(buf2, " (%d %s)",
 							GET_OBJ_VAL(object, 2), GetDeclensionInNumber(GET_OBJ_VAL(object, 2), EWhat::kHour));
 			} else {
-				if (object->timed_spell().is_spell_poisoned() != -1) {
+				if (object->timed_spell().IsSpellPoisoned() != ESpell::kUndefined) {
 					sprintf(buf2, " %s*%s%s", CCGRN(ch, C_NRM),
 							CCNRM(ch, C_NRM), diag_obj_to_char(ch, object, 1));
 				} else {
@@ -883,7 +883,7 @@ void look_at_char(CharData *i, CharData *ch) {
 			act("$n скоро перестанет следовать за вами.", false, i, nullptr, ch, kToVict);
 		} else {
 			for (const auto &aff : i->affected) {
-				if (aff->type == kSpellCharm) {
+				if (aff->type == ESpell::kCharm) {
 					sprintf(buf,
 							IS_POLY(i) ? "$n будут слушаться вас еще %d %s." : "$n будет слушаться вас еще %d %s.",
 							aff->duration/2,
@@ -1243,7 +1243,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		else
 			strcat(buf,
 				   IS_POLY(i) ? poly_positions[static_cast<int>(GET_POS(i))] : positions[static_cast<int>(GET_POS(i))]);
-		if (AFF_FLAGGED(ch, EAffect::kDetectMagic) && i->IsNpc() && IsAffectedBySpell(i, kSpellCapable))
+		if (AFF_FLAGGED(ch, EAffect::kDetectMagic) && i->IsNpc() && IsAffectedBySpell(i, ESpell::kCapable))
 			sprintf(buf + strlen(buf), "(аура магии) ");
 	} else {
 		if (i->GetEnemy()) {
@@ -1800,7 +1800,7 @@ void show_room_affects(CharData *ch, const char *name_affects[], const char *nam
 					SET_BIT(bitvector, room_spells::ERoomAffect::kThunderstorm);
 				}
 				break;
-			default: log("SYSERR: Unknown room affect: %d", af->type);
+			default: log("SYSERR: Unknown room affect: %d", to_underlying(af->type));
 		}
 	}
 
@@ -2505,7 +2505,7 @@ void skip_hide_on_look(CharData *ch) {
 		((!ch->get_skill(ESkill::kPry) ||
 			((number(1, 100) -
 				CalcCurrentSkill(ch, ESkill::kPry, nullptr) - 2 * (ch->get_wis() - 9)) > 0)))) {
-		affect_from_char(ch, kSpellHide);
+		RemoveAffectFromChar(ch, ESpell::kHide);
 		if (!AFF_FLAGGED(ch, EAffect::kHide)) {
 			SendMsgToChar("Вы прекратили прятаться.\r\n", ch);
 			act("$n прекратил$g прятаться.", false, ch, nullptr, nullptr, kToRoom);
@@ -4071,7 +4071,7 @@ void do_affects(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 		for (auto affect_i = ch->affected.begin(); affect_i != ch->affected.end(); ++affect_i) {
 			const auto aff = *affect_i;
 
-			if (aff->type == kSpellSolobonus) {
+			if (aff->type == ESpell::kSolobonus) {
 				continue;
 			}
 
@@ -4123,7 +4123,7 @@ void do_affects(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 		}
 // отображение наград
 		for (const auto &aff : ch->affected) {
-			if (aff->type == kSpellSolobonus) {
+			if (aff->type == ESpell::kSolobonus) {
 				int mod;
 				if (aff->battleflag == kAfPulsedec) {
 					mod = aff->duration / 51; //если в пульсах приводим к тикам	25.5 в сек 2 минуты

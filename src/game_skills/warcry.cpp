@@ -27,7 +27,7 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (wc_name.empty()) {
 		sprintf(buf, "Вам доступны :\r\n");
 		auto cnt{0};;
-		for (auto spell_id = ESpell::kSpellFirst; spell_id <= ESpell::kSpellLast; ++spell_id) {
+		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 			const char *realname = spell_info[spell_id].name
 									   && *spell_info[spell_id].name ? spell_info[spell_id].name :
 								   spell_info[spell_id].syn

@@ -17,6 +17,7 @@
 
 #include <map>
 
+#include "game_magic/spells_constants.h"
 #include "structs/structs.h"
 
 extern const int kSkillCapOnZeroRemort;
@@ -162,6 +163,8 @@ struct TimedSkill {
 };
 
 int SendSkillMessages(int dam, CharData *ch, CharData *vict, int attacktype, std::string add = "");
+int SendSkillMessages(int dam, CharData *ch, CharData *vict, ESkill skill_id, std::string add = "");
+int SendSkillMessages(int dam, CharData *ch, CharData *vict, ESpell spell_id, std::string add = "");
 
 int CalcCurrentSkill(CharData *ch, ESkill skill_id, CharData *vict);
 void ImproveSkill(CharData *ch, ESkill skill, int success, CharData *victim);

@@ -4765,7 +4765,7 @@ bool is_empty(ZoneRnum zone_nr) {
 		return false;
 	}
 
-	if (room_spells::IsZoneRoomAffected(zone_nr, kSpellRuneLabel)) {
+	if (room_spells::IsZoneRoomAffected(zone_nr, ESpell::kRuneLabel)) {
 		return false;
 	}
 
@@ -5016,13 +5016,12 @@ int file_to_string(const char *name, char *buf) {
 	return (0);
 }
 
-void clear_char_skills(CharData *ch) {
-	int i;
+void ClearCharTalents(CharData *ch) {
 	ch->real_abils.Feats.reset();
-	for (i = 0; i <= kSpellLast; i++)
-		ch->real_abils.SplKnw[i] = 0;
-	for (i = 0; i <= kSpellLast; i++)
-		ch->real_abils.SplMem[i] = 0;
+	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
+		GET_SPELL_TYPE(ch, spell_id) = 0;
+		GET_SPELL_MEM(ch, spell_id) = 0;
+	}
 	ch->clear_skills();
 }
 
@@ -5124,13 +5123,13 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	if (ch->get_remort() >= 9 && ch->get_remort() % 3 == 0) {
 		ch->clear_skills();
-		for (auto spell_id = ESpell::kSpellFirst; spell_id <= ESpell::kSpellLast; ++spell_id) {
+		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 			GET_SPELL_TYPE(ch, spell_id) = (IS_MANA_CASTER(ch) ? ESpellType::kRunes : 0);
 			GET_SPELL_MEM(ch, spell_id) = 0;
 		}
 	} else {
 		ch->set_skill(ch->get_remort());
-		for (auto spell_id = ESpell::kSpellFirst; spell_id <= ESpell::kSpellLast; ++spell_id) {
+		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 			if (IS_MANA_CASTER(ch)) {
 				GET_SPELL_TYPE(ch, spell_id) = ESpellType::kRunes;
 			} else if (spell_info[spell_id].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] >= 8) {
@@ -5205,7 +5204,7 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	PlaceCharToRoom(ch, load_room);
 	look_at_room(ch, 0);
 	PLR_FLAGS(ch).set(EPlrFlag::kNoDelete);
-	RemoveRuneLabelFromWorld(ch, ESpell::kSpellRuneLabel);
+	RemoveRuneLabelFromWorld(ch, ESpell::kRuneLabel);
 
 	// сброс всего, связанного с гривнами (замакс сохраняем)
 	PRF_FLAGS(ch).unset(EPrf::kCanRemort);

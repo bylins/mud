@@ -64,7 +64,7 @@ struct obj_affected_type {
 	}
 };
 
-void pulse_affect_update(CharData *ch);
+void UpdateAffectOnPulse(CharData *ch);
 void player_affect_update();
 void battle_affect_update(CharData *ch);
 void mobile_affect_update();
@@ -72,8 +72,8 @@ void mobile_affect_update();
 void affect_total(CharData *ch);
 void affect_modify(CharData *ch, byte loc, int mod, EAffect bitv, bool add);
 void affect_to_char(CharData *ch, const Affect<EApply> &af);
-void affect_from_char(CharData *ch, int type);
-bool IsAffectedBySpell(CharData *ch, int type);
+void RemoveAffectFromChar(CharData *ch, ESpell spell_id);
+bool IsAffectedBySpell(CharData *ch, ESpell type);
 void ImposeAffect(CharData *ch, const Affect<EApply> &af);
 void ImposeAffect(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, bool add_mod, bool max_mod);
 void reset_affects(CharData *ch);

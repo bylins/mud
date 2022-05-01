@@ -114,7 +114,7 @@ CharData *TryToFindProtector(CharData *victim, CharData *ch) {
 				vict->battle_affects.unset(kEafProtect);
 				SetWaitState(vict, kPulseViolence);
 				Affect<EApply> af;
-				af.type = kSpellBattle;
+				af.type = ESpell::kBattle;
 				af.bitvector = to_underlying(EAffect::kStopFight);
 				af.location = EApply::kNone;
 				af.modifier = 0;

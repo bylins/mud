@@ -691,7 +691,7 @@ void medit_save_to_disk(int zone_num) {
 					fprintf(mob_file, "Skill: %d %d\n", to_underlying(skill.GetId()), mob->get_skill(skill.GetId()));
 				}
 			}
-			for (auto spell_id = ESpell::kSpellFirst; spell_id <= ESpell::kSpellLast; ++spell_id) {
+			for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 				for (j = 1; j <= GET_SPELL_MEM(mob, spell_id); j++) {
 					fprintf(mob_file, "Spell: %d\n", to_underlying(spell_id));
 				}
@@ -1094,7 +1094,7 @@ void medit_disp_spells(DescriptorData *d) {
 	SendMsgToChar("[H[J", d->character);
 #endif
 	int columns = 0;
-	for (auto spell_id = ESpell::kSpellFirst; spell_id <= ESpell::kSpellLast; ++spell_id) {
+	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 		if (!spell_info[spell_id].name
 			|| *spell_info[spell_id].name == '!') {
 			continue;
@@ -2197,7 +2197,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 				break;
 			}
 			auto spell_id = static_cast<ESpell>(number);
-			if (spell_id < ESpell::kSpellFirst || !spell_info[spell_id].name || *spell_info[spell_id].name == '!') {
+			if (spell_id < ESpell::kFirst || !spell_info[spell_id].name || *spell_info[spell_id].name == '!') {
 				SendMsgToChar("Неизвестное заклинание.\r\n", d->character.get());
 			} else if (sscanf(arg, "%d %d", &plane, &bit) < 2) {
 				SendMsgToChar("Не указано количество заклинаний.\r\n", d->character.get());

@@ -116,8 +116,8 @@ void do_antigods(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 	if (AFF_FLAGGED(ch, EAffect::kShield)) {
-		if (IsAffectedBySpell(ch, kSpellGodsShield))
-			affect_from_char(ch, kSpellGodsShield);
+		if (IsAffectedBySpell(ch, ESpell::kGodsShield))
+			RemoveAffectFromChar(ch, ESpell::kGodsShield);
 		AFF_FLAGS(ch).unset(EAffect::kShield);
 		SendMsgToChar("Голубой кокон вокруг вашего тела угас.\r\n", ch);
 		act("&W$n отринул$g защиту, дарованную богами.&n", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
@@ -336,14 +336,14 @@ void do_sneak(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (IsAffectedBySpell(ch, kSpellGlitterDust)) {
+	if (IsAffectedBySpell(ch, ESpell::kGlitterDust)) {
 		SendMsgToChar("Вы бесшумно крадетесь, отбрасывая тысячи солнечных зайчиков...\r\n", ch);
 		return;
 	}
 
-	affect_from_char(ch, kSpellSneak);
+	RemoveAffectFromChar(ch, ESpell::kSneak);
 
-	if (IsAffectedBySpell(ch, kSpellSneak)) {
+	if (IsAffectedBySpell(ch, ESpell::kSneak)) {
 		SendMsgToChar("Вы уже пытаетесь красться.\r\n", ch);
 		return;
 	}
@@ -354,7 +354,7 @@ void do_sneak(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	prob = CalcCurrentSkill(ch, ESkill::kSneak, nullptr);
 
 	Affect<EApply> af;
-	af.type = kSpellSneak;
+	af.type = ESpell::kSneak;
 	af.duration = CalcDuration(ch, 0, GetRealLevel(ch), 8, 0, 1);
 	af.modifier = 0;
 	af.location = EApply::kNone;
@@ -382,7 +382,7 @@ void do_camouflage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 		return;
 	}
 
-	if (IsAffectedBySpell(ch, kSpellGlitterDust)) {
+	if (IsAffectedBySpell(ch, ESpell::kGlitterDust)) {
 		SendMsgToChar("Вы замаскировались под золотую рыбку.\r\n", ch);
 		return;
 	}
@@ -393,10 +393,10 @@ void do_camouflage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 	}
 
 	if (IS_IMMORTAL(ch)) {
-		affect_from_char(ch, kSpellCamouflage);
+		RemoveAffectFromChar(ch, ESpell::kCamouflage);
 	}
 
-	if (IsAffectedBySpell(ch, kSpellCamouflage)) {
+	if (IsAffectedBySpell(ch, ESpell::kCamouflage)) {
 		SendMsgToChar("Вы уже маскируетесь.\r\n", ch);
 		return;
 	}
@@ -407,7 +407,7 @@ void do_camouflage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 	prob = CalcCurrentSkill(ch, ESkill::kDisguise, nullptr);
 
 	Affect<EApply> af;
-	af.type = kSpellCamouflage;
+	af.type = ESpell::kCamouflage;
 	af.duration = CalcDuration(ch, 0, GetRealLevel(ch), 6, 0, 2);
 	af.modifier = world[ch->in_room]->zone_rn;
 	af.location = EApply::kNone;
@@ -440,9 +440,9 @@ void do_hide(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	affect_from_char(ch, kSpellHide);
+	RemoveAffectFromChar(ch, ESpell::kHide);
 
-	if (IsAffectedBySpell(ch, kSpellHide)) {
+	if (IsAffectedBySpell(ch, ESpell::kHide)) {
 		SendMsgToChar("Вы уже пытаетесь спрятаться.\r\n", ch);
 		return;
 	}
@@ -452,7 +452,7 @@ void do_hide(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (IsAffectedBySpell(ch, kSpellGlitterDust)) {
+	if (IsAffectedBySpell(ch, ESpell::kGlitterDust)) {
 		SendMsgToChar("Спрятаться?! Да вы сверкаете как корчма во время гулянки!.\r\n", ch);
 		return;
 	}
@@ -463,7 +463,7 @@ void do_hide(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	prob = CalcCurrentSkill(ch, ESkill::kHide, nullptr);
 
 	Affect<EApply> af;
-	af.type = kSpellHide;
+	af.type = ESpell::kHide;
 	af.duration = CalcDuration(ch, 0, GetRealLevel(ch), 8, 0, 1);
 	af.modifier = 0;
 	af.location = EApply::kNone;
@@ -568,7 +568,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 			if (percent > prob && !success) {
 				ohoh = true;
 				if (AFF_FLAGGED(ch, EAffect::kHide)) {
-					affect_from_char(ch, kSpellHide);
+					RemoveAffectFromChar(ch, ESpell::kHide);
 					SendMsgToChar("Вы прекратили прятаться.\r\n", ch);
 					act("$n прекратил$g прятаться.", false, ch, nullptr, nullptr, kToRoom);
 				};
@@ -601,7 +601,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 		if (percent > prob && !success) {
 			ohoh = true;
 			if (AFF_FLAGGED(ch, EAffect::kHide)) {
-				affect_from_char(ch, kSpellHide);
+				RemoveAffectFromChar(ch, ESpell::kHide);
 				SendMsgToChar("Вы прекратили прятаться.\r\n", ch);
 				act("$n прекратил$g прятаться.", false, ch, nullptr, nullptr, kToRoom);
 			};
@@ -778,25 +778,25 @@ void do_courage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	prob = CalcCurrentSkill(ch, ESkill::kCourage, nullptr) / 20;
 	dur = 1 + MIN(5, ch->get_skill(ESkill::kCourage) / 40);
 	Affect<EApply> af[4];
-	af[0].type = kSpellCourage;
+	af[0].type = ESpell::kCourage;
 	af[0].duration = CalcDuration(ch, dur, 0, 0, 0, 0);
 	af[0].modifier = 40;
 	af[0].location = EApply::kAc;
 	af[0].bitvector = to_underlying(EAffect::kNoFlee);
 	af[0].battleflag = 0;
-	af[1].type = kSpellCourage;
+	af[1].type = ESpell::kCourage;
 	af[1].duration = CalcDuration(ch, dur, 0, 0, 0, 0);
 	af[1].modifier = MAX(1, prob);
 	af[1].location = EApply::kDamroll;
 	af[1].bitvector = to_underlying(EAffect::kCourage);
 	af[1].battleflag = 0;
-	af[2].type = kSpellCourage;
+	af[2].type = ESpell::kCourage;
 	af[2].duration = CalcDuration(ch, dur, 0, 0, 0, 0);
 	af[2].modifier = MAX(1, prob * 7);
 	af[2].location = EApply::kAbsorbe;
 	af[2].bitvector = to_underlying(EAffect::kCourage);
 	af[2].battleflag = 0;
-	af[3].type = kSpellCourage;
+	af[3].type = ESpell::kCourage;
 	af[3].duration = CalcDuration(ch, dur, 0, 0, 0, 0);
 	af[3].modifier = 50;
 	af[3].location = EApply::kHpRegen;
@@ -1385,7 +1385,7 @@ void do_report(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	} else if (AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		int loyalty = 0;
 		for (const auto &aff : ch->affected) {
-			if (aff->type == kSpellCharm) {
+			if (aff->type == ESpell::kCharm) {
 				loyalty = aff->duration / 2;
 				break;
 			}
@@ -2295,7 +2295,7 @@ void do_pray(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 
 	if (!IS_IMMORTAL(ch) && (IsTimedBySkill(ch, ESkill::kReligion)
-		|| IsAffectedBySpell(ch, kSpellReligion))) {
+		|| IsAffectedBySpell(ch, ESpell::kReligion))) {
 		SendMsgToChar("Вы не можете так часто взывать к Богам.\r\n", ch);
 		return;
 	}
@@ -2307,7 +2307,7 @@ void do_pray(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	for (const auto &i : pray_affect) {
 		if (i.metter == metter) {
 			Affect<EApply> af;
-			af.type = kSpellReligion;
+			af.type = ESpell::kReligion;
 			af.duration = CalcDuration(ch, 12, 0, 0, 0, 0);
 			af.modifier = i.modifier;
 			af.location = i.location;
@@ -2456,7 +2456,7 @@ void do_bandage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	act("$n начал$g перевязывать свои раны.&n", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 
 	Affect<EApply> af;
-	af.type = kSpellBandage;
+	af.type = ESpell::kBandage;
 	af.location = EApply::kNone;
 	af.modifier = GET_OBJ_VAL(bandage, 0);
 	af.duration = CalcDuration(ch, 10, 0, 0, 0, 0);
@@ -2464,7 +2464,7 @@ void do_bandage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	af.battleflag = kAfPulsedec;
 	ImposeAffect(ch, af, false, false, false, false);
 
-	af.type = kSpellNoBandage;
+	af.type = ESpell::kNoBandage;
 	af.location = EApply::kNone;
 	af.duration = CalcDuration(ch, 60, 0, 0, 0, 0);
 	af.bitvector = to_underlying(EAffect::kCannotBeBandaged);

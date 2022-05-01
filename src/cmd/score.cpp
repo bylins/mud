@@ -193,9 +193,9 @@ void PrintScoreList(CharData *ch) {
 		SendMsgToChar(ch, "Вы защищены от призыва.\r\n");
 	SendMsgToChar(ch, "Голоден: %s, жажда: %s.\r\n", (GET_COND(ch, FULL) > kNormCondition)? "да" : "нет", GET_COND_M(ch, THIRST)? "да" : "нет");
 	//Напоминаем о метке, если она есть.
-	RoomData *label_room = room_spells::FindAffectedRoom(GET_ID(ch), kSpellRuneLabel);
+	RoomData *label_room = room_spells::FindAffectedRoom(GET_ID(ch), ESpell::kRuneLabel);
 	if (label_room) {
-		const int timer_room_label = room_spells::GetUniqueAffectDuration(GET_ID(ch), kSpellRuneLabel);
+		const int timer_room_label = room_spells::GetUniqueAffectDuration(GET_ID(ch), ESpell::kRuneLabel);
 		if (timer_room_label > 0) {
 			*buf2 = '\0';
 			(timer_room_label + 1) / kSecsPerMudHour ? sprintf(buf2, "%d %s.", (timer_room_label + 1) / kSecsPerMudHour + 1,
@@ -247,9 +247,9 @@ void PrintHorseInfo(CharData *ch, std::ostringstream &out) {
 }
 
 void PrintRuneLabelInfo(CharData *ch, std::ostringstream &out) {
-	RoomData *label_room = room_spells::FindAffectedRoom(GET_ID(ch), kSpellRuneLabel);
+	RoomData *label_room = room_spells::FindAffectedRoom(GET_ID(ch), ESpell::kRuneLabel);
 	if (label_room) {
-		int timer_room_label = room_spells::GetUniqueAffectDuration(GET_ID(ch), kSpellRuneLabel);
+		int timer_room_label = room_spells::GetUniqueAffectDuration(GET_ID(ch), ESpell::kRuneLabel);
 		out << InfoStrPrefix(ch) << KIGRN << "Вы поставили рунную метку в комнате \'"
 			<< label_room->name << "\' ";
 		if (timer_room_label > 0) {
@@ -496,7 +496,7 @@ int PrintBaseInfoToTable(CharData *ch, table_wrapper::Table &table, std::size_t 
 	table[++row][col] = std::string("Голоден: ") + (GET_COND(ch, FULL) > kNormCondition ? "Угу :(" : "Нет");
 	table[++row][col] = std::string("Жажда: ") + (GET_COND_M(ch, THIRST) ? "Наливай!" : "Нет");
 	if (GET_COND(ch, DRUNK) >= kDrunked) {
-		table[++row][col] = (IsAffectedBySpell(ch, kSpellAbstinent) ? "Похмелье." : "Вы пьяны.");
+		table[++row][col] = (IsAffectedBySpell(ch, ESpell::kAbstinent) ? "Похмелье." : "Вы пьяны.");
 	}
 	if (PlayerSystem::weight_dex_penalty(ch)) {
 		table[++row][col] = "Вы перегружены!";
@@ -783,7 +783,7 @@ void PrintScoreBase(CharData *ch) {
 	}
 
 	//Напоминаем о метке, если она есть.
-	RoomData *label_room = room_spells::FindAffectedRoom(GET_ID(ch), kSpellRuneLabel);
+	RoomData *label_room = room_spells::FindAffectedRoom(GET_ID(ch), ESpell::kRuneLabel);
 	if (label_room) {
 		sprintf(buf + strlen(buf),
 				"&G&qВы поставили рунную метку в комнате '%s'.&Q&n\r\n",
@@ -813,7 +813,7 @@ void PrintScoreBase(CharData *ch) {
 	strcpy(buf, CCIGRN(ch, C_NRM));
 	const auto value_drunked = GET_COND(ch, DRUNK);
 	if (value_drunked >= kDrunked) {
-		if (IsAffectedBySpell(ch, kSpellAbstinent))
+		if (IsAffectedBySpell(ch, ESpell::kAbstinent))
 			strcat(buf, "Привет с большого бодуна!\r\n");
 		else {
 			if (value_drunked >= kMortallyDrunked)

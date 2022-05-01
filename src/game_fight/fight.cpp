@@ -104,7 +104,7 @@ void update_pos(CharData *victim) {
 		GET_POS(victim) = EPosition::kStun;
 
 	if (AFF_FLAGGED(victim, EAffect::kSleep) && GET_POS(victim) != EPosition::kSleep)
-		affect_from_char(victim, kSpellSleep);
+		RemoveAffectFromChar(victim, ESpell::kSleep);
 
 	// поплохело седоку или лошади - сбрасываем седока
 	if (victim->IsOnHorse() && GET_POS(victim) < EPosition::kFight)
@@ -185,18 +185,18 @@ void SetFighting(CharData *ch, CharData *vict) {
 
 	if (AFF_FLAGGED(ch, EAffect::kBandage)) {
 		SendMsgToChar("Перевязка была прервана!\r\n", ch);
-		affect_from_char(ch, kSpellBandage);
+		RemoveAffectFromChar(ch, ESpell::kBandage);
 	}
 	if (AFF_FLAGGED(ch, EAffect::kMemorizeSpells)) {
 		SendMsgToChar("Вы забыли о концентрации и ринулись в бой!\r\n", ch);
-		affect_from_char(ch, kSpellRecallSpells);
+		RemoveAffectFromChar(ch, ESpell::kRecallSpells);
 	}
 
 	ch->next_fighting = combat_list;
 	combat_list = ch;
 
 	if (AFF_FLAGGED(ch, EAffect::kSleep))
-		affect_from_char(ch, kSpellSleep);
+		RemoveAffectFromChar(ch, ESpell::kSleep);
 
 	ch->SetEnemy(vict);
 
@@ -395,15 +395,15 @@ CharData *find_friend_cure(CharData *caster, ESpell spell_id) {
 	CharData *victim = nullptr;
 	int vict_val = 0, AFF_USED = 0;
 	switch (spell_id) {
-		case kSpellCureLight: AFF_USED = 80;
+		case ESpell::kCureLight: AFF_USED = 80;
 			break;
-		case kSpellCureSerious: AFF_USED = 70;
+		case ESpell::kCureSerious: AFF_USED = 70;
 			break;
-		case kSpellExtraHits:
-		case kSpellCureCritic: AFF_USED = 50;
+		case ESpell::kExtraHits:
+		case ESpell::kCureCritic: AFF_USED = 50;
 			break;
-		case kSpellHeal:
-		case kSpellGroupHeal: AFF_USED = 30;
+		case ESpell::kHeal:
+		case ESpell::kGroupHeal: AFF_USED = 30;
 			break;
 		default: break;
 	}
@@ -454,22 +454,22 @@ CharData *find_friend(CharData *caster, ESpell spell_id) {
 	affects_list_t AFF_USED;
 	auto spellreal{ESpell::kUndefined};
 	switch (spell_id) {
-		case kSpellCureBlind: AFF_USED.push_back(EAffect::kBlind);
+		case ESpell::kCureBlind: AFF_USED.push_back(EAffect::kBlind);
 			break;
-		case kSpellRemovePoison: AFF_USED.push_back(EAffect::kPoisoned);
+		case ESpell::kRemovePoison: AFF_USED.push_back(EAffect::kPoisoned);
 			AFF_USED.push_back(EAffect::kScopolaPoison);
 			AFF_USED.push_back(EAffect::kBelenaPoison);
 			AFF_USED.push_back(EAffect::kDaturaPoison);
 			break;
-		case kSpellRemoveHold: AFF_USED.push_back(EAffect::kHold);
+		case ESpell::kRemoveHold: AFF_USED.push_back(EAffect::kHold);
 			break;
-		case kSpellRemoveCurse: AFF_USED.push_back(EAffect::kCurse);
+		case ESpell::kRemoveCurse: AFF_USED.push_back(EAffect::kCurse);
 			break;
-		case kSpellRemoveSilence: AFF_USED.push_back(EAffect::kSilence);
+		case ESpell::kRemoveSilence: AFF_USED.push_back(EAffect::kSilence);
 			break;
-		case kSpellRemoveDeafness: AFF_USED.push_back(EAffect::kDeafness);
+		case ESpell::kRemoveDeafness: AFF_USED.push_back(EAffect::kDeafness);
 			break;
-		case kSpellCureFever: spellreal = kSpellFever;
+		case ESpell::kCureFever: spellreal = ESpell::kFever;
 			break;
 		default: break;
 	}
@@ -531,22 +531,22 @@ CharData *find_caster(CharData *caster, ESpell spell_id) {
 	affects_list_t AFF_USED;
 	auto spellreal{ESpell::kUndefined};
 	switch (spell_id) {
-		case kSpellCureBlind: AFF_USED.push_back(EAffect::kBlind);
+		case ESpell::kCureBlind: AFF_USED.push_back(EAffect::kBlind);
 			break;
-		case kSpellRemovePoison: AFF_USED.push_back(EAffect::kPoisoned);
+		case ESpell::kRemovePoison: AFF_USED.push_back(EAffect::kPoisoned);
 			AFF_USED.push_back(EAffect::kScopolaPoison);
 			AFF_USED.push_back(EAffect::kBelenaPoison);
 			AFF_USED.push_back(EAffect::kDaturaPoison);
 			break;
-		case kSpellRemoveHold: AFF_USED.push_back(EAffect::kHold);
+		case ESpell::kRemoveHold: AFF_USED.push_back(EAffect::kHold);
 			break;
-		case kSpellRemoveCurse: AFF_USED.push_back(EAffect::kCurse);
+		case ESpell::kRemoveCurse: AFF_USED.push_back(EAffect::kCurse);
 			break;
-		case kSpellRemoveSilence: AFF_USED.push_back(EAffect::kSilence);
+		case ESpell::kRemoveSilence: AFF_USED.push_back(EAffect::kSilence);
 			break;
-		case kSpellRemoveDeafness: AFF_USED.push_back(EAffect::kDeafness);
+		case ESpell::kRemoveDeafness: AFF_USED.push_back(EAffect::kDeafness);
 			break;
-		case kSpellCureFever: spellreal = kSpellFever;
+		case ESpell::kCureFever: spellreal = ESpell::kFever;
 			break;
 		default: break;
 	}
@@ -606,38 +606,38 @@ CharData *find_affectee(CharData *caster, ESpell spell_id) {
 	int vict_val = 0;
 	auto spellreal = spell_id;
 
-	if (spellreal == kSpellGroupArmor)
-		spellreal = kSpellArmor;
-	else if (spellreal == kSpellGroupStrength)
-		spellreal = kSpellStrength;
-	else if (spellreal == kSpellGroupBless)
-		spellreal = kSpellBless;
-	else if (spellreal == kSpellGroupHaste)
-		spellreal = kSpellHaste;
-	else if (spellreal == kSpellGroupSanctuary)
-		spellreal = kSpellSanctuary;
-	else if (spellreal == kSpellGroupPrismaticAura)
-		spellreal = kSpellPrismaticAura;
-	else if (spellreal == kSpellSightOfDarkness)
-		spellreal = kSpellInfravision;
-	else if (spellreal == kSpellGroupSincerity)
-		spellreal = kSpellDetectAlign;
-	else if (spellreal == kSpellMagicalGaze)
-		spellreal = kSpellDetectMagic;
-	else if (spellreal == kSpellAllSeeingEye)
-		spellreal = kSpellDetectInvis;
-	else if (spellreal == kSpellEyeOfGods)
-		spellreal = kSpellSenseLife;
-	else if (spellreal == kSpellBreathingAtDepth)
-		spellreal = kSpellWaterbreath;
-	else if (spellreal == kSpellGeneralRecovery)
-		spellreal = kSpellFastRegeneration;
-	else if (spellreal == kSpellCommonMeal)
-		spellreal = kSpellFullFeed;
-	else if (spellreal == kSpellStoneWall)
-		spellreal = kSpellStoneSkin;
-	else if (spellreal == kSpellSnakeEyes)
-		spellreal = kSpellDetectPoison;
+	if (spellreal == ESpell::kGroupArmor)
+		spellreal = ESpell::kArmor;
+	else if (spellreal == ESpell::kGroupStrength)
+		spellreal = ESpell::kStrength;
+	else if (spellreal == ESpell::kGroupBless)
+		spellreal = ESpell::kBless;
+	else if (spellreal == ESpell::kGroupHaste)
+		spellreal = ESpell::kHaste;
+	else if (spellreal == ESpell::kGroupSanctuary)
+		spellreal = ESpell::kSanctuary;
+	else if (spellreal == ESpell::kGroupPrismaticAura)
+		spellreal = ESpell::kPrismaticAura;
+	else if (spellreal == ESpell::kSightOfDarkness)
+		spellreal = ESpell::kInfravision;
+	else if (spellreal == ESpell::kGroupSincerity)
+		spellreal = ESpell::kDetectAlign;
+	else if (spellreal == ESpell::kMagicalGaze)
+		spellreal = ESpell::kDetectMagic;
+	else if (spellreal == ESpell::kAllSeeingEye)
+		spellreal = ESpell::kDetectInvis;
+	else if (spellreal == ESpell::kEyeOfGods)
+		spellreal = ESpell::kSenseLife;
+	else if (spellreal == ESpell::kBreathingAtDepth)
+		spellreal = ESpell::kWaterbreath;
+	else if (spellreal == ESpell::kGeneralRecovery)
+		spellreal = ESpell::kFastRegeneration;
+	else if (spellreal == ESpell::kCommonMeal)
+		spellreal = ESpell::kFullFeed;
+	else if (spellreal == ESpell::kStoneWall)
+		spellreal = ESpell::kStoneSkin;
+	else if (spellreal == ESpell::kSnakeEyes)
+		spellreal = ESpell::kDetectPoison;
 
 	if ((AFF_FLAGGED(caster, EAffect::kCharmed) || MOB_FLAGGED(caster, EMobFlag::kTutelar) ||
 		MOB_FLAGGED(caster, EMobFlag::kMentalShadow) || MOB_FLAGGED(caster, EMobFlag::kSummoned)) &&
@@ -690,20 +690,20 @@ CharData *find_opp_affectee(CharData *caster, ESpell spell_id) {
 	int vict_val = 0;
 
 	auto spellreal = spell_id;
-	if (spellreal == kSpellPowerHold || spellreal == kSpellMassHold)
-		spellreal = kSpellHold;
-	else if (spellreal == kSpellPowerBlindness || spellreal == kSpellMassBlindness)
-		spellreal = kSpellBlindness;
-	else if (spellreal == kSpellPowerSilence || spellreal == kSpellMassSilence)
-		spellreal = kSpellSllence;
-	else if (spellreal == kSpellMassCurse)
-		spellreal = kSpellCurse;
-	else if (spellreal == kSpellMassSlow)
-		spellreal = kSpellSlowdown;
-	else if (spellreal == kSpellMassFailure)
-		spellreal = kSpellFailure;
-	else if (spellreal == kSpellSnare)
-		spellreal = kSpellNoflee;
+	if (spellreal == ESpell::kPowerHold || spellreal == ESpell::kMassHold)
+		spellreal = ESpell::kHold;
+	else if (spellreal == ESpell::kPowerBlindness || spellreal == ESpell::kMassBlindness)
+		spellreal = ESpell::kBlindness;
+	else if (spellreal == ESpell::kPowerSilence || spellreal == ESpell::kMassSilence)
+		spellreal = ESpell::kSllence;
+	else if (spellreal == ESpell::kMassCurse)
+		spellreal = ESpell::kCurse;
+	else if (spellreal == ESpell::kMassSlow)
+		spellreal = ESpell::kSlowdown;
+	else if (spellreal == ESpell::kMassFailure)
+		spellreal = ESpell::kFailure;
+	else if (spellreal == ESpell::kSnare)
+		spellreal = ESpell::kNoflee;
 
 	if (GET_REAL_INT(caster) > number(10, 20)) {
 		for (const auto vict : world[caster->in_room]->people) {
@@ -952,26 +952,27 @@ CharData *find_minhp(CharData *caster) {
 
 CharData *find_cure(CharData *caster, CharData *patient, ESpell &spell_id) {
 	if (GET_HP_PERC(patient) <= number(20, 33)) {
-		if (GET_SPELL_MEM(caster, kSpellExtraHits))
-			spell_id = kSpellExtraHits;
-		else if (GET_SPELL_MEM(caster, kSpellHeal))
-			spell_id = kSpellHeal;
-		else if (GET_SPELL_MEM(caster, kSpellCureCritic))
-			spell_id = kSpellCureCritic;
-		else if (GET_SPELL_MEM(caster, kSpellGroupHeal))
-			spell_id = kSpellGroupHeal;
+		if (GET_SPELL_MEM(caster, ESpell::kExtraHits))
+			spell_id = ESpell::kExtraHits;
+		else if (GET_SPELL_MEM(caster, ESpell::kHeal))
+			spell_id = ESpell::kHeal;
+		else if (GET_SPELL_MEM(caster, ESpell::kCureCritic))
+			spell_id = ESpell::kCureCritic;
+		else if (GET_SPELL_MEM(caster, ESpell::kGroupHeal))
+			spell_id = ESpell::kGroupHeal;
 	} else if (GET_HP_PERC(patient) <= number(50, 65)) {
-		if (GET_SPELL_MEM(caster, kSpellCureCritic))
-			spell_id = kSpellCureCritic;
-		else if (GET_SPELL_MEM(caster, kSpellCureSerious))
-			spell_id = kSpellCureSerious;
-		else if (GET_SPELL_MEM(caster, kSpellCureLight))
-			spell_id = kSpellCureLight;
+		if (GET_SPELL_MEM(caster, ESpell::kCureCritic))
+			spell_id = ESpell::kCureCritic;
+		else if (GET_SPELL_MEM(caster, ESpell::kCureSerious))
+			spell_id = ESpell::kCureSerious;
+		else if (GET_SPELL_MEM(caster, ESpell::kCureLight))
+			spell_id = ESpell::kCureLight;
 	}
-	if (spell_id)
+	if (spell_id != ESpell::kUndefined) {
 		return (patient);
-	else
+	} else {
 		return (nullptr);
+	}
 }
 
 void mob_casting(CharData *ch) {
@@ -988,7 +989,7 @@ void mob_casting(CharData *ch) {
 		return;
 
 	memset(&battle_spells, 0, sizeof(battle_spells));
-	for (auto spell_id = ESpell::kSpellFirst ; spell_id <= ESpell::kSpellLast; ++spell_id) {
+	for (auto spell_id = ESpell::kFirst ; spell_id <= ESpell::kLast; ++spell_id) {
 		if (GET_SPELL_MEM(ch, spell_id) && IS_SET(spell_info[spell_id].routines, NPC_CALCULATE)) {
 			battle_spells[spells++] = spell_id;
 		}
@@ -1001,55 +1002,50 @@ void mob_casting(CharData *ch) {
 		&& !(MOB_FLAGGED(ch, EMobFlag::kTutelar) || MOB_FLAGGED(ch, EMobFlag::kMentalShadow))) {
 		switch (GET_OBJ_TYPE(item)) {
 			case EObjType::kWand:
-			case EObjType::kStaff:
-				if (GET_OBJ_VAL(item, 3) < 0 || GET_OBJ_VAL(item, 3) > kSpellLast) {
-					log("SYSERR: Не верно указано значение спела в стафе vnum: %d %s, позиция: 3, значение: %d ",
-						GET_OBJ_VNUM(item),
-						item->get_PName(0).c_str(),
-						GET_OBJ_VAL(item, 3));
+			case EObjType::kStaff: {
+				const auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(item, 3));
+				if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast) {
+					log("SYSERR: Неверно указано значение спела в стафе vnum: %d %s, позиция: 3, значение: %d ",
+						GET_OBJ_VNUM(item), item->get_PName(0).c_str(), GET_OBJ_VAL(item, 3));
 					break;
 				}
 
 				if (GET_OBJ_VAL(item, 2) > 0 &&
-					IS_SET(spell_info[static_cast<ESpell>(GET_OBJ_VAL(item, 3))].routines, NPC_CALCULATE)) {
-					battle_spells[spells++] = static_cast<ESpell>(GET_OBJ_VAL(item, 3));
+					IS_SET(spell_info[spell_id].routines, NPC_CALCULATE)) {
+					battle_spells[spells++] = spell_id;
 				}
 				break;
-
-			case EObjType::kPotion:
+			}
+			case EObjType::kPotion: {
 				for (int i = 1; i <= 3; i++) {
-					if (GET_OBJ_VAL(item, i) < 0 || GET_OBJ_VAL(item, i) > kSpellLast) {
-						log("SYSERR: Не верно указано значение спела в напитке vnum %d %s, позиция: %d, значение: %d ",
-							GET_OBJ_VNUM(item),
-							item->get_PName(0).c_str(),
-							i,
-							GET_OBJ_VAL(item, i));
+					const auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(item, i));
+					if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast) {
+						log("SYSERR: Неверно указано значение спела в напитке vnum %d %s, позиция: %d, значение: %d ",
+							GET_OBJ_VNUM(item), item->get_PName(0).c_str(), i, GET_OBJ_VAL(item, i));
 						continue;
 					}
-					if (IS_SET(spell_info[static_cast<ESpell>(GET_OBJ_VAL(item, i))].routines,
+					if (IS_SET(spell_info[spell_id].routines,
 							   kNpcAffectNpc | kNpcUnaffectNpc | kNpcUnaffectNpcCaster)) {
-						battle_spells[spells++] = static_cast<ESpell>(GET_OBJ_VAL(item, i));
+						battle_spells[spells++] = spell_id;
 					}
 				}
 				break;
-
-			case EObjType::kScroll:
+			}
+			case EObjType::kScroll: {
 				for (int i = 1; i <= 3; i++) {
-					if (GET_OBJ_VAL(item, i) < 0 || GET_OBJ_VAL(item, i) > kSpellLast) {
+					const auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(item, i));
+					if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast) {
 						log("SYSERR: Не верно указано значение спела в свитке %d %s, позиция: %d, значение: %d ",
-							GET_OBJ_VNUM(item),
-							item->get_PName(0).c_str(),
-							i,
-							GET_OBJ_VAL(item, i));
+							GET_OBJ_VNUM(item), item->get_PName(0).c_str(), i, GET_OBJ_VAL(item, i));
 						continue;
 					}
 
-					if (IS_SET(spell_info[static_cast<ESpell>(GET_OBJ_VAL(item, i))].routines, NPC_CALCULATE)) {
-						battle_spells[spells++] = static_cast<ESpell>(GET_OBJ_VAL(item, i));
+					if (IS_SET(spell_info[spell_id].routines, NPC_CALCULATE)) {
+						battle_spells[spells++] = spell_id;
 					}
 				}
 				break;
-
+			}
 			default: break;
 		}
 
@@ -1070,9 +1066,10 @@ void mob_casting(CharData *ch) {
 	}
 	// Ищем рандомную заклинашку и цель для нее
 	for (int i = 0; !victim && spells && i < GET_REAL_INT(ch) / 5; i++) {
-		if (!spell_id_2 && (spell_id_2 = battle_spells[(sp_num = number(0, spells - 1))])
-			&& spell_id_2 > 0 && spell_id_2 <= kSpellLast)    // sprintf(buf,"$n using spell '%s', %d from %d",
-		{
+		if (spell_id_2 == ESpell::kUndefined) {
+			spell_id_2 = battle_spells[(sp_num = number(0, spells - 1))];
+		}
+		if (spell_id_2 >= ESpell::kFirst && spell_id_2 <= ESpell::kLast) {
 			if (spell_info[spell_id_2].routines & kNpcDamagePcMinhp) {
 				if (!AFF_FLAGGED(ch, EAffect::kCharmed))
 					victim = find_target(ch);
@@ -1099,7 +1096,7 @@ void mob_casting(CharData *ch) {
 	}
 
 	// Is this object spell ?
-	if (spell_id_2 && victim) {
+	if (spell_id_2 != ESpell::kUndefined && victim) {
 		item = ch->carrying;
 		while (!AFF_FLAGGED(ch, EAffect::kCharmed)
 			&& !(MOB_FLAGGED(ch, EMobFlag::kTutelar) || MOB_FLAGGED(ch, EMobFlag::kMentalShadow))
@@ -1109,7 +1106,7 @@ void mob_casting(CharData *ch) {
 				case EObjType::kWand:
 				case EObjType::kStaff:
 					if (GET_OBJ_VAL(item, 2) > 0
-						&& GET_OBJ_VAL(item, 3) == spell_id_2) {
+						&& static_cast<ESpell>(GET_OBJ_VAL(item, 3)) == spell_id_2) {
 						EmployMagicItem(ch, item, GET_NAME(victim));
 						return;
 					}
@@ -1117,7 +1114,7 @@ void mob_casting(CharData *ch) {
 
 				case EObjType::kPotion:
 					for (int i = 1; i <= 3; i++) {
-						if (GET_OBJ_VAL(item, i) == spell_id_2) {
+						if (static_cast<ESpell>(GET_OBJ_VAL(item, i)) == spell_id_2) {
 							if (ch != victim) {
 								ExtractObjFromChar(item);
 								act("$n передал$g $o3 $N2.", false, ch, item, victim, kToRoom | kToArenaListen);
@@ -1133,7 +1130,7 @@ void mob_casting(CharData *ch) {
 
 				case EObjType::kScroll:
 					for (int i = 1; i <= 3; i++) {
-						if (GET_OBJ_VAL(item, i) == spell_id_2) {
+						if (static_cast<ESpell>(GET_OBJ_VAL(item, i)) == spell_id_2) {
 							EmployMagicItem(ch, item, GET_NAME(victim));
 							return;
 						}
@@ -1697,7 +1694,7 @@ void update_round_affs() {
 		CLR_AF_BATTLE(ch, kEafDodge);
 
 		if (GET_AF_BATTLE(ch, kEafSleep))
-			affect_from_char(ch, kSpellSleep);
+			RemoveAffectFromChar(ch, ESpell::kSleep);
 
 		if (GET_AF_BATTLE(ch, kEafBlock)) {
 			CLR_AF_BATTLE(ch, kEafBlock);
@@ -1853,7 +1850,7 @@ void process_player_attack(CharData *ch, int min_init) {
 	Bitvector trigger_code = fight_otrigger(ch);
 
 	//* каст заклинания
-	if (ch->GetCastSpell() && ch->get_wait() <= 0 && !IS_SET(trigger_code, kNoCastMagic)) {
+	if (ch->GetCastSpell() != ESpell::kUndefined && ch->get_wait() <= 0 && !IS_SET(trigger_code, kNoCastMagic)) {
 		if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
 			SendMsgToChar("Вы не смогли вымолвить и слова.\r\n", ch);
 			ch->SetCast(ESpell::kUndefined, ESpell::kUndefined, 0, 0, 0);
@@ -1964,7 +1961,7 @@ bool stuff_before_round(CharData *ch) {
 	round_num_mtrigger(ch, ch->GetEnemy());
 
 	SET_AF_BATTLE(ch, kEafStand);
-	if (IsAffectedBySpell(ch, kSpellSleep))
+	if (IsAffectedBySpell(ch, ESpell::kSleep))
 		SET_AF_BATTLE(ch, kEafSleep);
 	if (ch->in_room == kNowhere)
 		return false;

@@ -91,8 +91,8 @@ void do_cast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	auto spell_subst{ESpell::kUndefined};
 	if (!GET_SPELL_MEM(ch, spell_id) && !IS_IMMORTAL(ch)) {
 		if (IsAbleToUseFeat(ch, EFeat::kSpellSubstitute)
-			&& (spell_id == kSpellCureLight || spell_id == kSpellCureSerious
-				|| spell_id == kSpellCureCritic || spell_id == kSpellHeal)) {
+			&& (spell_id == ESpell::kCureLight || spell_id == ESpell::kCureSerious
+				|| spell_id == ESpell::kCureCritic || spell_id == ESpell::kHeal)) {
 			for (const auto &spell : MUD::Classes()[ch->get_class()].spells) {
 				auto subst_spell_id = spell.GetId();
 				if (GET_SPELL_MEM(ch, subst_spell_id) &&

@@ -37,7 +37,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 	int percent = number(1, MUD::Skills()[ESkill::kUndercut].difficulty);
 	int prob = CalcCurrentSkill(ch, ESkill::kUndercut, vict);
 
-	if (check_spell_on_player(ch, kSpellWeb)) {
+	if (IsAffectedBySpell(ch, ESpell::kWeb)) {
 		prob /= 3;
 	}
 	if (GET_GOD_FLAG(ch, EGf::kGodsLike)
@@ -63,7 +63,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 		prob = 3;
 		if (IsAbleToUseFeat(ch, EFeat::kEvasion)) {
 			Affect<EApply> af;
-			af.type = kSpellExpedient;
+			af.type = ESpell::kExpedient;
 			af.location = EApply::kPhysicResist;
 			af.modifier = 50;
 			af.duration = CalcDuration(ch, 3, 0, 0, 0, 0);

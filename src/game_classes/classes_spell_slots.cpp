@@ -1221,8 +1221,8 @@ int CalcCircleSlotsAmount(CharData *ch, int slot_num) {
 void mspell_slot(char */*name*/, ESpell spell_id, int kin, int chclass, int slot) {
 	int bad = 0;
 
-	if (spell_id < 0 || spell_id > kSpellLast) {
-		log("SYSERR: attempting assign to illegal spell id %d/%d", to_underlying(spell_id), kSpellLast);
+	if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast) {
+		log("SYSERR: attempting assign to illegal spell id %d/%d", to_underlying(spell_id), to_underlying(ESpell::kLast));
 		return;
 	}
 

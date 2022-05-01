@@ -45,7 +45,7 @@ bool is_room_forbidden(RoomData *room);
 void mobile_affect_update(void);
 void player_affect_update(void);
 void print_rune_log();
-void show_spell_off(int aff, CharData *ch);
+void ShowAffExpiredMsg(ESpell aff_type, CharData *ch);
 
 int CallMagicToGroup(int level, CharData *ch, ESpell spell_id);
 int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, ESpell spell_id, int level);
@@ -62,7 +62,7 @@ int CastToAlterObjs(int, CharData *ch, ObjData *obj, ESpell spell_id, ESaving);
 int CastCreation(int, CharData *ch, ESpell spell_id);
 int CastToSingleTarget(int level, CharData *caster, CharData *cvict, ObjData *ovict, ESpell spell_id, ESaving saving);
 
-bool PrrocessMatComponents(CharData *caster, CharData *victim, ESpell spell_id);
+bool ProcessMatComponents(CharData *caster, CharData *victim, ESpell spell_id);
 float CalcModCoef(ESpell spell_id, int percent);
 
 #endif

@@ -45,7 +45,7 @@ bool IsRoomAffected(RoomData *room, ESpell spell);
 bool IsZoneRoomAffected(int zone_vnum, ESpell spell);
 int CastSpellToRoom(int level, CharData *ch, RoomData *room, ESpell spell_id);
 int GetUniqueAffectDuration(long caster_id, ESpell spell_id);
-RoomAffectIt FindAffect(RoomData *room, int type);
+RoomAffectIt FindAffect(RoomData *room, ESpell type);
 RoomData *FindAffectedRoom(long caster_id, ESpell spell_id);
 
 }

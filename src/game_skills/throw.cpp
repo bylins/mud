@@ -51,7 +51,7 @@ void PerformShadowThrowSideAbilities(AbilitySystem::TechniqueRoll &technique) {
 			to_room = "Меткое попадание $N1 заставило $n3 умолкнуть!";
 			DoSideAction = ([](AbilitySystem::TechniqueRoll &technique) {
 				Affect<EApply> af;
-				af.type = kSpellBattle;
+				af.type = ESpell::kBattle;
 				af.bitvector = to_underlying(EAffect::kSilence);
 				af.duration = CalcDuration(technique.GetRival(), 2, GetRealLevel(technique.GetActor()), 9, 6, 2);
 				af.battleflag = kAfBattledec | kAfPulsedec;
@@ -65,7 +65,7 @@ void PerformShadowThrowSideAbilities(AbilitySystem::TechniqueRoll &technique) {
 			to_room = "Попадание булавы $N1 ошеломило $n3!";
 			DoSideAction = ([](AbilitySystem::TechniqueRoll &technique) {
 				Affect<EApply> af;
-				af.type = kSpellBattle;
+				af.type = ESpell::kBattle;
 				af.bitvector = to_underlying(EAffect::kStopFight);
 				af.duration = CalcDuration(technique.GetRival(), 3, 0, 0, 0, 0);
 				af.battleflag = kAfBattledec | kAfPulsedec;

@@ -67,8 +67,8 @@ bool stop_follower(CharData *ch, int mode) {
 	if (AFF_FLAGGED(ch, EAffect::kCharmed)
 		|| AFF_FLAGGED(ch, EAffect::kHelper)
 		|| IS_SET(mode, kSfCharmlost)) {
-		if (IsAffectedBySpell(ch, kSpellCharm)) {
-			affect_from_char(ch, kSpellCharm);
+		if (IsAffectedBySpell(ch, ESpell::kCharm)) {
+			RemoveAffectFromChar(ch, ESpell::kCharm);
 		}
 		ch->extract_timer = 5;
 		AFF_FLAGS(ch).unset(EAffect::kCharmed);

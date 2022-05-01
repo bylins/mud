@@ -21,57 +21,6 @@
 
 struct RoomData;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 
-// *******************************
-// * Spells type                 *
-// *******************************
-
-constexpr Bitvector kMtypeNeutral = 1 << 0;
-constexpr Bitvector kMtypeAggressive = 1 << 1;
-
-// *******************************
-// * Spells class                *
-// *******************************
-
-enum EElement : int {
-	kTypeNeutral = 0,
-	kTypeAir,
-	kTypeFire,
-	kTypeWater,
-	kTypeEarth,
-	kTypeLight,
-	kTypeDark,
-	kTypeMind,
-	kTypeLife
-};
-
-constexpr Bitvector kMagDamage = 1 << 0;
-constexpr Bitvector kMagAffects = 1 << 1;
-constexpr Bitvector kMagUnaffects = 1 << 2;
-constexpr Bitvector kMagPoints = 1 << 3;
-constexpr Bitvector kMagAlterObjs = 1 << 4;
-constexpr Bitvector kMagGroups = 1 << 5;
-constexpr Bitvector kMagMasses = 1 << 6;
-constexpr Bitvector kMagAreas = 1 << 7;
-constexpr Bitvector kMagSummons = 1 << 8;
-constexpr Bitvector kMagCreations = 1 << 9;
-constexpr Bitvector kMagManual = 1 << 10;
-constexpr Bitvector kMagWarcry = 1 << 11;
-constexpr Bitvector kMagNeedControl = 1 << 12;
-// А чего это тут дырка Ж)
-constexpr Bitvector kNpcDamagePc = 1 << 16;
-constexpr Bitvector kNpcDamagePcMinhp = 1 << 17;
-constexpr Bitvector kNpcAffectPc = 1 << 18;
-constexpr Bitvector kNpcAffectPcCaster = 1 << 19;
-constexpr Bitvector kNpcAffectNpc = 1 << 20;
-constexpr Bitvector kNpcUnaffectNpc = 1 << 21;
-constexpr Bitvector kNpcUnaffectNpcCaster = 1 << 22;
-constexpr Bitvector kNpcDummy = 1 << 23;
-constexpr Bitvector kMagRoom = 1 << 24;
-constexpr Bitvector kMagCasterInroom = 1 << 25; // Аффект от этого спелла действует пока кастер в комнате //
-constexpr Bitvector kMagCasterInworld = 1 << 26; // висит пока кастер в мире //
-constexpr Bitvector kMagCasterAnywhere = 1 << 27; // висит пока не упадет сам //
-constexpr Bitvector kMagCasterInworldDelay = 1 << 28; // висит пока кастер в мире, плюс таймер после ухода кастера//
-
 #define NPC_CALCULATE 0xff << 16
 
 // *** Extra attack bit flags //
@@ -145,21 +94,6 @@ const int kTypeTunnerldeath = 496;
 const int kTypeWaterdeath = 497;
 const int kTypeRoomdeath = 498;
 const int kTypeSuffering = 499;
-
-constexpr Bitvector kTarIgnore = 1 << 0;
-constexpr Bitvector kTarCharRoom = 1 << 1;
-constexpr Bitvector kTarCharWorld = 1 << 2;	// не ищет мобов при касте чарами (призвать/переместиться/переход)
-constexpr Bitvector kTarFightSelf = 1 << 3;
-constexpr Bitvector kTarFightVict = 1 << 4;
-constexpr Bitvector kTarSelfOnly = 1 << 5;	// Only a check, use with i.e. TAR_CHAR_ROOM //
-constexpr Bitvector kTarNotSelf = 1 << 6;	// Only a check, use with i.e. TAR_CHAR_ROOM //
-constexpr Bitvector kTarObjInv = 1 << 7;
-constexpr Bitvector kTarObjRoom = 1 << 8;
-constexpr Bitvector kTarObjWorld = 1 << 9;
-constexpr Bitvector kTarObjEquip = 1 << 10;
-constexpr Bitvector kTarRoomThis = 1 << 11;	// Цель комната в которой сидит чар//
-constexpr Bitvector kTarRoomDir = 1 << 12;	// Цель комната в каком-то направлении от чара//
-constexpr Bitvector kTarRoomWorld = 1 << 13;	// Цель какая-то комната в мире//
 
 struct AttackHitType {
 	const char *singular;

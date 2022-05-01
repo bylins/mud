@@ -89,7 +89,7 @@ int graf(int age, int p0, int p1, int p2, int p3, int p4, int p5, int p6) {
 void handle_recall_spells(CharData *ch) {
 	Affect<EApply>::shared_ptr aff;
 	for (const auto &af : ch->affected) {
-		if (af->type == kSpellRecallSpells) {
+		if (af->type == ESpell::kRecallSpells) {
 			aff = af;
 			break;
 		}
@@ -661,7 +661,7 @@ void beat_points_update(int pulse) {
 
 		if (AFF_FLAGGED(i, EAffect::kBandage)) {
 			for (const auto &aff : i->affected) {
-				if (aff->type == kSpellBandage) {
+				if (aff->type == ESpell::kBandage) {
 					restore += std::min(GET_REAL_MAX_HIT(i) / 10, aff->modifier);
 					break;
 				}
@@ -998,7 +998,7 @@ void check_idling(CharData *ch) {
 				Crash_crashsave(ch);
 				ExtractCharFromRoom(ch);
 				PlaceCharToRoom(ch, kStrangeRoom);
-				RemoveRuneLabelFromWorld(ch, ESpell::kSpellRuneLabel);
+				RemoveRuneLabelFromWorld(ch, ESpell::kRuneLabel);
 			} else if (ch->char_specials.timer > idle_rent_time) {
 				if (ch->in_room != kNowhere)
 					ExtractCharFromRoom(ch);
@@ -1559,9 +1559,9 @@ void obj_point_update() {
 void point_update() {
 	MemoryRecord *mem, *nmem, *pmem;
 
-	std::vector<ESpell> real_spell(kSpellLast + 1);
+	std::vector<ESpell> real_spell(to_underlying(ESpell::kLast) + 1);
 	auto count{0};
-	for (auto spell_id = ESpell::kSpellFirst; spell_id <= ESpell::kSpellLast; ++spell_id) {
+	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 		real_spell[count] = spell_id;
 		++count;
 	}
@@ -1689,10 +1689,10 @@ void point_update() {
 				// Remember some spells
 				const auto mob_num = GET_MOB_RNUM(i);
 				if (mob_num >= 0) {
-					int mana = 0;
-					int count = 0;
+					auto mana{0};
+					auto count{0};
 					const auto max_mana = GET_REAL_INT(i) * 10;
-					while (count <= kSpellLast && mana < max_mana) {
+					while (count <= to_underlying(ESpell::kLast) && mana < max_mana) {
 						const auto spell_id = real_spell[count];
 						if (GET_SPELL_MEM(mob_proto + mob_num, spell_id) > GET_SPELL_MEM(i, spell_id)) {
 							GET_SPELL_MEM(i, spell_id)++;

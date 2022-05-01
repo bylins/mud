@@ -733,7 +733,7 @@ void do_aggressive_mob(CharData *ch, int check_sneak) {
 	if (extra_aggressive(ch, nullptr)) {
 		const auto &room = world[ch->in_room];
 		for (auto affect_it = room->affected.begin(); affect_it != room->affected.end(); ++affect_it) {
-			if (affect_it->get()->type == kSpellRuneLabel && (affect_it != room->affected.end())) {
+			if (affect_it->get()->type == ESpell::kRuneLabel && (affect_it != room->affected.end())) {
 				act("$n шаркнул$g несколько раз по светящимся рунам, полностью их уничтожив.",
 					false,
 					ch,
@@ -936,7 +936,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 
 		i = missed_pulses;
 		while (i--) {
-			pulse_affect_update(ch.get());
+			UpdateAffectOnPulse(ch.get());
 		}
 
 		ch->wait_dec(missed_pulses);
@@ -1249,17 +1249,17 @@ void mobile_activity(int activity_level, int missed_pulses) {
 			&& !AFF_FLAGGED(ch, EAffect::kBlind)
 			&& !ch->GetEnemy()) {
 			// Find memory in world
-			for (auto names = MEMORY(ch); names && (GET_SPELL_MEM(ch, kSpellSummon) > 0
-				|| GET_SPELL_MEM(ch, kSpellRelocate) > 0); names = names->next) {
+			for (auto names = MEMORY(ch); names && (GET_SPELL_MEM(ch, ESpell::kSummon) > 0
+				|| GET_SPELL_MEM(ch, ESpell::kRelocate) > 0); names = names->next) {
 				for (const auto &vict : character_list) {
 					if (names->id == GET_IDNUM(vict)
 						&& CAN_SEE(ch, vict) && !PRF_FLAGGED(vict, EPrf::kNohassle)) {
-						if (GET_SPELL_MEM(ch, kSpellSummon) > 0) {
-							CastSpell(ch.get(), vict.get(), 0, 0, kSpellSummon, kSpellSummon);
+						if (GET_SPELL_MEM(ch, ESpell::kSummon) > 0) {
+							CastSpell(ch.get(), vict.get(), 0, 0, ESpell::kSummon, ESpell::kSummon);
 
 							break;
-						} else if (GET_SPELL_MEM(ch, kSpellRelocate) > 0) {
-							CastSpell(ch.get(), vict.get(), 0, 0, kSpellRelocate, kSpellRelocate);
+						} else if (GET_SPELL_MEM(ch, ESpell::kRelocate) > 0) {
+							CastSpell(ch.get(), vict.get(), 0, 0, ESpell::kRelocate, ESpell::kRelocate);
 
 							break;
 						}

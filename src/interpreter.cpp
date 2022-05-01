@@ -1101,7 +1101,7 @@ const char *reserved[] = {"a",
 
 void check_hiding_cmd(CharData *ch, int percent) {
 	int remove_hide = false;
-	if (IsAffectedBySpell(ch, kSpellHide)) {
+	if (IsAffectedBySpell(ch, ESpell::kHide)) {
 		if (percent == -2) {
 			if (AFF_FLAGGED(ch, EAffect::kSneak)) {
 				remove_hide = number(1, MUD::Skills()[ESkill::kSneak].difficulty) >
@@ -1118,7 +1118,7 @@ void check_hiding_cmd(CharData *ch, int percent) {
 		}
 
 		if (remove_hide) {
-			affect_from_char(ch, kSpellHide);
+			RemoveAffectFromChar(ch, ESpell::kHide);
 			if (!AFF_FLAGGED(ch, EAffect::kHide)) {
 				SendMsgToChar("Вы прекратили прятаться.\r\n", ch);
 				act("$n прекратил$g прятаться.", false, ch, nullptr, nullptr, kToRoom);
@@ -2308,8 +2308,8 @@ void do_entergame(DescriptorData *d) {
 		}
 	}
 
-	if (GET_SPELL_TYPE(d->character, kSpellRelocate) == ESpellType::kKnow && !IS_GOD(d->character)) {
-		GET_SPELL_TYPE(d->character, kSpellRelocate) = ESpellType::kUnknowm;
+	if (GET_SPELL_TYPE(d->character, ESpell::kRelocate) == ESpellType::kKnow && !IS_GOD(d->character)) {
+		GET_SPELL_TYPE(d->character, ESpell::kRelocate) = ESpellType::kUnknowm;
 	}
 
 	//Проверим временные заклы пока нас не было
@@ -2600,7 +2600,7 @@ void init_char(CharData *ch, PlayerIndexElement &element) {
 		set_god_morphs(ch);
 	}
 
-	for (auto spell_id = ESpell::kSpellFirst; spell_id <= ESpell::kSpellLast; ++spell_id) {
+	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 		if (GetRealLevel(ch) < kLvlGreatGod) {
 			GET_SPELL_TYPE(ch, spell_id) = ESpellType::kUnknowm;
 		} else {

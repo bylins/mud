@@ -428,10 +428,10 @@ void forget_all_spells(CharData *ch) {
 	}
 	int slotn;
 
-	for (auto spell_id = ESpell::kSpellFirst ; spell_id <= ESpell::kSpellLast; ++spell_id) {
-		if (PRF_FLAGGED(ch, EPrf::kAutomem) && ch->real_abils.SplMem[spell_id]) {
+	for (auto spell_id = ESpell::kFirst ; spell_id <= ESpell::kLast; ++spell_id) {
+		if (PRF_FLAGGED(ch, EPrf::kAutomem) && GET_SPELL_MEM(ch, spell_id)) {
 			slotn = spell_info[spell_id].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;
-			for (unsigned j = 0; (slots[slotn] > 0 && j < ch->real_abils.SplMem[spell_id]); ++j, --slots[slotn]) {
+			for (unsigned j = 0; (slots[slotn] > 0 && j < GET_SPELL_MEM(ch, spell_id)); ++j, --slots[slotn]) {
 				ch->mem_queue.total += CalcSpellManacost(ch, spell_id);
 				CREATE(qi_cur, 1);
 				*qi = qi_cur;
@@ -440,11 +440,11 @@ void forget_all_spells(CharData *ch) {
 				qi = &qi_cur->next;
 			}
 		}
-		ch->real_abils.SplMem[spell_id] = 0;
+		GET_SPELL_MEM(ch, spell_id) = 0;
 	}
 	if (max_slot) {
 		Affect<EApply> af;
-		af.type = kSpellRecallSpells;
+		af.type = ESpell::kRecallSpells;
 		af.location = EApply::kNone;
 		af.modifier = 1; // номер круга, который восстанавливаем
 		//добавим 1 проход про запас, иначе неуспевает отмемиться последний круг -- аффект спадает раньше
@@ -523,13 +523,13 @@ void arena_kill(CharData *ch, CharData *killer) {
 		}
 	}
 	for (int i=0; i < MAX_FIRSTAID_REMOVE; i++) {
-		affect_from_char(ch, RemoveSpell(i));
+		RemoveAffectFromChar(ch, GetRemovableSpellId(i));
 	}
 	// наемовские яды
-	affect_from_char(ch, kSpellAconitumPoison);
-	affect_from_char(ch, kSpellDaturaPoison);
-	affect_from_char(ch, kSpellScopolaPoison);
-	affect_from_char(ch, kSpellBelenaPoison);
+	RemoveAffectFromChar(ch, ESpell::kAconitumPoison);
+	RemoveAffectFromChar(ch, ESpell::kDaturaPoison);
+	RemoveAffectFromChar(ch, ESpell::kScopolaPoison);
+	RemoveAffectFromChar(ch, ESpell::kBelenaPoison);
 
 	ExtractCharFromRoom(ch);
 	PlaceCharToRoom(ch, to_room);
@@ -599,8 +599,8 @@ void check_spell_capable(CharData *ch, CharData *killer) {
 		&& killer != ch
 		&& MOB_FLAGGED(ch, EMobFlag::kClone)
 		&& ch->has_master()
-		&& IsAffectedBySpell(ch, kSpellCapable)) {
-		affect_from_char(ch, kSpellCapable);
+		&& IsAffectedBySpell(ch, ESpell::kCapable)) {
+		RemoveAffectFromChar(ch, ESpell::kCapable);
 		act("Чары, наложенные на $n3, тускло засветились и стали превращаться в нечто опасное.",
 			false, ch, nullptr, killer, kToRoom | kToArenaListen);
 		auto pos = GET_POS(ch);
@@ -1344,8 +1344,8 @@ void Damage::post_init(CharData *ch, CharData *victim) {
 		// ABYRVALG тут нужно переделать на взятие сообщения из структуры абилок
 		if (MUD::Skills().IsValid(skill_id)) {
 			msg_num = to_underlying(skill_id) + kTypeHit;
-		} else if (spell_id >= 0) {
-			msg_num = spell_id;
+		} else if (spell_id >= ESpell::kUndefined) {
+			msg_num = to_underlying(spell_id);
 		} else if (hit_type >= 0) {
 			msg_num = hit_type + kTypeHit;
 		} else {

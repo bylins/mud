@@ -35,7 +35,7 @@ void go_kick(CharData *ch, CharData *vict) {
 		if (GET_GOD_FLAG(ch, EGf::kGodscurse) || (!ch->IsOnHorse() && vict->IsOnHorse())) {
 			prob = 0;
 		}
-		if (check_spell_on_player(ch, kSpellWeb)) {
+		if (IsAffectedBySpell(ch, ESpell::kWeb)) {
 			prob /= 3;
 		}
 		success = percent <= prob;
@@ -59,7 +59,7 @@ void go_kick(CharData *ch, CharData *vict) {
 		if (ch->IsOnHorse() && (ch->get_skill(ESkill::kRiding) >= 150) && (ch->get_skill(ESkill::kKick) >= 150)) {
 			Affect<EApply> af;
 			af.location = EApply::kNone;
-			af.type = kSpellBattle;
+			af.type = ESpell::kBattle;
 			af.modifier = 0;
 			af.battleflag = 0;
 			float modi = ((ch->get_skill(ESkill::kKick) + GET_REAL_STR(ch) * 5)
@@ -72,7 +72,7 @@ void go_kick(CharData *ch, CharData *vict) {
 							to_char = "Каблук вашего сапога надолго запомнится $N2, если конечно он выживет.";
 							to_vict = "Мощный удар ноги $n1 изуродовал вам правую руку.";
 							to_room = "След сапога $n1 надолго запомнится $N2, если конечно он$Q выживет.";
-							af.type = kSpellBattle;
+							af.type = ESpell::kBattle;
 							af.bitvector = to_underlying(EAffect::kStopRight);
 							af.duration = CalcDuration(vict, 3 + GET_REAL_REMORT(ch) / 4, 0, 0, 0, 0);
 							af.battleflag = kAfBattledec | kAfPulsedec;
@@ -97,7 +97,7 @@ void go_kick(CharData *ch, CharData *vict) {
 					case 3:to_char = "Сильно пнув в челюсть, вы заставили $N3 замолчать.";
 						to_vict = "Мощный удар ноги $n1 попал вам точно в челюсть, заставив вас замолчать.";
 						to_room = "Сильно пнув ногой в челюсть $N3, $n заставил$q $S замолчать.";
-						af.type = kSpellBattle;
+						af.type = ESpell::kBattle;
 						af.bitvector = to_underlying(EAffect::kSilence);
 						af.duration = CalcDuration(vict, 3 + GET_REAL_REMORT(ch) / 5, 0, 0, 0, 0);
 						af.battleflag = kAfBattledec | kAfPulsedec;

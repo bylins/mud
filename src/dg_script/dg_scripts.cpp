@@ -2768,15 +2768,12 @@ void find_replacement(void *go,
 			sprintf(str, "%d", sum);
 		} else if (!str_cmp(field, "affect")) {
 			c->char_specials.saved.affected_by.gm_flag(subfield, affected_bits, str);
-		}
-
-			//added by WorM
-			//собственно подозреваю что никто из билдеров даже не вкурсе насчет всего функционала этого affect
-			//тупизм какой-то проверять аффекты обездвижен,летит и т.п.
-			//к тому же они в том списке не все кличи например никак там не отображаются
-		else if (!str_cmp(field, "affected_by")) {
-			if ((num = FixNameAndFindSpellId(subfield)) > 0) {
-				sprintf(str, "%d", (int) IsAffectedBySpell(c, num));
+			//подозреваю что никто из билдеров даже не вкурсе насчет всего функционала этого affect
+			//к тому же аффекты в том списке не все кличи например никак там не отображаются
+		} else if (!str_cmp(field, "affected_by")) {
+			auto spell_id = FixNameAndFindSpellId(subfield);
+			if (spell_id >= ESpell::kFirst && spell_id < ESpell::kLast) {
+				sprintf(str, "%d", (int) IsAffectedBySpell(c, spell_id));
 			}
 		} else if (!str_cmp(field, "action")) {
 			if (c->IsNpc()) {

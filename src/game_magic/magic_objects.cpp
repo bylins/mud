@@ -37,23 +37,23 @@ void remove_tmp_extra(ObjData *obj, EObjFlag flag) {
  * Проверка надо ли что-то делать со шмоткой или писать чару
  * при снятии заклинания со шмотки.
  */
-void check_spell_remove(ObjData *obj, int spell, bool send_message) {
+void PrepareSpellRemoving(ObjData *obj, ESpell spell_id, bool send_message) {
 	if (!obj) {
-		log("SYSERROR: NULL object %s:%d, spell = %d", __FILE__, __LINE__, spell);
+		log("SYSERROR: NULL object %s:%d, spell = %d", __FILE__, __LINE__, spell_id);
 		return;
 	}
 
 	// если что-то надо сделать со шмоткой при снятии обкаста
-	switch (spell) {
-		case kSpellAconitumPoison:
-		case kSpellScopolaPoison:
-		case kSpellBelenaPoison:
-		case kSpellDaturaPoison: break;
+	switch (spell_id) {
+		case ESpell::kAconitumPoison:
+		case ESpell::kScopolaPoison:
+		case ESpell::kBelenaPoison:
+		case ESpell::kDaturaPoison: break;
 
-		case kSpellFly: remove_tmp_extra(obj, EObjFlag::kFlying);
+		case ESpell::kFly: remove_tmp_extra(obj, EObjFlag::kFlying);
 			break;
 
-		case kSpellLight: remove_tmp_extra(obj, EObjFlag::kGlow);
+		case ESpell::kLight: remove_tmp_extra(obj, EObjFlag::kGlow);
 			break;
 		default: break;
 	} // switch
@@ -63,23 +63,23 @@ void check_spell_remove(ObjData *obj, int spell, bool send_message) {
 		&& (obj->get_carried_by()
 			|| obj->get_worn_by())) {
 		CharData *ch = obj->get_carried_by() ? obj->get_carried_by() : obj->get_worn_by();
-		switch (spell) {
-			case kSpellAconitumPoison:
-			case kSpellScopolaPoison:
-			case kSpellBelenaPoison:
-			case kSpellDaturaPoison:
+		switch (spell_id) {
+			case ESpell::kAconitumPoison:
+			case ESpell::kScopolaPoison:
+			case ESpell::kBelenaPoison:
+			case ESpell::kDaturaPoison:
 				SendMsgToChar(ch, "С %s испарились последние капельки яда.\r\n",
 							  GET_OBJ_PNAME(obj, 1).c_str());
 				break;
 
-			case kSpellFly:
+			case ESpell::kFly:
 				SendMsgToChar(ch, "Ваш%s %s перестал%s парить в воздухе.\r\n",
 							  GET_OBJ_VIS_SUF_7(obj, ch),
 							  GET_OBJ_PNAME(obj, 0).c_str(),
 							  GET_OBJ_VIS_SUF_1(obj, ch));
 				break;
 
-			case kSpellLight:
+			case ESpell::kLight:
 				SendMsgToChar(ch, "Ваш%s %s перестал%s светиться.\r\n",
 							  GET_OBJ_VIS_SUF_7(obj, ch),
 							  GET_OBJ_PNAME(obj, 0).c_str(),
@@ -92,19 +92,18 @@ void check_spell_remove(ObjData *obj, int spell, bool send_message) {
 
 // * Распечатка строки с заклинанием и таймером при осмотре шмотки.
 std::string print_spell_str(CharData *ch, ESpell spell_id, int timer) {
-	if (spell_id < 1
-		|| spell_id > kSpellLast) {
+	if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast) {
 		log("SYSERROR: %s, spell = %d, time = %d", __func__, spell_id, timer);
 		return "";
 	}
 
 	std::stringstream out;
 	switch (spell_id) {
-		case kSpellAconitumPoison:
-		case kSpellScopolaPoison:
-		case kSpellBelenaPoison:
-		case kSpellDaturaPoison:
-			out << CCGRN(ch, C_NRM) << "Отравлено " << get_poison_by_spell(spell_id) << " еще " << timer << " "
+		case ESpell::kAconitumPoison:
+		case ESpell::kScopolaPoison:
+		case ESpell::kBelenaPoison:
+		case ESpell::kDaturaPoison:
+			out << CCGRN(ch, C_NRM) << "Отравлено " << GetPoisonName(spell_id) << " еще " << timer << " "
 				<< GetDeclensionInNumber(timer, EWhat::kMinU) << ".\r\n" << CCNRM(ch, C_NRM);
 			break;
 
@@ -133,7 +132,7 @@ std::string print_spell_str(CharData *ch, ESpell spell_id, int timer) {
 void TimedSpell::del(ObjData *obj, ESpell spell_id, bool message) {
 	auto i = spell_list_.find(spell_id);
 	if (i != spell_list_.end()) {
-		check_spell_remove(obj, spell_id, message);
+		PrepareSpellRemoving(obj, spell_id, message);
 		spell_list_.erase(i);
 	}
 }
@@ -144,14 +143,14 @@ void TimedSpell::del(ObjData *obj, ESpell spell_id, bool message) {
 */
 void TimedSpell::add(ObjData *obj, ESpell spell_id, int time) {
 	// замещение ядов друг другом
-	if (spell_id == kSpellAconitumPoison
-		|| spell_id == kSpellScopolaPoison
-		|| spell_id == kSpellBelenaPoison
-		|| spell_id == kSpellDaturaPoison) {
-		del(obj, kSpellAconitumPoison, false);
-		del(obj, kSpellScopolaPoison, false);
-		del(obj, kSpellBelenaPoison, false);
-		del(obj, kSpellDaturaPoison, false);
+	if (spell_id == ESpell::kAconitumPoison
+		|| spell_id == ESpell::kScopolaPoison
+		|| spell_id == ESpell::kBelenaPoison
+		|| spell_id == ESpell::kDaturaPoison) {
+		del(obj, ESpell::kAconitumPoison, false);
+		del(obj, ESpell::kScopolaPoison, false);
+		del(obj, ESpell::kBelenaPoison, false);
+		del(obj, ESpell::kDaturaPoison, false);
 	}
 
 	spell_list_[spell_id] = time;
@@ -174,13 +173,13 @@ std::string TimedSpell::diag_to_char(CharData *ch) {
  * Проверка на обкаст шмотки любым видом яда.
  * \return -1 если яда нет, spell_num если есть.
  */
-int TimedSpell::is_spell_poisoned() const {
+ESpell TimedSpell::IsSpellPoisoned() const {
 	for (auto i : spell_list_) {
-		if (check_poison(i.first)) {
+		if (IsSpellPoison(i.first)) {
 			return i.first;
 		}
 	}
-	return -1;
+	return ESpell::kUndefined;
 }
 
 // * Для сейва обкаста.
@@ -219,7 +218,7 @@ void TimedSpell::dec_timer(ObjData *obj, int time) {
 		if (i->second != -1) {
 			i->second -= time;
 			if (i->second <= 0) {
-				check_spell_remove(obj, i->first, true);
+				PrepareSpellRemoving(obj, i->first, true);
 				spell_list_.erase(i++);
 			} else {
 				++i;

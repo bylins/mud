@@ -478,10 +478,11 @@ const std::string &NAME_BY_ITEM<ESkill>(const ESkill item) {
 	return ESkill_name_by_value.at(item);
 }
 
+
 ///
 /// \param add = "", строка для добавления после основного сообщения (краткий режим щитов)
 ///
-int SendSkillMessages(int dam, CharData *ch, CharData *vict, int attacktype, std::string add) {
+int SendSkillMessages(int dam, CharData *ch, CharData *vict, int attacktype, const std::string add) {
 	int i, j, nr;
 	struct AttackMsgSet *msg;
 
@@ -496,8 +497,7 @@ int SendSkillMessages(int dam, CharData *ch, CharData *vict, int attacktype, std
 
 			const auto weap = init_weap(ch, dam, attacktype);
 			brief_shields brief(ch, vict, weap, add);
-			if (attacktype == kSpellFireShield
-				|| attacktype == kSpellMagicGlass) {
+			if (attacktype == to_underlying(ESpell::kFireShield) || attacktype == to_underlying(ESpell::kMagicGlass)) {
 				brief.reflect = true;
 			}
 
@@ -557,6 +557,14 @@ int SendSkillMessages(int dam, CharData *ch, CharData *vict, int attacktype, std
 		}
 	}
 	return (0);
+}
+
+int SendSkillMessages(int dam, CharData *ch, CharData *vict, ESkill skill_id, const std::string add) {
+	return SendSkillMessages(dam, ch, vict, to_underlying(skill_id), add);
+}
+
+int SendSkillMessages(int dam, CharData *ch, CharData *vict, ESpell spell_id, const std::string add) {
+	return SendSkillMessages(dam, ch, vict, to_underlying(spell_id), add);
 }
 
 int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {

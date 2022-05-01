@@ -334,8 +334,8 @@ void oedit_save_to_disk(int zone_num) {
 					!obj->get_description().empty() ? obj->get_description().c_str() : "undefined",
 					buf1,
 					GET_OBJ_SKILL(obj), GET_OBJ_MAX(obj), GET_OBJ_CUR(obj),
-					GET_OBJ_MATER(obj), static_cast<int>(GET_OBJ_SEX(obj)),
-					obj->get_timer(), GET_OBJ_SPELL(obj),
+					GET_OBJ_MATER(obj), to_underlying(GET_OBJ_SEX(obj)),
+					obj->get_timer(), to_underlying(GET_OBJ_SPELL(obj)),
 					GET_OBJ_LEVEL(obj), buf2, GET_OBJ_VAL(obj, 0),
 					GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2),
 					GET_OBJ_VAL(obj, 3), GET_OBJ_WEIGHT(obj),
@@ -535,7 +535,7 @@ void oedit_disp_spells_menu(DescriptorData *d) {
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
-	for (auto spell_id = ESpell::kSpellFirst; spell_id <= ESpell::kSpellLast; ++spell_id) {
+	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 		if (!spell_info[spell_id].name || *spell_info[spell_id].name == '!' || *spell_info[spell_id].name == '*')
 			continue;
 		sprintf(buf, "%s%2d%s) %s%-30.30s %s", grn, to_underlying(spell_id), nrm, yel,
@@ -1262,8 +1262,8 @@ void check_potion_proto(ObjData *obj) {
 }
 
 bool parse_val_spell_num(DescriptorData *d, const ObjVal::EValueKey key, int val) {
-	if (val < 1
-		|| val > kSpellLast) {
+	auto spell_id = static_cast<ESpell>(val);
+	if (spell_id < ESpell::kFirst || spell_id >= ESpell::kLast) {
 		if (val != 0) {
 			SendMsgToChar("Неверный выбор.\r\n", d->character.get());
 		}
@@ -1276,7 +1276,7 @@ bool parse_val_spell_num(DescriptorData *d, const ObjVal::EValueKey key, int val
 	OLC_OBJ(d)->set_value(key, val);
 	SendMsgToChar(d->character.get(), "Выбранное заклинание: %s\r\n"
 									  "Ведите уровень заклинания от 1 до 50 (0 - выход) :",
-				  GetSpellName(static_cast<ESpell>(val)));
+				  GetSpellName(spell_id));
 	return true;
 }
 
@@ -1798,16 +1798,16 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			number = atoi(arg);
 			switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
 				case EObjType::kScroll:
-				case EObjType::kPotion:
-					if (number < 1
-						|| number > kSpellLast) {
+				case EObjType::kPotion: {
+					auto spell_id = static_cast<ESpell>(number);
+					if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast) {
 						oedit_disp_val2_menu(d);
 					} else {
 						OLC_OBJ(d)->set_val(1, number);
 						oedit_disp_val3_menu(d);
 					}
 					return;
-
+				}
 				case EObjType::kContainer:
 					// Needs some special handling since we are dealing with flag values
 					// here.
@@ -1832,7 +1832,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 								return;
 							}
 							auto spell_id = static_cast<ESpell>(number);
-							if (spell_id < ESpell::kSpellFirst || (number > ESpell::kSpellLast ||
+							if (spell_id < ESpell::kFirst || (spell_id > ESpell::kLast ||
 								!spell_info[spell_id].name || *spell_info[spell_id].name == '!')) {
 								SendMsgToChar("Неизвестное заклинание, повторите.\r\n", d->character.get());
 								oedit_disp_val2_menu(d);
@@ -1893,7 +1893,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
 				case EObjType::kScroll:
 				case EObjType::kPotion: min_val = -1;
-					max_val = kSpellLast;
+					max_val = to_underlying(ESpell::kLast);
 					break;
 
 				case EObjType::kWeapon: min_val = 1;
@@ -1926,12 +1926,12 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
 				case EObjType::kScroll:
 				case EObjType::kPotion: min_val = -1;
-					max_val = kSpellLast;
+					max_val = to_underlying(ESpell::kLast);
 					break;
 
 				case EObjType::kWand:
 				case EObjType::kStaff: min_val = 1;
-					max_val = kSpellLast;
+					max_val = to_underlying(ESpell::kLast);
 					break;
 
 				case EObjType::kWeapon: min_val = 0;

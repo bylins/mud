@@ -287,7 +287,7 @@ const std::string &NAME_BY_ITEM(const EWeaponAffect item) {
 }
 
 WeaponAffectArray weapon_affect = {
-	WeaponAffect{EWeaponAffect::kBlindness, 0, kSpellBlindness},
+	WeaponAffect{EWeaponAffect::kBlindness, 0, ESpell::kBlindness},
 	WeaponAffect{EWeaponAffect::kInvisibility, to_underlying(EAffect::kInvisible), ESpell::kUndefined},
 	WeaponAffect{EWeaponAffect::kDetectAlign, to_underlying(EAffect::kDetectAlign), ESpell::kUndefined},
 	WeaponAffect{EWeaponAffect::kDetectInvisibility, to_underlying(EAffect::kDetectInvisible), ESpell::kUndefined},
@@ -297,15 +297,15 @@ WeaponAffectArray weapon_affect = {
 	WeaponAffect{EWeaponAffect::kSanctuary, to_underlying(EAffect::kSanctuary), ESpell::kUndefined},
 	WeaponAffect{EWeaponAffect::kCurse, to_underlying(EAffect::kCurse), ESpell::kUndefined},
 	WeaponAffect{EWeaponAffect::kInfravision, to_underlying(EAffect::kInfravision), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kPoison, 0, kSpellPoison},
+	WeaponAffect{EWeaponAffect::kPoison, 0, ESpell::kPoison},
 	WeaponAffect{EWeaponAffect::kProtectedFromEvil, to_underlying(EAffect::kProtectedFromEvil), ESpell::kUndefined},
 	WeaponAffect{EWeaponAffect::kProtectedFromGood, to_underlying(EAffect::kProtectedFromGood), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kSleep, 0, kSpellSleep},
+	WeaponAffect{EWeaponAffect::kSleep, 0, ESpell::kSleep},
 	WeaponAffect{EWeaponAffect::kNoTrack, to_underlying(EAffect::kNoTrack), ESpell::kUndefined},
 	WeaponAffect{EWeaponAffect::kBless, to_underlying(EAffect::kBless), ESpell::kUndefined},
 	WeaponAffect{EWeaponAffect::kSneak, to_underlying(EAffect::kSneak), ESpell::kUndefined},
 	WeaponAffect{EWeaponAffect::kHide, to_underlying(EAffect::kHide), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kHold, 0, kSpellHold},
+	WeaponAffect{EWeaponAffect::kHold, 0, ESpell::kHold},
 	WeaponAffect{EWeaponAffect::kFly, to_underlying(EAffect::kFly), ESpell::kUndefined},
 	WeaponAffect{EWeaponAffect::kSilence, to_underlying(EAffect::kSilence), ESpell::kUndefined},
 	WeaponAffect{EWeaponAffect::kAwareness, to_underlying(EAffect::kAwarness), ESpell::kUndefined},
@@ -487,7 +487,7 @@ void init_EApplyLocation_ITEM_NAMES() {
 	EApplyLocation_name_by_value[EApply::kViewDeathTraps] = "kViewDeathTraps";
 	EApplyLocation_name_by_value[EApply::kExpPercent] = "kExpPercent";
 	EApplyLocation_name_by_value[EApply::kPhysicDamagePercent] = "kPhysicDamagePercent";
-	EApplyLocation_name_by_value[EApply::kSpelledBlink] = "kSpelledBlink";
+	EApplyLocation_name_by_value[EApply::kSpelledBlink] =  "kSpelledBlink";
 	EApplyLocation_name_by_value[EApply::kNumberApplies] = "kNumberApplies";
 	EApplyLocation_name_by_value[EApply::kMagicDamagePercent] = "kMagicDamagePercent";
 	for (const auto &i : EApplyLocation_name_by_value) {

@@ -92,8 +92,8 @@ struct char_played_ability_data {
 
 // Char's abilities.
 struct char_ability_data {
-	std::array<ubyte, kSpellLast + 1> SplKnw; // array of SPELL_KNOW_TYPE
-	std::array<ubyte, kSpellLast + 1> SplMem; // array of MEMed SPELLS
+	std::array<ubyte, to_underlying(ESpell::kLast) + 1> SplKnw; // array of SPELL_KNOW_TYPE
+	std::array<ubyte, to_underlying(ESpell::kLast) + 1> SplMem; // array of MEMed SPELLS
 	std::bitset<to_underlying(EFeat::kLast) + 1> Feats;
 	sbyte size;
 	int hitroll;
@@ -839,11 +839,16 @@ class CharData : public ProtectedCharData {
 	void dismount();
 };
 # define MAX_FIRSTAID_REMOVE 13
-inline ESpell RemoveSpell(int num) {
-	ESpell spell[MAX_FIRSTAID_REMOVE] = {kSpellSleep, kSpellPoison, kSpellWeaknes, kSpellCurse, kSpellFever,
-									  kSpellSllence, kSpellBlindness, kSpellHaemorrhage, kSpellHold, kSpellPeaceful,
-									  kSpellColdWind, kSpellDeafness, kSpellBattle};
-	return spell[num];
+inline ESpell GetRemovableSpellId(int num) {
+	static const ESpell spell[MAX_FIRSTAID_REMOVE] = {ESpell::kSleep, ESpell::kPoison, ESpell::kWeaknes, ESpell::kCurse,
+										 ESpell::kFever, ESpell::kSllence, ESpell::kBlindness, ESpell::kHaemorrhage,
+										 ESpell::kHold, ESpell::kPeaceful, ESpell::kColdWind, ESpell::kDeafness,
+										 ESpell::kBattle};
+	if (num < MAX_FIRSTAID_REMOVE) {
+		return spell[num];
+	} else {
+		return ESpell::kUndefined;
+	}
 }
 
 inline const player_special_data::ignores_t &CharData::get_ignores() const {

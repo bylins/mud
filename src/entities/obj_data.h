@@ -169,7 +169,7 @@ class CObjectPrototype {
 										   m_max_in_world(DEFAULT_MAX_IN_WORLD),
 										   m_vals({0, 0, 0, 0}),
 										   m_destroyer(DEFAULT_DESTROYER),
-										   m_spell(kUndefined),
+										   m_spell(ESpell::kUndefined),
 										   m_level(DEFAULT_LEVEL),
 										   m_skill(-1),
 										   m_maximum_durability(DEFAULT_MAXIMUM_DURABILITY),
@@ -290,7 +290,7 @@ class CObjectPrototype {
 	void set_short_description(const char *_) { m_short_description = _; }
 	void set_short_description(const std::string &_) { m_short_description = _; }
 	void set_skill(const int _) { m_skill = _; }
-	void set_spell(const int _) { m_spell = static_cast<ESpell>(_); }
+	void set_spell(const int _) { m_spell = std::clamp(static_cast<ESpell>(_), ESpell::kUndefined, ESpell::kLast); }
 	void set_type(const EObjType _) { m_type = _; }
 	void set_sex(const ESex _) { m_sex = _; }
 	void set_value(const ObjVal::EValueKey key, const int value) { return m_values.set(key, value); }
@@ -613,7 +613,7 @@ typedef std::map<int, set_info> id_to_set_info_map;
 class TimedSpell {
  public:
 	[[nodiscard]] bool check_spell(ESpell spell_id) const;
-	[[nodiscard]] int is_spell_poisoned() const;
+	[[nodiscard]] ESpell IsSpellPoisoned() const;
 	[[nodiscard]] bool empty() const;
 	[[nodiscard]] std::string print() const;
 	void dec_timer(ObjData *obj, int time = 1);

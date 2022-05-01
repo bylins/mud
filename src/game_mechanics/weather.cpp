@@ -859,12 +859,12 @@ int CalcWeatherSpellMod(CharData *ch, ESpell spell_id, int type, int value) {
 		case GAPPLY_SPELL_EFFECT:
 			switch (spell_id)    // Огненные спеллы - лето, день, безоблачно
 			{
-				case kSpellBurningHands:
-				case kSpellShockingGasp:
-				case kSpellShineFlash:
-				case kSpellIceBolts:
-				case kSpellFireball:
-				case kSpellFireBlast:
+				case ESpell::kBurningHands:
+				case ESpell::kShockingGasp:
+				case ESpell::kShineFlash:
+				case ESpell::kIceBolts:
+				case ESpell::kFireball:
+				case ESpell::kFireBlast:
 					if (season == ESeason::kSummer &&
 						(weather_info.sunlight == kSunRise || weather_info.sunlight == kSunLight)) {
 						if (sky == kSkyLightning)
@@ -874,20 +874,20 @@ int CalcWeatherSpellMod(CharData *ch, ESpell spell_id, int type, int value) {
 					}
 					break;
 					// Молнийные спеллы - облачно или дождливо
-				case kSpellCallLighting:
-				case kSpellLightingBolt:
-				case kSpellChainLighting:
-				case kSpellArmageddon:
+				case ESpell::kCallLighting:
+				case ESpell::kLightingBolt:
+				case ESpell::kChainLighting:
+				case ESpell::kArmageddon:
 					if (sky == kSkyRaining)
 						modi += (modi * number(20, 50) / 100);
 					else if (sky == kSkyCloudy)
 						modi += (modi * number(10, 25) / 100);
 					break;
 					// Водно-ледяные спеллы - зима
-				case kSpellChillTouch:
-				case kSpellIceStorm:
-				case kSpellColdWind:
-				case kSpellGodsWrath:
+				case ESpell::kChillTouch:
+				case ESpell::kIceStorm:
+				case ESpell::kColdWind:
+				case ESpell::kGodsWrath:
 					if (season == ESeason::kWinter) {
 						if (sky == kSkyRaining || sky == kSkyCloudy)
 							modi += (modi * number(20, 50) / 100);

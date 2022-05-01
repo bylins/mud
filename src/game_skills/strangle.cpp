@@ -47,7 +47,7 @@ void go_strangle(CharData *ch, CharData *vict) {
 		SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 3);
 	} else {
 		Affect<EApply> af;
-		af.type = kSpellStrangle;
+		af.type = ESpell::kStrangle;
 		af.duration = vict->IsNpc() ? 8 : 15;
 		af.modifier = 0;
 		af.location = EApply::kNone;

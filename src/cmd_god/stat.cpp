@@ -742,7 +742,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 			switch (GET_OBJ_VAL(j, 0)) {
 				case EBook::kSpell: {
 					auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(j, 1));
-					if (GET_OBJ_VAL(j, 1) >= 1 && GET_OBJ_VAL(j, 1) <= kSpellLast) {
+					if (spell_id >= ESpell::kFirst && spell_id <= ESpell::kLast) {
 						sprintf(buf, "содержит заклинание        : \"%s\"", GetSpellName(spell_id));
 					} else
 						sprintf(buf, "неверный номер заклинания");

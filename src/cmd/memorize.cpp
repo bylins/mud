@@ -64,7 +64,7 @@ void show_wizdom(CharData *ch, int bitset) {
 	if (bitset & 0x01) {
 		is_full = 0;
 		max_slot = 0;
-		for (auto spell_id = ESpell::kSpellFirst; spell_id <= ESpell::kSpellLast; ++spell_id) {
+		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 			if (!GET_SPELL_TYPE(ch, spell_id)) {
 				continue;
 			}
@@ -109,8 +109,8 @@ void show_wizdom(CharData *ch, int bitset) {
 		}
 
 		if (!ch->mem_queue.Empty()) {
-			ESpell cnt[kSpellLast + 1];
-			memset(cnt, 0, to_underlying(ESpell::kSpellLast) + 1);
+			ESpell cnt [to_underlying(ESpell::kLast) + 1];
+			memset(cnt, 0, to_underlying(ESpell::kLast) + 1);
 			timestr[0] = 0;
 			if (!IS_MANA_CASTER(ch)) {
 				int div, min, sec;
@@ -130,7 +130,7 @@ void show_wizdom(CharData *ch, int bitset) {
 			}
 
 			for (q = ch->mem_queue.queue; q; q = q->next) {
-				++cnt[q->spell_id];
+				++cnt[to_underlying(q->spell_id)];
 			}
 
 			for (q = ch->mem_queue.queue; q; q = q->next) {
@@ -143,7 +143,7 @@ void show_wizdom(CharData *ch, int bitset) {
 				slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
 										   "%2s|[%2d] %-26s%5s|",
 										   slots[slot_num] % 80 <
-											   10 ? "\r\n" : "  ", cnt[index],
+											   10 ? "\r\n" : "  ", to_underlying(cnt[index]),
 										   spell_info[spell_id].name, q == ch->mem_queue.queue ? timestr : "");
 				cnt[index] = ESpell::kUndefined;
 			}

@@ -51,7 +51,7 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 	// Say phrase ?
 	const auto &cast_phrase_list = GetCastPhrase(spell_id);
 	if (!cast_phrase_list) {
-		sprintf(buf, "[ERROR]: SaySpell: для спелла %d не объявлена cast_phrase", spell_id);
+		sprintf(buf, "[ERROR]: SaySpell: для спелла %d не объявлена cast_phrase", to_underlying(spell_id));
 		mudlog(buf, CMP, kLvlGod, SYSLOG, true);
 		return;
 	}
@@ -213,7 +213,7 @@ ESpell FindSpellNum(const char *name) {
 		&& ((ubyte) *name >= (ubyte) 'a'))
 		|| (((ubyte) *name <= (ubyte) 'Z') && ((ubyte) *name >= (ubyte) 'A'));
 
-	for (auto spell_id = ESpell::kSpellFirst ; spell_id <= ESpell::kSpellLast; ++spell_id) {
+	for (auto spell_id = ESpell::kFirst ; spell_id <= ESpell::kLast; ++spell_id) {
 		realname = (use_syn) ? spell_info[spell_id].syn : spell_info[spell_id].name;
 
 		if (!realname || !*realname) {
@@ -335,7 +335,7 @@ bool MayCastHere(CharData *caster, CharData *victim, ESpell spell_id) {
  */
 int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level) {
 
-	if (spell_id < 1 || spell_id > kSpellLast)
+	if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast)
 		return 0;
 
 	if (ROOM_FLAGGED(IN_ROOM(caster), ERoomFlag::kNoMagic) && !MayCastInNomagic(caster, spell_id)) {
@@ -415,7 +415,7 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 	*tch = nullptr;
 	*tobj = nullptr;
 	*troom = world[ch->in_room];
-	if (spell_id == kSpellControlWeather) {
+	if (spell_id == ESpell::kControlWeather) {
 		if ((what_sky = search_block(t, what_sky_type, false)) < 0) {
 			SendMsgToChar("Не указан тип погоды.\r\n", ch);
 			return false;
@@ -423,7 +423,7 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 			what_sky >>= 1;
 	}
 
-	if (spell_id == kSpellCreateWeapon) {
+	if (spell_id == ESpell::kCreateWeapon) {
 		if ((what_sky = search_block(t, what_weapon, false)) < 0) {
 			SendMsgToChar("Не указан тип оружия.\r\n", ch);
 			return false;
@@ -492,7 +492,7 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 		if (IS_SET(spell_info[spell_id].targets, kTarObjWorld)) {
 //			if ((*tobj = get_obj_vis(ch, t)) != NULL)
 //				return true;
-			if (spell_id == kSpellLocateObject) {
+			if (spell_id == ESpell::kLocateObject) {
 				*tobj = FindObjForLocate(ch, t);
 			} else {
 				*tobj = get_obj_vis(ch, t);
@@ -542,7 +542,8 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpel
 	int ignore;
 
 	if (spell_id == ESpell::kUndefined) {
-		log("SYSERR: CastSpell trying to call spell id %d/%d.\n", to_underlying(spell_id), kSpellLast);
+		log("SYSERR: CastSpell trying to call spell id %d/%d.\n",
+			to_underlying(spell_id), to_underlying(ESpell::kLast));
 		return (0);
 	}
 

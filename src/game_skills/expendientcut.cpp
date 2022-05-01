@@ -10,7 +10,7 @@
 
 void ApplyNoFleeAffect(CharData *ch, int duration) {
 	Affect<EApply> noflee;
-	noflee.type = kSpellExpedientFail;
+	noflee.type = ESpell::kExpedientFail;
 	noflee.bitvector = to_underlying(EAffect::kNoFlee);
 	noflee.location = EApply::kNone;
 	noflee.modifier = 0;
@@ -22,7 +22,7 @@ void ApplyNoFleeAffect(CharData *ch, int duration) {
 
 void ApplyDebuffs(AbilitySystem::TechniqueRoll &roll) {
 	Affect<EApply> cut;
-	cut.type = kSpellBattle;
+	cut.type = ESpell::kBattle;
 	cut.duration = CalcDuration(roll.GetActor(), 3 * number(2, 4), 0, 0, 0, 0);;
 	cut.battleflag = kAfBattledec;
 	if (PRF_FLAGGED(roll.GetActor(), EPrf::kPerformSerratedBlade)) {

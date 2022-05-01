@@ -1581,7 +1581,7 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			af.location = food->get_affected(i).location;
 			af.modifier = food->get_affected(i).modifier;
 			af.bitvector = 0;
-			af.type = kSpellFullFeed;
+			af.type = ESpell::kFullFeed;
 //			af.battleflag = 0;
 			af.duration = CalcDuration(ch, 10 * 2, 0, 0, 0, 0);
 			ImposeAffect(ch, af);
@@ -1595,14 +1595,14 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		act("$n закашлял$u и начал$g отплевываться.", false, ch, 0, 0, kToRoom | kToArenaListen);
 
 		Affect<EApply> af;
-		af.type = kSpellPoison;
+		af.type = ESpell::kPoison;
 		af.duration = CalcDuration(ch, amount == 1 ? amount : amount * 2, 0, 0, 0, 0);
 		af.modifier = 0;
 		af.location = EApply::kStr;
 		af.bitvector = to_underlying(EAffect::kPoisoned);
 		af.battleflag = kAfSameTime;
 		ImposeAffect(ch, af, false, false, false, false);
-		af.type = kSpellPoison;
+		af.type = ESpell::kPoison;
 		af.duration = CalcDuration(ch, amount == 1 ? amount : amount * 2, 0, 0, 0, 0);
 		af.modifier = amount * 3;
 		af.location = EApply::kPoison;
@@ -2591,7 +2591,7 @@ void do_extinguish(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 			//Find own rune label or first run label in room
 			for (auto affect_it = room->affected.begin(); affect_it != room->affected.end(); ++affect_it) {
-				if (affect_it->get()->type == kSpellRuneLabel) {
+				if (affect_it->get()->type == ESpell::kRuneLabel) {
 					if (affect_it->get()->caster_id == GET_ID(ch)) {
 						aff_i = affect_it;
 						break;
@@ -2728,11 +2728,12 @@ void do_firstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else {
 		count = std::min(MAX_FIRSTAID_REMOVE, MAX_FIRSTAID_REMOVE * prob / 100);
 
-		for (percent = 0, prob = need; !need && percent < MAX_FIRSTAID_REMOVE && RemoveSpell(percent); percent++) {
-			if (IsAffectedBySpell(vict, RemoveSpell(percent))) {
+		for (percent = 0, prob = need; !need && percent < MAX_FIRSTAID_REMOVE &&
+			GetRemovableSpellId(percent) != ESpell::kUndefined; percent++) {
+			if (IsAffectedBySpell(vict, GetRemovableSpellId(percent))) {
 				need = true;
 				if (percent < count) {
-					spell_id = RemoveSpell(percent);
+					spell_id = GetRemovableSpellId(percent);
 					prob = true;
 				}
 			}
@@ -2753,8 +2754,9 @@ void do_firstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				act("Вы оказали первую помощь $N2.", false, ch, 0, vict, kToChar);
 				act("$N оказал$G вам первую помощь.", false, vict, 0, ch, kToChar);
 				act("$n оказал$g первую помощь $N2.", true, ch, 0, vict, kToNotVict | kToArenaListen);
-				if (spell_id)
-					affect_from_char(vict, spell_id);
+				if (spell_id != ESpell::kUndefined) {
+					RemoveAffectFromChar(vict, spell_id);
+				}
 			} else {
 				act("Вы безрезультатно попытались оказать первую помощь $N2.",
 					false, ch, 0, vict, kToChar);
@@ -2767,8 +2769,9 @@ void do_firstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (success) {
 				act("Вы оказали себе первую помощь.", false, ch, 0, 0, kToChar);
 				act("$n оказал$g себе первую помощь.", false, ch, 0, 0, kToRoom | kToArenaListen);
-				if (spell_id)
-					affect_from_char(vict, spell_id);
+				if (spell_id != ESpell::kUndefined) {
+					RemoveAffectFromChar(vict, spell_id);
+				}
 			} else {
 				act("Вы безрезультатно попытались оказать себе первую помощь.",
 					false, ch, 0, vict, kToChar);
@@ -3094,11 +3097,11 @@ void feed_charmice(CharData *ch, char *arg) {
 	for (k = ch->get_master()->followers; k; k = k->next) {
 		if (AFF_FLAGGED(k->ch, EAffect::kCharmed)
 			&& k->ch->get_master() == ch->get_master()) {
-			reformed_hp_summ += GetReformedCharmiceHp(ch->get_master(), k->ch, kSpellAnimateDead);
+			reformed_hp_summ += GetReformedCharmiceHp(ch->get_master(), k->ch, ESpell::kAnimateDead);
 		}
 	}
 
-	if (reformed_hp_summ >= CalcCharmPoint(ch->get_master(), kSpellAnimateDead)) {
+	if (reformed_hp_summ >= CalcCharmPoint(ch->get_master(), ESpell::kAnimateDead)) {
 		SendMsgToChar("Вы не можете управлять столькими последователями.\r\n", ch->get_master());
 		ExtractCharFromWorld(ch, false);
 		return;
@@ -3112,7 +3115,7 @@ void feed_charmice(CharData *ch, char *arg) {
 	const int max_heal_hp = 3 * mob_level;
 	chance_to_eat = (100 - 2 * mob_level) / 2;
 	//Added by Ann
-	if (IsAffectedBySpell(ch->get_master(), kSpellFascination)) {
+	if (IsAffectedBySpell(ch->get_master(), ESpell::kFascination)) {
 		chance_to_eat -= 30;
 	}
 	//end Ann
@@ -3138,7 +3141,7 @@ void feed_charmice(CharData *ch, char *arg) {
 	}
 
 	Affect<EApply> af;
-	af.type = kSpellCharm;
+	af.type = ESpell::kCharm;
 	af.duration = MIN(max_charm_duration, (int) (mob_level * max_charm_duration / 30));
 	af.modifier = 0;
 	af.location = EApply::kNone;

@@ -978,9 +978,9 @@ void CheckBerserk(CharData *ch) {
 	struct TimedFeat timed;
 	int prob;
 
-	if (IsAffectedBySpell(ch, kSpellBerserk) &&
+	if (IsAffectedBySpell(ch, ESpell::kBerserk) &&
 		(GET_HIT(ch) > GET_REAL_MAX_HIT(ch) / 2)) {
-		affect_from_char(ch, kSpellBerserk);
+		RemoveAffectFromChar(ch, ESpell::kBerserk);
 		SendMsgToChar("Предсмертное исступление оставило вас.\r\n", ch);
 	}
 
@@ -993,7 +993,7 @@ void CheckBerserk(CharData *ch) {
 		ImposeTimedFeat(ch, &timed);
 
 		Affect<EApply> af;
-		af.type = kSpellBerserk;
+		af.type = ESpell::kBerserk;
 		af.duration = CalcDuration(ch, 1, 60, 30, 0, 0);
 		af.modifier = 0;
 		af.location = EApply::kNone;
@@ -1028,7 +1028,7 @@ void do_lightwalk(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 		return;
 	}
 
-	if (IsAffectedBySpell(ch, kSpellLightWalk)) {
+	if (IsAffectedBySpell(ch, ESpell::kLightWalk)) {
 		SendMsgToChar("Вы уже двигаетесь легким шагом.\r\n", ch);
 		return;
 	}
@@ -1037,7 +1037,7 @@ void do_lightwalk(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 		return;
 	}
 
-	affect_from_char(ch, kSpellLightWalk);
+	RemoveAffectFromChar(ch, ESpell::kLightWalk);
 
 	timed.feat = EFeat::kLightWalk;
 	timed.time = 24;
@@ -1045,7 +1045,7 @@ void do_lightwalk(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 
 	SendMsgToChar("Хорошо, вы попытаетесь идти, не оставляя лишних следов.\r\n", ch);
 	Affect<EApply> af;
-	af.type = kSpellLightWalk;
+	af.type = ESpell::kLightWalk;
 	af.duration = CalcDuration(ch, 2, GetRealLevel(ch), 5, 2, 8);
 	af.modifier = 0;
 	af.location = EApply::kNone;
@@ -1229,7 +1229,7 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		if (AFF_FLAGGED(k->ch, EAffect::kCharmed)
 			&& k->ch->get_master() == ch
 			&& MOB_FLAGGED(k->ch, EMobFlag::kClone)
-			&& !IsAffectedBySpell(k->ch, kSpellCapable)
+			&& !IsAffectedBySpell(k->ch, ESpell::kCapable)
 			&& ch->in_room == IN_ROOM(k->ch)) {
 			follower = k->ch;
 			break;
@@ -1258,7 +1258,8 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		SendMsgToChar("Вы конечно мастер, но не такой магии.\r\n", ch);
 		return;
 	}
-	affect_from_char(ch, to_underlying(EFeat::kSpellCapabler));
+	// Что-то малопонятное... что фит может делать в качестве идентификатора аффекта? Бред.
+	//RemoveAffectFromChar(ch, to_underlying(EFeat::kSpellCapabler));
 
 	timed.feat = EFeat::kSpellCapabler;
 
@@ -1287,7 +1288,7 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	GET_CAST_SUCCESS(follower) = GET_REAL_REMORT(ch) * 4;
 	Affect<EApply> af;
-	af.type = kSpellCapable;
+	af.type = ESpell::kCapable;
 	af.duration = 48;
 	if (GET_REAL_REMORT(ch) > 0) {
 		af.modifier = GET_REAL_REMORT(ch) * 4;//вешаецо аффект который дает +морт*4 касту

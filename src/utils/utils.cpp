@@ -108,16 +108,6 @@ CharData *find_char(long n) {
 	return nullptr;
 }
 
-bool check_spell_on_player(CharData *ch, int spell_num) {
-	for (const auto &af : ch->affected) {
-		if (af->type == spell_num) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
 int MIN(int a, int b) {
 	return (a < b ? a : b);
 }

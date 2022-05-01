@@ -339,7 +339,7 @@ bool IsSpellPermit(const CharData *ch, ESpell spell_id) {
 	if (!IS_IMMORTAL(ch) || IS_IMPL(ch) || CheckFlag(ch, kUseSkills)) {
 		return true;
 	}
-	if (spell_id == kSpellPortal || spell_id == kSpellSummon || spell_id == kSpellWorldOfRecall) {
+	if (spell_id == ESpell::kPortal || spell_id == ESpell::kSummon || spell_id == ESpell::kWorldOfRecall) {
 		if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena) && CheckFlag(ch, kArenaMaster)) {
 			return true;
 		}

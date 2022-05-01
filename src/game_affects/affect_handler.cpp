@@ -12,9 +12,9 @@ void LackyAffectHandler::Handle(DamageVictimParameters &params) {
 	}
 }
 
-Affect<EApply>::shared_ptr find_affect(CharData *ch, int afftype) {
+Affect<EApply>::shared_ptr find_affect(CharData *ch, ESpell aff_type) {
 	for (const auto &aff : ch->affected) {
-		if (aff->type == afftype) {
+		if (aff->type == aff_type) {
 			return aff;
 		}
 	}
@@ -23,7 +23,7 @@ Affect<EApply>::shared_ptr find_affect(CharData *ch, int afftype) {
 }
 
 void LackyAffectHandler::Handle(BattleRoundParameters &params) {
-	auto af = find_affect(params.ch, kSpellLucky);
+	auto af = find_affect(params.ch, ESpell::kLucky);
 	if (damFromMe_ && !damToMe_) {
 		if (round_ < 5) {
 			++round_;
@@ -39,7 +39,7 @@ void LackyAffectHandler::Handle(BattleRoundParameters &params) {
 }
 // тест
 void LackyAffectHandler::Handle(StopFightParameters &params) {
-	auto af = find_affect(params.ch, kSpellLucky);
+	auto af = find_affect(params.ch, ESpell::kLucky);
 	if (af) {
 		af->modifier = 0;
 	}

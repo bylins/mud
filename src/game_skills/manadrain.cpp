@@ -45,7 +45,7 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (IsAffectedBySpell(vict, kSpellGodsShield) || MOB_FLAGGED(vict, EMobFlag::kProtect)) {
+	if (IsAffectedBySpell(vict, ESpell::kGodsShield) || MOB_FLAGGED(vict, EMobFlag::kProtect)) {
 		SendMsgToChar("Боги хранят вашу жертву.\r\n", ch);
 		return;
 	}

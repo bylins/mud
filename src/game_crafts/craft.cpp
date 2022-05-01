@@ -387,7 +387,7 @@ bool CObject::load_from_node(const pugi::xml_node *node) {
 	}
 
 	load_result = CHelper::load_flag<ESpell>(*node, "spell",
-											 [&](const auto spell) { this->set_spell(spell); },
+											 [&](const auto spell) { this->set_spell(to_underlying(spell)); },
 											 [&](const auto value) {
 												 logger(
 													 "WARNING: Failed to set spell '%s' for object with VNUM %d. Spell will not be set.\n",

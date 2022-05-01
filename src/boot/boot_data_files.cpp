@@ -677,7 +677,7 @@ void ObjectFile::parse_object(const int nr) {
 		tobj->set_extra_flag(EObjFlag::kTicktimer);
 	}
 	tobj->set_timer(timer);
-	tobj->set_spell(t[2] < 1 || t[2] > kSpellLast ? ESpell::kUndefined : t[2]);
+	tobj->set_spell(t[2]);
 	tobj->set_level(t[3]);
 
 	if (!get_line(file(), m_line)) {
@@ -1431,11 +1431,11 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			log("SYSERROR : Excepted format <#> for SPELL in MOB #%d", i);
 			return;
 		}
-		if (t[0] > kSpellLast || t[0] < 1) {
+		auto spell_id = static_cast<ESpell>(t[0]);
+		if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast) {
 			log("SYSERROR : Unknown spell No %d for MOB #%d", t[0], i);
 			return;
 		}
-		auto spell_id = static_cast<ESpell>(t[0]);
 		GET_SPELL_MEM(mob_proto + i, spell_id) += 1;
 		(mob_proto + i)->caster_level += (IS_SET(spell_info[spell_id].routines, NPC_CALCULATE) ? 1 : 0);
 	}

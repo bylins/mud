@@ -214,7 +214,7 @@ void CharData::set_abstinent() {
 	}
 
 	Affect<EApply> af;
-	af.type = kSpellAbstinent;
+	af.type = ESpell::kAbstinent;
 	af.bitvector = to_underlying(EAffect::kAbstinent);
 	af.duration = duration;
 
@@ -243,14 +243,14 @@ void CharData::affect_remove(const char_affects_list_t::iterator &affect_i) {
 
 	const auto af = *affect_i;
 	affect_modify(this, af->location, af->modifier, static_cast<EAffect>(af->bitvector), false);
-	if (af->type == kSpellAbstinent) {
+	if (af->type == ESpell::kAbstinent) {
 		if (player_specials) {
 			GET_DRUNK_STATE(this) = GET_COND(this, DRUNK) = MIN(GET_COND(this, DRUNK), kDrunked - 1);
 		} else {
 			log("SYSERR: player_specials is not set.");
 		}
 	}
-	if (af->type == kSpellDrunked && af->duration == 0) {
+	if (af->type == ESpell::kDrunked && af->duration == 0) {
 		set_abstinent();
 	}
 
@@ -271,7 +271,7 @@ bool CharData::has_any_affect(const affects_list_t &affects) {
 }
 
 size_t CharData::remove_random_affects(const size_t count) {
-	int last_type = -1;
+	auto last_type{ESpell::kUndefined};
 	std::deque<char_affects_list_t::iterator> removable_affects;
 	for (auto affect_i = affected.begin(); affect_i != affected.end(); ++affect_i) {
 		const auto &affect = *affect_i;
@@ -286,7 +286,7 @@ size_t CharData::remove_random_affects(const size_t count) {
 	std::shuffle(removable_affects.begin(), removable_affects.end(), std::mt19937(std::random_device()()));
 	for (auto counter = 0u; counter < to_remove; ++counter) {
 		const auto affect_i = removable_affects[counter];
-		affect_from_char(this, affect_i->get()->type);
+		RemoveAffectFromChar(this, affect_i->get()->type);
 	}
 
 	return to_remove;
@@ -1735,7 +1735,7 @@ CharData::followers_list_t CharData::get_followers_list() const {
 
 bool CharData::low_charm() const {
 	for (const auto &aff : affected) {
-		if (aff->type == kSpellCharm
+		if (aff->type == ESpell::kCharm
 			&& aff->duration <= 1) {
 			return true;
 		}
@@ -1856,7 +1856,7 @@ void CharData::restore_mob() {
 	GET_MOVE(this) = GET_REAL_MAX_MOVE(this);
 	update_pos(this);
 
-	for (auto spell_id = ESpell::kSpellFirst; spell_id <= ESpell::kSpellLast; ++spell_id) {
+	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 		GET_SPELL_MEM(this, spell_id) = GET_SPELL_MEM(&mob_proto[GET_MOB_RNUM(this)], spell_id);
 	}
 	this->caster_level = (&mob_proto[GET_MOB_RNUM(this)])->caster_level;
@@ -1917,7 +1917,7 @@ void CharData::restore_npc() {
 	this->set_con(GET_REAL_CON(proto));
 	this->set_cha(GET_REAL_CHA(proto));
 	// ресторим мем	
-	for (auto spell_id = ESpell::kSpellFirst; spell_id <= ESpell::kSpellLast; ++spell_id) {
+	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 		GET_SPELL_MEM(this, spell_id) = GET_SPELL_MEM(proto, spell_id);
 	}
 	// рестор для скилов

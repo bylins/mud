@@ -469,7 +469,7 @@ void roll_real_abils(CharData *ch) {
 			ch->set_int(ch->get_int() + 2);
 			GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(150, 180) : number(150, 190);
 			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 170) : number(120, 180);
-			for (auto spell_id = ESpell::kSpellFirst; spell_id <= ESpell::kSpellLast; ++spell_id) {
+			for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 				GET_SPELL_TYPE(ch, spell_id) = ESpellType::kRunes;
 			}
 			break;

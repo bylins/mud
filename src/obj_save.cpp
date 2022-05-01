@@ -1088,7 +1088,7 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 			out << "Tmer: " << object->get_timer() << "~\n";
 		}
 		// Сложность замкА
-		if (GET_OBJ_SPELL(object)) {
+		if (GET_OBJ_SPELL(object) > ESpell::kUndefined) {
 			out << "Spll: " << GET_OBJ_SPELL(object) << "~\n";
 		}
 		// Уровень заклинания

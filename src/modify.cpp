@@ -971,7 +971,7 @@ void do_skillset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Формат: skillset <игрок> '<умение/заклинание>' <значение>\r\n", ch);
 		strcpy(help, "Возможные умения:\r\n");
 
-		for (auto spell_id = ESpell::kSpellFirst; spell_id <= ESpell::kSpellLast; ++spell_id) {
+		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 			if (spell_info[spell_id].name == unused_spellname)    // This is valid.
 				continue;
 			sprintf(help + strlen(help), "%30s", spell_info[spell_id].name);
@@ -1021,7 +1021,7 @@ void do_skillset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		spell_id = FixNameAndFindSpellId(help);
 	}
 
-	if (skill_id == ESkill::kUndefined && spell_id == ESpell::kSpellFirst) {
+	if (skill_id == ESkill::kUndefined && spell_id == ESpell::kFirst) {
 		SendMsgToChar("Неизвестное умение/заклинание.\r\n", ch);
 		return;
 	}
@@ -1041,7 +1041,7 @@ void do_skillset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вы не можете добавить умение для мобов.\r\n", ch);
 		return;
 	}
-	if (value > MUD::Skills()[skill_id].cap && spell_id < 0) {
+	if (value > MUD::Skills()[skill_id].cap && spell_id < ESpell::kFirst) {
 		SendMsgToChar("Превышено максимально возможное значение умения.\r\n", ch);
 		value = MUD::Skills()[skill_id].cap;
 	}
@@ -1049,9 +1049,9 @@ void do_skillset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	// * FindSkillId() guarantees a valid spell_info[] index, or -1, and we
 	// * checked for the -1 above so we are safe here.
 	sprintf(buf2, "%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict),
-			spell_id >= 0 ? spell_info[spell_id].name : MUD::Skills()[skill_id].GetName(), value);
+			spell_id >= ESpell::kFirst ? spell_info[spell_id].name : MUD::Skills()[skill_id].GetName(), value);
 	mudlog(buf2, BRF, kLvlImmortal, SYSLOG, true);
-	if (spell_id >= 0 && spell_id <= kSpellLast) {
+	if (spell_id >= ESpell::kFirst && spell_id <= ESpell::kLast) {
 		if (value == 0 && IS_SET(GET_SPELL_TYPE(vict, spell_id), ESpellType::kTemp)) {
 			for (auto it = vict->temp_spells.begin(); it != vict->temp_spells.end();) {
 				if (it->second.spell == spell_id) {
@@ -1068,7 +1068,7 @@ void do_skillset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		vict->set_skill(skill_id, value);
 	}
 	sprintf(buf2, "Вы изменили для %s '%s' на %d.\r\n", GET_PAD(vict, 1),
-			spell_id >= 0 ? spell_info[spell_id].name : MUD::Skills()[skill_id].GetName(), value);
+			spell_id > ESpell::kUndefined ? spell_info[spell_id].name : MUD::Skills()[skill_id].GetName(), value);
 	SendMsgToChar(buf2, ch);
 }
 

@@ -242,10 +242,6 @@ void obj_point_update();
 void update_pos(CharData *victim);
 
 // various constants ****************************************************
-
-// проверяет, висит ли заданный спелл на чаре
-bool check_spell_on_player(CharData *ch, int spell_num);
-
 // get_filename() //
 const int kAliasFile = 1;
 const int kScriptVarsFile = 2;

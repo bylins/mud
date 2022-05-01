@@ -127,7 +127,7 @@ int GetReformedCharmiceHp(CharData *ch, CharData *victim, ESpell spell_id) {
 	float eff_cha = 0.0;
 	float max_cha;
 
-	if (spell_id == kSpellResurrection || spell_id == kSpellAnimateDead) {
+	if (spell_id == ESpell::kResurrection || spell_id == ESpell::kAnimateDead) {
 		eff_cha = CalcEffectiveWis(ch, spell_id);
 		max_cha = class_stats_limit[to_underlying(ch->get_class())][3];
 	} else {
@@ -135,7 +135,7 @@ int GetReformedCharmiceHp(CharData *ch, CharData *victim, ESpell spell_id) {
 		eff_cha = get_effective_cha(ch);
 	}
 
-	if (spell_id != kSpellCharm) {
+	if (spell_id != ESpell::kCharm) {
 		eff_cha = std::min(max_cha, eff_cha + 2); // Все кроме чарма кастится с бонусом в 2
 	}
 
@@ -264,7 +264,7 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		} else {
 			auto aff = k->ch->affected.begin();
 			for (; aff != k->ch->affected.end(); ++aff) {
-				if ((*aff)->type == kSpellCharm) {
+				if ((*aff)->type == ESpell::kCharm) {
 					break;
 				}
 			}
@@ -274,7 +274,7 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		}
 
-		affect_from_char(helpee, kSpellCharm);
+		RemoveAffectFromChar(helpee, ESpell::kCharm);
 
 		if (!IS_IMMORTAL(ch)) {
 			if (isname(isbank, "банк bank")) {
@@ -286,14 +286,14 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		}
 
-		af.type = kSpellCharm;
+		af.type = ESpell::kCharm;
 		af.modifier = 0;
 		af.location = EApply::kNone;
 		af.bitvector = to_underlying(EAffect::kCharmed);
 		af.battleflag = 0;
 		affect_to_char(helpee, af);
 
-		af.type = kSpellCharm;
+		af.type = ESpell::kCharm;
 		af.modifier = 0;
 		af.location = EApply::kNone;
 		af.bitvector = to_underlying(EAffect::kHelper);
@@ -360,7 +360,7 @@ void do_freehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd
 
 	if (!IS_IMMORTAL(ch)) {
 		for (const auto &aff : k->ch->affected) {
-			if (aff->type == kSpellCharm) {
+			if (aff->type == ESpell::kCharm) {
 				const auto
 					cost = MAX(0, (int) ((aff->duration - 1) / 2) * (int) abs(k->ch->mob_specials.hire_price));
 				if (cost > 0) {
@@ -377,7 +377,7 @@ void do_freehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd
 	}
 
 	act("Вы рассчитали $N3.", false, ch, 0, k->ch, kToChar);
-	affect_from_char(k->ch, kSpellCharm);
+	RemoveAffectFromChar(k->ch, ESpell::kCharm);
 	stop_follower(k->ch, kSfCharmlost);
 }
 

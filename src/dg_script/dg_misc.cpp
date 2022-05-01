@@ -32,7 +32,7 @@ int find_dg_cast_target(ESpell spell_id, const char *t, CharData *ch, CharData *
 	}
 	*troom = world[ch->in_room];
 
-	if (spell_id == kSpellControlWeather) {
+	if (spell_id == ESpell::kControlWeather) {
 		if ((what_sky = search_block(t, what_sky_type, false)) < 0) {
 			sprintf(buf2, "dg_cast (Не указан тип погоды)");
 			script_log(buf2);
@@ -40,7 +40,7 @@ int find_dg_cast_target(ESpell spell_id, const char *t, CharData *ch, CharData *
 		} else
 			what_sky >>= 1;
 	}
-	if (spell_id == kSpellCreateWeapon) {
+	if (spell_id == ESpell::kCreateWeapon) {
 		if ((what_sky = search_block(t, what_weapon, false)) < 0) {
 			sprintf(buf2, "dg_cast (Не указан тип оружия)");
 			script_log(buf2);
@@ -239,7 +239,7 @@ void do_dg_cast(void *go, Script * /*sc*/, Trigger *trig, int type, char *cmd) {
 	}
 	if (target) {
 		CallMagic(caster, tch, tobj, troom, spell_id, GetRealLevel(caster));
-	} else if (spell_id != kSpellResurrection && spell_id != kSpellAnimateDead) {
+	} else if (spell_id != ESpell::kResurrection && spell_id != ESpell::kAnimateDead) {
 		sprintf(buf2, "dg_cast: target not found (%s)", cmd);
 		trig_log(trig, buf2);
 	}
@@ -350,7 +350,7 @@ void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_ty
 		ImposeAffect(ch, af); // перекастим аффект
 	} else {
 		// remove affect
-		affect_from_char(ch, index_s);
+		RemoveAffectFromChar(ch, index_s);
 		// trig_log(trig, "dg_affect: affect removed from char");
 		//Вроде не критично уже видеть все снятия аффектов
 	}

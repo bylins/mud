@@ -971,18 +971,18 @@ int GetExtraDamroll(ECharClass class_id, int level) {
 void init_warcry(CharData *ch) // проставление кличей в обход античита
 {
 	if (GET_CLASS(ch) == ECharClass::kGuard)
-		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfDefence), ESpellType::kKnow); // клич призыв к обороне
+		SET_BIT(GET_SPELL_TYPE(ch, ESpell::kWarcryOfDefence), ESpellType::kKnow); // клич призыв к обороне
 
 	if (GET_CLASS(ch) == ECharClass::kRanger) {
-		SET_BIT(GET_SPELL_TYPE(ch, kSpellWatctyOfExpirence), ESpellType::kKnow); // клич опыта
-		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfLuck), ESpellType::kKnow); // клич удачи
-		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfPhysdamage), ESpellType::kKnow); // клич +дамага
+		SET_BIT(GET_SPELL_TYPE(ch, ESpell::kWarcryOfExperience), ESpellType::kKnow); // клич опыта
+		SET_BIT(GET_SPELL_TYPE(ch, ESpell::kWarcryOfLuck), ESpellType::kKnow); // клич удачи
+		SET_BIT(GET_SPELL_TYPE(ch, ESpell::kWarcryOfPhysdamage), ESpellType::kKnow); // клич +дамага
 	}
 	if (GET_CLASS(ch) == ECharClass::kWarrior) {
-		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfBattle), ESpellType::kKnow); // клич призыв битвы
-		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfPower), ESpellType::kKnow); // клич призыв мощи
-		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfBless), ESpellType::kKnow); // клич призывы доблести
-		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfCourage), ESpellType::kKnow); // клич призыв отваги
+		SET_BIT(GET_SPELL_TYPE(ch, ESpell::kWarcryOfBattle), ESpellType::kKnow); // клич призыв битвы
+		SET_BIT(GET_SPELL_TYPE(ch, ESpell::kWarcryOfPower), ESpellType::kKnow); // клич призыв мощи
+		SET_BIT(GET_SPELL_TYPE(ch, ESpell::kWarcryOfBless), ESpellType::kKnow); // клич призывы доблести
+		SET_BIT(GET_SPELL_TYPE(ch, ESpell::kWarcryOfCourage), ESpellType::kKnow); // клич призыв отваги
 	}
 
 }
@@ -996,7 +996,7 @@ void do_start(CharData *ch, int newbie) {
 	}
 
 	if (newbie && IS_MANA_CASTER(ch)) {
-		for (auto spell_id = ESpell::kSpellFirst; spell_id <= ESpell::kSpellLast; ++spell_id) {
+		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 			GET_SPELL_TYPE(ch, spell_id) = ESpellType::kRunes;
 		}
 	}
@@ -1332,11 +1332,11 @@ void InitSpellLevels() {
 		}
 
 		if (i[1] < 0 || i[1] >= kNumPlayerClasses) {
-			log("Bad class type for spell '%s'  \"%d\"...", name, sp_num);
+			log("Bad class type for spell '%s'  \"%d\"...", name, to_underlying(sp_num));
 			graceful_exit(1);
 		}
 		if (i[2] < 0 || i[2] >= kMaxRemort) {
-			log("Bad remort type for spell '%s'  \"%d\"...", name, sp_num);
+			log("Bad remort type for spell '%s'  \"%d\"...", name, to_underlying(sp_num));
 			graceful_exit(1);
 		}
 		mspell_remort(name, sp_num, i[0], i[1], i[2]);
@@ -1371,7 +1371,7 @@ void InitSpellLevels() {
 			*(name + strlen(name) + 0) = ' ';
 			strcat(name, line2);
 		}
-		if ((sp_num = FixNameAndFindSpellId(name)) < 0) {
+		if ((sp_num = FixNameAndFindSpellId(name)) < ESpell::kFirst) {
 			log("Spell '%s' not found...", name);
 			graceful_exit(1);
 		}
@@ -1824,8 +1824,8 @@ void mspell_remort(char */*name*/, ESpell spell_id, int kin, int chclass, int re
 void mspell_level(char */*name*/, ESpell spell_id, int kin, int chclass, int level) {
 	int bad = 0;
 
-	if (spell_id < 0 || spell_id > kSpellLast) {
-		log("SYSERR: attempting assign to illegal spell id %d/%d", to_underlying(spell_id), kSpellLast);
+	if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast) {
+		log("SYSERR: attempting assign to illegal spell id %d/%d", to_underlying(spell_id), ESpell::kLast);
 		return;
 	}
 
@@ -1853,8 +1853,8 @@ void mspell_level(char */*name*/, ESpell spell_id, int kin, int chclass, int lev
 void mspell_change(char */*name*/, ESpell spell_id, int kin, int chclass, int class_change) {
 	int bad = 0;
 
-	if (spell_id < 0 || spell_id > kSpellLast) {
-		log("SYSERR: attempting assign to illegal spell id %d/%d", to_underlying(spell_id), kSpellLast);
+	if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast) {
+		log("SYSERR: attempting assign to illegal spell id %d/%d", to_underlying(spell_id), to_underlying(ESpell::kLast));
 		return;
 	}
 

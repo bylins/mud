@@ -712,7 +712,7 @@ void init_guilds() {
 				graceful_exit(1);
 			}
 			spell_id = static_cast<ESpell>(atoi(line));
-			if (spell_id < ESpell::kSpellFirst  || spell_id > ESpell::kSpellLast) {
+			if (spell_id < ESpell::kFirst  || spell_id > ESpell::kLast) {
 				spell_id = FixNameAndFindSpellId(line);
 			}
 
@@ -728,7 +728,7 @@ void init_guilds() {
 				feat_id = FindFeatId(line1);
 			}
 
-			if (MUD::Skills().IsInvalid(skill_id) && spell_id < ESpell::kSpellFirst && feat_id < EFeat::kFirst) {
+			if (MUD::Skills().IsInvalid(skill_id) && spell_id < ESpell::kFirst && feat_id < EFeat::kFirst) {
 				log("Unknown skill, spell or feat for monoguild");
 				graceful_exit(1);
 			}
@@ -784,7 +784,7 @@ void init_guilds() {
 					SET_BIT(ptr->alignment, (1 << i));
 
 			spell_id = static_cast<ESpell>(atoi(line4));
-			if (spell_id < ESpell::kSpellFirst || spell_id > ESpell::kSpellLast) {
+			if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast) {
 				spell_id = FixNameAndFindSpellId(line4);
 			}
 
@@ -802,7 +802,7 @@ void init_guilds() {
 				sprintf(buf, "feature number 2: %d", to_underlying(feat_id));
 				feat_id = FindFeatId(line5);
 			}
-			if (MUD::Skills().IsInvalid(skill_id) && spell_id < ESpell::kSpellFirst && feat_id < EFeat::kFirst) {
+			if (MUD::Skills().IsInvalid(skill_id) && spell_id < ESpell::kFirst && feat_id < EFeat::kFirst) {
 				log("Unknown skill, spell or feat for polyguild - \'%s\'", line5);
 				graceful_exit(1);
 			}
@@ -856,7 +856,7 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 		case SCMD_LEARN:
 			if (!*argument) {
 				gcount += sprintf(buf, "Я могу научить тебя следующему:\r\n");
-				for (i = 0, found = false; (guild_mono_info[info_num].learn_info + i)->spell_no >= 0; i++) {
+				for (i = 0, found = false; (guild_mono_info[info_num].learn_info + i)->spell_no >= ESpell::kUndefined; i++) {
 					if ((guild_mono_info[info_num].learn_info + i)->level > GetRealLevel(ch)) {
 						continue;
 					}
@@ -875,7 +875,7 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 					}
 
 					const auto spell_no = (guild_mono_info[info_num].learn_info + i)->spell_no;
-					if (spell_no && (!((GET_SPELL_TYPE(ch, spell_no) & bits) == bits) || IS_GRGOD(ch))) {
+					if (spell_no > ESpell::kUndefined && (!((GET_SPELL_TYPE(ch, spell_no) & bits) == bits) || IS_GRGOD(ch))) {
 						gcount += sprintf(buf + gcount, "- магия %s\"%s\"%s\r\n",
 										  CCCYN(ch, C_NRM), GetSpellName(spell_no), CCNRM(ch, C_NRM));
 						found = true;
@@ -900,7 +900,7 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 
 			if (!strn_cmp(argument, "все", strlen(argument)) || !strn_cmp(argument, "all", strlen(argument))) {
 				for (i = 0, found = false, sfound = true;
-					 (guild_mono_info[info_num].learn_info + i)->spell_no >= 0; i++) {
+					 (guild_mono_info[info_num].learn_info + i)->spell_no >= ESpell::kUndefined; i++) {
 					if ((guild_mono_info[info_num].learn_info + i)->level > GetRealLevel(ch))
 						continue;
 
@@ -920,8 +920,8 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 					}
 
 					const auto spell_no = (guild_mono_info[info_num].learn_info + i)->spell_no;
-					if (spell_no
-						&& !((GET_SPELL_TYPE(ch, spell_no) & bits) == bits)) {
+					if (spell_no > ESpell::kUndefined &&
+						!((GET_SPELL_TYPE(ch, spell_no) & bits) == bits)) {
 						gcount += sprintf(buf, "$N научил$G вас магии %s\"%s\"%s",
 										  CCCYN(ch, C_NRM), GetSpellName(spell_no), CCNRM(ch, C_NRM));
 						act(buf, false, ch, 0, victim, kToChar);
@@ -1003,7 +1003,7 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 
 			const ESkill skill_no = FixNameAndFindSkillId(argument);
 			if (skill_no >= ESkill::kLast && skill_no <= ESkill::kLast) {
-				for (i = 0, found = false; (guild_mono_info[info_num].learn_info + i)->spell_no >= 0; i++) {
+				for (i = 0, found = false; (guild_mono_info[info_num].learn_info + i)->spell_no >= ESpell::kUndefined; i++) {
 					if ((guild_mono_info[info_num].learn_info + i)->level > GetRealLevel(ch)) {
 						continue;
 					}
@@ -1036,9 +1036,8 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 			}
 
 			auto spell_no = FixNameAndFindSpellId(argument);
-			if (spell_no > 0
-				&& spell_no <= kSpellLast) {
-				for (i = 0, found = false; (guild_mono_info[info_num].learn_info + i)->spell_no >= 0; i++) {
+			if (spell_no > ESpell::kUndefined && spell_no <= ESpell::kLast) {
+				for (i = 0, found = false; (guild_mono_info[info_num].learn_info + i)->spell_no >= ESpell::kUndefined; i++) {
 					if ((guild_mono_info[info_num].learn_info + i)->level > GetRealLevel(ch)) {
 						continue;
 					}
@@ -1143,7 +1142,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 		case SCMD_LEARN:
 			if (!*argument) {
 				gcount += sprintf(buf, "Я могу научить тебя следующему:\r\n");
-				for (i = 0, found = false; (guild_poly_info[info_num] + i)->spell_no >= 0; i++) {
+				for (i = 0, found = false; (guild_poly_info[info_num] + i)->spell_no >= ESpell::kUndefined; i++) {
 					if ((guild_poly_info[info_num] + i)->level > GetRealLevel(ch)) {
 						continue;
 					}
@@ -1167,8 +1166,8 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 					}
 
 					const auto spell_no = (guild_poly_info[info_num] + i)->spell_no;
-					if (spell_no
-						&& (!((GET_SPELL_TYPE(ch, spell_no) & bits) == bits)
+					if (spell_no > ESpell::kUndefined &&
+						(!((GET_SPELL_TYPE(ch, spell_no) & bits) == bits)
 							|| IS_GRGOD(ch))) {
 						gcount += sprintf(buf + gcount, "- магия %s\"%s\"%s\r\n",
 										  CCCYN(ch, C_NRM), GetSpellName(spell_no), CCNRM(ch, C_NRM));
@@ -1196,7 +1195,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 
 			if (!strn_cmp(argument, "все", strlen(argument))
 				|| !strn_cmp(argument, "all", strlen(argument))) {
-				for (i = 0, found = false, sfound = false; (guild_poly_info[info_num] + i)->spell_no >= 0; i++) {
+				for (i = 0, found = false, sfound = false; (guild_poly_info[info_num] + i)->spell_no >= ESpell::kUndefined; i++) {
 					if ((guild_poly_info[info_num] + i)->level > GetRealLevel(ch)) {
 						continue;
 					}
@@ -1229,8 +1228,8 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 					}
 
 					const auto spell_no = (guild_poly_info[info_num] + i)->spell_no;
-					if (spell_no
-						&& !((GET_SPELL_TYPE(ch, spell_no) & bits) == bits)) {
+					if (spell_no > ESpell::kUndefined &&
+						!((GET_SPELL_TYPE(ch, spell_no) & bits) == bits)) {
 						gcount += sprintf(buf, "$N научил$G вас магии %s\"%s\"%s",
 										  CCCYN(ch, C_NRM), GetSpellName(spell_no), CCNRM(ch, C_NRM));
 						act(buf, false, ch, 0, victim, kToChar);
@@ -1272,7 +1271,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 
 			const auto skill_no = FixNameAndFindSkillId(argument);
 			if (ESkill::kUndefined != skill_no && skill_no <= ESkill::kLast) {
-				for (i = 0, found = false; (guild_poly_info[info_num] + i)->spell_no >= 0; i++) {
+				for (i = 0, found = false; (guild_poly_info[info_num] + i)->spell_no >= ESpell::kUndefined; i++) {
 					if ((guild_poly_info[info_num] + i)->level > GetRealLevel(ch)) {
 						continue;
 					}
@@ -1312,7 +1311,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 			}
 
 			if (feat_no != EFeat::kUndefined) {
-				for (i = 0, found = false; (guild_poly_info[info_num] + i)->spell_no >= 0; i++) {
+				for (i = 0, found = false; (guild_poly_info[info_num] + i)->spell_no >= ESpell::kUndefined; i++) {
 					if ((guild_poly_info[info_num] + i)->level > GetRealLevel(ch)) {
 						continue;
 					}
@@ -1345,7 +1344,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 
 			const auto spell_no = FixNameAndFindSpellId(argument);
 			if (spell_no != ESpell::kUndefined) {
-				for (i = 0, found = false; (guild_poly_info[info_num] + i)->spell_no >= 0; i++) {
+				for (i = 0, found = false; (guild_poly_info[info_num] + i)->spell_no >= ESpell::kUndefined; i++) {
 					if ((guild_poly_info[info_num] + i)->level > GetRealLevel(ch)) {
 						continue;
 					}
@@ -2556,18 +2555,18 @@ int magic_user(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 	}
 
 	if ((GetRealLevel(ch) > 13) && (number(0, 10) == 0)) {
-		CastSpell(ch, target, nullptr, nullptr, kSpellSleep, kSpellSleep);
+		CastSpell(ch, target, nullptr, nullptr, ESpell::kSleep, ESpell::kSleep);
 	}
 
 	if ((GetRealLevel(ch) > 7) && (number(0, 8) == 0)) {
-		CastSpell(ch, target, nullptr, nullptr, kSpellBlindness, kSpellBlindness);
+		CastSpell(ch, target, nullptr, nullptr, ESpell::kBlindness, ESpell::kBlindness);
 	}
 
 	if ((GetRealLevel(ch) > 12) && (number(0, 12) == 0)) {
 		if (IS_EVIL(ch)) {
-			CastSpell(ch, target, nullptr, nullptr, kSpellEnergyDrain, kSpellEnergyDrain);
+			CastSpell(ch, target, nullptr, nullptr, ESpell::kEnergyDrain, ESpell::kEnergyDrain);
 		} else if (IS_GOOD(ch)) {
-			CastSpell(ch, target, nullptr, nullptr, kSpellDispelEvil, kSpellDispelEvil);
+			CastSpell(ch, target, nullptr, nullptr, ESpell::kDispelEvil, ESpell::kDispelEvil);
 		}
 	}
 
@@ -2577,26 +2576,26 @@ int magic_user(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 
 	switch (GetRealLevel(ch)) {
 		case 4:
-		case 5: CastSpell(ch, target, nullptr, nullptr, kSpellMagicMissile, kSpellMagicMissile);
+		case 5: CastSpell(ch, target, nullptr, nullptr, ESpell::kMagicMissile, ESpell::kMagicMissile);
 			break;
 		case 6:
-		case 7: CastSpell(ch, target, nullptr, nullptr, kSpellChillTouch, kSpellChillTouch);
+		case 7: CastSpell(ch, target, nullptr, nullptr, ESpell::kChillTouch, ESpell::kChillTouch);
 			break;
 		case 8:
-		case 9: CastSpell(ch, target, nullptr, nullptr, kSpellBurningHands, kSpellBurningHands);
+		case 9: CastSpell(ch, target, nullptr, nullptr, ESpell::kBurningHands, ESpell::kBurningHands);
 			break;
 		case 10:
-		case 11: CastSpell(ch, target, nullptr, nullptr, kSpellShockingGasp, kSpellShockingGasp);
+		case 11: CastSpell(ch, target, nullptr, nullptr, ESpell::kShockingGasp, ESpell::kShockingGasp);
 			break;
 		case 12:
-		case 13: CastSpell(ch, target, nullptr, nullptr, kSpellLightingBolt, kSpellLightingBolt);
+		case 13: CastSpell(ch, target, nullptr, nullptr, ESpell::kLightingBolt, ESpell::kLightingBolt);
 			break;
 		case 14:
 		case 15:
 		case 16:
-		case 17: CastSpell(ch, target, nullptr, nullptr, kSpellIceBolts, kSpellIceBolts);
+		case 17: CastSpell(ch, target, nullptr, nullptr, ESpell::kIceBolts, ESpell::kIceBolts);
 			break;
-		default: CastSpell(ch, target, nullptr, nullptr, kSpellFireball, kSpellFireball);
+		default: CastSpell(ch, target, nullptr, nullptr, ESpell::kFireball, ESpell::kFireball);
 			break;
 	}
 

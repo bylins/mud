@@ -56,7 +56,7 @@ int load_char(const char *name, CharData *char_element, bool reboot = false, boo
 CharData *read_mobile(MobVnum nr, int type);
 MobRnum real_mobile(MobVnum vnum);
 int vnum_mobile(char *searchname, CharData *ch);
-void clear_char_skills(CharData *ch);
+void ClearCharTalents(CharData *ch);
 int correct_unique(int unique);
 bool check_unlimited_timer(const CObjectPrototype *obj);
 void SaveGlobalUID();

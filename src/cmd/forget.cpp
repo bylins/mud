@@ -36,7 +36,7 @@ void do_forget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			MemQ_flush(ch);
 			SendMsgToChar("Вы вычеркнули все заклинания из своего списка для запоминания.\r\n", ch);
 		} else {
-			for (auto spell_id = ESpell::kSpellFirst ; spell_id <= ESpell::kSpellLast; ++spell_id) {
+			for (auto spell_id = ESpell::kFirst ; spell_id <= ESpell::kLast; ++spell_id) {
 				GET_SPELL_MEM(ch, spell_id) = 0;
 			}
 			sprintf(buf,
