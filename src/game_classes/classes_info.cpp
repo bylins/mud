@@ -74,20 +74,25 @@ void CharClassInfoBuilder::ParseClass(Optional &info, DataNode &node) {
 	} catch (std::exception &) {
 	}
 
-	node.GoToChild("stats");
-	ParseStats(info, node);
+	if (node.GoToChild("name")) {
+		ParseName(info, node);
+	}
 
-	node.GoToSibling("name");
-	ParseName(info, node);
+	if (node.GoToSibling("stats")) {
+		ParseStats(info, node);
+	}
 
-	node.GoToSibling("skills");
-	ParseSkills(info, node);
+	if (node.GoToSibling("skills")) {
+		ParseSkills(info, node);
+	}
 
-	node.GoToSibling("spells");
-	ParseSpells(info, node);
+	if (node.GoToSibling("spells")) {
+		ParseSpells(info, node);
+	}
 
-	node.GoToSibling("feats");
-	ParseFeats(info, node);
+	if (node.GoToSibling("feats")) {
+		ParseFeats(info, node);
+	}
 
 	TemporarySetStat(info);	// Временное проставление параметроа не из файла, а вручную
 }
