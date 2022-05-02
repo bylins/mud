@@ -7,9 +7,11 @@
 
 #include "classes_info.h"
 
+//#include <algorithm>
+
 #include "color.h"
 #include "utils/pugixml/pugixml.h"
-#include "game_magic/spells_info.h"
+//#include "game_magic/spells_info.h"
 #include "structs/global_objects.h"
 #include "utils/table_wrapper.h"
 
@@ -219,6 +221,12 @@ const char *CharClassInfo::GetCName(ECase name_case) const {
 
 const char *CharClassInfo::GetPluralCName(ECase name_case) const {
 	return names->GetPlural(name_case).c_str();
+}
+int CharClassInfo::GetMaxCircle() const {
+	auto it = std::max_element(spells.begin(), spells.end(), [](auto &a, auto &b){
+		return (a.GetCircle() < b.GetCircle());
+	});
+	return it->GetCircle();
 }
 
 void CharClassInfo::PrintSkillsTable(CharData *ch, std::ostringstream &buffer) const {
@@ -430,8 +438,10 @@ void CharClassInfoBuilder::TemporarySetStat(Optional &info) {
 // Перенести функции распечатки под орбщий интерфейс, чтобы не захламлять - а точно ли надо?
 // Распечатать в таблицу не только название, но такде ид название скиллов и прочего
 // Перенести простановку боевых кличей в файл (видимо, спелллам тоже прижется добавить inborn)
+// Реализовать общую функцию аля IsAbleToUseSpell
 
 // Поломался мем, надо починить
+// Крешится на попытке кастования
 
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

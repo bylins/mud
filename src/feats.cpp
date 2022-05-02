@@ -1164,7 +1164,7 @@ void do_fit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 // Вложить закл в клона
 void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
-	using PlayerClass::CalcCircleSlotsAmount;
+	using classes::CalcCircleSlotsAmount;
 
 	struct TimedFeat timed;
 
@@ -1204,12 +1204,12 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
+	const auto spell = MUD::Classes(ch->GetClass()).spells[spell_id];
 	if ((!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp | ESpellType::kKnow) ||
-		GET_REAL_REMORT(ch) < MIN_CAST_REM(spell_info[spell_id], ch)) &&
+		GET_REAL_REMORT(ch) < spell.GetMinRemort()) &&
 		(GetRealLevel(ch) < kLvlGreatGod) && (!ch->IsNpc())) {
-		if (GetRealLevel(ch) < MIN_CAST_LEV(spell_info[spell_id], ch)
-			|| GET_REAL_REMORT(ch) < MIN_CAST_REM(spell_info[spell_id], ch)
-			|| CalcCircleSlotsAmount(ch, spell_info[spell_id].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0) {
+		if (GetRealLevel(ch) < CalcMinSpellLvl(ch, spell_id) ||
+			CalcCircleSlotsAmount(ch, spell.GetCircle()) <= 0) {
 			SendMsgToChar("Рано еще вам бросаться такими словами!\r\n", ch);
 			return;
 		} else {
@@ -1263,7 +1263,7 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	timed.feat = EFeat::kSpellCapabler;
 
-	switch (spell_info[spell_id].slot_forc[to_underlying(ch->GetClass())][GET_KIN(ch)]) {
+	switch (MUD::Classes(ch->GetClass()).spells[spell_id].GetCircle()) {
 		case 1:
 		case 2:
 		case 3:

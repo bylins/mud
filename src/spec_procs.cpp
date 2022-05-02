@@ -453,7 +453,7 @@ const char *GetSpellColor(ESpell spell_id) {
    при параметре true */
 #include "game_classes/classes_spell_slots.h"
 void list_spells(CharData *ch, CharData *vict, int all_spells) {
-	using PlayerClass::CalcCircleSlotsAmount;
+	using classes::CalcCircleSlotsAmount;
 
 	char names[kMaxMemoryCircle][kMaxStringLength];
 	std::string time_str;
@@ -472,11 +472,12 @@ void list_spells(CharData *ch, CharData *vict, int all_spells) {
 			if (!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp) && !all_spells)
 				continue;
 		}
-		if ((MIN_CAST_LEV(spell_info[spell_id], ch) > GetRealLevel(ch)
-			|| MIN_CAST_REM(spell_info[spell_id], ch) > GET_REAL_REMORT(ch)
-			|| CalcCircleSlotsAmount(ch, spell_info[spell_id].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0)
-			&& all_spells && !GET_SPELL_TYPE(ch, spell_id))
+		if ((CalcMinSpellLvl(ch, spell_id) > GetRealLevel(ch) ||
+			spell.GetMinRemort() > GET_REAL_REMORT(ch) ||
+			CalcCircleSlotsAmount(ch, spell.GetCircle()) <= 0) &&
+			all_spells && !GET_SPELL_TYPE(ch, spell_id)) {
 			continue;
+		}
 
 		if (!spell_info[spell_id].name || *spell_info[spell_id].name == '!')
 			continue;
@@ -491,11 +492,12 @@ void list_spells(CharData *ch, CharData *vict, int all_spells) {
 			can_cast = 1;
 		}
 
-		if (MIN_CAST_REM(spell_info[spell_id], ch) > GET_REAL_REMORT(ch))
+		if (spell.GetMinRemort() > GET_REAL_REMORT(ch)) {
 			slot_num = kMaxMemoryCircle - 1;
-		else
-			slot_num = spell_info[spell_id].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;
-		max_slot = MAX(slot_num + 1, max_slot);
+		} else {
+			slot_num = spell.GetCircle() - 1;
+		}
+		max_slot = std::max(slot_num + 1, max_slot);
 		if (IS_MANA_CASTER(ch)) {
 			if (CalcSpellManacost(ch, spell_id) > GET_MAX_MANA(ch))
 				continue;
@@ -522,8 +524,8 @@ void list_spells(CharData *ch, CharData *vict, int all_spells) {
 														   / kSecsPerMudHour)))));
 				time_str.append("]");
 			}
-		if (MIN_CAST_LEV(spell_info[spell_id], ch) > GetRealLevel(ch) && IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow)) {
-			sprintf(buf1, "%d", MIN_CAST_LEV(spell_info[spell_id], ch) - GetRealLevel(ch));
+		if (CalcMinSpellLvl(ch, spell_id) > GetRealLevel(ch) && IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow)) {
+			sprintf(buf1, "%d", CalcMinSpellLvl(ch, spell_id) - GetRealLevel(ch));
 		}
 		else {
 			sprintf(buf1, "%s", "K");

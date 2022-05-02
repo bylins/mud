@@ -677,11 +677,6 @@ const int kNameLevel = 5;
 #define IS_SPELL_KNOWN(ch, i) (GET_SPELL_TYPE((ch), (i)) == ESpellType::kKnow)
 #define SET_SPELL(ch, i, pct) ((ch)->real_abils.SplMem[to_underlying(i)] = (pct))
 
-#define MOD_CAST_LEV(sp, ch) (BASE_CAST_LEV(sp, ch) - (std::max(GET_REAL_REMORT(ch) - MIN_CAST_REM(sp,ch),0) / 3))
-#define MIN_CAST_LEV(sp, ch) (std::max(0,MOD_CAST_LEV(sp,ch)))
-#define BASE_CAST_LEV(sp, ch) ((sp).min_level[(int) GET_CLASS (ch)][(int) GET_KIN (ch)])
-#define MIN_CAST_REM(sp, ch) ((sp).min_remort[(int) GET_CLASS (ch)][(int) GET_KIN (ch)])
-
 #define GET_EQ(ch, i)      ((ch)->equipment[i])
 
 #define GET_MOB_SPEC(ch)   (IS_MOB(ch) ? mob_index[(ch)->get_rnum()].func : nullptr)

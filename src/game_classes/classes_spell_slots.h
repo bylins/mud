@@ -9,24 +9,9 @@
 #include "entities/char_data.h"
 #include "classes_constants.h"
 
-namespace PlayerClass {
+namespace classes {
 
-int CalcCircleSlotsAmount(CharData *ch, int slot_num);
-void mspell_slot(char *name, ESpell spell_id, int kin, int chclass, int slot);
-
-class MaxClassSlot {
- public:
-	MaxClassSlot();
-
-	void init(int chclass, int kin, int slot);
-	int get(ECharClass chclass) const;
-	int get(const CharData *ch) const;
-
- private:
-	int _max_class_slot[kNumPlayerClasses][kNumKins];
-};
-
-extern MaxClassSlot max_slots;
+int CalcCircleSlotsAmount(CharData *ch, int circle);
 
 }; //namespace ClassPlayer
 

@@ -150,6 +150,7 @@ struct CharClassInfo : public info_container::IItem<ECharClass> {
 	Skills skills;
 	int skill_level_decrement_{kMinTalentLevelDecrement};
 	[[nodiscard]] int GetSkillLvlDecrement() const { return skill_level_decrement_; };
+	[[nodiscard]] int GetMaxCircle() const;
 	void PrintSkillsTable(CharData *ch, std::ostringstream &buffer) const;
 
 	Spells spells;

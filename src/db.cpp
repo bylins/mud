@@ -5132,7 +5132,7 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 			if (IS_MANA_CASTER(ch)) {
 				GET_SPELL_TYPE(ch, spell_id) = ESpellType::kRunes;
-			} else if (spell_info[spell_id].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] >= 8) {
+			} else if (MUD::Classes(ch->GetClass()).spells[spell_id].GetCircle() >= 8) {
 				GET_SPELL_TYPE(ch, spell_id) = ESpellType::kUnknowm;
 				GET_SPELL_MEM(ch, spell_id) = 0;
 			}

@@ -12,7 +12,11 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#include "world_objects.h"
+#include "game_limits.h"
+
+#include <boost/format.hpp>
+#include <random>
+
 #include "entities/world_characters.h"
 #include "game_skills/townportal.h"
 #include "handler.h"
@@ -27,14 +31,9 @@
 #include "game_fight/fight.h"
 #include "game_economics/ext_money.h"
 #include "statistics/mob_stat.h"
-#include "game_classes/classes_spell_slots.h"
 #include "game_magic/spells_info.h"
 #include "liquid.h"
-
-#include <boost/format.hpp>
-#include <random>
-
-using PlayerClass::max_slots;
+#include "structs/global_objects.h"
 
 extern int check_dupes_host(DescriptorData *d, bool autocheck = 0);
 extern RoomRnum r_unreg_start_room;
@@ -49,7 +48,6 @@ extern RoomRnum r_immort_start_room;
 extern RoomRnum r_helled_start_room;
 extern RoomRnum r_named_start_room;
 extern std::unordered_map<ESpell, SpellCreate> spell_create;
-extern const unsigned RECALL_SPELLS_INTERVAL;
 extern int CheckProxy(DescriptorData *ch);
 extern int check_death_ice(int room, CharData *ch);
 
@@ -100,17 +98,17 @@ void handle_recall_spells(CharData *ch) {
 	}
 
 	//максимальный доступный чару круг
-	unsigned max_slot = max_slots.get(ch);
+	auto max_circle = MUD::Classes(ch->GetClass()).GetMaxCircle();
 	//обрабатываем только каждые RECALL_SPELLS_INTERVAL секунд
 	int secs_left = (kSecsPerPlayerAffect * aff->duration) / kSecsPerMudHour - kSecsPerPlayerAffect;
-	if (secs_left / RECALL_SPELLS_INTERVAL < max_slot - aff->modifier || secs_left <= 2) {
+	if (secs_left/kRecallSpellsInterval < max_circle - aff->modifier || secs_left <= 2) {
 		int slot_to_restore = aff->modifier++;
 
 		bool found_spells = false;
 		struct SpellMemQueueItem *next = nullptr, *prev = nullptr, *i = ch->mem_queue.queue;
 		while (i) {
 			next = i->next;
-			if (spell_info[i->spell_id].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] == slot_to_restore) {
+			if (MUD::Classes(ch->GetClass()).spells[i->spell_id].GetCircle() == slot_to_restore) {
 				if (!found_spells) {
 					SendMsgToChar("Ваша голова прояснилась, в памяти всплыло несколько новых заклинаний.\r\n", ch);
 					found_spells = true;

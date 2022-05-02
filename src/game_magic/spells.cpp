@@ -73,16 +73,23 @@ ESkill GetMagicSkillId(ESpell spell_id) {
 
 //Определим мин уровень для изучения спелла из книги
 //req_lvl - требуемый уровень из книги
-int CalcMinSpellLevel(CharData *ch, ESpell spell_id, int req_lvl) {
-	int min_lvl = std::max(req_lvl, BASE_CAST_LEV(spell_info[spell_id], ch))
+int CalcMinSpellLvl(const CharData *ch, ESpell spell_id, int req_lvl) {
+	int min_lvl = std::max(req_lvl, MUD::Classes(ch->GetClass()).spells[spell_id].GetMinLevel())
 		- (std::max(0, GET_REAL_REMORT(ch)/MUD::Classes(ch->GetClass()).GetSpellLvlDecrement()));
 
 	return std::max(1, min_lvl);
 }
 
-bool IsAbleToGetSpell(CharData *ch, ESpell spell_id, int req_lvl) {
-	if (CalcMinSpellLevel(ch, spell_id, req_lvl) > GetRealLevel(ch) ||
-		MIN_CAST_REM(spell_info[spell_id], ch) > GET_REAL_REMORT(ch)) {
+int CalcMinSpellLvl(const CharData *ch, ESpell spell_id) {
+	auto min_lvl = MUD::Classes(ch->GetClass()).spells[spell_id].GetMinLevel()
+		- GET_REAL_REMORT(ch)/MUD::Classes(ch->GetClass()).GetSpellLvlDecrement();
+
+	return std::max(1, min_lvl);
+}
+
+bool IsAbleToGetSpell(const CharData *ch, ESpell spell_id, int req_lvl) {
+	if (CalcMinSpellLvl(ch, spell_id, req_lvl) > GetRealLevel(ch) ||
+		MUD::Classes(ch->GetClass()).spells[spell_id].GetMinRemort() > GET_REAL_REMORT(ch)) {
 		return false;
 	}
 
@@ -91,8 +98,8 @@ bool IsAbleToGetSpell(CharData *ch, ESpell spell_id, int req_lvl) {
 
 // Функция определяет возможность изучения спелла из книги или в гильдии
 bool IsAbleToGetSpell(CharData *ch, ESpell spell_id) {
-	if (MIN_CAST_LEV(spell_info[spell_id], ch) > GetRealLevel(ch)
-		|| MIN_CAST_REM(spell_info[spell_id], ch) > GET_REAL_REMORT(ch)) {
+	if (CalcMinSpellLvl(ch, spell_id) > GetRealLevel(ch) ||
+		MUD::Classes(ch->GetClass()).spells[spell_id].GetMinRemort() > GET_REAL_REMORT(ch)) {
 		return false;
 	}
 
@@ -1551,10 +1558,10 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 					auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(obj, 1));
 					if (spell_id >= ESpell::kFirst && spell_id <= ESpell::kLast) {
 						drndice = GET_OBJ_VAL(obj, 1);
-						if (MIN_CAST_REM(spell_info[spell_id], ch) > GET_REAL_REMORT(ch)) {
+						if (MUD::Classes(ch->GetClass()).spells[spell_id].GetMinRemort() > GET_REAL_REMORT(ch)) {
 							drsdice = 34;
 						} else {
-							drsdice = CalcMinSpellLevel(ch, spell_id, GET_OBJ_VAL(obj, 2));
+							drsdice = CalcMinSpellLvl(ch, spell_id, GET_OBJ_VAL(obj, 2));
 						}
 						sprintf(buf, "содержит заклинание        : \"%s\"\r\n", GetSpellName(spell_id));
 						SendMsgToChar(buf, ch);

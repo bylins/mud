@@ -44,8 +44,6 @@ void do_start(CharData *ch, int newbie);
 int invalid_anti_class(CharData *ch, const ObjData *obj);
 byte GetExtendSavingThrows(ECharClass class_id, ESaving save, int level);
 int invalid_unique(CharData *ch, const ObjData *obj);
-void mspell_level(char *, ESpell spell_id, int kin, int chclass, int level);
-void mspell_remort(char *, ESpell spell_id, int kin, int chclass, int remort);
 extern bool char_to_pk_clan(CharData *ch);
 // Names first
 
@@ -1295,58 +1293,16 @@ int invalid_no_class(CharData *ch, const ObjData *obj) {
  */
 #include "classes_spell_slots.h"
 void InitSpellLevels() {
-	using PlayerClass::mspell_slot;
-
 	FILE *magic;
 	char line1[256], line2[256], line3[256], name[256];
 	int i[15];
 
-	if (!(magic = fopen(LIB_MISC "class.spells.lst", "r"))) {
-		log("Can't open class spells file...");
-		perror("fopen");
-		graceful_exit(1);
-	}
-
-	auto sp_num{ESpell::kUndefined};;
-	while (get_line(magic, name)) {
-		if (!name[0] || name[0] == ';')
-			continue;
-		if (sscanf(name, "%s %s %d %d %d %d %d %d", line1, line2, i, i + 1, i + 2, i + 3, i + 4, i + 5) != 8) {
-			log("Bad format for magic string!\r\n"
-				"Format : <spell name (%%s %%s)> <kin (%%d)> <classes (%%d)> <remort (%%d)> <slot (%%d)> <level (%%d)>");
-			graceful_exit(1);
-		}
-
-		name[0] = '\0';
-		strcat(name, line1);
-		if (*line2 != '*') {
-			*(name + strlen(name) + 1) = '\0';
-			*(name + strlen(name) + 0) = ' ';
-			strcat(name, line2);
-		}
-
-		if ((sp_num = FixNameAndFindSpellId(name)) == ESpell::kUndefined) {
-			log("Spell '%s' not found...", name);
-			graceful_exit(1);
-		}
-
-		if (i[1] < 0 || i[1] >= kNumPlayerClasses) {
-			log("Bad class type for spell '%s'  \"%d\"...", name, to_underlying(sp_num));
-			graceful_exit(1);
-		}
-		if (i[2] < 0 || i[2] >= kMaxRemort) {
-			log("Bad remort type for spell '%s'  \"%d\"...", name, to_underlying(sp_num));
-			graceful_exit(1);
-		}
-		mspell_remort(name, sp_num, i[0], i[1], i[2]);
-		mspell_level(name, sp_num, i[0], i[1], i[4]);
-		mspell_slot(name, sp_num, i[0], i[1], i[3]);
-	}
-	fclose(magic);
 	if (!(magic = fopen(LIB_MISC "runes.lst", "r"))) {
 		log("Cann't open items list file...");
 		graceful_exit(1);
 	}
+
+	auto sp_num{ESpell::kUndefined};;
 	while (get_line(magic, name)) {
 		if (!name[0] || name[0] == ';')
 			continue;
@@ -1795,56 +1751,6 @@ long GetExpUntilNextLvl(CharData *ch, int level) {
 	 */
 	log("SYSERR: XP tables not set up correctly in class.c!");
 	return 123456;
-}
-
-void mspell_remort(char */*name*/, ESpell spell_id, int kin, int chclass, int remort) {
-	int bad = 0;
-
-	if (kin < 0 || kin >= kNumKins) {
-		log("SYSERR: assigning '%s' to illegal kin %d/%d.", spell_info[spell_id].name, chclass, kNumKins);
-		bad = 1;
-	}
-	if (chclass < 0 || chclass >= kNumPlayerClasses) {
-		log("SYSERR: assigning '%s' to illegal class %d/%d.", spell_info[spell_id].name, chclass, kNumPlayerClasses - 1);
-		bad = 1;
-	}
-	if (remort < 0 || remort > kMaxRemort) {
-		log("SYSERR: assigning '%s' to illegal remort %d/%d.", spell_info[spell_id].name, remort, kMaxRemort);
-		bad = 1;
-	}
-	if (!bad) {
-		spell_info[spell_id].min_remort[chclass][kin] = remort;
-		//log("REMORT set '%s' kin '%d' classes %d value %d", name, kin, chclass, remort);
-	}
-}
-
-void mspell_level(char */*name*/, ESpell spell_id, int kin, int chclass, int level) {
-	int bad = 0;
-
-	if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast) {
-		log("SYSERR: attempting assign to illegal spell id %d/%d", to_underlying(spell_id), to_underlying(ESpell::kLast));
-		return;
-	}
-
-	if (kin < 0 || kin >= kNumKins) {
-		log("SYSERR: assigning '%s' to illegal kin %d/%d.", spell_info[spell_id].name, chclass, kNumKins);
-		bad = 1;
-	}
-
-	if (chclass < 0 || chclass >= kNumPlayerClasses) {
-		log("SYSERR: assigning '%s' to illegal class %d/%d.", spell_info[spell_id].name, chclass, kNumPlayerClasses - 1);
-		bad = 1;
-	}
-
-	if (level < 1 || level > kLvlImplementator) {
-		log("SYSERR: assigning '%s' to illegal level %d/%d.", spell_info[spell_id].name, level, kLvlImplementator);
-		bad = 1;
-	}
-
-	if (!bad) {
-		spell_info[spell_id].min_level[chclass][kin] = level;
-		//log("LEVEL set '%s' kin '%d' classes %d value %d", name, kin, chclass, level);
-	}
 }
 
 GroupPenalties grouping;    ///< TODO: get rid of this global variable.

@@ -16,14 +16,7 @@ const char *GetSpellName(ESpell spell_id) {
 }
 
 void InitUnusedSpell(ESpell spell_id) {
-	int i, j;
-	for (i = 0; i < kNumPlayerClasses; i++) {
-		for (j = 0; j < kNumKins; j++) {
-			spell_info[spell_id].min_remort[i][j] = kMaxRemort;
-			spell_info[spell_id].min_level[i][j] = kLvlImplementator + 1;
-			spell_info[spell_id].slot_forc[i][j] = kMaxMemoryCircle;
-		}
-	}
+	int i;
 
 	for (i = 0; i < 3; i++) {
 		spell_create[spell_id].wand.items[i] = -1;
@@ -54,15 +47,6 @@ void InitUnusedSpell(ESpell spell_id) {
 void InitSpell(ESpell spell_id, const char *name, const char *syn,
 			   int max_mana, int min_mana, int mana_change,
 			   EPosition minpos, int targets, int violent, int routines, int danger, int spell_class) {
-
-	int i, j;
-	for (i = 0; i < kNumPlayerClasses; i++) {
-		for (j = 0; j < kNumKins; j++) {
-			spell_info[spell_id].min_remort[i][j] = kMaxRemort;
-			spell_info[spell_id].min_level[i][j] = kLvlImplementator;
-			spell_info[spell_id].slot_forc[i][j] = kMaxMemoryCircle;
-		}
-	}
 
 	spell_create[spell_id].wand.min_caster_level = kLvlGreatGod;
 	spell_create[spell_id].scroll.min_caster_level = kLvlGreatGod;

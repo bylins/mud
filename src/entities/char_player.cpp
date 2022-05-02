@@ -1906,11 +1906,14 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 				| ESpellType::kPotionCast | ESpellType::kWandCast;
 		}
 	} else if (!IS_IMMORTAL(this)) {
-		for (const auto &spell : MUD::Classes(this->GetClass()).spells) {
-			if (spell_info[spell.GetId()].slot_forc[(int) GET_CLASS(this)][(int) GET_KIN(this)] == kMaxMemoryCircle)
+		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
+			const auto spell = MUD::Classes(this->GetClass()).spells[spell_id];
+			if (spell.GetCircle() == kMaxMemoryCircle) {
 				REMOVE_BIT(GET_SPELL_TYPE(this, spell.GetId()), ESpellType::kKnow | ESpellType::kTemp);
-			if (GET_REAL_REMORT(this) < MIN_CAST_REM(spell_info[spell.GetId()], this))
-				GET_SPELL_MEM(this, spell.GetId()) = 0;
+			}
+			if (GET_REAL_REMORT(this) < spell.GetMinRemort()) {
+				GET_SPELL_MEM(this, spell_id) = 0;
+			}
 		}
 	}
 

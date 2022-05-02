@@ -1,5 +1,7 @@
 // Part of Bylins http://www.mud.ru
 
+#include <random>
+
 #include "game_affects/affect_data.h"
 #include "mobact.h"
 #include "entities/obj_data.h"
@@ -13,18 +15,15 @@
 #include "house.h"
 #include "pk.h"
 #include "stuff.h"
-
-#include <random>
 #include "statistics/top.h"
 #include "color.h"
-#include "game_magic/magic.h"
 #include "statistics/mob_stat.h"
 #include "game_mechanics/bonus.h"
 #include "backtrace.h"
 #include "game_magic/magic_utils.h"
-//#include "entities/zone.h"
 #include "entities/char_player.h"
 #include "structs/global_objects.h"
+#include "game_limits.h"
 
 // extern
 void perform_drop_gold(CharData *ch, int amount);
@@ -38,8 +37,6 @@ extern int material_value[];
 extern int max_exp_gain_npc;
 
 //интервал в секундах между восстановлением кругов после рипа
-extern const unsigned RECALL_SPELLS_INTERVAL;
-const unsigned RECALL_SPELLS_INTERVAL = 28;
 void process_mobmax(CharData *ch, CharData *killer) {
 	bool leader_partner = false;
 	int partner_feat = 0;
@@ -412,7 +409,7 @@ void die(CharData *ch, CharData *killer) {
 
 #include "game_classes/classes_spell_slots.h"
 void forget_all_spells(CharData *ch) {
-	using PlayerClass::CalcCircleSlotsAmount;
+	using classes::CalcCircleSlotsAmount;
 
 	ch->mem_queue.stored = 0;
 	int slots[kMaxMemoryCircle];
@@ -423,14 +420,14 @@ void forget_all_spells(CharData *ch) {
 	}
 	struct SpellMemQueueItem *qi_cur, **qi = &ch->mem_queue.queue;
 	while (*qi) {
-		--slots[spell_info[(*(qi))->spell_id].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1];
+		--slots[MUD::Classes(ch->GetClass()).spells[(*(qi))->spell_id].GetCircle() - 1];
 		qi = &((*qi)->next);
 	}
 	int slotn;
 
 	for (auto spell_id = ESpell::kFirst ; spell_id <= ESpell::kLast; ++spell_id) {
 		if (PRF_FLAGGED(ch, EPrf::kAutomem) && GET_SPELL_MEM(ch, spell_id)) {
-			slotn = spell_info[spell_id].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;
+			slotn = MUD::Classes(ch->GetClass()).spells[spell_id].GetCircle() - 1;
 			for (unsigned j = 0; (slots[slotn] > 0 && j < GET_SPELL_MEM(ch, spell_id)); ++j, --slots[slotn]) {
 				ch->mem_queue.total += CalcSpellManacost(ch, spell_id);
 				CREATE(qi_cur, 1);
@@ -448,7 +445,8 @@ void forget_all_spells(CharData *ch) {
 		af.location = EApply::kNone;
 		af.modifier = 1; // номер круга, который восстанавливаем
 		//добавим 1 проход про запас, иначе неуспевает отмемиться последний круг -- аффект спадает раньше
-		af.duration = CalcDuration(ch, max_slot * RECALL_SPELLS_INTERVAL + kSecsPerPlayerAffect, 0, 0, 0, 0);
+
+		af.duration = CalcDuration(ch, max_slot*kRecallSpellsInterval + kSecsPerPlayerAffect, 0, 0, 0, 0);
 		af.bitvector = to_underlying(EAffect::kMemorizeSpells);
 		af.battleflag = kAfPulsedec | kAfDeadkeep;
 		ImposeAffect(ch, af, false, false, false, false);

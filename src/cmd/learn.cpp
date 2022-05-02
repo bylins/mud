@@ -53,7 +53,7 @@ void SendSuccessLearningMessage(CharData *ch, ObjData *book, const std::string &
 }
 
 void LearnSpellBook(CharData *ch, ObjData *obj) {
-	if (PlayerClass::CalcCircleSlotsAmount(ch, 1) <= 0) {
+	if (classes::CalcCircleSlotsAmount(ch, 1) <= 0) {
 		SendMsgToChar("Далась вам эта магия! Пошли бы, водочки выпили...\r\n", ch);
 		throw LearningError();
 	}
