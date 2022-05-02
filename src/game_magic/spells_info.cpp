@@ -22,7 +22,6 @@ void InitUnusedSpell(ESpell spell_id) {
 			spell_info[spell_id].min_remort[i][j] = kMaxRemort;
 			spell_info[spell_id].min_level[i][j] = kLvlImplementator + 1;
 			spell_info[spell_id].slot_forc[i][j] = kMaxMemoryCircle;
-			spell_info[spell_id].class_change[i][j] = 0;
 		}
 	}
 
@@ -62,7 +61,6 @@ void InitSpell(ESpell spell_id, const char *name, const char *syn,
 			spell_info[spell_id].min_remort[i][j] = kMaxRemort;
 			spell_info[spell_id].min_level[i][j] = kLvlImplementator;
 			spell_info[spell_id].slot_forc[i][j] = kMaxMemoryCircle;
-			spell_info[spell_id].class_change[i][j] = 0;
 		}
 	}
 

@@ -894,10 +894,9 @@ void Player::save_char() {
 		fprintf(saved, "CntF: %d\n", get_reset_stats_cnt(stats_reset::Type::FEATS));
 	}
 
-	std::map<int, MERCDATA>::iterator it = this->charmeeHistory.begin();
-	// перечень чармисов кудеса и купца
+	auto it = this->charmeeHistory.begin();
 	if (this->charmeeHistory.size() > 0 &&
-		(this->GetClass() == ECharClass::kCharmer || IsAbleToUseFeat(this, EFeat::kEmployer) || IS_IMMORTAL(this))) {
+		(IS_SPELL_KNOWN(this, ESpell::kCharm) || IsAbleToUseFeat(this, EFeat::kEmployer) || IS_IMMORTAL(this))) {
 		fprintf(saved, "Chrm:\n");
 		for (; it != this->charmeeHistory.end(); ++it) {
 			fprintf(saved, "%d %d %d %d %d %d\n",

@@ -46,7 +46,6 @@ byte GetExtendSavingThrows(ECharClass class_id, ESaving save, int level);
 int invalid_unique(CharData *ch, const ObjData *obj);
 void mspell_level(char *, ESpell spell_id, int kin, int chclass, int level);
 void mspell_remort(char *, ESpell spell_id, int kin, int chclass, int remort);
-void mspell_change(char *, ESpell spell_id, int kin, int chclass, int class_change);
 extern bool char_to_pk_clan(CharData *ch);
 // Names first
 
@@ -1342,8 +1341,6 @@ void InitSpellLevels() {
 		mspell_remort(name, sp_num, i[0], i[1], i[2]);
 		mspell_level(name, sp_num, i[0], i[1], i[4]);
 		mspell_slot(name, sp_num, i[0], i[1], i[3]);
-		mspell_change(name, sp_num, i[0], i[1], i[5]);
-
 	}
 	fclose(magic);
 	if (!(magic = fopen(LIB_MISC "runes.lst", "r"))) {
@@ -1825,7 +1822,7 @@ void mspell_level(char */*name*/, ESpell spell_id, int kin, int chclass, int lev
 	int bad = 0;
 
 	if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast) {
-		log("SYSERR: attempting assign to illegal spell id %d/%d", to_underlying(spell_id), ESpell::kLast);
+		log("SYSERR: attempting assign to illegal spell id %d/%d", to_underlying(spell_id), to_underlying(ESpell::kLast));
 		return;
 	}
 
@@ -1847,28 +1844,6 @@ void mspell_level(char */*name*/, ESpell spell_id, int kin, int chclass, int lev
 	if (!bad) {
 		spell_info[spell_id].min_level[chclass][kin] = level;
 		//log("LEVEL set '%s' kin '%d' classes %d value %d", name, kin, chclass, level);
-	}
-}
-
-void mspell_change(char */*name*/, ESpell spell_id, int kin, int chclass, int class_change) {
-	int bad = 0;
-
-	if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast) {
-		log("SYSERR: attempting assign to illegal spell id %d/%d", to_underlying(spell_id), to_underlying(ESpell::kLast));
-		return;
-	}
-
-	if (kin < 0 || kin >= kNumKins) {
-		log("SYSERR: assigning '%s' to illegal kin %d/%d.", spell_info[spell_id].name, chclass, kNumKins);
-		bad = 1;
-	}
-
-	if (chclass < 0 || chclass >= kNumPlayerClasses) {
-		log("SYSERR: assigning '%s' to illegal class %d/%d.", spell_info[spell_id].name, chclass, kNumPlayerClasses - 1);
-		bad = 1;
-	}
-	if (!bad) {
-		spell_info[spell_id].class_change[chclass][kin] = class_change;
 	}
 }
 

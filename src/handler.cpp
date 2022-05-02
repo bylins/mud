@@ -31,9 +31,9 @@
 #include "obj_prototypes.h"
 #include "color.h"
 #include "game_magic/magic_utils.h"
-#include "world_objects.h"
 #include "game_classes/classes_spell_slots.h"
 #include "depot.h"
+#include "structs/global_objects.h"
 
 using PlayerClass::CalcCircleSlotsAmount;
 
@@ -2826,12 +2826,11 @@ int CalcSpellManacost(const CharData *ch, ESpell spell_id) {
 			&& GET_REAL_REMORT(ch) >= MIN_CAST_REM(spell_info[spell_id], ch)) {
 			result = std::max(spell_info[spell_id].mana_max - (spell_info[spell_id].mana_change * (GetRealLevel(ch) - MIN_CAST_LEV(spell_info[spell_id], ch))),
 							  spell_info[spell_id].mana_min);
-			if (spell_info[spell_id].class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] < 0) {
-				result = result * (100 -
-						std::min(99, abs(spell_info[spell_id].class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]))) / 100;
+			auto class_mem_mod = MUD::Classes(ch->GetClass()).spells[spell_id].GetMemMod();
+			if (class_mem_mod < 0) {
+				result *= (100 - std::min(99, abs(class_mem_mod)))/100;
 			} else {
-				result = result * 100 / (100 -
-						std::min(99, abs(spell_info[spell_id].class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])));
+				result *= 100/(100 - std::min(99, abs(class_mem_mod)));
 			}
 //		Меняем мем на коэффициент скилла магии
 // \todo ABYRVALG Нужно ввести общую для витязя и купца способность, а эту похабень убрать.

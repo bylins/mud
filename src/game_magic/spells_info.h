@@ -15,7 +15,6 @@ struct SpellInfo {
 	int min_remort[kNumPlayerClasses][kNumKins];
 	int min_level[kNumPlayerClasses][kNumKins];
 	int slot_forc[kNumPlayerClasses][kNumKins];
-	int class_change[kNumPlayerClasses][kNumKins];
 	long danger;
 	Bitvector routines;
 	int violent;
