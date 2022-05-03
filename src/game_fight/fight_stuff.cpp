@@ -1342,7 +1342,7 @@ void Damage::post_init(CharData *ch, CharData *victim) {
 		// ABYRVALG тут нужно переделать на взятие сообщения из структуры абилок
 		if (MUD::Skills().IsValid(skill_id)) {
 			msg_num = to_underlying(skill_id) + kTypeHit;
-		} else if (spell_id >= ESpell::kUndefined) {
+		} else if (spell_id > ESpell::kUndefined) {
 			msg_num = to_underlying(spell_id);
 		} else if (hit_type >= 0) {
 			msg_num = hit_type + kTypeHit;
