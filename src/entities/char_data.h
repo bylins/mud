@@ -499,28 +499,28 @@ class CharData : public ProtectedCharData {
 	int calc_morale() const;
 
 	int get_str() const;
-	int get_inborn_str() const;
+	int GetInbornStr() const;
 	void set_str(int);
 	void inc_str(int);
 	void time_set_glory_stats(time_t);
 	int get_dex() const;
-	int get_inborn_dex() const;
+	int GetInbornDex() const;
 	void set_dex(int);
 	void inc_dex(int);
 	int get_con() const;
-	int get_inborn_con() const;
+	int GetInbornCon() const;
 	void set_con(int);
 	void inc_con(int);
 	int get_wis() const;
-	int get_inborn_wis() const;
+	int GetInbornWis() const;
 	void set_wis(int);
 	void inc_wis(int);
 	int get_int() const;
-	int get_inborn_int() const;
+	int GetInbornInt() const;
 	void set_int(int);
 	void inc_int(int);
 	int get_cha() const;
-	int get_inborn_cha() const;
+	int GetInbornCha() const;
 	void set_cha(int);
 	void inc_cha(int);
 

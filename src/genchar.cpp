@@ -24,6 +24,7 @@
 #include "entities/char_data.h"
 #include "entities/char_player.h"
 #include "db.h"
+#include "structs/global_objects.h"
 
 const char *genchar_help =
 	"\r\n Сейчас вы должны выбрать себе характеристики. В зависимости от того, как\r\n"
@@ -33,60 +34,6 @@ const char *genchar_help =
 	"туда один бал, увеличивая - убираете.\r\n"
 	"Когда вы добьетесь, чтобы у вас в этой строке находилось число 0, вы сможете\r\n"
 	"закончить генерацию и войти в игру.\r\n";
-
-int max_stats[][6] =
-	// Str Dex Int Wis Con Cha
-	{{14, 13, 24, 25, 15, 10},    // Лекарь //
-	 {14, 12, 25, 23, 13, 16},    // Колдун //
-	 {19, 25, 12, 12, 17, 16},    // Вор //
-	 {25, 11, 15, 15, 25, 10},    // Богатырь //
-	 {22, 24, 14, 14, 17, 12},    // Наемник //
-	 {23, 17, 14, 14, 23, 12},    // Дружинник //
-	 {14, 12, 25, 23, 13, 16},    // Кудесник //
-	 {14, 12, 25, 23, 13, 16},    // Волшебник //
-	 {15, 13, 25, 23, 14, 12},    // Чернокнижник //
-	 {22, 13, 16, 19, 18, 17},    // Витязь //
-	 {25, 21, 16, 16, 18, 16},    // Охотник //
-	 {25, 17, 13, 15, 20, 16},    // Кузнец //
-	 {21, 17, 14, 13, 20, 17},    // Купец //
-	 {18, 12, 24, 18, 15, 12}    // Волхв //
-	};
-
-int min_stats[][6] =
-	// Str Dex Int Wis Con Cha //
-	{{11, 10, 19, 20, 12, 10},    // Лекарь //
-	 {10, 9, 20, 18, 10, 13},    // Колдун //
-	 {16, 22, 9, 9, 14, 13},    // Вор //
-	 {21, 8, 11, 11, 22, 10},    // Богатырь //
-	 {17, 19, 11, 11, 14, 12},    // Наемник //
-	 {20, 14, 10, 10, 17, 12},    // Дружинник //
-	 {10, 9, 20, 18, 10, 13},    // Кудесник //
-	 {10, 9, 20, 18, 10, 13},    // Волшебник //
-	 {9, 9, 20, 20, 11, 10},    // Чернокнижник //
-	 {19, 10, 12, 15, 14, 13},    // Витязь //
-	 {19, 15, 11, 11, 14, 11},    // Охотник //
-	 {20, 14, 10, 11, 14, 12},    // Кузнец //
-	 {18, 14, 10, 10, 14, 13},    // Купец //
-	 {15, 10, 19, 15, 12, 12}    // Волхв //
-	};
-
-int auto_stats[][6] =
-	// Str Dex Int Wis Con Cha //
-	{{11, 10, 24, 25, 15, 10},    // Лекарь //
-	 {12, 9, 25, 23, 13, 13},    // Колдун //
-	 {19, 25, 12, 9, 17, 13},    // Вор //
-	 {25, 8, 15, 12, 25, 10},    // Богатырь //
-	 {22, 24, 11, 11, 15, 12},    // Наемник //
-	 {23, 17, 10, 10, 23, 12},    // Дружинник //
-	 {10, 9, 25, 22, 13, 16},    // Кудесник //
-	 {10, 9, 25, 22, 13, 16},    // Волшебник //
-	 {14, 9, 25, 23, 14, 10},    // Чернокнижник //
-	 {22, 13, 12, 17, 18, 13},    // Витязь //
-	 {25, 21, 11, 11, 16, 11},    // Охотник //
-	 {25, 17, 10, 11, 20, 12},    // Кузнец //
-	 {18, 17, 14, 11, 18, 17},    // Купец //
-	 {16, 10, 24, 18, 15, 12}    // Волхв //
-	};
 
 const char *default_race[] = {
 	"Кривичи", //лекарь
@@ -112,6 +59,7 @@ int CalcBasseStatsSum(CharData *ch) {
 void genchar_disp_menu(CharData *ch) {
 	char buf[kMaxStringLength];
 
+	const auto &ch_class = MUD::Classes(ch->GetClass());
 	sprintf(buf,
 			"\r\n              -      +\r\n"
 			"  Сила     : (А) %2d (З)        [%2d - %2d]\r\n"
@@ -125,12 +73,19 @@ void genchar_disp_menu(CharData *ch) {
 			"\r\n"
 			"  П) Помощь (для доп. информации наберите 'справка характеристики')\r\n"
 			"  О) &WАвтоматически сгенировать (рекомендуется для новичков)&n\r\n",
-			ch->get_inborn_str(), MIN_STR(ch), MAX_STR(ch),
-			ch->get_inborn_dex(), MIN_DEX(ch), MAX_DEX(ch),
-			ch->get_inborn_int(), MIN_INT(ch), MAX_INT(ch),
-			ch->get_inborn_wis(), MIN_WIS(ch), MAX_WIS(ch),
-			ch->get_inborn_con(), MIN_CON(ch), MAX_CON(ch),
-			ch->get_inborn_cha(), MIN_CHA(ch), MAX_CHA(ch), kBaseStatsSum - CalcBasseStatsSum(ch));
+			ch->GetInbornStr(),
+				ch_class.GetBaseStatGenMin(EBaseStat::kStr), ch_class.GetBaseStatGenMax(EBaseStat::kStr),
+			ch->GetInbornDex(),
+				ch_class.GetBaseStatGenMin(EBaseStat::kDex), ch_class.GetBaseStatGenMax(EBaseStat::kDex),
+			ch->GetInbornInt(),
+				ch_class.GetBaseStatGenMin(EBaseStat::kInt), ch_class.GetBaseStatGenMax(EBaseStat::kInt),
+			ch->GetInbornWis(),
+				ch_class.GetBaseStatGenMin(EBaseStat::kWis), ch_class.GetBaseStatGenMax(EBaseStat::kWis),
+			ch->GetInbornCon(),
+				ch_class.GetBaseStatGenMin(EBaseStat::kCon), ch_class.GetBaseStatGenMax(EBaseStat::kCon),
+			ch->GetInbornCha(),
+				ch_class.GetBaseStatGenMin(EBaseStat::kCha), ch_class.GetBaseStatGenMax(EBaseStat::kCha),
+			kBaseStatsSum - CalcBasseStatsSum(ch));
 	SendMsgToChar(buf, ch);
 	if (kBaseStatsSum == CalcBasseStatsSum(ch))
 		SendMsgToChar("  В) Закончить генерацию\r\n", ch);
@@ -138,43 +93,43 @@ void genchar_disp_menu(CharData *ch) {
 }
 
 int genchar_parse(CharData *ch, char *arg) {
-	int tmp_class;
+	const auto &ch_class = MUD::Classes(ch->GetClass());
 	switch (*arg) {
 		case 'А':
-		case 'а': ch->set_str(std::max(ch->get_inborn_str() - 1, MIN_STR(ch)));
+		case 'а': ch->set_str(std::max(ch->GetInbornStr() - 1, ch_class.GetBaseStatGenMin(EBaseStat::kStr)));
 			break;
 		case 'Б':
-		case 'б': ch->set_dex(std::max(ch->get_inborn_dex() - 1, MIN_DEX(ch)));
+		case 'б': ch->set_dex(std::max(ch->GetInbornDex() - 1, ch_class.GetBaseStatGenMin(EBaseStat::kDex)));
 			break;
 		case 'Г':
-		case 'г': ch->set_int(std::max(ch->get_inborn_int() - 1, MIN_INT(ch)));
+		case 'г': ch->set_int(std::max(ch->GetInbornInt() - 1, ch_class.GetBaseStatGenMin(EBaseStat::kInt)));
 			break;
 		case 'Д':
-		case 'д': ch->set_wis(std::max(ch->get_inborn_wis() - 1, MIN_WIS(ch)));
+		case 'д': ch->set_wis(std::max(ch->GetInbornWis() - 1, ch_class.GetBaseStatGenMin(EBaseStat::kWis)));
 			break;
 		case 'Е':
-		case 'е': ch->set_con(std::max(ch->get_inborn_con() - 1, MIN_CON(ch)));
+		case 'е': ch->set_con(std::max(ch->GetInbornCon() - 1, ch_class.GetBaseStatGenMin(EBaseStat::kCon)));
 			break;
 		case 'Ж':
-		case 'ж': ch->set_cha(std::max(ch->get_inborn_cha() - 1, MIN_CHA(ch)));
+		case 'ж': ch->set_cha(std::max(ch->GetInbornCha() - 1, ch_class.GetBaseStatGenMin(EBaseStat::kCha)));
 			break;
 		case 'З':
-		case 'з': ch->set_str(std::min(ch->get_inborn_str() + 1, MAX_STR(ch)));
+		case 'з': ch->set_str(std::min(ch->GetInbornStr() + 1, ch_class.GetBaseStatGenMax(EBaseStat::kStr)));
 			break;
 		case 'И':
-		case 'и': ch->set_dex(std::min(ch->get_inborn_dex() + 1, MAX_DEX(ch)));
+		case 'и': ch->set_dex(std::min(ch->GetInbornDex() + 1, ch_class.GetBaseStatGenMax(EBaseStat::kDex)));
 			break;
 		case 'К':
-		case 'к': ch->set_int(std::min(ch->get_inborn_int() + 1, MAX_INT(ch)));
+		case 'к': ch->set_int(std::min(ch->GetInbornInt() + 1, ch_class.GetBaseStatGenMax(EBaseStat::kInt)));
 			break;
 		case 'Л':
-		case 'л': ch->set_wis(std::min(ch->get_inborn_wis() + 1, MAX_WIS(ch)));
+		case 'л': ch->set_wis(std::min(ch->GetInbornWis() + 1, ch_class.GetBaseStatGenMax(EBaseStat::kWis)));
 			break;
 		case 'М':
-		case 'м': ch->set_con(std::min(ch->get_inborn_con() + 1, MAX_CON(ch)));
+		case 'м': ch->set_con(std::min(ch->GetInbornCon() + 1, ch_class.GetBaseStatGenMax(EBaseStat::kCon)));
 			break;
 		case 'Н':
-		case 'н': ch->set_cha(std::min(ch->get_inborn_cha() + 1, MAX_CHA(ch)));
+		case 'н': ch->set_cha(std::min(ch->GetInbornCha() + 1, ch_class.GetBaseStatGenMax(EBaseStat::kCha)));
 			break;
 		case 'П':
 		case 'п': SendMsgToChar(genchar_help, ch);
@@ -184,28 +139,30 @@ int genchar_parse(CharData *ch, char *arg) {
 			if (CalcBasseStatsSum(ch) != kBaseStatsSum)
 				break;
 			// по случаю успешной генерации сохраняем стартовые статы
-			ch->set_start_stat(G_STR, ch->get_inborn_str());
-			ch->set_start_stat(G_DEX, ch->get_inborn_dex());
-			ch->set_start_stat(G_INT, ch->get_inborn_int());
-			ch->set_start_stat(G_WIS, ch->get_inborn_wis());
-			ch->set_start_stat(G_CON, ch->get_inborn_con());
-			ch->set_start_stat(G_CHA, ch->get_inborn_cha());
+			ch->set_start_stat(G_STR, ch->GetInbornStr());
+			ch->set_start_stat(G_DEX, ch->GetInbornDex());
+			ch->set_start_stat(G_INT, ch->GetInbornInt());
+			ch->set_start_stat(G_WIS, ch->GetInbornWis());
+			ch->set_start_stat(G_CON, ch->GetInbornCon());
+			ch->set_start_stat(G_CHA, ch->GetInbornCha());
 			return kGencharExit;
 		case 'О':
-		case 'о': tmp_class = to_underlying(ch->GetClass());
-			ch->set_str(auto_stats[tmp_class][0]);
-			ch->set_dex(auto_stats[tmp_class][1]);
-			ch->set_int(auto_stats[tmp_class][2]);
-			ch->set_wis(auto_stats[tmp_class][3]);
-			ch->set_con(auto_stats[tmp_class][4]);
-			ch->set_cha(auto_stats[tmp_class][5]);
-			ch->set_start_stat(G_STR, ch->get_inborn_str());
-			ch->set_start_stat(G_DEX, ch->get_inborn_dex());
-			ch->set_start_stat(G_INT, ch->get_inborn_int());
-			ch->set_start_stat(G_WIS, ch->get_inborn_wis());
-			ch->set_start_stat(G_CON, ch->get_inborn_con());
-			ch->set_start_stat(G_CHA, ch->get_inborn_cha());
+		case 'о': {
+			const auto &tmp_class = MUD::Classes(ch->GetClass());
+			ch->set_str(tmp_class.GetBaseStatGenAuto(EBaseStat::kStr));
+			ch->set_dex(tmp_class.GetBaseStatGenAuto(EBaseStat::kDex));
+			ch->set_int(tmp_class.GetBaseStatGenAuto(EBaseStat::kInt));
+			ch->set_wis(tmp_class.GetBaseStatGenAuto(EBaseStat::kWis));
+			ch->set_con(tmp_class.GetBaseStatGenAuto(EBaseStat::kCon));
+			ch->set_cha(tmp_class.GetBaseStatGenAuto(EBaseStat::kCha));
+			ch->set_start_stat(G_STR, ch->GetInbornStr());
+			ch->set_start_stat(G_DEX, ch->GetInbornDex());
+			ch->set_start_stat(G_INT, ch->GetInbornInt());
+			ch->set_start_stat(G_WIS, ch->GetInbornWis());
+			ch->set_start_stat(G_CON, ch->GetInbornCon());
+			ch->set_start_stat(G_CHA, ch->GetInbornCha());
 			return kGencharExit;
+		}
 		default: break;
 	}
 	return kGencharContinue;

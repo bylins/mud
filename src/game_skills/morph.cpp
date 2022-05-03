@@ -68,17 +68,17 @@ void AnimalMorph::set_skill(const ESkill skill_num, int percent) {
 	}
 }
 
-int NormalMorph::GetStr() const { return ch_->get_inborn_str(); }
+int NormalMorph::GetStr() const { return ch_->GetInbornStr(); }
 void NormalMorph::SetStr(int str) { ch_->set_str(str); }
-int NormalMorph::GetIntel() const { return ch_->get_inborn_int(); }
+int NormalMorph::GetIntel() const { return ch_->GetInbornInt(); }
 void NormalMorph::SetIntel(int intel) { ch_->set_int(intel); }
-int NormalMorph::GetWis() const { return ch_->get_inborn_wis(); }
+int NormalMorph::GetWis() const { return ch_->GetInbornWis(); }
 void NormalMorph::SetWis(int wis) { ch_->set_wis(wis); }
-int NormalMorph::GetDex() const { return ch_->get_inborn_dex(); }
+int NormalMorph::GetDex() const { return ch_->GetInbornDex(); }
 void NormalMorph::SetDex(int dex) { ch_->set_dex(dex); }
-int NormalMorph::GetCha() const { return ch_->get_inborn_cha(); }
+int NormalMorph::GetCha() const { return ch_->GetInbornCha(); }
 void NormalMorph::SetCha(int cha) { ch_->set_cha(cha); }
-int NormalMorph::GetCon() const { return ch_->get_inborn_con(); }
+int NormalMorph::GetCon() const { return ch_->GetInbornCon(); }
 void NormalMorph::SetCon(int con) { ch_->set_con(con); }
 
 void ShowKnownMorphs(CharData *ch) {
@@ -129,20 +129,20 @@ void AnimalMorph::InitSkills(int value) {
 };
 
 void AnimalMorph::InitAbils() {
-	int extraWis = ch_->get_inborn_wis() - MIN_WIS_FOR_MORPH;
-	wis_ = MIN(ch_->get_inborn_wis(), MIN_WIS_FOR_MORPH);
+	int extraWis = ch_->GetInbornWis() - MIN_WIS_FOR_MORPH;
+	wis_ = MIN(ch_->GetInbornWis(), MIN_WIS_FOR_MORPH);
 	if (extraWis > 0) {
-		str_ = ch_->get_inborn_str() + extraWis * toStr_ / 100;
-		dex_ = ch_->get_inborn_dex() + extraWis * toDex_ / 100;
-		con_ = ch_->get_inborn_con() + extraWis * toCon_ / 100;
-		cha_ = ch_->get_inborn_cha() + extraWis * toCha_ / 100;
-		intel_ = ch_->get_inborn_int() + extraWis * toInt_ / 100;
+		str_ = ch_->GetInbornStr() + extraWis * toStr_ / 100;
+		dex_ = ch_->GetInbornDex() + extraWis * toDex_ / 100;
+		con_ = ch_->GetInbornCon() + extraWis * toCon_ / 100;
+		cha_ = ch_->GetInbornCha() + extraWis * toCha_ / 100;
+		intel_ = ch_->GetInbornInt() + extraWis * toInt_ / 100;
 	} else {
-		str_ = ch_->get_inborn_str();
-		dex_ = ch_->get_inborn_dex();
-		con_ = ch_->get_inborn_con();
-		cha_ = ch_->get_inborn_cha();
-		intel_ = ch_->get_inborn_int();
+		str_ = ch_->GetInbornStr();
+		dex_ = ch_->GetInbornDex();
+		con_ = ch_->GetInbornCon();
+		cha_ = ch_->GetInbornCha();
+		intel_ = ch_->GetInbornInt();
 	}
 }
 

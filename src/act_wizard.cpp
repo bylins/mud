@@ -3136,8 +3136,8 @@ void do_wizutil(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 				imm_log("%s has rerolled %s.", GET_NAME(ch), GET_NAME(vict));
 				sprintf(buf,
 						"Новые параметры: Str %d, Int %d, Wis %d, Dex %d, Con %d, Cha %d\r\n",
-						vict->get_inborn_str(), vict->get_inborn_int(), vict->get_inborn_wis(),
-						vict->get_inborn_dex(), vict->get_inborn_con(), vict->get_inborn_cha());
+						vict->GetInbornStr(), vict->GetInbornInt(), vict->GetInbornWis(),
+						vict->GetInbornDex(), vict->GetInbornCon(), vict->GetInbornCha());
 				SendMsgToChar(buf, ch);
 				break;
 			case SCMD_NOTITLE: result = PLR_TOG_CHK(vict, EPlrFlag::kNoTitle);

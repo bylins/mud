@@ -1322,7 +1322,7 @@ int CharData::get_str() const {
 	return current_morph_->GetStr();
 }
 
-int CharData::get_inborn_str() const {
+int CharData::GetInbornStr() const {
 	return str_;
 }
 
@@ -1347,7 +1347,7 @@ int CharData::get_dex() const {
 	return current_morph_->GetDex();
 }
 
-int CharData::get_inborn_dex() const {
+int CharData::GetInbornDex() const {
 	return dex_;
 }
 
@@ -1372,7 +1372,7 @@ int CharData::get_con() const {
 	return current_morph_->GetCon();
 }
 
-int CharData::get_inborn_con() const {
+int CharData::GetInbornCon() const {
 	return con_;
 }
 
@@ -1397,7 +1397,7 @@ int CharData::get_int() const {
 	return current_morph_->GetIntel();
 }
 
-int CharData::get_inborn_int() const {
+int CharData::GetInbornInt() const {
 	return int_;
 }
 
@@ -1422,7 +1422,7 @@ int CharData::get_wis() const {
 	return current_morph_->GetWis();
 }
 
-int CharData::get_inborn_wis() const {
+int CharData::GetInbornWis() const {
 	return wis_;
 }
 
@@ -1463,7 +1463,7 @@ int CharData::get_cha() const {
 	return current_morph_->GetCha();
 }
 
-int CharData::get_inborn_cha() const {
+int CharData::GetInbornCha() const {
 	return cha_;
 }
 

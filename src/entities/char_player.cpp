@@ -535,12 +535,12 @@ void Player::save_char() {
 
 	// дальше не по порядку
 	// статсы
-	fprintf(saved, "Str : %d\n", this->get_inborn_str());
-	fprintf(saved, "Int : %d\n", this->get_inborn_int());
-	fprintf(saved, "Wis : %d\n", this->get_inborn_wis());
-	fprintf(saved, "Dex : %d\n", this->get_inborn_dex());
-	fprintf(saved, "Con : %d\n", this->get_inborn_con());
-	fprintf(saved, "Cha : %d\n", this->get_inborn_cha());
+	fprintf(saved, "Str : %d\n", this->GetInbornStr());
+	fprintf(saved, "Int : %d\n", this->GetInbornInt());
+	fprintf(saved, "Wis : %d\n", this->GetInbornWis());
+	fprintf(saved, "Dex : %d\n", this->GetInbornDex());
+	fprintf(saved, "Con : %d\n", this->GetInbornCon());
+	fprintf(saved, "Cha : %d\n", this->GetInbornCha());
 
 	if (GetRealLevel(this) < kLvlImmortal) {
 		fprintf(saved, "Feat:\n");

@@ -1105,7 +1105,7 @@ void advance_level(CharData *ch) {
 		case ECharClass::kGuard:
 		case ECharClass::kRanger:
 		case ECharClass::kPaladine: [[fallthrough]];
-		case ECharClass::kVigilant: add_move = number(ch->get_inborn_dex()/6 + 1, ch->get_inborn_dex()/5 + 1);
+		case ECharClass::kVigilant: add_move = number(ch->GetInbornDex()/6 + 1, ch->GetInbornDex()/5 + 1);
 			break;
 		default: break;
 	}
@@ -1146,7 +1146,7 @@ void decrease_level(CharData *ch) {
 		case ECharClass::kGuard:
 		case ECharClass::kPaladine:
 		case ECharClass::kRanger: [[fallthrough]];
-		case ECharClass::kVigilant: add_move = ch->get_inborn_dex() / 5 + 1;
+		case ECharClass::kVigilant: add_move = ch->GetInbornDex() / 5 + 1;
 			break;
 		default: break;
 	}

@@ -30,20 +30,6 @@ const int G_WIS = 3;
 const int G_CON = 4;
 const int G_CHA = 5;
 
-#define MIN_STR(ch) min_stats[(int) GET_CLASS(ch)][G_STR]
-#define MIN_DEX(ch) min_stats[(int) GET_CLASS(ch)][G_DEX]
-#define MIN_INT(ch) min_stats[(int) GET_CLASS(ch)][G_INT]
-#define MIN_WIS(ch) min_stats[(int) GET_CLASS(ch)][G_WIS]
-#define MIN_CON(ch) min_stats[(int) GET_CLASS(ch)][G_CON]
-#define MIN_CHA(ch) min_stats[(int) GET_CLASS(ch)][G_CHA]
-
-#define MAX_STR(ch) max_stats[(int) GET_CLASS(ch)][G_STR]
-#define MAX_DEX(ch) max_stats[(int) GET_CLASS(ch)][G_DEX]
-#define MAX_INT(ch) max_stats[(int) GET_CLASS(ch)][G_INT]
-#define MAX_WIS(ch) max_stats[(int) GET_CLASS(ch)][G_WIS]
-#define MAX_CON(ch) max_stats[(int) GET_CLASS(ch)][G_CON]
-#define MAX_CHA(ch) max_stats[(int) GET_CLASS(ch)][G_CHA]
-
 extern const char *genchar_help;
 
 class CharData;

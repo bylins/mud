@@ -172,6 +172,10 @@ struct CharClassInfo : public info_container::IItem<ECharClass> {
 	};
 	std::unordered_map<EBaseStat, BaseStatLimits> base_stats;
 	void PrintBaseStatsTable(CharData *ch, std::ostringstream &buffer) const;
+	auto GetBaseStatGenMin(EBaseStat stat_id) const { return base_stats.at(stat_id).gen_min; };
+	auto GetBaseStatGenMax(EBaseStat stat_id) const { return base_stats.at(stat_id).gen_max; };
+	auto GetBaseStatGenAuto(EBaseStat stat_id) const { return base_stats.at(stat_id).gen_auto; };
+	auto GetBaseStatCap(EBaseStat stat_id) const { return base_stats.at(stat_id).cap; };
 
 	/* вторичные параметры */
 
