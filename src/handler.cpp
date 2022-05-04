@@ -2692,7 +2692,7 @@ float get_effective_cha(CharData *ch) {
 	int key_value, key_value_add;
 
 	key_value = ch->get_cha();
-	auto max_cha = class_stats_limit[to_underlying(ch->GetClass())][5];
+	auto max_cha = MUD::Classes(ch->GetClass()).GetBaseStatCap(EBaseStat::kCha);
 	key_value_add = std::min(max_cha - ch->get_cha(), GET_CHA_ADD(ch));
 
 	float eff_cha = 0.0;
@@ -2712,7 +2712,7 @@ float get_effective_cha(CharData *ch) {
 float CalcEffectiveWis(CharData *ch, ESpell spell_id) {
 	int key_value, key_value_add;
 
-	auto max_wis = class_stats_limit[to_underlying(ch->GetClass())][3];
+	auto max_wis = MUD::Classes(ch->GetClass()).GetBaseStatCap(EBaseStat::kWis);
 
 	if (spell_id == ESpell::kResurrection || spell_id == ESpell::kAnimateDead) {
 		key_value = ch->get_wis();
@@ -2741,7 +2741,7 @@ float get_effective_int(CharData *ch) {
 	int key_value, key_value_add;
 
 	key_value = ch->get_int();
-	auto max_int = class_stats_limit[to_underlying(ch->GetClass())][4];
+	auto max_int = MUD::Classes(ch->GetClass()).GetBaseStatCap(EBaseStat::kInt);
 	key_value_add = std::min(max_int - ch->get_int(), GET_INT_ADD(ch));
 
 	float eff_int = 0.0;
@@ -2761,21 +2761,21 @@ float get_effective_int(CharData *ch) {
 int CalcCharmPoint(CharData *ch, ESpell spell_id) {
 	float r_hp = 0;
 	float eff_cha = 0.0;
-	float max_cha;
+	float stat_cap{0.0};
 
 	if (spell_id == ESpell::kResurrection || spell_id == ESpell::kAnimateDead) {
 		eff_cha = CalcEffectiveWis(ch, spell_id);
-		max_cha = class_stats_limit[to_underlying(ch->GetClass())][3];
+		stat_cap = MUD::Classes(ch->GetClass()).GetBaseStatCap(EBaseStat::kWis);
 	} else {
-		max_cha = class_stats_limit[to_underlying(ch->GetClass())][5];
+		stat_cap = MUD::Classes(ch->GetClass()).GetBaseStatCap(EBaseStat::kCha);
 		eff_cha = get_effective_cha(ch);
 	}
 
 	if (spell_id != ESpell::kCharm) {
-		eff_cha = std::min(max_cha, eff_cha + 2); // Все кроме чарма кастится с бонусом в 2
+		eff_cha = std::min(stat_cap, eff_cha + 2); // Все кроме чарма кастится с бонусом в 2
 	}
 
-	if (eff_cha < max_cha) {
+	if (eff_cha < stat_cap) {
 		r_hp = (1 - eff_cha + (int) eff_cha) * cha_app[(int) eff_cha].charms +
 			(eff_cha - (int) eff_cha) * cha_app[(int) eff_cha + 1].charms;
 	} else {

@@ -19,6 +19,7 @@
 #include "game_skills/skills_info.h"
 #include "strengthening.h"
 #include "boot/cfg_manager.h"
+
 class BanList;    // to avoid inclusion of ban.hpp
 
 /**

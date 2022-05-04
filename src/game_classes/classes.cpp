@@ -72,9 +72,6 @@ const int class_religion[] = {kReligionAny,        //Лекарь
 							  kReligionPoly        //Волхв
 };
 
-//str dex con wis int cha
-int class_stats_limit[kNumPlayerClasses][6];
-
 /* Вообще то такие вещи должен сам контейнер делать, но пока не реализован
  * какой-нибудь нормальный быстрый поиск по имени, а привинчивать костыль,
  * чтобы потом его убирать, не хочется. Не забыть переделать - ABYRVALG */

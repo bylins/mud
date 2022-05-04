@@ -109,8 +109,6 @@ extern char KoiToWin[];
 extern char KoiToWin2[];
 extern char AltToLat[];
 
-extern int class_stats_limit[kNumPlayerClasses][6];
-
 // public functions in utils.cpp
 CharData *find_char(long n);
 char *rustime(const struct tm *timeptr);
@@ -523,9 +521,6 @@ template<typename T>
 inline T VPOSI(const T val, const T min, const T max) {
 	return ((val < max) ? ((val > min) ? val : min) : max);
 }
-
-// у чаров режет до 50, у мобов до ста
-//#define VPOSI_MOB(ch, stat_id, val)	ch->IsNpc() ? val : VPOSI(val, 1, class_stats_limit[(int)GET_CLASS(ch)][stat_id])
 
 #define GET_CLASS(ch)   ((ch)->GetClass())
 #define GET_KIN(ch)     ((ch)->player_data.Kin)

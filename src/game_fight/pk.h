@@ -98,9 +98,7 @@ int pk_player_count(CharData *ch);
 void aura(CharData *ch, int lvl, CharData *victim, char *s);
 const char *CCPK(CharData *ch, int lvl, CharData *victim);
 inline const char *CCPK(CharData *ch, int lvl, const CharData::shared_ptr &victim) {
-	return CCPK(ch,
-				lvl,
-				victim.get());
+	return CCPK(ch, lvl, victim.get());
 }
 void pk_list_sprintf(CharData *ch, char *buff);
 void do_revenge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);

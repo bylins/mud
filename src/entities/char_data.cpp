@@ -2197,4 +2197,10 @@ player_special_data_saved::player_special_data_saved() :
 // dummy spec area for mobs
 player_special_data::shared_ptr player_special_data::s_for_mobiles = std::make_shared<player_special_data>();
 
+int VPOSI_MOB(const CharData *ch, const EBaseStat stat_id, const int val) {
+	return ch->IsNpc()
+		   ? std::clamp(val, kLeastBaseStat, kMobBaseStatCap)
+		   : std::clamp(val, kLeastBaseStat, MUD::Classes(ch->GetClass()).GetBaseStatCap(stat_id));
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

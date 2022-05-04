@@ -66,7 +66,7 @@
 #include "utils/id_converter.h"
 #include "title.h"
 #include "statistics/top.h"
-#include "game_magic/spells_info.h"
+//#include "game_magic/spells_info.h"
 
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
@@ -236,7 +236,6 @@ extern DescriptorData *descriptor_list;
 extern struct MonthTemperature year_temp[];
 extern char *house_rank[];
 extern struct PCCleanCriteria pclean_criteria[];
-extern int class_stats_limit[kNumPlayerClasses][6];
 extern void LoadProxyList();
 extern void add_karma(CharData *ch, const char *punish, const char *reason);
 
@@ -2595,9 +2594,8 @@ void boot_db(void) {
 	Bonus::bonus_log_load();
 	load_speedwalk();
 
-	boot_profiler.next_step("Loading class base stat limits");
+	boot_profiler.next_step("Loading ");
 	log("Loading class base stat limits");
-	load_class_limit();
 	load_cities();
 	shutdown_parameters.mark_boot_time();
 	log("Boot db -- DONE.");
@@ -5823,62 +5821,6 @@ void load_speedwalk() {
 		}
 	}
 
-}
-
-// \todo ABYRVALG - не забыть вырезать
-void load_class_limit() {
-	pugi::xml_document doc_sw;
-	pugi::xml_node child_, object_, file_sw;
-
-	for (int i = 0; i < kNumPlayerClasses; ++i) {
-		for (int j = 0; j < 6; ++j) {
-			//Intiializing stats limit with default value
-			class_stats_limit[i][j] = 50;
-		}
-	}
-
-	file_sw = XMLLoad(LIB_MISC CLASS_LIMIT_FILE, "class_limit", "Error loading file: classlimit.xml", doc_sw);
-
-	for (child_ = file_sw.child("stats_limit").child("class"); child_; child_ = child_.next_sibling("class")) {
-		std::string id_str = parse::ReadAattrAsStr(child_, "id");
-		if (id_str.empty()) {
-			continue;
-		}
-
-		auto id{ECharClass::kUndefined};
-		try {
-			id = parse::ReadAsConstant<ECharClass>(id_str.c_str());
-		} catch (std::exception &) {
-			snprintf(buf, kMaxStringLength, "...<class id='%s'> convert fail", id_str.c_str());
-			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
-			continue;
-		}
-
-		auto class_num = static_cast<int>(id);
-		int val = parse::ReadChildValueAsInt(child_, "str");
-		if (val > 0)
-			class_stats_limit[class_num][0] = val;
-
-		val = parse::ReadChildValueAsInt(child_, "dex");
-		if (val > 0)
-			class_stats_limit[class_num][1] = val;
-
-		val = parse::ReadChildValueAsInt(child_, "con");
-		if (val > 0)
-			class_stats_limit[class_num][2] = val;
-
-		val = parse::ReadChildValueAsInt(child_, "wis");
-		if (val > 0)
-			class_stats_limit[class_num][3] = val;
-
-		val = parse::ReadChildValueAsInt(child_, "int");
-		if (val > 0)
-			class_stats_limit[class_num][4] = val;
-
-		val = parse::ReadChildValueAsInt(child_, "cha");
-		if (val > 0)
-			class_stats_limit[class_num][5] = val;
-	}
 }
 
 Rooms::~Rooms() {

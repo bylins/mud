@@ -79,6 +79,8 @@ const int kDefaultBaseStatMin{10};
 const int kDefaultBaseStatMax{25};
 const int kDefaultBaseStatAutoGen{12};
 const int kDefaultBaseStatCap{50};
+const int kMobBaseStatCap{100};
+const int kLeastBaseStat{1};
 
 /*
  * Character savings ids.

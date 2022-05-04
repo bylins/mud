@@ -958,11 +958,8 @@ bool IS_NOSEXY(const CharData *ch);
 inline bool IS_NOSEXY(const CharData::shared_ptr &ch) { return IS_NOSEXY(ch.get()); }
 bool IS_POLY(const CharData *ch);
 
-inline int VPOSI_MOB(const CharData *ch, const EBaseStat stat_id, const int val) {
-	return ch->IsNpc()
-		   ? VPOSI(val, 1, 100)
-		   : VPOSI(val, 1, class_stats_limit[to_underlying(ch->GetClass())][to_underlying(stat_id)]);
-}
+int VPOSI_MOB(const CharData *ch, const EBaseStat stat_id, const int val);
+
 inline int VPOSI_MOB(const CharData::shared_ptr &ch, const EBaseStat stat_id, const int val) {
 	return VPOSI_MOB(ch.get(), stat_id, val);
 }

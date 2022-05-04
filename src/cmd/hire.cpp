@@ -2,6 +2,7 @@
 
 #include "cmd/follow.h"
 #include "handler.h"
+#include "structs/global_objects.h"
 
 constexpr short MAX_HIRE_TIME = 10080 / 2;
 constexpr long MAX_HIRE_PRICE = LONG_MAX / (MAX_HIRE_TIME + 1);
@@ -123,24 +124,24 @@ long calc_hire_price(CharData *ch, CharData *victim) {
 }
 
 int GetReformedCharmiceHp(CharData *ch, CharData *victim, ESpell spell_id) {
-	float r_hp = 0;
-	float eff_cha = 0.0;
-	float max_cha;
+	auto r_hp{0.0};
+	auto eff_cha{0.0};
+	auto stat_cap{0.0};
 
 	if (spell_id == ESpell::kResurrection || spell_id == ESpell::kAnimateDead) {
 		eff_cha = CalcEffectiveWis(ch, spell_id);
-		max_cha = class_stats_limit[to_underlying(ch->GetClass())][3];
+		stat_cap = MUD::Classes(ch->GetClass()).GetBaseStatCap(EBaseStat::kWis);
 	} else {
-		max_cha = class_stats_limit[to_underlying(ch->GetClass())][5];
+		stat_cap = MUD::Classes(ch->GetClass()).GetBaseStatCap(EBaseStat::kCha);
 		eff_cha = get_effective_cha(ch);
 	}
 
 	if (spell_id != ESpell::kCharm) {
-		eff_cha = std::min(max_cha, eff_cha + 2); // Все кроме чарма кастится с бонусом в 2
+		eff_cha = std::min(stat_cap, eff_cha + 2); // Все кроме чарма кастится с бонусом в 2
 	}
 
 	// Интерполяция между значениями для целых значений обаяния
-	if (eff_cha < max_cha) {
+	if (eff_cha < stat_cap) {
 		r_hp = GET_MAX_HIT(victim) + get_damage_per_round(victim) *
 			((1 - eff_cha + (int) eff_cha) * cha_app[(int) eff_cha].dam_to_hit_rate +
 				(eff_cha - (int) eff_cha) * cha_app[(int) eff_cha + 1].dam_to_hit_rate);
