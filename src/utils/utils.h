@@ -522,7 +522,6 @@ inline T VPOSI(const T val, const T min, const T max) {
 	return ((val < max) ? ((val > min) ? val : min) : max);
 }
 
-#define GET_CLASS(ch)   ((ch)->GetClass())
 #define GET_KIN(ch)     ((ch)->player_data.Kin)
 #define GET_HEIGHT(ch)  ((ch)->player_data.height)
 #define GET_HEIGHT_ADD(ch) ((ch)->add_abils.height_add)
@@ -948,20 +947,20 @@ const int kNameLevel = 5;
           (EXIT(ch,door)->to_room() != kNowhere) && \
           !IS_SET(EXIT(ch, door)->exit_info, EExitFlag::kClosed))):0)
 
-#define IS_SORCERER(ch)		(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kSorcerer))
-#define IS_THIEF(ch)		(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kThief))
-#define IS_ASSASINE(ch)		(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kAssasine))
-#define IS_WARRIOR(ch)		(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kWarrior))
-#define IS_PALADINE(ch)		(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kPaladine))
-#define IS_RANGER(ch)		(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kRanger))
-#define IS_GUARD(ch)		(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kGuard))
-#define IS_VIGILANT(ch)		(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kVigilant))
-#define IS_MERCHANT(ch)		(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kMerchant))
-#define IS_MAGUS(ch)		(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kMagus))
-#define IS_CONJURER(ch)		(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kConjurer))
-#define IS_CHARMER(ch)		(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kCharmer))
-#define IS_WIZARD(ch)		(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kWizard))
-#define IS_NECROMANCER(ch)	(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kNecromancer))
+#define IS_SORCERER(ch)		(!(ch)->IsNpc() && ((ch)->GetClass() == ECharClass::kSorcerer))
+#define IS_THIEF(ch)		(!(ch)->IsNpc() && ((ch)->GetClass() == ECharClass::kThief))
+#define IS_ASSASINE(ch)		(!(ch)->IsNpc() && ((ch)->GetClass() == ECharClass::kAssasine))
+#define IS_WARRIOR(ch)		(!(ch)->IsNpc() && ((ch)->GetClass() == ECharClass::kWarrior))
+#define IS_PALADINE(ch)		(!(ch)->IsNpc() && ((ch)->GetClass() == ECharClass::kPaladine))
+#define IS_RANGER(ch)		(!(ch)->IsNpc() && ((ch)->GetClass() == ECharClass::kRanger))
+#define IS_GUARD(ch)		(!(ch)->IsNpc() && ((ch)->GetClass() == ECharClass::kGuard))
+#define IS_VIGILANT(ch)		(!(ch)->IsNpc() && ((ch)->GetClass() == ECharClass::kVigilant))
+#define IS_MERCHANT(ch)		(!(ch)->IsNpc() && ((ch)->GetClass() == ECharClass::kMerchant))
+#define IS_MAGUS(ch)		(!(ch)->IsNpc() && ((ch)->GetClass() == ECharClass::kMagus))
+#define IS_CONJURER(ch)		(!(ch)->IsNpc() && ((ch)->GetClass() == ECharClass::kConjurer))
+#define IS_CHARMER(ch)		(!(ch)->IsNpc() && ((ch)->GetClass() == ECharClass::kCharmer))
+#define IS_WIZARD(ch)		(!(ch)->IsNpc() && ((ch)->GetClass() == ECharClass::kWizard))
+#define IS_NECROMANCER(ch)	(!(ch)->IsNpc() && ((ch)->GetClass() == ECharClass::kNecromancer))
 
 #define IS_UNDEAD(ch) ((ch)->IsNpc() && \
     (MOB_FLAGGED(ch, EMobFlag::kResurrected) || \

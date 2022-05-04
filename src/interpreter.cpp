@@ -3293,7 +3293,7 @@ void nanny(DescriptorData *d, char *arg) {
 				case 'Я':
 				case 'З':
 				case 'P':
-					if (class_religion[(int) GET_CLASS(d->character)] == kReligionMono) {
+					if (class_religion[to_underlying(d->character->GetClass())] == kReligionMono) {
 						SEND_TO_Q
 						("Персонаж выбранной вами профессии не желает быть язычником!\r\n"
 						 "Так каким Богам вы хотите служить? ", d);
@@ -3304,7 +3304,7 @@ void nanny(DescriptorData *d, char *arg) {
 
 				case 'Х':
 				case 'C':
-					if (class_religion[(int) GET_CLASS(d->character)] == kReligionPoly) {
+					if (class_religion[to_underlying(d->character->GetClass())] == kReligionPoly) {
 						SEND_TO_Q
 						("Персонажу выбранной вами профессии противно христианство!\r\n"
 						 "Так каким Богам вы хотите служить? ", d);
@@ -3898,7 +3898,7 @@ void nanny(DescriptorData *d, char *arg) {
 				case 'Я':
 				case 'З':
 				case 'P':
-					if (class_religion[(int) GET_CLASS(d->character)] == kReligionMono) {
+					if (class_religion[to_underlying(d->character->GetClass())] == kReligionMono) {
 						SEND_TO_Q
 						("Персонаж выбранной вами профессии не желает быть язычником!\r\n"
 						 "Так каким Богам вы хотите служить? ", d);
@@ -3909,7 +3909,7 @@ void nanny(DescriptorData *d, char *arg) {
 
 				case 'Х':
 				case 'C':
-					if (class_religion[(int) GET_CLASS(d->character)] == kReligionPoly) {
+					if (class_religion[to_underlying(d->character->GetClass())] == kReligionPoly) {
 						SEND_TO_Q ("Персонажу выбранной вами профессии противно христианство!\r\n"
 								   "Так каким Богам вы хотите служить? ", d);
 						return;

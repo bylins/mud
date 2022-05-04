@@ -2305,7 +2305,7 @@ int CastMagicAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, 
 					modi = CALC_SUCCESS(modi, 95);
 					break;
 				case ESpell::kShock: savetype = ESaving::kReflex;
-					if (GET_CLASS(ch) == ECharClass::kSorcerer) {
+					if (ch->GetClass() == ECharClass::kSorcerer) {
 						modi = CALC_SUCCESS(modi, 75);
 					} else {
 						modi = CALC_SUCCESS(modi, 25);

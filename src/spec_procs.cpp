@@ -2650,7 +2650,7 @@ int magic_user(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 		return (false);
 
 	for (i = 0; guild_info[i][0] != -1; i++) {
-		if ((ch->IsNpc() || GET_CLASS(ch) != guild_info[i][0]) &&
+		if ((ch->IsNpc() || ch->GetClass() != guild_info[i][0]) &&
 			GET_ROOM_VNUM(ch->in_room) == guild_info[i][1] && cmd == guild_info[i][2]) {
 			SendMsgToChar(buf, ch);
 			act(buf2, false, ch, 0, 0, kToRoom);

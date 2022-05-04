@@ -1591,9 +1591,9 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 
 				case EBook::kReceipt: drndice = im_get_recipe(GET_OBJ_VAL(obj, 1));
 					if (drndice >= 0) {
-						drsdice = MAX(GET_OBJ_VAL(obj, 2), imrecipes[drndice].level);
+						drsdice = std::max(GET_OBJ_VAL(obj, 2), imrecipes[drndice].level);
 						int count = imrecipes[drndice].remort;
-						if (imrecipes[drndice].classknow[(int) GET_CLASS(ch)] != KNOW_RECIPE)
+						if (imrecipes[drndice].classknow[to_underlying(ch->GetClass())] != kKnownRecipe)
 							drsdice = kLvlImplementator;
 						sprintf(buf, "содержит рецепт отвара     : \"%s\"\r\n", imrecipes[drndice].name);
 						SendMsgToChar(buf, ch);

@@ -28,7 +28,7 @@ int armor_class_limit(CharData *ch) {
 	if (ch->IsNpc()) {
 		return -300;
 	};
-	switch (GET_CLASS(ch)) {
+	switch (ch->GetClass()) {
 		case ECharClass::kPaladine: return -270;
 			break;
 		case ECharClass::kAssasine:
@@ -3346,7 +3346,7 @@ int HitData::calc_damage(CharData *ch, bool need_dice) {
 		calc_thaco += (50 - MIN(50, GET_REAL_INT(ch))) / 3;
 		dam -= (50 - MIN(50, GET_REAL_INT(ch))) / 6;
 	} else {
-		GetClassWeaponMod(GET_CLASS(ch), weap_skill, &dam, &calc_thaco);
+		GetClassWeaponMod(ch->GetClass(), weap_skill, &dam, &calc_thaco);
 	}
 	if (ch->GetSkill(weap_skill) >= 60) { //от уровня скилла
 		dam += ((ch->GetSkill(weap_skill) - 50) / 10);

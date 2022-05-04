@@ -2469,7 +2469,7 @@ void find_replacement(void *go,
 				strcpy(str, "1");
 			}
 		} else if (!str_cmp(field, "class")) {
-			sprintf(str, "%d", (int) GET_CLASS(c));
+			sprintf(str, "%d",  to_underlying(ch->GetClass()));
 		} else if (!str_cmp(field, "race")) {
 			sprintf(str, "%d", (int) GET_RACE(c));
 		} else if (!str_cmp(field, "fighting")) {

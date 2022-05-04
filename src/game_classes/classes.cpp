@@ -964,15 +964,15 @@ int GetExtraDamroll(ECharClass class_id, int level) {
 // Some initializations for characters, including initial skills
 void init_warcry(CharData *ch) // проставление кличей в обход античита
 {
-	if (GET_CLASS(ch) == ECharClass::kGuard)
+	if (ch->GetClass() == ECharClass::kGuard)
 		SET_BIT(GET_SPELL_TYPE(ch, ESpell::kWarcryOfDefence), ESpellType::kKnow); // клич призыв к обороне
 
-	if (GET_CLASS(ch) == ECharClass::kRanger) {
+	if (ch->GetClass() == ECharClass::kRanger) {
 		SET_BIT(GET_SPELL_TYPE(ch, ESpell::kWarcryOfExperience), ESpellType::kKnow); // клич опыта
 		SET_BIT(GET_SPELL_TYPE(ch, ESpell::kWarcryOfLuck), ESpellType::kKnow); // клич удачи
 		SET_BIT(GET_SPELL_TYPE(ch, ESpell::kWarcryOfPhysdamage), ESpellType::kKnow); // клич +дамага
 	}
-	if (GET_CLASS(ch) == ECharClass::kWarrior) {
+	if (ch->GetClass() == ECharClass::kWarrior) {
 		SET_BIT(GET_SPELL_TYPE(ch, ESpell::kWarcryOfBattle), ESpellType::kKnow); // клич призыв битвы
 		SET_BIT(GET_SPELL_TYPE(ch, ESpell::kWarcryOfPower), ESpellType::kKnow); // клич призыв мощи
 		SET_BIT(GET_SPELL_TYPE(ch, ESpell::kWarcryOfBless), ESpellType::kKnow); // клич призывы доблести
@@ -1011,7 +1011,7 @@ void do_start(CharData *ch, int newbie) {
 		}
 	}
 
-	switch (GET_CLASS(ch)) {
+	switch (ch->GetClass()) {
 		case ECharClass::kConjurer:
 		case ECharClass::kWizard:
 		case ECharClass::kCharmer:
@@ -1086,7 +1086,7 @@ void levelup_events(CharData *ch) {
 void advance_level(CharData *ch) {
 	int add_move = 0, i;
 
-	switch (GET_CLASS(ch)) {
+	switch (ch->GetClass()) {
 		case ECharClass::kConjurer:
 		case ECharClass::kWizard:
 		case ECharClass::kCharmer:
@@ -1127,7 +1127,7 @@ void advance_level(CharData *ch) {
 void decrease_level(CharData *ch) {
 	int add_move = 0;
 
-	switch (GET_CLASS(ch)) {
+	switch (ch->GetClass()) {
 		case ECharClass::kConjurer:
 		case ECharClass::kWizard:
 		case ECharClass::kCharmer:
@@ -1538,7 +1538,7 @@ long GetExpUntilNextLvl(CharData *ch, int level) {
 		exp_modifier = static_cast<float>(exp_coefficients[kMaxExpCoefficientsUsed]);
 	}
 
-	switch (GET_CLASS(ch)) {
+	switch (ch->GetClass()) {
 
 		case ECharClass::kConjurer:
 		case ECharClass::kWizard:

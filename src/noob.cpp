@@ -179,7 +179,7 @@ void equip_start_outfit(CharData *ch, ObjData *obj) {
 		if (where >= 0) {
 			EquipObj(ch, obj, where, CharEquipFlags());
 			// богатырям в перчатках сетим кулачный бой вместо пушек
-			if (where == EEquipPos::kHands && GET_CLASS(ch) == ECharClass::kWarrior) {
+			if (where == EEquipPos::kHands && ch->GetClass() == ECharClass::kWarrior) {
 				ch->set_skill(ESkill::kPunch, 10);
 			}
 		}

@@ -823,7 +823,7 @@ void EndowExpToChar(CharData *ch, int gain) {
 		CLR_GOD_FLAG(ch, EGf::kRemort);
 	}
 
-	char_stat::AddClassExp(GET_CLASS(ch), gain);
+	char_stat::AddClassExp(ch->GetClass(), gain);
 	update_clan_exp(ch, gain);
 }
 

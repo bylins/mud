@@ -2835,7 +2835,7 @@ int CalcSpellManacost(const CharData *ch, ESpell spell_id) {
 			}
 //		Меняем мем на коэффициент скилла магии
 // \todo ABYRVALG Нужно ввести общую для витязя и купца способность, а эту похабень убрать.
-			if (GET_CLASS(ch) == ECharClass::kPaladine || GET_CLASS(ch) == ECharClass::kMerchant) {
+			if (ch->GetClass() == ECharClass::kPaladine || ch->GetClass() == ECharClass::kMerchant) {
 				return result;
 			}
 		}

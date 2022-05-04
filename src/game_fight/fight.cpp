@@ -841,19 +841,19 @@ CharData *find_target(CharData *ch) {
 			continue;
 		}
 
-		if (GET_CLASS(vict) == ECharClass::kMagus) {
+		if (vict->GetClass() == ECharClass::kMagus) {
 			druid = vict;
 			caster = vict;
 			continue;
 		}
 
-		if (GET_CLASS(vict) == ECharClass::kSorcerer) {
+		if (vict->GetClass() == ECharClass::kSorcerer) {
 			cler = vict;
 			caster = vict;
 			continue;
 		}
 
-		if (GET_CLASS(vict) == ECharClass::kCharmer) {
+		if (vict->GetClass() == ECharClass::kCharmer) {
 			charmmage = vict;
 			caster = vict;
 			continue;

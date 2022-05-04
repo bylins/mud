@@ -598,7 +598,7 @@ void Player::save_char() {
 		fprintf(saved, "0 0\n");
 	}
 
-	if (GetRealLevel(this) < kLvlImmortal && GET_CLASS(this) != ECharClass::kMagus) {
+	if (GetRealLevel(this) < kLvlImmortal && !IS_MANA_CASTER(this)) {
 		fprintf(saved, "TSpl:\n");
 		for (auto & temp_spell : this->temp_spells) {
 			fprintf(saved,
@@ -957,7 +957,7 @@ void Player::save_char() {
 // при включенном флаге файл читается только до поля Rebt, все остальные поля пропускаются
 // поэтому при каких-то изменениях в entrycount, must_be_deleted и TopPlayer::Refresh следует
 // убедиться, что изменный код работает с действительно проинициализированными полями персонажа
-// на данный момент это: EPlrFlag::FLAGS, GET_CLASS, GET_EXP, GET_IDNUM, LAST_LOGON, GetRealLevel, GET_NAME, GET_REAL_REMORT, GET_UNIQUE, GET_EMAIL
+// на данный момент это: EPlrFlag::FLAGS, GetClass(), GET_EXP, GET_IDNUM, LAST_LOGON, GetRealLevel, GET_NAME, GET_REAL_REMORT, GET_UNIQUE, GET_EMAIL
 // * \param reboot - по дефолту = false
 int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*= true*/) {
 	int id, num = 0, num2 = 0, num3 = 0, num4 = 0, num5 = 0, num6 = 0, i;
@@ -1739,7 +1739,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 							break;
 						num = im_get_recipe(num);
 // +newbook.patch (Alisher)
-						if (num < 0 || imrecipes[num].classknow[(int) GET_CLASS(this)] != KNOW_RECIPE)
+						if (num < 0 || imrecipes[num].classknow[(int) this->GetClass()] != kKnownRecipe)
 // -newbook.patch (Alisher)
 							continue;
 						CREATE(rs, 1);
