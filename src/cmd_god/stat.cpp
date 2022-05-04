@@ -782,7 +782,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 				case EBook::kReceipt: {
 					const auto recipe = im_get_recipe(GET_OBJ_VAL(j, 1));
 					if (recipe >= 0) {
-						const auto recipelevel = MAX(GET_OBJ_VAL(j, 2), imrecipes[recipe].level);
+						const auto recipelevel = std::max(GET_OBJ_VAL(j, 2), imrecipes[recipe].level);
 						const auto recipemort = imrecipes[recipe].remort;
 						if ((recipelevel >= 0) && (recipemort >= 0)) {
 							sprintf(buf,

@@ -242,7 +242,7 @@ int exchange_exhibit(CharData *ch, char *arg) {
 	}
 
 	if (item_cost <= 0) {
-		item_cost = MAX(1, GET_OBJ_COST(obj));
+		item_cost = std::max(1, GET_OBJ_COST(obj));
 	}
 
 	tax = (GET_OBJ_TYPE(obj) != EObjType::kMagicIngredient)
@@ -1108,7 +1108,7 @@ int exchange_database_load() {
 			extract_exchange_item(item);
 			continue;
 		}
-		max_lot = MAX(max_lot, GET_EXCHANGE_ITEM_LOT(item));
+		max_lot = std::max(max_lot, GET_EXCHANGE_ITEM_LOT(item));
 	}
 
 	free(readdata);
@@ -1203,7 +1203,7 @@ int exchange_database_reload(bool loadbackup) {
 			extract_exchange_item(item);
 			continue;
 		}
-		max_lot = MAX(max_lot, GET_EXCHANGE_ITEM_LOT(item));
+		max_lot = std::max(max_lot, GET_EXCHANGE_ITEM_LOT(item));
 	}
 
 	free(readdata);

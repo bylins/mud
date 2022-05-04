@@ -51,7 +51,7 @@ void go_kick(CharData *ch, CharData *vict) {
 	} else {
 		int dam = str_bonus(GET_REAL_STR(ch), STR_TO_DAM) + GetRealDamroll(ch) + GetRealLevel(ch) / 6;
 		if (!ch->IsNpc() || (ch->IsNpc() && GET_EQ(ch, EEquipPos::kFeet))) {
-			int modi = MAX(0, (ch->GetSkill(ESkill::kKick) + 4) / 5);
+			int modi = std::max(0, (ch->GetSkill(ESkill::kKick) + 4) / 5);
 			dam += number(0, modi * 2);
 			modi = 5 * (10 + (GET_EQ(ch, EEquipPos::kFeet) ? GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kFeet)) : 0));
 			dam = modi * dam / 100;

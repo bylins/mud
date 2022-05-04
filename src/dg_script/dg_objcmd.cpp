@@ -128,7 +128,7 @@ void do_oportal(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 	world[curroom]->portal_time = howlong;
 	world[curroom]->pkPenterUnique = 0;
 //	sprintf(buf, "Ставим врата из %d в %d длит %d\r\n", currom, target, howlong );
-//	mudlog(buf, DEF, MAX(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+//	mudlog(buf, DEF, std::max(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 	OneWayPortal::add(world[target], world[curroom]);
 	act("Лазурная пентаграмма возникла в воздухе.",
 		false, world[curroom]->first_character(), 0, 0, kToChar);

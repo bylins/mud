@@ -2160,7 +2160,7 @@ namespace PlayerSystem {
 ///
 int con_natural_hp(CharData *ch) {
 	double add_hp_per_level = MUD::Classes(ch->GetClass()).applies.base_con
-		+ (VPOSI_MOB(ch, EBaseStat::kCon, ch->get_con()) - MUD::Classes(ch->GetClass()).applies.base_con)
+		+ (ClampBaseStat(ch, EBaseStat::kCon, ch->get_con()) - MUD::Classes(ch->GetClass()).applies.base_con)
 			* MUD::Classes(ch->GetClass()).applies.koef_con / 100.0 + 3;
 	return 10 + static_cast<int>(add_hp_per_level * GetRealLevel(ch));
 }

@@ -265,7 +265,7 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 		SendMsgToChar(buf, ch);
 		sprintf(buf, "OLC: %s saves %s info for zone %d.", GET_NAME(ch), type, zone_table[OLC_ZNUM(d)].vnum);
 		olc_log("%s save %s in Z%d", GET_NAME(ch), type, zone_table[OLC_ZNUM(d)].vnum);
-		mudlog(buf, LGH, MAX(kLvlBuilder, GET_INVIS_LEV(ch)), SYSLOG, true);
+		mudlog(buf, LGH, std::max(kLvlBuilder, GET_INVIS_LEV(ch)), SYSLOG, true);
 
 		switch (subcmd) {
 			case SCMD_OLC_REDIT: redit_save_to_disk(OLC_ZNUM(d));

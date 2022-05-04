@@ -1117,7 +1117,7 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 	long buy_price_old = get_sell_price(obj);
 
 	int repair = GET_OBJ_MAX(obj) - GET_OBJ_CUR(obj);
-	int repair_price = MAX(1, GET_OBJ_COST(obj) * MAX(0, repair) / MAX(1, GET_OBJ_MAX(obj)));
+	int repair_price = std::max(1, GET_OBJ_COST(obj) * std::max(0, repair) / std::max(1, GET_OBJ_MAX(obj)));
 
 	// если не купцы, то учитываем прибыль магазина, если купцы, то назначаем цену, при которой объект был куплен
 	if (!IsAbleToUseFeat(ch, EFeat::kSkilledTrader)) {

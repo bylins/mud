@@ -471,7 +471,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				PLR_FLAGS(vict).unset(EPlrFlag::kMuted);
 
 				sprintf(buf, "Mute OFF for %s by %s.", GET_NAME(vict), GET_NAME(ch));
-				mudlog(buf, DEF, MAX(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+				mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s", buf);
 
 				sprintf(buf, "Mute OFF by %s", GET_NAME(ch));
@@ -491,7 +491,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				Glory::remove_freeze(GET_UNIQUE(vict));
 
 				sprintf(buf, "Freeze OFF for %s by %s.", GET_NAME(vict), GET_NAME(ch));
-				mudlog(buf, DEF, MAX(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+				mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s", buf);
 				sprintf(buf, "Freeze OFF by %s", GET_NAME(ch));
 				add_karma(vict, buf, reason);
@@ -535,7 +535,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				PLR_FLAGS(vict).unset(EPlrFlag::kDumbed);
 
 				sprintf(buf, "Dumb OFF for %s by %s.", GET_NAME(vict), GET_NAME(ch));
-				mudlog(buf, DEF, MAX(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+				mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s", buf);
 
 				sprintf(buf, "Dumb OFF by %s", GET_NAME(ch));
@@ -556,7 +556,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				PLR_FLAGS(vict).unset(EPlrFlag::kHelled);
 
 				sprintf(buf, "%s removed FROM hell by %s.", GET_NAME(vict), GET_NAME(ch));
-				mudlog(buf, DEF, MAX(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+				mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s", buf);
 
 				sprintf(buf, "Removed FROM hell by %s", GET_NAME(ch));
@@ -597,7 +597,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				PLR_FLAGS(vict).unset(EPlrFlag::kNameDenied);
 
 				sprintf(buf, "%s removed FROM name room by %s.", GET_NAME(vict), GET_NAME(ch));
-				mudlog(buf, DEF, MAX(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+				mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s", buf);
 
 				sprintf(buf, "Removed FROM name room by %s", GET_NAME(ch));
@@ -636,7 +636,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				};
 
 				sprintf(buf, "%s registered by %s.", GET_NAME(vict), GET_NAME(ch));
-				mudlog(buf, DEF, MAX(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+				mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s", buf);
 
 				sprintf(buf, "Registered by %s", GET_NAME(ch));
@@ -675,7 +675,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				};
 
 				sprintf(buf, "%s unregistered by %s.", GET_NAME(vict), GET_NAME(ch));
-				mudlog(buf, DEF, MAX(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+				mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s", buf);
 
 				sprintf(buf, "Unregistered by %s", GET_NAME(ch));
@@ -728,7 +728,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				pundata->duration = (times > 0) ? time(nullptr) + times * 60 * 60 : MAX_TIME;
 
 				sprintf(buf, "Mute ON for %s by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
-				mudlog(buf, DEF, MAX(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+				mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s", buf);
 
 				sprintf(buf, "Mute ON (%ldh) by %s", times, GET_NAME(ch));
@@ -746,7 +746,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				pundata->duration = (times > 0) ? time(nullptr) + times * 60 * 60 : MAX_TIME;
 
 				sprintf(buf, "Freeze ON for %s by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
-				mudlog(buf, DEF, MAX(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+				mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s", buf);
 				sprintf(buf, "Freeze ON (%ldh) by %s", times, GET_NAME(ch));
 				add_karma(vict, buf, reason);
@@ -768,7 +768,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				pundata->duration = (times > 0) ? time(nullptr) + times * 60 : MAX_TIME;
 
 				sprintf(buf, "Dumb ON for %s by %s(%ldm).", GET_NAME(vict), GET_NAME(ch), times);
-				mudlog(buf, DEF, MAX(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+				mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s", buf);
 
 				sprintf(buf, "Dumb ON (%ldm) by %s", times, GET_NAME(ch));
@@ -794,7 +794,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				vict->set_was_in_room(kNowhere);
 
 				sprintf(buf, "%s moved TO hell by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
-				mudlog(buf, DEF, MAX(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+				mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s", buf);
 				sprintf(buf, "Moved TO hell (%ldh) by %s", times, GET_NAME(ch));
 				add_karma(vict, buf, reason);
@@ -818,7 +818,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				vict->set_was_in_room(kNowhere);
 
 				sprintf(buf, "%s removed to nameroom by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
-				mudlog(buf, DEF, MAX(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+				mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s", buf);
 				sprintf(buf, "Removed TO nameroom (%ldh) by %s", times, GET_NAME(ch));
 				add_karma(vict, buf, reason);
@@ -843,7 +843,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				vict->set_was_in_room(kNowhere);
 
 				sprintf(buf, "%s unregistred by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
-				mudlog(buf, DEF, MAX(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+				mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s", buf);
 				sprintf(buf, "Unregistered (%ldh) by %s", times, GET_NAME(ch));
 				add_karma(vict, buf, reason);
@@ -1968,7 +1968,7 @@ void do_purge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			act("$n обратил$g в прах $N3.", false, ch, nullptr, vict, kToNotVict);
 			if (!vict->IsNpc()) {
 				sprintf(buf, "(GC) %s has purged %s.", GET_NAME(ch), GET_NAME(vict));
-				mudlog(buf, CMP, MAX(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+				mudlog(buf, CMP, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s has purged %s.", GET_NAME(ch), GET_NAME(vict));
 				if (vict->desc) {
 					STATE(vict->desc) = CON_CLOSE;
@@ -2859,7 +2859,7 @@ void do_force(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			while ((pstr = strchr(buf, '%')) != nullptr) {
 				pstr[0] = '*';
 			}
-			mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+			mudlog(buf, NRM, std::max(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 			imm_log("%s forced %s to %s", GET_NAME(ch), GET_NAME(vict), to_force);
 			command_interpreter(vict, to_force);
 		}
@@ -2867,7 +2867,7 @@ void do_force(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		|| !str_cmp("здесь", arg)) {
 		SendMsgToChar(OK, ch);
 		sprintf(buf, "(GC) %s forced room %d to %s", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room), to_force);
-		mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+		mudlog(buf, NRM, std::max(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 		imm_log("%s forced room %d to %s", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room), to_force);
 
 		const auto people_copy = world[ch->in_room]->people;
@@ -2885,7 +2885,7 @@ void do_force(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	{
 		SendMsgToChar(OK, ch);
 		sprintf(buf, "(GC) %s forced all to %s", GET_NAME(ch), to_force);
-		mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+		mudlog(buf, NRM, std::max(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 		imm_log("%s forced all to %s", GET_NAME(ch), to_force);
 
 		for (i = descriptor_list; i; i = next_desc) {

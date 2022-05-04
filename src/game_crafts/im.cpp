@@ -1164,7 +1164,7 @@ void im_improve_recipe(CharData *ch, im_rskill *rs, int success) {
 		prob = success ? 20000 : 15000;
 		div = int_app[GET_REAL_INT(ch)].improve;
 		div += imrecipes[rs->rid].k_improve / 100;
-		prob /= (MAX(1, div));
+		prob /= std::max(1, div);
 		diff = n - wis_bonus(GET_REAL_WIS(ch), WIS_MAX_SKILLS);
 		if (diff < 0)
 			prob += (5 * diff);

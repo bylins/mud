@@ -363,7 +363,7 @@ int do_drink_get_amount(CharData *ch, ObjData *jar, int subcmd) {
 		} else {
 			//Тут магия из-за /4
 			amount = (2 * kMortallyDrunked - GET_COND(ch, DRUNK)) / drink_aff[GET_OBJ_VAL(jar, 2)][DRUNK];
-			amount = MAX(1, amount); // ну еще чуть-чуть
+			amount = std::max(1, amount); // ну еще чуть-чуть
 		}
 	}
 		// Если без градуса
@@ -458,7 +458,7 @@ void do_drink_drunk(CharData *ch, ObjData *jar, int amount) {
 			SendMsgToChar("Приятное тепло разлилось по вашему телу.\r\n", ch);
 		}
 
-		duration = 2 + MAX(0, GET_COND(ch, DRUNK) - kDrunked);
+		duration = 2 + std::max(0, GET_COND(ch, DRUNK) - kDrunked);
 
 		if (IsAbleToUseFeat(ch, EFeat::kDrunkard))
 			duration += duration / 2;
@@ -558,7 +558,7 @@ void do_drink(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		) {
 		// Не понимаю зачем делить на 4, но оставим для пьянки 2
 		gain_condition(ch, DRUNK, (int) ((int) drink_aff[GET_OBJ_VAL(jar, 2)][DRUNK] * amount) / 2);
-		GET_DRUNK_STATE(ch) = MAX(GET_DRUNK_STATE(ch), GET_COND(ch, DRUNK));
+		GET_DRUNK_STATE(ch) = std::max(GET_DRUNK_STATE(ch), GET_COND(ch, DRUNK));
 	}
 
 	if (drink_aff[GET_OBJ_VAL(jar, 2)][FULL] != 0) {
@@ -672,7 +672,7 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 	}
 
-	amount = MAX(1, GET_WEIGHT(ch) / 50);
+	amount = std::max(1, GET_WEIGHT(ch) / 50);
 	if (amount > GET_OBJ_VAL(obj, 1)) {
 		SendMsgToChar("Вам точно не хватит этого количества для опохмела...\r\n", ch);
 		return;
@@ -700,7 +700,7 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		sprintf(buf, "Вы отхлебнули %s из $o1, но ваша голова стала еще тяжелее...", drinks[GET_OBJ_VAL(obj, 2)]);
 		act(buf, false, ch, obj, 0, kToChar);
 		act("$n попробовал$g похмелиться, но это не пошло $m на пользу.", false, ch, 0, 0, kToRoom);
-		duration = MAX(1, amount / 3);
+		duration = std::max(1, amount / 3);
 		Affect<EApply> af[3];
 		af[0].type = ESpell::kAbstinent;
 		af[0].duration = CalcDuration(ch, duration, 0, 0, 0, 0);

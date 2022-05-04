@@ -302,28 +302,28 @@ char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear) {
 		}
 		if (show_wear > 1) {
 			if (CAN_WEAR(obj, EWearFlag::kShield)) {
-				need_str = MAX(0, calc_str_req((GET_OBJ_WEIGHT(obj) + 1) / 2, STR_HOLD_W));
+				need_str = std::max(0, calc_str_req((GET_OBJ_WEIGHT(obj) + 1) / 2, STR_HOLD_W));
 				sprintf(out_str + strlen(out_str),
 						"Можно использовать как щит (требуется %d %s).\r\n",
 						need_str,
 						GetDeclensionInNumber(need_str, EWhat::kStr));
 			}
 			if (CAN_WEAR(obj, EWearFlag::kWield)) {
-				need_str = MAX(0, calc_str_req(GET_OBJ_WEIGHT(obj), STR_WIELD_W));
+				need_str = std::max(0, calc_str_req(GET_OBJ_WEIGHT(obj), STR_WIELD_W));
 				sprintf(out_str + strlen(out_str),
 						"Можно взять в правую руку (требуется %d %s).\r\n",
 						need_str,
 						GetDeclensionInNumber(need_str, EWhat::kStr));
 			}
 			if (CAN_WEAR(obj, EWearFlag::kHold)) {
-				need_str = MAX(0, calc_str_req(GET_OBJ_WEIGHT(obj), STR_HOLD_W));
+				need_str = std::max(0, calc_str_req(GET_OBJ_WEIGHT(obj), STR_HOLD_W));
 				sprintf(out_str + strlen(out_str),
 						"Можно взять в левую руку (требуется %d %s).\r\n",
 						need_str,
 						GetDeclensionInNumber(need_str, EWhat::kStr));
 			}
 			if (CAN_WEAR(obj, EWearFlag::kBoth)) {
-				need_str = MAX(0, calc_str_req(GET_OBJ_WEIGHT(obj), STR_BOTH_W));
+				need_str = std::max(0, calc_str_req(GET_OBJ_WEIGHT(obj), STR_BOTH_W));
 				sprintf(out_str + strlen(out_str),
 						"Можно взять в обе руки (требуется %d %s).\r\n",
 						need_str,

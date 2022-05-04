@@ -111,8 +111,7 @@ float CharData::get_cond_penalty(int type) const {
 	if (this->IsNpc()) return 1;
 	if (!(GET_COND_M(this, FULL) || GET_COND_M(this, THIRST))) return 1;
 
-	float penalty = 0;
-
+	auto penalty{0.0};
 	if (GET_COND_M(this, FULL)) {
 		int tmp = GET_COND_K(this, FULL); // 0 - 1
 		switch (type) {
@@ -165,7 +164,7 @@ float CharData::get_cond_penalty(int type) const {
 			default: break;
 		}
 	}
-	penalty = 100 - MIN(MAX(0, penalty), 100);
+	penalty = 100.0 - std::clamp(penalty, 0.0, 100.0);
 	penalty /= 100.0;
 	return penalty;
 }
@@ -207,7 +206,7 @@ void CharData::reset() {
 }
 
 void CharData::set_abstinent() {
-	int duration = CalcDuration(this, 2, MAX(0, GET_DRUNK_STATE(this) - kDrunked), 4, 2, 5);
+	int duration = CalcDuration(this, 2, std::max(0, GET_DRUNK_STATE(this) - kDrunked), 4, 2, 5);
 
 	if (IsAbleToUseFeat(this, EFeat::kDrunkard)) {
 		duration /= 2;
@@ -245,7 +244,7 @@ void CharData::affect_remove(const char_affects_list_t::iterator &affect_i) {
 	affect_modify(this, af->location, af->modifier, static_cast<EAffect>(af->bitvector), false);
 	if (af->type == ESpell::kAbstinent) {
 		if (player_specials) {
-			GET_DRUNK_STATE(this) = GET_COND(this, DRUNK) = MIN(GET_COND(this, DRUNK), kDrunked - 1);
+			GET_DRUNK_STATE(this) = GET_COND(this, DRUNK) = std::min(GET_COND(this, DRUNK), kDrunked - 1);
 		} else {
 			log("SYSERR: player_specials is not set.");
 		}
@@ -542,7 +541,7 @@ int CharData::get_equipped_skill(const ESkill skill_id) const {
 			// На новый год включаем
 			/*else
 			{
-				skill += (MIN(5, equipment[i]->get_skill(skill_num)));
+				skill += (std::min(5, equipment[i]->get_skill(skill_num)));
 			}*/
 		}
 	}
@@ -1031,20 +1030,20 @@ void CharData::set_exp(long exp) {
 	if (exp < 0) {
 		log("WARNING: exp=%ld name=[%s] (%s:%d %s)", exp, get_name().c_str(), __FILE__, __LINE__, __func__);
 	}
-	exp_ = MAX(0, exp);
+	exp_ = std::max(0L, exp);
 	msdp_report(msdp::constants::EXPERIENCE);
 }
 
-short CharData::get_remort() const {
+int CharData::get_remort() const {
 	return remorts_;
 }
 
-short CharData::get_remort_add() const {
+int CharData::get_remort_add() const {
 	return remorts_add_;
 }
 
-void CharData::set_remort(short num) {
-	remorts_ = MAX(0, num);
+void CharData::set_remort(int num) {
+	remorts_ = std::max(0, num);
 }
 
 void CharData::set_remort_add(short num) {
@@ -1217,7 +1216,7 @@ void CharData::set_gold(long num, bool need_log) {
 		// чтобы с логированием не заморачиваться
 		return;
 	}
-	num = MAX(0, MIN(kMaxMoneyKept, num));
+	num = std::clamp(num, 0L, kMaxMoneyKept);
 
 	if (need_log && !this->IsNpc()) {
 		long change = num - get_gold();
@@ -1241,7 +1240,7 @@ void CharData::set_bank(long num, bool need_log) {
 		// чтобы с логированием не заморачиваться
 		return;
 	}
-	num = MAX(0, MIN(kMaxMoneyKept, num));
+	num = std::clamp(num, 0L, kMaxMoneyKept);
 
 	if (need_log && !this->IsNpc()) {
 		long change = num - get_bank();
@@ -1327,11 +1326,11 @@ int CharData::GetInbornStr() const {
 }
 
 void CharData::set_str(int param) {
-	str_ = MAX(1, param);
+	str_ = std::max(1, param);
 }
 
 void CharData::inc_str(int param) {
-	str_ = MAX(1, str_ + param);
+	str_ = std::max(1, str_ + param);
 }
 
 int CharData::get_str_add() const {
@@ -1352,11 +1351,11 @@ int CharData::GetInbornDex() const {
 }
 
 void CharData::set_dex(int param) {
-	dex_ = MAX(1, param);
+	dex_ = std::max(1, param);
 }
 
 void CharData::inc_dex(int param) {
-	dex_ = MAX(1, dex_ + param);
+	dex_ = std::max(1, dex_ + param);
 }
 
 int CharData::get_dex_add() const {
@@ -1377,10 +1376,10 @@ int CharData::GetInbornCon() const {
 }
 
 void CharData::set_con(int param) {
-	con_ = MAX(1, param);
+	con_ = std::max(1, param);
 }
 void CharData::inc_con(int param) {
-	con_ = MAX(1, con_ + param);
+	con_ = std::max(1, con_ + param);
 }
 
 int CharData::get_con_add() const {
@@ -1402,11 +1401,11 @@ int CharData::GetInbornInt() const {
 }
 
 void CharData::set_int(int param) {
-	int_ = MAX(1, param);
+	int_ = std::max(1, param);
 }
 
 void CharData::inc_int(int param) {
-	int_ = MAX(1, int_ + param);
+	int_ = std::max(1, int_ + param);
 }
 
 int CharData::get_int_add() const {
@@ -1427,7 +1426,7 @@ int CharData::GetInbornWis() const {
 }
 
 void CharData::set_wis(int param) {
-	wis_ = MAX(1, param);
+	wis_ = std::max(1, param);
 }
 
 void CharData::set_who_mana(unsigned int param) {
@@ -1447,7 +1446,7 @@ time_t CharData::get_who_last() {
 }
 
 void CharData::inc_wis(int param) {
-	wis_ = MAX(1, wis_ + param);
+	wis_ = std::max(1, wis_ + param);
 }
 
 int CharData::get_wis_add() const {
@@ -1468,10 +1467,10 @@ int CharData::GetInbornCha() const {
 }
 
 void CharData::set_cha(int param) {
-	cha_ = MAX(1, param);
+	cha_ = std::max(1, param);
 }
 void CharData::inc_cha(int param) {
-	cha_ = MAX(1, cha_ + param);
+	cha_ = std::max(1, cha_ + param);
 }
 
 int CharData::get_cha_add() const {
@@ -1509,7 +1508,7 @@ int CharData::get_zone_group() const {
 		&& rnum >= 0
 		&& mob_index[rnum].zone >= 0) {
 		const auto zone = mob_index[rnum].zone;
-		return MAX(1, zone_table[zone].group);
+		return std::max(1, zone_table[zone].group);
 	}
 
 	return 1;
@@ -1655,7 +1654,7 @@ void CharData::reset_morph() {
 	SendMsgToChar(str(boost::format(current_morph_->GetMessageToChar()) % "человеком") + "\r\n", this);
 	act(str(boost::format(current_morph_->GetMessageToRoom()) % "человеком").c_str(), true, this, 0, 0, kToRoom);
 	this->current_morph_ = GetNormalMorphNew(this);
-	this->set_morphed_skill(ESkill::kMorph, (MIN(kSkillCapOnZeroRemort + GET_REAL_REMORT(this) * 5, value)));
+	this->set_morphed_skill(ESkill::kMorph, (std::min(kSkillCapOnZeroRemort + GET_REAL_REMORT(this) * 5, value)));
 //	REMOVE_BIT(AFF_FLAGS(this, AFF_MORPH), AFF_MORPH);
 };
 
@@ -2197,10 +2196,10 @@ player_special_data_saved::player_special_data_saved() :
 // dummy spec area for mobs
 player_special_data::shared_ptr player_special_data::s_for_mobiles = std::make_shared<player_special_data>();
 
-int VPOSI_MOB(const CharData *ch, const EBaseStat stat_id, const int val) {
+int ClampBaseStat(const CharData *ch, const EBaseStat stat_id, const int stat_value) {
 	return ch->IsNpc()
-		   ? std::clamp(val, kLeastBaseStat, kMobBaseStatCap)
-		   : std::clamp(val, kLeastBaseStat, MUD::Classes(ch->GetClass()).GetBaseStatCap(stat_id));
+		   ? std::clamp(stat_value, kLeastBaseStat, kMobBaseStatCap)
+		   : std::clamp(stat_value, kLeastBaseStat, MUD::Classes(ch->GetClass()).GetBaseStatCap(stat_id));
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

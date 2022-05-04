@@ -3114,7 +3114,7 @@ void close_socket(DescriptorData * d, int direct)
 				Crash_ldsave(d->character.get());
 
 				sprintf(buf, "Closing link to: %s.", GET_NAME(d->character));
-				mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(d->character)), SYSLOG, true);
+				mudlog(buf, NRM, std::max(kLvlGod, GET_INVIS_LEV(d->character)), SYSLOG, true);
 			}
 			d->character->desc = nullptr;
 		} else {

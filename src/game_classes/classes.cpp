@@ -1149,9 +1149,9 @@ void decrease_level(CharData *ch) {
 	}
 
 	check_max_hp(ch);
-	ch->points.max_move -= MIN(ch->points.max_move, MAX(1, add_move));
+	ch->points.max_move -= std::clamp(add_move, 1, ch->points.max_move);
 
-	GET_WIMP_LEV(ch) = MAX(0, MIN(GET_WIMP_LEV(ch), GET_REAL_MAX_HIT(ch) / 2));
+	GET_WIMP_LEV(ch) = std::clamp(GET_WIMP_LEV(ch), 0, GET_REAL_MAX_HIT(ch)/2);
 	if (!IS_IMMORTAL(ch)) {
 		PRF_FLAGS(ch).unset(EPrf::kHolylight);
 	}

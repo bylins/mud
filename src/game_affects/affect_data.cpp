@@ -458,7 +458,7 @@ void affect_total(CharData *ch) {
 		ch->set_wis_add(ch->get_remort_add());
 		ch->set_cha_add(ch->get_remort_add());
 		double add_hp_per_level = MUD::Classes(ch->GetClass()).applies.base_con
-				+ (VPOSI_MOB(ch, EBaseStat::kCon, ch->get_con()) - MUD::Classes(ch->GetClass()).applies.base_con)
+				+ (ClampBaseStat(ch, EBaseStat::kCon, ch->get_con()) - MUD::Classes(ch->GetClass()).applies.base_con)
 				* MUD::Classes(ch->GetClass()).applies.koef_con / 100.0 + 3;
 	 	GET_HIT_ADD(ch) = static_cast<int>(add_hp_per_level * (30 - ch->GetLevel()));
 //		SendMsgToChar(ch, "add per level %f hitadd %d  level %d\r\n", add_hp_per_level, GET_HIT_ADD(ch), ch->get_level());

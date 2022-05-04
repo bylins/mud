@@ -1345,7 +1345,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 					oedit_save_internally(d);
 					sprintf(buf, "OLC: %s edits obj %d", GET_NAME(d->character), OLC_NUM(d));
 					olc_log("%s edit obj %d", GET_NAME(d->character), OLC_NUM(d));
-					mudlog(buf, NRM, MAX(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
+					mudlog(buf, NRM, std::max(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
 					cleanup_olc(d, CLEANUP_STRUCTS);
 					break;
 

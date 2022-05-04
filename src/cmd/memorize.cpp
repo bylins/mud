@@ -168,7 +168,7 @@ void show_wizdom(CharData *ch, int bitset) {
 		int *s = MemQ_slots(ch);
 		gcount += sprintf(buf2 + gcount, "  %sСвободно :%s\r\n", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
 		for (i = 0; i < imax_slot; i++) {
-			slot_num = MAX(0, CalcCircleSlotsAmount(ch, i + 1) - s[i]);
+			slot_num = std::max(0, CalcCircleSlotsAmount(ch, i + 1) - s[i]);
 			gcount += sprintf(buf2 + gcount, "%s%2d-%2d%s  ",
 							  slot_num ? CCICYN(ch, C_NRM) : "",
 							  i + 1, slot_num, slot_num ? CCNRM(ch, C_NRM) : "");

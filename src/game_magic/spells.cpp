@@ -154,7 +154,7 @@ void SpellCreateWater(int/* level*/, CharData *ch, CharData *victim, ObjData *ob
 			SendMsgToChar("Прекратите, ради бога, химичить.\r\n", ch);
 			return;
 		} else {
-			water = MAX(GET_OBJ_VAL(obj, 0) - GET_OBJ_VAL(obj, 1), 0);
+			water = std::max(GET_OBJ_VAL(obj, 0) - GET_OBJ_VAL(obj, 1), 0);
 			if (water > 0) {
 				if (GET_OBJ_VAL(obj, 1) >= 0) {
 					name_from_drinkcon(obj);
@@ -660,7 +660,7 @@ void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *o
 
 		bloody_corpse = false;
 		if (!IS_GOD(ch)) {
-			if (number(1, 100) > (40 + MAX((GET_REAL_INT(ch) - 25) * 2, 0))) {
+			if (number(1, 100) > (40 + std::max((GET_REAL_INT(ch) - 25) * 2, 0))) {
 				return false;
 			}
 
@@ -866,7 +866,7 @@ int CheckCharmices(CharData *ch, CharData *victim, ESpell spell_id) {
 		return (false);
 	}
 
-	if (spell_id == ESpell::kClone && cha_summ >= MAX(1, (GetRealLevel(ch) + 4) / 5 - 2)) {
+	if (spell_id == ESpell::kClone && cha_summ >= std::max(1, (GetRealLevel(ch) + 4) / 5 - 2)) {
 		SendMsgToChar("Вы не сможете управлять столькими последователями.\r\n", ch);
 		return (false);
 	}
@@ -1984,7 +1984,7 @@ void SpellControlWeather(int/* level*/, CharData *ch, CharData* /*victim*/, ObjD
 	}
 
 	if (sky_info) {
-		duration = MAX(GetRealLevel(ch) / 8, 2);
+		duration = std::max(GetRealLevel(ch) / 8, 2);
 		zone = world[ch->in_room]->zone_rn;
 		for (i = kFirstRoom; i <= top_of_world; i++)
 			if (world[i]->zone_rn == zone && SECT(i) != ESector::kInside && SECT(i) != ESector::kCity) {
@@ -2252,7 +2252,7 @@ void SpellSummonAngel(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData
 	mob->set_str(1 + floorf(additional_str_for_charisma * eff_cha));
 	mob->set_dex(1 + floorf(additional_dex_for_charisma * eff_cha));
 	mob->set_con(1 + floorf(additional_con_for_charisma * eff_cha));
-	mob->set_int(MAX(50, 1 + floorf(additional_int_for_charisma * eff_cha))); //кап 50
+	mob->set_int(std::max(50, 1 + static_cast<int>(floorf(additional_int_for_charisma * eff_cha)))); //кап 50
 	mob->set_wis(1 + floorf(additional_wis_for_charisma * eff_cha));
 	mob->set_cha(1 + floorf(additional_cha_for_charisma * eff_cha));
 

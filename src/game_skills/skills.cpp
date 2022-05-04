@@ -1616,16 +1616,16 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 			victim_sav = -GET_REAL_SAVING_CRITICAL(vict);
 			bonus = dex_bonus(GET_REAL_INT(ch));
 			if (GET_EQ(ch, EEquipPos::kWield))
-				bonus += MAX(18, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kWield))) - 18
-					+ MAX(25, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kWield))) - 25
-					+ MAX(30, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kWield))) - 30;
+				bonus += std::max(18, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kWield))) - 18
+					+ std::max(25, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kWield))) - 25
+					+ std::max(30, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kWield))) - 30;
 			if (GET_EQ(ch, EEquipPos::kHold))
-				bonus += MAX(18, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kHold))) - 18
-					+ MAX(25, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kHold))) - 25
-					+ MAX(30, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kHold))) - 30;
+				bonus += std::max(18, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kHold))) - 18
+					+ std::max(25, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kHold))) - 25
+					+ std::max(30, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kHold))) - 30;
 			if (GET_EQ(ch, EEquipPos::kBoths))
-				bonus += MAX(25, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kBoths))) - 25
-					+ MAX(30, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kBoths))) - 30;
+				bonus += std::max(25, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kBoths))) - 25
+					+ std::max(30, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kBoths))) - 30;
 			if (vict) {
 				victim_modi -= int_app[GET_REAL_INT(vict)].observation;
 			}

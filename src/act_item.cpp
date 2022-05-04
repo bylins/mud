@@ -386,7 +386,7 @@ ObjData *create_skin(CharData *mob, CharData *ch) {
 		}
 	}
 
-	skin->set_cost(GetRealLevel(mob) * number(2, MAX(3, 3 * k)));
+	skin->set_cost(GetRealLevel(mob) * number(2, std::max(3, 3 * k)));
 	skin->set_val(2, 95); //оставил 5% фейла переноса аффектов на создаваемую шмотку
 
 	act("$n умело срезал$g $o3.", false, ch, skin.get(), 0, kToRoom | kToArenaListen);
@@ -1436,14 +1436,14 @@ void weight_change_object(ObjData *obj, int weight) {
 	CharData *tmp_ch;
 
 	if (obj->get_in_room() != kNowhere) {
-		obj->set_weight(MAX(1, GET_OBJ_WEIGHT(obj) + weight));
+		obj->set_weight(std::max(1, GET_OBJ_WEIGHT(obj) + weight));
 	} else if ((tmp_ch = obj->get_carried_by())) {
 		ExtractObjFromChar(obj);
-		obj->set_weight(MAX(1, GET_OBJ_WEIGHT(obj) + weight));
+		obj->set_weight(std::max(1, GET_OBJ_WEIGHT(obj) + weight));
 		PlaceObjToInventory(obj, tmp_ch);
 	} else if ((tmp_obj = obj->get_in_obj())) {
 		ExtractObjFromObj(obj);
-		obj->set_weight(MAX(1, GET_OBJ_WEIGHT(obj) + weight));
+		obj->set_weight(std::max(1, GET_OBJ_WEIGHT(obj) + weight));
 		PlaceObjIntoObj(obj, tmp_obj);
 	} else {
 		log("SYSERR: Unknown attempt to subtract weight from an object.");
@@ -2429,46 +2429,46 @@ void do_armored(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (GET_SKILL(ch, ESkill::kArmoring) >= 100) {
 		if (CompareParam(arg2, "поглощение")) {
 			armorvalue = strengthening((GET_SKILL(ch, ESkill::kArmoring) / 10 * 10), Strengthening::ABSORBTION);
-			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
+			armorvalue = std::max(0, number(armorvalue, armorvalue - 2));
 //			SendMsgToChar(ch, "увеличиваю поглот на %d\r\n", armorvalue);
 			obj->set_affected(1, EApply::kAbsorbe, armorvalue);
 		} else if (CompareParam(arg2, "здоровье")) {
 			armorvalue = strengthening((GET_SKILL(ch, ESkill::kArmoring) / 10 * 10), Strengthening::HEALTH);
-			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
+			armorvalue = std::max(0, number(armorvalue, armorvalue - 2));
 			armorvalue *= -1;
 //			SendMsgToChar(ch, "увеличиваю здоровье на %d\r\n", armorvalue);
 			obj->set_affected(1, EApply::kSavingCritical, armorvalue);
 		} else if (CompareParam(arg2, "живучесть"))// резисты в - лучше
 		{
 			armorvalue = strengthening((GET_SKILL(ch, ESkill::kArmoring) / 10 * 10), Strengthening::VITALITY);
-			armorvalue = -MAX(0, number(armorvalue, armorvalue - 2));
+			armorvalue = -std::max(0, number(armorvalue, armorvalue - 2));
 			armorvalue *= -1;
 //			SendMsgToChar(ch, "увеличиваю живучесть на %d\r\n", armorvalue);
 			obj->set_affected(1, EApply::kResistVitality, armorvalue);
 		} else if (CompareParam(arg2, "стойкость")) {
 			armorvalue = strengthening((GET_SKILL(ch, ESkill::kArmoring) / 10 * 10), Strengthening::STAMINA);
-			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
+			armorvalue = std::max(0, number(armorvalue, armorvalue - 2));
 			armorvalue *= -1;
 //			SendMsgToChar(ch, "увеличиваю стойкость на %d\r\n", armorvalue);
 			obj->set_affected(1, EApply::kSavingStability, armorvalue);
 		} else if (CompareParam(arg2, "воздуха")) {
 			armorvalue = strengthening((GET_SKILL(ch, ESkill::kArmoring) / 10 * 10), Strengthening::AIR_PROTECTION);
-			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
+			armorvalue = std::max(0, number(armorvalue, armorvalue - 2));
 //			SendMsgToChar(ch, "увеличиваю сопр воздуха на %d\r\n", armorvalue);
 			obj->set_affected(1, EApply::kResistAir, armorvalue);
 		} else if (CompareParam(arg2, "воды")) {
 			armorvalue = strengthening((GET_SKILL(ch, ESkill::kArmoring) / 10 * 10), Strengthening::WATER_PROTECTION);
-			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
+			armorvalue = std::max(0, number(armorvalue, armorvalue - 2));
 //			SendMsgToChar(ch, "увеличиваю сопр воды на %d\r\n", armorvalue);
 			obj->set_affected(1, EApply::kResistWater, armorvalue);
 		} else if (CompareParam(arg2, "огня")) {
 			armorvalue = strengthening((GET_SKILL(ch, ESkill::kArmoring) / 10 * 10), Strengthening::FIRE_PROTECTION);
-			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
+			armorvalue = std::max(0, number(armorvalue, armorvalue - 2));
 //			SendMsgToChar(ch, "увеличиваю сопр огню на %d\r\n", armorvalue);
 			obj->set_affected(1, EApply::kResistFire, armorvalue);
 		} else if (CompareParam(arg2, "земли")) {
 			armorvalue = strengthening((GET_SKILL(ch, ESkill::kArmoring) / 10 * 10), Strengthening::EARTH_PROTECTION);
-			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
+			armorvalue = std::max(0, number(armorvalue, armorvalue - 2));
 //			SendMsgToChar(ch, "увеличиваю сопр земли на %d\r\n", armorvalue);
 			obj->set_affected(1, EApply::kResistEarth, armorvalue);
 		} else {
@@ -2530,7 +2530,7 @@ void do_fire(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вы попытались разжечь костер, но у вас ничего не вышло.\r\n", ch);
 		return;
 	} else {
-		world[ch->in_room]->fires = MAX(0, (prob - percent) / 5) + 1;
+		world[ch->in_room]->fires = std::max(0, (prob - percent) / 5) + 1;
 		SendMsgToChar("Вы набрали хворосту и разожгли огонь.\n\r", ch);
 		act("$n развел$g огонь.", false, ch, 0, 0, kToRoom | kToArenaListen);
 		ImproveSkill(ch, ESkill::kCampfire, true, 0);
@@ -2886,14 +2886,10 @@ void do_repair(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	percent = CalcCurrentSkill(ch, ESkill::kRepair, nullptr);
 	TrainSkill(ch, ESkill::kRepair, prob <= percent, nullptr);
 	if (prob > percent) {
-//Polos.repair_bug
-//Потому что 0 уничтожает шмотку полностью даже при скиле 100+ и
-//состоянии шмотки <очень хорошо>
 		if (!percent) {
 			percent = ch->GetSkill(ESkill::kRepair) / 10;
 		}
-//-Polos.repair_bug
-		obj->set_current_durability(MAX(0, obj->get_current_durability() * percent / prob));
+		obj->set_current_durability(std::max(0, obj->get_current_durability() * percent / prob));
 		if (obj->get_current_durability()) {
 			act("Вы попытались починить $o3, но сломали $S еще больше.", false, ch, obj, 0, kToChar);
 			act("$n попытал$u починить $o3, но сломал$g $S еще больше.", false, ch, obj, 0, kToRoom | kToArenaListen);
@@ -2913,7 +2909,7 @@ void do_repair(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		timed.skill = ESkill::kRepair;
 		// timed.time - это unsigned char, поэтому при уходе в минус будет вынос на 255 и ниже
 		int modif = ch->GetSkill(ESkill::kRepair) / 7 + number(1, 5);
-		timed.time = MAX(1, 25 - modif);
+		timed.time = std::max(1, 25 - modif);
 		ImposeTimedSkill(ch, &timed);
 		obj->set_current_durability(MIN(GET_OBJ_MAX(obj), GET_OBJ_CUR(obj) * percent / prob + 1));
 		SendMsgToChar(ch, "Теперь %s выгляд%s лучше.\r\n", obj->get_PName(0).c_str(), GET_OBJ_POLY_1(ch, obj));

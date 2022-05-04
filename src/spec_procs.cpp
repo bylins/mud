@@ -936,15 +936,15 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 							SET_BIT(GET_SPELL_TYPE(ch, spell_no), ESpellType::kRunes);
 						if (IS_SET(bits, ESpellType::kPotionCast)) {
 							SET_BIT(GET_SPELL_TYPE(ch, spell_no), ESpellType::kPotionCast);
-							ch->set_skill(ESkill::kCreatePotion, MAX(10, ch->get_trained_skill(ESkill::kCreatePotion)));
+							ch->set_skill(ESkill::kCreatePotion, std::max(10, ch->get_trained_skill(ESkill::kCreatePotion)));
 						}
 						if (IS_SET(bits, ESpellType::kWandCast)) {
 							SET_BIT(GET_SPELL_TYPE(ch, spell_no), ESpellType::kWandCast);
-							ch->set_skill(ESkill::kCreateWand, MAX(10, ch->get_trained_skill(ESkill::kCreateWand)));
+							ch->set_skill(ESkill::kCreateWand, std::max(10, ch->get_trained_skill(ESkill::kCreateWand)));
 						}
 						if (IS_SET(bits, ESpellType::kScrollCast)) {
 							SET_BIT(GET_SPELL_TYPE(ch, spell_no), ESpellType::kScrollCast);
-							ch->set_skill(ESkill::kCreateScroll, MAX(10, ch->get_trained_skill(ESkill::kCreateScroll)));
+							ch->set_skill(ESkill::kCreateScroll, std::max(10, ch->get_trained_skill(ESkill::kCreateScroll)));
 						}
 						found = true;
 					}
@@ -1089,15 +1089,15 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 							}
 							if (IS_SET(bits, ESpellType::kPotionCast)) {
 								SET_BIT(GET_SPELL_TYPE(ch, spell_no), ESpellType::kPotionCast);
-								ch->set_skill(ESkill::kCreatePotion, MAX(10, ch->get_trained_skill(ESkill::kCreatePotion)));
+								ch->set_skill(ESkill::kCreatePotion, std::max(10, ch->get_trained_skill(ESkill::kCreatePotion)));
 							}
 							if (IS_SET(bits, ESpellType::kWandCast)) {
 								SET_BIT(GET_SPELL_TYPE(ch, spell_no), ESpellType::kWandCast);
-								ch->set_skill(ESkill::kCreateWand, MAX(10, ch->get_trained_skill(ESkill::kCreateWand)));
+								ch->set_skill(ESkill::kCreateWand, std::max(10, ch->get_trained_skill(ESkill::kCreateWand)));
 							}
 							if (IS_SET(bits, ESpellType::kScrollCast)) {
 								SET_BIT(GET_SPELL_TYPE(ch, spell_no), ESpellType::kScrollCast);
-								ch->set_skill(ESkill::kCreateScroll, MAX(10, ch->get_trained_skill(ESkill::kCreateScroll)));
+								ch->set_skill(ESkill::kCreateScroll, std::max(10, ch->get_trained_skill(ESkill::kCreateScroll)));
 							}
 						}
 						found = true;
@@ -1245,15 +1245,15 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 							SET_BIT(GET_SPELL_TYPE(ch, spell_no), ESpellType::kRunes);
 						if (IS_SET(bits, ESpellType::kPotionCast)) {
 							SET_BIT(GET_SPELL_TYPE(ch, spell_no), ESpellType::kPotionCast);
-							ch->set_skill(ESkill::kCreatePotion, MAX(10, ch->get_trained_skill(ESkill::kCreatePotion)));
+							ch->set_skill(ESkill::kCreatePotion, std::max(10, ch->get_trained_skill(ESkill::kCreatePotion)));
 						}
 						if (IS_SET(bits, ESpellType::kWandCast)) {
 							SET_BIT(GET_SPELL_TYPE(ch, spell_no), ESpellType::kWandCast);
-							ch->set_skill(ESkill::kCreateWand, MAX(10, ch->get_trained_skill(ESkill::kCreateWand)));
+							ch->set_skill(ESkill::kCreateWand, std::max(10, ch->get_trained_skill(ESkill::kCreateWand)));
 						}
 						if (IS_SET(bits, ESpellType::kScrollCast)) {
 							SET_BIT(GET_SPELL_TYPE(ch, spell_no), ESpellType::kScrollCast);
-							ch->set_skill(ESkill::kCreateScroll, MAX(10, ch->get_trained_skill(ESkill::kCreateScroll)));
+							ch->set_skill(ESkill::kCreateScroll, std::max(10, ch->get_trained_skill(ESkill::kCreateScroll)));
 						}
 						found = true;
 					}
@@ -1400,15 +1400,15 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 							}
 							if (IS_SET(bits, ESpellType::kPotionCast)) {
 								SET_BIT(GET_SPELL_TYPE(ch, spell_no), ESpellType::kPotionCast);
-								ch->set_skill(ESkill::kCreatePotion, MAX(10, ch->get_trained_skill(ESkill::kCreatePotion)));
+								ch->set_skill(ESkill::kCreatePotion, std::max(10, ch->get_trained_skill(ESkill::kCreatePotion)));
 							}
 							if (IS_SET(bits, ESpellType::kWandCast)) {
 								SET_BIT(GET_SPELL_TYPE(ch, spell_no), ESpellType::kWandCast);
-								ch->set_skill(ESkill::kCreateWand, MAX(10, ch->get_trained_skill(ESkill::kCreateWand)));
+								ch->set_skill(ESkill::kCreateWand, std::max(10, ch->get_trained_skill(ESkill::kCreateWand)));
 							}
 							if (IS_SET(bits, ESpellType::kScrollCast)) {
 								SET_BIT(GET_SPELL_TYPE(ch, spell_no), ESpellType::kScrollCast);
-								ch->set_skill(ESkill::kCreateScroll, MAX(10, ch->get_trained_skill(ESkill::kCreateScroll)));
+								ch->set_skill(ESkill::kCreateScroll, std::max(10, ch->get_trained_skill(ESkill::kCreateScroll)));
 							}
 						}
 						found = true;

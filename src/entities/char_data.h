@@ -448,9 +448,9 @@ class CharData : public ProtectedCharData {
 	long get_exp() const;
 	void set_exp(long exp);
 
-	short get_remort() const;
-	short get_remort_add() const;
-	void set_remort(short num);
+	int get_remort() const;
+	int get_remort_add() const;
+	void set_remort(int num);
 	void set_remort_add(short num);
 
 	time_t get_last_logon() const;
@@ -700,9 +700,9 @@ class CharData : public ProtectedCharData {
 	// экспа
 	long exp_;
 	// реморты
-	short remorts_;
+	int remorts_;
 	// плюсы на реморт
-	short remorts_add_;
+	int remorts_add_;
 	// время последнего входа в игру //by kilnik
 	time_t last_logon_;
 	// последний вызов базара
@@ -958,29 +958,29 @@ bool IS_NOSEXY(const CharData *ch);
 inline bool IS_NOSEXY(const CharData::shared_ptr &ch) { return IS_NOSEXY(ch.get()); }
 bool IS_POLY(const CharData *ch);
 
-int VPOSI_MOB(const CharData *ch, const EBaseStat stat_id, const int val);
+int ClampBaseStat(const CharData *ch, EBaseStat stat_id, int stat_value);
 
-inline int VPOSI_MOB(const CharData::shared_ptr &ch, const EBaseStat stat_id, const int val) {
-	return VPOSI_MOB(ch.get(), stat_id, val);
+inline int ClampBaseStat(const CharData::shared_ptr &ch, const EBaseStat stat_id, const int val) {
+	return ClampBaseStat(ch.get(), stat_id, val);
 }
 
 inline auto GET_REAL_STR(const CharData *ch) {
-	return VPOSI_MOB(ch, EBaseStat::kStr, ch->get_str() + ch->get_str_add());
+	return ClampBaseStat(ch, EBaseStat::kStr, ch->get_str() + ch->get_str_add());
 };
 inline auto GET_REAL_DEX(const CharData *ch) {
-	return VPOSI_MOB(ch, EBaseStat::kDex, ch->get_dex() + ch->get_dex_add());
+	return ClampBaseStat(ch, EBaseStat::kDex, ch->get_dex() + ch->get_dex_add());
 }
 inline auto GET_REAL_CON(const CharData *ch) {
-	return VPOSI_MOB(ch, EBaseStat::kCon, ch->get_con() + ch->get_con_add());
+	return ClampBaseStat(ch, EBaseStat::kCon, ch->get_con() + ch->get_con_add());
 };
 inline auto GET_REAL_WIS(const CharData *ch) {
-	return VPOSI_MOB(ch, EBaseStat::kWis, ch->get_wis() + ch->get_wis_add());
+	return ClampBaseStat(ch, EBaseStat::kWis, ch->get_wis() + ch->get_wis_add());
 };
 inline auto GET_REAL_INT(const CharData *ch) {
-	return VPOSI_MOB(ch, EBaseStat::kInt, ch->get_int() + ch->get_int_add());
+	return ClampBaseStat(ch, EBaseStat::kInt, ch->get_int() + ch->get_int_add());
 };
 inline auto GET_REAL_CHA(const CharData *ch) {
-	return VPOSI_MOB(ch, EBaseStat::kCha, ch->get_cha() + ch->get_cha_add());
+	return ClampBaseStat(ch, EBaseStat::kCha, ch->get_cha() + ch->get_cha_add());
 };
 
 inline auto GET_SAVE(CharData *ch, ESaving save) {

@@ -389,7 +389,7 @@ int print_spell_locate_object(CharData *ch, int count, std::string name) {
 		for (SenderListType::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
 			for (std::list<Node>::const_iterator it3 = it2->second.begin(); it3 != it2->second.end(); ++it3) {
 				if (!IS_GOD(ch)) {
-					if (number(1, 100) > (40 + MAX((GET_REAL_INT(ch) - 25) * 2, 0))) {
+					if (number(1, 100) > (40 + std::max((GET_REAL_INT(ch) - 25) * 2, 0))) {
 						continue;
 					}
 				}

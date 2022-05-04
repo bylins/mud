@@ -491,7 +491,7 @@ int calc_max_in_world(int mob_rnum) {
 		for (int cmd_no = 0; zone_table[i].cmd[cmd_no].command != 'S'; ++cmd_no) {
 			if (zone_table[i].cmd[cmd_no].command == 'M'
 				&& zone_table[i].cmd[cmd_no].arg1 == mob_rnum) {
-				max_in_world = MAX(max_in_world, zone_table[i].cmd[cmd_no].arg2);
+				max_in_world = std::max(max_in_world, zone_table[i].cmd[cmd_no].arg2);
 			}
 		}
 	}
@@ -1119,7 +1119,7 @@ int check_mob(int mob_rnum) {
 //		log("num=%d, miw=%d", num, GET_OBJ_MIW(obj_proto[it->second.ObjRnum]));
 		if (num < GET_OBJ_MIW(obj_proto[it->second.obj_rnum])) {
 //			log("chance1=%d", it->second.drop_chance);
-			it->second.chance += MAX(0, drop_mod);
+			it->second.chance += std::max(0, drop_mod);
 //			log("chance2=%d", it->second.drop_chance);
 			// собственно проверка на лоад
 			if (it->second.chance >= 120 || number(0, 1000) <= it->second.chance) {
@@ -1131,7 +1131,7 @@ int check_mob(int mob_rnum) {
 		} else {
 //			log("chance3=%d", it->second.drop_chance);
 			// шмотка не в лоаде, увеличиваем шансы как на дропе с проверкой переполнения
-			it->second.chance += MAX(0, drop_mod);
+			it->second.chance += std::max(0, drop_mod);
 //			log("chance4=%d", it->second.drop_chance);
 			if (it->second.chance > 1000) {
 //				log("reset");

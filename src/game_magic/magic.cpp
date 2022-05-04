@@ -69,7 +69,7 @@ int CalcAntiSavings(CharData *ch) {
 		modi = -250;
 	else
 		modi = GET_CAST_SUCCESS(ch);
-	modi += MAX(0, MIN(20, (int) ((GET_REAL_WIS(ch) - 23) * 3 / 2)));
+	modi += std::clamp((GET_REAL_WIS(ch) - 23)*3/2, 0, 20);
 	if (!ch->IsNpc()) {
 		modi *= ch->get_cond_penalty(P_CAST);
 	}
@@ -831,7 +831,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 						false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 					RemoveAffectFromChar(victim, ESpell::kEviless);
 				} else {
-					dam = MAX(1, GET_HIT(victim) + 1);
+					dam = std::max(1, GET_HIT(victim) + 1);
 					if (victim->IsNpc())
 						dam += 99;    // чтобы насмерть
 				}
@@ -1443,7 +1443,7 @@ int CastMagicAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, 
 				success = false;
 			}
 			af[0].location = EApply::kDex;
-			af[0].modifier = -RollDices(int(MAX(1, ((level - 14) / 7))), 3);
+			af[0].modifier = -RollDices(int(std::max(1, ((level - 14) / 7))), 3);
 			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
 										 CalcDuration(victim, 9, 0, 0, 0, 0)) * koef_duration;
 			to_vict = "Вы покрылись серебристым инеем.";
@@ -2385,7 +2385,7 @@ int CastMagicAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, 
 				af[1].location = EApply::kLikes;
 				af[1].duration = ApplyResist(victim, GetResistType(spell_id),
 											 CalcDuration(victim, 5, 0, 0, 0, 0));
-				af[1].modifier = -1 * MAX(1, ((level + 9) / 2 + 9 - GetRealLevel(victim) / 2));
+				af[1].modifier = -1 * std::max(1, ((level + 9) / 2 + 9 - GetRealLevel(victim) / 2));
 				af[1].bitvector = to_underlying(EAffect::kCrying);
 				af[1].battleflag = kAfBattledec;
 				to_room = "$n0 издал$g протяжный стон.";
@@ -2394,12 +2394,12 @@ int CastMagicAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, 
 			af[1].location = EApply::kCastSuccess;
 			af[1].duration = ApplyResist(victim, GetResistType(spell_id),
 										 CalcDuration(victim, 5, 0, 0, 0, 0));
-			af[1].modifier = -1 * MAX(1, (level / 3 + GET_REAL_REMORT(ch) / 3 - GetRealLevel(victim) / 10));
+			af[1].modifier = -1 * std::max(1, (level / 3 + GET_REAL_REMORT(ch) / 3 - GetRealLevel(victim) / 10));
 			af[1].bitvector = to_underlying(EAffect::kCrying);
 			af[1].battleflag = kAfBattledec;
 			af[2].location = EApply::kMorale;
 			af[2].duration = af[1].duration;
-			af[2].modifier = -1 * MAX(1, (level / 3 + GET_REAL_REMORT(ch) / 5 - GetRealLevel(victim) / 5));
+			af[2].modifier = -1 * std::max(1, (level / 3 + GET_REAL_REMORT(ch) / 5 - GetRealLevel(victim) / 5));
 			af[2].bitvector = to_underlying(EAffect::kCrying);
 			af[2].battleflag = kAfBattledec;
 			to_room = "$n0 издал$g протяжный стон.";
@@ -2657,7 +2657,7 @@ int CastMagicAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, 
 
 		case ESpell::kWarcryOfLuck: {
 			af[0].location = EApply::kMorale;
-			af[0].modifier = MAX(1, ch->GetSkill(ESkill::kWarcry) / 20.0);
+			af[0].modifier = std::max(1, ch->GetSkill(ESkill::kWarcry) / 20);
 			af[0].duration = CalcDuration(victim, 2, ch->GetSkill(ESkill::kWarcry), 20, 10, 0) * koef_duration;
 			to_room = nullptr;
 			break;
@@ -2665,7 +2665,7 @@ int CastMagicAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, 
 
 		case ESpell::kWarcryOfExperience: {
 			af[0].location = EApply::kExpPercent;
-			af[0].modifier = MAX(1, ch->GetSkill(ESkill::kWarcry) / 20.0);
+			af[0].modifier = std::max(1, ch->GetSkill(ESkill::kWarcry) / 20);
 			af[0].duration = CalcDuration(victim, 2, ch->GetSkill(ESkill::kWarcry), 20, 10, 0) * koef_duration;
 			to_room = nullptr;
 			break;
@@ -2673,7 +2673,7 @@ int CastMagicAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, 
 
 		case ESpell::kWarcryOfPhysdamage: {
 			af[0].location = EApply::kPhysicDamagePercent;
-			af[0].modifier = MAX(1, ch->GetSkill(ESkill::kWarcry) / 20.0);
+			af[0].modifier = std::max(1, ch->GetSkill(ESkill::kWarcry) / 20);
 			af[0].duration = CalcDuration(victim, 2, ch->GetSkill(ESkill::kWarcry), 20, 10, 0) * koef_duration;
 			to_room = nullptr;
 			break;
@@ -3580,7 +3580,7 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id, 
 						obj->inc_val(2);
 					}
 				}
-				obj->add_maximum(MAX(GET_OBJ_MAX(obj) >> 2, 1));
+				obj->add_maximum(std::max(GET_OBJ_MAX(obj) >> 2, 1));
 				obj->set_current_durability(GET_OBJ_MAX(obj));
 				to_char = "$o вспыхнул$G голубым светом и тут же погас$Q.";
 				obj->add_timed_spell(ESpell::kBless, -1);

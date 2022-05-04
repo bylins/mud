@@ -402,7 +402,7 @@ bool CObjectPrototype::has_skills() const {
 }
 
 void CObjectPrototype::set_timer(int timer) {
-	m_timer = MAX(0, timer);
+	m_timer = std::max(0, timer);
 }
 
 int CObjectPrototype::get_timer() const {

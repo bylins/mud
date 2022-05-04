@@ -383,7 +383,7 @@ void trg_spellturntemp(CharData *ch, ESpell spell_id, int spelldiff, int vnum) {
 
 void trg_spelladd(CharData *ch, ESpell spell_id, int spelldiff, int vnum) {
 	int spell = GET_SPELL_MEM(ch, spell_id);
-	GET_SPELL_MEM(ch, spell_id) = MAX(0, MIN(spell + spelldiff, 50));
+	GET_SPELL_MEM(ch, spell_id) = std::max(0, MIN(spell + spelldiff, 50));
 
 	if (spell > GET_SPELL_MEM(ch, spell_id)) {
 		if (GET_SPELL_MEM(ch, spell_id)) {
