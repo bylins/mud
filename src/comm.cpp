@@ -51,6 +51,7 @@
 #include "utils/file_crc.h"
 #include "corpse.h"
 #include "game_mechanics/glory_misc.h"
+#include "game_mechanics/mem_queue.h"
 #include "game_mechanics/glory_const.h"
 #include "game_economics/shop_ext.h"
 #include "game_mechanics/sets_drop.h"
@@ -1666,13 +1667,12 @@ char *make_prompt(DescriptorData *d) {
 			count += sprintf(prompt + count, "%dM%s ", GET_MOVE(d->character), CCNRM(d->character, C_NRM));
 		}
 		// Mana state
-		if (PRF_FLAGGED(d->character, EPrf::kDispMana)
-			&& IS_MANA_CASTER(d->character)) {
-			perc = (100 * d->character->mem_queue.stored) / GET_MAX_MANA((d->character).get());
+		if (PRF_FLAGGED(d->character, EPrf::kDispMana) && IS_MANA_CASTER(d->character)) {
+			perc = (100 * d->character->mem_queue->stored) / GET_MAX_MANA((d->character).get());
 			count +=
 				sprintf(prompt + count, "%s%dз%s ",
 						CCMANA(d->character, C_NRM, perc),
-						d->character->mem_queue.stored, CCNRM(d->character, C_NRM));
+						d->character->mem_queue->stored, CCNRM(d->character, C_NRM));
 		}
 		// Expirience
 		// if (EPrf::FLAGGED(d->character, EPrf::DISPEXP))
@@ -1688,11 +1688,11 @@ char *make_prompt(DescriptorData *d) {
 		// Mem Info
 		if (PRF_FLAGGED(d->character, EPrf::kDispMana)
 			&& !IS_MANA_CASTER(d->character)) {
-			if (!d->character->mem_queue.Empty()) {
+			if (!d->character->mem_queue->Empty()) {
 				door = mana_gain(d->character.get());
 				if (door) {
 					sec_hp =
-						std::max(0, 1 + d->character->mem_queue.total - d->character->mem_queue.stored);
+						std::max(0, 1 + d->character->mem_queue->total - d->character->mem_queue->stored);
 					sec_hp = sec_hp * 60 / door;
 					ch_hp = sec_hp / 60;
 					sec_hp %= 60;

@@ -13,6 +13,7 @@
 #include "help.h"
 #include "dg_script/dg_db_scripts.h"
 #include "game_magic/spells_info.h"
+#include "game_mechanics/mem_queue.h"
 #include "structs/global_objects.h"
 
 #include <regex>
@@ -1132,8 +1133,8 @@ void MobileFile::parse_simple_mob(int i, int nr) {
 
 	// max hit = 0 is a flag that H, M, V is xdy+z
 	GET_MAX_HIT(mob_proto + i) = 0;
-	(mob_proto + i)->mem_queue.total = t[3];
-	(mob_proto + i)->mem_queue.stored = t[4];
+	(mob_proto + i)->mem_queue->total = t[3];
+	(mob_proto + i)->mem_queue->stored = t[4];
 	mob_proto[i].points.hit = t[5];
 
 	mob_proto[i].points.move = 100;

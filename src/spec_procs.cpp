@@ -30,6 +30,7 @@
 #include "game_magic/magic_utils.h"
 #include "game_magic/magic_temp_spells.h"
 #include "structs/global_objects.h"
+#include "game_mechanics/mem_queue.h"
 
 extern int guild_info[][3];
 extern CharData *get_player_of_name(const char *name);

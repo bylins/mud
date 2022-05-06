@@ -246,7 +246,8 @@ set(SOURCES
 		src/cmd_god/users.cpp
 		src/utils/table_wrapper.cpp
 		src/cmd/score.cpp
-		src/game_magic/spells_constants.cpp)
+		src/game_magic/spells_constants.cpp
+		src/game_mechanics/mem_queue.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -472,7 +473,8 @@ set(HEADERS
 		src/cmd_god/users.h
 		src/utils/table_wrapper.h
 		src/cmd/score.h
-		src/game_magic/spells_constants.h)
+		src/game_magic/spells_constants.h
+		src/game_mechanics/mem_queue.h)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 # Build types

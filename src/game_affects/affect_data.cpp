@@ -5,6 +5,7 @@
 #include "entities/world_characters.h"
 #include "game_fight/fight_hit.h"
 #include "game_mechanics/deathtrap.h"
+#include "game_mechanics/mem_queue.h"
 #include "game_magic/magic.h"
 #include "game_skills/poison.h"
 #include "structs/global_objects.h"

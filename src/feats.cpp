@@ -19,6 +19,7 @@
 #include "color.h"
 #include "game_fight/pk.h"
 #include "structs/global_objects.h"
+#include "game_mechanics/mem_queue.h"
 
 extern const char *unused_spellname;
 

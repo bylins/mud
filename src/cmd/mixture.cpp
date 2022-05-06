@@ -5,6 +5,7 @@
 #include "handler.h"
 #include "administration/privilege.h"
 #include "game_magic/spells_info.h"
+#include "game_mechanics/mem_queue.h"
 
 void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (ch->IsNpc())
@@ -90,11 +91,11 @@ void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			return;
 		}
 
-		if (ch->mem_queue.stored < CalcSpellManacost(ch, spell_id)) {
+		if (ch->mem_queue->stored < CalcSpellManacost(ch, spell_id)) {
 			SendMsgToChar("У вас маловато магической энергии!\r\n", ch);
 			return;
 		} else {
-			ch->mem_queue.stored = ch->mem_queue.stored - CalcSpellManacost(ch, spell_id);
+			ch->mem_queue->stored = ch->mem_queue->stored - CalcSpellManacost(ch, spell_id);
 		}
 	}
 

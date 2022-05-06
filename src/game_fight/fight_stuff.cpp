@@ -21,9 +21,9 @@
 #include "game_mechanics/bonus.h"
 #include "backtrace.h"
 #include "game_magic/magic_utils.h"
+#include "game_mechanics/mem_queue.h"
 #include "entities/char_player.h"
 #include "structs/global_objects.h"
-#include "game_limits.h"
 
 // extern
 void perform_drop_gold(CharData *ch, int amount);
@@ -405,52 +405,6 @@ void die(CharData *ch, CharData *killer) {
 
 	update_die_counts(ch, killer, dec_exp);
 	raw_kill(ch, killer);
-}
-
-#include "game_classes/classes_spell_slots.h"
-void forget_all_spells(CharData *ch) {
-	using classes::CalcCircleSlotsAmount;
-
-	ch->mem_queue.stored = 0;
-	int slots[kMaxMemoryCircle];
-	int max_slot = 0;
-	for (unsigned i = 0; i < kMaxMemoryCircle; ++i) {
-		slots[i] = CalcCircleSlotsAmount(ch, i + 1);
-		if (slots[i]) max_slot = i + 1;
-	}
-	struct SpellMemQueueItem *qi_cur, **qi = &ch->mem_queue.queue;
-	while (*qi) {
-		--slots[MUD::Classes(ch->GetClass()).spells[(*(qi))->spell_id].GetCircle() - 1];
-		qi = &((*qi)->next);
-	}
-	int slotn;
-
-	for (auto spell_id = ESpell::kFirst ; spell_id <= ESpell::kLast; ++spell_id) {
-		if (PRF_FLAGGED(ch, EPrf::kAutomem) && GET_SPELL_MEM(ch, spell_id)) {
-			slotn = MUD::Classes(ch->GetClass()).spells[spell_id].GetCircle() - 1;
-			for (unsigned j = 0; (slots[slotn] > 0 && j < GET_SPELL_MEM(ch, spell_id)); ++j, --slots[slotn]) {
-				ch->mem_queue.total += CalcSpellManacost(ch, spell_id);
-				CREATE(qi_cur, 1);
-				*qi = qi_cur;
-				qi_cur->spell_id = spell_id;
-				qi_cur->next = nullptr;
-				qi = &qi_cur->next;
-			}
-		}
-		GET_SPELL_MEM(ch, spell_id) = 0;
-	}
-	if (max_slot) {
-		Affect<EApply> af;
-		af.type = ESpell::kRecallSpells;
-		af.location = EApply::kNone;
-		af.modifier = 1; // номер круга, который восстанавливаем
-		//добавим 1 проход про запас, иначе неуспевает отмемиться последний круг -- аффект спадает раньше
-
-		af.duration = CalcDuration(ch, max_slot*kRecallSpellsInterval + kSecsPerPlayerAffect, 0, 0, 0, 0);
-		af.bitvector = to_underlying(EAffect::kMemorizeSpells);
-		af.battleflag = kAfPulsedec | kAfDeadkeep;
-		ImposeAffect(ch, af, false, false, false, false);
-	}
 }
 
 /* Функция используемая при "автограбеже" и "автолуте",

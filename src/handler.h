@@ -202,22 +202,6 @@ float CalcEffectiveWis(CharData *ch, ESpell spell_id);
 float get_effective_int(CharData *ch);
 int CalcCharmPoint(CharData *ch, ESpell spell_id);
 
-// mem queue //
-
-struct SpellMemQueueItem {
-	ESpell spell_id{ESpell::kUndefined};
-	struct SpellMemQueueItem *next{nullptr};
-};
-
-int CalcSpellManacost(const CharData *ch, ESpell spell_id);
-void MemQ_init(CharData *ch);
-void MemQ_flush(CharData *ch);
-ESpell MemQ_learn(CharData *ch);
-inline ESpell MemQ_learn(const CharData::shared_ptr &ch) { return MemQ_learn(ch.get()); }
-void MemQ_remember(CharData *ch, ESpell spell_id);
-void MemQ_forget(CharData *ch, ESpell spell_id);
-int *MemQ_slots(CharData *ch);
-
 int get_object_low_rent(ObjData *obj);
 void InitUid(ObjData *object);
 

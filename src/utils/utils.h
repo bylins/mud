@@ -466,7 +466,7 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 #define GET_NAME(ch)    ((ch)->get_name().c_str())
 #define GET_TITLE(ch)   ((ch)->player_data.title)
 #define GET_MAX_MANA(ch)      (mana[MIN(50, GET_REAL_WIS(ch))])
-#define GET_MEM_CURRENT(ch)   ((ch)->mem_queue.Empty() ? 0 : CalcSpellManacost(ch, (ch)->mem_queue.queue->spell_id))
+#define GET_MEM_CURRENT(ch)   ((ch)->mem_queue->Empty() ? 0 : CalcSpellManacost(ch, (ch)->mem_queue->queue->spell_id))
 #define IS_CODER(ch)    (GetRealLevel(ch) < kLvlImmortal && PRF_FLAGGED(ch, EPrf::kCoderinfo))
 #define IS_COLORED(ch)    (pk_count (ch))
 #define MAX_PORTALS(ch)  ((GetRealLevel(ch)/3)+GET_REAL_REMORT(ch))

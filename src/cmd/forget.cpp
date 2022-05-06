@@ -1,6 +1,7 @@
 #include "forget.h"
 
 #include "game_magic/spells_info.h"
+#include "game_mechanics/mem_queue.h"
 #include "handler.h"
 #include "color.h"
 
@@ -11,7 +12,7 @@ inline bool in_mem(char *arg) {
 }
 
 void do_forget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	char *s = 0, *t = nullptr;
+	char *s = nullptr, *t = nullptr;
 	int is_in_mem;
 
 	// проверка на аргумент рецепт|отвар

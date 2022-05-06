@@ -99,6 +99,7 @@
 #include "title.h"
 #include "statistics/top.h"
 #include "game_skills/skills_info.h"
+#include "game_mechanics/mem_queue.h"
 
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"
@@ -2358,7 +2359,7 @@ void do_entergame(DescriptorData *d) {
 		PRF_FLAGS(d->character).set(EPrf::kBoardMode);
 		d->character->set_last_exchange(time(nullptr));
 		do_start(d->character.get(), true);
-		d->character->mem_queue.stored = 0;
+		d->character->mem_queue->stored = 0;
 		SendMsgToChar(START_MESSG, d->character.get());
 	}
 

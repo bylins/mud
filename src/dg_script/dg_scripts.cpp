@@ -10,8 +10,6 @@
 
 #include "dg_scripts.h"
 
-//#include <chrono>
-
 #include "structs/global_objects.h"
 #include "utils/utils_find_obj_id_by_vnum.h"
 #include "obj_prototypes.h"
@@ -27,6 +25,7 @@
 #include "dg_db_scripts.h"
 #include "dg_domination_helper.h"
 #include "game_mechanics/bonus.h"
+#include "game_mechanics/mem_queue.h"
 #include "olc/olc.h"
 #include "administration/privilege.h"
 #include "game_fight/fight_hit.h"
@@ -2135,10 +2134,12 @@ void find_replacement(void *go,
 				sprintf(str, "%d", GET_MAX_HIT(c));
 		} else if (!str_cmp(field, "mana")) {
 			if (*subfield) {
-				if (!c->IsNpc())
-					c->mem_queue.stored = std::max(0L, gm_char_field(c, field, subfield, (long) c->mem_queue.stored));
-			} else
-				sprintf(str, "%d", c->mem_queue.stored);
+				if (!c->IsNpc()) {
+					c->mem_queue->stored = std::max(0L, gm_char_field(c, field, subfield, (long) c->mem_queue->stored));
+				}
+			} else {
+				sprintf(str, "%d", c->mem_queue->stored);
+			}
 		} else if (!str_cmp(field, "maxmana")) {
 			sprintf(str, "%d", GET_MAX_MANA(c));
 		} else if (!str_cmp(field, "domination_kill")) {

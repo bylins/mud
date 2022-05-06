@@ -21,6 +21,7 @@
 #include "depot.h"
 #include "communication/parcel.h"
 #include "magic.h"
+#include "game_mechanics/mem_queue.h"
 
 char cast_argument[kMaxStringLength];
 

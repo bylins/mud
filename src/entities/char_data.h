@@ -165,15 +165,6 @@ struct mob_special_data {
 	ESpell capable_spell;
 };
 
-// очередь запоминания заклинаний
-struct SpellMemQueue {
-	struct SpellMemQueueItem *queue{nullptr};
-	int stored{0};        // накоплено манны
-	int total{0};            // полное время мема всей очереди
-
-	[[nodiscard]] bool Empty() const { return queue == nullptr; };
-};
-
 // Structure used for extra_attack - bash, kick, diasrm, chopoff, etc
 struct extra_attack_type {
 	EExtraAttack used_attack;
@@ -315,7 +306,7 @@ struct CharacterSkillDataType {
 	void decreaseCooldown(unsigned value);
 };
 
-typedef std::map<ESkill, CharacterSkillDataType> CharSkillsType;
+using CharSkillsType = std::map<ESkill, CharacterSkillDataType>;
 
 class ProtectedCharData;    // to break up cyclic dependencies
 
@@ -350,6 +341,8 @@ class ProtectedCharData : public PlayerI {
 
 	std::unordered_set<CharacterRNum_ChangeObserver::shared_ptr> m_rnum_change_observers;
 };
+
+struct SpellMemQueue;
 
 // * Общий класс для игроков/мобов.
 class CharData : public ProtectedCharData {
@@ -797,7 +790,9 @@ class CharData : public ProtectedCharData {
 	//отладочные сообщения имморталу/тестеру/кодеру
 	void send_to_TC(bool to_impl, bool to_tester, bool to_coder, const char *msg, ...);
 
-	struct SpellMemQueue mem_queue;        // очередь изучаемых заклинаний
+	//struct SpellMemQueue mem_queue;        // очередь изучаемых заклинаний
+	//std::unique_ptr<SpellMemQueue> mem_queue;
+	SpellMemQueue *mem_queue;
 
 	int caster_level;
 	int damage_level;

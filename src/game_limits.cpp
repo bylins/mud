@@ -24,6 +24,7 @@
 #include "house.h"
 #include "game_economics/exchange.h"
 #include "game_mechanics/deathtrap.h"
+#include "game_mechanics/mem_queue.h"
 #include "cmd_god/ban.h"
 #include "depot.h"
 #include "game_mechanics/glory.h"
@@ -105,7 +106,7 @@ void handle_recall_spells(CharData *ch) {
 		int slot_to_restore = aff->modifier++;
 
 		bool found_spells = false;
-		struct SpellMemQueueItem *next = nullptr, *prev = nullptr, *i = ch->mem_queue.queue;
+		struct SpellMemQueueItem *next = nullptr, *prev = nullptr, *i = ch->mem_queue->queue;
 		while (i) {
 			next = i->next;
 			if (MUD::Classes(ch->GetClass()).spells[i->spell_id].GetCircle() == slot_to_restore) {
@@ -114,11 +115,11 @@ void handle_recall_spells(CharData *ch) {
 					found_spells = true;
 				}
 				if (prev) prev->next = next;
-				if (i == ch->mem_queue.queue) {
-					ch->mem_queue.queue = next;
-					ch->mem_queue.stored = 0;
+				if (i == ch->mem_queue->queue) {
+					ch->mem_queue->queue = next;
+					ch->mem_queue->stored = 0;
 				}
-				ch->mem_queue.total = std::max(0, ch->mem_queue.total - CalcSpellManacost(ch, i->spell_id));
+				ch->mem_queue->total = std::max(0, ch->mem_queue->total - CalcSpellManacost(ch, i->spell_id));
 				sprintf(buf, "Вы вспомнили заклинание \"%s%s%s\".\r\n",
 						CCICYN(ch, C_NRM), spell_info[i->spell_id].name, CCNRM(ch, C_NRM));
 				SendMsgToChar(buf, ch);
@@ -671,22 +672,22 @@ void beat_points_update(int pulse) {
 		}
 
 		// Restore PC caster mem
-		if (!IS_MANA_CASTER(i) && !i->mem_queue.Empty()) {
+		if (!IS_MANA_CASTER(i) && !i->mem_queue->Empty()) {
 			restore = mana_gain(i);
 			restore = interpolate(restore, pulse);
-			i->mem_queue.stored += restore;
+			i->mem_queue->stored += restore;
 
 			if (AFF_FLAGGED(i, EAffect::kMemorizeSpells)) {
 				handle_recall_spells(i.get());
 			}
 
-			while (i->mem_queue.stored > GET_MEM_CURRENT(i.get()) && !i->mem_queue.Empty()) {
+			while (i->mem_queue->stored > GET_MEM_CURRENT(i.get()) && !i->mem_queue->Empty()) {
 				auto spell_id = MemQ_learn(i);
 				++GET_SPELL_MEM(i, spell_id);
 				i->caster_level += spell_info[spell_id].danger;
 			}
 
-			if (i->mem_queue.Empty()) {
+			if (i->mem_queue->Empty()) {
 				if (GET_RELIGION(i) == kReligionMono) {
 					SendMsgToChar("Наконец ваши занятия окончены. Вы с улыбкой захлопнули свой часослов.\r\n", i.get());
 					act("Окончив занятия, $n с улыбкой захлопнул$g часослов.", false, i.get(), 0, 0, kToRoom);
@@ -697,22 +698,22 @@ void beat_points_update(int pulse) {
 			}
 		}
 
-		if (!IS_MANA_CASTER(i) && i->mem_queue.Empty()) {
-			i->mem_queue.total = 0;
-			i->mem_queue.stored = 0;
+		if (!IS_MANA_CASTER(i) && i->mem_queue->Empty()) {
+			i->mem_queue->total = 0;
+			i->mem_queue->stored = 0;
 		}
 
 		// Гейн маны у волхвов
-		if (IS_MANA_CASTER(i) && i->mem_queue.stored < GET_MAX_MANA(i.get())) {
-			i->mem_queue.stored += mana_gain(i);
-			if (i->mem_queue.stored >= GET_MAX_MANA(i.get())) {
-				i->mem_queue.stored = GET_MAX_MANA(i.get());
+		if (IS_MANA_CASTER(i) && i->mem_queue->stored < GET_MAX_MANA(i.get())) {
+			i->mem_queue->stored += mana_gain(i);
+			if (i->mem_queue->stored >= GET_MAX_MANA(i.get())) {
+				i->mem_queue->stored = GET_MAX_MANA(i.get());
 				SendMsgToChar("Ваша магическая энергия полностью восстановилась\r\n", i.get());
 			}
 		}
 
-		if (IS_MANA_CASTER(i) && i->mem_queue.stored > GET_MAX_MANA(i.get())) {
-			i->mem_queue.stored = GET_MAX_MANA(i.get());
+		if (IS_MANA_CASTER(i) && i->mem_queue->stored > GET_MAX_MANA(i.get())) {
+			i->mem_queue->stored = GET_MAX_MANA(i.get());
 		}
 
 		// Restore moves

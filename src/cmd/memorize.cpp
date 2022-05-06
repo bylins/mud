@@ -5,6 +5,7 @@
 #include "color.h"
 #include "game_classes/classes_spell_slots.h"
 #include "game_magic/magic_utils.h"
+#include "game_mechanics/mem_queue.h"
 #include "structs/global_objects.h"
 
 using classes::CalcCircleSlotsAmount;
@@ -110,7 +111,7 @@ void show_wizdom(CharData *ch, int bitset) {
 			slots[i] = 0;
 		}
 
-		if (!ch->mem_queue.Empty()) {
+		if (!ch->mem_queue->Empty()) {
 			ESpell cnt [to_underlying(ESpell::kLast) + 1];
 			memset(cnt, 0, to_underlying(ESpell::kLast) + 1);
 			timestr[0] = 0;
@@ -118,7 +119,7 @@ void show_wizdom(CharData *ch, int bitset) {
 				int div, min, sec;
 				div = mana_gain(ch);
 				if (div > 0) {
-					sec = std::max(0, 1 + GET_MEM_CURRENT(ch) - ch->mem_queue.stored);    // sec/div -- время мема в мин
+					sec = std::max(0, 1 + GET_MEM_CURRENT(ch) - ch->mem_queue->stored);    // sec/div -- время мема в мин
 					sec = sec * 60 / div;    // время мема в сек
 					min = sec / 60;
 					sec %= 60;
@@ -131,11 +132,11 @@ void show_wizdom(CharData *ch, int bitset) {
 				}
 			}
 
-			for (q = ch->mem_queue.queue; q; q = q->next) {
+			for (q = ch->mem_queue->queue; q; q = q->next) {
 				++cnt[to_underlying(q->spell_id)];
 			}
 
-			for (q = ch->mem_queue.queue; q; q = q->next) {
+			for (q = ch->mem_queue->queue; q; q = q->next) {
 				auto spell_id = q->spell_id;
 				auto index = to_underlying(spell_id);
 				if (cnt[index] == ESpell::kUndefined) {
@@ -146,7 +147,7 @@ void show_wizdom(CharData *ch, int bitset) {
 										   "%2s|[%2d] %-26s%5s|",
 										   slots[slot_num] % 80 <
 											   10 ? "\r\n" : "  ", to_underlying(cnt[index]),
-										   spell_info[spell_id].name, q == ch->mem_queue.queue ? timestr : "");
+										   spell_info[spell_id].name, q == ch->mem_queue->queue ? timestr : "");
 				cnt[index] = ESpell::kUndefined;
 			}
 

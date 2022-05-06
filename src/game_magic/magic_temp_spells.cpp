@@ -4,6 +4,7 @@
 #include "color.h"
 #include "handler.h"
 #include "spells_info.h"
+#include "game_mechanics/mem_queue.h"
 
 namespace Temporary_Spells {
 void AddSpell(CharData *ch, ESpell spell_id, time_t set_time, time_t duration) {
@@ -54,11 +55,11 @@ void update_char_times(CharData *ch, time_t now) {
 			//Если заклинание за это время не стало постоянным, то удалим из мема
 			if (!IS_SET(GET_SPELL_TYPE(ch, it->first), ESpellType::kKnow)) {
 				//Удаляем из мема
-				for (i = &ch->mem_queue.queue; *i;) {
+				for (i = &ch->mem_queue->queue; *i;) {
 					if (i[0]->spell_id == it->first) {
-						if (i == &ch->mem_queue.queue)
-							ch->mem_queue.stored = 0;
-						ch->mem_queue.total = std::max(0, ch->mem_queue.total - CalcSpellManacost(ch, it->first));
+						if (i == &ch->mem_queue->queue)
+							ch->mem_queue->stored = 0;
+						ch->mem_queue->total = std::max(0, ch->mem_queue->total - CalcSpellManacost(ch, it->first));
 						ptr = i[0];
 						i[0] = i[0]->next;
 						free(ptr);

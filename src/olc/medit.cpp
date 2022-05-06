@@ -35,6 +35,7 @@
 #include "game_skills/skills_info.h"
 #include "game_magic/spells_info.h"
 #include "structs/global_objects.h"
+#include "game_mechanics/mem_queue.h"
 
 #include <boost/format.hpp>
 #include <stack>
@@ -105,8 +106,8 @@ const char *medit_get_mprog_type(struct mob_prog_data *mprog);
 
 //   Инициализация моба по-умолчанию
 void medit_mobile_init(CharData *mob) {
-	GET_HIT(mob) = mob->mem_queue.total = 1;
-	mob->mem_queue.stored = GET_MAX_MOVE(mob) = 100;
+	GET_HIT(mob) = mob->mem_queue->total = 1;
+	mob->mem_queue->stored = GET_MAX_MOVE(mob) = 100;
 	GET_NDD(mob) = GET_SDD(mob) = 1;
 	GET_GOLD_NoDs(mob) = GET_GOLD_SiDs(mob) = 0;
 	GET_WEIGHT(mob) = 200;
@@ -606,8 +607,8 @@ void medit_save_to_disk(int zone_num) {
 			fprintf(mob_file,
 					"%s%d E\n" "%d %d %d %dd%d+%d %dd%d+%d\n" "%dd%d+%ld %ld\n" "%d %d %d\n",
 					buf2, GET_ALIGNMENT(mob),
-					GetRealLevel(mob), 20 - GET_HR(mob), GET_AC(mob) / 10, mob->mem_queue.total,
-					mob->mem_queue.stored, GET_HIT(mob), GET_NDD(mob), GET_SDD(mob), GET_DR(mob), GET_GOLD_NoDs(mob),
+					GetRealLevel(mob), 20 - GET_HR(mob), GET_AC(mob) / 10, mob->mem_queue->total,
+					mob->mem_queue->stored, GET_HIT(mob), GET_NDD(mob), GET_SDD(mob), GET_DR(mob), GET_GOLD_NoDs(mob),
 					GET_GOLD_SiDs(mob), mob->get_gold(), GET_EXP(mob), static_cast<int>(GET_POS(mob)),
 					static_cast<int>(GET_DEFAULT_POS(mob)), static_cast<int>(GET_SEX(mob)));
 
@@ -1180,8 +1181,8 @@ void medit_disp_menu(DescriptorData *d) {
 			grn, nrm, cyn, GET_DR(mob), nrm,
 			grn, nrm, cyn, GET_NDD(mob), nrm,
 			grn, nrm, cyn, GET_SDD(mob), nrm,
-			grn, nrm, cyn, mob->mem_queue.total, nrm,
-			grn, nrm, cyn, mob->mem_queue.stored, nrm,
+			grn, nrm, cyn, mob->mem_queue->total, nrm,
+			grn, nrm, cyn, mob->mem_queue->stored, nrm,
 			grn, nrm, cyn, GET_HIT(mob), nrm,
 			grn, nrm, cyn, GET_AC(mob), nrm,
 			grn, nrm, cyn, GET_EXP(mob), nrm,
@@ -2078,10 +2079,10 @@ void medit_parse(DescriptorData *d, char *arg) {
 		case MEDIT_SDD: GET_SDD(OLC_MOB(d)) = MAX(0, MIN(127, atoi(arg)));
 			break;
 
-		case MEDIT_NUM_HP_DICE: OLC_MOB(d)->mem_queue.total = MAX(0, MIN(500, atoi(arg)));
+		case MEDIT_NUM_HP_DICE: OLC_MOB(d)->mem_queue->total = MAX(0, MIN(500, atoi(arg)));
 			break;
 
-		case MEDIT_SIZE_HP_DICE: OLC_MOB(d)->mem_queue.stored = MAX(0, MIN(100000, atoi(arg)));
+		case MEDIT_SIZE_HP_DICE: OLC_MOB(d)->mem_queue->stored = MAX(0, MIN(100000, atoi(arg)));
 			break;
 
 		case MEDIT_ADD_HP: GET_HIT(OLC_MOB(d)) = MAX(0, MIN(5000000, atoi(arg)));

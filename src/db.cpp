@@ -59,6 +59,7 @@
 #include "communication/parcel.h"
 #include "administration/privilege.h"
 #include "game_mechanics/sets_drop.h"
+#include "game_mechanics/mem_queue.h"
 #include "game_economics/shop_ext.h"
 #include "game_skills/townportal.h"
 #include "stuff.h"
@@ -66,7 +67,6 @@
 #include "utils/id_converter.h"
 #include "title.h"
 #include "statistics/top.h"
-//#include "game_magic/spells_info.h"
 
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
@@ -78,7 +78,6 @@
 #define CASES_FILE "cases.xml"
 #define RANDOMOBJ_FILE "randomobj.xml"
 #define SPEEDWALKS_FILE "speedwalks.xml"
-#define CLASS_LIMIT_FILE "class.basestatlimits.xml"
 #define CITIES_FILE "cities.xml"
 #define QUESTBODRICH_FILE "quest_bodrich.xml"
 
@@ -3505,11 +3504,9 @@ CharData *read_mobile(MobVnum nr, int type) {                // and MobRnum
 	character_list.push_front(mob);
 
 	if (!mob->points.max_hit) {
-		mob->points.max_hit = std::max(1,
-									   RollDices(mob->mem_queue.total, mob->mem_queue.stored) + mob->points.hit);
+		mob->points.max_hit = std::max(1, RollDices(mob->mem_queue->total, mob->mem_queue->stored) + mob->points.hit);
 	} else {
-		mob->points.max_hit = std::max(1,
-									   number(mob->points.hit, mob->mem_queue.total));
+		mob->points.max_hit = std::max(1, number(mob->points.hit, mob->mem_queue->total));
 	}
 
 	int test_hp = get_test_hp(GetRealLevel(mob));
@@ -3519,7 +3516,7 @@ CharData *read_mobile(MobVnum nr, int type) {                // and MobRnum
 	}
 
 	mob->points.hit = mob->points.max_hit;
-	mob->mem_queue.total = mob->mem_queue.stored = 0;
+	mob->mem_queue->total = mob->mem_queue->stored = 0;
 	GET_HORSESTATE(mob) = 800;
 	GET_LASTROOM(mob) = kNowhere;
 	if (mob->mob_specials.speed <= -1)
@@ -5139,7 +5136,7 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	GET_HIT(ch) = GET_MAX_HIT(ch) = 10;
 	GET_MOVE(ch) = GET_MAX_MOVE(ch) = 82;
-	ch->mem_queue.total = ch->mem_queue.stored = 0;
+	ch->mem_queue->total = ch->mem_queue->stored = 0;
 	ch->set_level(0);
 	GET_WIMP_LEV(ch) = 0;
 	GET_AC(ch) = 100;
