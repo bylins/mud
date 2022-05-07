@@ -4,7 +4,6 @@
 #include "game_magic/magic_utils.h"
 #include "game_classes/classes_spell_slots.h"
 #include "game_magic/spells_info.h"
-#include "game_mechanics/mem_queue.h"
 #include "color.h"
 #include "structs/global_objects.h"
 

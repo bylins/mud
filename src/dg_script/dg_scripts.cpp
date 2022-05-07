@@ -25,7 +25,6 @@
 #include "dg_db_scripts.h"
 #include "dg_domination_helper.h"
 #include "game_mechanics/bonus.h"
-#include "game_mechanics/mem_queue.h"
 #include "olc/olc.h"
 #include "administration/privilege.h"
 #include "game_fight/fight_hit.h"
@@ -2135,10 +2134,10 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "mana")) {
 			if (*subfield) {
 				if (!c->IsNpc()) {
-					c->mem_queue->stored = std::max(0L, gm_char_field(c, field, subfield, (long) c->mem_queue->stored));
+					c->mem_queue.stored = std::max(0L, gm_char_field(c, field, subfield, (long) c->mem_queue.stored));
 				}
 			} else {
-				sprintf(str, "%d", c->mem_queue->stored);
+				sprintf(str, "%d", c->mem_queue.stored);
 			}
 		} else if (!str_cmp(field, "maxmana")) {
 			sprintf(str, "%d", GET_MAX_MANA(c));

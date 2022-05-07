@@ -1,11 +1,8 @@
 #include "msdp_reporters.h"
 
 #include "entities/char_data.h"
-//#include "entities/entities_constants.h"
 #include "game_magic/magic.h"
 #include "msdp_constants.h"
-//#include "entities/zone.h"
-#include "game_mechanics/mem_queue.h"
 
 namespace msdp {
 void RoomReporter::get(Variable::shared_ptr &response) {
@@ -149,7 +146,7 @@ void StateReporter::get(Variable::shared_ptr &response) {
 										  std::make_shared<StringValue>(current_move)));
 
 	if (IS_MANA_CASTER(descriptor()->character)) {
-		const auto current_mana = std::to_string(descriptor()->character->mem_queue->stored);
+		const auto current_mana = std::to_string(descriptor()->character->mem_queue.stored);
 		state->add(std::make_shared<Variable>("CURRENT_MANA",
 											  std::make_shared<StringValue>(current_mana)));
 	}
@@ -237,15 +234,15 @@ int GroupReporter::get_mem(const CharData *character) const {
 	int result = 0;
 	int div = 0;
 	if (!character->IsNpc()
-		&& ((!IS_MANA_CASTER(character) && !character->mem_queue->Empty())
-			|| (IS_MANA_CASTER(character) && character->mem_queue->stored < GET_MAX_MANA(character)))) {
+		&& ((!IS_MANA_CASTER(character) && !character->mem_queue.Empty())
+			|| (IS_MANA_CASTER(character) && character->mem_queue.stored < GET_MAX_MANA(character)))) {
 		div = mana_gain(character);
 		if (div > 0) {
 			if (!IS_MANA_CASTER(character)) {
-				result = std::max(0, 1 + character->mem_queue->total - character->mem_queue->stored);
+				result = std::max(0, 1 + character->mem_queue.total - character->mem_queue.stored);
 				result = result * 60 / div;
 			} else {
-				result = std::max(0, 1 + GET_MAX_MANA(character) - character->mem_queue->stored);
+				result = std::max(0, 1 + GET_MAX_MANA(character) - character->mem_queue.stored);
 				result = result / div;
 			}
 		} else {

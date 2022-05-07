@@ -1029,15 +1029,15 @@ void print_one_line(CharData *ch, CharData *k, int leader, int header) {
 		sprintf(buf + strlen(buf), "%s%5s%s|",
 				ok ? CCGRN(ch, C_NRM) : CCRED(ch, C_NRM), ok ? " Да  " : " Нет ", CCNRM(ch, C_NRM));
 
-		if ((!IS_MANA_CASTER(k) && !k->mem_queue->Empty()) ||
-			(IS_MANA_CASTER(k) && k->mem_queue->stored < GET_MAX_MANA(k))) {
+		if ((!IS_MANA_CASTER(k) && !k->mem_queue.Empty()) ||
+			(IS_MANA_CASTER(k) && k->mem_queue.stored < GET_MAX_MANA(k))) {
 			div = mana_gain(k);
 			if (div > 0) {
 				if (!IS_MANA_CASTER(k)) {
-					ok2 = std::max(0, 1 + k->mem_queue->total - k->mem_queue->stored);
+					ok2 = std::max(0, 1 + k->mem_queue.total - k->mem_queue.stored);
 					ok2 = ok2 * 60 / div;    // время мема в сек
 				} else {
-					ok2 = std::max(0, 1 + GET_MAX_MANA(k) - k->mem_queue->stored);
+					ok2 = std::max(0, 1 + GET_MAX_MANA(k) - k->mem_queue.stored);
 					ok2 = ok2 / div;    // время восстановления в секундах
 				}
 				ok = ok2 / 60;
@@ -1382,7 +1382,7 @@ void do_report(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 				GET_NAME(ch), GET_CH_SUF_1(ch),
 				GET_HIT(ch), GET_REAL_MAX_HIT(ch),
 				GET_MOVE(ch), GET_REAL_MAX_MOVE(ch),
-				ch->mem_queue->stored, GET_MAX_MANA(ch));
+				ch->mem_queue.stored, GET_MAX_MANA(ch));
 	} else if (AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		int loyalty = 0;
 		for (const auto &aff : ch->affected) {

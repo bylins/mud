@@ -91,11 +91,11 @@ void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			return;
 		}
 
-		if (ch->mem_queue->stored < CalcSpellManacost(ch, spell_id)) {
+		if (ch->mem_queue.stored < CalcSpellManacost(ch, spell_id)) {
 			SendMsgToChar("У вас маловато магической энергии!\r\n", ch);
 			return;
 		} else {
-			ch->mem_queue->stored = ch->mem_queue->stored - CalcSpellManacost(ch, spell_id);
+			ch->mem_queue.stored = ch->mem_queue.stored - CalcSpellManacost(ch, spell_id);
 		}
 	}
 

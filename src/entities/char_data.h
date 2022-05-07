@@ -16,7 +16,7 @@
 #include "utils/utils.h"
 #include "conf.h"
 #include "game_affects/affect_data.h"
-//#include "game_mechanics/mem_queue.h"
+#include "game_mechanics/mem_queue.h"
 
 #include <boost/dynamic_bitset.hpp>
 
@@ -342,8 +342,6 @@ class ProtectedCharData : public PlayerI {
 
 	std::unordered_set<CharacterRNum_ChangeObserver::shared_ptr> m_rnum_change_observers;
 };
-
-struct SpellMemQueue;
 
 // * Общий класс для игроков/мобов.
 class CharData : public ProtectedCharData {
@@ -792,10 +790,7 @@ class CharData : public ProtectedCharData {
 	void send_to_TC(bool to_impl, bool to_tester, bool to_coder, const char *msg, ...);
 
 	// очередь изучаемых заклинаний
-	// Вообще-то тут стоит использовать unique_ptr (или вообще не указатель), но для CharData не реализован копирующий
-	// конструктор, а кое-где у нас мобы создаются инициализацией экземпляра прототипом "в лоб".
-	// Реализовывать конструктор сейчас не хочется, потому что все равно весь класс нуждается в рефакторинге.
-	SpellMemQueue *mem_queue;
+	SpellMemQueue mem_queue;
 
 	int caster_level;
 	int damage_level;

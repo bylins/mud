@@ -8,6 +8,7 @@
 #include "mem_queue.h"
 
 #include "color.h"
+#include "entities/char_data.h"
 #include "game_limits.h"
 #include "game_classes/classes_spell_slots.h"
 #include "game_magic/magic_utils.h"
@@ -67,16 +68,16 @@ int CalcSpellManacost(const CharData *ch, ESpell spell_id) {
 }
 
 void MemQ_init(CharData *ch) {
-	ch->mem_queue->stored = 0;
-	ch->mem_queue->total = 0;
-	ch->mem_queue->queue = nullptr;
+	ch->mem_queue.stored = 0;
+	ch->mem_queue.total = 0;
+	ch->mem_queue.queue = nullptr;
 }
 
 void MemQ_flush(CharData *ch) {
 	struct SpellMemQueueItem *i;
-	while (ch->mem_queue->queue) {
-		i = ch->mem_queue->queue;
-		ch->mem_queue->queue = i->next;
+	while (ch->mem_queue.queue) {
+		i = ch->mem_queue.queue;
+		ch->mem_queue.queue = i->next;
 		free(i);
 	}
 	MemQ_init(ch);
@@ -84,15 +85,15 @@ void MemQ_flush(CharData *ch) {
 
 ESpell MemQ_learn(CharData *ch) {
 	SpellMemQueueItem *i;
-	if (ch->mem_queue->Empty()) {
+	if (ch->mem_queue.Empty()) {
 		return ESpell::kUndefined;
 	}
 	auto num = GET_MEM_CURRENT(ch);
-	ch->mem_queue->stored -= num;
-	ch->mem_queue->total -= num;
-	auto spell_id = ch->mem_queue->queue->spell_id;
-	i = ch->mem_queue->queue;
-	ch->mem_queue->queue = i->next;
+	ch->mem_queue.stored -= num;
+	ch->mem_queue.total -= num;
+	auto spell_id = ch->mem_queue.queue->spell_id;
+	i = ch->mem_queue.queue;
+	ch->mem_queue.queue = i->next;
 	free(i);
 	sprintf(buf, "Вы выучили заклинание \"%s%s%s\".\r\n",
 			CCICYN(ch, C_NRM), spell_info[spell_id].name, CCNRM(ch, C_NRM));
@@ -103,7 +104,7 @@ ESpell MemQ_learn(CharData *ch) {
 void MemQ_remember(CharData *ch, ESpell spell_id) {
 	int *slots;
 	int slotcnt, slotn;
-	struct SpellMemQueueItem *i, **pi = &ch->mem_queue->queue;
+	struct SpellMemQueueItem *i, **pi = &ch->mem_queue.queue;
 
 	// проверить количество слотов
 	slots = MemQ_slots(ch);
@@ -124,7 +125,7 @@ void MemQ_remember(CharData *ch, ESpell spell_id) {
 				CCIMAG(ch, C_NRM), spell_info[spell_id].name, CCNRM(ch, C_NRM));
 	SendMsgToChar(buf, ch);
 
-	ch->mem_queue->total += CalcSpellManacost(ch, spell_id);
+	ch->mem_queue.total += CalcSpellManacost(ch, spell_id);
 	while (*pi)
 		pi = &((*pi)->next);
 	CREATE(i, 1);
@@ -136,7 +137,7 @@ void MemQ_remember(CharData *ch, ESpell spell_id) {
 void MemQ_forget(CharData *ch, ESpell spell_id) {
 	struct SpellMemQueueItem **q = nullptr, **i;
 
-	for (i = &ch->mem_queue->queue; *i; i = &(i[0]->next)) {
+	for (i = &ch->mem_queue.queue; *i; i = &(i[0]->next)) {
 		if (i[0]->spell_id == spell_id)
 			q = i;
 	}
@@ -145,9 +146,9 @@ void MemQ_forget(CharData *ch, ESpell spell_id) {
 		SendMsgToChar("Вы и не собирались заучить это заклинание.\r\n", ch);
 	} else {
 		struct SpellMemQueueItem *ptr;
-		if (q == &ch->mem_queue->queue)
-			ch->mem_queue->stored = 0;
-		ch->mem_queue->total = std::max(0, ch->mem_queue->total - CalcSpellManacost(ch, spell_id));
+		if (q == &ch->mem_queue.queue)
+			ch->mem_queue.stored = 0;
+		ch->mem_queue.total = std::max(0, ch->mem_queue.total - CalcSpellManacost(ch, spell_id));
 		ptr = q[0];
 		q[0] = q[0]->next;
 		free(ptr);
@@ -191,7 +192,7 @@ int *MemQ_slots(CharData *ch) {
 
 	}
 
-	for (q = &ch->mem_queue->queue; q[0];) {
+	for (q = &ch->mem_queue.queue; q[0];) {
 		sloti = MUD::Classes(ch->GetClass()).spells[q[0]->spell_id].GetCircle() - 1;
 		if (sloti >= 0 && sloti <= 10) {
 			--slots[sloti];
@@ -199,9 +200,9 @@ int *MemQ_slots(CharData *ch) {
 				MUD::Classes(ch->GetClass()).spells[q[0]->spell_id].GetMinRemort() <= GET_REAL_REMORT(ch)) {
 				q = &(q[0]->next);
 			} else {
-				if (q == &ch->mem_queue->queue)
-					ch->mem_queue->stored = 0;
-				ch->mem_queue->total = std::max(0, ch->mem_queue->total - CalcSpellManacost(ch, q[0]->spell_id));
+				if (q == &ch->mem_queue.queue)
+					ch->mem_queue.stored = 0;
+				ch->mem_queue.total = std::max(0, ch->mem_queue.total - CalcSpellManacost(ch, q[0]->spell_id));
 				++slots[sloti];
 				qt = q[0];
 				q[0] = q[0]->next;
@@ -218,28 +219,37 @@ int *MemQ_slots(CharData *ch) {
 }
 
 SpellMemQueue::~SpellMemQueue() {
+	Clear();
+}
+
+void SpellMemQueue::Clear() {
 	if (Empty()) {
 		return;
 	}
+
 	while (queue->next) {
 		auto item = queue->next;
 		queue->next = item->next;
 		free(item);
 	}
 	free(queue);
+
+	queue = nullptr;
+	stored = 0;
+	total = 0;
 }
 
 void forget_all_spells(CharData *ch) {
 	using classes::CalcCircleSlotsAmount;
 
-	ch->mem_queue->stored = 0;
+	ch->mem_queue.stored = 0;
 	int slots[kMaxMemoryCircle];
 	int max_slot = 0;
 	for (unsigned i = 0; i < kMaxMemoryCircle; ++i) {
 		slots[i] = CalcCircleSlotsAmount(ch, i + 1);
 		if (slots[i]) max_slot = i + 1;
 	}
-	struct SpellMemQueueItem *qi_cur, **qi = &ch->mem_queue->queue;
+	struct SpellMemQueueItem *qi_cur, **qi = &ch->mem_queue.queue;
 	while (*qi) {
 		--slots[MUD::Classes(ch->GetClass()).spells[(*(qi))->spell_id].GetCircle() - 1];
 		qi = &((*qi)->next);
@@ -250,7 +260,7 @@ void forget_all_spells(CharData *ch) {
 		if (PRF_FLAGGED(ch, EPrf::kAutomem) && GET_SPELL_MEM(ch, spell_id)) {
 			slotn = MUD::Classes(ch->GetClass()).spells[spell_id].GetCircle() - 1;
 			for (unsigned j = 0; (slots[slotn] > 0 && j < GET_SPELL_MEM(ch, spell_id)); ++j, --slots[slotn]) {
-				ch->mem_queue->total += CalcSpellManacost(ch, spell_id);
+				ch->mem_queue.total += CalcSpellManacost(ch, spell_id);
 				CREATE(qi_cur, 1);
 				*qi = qi_cur;
 				qi_cur->spell_id = spell_id;

@@ -21,7 +21,6 @@
 #include "game_mechanics/bonus.h"
 #include "backtrace.h"
 #include "game_magic/magic_utils.h"
-#include "game_mechanics/mem_queue.h"
 #include "entities/char_player.h"
 #include "structs/global_objects.h"
 

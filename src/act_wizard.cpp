@@ -362,9 +362,9 @@ void do_arena_restore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		GET_HIT(vict) = GET_REAL_MAX_HIT(vict);
 		GET_MOVE(vict) = GET_REAL_MAX_MOVE(vict);
 		if (IS_MANA_CASTER(vict)) {
-			vict->mem_queue->stored = GET_MAX_MANA(vict);
+			vict->mem_queue.stored = GET_MAX_MANA(vict);
 		} else {
-			vict->mem_queue->stored = vict->mem_queue->total;
+			vict->mem_queue.stored = vict->mem_queue.total;
 		}
 		if (vict->GetSkill(ESkill::kWarcry) > 0) {
 			struct TimedSkill wctimed;
@@ -2544,9 +2544,9 @@ void do_restore(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		GET_HIT(vict) = GET_REAL_MAX_HIT(vict);
 		GET_MOVE(vict) = GET_REAL_MAX_MOVE(vict);
 		if (IS_MANA_CASTER(vict)) {
-			vict->mem_queue->stored = GET_MAX_MANA(vict);
+			vict->mem_queue.stored = GET_MAX_MANA(vict);
 		} else {
-			vict->mem_queue->stored = vict->mem_queue->total;
+			vict->mem_queue.stored = vict->mem_queue.total;
 		}
 		if (vict->GetSkill(ESkill::kWarcry) > 0) {
 			struct TimedSkill wctimed;

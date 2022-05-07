@@ -9,7 +9,6 @@
 #include "char_player.h"
 #include "player_races.h"
 #include "game_mechanics/celebrates.h"
-#include "game_mechanics/mem_queue.h"
 #include "cache.h"
 #include "game_fight/fight.h"
 #include "house.h"
@@ -376,9 +375,7 @@ void CharData::zero_init() {
 		i = nullptr;
 	}
 
-
-	mem_queue = new SpellMemQueue();
-	//memset(mem_queue, 0, sizeof(SpellMemQueue));
+	mem_queue.Clear();
 
 	memset(&Temporary, 0, sizeof(FlagData));
 	memset(&battle_affects, 0, sizeof(FlagData));
@@ -517,9 +514,6 @@ void CharData::purge() {
 		free(follower);
 		follower = next_one;
 	}
-
-	delete mem_queue;
-	mem_queue = nullptr;
 }
 
 // * Скилл с учетом всех плюсов и минусов от шмоток/яда.
