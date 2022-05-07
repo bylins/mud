@@ -18,11 +18,12 @@ struct SpellMemQueueItem {
 
 // очередь запоминания заклинаний
 struct SpellMemQueue {
+	SpellMemQueue() = default;
 	~SpellMemQueue();
 
-	struct SpellMemQueueItem *queue{nullptr};
-	int stored{0};        // накоплено манны
-	int total{0};            // полное время мема всей очереди
+	SpellMemQueueItem *queue{nullptr};
+	int stored{0};	// накоплено манны
+	int total{0};	// полное время мема всей очереди
 
 	[[nodiscard]] bool Empty() const { return queue == nullptr; };
 };

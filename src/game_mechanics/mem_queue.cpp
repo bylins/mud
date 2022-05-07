@@ -218,6 +218,9 @@ int *MemQ_slots(CharData *ch) {
 }
 
 SpellMemQueue::~SpellMemQueue() {
+	if (Empty()) {
+		return;
+	}
 	while (queue->next) {
 		auto item = queue->next;
 		queue->next = item->next;

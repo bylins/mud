@@ -353,7 +353,7 @@ void CharData::zero_init() {
 	pk_list = nullptr;
 	helpers = nullptr;
 	track_dirs = 0;
-	check_aggressive = 0;
+	check_aggressive = false;
 	extract_timer = 0;
 	initiative = 0;
 	battle_counter = 0;
@@ -376,10 +376,9 @@ void CharData::zero_init() {
 		i = nullptr;
 	}
 
-	//memset(&mem_queue, 0, sizeof(SpellMemQueue));
-	//mem_queue = std::make_unique<SpellMemQueue>();
-	delete mem_queue;
+
 	mem_queue = new SpellMemQueue();
+	//memset(mem_queue, 0, sizeof(SpellMemQueue));
 
 	memset(&Temporary, 0, sizeof(FlagData));
 	memset(&battle_affects, 0, sizeof(FlagData));
@@ -518,6 +517,9 @@ void CharData::purge() {
 		free(follower);
 		follower = next_one;
 	}
+
+	delete mem_queue;
+	mem_queue = nullptr;
 }
 
 // * Скилл с учетом всех плюсов и минусов от шмоток/яда.

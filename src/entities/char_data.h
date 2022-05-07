@@ -16,6 +16,7 @@
 #include "utils/utils.h"
 #include "conf.h"
 #include "game_affects/affect_data.h"
+//#include "game_mechanics/mem_queue.h"
 
 #include <boost/dynamic_bitset.hpp>
 
@@ -790,8 +791,10 @@ class CharData : public ProtectedCharData {
 	//отладочные сообщения имморталу/тестеру/кодеру
 	void send_to_TC(bool to_impl, bool to_tester, bool to_coder, const char *msg, ...);
 
-	//struct SpellMemQueue mem_queue;        // очередь изучаемых заклинаний
-	//std::unique_ptr<SpellMemQueue> mem_queue;
+	// очередь изучаемых заклинаний
+	// Вообще-то тут стоит использовать unique_ptr (или вообще не указатель), но для CharData не реализован копирующий
+	// конструктор, а кое-где у нас мобы создаются инициализацией экземпляра прототипом "в лоб".
+	// Реализовывать конструктор сейчас не хочется, потому что все равно весь класс нуждается в рефакторинге.
 	SpellMemQueue *mem_queue;
 
 	int caster_level;
