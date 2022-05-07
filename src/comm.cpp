@@ -1633,7 +1633,6 @@ char *make_prompt(DescriptorData *d) {
 	static const char *dirs[] = {"С", "В", "Ю", "З", "^", "v"};
 
 	int ch_hp, sec_hp;
-	int door;
 	int perc;
 
 	// Note, prompt is truncated at kMaxPromptLength entities (structs.h )
@@ -1689,11 +1688,11 @@ char *make_prompt(DescriptorData *d) {
 
 		if (PRF_FLAGGED(d->character, EPrf::kDispMana) && !IS_MANA_CASTER(d->character)) {
 			if (!d->character->mem_queue.Empty()) {
-				door = GainMana(d->character.get());
-				if (door) {
+				auto mana_gain = CalcManaGain(d->character.get());
+				if (mana_gain) {
 					sec_hp = std::max(0, 1 + d->character->mem_queue.total - d->character->mem_queue.stored);
-					sec_hp = sec_hp * 60 / door;
-					ch_hp = sec_hp / 60;
+					sec_hp = sec_hp*60/mana_gain;
+					ch_hp = sec_hp/60;
 					sec_hp %= 60;
 					count += sprintf(prompt + count, "Зауч:%d:%02d ", ch_hp, sec_hp);
 				} else {
@@ -1769,10 +1768,7 @@ char *make_prompt(DescriptorData *d) {
 				count += sprintf(prompt + count, "Зо:%d ", IsTimedByFeat(d->character.get(), EFeat::kShadowThrower));
 		}
 
-		if (!d->character->GetEnemy()
-			|| IN_ROOM(d->character) != IN_ROOM(d->character->GetEnemy()))    // SHOW NON COMBAT INFO
-		{
-
+		if (!d->character->GetEnemy() || IN_ROOM(d->character) != IN_ROOM(d->character->GetEnemy())) {
 			if (PRF_FLAGGED(d->character, EPrf::kDispLvl))
 				count += sprintf(prompt + count, "%dL ", GetRealLevel(d->character));
 
@@ -1782,13 +1778,12 @@ char *make_prompt(DescriptorData *d) {
 			if (PRF_FLAGGED(d->character, EPrf::kDispExits)) {
 				count += sprintf(prompt + count, "Вых:");
 				if (!AFF_FLAGGED(d->character, EAffect::kBlind)) {
-					for (door = 0; door < EDirection::kMaxDirNum; door++) {
-						if (EXIT(d->character, door)
-							&& EXIT(d->character, door)->to_room() != kNowhere
-							&& !EXIT_FLAGGED(EXIT(d->character, door), EExitFlag::kHidden)) {
-							count += EXIT_FLAGGED(EXIT(d->character, door), EExitFlag::kClosed)
-									 ? sprintf(prompt + count, "(%s)", dirs[door])
-									 : sprintf(prompt + count, "%s", dirs[door]);
+					for (auto dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
+						if (EXIT(d->character, dir) && EXIT(d->character, dir)->to_room() != kNowhere &&
+							!EXIT_FLAGGED(EXIT(d->character, dir), EExitFlag::kHidden)) {
+							count += EXIT_FLAGGED(EXIT(d->character, dir), EExitFlag::kClosed)
+									 ? sprintf(prompt + count, "(%s)", dirs[dir])
+									 : sprintf(prompt + count, "%s", dirs[dir]);
 						}
 					}
 				}

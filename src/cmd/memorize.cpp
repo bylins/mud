@@ -116,7 +116,7 @@ void show_wizdom(CharData *ch, int bitset) {
 			timestr[0] = 0;
 			if (!IS_MANA_CASTER(ch)) {
 				int div, min, sec;
-				div = GainMana(ch);
+				div = CalcManaGain(ch);
 				if (div > 0) {
 					sec = std::max(0, 1 + GET_MEM_CURRENT(ch) - ch->mem_queue.stored);    // sec/div -- время мема в мин
 					sec = sec * 60 / div;    // время мема в сек

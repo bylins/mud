@@ -1031,7 +1031,7 @@ void print_one_line(CharData *ch, CharData *k, int leader, int header) {
 
 		if ((!IS_MANA_CASTER(k) && !k->mem_queue.Empty()) ||
 			(IS_MANA_CASTER(k) && k->mem_queue.stored < GET_MAX_MANA(k))) {
-			div = GainMana(k);
+			div = CalcManaGain(k);
 			if (div > 0) {
 				if (!IS_MANA_CASTER(k)) {
 					ok2 = std::max(0, 1 + k->mem_queue.total - k->mem_queue.stored);

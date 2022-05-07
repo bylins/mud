@@ -49,9 +49,9 @@ int CalcSpellManacost(const CharData *ch, ESpell spell_id) {
 							  spell_info[spell_id].mana_min);
 			auto class_mem_mod = MUD::Classes(ch->GetClass()).spells[spell_id].GetMemMod();
 			if (class_mem_mod < 0) {
-				result *= (100 - std::min(99, abs(class_mem_mod)))/100;
+				result = result*(100 - abs(class_mem_mod))/100;
 			} else {
-				result *= 100/(100 - std::min(99, abs(class_mem_mod)));
+				result = result*100/(100 - abs(class_mem_mod));
 			}
 //		Меняем мем на коэффициент скилла магии
 // \todo ABYRVALG Нужно ввести общую для витязя и купца способность, а эту похабень убрать.

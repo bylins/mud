@@ -129,7 +129,7 @@ void handle_recall_spells(CharData::shared_ptr &ch) { handle_recall_spells(ch.ge
  */
 
 // manapoint gain pr. game hour
-int GainMana(const CharData *ch) {
+int CalcManaGain(const CharData *ch) {
 	auto gain{0};
 	auto percent{100};
 	if (ch->IsNpc()) {
@@ -195,24 +195,28 @@ int GainMana(const CharData *ch) {
 
 	if (!IS_MANA_CASTER(ch) &&
 		(AFF_FLAGGED(ch, EAffect::kHold) ||
-			AFF_FLAGGED(ch, EAffect::kBlind) ||
-			AFF_FLAGGED(ch, EAffect::kSleep) ||
-			((ch->in_room != kNowhere) && is_dark(ch->in_room) && !CanUseFeat(ch, EFeat::kDarkReading)))) {
+		AFF_FLAGGED(ch, EAffect::kBlind) ||
+		AFF_FLAGGED(ch, EAffect::kSleep) ||
+		((ch->in_room != kNowhere) && is_dark(ch->in_room) && !CanUseFeat(ch, EFeat::kDarkReading)))) {
 		stopmem = true;
 		percent = 0;
 	}
 
-	if (!IS_MANA_CASTER(ch))
+	if (!IS_MANA_CASTER(ch)) {
 		percent += GET_MANAREG(ch);
-	if (AFF_FLAGGED(ch, EAffect::kPoisoned) && percent > 0)
+	}
+	if (AFF_FLAGGED(ch, EAffect::kPoisoned) && percent > 0) {
 		percent /= 4;
-	if (!ch->IsNpc())
+	}
+	if (!ch->IsNpc()) {
 		percent *= ch->get_cond_penalty(P_MEM_GAIN);
+	}
 	percent = std::clamp(percent, 0, 1000);
 	gain = gain * percent / 100;
 	return (stopmem ? 0 : gain);
 }
-int mana_gain(const CharData::shared_ptr &ch) { return GainMana(ch.get()); }
+
+int CalcManaGain(const CharData::shared_ptr &ch) { return CalcManaGain(ch.get()); }
 
 // Hitpoint gain pr. game hour
 int hit_gain(CharData *ch) {
@@ -665,7 +669,7 @@ void beat_points_update(int pulse) {
 
 		// Restore PC caster mem
 		if (!IS_MANA_CASTER(i) && !i->mem_queue.Empty()) {
-			restore = mana_gain(i);
+			restore = CalcManaGain(i);
 			restore = interpolate(restore, pulse);
 			i->mem_queue.stored += restore;
 
@@ -698,7 +702,7 @@ void beat_points_update(int pulse) {
 
 		// Гейн маны у волхвов
 		if (IS_MANA_CASTER(i) && i->mem_queue.stored < GET_MAX_MANA(i.get())) {
-			i->mem_queue.stored += mana_gain(i);
+			i->mem_queue.stored += CalcManaGain(i);
 			if (i->mem_queue.stored >= GET_MAX_MANA(i.get())) {
 				i->mem_queue.stored = GET_MAX_MANA(i.get());
 				SendMsgToChar("Ваша магическая энергия полностью восстановилась\r\n", i.get());

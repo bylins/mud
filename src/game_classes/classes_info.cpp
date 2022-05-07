@@ -11,7 +11,6 @@
 
 #include "color.h"
 #include "utils/pugixml/pugixml.h"
-//#include "game_magic/spells_info.h"
 #include "structs/global_objects.h"
 #include "utils/table_wrapper.h"
 

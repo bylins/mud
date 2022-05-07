@@ -276,7 +276,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	SendMsgToChar(buf, ch);
 	if (IS_MANA_CASTER(k)) {
 		sprintf(buf, " Мана :[%s%d/%d+%d%s]\r\n",
-				CCGRN(ch, C_NRM), k->mem_queue.stored, GET_MAX_MANA(k), GainMana(k), CCNRM(ch, C_NRM));
+				CCGRN(ch, C_NRM), k->mem_queue.stored, GET_MAX_MANA(k), CalcManaGain(k), CCNRM(ch, C_NRM));
 	} else {
 		sprintf(buf, "\r\n");
 	}
