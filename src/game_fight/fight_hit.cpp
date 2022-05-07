@@ -779,7 +779,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 int calculate_strconc_damage(CharData *ch, ObjData * /*wielded*/, int damage) {
 	if (ch->IsNpc()
 		|| GET_REAL_STR(ch) <= 25
-		|| !IsAbleToUseFeat(ch, EFeat::kStrengthConcentration)
+		|| !CanUseFeat(ch, EFeat::kStrengthConcentration)
 		|| GET_AF_BATTLE(ch, kEafIronWind)
 		|| GET_AF_BATTLE(ch, kEafOverwhelm)) {
 		return damage;
@@ -1256,15 +1256,15 @@ int calculate_crit_backstab_percent(CharData *ch) {
 double HitData::crit_backstab_multiplier(CharData *ch, CharData *victim) {
 	double bs_coeff = 1.0;
 	if (victim->IsNpc()) {
-		if (IsAbleToUseFeat(ch, EFeat::kThieveStrike)) {
+		if (CanUseFeat(ch, EFeat::kThieveStrike)) {
 			bs_coeff *= ch->GetSkill(ESkill::kBackstab) / 15.0;
 		} else {
 			bs_coeff *= ch->GetSkill(ESkill::kBackstab) / 25.0;
 		}
-		if (IsAbleToUseFeat(ch, EFeat::kShadowStrike) && (ch->GetSkill(ESkill::kNoParryHit))) {
+		if (CanUseFeat(ch, EFeat::kShadowStrike) && (ch->GetSkill(ESkill::kNoParryHit))) {
 			bs_coeff *= (1 + (ch->GetSkill(ESkill::kNoParryHit) * 0.00125));
 		}
-	} else if (IsAbleToUseFeat(ch, EFeat::kThieveStrike)) {
+	} else if (CanUseFeat(ch, EFeat::kThieveStrike)) {
 		if (victim->GetEnemy())
 		{
 			bs_coeff *= (1.0 + (ch->GetSkill(ESkill::kBackstab) * 0.00225));
@@ -1455,7 +1455,7 @@ void hit_parry(CharData *ch, CharData *victim, ESkill skill, int hit_type, int *
 		if (prob < 70
 			|| ((skill == ESkill::kBows || hit_type == fight::type_maul)
 				&& !IS_IMMORTAL(victim)
-				&& (!IsAbleToUseFeat(victim, EFeat::kParryArrow)
+				&& (!CanUseFeat(victim, EFeat::kParryArrow)
 					|| number(1, 1000) >= 20 * MIN(GET_REAL_DEX(victim), 35)))) {
 			act("Вы не смогли отбить атаку $N1", false, victim, 0, ch, kToChar);
 			act("$N не сумел$G отбить вашу атаку", false, ch, 0, victim, kToChar);
@@ -1513,7 +1513,7 @@ void hit_multyparry(CharData *ch, CharData *victim, ESkill skill, int hit_type, 
 
 		if ((skill == ESkill::kBows || hit_type == fight::type_maul)
 			&& !IS_IMMORTAL(victim)
-			&& (!IsAbleToUseFeat(victim, EFeat::kParryArrow)
+			&& (!CanUseFeat(victim, EFeat::kParryArrow)
 				|| number(1, 1000) >= 20 * MIN(GET_REAL_DEX(victim), 35))) {
 			prob = 0;
 		} else {
@@ -1931,7 +1931,7 @@ void Damage::armor_dam_reduce(CharData *victim) {
 		if (!flags[fight::kCritHit] && !flags[fight::kIgnoreArmor]) {
 			// 50 брони = 50% снижение дамага
 			int max_armour = 50;
-			if (IsAbleToUseFeat(victim, EFeat::kImpregnable) && PRF_FLAGS(victim).get(EPrf::kAwake)) {
+			if (CanUseFeat(victim, EFeat::kImpregnable) && PRF_FLAGS(victim).get(EPrf::kAwake)) {
 				// непробиваемый в осторожке - до 75 брони
 				max_armour = 75;
 			}
@@ -1958,7 +1958,7 @@ bool Damage::dam_absorb(CharData *ch, CharData *victim) {
 		&& GET_ABSORBE(victim) > 0) {
 		// шансы поглощения: непробиваемый в осторожке 15%, остальные 10%
 		int chance = 10 + GET_REAL_REMORT(victim) / 3;
-		if (IsAbleToUseFeat(victim, EFeat::kImpregnable)
+		if (CanUseFeat(victim, EFeat::kImpregnable)
 			&& PRF_FLAGS(victim).get(EPrf::kAwake)) {
 			chance += 5;
 		}
@@ -2287,7 +2287,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	// санка/призма для физ и маг урона
 	if (dam >= 2) {
 		if (AFF_FLAGGED(victim, EAffect::kPrismaticAura) &&
-			!(skill_id == ESkill::kBackstab && IsAbleToUseFeat(ch, EFeat::kThieveStrike))) {
+			!(skill_id == ESkill::kBackstab && CanUseFeat(ch, EFeat::kThieveStrike))) {
 			if (dmg_type == fight::kPhysDmg) {
 				dam *= 2;
 			} else if (dmg_type == fight::kMagicDmg) {
@@ -2295,7 +2295,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 			}
 		}
 		if (AFF_FLAGGED(victim, EAffect::kSanctuary) &&
-			!(skill_id == ESkill::kBackstab && IsAbleToUseFeat(ch, EFeat::kThieveStrike))) {
+			!(skill_id == ESkill::kBackstab && CanUseFeat(ch, EFeat::kThieveStrike))) {
 			if (dmg_type == fight::kPhysDmg) {
 				dam /= 2;
 			} else if (dmg_type == fight::kMagicDmg) {
@@ -2467,7 +2467,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 								 GET_HIT(ch), GET_REAL_MAX_HIT(ch) + GET_REAL_MAX_HIT(ch) * GetRealLevel(ch) / 10);
 		// если есть родство душ, то чару отходит по 5% от дамаги к хп
 		if (ch->has_master()) {
-			if (IsAbleToUseFeat(ch->get_master(), EFeat::kSoulLink)) {
+			if (CanUseFeat(ch->get_master(), EFeat::kSoulLink)) {
 				GET_HIT(ch->get_master()) = std::max(GET_HIT(ch->get_master()),
 					std::min(GET_HIT(ch->get_master()) + std::max(1, dam / 20 ),
 						GET_REAL_MAX_HIT(ch->get_master()) +
@@ -2495,7 +2495,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		return 0;
 	}
 	// если у чара есть жатва жизни
-	if (IsAbleToUseFeat(victim, EFeat::kHarvestOfLife)) {
+	if (CanUseFeat(victim, EFeat::kHarvestOfLife)) {
 		if (GET_POS(victim) == EPosition::kDead) {
 			int souls = victim->get_souls();
 			if (souls >= 10) {
@@ -2931,7 +2931,7 @@ void HitData::calc_base_hr(CharData *ch) {
 			calc_thaco -= MIN(3, MAX(percent, 0));
 		} else if (!ch->IsNpc()) {
 			// кулаками у нас полагается бить только богатырям :)
-			if (!IsAbleToUseFeat(ch, EFeat::kBully))
+			if (!CanUseFeat(ch, EFeat::kBully))
 				calc_thaco += 4;
 			else    // а богатырям положен бонус за отсутствие оружия
 				calc_thaco -= 3;
@@ -2946,7 +2946,7 @@ void HitData::calc_base_hr(CharData *ch) {
 
 	//    AWAKE style - decrease hitroll
 	if (GET_AF_BATTLE(ch, kEafAwake)
-		&& !IsAbleToUseFeat(ch, EFeat::kShadowStrike)
+		&& !CanUseFeat(ch, EFeat::kShadowStrike)
 		&& skill_num != ESkill::kThrow
 		&& skill_num != ESkill::kBackstab) {
 		if (can_auto_block(ch)) {
@@ -2983,13 +2983,13 @@ void HitData::calc_base_hr(CharData *ch) {
 	}
 
 	// Учет мощной и прицельной атаки
-	if (PRF_FLAGGED(ch, EPrf::kPerformPowerAttack) && IsAbleToUseFeat(ch, EFeat::kPowerAttack)) {
+	if (PRF_FLAGGED(ch, EPrf::kPerformPowerAttack) && CanUseFeat(ch, EFeat::kPowerAttack)) {
 		calc_thaco += 2;
-	} else if (PRF_FLAGGED(ch, EPrf::kPerformGreatPowerAttack) && IsAbleToUseFeat(ch, EFeat::kGreatPowerAttack)) {
+	} else if (PRF_FLAGGED(ch, EPrf::kPerformGreatPowerAttack) && CanUseFeat(ch, EFeat::kGreatPowerAttack)) {
 		calc_thaco += 4;
-	} else if (PRF_FLAGGED(ch, EPrf::kPerformAimingAttack) && IsAbleToUseFeat(ch, EFeat::kAimingAttack)) {
+	} else if (PRF_FLAGGED(ch, EPrf::kPerformAimingAttack) && CanUseFeat(ch, EFeat::kAimingAttack)) {
 		calc_thaco -= 2;
-	} else if (PRF_FLAGGED(ch, EPrf::kPerformGreatAimingAttack) && IsAbleToUseFeat(ch, EFeat::kGreatAimingAttack)) {
+	} else if (PRF_FLAGGED(ch, EPrf::kPerformGreatAimingAttack) && CanUseFeat(ch, EFeat::kGreatAimingAttack)) {
 		calc_thaco -= 4;
 	}
 
@@ -3008,7 +3008,7 @@ void HitData::calc_base_hr(CharData *ch) {
 
 
 	// Использование ловкости вместо силы для попадания
-	if (IsAbleToUseFeat(ch, EFeat::kWeaponFinesse)) {
+	if (CanUseFeat(ch, EFeat::kWeaponFinesse)) {
 		calc_thaco -= str_bonus(GET_REAL_STR(ch), STR_TO_HIT) * p_hitroll;
 	} else {
 		calc_thaco -= str_bonus(GET_REAL_DEX(ch), STR_TO_HIT) * p_hitroll;
@@ -3070,9 +3070,9 @@ void HitData::calc_rand_hr(CharData *ch, CharData *victim) {
 
 	// not can see (blind, dark, etc)
 	if (!CAN_SEE(ch, victim))
-		calc_thaco += (IsAbleToUseFeat(ch, EFeat::kBlindFight) ? 2 : ch->IsNpc() ? 6 : 10);
+		calc_thaco += (CanUseFeat(ch, EFeat::kBlindFight) ? 2 : ch->IsNpc() ? 6 : 10);
 	if (!CAN_SEE(victim, ch))
-		calc_thaco -= (IsAbleToUseFeat(victim, EFeat::kBlindFight) ? 2 : 8);
+		calc_thaco -= (CanUseFeat(victim, EFeat::kBlindFight) ? 2 : 8);
 
 	// some protects
 	if (AFF_FLAGGED(victim, EAffect::kProtectedFromEvil) && IS_EVIL(ch))
@@ -3279,7 +3279,7 @@ void HitData::add_hand_damage(CharData *ch, bool need_dice) {
 
 	if (AFF_FLAGGED(ch, EAffect::kStoneHands)) {
 		dam += need_dice ? RollDices(2, 4) + GET_REAL_REMORT(ch) / 2  : 5 + GET_REAL_REMORT(ch) / 2;
-		if (IsAbleToUseFeat(ch, EFeat::kBully)) {
+		if (CanUseFeat(ch, EFeat::kBully)) {
 			dam += GetRealLevel(ch) / 5;
 			dam += MAX(0, GET_REAL_STR(ch) - 25);
 		}
@@ -3298,7 +3298,7 @@ void HitData::add_hand_damage(CharData *ch, bool need_dice) {
 	{
 		int modi = 10 * (5 + (GET_EQ(ch, EEquipPos::kHands) ? MIN(GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kHands)), 18)
 															: 0)); //вес перчаток больше 18 не учитывается
-		if (ch->IsNpc() || IsAbleToUseFeat(ch, EFeat::kBully)) {
+		if (ch->IsNpc() || CanUseFeat(ch, EFeat::kBully)) {
 			modi = MAX(100, modi);
 		}
 		dam = modi * dam / 100;
@@ -3315,10 +3315,10 @@ void HitData::calc_crit_chance(CharData *ch) {
 		|| (ch->IsNpc() && (!AFF_FLAGGED(ch, EAffect::kCharmed)
 			&& !AFF_FLAGGED(ch, EAffect::kHelper)))) {
 		calc_critic = std::min(ch->GetSkill(weap_skill), 70);
-		if (IsAbleToUseFeat(ch, FindWeaponMasterFeat(weap_skill))) {
+		if (CanUseFeat(ch, FindWeaponMasterFeat(weap_skill))) {
 			calc_critic += std::max(0, ch->GetSkill(weap_skill) - 70);
 		}
-		if (IsAbleToUseFeat(ch, EFeat::kThieveStrike)) {
+		if (CanUseFeat(ch, EFeat::kThieveStrike)) {
 			calc_critic += ch->GetSkill(ESkill::kBackstab);
 		}
 		if (!ch->IsNpc()) {
@@ -3354,13 +3354,13 @@ int HitData::calc_damage(CharData *ch, bool need_dice) {
 			SendMsgToChar(ch, "&YДамага с уровнем скилла == %d&n\r\n", dam);
 	}
 	// Учет мощной и прицельной атаки
-	if (PRF_FLAGGED(ch, EPrf::kPerformPowerAttack) && IsAbleToUseFeat(ch, EFeat::kPowerAttack)) {
+	if (PRF_FLAGGED(ch, EPrf::kPerformPowerAttack) && CanUseFeat(ch, EFeat::kPowerAttack)) {
 		dam += 5;
-	} else if (PRF_FLAGGED(ch, EPrf::kPerformGreatPowerAttack) && IsAbleToUseFeat(ch, EFeat::kGreatPowerAttack)) {
+	} else if (PRF_FLAGGED(ch, EPrf::kPerformGreatPowerAttack) && CanUseFeat(ch, EFeat::kGreatPowerAttack)) {
 		dam += 10;
-	} else if (PRF_FLAGGED(ch, EPrf::kPerformAimingAttack) && IsAbleToUseFeat(ch, EFeat::kAimingAttack)) {
+	} else if (PRF_FLAGGED(ch, EPrf::kPerformAimingAttack) && CanUseFeat(ch, EFeat::kAimingAttack)) {
 		dam -= 5;
-	} else if (PRF_FLAGGED(ch, EPrf::kPerformGreatAimingAttack) && IsAbleToUseFeat(ch, EFeat::kGreatAimingAttack)) {
+	} else if (PRF_FLAGGED(ch, EPrf::kPerformGreatAimingAttack) && CanUseFeat(ch, EFeat::kGreatAimingAttack)) {
 		dam -= 10;
 	}
 	if (PRF_FLAGGED(ch, EPrf::kExecutor))
@@ -3392,7 +3392,7 @@ int HitData::calc_damage(CharData *ch, bool need_dice) {
 		if (PRF_FLAGGED(ch, EPrf::kExecutor))
 			SendMsgToChar(ch, "&YДамага +дамролы скилла== %d&n\r\n", dam);
 	}
-	if (IsAbleToUseFeat(ch, EFeat::kFInesseShot)) {
+	if (CanUseFeat(ch, EFeat::kFInesseShot)) {
 		dam += str_bonus(GET_REAL_DEX(ch), STR_TO_DAM);
 	} else {
 		dam += str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
@@ -3414,7 +3414,7 @@ int HitData::calc_damage(CharData *ch, bool need_dice) {
 		if (tmp_dam > 0) {
 			// 0 раунд и стаб = 70% скрытого, дальше раунд * 0.4 (до 5 раунда)
 			int round_dam = tmp_dam * 7 / 10;
-			if (IsAbleToUseFeat(ch, EFeat::kSnakeRage)) {
+			if (CanUseFeat(ch, EFeat::kSnakeRage)) {
 				if (ch->round_counter >= 1 && ch->round_counter <= 3) {
 					dam *= ch->round_counter;
 				}
@@ -3630,14 +3630,14 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 	if (AFF_FLAGGED(victim, EAffect::kBlink) || victim->add_abils.percent_spell_blink > 0) {
 
 		if (!GET_AF_BATTLE(ch, kEafHammer) && !GET_AF_BATTLE(ch, kEafOverwhelm)
-			&& (!(hit_params.skill_num == ESkill::kBackstab && IsAbleToUseFeat(ch, EFeat::kThieveStrike)))) {
+			&& (!(hit_params.skill_num == ESkill::kBackstab && CanUseFeat(ch, EFeat::kThieveStrike)))) {
 			ubyte blink;
 			if (victim->IsNpc()) {
 				blink = 25;
 			} else {
 				blink = 10;
 			}
-			if (IsAbleToUseFeat(ch, EFeat::kThieveStrike)) {
+			if (CanUseFeat(ch, EFeat::kThieveStrike)) {
 				blink = 10 + GET_REAL_REMORT(ch) * 2 / 3;
 			} else if (victim->add_abils.percent_spell_blink > 0) { //мигалка спеллом а не аффектом с шмотки
 				blink = victim->add_abils.percent_spell_blink;
@@ -3676,14 +3676,14 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 	if (hit_params.skill_num == ESkill::kBackstab) {
 		hit_params.reset_flag(fight::kCritHit);
 		hit_params.set_flag(fight::kIgnoreFireShield);
-		if (IsAbleToUseFeat(ch, EFeat::kThieveStrike) || IsAbleToUseFeat(ch, EFeat::kShadowStrike)) {
+		if (CanUseFeat(ch, EFeat::kThieveStrike) || CanUseFeat(ch, EFeat::kShadowStrike)) {
 			hit_params.set_flag(fight::kIgnoreArmor);
 		} else {
 			hit_params.set_flag(fight::kHalfIgnoreArmor);
 		}
-		if (IsAbleToUseFeat(ch, EFeat::kShadowStrike) && victim->IsNpc()) {
+		if (CanUseFeat(ch, EFeat::kShadowStrike) && victim->IsNpc()) {
 			hit_params.dam *= backstab_mult(GetRealLevel(ch)) * (1.0 + ch->GetSkill(ESkill::kNoParryHit) / 200.0);
-		} else if (IsAbleToUseFeat(ch, EFeat::kThieveStrike)) {
+		} else if (CanUseFeat(ch, EFeat::kThieveStrike)) {
 			if (victim->GetEnemy()) {
 				hit_params.dam *= backstab_mult(GetRealLevel(ch));
 			} else {
@@ -3693,7 +3693,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 			hit_params.dam *= backstab_mult(GetRealLevel(ch));
 		}
 
-		if (IsAbleToUseFeat(ch, EFeat::kShadowStrike) && !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)
+		if (CanUseFeat(ch, EFeat::kShadowStrike) && !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)
 			&& victim->IsNpc()
 			&& !(AFF_FLAGGED(victim, EAffect::kShield) && !(MOB_FLAGGED(victim, EMobFlag::kProtect)))
 			&& (number(1, 100) <= 6 * ch->get_cond_penalty(P_HITROLL))
@@ -3717,7 +3717,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 
 		hit_params.dam = ApplyResist(victim, EResist::kVitality, hit_params.dam);
 		// режем стаб
-		if (IsAbleToUseFeat(ch, EFeat::kShadowStrike) && !ch->IsNpc()) {
+		if (CanUseFeat(ch, EFeat::kShadowStrike) && !ch->IsNpc()) {
 			hit_params.dam = std::min(8000 + GET_REAL_REMORT(ch) * 20 * GetRealLevel(ch), hit_params.dam);
 		}
 
@@ -3857,7 +3857,7 @@ void exthit(CharData *ch, ESkill type, fight::AttackType weapon) {
 		&& static_cast<ESkill>(wielded->get_skill()) == ESkill::kBows
 		&& GET_EQ(ch, EEquipPos::kBoths)) {
 		// Лук в обеих руках - юзаем доп. или двойной выстрел
-		if (IsAbleToUseFeat(ch, EFeat::kDoubleShot) && !ch->GetSkill(ESkill::kAddshot)
+		if (CanUseFeat(ch, EFeat::kDoubleShot) && !ch->GetSkill(ESkill::kAddshot)
 			&& MIN(850, 200 + ch->GetSkill(ESkill::kBows) * 4 + GET_REAL_DEX(ch) * 5) >= number(1, 1000)) {
 			hit(ch, ch->GetEnemy(), type, weapon);
 		} else if (ch->GetSkill(ESkill::kAddshot) > 0) {
@@ -3876,7 +3876,7 @@ int CalcPcDamrollBonus(CharData *ch) {
 	if (IS_VIGILANT(ch) || IS_GUARD(ch) || IS_RANGER(ch)) {
 		bonus = kRemortDamrollBonus[std::min(kMaxRemortForDamrollBonus, GET_REAL_REMORT(ch))];
 	}
-	if (IsAbleToUseFeat(ch, EFeat::kBowsFocus) && ch->GetSkill(ESkill::kAddshot)) {
+	if (CanUseFeat(ch, EFeat::kBowsFocus) && ch->GetSkill(ESkill::kAddshot)) {
 		bonus *= 3;
 	}
 	return bonus;

@@ -277,7 +277,7 @@ void LoadGodBoards() {
 * \param mode 0 - общие команды, 1 - подкоманды set, 2 - подкоманды show
 * \return 0 - нельзя, 1 - можно
 */
-bool IsAbleToDoPrivilege(CharData *ch, const std::string &cmd_name, int cmd_number, int mode, bool check_level) {
+bool HasPrivilege(CharData *ch, const std::string &cmd_name, int cmd_number, int mode, bool check_level) {
 	if (check_level && !mode && cmd_info[cmd_number].minimum_level < kLvlImmortal
 		&& GetRealLevel(ch) >= cmd_info[cmd_number].minimum_level)
 		return true;

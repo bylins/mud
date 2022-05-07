@@ -238,7 +238,7 @@ void SetFighting(CharData *ch, CharData *vict) {
 			SET_AF_BATTLE(ch, kEafAwake);
 	}
 
-	if (IsAbleToUseFeat(ch, EFeat::kDefender) && ch->GetSkill(ESkill::kShieldBlock)) {
+	if (CanUseFeat(ch, EFeat::kDefender) && ch->GetSkill(ESkill::kShieldBlock)) {
 		SET_AF_BATTLE(ch, kEafAutoblock);
 	}
 
@@ -1903,10 +1903,10 @@ void process_player_attack(CharData *ch, int min_init) {
 			exthit(ch, tmpSkilltype, fight::AttackType::kMainHand);
 		}
 // допатака двуручем
-		if (!IS_SET(trigger_code, kNoExtraAttack) && GET_EQ(ch, EEquipPos::kBoths) && IsAbleToUseFeat(ch,
-																									  EFeat::kTwohandsFocus)
+		if (!IS_SET(trigger_code, kNoExtraAttack) && GET_EQ(ch, EEquipPos::kBoths) && CanUseFeat(ch,
+																								 EFeat::kTwohandsFocus)
 			&& (static_cast<ESkill>(GET_OBJ_SKILL(GET_EQ(ch, EEquipPos::kBoths))) == ESkill::kTwohands)
-			&& IsAbleToUseFeat(ch, EFeat::kRelatedToMagic)) {
+			&& CanUseFeat(ch, EFeat::kRelatedToMagic)) {
 			if (ch->GetSkill(ESkill::kTwohands) > (number(1, 500)))
 				hit(ch, ch->GetEnemy(), ESkill::kUndefined, fight::AttackType::kMainHand);
 		}

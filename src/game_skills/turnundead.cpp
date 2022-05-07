@@ -25,7 +25,7 @@ void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 	int skill = ch->GetSkill(ESkill::kTurnUndead);
 	TimedSkill timed;
 	timed.skill = ESkill::kTurnUndead;
-	if (IsAbleToUseFeat(ch, EFeat::kExorcist)) {
+	if (CanUseFeat(ch, EFeat::kExorcist)) {
 		timed.time = IsTimedBySkill(ch, ESkill::kTurnUndead) + kHoursPerTurnUndead - 2;
 		skill += 10;
 	} else {

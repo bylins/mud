@@ -70,7 +70,7 @@ void go_bash(CharData *ch, CharData *vict) {
 
 //делаем блокирование баша
 		if ((GET_AF_BATTLE(vict, kEafBlock)
-			|| (IsAbleToUseFeat(vict, EFeat::kDefender)
+			|| (CanUseFeat(vict, EFeat::kDefender)
 				&& GET_EQ(vict, kShield)
 				&& PRF_FLAGGED(vict, EPrf::kAwake)
 				&& vict->GetSkill(ESkill::kAwake)

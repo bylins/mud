@@ -78,7 +78,7 @@ void do_employ(CharData *ch, char *argument, int cmd, int subcmd) {
 			// палочки с чармами/оживлялками юзают только кастеры и дружи до 25 левева
 			auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(mag_item, 3));
 			if (spell_id == ESpell::kCharm || spell_id == ESpell::kAnimateDead || spell_id == ESpell::kResurrection) {
-				if (!IsAbleToUseFeat(ch, EFeat::kMagicUser)) {
+				if (!CanUseFeat(ch, EFeat::kMagicUser)) {
 					SendMsgToChar("Да, штука явно магическая! Но совершенно непонятно как ей пользоваться. :(\r\n", ch);
 					return;
 				}

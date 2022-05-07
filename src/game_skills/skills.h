@@ -172,8 +172,8 @@ void TrainSkill(CharData *ch, ESkill skill, bool success, CharData *vict);
 
 int GetSkillMinLevel(CharData *ch, ESkill skill);
 int GetSkillMinLevel(CharData *ch, ESkill skill, int req_lvl);
-bool IsAbleToGetSkill(CharData *ch, ESkill skill);
-bool IsAbleToGetSkill(CharData *ch, ESkill skill, int req_lvl);
+bool CanGetSkill(CharData *ch, ESkill skill);
+bool CanGetSkill(CharData *ch, ESkill skill, int req_lvl);
 int CalcSkillRemortCap(const CharData *ch);
 int CalcSkillWisdomCap(const CharData *ch);
 int CalcSkillHardCap(const CharData *ch, ESkill skill);

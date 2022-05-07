@@ -787,7 +787,7 @@ void print_obj(std::stringstream &i_out, std::stringstream &s_out,
 
 // * Расчет кол-ва слотов под шмотки в персональном хранилище с учетом профы чара.
 unsigned int get_max_pers_slots(CharData *ch) {
-	if (IsAbleToUseFeat(ch, EFeat::kThrifty))
+	if (CanUseFeat(ch, EFeat::kThrifty))
 		return MAX_PERS_SLOTS(ch) * 2;
 	else
 		return MAX_PERS_SLOTS(ch);

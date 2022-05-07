@@ -78,7 +78,7 @@ void PerformShadowThrowSideAbilities(AbilitySystem::TechniqueRoll &technique) {
 			break;
 	};
 
-	if (!IsAbleToUseFeat(technique.GetActor(), feature_id)) {
+	if (!CanUseFeat(technique.GetActor(), feature_id)) {
 		return;
 	};
 	AbilitySystem::TechniqueRoll side_roll;

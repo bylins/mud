@@ -882,19 +882,19 @@ unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const
 }
 
 bool CheckArmorType(CharData *ch, ObjData *obj) {
-	if (GET_OBJ_TYPE(obj) == EObjType::kLightArmor && !IsAbleToUseFeat(ch, EFeat::kWearingLightArmor)) {
+	if (GET_OBJ_TYPE(obj) == EObjType::kLightArmor && !CanUseFeat(ch, EFeat::kWearingLightArmor)) {
 		act("Для использования $o1 требуется способность 'легкие доспехи'.",
 			false, ch, obj, nullptr, kToChar);
 		return false;
 	}
 
-	if (GET_OBJ_TYPE(obj) == EObjType::kMediumArmor && !IsAbleToUseFeat(ch, EFeat::kWearingMediumArmor)) {
+	if (GET_OBJ_TYPE(obj) == EObjType::kMediumArmor && !CanUseFeat(ch, EFeat::kWearingMediumArmor)) {
 		act("Для использования $o1 требуется способность 'средние доспехи'.",
 			false, ch, obj, nullptr, kToChar);
 		return false;
 	}
 
-	if (GET_OBJ_TYPE(obj) == EObjType::kHeavyArmor && !IsAbleToUseFeat(ch, EFeat::kWearingHeavyArmor)) {
+	if (GET_OBJ_TYPE(obj) == EObjType::kHeavyArmor && !CanUseFeat(ch, EFeat::kWearingHeavyArmor)) {
 		act("Для использования $o1 требуется способность 'тяжелые доспехи'.",
 			false, ch, obj, nullptr, kToChar);
 		return false;

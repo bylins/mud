@@ -1815,7 +1815,7 @@ void look_at_room(CharData *ch, int ignore_brief) {
 	if (!ch->desc)
 		return;
 
-	if (is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !IsAbleToUseFeat(ch, EFeat::kDarkReading)) {
+	if (is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !CanUseFeat(ch, EFeat::kDarkReading)) {
 		SendMsgToChar("Слишком темно...\r\n", ch);
 		show_glow_objs(ch);
 		return;
@@ -2277,14 +2277,14 @@ const char *diag_liquid_timer(const ObjData *obj) {
 //buf это буфер в который дописывать инфу, в нем уже может быть что-то иначе надо перед вызовом присвоить *buf='\0'
 void obj_info(CharData *ch, ObjData *obj, char buf[kMaxStringLength]) {
 	int j;
-	if (IsAbleToUseFeat(ch, EFeat::kSkilledTrader) || PRF_FLAGGED(ch, EPrf::kHolylight) || ch->GetSkill(ESkill::kJewelry)) {
+	if (CanUseFeat(ch, EFeat::kSkilledTrader) || PRF_FLAGGED(ch, EPrf::kHolylight) || ch->GetSkill(ESkill::kJewelry)) {
 		sprintf(buf + strlen(buf), "Материал : %s", CCCYN(ch, C_NRM));
 		sprinttype(obj->get_material(), material_name, buf + strlen(buf));
 		sprintf(buf + strlen(buf), "\r\n%s", CCNRM(ch, C_NRM));
 	}
 
 	if (GET_OBJ_TYPE(obj) == EObjType::kMagicIngredient
-		&& (IsAbleToUseFeat(ch, EFeat::kHerbalist)
+		&& (CanUseFeat(ch, EFeat::kHerbalist)
 			|| PRF_FLAGGED(ch, EPrf::kHolylight))) {
 		for (j = 0; imtypes[j].id != GET_OBJ_VAL(obj, IM_TYPE_SLOT) && j <= top_imtypes;) {
 			j++;
@@ -2311,7 +2311,7 @@ void obj_info(CharData *ch, ObjData *obj, char buf[kMaxStringLength]) {
 	}
 
 	//|| EPrf::FLAGGED(ch, EPrf::HOLYLIGHT)
-	if (IsAbleToUseFeat(ch, EFeat::kJeweller)) {
+	if (CanUseFeat(ch, EFeat::kJeweller)) {
 		sprintf(buf + strlen(buf), "Слоты : %s", CCCYN(ch, C_NRM));
 		if (obj->has_flag(EObjFlag::kHasThreeSlots)) {
 			strcat(buf, "доступно 3 слота\r\n");
@@ -3949,7 +3949,7 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 void do_zone(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (ch->desc
-		&& !(is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !IsAbleToUseFeat(ch, EFeat::kDarkReading))
+		&& !(is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !CanUseFeat(ch, EFeat::kDarkReading))
 		&& !AFF_FLAGGED(ch, EAffect::kBlind)) {
 		MapSystem::print_map(ch);
 	}
@@ -4035,7 +4035,7 @@ void do_commands(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		} else {
 			i = cmd_sort_info[cmd_num].sort_pos;
 			if (cmd_info[i].minimum_level >= 0
-				&& (privilege::IsAbleToDoPrivilege(vict, std::string(cmd_info[i].command), i, 0))
+				&& (privilege::HasPrivilege(vict, std::string(cmd_info[i].command), i, 0))
 				&& (cmd_info[i].minimum_level >= kLvlImmortal) == wizhelp
 				&& (wizhelp || socials == cmd_sort_info[i].is_social)) {
 				sprintf(buf + strlen(buf), "%-15s", cmd_info[i].command);

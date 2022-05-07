@@ -235,8 +235,8 @@ void UnsetInaccessibleFeats(CharData *ch);
 void SetRaceFeats(CharData *ch);
 void UnsetRaceFeats(CharData *ch);
 void SetInbornAndRaceFeats(CharData *ch);
-bool IsAbleToUseFeat(const CharData *ch, EFeat feat);
-bool IsAbleToGetFeat(CharData *ch, EFeat feat);
+bool CanUseFeat(const CharData *ch, EFeat feat);
+bool CanGetFeat(CharData *ch, EFeat feat);
 bool TryFlipActivatedFeature(CharData *ch, char *argument);
 Bitvector GetPrfWithFeatNumber(EFeat feat_id);
 

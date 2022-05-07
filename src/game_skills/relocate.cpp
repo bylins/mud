@@ -11,7 +11,7 @@ extern void CheckAutoNosummon(CharData *ch);
 void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	struct TimedFeat timed;
 
-	if (!IsAbleToUseFeat(ch, EFeat::kRelocate)) {
+	if (!CanUseFeat(ch, EFeat::kRelocate)) {
 		SendMsgToChar("Вам это недоступно.\r\n", ch);
 		return;
 	}

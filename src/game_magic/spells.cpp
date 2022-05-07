@@ -87,7 +87,7 @@ int CalcMinSpellLvl(const CharData *ch, ESpell spell_id) {
 	return std::max(1, min_lvl);
 }
 
-bool IsAbleToGetSpell(const CharData *ch, ESpell spell_id, int req_lvl) {
+bool CanGetSpell(const CharData *ch, ESpell spell_id, int req_lvl) {
 	if (CalcMinSpellLvl(ch, spell_id, req_lvl) > GetRealLevel(ch) ||
 		MUD::Classes(ch->GetClass()).spells[spell_id].GetMinRemort() > GET_REAL_REMORT(ch)) {
 		return false;
@@ -97,7 +97,7 @@ bool IsAbleToGetSpell(const CharData *ch, ESpell spell_id, int req_lvl) {
 };
 
 // Функция определяет возможность изучения спелла из книги или в гильдии
-bool IsAbleToGetSpell(CharData *ch, ESpell spell_id) {
+bool CanGetSpell(CharData *ch, ESpell spell_id) {
 	if (CalcMinSpellLvl(ch, spell_id) > GetRealLevel(ch) ||
 		MUD::Classes(ch->GetClass()).spells[spell_id].GetMinRemort() > GET_REAL_REMORT(ch)) {
 		return false;
@@ -962,7 +962,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 		af.battleflag = 0;
 		affect_to_char(victim, af);
 		// резервируем место под фит ()
-		if (IsAbleToUseFeat(ch, EFeat::kAnimalMaster) &&
+		if (CanUseFeat(ch, EFeat::kAnimalMaster) &&
 		GET_RACE(victim) == 104) {
 			act("$N0 обрел$G часть вашей магической силы, и стал$G намного опаснее...",
 				false, ch, nullptr, victim, kToChar);
@@ -1614,7 +1614,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 				case EBook::kFeat: {
 					const auto feat_id = static_cast<EFeat>(GET_OBJ_VAL(obj, 1));
 					if (feat_id >= EFeat::kFirst && feat_id <= EFeat::kLast) {
-						if (IsAbleToGetFeat(ch, feat_id)) {
+						if (CanGetFeat(ch, feat_id)) {
 							drsdice = MUD::Classes(ch->GetClass()).feats[feat_id].GetSlot();
 						} else {
 							drsdice = kLvlImplementator;
@@ -2103,7 +2103,7 @@ void SpellHolystrike(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData*
 		} else {
 			//Чуток нелогично, но раз зомби гоняет -- сам немного мертвяк. :)
 			//Тут сам спелл бредовый... Но пока на скорую руку.
-			if (!IsAbleToUseFeat(tch, EFeat::kZombieDrover)) {
+			if (!CanUseFeat(tch, EFeat::kZombieDrover)) {
 				continue;
 			}
 		}

@@ -236,7 +236,7 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 
 	// * Everyone but IMPLs can only edit zones they have been assigned.
 	if (GetRealLevel(ch) < kLvlImplementator) {
-		if (!privilege::IsAbleToDoPrivilege(ch, std::string(cmd_info[cmd].command), cmd, 0, false)) {
+		if (!privilege::HasPrivilege(ch, std::string(cmd_info[cmd].command), cmd, 0, false)) {
 			if (!GET_OLC_ZONE(ch) || (zone_table[OLC_ZNUM(d)].vnum != GET_OLC_ZONE(ch))) {
 				SendMsgToChar("Вам запрещен доступ к сией зоне.\r\n", ch);
 				delete d->olc;

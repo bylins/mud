@@ -99,7 +99,7 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply
 
 	switch (saving) {
 		case ESaving::kReflex:
-			if ((save > 0) && IsAbleToUseFeat(victim, EFeat::kDodger))
+			if ((save > 0) && CanUseFeat(victim, EFeat::kDodger))
 				save >>= 1;
 			save -= dex_bonus(GET_REAL_DEX(victim));
 			temp_save_stat = dex_bonus(GET_REAL_DEX(victim));
@@ -130,7 +130,7 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply
 	}
 	// Учет осторожного стиля
 	if (PRF_FLAGGED(victim, EPrf::kAwake)) {
-		if (IsAbleToUseFeat(victim, EFeat::kImpregnable)) {
+		if (CanUseFeat(victim, EFeat::kImpregnable)) {
 			save -= std::max(0, victim->GetSkill(ESkill::kAwake) - 80) / 2;
 			temp_awake_mod = std::max(0, victim->GetSkill(ESkill::kAwake) - 80) / 2;
 		}
@@ -357,7 +357,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 		if (!IS_SET(spell_info[spell_id].routines, kMagWarcry) && !IS_SET(spell_info[spell_id].routines, kMagMasses)
 			&& !IS_SET(spell_info[spell_id].routines, kMagAreas)
 			&& (victim->GetSkill(ESkill::kShieldBlock) > 100) && GET_EQ(victim, kShield)
-			&& IsAbleToUseFeat(victim, EFeat::kMagicalShield)
+			&& CanUseFeat(victim, EFeat::kMagicalShield)
 			&& (number(1, 100)
 				< ((victim->GetSkill(ESkill::kShieldBlock)) / 20 + GET_OBJ_WEIGHT(GET_EQ(victim, kShield)) / 2))) {
 			act("Ловким движением $N0 отразил щитом вашу магию.", false, ch, nullptr, victim, kToChar);
@@ -374,10 +374,10 @@ int mag_damage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 
 	if (ch != victim) {
 		modi = CalcAntiSavings(ch);
-		if (IsAbleToUseFeat(ch, EFeat::kRelatedToMagic) && !victim->IsNpc()) {
+		if (CanUseFeat(ch, EFeat::kRelatedToMagic) && !victim->IsNpc()) {
 			modi -= 80; // на игрока бонуса + каст нет
 		}
-		if (IsAbleToUseFeat(ch, EFeat::kMagicalInstinct) && !victim->IsNpc()) {
+		if (CanUseFeat(ch, EFeat::kMagicalInstinct) && !victim->IsNpc()) {
 			modi -= 30; // на игрока бонуса + каст нет
 		}
 		if (PRF_FLAGGED(ch, EPrf::kAwake) && !victim->IsNpc())
@@ -401,7 +401,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 			sdice = 4;
 			adice = 10;
 			// если есть фит магическая стрела, то стрелок на 30 уровне будет 6
-			if (IsAbleToUseFeat(ch, EFeat::kMagicArrows))
+			if (CanUseFeat(ch, EFeat::kMagicArrows))
 				count = (level + 9) / 5;
 			else
 				count = (level + 9) / 10;
@@ -637,7 +637,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 				sdice = GET_REAL_WIS(ch);        //90
 				adice = 5 + (GET_REAL_WIS(ch) - 20) / 6;    //5+11
 				int choice_stunning = 750;
-				if (IsAbleToUseFeat(ch, EFeat::kDarkPact))
+				if (CanUseFeat(ch, EFeat::kDarkPact))
 					choice_stunning -= GET_REAL_REMORT(ch) * 15;
 				if (number(1, 999) > choice_stunning) {
 					act("Ваше каменное проклятие отшибло сознание у $N1.", false, ch, nullptr, victim, kToChar);
@@ -916,7 +916,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 		dam = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, dam);
 //		SendMsgToChar(ch, "&CМагДамага магии %d &n\r\n", dam);
 
-		if (IsAbleToUseFeat(ch, EFeat::kPowerMagic) && victim->IsNpc()) {
+		if (CanUseFeat(ch, EFeat::kPowerMagic) && victim->IsNpc()) {
 			dam += (int) dam * 0.5;
 		}
 		if (AFF_FLAGGED(ch, EAffect::kDaturaPoison))
@@ -959,7 +959,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 			dmg.ch_start_pos = ch_start_pos;
 			dmg.victim_start_pos = victim_start_pos;
 
-			if (IsAbleToUseFeat(ch, EFeat::kPowerMagic) && victim->IsNpc()) {
+			if (CanUseFeat(ch, EFeat::kPowerMagic) && victim->IsNpc()) {
 				dmg.flags.set(fight::kIgnoreAbsorbe);
 			}
 			// отражение магии в кастующего
@@ -1151,7 +1151,7 @@ int CastMagicAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, 
 	if (ch != victim && spell_info[spell_id].violent && !IS_SET(spell_info[spell_id].routines, kMagWarcry)
 		&& !IS_SET(spell_info[spell_id].routines, kMagMasses) && !IS_SET(spell_info[spell_id].routines, kMagAreas)
 		&& (victim->GetSkill(ESkill::kShieldBlock) > 100) && GET_EQ(victim, EEquipPos::kShield)
-		&& IsAbleToUseFeat(victim, EFeat::kMagicalShield)
+		&& CanUseFeat(victim, EFeat::kMagicalShield)
 		&& (number(1, 100) < ((victim->GetSkill(ESkill::kShieldBlock)) / 20
 			+ GET_OBJ_WEIGHT(GET_EQ(victim, EEquipPos::kShield)) / 2))) {
 		act("Ваши чары повисли на щите $N1, и затем развеялись.", false, ch, nullptr, victim, kToChar);
@@ -1178,10 +1178,10 @@ int CastMagicAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, 
 	// decrease modi for failing, increese fo success
 	if (ch != victim) {
 		modi = CalcAntiSavings(ch);
-		if (IsAbleToUseFeat(ch, EFeat::kRelatedToMagic) && !victim->IsNpc()) {
+		if (CanUseFeat(ch, EFeat::kRelatedToMagic) && !victim->IsNpc()) {
 			modi -= 80; //бонуса на непись нету
 		}
-		if (IsAbleToUseFeat(ch, EFeat::kMagicalInstinct) && !victim->IsNpc()) {
+		if (CanUseFeat(ch, EFeat::kMagicalInstinct) && !victim->IsNpc()) {
 			modi -= 30; //бонуса на непись нету
 		}
 
@@ -1710,7 +1710,7 @@ int CastMagicAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, 
 			}
 
 			// если есть фит порча
-			if (IsAbleToUseFeat(ch, EFeat::kCorruption))
+			if (CanUseFeat(ch, EFeat::kCorruption))
 				decline_mod += GET_REAL_REMORT(ch);
 			af[0].location = EApply::kInitiative;
 			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
@@ -3046,7 +3046,7 @@ int mag_summons(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool nee
 	}
 	// при перке помощь тьмы гораздо меньше шанс фейла
 	if (!IS_IMMORTAL(ch) && number(0, 101) < pfail && need_fail) {
-		if (IsAbleToUseFeat(ch, EFeat::kFavorOfDarkness)) {
+		if (CanUseFeat(ch, EFeat::kFavorOfDarkness)) {
 			if (number(0, 3) == 0) {
 				SendMsgToChar(mag_summon_fail_msgs[fmsg], ch);
 				if (handle_corpse)
@@ -3088,7 +3088,7 @@ int mag_summons(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool nee
 		mob->player_data.PNames[1] = std::string(buf2);
 		mob->set_sex(ESex::kNeutral);
 		MOB_FLAGS(mob).set(EMobFlag::kResurrected);
-		if (IsAbleToUseFeat(ch, EFeat::kFuryOfDarkness)) {
+		if (CanUseFeat(ch, EFeat::kFuryOfDarkness)) {
 			GET_DR(mob) = GET_DR(mob) + GET_DR(mob) * 0.20;
 			GET_MAX_HIT(mob) = GET_MAX_HIT(mob) + GET_MAX_HIT(mob) * 0.20;
 			GET_HIT(mob) = GET_MAX_HIT(mob);
@@ -3252,10 +3252,10 @@ int mag_summons(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool nee
 	}
 	if (spell_id == ESpell::kAnimateDead) {
 		MOB_FLAGS(mob).set(EMobFlag::kResurrected);
-		if (mob_num == kMobSkeleton && IsAbleToUseFeat(ch, EFeat::kLoyalAssist))
+		if (mob_num == kMobSkeleton && CanUseFeat(ch, EFeat::kLoyalAssist))
 			mob->set_skill(ESkill::kRescue, 100);
 
-		if (mob_num == kMobBonespirit && IsAbleToUseFeat(ch, EFeat::kHauntingSpirit))
+		if (mob_num == kMobBonespirit && CanUseFeat(ch, EFeat::kHauntingSpirit))
 			mob->set_skill(ESkill::kRescue, 120);
 
 		// даем всем поднятым, ну наверное не будет чернок 75+ мудры вызывать зомби в щите.
@@ -4416,7 +4416,7 @@ int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, ESpell spell
 	int targetsCounter = 1;
 	float castDecay = 0.0;
 	int levelDecay = 0;
-	if (IsAbleToUseFeat(ch, EFeat::kMultipleCast)) {
+	if (CanUseFeat(ch, EFeat::kMultipleCast)) {
 		castDecay = mag_messages[msgIndex].castSuccessPercentDecay * 0.6;
 		levelDecay = MAX(MIN(1, mag_messages[msgIndex].castLevelDecay), mag_messages[msgIndex].castLevelDecay - 1);
 	} else {

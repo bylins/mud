@@ -215,7 +215,7 @@ int skip_sneaking(CharData *ch, CharData *vict) {
 			//percent = number(1, 140 + GET_REAL_INT(vict));
 			//else
 			percent = number(1,
-							 (IsAbleToUseFeat(ch, EFeat::kStealthy) ? 102 : 112)
+							 (CanUseFeat(ch, EFeat::kStealthy) ? 102 : 112)
 								 + (GET_REAL_INT(vict) * (vict->get_role(MOB_ROLE_BOSS) ? 3 : 1))
 								 + (GetRealLevel(vict) > 30 ? GetRealLevel(vict) : 0));
 			prob = CalcCurrentSkill(ch, ESkill::kSneak, vict);
@@ -290,12 +290,12 @@ int calculate_move_cost(CharData *ch, int dir) {
 	auto ch_inroom = real_sector(ch->in_room);
 	auto ch_toroom = real_sector(EXIT(ch, dir)->to_room());
 
-	if (IsAbleToUseFeat(ch, EFeat::kForestPath)) {
+	if (CanUseFeat(ch, EFeat::kForestPath)) {
 		ch_inroom = real_forest_paths_sect(ch_inroom);
 		ch_toroom = real_forest_paths_sect(ch_toroom);
 	}
 
-	if (IsAbleToUseFeat(ch, EFeat::kMountainPath)) {
+	if (CanUseFeat(ch, EFeat::kMountainPath)) {
 		ch_inroom = real_mountains_paths_sect(ch_inroom);
 		ch_toroom = real_mountains_paths_sect(ch_toroom);
 	}
@@ -685,7 +685,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 		} else
 			strcpy(smallBuf, "уш$y");
 
-		if (is_flee && !ch->IsNpc() && IsAbleToUseFeat(ch, EFeat::kWriggler))
+		if (is_flee && !ch->IsNpc() && CanUseFeat(ch, EFeat::kWriggler))
 			sprintf(buf2, "$n %s.", smallBuf);
 		else
 			sprintf(buf2, "$n %s %s.", smallBuf, DirsTo[dir]);
@@ -711,7 +711,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 
 	ExtractCharFromRoom(ch);
 	//затычка для бегства. чтоьы не отрабатывал MSDP протокол
-	if (is_flee && !ch->IsNpc() && !IsAbleToUseFeat(ch, EFeat::kCalmness))
+	if (is_flee && !ch->IsNpc() && !CanUseFeat(ch, EFeat::kCalmness))
 		FleeToRoom(ch, go_to);
 	else
 		PlaceCharToRoom(ch, go_to);

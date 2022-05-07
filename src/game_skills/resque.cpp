@@ -55,7 +55,7 @@ void go_rescue(CharData *ch, CharData *vict, CharData *tmp_ch) {
 	act("$n героически спас$q $N3!", true, ch, 0, vict, kToNotVict | kToArenaListen);
 
 	int hostilesCounter = 0;
-	if (IsAbleToUseFeat(ch, EFeat::kLiveShield)) {
+	if (CanUseFeat(ch, EFeat::kLiveShield)) {
 		for (const auto i : world[ch->in_room]->people) {
 			if (i->GetEnemy() == vict) {
 				fighting_rescue(ch, vict, i);

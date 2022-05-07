@@ -836,7 +836,7 @@ void Player::save_char() {
 	// added by WorM (Видолюб) 2010.06.04 бабки потраченные на найм(возвращаются при креше)
 	i = 0;
 	if (this->followers
-		&& IsAbleToUseFeat(this, EFeat::kEmployer)
+		&& CanUseFeat(this, EFeat::kEmployer)
 		&& !IS_IMMORTAL(this)) {
 		struct Follower *k = nullptr;
 		for (k = this->followers; k; k = k->next) {
@@ -892,7 +892,7 @@ void Player::save_char() {
 
 	auto it = this->charmeeHistory.begin();
 	if (this->charmeeHistory.size() > 0 &&
-		(IS_SPELL_KNOWN(this, ESpell::kCharm) || IsAbleToUseFeat(this, EFeat::kEmployer) || IS_IMMORTAL(this))) {
+		(IS_SPELL_KNOWN(this, ESpell::kCharm) || CanUseFeat(this, EFeat::kEmployer) || IS_IMMORTAL(this))) {
 		fprintf(saved, "Chrm:\n");
 		for (; it != this->charmeeHistory.end(); ++it) {
 			fprintf(saved, "%d %d %d %d %d %d\n",
@@ -1464,7 +1464,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 					this->player_specials->saved.GodsLike = lnum;
 					// added by WorM (Видолюб) 2010.06.04 бабки потраченные на найм(возвращаются при креше)
 				else if (!strcmp(tag, "GldH")) {
-					if (num != 0 && !IS_IMMORTAL(this) && IsAbleToUseFeat(this, EFeat::kEmployer)) {
+					if (num != 0 && !IS_IMMORTAL(this) && CanUseFeat(this, EFeat::kEmployer)) {
 						this->player_specials->saved.HiredCost = num;
 					}
 				}

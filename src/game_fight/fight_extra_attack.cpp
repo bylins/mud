@@ -40,7 +40,7 @@ bool WeaponMagicalAttack::set_count_attack(CharacterData *ch) {
 			mag_cont->add_val(2, -1);
 			return true;
 
-		} else if ((IsAbleToUseFeat(ch, EFeat::kDeftShooter)) && (get_count() == 3)) {
+		} else if ((CanFeat(ch, EFeat::kDeftShooter)) && (get_count() == 3)) {
 			set_count(0);
 			mag_cont->add_val(2, -1);
 			return true;

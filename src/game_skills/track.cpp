@@ -88,7 +88,7 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!check_moves(ch, IsAbleToUseFeat(ch, EFeat::kTracker) ? kTrackMoves / 2 : kTrackMoves))
+	if (!check_moves(ch, CanUseFeat(ch, EFeat::kTracker) ? kTrackMoves / 2 : kTrackMoves))
 		return;
 
 	calc_track = CalcCurrentSkill(ch, ESkill::kTrack, nullptr);
@@ -232,7 +232,7 @@ void do_hidetrack(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 		SendMsgToChar("Вы не видите своих следов.\r\n", ch);
 		return;
 	}
-	if (!check_moves(ch, IsAbleToUseFeat(ch, EFeat::kStealthy) ? kHidetrackMoves / 2 : kHidetrackMoves))
+	if (!check_moves(ch, CanUseFeat(ch, EFeat::kStealthy) ? kHidetrackMoves / 2 : kHidetrackMoves))
 		return;
 	percent = number(1, MUD::Skills(ESkill::kHideTrack).difficulty);
 	prob = CalcCurrentSkill(ch, ESkill::kHideTrack, nullptr);

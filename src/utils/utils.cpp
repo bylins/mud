@@ -1959,11 +1959,11 @@ int CAN_CARRY_N(const CharData *ch) {
 	int n = 5 + GET_REAL_DEX(ch) / 2 + GetRealLevel(ch) / 2;
 	if (ch->HaveFeat(EFeat::kJuggler)) {
 		n += GetRealLevel(ch) / 2;
-		if (IsAbleToUseFeat(ch, EFeat::kThrifty)) {
+		if (CanUseFeat(ch, EFeat::kThrifty)) {
 			n += 5;
 		}
 	}
-	if (IsAbleToUseFeat(ch, EFeat::kThrifty)) {
+	if (CanUseFeat(ch, EFeat::kThrifty)) {
 		n += 5;
 	}
 	return std::max(n, 1);

@@ -1792,7 +1792,7 @@ int Crash_load(CharData *ch) {
 	cost = MAX(0, cost);
 	// added by WorM (Видолюб) 2010.06.04 сумма потраченная на найм(возвращается при креше)
 	if (RENTCODE(index) == RENT_CRASH) {
-		if (!IS_IMMORTAL(ch) && IsAbleToUseFeat(ch, EFeat::kEmployer) && ch->player_specials->saved.HiredCost != 0) {
+		if (!IS_IMMORTAL(ch) && CanUseFeat(ch, EFeat::kEmployer) && ch->player_specials->saved.HiredCost != 0) {
 			if (ch->player_specials->saved.HiredCost < 0)
 				ch->add_bank(abs(ch->player_specials->saved.HiredCost), false);
 			else

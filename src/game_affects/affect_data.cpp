@@ -499,7 +499,7 @@ void affect_total(CharData *ch) {
 
 	// move features modifiers
 	for (auto i = EFeat::kFirst; i <= EFeat::kLast; ++i) {
-		if (IsAbleToUseFeat(ch, i) && (feat_info[i].type == EFeatType::kAffect)) {
+		if (CanUseFeat(ch, i) && (feat_info[i].type == EFeatType::kAffect)) {
 			for (int j = 0; j < kMaxFeatAffect; ++j) {
 				affect_modify(ch, feat_info[i].affected[j].location, feat_info[i].affected[j].modifier,
 							  EAffect::kUndefinded, true);
@@ -508,7 +508,7 @@ void affect_total(CharData *ch) {
 	}
 
 	// EFeat::kImpregnable учитывается дважды: выше начисляем единичку за 0 мортов, а теперь по 1 за каждый морт
-	if (IsAbleToUseFeat(ch, EFeat::kImpregnable)) {
+	if (CanUseFeat(ch, EFeat::kImpregnable)) {
 		for (int j = 0; j < kMaxFeatAffect; j++) {
 			affect_modify(ch,
 						  feat_info[EFeat::kImpregnable].affected[j].location,
@@ -519,7 +519,7 @@ void affect_total(CharData *ch) {
 	}
 
 	// Обработка изворотливости (с) Числобог
-	if (IsAbleToUseFeat(ch, EFeat::kDodger)) {
+	if (CanUseFeat(ch, EFeat::kDodger)) {
 		affect_modify(ch, EApply::kSavingReflex, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), EAffect::kUndefinded, true);
 		affect_modify(ch, EApply::kSavingWill, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), EAffect::kUndefinded, true);
 		affect_modify(ch, EApply::kSavingStability, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), EAffect::kUndefinded, true);
@@ -529,9 +529,9 @@ void affect_total(CharData *ch) {
 	// Обработка "выносливости" и "богатырского здоровья
 	// Знаю, что кривовато, придумаете, как лучше - делайте
 	if (!ch->IsNpc()) {
-		if (IsAbleToUseFeat(ch, EFeat::kEndurance))
+		if (CanUseFeat(ch, EFeat::kEndurance))
 			affect_modify(ch, EApply::kMove, GetRealLevel(ch) * 2, static_cast<EAffect>(0), true);
-		if (IsAbleToUseFeat(ch, EFeat::kSplendidHealth))
+		if (CanUseFeat(ch, EFeat::kSplendidHealth))
 			affect_modify(ch, EApply::kHp, GetRealLevel(ch) * 2, static_cast<EAffect>(0), true);
 		if (NORENTABLE(ch) == 0 && !domination) // мы не на новой арене и не ПК
 			GloryConst::apply_modifiers(ch);
@@ -560,7 +560,7 @@ void affect_total(CharData *ch) {
 		if (!AFF_FLAGGED(ch, EAffect::kNoobRegen)) {
 			GET_HITREG(ch) += (GetRealLevel(ch) + 4) / 5 * 10;
 		}
-		if (IsAbleToUseFeat(ch, EFeat::kRegenOfDarkness)) {
+		if (CanUseFeat(ch, EFeat::kRegenOfDarkness)) {
 			GET_HITREG(ch) += GET_HITREG(ch) * 0.2;
 		}
 		if (GET_CON_ADD(ch)) {

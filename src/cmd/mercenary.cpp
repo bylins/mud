@@ -25,7 +25,7 @@ void doList(CharData *ch, CharData *boss, bool isFavList) {
 	std::map<int, MERCDATA> *m;
 	m = ch->getMercList();
 	if (m->empty()) {
-		if (IsAbleToUseFeat(ch, EFeat::kEmployer))
+		if (CanUseFeat(ch, EFeat::kEmployer))
 			tell_to_char(boss, ch, "Ступай, поначалу заведи знакомства, потом ко мне приходи.");
 		else if (IS_SPELL_KNOWN(ch, ESpell::kCharm))
 			tell_to_char(boss, ch, "Поищи себе марионетку, да потренируйся, а затем ко мне приходи.");
@@ -36,7 +36,7 @@ void doList(CharData *ch, CharData *boss, bool isFavList) {
 	if (IS_IMMORTAL(ch)) {
 		sprintf(buf, "Вот, господи, %s тварей земных, чьим разумом ты владел:",
 				isFavList ? "краткий список" : "полный список");
-	} else if (IsAbleToUseFeat(ch, EFeat::kEmployer)) {
+	} else if (CanUseFeat(ch, EFeat::kEmployer)) {
 		sprintf(buf, "%s тех, с кем знакомство ты водишь:",
 				isFavList ? "Краткий список" : "Полный список");
 	} else if (IS_SPELL_KNOWN(ch, ESpell::kCharm)) {
@@ -182,7 +182,7 @@ int mercenary(CharData *ch, void * /*me*/, int cmd, char *argument) {
 	CharData *boss = MERC::findMercboss(ch->in_room);
 	if (!boss) return 0;
 
-	if (!IS_IMMORTAL(ch) && !IsAbleToUseFeat(ch, EFeat::kEmployer) && ch->GetClass() != ECharClass::kCharmer) {
+	if (!IS_IMMORTAL(ch) && !CanUseFeat(ch, EFeat::kEmployer) && ch->GetClass() != ECharClass::kCharmer) {
 		tell_to_char(boss, ch, "Эти знания тебе недоступны, ступай с миром");
 		return 0;
 	}

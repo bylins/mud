@@ -587,7 +587,7 @@ void InitFeatures() {
 	feat_info[EFeat::kThrowWeapon].success_degree_damage_bonus = 5;
 	feat_info[EFeat::kThrowWeapon].CalcSituationalDamageFactor =
 		([](CharData *ch) -> int {
-			return (IsAbleToUseFeat(ch, EFeat::kPowerThrow) + IsAbleToUseFeat(ch, EFeat::kDeadlyThrow));
+			return (CanUseFeat(ch, EFeat::kPowerThrow) + CanUseFeat(ch, EFeat::kDeadlyThrow));
 		});
 	feat_info[EFeat::kThrowWeapon].CalcSituationalRollBonus =
 		([](CharData *ch, CharData * /* enemy */) -> int {
@@ -699,7 +699,7 @@ const char *GetFeatName(EFeat id) {
 	}
 }
 
-bool IsAbleToUseFeat(const CharData *ch, EFeat feat) {
+bool CanUseFeat(const CharData *ch, EFeat feat) {
 	if (feat_info[feat].always_available) {
 		return true;
 	};
@@ -755,7 +755,7 @@ bool IsAbleToUseFeat(const CharData *ch, EFeat feat) {
 	return true;
 }
 
-bool IsAbleToGetFeat(CharData *ch, EFeat feat) {
+bool CanGetFeat(CharData *ch, EFeat feat) {
 	int count = 0;
 	if (feat < EFeat::kFirst || feat > EFeat::kLast) {
 		return false;
@@ -984,7 +984,7 @@ void CheckBerserk(CharData *ch) {
 		SendMsgToChar("Предсмертное исступление оставило вас.\r\n", ch);
 	}
 
-	if (IsAbleToUseFeat(ch, EFeat::kBerserker) && ch->GetEnemy() &&
+	if (CanUseFeat(ch, EFeat::kBerserker) && ch->GetEnemy() &&
 		!IsTimedByFeat(ch, EFeat::kBerserker) && !AFF_FLAGGED(ch, EAffect::kBerserk)
 		&& (GET_HIT(ch) < GET_REAL_MAX_HIT(ch) / 4)) {
 		CharData *vict = ch->GetEnemy();
@@ -1018,7 +1018,7 @@ void CheckBerserk(CharData *ch) {
 void do_lightwalk(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	struct TimedFeat timed;
 
-	if (ch->IsNpc() || !IsAbleToUseFeat(ch, EFeat::kLightWalk)) {
+	if (ch->IsNpc() || !CanUseFeat(ch, EFeat::kLightWalk)) {
 		SendMsgToChar("Вы не можете этого.\r\n", ch);
 		return;
 	}
@@ -1073,11 +1073,11 @@ void do_fit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	};
 
 	//Может ли игрок использовать эту способность?
-	if ((subcmd == SCMD_DO_ADAPT) && !IsAbleToUseFeat(ch, EFeat::kToFitItem)) {
+	if ((subcmd == SCMD_DO_ADAPT) && !CanUseFeat(ch, EFeat::kToFitItem)) {
 		SendMsgToChar("Вы не умеете этого.", ch);
 		return;
 	};
-	if ((subcmd == SCMD_MAKE_OVER) && !IsAbleToUseFeat(ch, EFeat::kToFitClotches)) {
+	if ((subcmd == SCMD_MAKE_OVER) && !CanUseFeat(ch, EFeat::kToFitClotches)) {
 		SendMsgToChar("Вы не умеете этого.", ch);
 		return;
 	};
@@ -1168,7 +1168,7 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	struct TimedFeat timed;
 
-	if (!IS_IMPL(ch) && (ch->IsNpc() || !IsAbleToUseFeat(ch, EFeat::kSpellCapabler))) {
+	if (!IS_IMPL(ch) && (ch->IsNpc() || !CanUseFeat(ch, EFeat::kSpellCapabler))) {
 		SendMsgToChar("Вы не столь могущественны.\r\n", ch);
 		return;
 	}
@@ -1308,7 +1308,7 @@ void SetRaceFeats(CharData *ch) {
 	auto race_features = PlayerRace::GetRaceFeatures((int) GET_KIN(ch), (int) GET_RACE(ch));
 	for (int i : race_features) {
 		auto feat_id = static_cast<EFeat>(i);
-		if (IsAbleToGetFeat(ch, feat_id)) {
+		if (CanGetFeat(ch, feat_id)) {
 			ch->SetFeat(feat_id);
 		}
 	}
@@ -1323,7 +1323,7 @@ void UnsetRaceFeats(CharData *ch) {
 
 void SetInbornFeats(CharData *ch) {
 	for (const auto &feat : MUD::Classes(ch->GetClass()).feats) {
-		if (feat.IsInborn() && !ch->HaveFeat(feat.GetId()) && IsAbleToGetFeat(ch, feat.GetId())) {
+		if (feat.IsInborn() && !ch->HaveFeat(feat.GetId()) && CanGetFeat(ch, feat.GetId())) {
 			ch->SetFeat(feat.GetId());
 		}
 	}
@@ -1481,7 +1481,7 @@ void DeactivateFeature(CharData *ch, EFeat feat_id) {
 }
 
 bool CheckAccessActivatedFeat(CharData *ch, EFeat feat_id) {
-	if (!IsAbleToUseFeat(ch, feat_id)) {
+	if (!CanUseFeat(ch, feat_id)) {
 		SendMsgToChar("Вы не в состоянии использовать эту способность.\r\n", ch);
 		return false;
 	}

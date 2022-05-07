@@ -1,12 +1,12 @@
-#ifndef __LIMITS_HPP__
-#define __LIMITS_HPP__
+#ifndef LIMITS_HPP_
+#define LIMITS_HPP_
 
 const int kRecallSpellsInterval = 28;
 
-void underwater_check(void);
+void underwater_check();
 void beat_points_update(int pulse);
-void hour_update(void);
+void hour_update();
 
-#endif // __LIMITS_HPP__
+#endif // LIMITS_HPP_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

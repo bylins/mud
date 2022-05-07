@@ -947,7 +947,7 @@ void do_featset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	sprintf(buf2, "Вы изменили для %s '%s' на '%s'.\r\n", GET_PAD(vict, 1),
 			feat_info[feat_id].name, value ? "доступно" : "недоступно");
-	if (!IsAbleToGetFeat(vict, feat_id) && value == 1) {
+	if (!CanGetFeat(vict, feat_id) && value == 1) {
 		SendMsgToChar("Эта способность не доступна данному персонажу и будет удалена при повторном входе в игру.\r\n",
 					 ch);
 	}

@@ -1678,29 +1678,30 @@ char *make_prompt(DescriptorData *d) {
 		// if (EPrf::FLAGGED(d->character, EPrf::DISPEXP))
 		//    count += sprintf(prompt + count, "%ldx ", GET_EXP(d->character));
 		if (PRF_FLAGGED(d->character, EPrf::kDispExp)) {
-			if (IS_IMMORTAL(d->character))
+			if (IS_IMMORTAL(d->character)) {
 				count += sprintf(prompt + count, "??? ");
-			else
+			} else {
 				count += sprintf(prompt + count, "%ldо ",
 								 GetExpUntilNextLvl(d->character.get(),
 													GetRealLevel(d->character) + 1) - GET_EXP(d->character));
+			}
 		}
-		// Mem Info
-		if (PRF_FLAGGED(d->character, EPrf::kDispMana)
-			&& !IS_MANA_CASTER(d->character)) {
+
+		if (PRF_FLAGGED(d->character, EPrf::kDispMana) && !IS_MANA_CASTER(d->character)) {
 			if (!d->character->mem_queue.Empty()) {
-				door = mana_gain(d->character.get());
+				door = GainMana(d->character.get());
 				if (door) {
-					sec_hp =
-						std::max(0, 1 + d->character->mem_queue.total - d->character->mem_queue.stored);
+					sec_hp = std::max(0, 1 + d->character->mem_queue.total - d->character->mem_queue.stored);
 					sec_hp = sec_hp * 60 / door;
 					ch_hp = sec_hp / 60;
 					sec_hp %= 60;
 					count += sprintf(prompt + count, "Зауч:%d:%02d ", ch_hp, sec_hp);
-				} else
+				} else {
 					count += sprintf(prompt + count, "Зауч:- ");
-			} else
+				}
+			} else {
 				count += sprintf(prompt + count, "Зауч:0 ");
+			}
 		}
 		// Cooldowns
 		if (PRF_FLAGGED(d->character, EPrf::kDispCooldowns)) {
@@ -1743,7 +1744,7 @@ char *make_prompt(DescriptorData *d) {
 				count += sprintf(prompt + count, "Кл:%d ", wc_count);
 			}
 			if (d->character->GetSkill(ESkill::kTurnUndead)) {
-				if (IsAbleToUseFeat(d->character.get(), EFeat::kExorcist)) {
+				if (CanUseFeat(d->character.get(), EFeat::kExorcist)) {
 					count += sprintf(prompt + count,
 									 "Из:%d ",
 									 (kHoursPerDay - IsTimedBySkill(d->character.get(), ESkill::kTurnUndead))

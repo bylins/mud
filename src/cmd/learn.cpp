@@ -63,7 +63,7 @@ void LearnSpellBook(CharData *ch, ObjData *obj) {
 		throw LearningError();
 	}
 
-	if (!IsAbleToGetSpell(ch, spell_id, GET_OBJ_VAL(obj, 2))) {
+	if (!CanGetSpell(ch, spell_id, GET_OBJ_VAL(obj, 2))) {
 		throw LowRemortOrLvl();
 	}
 	auto spell_name = spell_info[spell_id].name;
@@ -94,7 +94,7 @@ void LearnSkillBook(CharData *ch, ObjData *obj) {
 	if (ch->GetSkill(skill_id)) {
 		throw AlreadyKnown(skill_name);
 	}
-	if (!IsAbleToGetSkill(ch, skill_id, GET_OBJ_VAL(obj, 2))) {
+	if (!CanGetSkill(ch, skill_id, GET_OBJ_VAL(obj, 2))) {
 		throw LowRemortOrLvl();
 	}
 	if (IsLearningFailed(ch, obj)) {
@@ -118,7 +118,7 @@ void LearnSkillUpgradeBook(CharData *ch, ObjData *obj) {
 		(book_skill_cap <= 0 && ch->get_trained_skill(skill_id) >= CalcSkillRemortCap(ch))) {
 		throw AlreadyKnown(skill_name);
 	}
-	if (!IsAbleToGetSkill(ch, skill_id, GET_OBJ_VAL(obj, 2))) {
+	if (!CanGetSkill(ch, skill_id, GET_OBJ_VAL(obj, 2))) {
 		throw LowRemortOrLvl();
 	}
 	if (IsLearningFailed(ch, obj)) {
@@ -180,7 +180,7 @@ void LearnFeatBook(CharData *ch, ObjData *obj) {
 		throw AlreadyKnown(feat_name);
 	}
 
-	if (!IsAbleToGetFeat(ch, feat_id)) {
+	if (!CanGetFeat(ch, feat_id)) {
 		throw LowRemortOrLvl();
 	}
 

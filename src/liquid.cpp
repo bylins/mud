@@ -460,7 +460,7 @@ void do_drink_drunk(CharData *ch, ObjData *jar, int amount) {
 
 		duration = 2 + std::max(0, GET_COND(ch, DRUNK) - kDrunked);
 
-		if (IsAbleToUseFeat(ch, EFeat::kDrunkard))
+		if (CanUseFeat(ch, EFeat::kDrunkard))
 			duration += duration / 2;
 
 		if (!AFF_FLAGGED(ch, EAffect::kAbstinent)
@@ -679,7 +679,7 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	timed.skill = ESkill::kHangovering;
-	timed.time = IsAbleToUseFeat(ch, EFeat::kDrunkard) ? GetModifier(EFeat::kDrunkard, kFeatTimer) : 12;
+	timed.time = CanUseFeat(ch, EFeat::kDrunkard) ? GetModifier(EFeat::kDrunkard, kFeatTimer) : 12;
 	ImposeTimedSkill(ch, &timed);
 
 	percent = number(1, MUD::Skills(ESkill::kHangovering).difficulty);

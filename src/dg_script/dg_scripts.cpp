@@ -2503,7 +2503,7 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "can_get_skill")) {
 			auto skill_id = FixNameAndFindSkillId(subfield);
 			if (skill_id > ESkill::kUndefined) {
-				if (IsAbleToGetSkill(c, skill_id)) {
+				if (CanGetSkill(c, skill_id)) {
 					strcpy(str, "1");
 				} else {
 					strcpy(str, "0");
@@ -2516,7 +2516,7 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "can_get_spell")) {
 			auto spell_id = FixNameAndFindSpellId(subfield);
 			if (spell_id > ESpell::kUndefined) {
-				if (IsAbleToGetSpell(c, spell_id)) {
+				if (CanGetSpell(c, spell_id)) {
 					strcpy(str, "1");
 				} else {
 					strcpy(str, "0");
@@ -2528,7 +2528,7 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "can_get_feat")) {
 			if (auto id = FindFeatId(subfield); id != EFeat::kUndefined) {
-				if (IsAbleToGetFeat(c, id))
+				if (CanGetFeat(c, id))
 					strcpy(str, "1");
 				else
 					strcpy(str, "0");
@@ -5348,7 +5348,7 @@ void do_tlist(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 
 	first = atoi(buf);
 
-	if (!(privilege::IsAbleToDoPrivilege(ch, std::string(cmd_info[cmd].command), 0, 0, false)) && (GET_OLC_ZONE(ch) != first)) {
+	if (!(privilege::HasPrivilege(ch, std::string(cmd_info[cmd].command), 0, 0, false)) && (GET_OLC_ZONE(ch) != first)) {
 		SendMsgToChar("Чаво?\r\n", ch);
 		return;
 	}
@@ -5455,7 +5455,7 @@ void do_tstat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	half_chop(argument, str, argument);
 
 	auto first = atoi(str);
-	if (!(privilege::IsAbleToDoPrivilege(ch, std::string(cmd_info[cmd].command), 0, 0, false)) && (GET_OLC_ZONE(ch) != first)) {
+	if (!(privilege::HasPrivilege(ch, std::string(cmd_info[cmd].command), 0, 0, false)) && (GET_OLC_ZONE(ch) != first)) {
 		SendMsgToChar("Чаво?\r\n", ch);
 		return;
 	}

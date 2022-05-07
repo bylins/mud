@@ -350,7 +350,7 @@ void AddSkill(CharData *ch, const ESkill skillnum, int skilldiff, int vnum) {
 void trg_spellturn(CharData *ch, ESpell spell_id, int spelldiff, int vnum) {
 	int spell = GET_SPELL_TYPE(ch, spell_id);
 
-	if (!IsAbleToGetSpell(ch, spell_id)) {
+	if (!CanGetSpell(ch, spell_id)) {
 		log("Error trying to add %s to %s (trigspell) trigvnum %d", GetSpellName(spell_id), GET_NAME(ch), vnum);
 		return;
 	}
@@ -371,7 +371,7 @@ void trg_spellturn(CharData *ch, ESpell spell_id, int spelldiff, int vnum) {
 }
 
 void trg_spellturntemp(CharData *ch, ESpell spell_id, int spelldiff, int vnum) {
-	if (!IsAbleToGetSpell(ch, spell_id)) {
+	if (!CanGetSpell(ch, spell_id)) {
 		log("Error trying to add %s to %s (trigspelltemp) trigvnum %d", GetSpellName(spell_id), GET_NAME(ch), vnum);
 		return;
 	}

@@ -225,7 +225,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 int perform_move(CharData *ch, int dir, int following, int checkmob, CharData *leader);
 
 // in limits.cpp //
-int mana_gain(const CharData *ch);
+int GainMana(const CharData *ch);
 int hit_gain(CharData *ch);
 int move_gain(CharData *ch);
 void advance_level(CharData *ch);

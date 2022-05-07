@@ -3397,7 +3397,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!*argument) {
 		strcpy(buf, "Опции для показа:\r\n");
 		for (j = 0, i = 1; show_fields[i].level; i++)
-			if (privilege::IsAbleToDoPrivilege(ch, std::string(show_fields[i].cmd), 0, 2))
+			if (privilege::HasPrivilege(ch, std::string(show_fields[i].cmd), 0, 2))
 				sprintf(buf + strlen(buf), "%-15s%s", show_fields[i].cmd, (!(++j % 5) ? "\r\n" : ""));
 		strcat(buf, "\r\n");
 		SendMsgToChar(buf, ch);
@@ -3410,7 +3410,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (!strncmp(field, show_fields[l].cmd, strlen(field)))
 			break;
 
-	if (!privilege::IsAbleToDoPrivilege(ch, std::string(show_fields[l].cmd), 0, 2)) {
+	if (!privilege::HasPrivilege(ch, std::string(show_fields[l].cmd), 0, 2)) {
 		SendMsgToChar("Вы не столь могущественны, чтобы узнать это.\r\n", ch);
 		return;
 	}
@@ -3966,7 +3966,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			}
 		}
 	}
-	if (!privilege::IsAbleToDoPrivilege(ch, std::string(set_fields[mode].cmd), 0, 1)) {
+	if (!privilege::HasPrivilege(ch, std::string(set_fields[mode].cmd), 0, 1)) {
 		SendMsgToChar("Кем вы себя возомнили?\r\n", ch);
 		return (0);
 	}
@@ -4639,7 +4639,7 @@ void do_set(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!*name) {
 		strcpy(buf, "Возможные поля для изменения:\r\n");
 		for (int i = 0; set_fields[i].level; i++)
-			if (privilege::IsAbleToDoPrivilege(ch, std::string(set_fields[i].cmd), 0, 1))
+			if (privilege::HasPrivilege(ch, std::string(set_fields[i].cmd), 0, 1))
 				sprintf(buf + strlen(buf), "%-15s%s", set_fields[i].cmd, (!((i + 1) % 5) ? "\r\n" : ""));
 		strcat(buf, "\r\n");
 		SendMsgToChar(buf, ch);
@@ -4962,7 +4962,7 @@ void do_liblist(CharData *ch, char *argument, int cmd, int subcmd) {
 
 	argument = two_arguments(argument, buf, buf2);
 	first = atoi(buf);
-	if (!(privilege::IsAbleToDoPrivilege(ch, std::string(cmd_info[cmd].command), 0, 0, false)) && (GET_OLC_ZONE(ch) != first)) {
+	if (!(privilege::HasPrivilege(ch, std::string(cmd_info[cmd].command), 0, 0, false)) && (GET_OLC_ZONE(ch) != first)) {
 		SendMsgToChar("Чаво?\r\n", ch);
 		return;
 	}

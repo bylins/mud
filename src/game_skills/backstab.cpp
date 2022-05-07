@@ -57,7 +57,7 @@ void do_backstab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (vict->GetEnemy() && !IsAbleToUseFeat(ch, EFeat::kThieveStrike)) {
+	if (vict->GetEnemy() && !CanUseFeat(ch, EFeat::kThieveStrike)) {
 		SendMsgToChar("Ваша цель слишком быстро движется - вы можете пораниться!\r\n", ch);
 		return;
 	}
@@ -99,7 +99,7 @@ void go_backstab(CharData *ch, CharData *vict) {
 		int percent = number(1, MUD::Skills(ESkill::kBackstab).difficulty);
 		int prob = CalcCurrentSkill(ch, ESkill::kBackstab, vict);
 
-		if (IsAbleToUseFeat(ch, EFeat::kShadowStrike)) {
+		if (CanUseFeat(ch, EFeat::kShadowStrike)) {
 			prob = prob + prob * 20 / 100;
 		};
 

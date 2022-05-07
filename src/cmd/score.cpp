@@ -118,7 +118,7 @@ void PrintScoreList(CharData *ch) {
 				  GET_MOVE(ch), GET_REAL_MAX_MOVE(ch), GetDeclensionInNumber(GET_MOVE(ch), EWhat::kMoveU));
 	if (IS_MANA_CASTER(ch)) {
 		SendMsgToChar(ch, "Ваша магическая энергия %d(%d) и вы восстанавливаете %d в сек.\r\n",
-					  ch->mem_queue.stored, GET_MAX_MANA(ch), mana_gain(ch));
+					  ch->mem_queue.stored, GET_MAX_MANA(ch), GainMana(ch));
 	}
 	SendMsgToChar(ch, "Ваша сила: %d(%d), ловкость: %d(%d), телосложение: %d(%d), ум: %d(%d), мудрость: %d(%d), обаяние: %d(%d).\r\n",
 				 ch->get_str(), GET_REAL_STR(ch),
@@ -528,7 +528,7 @@ int PrintBaseStatsToTable(CharData *ch, table_wrapper::Table &table, std::size_t
 	table[++row][col] = "Восст. сил";	table[row][col + 1] = "+" + std::to_string(GET_MOVEREG(ch)) + "% (" + std::to_string(move_gain(ch)) + ")";
 	if (IS_MANA_CASTER(ch)) {
 		table[++row][col] = "Мана"; 		table[row][col + 1] = std::to_string(ch->mem_queue.stored) + "(" + std::to_string(GET_MAX_MANA(ch)) + ")";
-		table[++row][col] = "Восст. маны";	table[row][col + 1] = "+" + std::to_string(mana_gain(ch)) + " сек.";
+		table[++row][col] = "Восст. маны";	table[row][col + 1] = "+" + std::to_string(GainMana(ch)) + " сек.";
 	}
 
 	return 2; // заполнено столбцов
@@ -704,7 +704,7 @@ void PrintScoreBase(CharData *ch) {
 	if (IS_MANA_CASTER(ch)) {
 		sprintf(buf + strlen(buf),
 				"Ваша магическая энергия %d(%d) и вы восстанавливаете %d в сек.\r\n",
-				ch->mem_queue.stored, GET_MAX_MANA(ch), mana_gain(ch));
+				ch->mem_queue.stored, GET_MAX_MANA(ch), GainMana(ch));
 	}
 
 	sprintf(buf + strlen(buf),
@@ -932,7 +932,7 @@ void PrintScoreBase(CharData *ch) {
 		sprintf(buf, "Вы находитесь в звериной форме - %s.\r\n", ch->get_morph_desc().c_str());
 		SendMsgToChar(buf, ch);
 	}
-	if (IsAbleToUseFeat(ch, EFeat::kSoulsCollector)) {
+	if (CanUseFeat(ch, EFeat::kSoulsCollector)) {
 		const int souls = ch->get_souls();
 		if (souls == 0) {
 			sprintf(buf, "Вы не имеете чужих душ.\r\n");
@@ -1021,7 +1021,7 @@ int CalcHitroll(CharData *ch) {
 	} else {
 		HitData::CheckWeapFeats(ch, ESkill::kPunch, hr, max_dam);
 	}
-	if (IsAbleToUseFeat(ch, EFeat::kWeaponFinesse)) {
+	if (CanUseFeat(ch, EFeat::kWeaponFinesse)) {
 		hr += str_bonus(GET_REAL_DEX(ch), STR_TO_HIT);
 	} else {
 		hr += str_bonus(GET_REAL_STR(ch), STR_TO_HIT);

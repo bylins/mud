@@ -1502,7 +1502,7 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	if (subcmd == SCMD_DEVOUR) {
 		if (MOB_FLAGGED(ch, EMobFlag::kResurrected)
-			&& IsAbleToUseFeat(ch->get_master(), EFeat::kZombieDrover)) {
+			&& CanUseFeat(ch->get_master(), EFeat::kZombieDrover)) {
 			feed_charmice(ch, arg);
 			return;
 		}
@@ -2695,7 +2695,7 @@ void do_firstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if ((GET_REAL_MAX_HIT(vict) > 0 && (GET_HIT(vict) * 100 / GET_REAL_MAX_HIT(vict)) < 31) ||
 		(GET_REAL_MAX_HIT(vict) <= 0 && GET_HIT(vict) < GET_REAL_MAX_HIT(vict)) ||
-		(GET_HIT(vict) < GET_REAL_MAX_HIT(vict) && IsAbleToUseFeat(ch, EFeat::kHealer))) {
+		(GET_HIT(vict) < GET_REAL_MAX_HIT(vict) && CanUseFeat(ch, EFeat::kHealer))) {
 		need = true;
 		if (success) {
 			if (!PRF_FLAGGED(ch, EPrf::kTester)) {

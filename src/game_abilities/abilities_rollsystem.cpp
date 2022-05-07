@@ -55,7 +55,7 @@ bool AbilityRoll::TryRevealWrongConditions() {
 };
 
 bool AbilityRoll::IsActorCantUseAbility() {
-	if (!IS_IMPL(actor_) && !IsAbleToUseFeat(actor_, ability_->id)) {
+	if (!IS_IMPL(actor_) && !CanUseFeat(actor_, ability_->id)) {
 		deny_msg_ = "Вы не можете использовать этот навык.\r\n";
 		wrong_conditions_ = true;
 	};

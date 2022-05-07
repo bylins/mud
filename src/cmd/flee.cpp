@@ -6,7 +6,7 @@
 EDirection SelectRndDirection(CharData *ch, int fail_chance);
 
 void ReduceExpAfterFlee(CharData *ch, CharData *victim, RoomRnum room) {
-	if (IsAbleToUseFeat(ch, EFeat::kRetreat) || ROOM_FLAGGED(room, ERoomFlag::kArena)) {
+	if (CanUseFeat(ch, EFeat::kRetreat) || ROOM_FLAGGED(room, ERoomFlag::kArena)) {
 		return;
 	}
 
@@ -42,7 +42,7 @@ void GoFlee(CharData *ch) {
 		return;
 	}
 
-	auto direction = SelectRndDirection(ch, IsAbleToUseFeat(ch, EFeat::kRetreat) ? 0 : 50);
+	auto direction = SelectRndDirection(ch, CanUseFeat(ch, EFeat::kRetreat) ? 0 : 50);
 	if (direction != EDirection::kUndefinedDir) {
 		const auto was_fighting = ch->GetEnemy();
 		const auto was_in = ch->in_room;
@@ -124,7 +124,7 @@ void DoFlee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Но вы ведь ни с кем не сражаетесь!\r\n", ch);
 		return;
 	}
-	if (IsAbleToUseFeat(ch, EFeat::kCalmness) || GET_GOD_FLAG(ch, EGf::kGodsLike)) {
+	if (CanUseFeat(ch, EFeat::kCalmness) || GET_GOD_FLAG(ch, EGf::kGodsLike)) {
 		one_argument(argument, arg);
 		if ((direction = search_block(arg, dirs, false)) >= 0 ||
 			(direction = search_block(arg, flee_dirs, false)) >= 0) {

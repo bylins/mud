@@ -39,7 +39,7 @@ void go_disarm(CharData *ch, CharData *vict) {
 	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(vict, EGf::kGodscurse) || GET_GOD_FLAG(ch, EGf::kGodsLike))
 		prob = percent;
 	if (IS_IMMORTAL(vict) || GET_GOD_FLAG(ch, EGf::kGodscurse) || GET_GOD_FLAG(vict, EGf::kGodsLike)
-		|| IsAbleToUseFeat(vict, EFeat::kStrongClutch))
+		|| CanUseFeat(vict, EFeat::kStrongClutch))
 		prob = 0;
 
 	bool success = percent <= prob;

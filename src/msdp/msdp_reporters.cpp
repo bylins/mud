@@ -236,7 +236,7 @@ int GroupReporter::get_mem(const CharData *character) const {
 	if (!character->IsNpc()
 		&& ((!IS_MANA_CASTER(character) && !character->mem_queue.Empty())
 			|| (IS_MANA_CASTER(character) && character->mem_queue.stored < GET_MAX_MANA(character)))) {
-		div = mana_gain(character);
+		div = GainMana(character);
 		if (div > 0) {
 			if (!IS_MANA_CASTER(character)) {
 				result = std::max(0, 1 + character->mem_queue.total - character->mem_queue.stored);

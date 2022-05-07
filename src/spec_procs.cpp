@@ -194,14 +194,14 @@ void list_feats(CharData *ch, CharData *vict, bool all_feats) {
 			if (clr(vict, C_NRM)) {
 				sprintf(buf, "        %s%s %-30s%s\r\n",
 						ch->HaveFeat(feat.GetId()) ? KGRN :
-						IsAbleToGetFeat(ch, feat.GetId()) ? KNRM : KRED,
+						CanGetFeat(ch, feat.GetId()) ? KNRM : KRED,
 						ch->HaveFeat(feat.GetId()) ? "[И]" :
-						IsAbleToGetFeat(ch, feat.GetId()) ? "[Д]" : "[Н]",
+						CanGetFeat(ch, feat.GetId()) ? "[Д]" : "[Н]",
 						feat_info[feat.GetId()].name, KNRM);
 			} else {
 				sprintf(buf, "    %s %-30s\r\n",
 						ch->HaveFeat(feat.GetId()) ? "[И]" :
-						IsAbleToGetFeat(ch, feat.GetId()) ? "[Д]" : "[Н]",
+						CanGetFeat(ch, feat.GetId()) ? "[Д]" : "[Н]",
 						feat_info[feat.GetId()].name);
 			}
 
@@ -276,7 +276,7 @@ void list_feats(CharData *ch, CharData *vict, bool all_feats) {
 					break;
 				default: sprintf(buf, "      ");
 			}
-			if (IsAbleToUseFeat(ch, feat.GetId())) {
+			if (CanUseFeat(ch, feat.GetId())) {
 				sprintf(buf + strlen(buf), "%s%s%s\r\n",
 						CCIYEL(vict, C_NRM), feat_info[feat.GetId()].name, CCNRM(vict, C_NRM));
 			} else if (clr(vict, C_NRM)) {
@@ -360,7 +360,7 @@ void list_skills(CharData *ch, CharData *vict, const char *filter/* = nullptr*/)
 							(kHoursPerDay - IsTimedBySkill(ch, skill_id)) / kHoursPerWarcry);
 					break;
 				case ESkill::kTurnUndead:
-					if (IsAbleToUseFeat(ch, EFeat::kExorcist)) {
+					if (CanUseFeat(ch, EFeat::kExorcist)) {
 						sprintf(buf,
 								"[-%d-] ",
 								(kHoursPerDay - IsTimedBySkill(ch, skill_id)) / (kHoursPerTurnUndead - 2));
@@ -866,7 +866,7 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 					const auto skill_no = (guild_mono_info[info_num].learn_info + i)->skill_no;
 					bits = to_underlying(skill_no);
 					if (ESkill::kUndefined != skill_no && (!ch->get_trained_skill(skill_no)
-						|| IS_GRGOD(ch)) && IsAbleToGetSkill(ch, skill_no)) {
+						|| IS_GRGOD(ch)) && CanGetSkill(ch, skill_no)) {
 						gcount += sprintf(buf + gcount, "- умение %s\"%s\"%s\r\n",
 										  CCCYN(ch, C_NRM), MUD::Skills(skill_no).GetName(), CCNRM(ch, C_NRM));
 						found = true;
@@ -885,7 +885,7 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 					}
 
 					const auto feat_no = (guild_mono_info[info_num].learn_info + i)->feat_no;
-					if (feat_no > EFeat::kUndefined && !ch->HaveFeat(feat_no) && IsAbleToGetFeat(ch, feat_no)) {
+					if (feat_no > EFeat::kUndefined && !ch->HaveFeat(feat_no) && CanGetFeat(ch, feat_no)) {
 						gcount += sprintf(buf + gcount, "- способность %s\"%s\"%s\r\n",
 										  CCCYN(ch, C_NRM), GetFeatName(feat_no), CCNRM(ch, C_NRM));
 						found = true;
@@ -951,7 +951,7 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 
 					const auto feat_no = (guild_mono_info[info_num].learn_info + i)->feat_no;
 					if (feat_no >= EFeat::kFirst && feat_no <= EFeat::kLast) {
-						if (!ch->HaveFeat(feat_no) && IsAbleToGetFeat(ch, feat_no)) {
+						if (!ch->HaveFeat(feat_no) && CanGetFeat(ch, feat_no)) {
 							sfound = true;
 						}
 					}
@@ -985,7 +985,7 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 								0,
 								victim,
 								kToChar);
-						} else if (!IsAbleToGetFeat(ch, feat_no)) {
+						} else if (!CanGetFeat(ch, feat_no)) {
 							act("$N сказал$G : 'Я не могу тебя этому научить.'", false, ch, 0, victim, kToChar);
 						} else {
 							sprintf(buf, "$N научил$G вас способности %s\"%s\"%s",
@@ -1019,7 +1019,7 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 								0,
 								victim,
 								kToChar);
-						} else if (!IsAbleToGetSkill(ch, skill_no)) {
+						} else if (!CanGetSkill(ch, skill_no)) {
 							act("$N сказал$G : 'Я не могу тебя этому научить.'", false, ch, 0, victim, kToChar);
 						} else {
 							sprintf(buf, "$N научил$G вас умению %s\"%s\"%s",
@@ -1158,7 +1158,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 					const ESkill skill_no = (guild_poly_info[info_num] + i)->skill_no;
 					bits = to_underlying(skill_no);
 					if (ESkill::kUndefined != skill_no &&
-						(!ch->get_trained_skill(skill_no) || IS_GRGOD(ch)) && IsAbleToGetSkill(ch, skill_no)) {
+						(!ch->get_trained_skill(skill_no) || IS_GRGOD(ch)) && CanGetSkill(ch, skill_no)) {
 						gcount += sprintf(buf + gcount, "- умение %s\"%s\"%s\r\n",
 										  CCCYN(ch, C_NRM), MUD::Skills(skill_no).GetName(), CCNRM(ch, C_NRM));
 						found = true;
@@ -1179,7 +1179,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 
 					const auto feat_no = (guild_poly_info[info_num] + i)->feat_no;
 					if (feat_no >= EFeat::kFirst && feat_no <= EFeat::kLast) {
-						if (!ch->HaveFeat(feat_no) && IsAbleToGetFeat(ch, feat_no)) {
+						if (!ch->HaveFeat(feat_no) && CanGetFeat(ch, feat_no)) {
 							gcount += sprintf(buf + gcount, "- способность %s\"%s\"%s\r\n",
 											  CCCYN(ch, C_NRM), GetFeatName(feat_no), CCNRM(ch, C_NRM));
 							found = true;
@@ -1221,7 +1221,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 
 					const auto feat_no = (guild_poly_info[info_num] + i)->feat_no;
 					if (feat_no >= EFeat::kFirst && feat_no <= EFeat::kLast) {
-						if (!ch->HaveFeat(feat_no) && IsAbleToGetFeat(ch, feat_no)) {
+						if (!ch->HaveFeat(feat_no) && CanGetFeat(ch, feat_no)) {
 							sfound = true;
 						}
 					}
@@ -1288,7 +1288,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 						if (ch->get_trained_skill(skill_no)) {
 							act("$N сказал$G вам : 'Ты уже владеешь этим умением.'",
 								false, ch, 0, victim, kToChar);
-						} else if (!IsAbleToGetSkill(ch, skill_no)) {
+						} else if (!CanGetSkill(ch, skill_no)) {
 							act("$N сказал$G : 'Я не могу тебя этому научить.'",
 								false, ch, 0, victim, kToChar);
 						} else {
@@ -1328,7 +1328,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 						if (ch->HaveFeat(feat_no)) {
 							act("$N сказал$G вам : 'Ничем помочь не могу, ты уже владеешь этой способностью.'",
 								false, ch, nullptr, victim, kToChar);
-						} else if (!IsAbleToGetFeat(ch, feat_no)) {
+						} else if (!CanGetFeat(ch, feat_no)) {
 							act("$N сказал$G : 'Я не могу тебя этому научить.'", false, ch, 0, victim, kToChar);
 						} else {
 							sprintf(buf, "$N научил$G вас способности %s\"%s\"%s",
