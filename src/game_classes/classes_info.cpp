@@ -288,14 +288,15 @@ void CharClassInfo::PrintSpellsTable(CharData *ch, std::ostringstream &buffer) c
 
 CharClassInfo::SpellInfoBuilder::ItemOptional CharClassInfo::SpellInfoBuilder::Build(DataNode &node) {
 	auto spell_id{ESpell::kUndefined};
-	int min_lvl, min_remort, circle, mem, cast;
+	int min_lvl, min_remort, circle, mem;
+	double cast;
 	try {
 		spell_id = parse::ReadAsConstant<ESpell>(node.GetValue("id"));
 		min_lvl = parse::ReadAsInt(node.GetValue("level"));
 		min_remort = parse::ReadAsInt(node.GetValue("remort"));
 		circle = parse::ReadAsInt(node.GetValue("circle"));
 		mem = parse::ReadAsInt(node.GetValue("mem"));
-		cast = parse::ReadAsInt(node.GetValue("cast"));
+		cast = parse::ReadAsDouble(node.GetValue("cast"));
 	} catch (std::exception &e) {
 		std::ostringstream out;
 		out << "Incorrect spell format (wrong value: " << e.what() << ").";

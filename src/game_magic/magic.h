@@ -64,6 +64,7 @@ int CastToSingleTarget(int level, CharData *caster, CharData *cvict, ObjData *ov
 
 bool ProcessMatComponents(CharData *caster, CharData *victim, ESpell spell_id);
 float CalcModCoef(ESpell spell_id, int percent);
+int CalcClassAntiSavingsMod(CharData *ch, ESpell spell_id);
 
 #endif
 

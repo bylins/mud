@@ -77,6 +77,12 @@ int CalcAntiSavings(CharData *ch) {
 	return modi;
 }
 
+int CalcClassAntiSavingsMod(CharData *ch, ESpell spell_id) {
+	auto mod = MUD::Classes(ch->GetClass()).spells[spell_id].GetCastMod();
+	auto skill = ch->GetSkill(GetMagicSkillId(spell_id));
+	return static_cast<int>(mod*skill);
+}
+
 int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply) {
 	int temp_save_stat = 0, temp_awake_mod = 0;
 
@@ -374,14 +380,15 @@ int mag_damage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 
 	if (ch != victim) {
 		modi = CalcAntiSavings(ch);
+		modi += CalcClassAntiSavingsMod(ch, spell_id);
 		if (CanUseFeat(ch, EFeat::kRelatedToMagic) && !victim->IsNpc()) {
-			modi -= 80; // на игрока бонуса + каст нет
+			modi -= 80;
 		}
 		if (CanUseFeat(ch, EFeat::kMagicalInstinct) && !victim->IsNpc()) {
-			modi -= 30; // на игрока бонуса + каст нет
+			modi -= 30;
 		}
 		if (PRF_FLAGGED(ch, EPrf::kAwake) && !victim->IsNpc())
-			modi = modi - 50; // на игрока бонуса + каст нет
+			modi = modi - 50;
 	}
 	if (!ch->IsNpc() && (GetRealLevel(ch) > 10))
 		modi += (GetRealLevel(ch) - 10);
@@ -1178,6 +1185,7 @@ int CastMagicAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, 
 	// decrease modi for failing, increese fo success
 	if (ch != victim) {
 		modi = CalcAntiSavings(ch);
+		modi += CalcClassAntiSavingsMod(ch, spell_id);
 		if (CanUseFeat(ch, EFeat::kRelatedToMagic) && !victim->IsNpc()) {
 			modi -= 80; //бонуса на непись нету
 		}

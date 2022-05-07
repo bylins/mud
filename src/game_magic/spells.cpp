@@ -2003,6 +2003,7 @@ void SpellFear(int/* level*/, CharData *ch, CharData *victim, ObjData* /*obj*/) 
 	int modi = 0;
 	if (ch != victim) {
 		modi = CalcAntiSavings(ch);
+		modi += CalcClassAntiSavingsMod(ch, ESpell::kFear);
 		if (!pk_agro_action(ch, victim))
 			return;
 	}
@@ -2023,6 +2024,7 @@ void SpellEnergydrain(int/* level*/, CharData *ch, CharData *victim, ObjData* /*
 	int modi = 0;
 	if (ch != victim) {
 		modi = CalcAntiSavings(ch);
+		modi += CalcClassAntiSavingsMod(ch, ESpell::kEnergyDrain);
 		if (!pk_agro_action(ch, victim))
 			return;
 	}

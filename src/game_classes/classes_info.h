@@ -71,17 +71,17 @@ struct CharClassInfo : public info_container::IItem<ECharClass> {
 	class SpellInfo : public TalentInfo<ESpell> {
 	 public:
 		SpellInfo() = default;
-		SpellInfo(ESpell id, int min_level, int min_remort, int circle, int mem_mod, int cast_mod, EItemMode mode)
+		SpellInfo(ESpell id, int min_level, int min_remort, int circle, int mem_mod, double cast_mod, EItemMode mode)
 			: TalentInfo(id, min_level, min_remort, mode), circle_{circle}, mem_mod_{mem_mod}, cast_mod_{cast_mod} {};
 
 		[[nodiscard]] int GetCircle() const { return circle_; };
 		[[nodiscard]] int GetMemMod() const { return mem_mod_; };
-		[[nodiscard]] int GetCastMod() const { return cast_mod_; };
+		[[nodiscard]] double GetCastMod() const { return cast_mod_; };
 
 	 private:
 		int circle_{kMaxMemoryCircle};
 		int mem_mod_{0};
-		int cast_mod_{0};
+		double cast_mod_{0.0};
 	};
 
 	class SpellInfoBuilder : public info_container::IItemBuilder<SpellInfo> {
