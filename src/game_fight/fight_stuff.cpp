@@ -31,7 +31,7 @@ void perform_drop_gold(CharData *ch, int amount);
 long GetExpUntilNextLvl(CharData *ch, int level);
 int max_exp_gain_pc(CharData *ch);
 int max_exp_loss_pc(CharData *ch);
-void get_from_container(CharData *ch, ObjData *cont, char *arg, int mode, int amount, bool autoloot);
+void get_from_container(CharData *ch, ObjData *cont, char *local_arg, int mode, int amount, bool autoloot);
 void SetWait(CharData *ch, int waittime, int victim_in_room);
 
 extern int material_value[];

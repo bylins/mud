@@ -31,7 +31,7 @@
 
 // external functs
 void SetWait(CharData *ch, int waittime, int victim_in_room);
-int find_eq_pos(CharData *ch, ObjData *obj, char *arg);
+int find_eq_pos(CharData *ch, ObjData *obj, char *local_arg);
 // local functions
 void check_ice(int room);
 

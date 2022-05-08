@@ -17,7 +17,7 @@
 #include "house.h"
 #include <sstream>
 
-extern void get_from_container(CharData *ch, ObjData *cont, char *arg, int mode, int amount, bool autoloot);
+extern void get_from_container(CharData *ch, ObjData *cont, char *local_arg, int mode, int amount, bool autoloot);
 void set_obj_eff(ObjData *itemobj, EApply type, int mod);
 void set_obj_aff(ObjData *itemobj, EAffect bitv);
 extern void extract_trigger(Trigger *trig);

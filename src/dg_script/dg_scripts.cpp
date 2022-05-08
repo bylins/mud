@@ -75,7 +75,7 @@ const char *skill_percent(Trigger *trig, CharData *ch, char *skill);
 bool feat_owner(Trigger *trig, CharData *ch, char *feat);
 const char *spell_count(Trigger *trig, CharData *ch, char *spell);
 const char *spell_knowledge(Trigger *trig, CharData *ch, char *spell);
-int find_eq_pos(CharData *ch, ObjData *obj, char *arg);
+int find_eq_pos(CharData *ch, ObjData *obj, char *local_arg);
 void reset_zone(int znum);
 
 void do_restore(CharData *ch, char *argument, int cmd, int subcmd);
