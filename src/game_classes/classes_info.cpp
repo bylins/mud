@@ -28,7 +28,7 @@ void ClassesLoader::Reload(DataNode data) {
 }
 
 Optional CharClassInfoBuilder::Build(DataNode &node) {
-	auto class_info = MUD::Classes().MakeItemOptional();
+	auto class_info =  std::make_optional(std::make_shared<CharClassInfo>());
 	try {
 		auto class_node = SelectDataNode(node);
 		ParseClass(class_info, class_node);
@@ -125,8 +125,7 @@ void CharClassInfoBuilder::ParseBaseStats(Optional &info, DataNode &node) {
 }
 
 void CharClassInfo::PrintBaseStatsTable(CharData *ch, std::ostringstream &buffer) const {
-	buffer << std::endl
-		   << KGRN << " Base stats limits:" << KNRM << std::endl;
+	buffer << std::endl << KGRN << " Base stats limits:" << KNRM << std::endl;
 
 	table_wrapper::Table table;
 	table << table_wrapper::kHeader
@@ -161,7 +160,7 @@ int ParseLevelDecrement(DataNode &node) {
 }
 
 // Для парсинга талантов всегда используем Reload (строгий парсинг), потому что класс с неверно прописанными
-// талантами не должен быть загружен, иначе при некорректном файле у игроков постираются выученные таланты.
+// талантами не должен быть загружен, иначе при некорректном файле у игроков постираются выученные спеллы/скиллы.
 
 void CharClassInfoBuilder::ParseSkills(Optional &info, DataNode &node) {
 	info.value()->skill_level_decrement_ = ParseLevelDecrement(node);
@@ -233,13 +232,15 @@ void CharClassInfo::PrintSkillsTable(CharData *ch, std::ostringstream &buffer) c
 		<< KGRN << " Available skills (level decrement " << GetSkillLvlDecrement() << "):" << KNRM << std::endl;
 
 	table_wrapper::Table table;
-	table << table_wrapper::kHeader << "Skill" << "Lvl" << "Rem" << "Improve" << "Mode" << table_wrapper::kEndRow;
+	table << table_wrapper::kHeader
+		<< "Id" << "Skill" << "Lvl" << "Rem" << "Improve" << "Mode" << table_wrapper::kEndRow;
 	for (const auto &skill : skills) {
-		table << MUD::Skills(skill.GetId()).name
-			   << skill.GetMinLevel()
-			   << skill.GetMinRemort()
-			   << skill.GetImprove()
-			   << NAME_BY_ITEM<EItemMode>(skill.GetMode()) << table_wrapper::kEndRow;
+		table << NAME_BY_ITEM<ESkill>(skill.GetId())
+				<< MUD::Skills(skill.GetId()).name
+				<< skill.GetMinLevel()
+				<< skill.GetMinRemort()
+				<< skill.GetImprove()
+				<< NAME_BY_ITEM<EItemMode>(skill.GetMode()) << table_wrapper::kEndRow;
 	}
 	table_wrapper::DecorateNoBorderTable(ch, table);
 	table_wrapper::PrintTableToStream(buffer, table);
@@ -272,15 +273,16 @@ void CharClassInfo::PrintSpellsTable(CharData *ch, std::ostringstream &buffer) c
 
 	table_wrapper::Table table;
 	table << table_wrapper::kHeader
-		<< "Spell" << "Lvl" << "Rem" << "Circle" << "Mem" << "Cast" << "Mode" << table_wrapper::kEndRow;
+		<< "Id" << "Spell" << "Lvl" << "Rem" << "Circle" << "Mem" << "Cast" << "Mode" << table_wrapper::kEndRow;
 	for (const auto &spell : spells) {
-		table << GetSpellName(spell.GetId())
-			  << spell.GetMinLevel()
-			  << spell.GetMinRemort()
-			  << spell.GetCircle()
-			  << spell.GetMemMod()
-			  << spell.GetCastMod()
-			  << NAME_BY_ITEM<EItemMode>(spell.GetMode()) << table_wrapper::kEndRow;
+		table << NAME_BY_ITEM<ESpell>(spell.GetId())
+			<< GetSpellName(spell.GetId())
+			<< spell.GetMinLevel()
+			<< spell.GetMinRemort()
+			<< spell.GetCircle()
+			<< spell.GetMemMod()
+			<< spell.GetCastMod()
+			<< NAME_BY_ITEM<EItemMode>(spell.GetMode()) << table_wrapper::kEndRow;
 	}
 	table_wrapper::DecorateNoBorderTable(ch, table);
 	table_wrapper::PrintTableToStream(buffer, table);
@@ -315,14 +317,15 @@ void CharClassInfo::PrintFeatsTable(CharData *ch, std::ostringstream &buffer) co
 
 	table_wrapper::Table table;
 	table << table_wrapper::kHeader
-		  << "Feature" << "Lvl" << "Rem" << "Slot" << "Inborn" << "Mode" << table_wrapper::kEndRow;
+		  << "Id" << "Feature" << "Lvl" << "Rem" << "Slot" << "Inborn" << "Mode" << table_wrapper::kEndRow;
 	for (const auto &feat : feats) {
-		table << feat_info[feat.GetId()].name
-			  << feat.GetMinLevel()
-			  << feat.GetMinRemort()
-			  << feat.GetSlot()
-			  << (feat.IsInborn() ? "yes" : "no")
-			  << NAME_BY_ITEM<EItemMode>(feat.GetMode()) << table_wrapper::kEndRow;
+		table << NAME_BY_ITEM<EFeat>(feat.GetId())
+			<< feat_info[feat.GetId()].name
+			<< feat.GetMinLevel()
+			<< feat.GetMinRemort()
+			<< feat.GetSlot()
+			<< (feat.IsInborn() ? "yes" : "no")
+			<< NAME_BY_ITEM<EItemMode>(feat.GetMode()) << table_wrapper::kEndRow;
 	}
 	table_wrapper::DecorateNoBorderTable(ch, table);
 	table_wrapper::PrintTableToStream(buffer, table);
@@ -433,7 +436,6 @@ void CharClassInfoBuilder::TemporarySetStat(Optional &info) {
 // добавить классовым скиллам поле inborn для автопроставления и общее поле величины врожденного скилла
 // на сервере в конфиге скиллов не забыть инкоррект поменять на андефайнед
 // armor_class_limit - перенести сюда
-// вытащить константы фитов в отдельный файл
 // Возможно, функции типа IsMage стоит завязать тоже на конфиг классов
 // Перенести функции распечатки под орбщий интерфейс, чтобы не захламлять - а точно ли надо?
 // Распечатать в таблицу не только название, но такде ид название скиллов и прочего
@@ -441,10 +443,5 @@ void CharClassInfoBuilder::TemporarySetStat(Optional &info) {
 // Реализовать общую функцию аля IsAbleToUseSpell
 // Добавить классу "дефолтную расу"
 // Добавить статам поле "первичный/вторичный" и переписать генерацию
-// Не забыть реализовать бонус каста
-
-// Поломался мем, надо починить
-// Падаетв  бесконечный цикл на счете (точнее на счете после сброса статов)
-
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
