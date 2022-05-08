@@ -12,7 +12,7 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include "world_objects.h"
+#include "entities/world_objects.h"
 #include "entities/world_characters.h"
 #include "entities/entities_constants.h"
 #include "obj_prototypes.h"

@@ -4,7 +4,7 @@
 
 #include "parcel.h"
 
-#include "world_objects.h"
+#include "entities/world_objects.h"
 #include "utils/utils_char_obj.inl"
 #include "handler.h"
 #include "game_economics/auction.h"

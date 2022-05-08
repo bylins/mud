@@ -5,7 +5,7 @@
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include "ban.h" // переместить
+#include "ban.h"
 #include "administration/privilege.h"
 #include "cmd_god/shutdown_parameters.h"
 #include "communication/parcel.h"
@@ -14,6 +14,7 @@
 #include "dg_script/dg_event.h"
 #include "entities/char_data.h"
 #include "entities/world_characters.h"
+#include "entities/world_objects.h"
 #include "game_economics/shop_ext.h"
 #include "game_economics/ext_money.h"
 #include "game_mechanics/glory.h"
@@ -23,7 +24,7 @@
 #include "modify.h"
 #include "obj_prototypes.h"
 #include "statistics/mob_stat.h"
-#include "world_objects.h" // переместить
+#include "structs/global_objects.h"
 #include "utils/file_crc.h"
 
 extern int buf_switches, buf_largecount, buf_overflows;
@@ -37,6 +38,40 @@ extern void print_rune_stats(CharData *ch);
 extern void list_feats(CharData *ch, CharData *vict, bool all_feats);
 extern void list_skills(CharData *ch, CharData *vict, const char *filter = nullptr);
 extern void list_spells(CharData *ch, CharData *vict, int all_spells);
+
+void ShowClassInfo(CharData *ch, const std::string &class_name, const std::string &params) {
+	if (class_name.empty()) {
+		SendMsgToChar("Формат: show class [имя класса] [stats|skills|spells|feats|параметры|умения|заклинания|способности]", ch);
+		return;
+	}
+
+	auto class_id = FindAvailableCharClassId(class_name);
+	if (class_id == ECharClass::kUndefined) {
+		SendMsgToChar("Неизвестное имя класса.", ch);
+		return;
+	}
+
+	std::ostringstream out;
+	if (params.empty()) {
+		MUD::Classes(class_id).Print(ch, out);
+	} else {
+		MUD::Classes(class_id).PrintHeader(ch, out);
+		if (utils::IsAbbrev(params, "stats") ||
+			utils::IsAbbrev(params, "параметры")) {
+			MUD::Classes(class_id).PrintBaseStatsTable(ch, out);
+		} else if (utils::IsAbbrev(params, "skills") ||
+			utils::IsAbbrev(params, "умения")) {
+			MUD::Classes(class_id).PrintSkillsTable(ch, out);
+		} else if (utils::IsAbbrev(params, "spells") ||
+			utils::IsAbbrev(params, "заклинания")) {
+			MUD::Classes(class_id).PrintSpellsTable(ch, out);
+		} else if (utils::IsAbbrev(params, "feats") ||
+			utils::IsAbbrev(params, "способности")) {
+			MUD::Classes(class_id).PrintFeatsTable(ch, out);
+		}
+	}
+	page_string(ch->desc, out.str());
+}
 
 namespace {
 
@@ -210,6 +245,7 @@ struct show_struct show_fields[] = {
 	{"apply", kLvlGod}, // 26
 	{"worlds", kLvlImmortal},
 	{"triggers", kLvlImmortal},
+	{"class", kLvlImmortal},
 	{"\n", 0}
 };
 
@@ -669,6 +705,9 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			break;
 		case 28: // triggers
 			print_event_list(ch);
+			break;
+		case 29: // class
+			ShowClassInfo(ch, value, value1);
 			break;
 		default: SendMsgToChar("Извините, неверная команда.\r\n", ch);
 			break;

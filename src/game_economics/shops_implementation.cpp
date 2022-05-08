@@ -8,7 +8,7 @@
 #include "game_mechanics/glory.h"
 #include "game_mechanics/glory_const.h"
 #include "game_economics/ext_money.h"
-#include "world_objects.h"
+#include "entities/world_objects.h"
 #include "handler.h"
 #include "modify.h"
 #include "game_mechanics/named_stuff.h"

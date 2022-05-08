@@ -33,7 +33,7 @@
 
 #include "structs/global_objects.h"
 #include "game_magic/magic.h"
-#include "world_objects.h"
+#include "entities/world_objects.h"
 #include "entities/world_characters.h"
 #include "entities/entities_constants.h"
 #include "cmd_god/shutdown_parameters.h"

@@ -181,7 +181,7 @@ void CharClassInfoBuilder::ParseFeats(Optional &info, DataNode &node) {
 	info.value()->feats.Reload(node.Children());
 }
 
-void CharClassInfo::Print(CharData *ch, std::ostringstream &buffer) const {
+void CharClassInfo::PrintHeader(CharData *ch, std::ostringstream &buffer) const {
 	buffer << "Print class:" << "\n"
 		   << " Id: " << KGRN << NAME_BY_ITEM<ECharClass>(id) << KNRM << std::endl
 		   << " Mode: " << KGRN << NAME_BY_ITEM<EItemMode>(mode) << KNRM << std::endl
@@ -192,12 +192,14 @@ void CharClassInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 		   << "/" << names->GetSingular(ECase::kAcc)
 		   << "/" << names->GetSingular(ECase::kIns)
 		   << "/" << names->GetSingular(ECase::kPre) << KNRM << std::endl;
+}
 
+void CharClassInfo::Print(CharData *ch, std::ostringstream &buffer) const {
+	PrintHeader(ch, buffer);
 	PrintBaseStatsTable(ch, buffer);
 	PrintSkillsTable(ch, buffer);
 	PrintSpellsTable(ch, buffer);
 	PrintFeatsTable(ch, buffer);
-
 	buffer << std::endl;
 }
 
@@ -235,6 +237,9 @@ void CharClassInfo::PrintSkillsTable(CharData *ch, std::ostringstream &buffer) c
 	table << table_wrapper::kHeader
 		<< "Id" << "Skill" << "Lvl" << "Rem" << "Improve" << "Mode" << table_wrapper::kEndRow;
 	for (const auto &skill : skills) {
+		if (skill.IsInvalid()) {
+			continue;
+		}
 		table << NAME_BY_ITEM<ESkill>(skill.GetId())
 				<< MUD::Skills(skill.GetId()).name
 				<< skill.GetMinLevel()

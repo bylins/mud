@@ -4,7 +4,7 @@
 
 #include "named_stuff.h"
 
-#include "world_objects.h"
+#include "entities/world_objects.h"
 #include "obj_prototypes.h"
 #include "entities/obj_data.h"
 #include "color.h"

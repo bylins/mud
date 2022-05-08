@@ -8,7 +8,7 @@
 *  $Revision$                                                      *
  ************************************************************************/
 
-#include "world_objects.h"
+#include "entities/world_objects.h"
 #include "obj_prototypes.h"
 #include "conf.h"
 #include "sysdep.h"

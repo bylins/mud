@@ -28,7 +28,7 @@
 #include "action_targeting.h"
 #include "act_movement.h"
 #include "entities/world_characters.h"
-#include "world_objects.h"
+#include "entities/world_objects.h"
 #include "handler.h"
 #include "game_magic/magic.h"
 #include "game_fight/pk.h"

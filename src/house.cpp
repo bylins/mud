@@ -18,7 +18,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include "world_objects.h"
+#include "entities/world_objects.h"
 #include "entities/world_characters.h"
 #include "obj_prototypes.h"
 #include "utils/logger.h"

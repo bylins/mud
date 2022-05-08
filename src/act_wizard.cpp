@@ -81,7 +81,7 @@
 #include "statistics/top.h"
 #include "utils/utils.h"
 #include "utils/id_converter.h"
-#include "world_objects.h"
+#include "entities/world_objects.h"
 #include "entities/zone.h"
 #include "game_classes/classes_constants.h"
 #include "game_magic/spells_info.h"

@@ -13,7 +13,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include "world_objects.h"
+#include "entities/world_objects.h"
 #include "handler.h"
 #include "parcel.h"
 #include "entities/char_player.h"

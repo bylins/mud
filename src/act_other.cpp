@@ -61,7 +61,7 @@
 #include "game_magic/spells.h"
 #include "structs/structs.h"
 #include "sysdep.h"
-#include "world_objects.h"
+#include "entities/world_objects.h"
 #include "game_skills/skills_info.h"
 #include "game_mechanics/weather.h"
 #include "structs/global_objects.h"

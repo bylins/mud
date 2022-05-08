@@ -11,7 +11,7 @@
 
 #include "obj_save.h"
 
-#include "world_objects.h"
+#include "entities/world_objects.h"
 #include "entities/world_characters.h"
 #include "obj_prototypes.h"
 #include "handler.h"

@@ -166,7 +166,7 @@ set(SOURCES
         src/game_mechanics/weather.cpp
 		src/olc/zedit.cpp
 		src/utils/utils_string.cpp
-		src/world_objects.cpp
+        src/entities/world_objects.cpp
 		src/obj_prototypes.cpp
 		src/id.cpp
 		src/utils/utils_find_obj_id_by_vnum.cpp
@@ -312,7 +312,7 @@ set(HEADERS
         src/structs/compact_trie.h
         src/structs/radix_trie.h
 		src/obj_prototypes.h
-		src/world_objects.h
+        src/entities/world_objects.h
 		src/utils/utils_string.h
 		src/act_other.h
 		src/game_affects/affect_handler.h

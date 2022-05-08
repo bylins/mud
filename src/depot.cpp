@@ -5,7 +5,7 @@
 #include "depot.h"
 
 #include "entities/world_characters.h"
-#include "world_objects.h"
+#include "entities/world_objects.h"
 #include "obj_prototypes.h"
 #include "handler.h"
 #include "game_economics/auction.h"
