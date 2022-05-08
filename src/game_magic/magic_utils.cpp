@@ -61,8 +61,7 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 			case ENpcRace::kGhost:
 			case ENpcRace::kHuman:
 			case ENpcRace::kZombie:
-			case ENpcRace::kSpirit:
-			{
+			case ENpcRace::kSpirit: {
 				const int religion = number(kReligionPoly, kReligionMono);
 				const std::string &cast_phrase = religion ? cast_phrase_list->text_for_christian : cast_phrase_list->text_for_heathen;
 				if (!cast_phrase.empty()) {
@@ -84,10 +83,10 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 				helpee_vict = "$n издал$g непонятный звук.";
 		}
 	} else {
-		//если включен режим без повторов (подавление ехо) не показываем
 		if (PRF_FLAGGED(ch, EPrf::kNoRepeat)) {
-			if (!ch->GetEnemy()) //если персонаж не в бою, шлем строчку, если в бою ничего не шлем
+			if (!ch->GetEnemy()) {
 				SendMsgToChar(OK, ch);
+			}
 		} else {
 			if (IS_SET(spell_info[spell_id].routines, kMagWarcry))
 				sprintf(buf, "Вы выкрикнули \"%s%s%s\".\r\n",
@@ -125,11 +124,7 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 	sprintf(buf2, format, buf);
 
 	for (const auto i : world[ch->in_room]->people) {
-		if (i == ch
-			|| i == tch
-			|| !i->desc
-			|| !AWAKE(i)
-			|| AFF_FLAGGED(i, EAffect::kDeafness)) {
+		if (i == ch || i == tch || !i->desc || !AWAKE(i) || AFF_FLAGGED(i, EAffect::kDeafness)) {
 			continue;
 		}
 
@@ -142,10 +137,7 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 
 	act(buf1, 1, ch, tobj, tch, kToArenaListen);
 
-	if (tch != nullptr
-		&& tch != ch
-		&& IN_ROOM(tch) == ch->in_room
-		&& !AFF_FLAGGED(tch, EAffect::kDeafness)) {
+	if (tch != nullptr && tch != ch && IN_ROOM(tch) == ch->in_room && !AFF_FLAGGED(tch, EAffect::kDeafness)) {
 		if (spell_info[spell_id].violent) {
 			sprintf(buf1, damagee_vict,
 					IS_SET(GET_SPELL_TYPE(tch, spell_id), ESpellType::kKnow | ESpellType::kTemp) ? GetSpellName(spell_id) : buf);
@@ -539,17 +531,14 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
  * by NPCs via specprocs.
  */
 int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpell spell_id, ESpell spell_subst) {
-	int ignore;
-
 	if (spell_id == ESpell::kUndefined) {
-		log("SYSERR: CastSpell trying to call spell id %d/%d.\n",
-			to_underlying(spell_id), to_underlying(ESpell::kLast));
-		return (0);
+		log("SYSERR: CastSpell trying to call spell id %d.\n", to_underlying(spell_id));
+		return 0;
 	}
 
 	if (tch && ch) {
 		if (IS_MOB(tch) && IS_MOB(ch) && !SAME_ALIGN(ch, tch) && !spell_info[spell_id].violent) {
-			return (0);
+			return 0;
 		}
 	}
 
@@ -570,22 +559,22 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpel
 			default: SendMsgToChar("Вам вряд ли это удастся.\r\n", ch);
 				break;
 		}
-		return (0);
+		return 0;
 	}
 
 	if (AFF_FLAGGED(ch, EAffect::kCharmed) && ch->get_master() == tch) {
 		SendMsgToChar("Вы не посмеете поднять руку на вашего повелителя!\r\n", ch);
-		return (0);
+		return 0;
 	}
 
 	if (tch != ch && !IS_IMMORTAL(ch) && IS_SET(spell_info[spell_id].targets, kTarSelfOnly)) {
 		SendMsgToChar("Вы можете колдовать это только на себя!\r\n", ch);
-		return (0);
+		return 0;
 	}
 
 	if (tch == ch && IS_SET(spell_info[spell_id].targets, kTarNotSelf)) {
 		SendMsgToChar("Колдовать? ЭТО? На себя?! Да вы с ума сошли!\r\n", ch);
-		return (0);
+		return 0;
 	}
 
 	if ((!tch || IN_ROOM(tch) == kNowhere) && !tobj && !troom &&
@@ -594,20 +583,18 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpel
 				   | kTarObjInv | kTarObjRoom | kTarObjWorld | kTarObjEquip | kTarRoomThis
 				   | kTarRoomDir)) {
 		SendMsgToChar("Цель заклинания недоступна.\r\n", ch);
-		return (0);
+		return 0;
 	}
 
-	// Идея считает, что это условие лищнее, но что-то не вижу, почему. Поэтому на всякий случай - комментариий.
-	//if (tch != nullptr && IN_ROOM(tch) != ch->in_room) {
 	if (tch != nullptr && IN_ROOM(tch) != ch->in_room) {
 		if (!IS_SET(spell_info[spell_id].targets, kTarCharWorld)) {
 			SendMsgToChar("Цель заклинания недоступна.\r\n", ch);
-			return (0);
+			return 0;
 		}
 	}
 
 	if (AFF_FLAGGED(ch, EAffect::kPeaceful)) {
-		ignore = IS_SET(spell_info[spell_id].targets, kTarIgnore) ||
+		auto ignore = IS_SET(spell_info[spell_id].targets, kTarIgnore) ||
 			IS_SET(spell_info[spell_id].routines, kMagMasses) || IS_SET(spell_info[spell_id].routines, kMagGroups);
 		if (ignore) { // индивидуальная цель
 			if (spell_info[spell_id].violent) {
@@ -630,27 +617,24 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpel
 		}
 	}
 
-	ESkill skillnum = GetMagicSkillId(spell_id);
-	if (skillnum != ESkill::kUndefined) {
-		TrainSkill(ch, skillnum, true, tch);
+	if (auto skill_id = GetMagicSkillId(spell_id); skill_id != ESkill::kUndefined) {
+		TrainSkill(ch, skill_id, true, tch);
 	}
 	// Комнату тут в SaySpell не обрабатываем - будет сказал "что-то"
 	SaySpell(ch, spell_id, tch, tobj);
-	// Уменьшаем кол-во заклов в меме
 	if (GET_SPELL_MEM(ch, spell_subst) > 0) {
 		GET_SPELL_MEM(ch, spell_subst)--;
 	} else {
 		GET_SPELL_MEM(ch, spell_subst) = 0;
 	}
-	// если включен автомем
+
 	if (!ch->IsNpc() && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, EPrf::kAutomem)) {
 		MemQ_remember(ch, spell_subst);
 	}
-	// если НПЦ - уменьшаем его макс.количество кастуемых спеллов
+
 	if (ch->IsNpc()) {
 		ch->caster_level -= (IS_SET(spell_info[spell_id].routines, NPC_CALCULATE) ? 1 : 0);
-	}
-	if (!ch->IsNpc()) {
+	} else {
 		affect_total(ch);
 	}
 

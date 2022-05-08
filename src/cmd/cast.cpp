@@ -7,20 +7,37 @@
 #include "color.h"
 #include "structs/global_objects.h"
 
+auto FindSubstituteSpellId(CharData *ch, ESpell spell_id) {
+	static const std::set<ESpell> healing_spells{
+		ESpell::kCureLight,
+		ESpell::kCureSerious,
+		ESpell::kCureCritic,
+		ESpell::kHeal};
+
+	auto subst_spell_id{ESpell::kUndefined};
+	if (CanUseFeat(ch, EFeat::kSpellSubstitute) && healing_spells.contains(spell_id)) {
+		for (const auto &test_spell : MUD::Classes(ch->GetClass()).spells) {
+			auto test_spell_id = test_spell.GetId();
+			if (GET_SPELL_MEM(ch, test_spell_id) &&
+				MUD::Classes(ch->GetClass()).spells[test_spell_id].GetCircle() ==
+					MUD::Classes(ch->GetClass()).spells[spell_id].GetCircle()) {
+				subst_spell_id = test_spell_id;
+				break;
+			}
+		}
+	}
+
+	return subst_spell_id;
+}
+
+
 /*
  * do_cast is the entry point for PC-casted spells.  It parses the arguments,
  * determines the spell number and finds a target, throws the die to see if
  * the spell can be cast, checks for sufficient mana and subtracts it, and
  * passes control to CastSpell().
  */
-void do_cast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
-	CharData *tch;
-	ObjData *tobj;
-	RoomData *troom;
-
-	char *s, *t;
-	int target = 0;
-
+void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	if (ch->IsNpc() && AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
@@ -53,26 +70,25 @@ void do_cast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	}
 
 	// get: blank, spell name, target name
-	s = strtok(argument, "'*!");
-	if (s == nullptr) {
+	auto spell_name = strtok(argument, "'*!");
+	if (spell_name == nullptr) {
 		SendMsgToChar("ЧТО вы хотите колдовать?\r\n", ch);
 		return;
 	}
-	s = strtok(nullptr, "'*!");
-	if (s == nullptr) {
+	spell_name = strtok(nullptr, "'*!");
+	if (spell_name == nullptr) {
 		SendMsgToChar("Название заклинания должно быть заключено в символы : ' или * или !\r\n", ch);
 		return;
 	}
-	t = strtok(nullptr, "\0");
 
-	const auto spell_id = FixNameAndFindSpellId(s);
+	const auto spell_id = FixNameAndFindSpellId(spell_name);
 	if (spell_id == ESpell::kUndefined) {
 		SendMsgToChar("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
 	}
 
-	const auto spell = MUD::Classes(ch->GetClass()).spells[spell_id];
-	if ((!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp | ESpellType::kKnow) ||
+	if (const auto spell = MUD::Classes(ch->GetClass()).spells[spell_id];
+		(!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp | ESpellType::kKnow) ||
 		GET_REAL_REMORT(ch) < spell.GetMinRemort()) &&
 		(GetRealLevel(ch) < kLvlGreatGod) && !ch->IsNpc()) {
 		if (GetRealLevel(ch) < CalcMinSpellLvl(ch, spell_id)
@@ -85,38 +101,28 @@ void do_cast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		}
 	}
 
-	auto spell_subst{ESpell::kUndefined};
+	auto substitute_spell_id{ESpell::kUndefined};
 	if (!GET_SPELL_MEM(ch, spell_id) && !IS_IMMORTAL(ch)) {
-		if (CanUseFeat(ch, EFeat::kSpellSubstitute)
-			&& (spell_id == ESpell::kCureLight || spell_id == ESpell::kCureSerious
-				|| spell_id == ESpell::kCureCritic || spell_id == ESpell::kHeal)) {
-			for (const auto &spell : MUD::Classes(ch->GetClass()).spells) {
-				auto subst_spell_id = spell.GetId();
-				if (GET_SPELL_MEM(ch, subst_spell_id) &&
-					MUD::Classes(ch->GetClass()).spells[subst_spell_id].GetCircle() ==
-						MUD::Classes(ch->GetClass()).spells[spell_id].GetCircle()) {
-					spell_subst = subst_spell_id;
-					break;
-				}
-			}
-			if (spell_subst == ESpell::kUndefined) {
-				SendMsgToChar("У вас нет заученных заклинаний этого круга.\r\n", ch);
-				return;
-			}
-		} else {
+		substitute_spell_id = FindSubstituteSpellId(ch, spell_id);
+		if (substitute_spell_id == ESpell::kUndefined) {
 			SendMsgToChar("Вы совершенно не помните, как произносится это заклинание...\r\n", ch);
 			return;
 		}
+	} else {
+		substitute_spell_id = spell_id;
 	}
 
-	// Find the target
-	if (t != nullptr)
-		one_argument(t, arg);
-	else
+
+	if (auto target_name = strtok(nullptr, "\0"); target_name != nullptr) {
+		one_argument(target_name, arg);
+	} else {
 		*arg = '\0';
+	}
 
-	target = FindCastTarget(spell_id, arg, ch, &tch, &tobj, &troom);
-
+	CharData *tch;
+	ObjData *tobj;
+	RoomData *troom;
+	auto target = FindCastTarget(spell_id, arg, ch, &tch, &tobj, &troom);
 	if (target && (tch == ch) && spell_info[spell_id].violent) {
 		SendMsgToChar("Лекари не рекомендуют использовать ЭТО на себя!\r\n", ch);
 		return;
@@ -125,36 +131,34 @@ void do_cast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		SendMsgToChar("Тяжеловато найти цель вашего заклинания!\r\n", ch);
 		return;
 	}
-	if (!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
+	if (!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp) &&
+		ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
 		SendMsgToChar("На данной арене вы можете колдовать только временные заклинания!\r\n", ch);
 		return;
 	}
 
-	// You throws the dice and you takes your chances.. 101% is total failure
-	// Чтобы в бой не вступал с уже взведенной заклинашкой !!!
 	ch->SetCast(ESpell::kUndefined, ESpell::kUndefined, nullptr, nullptr, nullptr);
 	if (!CalcCastSuccess(ch, tch, ESaving::kStability, spell_id)) {
 		if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike)))
 			SetWaitState(ch, kPulseViolence);
-		if (GET_SPELL_MEM(ch, spell_subst)) {
-			GET_SPELL_MEM(ch, spell_subst)--;
+		if (GET_SPELL_MEM(ch, substitute_spell_id)) {
+			GET_SPELL_MEM(ch, substitute_spell_id)--;
 		}
 		if (!ch->IsNpc() && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, EPrf::kAutomem)) {
-			MemQ_remember(ch, spell_subst);
+			MemQ_remember(ch, substitute_spell_id);
 		}
 		affect_total(ch);
-		if (!tch || !SendSkillMessages(0, ch, tch, spell_id))
+		if (!tch || !SendSkillMessages(0, ch, tch, spell_id)) {
 			SendMsgToChar("Вы не смогли сосредоточиться!\r\n", ch);
-	} else        // cast spell returns 1 on success; subtract mana & set waitstate
-	{
+		}
+	} else {
 		if (ch->GetEnemy() && !IS_IMPL(ch)) {
-			ch->SetCast(spell_id, spell_subst, tch, tobj, troom);
-			sprintf(buf,
-					"Вы приготовились применить заклинание %s'%s'%s%s.\r\n",
+			ch->SetCast(spell_id, substitute_spell_id, tch, tobj, troom);
+			sprintf(buf, "Вы приготовились применить заклинание %s'%s'%s%s.\r\n",
 					CCCYN(ch, C_NRM), spell_info[spell_id].name, CCNRM(ch, C_NRM),
 					tch == ch ? " на себя" : tch ? " на $N3" : tobj ? " на $o3" : troom ? " на всех" : "");
 			act(buf, false, ch, tobj, tch, kToChar);
-		} else if (CastSpell(ch, tch, tobj, troom, spell_id, spell_subst) >= 0) {
+		} else if (CastSpell(ch, tch, tobj, troom, spell_id, substitute_spell_id) >= 0) {
 			if (!(IS_IMMORTAL(ch) || ch->get_wait() > 0))
 				SetWaitState(ch, kPulseViolence);
 		}

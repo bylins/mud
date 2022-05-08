@@ -576,7 +576,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"использовать", EPosition::kRest, do_style, 0, 0, 0},
 		{"имя", EPosition::kSleep, do_name, kLvlImmortal, 0, 0},
 
-		{"колдовать", EPosition::kSit, do_cast, 1, 0, -1},
+		{"колдовать", EPosition::kSit, DoCast, 1, 0, -1},
 		{"казна", EPosition::kRest, do_not_here, 1, 0, 0},
 		{"карта", EPosition::kRest, do_map, 0, 0, 0},
 		{"клан", EPosition::kRest, DoHouse, 0, 0, 0},
@@ -823,7 +823,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"bug", EPosition::kDead, Boards::report_on_board, 0, Boards::ERROR_BOARD, 0},
 		{"buy", EPosition::kStand, do_not_here, 0, 0, -1},
 		{"best", EPosition::kDead, DoBest, 0, 0, 0},
-		{"cast", EPosition::kSit, do_cast, 1, 0, -1},
+		{"cast", EPosition::kSit, DoCast, 1, 0, -1},
 		{"check", EPosition::kStand, do_not_here, 1, 0, -1},
 		{"chopoff", EPosition::kFight, do_chopoff, 0, 0, 500},
 		{"clear", EPosition::kDead, do_gen_ps, 0, SCMD_CLEAR, 0},
