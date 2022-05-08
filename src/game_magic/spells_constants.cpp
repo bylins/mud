@@ -74,7 +74,7 @@ std::string GetAffExpiredText(ESpell spell_id) {
 		{ESpell::kDarkness, "Облако тьмы, окружающее вас, спало."},
 		{ESpell::kStoneSkin, "Ваша кожа вновь стала мягкой и бархатистой."},
 		{ESpell::kCloudly, "Ваши очертания приобрели отчетливость."},
-		{ESpell::kSllence, "Теперь вы можете болтать, все что думаете."},
+		{ESpell::kSilence, "Теперь вы можете болтать, все что думаете."},
 		{ESpell::kLight, "Ваше тело перестало светиться."},
 		{ESpell::kChainLighting, "!SPELL CHAIN LIGHTNING!"},
 		{ESpell::kFireBlast, "!SPELL FIREBLAST!"},
@@ -333,7 +333,7 @@ std::optional<CastPhraseList> GetCastPhrase(ESpell spell_id) {
 		{ESpell::kDarkness, {"тьмою прикрыты", "... тьма покроет землю."}},
 		{ESpell::kStoneSkin, {"буде тверд аки камень", "... твердость ли камней твердость твоя?"}},
 		{ESpell::kCloudly, {"мгла покрыла", "... будут как утренний туман."}},
-		{ESpell::kSllence, {"типун тебе на язык!", "... да замкнутся уста твои."}},
+		{ESpell::kSilence, {"типун тебе на язык!", "... да замкнутся уста твои."}},
 		{ESpell::kLight, {"буде аки светоч", "... и да воссияет над ним свет!"}},
 		{ESpell::kChainLighting, {"глаголят небеса", "... понесутся меткие стрелы молний из облаков."}},
 		{ESpell::kFireBlast, {"створисте огненну струя", "... и ввергне их в озеро огненное."}},
@@ -631,7 +631,7 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kDarkness] = "kDarkness";
 	ESpell_name_by_value[ESpell::kStoneSkin] = "kStoneSkin";
 	ESpell_name_by_value[ESpell::kCloudly] = "kCloudly";
-	ESpell_name_by_value[ESpell::kSllence] = "kSllence";
+	ESpell_name_by_value[ESpell::kSilence] = "kSilence";
 	ESpell_name_by_value[ESpell::kLight] = "kLight";
 	ESpell_name_by_value[ESpell::kChainLighting] = "kChainLighting";
 	ESpell_name_by_value[ESpell::kFireBlast] = "kFireBlast";

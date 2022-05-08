@@ -834,7 +834,7 @@ class CharData : public ProtectedCharData {
 # define MAX_FIRSTAID_REMOVE 13
 inline ESpell GetRemovableSpellId(int num) {
 	static const ESpell spell[MAX_FIRSTAID_REMOVE] = {ESpell::kSleep, ESpell::kPoison, ESpell::kWeaknes, ESpell::kCurse,
-										 ESpell::kFever, ESpell::kSllence, ESpell::kBlindness, ESpell::kHaemorrhage,
+										 ESpell::kFever, ESpell::kSilence, ESpell::kBlindness, ESpell::kHaemorrhage,
 										 ESpell::kHold, ESpell::kPeaceful, ESpell::kColdWind, ESpell::kDeafness,
 										 ESpell::kBattle};
 	if (num < MAX_FIRSTAID_REMOVE) {

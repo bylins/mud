@@ -209,9 +209,8 @@ void InitFeatures() {
 //23
 	InitFeat(EFeat::kStealthy, "незаметность", EFeatType::kSkillMod, feat_app);
 //24
-	feat_app.insert(EApply::kCastSuccess, 80);
-	InitFeat(EFeat::kRelatedToMagic, "магическое родство", EFeatType::kAffect, feat_app);
-	feat_app.clear();
+/*	InitFeat(EFeat::, "NAME", EFeatType::kAffect, feat_app);
+	feat_app.clear();*/
 //25
 	feat_app.insert(EApply::kHpRegen, 10);
 	feat_app.insert(EApply::kSavingCritical, -4);
@@ -361,9 +360,8 @@ void InitFeatures() {
 	InitFeat(EFeat::kHitrollBonus, "твердая рука", EFeatType::kAffect, feat_app);
 	feat_app.clear();
 //67
-	feat_app.insert(EApply::kCastSuccess, 30);
-	InitFeat(EFeat::kMagicalInstinct, "магическое чутье", EFeatType::kAffect, feat_app);
-	feat_app.clear();
+/*	InitFeat(EFeat::, "NAME", EFeatType::kAffect, feat_app);
+	feat_app.clear();*/
 //68
 	InitFeat(EFeat::kPunchFocus, "любимое_оружие: голые руки", EFeatType::kSkillMod, feat_app,
 			 0, ESkill::kPunch);
@@ -1610,7 +1608,6 @@ void init_EFeat_ITEM_NAMES() {
 	EFeat_name_by_value[EFeat::kGreatFortitude] = "kGreatFortitude";
 	EFeat_name_by_value[EFeat::kFastRegen] = "kFastRegen";
 	EFeat_name_by_value[EFeat::kStealthy] = "kStealthy";
-	EFeat_name_by_value[EFeat::kRelatedToMagic] = "kRelatedToMagic";
 	EFeat_name_by_value[EFeat::kSplendidHealth] = "kSplendidHealth";
 	EFeat_name_by_value[EFeat::kTracker] = "kTracker";
 	EFeat_name_by_value[EFeat::kWeaponFinesse] = "kWeaponFinesse";
@@ -1653,7 +1650,6 @@ void init_EFeat_ITEM_NAMES() {
 	EFeat_name_by_value[EFeat::kMagneticPersonality] = "kMagneticPersonality";
 	EFeat_name_by_value[EFeat::kDamrollBonus] = "kDamrollBonus";
 	EFeat_name_by_value[EFeat::kHitrollBonus] = "kHitrollBonus";
-	EFeat_name_by_value[EFeat::kMagicalInstinct] = "kMagicalInstinct";
 	EFeat_name_by_value[EFeat::kPunchFocus] = "kPunchFocus";
 	EFeat_name_by_value[EFeat::kClubsFocus] = "kClubsFocus";
 	EFeat_name_by_value[EFeat::kAxesFocus] = "kAxesFocus";

@@ -381,12 +381,6 @@ int mag_damage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 	if (ch != victim) {
 		modi = CalcAntiSavings(ch);
 		modi += CalcClassAntiSavingsMod(ch, spell_id);
-		if (CanUseFeat(ch, EFeat::kRelatedToMagic) && !victim->IsNpc()) {
-			modi -= 80;
-		}
-		if (CanUseFeat(ch, EFeat::kMagicalInstinct) && !victim->IsNpc()) {
-			modi -= 30;
-		}
 		if (PRF_FLAGGED(ch, EPrf::kAwake) && !victim->IsNpc())
 			modi = modi - 50;
 	}
@@ -1186,13 +1180,6 @@ int CastMagicAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, 
 	if (ch != victim) {
 		modi = CalcAntiSavings(ch);
 		modi += CalcClassAntiSavingsMod(ch, spell_id);
-		if (CanUseFeat(ch, EFeat::kRelatedToMagic) && !victim->IsNpc()) {
-			modi -= 80; //бонуса на непись нету
-		}
-		if (CanUseFeat(ch, EFeat::kMagicalInstinct) && !victim->IsNpc()) {
-			modi -= 30; //бонуса на непись нету
-		}
-
 	}
 
 	if (PRF_FLAGGED(ch, EPrf::kAwake) && !victim->IsNpc()) {
@@ -2156,7 +2143,7 @@ int CastMagicAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, 
 
 		case ESpell::kMassSilence:
 		case ESpell::kPowerSilence:
-		case ESpell::kSllence: savetype = ESaving::kWill;
+		case ESpell::kSilence: savetype = ESaving::kWill;
 			if (MOB_FLAGGED(victim, EMobFlag::kNoSilence) ||
 				(ch != victim && CalcGeneralSaving(ch, victim, savetype, modi))) {
 				SendMsgToChar(NOEFFECT, ch);
@@ -2171,7 +2158,7 @@ int CastMagicAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, 
 			af[0].battleflag = kAfBattledec;
 			to_room = "$n0 прикусил$g язык!";
 			to_vict = "Вы не в состоянии вымолвить ни слова.";
-			spell_id = ESpell::kSllence;
+			spell_id = ESpell::kSilence;
 			break;
 
 		case ESpell::kGroupFly:
@@ -2313,11 +2300,6 @@ int CastMagicAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, 
 					modi = CALC_SUCCESS(modi, 95);
 					break;
 				case ESpell::kShock: savetype = ESaving::kReflex;
-					if (ch->GetClass() == ECharClass::kSorcerer) {
-						modi = CALC_SUCCESS(modi, 75);
-					} else {
-						modi = CALC_SUCCESS(modi, 25);
-					}
 					break;
 				default: break;
 			}
@@ -3479,7 +3461,7 @@ int CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell spell_id
 		case ESpell::kRemoveHold: spell = ESpell::kHold;
 			to_vict = "К вам вернулась способность двигаться.";
 			break;
-		case ESpell::kRemoveSilence: spell = ESpell::kSllence;
+		case ESpell::kRemoveSilence: spell = ESpell::kSilence;
 			to_vict = "К вам вернулась способность разговаривать.";
 			break;
 		case ESpell::kRemoveDeafness: spell = ESpell::kDeafness;

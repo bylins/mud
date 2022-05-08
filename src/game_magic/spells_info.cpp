@@ -378,7 +378,7 @@ void InitSpells() {
 			  EPosition::kFight, kTarCharRoom | kTarFightSelf, false, kMagAffects | kNpcAffectNpc,
 			  0, kTypeWater);
 //64
-	InitSpell(ESpell::kSllence, "молчание", "sielence",
+	InitSpell(ESpell::kSilence, "молчание", "sielence",
 			  100, 40, 2, EPosition::kFight,
 			  kTarCharRoom | kTarNotSelf | kTarFightVict, kMtypeNeutral,
 			  kMagAffects | kNpcAffectPc | kNpcAffectPcCaster, 1, kTypeMind);

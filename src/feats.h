@@ -43,7 +43,9 @@ enum class EFeat {
 	kGreatFortitude = 21,		//сила духа
 	kFastRegen = 22,			//быстрое заживление
 	kStealthy = 23,				//незаметность
-	kRelatedToMagic = 24,		//магическое родство
+
+//	UNUSED = 24,				//удалено - можно использовать
+
 	kSplendidHealth = 25,		//богатырское здоровье
 	kTracker = 26,				//следопыт
 	kWeaponFinesse = 27,		//ловкий удар
@@ -86,7 +88,9 @@ enum class EFeat {
 	kMagneticPersonality = 64,	//предводитель
 	kDamrollBonus = 65,			//тяжел на руку
 	kHitrollBonus = 66,			//твердая рука
-	kMagicalInstinct = 67,		//магическое чутье
+
+//	UNUSED = 67,				//удалено - можно использовать
+
 	kPunchFocus = 68,			//любимое оружие: голые руки
 	kClubsFocus = 69,			//любимое оружие: палица
 	kAxesFocus = 70,			//любимое оружие: секира
@@ -147,7 +151,9 @@ enum class EFeat {
 	kLoyalAssist = 122,			//верный помощник
 	kHauntingSpirit = 123,		//блуждающий дух
 	kSnakeRage = 124,			//ярость змеи
+
 //	UNUSED = 125,
+
 	kElderTaskmaster = 126,		//Старший надсмотрщик
 	kLordOfUndeads = 127,		//Повелитель нежити
 	kWarlock = 128,				//Темный маг

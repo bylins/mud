@@ -128,7 +128,7 @@ bool Affect<EApply>::removable() const {
 		|| type == ESpell::kWeaknes
 		|| type == ESpell::kCurse
 		|| type == ESpell::kFever
-		|| type == ESpell::kSllence
+		|| type == ESpell::kSilence
 		|| type == ESpell::kPowerSilence
 		|| type == ESpell::kBlindness
 		|| type == ESpell::kPowerBlindness
@@ -892,7 +892,7 @@ bool IsAffectedBySpell(CharData *ch, ESpell type) {
 	if (type == ESpell::kPowerHold) {
 		type = ESpell::kHold;
 	} else if (type == ESpell::kPowerSilence) {
-		type = ESpell::kSllence;
+		type = ESpell::kSilence;
 	} else if (type == ESpell::kPowerBlindness) {
 		type = ESpell::kBlindness;
 	}

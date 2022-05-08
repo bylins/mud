@@ -1189,7 +1189,6 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 				victim->SetFeat(EFeat::kTwohandsMaster);
 				victim->SetFeat(EFeat::kTwohandsFocus);
 				if (floorf(r_cha + perc/5.0) > number(1, 150)) {
-					victim->SetFeat(EFeat::kRelatedToMagic);
 					act("&G$N0 стал$G намного более опасным хищником.&n\n",
 						false, ch, nullptr, victim, kToChar);
 					victim->set_skill(ESkill::kFirstAid, k_skills*0.4);

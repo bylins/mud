@@ -695,7 +695,7 @@ CharData *find_opp_affectee(CharData *caster, ESpell spell_id) {
 	else if (spellreal == ESpell::kPowerBlindness || spellreal == ESpell::kMassBlindness)
 		spellreal = ESpell::kBlindness;
 	else if (spellreal == ESpell::kPowerSilence || spellreal == ESpell::kMassSilence)
-		spellreal = ESpell::kSllence;
+		spellreal = ESpell::kSilence;
 	else if (spellreal == ESpell::kMassCurse)
 		spellreal = ESpell::kCurse;
 	else if (spellreal == ESpell::kMassSlow)
@@ -1903,10 +1903,9 @@ void process_player_attack(CharData *ch, int min_init) {
 			exthit(ch, tmpSkilltype, fight::AttackType::kMainHand);
 		}
 // допатака двуручем
-		if (!IS_SET(trigger_code, kNoExtraAttack) && GET_EQ(ch, EEquipPos::kBoths) && CanUseFeat(ch,
-																								 EFeat::kTwohandsFocus)
-			&& (static_cast<ESkill>(GET_OBJ_SKILL(GET_EQ(ch, EEquipPos::kBoths))) == ESkill::kTwohands)
-			&& CanUseFeat(ch, EFeat::kRelatedToMagic)) {
+		if (!IS_SET(trigger_code, kNoExtraAttack) && GET_EQ(ch, EEquipPos::kBoths) &&
+			CanUseFeat(ch, EFeat::kTwohandsFocus)
+			&& (static_cast<ESkill>(GET_OBJ_SKILL(GET_EQ(ch, EEquipPos::kBoths))) == ESkill::kTwohands)) {
 			if (ch->GetSkill(ESkill::kTwohands) > (number(1, 500)))
 				hit(ch, ch->GetEnemy(), ESkill::kUndefined, fight::AttackType::kMainHand);
 		}
