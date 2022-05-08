@@ -23,6 +23,7 @@
 #include "entities/world_characters.h"
 #include "communication/insult.h"
 #include "cmd_god/stat.h"
+#include "cmd_god/show.h"
 #include "cmd_god/godtest.h"
 #include "cmd/follow.h"
 #include "cmd/hire.h"
@@ -305,7 +306,6 @@ void DoScore(CharData *ch, char *argument, int, int);
 void do_sdemigod(CharData *ch, char *argument, int cmd, int subcmd);
 void do_send(CharData *ch, char *argument, int cmd, int subcmd);
 void do_set(CharData *ch, char *argument, int cmd, int subcmd);
-void do_show(CharData *ch, char *argument, int cmd, int subcmd);
 void do_shutdown(CharData *ch, char *argument, int cmd, int subcmd);
 void do_skillset(CharData *ch, char *argument, int cmd, int subcmd);
 void do_sneak(CharData *ch, char *argument, int cmd, int subcmd);

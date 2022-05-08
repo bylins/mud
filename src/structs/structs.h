@@ -397,10 +397,6 @@ struct CharacterPortal {
 // ===============================================================
 // Структуры для act.wizard.cpp //
 // После распиливания акт.визард надо вынести в соответтующие файлы
-struct show_struct {
-	const char *cmd = nullptr;
-	const char level = 0;
-};
 
 struct set_struct {
 	const char *cmd = nullptr;
