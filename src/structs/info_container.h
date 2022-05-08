@@ -49,9 +49,9 @@ class IItem {
 	/**
 	 *  Элемент доступен либо тестируется.
 	 */
-	[[nodiscard]] bool IsValid() const { return (IsAvailable() || GetMode() == EItemMode::kTesting); };
+	[[nodiscard]] bool IsValid() const { return (GetMode() > EItemMode::kFrozen); };
 	/**
-	 *  Элемент отключен.
+	 *  Элемент отключен или является служебным.
 	 */
 	[[nodiscard]] bool IsInvalid() const { return !IsValid(); };
 	/**
@@ -112,7 +112,7 @@ class InfoContainer {
 	/**
 	 *  Id доступен либо тестируется.
 	 */
-	bool IsValid(const E id) const { return (IsUnknown(id) ? false : IsEnabled(id) || IsBeingTesting(id)); };
+	bool IsValid(const E id) const { return (IsUnknown(id) ? false : items_->at(id)->GetMode() > EItemMode::kFrozen); };
 	/**
 	 *  Id отключен.
 	 */
@@ -122,7 +122,7 @@ class InfoContainer {
 	 */
 	bool IsAvailable(const E id) const { return (IsUnknown(id) ? false : IsEnabled(id)); };
 	/**
-	 *  Id недоступен или тестируется.
+	 *  Id недоступен (тестируется, служебный или отключен).
 	 */
 	bool IsUnavailable(const E id) const { return !IsAvailable(id); };
 	/**

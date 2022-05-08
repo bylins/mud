@@ -46,7 +46,7 @@ struct CharClassInfo : public info_container::IItem<ECharClass> {
 		E id_{E::kUndefined};
 		int min_level_{kLvlImplementator};
 		int min_remort_{kMaxRemort + 1};
-		EItemMode mode_{EItemMode::kDisabled};
+		EItemMode mode_{EItemMode::kService};
 	};
 
 	class SkillInfo : public TalentInfo<ESkill> {
