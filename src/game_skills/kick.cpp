@@ -27,7 +27,7 @@ void go_kick(CharData *ch, CharData *vict) {
 		SkillRollResult result = MakeSkillTest(ch, ESkill::kKick, vict);
 		success = result.success;
 	} else {
-		int percent = ((10 - (compute_armor_class(vict) / 10)) * 2) + number(1, MUD::Skills()[ESkill::kKick].difficulty);
+		int percent = ((10 - (compute_armor_class(vict) / 10)) * 2) + number(1, MUD::Skills(ESkill::kKick).difficulty);
 		int prob = CalcCurrentSkill(ch, ESkill::kKick, vict);
 		if (GET_GOD_FLAG(vict, EGf::kGodscurse) || AFF_FLAGGED(vict, EAffect::kHold)) {
 			prob = percent;
@@ -35,11 +35,11 @@ void go_kick(CharData *ch, CharData *vict) {
 		if (GET_GOD_FLAG(ch, EGf::kGodscurse) || (!ch->IsOnHorse() && vict->IsOnHorse())) {
 			prob = 0;
 		}
-		if (check_spell_on_player(ch, kSpellWeb)) {
+		if (IsAffectedBySpell(ch, ESpell::kWeb)) {
 			prob /= 3;
 		}
 		success = percent <= prob;
-		SendSkillBalanceMsg(ch, MUD::Skills()[ESkill::kKick].name, percent, prob, success);
+		SendSkillBalanceMsg(ch, MUD::Skills(ESkill::kKick).name, percent, prob, success);
 	}
 
 	TrainSkill(ch, ESkill::kKick, success, vict);
@@ -51,28 +51,28 @@ void go_kick(CharData *ch, CharData *vict) {
 	} else {
 		int dam = str_bonus(GET_REAL_STR(ch), STR_TO_DAM) + GetRealDamroll(ch) + GetRealLevel(ch) / 6;
 		if (!ch->IsNpc() || (ch->IsNpc() && GET_EQ(ch, EEquipPos::kFeet))) {
-			int modi = MAX(0, (ch->get_skill(ESkill::kKick) + 4) / 5);
+			int modi = std::max(0, (ch->GetSkill(ESkill::kKick) + 4) / 5);
 			dam += number(0, modi * 2);
 			modi = 5 * (10 + (GET_EQ(ch, EEquipPos::kFeet) ? GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kFeet)) : 0));
 			dam = modi * dam / 100;
 		}
-		if (ch->IsOnHorse() && (ch->get_skill(ESkill::kRiding) >= 150) && (ch->get_skill(ESkill::kKick) >= 150)) {
+		if (ch->IsOnHorse() && (ch->GetSkill(ESkill::kRiding) >= 150) && (ch->GetSkill(ESkill::kKick) >= 150)) {
 			Affect<EApply> af;
 			af.location = EApply::kNone;
-			af.type = kSpellBattle;
+			af.type = ESpell::kBattle;
 			af.modifier = 0;
 			af.battleflag = 0;
-			float modi = ((ch->get_skill(ESkill::kKick) + GET_REAL_STR(ch) * 5)
+			float modi = ((ch->GetSkill(ESkill::kKick) + GET_REAL_STR(ch) * 5)
 				+ (GET_EQ(ch, EEquipPos::kFeet) ? GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kFeet)) : 0) * 3) / float(GET_SIZE(vict));
 			if (number(1, 1000) < modi * 10) {
-				switch (number(0, (ch->get_skill(ESkill::kKick) - 150) / 10)) {
+				switch (number(0, (ch->GetSkill(ESkill::kKick) - 150) / 10)) {
 					case 0:
 					case 1:
 						if (!AFF_FLAGGED(vict, EAffect::kStopRight)) {
 							to_char = "Каблук вашего сапога надолго запомнится $N2, если конечно он выживет.";
 							to_vict = "Мощный удар ноги $n1 изуродовал вам правую руку.";
 							to_room = "След сапога $n1 надолго запомнится $N2, если конечно он$Q выживет.";
-							af.type = kSpellBattle;
+							af.type = ESpell::kBattle;
 							af.bitvector = to_underlying(EAffect::kStopRight);
 							af.duration = CalcDuration(vict, 3 + GET_REAL_REMORT(ch) / 4, 0, 0, 0, 0);
 							af.battleflag = kAfBattledec | kAfPulsedec;
@@ -97,7 +97,7 @@ void go_kick(CharData *ch, CharData *vict) {
 					case 3:to_char = "Сильно пнув в челюсть, вы заставили $N3 замолчать.";
 						to_vict = "Мощный удар ноги $n1 попал вам точно в челюсть, заставив вас замолчать.";
 						to_room = "Сильно пнув ногой в челюсть $N3, $n заставил$q $S замолчать.";
-						af.type = kSpellBattle;
+						af.type = ESpell::kBattle;
 						af.bitvector = to_underlying(EAffect::kSilence);
 						af.duration = CalcDuration(vict, 3 + GET_REAL_REMORT(ch) / 5, 0, 0, 0, 0);
 						af.battleflag = kAfBattledec | kAfPulsedec;
@@ -115,7 +115,7 @@ void go_kick(CharData *ch, CharData *vict) {
 						break;
 					default:break;
 				}
-			} else if (number(1, 1000) < (ch->get_skill(ESkill::kRiding) / 2)) {
+			} else if (number(1, 1000) < (ch->GetSkill(ESkill::kRiding) / 2)) {
 				dam *= 2;
 				if (!ch->IsNpc())
 					SendMsgToChar("Вы привстали на стременах.\r\n", ch);
@@ -150,7 +150,7 @@ void go_kick(CharData *ch, CharData *vict) {
 }
 
 void do_kick(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->get_skill(ESkill::kKick) < 1) {
+	if (ch->GetSkill(ESkill::kKick) < 1) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}

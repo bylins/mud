@@ -166,7 +166,7 @@ set(SOURCES
         src/game_mechanics/weather.cpp
 		src/olc/zedit.cpp
 		src/utils/utils_string.cpp
-		src/world_objects.cpp
+        src/entities/world_objects.cpp
 		src/obj_prototypes.cpp
 		src/id.cpp
 		src/utils/utils_find_obj_id_by_vnum.cpp
@@ -245,7 +245,10 @@ set(SOURCES
 		src/game_affects/affect_contants.cpp
 		src/cmd_god/users.cpp
 		src/utils/table_wrapper.cpp
-		src/cmd/score.cpp)
+		src/cmd/score.cpp
+		src/game_magic/spells_constants.cpp
+		src/game_mechanics/mem_queue.cpp
+		src/cmd_god/show.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -309,7 +312,7 @@ set(HEADERS
         src/structs/compact_trie.h
         src/structs/radix_trie.h
 		src/obj_prototypes.h
-		src/world_objects.h
+        src/entities/world_objects.h
 		src/utils/utils_string.h
 		src/act_other.h
 		src/game_affects/affect_handler.h
@@ -470,7 +473,10 @@ set(HEADERS
 		src/structs/iterators.h
 		src/cmd_god/users.h
 		src/utils/table_wrapper.h
-		src/cmd/score.h)
+		src/cmd/score.h
+		src/game_magic/spells_constants.h
+		src/game_mechanics/mem_queue.h
+		src/cmd_god/show.h)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 # Build types

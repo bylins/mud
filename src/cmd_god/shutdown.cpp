@@ -28,7 +28,7 @@ bool Shutdown::parse_arguments() {
 }
 
 void Shutdown::reboot() const {
-	const auto timeout = MAX(30, m_timeout);
+	const auto timeout = std::max(30, m_timeout);
 	sprintf(buf, "[ПЕРЕЗАГРУЗКА через %d %s]\r\n", timeout, GetDeclensionInNumber(timeout, EWhat::kSec));
 	SendMsgToAll(buf);
 	log("(GC) Reboot by %s.", GET_NAME(m_character));
@@ -38,7 +38,7 @@ void Shutdown::reboot() const {
 }
 
 void Shutdown::die() const {
-	const auto timeout = MAX(30, m_timeout);
+	const auto timeout = std::max(30, m_timeout);
 	sprintf(buf, "[ОСТАНОВКА через %d %s]\r\n", timeout, GetDeclensionInNumber(timeout, EWhat::kSec));
 	SendMsgToAll(buf);
 	log("(GC) Shutdown die by %s.", GET_NAME(m_character));
@@ -48,7 +48,7 @@ void Shutdown::die() const {
 }
 
 void Shutdown::pause() const {
-	const auto timeout = MAX(30, m_timeout);
+	const auto timeout = std::max(30, m_timeout);
 	sprintf(buf, "[ОСТАНОВКА через %d %s]\r\n", timeout, GetDeclensionInNumber(timeout, EWhat::kSec));
 	SendMsgToAll(buf);
 	log("(GC) Shutdown pause by %s.", GET_NAME(m_character));

@@ -20,7 +20,6 @@
 #include "game_mechanics/mount.h"
 #include "entities/player_races.h"
 #include "entities/world_characters.h"
-#include "cmd/follow.h"
 #include "depot.h"
 #include "game_fight/fight.h"
 #include "game_fight/fight_hit.h"
@@ -56,7 +55,6 @@ int dump(CharData *ch, void *me, int cmd, char *argument);
 int mayor(CharData *ch, void *me, int cmd, char *argument);
 //int thief(CharacterData *ch, void *me, int cmd, char* argument);
 int magic_user(CharData *ch, void *me, int cmd, char *argument);
-int guild_guard(CharData *ch, void *me, int cmd, char *argument);
 int fido(CharData *ch, void *me, int cmd, char *argument);
 int janitor(CharData *ch, void *me, int cmd, char *argument);
 int cityguard(CharData *ch, void *me, int cmd, char *argument);
@@ -119,33 +117,16 @@ char *how_good(int skill_level, int skill_cap) {
 	return out_str;
 }
 
-const char *prac_types[] = {"spell",
-							"skill"
-};
-
-#define LEARNED_LEVEL    0    // % known which is considered "learned" //
-#define MAX_PER_PRAC    1    // max percent gain in skill per practice //
-#define MIN_PER_PRAC    2    // min percent gain in skill per practice //
-#define PRAC_TYPE    3    // should it say 'spell' or 'skill'?     //
-
-// actual prac_params are in class.cpp //
-extern int prac_params[4][kNumPlayerClasses];
-
-#define LEARNED(ch) (prac_params[LEARNED_LEVEL][(int)GET_CLASS(ch)])
-#define MINGAIN(ch) (prac_params[MIN_PER_PRAC][(int)GET_CLASS(ch)])
-#define MAXGAIN(ch) (prac_params[MAX_PER_PRAC][(int)GET_CLASS(ch)])
-#define SPLSKL(ch) (prac_types[prac_params[PRAC_TYPE][(int)GET_CLASS(ch)]])
-
 int feat_slot_lvl(int remort, int slot_for_remort, int slot) {
 	int result = 0;
 	for (result = 1; result < kLvlImmortal; result++) {
-		if (result * (5 + remort / slot_for_remort) / 28 == slot) {
+		if (result * (5 + remort / slot_for_remort) / kLastFeatSlotLvl == slot) {
 			break;
 		}
 	}
 	/*
-	  ВНИМАНИЕ: формула содрана с NUM_LEV_FEAT (utils.h)!
-	  ((int) 1+GetRealLevel(ch)*(5+GET_REAL_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)])/28)
+	  ВНИМАНИЕ: формула содрана с CalcFeatLvl (feats.h)!
+	  (1+GetRealLevel(ch)*(5+GET_REAL_REMORT(ch)/MUD::Classes(ch->get_class()).GetRemortsNumForFeatSlot()/kLastFeatSlotLvl)
 	  сделано это потому, что "обратная" формула, использованная ранее в list_feats,
 	  выдавала неверные результаты ввиду нюансов округления
 	  */
@@ -169,27 +150,30 @@ void list_feats(CharData *ch, CharData *vict, bool all_feats) {
 	bool sfound;
 
 	//Найдем максимальный слот, который вобще может потребоваться данному персонажу на текущем морте
-	max_slot = MAX_ACC_FEAT(ch);
+	max_slot = CalcFeatSlotsAmount(ch);
 	char **names = new char *[max_slot];
-	for (int k = 0; k < max_slot; k++)
+
+	for (int k = 0; k < max_slot; k++) {
 		names[k] = new char[kMaxStringLength];
+	}
 
 	if (all_feats) {
 		sprintf(names[0], "\r\nКруг 1  (1  уровень):\r\n");
-	} else
+	} else {
 		*names[0] = '\0';
-	for (i = 1; i < max_slot; i++)
+	}
+	for (i = 1; i < max_slot; i++) {
 		if (all_feats) {
-			j = feat_slot_lvl(GET_REMORT(ch),
-							  feat_slot_for_remort[(int) GET_CLASS(ch)],
-							  i); // на каком уровне будет слот i?
+			// на каком уровне будет слот i?
+			j = feat_slot_lvl(GET_REMORT(ch), MUD::Classes(ch->GetClass()).GetRemortsNumForFeatSlot(), i);
 			sprintf(names[i], "\r\nКруг %-2d (%-2d уровень):\r\n", i + 1, j);
-		} else
+		} else {
 			*names[i] = '\0';
+		}
+	}
 
 	sprintf(buf2, "\r\nВрожденные способности :\r\n");
 	j = 0;
-	auto sortpos{EFeat::kIncorrectFeat};
 	if (all_feats) {
 		if (clr(vict, C_NRM)) // реж цвет >= обычный
 			SendMsgToChar(" Список способностей, доступных с текущим числом перевоплощений.\r\n"
@@ -202,30 +186,31 @@ void list_feats(CharData *ch, CharData *vict, bool all_feats) {
 						 " Пометкой [И] выделены уже изученные способности.\r\n"
 						 " Пометкой [Д] выделены доступные для изучения способности.\r\n"
 						 " Пометкой [Н] выделены способности, недоступные вам в настоящий момент.\r\n\r\n", vict);
-		for (sortpos = EFeat::kFirstFeat; sortpos <= EFeat::kLastFeat; ++sortpos) {
-			if (!feat_info[sortpos].is_known[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]
-				&& !PlayerRace::FeatureCheck((int) GET_KIN(ch), (int) GET_RACE(ch), sortpos))
+		for (const auto &feat : MUD::Classes(ch->GetClass()).feats) {
+			if (feat.IsUnavailable() &&
+				!PlayerRace::FeatureCheck((int) GET_KIN(ch), (int) GET_RACE(ch), to_underlying(feat.GetId()))) {
 				continue;
-			if (clr(vict, C_NRM))
+			}
+			if (clr(vict, C_NRM)) {
 				sprintf(buf, "        %s%s %-30s%s\r\n",
-						HAVE_FEAT(ch, sortpos) ? KGRN :
-						IsAbleToGetFeat(ch, sortpos) ? KNRM : KRED,
-						HAVE_FEAT(ch, sortpos) ? "[И]" :
-						IsAbleToGetFeat(ch, sortpos) ? "[Д]" : "[Н]",
-						feat_info[sortpos].name, KNRM);
-			else
+						ch->HaveFeat(feat.GetId()) ? KGRN :
+						CanGetFeat(ch, feat.GetId()) ? KNRM : KRED,
+						ch->HaveFeat(feat.GetId()) ? "[И]" :
+						CanGetFeat(ch, feat.GetId()) ? "[Д]" : "[Н]",
+						feat_info[feat.GetId()].name, KNRM);
+			} else {
 				sprintf(buf, "    %s %-30s\r\n",
-						HAVE_FEAT(ch, sortpos) ? "[И]" :
-						IsAbleToGetFeat(ch, sortpos) ? "[Д]" : "[Н]",
-						feat_info[sortpos].name);
+						ch->HaveFeat(feat.GetId()) ? "[И]" :
+						CanGetFeat(ch, feat.GetId()) ? "[Д]" : "[Н]",
+						feat_info[feat.GetId()].name);
+			}
 
-			if (feat_info[sortpos].is_inborn[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]
-				|| PlayerRace::FeatureCheck((int) GET_KIN(ch), (int) GET_RACE(ch), sortpos)) {
+			if (feat.IsInborn() ||
+				PlayerRace::FeatureCheck((int) GET_KIN(ch), (int) GET_RACE(ch), to_underlying(feat.GetId()))) {
 				strcat(buf2, buf);
 				j++;
-			} else if (FEAT_SLOT(ch, sortpos) < max_slot) {
-				const auto slot = FEAT_SLOT(ch, sortpos);
-				strcat(names[slot], buf);
+			} else if (feat.GetSlot() < max_slot) {
+				strcat(names[feat.GetSlot()], buf);
 			}
 		}
 		sprintf(buf1, "--------------------------------------");
@@ -254,25 +239,26 @@ void list_feats(CharData *ch, CharData *vict, bool all_feats) {
 
 	sprintf(buf1, "Вы обладаете следующими способностями :\r\n");
 
-	for (sortpos = EFeat::kFirstFeat; sortpos <= EFeat::kLastFeat; ++sortpos) {
+	for (const auto &feat : MUD::Classes(ch->GetClass()).feats) {
 		if (strlen(buf2) >= kMaxStringLength - 60) {
 			strcat(buf2, "***ПЕРЕПОЛНЕНИЕ***\r\n");
 			break;
 		}
-		if (HAVE_FEAT(ch, sortpos)) {
-			if (!feat_info[sortpos].name || *feat_info[sortpos].name == '!')
+		if (ch->HaveFeat(feat.GetId())) {
+			if (!feat_info[feat.GetId()].name || *feat_info[feat.GetId()].name == '!')
 				continue;
 
-			switch (sortpos) {
+			switch (feat.GetId()) {
 				case EFeat::kBerserker:
 				case EFeat::kLightWalk:
 				case EFeat::kSpellCapabler:
 				case EFeat::kRelocate:
 				case EFeat::kShadowThrower:
-					if (IsTimed(ch, sortpos))
-						sprintf(buf, "[%3d] ", IsTimed(ch, sortpos));
-					else
+					if (IsTimedByFeat(ch, feat.GetId())) {
+						sprintf(buf, "[%3d] ", IsTimedByFeat(ch, feat.GetId()));
+					} else {
 						sprintf(buf, "[-!-] ");
+					}
 					break;
 				case EFeat::kPowerAttack:
 				case EFeat::kGreatPowerAttack:
@@ -282,27 +268,29 @@ void list_feats(CharData *ch, CharData *vict, bool all_feats) {
 				case EFeat::kDoubleThrower:
 				case EFeat::kTripleThrower:
 				case EFeat::kSerratedBlade:
-					if (PRF_FLAGGED(ch, GetPrfWithFeatNumber(sortpos)))
+					if (PRF_FLAGGED(ch, GetPrfWithFeatNumber(feat.GetId()))) {
 						sprintf(buf, "[-%s*%s-] ", CCIGRN(vict, C_NRM), CCNRM(vict, C_NRM));
-					else
+					} else {
 						sprintf(buf, "[-:-] ");
+					}
 					break;
 				default: sprintf(buf, "      ");
 			}
-			if (IsAbleToUseFeat(ch, sortpos))
+			if (CanUseFeat(ch, feat.GetId())) {
 				sprintf(buf + strlen(buf), "%s%s%s\r\n",
-						CCIYEL(vict, C_NRM), feat_info[sortpos].name, CCNRM(vict, C_NRM));
-			else if (clr(vict, C_NRM))
-				sprintf(buf + strlen(buf), "%s\r\n", feat_info[sortpos].name);
-			else
-				sprintf(buf, "[-Н-] %s\r\n", feat_info[sortpos].name);
-			if (feat_info[sortpos].is_inborn[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]
-				|| PlayerRace::FeatureCheck((int) GET_KIN(ch), (int) GET_RACE(ch), sortpos)) {
+						CCIYEL(vict, C_NRM), feat_info[feat.GetId()].name, CCNRM(vict, C_NRM));
+			} else if (clr(vict, C_NRM)) {
+				sprintf(buf + strlen(buf), "%s\r\n", feat_info[feat.GetId()].name);
+			} else {
+				sprintf(buf, "[-Н-] %s\r\n", feat_info[feat.GetId()].name);
+			}
+			if (feat.IsInborn() ||
+				PlayerRace::FeatureCheck((int) GET_KIN(ch), (int) GET_RACE(ch), to_underlying(feat.GetId()))) {
 				sprintf(buf2 + strlen(buf2), "    ");
 				strcat(buf2, buf);
 				j++;
 			} else {
-				slot = FEAT_SLOT(ch, sortpos);
+				slot = feat.GetSlot();
 				sfound = false;
 				while (slot < max_slot) {
 					if (*names[slot] == '\0') {
@@ -311,16 +299,17 @@ void list_feats(CharData *ch, CharData *vict, bool all_feats) {
 						strcat(names[slot], buf);
 						sfound = true;
 						break;
-					} else
+					} else {
 						slot++;
+					}
 				}
 				if (!sfound) {
 					// Если способность не врожденная и под нее нет слота - удаляем нафик
 					//	чтобы можно было менять слоты на лету и чтобы не читерили :)
 					sprintf(msg, "WARNING: Unset out of slots feature '%s' for character '%s'!",
-							feat_info[sortpos].name, GET_NAME(ch));
+							feat_info[feat.GetId()].name, GET_NAME(ch));
 					mudlog(msg, BRF, kLvlImplementator, SYSLOG, true);
-					UNSET_FEAT(ch, sortpos);
+					ch->UnsetFeat(feat.GetId());
 				}
 			}
 		}
@@ -330,7 +319,7 @@ void list_feats(CharData *ch, CharData *vict, bool all_feats) {
 		if (*names[i] == '\0')
 			sprintf(names[i], " %s%-2d%s)       %s[пусто]%s\r\n",
 					CCGRN(vict, C_NRM), i + 1, CCNRM(vict, C_NRM), CCIWHT(vict, C_NRM), CCNRM(vict, C_NRM));
-		if (i >= NUM_LEV_FEAT(ch))
+		if (i >= CalcFeatLvl(ch))
 			break;
 		sprintf(buf1 + strlen(buf1), "%s", names[i]);
 	}
@@ -354,7 +343,7 @@ void list_skills(CharData *ch, CharData *vict, const char *filter/* = nullptr*/)
 	skills_t skills;
 
 	for (const auto &skill : MUD::Skills()) {
-		if (ch->get_skill(skill.GetId())) {
+		if (ch->GetSkill(skill.GetId())) {
 			// filter out skills without name or name beginning with '!' character
 			if (skill.IsInvalid()) {
 				continue;
@@ -371,7 +360,7 @@ void list_skills(CharData *ch, CharData *vict, const char *filter/* = nullptr*/)
 							(kHoursPerDay - IsTimedBySkill(ch, skill_id)) / kHoursPerWarcry);
 					break;
 				case ESkill::kTurnUndead:
-					if (IsAbleToUseFeat(ch, EFeat::kExorcist)) {
+					if (CanUseFeat(ch, EFeat::kExorcist)) {
 						sprintf(buf,
 								"[-%d-] ",
 								(kHoursPerDay - IsTimedBySkill(ch, skill_id)) / (kHoursPerTurnUndead - 2));
@@ -399,7 +388,7 @@ void list_skills(CharData *ch, CharData *vict, const char *filter/* = nullptr*/)
 
 			sprintf(buf + strlen(buf), "%-23s %s (%d)%s \r\n",
 					skill.GetName(),
-					how_good(ch->get_skill(skill_id), CalcSkillHardCap(ch, skill_id)),
+					how_good(ch->GetSkill(skill_id), CalcSkillHardCap(ch, skill_id)),
 					CalcSkillMinCap(ch, skill_id),
 					CCNRM(ch, C_NRM));
 
@@ -432,32 +421,24 @@ void list_skills(CharData *ch, CharData *vict, const char *filter/* = nullptr*/)
 	SendMsgToChar(buf2, vict);
 
 }
-const char *spells_color(int spellnum) {
-	switch (spell_info[spellnum].spell_class) {
+const char *GetSpellColor(ESpell spell_id) {
+	switch (spell_info[spell_id].spell_class) {
 		case kTypeAir: return "&W";
 			break;
-
 		case kTypeFire: return "&R";
 			break;
-
 		case kTypeWater: return "&C";
 			break;
-
 		case kTypeEarth: return "&y";
 			break;
-
 		case kTypeLight: return "&Y";
 			break;
-
 		case kTypeDark: return "&K";
 			break;
-
 		case kTypeMind: return "&M";
 			break;
-
 		case kTypeLife: return "&G";
 			break;
-
 		case kTypeNeutral: return "&n";
 			break;
 		default: return "&n";
@@ -472,34 +453,36 @@ const char *spells_color(int spellnum) {
    при параметре true */
 #include "game_classes/classes_spell_slots.h"
 void list_spells(CharData *ch, CharData *vict, int all_spells) {
-	using PlayerClass::CalcCircleSlotsAmount;
+	using classes::CalcCircleSlotsAmount;
 
-	char names[kMaxSlot][kMaxStringLength];
+	char names[kMaxMemoryCircle][kMaxStringLength];
 	std::string time_str;
-	int slots[kMaxSlot], i, max_slot = 0, slot_num, gcount = 0, can_cast = 1;
+	int slots[kMaxMemoryCircle], i, max_slot = 0, slot_num, gcount = 0, can_cast = 1;
 	bool is_full = false;
 	max_slot = 0;
-	for (i = 0; i < kMaxSlot; i++) {
+	for (i = 0; i < kMaxMemoryCircle; i++) {
 		*names[i] = '\0';
 		slots[i] = 0;
 	}
-	for (i = 1; i <= kSpellCount; i++) {
-		if (!GET_SPELL_TYPE(ch, i) && !all_spells)
+	for (const auto &spell : MUD::Classes(ch->GetClass()).spells) {
+		auto spell_id = spell.GetId();
+		if (!GET_SPELL_TYPE(ch, spell_id) && !all_spells)
 			continue;
 		if (!IS_MANA_CASTER(ch) && !IS_GOD(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
-			if (!IS_SET(GET_SPELL_TYPE(ch, i), kSpellTemp) && !all_spells)
+			if (!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp) && !all_spells)
 				continue;
 		}
-		if ((MIN_CAST_LEV(spell_info[i], ch) > GetRealLevel(ch)
-			|| MIN_CAST_REM(spell_info[i], ch) > GET_REAL_REMORT(ch)
-			|| CalcCircleSlotsAmount(ch, spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0)
-			&& all_spells && !GET_SPELL_TYPE(ch, i))
+		if ((CalcMinSpellLvl(ch, spell_id) > GetRealLevel(ch) ||
+			spell.GetMinRemort() > GET_REAL_REMORT(ch) ||
+			CalcCircleSlotsAmount(ch, spell.GetCircle()) <= 0) &&
+			all_spells && !GET_SPELL_TYPE(ch, spell_id)) {
+			continue;
+		}
+
+		if (!spell_info[spell_id].name || *spell_info[spell_id].name == '!')
 			continue;
 
-		if (!spell_info[i].name || *spell_info[i].name == '!')
-			continue;
-
-		if ((GET_SPELL_TYPE(ch, i) & 0xFF) == kSpellRunes && !CheckRecipeItems(ch, i, kSpellRunes, false)) {
+		if ((GET_SPELL_TYPE(ch, spell_id) & 0xFF) == ESpellType::kRunes && !CheckRecipeItems(ch, spell_id, ESpellType::kRunes, false)) {
 			if (all_spells) {
 				can_cast = 0;
 			} else {
@@ -509,56 +492,58 @@ void list_spells(CharData *ch, CharData *vict, int all_spells) {
 			can_cast = 1;
 		}
 
-		if (MIN_CAST_REM(spell_info[i], ch) > GET_REAL_REMORT(ch))
-			slot_num = kMaxSlot - 1;
-		else
-			slot_num = spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;
-		max_slot = MAX(slot_num + 1, max_slot);
+		if (spell.GetMinRemort() > GET_REAL_REMORT(ch)) {
+			slot_num = kMaxMemoryCircle - 1;
+		} else {
+			slot_num = spell.GetCircle() - 1;
+		}
+		max_slot = std::max(slot_num + 1, max_slot);
 		if (IS_MANA_CASTER(ch)) {
-			if (GET_MANA_COST(ch, i) > GET_MAX_MANA(ch))
+			if (CalcSpellManacost(ch, spell_id) > GET_MAX_MANA(ch))
 				continue;
 			if (can_cast) {
 				slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
 										   "%s|<...%4d.> %s%-38s&n|",
 										   slots[slot_num] % 114 <
 											   10 ? "\r\n" : "  ",
-										   GET_MANA_COST(ch, i), spells_color(i), spell_info[i].name);
+										   CalcSpellManacost(ch, spell_id), GetSpellColor(spell_id), spell_info[spell_id].name);
 			} else {
 				slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
 										   "%s|+--------+ %s%-38s&n|",
 										   slots[slot_num] % 114 <
-											   10 ? "\r\n" : "  ", spells_color(i), spell_info[i].name);
+											   10 ? "\r\n" : "  ", GetSpellColor(spell_id), spell_info[spell_id].name);
 			}
 		} else {
 			time_str.clear();
-			if (IS_SET(GET_SPELL_TYPE(ch, i), kSpellTemp)) {
+			if (IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp)) {
 				time_str.append("[");
 				time_str.append(std::to_string(MAX(1,
 												   static_cast<int>(std::ceil(
-													   static_cast<double>(Temporary_Spells::spell_left_time(ch, i))
+													   static_cast<double>(Temporary_Spells::GetSpellLeftTime(ch,
+																											  spell_id))
 														   / kSecsPerMudHour)))));
 				time_str.append("]");
 			}
-		if (MIN_CAST_LEV(spell_info[i], ch) > GetRealLevel(ch) && IS_SET(GET_SPELL_TYPE(ch, i), kSpellKnow)) {
-			sprintf(buf1, "%d", MIN_CAST_LEV(spell_info[i], ch) - GetRealLevel(ch));
+		if (CalcMinSpellLvl(ch, spell_id) > GetRealLevel(ch) && IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow)) {
+			sprintf(buf1, "%d", CalcMinSpellLvl(ch, spell_id) - GetRealLevel(ch));
 		}
 		else {
 			sprintf(buf1, "%s", "K");
 		}
 		slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-				"%s|<%s%c%c%c%c%c%c%c>%s %-30s %-7s&n|",
+								   "%s|<%s%c%c%c%c%c%c%c>%s %-30s %-7s&n|",
 				slots[slot_num] % 114 < 10 ? "\r\n" : "  ",
-								   IS_SET(GET_SPELL_TYPE(ch, i), kSpellKnow) ? buf1 : ".",
-								   IS_SET(GET_SPELL_TYPE(ch, i), kSpellTemp) ? 'T' : '.',
-								   IS_SET(GET_SPELL_TYPE(ch, i), kSpellPotion) ? 'P' : '.',
-								   IS_SET(GET_SPELL_TYPE(ch, i), kSpellWand) ? 'W' : '.',
-								   IS_SET(GET_SPELL_TYPE(ch, i), kSpellScroll) ? 'S' : '.',
-								   IS_SET(GET_SPELL_TYPE(ch, i), kSpellItems) ? 'I' : '.',
-								   IS_SET(GET_SPELL_TYPE(ch, i), kSpellRunes) ? 'R' : '.',
-				'.',
-				spells_color(i),
-				spell_info[i].name,
-				time_str.c_str());
+								   IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow) ? buf1 : ".",
+								   IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp) ? 'T' : '.',
+								   IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kPotionCast) ? 'P' : '.',
+								   IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kWandCast) ? 'W' : '.',
+								   IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kScrollCast) ? 'S' : '.',
+								   IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kItemCast) ? 'I' : '.',
+								   IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kRunes) ? 'R' : '.',
+								   '.',
+								   GetSpellColor(spell_id),
+								   spell_info[spell_id].name,
+								   time_str.c_str());
 		}
 		is_full = true;
 	};
@@ -582,29 +567,29 @@ void list_spells(CharData *ch, CharData *vict, int all_spells) {
 }
 
 struct guild_learn_type {
-	int feat_no;
+	EFeat feat_no;
 	ESkill skill_no;
-	int spell_no;
+	ESpell spell_no;
 	int level;
 };
 
 struct guild_mono_type {
 	guild_mono_type() : races(0), classes(0), religion(0), alignment(0), learn_info(0) {};
-	int races;        // bitvector //
-	int classes;        // bitvector //
-	int religion;        // bitvector //
-	int alignment;        // bitvector //
+	Bitvector races;        // bitvector //
+	Bitvector classes;        // bitvector //
+	Bitvector religion;        // bitvector //
+	Bitvector alignment;        // bitvector //
 	struct guild_learn_type *learn_info;
 };
 
 struct guild_poly_type {
-	int races;        // bitvector //
-	int classes;        // bitvector //
-	int religion;        // bitvector //
-	int alignment;        // bitvector //
-	int feat_no;
+	Bitvector races;        // bitvector //
+	Bitvector classes;        // bitvector //
+	Bitvector religion;        // bitvector //
+	Bitvector alignment;        // bitvector //
+	EFeat feat_no;
 	ESkill skill_no;
-	int spell_no;
+	ESpell spell_no;
 	int level;
 };
 
@@ -618,8 +603,8 @@ void init_guilds() {
 	FILE *magic;
 	char name[kMaxInputLength],
 		line[256], line1[256], line2[256], line3[256], line4[256], line5[256], line6[256], *pos;
-	int i, spellnum, featnum, num, type = 0, lines = 0, level, pgcount = 0, mgcount = 0;
-	ESkill skill_id = ESkill::kIncorrect;
+	int i, num, type = 0, lines = 0, level, pgcount = 0, mgcount = 0;
+	ESkill skill_id = ESkill::kUndefined;
 	std::unique_ptr<struct guild_poly_type, decltype(free) *> poly_guild(nullptr, free);
 	struct guild_mono_type mono_guild;
 	std::unique_ptr<struct guild_learn_type, decltype(free) *> mono_guild_learn(nullptr, free);
@@ -628,6 +613,8 @@ void init_guilds() {
 		log("Cann't open guilds list file...");
 		return;
 	}
+	auto spell_id{ESpell::kUndefined};
+	auto feat_id{EFeat::kUndefined};
 	while (get_line(magic, name)) {
 		if (!name[0] || name[0] == ';')
 			continue;
@@ -689,9 +676,9 @@ void init_guilds() {
 					log("Create mono guild %d", GUILDS_MONO_USED + 1);
 					mono_guild.learn_info = mono_guild_learn.release();
 					RECREATE(mono_guild.learn_info, mgcount + 1);
-					(mono_guild.learn_info + mgcount)->skill_no = ESkill::kIncorrect;
-					(mono_guild.learn_info + mgcount)->feat_no = -1;
-					(mono_guild.learn_info + mgcount)->spell_no = -1;
+					(mono_guild.learn_info + mgcount)->skill_no = ESkill::kUndefined;
+					(mono_guild.learn_info + mgcount)->feat_no = EFeat::kUndefined;
+					(mono_guild.learn_info + mgcount)->spell_no = ESpell::kUndefined;
 					(mono_guild.learn_info + mgcount)->level = -1;
 					guild_mono_info[GUILDS_MONO_USED] = mono_guild;
 					GUILDS_MONO_USED++;
@@ -710,9 +697,9 @@ void init_guilds() {
 					log("Create poly guild %d", GUILDS_POLY_USED + 1);
 					auto ptr = poly_guild.release();
 					RECREATE(ptr, pgcount + 1);
-					(ptr + pgcount)->feat_no = -1;
-					(ptr + pgcount)->skill_no = ESkill::kIncorrect;
-					(ptr + pgcount)->spell_no = -1;
+					(ptr + pgcount)->feat_no = EFeat::kUndefined;
+					(ptr + pgcount)->skill_no = ESkill::kUndefined;
+					(ptr + pgcount)->spell_no = ESpell::kUndefined;
 					(ptr + pgcount)->level = -1;
 					guild_poly_info[GUILDS_POLY_USED] = ptr;
 					GUILDS_POLY_USED++;
@@ -726,22 +713,24 @@ void init_guilds() {
 				log("You need use 3 arguments for monoguild");
 				graceful_exit(1);
 			}
-			if ((spellnum = atoi(line)) == 0 || spellnum > kSpellCount) {
-				spellnum = FixNameAndFindSpellNum(line);
+			spell_id = static_cast<ESpell>(atoi(line));
+			if (spell_id < ESpell::kFirst  || spell_id > ESpell::kLast) {
+				spell_id = FixNameAndFindSpellId(line);
 			}
 
 			skill_id = static_cast<ESkill>(atoi(line1));
 			if (MUD::Skills().IsInvalid(skill_id)) {
-				skill_id = FixNameAndFindSkillNum(line1);
+				skill_id = FixNameAndFindSkillId(line1);
 			}
 
-			if ((featnum = atoi(line1)) == 0 || featnum >= EFeat::kLastFeat) {
+			feat_id = static_cast<EFeat>(atoi(line));
+			if (feat_id < EFeat::kFirst || feat_id >= EFeat::kLast) {
 				if ((pos = strchr(line1, '.')))
 					*pos = ' ';
-				featnum = FindFeatNum(line1);
+				feat_id = FindFeatId(line1);
 			}
 
-			if (MUD::Skills().IsInvalid(skill_id) && spellnum <= 0 && featnum <= 0) {
+			if (MUD::Skills().IsInvalid(skill_id) && spell_id < ESpell::kFirst && feat_id < EFeat::kFirst) {
 				log("Unknown skill, spell or feat for monoguild");
 				graceful_exit(1);
 			}
@@ -760,11 +749,10 @@ void init_guilds() {
 			mono_guild_learn.reset(ptr);
 
 			ptr += mgcount;
-			ptr->spell_no = MAX(0, spellnum);
+			ptr->spell_no = spell_id;
 			ptr->skill_no = skill_id;
-			ptr->feat_no = MAX(0, featnum);
+			ptr->feat_no = feat_id;
 			ptr->level = level;
-			// log("->%d %d %d<-",spellnum,skill_id,level);
 			mgcount++;
 		} else if (type == 2) {
 			if (lines < 7) {
@@ -797,24 +785,26 @@ void init_guilds() {
 				if (strchr("!1xX", *(line3 + i)))
 					SET_BIT(ptr->alignment, (1 << i));
 
-			if ((spellnum = atoi(line4)) == 0 || spellnum > kSpellCount) {
-				spellnum = FixNameAndFindSpellNum(line4);
+			spell_id = static_cast<ESpell>(atoi(line4));
+			if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast) {
+				spell_id = FixNameAndFindSpellId(line4);
 			}
 
 			skill_id = static_cast<ESkill>(atoi(line5));
 			if (MUD::Skills().IsInvalid(skill_id)) {
-				skill_id = FixNameAndFindSkillNum(line5);
+				skill_id = FixNameAndFindSkillId(line5);
 			}
 
-			if ((featnum = atoi(line5)) == 0 || featnum >= EFeat::kLastFeat) {
+			feat_id = static_cast<EFeat>(atoi(line4));
+			if (feat_id < EFeat::kFirst || feat_id > EFeat::kLast) {
 				if ((pos = strchr(line5, '.')))
 					*pos = ' ';
 
-				featnum = FindFeatNum(line1);
-				sprintf(buf, "feature number 2: %d", featnum);
-				featnum = FindFeatNum(line5);
+				feat_id = FindFeatId(line1);
+				sprintf(buf, "feature number 2: %d", to_underlying(feat_id));
+				feat_id = FindFeatId(line5);
 			}
-			if (MUD::Skills().IsInvalid(skill_id) && spellnum <= 0 && featnum <= 0) {
+			if (MUD::Skills().IsInvalid(skill_id) && spell_id < ESpell::kFirst && feat_id < EFeat::kFirst) {
 				log("Unknown skill, spell or feat for polyguild - \'%s\'", line5);
 				graceful_exit(1);
 			}
@@ -822,11 +812,10 @@ void init_guilds() {
 				log("Use 1-%d level for guilds", kLvlImmortal);
 				graceful_exit(1);
 			}
-			ptr->spell_no = std::max(0, spellnum);
+			ptr->spell_no = spell_id;
 			ptr->skill_no = skill_id;
-			ptr->feat_no = std::max(0, featnum);
+			ptr->feat_no = feat_id;
 			ptr->level = level;
-			// log("->%d %d %d<-",spellnum,skill_id,level);
 			pgcount++;
 		}
 	}
@@ -856,7 +845,7 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 	}
 
 	info_num--;
-	if (!IS_BITS(guild_mono_info[info_num].classes, GET_CLASS(ch))
+	if (!IS_BITS(guild_mono_info[info_num].classes, to_underlying(ch->GetClass()))
 		|| !IS_BITS(guild_mono_info[info_num].races, GET_RACE(ch))
 		|| !IS_BITS(guild_mono_info[info_num].religion, GET_RELIGION(ch))) {
 		act("$N сказал$g : '$n, я не учу таких, как ты.'", false, ch, nullptr, victim, kToChar);
@@ -869,33 +858,34 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 		case SCMD_LEARN:
 			if (!*argument) {
 				gcount += sprintf(buf, "Я могу научить тебя следующему:\r\n");
-				for (i = 0, found = false; (guild_mono_info[info_num].learn_info + i)->spell_no >= 0; i++) {
+				for (i = 0, found = false; (guild_mono_info[info_num].learn_info + i)->spell_no >= ESpell::kUndefined; i++) {
 					if ((guild_mono_info[info_num].learn_info + i)->level > GetRealLevel(ch)) {
 						continue;
 					}
 
 					const auto skill_no = (guild_mono_info[info_num].learn_info + i)->skill_no;
 					bits = to_underlying(skill_no);
-					if (ESkill::kIncorrect != skill_no && (!ch->get_trained_skill(skill_no)
-						|| IS_GRGOD(ch)) && IsAbleToGetSkill(ch, skill_no)) {
+					if (ESkill::kUndefined != skill_no && (!ch->get_trained_skill(skill_no)
+						|| IS_GRGOD(ch)) && CanGetSkill(ch, skill_no)) {
 						gcount += sprintf(buf + gcount, "- умение %s\"%s\"%s\r\n",
-										  CCCYN(ch, C_NRM), MUD::Skills()[skill_no].GetName(), CCNRM(ch, C_NRM));
+										  CCCYN(ch, C_NRM), MUD::Skills(skill_no).GetName(), CCNRM(ch, C_NRM));
 						found = true;
 					}
 
-					if (!(bits = -2 * bits) || bits == kSpellTemp) {
-						bits = kSpellKnow;
+					if (!(bits = -2 * bits) || bits == ESpellType::kTemp) {
+						bits = ESpellType::kKnow;
 					}
 
 					const auto spell_no = (guild_mono_info[info_num].learn_info + i)->spell_no;
-					if (spell_no && (!((GET_SPELL_TYPE(ch, spell_no) & bits) == bits) || IS_GRGOD(ch))) {
+					if (spell_no > ESpell::kUndefined && (!((GET_SPELL_TYPE(ch, spell_no) & bits) == bits) || IS_GRGOD(
+						ch))) {
 						gcount += sprintf(buf + gcount, "- магия %s\"%s\"%s\r\n",
 										  CCCYN(ch, C_NRM), GetSpellName(spell_no), CCNRM(ch, C_NRM));
 						found = true;
 					}
 
-					const auto feat_no = static_cast<EFeat>((guild_mono_info[info_num].learn_info + i)->feat_no);
-					if (feat_no > 0 && !HAVE_FEAT(ch, feat_no) && IsAbleToGetFeat(ch, feat_no)) {
+					const auto feat_no = (guild_mono_info[info_num].learn_info + i)->feat_no;
+					if (feat_no > EFeat::kUndefined && !ch->HaveFeat(feat_no) && CanGetFeat(ch, feat_no)) {
 						gcount += sprintf(buf + gcount, "- способность %s\"%s\"%s\r\n",
 										  CCCYN(ch, C_NRM), GetFeatName(feat_no), CCNRM(ch, C_NRM));
 						found = true;
@@ -913,13 +903,13 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 
 			if (!strn_cmp(argument, "все", strlen(argument)) || !strn_cmp(argument, "all", strlen(argument))) {
 				for (i = 0, found = false, sfound = true;
-					 (guild_mono_info[info_num].learn_info + i)->spell_no >= 0; i++) {
+					 (guild_mono_info[info_num].learn_info + i)->spell_no >= ESpell::kUndefined; i++) {
 					if ((guild_mono_info[info_num].learn_info + i)->level > GetRealLevel(ch))
 						continue;
 
 					const ESkill skill_no = (guild_mono_info[info_num].learn_info + i)->skill_no;
 					bits = to_underlying(skill_no);
-					if (ESkill::kIncorrect != skill_no
+					if (ESkill::kUndefined != skill_no
 						&& !ch->get_trained_skill(skill_no))    // sprintf(buf, "$N научил$G вас умению %s\"%s\"\%s",
 					{
 						//             CCCYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
@@ -928,40 +918,40 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 						sfound = true;
 					}
 
-					if (!(bits = -2 * bits) || bits == kSpellTemp) {
-						bits = kSpellKnow;
+					if (!(bits = -2 * bits) || bits == ESpellType::kTemp) {
+						bits = ESpellType::kKnow;
 					}
 
-					const int spell_no = (guild_mono_info[info_num].learn_info + i)->spell_no;
-					if (spell_no
-						&& !((GET_SPELL_TYPE(ch, spell_no) & bits) == bits)) {
+					const auto spell_no = (guild_mono_info[info_num].learn_info + i)->spell_no;
+					if (spell_no > ESpell::kUndefined &&
+						!((GET_SPELL_TYPE(ch, spell_no) & bits) == bits)) {
 						gcount += sprintf(buf, "$N научил$G вас магии %s\"%s\"%s",
 										  CCCYN(ch, C_NRM), GetSpellName(spell_no), CCNRM(ch, C_NRM));
 						act(buf, false, ch, 0, victim, kToChar);
-						if (IS_SET(bits, kSpellKnow))
-							SET_BIT(GET_SPELL_TYPE(ch, spell_no), kSpellKnow);
-						if (IS_SET(bits, kSpellItems))
-							SET_BIT(GET_SPELL_TYPE(ch, spell_no), kSpellItems);
-						if (IS_SET(bits, kSpellRunes))
-							SET_BIT(GET_SPELL_TYPE(ch, spell_no), kSpellRunes);
-						if (IS_SET(bits, kSpellPotion)) {
-							SET_BIT(GET_SPELL_TYPE(ch, spell_no), kSpellPotion);
-							ch->set_skill(ESkill::kCreatePotion, MAX(10, ch->get_trained_skill(ESkill::kCreatePotion)));
+						if (IS_SET(bits, ESpellType::kKnow))
+							SET_BIT(GET_SPELL_TYPE(ch, spell_no), ESpellType::kKnow);
+						if (IS_SET(bits, ESpellType::kItemCast))
+							SET_BIT(GET_SPELL_TYPE(ch, spell_no), ESpellType::kItemCast);
+						if (IS_SET(bits, ESpellType::kRunes))
+							SET_BIT(GET_SPELL_TYPE(ch, spell_no), ESpellType::kRunes);
+						if (IS_SET(bits, ESpellType::kPotionCast)) {
+							SET_BIT(GET_SPELL_TYPE(ch, spell_no), ESpellType::kPotionCast);
+							ch->set_skill(ESkill::kCreatePotion, std::max(10, ch->get_trained_skill(ESkill::kCreatePotion)));
 						}
-						if (IS_SET(bits, kSpellWand)) {
-							SET_BIT(GET_SPELL_TYPE(ch, spell_no), kSpellWand);
-							ch->set_skill(ESkill::kCreateWand, MAX(10, ch->get_trained_skill(ESkill::kCreateWand)));
+						if (IS_SET(bits, ESpellType::kWandCast)) {
+							SET_BIT(GET_SPELL_TYPE(ch, spell_no), ESpellType::kWandCast);
+							ch->set_skill(ESkill::kCreateWand, std::max(10, ch->get_trained_skill(ESkill::kCreateWand)));
 						}
-						if (IS_SET(bits, kSpellScroll)) {
-							SET_BIT(GET_SPELL_TYPE(ch, spell_no), kSpellScroll);
-							ch->set_skill(ESkill::kCreateScroll, MAX(10, ch->get_trained_skill(ESkill::kCreateScroll)));
+						if (IS_SET(bits, ESpellType::kScrollCast)) {
+							SET_BIT(GET_SPELL_TYPE(ch, spell_no), ESpellType::kScrollCast);
+							ch->set_skill(ESkill::kCreateScroll, std::max(10, ch->get_trained_skill(ESkill::kCreateScroll)));
 						}
 						found = true;
 					}
 
-					const auto feat_no = static_cast<EFeat>((guild_mono_info[info_num].learn_info + i)->feat_no);
-					if (feat_no >= EFeat::kFirstFeat && feat_no <= EFeat::kLastFeat) {
-						if (!HAVE_FEAT(ch, feat_no) && IsAbleToGetFeat(ch, feat_no)) {
+					const auto feat_no = (guild_mono_info[info_num].learn_info + i)->feat_no;
+					if (feat_no >= EFeat::kFirst && feat_no <= EFeat::kLast) {
+						if (!ch->HaveFeat(feat_no) && CanGetFeat(ch, feat_no)) {
 							sfound = true;
 						}
 					}
@@ -980,28 +970,28 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 				return (1);
 			}
 
-			const auto feat_no = FindFeatNum(argument);
-			if (feat_no >= EFeat::kFirstFeat && feat_no <= EFeat::kLastFeat) {
-				for (i = 0, found = false; (guild_mono_info[info_num].learn_info + i)->feat_no >= 0; i++) {
+			const auto feat_no = FindFeatId(argument);
+			if (feat_no >= EFeat::kFirst && feat_no <= EFeat::kLast) {
+				for (i = 0, found = false; (guild_mono_info[info_num].learn_info + i)->feat_no >= EFeat::kFirst; i++) {
 					if ((guild_mono_info[info_num].learn_info + i)->level > GetRealLevel(ch)) {
 						continue;
 					}
 
 					if (feat_no == (guild_mono_info[info_num].learn_info + i)->feat_no) {
-						if (HAVE_FEAT(ch, feat_no)) {
+						if (ch->HaveFeat(feat_no)) {
 							act("$N сказал$g вам : 'Ничем помочь не могу, ты уже владеешь этой способностью.'",
 								false,
 								ch,
 								0,
 								victim,
 								kToChar);
-						} else if (!IsAbleToGetFeat(ch, feat_no)) {
+						} else if (!CanGetFeat(ch, feat_no)) {
 							act("$N сказал$G : 'Я не могу тебя этому научить.'", false, ch, 0, victim, kToChar);
 						} else {
 							sprintf(buf, "$N научил$G вас способности %s\"%s\"%s",
 									CCCYN(ch, C_NRM), GetFeatName(feat_no), CCNRM(ch, C_NRM));
 							act(buf, false, ch, 0, victim, kToChar);
-							SET_FEAT(ch, feat_no);
+							ch->SetFeat(feat_no);
 						}
 						found = true;
 					}
@@ -1014,9 +1004,9 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 				return (1);
 			}
 
-			const ESkill skill_no = FixNameAndFindSkillNum(argument);
+			const ESkill skill_no = FixNameAndFindSkillId(argument);
 			if (skill_no >= ESkill::kLast && skill_no <= ESkill::kLast) {
-				for (i = 0, found = false; (guild_mono_info[info_num].learn_info + i)->spell_no >= 0; i++) {
+				for (i = 0, found = false; (guild_mono_info[info_num].learn_info + i)->spell_no >= ESpell::kUndefined; i++) {
 					if ((guild_mono_info[info_num].learn_info + i)->level > GetRealLevel(ch)) {
 						continue;
 					}
@@ -1029,11 +1019,11 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 								0,
 								victim,
 								kToChar);
-						} else if (!IsAbleToGetSkill(ch, skill_no)) {
+						} else if (!CanGetSkill(ch, skill_no)) {
 							act("$N сказал$G : 'Я не могу тебя этому научить.'", false, ch, 0, victim, kToChar);
 						} else {
 							sprintf(buf, "$N научил$G вас умению %s\"%s\"%s",
-									CCCYN(ch, C_NRM), MUD::Skills()[skill_no].GetName(), CCNRM(ch, C_NRM));
+									CCCYN(ch, C_NRM), MUD::Skills(skill_no).GetName(), CCNRM(ch, C_NRM));
 							act(buf, false, ch, nullptr, victim, kToChar);
 							ch->set_skill(skill_no, 10);
 						}
@@ -1048,34 +1038,33 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 				return (1);
 			}
 
-			const int spell_no = FixNameAndFindSpellNum(argument);
-			if (spell_no > 0
-				&& spell_no <= kSpellCount) {
-				for (i = 0, found = false; (guild_mono_info[info_num].learn_info + i)->spell_no >= 0; i++) {
+			auto spell_no = FixNameAndFindSpellId(argument);
+			if (spell_no > ESpell::kUndefined && spell_no <= ESpell::kLast) {
+				for (i = 0, found = false; (guild_mono_info[info_num].learn_info + i)->spell_no >= ESpell::kUndefined; i++) {
 					if ((guild_mono_info[info_num].learn_info + i)->level > GetRealLevel(ch)) {
 						continue;
 					}
 
 					if (spell_no == (guild_mono_info[info_num].learn_info + i)->spell_no) {
 						if (!(bits = -2 * to_underlying((guild_mono_info[info_num].learn_info + i)->skill_no))
-							|| bits == kSpellTemp) {
-							bits = kSpellKnow;
+							|| bits == ESpellType::kTemp) {
+							bits = ESpellType::kKnow;
 						}
 
 						if ((GET_SPELL_TYPE(ch, spell_no) & bits) == bits) {
-							if (IS_SET(bits, kSpellKnow)) {
+							if (IS_SET(bits, ESpellType::kKnow)) {
 								sprintf(buf, "$N сказал$G : \r\n"
 											 "'$n, чтобы применить это заклинание, тебе необходимо набрать\r\n"
 											 "%s колд(овать) '%s' <цель>%s и щелкнуть клавишей <ENTER>'.",
 										CCCYN(ch, C_NRM), GetSpellName(spell_no),
 										CCNRM(ch, C_NRM));
-							} else if (IS_SET(bits, kSpellItems)) {
+							} else if (IS_SET(bits, ESpellType::kItemCast)) {
 								sprintf(buf, "$N сказал$G : \r\n"
 											 "'$n, чтобы применить эту магию, тебе необходимо набрать\r\n"
 											 "%s смешать '%s' <цель>%s и щелкнуть клавишей <ENTER>'.",
 										CCCYN(ch, C_NRM), GetSpellName(spell_no),
 										CCNRM(ch, C_NRM));
-							} else if (IS_SET(bits, kSpellRunes)) {
+							} else if (IS_SET(bits, ESpellType::kRunes)) {
 								sprintf(buf, "$N сказал$G : \r\n"
 											 "'$n, чтобы применить эту магию, тебе необходимо набрать\r\n"
 											 "%s руны '%s' <цель>%s и щелкнуть клавишей <ENTER>'.",
@@ -1089,26 +1078,26 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 							sprintf(buf, "$N научил$G вас магии %s\"%s\"%s",
 									CCCYN(ch, C_NRM), GetSpellName(spell_no), CCNRM(ch, C_NRM));
 							act(buf, false, ch, 0, victim, kToChar);
-							if (IS_SET(bits, kSpellKnow)) {
-								SET_BIT(GET_SPELL_TYPE(ch, spell_no), kSpellKnow);
+							if (IS_SET(bits, ESpellType::kKnow)) {
+								SET_BIT(GET_SPELL_TYPE(ch, spell_no), ESpellType::kKnow);
 							}
-							if (IS_SET(bits, kSpellItems)) {
-								SET_BIT(GET_SPELL_TYPE(ch, spell_no), kSpellItems);
+							if (IS_SET(bits, ESpellType::kItemCast)) {
+								SET_BIT(GET_SPELL_TYPE(ch, spell_no), ESpellType::kItemCast);
 							}
-							if (IS_SET(bits, kSpellRunes)) {
-								SET_BIT(GET_SPELL_TYPE(ch, spell_no), kSpellRunes);
+							if (IS_SET(bits, ESpellType::kRunes)) {
+								SET_BIT(GET_SPELL_TYPE(ch, spell_no), ESpellType::kRunes);
 							}
-							if (IS_SET(bits, kSpellPotion)) {
-								SET_BIT(GET_SPELL_TYPE(ch, spell_no), kSpellPotion);
-								ch->set_skill(ESkill::kCreatePotion, MAX(10, ch->get_trained_skill(ESkill::kCreatePotion)));
+							if (IS_SET(bits, ESpellType::kPotionCast)) {
+								SET_BIT(GET_SPELL_TYPE(ch, spell_no), ESpellType::kPotionCast);
+								ch->set_skill(ESkill::kCreatePotion, std::max(10, ch->get_trained_skill(ESkill::kCreatePotion)));
 							}
-							if (IS_SET(bits, kSpellWand)) {
-								SET_BIT(GET_SPELL_TYPE(ch, spell_no), kSpellWand);
-								ch->set_skill(ESkill::kCreateWand, MAX(10, ch->get_trained_skill(ESkill::kCreateWand)));
+							if (IS_SET(bits, ESpellType::kWandCast)) {
+								SET_BIT(GET_SPELL_TYPE(ch, spell_no), ESpellType::kWandCast);
+								ch->set_skill(ESkill::kCreateWand, std::max(10, ch->get_trained_skill(ESkill::kCreateWand)));
 							}
-							if (IS_SET(bits, kSpellScroll)) {
-								SET_BIT(GET_SPELL_TYPE(ch, spell_no), kSpellScroll);
-								ch->set_skill(ESkill::kCreateScroll, MAX(10, ch->get_trained_skill(ESkill::kCreateScroll)));
+							if (IS_SET(bits, ESpellType::kScrollCast)) {
+								SET_BIT(GET_SPELL_TYPE(ch, spell_no), ESpellType::kScrollCast);
+								ch->set_skill(ESkill::kCreateScroll, std::max(10, ch->get_trained_skill(ESkill::kCreateScroll)));
 							}
 						}
 						found = true;
@@ -1156,44 +1145,41 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 		case SCMD_LEARN:
 			if (!*argument) {
 				gcount += sprintf(buf, "Я могу научить тебя следующему:\r\n");
-				for (i = 0, found = false; (guild_poly_info[info_num] + i)->spell_no >= 0; i++) {
+				for (i = 0, found = false; (guild_poly_info[info_num] + i)->spell_no >= ESpell::kUndefined; i++) {
 					if ((guild_poly_info[info_num] + i)->level > GetRealLevel(ch)) {
 						continue;
 					}
 
-					if (!IS_BITS((guild_poly_info[info_num] + i)->classes, GET_CLASS(ch))
+					if (!IS_BITS((guild_poly_info[info_num] + i)->classes, to_underlying(ch->GetClass()))
 						|| !IS_BITS((guild_poly_info[info_num] + i)->races, GET_RACE(ch))
 						|| !IS_BITS((guild_poly_info[info_num] + i)->religion, GET_RELIGION(ch)))
 						continue;
 
 					const ESkill skill_no = (guild_poly_info[info_num] + i)->skill_no;
 					bits = to_underlying(skill_no);
-					if (ESkill::kIncorrect != skill_no
-						&& (!ch->get_trained_skill(skill_no)
-							|| IS_GRGOD(ch))
-						&& IsAbleToGetSkill(ch, skill_no)) {
+					if (ESkill::kUndefined != skill_no &&
+						(!ch->get_trained_skill(skill_no) || IS_GRGOD(ch)) && CanGetSkill(ch, skill_no)) {
 						gcount += sprintf(buf + gcount, "- умение %s\"%s\"%s\r\n",
-										  CCCYN(ch, C_NRM), MUD::Skills()[skill_no].GetName(), CCNRM(ch, C_NRM));
+										  CCCYN(ch, C_NRM), MUD::Skills(skill_no).GetName(), CCNRM(ch, C_NRM));
 						found = true;
 					}
 
-					if (!(bits = -2 * bits)
-						|| bits == kSpellTemp) {
-						bits = kSpellKnow;
+					if (!(bits = -2 * bits) || bits == ESpellType::kTemp) {
+						bits = ESpellType::kKnow;
 					}
 
-					const int spell_no = (guild_poly_info[info_num] + i)->spell_no;
-					if (spell_no
-						&& (!((GET_SPELL_TYPE(ch, spell_no) & bits) == bits)
+					const auto spell_no = (guild_poly_info[info_num] + i)->spell_no;
+					if (spell_no > ESpell::kUndefined &&
+						(!((GET_SPELL_TYPE(ch, spell_no) & bits) == bits)
 							|| IS_GRGOD(ch))) {
 						gcount += sprintf(buf + gcount, "- магия %s\"%s\"%s\r\n",
 										  CCCYN(ch, C_NRM), GetSpellName(spell_no), CCNRM(ch, C_NRM));
 						found = true;
 					}
 
-					const auto feat_no = static_cast<EFeat>((guild_poly_info[info_num] + i)->feat_no);
-					if (feat_no >= EFeat::kFirstFeat && feat_no <= EFeat::kLastFeat) {
-						if (!HAVE_FEAT(ch, feat_no) && IsAbleToGetFeat(ch, feat_no)) {
+					const auto feat_no = (guild_poly_info[info_num] + i)->feat_no;
+					if (feat_no >= EFeat::kFirst && feat_no <= EFeat::kLast) {
+						if (!ch->HaveFeat(feat_no) && CanGetFeat(ch, feat_no)) {
 							gcount += sprintf(buf + gcount, "- способность %s\"%s\"%s\r\n",
 											  CCCYN(ch, C_NRM), GetFeatName(feat_no), CCNRM(ch, C_NRM));
 							found = true;
@@ -1212,11 +1198,11 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 
 			if (!strn_cmp(argument, "все", strlen(argument))
 				|| !strn_cmp(argument, "all", strlen(argument))) {
-				for (i = 0, found = false, sfound = false; (guild_poly_info[info_num] + i)->spell_no >= 0; i++) {
+				for (i = 0, found = false, sfound = false; (guild_poly_info[info_num] + i)->spell_no >= ESpell::kUndefined; i++) {
 					if ((guild_poly_info[info_num] + i)->level > GetRealLevel(ch)) {
 						continue;
 					}
-					if (!IS_BITS((guild_poly_info[info_num] + i)->classes, GET_CLASS(ch))
+					if (!IS_BITS((guild_poly_info[info_num] + i)->classes, to_underlying(ch->GetClass()))
 						|| !IS_BITS((guild_poly_info[info_num] + i)->races, GET_RACE(ch))
 						|| !IS_BITS((guild_poly_info[info_num] + i)->religion, GET_RELIGION(ch))) {
 						continue;
@@ -1224,7 +1210,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 
 					const ESkill skill_no = (guild_poly_info[info_num] + i)->skill_no;
 					bits = to_underlying(skill_no);
-					if (ESkill::kIncorrect != skill_no
+					if (ESkill::kUndefined != skill_no
 						&& !ch->get_trained_skill(skill_no))    // sprintf(buf, "$N научил$G вас умению %s\"%s\"\%s",
 					{
 						//             CCCYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
@@ -1233,41 +1219,41 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 						sfound = true;
 					}
 
-					const auto feat_no = static_cast<EFeat>((guild_poly_info[info_num] + i)->feat_no);
-					if (feat_no >= EFeat::kFirstFeat && feat_no <= EFeat::kLastFeat) {
-						if (!HAVE_FEAT(ch, feat_no) && IsAbleToGetFeat(ch, feat_no)) {
+					const auto feat_no = (guild_poly_info[info_num] + i)->feat_no;
+					if (feat_no >= EFeat::kFirst && feat_no <= EFeat::kLast) {
+						if (!ch->HaveFeat(feat_no) && CanGetFeat(ch, feat_no)) {
 							sfound = true;
 						}
 					}
 
-					if (!(bits = -2 * bits) || bits == kSpellTemp) {
-						bits = kSpellKnow;
+					if (!(bits = -2 * bits) || bits == ESpellType::kTemp) {
+						bits = ESpellType::kKnow;
 					}
 
-					const int spell_no = (guild_poly_info[info_num] + i)->spell_no;
-					if (spell_no
-						&& !((GET_SPELL_TYPE(ch, spell_no) & bits) == bits)) {
+					const auto spell_no = (guild_poly_info[info_num] + i)->spell_no;
+					if (spell_no > ESpell::kUndefined &&
+						!((GET_SPELL_TYPE(ch, spell_no) & bits) == bits)) {
 						gcount += sprintf(buf, "$N научил$G вас магии %s\"%s\"%s",
 										  CCCYN(ch, C_NRM), GetSpellName(spell_no), CCNRM(ch, C_NRM));
 						act(buf, false, ch, 0, victim, kToChar);
 
-						if (IS_SET(bits, kSpellKnow))
-							SET_BIT(GET_SPELL_TYPE(ch, spell_no), kSpellKnow);
-						if (IS_SET(bits, kSpellItems))
-							SET_BIT(GET_SPELL_TYPE(ch, spell_no), kSpellItems);
-						if (IS_SET(bits, kSpellRunes))
-							SET_BIT(GET_SPELL_TYPE(ch, spell_no), kSpellRunes);
-						if (IS_SET(bits, kSpellPotion)) {
-							SET_BIT(GET_SPELL_TYPE(ch, spell_no), kSpellPotion);
-							ch->set_skill(ESkill::kCreatePotion, MAX(10, ch->get_trained_skill(ESkill::kCreatePotion)));
+						if (IS_SET(bits, ESpellType::kKnow))
+							SET_BIT(GET_SPELL_TYPE(ch, spell_no), ESpellType::kKnow);
+						if (IS_SET(bits, ESpellType::kItemCast))
+							SET_BIT(GET_SPELL_TYPE(ch, spell_no), ESpellType::kItemCast);
+						if (IS_SET(bits, ESpellType::kRunes))
+							SET_BIT(GET_SPELL_TYPE(ch, spell_no), ESpellType::kRunes);
+						if (IS_SET(bits, ESpellType::kPotionCast)) {
+							SET_BIT(GET_SPELL_TYPE(ch, spell_no), ESpellType::kPotionCast);
+							ch->set_skill(ESkill::kCreatePotion, std::max(10, ch->get_trained_skill(ESkill::kCreatePotion)));
 						}
-						if (IS_SET(bits, kSpellWand)) {
-							SET_BIT(GET_SPELL_TYPE(ch, spell_no), kSpellWand);
-							ch->set_skill(ESkill::kCreateWand, MAX(10, ch->get_trained_skill(ESkill::kCreateWand)));
+						if (IS_SET(bits, ESpellType::kWandCast)) {
+							SET_BIT(GET_SPELL_TYPE(ch, spell_no), ESpellType::kWandCast);
+							ch->set_skill(ESkill::kCreateWand, std::max(10, ch->get_trained_skill(ESkill::kCreateWand)));
 						}
-						if (IS_SET(bits, kSpellScroll)) {
-							SET_BIT(GET_SPELL_TYPE(ch, spell_no), kSpellScroll);
-							ch->set_skill(ESkill::kCreateScroll, MAX(10, ch->get_trained_skill(ESkill::kCreateScroll)));
+						if (IS_SET(bits, ESpellType::kScrollCast)) {
+							SET_BIT(GET_SPELL_TYPE(ch, spell_no), ESpellType::kScrollCast);
+							ch->set_skill(ESkill::kCreateScroll, std::max(10, ch->get_trained_skill(ESkill::kCreateScroll)));
 						}
 						found = true;
 					}
@@ -1286,13 +1272,13 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 				return (1);
 			}
 
-			const ESkill skill_no = FixNameAndFindSkillNum(argument);
-			if (ESkill::kIncorrect != skill_no && skill_no <= ESkill::kLast) {
-				for (i = 0, found = false; (guild_poly_info[info_num] + i)->spell_no >= 0; i++) {
+			const auto skill_no = FixNameAndFindSkillId(argument);
+			if (ESkill::kUndefined != skill_no && skill_no <= ESkill::kLast) {
+				for (i = 0, found = false; (guild_poly_info[info_num] + i)->spell_no >= ESpell::kUndefined; i++) {
 					if ((guild_poly_info[info_num] + i)->level > GetRealLevel(ch)) {
 						continue;
 					}
-					if (!IS_BITS((guild_poly_info[info_num] + i)->classes, GET_CLASS(ch))
+					if (!IS_BITS((guild_poly_info[info_num] + i)->classes, to_underlying(ch->GetClass()))
 						|| !IS_BITS((guild_poly_info[info_num] + i)->races, GET_RACE(ch))
 						|| !IS_BITS((guild_poly_info[info_num] + i)->religion, GET_RELIGION(ch))) {
 						continue;
@@ -1300,12 +1286,14 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 
 					if (skill_no == (guild_poly_info[info_num] + i)->skill_no) {
 						if (ch->get_trained_skill(skill_no)) {
-							act("$N сказал$G вам : 'Ты уже владеешь этим умением.'", false, ch, 0, victim, kToChar);
-						} else if (!IsAbleToGetSkill(ch, skill_no)) {
-							act("$N сказал$G : 'Я не могу тебя этому научить.'", false, ch, 0, victim, kToChar);
+							act("$N сказал$G вам : 'Ты уже владеешь этим умением.'",
+								false, ch, 0, victim, kToChar);
+						} else if (!CanGetSkill(ch, skill_no)) {
+							act("$N сказал$G : 'Я не могу тебя этому научить.'",
+								false, ch, 0, victim, kToChar);
 						} else {
 							sprintf(buf, "$N научил$G вас умению %s\"%s\"%s",
-									CCCYN(ch, C_NRM), MUD::Skills()[skill_no].GetName(), CCNRM(ch, C_NRM));
+									CCCYN(ch, C_NRM), MUD::Skills(skill_no).GetName(), CCNRM(ch, C_NRM));
 							act(buf, false, ch, 0, victim, kToChar);
 							ch->set_skill(skill_no, 10);
 						}
@@ -1313,70 +1301,61 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 					}
 				}
 
-				if (!found) {
-					//				found_skill = false;
-					//				act("$N сказал$G : 'Мне не ведомо такое умение.'", false, ch, 0, victim, TO_CHAR);
-				} else {
-					return (1);
+				if (found) {
+					return 1;
 				}
 			}
 
-			auto feat_no = FindFeatNum(argument);
-			if (feat_no < EFeat::kFirstFeat || feat_no > EFeat::kLastFeat) {
+			auto feat_no = FindFeatId(argument);
+			if (feat_no == EFeat::kUndefined) {
 				std::string str(argument);
 				std::replace_if(str.begin(), str.end(), boost::is_any_of("_:"), ' ');
-				feat_no = FindFeatNum(str.c_str(), true);
+				feat_no = FindFeatId(str.c_str(), true);
 			}
 
-			if (feat_no >= EFeat::kFirstFeat && feat_no <= EFeat::kLastFeat) {
-				for (i = 0, found = false; (guild_poly_info[info_num] + i)->feat_no >= 0; i++) {
+			if (feat_no != EFeat::kUndefined) {
+				for (i = 0, found = false; (guild_poly_info[info_num] + i)->spell_no >= ESpell::kUndefined; i++) {
 					if ((guild_poly_info[info_num] + i)->level > GetRealLevel(ch)) {
 						continue;
 					}
-					if (!IS_BITS((guild_poly_info[info_num] + i)->classes, GET_CLASS(ch))
+					if (!IS_BITS((guild_poly_info[info_num] + i)->classes, to_underlying(ch->GetClass()))
 						|| !IS_BITS((guild_poly_info[info_num] + i)->races, GET_RACE(ch))
 						|| !IS_BITS((guild_poly_info[info_num] + i)->religion, GET_RELIGION(ch))) {
 						continue;
 					}
+
 					if (feat_no == (guild_poly_info[info_num] + i)->feat_no) {
-						if (HAVE_FEAT(ch, feat_no)) {
+						if (ch->HaveFeat(feat_no)) {
 							act("$N сказал$G вам : 'Ничем помочь не могу, ты уже владеешь этой способностью.'",
-								false,
-								ch,
-								0,
-								victim,
-								kToChar);
-						} else if (!IsAbleToGetFeat(ch, feat_no)) {
+								false, ch, nullptr, victim, kToChar);
+						} else if (!CanGetFeat(ch, feat_no)) {
 							act("$N сказал$G : 'Я не могу тебя этому научить.'", false, ch, 0, victim, kToChar);
 						} else {
 							sprintf(buf, "$N научил$G вас способности %s\"%s\"%s",
 									CCCYN(ch, C_NRM), GetFeatName(feat_no), CCNRM(ch, C_NRM));
-							act(buf, false, ch, 0, victim, kToChar);
-							SET_FEAT(ch, feat_no);
+							act(buf, false, ch, nullptr, victim, kToChar);
+							ch->SetFeat(feat_no);
 						}
 						found = true;
 					}
 				}
 
-				if (!found) {
-					//				found_feat = false;
-					//				act("$N сказал$G : 'Мне не ведомо такое умение.'", false, ch, 0, victim, TO_CHAR);
-				} else {
-					return (1);
+				if (found) {
+					return 1;
 				}
 			}
 
-			const int spell_no = FixNameAndFindSpellNum(argument);
-			if (spell_no > 0 && spell_no <= kSpellCount) {
-				for (i = 0, found = false; (guild_poly_info[info_num] + i)->spell_no >= 0; i++) {
+			const auto spell_no = FixNameAndFindSpellId(argument);
+			if (spell_no != ESpell::kUndefined) {
+				for (i = 0, found = false; (guild_poly_info[info_num] + i)->spell_no >= ESpell::kUndefined; i++) {
 					if ((guild_poly_info[info_num] + i)->level > GetRealLevel(ch)) {
 						continue;
 					}
 					if (!(bits = -2 * to_underlying((guild_poly_info[info_num] + i)->skill_no))
-						|| bits == kSpellTemp) {
-						bits = kSpellKnow;
+						|| bits == ESpellType::kTemp) {
+						bits = ESpellType::kKnow;
 					}
-					if (!IS_BITS((guild_poly_info[info_num] + i)->classes, GET_CLASS(ch))
+					if (!IS_BITS((guild_poly_info[info_num] + i)->classes, to_underlying(ch->GetClass()))
 						|| !IS_BITS((guild_poly_info[info_num] + i)->races, GET_RACE(ch))
 						|| !IS_BITS((guild_poly_info[info_num] + i)->religion, GET_RELIGION(ch))) {
 						continue;
@@ -1384,19 +1363,19 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 
 					if (spell_no == (guild_poly_info[info_num] + i)->spell_no) {
 						if ((GET_SPELL_TYPE(ch, spell_no) & bits) == bits) {
-							if (IS_SET(bits, kSpellKnow)) {
+							if (IS_SET(bits, ESpellType::kKnow)) {
 								sprintf(buf, "$N сказал$G : \r\n"
 											 "'$n, чтобы применить это заклинание, тебе необходимо набрать\r\n"
 											 "%s колд(овать) '%s' <цель>%s и щелкнуть клавишей <ENTER>'.",
 										CCCYN(ch, C_NRM), GetSpellName(spell_no),
 										CCNRM(ch, C_NRM));
-							} else if (IS_SET(bits, kSpellItems)) {
+							} else if (IS_SET(bits, ESpellType::kItemCast)) {
 								sprintf(buf, "$N сказал$G : \r\n"
 											 "'$n, чтобы применить эту магию, тебе необходимо набрать\r\n"
 											 "%s смешать '%s' <цель>%s и щелкнуть клавишей <ENTER>'.",
 										CCCYN(ch, C_NRM), GetSpellName(spell_no),
 										CCNRM(ch, C_NRM));
-							} else if (IS_SET(bits, kSpellRunes)) {
+							} else if (IS_SET(bits, ESpellType::kRunes)) {
 								sprintf(buf, "$N сказал$G : \r\n"
 											 "'$n, чтобы применить эту магию, тебе необходимо набрать\r\n"
 											 "%s руны '%s' <цель>%s и щелкнуть клавишей <ENTER>'.",
@@ -1410,37 +1389,34 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 							sprintf(buf, "$N научил$G вас магии %s\"%s\"%s",
 									CCCYN(ch, C_NRM), GetSpellName(spell_no), CCNRM(ch, C_NRM));
 							act(buf, false, ch, 0, victim, kToChar);
-							if (IS_SET(bits, kSpellKnow)) {
-								SET_BIT(GET_SPELL_TYPE(ch, spell_no), kSpellKnow);
+							if (IS_SET(bits, ESpellType::kKnow)) {
+								SET_BIT(GET_SPELL_TYPE(ch, spell_no), ESpellType::kKnow);
 							}
-							if (IS_SET(bits, kSpellItems)) {
-								SET_BIT(GET_SPELL_TYPE(ch, spell_no), kSpellItems);
+							if (IS_SET(bits, ESpellType::kItemCast)) {
+								SET_BIT(GET_SPELL_TYPE(ch, spell_no), ESpellType::kItemCast);
 							}
-							if (IS_SET(bits, kSpellRunes)) {
-								SET_BIT(GET_SPELL_TYPE(ch, spell_no), kSpellRunes);
+							if (IS_SET(bits, ESpellType::kRunes)) {
+								SET_BIT(GET_SPELL_TYPE(ch, spell_no), ESpellType::kRunes);
 							}
-							if (IS_SET(bits, kSpellPotion)) {
-								SET_BIT(GET_SPELL_TYPE(ch, spell_no), kSpellPotion);
-								ch->set_skill(ESkill::kCreatePotion, MAX(10, ch->get_trained_skill(ESkill::kCreatePotion)));
+							if (IS_SET(bits, ESpellType::kPotionCast)) {
+								SET_BIT(GET_SPELL_TYPE(ch, spell_no), ESpellType::kPotionCast);
+								ch->set_skill(ESkill::kCreatePotion, std::max(10, ch->get_trained_skill(ESkill::kCreatePotion)));
 							}
-							if (IS_SET(bits, kSpellWand)) {
-								SET_BIT(GET_SPELL_TYPE(ch, spell_no), kSpellWand);
-								ch->set_skill(ESkill::kCreateWand, MAX(10, ch->get_trained_skill(ESkill::kCreateWand)));
+							if (IS_SET(bits, ESpellType::kWandCast)) {
+								SET_BIT(GET_SPELL_TYPE(ch, spell_no), ESpellType::kWandCast);
+								ch->set_skill(ESkill::kCreateWand, std::max(10, ch->get_trained_skill(ESkill::kCreateWand)));
 							}
-							if (IS_SET(bits, kSpellScroll)) {
-								SET_BIT(GET_SPELL_TYPE(ch, spell_no), kSpellScroll);
-								ch->set_skill(ESkill::kCreateScroll, MAX(10, ch->get_trained_skill(ESkill::kCreateScroll)));
+							if (IS_SET(bits, ESpellType::kScrollCast)) {
+								SET_BIT(GET_SPELL_TYPE(ch, spell_no), ESpellType::kScrollCast);
+								ch->set_skill(ESkill::kCreateScroll, std::max(10, ch->get_trained_skill(ESkill::kCreateScroll)));
 							}
 						}
 						found = true;
 					}
 				}
 
-				if (!found) {
-					//				found_spell = false;
-					//				act("$N сказал$G : 'Я и сам$G не знаю такого заклинания.'", false, ch, 0, victim, TO_CHAR);
-				} else {
-					return (1);
+				if (found) {
+					return 1;
 				}
 			}
 
@@ -1637,7 +1613,7 @@ int npc_scavenge(CharData *ch) {
 
 				// Заперто, взламываем, если умеем
 				if (OBJVAL_FLAGGED(obj, EContainerFlag::kLockedUp)
-					&& ch->get_skill(ESkill::kPickLock)
+					&& ch->GetSkill(ESkill::kPickLock)
 					&& ok_pick(ch, 0, obj, 0, SCMD_PICK)) {
 					do_doorcmd(ch, obj, 0, SCMD_PICK);
 				}
@@ -1771,7 +1747,7 @@ int npc_loot(CharData *ch) {
 
 						// ...или взломаем?
 						if (OBJVAL_FLAGGED(loot_obj, EContainerFlag::kLockedUp)
-							&& ch->get_skill(ESkill::kPickLock)
+							&& ch->GetSkill(ESkill::kPickLock)
 							&& ok_pick(ch, 0, loot_obj, 0, SCMD_PICK)) {
 							loot_obj->toggle_val_bit(1, EContainerFlag::kLockedUp);
 						}
@@ -1873,7 +1849,7 @@ int npc_move(CharData *ch, int dir, int/* need_specials_check*/) {
 int has_curse(ObjData *obj) {
 	for (const auto &i : weapon_affect) {
 		// Замена выражения на макрос
-		if (i.aff_spell <= 0 || !IS_OBJ_AFF(obj, i.aff_pos)) {
+		if (i.aff_spell <= ESpell::kUndefined || !IS_OBJ_AFF(obj, i.aff_pos)) {
 			continue;
 		}
 		if (IS_SET(spell_info[i.aff_spell].routines, kNpcAffectPc | kNpcDamagePc)) {
@@ -1926,8 +1902,8 @@ void npc_wield(CharData *ch) {
 	if (!NPC_FLAGGED(ch, ENpcFlag::kWielding))
 		return;
 
-	if (ch->get_skill(ESkill::kHammer) > 0
-		&& ch->get_skill(ESkill::kOverwhelm) < ch->get_skill(ESkill::kHammer)) {
+	if (ch->GetSkill(ESkill::kHammer) > 0
+		&& ch->GetSkill(ESkill::kOverwhelm) < ch->GetSkill(ESkill::kHammer)) {
 		return;
 	}
 
@@ -2582,18 +2558,18 @@ int magic_user(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 	}
 
 	if ((GetRealLevel(ch) > 13) && (number(0, 10) == 0)) {
-		CastSpell(ch, target, nullptr, nullptr, kSpellSleep, kSpellSleep);
+		CastSpell(ch, target, nullptr, nullptr, ESpell::kSleep, ESpell::kSleep);
 	}
 
 	if ((GetRealLevel(ch) > 7) && (number(0, 8) == 0)) {
-		CastSpell(ch, target, nullptr, nullptr, kSpellBlindness, kSpellBlindness);
+		CastSpell(ch, target, nullptr, nullptr, ESpell::kBlindness, ESpell::kBlindness);
 	}
 
 	if ((GetRealLevel(ch) > 12) && (number(0, 12) == 0)) {
 		if (IS_EVIL(ch)) {
-			CastSpell(ch, target, nullptr, nullptr, kSpellEnergyDrain, kSpellEnergyDrain);
+			CastSpell(ch, target, nullptr, nullptr, ESpell::kEnergyDrain, ESpell::kEnergyDrain);
 		} else if (IS_GOOD(ch)) {
-			CastSpell(ch, target, nullptr, nullptr, kSpellDispelEvil, kSpellDispelEvil);
+			CastSpell(ch, target, nullptr, nullptr, ESpell::kDispelEvil, ESpell::kDispelEvil);
 		}
 	}
 
@@ -2603,26 +2579,26 @@ int magic_user(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 
 	switch (GetRealLevel(ch)) {
 		case 4:
-		case 5: CastSpell(ch, target, nullptr, nullptr, kSpellMagicMissile, kSpellMagicMissile);
+		case 5: CastSpell(ch, target, nullptr, nullptr, ESpell::kMagicMissile, ESpell::kMagicMissile);
 			break;
 		case 6:
-		case 7: CastSpell(ch, target, nullptr, nullptr, kSpellChillTouch, kSpellChillTouch);
+		case 7: CastSpell(ch, target, nullptr, nullptr, ESpell::kChillTouch, ESpell::kChillTouch);
 			break;
 		case 8:
-		case 9: CastSpell(ch, target, nullptr, nullptr, kSpellBurningHands, kSpellBurningHands);
+		case 9: CastSpell(ch, target, nullptr, nullptr, ESpell::kBurningHands, ESpell::kBurningHands);
 			break;
 		case 10:
-		case 11: CastSpell(ch, target, nullptr, nullptr, kSpellShockingGasp, kSpellShockingGasp);
+		case 11: CastSpell(ch, target, nullptr, nullptr, ESpell::kShockingGasp, ESpell::kShockingGasp);
 			break;
 		case 12:
-		case 13: CastSpell(ch, target, nullptr, nullptr, kSpellLightingBolt, kSpellLightingBolt);
+		case 13: CastSpell(ch, target, nullptr, nullptr, ESpell::kLightingBolt, ESpell::kLightingBolt);
 			break;
 		case 14:
 		case 15:
 		case 16:
-		case 17: CastSpell(ch, target, nullptr, nullptr, kSpellIceBolts, kSpellIceBolts);
+		case 17: CastSpell(ch, target, nullptr, nullptr, ESpell::kIceBolts, ESpell::kIceBolts);
 			break;
-		default: CastSpell(ch, target, nullptr, nullptr, kSpellFireball, kSpellFireball);
+		default: CastSpell(ch, target, nullptr, nullptr, ESpell::kFireball, ESpell::kFireball);
 			break;
 	}
 
@@ -2634,7 +2610,33 @@ int magic_user(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 // *  Special procedures for mobiles                                  *
 // ********************************************************************
 
-int guild_guard(CharData *ch, void *me, int cmd, char * /*argument*/) {
+/*
+ * ...And the appropriate rooms for each guildmaster/guildguard; controls
+ * which types of people the various guildguards let through.  i.e., the
+ * first line shows that from room 3017, only MAGIC_USERS are allowed
+ * to go south.
+ *
+ * Don't forget to visit spec_assign.cpp if you create any new mobiles that
+ * should be a guild master or guard so they can act appropriately. If you
+ * "recycle" the existing mobs that are used in other guilds for your new
+ * guild, then you don't have to change that file, only here.
+ */
+/*int guild_info[][3] =
+	{
+		// Midgaard
+		{ECharClass::kConjurer, 3017, SCMD_SOUTH},
+		{ECharClass::kSorcerer, 3004, SCMD_NORTH},
+		{ECharClass::kThief, 3027, SCMD_EAST},
+		{ECharClass::kWarrior, 3021, SCMD_EAST},
+
+		// Brass Dragon
+		{-999 *//* all *//* , 5065, SCMD_WEST},
+
+		// this must go last -- add new guards above!
+		{-1, -1, -1}
+	};*/
+
+/*int guild_guard(CharData *ch, void *me, int cmd, char * *//*argument*//*) {
 	int i;
 	CharData *guard = (CharData *) me;
 	const char *buf = "Охранник остановил вас, преградив дорогу.\r\n";
@@ -2648,7 +2650,7 @@ int guild_guard(CharData *ch, void *me, int cmd, char * /*argument*/) {
 		return (false);
 
 	for (i = 0; guild_info[i][0] != -1; i++) {
-		if ((ch->IsNpc() || GET_CLASS(ch) != guild_info[i][0]) &&
+		if ((ch->IsNpc() || ch->GetClass() != guild_info[i][0]) &&
 			GET_ROOM_VNUM(ch->in_room) == guild_info[i][1] && cmd == guild_info[i][2]) {
 			SendMsgToChar(buf, ch);
 			act(buf2, false, ch, 0, 0, kToRoom);
@@ -2657,7 +2659,7 @@ int guild_guard(CharData *ch, void *me, int cmd, char * /*argument*/) {
 	}
 
 	return (false);
-}
+}*/
 
 // TODO: повырезать все это
 int puff(CharData * /*ch*/, void * /*me*/, int/* cmd*/, char * /*argument*/) {

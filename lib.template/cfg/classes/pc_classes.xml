@@ -8,17 +8,21 @@
         </name>
         <stats>
             <base_stats>
-                <stat id="kStr" cap="10" />
-                <stat id="kDex" cap="10" />
-                <stat id="kCon" cap="10" />
-                <stat id="kWis" cap="10" />
-                <stat id="kInt" cap="10" />
-                <stat id="kCha" cap="10" />
+                <stat id="kStr"	gen_min="20"	gen_max="23"	auto="23"	cap="50"/>
+                <stat id="kDex"	gen_min="14"	gen_max="17"	auto="17"	cap="50"/>
+                <stat id="kCon"	gen_min="17"	gen_max="23"	auto="23"	cap="50"/>
+                <stat id="kWis"	gen_min="10"	gen_max="14"	auto="10"	cap="50"/>
+                <stat id="kInt"	gen_min="10"	gen_max="14"	auto="10"	cap="50"/>
+                <stat id="kCha"	gen_min="12"	gen_max="12"	auto="12"	cap="50"/>
             </base_stats>
         </stats>
         <skills level_decrement="1">
             <skill id="kHangovering" remort="0" level="0" improve="1"/>
         </skills>
+        <spells level_decrement="1">
+        </spells>
+        <feats remorts_for_slot="50">
+        </feats>
     </class>
     <!-- Колдун -->
     <class file="pc_conjurer.xml" id="kConjurer">
@@ -28,17 +32,21 @@
         </name>
         <stats>
             <base_stats>
-                <stat id="kStr" cap="10" />
-                <stat id="kDex" cap="10" />
-                <stat id="kCon" cap="10" />
-                <stat id="kWis" cap="10" />
-                <stat id="kInt" cap="10" />
-                <stat id="kCha" cap="10" />
+                <stat id="kStr"	gen_min="20"	gen_max="23"	auto="23"	cap="50"/>
+                <stat id="kDex"	gen_min="14"	gen_max="17"	auto="17"	cap="50"/>
+                <stat id="kCon"	gen_min="17"	gen_max="23"	auto="23"	cap="50"/>
+                <stat id="kWis"	gen_min="10"	gen_max="14"	auto="10"	cap="50"/>
+                <stat id="kInt"	gen_min="10"	gen_max="14"	auto="10"	cap="50"/>
+                <stat id="kCha"	gen_min="12"	gen_max="12"	auto="12"	cap="50"/>
             </base_stats>
         </stats>
         <skills level_decrement="1">
 			<skill id="kHangovering" remort="0" level="0" improve="1"/>
         </skills>
+        <spells level_decrement="1">
+        </spells>
+        <feats remorts_for_slot="50">
+        </feats>
     </class>
     <!-- Тать -->
     <class file="pc_thief.xml" id="kThief">
@@ -48,17 +56,21 @@
         </name>
         <stats>
             <base_stats>
-                <stat id="kStr" cap="10" />
-                <stat id="kDex" cap="10" />
-                <stat id="kCon" cap="10" />
-                <stat id="kWis" cap="10" />
-                <stat id="kInt" cap="10" />
-                <stat id="kCha" cap="10" />
+                <stat id="kStr"	gen_min="20"	gen_max="23"	auto="23"	cap="50"/>
+                <stat id="kDex"	gen_min="14"	gen_max="17"	auto="17"	cap="50"/>
+                <stat id="kCon"	gen_min="17"	gen_max="23"	auto="23"	cap="50"/>
+                <stat id="kWis"	gen_min="10"	gen_max="14"	auto="10"	cap="50"/>
+                <stat id="kInt"	gen_min="10"	gen_max="14"	auto="10"	cap="50"/>
+                <stat id="kCha"	gen_min="12"	gen_max="12"	auto="12"	cap="50"/>
             </base_stats>
         </stats>
         <skills level_decrement="1">
 			<skill id="kHangovering" remort="0" level="0" improve="1"/>
         </skills>
+        <spells level_decrement="1">
+        </spells>
+        <feats remorts_for_slot="50">
+        </feats>
     </class>
     <!-- Богатырь -->
     <class file="pc_warrior.xml" id="kWarrior">
@@ -68,17 +80,21 @@
         </name>
         <stats>
             <base_stats>
-                <stat id="kStr" cap="10" />
-                <stat id="kDex" cap="10" />
-                <stat id="kCon" cap="10" />
-                <stat id="kWis" cap="10" />
-                <stat id="kInt" cap="10" />
-                <stat id="kCha" cap="10" />
+                <stat id="kStr"	gen_min="20"	gen_max="23"	auto="23"	cap="50"/>
+                <stat id="kDex"	gen_min="14"	gen_max="17"	auto="17"	cap="50"/>
+                <stat id="kCon"	gen_min="17"	gen_max="23"	auto="23"	cap="50"/>
+                <stat id="kWis"	gen_min="10"	gen_max="14"	auto="10"	cap="50"/>
+                <stat id="kInt"	gen_min="10"	gen_max="14"	auto="10"	cap="50"/>
+                <stat id="kCha"	gen_min="12"	gen_max="12"	auto="12"	cap="50"/>
             </base_stats>
         </stats>
         <skills level_decrement="1">
 			<skill id="kHangovering" remort="0" level="0" improve="1"/>
         </skills>
+        <spells level_decrement="1">
+        </spells>
+        <feats remorts_for_slot="50">
+        </feats>
     </class>
     <!-- Наемник -->
     <class file="pc_assasine.xml" id="kAssasine">
@@ -88,17 +104,21 @@
         </name>
         <stats>
             <base_stats>
-                <stat id="kStr" cap="10" />
-                <stat id="kDex" cap="10" />
-                <stat id="kCon" cap="10" />
-                <stat id="kWis" cap="10" />
-                <stat id="kInt" cap="10" />
-                <stat id="kCha" cap="10" />
+                <stat id="kStr"	gen_min="20"	gen_max="23"	auto="23"	cap="50"/>
+                <stat id="kDex"	gen_min="14"	gen_max="17"	auto="17"	cap="50"/>
+                <stat id="kCon"	gen_min="17"	gen_max="23"	auto="23"	cap="50"/>
+                <stat id="kWis"	gen_min="10"	gen_max="14"	auto="10"	cap="50"/>
+                <stat id="kInt"	gen_min="10"	gen_max="14"	auto="10"	cap="50"/>
+                <stat id="kCha"	gen_min="12"	gen_max="12"	auto="12"	cap="50"/>
             </base_stats>
         </stats>
         <skills level_decrement="1">
 			<skill id="kHangovering" remort="0" level="0" improve="1"/>
         </skills>
+        <spells level_decrement="1">
+        </spells>
+        <feats remorts_for_slot="50">
+        </feats>
     </class>
     <!-- Дружинник -->
     <class file="pc_guard.xml" id="kGuard">
@@ -108,17 +128,21 @@
         </name>
         <stats>
             <base_stats>
-                <stat id="kStr" cap="10" />
-                <stat id="kDex" cap="10" />
-                <stat id="kCon" cap="10" />
-                <stat id="kWis" cap="10" />
-                <stat id="kInt" cap="10" />
-                <stat id="kCha" cap="10" />
+                <stat id="kStr"	gen_min="20"	gen_max="23"	auto="23"	cap="50"/>
+                <stat id="kDex"	gen_min="14"	gen_max="17"	auto="17"	cap="50"/>
+                <stat id="kCon"	gen_min="17"	gen_max="23"	auto="23"	cap="50"/>
+                <stat id="kWis"	gen_min="10"	gen_max="14"	auto="10"	cap="50"/>
+                <stat id="kInt"	gen_min="10"	gen_max="14"	auto="10"	cap="50"/>
+                <stat id="kCha"	gen_min="12"	gen_max="12"	auto="12"	cap="50"/>
             </base_stats>
         </stats>
         <skills level_decrement="1">
 			<skill id="kHangovering" remort="0" level="0" improve="1"/>
         </skills>
+        <spells level_decrement="1">
+        </spells>
+        <feats remorts_for_slot="50">
+        </feats>
     </class>
     <!-- Кудесник -->
     <class file="pc_charmer.xml" id="kCharmer">
@@ -128,17 +152,21 @@
         </name>
         <stats>
             <base_stats>
-                <stat id="kStr" cap="10" />
-                <stat id="kDex" cap="10" />
-                <stat id="kCon" cap="10" />
-                <stat id="kWis" cap="10" />
-                <stat id="kInt" cap="10" />
-                <stat id="kCha" cap="10" />
+                <stat id="kStr"	gen_min="20"	gen_max="23"	auto="23"	cap="50"/>
+                <stat id="kDex"	gen_min="14"	gen_max="17"	auto="17"	cap="50"/>
+                <stat id="kCon"	gen_min="17"	gen_max="23"	auto="23"	cap="50"/>
+                <stat id="kWis"	gen_min="10"	gen_max="14"	auto="10"	cap="50"/>
+                <stat id="kInt"	gen_min="10"	gen_max="14"	auto="10"	cap="50"/>
+                <stat id="kCha"	gen_min="12"	gen_max="12"	auto="12"	cap="50"/>
             </base_stats>
         </stats>
         <skills level_decrement="1">
 			<skill id="kHangovering" remort="0" level="0" improve="1"/>
         </skills>
+        <spells level_decrement="1">
+        </spells>
+        <feats remorts_for_slot="50">
+        </feats>
     </class>
     <!-- Волшебник -->
     <class file="pc_wizard.xml" id="kWizard">
@@ -148,17 +176,21 @@
         </name>
         <stats>
             <base_stats>
-                <stat id="kStr" cap="10" />
-                <stat id="kDex" cap="10" />
-                <stat id="kCon" cap="10" />
-                <stat id="kWis" cap="10" />
-                <stat id="kInt" cap="10" />
-                <stat id="kCha" cap="10" />
+                <stat id="kStr"	gen_min="20"	gen_max="23"	auto="23"	cap="50"/>
+                <stat id="kDex"	gen_min="14"	gen_max="17"	auto="17"	cap="50"/>
+                <stat id="kCon"	gen_min="17"	gen_max="23"	auto="23"	cap="50"/>
+                <stat id="kWis"	gen_min="10"	gen_max="14"	auto="10"	cap="50"/>
+                <stat id="kInt"	gen_min="10"	gen_max="14"	auto="10"	cap="50"/>
+                <stat id="kCha"	gen_min="12"	gen_max="12"	auto="12"	cap="50"/>
             </base_stats>
         </stats>
         <skills level_decrement="1">
 			<skill id="kHangovering" remort="0" level="0" improve="1"/>
         </skills>
+        <spells level_decrement="1">
+        </spells>
+        <feats remorts_for_slot="50">
+        </feats>
     </class>
     <!-- Чернокнижник -->
     <class file="pc_necromancer.xml" id="kNecromancer">
@@ -168,17 +200,21 @@
         </name>
         <stats>
             <base_stats>
-                <stat id="kStr" cap="10" />
-                <stat id="kDex" cap="10" />
-                <stat id="kCon" cap="10" />
-                <stat id="kWis" cap="10" />
-                <stat id="kInt" cap="10" />
-                <stat id="kCha" cap="10" />
+                <stat id="kStr"	gen_min="20"	gen_max="23"	auto="23"	cap="50"/>
+                <stat id="kDex"	gen_min="14"	gen_max="17"	auto="17"	cap="50"/>
+                <stat id="kCon"	gen_min="17"	gen_max="23"	auto="23"	cap="50"/>
+                <stat id="kWis"	gen_min="10"	gen_max="14"	auto="10"	cap="50"/>
+                <stat id="kInt"	gen_min="10"	gen_max="14"	auto="10"	cap="50"/>
+                <stat id="kCha"	gen_min="12"	gen_max="12"	auto="12"	cap="50"/>
             </base_stats>
         </stats>
         <skills level_decrement="1">
 			<skill id="kHangovering" remort="0" level="0" improve="1"/>
         </skills>
+        <spells level_decrement="1">
+        </spells>
+        <feats remorts_for_slot="50">
+        </feats>
     </class>
     <!-- Витязь -->
     <class file="pc_paladine.xml" id="kPaladine">
@@ -188,17 +224,21 @@
         </name>
         <stats>
             <base_stats>
-                <stat id="kStr" cap="10" />
-                <stat id="kDex" cap="10" />
-                <stat id="kCon" cap="10" />
-                <stat id="kWis" cap="10" />
-                <stat id="kInt" cap="10" />
-                <stat id="kCha" cap="10" />
+                <stat id="kStr"	gen_min="20"	gen_max="23"	auto="23"	cap="50"/>
+                <stat id="kDex"	gen_min="14"	gen_max="17"	auto="17"	cap="50"/>
+                <stat id="kCon"	gen_min="17"	gen_max="23"	auto="23"	cap="50"/>
+                <stat id="kWis"	gen_min="10"	gen_max="14"	auto="10"	cap="50"/>
+                <stat id="kInt"	gen_min="10"	gen_max="14"	auto="10"	cap="50"/>
+                <stat id="kCha"	gen_min="12"	gen_max="12"	auto="12"	cap="50"/>
             </base_stats>
         </stats>
         <skills level_decrement="1">
 			<skill id="kHangovering" remort="0" level="0" improve="1"/>
         </skills>
+        <spells level_decrement="1">
+        </spells>
+        <feats remorts_for_slot="50">
+        </feats>
     </class>
     <!-- Охотник -->
     <class file="pc_ranger.xml" id="kRanger">
@@ -208,17 +248,21 @@
         </name>
         <stats>
             <base_stats>
-                <stat id="kStr" cap="10" />
-                <stat id="kDex" cap="10" />
-                <stat id="kCon" cap="10" />
-                <stat id="kWis" cap="10" />
-                <stat id="kInt" cap="10" />
-                <stat id="kCha" cap="10" />
+                <stat id="kStr"	gen_min="20"	gen_max="23"	auto="23"	cap="50"/>
+                <stat id="kDex"	gen_min="14"	gen_max="17"	auto="17"	cap="50"/>
+                <stat id="kCon"	gen_min="17"	gen_max="23"	auto="23"	cap="50"/>
+                <stat id="kWis"	gen_min="10"	gen_max="14"	auto="10"	cap="50"/>
+                <stat id="kInt"	gen_min="10"	gen_max="14"	auto="10"	cap="50"/>
+                <stat id="kCha"	gen_min="12"	gen_max="12"	auto="12"	cap="50"/>
             </base_stats>
         </stats>
         <skills level_decrement="1">
 			<skill id="kHangovering" remort="0" level="0" improve="1"/>
         </skills>
+        <spells level_decrement="1">
+        </spells>
+        <feats remorts_for_slot="50">
+        </feats>
     </class>
     <!-- Кузнец -->
     <class file="pc_vigilant.xml" id="kVigilant">
@@ -228,17 +272,21 @@
         </name>
         <stats>
             <base_stats>
-                <stat id="kStr" cap="10" />
-                <stat id="kDex" cap="10" />
-                <stat id="kCon" cap="10" />
-                <stat id="kWis" cap="10" />
-                <stat id="kInt" cap="10" />
-                <stat id="kCha" cap="10" />
+                <stat id="kStr"	gen_min="20"	gen_max="23"	auto="23"	cap="50"/>
+                <stat id="kDex"	gen_min="14"	gen_max="17"	auto="17"	cap="50"/>
+                <stat id="kCon"	gen_min="17"	gen_max="23"	auto="23"	cap="50"/>
+                <stat id="kWis"	gen_min="10"	gen_max="14"	auto="10"	cap="50"/>
+                <stat id="kInt"	gen_min="10"	gen_max="14"	auto="10"	cap="50"/>
+                <stat id="kCha"	gen_min="12"	gen_max="12"	auto="12"	cap="50"/>
             </base_stats>
         </stats>
         <skills level_decrement="1">
 			<skill id="kHangovering" remort="0" level="0" improve="1"/>
         </skills>
+        <spells level_decrement="1">
+        </spells>
+        <feats remorts_for_slot="50">
+        </feats>
     </class>
     <!-- Купец -->
     <class file="pc_merchant.xml" id="kMerchant">
@@ -248,17 +296,21 @@
         </name>
         <stats>
             <base_stats>
-                <stat id="kStr" cap="10" />
-                <stat id="kDex" cap="10" />
-                <stat id="kCon" cap="10" />
-                <stat id="kWis" cap="10" />
-                <stat id="kInt" cap="10" />
-                <stat id="kCha" cap="10" />
+                <stat id="kStr"	gen_min="20"	gen_max="23"	auto="23"	cap="50"/>
+                <stat id="kDex"	gen_min="14"	gen_max="17"	auto="17"	cap="50"/>
+                <stat id="kCon"	gen_min="17"	gen_max="23"	auto="23"	cap="50"/>
+                <stat id="kWis"	gen_min="10"	gen_max="14"	auto="10"	cap="50"/>
+                <stat id="kInt"	gen_min="10"	gen_max="14"	auto="10"	cap="50"/>
+                <stat id="kCha"	gen_min="12"	gen_max="12"	auto="12"	cap="50"/>
             </base_stats>
         </stats>
         <skills level_decrement="1">
 			<skill id="kHangovering" remort="0" level="0" improve="1"/>
         </skills>
+        <spells level_decrement="1">
+        </spells>
+        <feats remorts_for_slot="50">
+        </feats>
     </class>
     <!-- Волхв -->
     <class file="pc_magus.xml" id="kMagus">
@@ -268,17 +320,21 @@
         </name>
         <stats>
             <base_stats>
-                <stat id="kStr" cap="10" />
-                <stat id="kDex" cap="10" />
-                <stat id="kCon" cap="10" />
-                <stat id="kWis" cap="10" />
-                <stat id="kInt" cap="10" />
-                <stat id="kCha" cap="10" />
+                <stat id="kStr"	gen_min="20"	gen_max="23"	auto="23"	cap="50"/>
+                <stat id="kDex"	gen_min="14"	gen_max="17"	auto="17"	cap="50"/>
+                <stat id="kCon"	gen_min="17"	gen_max="23"	auto="23"	cap="50"/>
+                <stat id="kWis"	gen_min="10"	gen_max="14"	auto="10"	cap="50"/>
+                <stat id="kInt"	gen_min="10"	gen_max="14"	auto="10"	cap="50"/>
+                <stat id="kCha"	gen_min="12"	gen_max="12"	auto="12"	cap="50"/>
             </base_stats>
         </stats>
         <skills level_decrement="1">
 			<skill id="kHangovering" remort="0" level="0" improve="1"/>
         </skills>
+        <spells level_decrement="1">
+        </spells>
+        <feats remorts_for_slot="50">
+        </feats>
     </class>
     <!--
         Этому тут не место, но кто-то сунул классы мобов в то же поле,
@@ -287,36 +343,40 @@
         общий интерфейс для параметра класса у мобов с игроками, но не помещать, разумеется, классы
         плееров с мобами в один неймспейс.
      -->
-    <class id="kUndefined" mode="kDisabled">
+    <class id="kUndefined" mode="kService">
         <name>
             <singular nom="undefined" gen="undefined" dat="undefined" acc="undefined" ins="undefined" pre="undefined"/>
             <plural nom="undefined" gen="undefined" dat="undefined" acc="undefined" ins="undefined" pre="undefined"/>
         </name>
-        <skills level_decrement="5">
+        <skills level_decrement="1">
         </skills>>
+        <spells level_decrement="1">
+        </spells>
+        <feats remorts_for_slot="50">
+        </feats>
     </class>
-    <class id="kMob" mode="kDisabled">
+    <class id="kMob" mode="kService">
         <name>
             <singular nom="моб" gen="моба" dat="мобу" acc="моба" ins="мобом" pre="мобе"/>
             <plural nom="мобы" gen="мобов" dat="мобам" acc="мобов" ins="мобами" pre="мобах"/>
         </name>
-        <skills level_decrement="5">
+        <skills level_decrement="1">
         </skills>>
+        <spells level_decrement="1">
+        </spells>
+        <feats remorts_for_slot="50">
+        </feats>
     </class>
-    <class id="kNpcBase" mode="kDisabled">
+    <class id="kNpcBase" mode="kService">
         <name>
             <singular nom="base_npc" gen="base_npc" dat="base_npc" acc="base_npc" ins="base_npc" pre="base_npc"/>
             <plural nom="base_npc" gen="base_npc" dat="base_npc" acc="base_npc" ins="base_npc" pre="base_npc"/>
         </name>
-        <skills level_decrement="5">
+        <skills level_decrement="1">
         </skills>>
-    </class>
-    <class id="kNpcLast" mode="kDisabled">
-        <name>
-            <singular nom="npc" gen="npc" dat="npc" acc="npc" ins="npc" pre="npc"/>
-            <plural nom="npc" gen="npc" dat="npc" acc="npc" ins="npc" pre="npc"/>
-        </name>
-        <skills level_decrement="5">
-        </skills>>
+        <spells level_decrement="1">
+        </spells>
+        <feats remorts_for_slot="50">
+        </feats>
     </class>
 </classes>

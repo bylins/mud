@@ -47,7 +47,7 @@ struct SetMsgNode {
 
 /// сетовый активатор с аффектами и прочими бонусами
 struct ActivNode {
-	ActivNode() : skill(ESkill::kIncorrect, 0) {
+	ActivNode() : skill(ESkill::kUndefined, 0) {
 		affects = clear_flags;
 		prof.set();
 		enchant.first = 0;

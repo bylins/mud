@@ -10,7 +10,7 @@
 #include "speedwalks.h"
 #include "cmd_god/shutdown_parameters.h"
 #include "game_economics/shops_implementation.h"
-#include "world_objects.h"
+#include "entities/world_objects.h"
 #include "entities/world_characters.h"
 #include "act_wizard.h"
 #include "influxdb.h"
@@ -19,6 +19,7 @@
 #include "game_skills/skills_info.h"
 #include "strengthening.h"
 #include "boot/cfg_manager.h"
+
 class BanList;    // to avoid inclusion of ban.hpp
 
 /**
@@ -35,10 +36,12 @@ class BanList;    // to avoid inclusion of ban.hpp
 */
 class GlobalObjects {
  public:
+	static cfg_manager::CfgManager &CfgManager();
 	static abilities::AbilitiesInfo &Abilities();
 	static SkillsInfo &Skills();
-	static cfg_manager::CfgManager &CfgManager();
+	static const SkillInfo &Skills(ESkill skill_id);
 	static classes::ClassesInfo &Classes();
+	static const classes::CharClassInfo &Classes(ECharClass class_id);
 	static WorldObjects &world_objects();
 	static ShopExt::ShopListType &Shops();
 	static Characters &characters();

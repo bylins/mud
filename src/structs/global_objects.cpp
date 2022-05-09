@@ -63,12 +63,20 @@ SkillsInfo &GlobalObjects::Skills() {
 	return global_objects().skills_info;
 }
 
+const SkillInfo &GlobalObjects::Skills(const ESkill skill_id) {
+	return global_objects().skills_info[skill_id];
+}
+
 cfg_manager::CfgManager &GlobalObjects::CfgManager() {
 	return global_objects().cfg_mngr;
 }
 
 classes::ClassesInfo &GlobalObjects::Classes() {
 	return global_objects().classes_info;
+}
+
+const classes::CharClassInfo &GlobalObjects::Classes(ECharClass class_id) {
+	return global_objects().classes_info[class_id];
 }
 
 WorldObjects &GlobalObjects::world_objects() {

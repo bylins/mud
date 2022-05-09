@@ -61,7 +61,7 @@ const char *skill_percent(Trigger *trig, CharData *ch, char *skill) {
 	im_rskill *rs;
 	int rid;
 
-	const ESkill skill_id = FixNameAndFindSkillNum(skill);
+	const ESkill skill_id = FixNameAndFindSkillId(skill);
 	if (MUD::Skills().IsValid(skill_id)) {
 		sprintf(retval, "%d", ch->get_trained_skill(skill_id));
 		return retval;
@@ -74,7 +74,7 @@ const char *skill_percent(Trigger *trig, CharData *ch, char *skill) {
 		sprintf(retval, "%d", rs->perc);
 		return retval;
 	}
-	if ((skill_id == ESkill::kIncorrect) && (rid < 0)) {
+	if ((skill_id == ESkill::kUndefined) && (rid < 0)) {
 		sprintf(buf2, "Wrong skill\recipe name: %s", skill);
 		trig_log(trig, buf2);
 	}
@@ -82,50 +82,48 @@ const char *skill_percent(Trigger *trig, CharData *ch, char *skill) {
 }
 
 bool feat_owner(Trigger *trig, CharData *ch, char *feat) {
-	int featnum;
-
-	featnum = FindFeatNum(feat);
-	if (featnum > 0) {
-		if (HAVE_FEAT(ch, featnum))
-			return 1;
+	auto featnum = FindFeatId(feat);
+	if (featnum != EFeat::kUndefined) {
+		if (ch->HaveFeat(featnum)) {
+			return true;
+		}
 	} else {
 		sprintf(buf2, "Wrong feat name: %s", feat);
 		trig_log(trig, buf2);
 	}
-	return 0;
+	return false;
 }
 
 const char *spell_count(Trigger *trig, CharData *ch, char *spell) {
 	static char retval[256];
-	int spellnum;
 
-	spellnum = FixNameAndFindSpellNum(spell);
-	if (spellnum <= 0) {
+	auto spell_id = FixNameAndFindSpellId(spell);
+	if (spell_id == ESpell::kUndefined) {
 		sprintf(buf2, "Wrong spell name: %s", spell);
 		trig_log(trig, buf2);
 		return ("0");
 	}
 
-	if (GET_SPELL_MEM(ch, spellnum))
-		sprintf(retval, "%d", GET_SPELL_MEM(ch, spellnum));
-	else
+	if (GET_SPELL_MEM(ch, spell_id)) {
+		sprintf(retval, "%d", GET_SPELL_MEM(ch, spell_id));
+	} else {
 		strcpy(retval, "0");
+	}
 	return retval;
 }
 
 const char *spell_knowledge(Trigger *trig, CharData *ch, char *spell) {
 	static char retval[256];
-	int spellnum;
 
-	spellnum = FixNameAndFindSpellNum(spell);
-	if (spellnum <= 0) {
+	auto spell_id = FixNameAndFindSpellId(spell);
+	if (spell_id == ESpell::kUndefined) {
 		sprintf(buf2, "Wrong spell name: %s", spell);
 		trig_log(trig, buf2);
 		return ("0");
 	}
 
-	if (GET_SPELL_TYPE(ch, spellnum))
-		sprintf(retval, "%d", GET_SPELL_TYPE(ch, spellnum));
+	if (GET_SPELL_TYPE(ch, spell_id))
+		sprintf(retval, "%d", GET_SPELL_TYPE(ch, spell_id));
 	else
 		strcpy(retval, "0");
 	return retval;

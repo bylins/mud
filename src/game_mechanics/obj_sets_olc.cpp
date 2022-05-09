@@ -436,7 +436,7 @@ void sedit::show_activ_edit(CharData *ch) {
 		snprintf(buf_, sizeof(buf_),
 				 "%s%2d%s) Изменяемое умение : %s%+d to %s%s\r\n",
 				 CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
-				 activ.skill.second, MUD::Skills()[activ.skill.first].GetName(),
+				 activ.skill.second, MUD::Skills(activ.skill.first).GetName(),
 				 CCNRM(ch, C_NRM));
 	} else {
 		snprintf(buf_, sizeof(buf_), "%s%2d%s) Изменяемое умение : нет\r\n",
@@ -1199,7 +1199,7 @@ void sedit::show_activ_skill(CharData *ch) {
 		}
 		snprintf(buf_, sizeof(buf_), "%s%3d%s) %25s     %s",
 				 CCGRN(ch, C_NRM), to_underlying(i), CCNRM(ch, C_NRM),
-				 MUD::Skills()[i].GetName(), !(++col % 2) ? "\r\n" : "");
+				 MUD::Skills(i).GetName(), !(++col % 2) ? "\r\n" : "");
 		out += buf_;
 	}
 	SendMsgToChar(out, ch);
@@ -1269,7 +1269,7 @@ void sedit::parse_activ_skill(CharData *ch, const char *arg) {
 	int num = atoi(arg), ssnum = 0, ssval = 0;
 
 	if (num == 0) {
-		skill.first = ESkill::kIncorrect;
+		skill.first = ESkill::kUndefined;
 		skill.second = 0;
 		show_activ_edit(ch);
 		return;
@@ -1285,7 +1285,7 @@ void sedit::parse_activ_skill(CharData *ch, const char *arg) {
 		SendMsgToChar("Неизвестное умение.\r\n", ch);
 		show_activ_skill(ch);
 	} else if (ssval == 0) {
-		skill.first = ESkill::kIncorrect;
+		skill.first = ESkill::kUndefined;
 		skill.second = 0;
 		show_activ_edit(ch);
 	} else {

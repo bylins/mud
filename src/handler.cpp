@@ -31,11 +31,11 @@
 #include "obj_prototypes.h"
 #include "color.h"
 #include "game_magic/magic_utils.h"
-#include "world_objects.h"
 #include "game_classes/classes_spell_slots.h"
 #include "depot.h"
+#include "structs/global_objects.h"
 
-using PlayerClass::CalcCircleSlotsAmount;
+using classes::CalcCircleSlotsAmount;
 
 // local functions //
 int apply_ac(CharData *ch, int eq_pos);
@@ -122,24 +122,6 @@ void CheckLight(CharData *ch, int was_equip, int was_single, int was_holylight, 
 	}
 }
 
-bool IsAffectedBySpell(CharData *ch, int type) {
-	if (type == kSpellPowerHold) {
-		type = kSpellHold;
-	} else if (type == kSpellPowerSilence) {
-		type = kSpellSllence;
-	} else if (type == kSpellPowerBlindness) {
-		type = kSpellBlindness;
-	}
-
-	for (const auto &affect : ch->affected) {
-		if (affect->type == type) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
 void ImposeAffect(CharData *ch, const Affect<EApply> &af) {
 	bool found = false;
 	for (const auto &affect : ch->affected) {
@@ -166,11 +148,11 @@ void ImposeAffect(CharData *ch, const Affect<EApply> &af) {
 	}
 }
 
-void DecreaseFeatTimer(CharData *ch, int featureID) {
+void DecreaseFeatTimer(CharData *ch, EFeat feat_id) {
 	for (auto *skj = ch->timed_feat; skj; skj = skj->next) {
-		if (skj->feat == featureID) {
+		if (skj->feat == feat_id) {
 			if (skj->time >= 1) {
-				skj->time--;
+				--(skj->time);
 			} else {
 				ExpireTimedFeat(ch, skj);
 			}
@@ -206,7 +188,7 @@ void ExpireTimedFeat(CharData *ch, TimedFeat *timed) {
 	free(timed);
 }
 
-int IsTimed(CharData *ch, int feat) {
+int IsTimedByFeat(CharData *ch, EFeat feat) {
 	struct TimedFeat *hjp;
 
 	for (hjp = ch->timed_feat; hjp; hjp = hjp->next)
@@ -286,29 +268,31 @@ void ProcessRoomAffectsOnEntry(CharData *ch, RoomRnum room) {
 		return;
 	}
 
-	const auto affect_on_room = room_spells::FindAffect(world[room], kSpellHypnoticPattern);
+	const auto affect_on_room = room_spells::FindAffect(world[room], ESpell::kHypnoticPattern);
 	if (affect_on_room != world[room]->affected.end()) {
 		CharData *caster = find_char((*affect_on_room)->caster_id);
 		// если не в гопе, и не слепой
 		if (!same_group(ch, caster)
 			&& !AFF_FLAGGED(ch, EAffect::kBlind)){
-			// отсекаем всяких непонятных личностей типо двойников и проч. (Кудояр)
+			// отсекаем всяких непонятных личностей типо двойников и проч
+			// \todo Пальцы себе отсеки за такой код. Переделать на константы, а еще лучше - сделать где-то enum или вообще конфиг с внумами мобов для спеллов
+			// Клон вообще по флагу клона проверяется
 			if  ((GET_MOB_VNUM(ch) >= 3000 && GET_MOB_VNUM(ch) < 4000) || GET_MOB_VNUM(ch) == 108 ) return;
 			if (ch->has_master() && !ch->get_master()->IsNpc() && ch->IsNpc()) {
 				return;
 			}
-			// если вошел игрок - ПвП - делаем проверку на шанс в зависимости от % магии кастующего (Кудояр)
+			// если вошел игрок - ПвП - делаем проверку на шанс в зависимости от % магии кастующего
 			// без магии и ниже 80%: шанс 25%, на 100% - 27%, на 200% - 37% ,при 300% - 47%
 			// иначе пве, и просто кастим сон на входящего
-			float mkof = CalcModCoef(kSpellHypnoticPattern, caster->get_skill(GetMagicSkillId(
-				kSpellHypnoticPattern)));
+			float mkof = CalcModCoef(ESpell::kHypnoticPattern,
+									 caster->GetSkill(GetMagicSkillId(ESpell::kHypnoticPattern)));
 			if (!ch->IsNpc() && (number (1, 100) > (23 + 2*mkof))) {
 				return;
 			}
 			SendMsgToChar("Вы уставились на огненный узор, как баран на новые ворота.", ch);
 			act("$n0 уставил$u на огненный узор, как баран на новые ворота.",
 				true, ch, nullptr, ch, kToRoom | kToArenaListen);
-			CallMagic(caster, ch, nullptr, nullptr, kSpellSleep, GetRealLevel(caster));
+			CallMagic(caster, ch, nullptr, nullptr, ESpell::kSleep, GetRealLevel(caster));
 		}
 	}
 }
@@ -764,12 +748,13 @@ void DisplayWearMsg(CharData *ch, ObjData *obj, int position) {
 		ch, obj, nullptr, kToRoom | kToArenaListen);
 }
 
+// \todo Это часть системы сетов, туда и надо вынести.
 int GetFlagDataByCharClass(const CharData *ch) {
 	if (ch == nullptr) {
 		return 0;
 	}
 
-	return flag_data_by_num(ch->IsNpc() ? kNumPlayerClasses * kNumKins : GET_CLASS(ch)
+	return flag_data_by_num(ch->IsNpc() ? kNumPlayerClasses * kNumKins : to_underlying(ch->GetClass())
 		+ kNumPlayerClasses * GET_KIN(ch));
 }
 
@@ -838,7 +823,7 @@ unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const
 
 					if (ch->in_room != kNowhere) {
 						for (const auto &i : weapon_affect) {
-							if (i.aff_spell == 0 || !IS_OBJ_AFF(GET_EQ(ch, pos), i.aff_pos)) {
+							if (i.aff_spell == ESpell::kUndefined || !IS_OBJ_AFF(GET_EQ(ch, pos), i.aff_pos)) {
 								continue;
 							}
 							if (!no_cast) {
@@ -848,7 +833,7 @@ unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const
 									act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 										false, ch, GET_EQ(ch, pos), nullptr, kToChar);
 								} else {
-									mag_affects(GetRealLevel(ch), ch, ch, i.aff_spell, ESaving::kWill);
+									CastMagicAffect(GetRealLevel(ch), ch, ch, i.aff_spell, ESaving::kWill);
 								}
 							}
 						}
@@ -869,8 +854,7 @@ unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const
 
 				if (ch->in_room != kNowhere) {
 					for (const auto &i : weapon_affect) {
-						if (i.aff_spell == 0
-							|| !IS_OBJ_AFF(obj, i.aff_pos)) {
+						if (i.aff_spell == ESpell::kUndefined || !IS_OBJ_AFF(obj, i.aff_pos)) {
 							continue;
 						}
 						if (!no_cast) {
@@ -880,7 +864,7 @@ unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const
 								act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 									false, ch, obj, nullptr, kToChar);
 							} else {
-								mag_affects(GetRealLevel(ch), ch, ch, i.aff_spell, ESaving::kWill);
+								CastMagicAffect(GetRealLevel(ch), ch, ch, i.aff_spell, ESaving::kWill);
 							}
 						}
 					}
@@ -898,19 +882,19 @@ unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const
 }
 
 bool CheckArmorType(CharData *ch, ObjData *obj) {
-	if (GET_OBJ_TYPE(obj) == EObjType::kLightArmor && !IsAbleToUseFeat(ch, EFeat::kWearingLightArmor)) {
+	if (GET_OBJ_TYPE(obj) == EObjType::kLightArmor && !CanUseFeat(ch, EFeat::kWearingLightArmor)) {
 		act("Для использования $o1 требуется способность 'легкие доспехи'.",
 			false, ch, obj, nullptr, kToChar);
 		return false;
 	}
 
-	if (GET_OBJ_TYPE(obj) == EObjType::kMediumArmor && !IsAbleToUseFeat(ch, EFeat::kWearingMediumArmor)) {
+	if (GET_OBJ_TYPE(obj) == EObjType::kMediumArmor && !CanUseFeat(ch, EFeat::kWearingMediumArmor)) {
 		act("Для использования $o1 требуется способность 'средние доспехи'.",
 			false, ch, obj, nullptr, kToChar);
 		return false;
 	}
 
-	if (GET_OBJ_TYPE(obj) == EObjType::kHeavyArmor && !IsAbleToUseFeat(ch, EFeat::kWearingHeavyArmor)) {
+	if (GET_OBJ_TYPE(obj) == EObjType::kHeavyArmor && !CanUseFeat(ch, EFeat::kWearingHeavyArmor)) {
 		act("Для использования $o1 требуется способность 'тяжелые доспехи'.",
 			false, ch, obj, nullptr, kToChar);
 		return false;
@@ -1050,8 +1034,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 
 		if (ch->in_room != kNowhere) {
 			for (const auto &j : weapon_affect) {
-				if (j.aff_spell == 0
-					|| !IS_OBJ_AFF(obj, j.aff_pos)) {
+				if (j.aff_spell == ESpell::kUndefined || !IS_OBJ_AFF(obj, j.aff_pos)) {
 					continue;
 				}
 
@@ -1062,7 +1045,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 						act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 							false, ch, obj, nullptr, kToChar);
 					} else {
-						mag_affects(GetRealLevel(ch), ch, ch, j.aff_spell, ESaving::kWill);
+						CastMagicAffect(GetRealLevel(ch), ch, ch, j.aff_spell, ESaving::kWill);
 					}
 				}
 			}
@@ -2518,7 +2501,7 @@ int generic_find(char *arg, Bitvector bitvector, CharData *ch, CharData **tar_ch
 			return (EFind::kObjWorld);
 	}
 
-	// Начало изменений. (с) Дмитрий ака dzMUDiST ака Кудояр
+	// Начало изменений. (с) Дмитрий ака dzMUDiST ака
 
 // Переписан код, обрабатывающий параметры EFind::kObjEquip | EFind::kObjInventory | EFind::kObjRoom
 // В итоге поиск объекта просиходит в "экипировке - инветаре - комнате" согласно
@@ -2709,7 +2692,7 @@ float get_effective_cha(CharData *ch) {
 	int key_value, key_value_add;
 
 	key_value = ch->get_cha();
-	auto max_cha = class_stats_limit[ch->get_class()][5];
+	auto max_cha = MUD::Classes(ch->GetClass()).GetBaseStatCap(EBaseStat::kCha);
 	key_value_add = std::min(max_cha - ch->get_cha(), GET_CHA_ADD(ch));
 
 	float eff_cha = 0.0;
@@ -2726,12 +2709,12 @@ float get_effective_cha(CharData *ch) {
 	return VPOSI<float>(eff_cha, 1.0f, static_cast<float>(max_cha));
 }
 
-float get_effective_wis(CharData *ch, int spellnum) {
+float CalcEffectiveWis(CharData *ch, ESpell spell_id) {
 	int key_value, key_value_add;
 
-	auto max_wis = class_stats_limit[ch->get_class()][3];
+	auto max_wis = MUD::Classes(ch->GetClass()).GetBaseStatCap(EBaseStat::kWis);
 
-	if (spellnum == kSpellResurrection || spellnum == kSpellAnimateDead) {
+	if (spell_id == ESpell::kResurrection || spell_id == ESpell::kAnimateDead) {
 		key_value = ch->get_wis();
 		key_value_add = std::min(max_wis - ch->get_wis(), GET_WIS_ADD(ch));
 	} else {
@@ -2758,7 +2741,7 @@ float get_effective_int(CharData *ch) {
 	int key_value, key_value_add;
 
 	key_value = ch->get_int();
-	auto max_int = class_stats_limit[ch->get_class()][4];
+	auto max_int = MUD::Classes(ch->GetClass()).GetBaseStatCap(EBaseStat::kInt);
 	key_value_add = std::min(max_int - ch->get_int(), GET_INT_ADD(ch));
 
 	float eff_int = 0.0;
@@ -2775,24 +2758,24 @@ float get_effective_int(CharData *ch) {
 	return VPOSI<float>(eff_int, 1.0f, static_cast<float>(max_int));
 }
 
-int get_player_charms(CharData *ch, int spellnum) {
+int CalcCharmPoint(CharData *ch, ESpell spell_id) {
 	float r_hp = 0;
 	float eff_cha = 0.0;
-	float max_cha;
+	float stat_cap{0.0};
 
-	if (spellnum == kSpellResurrection || spellnum == kSpellAnimateDead) {
-		eff_cha = get_effective_wis(ch, spellnum);
-		max_cha = class_stats_limit[ch->get_class()][3];
+	if (spell_id == ESpell::kResurrection || spell_id == ESpell::kAnimateDead) {
+		eff_cha = CalcEffectiveWis(ch, spell_id);
+		stat_cap = MUD::Classes(ch->GetClass()).GetBaseStatCap(EBaseStat::kWis);
 	} else {
-		max_cha = class_stats_limit[ch->get_class()][5];
+		stat_cap = MUD::Classes(ch->GetClass()).GetBaseStatCap(EBaseStat::kCha);
 		eff_cha = get_effective_cha(ch);
 	}
 
-	if (spellnum != kSpellCharm) {
-		eff_cha = std::min(max_cha, eff_cha + 2); // Все кроме чарма кастится с бонусом в 2
+	if (spell_id != ESpell::kCharm) {
+		eff_cha = std::min(stat_cap, eff_cha + 2); // Все кроме чарма кастится с бонусом в 2
 	}
 
-	if (eff_cha < max_cha) {
+	if (eff_cha < stat_cap) {
 		r_hp = (1 - eff_cha + (int) eff_cha) * cha_app[(int) eff_cha].charms +
 			(eff_cha - (int) eff_cha) * cha_app[(int) eff_cha + 1].charms;
 	} else {
@@ -2806,207 +2789,6 @@ int get_player_charms(CharData *ch, int spellnum) {
 	if (PRF_FLAGGED(ch, EPrf::kTester))
 		SendMsgToChar(ch, "&Gget_player_charms Расчет чарма r_hp = %f \r\n&n", r_hp);
 	return (int) r_hp;
-}
-
-//********************************************************************
-// Работа с очередью мема (Svent TODO: вынести в отдельный модуль)
-
-const double kManaCostModifier = 0.5;
-
-//	Коэффициент изменения мема относительно скилла магии.
-int koef_skill_magic(int percent_skill) {
-//	Выделяем процент на который меняется мем
-	return ((800 - percent_skill) / 8);
-
-//	return 0;
-}
-
-int mag_manacost(const CharData *ch, int spellnum) {
-	int result = 0;
-	if (IS_IMMORTAL(ch)) {
-		return 1;
-	}
-
-//	Мем рунных профессий(на сегодня только волхвы)
-	if (IS_MANA_CASTER(ch) && GetRealLevel(ch) >= CalcRequiredLevel(ch, spellnum)) {
-		result = static_cast<int>(kManaCostModifier
-			* (float) mana_gain_cs[VPOSI(55 - GET_REAL_INT(ch), 10, 50)]
-			/ (float) int_app[VPOSI(55 - GET_REAL_INT(ch), 10, 50)].mana_per_tic
-			* 60
-			* std::max(SpINFO.mana_max
-					  - (SpINFO.mana_change
-						  * (GetRealLevel(ch)
-							  - spell_create[spellnum].runes.min_caster_level)),
-				  SpINFO.mana_min));
-	} else {
-		if (!IS_MANA_CASTER(ch) && GetRealLevel(ch) >= MIN_CAST_LEV(SpINFO, ch)
-			&& GET_REAL_REMORT(ch) >= MIN_CAST_REM(SpINFO, ch)) {
-			result = std::max(SpINFO.mana_max - (SpINFO.mana_change * (GetRealLevel(ch) - MIN_CAST_LEV(SpINFO, ch))),
-							  SpINFO.mana_min);
-			if (SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] < 0) {
-				result = result * (100 -
-						std::min(99, abs(SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]))) / 100;
-			} else {
-				result = result * 100 / (100 -
-						std::min(99, abs(SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])));
-			}
-//		Меняем мем на коэффициент скилла магии
-			if (GET_CLASS(ch) == kPaladine || GET_CLASS(ch) == kMerchant) {
-				return result;
-			}
-		}
-	}
-	if (result > 0)
-		return result * koef_skill_magic(ch->get_skill(GetMagicSkillId(spellnum))) / 100;
-				// при скилле 200 + 25%, чем меньше тем лучше
-	else 
-		return 99999;
-}
-
-void MemQ_init(CharData *ch) {
-	ch->mem_queue.stored = 0;
-	ch->mem_queue.total = 0;
-	ch->mem_queue.queue = nullptr;
-}
-
-void MemQ_flush(CharData *ch) {
-	struct SpellMemQueueItem *i;
-	while (ch->mem_queue.queue) {
-		i = ch->mem_queue.queue;
-		ch->mem_queue.queue = i->link;
-		free(i);
-	}
-	MemQ_init(ch);
-}
-
-int MemQ_learn(CharData *ch) {
-	int num;
-	struct SpellMemQueueItem *i;
-	if (ch->mem_queue.queue == nullptr)
-		return 0;
-	num = GET_MEM_CURRENT(ch);
-	ch->mem_queue.stored -= num;
-	ch->mem_queue.total -= num;
-	num = ch->mem_queue.queue->spellnum;
-	i = ch->mem_queue.queue;
-	ch->mem_queue.queue = i->link;
-	free(i);
-	sprintf(buf, "Вы выучили заклинание \"%s%s%s\".\r\n",
-			CCICYN(ch, C_NRM), spell_info[num].name, CCNRM(ch, C_NRM));
-	SendMsgToChar(buf, ch);
-	return num;
-}
-
-void MemQ_remember(CharData *ch, int num) {
-	int *slots;
-	int slotcnt, slotn;
-	struct SpellMemQueueItem *i, **pi = &ch->mem_queue.queue;
-
-	// проверить количество слотов
-	slots = MemQ_slots(ch);
-	slotn = spell_info[num].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;
-	slotcnt = CalcCircleSlotsAmount(ch, slotn + 1);
-	slotcnt -= slots[slotn];    // кол-во свободных слотов
-
-	if (slotcnt <= 0) {
-		SendMsgToChar("У вас нет свободных ячеек этого круга.", ch);
-		return;
-	}
-
-	if (GET_RELIGION(ch) == kReligionMono)
-		sprintf(buf, "Вы дописали заклинание \"%s%s%s\" в свой часослов.\r\n",
-				CCIMAG(ch, C_NRM), spell_info[num].name, CCNRM(ch, C_NRM));
-	else
-		sprintf(buf, "Вы занесли заклинание \"%s%s%s\" в свои резы.\r\n",
-				CCIMAG(ch, C_NRM), spell_info[num].name, CCNRM(ch, C_NRM));
-	SendMsgToChar(buf, ch);
-
-	ch->mem_queue.total += mag_manacost(ch, num);
-	while (*pi)
-		pi = &((*pi)->link);
-	CREATE(i, 1);
-	*pi = i;
-	i->spellnum = num;
-	i->link = nullptr;
-}
-
-void MemQ_forget(CharData *ch, int num) {
-	struct SpellMemQueueItem **q = nullptr, **i;
-
-	for (i = &ch->mem_queue.queue; *i; i = &(i[0]->link)) {
-		if (i[0]->spellnum == num)
-			q = i;
-	}
-
-	if (q == nullptr) {
-		SendMsgToChar("Вы и не собирались заучить это заклинание.\r\n", ch);
-	} else {
-		struct SpellMemQueueItem *ptr;
-		if (q == &ch->mem_queue.queue)
-			ch->mem_queue.stored = 0;
-		ch->mem_queue.total = std::max(0, ch->mem_queue.total - mag_manacost(ch, num));
-		ptr = q[0];
-		q[0] = q[0]->link;
-		free(ptr);
-		sprintf(buf,
-				"Вы вычеркнули заклинание \"%s%s%s\" из списка для запоминания.\r\n",
-				CCIMAG(ch, C_NRM), spell_info[num].name, CCNRM(ch, C_NRM));
-		SendMsgToChar(buf, ch);
-	}
-}
-
-int *MemQ_slots(CharData *ch) {
-	struct SpellMemQueueItem **q, *qt;
-	static int slots[kMaxSlot];
-	int i, n, sloti;
-
-	// инициализация
-	for (i = 0; i < kMaxSlot; ++i)
-		slots[i] = CalcCircleSlotsAmount(ch, i + 1);
-
-	for (i = kSpellCount; i >= 1; --i) {
-		if (!IS_SET(GET_SPELL_TYPE(ch, i), kSpellKnow | kSpellTemp))
-			continue;
-		if ((n = GET_SPELL_MEM(ch, i)) == 0)
-			continue;
-		sloti = spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;
-		if (MIN_CAST_LEV(spell_info[i], ch) > GetRealLevel(ch)
-			|| MIN_CAST_REM(spell_info[i], ch) > GET_REAL_REMORT(ch)) {
-			GET_SPELL_MEM(ch, i) = 0;
-			continue;
-		}
-		slots[sloti] -= n;
-		if (slots[sloti] < 0) {
-			GET_SPELL_MEM(ch, i) += slots[sloti];
-			slots[sloti] = 0;
-		}
-
-	}
-
-	for (q = &ch->mem_queue.queue; q[0];) {
-		sloti = spell_info[q[0]->spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;
-		if (sloti >= 0 && sloti <= 10) {
-			--slots[sloti];
-			if (slots[sloti] >= 0 &&
-				MIN_CAST_LEV(spell_info[q[0]->spellnum], ch) <= GetRealLevel(ch)
-				&& MIN_CAST_REM(spell_info[q[0]->spellnum], ch) <= GET_REAL_REMORT(ch)) {
-				q = &(q[0]->link);
-			} else {
-				if (q == &ch->mem_queue.queue)
-					ch->mem_queue.stored = 0;
-				ch->mem_queue.total = std::max(0, ch->mem_queue.total - mag_manacost(ch, q[0]->spellnum));
-				++slots[sloti];
-				qt = q[0];
-				q[0] = q[0]->link;
-				free(qt);
-			}
-		}
-	}
-
-	for (i = 0; i < kMaxSlot; ++i)
-		slots[i] = CalcCircleSlotsAmount(ch, i + 1) - slots[i];
-
-	return slots;
 }
 
 int IsEquipInMetall(CharData *ch) {
@@ -3082,8 +2864,8 @@ int GetResisTypeWithSpellClass(int spell_class) {
 	}
 };
 
-int GetResistType(int spellnum) {
-	return GetResisTypeWithSpellClass(SpINFO.spell_class);
+int GetResistType(ESpell spell_id) {
+	return GetResisTypeWithSpellClass(spell_info[spell_id].spell_class);
 }
 
 // * Берется минимальная цена ренты шмотки, не важно, одетая она будет или снятая.

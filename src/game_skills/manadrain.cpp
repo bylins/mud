@@ -14,7 +14,7 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	one_argument(argument, arg);
 
-	if (ch->IsNpc() || !ch->get_skill(ESkill::kJinx)) {
+	if (ch->IsNpc() || !ch->GetSkill(ESkill::kJinx)) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -45,7 +45,7 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (IsAffectedBySpell(vict, kSpellGodsShield) || MOB_FLAGGED(vict, EMobFlag::kProtect)) {
+	if (IsAffectedBySpell(vict, ESpell::kGodsShield) || MOB_FLAGGED(vict, EMobFlag::kProtect)) {
 		SendMsgToChar("Боги хранят вашу жертву.\r\n", ch);
 		return;
 	}
@@ -54,10 +54,10 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	skill = ch->get_skill(ESkill::kJinx);
+	skill = ch->GetSkill(ESkill::kJinx);
 
-	percent = number(1, MUD::Skills()[ESkill::kJinx].difficulty);
-	prob = MAX(20, 90 - 5 * MAX(0, GetRealLevel(vict) - GetRealLevel(ch)));
+	percent = number(1, MUD::Skills(ESkill::kJinx).difficulty);
+	prob = std::max(20, 90 - 5 * std::max(0, GetRealLevel(vict) - GetRealLevel(ch)));
 	ImproveSkill(ch, ESkill::kJinx, percent > prob, vict);
 
 	Damage manadrainDamage(SkillDmg(ESkill::kJinx), fight::kZeroDmg, fight::kMagicDmg, nullptr);
@@ -72,7 +72,7 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!IS_IMMORTAL(ch)) {
 		timed.skill = ESkill::kJinx;
-		timed.time = 6 - MIN(4, (ch->get_skill(ESkill::kJinx) + 30) / 50);
+		timed.time = 6 - std::min(4, (ch->GetSkill(ESkill::kJinx) + 30) / 50);
 		ImposeTimedSkill(ch, &timed);
 	}
 

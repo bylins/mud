@@ -3,6 +3,6 @@
 
 class CharData;
 
-void do_cast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/);
+void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/);
 
 #endif //BYLINS_CAST_H

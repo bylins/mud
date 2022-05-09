@@ -239,11 +239,11 @@ void copy_potion_values(const CObjectPrototype *from_obj, CObjectPrototype *to_o
 using namespace drinkcon;
 
 int cast_potion_spell(CharData *ch, ObjData *obj, int num) {
-	const int spell = obj->get_value(init_spell_num(num));
+	const auto spell_id = static_cast<ESpell>(obj->get_value(init_spell_num(num)));
 	const int level = obj->get_value(init_spell_lvl(num));
 
-	if (spell >= 0 && level >= 0) {
-		return CallMagic(ch, ch, nullptr, world[ch->in_room], spell, level);
+	if (spell_id > ESpell::kUndefined) {
+		return CallMagic(ch, ch, nullptr, world[ch->in_room], spell_id, level);
 	}
 	return 1;
 }
@@ -254,7 +254,7 @@ void do_drink_poison(CharData *ch, ObjData *jar, int amount) {
 		SendMsgToChar("Что-то вкус какой-то странный!\r\n", ch);
 		act("$n поперхнул$u и закашлял$g.", true, ch, 0, 0, kToRoom);
 		Affect<EApply> af;
-		af.type = kSpellPoison;
+		af.type = ESpell::kPoison;
 		//если объем 0 -
 		af.duration = CalcDuration(ch, amount == 0 ? 3 : amount == 1 ? amount : amount * 3, 0, 0, 0, 0);
 		af.modifier = -2;
@@ -262,7 +262,7 @@ void do_drink_poison(CharData *ch, ObjData *jar, int amount) {
 		af.bitvector = to_underlying(EAffect::kPoisoned);
 		af.battleflag = kAfSameTime;
 		ImposeAffect(ch, af, false, false, false, false);
-		af.type = kSpellPoison;
+		af.type = ESpell::kPoison;
 		af.modifier = amount == 0 ? GetRealLevel(ch) * 3 : amount * 3;
 		af.location = EApply::kPoison;
 		af.bitvector = to_underlying(EAffect::kPoisoned);
@@ -363,7 +363,7 @@ int do_drink_get_amount(CharData *ch, ObjData *jar, int subcmd) {
 		} else {
 			//Тут магия из-за /4
 			amount = (2 * kMortallyDrunked - GET_COND(ch, DRUNK)) / drink_aff[GET_OBJ_VAL(jar, 2)][DRUNK];
-			amount = MAX(1, amount); // ну еще чуть-чуть
+			amount = std::max(1, amount); // ну еще чуть-чуть
 		}
 	}
 		// Если без градуса
@@ -458,9 +458,9 @@ void do_drink_drunk(CharData *ch, ObjData *jar, int amount) {
 			SendMsgToChar("Приятное тепло разлилось по вашему телу.\r\n", ch);
 		}
 
-		duration = 2 + MAX(0, GET_COND(ch, DRUNK) - kDrunked);
+		duration = 2 + std::max(0, GET_COND(ch, DRUNK) - kDrunked);
 
-		if (IsAbleToUseFeat(ch, EFeat::kDrunkard))
+		if (CanUseFeat(ch, EFeat::kDrunkard))
 			duration += duration / 2;
 
 		if (!AFF_FLAGGED(ch, EAffect::kAbstinent)
@@ -469,7 +469,7 @@ void do_drink_drunk(CharData *ch, ObjData *jar, int amount) {
 			SendMsgToChar("Винные пары ударили вам в голову.\r\n", ch);
 			// **** Decrease AC ***** //
 			Affect<EApply> af;
-			af.type = kSpellDrunked;
+			af.type = ESpell::kDrunked;
 			af.duration = CalcDuration(ch, duration, 0, 0, 0, 0);
 			af.modifier = -20;
 			af.location = EApply::kAc;
@@ -477,7 +477,7 @@ void do_drink_drunk(CharData *ch, ObjData *jar, int amount) {
 			af.battleflag = 0;
 			ImposeAffect(ch, af, false, false, false, false);
 			// **** Decrease HR ***** //
-			af.type = kSpellDrunked;
+			af.type = ESpell::kDrunked;
 			af.duration = CalcDuration(ch, duration, 0, 0, 0, 0);
 			af.modifier = -2;
 			af.location = EApply::kHitroll;
@@ -485,7 +485,7 @@ void do_drink_drunk(CharData *ch, ObjData *jar, int amount) {
 			af.battleflag = 0;
 			ImposeAffect(ch, af, false, false, false, false);
 			// **** Increase DR ***** //
-			af.type = kSpellDrunked;
+			af.type = ESpell::kDrunked;
 			af.duration = CalcDuration(ch, duration, 0, 0, 0, 0);
 			af.modifier = (GetRealLevel(ch) + 4) / 5;
 			af.location = EApply::kDamroll;
@@ -558,7 +558,7 @@ void do_drink(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		) {
 		// Не понимаю зачем делить на 4, но оставим для пьянки 2
 		gain_condition(ch, DRUNK, (int) ((int) drink_aff[GET_OBJ_VAL(jar, 2)][DRUNK] * amount) / 2);
-		GET_DRUNK_STATE(ch) = MAX(GET_DRUNK_STATE(ch), GET_COND(ch, DRUNK));
+		GET_DRUNK_STATE(ch) = std::max(GET_DRUNK_STATE(ch), GET_COND(ch, DRUNK));
 	}
 
 	if (drink_aff[GET_OBJ_VAL(jar, 2)][FULL] != 0) {
@@ -672,17 +672,17 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 	}
 
-	amount = MAX(1, GET_WEIGHT(ch) / 50);
+	amount = std::max(1, GET_WEIGHT(ch) / 50);
 	if (amount > GET_OBJ_VAL(obj, 1)) {
 		SendMsgToChar("Вам точно не хватит этого количества для опохмела...\r\n", ch);
 		return;
 	}
 
 	timed.skill = ESkill::kHangovering;
-	timed.time = IsAbleToUseFeat(ch, EFeat::kDrunkard) ? GetModifier(EFeat::kDrunkard, kFeatTimer) : 12;
+	timed.time = CanUseFeat(ch, EFeat::kDrunkard) ? GetModifier(EFeat::kDrunkard, kFeatTimer) : 12;
 	ImposeTimedSkill(ch, &timed);
 
-	percent = number(1, MUD::Skills()[ESkill::kHangovering].difficulty);
+	percent = number(1, MUD::Skills(ESkill::kHangovering).difficulty);
 	prob = CalcCurrentSkill(ch, ESkill::kHangovering, nullptr);
 	TrainSkill(ch, ESkill::kHangovering, percent <= prob, nullptr);
 	amount = MIN(amount, GET_OBJ_VAL(obj, 1));
@@ -700,27 +700,27 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		sprintf(buf, "Вы отхлебнули %s из $o1, но ваша голова стала еще тяжелее...", drinks[GET_OBJ_VAL(obj, 2)]);
 		act(buf, false, ch, obj, 0, kToChar);
 		act("$n попробовал$g похмелиться, но это не пошло $m на пользу.", false, ch, 0, 0, kToRoom);
-		duration = MAX(1, amount / 3);
+		duration = std::max(1, amount / 3);
 		Affect<EApply> af[3];
-		af[0].type = kSpellAbstinent;
+		af[0].type = ESpell::kAbstinent;
 		af[0].duration = CalcDuration(ch, duration, 0, 0, 0, 0);
 		af[0].modifier = 0;
 		af[0].location = EApply::kDamroll;
 		af[0].bitvector = to_underlying(EAffect::kAbstinent);
 		af[0].battleflag = 0;
-		af[1].type = kSpellAbstinent;
+		af[1].type = ESpell::kAbstinent;
 		af[1].duration = CalcDuration(ch, duration, 0, 0, 0, 0);
 		af[1].modifier = 0;
 		af[1].location = EApply::kHitroll;
 		af[1].bitvector = to_underlying(EAffect::kAbstinent);
 		af[1].battleflag = 0;
-		af[2].type = kSpellAbstinent;
+		af[2].type = ESpell::kAbstinent;
 		af[2].duration = CalcDuration(ch, duration, 0, 0, 0, 0);
 		af[2].modifier = 0;
 		af[2].location = EApply::kAc;
 		af[2].bitvector = to_underlying(EAffect::kAbstinent);
 		af[2].battleflag = 0;
-		switch (number(0, ch->get_skill(ESkill::kHangovering) / 20)) {
+		switch (number(0, ch->GetSkill(ESkill::kHangovering) / 20)) {
 			case 0:
 			case 1: af[0].modifier = -2;
 				break;
@@ -742,87 +742,87 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				drinks[GET_OBJ_VAL(obj, 2)]);
 		act(buf, false, ch, obj, 0, kToChar);
 		act("$n похмелил$u и расцвел$g прям на глазах.", false, ch, 0, 0, kToRoom);
-		affect_from_char(ch, kSpellAbstinent);
+		RemoveAffectFromChar(ch, ESpell::kAbstinent);
 	}
 
 	return;
 }
 
-void generate_drinkcon_name(ObjData *to_obj, int spell) {
-	switch (spell) {
+void generate_drinkcon_name(ObjData *to_obj, ESpell spell_id) {
+	switch (spell_id) {
 		// восстановление (красное) //
-		case kSpellResfresh:
-		case kSpellGroupRefresh: to_obj->set_val(2, LIQ_POTION_RED);
+		case ESpell::kResfresh:
+		case ESpell::kGroupRefresh: to_obj->set_val(2, LIQ_POTION_RED);
 			name_to_drinkcon(to_obj, LIQ_POTION_RED);
 			break;
 			// насыщение (синее) //
-		case kSpellFullFeed:
-		case kSpellCommonMeal: to_obj->set_val(2, LIQ_POTION_BLUE);
+		case ESpell::kFullFeed:
+		case ESpell::kCommonMeal: to_obj->set_val(2, LIQ_POTION_BLUE);
 			name_to_drinkcon(to_obj, LIQ_POTION_BLUE);
 			break;
 			// детекты (белое) //
-		case kSpellDetectInvis:
-		case kSpellAllSeeingEye:
-		case kSpellDetectMagic:
-		case kSpellMagicalGaze:
-		case kSpellDetectPoison:
-		case kSpellSnakeEyes:
-		case kSpellDetectAlign:
-		case kSpellGroupSincerity:
-		case kSpellSenseLife:
-		case kSpellEyeOfGods:
-		case kSpellInfravision:
-		case kSpellSightOfDarkness: to_obj->set_val(2, LIQ_POTION_WHITE);
+		case ESpell::kDetectInvis:
+		case ESpell::kAllSeeingEye:
+		case ESpell::kDetectMagic:
+		case ESpell::kMagicalGaze:
+		case ESpell::kDetectPoison:
+		case ESpell::kSnakeEyes:
+		case ESpell::kDetectAlign:
+		case ESpell::kGroupSincerity:
+		case ESpell::kSenseLife:
+		case ESpell::kEyeOfGods:
+		case ESpell::kInfravision:
+		case ESpell::kSightOfDarkness: to_obj->set_val(2, LIQ_POTION_WHITE);
 			name_to_drinkcon(to_obj, LIQ_POTION_WHITE);
 			break;
 			// защитные (золотистое) //
-		case kSpellArmor:
-		case kSpellGroupArmor:
-		case kSpellCloudly: to_obj->set_val(2, LIQ_POTION_GOLD);
+		case ESpell::kArmor:
+		case ESpell::kGroupArmor:
+		case ESpell::kCloudly: to_obj->set_val(2, LIQ_POTION_GOLD);
 			name_to_drinkcon(to_obj, LIQ_POTION_GOLD);
 			break;
 			// восстанавливающие здоровье (черное) //
-		case kSpellCureCritic:
-		case kSpellCureLight:
-		case kSpellHeal:
-		case kSpellGroupHeal:
-		case kSpellCureSerious: to_obj->set_val(2, LIQ_POTION_BLACK);
+		case ESpell::kCureCritic:
+		case ESpell::kCureLight:
+		case ESpell::kHeal:
+		case ESpell::kGroupHeal:
+		case ESpell::kCureSerious: to_obj->set_val(2, LIQ_POTION_BLACK);
 			name_to_drinkcon(to_obj, LIQ_POTION_BLACK);
 			break;
 			// снимающее вредные аффекты (серое) //
-		case kSpellCureBlind:
-		case kSpellRemoveCurse:
-		case kSpellRemoveHold:
-		case kSpellRemoveSilence:
-		case kSpellCureFever:
-		case kSpellRemoveDeafness:
-		case kSpellRemovePoison: to_obj->set_val(2, LIQ_POTION_GREY);
+		case ESpell::kCureBlind:
+		case ESpell::kRemoveCurse:
+		case ESpell::kRemoveHold:
+		case ESpell::kRemoveSilence:
+		case ESpell::kCureFever:
+		case ESpell::kRemoveDeafness:
+		case ESpell::kRemovePoison: to_obj->set_val(2, LIQ_POTION_GREY);
 			name_to_drinkcon(to_obj, LIQ_POTION_GREY);
 			break;
 			// прочие полезности (фиолетовое) //
-		case kSpellInvisible:
-		case kSpellGroupInvisible:
-		case kSpellStrength:
-		case kSpellGroupStrength:
-		case kSpellFly:
-		case kSpellGroupFly:
-		case kSpellBless:
-		case kSpellGroupBless:
-		case kSpellHaste:
-		case kSpellGroupHaste:
-		case kSpellStoneSkin:
-		case kSpellStoneWall:
-		case kSpellBlink:
-		case kSpellExtraHits:
-		case kSpellWaterbreath: to_obj->set_val(2, LIQ_POTION_FUCHSIA);
+		case ESpell::kInvisible:
+		case ESpell::kGroupInvisible:
+		case ESpell::kStrength:
+		case ESpell::kGroupStrength:
+		case ESpell::kFly:
+		case ESpell::kGroupFly:
+		case ESpell::kBless:
+		case ESpell::kGroupBless:
+		case ESpell::kHaste:
+		case ESpell::kGroupHaste:
+		case ESpell::kStoneSkin:
+		case ESpell::kStoneWall:
+		case ESpell::kBlink:
+		case ESpell::kExtraHits:
+		case ESpell::kWaterbreath: to_obj->set_val(2, LIQ_POTION_FUCHSIA);
 			name_to_drinkcon(to_obj, LIQ_POTION_FUCHSIA);
 			break;
-		case kSpellPrismaticAura:
-		case kSpellGroupPrismaticAura:
-		case kSpellAirAura:
-		case kSpellEarthAura:
-		case kSpellFireAura:
-		case kSpellIceAura: to_obj->set_val(2, LIQ_POTION_PINK);
+		case ESpell::kPrismaticAura:
+		case ESpell::kGroupPrismaticAura:
+		case ESpell::kAirAura:
+		case ESpell::kEarthAura:
+		case ESpell::kFireAura:
+		case ESpell::kIceAura: to_obj->set_val(2, LIQ_POTION_PINK);
 			name_to_drinkcon(to_obj, LIQ_POTION_PINK);
 			break;
 		default: to_obj->set_val(2, LIQ_POTION);
@@ -1041,7 +1041,7 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			if (GET_OBJ_VAL(to_obj, 1) == 0) {
 				copy_potion_values(from_obj, to_obj);
 				// определение названия зелья по содержащемуся заклинанию //
-				generate_drinkcon_name(to_obj, GET_OBJ_VAL(from_obj, 1));
+				generate_drinkcon_name(to_obj, static_cast<ESpell>(GET_OBJ_VAL(from_obj, 1)));
 			}
 			weight_change_object(to_obj, 1);
 			to_obj->inc_val(1);
@@ -1197,7 +1197,7 @@ std::string print_spell(CharData *ch, const ObjData *obj, int num) {
 	char buf_[kMaxInputLength];
 	snprintf(buf_, sizeof(buf_), "Содержит заклинание: %s%s (%d ур.)%s\r\n",
 			 CCCYN(ch, C_NRM),
-			 GetSpellName(obj->get_value(spell)),
+			 GetSpellName(static_cast<ESpell>(obj->get_value(spell))),
 			 obj->get_value(level),
 			 CCNRM(ch, C_NRM));
 

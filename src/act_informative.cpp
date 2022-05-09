@@ -12,7 +12,7 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include "world_objects.h"
+#include "entities/world_objects.h"
 #include "entities/world_characters.h"
 #include "entities/entities_constants.h"
 #include "obj_prototypes.h"
@@ -107,7 +107,7 @@ void list_obj_to_char(ObjData *list, CharData *ch, int mode, int show);
 char *diag_obj_to_char(CharData *i, ObjData *obj, int mode);
 const char *diag_obj_timer(const ObjData *obj);
 char *diag_timer_to_char(const ObjData *obj);
-int thaco(int class_num, int level);
+int GetThac0(ECharClass class_id, int level);
 
 void do_affects(CharData *ch, char *argument, int cmd, int subcmd);
 void do_look(CharData *ch, char *argument, int cmd, int subcmd);
@@ -302,28 +302,28 @@ char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear) {
 		}
 		if (show_wear > 1) {
 			if (CAN_WEAR(obj, EWearFlag::kShield)) {
-				need_str = MAX(0, calc_str_req((GET_OBJ_WEIGHT(obj) + 1) / 2, STR_HOLD_W));
+				need_str = std::max(0, calc_str_req((GET_OBJ_WEIGHT(obj) + 1) / 2, STR_HOLD_W));
 				sprintf(out_str + strlen(out_str),
 						"Можно использовать как щит (требуется %d %s).\r\n",
 						need_str,
 						GetDeclensionInNumber(need_str, EWhat::kStr));
 			}
 			if (CAN_WEAR(obj, EWearFlag::kWield)) {
-				need_str = MAX(0, calc_str_req(GET_OBJ_WEIGHT(obj), STR_WIELD_W));
+				need_str = std::max(0, calc_str_req(GET_OBJ_WEIGHT(obj), STR_WIELD_W));
 				sprintf(out_str + strlen(out_str),
 						"Можно взять в правую руку (требуется %d %s).\r\n",
 						need_str,
 						GetDeclensionInNumber(need_str, EWhat::kStr));
 			}
 			if (CAN_WEAR(obj, EWearFlag::kHold)) {
-				need_str = MAX(0, calc_str_req(GET_OBJ_WEIGHT(obj), STR_HOLD_W));
+				need_str = std::max(0, calc_str_req(GET_OBJ_WEIGHT(obj), STR_HOLD_W));
 				sprintf(out_str + strlen(out_str),
 						"Можно взять в левую руку (требуется %d %s).\r\n",
 						need_str,
 						GetDeclensionInNumber(need_str, EWhat::kStr));
 			}
 			if (CAN_WEAR(obj, EWearFlag::kBoth)) {
-				need_str = MAX(0, calc_str_req(GET_OBJ_WEIGHT(obj), STR_BOTH_W));
+				need_str = std::max(0, calc_str_req(GET_OBJ_WEIGHT(obj), STR_BOTH_W));
 				sprintf(out_str + strlen(out_str),
 						"Можно взять в обе руки (требуется %d %s).\r\n",
 						need_str,
@@ -384,7 +384,7 @@ char *diag_uses_to_char(ObjData *obj, CharData *ch) {
 	*out_str = 0;
 	if (GET_OBJ_TYPE(obj) == EObjType::kIngredient
 		&& IS_SET(GET_OBJ_SKILL(obj), kItemCheckUses)
-		&& GET_CLASS(ch) == kMagus) {
+		&& IS_MANA_CASTER(ch)) {
 		int i = -1;
 		if ((i = real_object(GET_OBJ_VAL(obj, 1))) >= 0) {
 			sprintf(out_str, "Прототип: %s%s%s.\r\n",
@@ -401,7 +401,7 @@ char *diag_shot_to_char(ObjData *obj, CharData *ch) {
 
 	*out_str = 0;
 	if (GET_OBJ_TYPE(obj) == EObjType::kMagicContaner
-		&& (GET_CLASS(ch) == kRanger || GET_CLASS(ch) == kCharmer || GET_CLASS(ch) == kMagus)) {
+		&& (ch->GetClass() == ECharClass::kRanger || ch->GetClass() == ECharClass::kCharmer || IS_MANA_CASTER(ch))) {
 		sprintf(out_str + strlen(out_str), "Осталось стрел: %s%d&n.\r\n",
 				GET_OBJ_VAL(obj, 2) > 3 ? "&G" : "&R", GET_OBJ_VAL(obj, 2));
 	}
@@ -524,7 +524,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 					sprintf(buf2, " (%d %s)",
 							GET_OBJ_VAL(object, 2), GetDeclensionInNumber(GET_OBJ_VAL(object, 2), EWhat::kHour));
 			} else {
-				if (object->timed_spell().is_spell_poisoned() != -1) {
+				if (object->timed_spell().IsSpellPoisoned() != ESpell::kUndefined) {
 					sprintf(buf2, " %s*%s%s", CCGRN(ch, C_NRM),
 							CCNRM(ch, C_NRM), diag_obj_to_char(ch, object, 1));
 				} else {
@@ -883,7 +883,7 @@ void look_at_char(CharData *i, CharData *ch) {
 			act("$n скоро перестанет следовать за вами.", false, i, nullptr, ch, kToVict);
 		} else {
 			for (const auto &aff : i->affected) {
-				if (aff->type == kSpellCharm) {
+				if (aff->type == ESpell::kCharm) {
 					sprintf(buf,
 							IS_POLY(i) ? "$n будут слушаться вас еще %d %s." : "$n будет слушаться вас еще %d %s.",
 							aff->duration/2,
@@ -939,7 +939,7 @@ void look_at_char(CharData *i, CharData *ch) {
 		}
 	}
 
-	if (ch != i && (ch->get_skill(ESkill::kPry) || IS_IMMORTAL(ch))) {
+	if (ch != i && (ch->GetSkill(ESkill::kPry) || IS_IMMORTAL(ch))) {
 		found = false;
 		act("\r\nВы попытались заглянуть в $s ношу:", false, i, nullptr, ch, kToVict);
 		for (tmp_obj = i->carrying; tmp_obj; tmp_obj = tmp_obj->get_next_content()) {
@@ -1243,7 +1243,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		else
 			strcat(buf,
 				   IS_POLY(i) ? poly_positions[static_cast<int>(GET_POS(i))] : positions[static_cast<int>(GET_POS(i))]);
-		if (AFF_FLAGGED(ch, EAffect::kDetectMagic) && i->IsNpc() && IsAffectedBySpell(i, kSpellCapable))
+		if (AFF_FLAGGED(ch, EAffect::kDetectMagic) && i->IsNpc() && IsAffectedBySpell(i, ESpell::kCapable))
 			sprintf(buf + strlen(buf), "(аура магии) ");
 	} else {
 		if (i->GetEnemy()) {
@@ -1800,7 +1800,7 @@ void show_room_affects(CharData *ch, const char *name_affects[], const char *nam
 					SET_BIT(bitvector, room_spells::ERoomAffect::kThunderstorm);
 				}
 				break;
-			default: log("SYSERR: Unknown room affect: %d", af->type);
+			default: log("SYSERR: Unknown room affect: %d", to_underlying(af->type));
 		}
 	}
 
@@ -1815,7 +1815,7 @@ void look_at_room(CharData *ch, int ignore_brief) {
 	if (!ch->desc)
 		return;
 
-	if (is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !IsAbleToUseFeat(ch, EFeat::kDarkReading)) {
+	if (is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !CanUseFeat(ch, EFeat::kDarkReading)) {
 		SendMsgToChar("Слишком темно...\r\n", ch);
 		show_glow_objs(ch);
 		return;
@@ -1943,7 +1943,7 @@ void look_at_room(CharData *ch, int ignore_brief) {
 		}
 	}
 	SendMsgToChar("&Y&q", ch);
-	if (ch->get_skill(ESkill::kTownportal)) {
+	if (ch->GetSkill(ESkill::kTownportal)) {
 		if (find_portal_by_vnum(GET_ROOM_VNUM(ch->in_room))) {
 			SendMsgToChar("Рунный камень с изображением пентаграммы немного выступает из земли.\r\n", ch);
 		}
@@ -1961,7 +1961,7 @@ void look_at_room(CharData *ch, int ignore_brief) {
 		if (zone_table[world[ch->get_from_room()]->zone_rn].vnum != zone_table[inroom].vnum) {
 			if (PRF_FLAGGED(ch, EPrf::kShowZoneNameOnEnter))
 				print_zone_info(ch);
-			if ((ch->get_level() < kLvlImmortal) && !ch->get_master())
+			if ((ch->GetLevel() < kLvlImmortal) && !ch->get_master())
 				++zone_table[inroom].traffic;
 		}
 	}
@@ -1983,7 +1983,7 @@ void look_in_direction(CharData *ch, int dir, int info_is) {
 				count += sprintf(buf + count, " закрыто (вероятно дверь).\r\n");
 			}
 
-			const int skill_pick = ch->get_skill(ESkill::kPickLock);
+			const int skill_pick = ch->GetSkill(ESkill::kPickLock);
 			if (EXIT_FLAGGED(rdata, EExitFlag::kLocked) && skill_pick) {
 				if (EXIT_FLAGGED(rdata, EExitFlag::kPickroof)) {
 					count += sprintf(buf + count - 2,
@@ -2009,7 +2009,7 @@ void look_in_direction(CharData *ch, int dir, int info_is) {
 				SendMsgToChar("&R&q", ch);
 				count = 0;
 				for (const auto tch : world[rdata->to_room()]->people) {
-					percent = number(1, MUD::Skills()[ESkill::kLooking].difficulty);
+					percent = number(1, MUD::Skills(ESkill::kLooking).difficulty);
 					probe = CalcCurrentSkill(ch, ESkill::kLooking, tch);
 					TrainSkill(ch, ESkill::kLooking, probe >= percent, tch);
 					if (HERE(tch) && INVIS_OK(ch, tch) && probe >= percent
@@ -2061,7 +2061,7 @@ void hear_in_direction(CharData *ch, int dir, int info_is) {
 		SendMsgToChar(buf, ch);
 		count = 0;
 		for (const auto tch : world[rdata->to_room()]->people) {
-			percent = number(1, MUD::Skills()[ESkill::kHearing].difficulty);
+			percent = number(1, MUD::Skills(ESkill::kHearing).difficulty);
 			probe = CalcCurrentSkill(ch, ESkill::kHearing, tch);
 			TrainSkill(ch, ESkill::kHearing, probe >= percent, tch);
 			// Если сражаются то слышем только борьбу.
@@ -2173,7 +2173,7 @@ void look_in_obj(CharData *ch, char *arg) {
 		if (GET_OBJ_TYPE(obj) == EObjType::kContainer) {
 			if (OBJVAL_FLAGGED(obj, EContainerFlag::kShutted)) {
 				act("Закрыт$A.", false, ch, obj, nullptr, kToChar);
-				const int skill_pick = ch->get_skill(ESkill::kPickLock);
+				const int skill_pick = ch->GetSkill(ESkill::kPickLock);
 				int count = sprintf(buf, "Заперт%s.", GET_OBJ_SUF_6(obj));
 				if (OBJVAL_FLAGGED(obj, EContainerFlag::kLockedUp) && skill_pick) {
 					if (OBJVAL_FLAGGED(obj, EContainerFlag::kUncrackable))
@@ -2277,14 +2277,14 @@ const char *diag_liquid_timer(const ObjData *obj) {
 //buf это буфер в который дописывать инфу, в нем уже может быть что-то иначе надо перед вызовом присвоить *buf='\0'
 void obj_info(CharData *ch, ObjData *obj, char buf[kMaxStringLength]) {
 	int j;
-	if (IsAbleToUseFeat(ch, EFeat::kSkilledTrader) || PRF_FLAGGED(ch, EPrf::kHolylight) || ch->get_skill(ESkill::kJewelry)) {
+	if (CanUseFeat(ch, EFeat::kSkilledTrader) || PRF_FLAGGED(ch, EPrf::kHolylight) || ch->GetSkill(ESkill::kJewelry)) {
 		sprintf(buf + strlen(buf), "Материал : %s", CCCYN(ch, C_NRM));
 		sprinttype(obj->get_material(), material_name, buf + strlen(buf));
 		sprintf(buf + strlen(buf), "\r\n%s", CCNRM(ch, C_NRM));
 	}
 
 	if (GET_OBJ_TYPE(obj) == EObjType::kMagicIngredient
-		&& (IsAbleToUseFeat(ch, EFeat::kHerbalist)
+		&& (CanUseFeat(ch, EFeat::kHerbalist)
 			|| PRF_FLAGGED(ch, EPrf::kHolylight))) {
 		for (j = 0; imtypes[j].id != GET_OBJ_VAL(obj, IM_TYPE_SLOT) && j <= top_imtypes;) {
 			j++;
@@ -2311,7 +2311,7 @@ void obj_info(CharData *ch, ObjData *obj, char buf[kMaxStringLength]) {
 	}
 
 	//|| EPrf::FLAGGED(ch, EPrf::HOLYLIGHT)
-	if (IsAbleToUseFeat(ch, EFeat::kJeweller)) {
+	if (CanUseFeat(ch, EFeat::kJeweller)) {
 		sprintf(buf + strlen(buf), "Слоты : %s", CCCYN(ch, C_NRM));
 		if (obj->has_flag(EObjFlag::kHasThreeSlots)) {
 			strcat(buf, "доступно 3 слота\r\n");
@@ -2385,7 +2385,7 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 
 	// для townportal
 	if (isname(whatp, "камень") &&
-		ch->get_skill(ESkill::kTownportal) &&
+		ch->GetSkill(ESkill::kTownportal) &&
 		(port = get_portal(GET_ROOM_VNUM(ch->in_room), nullptr)) != nullptr && IS_SET(where_bits, EFind::kObjRoom)) {
 
 		if (has_char_portal(ch, GET_ROOM_VNUM(ch->in_room))) {
@@ -2440,8 +2440,8 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 			return false;
 		look_at_char(found_char, ch);
 		if (ch != found_char) {
-			if (subcmd == SCMD_LOOK_HIDE && ch->get_skill(ESkill::kPry) > 0) {
-				fnum = number(1, MUD::Skills()[ESkill::kPry].difficulty);
+			if (subcmd == SCMD_LOOK_HIDE && ch->GetSkill(ESkill::kPry) > 0) {
+				fnum = number(1, MUD::Skills(ESkill::kPry).difficulty);
 				found = CalcCurrentSkill(ch, ESkill::kPry, found_char);
 				TrainSkill(ch, ESkill::kPry, found < fnum, found_char);
 				if (!IS_IMMORTAL(ch))
@@ -2502,10 +2502,10 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 
 void skip_hide_on_look(CharData *ch) {
 	if (AFF_FLAGGED(ch, EAffect::kHide) &&
-		((!ch->get_skill(ESkill::kPry) ||
+		((!ch->GetSkill(ESkill::kPry) ||
 			((number(1, 100) -
 				CalcCurrentSkill(ch, ESkill::kPry, nullptr) - 2 * (ch->get_wis() - 9)) > 0)))) {
-		affect_from_char(ch, kSpellHide);
+		RemoveAffectFromChar(ch, ESpell::kHide);
 		if (!AFF_FLAGGED(ch, EAffect::kHide)) {
 			SendMsgToChar("Вы прекратили прятаться.\r\n", ch);
 			act("$n прекратил$g прятаться.", false, ch, nullptr, nullptr, kToRoom);
@@ -2607,7 +2607,7 @@ void do_looking(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 		SendMsgToChar("Виделся часто сон беспокойный...\r\n", ch);
 	else if (AFF_FLAGGED(ch, EAffect::kBlind))
 		SendMsgToChar("Вы ослеплены!\r\n", ch);
-	else if (ch->get_skill(ESkill::kLooking)) {
+	else if (ch->GetSkill(ESkill::kLooking)) {
 		if (check_moves(ch, kLookingMoves)) {
 			SendMsgToChar("Вы напрягли зрение и начали присматриваться по сторонам.\r\n", ch);
 			for (i = 0; i < EDirection::kMaxDirNum; i++)
@@ -2634,7 +2634,7 @@ void do_hearing(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 		SendMsgToChar("Вам начали слышаться голоса предков, зовущие вас к себе.\r\n", ch);
 	if (GET_POS(ch) == EPosition::kSleep)
 		SendMsgToChar("Морфей медленно задумчиво провел рукой по струнам и заиграл колыбельную.\r\n", ch);
-	else if (ch->get_skill(ESkill::kHearing)) {
+	else if (ch->GetSkill(ESkill::kHearing)) {
 		if (check_moves(ch, kHearingMoves)) {
 			SendMsgToChar("Вы начали сосредоточенно прислушиваться.\r\n", ch);
 			for (i = 0; i < EDirection::kMaxDirNum; i++)
@@ -2683,7 +2683,7 @@ void do_examine(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 
 	if (isname(arg, "камень") &&
-		ch->get_skill(ESkill::kTownportal) &&
+		ch->GetSkill(ESkill::kTownportal) &&
 		(get_portal(GET_ROOM_VNUM(ch->in_room), nullptr)) != nullptr && IS_SET(where_bits, EFind::kObjRoom))
 		return;
 
@@ -3155,7 +3155,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (who_room && (tch->in_room != ch->in_room)) {
 			continue;
 		}
-		if (showclass != ECharClass::kUndefined && showclass != tch->get_class()) {
+		if (showclass != ECharClass::kUndefined && showclass != tch->GetClass()) {
 			continue;
 		}
 		if (showname && !(!NAME_GOD(tch) && GetRealLevel(tch) <= kNameLevel)) {
@@ -3175,7 +3175,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (IS_IMPL(ch) || PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
 				sprintf(buf, "%s[%2d %s] %-30s%s",
 						IS_GOD(tch) ? CCWHT(ch, C_SPR) : "",
-						GetRealLevel(tch), MUD::Classes()[tch->get_class()].GetCName(),
+						GetRealLevel(tch), MUD::Classes(tch->GetClass()).GetCName(),
 						tmp, IS_GOD(tch) ? CCNRM(ch, C_SPR) : "");
 			} else {
 				sprintf(buf, "%s%-30s%s",
@@ -3189,7 +3189,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "",
 						GetRealLevel(tch),
 						GET_REAL_REMORT(tch),
-						MUD::Classes()[tch->get_class()].GetAbbr().c_str(),
+						MUD::Classes(tch->GetClass()).GetAbbr().c_str(),
 						tch->get_pfilepos(),
 						CCPK(ch, C_NRM, tch),
 						IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "", tch->race_or_title().c_str(), CCNRM(ch, C_NRM));
@@ -3358,10 +3358,10 @@ void do_statistic(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 		pk_count(tch.get()) >= 1 ? ++pk : ++nopk;
 
 		if (GetRealLevel(tch) >= 25) {
-			++players[(tch->get_class())].first;
+			++players[(tch->GetClass())].first;
 			++hilvl;
 		} else {
-			++players[(tch->get_class())].second;
+			++players[(tch->GetClass())].second;
 			++lowlvl;
 		}
 		++total;
@@ -3378,7 +3378,7 @@ void do_statistic(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 	const int class_name_col_width{15};
 	const int number_col_width{3};
 	for (const auto &it : players) {
-		out << std::left << std::setw(class_name_col_width) << MUD::Classes()[it.first].GetPluralName() << " "
+		out << std::left << std::setw(class_name_col_width) << MUD::Classes(it.first).GetPluralName() << " "
 			<< KIRED << "[" << KICYN
 			<< std::setw(number_col_width) << std::right << it.second.first + it.second.second
 			<< KIRED << "|" << KICYN
@@ -3949,7 +3949,7 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 void do_zone(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (ch->desc
-		&& !(is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !IsAbleToUseFeat(ch, EFeat::kDarkReading))
+		&& !(is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !CanUseFeat(ch, EFeat::kDarkReading))
 		&& !AFF_FLAGGED(ch, EAffect::kBlind)) {
 		MapSystem::print_map(ch);
 	}
@@ -4035,7 +4035,7 @@ void do_commands(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		} else {
 			i = cmd_sort_info[cmd_num].sort_pos;
 			if (cmd_info[i].minimum_level >= 0
-				&& (privilege::IsAbleToDoPrivilege(vict, std::string(cmd_info[i].command), i, 0))
+				&& (privilege::HasPrivilege(vict, std::string(cmd_info[i].command), i, 0))
 				&& (cmd_info[i].minimum_level >= kLvlImmortal) == wizhelp
 				&& (wizhelp || socials == cmd_sort_info[i].is_social)) {
 				sprintf(buf + strlen(buf), "%-15s", cmd_info[i].command);
@@ -4071,7 +4071,7 @@ void do_affects(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 		for (auto affect_i = ch->affected.begin(); affect_i != ch->affected.end(); ++affect_i) {
 			const auto aff = *affect_i;
 
-			if (aff->type == kSpellSolobonus) {
+			if (aff->type == ESpell::kSolobonus) {
 				continue;
 			}
 
@@ -4123,7 +4123,7 @@ void do_affects(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 		}
 // отображение наград
 		for (const auto &aff : ch->affected) {
-			if (aff->type == kSpellSolobonus) {
+			if (aff->type == ESpell::kSolobonus) {
 				int mod;
 				if (aff->battleflag == kAfPulsedec) {
 					mod = aff->duration / 51; //если в пульсах приводим к тикам	25.5 в сек 2 минуты

@@ -4,16 +4,15 @@
 #include "handler.h"
 #include "color.h"
 #include "game_classes/classes_spell_slots.h"
-#include "game_magic/magic_utils.h" //включен ради функци поиска спеллов, которые по-хорошеиу должны быть где-то в утилитах.
+#include "game_magic/magic_utils.h"
+#include "structs/global_objects.h"
 
-using PlayerClass::CalcCircleSlotsAmount;
+using classes::CalcCircleSlotsAmount;
 
 void show_wizdom(CharData *ch, int bitset);
-void do_memorize(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 
 void do_memorize(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char *s;
-	int spellnum;
 
 	// get: blank, spell name, target name
 	if (!argument || !(*argument)) {
@@ -34,31 +33,31 @@ void do_memorize(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Название заклинания должно быть заключено в символы : ' или * или !\r\n", ch);
 		return;
 	}
-	spellnum = FixNameAndFindSpellNum(s);
 
-	if (spellnum < 1 || spellnum > kSpellCount) {
+	auto spell_id = FixNameAndFindSpellId(s);
+	if (spell_id == ESpell::kUndefined) {
 		SendMsgToChar("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
 	}
-	// Caster is lower than spell level
-	if (GetRealLevel(ch) < MIN_CAST_LEV(spell_info[spellnum], ch)
-		|| GET_REAL_REMORT(ch) < MIN_CAST_REM(spell_info[spellnum], ch)
-		|| CalcCircleSlotsAmount(ch, spell_info[spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0) {
+
+	const auto spell = MUD::Classes(ch->GetClass()).spells[spell_id];
+	if (GetRealLevel(ch) < CalcMinSpellLvl(ch, spell_id)
+		|| GET_REAL_REMORT(ch) < spell.GetMinRemort()
+		|| CalcCircleSlotsAmount(ch, spell.GetCircle()) <= 0) {
 		SendMsgToChar("Рано еще вам бросаться такими словами!\r\n", ch);
 		return;
 	};
-	if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), kSpellKnow | kSpellTemp)) {
+	if (!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow | ESpellType::kTemp)) {
 		SendMsgToChar("Было бы неплохо изучить, для начала, это заклинание...\r\n", ch);
 		return;
 	}
-	MemQ_remember(ch, spellnum);
-	return;
+	MemQ_remember(ch, spell_id);
 }
 
 void show_wizdom(CharData *ch, int bitset) {
-	char names[kMaxSlot][kMaxStringLength];
-	int slots[kMaxSlot], i, max_slot, count, slot_num, is_full, gcount = 0, imax_slot = 0;
-	for (i = 1; i <= kMaxSlot; i++) {
+	char names[kMaxMemoryCircle][kMaxStringLength];
+	int slots[kMaxMemoryCircle], i, max_slot, count, slot_num, is_full, gcount = 0, imax_slot = 0;
+	for (i = 1; i <= kMaxMemoryCircle; i++) {
 		*names[i - 1] = '\0';
 		slots[i - 1] = 0;
 		if (CalcCircleSlotsAmount(ch, i))
@@ -66,22 +65,25 @@ void show_wizdom(CharData *ch, int bitset) {
 	}
 	if (bitset & 0x01) {
 		is_full = 0;
-		for (i = 1, max_slot = 0; i <= kSpellCount; i++) {
-			if (!GET_SPELL_TYPE(ch, i))
+		max_slot = 0;
+		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
+			if (!GET_SPELL_TYPE(ch, spell_id)) {
 				continue;
-			if (!spell_info[i].name || *spell_info[i].name == '!')
+			}
+			if (!spell_info[spell_id].name || *spell_info[spell_id].name == '!') {
 				continue;
-			count = GET_SPELL_MEM(ch, i);
+			}
+			count = GET_SPELL_MEM(ch, spell_id);
 			if (IS_IMMORTAL(ch))
 				count = 10;
 			if (!count)
 				continue;
-			slot_num = spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;
-			max_slot = MAX(slot_num, max_slot);
+			slot_num = MUD::Classes(ch->GetClass()).spells[spell_id].GetCircle() - 1;
+			max_slot = std::max(slot_num, max_slot);
 			slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
 									   "%2s|[%2d] %-31s|",
 									   slots[slot_num] % 80 <
-										   10 ? "\r\n" : "  ", count, spell_info[i].name);
+										   10 ? "\r\n" : "  ", count, spell_info[spell_id].name);
 			is_full++;
 		};
 
@@ -103,18 +105,18 @@ void show_wizdom(CharData *ch, int bitset) {
 		struct SpellMemQueueItem *q;
 		char timestr[16];
 		is_full = 0;
-		for (i = 0; i < kMaxSlot; i++) {
+		for (i = 0; i < kMaxMemoryCircle; i++) {
 			*names[i] = '\0';
 			slots[i] = 0;
 		}
 
 		if (!ch->mem_queue.Empty()) {
-			unsigned char cnt[kSpellCount + 1];
-			memset(cnt, 0, kSpellCount + 1);
+			ESpell cnt [to_underlying(ESpell::kLast) + 1];
+			memset(cnt, 0, to_underlying(ESpell::kLast) + 1);
 			timestr[0] = 0;
 			if (!IS_MANA_CASTER(ch)) {
 				int div, min, sec;
-				div = mana_gain(ch);
+				div = CalcManaGain(ch);
 				if (div > 0) {
 					sec = std::max(0, 1 + GET_MEM_CURRENT(ch) - ch->mem_queue.stored);    // sec/div -- время мема в мин
 					sec = sec * 60 / div;    // время мема в сек
@@ -129,21 +131,23 @@ void show_wizdom(CharData *ch, int bitset) {
 				}
 			}
 
-			for (q = ch->mem_queue.queue; q; q = q->link) {
-				++cnt[q->spellnum];
+			for (q = ch->mem_queue.queue; q; q = q->next) {
+				++cnt[to_underlying(q->spell_id)];
 			}
 
-			for (q = ch->mem_queue.queue; q; q = q->link) {
-				i = q->spellnum;
-				if (cnt[i] == 0)
+			for (q = ch->mem_queue.queue; q; q = q->next) {
+				auto spell_id = q->spell_id;
+				auto index = to_underlying(spell_id);
+				if (cnt[index] == ESpell::kUndefined) {
 					continue;
-				slot_num = spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;
+				}
+				slot_num = MUD::Classes(ch->GetClass()).spells[spell_id].GetCircle() - 1;
 				slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
 										   "%2s|[%2d] %-26s%5s|",
 										   slots[slot_num] % 80 <
-											   10 ? "\r\n" : "  ", cnt[i],
-										   spell_info[i].name, q == ch->mem_queue.queue ? timestr : "");
-				cnt[i] = 0;
+											   10 ? "\r\n" : "  ", to_underlying(cnt[index]),
+										   spell_info[spell_id].name, q == ch->mem_queue.queue ? timestr : "");
+				cnt[index] = ESpell::kUndefined;
 			}
 
 			gcount +=
@@ -164,7 +168,7 @@ void show_wizdom(CharData *ch, int bitset) {
 		int *s = MemQ_slots(ch);
 		gcount += sprintf(buf2 + gcount, "  %sСвободно :%s\r\n", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
 		for (i = 0; i < imax_slot; i++) {
-			slot_num = MAX(0, CalcCircleSlotsAmount(ch, i + 1) - s[i]);
+			slot_num = std::max(0, CalcCircleSlotsAmount(ch, i + 1) - s[i]);
 			gcount += sprintf(buf2 + gcount, "%s%2d-%2d%s  ",
 							  slot_num ? CCICYN(ch, C_NRM) : "",
 							  i + 1, slot_num, slot_num ? CCNRM(ch, C_NRM) : "");

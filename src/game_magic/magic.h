@@ -20,7 +20,7 @@
 
 class CharData;
 class ObjData;
-class RoomData;
+struct RoomData;
 
 // VNUM'ы мобов для заклинаний, создающих мобов
 const int kMobDouble = 3000; //внум прототипа для клона
@@ -41,31 +41,30 @@ const int kMobFirekeeper = 3022;
 
 const int kMaxSpellAffects = 16; // change it if you need more
 
-#define SpINFO spell_info[spellnum]
-
 bool is_room_forbidden(RoomData *room);
 void mobile_affect_update(void);
 void player_affect_update(void);
 void print_rune_log();
-void show_spell_off(int aff, CharData *ch);
+void ShowAffExpiredMsg(ESpell aff_type, CharData *ch);
 
-int CallMagicToGroup(int level, CharData *ch, int spellnum);
-int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, int spellnum, int level);
+int CallMagicToGroup(int level, CharData *ch, ESpell spell_id);
+int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, ESpell spell_id, int level);
 
-int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, int spellnum, int level);
-int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, int spellnum, int spell_subst);
+int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level);
+int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpell spell_id, ESpell spell_subst);
 
-int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving savetype);
-int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving savetype);
-int mag_summons(int level, CharData *ch, ObjData *obj, int spellnum, ESaving savetype);
-int CastToPoints(int level, CharData *ch, CharData *victim, int spellnum, ESaving);
-int CastUnaffects(int, CharData *ch, CharData *victim, int spellnum, ESaving);
-int CastToAlterObjs(int, CharData *ch, ObjData *obj, int spellnum, ESaving);
-int CastCreation(int, CharData *ch, int spellnum);
-int CastToSingleTarget(int level, CharData *caster, CharData *cvict, ObjData *ovict, int spellnum, ESaving saving);
+int mag_damage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESaving savetype);
+int CastMagicAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, ESaving savetype);
+int mag_summons(int level, CharData *ch, ObjData *obj, ESpell spell_id, ESaving savetype);
+int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id, ESaving);
+int CastUnaffects(int, CharData *ch, CharData *victim, ESpell spell_id, ESaving);
+int CastToAlterObjs(int, CharData *ch, ObjData *obj, ESpell spell_id, ESaving);
+int CastCreation(int, CharData *ch, ESpell spell_id);
+int CastToSingleTarget(int level, CharData *caster, CharData *cvict, ObjData *ovict, ESpell spell_id, ESaving saving);
 
-bool material_component_processing(CharData *caster, CharData *victim, int spellnum);
-float CalcModCoef(int spellnum, int percent);
+bool ProcessMatComponents(CharData *caster, CharData *victim, ESpell spell_id);
+float CalcModCoef(ESpell spell_id, int percent);
+int CalcClassAntiSavingsMod(CharData *ch, ESpell spell_id);
 
 #endif
 

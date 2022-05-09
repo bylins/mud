@@ -11,12 +11,12 @@ extern void CheckAutoNosummon(CharData *ch);
 void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	struct TimedFeat timed;
 
-	if (!IsAbleToUseFeat(ch, EFeat::kRelocate)) {
+	if (!CanUseFeat(ch, EFeat::kRelocate)) {
 		SendMsgToChar("Вам это недоступно.\r\n", ch);
 		return;
 	}
 
-	if (IsTimed(ch, EFeat::kRelocate)
+	if (IsTimedByFeat(ch, EFeat::kRelocate)
 #ifdef TEST_BUILD
 		&& !IS_IMMORTAL(ch)
 #endif
@@ -83,7 +83,8 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kSlowDeathTrap) ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kTunnel) ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kNoRelocateIn) ||
-			ROOM_FLAGGED(fnd_room, ERoomFlag::kIceTrap) || (ROOM_FLAGGED(fnd_room, ERoomFlag::kGodsRoom) && !IS_IMMORTAL(ch)))) {
+			ROOM_FLAGGED(fnd_room, ERoomFlag::kIceTrap) || (ROOM_FLAGGED(fnd_room, ERoomFlag::kGodsRoom) && !IS_IMMORTAL(
+			ch)))) {
 		SendMsgToChar("Попытка перемещения не удалась.\r\n", ch);
 		return;
 	}

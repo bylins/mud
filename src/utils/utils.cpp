@@ -108,16 +108,6 @@ CharData *find_char(long n) {
 	return nullptr;
 }
 
-bool check_spell_on_player(CharData *ch, int spell_num) {
-	for (const auto &af : ch->affected) {
-		if (af->type == spell_num) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
 int MIN(int a, int b) {
 	return (a < b ? a : b);
 }
@@ -1967,13 +1957,13 @@ void tell_to_char(CharData *keeper, CharData *ch, const char *arg) {
 
 int CAN_CARRY_N(const CharData *ch) {
 	int n = 5 + GET_REAL_DEX(ch) / 2 + GetRealLevel(ch) / 2;
-	if (HAVE_FEAT(ch, EFeat::kJuggler)) {
+	if (ch->HaveFeat(EFeat::kJuggler)) {
 		n += GetRealLevel(ch) / 2;
-		if (GET_CLASS(ch) == kMagus) {
+		if (CanUseFeat(ch, EFeat::kThrifty)) {
 			n += 5;
 		}
 	}
-	if (GET_CLASS(ch) == kMagus) {
+	if (CanUseFeat(ch, EFeat::kThrifty)) {
 		n += 5;
 	}
 	return std::max(n, 1);
@@ -2023,14 +2013,14 @@ void sanity_check(void) {
 int GetRealLevel(const CharData *ch) {
 
 	if (ch->IsNpc()) {
-		return std::clamp(ch->get_level() + ch->get_level_add(), 1, kMaxMobLevel);
+		return std::clamp(ch->GetLevel() + ch->get_level_add(), 1, kMaxMobLevel);
 	}
 
 	if (IS_IMMORTAL(ch)) {
-		return ch->get_level();
+		return ch->GetLevel();
 	}
 
-	return std::clamp(ch->get_level() + ch->get_level_add(), 0, kLvlImmortal - 1);
+	return std::clamp(ch->GetLevel() + ch->get_level_add(), 0, kLvlImmortal - 1);
 }
 
 int GetRealLevel(const std::shared_ptr<CharData> &ch) {

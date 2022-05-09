@@ -4,10 +4,10 @@
 #include "entities/char_player.h"
 #include "entities/world_characters.h"
 #include "game_fight/fight_hit.h"
-#include "game_classes/classes.h"
 #include "game_mechanics/deathtrap.h"
 #include "game_magic/magic.h"
 #include "game_skills/poison.h"
+#include "structs/global_objects.h"
 #include "handler.h"
 
 bool no_bad_affects(ObjData *obj) {
@@ -123,27 +123,27 @@ template<>
 bool Affect<EApply>::removable() const {
 	return !spell_info[type].name
 		|| *spell_info[type].name == '!'
-		|| type == kSpellSleep
-		|| type == kSpellPoison
-		|| type == kSpellWeaknes
-		|| type == kSpellCurse
-		|| type == kSpellFever
-		|| type == kSpellSllence
-		|| type == kSpellPowerSilence
-		|| type == kSpellBlindness
-		|| type == kSpellPowerBlindness
-		|| type == kSpellHaemorrhage
-		|| type == kSpellHold
-		|| type == kSpellPowerHold
-		|| type == kSpellPeaceful
-		|| type == kSpellColdWind
-		|| type == kSpellDeafness
-		|| type == kSpellPowerDeafness
-		|| type == kSpellBattle;
+		|| type == ESpell::kSleep
+		|| type == ESpell::kPoison
+		|| type == ESpell::kWeaknes
+		|| type == ESpell::kCurse
+		|| type == ESpell::kFever
+		|| type == ESpell::kSilence
+		|| type == ESpell::kPowerSilence
+		|| type == ESpell::kBlindness
+		|| type == ESpell::kPowerBlindness
+		|| type == ESpell::kHaemorrhage
+		|| type == ESpell::kHold
+		|| type == ESpell::kPowerHold
+		|| type == ESpell::kPeaceful
+		|| type == ESpell::kColdWind
+		|| type == ESpell::kDeafness
+		|| type == ESpell::kPowerDeafness
+		|| type == ESpell::kBattle;
 }
 
 // This file update pulse affects only
-void pulse_affect_update(CharData *ch) {
+void UpdateAffectOnPulse(CharData *ch) {
 	bool pulse_aff = false;
 
 	if (ch->GetEnemy()) {
@@ -170,13 +170,13 @@ void pulse_affect_update(CharData *ch) {
 		{
 			affect->duration = -1;    // GODs only! unlimited //
 		} else {
-			if ((affect->type > 0) && (affect->type <= kSpellCount)) {
+			if ((affect->type >= ESpell::kFirst) && (affect->type <= ESpell::kLast)) {
 				if (next_affect_i == ch->affected.end()
 					|| (*next_affect_i)->type != affect->type
 					|| (*next_affect_i)->duration > 0) {
-					if (affect->type > 0
-						&& affect->type <= kSpellCount) {
-						show_spell_off(affect->type, ch);
+					if (affect->type > ESpell::kFirst
+						&& affect->type <= ESpell::kLast) {
+						ShowAffExpiredMsg(affect->type, ch);
 					}
 				}
 			}
@@ -201,7 +201,7 @@ void player_affect_update() {
 			return;
 		}
 
-		pulse_affect_update(i.get());
+		UpdateAffectOnPulse(i.get());
 
 		bool was_purged = false;
 		auto next_affect_i = i->affected.begin();
@@ -219,18 +219,18 @@ void player_affect_update() {
 				}
 				affect->duration--;
 			} else if (affect->duration != -1) {
-				if ((affect->type > ESpell::kSpellNoSpell) && (affect->type <= ESpell::kSpellCount)) {
+				if ((affect->type > ESpell::kUndefined) && (affect->type <= ESpell::kLast)) {
 					if (next_affect_i == i->affected.end()
 						|| (*next_affect_i)->type != affect->type
 						|| (*next_affect_i)->duration > 0) {
-						if (affect->type > ESpell::kSpellNoSpell && affect->type <= ESpell::kSpellCount) {
+						if (affect->type > ESpell::kUndefined && affect->type <= ESpell::kLast) {
 							//чтобы не выдавалось, "что теперь вы можете сражаться",
 							//хотя на самом деле не можете :)
-							if (!(affect->type == kSpellMagicBattle
+							if (!(affect->type == ESpell::kMagicBattle
 								&& AFF_FLAGGED(i, EAffect::kStopFight))) {
-								if (!(affect->type == kSpellBattle
+								if (!(affect->type == ESpell::kBattle
 									&& AFF_FLAGGED(i, EAffect::kMagicStopFight))) {
-									show_spell_off(affect->type, i.get());
+									ShowAffExpiredMsg(affect->type, i.get());
 								}
 							}
 						}
@@ -286,12 +286,12 @@ void battle_affect_update(CharData *ch) {
 					(*affect_i)->duration -= std::min((*affect_i)->duration, kSecsPerMudHour / kSecsPerPlayerAffect);
 			}
 		} else if ((*affect_i)->duration != -1) {
-			if ((*affect_i)->type > 0 && (*affect_i)->type <= ESpell::kSpellCount) {
+			if ((*affect_i)->type >= ESpell::kFirst && (*affect_i)->type <= ESpell::kLast) {
 				if (next_affect_i == ch->affected.end() ||
 				(*next_affect_i)->type != (*affect_i)->type ||
 				(*next_affect_i)->duration > 0) {
-					if ((*affect_i)->type > ESpell::kSpellNoSpell && (*affect_i)->type <= ESpell::kSpellCount)
-						show_spell_off((*affect_i)->type, ch);
+					if ((*affect_i)->type > ESpell::kUndefined && (*affect_i)->type <= ESpell::kLast)
+						ShowAffExpiredMsg((*affect_i)->type, ch);
 				}
 			}
 			if (ch->IsNpc() && MOB_FLAGGED(ch, EMobFlag::kTutelar)) {
@@ -334,7 +334,7 @@ void mobile_affect_update() {
 					}
 
 					affect->duration--;
-					if (affect->type == kSpellCharm && !charmed_msg && affect->duration <= 1) {
+					if (affect->type == ESpell::kCharm && !charmed_msg && affect->duration <= 1) {
 						act("$n начал$g растерянно оглядываться по сторонам.",
 							false,
 							i.get(),
@@ -346,15 +346,13 @@ void mobile_affect_update() {
 				} else if (affect->duration == -1) {
 					affect->duration = -1;    // GODS - unlimited
 				} else {
-					if (affect->type > 0
-						&& affect->type <= kSpellCount) {
+					if (affect->type >= ESpell::kFirst && affect->type <= ESpell::kLast) {
 						if (next_affect_i == i->affected.end()
 							|| (*next_affect_i)->type != affect->type
 							|| (*next_affect_i)->duration > 0) {
-							if (affect->type > 0
-								&& affect->type <= kSpellCount) {
-								show_spell_off(affect->type, i.get());
-								if (affect->type == kSpellCharm
+							if (affect->type > ESpell::kFirst && affect->type <= ESpell::kLast) {
+								ShowAffExpiredMsg(affect->type, i.get());
+								if (affect->type == ESpell::kCharm
 									|| affect->bitvector == to_underlying(EAffect::kCharmed)) {
 									was_charmed = true;
 								}
@@ -402,17 +400,17 @@ void mobile_affect_update() {
 }
 
 // Call affect_remove with every spell of spelltype "skill"
-void affect_from_char(CharData *ch, int type) {
+void RemoveAffectFromChar(CharData *ch, ESpell spell_id) {
 	auto next_affect_i = ch->affected.begin();
 	for (auto affect_i = next_affect_i; affect_i != ch->affected.end(); affect_i = next_affect_i) {
 		++next_affect_i;
 		const auto affect = *affect_i;
-		if (affect->type == type) {
+		if (affect->type == spell_id) {
 			ch->affect_remove(affect_i);
 		}
 	}
 
-	if (ch->IsNpc() && type == kSpellCharm) {
+	if (ch->IsNpc() && spell_id == ESpell::kCharm) {
 		ch->extract_timer = 5;
 		ch->mob_specials.hire_price = 0;// added by WorM (Видолюб) 2010.06.04 Сбрасываем цену найма
 	}
@@ -452,17 +450,17 @@ void affect_total(CharData *ch) {
 	}
 	if (domination) {
 		ch->set_remort_add(20 - ch->get_remort());
-		ch->set_level_add(30 - ch->get_level());
+		ch->set_level_add(30 - ch->GetLevel());
 		ch->set_str_add(ch->get_remort_add());
 		ch->set_dex_add(ch->get_remort_add());
 		ch->set_con_add(ch->get_remort_add()); 
 		ch->set_int_add(ch->get_remort_add());
 		ch->set_wis_add(ch->get_remort_add());
 		ch->set_cha_add(ch->get_remort_add());
-		double add_hp_per_level = class_app[GET_CLASS(ch)].base_con
-				+ (VPOSI_MOB(ch, EBaseStat::kCon, ch->get_con()) - class_app[GET_CLASS(ch)].base_con)
-				* class_app[GET_CLASS(ch)].koef_con / 100.0 + 3;
-	 	GET_HIT_ADD(ch) = static_cast<int>(add_hp_per_level * (30 - ch->get_level()));
+		double add_hp_per_level = MUD::Classes(ch->GetClass()).applies.base_con
+				+ (ClampBaseStat(ch, EBaseStat::kCon, ch->get_con()) - MUD::Classes(ch->GetClass()).applies.base_con)
+				* MUD::Classes(ch->GetClass()).applies.koef_con / 100.0 + 3;
+	 	GET_HIT_ADD(ch) = static_cast<int>(add_hp_per_level * (30 - ch->GetLevel()));
 //		SendMsgToChar(ch, "add per level %f hitadd %d  level %d\r\n", add_hp_per_level, GET_HIT_ADD(ch), ch->get_level());
 	}
 
@@ -500,40 +498,40 @@ void affect_total(CharData *ch) {
 	ch->obj_bonus().apply_affects(ch);
 
 	// move features modifiers
-	for (auto i = EFeat::kFirstFeat; i <= EFeat::kLastFeat; ++i) {
-		if (IsAbleToUseFeat(ch, i) && (feat_info[i].type == EFeatType::kAffect)) {
+	for (auto i = EFeat::kFirst; i <= EFeat::kLast; ++i) {
+		if (CanUseFeat(ch, i) && (feat_info[i].type == EFeatType::kAffect)) {
 			for (int j = 0; j < kMaxFeatAffect; ++j) {
 				affect_modify(ch, feat_info[i].affected[j].location, feat_info[i].affected[j].modifier,
-							  EAffect::kIncorrect, true);
+							  EAffect::kUndefinded, true);
 			}
 		}
 	}
 
-	// IMPREGNABLE_FEAT учитывается дважды: выше начисляем единичку за 0 мортов, а теперь по 1 за каждый морт
-	if (IsAbleToUseFeat(ch, EFeat::kImpregnable)) {
+	// EFeat::kImpregnable учитывается дважды: выше начисляем единичку за 0 мортов, а теперь по 1 за каждый морт
+	if (CanUseFeat(ch, EFeat::kImpregnable)) {
 		for (int j = 0; j < kMaxFeatAffect; j++) {
 			affect_modify(ch,
 						  feat_info[EFeat::kImpregnable].affected[j].location,
 						  std::min(9, feat_info[EFeat::kImpregnable].affected[j].modifier * GET_REAL_REMORT(ch)),
-						  EAffect::kIncorrect,
+						  EAffect::kUndefinded,
 						  true);
 		}
 	}
 
 	// Обработка изворотливости (с) Числобог
-	if (IsAbleToUseFeat(ch, EFeat::kDodger)) {
-		affect_modify(ch, EApply::kSavingReflex, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), EAffect::kIncorrect, true);
-		affect_modify(ch, EApply::kSavingWill, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), EAffect::kIncorrect, true);
-		affect_modify(ch, EApply::kSavingStability, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), EAffect::kIncorrect, true);
-		affect_modify(ch, EApply::kSavingCritical, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), EAffect::kIncorrect, true);
+	if (CanUseFeat(ch, EFeat::kDodger)) {
+		affect_modify(ch, EApply::kSavingReflex, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), EAffect::kUndefinded, true);
+		affect_modify(ch, EApply::kSavingWill, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), EAffect::kUndefinded, true);
+		affect_modify(ch, EApply::kSavingStability, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), EAffect::kUndefinded, true);
+		affect_modify(ch, EApply::kSavingCritical, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), EAffect::kUndefinded, true);
 	}
 
 	// Обработка "выносливости" и "богатырского здоровья
 	// Знаю, что кривовато, придумаете, как лучше - делайте
 	if (!ch->IsNpc()) {
-		if (IsAbleToUseFeat(ch, EFeat::kEndurance))
+		if (CanUseFeat(ch, EFeat::kEndurance))
 			affect_modify(ch, EApply::kMove, GetRealLevel(ch) * 2, static_cast<EAffect>(0), true);
-		if (IsAbleToUseFeat(ch, EFeat::kSplendidHealth))
+		if (CanUseFeat(ch, EFeat::kSplendidHealth))
 			affect_modify(ch, EApply::kHp, GetRealLevel(ch) * 2, static_cast<EAffect>(0), true);
 		if (NORENTABLE(ch) == 0 && !domination) // мы не на новой арене и не ПК
 			GloryConst::apply_modifiers(ch);
@@ -547,9 +545,9 @@ void affect_total(CharData *ch) {
 
 	// move race and class modifiers
 	if (!ch->IsNpc()) {
-		if ((int) GET_CLASS(ch) >= 0 && (int) GET_CLASS(ch) < kNumPlayerClasses) {
-			for (auto i : *class_app[(int) GET_CLASS(ch)].extra_affects) {
-				affect_modify(ch, EApply::kNone, 0, i.affect, i.set_or_clear);
+		if (ch->GetClass() >= ECharClass::kFirst && ch->GetClass() <= ECharClass::kLast) {
+			for (const auto aff : MUD::Classes(ch->GetClass()).inborn_affects) {
+				affect_modify(ch, EApply::kNone, aff.mod, aff.affect, aff.add);
 			}
 		}
 
@@ -558,11 +556,11 @@ void affect_total(CharData *ch) {
 		if (wdex != 0) {
 			ch->set_dex_add(ch->get_dex_add() - wdex);
 		}
-		GET_DR_ADD(ch) += extra_damroll((int) GET_CLASS(ch), GetRealLevel(ch));
+		GET_DR_ADD(ch) += GetExtraDamroll(ch->GetClass(), GetRealLevel(ch));
 		if (!AFF_FLAGGED(ch, EAffect::kNoobRegen)) {
 			GET_HITREG(ch) += (GetRealLevel(ch) + 4) / 5 * 10;
 		}
-		if (IsAbleToUseFeat(ch, EFeat::kRegenOfDarkness)) {
+		if (CanUseFeat(ch, EFeat::kRegenOfDarkness)) {
 			GET_HITREG(ch) += GET_HITREG(ch) * 0.2;
 		}
 		if (GET_CON_ADD(ch)) {
@@ -656,10 +654,10 @@ void affect_total(CharData *ch) {
 
 	{
 		// Calculate CASTER value
-		int i = 1;
-		for (ch->caster_level = 0; !ch->IsNpc() && i <= kSpellCount; i++) {
-			if (IS_SET(GET_SPELL_TYPE(ch, i), kSpellKnow | kSpellTemp)) {
-				ch->caster_level += (spell_info[i].danger * GET_SPELL_MEM(ch, i));
+		auto spell_id{ESpell::kFirst};
+		for (ch->caster_level = 0; !ch->IsNpc() && spell_id <= ESpell::kLast; ++spell_id) {
+			if (IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow | ESpellType::kTemp)) {
+				ch->caster_level += (spell_info[spell_id].danger * GET_SPELL_MEM(ch, spell_id));
 			}
 		}
 	}
@@ -674,7 +672,7 @@ void affect_total(CharData *ch) {
 		}
 	}
 	CheckBerserk(ch);
-	if (ch->GetEnemy() || IsAffectedBySpell(ch, kSpellGlitterDust)) {
+	if (ch->GetEnemy() || IsAffectedBySpell(ch, ESpell::kGlitterDust)) {
 		AFF_FLAGS(ch).unset(EAffect::kHide);
 		AFF_FLAGS(ch).unset(EAffect::kSneak);
 		AFF_FLAGS(ch).unset(EAffect::kDisguise);
@@ -749,58 +747,58 @@ void affect_modify(CharData *ch, byte loc, int mod, const EAffect bitv, bool add
 		mod = -mod;
 	}
 	switch (loc) {
-		case EApply::kNone:break;
-		case EApply::kStr:ch->set_str_add(ch->get_str_add() + mod);
+		case EApply::kNone: break;
+		case EApply::kStr: ch->set_str_add(ch->get_str_add() + mod);
 			break;
-		case EApply::kDex:ch->set_dex_add(ch->get_dex_add() + mod);
+		case EApply::kDex: ch->set_dex_add(ch->get_dex_add() + mod);
 			break;
-		case EApply::kInt:ch->set_int_add(ch->get_int_add() + mod);
+		case EApply::kInt: ch->set_int_add(ch->get_int_add() + mod);
 			break;
-		case EApply::kWis:ch->set_wis_add(ch->get_wis_add() + mod);
+		case EApply::kWis: ch->set_wis_add(ch->get_wis_add() + mod);
 			break;
-		case EApply::kCon:ch->set_con_add(ch->get_con_add() + mod);
+		case EApply::kCon: ch->set_con_add(ch->get_con_add() + mod);
 			break;
-		case EApply::kCha:ch->set_cha_add(ch->get_cha_add() + mod);
+		case EApply::kCha: ch->set_cha_add(ch->get_cha_add() + mod);
 			break;
 		case EApply::kClass:
-		case EApply::kLvl:break;
-		case EApply::kAge:GET_AGE_ADD(ch) += mod;
+		case EApply::kLvl: break;
+		case EApply::kAge: GET_AGE_ADD(ch) += mod;
 			break;
-		case EApply::kWeight:GET_WEIGHT_ADD(ch) += mod;
+		case EApply::kWeight: GET_WEIGHT_ADD(ch) += mod;
 			break;
-		case EApply::kHeight:GET_HEIGHT_ADD(ch) += mod;
+		case EApply::kHeight: GET_HEIGHT_ADD(ch) += mod;
 			break;
-		case EApply::kMamaRegen:GET_MANAREG(ch) += mod;
+		case EApply::kMamaRegen: GET_MANAREG(ch) += mod;
 			break;
-		case EApply::kHp:GET_HIT_ADD(ch) += mod;
+		case EApply::kHp: GET_HIT_ADD(ch) += mod;
 			break;
-		case EApply::kMove:GET_MOVE_ADD(ch) += mod;
+		case EApply::kMove: GET_MOVE_ADD(ch) += mod;
 			break;
 		case EApply::kGold:
-		case EApply::kExp:break;
-		case EApply::kAc:GET_AC_ADD(ch) += mod;
+		case EApply::kExp: break;
+		case EApply::kAc: GET_AC_ADD(ch) += mod;
 			break;
-		case EApply::kHitroll:GET_HR_ADD(ch) += mod;
+		case EApply::kHitroll: GET_HR_ADD(ch) += mod;
 			break;
-		case EApply::kDamroll:GET_DR_ADD(ch) += mod;
+		case EApply::kDamroll: GET_DR_ADD(ch) += mod;
 			break;
-		case EApply::kResistFire:GET_RESIST(ch, EResist::kFire) += mod;
+		case EApply::kResistFire: GET_RESIST(ch, EResist::kFire) += mod;
 			break;
-		case EApply::kResistAir:GET_RESIST(ch, EResist::kAir) += mod;
+		case EApply::kResistAir: GET_RESIST(ch, EResist::kAir) += mod;
 			break;
-		case EApply::kResistDark:GET_RESIST(ch, EResist::kDark) += mod;
+		case EApply::kResistDark: GET_RESIST(ch, EResist::kDark) += mod;
 			break;
-		case EApply::kSavingWill:SET_SAVE(ch, ESaving::kWill, GET_SAVE(ch, ESaving::kWill) +  mod);
+		case EApply::kSavingWill: SET_SAVE(ch, ESaving::kWill, GET_SAVE(ch, ESaving::kWill) +  mod);
 			break;
-		case EApply::kSavingCritical:SET_SAVE(ch, ESaving::kCritical, GET_SAVE(ch, ESaving::kCritical) +  mod);
+		case EApply::kSavingCritical: SET_SAVE(ch, ESaving::kCritical, GET_SAVE(ch, ESaving::kCritical) +  mod);
 			break;
-		case EApply::kSavingStability:SET_SAVE(ch, ESaving::kStability, GET_SAVE(ch, ESaving::kStability) +  mod);
+		case EApply::kSavingStability: SET_SAVE(ch, ESaving::kStability, GET_SAVE(ch, ESaving::kStability) +  mod);
 			break;
-		case EApply::kSavingReflex:SET_SAVE(ch, ESaving::kReflex, GET_SAVE(ch, ESaving::kReflex) +  mod);
+		case EApply::kSavingReflex: SET_SAVE(ch, ESaving::kReflex, GET_SAVE(ch, ESaving::kReflex) +  mod);
 			break;
-		case EApply::kHpRegen:GET_HITREG(ch) += mod;
+		case EApply::kHpRegen: GET_HITREG(ch) += mod;
 			break;
-		case EApply::kMoveRegen:GET_MOVEREG(ch) += mod;
+		case EApply::kMoveRegen: GET_MOVEREG(ch) += mod;
 			break;
 		case EApply::kFirstCircle:
 		case EApply::kSecondCircle:
@@ -810,58 +808,59 @@ void affect_modify(CharData *ch, byte loc, int mod, const EAffect bitv, bool add
 		case EApply::kSixthCircle:
 		case EApply::kSeventhCircle:
 		case EApply::kEighthCircle:
-		case EApply::kNinthCircle:ch->add_obj_slot(loc - EApply::kFirstCircle, mod);
+		case EApply::kNinthCircle: ch->add_obj_slot(loc - EApply::kFirstCircle, mod);
 			break;
-		case EApply::kSize:GET_SIZE_ADD(ch) += mod;
+		case EApply::kSize: GET_SIZE_ADD(ch) += mod;
 			break;
-		case EApply::kArmour:GET_ARMOUR(ch) += mod;
+		case EApply::kArmour: GET_ARMOUR(ch) += mod;
 			break;
-		case EApply::kPoison:GET_POISON(ch) += mod;
+		case EApply::kPoison: GET_POISON(ch) += mod;
 			break;
-		case EApply::kCastSuccess:GET_CAST_SUCCESS(ch) += mod;
+		case EApply::kCastSuccess: GET_CAST_SUCCESS(ch) += mod;
 			break;
-		case EApply::kMorale:GET_MORALE(ch) += mod;
+		case EApply::kMorale: GET_MORALE(ch) += mod;
 			break;
-		case EApply::kInitiative:GET_INITIATIVE(ch) += mod;
+		case EApply::kInitiative: GET_INITIATIVE(ch) += mod;
 			break;
 		case EApply::kReligion:
-			if (add)
+			if (add) {
 				GET_PRAY(ch) |= mod;
-			else
+			} else {
 				GET_PRAY(ch) &= mod;
+			}
 			break;
-		case EApply::kAbsorbe:GET_ABSORBE(ch) += mod;
+		case EApply::kAbsorbe: GET_ABSORBE(ch) += mod;
 			break;
-		case EApply::kLikes:GET_LIKES(ch) += mod;
+		case EApply::kLikes: GET_LIKES(ch) += mod;
 			break;
-		case EApply::kResistWater:GET_RESIST(ch, EResist::kWater) += mod;
+		case EApply::kResistWater: GET_RESIST(ch, EResist::kWater) += mod;
 			break;
-		case EApply::kResistEarth:GET_RESIST(ch, EResist::kEarth) += mod;
+		case EApply::kResistEarth: GET_RESIST(ch, EResist::kEarth) += mod;
 			break;
-		case EApply::kResistVitality:GET_RESIST(ch, EResist::kVitality) += mod;
+		case EApply::kResistVitality: GET_RESIST(ch, EResist::kVitality) += mod;
 			break;
-		case EApply::kResistMind:GET_RESIST(ch, EResist::kMind) += mod;
+		case EApply::kResistMind: GET_RESIST(ch, EResist::kMind) += mod;
 			break;
-		case EApply::kResistImmunity:GET_RESIST(ch, EResist::kImmunity) += mod;
+		case EApply::kResistImmunity: GET_RESIST(ch, EResist::kImmunity) += mod;
 			break;
-		case EApply::kAffectResist:GET_AR(ch) += mod;
+		case EApply::kAffectResist: GET_AR(ch) += mod;
 			break;
-		case EApply::kMagicResist:GET_MR(ch) += mod;
+		case EApply::kMagicResist: GET_MR(ch) += mod;
 			break;
 		case EApply::kAconitumPoison:
 		case EApply::kScopolaPoison:
 		case EApply::kBelenaPoison:
-		case EApply::kDaturaPoison:GET_POISON(ch) += mod;
+		case EApply::kDaturaPoison: GET_POISON(ch) += mod;
 			break;
-		case EApply::kPhysicResist:GET_PR(ch) += mod; //скиллрезист
+		case EApply::kPhysicResist: GET_PR(ch) += mod; //скиллрезист
 			break;
-		case EApply::kPhysicDamagePercent:ch->add_abils.percent_physdam_add += mod;
+		case EApply::kPhysicDamagePercent: ch->add_abils.percent_physdam_add += mod;
 			break;
-		case EApply::kMagicDamagePercent:ch->add_abils.percent_magdam_add += mod;
+		case EApply::kMagicDamagePercent: ch->add_abils.percent_magdam_add += mod;
 			break;
-		case EApply::kExpPercent:ch->add_abils.percent_exp_add += mod;
+		case EApply::kExpPercent: ch->add_abils.percent_exp_add += mod;
 			break;
-		case EApply::kSpelledBlink:ch->add_abils.percent_spell_blink += mod;
+		case EApply::kSpelledBlink: ch->add_abils.percent_spell_blink += mod;
 			break;
 		case EApply::kSkillsBonus: {
 			ch->set_skill_bonus(ch->get_skill_bonus() + mod);
@@ -887,6 +886,24 @@ void reset_affects(CharData *ch) {
 
 	GET_COND(ch, DRUNK) = 0; // Чтобы не шатало без аффекта "под мухой"
 	affect_total(ch);
+}
+
+bool IsAffectedBySpell(CharData *ch, ESpell type) {
+	if (type == ESpell::kPowerHold) {
+		type = ESpell::kHold;
+	} else if (type == ESpell::kPowerSilence) {
+		type = ESpell::kSilence;
+	} else if (type == ESpell::kPowerBlindness) {
+		type = ESpell::kBlindness;
+	}
+
+	for (const auto &affect : ch->affected) {
+		if (affect->type == type) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

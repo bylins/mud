@@ -19,7 +19,6 @@
 #include "color.h"
 #include "statistics/mob_stat.h"
 #include "modify.h"
-#include "game_magic/spells_info.h"
 #include "structs/global_objects.h"
 #include "depot.h"
 
@@ -180,7 +179,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	SendMsgToChar(buf, ch);
 
 	if (!k->IsNpc()) {
-		strcpy(smallBuf, MUD::Classes()[k->get_class()].GetCName());
+		strcpy(smallBuf, MUD::Classes(k->GetClass()).GetCName());
 		sprintf(buf, "Племя: %s, Род: %s, Профессия: %s",
 				PlayerRace::GetKinNameByNum(GET_KIN(k), GET_SEX(k)).c_str(),
 				k->get_race_name().c_str(),
@@ -256,18 +255,18 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	sprintf(buf,
 			"Сила: [%s%d/%d%s]  Инт : [%s%d/%d%s]  Мудр : [%s%d/%d%s] \r\n"
 			"Ловк: [%s%d/%d%s]  Тело:[%s%d/%d%s]  Обаян:[%s%d/%d%s] Размер: [%s%d/%d%s]\r\n",
-			CCCYN(ch, C_NRM), k->get_inborn_str(), GET_REAL_STR(k), CCNRM(ch,
-																		  C_NRM),
-			CCCYN(ch, C_NRM), k->get_inborn_int(), GET_REAL_INT(k), CCNRM(ch,
-																		  C_NRM),
-			CCCYN(ch, C_NRM), k->get_inborn_wis(), GET_REAL_WIS(k), CCNRM(ch,
-																		  C_NRM),
-			CCCYN(ch, C_NRM), k->get_inborn_dex(), GET_REAL_DEX(k), CCNRM(ch,
-																		  C_NRM),
-			CCCYN(ch, C_NRM), k->get_inborn_con(), GET_REAL_CON(k), CCNRM(ch,
-																		  C_NRM),
-			CCCYN(ch, C_NRM), k->get_inborn_cha(), GET_REAL_CHA(k), CCNRM(ch,
-																		  C_NRM),
+			CCCYN(ch, C_NRM), k->GetInbornStr(), GET_REAL_STR(k), CCNRM(ch,
+																		C_NRM),
+			CCCYN(ch, C_NRM), k->GetInbornInt(), GET_REAL_INT(k), CCNRM(ch,
+																		C_NRM),
+			CCCYN(ch, C_NRM), k->GetInbornWis(), GET_REAL_WIS(k), CCNRM(ch,
+																		C_NRM),
+			CCCYN(ch, C_NRM), k->GetInbornDex(), GET_REAL_DEX(k), CCNRM(ch,
+																		C_NRM),
+			CCCYN(ch, C_NRM), k->GetInbornCon(), GET_REAL_CON(k), CCNRM(ch,
+																		C_NRM),
+			CCCYN(ch, C_NRM), k->GetInbornCha(), GET_REAL_CHA(k), CCNRM(ch,
+																		C_NRM),
 			CCCYN(ch, C_NRM), GET_SIZE(k), GET_REAL_SIZE(k), CCNRM(ch, C_NRM));
 	SendMsgToChar(buf, ch);
 
@@ -277,7 +276,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	SendMsgToChar(buf, ch);
 	if (IS_MANA_CASTER(k)) {
 		sprintf(buf, " Мана :[%s%d/%d+%d%s]\r\n",
-				CCGRN(ch, C_NRM), k->mem_queue.stored, GET_MAX_MANA(k), mana_gain(k), CCNRM(ch, C_NRM));
+				CCGRN(ch, C_NRM), k->mem_queue.stored, GET_MAX_MANA(k), CalcManaGain(k), CCNRM(ch, C_NRM));
 	} else {
 		sprintf(buf, "\r\n");
 	}
@@ -362,12 +361,12 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		SendMsgToChar(ch,
 					  "Количество атак: %s%d%s. ",
 					  CCCYN(ch, C_NRM),
-					  k->mob_specials.ExtraAttack + 1,
+					  k->mob_specials.extra_attack + 1,
 					  CCNRM(ch, C_NRM));
 		SendMsgToChar(ch,
 					  "Вероятность использования умений: %s%d%%%s. ",
 					  CCCYN(ch, C_NRM),
-					  k->mob_specials.LikeWork,
+					  k->mob_specials.like_work,
 					  CCNRM(ch, C_NRM));
 		SendMsgToChar(ch,
 					  "Убить до начала замакса: %s%d%s\r\n",
@@ -376,8 +375,8 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 					  CCNRM(ch, C_NRM));
 		SendMsgToChar(ch, "Умения:&c");
 		for (const auto &skill : MUD::Skills()) {
-			if (skill.IsValid() && k->get_skill(skill.GetId())) {
-				SendMsgToChar(ch, " %s:[%3d]", skill.GetName(), k->get_skill(skill.GetId()));
+			if (skill.IsValid() && k->GetSkill(skill.GetId())) {
+				SendMsgToChar(ch, " %s:[%3d]", skill.GetName(), k->GetSkill(skill.GetId()));
 			}
 		}
 		SendMsgToChar(ch, CCNRM(ch, C_NRM));
@@ -740,16 +739,18 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 		case EObjType::kBook:
 
 			switch (GET_OBJ_VAL(j, 0)) {
-				case EBook::kSpell:
-					if (GET_OBJ_VAL(j, 1) >= 1 && GET_OBJ_VAL(j, 1) <= kSpellCount) {
-						sprintf(buf, "содержит заклинание        : \"%s\"", spell_info[GET_OBJ_VAL(j, 1)].name);
+				case EBook::kSpell: {
+					auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(j, 1));
+					if (spell_id >= ESpell::kFirst && spell_id <= ESpell::kLast) {
+						sprintf(buf, "содержит заклинание        : \"%s\"", GetSpellName(spell_id));
 					} else
 						sprintf(buf, "неверный номер заклинания");
 					break;
+				}
 				case EBook::kSkill: {
 					auto skill_id = static_cast<ESkill>(GET_OBJ_VAL(j, 1));
-					if (MUD::Skills().IsValid(skill_id)) {
-						sprintf(buf, "содержит секрет умения     : \"%s\"", MUD::Skills()[skill_id].GetName());
+					if (MUD::Skills(skill_id).IsValid()) {
+						sprintf(buf, "содержит секрет умения     : \"%s\"", MUD::Skills(skill_id).GetName());
 					} else
 						sprintf(buf, "неверный номер умения");
 					break;
@@ -759,10 +760,10 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 					if (MUD::Skills().IsValid(skill_id)) {
 						if (GET_OBJ_VAL(j, 3) > 0) {
 							sprintf(buf, "повышает умение \"%s\" (максимум %d)",
-									MUD::Skills()[skill_id].GetName(), GET_OBJ_VAL(j, 3));
+									MUD::Skills(skill_id).GetName(), GET_OBJ_VAL(j, 3));
 						} else {
 							sprintf(buf, "повышает умение \"%s\" (не больше максимума текущего перевоплощения)",
-									MUD::Skills()[skill_id].GetName());
+									MUD::Skills(skill_id).GetName());
 						}
 					} else {
 						sprintf(buf, "неверный номер повышаемоего умения");
@@ -770,9 +771,9 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 				}
 					break;
 				case EBook::kFeat: {
-					const auto id = static_cast<EFeat>(GET_OBJ_VAL(j, 1));
-					if (id >= EFeat::kFirstFeat && id <= EFeat::kLastFeat) {
-						sprintf(buf, "содержит секрет способности : \"%s\"", GetFeatName(id));
+					const auto feat_id = static_cast<EFeat>(GET_OBJ_VAL(j, 1));
+					if (feat_id >= EFeat::kFirst && feat_id <= EFeat::kLast) {
+						sprintf(buf, "содержит секрет способности : \"%s\"", GetFeatName(feat_id));
 					} else {
 						sprintf(buf, "неверный номер способности");
 					}
@@ -781,7 +782,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 				case EBook::kReceipt: {
 					const auto recipe = im_get_recipe(GET_OBJ_VAL(j, 1));
 					if (recipe >= 0) {
-						const auto recipelevel = MAX(GET_OBJ_VAL(j, 2), imrecipes[recipe].level);
+						const auto recipelevel = std::max(GET_OBJ_VAL(j, 2), imrecipes[recipe].level);
 						const auto recipemort = imrecipes[recipe].remort;
 						if ((recipelevel >= 0) && (recipemort >= 0)) {
 							sprintf(buf,
@@ -812,15 +813,15 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 		case EObjType::kPotion:
 			sprintf(buf, "Заклинания: (Уровень %d) %s, %s, %s",
 					GET_OBJ_VAL(j, 0),
-					GetSpellName(GET_OBJ_VAL(j, 1)),
-					GetSpellName(GET_OBJ_VAL(j, 2)),
-					GetSpellName(GET_OBJ_VAL(j, 3)));
+					GetSpellName(static_cast<ESpell>(GET_OBJ_VAL(j, 1))),
+					GetSpellName(static_cast<ESpell>(GET_OBJ_VAL(j, 2))),
+					GetSpellName(static_cast<ESpell>(GET_OBJ_VAL(j, 3))));
 			break;
 
 		case EObjType::kWand:
 		case EObjType::kStaff:
 			sprintf(buf, "Заклинание: %s уровень %d, %d (из %d) зарядов осталось",
-					GetSpellName(GET_OBJ_VAL(j, 3)),
+					GetSpellName(static_cast<ESpell>(GET_OBJ_VAL(j, 3))),
 					GET_OBJ_VAL(j, 0),
 					GET_OBJ_VAL(j, 2),
 					GET_OBJ_VAL(j, 1));
@@ -914,7 +915,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 		case EObjType::kMagicContaner:
 		case EObjType::kMagicArrow:
 			sprintf(buf, "Заклинание: [%s]. Объем [%d]. Осталось стрел[%d].",
-					GetSpellName(GET_OBJ_VAL(j, 0)), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2));
+					GetSpellName(static_cast<ESpell>(GET_OBJ_VAL(j, 0))), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2));
 			break;
 
 		default:
@@ -969,7 +970,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 			if (it.second == 0) {
 				continue;
 			}
-			sprintf(buf, " %+d%% to %s", it.second, MUD::Skills()[it.first].GetName());
+			sprintf(buf, " %+d%% to %s", it.second, MUD::Skills(it.first).GetName());
 			SendMsgToChar(buf, ch);
 		}
 	}

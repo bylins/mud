@@ -30,7 +30,7 @@ void go_rescue(CharData *ch, CharData *vict, CharData *tmp_ch) {
 		return;
 	}
 
-	int percent = number(1, MUD::Skills()[ESkill::kRescue].difficulty);
+	int percent = number(1, MUD::Skills(ESkill::kRescue).difficulty);
 	int prob = CalcCurrentSkill(ch, ESkill::kRescue, tmp_ch);
 	ImproveSkill(ch, ESkill::kRescue, prob >= percent, tmp_ch);
 
@@ -40,7 +40,7 @@ void go_rescue(CharData *ch, CharData *vict, CharData *tmp_ch) {
 		prob = 0;
 
 	bool success = percent <= prob;
-	SendSkillBalanceMsg(ch, MUD::Skills()[ESkill::kRescue].name, percent, prob, success);
+	SendSkillBalanceMsg(ch, MUD::Skills(ESkill::kRescue).name, percent, prob, success);
 	if (!success) {
 		act("Вы безуспешно пытались спасти $N3.", false, ch, 0, vict, kToChar);
 		ch->setSkillCooldown(ESkill::kGlobalCooldown, kPulseViolence);
@@ -55,7 +55,7 @@ void go_rescue(CharData *ch, CharData *vict, CharData *tmp_ch) {
 	act("$n героически спас$q $N3!", true, ch, 0, vict, kToNotVict | kToArenaListen);
 
 	int hostilesCounter = 0;
-	if (IsAbleToUseFeat(ch, EFeat::kLiveShield)) {
+	if (CanUseFeat(ch, EFeat::kLiveShield)) {
 		for (const auto i : world[ch->in_room]->people) {
 			if (i->GetEnemy() == vict) {
 				fighting_rescue(ch, vict, i);
@@ -72,7 +72,7 @@ void go_rescue(CharData *ch, CharData *vict, CharData *tmp_ch) {
 }
 
 void do_rescue(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (!ch->get_skill(ESkill::kRescue)) {
+	if (!ch->GetSkill(ESkill::kRescue)) {
 		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}

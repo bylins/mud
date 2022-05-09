@@ -7,7 +7,7 @@
 #ifndef BYLINS_SRC_AFFECTS_AFFECT_CONTANTS_H_
 #define BYLINS_SRC_AFFECTS_AFFECT_CONTANTS_H_
 
-#include "structs/structs.h"
+#include "game_magic/spells_constants.h"
 
 // Константа, определяющая скорость таймера аффектов
 const int kSecsPerPlayerAffect = 2;
@@ -22,7 +22,7 @@ constexpr Bitvector kAfSameTime = 1u << 3; // тикает раз в две се
  * Affect bits: used in char_data.char_specials.saved.affected_by //
  */
 enum class EAffect : Bitvector {
-	kIncorrect = 0u,
+	kUndefinded = 0u,
 	kBlind = 1u << 0,                    ///< (R) Char is blind
 	kInvisible = 1u << 1,                ///< Char is invisible
 	kDetectAlign = 1u << 2,                ///< Char is sensitive to align
@@ -177,7 +177,7 @@ const std::string &NAME_BY_ITEM(EWeaponAffect item);
 struct WeaponAffect {
 	EWeaponAffect aff_pos;
 	Bitvector aff_bitvector;
-	int aff_spell;
+	ESpell aff_spell;
 };
 
 // Applies используются как в предметах, так и в аффектах. Разумней разместить их тут, т.к. по сути

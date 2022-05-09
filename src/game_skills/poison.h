@@ -11,13 +11,13 @@
 #include "game_affects/affect_data.h"
 
 void poison_victim(CharData *ch, CharData *vict, int modifier);
-void try_weap_poison(CharData *ch, CharData *vict, int spell_num);
+void TryPoisonWithWeapom(CharData *ch, CharData *vict, ESpell spell_id);
 
 bool poison_in_vessel(int liquid_num);
 void set_weap_poison(ObjData *weapon, int liquid_num);
 
-std::string get_poison_by_spell(int spell);
-bool check_poison(int spell);
+std::string GetPoisonName(ESpell spell_id);
+bool IsSpellPoison(ESpell spell_id);
 
 int ProcessPoisonDmg(CharData *ch, const Affect<EApply>::shared_ptr &af);
 

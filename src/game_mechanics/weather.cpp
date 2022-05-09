@@ -825,7 +825,7 @@ void calc_easter(void) {
 const int moon_modifiers[28] = {-10, -9, -7, -5, -3, 0, 0, 0, 0, 0, 0, 0, 1, 5, 10, 5, 1, 0, 0, 0, 0, 0,
 								0, 0, -2, -5, -7, -9};
 
-int day_spell_modifier(CharData *ch, int/* spellnum*/, int type, int value) {
+int CalcDaySpellMod(CharData *ch, ESpell /* spell_id */, int type, int value) {
 	int modi = value;
 	if (ch->IsNpc() || ch->in_room == kNowhere)
 		return (modi);
@@ -839,7 +839,7 @@ int day_spell_modifier(CharData *ch, int/* spellnum*/, int type, int value) {
 	return (modi);
 }
 
-int weather_spell_modifier(CharData *ch, int spellnum, int type, int value) {
+int CalcWeatherSpellMod(CharData *ch, ESpell spell_id, int type, int value) {
 	int modi = value, sky = weather_info.sky;
 	auto season = weather_info.season;
 
@@ -857,14 +857,14 @@ int weather_spell_modifier(CharData *ch, int spellnum, int type, int value) {
 	switch (type) {
 		case GAPPLY_SPELL_SUCCESS:
 		case GAPPLY_SPELL_EFFECT:
-			switch (spellnum)    // Огненные спеллы - лето, день, безоблачно
+			switch (spell_id)    // Огненные спеллы - лето, день, безоблачно
 			{
-				case kSpellBurningHands:
-				case kSpellShockingGasp:
-				case kSpellShineFlash:
-				case kSpellIceBolts:
-				case kSpellFireball:
-				case kSpellFireBlast:
+				case ESpell::kBurningHands:
+				case ESpell::kShockingGasp:
+				case ESpell::kShineFlash:
+				case ESpell::kIceBolts:
+				case ESpell::kFireball:
+				case ESpell::kFireBlast:
 					if (season == ESeason::kSummer &&
 						(weather_info.sunlight == kSunRise || weather_info.sunlight == kSunLight)) {
 						if (sky == kSkyLightning)
@@ -874,20 +874,20 @@ int weather_spell_modifier(CharData *ch, int spellnum, int type, int value) {
 					}
 					break;
 					// Молнийные спеллы - облачно или дождливо
-				case kSpellCallLighting:
-				case kSpellLightingBolt:
-				case kSpellChainLighting:
-				case kSpellArmageddon:
+				case ESpell::kCallLighting:
+				case ESpell::kLightingBolt:
+				case ESpell::kChainLighting:
+				case ESpell::kArmageddon:
 					if (sky == kSkyRaining)
 						modi += (modi * number(20, 50) / 100);
 					else if (sky == kSkyCloudy)
 						modi += (modi * number(10, 25) / 100);
 					break;
 					// Водно-ледяные спеллы - зима
-				case kSpellChillTouch:
-				case kSpellIceStorm:
-				case kSpellColdWind:
-				case kSpellGodsWrath:
+				case ESpell::kChillTouch:
+				case ESpell::kIceStorm:
+				case ESpell::kColdWind:
+				case ESpell::kGodsWrath:
 					if (season == ESeason::kWinter) {
 						if (sky == kSkyRaining || sky == kSkyCloudy)
 							modi += (modi * number(20, 50) / 100);
@@ -895,6 +895,7 @@ int weather_spell_modifier(CharData *ch, int spellnum, int type, int value) {
 							modi += (modi * number(10, 25) / 100);
 					}
 					break;
+				default: break;
 			}
 			break;
 	}
@@ -903,10 +904,10 @@ int weather_spell_modifier(CharData *ch, int spellnum, int type, int value) {
 	return (modi);
 }
 
-int complex_spell_modifier(CharData *ch, int spellnum, int type, int value) {
+int CalcComplexSpellMod(CharData *ch, ESpell spell_id, int type, int value) {
 	int modi = value;
-	modi = day_spell_modifier(ch, spellnum, type, modi);
-	modi = weather_spell_modifier(ch, spellnum, type, modi);
+	modi = CalcDaySpellMod(ch, spell_id, type, modi);
+	modi = CalcWeatherSpellMod(ch, spell_id, type, modi);
 	return (modi);
 }
 
@@ -957,7 +958,7 @@ int weather_skill_modifier(CharData *ch, ESkill skillnum, int type, int value) {
 	return (modi);
 }
 
-int GetComplexSkillModifier(CharData *ch, ESkill skillnum, int type, int value) {
+int GetComplexSkillMod(CharData *ch, ESkill skillnum, int type, int value) {
 	int modi = value;
 	modi = day_skill_modifier(ch, skillnum, type, modi);
 	modi = weather_skill_modifier(ch, skillnum, type, modi);

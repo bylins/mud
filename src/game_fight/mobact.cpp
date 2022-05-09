@@ -28,7 +28,7 @@
 #include "action_targeting.h"
 #include "act_movement.h"
 #include "entities/world_characters.h"
-#include "world_objects.h"
+#include "entities/world_objects.h"
 #include "handler.h"
 #include "game_magic/magic.h"
 #include "game_fight/pk.h"
@@ -131,36 +131,36 @@ int extra_aggressive(CharData *ch, CharData *victim) {
 int attack_best(CharData *ch, CharData *victim) {
 	ObjData *wielded = GET_EQ(ch, EEquipPos::kWield);
 	if (victim) {
-		if (ch->get_skill(ESkill::kStrangle) && !IsTimedBySkill(ch, ESkill::kStrangle)) {
+		if (ch->GetSkill(ESkill::kStrangle) && !IsTimedBySkill(ch, ESkill::kStrangle)) {
 			go_strangle(ch, victim);
 			return (true);
 		}
-		if (ch->get_skill(ESkill::kBackstab) && !victim->GetEnemy()) {
+		if (ch->GetSkill(ESkill::kBackstab) && !victim->GetEnemy()) {
 			go_backstab(ch, victim);
 			return (true);
 		}
-		if (ch->get_skill(ESkill::kHammer)) {
+		if (ch->GetSkill(ESkill::kHammer)) {
 			go_mighthit(ch, victim);
 			return (true);
 		}
-		if (ch->get_skill(ESkill::kOverwhelm)) {
+		if (ch->GetSkill(ESkill::kOverwhelm)) {
 			go_stupor(ch, victim);
 			return (true);
 		}
-		if (ch->get_skill(ESkill::kBash)) {
+		if (ch->GetSkill(ESkill::kBash)) {
 			go_bash(ch, victim);
 			return (true);
 		}
-		if (ch->get_skill(ESkill::kThrow)
+		if (ch->GetSkill(ESkill::kThrow)
 			&& wielded
 			&& GET_OBJ_TYPE(wielded) == EObjType::kWeapon
 			&& wielded->has_flag(EObjFlag::kThrowing)) {
 			go_throw(ch, victim);
 		}
-		if (ch->get_skill(ESkill::kDisarm)) {
+		if (ch->GetSkill(ESkill::kDisarm)) {
 			go_disarm(ch, victim);
 		}
-		if (ch->get_skill(ESkill::kUndercut)) {
+		if (ch->GetSkill(ESkill::kUndercut)) {
 			go_chopoff(ch, victim);
 		}
 		if (!ch->GetEnemy()) {
@@ -347,7 +347,7 @@ CharData *find_best_stupidmob_victim(CharData *ch, int extmode) {
 
 		// Mobile aggresive
 		if (!kill_this && extra_aggr) {
-			if (IsAbleToUseFeat(vict, EFeat::kSilverTongue)) {
+			if (CanUseFeat(vict, EFeat::kSilverTongue)) {
 				const int number1 = number(1, GetRealLevel(vict) * GET_REAL_CHA(vict));
 				const int range = ((GetRealLevel(ch) > 30)
 								   ? (GetRealLevel(ch) * 2 * GET_REAL_INT(ch) + GET_REAL_INT(ch) * 20)
@@ -390,7 +390,7 @@ CharData *find_best_stupidmob_victim(CharData *ch, int extmode) {
 			min_lvl = vict;
 		}
 
-		if (IS_CASTER(vict) &&
+		if (IsCaster(vict) &&
 			(!caster	|| caster->caster_level * GET_REAL_CHA(vict) < GET_REAL_CHA(caster)*vict->caster_level)) {
 			caster = vict;
 		}
@@ -449,7 +449,7 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 
 	currentVictim = ch->GetEnemy();
 	if (currentVictim && !currentVictim->IsNpc()) {
-		if (IS_CASTER(currentVictim)) {
+		if (IsCaster(currentVictim)) {
 			return currentVictim;
 		}
 	}
@@ -516,7 +516,7 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 			continue;
 
 		if (!kill_this && extra_aggr) {
-			if (IsAbleToUseFeat(vict, EFeat::kSilverTongue)
+			if (CanUseFeat(vict, EFeat::kSilverTongue)
 				&& number(1, GetRealLevel(vict) * GET_REAL_CHA(vict)) > number(1, GetRealLevel(ch) * GET_REAL_INT(ch))) {
 				continue;
 			}
@@ -526,19 +526,19 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 		if (!kill_this)
 			continue;
 		// волхв
-		if (GET_CLASS(vict) == ECharClass::kMagus) {
+		if (vict->GetClass() == ECharClass::kMagus) {
 			druid = vict;
 			caster = vict;
 			continue;
 		}
 		// лекарь
-		if (GET_CLASS(vict) == ECharClass::kSorcerer) {
+		if (vict->GetClass() == ECharClass::kSorcerer) {
 			cler = vict;
 			caster = vict;
 			continue;
 		}
 		// кудес
-		if (GET_CLASS(vict) == ECharClass::kCharmer) {
+		if (vict->GetClass() == ECharClass::kCharmer) {
 			charmmage = vict;
 			caster = vict;
 			continue;
@@ -547,7 +547,7 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 		if (GET_HIT(vict) <= kCharacterHPForMobPriorityAttack) {
 			return vict;
 		}
-		if (IS_CASTER(vict)) {
+		if (IsCaster(vict)) {
 			caster = vict;
 			continue;
 		}
@@ -706,10 +706,10 @@ int perform_mob_switch(CharData *ch) {
 	SetFighting(ch, best);
 	SetWait(ch, 2, false);
 
-	if (ch->get_skill(ESkill::kHammer)
+	if (ch->GetSkill(ESkill::kHammer)
 		&& check_mighthit_weapon(ch)) {
 		SET_AF_BATTLE(ch, kEafHammer);
-	} else if (ch->get_skill(ESkill::kOverwhelm)) {
+	} else if (ch->GetSkill(ESkill::kOverwhelm)) {
 		SET_AF_BATTLE(ch, ESkill::kOverwhelm);
 	}
 
@@ -733,7 +733,7 @@ void do_aggressive_mob(CharData *ch, int check_sneak) {
 	if (extra_aggressive(ch, nullptr)) {
 		const auto &room = world[ch->in_room];
 		for (auto affect_it = room->affected.begin(); affect_it != room->affected.end(); ++affect_it) {
-			if (affect_it->get()->type == kSpellRuneLabel && (affect_it != room->affected.end())) {
+			if (affect_it->get()->type == ESpell::kRuneLabel && (affect_it != room->affected.end())) {
 				act("$n шаркнул$g несколько раз по светящимся рунам, полностью их уничтожив.",
 					false,
 					ch,
@@ -936,7 +936,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 
 		i = missed_pulses;
 		while (i--) {
-			pulse_affect_update(ch.get());
+			UpdateAffectOnPulse(ch.get());
 		}
 
 		ch->wait_dec(missed_pulses);
@@ -1206,7 +1206,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 			door = npc_walk(ch.get());
 		}
 
-		if (MEMORY(ch) && door == kBfsError && GET_POS(ch) > EPosition::kFight && ch->get_skill(ESkill::kTrack))
+		if (MEMORY(ch) && door == kBfsError && GET_POS(ch) > EPosition::kFight && ch->GetSkill(ESkill::kTrack))
 			door = npc_track(ch.get());
 
 		if (door == kBfsAlreadyThere) {
@@ -1249,17 +1249,17 @@ void mobile_activity(int activity_level, int missed_pulses) {
 			&& !AFF_FLAGGED(ch, EAffect::kBlind)
 			&& !ch->GetEnemy()) {
 			// Find memory in world
-			for (auto names = MEMORY(ch); names && (GET_SPELL_MEM(ch, kSpellSummon) > 0
-				|| GET_SPELL_MEM(ch, kSpellRelocate) > 0); names = names->next) {
+			for (auto names = MEMORY(ch); names && (GET_SPELL_MEM(ch, ESpell::kSummon) > 0
+				|| GET_SPELL_MEM(ch, ESpell::kRelocate) > 0); names = names->next) {
 				for (const auto &vict : character_list) {
 					if (names->id == GET_IDNUM(vict)
 						&& CAN_SEE(ch, vict) && !PRF_FLAGGED(vict, EPrf::kNohassle)) {
-						if (GET_SPELL_MEM(ch, kSpellSummon) > 0) {
-							CastSpell(ch.get(), vict.get(), 0, 0, kSpellSummon, kSpellSummon);
+						if (GET_SPELL_MEM(ch, ESpell::kSummon) > 0) {
+							CastSpell(ch.get(), vict.get(), 0, 0, ESpell::kSummon, ESpell::kSummon);
 
 							break;
-						} else if (GET_SPELL_MEM(ch, kSpellRelocate) > 0) {
-							CastSpell(ch.get(), vict.get(), 0, 0, kSpellRelocate, kSpellRelocate);
+						} else if (GET_SPELL_MEM(ch, ESpell::kRelocate) > 0) {
+							CastSpell(ch.get(), vict.get(), 0, 0, ESpell::kRelocate, ESpell::kRelocate);
 
 							break;
 						}
@@ -1309,7 +1309,7 @@ void mobRemember(CharData *ch, CharData *victim) {
 
 	if (!IsTimedBySkill(victim, ESkill::kHideTrack)) {
 		timed.skill = ESkill::kHideTrack;
-		timed.time = ch->get_skill(ESkill::kTrack) ? 6 : 3;
+		timed.time = ch->GetSkill(ESkill::kTrack) ? 6 : 3;
 		ImposeTimedSkill(victim, &timed);
 	}
 }

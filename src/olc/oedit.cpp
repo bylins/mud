@@ -8,7 +8,7 @@
 *  $Revision$                                                      *
  ************************************************************************/
 
-#include "world_objects.h"
+#include "entities/world_objects.h"
 #include "obj_prototypes.h"
 #include "conf.h"
 #include "sysdep.h"
@@ -45,7 +45,7 @@
 #include <stack>
 
 // * External variable declarations.
-extern const char *item_types[];
+/*extern const char *item_types[];
 extern const char *wear_bits[];
 extern const char *extra_bits[];
 extern const char *drinks[];
@@ -56,8 +56,7 @@ extern const char *no_bits[];
 extern const char *weapon_affects[];
 extern const char *material_name[];
 extern const char *ingradient_bits[];
-extern const char *magic_container_bits[];
-extern struct SpellInfo spell_info[];
+extern const char *magic_container_bits[];*/
 extern DescriptorData *descriptor_list;
 extern int top_imrecipes;
 extern void ExtractObjFromWorld(ObjData *obj);
@@ -335,8 +334,8 @@ void oedit_save_to_disk(int zone_num) {
 					!obj->get_description().empty() ? obj->get_description().c_str() : "undefined",
 					buf1,
 					GET_OBJ_SKILL(obj), GET_OBJ_MAX(obj), GET_OBJ_CUR(obj),
-					GET_OBJ_MATER(obj), static_cast<int>(GET_OBJ_SEX(obj)),
-					obj->get_timer(), GET_OBJ_SPELL(obj),
+					GET_OBJ_MATER(obj), to_underlying(GET_OBJ_SEX(obj)),
+					obj->get_timer(), to_underlying(GET_OBJ_SPELL(obj)),
 					GET_OBJ_LEVEL(obj), buf2, GET_OBJ_VAL(obj, 0),
 					GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2),
 					GET_OBJ_VAL(obj, 3), GET_OBJ_WEIGHT(obj),
@@ -530,17 +529,17 @@ void oedit_disp_weapon_menu(DescriptorData *d) {
 
 // * Spell type.
 void oedit_disp_spells_menu(DescriptorData *d) {
-	int counter, columns = 0;
+	int columns = 0;
 
 	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
-	for (counter = 0; counter <= kSpellCount; counter++) {
-		if (!spell_info[counter].name || *spell_info[counter].name == '!' || *spell_info[counter].name == '*')
+	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
+		if (!spell_info[spell_id].name || *spell_info[spell_id].name == '!' || *spell_info[spell_id].name == '*')
 			continue;
-		sprintf(buf, "%s%2d%s) %s%-30.30s %s", grn, counter, nrm, yel,
-				spell_info[counter].name, !(++columns % 4) ? "\r\n" : "");
+		sprintf(buf, "%s%2d%s) %s%-30.30s %s", grn, to_underlying(spell_id), nrm, yel,
+				spell_info[spell_id].name, !(++columns % 4) ? "\r\n" : "");
 		SendMsgToChar(buf, d->character.get());
 	}
 	sprintf(buf, "\r\n%sВыберите магию (0 - выход) : ", nrm);
@@ -560,7 +559,7 @@ void oedit_disp_skills2_menu(DescriptorData *d) {
 		}
 
 		sprintf(buf, "%s%2d%s) %s%-20.20s %s", grn, to_underlying(skill_id), nrm, yel,
-				MUD::Skills()[skill_id].GetName(), !(++columns % 3) ? "\r\n" : "");
+				MUD::Skills(skill_id).GetName(), !(++columns % 3) ? "\r\n" : "");
 		SendMsgToChar(buf, d->character.get());
 	}
 	sprintf(buf, "\r\n%sВыберите умение (0 - выход) : ", nrm);
@@ -590,12 +589,12 @@ void oedit_disp_feats_menu(DescriptorData *d) {
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
-	for (auto counter = EFeat::kFirstFeat; counter < EFeat::kLastFeat; ++counter) {
+	for (auto counter = EFeat::kFirst; counter < EFeat::kLast; ++counter) {
 		if (!feat_info[counter].name || *feat_info[counter].name == '!') {
 			continue;
 		}
 
-		sprintf(buf, "%s%2d%s) %s%-20.20s %s", grn, counter, nrm, yel,
+		sprintf(buf, "%s%2d%s) %s%-20.20s %s", grn, to_underlying(counter), nrm, yel,
 				feat_info[counter].name, !(++columns % 3) ? "\r\n" : "");
 		SendMsgToChar(buf, d->character.get());
 	}
@@ -623,7 +622,7 @@ void oedit_disp_skills_mod_menu(DescriptorData *d) {
 			strcpy(buf1, "     ");
 		}
 		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, to_underlying(skill_id), nrm,
-				 MUD::Skills()[skill_id].GetName(), buf1, !(++columns % 2) ? "\r\n" : "");
+				 MUD::Skills(skill_id).GetName(), buf1, !(++columns % 2) ? "\r\n" : "");
 		SendMsgToChar(buf, d->character.get());
 	}
 	SendMsgToChar("\r\nУкажите номер и уровень владения умением (0 - конец) : ", d->character.get());
@@ -1051,7 +1050,8 @@ std::string print_spell_value(ObjData *obj, const ObjVal::EValueKey key1, const 
 		return "нет";
 	}
 	char buf_[kMaxInputLength];
-	snprintf(buf_, sizeof(buf_), "%s:%d", GetSpellName(obj->get_value(key1)), obj->get_value(key2));
+	snprintf(buf_, sizeof(buf_), "%s:%d",
+			 GetSpellName(static_cast<ESpell>(obj->get_value(key1))), obj->get_value(key2));
 	return buf_;
 }
 
@@ -1262,8 +1262,8 @@ void check_potion_proto(ObjData *obj) {
 }
 
 bool parse_val_spell_num(DescriptorData *d, const ObjVal::EValueKey key, int val) {
-	if (val < 1
-		|| val > kSpellCount) {
+	auto spell_id = static_cast<ESpell>(val);
+	if (spell_id < ESpell::kFirst || spell_id >= ESpell::kLast) {
 		if (val != 0) {
 			SendMsgToChar("Неверный выбор.\r\n", d->character.get());
 		}
@@ -1276,7 +1276,7 @@ bool parse_val_spell_num(DescriptorData *d, const ObjVal::EValueKey key, int val
 	OLC_OBJ(d)->set_value(key, val);
 	SendMsgToChar(d->character.get(), "Выбранное заклинание: %s\r\n"
 									  "Ведите уровень заклинания от 1 до 50 (0 - выход) :",
-				  GetSpellName(val));
+				  GetSpellName(spell_id));
 	return true;
 }
 
@@ -1345,7 +1345,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 					oedit_save_internally(d);
 					sprintf(buf, "OLC: %s edits obj %d", GET_NAME(d->character), OLC_NUM(d));
 					olc_log("%s edit obj %d", GET_NAME(d->character), OLC_NUM(d));
-					mudlog(buf, NRM, MAX(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
+					mudlog(buf, NRM, std::max(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
 					cleanup_olc(d, CLEANUP_STRUCTS);
 					break;
 
@@ -1798,16 +1798,16 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			number = atoi(arg);
 			switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
 				case EObjType::kScroll:
-				case EObjType::kPotion:
-					if (number < 1
-						|| number > kSpellCount) {
+				case EObjType::kPotion: {
+					auto spell_id = static_cast<ESpell>(number);
+					if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast) {
 						oedit_disp_val2_menu(d);
 					} else {
 						OLC_OBJ(d)->set_val(1, number);
 						oedit_disp_val3_menu(d);
 					}
 					return;
-
+				}
 				case EObjType::kContainer:
 					// Needs some special handling since we are dealing with flag values
 					// here.
@@ -1825,19 +1825,21 @@ void oedit_parse(DescriptorData *d, char *arg) {
 
 				case EObjType::kBook:
 					switch (GET_OBJ_VAL(OLC_OBJ(d), 0)) {
-						case EBook::kSpell:
+						case EBook::kSpell: {
 							if (number == 0) {
 								OLC_VAL(d) = 0;
 								oedit_disp_menu(d);
 								return;
 							}
-							if (number < 0 || (number > kSpellCount || !spell_info[number].name
-								|| *spell_info[number].name == '!')) {
+							auto spell_id = static_cast<ESpell>(number);
+							if (spell_id < ESpell::kFirst || (spell_id > ESpell::kLast ||
+								!spell_info[spell_id].name || *spell_info[spell_id].name == '!')) {
 								SendMsgToChar("Неизвестное заклинание, повторите.\r\n", d->character.get());
 								oedit_disp_val2_menu(d);
 								return;
 							}
 							break;
+						}
 
 						case EBook::kSkill:
 						case EBook::kSkillUpgrade:
@@ -1848,8 +1850,8 @@ void oedit_parse(DescriptorData *d, char *arg) {
 							}
 							skill_id = static_cast<ESkill>(number);
 							if (skill_id > ESkill::kLast
-								|| !MUD::Skills()[skill_id].GetName()
-								|| *MUD::Skills()[skill_id].GetName() == '!') {
+								|| !MUD::Skills(skill_id).GetName()
+								|| *MUD::Skills(skill_id).GetName() == '!') {
 								SendMsgToChar("Неизвестное умение, повторите.\r\n", d->character.get());
 								oedit_disp_val2_menu(d);
 								return;
@@ -1870,8 +1872,9 @@ void oedit_parse(DescriptorData *d, char *arg) {
 								oedit_disp_menu(d);
 								return;
 							}
-							if (number < EFeat::kFirstFeat || number > EFeat::kLastFeat ||
-								!feat_info[number].name || *feat_info[number].name == '!') {
+							auto feat_id = static_cast<EFeat>(number);
+							if (feat_id < EFeat::kFirst || feat_id > EFeat::kLast ||
+								!feat_info[feat_id].name || *feat_info[feat_id].name == '!') {
 								SendMsgToChar("Неизвестная способность, повторите.\r\n", d->character.get());
 								oedit_disp_val2_menu(d);
 								return;
@@ -1890,7 +1893,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
 				case EObjType::kScroll:
 				case EObjType::kPotion: min_val = -1;
-					max_val = kSpellCount;
+					max_val = to_underlying(ESpell::kLast);
 					break;
 
 				case EObjType::kWeapon: min_val = 1;
@@ -1923,12 +1926,12 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
 				case EObjType::kScroll:
 				case EObjType::kPotion: min_val = -1;
-					max_val = kSpellCount;
+					max_val = to_underlying(ESpell::kLast);
 					break;
 
 				case EObjType::kWand:
 				case EObjType::kStaff: min_val = 1;
-					max_val = kSpellCount;
+					max_val = to_underlying(ESpell::kLast);
 					break;
 
 				case EObjType::kWeapon: min_val = 0;

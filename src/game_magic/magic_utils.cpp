@@ -14,6 +14,7 @@
 
 #include "magic_utils.h"
 
+#include "game_classes/classes.h"
 #include "structs/global_objects.h"
 #include "handler.h"
 #include "color.h"
@@ -23,36 +24,34 @@
 
 char cast_argument[kMaxStringLength];
 
-#define SpINFO spell_info[spellnum]
-
 extern int what_sky;
 
 
-int CalcRequiredLevel(const CharData *ch, int spellnum) {
-	int required_level = spell_create[spellnum].runes.min_caster_level;
+int CalcRequiredLevel(const CharData *ch, ESpell spell_id) {
+	int required_level = spell_create[spell_id].runes.min_caster_level;
 
 	if (required_level >= kLvlGod)
 		return required_level;
-	if (IsAbleToUseFeat(ch, EFeat::kSecretRunes)) {
+	if (CanUseFeat(ch, EFeat::kSecretRunes)) {
 		int remort = GET_REAL_REMORT(ch);
 		required_level -= MIN(8, MAX(0, ((remort - 8) / 3) * 2 + (remort > 7 && remort < 11 ? 1 : 0)));
 	}
 
-	return MAX(1, required_level);
+	return std::max(1, required_level);
 }
 
 // SaySpell erodes buf, buf1, buf2
-void SaySpell(CharData *ch, int spellnum, CharData *tch, ObjData *tobj) {
+void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 	char lbuf[256];
 	const char *say_to_self, *say_to_other, *say_to_obj_vis, *say_to_something,
 		*helpee_vict, *damagee_vict, *format;
 
 	*buf = '\0';
-	strcpy(lbuf, SpINFO.syn);
+	strcpy(lbuf, spell_info[spell_id].syn);
 	// Say phrase ?
-	const auto &cast_phrase_list = get_cast_phrase(spellnum);
+	const auto &cast_phrase_list = GetCastPhrase(spell_id);
 	if (!cast_phrase_list) {
-		sprintf(buf, "[ERROR]: SaySpell: для спелла %d не объявлена cast_phrase", spellnum);
+		sprintf(buf, "[ERROR]: SaySpell: для спелла %d не объявлена cast_phrase", to_underlying(spell_id));
 		mudlog(buf, CMP, kLvlGod, SYSLOG, true);
 		return;
 	}
@@ -62,8 +61,7 @@ void SaySpell(CharData *ch, int spellnum, CharData *tch, ObjData *tobj) {
 			case ENpcRace::kGhost:
 			case ENpcRace::kHuman:
 			case ENpcRace::kZombie:
-			case ENpcRace::kSpirit:
-			{
+			case ENpcRace::kSpirit: {
 				const int religion = number(kReligionPoly, kReligionMono);
 				const std::string &cast_phrase = religion ? cast_phrase_list->text_for_christian : cast_phrase_list->text_for_heathen;
 				if (!cast_phrase.empty()) {
@@ -85,17 +83,17 @@ void SaySpell(CharData *ch, int spellnum, CharData *tch, ObjData *tobj) {
 				helpee_vict = "$n издал$g непонятный звук.";
 		}
 	} else {
-		//если включен режим без повторов (подавление ехо) не показываем
 		if (PRF_FLAGGED(ch, EPrf::kNoRepeat)) {
-			if (!ch->GetEnemy()) //если персонаж не в бою, шлем строчку, если в бою ничего не шлем
+			if (!ch->GetEnemy()) {
 				SendMsgToChar(OK, ch);
+			}
 		} else {
-			if (IS_SET(SpINFO.routines, kMagWarcry))
+			if (IS_SET(spell_info[spell_id].routines, kMagWarcry))
 				sprintf(buf, "Вы выкрикнули \"%s%s%s\".\r\n",
-						SpINFO.violent ? CCIRED(ch, C_NRM) : CCIGRN(ch, C_NRM), SpINFO.name, CCNRM(ch, C_NRM));
+						spell_info[spell_id].violent ? CCIRED(ch, C_NRM) : CCIGRN(ch, C_NRM), spell_info[spell_id].name, CCNRM(ch, C_NRM));
 			else
 				sprintf(buf, "Вы произнесли заклинание \"%s%s%s\".\r\n",
-						SpINFO.violent ? CCIRED(ch, C_NRM) : CCIGRN(ch, C_NRM), SpINFO.name, CCNRM(ch, C_NRM));
+						spell_info[spell_id].violent ? CCIRED(ch, C_NRM) : CCIGRN(ch, C_NRM), spell_info[spell_id].name, CCNRM(ch, C_NRM));
 			SendMsgToChar(buf, ch);
 		}
 		const std::string &cast_phrase = GET_RELIGION(ch) ? cast_phrase_list->text_for_christian : cast_phrase_list->text_for_heathen;
@@ -122,19 +120,15 @@ void SaySpell(CharData *ch, int spellnum, CharData *tch, ObjData *tobj) {
 		format = say_to_something;
 	}
 
-	sprintf(buf1, format, GetSpellName(spellnum));
+	sprintf(buf1, format, GetSpellName(spell_id));
 	sprintf(buf2, format, buf);
 
 	for (const auto i : world[ch->in_room]->people) {
-		if (i == ch
-			|| i == tch
-			|| !i->desc
-			|| !AWAKE(i)
-			|| AFF_FLAGGED(i, EAffect::kDeafness)) {
+		if (i == ch || i == tch || !i->desc || !AWAKE(i) || AFF_FLAGGED(i, EAffect::kDeafness)) {
 			continue;
 		}
 
-		if (IS_SET(GET_SPELL_TYPE(i, spellnum), kSpellKnow | kSpellTemp)) {
+		if (IS_SET(GET_SPELL_TYPE(i, spell_id), ESpellType::kKnow | ESpellType::kTemp)) {
 			perform_act(buf1, ch, tobj, tch, i);
 		} else {
 			perform_act(buf2, ch, tobj, tch, i);
@@ -143,16 +137,13 @@ void SaySpell(CharData *ch, int spellnum, CharData *tch, ObjData *tobj) {
 
 	act(buf1, 1, ch, tobj, tch, kToArenaListen);
 
-	if (tch != nullptr
-		&& tch != ch
-		&& IN_ROOM(tch) == ch->in_room
-		&& !AFF_FLAGGED(tch, EAffect::kDeafness)) {
-		if (SpINFO.violent) {
+	if (tch != nullptr && tch != ch && IN_ROOM(tch) == ch->in_room && !AFF_FLAGGED(tch, EAffect::kDeafness)) {
+		if (spell_info[spell_id].violent) {
 			sprintf(buf1, damagee_vict,
-					IS_SET(GET_SPELL_TYPE(tch, spellnum), kSpellKnow | kSpellTemp) ? GetSpellName(spellnum) : buf);
+					IS_SET(GET_SPELL_TYPE(tch, spell_id), ESpellType::kKnow | ESpellType::kTemp) ? GetSpellName(spell_id) : buf);
 		} else {
 			sprintf(buf1, helpee_vict,
-					IS_SET(GET_SPELL_TYPE(tch, spellnum), kSpellKnow | kSpellTemp) ? GetSpellName(spellnum) : buf);
+					IS_SET(GET_SPELL_TYPE(tch, spell_id), ESpellType::kKnow | ESpellType::kTemp) ? GetSpellName(spell_id) : buf);
 		}
 		act(buf1, false, ch, nullptr, tch, kToVict);
 	}
@@ -202,11 +193,11 @@ ESkill FindSkillId(const char *name) {
 		}
 	}
 
-	return ESkill::kIncorrect;
+	return ESkill::kUndefined;
 }
 
-int FindSpellNum(const char *name) {
-	int index, ok;
+ESpell FindSpellNum(const char *name) {
+	int ok;
 	char const *temp, *temp2, *realname;
 	char first[256], first2[256];
 
@@ -214,13 +205,15 @@ int FindSpellNum(const char *name) {
 		&& ((ubyte) *name >= (ubyte) 'a'))
 		|| (((ubyte) *name <= (ubyte) 'Z') && ((ubyte) *name >= (ubyte) 'A'));
 
-	for (index = 1; index <= kSpellCount; index++) {
-		realname = (use_syn) ? spell_info[index].syn : spell_info[index].name;
+	for (auto spell_id = ESpell::kFirst ; spell_id <= ESpell::kLast; ++spell_id) {
+		realname = (use_syn) ? spell_info[spell_id].syn : spell_info[spell_id].name;
 
-		if (!realname || !*realname)
+		if (!realname || !*realname) {
 			continue;
-		if (utils::IsAbbrev(name, realname))
-			return (index);
+		}
+		if (utils::IsAbbrev(name, realname)) {
+			return static_cast<ESpell>(spell_id);
+		}
 		ok = true;
 		// It won't be changed, but other uses of this function elsewhere may.
 		temp = any_one_arg(realname, first);
@@ -231,86 +224,87 @@ int FindSpellNum(const char *name) {
 			temp = any_one_arg(temp, first);
 			temp2 = any_one_arg(temp2, first2);
 		}
-		if (ok && !*first2)
-			return (index);
+		if (ok && !*first2) {
+			return static_cast<ESpell>(spell_id);
+		}
 
 	}
-	return (-1);
+	return ESpell::kUndefined;
 }
 
 /*void fix_name_feat(char *name) {
 	fix_name(name);
 }*/
 
-ESkill FixNameAndFindSkillNum(char *name) {
+ESkill FixNameAndFindSkillId(char *name) {
 	FixName(name);
 	return FindSkillId(name);
 }
 
-ESkill FixNameFndFindSkillNum(std::string &name) {
+ESkill FixNameFndFindSkillId(std::string &name) {
 	FixName(name);
 	return FindSkillId(name.c_str());
 }
 
-int FixNameAndFindSpellNum(char *name) {
+ESpell FixNameAndFindSpellId(char *name) {
 	FixName(name);
 	return FindSpellNum(name);
 }
 
-int FixNameAndFindSpellNum(std::string &name) {
+ESpell FixNameAndFindSpellId(std::string &name) {
 	FixName(name);
 	return FindSpellNum(name.c_str());
 }
 
-bool MayCastInNomagic(CharData *caster, int spellnum) {
-	if (IS_GRGOD(caster) || IS_SET(SpINFO.routines, kMagWarcry)) {
+bool MayCastInNomagic(CharData *caster, ESpell spell_id) {
+	if (IS_GRGOD(caster) || IS_SET(spell_info[spell_id].routines, kMagWarcry)) {
 		return true;
 	}
 
 	return false;
 }
 
-bool MayCastHere(CharData *caster, CharData *victim, int spellnum) {
+bool MayCastHere(CharData *caster, CharData *victim, ESpell spell_id) {
 	int ignore;
 
 	if (IS_GRGOD(caster) || !ROOM_FLAGGED(IN_ROOM(caster), ERoomFlag::kPeaceful)) {
 		return true;
 	}
 
-	if (ROOM_FLAGGED(IN_ROOM(caster), ERoomFlag::kNoBattle) && SpINFO.violent) {
+	if (ROOM_FLAGGED(IN_ROOM(caster), ERoomFlag::kNoBattle) && spell_info[spell_id].violent) {
 		return false;
 	}
 
-	ignore = IS_SET(SpINFO.targets, kTarIgnore)
-		|| IS_SET(SpINFO.routines, kMagMasses)
-		|| IS_SET(SpINFO.routines, kMagGroups);
+	ignore = IS_SET(spell_info[spell_id].targets, kTarIgnore)
+		|| IS_SET(spell_info[spell_id].routines, kMagMasses)
+		|| IS_SET(spell_info[spell_id].routines, kMagGroups);
 
 	if (!ignore && !victim) {
 		return true;
 	}
 
-	if (ignore && !IS_SET(SpINFO.routines, kMagMasses) && !IS_SET(SpINFO.routines, kMagGroups)) {
-		if (SpINFO.violent) {
+	if (ignore && !IS_SET(spell_info[spell_id].routines, kMagMasses) && !IS_SET(spell_info[spell_id].routines, kMagGroups)) {
+		if (spell_info[spell_id].violent) {
 			return false;
 		}
 		return victim == nullptr ? true : false;
 	}
 
 	ignore = victim
-		&& (IS_SET(SpINFO.targets, kTarCharRoom)
-			|| IS_SET(SpINFO.targets, kTarCharWorld))
-		&& !IS_SET(SpINFO.routines, kMagAreas);
+		&& (IS_SET(spell_info[spell_id].targets, kTarCharRoom)
+			|| IS_SET(spell_info[spell_id].targets, kTarCharWorld))
+		&& !IS_SET(spell_info[spell_id].routines, kMagAreas);
 
 	for (const auto ch_vict : world[caster->in_room]->people) {
 		if (IS_IMMORTAL(ch_vict))
 			continue;
 		if (!HERE(ch_vict))
 			continue;
-		if (SpINFO.violent && same_group(caster, ch_vict))
+		if (spell_info[spell_id].violent && same_group(caster, ch_vict))
 			continue;
 		if (ignore && ch_vict != victim)
 			continue;
-		if (SpINFO.violent) {
+		if (spell_info[spell_id].violent) {
 			if (!may_kill_here(caster, ch_vict, NoArgument)) {
 				return false;
 			}
@@ -331,24 +325,20 @@ bool MayCastHere(CharData *caster, CharData *victim, int spellnum) {
  * This is also the entry point for non-spoken or unrestricted spells.
  * Spellnum 0 is legal but silently ignored here, to make callers simpler.
  */
-int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, int spellnum, int level) {
+int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level) {
 
-	if (spellnum < 1 || spellnum > kSpellCount)
+	if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast)
 		return 0;
 
-//	if (caster && cvict && !cast_mtrigger(cvict, caster, spellnum)) {
-//		return 0;
-//	}
-
-	if (ROOM_FLAGGED(IN_ROOM(caster), ERoomFlag::kNoMagic) && !MayCastInNomagic(caster, spellnum)) {
+	if (ROOM_FLAGGED(IN_ROOM(caster), ERoomFlag::kNoMagic) && !MayCastInNomagic(caster, spell_id)) {
 		SendMsgToChar("Ваша магия потерпела неудачу и развеялась по воздуху.\r\n", caster);
 		act("Магия $n1 потерпела неудачу и развеялась по воздуху.",
 			false, caster, nullptr, nullptr, kToRoom | kToArenaListen);
 		return 0;
 	}
 
-	if (!MayCastHere(caster, cvict, spellnum)) {
-		if (IS_SET(SpINFO.routines, kMagWarcry)) {
+	if (!MayCastHere(caster, cvict, spell_id)) {
+		if (IS_SET(spell_info[spell_id].routines, kMagWarcry)) {
 			SendMsgToChar("Ваш громовой глас сотряс воздух, но ничего не произошло!\r\n", caster);
 			act("Вы вздрогнули от неожиданного крика, но ничего не произошло.",
 				false, caster, nullptr, nullptr, kToRoom | kToArenaListen);
@@ -361,22 +351,22 @@ int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict
 	}
 
 	if (SpellUsage::is_active) {
-		SpellUsage::AddSpellStat(caster->get_class(), spellnum);
+		SpellUsage::AddSpellStat(caster->GetClass(), spell_id);
 	}
 
-	if (IS_SET(SpINFO.routines, kMagAreas) || IS_SET(SpINFO.routines, kMagMasses)) {
-		return CallMagicToArea(caster, cvict, rvict, spellnum, level);
+	if (IS_SET(spell_info[spell_id].routines, kMagAreas) || IS_SET(spell_info[spell_id].routines, kMagMasses)) {
+		return CallMagicToArea(caster, cvict, rvict, spell_id, level);
 	}
 
-	if (IS_SET(SpINFO.routines, kMagGroups)) {
-		return CallMagicToGroup(level, caster, spellnum);
+	if (IS_SET(spell_info[spell_id].routines, kMagGroups)) {
+		return CallMagicToGroup(level, caster, spell_id);
 	}
 
-	if (IS_SET(SpINFO.routines, kMagRoom)) {
-		return room_spells::CastSpellToRoom(level, caster, rvict, spellnum);
+	if (IS_SET(spell_info[spell_id].routines, kMagRoom)) {
+		return room_spells::CastSpellToRoom(level, caster, rvict, spell_id);
 	}
 
-	return CastToSingleTarget(level, caster, cvict, ovict, spellnum, ESaving::kStability);
+	return CastToSingleTarget(level, caster, cvict, ovict, spell_id, ESaving::kStability);
 }
 
 const char *what_sky_type[] = {"пасмурно",
@@ -413,11 +403,11 @@ ObjData *FindObjForLocate(CharData *ch, const char *name) {
 	return obj;
 }
 
-int FindCastTarget(int spellnum, const char *t, CharData *ch, CharData **tch, ObjData **tobj, RoomData **troom) {
+int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch, ObjData **tobj, RoomData **troom) {
 	*tch = nullptr;
 	*tobj = nullptr;
 	*troom = world[ch->in_room];
-	if (spellnum == kSpellControlWeather) {
+	if (spell_id == ESpell::kControlWeather) {
 		if ((what_sky = search_block(t, what_sky_type, false)) < 0) {
 			SendMsgToChar("Не указан тип погоды.\r\n", ch);
 			return false;
@@ -425,7 +415,7 @@ int FindCastTarget(int spellnum, const char *t, CharData *ch, CharData **tch, Ob
 			what_sky >>= 1;
 	}
 
-	if (spellnum == kSpellCreateWeapon) {
+	if (spell_id == ESpell::kCreateWeapon) {
 		if ((what_sky = search_block(t, what_weapon, false)) < 0) {
 			SendMsgToChar("Не указан тип оружия.\r\n", ch);
 			return false;
@@ -435,24 +425,24 @@ int FindCastTarget(int spellnum, const char *t, CharData *ch, CharData **tch, Ob
 
 	strcpy(cast_argument, t);
 
-	if (IS_SET(SpINFO.targets, kTarRoomThis))
+	if (IS_SET(spell_info[spell_id].targets, kTarRoomThis))
 		return true;
-	if (IS_SET(SpINFO.targets, kTarIgnore))
+	if (IS_SET(spell_info[spell_id].targets, kTarIgnore))
 		return true;
 	else if (*t) {
-		if (IS_SET(SpINFO.targets, kTarCharRoom)) {
+		if (IS_SET(spell_info[spell_id].targets, kTarCharRoom)) {
 			if ((*tch = get_char_vis(ch, t, EFind::kCharInRoom)) != nullptr) {
-				if (SpINFO.violent && !check_pkill(ch, *tch, t))
+				if (spell_info[spell_id].violent && !check_pkill(ch, *tch, t))
 					return false;
 				return true;
 			}
 		}
 
-		if (IS_SET(SpINFO.targets, kTarCharWorld)) {
+		if (IS_SET(spell_info[spell_id].targets, kTarCharWorld)) {
 			if ((*tch = get_char_vis(ch, t, EFind::kCharInWorld)) != nullptr) {
 				// чтобы мобов не чекали
 				if (ch->IsNpc() || !(*tch)->IsNpc()) {
-					if (SpINFO.violent && !check_pkill(ch, *tch, t)) {
+					if (spell_info[spell_id].violent && !check_pkill(ch, *tch, t)) {
 						return false;
 					}
 					return true;
@@ -477,24 +467,24 @@ int FindCastTarget(int spellnum, const char *t, CharData *ch, CharData **tch, Ob
 			}
 		}
 
-		if (IS_SET(SpINFO.targets, kTarObjInv))
+		if (IS_SET(spell_info[spell_id].targets, kTarObjInv))
 			if ((*tobj = get_obj_in_list_vis(ch, t, ch->carrying)) != nullptr)
 				return true;
 
-		if (IS_SET(SpINFO.targets, kTarObjEquip)) {
+		if (IS_SET(spell_info[spell_id].targets, kTarObjEquip)) {
 			int tmp;
 			if ((*tobj = get_object_in_equip_vis(ch, t, ch->equipment, &tmp)) != nullptr)
 				return true;
 		}
 
-		if (IS_SET(SpINFO.targets, kTarObjRoom))
+		if (IS_SET(spell_info[spell_id].targets, kTarObjRoom))
 			if ((*tobj = get_obj_in_list_vis(ch, t, world[ch->in_room]->contents)) != nullptr)
 				return true;
 
-		if (IS_SET(SpINFO.targets, kTarObjWorld)) {
+		if (IS_SET(spell_info[spell_id].targets, kTarObjWorld)) {
 //			if ((*tobj = get_obj_vis(ch, t)) != NULL)
 //				return true;
-			if (spellnum == kSpellLocateObject) {
+			if (spell_id == ESpell::kLocateObject) {
 				*tobj = FindObjForLocate(ch, t);
 			} else {
 				*tobj = get_obj_vis(ch, t);
@@ -504,29 +494,29 @@ int FindCastTarget(int spellnum, const char *t, CharData *ch, CharData **tch, Ob
 			}
 		}
 	} else {
-		if (IS_SET(SpINFO.targets, kTarFightSelf))
+		if (IS_SET(spell_info[spell_id].targets, kTarFightSelf))
 			if (ch->GetEnemy() != nullptr) {
 				*tch = ch;
 				return true;
 			}
-		if (IS_SET(SpINFO.targets, kTarFightVict))
+		if (IS_SET(spell_info[spell_id].targets, kTarFightVict))
 			if (ch->GetEnemy() != nullptr) {
 				*tch = ch->GetEnemy();
 				return true;
 			}
-		if (IS_SET(SpINFO.targets, kTarCharRoom) && !SpINFO.violent) {
+		if (IS_SET(spell_info[spell_id].targets, kTarCharRoom) && !spell_info[spell_id].violent) {
 			*tch = ch;
 			return true;
 		}
 	}
 	// TODO: добавить обработку TAR_ROOM_DIR и TAR_ROOM_WORLD
-	if (IS_SET(SpINFO.routines, kMagWarcry))
+	if (IS_SET(spell_info[spell_id].routines, kMagWarcry))
 		sprintf(buf, "И на %s же вы хотите так громко крикнуть?\r\n",
-				IS_SET(SpINFO.targets, kTarObjRoom | kTarObjInv | kTarObjWorld | kTarObjEquip)
+				IS_SET(spell_info[spell_id].targets, kTarObjRoom | kTarObjInv | kTarObjWorld | kTarObjEquip)
 				? "ЧТО" : "КОГО");
 	else
 		sprintf(buf, "На %s Вы хотите ЭТО колдовать?\r\n",
-				IS_SET(SpINFO.targets, kTarObjRoom | kTarObjInv | kTarObjWorld | kTarObjEquip)
+				IS_SET(spell_info[spell_id].targets, kTarObjRoom | kTarObjInv | kTarObjWorld | kTarObjEquip)
 				? "ЧТО" : "КОГО");
 	SendMsgToChar(buf, ch);
 	return false;
@@ -540,17 +530,15 @@ int FindCastTarget(int spellnum, const char *t, CharData *ch, CharData **tch, Ob
  * Entry point for NPC casts.  Recommended entry point for spells cast
  * by NPCs via specprocs.
  */
-int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, int spellnum, int spell_subst) {
-	int ignore;
-
-	if (spellnum < 0 || spellnum > kSpellCount) {
-		log("SYSERR: CastSpell trying to call spellnum %d/%d.\n", spellnum, kSpellCount);
-		return (0);
+int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpell spell_id, ESpell spell_subst) {
+	if (spell_id == ESpell::kUndefined) {
+		log("SYSERR: CastSpell trying to call spell id %d.\n", to_underlying(spell_id));
+		return 0;
 	}
 
 	if (tch && ch) {
-		if (IS_MOB(tch) && IS_MOB(ch) && !SAME_ALIGN(ch, tch) && !SpINFO.violent) {
-			return (0);
+		if (IS_MOB(tch) && IS_MOB(ch) && !SAME_ALIGN(ch, tch) && !spell_info[spell_id].violent) {
+			return 0;
 		}
 	}
 
@@ -558,7 +546,7 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, int s
 		troom = world[ch->in_room];
 	}
 
-	if (GET_POS(ch) < SpINFO.min_position) {
+	if (GET_POS(ch) < spell_info[spell_id].min_position) {
 		switch (GET_POS(ch)) {
 			case EPosition::kSleep: SendMsgToChar("Вы спите и не могете думать больше ни о чем.\r\n", ch);
 				break;
@@ -571,53 +559,51 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, int s
 			default: SendMsgToChar("Вам вряд ли это удастся.\r\n", ch);
 				break;
 		}
-		return (0);
+		return 0;
 	}
 
 	if (AFF_FLAGGED(ch, EAffect::kCharmed) && ch->get_master() == tch) {
 		SendMsgToChar("Вы не посмеете поднять руку на вашего повелителя!\r\n", ch);
-		return (0);
+		return 0;
 	}
 
-	if (tch != ch && !IS_IMMORTAL(ch) && IS_SET(SpINFO.targets, kTarSelfOnly)) {
+	if (tch != ch && !IS_IMMORTAL(ch) && IS_SET(spell_info[spell_id].targets, kTarSelfOnly)) {
 		SendMsgToChar("Вы можете колдовать это только на себя!\r\n", ch);
-		return (0);
+		return 0;
 	}
 
-	if (tch == ch && IS_SET(SpINFO.targets, kTarNotSelf)) {
+	if (tch == ch && IS_SET(spell_info[spell_id].targets, kTarNotSelf)) {
 		SendMsgToChar("Колдовать? ЭТО? На себя?! Да вы с ума сошли!\r\n", ch);
-		return (0);
+		return 0;
 	}
 
 	if ((!tch || IN_ROOM(tch) == kNowhere) && !tobj && !troom &&
-		IS_SET(SpINFO.targets,
+		IS_SET(spell_info[spell_id].targets,
 			   kTarCharRoom | kTarCharWorld | kTarFightSelf | kTarFightVict
 				   | kTarObjInv | kTarObjRoom | kTarObjWorld | kTarObjEquip | kTarRoomThis
 				   | kTarRoomDir)) {
 		SendMsgToChar("Цель заклинания недоступна.\r\n", ch);
-		return (0);
+		return 0;
 	}
 
-	// Идея считает, что это условие лищнее, но что-то не вижу, почему. Поэтому на всякий случай - комментариий.
-	//if (tch != nullptr && IN_ROOM(tch) != ch->in_room) {
 	if (tch != nullptr && IN_ROOM(tch) != ch->in_room) {
-		if (!IS_SET(SpINFO.targets, kTarCharWorld)) {
+		if (!IS_SET(spell_info[spell_id].targets, kTarCharWorld)) {
 			SendMsgToChar("Цель заклинания недоступна.\r\n", ch);
-			return (0);
+			return 0;
 		}
 	}
 
 	if (AFF_FLAGGED(ch, EAffect::kPeaceful)) {
-		ignore = IS_SET(SpINFO.targets, kTarIgnore) ||
-			IS_SET(SpINFO.routines, kMagMasses) || IS_SET(SpINFO.routines, kMagGroups);
+		auto ignore = IS_SET(spell_info[spell_id].targets, kTarIgnore) ||
+			IS_SET(spell_info[spell_id].routines, kMagMasses) || IS_SET(spell_info[spell_id].routines, kMagGroups);
 		if (ignore) { // индивидуальная цель
-			if (SpINFO.violent) {
+			if (spell_info[spell_id].violent) {
 				SendMsgToChar("Ваша душа полна смирения, и вы не желаете творить зло.\r\n", ch);
 				return false;    // нельзя злые кастовать
 			}
 		}
 		for (const auto ch_vict : world[ch->in_room]->people) {
-			if (SpINFO.violent) {
+			if (spell_info[spell_id].violent) {
 				if (ch_vict == tch) {
 					SendMsgToChar("Ваша душа полна смирения, и вы не желаете творить зло.\r\n", ch);
 					return false;
@@ -631,34 +617,31 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, int s
 		}
 	}
 
-	ESkill skillnum = GetMagicSkillId(spellnum);
-	if (skillnum != ESkill::kIncorrect && skillnum != ESkill::kUndefined) {
-		TrainSkill(ch, skillnum, true, tch);
+	if (auto skill_id = GetMagicSkillId(spell_id); skill_id != ESkill::kUndefined) {
+		TrainSkill(ch, skill_id, true, tch);
 	}
 	// Комнату тут в SaySpell не обрабатываем - будет сказал "что-то"
-	SaySpell(ch, spellnum, tch, tobj);
-	// Уменьшаем кол-во заклов в меме
+	SaySpell(ch, spell_id, tch, tobj);
 	if (GET_SPELL_MEM(ch, spell_subst) > 0) {
 		GET_SPELL_MEM(ch, spell_subst)--;
 	} else {
 		GET_SPELL_MEM(ch, spell_subst) = 0;
 	}
-	// если включен автомем
+
 	if (!ch->IsNpc() && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, EPrf::kAutomem)) {
 		MemQ_remember(ch, spell_subst);
 	}
-	// если НПЦ - уменьшаем его макс.количество кастуемых спеллов
+
 	if (ch->IsNpc()) {
-		ch->caster_level -= (IS_SET(spell_info[spellnum].routines, NPC_CALCULATE) ? 1 : 0);
-	}
-	if (!ch->IsNpc()) {
+		ch->caster_level -= (IS_SET(spell_info[spell_id].routines, NPC_CALCULATE) ? 1 : 0);
+	} else {
 		affect_total(ch);
 	}
 
-	return (CallMagic(ch, tch, tobj, troom, spellnum, GetRealLevel(ch)));
+	return (CallMagic(ch, tch, tobj, troom, spell_id, GetRealLevel(ch)));
 }
 
-int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, int spellnum) {
+int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell_id) {
 	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike)) {
 		return true;
 	}
@@ -668,7 +651,7 @@ int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, int spellnum
 	switch (saving) {
 		case ESaving::kStability:
 			prob = wis_bonus(GET_REAL_WIS(ch), WIS_FAILS) + GET_CAST_SUCCESS(ch);
-			if ((IS_MAGE(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ERoomFlag::kForMages))
+			if ((IsMage(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ERoomFlag::kForMages))
 				|| (IS_SORCERER(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ERoomFlag::kForSorcerers))
 				|| (IS_PALADINE(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ERoomFlag::kForPaladines))
 				|| (IS_MERCHANT(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ERoomFlag::kForMerchants))) {
@@ -680,19 +663,19 @@ int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, int spellnum
 			break;
 	}
 
-	if (IsEquipInMetall(ch) && !IsAbleToUseFeat(ch, EFeat::kCombatCasting)) {
+	if (IsEquipInMetall(ch) && !CanUseFeat(ch, EFeat::kCombatCasting)) {
 		prob -= 50;
 	}
 
-	prob = complex_spell_modifier(ch, spellnum, GAPPLY_SPELL_SUCCESS, prob);
+	prob = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_SUCCESS, prob);
 	if (GET_GOD_FLAG(ch, EGf::kGodscurse) ||
-		(SpINFO.violent && victim && GET_GOD_FLAG(victim, EGf::kGodsLike)) ||
-		(!SpINFO.violent && victim && GET_GOD_FLAG(victim, EGf::kGodscurse))) {
+		(spell_info[spell_id].violent && victim && GET_GOD_FLAG(victim, EGf::kGodsLike)) ||
+		(!spell_info[spell_id].violent && victim && GET_GOD_FLAG(victim, EGf::kGodscurse))) {
 		prob -= 50;
 	}
 
-	if ((SpINFO.violent && victim && GET_GOD_FLAG(victim, EGf::kGodscurse)) ||
-		(!SpINFO.violent && victim && GET_GOD_FLAG(victim, EGf::kGodsLike))) {
+	if ((spell_info[spell_id].violent && victim && GET_GOD_FLAG(victim, EGf::kGodscurse)) ||
+		(!spell_info[spell_id].violent && victim && GET_GOD_FLAG(victim, EGf::kGodsLike))) {
 		prob += 50;
 	}
 
@@ -700,9 +683,9 @@ int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, int spellnum
 		prob += GetRealLevel(ch) - 20;
 	}
 
-	const ESkill skill_number = GetMagicSkillId(spellnum);
-	if (skill_number != ESkill::kIncorrect) {
-		prob += ch->get_skill(skill_number) / 20;
+	const ESkill skill_number = GetMagicSkillId(spell_id);
+	if (skill_number != ESkill::kUndefined) {
+		prob += ch->GetSkill(skill_number) / 20;
 	}
 
 	return (prob > number(0, 100));

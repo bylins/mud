@@ -15,7 +15,6 @@
 namespace text_id {
 
 enum EIdType {
-	kCharClass,
 	kObjVals,
 	kTextIdCount
 };
@@ -46,6 +45,7 @@ const char *ReadAsStr(const char *value);
 int ReadAsInt(const char *value);
 float ReadAsFloat(const char *value);
 double ReadAsDouble(const char *value);
+bool ReadAsBool(const char *value);
 
 template<typename T>
 T ReadAsConstant(const char *value) {

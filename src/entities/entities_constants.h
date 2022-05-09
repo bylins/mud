@@ -39,7 +39,7 @@ const std::string &NAME_BY_ITEM(ESex item);
  * Character positions.
  */
 enum class EPosition {
-	kIncorrect = -1, // Это неправильно, но в классах Hit и Damage есть позиция -1, надо переделывать.
+	kUndefined = -1, // Это неправильно, но в классах Hit и Damage есть позиция -1, надо переделывать.
 	kDead = 0,
 	kPerish = 1,	// mortally wounded  //
 	kIncap = 2,
@@ -54,7 +54,7 @@ enum class EPosition {
 int operator-(EPosition p1,  EPosition p2);
 EPosition operator--(const EPosition &p);
 
-/*
+/**
  * Character base stats ids.
  */
 enum class EBaseStat : int {
@@ -64,12 +64,23 @@ enum class EBaseStat : int {
 	kWis = 3,
 	kInt = 4,
 	kCha = 5,
+	kFirst = kStr,
+	kLast = kCha
 };
+
+EBaseStat& operator++(EBaseStat &s);
 
 template<>
 const std::string &NAME_BY_ITEM<EBaseStat>(EBaseStat item);
 template<>
 EBaseStat ITEM_BY_NAME<EBaseStat>(const std::string &name);
+
+const int kDefaultBaseStatMin{10};
+const int kDefaultBaseStatMax{25};
+const int kDefaultBaseStatAutoGen{12};
+const int kDefaultBaseStatCap{50};
+const int kMobBaseStatCap{100};
+const int kLeastBaseStat{1};
 
 /*
  * Character savings ids.
@@ -473,7 +484,7 @@ extern std::unordered_map<int, std::string> SECTOR_TYPE_BY_VALUE;
  * The cardinal directions: used as index to room_data.dir_option[]
  */
 enum EDirection : int {
-	kIncorrectDir = -1,
+	kUndefinedDir = -1,
 	kNorth = 0,
 	kEast = 1,
 	kSouth = 2,

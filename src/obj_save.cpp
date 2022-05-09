@@ -11,7 +11,7 @@
 
 #include "obj_save.h"
 
-#include "world_objects.h"
+#include "entities/world_objects.h"
 #include "entities/world_characters.h"
 #include "obj_prototypes.h"
 #include "handler.h"
@@ -362,7 +362,7 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 						*error = 50;
 						return object;
 					}
-					object->add_timed_spell(t[0], t[1]);
+					object->add_timed_spell(static_cast<ESpell>(t[0]), t[1]);
 				}
 			} else if (!strcmp(read_line, "Mort")) {
 				*error = 51;
@@ -1088,7 +1088,7 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 			out << "Tmer: " << object->get_timer() << "~\n";
 		}
 		// Сложность замкА
-		if (GET_OBJ_SPELL(object)) {
+		if (GET_OBJ_SPELL(object) > ESpell::kUndefined) {
 			out << "Spll: " << GET_OBJ_SPELL(object) << "~\n";
 		}
 		// Уровень заклинания
@@ -1792,7 +1792,7 @@ int Crash_load(CharData *ch) {
 	cost = MAX(0, cost);
 	// added by WorM (Видолюб) 2010.06.04 сумма потраченная на найм(возвращается при креше)
 	if (RENTCODE(index) == RENT_CRASH) {
-		if (!IS_IMMORTAL(ch) && IsAbleToUseFeat(ch, EFeat::kEmployer) && ch->player_specials->saved.HiredCost != 0) {
+		if (!IS_IMMORTAL(ch) && CanUseFeat(ch, EFeat::kEmployer) && ch->player_specials->saved.HiredCost != 0) {
 			if (ch->player_specials->saved.HiredCost < 0)
 				ch->add_bank(abs(ch->player_specials->saved.HiredCost), false);
 			else

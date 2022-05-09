@@ -23,6 +23,7 @@
 #include "entities/world_characters.h"
 #include "communication/insult.h"
 #include "cmd_god/stat.h"
+#include "cmd_god/show.h"
 #include "cmd_god/godtest.h"
 #include "cmd/follow.h"
 #include "cmd/hire.h"
@@ -99,6 +100,7 @@
 #include "title.h"
 #include "statistics/top.h"
 #include "game_skills/skills_info.h"
+#include "game_mechanics/mem_queue.h"
 
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"
@@ -304,7 +306,6 @@ void DoScore(CharData *ch, char *argument, int, int);
 void do_sdemigod(CharData *ch, char *argument, int cmd, int subcmd);
 void do_send(CharData *ch, char *argument, int cmd, int subcmd);
 void do_set(CharData *ch, char *argument, int cmd, int subcmd);
-void do_show(CharData *ch, char *argument, int cmd, int subcmd);
 void do_shutdown(CharData *ch, char *argument, int cmd, int subcmd);
 void do_skillset(CharData *ch, char *argument, int cmd, int subcmd);
 void do_sneak(CharData *ch, char *argument, int cmd, int subcmd);
@@ -575,7 +576,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"использовать", EPosition::kRest, do_style, 0, 0, 0},
 		{"имя", EPosition::kSleep, do_name, kLvlImmortal, 0, 0},
 
-		{"колдовать", EPosition::kSit, do_cast, 1, 0, -1},
+		{"колдовать", EPosition::kSit, DoCast, 1, 0, -1},
 		{"казна", EPosition::kRest, do_not_here, 1, 0, 0},
 		{"карта", EPosition::kRest, do_map, 0, 0, 0},
 		{"клан", EPosition::kRest, DoHouse, 0, 0, 0},
@@ -822,7 +823,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"bug", EPosition::kDead, Boards::report_on_board, 0, Boards::ERROR_BOARD, 0},
 		{"buy", EPosition::kStand, do_not_here, 0, 0, -1},
 		{"best", EPosition::kDead, DoBest, 0, 0, 0},
-		{"cast", EPosition::kSit, do_cast, 1, 0, -1},
+		{"cast", EPosition::kSit, DoCast, 1, 0, -1},
 		{"check", EPosition::kStand, do_not_here, 1, 0, -1},
 		{"chopoff", EPosition::kFight, do_chopoff, 0, 0, 500},
 		{"clear", EPosition::kDead, do_gen_ps, 0, SCMD_CLEAR, 0},
@@ -1101,10 +1102,10 @@ const char *reserved[] = {"a",
 
 void check_hiding_cmd(CharData *ch, int percent) {
 	int remove_hide = false;
-	if (IsAffectedBySpell(ch, kSpellHide)) {
+	if (IsAffectedBySpell(ch, ESpell::kHide)) {
 		if (percent == -2) {
 			if (AFF_FLAGGED(ch, EAffect::kSneak)) {
-				remove_hide = number(1, MUD::Skills()[ESkill::kSneak].difficulty) >
+				remove_hide = number(1, MUD::Skills(ESkill::kSneak).difficulty) >
 					CalcCurrentSkill(ch, ESkill::kSneak, nullptr);
 			} else {
 				percent = 500;
@@ -1118,7 +1119,7 @@ void check_hiding_cmd(CharData *ch, int percent) {
 		}
 
 		if (remove_hide) {
-			affect_from_char(ch, kSpellHide);
+			RemoveAffectFromChar(ch, ESpell::kHide);
 			if (!AFF_FLAGGED(ch, EAffect::kHide)) {
 				SendMsgToChar("Вы прекратили прятаться.\r\n", ch);
 				act("$n прекратил$g прятаться.", false, ch, nullptr, nullptr, kToRoom);
@@ -1228,11 +1229,11 @@ void command_interpreter(CharData *ch, char *argument) {
 	for (cmd = 0; *cmd_info[cmd].command != '\n'; cmd++) {
 		if (hardcopy) {
 			if (!strcmp(cmd_info[cmd].command, arg))
-				if (privilege::IsAbleToDoPrivilege(ch, std::string(cmd_info[cmd].command), cmd, 0))
+				if (privilege::HasPrivilege(ch, std::string(cmd_info[cmd].command), cmd, 0))
 					break;
 		} else {
 			if (!strncmp(cmd_info[cmd].command, arg, length))
-				if (privilege::IsAbleToDoPrivilege(ch, std::string(cmd_info[cmd].command), cmd, 0))
+				if (privilege::HasPrivilege(ch, std::string(cmd_info[cmd].command), cmd, 0))
 					break;
 		}
 	}
@@ -2094,10 +2095,10 @@ void add_logon_record(DescriptorData *d) {
 
 // * Проверка на доступные религии конкретной профе (из текущей генерации чара).
 void check_religion(CharData *ch) {
-	if (class_religion[ch->get_class()] == kReligionPoly && GET_RELIGION(ch) != kReligionPoly) {
+	if (class_religion[to_underlying(ch->GetClass())] == kReligionPoly && GET_RELIGION(ch) != kReligionPoly) {
 		GET_RELIGION(ch) = kReligionPoly;
 		log("Change religion to poly: %s", ch->get_name().c_str());
-	} else if (class_religion[ch->get_class()] == kReligionMono && GET_RELIGION(ch) != kReligionMono) {
+	} else if (class_religion[to_underlying(ch->GetClass())] == kReligionMono && GET_RELIGION(ch) != kReligionMono) {
 		GET_RELIGION(ch) = kReligionMono;
 		log("Change religion to mono: %s", ch->get_name().c_str());
 	}
@@ -2132,7 +2133,7 @@ void do_entergame(DescriptorData *d) {
 	if (GetRealLevel(d->character) >= kLvlImmortal && GetRealLevel(d->character) < kLvlImplementator) {
 		for (cmd = 0; *cmd_info[cmd].command != '\n'; cmd++) {
 			if (!strcmp(cmd_info[cmd].command, "syslog")) {
-				if (privilege::IsAbleToDoPrivilege(d->character.get(), std::string(cmd_info[cmd].command), cmd, 0)) {
+				if (privilege::HasPrivilege(d->character.get(), std::string(cmd_info[cmd].command), cmd, 0)) {
 					flag = 1;
 					break;
 				}
@@ -2252,41 +2253,41 @@ void do_entergame(DescriptorData *d) {
 	}
 
 	if (PRF_FLAGS(d->character).get(EPrf::kPunctual)
-		&& !d->character->get_skill(ESkill::kPunctual)) {
+		&& !d->character->GetSkill(ESkill::kPunctual)) {
 		PRF_FLAGS(d->character).unset(EPrf::kPunctual);
 	}
 
 	if (PRF_FLAGS(d->character).get(EPrf::kAwake)
-		&& !d->character->get_skill(ESkill::kAwake)) {
+		&& !d->character->GetSkill(ESkill::kAwake)) {
 		PRF_FLAGS(d->character).unset(EPrf::kAwake);
 	}
 
 	if (PRF_FLAGS(d->character).get(EPrf::kPerformPowerAttack) &&
-		!IsAbleToUseFeat(d->character.get(), EFeat::kPowerAttack)) {
+		!CanUseFeat(d->character.get(), EFeat::kPowerAttack)) {
 		PRF_FLAGS(d->character).unset(EPrf::kPerformPowerAttack);
 	}
 	if (PRF_FLAGS(d->character).get(EPrf::kPerformGreatPowerAttack) &&
-		!IsAbleToUseFeat(d->character.get(), EFeat::kGreatPowerAttack)) {
+		!CanUseFeat(d->character.get(), EFeat::kGreatPowerAttack)) {
 		PRF_FLAGS(d->character).unset(EPrf::kPerformGreatPowerAttack);
 	}
 	if (PRF_FLAGS(d->character).get(EPrf::kPerformAimingAttack) &&
-	!IsAbleToUseFeat(d->character.get(), EFeat::kAimingAttack)) {
+	!CanUseFeat(d->character.get(), EFeat::kAimingAttack)) {
 		PRF_FLAGS(d->character).unset(EPrf::kPerformAimingAttack);
 	}
 	if (PRF_FLAGS(d->character).get(EPrf::kPerformGreatAimingAttack) &&
-		!IsAbleToUseFeat(d->character.get(), EFeat::kGreatAimingAttack)) {
+		!CanUseFeat(d->character.get(), EFeat::kGreatAimingAttack)) {
 		PRF_FLAGS(d->character).unset(EPrf::kPerformGreatAimingAttack);
 	}
 	if (PRF_FLAGS(d->character).get(EPrf::kDoubleThrow) &&
-		!IsAbleToUseFeat(d->character.get(), EFeat::kDoubleThrower)) {
+		!CanUseFeat(d->character.get(), EFeat::kDoubleThrower)) {
 		PRF_FLAGS(d->character).unset(EPrf::kDoubleThrow);
 	}
 	if (PRF_FLAGS(d->character).get(EPrf::kTripleThrow) &&
-		!IsAbleToUseFeat(d->character.get(), EFeat::kTripleThrower)) {
+		!CanUseFeat(d->character.get(), EFeat::kTripleThrower)) {
 		PRF_FLAGS(d->character).unset(EPrf::kTripleThrow);
 	}
 	if (PRF_FLAGS(d->character).get(EPrf::kPerformSerratedBlade) &&
-		!IsAbleToUseFeat(d->character.get(), EFeat::kSerratedBlade)) {
+		!CanUseFeat(d->character.get(), EFeat::kSerratedBlade)) {
 		PRF_FLAGS(d->character).unset(EPrf::kPerformSerratedBlade);
 	}
 	if (PRF_FLAGS(d->character).get(EPrf::kSkirmisher)) {
@@ -2297,28 +2298,19 @@ void do_entergame(DescriptorData *d) {
 	}
 
 	// Check & remove/add natural, race & unavailable features
-	for (auto i = EFeat::kFirstFeat; i <= EFeat::kLastFeat; ++i) {
-		if (!HAVE_FEAT(d->character, i) || IsAbleToGetFeat(d->character.get(), i)) {
-			if (feat_info[i].is_inborn[(int) GET_CLASS(d->character)][(int) GET_KIN(d->character)]) {
-				SET_FEAT(d->character, i);
-			}
-		}
-	}
-
-	SetRaceFeats(d->character.get());
+	UnsetInaccessibleFeats(d->character.get());
+	SetInbornAndRaceFeats(d->character.get());
 
 	if (!IS_IMMORTAL(d->character)) {
 		for (const auto &skill : MUD::Skills()) {
-			if (MUD::Classes()[(d->character)->get_class()].HasntSkill(skill.GetId())) {
+			if (MUD::Classes((d->character)->GetClass()).skills[skill.GetId()].IsUnavailable()) {
 				d->character->set_skill(skill.GetId(), 0);
 			}
 		}
 	}
 
-	//Заменяем закл !переместиться! на способность
-	if (GET_SPELL_TYPE(d->character, kSpellRelocate) == kSpellKnow && !IS_GOD(d->character)) {
-		GET_SPELL_TYPE(d->character, kSpellRelocate) = 0;
-		SET_FEAT(d->character, EFeat::kRelocate);
+	if (GET_SPELL_TYPE(d->character, ESpell::kRelocate) == ESpellType::kKnow && !IS_GOD(d->character)) {
+		GET_SPELL_TYPE(d->character, ESpell::kRelocate) = ESpellType::kUnknowm;
 	}
 
 	//Проверим временные заклы пока нас не было
@@ -2609,11 +2601,12 @@ void init_char(CharData *ch, PlayerIndexElement &element) {
 		set_god_morphs(ch);
 	}
 
-	for (i = 1; i <= kSpellCount; i++) {
-		if (GetRealLevel(ch) < kLvlGreatGod)
-			GET_SPELL_TYPE(ch, i) = 0;
-		else
-			GET_SPELL_TYPE(ch, i) = kSpellKnow;
+	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
+		if (GetRealLevel(ch) < kLvlGreatGod) {
+			GET_SPELL_TYPE(ch, spell_id) = ESpellType::kUnknowm;
+		} else {
+			GET_SPELL_TYPE(ch, spell_id) = ESpellType::kKnow;
+		}
 	}
 
 	ch->char_specials.saved.affected_by = clear_flags;
@@ -2761,8 +2754,8 @@ void DisplaySelectCharClassMenu(DescriptorData *d) {
 	}
 	std::sort(char_classes.begin(), char_classes.end());
 	for (const auto &it : char_classes) {
-		out << "  " << KCYN << std::right << std::setw(3) << it + 1 << KNRM << ") "
-		<< KGRN << std::left << MUD::Classes()[it].GetName() << std::endl << KNRM;
+		out << "  " << KCYN << std::right << std::setw(3) << to_underlying(it) + 1 << KNRM << ") "
+		<< KGRN << std::left << MUD::Classes(it).GetName() << std::endl << KNRM;
 	}
 	write_to_output(out.str().c_str(), d);
 }
@@ -3301,7 +3294,7 @@ void nanny(DescriptorData *d, char *arg) {
 				case 'Я':
 				case 'З':
 				case 'P':
-					if (class_religion[(int) GET_CLASS(d->character)] == kReligionMono) {
+					if (class_religion[to_underlying(d->character->GetClass())] == kReligionMono) {
 						SEND_TO_Q
 						("Персонаж выбранной вами профессии не желает быть язычником!\r\n"
 						 "Так каким Богам вы хотите служить? ", d);
@@ -3312,7 +3305,7 @@ void nanny(DescriptorData *d, char *arg) {
 
 				case 'Х':
 				case 'C':
-					if (class_religion[(int) GET_CLASS(d->character)] == kReligionPoly) {
+					if (class_religion[to_underlying(d->character->GetClass())] == kReligionPoly) {
 						SEND_TO_Q
 						("Персонажу выбранной вами профессии противно христианство!\r\n"
 						 "Так каким Богам вы хотите служить? ", d);
@@ -3327,7 +3320,8 @@ void nanny(DescriptorData *d, char *arg) {
 
 			SEND_TO_Q("\r\nКакой род вам ближе всего по духу:\r\n", d);
 			SEND_TO_Q(string(PlayerRace::ShowRacesMenu(GET_KIN(d->character))).c_str(), d);
-			sprintf(buf, "Для вашей профессией больше всего подходит %s", default_race[GET_CLASS(d->character)]);
+			sprintf(buf, "Для вашей профессией больше всего подходит %s",
+					default_race[to_underlying(d->character->GetClass())]);
 			SEND_TO_Q(buf, d);
 			SEND_TO_Q("\r\nИз чьих вы будете : ", d);
 			STATE(d) = CON_RACE;
@@ -3905,7 +3899,7 @@ void nanny(DescriptorData *d, char *arg) {
 				case 'Я':
 				case 'З':
 				case 'P':
-					if (class_religion[(int) GET_CLASS(d->character)] == kReligionMono) {
+					if (class_religion[to_underlying(d->character->GetClass())] == kReligionMono) {
 						SEND_TO_Q
 						("Персонаж выбранной вами профессии не желает быть язычником!\r\n"
 						 "Так каким Богам вы хотите служить? ", d);
@@ -3916,7 +3910,7 @@ void nanny(DescriptorData *d, char *arg) {
 
 				case 'Х':
 				case 'C':
-					if (class_religion[(int) GET_CLASS(d->character)] == kReligionPoly) {
+					if (class_religion[to_underlying(d->character->GetClass())] == kReligionPoly) {
 						SEND_TO_Q ("Персонажу выбранной вами профессии противно христианство!\r\n"
 								   "Так каким Богам вы хотите служить? ", d);
 						return;

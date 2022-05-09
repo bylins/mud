@@ -138,15 +138,14 @@ class DataNode : public std::iterator<
 	bool HaveChild(const std::string &key);
 
 	/*
-	 * Переместиться к дочернему узлу key.
+	 * Переместиться к дочернему узлу key, если такой узел есть.
 	 */
-	void GoToChild(const std::string &key);
+	bool GoToChild(const std::string &key);
 
 	/*
 	 * Переместиться к сестринскому узлу key, если такой узел есть.
-	 * Результат - сестринский узел или пусто.
 	 */
-	void GoToSibling(const std::string &key);
+	bool GoToSibling(const std::string &key);
 
 	/*
 	 * Имеет предыдущий сестринский узел.

@@ -52,7 +52,7 @@ int go_track(CharData *ch, CharData *victim, const ESkill skill_no) {
 	//Временная затычка. Перевести на резисты
 	//Изменил макс скилл со 100 до 200, чтобы не ломать алгоритм, в данном значении вернем старое значение.
 	if_sense = (skill_no == ESkill::kSense) ? 100 : 0;
-	percent = number(0, MUD::Skills()[skill_no].difficulty - if_sense);
+	percent = number(0, MUD::Skills(skill_no).difficulty - if_sense);
 	//current_skillpercent = GET_SKILL(ch, ESkill::kSense);
 	if ((!victim->IsNpc()) && (!IS_GOD(ch)) && (!ch->IsNpc())) //Если цель чар и ищет не бог
 	{
@@ -78,7 +78,7 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char name[kMaxInputLength];
 
 	// The character must have the track skill.
-	if (ch->IsNpc() || !ch->get_skill(ESkill::kTrack)) {
+	if (ch->IsNpc() || !ch->GetSkill(ESkill::kTrack)) {
 		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -88,7 +88,7 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!check_moves(ch, IsAbleToUseFeat(ch, EFeat::kTracker) ? kTrackMoves / 2 : kTrackMoves))
+	if (!check_moves(ch, CanUseFeat(ch, EFeat::kTracker) ? kTrackMoves / 2 : kTrackMoves))
 		return;
 
 	calc_track = CalcCurrentSkill(ch, ESkill::kTrack, nullptr);
@@ -163,8 +163,8 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	for (int c = 0; c < EDirection::kMaxDirNum; c++) {
 		if ((track && track->time_income[c]
-			&& calc_track >= number(0, MUD::Skills()[ESkill::kTrack].difficulty))
-			|| (!track && calc_track < number(0, MUD::Skills()[ESkill::kTrack].difficulty))) {
+			&& calc_track >= number(0, MUD::Skills(ESkill::kTrack).difficulty))
+			|| (!track && calc_track < number(0, MUD::Skills(ESkill::kTrack).difficulty))) {
 			found = true;
 			sprintf(buf + strlen(buf), "- %s следы ведут %s\r\n",
 					track_when[age_track
@@ -173,8 +173,8 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 							 time_income[c] : (1 << number(0, 25)), calc_track)], DirsFrom[Reverse[c]]);
 		}
 		if ((track && track->time_outgone[c]
-			&& calc_track >= number(0, MUD::Skills()[ESkill::kTrack].difficulty))
-			|| (!track && calc_track < number(0, MUD::Skills()[ESkill::kTrack].difficulty))) {
+			&& calc_track >= number(0, MUD::Skills(ESkill::kTrack).difficulty))
+			|| (!track && calc_track < number(0, MUD::Skills(ESkill::kTrack).difficulty))) {
 			found = true;
 			SET_BIT(ch->track_dirs, 1 << c);
 			sprintf(buf + strlen(buf), "- %s следы ведут %s\r\n",
@@ -195,7 +195,7 @@ void do_hidetrack(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 	struct TrackData *track[EDirection::kMaxDirNum + 1], *temp;
 	int percent, prob, i, croom, found = false, dir, rdir;
 
-	if (ch->IsNpc() || !ch->get_skill(ESkill::kHideTrack)) {
+	if (ch->IsNpc() || !ch->GetSkill(ESkill::kHideTrack)) {
 		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -232,9 +232,9 @@ void do_hidetrack(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 		SendMsgToChar("Вы не видите своих следов.\r\n", ch);
 		return;
 	}
-	if (!check_moves(ch, IsAbleToUseFeat(ch, EFeat::kStealthy) ? kHidetrackMoves / 2 : kHidetrackMoves))
+	if (!check_moves(ch, CanUseFeat(ch, EFeat::kStealthy) ? kHidetrackMoves / 2 : kHidetrackMoves))
 		return;
-	percent = number(1, MUD::Skills()[ESkill::kHideTrack].difficulty);
+	percent = number(1, MUD::Skills(ESkill::kHideTrack).difficulty);
 	prob = CalcCurrentSkill(ch, ESkill::kHideTrack, nullptr);
 	if (percent > prob) {
 		SendMsgToChar("Вы безуспешно попытались замести свои следы.\r\n", ch);

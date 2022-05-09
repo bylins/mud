@@ -10,8 +10,6 @@
 
 #include "dg_scripts.h"
 
-#include <chrono>
-
 #include "structs/global_objects.h"
 #include "utils/utils_find_obj_id_by_vnum.h"
 #include "obj_prototypes.h"
@@ -31,8 +29,6 @@
 #include "administration/privilege.h"
 #include "game_fight/fight_hit.h"
 
-#include <chrono>
-//#include <string>
 extern int max_exp_gain_pc(CharData *ch);
 extern long GetExpUntilNextLvl(CharData *ch, int level);
 constexpr long long kPulsesPerMudHour = kSecsPerMudHour*kPassesPerSec;
@@ -57,7 +53,7 @@ extern const char *genders[];
 extern const char *exit_bits[];
 extern IndexData *mob_index;
 extern TimeInfoData time_info;
-const char *GetSpellName(int num);
+const char *GetSpellName(ESpell spell_id);
 
 extern int can_take_obj(CharData *ch, ObjData *obj);
 extern void split_or_clan_tax(CharData *ch, long amount);
@@ -2125,56 +2121,6 @@ void find_replacement(void *go,
 				GET_HIT(c) = (int) MAX(1, gm_char_field(c, field, subfield, (long) GET_HIT(c)));
 			else
 				sprintf(str, "%d", GET_HIT(c));
-		} else if (!str_cmp(field, "arenahp")) {
-			CharData *k;
-			struct Follower *f;
-			int arena_hp = GET_HIT(c);
-			int can_use = 0;
-
-			if (!c->IsNpc()) {
-				k = (c->has_master() ? c->get_master() : c);
-				if (GET_CLASS(c) == 8)//чернок может дрыниться
-				{
-					can_use = 2;
-				} else if (GET_CLASS(c) == 0 || GET_CLASS(c) == 13)//Клер или волхв может использовать покровительство
-				{
-					can_use = 1;
-				} else if (AFF_FLAGGED(k, EAffect::kGroup)) {
-					if (!k->IsNpc()
-						&& (GET_CLASS(k) == 8
-							|| GET_CLASS(k) == 13) //чернок или волхв может использовать ужи на согруппов
-						&& world[IN_ROOM(k)]->zone_rn == world[IN_ROOM(c)]->zone_rn) //но только если находится в той же зоне
-					{
-						can_use = 1;
-					}
-					if (!can_use) {
-						for (f = k->followers; f; f = f->next) {
-							if (f->ch->IsNpc()
-								|| !AFF_FLAGGED(f->ch, EAffect::kGroup)) {
-								continue;
-							}
-							if ((GET_CLASS(f->ch) == 8
-								|| GET_CLASS(f->ch) == 13) //чернок или волхв может использовать ужи на согруппов
-								&& world[IN_ROOM(f->ch)]->zone_rn
-									== world[IN_ROOM(c)]->zone_rn) //но только если находится в той же зоне
-							{
-								can_use = 1;
-								break;
-							}
-						}
-					}
-				}
-				if (can_use == 2)//дрын
-				{
-					arena_hp = GET_REAL_MAX_HIT(c) + GET_REAL_MAX_HIT(c) * GetRealLevel(c) / 10;
-				} else if (can_use == 1)//ужи и покров
-				{
-					arena_hp = GET_REAL_MAX_HIT(c) + GET_REAL_MAX_HIT(c) * 33 / 100;
-				} else {
-					arena_hp = GET_REAL_MAX_HIT(c);
-				}
-			}
-			sprintf(str, "%d", arena_hp);
 		} else if (!str_cmp(field, "hitpadd")) {
 			if (*subfield)
 				GET_HIT_ADD(c) = (int) gm_char_field(c, field, subfield, (long) GET_HIT_ADD(c));
@@ -2187,10 +2133,12 @@ void find_replacement(void *go,
 				sprintf(str, "%d", GET_MAX_HIT(c));
 		} else if (!str_cmp(field, "mana")) {
 			if (*subfield) {
-				if (!c->IsNpc())
+				if (!c->IsNpc()) {
 					c->mem_queue.stored = std::max(0L, gm_char_field(c, field, subfield, (long) c->mem_queue.stored));
-			} else
+				}
+			} else {
 				sprintf(str, "%d", c->mem_queue.stored);
+			}
 		} else if (!str_cmp(field, "maxmana")) {
 			sprintf(str, "%d", GET_MAX_MANA(c));
 		} else if (!str_cmp(field, "domination_kill")) {
@@ -2466,7 +2414,7 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "max_gain_exp")) {
 			sprintf(str, "%ld", (long) max_exp_gain_pc(c));
 		} else if (!str_cmp(field, "tnl_exp")) {
-			sprintf(str, "%ld", GetExpUntilNextLvl(c, c->get_level() + 1) - GET_EXP(c));
+			sprintf(str, "%ld", GetExpUntilNextLvl(c, c->GetLevel() + 1) - GET_EXP(c));
 		} else if (!str_cmp(field, "sex"))
 			sprintf(str, "%d", (int) GET_SEX(c));
 		else if (!str_cmp(field, "clan")) {
@@ -2521,7 +2469,7 @@ void find_replacement(void *go,
 				strcpy(str, "1");
 			}
 		} else if (!str_cmp(field, "class")) {
-			sprintf(str, "%d", (int) GET_CLASS(c));
+			sprintf(str, "%d",  to_underlying(ch->GetClass()));
 		} else if (!str_cmp(field, "race")) {
 			sprintf(str, "%d", (int) GET_RACE(c));
 		} else if (!str_cmp(field, "fighting")) {
@@ -2553,9 +2501,9 @@ void find_replacement(void *go,
 				strcpy(str, "1");
 			}
 		} else if (!str_cmp(field, "can_get_skill")) {
-			auto skill_id = FixNameAndFindSkillNum(subfield);
-			if (skill_id > ESkill::kIncorrect) {
-				if (IsAbleToGetSkill(c, skill_id)) {
+			auto skill_id = FixNameAndFindSkillId(subfield);
+			if (skill_id > ESkill::kUndefined) {
+				if (CanGetSkill(c, skill_id)) {
 					strcpy(str, "1");
 				} else {
 					strcpy(str, "0");
@@ -2566,8 +2514,9 @@ void find_replacement(void *go,
 				strcpy(str, "0");
 			}
 		} else if (!str_cmp(field, "can_get_spell")) {
-			if ((num = FixNameAndFindSpellNum(subfield)) > 0) {
-				if (IsAbleToGetSpell(c, num)) {
+			auto spell_id = FixNameAndFindSpellId(subfield);
+			if (spell_id > ESpell::kUndefined) {
+				if (CanGetSpell(c, spell_id)) {
 					strcpy(str, "1");
 				} else {
 					strcpy(str, "0");
@@ -2578,8 +2527,8 @@ void find_replacement(void *go,
 				strcpy(str, "0");
 			}
 		} else if (!str_cmp(field, "can_get_feat")) {
-			if (auto id = FindFeatNum(subfield); id > 0) {
-				if (IsAbleToGetFeat(c, id))
+			if (auto id = FindFeatId(subfield); id != EFeat::kUndefined) {
+				if (CanGetFeat(c, id))
 					strcpy(str, "1");
 				else
 					strcpy(str, "0");
@@ -2663,8 +2612,8 @@ void find_replacement(void *go,
 				}
 			}
 		} else if (!str_cmp(field, "maxskill")) {
-			const ESkill skillnum = FixNameAndFindSkillNum(subfield);
-			if (skillnum > ESkill::kIncorrect) {
+			const ESkill skillnum = FixNameAndFindSkillId(subfield);
+			if (skillnum > ESkill::kUndefined) {
 				sprintf(str, "%d", CalcSkillHardCap(c, skillnum));
 			} else {
 				strcpy(str, "0");
@@ -2819,15 +2768,12 @@ void find_replacement(void *go,
 			sprintf(str, "%d", sum);
 		} else if (!str_cmp(field, "affect")) {
 			c->char_specials.saved.affected_by.gm_flag(subfield, affected_bits, str);
-		}
-
-			//added by WorM
-			//собственно подозреваю что никто из билдеров даже не вкурсе насчет всего функционала этого affect
-			//тупизм какой-то проверять аффекты обездвижен,летит и т.п.
-			//к тому же они в том списке не все кличи например никак там не отображаются
-		else if (!str_cmp(field, "affected_by")) {
-			if ((num = FixNameAndFindSpellNum(subfield)) > 0) {
-				sprintf(str, "%d", (int) IsAffectedBySpell(c, num));
+			//подозреваю что никто из билдеров даже не вкурсе насчет всего функционала этого affect
+			//к тому же аффекты в том списке не все кличи например никак там не отображаются
+		} else if (!str_cmp(field, "affected_by")) {
+			auto spell_id = FixNameAndFindSpellId(subfield);
+			if (spell_id >= ESpell::kFirst && spell_id < ESpell::kLast) {
+				sprintf(str, "%d", (int) IsAffectedBySpell(c, spell_id));
 			}
 		} else if (!str_cmp(field, "action")) {
 			if (c->IsNpc()) {
@@ -5402,7 +5348,7 @@ void do_tlist(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 
 	first = atoi(buf);
 
-	if (!(privilege::IsAbleToDoPrivilege(ch, std::string(cmd_info[cmd].command), 0, 0, false)) && (GET_OLC_ZONE(ch) != first)) {
+	if (!(privilege::HasPrivilege(ch, std::string(cmd_info[cmd].command), 0, 0, false)) && (GET_OLC_ZONE(ch) != first)) {
 		SendMsgToChar("Чаво?\r\n", ch);
 		return;
 	}
@@ -5509,7 +5455,7 @@ void do_tstat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	half_chop(argument, str, argument);
 
 	auto first = atoi(str);
-	if (!(privilege::IsAbleToDoPrivilege(ch, std::string(cmd_info[cmd].command), 0, 0, false)) && (GET_OLC_ZONE(ch) != first)) {
+	if (!(privilege::HasPrivilege(ch, std::string(cmd_info[cmd].command), 0, 0, false)) && (GET_OLC_ZONE(ch) != first)) {
 		SendMsgToChar("Чаво?\r\n", ch);
 		return;
 	}

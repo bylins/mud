@@ -59,7 +59,7 @@ void spell_townportal(CharData *ch, char *arg) {
 	//если портала нет, проверяем, возможно игрок ставит врата на свою метку
 	if (!port && name_cmp(ch, arg)) {
 
-		label_room = room_spells::FindAffectedRoom(GET_ID(ch), kSpellRuneLabel);
+		label_room = room_spells::FindAffectedRoom(GET_ID(ch), ESpell::kRuneLabel);
 		if (label_room) {
 			label_port.vnum = label_room->room_vn;
 			label_port.level = 1;
@@ -78,7 +78,7 @@ void spell_townportal(CharData *ch, char *arg) {
 			return;
 		}
 
-		if (room_spells::IsRoomAffected(world[ch->in_room], kSpellRuneLabel)) {
+		if (room_spells::IsRoomAffected(world[ch->in_room], ESpell::kRuneLabel)) {
 			SendMsgToChar("Начертанные на земле магические руны подавляют вашу магию!\r\n", ch);
 			return;
 		}
@@ -110,7 +110,7 @@ void spell_townportal(CharData *ch, char *arg) {
 		if (!IS_IMMORTAL(ch)) {
 			timed.skill = ESkill::kTownportal;
 			// timed.time - это unsigned char, поэтому при уходе в минус будет вынос на 255 и ниже
-			int modif = ch->get_skill(ESkill::kTownportal) / 7 + number(1, 5);
+			int modif = ch->GetSkill(ESkill::kTownportal) / 7 + number(1, 5);
 			timed.time = MAX(1, 25 - modif);
 			ImposeTimedSkill(ch, &timed);
 		}
@@ -149,7 +149,7 @@ void do_townportal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg2[kMaxInputLength];
 	int vnum = 0;
 
-	if (ch->IsNpc() || !ch->get_skill(ESkill::kTownportal)) {
+	if (ch->IsNpc() || !ch->GetSkill(ESkill::kTownportal)) {
 		SendMsgToChar("Прежде изучите секрет постановки врат.\r\n", ch);
 		return;
 	}

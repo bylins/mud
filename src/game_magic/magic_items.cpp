@@ -12,7 +12,7 @@ const short kDefaultWandLvl = 12;
 extern char cast_argument[kMaxInputLength];
 
 void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
-	int i, spellnum;
+	int i;
 	int level;
 	CharData *tch = nullptr;
 	ObjData *tobj = nullptr;
@@ -35,6 +35,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 		}
 	}
 
+	auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(obj, 3));
 	switch (GET_OBJ_TYPE(obj)) {
 		case EObjType::kStaff:
 			if (!obj->get_action_description().empty()) {
@@ -51,33 +52,31 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 			} else {
 				obj->dec_val(2);
 				SetWaitState(ch, kPulseViolence);
-				if (HAS_SPELL_ROUTINE(GET_OBJ_VAL(obj, 3), kMagMasses | kMagAreas)) {
-					CallMagic(ch, nullptr, nullptr, world[ch->in_room], GET_OBJ_VAL(obj, 3), level);
+				if (HAS_SPELL_ROUTINE(spell_id, kMagMasses | kMagAreas)) {
+					CallMagic(ch, nullptr, nullptr, world[ch->in_room], spell_id, level);
 				} else {
 					const auto people_copy = world[ch->in_room]->people;
 					for (const auto target : people_copy) {
 						if (ch != target) {
-							CallMagic(ch, target, nullptr, world[ch->in_room], GET_OBJ_VAL(obj, 3), level);
+							CallMagic(ch, target, nullptr, world[ch->in_room], spell_id, level);
 						}
 					}
 				}
 			}
-
 			break;
 
-		case EObjType::kWand: spellnum = GET_OBJ_VAL(obj, 3);
-
+		case EObjType::kWand:
 			if (GET_OBJ_VAL(obj, 2) <= 0) {
 				SendMsgToChar("Похоже, магия кончилась.\r\n", ch);
 				return;
 			}
 
 			if (!*argument) {
-				if (!IS_SET(spell_info[GET_OBJ_VAL(obj, 3)].routines, kMagAreas | kMagMasses)) {
+				if (!IS_SET(spell_info[spell_id].routines, kMagAreas | kMagMasses)) {
 					tch = ch;
 				}
 			} else {
-				if (!FindCastTarget(spellnum, argument, ch, &tch, &tobj, &troom)) {
+				if (!FindCastTarget(spell_id, argument, ch, &tch, &tobj, &troom)) {
 					return;
 				}
 			}
@@ -121,7 +120,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 
 			obj->dec_val(2);
 			SetWaitState(ch, kPulseViolence);
-			CallMagic(ch, tch, tobj, world[ch->in_room], GET_OBJ_VAL(obj, 3), level);
+			CallMagic(ch, tch, tobj, world[ch->in_room], spell_id, level);
 			break;
 
 		case EObjType::kScroll:
@@ -134,15 +133,15 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 				return;
 			}
 
-			spellnum = GET_OBJ_VAL(obj, 1);
+			spell_id = static_cast<ESpell>(GET_OBJ_VAL(obj, 1));
 			if (!*argument) {
 				for (int slot = 1; slot < 4; slot++) {
-					if (IS_SET(spell_info[GET_OBJ_VAL(obj, slot)].routines, kMagAreas | kMagMasses)) {
+					if (IS_SET(spell_info[static_cast<ESpell>(GET_OBJ_VAL(obj, slot))].routines, kMagAreas | kMagMasses)) {
 						break;
 					}
 					tch = ch;
 				}
-			} else if (!FindCastTarget(spellnum, argument, ch, &tch, &tobj, &troom)) {
+			} else if (!FindCastTarget(spell_id, argument, ch, &tch, &tobj, &troom)) {
 				return;
 			}
 
@@ -156,7 +155,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 
 			SetWaitState(ch, kPulseViolence);
 			for (i = 1; i <= 3; i++) {
-				if (CallMagic(ch, tch, tobj, world[ch->in_room], GET_OBJ_VAL(obj, i), level) <= 0) {
+				if (CallMagic(ch, tch, tobj, world[ch->in_room], static_cast<ESpell>(GET_OBJ_VAL(obj, i)), level) <= 0) {
 					break;
 				}
 			}
@@ -183,7 +182,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 
 			SetWaitState(ch, kPulseViolence);
 			for (i = 1; i <= 3; i++) {
-				if (CallMagic(ch, ch, nullptr, world[ch->in_room], GET_OBJ_VAL(obj, i), level) <= 0) {
+				if (CallMagic(ch, ch, nullptr, world[ch->in_room], static_cast<ESpell>(GET_OBJ_VAL(obj, i)), level) <= 0) {
 					break;
 				}
 			}

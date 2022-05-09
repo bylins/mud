@@ -1,6 +1,6 @@
 #include "id_converter.h"
 
-#include "world_objects.h"
+#include "entities/world_objects.h"
 #include "entities/zone.h"
 
 ZoneRnum get_zone_rnum_by_room_vnum(RoomVnum vnum) {

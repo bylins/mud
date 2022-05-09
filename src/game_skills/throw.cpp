@@ -20,7 +20,7 @@ void PerformShadowThrowSideAbilities(AbilitySystem::TechniqueRoll &technique) {
 		return;
 	}
 
-	auto feature_id{EFeat::kIncorrectFeat};
+	auto feature_id{EFeat::kUndefined};
 	std::string to_char, to_vict, to_room;
 	void (*DoSideAction)(AbilitySystem::TechniqueRoll &technique);
 	Bitvector mob_no_flag = EMobFlag::kMobDeleted;
@@ -51,7 +51,7 @@ void PerformShadowThrowSideAbilities(AbilitySystem::TechniqueRoll &technique) {
 			to_room = "Меткое попадание $N1 заставило $n3 умолкнуть!";
 			DoSideAction = ([](AbilitySystem::TechniqueRoll &technique) {
 				Affect<EApply> af;
-				af.type = kSpellBattle;
+				af.type = ESpell::kBattle;
 				af.bitvector = to_underlying(EAffect::kSilence);
 				af.duration = CalcDuration(technique.GetRival(), 2, GetRealLevel(technique.GetActor()), 9, 6, 2);
 				af.battleflag = kAfBattledec | kAfPulsedec;
@@ -65,7 +65,7 @@ void PerformShadowThrowSideAbilities(AbilitySystem::TechniqueRoll &technique) {
 			to_room = "Попадание булавы $N1 ошеломило $n3!";
 			DoSideAction = ([](AbilitySystem::TechniqueRoll &technique) {
 				Affect<EApply> af;
-				af.type = kSpellBattle;
+				af.type = ESpell::kBattle;
 				af.bitvector = to_underlying(EAffect::kStopFight);
 				af.duration = CalcDuration(technique.GetRival(), 3, 0, 0, 0, 0);
 				af.battleflag = kAfBattledec | kAfPulsedec;
@@ -74,11 +74,11 @@ void PerformShadowThrowSideAbilities(AbilitySystem::TechniqueRoll &technique) {
 			});
 			break;
 		default:
-			feature_id = EFeat::kIncorrectFeat;
+			feature_id = EFeat::kUndefined;
 			break;
 	};
 
-	if (!IsAbleToUseFeat(technique.GetActor(), feature_id)) {
+	if (!CanUseFeat(technique.GetActor(), feature_id)) {
 		return;
 	};
 	AbilitySystem::TechniqueRoll side_roll;
@@ -101,7 +101,7 @@ void PerformWeaponThrow(AbilitySystem::TechniqueRoll &technique, Damage &damage)
 			damage.flags.set(fight::kIgnoreArmor);
 			damage.flags.set(fight::kCritHit);
 		};
-		if (IsTimed(technique.GetActor(), EFeat::kShadowThrower)) {
+		if (IsTimedByFeat(technique.GetActor(), EFeat::kShadowThrower)) {
 			DecreaseFeatTimer(technique.GetActor(), EFeat::kShadowThrower);
 		};
 		if (technique.GetAbilityId() == EFeat::kShadowThrower) {
@@ -171,7 +171,7 @@ void go_throw(CharData *ch, CharData *victim) {
 
 void do_throw(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	//Svent TODO: Не забыть убрать заглушку после дописывания навыков
-	if (!ch->get_skill(ESkill::kThrow)) {
+	if (!ch->GetSkill(ESkill::kThrow)) {
 		SendMsgToChar("Вы принялись метать икру. Это единственное, что вы умеете метать.\r\n", ch);
 		return;
 	}
@@ -204,7 +204,7 @@ void do_throw(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	if (subcmd == SCMD_SHADOW_THROW) {
-		if (IsTimed(ch, EFeat::kShadowThrower)) {
+		if (IsTimedByFeat(ch, EFeat::kShadowThrower)) {
 			SendMsgToChar("Не стоит так часто беспокоить тёмные силы.\r\n", ch);
 			return;
 		}

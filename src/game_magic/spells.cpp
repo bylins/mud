@@ -48,8 +48,8 @@ int pk_increment_revenge(CharData *agressor, CharData *victim);
 int what_sky = kSkyCloudless;
 // * Special spells appear below.
 
-ESkill GetMagicSkillId(int spellnum) {
-	switch (spell_info[spellnum].spell_class) {
+ESkill GetMagicSkillId(ESpell spell_id) {
+	switch (spell_info[spell_id].spell_class) {
 		case kTypeAir: return ESkill::kAirMagic;
 			break;
 		case kTypeFire: return ESkill::kFireMagic;
@@ -67,22 +67,29 @@ ESkill GetMagicSkillId(int spellnum) {
 		case kTypeLife: return ESkill::kLifeMagic;
 			break;
 		case kTypeNeutral: [[fallthrough]];
-		default: return ESkill::kIncorrect;
+		default: return ESkill::kUndefined;
 	}
 }
 
 //Определим мин уровень для изучения спелла из книги
 //req_lvl - требуемый уровень из книги
-int CalcMinSpellLevel(CharData *ch, int spellnum, int req_lvl) {
-	int min_lvl = std::max(req_lvl, BASE_CAST_LEV(spell_info[spellnum], ch))
-		- (std::max(GET_REAL_REMORT(ch) - MIN_CAST_REM(spell_info[spellnum], ch), 0) / 3);
+int CalcMinSpellLvl(const CharData *ch, ESpell spell_id, int req_lvl) {
+	int min_lvl = std::max(req_lvl, MUD::Classes(ch->GetClass()).spells[spell_id].GetMinLevel())
+		- (std::max(0, GET_REAL_REMORT(ch)/MUD::Classes(ch->GetClass()).GetSpellLvlDecrement()));
 
 	return std::max(1, min_lvl);
 }
 
-bool IsAbleToGetSpell(CharData *ch, int spellnum, int req_lvl) {
-	if (CalcMinSpellLevel(ch, spellnum, req_lvl) > GetRealLevel(ch) ||
-		MIN_CAST_REM(spell_info[spellnum], ch) > GET_REAL_REMORT(ch)) {
+int CalcMinSpellLvl(const CharData *ch, ESpell spell_id) {
+	auto min_lvl = MUD::Classes(ch->GetClass()).spells[spell_id].GetMinLevel()
+		- GET_REAL_REMORT(ch)/MUD::Classes(ch->GetClass()).GetSpellLvlDecrement();
+
+	return std::max(1, min_lvl);
+}
+
+bool CanGetSpell(const CharData *ch, ESpell spell_id, int req_lvl) {
+	if (CalcMinSpellLvl(ch, spell_id, req_lvl) > GetRealLevel(ch) ||
+		MUD::Classes(ch->GetClass()).spells[spell_id].GetMinRemort() > GET_REAL_REMORT(ch)) {
 		return false;
 	}
 
@@ -90,9 +97,9 @@ bool IsAbleToGetSpell(CharData *ch, int spellnum, int req_lvl) {
 };
 
 // Функция определяет возможность изучения спелла из книги или в гильдии
-bool IsAbleToGetSpell(CharData *ch, int spellnum) {
-	if (MIN_CAST_LEV(spell_info[spellnum], ch) > GetRealLevel(ch)
-		|| MIN_CAST_REM(spell_info[spellnum], ch) > GET_REAL_REMORT(ch)) {
+bool CanGetSpell(CharData *ch, ESpell spell_id) {
+	if (CalcMinSpellLvl(ch, spell_id) > GetRealLevel(ch) ||
+		MUD::Classes(ch->GetClass()).spells[spell_id].GetMinRemort() > GET_REAL_REMORT(ch)) {
 		return false;
 	}
 
@@ -147,7 +154,7 @@ void SpellCreateWater(int/* level*/, CharData *ch, CharData *victim, ObjData *ob
 			SendMsgToChar("Прекратите, ради бога, химичить.\r\n", ch);
 			return;
 		} else {
-			water = MAX(GET_OBJ_VAL(obj, 0) - GET_OBJ_VAL(obj, 1), 0);
+			water = std::max(GET_OBJ_VAL(obj, 0) - GET_OBJ_VAL(obj, 1), 0);
 			if (water > 0) {
 				if (GET_OBJ_VAL(obj, 1) >= 0) {
 					name_from_drinkcon(obj);
@@ -364,7 +371,8 @@ void SpellRelocate(int/* level*/, CharData *ch, CharData *victim, ObjData* /* ob
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kSlowDeathTrap) ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kTunnel) ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kNoRelocateIn) ||
-			ROOM_FLAGGED(fnd_room, ERoomFlag::kIceTrap) || (ROOM_FLAGGED(fnd_room, ERoomFlag::kGodsRoom) && !IS_IMMORTAL(ch)))) {
+			ROOM_FLAGGED(fnd_room, ERoomFlag::kIceTrap) || (ROOM_FLAGGED(fnd_room, ERoomFlag::kGodsRoom) && !IS_IMMORTAL(
+			ch)))) {
 		SendMsgToChar(SUMMON_FAIL, ch);
 		return;
 	}
@@ -517,7 +525,7 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 	}
 
 	if (!ch->IsNpc() && victim->IsNpc()) {
-		if (victim->get_master() != ch  //поправим это, тут и так понято что чармис (Кудояр)
+		if (victim->get_master() != ch  //поправим это, тут и так понято что чармис ()
 			|| victim->GetEnemy()
 			|| GET_POS(victim) < EPosition::kRest) {
 			SendMsgToChar(SUMMON_FAIL, ch);
@@ -565,7 +573,7 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 			SendMsgToChar(SUMMON_FAIL, ch);
 			return;
 		}
-		// отдельно проверку на клан комнаты, своих чармисов призвать можем (Кудояр)
+		// отдельно проверку на клан комнаты, своих чармисов призвать можем ()
 		if (!Clan::MayEnter(victim, ch_room, kHousePortal) && !(victim->has_master()) && (victim->get_master() != ch)) {
 			SendMsgToChar(SUMMON_FAIL, ch);
 			return;
@@ -652,7 +660,7 @@ void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *o
 
 		bloody_corpse = false;
 		if (!IS_GOD(ch)) {
-			if (number(1, 100) > (40 + MAX((GET_REAL_INT(ch) - 25) * 2, 0))) {
+			if (number(1, 100) > (40 + std::max((GET_REAL_INT(ch) - 25) * 2, 0))) {
 				return false;
 			}
 
@@ -823,7 +831,7 @@ void SpellCreateWeapon(int/* level*/, CharData* /*ch*/, CharData* /*victim*/, Ob
 // отключено, так как не реализовано
 }
 
-int CheckCharmices(CharData *ch, CharData *victim, int spellnum) {
+int CheckCharmices(CharData *ch, CharData *victim, ESpell spell_id) {
 	struct Follower *k;
 	int cha_summ = 0, reformed_hp_summ = 0;
 	bool undead_in_group = false, living_in_group = false;
@@ -833,7 +841,7 @@ int CheckCharmices(CharData *ch, CharData *victim, int spellnum) {
 			&& k->ch->get_master() == ch) {
 			cha_summ++;
 			//hp_summ += GET_REAL_MAX_HIT(k->ch);
-			reformed_hp_summ += get_reformed_charmice_hp(ch, k->ch, spellnum);
+			reformed_hp_summ += GetReformedCharmiceHp(ch, k->ch, spell_id);
 // Проверка на тип последователей -- некрасиво, зато эффективно
 			if (MOB_FLAGGED(k->ch, EMobFlag::kCorpse)) {
 				undead_in_group = true;
@@ -848,28 +856,28 @@ int CheckCharmices(CharData *ch, CharData *victim, int spellnum) {
 		return (false);
 	}
 
-	if (spellnum == kSpellCharm && undead_in_group) {
+	if (spell_id == ESpell::kCharm && undead_in_group) {
 		SendMsgToChar("Ваша жертва боится ваших последователей.\r\n", ch);
 		return (false);
 	}
 
-	if (spellnum != kSpellCharm && living_in_group) {
+	if (spell_id != ESpell::kCharm && living_in_group) {
 		SendMsgToChar("Ваш последователь мешает вам произнести это заклинание.\r\n", ch);
 		return (false);
 	}
 
-	if (spellnum == kSpellClone && cha_summ >= MAX(1, (GetRealLevel(ch) + 4) / 5 - 2)) {
+	if (spell_id == ESpell::kClone && cha_summ >= std::max(1, (GetRealLevel(ch) + 4) / 5 - 2)) {
 		SendMsgToChar("Вы не сможете управлять столькими последователями.\r\n", ch);
 		return (false);
 	}
 
-	if (spellnum != kSpellClone && cha_summ >= (GetRealLevel(ch) + 9) / 10) {
+	if (spell_id != ESpell::kClone && cha_summ >= (GetRealLevel(ch) + 9) / 10) {
 		SendMsgToChar("Вы не сможете управлять столькими последователями.\r\n", ch);
 		return (false);
 	}
 
-	if (spellnum != kSpellClone &&
-		reformed_hp_summ + get_reformed_charmice_hp(ch, victim, spellnum) >= get_player_charms(ch, spellnum)) {
+	if (spell_id != ESpell::kClone &&
+		reformed_hp_summ + GetReformedCharmiceHp(ch, victim, spell_id) >= CalcCharmPoint(ch, spell_id)) {
 		SendMsgToChar("Вам не под силу управлять такой боевой мощью.\r\n", ch);
 		return (false);
 	}
@@ -878,7 +886,7 @@ int CheckCharmices(CharData *ch, CharData *victim, int spellnum) {
 
 void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/) {
 	int k_skills = 0;
-	ESkill skill_id = ESkill::kIncorrect;
+	ESkill skill_id = ESkill::kUndefined;
 	if (victim == nullptr || ch == nullptr)
 		return;
 
@@ -919,7 +927,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 		&& CalcGeneralSaving(ch, victim, ESaving::kWill, (GET_REAL_CHA(ch) - 10) * 4 + GET_REAL_REMORT(ch) * 3)) //предлагаю завязать на каст
 		SendMsgToChar("Ваша магия потерпела неудачу.\r\n", ch);
 	else {
-		if (!CheckCharmices(ch, victim, kSpellCharm)) {
+		if (!CheckCharmices(ch, victim, ESpell::kCharm)) {
 			return;
 		}
 
@@ -937,10 +945,10 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 		if (MOB_FLAGGED(victim, EMobFlag::kNoGroup))
 			MOB_FLAGS(victim).unset(EMobFlag::kNoGroup);
 
-		affect_from_char(victim, kSpellCharm);
+		RemoveAffectFromChar(victim, ESpell::kCharm);
 		ch->add_follower(victim);
 		Affect<EApply> af;
-		af.type = kSpellCharm;
+		af.type = ESpell::kCharm;
 
 		if (GET_REAL_INT(victim) > GET_REAL_INT(ch)) {
 			af.duration = CalcDuration(victim, GET_REAL_CHA(ch), 0, 0, 0, 0);
@@ -953,8 +961,8 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 		af.bitvector = to_underlying(EAffect::kCharmed);
 		af.battleflag = 0;
 		affect_to_char(victim, af);
-		// резервируем место под фит (Кудояр)
-		if (IsAbleToUseFeat(ch, EFeat::kAnimalMaster) &&
+		// резервируем место под фит ()
+		if (CanUseFeat(ch, EFeat::kAnimalMaster) &&
 		GET_RACE(victim) == 104) {
 			act("$N0 обрел$G часть вашей магической силы, и стал$G намного опаснее...",
 				false, ch, nullptr, victim, kToChar);
@@ -963,7 +971,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 			// начинаем модификации victim
 			// создаем переменные модификаторов
 			int r_cha = GET_REAL_CHA(ch);
-			int perc = ch->get_skill(GetMagicSkillId(kSpellCharm));
+			int perc = ch->GetSkill(GetMagicSkillId(ESpell::kCharm));
 			ch->send_to_TC(false, true, false, "Значение хари:  %d.\r\n", r_cha);
 			ch->send_to_TC(false, true, false, "Значение скила магии: %d.\r\n", perc);
 			
@@ -1105,7 +1113,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 			// создаем кубики и доп атаки (пока без + а просто сет)
 			victim->mob_specials.damnodice = floorf((r_cha*1.3 + perc*0.2) / 5.0);
 			victim->mob_specials.damsizedice = floorf((r_cha*1.2 + perc*0.1) / 11.0);
-			victim->mob_specials.ExtraAttack = floorf((r_cha*1.2 + perc) / 120.0);
+			victim->mob_specials.extra_attack = floorf((r_cha*1.2 + perc) / 120.0);
 			
 
 			// простые аффекты
@@ -1158,11 +1166,11 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 				victim->set_skill(ESkill::kPunch, k_skills*0.9);
 				victim->set_skill(ESkill::kNoParryHit, k_skills*0.4);
 				victim->set_skill(ESkill::kIntercept, k_skills*0.75);
-				SET_FEAT(victim, EFeat::kPunchMaster);
+				victim->SetFeat(EFeat::kPunchMaster);
 					if (floorf(r_cha*0.9 + perc/5.0) > number(1, 150)) {
-					SET_FEAT(victim, EFeat::kPunchFocus);
+					victim->SetFeat(EFeat::kPunchFocus);
 					victim->set_skill(ESkill::kStrangle, k_skills);
-					SET_FEAT(victim, EFeat::kBerserker);
+					victim->SetFeat(EFeat::kBerserker);
 					act("&B$N0 теперь сможет просто удавить всех своих врагов.&n\n",
 						false, ch, nullptr, victim, kToChar);
 				}
@@ -1178,10 +1186,9 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 				victim->set_skill(ESkill::kRescue, k_skills*0.8);
 				victim->set_skill(ESkill::kTwohands, k_skills*0.95);
 				victim->set_skill(ESkill::kNoParryHit, k_skills*0.4);
-				SET_FEAT(victim, EFeat::kTwohandsMaster);
-				SET_FEAT(victim, EFeat::kTwohandsFocus);
+				victim->SetFeat(EFeat::kTwohandsMaster);
+				victim->SetFeat(EFeat::kTwohandsFocus);
 				if (floorf(r_cha + perc/5.0) > number(1, 150)) {
-					SET_FEAT(victim, EFeat::kRelatedToMagic);
 					act("&G$N0 стал$G намного более опасным хищником.&n\n",
 						false, ch, nullptr, victim, kToChar);
 					victim->set_skill(ESkill::kFirstAid, k_skills*0.4);
@@ -1200,10 +1207,10 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 				victim->set_skill(ESkill::kPicks, k_skills*0.75);
 				victim->set_skill(ESkill::kPoisoning, k_skills*0.7);
 				victim->set_skill(ESkill::kNoParryHit, k_skills*0.75);
-				SET_FEAT(victim, EFeat::kPicksMaster);
-				SET_FEAT(victim, EFeat::kThieveStrike);
+				victim->SetFeat(EFeat::kPicksMaster);
+				victim->SetFeat(EFeat::kThieveStrike);
 				if (floorf(r_cha*0.8 + perc/5.0) > number(1, 150)) {
-					SET_FEAT(victim, EFeat::kShadowStrike);
+					victim->SetFeat(EFeat::kShadowStrike);
 					act("&c$N0 затаил$U в вашей тени...&n\n", false, ch, nullptr, victim, kToChar);
 					
 				}
@@ -1226,10 +1233,10 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 						false, ch, nullptr, victim, kToChar);
 					victim->set_protecting(ch);
 				}
-				SET_FEAT(victim, EFeat::kAxesMaster);
-				SET_FEAT(victim, EFeat::kThieveStrike);
-				SET_FEAT(victim, EFeat::kDefender);
-				SET_FEAT(victim, EFeat::kLiveShield);
+				victim->SetFeat(EFeat::kAxesMaster);
+				victim->SetFeat(EFeat::kThieveStrike);
+				victim->SetFeat(EFeat::kDefender);
+				victim->SetFeat(EFeat::kLiveShield);
 				victim->set_con(floorf(GET_REAL_CON(victim)*1.3));
 				victim->set_str(floorf(GET_REAL_STR(victim)*1.2));
 				skill_id = ESkill::kAxes;
@@ -1245,8 +1252,8 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 				victim->set_skill(ESkill::kBows, k_skills*0.85);
 				victim->set_skill(ESkill::kRescue, k_skills*0.65);
 				victim->set_skill(ESkill::kNoParryHit, k_skills*0.5);
-				SET_FEAT(victim, EFeat::kThieveStrike);
-				SET_FEAT(victim, EFeat::kBowsMaster);
+				victim->SetFeat(EFeat::kThieveStrike);
+				victim->SetFeat(EFeat::kBowsMaster);
 				if (floorf(r_cha*0.8 + perc/5.0) > number(1, 150)) {
 					af.bitvector = to_underlying(EAffect::kCloudOfArrows);
 					act("&YВокруг когтей $N1 засияли яркие магические всполохи.&n\n",
@@ -1255,7 +1262,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 				}
 				victim->set_dex(floorf(GET_REAL_DEX(victim)*1.2));
 				victim->set_str(floorf(GET_REAL_STR(victim)*1.15));
-				victim->mob_specials.ExtraAttack = floorf((r_cha*1.2 + perc) / 180.0); // срежем доп атаки
+				victim->mob_specials.extra_attack = floorf((r_cha*1.2 + perc) / 180.0); // срежем доп атаки
 				skill_id = ESkill::kBows;
 				break;
 			case 6:
@@ -1268,19 +1275,19 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 				victim->set_skill(ESkill::kDodge, k_skills*0.7);
 				victim->set_skill(ESkill::kRescue, k_skills*0.6);
 				victim->set_skill(ESkill::kNoParryHit, k_skills*0.6);
-				SET_FEAT(victim, EFeat::kClubsMaster);
-				SET_FEAT(victim, EFeat::kThrowWeapon);
-				SET_FEAT(victim, EFeat::kDoubleThrower);
-				SET_FEAT(victim, EFeat::kTripleThrower);
-				SET_FEAT(victim, EFeat::kPowerThrow);
-				SET_FEAT(victim, EFeat::kDeadlyThrow);
+				victim->SetFeat(EFeat::kClubsMaster);
+				victim->SetFeat(EFeat::kThrowWeapon);
+				victim->SetFeat(EFeat::kDoubleThrower);
+				victim->SetFeat(EFeat::kTripleThrower);
+				victim->SetFeat(EFeat::kPowerThrow);
+				victim->SetFeat(EFeat::kDeadlyThrow);
 				if (floorf(r_cha*0.8 + perc/5.0) > number(1, 140)) {
-					SET_FEAT(victim, EFeat::kShadowThrower);
-					SET_FEAT(victim, EFeat::kShadowClub);
+					victim->SetFeat(EFeat::kShadowThrower);
+					victim->SetFeat(EFeat::kShadowClub);
 					victim->set_skill(ESkill::kDarkMagic, k_skills*0.7);
 					act("&cКогти $N1 преобрели &Kчерный цвет&c, будто смерть коснулась их.&n\n",
 						false, ch, nullptr, victim, kToChar);
-					victim->mob_specials.ExtraAttack = floorf((r_cha*1.2 + perc) / 100.0);
+					victim->mob_specials.extra_attack = floorf((r_cha*1.2 + perc) / 100.0);
 				}
 				victim->set_str(floorf(GET_REAL_STR(victim)*1.25));
 				
@@ -1295,11 +1302,11 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 				victim->set_skill(ESkill::kKick, k_skills*0.95);
 				victim->set_skill(ESkill::kNoParryHit, k_skills*0.7);
 				victim->set_skill(ESkill::kRescue, k_skills*0.4);
-				SET_FEAT(victim, EFeat::kLongsMaster);
+				victim->SetFeat(EFeat::kLongsMaster);
 			
 				if (floorf(r_cha*0.8 + perc/5.0) > number(1, 150)) {
 					victim->set_skill(ESkill::kIronwind, k_skills*0.8);
-					SET_FEAT(victim, EFeat::kBerserker);
+					victim->SetFeat(EFeat::kBerserker);
 					act("&mДвижения $N1 сильно ускорились, и в глазах появились &Rогоньки&m безумия.&n\n",
 						false, ch, nullptr, victim, kToChar);
 				}
@@ -1318,22 +1325,22 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 				victim->set_skill(ESkill::kThrow, k_skills*0.95);
 				victim->set_skill(ESkill::kSpades, k_skills*0.9);
 				victim->set_skill(ESkill::kNoParryHit, k_skills*0.6);
-				SET_FEAT(victim, EFeat::kLiveShield);
-				SET_FEAT(victim, EFeat::kSpadesMaster);
+				victim->SetFeat(EFeat::kLiveShield);
+				victim->SetFeat(EFeat::kSpadesMaster);
 								
 				if (floorf(r_cha*0.9 + perc/4.0) > number(1, 140)) {
-					SET_FEAT(victim, EFeat::kShadowThrower);
-					SET_FEAT(victim, EFeat::kShadowSpear);
+					victim->SetFeat(EFeat::kShadowThrower);
+					victim->SetFeat(EFeat::kShadowSpear);
 					victim->set_skill(ESkill::kDarkMagic, k_skills*0.8);
 					act("&KКогти $N1 преобрели темный оттенок, будто сама тьма коснулась их.&n\n",
 						false, ch, nullptr, victim, kToChar);
 				}
 				
-				SET_FEAT(victim, EFeat::kThrowWeapon);
-				SET_FEAT(victim, EFeat::kDoubleThrower);
-				SET_FEAT(victim, EFeat::kTripleThrower);
-				SET_FEAT(victim, EFeat::kPowerThrow);
-				SET_FEAT(victim, EFeat::kDeadlyThrow);
+				victim->SetFeat(EFeat::kThrowWeapon);
+				victim->SetFeat(EFeat::kDoubleThrower);
+				victim->SetFeat(EFeat::kTripleThrower);
+				victim->SetFeat(EFeat::kPowerThrow);
+				victim->SetFeat(EFeat::kDeadlyThrow);
 				victim->set_str(floorf(GET_REAL_STR(victim)*1.2));
 				victim->set_con(floorf(GET_REAL_CON(victim)*1.2));
 				skill_id = ESkill::kSpades;
@@ -1350,7 +1357,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 			false, ch, nullptr, victim, kToVict);
 		if (victim->IsNpc()) {
 //Eli. Раздеваемся.
-			if (victim->IsNpc() && !MOB_FLAGGED(victim, EMobFlag::kSummoned)) { // только если не маг зверьки (Кудояр)
+			if (victim->IsNpc() && !MOB_FLAGGED(victim, EMobFlag::kSummoned)) { // только если не маг зверьки ()
 				for (int i = 0; i < EEquipPos::kNumEquipPos; i++) {
 					if (GET_EQ(victim, i)) {
 						if (!remove_otrigger(GET_EQ(victim, i), victim)) {
@@ -1414,10 +1421,10 @@ void print_book_uprgd_skill(CharData *ch, const ObjData *obj) {
 	}
 	if (GET_OBJ_VAL(obj, 3) > 0) {
 		SendMsgToChar(ch, "повышает умение \"%s\" (максимум %d)\r\n",
-					  MUD::Skills()[skill_id].GetName(), GET_OBJ_VAL(obj, 3));
+					  MUD::Skills(skill_id).GetName(), GET_OBJ_VAL(obj, 3));
 	} else {
 		SendMsgToChar(ch, "повышает умение \"%s\" (не больше максимума текущего перевоплощения)\r\n",
-					  MUD::Skills()[skill_id].GetName());
+					  MUD::Skills(skill_id).GetName());
 	}
 }
 
@@ -1512,20 +1519,16 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 	switch (GET_OBJ_TYPE(obj)) {
 		case EObjType::kScroll:
 		case EObjType::kPotion: sprintf(buf, "Содержит заклинание: ");
-			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) <= kSpellCount)
-				sprintf(buf + strlen(buf), " %s", GetSpellName(GET_OBJ_VAL(obj, 1)));
-			if (GET_OBJ_VAL(obj, 2) >= 1 && GET_OBJ_VAL(obj, 2) <= kSpellCount)
-				sprintf(buf + strlen(buf), ", %s", GetSpellName(GET_OBJ_VAL(obj, 2)));
-			if (GET_OBJ_VAL(obj, 3) >= 1 && GET_OBJ_VAL(obj, 3) <= kSpellCount)
-				sprintf(buf + strlen(buf), ", %s", GetSpellName(GET_OBJ_VAL(obj, 3)));
+				sprintf(buf + strlen(buf), " %s", GetSpellName(static_cast<ESpell>(GET_OBJ_VAL(obj, 1))));
+				sprintf(buf + strlen(buf), ", %s", GetSpellName(static_cast<ESpell>(GET_OBJ_VAL(obj, 2))));
+				sprintf(buf + strlen(buf), ", %s", GetSpellName(static_cast<ESpell>(GET_OBJ_VAL(obj, 3))));
 			strcat(buf, "\r\n");
 			SendMsgToChar(buf, ch);
 			break;
 
 		case EObjType::kWand:
 		case EObjType::kStaff: sprintf(buf, "Вызывает заклинания: ");
-			if (GET_OBJ_VAL(obj, 3) >= 1 && GET_OBJ_VAL(obj, 3) <= kSpellCount)
-				sprintf(buf + strlen(buf), " %s\r\n", GetSpellName(GET_OBJ_VAL(obj, 3)));
+			sprintf(buf + strlen(buf), " %s\r\n", GetSpellName(static_cast<ESpell>(GET_OBJ_VAL(obj, 3))));
 			sprintf(buf + strlen(buf), "Зарядов %d (осталось %d).\r\n", GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
 			SendMsgToChar(buf, ch);
 			break;
@@ -1550,30 +1553,32 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 
 		case EObjType::kBook:
 			switch (GET_OBJ_VAL(obj, 0)) {
-				case EBook::kSpell:
-					if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) <= kSpellCount) {
+				case EBook::kSpell: {
+					auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(obj, 1));
+					if (spell_id >= ESpell::kFirst && spell_id <= ESpell::kLast) {
 						drndice = GET_OBJ_VAL(obj, 1);
-						if (MIN_CAST_REM(spell_info[GET_OBJ_VAL(obj, 1)], ch) > GET_REAL_REMORT(ch))
+						if (MUD::Classes(ch->GetClass()).spells[spell_id].GetMinRemort() > GET_REAL_REMORT(ch)) {
 							drsdice = 34;
-						else
-							drsdice = CalcMinSpellLevel(ch, GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
-						sprintf(buf, "содержит заклинание        : \"%s\"\r\n", spell_info[drndice].name);
+						} else {
+							drsdice = CalcMinSpellLvl(ch, spell_id, GET_OBJ_VAL(obj, 2));
+						}
+						sprintf(buf, "содержит заклинание        : \"%s\"\r\n", GetSpellName(spell_id));
 						SendMsgToChar(buf, ch);
 						sprintf(buf, "уровень изучения (для вас) : %d\r\n", drsdice);
 						SendMsgToChar(buf, ch);
 					}
 					break;
-
+				}
 				case EBook::kSkill: {
 					auto skill_id = static_cast<ESkill>(GET_OBJ_VAL(obj, 1));
 					if (MUD::Skills().IsValid(skill_id)) {
 						drndice = GET_OBJ_VAL(obj, 1);
-						if (MUD::Classes()[ch->get_class()].HasSkill(skill_id)) {
+						if (MUD::Classes(ch->GetClass()).skills[skill_id].IsAvailable()) {
 							drsdice = GetSkillMinLevel(ch, skill_id, GET_OBJ_VAL(obj, 2));
 						} else {
 							drsdice = kLvlImplementator;
 						}
-						sprintf(buf, "содержит секрет умения     : \"%s\"\r\n", MUD::Skills()[skill_id].GetName());
+						sprintf(buf, "содержит секрет умения     : \"%s\"\r\n", MUD::Skills(skill_id).GetName());
 						SendMsgToChar(buf, ch);
 						sprintf(buf, "уровень изучения (для вас) : %d\r\n", drsdice);
 						SendMsgToChar(buf, ch);
@@ -1585,9 +1590,9 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 
 				case EBook::kReceipt: drndice = im_get_recipe(GET_OBJ_VAL(obj, 1));
 					if (drndice >= 0) {
-						drsdice = MAX(GET_OBJ_VAL(obj, 2), imrecipes[drndice].level);
+						drsdice = std::max(GET_OBJ_VAL(obj, 2), imrecipes[drndice].level);
 						int count = imrecipes[drndice].remort;
-						if (imrecipes[drndice].classknow[(int) GET_CLASS(ch)] != KNOW_RECIPE)
+						if (imrecipes[drndice].classknow[to_underlying(ch->GetClass())] != kKnownRecipe)
 							drsdice = kLvlImplementator;
 						sprintf(buf, "содержит рецепт отвара     : \"%s\"\r\n", imrecipes[drndice].name);
 						SendMsgToChar(buf, ch);
@@ -1607,9 +1612,9 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 
 				case EBook::kFeat: {
 					const auto feat_id = static_cast<EFeat>(GET_OBJ_VAL(obj, 1));
-					if (feat_id >= EFeat::kFirstFeat && feat_id <= EFeat::kLastFeat) {
-						if (IsAbleToGetFeat(ch, feat_id)) {
-							drsdice = feat_info[feat_id].slot[(int) GET_CLASS(ch)][(int) GET_KIN(ch)];
+					if (feat_id >= EFeat::kFirst && feat_id <= EFeat::kLast) {
+						if (CanGetFeat(ch, feat_id)) {
+							drsdice = MUD::Classes(ch->GetClass()).feats[feat_id].GetSlot();
 						} else {
 							drsdice = kLvlImplementator;
 						}
@@ -1763,7 +1768,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 				continue;
 
 			sprintf(buf, "   %s%s%s%s%s%d%%%s\r\n",
-					CCCYN(ch, C_NRM), MUD::Skills()[skill_id].GetName(), CCNRM(ch, C_NRM),
+					CCCYN(ch, C_NRM), MUD::Skills(skill_id).GetName(), CCNRM(ch, C_NRM),
 					CCCYN(ch, C_NRM),
 					percent < 0 ? " ухудшает на " : " улучшает на ", abs(percent), CCNRM(ch, C_NRM));
 			SendMsgToChar(buf, ch);
@@ -1978,7 +1983,7 @@ void SpellControlWeather(int/* level*/, CharData *ch, CharData* /*victim*/, ObjD
 	}
 
 	if (sky_info) {
-		duration = MAX(GetRealLevel(ch) / 8, 2);
+		duration = std::max(GetRealLevel(ch) / 8, 2);
 		zone = world[ch->in_room]->zone_rn;
 		for (i = kFirstRoom; i <= top_of_world; i++)
 			if (world[i]->zone_rn == zone && SECT(i) != ESector::kInside && SECT(i) != ESector::kCity) {
@@ -1997,6 +2002,7 @@ void SpellFear(int/* level*/, CharData *ch, CharData *victim, ObjData* /*obj*/) 
 	int modi = 0;
 	if (ch != victim) {
 		modi = CalcAntiSavings(ch);
+		modi += CalcClassAntiSavingsMod(ch, ESpell::kFear);
 		if (!pk_agro_action(ch, victim))
 			return;
 	}
@@ -2017,6 +2023,7 @@ void SpellEnergydrain(int/* level*/, CharData *ch, CharData *victim, ObjData* /*
 	int modi = 0;
 	if (ch != victim) {
 		modi = CalcAntiSavings(ch);
+		modi += CalcClassAntiSavingsMod(ch, ESpell::kEnergyDrain);
 		if (!pk_agro_action(ch, victim))
 			return;
 	}
@@ -2026,8 +2033,9 @@ void SpellEnergydrain(int/* level*/, CharData *ch, CharData *victim, ObjData* /*
 		modi = modi - 50;
 
 	if (ch == victim || !CalcGeneralSaving(ch, victim, ESaving::kWill, CALC_SUCCESS(modi, 33))) {
-		int i;
-		for (i = 0; i <= kSpellCount; GET_SPELL_MEM(victim, i++) = 0);
+		for (auto spell_id = ESpell::kFirst ; spell_id <= ESpell::kLast; ++spell_id) {
+			GET_SPELL_MEM(victim, spell_id) = 0;
+		}
 		victim->caster_level = 0;
 		SendMsgToChar("Внезапно вы осознали, что у вас напрочь отшибло память.\r\n", victim);
 	} else
@@ -2055,7 +2063,7 @@ void SpellSacrifice(int/* level*/, CharData *ch, CharData *victim, ObjData* /*ob
 		return;
 	}
 
-	dam = mag_damage(GetRealLevel(ch), ch, victim, kSpellSacrifice, ESaving::kStability);
+	dam = mag_damage(GetRealLevel(ch), ch, victim, ESpell::kSacrifice, ESaving::kStability);
 	// victim может быть спуржен
 
 	if (dam < 0)
@@ -2096,13 +2104,13 @@ void SpellHolystrike(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData*
 		} else {
 			//Чуток нелогично, но раз зомби гоняет -- сам немного мертвяк. :)
 			//Тут сам спелл бредовый... Но пока на скорую руку.
-			if (!IsAbleToUseFeat(tch, EFeat::kZombieDrover)) {
+			if (!CanUseFeat(tch, EFeat::kZombieDrover)) {
 				continue;
 			}
 		}
 
-		mag_affects(GetRealLevel(ch), ch, tch, kSpellHolystrike, ESaving::kStability);
-		mag_damage(GetRealLevel(ch), ch, tch, kSpellHolystrike, ESaving::kStability);
+		CastMagicAffect(GetRealLevel(ch), ch, tch, ESpell::kHolystrike, ESaving::kStability);
+		mag_damage(GetRealLevel(ch), ch, tch, ESpell::kHolystrike, ESaving::kStability);
 	}
 
 	act(msg2, false, ch, nullptr, nullptr, kToChar);
@@ -2173,9 +2181,9 @@ void SpellSummonAngel(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData
 	float base_armour = 0;
 	float additional_armour_for_charisma = 0.5; // 8 armour for 16 charisma, 25 armour for 50 charisma
 
-	clear_char_skills(mob);
+	ClearCharTalents(mob);
 	Affect<EApply> af;
-	af.type = kSpellCharm;
+	af.type = ESpell::kCharm;
 	af.duration = CalcDuration(mob, floorf(base_ttl + additional_ttl_for_charisma * eff_cha), 0, 0, 0, 0);
 	af.modifier = 0;
 	af.location = EApply::kNone;
@@ -2245,7 +2253,7 @@ void SpellSummonAngel(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData
 	mob->set_str(1 + floorf(additional_str_for_charisma * eff_cha));
 	mob->set_dex(1 + floorf(additional_dex_for_charisma * eff_cha));
 	mob->set_con(1 + floorf(additional_con_for_charisma * eff_cha));
-	mob->set_int(MAX(50, 1 + floorf(additional_int_for_charisma * eff_cha))); //кап 50
+	mob->set_int(std::max(50, 1 + static_cast<int>(floorf(additional_int_for_charisma * eff_cha)))); //кап 50
 	mob->set_wis(1 + floorf(additional_wis_for_charisma * eff_cha));
 	mob->set_cha(1 + floorf(additional_cha_for_charisma * eff_cha));
 
@@ -2260,7 +2268,7 @@ void SpellSummonAngel(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData
 
 	mob->mob_specials.damnodice = 1;
 	mob->mob_specials.damsizedice = 1;
-	mob->mob_specials.ExtraAttack = 0;
+	mob->mob_specials.extra_attack = 0;
 
 	mob->set_exp(0);
 
@@ -2277,12 +2285,12 @@ void SpellSummonAngel(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData
 	mob->set_skill(ESkill::kAwake, floorf(base_awake + additional_awake_for_charisma * eff_cha));
 	mob->set_skill(ESkill::kMultiparry, floorf(base_multiparry + additional_multiparry_for_charisma * eff_cha));
 	int base_spell = 2;
-	SET_SPELL(mob, kSpellCureBlind, base_spell);
-	SET_SPELL(mob, kSpellRemoveHold, base_spell);
-	SET_SPELL(mob, kSpellRemovePoison, base_spell);
-	SET_SPELL(mob, kSpellHeal, floorf(base_heal + additional_heal_for_charisma * eff_cha));
+	SET_SPELL(mob, ESpell::kCureBlind, base_spell);
+	SET_SPELL(mob, ESpell::kRemoveHold, base_spell);
+	SET_SPELL(mob, ESpell::kRemovePoison, base_spell);
+	SET_SPELL(mob, ESpell::kHeal, floorf(base_heal + additional_heal_for_charisma * eff_cha));
 
-	if (mob->get_skill(ESkill::kAwake)) {
+	if (mob->GetSkill(ESkill::kAwake)) {
 		PRF_FLAGS(mob).set(EPrf::kAwake);
 	}
 
@@ -2339,7 +2347,7 @@ void SpellMentalShadow(int/* level*/, CharData *ch, CharData* /*victim*/, ObjDat
 		return;
 	}
 	Affect<EApply> af;
-	af.type = kSpellCharm;
+	af.type = ESpell::kCharm;
 	af.duration = CalcDuration(mob, 5 + (int) VPOSI<float>((get_effective_int(ch) - 16.0) / 2, 0, 50), 0, 0, 0, 0);
 	af.modifier = 0;
 	af.location = EApply::kNone;
@@ -2352,25 +2360,25 @@ void SpellMentalShadow(int/* level*/, CharData *ch, CharData* /*victim*/, ObjDat
 	GET_AC(mob) = floorf(base_ac + additional_ac * eff_int);
 	// Добавление заклов и аффектов в зависимости от интелекта кудеса
 	if (eff_int >= 28 && eff_int < 32) {
-     	SET_SPELL(mob, kSpellRemoveSilence, 1);
+     	SET_SPELL(mob, ESpell::kRemoveSilence, 1);
 	} else if (eff_int >= 32 && eff_int < 38) {
-		SET_SPELL(mob, kSpellRemoveSilence, 1);
+		SET_SPELL(mob, ESpell::kRemoveSilence, 1);
 		af.bitvector = to_underlying(EAffect::kShadowCloak);
 		affect_to_char(mob, af);
 
 	} else if(eff_int >= 38 && eff_int < 44) {
-		SET_SPELL(mob, kSpellRemoveSilence, 2);
+		SET_SPELL(mob, ESpell::kRemoveSilence, 2);
 		af.bitvector = to_underlying(EAffect::kShadowCloak);
 		affect_to_char(mob, af);
 		
 	} else if(eff_int >= 44) {
-		SET_SPELL(mob, kSpellRemoveSilence, 3);
+		SET_SPELL(mob, ESpell::kRemoveSilence, 3);
 		af.bitvector = to_underlying(EAffect::kShadowCloak);
 		affect_to_char(mob, af);
 		af.bitvector = to_underlying(EAffect::kBrokenChains);
 		affect_to_char(mob, af);
 	}
-	if (mob->get_skill(ESkill::kAwake)) {
+	if (mob->GetSkill(ESkill::kAwake)) {
 		PRF_FLAGS(mob).set(EPrf::kAwake);
 	}
 	mob->set_level(GetRealLevel(ch));
@@ -2384,835 +2392,10 @@ void SpellMentalShadow(int/* level*/, CharData *ch, CharData* /*victim*/, ObjDat
 		true, mob, nullptr, nullptr, kToRoom | kToArenaListen);
 }
 
-std::string get_wear_off_text(ESpell spell)
-{
-	static const std::map<ESpell, std::string> spell_to_text {
-		{kSpellArmor, "Вы почувствовали себя менее защищенно."},
-		{kSpellTeleport, "!Teleport!"},
-		{kSpellBless, "Вы почувствовали себя менее доблестно."},
-		{kSpellBlindness, "Вы вновь можете видеть."},
-		{kSpellBurningHands, "!Burning Hands!"},
-		{kSpellCallLighting, "!Call Lightning"},
-		{kSpellCharm, "Вы подчиняетесь теперь только себе."},
-		{kSpellChillTouch, "Вы отметили, что силы вернулись к вам."},
-		{kSpellClone, "!Clone!"},
-		{kSpellIceBolts, "!Color Spray!"},
-		{kSpellControlWeather, "!Control Weather!"},
-		{kSpellCreateFood, "!Create Food!"},
-		{kSpellCreateWater, "!Create Water!"},
-		{kSpellCureBlind, "!Cure Blind!"},
-		{kSpellCureCritic, "!Cure Critic!"},
-		{kSpellCureLight, "!Cure Light!"},
-		{kSpellCurse, "Вы почувствовали себя более уверенно."},
-		{kSpellDetectAlign, "Вы более не можете определять наклонности."},
-		{kSpellDetectInvis, "Вы не в состоянии больше видеть невидимых."},
-		{kSpellDetectMagic, "Вы не в состоянии более определять магию."},
-		{kSpellDetectPoison, "Вы не в состоянии более определять яды."},
-		{kSpellDispelEvil, "!Dispel Evil!"},
-		{kSpellEarthquake, "!Earthquake!"},
-		{kSpellEnchantWeapon, "!Enchant Weapon!"},
-		{kSpellEnergyDrain, "!Energy Drain!"},
-		{kSpellFireball, "!Fireball!"},
-		{kSpellHarm, "!Harm!"},
-		{kSpellHeal, "!Heal!"},
-		{kSpellInvisible, "Вы вновь видимы."},
-		{kSpellLightingBolt, "!Lightning Bolt!"},
-		{kSpellLocateObject, "!Locate object!"},
-		{kSpellMagicMissile, "!Magic Missile!"},
-		{kSpellPoison, "В вашей крови не осталось ни капельки яда."},
-		{kSpellProtectFromEvil, "Вы вновь ощущаете страх перед тьмой."},
-		{kSpellRemoveCurse, "!Remove Curse!"},
-		{kSpellSanctuary, "Белая аура вокруг вашего тела угасла."},
-		{kSpellShockingGasp, "!Shocking Grasp!"},
-		{kSpellSleep, "Вы не чувствуете сонливости."},
-		{kSpellStrength, "Вы чувствуете себя немного слабее."},
-		{kSpellSummon, "!Summon!"},
-		{kSpellPatronage, "Вы утратили покровительство высших сил."},
-		{kSpellWorldOfRecall, "!Word of Recall!"},
-		{kSpellRemovePoison, "!Remove Poison!"},
-		{kSpellSenseLife, "Вы больше не можете чувствовать жизнь."},
-		{kSpellAnimateDead, "!Animate Dead!"},
-		{kSpellDispelGood, "!Dispel Good!"},
-		{kSpellGroupArmor, "!Group Armor!"},
-		{kSpellGroupHeal, "!Group Heal!"},
-		{kSpellGroupRecall, "!Group Recall!"},
-		{kSpellInfravision, "Вы больше не можете видеть ночью."},
-		{kSpellWaterwalk, "Вы больше не можете ходить по воде."},
-		{kSpellCureSerious, "!SPELL CURE SERIOUS!"},
-		{kSpellGroupStrength, "!SPELL GROUP STRENGTH!"},
-		{kSpellHold, "К вам вернулась способность двигаться."},
-		{kSpellPowerHold, "!SPELL POWER HOLD!"},
-		{kSpellMassHold, "!SPELL MASS HOLD!"},
-		{kSpellFly, "Вы приземлились на землю."},
-		{kSpellBrokenChains, "Вы вновь стали уязвимы для оцепенения."},
-		{kSpellNoflee, "Вы опять можете сбежать с поля боя."},
-		{kSpellCreateLight, "!SPELL CREATE LIGHT!"},
-		{kSpellDarkness, "Облако тьмы, окружающее вас, спало."},
-		{kSpellStoneSkin, "Ваша кожа вновь стала мягкой и бархатистой."},
-		{kSpellCloudly, "Ваши очертания приобрели отчетливость."},
-		{kSpellSllence, "Теперь вы можете болтать, все что думаете."},
-		{kSpellLight, "Ваше тело перестало светиться."},
-		{kSpellChainLighting, "!SPELL CHAIN LIGHTNING!"},
-		{kSpellFireBlast, "!SPELL FIREBLAST!"},
-		{kSpellGodsWrath, "!SPELL IMPLOSION!"},
-		{kSpellWeaknes, "Силы вернулись к вам."},
-		{kSpellGroupInvisible, "!SPELL GROUP INVISIBLE!"},
-		{kSpellShadowCloak, "Ваша теневая мантия замерцала и растаяла."},
-		{kSpellAcid, "!SPELL ACID!"},
-		{kSpellRepair, "!SPELL REPAIR!"},
-		{kSpellEnlarge, "Ваши размеры стали прежними."},
-		{kSpellFear, "!SPELL FEAR!"},
-		{kSpellSacrifice, "!SPELL SACRIFICE!"},
-		{kSpellWeb, "Магическая сеть, покрывавшая вас, исчезла."},
-		{kSpellBlink, "Вы перестали мигать."},
-		{kSpellRemoveHold, "!SPELL REMOVE HOLD!"},
-		{kSpellCamouflage, "Вы стали вновь похожи сами на себя."},
-		{kSpellPowerBlindness, "!SPELL POWER BLINDNESS!"},
-		{kSpellMassBlindness, "!SPELL MASS BLINDNESS!"},
-		{kSpellPowerSilence, "!SPELL POWER SIELENCE!"},
-		{kSpellExtraHits, "!SPELL EXTRA HITS!"},
-		{kSpellResurrection, "!SPELL RESSURECTION!"},
-		{kSpellMagicShield, "Ваш волшебный щит рассеялся."},
-		{kSpellForbidden, "Магия, запечатывающая входы, пропала."},
-		{kSpellMassSilence, "!SPELL MASS SIELENCE!"},
-		{kSpellRemoveSilence, "!SPELL REMOVE SIELENCE!"},
-		{kSpellDamageLight, "!SPELL DAMAGE LIGHT!"},
-		{kSpellDamageSerious, "!SPELL DAMAGE SERIOUS!"},
-		{kSpellDamageCritic, "!SPELL DAMAGE CRITIC!"},
-		{kSpellMassCurse, "!SPELL MASS CURSE!"},
-		{kSpellArmageddon, "!SPELL ARMAGEDDON!"},
-		{kSpellGroupFly, "!SPELL GROUP FLY!"},
-		{kSpellGroupBless, "!SPELL GROUP BLESS!"},
-		{kSpellResfresh, "!SPELL REFRESH!"},
-		{kSpellStunning, "!SPELL STUNNING!"},
-		{kSpellHide, "Вы стали заметны окружающим."},
-		{kSpellSneak, "Ваши передвижения стали заметны."},
-		{kSpellDrunked, "Кураж прошел. Мама, лучше бы я умер$q вчера."},
-		{kSpellAbstinent, "А головка ваша уже не болит."},
-		{kSpellFullFeed, "Вам снова захотелось жареного, да с дымком."},
-		{kSpellColdWind, "Вы согрелись и подвижность вернулась к вам."},
-		{kSpellBattle, "К вам вернулась способность нормально сражаться."},
-		{kSpellHaemorrhage, "Ваши кровоточащие раны затянулись."},
-		{kSpellCourage, "Вы успокоились."},
-		{kSpellWaterbreath, "Вы более не способны дышать водой."},
-		{kSpellSlowdown, "Медлительность исчезла."},
-		{kSpellHaste, "Вы стали более медлительны."},
-		{kSpellMassSlow, "!SPELL MASS SLOW!"},
-		{kSpellGroupHaste, "!SPELL MASS HASTE!"},
-		{kSpellGodsShield, "Голубой кокон вокруг вашего тела угас."},
-		{kSpellFever, "Лихорадка прекратилась."},
-		{kSpellCureFever, "!SPELL CURE PLAQUE!"},
-		{kSpellAwareness, "Вы стали менее внимательны."},
-		{kSpellReligion, "Вы утратили расположение Богов."},
-		{kSpellAirShield, "Ваш воздушный щит исчез."},
-		{kSpellPortal, "!PORTAL!"},
-		{kSpellDispellMagic, "!DISPELL MAGIC!"},
-		{kSpellSummonKeeper, "!SUMMON KEEPER!"},
-		{kSpellFastRegeneration, "Живительная сила покинула вас."},
-		{kSpellCreateWeapon, "!CREATE WEAPON!"},
-		{kSpellFireShield, "Огненный щит вокруг вашего тела исчез."},
-		{kSpellRelocate, "!RELOCATE!"},
-		{kSpellSummonFirekeeper, "!SUMMON FIREKEEPER!"},
-		{kSpellIceShield, "Ледяной щит вокруг вашего тела исчез."},
-		{kSpellIceStorm, "Ваши мышцы оттаяли и вы снова можете двигаться."},
-		{kSpellLessening, "Ваши размеры вновь стали прежними."},
-		{kSpellShineFlash, "!SHINE LIGHT!"},
-		{kSpellMadness, "Безумие боя отпустило вас."},
-		{kSpellGroupMagicGlass, "!GROUP MAGICGLASS!"},
-		{kSpellCloudOfArrows, "Облако стрел вокруг вас рассеялось."},
-		{kSpellVacuum, "!VACUUM!"},
-		{kSpellMeteorStorm, "Последний громовой камень грянул в землю и все стихло."},
-		{kSpellStoneHands, "Ваши руки вернулись к прежнему состоянию."},
-		{kSpellMindless, "Ваш разум просветлел."},
-		{kSpellPrismaticAura, "Призматическая аура вокруг вашего тела угасла."},
-		{kSpellEviless, "Силы зла оставили вас."},
-		{kSpellAirAura, "Воздушная аура вокруг вас исчезла."},
-		{kSpellFireAura, "Огненная аура вокруг вас исчезла."},
-		{kSpellIceAura, "Ледяная аура вокруг вас исчезла."},
-		{kSpellShock, "!SHOCK!"},
-		{kSpellMagicGlass, "Вы вновь чувствительны к магическим поражениям."},
-		{kSpellGroupSanctuary, "!SPELL GROUP SANCTUARY!"},
-		{kSpellGroupPrismaticAura, "!SPELL GROUP PRISMATICAURA!"},
-		{kSpellDeafness, "Вы вновь можете слышать."},
-		{kSpellPowerDeafness, "!SPELL_POWER_DEAFNESS!"},
-		{kSpellRemoveDeafness, "!SPELL_REMOVE_DEAFNESS!"},
-		{kSpellMassDeafness, "!SPELL_MASS_DEAFNESS!"},
-		{kSpellDustStorm, "!SPELL_DUSTSTORM!"},
-		{kSpellEarthfall, "!SPELL_EARTHFALL!"},
-		{kSpellSonicWave, "!SPELL_SONICWAVE!"},
-		{kSpellHolystrike, "!SPELL_HOLYSTRIKE!"},
-		{kSpellSumonAngel, "!SPELL_SPELL_ANGEL!"},
-		{kSpellMassFear, "!SPELL_SPELL_MASS_FEAR!"},
-		{kSpellFascination, "Ваша красота куда-то пропала."},
-		{kSpellCrying, "Ваша душа успокоилась."},
-		{kSpellOblivion, "!SPELL_OBLIVION!"},
-		{kSpellBurdenOfTime, "!SPELL_BURDEN_OF_TIME!"},
-		{kSpellGroupRefresh, "!SPELL_GROUP_REFRESH!"},
-		{kSpellPeaceful, "Смирение в вашей душе вдруг куда-то исчезло."},
-		{kSpellMagicBattle, "К вам вернулась способность нормально сражаться."},
-		{kSpellBerserk, "Неистовство оставило вас."},
-		{kSpellStoneBones, "!stone bones!"},
-		{kSpellRoomLight, "Колдовской свет угас."},
-		{kSpellPoosinedFog, "Порыв ветра развеял ядовитый туман."},
-		{kSpellThunderstorm, "Ветер прогнал грозовые тучи."},
-		{kSpellLightWalk, "Ваши следы вновь стали заметны."},
-		{kSpellFailure, "Удача вновь вернулась к вам."},
-		{kSpellClanPray, "Магические чары ослабели со временем и покинули вас."},
-		{kSpellGlitterDust, "Покрывавшая вас блестящая пыль осыпалась и растаяла в воздухе."},
-		{kSpellScream, "Леденящий душу испуг отпустил вас."},
-		{kSpellCatGrace, "Ваши движения утратили прежнюю колдовскую ловкость."},
-		{kSpellBullBody, "Ваше телосложение вновь стало обычным."},
-		{kSpellSnakeWisdom, "Вы утратили навеянную магией мудрость."},
-		{kSpellGimmicry, "Навеянная магией хитрость покинула вас."},
-		{kSpellWarcryOfChallenge, "!SPELL_WC_OF_CHALLENGE!"},
-		{kSpellWarcryOfMenace, ""},
-		{kSpellWarcryOfRage, "!SPELL_WC_OF_RAGE!"},
-		{kSpellWarcryOfMadness, ""},
-		{kSpellWarcryOfThunder, "!SPELL_WC_OF_THUNDER!"},
-		{kSpellWarcryOfDefence, "Действие клича 'призыв к обороне' закончилось."},
-		{kSpellWarcryOfBattle, "Действие клича битвы закончилось."},
-		{kSpellWarcryOfPower, "Действие клича мощи закончилось."},
-		{kSpellWarcryOfBless, "Действие клича доблести закончилось."},
-		{kSpellWarcryOfCourage, "Действие клича отваги закончилось."},
-		{kSpellRuneLabel, "Магические письмена на земле угасли."},
-		{kSpellAconitumPoison, "В вашей крови не осталось ни капельки яда."},
-		{kSpellScopolaPoison, "В вашей крови не осталось ни капельки яда."},
-		{kSpellBelenaPoison, "В вашей крови не осталось ни капельки яда."},
-		{kSpellDaturaPoison, "В вашей крови не осталось ни капельки яда."},
-		{kSpellTimerRestore, "SPELL_TIMER_REPAIR"},
-		{kSpellLucky, "!SPELL_LACKY!"},
-		{kSpellBandage, "Вы аккуратно перевязали свои раны."},
-		{kSpellNoBandage, "Вы снова можете перевязывать свои раны."},
-		{kSpellCapable, "!SPELL_CAPABLE!"},
-		{kSpellStrangle, "Удушье отпустило вас, и вы вздохнули полной грудью."},
-		{kSpellRecallSpells, "Вам стало не на чем концентрироваться."},
-		{kSpellHypnoticPattern, "Плывший в воздухе огненный узор потускнел и растаял струйками дыма."},
-		{kSpellSolobonus, "Одна из наград прекратила действовать."},
-		{kSpellVampirism, "!SPELL_VAMPIRE!"},
-		{kSpellRestoration, "!SPELLS_RESTORATION!"},
-		{kSpellDeathAura, "Силы нави покинули вас."},
-		{kSpellRecovery, "!SPELL_RECOVERY!"},
-		{kSpellMassRecovery, "!SPELL_MASS_RECOVERY!"},
-		{kSpellAuraOfEvil, "Аура зла больше не помогает вам."},
-		{kSpellMentalShadow, "!SPELL_MENTAL_SHADOW!"},
-		{kSpellBlackTentacles, "Жуткие черные руки побледнели и расплылись зловонной дымкой."},
-		{kSpellWhirlwind, "!SPELL_WHIRLWIND!"},
-		{kSpellIndriksTeeth, "Каменные зубы исчезли, возвратив способность двигаться."},
-		{kSpellAcidArrow, "!SPELL_MELFS_ACID_ARROW!"},
-		{kSpellThunderStone, "!SPELL_THUNDERSTONE!"},
-		{kSpellClod, "!SPELL_CLOD!"},
-		{kSpellExpedient, "Эффект боевого приема завершился."},
-		{kSpellSightOfDarkness, "!SPELL SIGHT OF DARKNESS!"},
-		{kSpellGroupSincerity, "!SPELL GENERAL SINCERITY!"},
-		{kSpellMagicalGaze, "!SPELL MAGICAL GAZE!"},
-		{kSpellAllSeeingEye, "!SPELL ALL SEEING EYE!"},
-		{kSpellEyeOfGods, "!SPELL EYE OF GODS!"},
-		{kSpellBreathingAtDepth, "!SPELL BREATHING AT DEPTH!"},
-		{kSpellGeneralRecovery, "!SPELL GENERAL RECOVERY!"},
-		{kSpellCommonMeal, "!SPELL COMMON MEAL!"},
-		{kSpellStoneWall, "!SPELL STONE WALL!"},
-		{kSpellSnakeEyes, "!SPELL SNAKE EYES!"},
-		{kSpellEarthAura, "Матушка земля забыла про Вас."},
-		{kSpellGroupProtectFromEvil, "Вы вновь ощущаете страх перед тьмой."},
-		{kSpellArrowsFire, "!NONE"},
-		{kSpellArrowsWater, "!NONE"},
-		{kSpellArrowsEarth, "!NONE"},
-		{kSpellArrowsAir, "!NONE"},
-		{kSpellArrowsDeath, "!NONE"},
-		{kSpellPaladineInspiration, "*Боевое воодушевление угасло, а с ним и вся жажда подвигов!"},
-		{kSpellDexterity, "Вы стали менее шустрым."},
-		{kSpellGroupBlink, "!NONE"},
-		{kSpellGroupCloudly, "!NONE"},
-		{kSpellGroupAwareness, "!NONE"},
-		{kSpellWatctyOfExpirence, "Действие клича 'обучение' закончилось."},
-		{kSpellWarcryOfLuck, "Действие клича 'везение' закончилось."},
-		{kSpellWarcryOfPhysdamage, "Действие клича 'точность' закончилось."},
-		{kSpellMassFailure, "Удача снова повернулась к вам лицом... и залепила пощечину."},
-		{kSpellSnare, "Покрывавшие вас сети колдовской западни растаяли."},
-		{kSpellQUest, "Наложенные на вас чары рассеялись."},
-		{kSpellExpedientFail, "Вы восстановили равновесие."}
-	};
-
-	if (!spell_to_text.count(spell)) {
-		std::stringstream log_text;
-		log_text << "!нет сообщения при спадении аффекта под номером: " << static_cast<int>(spell) << "!";
-		//return log_text.str().c_str();
-		return log_text.str();
-	}
-
-	return spell_to_text.at(spell);
-}
-
-// TODO:refactor and replate int spell by ESpell
-std::optional<CastPhraseList> get_cast_phrase(int spell)
-{
-	// маппинг заклинания в текстовую пару [для язычника, для христианина]
-	static const std::map<ESpell, CastPhraseList> cast_to_text {
-		{kSpellArmor, {"буде во прибежище", "... Он - помощь наша и защита наша."}},
-		{kSpellTeleport, {"несите ветры", "... дух поднял меня и перенес меня."}},
-		{kSpellBless, {"истягну умь крепостию", "... даст блага просящим у Него."}},
-		{kSpellBlindness, {"Чтоб твои зенки вылезли!", "... поразит тебя Господь слепотою."}},
-		{kSpellBurningHands, {"узри огонь!", "... простер руку свою к огню."}},
-		{kSpellCallLighting, {"Разрази тебя Перун!", "... и путь для громоносной молнии."}},
-		{kSpellCharm, {"умь полонить", "... слушай пастыря сваего, и уразумей."}},
-		{kSpellChillTouch, {"хладну персты воскладаше", "... которые черны от льда."}},
-		{kSpellClone, {"пусть будет много меня", "... и плодились, и весьма умножились."}},
-		{kSpellIceBolts, {"хлад и мраз исторгнути", "... и из воды делается лед."}},
-		{kSpellControlWeather, {"стихия подкоряшися", "... власть затворить небо, чтобы не шел дождь."}},
-		{kSpellCreateFood, {"будовати снедь", "... это хлеб, который Господь дал вам в пищу."}},
-		{kSpellCreateWater, {"напоиши влагой", "... и потекло много воды."}},
-		{kSpellCureBlind, {"зряще узрите", "... и прозрят из тьмы и мрака глаза слепых."}},
-		{kSpellCureCritic, {"гой еси", "... да зарубцуются гноища твои."}},
-		{kSpellCureLight, {"малейше целити раны", "... да затянутся раны твои."}},
-		{kSpellCurse, {"порча", "... проклят ты пред всеми скотами."}},
-		{kSpellDetectAlign, {"узряще норов", "... и отделит одних от других, как пастырь отделяет овец от козлов."}},
-		{kSpellDetectInvis, {"взор мечетный", "... ибо нет ничего тайного, что не сделалось бы явным."}},
-		{kSpellDetectMagic, {"зряще ворожбу", "... покажись, ересь богопротивная."}},
-		{kSpellDetectPoison, {"зряще трутизну", "... по плодам их узнаете их."}},
-		{kSpellDispelEvil, {"долой нощи", "... грешников преследует зло, а праведникам воздается добром."}},
-		{kSpellEarthquake, {"земля тутнет", "... в тот же час произошло великое землетрясение."}},
-		{kSpellEnchantWeapon, {"ницовати стружие", "... укрепи сталь Божьим перстом."}},
-		{kSpellEnergyDrain, {"преторгоста", "... да иссякнут соки, питающие тело."}},
-		{kSpellFireball, {"огненну солнце", "... да ниспадет огонь с неба, и пожрет их."}},
-		{kSpellHarm, {"згола скверна", "... и жестокою болью во всех костях твоих."}},
-		{kSpellHeal, {"згола гой еси", "... тебе говорю, встань."}},
-		{kSpellInvisible, {"низовати мечетно", "... ибо видимое временно, а невидимое вечно."}},
-		{kSpellLightingBolt, {"грянет гром", "... и были громы и молнии."}},
-		{kSpellLocateObject, {"рища, летая умом под облакы", "... ибо всякий просящий получает, и ищущий находит."}},
-		{kSpellMagicMissile, {"ворожья стрела", "... остры стрелы Твои."}},
-		{kSpellPoison, {"трутизна", "... и пошлю на них зубы зверей и яд ползающих по земле."}},
-		{kSpellProtectFromEvil, {"супостат нощи", "... свет, который в тебе, да убоится тьма."}},
-		{kSpellRemoveCurse, {"изыде порча", "... да простятся тебе прегрешения твои."}},
-		{kSpellSanctuary, {"иже во святых", "... буде святым, аки Господь наш свят."}},
-		{kSpellShockingGasp, {"воскладше огненну персты", "... и дано буде жечь врагов огнем."}},
-		{kSpellSleep, {"иже дремлет", "... на веки твои тяжесть покладет."}},
-		{kSpellStrength, {"будет силен", "... и человек разумный укрепляет силу свою."}},
-		{kSpellSummon, {"кличу-велю", "... и послали за ним и призвали его."}},
-		{kSpellPatronage, {"ибо будет угоден Богам", "... ибо спасет людей Своих от грехов их."}},
-		{kSpellWorldOfRecall, {"с глаз долой исчезни", "... ступай с миром."}},
-		{kSpellRemovePoison, {"изыде трутизна", "... именем Божьим, изгнати сгниенье из тела."}},
-		{kSpellSenseLife, {"зряще живота", "... ибо нет ничего сокровенного, что не обнаружилось бы."}},
-		{kSpellAnimateDead, {"живот изо праха створисте", "... и земля извергнет мертвецов."}},
-		{kSpellDispelGood, {"свет сгинь", "... и тьма свет накроет."}},
-		{kSpellGroupArmor, {"прибежище други", "... ибо кто Бог, кроме Господа, и кто защита, кроме Бога нашего?"}},
-		{kSpellGroupHeal, {"други, гой еси", "... вам говорю, встаньте."}},
-		{kSpellGroupRecall, {"исчезните с глаз моих", "... вам говорю, ступайте с миром."}},
-		{kSpellInfravision, {"в нощи зряще", "...ибо ни днем, ни ночью сна не знают очи."}},
-		{kSpellWaterwalk, {"по воде аки по суху", "... поднимись и ввергнись в море."}},
-		{kSpellCureSerious, {"целите раны", "... да уменьшатся раны твои."}},
-		{kSpellGroupStrength, {"други сильны", "... и даст нам Господь силу."}},
-		{kSpellHold, {"аки околел", "... замри."}},
-		{kSpellPowerHold, {"згола аки околел", "... замри надолго."}},
-		{kSpellMassHold, {"их окалеть", "... замрите."}},
-		{kSpellFly, {"летать зегзицею", "... и полетел, и понесся на крыльях ветра."}},
-		{kSpellBrokenChains, {"вериги и цепи железные изорву", "... и цепи упали с рук его."}},
-		{kSpellNoflee, {"опуташа в путины железны", "... да поищешь уйти, да не возможешь."}},
-		{kSpellCreateLight, {"будовати светоч", "... да будет свет."}},
-		{kSpellDarkness, {"тьмою прикрыты", "... тьма покроет землю."}},
-		{kSpellStoneSkin, {"буде тверд аки камень", "... твердость ли камней твердость твоя?"}},
-		{kSpellCloudly, {"мгла покрыла", "... будут как утренний туман."}},
-		{kSpellSllence, {"типун тебе на язык!", "... да замкнутся уста твои."}},
-		{kSpellLight, {"буде аки светоч", "... и да воссияет над ним свет!"}},
-		{kSpellChainLighting, {"глаголят небеса", "... понесутся меткие стрелы молний из облаков."}},
-		{kSpellFireBlast, {"створисте огненну струя", "... и ввергне их в озеро огненное."}},
-		{kSpellGodsWrath, {"гнев божиа не минути", "... и воспламенится гнев Господа, и Он скоро истребит тебя."}},
-		{kSpellWeaknes, {"буде чахнуть", "... и силу могучих ослабляет."}},
-		{kSpellGroupInvisible, {"други, низовати мечетны",
-								"... возвещай всем великую силу Бога. И, сказав сие, они стали невидимы."}},
-		{kSpellShadowCloak, {"будут тени и туман, и мрак ночной", "... распростираются вечерние тени."}},
-		{kSpellAcid, {"жги аки смола горячая", "... подобно мучению от скорпиона."}},
-		{kSpellRepair, {"будь целым, аки прежде", "... заделаю трещины в ней и разрушенное восстановлю."}},
-		{kSpellEnlarge, {"возросши к небу", "... и плоть выросла."}},
-		{kSpellFear, {"падоша в тернии", "... убойся того, кто по убиении ввергнет в геенну."}},
-		{kSpellSacrifice, {"да коснется тебя Чернобог", "... плоть твоя и тело твое будут истощены."}},
-		{kSpellWeb, {"сети ловчи", "... терны и сети на пути коварного."}},
-		{kSpellBlink, {"от стрел укрытие и от меча оборона", "...да защитит он себя."}},
-		{kSpellRemoveHold, {"буде быстр аки прежде", "... встань, и ходи."}},
-		{kSpellCamouflage, {"", ""}},
-		{kSpellPowerBlindness, {"згола застить очеса", "... поразит тебя Господь слепотою навечно."}},
-		{kSpellMassBlindness, {"их очеса непотребны", "... и Он поразил их слепотою."}},
-		{kSpellPowerSilence, {"згола не прерчет", "... исходящее из уст твоих, да не осквернит слуха."}},
-		{kSpellExtraHits, {"буде полон здоровья", "... крепкое тело лучше несметного богатства."}},
-		{kSpellResurrection, {"воскресе из мертвых", "... оживут мертвецы Твои, восстанут мертвые тела!"}},
-		{kSpellMagicShield, {"и ворога оберегись", "... руками своими да защитит он себя"}},
-		{kSpellForbidden, {"вороги не войдут", "... ибо положена печать, и никто не возвращается."}},
-		{kSpellMassSilence, {"их уста непотребны", "... да замкнутся уста ваши."}},
-		{kSpellRemoveSilence, {"глаголите", "... слова из уст мудрого - благодать."}},
-		{kSpellDamageLight, {"падош", "... будет чувствовать боль."}},
-		{kSpellDamageSerious, {"скверна", "... постигнут тебя муки."}},
-		{kSpellDamageCritic, {"сильна скверна", "... боль и муки схватили."}},
-		{kSpellMassCurse, {"порча их", "... прокляты вы пред всеми скотами."}},
-		{kSpellArmageddon, {"суд божиа не минути", "... какою мерою мерите, такою отмерено будет и вам."}},
-		{kSpellGroupFly, {"крыла им створисте", "... и все летающие по роду их."}},
-		{kSpellGroupBless, {"други, наполнися ратнаго духа", "... блажены те, слышащие слово Божие."}},
-		{kSpellResfresh, {"буде свеж", "... не будет у него ни усталого, ни изнемогающего."}},
-		{kSpellStunning, {"да обратит тебя Чернобог в мертвый камень!", "... и проклял его именем Господним."}},
-		{kSpellHide, {"", ""}},
-		{kSpellSneak, {"", ""}},
-		{kSpellDrunked, {"", ""}},
-		{kSpellAbstinent, {"", ""}},
-		{kSpellFullFeed, {"брюхо полно", "... душа больше пищи, и тело - одежды."}},
-		{kSpellColdWind, {"веют ветры", "... подует северный холодный ветер."}},
-		{kSpellBattle, {"", ""}},
-		{kSpellHaemorrhage, {"", ""}},
-		{kSpellCourage, {"", ""}},
-		{kSpellWaterbreath, {"не затвори темне березе", "... дух дышит, где хочет."}},
-		{kSpellSlowdown, {"немочь", "...и помедлил еще семь дней других."}},
-		{kSpellHaste, {"скор аки ястреб", "... поднимет его ветер и понесет, и он быстро побежит от него."}},
-		{kSpellMassSlow, {"тернии им", "... загорожу путь их тернами."}},
-		{kSpellGroupHaste, {"быстры аки ястребов стая", "... и они быстры как серны на горах."}},
-		{kSpellGodsShield, {"Живый в помощи Вышняго", "... благословен буде Грядый во имя Господне."}},
-		{kSpellFever, {"нутро снеде", "... и сделаются жестокие и кровавые язвы."}},
-		{kSpellCureFever, {"Навь, очисти тело", "... хочу, очистись."}},
-		{kSpellAwareness, {"око недреманно", "... не дам сна очам моим и веждам моим - дремания."}},
-		{kSpellReligion, {"", ""}},
-		{kSpellAirShield, {"Стрибог, даруй прибежище", "... защита от ветра и покров от непогоды."}},
-		{kSpellPortal, {"буде путь короток", "... входите во врата Его."}},
-		{kSpellDispellMagic, {"изыде ворожба", "... выйди, дух нечистый."}},
-		{kSpellSummonKeeper, {"Сварог, даруй защитника", "... и благословен защитник мой!"}},
-		{kSpellFastRegeneration, {"заживет, аки на собаке", "... нет богатства лучше телесного здоровья."}},
-		{kSpellCreateWeapon, {"будовати стружие", "...вооружите из себя людей на войну"}},
-		{kSpellFireShield, {"Хорс, даруй прибежище", "... душа горячая, как пылающий огонь."}},
-		{kSpellRelocate, {"Стрибог, укажи путь...", "... указывай им путь, по которому они должны идти."}},
-		{kSpellSummonFirekeeper, {"Дажьбог, даруй защитника", "... Ангел Мой с вами, и он защитник душ ваших."}},
-		{kSpellIceShield, {"Морена, даруй прибежище", "... а снег и лед выдерживали огонь и не таяли."}},
-		{kSpellIceStorm, {"торже, яко вихор", "... и град, величиною в талант, падет с неба."}},
-		{kSpellLessening, {"буде мал аки мышь", "... плоть на нем пропадает."}},
-		{kSpellShineFlash, {"засти очи им", "... свет пламени из средины огня."}},
-		{kSpellMadness, {"згола яростен", "... и ярость его загорелась в нем."}},
-		{kSpellGroupMagicGlass, {"гладь воды отразит", "... воздай им по делам их, по злым поступкам их."}},
-		{kSpellCloudOfArrows, {"и будут стрелы молний, и зарницы в высях",
-							   "... соберу на них бедствия и истощу на них стрелы Мои."}},
-		{kSpellVacuum, {"Умри!", "... и услышав слова сии - пал бездыханен."}},
-		{kSpellMeteorStorm, {"идти дождю стрелами", "... и камни, величиною в талант, падут с неба."}},
-		{kSpellStoneHands, {"сильны велетов руки", "... рука Моя пребудет с ним, и мышца Моя укрепит его."}},
-		{kSpellMindless, {"разум аки мутный омут", "... и безумие его с ним."}},
-		{kSpellPrismaticAura, {"окружен радугой", "... явится радуга в облаке."}},
-		{kSpellEviless, {"зло творяще", "... и ты воздашь им злом."}},
-		{kSpellAirAura, {"Мать-земля, даруй защиту.", "... поклон тебе матушка земля."}},
-		{kSpellFireAura, {"Сварог, даруй защиту.", "... и огонь низводит с неба."}},
-		{kSpellIceAura, {"Морена, даруй защиту.", "... текущие холодные воды."}},
-		{kSpellShock, {"будет слеп и глух, аки мертвец", "... кто делает или глухим, или слепым."}},
-		{kSpellMagicGlass, {"Аз воздам!", "... и воздам каждому из вас."}},
-		{kSpellGroupSanctuary, {"иже во святых, други", "... будьте святы, аки Господь наш свят."}},
-		{kSpellGroupPrismaticAura, {"други, буде окружены радугой", "... взгляни на радугу, и прославь Сотворившего ее."}},
-		{kSpellDeafness, {"оглохни", "... и глухота поразит тебя."}},
-		{kSpellPowerDeafness, {"да застит уши твои", "... и будь глухим надолго."}},
-		{kSpellRemoveDeafness, {"слушай глас мой", "... услышь слово Его."}},
-		{kSpellMassDeafness, {"будьте глухи", "... и не будут слышать уши ваши."}},
-		{kSpellDustStorm, {"пыль поднимется столбами", "... и пыль поглотит вас."}},
-		{kSpellEarthfall, {"пусть каменья падут", "... и обрушатся камни с небес."}},
-		{kSpellSonicWave, {"да невзлюбит тебя воздух", "... и даже воздух покарает тебя."}},
-		{kSpellHolystrike, {"Велес, упокой мертвых",
-							"... и предоставь мертвым погребать своих мертвецов."}},
-		{kSpellSumonAngel, {"Боги, даруйте защитника", "... дабы уберег он меня от зла."}},
-		{kSpellMassFear, {"Поврещу сташивые души их в скарядие!", "... и затмил ужас разум их."}},
-		{kSpellFascination, {"Да пребудет с тобой вся краса мира!", "... и омолодил он, и украсил их."}},
-		{kSpellCrying, {"Будут слезы твои, аки камень на сердце",
-						"... и постигнет твой дух угнетение вечное."}},
-		{kSpellOblivion, {"будь живот аки буява с шерстнями.",
-						  "... опадет на тебя чернь страшная."}},
-		{kSpellBurdenOfTime, {"Яко небытие нещадно к вам, али время вернулось вспять.",
-							  "... и время не властно над ними."}},
-		{kSpellGroupRefresh, {"Исполняше други силою!",
-							  "...да не останется ни обделенного, ни обессиленного."}},
-		{kSpellPeaceful, {"Избавь речь свою от недобрых слов, а ум - от крамольных мыслей.",
-						  "... любите врагов ваших и благотворите ненавидящим вас."}},
-		{kSpellMagicBattle, {"", ""}},
-		{kSpellBerserk, {"", ""}},
-		{kSpellStoneBones, {"Обращу кости их в твердый камень.",
-							"...и тот, кто упадет на камень сей, разобьется."}},
-		{kSpellRoomLight, {"Да буде СВЕТ !!!", "...ибо сказал МОНТЕР !!!"}},
-		{kSpellPoosinedFog, {"Порчу воздух !!!", "...и зловонное дыхание его."}},
-		{kSpellThunderstorm, {"Абие велий вихрь деяти!",
-							  "...творит молнии при дожде, изводит ветер из хранилищ Своих."}},
-		{kSpellLightWalk, {"", ""}},
-		{kSpellFailure, {"аще доля зла и удача немилостива", ".. и несчастен, и жалок, и нищ."}},
-		{kSpellClanPray, {"", ""}},
-		{kSpellGlitterDust, {"зрети супостат охабиша", "...и бросали пыль на воздух."}},
-		{kSpellScream, {"язвень голки уведати", "...но в полночь раздался крик."}},
-		{kSpellCatGrace, {"ристати споро", "...и не уязвит враг того, кто скор."}},
-		{kSpellBullBody, {"руци яре ворога супротив", "...и мощь звериная жила в теле его."}},
-		{kSpellSnakeWisdom, {"веси и зрети стези отай", "...и даровал мудрость ему."}},
-		{kSpellGimmicry, {"клюка вящего улучити", "...ибо кто познал ум Господень?"}},
-		{kSpellWarcryOfChallenge, {"Эй, псы шелудивые, керасти плешивые, ослопы беспорточные, мшицы задочные!",
-								   "Эй, псы шелудивые, керасти плешивые, ослопы беспорточные, мшицы задочные!"}},
-		{kSpellWarcryOfMenace, {"Покрошу-изувечу, душу выну и в блины закатаю!",
-								"Покрошу-изувечу, душу выну и в блины закатаю!"}},
-		{kSpellWarcryOfRage, {"Не отступим, други, они наше сало сперли!",
-							  "Не отступим, други, они наше сало сперли!"}},
-		{kSpellWarcryOfMadness, {"Всех убью, а сам$g останусь!", "Всех убью, а сам$g останусь!"}},
-		{kSpellWarcryOfThunder, {"Шоб вас приподняло, да шлепнуло!!!", "Шоб вас приподняло да шлепнуло!!!"}},
-		{kSpellWarcryOfDefence, {"В строй други, защитим животами Русь нашу!",
-								 "В строй други, защитим животами Русь нашу!"}},
-		{kSpellWarcryOfBattle, {"Дер-ржать строй, волчьи хвосты!", "Дер-ржать строй, волчьи хвосты!"}},
-		{kSpellWarcryOfPower, {"Сарынь на кичку!", "Сарынь на кичку!"}},
-		{kSpellWarcryOfBless, {"Стоять крепко! За нами Киев, Подол и трактир с пивом!!!",
-							   "Стоять крепко! За нами Киев, Подол и трактир с пивом!!!"}},
-		{kSpellWarcryOfCourage, {"Орлы! Будем биться как львы!", "Орлы! Будем биться как львы!"}},
-		{kSpellRuneLabel, {"...пьсати черты и резы.", "...и Сам отошел от них на вержение камня."}},
-		{kSpellAconitumPoison, {"трутизна", "... и пошлю на них зубы зверей и яд ползающих по земле."}},
-		{kSpellScopolaPoison, {"трутизна", "... и пошлю на них зубы зверей и яд ползающих по земле."}},
-		{kSpellBelenaPoison, {"трутизна", "... и пошлю на них зубы зверей и яд ползающих по земле."}},
-		{kSpellDaturaPoison, {"трутизна", "... и пошлю на них зубы зверей и яд ползающих по земле."}},
-		{kSpellTimerRestore, {"", ""}},
-		{kSpellLucky, {"", ""}},
-		{kSpellBandage, {"", ""}},
-		{kSpellNoBandage, {"", ""}},
-		{kSpellCapable, {"", ""}},
-		{kSpellStrangle, {"", ""}},
-		{kSpellRecallSpells, {"", ""}},
-		{kSpellHypnoticPattern, {"ажбо супостаты блазнити да клюковати",
-								 "...и утроба его приготовляет обман."}},
-		{kSpellSolobonus, {"", ""}},
-		{kSpellVampirism, {"", ""}},
-		{kSpellRestoration, {"Да прими вид прежний, якой был.",
-							 ".. Воззри на предмет сей Отче и верни ему силу прежнюю."}},
-		{kSpellDeathAura, {"Надели силою своею Навь, дабы собрать урожай тебе.",
-						   "...налякай ворогов наших и покарай их немощью."}},
-		{kSpellRecovery, {"Обрасти плотью сызнова.", "... прости Господи грехи, верни плоть созданию."}},
-		{kSpellMassRecovery, {"Обрастите плотью сызнова.",
-							  "... прости Господи грехи, верни плоть созданиям."}},
-		{kSpellAuraOfEvil, {"Возьми личину зла для жатвы славной.", "Надели силой злою во благо."}},
-		{kSpellMentalShadow, {"Силою мысли защиту будую себе.",
-							  "Даруй Отче защиту, силой разума воздвигнутую."}},
-		{kSpellBlackTentacles, {"Ато егоже руци попасти.",
-								"И он не знает, что мертвецы там и что в глубине..."}},
-		{kSpellWhirlwind, {"Вждати бурю обло створити.", "И поднялась великая буря..."}},
-		{kSpellIndriksTeeth, {"Идеже индрика зубы супостаты изъмати.",
-							  "Есть род, у которого зубы - мечи и челюсти - ножи..."}},
-		{kSpellAcidArrow, {"Варно сожжет струя!",
-						   "...и на коже его сделаются как бы язвы проказы"}},
-		{kSpellThunderStone, {"Небесе тутнет!", "...и взял оттуда камень, и бросил из пращи."}},
-		{kSpellClod, {"Онома утес низринется!",
-					  "...доколе камень не оторвался от горы без содействия рук."}},
-		{kSpellExpedient, {"!Применил боевой прием!", "!use battle expedient!"}},
-		{kSpellSightOfDarkness, {"Что свет, что тьма - глазу одинаково.",
-								 "Станьте зрячи в тьме кромешной!"}},
-		{kSpellGroupSincerity, {"...да не скроются намерения.",
-								"И узрим братья намерения окружающих."}},
-		{kSpellMagicalGaze, {"Узрим же все, что с магией навкруги нас.",
-							 "Покажи, Спаситель, магические силы братии."}},
-		{kSpellAllSeeingEye, {"Все тайное станет явным.",
-							  "Не спрячется, не скроется, ни заяц, ни блоха."}},
-		{kSpellEyeOfGods, {"Осязаемое откройся взору!",
-						   "Да не скроется от взора вашего, ни одна живая душа."}},
-		{kSpellBreathingAtDepth, {"Аки стайка рыбок, плывите вместе.",
-								  "Что в воде, что на земле, воздух свежим будет."}},
-		{kSpellGeneralRecovery, {"...дабы пройти вместе не одну сотню верст",
-								 "Сохрани Отче от усталости детей своих!"}},
-		{kSpellCommonMeal, {"Благодарите богов за хлеб и соль!",
-							"...дабы не осталось голодающих на свете белом"}},
-		{kSpellStoneWall, {"Станем други крепки як николы!", "Укрепим тела наши перед битвой!"}},
-		{kSpellSnakeEyes, {"Что яд, а что мед. Не обманемся!",
-						   "...и самый сильный яд станет вам виден."}},
-		{kSpellEarthAura, {"Велес, даруй защиту.", "... земля благословенна твоя."}},
-		{kSpellGroupProtectFromEvil, {"други, супостат нощи",
-									  "други, свет который в нас, да убоится тьма."}},
-		{kSpellArrowsFire, {"!магический выстрел!", "!use battle expedient!"}},
-		{kSpellArrowsWater, {"!магический выстрел!", "!use battle expedient!"}},
-		{kSpellArrowsEarth, {"!магический выстрел!", "!use battle expedient!"}},
-		{kSpellArrowsAir, {"!магический выстрел!", "!use battle expedient!"}},
-		{kSpellArrowsDeath, {"!магический выстрел!", "!use battle expedient!"}},
-		{kSpellPaladineInspiration, {"", ""}},
-		{kSpellDexterity, {"будет ловким", "... и человек разумный укрепляет ловкость свою."}},
-		{kSpellGroupBlink, {"защити нас от железа разящего", "... ни стрела, ни меч не пронзят печень вашу."}},
-		{kSpellGroupCloudly, {"огрожу беззакония их туманом",
-							  "...да защитит и покроет рассветная пелена тела ваши."}},
-		{kSpellGroupAwareness, {"буде вежды ваши открыты", "... и забота о ближнем отгоняет сон от очей их."}},
-		{kSpellWatctyOfExpirence, {"найдем новизну в рутине сражений!", "найдем новизну в рутине сражений!"}},
-		{kSpellWarcryOfLuck, {"и пусть удача будет нашей спутницей!", "и пусть удача будет нашей спутницей!"}},
-		{kSpellWarcryOfPhysdamage, {"бей в глаз, не порти шкуру", "бей в глаз, не порти шкуру."}},
-		{kSpellMassFailure, {"...отче Велес, очи отвержеши!",
-							 "...надежда тщетна: не упадешь ли от одного взгляда его?"}},
-		{kSpellSnare, {"Заклинати поврещение в сети заскопиены!",
-					   "...будет трапеза их сетью им, и мирное пиршество их - западнею."}},
-		 {kSpellExpedientFail, {"!Провалил боевой прием!",
-						"!Провалил боевой прием!"}}
-	};
-
-	if (!cast_to_text.count(static_cast<ESpell>(spell))) {
-		return std::nullopt;
-	}
-
-	return cast_to_text.at(static_cast<ESpell>(spell));
-}
-
-typedef std::map<ESpell, std::string> ESpell_name_by_value_t;
-typedef std::map<const std::string, ESpell> ESpell_value_by_name_t;
-ESpell_name_by_value_t ESpell_name_by_value;
-ESpell_value_by_name_t ESpell_value_by_name;
-void init_ESpell_ITEM_NAMES() {
-	ESpell_value_by_name.clear();
-	ESpell_name_by_value.clear();
-
-	ESpell_name_by_value[ESpell::kSpellNoSpell] = "kSpellNoSpell";
-	ESpell_name_by_value[ESpell::kSpellArmor] = "kSpellArmor";
-	ESpell_name_by_value[ESpell::kSpellTeleport] = "kSpellTeleport";
-	ESpell_name_by_value[ESpell::kSpellBless] = "kSpellBless";
-	ESpell_name_by_value[ESpell::kSpellBlindness] = "kSpellBlindness";
-	ESpell_name_by_value[ESpell::kSpellBurningHands] = "kSpellBurningHands";
-	ESpell_name_by_value[ESpell::kSpellCallLighting] = "kSpellCallLighting";
-	ESpell_name_by_value[ESpell::kSpellCharm] = "kSpellCharm";
-	ESpell_name_by_value[ESpell::kSpellChillTouch] = "kSpellChillTouch";
-	ESpell_name_by_value[ESpell::kSpellClone] = "kSpellClone";
-	ESpell_name_by_value[ESpell::kSpellIceBolts] = "kSpellIceBolts";
-	ESpell_name_by_value[ESpell::kSpellControlWeather] = "kSpellControlWeather";
-	ESpell_name_by_value[ESpell::kSpellCreateFood] = "kSpellCreateFood";
-	ESpell_name_by_value[ESpell::kSpellCreateWater] = "kSpellCreateWater";
-	ESpell_name_by_value[ESpell::kSpellCureBlind] = "kSpellCureBlind";
-	ESpell_name_by_value[ESpell::kSpellCureCritic] = "kSpellCureCritic";
-	ESpell_name_by_value[ESpell::kSpellCureLight] = "kSpellCureLight";
-	ESpell_name_by_value[ESpell::kSpellCurse] = "kSpellCurse";
-	ESpell_name_by_value[ESpell::kSpellDetectAlign] = "kSpellDetectAlign";
-	ESpell_name_by_value[ESpell::kSpellDetectInvis] = "kSpellDetectInvis";
-	ESpell_name_by_value[ESpell::kSpellDetectMagic] = "kSpellDetectMagic";
-	ESpell_name_by_value[ESpell::kSpellDetectPoison] = "kSpellDetectPoison";
-	ESpell_name_by_value[ESpell::kSpellDispelEvil] = "kSpellDispelEvil";
-	ESpell_name_by_value[ESpell::kSpellEarthquake] = "kSpellEarthquake";
-	ESpell_name_by_value[ESpell::kSpellEnchantWeapon] = "kSpellEnchantWeapon";
-	ESpell_name_by_value[ESpell::kSpellEnergyDrain] = "kSpellEnergyDrain";
-	ESpell_name_by_value[ESpell::kSpellFireball] = "kSpellFireball";
-	ESpell_name_by_value[ESpell::kSpellHarm] = "kSpellHarm";
-	ESpell_name_by_value[ESpell::kSpellHeal] = "kSpellHeal";
-	ESpell_name_by_value[ESpell::kSpellInvisible] = "kSpellInvisible";
-	ESpell_name_by_value[ESpell::kSpellLightingBolt] = "kSpellLightingBolt";
-	ESpell_name_by_value[ESpell::kSpellLocateObject] = "kSpellLocateObject";
-	ESpell_name_by_value[ESpell::kSpellMagicMissile] = "kSpellMagicMissile";
-	ESpell_name_by_value[ESpell::kSpellPoison] = "kSpellPoison";
-	ESpell_name_by_value[ESpell::kSpellProtectFromEvil] = "kSpellProtectFromEvil";
-	ESpell_name_by_value[ESpell::kSpellRemoveCurse] = "kSpellRemoveCurse";
-	ESpell_name_by_value[ESpell::kSpellSanctuary] = "kSpellSanctuary";
-	ESpell_name_by_value[ESpell::kSpellShockingGasp] = "kSpellShockingGasp";
-	ESpell_name_by_value[ESpell::kSpellSleep] = "kSpellSleep";
-	ESpell_name_by_value[ESpell::kSpellStrength] = "kSpellStrength";
-	ESpell_name_by_value[ESpell::kSpellSummon] = "kSpellSummon";
-	ESpell_name_by_value[ESpell::kSpellPatronage] = "kSpellPatronage";
-	ESpell_name_by_value[ESpell::kSpellWorldOfRecall] = "kSpellWorldOfRecall";
-	ESpell_name_by_value[ESpell::kSpellRemovePoison] = "kSpellRemovePoison";
-	ESpell_name_by_value[ESpell::kSpellSenseLife] = "kSpellSenseLife";
-	ESpell_name_by_value[ESpell::kSpellAnimateDead] = "kSpellAnimateDead";
-	ESpell_name_by_value[ESpell::kSpellDispelGood] = "kSpellDispelGood";
-	ESpell_name_by_value[ESpell::kSpellGroupArmor] = "kSpellGroupArmor";
-	ESpell_name_by_value[ESpell::kSpellGroupHeal] = "kSpellGroupHeal";
-	ESpell_name_by_value[ESpell::kSpellGroupRecall] = "kSpellGroupRecall";
-	ESpell_name_by_value[ESpell::kSpellInfravision] = "kSpellInfravision";
-	ESpell_name_by_value[ESpell::kSpellWaterwalk] = "kSpellWaterwalk";
-	ESpell_name_by_value[ESpell::kSpellCureSerious] = "kSpellCureSerious";
-	ESpell_name_by_value[ESpell::kSpellGroupStrength] = "kSpellGroupStrength";
-	ESpell_name_by_value[ESpell::kSpellHold] = "kSpellHold";
-	ESpell_name_by_value[ESpell::kSpellPowerHold] = "kSpellPowerHold";
-	ESpell_name_by_value[ESpell::kSpellMassHold] = "kSpellMassHold";
-	ESpell_name_by_value[ESpell::kSpellFly] = "kSpellFly";
-	ESpell_name_by_value[ESpell::kSpellBrokenChains] = "kSpellBrokenChains";
-	ESpell_name_by_value[ESpell::kSpellNoflee] = "kSpellNoflee";
-	ESpell_name_by_value[ESpell::kSpellCreateLight] = "kSpellCreateLight";
-	ESpell_name_by_value[ESpell::kSpellDarkness] = "kSpellDarkness";
-	ESpell_name_by_value[ESpell::kSpellStoneSkin] = "kSpellStoneSkin";
-	ESpell_name_by_value[ESpell::kSpellCloudly] = "kSpellCloudly";
-	ESpell_name_by_value[ESpell::kSpellSllence] = "kSpellSllence";
-	ESpell_name_by_value[ESpell::kSpellLight] = "kSpellLight";
-	ESpell_name_by_value[ESpell::kSpellChainLighting] = "kSpellChainLighting";
-	ESpell_name_by_value[ESpell::kSpellFireBlast] = "kSpellFireBlast";
-	ESpell_name_by_value[ESpell::kSpellGodsWrath] = "kSpellGodsWrath";
-	ESpell_name_by_value[ESpell::kSpellWeaknes] = "kSpellWeaknes";
-	ESpell_name_by_value[ESpell::kSpellGroupInvisible] = "kSpellGroupInvisible";
-	ESpell_name_by_value[ESpell::kSpellShadowCloak] = "kSpellShadowCloak";
-	ESpell_name_by_value[ESpell::kSpellAcid] = "kSpellAcid";
-	ESpell_name_by_value[ESpell::kSpellRepair] = "kSpellRepair";
-	ESpell_name_by_value[ESpell::kSpellEnlarge] = "kSpellEnlarge";
-	ESpell_name_by_value[ESpell::kSpellFear] = "kSpellFear";
-	ESpell_name_by_value[ESpell::kSpellSacrifice] = "kSpellSacrifice";
-	ESpell_name_by_value[ESpell::kSpellWeb] = "kSpellWeb";
-	ESpell_name_by_value[ESpell::kSpellBlink] = "kSpellBlink";
-	ESpell_name_by_value[ESpell::kSpellRemoveHold] = "kSpellRemoveHold";
-	ESpell_name_by_value[ESpell::kSpellCamouflage] = "kSpellCamouflage";
-	ESpell_name_by_value[ESpell::kSpellPowerBlindness] = "kSpellPowerBlindness";
-	ESpell_name_by_value[ESpell::kSpellMassBlindness] = "kSpellMassBlindness";
-	ESpell_name_by_value[ESpell::kSpellPowerSilence] = "kSpellPowerSilence";
-	ESpell_name_by_value[ESpell::kSpellExtraHits] = "kSpellExtraHits";
-	ESpell_name_by_value[ESpell::kSpellResurrection] = "kSpellResurrection";
-	ESpell_name_by_value[ESpell::kSpellMagicShield] = "kSpellMagicShield";
-	ESpell_name_by_value[ESpell::kSpellForbidden] = "kSpellForbidden";
-	ESpell_name_by_value[ESpell::kSpellMassSilence] = "kSpellMassSilence";
-	ESpell_name_by_value[ESpell::kSpellRemoveSilence] = "kSpellRemoveSilence";
-	ESpell_name_by_value[ESpell::kSpellDamageLight] = "kSpellDamageLight";
-	ESpell_name_by_value[ESpell::kSpellDamageSerious] = "kSpellDamageSerious";
-	ESpell_name_by_value[ESpell::kSpellDamageCritic] = "kSpellDamageCritic";
-	ESpell_name_by_value[ESpell::kSpellMassCurse] = "kSpellMassCurse";
-	ESpell_name_by_value[ESpell::kSpellArmageddon] = "kSpellArmageddon";
-	ESpell_name_by_value[ESpell::kSpellGroupFly] = "kSpellGroupFly";
-	ESpell_name_by_value[ESpell::kSpellGroupBless] = "kSpellGroupBless";
-	ESpell_name_by_value[ESpell::kSpellResfresh] = "kSpellResfresh";
-	ESpell_name_by_value[ESpell::kSpellStunning] = "kSpellStunning";
-	ESpell_name_by_value[ESpell::kSpellHide] = "kSpellHide";
-	ESpell_name_by_value[ESpell::kSpellSneak] = "kSpellSneak";
-	ESpell_name_by_value[ESpell::kSpellDrunked] = "kSpellDrunked";
-	ESpell_name_by_value[ESpell::kSpellAbstinent] = "kSpellAbstinent";
-	ESpell_name_by_value[ESpell::kSpellFullFeed] = "kSpellFullFeed";
-	ESpell_name_by_value[ESpell::kSpellColdWind] = "kSpellColdWind";
-	ESpell_name_by_value[ESpell::kSpellBattle] = "kSpellBattle";
-	ESpell_name_by_value[ESpell::kSpellHaemorrhage] = "kSpellHaemorragis";
-	ESpell_name_by_value[ESpell::kSpellCourage] = "kSpellCourage";
-	ESpell_name_by_value[ESpell::kSpellWaterbreath] = "kSpellWaterbreath";
-	ESpell_name_by_value[ESpell::kSpellSlowdown] = "kSpellSlowdown";
-	ESpell_name_by_value[ESpell::kSpellHaste] = "kSpellHaste";
-	ESpell_name_by_value[ESpell::kSpellMassSlow] = "kSpellMassSlow";
-	ESpell_name_by_value[ESpell::kSpellGroupHaste] = "kSpellGroupHaste";
-	ESpell_name_by_value[ESpell::kSpellGodsShield] = "kSpellGodsShield";
-	ESpell_name_by_value[ESpell::kSpellFever] = "kSpellFever";
-	ESpell_name_by_value[ESpell::kSpellCureFever] = "kSpellCureFever";
-	ESpell_name_by_value[ESpell::kSpellAwareness] = "kSpellAwareness";
-	ESpell_name_by_value[ESpell::kSpellReligion] = "kSpellReligion";
-	ESpell_name_by_value[ESpell::kSpellAirShield] = "kSpellAirShield";
-	ESpell_name_by_value[ESpell::kSpellPortal] = "kSpellPortal";
-	ESpell_name_by_value[ESpell::kSpellDispellMagic] = "kSpellDispellMagic";
-	ESpell_name_by_value[ESpell::kSpellSummonKeeper] = "kSpellSummonKeeper";
-	ESpell_name_by_value[ESpell::kSpellFastRegeneration] = "kSpellFastRegeneration";
-	ESpell_name_by_value[ESpell::kSpellCreateWeapon] = "kSpellCreateWeapon";
-	ESpell_name_by_value[ESpell::kSpellFireShield] = "kSpellFireShield";
-	ESpell_name_by_value[ESpell::kSpellRelocate] = "kSpellRelocate";
-	ESpell_name_by_value[ESpell::kSpellSummonFirekeeper] = "kSpellSummonFirekeeper";
-	ESpell_name_by_value[ESpell::kSpellIceShield] = "kSpellIceShield";
-	ESpell_name_by_value[ESpell::kSpellIceStorm] = "kSpellIceStorm";
-	ESpell_name_by_value[ESpell::kSpellLessening] = "kSpellLessening";
-	ESpell_name_by_value[ESpell::kSpellShineFlash] = "kSpellShineFlash";
-	ESpell_name_by_value[ESpell::kSpellMadness] = "kSpellMadness";
-	ESpell_name_by_value[ESpell::kSpellGroupMagicGlass] = "kSpellGroupMagicGlass";
-	ESpell_name_by_value[ESpell::kSpellCloudOfArrows] = "kSpellCloudOfArrows";
-	ESpell_name_by_value[ESpell::kSpellVacuum] = "kSpellVacuum";
-	ESpell_name_by_value[ESpell::kSpellMeteorStorm] = "kSpellMeteorStorm";
-	ESpell_name_by_value[ESpell::kSpellStoneHands] = "kSpellStoneHands";
-	ESpell_name_by_value[ESpell::kSpellMindless] = "kSpellMindless";
-	ESpell_name_by_value[ESpell::kSpellPrismaticAura] = "kSpellPrismaticAura";
-	ESpell_name_by_value[ESpell::kSpellEviless] = "kSpellEviless";
-	ESpell_name_by_value[ESpell::kSpellAirAura] = "kSpellAirAura";
-	ESpell_name_by_value[ESpell::kSpellFireAura] = "kSpellFireAura";
-	ESpell_name_by_value[ESpell::kSpellIceAura] = "kSpellIceAura";
-	ESpell_name_by_value[ESpell::kSpellShock] = "kSpellShock";
-	ESpell_name_by_value[ESpell::kSpellMagicGlass] = "kSpellMagicGlass";
-	ESpell_name_by_value[ESpell::kSpellGroupSanctuary] = "kSpellGroupSanctuary";
-	ESpell_name_by_value[ESpell::kSpellGroupPrismaticAura] = "kSpellGroupPrismaticAura";
-	ESpell_name_by_value[ESpell::kSpellDeafness] = "kSpellDeafness";
-	ESpell_name_by_value[ESpell::kSpellPowerDeafness] = "kSpellPowerDeafness";
-	ESpell_name_by_value[ESpell::kSpellRemoveDeafness] = "kSpellRemoveDeafness";
-	ESpell_name_by_value[ESpell::kSpellMassDeafness] = "kSpellMassDeafness";
-	ESpell_name_by_value[ESpell::kSpellDustStorm] = "kSpellDustStorm";
-	ESpell_name_by_value[ESpell::kSpellEarthfall] = "kSpellEarthfall";
-	ESpell_name_by_value[ESpell::kSpellSonicWave] = "kSpellSonicWave";
-	ESpell_name_by_value[ESpell::kSpellHolystrike] = "kSpellHolystrike";
-	ESpell_name_by_value[ESpell::kSpellSumonAngel] = "kSpellSumonAngel";
-	ESpell_name_by_value[ESpell::kSpellMassFear] = "kSpellMassFear";
-	ESpell_name_by_value[ESpell::kSpellFascination] = "kSpellFascination";
-	ESpell_name_by_value[ESpell::kSpellCrying] = "kSpellCrying";
-	ESpell_name_by_value[ESpell::kSpellOblivion] = "kSpellOblivion";
-	ESpell_name_by_value[ESpell::kSpellBurdenOfTime] = "kSpellBurdenOfTime";
-	ESpell_name_by_value[ESpell::kSpellGroupRefresh] = "kSpellGroupRefresh";
-	ESpell_name_by_value[ESpell::kSpellPeaceful] = "kSpellPeaceful";
-	ESpell_name_by_value[ESpell::kSpellMagicBattle] = "kSpellMagicBattle";
-	ESpell_name_by_value[ESpell::kSpellBerserk] = "kSpellBerserk";
-	ESpell_name_by_value[ESpell::kSpellStoneBones] = "kSpellStoneBones";
-	ESpell_name_by_value[ESpell::kSpellRoomLight] = "kSpellRoomLight";
-	ESpell_name_by_value[ESpell::kSpellPoosinedFog] = "kSpellPoosinedFog";
-	ESpell_name_by_value[ESpell::kSpellThunderstorm] = "kSpellThunderstorm";
-	ESpell_name_by_value[ESpell::kSpellLightWalk] = "kSpellLightWalk";
-	ESpell_name_by_value[ESpell::kSpellFailure] = "kSpellFailure";
-	ESpell_name_by_value[ESpell::kSpellClanPray] = "kSpellClanPray";
-	ESpell_name_by_value[ESpell::kSpellGlitterDust] = "kSpellGlitterDust";
-	ESpell_name_by_value[ESpell::kSpellScream] = "kSpellScream";
-	ESpell_name_by_value[ESpell::kSpellCatGrace] = "kSpellCatGrace";
-	ESpell_name_by_value[ESpell::kSpellBullBody] = "kSpellBullBody";
-	ESpell_name_by_value[ESpell::kSpellSnakeWisdom] = "kSpellSnakeWisdom";
-	ESpell_name_by_value[ESpell::kSpellGimmicry] = "kSpellGimmicry";
-	ESpell_name_by_value[ESpell::kSpellWarcryOfChallenge] = "kSpellWarcryOfChallenge";
-	ESpell_name_by_value[ESpell::kSpellWarcryOfMenace] = "kSpellWarcryOfMenace";
-	ESpell_name_by_value[ESpell::kSpellWarcryOfRage] = "kSpellWarcryOfRage";
-	ESpell_name_by_value[ESpell::kSpellWarcryOfMadness] = "kSpellWarcryOfMadness";
-	ESpell_name_by_value[ESpell::kSpellWarcryOfThunder] = "kSpellWarcryOfThunder";
-	ESpell_name_by_value[ESpell::kSpellWarcryOfDefence] = "kSpellWarcryOfDefence";
-	ESpell_name_by_value[ESpell::kSpellWarcryOfBattle] = "kSpellWarcryOfBattle";
-	ESpell_name_by_value[ESpell::kSpellWarcryOfPower] = "kSpellWarcryOfPower";
-	ESpell_name_by_value[ESpell::kSpellWarcryOfBless] = "kSpellWarcryOfBless";
-	ESpell_name_by_value[ESpell::kSpellWarcryOfCourage] = "kSpellWarcryOfCourage";
-	ESpell_name_by_value[ESpell::kSpellRuneLabel] = "kSpellRuneLabel";
-	ESpell_name_by_value[ESpell::kSpellAconitumPoison] = "kSpellAconitumPoison";
-	ESpell_name_by_value[ESpell::kSpellScopolaPoison] = "kSpellScopolaPoison";
-	ESpell_name_by_value[ESpell::kSpellBelenaPoison] = "kSpellBelenaPoison";
-	ESpell_name_by_value[ESpell::kSpellDaturaPoison] = "kSpellDaturaPoison";
-	ESpell_name_by_value[ESpell::kSpellTimerRestore] = "kSpellTimerRestore";
-	ESpell_name_by_value[ESpell::kSpellLucky] = "kSpellLucky";
-	ESpell_name_by_value[ESpell::kSpellBandage] = "kSpellBandage";
-	ESpell_name_by_value[ESpell::kSpellNoBandage] = "kSpellNoBandage";
-	ESpell_name_by_value[ESpell::kSpellCapable] = "kSpellCapable";
-	ESpell_name_by_value[ESpell::kSpellStrangle] = "kSpellStrangle";
-	ESpell_name_by_value[ESpell::kSpellRecallSpells] = "kSpellRecallSpells";
-	ESpell_name_by_value[ESpell::kSpellHypnoticPattern] = "kSpellHypnoticPattern";
-	ESpell_name_by_value[ESpell::kSpellSolobonus] = "kSpellSolobonus";
-	ESpell_name_by_value[ESpell::kSpellVampirism] = "kSpellVampirism";
-	ESpell_name_by_value[ESpell::kSpellRestoration] = "kSpellRestoration";
-	ESpell_name_by_value[ESpell::kSpellDeathAura] = "kSpellDeathAura";
-	ESpell_name_by_value[ESpell::kSpellRecovery] = "kSpellRecovery";
-	ESpell_name_by_value[ESpell::kSpellMassRecovery] = "kSpellMassRecovery";
-	ESpell_name_by_value[ESpell::kSpellAuraOfEvil] = "kSpellAuraOfEvil";
-	ESpell_name_by_value[ESpell::kSpellMentalShadow] = "kSpellMentalShadow";
-	ESpell_name_by_value[ESpell::kSpellBlackTentacles] = "kSpellBlackTentacles";
-	ESpell_name_by_value[ESpell::kSpellWhirlwind] = "kSpellWhirlwind";
-	ESpell_name_by_value[ESpell::kSpellIndriksTeeth] = "kSpellIndriksTeeth";
-	ESpell_name_by_value[ESpell::kSpellAcidArrow] = "kSpellAcidArrow";
-	ESpell_name_by_value[ESpell::kSpellThunderStone] = "kSpellThunderStone";
-	ESpell_name_by_value[ESpell::kSpellClod] = "kSpellClod";
-	ESpell_name_by_value[ESpell::kSpellExpedient] = "kSpellExpedient";
-	ESpell_name_by_value[ESpell::kSpellSightOfDarkness] = "kSpellSightOfDarkness";
-	ESpell_name_by_value[ESpell::kSpellGroupSincerity] = "kSpellGroupSincerity";
-	ESpell_name_by_value[ESpell::kSpellMagicalGaze] = "kSpellMagicalGaze";
-	ESpell_name_by_value[ESpell::kSpellAllSeeingEye] = "kSpellAllSeeingEye";
-	ESpell_name_by_value[ESpell::kSpellEyeOfGods] = "kSpellEyeOfGods";
-	ESpell_name_by_value[ESpell::kSpellBreathingAtDepth] = "kSpellBreathingAtDepth";
-	ESpell_name_by_value[ESpell::kSpellGeneralRecovery] = "kSpellGeneralRecovery";
-	ESpell_name_by_value[ESpell::kSpellCommonMeal] = "kSpellCommonMeal";
-	ESpell_name_by_value[ESpell::kSpellStoneWall] = "kSpellStoneWall";
-	ESpell_name_by_value[ESpell::kSpellSnakeEyes] = "kSpellSnakeEyes";
-	ESpell_name_by_value[ESpell::kSpellEarthAura] = "kSpellEarthAura";
-	ESpell_name_by_value[ESpell::kSpellGroupProtectFromEvil] = "kSpellGroupProtectFromEvil";
-	ESpell_name_by_value[ESpell::kSpellArrowsFire] = "kSpellArrowsFire";
-	ESpell_name_by_value[ESpell::kSpellArrowsWater] = "kSpellArrowsWater";
-	ESpell_name_by_value[ESpell::kSpellArrowsEarth] = "kSpellArrowsEarth";
-	ESpell_name_by_value[ESpell::kSpellArrowsAir] = "kSpellArrowsAir";
-	ESpell_name_by_value[ESpell::kSpellArrowsDeath] = "kSpellArrowsDeath";
-	ESpell_name_by_value[ESpell::kSpellPaladineInspiration] = "kSpellPaladineInspiration";
-	ESpell_name_by_value[ESpell::kSpellDexterity] = "kSpellDexterity";
-	ESpell_name_by_value[ESpell::kSpellGroupBlink] = "kSpellGroupBlink";
-	ESpell_name_by_value[ESpell::kSpellGroupCloudly] = "kSpellGroupCloudly";
-	ESpell_name_by_value[ESpell::kSpellGroupAwareness] = "kSpellGroupAwareness";
-	ESpell_name_by_value[ESpell::kSpellMassFailure] = "kSpellMassFailure";
-	ESpell_name_by_value[ESpell::kSpellSnare] = "kSpellSnare";
-	ESpell_name_by_value[ESpell::kSpellExpedientFail] = "kSpellExpedientFail";
-
-	for (const auto &i : ESpell_name_by_value) {
-		ESpell_value_by_name[i.second] = i.first;
-	}
-}
-
-template<>
-const std::string &NAME_BY_ITEM<ESpell>(const ESpell item) {
-	if (ESpell_name_by_value.empty()) {
-		init_ESpell_ITEM_NAMES();
-	}
-	return ESpell_name_by_value.at(item);
-}
-
-template<>
-ESpell ITEM_BY_NAME(const std::string &name) {
-	if (ESpell_name_by_value.empty()) {
-		init_ESpell_ITEM_NAMES();
-	}
-	return ESpell_value_by_name.at(name);
-}
-
 std::map<int /* vnum */, int /* count */> rune_list;
 
 void add_rune_stats(CharData *ch, int vnum, int spelltype) {
-	if (ch->IsNpc() || kSpellRunes != spelltype) {
+	if (ch->IsNpc() || ESpellType::kRunes != spelltype) {
 		return;
 	}
 	std::map<int, int>::iterator i = rune_list.find(vnum);
@@ -3237,12 +2420,12 @@ void extract_item(CharData *ch, ObjData *obj, int spelltype) {
 			&& IS_SET(GET_OBJ_SKILL(obj), kItemDecayEmpty)) {
 			extract = true;
 		}
-	} else if (spelltype != kSpellRunes) {
+	} else if (spelltype != ESpellType::kRunes) {
 		extract = true;
 	}
 
 	if (extract) {
-		if (spelltype == kSpellRunes) {
+		if (spelltype == ESpellType::kRunes) {
 			snprintf(buf, kMaxStringLength, "$o%s рассыпал$U у вас в руках.",
 					 char_get_custom_label(obj, ch).c_str());
 			act(buf, false, ch, obj, nullptr, kToChar);
@@ -3252,27 +2435,28 @@ void extract_item(CharData *ch, ObjData *obj, int spelltype) {
 	}
 }
 
-int CheckRecipeValues(CharData *ch, int spellnum, int spelltype, int showrecipe) {
+int CheckRecipeValues(CharData *ch, ESpell spell_id, ESpellType spell_type, int showrecipe) {
 	int item0 = -1, item1 = -1, item2 = -1, obj_num = -1;
 	struct SpellCreateItem *items;
 
-	if (spellnum <= 0 || spellnum > kSpellCount)
+	if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast) {
 		return (false);
-	if (spelltype == kSpellItems) {
-		items = &spell_create[spellnum].items;
-	} else if (spelltype == kSpellPotion) {
-		items = &spell_create[spellnum].potion;
-	} else if (spelltype == kSpellWand) {
-		items = &spell_create[spellnum].wand;
-	} else if (spelltype == kSpellScroll) {
-		items = &spell_create[spellnum].scroll;
-	} else if (spelltype == kSpellRunes) {
-		items = &spell_create[spellnum].runes;
+	}
+	if (spell_type == ESpellType::kItemCast) {
+		items = &spell_create[spell_id].items;
+	} else if (spell_type == ESpellType::kPotionCast) {
+		items = &spell_create[spell_id].potion;
+	} else if (spell_type == ESpellType::kWandCast) {
+		items = &spell_create[spell_id].wand;
+	} else if (spell_type == ESpellType::kScrollCast) {
+		items = &spell_create[spell_id].scroll;
+	} else if (spell_type == ESpellType::kRunes) {
+		items = &spell_create[spell_id].runes;
 	} else
 		return (false);
 
 	if (((obj_num = real_object(items->rnumber)) < 0 &&
-		spelltype != kSpellItems && spelltype != kSpellRunes) ||
+		spell_type != ESpellType::kItemCast && spell_type != ESpellType::kRunes) ||
 		((item0 = real_object(items->items[0])) +
 			(item1 = real_object(items->items[1])) + (item2 = real_object(items->items[2])) < -2)) {
 		if (showrecipe)
@@ -3299,16 +2483,16 @@ int CheckRecipeValues(CharData *ch, int spellnum, int spelltype, int showrecipe)
 			strcat(buf, obj_proto[item2]->get_PName(0).c_str());
 			strcat(buf, "\r\n");
 		}
-		if (obj_num >= 0 && (spelltype == kSpellItems || spelltype == kSpellRunes)) {
+		if (obj_num >= 0 && (spell_type == ESpellType::kItemCast || spell_type == ESpellType::kRunes)) {
 			strcat(buf, CCIBLU(ch, C_NRM));
 			strcat(buf, obj_proto[obj_num]->get_PName(0).c_str());
 			strcat(buf, "\r\n");
 		}
 
 		strcat(buf, CCNRM(ch, C_NRM));
-		if (spelltype == kSpellItems || spelltype == kSpellRunes) {
+		if (spell_type == ESpellType::kItemCast || spell_type == ESpellType::kRunes) {
 			strcat(buf, "для создания магии '");
-			strcat(buf, GetSpellName(spellnum));
+			strcat(buf, GetSpellName(spell_id));
 			strcat(buf, "'.");
 		} else {
 			strcat(buf, "для создания ");
@@ -3331,14 +2515,14 @@ int CheckRecipeValues(CharData *ch, int spellnum, int spelltype, int showrecipe)
 bool mag_item_ok(CharData *ch, ObjData *obj, int spelltype) {
 	int num = 0;
 
-	if (spelltype == kSpellRunes
+	if (spelltype == ESpellType::kRunes
 		&& GET_OBJ_TYPE(obj) != EObjType::kIngredient) {
 		return false;
 	}
 
 	if (GET_OBJ_TYPE(obj) == EObjType::kIngredient) {
-		if ((!IS_SET(GET_OBJ_SKILL(obj), kItemRunes) && spelltype == kSpellRunes)
-			|| (IS_SET(GET_OBJ_SKILL(obj), kItemRunes) && spelltype != kSpellRunes)) {
+		if ((!IS_SET(GET_OBJ_SKILL(obj), kItemRunes) && spelltype == ESpellType::kRunes)
+			|| (IS_SET(GET_OBJ_SKILL(obj), kItemRunes) && spelltype != ESpellType::kRunes)) {
 			return false;
 		}
 	}
@@ -3389,45 +2573,44 @@ bool mag_item_ok(CharData *ch, ObjData *obj, int spelltype) {
 	return true;
 }
 
-int CheckRecipeItems(CharData *ch, int spellnum, int spelltype, int extract, const CharData *targ) {
+int CheckRecipeItems(CharData *ch, ESpell spell_id, ESpellType spell_type, int extract, const CharData *targ) {
 	ObjData *obj0 = nullptr, *obj1 = nullptr, *obj2 = nullptr, *obj3 = nullptr, *objo = nullptr;
 	int item0 = -1, item1 = -1, item2 = -1, item3 = -1;
 	int create = 0, obj_num = -1, percent = 0, num = 0;
-	ESkill skill_id = ESkill::kIncorrect;
+	auto skill_id{ESkill::kUndefined};
 	struct SpellCreateItem *items;
 
-	if (spellnum <= 0
-		|| spellnum > kSpellCount) {
-		return (false);
+	if (spell_id <= ESpell::kUndefined) {
+		return false;
 	}
-	if (spelltype == kSpellItems) {
-		items = &spell_create[spellnum].items;
-	} else if (spelltype == kSpellPotion) {
-		items = &spell_create[spellnum].potion;
+	if (spell_type == ESpellType::kItemCast) {
+		items = &spell_create[spell_id].items;
+	} else if (spell_type == ESpellType::kPotionCast) {
+		items = &spell_create[spell_id].potion;
 		skill_id = ESkill::kCreatePotion;
 		create = 1;
-	} else if (spelltype == kSpellWand) {
-		items = &spell_create[spellnum].wand;
+	} else if (spell_type == ESpellType::kWandCast) {
+		items = &spell_create[spell_id].wand;
 		skill_id = ESkill::kCreateWand;
 		create = 1;
-	} else if (spelltype == kSpellScroll) {
-		items = &spell_create[spellnum].scroll;
+	} else if (spell_type == ESpellType::kScrollCast) {
+		items = &spell_create[spell_id].scroll;
 		skill_id = ESkill::kCreateScroll;
 		create = 1;
-	} else if (spelltype == kSpellRunes) {
-		items = &spell_create[spellnum].runes;
+	} else if (spell_type == ESpellType::kRunes) {
+		items = &spell_create[spell_id].runes;
 	} else {
 		return (false);
 	}
 
-	if (((spelltype == kSpellRunes || spelltype == kSpellItems) &&
+	if (((spell_type == ESpellType::kRunes || spell_type == ESpellType::kItemCast) &&
 		(item3 = items->rnumber) +
 			(item0 = items->items[0]) +
 			(item1 = items->items[1]) +
 			(item2 = items->items[2]) < -3)
-		|| ((spelltype == kSpellScroll
-			|| spelltype == kSpellWand
-			|| spelltype == kSpellPotion)
+		|| ((spell_type == ESpellType::kScrollCast
+			|| spell_type == ESpellType::kWandCast
+			|| spell_type == ESpellType::kPotionCast)
 			&& ((obj_num = items->rnumber) < 0
 				|| (item0 = items->items[0]) + (item1 = items->items[1])
 					+ (item2 = items->items[2]) < -2))) {
@@ -3442,28 +2625,28 @@ int CheckRecipeItems(CharData *ch, int spellnum, int spelltype, int extract, con
 	for (auto obj = ch->carrying; obj; obj = obj->get_next_content()) {
 		if (item0 >= 0 && item0_rnum >= 0
 			&& GET_OBJ_VAL(obj, 1) == GET_OBJ_VAL(obj_proto[item0_rnum], 1)
-			&& mag_item_ok(ch, obj, spelltype)) {
+			&& mag_item_ok(ch, obj, spell_type)) {
 			obj0 = obj;
 			item0 = -2;
 			objo = obj0;
 			num++;
 		} else if (item1 >= 0 && item1_rnum >= 0
 			&& GET_OBJ_VAL(obj, 1) == GET_OBJ_VAL(obj_proto[item1_rnum], 1)
-			&& mag_item_ok(ch, obj, spelltype)) {
+			&& mag_item_ok(ch, obj, spell_type)) {
 			obj1 = obj;
 			item1 = -2;
 			objo = obj1;
 			num++;
 		} else if (item2 >= 0 && item2_rnum >= 0
 			&& GET_OBJ_VAL(obj, 1) == GET_OBJ_VAL(obj_proto[item2_rnum], 1)
-			&& mag_item_ok(ch, obj, spelltype)) {
+			&& mag_item_ok(ch, obj, spell_type)) {
 			obj2 = obj;
 			item2 = -2;
 			objo = obj2;
 			num++;
 		} else if (item3 >= 0 && item3_rnum >= 0
 			&& GET_OBJ_VAL(obj, 1) == GET_OBJ_VAL(obj_proto[item3_rnum], 1)
-			&& mag_item_ok(ch, obj, spelltype)) {
+			&& mag_item_ok(ch, obj, spell_type)) {
 			obj3 = obj;
 			item3 = -2;
 			objo = obj3;
@@ -3479,7 +2662,7 @@ int CheckRecipeItems(CharData *ch, int spellnum, int spelltype, int extract, con
 	}
 
 	if (extract) {
-		if (spelltype == kSpellRunes) {
+		if (spell_type == ESpellType::kRunes) {
 			strcpy(buf, "Вы сложили ");
 		} else {
 			strcpy(buf, "Вы взяли ");
@@ -3491,7 +2674,7 @@ int CheckRecipeItems(CharData *ch, int spellnum, int spelltype, int extract, con
 			if (!obj) {
 				return false;
 			} else {
-				percent = number(1, MUD::Skills()[skill_id].difficulty);
+				percent = number(1, MUD::Skills(skill_id).difficulty);
 				auto prob = CalcCurrentSkill(ch, skill_id, nullptr);
 
 				if (MUD::Skills().IsValid(skill_id) && percent > prob) {
@@ -3504,28 +2687,28 @@ int CheckRecipeItems(CharData *ch, int spellnum, int spelltype, int extract, con
 			strcat(buf, CCWHT(ch, C_NRM));
 			strcat(buf, obj0->get_PName(3).c_str());
 			strcat(buf, ", ");
-			add_rune_stats(ch, GET_OBJ_VAL(obj0, 1), spelltype);
+			add_rune_stats(ch, GET_OBJ_VAL(obj0, 1), spell_type);
 		}
 
 		if (item1 == -2) {
 			strcat(buf, CCWHT(ch, C_NRM));
 			strcat(buf, obj1->get_PName(3).c_str());
 			strcat(buf, ", ");
-			add_rune_stats(ch, GET_OBJ_VAL(obj1, 1), spelltype);
+			add_rune_stats(ch, GET_OBJ_VAL(obj1, 1), spell_type);
 		}
 
 		if (item2 == -2) {
 			strcat(buf, CCWHT(ch, C_NRM));
 			strcat(buf, obj2->get_PName(3).c_str());
 			strcat(buf, ", ");
-			add_rune_stats(ch, GET_OBJ_VAL(obj2, 1), spelltype);
+			add_rune_stats(ch, GET_OBJ_VAL(obj2, 1), spell_type);
 		}
 
 		if (item3 == -2) {
 			strcat(buf, CCWHT(ch, C_NRM));
 			strcat(buf, obj3->get_PName(3).c_str());
 			strcat(buf, ", ");
-			add_rune_stats(ch, GET_OBJ_VAL(obj3, 1), spelltype);
+			add_rune_stats(ch, GET_OBJ_VAL(obj3, 1), spell_type);
 		}
 
 		strcat(buf, CCNRM(ch, C_NRM));
@@ -3542,12 +2725,12 @@ int CheckRecipeItems(CharData *ch, int spellnum, int spelltype, int extract, con
 				ExtractObjFromWorld(obj.get());
 			}
 		} else {
-			if (spelltype == kSpellItems) {
+			if (spell_type == ESpellType::kItemCast) {
 				strcat(buf, "и создали магическую смесь.\r\n");
 				act(buf, false, ch, nullptr, nullptr, kToChar);
 				act("$n смешал$g что-то в своей ноше.\r\n"
 					"Вы почувствовали резкий запах.", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-			} else if (spelltype == kSpellRunes) {
+			} else if (spell_type == ESpellType::kRunes) {
 				sprintf(buf + strlen(buf),
 						"котор%s вспыхнул%s ярким светом.%s",
 						num > 1 ? "ые" : GET_OBJ_SUF_3(objo), num > 1 ? "и" : GET_OBJ_SUF_1(objo),
@@ -3556,20 +2739,20 @@ int CheckRecipeItems(CharData *ch, int spellnum, int spelltype, int extract, con
 				act("$n сложил$g руны, которые вспыхнули ярким пламенем.",
 					true, ch, nullptr, nullptr, kToRoom);
 				sprintf(buf, "$n сложил$g руны в заклинание '%s'%s%s.",
-						GetSpellName(spellnum),
+						GetSpellName(spell_id),
 						(targ && targ != ch ? " на " : ""),
 						(targ && targ != ch ? GET_PAD(targ, 1) : ""));
 				act(buf, true, ch, nullptr, nullptr, kToArenaListen);
-				auto magic_skill = GetMagicSkillId(spellnum);
+				auto magic_skill = GetMagicSkillId(spell_id);
 				if (MUD::Skills().IsValid(magic_skill)) {
 					TrainSkill(ch, magic_skill, true, nullptr);
 				}
 			}
 		}
-		extract_item(ch, obj0, spelltype);
-		extract_item(ch, obj1, spelltype);
-		extract_item(ch, obj2, spelltype);
-		extract_item(ch, obj3, spelltype);
+		extract_item(ch, obj0, spell_type);
+		extract_item(ch, obj1, spell_type);
+		extract_item(ch, obj2, spell_type);
+		extract_item(ch, obj3, spell_type);
 	}
 	return (true);
 }

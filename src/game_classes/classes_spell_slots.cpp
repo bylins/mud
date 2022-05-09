@@ -4,13 +4,15 @@
 */
 
 #include "classes_spell_slots.h"
-#include "game_magic/spells_info.h"
 
-namespace PlayerClass {
+#include "structs/global_objects.h"
+
+namespace classes {
 
 const short SPELL_SLOTS_FOR_IMMORTAL = 10;
+const int kMaxSlotPerCircle = 25;
 
-const int kMageSlots[][kMaxSlot] = {{2, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 1
+const int kMageSlots[][kMaxMemoryCircle] = {{2, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 1
 								   {2, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 2
 								   {3, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 3
 								   {3, 1, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 4
@@ -42,7 +44,7 @@ const int kMageSlots[][kMaxSlot] = {{2, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 1
 								   {8, 8, 7, 6, 6, 5, 4, 2, 1, 0},    // lvl 30
 };
 
-const int kNecromancerSlots[][kMaxSlot] = {{2, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 1
+const int kNecromancerSlots[][kMaxMemoryCircle] = {{2, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 1
 										   {2, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 2
 										   {3, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 3
 										   {3, 1, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 4
@@ -1158,12 +1160,10 @@ const int kPaladineSlots[][MAX_PA_SLOT] = {{1, 0, 0, 0},    // lvl 8 wis 10,11
 										   {7, 6, 5, 3},            // lvl 30
 };
 
-MaxClassSlot max_slots;
-
-int CalcCircleSlotsAmount(CharData *ch, int slot_num) {
+int CalcCircleSlotsAmount(CharData *ch, int circle) {
 	int wis_is = -1, wis_line, wis_block;
 
-	if (slot_num < 1 || slot_num > kMaxSlot || GetRealLevel(ch) < 1 || ch->IsNpc()) {
+	if (circle < 1 || circle > kMaxMemoryCircle || GetRealLevel(ch) < 1 || ch->IsNpc()) {
 		return -1;
 	}
 
@@ -1171,40 +1171,40 @@ int CalcCircleSlotsAmount(CharData *ch, int slot_num) {
 		return SPELL_SLOTS_FOR_IMMORTAL;
 	}
 
-	if (max_slots.get(GET_CLASS(ch), GET_KIN(ch)) < slot_num) {
+	if (MUD::Classes(ch->GetClass()).GetMaxCircle() < circle) {
 		return 0;
 	}
 
-	slot_num--;
+	--circle;
 
-	switch (GET_CLASS(ch)) {
+	switch (ch->GetClass()) {
 		case ECharClass::kConjurer:
 		case ECharClass::kWizard:
-		case ECharClass::kCharmer: wis_is = kMageSlots[GetRealLevel(ch) - 1][slot_num];
+		case ECharClass::kCharmer: wis_is = kMageSlots[GetRealLevel(ch) - 1][circle];
 			break;
-		case ECharClass::kNecromancer: wis_is = kNecromancerSlots[GetRealLevel(ch) - 1][slot_num];
+		case ECharClass::kNecromancer: wis_is = kNecromancerSlots[GetRealLevel(ch) - 1][circle];
 			break;
 		case ECharClass::kSorcerer:
-			if (GetRealLevel(ch) >= MIN_CL_LEVEL && slot_num < MAX_CL_SLOT && GET_REAL_WIS(ch) >= MIN_CL_WIS) {
+			if (GetRealLevel(ch) >= MIN_CL_LEVEL && circle < MAX_CL_SLOT && GET_REAL_WIS(ch) >= MIN_CL_WIS) {
 				wis_block = MIN(MAX_CL_WIS, GET_REAL_WIS(ch)) - MIN_CL_WIS;
 				wis_block = wis_block / CL_WIS_DIV;
 				wis_block = wis_block * (MAX_CL_LEVEL - MIN_CL_LEVEL + 1);
 				wis_line = GetRealLevel(ch) - MIN_CL_LEVEL;
-				wis_is = kSorcererSlots[wis_block + wis_line][slot_num];
+				wis_is = kSorcererSlots[wis_block + wis_line][circle];
 			}
 			break;
 		case ECharClass::kPaladine:
-			if (GetRealLevel(ch) >= MIN_PA_LEVEL && slot_num < MAX_PA_SLOT && GET_REAL_WIS(ch) >= MIN_PA_WIS) {
+			if (GetRealLevel(ch) >= MIN_PA_LEVEL && circle < MAX_PA_SLOT && GET_REAL_WIS(ch) >= MIN_PA_WIS) {
 				wis_block = MIN(MAX_PA_WIS, GET_REAL_WIS(ch)) - MIN_PA_WIS;
 				wis_block = wis_block / PA_WIS_DIV;
 				wis_block = wis_block * (MAX_PA_LEVEL - MIN_PA_LEVEL + 1);
 				wis_line = GetRealLevel(ch) - MIN_PA_LEVEL;
-				wis_is = kPaladineSlots[wis_block + wis_line][slot_num];
+				wis_is = kPaladineSlots[wis_block + wis_line][circle];
 			}
 			break;
 		case ECharClass::kMerchant:
-			if (slot_num < MAX_ME_SLOT) {
-				wis_is = KMerchantSlots[GetRealLevel(ch) - 1][slot_num];
+			if (circle < MAX_ME_SLOT) {
+				wis_is = KMerchantSlots[GetRealLevel(ch) - 1][circle];
 			}
 			break;
 		default: break;
@@ -1214,67 +1214,8 @@ int CalcCircleSlotsAmount(CharData *ch, int slot_num) {
 		return 0;
 	}
 
-	return ((wis_is || (GET_REAL_REMORT(ch) > slot_num)) ? MIN(25, wis_is + ch->get_obj_slot(slot_num) + GET_REAL_REMORT(ch))
-													: 0);
-}
-
-void mspell_slot(char */*name*/, int spell, int kin, int chclass, int slot) {
-	int bad = 0;
-
-	if (spell < 0 || spell > kSpellCount) {
-		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, kSpellCount);
-		return;
-	}
-
-	if (kin < 0 || kin >= kNumKins) {
-		log("SYSERR: assigning '%s' to illegal kin %d/%d.", GetSpellName(spell), chclass, kNumKins);
-		bad = 1;
-	}
-
-	if (chclass < 0 || chclass >= kNumPlayerClasses) {
-		log("SYSERR: assigning '%s' to illegal class %d/%d.", GetSpellName(spell), chclass, kNumPlayerClasses - 1);
-		bad = 1;
-	}
-
-	if (slot < 1 || slot > kMaxSlot) {
-		log("SYSERR: assigning '%s' to illegal slot %d/%d.", GetSpellName(spell), slot, kLvlImplementator);
-		bad = 1;
-	}
-
-	if (!bad) {
-		spell_info[spell].slot_forc[chclass][kin] = slot;
-		max_slots.init(chclass, kin, slot);
-		//log("SLOT set '%s' kin '%d' classes %d value %d", name, kin, chclass, slot);
-	}
-
-}
-
-MaxClassSlot::MaxClassSlot() {
-	for (int i = 0; i < kNumPlayerClasses; ++i) {
-		for (int k = 0; k < kNumKins; ++k) {
-			_max_class_slot[i][k] = 0;
-		}
-	}
-}
-
-void MaxClassSlot::init(int chclass, int kin, int slot) {
-	if (_max_class_slot[chclass][kin] < slot) {
-		_max_class_slot[chclass][kin] = slot;
-	}
-}
-
-int MaxClassSlot::get(int chclass, int kin) const {
-	if (kin < 0
-		|| kin >= kNumKins
-		|| chclass < 0
-		|| chclass >= kNumPlayerClasses) {
-		return 0;
-	}
-	return _max_class_slot[chclass][kin];
-}
-
-int MaxClassSlot::get(const CharData *ch) const {
-	return this->get(GET_CLASS(ch), GET_KIN(ch));
+	return ((wis_is || (GET_REAL_REMORT(ch) > circle)) ?
+		std::min(kMaxSlotPerCircle, wis_is + ch->get_obj_slot(circle) + GET_REAL_REMORT(ch)) : 0);
 }
 
 }; // namespace ClassPlayer

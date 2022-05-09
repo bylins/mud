@@ -67,13 +67,10 @@ struct _im_addon_tag {
 };
 typedef struct _im_addon_tag im_addon;
 
-#define IM_MSG_OK        0
-#define IM_MSG_FAIL        1
-#define IM_MSG_DAM        2
-
-// +newbook.patch (Alisher)
-#define KNOW_RECIPE  1
-// -newbook.patch (Alisher)
+const int IM_MSG_OK = 0;
+const int IM_MSG_FAIL = 1;
+const int kImMsgDam = 2;
+const int kKnownRecipe = 1;
 
 // Описание рецепта
 struct _im_recipe_tag {

@@ -40,15 +40,10 @@ extern double exp_coefficients[];
 
 // local functions
 byte saving_throws(int class_num, int type, int level);
-int thaco(int class_num, int level);
 void do_start(CharData *ch, int newbie);
 int invalid_anti_class(CharData *ch, const ObjData *obj);
-long GetExpUntilNextLvl(CharData *ch, int level);
-byte extend_saving_throws(int class_num, ESaving save, int level);
+byte GetExtendSavingThrows(ECharClass class_id, ESaving save, int level);
 int invalid_unique(CharData *ch, const ObjData *obj);
-void mspell_level(char *name, int spell, int kin, int chclass, int level);
-void mspell_remort(char *name, int spell, int kin, int chclass, int remort);
-void mspell_change(char *name, int spell, int kin, int chclass, int class_change);
 extern bool char_to_pk_clan(CharData *ch);
 // Names first
 
@@ -77,9 +72,6 @@ const int class_religion[] = {kReligionAny,        //Лекарь
 							  kReligionPoly        //Волхв
 };
 
-//str dex con wis int cha
-int class_stats_limit[kNumPlayerClasses][6];
-
 /* Вообще то такие вещи должен сам контейнер делать, но пока не реализован
  * какой-нибудь нормальный быстрый поиск по имени, а привинчивать костыль,
  * чтобы потом его убирать, не хочется. Не забыть переделать - ABYRVALG */
@@ -93,74 +85,6 @@ ECharClass FindAvailableCharClassId(const std::string &class_name) {
 	}
 	return ECharClass::kUndefined;
 };
-
-/*
- * These are definitions which control the guildmasters for each class.
- *
- * The first field (top line) controls the highest percentage skill level
- * a character of the class is allowed to attain in any skill.  (After
- * this level, attempts to practice will say "You are already learned in
- * this area."
- *
- * The second line controls the maximum percent gain in learnedness a
- * character is allowed per practice -- in other words, if the random
- * die throw comes out higher than this number, the gain will only be
- * this number instead.
- *
- * The third line controls the minimu percent gain in learnedness a
- * character is allowed per practice -- in other words, if the random
- * die throw comes out below this number, the gain will be set up to
- * this number.
- *
- * The fourth line simply sets whether the character knows 'spells'
- * or 'skills'.  This does not affect anything except the message given
- * to the character when trying to practice (i.e. "You know of the
- * following spells" vs. "You know of the following skills"
- */
-
-const int SPELL = 0;
-const int SKILL = 1;
-
-// #define LEARNED_LEVEL	0  % known which is considered "learned"
-// #define MAX_PER_PRAC		1  max percent gain in skill per practice
-// #define MIN_PER_PRAC		2  min percent gain in skill per practice
-// #define PRAC_TYPE		3  should it say 'spell' or 'skill'?
-
-int prac_params[4][kNumPlayerClasses] =    // MAG        CLE             THE             WAR
-	{
-		{95, 95, 85, 80},    // learned level
-		{100, 100, 12, 12},    // max per prac
-		{25, 25, 0, 0,},    // min per pac
-		{SPELL, SPELL, SKILL, SKILL}    // prac name
-	};
-
-/*
- * ...And the appropriate rooms for each guildmaster/guildguard; controls
- * which types of people the various guildguards let through.  i.e., the
- * first line shows that from room 3017, only MAGIC_USERS are allowed
- * to go south.
- *
- * Don't forget to visit spec_assign.cpp if you create any new mobiles that
- * should be a guild master or guard so they can act appropriately. If you
- * "recycle" the existing mobs that are used in other guilds for your new
- * guild, then you don't have to change that file, only here.
- */
-int guild_info[][3] =
-	{
-
-		// Midgaard
-		{ECharClass::kConjurer, 3017, SCMD_SOUTH},
-		{ECharClass::kSorcerer, 3004, SCMD_NORTH},
-		{ECharClass::kThief, 3027, SCMD_EAST},
-		{ECharClass::kWarrior, 3021, SCMD_EAST},
-
-		// Brass Dragon
-		{-999 /* all */ , 5065, SCMD_WEST},
-
-		// this must go last -- add new guards above!
-		{-1, -1, -1}
-	};
-
 
 // Таблицы бызовых спасбросков
 
@@ -321,7 +245,7 @@ const byte sav_18[100] =
 
 // {CLASS,{PARA,ROD,AFFECT,BREATH,SPELL,BASIC}}
 struct ClassSavings {
-	int chclass;
+	ECharClass chclass;
 	const byte *saves[to_underlying(ESaving::kLast) + 1];
 };
 
@@ -341,14 +265,14 @@ const ClassSavings std_saving[] = {
 	{ECharClass::kPaladine, {sav_05, sav_12, sav_05, sav_17}},
 	{ECharClass::kRanger, {sav_05, sav_12, sav_05, sav_17}},
 	{ECharClass::kMob, {sav_06, sav_13, sav_06, sav_18}},
-	{-1, {sav_02, sav_12, sav_02, sav_16}}
+	{ECharClass::kUndefined, {sav_02, sav_12, sav_02, sav_16}}
 };
 
-byte saving_throws(int class_num, ESaving type, int level) {
-	return extend_saving_throws(class_num, type, level);
+byte GetSavingThrows(ECharClass class_id, ESaving type, int level) {
+	return GetExtendSavingThrows(class_id, type, level);
 }
 
-byte extend_saving_throws(int class_num, ESaving save, int level) {
+byte GetExtendSavingThrows(ECharClass class_id, ESaving save, int level) {
 	int i;
 	if (save < ESaving::kFirst || save > ESaving::kLast) {
 		return 100; // Что за 100? Почему 100? kMaxSaving равен 400. Идиотизм.
@@ -358,14 +282,14 @@ byte extend_saving_throws(int class_num, ESaving save, int level) {
 	}
 	--level;
 
-	for (i = 0; std_saving[i].chclass != -1 && std_saving[i].chclass != class_num; ++i);
+	for (i = 0; std_saving[i].chclass != ECharClass::kUndefined && std_saving[i].chclass != class_id; ++i);
 
 	return std_saving[i].saves[to_underlying(save)][level];
 }
 
 // THAC0 for classes and levels.  (To Hit Armor Class 0)
-int thaco(int class_num, int level) {
-	switch (class_num) {
+int GetThac0(ECharClass class_id, int level) {
+	switch (class_id) {
 		case ECharClass::kConjurer: [[fallthrough]];
 		case ECharClass::kWizard: [[fallthrough]];
 		case ECharClass::kCharmer: [[fallthrough]];
@@ -594,8 +518,8 @@ int thaco(int class_num, int level) {
 }
 
 // AC0 for classes and levels.
-int extra_aco(int class_num, int level) {
-	switch (class_num) {
+int GetExtraAc0(ECharClass class_id, int level) {
+	switch (class_id) {
 		case ECharClass::kConjurer:
 		case ECharClass::kWizard:
 		case ECharClass::kCharmer: [[fallthrough]];
@@ -816,8 +740,8 @@ int extra_aco(int class_num, int level) {
 }
 
 // DAMROLL for classes and levels.
-int extra_damroll(int class_num, int level) {
-	switch (class_num) {
+int GetExtraDamroll(ECharClass class_id, int level) {
+	switch (class_id) {
 		case ECharClass::kConjurer:
 		case ECharClass::kWizard:
 		case ECharClass::kCharmer: [[fallthrough]];
@@ -1040,19 +964,19 @@ int extra_damroll(int class_num, int level) {
 // Some initializations for characters, including initial skills
 void init_warcry(CharData *ch) // проставление кличей в обход античита
 {
-	if (GET_CLASS(ch) == ECharClass::kGuard)
-		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfDefence), kSpellKnow); // клич призыв к обороне
+	if (ch->GetClass() == ECharClass::kGuard)
+		SET_BIT(GET_SPELL_TYPE(ch, ESpell::kWarcryOfDefence), ESpellType::kKnow); // клич призыв к обороне
 
-	if (GET_CLASS(ch) == ECharClass::kRanger) {
-		SET_BIT(GET_SPELL_TYPE(ch, kSpellWatctyOfExpirence), kSpellKnow); // клич опыта
-		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfLuck), kSpellKnow); // клич удачи
-		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfPhysdamage), kSpellKnow); // клич +дамага
+	if (ch->GetClass() == ECharClass::kRanger) {
+		SET_BIT(GET_SPELL_TYPE(ch, ESpell::kWarcryOfExperience), ESpellType::kKnow); // клич опыта
+		SET_BIT(GET_SPELL_TYPE(ch, ESpell::kWarcryOfLuck), ESpellType::kKnow); // клич удачи
+		SET_BIT(GET_SPELL_TYPE(ch, ESpell::kWarcryOfPhysdamage), ESpellType::kKnow); // клич +дамага
 	}
-	if (GET_CLASS(ch) == ECharClass::kWarrior) {
-		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfBattle), kSpellKnow); // клич призыв битвы
-		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfPower), kSpellKnow); // клич призыв мощи
-		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfBless), kSpellKnow); // клич призывы доблести
-		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfCourage), kSpellKnow); // клич призыв отваги
+	if (ch->GetClass() == ECharClass::kWarrior) {
+		SET_BIT(GET_SPELL_TYPE(ch, ESpell::kWarcryOfBattle), ESpellType::kKnow); // клич призыв битвы
+		SET_BIT(GET_SPELL_TYPE(ch, ESpell::kWarcryOfPower), ESpellType::kKnow); // клич призыв мощи
+		SET_BIT(GET_SPELL_TYPE(ch, ESpell::kWarcryOfBless), ESpellType::kKnow); // клич призывы доблести
+		SET_BIT(GET_SPELL_TYPE(ch, ESpell::kWarcryOfCourage), ESpellType::kKnow); // клич призыв отваги
 	}
 
 }
@@ -1065,9 +989,9 @@ void do_start(CharData *ch, int newbie) {
 		ch->set_skill(ESkill::kHangovering, 10);
 	}
 
-	if (newbie && GET_CLASS(ch) == ECharClass::kMagus) {
-		for (int i = 1; i <= kSpellCount; i++) {
-			GET_SPELL_TYPE(ch, i) = kSpellRunes;
+	if (newbie && IS_MANA_CASTER(ch)) {
+		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
+			GET_SPELL_TYPE(ch, spell_id) = ESpellType::kRunes;
 		}
 	}
 
@@ -1087,7 +1011,7 @@ void do_start(CharData *ch, int newbie) {
 		}
 	}
 
-	switch (GET_CLASS(ch)) {
+	switch (ch->GetClass()) {
 		case ECharClass::kConjurer:
 		case ECharClass::kWizard:
 		case ECharClass::kCharmer:
@@ -1105,7 +1029,7 @@ void do_start(CharData *ch, int newbie) {
 		case ECharClass::kPaladine:
 		case ECharClass::kWarrior:
 		case ECharClass::kRanger:
-			if (ch->get_skill(ESkill::kRiding) == 0)
+			if (ch->GetSkill(ESkill::kRiding) == 0)
 				ch->set_skill(ESkill::kRiding, 10);
 			ch->set_skill(ESkill::kSideAttack, 95);
 			break;
@@ -1162,7 +1086,7 @@ void levelup_events(CharData *ch) {
 void advance_level(CharData *ch) {
 	int add_move = 0, i;
 
-	switch (GET_CLASS(ch)) {
+	switch (ch->GetClass()) {
 		case ECharClass::kConjurer:
 		case ECharClass::kWizard:
 		case ECharClass::kCharmer:
@@ -1178,7 +1102,7 @@ void advance_level(CharData *ch) {
 		case ECharClass::kGuard:
 		case ECharClass::kRanger:
 		case ECharClass::kPaladine: [[fallthrough]];
-		case ECharClass::kVigilant: add_move = number(ch->get_inborn_dex()/6 + 1, ch->get_inborn_dex()/5 + 1);
+		case ECharClass::kVigilant: add_move = number(ch->GetInbornDex()/6 + 1, ch->GetInbornDex()/5 + 1);
 			break;
 		default: break;
 	}
@@ -1186,7 +1110,7 @@ void advance_level(CharData *ch) {
 	check_max_hp(ch);
 	ch->points.max_move += std::max(1, add_move);
 
-	SetInbornFeats(ch);
+	SetInbornAndRaceFeats(ch);
 
 	if (IS_IMMORTAL(ch)) {
 		for (i = 0; i < 3; i++) {
@@ -1203,7 +1127,7 @@ void advance_level(CharData *ch) {
 void decrease_level(CharData *ch) {
 	int add_move = 0;
 
-	switch (GET_CLASS(ch)) {
+	switch (ch->GetClass()) {
 		case ECharClass::kConjurer:
 		case ECharClass::kWizard:
 		case ECharClass::kCharmer:
@@ -1219,15 +1143,15 @@ void decrease_level(CharData *ch) {
 		case ECharClass::kGuard:
 		case ECharClass::kPaladine:
 		case ECharClass::kRanger: [[fallthrough]];
-		case ECharClass::kVigilant: add_move = ch->get_inborn_dex() / 5 + 1;
+		case ECharClass::kVigilant: add_move = ch->GetInbornDex() / 5 + 1;
 			break;
 		default: break;
 	}
 
 	check_max_hp(ch);
-	ch->points.max_move -= MIN(ch->points.max_move, MAX(1, add_move));
+	ch->points.max_move -= std::clamp(add_move, 1, ch->points.max_move);
 
-	GET_WIMP_LEV(ch) = MAX(0, MIN(GET_WIMP_LEV(ch), GET_REAL_MAX_HIT(ch) / 2));
+	GET_WIMP_LEV(ch) = std::clamp(GET_WIMP_LEV(ch), 0, GET_REAL_MAX_HIT(ch)/2);
 	if (!IS_IMMORTAL(ch)) {
 		PRF_FLAGS(ch).unset(EPrf::kHolylight);
 	}
@@ -1291,12 +1215,12 @@ int invalid_anti_class(CharData *ch, const ObjData *obj) {
 
 	if ((IS_OBJ_ANTI(obj, EAntiFlag::kMono) && GET_RELIGION(ch) == kReligionMono)
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::kPoly) && GET_RELIGION(ch) == kReligionPoly)
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::kMage) && IS_MAGIC_USER(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kMage) && IsMage(ch))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::kConjurer) && IS_CONJURER(ch))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::kCharmer) && IS_CHARMER(ch))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::kWizard) && IS_WIZARD(ch))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::kNecromancer) && IS_NECROMANCER(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::kFighter) && IS_FIGHTER_USER(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kFighter) && IsFighter(ch))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::kMale) && IS_MALE(ch))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::kFemale) && IS_FEMALE(ch))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::kSorcerer) && IS_SORCERER(ch))
@@ -1331,12 +1255,12 @@ int invalid_no_class(CharData *ch, const ObjData *obj) {
 
 	if ((IS_OBJ_NO(obj, ENoFlag::kMono) && GET_RELIGION(ch) == kReligionMono)
 		|| (IS_OBJ_NO(obj, ENoFlag::kPoly) && GET_RELIGION(ch) == kReligionPoly)
-		|| (IS_OBJ_NO(obj, ENoFlag::kMage) && IS_MAGIC_USER(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::kMage) && IsMage(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::kConjurer) && IS_CONJURER(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::kCharmer) && IS_CHARMER(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::kWIzard) && IS_WIZARD(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::kNecromancer) && IS_NECROMANCER(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::kFighter) && IS_FIGHTER_USER(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::kFighter) && IsFighter(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::kMale) && IS_MALE(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::kFemale) && IS_FEMALE(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::kSorcerer) && IS_SORCERER(ch))
@@ -1366,63 +1290,16 @@ int invalid_no_class(CharData *ch, const ObjData *obj) {
  */
 #include "classes_spell_slots.h"
 void InitSpellLevels() {
-	using PlayerClass::mspell_slot;
-
 	FILE *magic;
 	char line1[256], line2[256], line3[256], name[256];
-	int i[15], j, sp_num;
+	int i[15];
 
-	if (!(magic = fopen(LIB_MISC "class.spells.lst", "r"))) {
-		log("Can't open class spells file...");
-		perror("fopen");
-		graceful_exit(1);
-	}
-
-	while (get_line(magic, name)) {
-		if (!name[0] || name[0] == ';')
-			continue;
-		if (sscanf(name, "%s %s %d %d %d %d %d %d", line1, line2, i, i + 1, i + 2, i + 3, i + 4, i + 5) != 8) {
-			log("Bad format for magic string!\r\n"
-				"Format : <spell name (%%s %%s)> <kin (%%d)> <classes (%%d)> <remort (%%d)> <slot (%%d)> <level (%%d)>");
-			graceful_exit(1);
-		}
-
-		name[0] = '\0';
-		strcat(name, line1);
-		if (*line2 != '*') {
-			*(name + strlen(name) + 1) = '\0';
-			*(name + strlen(name) + 0) = ' ';
-			strcat(name, line2);
-		}
-
-		if ((sp_num = FixNameAndFindSpellNum(name)) < 0) {
-			log("Spell '%s' not found...", name);
-			graceful_exit(1);
-		}
-
-		if (i[0] < 0 || i[0] >= kNumKins) {
-			log("Bad kin type for spell '%s' \"%d\"...", name, sp_num);
-			graceful_exit(1);
-		}
-		if (i[1] < 0 || i[1] >= kNumPlayerClasses) {
-			log("Bad class type for spell '%s'  \"%d\"...", name, sp_num);
-			graceful_exit(1);
-		}
-		if (i[2] < 0 || i[2] >= kMaxRemort) {
-			log("Bad remort type for spell '%s'  \"%d\"...", name, sp_num);
-			graceful_exit(1);
-		}
-		mspell_remort(name, sp_num, i[0], i[1], i[2]);
-		mspell_level(name, sp_num, i[0], i[1], i[4]);
-		mspell_slot(name, sp_num, i[0], i[1], i[3]);
-		mspell_change(name, sp_num, i[0], i[1], i[5]);
-
-	}
-	fclose(magic);
 	if (!(magic = fopen(LIB_MISC "runes.lst", "r"))) {
 		log("Cann't open items list file...");
 		graceful_exit(1);
 	}
+
+	auto sp_num{ESpell::kUndefined};;
 	while (get_line(magic, name)) {
 		if (!name[0] || name[0] == ';')
 			continue;
@@ -1444,7 +1321,7 @@ void InitSpellLevels() {
 			*(name + strlen(name) + 0) = ' ';
 			strcat(name, line2);
 		}
-		if ((sp_num = FixNameAndFindSpellNum(name)) < 0) {
+		if ((sp_num = FixNameAndFindSpellId(name)) < ESpell::kFirst) {
 			log("Spell '%s' not found...", name);
 			graceful_exit(1);
 		}
@@ -1488,60 +1365,6 @@ void InitSpellLevels() {
 			log("Unknown items option : %s", line3);
 			graceful_exit(1);
 		}
-	}
-	fclose(magic);
-	if (!(magic = fopen(LIB_MISC "class.features.lst", "r"))) {
-		log("Cann't open features list file...");
-		graceful_exit(1);
-	}
-	while (get_line(magic, name)) {
-		if (!name[0] || name[0] == ';')
-			continue;
-		if (sscanf(name, "%s %s %d %d %d %d %d %d %d", line1, line2, i, i + 1, i + 2, i + 3, i + 4, i + 5, i + 6)
-			!= 9) {
-			log("Bad format for feature string!\r\n"
-				"Format : <feature name (%%s %%s)>  <kin (%%d %%d %%d)> <class (%%d)> <remort (%%d)> <level (%%d)> <naturalfeat (%%d)>!");
-			graceful_exit(1);
-		}
-		name[0] = '\0';
-		strcat(name, line1);
-		if (*line2 != '*') {
-			*(name + strlen(name) + 1) = '\0';
-			*(name + strlen(name) + 0) = ' ';
-			strcat(name, line2);
-		}
-		if ((sp_num = FindFeatNum(name)) <= 0) {
-			log("Feat '%s' not found...", name);
-			graceful_exit(1);
-		}
-		for (j = 0; j < kNumKins; j++)
-			if (i[j] < 0 || i[j] > 1) {
-				log("Bad race feat know type for feat \"%s\"... 0 or 1 expected", feat_info[sp_num].name);
-				graceful_exit(1);
-			}
-		if (i[3] < 0 || i[3] >= kNumPlayerClasses) {
-			log("Bad class type for feat \"%s\"...", feat_info[sp_num].name);
-			graceful_exit(1);
-		}
-		if (i[4] < 0 || i[4] >= kMaxRemort) {
-			log("Bad remort type for feat \"%s\"...", feat_info[sp_num].name);
-			graceful_exit(1);
-		}
-		if (i[6] < 0 || i[6] > 1) {
-			log("Bad natural classfeat type for feat \"%s\"... 0 or 1 expected", feat_info[sp_num].name);
-			graceful_exit(1);
-		}
-		for (j = 0; j < kNumKins; j++)
-			if (i[j] == 1) {
-				//log("Setting up feat '%s'", feat_info[sp_num].name);
-				feat_info[sp_num].is_known[i[3]][j] = true;
-/*				log("Classknow feat set '%s': %d kin: %d classes: %d Remort: %d Level: %d Natural: %d",
-					feat_info[sp_num].name, sp_num, j, i[3], i[4], i[5], i[6]);*/
-
-				feat_info[sp_num].min_remort[i[3]][j] = i[4];
-				feat_info[sp_num].slot[i[3]][j] = i[5];
-				feat_info[sp_num].is_inborn[i[3]][j] = i[6] ? true : false;
-			}
 	}
 	fclose(magic);
 }
@@ -1614,15 +1437,14 @@ void init_basic_values() {
 */
 int GroupPenalties::init() {
 	char buf[kMaxInputLength];
-	int clss = 0, remorts = 0, rows_assigned = 0, levels = 0, pos = 0, max_rows = kMaxRemort + 1;
+	int remorts = 0, rows_assigned = 0, levels = 0, pos = 0, max_rows = kMaxRemort + 1;
 
 	// пре-инициализация
-	for (remorts = 0; remorts < max_rows; remorts++) //Строк в массиве должно быть на 1 больше, чем макс. морт
-	{
-		for (clss = 0; clss < kNumPlayerClasses;
-			 clss++) //Столбцов в массиве должно быть ровно столько же, сколько есть классов
-		{
-			m_grouping[clss][remorts] = -1;
+	//Строк в массиве должно быть на 1 больше, чем макс. морт
+	//Столбцов в массиве должно быть ровно столько же, сколько есть классов
+	for (auto clss = ECharClass::kFirst; clss <= ECharClass::kLast; ++clss) {
+		for (remorts = 0; remorts < max_rows; remorts++) {
+			grouping_[clss][remorts] = -1;
 		}
 	}
 
@@ -1633,20 +1455,20 @@ int GroupPenalties::init() {
 	}
 
 	while (get_line(f, buf)) {
-		if (!buf[0] || buf[0] == ';' || buf[0] == '\n') //Строка пустая или строка-коммент
-		{
+		//Строка пустая или строка-коммент
+		if (!buf[0] || buf[0] == ';' || buf[0] == '\n') {
 			continue;
 		}
-		clss = 0;
+		auto clss{ECharClass::kUndefined};
 		pos = 0;
 		while (sscanf(&buf[pos], "%d", &levels) == 1) {
 			while (buf[pos] == ' ' || buf[pos] == '\t') {
-				pos++;
+				++pos;
 			}
-			if (clss == 0) //Первый проход цикла по строке
-			{
+			//Первый проход цикла по строке
+			if (clss == ECharClass::kUndefined) {
 				remorts = levels; //Номера строк
-				if (m_grouping[0][remorts] != -1) {
+				if (grouping_[ECharClass::kFirst][remorts] != -1) {
 					log("Ошибка при чтении файла %s: дублирование параметров для %d ремортов",
 						LIB_MISC "grouping", remorts);
 					return 2;
@@ -1658,27 +1480,29 @@ int GroupPenalties::init() {
 					return 3;
 				}
 			} else {
-				m_grouping[clss - 1][remorts] = levels; // -1 потому что в массиве нет столбца с кол-вом мортов
+				grouping_[clss][remorts] = levels;
 			}
-			clss++; //+Номер столбца массива
+			++clss;
 			while (buf[pos] != ' ' && buf[pos] != '\t' && buf[pos] != 0) {
-				pos++; //Ищем следующее число в строке конфига
+				++pos;
 			}
 		}
-		if (clss != kNumPlayerClasses + 1) {
+
+		if (clss < ECharClass::kLast) {
 			log("Ошибка при чтении файла %s: неверный формат строки '%s', должно быть %d "
-				"целых чисел, прочитали %d", LIB_MISC "grouping", buf, kNumPlayerClasses + 1, clss);
+				"целых чисел, прочитали %d",
+				LIB_MISC "grouping", buf, to_underlying(ECharClass::kLast) + 2, to_underlying(clss) + 1);
 			return 4;
 		}
-		rows_assigned++;
+		++rows_assigned;
 	}
 
 	if (rows_assigned < max_rows) {
-		for (levels = remorts; levels < max_rows; levels++) //Берем свободную переменную
-		{
-			for (clss = 0; clss < kNumPlayerClasses; clss++) {
-				m_grouping[clss][levels] =
-					m_grouping[clss][remorts]; //Копируем последнюю строку на все морты, для которых нет строк
+		//Берем свободную переменную
+		//Копируем последнюю строку на все морты, для которых нет строк
+		for (levels = remorts; levels < max_rows; levels++) {
+			for (auto clss = ECharClass::kFirst; clss <= ECharClass::kLast; ++clss) {
+				grouping_[clss][levels] = grouping_[clss][remorts];
 			}
 		}
 	}
@@ -1714,7 +1538,7 @@ long GetExpUntilNextLvl(CharData *ch, int level) {
 		exp_modifier = static_cast<float>(exp_coefficients[kMaxExpCoefficientsUsed]);
 	}
 
-	switch (GET_CLASS(ch)) {
+	switch (ch->GetClass()) {
 
 		case ECharClass::kConjurer:
 		case ECharClass::kWizard:
@@ -1926,82 +1750,41 @@ long GetExpUntilNextLvl(CharData *ch, int level) {
 	return 123456;
 }
 
-void mspell_remort(char */*name*/, int spell, int kin, int chclass, int remort) {
-	int bad = 0;
-
-	if (spell < 0 || spell > kSpellCount) {
-		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, kSpellCount);
-		return;
-	}
-	if (kin < 0 || kin >= kNumKins) {
-		log("SYSERR: assigning '%s' to illegal kin %d/%d.", spell_info[spell].name, chclass, kNumKins);
-		bad = 1;
-	}
-	if (chclass < 0 || chclass >= kNumPlayerClasses) {
-		log("SYSERR: assigning '%s' to illegal class %d/%d.", spell_info[spell].name, chclass, kNumPlayerClasses - 1);
-		bad = 1;
-	}
-	if (remort < 0 || remort > kMaxRemort) {
-		log("SYSERR: assigning '%s' to illegal remort %d/%d.", spell_info[spell].name, remort, kMaxRemort);
-		bad = 1;
-	}
-	if (!bad) {
-		spell_info[spell].min_remort[chclass][kin] = remort;
-		//log("REMORT set '%s' kin '%d' classes %d value %d", name, kin, chclass, remort);
-	}
-}
-
-void mspell_level(char */*name*/, int spell, int kin, int chclass, int level) {
-	int bad = 0;
-
-	if (spell < 0 || spell > kSpellCount) {
-		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, kSpellCount);
-		return;
-	}
-
-	if (kin < 0 || kin >= kNumKins) {
-		log("SYSERR: assigning '%s' to illegal kin %d/%d.", spell_info[spell].name, chclass, kNumKins);
-		bad = 1;
-	}
-
-	if (chclass < 0 || chclass >= kNumPlayerClasses) {
-		log("SYSERR: assigning '%s' to illegal class %d/%d.", spell_info[spell].name, chclass, kNumPlayerClasses - 1);
-		bad = 1;
-	}
-
-	if (level < 1 || level > kLvlImplementator) {
-		log("SYSERR: assigning '%s' to illegal level %d/%d.", spell_info[spell].name, level, kLvlImplementator);
-		bad = 1;
-	}
-
-	if (!bad) {
-		spell_info[spell].min_level[chclass][kin] = level;
-		//log("LEVEL set '%s' kin '%d' classes %d value %d", name, kin, chclass, level);
-	}
-}
-
-void mspell_change(char */*name*/, int spell, int kin, int chclass, int class_change) {
-	int bad = 0;
-
-	if (spell < 0 || spell > kSpellCount) {
-		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, kSpellCount);
-		return;
-	}
-
-	if (kin < 0 || kin >= kNumKins) {
-		log("SYSERR: assigning '%s' to illegal kin %d/%d.", spell_info[spell].name, chclass, kNumKins);
-		bad = 1;
-	}
-
-	if (chclass < 0 || chclass >= kNumPlayerClasses) {
-		log("SYSERR: assigning '%s' to illegal class %d/%d.", spell_info[spell].name, chclass, kNumPlayerClasses - 1);
-		bad = 1;
-	}
-	if (!bad) {
-		spell_info[spell].class_change[chclass][kin] = class_change;
-	}
-}
-
 GroupPenalties grouping;    ///< TODO: get rid of this global variable.
+
+bool IsMage(const CharData *ch) {
+	static const std::set<ECharClass> magic_classes{
+		ECharClass::kConjurer,
+		ECharClass::kWizard,
+		ECharClass::kCharmer,
+		ECharClass::kNecromancer};
+
+	return magic_classes.contains(ch->GetClass());
+}
+
+bool IsCaster(const CharData *ch) {
+	static const std::set<ECharClass> caster_classes{
+		ECharClass::kSorcerer,
+		ECharClass::kConjurer,
+		ECharClass::kWizard,
+		ECharClass::kCharmer,
+		ECharClass::kNecromancer,
+		ECharClass::kMagus};
+
+	return caster_classes.contains(ch->GetClass());
+}
+
+bool IsFighter(const CharData *ch) {
+	static const std::set<ECharClass> fight_classes{
+		ECharClass::kThief,
+		ECharClass::kWarrior,
+		ECharClass::kAssasine,
+		ECharClass::kGuard,
+		ECharClass::kPaladine,
+		ECharClass::kRanger,
+		ECharClass::kVigilant};
+
+	return fight_classes.contains(ch->GetClass());
+}
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -402,7 +402,7 @@ bool CObjectPrototype::has_skills() const {
 }
 
 void CObjectPrototype::set_timer(int timer) {
-	m_timer = MAX(0, timer);
+	m_timer = std::max(0, timer);
 }
 
 int CObjectPrototype::get_timer() const {
@@ -793,16 +793,16 @@ std::pair<bool, int> ObjData::get_activator() const {
 	return m_activator;
 }
 
-void ObjData::add_timed_spell(const int spell, const int time) {
-	if (spell < 1 || spell >= kSpellCount) {
-		log("SYSERROR: func: %s, spell = %d, time = %d", __func__, spell, time);
+void ObjData::add_timed_spell(const ESpell spell_id, const int time) {
+	if (spell_id < ESpell::kFirst) {
+		log("SYSERROR: func: %s, spell = %d, time = %d", __func__, to_underlying(spell_id), time);
 		return;
 	}
-	m_timed_spell.add(this, spell, time);
+	m_timed_spell.add(this, spell_id, time);
 }
 
-void ObjData::del_timed_spell(const int spell, const bool message) {
-	m_timed_spell.del(this, spell, message);
+void ObjData::del_timed_spell(const ESpell spell_id, const bool message) {
+	m_timed_spell.del(this, spell_id, message);
 }
 
 void CObjectPrototype::set_ex_description(const char *keyword, const char *description) {
@@ -893,6 +893,7 @@ float count_affect_weight(const CObjectPrototype * /*obj*/, int num, int mod) {
 			break;
 		case EApply::kMagicResist: weight = mod * 1.5;
 			break;
+		default: break;
 	}
 
 	return weight;
@@ -1113,10 +1114,10 @@ std::string ObjVal::print_to_file() const {
 	std::stringstream out;
 	out << "Vals:\n";
 
-	for (auto i = m_values.begin(), iend = m_values.end(); i != iend; ++i) {
-		std::string key_str = text_id::ToStr(text_id::kObjVals, to_underlying(i->first));
+	for (auto m_value : m_values) {
+		std::string key_str = text_id::ToStr(text_id::kObjVals, to_underlying(m_value.first));
 		if (!key_str.empty()) {
-			out << key_str << " " << i->second << "\n";
+			out << key_str << " " << m_value.second << "\n";
 		}
 	}
 	out << "~\n";
@@ -1159,7 +1160,7 @@ std::string ObjVal::print_to_zone() const {
 	for (auto const i : m_values) {
 		std::string key_str = text_id::ToStr(text_id::kObjVals, to_underlying(i.first));
 		if (!key_str.empty()) {
-			m_val_vec.push_back(std::make_pair(key_str, i.second));
+			m_val_vec.emplace_back(key_str, i.second);
 		}
 	}
 
@@ -1215,6 +1216,7 @@ void ObjVal::remove_incorrect_keys(int type) {
 					erased = true;
 				}
 				break;
+			default: break;
 		} // switch
 
 		if (!erased) {
@@ -1303,19 +1305,17 @@ void init_set_list() {
 
 // * Удаление инфы от последнего сверявшегося чара.
 void reset_set_list() {
-	for (std::vector<SetNode>::iterator i = set_list.begin(),
-			 iend = set_list.end(); i != iend; ++i) {
-		i->obj_vnum.clear();
+	for (auto &i : set_list) {
+		i.obj_vnum.clear();
 	}
 }
 
 // * Проверка шмотки на принадлежность к сетам из set_list.
 void check_item(int vnum) {
-	for (std::vector<SetNode>::iterator i = set_list.begin(),
-			 iend = set_list.end(); i != iend; ++i) {
-		std::set<int>::const_iterator k = i->set_vnum.find(vnum);
-		if (k != i->set_vnum.end()) {
-			i->obj_vnum.push_back(vnum);
+	for (auto &i : set_list) {
+		auto k = i.set_vnum.find(vnum);
+		if (k != i.set_vnum.end()) {
+			i.obj_vnum.push_back(vnum);
 		}
 	}
 }

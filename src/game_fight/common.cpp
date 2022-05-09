@@ -6,7 +6,7 @@
 int IsHaveNoExtraAttack(CharData *ch) {
 	std::string message = "";
 	parry_override(ch);
-	if (ch->get_extra_victim()) {
+	if (ch->GetExtraVictim()) {
 		switch (ch->get_extra_attack_mode()) {
 			case kExtraAttackBash: message = "Невозможно. Вы пытаетесь сбить $N3.";
 				break;
@@ -26,7 +26,7 @@ int IsHaveNoExtraAttack(CharData *ch) {
 		return true;
 	};
 
-	act(message.c_str(), false, ch, nullptr, ch->get_extra_victim(), kToChar);
+	act(message.c_str(), false, ch, nullptr, ch->GetExtraVictim(), kToChar);
 	return false;
 }
 

@@ -18,7 +18,7 @@ inline bool MORT_CAN_SEE_OBJ(const CharData *sub, const ObjData *obj) {
 			|| obj->has_flag(EObjFlag::kGlow)
 			|| (IS_CORPSE(obj)
 				&& AFF_FLAGGED(sub, EAffect::kInfravision))
-			|| IsAbleToUseFeat(sub, EFeat::kDarkReading));
+			|| CanUseFeat(sub, EFeat::kDarkReading));
 }
 
 inline bool CAN_SEE_OBJ(const CharData *sub, const ObjData *obj) {

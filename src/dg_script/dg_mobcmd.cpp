@@ -32,7 +32,6 @@
 #include "game_magic/magic_utils.h"
 #include "game_skills/townportal.h"
 #include "utils/id_converter.h"
-#include "entities/zone.h"
 #include "structs/global_objects.h"
 
 struct mob_command_info {
@@ -976,8 +975,8 @@ void do_mdoor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 }
 
 // increases spells & skills
-const char *GetSpellName(int num);
-int FixNameAndFindSpellNum(char *name);
+const char *GetSpellName(ESpell spell_id);
+ESpell FixNameAndFindSpellId(char *name);
 
 void do_mfeatturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	int isFeat = 0;
@@ -1000,8 +999,8 @@ void do_mfeatturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 	while ((pos = strchr(featname, '_')))
 		*pos = ' ';
 
-	const auto feat_id = FindFeatNum(featname);
-	if (feat_id >= EFeat::kFirstFeat && feat_id <= EFeat::kLastFeat)
+	const auto feat_id = FindFeatId(featname);
+	if (feat_id >= EFeat::kFirst && feat_id <= EFeat::kLast)
 		isFeat = 1;
 	else {
 		mob_log(ch, "mfeatturn: feature not found");
@@ -1050,7 +1049,7 @@ void do_mskillturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		return;
 	}
 
-	auto skill_id = FixNameAndFindSkillNum(skill_name);
+	auto skill_id = FixNameAndFindSkillId(skill_name);
 	bool is_skill = false;
 	if (MUD::Skills().IsValid(skill_id)) {
 		is_skill = true;
@@ -1082,7 +1081,7 @@ void do_mskillturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 	}
 
 	if (is_skill) {
-		if (MUD::Classes()[victim->get_class()].HasSkill(skill_id)) {
+		if (MUD::Classes(victim->GetClass()).skills[skill_id].IsAvailable()) {
 			trg_skillturn(victim, skill_id, skilldiff, last_trig_vnum);
 		} else {
 			sprintf(buf, "mskillturn: skill and character class mismatch");
@@ -1110,7 +1109,7 @@ void do_mskilladd(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 		mob_log(ch, "mskilladd: too few arguments");
 		return;
 	}
-	auto skill_id = FixNameAndFindSkillNum(skillname);
+	auto skill_id = FixNameAndFindSkillId(skillname);
 	if (MUD::Skills().IsValid(skill_id)) {
 		isSkill = true;
 	} else if ((recipenum = im_get_recipe_by_name(skillname)) < 0) {
@@ -1142,26 +1141,27 @@ void do_mskilladd(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 
 void do_mspellturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	CharData *victim;
-	char name[kMaxInputLength], skillname[kMaxInputLength], amount[kMaxInputLength];
-	int skillnum = 0, skilldiff = 0;
+	char name[kMaxInputLength], apellname[kMaxInputLength], amount[kMaxInputLength];
 
 	if (AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		return;
 	}
 
 	argument = one_argument(argument, name);
-	two_arguments(argument, skillname, amount);
+	two_arguments(argument, apellname, amount);
 
-	if (!*name || !*skillname || !*amount) {
+	if (!*name || !*apellname || !*amount) {
 		mob_log(ch, "mspellturn: too few arguments");
 		return;
 	}
 
-	if ((skillnum = FixNameAndFindSpellNum(skillname)) < 0 || skillnum == 0 || skillnum > kSpellCount) {
+	auto spell_id = FixNameAndFindSpellId(apellname);
+	if (spell_id == ESpell::kUndefined) {
 		mob_log(ch, "mspellturn: spell not found");
 		return;
 	}
 
+	auto skilldiff{0};
 	if (!str_cmp(amount, "set")) {
 		skilldiff = 1;
 	} else if (!str_cmp(amount, "clear")) {
@@ -1186,13 +1186,12 @@ void do_mspellturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		return;
 	};
 
-	trg_spellturn(victim, skillnum, skilldiff, last_trig_vnum);
+	trg_spellturn(victim, spell_id, skilldiff, last_trig_vnum);
 }
 
 void do_mspellturntemp(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	CharData *victim;
 	char name[kMaxInputLength], spellname[kMaxInputLength], amount[kMaxInputLength];
-	int spellnum = 0, spelltime = 0;
 
 	if (AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		return;
@@ -1206,12 +1205,13 @@ void do_mspellturntemp(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 		return;
 	}
 
-	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellCount) {
+	auto spell_id = FixNameAndFindSpellId(spellname);
+	if (spell_id == ESpell::kUndefined) {
 		mob_log(ch, "mspellturntemp: spell not found");
 		return;
 	}
 
-	spelltime = atoi(amount);
+	auto spelltime = atoi(amount);
 
 	if (spelltime <= 0) {
 		mob_log(ch, "mspellturntemp: time is zero or negative");
@@ -1230,31 +1230,28 @@ void do_mspellturntemp(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 		return;
 	};
 
-	trg_spellturntemp(victim, spellnum, spelltime, last_trig_vnum);
+	trg_spellturntemp(victim, spell_id, spelltime, last_trig_vnum);
 }
 
 void do_mspelladd(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
-	CharData *victim;
-	char name[kMaxInputLength], skillname[kMaxInputLength], amount[kMaxInputLength];
-	int skillnum = 0, skilldiff = 0;
-
 	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
-	one_argument(two_arguments(argument, name, skillname), amount);
+	char name[kMaxInputLength], spellname[kMaxInputLength], amount[kMaxInputLength];
+	one_argument(two_arguments(argument, name, spellname), amount);
 
-	if (!*name || !*skillname || !*amount) {
+	if (!*name || !*spellname || !*amount) {
 		mob_log(ch, "mspelladd: too few arguments");
 		return;
 	}
 
-	if ((skillnum = FixNameAndFindSpellNum(skillname)) < 0 || skillnum == 0 || skillnum > kSpellCount) {
+	auto spell_id = FixNameAndFindSpellId(spellname);
+	if (spell_id == ESpell::kUndefined) {
 		mob_log(ch, "mspelladd: skill not found");
 		return;
 	}
 
-	skilldiff = atoi(amount);
-
+	CharData *victim;
 	if (*name == UID_CHAR) {
 		if (!(victim = get_char(name))) {
 			sprintf(buf, "mspelladd: victim (%s) UID does not exist", name + 1);
@@ -1267,18 +1264,17 @@ void do_mspelladd(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 		return;
 	};
 
-	trg_spelladd(victim, skillnum, skilldiff, last_trig_vnum);
+	auto skilldiff = atoi(amount);
+	trg_spelladd(victim, spell_id, skilldiff, last_trig_vnum);
 }
 
 void do_mspellitem(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	CharData *victim;
-	char name[kMaxInputLength], spellname[kMaxInputLength], type[kMaxInputLength], turn[kMaxInputLength];
-	int spellnum = 0, spelldiff = 0, spell = 0;
-
 	if (AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		return;
 	}
 
+	char name[kMaxInputLength], spellname[kMaxInputLength], type[kMaxInputLength], turn[kMaxInputLength];
 	two_arguments(two_arguments(argument, name, spellname), type, turn);
 
 	if (!*name || !*spellname || !*type || !*turn) {
@@ -1286,26 +1282,29 @@ void do_mspellitem(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		return;
 	}
 
-	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellCount) {
+	auto spell_id = FixNameAndFindSpellId(spellname);
+	if (spell_id == ESpell::kUndefined) {
 		mob_log(ch, "mspellitem: spell not found");
 		return;
 	}
 
+	ESpellType spell;
 	if (!str_cmp(type, "potion")) {
-		spell = kSpellPotion;
+		spell = ESpellType::kPotionCast;
 	} else if (!str_cmp(type, "wand")) {
-		spell = kSpellWand;
+		spell = ESpellType::kWandCast;
 	} else if (!str_cmp(type, "scroll")) {
-		spell = kSpellScroll;
+		spell = ESpellType::kScrollCast;
 	} else if (!str_cmp(type, "items")) {
-		spell = kSpellItems;
+		spell = ESpellType::kItemCast;
 	} else if (!str_cmp(type, "runes")) {
-		spell = kSpellRunes;
+		spell = ESpellType::kRunes;
 	} else {
 		mob_log(ch, "mspellitem: type spell not found");
 		return;
 	}
 
+	auto spelldiff{0};
 	if (!str_cmp(turn, "set")) {
 		spelldiff = 1;
 	} else if (!str_cmp(turn, "clear")) {
@@ -1327,7 +1326,7 @@ void do_mspellitem(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		return;
 	};
 
-	trg_spellitem(victim, spellnum, spelldiff, spell);
+	trg_spellitem(victim, spell_id, spelldiff, spell);
 }
 
 void do_mdamage(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
