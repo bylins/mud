@@ -7,7 +7,7 @@
 
 extern void do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, int currency);
 extern void do_split(CharData *ch, char *argument, int cmd, int subcmd);
-extern int can_take_obj(CharData *ch, ObjData *obj);
+extern bool CanTakeObj(CharData *ch, ObjData *obj);
 extern char *find_exdesc(const char *word, const ExtraDescription::shared_ptr &list);
 
 /// считаем сколько у ch в группе еще игроков (не мобов)
@@ -124,7 +124,7 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 bool perform_get_from_container(CharData *ch, ObjData *obj, ObjData *cont, int mode) {
 	if (!bloody::handle_transfer(nullptr, ch, obj))
 		return false;
-	if ((mode == EFind::kObjInventory || mode == EFind::kObjRoom || mode == EFind::kObjEquip) && can_take_obj(ch, obj)
+	if ((mode == EFind::kObjInventory || mode == EFind::kObjRoom || mode == EFind::kObjEquip) && CanTakeObj(ch, obj)
 		&& get_otrigger(obj, ch)) {
 		// если берем из клан-сундука
 		if (Clan::is_clan_chest(cont)) {
@@ -217,7 +217,7 @@ void get_from_container(CharData *ch, ObjData *cont, char *local_arg, int mode, 
 }
 
 int perform_get_from_room(CharData *ch, ObjData *obj) {
-	if (can_take_obj(ch, obj) && get_otrigger(obj, ch) && bloody::handle_transfer(nullptr, ch, obj)) {
+	if (CanTakeObj(ch, obj) && get_otrigger(obj, ch) && bloody::handle_transfer(nullptr, ch, obj)) {
 		ExtractObjFromRoom(obj);
 		PlaceObjToInventory(obj, ch);
 		if (obj->get_carried_by() == ch) {

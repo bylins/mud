@@ -19,7 +19,7 @@ set(SOURCES
 		src/action_targeting.cpp
 		src/act_comm.cpp
 		src/act_informative.cpp
-		src/act_item.cpp
+		src/cmd/sign.cpp
 		src/act_movement.cpp
 		src/act_other.cpp
 		src/communication/social.cpp
@@ -253,7 +253,17 @@ set(SOURCES
 		src/cmd/give.cpp
 		src/cmd/trample.cpp
 		src/game_skills/campfire.cpp
-		src/game_skills/firstaid.cpp src/game_skills/sharpening.cpp src/game_skills/armoring.cpp src/cmd/get.cpp src/cmd/equip.cpp src/cmd/put.cpp src/cmd/remove.cpp)
+		src/game_skills/firstaid.cpp
+		src/game_skills/sharpening.cpp
+		src/game_skills/armoring.cpp
+		src/cmd/get.cpp
+		src/cmd/equip.cpp
+		src/cmd/put.cpp
+		src/cmd/remove.cpp
+		src/cmd/eat.cpp
+		src/cmd_god/mark.cpp
+		src/game_crafts/fry.cpp
+		src/cmd/refill.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -486,7 +496,18 @@ set(HEADERS
 		src/cmd/give.h
 		src/cmd/trample.h
 		src/game_skills/campfire.h
-		src/game_skills/firstaid.h src/game_skills/sharpening.h src/game_skills/armoring.h src/cmd/get.h src/cmd/equip.h src/cmd/put.h src/cmd/remove.h)
+		src/game_skills/firstaid.h
+		src/game_skills/sharpening.h
+		src/game_skills/armoring.h
+		src/cmd/get.h
+		src/cmd/equip.h
+		src/cmd/put.h
+		src/cmd/remove.h
+		src/cmd/eat.h
+		src/cmd_god/mark.h
+		src/game_crafts/fry.h
+		src/cmd/refill.h
+		src/cmd/sign.h)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 # Build types

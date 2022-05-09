@@ -256,12 +256,9 @@ struct alias_data {
 #define SCMD_HIT  0
 #define SCMD_MURDER  1
 
-// do_eat
-#define SCMD_EAT  0
-#define SCMD_TASTE   1
+// do_drink
 #define SCMD_DRINK   2
 #define SCMD_SIP  3
-#define SCMD_DEVOUR 4
 
 // do_echo
 #define SCMD_ECHO 0

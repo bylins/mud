@@ -17,7 +17,7 @@
 #include "game_mechanics/named_stuff.h"
 
 extern int bank(CharData *, void *, int, char *);
-extern int can_take_obj(CharData *ch, ObjData *obj);
+extern bool CanTakeObj(CharData *ch, ObjData *obj);
 extern void olc_update_object(int robj_num, ObjData *obj, ObjData *olc_proto);
 namespace Depot {
 
@@ -1129,7 +1129,7 @@ void CharNode::take_item(CharData *vict, char *arg, int howmany) {
 				|| isname(arg, (*obj_list_it)->get_aliases())
 				|| CHECK_CUSTOM_LABEL(arg, obj_list_it->get(), vict)) {
 				// чтобы нельзя было разом собрать со шкафчика неск.тыс шмоток
-				if (!can_take_obj(vict, obj_list_it->get())) {
+				if (!CanTakeObj(vict, obj_list_it->get())) {
 					return;
 				}
 				found = 1;
