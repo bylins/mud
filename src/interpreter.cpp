@@ -24,11 +24,14 @@
 #include "communication/insult.h"
 #include "cmd_god/stat.h"
 #include "cmd_god/godtest.h"
+#include "cmd/equip.h"
 #include "cmd/follow.h"
 #include "cmd/hire.h"
+#include "cmd/get.h"
 #include "cmd/give.h"
 #include "cmd/mercenary.h"
 #include "cmd/order.h"
+#include "cmd/put.h"
 #include "cmd/retreat.h"
 #include "cmd/telegram.h"
 #include "cmd/learn.h"
@@ -39,6 +42,7 @@
 #include "cmd/mixture.h"
 #include "cmd/cast.h"
 #include "cmd/employ.h"
+#include "cmd/remove.h"
 #include "cmd/trample.h"
 #include "comm.h"
 #include "constants.h"
@@ -76,6 +80,7 @@
 #include "administration/privilege.h"
 #include "entities/room_data.h"
 #include "color.h"
+#include "game_skills/armoring.h"
 #include "game_skills/skills.h"
 #include "game_skills/bash.h"
 #include "game_skills/block.h"
@@ -92,6 +97,7 @@
 #include "game_skills/protect.h"
 #include "game_skills/repair.h"
 #include "game_skills/resque.h"
+#include "game_skills/sharpening.h"
 #include "game_skills/strangle.h"
 #include "game_skills/stun.h"
 #include "game_skills/stupor.h"
@@ -250,7 +256,6 @@ void do_gecho(CharData *ch, char *argument, int cmd, int subcmd);
 void do_gen_comm(CharData *ch, char *argument, int cmd, int subcmd);
 void do_mobshout(CharData *ch, char *argument, int cmd, int subcmd);
 void do_gen_ps(CharData *ch, char *argument, int cmd, int subcmd);
-void do_get(CharData *ch, char *argument, int cmd, int subcmd);
 void do_givehorse(CharData *ch, char *argument, int cmd, int subcmd);
 void do_gold(CharData *ch, char *argument, int cmd, int subcmd);
 void do_goto(CharData *ch, char *argument, int cmd, int subcmd);
@@ -289,10 +294,8 @@ void do_spellstat(CharData *ch, char *argument, int cmd, int subcmd);
 //void do_learn(CharData *ch, char *argument, int cmd, int subcmd);
 //void do_forget(CharData *ch, char *argument, int cmd, int subcmd);
 void do_purge(CharData *ch, char *argument, int cmd, int subcmd);
-void do_put(CharData *ch, char *argument, int cmd, int subcmd);
 void do_quit(CharData *ch, char *argument, int /* cmd */, int subcmd);
 void do_reboot(CharData *ch, char *argument, int cmd, int subcmd);
-void do_remove(CharData *ch, char *argument, int cmd, int subcmd);
 void do_rent(CharData *ch, char *argument, int cmd, int subcmd);
 void do_reply(CharData *ch, char *argument, int cmd, int subcmd);
 void do_report(CharData *ch, char *argument, int cmd, int subcmd);
@@ -368,8 +371,6 @@ void do_vdelete(CharData *ch, char *argument, int cmd, int subcmd);
 void do_hearing(CharData *ch, char *argument, int cmd, int subcmd);
 void do_looking(CharData *ch, char *argument, int cmd, int subcmd);
 void do_identify(CharData *ch, char *argument, int cmd, int subcmd);
-void DoSharpening(CharData *ch, char *argument, int, int);
-void DoArmoring(CharData *ch, char *argument, int, int);
 void do_recall(CharData *ch, char *argument, int cmd, int subcmd);
 void do_pray_gods(CharData *ch, char *argument, int cmd, int subcmd);
 void do_rset(CharData *ch, char *argument, int cmd, int subcmd);

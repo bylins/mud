@@ -7,7 +7,7 @@
 #include "game_classes/classes.h"
 #include "game_mechanics/deathtrap.h"
 #include "game_magic/magic.h"
-#include "game_skills/poison.h"
+#include "game_mechanics/poison.h"
 #include "handler.h"
 
 bool no_bad_affects(ObjData *obj) {

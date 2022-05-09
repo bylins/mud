@@ -1,7 +1,7 @@
 #include "entities/char_data.h"
 #include "handler.h"
 #include "liquid.h"
-#include "poison.h"
+#include "game_mechanics/poison.h"
 
 extern void weight_change_object(ObjData *obj, int weight);
 

@@ -6,7 +6,7 @@
 #include "pk.h"
 #include "statistics/dps.h"
 #include "house_exp.h"
-#include "game_skills/poison.h"
+#include "game_mechanics/poison.h"
 #include "game_mechanics/bonus.h"
 #include "mobact.h"
 #include "game_fight/common.h"
