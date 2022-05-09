@@ -5,7 +5,7 @@
 #include "depot.h"
 
 #include "entities/world_characters.h"
-#include "world_objects.h"
+#include "entities/world_objects.h"
 #include "obj_prototypes.h"
 #include "handler.h"
 #include "game_economics/auction.h"
@@ -787,7 +787,7 @@ void print_obj(std::stringstream &i_out, std::stringstream &s_out,
 
 // * Расчет кол-ва слотов под шмотки в персональном хранилище с учетом профы чара.
 unsigned int get_max_pers_slots(CharData *ch) {
-	if (IsAbleToUseFeat(ch, EFeat::kThrifty))
+	if (CanUseFeat(ch, EFeat::kThrifty))
 		return MAX_PERS_SLOTS(ch) * 2;
 	else
 		return MAX_PERS_SLOTS(ch);
@@ -1397,7 +1397,7 @@ void reload_char(long uid, CharData *ch) {
 	}
 
 	snprintf(buf, kMaxStringLength, "Depot: %s reload items for %s.", GET_NAME(ch), it->second.name.c_str());
-	mudlog(buf, DEF, MAX(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+	mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 	imm_log("%s", buf);
 }
 
@@ -1410,7 +1410,7 @@ int print_spell_locate_object(CharData *ch, int count, std::string name) {
 		for (ObjListType::iterator obj_it = it->second.pers_online.begin(); obj_it != it->second.pers_online.end();
 			 ++obj_it) {
 			if (!IS_GOD(ch)) {
-				if (number(1, 100) > (40 + MAX((GET_REAL_INT(ch) - 25) * 2, 0))) {
+				if (number(1, 100) > (40 + std::max((GET_REAL_INT(ch) - 25) * 2, 0))) {
 					continue;
 				}
 				if ((*obj_it)->has_flag(EObjFlag::kNolocate)

@@ -35,6 +35,7 @@
 #include "game_skills/skills_info.h"
 #include "game_magic/spells_info.h"
 #include "structs/global_objects.h"
+#include "game_mechanics/mem_queue.h"
 
 #include <boost/format.hpp>
 #include <stack>
@@ -665,12 +666,12 @@ void medit_save_to_disk(int zone_num) {
 			if (GET_SIZE(mob))
 				fprintf(mob_file, "Size: %d\n", GET_SIZE(mob));
 
-			if (mob->mob_specials.LikeWork)
-				fprintf(mob_file, "LikeWork: %d\n", mob->mob_specials.LikeWork);
+			if (mob->mob_specials.like_work)
+				fprintf(mob_file, "LikeWork: %d\n", mob->mob_specials.like_work);
 			if (mob->mob_specials.MaxFactor)
 				fprintf(mob_file, "MaxFactor: %d\n", mob->mob_specials.MaxFactor);
-			if (mob->mob_specials.ExtraAttack)
-				fprintf(mob_file, "ExtraAttack: %d\n", mob->mob_specials.ExtraAttack);
+			if (mob->mob_specials.extra_attack)
+				fprintf(mob_file, "ExtraAttack: %d\n", mob->mob_specials.extra_attack);
 			if (mob->get_remort())
 				fprintf(mob_file, "MobRemort: %d\n", mob->get_remort());
 			if (GET_RACE(mob))
@@ -682,18 +683,18 @@ void medit_save_to_disk(int zone_num) {
 			strcpy(buf1, "Special_Bitvector: ");
 			NPC_FLAGS(mob).tascii(4, buf1);
 			fprintf(mob_file, "%s\n", buf1);
-			for (c = EFeat::kFirstFeat; c <= EFeat::kLastFeat; ++c) {
-				if (HAVE_FEAT(mob, c))
-					fprintf(mob_file, "Feat: %d\n", c);
+			for (auto feat_id = EFeat::kFirst; feat_id <= EFeat::kLast; ++feat_id) {
+				if (mob->HaveFeat(feat_id))
+					fprintf(mob_file, "Feat: %d\n", to_underlying(feat_id));
 			}
 			for (const auto &skill : MUD::Skills()) {
-				if (mob->get_skill(skill.GetId()) && skill.IsValid()) {
-					fprintf(mob_file, "Skill: %d %d\n", to_underlying(skill.GetId()), mob->get_skill(skill.GetId()));
+				if (mob->GetSkill(skill.GetId()) && skill.IsValid()) {
+					fprintf(mob_file, "Skill: %d %d\n", to_underlying(skill.GetId()), mob->GetSkill(skill.GetId()));
 				}
 			}
-			for (c = 1; c <= kSpellCount; c++) {
-				for (j = 1; j <= GET_SPELL_MEM(mob, c); j++) {
-					fprintf(mob_file, "Spell: %d\n", c);
+			for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
+				for (j = 1; j <= GET_SPELL_MEM(mob, spell_id); j++) {
+					fprintf(mob_file, "Spell: %d\n", to_underlying(spell_id));
 				}
 			}
 			std::stack<decltype(helper)> stack;
@@ -991,18 +992,18 @@ void medit_disp_features(DescriptorData *d) {
 	SendMsgToChar("[H[J", d->character);
 #endif
 
-	for (auto counter = EFeat::kFirstFeat; counter <= EFeat::kLastFeat; ++counter) {
+	for (auto counter = EFeat::kFirst; counter <= EFeat::kLast; ++counter) {
 		if (!feat_info[counter].name || *feat_info[counter].name == '!') {
 			continue;
 		}
 
-		if (HAVE_FEAT(OLC_MOB(d), counter)) {
+		if (OLC_MOB(d)->HaveFeat(counter)) {
 			sprintf(buf1, " %s[%s*%s]%s ", cyn, grn, cyn, nrm);
 		} else {
 			strcpy(buf1, "     ");
 		}
 
-		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, counter, nrm,
+		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, to_underlying(counter), nrm,
 				 feat_info[counter].name, buf1, !(++columns % 2) ? "\r\n" : "");
 		SendMsgToChar(buf, d->character.get());
 	}
@@ -1073,8 +1074,8 @@ void medit_disp_skills(DescriptorData *d) {
 			continue;
 		}
 
-		if (OLC_MOB(d)->get_skill(skill.GetId())) {
-			sprintf(buf1, "%s[%3d]%s", cyn, OLC_MOB(d)->get_skill(skill.GetId()), nrm);
+		if (OLC_MOB(d)->GetSkill(skill.GetId())) {
+			sprintf(buf1, "%s[%3d]%s", cyn, OLC_MOB(d)->GetSkill(skill.GetId()), nrm);
 		} else {
 			strcpy(buf1, "     ");
 		}
@@ -1087,24 +1088,25 @@ void medit_disp_skills(DescriptorData *d) {
 }
 
 void medit_disp_spells(DescriptorData *d) {
-	int columns = 0, counter;
+
 
 	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
-	for (counter = 1; counter <= kSpellCount; counter++) {
-		if (!spell_info[counter].name
-			|| *spell_info[counter].name == '!') {
+	int columns = 0;
+	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
+		if (!spell_info[spell_id].name
+			|| *spell_info[spell_id].name == '!') {
 			continue;
 		}
-		if (GET_SPELL_MEM(OLC_MOB(d), counter)) {
-			sprintf(buf1, "%s[%3d]%s", cyn, GET_SPELL_MEM(OLC_MOB(d), counter), nrm);
+		if (GET_SPELL_MEM(OLC_MOB(d), spell_id)) {
+			sprintf(buf1, "%s[%3d]%s", cyn, GET_SPELL_MEM(OLC_MOB(d), spell_id), nrm);
 		} else {
 			strcpy(buf1, "     ");
 		}
-		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, counter, nrm,
-				 spell_info[counter].name, buf1, !(++columns % 2) ? "\r\n" : "");
+		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, to_underlying(spell_id), nrm,
+				 spell_info[spell_id].name, buf1, !(++columns % 2) ? "\r\n" : "");
 		SendMsgToChar(buf, d->character.get());
 	}
 	SendMsgToChar("\r\nУкажите номер и количество заклинаний (0 - конец) : ", d->character.get());
@@ -1255,9 +1257,9 @@ void medit_disp_menu(DescriptorData *d) {
 			 grn, nrm, cyn, GET_HEIGHT(mob), nrm,
 			 grn, nrm, cyn, GET_WEIGHT(mob), nrm,
 			 grn, nrm, cyn, GET_SIZE(mob), nrm,
-			 grn, nrm, cyn, mob->mob_specials.ExtraAttack, nrm,
+			 grn, nrm, cyn, mob->mob_specials.extra_attack, nrm,
 			 grn, nrm, cyn, mob->get_remort(), nrm,
-			 grn, nrm, cyn, mob->mob_specials.LikeWork, nrm,
+			 grn, nrm, cyn, mob->mob_specials.like_work, nrm,
 			 grn, nrm, cyn, mob->dl_list ? "Есть" : "Нет",
 			 grn, nrm, cyn, roles_str.c_str(),
 			 grn, nrm,
@@ -1768,13 +1770,14 @@ void medit_parse(DescriptorData *d, char *arg) {
 			if (number == 0) {
 				break;
 			}
-			if (number < EFeat::kFirstFeat || number > EFeat::kLastFeat ||
-				!feat_info[number].name || *feat_info[number].name == '!') {
+			auto feat_id = static_cast<EFeat>(number);
+			if (feat_id < EFeat::kFirst || feat_id > EFeat::kLast ||
+				!feat_info[feat_id].name || *feat_info[feat_id].name == '!') {
 				SendMsgToChar("Неверный номер.\r\n", d->character.get());
-			} else if (HAVE_FEAT(OLC_MOB(d), number)) {
-				UNSET_FEAT(OLC_MOB(d), number);
+			} else if (OLC_MOB(d)->HaveFeat(feat_id)) {
+				OLC_MOB(d)->UnsetFeat(feat_id);
 			} else {
-				SET_FEAT(OLC_MOB(d), number);
+				OLC_MOB(d)->SetFeat(feat_id);
 			}
 			medit_disp_features(d);
 			return;
@@ -2178,30 +2181,33 @@ void medit_parse(DescriptorData *d, char *arg) {
 			auto skill_id = static_cast<ESkill>(number);
 			if (MUD::Skills().IsInvalid(skill_id)) {
 				SendMsgToChar("Неизвестное умение.\r\n", d->character.get());
-			} else if (OLC_MOB(d)->get_skill(skill_id)) {
+			} else if (OLC_MOB(d)->GetSkill(skill_id)) {
 				OLC_MOB(d)->set_skill(skill_id, 0);
 			} else if (sscanf(arg, "%d %d", &plane, &bit) < 2) {
 				SendMsgToChar("Не указан уровень владения умением.\r\n", d->character.get());
 			} else {
-				OLC_MOB(d)->set_skill(skill_id, std::clamp(bit, 0, MUD::Skills()[skill_id].cap));
+				OLC_MOB(d)->set_skill(skill_id, std::clamp(bit, 0, MUD::Skills(skill_id).cap));
 			}
 			medit_disp_skills(d);
 			return;
 		}
 
-		case MEDIT_SPELLS: number = atoi(arg);
+		case MEDIT_SPELLS: {
+			number = atoi(arg);
 			if (number == 0) {
 				break;
 			}
-			if (number < 0 || (number > kSpellCount || !spell_info[number].name || *spell_info[number].name == '!')) {
+			auto spell_id = static_cast<ESpell>(number);
+			if (spell_id < ESpell::kFirst || !spell_info[spell_id].name || *spell_info[spell_id].name == '!') {
 				SendMsgToChar("Неизвестное заклинание.\r\n", d->character.get());
 			} else if (sscanf(arg, "%d %d", &plane, &bit) < 2) {
 				SendMsgToChar("Не указано количество заклинаний.\r\n", d->character.get());
 			} else {
-				GET_SPELL_MEM(OLC_MOB(d), number) = MIN(200, MAX(0, bit));
+				GET_SPELL_MEM(OLC_MOB(d), spell_id) = MIN(200, MAX(0, bit));
 			}
 			medit_disp_spells(d);
 			return;
+		}
 
 		case MEDIT_STR: OLC_MOB(d)->set_str(atoi(arg));
 			break;
@@ -2230,13 +2236,13 @@ void medit_parse(DescriptorData *d, char *arg) {
 		case MEDIT_SIZE: GET_SIZE(OLC_MOB(d)) = MIN(100, MAX(1, atoi(arg)));
 			break;
 
-		case MEDIT_EXTRA: OLC_MOB(d)->mob_specials.ExtraAttack = MIN(5, MAX(0, atoi(arg)));
+		case MEDIT_EXTRA: OLC_MOB(d)->mob_specials.extra_attack = MIN(5, MAX(0, atoi(arg)));
 			break;
 
 		case MEDIT_REMORT: OLC_MOB(d)->set_remort(MIN(100, MAX(0, atoi(arg))));
 			break;
 
-		case MEDIT_LIKE: OLC_MOB(d)->mob_specials.LikeWork = MIN(100, MAX(0, atoi(arg)));
+		case MEDIT_LIKE: OLC_MOB(d)->mob_specials.like_work = MIN(100, MAX(0, atoi(arg)));
 			break;
 
 		case MEDIT_DLIST_MENU:

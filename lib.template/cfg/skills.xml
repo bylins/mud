@@ -2,7 +2,7 @@
 <skills>
     <skill id="kReligion" name="!молитва или жертва!" abbr="Error" saving="kFirst" difficulty="1" cap="1" mode="kDisabled"/>
     <skill id="kAny" name="!any" abbr="Any" saving="kFirst" difficulty="1" cap="1" mode="kDisabled"/>
-    <skill id="kIncorrect" name="!INCORRECT!" abbr="!Icr" saving="kFirst" difficulty="1" cap="1" mode="kDisabled"/>
+    <skill id="kUndefinded" name="!INCORRECT!" abbr="!Icr" saving="kFirst" difficulty="1" cap="1" mode="kDisabled"/>
     <skill id="kGlobalCooldown" name="!cooldown" abbr="ОЗ" saving="kFirst" difficulty="1" cap="1" mode="kDisabled"/>
     <skill id="kBackstab" name="заколоть" abbr="Зк" saving="kReflex" difficulty="25" cap="1000"/>
     <skill id="kBash" name="сбить" abbr="Сб" saving="kReflex" difficulty="200" cap="200"/>

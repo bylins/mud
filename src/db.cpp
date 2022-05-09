@@ -29,7 +29,6 @@
 #include "entities/char_data.h"
 #include "entities/player_races.h"
 #include "entities/world_characters.h"
-#include "game_classes/classes.h"
 #include "cmd/follow.h"
 #include "corpse.h"
 #include "game_mechanics/deathtrap.h"
@@ -58,7 +57,6 @@
 #include "obj_prototypes.h"
 #include "olc/olc.h"
 #include "communication/parcel.h"
-#include "utils/parse.h"
 #include "administration/privilege.h"
 #include "game_mechanics/sets_drop.h"
 #include "game_economics/shop_ext.h"
@@ -68,7 +66,6 @@
 #include "utils/id_converter.h"
 #include "title.h"
 #include "statistics/top.h"
-#include "game_magic/spells_info.h"
 
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
@@ -80,7 +77,6 @@
 #define CASES_FILE "cases.xml"
 #define RANDOMOBJ_FILE "randomobj.xml"
 #define SPEEDWALKS_FILE "speedwalks.xml"
-#define CLASS_LIMIT_FILE "class.basestatlimits.xml"
 #define CITIES_FILE "cities.xml"
 #define QUESTBODRICH_FILE "quest_bodrich.xml"
 
@@ -238,7 +234,6 @@ extern DescriptorData *descriptor_list;
 extern struct MonthTemperature year_temp[];
 extern char *house_rank[];
 extern struct PCCleanCriteria pclean_criteria[];
-extern int class_stats_limit[kNumPlayerClasses][6];
 extern void LoadProxyList();
 extern void add_karma(CharData *ch, const char *punish, const char *reason);
 
@@ -1278,7 +1273,7 @@ int convert_drinkcon_skill(CObjectPrototype *obj, bool proto) {
 				}
 			}
 		}
-		obj->set_skill(to_underlying(ESkill::kIncorrect));
+		obj->set_skill(to_underlying(ESkill::kUndefined));
 
 		return 1;
 	}
@@ -1726,10 +1721,11 @@ void ObjData::init_set_table() {
 						int i = 0;
 
 						while (isstream >> std::skipws >> i)
-							if (i < 0 || i > kNumPlayerClasses * kNumKins)
+							if (i < 0 || i > kNumPlayerClasses * kNumKins) {
 								break;
-							else
+							} else {
 								tmpclss.set(flag_data_by_num(i));
+							}
 
 						if (i < 0 || i > kNumPlayerClasses * kNumKins) {
 							cppstr = "init_set_table:: Wrong class in line '" + tag + ":" + cppstr + "'";
@@ -2005,7 +2001,7 @@ void set_zone_mob_level() {
 		for (int nr = 0; nr <= top_of_mobt; ++nr) {
 			if (mob_index[nr].vnum >= zone_table[i].vnum * 100
 				&& mob_index[nr].vnum <= zone_table[i].vnum * 100 + 99) {
-				level += mob_proto[nr].get_level();
+				level += mob_proto[nr].GetLevel();
 				++count;
 			}
 		}
@@ -2596,9 +2592,8 @@ void boot_db(void) {
 	Bonus::bonus_log_load();
 	load_speedwalk();
 
-	boot_profiler.next_step("Loading class base stat limits");
+	boot_profiler.next_step("Loading ");
 	log("Loading class base stat limits");
-	load_class_limit();
 	load_cities();
 	shutdown_parameters.mark_boot_time();
 	log("Boot db -- DONE.");
@@ -3194,14 +3189,14 @@ void set_test_data(CharData *mob) {
 			// log("test1: %s - %d -> %d", mob->get_name(), mob->get_level(), 50);
 			mob->set_level(50);
 		} else {
-			if (mob->get_level() == 0) {
+			if (mob->GetLevel() == 0) {
 				for (int i = 0; i < 50; ++i) {
 					if (test_levels[i] >= GET_EXP(mob)) {
 						// log("test2: %s - %d -> %d", mob->get_name(), mob->get_level(), i + 1);
 						mob->set_level(i + 1);
 
 						// -10..-86
-						int min_save = -(10 + 4 * (mob->get_level() - 31));
+						int min_save = -(10 + 4 * (mob->GetLevel() - 31));
 						min_save = calc_boss_value(mob, min_save);
 
 						for (auto s = ESaving::kFirst; s <= ESaving::kLast; ++s) {
@@ -3210,7 +3205,7 @@ void set_test_data(CharData *mob) {
 							}
 						}
 						// 20..77
-						int min_cast = 20 + 3 * (mob->get_level() - 31);
+						int min_cast = 20 + 3 * (mob->GetLevel() - 31);
 						min_cast = calc_boss_value(mob, min_cast);
 
 						if (GET_CAST_SUCCESS(mob) < min_cast) {
@@ -3218,7 +3213,7 @@ void set_test_data(CharData *mob) {
 							GET_CAST_SUCCESS(mob) = min_cast;
 						}
 
-						int min_absorbe = calc_boss_value(mob, mob->get_level());
+						int min_absorbe = calc_boss_value(mob, mob->GetLevel());
 						if (GET_ABSORBE(mob) < min_absorbe) {
 							GET_ABSORBE(mob) = min_absorbe;
 						}
@@ -3359,7 +3354,7 @@ int vnum_flag(char *searchname, CharData *ch) {
 	f = false;
 	ESkill skill_id;
 	for (skill_id = ESkill::kFirst; skill_id <= ESkill::kLast; ++skill_id) {
-		if (utils::IsAbbrev(searchname, MUD::Skills()[skill_id].GetName())) {
+		if (utils::IsAbbrev(searchname, MUD::Skills(skill_id).GetName())) {
 			f = true;
 			break;
 		}
@@ -3372,7 +3367,7 @@ int vnum_flag(char *searchname, CharData *ch) {
 					snprintf(buf, kMaxStringLength, "%3d. [%5d] %s : %s,  значение: %d\r\n",
 							 ++found, i->get_vnum(),
 							 i->get_short_description().c_str(),
-							 MUD::Skills()[skill_id].GetName(), it->second);
+							 MUD::Skills(skill_id).GetName(), it->second);
 					out += buf;
 				}
 			}
@@ -3501,18 +3496,16 @@ CharData *read_mobile(MobVnum nr, int type) {                // and MobRnum
 		i = nr;
 	}
 
-	CharData *mob = new CharData(mob_proto[i]); //чет мне кажется что конструкции типа этой не принесут нам щастья...
+	auto *mob = new CharData(mob_proto[i]); //чет мне кажется что конструкции типа этой не принесут нам щастья...
 	mob->set_normal_morph();
 	mob->proto_script.reset(new ObjData::triggers_list_t());
 	mob->script.reset(new Script());    //fill it in assign_triggers from proto_script
 	character_list.push_front(mob);
 
 	if (!mob->points.max_hit) {
-		mob->points.max_hit = std::max(1,
-									   RollDices(mob->mem_queue.total, mob->mem_queue.stored) + mob->points.hit);
+		mob->points.max_hit = std::max(1, RollDices(mob->mem_queue.total, mob->mem_queue.stored) + mob->points.hit);
 	} else {
-		mob->points.max_hit = std::max(1,
-									   number(mob->points.hit, mob->mem_queue.total));
+		mob->points.max_hit = std::max(1, number(mob->points.hit, mob->mem_queue.total));
 	}
 
 	int test_hp = get_test_hp(GetRealLevel(mob));
@@ -4275,7 +4268,7 @@ void ZoneReset::reset_zone_essential() {
 							return;
 						}
 						if (!mob_proto[mob->get_rnum()].get_role_bits().any()) {
-							int rndlev = mob->get_level();
+							int rndlev = mob->GetLevel();
 							rndlev += number(-2, +2);
 							mob->set_level(rndlev);
 						}
@@ -4766,7 +4759,7 @@ bool is_empty(ZoneRnum zone_nr) {
 		return false;
 	}
 
-	if (room_spells::IsZoneRoomAffected(zone_nr, kSpellRuneLabel)) {
+	if (room_spells::IsZoneRoomAffected(zone_nr, ESpell::kRuneLabel)) {
 		return false;
 	}
 
@@ -5017,13 +5010,12 @@ int file_to_string(const char *name, char *buf) {
 	return (0);
 }
 
-void clear_char_skills(CharData *ch) {
-	int i;
+void ClearCharTalents(CharData *ch) {
 	ch->real_abils.Feats.reset();
-	for (i = 0; i <= kSpellCount; i++)
-		ch->real_abils.SplKnw[i] = 0;
-	for (i = 0; i <= kSpellCount; i++)
-		ch->real_abils.SplMem[i] = 0;
+	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
+		GET_SPELL_TYPE(ch, spell_id) = 0;
+		GET_SPELL_MEM(ch, spell_id) = 0;
+	}
 	ch->clear_skills();
 }
 
@@ -5119,24 +5111,24 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	while (ch->timed_feat) {
 		ExpireTimedFeat(ch, ch->timed_feat);
 	}
-	for (auto feat = EFeat::kFirstFeat; feat <= EFeat::kLastFeat; ++feat) {
-		UNSET_FEAT(ch, feat);
+	for (auto feat = EFeat::kFirst; feat <= EFeat::kLast; ++feat) {
+		ch->UnsetFeat(feat);
 	}
 
 	if (ch->get_remort() >= 9 && ch->get_remort() % 3 == 0) {
 		ch->clear_skills();
-		for (i = 1; i <= kSpellCount; i++) {
-			GET_SPELL_TYPE(ch, i) = (GET_CLASS(ch) == kMagus ? kSpellRunes : 0);
-			GET_SPELL_MEM(ch, i) = 0;
+		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
+			GET_SPELL_TYPE(ch, spell_id) = (IS_MANA_CASTER(ch) ? ESpellType::kRunes : 0);
+			GET_SPELL_MEM(ch, spell_id) = 0;
 		}
 	} else {
 		ch->set_skill(ch->get_remort());
-		for (i = 1; i <= kSpellCount; i++) {
-			if (GET_CLASS(ch) == kMagus) {
-				GET_SPELL_TYPE(ch, i) = kSpellRunes;
-			} else if (spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] >= 8) {
-				GET_SPELL_TYPE(ch, i) = 0;
-				GET_SPELL_MEM(ch, i) = 0;
+		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
+			if (IS_MANA_CASTER(ch)) {
+				GET_SPELL_TYPE(ch, spell_id) = ESpellType::kRunes;
+			} else if (MUD::Classes(ch->GetClass()).spells[spell_id].GetCircle() >= 8) {
+				GET_SPELL_TYPE(ch, spell_id) = ESpellType::kUnknowm;
+				GET_SPELL_MEM(ch, spell_id) = 0;
 			}
 		}
 	}
@@ -5206,7 +5198,7 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	PlaceCharToRoom(ch, load_room);
 	look_at_room(ch, 0);
 	PLR_FLAGS(ch).set(EPlrFlag::kNoDelete);
-	RemoveRuneLabelFromWorld(ch, ESpell::kSpellRuneLabel);
+	RemoveRuneLabelFromWorld(ch, ESpell::kRuneLabel);
 
 	// сброс всего, связанного с гривнами (замакс сохраняем)
 	PRF_FLAGS(ch).unset(EPrf::kCanRemort);
@@ -5329,7 +5321,7 @@ void entrycount(char *name, const bool find_id /*= true*/) {
 				element.level = GetRealLevel(short_ch);
 				element.remorts = short_ch->get_remort();
 				element.timer = nullptr;
-				element.plr_class = short_ch->get_class();
+				element.plr_class = short_ch->GetClass();
 				if (PLR_FLAGS(short_ch).get(EPlrFlag::kDeleted)) {
 					element.last_logon = -1;
 					element.activity = -1;
@@ -5825,57 +5817,6 @@ void load_speedwalk() {
 		}
 	}
 
-}
-
-void load_class_limit() {
-	pugi::xml_document doc_sw;
-	pugi::xml_node child_, object_, file_sw;
-
-	for (int i = 0; i < kNumPlayerClasses; ++i) {
-		for (int j = 0; j < 6; ++j) {
-			//Intiializing stats limit with default value
-			class_stats_limit[i][j] = 50;
-		}
-	}
-
-	file_sw = XMLLoad(LIB_MISC CLASS_LIMIT_FILE, "class_limit", "Error loading file: classlimit.xml", doc_sw);
-
-	for (child_ = file_sw.child("stats_limit").child("class"); child_; child_ = child_.next_sibling("class")) {
-		std::string id_str = parse::ReadAattrAsStr(child_, "id");
-		if (id_str.empty())
-			continue;
-
-		const int id = text_id::ToNum(text_id::kCharClass, id_str);
-		if (id == ECharClass::kUndefined) {
-			snprintf(buf, kMaxStringLength, "...<class id='%s'> convert fail", id_str.c_str());
-			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
-			continue;
-		}
-
-		int val = parse::ReadChildValueAsInt(child_, "str");
-		if (val > 0)
-			class_stats_limit[id][0] = val;
-
-		val = parse::ReadChildValueAsInt(child_, "dex");
-		if (val > 0)
-			class_stats_limit[id][1] = val;
-
-		val = parse::ReadChildValueAsInt(child_, "con");
-		if (val > 0)
-			class_stats_limit[id][2] = val;
-
-		val = parse::ReadChildValueAsInt(child_, "wis");
-		if (val > 0)
-			class_stats_limit[id][3] = val;
-
-		val = parse::ReadChildValueAsInt(child_, "int");
-		if (val > 0)
-			class_stats_limit[id][4] = val;
-
-		val = parse::ReadChildValueAsInt(child_, "cha");
-		if (val > 0)
-			class_stats_limit[id][5] = val;
-	}
 }
 
 Rooms::~Rooms() {

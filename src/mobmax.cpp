@@ -41,7 +41,7 @@ void MobMax::get_stats(mobmax_stats_t &result) const {
 			result[level] = 0;
 		}
 		result[level] +=
-			MAX(0, item.count - mob_proto[r_num].mob_specials.MaxFactor); //Уберем количество мобов c экспой без замакса
+			std::max(0, item.count - mob_proto[r_num].mob_specials.MaxFactor); //Уберем количество мобов c экспой без замакса
 	}
 }
 

@@ -12,10 +12,6 @@ struct SpellInfo {
 	int mana_min;        // Min amount of mana used by a spell (highest lev) //
 	int mana_max;        // Max amount of mana used by a spell (lowest lev) //
 	int mana_change;    // Change in mana used by spell from lev to lev //
-	int min_remort[kNumPlayerClasses][kNumKins];
-	int min_level[kNumPlayerClasses][kNumKins];
-	int slot_forc[kNumPlayerClasses][kNumKins];
-	int class_change[kNumPlayerClasses][kNumKins];
 	long danger;
 	Bitvector routines;
 	int violent;
@@ -39,10 +35,9 @@ struct SpellCreate {
 	struct SpellCreateItem runes;
 };
 
-extern struct SpellInfo spell_info[];
-extern struct SpellCreate spell_create[];
+extern std::unordered_map<ESpell, SpellInfo> spell_info;
+extern std::unordered_map<ESpell, SpellCreate> spell_create;
 
 void InitSpells();
-const char *GetSpellName(int num);
 
 #endif //SPELLS_INFO_H_

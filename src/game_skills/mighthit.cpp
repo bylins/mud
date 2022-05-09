@@ -46,7 +46,7 @@ void go_mighthit(CharData *ch, CharData *victim) {
 }
 
 void do_mighthit(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->get_skill(ESkill::kHammer) < 1) {
+	if (ch->GetSkill(ESkill::kHammer) < 1) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}

@@ -39,7 +39,7 @@ void go_bash(CharData *ch, CharData *vict) {
 
 	vict = TryToFindProtector(vict, ch);
 
-	int percent = number(1, MUD::Skills()[ESkill::kBash].difficulty);
+	int percent = number(1, MUD::Skills(ESkill::kBash).difficulty);
 	int prob = CalcCurrentSkill(ch, ESkill::kBash, vict);
 
 	if (AFF_FLAGGED(vict, EAffect::kHold) || GET_GOD_FLAG(vict, EGf::kGodscurse)) {
@@ -51,7 +51,7 @@ void go_bash(CharData *ch, CharData *vict) {
 	bool success = percent <= prob;
 	TrainSkill(ch, ESkill::kBash, success, vict);
 
-	SendSkillBalanceMsg(ch, MUD::Skills()[ESkill::kBash].name, percent, prob, success);
+	SendSkillBalanceMsg(ch, MUD::Skills(ESkill::kBash).name, percent, prob, success);
 	if (!success) {
 		Damage dmg(SkillDmg(ESkill::kBash), fight::kZeroDmg, fight::kPhysDmg, nullptr);
 		dmg.Process(ch, vict);
@@ -66,15 +66,15 @@ void go_bash(CharData *ch, CharData *vict) {
 		}
 
 		int dam = str_bonus(GET_REAL_STR(ch), STR_TO_DAM) + GetRealDamroll(ch) +
-			MAX(0, ch->get_skill(ESkill::kBash) / 10 - 5) + GetRealLevel(ch) / 5;
+			std::max(0, ch->GetSkill(ESkill::kBash) / 10 - 5) + GetRealLevel(ch) / 5;
 
 //делаем блокирование баша
 		if ((GET_AF_BATTLE(vict, kEafBlock)
-			|| (IsAbleToUseFeat(vict, EFeat::kDefender)
+			|| (CanUseFeat(vict, EFeat::kDefender)
 				&& GET_EQ(vict, kShield)
 				&& PRF_FLAGGED(vict, EPrf::kAwake)
-				&& vict->get_skill(ESkill::kAwake)
-				&& vict->get_skill(ESkill::kShieldBlock)
+				&& vict->GetSkill(ESkill::kAwake)
+				&& vict->GetSkill(ESkill::kShieldBlock)
 				&& GET_POS(vict) > EPosition::kSit))
 			&& !AFF_FLAGGED(vict, EAffect::kStopFight)
 			&& !AFF_FLAGGED(vict, EAffect::kMagicStopFight)
@@ -85,7 +85,7 @@ void go_bash(CharData *ch, CharData *vict) {
 				SendMsgToChar("У вас нечем отразить атаку противника.\r\n", vict);
 			else {
 				int range, prob2;
-				range = number(1, MUD::Skills()[ESkill::kShieldBlock].difficulty);
+				range = number(1, MUD::Skills(ESkill::kShieldBlock).difficulty);
 				prob2 = CalcCurrentSkill(vict, ESkill::kShieldBlock, ch);
 				bool success2 = prob2 >= range;
 				TrainSkill(vict, ESkill::kShieldBlock, success2, ch);
@@ -131,7 +131,7 @@ void go_bash(CharData *ch, CharData *vict) {
 }
 
 void do_bash(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if ((ch->IsNpc() && (!AFF_FLAGGED(ch, EAffect::kHelper))) || !ch->get_skill(ESkill::kBash)) {
+	if ((ch->IsNpc() && (!AFF_FLAGGED(ch, EAffect::kHelper))) || !ch->GetSkill(ESkill::kBash)) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}

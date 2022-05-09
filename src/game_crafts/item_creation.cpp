@@ -39,8 +39,8 @@ struct create_item_type created_item[] =
 		{302, 0x7E, 8, 25, {{COAL_PROTO, 0, 0}}, ESkill::kReforging, WEAR_TAKE_DUAL},
 		{303, 0x7E, 5, 13, {{COAL_PROTO, 0, 0}}, ESkill::kReforging, WEAR_TAKE_HOLD},
 		{304, 0x7E, 10, 35, {{COAL_PROTO, 0, 0}}, ESkill::kReforging, WEAR_TAKE_BOTHS_WIELD},
-		{305, 0, 8, 15, {{0, 0, 0}}, ESkill::kIncorrect, WEAR_TAKE_BOTHS_WIELD},
-		{306, 0, 8, 20, {{0, 0, 0}}, ESkill::kIncorrect, WEAR_TAKE_BOTHS_WIELD},
+		{305, 0, 8, 15, {{0, 0, 0}}, ESkill::kUndefined, WEAR_TAKE_BOTHS_WIELD},
+		{306, 0, 8, 20, {{0, 0, 0}}, ESkill::kUndefined, WEAR_TAKE_BOTHS_WIELD},
 		{307, 0x3A, 10, 20, {{COAL_PROTO, 0, 0}}, ESkill::kReforging, WEAR_TAKE_BODY},
 		{308, 0x3A, 4, 10, {{COAL_PROTO, 0, 0}}, ESkill::kReforging, WEAR_TAKE_ARMS},
 		{309, 0x3A, 6, 12, {{COAL_PROTO, 0, 0}}, ESkill::kReforging, WEAR_TAKE_LEGS},
@@ -71,7 +71,7 @@ const struct make_skill_type make_skills[] =
 		{"смастерить диковину", "артеф.", ESkill::kMakeJewel},
 		{"смастерить оберег", "оберег", ESkill::kMakeAmulet},
 //  { "сварить отвар","варево", ESkill::kMakePotion },
-		{"\n", "\n", ESkill::kIncorrect}        // Терминатор
+		{"\n", "\n", ESkill::kUndefined}        // Терминатор
 	};
 const char *create_weapon_quality[] = {"RESERVED",
 									   "RESERVED",
@@ -165,7 +165,7 @@ void mredit_parse(DescriptorData *d, char *arg) {
 				// Выводить список умений ... или давать вводить ручками.
 				tmpstr = "\r\nСписок доступных умений:\r\n";
 				i = 0;
-				while (make_skills[i].num != ESkill::kIncorrect) {
+				while (make_skills[i].num != ESkill::kUndefined) {
 					sprintf(tmpbuf, "%s%d%s) %s.\r\n", grn, i + 1, nrm, make_skills[i].name);
 					tmpstr += string(tmpbuf);
 					i++;
@@ -239,7 +239,7 @@ void mredit_parse(DescriptorData *d, char *arg) {
 		case MREDIT_SKILL: {
 			auto skill_num = atoi(sagr.c_str());
 			i = 0;
-			while (make_skills[i].num != ESkill::kIncorrect) {
+			while (make_skills[i].num != ESkill::kUndefined) {
 				if (skill_num == i + 1) {
 					trec->skill = make_skills[i].num;
 					OLC_VAL(d) = 1;
@@ -467,7 +467,7 @@ void mredit_disp_menu(DescriptorData *d) {
 	int i = 0;
 	//
 	skillname = "Нет";
-	while (make_skills[i].num != ESkill::kIncorrect) {
+	while (make_skills[i].num != ESkill::kUndefined) {
 		if (make_skills[i].num == trec->skill) {
 			skillname = string(make_skills[i].name);
 			break;
@@ -526,7 +526,7 @@ void do_list_make(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 		if (obj) {
 			obj_name = obj->get_PName(0).substr(0, 11);
 		}
-		while (make_skills[j].num != ESkill::kIncorrect) {
+		while (make_skills[j].num != ESkill::kUndefined) {
 			if (make_skills[j].num == trec->skill) {
 				skill_name = string(make_skills[j].short_name);
 				break;
@@ -573,7 +573,7 @@ void do_make_item(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	// Выковать можно клинок и доспех (щит) умения разные. название одно
 	// Сварить отвар
 	// Сшить одежду
-	if ((subcmd == MAKE_WEAR) && (!ch->get_skill(ESkill::kMakeWear))) {
+	if ((subcmd == MAKE_WEAR) && (!ch->GetSkill(ESkill::kMakeWear))) {
 		SendMsgToChar("Вас этому никто не научил.\r\n", ch);
 		return;
 	}
@@ -654,7 +654,7 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 			return;
 		}
 		skill = created_item[obj_type].skill;
-		percent = number(1, MUD::Skills()[skill].difficulty);
+		percent = number(1, MUD::Skills(skill).difficulty);
 		prob = CalcCurrentSkill(ch, skill, nullptr);
 		TrainSkill(ch, skill, true, nullptr);
 		weight = MIN(GET_OBJ_WEIGHT(obj) - 2, GET_OBJ_WEIGHT(obj) * prob / percent);
@@ -678,11 +678,11 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 			// для 1 слота базово 20% и 4% за каждый морт
 			// Карачун. Поправлено. Расчет не через морты а через скил.
 			if (skill == ESkill::kReforging) {
-				if (ch->get_skill(skill) >= 105 && number(1, 100) <= 2 + (ch->get_skill(skill) - 105) / 10) {
+				if (ch->GetSkill(skill) >= 105 && number(1, 100) <= 2 + (ch->GetSkill(skill) - 105) / 10) {
 					tobj->set_extra_flag(EObjFlag::kHasThreeSlots);
-				} else if (number(1, 100) <= 5 + MAX((ch->get_skill(skill) - 80), 0) / 5) {
+				} else if (number(1, 100) <= 5 + MAX((ch->GetSkill(skill) - 80), 0) / 5) {
 					tobj->set_extra_flag(EObjFlag::kHasTwoSlots);
-				} else if (number(1, 100) <= 20 + MAX((ch->get_skill(skill) - 80), 0) / 5 * 4) {
+				} else if (number(1, 100) <= 20 + MAX((ch->GetSkill(skill) - 80), 0) / 5 * 4) {
 					tobj->set_extra_flag(EObjFlag::kHasOneSlot);
 				}
 			}
@@ -698,7 +698,7 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 					// В минимуме один день реала, в максимуме таймер из прототипа
 					const int
 						timer_value =
-						tobj->get_timer() / 100 * ch->get_skill(skill) - number(0, tobj->get_timer() / 100 * 25);
+						tobj->get_timer() / 100 * ch->GetSkill(skill) - number(0, tobj->get_timer() / 100 * 25);
 					const int timer = MAX(ObjData::ONE_DAY, timer_value);
 					tobj->set_timer(timer);
 					sprintf(buf, "Ваше изделие продержится примерно %d дней\n", tobj->get_timer() / 24 / 60);
@@ -709,13 +709,13 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 					// Формула MAX(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
 					// при расчете числа умножены на 100, перед приравниванием делятся на 100. Для не потерять десятые.
 					tobj->set_maximum_durability(
-						MAX(20000, 35000 / 100 * ch->get_skill(skill) - number(0, 35000 / 100 * 25)) / 100);
+						MAX(20000, 35000 / 100 * ch->GetSkill(skill) - number(0, 35000 / 100 * 25)) / 100);
 					tobj->set_current_durability(GET_OBJ_MAX(tobj));
-					percent = number(1, MUD::Skills()[skill].difficulty);
+					percent = number(1, MUD::Skills(skill).difficulty);
 					prob = CalcCurrentSkill(ch, skill, nullptr);
 					ndice = MAX(2, MIN(4, prob / percent));
 					ndice += GET_OBJ_WEIGHT(tobj) / 10;
-					percent = number(1, MUD::Skills()[skill].difficulty);
+					percent = number(1, MUD::Skills(skill).difficulty);
 					prob = CalcCurrentSkill(ch, skill, nullptr);
 					sdice = MAX(2, MIN(5, prob / percent));
 					sdice += GET_OBJ_WEIGHT(tobj) / 10;
@@ -768,7 +768,7 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 					// В минимуме один день реала, в максимуме таймер из прототипа
 					const int
 						timer_value =
-						tobj->get_timer() / 100 * ch->get_skill(skill) - number(0, tobj->get_timer() / 100 * 25);
+						tobj->get_timer() / 100 * ch->GetSkill(skill) - number(0, tobj->get_timer() / 100 * 25);
 					const int timer = MAX(ObjData::ONE_DAY, timer_value);
 					tobj->set_timer(timer);
 					sprintf(buf, "Ваше изделие продержится примерно %d дней\n", tobj->get_timer() / 24 / 60);
@@ -779,12 +779,12 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 					// Формула MAX(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
 					// при расчете числа умножены на 100, перед приравниванием делятся на 100. Для не потерять десятые.
 					tobj->set_maximum_durability(
-						MAX(20000, 10000 / 100 * ch->get_skill(skill) - number(0, 15000 / 100 * 25)) / 100);
+						MAX(20000, 10000 / 100 * ch->GetSkill(skill) - number(0, 15000 / 100 * 25)) / 100);
 					tobj->set_current_durability(GET_OBJ_MAX(tobj));
-					percent = number(1, MUD::Skills()[skill].difficulty);
+					percent = number(1, MUD::Skills(skill).difficulty);
 					prob = CalcCurrentSkill(ch, skill, nullptr);
 					ndice = MAX(2, MIN((105 - material_value[GET_OBJ_MATER(tobj)]) / 10, prob / percent));
-					percent = number(1, MUD::Skills()[skill].difficulty);
+					percent = number(1, MUD::Skills(skill).difficulty);
 					prob = CalcCurrentSkill(ch, skill, nullptr);
 					sdice = MAX(1, MIN((105 - material_value[GET_OBJ_MATER(tobj)]) / 15, prob / percent));
 					tobj->set_val(0, ndice);
@@ -829,7 +829,7 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 	ObjData *obj = nullptr, *coal, *proto[MAX_PROTO];
 	int obj_type, i, found, rnum;
 
-	ESkill skill_id{ESkill::kIncorrect};
+	ESkill skill_id{ESkill::kUndefined};
 	switch (subcmd) {
 		case SCMD_TRANSFORMWEAPON:
 			skill_id = ESkill::kReforging;
@@ -841,7 +841,7 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 			break;
 	}
 
-	if (ch->IsNpc() || !ch->get_skill(skill_id)) {
+	if (ch->IsNpc() || !ch->GetSkill(skill_id)) {
 		SendMsgToChar("Вас этому никто не научил.\r\n", ch);
 		return;
 	}
@@ -1199,7 +1199,7 @@ ObjData *get_obj_in_list_ingr(int num,
 	}
 	return nullptr;
 }
-MakeRecept::MakeRecept() : skill(ESkill::kIncorrect) {
+MakeRecept::MakeRecept() : skill(ESkill::kUndefined) {
 	locked = true;        // по умолчанию рецепт залочен.
 	obj_proto = 0;
 	for (int i = 0; i < MAX_PARTS; i++) {
@@ -1218,7 +1218,7 @@ int MakeRecept::can_make(CharData *ch) {
 	if (locked)
 		return (false);
 	// Сделать проверку наличия скилла у игрока.
-	if (ch->IsNpc() || !ch->get_skill(skill)) {
+	if (ch->IsNpc() || !ch->GetSkill(skill)) {
 		return (false);
 	}
 	// Делаем проверку может ли чар сделать предмет такого типа
@@ -1305,7 +1305,7 @@ void MakeRecept::make_value_wear(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_
 		wearkoeff = 45;
 	}
 	obj->set_val(0,
-				 ((GET_REAL_INT(ch) * GET_REAL_INT(ch) / 10 + ch->get_skill(ESkill::kMakeWear)) / 100
+				 ((GET_REAL_INT(ch) * GET_REAL_INT(ch) / 10 + ch->GetSkill(ESkill::kMakeWear)) / 100
 					 + (GET_OBJ_VAL(ingrs[0], 3) + 1)) * wearkoeff
 					 / 100); //АС=((инта*инта/10+умелка)/100+левл.шкуры)*коэф.части тела
 	if (CAN_WEAR(obj, EWearFlag::kBody)) //0.9
@@ -1337,7 +1337,7 @@ void MakeRecept::make_value_wear(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_
 		wearkoeff = 31;
 	}
 	obj->set_val(1,
-				 (ch->get_skill(ESkill::kMakeWear) / 25 + (GET_OBJ_VAL(ingrs[0], 3) + 1)) * wearkoeff
+				 (ch->GetSkill(ESkill::kMakeWear) / 25 + (GET_OBJ_VAL(ingrs[0], 3) + 1)) * wearkoeff
 					 / 100); //броня=(%умелки/25+левл.шкуры)*коэф.части тела
 }
 float MakeRecept::count_mort_requred(ObjData *obj) {
@@ -1525,7 +1525,7 @@ void MakeRecept::make_object(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_PART
 	add_rnd_skills(ch, ingrs[0], obj); //переносим случайную умелку со шкуры
 	obj->set_extra_flag(EObjFlag::kNoalter);  // нельзя сфрешить черным свитком
 	obj->set_timer((GET_OBJ_VAL(ingrs[0], 3) + 1) * 1000
-					   + ch->get_skill(ESkill::kMakeWear) / 2 * number(160, 220)); // таймер зависит в основном от умелки
+					   + ch->GetSkill(ESkill::kMakeWear) / 2 * number(160, 220)); // таймер зависит в основном от умелки
 	obj->set_craft_timer(obj->get_timer()); // запомним таймер созданной вещи для правильного отображения при осм для ее сост.
 	for (j = 1; j < ingr_cnt; j++) {
 		int i, raffect = 0;
@@ -1579,7 +1579,7 @@ int MakeRecept::make(CharData *ch) {
 	int dam = 0;
 	bool make_fail;
 	// 1. Проверить есть ли скилл у чара
-	if (ch->IsNpc() || !ch->get_skill(skill)) {
+	if (ch->IsNpc() || !ch->GetSkill(skill)) {
 		SendMsgToChar("Странно что вам вообще пришло в голову cделать это.\r\n", ch);
 		return (false);
 	}
@@ -2135,11 +2135,11 @@ int MakeRecept::stat_modify(CharData *ch, int value, float devider) {
 		return res;
 	}
 	skill_prc = CalcCurrentSkill(ch, skill, nullptr);
-	delta = (int) ((float) (skill_prc - number(0, MUD::Skills()[skill].difficulty)));
+	delta = (int) ((float) (skill_prc - number(0, MUD::Skills(skill).difficulty)));
 	if (delta > 0) {
-		delta = (value / 2) * delta / MUD::Skills()[skill].difficulty / devider;
+		delta = (value / 2) * delta / MUD::Skills(skill).difficulty / devider;
 	} else {
-		delta = (value / 4) * delta / MUD::Skills()[skill].difficulty / devider;
+		delta = (value / 4) * delta / MUD::Skills(skill).difficulty / devider;
 	}
 	res += (int) delta;
 	// Если параметр завалили то возвращаем 1;

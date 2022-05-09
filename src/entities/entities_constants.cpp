@@ -322,13 +322,18 @@ void init_EBaseStat_ITEM_NAMES() {
 	EBaseStat_name_by_value[EBaseStat::kStr] = "kStr";
 	EBaseStat_name_by_value[EBaseStat::kDex] = "kDex";
 	EBaseStat_name_by_value[EBaseStat::kCon] = "kCon";
-	EBaseStat_name_by_value[EBaseStat::kWis] = "kWin";
+	EBaseStat_name_by_value[EBaseStat::kWis] = "kWis";
 	EBaseStat_name_by_value[EBaseStat::kInt] = "kInt";
 	EBaseStat_name_by_value[EBaseStat::kCha] = "kCha";
 
 	for (const auto &i : EBaseStat_name_by_value) {
 		EBaseStat_value_by_name[i.second] = i.first;
 	}
+}
+
+EBaseStat& operator++(EBaseStat &s) {
+	s =  static_cast<EBaseStat>(to_underlying(s) + 1);
+	return s;
 }
 
 template<>

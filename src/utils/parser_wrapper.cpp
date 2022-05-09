@@ -49,12 +49,20 @@ bool DataNode::HaveChild(const std::string &key) {
 	return curren_xml_node_.child(key.c_str());
 }
 
-void DataNode::GoToChild(const std::string &key) {
-	curren_xml_node_ = curren_xml_node_.child(key.c_str());
+bool DataNode::GoToChild(const std::string &key) {
+	if (curren_xml_node_.child(key.c_str())) {
+		curren_xml_node_ = curren_xml_node_.child(key.c_str());
+		return true;
+	}
+	return false;
 }
 
-void DataNode::GoToSibling(const std::string &key) {
-	curren_xml_node_ = curren_xml_node_.parent().child(key.c_str());
+bool DataNode::GoToSibling(const std::string &key) {
+	if (curren_xml_node_.parent().child(key.c_str())) {
+		curren_xml_node_ = curren_xml_node_.parent().child(key.c_str());
+		return true;
+	}
+	return false;
 }
 
 bool DataNode::HavePrevious() {

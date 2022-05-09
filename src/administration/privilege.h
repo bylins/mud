@@ -9,6 +9,7 @@
 #include <set>
 #include <bitset>
 #include <map>
+#include <game_magic/spells.h>
 
 class CharData;    // to avoid inclusion of "char.hpp"
 
@@ -17,9 +18,9 @@ namespace privilege {
 void Load();
 bool IsContainedInGodsList(const std::string &name, long unique);
 void LoadGodBoards();
-bool IsAbleToDoPrivilege(CharData *ch, const std::string &cmd_name, int cmd_number, int mode, bool check_level = true);
+bool HasPrivilege(CharData *ch, const std::string &cmd_name, int cmd_number, int mode, bool check_level = true);
 bool CheckFlag(const CharData *ch, int flag);
-bool CheckSpells(const CharData *ch, int spellnum);
+bool IsSpellPermit(const CharData *ch, ESpell spell_id);
 bool CheckSkills(const CharData *ch);
 
 extern const int kBoards;

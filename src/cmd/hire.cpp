@@ -2,7 +2,7 @@
 
 #include "cmd/follow.h"
 #include "handler.h"
-#include <cmath>
+#include "structs/global_objects.h"
 
 constexpr short MAX_HIRE_TIME = 10080 / 2;
 constexpr long MAX_HIRE_PRICE = LONG_MAX / (MAX_HIRE_TIME + 1);
@@ -12,8 +12,8 @@ float get_damage_per_round(CharData *victim) {
 	float dam_per_attack = GET_DR(victim) + str_bonus(victim->get_str(), STR_TO_DAM)
 		+ victim->mob_specials.damnodice * (victim->mob_specials.damsizedice + 1) / 2.0
 		+ (AFF_FLAGGED(victim, EAffect::kCloudOfArrows) ? 14 : 0);
-	int num_attacks = 1 + victim->mob_specials.ExtraAttack
-		+ (victim->get_skill(ESkill::kAddshot) ? 2 : 0);
+	int num_attacks = 1 + victim->mob_specials.extra_attack
+		+ (victim->GetSkill(ESkill::kAddshot) ? 2 : 0);
 
 	float dam_per_round = dam_per_attack * num_attacks;
 
@@ -51,7 +51,7 @@ long calc_hire_price(CharData *ch, CharData *victim) {
 	price += m_str + m_int + m_wis + m_dex + m_con + m_cha;
 
 	float m_hit = victim->get_max_hit() * 2;
-	float m_lvl = victim->get_level() * 50;
+	float m_lvl = victim->GetLevel() * 50;
 	float m_ac = GET_AC(victim) * (-5);
 	float m_hr = GET_HR(victim) * 50;
 	float m_armor = GET_ARMOUR(victim) * 25;
@@ -99,7 +99,7 @@ long calc_hire_price(CharData *ch, CharData *victim) {
 	// дамаг
 	int m_dr = ((victim->mob_specials.damnodice * victim->mob_specials.damsizedice + victim->mob_specials.damnodice) / 2
 		+ GET_DR(victim)) * 10;
-	float extraAttack = victim->mob_specials.ExtraAttack * m_dr;
+	float extraAttack = victim->mob_specials.extra_attack * m_dr;
 
 	ch->send_to_TC(true, true, true, "Остальные статы: Luck:%d Ini:%d AR:%d MR:%d PR:%d DR:%d ExAttack:%.4lf\r\n",
 				   m_luck, m_ini, m_ar, m_mr, m_pr, m_dr, extraAttack);
@@ -123,25 +123,25 @@ long calc_hire_price(CharData *ch, CharData *victim) {
 	return std::min(finalPrice, MAX_HIRE_PRICE);
 }
 
-int get_reformed_charmice_hp(CharData *ch, CharData *victim, int spellnum) {
-	float r_hp = 0;
-	float eff_cha = 0.0;
-	float max_cha;
+int GetReformedCharmiceHp(CharData *ch, CharData *victim, ESpell spell_id) {
+	auto r_hp{0.0};
+	auto eff_cha{0.0};
+	auto stat_cap{0.0};
 
-	if (spellnum == kSpellResurrection || spellnum == kSpellAnimateDead) {
-		eff_cha = get_effective_wis(ch, spellnum);
-		max_cha = class_stats_limit[ch->get_class()][3];
+	if (spell_id == ESpell::kResurrection || spell_id == ESpell::kAnimateDead) {
+		eff_cha = CalcEffectiveWis(ch, spell_id);
+		stat_cap = MUD::Classes(ch->GetClass()).GetBaseStatCap(EBaseStat::kWis);
 	} else {
-		max_cha = class_stats_limit[ch->get_class()][5];
+		stat_cap = MUD::Classes(ch->GetClass()).GetBaseStatCap(EBaseStat::kCha);
 		eff_cha = get_effective_cha(ch);
 	}
 
-	if (spellnum != kSpellCharm) {
-		eff_cha = std::min(max_cha, eff_cha + 2); // Все кроме чарма кастится с бонусом в 2
+	if (spell_id != ESpell::kCharm) {
+		eff_cha = std::min(stat_cap, eff_cha + 2); // Все кроме чарма кастится с бонусом в 2
 	}
 
 	// Интерполяция между значениями для целых значений обаяния
-	if (eff_cha < max_cha) {
+	if (eff_cha < stat_cap) {
 		r_hp = GET_MAX_HIT(victim) + get_damage_per_round(victim) *
 			((1 - eff_cha + (int) eff_cha) * cha_app[(int) eff_cha].dam_to_hit_rate +
 				(eff_cha - (int) eff_cha) * cha_app[(int) eff_cha + 1].dam_to_hit_rate);
@@ -157,7 +157,7 @@ int get_reformed_charmice_hp(CharData *ch, CharData *victim, int spellnum) {
 
 void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc()
-		|| (!IS_IMMORTAL(ch) && !IsAbleToUseFeat(ch, EFeat::kEmployer))) {
+		|| (!IS_IMMORTAL(ch) && !CanUseFeat(ch, EFeat::kEmployer))) {
 		SendMsgToChar("Вам недоступно это!\r\n", ch);
 		return;
 	}
@@ -265,7 +265,7 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		} else {
 			auto aff = k->ch->affected.begin();
 			for (; aff != k->ch->affected.end(); ++aff) {
-				if ((*aff)->type == kSpellCharm) {
+				if ((*aff)->type == ESpell::kCharm) {
 					break;
 				}
 			}
@@ -275,7 +275,7 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		}
 
-		affect_from_char(helpee, kSpellCharm);
+		RemoveAffectFromChar(helpee, ESpell::kCharm);
 
 		if (!IS_IMMORTAL(ch)) {
 			if (isname(isbank, "банк bank")) {
@@ -287,14 +287,14 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		}
 
-		af.type = kSpellCharm;
+		af.type = ESpell::kCharm;
 		af.modifier = 0;
 		af.location = EApply::kNone;
 		af.bitvector = to_underlying(EAffect::kCharmed);
 		af.battleflag = 0;
 		affect_to_char(helpee, af);
 
-		af.type = kSpellCharm;
+		af.type = ESpell::kCharm;
 		af.modifier = 0;
 		af.location = EApply::kNone;
 		af.bitvector = to_underlying(EAffect::kHelper);
@@ -331,7 +331,7 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void do_freehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc()
-		|| (!IS_IMMORTAL(ch) && !IsAbleToUseFeat(ch, EFeat::kEmployer))) {
+		|| (!IS_IMMORTAL(ch) && !CanUseFeat(ch, EFeat::kEmployer))) {
 		SendMsgToChar("Вам недоступно это!\r\n", ch);
 		return;
 	}
@@ -361,7 +361,7 @@ void do_freehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd
 
 	if (!IS_IMMORTAL(ch)) {
 		for (const auto &aff : k->ch->affected) {
-			if (aff->type == kSpellCharm) {
+			if (aff->type == ESpell::kCharm) {
 				const auto
 					cost = MAX(0, (int) ((aff->duration - 1) / 2) * (int) abs(k->ch->mob_specials.hire_price));
 				if (cost > 0) {
@@ -378,7 +378,7 @@ void do_freehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd
 	}
 
 	act("Вы рассчитали $N3.", false, ch, 0, k->ch, kToChar);
-	affect_from_char(k->ch, kSpellCharm);
+	RemoveAffectFromChar(k->ch, ESpell::kCharm);
 	stop_follower(k->ch, kSfCharmlost);
 }
 

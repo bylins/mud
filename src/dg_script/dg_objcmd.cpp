@@ -128,7 +128,7 @@ void do_oportal(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 	world[curroom]->portal_time = howlong;
 	world[curroom]->pkPenterUnique = 0;
 //	sprintf(buf, "Ставим врата из %d в %d длит %d\r\n", currom, target, howlong );
-//	mudlog(buf, DEF, MAX(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+//	mudlog(buf, DEF, std::max(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 	OneWayPortal::add(world[target], world[curroom]);
 	act("Лазурная пентаграмма возникла в воздухе.",
 		false, world[curroom]->first_character(), 0, 0, kToChar);
@@ -716,8 +716,8 @@ void do_ofeatturn(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 	while ((pos = strchr(featname, '_')))
 		*pos = ' ';
 
-	const auto feat_id = FindFeatNum(featname);
-	if (feat_id >= EFeat::kFirstFeat && feat_id <= EFeat::kLastFeat)
+	const auto feat_id = FindFeatId(featname);
+	if (feat_id >= EFeat::kFirst && feat_id <= EFeat::kLast)
 		isFeat = 1;
 	else {
 		sprintf(buf, "ofeatturn: %s skill/recipe not found", featname);
@@ -756,7 +756,7 @@ void do_oskillturn(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		return;
 	}
 
-	auto skill_id = FixNameAndFindSkillNum(skill_name);
+	auto skill_id = FixNameAndFindSkillId(skill_name);
 	bool is_skill = false;
 	if (MUD::Skills().IsValid(skill_id)) {
 		is_skill = true;
@@ -781,7 +781,7 @@ void do_oskillturn(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 	}
 
 	if (is_skill) {
-		if (MUD::Classes()[ch->get_class()].HasSkill(skill_id) ) {
+		if (MUD::Classes(ch->GetClass()).skills[skill_id].IsAvailable()) {
 			trg_skillturn(ch, skill_id, skilldiff, last_trig_vnum);
 		} else {
 			sprintf(buf, "oskillturn: skill and character class mismatch");
@@ -805,7 +805,7 @@ void do_oskilladd(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 		obj_log(obj, "oskilladd: too few arguments");
 		return;
 	}
-	auto skillnum = FixNameAndFindSkillNum(skillname);
+	auto skillnum = FixNameAndFindSkillId(skillname);
 	if (MUD::Skills().IsValid(skillnum)) {
 		isSkill = true;
 	} else if ((recipenum = im_get_recipe_by_name(skillname)) < 0) {
@@ -831,7 +831,7 @@ void do_oskilladd(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 void do_ospellturn(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	CharData *ch;
 	char name[kMaxInputLength], spellname[kMaxInputLength], amount[kMaxInputLength];
-	int spellnum = 0, spelldiff = 0;
+	int spelldiff = 0;
 
 	one_argument(two_arguments(argument, name, spellname), amount);
 
@@ -840,7 +840,8 @@ void do_ospellturn(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		return;
 	}
 
-	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellCount) {
+	auto spell_id = FixNameAndFindSpellId(spellname);
+	if (spell_id == ESpell::kUndefined) {
 		obj_log(obj, "ospellturn: spell not found");
 		return;
 	}
@@ -855,7 +856,7 @@ void do_ospellturn(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 	}
 
 	if ((ch = get_char_by_obj(obj, name))) {
-		trg_spellturn(ch, spellnum, spelldiff, last_trig_vnum);
+		trg_spellturn(ch, spell_id, spelldiff, last_trig_vnum);
 	} else {
 		obj_log(obj, "ospellturn: target not found");
 		return;
@@ -865,7 +866,6 @@ void do_ospellturn(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 void do_ospellturntemp(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	CharData *ch;
 	char name[kMaxInputLength], spellname[kMaxInputLength], amount[kMaxInputLength];
-	int spellnum = 0, spelltime = 0;
 
 	one_argument(two_arguments(argument, name, spellname), amount);
 
@@ -874,12 +874,13 @@ void do_ospellturntemp(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/
 		return;
 	}
 
-	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellCount) {
+	auto spell_id = FixNameAndFindSpellId(spellname);
+	if (spell_id == ESpell::kUndefined) {
 		obj_log(obj, "ospellturntemp: spell not found");
 		return;
 	}
 
-	spelltime = atoi(amount);
+	auto spelltime = atoi(amount);
 
 	if (spelltime <= 0) {
 		obj_log(obj, "ospellturntemp: time is zero or negative");
@@ -887,7 +888,7 @@ void do_ospellturntemp(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/
 	}
 
 	if ((ch = get_char_by_obj(obj, name))) {
-		trg_spellturntemp(ch, spellnum, spelltime, last_trig_vnum);
+		trg_spellturntemp(ch, spell_id, spelltime, last_trig_vnum);
 	} else {
 		obj_log(obj, "ospellturntemp: target not found");
 		return;
@@ -897,7 +898,6 @@ void do_ospellturntemp(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/
 void do_ospelladd(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	CharData *ch;
 	char name[kMaxInputLength], spellname[kMaxInputLength], amount[kMaxInputLength];
-	int spellnum = 0, spelldiff = 0;
 
 	one_argument(two_arguments(argument, name, spellname), amount);
 
@@ -906,15 +906,16 @@ void do_ospelladd(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 		return;
 	}
 
-	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellCount) {
+	auto spell_id = FixNameAndFindSpellId(spellname);
+	if (spell_id == ESpell::kUndefined) {
 		obj_log(obj, "ospelladd: spell not found");
 		return;
 	}
 
-	spelldiff = atoi(amount);
+	auto spelldiff = atoi(amount);
 
 	if ((ch = get_char_by_obj(obj, name))) {
-		trg_spelladd(ch, spellnum, spelldiff, last_trig_vnum);
+		trg_spelladd(ch, spell_id, spelldiff, last_trig_vnum);
 	} else {
 		obj_log(obj, "ospelladd: target not found");
 		return;
@@ -924,7 +925,6 @@ void do_ospelladd(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 void do_ospellitem(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	CharData *ch;
 	char name[kMaxInputLength], spellname[kMaxInputLength], type[kMaxInputLength], turn[kMaxInputLength];
-	int spellnum = 0, spelldiff = 0, spell = 0;
 
 	two_arguments(two_arguments(argument, name, spellname), type, turn);
 
@@ -933,26 +933,29 @@ void do_ospellitem(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		return;
 	}
 
-	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellCount) {
+	auto spell_id = FixNameAndFindSpellId(spellname);
+	if (spell_id == ESpell::kUndefined) {
 		obj_log(obj, "ospellitem: spell not found");
 		return;
 	}
 
+	ESpellType spell;
 	if (!str_cmp(type, "potion")) {
-		spell = kSpellPotion;
+		spell = ESpellType::kPotionCast;
 	} else if (!str_cmp(type, "wand")) {
-		spell = kSpellWand;
+		spell = ESpellType::kWandCast;
 	} else if (!str_cmp(type, "scroll")) {
-		spell = kSpellScroll;
+		spell = ESpellType::kScrollCast;
 	} else if (!str_cmp(type, "items")) {
-		spell = kSpellItems;
+		spell = ESpellType::kItemCast;
 	} else if (!str_cmp(type, "runes")) {
-		spell = kSpellRunes;
+		spell = ESpellType::kRunes;
 	} else {
 		obj_log(obj, "ospellitem: type spell not found");
 		return;
 	}
 
+	auto spelldiff{0};
 	if (!str_cmp(turn, "set")) {
 		spelldiff = 1;
 	} else if (!str_cmp(turn, "clear")) {
@@ -963,7 +966,7 @@ void do_ospellitem(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 	}
 
 	if ((ch = get_char_by_obj(obj, name))) {
-		trg_spellitem(ch, spellnum, spelldiff, spell);
+		trg_spellitem(ch, spell_id, spelldiff, spell);
 	} else {
 		obj_log(obj, "ospellitem: target not found");
 		return;

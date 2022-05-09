@@ -18,8 +18,8 @@
 #include <array>
 #include <bitset>
 
-enum EFeat : int {
-	kIncorrectFeat = 0,			//DO NOT USE
+enum class EFeat {
+	kUndefined = 0,			//DO NOT USE
 	kBerserker = 1,				//предсмертная ярость
 	kParryArrow = 2,			//отбить стрелу
 	kBlindFight = 3,			//слепой бой
@@ -43,7 +43,9 @@ enum EFeat : int {
 	kGreatFortitude = 21,		//сила духа
 	kFastRegen = 22,			//быстрое заживление
 	kStealthy = 23,				//незаметность
-	kRelatedToMagic = 24,		//магическое родство
+
+//	UNUSED = 24,				//удалено - можно использовать
+
 	kSplendidHealth = 25,		//богатырское здоровье
 	kTracker = 26,				//следопыт
 	kWeaponFinesse = 27,		//ловкий удар
@@ -86,7 +88,9 @@ enum EFeat : int {
 	kMagneticPersonality = 64,	//предводитель
 	kDamrollBonus = 65,			//тяжел на руку
 	kHitrollBonus = 66,			//твердая рука
-	kMagicalInstinct = 67,		//магическое чутье
+
+//	UNUSED = 67,				//удалено - можно использовать
+
 	kPunchFocus = 68,			//любимое оружие: голые руки
 	kClubsFocus = 69,			//любимое оружие: палица
 	kAxesFocus = 70,			//любимое оружие: секира
@@ -99,7 +103,7 @@ enum EFeat : int {
 	kBowsFocus = 77,			//любимое оружие: лук
 	kAimingAttack = 78,			//прицельная атака
 	kGreatAimingAttack = 79,	//улучшенная прицельная атака
-	kDoubleshot = 80,			//двойной выстрел
+	kDoubleShot = 80,			//двойной выстрел
 	kPorter = 81,				//тяжеловоз
 	kSecretRunes = 82,			//тайные руны
 /*
@@ -147,7 +151,9 @@ enum EFeat : int {
 	kLoyalAssist = 122,			//верный помощник
 	kHauntingSpirit = 123,		//блуждающий дух
 	kSnakeRage = 124,			//ярость змеи
+
 //	UNUSED = 125,
+
 	kElderTaskmaster = 126,		//Старший надсмотрщик
 	kLordOfUndeads = 127,		//Повелитель нежити
 	kWarlock = 128,				//Темный маг
@@ -188,9 +194,14 @@ enum EFeat : int {
 	kMultipleCast = 154,		//уменьшение штрафа за число циелей для масскастов
 	kMagicalShield = 155,		//заговоренный щит" - фит для витязей, защита от директ спеллов
 	kAnimalMaster = 156,		//хозяин животных
-	kFirstFeat = kBerserker,
-	kLastFeat = kAnimalMaster	// !!! Не забываем менять !!!
+	kFirst = kBerserker,
+	kLast = kAnimalMaster	// !!! Не забываем менять !!!
 };
+
+template<>
+const std::string &NAME_BY_ITEM<EFeat>(EFeat item);
+template<>
+EFeat ITEM_BY_NAME<EFeat>(const std::string &name);
 
 EFeat& operator++(EFeat &f);
 
@@ -203,41 +214,35 @@ enum class EFeatType {
 	kTechnique = 4,
 };
 
-/* Константы и формулы, определяющие число способностей у персонажа
-   Скорость появления новых слотов можно задавать для каждого класса
-      индивидуально, но последний слот персонаж всегда получает на 28 уровне */
-
-//Раз в сколько ремортов появляется новый слот под способность
-
-const int feat_slot_for_remort[kNumPlayerClasses] = {5, 6, 4, 4, 4, 4, 6, 6, 6, 4, 4, 4, 4, 5};
 // Количество пар "параметр-значение" у способности
 const int kMaxFeatAffect = 5;
-// Максимально доступное на морте количество не-врожденных способностей
-#define MAX_ACC_FEAT(ch)    ((int) 1+(kLvlImmortal-1)*(5+GET_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)])/28)
+const int kLastFeatSlotLvl = 28;
 
 // Поля изменений для способностей (кроме EFeatType::kAffect, для них используются стардартные поля APPLY)
 const int kFeatTimer = 1;
 //const int FEAT_SKILL = 2;
 
 struct TimedFeat {
-	int feat{kIncorrectFeat};	// Used feature //
+	EFeat feat{EFeat::kUndefined};	// Used feature //
 	ubyte time{0};				// Time for next using //
 	struct TimedFeat *next{nullptr};
 };
 
-extern struct FeatureInfo feat_info[EFeat::kLastFeat + 1];
-
 const char *GetFeatName(EFeat id);
+int CalcFeatLvl(const CharData *ch);
+int CalcFeatSlotsAmount(CharData *ch);
 int GetModifier(EFeat feat_id, int location);
-EFeat FindFeatNum(const char *name, bool alias = false);
+EFeat FindFeatId(const char *name, bool alias = false);
 EFeat FindWeaponMasterFeat(ESkill skill);
 void InitFeatures();
 void CheckBerserk(CharData *ch);
+
+void UnsetInaccessibleFeats(CharData *ch);
 void SetRaceFeats(CharData *ch);
 void UnsetRaceFeats(CharData *ch);
-void SetInbornFeats(CharData *ch);
-bool IsAbleToUseFeat(const CharData *ch, EFeat feat);
-bool IsAbleToGetFeat(CharData *ch, EFeat feat);
+void SetInbornAndRaceFeats(CharData *ch);
+bool CanUseFeat(const CharData *ch, EFeat feat);
+bool CanGetFeat(CharData *ch, EFeat feat);
 bool TryFlipActivatedFeature(CharData *ch, char *argument);
 Bitvector GetPrfWithFeatNumber(EFeat feat_id);
 
@@ -280,11 +285,6 @@ class CFeatArray {
 struct FeatureInfo {
 	EFeat id;
 	EFeatType type;
-	int min_remort[kNumPlayerClasses][kNumKins];
-	int slot[kNumPlayerClasses][kNumKins];
-	bool is_known[kNumPlayerClasses][kNumKins];
-	bool is_inborn[kNumPlayerClasses][kNumKins];
-	bool up_slot;
 	bool uses_weapon_skill;
 	bool always_available;
 	const char *name;
@@ -307,6 +307,8 @@ struct FeatureInfo {
 	int (*CalcSituationalDamageFactor)(CharData * /* ch */);
 	int (*CalcSituationalRollBonus)(CharData * /* ch */, CharData * /* enemy */);
 };
+
+extern std::unordered_map<EFeat, FeatureInfo> feat_info;
 
 #endif // __FEATURES_HPP__
 

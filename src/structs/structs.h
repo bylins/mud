@@ -220,7 +220,7 @@ const int kExdscrLength = 512;
 const int kMaxAffect = 128;
 const int kMaxObjAffect = 8;
 const int kMaxHits = 32000; // Максимальное количество хитов и дамага //
-const long kMaxMoneyKept = 1000000000; // планка на кол-во денег у чара на руках и в банке (раздельно) //
+const long kMaxMoneyKept = 1000000000L; // планка на кол-во денег у чара на руках и в банке (раздельно) //
 
 const int kMinCharLevel = 0;
 const int kMaxMobLevel = 100;
@@ -301,14 +301,6 @@ struct LoadingItem {
 };
 
 using OnDeadLoadList = std::list<struct LoadingItem *>;
-// ===============================================================
-
-// Перенести в работу с очередью мема
-struct SpellMemQueueItem {
-	int spellnum = 0;
-	struct SpellMemQueueItem *link = nullptr;
-};
-
 // descriptor-related structures ****************************************
 
 struct TextBlock {
@@ -405,10 +397,6 @@ struct CharacterPortal {
 // ===============================================================
 // Структуры для act.wizard.cpp //
 // После распиливания акт.визард надо вынести в соответтующие файлы
-struct show_struct {
-	const char *cmd = nullptr;
-	const char level = 0;
-};
 
 struct set_struct {
 	const char *cmd = nullptr;

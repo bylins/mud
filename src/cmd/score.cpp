@@ -14,13 +14,12 @@
 #include "entities/char_player.h"
 #include "entities/player_races.h"
 #include "game_fight/fight_hit.h"
-#include "game_classes/classes.h"
 #include "game_mechanics/bonus.h"
 #include "game_mechanics/glory.h"
 #include "game_mechanics/glory_const.h"
 #include "liquid.h"
 #include "structs/global_objects.h"
-//#include "utils/table_wrapper.h"
+
 
 void PrintScoreBase(CharData *ch);
 void PrintScoreList(CharData *ch);
@@ -33,7 +32,7 @@ int CalcHitroll(CharData *ch);
 int CalcAntiSavings(CharData *ch);
 int calc_initiative(CharData *ch, bool mode);
 TimeInfoData *real_time_passed(time_t t2, time_t t1);
-void apply_weapon_bonus(int ch_class, ESkill skill, int *damroll, int *hitroll);
+void GetClassWeaponMod(ECharClass class_id, const ESkill skill, int *damroll, int *hitroll);
 
 const char *ac_text[] =
 	{
@@ -105,7 +104,7 @@ void PrintScoreList(CharData *ch) {
 	buf1[0] = LOWER(buf1[0]);
 	SendMsgToChar(ch, "Вы %s, %s, %s, %s, уровень %d, перевоплощений %d.\r\n", ch->get_name().c_str(),
 				  buf,
-				  MUD::Classes()[ch->get_class()].GetCName(),
+				  MUD::Classes(ch->GetClass()).GetCName(),
 				  buf1,
 				  GetRealLevel(ch),
 				  GET_REAL_REMORT(ch));
@@ -119,7 +118,7 @@ void PrintScoreList(CharData *ch) {
 				  GET_MOVE(ch), GET_REAL_MAX_MOVE(ch), GetDeclensionInNumber(GET_MOVE(ch), EWhat::kMoveU));
 	if (IS_MANA_CASTER(ch)) {
 		SendMsgToChar(ch, "Ваша магическая энергия %d(%d) и вы восстанавливаете %d в сек.\r\n",
-					  ch->mem_queue.stored, GET_MAX_MANA(ch), mana_gain(ch));
+					  ch->mem_queue.stored, GET_MAX_MANA(ch), CalcManaGain(ch));
 	}
 	SendMsgToChar(ch, "Ваша сила: %d(%d), ловкость: %d(%d), телосложение: %d(%d), ум: %d(%d), мудрость: %d(%d), обаяние: %d(%d).\r\n",
 				 ch->get_str(), GET_REAL_STR(ch),
@@ -182,7 +181,7 @@ void PrintScoreList(CharData *ch) {
 				  ch->get_bank(),
 				  ch->get_hryvn(),
 				  GET_EXP(ch),
-				 IS_IMMORTAL(ch) ? 1: GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - GET_EXP(ch));
+				  IS_IMMORTAL(ch) ? 1 : GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - GET_EXP(ch));
 	if (!ch->IsOnHorse())
 		SendMsgToChar(ch, "Ваша позиция: %s", GetPositionStr(ch));
 	else
@@ -193,9 +192,9 @@ void PrintScoreList(CharData *ch) {
 		SendMsgToChar(ch, "Вы защищены от призыва.\r\n");
 	SendMsgToChar(ch, "Голоден: %s, жажда: %s.\r\n", (GET_COND(ch, FULL) > kNormCondition)? "да" : "нет", GET_COND_M(ch, THIRST)? "да" : "нет");
 	//Напоминаем о метке, если она есть.
-	RoomData *label_room = room_spells::FindAffectedRoom(GET_ID(ch), kSpellRuneLabel);
+	RoomData *label_room = room_spells::FindAffectedRoom(GET_ID(ch), ESpell::kRuneLabel);
 	if (label_room) {
-		const int timer_room_label = room_spells::GetUniqueAffectDuration(GET_ID(ch), kSpellRuneLabel);
+		const int timer_room_label = room_spells::GetUniqueAffectDuration(GET_ID(ch), ESpell::kRuneLabel);
 		if (timer_room_label > 0) {
 			*buf2 = '\0';
 			(timer_room_label + 1) / kSecsPerMudHour ? sprintf(buf2, "%d %s.", (timer_room_label + 1) / kSecsPerMudHour + 1,
@@ -213,9 +212,9 @@ void PrintScoreList(CharData *ch) {
 		SendMsgToChar(ch, "ВНИМАНИЕ! ваше имя запрещено богами. Очень скоро вы прекратите получать опыт.\r\n");
 	}
 	SendMsgToChar(ch, "Вы можете вступить в группу с максимальной разницей в %2d %-75s\r\n",
-				  grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REAL_REMORT(ch))],
+				  grouping[ch->GetClass()][static_cast<int>(GET_REAL_REMORT(ch))],
 				  (std::string(
-					  GetDeclensionInNumber(grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REAL_REMORT(
+					  GetDeclensionInNumber(grouping[ch->GetClass()][static_cast<int>(GET_REAL_REMORT(
 						  ch))], EWhat::kLvl)
 						  + std::string(" без потерь для опыта.")).substr(0, 76).c_str()));
 
@@ -247,9 +246,9 @@ void PrintHorseInfo(CharData *ch, std::ostringstream &out) {
 }
 
 void PrintRuneLabelInfo(CharData *ch, std::ostringstream &out) {
-	RoomData *label_room = room_spells::FindAffectedRoom(GET_ID(ch), kSpellRuneLabel);
+	RoomData *label_room = room_spells::FindAffectedRoom(GET_ID(ch), ESpell::kRuneLabel);
 	if (label_room) {
-		int timer_room_label = room_spells::GetUniqueAffectDuration(GET_ID(ch), kSpellRuneLabel);
+		int timer_room_label = room_spells::GetUniqueAffectDuration(GET_ID(ch), ESpell::kRuneLabel);
 		out << InfoStrPrefix(ch) << KIGRN << "Вы поставили рунную метку в комнате \'"
 			<< label_room->name << "\' ";
 		if (timer_room_label > 0) {
@@ -315,8 +314,8 @@ void PrintBlindModeInfo(CharData *ch, std::ostringstream &out) {
 void PrintGroupMembershipInfo(CharData *ch, std::ostringstream &out) {
 	if (GetRealLevel(ch) < kLvlImmortal) {
 		out << InfoStrPrefix(ch) << "Вы можете вступить в группу с максимальной разницей "
-			<< grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REAL_REMORT(ch))] << " "
-			<< GetDeclensionInNumber(grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REAL_REMORT(ch))],
+			<< grouping[ch->GetClass()][static_cast<int>(GET_REAL_REMORT(ch))] << " "
+			<< GetDeclensionInNumber(grouping[ch->GetClass()][static_cast<int>(GET_REAL_REMORT(ch))],
 									 EWhat::kLvl)
 			<< " без потерь для опыта." << std::endl;
 
@@ -342,9 +341,9 @@ void PrintRentableInfo(CharData *ch, std::ostringstream &out) {
 // \todo Сделать авторазмещение в комнате-кузнице горна и убрать эту функцию.
 void PrinForgeInfo(CharData *ch, std::ostringstream &out) {
 	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kForge)
-		&& (ch->get_skill(ESkill::kJewelry)
-		|| ch->get_skill(ESkill::kRepair)
-		|| ch->get_skill(ESkill::kReforging))) {
+		&& (ch->GetSkill(ESkill::kJewelry)
+		|| ch->GetSkill(ESkill::kRepair)
+		|| ch->GetSkill(ESkill::kReforging))) {
 		out << InfoStrPrefix(ch) << KIYEL << "Это место отлично подходит для занятий кузнечным делом."
 			<< KNRM << std::endl;
 	}
@@ -485,7 +484,7 @@ int PrintBaseInfoToTable(CharData *ch, table_wrapper::Table &table, std::size_t 
 	table[++row][col] = std::string("Уровень: ") + std::to_string(GetRealLevel(ch));
 	table[++row][col] = std::string("Перевоплощений: ") + std::to_string(GET_REAL_REMORT(ch));
 	table[++row][col] = std::string("Возраст: ") + std::to_string(GET_AGE(ch));
-	if (ch->get_level() < kLvlImmortal) {
+	if (ch->GetLevel() < kLvlImmortal) {
 		table[++row][col] = std::string("Опыт: ") + PrintNumberByDigits(GET_EXP(ch));
 		table[++row][col] = std::string("ДСУ: ") + PrintNumberByDigits(
 			GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - GET_EXP(ch));
@@ -496,7 +495,7 @@ int PrintBaseInfoToTable(CharData *ch, table_wrapper::Table &table, std::size_t 
 	table[++row][col] = std::string("Голоден: ") + (GET_COND(ch, FULL) > kNormCondition ? "Угу :(" : "Нет");
 	table[++row][col] = std::string("Жажда: ") + (GET_COND_M(ch, THIRST) ? "Наливай!" : "Нет");
 	if (GET_COND(ch, DRUNK) >= kDrunked) {
-		table[++row][col] = (IsAffectedBySpell(ch, kSpellAbstinent) ? "Похмелье." : "Вы пьяны.");
+		table[++row][col] = (IsAffectedBySpell(ch, ESpell::kAbstinent) ? "Похмелье." : "Вы пьяны.");
 	}
 	if (PlayerSystem::weight_dex_penalty(ch)) {
 		table[++row][col] = "Вы перегружены!";
@@ -529,7 +528,7 @@ int PrintBaseStatsToTable(CharData *ch, table_wrapper::Table &table, std::size_t
 	table[++row][col] = "Восст. сил";	table[row][col + 1] = "+" + std::to_string(GET_MOVEREG(ch)) + "% (" + std::to_string(move_gain(ch)) + ")";
 	if (IS_MANA_CASTER(ch)) {
 		table[++row][col] = "Мана"; 		table[row][col + 1] = std::to_string(ch->mem_queue.stored) + "(" + std::to_string(GET_MAX_MANA(ch)) + ")";
-		table[++row][col] = "Восст. маны";	table[row][col + 1] = "+" + std::to_string(mana_gain(ch)) + " сек.";
+		table[++row][col] = "Восст. маны";	table[row][col + 1] = "+" + std::to_string(CalcManaGain(ch)) + " сек.";
 	}
 
 	return 2; // заполнено столбцов
@@ -657,7 +656,7 @@ void PrintAdditionalInfo(CharData *ch, std::ostringstream &out) {
 void PrintScoreAll(CharData *ch) {
 	// Пишем заголовок таблицы (увы, библиоетка таблиц их не поддерживает)
 	std::ostringstream out;
-	out << "  Вы " << ch->get_name() << ", " << MUD::Classes()[ch->get_class()].GetName() << ". Ваши показатели:" << std::endl;
+	out << "  Вы " << ch->get_name() << ", " << MUD::Classes(ch->GetClass()).GetName() << ". Ваши показатели:" << std::endl;
 
 	// Заполняем основную таблицу и выводим в поток
 	table_wrapper::Table table;
@@ -682,7 +681,7 @@ void PrintScoreBase(CharData *ch) {
 		<< PlayerRace::GetKinNameByNum(GET_KIN(ch), GET_SEX(ch)) << ", "
 		<< PlayerRace::GetRaceNameByNum(GET_KIN(ch), GET_RACE(ch), GET_SEX(ch)) << ", "
 		<< religion_name[GET_RELIGION(ch)][static_cast<int>(GET_SEX(ch))] << ", "
-		<< MUD::Classes()[ch->get_class()].GetCName() <<  " "
+		<< MUD::Classes(ch->GetClass()).GetCName() << " "
 		<< GetRealLevel(ch) << " уровня)." << std::endl;
 
 	PrintNameStatusInfo(ch, out);
@@ -705,7 +704,7 @@ void PrintScoreBase(CharData *ch) {
 	if (IS_MANA_CASTER(ch)) {
 		sprintf(buf + strlen(buf),
 				"Ваша магическая энергия %d(%d) и вы восстанавливаете %d в сек.\r\n",
-				ch->mem_queue.stored, GET_MAX_MANA(ch), mana_gain(ch));
+				ch->mem_queue.stored, GET_MAX_MANA(ch), CalcManaGain(ch));
 	}
 
 	sprintf(buf + strlen(buf),
@@ -777,13 +776,13 @@ void PrintScoreBase(CharData *ch) {
 	if (GetRealLevel(ch) < kLvlImmortal) {
 		sprintf(buf + strlen(buf),
 				"Вы можете вступить в группу с максимальной разницей в %d %s без потерь для опыта.\r\n",
-				grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REAL_REMORT(ch))],
-				GetDeclensionInNumber(grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REAL_REMORT(ch))],
+				grouping[ch->GetClass()][static_cast<int>(GET_REAL_REMORT(ch))],
+				GetDeclensionInNumber(grouping[ch->GetClass()][static_cast<int>(GET_REAL_REMORT(ch))],
 									  EWhat::kLvl));
 	}
 
 	//Напоминаем о метке, если она есть.
-	RoomData *label_room = room_spells::FindAffectedRoom(GET_ID(ch), kSpellRuneLabel);
+	RoomData *label_room = room_spells::FindAffectedRoom(GET_ID(ch), ESpell::kRuneLabel);
 	if (label_room) {
 		sprintf(buf + strlen(buf),
 				"&G&qВы поставили рунную метку в комнате '%s'.&Q&n\r\n",
@@ -813,7 +812,7 @@ void PrintScoreBase(CharData *ch) {
 	strcpy(buf, CCIGRN(ch, C_NRM));
 	const auto value_drunked = GET_COND(ch, DRUNK);
 	if (value_drunked >= kDrunked) {
-		if (IsAffectedBySpell(ch, kSpellAbstinent))
+		if (IsAffectedBySpell(ch, ESpell::kAbstinent))
 			strcat(buf, "Привет с большого бодуна!\r\n");
 		else {
 			if (value_drunked >= kMortallyDrunked)
@@ -859,7 +858,7 @@ void PrintScoreBase(CharData *ch) {
 	}
 
 	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kForge)
-		&& (ch->get_skill(ESkill::kJewelry) || ch->get_skill(ESkill::kRepair) || ch->get_skill(ESkill::kReforging))) {
+		&& (ch->GetSkill(ESkill::kJewelry) || ch->GetSkill(ESkill::kRepair) || ch->GetSkill(ESkill::kReforging))) {
 		sprintf(buf,
 				"%sЭто место отлично подходит для занятий кузнечным делом.%s\r\n",
 				CCIGRN(ch, C_NRM),
@@ -933,7 +932,7 @@ void PrintScoreBase(CharData *ch) {
 		sprintf(buf, "Вы находитесь в звериной форме - %s.\r\n", ch->get_morph_desc().c_str());
 		SendMsgToChar(buf, ch);
 	}
-	if (IsAbleToUseFeat(ch, EFeat::kSoulsCollector)) {
+	if (CanUseFeat(ch, EFeat::kSoulsCollector)) {
 		const int souls = ch->get_souls();
 		if (souls == 0) {
 			sprintf(buf, "Вы не имеете чужих душ.\r\n");
@@ -985,10 +984,10 @@ int CalcHitroll(CharData *ch) {
 	if (weapon) {
 		if (GET_OBJ_TYPE(weapon) == EObjType::kWeapon) {
 			skill = static_cast<ESkill>(GET_OBJ_SKILL(weapon));
-			if (ch->get_skill(skill) == 0) {
+			if (ch->GetSkill(skill) == 0) {
 				hr -= (50 - std::min(50, GET_REAL_INT(ch))) / 3;
 			} else {
-				apply_weapon_bonus(GET_CLASS(ch), skill, &max_dam, &hr);
+				GetClassWeaponMod(ch->GetClass(), skill, &max_dam, &hr);
 			}
 		}
 	} else {
@@ -996,10 +995,10 @@ int CalcHitroll(CharData *ch) {
 		if (weapon) {
 			if (GET_OBJ_TYPE(weapon) == EObjType::kWeapon) {
 				skill = static_cast<ESkill>(GET_OBJ_SKILL(weapon));
-				if (ch->get_skill(skill) == 0) {
+				if (ch->GetSkill(skill) == 0) {
 					hr -= (50 - std::min(50, GET_REAL_INT(ch))) / 3;
 				} else {
-					apply_weapon_bonus(GET_CLASS(ch), skill, &max_dam, &hr);
+					GetClassWeaponMod(ch->GetClass(), skill, &max_dam, &hr);
 				}
 			}
 		}
@@ -1007,10 +1006,10 @@ int CalcHitroll(CharData *ch) {
 		if (weapon) {
 			if (GET_OBJ_TYPE(weapon) == EObjType::kWeapon) {
 				skill = static_cast<ESkill>(GET_OBJ_SKILL(weapon));
-				if (ch->get_skill(skill) == 0) {
+				if (ch->GetSkill(skill) == 0) {
 					hr -= (50 - std::min(50, GET_REAL_INT(ch))) / 3;
 				} else {
-					apply_weapon_bonus(GET_CLASS(ch), skill, &max_dam, &hr);
+					GetClassWeaponMod(ch->GetClass(), skill, &max_dam, &hr);
 				}
 			}
 		}
@@ -1022,12 +1021,12 @@ int CalcHitroll(CharData *ch) {
 	} else {
 		HitData::CheckWeapFeats(ch, ESkill::kPunch, hr, max_dam);
 	}
-	if (IsAbleToUseFeat(ch, EFeat::kWeaponFinesse)) {
+	if (CanUseFeat(ch, EFeat::kWeaponFinesse)) {
 		hr += str_bonus(GET_REAL_DEX(ch), STR_TO_HIT);
 	} else {
 		hr += str_bonus(GET_REAL_STR(ch), STR_TO_HIT);
 	}
-	hr += GET_REAL_HR(ch) - thaco(static_cast<int>(GET_CLASS(ch)), GetRealLevel(ch));
+	hr += GET_REAL_HR(ch) - GetThac0(ch->GetClass(), GetRealLevel(ch));
 	if (PRF_FLAGGED(ch, EPrf::kPerformPowerAttack)) {
 		hr -= 2;
 	}

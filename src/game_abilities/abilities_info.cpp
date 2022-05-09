@@ -181,7 +181,7 @@ void AbilitiesInfo::AbilitiesInfoBuilder::ProcessLoadErrors(const AbilityPtr &ab
 void AbilitiesInfo::AbilitiesInfoBuilder::EmplaceAbility(AbilitiesRegisterPtr &abilities, AbilityPtr &ability) {
 	auto it = abilities->try_emplace(ability->GetId(), std::move(ability));
 	if (!it.second) {
-		err_log("Ability '%s' has already exist. Redundant definition had been ignored.\n",
+		err_log("Ability '%s' has already exist. Redundant definition had been ignored.",
 				NAME_BY_ITEM<EAbility>(it.first->second->GetId()).c_str());
 	}
 }

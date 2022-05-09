@@ -13,7 +13,7 @@
 #include "game_crafts/im.h"
 
 #include "entities/world_characters.h"
-#include "world_objects.h"
+#include "entities/world_objects.h"
 #include "obj_prototypes.h"
 #include "handler.h"
 #include "color.h"
@@ -736,7 +736,7 @@ void init_im(void) {
 	// рецепты не будут обнулятся, просто станут недоступны для изучения
 	for (i = 0; i <= top_imrecipes; i++) {
 		for (j = 0; j < kNumPlayerClasses; j++)
-			imrecipes[i].classknow[j] = KNOW_RECIPE;
+			imrecipes[i].classknow[j] = kKnownRecipe;
 		imrecipes[i].level = -1;
 		imrecipes[i].remort = -1;
 	}
@@ -785,7 +785,7 @@ void init_im(void) {
 			if (!strchr("1xX!", line2[j])) {
 				imrecipes[rcpt].classknow[j] = 0;
 			} else {
-				imrecipes[rcpt].classknow[j] = KNOW_RECIPE;
+				imrecipes[rcpt].classknow[j] = kKnownRecipe;
 				log("Set recipe (%d '%s') classes %d is Know", k[0], imrecipes[rcpt].name, j);
 			}
 		}
@@ -993,7 +993,7 @@ void list_recipes(CharData *ch, bool all_recipes) {
 		}
 		strcpy(buf1, buf);
 		for (sortpos = 0, i = 0; sortpos <= top_imrecipes; sortpos++) {
-			if (!imrecipes[sortpos].classknow[(int) GET_CLASS(ch)]) {
+			if (!imrecipes[sortpos].classknow[to_underlying(ch->GetClass())]) {
 				continue;
 			}
 
@@ -1164,7 +1164,7 @@ void im_improve_recipe(CharData *ch, im_rskill *rs, int success) {
 		prob = success ? 20000 : 15000;
 		div = int_app[GET_REAL_INT(ch)].improve;
 		div += imrecipes[rs->rid].k_improve / 100;
-		prob /= (MAX(1, div));
+		prob /= std::max(1, div);
 		diff = n - wis_bonus(GET_REAL_WIS(ch), WIS_MAX_SKILLS);
 		if (diff < 0)
 			prob += (5 * diff);
@@ -1461,7 +1461,7 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	imlog(CMP, "Ингредиенты удалены");
 
 	// Кидаем кубики на создание
-	mres = number(1, 100 - (IsAbleToUseFeat(ch, EFeat::kHerbalist) ? 5 : 0));
+	mres = number(1, 100 - (CanUseFeat(ch, EFeat::kHerbalist) ? 5 : 0));
 	if (mres < (int) prob)
 		mres = IM_MSG_OK;
 	else {
@@ -1469,7 +1469,7 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (mres >= number(1, 100))
 			mres = IM_MSG_FAIL;
 		else
-			mres = IM_MSG_DAM;
+			mres = kImMsgDam;
 	}
 
 	sprintf(name, "Режим - %d", mres);
@@ -1694,15 +1694,13 @@ void trg_recipeturn(CharData *ch, int rid, int recipediff) {
 	} else {
 		if (!recipediff)
 			return;
-// +newbook.patch (Alisher)
-		if (imrecipes[rid].classknow[(int) GET_CLASS(ch)] == KNOW_RECIPE) {
+		if (imrecipes[rid].classknow[to_underlying(ch->GetClass())] == kKnownRecipe) {
 			CREATE(rs, 1);
 			rs->rid = rid;
 			rs->link = GET_RSKILL(ch);
 			GET_RSKILL(ch) = rs;
 			rs->perc = 5;
 		}
-// -newbook.patch (Alisher)
 		sprintf(buf, "Вы изучили рецепт '%s'.\r\n", imrecipes[rid].name);
 		SendMsgToChar(buf, ch);
 		sprintf(buf, "RECIPE: игроку %s добавлен рецепт %s", GET_NAME(ch), imrecipes[rid].name);

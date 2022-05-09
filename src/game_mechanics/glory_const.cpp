@@ -4,6 +4,16 @@
 
 #include "glory_const.h"
 
+#include <list>
+#include <map>
+#include <string>
+#include <iomanip>
+#include <vector>
+
+#include <boost/lexical_cast.hpp>
+#include <boost/format.hpp>
+#include <boost/algorithm/string.hpp>
+
 #include "utils/logger.h"
 #include "utils/utils.h"
 #include "utils/pugixml/pugixml.h"
@@ -17,16 +27,7 @@
 #include "entities/char_player.h"
 #include "glory_misc.h"
 #include "statistics/top.h"
-
-#include <boost/lexical_cast.hpp>
-#include <boost/format.hpp>
-#include <boost/algorithm/string.hpp>
-
-#include <list>
-#include <map>
-#include <string>
-#include <iomanip>
-#include <vector>
+#include "structs/global_objects.h"
 
 extern void add_karma(CharData *ch, const char *punish, const char *reason);
 extern void check_max_hp(CharData *ch);
@@ -386,7 +387,7 @@ void olc_add_stat(CharData *ch, int stat) {
 		case GLORY_CON:
 			if (ch->desc->glory_const->olc_free_glory >= need_glory
 				&& ch->desc->glory_const->stat_cur[stat]
-					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[ch->get_class()][to_underlying(EBaseStat::kCon)])
+					+ ch->desc->glory_const->stat_add[stat] < MUD::Classes(ch->GetClass()).GetBaseStatCap(EBaseStat::kCon))
 				ok = true;
 			else
 				SendMsgToChar(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
@@ -394,7 +395,7 @@ void olc_add_stat(CharData *ch, int stat) {
 		case GLORY_STR:
 			if (ch->desc->glory_const->olc_free_glory >= need_glory
 				&& ch->desc->glory_const->stat_cur[stat]
-					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[ch->get_class()][to_underlying(EBaseStat::kStr)])
+					+ ch->desc->glory_const->stat_add[stat] < MUD::Classes(ch->GetClass()).GetBaseStatCap(EBaseStat::kStr))
 				ok = true;
 			else
 				SendMsgToChar(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
@@ -402,7 +403,7 @@ void olc_add_stat(CharData *ch, int stat) {
 		case GLORY_DEX:
 			if (ch->desc->glory_const->olc_free_glory >= need_glory
 				&& ch->desc->glory_const->stat_cur[stat]
-					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[ch->get_class()][to_underlying(EBaseStat::kDex)])
+					+ ch->desc->glory_const->stat_add[stat] < MUD::Classes(ch->GetClass()).GetBaseStatCap(EBaseStat::kDex))
 				ok = true;
 			else
 				SendMsgToChar(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
@@ -410,7 +411,7 @@ void olc_add_stat(CharData *ch, int stat) {
 		case GLORY_INT:
 			if (ch->desc->glory_const->olc_free_glory >= need_glory
 				&& ch->desc->glory_const->stat_cur[stat]
-					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[ch->get_class()][to_underlying(EBaseStat::kInt)])
+					+ ch->desc->glory_const->stat_add[stat] < MUD::Classes(ch->GetClass()).GetBaseStatCap(EBaseStat::kInt))
 				ok = true;
 			else
 				SendMsgToChar(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
@@ -418,7 +419,7 @@ void olc_add_stat(CharData *ch, int stat) {
 		case GLORY_WIS:
 			if (ch->desc->glory_const->olc_free_glory >= need_glory
 				&& ch->desc->glory_const->stat_cur[stat]
-					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[ch->get_class()][to_underlying(EBaseStat::kWis)])
+					+ ch->desc->glory_const->stat_add[stat] < MUD::Classes(ch->GetClass()).GetBaseStatCap(EBaseStat::kWis))
 				ok = true;
 			else
 				SendMsgToChar(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
@@ -426,7 +427,7 @@ void olc_add_stat(CharData *ch, int stat) {
 		case GLORY_CHA:
 			if (ch->desc->glory_const->olc_free_glory >= need_glory
 				&& ch->desc->glory_const->stat_cur[stat]
-					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[ch->get_class()][to_underlying(EBaseStat::kCha)])
+					+ ch->desc->glory_const->stat_add[stat] < MUD::Classes(ch->GetClass()).GetBaseStatCap(EBaseStat::kCha))
 				ok = true;
 			else
 				SendMsgToChar(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
@@ -670,12 +671,12 @@ void do_spend_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 		}
 		std::shared_ptr<glory_olc> tmp_glory_olc(new glory_olc);
-		tmp_glory_olc->stat_cur[GLORY_STR] = ch->get_inborn_str();
-		tmp_glory_olc->stat_cur[GLORY_DEX] = ch->get_inborn_dex();
-		tmp_glory_olc->stat_cur[GLORY_INT] = ch->get_inborn_int();
-		tmp_glory_olc->stat_cur[GLORY_WIS] = ch->get_inborn_wis();
-		tmp_glory_olc->stat_cur[GLORY_CON] = ch->get_inborn_con();
-		tmp_glory_olc->stat_cur[GLORY_CHA] = ch->get_inborn_cha();
+		tmp_glory_olc->stat_cur[GLORY_STR] = ch->GetInbornStr();
+		tmp_glory_olc->stat_cur[GLORY_DEX] = ch->GetInbornDex();
+		tmp_glory_olc->stat_cur[GLORY_INT] = ch->GetInbornInt();
+		tmp_glory_olc->stat_cur[GLORY_WIS] = ch->GetInbornWis();
+		tmp_glory_olc->stat_cur[GLORY_CON] = ch->GetInbornCon();
+		tmp_glory_olc->stat_cur[GLORY_CHA] = ch->GetInbornCha();
 		tmp_glory_olc->stat_cur[GLORY_HIT] = it->second->stats[GLORY_HIT];
 		tmp_glory_olc->stat_cur[GLORY_SUCCESS] = it->second->stats[GLORY_SUCCESS];
 		tmp_glory_olc->stat_cur[GLORY_WILL] = it->second->stats[GLORY_WILL];

@@ -8,7 +8,7 @@
 #include "game_mechanics/glory.h"
 #include "game_mechanics/glory_const.h"
 #include "game_economics/ext_money.h"
-#include "world_objects.h"
+#include "entities/world_objects.h"
 #include "handler.h"
 #include "modify.h"
 #include "game_mechanics/named_stuff.h"
@@ -876,7 +876,7 @@ void shop_node::process_ident(CharData *ch, CharData *keeper, char *argument, co
 		tell << diag_weapon_to_char(ident_obj, true);
 		tell << diag_timer_to_char(ident_obj);
 
-		if (IsAbleToUseFeat(ch, EFeat::kSkilledTrader)) {
+		if (CanUseFeat(ch, EFeat::kSkilledTrader)) {
 			sprintf(buf, "Материал : ");
 			sprinttype(ident_obj->get_material(), material_name, buf + strlen(buf));
 			sprintf(buf + strlen(buf), ".\r\n");
@@ -1117,10 +1117,10 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 	long buy_price_old = get_sell_price(obj);
 
 	int repair = GET_OBJ_MAX(obj) - GET_OBJ_CUR(obj);
-	int repair_price = MAX(1, GET_OBJ_COST(obj) * MAX(0, repair) / MAX(1, GET_OBJ_MAX(obj)));
+	int repair_price = std::max(1, GET_OBJ_COST(obj) * std::max(0, repair) / std::max(1, GET_OBJ_MAX(obj)));
 
 	// если не купцы, то учитываем прибыль магазина, если купцы, то назначаем цену, при которой объект был куплен
-	if (!IsAbleToUseFeat(ch, EFeat::kSkilledTrader)) {
+	if (!CanUseFeat(ch, EFeat::kSkilledTrader)) {
 		buy_price = std::max(1L, (buy_price * profit) / 100); //учтем прибыль магазина
 	} else {
 		buy_price = get_sell_price(obj);

@@ -677,7 +677,7 @@ void ObjectFile::parse_object(const int nr) {
 		tobj->set_extra_flag(EObjFlag::kTicktimer);
 	}
 	tobj->set_timer(timer);
-	tobj->set_spell(t[2] < 1 || t[2] > kSpellCount ? kSpellNoSpell : t[2]);
+	tobj->set_spell(t[2]);
 	tobj->set_level(t[3]);
 
 	if (!get_line(file(), m_line)) {
@@ -956,28 +956,24 @@ bool ObjectFile::check_object_spell_number(ObjData *obj, unsigned val) {
 	* Check for negative spells, spells beyond the top define, and any
 	* spell which is actually a skill.
 	*/
-	if (GET_OBJ_VAL(obj, val) < 0) {
+	auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(obj, val));
+	if (spell_id == ESpell::kUndefined) {
 		error = true;
 	}
-	if (GET_OBJ_VAL(obj, val) > kSpellCount) {
-		error = true;
-	}
+
 	if (error) {
 		log("SYSERR: Object #%d (%s) has out of range spell #%d.",
 			GET_OBJ_VNUM(obj), obj->get_short_description().c_str(), GET_OBJ_VAL(obj, val));
 	}
 
-	if (scheck)        // Spell names don't exist in syntax check mode.
-	{
+	// Spell names don't exist in syntax check mode.
+	if (scheck) {
 		return error;
 	}
 
 	// Now check for unnamed spells.
-	spellname = GetSpellName(GET_OBJ_VAL(obj, val));
-
-	if (error
-		&& (spellname == unused_spellname
-			|| !str_cmp("UNDEFINED", spellname))) {
+	spellname = GetSpellName(spell_id);
+	if (error && (spellname == unused_spellname || !str_cmp("UNDEFINED", spellname))) {
 		log("SYSERR: Object #%d (%s) uses '%s' spell #%d.", GET_OBJ_VNUM(obj),
 			obj->get_short_description().c_str(), spellname, GET_OBJ_VAL(obj, val));
 	}
@@ -1102,7 +1098,7 @@ void MobileFile::parse_mobile(const int nr) {
 
 	mob_proto[i].set_rnum(i);
 	mob_proto[i].desc = nullptr;
-	if ((mob_proto + 1)->get_level() == 0)
+	if ((mob_proto + 1)->GetLevel() == 0)
 		set_test_data(mob_proto + i);
 
 	top_of_mobt = i++;
@@ -1372,7 +1368,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 	}
 
 	CASE("LikeWork") {
-		mob_proto[i].mob_specials.LikeWork = std::clamp<byte>(num_arg, 0, 100);
+		mob_proto[i].mob_specials.like_work = std::clamp<byte>(num_arg, 0, 100);
 	}
 
 	CASE("MaxFactor") {
@@ -1380,7 +1376,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 	}
 
 	CASE("ExtraAttack") {
-		mob_proto[i].mob_specials.ExtraAttack = std::clamp<byte>(num_arg, 0, 127);
+		mob_proto[i].mob_specials.extra_attack = std::clamp<byte>(num_arg, 0, 127);
 	}
 
 	CASE("MobRemort") {
@@ -1408,11 +1404,12 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			log("SYSERROR : Excepted format <#> for FEAT in MOB #%d", i);
 			return;
 		}
-		if (t[0] < EFeat::kFirstFeat || t[0] > EFeat::kLastFeat) {
+		auto feat_id = static_cast<EFeat>(t[0]);
+		if (feat_id < EFeat::kFirst || feat_id > EFeat::kLast) {
 			log("SYSERROR : Unknown feat No %d for MOB #%d", t[0], i);
 			return;
 		}
-		SET_FEAT(mob_proto + i, t[0]);
+		(mob_proto + i)->SetFeat(feat_id);
 	}
 
 	CASE("Skill") {
@@ -1425,7 +1422,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			log("SYSERROR : Unknown skill No %d for MOB #%d", t[0], nr);
 			return;
 		}
-		t[1] = std::clamp(t[1], 0, MUD::Skills()[skill_id].cap);
+		t[1] = std::clamp(t[1], 0, MUD::Skills(skill_id).cap);
 		(mob_proto + i)->set_skill(skill_id, t[1]);
 	}
 
@@ -1434,12 +1431,13 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			log("SYSERROR : Excepted format <#> for SPELL in MOB #%d", i);
 			return;
 		}
-		if (t[0] > kSpellCount || t[0] < 1) {
+		auto spell_id = static_cast<ESpell>(t[0]);
+		if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast) {
 			log("SYSERROR : Unknown spell No %d for MOB #%d", t[0], i);
 			return;
 		}
-		GET_SPELL_MEM(mob_proto + i, t[0]) += 1;
-		(mob_proto + i)->caster_level += (IS_SET(spell_info[t[0]].routines, NPC_CALCULATE) ? 1 : 0);
+		GET_SPELL_MEM(mob_proto + i, spell_id) += 1;
+		(mob_proto + i)->caster_level += (IS_SET(spell_info[spell_id].routines, NPC_CALCULATE) ? 1 : 0);
 	}
 
 	CASE("Helper") {

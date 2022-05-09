@@ -18,7 +18,6 @@
 #include "game_magic/magic_temp_spells.h"
 #include "administration/accounts.h"
 #include "liquid.h"
-
 #include "game_magic/spells_info.h"
 
 #include <boost/lexical_cast.hpp>
@@ -30,9 +29,6 @@
 #include <arpa/inet.h>
 #endif
 
-/*#include <ctime>
-#include <sstream>
-#include <bitset>*/
 
 long GetExpUntilNextLvl(CharData *ch, int level);
 extern std::vector<City> cities;
@@ -435,16 +431,14 @@ void Player::save_char() {
 		for (i = 0; i < kMaxAffect; i++) {
 			if (aff_i != affected.end()) {
 				const auto &aff = *aff_i;
-				if (aff->type == kSpellArmageddon
-					|| aff->type < 1
-					|| aff->type > kSpellCount) {
+				if (aff->type == ESpell::kArmageddon || aff->type < ESpell::kFirst || aff->type > ESpell::kLast) {
 					i--;
 				} else {
 					tmp_aff[i] = *aff;
 				}
 				++aff_i;
 			} else {
-				tmp_aff[i].type = 0;    // Zero signifies not used
+				tmp_aff[i].type = ESpell::kUndefined;
 				tmp_aff[i].duration = 0;
 				tmp_aff[i].modifier = 0;
 				tmp_aff[i].location = EApply::kNone;
@@ -469,8 +463,8 @@ void Player::save_char() {
 	if (!get_name().empty()) {
 		fprintf(saved, "Name: %s\n", GET_NAME(this));
 	}
-	fprintf(saved, "Levl: %d\n", this->get_level());
-	fprintf(saved, "Clas: %d\n", GET_CLASS(this));
+	fprintf(saved, "Levl: %d\n", this->GetLevel());
+	fprintf(saved, "Clas: %d\n", to_underlying(this->GetClass()));
 	fprintf(saved, "UIN : %d\n", GET_UNIQUE(this));
 	fprintf(saved, "LstL: %ld\n", static_cast<long int>(LAST_LOGON(this)));
 	// сохраняем last_ip, который должен содержать айпишник с последнего удачного входа
@@ -537,18 +531,19 @@ void Player::save_char() {
 
 	// дальше не по порядку
 	// статсы
-	fprintf(saved, "Str : %d\n", this->get_inborn_str());
-	fprintf(saved, "Int : %d\n", this->get_inborn_int());
-	fprintf(saved, "Wis : %d\n", this->get_inborn_wis());
-	fprintf(saved, "Dex : %d\n", this->get_inborn_dex());
-	fprintf(saved, "Con : %d\n", this->get_inborn_con());
-	fprintf(saved, "Cha : %d\n", this->get_inborn_cha());
+	fprintf(saved, "Str : %d\n", this->GetInbornStr());
+	fprintf(saved, "Int : %d\n", this->GetInbornInt());
+	fprintf(saved, "Wis : %d\n", this->GetInbornWis());
+	fprintf(saved, "Dex : %d\n", this->GetInbornDex());
+	fprintf(saved, "Con : %d\n", this->GetInbornCon());
+	fprintf(saved, "Cha : %d\n", this->GetInbornCha());
 
 	if (GetRealLevel(this) < kLvlImmortal) {
 		fprintf(saved, "Feat:\n");
-		for (auto feat = EFeat::kFirstFeat; feat <= EFeat::kLastFeat; ++feat) {
-			if (HAVE_FEAT(this, feat))
-				fprintf(saved, "%d %s\n", feat, feat_info[feat].name);
+		for (auto feat : MUD::Classes(this->GetClass()).feats) {
+			if (this->HaveFeat(feat.GetId())) {
+				fprintf(saved, "%d %s\n", to_underlying(feat.GetId()), feat_info[feat.GetId()].name);
+			}
 		}
 		fprintf(saved, "0 0\n");
 	}
@@ -556,7 +551,7 @@ void Player::save_char() {
 	if (GetRealLevel(this) < kLvlImmortal) {
 		fprintf(saved, "FtTm:\n");
 		for (auto tf = this->timed_feat; tf; tf = tf->next) {
-			fprintf(saved, "%d %d %s\n", tf->feat, tf->time, feat_info[tf->feat].name);
+			fprintf(saved, "%d %d %s\n", to_underlying(tf->feat), tf->time, feat_info[tf->feat].name);
 		}
 		fprintf(saved, "0 0\n");
 	}
@@ -588,25 +583,26 @@ void Player::save_char() {
 		fprintf(saved, "0 0\n");
 	}
 
-	// спелы
-	// волхвам всеравно известны тупо все спеллы, смысла их писать не вижу
-	if (GetRealLevel(this) < kLvlImmortal && GET_CLASS(this) != kMagus) {
+	if (GetRealLevel(this) < kLvlImmortal && !IS_MANA_CASTER(this)) {
 		fprintf(saved, "Spel:\n");
-		for (i = 1; i <= kSpellCount; i++)
-			if (GET_SPELL_TYPE(this, i))
-				fprintf(saved, "%d %d %s\n", i, GET_SPELL_TYPE(this, i), spell_info[i].name);
+		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
+			if (GET_SPELL_TYPE(this, spell_id)) {
+				fprintf(saved, "%d %d %s\n", to_underlying(spell_id),
+						GET_SPELL_TYPE(this, spell_id), spell_info[spell_id].name);
+			}
+		}
 		fprintf(saved, "0 0\n");
 	}
 
-	if (GetRealLevel(this) < kLvlImmortal && GET_CLASS(this) != kMagus) {
+	if (GetRealLevel(this) < kLvlImmortal && !IS_MANA_CASTER(this)) {
 		fprintf(saved, "TSpl:\n");
-		for (auto it = this->temp_spells.begin(); it != this->temp_spells.end(); ++it) {
+		for (auto & temp_spell : this->temp_spells) {
 			fprintf(saved,
 					"%d %ld %ld %s\n",
-					it->first,
-					static_cast<long int>(it->second.set_time),
-					static_cast<long int>(it->second.duration),
-					spell_info[it->first].name);
+					to_underlying(temp_spell.first),
+					static_cast<long int>(temp_spell.second.set_time),
+					static_cast<long int>(temp_spell.second.duration),
+					spell_info[temp_spell.first].name);
 		}
 		fprintf(saved, "0 0 0\n");
 	}
@@ -614,9 +610,9 @@ void Player::save_char() {
 	// Замемленые спелы
 	if (GetRealLevel(this) < kLvlImmortal) {
 		fprintf(saved, "SpMe:\n");
-		for (i = 1; i <= kSpellCount; i++) {
-			if (GET_SPELL_MEM(this, i))
-				fprintf(saved, "%d %d\n", i, GET_SPELL_MEM(this, i));
+		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
+			if (GET_SPELL_MEM(this, spell_id))
+				fprintf(saved, "%d %d\n", to_underlying(spell_id), GET_SPELL_MEM(this, spell_id));
 		}
 		fprintf(saved, "0 0\n");
 	}
@@ -624,8 +620,8 @@ void Player::save_char() {
 	// Мемящиеся спелы
 	if (GetRealLevel(this) < kLvlImmortal) {
 		fprintf(saved, "SpTM:\n");
-		for (struct SpellMemQueueItem *qi = this->mem_queue.queue; qi != nullptr; qi = qi->link)
-			fprintf(saved, "%d\n", qi->spellnum);
+		for (struct SpellMemQueueItem *qi = this->mem_queue.queue; qi != nullptr; qi = qi->next)
+			fprintf(saved, "%d\n", to_underlying(qi->spell_id));
 		fprintf(saved, "0\n");
 	}
 
@@ -774,12 +770,12 @@ void Player::save_char() {
 	}
 
 	// affected_type
-	if (tmp_aff[0].type > 0) {
+	if (tmp_aff[0].type > ESpell::kFirst) {
 		fprintf(saved, "Affs:\n");
 		for (i = 0; i < kMaxAffect; i++) {
 			const auto &aff = &tmp_aff[i];
-			if (aff->type) {
-				fprintf(saved, "%d %d %d %d %d %d %s\n", aff->type, aff->duration,
+			if (aff->type >= ESpell::kFirst) {
+				fprintf(saved, "%d %d %d %d %d %d %s\n", to_underlying(aff->type), aff->duration,
 						aff->modifier, aff->location, static_cast<int>(aff->bitvector),
 						static_cast<int>(aff->battleflag), GetSpellName(aff->type));
 			}
@@ -840,7 +836,7 @@ void Player::save_char() {
 	// added by WorM (Видолюб) 2010.06.04 бабки потраченные на найм(возвращаются при креше)
 	i = 0;
 	if (this->followers
-		&& IsAbleToUseFeat(this, EFeat::kEmployer)
+		&& CanUseFeat(this, EFeat::kEmployer)
 		&& !IS_IMMORTAL(this)) {
 		struct Follower *k = nullptr;
 		for (k = this->followers; k; k = k->next) {
@@ -855,7 +851,7 @@ void Player::save_char() {
 			&& k->ch
 			&& !k->ch->affected.empty()) {
 			for (const auto &aff : k->ch->affected) {
-				if (aff->type == kSpellCharm) {
+				if (aff->type == ESpell::kCharm) {
 					if (k->ch->mob_specials.hire_price == 0) {
 						break;
 					}
@@ -894,10 +890,9 @@ void Player::save_char() {
 		fprintf(saved, "CntF: %d\n", get_reset_stats_cnt(stats_reset::Type::FEATS));
 	}
 
-	std::map<int, MERCDATA>::iterator it = this->charmeeHistory.begin();
-	// перечень чармисов кудеса и купца
+	auto it = this->charmeeHistory.begin();
 	if (this->charmeeHistory.size() > 0 &&
-		(this->get_class() == kCharmer || this->get_class() == kMerchant || IS_IMMORTAL(this))) {
+		(IS_SPELL_KNOWN(this, ESpell::kCharm) || CanUseFeat(this, EFeat::kEmployer) || IS_IMMORTAL(this))) {
 		fprintf(saved, "Chrm:\n");
 		for (; it != this->charmeeHistory.end(); ++it) {
 			fprintf(saved, "%d %d %d %d %d %d\n",
@@ -918,7 +913,7 @@ void Player::save_char() {
 	// восстанавливаем аффекты
 	// add spell and eq affections back in now
 	for (i = 0; i < kMaxAffect; i++) {
-		if (tmp_aff[i].type) {
+		if (tmp_aff[i].type > ESpell::kUndefined) {
 			affect_to_char(this, tmp_aff[i]);
 		}
 	}
@@ -947,7 +942,7 @@ void Player::save_char() {
 			free(player_table[i].mail);
 		player_table[i].mail = str_dup(GET_EMAIL(this));
 		player_table[i].unique = GET_UNIQUE(this);
-		player_table[i].plr_class = get_class();
+		player_table[i].plr_class = GetClass();
 		//end by WorM
 	}
 }
@@ -958,7 +953,7 @@ void Player::save_char() {
 // при включенном флаге файл читается только до поля Rebt, все остальные поля пропускаются
 // поэтому при каких-то изменениях в entrycount, must_be_deleted и TopPlayer::Refresh следует
 // убедиться, что изменный код работает с действительно проинициализированными полями персонажа
-// на данный момент это: EPlrFlag::FLAGS, GET_CLASS, GET_EXP, GET_IDNUM, LAST_LOGON, GetRealLevel, GET_NAME, GET_REAL_REMORT, GET_UNIQUE, GET_EMAIL
+// на данный момент это: EPlrFlag::FLAGS, GetClass(), GET_EXP, GET_IDNUM, LAST_LOGON, GetRealLevel, GET_NAME, GET_REAL_REMORT, GET_UNIQUE, GET_EMAIL
 // * \param reboot - по дефолту = false
 int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*= true*/) {
 	int id, num = 0, num2 = 0, num3 = 0, num4 = 0, num5 = 0, num6 = 0, i;
@@ -1128,16 +1123,19 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 
 	this->real_abils.Feats.reset();
 
-	// волхвам сетим все спеллы на рунах, остальные инит нулями
-	if (GET_CLASS(this) != kMagus)
-		for (i = 1; i <= kSpellCount; i++)
-			GET_SPELL_TYPE(this, i) = 0;
-	else
-		for (i = 1; i <= kSpellCount; i++)
-			GET_SPELL_TYPE(this, i) = kSpellRunes;
+	if (IS_MANA_CASTER(this)) {
+		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
+			GET_SPELL_TYPE(this, spell_id) = ESpellType::kRunes;
+		}
+	} else {
+		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
+			GET_SPELL_TYPE(this, spell_id) = ESpellType::kUnknowm;
+		}
+	}
 
-	for (i = 1; i <= kSpellCount; i++)
-		GET_SPELL_MEM(this, i) = 0;
+	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
+		GET_SPELL_MEM(this, spell_id) = 0;
+	}
 	this->char_specials.saved.affected_by = clear_flags;
 	POOFIN(this) = nullptr;
 	POOFOUT(this) = nullptr;
@@ -1274,13 +1272,13 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 						sscanf(line, "%d %d %d %d %d %d", &num, &num2, &num3, &num4, &num5, &num6);
 						if (num > 0) {
 							Affect<EApply> af;
-							af.type = num;
+							af.type = static_cast<ESpell>(num);;
 							af.duration = num2;
 							af.modifier = num3;
 							af.location = static_cast<EApply>(num4);
 							af.bitvector = num5;
 							af.battleflag = num6;
-							if (af.type == kSpellLucky) {
+							if (af.type == ESpell::kLucky) {
 								af.handler.reset(new LackyAffectHandler());
 							}
 							affect_to_char(this, af);
@@ -1408,8 +1406,6 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 					EXCHANGE_FILTER(this) = str_dup(line);
 				else if (!strcmp(tag, "EMal"))
 					strcpy(GET_EMAIL(this), line);
-//29.11.09. (c) Василиса
-//edited by WorM 2011.05.21
 				else if (!strcmp(tag, "Expa"))
 					GET_EXP_ARENA(this) = llnum;
 				else if (!strcmp(tag, "Expm"))
@@ -1428,8 +1424,6 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 					GET_EXP_DT(this) = llnum;
 				else if (!strcmp(tag, "Exdt"))
 					GET_EXP_DTTHIS(this) = llnum;
-//end by WorM
-//Конец правки (с) Василиса
 				break;
 
 			case 'F':
@@ -1440,10 +1434,11 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 					do {
 						fbgetline(fl, line);
 						sscanf(line, "%d", &num);
-						if (num >= EFeat::kFirstFeat && num <= EFeat::kLastFeat) {
-							if (feat_info[num].is_known[(int) GET_CLASS(this)][(int) GET_KIN(this)] ||
+						auto feat_id = static_cast<EFeat>(num);
+						if (feat_id >= EFeat::kFirst && feat_id <= EFeat::kLast) {
+							if (MUD::Classes(this->GetClass()).feats.IsAvailable(feat_id) ||
 								PlayerRace::FeatureCheck((int) GET_KIN(this), (int) GET_RACE(this), num)) {
-								SET_FEAT(this, num);
+								this->SetFeat(feat_id);
 							}
 						}
 					} while (num != 0);
@@ -1452,7 +1447,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 						fbgetline(fl, line);
 						sscanf(line, "%d %d", &num, &num2);
 						if (num != 0) {
-							timed_feat.feat = num;
+							timed_feat.feat = static_cast<EFeat>(num);
 							timed_feat.time = num2;
 							ImposeTimedFeat(this, &timed_feat);
 						}
@@ -1469,7 +1464,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 					this->player_specials->saved.GodsLike = lnum;
 					// added by WorM (Видолюб) 2010.06.04 бабки потраченные на найм(возвращаются при креше)
 				else if (!strcmp(tag, "GldH")) {
-					if (num != 0 && !IS_IMMORTAL(this) && IsAbleToUseFeat(this, EFeat::kEmployer)) {
+					if (num != 0 && !IS_IMMORTAL(this) && CanUseFeat(this, EFeat::kEmployer)) {
 						this->player_specials->saved.HiredCost = num;
 					}
 				}
@@ -1740,7 +1735,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 							break;
 						num = im_get_recipe(num);
 // +newbook.patch (Alisher)
-						if (num < 0 || imrecipes[num].classknow[(int) GET_CLASS(this)] != KNOW_RECIPE)
+						if (num < 0 || imrecipes[num].classknow[(int) this->GetClass()] != kKnownRecipe)
 // -newbook.patch (Alisher)
 							continue;
 						CREATE(rs, 1);
@@ -1767,7 +1762,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 						sscanf(line, "%d %d", &num, &num2);
 						if (num != 0) {
 							auto skill_id = static_cast<ESkill>(num);
-							if (MUD::Classes()[this->get_class()].HasSkill(skill_id)) {
+							if (MUD::Classes(this->GetClass()).skills[skill_id].IsAvailable()) {
 								this->set_skill(skill_id, num2);
 							}
 						}
@@ -1786,29 +1781,33 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 					do {
 						fbgetline(fl, line);
 						sscanf(line, "%d %d", &num, &num2);
-						if (num != 0 && spell_info[num].name)
-							GET_SPELL_TYPE(this, num) = num2;
+						auto spell_id = static_cast<ESpell>(num);
+						if (spell_id > ESpell::kUndefined && spell_info[spell_id].name) {
+							GET_SPELL_TYPE(this, spell_id) = num2;
+						}
 					} while (num != 0);
 				} else if (!strcmp(tag, "SpMe")) {
 					do {
 						fbgetline(fl, line);
 						sscanf(line, "%d %d", &num, &num2);
-						if (num != 0)
-							GET_SPELL_MEM(this, num) = num2;
+						auto spell_id = static_cast<ESpell>(num);
+						if (spell_id > ESpell::kUndefined) {
+							GET_SPELL_MEM(this, spell_id) = num2;
+						}
 					} while (num != 0);
 				} else if (!strcmp(tag, "SpTM")) {
 					struct SpellMemQueueItem *qi_cur, **qi = &mem_queue.queue;
 					while (*qi)
-						qi = &((*qi)->link);
+						qi = &((*qi)->next);
 					do {
 						fbgetline(fl, line);
 						sscanf(line, "%d", &num);
 						if (num != 0) {
 							CREATE(qi_cur, 1);
 							*qi = qi_cur;
-							qi_cur->spellnum = num;
-							qi_cur->link = nullptr;
-							qi = &qi_cur->link;
+							qi_cur->spell_id = static_cast<ESpell>(num);
+							qi_cur->next = nullptr;
+							qi = &qi_cur->next;
 						}
 					} while (num != 0);
 				} else if (!strcmp(tag, "Str "))
@@ -1857,8 +1856,9 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 					do {
 						fbgetline(fl, line);
 						sscanf(line, "%d %ld %ld", &num, &lnum, &lnum3);
-						if (num != 0 && spell_info[num].name) {
-							Temporary_Spells::add_spell(this, num, lnum, lnum3);
+						auto spell_id = static_cast<ESpell>(num);
+						if (num != 0 && spell_info[spell_id].name) {
+							Temporary_Spells::AddSpell(this, spell_id, lnum, lnum3);
 						}
 					} while (num != 0);
 				}
@@ -1893,20 +1893,23 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 		GET_LOADROOM(this) = kNowhere;
 	}
 
-	SetInbornFeats(this);
+	SetInbornAndRaceFeats(this);
 
 	if (IS_GRGOD(this)) {
-		for (i = 0; i <= kSpellCount; i++)
-			GET_SPELL_TYPE(this, i) = GET_SPELL_TYPE(this, i) |
-				kSpellItems | kSpellKnow | kSpellRunes | kSpellScroll | kSpellPotion | kSpellWand;
+		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
+			GET_SPELL_TYPE(this, spell_id) = GET_SPELL_TYPE(this, spell_id) |
+				ESpellType::kItemCast | ESpellType::kKnow | ESpellType::kRunes | ESpellType::kScrollCast
+				| ESpellType::kPotionCast | ESpellType::kWandCast;
+		}
 	} else if (!IS_IMMORTAL(this)) {
-		for (i = 0; i <= kSpellCount; i++) {
-			if (spell_info[i].slot_forc[(int) GET_CLASS(this)][(int) GET_KIN(this)] == kMaxSlot)
-				REMOVE_BIT(GET_SPELL_TYPE(this, i), kSpellKnow | kSpellTemp);
-// shapirus: изученное не убираем на всякий случай, но из мема выкидываем,
-// если мортов мало
-			if (GET_REAL_REMORT(this) < MIN_CAST_REM(spell_info[i], this))
-				GET_SPELL_MEM(this, i) = 0;
+		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
+			const auto spell = MUD::Classes(this->GetClass()).spells[spell_id];
+			if (spell.GetCircle() == kMaxMemoryCircle) {
+				REMOVE_BIT(GET_SPELL_TYPE(this, spell.GetId()), ESpellType::kKnow | ESpellType::kTemp);
+			}
+			if (GET_REAL_REMORT(this) < spell.GetMinRemort()) {
+				GET_SPELL_MEM(this, spell_id) = 0;
+			}
 		}
 	}
 
@@ -2152,9 +2155,9 @@ namespace PlayerSystem {
 /// \return кол-во хп, втыкаемых чару от родного тела
 ///
 int con_natural_hp(CharData *ch) {
-	double add_hp_per_level = class_app[GET_CLASS(ch)].base_con
-		+ (VPOSI_MOB(ch, EBaseStat::kCon, ch->get_con()) - class_app[GET_CLASS(ch)].base_con)
-			* class_app[GET_CLASS(ch)].koef_con / 100.0 + 3;
+	double add_hp_per_level = MUD::Classes(ch->GetClass()).applies.base_con
+		+ (ClampBaseStat(ch, EBaseStat::kCon, ch->get_con()) - MUD::Classes(ch->GetClass()).applies.base_con)
+			* MUD::Classes(ch->GetClass()).applies.koef_con / 100.0 + 3;
 	return 10 + static_cast<int>(add_hp_per_level * GetRealLevel(ch));
 }
 
@@ -2162,8 +2165,8 @@ int con_natural_hp(CharData *ch) {
 /// \return кол-во хп, втыкаемых чару от добавленного шмотом/аффектами тела
 ///
 int con_add_hp(CharData *ch) {
-	int con_add = MAX(0, GET_REAL_CON(ch) - ch->get_con());
-	return class_app[(int) GET_CLASS(ch)].koef_con * con_add * GetRealLevel(ch) / 100;
+	int con_add = std::max(0, GET_REAL_CON(ch) - ch->get_con());
+	return MUD::Classes(ch->GetClass()).applies.koef_con * con_add * GetRealLevel(ch) / 100;
 }
 
 ///

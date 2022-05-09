@@ -14,7 +14,16 @@
 #ifndef UTILS_H_
 #define UTILS_H_
 
+#include <string>
+#include <list>
+#include <new>
+#include <vector>
+#include <sstream>
+
+#include <boost/dynamic_bitset.hpp>
+
 #include "game_classes/classes_constants.h"
+#include "game_classes/classes.h"
 #include "conf.h"
 #include "config.h"
 #include "entities/entities_constants.h"
@@ -23,13 +32,6 @@
 #include "game_mechanics/weather.h"
 #include "utils_string.h"
 #include "entities/zone.h"
-#include <boost/dynamic_bitset.hpp>
-
-#include <string>
-#include <list>
-#include <new>
-#include <vector>
-#include <sstream>
 
 struct RoomData;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 class CharData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
@@ -106,8 +108,6 @@ extern char WinToKoi[];
 extern char KoiToWin[];
 extern char KoiToWin2[];
 extern char AltToLat[];
-
-extern int class_stats_limit[kNumPlayerClasses][6];
 
 // public functions in utils.cpp
 CharData *find_char(long n);
@@ -225,7 +225,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 int perform_move(CharData *ch, int dir, int following, int checkmob, CharData *leader);
 
 // in limits.cpp //
-int mana_gain(const CharData *ch);
+int CalcManaGain(const CharData *ch);
 int hit_gain(CharData *ch);
 int move_gain(CharData *ch);
 void advance_level(CharData *ch);
@@ -240,10 +240,6 @@ void obj_point_update();
 void update_pos(CharData *victim);
 
 // various constants ****************************************************
-
-// проверяет, висит ли заданный спелл на чаре
-bool check_spell_on_player(CharData *ch, int spell_num);
-
 // get_filename() //
 const int kAliasFile = 1;
 const int kScriptVarsFile = 2;
@@ -272,14 +268,12 @@ short GET_REAL_REMORT(const CharData *ch);
 short GET_REAL_REMORT(const std::shared_ptr<CharData> *ch);
 short GET_REAL_REMORT(const std::shared_ptr<CharData> &ch);
 
-#define IS_IMMORTAL(ch)     (!(ch)->IsNpc() && (ch)->get_level() >= kLvlImmortal)
-#define IS_GOD(ch)          (!(ch)->IsNpc() && (ch)->get_level() >= kLvlGod)
-#define IS_GRGOD(ch)        (!(ch)->IsNpc() && (ch)->get_level() >= kLvlGreatGod)
-#define IS_IMPL(ch)         (!(ch)->IsNpc() && (ch)->get_level() >= kLvlImplementator)
+#define IS_IMMORTAL(ch)     (!(ch)->IsNpc() && (ch)->GetLevel() >= kLvlImmortal)
+#define IS_GOD(ch)          (!(ch)->IsNpc() && (ch)->GetLevel() >= kLvlGod)
+#define IS_GRGOD(ch)        (!(ch)->IsNpc() && (ch)->GetLevel() >= kLvlGreatGod)
+#define IS_IMPL(ch)         (!(ch)->IsNpc() && (ch)->GetLevel() >= kLvlImplementator)
 
 #define IS_BITS(mask, bitno) (IS_SET(mask,(1 << (bitno))))
-#define IS_CASTER(ch)        (IS_BITS(kMaskCaster,GET_CLASS(ch)))
-#define IS_MAGE(ch)          (IS_BITS(kMaskMage, GET_CLASS(ch)))
 
 extern int receptionist(CharData *, void *, int, char *);
 extern int postmaster(CharData *, void *, int, char *);
@@ -464,7 +458,7 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 #define GET_ROOM_SPEC(room) (VALID_RNUM(room) ? world[(room)]->func : nullptr)
 
 // char utils ***********************************************************
-#define IS_MANA_CASTER(ch) (GET_CLASS(ch) == ECharClass::kMagus)
+#define IS_MANA_CASTER(ch) ((ch)->GetClass() == ECharClass::kMagus)
 #define IN_ROOM(ch)  ((ch)->in_room)
 #define GET_AGE(ch)     (age(ch)->year)
 #define GET_REAL_AGE(ch) (age(ch)->year + GET_AGE_ADD(ch))
@@ -472,8 +466,7 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 #define GET_NAME(ch)    ((ch)->get_name().c_str())
 #define GET_TITLE(ch)   ((ch)->player_data.title)
 #define GET_MAX_MANA(ch)      (mana[MIN(50, GET_REAL_WIS(ch))])
-#define GET_MANA_COST(ch, spellnum)      mag_manacost(ch,spellnum)
-#define GET_MEM_CURRENT(ch)   (((ch)->mem_queue.queue == nullptr) ? 0 : mag_manacost(ch,(ch)->mem_queue.queue->spellnum))
+#define GET_MEM_CURRENT(ch)   ((ch)->mem_queue.Empty() ? 0 : CalcSpellManacost(ch, (ch)->mem_queue.queue->spell_id))
 #define IS_CODER(ch)    (GetRealLevel(ch) < kLvlImmortal && PRF_FLAGGED(ch, EPrf::kCoderinfo))
 #define IS_COLORED(ch)    (pk_count (ch))
 #define MAX_PORTALS(ch)  ((GetRealLevel(ch)/3)+GET_REAL_REMORT(ch))
@@ -483,7 +476,7 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 #define CLR_AF_BATTLE(ch, flag) ((ch)->battle_affects.unset(flag))
 #define NUL_AF_BATTLE(ch)      ((ch)->battle_affects.clear())
 #define GET_REMORT(ch)         ((ch)->get_remort())
-#define GET_SKILL(ch, skill)   ((ch)->get_skill(skill))
+#define GET_SKILL(ch, skill)   ((ch)->GetSkill(skill))
 #define GET_EMAIL(ch)          ((ch)->player_specials->saved.EMail)
 #define GET_LASTIP(ch)         ((ch)->player_specials->saved.LastIP)
 #define GET_GOD_FLAG(ch, flag)  (IS_SET((ch)->player_specials->saved.GodsLike, flag))
@@ -529,10 +522,6 @@ inline T VPOSI(const T val, const T min, const T max) {
 	return ((val < max) ? ((val > min) ? val : min) : max);
 }
 
-// у чаров режет до 50, у мобов до ста
-//#define VPOSI_MOB(ch, stat_id, val)	ch->IsNpc() ? val : VPOSI(val, 1, class_stats_limit[(int)GET_CLASS(ch)][stat_id])
-
-#define GET_CLASS(ch)   ((ch)->get_class())
 #define GET_KIN(ch)     ((ch)->player_data.Kin)
 #define GET_HEIGHT(ch)  ((ch)->player_data.height)
 #define GET_HEIGHT_ADD(ch) ((ch)->add_abils.height_add)
@@ -590,7 +579,7 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_AR(ch)        ((ch)->add_abils.aresist)
 #define GET_MR(ch)        ((ch)->add_abils.mresist)
 #define GET_PR(ch)        ((ch)->add_abils.presist) // added by WorM (Видолюб) поглощение физ.урона в %
-#define GET_LIKES(ch)     ((ch)->mob_specials.LikeWork)
+#define GET_LIKES(ch)     ((ch)->mob_specials.like_work)
 
 #define GET_REAL_SAVING_STABILITY(ch)	(dex_bonus(GET_REAL_CON(ch)) - GET_SAVE(ch, ESaving::kStability) + ((ch)->IsOnHorse() ? 20 : 0))
 #define GET_REAL_SAVING_REFLEX(ch)	(dex_bonus(GET_REAL_DEX(ch)) - GET_SAVE(ch, ESaving::kReflex) + ((ch)->IsOnHorse() ? -20 : 0))
@@ -677,22 +666,10 @@ const int kNameLevel = 5;
 #define CLAN_MEMBER(ch)        ((ch)->player_specials->clan_member)
 #define GET_CLAN_STATUS(ch)    ((ch)->player_specials->clanStatus)
 
-#define GET_SPELL_TYPE(ch, i) ((ch)->real_abils.SplKnw[i])
-#define GET_SPELL_MEM(ch, i)  ((ch)->real_abils.SplMem[i])
-#define SET_SPELL(ch, i, pct) ((ch)->real_abils.SplMem[i] = (pct))
-#define SET_FEAT(ch, feat) ((ch)->real_abils.Feats.set(feat))
-#define UNSET_FEAT(ch, feat) ((ch)->real_abils.Feats.reset(feat))
-#define HAVE_FEAT(ch, feat) ((ch)->real_abils.Feats.test(feat))
-#define    NUM_LEV_FEAT(ch) ((int) 1+GetRealLevel(ch)*(5+GET_REAL_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)])/28)
-#define FEAT_SLOT(ch, feat) (feat_info[feat].slot[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
-
-#define MOD_CAST_LEV(sp, ch) (BASE_CAST_LEV(sp, ch) - (std::max(GET_REAL_REMORT(ch) - MIN_CAST_REM(sp,ch),0) / 3))
-
-// Min cast level getting
-#define MIN_CAST_LEV(sp, ch) (std::max(0,MOD_CAST_LEV(sp,ch)))
-#define BASE_CAST_LEV(sp, ch) ((sp).min_level[(int) GET_CLASS (ch)][(int) GET_KIN (ch)])
-
-#define MIN_CAST_REM(sp, ch) ((sp).min_remort[(int) GET_CLASS (ch)][(int) GET_KIN (ch)])
+#define GET_SPELL_TYPE(ch, i) ((ch)->real_abils.SplKnw[to_underlying(i)])
+#define GET_SPELL_MEM(ch, i)  ((ch)->real_abils.SplMem[to_underlying(i)])
+#define IS_SPELL_KNOWN(ch, i) (GET_SPELL_TYPE((ch), (i)) == ESpellType::kKnow)
+#define SET_SPELL(ch, i, pct) ((ch)->real_abils.SplMem[to_underlying(i)] = (pct))
 
 #define GET_EQ(ch, i)      ((ch)->equipment[i])
 
@@ -970,23 +947,20 @@ const int kNameLevel = 5;
           (EXIT(ch,door)->to_room() != kNowhere) && \
           !IS_SET(EXIT(ch, door)->exit_info, EExitFlag::kClosed))):0)
 
-#define IS_SORCERER(ch)		(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kSorcerer))
-#define IS_THIEF(ch)		(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kThief))
-#define IS_ASSASINE(ch)		(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kAssasine))
-#define IS_WARRIOR(ch)		(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kWarrior))
-#define IS_PALADINE(ch)		(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kPaladine))
-#define IS_RANGER(ch)		(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kRanger))
-#define IS_GUARD(ch)		(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kGuard))
-#define IS_VIGILANT(ch)		(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kVigilant))
-#define IS_MERCHANT(ch)		(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kMerchant))
-#define IS_MAGUS(ch)		(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kMagus))
-#define IS_CONJURER(ch)		(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kConjurer))
-#define IS_CHARMER(ch)		(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kCharmer))
-#define IS_WIZARD(ch)		(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kWizard))
-#define IS_NECROMANCER(ch)	(!(ch)->IsNpc() && (GET_CLASS(ch) == ECharClass::kNecromancer))
-
-#define IS_FIGHTER_USER(ch)  (!(ch)->IsNpc() && (IS_BITS(kMaskFighter, (int) GET_CLASS(ch))))
-#define IS_MAGIC_USER(ch)	(!(ch)->IsNpc() && (IS_BITS(kMaskMage, (int) GET_CLASS(ch))))
+#define IS_SORCERER(ch)		(!(ch)->IsNpc() && ((ch)->GetClass() == ECharClass::kSorcerer))
+#define IS_THIEF(ch)		(!(ch)->IsNpc() && ((ch)->GetClass() == ECharClass::kThief))
+#define IS_ASSASINE(ch)		(!(ch)->IsNpc() && ((ch)->GetClass() == ECharClass::kAssasine))
+#define IS_WARRIOR(ch)		(!(ch)->IsNpc() && ((ch)->GetClass() == ECharClass::kWarrior))
+#define IS_PALADINE(ch)		(!(ch)->IsNpc() && ((ch)->GetClass() == ECharClass::kPaladine))
+#define IS_RANGER(ch)		(!(ch)->IsNpc() && ((ch)->GetClass() == ECharClass::kRanger))
+#define IS_GUARD(ch)		(!(ch)->IsNpc() && ((ch)->GetClass() == ECharClass::kGuard))
+#define IS_VIGILANT(ch)		(!(ch)->IsNpc() && ((ch)->GetClass() == ECharClass::kVigilant))
+#define IS_MERCHANT(ch)		(!(ch)->IsNpc() && ((ch)->GetClass() == ECharClass::kMerchant))
+#define IS_MAGUS(ch)		(!(ch)->IsNpc() && ((ch)->GetClass() == ECharClass::kMagus))
+#define IS_CONJURER(ch)		(!(ch)->IsNpc() && ((ch)->GetClass() == ECharClass::kConjurer))
+#define IS_CHARMER(ch)		(!(ch)->IsNpc() && ((ch)->GetClass() == ECharClass::kCharmer))
+#define IS_WIZARD(ch)		(!(ch)->IsNpc() && ((ch)->GetClass() == ECharClass::kWizard))
+#define IS_NECROMANCER(ch)	(!(ch)->IsNpc() && ((ch)->GetClass() == ECharClass::kNecromancer))
 
 #define IS_UNDEAD(ch) ((ch)->IsNpc() && \
     (MOB_FLAGGED(ch, EMobFlag::kResurrected) || \
@@ -995,7 +969,7 @@ const int kNameLevel = 5;
 
 // \todo Ввести для комнат флаг а-ля "место отдыха", а это убрать.
 #define LIKE_ROOM(ch) ((IS_SORCERER(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForSorcerers)) || \
-                       (IS_MAGIC_USER(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForMages)) || \
+                       (IsMage(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForMages)) || \
                        (IS_WARRIOR(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForWarriors)) || \
                        (IS_THIEF(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForThieves)) || \
                        (IS_ASSASINE(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForAssasines)) || \
@@ -1021,11 +995,6 @@ int is_post(RoomRnum room);
 bool is_rent(RoomRnum room);
 
 int CalcDuration(CharData *ch, int cnst, int level, int level_divisor, int min, int max);
-
-// Modifier functions
-int day_spell_modifier(CharData *ch, int spellnum, int type, int value);
-int weather_spell_modifier(CharData *ch, int spellnum, int type, int value);
-int complex_spell_modifier(CharData *ch, int spellnum, int type, int value);
 
 void can_carry_obj(CharData *ch, ObjData *obj);
 bool CAN_CARRY_OBJ(const CharData *ch, const ObjData *obj);
@@ -1282,7 +1251,7 @@ void message_str_need(CharData *ch, ObjData *obj, int type);
 int wis_bonus(int stat, int type);
 int CAN_CARRY_N(const CharData *ch);
 
-#define CAN_CARRY_W(ch) ((str_bonus(GET_REAL_STR(ch), STR_CARRY_W) * (HAVE_FEAT(ch, EFeat::kPorter) ? 110 : 100))/100)
+#define CAN_CARRY_W(ch) ((str_bonus(GET_REAL_STR(ch), STR_CARRY_W) * ((ch)->HaveFeat(EFeat::kPorter) ? 110 : 100))/100)
 
 #define OK_BOTH(ch, obj)  (GET_OBJ_WEIGHT(obj) <= \
                           str_bonus(GET_REAL_STR(ch), STR_WIELD_W) + str_bonus(GET_REAL_STR(ch), STR_HOLD_W))

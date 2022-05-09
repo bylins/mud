@@ -48,14 +48,14 @@ bool AbilityRoll::TryRevealWrongConditions() {
 		return true;
 	};
 	DetermineBaseSkill();
-	if (base_skill_ == ESkill::kIncorrect) {
+	if (base_skill_ == ESkill::kUndefined) {
 		return true;
 	};
 	return false;
 };
 
 bool AbilityRoll::IsActorCantUseAbility() {
-	if (!IS_IMPL(actor_) && !IsAbleToUseFeat(actor_, ability_->id)) {
+	if (!IS_IMPL(actor_) && !CanUseFeat(actor_, ability_->id)) {
 		deny_msg_ = "Вы не можете использовать этот навык.\r\n";
 		wrong_conditions_ = true;
 	};
@@ -149,7 +149,7 @@ int AgainstRivalRoll::CalcRollBonus() {
 
 void TechniqueRoll::DetermineBaseSkill() {
 	if (CheckTechniqueKit()) {
-		if (base_skill_ == ESkill::kIncorrect) {
+		if (base_skill_ == ESkill::kUndefined) {
 			base_skill_ = ability_->base_skill;
 		}
 	} else {
@@ -195,7 +195,7 @@ bool TechniqueRoll::IsSuitableItem(const TechniqueItem &item) {
 //	TODO: Привести подсчет дамага к одному знаменателю с несколькими возможными точками входа.
 int AbilityRoll::CalcBaseDamage() {
 	int base_parameter = ability_->GetBaseParameter(actor_);
-	int dice_num = actor_->get_skill(base_skill_) / abilities::kDmgDicepoolSkillDivider;
+	int dice_num = actor_->GetSkill(base_skill_) / abilities::kDmgDicepoolSkillDivider;
 	dice_num = std::min(dice_num, base_parameter);
 	return RollDices(std::max(1, dice_num), abilities::kDmgDiceSize);
 };

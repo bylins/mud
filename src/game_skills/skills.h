@@ -17,10 +17,12 @@
 
 #include <map>
 
+#include "game_magic/spells_constants.h"
 #include "structs/structs.h"
 
 extern const int kSkillCapOnZeroRemort;
 extern const int kSkillCapBonusPerRemort;
+extern const int kMinTalentLevelDecrement;
 extern const long kMinImprove;
 
 class CharData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
@@ -41,10 +43,9 @@ enum EExtraAttack {
  * скилл с таким id и не находит его).
  */
 enum class ESkill : int {
-	kReligion = -4,			// Таймер молитвы тикает за счет TimedSkill. Нужно придумать, как от этого избавиться
-	kAny = -3,    			// "Какой угодно" скилл. (Например, удар можно нанести любым видом оружия).  //
-	kUndefined = -2,		// Неопределенный скилл.
-	kIncorrect = -1,		// Неизвестный, но некорректный скилл.
+	kReligion = -3,			// Таймер молитвы тикает за счет TimedSkill. Нужно придумать, как от этого избавиться
+	kAny = -2,    			// "Какой угодно" скилл. (Например, удар можно нанести любым видом оружия).  //
+	kUndefined = -1,		// Неопределенный или некорректный скилл.
 	kGlobalCooldown = 0,	// Internal - ID for global ability cooldown //
 	kProtect = 1,
 	kIntercept = 2,
@@ -156,12 +157,14 @@ struct SkillRollResult {
 };
 
 struct TimedSkill {
-	ESkill skill{ESkill::kIncorrect};	// Used skill //
+	ESkill skill{ESkill::kUndefined};	// Used skill //
 	ubyte time{0};						// Time for next using //
 	TimedSkill *next{nullptr};
 };
 
 int SendSkillMessages(int dam, CharData *ch, CharData *vict, int attacktype, std::string add = "");
+int SendSkillMessages(int dam, CharData *ch, CharData *vict, ESkill skill_id, std::string add = "");
+int SendSkillMessages(int dam, CharData *ch, CharData *vict, ESpell spell_id, std::string add = "");
 
 int CalcCurrentSkill(CharData *ch, ESkill skill_id, CharData *vict);
 void ImproveSkill(CharData *ch, ESkill skill, int success, CharData *victim);
@@ -169,8 +172,8 @@ void TrainSkill(CharData *ch, ESkill skill, bool success, CharData *vict);
 
 int GetSkillMinLevel(CharData *ch, ESkill skill);
 int GetSkillMinLevel(CharData *ch, ESkill skill, int req_lvl);
-bool IsAbleToGetSkill(CharData *ch, ESkill skill);
-bool IsAbleToGetSkill(CharData *ch, ESkill skill, int req_lvl);
+bool CanGetSkill(CharData *ch, ESkill skill);
+bool CanGetSkill(CharData *ch, ESkill skill, int req_lvl);
 int CalcSkillRemortCap(const CharData *ch);
 int CalcSkillWisdomCap(const CharData *ch);
 int CalcSkillHardCap(const CharData *ch, ESkill skill);

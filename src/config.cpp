@@ -282,7 +282,7 @@ const char *START_MESSG =
 int max_exp_gain_pc(CharData *ch) {
 	int result = 1;
 	if (!ch->IsNpc()) {
-		int max_per_lev = GetExpUntilNextLvl(ch, ch->get_level() + 1) - GetExpUntilNextLvl(ch, ch->get_level() + 0); //тут берем левел без плюсов от стафа
+		int max_per_lev = GetExpUntilNextLvl(ch, ch->GetLevel() + 1) - GetExpUntilNextLvl(ch, ch->GetLevel() + 0); //тут берем левел без плюсов от стафа
 		result = max_per_lev / (10 + GET_REAL_REMORT(ch));
 	}
 	return result;

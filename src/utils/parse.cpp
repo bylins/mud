@@ -29,26 +29,6 @@ class TextIdNode {
 std::array<TextIdNode, kTextIdCount> text_id_list;
 
 ///
-/// Инит текстовых ИД классов для конфига.
-///
-void InitCharClass() {
-	text_id_list.at(kCharClass).Add(ECharClass::kSorcerer, "kSorcerer");
-	text_id_list.at(kCharClass).Add(ECharClass::kConjurer, "kConjurer");
-	text_id_list.at(kCharClass).Add(ECharClass::kThief, "kThief");
-	text_id_list.at(kCharClass).Add(ECharClass::kWarrior, "kWarrior");
-	text_id_list.at(kCharClass).Add(ECharClass::kAssasine, "kAssasine");
-	text_id_list.at(kCharClass).Add(ECharClass::kGuard, "kGuard");
-	text_id_list.at(kCharClass).Add(ECharClass::kCharmer, "kCharmer");
-	text_id_list.at(kCharClass).Add(ECharClass::kWizard, "kWizard");
-	text_id_list.at(kCharClass).Add(ECharClass::kNecromancer, "kNecromancer");
-	text_id_list.at(kCharClass).Add(ECharClass::kPaladine, "kPaladine");
-	text_id_list.at(kCharClass).Add(ECharClass::kRanger, "kRanger");
-	text_id_list.at(kCharClass).Add(ECharClass::kMerchant, "kMerchant");
-	text_id_list.at(kCharClass).Add(ECharClass::kMagus, "kMagus");
-	text_id_list.at(kCharClass).Add(ECharClass::kVigilant, "kVigilant");
-}
-
-///
 /// Инит текстовых ИД параметров предметов для сохранения в файл.
 ///
 void InitObjVals() {
@@ -65,8 +45,6 @@ void InitObjVals() {
 /// Общий инит системы текстовых ИД, дергается при старте мада.
 ///
 void Init() {
-	/// CHAR_CLASS
-	InitCharClass();
 	/// OBJ_VALS
 	InitObjVals();
 	/// ...
@@ -244,7 +222,7 @@ bool IsValidObjVnum(int vnum) {
 
 // =====================================================================================================================
 
-/*
+/**
  * Прочитать значение value как строку.
  * Ecxeption: если строка пуста, сообщение "string is empty";
  */
@@ -255,7 +233,7 @@ const char *ReadAsStr(const char *value) {
 	return value;
 }
 
-/*
+/**
  * Прочитать значение value как int.
  * Ecxeption: при неудаче, сообщение - содержимое value.
  */
@@ -267,7 +245,7 @@ int ReadAsInt(const char *value) {
 	}
 }
 
-/*
+/**
  * Прочитать значение value как float.
  * Ecxeption: при неудаче, сообщение - содержимое value.
  */
@@ -279,7 +257,7 @@ float ReadAsFloat(const char *value) {
 	}
 }
 
-/*
+/**
  * Прочитать значение value как double.
  * Ecxeption: при неудаче, сообщение - содержимое value.
  */
@@ -291,7 +269,7 @@ double ReadAsDouble(const char *value) {
 	}
 }
 
-/*
+/**
  * Прочитать значение value как bool.
  * Возвращает true, если значение "1", "true", "T", "t", "Y" или "y" и false в ином случае.
  * Ecxeption: если value пусто, сообщение - "value is empty".

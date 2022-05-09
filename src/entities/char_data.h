@@ -16,6 +16,7 @@
 #include "utils/utils.h"
 #include "conf.h"
 #include "game_affects/affect_data.h"
+#include "game_mechanics/mem_queue.h"
 
 #include <boost/dynamic_bitset.hpp>
 
@@ -47,10 +48,10 @@ struct char_player_data {
 	ubyte Race;        // PC / NPC's race
 };
 
-struct temporary_spell_data {
-	int spell;
-	time_t set_time;
-	time_t duration;
+struct TemporarySpell {
+	ESpell spell{ESpell::kUndefined};
+	time_t set_time{0};
+	time_t duration{0};
 };
 // кол-во +слотов со шмоток
 const int MAX_ADD_SLOTS = 10;
@@ -92,9 +93,9 @@ struct char_played_ability_data {
 
 // Char's abilities.
 struct char_ability_data {
-	std::array<ubyte, kSpellCount + 1> SplKnw; // array of SPELL_KNOW_TYPE
-	std::array<ubyte, kSpellCount + 1> SplMem; // array of MEMed SPELLS
-	std::bitset<EFeat::kLastFeat + 1> Feats;
+	std::array<ubyte, to_underlying(ESpell::kLast) + 1> SplKnw; // array of SPELL_KNOW_TYPE
+	std::array<ubyte, to_underlying(ESpell::kLast) + 1> SplMem; // array of MEMed SPELLS
+	std::bitset<to_underlying(EFeat::kLast) + 1> Feats;
 	sbyte size;
 	int hitroll;
 	int damroll;
@@ -152,8 +153,8 @@ struct mob_special_data {
 	int dest_count;
 	int activity;
 	FlagData npc_flags;
-	byte ExtraAttack;
-	byte LikeWork;
+	byte extra_attack;
+	byte like_work;
 	int MaxFactor;
 	int GoldNoDs;
 	int GoldSiDs;
@@ -161,31 +162,22 @@ struct mob_special_data {
 	int LastRoom;
 	char *Questor;
 	int speed;
-	int hire_price;// added by WorM (Видолюб) 2010.06.04 Цена найма чармиса
-	int capable_spell;// added by WorM (Видолюб) Закл в мобе
-};
-
-// очередь запоминания заклинаний
-struct SpellMemQueue {
-	struct SpellMemQueueItem *queue;
-	int stored;        // накоплено манны
-	int total;            // полное время мема всей очереди
-
-	[[nodiscard]] bool Empty() const { return queue == nullptr; };
+	int hire_price;
+	ESpell capable_spell;
 };
 
 // Structure used for extra_attack - bash, kick, diasrm, chopoff, etc
 struct extra_attack_type {
 	EExtraAttack used_attack;
-	CharData *victim;
+	CharData *victim{nullptr};
 };
 
-struct cast_attack_type {
-	int spellnum;
-	int spell_subst;
-	CharData *tch;
-	ObjData *tobj;
-	RoomData *troom;
+struct CastAttack {
+	ESpell spell_id{ESpell::kUndefined};
+	ESpell spell_subst{ESpell::kUndefined};
+	CharData *tch{nullptr};
+	ObjData *tobj{nullptr};
+	RoomData *troom{nullptr};
 };
 
 struct player_special_data_saved {
@@ -210,7 +202,6 @@ struct player_special_data_saved {
 	int stringLength;
 	int stringWidth;
 
-	// 29.11.09 переменные для подсчета количества рипов (с) Василиса
 	int Rip_arena; //рипы на арене
 	int rip_arena_dom; //рипы на арене доминирования
 	int kill_arena_dom; //рипы на арене доминирования
@@ -316,7 +307,7 @@ struct CharacterSkillDataType {
 	void decreaseCooldown(unsigned value);
 };
 
-typedef std::map<ESkill, CharacterSkillDataType> CharSkillsType;
+using CharSkillsType = std::map<ESkill, CharacterSkillDataType>;
 
 class ProtectedCharData;    // to break up cyclic dependencies
 
@@ -324,8 +315,8 @@ class CharacterRNum_ChangeObserver {
  public:
 	using shared_ptr = std::shared_ptr<CharacterRNum_ChangeObserver>;
 
-	CharacterRNum_ChangeObserver() {}
-	virtual ~CharacterRNum_ChangeObserver() {}
+	CharacterRNum_ChangeObserver() = default;
+	virtual ~CharacterRNum_ChangeObserver() = default;
 
 	virtual void notify(ProtectedCharData &character, const MobRnum old_rnum) = 0;
 };
@@ -369,13 +360,17 @@ class CharData : public ProtectedCharData {
 	friend void do_mtransform(CharData *ch, char *argument, int cmd, int subcmd);
 	friend void medit_mobile_copy(CharData *dst, CharData *src);
 
+	void SetFeat(EFeat feat_id) { real_abils.Feats.set(to_underlying(feat_id)); };
+	void UnsetFeat(EFeat feat_id) { real_abils.Feats.reset(to_underlying(feat_id)); };
+	bool HaveFeat(EFeat feat_id) const { return real_abils.Feats.test(to_underlying(feat_id)); };
+
 	void set_skill(const ESkill skill_id, int percent);
 	void set_skill(short remort);
 	void clear_skills();
-	int get_skill(const ESkill skill_num) const;
+	int GetSkill(const ESkill skill_id) const;
 	int get_skills_count() const;
-	int get_equipped_skill(const ESkill skill_num) const;
-	int get_trained_skill(const ESkill skill_num) const;
+	int get_equipped_skill(const ESkill skill_id) const;
+	int get_trained_skill(const ESkill skill_id) const;
 	int get_skill_bonus() const;
 	void set_skill_bonus(int);
 
@@ -391,18 +386,18 @@ class CharData : public ProtectedCharData {
 	void set_protecting(CharData *vict);
 
 	EExtraAttack get_extra_attack_mode() const;
-	CharData *get_extra_victim() const;
+	CharData *GetExtraVictim() const;
 	void SetExtraAttack(EExtraAttack Attack, CharData *vict);
 
 	CharData *GetEnemy() const;
 	void SetEnemy(CharData *enemy);
 
 	// TODO: касты можно сделать и красивее (+ troom не используется, CastSpell/cast_subst/cast_obj только по разу)
-	void set_cast(int spellnum, int spell_subst, CharData *tch, ObjData *tobj, RoomData *troom);
-	int get_cast_spell() const;
-	int get_cast_subst() const;
-	CharData *get_cast_char() const;
-	ObjData *get_cast_obj() const;
+	void SetCast(ESpell spell_id, ESpell spell_subst, CharData *tch, ObjData *tobj, RoomData *troom);
+	ESpell GetCastSpell() const;
+	ESpell GetCastSubst() const;
+	CharData *GetCastChar() const;
+	ObjData *GetCastObj() const;
 
 	////////////////////////////////////////////////////////////////////////////
 
@@ -428,12 +423,10 @@ class CharData : public ProtectedCharData {
 	void set_long_descr(const char *);
 	const char *get_description() const;
 	void set_description(const char *);
-	ECharClass get_class() const;
+	ECharClass GetClass() const;
 	void set_class(ECharClass chclass);
 
-	bool is_druid() const { return chclass_ == kMagus; }
-
-	int get_level() const;
+	int GetLevel() const;
 	int get_level_add() const;
 	void set_level(int level);
 	void set_level_add(int level);
@@ -447,9 +440,9 @@ class CharData : public ProtectedCharData {
 	long get_exp() const;
 	void set_exp(long exp);
 
-	short get_remort() const;
-	short get_remort_add() const;
-	void set_remort(short num);
+	int get_remort() const;
+	int get_remort_add() const;
+	void set_remort(int num);
 	void set_remort_add(short num);
 
 	time_t get_last_logon() const;
@@ -498,28 +491,28 @@ class CharData : public ProtectedCharData {
 	int calc_morale() const;
 
 	int get_str() const;
-	int get_inborn_str() const;
+	int GetInbornStr() const;
 	void set_str(int);
 	void inc_str(int);
 	void time_set_glory_stats(time_t);
 	int get_dex() const;
-	int get_inborn_dex() const;
+	int GetInbornDex() const;
 	void set_dex(int);
 	void inc_dex(int);
 	int get_con() const;
-	int get_inborn_con() const;
+	int GetInbornCon() const;
 	void set_con(int);
 	void inc_con(int);
 	int get_wis() const;
-	int get_inborn_wis() const;
+	int GetInbornWis() const;
 	void set_wis(int);
 	void inc_wis(int);
 	int get_int() const;
-	int get_inborn_int() const;
+	int GetInbornInt() const;
 	void set_int(int);
 	void inc_int(int);
 	int get_cha() const;
-	int get_inborn_cha() const;
+	int GetInbornCha() const;
 	void set_cha(int);
 	void inc_cha(int);
 
@@ -674,7 +667,7 @@ class CharData : public ProtectedCharData {
 	CharData *enemy_;
 
 	struct extra_attack_type extra_attack_; // атаки типа баша, пинка и т.п.
-	struct cast_attack_type cast_attack_;   // каст заклинания
+	struct CastAttack cast_attack_;   // каст заклинания
 	////////////////////////////////////////////////////////////////////////////
 	int serial_num_; // порядковый номер в списке чаров (для name_list)
 	// true - чар очищен и ждет вызова delete для оболочки
@@ -699,9 +692,9 @@ class CharData : public ProtectedCharData {
 	// экспа
 	long exp_;
 	// реморты
-	short remorts_;
+	int remorts_;
 	// плюсы на реморт
-	short remorts_add_;
+	int remorts_add_;
 	// время последнего входа в игру //by kilnik
 	time_t last_logon_;
 	// последний вызов базара
@@ -796,7 +789,8 @@ class CharData : public ProtectedCharData {
 	//отладочные сообщения имморталу/тестеру/кодеру
 	void send_to_TC(bool to_impl, bool to_tester, bool to_coder, const char *msg, ...);
 
-	struct SpellMemQueue mem_queue;        // очередь изучаемых заклинаний
+	// очередь изучаемых заклинаний
+	SpellMemQueue mem_queue;
 
 	int caster_level;
 	int damage_level;
@@ -819,7 +813,7 @@ class CharData : public ProtectedCharData {
 	OnDeadLoadList *dl_list;    // загружаемые в труп предметы
 	bool agrobd;        // показывает, агробд или нет
 
-	std::map<int, temporary_spell_data> temp_spells;
+	std::map<ESpell, TemporarySpell> temp_spells;
 
 	std::vector<int> kill_list; //used only for MTRIG_KILL
  public:
@@ -838,11 +832,16 @@ class CharData : public ProtectedCharData {
 	void dismount();
 };
 # define MAX_FIRSTAID_REMOVE 13
-inline int RemoveSpell(int num) {
-	int spell[MAX_FIRSTAID_REMOVE] = {kSpellSleep, kSpellPoison, kSpellWeaknes, kSpellCurse, kSpellFever,
-									  kSpellSllence, kSpellBlindness, kSpellHaemorrhage, kSpellHold, kSpellPeaceful,
-									  kSpellColdWind, kSpellDeafness, kSpellBattle};
-	return spell[num];
+inline ESpell GetRemovableSpellId(int num) {
+	static const ESpell spell[MAX_FIRSTAID_REMOVE] = {ESpell::kSleep, ESpell::kPoison, ESpell::kWeaknes, ESpell::kCurse,
+										 ESpell::kFever, ESpell::kSilence, ESpell::kBlindness, ESpell::kHaemorrhage,
+										 ESpell::kHold, ESpell::kPeaceful, ESpell::kColdWind, ESpell::kDeafness,
+										 ESpell::kBattle};
+	if (num < MAX_FIRSTAID_REMOVE) {
+		return spell[num];
+	} else {
+		return ESpell::kUndefined;
+	}
 }
 
 inline const player_special_data::ignores_t &CharData::get_ignores() const {
@@ -952,33 +951,29 @@ bool IS_NOSEXY(const CharData *ch);
 inline bool IS_NOSEXY(const CharData::shared_ptr &ch) { return IS_NOSEXY(ch.get()); }
 bool IS_POLY(const CharData *ch);
 
-inline int VPOSI_MOB(const CharData *ch, const EBaseStat stat_id, const int val) {
-	const int character_class = ch->get_class();
-	return ch->IsNpc()
-		   ? VPOSI(val, 1, 100)
-		   : VPOSI(val, 1, class_stats_limit[character_class][to_underlying(stat_id)]);
-}
-inline int VPOSI_MOB(const CharData::shared_ptr &ch, const EBaseStat stat_id, const int val) {
-	return VPOSI_MOB(ch.get(), stat_id, val);
+int ClampBaseStat(const CharData *ch, EBaseStat stat_id, int stat_value);
+
+inline int ClampBaseStat(const CharData::shared_ptr &ch, const EBaseStat stat_id, const int val) {
+	return ClampBaseStat(ch.get(), stat_id, val);
 }
 
 inline auto GET_REAL_STR(const CharData *ch) {
-	return VPOSI_MOB(ch, EBaseStat::kStr, ch->get_str() + ch->get_str_add());
+	return ClampBaseStat(ch, EBaseStat::kStr, ch->get_str() + ch->get_str_add());
 };
 inline auto GET_REAL_DEX(const CharData *ch) {
-	return VPOSI_MOB(ch, EBaseStat::kDex, ch->get_dex() + ch->get_dex_add());
+	return ClampBaseStat(ch, EBaseStat::kDex, ch->get_dex() + ch->get_dex_add());
 }
 inline auto GET_REAL_CON(const CharData *ch) {
-	return VPOSI_MOB(ch, EBaseStat::kCon, ch->get_con() + ch->get_con_add());
+	return ClampBaseStat(ch, EBaseStat::kCon, ch->get_con() + ch->get_con_add());
 };
 inline auto GET_REAL_WIS(const CharData *ch) {
-	return VPOSI_MOB(ch, EBaseStat::kWis, ch->get_wis() + ch->get_wis_add());
+	return ClampBaseStat(ch, EBaseStat::kWis, ch->get_wis() + ch->get_wis_add());
 };
 inline auto GET_REAL_INT(const CharData *ch) {
-	return VPOSI_MOB(ch, EBaseStat::kInt, ch->get_int() + ch->get_int_add());
+	return ClampBaseStat(ch, EBaseStat::kInt, ch->get_int() + ch->get_int_add());
 };
 inline auto GET_REAL_CHA(const CharData *ch) {
-	return VPOSI_MOB(ch, EBaseStat::kCha, ch->get_cha() + ch->get_cha_add());
+	return ClampBaseStat(ch, EBaseStat::kCha, ch->get_cha() + ch->get_cha_add());
 };
 
 inline auto GET_SAVE(CharData *ch, ESaving save) {

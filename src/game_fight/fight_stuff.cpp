@@ -1,5 +1,7 @@
 // Part of Bylins http://www.mud.ru
 
+#include <random>
+
 #include "game_affects/affect_data.h"
 #include "mobact.h"
 #include "entities/obj_data.h"
@@ -13,16 +15,12 @@
 #include "house.h"
 #include "pk.h"
 #include "stuff.h"
-
-#include <random>
 #include "statistics/top.h"
 #include "color.h"
-#include "game_magic/magic.h"
 #include "statistics/mob_stat.h"
 #include "game_mechanics/bonus.h"
 #include "backtrace.h"
 #include "game_magic/magic_utils.h"
-//#include "entities/zone.h"
 #include "entities/char_player.h"
 #include "structs/global_objects.h"
 
@@ -38,8 +36,6 @@ extern int material_value[];
 extern int max_exp_gain_npc;
 
 //интервал в секундах между восстановлением кругов после рипа
-extern const unsigned RECALL_SPELLS_INTERVAL;
-const unsigned RECALL_SPELLS_INTERVAL = 28;
 void process_mobmax(CharData *ch, CharData *killer) {
 	bool leader_partner = false;
 	int partner_feat = 0;
@@ -70,7 +66,7 @@ void process_mobmax(CharData *ch, CharData *killer) {
 			if (IN_ROOM(master) == IN_ROOM(killer)) {
 				// лидер группы в тойже комнате, что и убивец
 				cnt = 1;
-				if (IsAbleToUseFeat(master, EFeat::kPartner)) {
+				if (CanUseFeat(master, EFeat::kPartner)) {
 					leader_partner = true;
 				}
 			}
@@ -225,7 +221,7 @@ void update_leadership(CharData *ch, CharData *killer) {
 		if (!killer->IsNpc() // Убил загрупленный чар
 			&& AFF_FLAGGED(killer, EAffect::kGroup)
 			&& killer->has_master()
-			&& killer->get_master()->get_skill(ESkill::kLeadership) > 0
+			&& killer->get_master()->GetSkill(ESkill::kLeadership) > 0
 			&& IN_ROOM(killer) == IN_ROOM(killer->get_master())) {
 			ImproveSkill(killer->get_master(), ESkill::kLeadership, number(0, 1), ch);
 		} else if (killer->IsNpc() // Убил чармис загрупленного чара
@@ -233,7 +229,7 @@ void update_leadership(CharData *ch, CharData *killer) {
 			&& killer->has_master()
 			&& AFF_FLAGGED(killer->get_master(), EAffect::kGroup)) {
 			if (killer->get_master()->has_master() // Владелец чармиса НЕ лидер
-				&& killer->get_master()->get_master()->get_skill(ESkill::kLeadership) > 0
+				&& killer->get_master()->get_master()->GetSkill(ESkill::kLeadership) > 0
 				&& IN_ROOM(killer) == IN_ROOM(killer->get_master())
 				&& IN_ROOM(killer) == IN_ROOM(killer->get_master()->get_master())) {
 				ImproveSkill(killer->get_master()->get_master(), ESkill::kLeadership, number(0, 1), ch);
@@ -410,51 +406,6 @@ void die(CharData *ch, CharData *killer) {
 	raw_kill(ch, killer);
 }
 
-#include "game_classes/classes_spell_slots.h"
-void forget_all_spells(CharData *ch) {
-	using PlayerClass::CalcCircleSlotsAmount;
-
-	ch->mem_queue.stored = 0;
-	int slots[kMaxSlot];
-	int max_slot = 0;
-	for (unsigned i = 0; i < kMaxSlot; ++i) {
-		slots[i] = CalcCircleSlotsAmount(ch, i + 1);
-		if (slots[i]) max_slot = i + 1;
-	}
-	struct SpellMemQueueItem *qi_cur, **qi = &ch->mem_queue.queue;
-	while (*qi) {
-		--slots[spell_info[(*(qi))->spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1];
-		qi = &((*qi)->link);
-	}
-	int slotn;
-
-	for (int i = 0; i <= kSpellCount; i++) {
-		if (PRF_FLAGGED(ch, EPrf::kAutomem) && ch->real_abils.SplMem[i]) {
-			slotn = spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;
-			for (unsigned j = 0; (slots[slotn] > 0 && j < ch->real_abils.SplMem[i]); ++j, --slots[slotn]) {
-				ch->mem_queue.total += mag_manacost(ch, i);
-				CREATE(qi_cur, 1);
-				*qi = qi_cur;
-				qi_cur->spellnum = i;
-				qi_cur->link = nullptr;
-				qi = &qi_cur->link;
-			}
-		}
-		ch->real_abils.SplMem[i] = 0;
-	}
-	if (max_slot) {
-		Affect<EApply> af;
-		af.type = kSpellRecallSpells;
-		af.location = EApply::kNone;
-		af.modifier = 1; // номер круга, который восстанавливаем
-		//добавим 1 проход про запас, иначе неуспевает отмемиться последний круг -- аффект спадает раньше
-		af.duration = CalcDuration(ch, max_slot * RECALL_SPELLS_INTERVAL + kSecsPerPlayerAffect, 0, 0, 0, 0);
-		af.bitvector = to_underlying(EAffect::kMemorizeSpells);
-		af.battleflag = kAfPulsedec | kAfDeadkeep;
-		ImposeAffect(ch, af, false, false, false, false);
-	}
-}
-
 /* Функция используемая при "автограбеже" и "автолуте",
    чтобы не было лута под холдом или в слепи             */
 int can_loot(CharData *ch) {
@@ -523,13 +474,13 @@ void arena_kill(CharData *ch, CharData *killer) {
 		}
 	}
 	for (int i=0; i < MAX_FIRSTAID_REMOVE; i++) {
-		affect_from_char(ch, RemoveSpell(i));
+		RemoveAffectFromChar(ch, GetRemovableSpellId(i));
 	}
 	// наемовские яды
-	affect_from_char(ch, kSpellAconitumPoison);
-	affect_from_char(ch, kSpellDaturaPoison);
-	affect_from_char(ch, kSpellScopolaPoison);
-	affect_from_char(ch, kSpellBelenaPoison);
+	RemoveAffectFromChar(ch, ESpell::kAconitumPoison);
+	RemoveAffectFromChar(ch, ESpell::kDaturaPoison);
+	RemoveAffectFromChar(ch, ESpell::kScopolaPoison);
+	RemoveAffectFromChar(ch, ESpell::kBelenaPoison);
 
 	ExtractCharFromRoom(ch);
 	PlaceCharToRoom(ch, to_room);
@@ -542,11 +493,11 @@ void auto_loot(CharData *ch, CharData *killer, ObjData *corpse, int local_gold) 
 	char obj[256];
 
 	if (is_dark(IN_ROOM(killer))
-		&& !IsAbleToUseFeat(killer, EFeat::kDarkReading)
+		&& !CanUseFeat(killer, EFeat::kDarkReading)
 		&& !(killer->IsNpc()
 			&& AFF_FLAGGED(killer, EAffect::kCharmed)
 			&& killer->has_master()
-			&& IsAbleToUseFeat(killer->get_master(), EFeat::kDarkReading))) {
+			&& CanUseFeat(killer->get_master(), EFeat::kDarkReading))) {
 		return;
 	}
 
@@ -599,8 +550,8 @@ void check_spell_capable(CharData *ch, CharData *killer) {
 		&& killer != ch
 		&& MOB_FLAGGED(ch, EMobFlag::kClone)
 		&& ch->has_master()
-		&& IsAffectedBySpell(ch, kSpellCapable)) {
-		affect_from_char(ch, kSpellCapable);
+		&& IsAffectedBySpell(ch, ESpell::kCapable)) {
+		RemoveAffectFromChar(ch, ESpell::kCapable);
 		act("Чары, наложенные на $n3, тускло засветились и стали превращаться в нечто опасное.",
 			false, ch, nullptr, killer, kToRoom | kToArenaListen);
 		auto pos = GET_POS(ch);
@@ -739,7 +690,7 @@ void raw_kill(CharData *ch, CharData *killer) {
 
 	// добавляем одну душу киллеру
 	if (ch->IsNpc() && killer) {
-		if (IsAbleToUseFeat(killer, EFeat::kSoulsCollector)) {
+		if (CanUseFeat(killer, EFeat::kSoulsCollector)) {
 			if (GetRealLevel(ch) >= GetRealLevel(killer)) {
 				if (killer->get_souls() < (GET_REAL_REMORT(killer) + 1)) {
 					act("&GВы забрали душу $N1 себе!&n", false, killer, nullptr, ch, kToChar);
@@ -941,13 +892,6 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 	}
 }
 
-int grouping_koef(int player_class, int player_remort) {
-	if ((player_class >= kNumPlayerClasses) || (player_class < 0))
-		return 1;
-	return grouping[player_class][player_remort];
-
-}
-
 /*++
    Функция расчитывает всякие бонусы для группы при получении опыта,
  после чего вызывает функцию получения опыта для всех членов группы
@@ -968,7 +912,7 @@ void group_gain(CharData *killer, CharData *victim) {
 	bool use_partner_exp = false;
 
 	// если наем лидер, то тоже режем экспу
-	if (IsAbleToUseFeat(killer, EFeat::kCynic)) {
+	if (CanUseFeat(killer, EFeat::kCynic)) {
 		maxlevel = 300;
 	} else {
 		maxlevel = GetRealLevel(killer);
@@ -999,7 +943,7 @@ void group_gain(CharData *killer, CharData *victim) {
 			// если в группе наем, то режим опыт всей группе
 			// дабы наема не выгодно было бы брать в группу
 			// ставим 300, чтобы вообще под ноль резало
-			if (IsAbleToUseFeat(f->ch, EFeat::kCynic)) {
+			if (CanUseFeat(f->ch, EFeat::kCynic)) {
 				maxlevel = 300;
 			}
 			// просмотр членов группы в той же комнате
@@ -1035,7 +979,7 @@ void group_gain(CharData *killer, CharData *victim) {
 	// если лидер группы в комнате
 	if (leader_inroom) {
 		// если у лидера группы есть способность напарник
-		if (IsAbleToUseFeat(leader, EFeat::kPartner) && use_partner_exp) {
+		if (CanUseFeat(leader, EFeat::kPartner) && use_partner_exp) {
 			// если в группе всего двое человек
 			// k - лидер, и один последователь
 			if (partner_count == 1) {
@@ -1351,8 +1295,8 @@ void Damage::post_init(CharData *ch, CharData *victim) {
 		// ABYRVALG тут нужно переделать на взятие сообщения из структуры абилок
 		if (MUD::Skills().IsValid(skill_id)) {
 			msg_num = to_underlying(skill_id) + kTypeHit;
-		} else if (spell_num >= 0) {
-			msg_num = spell_num;
+		} else if (spell_id > ESpell::kUndefined) {
+			msg_num = to_underlying(spell_id);
 		} else if (hit_type >= 0) {
 			msg_num = hit_type + kTypeHit;
 		} else {
@@ -1360,11 +1304,11 @@ void Damage::post_init(CharData *ch, CharData *victim) {
 		}
 	}
 
-	if (ch_start_pos == EPosition::kIncorrect) {
+	if (ch_start_pos == EPosition::kUndefined) {
 		ch_start_pos = GET_POS(ch);
 	}
 
-	if (victim_start_pos == EPosition::kIncorrect) {
+	if (victim_start_pos == EPosition::kUndefined) {
 		victim_start_pos = GET_POS(victim);
 	}
 
@@ -1388,11 +1332,11 @@ void Damage::zero_init() {
 	magic_type = 0;
 	dmg_type = -1;
 	skill_id = ESkill::kUndefined;
-	spell_num = -1;
+	spell_id = ESpell::kUndefined;
 	hit_type = -1;
 	msg_num = -1;
-	ch_start_pos = EPosition::kIncorrect;
-	victim_start_pos = EPosition::kIncorrect;
+	ch_start_pos = EPosition::kUndefined;
+	victim_start_pos = EPosition::kUndefined;
 	wielded = nullptr;
 }
 

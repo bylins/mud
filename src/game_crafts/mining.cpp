@@ -136,7 +136,7 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int vnum;
 	int old_wis, old_int;
 
-	if (ch->IsNpc() || !ch->get_skill(ESkill::kDigging)) {
+	if (ch->IsNpc() || !ch->GetSkill(ESkill::kDigging)) {
 		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -238,12 +238,12 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	percent = number(1, MUD::Skills()[ESkill::kDigging].difficulty);
-	prob = ch->get_skill(ESkill::kDigging);
+	percent = number(1, MUD::Skills(ESkill::kDigging).difficulty);
+	prob = ch->GetSkill(ESkill::kDigging);
 	old_int = ch->get_int();
 	old_wis = ch->get_wis();
-	ch->set_int(ch->get_int() + 14 - MAX(14, GET_REAL_INT(ch)));
-	ch->set_wis(ch->get_wis() + 14 - MAX(14, GET_REAL_WIS(ch)));
+	ch->set_int(ch->get_int() + 14 - std::max(14, GET_REAL_INT(ch)));
+	ch->set_wis(ch->get_wis() + 14 - std::max(14, GET_REAL_WIS(ch)));
 	ImproveSkill(ch, ESkill::kDigging, 0, nullptr);
 	ch->set_int(old_int);
 	ch->set_wis(old_wis);

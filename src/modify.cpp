@@ -866,7 +866,7 @@ void do_featset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			<< "Возможные способности:" << std:: endl;
 
 		table_wrapper::Table table;
-		for (auto feat = EFeat::kFirstFeat; feat <= EFeat::kLastFeat; ++feat) {
+		for (auto feat = EFeat::kFirst; feat <= EFeat::kLast; ++feat) {
 			if (feat_info[feat].type == EFeatType::kUnused) {
 				continue;
 			}
@@ -910,8 +910,8 @@ void do_featset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	strcpy(help, (argument + 1));
 	help[qend - 1] = '\0';
 
-	auto feat_id = FindFeatNum(help);
-	if (feat_id <= 0) {
+	auto feat_id = FindFeatId(help);
+	if (feat_id == EFeat::kUndefined) {
 		SendMsgToChar("Неизвестная способность.\r\n", ch);
 		return;
 	}
@@ -938,16 +938,16 @@ void do_featset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			feat_info[feat_id].name, value ? "enabled" : "disabled");
 	mudlog(buf2, BRF, -1, SYSLOG, true);
 	imm_log("%s", buf2);
-	if (feat_id >= EFeat::kFirstFeat && feat_id <= EFeat::kLastFeat) {
+	if (feat_id >= EFeat::kFirst && feat_id <= EFeat::kLast) {
 		if (value) {
-			SET_FEAT(vict, feat_id);
+			vict->SetFeat(feat_id);
 		} else {
-			UNSET_FEAT(vict, feat_id);
+			vict->UnsetFeat(feat_id);
 		}
 	}
 	sprintf(buf2, "Вы изменили для %s '%s' на '%s'.\r\n", GET_PAD(vict, 1),
 			feat_info[feat_id].name, value ? "доступно" : "недоступно");
-	if (!IsAbleToGetFeat(vict, feat_id) && value == 1) {
+	if (!CanGetFeat(vict, feat_id) && value == 1) {
 		SendMsgToChar("Эта способность не доступна данному персонажу и будет удалена при повторном входе в игру.\r\n",
 					 ch);
 	}
@@ -962,20 +962,19 @@ void do_skillset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *vict;
 	char name[kMaxInputLength], buf2[128];
 	char buf[kMaxInputLength], help[kMaxStringLength];
-	int spell = -1, value, i, qend;
-	ESkill skill = ESkill::kIncorrect;
+	int value;
 
 	argument = one_argument(argument, name);
 
-	// * No arguments. print an informative text.
-	if (!*name)        // no arguments. print an informative text
-	{
+	auto qend{0};
+	if (!*name) {
 		SendMsgToChar("Формат: skillset <игрок> '<умение/заклинание>' <значение>\r\n", ch);
 		strcpy(help, "Возможные умения:\r\n");
-		for (qend = 0, i = 0; i <= kSpellCount; i++) {
-			if (spell_info[i].name == unused_spellname)    // This is valid.
+
+		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
+			if (spell_info[spell_id].name == unused_spellname)    // This is valid.
 				continue;
-			sprintf(help + strlen(help), "%30s", spell_info[i].name);
+			sprintf(help + strlen(help), "%30s", spell_info[spell_id].name);
 			if (qend++ % 4 == 3) {
 				strcat(help, "\r\n");
 				SendMsgToChar(help, ch);
@@ -1016,12 +1015,13 @@ void do_skillset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	strcpy(help, (argument + 1));
 	help[qend - 1] = '\0';
 
-	if (ESkill::kIncorrect == (skill = FixNameAndFindSkillNum(help))) {
-		spell = FixNameAndFindSpellNum(help);
+	auto skill_id{ESkill::kUndefined};
+	auto spell_id{ESpell::kUndefined};
+	if (ESkill::kUndefined == (skill_id = FixNameAndFindSkillId(help))) {
+		spell_id = FixNameAndFindSpellId(help);
 	}
 
-	if (ESkill::kIncorrect == skill
-		&& spell < 0) {
+	if (skill_id == ESkill::kUndefined && spell_id == ESpell::kFirst) {
 		SendMsgToChar("Неизвестное умение/заклинание.\r\n", ch);
 		return;
 	}
@@ -1041,34 +1041,34 @@ void do_skillset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вы не можете добавить умение для мобов.\r\n", ch);
 		return;
 	}
-	if (value > MUD::Skills()[skill].cap && spell < 0) {
+	if (value > MUD::Skills(skill_id).cap && spell_id < ESpell::kFirst) {
 		SendMsgToChar("Превышено максимально возможное значение умения.\r\n", ch);
-		value = MUD::Skills()[skill].cap;
+		value = MUD::Skills(skill_id).cap;
 	}
 
 	// * FindSkillId() guarantees a valid spell_info[] index, or -1, and we
 	// * checked for the -1 above so we are safe here.
 	sprintf(buf2, "%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict),
-			spell >= 0 ? spell_info[spell].name : MUD::Skills()[skill].GetName(), value);
+			spell_id >= ESpell::kFirst ? spell_info[spell_id].name : MUD::Skills(skill_id).GetName(), value);
 	mudlog(buf2, BRF, kLvlImmortal, SYSLOG, true);
-	if (spell >= 0 && spell <= kSpellCount) {
-		if (value == 0 && IS_SET(GET_SPELL_TYPE(vict, spell), kSpellTemp)) {
+	if (spell_id >= ESpell::kFirst && spell_id <= ESpell::kLast) {
+		if (value == 0 && IS_SET(GET_SPELL_TYPE(vict, spell_id), ESpellType::kTemp)) {
 			for (auto it = vict->temp_spells.begin(); it != vict->temp_spells.end();) {
-				if (it->second.spell == spell) {
+				if (it->second.spell == spell_id) {
 					it = vict->temp_spells.erase(it);
 				} else
 					++it;
 			}
 		}
-		if (IS_SET(value, kSpellTemp)) {
-			Temporary_Spells::add_spell(vict, spell, time(nullptr), 3600);
+		if (IS_SET(value, ESpellType::kTemp)) {
+			Temporary_Spells::AddSpell(vict, spell_id, time(nullptr), 3600);
 		}
-		GET_SPELL_TYPE(vict, spell) = value;
-	} else if (ESkill::kIncorrect != skill && skill <= ESkill::kLast) {
-		vict->set_skill(skill, value);
+		GET_SPELL_TYPE(vict, spell_id) = value;
+	} else if (ESkill::kUndefined != skill_id && skill_id <= ESkill::kLast) {
+		vict->set_skill(skill_id, value);
 	}
 	sprintf(buf2, "Вы изменили для %s '%s' на %d.\r\n", GET_PAD(vict, 1),
-			spell >= 0 ? spell_info[spell].name : MUD::Skills()[skill].GetName(), value);
+			spell_id > ESpell::kUndefined ? spell_info[spell_id].name : MUD::Skills(skill_id).GetName(), value);
 	SendMsgToChar(buf2, ch);
 }
 

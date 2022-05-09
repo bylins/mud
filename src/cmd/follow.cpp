@@ -67,8 +67,8 @@ bool stop_follower(CharData *ch, int mode) {
 	if (AFF_FLAGGED(ch, EAffect::kCharmed)
 		|| AFF_FLAGGED(ch, EAffect::kHelper)
 		|| IS_SET(mode, kSfCharmlost)) {
-		if (IsAffectedBySpell(ch, kSpellCharm)) {
-			affect_from_char(ch, kSpellCharm);
+		if (IsAffectedBySpell(ch, ESpell::kCharm)) {
+			RemoveAffectFromChar(ch, ESpell::kCharm);
 		}
 		ch->extract_timer = 5;
 		AFF_FLAGS(ch).unset(EAffect::kCharmed);
@@ -90,7 +90,7 @@ bool stop_follower(CharData *ch, int mode) {
 			}
 		}
 	}
-	if (ch->IsNpc() && MOB_FLAGGED(ch, EMobFlag::kSummoned)) { // фул рестор моба (Кудояр)
+	if (ch->IsNpc() && MOB_FLAGGED(ch, EMobFlag::kSummoned)) {
 		act("Магия подпитующая $n3 развеялась, и $n0 вернул$u в норму.", true, ch, 0, 0, kToRoom | kToArenaListen);
 		ch->restore_npc();
 			// сначало бросаем лишнее

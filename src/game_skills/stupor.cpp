@@ -41,7 +41,7 @@ void go_stupor(CharData *ch, CharData *victim) {
 }
 
 void do_stupor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->get_skill(ESkill::kOverwhelm) < 1) {
+	if (ch->GetSkill(ESkill::kOverwhelm) < 1) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}

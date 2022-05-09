@@ -277,7 +277,7 @@ void LoadGodBoards() {
 * \param mode 0 - общие команды, 1 - подкоманды set, 2 - подкоманды show
 * \return 0 - нельзя, 1 - можно
 */
-bool IsAbleToDoPrivilege(CharData *ch, const std::string &cmd_name, int cmd_number, int mode, bool check_level) {
+bool HasPrivilege(CharData *ch, const std::string &cmd_name, int cmd_number, int mode, bool check_level) {
 	if (check_level && !mode && cmd_info[cmd_number].minimum_level < kLvlImmortal
 		&& GetRealLevel(ch) >= cmd_info[cmd_number].minimum_level)
 		return true;
@@ -335,14 +335,15 @@ bool CheckFlag(const CharData *ch, int flag) {
 * Группа skills без ограничений. Группа arena только призыв, пента и слово возврата и только на клетках арены.
 * У морталов и 34х проверка не производится.
 */
-bool CheckSpells(const CharData *ch, int spellnum) {
-	// флаг use_skills - везде и что угодно
-	if (!IS_IMMORTAL(ch) || IS_IMPL(ch) || CheckFlag(ch, kUseSkills))
+bool IsSpellPermit(const CharData *ch, ESpell spell_id) {
+	if (!IS_IMMORTAL(ch) || IS_IMPL(ch) || CheckFlag(ch, kUseSkills)) {
 		return true;
-	// флаг arena_master - только на арене и только для призыва/пенты
-	if (spellnum == kSpellPortal || spellnum == kSpellSummon || spellnum == kSpellWorldOfRecall)
-		if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena) && CheckFlag(ch, kArenaMaster))
+	}
+	if (spell_id == ESpell::kPortal || spell_id == ESpell::kSummon || spell_id == ESpell::kWorldOfRecall) {
+		if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena) && CheckFlag(ch, kArenaMaster)) {
 			return true;
+		}
+	}
 	return false;
 }
 

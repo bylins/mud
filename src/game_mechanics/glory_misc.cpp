@@ -14,6 +14,7 @@
 #include "comm.h"
 #include "entities/char_player.h"
 #include "modify.h"
+#include "structs/global_objects.h"
 
 namespace GloryMisc {
 
@@ -170,22 +171,23 @@ int start_stats_count(CharData *ch) {
 * В случае старого ролла тут это всплывет из-за нулевых статов.
 */
 bool bad_start_stats(CharData *ch) {
-	if (ch->get_start_stat(G_STR) > MAX_STR(ch)
-		|| ch->get_start_stat(G_STR) < MIN_STR(ch)
-		|| ch->get_start_stat(G_DEX) > MAX_DEX(ch)
-		|| ch->get_start_stat(G_DEX) < MIN_DEX(ch)
-		|| ch->get_start_stat(G_INT) > MAX_INT(ch)
-		|| ch->get_start_stat(G_INT) < MIN_INT(ch)
-		|| ch->get_start_stat(G_WIS) > MAX_WIS(ch)
-		|| ch->get_start_stat(G_WIS) < MIN_WIS(ch)
-		|| ch->get_start_stat(G_CON) > MAX_CON(ch)
-		|| ch->get_start_stat(G_CON) < MIN_CON(ch)
-		|| ch->get_start_stat(G_CHA) > MAX_CHA(ch)
-		|| ch->get_start_stat(G_CHA) < MIN_CHA(ch)
-		|| start_stats_count(ch) != kBaseStatsSum) {
-		return 1;
+	const auto &ch_class = MUD::Classes(ch->GetClass());
+	if (ch->get_start_stat(G_STR) > ch_class.GetBaseStatGenMax(EBaseStat::kStr) ||
+		ch->get_start_stat(G_STR) < ch_class.GetBaseStatGenMin(EBaseStat::kStr) ||
+		ch->get_start_stat(G_DEX) > ch_class.GetBaseStatGenMax(EBaseStat::kDex) ||
+		ch->get_start_stat(G_DEX) < ch_class.GetBaseStatGenMin(EBaseStat::kDex) ||
+		ch->get_start_stat(G_INT) > ch_class.GetBaseStatGenMax(EBaseStat::kInt) ||
+		ch->get_start_stat(G_INT) < ch_class.GetBaseStatGenMin(EBaseStat::kInt) ||
+		ch->get_start_stat(G_WIS) > ch_class.GetBaseStatGenMax(EBaseStat::kWis) ||
+		ch->get_start_stat(G_WIS) < ch_class.GetBaseStatGenMin(EBaseStat::kWis) ||
+		ch->get_start_stat(G_CON) > ch_class.GetBaseStatGenMax(EBaseStat::kCon) ||
+		ch->get_start_stat(G_CON) < ch_class.GetBaseStatGenMin(EBaseStat::kCon) ||
+		ch->get_start_stat(G_CHA) > ch_class.GetBaseStatGenMax(EBaseStat::kCha) ||
+		ch->get_start_stat(G_CHA) < ch_class.GetBaseStatGenMin(EBaseStat::kCha) ||
+		start_stats_count(ch) != kBaseStatsSum) {
+		return true;
 	}
-	return 0;
+	return false;
 }
 
 /**
@@ -212,8 +214,8 @@ bool check_stats(CharData *ch) {
 		return 1;
 	}
 
-	int have_stats = ch->get_inborn_str() + ch->get_inborn_dex() + ch->get_inborn_int() + ch->get_inborn_wis()
-		+ ch->get_inborn_con() + ch->get_inborn_cha();
+	int have_stats = ch->GetInbornStr() + ch->GetInbornDex() + ch->GetInbornInt() + ch->GetInbornWis()
+		+ ch->GetInbornCon() + ch->GetInbornCha();
 
 	// чар со старым роллом статов или после попыток поправить статы в файле
 	if (bad_start_stats(ch)) {
@@ -221,33 +223,34 @@ bool check_stats(CharData *ch) {
 										 "Сила: %d, Ловкость: %d, Ум: %d, Мудрость: %d, Телосложение: %d, Обаяние: %d\r\n"
 										 "Просим вас заново распределить основные параметры персонажа.%s\r\n",
 				 CCIGRN(ch, C_SPR),
-				 ch->get_inborn_str() - GET_REAL_REMORT(ch),
-				 ch->get_inborn_dex() - GET_REAL_REMORT(ch),
-				 ch->get_inborn_int() - GET_REAL_REMORT(ch),
-				 ch->get_inborn_wis() - GET_REAL_REMORT(ch),
-				 ch->get_inborn_con() - GET_REAL_REMORT(ch),
-				 ch->get_inborn_cha() - GET_REAL_REMORT(ch),
+				 ch->GetInbornStr() - GET_REAL_REMORT(ch),
+				 ch->GetInbornDex() - GET_REAL_REMORT(ch),
+				 ch->GetInbornInt() - GET_REAL_REMORT(ch),
+				 ch->GetInbornWis() - GET_REAL_REMORT(ch),
+				 ch->GetInbornCon() - GET_REAL_REMORT(ch),
+				 ch->GetInbornCha() - GET_REAL_REMORT(ch),
 				 CCNRM(ch, C_SPR));
 		SEND_TO_Q(buf, ch->desc);
 
 		// данную фигню мы делаем для того, чтобы из ролла нельзя было случайно так просто выйти
 		// сразу, не раскидав статы, а то много любителей тригов и просто нажатий не глядя
-		ch->set_str(MIN_STR(ch));
-		ch->set_dex(MIN_DEX(ch));
-		ch->set_int(MIN_INT(ch));
-		ch->set_wis(MIN_WIS(ch));
-		ch->set_con(MIN_CON(ch));
-		ch->set_cha(MIN_CHA(ch));
+		const auto &ch_class = MUD::Classes(ch->GetClass());
+		ch->set_str(ch_class.GetBaseStatGenMin(EBaseStat::kStr));
+		ch->set_dex(ch_class.GetBaseStatGenMin(EBaseStat::kDex));
+		ch->set_int(ch_class.GetBaseStatGenMin(EBaseStat::kInt));
+		ch->set_wis(ch_class.GetBaseStatGenMin(EBaseStat::kWis));
+		ch->set_con(ch_class.GetBaseStatGenMin(EBaseStat::kCon));
+		ch->set_cha(ch_class.GetBaseStatGenMin(EBaseStat::kCha));
 
 		genchar_disp_menu(ch);
 		STATE(ch->desc) = CON_RESET_STATS;
-		return 0;
+		return false;
 	}
 	// стартовые статы в поряде, но слава не сходится (снялась по времени или иммом)
 	if (bad_real_stats(ch, have_stats)) {
 		recalculate_stats(ch);
 	}
-	return 1;
+	return true;
 }
 
 // * Пересчет статов чара на основании стартовых статов, ремортов и славы.

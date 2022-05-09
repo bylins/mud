@@ -33,7 +33,7 @@
 
 #include "structs/global_objects.h"
 #include "game_magic/magic.h"
-#include "world_objects.h"
+#include "entities/world_objects.h"
 #include "entities/world_characters.h"
 #include "entities/entities_constants.h"
 #include "cmd_god/shutdown_parameters.h"
@@ -51,6 +51,7 @@
 #include "utils/file_crc.h"
 #include "corpse.h"
 #include "game_mechanics/glory_misc.h"
+#include "game_mechanics/mem_queue.h"
 #include "game_mechanics/glory_const.h"
 #include "game_economics/shop_ext.h"
 #include "game_mechanics/sets_drop.h"
@@ -1632,7 +1633,6 @@ char *make_prompt(DescriptorData *d) {
 	static const char *dirs[] = {"С", "В", "Ю", "З", "^", "v"};
 
 	int ch_hp, sec_hp;
-	int door;
 	int perc;
 
 	// Note, prompt is truncated at kMaxPromptLength entities (structs.h )
@@ -1666,8 +1666,7 @@ char *make_prompt(DescriptorData *d) {
 			count += sprintf(prompt + count, "%dM%s ", GET_MOVE(d->character), CCNRM(d->character, C_NRM));
 		}
 		// Mana state
-		if (PRF_FLAGGED(d->character, EPrf::kDispMana)
-			&& IS_MANA_CASTER(d->character)) {
+		if (PRF_FLAGGED(d->character, EPrf::kDispMana) && IS_MANA_CASTER(d->character)) {
 			perc = (100 * d->character->mem_queue.stored) / GET_MAX_MANA((d->character).get());
 			count +=
 				sprintf(prompt + count, "%s%dз%s ",
@@ -1678,29 +1677,30 @@ char *make_prompt(DescriptorData *d) {
 		// if (EPrf::FLAGGED(d->character, EPrf::DISPEXP))
 		//    count += sprintf(prompt + count, "%ldx ", GET_EXP(d->character));
 		if (PRF_FLAGGED(d->character, EPrf::kDispExp)) {
-			if (IS_IMMORTAL(d->character))
+			if (IS_IMMORTAL(d->character)) {
 				count += sprintf(prompt + count, "??? ");
-			else
+			} else {
 				count += sprintf(prompt + count, "%ldо ",
 								 GetExpUntilNextLvl(d->character.get(),
 													GetRealLevel(d->character) + 1) - GET_EXP(d->character));
+			}
 		}
-		// Mem Info
-		if (PRF_FLAGGED(d->character, EPrf::kDispMana)
-			&& !IS_MANA_CASTER(d->character)) {
+
+		if (PRF_FLAGGED(d->character, EPrf::kDispMana) && !IS_MANA_CASTER(d->character)) {
 			if (!d->character->mem_queue.Empty()) {
-				door = mana_gain(d->character.get());
-				if (door) {
-					sec_hp =
-						std::max(0, 1 + d->character->mem_queue.total - d->character->mem_queue.stored);
-					sec_hp = sec_hp * 60 / door;
-					ch_hp = sec_hp / 60;
+				auto mana_gain = CalcManaGain(d->character.get());
+				if (mana_gain) {
+					sec_hp = std::max(0, 1 + d->character->mem_queue.total - d->character->mem_queue.stored);
+					sec_hp = sec_hp*60/mana_gain;
+					ch_hp = sec_hp/60;
 					sec_hp %= 60;
 					count += sprintf(prompt + count, "Зауч:%d:%02d ", ch_hp, sec_hp);
-				} else
+				} else {
 					count += sprintf(prompt + count, "Зауч:- ");
-			} else
+				}
+			} else {
 				count += sprintf(prompt + count, "Зауч:0 ");
+			}
 		}
 		// Cooldowns
 		if (PRF_FLAGGED(d->character, EPrf::kDispCooldowns)) {
@@ -1709,7 +1709,7 @@ char *make_prompt(DescriptorData *d) {
 			// у кого руки дойдут - может переделать на метод класса...
 			count += sprintf(prompt + count,
 							 "%s:%d ",
-							 MUD::Skills()[ESkill::kGlobalCooldown].GetAbbr(),
+							 MUD::Skills(ESkill::kGlobalCooldown).GetAbbr(),
 							 d->character->getSkillCooldownInPulses(ESkill::kGlobalCooldown));
 			for (const auto &skill : MUD::Skills()) {
 				if (skill.IsAvailable()) {
@@ -1722,28 +1722,28 @@ char *make_prompt(DescriptorData *d) {
 		}
 		// Заряды и таймеры умений
 		if (PRF_FLAGGED(d->character, EPrf::kDispTimed)) {
-			if (d->character->get_skill(ESkill::kIdentify))
+			if (d->character->GetSkill(ESkill::kIdentify))
 				count += sprintf(prompt + count, "Пз:%d ", IsTimedBySkill(d->character.get(), ESkill::kIdentify));
-			if (d->character->get_skill(ESkill::kHangovering))
+			if (d->character->GetSkill(ESkill::kHangovering))
 				count += sprintf(prompt + count, "Опх:%d ", IsTimedBySkill(d->character.get(), ESkill::kHangovering));
-			if (d->character->get_skill(ESkill::kFirstAid))
+			if (d->character->GetSkill(ESkill::kFirstAid))
 				count += sprintf(prompt + count, "Лч:%d ", IsTimedBySkill(d->character.get(), ESkill::kFirstAid));
-			if (d->character->get_skill(ESkill::kDisguise))
+			if (d->character->GetSkill(ESkill::kDisguise))
 				count += sprintf(prompt + count, "Мс:%d ", IsTimedBySkill(d->character.get(), ESkill::kDisguise));
-			if (d->character->get_skill(ESkill::kRepair))
+			if (d->character->GetSkill(ESkill::kRepair))
 				count += sprintf(prompt + count, "Рм:%d ", IsTimedBySkill(d->character.get(), ESkill::kRepair));
-			if (d->character->get_skill(ESkill::kCourage))
+			if (d->character->GetSkill(ESkill::kCourage))
 				count += sprintf(prompt + count, "Яр:%d ", IsTimedBySkill(d->character.get(), ESkill::kCourage));
-			if (d->character->get_skill(ESkill::kJinx))
+			if (d->character->GetSkill(ESkill::kJinx))
 				count += sprintf(prompt + count, "Сг:%d ", IsTimedBySkill(d->character.get(), ESkill::kJinx));
-			if (d->character->get_skill(ESkill::kTownportal))
+			if (d->character->GetSkill(ESkill::kTownportal))
 				count += sprintf(prompt + count, "Вр:%d ", IsTimedBySkill(d->character.get(), ESkill::kTownportal));
-			if (d->character->get_skill(ESkill::kWarcry)) {
+			if (d->character->GetSkill(ESkill::kWarcry)) {
 				int wc_count = (kHoursPerDay - IsTimedBySkill(d->character.get(), ESkill::kWarcry)) / kHoursPerWarcry;
 				count += sprintf(prompt + count, "Кл:%d ", wc_count);
 			}
-			if (d->character->get_skill(ESkill::kTurnUndead)) {
-				if (IsAbleToUseFeat(d->character.get(), EFeat::kExorcist)) {
+			if (d->character->GetSkill(ESkill::kTurnUndead)) {
+				if (CanUseFeat(d->character.get(), EFeat::kExorcist)) {
 					count += sprintf(prompt + count,
 									 "Из:%d ",
 									 (kHoursPerDay - IsTimedBySkill(d->character.get(), ESkill::kTurnUndead))
@@ -1755,23 +1755,20 @@ char *make_prompt(DescriptorData *d) {
 										 / kHoursPerTurnUndead);
 				}
 			}
-			if (d->character->get_skill(ESkill::kStrangle))
+			if (d->character->GetSkill(ESkill::kStrangle))
 				count += sprintf(prompt + count, "Уд:%d ", IsTimedBySkill(d->character.get(), ESkill::kStrangle));
-			if (d->character->get_skill(ESkill::kStun))
+			if (d->character->GetSkill(ESkill::kStun))
 				count += sprintf(prompt + count, "Ош:%d ", IsTimedBySkill(d->character.get(), ESkill::kStun));
 
-			if (HAVE_FEAT(d->character, EFeat::kRelocate))
-				count += sprintf(prompt + count, "Пр:%d ", IsTimed(d->character.get(), EFeat::kRelocate));
-			if (HAVE_FEAT(d->character, EFeat::kSpellCapabler))
-				count += sprintf(prompt + count, "Зч:%d ", IsTimed(d->character.get(), EFeat::kSpellCapabler));
-			if (HAVE_FEAT(d->character, EFeat::kShadowThrower))
-				count += sprintf(prompt + count, "Зо:%d ", IsTimed(d->character.get(), EFeat::kShadowThrower));
+			if (d->character->HaveFeat(EFeat::kRelocate))
+				count += sprintf(prompt + count, "Пр:%d ", IsTimedByFeat(d->character.get(), EFeat::kRelocate));
+			if (d->character->HaveFeat(EFeat::kSpellCapabler))
+				count += sprintf(prompt + count, "Зч:%d ", IsTimedByFeat(d->character.get(), EFeat::kSpellCapabler));
+			if (d->character->HaveFeat(EFeat::kShadowThrower))
+				count += sprintf(prompt + count, "Зо:%d ", IsTimedByFeat(d->character.get(), EFeat::kShadowThrower));
 		}
 
-		if (!d->character->GetEnemy()
-			|| IN_ROOM(d->character) != IN_ROOM(d->character->GetEnemy()))    // SHOW NON COMBAT INFO
-		{
-
+		if (!d->character->GetEnemy() || IN_ROOM(d->character) != IN_ROOM(d->character->GetEnemy())) {
 			if (PRF_FLAGGED(d->character, EPrf::kDispLvl))
 				count += sprintf(prompt + count, "%dL ", GetRealLevel(d->character));
 
@@ -1781,13 +1778,12 @@ char *make_prompt(DescriptorData *d) {
 			if (PRF_FLAGGED(d->character, EPrf::kDispExits)) {
 				count += sprintf(prompt + count, "Вых:");
 				if (!AFF_FLAGGED(d->character, EAffect::kBlind)) {
-					for (door = 0; door < EDirection::kMaxDirNum; door++) {
-						if (EXIT(d->character, door)
-							&& EXIT(d->character, door)->to_room() != kNowhere
-							&& !EXIT_FLAGGED(EXIT(d->character, door), EExitFlag::kHidden)) {
-							count += EXIT_FLAGGED(EXIT(d->character, door), EExitFlag::kClosed)
-									 ? sprintf(prompt + count, "(%s)", dirs[door])
-									 : sprintf(prompt + count, "%s", dirs[door]);
+					for (auto dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
+						if (EXIT(d->character, dir) && EXIT(d->character, dir)->to_room() != kNowhere &&
+							!EXIT_FLAGGED(EXIT(d->character, dir), EExitFlag::kHidden)) {
+							count += EXIT_FLAGGED(EXIT(d->character, dir), EExitFlag::kClosed)
+									 ? sprintf(prompt + count, "(%s)", dirs[dir])
+									 : sprintf(prompt + count, "%s", dirs[dir]);
 						}
 					}
 				}
@@ -3114,7 +3110,7 @@ void close_socket(DescriptorData * d, int direct)
 				Crash_ldsave(d->character.get());
 
 				sprintf(buf, "Closing link to: %s.", GET_NAME(d->character));
-				mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(d->character)), SYSLOG, true);
+				mudlog(buf, NRM, std::max(kLvlGod, GET_INVIS_LEV(d->character)), SYSLOG, true);
 			}
 			d->character->desc = nullptr;
 		} else {
@@ -3503,7 +3499,7 @@ void perform_act(const char *orig,
 								 sizeof(nbuf),
 								 "&q%s&Q",
 								 (!ch->IsNpc() && (IS_IMMORTAL(ch) || GET_INVIS_LEV(ch))) ? GET_PAD(ch, padis)
-																						 : APERS(ch, to, padis, arena));
+																						  : APERS(ch, to, padis, arena));
 						i = nbuf;
 					}
 					break;

@@ -53,28 +53,28 @@ void SendSuccessLearningMessage(CharData *ch, ObjData *book, const std::string &
 }
 
 void LearnSpellBook(CharData *ch, ObjData *obj) {
-	if (PlayerClass::CalcCircleSlotsAmount(ch, 1) <= 0) {
+	if (classes::CalcCircleSlotsAmount(ch, 1) <= 0) {
 		SendMsgToChar("Далась вам эта магия! Пошли бы, водочки выпили...\r\n", ch);
 		throw LearningError();
 	}
 	auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(obj, 1));
-	if (spell_id <= ESpell::kSpellNoSpell || spell_id > ESpell::kSpellCount) {
+	if (spell_id <= ESpell::kUndefined || spell_id > ESpell::kLast) {
 		SendMsgToChar("МАГИЯ НЕ ОПРЕДЕЛЕНА - сообщите Богам!\r\n", ch);
 		throw LearningError();
 	}
 
-	if (!IsAbleToGetSpell(ch, spell_id, GET_OBJ_VAL(obj, 2))) {
+	if (!CanGetSpell(ch, spell_id, GET_OBJ_VAL(obj, 2))) {
 		throw LowRemortOrLvl();
 	}
 	auto spell_name = spell_info[spell_id].name;
-	if (GET_SPELL_TYPE(ch, spell_id) & kSpellKnow) {
+	if (GET_SPELL_TYPE(ch, spell_id) & ESpellType::kKnow) {
 		throw AlreadyKnown(spell_name);
 	}
 	if (IsLearningFailed(ch, obj)) {
 		throw LearningFail();
 	}
 
-	GET_SPELL_TYPE(ch, spell_id) |= kSpellKnow;
+	GET_SPELL_TYPE(ch, spell_id) |= ESpellType::kKnow;
 	SendSuccessLearningMessage(ch, obj, spell_name);
 }
 
@@ -90,11 +90,11 @@ void LearnSkillBook(CharData *ch, ObjData *obj) {
 		throw LearningError();
 	}
 
-	auto skill_name = MUD::Skills()[skill_id].GetName();
-	if (ch->get_skill(skill_id)) {
+	auto skill_name = MUD::Skills(skill_id).GetName();
+	if (ch->GetSkill(skill_id)) {
 		throw AlreadyKnown(skill_name);
 	}
-	if (!IsAbleToGetSkill(ch, skill_id, GET_OBJ_VAL(obj, 2))) {
+	if (!CanGetSkill(ch, skill_id, GET_OBJ_VAL(obj, 2))) {
 		throw LowRemortOrLvl();
 	}
 	if (IsLearningFailed(ch, obj)) {
@@ -113,12 +113,12 @@ void LearnSkillUpgradeBook(CharData *ch, ObjData *obj) {
 	}
 
 	const auto book_skill_cap = GET_OBJ_VAL(obj, 3);
-	auto skill_name = MUD::Skills()[skill_id].GetName();
+	auto skill_name = MUD::Skills(skill_id).GetName();
 	if ((book_skill_cap > 0 && ch->get_trained_skill(skill_id) >= book_skill_cap) ||
 		(book_skill_cap <= 0 && ch->get_trained_skill(skill_id) >= CalcSkillRemortCap(ch))) {
 		throw AlreadyKnown(skill_name);
 	}
-	if (!IsAbleToGetSkill(ch, skill_id, GET_OBJ_VAL(obj, 2))) {
+	if (!CanGetSkill(ch, skill_id, GET_OBJ_VAL(obj, 2))) {
 		throw LowRemortOrLvl();
 	}
 	if (IsLearningFailed(ch, obj)) {
@@ -147,7 +147,7 @@ void LearnReceiptBook(CharData *ch, ObjData *obj) {
 		throw AlreadyKnown(receipt_name);
 	}
 
-	if (imrecipes[receipt_id].classknow[(int) GET_CLASS(ch)] == KNOW_RECIPE &&
+	if (imrecipes[receipt_id].classknow[(int) ch->GetClass()] == kKnownRecipe &&
 		MAX(GET_OBJ_VAL(obj, 2), imrecipes[receipt_id].level) <= GetRealLevel(ch) &&
 		imrecipes[receipt_id].remort <= GET_REAL_REMORT(ch)) {
 		if (imrecipes[receipt_id].level == -1 || imrecipes[receipt_id].remort == -1) {
@@ -170,17 +170,17 @@ void LearnReceiptBook(CharData *ch, ObjData *obj) {
 
 void LearnFeatBook(CharData *ch, ObjData *obj) {
 	auto feat_id = static_cast<EFeat>(GET_OBJ_VAL(obj, 1));
-	if (feat_id < EFeat::kFirstFeat || feat_id > EFeat::kLastFeat) {
+	if (feat_id < EFeat::kFirst || feat_id > EFeat::kLast) {
 		SendMsgToChar("СПОСОБНОСТЬ НЕ ОПРЕДЕЛЕНА - сообщите Богам!\r\n", ch);
 		throw LearningError();
 	}
 
 	auto feat_name = GetFeatName(feat_id);
-	if (HAVE_FEAT(ch, feat_id)) {
+	if (ch->HaveFeat(feat_id)) {
 		throw AlreadyKnown(feat_name);
 	}
 
-	if (!IsAbleToGetFeat(ch, feat_id)) {
+	if (!CanGetFeat(ch, feat_id)) {
 		throw LowRemortOrLvl();
 	}
 
@@ -189,7 +189,7 @@ void LearnFeatBook(CharData *ch, ObjData *obj) {
 	}
 
 	SendSuccessLearningMessage(ch, obj, feat_name);
-	SET_FEAT(ch, feat_id);
+	ch->SetFeat(feat_id);
 }
 
 void LearnBook(CharData *ch, ObjData *obj) {

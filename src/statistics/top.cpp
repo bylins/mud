@@ -13,7 +13,7 @@ PlayerChart TopPlayer::chart_(kNumPlayerClasses);
 // данная функция работает в том числе и с неполностью загруженным персонажем
 // подробности в комментарии к load_char_ascii
 void TopPlayer::Remove(CharData *short_ch) {
-	auto &tmp_list = TopPlayer::chart_[short_ch->get_class()];
+	auto &tmp_list = TopPlayer::chart_[short_ch->GetClass()];
 
 	auto it = std::find_if(tmp_list.begin(), tmp_list.end(), [&short_ch](const TopPlayer &p) {
 		return p.unique_ == short_ch->get_uid();
@@ -38,8 +38,8 @@ void TopPlayer::Refresh(CharData *short_ch, bool reboot) {
 	}
 
 	std::list<TopPlayer>::iterator it_exp;
-	for (it_exp = TopPlayer::chart_[short_ch->get_class()].begin();
-		 it_exp != TopPlayer::chart_[short_ch->get_class()].end(); ++it_exp) {
+	for (it_exp = TopPlayer::chart_[short_ch->GetClass()].begin();
+		 it_exp != TopPlayer::chart_[short_ch->GetClass()].end(); ++it_exp) {
 		if (it_exp->remort_ < GET_REAL_REMORT(short_ch)
 			|| (it_exp->remort_ == GET_REAL_REMORT(short_ch) && it_exp->exp_ < GET_EXP(short_ch))) {
 			break;
@@ -51,10 +51,10 @@ void TopPlayer::Refresh(CharData *short_ch, bool reboot) {
 	}
 	TopPlayer temp_player(GET_UNIQUE(short_ch), GET_NAME(short_ch), GET_EXP(short_ch), GET_REAL_REMORT(short_ch));
 
-	if (it_exp != TopPlayer::chart_[short_ch->get_class()].end()) {
-		TopPlayer::chart_[short_ch->get_class()].insert(it_exp, temp_player);
+	if (it_exp != TopPlayer::chart_[short_ch->GetClass()].end()) {
+		TopPlayer::chart_[short_ch->GetClass()].insert(it_exp, temp_player);
 	} else {
-		TopPlayer::chart_[short_ch->get_class()].push_back(temp_player);
+		TopPlayer::chart_[short_ch->GetClass()].push_back(temp_player);
 	}
 }
 
@@ -71,7 +71,7 @@ void TopPlayer::PrintPlayersChart(CharData *ch) {
 			<< it.second.begin()->name_
 			<< it.second.begin()->remort_
 			<< GetDeclensionInNumber(it.second.begin()->remort_, EWhat::kRemort)
-			<< MUD::Classes()[it.first].GetName() << table_wrapper::kEndRow;
+			<< MUD::Classes(it.first).GetName() << table_wrapper::kEndRow;
 	}
 	table_wrapper::DecorateNoBorderTable(ch, table);
 	table_wrapper::PrintTableToChar(ch, table);
@@ -79,7 +79,7 @@ void TopPlayer::PrintPlayersChart(CharData *ch) {
 
 void TopPlayer::PrintClassChart(CharData *ch, ECharClass id) {
 	std::ostringstream out;
-	out << KWHT << " Лучшие " << MUD::Classes()[id].GetPluralName() << ":" << KNRM << std::endl;
+	out << KWHT << " Лучшие " << MUD::Classes(id).GetPluralName() << ":" << KNRM << std::endl;
 
 	table_wrapper::Table table;
 	for (const auto &it: TopPlayer::chart_[id]) {

@@ -6,10 +6,10 @@
 #include <vector>
 
 namespace Temporary_Spells {
-void add_spell(CharData *ch, int spellnum, time_t set_time, time_t duration);
+void AddSpell(CharData *ch, ESpell spell_id, time_t set_time, time_t duration);
 void update_times();
 void update_char_times(CharData *ch, time_t now);
-time_t spell_left_time(CharData *ch, int spellnum);
+time_t GetSpellLeftTime(CharData *ch, ESpell spell_id);
 }
 
 #endif // TEMP_SPELLS_HPP_INCLUDED

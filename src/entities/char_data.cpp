@@ -14,7 +14,6 @@
 #include "house.h"
 #include "msdp/msdp_constants.h"
 #include "backtrace.h"
-#include "zone.h"
 #include "structs/global_objects.h"
 #include "liquid.h"
 
@@ -112,8 +111,7 @@ float CharData::get_cond_penalty(int type) const {
 	if (this->IsNpc()) return 1;
 	if (!(GET_COND_M(this, FULL) || GET_COND_M(this, THIRST))) return 1;
 
-	float penalty = 0;
-
+	auto penalty{0.0};
 	if (GET_COND_M(this, FULL)) {
 		int tmp = GET_COND_K(this, FULL); // 0 - 1
 		switch (type) {
@@ -166,7 +164,7 @@ float CharData::get_cond_penalty(int type) const {
 			default: break;
 		}
 	}
-	penalty = 100 - MIN(MAX(0, penalty), 100);
+	penalty = 100.0 - std::clamp(penalty, 0.0, 100.0);
 	penalty /= 100.0;
 	return penalty;
 }
@@ -208,14 +206,14 @@ void CharData::reset() {
 }
 
 void CharData::set_abstinent() {
-	int duration = CalcDuration(this, 2, MAX(0, GET_DRUNK_STATE(this) - kDrunked), 4, 2, 5);
+	int duration = CalcDuration(this, 2, std::max(0, GET_DRUNK_STATE(this) - kDrunked), 4, 2, 5);
 
-	if (IsAbleToUseFeat(this, EFeat::kDrunkard)) {
+	if (CanUseFeat(this, EFeat::kDrunkard)) {
 		duration /= 2;
 	}
 
 	Affect<EApply> af;
-	af.type = kSpellAbstinent;
+	af.type = ESpell::kAbstinent;
 	af.bitvector = to_underlying(EAffect::kAbstinent);
 	af.duration = duration;
 
@@ -244,14 +242,14 @@ void CharData::affect_remove(const char_affects_list_t::iterator &affect_i) {
 
 	const auto af = *affect_i;
 	affect_modify(this, af->location, af->modifier, static_cast<EAffect>(af->bitvector), false);
-	if (af->type == kSpellAbstinent) {
+	if (af->type == ESpell::kAbstinent) {
 		if (player_specials) {
-			GET_DRUNK_STATE(this) = GET_COND(this, DRUNK) = MIN(GET_COND(this, DRUNK), kDrunked - 1);
+			GET_DRUNK_STATE(this) = GET_COND(this, DRUNK) = std::min(GET_COND(this, DRUNK), kDrunked - 1);
 		} else {
 			log("SYSERR: player_specials is not set.");
 		}
 	}
-	if (af->type == kSpellDrunked && af->duration == 0) {
+	if (af->type == ESpell::kDrunked && af->duration == 0) {
 		set_abstinent();
 	}
 
@@ -272,7 +270,7 @@ bool CharData::has_any_affect(const affects_list_t &affects) {
 }
 
 size_t CharData::remove_random_affects(const size_t count) {
-	int last_type = -1;
+	auto last_type{ESpell::kUndefined};
 	std::deque<char_affects_list_t::iterator> removable_affects;
 	for (auto affect_i = affected.begin(); affect_i != affected.end(); ++affect_i) {
 		const auto &affect = *affect_i;
@@ -287,7 +285,7 @@ size_t CharData::remove_random_affects(const size_t count) {
 	std::shuffle(removable_affects.begin(), removable_affects.end(), std::mt19937(std::random_device()()));
 	for (auto counter = 0u; counter < to_remove; ++counter) {
 		const auto affect_i = removable_affects[counter];
-		affect_from_char(this, affect_i->get()->type);
+		RemoveAffectFromChar(this, affect_i->get()->type);
 	}
 
 	return to_remove;
@@ -354,7 +352,7 @@ void CharData::zero_init() {
 	pk_list = nullptr;
 	helpers = nullptr;
 	track_dirs = 0;
-	check_aggressive = 0;
+	check_aggressive = false;
 	extract_timer = 0;
 	initiative = 0;
 	battle_counter = 0;
@@ -364,7 +362,7 @@ void CharData::zero_init() {
 	agrobd = false;
 
 	memset(&extra_attack_, 0, sizeof(extra_attack_type));
-	memset(&cast_attack_, 0, sizeof(cast_attack_type));
+	memset(&cast_attack_, 0, sizeof(CastAttack));
 	//memset(&player_data, 0, sizeof(char_player_data));
 	//player_data char_player_data();
 	memset(&add_abils, 0, sizeof(char_played_ability_data));
@@ -377,7 +375,8 @@ void CharData::zero_init() {
 		i = nullptr;
 	}
 
-	memset(&mem_queue, 0, sizeof(SpellMemQueue));
+	mem_queue.Clear();
+
 	memset(&Temporary, 0, sizeof(FlagData));
 	memset(&battle_affects, 0, sizeof(FlagData));
 	char_specials.position = EPosition::kStand;
@@ -486,12 +485,11 @@ void CharData::purge() {
 			free(KARMA(this));
 
 		free(GET_LOGS(this));
-// shapirus: подчистим за криворукуми кодерами memory leak,
-// вызванный неосвобождением фильтра базара...
+
 		if (EXCHANGE_FILTER(this)) {
 			free(EXCHANGE_FILTER(this));
 		}
-		EXCHANGE_FILTER(this) = nullptr;    // на всякий случай
+		EXCHANGE_FILTER(this) = nullptr;
 
 		clear_ignores();
 
@@ -519,39 +517,39 @@ void CharData::purge() {
 }
 
 // * Скилл с учетом всех плюсов и минусов от шмоток/яда.
-int CharData::get_skill(const ESkill skill_num) const {
-	int skill = get_trained_skill(skill_num) + get_equipped_skill(skill_num);
+int CharData::GetSkill(const ESkill skill_id) const {
+	int skill = get_trained_skill(skill_id) + get_equipped_skill(skill_id);
 	if (AFF_FLAGGED(this, EAffect::kSkillReduce)) {
 		skill -= skill * GET_POISON(this) / 100;
 	}
 	if (ROOM_FLAGGED(this->in_room, ERoomFlag::kDominationArena)) {
 		return std::clamp(skill, 0, CalcSkillRemortCap(this));
 	}
-	return std::clamp(skill, 0, MUD::Skills()[skill_num].cap);
+	return std::clamp(skill, 0, MUD::Skills(skill_id).cap);
 }
 
 //  Скилл со шмоток.
 // мобам и тем классам, у которых скилл является родным, учитываем скилл с каждой шмотки полностью,
 // всем остальным -- не более 5% с шмотки
-int CharData::get_equipped_skill(const ESkill skill_num) const {
+int CharData::get_equipped_skill(const ESkill skill_id) const {
 	int skill = 0;
-	bool is_native = this->IsNpc() || MUD::Classes()[chclass_].HasSkill(skill_num);
+	bool is_native = this->IsNpc() || MUD::Classes(chclass_).skills[skill_id].IsAvailable();
 	for (auto i : equipment) {
 		if (i) {
 			if (is_native) {
-				skill += i->get_skill(skill_num);
+				skill += i->get_skill(skill_id);
 			}
 			// На новый год включаем
 			/*else
 			{
-				skill += (MIN(5, equipment[i]->get_skill(skill_num)));
+				skill += (std::min(5, equipment[i]->get_skill(skill_num)));
 			}*/
 		}
 	}
 	if (is_native) {
-		skill += obj_bonus_.get_skill(skill_num);
+		skill += obj_bonus_.get_skill(skill_id);
 	}
-	if(get_trained_skill(skill_num) > 0) {
+	if(get_trained_skill(skill_id) > 0) {
 		skill += get_skill_bonus();
 	}
 	
@@ -564,20 +562,20 @@ int CharData::get_inborn_skill(const ESkill skill_num) {
 		auto it = skills.find(skill_num);
 		if (it != skills.end()) {
 			//return normalize_skill(it->second.skillLevel, skill_num);
-			return std::clamp(it->second.skillLevel, 0, MUD::Skills()[skill_num].cap);
+			return std::clamp(it->second.skillLevel, 0, MUD::Skills(skill_num).cap);
 		}
 	}
 	return 0;
 }
 
-int CharData::get_trained_skill(const ESkill skill_num) const {
+int CharData::get_trained_skill(const ESkill skill_id) const {
 	if (ROOM_FLAGGED(this->in_room, ERoomFlag::kDominationArena)) {
-		if (MUD::Classes()[chclass_].HasSkill(skill_num)) {
+		if (MUD::Classes(chclass_).skills[skill_id].IsAvailable()) {
 			return 100;
 		}
 	}
 	if (privilege::CheckSkills(this)) {
-		return std::clamp(current_morph_->get_trained_skill(skill_num), 0, MUD::Skills()[skill_num].cap);
+		return std::clamp(current_morph_->get_trained_skill(skill_id), 0, MUD::Skills(skill_id).cap);
 	}
 	return 0;
 }
@@ -727,31 +725,31 @@ EExtraAttack CharData::get_extra_attack_mode() const {
 	return extra_attack_.used_attack;
 }
 
-CharData *CharData::get_extra_victim() const {
+CharData *CharData::GetExtraVictim() const {
 	return extra_attack_.victim;
 }
 
-void CharData::set_cast(int spellnum, int spell_subst, CharData *tch, ObjData *tobj, RoomData *troom) {
-	cast_attack_.spellnum = spellnum;
+void CharData::SetCast(ESpell spell_id, ESpell spell_subst, CharData *tch, ObjData *tobj, RoomData *troom) {
+	cast_attack_.spell_id = spell_id;
 	cast_attack_.spell_subst = spell_subst;
 	cast_attack_.tch = tch;
 	cast_attack_.tobj = tobj;
 	cast_attack_.troom = troom;
 }
 
-int CharData::get_cast_spell() const {
-	return cast_attack_.spellnum;
+ESpell CharData::GetCastSpell() const {
+	return cast_attack_.spell_id;
 }
 
-int CharData::get_cast_subst() const {
+ESpell CharData::GetCastSubst() const {
 	return cast_attack_.spell_subst;
 }
 
-CharData *CharData::get_cast_char() const {
+CharData *CharData::GetCastChar() const {
 	return cast_attack_.tch;
 }
 
-ObjData *CharData::get_cast_obj() const {
+ObjData *CharData::GetCastObj() const {
 	return cast_attack_.tobj;
 }
 
@@ -864,12 +862,12 @@ void change_fighting(CharData *ch, int need_stop) {
 			CLR_AF_BATTLE(k, kEafProtect);
 		}
 
-		if (k->get_extra_victim() == ch) {
+		if (k->GetExtraVictim() == ch) {
 			k->SetExtraAttack(kExtraAttackUnused, 0);
 		}
 
-		if (k->get_cast_char() == ch) {
-			k->set_cast(0, 0, 0, 0, 0);
+		if (k->GetCastChar() == ch) {
+			k->SetCast(ESpell::kUndefined, ESpell::kUndefined, 0, 0, 0);
 		}
 
 		if (k->GetEnemy() == ch && IN_ROOM(k) != kNowhere) {
@@ -973,7 +971,7 @@ void CharData::set_description(const char *s) {
 	player_data.description = std::string(s);
 }
 
-ECharClass CharData::get_class() const {
+ECharClass CharData::GetClass() const {
 	return chclass_;
 }
 
@@ -982,12 +980,12 @@ void CharData::set_class(ECharClass chclass) {
 	// Почему классы не пронумеровать подряд - загадка...
 	// && chclass != ECharClass::kNpcBase && chclass != ECharClass::kMob
 	if (chclass < ECharClass::kFirst || chclass > ECharClass::kNpcLast) {
-		log("WARNING: chclass=%d (%s:%d %s)", chclass, __FILE__, __LINE__, __func__);
+		log("WARNING: chclass=%d (%s:%d %s)", to_underlying(chclass), __FILE__, __LINE__, __func__);
 	}
 	chclass_ = chclass;
 }
 
-int CharData::get_level() const {
+int CharData::GetLevel() const {
 	return level_;
 }
 
@@ -1033,20 +1031,20 @@ void CharData::set_exp(long exp) {
 	if (exp < 0) {
 		log("WARNING: exp=%ld name=[%s] (%s:%d %s)", exp, get_name().c_str(), __FILE__, __LINE__, __func__);
 	}
-	exp_ = MAX(0, exp);
+	exp_ = std::max(0L, exp);
 	msdp_report(msdp::constants::EXPERIENCE);
 }
 
-short CharData::get_remort() const {
+int CharData::get_remort() const {
 	return remorts_;
 }
 
-short CharData::get_remort_add() const {
+int CharData::get_remort_add() const {
 	return remorts_add_;
 }
 
-void CharData::set_remort(short num) {
-	remorts_ = MAX(0, num);
+void CharData::set_remort(int num) {
+	remorts_ = std::max(0, num);
 }
 
 void CharData::set_remort_add(short num) {
@@ -1219,7 +1217,7 @@ void CharData::set_gold(long num, bool need_log) {
 		// чтобы с логированием не заморачиваться
 		return;
 	}
-	num = MAX(0, MIN(kMaxMoneyKept, num));
+	num = std::clamp(num, 0L, kMaxMoneyKept);
 
 	if (need_log && !this->IsNpc()) {
 		long change = num - get_gold();
@@ -1243,7 +1241,7 @@ void CharData::set_bank(long num, bool need_log) {
 		// чтобы с логированием не заморачиваться
 		return;
 	}
-	num = MAX(0, MIN(kMaxMoneyKept, num));
+	num = std::clamp(num, 0L, kMaxMoneyKept);
 
 	if (need_log && !this->IsNpc()) {
 		long change = num - get_bank();
@@ -1324,16 +1322,16 @@ int CharData::get_str() const {
 	return current_morph_->GetStr();
 }
 
-int CharData::get_inborn_str() const {
+int CharData::GetInbornStr() const {
 	return str_;
 }
 
 void CharData::set_str(int param) {
-	str_ = MAX(1, param);
+	str_ = std::max(1, param);
 }
 
 void CharData::inc_str(int param) {
-	str_ = MAX(1, str_ + param);
+	str_ = std::max(1, str_ + param);
 }
 
 int CharData::get_str_add() const {
@@ -1349,16 +1347,16 @@ int CharData::get_dex() const {
 	return current_morph_->GetDex();
 }
 
-int CharData::get_inborn_dex() const {
+int CharData::GetInbornDex() const {
 	return dex_;
 }
 
 void CharData::set_dex(int param) {
-	dex_ = MAX(1, param);
+	dex_ = std::max(1, param);
 }
 
 void CharData::inc_dex(int param) {
-	dex_ = MAX(1, dex_ + param);
+	dex_ = std::max(1, dex_ + param);
 }
 
 int CharData::get_dex_add() const {
@@ -1374,15 +1372,15 @@ int CharData::get_con() const {
 	return current_morph_->GetCon();
 }
 
-int CharData::get_inborn_con() const {
+int CharData::GetInbornCon() const {
 	return con_;
 }
 
 void CharData::set_con(int param) {
-	con_ = MAX(1, param);
+	con_ = std::max(1, param);
 }
 void CharData::inc_con(int param) {
-	con_ = MAX(1, con_ + param);
+	con_ = std::max(1, con_ + param);
 }
 
 int CharData::get_con_add() const {
@@ -1399,16 +1397,16 @@ int CharData::get_int() const {
 	return current_morph_->GetIntel();
 }
 
-int CharData::get_inborn_int() const {
+int CharData::GetInbornInt() const {
 	return int_;
 }
 
 void CharData::set_int(int param) {
-	int_ = MAX(1, param);
+	int_ = std::max(1, param);
 }
 
 void CharData::inc_int(int param) {
-	int_ = MAX(1, int_ + param);
+	int_ = std::max(1, int_ + param);
 }
 
 int CharData::get_int_add() const {
@@ -1424,12 +1422,12 @@ int CharData::get_wis() const {
 	return current_morph_->GetWis();
 }
 
-int CharData::get_inborn_wis() const {
+int CharData::GetInbornWis() const {
 	return wis_;
 }
 
 void CharData::set_wis(int param) {
-	wis_ = MAX(1, param);
+	wis_ = std::max(1, param);
 }
 
 void CharData::set_who_mana(unsigned int param) {
@@ -1449,7 +1447,7 @@ time_t CharData::get_who_last() {
 }
 
 void CharData::inc_wis(int param) {
-	wis_ = MAX(1, wis_ + param);
+	wis_ = std::max(1, wis_ + param);
 }
 
 int CharData::get_wis_add() const {
@@ -1465,15 +1463,15 @@ int CharData::get_cha() const {
 	return current_morph_->GetCha();
 }
 
-int CharData::get_inborn_cha() const {
+int CharData::GetInbornCha() const {
 	return cha_;
 }
 
 void CharData::set_cha(int param) {
-	cha_ = MAX(1, param);
+	cha_ = std::max(1, param);
 }
 void CharData::inc_cha(int param) {
-	cha_ = MAX(1, cha_ + param);
+	cha_ = std::max(1, cha_ + param);
 }
 
 int CharData::get_cha_add() const {
@@ -1511,7 +1509,7 @@ int CharData::get_zone_group() const {
 		&& rnum >= 0
 		&& mob_index[rnum].zone >= 0) {
 		const auto zone = mob_index[rnum].zone;
-		return MAX(1, zone_table[zone].group);
+		return std::max(1, zone_table[zone].group);
 	}
 
 	return 1;
@@ -1588,7 +1586,7 @@ std::string CharData::only_title_noclan() {
 	if (!pre_title.empty())
 		result = pre_title + " " + result;
 
-	if (!title.empty() && this->get_level() >= MIN_TITLE_LEV)
+	if (!title.empty() && this->GetLevel() >= MIN_TITLE_LEV)
 		result = result + ", " + title;
 
 	return result;
@@ -1647,7 +1645,7 @@ std::string CharData::get_cover_desc() {
 
 void CharData::set_morph(MorphPtr morph) {
 	morph->SetChar(this);
-	morph->InitSkills(this->get_skill(ESkill::kMorph));
+	morph->InitSkills(this->GetSkill(ESkill::kMorph));
 	morph->InitAbils();
 	this->current_morph_ = morph;
 };
@@ -1657,7 +1655,7 @@ void CharData::reset_morph() {
 	SendMsgToChar(str(boost::format(current_morph_->GetMessageToChar()) % "человеком") + "\r\n", this);
 	act(str(boost::format(current_morph_->GetMessageToRoom()) % "человеком").c_str(), true, this, 0, 0, kToRoom);
 	this->current_morph_ = GetNormalMorphNew(this);
-	this->set_morphed_skill(ESkill::kMorph, (MIN(kSkillCapOnZeroRemort + GET_REAL_REMORT(this) * 5, value)));
+	this->set_morphed_skill(ESkill::kMorph, (std::min(kSkillCapOnZeroRemort + GET_REAL_REMORT(this) * 5, value)));
 //	REMOVE_BIT(AFF_FLAGS(this, AFF_MORPH), AFF_MORPH);
 };
 
@@ -1736,7 +1734,7 @@ CharData::followers_list_t CharData::get_followers_list() const {
 
 bool CharData::low_charm() const {
 	for (const auto &aff : affected) {
-		if (aff->type == kSpellCharm
+		if (aff->type == ESpell::kCharm
 			&& aff->duration <= 1) {
 			return true;
 		}
@@ -1857,12 +1855,12 @@ void CharData::restore_mob() {
 	GET_MOVE(this) = GET_REAL_MAX_MOVE(this);
 	update_pos(this);
 
-	for (int i = 0; i <= kSpellCount; ++i) {
-		GET_SPELL_MEM(this, i) = GET_SPELL_MEM(&mob_proto[GET_MOB_RNUM(this)], i);
+	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
+		GET_SPELL_MEM(this, spell_id) = GET_SPELL_MEM(&mob_proto[GET_MOB_RNUM(this)], spell_id);
 	}
 	this->caster_level = (&mob_proto[GET_MOB_RNUM(this)])->caster_level;
 }
-// Кудояр 
+//
 void CharData::restore_npc() {
 	if(!this->IsNpc()) return;
 	
@@ -1901,7 +1899,7 @@ void CharData::restore_npc() {
     // кубики // екстра атаки
 	this->mob_specials.damnodice = proto->mob_specials.damnodice;
 	this->mob_specials.damsizedice = proto->mob_specials.damsizedice;
-	this->mob_specials.ExtraAttack = proto->mob_specials.ExtraAttack;
+	this->mob_specials.extra_attack = proto->mob_specials.extra_attack;
 	// this->mob_specials.damnodice = 1;
 	// this->mob_specials.damsizedice = 1;
 	// this->mob_specials.ExtraAttack = 0;
@@ -1918,8 +1916,8 @@ void CharData::restore_npc() {
 	this->set_con(GET_REAL_CON(proto));
 	this->set_cha(GET_REAL_CHA(proto));
 	// ресторим мем	
-	for (int i = 0; i <= kSpellCount; ++i) {
-		GET_SPELL_MEM(this, i) = GET_SPELL_MEM(proto, i);
+	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
+		GET_SPELL_MEM(this, spell_id) = GET_SPELL_MEM(proto, spell_id);
 	}
 	// рестор для скилов
 	for (const auto &skill : MUD::Skills()) {
@@ -1928,10 +1926,10 @@ void CharData::restore_npc() {
 		}
 	}
 	// рестор для фитов
-	for (auto i = EFeat::kFirstFeat; i <= EFeat::kLastFeat; ++i) {
-		if (!HAVE_FEAT(proto, i)) {
-				UNSET_FEAT(this, i);
-			}
+	for (auto i = EFeat::kFirst; i <= EFeat::kLast; ++i) {
+		if (!proto->HaveFeat(i)) {
+				this->UnsetFeat(i);
+		}
 	}
 	this->caster_level = proto->caster_level;
 }
@@ -2198,5 +2196,11 @@ player_special_data_saved::player_special_data_saved() :
 
 // dummy spec area for mobs
 player_special_data::shared_ptr player_special_data::s_for_mobiles = std::make_shared<player_special_data>();
+
+int ClampBaseStat(const CharData *ch, const EBaseStat stat_id, const int stat_value) {
+	return ch->IsNpc()
+		   ? std::clamp(stat_value, kLeastBaseStat, kMobBaseStatCap)
+		   : std::clamp(stat_value, kLeastBaseStat, MUD::Classes(ch->GetClass()).GetBaseStatCap(stat_id));
+}
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

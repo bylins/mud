@@ -3,7 +3,7 @@
 
 #include "corpse.h"
 
-#include "world_objects.h"
+#include "entities/world_objects.h"
 #include "obj_prototypes.h"
 #include "entities/char_data.h"
 #include "handler.h"

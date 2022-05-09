@@ -37,7 +37,7 @@ class AbilityRoll {
 		critical_fail_{false},
 		critical_success_{false},
 		wrong_conditions_(false),
-		base_skill_{ESkill::kIncorrect},
+		base_skill_{ESkill::kUndefined},
 		deny_msg_{"Если вы это прочитали, значит, у кодера проблема.\r\n"} {};
 
 	virtual void Init(CharData *actor, EFeat ability_id);
@@ -68,8 +68,8 @@ class AbilityRoll {
 	[[nodiscard]] ESkill GetBaseSkill() const { return base_skill_; };
 	[[nodiscard]] int GetSuccessDegree() const { return success_degree_; };
 	[[nodiscard]] int GetActorRating() const { return actor_rating_; };
-	int GetAbilityId() { return ability_->id; };
-	CharData *GetActor() { return actor_; };
+	[[nodiscard]] EFeat GetAbilityId() { return ability_->id; };
+	[[nodiscard]] CharData *GetActor() { return actor_; };
 	void SendDenyMsgToActor();
 };
 

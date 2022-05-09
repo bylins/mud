@@ -28,7 +28,7 @@ struct SkillInfo : public info_container::IItem<ESkill> {
 	int difficulty{200};
 	int cap{1};
 	bool autosuccess{false};
-	EItemMode mode{EItemMode::kDisabled};
+	EItemMode mode{EItemMode::kService};
 
 	[[nodiscard]] ESkill GetId() const final { return id; };
 	[[nodiscard]] EItemMode GetMode() const final { return mode; };

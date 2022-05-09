@@ -18,7 +18,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include "world_objects.h"
+#include "entities/world_objects.h"
 #include "entities/world_characters.h"
 #include "obj_prototypes.h"
 #include "utils/logger.h"
@@ -4524,7 +4524,7 @@ void Clan::HouseStat(CharData *ch, std::string &buffer) {
 				continue;
 			} else if (!IS_IMMORTAL(d->character)) {
 				it.second->level = GetRealLevel(d->character);
-				it.second->class_abbr = MUD::Classes()[d->character->get_class()].GetAbbr();
+				it.second->class_abbr = MUD::Classes(d->character->GetClass()).GetAbbr();
 				it.second->remort = GET_GOD_FLAG(d->character, EGf::kRemort) ? true : false;
 				it.second->remorts_amount = GET_REMORT(d->character);
 			}

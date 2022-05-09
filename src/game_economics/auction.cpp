@@ -161,7 +161,7 @@ bool auction_drive(CharData *ch, char *argument) {
 			}
 */
 			if (value <= 0) {
-				value = MAX(1, GET_OBJ_COST(obj));
+				value = std::max(1, GET_OBJ_COST(obj));
 			};
 			if (*whom) {
 				if (!(tch = get_player_vis(ch, whom, EFind::kCharInWorld))) {
@@ -262,7 +262,7 @@ bool auction_drive(CharData *ch, char *argument) {
 				SendMsgToChar("Ваша ставка ниже текущей.\r\n", ch);
 				return false;
 			}
-			if (GET_LOT(lot)->buyer && value < GET_LOT(lot)->cost + MAX(1, GET_LOT(lot)->cost / 20)) {
+			if (GET_LOT(lot)->buyer && value < GET_LOT(lot)->cost + std::max(1, GET_LOT(lot)->cost / 20)) {
 				SendMsgToChar("Повышайте ставку не ниже 5% текущей.\r\n", ch);
 				return false;
 			}
@@ -724,7 +724,7 @@ void sell_auction(int lot) {
 		tmpstr = "Вам необходимо прибыть в комнату аукциона к $N2 для получения денег за " + obj->get_PName(3) + ".";
 
 		act(tmpstr.c_str(), false, ch, 0, tch, kToChar | kToSleep);
-		GET_LOT(lot)->tact = MAX(GET_LOT(lot)->tact, kMaxAuctionTactBuy);
+		GET_LOT(lot)->tact = std::max(GET_LOT(lot)->tact, kMaxAuctionTactBuy);
 		return;
 	}
 
