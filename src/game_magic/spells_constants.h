@@ -8,7 +8,7 @@
 #define BYLINS_SRC_GAME_MAGIC_SPELLS_CONSTANTS_H_
 
 #include "structs/structs.h"
-
+#include <optional>
 const int kMaxMemoryCircle = 13;
 
 enum class ESpell {

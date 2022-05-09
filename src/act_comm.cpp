@@ -974,7 +974,8 @@ void do_offtop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		// а мы шо, не люди? даешь оффтоп 34-ым! кому не нравится - реж оффтоп...
 		if (STATE(i) == CON_PLAYING
 			&& i->character
-			&& (GetRealLevel(i->character) < kLvlImmortal || IS_IMPL(i->character))
+// оффтоп видят все, временно
+//			&& (GetRealLevel(i->character) < kLvlImmortal || IS_IMPL(i->character))
 			&& PRF_FLAGGED(i->character, EPrf::kOfftopMode)
 			&& !PRF_FLAGGED(i->character, EPrf::kStopOfftop)
 			&& !ignores(i->character.get(), ch, EIgnore::kOfftop)) {
