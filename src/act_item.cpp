@@ -27,8 +27,6 @@
 #include "utils/utils_char_obj.inl"
 #include "structs/global_objects.h"
 
-// extern variables
-extern std::array<int, kMaxMobLevel / 11 + 1> animals_levels;
 // from act.informative.cpp
 char *find_exdesc(const char *word, const ExtraDescription::shared_ptr &list);
 
@@ -38,8 +36,7 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont);
 int perform_get_from_room(CharData *ch, ObjData *obj);
 void perform_give_gold(CharData *ch, CharData *vict, int amount);
 void perform_give(CharData *ch, CharData *vict, ObjData *obj);
-void perform_drop(CharData *ch, ObjData *obj);
-void perform_drop_gold(CharData *ch, int amount);
+void PerformDrop(CharData *ch, ObjData *obj);
 CharData *give_find_vict(CharData *ch, char *local_arg);
 void weight_change_object(ObjData *obj, int weight);
 int perform_put(CharData *ch, ObjData::shared_ptr obj, ObjData *cont);
@@ -51,7 +48,6 @@ void RemoveEquipment(CharData *ch, int pos);
 int invalid_anti_class(CharData *ch, const ObjData *obj);
 void feed_charmice(CharData *ch, char *local_arg);
 
-ObjData *create_skin(CharData *mob);
 int invalid_unique(CharData *ch, const ObjData *obj);
 bool unique_stuff(const CharData *ch, const ObjData *obj);
 
@@ -63,13 +59,12 @@ void do_split(CharData *ch, char *argument, int cmd, int subcmd, int currency);
 void do_remove(CharData *ch, char *argument, int cmd, int subcmd);
 void do_put(CharData *ch, char *argument, int cmd, int subcmd);
 void do_get(CharData *ch, char *argument, int cmd, int subcmd);
-void do_drop(CharData *ch, char *argument, int cmd, int subcmd);
-void do_give(CharData *ch, char *argument, int cmd, int subcmd);
+void DoDrop(CharData *ch, char *argument, int, int);
 void do_eat(CharData *ch, char *argument, int cmd, int subcmd);
 void do_wear(CharData *ch, char *argument, int cmd, int subcmd);
 void do_wield(CharData *ch, char *argument, int cmd, int subcmd);
 void do_grab(CharData *ch, char *argument, int cmd, int subcmd);
-void do_upgrade(CharData *ch, char *argument, int cmd, int subcmd);
+void DoSharpening(CharData *ch, char *argument, int, int);
 void do_refill(CharData *ch, char *argument, int cmd, int subcmd);
 
 // чтобы словить невозможность положить в клан-сундук,
@@ -162,232 +157,6 @@ int perform_put(CharData *ch, ObjData::shared_ptr obj, ObjData *cont) {
 		return 0;
 	}
 	return 2;
-}
-const int effects_l[5][40][2]{
-	{{0, 0}},
-	{{0, 26}, // количество строк
-	 {EApply::kAbsorbe, 5},
-	 {EApply::kFirstCircle, 3},
-	 {EApply::kSecondCircle, 3},
-	 {EApply::kThirdCircle, 2},
-	 {EApply::kFourthCircle, 2},
-	 {EApply::kFifthCircle, 1},
-	 {EApply::kSixthCircle, 1},
-	 {EApply::kCastSuccess, 3},
-	 {EApply::kHp, 20},
-	 {EApply::kHpRegen, 35},
-	 {EApply::kInitiative, 5},
-	 {EApply::kMamaRegen, 15},
-	 {EApply::kMorale, 5},
-	 {EApply::kMove, 35},
-	 {EApply::kResistAir, 15},
-	 {EApply::kResistEarth, 15},
-	 {EApply::kResistFire, 15},
-	 {EApply::kResistImmunity, 5},
-	 {EApply::kResistMind, 5},
-	 {EApply::kResistVitality, 5},
-	 {EApply::kResistWater, 15},
-	 {EApply::kSavingCritical, -5},
-	 {EApply::kSavingReflex, -5},
-	 {EApply::kSavingStability, -5},
-	 {EApply::kSavingWill, -5},
-	 {EApply::kSize, 10},
-	 {EApply::kResistDark, 15},
-	 {0, 0},
-	 {0, 0},
-	 {0, 0},
-	 {0, 0},
-	 {0, 0},
-	 {0, 0},
-	 {0, 0},
-	 {0, 0},
-	 {0, 0},
-	 {0, 0},
-	 {0, 0},
-	 {0, 0}},
-	{{0, 37},
-	 {EApply::kAbsorbe, 10},
-	 {EApply::kFirstCircle, 3},
-	 {EApply::kSecondCircle, 3},
-	 {EApply::kThirdCircle, 3},
-	 {EApply::kFourthCircle, 3},
-	 {EApply::kFifthCircle, 2},
-	 {EApply::kSixthCircle, 2},
-	 {EApply::kSeventhCircle, 2},
-	 {EApply::kEighthCircle, 1},
-	 {EApply::kNinthCircle, 1},
-	 {EApply::kCastSuccess, 5},
-	 {EApply::kCha, 1},
-	 {EApply::kCon, 1},
-	 {EApply::kDamroll, 2},
-	 {EApply::kDex, 1},
-	 {EApply::kHp, 30},
-	 {EApply::kHpRegen, 55},
-	 {EApply::kHitroll, 2},
-	 {EApply::kInitiative, 10},
-	 {EApply::kInt, 1},
-	 {EApply::kMamaRegen, 30},
-	 {EApply::kMorale, 7},
-	 {EApply::kMove, 55},
-	 {EApply::kResistAir, 25},
-	 {EApply::kResistEarth, 25},
-	 {EApply::kResistFire, 25},
-	 {EApply::kResistImmunity, 10},
-	 {EApply::kResistMind, 10},
-	 {EApply::kResistVitality, 10},
-	 {EApply::kResistWater, 25},
-	 {EApply::kSavingCritical, -10},
-	 {EApply::kSavingReflex, -10},
-	 {EApply::kSavingStability, -10},
-	 {EApply::kSavingWill, -10},
-	 {EApply::kSize, 15},
-	 {EApply::kStr, 1},
-	 {EApply::kWis, 1},
-	 {0, 0},
-	 {0, 0}},
-	{{0, 23},
-	 {EApply::kAbsorbe, 15},
-	 {EApply::kEighthCircle, 2},
-	 {EApply::kNinthCircle, 2},
-	 {EApply::kCastSuccess, 7},
-	 {EApply::kCha, 2},
-	 {EApply::kCon, 2},
-	 {EApply::kDamroll, 3},
-	 {EApply::kDex, 2},
-	 {EApply::kHp, 45},
-	 {EApply::kHitroll, 3},
-	 {EApply::kInitiative, 15},
-	 {EApply::kInt, 2},
-	 {EApply::kMorale, 9},
-	 {EApply::kResistImmunity, 15},
-	 {EApply::kResistMind, 15},
-	 {EApply::kResistVitality, 15},
-	 {EApply::kSavingCritical, -15},
-	 {EApply::kSavingReflex, -15},
-	 {EApply::kSavingStability, -15},
-	 {EApply::kSavingWill, -15},
-	 {EApply::kSize, 20},
-	 {EApply::kStr, 2},
-	 {EApply::kWis, 2},
-	 {0, 0},
-	 {0, 0},
-	 {0, 0},
-	 {0, 0},
-	 {0, 0},
-	 {0, 0},
-	 {0, 0},
-	 {0, 0},
-	 {0, 0},
-	 {0, 0},
-	 {0, 0},
-	 {0, 0},
-	 {0, 0},
-	 {0, 0},
-	 {0, 0},
-	 {0, 0}},
-	{{0, 21},
-	 {EApply::kAbsorbe, 20},
-	 {EApply::kCastSuccess, 10},
-	 {EApply::kCha, 2},
-	 {EApply::kCon, 2},
-	 {EApply::kDamroll, 4},
-	 {EApply::kDex, 2},
-	 {EApply::kHp, 60},
-	 {EApply::kHitroll, 4},
-	 {EApply::kInitiative, 20},
-	 {EApply::kInt, 2},
-	 {EApply::kMorale, 12},
-	 {EApply::kMagicResist, 3},
-	 {EApply::kResistImmunity, 20},
-	 {EApply::kResistMind, 20},
-	 {EApply::kResistVitality, 20},
-	 {EApply::kSavingCritical, -20},
-	 {EApply::kSavingReflex, -20},
-	 {EApply::kSavingStability, -20},
-	 {EApply::kSavingWill, -20},
-	 {EApply::kStr, 2},
-	 {EApply::kWis, 2},
-	 {0, 0},
-	 {0, 0},
-	 {0, 0},
-	 {0, 0},
-	 {0, 0},
-	 {0, 0},
-	 {0, 0},
-	 {0, 0},
-	 {0, 0},
-	 {0, 0},
-	 {0, 0},
-	 {0, 0},
-	 {0, 0},
-	 {0, 0},
-	 {0, 0},
-	 {0, 0},
-	 {0, 0},
-	 {0, 0}}
-
-};
-
-ObjData *create_skin(CharData *mob, CharData *ch) {
-	int vnum, i, k = 0, num, effect;
-	bool concidence;
-	const int vnum_skin_prototype = 1660;
-
-	vnum = vnum_skin_prototype + MIN((int) (GetRealLevel(mob) / 5), 9);
-	const auto skin = world_objects.create_from_prototype_by_vnum(vnum);
-	if (!skin) {
-		mudlog("Неверно задан номер прототипа для освежевания в act.item.cpp::create_skin!",
-			   NRM, kLvlGreatGod, ERRLOG, true);
-		return nullptr;
-	}
-
-	skin->set_val(3, int(GetRealLevel(mob) / 11)); // установим уровень шкуры, топовая 44+
-	skin->set_parent(GET_MOB_VNUM(mob));
-	trans_obj_name(skin.get(), mob); // переносим падежи
-	for (i = 1; i <= GET_OBJ_VAL(skin, 3); i++) // топовая шкура до 4х афектов
-	{
-		if ((k == 1) && (number(1, 100) >= 35)) {
-			continue;
-		}
-		if ((k == 2) && (number(1, 100) >= 20)) {
-			continue;
-		}
-		if ((k == 3) && (number(1, 100) >= 10)) {
-			continue;
-		}
-
-		{
-			concidence = true;
-			while (concidence) {
-				num = number(1, effects_l[GET_OBJ_VAL(skin, 3)][0][1]);
-				concidence = false;
-				for (int n = 0; n <= k && i > 1; n++) {
-					if (effects_l[GET_OBJ_VAL(skin, 3)][num][0] == (skin)->get_affected(n).location) {
-						concidence = true;
-					}
-				}
-			}
-			auto location = effects_l[GET_OBJ_VAL(skin, 3)][num][0];
-			effect = effects_l[GET_OBJ_VAL(skin, 3)][num][1];
-			if (number(0, 1000)
-				<= (250 / (GET_OBJ_VAL(skin, 3) + 1))) //  чем круче шкура тем реже  отрицательный аффект
-			{
-				effect *= -1;
-			}
-			skin->set_affected(k, static_cast<EApply>(location), effect);
-			k++;
-		}
-	}
-
-	skin->set_cost(GetRealLevel(mob) * number(2, MAX(3, 3 * k)));
-	skin->set_val(2, 95); //оставил 5% фейла переноса аффектов на создаваемую шмотку
-
-	act("$n умело срезал$g $o3.", false, ch, skin.get(), nullptr, kToRoom | kToArenaListen);
-	act("Вы умело срезали $o3.", false, ch, skin.get(), nullptr, kToChar);
-
-	//ставим флажок "не зависит от прототипа"
-	skin->set_extra_flag(EObjFlag::kTransformed);
-	return skin.get();
 }
 
 void do_put(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -1065,381 +834,19 @@ void do_get(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void perform_drop_gold(CharData *ch, int amount) {
-	if (amount <= 0) {
-		SendMsgToChar("Да, похоже вы слишком переиграли сегодня.\r\n", ch);
-	} else if (ch->get_gold() < amount) {
-		SendMsgToChar("У вас нет такой суммы!\r\n", ch);
-	} else {
-		SetWaitState(ch, kPulseViolence);    // to prevent coin-bombing
-		if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoItem)) {
-			act("Неведомая сила помешала вам сделать это!",
-				false, ch, nullptr, nullptr, kToChar);
-			return;
-		}
-		//Находим сначала кучку в комнате
-		int additional_amount = 0;
-		ObjData *next_obj;
-		for (ObjData *existing_obj = world[ch->in_room]->contents; existing_obj; existing_obj = next_obj) {
-			next_obj = existing_obj->get_next_content();
-			if (GET_OBJ_TYPE(existing_obj) == EObjType::kMoney && GET_OBJ_VAL(existing_obj, 1) == currency::GOLD) {
-				//Запоминаем стоимость существующей кучки и удаляем ее
-				additional_amount = GET_OBJ_VAL(existing_obj, 0);
-				ExtractObjFromRoom(existing_obj);
-				ExtractObjFromWorld(existing_obj);
-			}
-		}
-
-		const auto obj = create_money(amount + additional_amount);
-		int result = drop_wtrigger(obj.get(), ch);
-
-		if (!result) {
-			ExtractObjFromWorld(obj.get());
-			return;
-		}
-
-		// Если этот моб трупа не оставит, то не выводить сообщение иначе ужасно коряво смотрится в бою и в тригах
-		if (!ch->IsNpc() || !MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
-			SendMsgToChar(ch, "Вы бросили %d %s на землю.\r\n",
-						  amount, GetDeclensionInNumber(amount, EWhat::kMoneyU));
-			sprintf(buf,
-					"<%s> {%d} выбросил %d %s на землю.",
-					ch->get_name().c_str(),
-					GET_ROOM_VNUM(ch->in_room),
-					amount,
-					GetDeclensionInNumber(amount, EWhat::kMoneyU));
-			mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
-			sprintf(buf, "$n бросил$g %s на землю.", money_desc(amount, 3));
-			act(buf, true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-		}
-		PlaceObjToRoom(obj.get(), ch->in_room);
-
-		ch->remove_gold(amount);
-	}
-}
-
-const char *drop_op[3] =
-	{
-		"бросить", "бросили", "бросил"
-	};
-
-void perform_drop(CharData *ch, ObjData *obj) {
-	if (!drop_otrigger(obj, ch))
-		return;
-	if (!bloody::handle_transfer(ch, nullptr, obj))
-		return;
-	if (!drop_wtrigger(obj, ch))
-		return;
-
-	if (obj->has_flag(EObjFlag::kNodrop)) {
-		sprintf(buf, "Вы не можете %s $o3!", drop_op[0]);
-		act(buf, false, ch, obj, nullptr, kToChar);
-		return;
-	}
-	sprintf(buf, "Вы %s $o3.", drop_op[1]);
-	act(buf, false, ch, obj, nullptr, kToChar);
-	sprintf(buf, "$n %s$g $o3.", drop_op[2]);
-	act(buf, true, ch, obj, nullptr, kToRoom | kToArenaListen);
-	ExtractObjFromChar(obj);
-
-	PlaceObjToRoom(obj, ch->in_room);
-	CheckObjDecay(obj);
-}
-
-void do_drop(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
-	ObjData *obj, *next_obj;
-
-	argument = one_argument(argument, arg);
-
-	if (!*arg) {
-		sprintf(buf, "Что вы хотите %s?\r\n", drop_op[0]);
-		SendMsgToChar(buf, ch);
-		return;
-	} else if (is_number(arg)) {
-		auto multi = std::stoi(arg);
-		one_argument(argument, arg);
-		if (!str_cmp("coins", arg) || !str_cmp("coin", arg) || !str_cmp("кун", arg) || !str_cmp("денег", arg))
-			perform_drop_gold(ch, multi);
-		else if (multi <= 0)
-			SendMsgToChar("Не имеет смысла.\r\n", ch);
-		else if (!*arg) {
-			sprintf(buf, "%s %d чего?\r\n", drop_op[0], multi);
-			SendMsgToChar(buf, ch);
-		} else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-			snprintf(buf, kMaxInputLength, "У вас нет ничего похожего на %s.\r\n", arg);
-			SendMsgToChar(buf, ch);
-		} else {
-			do {
-				next_obj = get_obj_in_list_vis(ch, arg, obj->get_next_content());
-				perform_drop(ch, obj);
-				obj = next_obj;
-			} while (obj && --multi);
-		}
-	} else {
-		const auto dotmode = find_all_dots(arg);
-		// Can't junk or donate all
-		if (dotmode == kFindAll) {
-			if (!ch->carrying)
-				SendMsgToChar("А у вас ничего и нет.\r\n", ch);
-			else
-				for (obj = ch->carrying; obj; obj = next_obj) {
-					next_obj = obj->get_next_content();
-					perform_drop(ch, obj);
-				}
-		} else if (dotmode == kFindAlldot) {
-			if (!*arg) {
-				sprintf(buf, "%s \"все\" какого типа предметов?\r\n", drop_op[0]);
-				SendMsgToChar(buf, ch);
-				return;
-			}
-			if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-				snprintf(buf, kMaxInputLength, "У вас нет ничего похожего на '%s'.\r\n", arg);
-				SendMsgToChar(buf, ch);
-			}
-			while (obj) {
-				next_obj = get_obj_in_list_vis(ch, arg, obj->get_next_content());
-				perform_drop(ch, obj);
-				obj = next_obj;
-			}
-		} else {
-			if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-				snprintf(buf, kMaxInputLength, "У вас нет '%s'.\r\n", arg);
-				SendMsgToChar(buf, ch);
-			} else
-				perform_drop(ch, obj);
-		}
-	}
-}
-
-void perform_give(CharData *ch, CharData *vict, ObjData *obj) {
-	if (!bloody::handle_transfer(ch, vict, obj))
-		return;
-	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoItem) && !IS_GOD(ch)) {
-		act("Неведомая сила помешала вам сделать это!",
-			false, ch, nullptr, nullptr, kToChar);
-		return;
-	}
-	if (NPC_FLAGGED(vict, ENpcFlag::kNoTakeItems)) {
-		act("$N не нуждается в ваших подачках, своего барахла навалом.",
-			false, ch, nullptr, vict, kToChar);
-		return;
-	}
-	if (obj->has_flag(EObjFlag::kNodrop)) {
-		act("Вы не можете передать $o3!", false, ch, obj, nullptr, kToChar);
-		return;
-	}
-	if (IS_CARRYING_N(vict) >= CAN_CARRY_N(vict)) {
-		act("У $N1 заняты руки.", false, ch, nullptr, vict, kToChar);
-		return;
-	}
-	if (GET_OBJ_WEIGHT(obj) + IS_CARRYING_W(vict) > CAN_CARRY_W(vict)) {
-		act("$E не может нести такой вес.", false, ch, nullptr, vict, kToChar);
-		return;
-	}
-	if (!give_otrigger(obj, ch, vict)) {
-		act("$E не хочет иметь дело с этой вещью.", false, ch, nullptr, vict, kToChar);
-		return;
-	}
-
-	if (!receive_mtrigger(vict, ch, obj)) {
-		act("$E не хочет иметь дело с этой вещью.", false, ch, nullptr, vict, kToChar);
-		return;
-	}
-
-	act("Вы дали $o3 $N2.", false, ch, obj, vict, kToChar);
-	act("$n дал$g вам $o3.", false, ch, obj, vict, kToVict);
-	act("$n дал$g $o3 $N2.", true, ch, obj, vict, kToNotVict | kToArenaListen);
-
-	if (!world_objects.get_by_raw_ptr(obj)) {
-		return;    // object has been removed from world during script execution.
-	}
-
-	ExtractObjFromChar(obj);
-	PlaceObjToInventory(obj, vict);
-
-	// передача объектов-денег и кошельков
-	get_check_money(vict, obj, nullptr);
-
-	if (!ch->IsNpc() && !vict->IsNpc()) {
-		ObjSaveSync::add(ch->get_uid(), vict->get_uid(), ObjSaveSync::CHAR_SAVE);
-	}
-}
-
-// utility function for give
-CharData *give_find_vict(CharData *ch, char *local_arg) {
-	CharData *vict;
-
-	if (!*local_arg) {
-		SendMsgToChar("Кому?\r\n", ch);
-		return (nullptr);
-	} else if (!(vict = get_char_vis(ch, local_arg, EFind::kCharInRoom))) {
-		SendMsgToChar(NOPERSON, ch);
-		return (nullptr);
-	} else if (vict == ch) {
-		SendMsgToChar("Вы переложили ЭТО из одного кармана в другой.\r\n", ch);
-		return (nullptr);
-	} else
-		return (vict);
-}
-
-void perform_give_gold(CharData *ch, CharData *vict, int amount) {
-	if (amount <= 0) {
-		SendMsgToChar("Ха-ха-ха (3 раза)...\r\n", ch);
-		return;
-	}
-	if (ch->get_gold() < amount && (ch->IsNpc() || !IS_IMPL(ch))) {
-		SendMsgToChar("И откуда вы их взять собираетесь?\r\n", ch);
-		return;
-	}
-	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoItem) && !IS_GOD(ch)) {
-		act("Неведомая сила помешала вам сделать это!",
-			false, ch, nullptr, nullptr, kToChar);
-		return;
-	}
-	SendMsgToChar(OK, ch);
-	sprintf(buf, "$n дал$g вам %d %s.", amount, GetDeclensionInNumber(amount, EWhat::kMoneyU));
-	act(buf, false, ch, nullptr, vict, kToVict);
-	sprintf(buf, "$n дал$g %s $N2.", money_desc(amount, 3));
-	act(buf, true, ch, nullptr, vict, kToNotVict | kToArenaListen);
-	if (!(ch->IsNpc() || vict->IsNpc())) {
-		sprintf(buf,
-				"<%s> {%d} передал %d кун при личной встрече c %s.",
-				ch->get_name().c_str(),
-				GET_ROOM_VNUM(ch->in_room),
-				amount,
-				GET_PAD(vict, 4));
-		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
-	}
-	if (ch->IsNpc() || !IS_IMPL(ch)) {
-		ch->remove_gold(amount);
-	}
-	// если денег дает моб - снимаем клан-налог
-	if (ch->IsNpc() && !IS_CHARMICE(ch)) {
-		vict->add_gold(amount);
-		split_or_clan_tax(vict, amount);
-	} else {
-		vict->add_gold(amount);
-	}
-	bribe_mtrigger(vict, ch, amount);
-}
-
-void perform_give_nogat(CharData *ch, CharData *vict, int amount) {
-	if (amount <= 0) {
-		SendMsgToChar("Ха-ха-ха (3 раза)...\r\n", ch);
-		return;
-	}
-	if (ch->get_nogata() < amount && (ch->IsNpc() || !IS_IMPL(ch))) {
-		SendMsgToChar("И откуда ты их взять собирался?\r\n", ch);
-		return;
-	}
-	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoItem) && !IS_GOD(ch)) {
-		act("Неведомая сила помешала вам сделать это!",
-			false, ch, nullptr, nullptr, kToChar);
-		return;
-	}
-	SendMsgToChar(OK, ch);
-	sprintf(buf, "$n дал$g вам %d %s.", amount, GetDeclensionInNumber(amount, EWhat::kNogataU));
-	act(buf, false, ch, nullptr, vict, kToVict);
-	if (amount > 4)
-		sprintf(buf, "$n дал$g много %s $N2.", GetDeclensionInNumber(amount, EWhat::kNogataU));
-	else
-		sprintf(buf, "$n дал$g %s $N2.", GetDeclensionInNumber(amount, EWhat::kNogataU));
-	act(buf, true, ch, nullptr, vict, kToNotVict | kToArenaListen);
-	if (ch->IsNpc() || !IS_IMPL(ch)) {
-		ch->sub_nogata(amount);
-	}
-	vict->add_nogata(amount);
-}
-
-void do_give(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CharData *vict;
-	ObjData *obj, *next_obj;
-
-	argument = one_argument(argument, arg);
-
-	if (!*arg)
-		SendMsgToChar("Дать что и кому?\r\n", ch);
-	else if (is_number(arg)) {
-		auto amount = std::stoi(arg);
-		argument = one_argument(argument, arg);
-		if (!strn_cmp("coin", arg, 4) || !strn_cmp("кун", arg, 3) || !str_cmp("денег", arg)) {
-			one_argument(argument, arg);
-			if ((vict = give_find_vict(ch, arg)) != nullptr)
-				perform_give_gold(ch, vict, amount);
-			return;
-		}
-		if (!strn_cmp("nogat", arg, 5) || !strn_cmp("ногат", arg, 5)) {
-			one_argument(argument, arg);
-			if ((vict = give_find_vict(ch, arg)) != nullptr)
-				perform_give_nogat(ch, vict, amount);
-			return;
-		}
-		if (!*arg) {
-			sprintf(buf, "Чего %d вы хотите дать?\r\n", amount);
-			SendMsgToChar(buf, ch);
-		} else if (!(vict = give_find_vict(ch, argument))) {
-			return;
-		} else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-			snprintf(buf, kMaxInputLength, "У вас нет '%s'.\r\n", arg);
-			SendMsgToChar(buf, ch);
-		} else {
-			while (obj && amount--) {
-				next_obj = get_obj_in_list_vis(ch, arg, obj->get_next_content());
-				perform_give(ch, vict, obj);
-				obj = next_obj;
-			}
-		}
-	} else {
-		one_argument(argument, buf1);
-		if (!(vict = give_find_vict(ch, buf1)))
-			return;
-		auto dotmode = find_all_dots(arg);
-		if (dotmode == kFindIndiv) {
-			if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-				snprintf(buf, kMaxInputLength, "У вас нет '%s'.\r\n", arg);
-				SendMsgToChar(buf, ch);
-			} else
-				perform_give(ch, vict, obj);
-		} else {
-			if (dotmode == kFindAlldot && !*arg) {
-				SendMsgToChar("Дать \"все\" какого типа предметов?\r\n", ch);
-				return;
-			}
-			if (!ch->carrying)
-				SendMsgToChar("У вас ведь ничего нет.\r\n", ch);
-			else {
-				bool has_items = false;
-				for (obj = ch->carrying; obj; obj = next_obj) {
-					next_obj = obj->get_next_content();
-					if (CAN_SEE_OBJ(ch, obj)
-						&& (dotmode == kFindAll
-							|| isname(arg, obj->get_aliases())
-							|| CHECK_CUSTOM_LABEL(arg, obj, ch))) {
-						perform_give(ch, vict, obj);
-						has_items = true;
-					}
-				}
-				if (!has_items) {
-					SendMsgToChar(ch, "У вас нет '%s'.\r\n", arg);
-				}
-			}
-		}
-	}
-}
-
 void weight_change_object(ObjData *obj, int weight) {
 	ObjData *tmp_obj;
 	CharData *tmp_ch;
 
 	if (obj->get_in_room() != kNowhere) {
-		obj->set_weight(MAX(1, GET_OBJ_WEIGHT(obj) + weight));
+		obj->set_weight(std::max(1, GET_OBJ_WEIGHT(obj) + weight));
 	} else if ((tmp_ch = obj->get_carried_by())) {
 		ExtractObjFromChar(obj);
-		obj->set_weight(MAX(1, GET_OBJ_WEIGHT(obj) + weight));
+		obj->set_weight(std::max(1, GET_OBJ_WEIGHT(obj) + weight));
 		PlaceObjToInventory(obj, tmp_ch);
 	} else if ((tmp_obj = obj->get_in_obj())) {
 		ExtractObjFromObj(obj);
-		obj->set_weight(MAX(1, GET_OBJ_WEIGHT(obj) + weight));
+		obj->set_weight(std::max(1, GET_OBJ_WEIGHT(obj) + weight));
 		PlaceObjIntoObj(obj, tmp_obj);
 	} else {
 		log("SYSERR: Unknown attempt to subtract weight from an object.");
@@ -2207,7 +1614,7 @@ void do_remove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_upgrade(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void DoSharpening(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	ObjData *obj;
 	int weight, add_hr, add_dr, prob, percent, min_mod, max_mod, i;
 	bool oldstate;
@@ -2290,7 +1697,7 @@ void do_upgrade(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	//Заточить повторно можно, но это уменьшает таймер шмотки на 16%
 	if (obj->has_flag(EObjFlag::kSharpen)) {
 		int timer = obj->get_timer()
-			- MAX(1000, obj->get_timer() / 6); // абуз, таймер меньше 6 вычитается 0 бесконечная прокачка умелки
+			- std::max(1000, obj->get_timer() / 6); // абуз, таймер меньше 6 вычитается 0 бесконечная прокачка умелки
 		obj->set_timer(timer);
 		change_weight = false;
 	} else {
@@ -2311,7 +1718,7 @@ void do_upgrade(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	//При 200% заточки шмотка будет точиться на 4-5 хитролов и 4-5 дамролов
 	min_mod = ch->get_trained_skill(ESkill::kSharpening) / 50;
 	//С мортами все меньший уровень требуется для макс. заточки
-	max_mod = MAX(1, MIN(5, (GetRealLevel(ch) + 5 + GET_REAL_REMORT(ch) / 4) / 6));
+	max_mod = std::clamp((GetRealLevel(ch) + 5 + GET_REAL_REMORT(ch)/4)/6, 1, 5);
 	oldstate = check_unlimited_timer(obj); // запомним какая шмотка была до заточки
 	if (IS_IMMORTAL(ch)) {
 		add_dr = add_hr = 10;
@@ -2342,7 +1749,7 @@ void do_upgrade(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_armored(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void DoArmoring(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	ObjData *obj;
 	char arg2[kMaxInputLength];
 	int add_ac, prob, percent, i, armorvalue;
@@ -2438,46 +1845,46 @@ void do_armored(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (GET_SKILL(ch, ESkill::kArmoring) >= 100) {
 		if (CompareParam(arg2, "поглощение")) {
 			armorvalue = strengthening((GET_SKILL(ch, ESkill::kArmoring) / 10 * 10), Strengthening::ABSORBTION);
-			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
+			armorvalue = std::max(0, number(armorvalue, armorvalue - 2));
 //			SendMsgToChar(ch, "увеличиваю поглот на %d\r\n", armorvalue);
 			obj->set_affected(1, EApply::kAbsorbe, armorvalue);
 		} else if (CompareParam(arg2, "здоровье")) {
 			armorvalue = strengthening((GET_SKILL(ch, ESkill::kArmoring) / 10 * 10), Strengthening::HEALTH);
-			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
+			armorvalue = std::max(0, number(armorvalue, armorvalue - 2));
 			armorvalue *= -1;
 //			SendMsgToChar(ch, "увеличиваю здоровье на %d\r\n", armorvalue);
 			obj->set_affected(1, EApply::kSavingCritical, armorvalue);
 		} else if (CompareParam(arg2, "живучесть"))// резисты в - лучше
 		{
 			armorvalue = strengthening((GET_SKILL(ch, ESkill::kArmoring) / 10 * 10), Strengthening::VITALITY);
-			armorvalue = -MAX(0, number(armorvalue, armorvalue - 2));
+			armorvalue = -std::max(0, number(armorvalue, armorvalue - 2));
 			armorvalue *= -1;
 //			SendMsgToChar(ch, "увеличиваю живучесть на %d\r\n", armorvalue);
 			obj->set_affected(1, EApply::kResistVitality, armorvalue);
 		} else if (CompareParam(arg2, "стойкость")) {
 			armorvalue = strengthening((GET_SKILL(ch, ESkill::kArmoring) / 10 * 10), Strengthening::STAMINA);
-			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
+			armorvalue = std::max(0, number(armorvalue, armorvalue - 2));
 			armorvalue *= -1;
 //			SendMsgToChar(ch, "увеличиваю стойкость на %d\r\n", armorvalue);
 			obj->set_affected(1, EApply::kSavingStability, armorvalue);
 		} else if (CompareParam(arg2, "воздуха")) {
 			armorvalue = strengthening((GET_SKILL(ch, ESkill::kArmoring) / 10 * 10), Strengthening::AIR_PROTECTION);
-			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
+			armorvalue = std::max(0, number(armorvalue, armorvalue - 2));
 //			SendMsgToChar(ch, "увеличиваю сопр воздуха на %d\r\n", armorvalue);
 			obj->set_affected(1, EApply::kResistAir, armorvalue);
 		} else if (CompareParam(arg2, "воды")) {
 			armorvalue = strengthening((GET_SKILL(ch, ESkill::kArmoring) / 10 * 10), Strengthening::WATER_PROTECTION);
-			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
+			armorvalue = std::max(0, number(armorvalue, armorvalue - 2));
 //			SendMsgToChar(ch, "увеличиваю сопр воды на %d\r\n", armorvalue);
 			obj->set_affected(1, EApply::kResistWater, armorvalue);
 		} else if (CompareParam(arg2, "огня")) {
 			armorvalue = strengthening((GET_SKILL(ch, ESkill::kArmoring) / 10 * 10), Strengthening::FIRE_PROTECTION);
-			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
+			armorvalue = std::max(0, number(armorvalue, armorvalue - 2));
 //			SendMsgToChar(ch, "увеличиваю сопр огню на %d\r\n", armorvalue);
 			obj->set_affected(1, EApply::kResistFire, armorvalue);
 		} else if (CompareParam(arg2, "земли")) {
 			armorvalue = strengthening((GET_SKILL(ch, ESkill::kArmoring) / 10 * 10), Strengthening::EARTH_PROTECTION);
-			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
+			armorvalue = std::max(0, number(armorvalue, armorvalue - 2));
 //			SendMsgToChar(ch, "увеличиваю сопр земли на %d\r\n", armorvalue);
 			obj->set_affected(1, EApply::kResistEarth, armorvalue);
 		} else {
@@ -2496,604 +1903,6 @@ void do_armored(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		obj->set_extra_flag(EObjFlag::kTransformed); // установили флажок трансформации кодом
 	}
 	obj->set_affected(0, EApply::kAc, add_ac);
-}
-
-void do_fire(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	int percent, prob;
-	if (!ch->get_skill(ESkill::kCampfire)) {
-		SendMsgToChar("Но вы не знаете как.\r\n", ch);
-		return;
-	}
-
-	if (ch->IsOnHorse()) {
-		SendMsgToChar("Верхом это будет затруднительно.\r\n", ch);
-		return;
-	}
-
-	if (AFF_FLAGGED(ch, EAffect::kBlind)) {
-		SendMsgToChar("Вы ничего не видите!\r\n", ch);
-		return;
-	}
-
-	if (world[ch->in_room]->fires) {
-		SendMsgToChar("Здесь уже горит огонь.\r\n", ch);
-		return;
-	}
-
-	if (SECT(ch->in_room) == ESector::kInside ||
-		SECT(ch->in_room) == ESector::kCity ||
-		SECT(ch->in_room) == ESector::kWaterSwim ||
-		SECT(ch->in_room) == ESector::kWaterNoswim ||
-		SECT(ch->in_room) == ESector::kOnlyFlying ||
-		SECT(ch->in_room) == ESector::kUnderwater || SECT(ch->in_room) == ESector::kSecret) {
-		SendMsgToChar("В этой комнате нельзя разжечь костер.\r\n", ch);
-		return;
-	}
-
-	if (!check_moves(ch, kFireMoves))
-		return;
-
-	percent = number(1, MUD::Skills()[ESkill::kCampfire].difficulty);
-	prob = CalcCurrentSkill(ch, ESkill::kCampfire, nullptr);
-	if (percent > prob) {
-		SendMsgToChar("Вы попытались разжечь костер, но у вас ничего не вышло.\r\n", ch);
-		return;
-	} else {
-		world[ch->in_room]->fires = MAX(0, (prob - percent) / 5) + 1;
-		SendMsgToChar("Вы набрали хворосту и разожгли огонь.\n\r", ch);
-		act("$n развел$g огонь.",
-			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-		ImproveSkill(ch, ESkill::kCampfire, true, nullptr);
-	}
-}
-
-void do_extinguish(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CharData *caster;
-	int tp, lag = 0;
-	const char *targets[] =
-		{
-			"костер",
-			"пламя",
-			"огонь",
-			"fire",
-			"метку",
-			"надпись",
-			"руны",
-			"label",
-			"\n"
-		};
-
-	if (ch->IsNpc()) {
-		return;
-	}
-
-	one_argument(argument, arg);
-
-	if ((!*arg) || ((tp = search_block(arg, targets, false)) == -1)) {
-		SendMsgToChar("Что вы хотите затоптать?\r\n", ch);
-		return;
-	}
-	tp >>= 2;
-
-	switch (tp) {
-		case 0: {
-			if (world[ch->in_room]->fires) {
-				if (world[ch->in_room]->fires < 5)
-					--world[ch->in_room]->fires;
-				else
-					world[ch->in_room]->fires = 4;
-				SendMsgToChar("Вы затоптали костер.\r\n", ch);
-				act("$n затоптал$g костер.",
-					false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-				if (world[ch->in_room]->fires == 0) {
-					SendMsgToChar("Костер потух.\r\n", ch);
-					act("Костер потух.",
-						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-				}
-				lag = 1;
-			} else {
-				SendMsgToChar("А тут топтать и нечего :)\r\n", ch);
-			}
-			break;
-		}
-		case 1: {
-			const auto &room = world[ch->in_room];
-			auto aff_i = room->affected.end();
-			auto aff_first = room->affected.end();
-
-			//Find own rune label or first run label in room
-			for (auto affect_it = room->affected.begin(); affect_it != room->affected.end(); ++affect_it) {
-				if (affect_it->get()->type == kSpellRuneLabel) {
-					if (affect_it->get()->caster_id == GET_ID(ch)) {
-						aff_i = affect_it;
-						break;
-					}
-
-					if (aff_first == room->affected.end()) {
-						aff_first = affect_it;
-					}
-				}
-			}
-
-			if (aff_i == room->affected.end()) {
-				//Own rune label not found. Use first in room
-				aff_i = aff_first;
-			}
-
-			if (aff_i != room->affected.end()
-				&& (AFF_FLAGGED(ch, EAffect::kDetectMagic)
-					|| IS_IMMORTAL(ch)
-					|| PRF_FLAGGED(ch, EPrf::kCoderinfo))) {
-				SendMsgToChar("Шаркнув несколько раз по земле, вы стерли светящуюся надпись.\r\n", ch);
-				act("$n шаркнул$g несколько раз по светящимся рунам, полностью их уничтожив.",
-					false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-
-				const auto &aff = *aff_i;
-				if (GET_ID(ch) != aff->caster_id) {
-					caster = find_char(aff->caster_id);
-					if (caster && !same_group(ch, caster)) {
-						pk_thiefs_action(ch, caster);
-						sprintf(buf,
-								"Послышался далекий звук лопнувшей струны, и перед вами промельнул призрачный облик %s.\r\n",
-								GET_PAD(ch, 1));
-						SendMsgToChar(buf, caster);
-					}
-				}
-				room_spells::RemoveAffect(world[ch->in_room], aff_i);
-				lag = 3;
-			} else {
-				SendMsgToChar("А тут топтать и нечего :)\r\n", ch);
-			}
-			break;
-		}
-		default: break;
-	}
-
-	if (!IS_IMMORTAL(ch)) {
-		SetWaitState(ch, lag * kPulseViolence);
-	}
-}
-
-void do_firstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	int success = false, need = false, spellnum = 0;
-	struct TimedSkill timed;
-
-	if (!ch->get_skill(ESkill::kFirstAid)) {
-		SendMsgToChar("Вам следует этому научиться.\r\n", ch);
-		return;
-	}
-	if (!IS_GOD(ch) && IsTimedBySkill(ch, ESkill::kFirstAid)) {
-		SendMsgToChar("Так много лечить нельзя - больных не останется.\r\n", ch);
-		return;
-	}
-
-	one_argument(argument, arg);
-
-	CharData *vict;
-	if (!*arg) {
-		vict = ch;
-	} else {
-		vict = get_char_vis(ch, arg, EFind::kCharInRoom);
-		if (!vict) {
-			SendMsgToChar("Кого вы хотите подлечить?\r\n", ch);
-			return;
-		}
-	}
-
-	if (vict->GetEnemy()) {
-		act("$N сражается, $M не до ваших телячьих нежностей.", false, ch, nullptr, vict, kToChar);
-		return;
-	}
-	if (vict->IsNpc() && !IS_CHARMICE(vict)) {
-		SendMsgToChar("Вы не красный крест - лечить всех подряд.\r\n", ch);
-		return;
-	}
-	int percent = number(1, MUD::Skills()[ESkill::kFirstAid].difficulty);
-	int prob = CalcCurrentSkill(ch, ESkill::kFirstAid, vict);
-
-	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike) || GET_GOD_FLAG(vict, EGf::kGodsLike)) {
-		percent = prob;
-	}
-	if (GET_GOD_FLAG(ch, EGf::kGodscurse) || GET_GOD_FLAG(vict, EGf::kGodscurse)) {
-		prob = 0;
-	}
-	success = (prob >= percent);
-	need = false;
-
-	if ((GET_REAL_MAX_HIT(vict) > 0 && (GET_HIT(vict) * 100 / GET_REAL_MAX_HIT(vict)) < 31) ||
-		(GET_REAL_MAX_HIT(vict) <= 0 && GET_HIT(vict) < GET_REAL_MAX_HIT(vict)) ||
-		(GET_HIT(vict) < GET_REAL_MAX_HIT(vict) && IsAbleToUseFeat(ch, EFeat::kHealer))) {
-		need = true;
-		if (success) {
-			if (!PRF_FLAGGED(ch, EPrf::kTester)) {
-				int dif = GET_REAL_MAX_HIT(vict) - GET_HIT(vict);
-				int add = std::min(dif, (dif * (prob - percent) / 100) + 1);
-				GET_HIT(vict) += add;
-			} else {
-				percent = CalcCurrentSkill(ch, ESkill::kFirstAid, vict);
-				prob = static_cast<int>(percent*GetRealLevel(ch)/2);
-				SendMsgToChar(ch, "&RУровень цели %d Отхилено %d хитов, скилл %d\r\n", GetRealLevel(vict), prob, percent);
-				GET_HIT(vict) += prob;
-				GET_HIT(vict) = std::min(GET_HIT(vict), GET_REAL_MAX_HIT(vict));
-				update_pos(vict);
-			}
-		}
-	}
-
-	int count = 0;
-	if (PRF_FLAGGED(ch, EPrf::kTester)) {
-		count = (GET_SKILL(ch, ESkill::kFirstAid) - 20) / 30;
-		SendMsgToChar(ch, "Снимаю %d аффектов\r\n", count);
-
-		const auto remove_count = vict->remove_random_affects(count);
-		SendMsgToChar(ch, "Снято %ld аффектов\r\n", remove_count);
-
-		//
-		need = true;
-		prob = true;
-	} else {
-		count = MIN(MAX_FIRSTAID_REMOVE, MAX_FIRSTAID_REMOVE * prob / 100);
-
-		for (percent = 0, prob = need; !need && percent < MAX_FIRSTAID_REMOVE && RemoveSpell(percent); percent++) {
-			if (IsAffectedBySpell(vict, RemoveSpell(percent))) {
-				need = true;
-				if (percent < count) {
-					spellnum = RemoveSpell(percent);
-					prob = true;
-				}
-			}
-		}
-	}
-
-	if (!need) {
-		act("$N в лечении не нуждается.", false, ch, nullptr, vict, kToChar);
-	} else if (!prob) {
-		act("У вас не хватит умения вылечить $N3.", false, ch, nullptr, vict, kToChar);
-	} else {
-		timed.skill = ESkill::kFirstAid;
-		timed.time = IS_IMMORTAL(ch) ? 2 : IS_PALADINE(ch) ? 4 : IS_SORCERER(ch) ? 2 : 6;
-		ImposeTimedSkill(ch, &timed);
-		if (vict != ch) {
-			ImproveSkill(ch, ESkill::kFirstAid, success, nullptr);
-			if (success) {
-				act("Вы оказали первую помощь $N2.", false, ch, nullptr, vict, kToChar);
-				act("$N оказал$G вам первую помощь.", false, vict, nullptr, ch, kToChar);
-				act("$n оказал$g первую помощь $N2.",
-					true, ch, nullptr, vict, kToNotVict | kToArenaListen);
-				if (spellnum)
-					affect_from_char(vict, spellnum);
-			} else {
-				act("Вы безрезультатно попытались оказать первую помощь $N2.",
-					false, ch, nullptr, vict, kToChar);
-				act("$N безрезультатно попытал$U оказать вам первую помощь.",
-					false, vict, nullptr, ch, kToChar);
-				act("$n безрезультатно попытал$u оказать первую помощь $N2.",
-					true, ch, nullptr, vict, kToNotVict | kToArenaListen);
-			}
-		} else {
-			if (success) {
-				act("Вы оказали себе первую помощь.",
-					false, ch, nullptr, nullptr, kToChar);
-				act("$n оказал$g себе первую помощь.",
-					false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-				if (spellnum)
-					affect_from_char(vict, spellnum);
-			} else {
-				act("Вы безрезультатно попытались оказать себе первую помощь.",
-					false, ch, nullptr, vict, kToChar);
-				act("$n безрезультатно попытал$u оказать себе первую помощь.",
-					false, ch, nullptr, vict, kToRoom | kToArenaListen);
-			}
-		}
-	}
-}
-
-void do_poisoned(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (!ch->get_skill(ESkill::kPoisoning)) {
-		SendMsgToChar("Вы не умеете этого.", ch);
-		return;
-	}
-
-	argument = one_argument(argument, arg);
-	skip_spaces(&argument);
-
-	if (!*arg) {
-		SendMsgToChar("Что вы хотите отравить?\r\n", ch);
-		return;
-	} else if (!*argument) {
-		SendMsgToChar("Из чего вы собираете взять яд?\r\n", ch);
-		return;
-	}
-
-	ObjData *weapon = nullptr;
-	CharData *dummy = nullptr;
-	int result = generic_find(arg, EFind::kObjInventory | EFind::kObjEquip, ch, &dummy, &weapon);
-
-	if (!weapon || !result) {
-		SendMsgToChar(ch, "У вас нет \'%s\'.\r\n", arg);
-		return;
-	} else if (GET_OBJ_TYPE(weapon) != EObjType::kWeapon) {
-		SendMsgToChar("Вы можете нанести яд только на оружие.\r\n", ch);
-		return;
-	}
-
-	ObjData *cont = get_obj_in_list_vis(ch, argument, ch->carrying);
-	if (!cont) {
-		SendMsgToChar(ch, "У вас нет \'%s\'.\r\n", argument);
-		return;
-	} else if (GET_OBJ_TYPE(cont) != EObjType::kLiquidContainer) {
-		SendMsgToChar(ch, "%s не является емкостью.\r\n", cont->get_PName(0).c_str());
-		return;
-	} else if (GET_OBJ_VAL(cont, 1) <= 0) {
-		SendMsgToChar(ch, "В %s нет никакой жидкости.\r\n", cont->get_PName(5).c_str());
-		return;
-	} else if (!poison_in_vessel(GET_OBJ_VAL(cont, 2))) {
-		SendMsgToChar(ch, "В %s нет подходящего яда.\r\n", cont->get_PName(5).c_str());
-		return;
-	}
-
-	int cost = MIN(GET_OBJ_VAL(cont, 1), GetRealLevel(ch) <= 10 ? 1 : GetRealLevel(ch) <= 20 ? 2 : 3);
-	cont->set_val(1, cont->get_val(1) - cost);
-	weight_change_object(cont, -cost);
-	if (!GET_OBJ_VAL(cont, 1)) {
-		name_from_drinkcon(cont);
-	}
-
-	set_weap_poison(weapon, cont->get_val(2));
-
-	snprintf(buf, sizeof(buf), "Вы осторожно нанесли немного %s на $o3.", drinks[cont->get_val(2)]);
-	act(buf, false, ch, weapon, nullptr, kToChar);
-	act("$n осторожно нанес$q яд на $o3.",
-		false, ch, weapon, nullptr, kToRoom | kToArenaListen);
-}
-
-void do_repair(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	ObjData *obj;
-	int prob, percent = 0, decay;
-	struct TimedSkill timed;
-
-	if (!ch->get_skill(ESkill::kRepair)) {
-		SendMsgToChar("Вы не умеете этого.\r\n", ch);
-		return;
-	}
-	if (IsTimedBySkill(ch, ESkill::kRepair)) {
-		SendMsgToChar("У вас недостаточно сил для ремонта.\r\n", ch);
-		return;
-	}
-
-	one_argument(argument, arg);
-
-	if (ch->GetEnemy()) {
-		SendMsgToChar("Вы не можете сделать это в бою!\r\n", ch);
-		return;
-	}
-
-	if (!*arg) {
-		SendMsgToChar("Что вы хотите ремонтировать?\r\n", ch);
-		return;
-	}
-
-	if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-		snprintf(buf, kMaxInputLength, "У вас нет \'%s\'.\r\n", arg);
-		SendMsgToChar(buf, ch);
-		return;
-	};
-
-	if (GET_OBJ_MAX(obj) <= GET_OBJ_CUR(obj)) {
-		act("$o в ремонте не нуждается.", false, ch, obj, nullptr, kToChar);
-		return;
-	}
-	if (GET_OBJ_TYPE(obj) != EObjType::kWeapon
-		&& !ObjSystem::is_armor_type(obj)) {
-		SendMsgToChar("Вы можете отремонтировать только оружие или броню.\r\n", ch);
-		return;
-	}
-
-	prob = number(1, MUD::Skills()[ESkill::kRepair].difficulty);
-	percent = CalcCurrentSkill(ch, ESkill::kRepair, nullptr);
-	TrainSkill(ch, ESkill::kRepair, prob <= percent, nullptr);
-	if (prob > percent) {
-//Polos.repair_bug
-//Потому что 0 уничтожает шмотку полностью даже при скиле 100+ и
-//состоянии шмотки <очень хорошо>
-		if (!percent) {
-			percent = ch->get_skill(ESkill::kRepair) / 10;
-		}
-//-Polos.repair_bug
-		obj->set_current_durability(MAX(0, obj->get_current_durability() * percent / prob));
-		if (obj->get_current_durability()) {
-			act("Вы попытались починить $o3, но сломали $S еще больше.",
-				false, ch, obj, nullptr, kToChar);
-			act("$n попытал$u починить $o3, но сломал$g $S еще больше.",
-				false, ch, obj, nullptr, kToRoom | kToArenaListen);
-			decay = (GET_OBJ_MAX(obj) - GET_OBJ_CUR(obj)) / 10;
-			decay = MAX(1, MIN(decay, GET_OBJ_MAX(obj) / 20));
-			if (GET_OBJ_MAX(obj) > decay) {
-				obj->set_maximum_durability(obj->get_maximum_durability() - decay);
-			} else {
-				obj->set_maximum_durability(1);
-			}
-		} else {
-			act("Вы окончательно доломали $o3.",
-				false, ch, obj, nullptr, kToChar);
-			act("$n окончательно доломал$g $o3.",
-				false, ch, obj, nullptr, kToRoom | kToArenaListen);
-			ExtractObjFromWorld(obj);
-		}
-	} else {
-		timed.skill = ESkill::kRepair;
-		// timed.time - это unsigned char, поэтому при уходе в минус будет вынос на 255 и ниже
-		int modif = ch->get_skill(ESkill::kRepair) / 7 + number(1, 5);
-		timed.time = MAX(1, 25 - modif);
-		ImposeTimedSkill(ch, &timed);
-		obj->set_current_durability(MIN(GET_OBJ_MAX(obj), GET_OBJ_CUR(obj) * percent / prob + 1));
-		SendMsgToChar(ch, "Теперь %s выгляд%s лучше.\r\n",
-					  obj->get_PName(0).c_str(), GET_OBJ_POLY_1(ch, obj));
-		act("$n умело починил$g $o3.", false, ch, obj, nullptr, kToRoom | kToArenaListen);
-	}
-}
-
-bool skill_to_skin(CharData *mob, CharData *ch) {
-	int num;
-	switch (GetRealLevel(mob) / 11) {
-		case 0: num = 15 * animals_levels[0] / 2201; // приводим пропорцией к количеству зверья на 15.11.2015 в мире
-			if (number(1, 100) <= num)
-				return true;
-			break;
-		case 1:
-			if (ch->get_skill(ESkill::kSkinning) >= 40) {
-				num = 20 * animals_levels[1] / 701;
-				if (number(1, 100) <= num)
-					return true;
-			} else {
-				sprintf(buf, "Ваше умение слишком низкое, чтобы содрать шкуру %s.\r\n", GET_PAD(mob, 1));
-				SendMsgToChar(buf, ch);
-				return false;
-			}
-
-			break;
-		case 2:
-			if (ch->get_skill(ESkill::kSkinning) >= 80) {
-				num = 10 * animals_levels[2] / 594;
-				if (number(1, 100) <= num)
-					return true;
-			} else {
-				sprintf(buf, "Ваше умение слишком низкое, чтобы содрать шкуру %s.\r\n", GET_PAD(mob, 1));
-				SendMsgToChar(buf, ch);
-				return false;
-			}
-			break;
-
-		case 3:
-			if (ch->get_skill(ESkill::kSkinning) >= 120) {
-				num = 8 * animals_levels[3] / 209;
-				if (number(1, 100) <= num)
-					return true;
-			} else {
-				sprintf(buf, "Ваше умение слишком низкое, чтобы содрать шкуру %s.\r\n", GET_PAD(mob, 1));
-				SendMsgToChar(buf, ch);
-				return false;
-			}
-			break;
-
-		case 4:
-			if (ch->get_skill(ESkill::kSkinning) >= 160) {
-				num = 25 * animals_levels[4] / 20;
-				if (number(1, 100) <= num)
-					return true;
-			} else {
-				sprintf(buf, "Ваше умение слишком низкое, чтобы содрать шкуру %s.\r\n", GET_PAD(mob, 1));
-				SendMsgToChar(buf, ch);
-				return false;
-			}
-			break;
-			//TODO: Добавить для мобов выше 54 уровня
-		case 5:
-		case 6:
-		case 7:
-		case 8:
-		case 9:
-		case 10:
-		default: return false;
-	}
-	return false;
-}
-
-void do_makefood(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (!ch->get_skill(ESkill::kSkinning)) {
-		SendMsgToChar("Вы не умеете этого.\r\n", ch);
-		return;
-	}
-
-	one_argument(argument, arg);
-	if (!*arg) {
-		SendMsgToChar("Что вы хотите освежевать?\r\n", ch);
-		return;
-	}
-
-	auto obj = get_obj_in_list_vis(ch, arg, ch->carrying);
-	if (!obj) {
-		obj = get_obj_in_list_vis(ch, arg, world[ch->in_room]->contents);
-		if (!obj) {
-			snprintf(buf, kMaxInputLength, "Вы не видите здесь '%s'.\r\n", arg);
-			SendMsgToChar(buf, ch);
-			return;
-		}
-	}
-
-	const auto mobn = GET_OBJ_VAL(obj, 2);
-	if (!IS_CORPSE(obj) || mobn < 0) {
-		act("Вы не сможете освежевать $o3.", false, ch, obj, nullptr, kToChar);
-		return;
-	}
-
-	const auto mob = (mob_proto + real_mobile(mobn));
-	mob->set_normal_morph();
-
-	if (!IS_IMMORTAL(ch)
-		&& GET_RACE(mob) != ENpcRace::kAnimal
-		&& GET_RACE(mob) != ENpcRace::kReptile
-		&& GET_RACE(mob) != ENpcRace::kFish
-		&& GET_RACE(mob) != ENpcRace::kBird
-		&& GET_RACE(mob) != ENpcRace::kBeastman) {
-		SendMsgToChar("Этот труп невозможно освежевать.\r\n", ch);
-		return;
-	}
-
-	if (GET_WEIGHT(mob) < 11) {
-		SendMsgToChar("Этот труп слишком маленький, ничего не получится.\r\n", ch);
-		return;
-	}
-
-	const auto prob = number(1, MUD::Skills()[ESkill::kSkinning].difficulty);
-	const auto percent = CalcCurrentSkill(ch, ESkill::kSkinning, mob)
-		+ number(1, GET_REAL_DEX(ch)) + number(1, GET_REAL_STR(ch));
-	TrainSkill(ch, ESkill::kSkinning, percent <= prob, mob);
-
-	ObjData::shared_ptr tobj;
-	if (GET_SKILL(ch, ESkill::kSkinning) > 150 && number(1, 200) == 1) // артефакт
-	{
-		tobj = world_objects.create_from_prototype_by_vnum(meat_mapping.get_artefact_key());
-	} else {
-		tobj = world_objects.create_from_prototype_by_vnum(meat_mapping.random_key());
-	}
-
-	if (prob > percent || !tobj) {
-		act("Вы не сумели освежевать $o3.", false, ch, obj, nullptr, kToChar);
-		act("$n попытал$u освежевать $o3, но неудачно.",
-			false, ch, obj, nullptr, kToRoom | kToArenaListen);
-	} else {
-		act("$n умело освежевал$g $o3.",
-			false, ch, obj, nullptr, kToRoom | kToArenaListen);
-		act("Вы умело освежевали $o3.",
-			false, ch, obj, nullptr, kToChar);
-
-		dl_load_obj(obj, mob, ch, DL_SKIN);
-
-		std::vector<ObjData *> entrails;
-		entrails.push_back(tobj.get());
-
-		if (GET_RACE(mob) == ENpcRace::kAnimal) // шкуры только с животных
-		{
-			if (IS_IMMORTAL(ch) || skill_to_skin(mob, ch)) {
-				entrails.push_back(create_skin(mob, ch));
-			}
-		}
-
-		entrails.push_back(try_make_ingr(mob, 1000 - ch->get_skill(ESkill::kSkinning) * 2));  // ингры со всех
-
-		for (const auto &it : entrails) {
-			if (it) {
-				if (obj->get_carried_by() == ch) {
-					can_carry_obj(ch, it);
-				} else {
-					PlaceObjToRoom(it, ch->in_room);
-				}
-			}
-		}
-	}
-
-	ExtractObjFromWorld(obj);
 }
 
 void feed_charmice(CharData *ch, char *local_arg) {
@@ -3156,7 +1965,7 @@ void feed_charmice(CharData *ch, char *local_arg) {
 
 	Affect<EApply> af;
 	af.type = kSpellCharm;
-	af.duration = MIN(max_charm_duration, (int) (mob_level * max_charm_duration / 30));
+	af.duration = std::min(max_charm_duration, (int) (mob_level * max_charm_duration / 30));
 	af.modifier = 0;
 	af.location = EApply::kNone;
 	af.bitvector = to_underlying(EAffect::kCharmed);
@@ -3170,7 +1979,7 @@ void feed_charmice(CharData *ch, char *local_arg) {
 		true, ch, nullptr, ch->get_master(), kToNotVict | kToArenaListen);
 
 	if (GET_HIT(ch) < GET_MAX_HIT(ch)) {
-		GET_HIT(ch) = MIN(GET_HIT(ch) + MIN(max_heal_hp, GET_MAX_HIT(ch)), GET_MAX_HIT(ch));
+		GET_HIT(ch) = std::min(GET_HIT(ch) + std::min(max_heal_hp, GET_MAX_HIT(ch)), GET_MAX_HIT(ch));
 	}
 
 	if (GET_HIT(ch) >= GET_MAX_HIT(ch)) {

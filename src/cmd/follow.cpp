@@ -3,7 +3,7 @@
 #include "game_fight/fight.h"
 #include "handler.h"
 
-void perform_drop_gold(CharData *ch, int amount);
+void PerformDropGold(CharData *ch, int amount);
 
 // Called when stop following persons, or stopping charm //
 // This will NOT do if a character quits/dies!!          //
@@ -81,7 +81,7 @@ bool stop_follower(CharData *ch, int mode) {
 			if (MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
 				act("Налетевший ветер развеял $n3, не оставив и следа.", true, ch, 0, 0, kToRoom | kToArenaListen);
 				GET_LASTROOM(ch) = GET_ROOM_VNUM(ch->in_room);
-				perform_drop_gold(ch, ch->get_gold());
+				PerformDropGold(ch, ch->get_gold());
 				ch->set_gold(0);
 				ExtractCharFromWorld(ch, false);
 				return (true);

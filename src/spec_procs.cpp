@@ -38,7 +38,7 @@ extern CharData *get_player_of_name(const char *name);
 typedef int special_f(CharData *, void *, int, char *);
 
 // extern functions
-void do_drop(CharData *ch, char *argument, int cmd, int subcmd);
+void DoDrop(CharData *ch, char *argument, int, int);
 void do_say(CharData *ch, char *argument, int cmd, int subcmd);
 int find_first_step(RoomRnum src, RoomRnum target, CharData *ch);
 void ASSIGNMASTER(MobVnum mob, special_f, int learn_info);
@@ -2414,7 +2414,7 @@ int dump(CharData *ch, void * /*me*/, int cmd, char *argument) {
 	if (!CMD_IS("drop") || !CMD_IS("бросить"))
 		return (0);
 
-	do_drop(ch, argument, cmd, 0);
+	DoDrop(ch, argument, cmd, 0);
 
 	for (k = world[ch->in_room]->contents; k; k = world[ch->in_room]->contents) {
 		act("$p рассыпал$U в прах!", false, 0, k, 0, kToRoom);

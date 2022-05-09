@@ -245,7 +245,15 @@ set(SOURCES
 		src/game_affects/affect_contants.cpp
 		src/cmd_god/users.cpp
 		src/utils/table_wrapper.cpp
-		src/cmd/score.cpp)
+		src/cmd/score.cpp
+		src/cmd/drop.cpp
+		src/game_skills/skinning.cpp
+		src/game_skills/repair.cpp
+		src/game_skills/poisoning.cpp
+		src/cmd/give.cpp
+		src/cmd/trample.cpp
+		src/game_skills/campfire.cpp
+		src/game_skills/firstaid.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -470,7 +478,15 @@ set(HEADERS
 		src/structs/iterators.h
 		src/cmd_god/users.h
 		src/utils/table_wrapper.h
-		src/cmd/score.h)
+		src/cmd/score.h
+		src/cmd/drop.h
+		src/game_skills/skinning.h
+		src/game_skills/repair.h
+		src/game_skills/poisoning.h
+		src/cmd/give.h
+		src/cmd/trample.h
+		src/game_skills/campfire.h
+		src/game_skills/firstaid.h)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 # Build types

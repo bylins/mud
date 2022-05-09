@@ -73,7 +73,6 @@ void prune_crlf(char *txt);
 bool IsValidEmail(const char *address);
 
 // external functions
-void perform_drop_gold(CharData *ch, int amount);
 void do_echo(CharData *ch, char *argument, int cmd, int subcmd);
 
 char AltToKoi[] = {
