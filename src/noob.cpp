@@ -8,7 +8,7 @@
 #include "utils/parse.h"
 #include "handler.h"
 
-int find_eq_pos(CharData *ch, ObjData *obj, char *arg);
+int find_eq_pos(CharData *ch, ObjData *obj, char *local_arg);
 
 namespace Noob {
 

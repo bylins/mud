@@ -181,7 +181,7 @@ void CharClassInfoBuilder::ParseFeats(Optional &info, DataNode &node) {
 	info.value()->feats.Reload(node.Children());
 }
 
-void CharClassInfo::PrintHeader(CharData *ch, std::ostringstream &buffer) const {
+void CharClassInfo::PrintHeader(std::ostringstream &buffer) const {
 	buffer << "Print class:" << "\n"
 		   << " Id: " << KGRN << NAME_BY_ITEM<ECharClass>(id) << KNRM << std::endl
 		   << " Mode: " << KGRN << NAME_BY_ITEM<EItemMode>(mode) << KNRM << std::endl
@@ -195,7 +195,7 @@ void CharClassInfo::PrintHeader(CharData *ch, std::ostringstream &buffer) const 
 }
 
 void CharClassInfo::Print(CharData *ch, std::ostringstream &buffer) const {
-	PrintHeader(ch, buffer);
+	PrintHeader(buffer);
 	PrintBaseStatsTable(ch, buffer);
 	PrintSkillsTable(ch, buffer);
 	PrintSpellsTable(ch, buffer);
@@ -297,12 +297,14 @@ CharClassInfo::SpellInfoBuilder::ItemOptional CharClassInfo::SpellInfoBuilder::B
 	auto spell_id{ESpell::kUndefined};
 	int min_lvl, min_remort, circle, mem;
 	double cast;
+	const int kMinMemMod = -99;
+	const int kMaxMemMod = 99;
 	try {
 		spell_id = parse::ReadAsConstant<ESpell>(node.GetValue("id"));
-		min_lvl = parse::ReadAsInt(node.GetValue("level"));
-		min_remort = parse::ReadAsInt(node.GetValue("remort"));
-		circle = parse::ReadAsInt(node.GetValue("circle"));
-		mem = parse::ReadAsInt(node.GetValue("mem"));
+		min_lvl = std::clamp(parse::ReadAsInt(node.GetValue("level")), kMinCharLevel, kMaxPlayerLevel);
+		min_remort = std::clamp(parse::ReadAsInt(node.GetValue("remort")), kMinRemort, kMaxRemort);
+		circle = std::clamp(parse::ReadAsInt(node.GetValue("circle")), kMinMemoryCircle, kMaxMemoryCircle);
+		mem = std::clamp(parse::ReadAsInt(node.GetValue("mem")), kMinMemMod, kMaxMemMod);
 		cast = parse::ReadAsDouble(node.GetValue("cast"));
 	} catch (std::exception &e) {
 		std::ostringstream out;
@@ -342,9 +344,9 @@ CharClassInfo::FeatInfoBuilder::ItemOptional CharClassInfo::FeatInfoBuilder::Bui
 	bool inborn{false};
 	try {
 		feat_id = parse::ReadAsConstant<EFeat>(node.GetValue("id"));
-		min_lvl = parse::ReadAsInt(node.GetValue("level"));
-		min_remort = parse::ReadAsInt(node.GetValue("remort"));
-		slot = parse::ReadAsInt(node.GetValue("slot"));
+		min_lvl = std::clamp(parse::ReadAsInt(node.GetValue("level")), kMinCharLevel, kMaxPlayerLevel);
+		min_remort = std::clamp(parse::ReadAsInt(node.GetValue("remort")), kMinRemort, kMaxRemort);
+		slot = std::clamp(parse::ReadAsInt(node.GetValue("slot")), kMinFeatSlot, to_underlying(EFeat::kLast));
 		inborn = parse::ReadAsBool(node.GetValue("inborn"));
 	} catch (std::exception &e) {
 		std::ostringstream out;

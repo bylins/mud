@@ -486,7 +486,7 @@ class CharacterWrapper : public Wrapper<CharacterData> {
 
 	int get_skill(int skill_num) const {
 		Ensurer ch(*this);
-		return ch->get_skill(static_cast<ESkill>(skill_num));
+		return ch->GetSkill(static_cast<ESkill>(skill_num));
 	}
 
 	void set_skill(int skill_num, int percent) {

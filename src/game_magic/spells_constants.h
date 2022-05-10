@@ -9,6 +9,7 @@
 
 #include "structs/structs.h"
 #include <optional>
+const int kMinMemoryCircle = 1;
 const int kMaxMemoryCircle = 13;
 
 enum class ESpell {

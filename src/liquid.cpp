@@ -589,8 +589,6 @@ void do_drink(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		jar->set_val(3, 0);
 		name_from_drinkcon(jar);
 	}
-
-	return;
 }
 
 void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -744,8 +742,6 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act("$n похмелил$u и расцвел$g прям на глазах.", false, ch, 0, 0, kToRoom);
 		RemoveAffectFromChar(ch, ESpell::kAbstinent);
 	}
-
-	return;
 }
 
 void generate_drinkcon_name(ObjData *to_obj, ESpell spell_id) {

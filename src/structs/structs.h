@@ -64,6 +64,7 @@ typedef char bool;
 typedef char byte;
 #endif
 
+const int kMinRemort = 0;
 const int kMaxRemort = 75;
 const int kMaxPlayerLevel = 30;
 

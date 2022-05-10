@@ -1,10 +1,9 @@
 #ifndef BYLINS_HIRE_H
 #define BYLINS_HIRE_H
 
-#include <game_magic/spells.h>
-class CharData;
+#include "game_magic/spells_constants.h"
 
-#define MAXPRICE 9999999
+class CharData;
 
 void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 void do_freehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd*/);

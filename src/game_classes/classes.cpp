@@ -1186,14 +1186,6 @@ int invalid_unique(CharData *ch, const ObjData *obj) {
 	return (true);
 }
 
-bool unique_stuff(const CharData *ch, const ObjData *obj) {
-	for (unsigned int i = 0; i < EEquipPos::kNumEquipPos; i++)
-		if (GET_EQ(ch, i) && (GET_OBJ_VNUM(GET_EQ(ch, i)) == GET_OBJ_VNUM(obj))) {
-			return true;
-		}
-	return false;
-}
-
 int invalid_anti_class(CharData *ch, const ObjData *obj) {
 	if (!IS_CORPSE(obj)) {
 		for (const ObjData *object = obj->get_contains(); object; object = object->get_next_content()) {

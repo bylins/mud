@@ -6,7 +6,7 @@
 #include "game_fight/fight_hit.h"
 #include "game_mechanics/deathtrap.h"
 #include "game_magic/magic.h"
-#include "game_skills/poison.h"
+#include "game_mechanics/poison.h"
 #include "structs/global_objects.h"
 #include "handler.h"
 

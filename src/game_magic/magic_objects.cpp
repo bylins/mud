@@ -6,7 +6,7 @@
 
 #include "entities/obj_data.h"
 #include "color.h"
-#include "game_skills/poison.h"
+#include "game_mechanics/poison.h"
 #include "entities/char_data.h"
 #include "utils/utils_char_obj.inl"
 #include "spells_info.h"

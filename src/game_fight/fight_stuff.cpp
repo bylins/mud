@@ -25,11 +25,11 @@
 #include "structs/global_objects.h"
 
 // extern
-void perform_drop_gold(CharData *ch, int amount);
+void PerformDropGold(CharData *ch, int amount);
 long GetExpUntilNextLvl(CharData *ch, int level);
 int max_exp_gain_pc(CharData *ch);
 int max_exp_loss_pc(CharData *ch);
-void get_from_container(CharData *ch, ObjData *cont, char *arg, int mode, int amount, bool autoloot);
+void get_from_container(CharData *ch, ObjData *cont, char *local_arg, int mode, int amount, bool autoloot);
 void SetWait(CharData *ch, int waittime, int victim_in_room);
 
 extern int material_value[];
@@ -620,7 +620,7 @@ void real_kill(CharData *ch, CharData *killer) {
 			obj_load_on_death(corpse, ch);
 		}
 		if (MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
-			perform_drop_gold(ch, local_gold);
+			PerformDropGold(ch, local_gold);
 			ch->set_gold(0);
 		}
 		dl_load_obj(corpse, ch, nullptr, DL_ORDINARY);

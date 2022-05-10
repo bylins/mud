@@ -45,7 +45,7 @@ void UpdateCharObjects(CharData *ch);
 bool IsWearingLight(CharData *ch);
 
 // external functions //
-void perform_drop_gold(CharData *ch, int amount);
+void PerformDropGold(CharData *ch, int amount);
 int invalid_anti_class(CharData *ch, const ObjData *obj);
 int invalid_unique(CharData *ch, const ObjData *obj);
 int invalid_no_class(CharData *ch, const ObjData *obj);

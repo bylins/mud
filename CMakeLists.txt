@@ -19,7 +19,7 @@ set(SOURCES
 		src/action_targeting.cpp
 		src/act_comm.cpp
 		src/act_informative.cpp
-		src/act_item.cpp
+		src/cmd/sign.cpp
 		src/act_movement.cpp
 		src/act_other.cpp
 		src/communication/social.cpp
@@ -197,7 +197,7 @@ set(SOURCES
 		src/game_skills/block.cpp
 		src/game_skills/parry.cpp
 		src/game_skills/pick.cpp
-		src/game_skills/poison.cpp
+		src/game_mechanics/poison.cpp
 		src/game_skills/protect.cpp
 		src/game_skills/expendientcut.cpp
 		src/game_skills/turnundead.cpp
@@ -248,7 +248,25 @@ set(SOURCES
 		src/cmd/score.cpp
 		src/game_magic/spells_constants.cpp
 		src/game_mechanics/mem_queue.cpp
-		src/cmd_god/show.cpp)
+		src/cmd_god/show.cpp
+		src/cmd/drop.cpp
+		src/game_skills/skinning.cpp
+		src/game_skills/repair.cpp
+		src/game_skills/poisoning.cpp
+		src/cmd/give.cpp
+		src/cmd/trample.cpp
+		src/game_skills/campfire.cpp
+		src/game_skills/firstaid.cpp
+		src/game_skills/sharpening.cpp
+		src/game_skills/armoring.cpp
+		src/cmd/get.cpp
+		src/cmd/equip.cpp
+		src/cmd/put.cpp
+		src/cmd/remove.cpp
+		src/cmd/eat.cpp
+		src/cmd_god/mark.cpp
+		src/game_crafts/fry.cpp
+		src/cmd/refill.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -449,7 +467,7 @@ set(HEADERS
 		src/game_skills/backstab.h
 		src/game_skills/bash.h
 		src/game_skills/stun.h
-		src/game_skills/poison.h
+		src/game_mechanics/poison.h
 		src/game_skills/resque.h
 		src/game_skills/kick.h
 		src/game_skills/strangle.h
@@ -476,7 +494,26 @@ set(HEADERS
 		src/cmd/score.h
 		src/game_magic/spells_constants.h
 		src/game_mechanics/mem_queue.h
-		src/cmd_god/show.h)
+		src/cmd_god/show.h
+		src/cmd/drop.h
+		src/game_skills/skinning.h
+		src/game_skills/repair.h
+		src/game_skills/poisoning.h
+		src/cmd/give.h
+		src/cmd/trample.h
+		src/game_skills/campfire.h
+		src/game_skills/firstaid.h
+		src/game_skills/sharpening.h
+		src/game_skills/armoring.h
+		src/cmd/get.h
+		src/cmd/equip.h
+		src/cmd/put.h
+		src/cmd/remove.h
+		src/cmd/eat.h
+		src/cmd_god/mark.h
+		src/game_crafts/fry.h
+		src/cmd/refill.h
+		src/cmd/sign.h)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 # Build types

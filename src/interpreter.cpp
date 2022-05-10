@@ -25,10 +25,16 @@
 #include "cmd_god/stat.h"
 #include "cmd_god/show.h"
 #include "cmd_god/godtest.h"
+#include "cmd_god/mark.h"
+#include "cmd/equip.h"
+#include "cmd/eat.h"
 #include "cmd/follow.h"
 #include "cmd/hire.h"
+#include "cmd/get.h"
+#include "cmd/give.h"
 #include "cmd/mercenary.h"
 #include "cmd/order.h"
+#include "cmd/put.h"
 #include "cmd/retreat.h"
 #include "cmd/telegram.h"
 #include "cmd/learn.h"
@@ -39,9 +45,14 @@
 #include "cmd/mixture.h"
 #include "cmd/cast.h"
 #include "cmd/employ.h"
+#include "cmd/remove.h"
+#include "cmd/refill.h"
+#include "cmd/sign.h"
+#include "cmd/trample.h"
 #include "comm.h"
 #include "constants.h"
 #include "game_crafts/craft_commands.h"
+#include "game_crafts/fry.h"
 #include "game_crafts/jewelry.h"
 #include "db.h"
 #include "depot.h"
@@ -75,18 +86,24 @@
 #include "administration/privilege.h"
 #include "entities/room_data.h"
 #include "color.h"
+#include "game_skills/armoring.h"
 #include "game_skills/skills.h"
 #include "game_skills/bash.h"
 #include "game_skills/block.h"
+#include "game_skills/campfire.h"
 #include "game_skills/chopoff.h"
 #include "game_skills/disarm.h"
+#include "game_skills/firstaid.h"
 #include "game_skills/ironwind.h"
 #include "game_skills/kick.h"
 #include "game_skills/manadrain.h"
 #include "game_skills/mighthit.h"
 #include "game_skills/parry.h"
+#include "game_skills/poisoning.h"
 #include "game_skills/protect.h"
+#include "game_skills/repair.h"
 #include "game_skills/resque.h"
+#include "game_skills/sharpening.h"
 #include "game_skills/strangle.h"
 #include "game_skills/stun.h"
 #include "game_skills/stupor.h"
@@ -95,6 +112,8 @@
 #include "game_skills/turnundead.h"
 #include "game_skills/warcry.h"
 #include "game_skills/relocate.h"
+#include "game_skills/repair.h"
+#include "game_skills/skinning.h"
 #include "game_magic/spells.h"
 #include "time.h"
 #include "title.h"
@@ -221,10 +240,7 @@ void do_display(CharData *ch, char *argument, int cmd, int subcmd);
 //void do_drunkoff(CharData *ch, char *argument, int cmd, int subcmd);
 void do_features(CharData *ch, char *argument, int cmd, int subcmd);
 void do_featset(CharData *ch, char *argument, int cmd, int subcmd);
-void do_firstaid(CharData *ch, char *argument, int cmd, int subcmd);
-void do_fire(CharData *ch, char *argument, int cmd, int subcmd);
-void do_drop(CharData *ch, char *argument, int cmd, int subcmd);
-void do_eat(CharData *ch, char *argument, int cmd, int subcmd);
+void DoDrop(CharData *ch, char *argument, int, int);
 void do_echo(CharData *ch, char *argument, int cmd, int subcmd);
 void do_equipment(CharData *ch, char *argument, int cmd, int subcmd);
 void do_examine(CharData *ch, char *argument, int cmd, int subcmd);
@@ -240,19 +256,15 @@ void do_horsetake(CharData *ch, char *argument, int cmd, int subcmd);
 void do_hidemove(CharData *ch, char *argument, int cmd, int subcmd);
 void do_fit(CharData *ch, char *argument, int cmd, int subcmd);
 void do_force(CharData *ch, char *argument, int cmd, int subcmd);
-void do_extinguish(CharData *ch, char *argument, int cmd, int subcmd);
 void do_forcetime(CharData *ch, char *argument, int cmd, int subcmd);
 void do_glory(CharData *ch, char *argument, int cmd, int subcmd);
 void do_gecho(CharData *ch, char *argument, int cmd, int subcmd);
 void do_gen_comm(CharData *ch, char *argument, int cmd, int subcmd);
 void do_mobshout(CharData *ch, char *argument, int cmd, int subcmd);
 void do_gen_ps(CharData *ch, char *argument, int cmd, int subcmd);
-void do_get(CharData *ch, char *argument, int cmd, int subcmd);
-void do_give(CharData *ch, char *argument, int cmd, int subcmd);
 void do_givehorse(CharData *ch, char *argument, int cmd, int subcmd);
 void do_gold(CharData *ch, char *argument, int cmd, int subcmd);
 void do_goto(CharData *ch, char *argument, int cmd, int subcmd);
-void do_grab(CharData *ch, char *argument, int cmd, int subcmd);
 void do_group(CharData *ch, char *argument, int cmd, int subcmd);
 void do_gsay(CharData *ch, char *argument, int cmd, int subcmd);
 void do_hide(CharData *ch, char *argument, int cmd, int subcmd);
@@ -263,8 +275,6 @@ void do_inventory(CharData *ch, char *argument, int cmd, int subcmd);
 void do_invis(CharData *ch, char *argument, int cmd, int subcmd);
 void do_last(CharData *ch, char *argument, int cmd, int subcmd);
 void do_mode(CharData *ch, char *argument, int cmd, int subcmd);
-void do_mark(CharData *ch, char *argument, int cmd, int subcmd);
-void do_makefood(CharData *ch, char *argument, int cmd, int subcmd);
 void do_deviate(CharData *ch, char *argument, int cmd, int subcmd);
 void do_levels(CharData *ch, char *argument, int cmd, int subcmd);
 void do_liblist(CharData *ch, char *argument, int cmd, int subcmd);
@@ -288,14 +298,11 @@ void do_spellstat(CharData *ch, char *argument, int cmd, int subcmd);
 //void do_learn(CharData *ch, char *argument, int cmd, int subcmd);
 //void do_forget(CharData *ch, char *argument, int cmd, int subcmd);
 void do_purge(CharData *ch, char *argument, int cmd, int subcmd);
-void do_put(CharData *ch, char *argument, int cmd, int subcmd);
 void do_quit(CharData *ch, char *argument, int /* cmd */, int subcmd);
 void do_reboot(CharData *ch, char *argument, int cmd, int subcmd);
-void do_remove(CharData *ch, char *argument, int cmd, int subcmd);
 void do_rent(CharData *ch, char *argument, int cmd, int subcmd);
 void do_reply(CharData *ch, char *argument, int cmd, int subcmd);
 void do_report(CharData *ch, char *argument, int cmd, int subcmd);
-void do_refill(CharData *ch, char *argument, int cmd, int subcmd);
 void do_setall(CharData *ch, char *argument, int cmd, int subcmd);
 void do_stophorse(CharData *ch, char *argument, int cmd, int subcmd);
 void do_restore(CharData *ch, char *argument, int cmd, int subcmd);
@@ -314,7 +321,6 @@ void do_spec_comm(CharData *ch, char *argument, int cmd, int subcmd);
 void do_spell_capable(CharData *ch, char *argument, int cmd, int subcmd);
 void do_split(CharData *ch, char *argument, int cmd, int subcmd);
 void do_split(CharData *ch, char *argument, int cmd, int subcmd, int currency);
-void do_fry(CharData *ch, char *argument, int cmd, int subcmd);
 void do_steal(CharData *ch, char *argument, int cmd, int subcmd);
 void do_switch(CharData *ch, char *argument, int cmd, int subcmd);
 void do_syslog(CharData *ch, char *argument, int cmd, int subcmd);
@@ -330,11 +336,9 @@ void do_users(CharData *ch, char *argument, int cmd, int subcmd);
 void do_visible(CharData *ch, char *argument, int cmd, int subcmd);
 void do_vnum(CharData *ch, char *argument, int cmd, int subcmd);
 void do_vstat(CharData *ch, char *argument, int cmd, int subcmd);
-void do_wear(CharData *ch, char *argument, int cmd, int subcmd);
 void do_weather(CharData *ch, char *argument, int cmd, int subcmd);
 void do_where(CharData *ch, char *argument, int cmd, int subcmd);
 void do_who(CharData *ch, char *argument, int cmd, int subcmd);
-void do_wield(CharData *ch, char *argument, int cmd, int subcmd);
 void do_wimpy(CharData *ch, char *argument, int cmd, int subcmd);
 void do_wizlock(CharData *ch, char *argument, int cmd, int subcmd);
 void do_wiznet(CharData *ch, char *argument, int cmd, int subcmd);
@@ -342,8 +346,6 @@ void do_wizutil(CharData *ch, char *argument, int cmd, int subcmd);
 void do_write(CharData *ch, char *argument, int cmd, int subcmd);
 void do_zreset(CharData *ch, char *argument, int cmd, int subcmd);
 void do_style(CharData *ch, char *argument, int cmd, int subcmd);
-void do_poisoned(CharData *ch, char *argument, int cmd, int subcmd);
-void do_repair(CharData *ch, char *argument, int cmd, int subcmd);
 void do_camouflage(CharData *ch, char *argument, int cmd, int subcmd);
 void do_touch(CharData *ch, char *argument, int cmd, int subcmd);
 void do_transform_weapon(CharData *ch, char *argument, int cmd, int subcmd);
@@ -355,7 +357,6 @@ void do_exchange(CharData *ch, char *argument, int cmd, int subcmd);
 //void do_godtest(CharData *ch, char *argument, int cmd, int subcmd);
 void do_print_armor(CharData *ch, char *argument, int cmd, int subcmd);
 //void do_relocate(CharData *ch, char *argument, int cmd, int subcmd);
-void do_custom_label(CharData *ch, char *argument, int cmd, int subcmd);
 void do_quest(CharData *ch, char *argument, int cmd, int subcmd);
 void do_check(CharData *ch, char *argument, int cmd, int subcmd);
 // DG Script ACMD's
@@ -367,8 +368,6 @@ void do_vdelete(CharData *ch, char *argument, int cmd, int subcmd);
 void do_hearing(CharData *ch, char *argument, int cmd, int subcmd);
 void do_looking(CharData *ch, char *argument, int cmd, int subcmd);
 void do_identify(CharData *ch, char *argument, int cmd, int subcmd);
-void do_upgrade(CharData *ch, char *argument, int cmd, int subcmd);
-void do_armored(CharData *ch, char *argument, int cmd, int subcmd);
 void do_recall(CharData *ch, char *argument, int cmd, int subcmd);
 void do_pray_gods(CharData *ch, char *argument, int cmd, int subcmd);
 void do_rset(CharData *ch, char *argument, int cmd, int subcmd);
@@ -485,7 +484,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"болтать", EPosition::kRest, do_gen_comm, 0, SCMD_GOSSIP, -1},
 		{"бонус", EPosition::kDead, Bonus::do_bonus_by_character, kLvlImplementator, 0, 0},
 		{"бонусинфо", EPosition::kDead, Bonus::do_bonus_info, kLvlImplementator, 0, 0},
-		{"бросить", EPosition::kRest, do_drop, 0, SCMD_DROP, -1},
+		{"бросить", EPosition::kRest, DoDrop, 0, SCMD_DROP, -1},
 		{"варить", EPosition::kRest, do_cook, 0, 0, 200},
 		{"версия", EPosition::kDead, do_gen_ps, 0, SCMD_VERSION, 0},
 		{"вече", EPosition::kDead, Boards::DoBoard, 1, Boards::GENERAL_BOARD, -1},
@@ -507,7 +506,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"вскочить", EPosition::kFight, do_horseon, 0, 0, 500},
 		{"встать", EPosition::kRest, do_stand, 0, 0, 500},
 		{"вспомнить", EPosition::kDead, do_remember_char, 0, 0, 0},
-		{"выбросить", EPosition::kRest, do_drop, 0, 0 /*SCMD_DONATE */ , 300},
+		{"выбросить", EPosition::kRest, DoDrop, 0, 0 /*SCMD_DONATE */ , 300},
 		{"выследить", EPosition::kStand, do_track, 0, 0, 500},
 		{"вылить", EPosition::kStand, do_pour, 0, SCMD_POUR, 500},
 		{"выходы", EPosition::kRest, do_exits, 0, 0, 0},
@@ -536,7 +535,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"дрновости", EPosition::kDead, Boards::DoBoard, 1, Boards::CLANNEWS_BOARD, -1},
 		{"дрвече", EPosition::kDead, Boards::DoBoard, 1, Boards::CLAN_BOARD, -1},
 		{"дрлист", EPosition::kDead, DoClanPkList, 0, 1, 0},
-		{"есть", EPosition::kRest, do_eat, 0, SCMD_EAT, 500},
+		{"есть", EPosition::kRest, do_eat, 0, kScmdEat, 500},
 
 		{"жертвовать", EPosition::kStand, do_pray, 1, SCMD_DONATE, -1},
 
@@ -557,8 +556,8 @@ cpp_extern const struct command_info cmd_info[] =
 		{"заснуть", EPosition::kSleep, do_sleep, 0, 0, -1},
 		{"заставка", EPosition::kDead, do_gen_ps, 0, SCMD_MOTD, 0},
 		{"заставить", EPosition::kSleep, do_force, kLvlGreatGod, 0, 0},
-		{"затоптать", EPosition::kStand, do_extinguish, 0, 0, 0},
-		{"заточить", EPosition::kRest, do_upgrade, 0, 0, 500},
+		{"затоптать", EPosition::kStand, DoTrample, 0, 0, 0},
+		{"заточить", EPosition::kRest, DoSharpening, 0, 0, 500},
 		{"заучить", EPosition::kRest, do_memorize, 0, 0, 0},
 		{"зачитать", EPosition::kRest, do_employ, 0, SCMD_RECITE, 500},
 		{"зачаровать", EPosition::kStand, do_spell_capable, 1, 0, 0},
@@ -594,7 +593,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"купить", EPosition::kStand, do_not_here, 0, 0, -1},
 
 		{"леваярука", EPosition::kRest, do_grab, 1, 0, 300},
-		{"лечить", EPosition::kStand, do_firstaid, 0, 0, -1},
+		{"лечить", EPosition::kStand, DoFirstaid, 0, 0, -1},
 		{"лить", EPosition::kStand, do_pour, 0, SCMD_POUR, 500},
 		{"лошадь", EPosition::kStand, do_not_here, 1, 0, -1},
 		{"лучшие", EPosition::kDead, DoBest, 0, 0, 0},
@@ -619,7 +618,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"новичок", EPosition::kSleep, do_gen_ps, 0, SCMD_INFO, 0},
 		{"новости", EPosition::kDead, Boards::DoBoard, 1, Boards::NEWS_BOARD, -1},
 		{"надеть", EPosition::kRest, do_wear, 0, 0, 500},
-		{"нацарапать", EPosition::kRest, do_custom_label, 0, 0, 0},
+		{"нацарапать", EPosition::kRest, DoSign, 0, 0, 0},
 
 		{"обезоружить", EPosition::kFight, do_disarm, 0, 0, -1},
 		{"обернуться", EPosition::kStand, do_morph, 0, 0, -1},
@@ -639,7 +638,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"оседлать", EPosition::kStand, do_horsetake, 1, 0, -1},
 		{"оскорбить", EPosition::kRest, do_insult, 0, 0, -1},
 		{"осушить", EPosition::kRest, do_employ, 0, SCMD_QUAFF, 300},
-		{"освежевать", EPosition::kStand, do_makefood, 0, 0, -1},
+		{"освежевать", EPosition::kStand, DoSkinning, 0, 0, -1},
 		{"ответить", EPosition::kRest, do_reply, 0, 0, -1},
 		{"отразить", EPosition::kFight, do_multyparry, 0, 0, -1},
 		{"отвязать", EPosition::kDead, do_horseget, 0, 0, -1},
@@ -647,7 +646,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"открыть", EPosition::kSit, do_gen_door, 0, EDoorScmd::SCMD_OPEN, 500},
 		{"отпереть", EPosition::kSit, do_gen_door, 0, SCMD_UNLOCK, 500},
 		{"отпустить", EPosition::kSit, do_stophorse, 0, 0, -1},
-		{"отравить", EPosition::kFight, do_poisoned, 0, 0, -1},
+		{"отравить", EPosition::kFight, DoPoisoning, 0, 0, -1},
 		{"отринуть", EPosition::kRest, do_antigods, 1, 0, -1},
 		{"отступить", EPosition::kFight, do_retreat, 1, 0, -1},
 		{"отправить", EPosition::kStand, do_not_here, 1, 0, -1},
@@ -711,8 +710,8 @@ cpp_extern const struct command_info cmd_info[] =
 		{"проверить", EPosition::kDead, do_check, 0, 0, 0},
 		{"проснуться", EPosition::kSleep, do_wake, 0, SCMD_WAKE, -1},
 		{"простить", EPosition::kRest, do_forgive, 0, 0, 0},
-		{"пробовать", EPosition::kRest, do_eat, 0, SCMD_TASTE, 300},
-		{"сожрать", EPosition::kRest, do_eat, 0, SCMD_DEVOUR, 300},
+		{"пробовать", EPosition::kRest, do_eat, 0, kScmdTaste, 300},
+		{"сожрать", EPosition::kRest, do_eat, 0, kScmdDevour, 300},
 		{"продать", EPosition::kStand, do_not_here, 0, 0, -1},
 		{"фильтровать", EPosition::kStand, do_not_here, 0, 0, -1},
 		{"прыжок", EPosition::kSleep, do_goto, kLvlGod, 0, 0},
@@ -721,12 +720,12 @@ cpp_extern const struct command_info cmd_info[] =
 		{"разгруппировать", EPosition::kDead, do_ungroup, 0, 0, 500},
 		{"разделить", EPosition::kRest, do_split, 1, 0, 500},
 		{"разделы", EPosition::kRest, do_help, 1, 0, 500},
-		{"разжечь", EPosition::kStand, do_fire, 0, 0, -1},
+		{"разжечь", EPosition::kStand, DoCampfire, 0, 0, -1},
 		{"распустить", EPosition::kDead, do_ungroup, 0, 0, 500},
 		{"рассмотреть", EPosition::kStand, do_not_here, 0, 0, -1},
 		{"рассчитать", EPosition::kRest, do_freehelpee, 0, 0, -1},
 		{"режим", EPosition::kDead, do_mode, 0, 0, 0},
-		{"ремонт", EPosition::kRest, do_repair, 0, 0, -1},
+		{"ремонт", EPosition::kRest, DoRepair, 0, 0, -1},
 		{"рецепты", EPosition::kRest, do_recipes, 0, 0, 0},
 		{"рекорды", EPosition::kDead, DoBest, 0, 0, 0},
 		{"руны", EPosition::kFight, do_mixture, 0, SCMD_RUNES, -1},
@@ -781,7 +780,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"удалить", EPosition::kStand, do_delete_obj, kLvlImplementator, 0, 0},
 		{"уклониться", EPosition::kFight, do_deviate, 1, 0, -1},
 		{"украсть", EPosition::kStand, do_steal, 1, 0, 0},
-		{"укрепить", EPosition::kRest, do_armored, 0, 0, -1},
+		{"укрепить", EPosition::kRest, DoArmoring, 0, 0, -1},
 		{"умения", EPosition::kSleep, do_skills, 0, 0, 0},
 		{"уровень", EPosition::kDead, DoScore, 0, 0, 0},
 		{"уровни", EPosition::kDead, do_levels, 0, 0, 0},
@@ -841,10 +840,10 @@ cpp_extern const struct command_info cmd_info[] =
 		{"disarm", EPosition::kFight, do_disarm, 0, 0, -1},
 		{"display", EPosition::kDead, do_display, 0, 0, 0},
 		{"drink", EPosition::kRest, do_drink, 0, SCMD_DRINK, 500},
-		{"drop", EPosition::kRest, do_drop, 0, SCMD_DROP, 500},
+		{"drop", EPosition::kRest, DoDrop, 0, SCMD_DROP, 500},
 		{"dumb", EPosition::kDead, do_wizutil, kLvlImmortal, SCMD_DUMB, 0},
-		{"eat", EPosition::kRest, do_eat, 0, SCMD_EAT, 500},
-		{"devour", EPosition::kRest, do_eat, 0, SCMD_DEVOUR, 300},
+		{"eat", EPosition::kRest, do_eat, 0, kScmdEat, 500},
+		{"devour", EPosition::kRest, do_eat, 0, kScmdDevour, 300},
 		{"echo", EPosition::kSleep, do_echo, kLvlImmortal, SCMD_ECHO, 0},
 		{"emote", EPosition::kRest, do_echo, 1, SCMD_EMOTE, -1},
 		{"enter", EPosition::kStand, do_enter, 0, 0, -2},
@@ -929,7 +928,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"page", EPosition::kDead, do_page, kLvlGod, 0, 0},
 		{"parry", EPosition::kFight, do_parry, 0, 0, -1},
 		{"pick", EPosition::kStand, do_gen_door, 1, SCMD_PICK, -1},
-		{"poisoned", EPosition::kFight, do_poisoned, 0, 0, -1},
+		{"poisoned", EPosition::kFight, DoPoisoning, 0, 0, -1},
 		{"policy", EPosition::kDead, do_gen_ps, 0, SCMD_POLICIES, 0},
 		{"poofin", EPosition::kDead, do_poofset, kLvlGod, SCMD_POOFIN, 0},
 		{"poofout", EPosition::kDead, do_poofset, kLvlGod, SCMD_POOFOUT, 0},
@@ -1000,7 +999,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"errlog", EPosition::kDead, do_syslog, kLvlBuilder, ERRLOG, 0},
 		{"imlog", EPosition::kDead, do_syslog, kLvlBuilder, IMLOG, 0},
 		{"take", EPosition::kRest, do_get, 0, 0, 500},
-		{"taste", EPosition::kRest, do_eat, 0, SCMD_TASTE, 500},
+		{"taste", EPosition::kRest, do_eat, 0, kScmdTaste, 500},
 		{"t2c", EPosition::kRest, do_send_text_to_char, kLvlGreatGod, 0, -1},
 		{"telegram", EPosition::kDead, do_telegram, kLvlImmortal, 0, -1},
 		{"teleport", EPosition::kDead, do_teleport, kLvlGreatGod, 0, -1},

@@ -202,7 +202,7 @@ struct CharClassInfo : public info_container::IItem<ECharClass> {
 
 	/* Прочее */
 	void Print(CharData *ch, std::ostringstream &buffer) const;
-	void PrintHeader(CharData *ch, std::ostringstream &buffer) const;
+	void PrintHeader(std::ostringstream &buffer) const;
 };
 
 class CharClassInfoBuilder : public info_container::IItemBuilder<CharClassInfo> {

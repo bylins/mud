@@ -55,7 +55,7 @@ extern IndexData *mob_index;
 extern TimeInfoData time_info;
 const char *GetSpellName(ESpell spell_id);
 
-extern int can_take_obj(CharData *ch, ObjData *obj);
+extern bool CanTakeObj(CharData *ch, ObjData *obj);
 extern void split_or_clan_tax(CharData *ch, long amount);
 
 // external functions
@@ -71,7 +71,7 @@ const char *skill_percent(Trigger *trig, CharData *ch, char *skill);
 bool feat_owner(Trigger *trig, CharData *ch, char *feat);
 const char *spell_count(Trigger *trig, CharData *ch, char *spell);
 const char *spell_knowledge(Trigger *trig, CharData *ch, char *spell);
-int find_eq_pos(CharData *ch, ObjData *obj, char *arg);
+int find_eq_pos(CharData *ch, ObjData *obj, char *local_arg);
 void reset_zone(int znum);
 
 void do_restore(CharData *ch, char *argument, int cmd, int subcmd);
@@ -3069,7 +3069,7 @@ void find_replacement(void *go,
 			}
 			if ((*subfield == UID_CHAR) || (*subfield == UID_CHAR_ALL)) {
 				char_to = find_char(atoi(subfield + 1));
-				if (!(char_to && can_take_obj(char_to, o))) {
+				if (!(char_to && CanTakeObj(char_to, o))) {
 					trig_log(trig, "object.put: субъект-приемник не найден или не может нести этот объект");
 					return;
 				}

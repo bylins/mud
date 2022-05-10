@@ -217,6 +217,7 @@ enum class EFeatType {
 // Количество пар "параметр-значение" у способности
 const int kMaxFeatAffect = 5;
 const int kLastFeatSlotLvl = 28;
+const int kMinFeatSlot = 0;
 
 // Поля изменений для способностей (кроме EFeatType::kAffect, для них используются стардартные поля APPLY)
 const int kFeatTimer = 1;
