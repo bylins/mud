@@ -181,7 +181,7 @@ void CharClassInfoBuilder::ParseFeats(Optional &info, DataNode &node) {
 	info.value()->feats.Reload(node.Children());
 }
 
-void CharClassInfo::PrintHeader(CharData *ch, std::ostringstream &buffer) const {
+void CharClassInfo::PrintHeader(std::ostringstream &buffer) const {
 	buffer << "Print class:" << "\n"
 		   << " Id: " << KGRN << NAME_BY_ITEM<ECharClass>(id) << KNRM << std::endl
 		   << " Mode: " << KGRN << NAME_BY_ITEM<EItemMode>(mode) << KNRM << std::endl
@@ -195,7 +195,7 @@ void CharClassInfo::PrintHeader(CharData *ch, std::ostringstream &buffer) const 
 }
 
 void CharClassInfo::Print(CharData *ch, std::ostringstream &buffer) const {
-	PrintHeader(ch, buffer);
+	PrintHeader(buffer);
 	PrintBaseStatsTable(ch, buffer);
 	PrintSkillsTable(ch, buffer);
 	PrintSpellsTable(ch, buffer);

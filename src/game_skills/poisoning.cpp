@@ -6,7 +6,7 @@
 extern void weight_change_object(ObjData *obj, int weight);
 
 void DoPoisoning(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (!ch->get_skill(ESkill::kPoisoning)) {
+	if (!ch->GetSkill(ESkill::kPoisoning)) {
 		SendMsgToChar("Вы не умеете этого.", ch);
 		return;
 	}

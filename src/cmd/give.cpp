@@ -1,9 +1,8 @@
 #include "entities/char_data.h"
+#include "entities/world_objects.h"
 #include "game_fight/pk.h"
-#include "handler.h"
 #include "house.h"
 #include "utils/utils_char_obj.inl"
-#include "world_objects.h"
 
 extern void get_check_money(CharData *ch, ObjData *obj, ObjData *cont);
 extern void split_or_clan_tax(CharData *ch, long amount);

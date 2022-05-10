@@ -3,10 +3,9 @@
 #include "structs/global_objects.h"
 
 void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	int spellnum = 0;
 	struct TimedSkill timed;
 
-	if (!ch->get_skill(ESkill::kFirstAid)) {
+	if (!ch->GetSkill(ESkill::kFirstAid)) {
 		SendMsgToChar("Вам следует этому научиться.\r\n", ch);
 		return;
 	}
@@ -50,7 +49,7 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	auto need{false};
 	if ((GET_REAL_MAX_HIT(vict) > 0 && (GET_HIT(vict) * 100 / GET_REAL_MAX_HIT(vict)) < 31) ||
 		(GET_REAL_MAX_HIT(vict) <= 0 && GET_HIT(vict) < GET_REAL_MAX_HIT(vict)) ||
-		(GET_HIT(vict) < GET_REAL_MAX_HIT(vict) && IsAbleToUseFeat(ch, EFeat::kHealer))) {
+		(GET_HIT(vict) < GET_REAL_MAX_HIT(vict) && CanUseFeat(ch, EFeat::kHealer))) {
 		need = true;
 		if (success) {
 			if (!PRF_FLAGGED(ch, EPrf::kTester)) {
@@ -69,6 +68,7 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	int count = 0;
+	auto spell_id{ESpell::kUndefined};
 	if (PRF_FLAGGED(ch, EPrf::kTester)) {
 		count = (GET_SKILL(ch, ESkill::kFirstAid) - 20) / 30;
 		SendMsgToChar(ch, "Снимаю %d аффектов\r\n", count);
@@ -82,11 +82,12 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else {
 		count = std::min(MAX_FIRSTAID_REMOVE, MAX_FIRSTAID_REMOVE * prob / 100);
 
-		for (percent = 0, prob = need; !need && percent < MAX_FIRSTAID_REMOVE && RemoveSpell(percent); percent++) {
-			if (IsAffectedBySpell(vict, RemoveSpell(percent))) {
+		for (percent = 0, prob = need; !need && percent < MAX_FIRSTAID_REMOVE &&
+			GetRemovableSpellId(percent) != ESpell::kUndefined; percent++) {
+			if (IsAffectedBySpell(vict, GetRemovableSpellId(percent))) {
 				need = true;
 				if (percent < count) {
-					spellnum = RemoveSpell(percent);
+					spell_id = GetRemovableSpellId(percent);
 					prob = true;
 				}
 			}
@@ -108,8 +109,9 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				act("$N оказал$G вам первую помощь.", false, vict, nullptr, ch, kToChar);
 				act("$n оказал$g первую помощь $N2.",
 					true, ch, nullptr, vict, kToNotVict | kToArenaListen);
-				if (spellnum)
-					affect_from_char(vict, spellnum);
+				if (spell_id != ESpell::kUndefined) {
+					RemoveAffectFromChar(vict, spell_id);
+				}
 			} else {
 				act("Вы безрезультатно попытались оказать первую помощь $N2.",
 					false, ch, nullptr, vict, kToChar);
@@ -124,8 +126,9 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					false, ch, nullptr, nullptr, kToChar);
 				act("$n оказал$g себе первую помощь.",
 					false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-				if (spellnum)
-					affect_from_char(vict, spellnum);
+				if (spell_id != ESpell::kUndefined) {
+					RemoveAffectFromChar(vict, spell_id);
+				}
 			} else {
 				act("Вы безрезультатно попытались оказать себе первую помощь.",
 					false, ch, nullptr, vict, kToChar);

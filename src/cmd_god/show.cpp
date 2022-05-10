@@ -55,18 +55,14 @@ void ShowClassInfo(CharData *ch, const std::string &class_name, const std::strin
 	if (params.empty()) {
 		MUD::Classes(class_id).Print(ch, out);
 	} else {
-		MUD::Classes(class_id).PrintHeader(ch, out);
-		if (utils::IsAbbrev(params, "stats") ||
-			utils::IsAbbrev(params, "параметры")) {
+		MUD::Classes(class_id).PrintHeader(out);
+		if (utils::IsAbbrev(params, "stats") || utils::IsAbbrev(params, "параметры")) {
 			MUD::Classes(class_id).PrintBaseStatsTable(ch, out);
-		} else if (utils::IsAbbrev(params, "skills") ||
-			utils::IsAbbrev(params, "умения")) {
+		} else if (utils::IsAbbrev(params, "skills") || utils::IsAbbrev(params, "умения")) {
 			MUD::Classes(class_id).PrintSkillsTable(ch, out);
-		} else if (utils::IsAbbrev(params, "spells") ||
-			utils::IsAbbrev(params, "заклинания")) {
+		} else if (utils::IsAbbrev(params, "spells") || utils::IsAbbrev(params, "заклинания")) {
 			MUD::Classes(class_id).PrintSpellsTable(ch, out);
-		} else if (utils::IsAbbrev(params, "feats") ||
-			utils::IsAbbrev(params, "способности")) {
+		} else if (utils::IsAbbrev(params, "feats") || utils::IsAbbrev(params, "способности")) {
 			MUD::Classes(class_id).PrintFeatsTable(ch, out);
 		}
 	}

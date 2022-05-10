@@ -1,5 +1,4 @@
 #include "entities/char_data.h"
-#include "handler.h"
 #include "structs/global_objects.h"
 #include "utils/utils_char_obj.inl"
 
@@ -9,7 +8,7 @@ void DoArmoring(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int add_ac, prob, percent, i, armorvalue;
 	const auto &strengthening = GlobalObjects::strengthening();
 
-	if (!ch->get_skill(ESkill::kArmoring)) {
+	if (!ch->GetSkill(ESkill::kArmoring)) {
 		SendMsgToChar("Вы не умеете этого.", ch);
 		return;
 	}

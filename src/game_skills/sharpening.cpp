@@ -1,5 +1,4 @@
 #include "entities/char_data.h"
-#include "handler.h"
 #include "obj_prototypes.h"
 #include "structs/global_objects.h"
 #include "utils/utils_char_obj.inl"
@@ -8,7 +7,7 @@ void DoSharpening(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	ObjData *obj;
 	int weight, add_hr, add_dr, prob, percent, min_mod, max_mod, i;
 	bool oldstate;
-	if (!ch->get_skill(ESkill::kSharpening)) {
+	if (!ch->GetSkill(ESkill::kSharpening)) {
 		SendMsgToChar("Вы не умеете этого.", ch);
 		return;
 	}

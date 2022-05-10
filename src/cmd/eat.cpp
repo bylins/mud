@@ -22,11 +22,11 @@ void feed_charmice(CharData *ch, char *local_arg) {
 	for (k = ch->get_master()->followers; k; k = k->next) {
 		if (AFF_FLAGGED(k->ch, EAffect::kCharmed)
 			&& k->ch->get_master() == ch->get_master()) {
-			reformed_hp_summ += get_reformed_charmice_hp(ch->get_master(), k->ch, kSpellAnimateDead);
+			reformed_hp_summ += GetReformedCharmiceHp(ch->get_master(), k->ch, ESpell::kAnimateDead);
 		}
 	}
 
-	if (reformed_hp_summ >= get_player_charms(ch->get_master(), kSpellAnimateDead)) {
+	if (reformed_hp_summ >= CalcCharmPoint(ch->get_master(), ESpell::kAnimateDead)) {
 		SendMsgToChar("Вы не можете управлять столькими последователями.\r\n", ch->get_master());
 		ExtractCharFromWorld(ch, false);
 		return;
@@ -40,7 +40,7 @@ void feed_charmice(CharData *ch, char *local_arg) {
 	const int max_heal_hp = 3 * mob_level;
 	chance_to_eat = (100 - 2 * mob_level) / 2;
 	//Added by Ann
-	if (IsAffectedBySpell(ch->get_master(), kSpellFascination)) {
+	if (IsAffectedBySpell(ch->get_master(), ESpell::kFascination)) {
 		chance_to_eat -= 30;
 	}
 	//end Ann
@@ -66,7 +66,7 @@ void feed_charmice(CharData *ch, char *local_arg) {
 	}
 
 	Affect<EApply> af;
-	af.type = kSpellCharm;
+	af.type = ESpell::kCharm;
 	af.duration = std::min(max_charm_duration, (int) (mob_level * max_charm_duration / 30));
 	af.modifier = 0;
 	af.location = EApply::kNone;
@@ -101,7 +101,7 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	if (subcmd == kScmdDevour) {
 		if (MOB_FLAGGED(ch, EMobFlag::kResurrected)
-			&& IsAbleToUseFeat(ch->get_master(), EFeat::kZombieDrover)) {
+			&& CanUseFeat(ch->get_master(), EFeat::kZombieDrover)) {
 			feed_charmice(ch, arg);
 			return;
 		}
@@ -181,7 +181,7 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			af.location = food->get_affected(i).location;
 			af.modifier = food->get_affected(i).modifier;
 			af.bitvector = 0;
-			af.type = kSpellFullFeed;
+			af.type = ESpell::kFullFeed;
 //			af.battleflag = 0;
 			af.duration = CalcDuration(ch, 10 * 2, 0, 0, 0, 0);
 			ImposeAffect(ch, af);
@@ -196,14 +196,14 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 
 		Affect<EApply> af;
-		af.type = kSpellPoison;
+		af.type = ESpell::kPoison;
 		af.duration = CalcDuration(ch, amount == 1 ? amount : amount * 2, 0, 0, 0, 0);
 		af.modifier = 0;
 		af.location = EApply::kStr;
 		af.bitvector = to_underlying(EAffect::kPoisoned);
 		af.battleflag = kAfSameTime;
 		ImposeAffect(ch, af, false, false, false, false);
-		af.type = kSpellPoison;
+		af.type = ESpell::kPoison;
 		af.duration = CalcDuration(ch, amount == 1 ? amount : amount * 2, 0, 0, 0, 0);
 		af.modifier = amount * 3;
 		af.location = EApply::kPoison;

@@ -1,8 +1,8 @@
 #include "entities/char_data.h"
+#include "entities/world_objects.h"
 #include "handler.h"
 #include "meat_maker.h"
 #include "utils/utils_char_obj.inl"
-#include "world_objects.h"
 
 void do_fry(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	ObjData *meet;

@@ -1,10 +1,10 @@
 #include "depot.h"
 #include "entities/char_data.h"
+#include "entities/world_objects.h"
 #include "game_fight/pk.h"
 #include "handler.h"
 #include "house.h"
 #include "utils/utils_char_obj.inl"
-#include "world_objects.h"
 
 // чтобы словить невозможность положить в клан-сундук,
 // иначе при пол все сун будет спам на каждый предмет, мол низя

@@ -57,7 +57,7 @@ void DoTrample(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 			//Find own rune label or first run label in room
 			for (auto affect_it = room->affected.begin(); affect_it != room->affected.end(); ++affect_it) {
-				if (affect_it->get()->type == kSpellRuneLabel) {
+				if (affect_it->get()->type == ESpell::kRuneLabel) {
 					if (affect_it->get()->caster_id == GET_ID(ch)) {
 						aff_i = affect_it;
 						break;

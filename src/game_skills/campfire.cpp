@@ -3,7 +3,7 @@
 
 void DoCampfire(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int percent, prob;
-	if (!ch->get_skill(ESkill::kCampfire)) {
+	if (!ch->GetSkill(ESkill::kCampfire)) {
 		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}

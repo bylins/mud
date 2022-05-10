@@ -5,7 +5,7 @@
 #include "obj_data.h"
 
 #include "obj_save.h"
-#include "world_objects.h"
+#include "entities/world_objects.h"
 #include "obj_prototypes.h"
 #include "utils/parse.h"
 #include "handler.h"
@@ -15,7 +15,7 @@
 #include "cache.h"
 #include "depot.h"
 #include "house.h"
-#include <sstream>
+//#include <sstream>
 
 extern void get_from_container(CharData *ch, ObjData *cont, char *local_arg, int mode, int amount, bool autoloot);
 void set_obj_eff(ObjData *itemobj, EApply type, int mod);

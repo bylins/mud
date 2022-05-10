@@ -2,7 +2,7 @@
 #include "handler.h"
 
 void DoRepair(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (!ch->get_skill(ESkill::kRepair)) {
+	if (!ch->GetSkill(ESkill::kRepair)) {
 		SendMsgToChar("Вы не умеете этого.\r\n", ch);
 		return;
 	}
@@ -44,7 +44,7 @@ void DoRepair(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	TrainSkill(ch, ESkill::kRepair, prob <= percent, nullptr);
 	if (prob > percent) {
 		if (!percent) {
-			percent = ch->get_skill(ESkill::kRepair) / 10;
+			percent = ch->GetSkill(ESkill::kRepair) / 10;
 		}
 		obj->set_current_durability(std::max(0, obj->get_current_durability() * percent / prob));
 		if (obj->get_current_durability()) {
@@ -69,7 +69,7 @@ void DoRepair(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else {
 		TimedSkill timed;
 		timed.skill = ESkill::kRepair;
-		auto modif = ch->get_skill(ESkill::kRepair) / 7 + number(1, 5);
+		auto modif = ch->GetSkill(ESkill::kRepair) / 7 + number(1, 5);
 		timed.time = std::max(1, 25 - modif);
 		ImposeTimedSkill(ch, &timed);
 		obj->set_current_durability(std::min(GET_OBJ_MAX(obj), GET_OBJ_CUR(obj) * percent / prob + 1));
