@@ -226,8 +226,7 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			act(buf, false, helpee, 0, ch, kToVict | kToNotDeaf);
 			return;
 		}
-
-		if (k && helpee != k->ch) {
+		if (k && helpee == k->ch) {
 			act("Вы уже наняли $N3.", false, ch, 0, k->ch, kToChar);
 			return;
 		}
