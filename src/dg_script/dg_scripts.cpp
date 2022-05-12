@@ -1500,9 +1500,9 @@ void find_replacement(void *go,
 					  char *subfield,
 					  char *str) {
 	struct TriggerVar *vd = nullptr;
-	CharData *ch, *c = nullptr, *rndm;
-	ObjData *obj, *o = nullptr;
-	RoomData *room, *r = nullptr;
+	CharData *ch = nullptr, *c = nullptr, *rndm;
+	ObjData *obj = nullptr, *o = nullptr;
+	RoomData *room = nullptr, *r = nullptr;
 	char *name = nullptr;
 	int num = 0, count = 0, i;
 	char uid_type = '\0';
@@ -2469,7 +2469,7 @@ void find_replacement(void *go,
 				strcpy(str, "1");
 			}
 		} else if (!str_cmp(field, "class")) {
-			sprintf(str, "%d",  to_underlying(ch->GetClass()));
+			sprintf(str, "%d",  to_underlying(c->GetClass()));
 		} else if (!str_cmp(field, "race")) {
 			sprintf(str, "%d", (int) GET_RACE(c));
 		} else if (!str_cmp(field, "fighting")) {
