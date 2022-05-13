@@ -113,7 +113,7 @@ void do_put(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	argument = two_arguments(argument, arg3, arg4);
 
 	if (is_number(arg1)) {
-		howmany = std::stoi(arg1);
+		howmany = atoi(arg1);
 		theobj = arg2;
 		thecont = arg3;
 		theplace = arg4;
