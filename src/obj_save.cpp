@@ -360,9 +360,7 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 					}
 					if (sscanf(tmp_buf.c_str(), "%d %d", t, t + 1) != 2) {
 						*error = 50;
-// пока не разберемся с 
-// [13-05-22 10:33:21][ WARNING: Error #50 reading item vnum #78904 num #1 from plrobjs/P-T/slezodara.textobjs. ]
-//						return object;
+						return object;
 					}
 					object->add_timed_spell(static_cast<ESpell>(t[0]), t[1]);
 				}

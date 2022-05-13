@@ -193,7 +193,7 @@ std::string TimedSpell::print() const {
 
 	out << "TSpl: ";
 	for (auto i : spell_list_) {
-		out << i.first << " " << i.second << "\n";
+		out << to_underlying(i.first) << " " << i.second << "\n";
 	}
 	out << "~\n";
 
