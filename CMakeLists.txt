@@ -266,7 +266,7 @@ set(SOURCES
 		src/cmd/eat.cpp
 		src/cmd_god/mark.cpp
 		src/game_crafts/fry.cpp
-		src/cmd/refill.cpp)
+		src/cmd/refill.cpp src/game_mechanics/trainers.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -513,7 +513,7 @@ set(HEADERS
 		src/cmd_god/mark.h
 		src/game_crafts/fry.h
 		src/cmd/refill.h
-		src/cmd/sign.h)
+		src/cmd/sign.h src/game_mechanics/trainers.h)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 # Build types

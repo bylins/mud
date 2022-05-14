@@ -11,15 +11,10 @@
 #include "entities/char_player.h"
 #include "noob.h"
 #include "utils/utils_char_obj.inl"
+#include "game_mechanics/trainers.h"
 
-int shop_ext(CharData *ch, void *me, int cmd, char *argument);
-int receptionist(CharData *ch, void *me, int cmd, char *argument);
-int postmaster(CharData *ch, void *me, int cmd, char *argument);
-int bank(CharData *ch, void *me, int cmd, char *argument);
 int exchange(CharData *ch, void *me, int cmd, char *argument);
 int horse_keeper(CharData *ch, void *me, int cmd, char *argument);
-int guild_mono(CharData *ch, void *me, int cmd, char *argument);
-int guild_poly(CharData *ch, void *me, int cmd, char *argument);
 int torc(CharData *ch, void *me, int cmd, char *argument);
 extern std::vector<City> cities;
 
@@ -412,7 +407,7 @@ bool mode_allow(const CharData *ch, int cur_depth) {
 
 void draw_room(CharData *ch, const RoomData *room, int cur_depth, int y, int x) {
 	// чтобы не ходить по комнатам вторично, но с проверкой на глубину
-	std::map<int, int>::iterator i = check_dupe.find(room->room_vn);
+	auto i = check_dupe.find(room->room_vn);
 	if (i != check_dupe.end()) {
 		if (i->second <= cur_depth) {
 			return;
