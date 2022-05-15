@@ -12,7 +12,7 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include "handler.h"
+//#include "handler.h"
 
 #include "game_economics/auction.h"
 #include "backtrace.h"
@@ -27,7 +27,6 @@
 #include "house.h"
 #include "liquid.h"
 #include "game_magic/magic.h"
-#include "game_mechanics/named_stuff.h"
 #include "obj_prototypes.h"
 #include "color.h"
 #include "game_magic/magic_utils.h"
@@ -46,9 +45,7 @@ bool IsWearingLight(CharData *ch);
 
 // external functions //
 void PerformDropGold(CharData *ch, int amount);
-int invalid_anti_class(CharData *ch, const ObjData *obj);
 int invalid_unique(CharData *ch, const ObjData *obj);
-int invalid_no_class(CharData *ch, const ObjData *obj);
 void do_entergame(DescriptorData *d);
 void do_return(CharData *ch, char *argument, int cmd, int subcmd);
 extern std::vector<City> cities;

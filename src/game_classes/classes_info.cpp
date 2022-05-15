@@ -153,7 +153,7 @@ void CharClassInfoBuilder::ParseName(Optional &info, DataNode &node) {
 
 int ParseLevelDecrement(DataNode &node) {
 	try {
-		return parse::ReadAsInt(node.GetValue("level_decrement"));
+		return std::max(kMinTalentLevelDecrement, parse::ReadAsInt(node.GetValue("level_decrement")));
 	} catch (std::exception &e) {
 		return kMinTalentLevelDecrement;
 	}
@@ -174,7 +174,8 @@ void CharClassInfoBuilder::ParseSpells(Optional &info, DataNode &node) {
 
 void CharClassInfoBuilder::ParseFeats(Optional &info, DataNode &node) {
 	try {
-		info.value()->remorts_for_feat_slot_ = parse::ReadAsInt(node.GetValue("remorts_for_slot"));
+		info.value()->remorts_for_feat_slot_ =
+			std::clamp(parse::ReadAsInt(node.GetValue("remorts_for_slot")), 1, kMaxRemort) ;
 	} catch (std::exception &e) {
 		info.value()->remorts_for_feat_slot_ = kMaxRemort;
 	}
@@ -346,7 +347,7 @@ CharClassInfo::FeatInfoBuilder::ItemOptional CharClassInfo::FeatInfoBuilder::Bui
 		feat_id = parse::ReadAsConstant<EFeat>(node.GetValue("id"));
 		min_lvl = std::clamp(parse::ReadAsInt(node.GetValue("level")), kMinCharLevel, kMaxPlayerLevel);
 		min_remort = std::clamp(parse::ReadAsInt(node.GetValue("remort")), kMinRemort, kMaxRemort);
-		slot = std::clamp(parse::ReadAsInt(node.GetValue("slot")), kMinFeatSlot, to_underlying(EFeat::kLast));
+		slot = std::clamp(parse::ReadAsInt(node.GetValue("slot")), kMinFeatSlotIndex, to_underlying(EFeat::kLast));
 		inborn = parse::ReadAsBool(node.GetValue("inborn"));
 	} catch (std::exception &e) {
 		std::ostringstream out;

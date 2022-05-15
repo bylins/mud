@@ -29,6 +29,7 @@
 #include "entities/char_player.h"
 #include "entities/entities_constants.h"
 #include "cmd/follow.h"
+#include "cmd/do_features.h"
 #include "comm.h"
 #include "conf.h"
 #include "constants.h"
@@ -70,7 +71,6 @@
 // extern variables
 extern int nameserver_is_slow;
 // extern procedures
-void list_feats(CharData *ch, CharData *vict, bool all_feats);
 void list_skills(CharData *ch, CharData *vict, const char *filter = nullptr);
 void list_spells(CharData *ch, CharData *vict, int all_spells);
 //void appear(CharacterData *ch);
@@ -79,7 +79,6 @@ void perform_immort_vis(CharData *ch);
 void do_gen_comm(CharData *ch, char *argument, int cmd, int subcmd);
 extern char *color_value(CharData *ch, int real, int max);
 //int posi_value(int real, int max);
-int invalid_no_class(CharData *ch, const ObjData *obj);
 extern void split_or_clan_tax(CharData *ch, long amount);
 extern bool IsWearingLight(CharData *ch);
 // local functions
@@ -91,7 +90,6 @@ void do_sneak(CharData *ch, char *argument, int cmd, int subcmd);
 void do_hide(CharData *ch, char *argument, int cmd, int subcmd);
 void do_steal(CharData *ch, char *argument, int cmd, int subcmd);
 void do_spells(CharData *ch, char *argument, int cmd, int subcmd);
-void do_features(CharData *ch, char *argument, int cmd, int subcmd);
 void do_skills(CharData *ch, char *argument, int cmd, int subcmd);
 void do_visible(CharData *ch, char *argument, int cmd, int subcmd);
 void print_group(CharData *ch);
@@ -690,16 +688,6 @@ void do_steal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	go_steal(ch, vict, obj_name);
-}
-
-void do_features(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsNpc())
-		return;
-	skip_spaces(&argument);
-	if (utils::IsAbbrev(argument, "все") || utils::IsAbbrev(argument, "all"))
-		list_feats(ch, ch, true);
-	else
-		list_feats(ch, ch, false);
 }
 
 void do_skills(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {

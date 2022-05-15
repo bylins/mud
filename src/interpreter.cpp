@@ -38,6 +38,7 @@
 #include "cmd/retreat.h"
 #include "cmd/telegram.h"
 #include "cmd/learn.h"
+#include "cmd/do_features.h"
 #include "cmd/forget.h"
 #include "cmd/memorize.h"
 #include "cmd/flee.h"
@@ -238,7 +239,6 @@ void do_diagnose(CharData *ch, char *argument, int cmd, int subcmd);
 void do_display(CharData *ch, char *argument, int cmd, int subcmd);
 //void do_drink(CharData *ch, char *argument, int cmd, int subcmd);
 //void do_drunkoff(CharData *ch, char *argument, int cmd, int subcmd);
-void do_features(CharData *ch, char *argument, int cmd, int subcmd);
 void do_featset(CharData *ch, char *argument, int cmd, int subcmd);
 void DoDrop(CharData *ch, char *argument, int, int);
 void do_echo(CharData *ch, char *argument, int cmd, int subcmd);
@@ -756,7 +756,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"социалы", EPosition::kDead, do_commands, 0, SCMD_SOCIALS, 0},
 		{"спать", EPosition::kSleep, do_sleep, 0, 0, -1},
 		{"спасти", EPosition::kFight, do_rescue, 1, 0, -1},
-		{"способности", EPosition::kSleep, do_features, 0, 0, 0},
+		{"способности", EPosition::kSleep, DoFeatures, 0, 0, 0},
 		{"список", EPosition::kStand, do_not_here, 0, 0, -1},
 		{"справка", EPosition::kDead, do_help, 0, 0, 0},
 		{"спросить", EPosition::kRest, do_spec_comm, 0, SCMD_ASK, -1},
@@ -852,7 +852,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"exchange", EPosition::kRest, do_exchange, 1, 0, -1},
 		{"exits", EPosition::kRest, do_exits, 0, 0, 500},
 		{"featset", EPosition::kSleep, do_featset, kLvlImplementator, 0, 0},
-		{"features", EPosition::kSleep, do_features, 0, 0, 0},
+		{"features", EPosition::kSleep, DoFeatures, 0, 0, 0},
 		{"fill", EPosition::kStand, do_pour, 0, SCMD_FILL, 500},
 		{"fit", EPosition::kRest, do_fit, 0, SCMD_DO_ADAPT, 500},
 		{"flee", EPosition::kFight, DoFlee, 1, 0, -1},
