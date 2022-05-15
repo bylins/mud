@@ -268,7 +268,7 @@ set(SOURCES
 		src/game_crafts/fry.cpp
 		src/cmd/refill.cpp
 		src/game_mechanics/trainers.cpp
-		src/cmd/do_features.cpp)
+		src/cmd/do_features.cpp src/cmd/do_spells.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -517,7 +517,7 @@ set(HEADERS
 		src/cmd/refill.h
 		src/cmd/sign.h
 		src/game_mechanics/trainers.h
-		src/cmd/do_features.h)
+		src/cmd/do_features.h src/cmd/do_spells.h)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 # Build types

@@ -39,6 +39,7 @@
 #include "cmd/telegram.h"
 #include "cmd/learn.h"
 #include "cmd/do_features.h"
+#include "cmd/do_spells.h"
 #include "cmd/forget.h"
 #include "cmd/memorize.h"
 #include "cmd/flee.h"
@@ -292,7 +293,6 @@ void do_poofset(CharData *ch, char *argument, int cmd, int subcmd);
 //void do_pour(CharData *ch, char *argument, int cmd, int subcmd);
 void do_skills(CharData *ch, char *argument, int cmd, int subcmd);
 void do_statistic(CharData *ch, char *argument, int cmd, int subcmd);
-void do_spells(CharData *ch, char *argument, int cmd, int subcmd);
 void do_spellstat(CharData *ch, char *argument, int cmd, int subcmd);
 //void do_memorize(CharData *ch, char *argument, int cmd, int subcmd);
 //void do_learn(CharData *ch, char *argument, int cmd, int subcmd);
@@ -542,7 +542,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"заколоть", EPosition::kStand, do_backstab, 1, 0, 1},
 		{"забыть", EPosition::kRest, do_forget, 0, 0, 0},
 		{"задержать", EPosition::kStand, do_not_here, 1, 0, -1},
-		{"заклинания", EPosition::kSleep, do_spells, 0, 0, 0},
+		{"заклинания", EPosition::kSleep, DoSpells, 0, 0, 0},
 		{"заклстат", EPosition::kDead, do_spellstat, kLvlGreatGod, 0, 0},
 		{"закрыть", EPosition::kSit, do_gen_door, 0, SCMD_CLOSE, 500},
 		{"замакс", EPosition::kRest, do_show_mobmax, 1, 0, -1},
@@ -984,7 +984,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"sneak", EPosition::kStand, do_sneak, 1, 0, -2},
 		{"snoop", EPosition::kDead, do_snoop, kLvlGreatGod, 0, 0},
 		{"socials", EPosition::kDead, do_commands, 0, SCMD_SOCIALS, 0},
-		{"spells", EPosition::kRest, do_spells, 0, 0, 0},
+		{"spells", EPosition::kRest, DoSpells, 0, 0, 0},
 		{"split", EPosition::kRest, do_split, 1, 0, 0},
 		{"stand", EPosition::kRest, do_stand, 0, 0, -1},
 		{"stat", EPosition::kDead, do_stat, kLvlGod, 0, 0},
@@ -2313,7 +2313,7 @@ void do_entergame(DescriptorData *d) {
 	}
 
 	//Проверим временные заклы пока нас не было
-	Temporary_Spells::update_char_times(d->character.get(), time(nullptr));
+	temporary_spells::update_char_times(d->character.get(), time(nullptr));
 
 	// Карачун. Редкая бага. Сбрасываем явно не нужные аффекты.
 	d->character->remove_affect(EAffect::kGroup);

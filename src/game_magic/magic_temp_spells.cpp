@@ -4,7 +4,7 @@
 #include "color.h"
 #include "spells_info.h"
 
-namespace Temporary_Spells {
+namespace temporary_spells {
 void AddSpell(CharData *ch, ESpell spell_id, time_t set_time, time_t duration) {
 	TemporarySpell sp;
 	sp.spell = spell_id;

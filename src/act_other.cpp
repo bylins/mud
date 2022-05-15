@@ -72,7 +72,6 @@
 extern int nameserver_is_slow;
 // extern procedures
 void list_skills(CharData *ch, CharData *vict, const char *filter = nullptr);
-void list_spells(CharData *ch, CharData *vict, int all_spells);
 //void appear(CharacterData *ch);
 void write_aliases(CharData *ch);
 void perform_immort_vis(CharData *ch);
@@ -89,7 +88,6 @@ void do_not_here(CharData *ch, char *argument, int cmd, int subcmd);
 void do_sneak(CharData *ch, char *argument, int cmd, int subcmd);
 void do_hide(CharData *ch, char *argument, int cmd, int subcmd);
 void do_steal(CharData *ch, char *argument, int cmd, int subcmd);
-void do_spells(CharData *ch, char *argument, int cmd, int subcmd);
 void do_skills(CharData *ch, char *argument, int cmd, int subcmd);
 void do_visible(CharData *ch, char *argument, int cmd, int subcmd);
 void print_group(CharData *ch);
@@ -715,16 +713,6 @@ void do_skills(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	list_skills(ch, ch, argument);
-}
-
-void do_spells(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsNpc())
-		return;
-	skip_spaces(&argument);
-	if (utils::IsAbbrev(argument, "все") || utils::IsAbbrev(argument, "all"))
-		list_spells(ch, ch, true);
-	else
-		list_spells(ch, ch, false);
 }
 
 void do_visible(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
