@@ -18,15 +18,11 @@
 #include "handler.h"
 #include "color.h"
 #include "modify.h"
-#include "entities/zone.h"
 
 #define        VAR_CHAR    '@'
 #define imlog(lvl, str)    mudlog(str, lvl, kLvlBuilder, IMLOG, true)
 
 const short kMaxRecipeLevel = 200;
-
-// из spec_proc.c
-char *how_good(int skill_level, int skill_cap);
 
 extern CharData *mob_proto;
 extern IndexData *mob_index;

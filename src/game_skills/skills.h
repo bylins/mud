@@ -166,6 +166,7 @@ int SendSkillMessages(int dam, CharData *ch, CharData *vict, int attacktype, std
 int SendSkillMessages(int dam, CharData *ch, CharData *vict, ESkill skill_id, std::string add = "");
 int SendSkillMessages(int dam, CharData *ch, CharData *vict, ESpell spell_id, std::string add = "");
 
+char *how_good(int skill_level, int skill_cap);
 int CalcCurrentSkill(CharData *ch, ESkill skill_id, CharData *vict);
 void ImproveSkill(CharData *ch, ESkill skill, int success, CharData *victim);
 void TrainSkill(CharData *ch, ESkill skill, bool success, CharData *vict);

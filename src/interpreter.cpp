@@ -38,6 +38,9 @@
 #include "cmd/retreat.h"
 #include "cmd/telegram.h"
 #include "cmd/learn.h"
+#include "cmd/do_features.h"
+#include "cmd/do_skills.h"
+#include "cmd/do_spells.h"
 #include "cmd/forget.h"
 #include "cmd/memorize.h"
 #include "cmd/flee.h"
@@ -238,7 +241,6 @@ void do_diagnose(CharData *ch, char *argument, int cmd, int subcmd);
 void do_display(CharData *ch, char *argument, int cmd, int subcmd);
 //void do_drink(CharData *ch, char *argument, int cmd, int subcmd);
 //void do_drunkoff(CharData *ch, char *argument, int cmd, int subcmd);
-void do_features(CharData *ch, char *argument, int cmd, int subcmd);
 void do_featset(CharData *ch, char *argument, int cmd, int subcmd);
 void DoDrop(CharData *ch, char *argument, int, int);
 void do_echo(CharData *ch, char *argument, int cmd, int subcmd);
@@ -290,9 +292,7 @@ void do_page(CharData *ch, char *argument, int cmd, int subcmd);
 void do_pray(CharData *ch, char *argument, int cmd, int subcmd);
 void do_poofset(CharData *ch, char *argument, int cmd, int subcmd);
 //void do_pour(CharData *ch, char *argument, int cmd, int subcmd);
-void do_skills(CharData *ch, char *argument, int cmd, int subcmd);
 void do_statistic(CharData *ch, char *argument, int cmd, int subcmd);
-void do_spells(CharData *ch, char *argument, int cmd, int subcmd);
 void do_spellstat(CharData *ch, char *argument, int cmd, int subcmd);
 //void do_memorize(CharData *ch, char *argument, int cmd, int subcmd);
 //void do_learn(CharData *ch, char *argument, int cmd, int subcmd);
@@ -542,7 +542,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"заколоть", EPosition::kStand, do_backstab, 1, 0, 1},
 		{"забыть", EPosition::kRest, do_forget, 0, 0, 0},
 		{"задержать", EPosition::kStand, do_not_here, 1, 0, -1},
-		{"заклинания", EPosition::kSleep, do_spells, 0, 0, 0},
+		{"заклинания", EPosition::kSleep, DoSpells, 0, 0, 0},
 		{"заклстат", EPosition::kDead, do_spellstat, kLvlGreatGod, 0, 0},
 		{"закрыть", EPosition::kSit, do_gen_door, 0, SCMD_CLOSE, 500},
 		{"замакс", EPosition::kRest, do_show_mobmax, 1, 0, -1},
@@ -756,7 +756,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"социалы", EPosition::kDead, do_commands, 0, SCMD_SOCIALS, 0},
 		{"спать", EPosition::kSleep, do_sleep, 0, 0, -1},
 		{"спасти", EPosition::kFight, do_rescue, 1, 0, -1},
-		{"способности", EPosition::kSleep, do_features, 0, 0, 0},
+		{"способности", EPosition::kSleep, DoFeatures, 0, 0, 0},
 		{"список", EPosition::kStand, do_not_here, 0, 0, -1},
 		{"справка", EPosition::kDead, do_help, 0, 0, 0},
 		{"спросить", EPosition::kRest, do_spec_comm, 0, SCMD_ASK, -1},
@@ -781,7 +781,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"уклониться", EPosition::kFight, do_deviate, 1, 0, -1},
 		{"украсть", EPosition::kStand, do_steal, 1, 0, 0},
 		{"укрепить", EPosition::kRest, DoArmoring, 0, 0, -1},
-		{"умения", EPosition::kSleep, do_skills, 0, 0, 0},
+		{"умения", EPosition::kSleep, DoSkills, 0, 0, 0},
 		{"уровень", EPosition::kDead, DoScore, 0, 0, 0},
 		{"уровни", EPosition::kDead, do_levels, 0, 0, 0},
 		{"учить", EPosition::kStand, do_not_here, 0, 0, -1},
@@ -852,7 +852,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"exchange", EPosition::kRest, do_exchange, 1, 0, -1},
 		{"exits", EPosition::kRest, do_exits, 0, 0, 500},
 		{"featset", EPosition::kSleep, do_featset, kLvlImplementator, 0, 0},
-		{"features", EPosition::kSleep, do_features, 0, 0, 0},
+		{"features", EPosition::kSleep, DoFeatures, 0, 0, 0},
 		{"fill", EPosition::kStand, do_pour, 0, SCMD_FILL, 500},
 		{"fit", EPosition::kRest, do_fit, 0, SCMD_DO_ADAPT, 500},
 		{"flee", EPosition::kFight, DoFlee, 1, 0, -1},
@@ -976,7 +976,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"shutdown", EPosition::kDead, do_shutdown, kLvlImplementator, SCMD_SHUTDOWN, 0},
 		{"sip", EPosition::kRest, do_drink, 0, SCMD_SIP, 500},
 		{"sit", EPosition::kRest, do_sit, 0, 0, -1},
-		{"skills", EPosition::kRest, do_skills, 0, 0, 0},
+		{"skills", EPosition::kRest, DoSkills, 0, 0, 0},
 		{"skillset", EPosition::kSleep, do_skillset, kLvlImplementator, 0, 0},
 		{"morphset", EPosition::kSleep, do_morphset, kLvlImplementator, 0, 0},
 		{"setall", EPosition::kDead, do_setall, kLvlImplementator, 0, 0},
@@ -984,7 +984,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"sneak", EPosition::kStand, do_sneak, 1, 0, -2},
 		{"snoop", EPosition::kDead, do_snoop, kLvlGreatGod, 0, 0},
 		{"socials", EPosition::kDead, do_commands, 0, SCMD_SOCIALS, 0},
-		{"spells", EPosition::kRest, do_spells, 0, 0, 0},
+		{"spells", EPosition::kRest, DoSpells, 0, 0, 0},
 		{"split", EPosition::kRest, do_split, 1, 0, 0},
 		{"stand", EPosition::kRest, do_stand, 0, 0, -1},
 		{"stat", EPosition::kDead, do_stat, kLvlGod, 0, 0},
@@ -2313,7 +2313,7 @@ void do_entergame(DescriptorData *d) {
 	}
 
 	//Проверим временные заклы пока нас не было
-	Temporary_Spells::update_char_times(d->character.get(), time(nullptr));
+	temporary_spells::update_char_times(d->character.get(), time(nullptr));
 
 	// Карачун. Редкая бага. Сбрасываем явно не нужные аффекты.
 	d->character->remove_affect(EAffect::kGroup);

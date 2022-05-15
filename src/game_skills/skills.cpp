@@ -46,6 +46,58 @@ ELuckTestResult MakeLuckTest(CharData *ch, CharData *vict);
 void SendSkillRollMsg(CharData *ch, CharData *victim, ESkill skill_id,
 					  int actor_rate, int victim_rate, int threshold, int roll, SkillRollResult &result);
 
+char *how_good(int skill_level, int skill_cap) {
+	static char out_str[128];
+	int skill_percent = skill_level * 100 / skill_cap;
+
+	if (skill_level < 0)
+		strcpy(out_str, " !Ошибка! ");
+	else if (skill_level == 0)
+		sprintf(out_str, " %s(не изучено)", KIDRK);
+	else if (skill_percent <= 10)
+		sprintf(out_str, " %s(ужасно)", KIDRK);
+	else if (skill_percent <= 20)
+		sprintf(out_str, " %s(очень плохо)", KRED);
+	else if (skill_percent <= 30)
+		sprintf(out_str, " %s(плохо)", KRED);
+	else if (skill_percent <= 40)
+		sprintf(out_str, " %s(слабо)", KIRED);
+	else if (skill_percent <= 50)
+		sprintf(out_str, " %s(ниже среднего)", KIRED);
+	else if (skill_percent <= 55)
+		sprintf(out_str, " %s(средне)", KYEL);
+	else if (skill_percent <= 60)
+		sprintf(out_str, " %s(выше среднего)", KYEL);
+	else if (skill_percent <= 70)
+		sprintf(out_str, " %s(хорошо)", KYEL);
+	else if (skill_percent <= 75)
+		sprintf(out_str, " %s(очень хорошо)", KIYEL);
+	else if (skill_percent <= 80)
+		sprintf(out_str, " %s(отлично)", KIYEL);
+	else if (skill_percent <= 90)
+		sprintf(out_str, " %s(превосходно)", KGRN);
+	else if (skill_percent <= 95)
+		sprintf(out_str, " %s(великолепно)", KGRN);
+	else if (skill_percent <= 100)
+		sprintf(out_str, " %s(мастерски)", KIGRN);
+	else if (skill_percent <= 110)
+		sprintf(out_str, " %s(идеально)", KIGRN);
+	else if (skill_percent <= 120)
+		sprintf(out_str, " %s(совершенно)", KMAG);
+	else if (skill_percent <= 130)
+		sprintf(out_str, " %s(бесподобно)", KMAG);
+	else if (skill_percent <= 140)
+		sprintf(out_str, " %s(возвышенно)", KCYN);
+	else if (skill_percent <= 150)
+		sprintf(out_str, " %s(заоблачно)", KICYN);
+	else if (skill_percent <= 160)
+		sprintf(out_str, " %s(божественно)", KWHT);
+	else
+		sprintf(out_str, " %s(недостижимо)", KWHT);
+	sprintf(out_str + strlen(out_str), " %d", skill_level);
+	return out_str;
+}
+
 class WeapForAct {
  public:
 	enum WeapType {

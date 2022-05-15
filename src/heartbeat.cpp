@@ -503,7 +503,7 @@ Heartbeat::steps_t &pulse_steps() {
 		Heartbeat::PulseStep("Temporary spells: times updating",
 							 kSecsPerMudHour * kPassesPerSec,
 							 5,
-							 std::make_shared<SimpleCall>(Temporary_Spells::update_times)),
+							 std::make_shared<SimpleCall>(temporary_spells::update_times)),
 		Heartbeat::PulseStep("Exchange point updating",
 							 kSecsPerMudHour * kPassesPerSec,
 							 2,

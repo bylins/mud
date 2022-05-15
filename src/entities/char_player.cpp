@@ -1858,7 +1858,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 						sscanf(line, "%d %ld %ld", &num, &lnum, &lnum3);
 						auto spell_id = static_cast<ESpell>(num);
 						if (num != 0 && spell_info[spell_id].name) {
-							Temporary_Spells::AddSpell(this, spell_id, lnum, lnum3);
+							temporary_spells::AddSpell(this, spell_id, lnum, lnum3);
 						}
 					} while (num != 0);
 				}

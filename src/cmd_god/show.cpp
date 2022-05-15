@@ -7,6 +7,9 @@
 
 #include "ban.h"
 #include "administration/privilege.h"
+#include "cmd/do_features.h"
+#include "cmd/do_skills.h"
+#include "cmd/do_spells.h"
 #include "cmd_god/shutdown_parameters.h"
 #include "communication/parcel.h"
 #include "communication/mail.h"
@@ -35,9 +38,6 @@ extern const char *Dirs[];
 extern bool is_empty(ZoneRnum zone_nr);
 extern void show_apply(CharData *ch, CharData *vict);
 extern void print_rune_stats(CharData *ch);
-extern void list_feats(CharData *ch, CharData *vict, bool all_feats);
-extern void list_skills(CharData *ch, CharData *vict, const char *filter = nullptr);
-extern void list_spells(CharData *ch, CharData *vict, int all_spells);
 
 void ShowClassInfo(CharData *ch, const std::string &class_name, const std::string &params) {
 	if (class_name.empty()) {
@@ -607,7 +607,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SendMsgToChar("Нет такого игрока.\r\n", ch);
 				return;
 			}
-			list_skills(vict, ch);
+			DisplaySkills(vict, ch);
 			break;
 		case 14:        // show spells
 			if (!*value) {
@@ -618,9 +618,9 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SendMsgToChar("Нет такого игрока.\r\n", ch);
 				return;
 			}
-			list_spells(vict, ch, false);
+			DisplaySpells(vict, ch, false);
 			break;
-		case 15:        //Show ban. Далим.
+		case 15:        //Show ban.
 			if (!*value) {
 				ban->ShowBannedIp(BanList::SORT_BY_DATE, ch);
 				return;
@@ -636,7 +636,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SendMsgToChar("Нет такого игрока.\r\n", ch);
 				return;
 			}
-			list_feats(vict, ch, false);
+			DisplayFeats(vict, ch, false);
 			break;
 		case 17:        // show glory
 			GloryMisc::show_log(ch, value);

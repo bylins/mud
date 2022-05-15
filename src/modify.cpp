@@ -1061,7 +1061,7 @@ void do_skillset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		}
 		if (IS_SET(value, ESpellType::kTemp)) {
-			Temporary_Spells::AddSpell(vict, spell_id, time(nullptr), 3600);
+			temporary_spells::AddSpell(vict, spell_id, time(nullptr), 3600);
 		}
 		GET_SPELL_TYPE(vict, spell_id) = value;
 	} else if (ESkill::kUndefined != skill_id && skill_id <= ESkill::kLast) {

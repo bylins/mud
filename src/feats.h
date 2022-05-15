@@ -217,7 +217,9 @@ enum class EFeatType {
 // Количество пар "параметр-значение" у способности
 const int kMaxFeatAffect = 5;
 const int kLastFeatSlotLvl = 28;
-const int kMinFeatSlot = 0;
+const int kMinFeatSlotIndex = 0;
+const int kMinBaseFeatsSlotsAmount = 1;	// Минимально возможное число слотов способностей на 0 морте
+const int kMaxBaseFeatsSlotsAmount = 6;	// Максимально возможное число слотов способностей на 0 морте.
 
 // Поля изменений для способностей (кроме EFeatType::kAffect, для них используются стардартные поля APPLY)
 const int kFeatTimer = 1;
@@ -230,8 +232,8 @@ struct TimedFeat {
 };
 
 const char *GetFeatName(EFeat id);
-int CalcFeatLvl(const CharData *ch);
-int CalcFeatSlotsAmount(CharData *ch);
+int CalcMaxFeatSlotPerLvl(const CharData *ch);
+int CalcFeatSlotsAmountPerRemort(CharData *ch);
 int GetModifier(EFeat feat_id, int location);
 EFeat FindFeatId(const char *name, bool alias = false);
 EFeat FindWeaponMasterFeat(ESkill skill);

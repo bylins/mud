@@ -707,7 +707,7 @@ bool CanUseFeat(const CharData *ch, EFeat feat) {
 	if (ch->IsNpc()) {
 		return true;
 	};
-	if (CalcFeatLvl(ch) < MUD::Classes(ch->GetClass()).feats[feat].GetSlot()) {
+	if (CalcMaxFeatSlotPerLvl(ch) < MUD::Classes(ch->GetClass()).feats[feat].GetSlot()) {
 		return false;
 	};
 	if (GET_REAL_REMORT(ch) < MUD::Classes(ch->GetClass()).feats[feat].GetMinRemort()) {
@@ -954,7 +954,7 @@ bool CheckVacantFeatSlot(CharData *ch, EFeat feat_id) {
 	//число высоких слотов, занятых низкоуровневыми способностями,
 	//с учетом, что низкоуровневые могут и не занимать слотов выше им положенных,
 	//а также собственно число слотов, занятых высокоуровневыми способностями
-	if (CalcFeatLvl(ch) - MUD::Classes(ch->GetClass()).feats[feat_id].GetSlot() -
+	if (CalcMaxFeatSlotPerLvl(ch) - MUD::Classes(ch->GetClass()).feats[feat_id].GetSlot() -
 		hifeat - std::max(0, lowfeat - MUD::Classes(ch->GetClass()).feats[feat_id].GetSlot()) > 0) {
 		return true;
 	}
@@ -1565,14 +1565,16 @@ int CalcRollBonusOfGroupFormation(CharData *ch, CharData * /* enemy */) {
 	return (skirmishers*2 - uncoveredSquadMembers)*abilities::kCircumstanceFactor;
 };
 
-int CalcFeatLvl(const CharData *ch) {
-	return (1+GetRealLevel(ch)*(5+GET_REAL_REMORT(ch)/
-		MUD::Classes(ch->GetClass()).GetRemortsNumForFeatSlot()/kLastFeatSlotLvl));
+int CalcMaxFeatSlotPerLvl(const CharData *ch) {
+	return (kMinBaseFeatsSlotsAmount + GetRealLevel(ch)*(kMaxBaseFeatsSlotsAmount - 1 +
+		GET_REAL_REMORT(ch)/MUD::Classes(ch->GetClass()).GetRemortsNumForFeatSlot())/kLastFeatSlotLvl);
 }
 
-int CalcFeatSlotsAmount(CharData *ch) {
- return	(1 + (kLvlImmortal - 1)*(5 + GET_REMORT(ch)/
- 	MUD::Classes(ch->GetClass()).GetRemortsNumForFeatSlot())/kLastFeatSlotLvl);
+int CalcFeatSlotsAmountPerRemort(CharData *ch) {
+	//auto result = kMaxBaseFeatsSlotsAmount + ch->get_remort()/MUD::Classes(ch->GetClass()).GetRemortsNumForFeatSlot();
+	auto result = kMinBaseFeatsSlotsAmount + kMaxPlayerLevel*(kMaxBaseFeatsSlotsAmount - 1 +
+		ch->get_remort()/MUD::Classes(ch->GetClass()).GetRemortsNumForFeatSlot())/kLastFeatSlotLvl;
+	return result;
 }
 
 typedef std::map<EFeat, std::string> EFeat_name_by_value_t;

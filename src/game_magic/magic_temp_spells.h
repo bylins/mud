@@ -5,7 +5,7 @@
 
 #include <vector>
 
-namespace Temporary_Spells {
+namespace temporary_spells {
 void AddSpell(CharData *ch, ESpell spell_id, time_t set_time, time_t duration);
 void update_times();
 void update_char_times(CharData *ch, time_t now);

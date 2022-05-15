@@ -376,7 +376,7 @@ void trg_spellturntemp(CharData *ch, ESpell spell_id, int spelldiff, int vnum) {
 		return;
 	}
 
-	Temporary_Spells::AddSpell(ch, spell_id, time(nullptr), spelldiff);
+	temporary_spells::AddSpell(ch, spell_id, time(nullptr), spelldiff);
 	SendMsgToChar(ch, "Вы дополнительно можете использовать заклинание '%s' некоторое время.\r\n", GetSpellName(spell_id));
 	log("Add %s for %d seconds to %s (trigspelltemp) trigvnum %d", GetSpellName(spell_id), spelldiff, GET_NAME(ch), vnum);
 }

@@ -18,6 +18,7 @@
 #include "cmd_god/ban.h"
 #include "game_mechanics/birthplaces.h"
 #include "game_mechanics/celebrates.h"
+#include "game_mechanics/trainers.h"
 #include "utils/utils_char_obj.inl"
 #include "entities/char_data.h"
 #include "entities/char_player.h"
@@ -4104,14 +4105,8 @@ void do_set(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	imm_log("%s try to set: %s", GET_NAME(ch), argument);
 }
 
-/*int shop_ext(CharData *ch, void *me, int cmd, char *argument);
-int receptionist(CharData *ch, void *me, int cmd, char *argument);
-int postmaster(CharData *ch, void *me, int cmd, char *argument);
-int bank(CharData *ch, void *me, int cmd, char *argument);*/
 int exchange(CharData *ch, void *me, int cmd, char *argument);
 int horse_keeper(CharData *ch, void *me, int cmd, char *argument);
-int guild_mono(CharData *ch, void *me, int cmd, char *argument);
-int guild_poly(CharData *ch, void *me, int cmd, char *argument);
 
 namespace Mlist {
 

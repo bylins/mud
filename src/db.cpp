@@ -36,6 +36,7 @@
 #include "depot.h"
 #include "game_economics/ext_money.h"
 #include "game_mechanics/bonus.h"
+#include "game_mechanics/trainers.h"
 #include "game_fight/fight.h"
 #include "game_fight/mobact.h"
 #include "utils/file_crc.h"
@@ -192,7 +193,6 @@ void renum_obj_zone();
 void renum_mob_zone();
 //int get_zone_rooms(int, int *, int *);
 //int get_zone_rooms1(int, int *, int *);
-void init_guilds();
 void init_basic_values();
 void init_portals();
 void init_im();
