@@ -39,6 +39,7 @@
 #include "cmd/telegram.h"
 #include "cmd/learn.h"
 #include "cmd/do_features.h"
+#include "cmd/do_skills.h"
 #include "cmd/do_spells.h"
 #include "cmd/forget.h"
 #include "cmd/memorize.h"
@@ -291,7 +292,6 @@ void do_page(CharData *ch, char *argument, int cmd, int subcmd);
 void do_pray(CharData *ch, char *argument, int cmd, int subcmd);
 void do_poofset(CharData *ch, char *argument, int cmd, int subcmd);
 //void do_pour(CharData *ch, char *argument, int cmd, int subcmd);
-void do_skills(CharData *ch, char *argument, int cmd, int subcmd);
 void do_statistic(CharData *ch, char *argument, int cmd, int subcmd);
 void do_spellstat(CharData *ch, char *argument, int cmd, int subcmd);
 //void do_memorize(CharData *ch, char *argument, int cmd, int subcmd);
@@ -781,7 +781,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"уклониться", EPosition::kFight, do_deviate, 1, 0, -1},
 		{"украсть", EPosition::kStand, do_steal, 1, 0, 0},
 		{"укрепить", EPosition::kRest, DoArmoring, 0, 0, -1},
-		{"умения", EPosition::kSleep, do_skills, 0, 0, 0},
+		{"умения", EPosition::kSleep, DoSkills, 0, 0, 0},
 		{"уровень", EPosition::kDead, DoScore, 0, 0, 0},
 		{"уровни", EPosition::kDead, do_levels, 0, 0, 0},
 		{"учить", EPosition::kStand, do_not_here, 0, 0, -1},
@@ -976,7 +976,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"shutdown", EPosition::kDead, do_shutdown, kLvlImplementator, SCMD_SHUTDOWN, 0},
 		{"sip", EPosition::kRest, do_drink, 0, SCMD_SIP, 500},
 		{"sit", EPosition::kRest, do_sit, 0, 0, -1},
-		{"skills", EPosition::kRest, do_skills, 0, 0, 0},
+		{"skills", EPosition::kRest, DoSkills, 0, 0, 0},
 		{"skillset", EPosition::kSleep, do_skillset, kLvlImplementator, 0, 0},
 		{"morphset", EPosition::kSleep, do_morphset, kLvlImplementator, 0, 0},
 		{"setall", EPosition::kDead, do_setall, kLvlImplementator, 0, 0},

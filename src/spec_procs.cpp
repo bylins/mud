@@ -18,7 +18,6 @@
 #include "utils/utils_char_obj.inl"
 #include "entities/char_player.h"
 #include "game_mechanics/mount.h"
-#include "entities/world_characters.h"
 #include "depot.h"
 #include "game_fight/fight.h"
 #include "game_fight/fight_hit.h"
@@ -26,7 +25,6 @@
 #include "game_magic/magic.h"
 #include "color.h"
 #include "game_magic/magic_utils.h"
-#include "game_magic/magic_temp_spells.h"
 #include "structs/global_objects.h"
 
 extern CharData *get_player_of_name(const char *name);
@@ -37,155 +35,12 @@ void do_say(CharData *ch, char *argument, int cmd, int subcmd);
 int find_first_step(RoomRnum src, RoomRnum target, CharData *ch);
 
 // local functions
-char *how_good(int skill_level, int skill_cap);
-void list_skills(CharData *ch, CharData *vict, const char *filter = nullptr);
 int dump(CharData *ch, void *me, int cmd, char *argument);
 int mayor(CharData *ch, void *me, int cmd, char *argument);
-int bank(CharData *ch, void *me, int cmd, char *argument);
 
 // ********************************************************************
 // *  Special procedures for mobiles                                  *
 // ********************************************************************
-
-char *how_good(int skill_level, int skill_cap) {
-	static char out_str[128];
-	int skill_percent = skill_level * 100 / skill_cap;
-
-	if (skill_level < 0)
-		strcpy(out_str, " !Ошибка! ");
-	else if (skill_level == 0)
-		sprintf(out_str, " %s(не изучено)", KIDRK);
-	else if (skill_percent <= 10)
-		sprintf(out_str, " %s(ужасно)", KIDRK);
-	else if (skill_percent <= 20)
-		sprintf(out_str, " %s(очень плохо)", KRED);
-	else if (skill_percent <= 30)
-		sprintf(out_str, " %s(плохо)", KRED);
-	else if (skill_percent <= 40)
-		sprintf(out_str, " %s(слабо)", KIRED);
-	else if (skill_percent <= 50)
-		sprintf(out_str, " %s(ниже среднего)", KIRED);
-	else if (skill_percent <= 55)
-		sprintf(out_str, " %s(средне)", KYEL);
-	else if (skill_percent <= 60)
-		sprintf(out_str, " %s(выше среднего)", KYEL);
-	else if (skill_percent <= 70)
-		sprintf(out_str, " %s(хорошо)", KYEL);
-	else if (skill_percent <= 75)
-		sprintf(out_str, " %s(очень хорошо)", KIYEL);
-	else if (skill_percent <= 80)
-		sprintf(out_str, " %s(отлично)", KIYEL);
-	else if (skill_percent <= 90)
-		sprintf(out_str, " %s(превосходно)", KGRN);
-	else if (skill_percent <= 95)
-		sprintf(out_str, " %s(великолепно)", KGRN);
-	else if (skill_percent <= 100)
-		sprintf(out_str, " %s(мастерски)", KIGRN);
-	else if (skill_percent <= 110)
-		sprintf(out_str, " %s(идеально)", KIGRN);
-	else if (skill_percent <= 120)
-		sprintf(out_str, " %s(совершенно)", KMAG);
-	else if (skill_percent <= 130)
-		sprintf(out_str, " %s(бесподобно)", KMAG);
-	else if (skill_percent <= 140)
-		sprintf(out_str, " %s(возвышенно)", KCYN);
-	else if (skill_percent <= 150)
-		sprintf(out_str, " %s(заоблачно)", KICYN);
-	else if (skill_percent <= 160)
-		sprintf(out_str, " %s(божественно)", KWHT);
-	else
-		sprintf(out_str, " %s(недостижимо)", KWHT);
-	sprintf(out_str + strlen(out_str), " %d", skill_level);
-	return out_str;
-}
-
-void list_skills(CharData *ch, CharData *vict, const char *filter/* = nullptr*/) {
-	int i = 0;
-
-	sprintf(buf, "Вы владеете следующими умениями:\r\n");
-	strcpy(buf2, buf);
-	typedef std::list<std::string> skills_t;
-	skills_t skills;
-
-	for (const auto &skill : MUD::Skills()) {
-		if (ch->GetSkill(skill.GetId())) {
-			// filter out skills without name or name beginning with '!' character
-			if (skill.IsInvalid()) {
-				continue;
-			}
-			// filter out skill that does not correspond to filter condition
-			if (filter && nullptr == strstr(skill.GetName(), filter)) {
-				continue;
-			}
-			auto skill_id = skill.GetId();
-			switch (skill_id) {
-				case ESkill::kWarcry:
-					sprintf(buf,
-							"[-%d-] ",
-							(kHoursPerDay - IsTimedBySkill(ch, skill_id)) / kHoursPerWarcry);
-					break;
-				case ESkill::kTurnUndead:
-					if (CanUseFeat(ch, EFeat::kExorcist)) {
-						sprintf(buf,
-								"[-%d-] ",
-								(kHoursPerDay - IsTimedBySkill(ch, skill_id)) / (kHoursPerTurnUndead - 2));
-					} else {
-						sprintf(buf, "[-%d-] ", (kHoursPerDay - IsTimedBySkill(ch, skill_id)) / kHoursPerTurnUndead);
-					}
-					break;
-				case ESkill::kFirstAid:
-				case ESkill::kHangovering:
-				case ESkill::kIdentify:
-				case ESkill::kDisguise:
-				case ESkill::kCourage:
-				case ESkill::kJinx:
-				case ESkill::kTownportal:
-				case ESkill::kStrangle:
-				case ESkill::kStun:
-				case ESkill::kRepair:
-					if (IsTimedBySkill(ch, skill_id))
-						sprintf(buf, "[%3d] ", IsTimedBySkill(ch, skill_id));
-					else
-						sprintf(buf, "[-!-] ");
-					break;
-				default: sprintf(buf, "      ");
-			}
-
-			sprintf(buf + strlen(buf), "%-23s %s (%d)%s \r\n",
-					skill.GetName(),
-					how_good(ch->GetSkill(skill_id), CalcSkillHardCap(ch, skill_id)),
-					CalcSkillMinCap(ch, skill_id),
-					CCNRM(ch, C_NRM));
-
-			skills.push_back(buf);
-
-			i++;
-		}
-	}
-
-	if (!i) {
-		if (nullptr == filter) {
-			sprintf(buf2 + strlen(buf2), "Нет умений.\r\n");
-		} else {
-			sprintf(buf2 + strlen(buf2), "Нет умений, удовлетворяющих фильтру.\r\n");
-		}
-	} else {
-		// output set of skills
-		size_t buf2_length = strlen(buf2);
-		for (skills_t::const_iterator i = skills.begin(); i != skills.end(); ++i) {
-			// why 60?
-			if (buf2_length + i->length() >= kMaxStringLength - 60) {
-				strcat(buf2, "***ПЕРЕПОЛНЕНИЕ***\r\n");
-				break;
-			}
-
-			strncat(buf2 + buf2_length, i->c_str(), i->length());
-			buf2_length += i->length();
-		}
-	}
-	SendMsgToChar(buf2, vict);
-
-}
 
 int horse_keeper(CharData *ch, void *me, int cmd, char *argument) {
 	CharData *victim = (CharData *) me, *horse = nullptr;

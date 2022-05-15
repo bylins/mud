@@ -70,8 +70,6 @@
 
 // extern variables
 extern int nameserver_is_slow;
-// extern procedures
-void list_skills(CharData *ch, CharData *vict, const char *filter = nullptr);
 //void appear(CharacterData *ch);
 void write_aliases(CharData *ch);
 void perform_immort_vis(CharData *ch);
@@ -88,7 +86,6 @@ void do_not_here(CharData *ch, char *argument, int cmd, int subcmd);
 void do_sneak(CharData *ch, char *argument, int cmd, int subcmd);
 void do_hide(CharData *ch, char *argument, int cmd, int subcmd);
 void do_steal(CharData *ch, char *argument, int cmd, int subcmd);
-void do_skills(CharData *ch, char *argument, int cmd, int subcmd);
 void do_visible(CharData *ch, char *argument, int cmd, int subcmd);
 void print_group(CharData *ch);
 void do_group(CharData *ch, char *argument, int cmd, int subcmd);
@@ -686,33 +683,6 @@ void do_steal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	go_steal(ch, vict, obj_name);
-}
-
-void do_skills(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsNpc()) {
-		return;
-	}
-
-	if (argument) {
-		// trim argument left
-		while ('\0' != *argument && a_isspace(*argument)) {
-			++argument;
-		}
-
-		if (*argument) {
-			// trim argument right
-			size_t length = strlen(argument);
-			while (0 < length && a_isspace(argument[length - 1])) {
-				argument[--length] = '\0';
-			}
-
-			if (0 == length) {
-				argument = nullptr;
-			}
-		}
-	}
-
-	list_skills(ch, ch, argument);
 }
 
 void do_visible(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
