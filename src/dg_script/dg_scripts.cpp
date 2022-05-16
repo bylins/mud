@@ -82,6 +82,7 @@ void do_arena_restore(CharData *ch, char *argument, int cmd, int subcmd);
 void extract_value(Script *sc, Trigger *trig, char *cmd);
 int script_driver(void *go, Trigger *trig, int type, int mode);
 int trgvar_in_room(int vnum);
+void do_worldecho(char *msg);
 
 /*
 Костыль, но всеж.
@@ -5258,6 +5259,8 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 				do_dg_add_ice_currency(go, sc, trig, type, cmd);
 			} else if (!strn_cmp(cmd, "bonus ", 6)) {
 				Bonus::dg_do_bonus(cmd + 6);
+			} else if (!strn_cmp(cmd, "worldecho ", 10)) {
+				do_worldecho(cmd + 10);
 			} else if (!strn_cmp(cmd, "worlds ", 7)) {
 				process_worlds(sc, trig, cmd, sc->context);
 			} else if (!strn_cmp(cmd, "context ", 8)) {
@@ -5338,6 +5341,14 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 	depth--;
 	cur_trig = prev_trig;
 	return ret_val;
+}
+
+void do_worldecho(char *msg) {
+	for (auto d = descriptor_list; d; d = d->next) {
+		if (STATE(d) == CON_PLAYING) {
+			SendMsgToChar(msg, d->character.get());
+		}
+	}
 }
 
 void do_tlist(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
