@@ -598,7 +598,6 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 			if (!*argument) {
 				gcount += sprintf(buf, "Я могу научить тебя следующему:\r\n");
 				for (i = 0, found = false; to_underlying((guild_poly_info[info_num] + i)->spell_no) >= 0; i++) {
-					std::cout << "i= " << i << "\r\n";
 					if ((guild_poly_info[info_num] + i)->level > GetRealLevel(ch)) {
 						continue;
 					}
