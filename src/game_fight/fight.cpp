@@ -1903,8 +1903,9 @@ void process_player_attack(CharData *ch, int min_init) {
 			exthit(ch, tmpSkilltype, fight::AttackType::kMainHand);
 		}
 // допатака двуручем
-		if (!IS_SET(trigger_code, kNoExtraAttack) && GET_EQ(ch, EEquipPos::kBoths) &&
-			CanUseFeat(ch, EFeat::kTwohandsFocus)
+		if (!IS_SET(trigger_code, kNoExtraAttack) && GET_EQ(ch, EEquipPos::kBoths) 
+			&& CanUseFeat(ch, EFeat::kTwohandsFocus)
+			&& CanUseFeat(ch, EFeat::kSlashMaster)
 			&& (static_cast<ESkill>(GET_OBJ_SKILL(GET_EQ(ch, EEquipPos::kBoths))) == ESkill::kTwohands)) {
 			if (ch->GetSkill(ESkill::kTwohands) > (number(1, 500)))
 				hit(ch, ch->GetEnemy(), ESkill::kUndefined, fight::AttackType::kMainHand);
