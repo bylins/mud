@@ -938,4 +938,66 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 	return (false);
 }*/
 
+/*
+namespace trainers {
+
+using DataNode = parser_wrapper::DataNode;
+using Optional = TrainerInfoBuilder::ItemOptional;
+
+void TrainersLoader::Load(DataNode data) {
+	MUD::Classes().Init(data.Children());
+}
+
+void TrainersLoader::Reload(DataNode data) {
+	MUD::Classes().Reload(data.Children());
+}
+
+Optional TrainerInfoBuilder::Build(DataNode &node) {
+	auto trainer_info =  std::make_optional(std::make_shared<TrainerInfo>());
+	try {
+		ParseTrainer(trainer_info, node);
+	} catch (std::exception &e) {
+		err_log("Trainer info parsing error: '%s'", e.what());
+		trainer_info = std::nullopt;
+	}
+	return trainer_info;
+}
+
+void TrainerInfoBuilder::ParseTrainer(Optional &info, DataNode &node) {
+	try {
+		info.value()->id_ = parse::ReadAsConstant<ECharClass>(node.GetValue("id"));
+	} catch (std::exception &e) {
+		err_log("Incorrect class id (%s).", e.what());
+		info = std::nullopt;
+		return;
+	}
+
+	try {
+		info.value()->mode = parse::ReadAsConstant<EItemMode>(node.GetValue("mode"));
+	} catch (std::exception &) {
+	}
+
+	if (node.GoToChild("name")) {
+		ParseName(info, node);
+	}
+
+	if (node.GoToSibling("stats")) {
+		ParseStats(info, node);
+	}
+
+	if (node.GoToSibling("skills")) {
+		ParseSkills(info, node);
+	}
+
+	if (node.GoToSibling("spells")) {
+		ParseSpells(info, node);
+	}
+
+	if (node.GoToSibling("feats")) {
+		ParseFeats(info, node);
+	}
+}
+
+}
+*/
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -26,7 +26,7 @@ struct SkillInfo : public info_container::IItem<ESkill> {
 	std::string short_name{"!error"};
 	ESaving save_type{ESaving::kFirst};
 	int difficulty{200};
-	int cap{1};
+	int cap{1000};
 	bool autosuccess{false};
 	EItemMode mode{EItemMode::kService};
 

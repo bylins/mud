@@ -10,7 +10,7 @@
 
 #include <algorithm>
 #include <memory>
-#include <unordered_map>
+#include <map>
 
 #include "utils/logger.h"
 #include "utils/parse.h"
@@ -83,7 +83,7 @@ class InfoContainer {
 
 	using ItemPtr = std::shared_ptr<I>;
 	using ItemOptional = std::optional<ItemPtr>;
-	using Register = std::unordered_map<E, ItemPtr>;
+	using Register = std::map<E, ItemPtr>;
 	using NodeRange = iterators::Range<parser_wrapper::DataNode>;
 
 /* ----------------------------------------------------------------------
@@ -337,6 +337,57 @@ void InfoContainer<E, I, B>::RegisterBuilder::EmplaceDefaultItems(Register &item
 	items.try_emplace(E::kUndefined, std::move(default_item));
 }
 
+/* ----------------------------------------------------------------------
+ * 	Частичная специаизация контейнера для случая индексации целыми числами
+ * 	Используется, когда необходима возможность добавлять новые элементы,
+ * 	не индексируемые через зашитый в код enum.
+ ---------------------------------------------------------------------- */
+/*
+template<>
+class IItem<int> {
+	[[nodiscard]] virtual EItemMode GetMode() const = 0;
+	[[nodiscard]] virtual int GetId() const = 0;
+};
+
+template<typename I, typename B>
+class InfoContainer<int, I, B> {
+ public:
+	//using ItemPtr = std::shared_ptr<I>;
+	using ItemOptional = std::optional<I>;
+	using Register = std::vector<I>;
+	using NodeRange = iterators::Range<parser_wrapper::DataNode>;
+
+	const I &operator[](int id) const;
+
+ private:
+	friend class RegisterBuilder;
+	using RegisterPtr = std::unique_ptr<Register>;
+	using RegisterOptional = std::optional<RegisterPtr>;
+
+	class RegisterBuilder {
+	 private:
+		static void EmplaceDefaultItems(Register &items);
+	};
+
+	RegisterPtr items_;
+	static const I default_item_ = I();
+};
+
+
+template<typename I, typename B>
+const I &InfoContainer<int, I, B>::operator[](int id) const {
+	try {
+		return items_->at(id);
+	} catch (const std::out_of_range &) {
+		return default_item_;
+	}
+};
+
+template<typename I, typename B>
+void InfoContainer<int, I, B>::RegisterBuilder::EmplaceDefaultItems(Register &items) {
+	//default_item_ = I();
+}
+*/
 } // info_container
 
 #endif //BYLINS_SRC_STRUCTS_INFO_CONTAINER_H_
