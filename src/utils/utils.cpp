@@ -103,7 +103,16 @@ CharData *find_char(long n) {
 			return ch.get();
 		}
 	}
+	return nullptr;
 
+}
+// return pc with UID n
+CharData *find_pc(long n) {
+	for (auto d = descriptor_list; d; d = d->next) {
+		if (GET_ID(d->character.get()) == n) {
+			return d->character.get();
+		}
+	}
 	return nullptr;
 }
 

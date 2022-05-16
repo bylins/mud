@@ -427,7 +427,7 @@ int find_room_uid(long n) {
  ************************************************************/
 
 // search the entire world for a char, and return a pointer
-CharData *get_char(char *name, int/* vnum*/) {
+CharData *get_char(char *name, bool pc) {
 	CharData *i;
 
 	// Отсекаем поиск левых UID-ов.
@@ -435,8 +435,10 @@ CharData *get_char(char *name, int/* vnum*/) {
 		return nullptr;
 
 	if (*name == UID_CHAR || *name == UID_CHAR_ALL) {
-		i = find_char(atoi(name + 1));
-
+		if (pc)
+			i = find_pc(atoi(name + 1));
+		else
+			i = find_char(atoi(name + 1));
 		if (i && (i->IsNpc() || !GET_INVIS_LEV(i))) {
 			return i;
 		}
@@ -1624,7 +1626,7 @@ void find_replacement(void *go,
 				else if ((o = get_obj_in_list(name, ch->carrying)));
 				else if ((c = SearchCharInRoomByName(name, ch->in_room)));
 				else if ((o = get_obj_in_list(name, world[ch->in_room]->contents)));
-				else if ((c = get_char(name, GET_TRIG_VNUM(trig))));
+				else if ((c = get_char(name)));
 				else if ((o = get_obj(name, GET_TRIG_VNUM(trig))));
 				else if ((r = get_room(name))) {
 				}
@@ -5057,7 +5059,7 @@ void do_dg_add_ice_currency(void * /*go*/, Script * /*sc*/, Trigger *trig, int/*
 
 	value = atoi(value_c);
 	// locate the target
-	ch = get_char(charname);
+	ch = get_char(charname, true);
 	if (!ch) {
 		sprintf(buf2, "dg_addicecurrency: cannot locate target!");
 		trig_log(trig, buf2);
