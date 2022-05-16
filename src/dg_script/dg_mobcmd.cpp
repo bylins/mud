@@ -303,7 +303,7 @@ void do_msend(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 	}
 
 	if (*arg == UID_CHAR) {
-		if (!(victim = get_char(arg))) {
+		if (!(victim = get_char(arg, true))) {
 			sprintf(buf, "msend: victim (%s) UID does not exist", arg + 1);
 			mob_log(ch, buf, LGH);
 			return;
@@ -1017,7 +1017,7 @@ void do_mfeatturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 	}
 
 	if (*name == UID_CHAR) {
-		if (!(victim = get_char(name))) {
+		if (!(victim = get_char(name, true))) {
 			sprintf(buf, "mfeatturn: victim (%s) UID does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
@@ -1069,7 +1069,7 @@ void do_mskillturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 	}
 
 	if (*name == UID_CHAR) {
-		if (!(victim = get_char(name))) {
+		if (!(victim = get_char(name, true))) {
 			sprintf(buf, "mskillturn: victim (%s) UID does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
@@ -1121,7 +1121,7 @@ void do_mskilladd(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 	skilldiff = atoi(amount);
 
 	if (*name == UID_CHAR) {
-		if (!(victim = get_char(name))) {
+		if (!(victim = get_char(name, true))) {
 			sprintf(buf, "mskilladd: victim (%s) UID does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
@@ -1175,7 +1175,7 @@ void do_mspellturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		return;
 
 	if (*name == UID_CHAR) {
-		if (!(victim = get_char(name))) {
+		if (!(victim = get_char(name, true))) {
 			sprintf(buf, "mspellturn: victim (%s) UID does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
@@ -1219,7 +1219,7 @@ void do_mspellturntemp(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 	}
 
 	if (*name == UID_CHAR) {
-		if (!(victim = get_char(name))) {
+		if (!(victim = get_char(name, true))) {
 			sprintf(buf, "mspellturntemp: victim (%s) UID does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
@@ -1253,7 +1253,7 @@ void do_mspelladd(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 
 	CharData *victim;
 	if (*name == UID_CHAR) {
-		if (!(victim = get_char(name))) {
+		if (!(victim = get_char(name, true))) {
 			sprintf(buf, "mspelladd: victim (%s) UID does not exist", name + 1);
 			mob_log(ch, buf);
 			return;

@@ -111,6 +111,7 @@ extern char AltToLat[];
 
 // public functions in utils.cpp
 CharData *find_char(long n);
+CharData *find_pc(long n);
 char *rustime(const struct tm *timeptr);
 char *str_dup(const char *source);
 char *str_add(char *dst, const char *src);
