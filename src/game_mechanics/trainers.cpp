@@ -597,7 +597,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 		case SCMD_LEARN:
 			if (!*argument) {
 				gcount += sprintf(buf, "Я могу научить тебя следующему:\r\n");
-				for (i = 0, found = false; (guild_poly_info[info_num] + i)->spell_no >= ESpell::kUndefined; i++) {
+				for (i = 0, found = false; to_underlying((guild_poly_info[info_num] + i)->spell_no) >= 0; i++) {
 					if ((guild_poly_info[info_num] + i)->level > GetRealLevel(ch)) {
 						continue;
 					}
@@ -608,6 +608,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 						continue;
 
 					const ESkill skill_no = (guild_poly_info[info_num] + i)->skill_no;
+
 					bits = to_underlying(skill_no);
 					if (ESkill::kUndefined != skill_no &&
 						(!ch->get_trained_skill(skill_no) || IS_GRGOD(ch)) && CanGetSkill(ch, skill_no)) {

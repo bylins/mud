@@ -103,7 +103,16 @@ CharData *find_char(long n) {
 			return ch.get();
 		}
 	}
+	return nullptr;
 
+}
+// return pc online with UID n
+CharData *find_pc(long n) {
+	for (auto d = descriptor_list; d; d = d->next) {
+		if (STATE(d) == CON_PLAYING && GET_ID(d->character) == n) {
+			return d->character.get();
+		}
+	}
 	return nullptr;
 }
 

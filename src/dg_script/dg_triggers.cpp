@@ -1032,7 +1032,7 @@ int remove_otrigger(ObjData *obj, CharData *actor) {
 int drop_otrigger(ObjData *obj, CharData *actor) {
 	char buf[kMaxInputLength];
 
-	if (!CheckSript(obj, OTRIG_DROP) || GET_INVIS_LEV(actor)) {
+	if (!CheckSript(obj, OTRIG_DROP)) {
 		return 1;
 	}
 

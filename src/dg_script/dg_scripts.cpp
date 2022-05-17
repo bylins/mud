@@ -82,6 +82,7 @@ void do_arena_restore(CharData *ch, char *argument, int cmd, int subcmd);
 void extract_value(Script *sc, Trigger *trig, char *cmd);
 int script_driver(void *go, Trigger *trig, int type, int mode);
 int trgvar_in_room(int vnum);
+void do_worldecho(char *msg);
 
 /*
 Костыль, но всеж.
@@ -427,7 +428,7 @@ int find_room_uid(long n) {
  ************************************************************/
 
 // search the entire world for a char, and return a pointer
-CharData *get_char(char *name, int/* vnum*/) {
+CharData *get_char(char *name, bool pc) {
 	CharData *i;
 
 	// Отсекаем поиск левых UID-ов.
@@ -435,8 +436,10 @@ CharData *get_char(char *name, int/* vnum*/) {
 		return nullptr;
 
 	if (*name == UID_CHAR || *name == UID_CHAR_ALL) {
-		i = find_char(atoi(name + 1));
-
+		if (pc)
+			i = find_pc(atoi(name + 1));
+		else
+			i = find_char(atoi(name + 1));
 		if (i && (i->IsNpc() || !GET_INVIS_LEV(i))) {
 			return i;
 		}
@@ -1624,7 +1627,7 @@ void find_replacement(void *go,
 				else if ((o = get_obj_in_list(name, ch->carrying)));
 				else if ((c = SearchCharInRoomByName(name, ch->in_room)));
 				else if ((o = get_obj_in_list(name, world[ch->in_room]->contents)));
-				else if ((c = get_char(name, GET_TRIG_VNUM(trig))));
+				else if ((c = get_char(name)));
 				else if ((o = get_obj(name, GET_TRIG_VNUM(trig))));
 				else if ((r = get_room(name))) {
 				}
@@ -5057,7 +5060,7 @@ void do_dg_add_ice_currency(void * /*go*/, Script * /*sc*/, Trigger *trig, int/*
 
 	value = atoi(value_c);
 	// locate the target
-	ch = get_char(charname);
+	ch = get_char(charname, true);
 	if (!ch) {
 		sprintf(buf2, "dg_addicecurrency: cannot locate target!");
 		trig_log(trig, buf2);
@@ -5256,6 +5259,8 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 				do_dg_add_ice_currency(go, sc, trig, type, cmd);
 			} else if (!strn_cmp(cmd, "bonus ", 6)) {
 				Bonus::dg_do_bonus(cmd + 6);
+			} else if (!strn_cmp(cmd, "worldecho ", 10)) {
+				do_worldecho(cmd + 10);
 			} else if (!strn_cmp(cmd, "worlds ", 7)) {
 				process_worlds(sc, trig, cmd, sc->context);
 			} else if (!strn_cmp(cmd, "context ", 8)) {
@@ -5336,6 +5341,14 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 	depth--;
 	cur_trig = prev_trig;
 	return ret_val;
+}
+
+void do_worldecho(char *msg) {
+	for (auto d = descriptor_list; d; d = d->next) {
+		if (STATE(d) == CON_PLAYING) {
+			SendMsgToChar(msg, d->character.get());
+		}
+	}
 }
 
 void do_tlist(CharData *ch, char *argument, int cmd, int/* subcmd*/) {

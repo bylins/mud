@@ -94,7 +94,7 @@ void ExtractObjFromWorld(ObjData *obj);
 
 CharData *SearchCharInRoomByName(char *name, RoomRnum room);
 CharData *SearchCharByRnum(MobRnum rnum);
-CharData *get_char(char *name, int vnum = 0);
+CharData *get_char(char *name, bool pc = false);
 
 void ExtractCharFromRoom(CharData *ch);
 inline void char_from_room(const CharData::shared_ptr &ch) { ExtractCharFromRoom(ch.get()); }
