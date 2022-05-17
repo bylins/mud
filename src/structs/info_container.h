@@ -39,13 +39,20 @@ EItemMode ITEM_BY_NAME<EItemMode>(const std::string &name);
 namespace info_container {
 
 /**
- * Интерфейс элемента контейнера.
+ * Базовый элемента контейнера. Хранимые в info_container элементы должны наследоваться от него.
  */
-template<typename E>
-class IItem {
+template<typename IdEnum>
+class BaseItem {
+	IdEnum id_{IdEnum::kUndefined};
+	EItemMode mode_{EItemMode::kDisabled};
+
   public:
-	[[nodiscard]] virtual EItemMode GetMode() const = 0;
-	[[nodiscard]] virtual E GetId() const = 0;
+	BaseItem<IdEnum>() = default;
+	BaseItem<IdEnum>(IdEnum id, EItemMode mode)
+	    	: id_(id), mode_(mode) {};
+
+	[[nodiscard]] EItemMode GetMode() const { return mode_; };
+	[[nodiscard]] auto GetId() const { return id_; };
 	/**
 	 *  Элемент доступен либо тестируется.
 	 */
@@ -64,26 +71,24 @@ class IItem {
 	[[nodiscard]] bool IsUnavailable() const { return !IsAvailable(); };
 };
 
-template<typename I>
+template<typename Item>
 class IItemBuilder {
  public:
-	using ItemPtr = std::shared_ptr<I>;
-	using ItemOptional = std::optional<ItemPtr>;
+	using ItemPtr = std::shared_ptr<Item>;
 
-	virtual ItemOptional Build(parser_wrapper::DataNode &node) = 0;
+	virtual ItemPtr Build(parser_wrapper::DataNode &node) = 0;
 	static EItemMode ParseItemMode(parser_wrapper::DataNode &node, EItemMode default_mode);
 };
 
-template<typename E, typename I, typename B>
+template<typename IdEnum, typename Item, typename ItemBuilder>
 class InfoContainer {
  public:
 	InfoContainer();
 	InfoContainer(InfoContainer &s) = delete;
 	void operator=(const InfoContainer &s) = delete;
 
-	using ItemPtr = std::shared_ptr<I>;
-	using ItemOptional = std::optional<ItemPtr>;
-	using Register = std::map<E, ItemPtr>;
+	using ItemPtr = std::shared_ptr<Item>;
+	using Register = std::map<IdEnum, ItemPtr>;
 	using NodeRange = iterators::Range<parser_wrapper::DataNode>;
 
 /* ----------------------------------------------------------------------
@@ -92,7 +97,7 @@ class InfoContainer {
 	/**
 	 *  Возвращает элемент с указанным id или с id kUndefined.
 	 */
-	const I &operator[](E id) const;
+	const Item &operator[](IdEnum id) const;
 	/**
 	 *  Инициализация. Для реинициализации используйте Reload();
 	 */
@@ -104,35 +109,32 @@ class InfoContainer {
 	/**
 	 *  Id известен. Не гарантируется, что он означает корректный элемент.
 	 */
-	bool IsKnown(const E id) const { return items_->contains(id); };
+	bool IsKnown(const IdEnum id) const { return items_->contains(id); };
 	/**
 	 *  Id неизвестен.
 	 */
-	bool IsUnknown(const E id) const { return !IsKnown(id); };
+	bool IsUnknown(const IdEnum id) const { return !IsKnown(id); };
 	/**
 	 *  Id доступен либо тестируется.
 	 */
-	bool IsValid(const E id) const { return (IsUnknown(id) ? false : items_->at(id)->GetMode() > EItemMode::kFrozen); };
+	bool IsValid(const IdEnum id) const { return (IsUnknown(id) ?
+		false : items_->at(id)->GetMode() > EItemMode::kFrozen); };
 	/**
 	 *  Id отключен.
 	 */
-	bool IsInvalid(const E id) const { return !IsValid(id); };
+	bool IsInvalid(const IdEnum id) const { return !IsValid(id); };
 	/**
 	 *  Id доступен и не тестируется).
 	 */
-	bool IsAvailable(const E id) const { return (IsUnknown(id) ? false : IsEnabled(id)); };
+	bool IsAvailable(const IdEnum id) const { return (IsUnknown(id) ? false : IsEnabled(id)); };
 	/**
 	 *  Id недоступен (тестируется, служебный или отключен).
 	 */
-	bool IsUnavailable(const E id) const { return !IsAvailable(id); };
+	bool IsUnavailable(const IdEnum id) const { return !IsAvailable(id); };
 	/**
 	 *  Контейнер уже инициализирован.
 	 */
 	bool IsInitizalized() { return (items_->size() > 1); }
-	/**
-	 *  Создает опционала для парсера элементов.
-	 */
-	ItemOptional MakeItemOptional();
 	/**
 	 * Пара итераторов, возвращающих коннстантные ссылки.
 	 * Обычный const_iterator не блокирует возможность изменить значение,
@@ -144,32 +146,26 @@ class InfoContainer {
 	 * Найти элемент, соответствующий числу, скастованному в индекс элемента.
 	 * @return - элемент или элемент kUndefined.
 	 */
-	const I &FindItem(int num) const;
+	const Item &FindItem(int num) const;
 	/**
 	 * Найти подключенный элемент, соответствующий числу, скастованному в индекс элемента.
 	 * @return - элемент или элемент kUndefined.
 	 */
-	const I &FindAvailableItem(int num) const;
+	const Item &FindAvailableItem(int num) const;
 
  private:
 	friend class RegisterBuilder;
 	using RegisterPtr = std::unique_ptr<Register>;
-	using RegisterOptional = std::optional<RegisterPtr>;
 
 	/**
 	 *  Класс строителя контейнера в целом.
 	 */
 	class RegisterBuilder {
 	 public:
-		static RegisterOptional StrictBuild(const NodeRange &data);
-		static RegisterOptional TolerantBuild(const NodeRange &data);
+		static RegisterPtr Build(const NodeRange &data, bool stop_on_error);
 
 	 private:
-		static bool strict_pasring_;
-		static B item_builder_;
-
-		static RegisterOptional Build(const NodeRange &data);
-		static RegisterOptional Parse(const NodeRange &data);
+		static RegisterPtr Parse(const NodeRange &data, bool stop_on_error);
 		static void EmplaceItem(Register &items, ItemPtr &item);
 		static void EmplaceDefaultItems(Register &items);
 	};
@@ -179,95 +175,87 @@ class InfoContainer {
 	/**
 	 *  Такой id известен, но элемент отключен.
 	 */
-	bool IsDisabled(const E id) const { return items_->at(id)->GetMode() == EItemMode::kDisabled; }
+	bool IsDisabled(const IdEnum id) const { return items_->at(id)->GetMode() == EItemMode::kDisabled; }
 	/**
 	 *  Такой id известен и находится в режиме тестирования.
 	 */
-	bool IsBeingTesting(const E id) const { return items_->at(id)->GetMode() == EItemMode::kTesting; }
+	bool IsBeingTesting(const IdEnum id) const { return items_->at(id)->GetMode() == EItemMode::kTesting; }
 	/**
 	 *  Такой id известен и элемент доступен. Не гарантируется, что элемент корректен.
 	 */
-	bool IsEnabled(const E id) const { return items_->at(id)->GetMode() == EItemMode::kEnabled; }
+	bool IsEnabled(const IdEnum id) const { return items_->at(id)->GetMode() == EItemMode::kEnabled; }
 
 };
-
-template<typename E, typename I, typename B> B InfoContainer<E, I, B>::RegisterBuilder::item_builder_;
-template<typename E, typename I, typename B> bool InfoContainer<E, I, B>::RegisterBuilder::strict_pasring_;
 
 /* ----------------------------------------------------------------------
  * 	Реализация InfoContainer
  ---------------------------------------------------------------------- */
 
-template<typename E, typename I, typename B>
-InfoContainer<E, I, B>::InfoContainer() {
+template<typename IdEnum, typename Item, typename ItemBuilder>
+InfoContainer<IdEnum, Item, ItemBuilder>::InfoContainer() {
 	if (!items_) {
 		items_ = std::make_unique<Register>();
 	}
 }
 
-template<typename E, typename I, typename B>
-void InfoContainer<E, I, B>::Reload(const NodeRange &data) {
-	auto new_items = RegisterBuilder::StrictBuild(data);
+template<typename IdEnum, typename Item, typename ItemBuilder>
+void InfoContainer<IdEnum, Item, ItemBuilder>::Reload(const NodeRange &data) {
+	auto new_items = std::move(RegisterBuilder::Build(data, true));
 	if (new_items) {
-		items_ = std::move(new_items.value());
+		items_ = std::move(new_items);
 	} else {
 		err_log("Reloading was canceled - file damaged.");
 	}
 };
 
-template<typename E, typename I, typename B>
-const I &InfoContainer<E, I, B>::operator[](E id) const {
+template<typename IdEnum, typename Item, typename ItemBuilder>
+const Item &InfoContainer<IdEnum, Item, ItemBuilder>::operator[](IdEnum id) const {
 	try {
 		return *(items_->at(id));
 	} catch (const std::out_of_range &) {
 		//err_log("Incorrect id (%d) passed into %s.", to_underlying(id), typeid(this).name()); ABYRVALG
-		return *(items_->at(E::kUndefined));
+		return *(items_->at(IdEnum::kUndefined));
 	}
 };
 
-template<typename E, typename I, typename B>
-void InfoContainer<E, I, B>::Init(const NodeRange &data) {
+template<typename IdEnum, typename Item, typename ItemBuilder>
+void InfoContainer<IdEnum, Item, ItemBuilder>::Init(const NodeRange &data) {
 	if (IsInitizalized()) {
-		err_log("Don't try re-init containers. Use 'Reload()'.");
+		err_log("Don't try reinit containers. Use 'Reload()'.");
 		return;
 	}
-	items_ = std::move(RegisterBuilder::TolerantBuild(data).value());
+	items_ = std::move(RegisterBuilder::Build(data, false));
 };
 
-template<typename E, typename I, typename B>
-typename InfoContainer<E, I, B>::ItemOptional InfoContainer<E, I, B>::MakeItemOptional() {
-	return std::make_optional(std::make_shared<I>());
-}
-
-template<typename E, typename I, typename B>
-auto InfoContainer<E, I, B>::begin() const {
-	iterators::ConstIterator<decltype(items_->begin()), I> it(items_->begin());
+template<typename IdEnum, typename Item, typename ItemBuilder>
+auto InfoContainer<IdEnum, Item, ItemBuilder>::begin() const {
+	iterators::ConstIterator<decltype(items_->begin()), Item> it(items_->begin());
 	return it;
 }
 
-template<typename E, typename I, typename B>
-auto InfoContainer<E, I, B>::end() const {
-	iterators::ConstIterator<decltype(items_->end()), I> it(items_->end());
+template<typename IdEnum, typename Item, typename ItemBuilder>
+auto InfoContainer<IdEnum, Item, ItemBuilder>::end() const {
+	iterators::ConstIterator<decltype(items_->end()), Item> it(items_->end());
 	return it;
 }
 
-template<typename E, typename I, typename B>
-const I &InfoContainer<E, I, B>::FindItem(const int num) const {
-	E id  = static_cast<E>(num);
+template<typename IdEnum, typename Item, typename ItemBuilder>
+const Item &InfoContainer<IdEnum, Item, ItemBuilder>::FindItem(const int num) const {
+	auto id  = static_cast<IdEnum>(num);
 	if (IsKnown(id)) {
 		return *(items_->at(id));
 	} else {
-		return *(items_->at(E::kUndefined));
+		return *(items_->at(IdEnum::kUndefined));
 	}
 }
 
-template<typename E, typename I, typename B>
-const I &InfoContainer<E, I, B>::FindAvailableItem(const int num) const {
-	E id  = static_cast<E>(num);
+template<typename IdEnum, typename Item, typename ItemBuilder>
+const Item &InfoContainer<IdEnum, Item, ItemBuilder>::FindAvailableItem(const int num) const {
+	auto id  = static_cast<IdEnum>(num);
 	if (IsAvailable(id)) {
 		return *(items_->at(id));
 	} else {
-		return *(items_->at(E::kUndefined));
+		return *(items_->at(IdEnum::kUndefined));
 	}
 }
 
@@ -275,8 +263,8 @@ const I &InfoContainer<E, I, B>::FindAvailableItem(const int num) const {
  * 	Реализация RegisterBuilder
  ---------------------------------------------------------------------- */
 
-template<typename I>
-EItemMode IItemBuilder<I>::ParseItemMode(parser_wrapper::DataNode &node, EItemMode default_mode) {
+template<typename Item>
+EItemMode IItemBuilder<Item>::ParseItemMode(parser_wrapper::DataNode &node, EItemMode default_mode) {
 	try {
 		return parse::ReadAsConstant<EItemMode>(node.GetValue("mode"));
 	} catch (std::exception &) {
@@ -284,57 +272,49 @@ EItemMode IItemBuilder<I>::ParseItemMode(parser_wrapper::DataNode &node, EItemMo
 	}
 };
 
-template<typename E, typename I, typename B>
-typename InfoContainer<E, I, B>::RegisterOptional InfoContainer<E, I, B>::RegisterBuilder::StrictBuild(const NodeRange &data) {
-	strict_pasring_ = true;
-	return Build(data);
-}
-
-template<typename E, typename I, typename B>
-typename InfoContainer<E, I, B>::RegisterOptional InfoContainer<E, I, B>::RegisterBuilder::TolerantBuild(const NodeRange &data) {
-	strict_pasring_ = false;
-	return Build(data);
-}
-
-template<typename E, typename I, typename B>
-typename InfoContainer<E, I, B>::RegisterOptional InfoContainer<E, I, B>::RegisterBuilder::Build(const NodeRange &data) {
-	auto items = Parse(data);
+template<typename IdEnum, typename Item, typename ItemBuilder>
+typename InfoContainer<IdEnum, Item, ItemBuilder>::RegisterPtr
+	InfoContainer<IdEnum, Item, ItemBuilder>::RegisterBuilder::Build(const NodeRange &data, bool stop_on_error) {
+	auto items = Parse(data, stop_on_error);
 	if (items) {
-		EmplaceDefaultItems(*items.value());
+		EmplaceDefaultItems(*items);
 	}
 	return items;
 }
 
-template<typename E, typename I, typename B>
-typename InfoContainer<E, I, B>::RegisterOptional InfoContainer<E, I, B>::RegisterBuilder::Parse(const NodeRange &data) {
-	auto items = std::make_optional(std::make_unique<Register>());
+template<typename IdEnum, typename Item, typename ItemBuilder>
+typename InfoContainer<IdEnum, Item, ItemBuilder>::RegisterPtr
+	InfoContainer<IdEnum, Item, ItemBuilder>::RegisterBuilder::Parse(const NodeRange &data, bool stop_on_error) {
+	auto items = std::make_unique<Register>();
 
+	ItemBuilder builder;
 	for (auto &node : data) {
-		auto item = item_builder_.Build(node);
+		auto item = builder.Build(node);
 		if (item) {
-			EmplaceItem(*items.value(), item.value());
-		} else if (strict_pasring_) {
-			return std::nullopt;
+			EmplaceItem(*items, item);
+		} else if (stop_on_error) {
+			return nullptr;
 		}
 	}
 
 	return items;
 }
 
-template<typename E, typename I, typename B>
-void InfoContainer<E, I, B>::RegisterBuilder::EmplaceItem(Register &items, ItemPtr &item) {
+template<typename IdEnum, typename Item, typename ItemBuilder>
+void InfoContainer<IdEnum, Item, ItemBuilder>::RegisterBuilder::EmplaceItem(Register &items, ItemPtr &item) {
 	auto id = item->GetId();
 	auto it = items.try_emplace(id, std::move(item));
 	if (!it.second) {
 		err_log("Item '%s' has already exist. Redundant definition had been ignored.",
-				NAME_BY_ITEM<E>(id).c_str());
+				NAME_BY_ITEM<IdEnum>(id).c_str());
 	}
 }
 
-template<typename E, typename I, typename B>
-void InfoContainer<E, I, B>::RegisterBuilder::EmplaceDefaultItems(Register &items) {
-	auto default_item = std::make_shared<I>();
-	items.try_emplace(E::kUndefined, std::move(default_item));
+template<typename IdEnum, typename Item, typename ItemBuilder>
+void InfoContainer<IdEnum, Item, ItemBuilder>::RegisterBuilder::EmplaceDefaultItems(Register &items) {
+	auto default_item = std::make_shared<Item>();
+	items.try_emplace(IdEnum::kUndefined, std::move(default_item));
+	//items.try_emplace(IdEnum::kUndefined, default_item); IdEnum::kUndefined, EItemMode::kService
 }
 
 /* ----------------------------------------------------------------------
