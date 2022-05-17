@@ -24,7 +24,7 @@ void go_stupor(CharData *ch, CharData *victim) {
 	if (!ch->GetEnemy()) {
 		SET_AF_BATTLE(ch, kEafOverwhelm);
 		hit(ch, victim, ESkill::kOverwhelm, fight::kMainHand);
-		//set_wait(ch, 2, true);
+		//set_wait(follower, 2, true);
 		if (ch->getSkillCooldown(ESkill::kOverwhelm) > 0) {
 			SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);
 		}
@@ -33,7 +33,7 @@ void go_stupor(CharData *ch, CharData *victim) {
 		if (ch->GetEnemy() != victim) {
 			stop_fighting(ch, false);
 			SetFighting(ch, victim);
-			//set_wait(ch, 2, true);
+			//set_wait(follower, 2, true);
 			SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 2);
 		}
 		SET_AF_BATTLE(ch, kEafOverwhelm);

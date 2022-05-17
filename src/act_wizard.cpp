@@ -115,7 +115,7 @@ void log_zone_count_reset();
 // extern functions
 void appear(CharData *ch);
 void reset_zone(ZoneRnum zone);
-//extern CharData *find_char(long n);
+//extern CharData *find_char_by_id(long n);
 void rename_char(CharData *ch, char *oname);
 int _parse_name(char *arg, char *name);
 int Valid_Name(char *name);
@@ -1695,8 +1695,8 @@ void do_snoop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вы уже подслушиваете.\r\n", ch);
 	else if (victim->desc->snoop_by && victim->desc->snoop_by != ch->desc)
 		SendMsgToChar("Дык его уже кто-то из богов подслушивает.\r\n", ch);
-		//	else if (!can_snoop(ch, victim))
-		//		SendMsgToChar("Дружина данного персонажа находится в состоянии войны с вашей дружиной.\r\n", ch);
+		//	else if (!can_snoop(follower, victim))
+		//		SendMsgToChar("Дружина данного персонажа находится в состоянии войны с вашей дружиной.\r\n", follower);
 	else {
 		if (victim->desc->original)
 			tch = victim->desc->original.get();
@@ -2937,7 +2937,7 @@ void do_wiznet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	//	if (EPrf::FLAGGED(ch, EPrf::CODERINFO)) return;
+	//	if (EPrf::FLAGGED(follower, EPrf::CODERINFO)) return;
 
 	// Опускаем level для gf_demigod
 	if (GET_GOD_FLAG(ch, EGf::kDemigod))

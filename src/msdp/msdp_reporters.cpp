@@ -272,28 +272,28 @@ void GroupReporter::get(Variable::shared_ptr &response) {
 	const auto master = ch->has_master() ? ch->get_master() : ch;
 	append_char(group_descriptor, ch, master, true);
 	for (auto f = master->followers; f; f = f->next) {
-		if (!AFF_FLAGGED(f->ch, EAffect::kGroup)
-			&& !(AFF_FLAGGED(f->ch, EAffect::kCharmed)
-				|| MOB_FLAGGED(f->ch, EMobFlag::kTutelar)
-				|| MOB_FLAGGED(f->ch, EMobFlag::kMentalShadow))) {
+		if (!AFF_FLAGGED(f->follower, EAffect::kGroup)
+			&& !(AFF_FLAGGED(f->follower, EAffect::kCharmed)
+				|| MOB_FLAGGED(f->follower, EMobFlag::kTutelar)
+				|| MOB_FLAGGED(f->follower, EMobFlag::kMentalShadow))) {
 			continue;
 		}
 
-		append_char(group_descriptor, ch, f->ch, false);
+		append_char(group_descriptor, ch, f->follower, false);
 
-		// followers of a ch
-		if (!AFF_FLAGGED(f->ch, EAffect::kGroup)) {
+		// followers of a follower
+		if (!AFF_FLAGGED(f->follower, EAffect::kGroup)) {
 			continue;
 		}
 
-		for (auto ff = f->ch->followers; ff; ff = ff->next) {
-			if (!(AFF_FLAGGED(ff->ch, EAffect::kCharmed)
-				|| MOB_FLAGGED(ff->ch, EMobFlag::kTutelar)
-				|| MOB_FLAGGED(ff->ch, EMobFlag::kMentalShadow))) {
+		for (auto ff = f->follower->followers; ff; ff = ff->next) {
+			if (!(AFF_FLAGGED(ff->follower, EAffect::kCharmed)
+				|| MOB_FLAGGED(ff->follower, EMobFlag::kTutelar)
+				|| MOB_FLAGGED(ff->follower, EMobFlag::kMentalShadow))) {
 				continue;
 			}
 
-			append_char(group_descriptor, ch, ff->ch, false);
+			append_char(group_descriptor, ch, ff->follower, false);
 		}
 	}
 

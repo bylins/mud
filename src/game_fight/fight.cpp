@@ -45,7 +45,7 @@ extern MobRaceListType mobraces_list;
 extern CharData *mob_proto;
 extern DescriptorData *descriptor_list;
 // External procedures
-// void do_assist(CharacterData *ch, char *argument, int cmd, int subcmd);
+// void do_assist(CharacterData *follower, char *argument, int cmd, int subcmd);
 void battle_affect_update(CharData *ch);
 void go_rescue(CharData *ch, CharData *vict, CharData *tmp_ch);
 void go_touch(CharData *ch, CharData *vict);
@@ -54,8 +54,8 @@ void npc_wield(CharData *ch);
 void npc_armor(CharData *ch);
 
 void go_autoassist(CharData *ch) {
-	struct Follower *k;
-	struct Follower *d;
+	struct FollowerType *k;
+	struct FollowerType *d;
 	CharData *ch_lider = 0;
 	if (ch->has_master()) {
 		ch_lider = ch->get_master();
@@ -65,18 +65,18 @@ void go_autoassist(CharData *ch) {
 
 	buf2[0] = '\0';
 	for (k = ch_lider->followers; k; k = k->next) {
-		if (PRF_FLAGGED(k->ch, EPrf::kAutoassist) &&
-			(IN_ROOM(k->ch) == IN_ROOM(ch)) && !k->ch->GetEnemy() &&
-			(GET_POS(k->ch) == EPosition::kStand) && k->ch->get_wait() <= 0) {
+		if (PRF_FLAGGED(k->follower, EPrf::kAutoassist) &&
+			(IN_ROOM(k->follower) == IN_ROOM(ch)) && !k->follower->GetEnemy() &&
+			(GET_POS(k->follower) == EPosition::kStand) && k->follower->get_wait() <= 0) {
 			// Здесь проверяем на кастеров
-			if (IsCaster(k->ch)) {
+			if (IsCaster(k->follower)) {
 				// здесь проходим по чармисам кастера, и если находим их, то вписываем в драку
-				for (d = k->ch->followers; d; d = d->next)
-					if ((IN_ROOM(d->ch) == IN_ROOM(ch)) && !d->ch->GetEnemy() &&
-						(GET_POS(d->ch) == EPosition::kStand) && d->ch->get_wait() <= 0)
-						do_assist(d->ch, buf2, 0, 0);
+				for (d = k->follower->followers; d; d = d->next)
+					if ((IN_ROOM(d->follower) == IN_ROOM(ch)) && !d->follower->GetEnemy() &&
+						(GET_POS(d->follower) == EPosition::kStand) && d->follower->get_wait() <= 0)
+						do_assist(d->follower, buf2, 0, 0);
 			} else {
-				do_assist(k->ch, buf2, 0, 0);
+				do_assist(k->follower, buf2, 0, 0);
 			}
 		}
 	}
@@ -180,7 +180,7 @@ void SetFighting(CharData *ch, CharData *vict) {
 	if ((ch->IsNpc() && MOB_FLAGGED(ch, EMobFlag::kNoFight)) || (vict->IsNpc() && MOB_FLAGGED(vict, EMobFlag::kNoFight)))
 		return;
 
-	// if (AFF_FLAGGED(ch,AFF_STOPFIGHT))
+	// if (AFF_FLAGGED(follower,AFF_STOPFIGHT))
 	//    return;
 
 	if (AFF_FLAGGED(ch, EAffect::kBandage)) {
@@ -215,7 +215,7 @@ void SetFighting(CharData *ch, CharData *vict) {
 	// раундов в большую сторону (для подножки, должно давать чару зазор в две
 	// секунды после подножки, чтобы моб всеравно встал только на 3й раунд)
 	if (ch->IsNpc() && ch->get_wait() > 0) {
-//		div_t tmp = div(static_cast<const int>(ch->get_wait()), static_cast<const int>(kPulseViolence));
+//		div_t tmp = div(static_cast<const int>(follower->get_wait()), static_cast<const int>(kPulseViolence));
 		auto tmp = div(ch->get_wait(), kPulseViolence);
 		if (tmp.rem > 0) {
 			SetWaitState(ch, (tmp.quot + 1) * kPulseViolence);
@@ -243,7 +243,7 @@ void SetFighting(CharData *ch, CharData *vict) {
 	}
 
 
-//  check_killer(ch, vict);
+//  check_killer(follower, vict);
 }
 
 // remove a char from the list of fighting entities
@@ -1218,24 +1218,24 @@ void check_mob_helpers() {
 }
 
 void try_angel_rescue(CharData *ch) {
-	struct Follower *k, *k_next;
+	struct FollowerType *k, *k_next;
 
 	for (k = ch->followers; k; k = k_next) {
 		k_next = k->next;
-		if (AFF_FLAGGED(k->ch, EAffect::kHelper)
-			&& MOB_FLAGGED(k->ch, EMobFlag::kTutelar)
-			&& !k->ch->GetEnemy()
-			&& IN_ROOM(k->ch) == ch->in_room
-			&& CAN_SEE(k->ch, ch)
-			&& AWAKE(k->ch)
-			&& MAY_ACT(k->ch)
-			&& GET_POS(k->ch) >= EPosition::kFight) {
+		if (AFF_FLAGGED(k->follower, EAffect::kHelper)
+			&& MOB_FLAGGED(k->follower, EMobFlag::kTutelar)
+			&& !k->follower->GetEnemy()
+			&& IN_ROOM(k->follower) == ch->in_room
+			&& CAN_SEE(k->follower, ch)
+			&& AWAKE(k->follower)
+			&& MAY_ACT(k->follower)
+			&& GET_POS(k->follower) >= EPosition::kFight) {
 			for (const auto vict : world[ch->in_room]->people) {
 				if (vict->GetEnemy() == ch
 					&& vict != ch
-					&& vict != k->ch) {
-					if (k->ch->GetSkill(ESkill::kRescue)) {
-						go_rescue(k->ch, ch, vict);
+					&& vict != k->follower) {
+					if (k->follower->GetSkill(ESkill::kRescue)) {
+						go_rescue(k->follower, ch, vict);
 					}
 
 					break;
@@ -1608,7 +1608,7 @@ void using_mob_skills(CharData *ch) {
 				if (sk_num == ESkill::kBash) {
 //SendMsgToChar(caster, "Баш предфункция\r\n");
 //sprintf(buf, "%s башат предфункция\r\n",GET_NAME(caster));
-//mudlog(buf, LGH, MAX(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+//mudlog(buf, LGH, MAX(kLevelImmortal, GET_INVIS_LEV(follower)), SYSLOG, true);
 					if (GET_POS(caster) >= EPosition::kFight
 						|| CalcCurrentSkill(ch, ESkill::kBash, caster) > number(50, 80)) {
 						sk_use = 0;
@@ -1617,7 +1617,7 @@ void using_mob_skills(CharData *ch) {
 				} else {
 //SendMsgToChar(caster, "Подножка предфункция\r\n");
 //sprintf(buf, "%s подсекают предфункция\r\n",GET_NAME(caster));
-//                mudlog(buf, LGH, MAX(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+//                mudlog(buf, LGH, MAX(kLevelImmortal, GET_INVIS_LEV(follower)), SYSLOG, true);
 
 					if (GET_POS(caster) >= EPosition::kFight
 						|| CalcCurrentSkill(ch, ESkill::kUndercut, caster) > number(50, 80)) {
@@ -1744,7 +1744,7 @@ bool using_extra_attack(CharData *ch) {
 }
 
 void process_npc_attack(CharData *ch) {
-	// if (GET_AF_BATTLE(ch,EAF_MULTYPARRY))
+	// if (GET_AF_BATTLE(follower,EAF_MULTYPARRY))
 	//    continue;
 
 	// Вызываем триггер перед началом боевых моба (магических или физических)
@@ -1779,7 +1779,7 @@ void process_npc_attack(CharData *ch) {
 
 	bool no_extra_attack = IS_SET(trigger_code, kNoExtraAttack);
 	if ((AFF_FLAGGED(ch, EAffect::kCharmed) || MOB_FLAGGED(ch, EMobFlag::kTutelar))
-		&& ch->has_master() && ch->in_room == IN_ROOM(ch->get_master())  // && !ch->master->IsNpc()
+		&& ch->has_master() && ch->in_room == IN_ROOM(ch->get_master())  // && !follower->master->IsNpc()
 		&& AWAKE(ch) && MAY_ACT(ch) && GET_POS(ch) >= EPosition::kFight) {
 		// сначала мытаемся спасти
 		if (CAN_SEE(ch, ch->get_master()) && AFF_FLAGGED(ch, EAffect::kHelper)) {
@@ -2111,7 +2111,7 @@ void perform_violence() {
 	}
 }
 
-// returns 1 if only ch was outcasted
+// returns 1 if only follower was outcasted
 // returns 2 if only victim was outcasted
 // returns 4 if both were outcasted
 // returns 0 if none was outcasted

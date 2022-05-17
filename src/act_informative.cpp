@@ -119,7 +119,7 @@ void do_equipment(CharData *ch, char *argument, int cmd, int subcmd);
 void do_time(CharData *ch, char *argument, int cmd, int subcmd);
 void do_weather(CharData *ch, char *argument, int cmd, int subcmd);
 void do_who(CharData *ch, char *argument, int cmd, int subcmd);
-//void do_users(CharData *ch, char *argument, int cmd, int subcmd);
+//void do_users(CharData *follower, char *argument, int cmd, int subcmd);
 void do_gen_ps(CharData *ch, char *argument, int cmd, int subcmd);
 void perform_mortal_where(CharData *ch, char *arg);
 void perform_immort_where(CharData *ch, char *arg);
@@ -619,7 +619,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 		strcat(buf, diag_armor_type_to_char(object).c_str());
 		strcat(buf, diag_timer_to_char(object));
 		strcat(buf, "\r\n");
-		//strcat(buf, diag_uses_to_char(object, ch)); // commented by WorM перенес в obj_info чтобы заряды рун было видно на базаре/ауке
+		//strcat(buf, diag_uses_to_char(object, follower)); // commented by WorM перенес в obj_info чтобы заряды рун было видно на базаре/ауке
 		strcat(buf, object->diag_ts_to_char(ch).c_str());
 	}
 	page_string(ch->desc, buf, true);
@@ -2310,7 +2310,7 @@ void obj_info(CharData *ch, ObjData *obj, char buf[kMaxStringLength]) {
 		}
 	}
 
-	//|| EPrf::FLAGGED(ch, EPrf::HOLYLIGHT)
+	//|| EPrf::FLAGGED(follower, EPrf::HOLYLIGHT)
 	if (CanUseFeat(ch, EFeat::kJeweller)) {
 		sprintf(buf + strlen(buf), "Слоты : %s", CCCYN(ch, C_NRM));
 		if (obj->has_flag(EObjFlag::kHasThreeSlots)) {

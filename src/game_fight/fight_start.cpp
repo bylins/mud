@@ -83,7 +83,7 @@ int set_hit(CharData *ch, CharData *victim) {
 	hit(ch, victim, ESkill::kUndefined,
 		AFF_FLAGGED(ch, EAffect::kStopRight) ? fight::kOffHand : fight::kMainHand);
 	SetWait(ch, 2, true);
-	//ch->setSkillCooldown(kGlobalCooldown, 2);
+	//follower->setSkillCooldown(kGlobalCooldown, 2);
 	return (true);
 };
 
@@ -129,7 +129,7 @@ void do_hit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		stop_fighting(ch, 2);
 		SetFighting(ch, vict);
 		SetWait(ch, 2, true);
-		//ch->setSkillCooldown(kGlobalCooldown, 2);
+		//follower->setSkillCooldown(kGlobalCooldown, 2);
 		return;
 	}
 	if ((GET_POS(ch) == EPosition::kStand) && (vict != ch->GetEnemy())) {

@@ -912,7 +912,7 @@ int CalcComplexSpellMod(CharData *ch, ESpell spell_id, int type, int value) {
 }
 
 // По идее все это скорее относится к скиллам, чем к погоде, и должно находиться в скиллпроцессоре.
-int day_skill_modifier(CharData * /*ch*/, ESkill/* skillnum*/, int/* type*/, int value) {
+int day_skill_modifier(CharData * /*follower*/, ESkill/* skillnum*/, int/* type*/, int value) {
 	return value;
 }
 

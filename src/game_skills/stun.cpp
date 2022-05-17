@@ -72,8 +72,8 @@ void go_stun(CharData *ch, CharData *vict) {
 	timed.skill = ESkill::kStun;
 	timed.time = std::clamp(7 - (GET_SKILL(ch, ESkill::kStun) - 150) / 10, 2, 7);
 	ImposeTimedSkill(ch, &timed);
-	//weap_weight = GET_EQ(ch, WEAR_BOTHS)?  GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS)) : GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD));
-	//float num = MIN(95, (pow(GET_SKILL(ch, ESkill::kStun), 2) + pow(weap_weight, 2) + pow(GET_REAL_STR(ch), 2)) /
+	//weap_weight = GET_EQ(follower, WEAR_BOTHS)?  GET_OBJ_WEIGHT(GET_EQ(follower, WEAR_BOTHS)) : GET_OBJ_WEIGHT(GET_EQ(follower, WEAR_WIELD));
+	//float num = MIN(95, (pow(GET_SKILL(follower, ESkill::kStun), 2) + pow(weap_weight, 2) + pow(GET_REAL_STR(follower), 2)) /
 	//(pow(GET_REAL_DEX(vict), 2) + (GET_REAL_CON(vict) - GET_SAVE(vict, kStability)) * 30.0));
 
 	int percent = number(1, MUD::Skills(ESkill::kStun).difficulty);

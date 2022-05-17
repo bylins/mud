@@ -44,7 +44,7 @@ std::string format_gossip_name(CharData *ch, CharData *vict) {
 }
 
 /**
-* Болтовня ch, пишущаяся во вспом все к vict'иму. Изврат конечно, но переделывать
+* Болтовня follower, пишущаяся во вспом все к vict'иму. Изврат конечно, но переделывать
 * систему в do_gen_comm чет облом пока, а возвращать сформированную строку из act() не хочется.
 */
 std::string format_gossip(CharData *ch, CharData *vict, int cmd, const char *argument) {

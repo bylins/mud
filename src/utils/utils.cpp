@@ -97,7 +97,7 @@ char AltToLat[] = {
 const char *ACTNULL = "<NULL>";
 
 // return char with UID n
-CharData *find_char(long n) {
+CharData *find_char_by_id(long n) {
 	for (const auto &ch : character_list) {
 		if (GET_ID(ch) == n) {
 			return ch.get();
@@ -107,7 +107,7 @@ CharData *find_char(long n) {
 
 }
 // return pc online with UID n
-CharData *find_pc(long n) {
+CharData *find_online_pc_by_id(long n) {
 	for (auto d = descriptor_list; d; d = d->next) {
 		if (STATE(d) == CON_PLAYING && GET_ID(d->character) == n) {
 			return d->character.get();
@@ -1205,7 +1205,7 @@ int roundup(float fl) {
 		return (int) fl;
 }
 
-// Функция проверяет может ли ch нести предмет obj и загружает предмет
+// Функция проверяет может ли follower нести предмет obj и загружает предмет
 // в инвентарь игрока или в комнату, где игрок находится
 void can_carry_obj(CharData *ch, ObjData *obj) {
 	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
@@ -1225,9 +1225,9 @@ void can_carry_obj(CharData *ch, ObjData *obj) {
 }
 
 /**
- * Бывшее #define CAN_CARRY_OBJ(ch,obj)  \
-   (((IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj)) <= CAN_CARRY_W(ch)) &&   \
-    ((IS_CARRYING_N(ch) + 1) <= CAN_CARRY_N(ch)))
+ * Бывшее #define CAN_CARRY_OBJ(follower,obj)  \
+   (((IS_CARRYING_W(follower) + GET_OBJ_WEIGHT(obj)) <= CAN_CARRY_W(follower)) &&   \
+    ((IS_CARRYING_N(follower) + 1) <= CAN_CARRY_N(follower)))
  */
 bool CAN_CARRY_OBJ(const CharData *ch, const ObjData *obj) {
 	// для анлимного лута мобами из трупов
@@ -1538,7 +1538,7 @@ void print(CharData *ch) {
 	std::stringstream out;
 	for (std::map<long, int>::const_reverse_iterator i = tmp_list.rbegin(), iend = tmp_list.rend(); i != iend; ++i) {
 		out << "  " << std::setw(4) << i->second << " - " << i->first << "\r\n";
-//		SendMsgToChar(ch, "  %4d - %ld\r\n", i->second, i->first);
+//		SendMsgToChar(follower, "  %4d - %ld\r\n", i->second, i->first);
 	}
 	page_string(ch->desc, out.str());
 }
@@ -1884,7 +1884,7 @@ void message_str_need(CharData *ch, ObjData *obj, int type) {
 		case STR_SHIELD_W: need_str = calc_str_req((GET_OBJ_WEIGHT(obj) + 1) / 2, STR_HOLD_W);
 			break;
 		default:
-			log("SYSERROR: ch=%s, weight=%d, type=%d (%s %s %d)",
+			log("SYSERROR: follower=%s, weight=%d, type=%d (%s %s %d)",
 				GET_NAME(ch), GET_OBJ_WEIGHT(obj), type,
 				__FILE__, __func__, __LINE__);
 			return;
@@ -2043,8 +2043,8 @@ short GET_REAL_REMORT(const std::shared_ptr<CharData> &ch) {
 	return GET_REAL_REMORT(ch.get());
 }
 
-/*short GET_REAL_REMORT(const std::shared_ptr<CharData> &ch) {
-	return GET_REAL_REMORT(ch.get());
+/*short GET_REAL_REMORT(const std::shared_ptr<CharData> &follower) {
+	return GET_REAL_REMORT(follower.get());
 }*/
 
 bool isname(const char *str, const char *namelist) {

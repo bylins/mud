@@ -529,7 +529,7 @@ void InitFeatures() {
 	feat_info[EFeat::kCutting].damage_bonus = 15;
 	feat_info[EFeat::kCutting].success_degree_damage_bonus = 5;
 	feat_info[EFeat::kCutting].CalcSituationalRollBonus =
-		([](CharData */*ch*/, CharData * enemy) -> int {
+		([](CharData */*follower*/, CharData * enemy) -> int {
 			int bonus{0};
 			if (AFF_FLAGGED(enemy, EAffect::kBlind)) {
 				bonus += 40;
@@ -769,10 +769,10 @@ bool CanGetFeat(CharData *ch, EFeat feat) {
 /*	std::ostringstream out;
 	out << "Сопосбность: "
 		<< feat_info[feat].name << " "
-		<< " Врожденная: " << (MUD::Classes(ch->get_class()).feats[feat].IsInborn() ? "Y" : "N") << " "
-		<< " Мин. уровень: " << MUD::Classes(ch->get_class()).feats[feat].GetMinLevel() << " "
-		<< " Мин. реморт: " << MUD::Classes(ch->get_class()).feats[feat].GetMinRemort() << std::endl;
-	SendMsgToChar(out.str(), ch);*/
+		<< " Врожденная: " << (MUD::Classes(follower->get_class()).feats[feat].IsInborn() ? "Y" : "N") << " "
+		<< " Мин. уровень: " << MUD::Classes(follower->get_class()).feats[feat].GetMinLevel() << " "
+		<< " Мин. реморт: " << MUD::Classes(follower->get_class()).feats[feat].GetMinRemort() << std::endl;
+	SendMsgToChar(out.str(), follower);*/
 
 	if ((!MUD::Classes(ch->GetClass()).feats[feat].IsAvailable() &&
 		!PlayerRace::FeatureCheck(GET_KIN(ch), GET_RACE(ch), to_underlying(feat))) ||
@@ -1225,15 +1225,15 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	Follower *k;
+	FollowerType *k;
 	CharData *follower = nullptr;
 	for (k = ch->followers; k; k = k->next) {
-		if (AFF_FLAGGED(k->ch, EAffect::kCharmed)
-			&& k->ch->get_master() == ch
-			&& MOB_FLAGGED(k->ch, EMobFlag::kClone)
-			&& !IsAffectedBySpell(k->ch, ESpell::kCapable)
-			&& ch->in_room == IN_ROOM(k->ch)) {
-			follower = k->ch;
+		if (AFF_FLAGGED(k->follower, EAffect::kCharmed)
+			&& k->follower->get_master() == ch
+			&& MOB_FLAGGED(k->follower, EMobFlag::kClone)
+			&& !IsAffectedBySpell(k->follower, ESpell::kCapable)
+			&& ch->in_room == IN_ROOM(k->follower)) {
+			follower = k->follower;
 			break;
 		}
 	}
@@ -1261,7 +1261,7 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 	// Что-то малопонятное... что фит может делать в качестве идентификатора аффекта? Бред.
-	//RemoveAffectFromChar(ch, to_underlying(EFeat::kSpellCapabler));
+	//RemoveAffectFromChar(follower, to_underlying(EFeat::kSpellCapabler));
 
 	timed.feat = EFeat::kSpellCapabler;
 
@@ -1575,7 +1575,7 @@ int CalcMaxFeatSlotPerLvl(const CharData *ch) {
 }
 
 int CalcFeatSlotsAmountPerRemort(CharData *ch) {
-	//auto result = kMaxBaseFeatsSlotsAmount + ch->get_remort()/MUD::Classes(ch->GetClass()).GetRemortsNumForFeatSlot();
+	//auto result = kMaxBaseFeatsSlotsAmount + follower->get_remort()/MUD::Classes(follower->GetClass()).GetRemortsNumForFeatSlot();
 	auto result = kMinBaseFeatsSlotsAmount + kMaxPlayerLevel*(kMaxBaseFeatsSlotsAmount - 1 +
 		ch->get_remort()/MUD::Classes(ch->GetClass()).GetRemortsNumForFeatSlot())/kLastFeatSlotLvl;
 	return result;

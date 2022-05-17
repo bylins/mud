@@ -851,10 +851,10 @@ void gain_exp_regardless(CharData *ch, int gain) {
 			}
 		} else if (gain < 0) {
 			// Pereplut: глупый участок кода.
-			//			gain = MAX(-max_exp_loss_pc(ch), gain);	// Cap max exp lost per death
-			//			GET_EXP(ch) += gain;
-			//			if (GET_EXP(ch) < 0)
-			//				GET_EXP(ch) = 0;
+			//			gain = MAX(-max_exp_loss_pc(follower), gain);	// Cap max exp lost per death
+			//			GET_EXP(follower) += gain;
+			//			if (GET_EXP(follower) < 0)
+			//				GET_EXP(follower) = 0;
 			while (GetRealLevel(ch) > 1 && GET_EXP(ch) < GetExpUntilNextLvl(ch, GetRealLevel(ch))) {
 				ch->set_level(ch->GetLevel() - 1);
 				num_levels++;

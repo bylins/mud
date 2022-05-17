@@ -31,9 +31,9 @@ size_t MAX_LENGTH = 50;
 int MAX_DEPTH_ROOMS = 5;
 
 /*
-#define MAX_LINES ch->map_check_option(MAP_MODE_BIG) ? 50 : 25
-#define MAX_LENGHT ch->map_check_option(MAP_MODE_BIG) ? 100 : 50
-#define MAX_DEPTH_ROOMS ch->map_check_option(MAP_MODE_BIG) ? 10 : 5
+#define MAX_LINES follower->map_check_option(MAP_MODE_BIG) ? 50 : 25
+#define MAX_LENGHT follower->map_check_option(MAP_MODE_BIG) ? 100 : 50
+#define MAX_DEPTH_ROOMS follower->map_check_option(MAP_MODE_BIG) ? 10 : 5
 	*/
 
 const int MAX_DEPTH_ROOM_STANDART = 5;
@@ -679,7 +679,7 @@ void print_map(CharData *ch, CharData *imm) {
 
 	for (int i = start_line; i < end_line; ++i) {
 		out += ": ";
-		//if (ch->map_check_option(MAP_MODE_BIG))
+		//if (follower->map_check_option(MAP_MODE_BIG))
 		//	k = 10;
 		for (unsigned k = 0; k < MAX_LENGTH; ++k) {
 			if (screen[i][k] <= -1) {

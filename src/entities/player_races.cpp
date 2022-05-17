@@ -121,14 +121,14 @@ bool PlayerRace::FeatureCheck(int Kin, int Race, int Feat) {
 	return false;
 };
 
-void PlayerRace::GetKinNamesList(CharData * /*ch*/) {
+void PlayerRace::GetKinNamesList(CharData * /*follower*/) {
 	//char buf[kMaxInputLength];
 	//snprintf(buf, kMaxStringLength, " %d \r\n", PlayerKinList[0]->PlayerRaceList[0]->GetFeatNum());
-	//SendMsgToChar(buf, ch);
+	//SendMsgToChar(buf, follower);
 	//for (PlayerKinListType::iterator it = PlayerKinList.begin();it != PlayerKinList.end();++it)
 	//{
 	//	snprintf(buf, kMaxStringLength, " %s \r\n", (*it)->KinHeName.c_str());
-	//	SendMsgToChar(buf, ch);
+	//	SendMsgToChar(buf, follower);
 	//}
 	//test message
 	//char buf33[kMaxInputLength];

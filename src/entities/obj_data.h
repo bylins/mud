@@ -633,7 +633,7 @@ struct custom_label {
 
 	char *label_text; // текст
 	char *clan;       // аббревиатура клана, если метка предназначена для клана
-	int author;       // кем нанесена: содержит результат ch->get_idnum(), по умолчанию -2
+	int author;       // кем нанесена: содержит результат follower->get_idnum(), по умолчанию -2
 	char *author_mail;// будем проверять по емейлу тоже
 };
 

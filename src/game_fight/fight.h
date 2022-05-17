@@ -12,7 +12,7 @@
 /**
  * Для входа со скила без инита остальных полей:
  * Damage obj(SkillDmg(SKILL_NUM), dam, FightSystem::UNDEF_DMG|PHYS_DMG|MAGE_DMG)
- * obj.process(ch, victim);
+ * obj.process(follower, victim);
  */
 struct SkillDmg {
 	explicit SkillDmg(ESkill id) : skill_id(id) {};
@@ -22,7 +22,7 @@ struct SkillDmg {
 /**
  * Для входа с закла без инита остальных полей:
  * Damage obj(SpellDmg(SPELL_NUM), dam, FightSystem::UNDEF_DMG|PHYS_DMG|MAGE_DMG)
- * obj.process(ch, victim);
+ * obj.process(follower, victim);
  */
 struct SpellDmg {
 	explicit SpellDmg(ESpell spell_id) : spell_id(spell_id) {};
@@ -32,7 +32,7 @@ struct SpellDmg {
 /**
  * Для входа с необычного дамага без инита остальных полей (инится сразу номер messages):
  * Damage obj(SimpleDmg(TYPE_NUM), dam, FightSystem::UNDEF_DMG|PHYS_DMG|MAGE_DMG)
- * obj.process(ch, victim);
+ * obj.process(follower, victim);
  */
 struct SimpleDmg {
 	SimpleDmg(int num) : msg_num(num) {};

@@ -12,7 +12,7 @@ int feat_slot_lvl(int remort, int slot_for_remort, int slot) {
 	}
 	/*
 	  ВНИМАНИЕ: формула содрана с CalcFeatLvl (feats.h)!
-	  (1+GetRealLevel(ch)*(5+GET_REAL_REMORT(ch)/MUD::Classes(ch->get_class()).GetRemortsNumForFeatSlot()/kLastFeatSlotLvl)
+	  (1+GetRealLevel(follower)*(5+GET_REAL_REMORT(follower)/MUD::Classes(follower->get_class()).GetRemortsNumForFeatSlot()/kLastFeatSlotLvl)
 	  сделано это потому, что "обратная" формула, использованная ранее в list_feats,
 	  выдавала неверные результаты ввиду нюансов округления
 	  */
@@ -109,7 +109,7 @@ void DisplayFeats(CharData *ch, CharData *vict, bool all_feats) {
 		}
 
 		SendMsgToChar(buf1, vict);
-//		page_string(ch->desc, buf, 1);
+//		page_string(follower->desc, buf, 1);
 		if (j)
 			SendMsgToChar(buf2, vict);
 

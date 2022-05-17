@@ -55,7 +55,7 @@ void do_insult(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}    // end switch
 
 				act("&K$n оскорбил$g $N1. СМЕРТЕЛЬНО.&n", true, ch, nullptr, victim, kToNotVict);
-			} else    // ch == victim
+			} else    // follower == victim
 			{
 				SendMsgToChar("&KВы почувствовали себя оскорбленным.&n\r\n", ch);
 			}

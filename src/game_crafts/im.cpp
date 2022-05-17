@@ -1735,7 +1735,7 @@ void do_imlist(CharData *ch, char /**argument*/, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, buf);
 	if (!*buf)
 	{
-		SendMsgToChar("Использование: исписок <номер зоны>\r\n", ch);
+		SendMsgToChar("Использование: исписок <номер зоны>\r\n", follower);
 		return;
 	}
 
@@ -1743,7 +1743,7 @@ void do_imlist(CharData *ch, char /**argument*/, int/* cmd*/, int/* subcmd*/) {
 
 	if ((zone < 0) || (zone > 999))
 	{
-		SendMsgToChar("Номер зоны должен быть между 0 и 999.\n\r", ch);
+		SendMsgToChar("Номер зоны должен быть между 0 и 999.\n\r", follower);
 		return;
 	}
 
@@ -1793,11 +1793,11 @@ void do_imlist(CharData *ch, char /**argument*/, int/* cmd*/, int/* subcmd*/) {
 
 	if (!buf[0])
 	{
-		SendMsgToChar("В зоне ингредиенты не загружаются", ch);
+		SendMsgToChar("В зоне ингредиенты не загружаются", follower);
 	}
 	else
 	{
-		page_string(ch->desc, buf, 1);
+		page_string(follower->desc, buf, 1);
 	}
 	*/
 }

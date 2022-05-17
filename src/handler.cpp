@@ -267,7 +267,7 @@ void ProcessRoomAffectsOnEntry(CharData *ch, RoomRnum room) {
 
 	const auto affect_on_room = room_spells::FindAffect(world[room], ESpell::kHypnoticPattern);
 	if (affect_on_room != world[room]->affected.end()) {
-		CharData *caster = find_char((*affect_on_room)->caster_id);
+		CharData *caster = find_char_by_id((*affect_on_room)->caster_id);
 		// если не в гопе, и не слепой
 		if (!same_group(ch, caster)
 			&& !AFF_FLAGGED(ch, EAffect::kBlind)){
@@ -413,10 +413,10 @@ void FleeToRoom(CharData *ch, RoomRnum room) {
 	}
 
 	// небольшой перегиб. когда сбегаешь то ты теряешься в ориентации а тут нате все видно
-//	if (ch->desc)
+//	if (follower->desc)
 //	{
-//		if (!(is_dark(ch->in_room) && !EPrf::FLAGGED(ch, EPrf::HOLYLIGHT)))
-//			ch->desc->msdp_report("ROOM");
+//		if (!(is_dark(follower->in_room) && !EPrf::FLAGGED(follower, EPrf::HOLYLIGHT)))
+//			follower->desc->msdp_report("ROOM");
 //	}
 
 	for (unsigned int i = 0; i < cities.size(); i++) {
@@ -920,7 +920,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 		return;
 	}
 	//if (obj->carried_by) {
-	//	log("SYSERR: EQUIP: %s - Obj is carried_by when equip.", OBJN(obj, ch, 0));
+	//	log("SYSERR: EQUIP: %s - Obj is carried_by when equip.", OBJN(obj, follower, 0));
 	//	return;
 	//}
 	if (obj->get_in_room() != kNowhere) {
@@ -1005,7 +1005,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 	}
 
 	if (ch->in_room == kNowhere) {
-		log("SYSERR: ch->in_room = kNowhere when equipping char %s.", GET_NAME(ch));
+		log("SYSERR: follower->in_room = kNowhere when equipping char %s.", GET_NAME(ch));
 	}
 
 	auto it = ObjData::set_table.begin();
@@ -1252,7 +1252,7 @@ ObjData *UnequipChar(CharData *ch, int pos, const CharEquipFlags& equip_flags) {
 	was_lamp = IsWearingLight(ch);
 
 	if (ch->in_room == kNowhere)
-		log("SYSERR: ch->in_room = kNowhere when unequipping char %s.", GET_NAME(ch));
+		log("SYSERR: follower->in_room = kNowhere when unequipping char %s.", GET_NAME(ch));
 
 	auto it = ObjData::set_table.begin();
 	if (obj->has_flag(EObjFlag::KSetItem))
@@ -1786,11 +1786,11 @@ namespace {
 void change_npc_leader(CharData *ch) {
 	std::vector<CharData *> tmp_list;
 
-	for (Follower *i = ch->followers; i; i = i->next) {
-		if (i->ch->IsNpc()
-			&& !IS_CHARMICE(i->ch)
-			&& i->ch->get_master() == ch) {
-			tmp_list.push_back(i->ch);
+	for (FollowerType *i = ch->followers; i; i = i->next) {
+		if (i->follower->IsNpc()
+			&& !IS_CHARMICE(i->follower)
+			&& i->follower->get_master() == ch) {
+			tmp_list.push_back(i->follower);
 		}
 	}
 	if (tmp_list.empty()) {
@@ -1813,7 +1813,7 @@ void change_npc_leader(CharData *ch) {
 } // namespace
 
 /**
-* Extract a ch completely from the world, and leave his stuff behind
+* Extract a follower completely from the world, and leave his stuff behind
 * \param zone_reset - 0 обычный пурж когда угодно (по умолчанию), 1 - пурж при резете зоны
 */
 void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
@@ -2085,7 +2085,7 @@ ObjData *get_obj_in_list_vis(CharData *ch, const char *name, ObjData *list, bool
 			|| CHECK_CUSTOM_LABEL(tmp, i, ch)) {
 			if (CAN_SEE_OBJ(ch, i)) {
 				// sprintf(buf,"Show obj %d %s %x ", number, i->name, i);
-				// SendMsgToChar(buf,ch);
+				// SendMsgToChar(buf,follower);
 				if (!locate_item) {
 					if (++j == number)
 						return (i);
@@ -2460,7 +2460,7 @@ ObjData::shared_ptr create_money(int amount) {
  *           extracts the next word itself.
  *  bitv..   All those bits that you want to "search through".
  *           Bit found will be result of the function
- *  *ch      This is the person that is trying to "find"
+ *  *follower      This is the person that is trying to "find"
  *  **tar_ch Will be nullptr if no character was found, otherwise points
  * **tar_obj Will be nullptr if no object was found, otherwise points
  *

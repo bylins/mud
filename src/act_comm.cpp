@@ -89,7 +89,7 @@ void do_say(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void do_gsay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *k;
-	struct Follower *f;
+	struct FollowerType *f;
 
 	if (AFF_FLAGGED(ch, EAffect::kSilence)
 		|| AFF_FLAGGED(ch, EAffect::kStrangled)) {
@@ -138,20 +138,20 @@ void do_gsay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			//end by WorM
 		}
 		for (f = k->followers; f; f = f->next) {
-			if (AFF_FLAGGED(f->ch, EAffect::kGroup)
-				&& (f->ch != ch)
-				&& !ignores(f->ch, ch, EIgnore::kGroup)) {
-				act(buf, false, ch, 0, f->ch, kToVict | kToSleep | kToNotDeaf);
+			if (AFF_FLAGGED(f->follower, EAffect::kGroup)
+				&& (f->follower != ch)
+				&& !ignores(f->follower, ch, EIgnore::kGroup)) {
+				act(buf, false, ch, 0, f->follower, kToVict | kToSleep | kToNotDeaf);
 				// added by WorM  групптелы 2010.10.13
-				if (!AFF_FLAGGED(f->ch, EAffect::kDeafness)
-					&& GET_POS(f->ch) > EPosition::kDead) {
+				if (!AFF_FLAGGED(f->follower, EAffect::kDeafness)
+					&& GET_POS(f->follower) > EPosition::kDead) {
 					sprintf(buf1,
 							"%s сообщил%s группе : '%s'\r\n",
-							tell_can_see(ch, f->ch) ? GET_NAME(ch) : "Кто-то",
-							GET_CH_VIS_SUF_1(ch, f->ch),
+							tell_can_see(ch, f->follower) ? GET_NAME(ch) : "Кто-то",
+							GET_CH_VIS_SUF_1(ch, f->follower),
 							argument);
-					f->ch->remember_add(buf1, Remember::ALL);
-					f->ch->remember_add(buf1, Remember::GROUP);
+					f->follower->remember_add(buf1, Remember::ALL);
+					f->follower->remember_add(buf1, Remember::GROUP);
 				}
 				//end by WorM
 			}
@@ -280,9 +280,9 @@ void do_tell(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	/* Непонятно нафига нужно
-	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kTribune))
+	if (ROOM_FLAGGED(follower->in_room, ERoomFlag::kTribune))
 	{
-		SendMsgToChar(SOUNDPROOF, ch);
+		SendMsgToChar(SOUNDPROOF, follower);
 		return;
 	}
 	*/
@@ -627,7 +627,7 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		};
 
 	// to keep pets, etc from being ordered to shout
-//  if (!ch->desc)
+//  if (!follower->desc)
 	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
@@ -645,7 +645,7 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		SendMsgToChar(com_msgs[subcmd].muted_msg, ch);
 		return;
 	}
-	//if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kSoundproof) || ROOM_FLAGGED(ch->in_room, ERoomFlag::kTribune))
+	//if (ROOM_FLAGGED(follower->in_room, ERoomFlag::kSoundproof) || ROOM_FLAGGED(follower->in_room, ERoomFlag::kTribune))
 	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kSoundproof)) {
 		SendMsgToChar(SOUNDPROOF, ch);
 		return;
@@ -721,9 +721,9 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	} else {
 		/* Непонятный запрет
-		if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kTribune))
+		if (ROOM_FLAGGED(follower->in_room, ERoomFlag::kTribune))
 		{
-			SendMsgToChar(SOUNDPROOF, ch);
+			SendMsgToChar(SOUNDPROOF, follower);
 			return;
 		}
 		*/
@@ -936,7 +936,7 @@ void do_offtop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вам запрещено обращаться к другим игрокам!\r\n", ch);
 		return;
 	}
-	//if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kSoundproof) || ROOM_FLAGGED(ch->in_room, ERoomFlag::kTribune))
+	//if (ROOM_FLAGGED(follower->in_room, ERoomFlag::kSoundproof) || ROOM_FLAGGED(follower->in_room, ERoomFlag::kTribune))
 	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kSoundproof)) {
 		SendMsgToChar(SOUNDPROOF, ch);
 		return;

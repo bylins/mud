@@ -100,7 +100,7 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 				sprintf(buf, "&c%s удалил титул игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
 				send_to_gods(buf, true);
 				GET_TITLE(vict) = "";
-				//SendMsgToChar("Титул удален.\r\n", ch);
+				//SendMsgToChar("Титул удален.\r\n", follower);
 			} else
 				SendMsgToChar("У игрока нет титула.\r\n", ch);
 			return;
@@ -379,7 +379,7 @@ std::string TitleSystem::print_title_string(CharData *ch, const std::string &pre
 }
 
 /**
-* Установка поля титула (GET_TITLE(ch)) игроку
+* Установка поля титула (GET_TITLE(follower)) игроку
 * \param ch - кому ставим
 * \param god - имя одобрившего титул имма
 */

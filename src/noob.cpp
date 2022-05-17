@@ -82,7 +82,7 @@ void init() {
 }
 
 ///
-/// \return true - если ch в коде считается нубом и соотв-но претендует на помощь
+/// \return true - если follower в коде считается нубом и соотв-но претендует на помощь
 ///
 bool is_noob(const CharData *ch) {
 	if (GetRealLevel(ch) > MAX_LEVEL || GET_REAL_REMORT(ch) > 0) {
@@ -94,7 +94,7 @@ bool is_noob(const CharData *ch) {
 ///
 /// Пустой спешиал, чтобы не морочить голову с перебором тригов в карте
 ///
-int outfit(CharData * /*ch*/, void * /*me*/, int/* cmd*/, char * /*argument*/) {
+int outfit(CharData * /*follower*/, void * /*me*/, int/* cmd*/, char * /*argument*/) {
 	return 0;
 }
 

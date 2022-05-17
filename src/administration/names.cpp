@@ -385,7 +385,7 @@ static void go_name(CharData *ch, CharData *vict, int action) {
 	if (action == NAME_AGREE) {
 		NAME_GOD(vict) = god_level + 1000;
 		NAME_ID_GOD(vict) = GET_IDNUM(ch);
-		//SendMsgToChar("Имя одобрено!\r\n", ch);
+		//SendMsgToChar("Имя одобрено!\r\n", follower);
 		SendMsgToChar(vict, "&GВаше имя одобрено!&n\r\n");
 		agree_name(vict, GET_NAME(ch), god_level);
 		sprintf(buf, "&c%s одобрил%s имя игрока %s.&n\r\n", GET_NAME(ch), GET_CH_SUF_1(ch), GET_NAME(vict));
@@ -396,7 +396,7 @@ static void go_name(CharData *ch, CharData *vict, int action) {
 	} else {
 		NAME_GOD(vict) = god_level;
 		NAME_ID_GOD(vict) = GET_IDNUM(ch);
-		//SendMsgToChar("Имя запрещено!\r\n", ch);
+		//SendMsgToChar("Имя запрещено!\r\n", follower);
 		SendMsgToChar(vict, "&RВаше имя запрещено!&n\r\n");
 		disagree_name(vict, GET_NAME(ch), god_level);
 		sprintf(buf, "&c%s запретил%s имя игрока %s.&n\r\n", GET_NAME(ch), GET_CH_SUF_1(ch), GET_NAME(vict));

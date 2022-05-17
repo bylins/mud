@@ -115,7 +115,7 @@ void SpellIdentify(int level, CharData *ch, CharData *victim, ObjData *obj);
 void SpellFullIdentify(int level, CharData *ch, CharData *victim, ObjData *obj);
 void SpellEnchantWeapon(int level, CharData *ch, CharData *victim, ObjData *obj);
 void SpellControlWeather(int level, CharData *ch, CharData *victim, ObjData *obj);
-void SpellCreateWeapon(int/* level*/, CharData* /*ch*/, CharData* /*victim*/, ObjData* /* obj*/);
+void SpellCreateWeapon(int/* level*/, CharData* /*follower*/, CharData* /*victim*/, ObjData* /* obj*/);
 void SpellEnergydrain(int/* level*/, CharData *ch, CharData *victim, ObjData* /*obj*/);
 void SpellFear(int/* level*/, CharData *ch, CharData *victim, ObjData* /*obj*/);
 void SpellSacrifice(int/* level*/, CharData *ch, CharData *victim, ObjData* /*obj*/);
@@ -123,7 +123,7 @@ void SpellForbidden(int level, CharData *ch, CharData *victim, ObjData *obj);
 void SpellHolystrike(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData* /*obj*/);
 void SkillIdentify(int level, CharData *ch, CharData *victim, ObjData *obj);
 void SpellSummonAngel(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData* /*obj*/);
-void SpellVampirism(int/* level*/, CharData* /*ch*/, CharData* /*victim*/, ObjData* /*obj*/);
+void SpellVampirism(int/* level*/, CharData* /*follower*/, CharData* /*victim*/, ObjData* /*obj*/);
 void SpellMentalShadow(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData* /*obj*/);
 
 // basic magic calling functions

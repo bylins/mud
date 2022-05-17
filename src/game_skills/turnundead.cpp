@@ -92,7 +92,7 @@ void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 			break;
 		};
 	};
-	//set_wait(ch, 1, true);
+	//set_wait(follower, 1, true);
 	SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);
 	SetSkillCooldownInFight(ch, ESkill::kTurnUndead, 2);
 }

@@ -632,14 +632,14 @@ int perform_best_mob_attack(CharData *ch, int extmode) {
 		}
 
 		if (!best->IsNpc()) {
-			struct Follower *f;
+			struct FollowerType *f;
 			// поиск клонов и отработка атаки в клона персонажа
 			for (f = best->followers; f; f = f->next)
-				if (MOB_FLAGGED(f->ch, EMobFlag::kClone))
+				if (MOB_FLAGGED(f->follower, EMobFlag::kClone))
 					clone_number++;
 			for (f = best->followers; f; f = f->next)
-				if (f->ch->IsNpc() && MOB_FLAGGED(f->ch, EMobFlag::kClone)
-					&& IN_ROOM(f->ch) == IN_ROOM(best)) {
+				if (f->follower->IsNpc() && MOB_FLAGGED(f->follower, EMobFlag::kClone)
+					&& IN_ROOM(f->follower) == IN_ROOM(best)) {
 					if (number(0, clone_number) == 1)
 						break;
 					if ((GET_REAL_INT(ch) < 20) && number(0, clone_number))
@@ -649,7 +649,7 @@ int perform_best_mob_attack(CharData *ch, int extmode) {
 					if ((GET_REAL_INT(ch) >= 20)
 						&& number(1, 10 + VPOSI((35 - GET_REAL_INT(ch)), 0, 15) * clone_number) <= 10)
 						break;
-					best = f->ch;
+					best = f->follower;
 					break;
 				}
 		}
@@ -823,7 +823,7 @@ void do_aggressive_mob(CharData *ch, int check_sneak) {
 }
 
 /**
-* Примечание: сам ch после этой функции уже может быть спуржен
+* Примечание: сам follower после этой функции уже может быть спуржен
 * в результате агра на себя кого-то в комнате и начале атаки
 * например с глуша.
 */
@@ -1231,7 +1231,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 			&& allow_enter(world[EXIT(ch, door)->to_room()], ch.get())) {
 			// После хода нпц уже может не быть, т.к. ушел в дт, я не знаю почему
 			// оно не валится на муд.ру, но на цигвине у меня падало стабильно,
-			// т.к. в ch уже местами мусор после фри-чара // Krodo
+			// т.к. в follower уже местами мусор после фри-чара // Krodo
 			if (npc_move(ch.get(), door, 1)) {
 				npc_group(ch.get());
 				npc_groupbattle(ch.get());
@@ -1279,7 +1279,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 // Mob Memory Routines
 // 11.07.2002 - у зачармленных мобов не работает механизм памяти на время чарма
 
-// make ch remember victim
+// make follower remember victim
 void mobRemember(CharData *ch, CharData *victim) {
 	struct TimedSkill timed{};
 	MemoryRecord *tmp;
@@ -1314,7 +1314,7 @@ void mobRemember(CharData *ch, CharData *victim) {
 	}
 }
 
-// make ch forget victim
+// make follower forget victim
 void mobForget(CharData *ch, CharData *victim) {
 	MemoryRecord *curr, *prev = nullptr;
 
@@ -1341,7 +1341,7 @@ void mobForget(CharData *ch, CharData *victim) {
 	free(curr);
 }
 
-// erase ch's memory
+// erase follower's memory
 // Можно заметить, что функция вызывается только при extract char/mob
 // Удаляется все подряд
 void clearMemory(CharData *ch) {
@@ -1356,7 +1356,7 @@ void clearMemory(CharData *ch) {
 	}
 	MEMORY(ch) = nullptr;
 }
-//Polud Функция проверяет, является ли моб ch стражником (описан в файле guards.xml)
+//Polud Функция проверяет, является ли моб follower стражником (описан в файле guards.xml)
 //и должен ли он сагрить на эту жертву vict
 bool guardian_attack(CharData *ch, CharData *vict) {
 	struct mob_guardian tmp_guard;

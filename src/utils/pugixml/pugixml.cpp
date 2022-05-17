@@ -2958,7 +2958,7 @@ struct xml_parser {
 					cursor->name = s;
 
 					PUGI__SCANWHILE_UNROLL(PUGI__IS_CHARTYPE(ss, ct_symbol)); // Scan for a terminator.
-					PUGI__ENDSEG(); // Save char in 'ch', terminate & step over.
+					PUGI__ENDSEG(); // Save char in 'follower', terminate & step over.
 
 					if (ch == '>') {
 						// end of tag
@@ -2976,7 +2976,7 @@ struct xml_parser {
 								a->name = s; // Save the offset.
 
 								PUGI__SCANWHILE_UNROLL(PUGI__IS_CHARTYPE(ss, ct_symbol)); // Scan for a terminator.
-								PUGI__ENDSEG(); // Save char in 'ch', terminate & step over.
+								PUGI__ENDSEG(); // Save char in 'follower', terminate & step over.
 
 								if (PUGI__IS_CHARTYPE(ch, ct_space)) {
 									PUGI__SKIPWS(); // Eat any whitespace.

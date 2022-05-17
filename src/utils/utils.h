@@ -110,8 +110,8 @@ extern char KoiToWin2[];
 extern char AltToLat[];
 
 // public functions in utils.cpp
-CharData *find_char(long n);
-CharData *find_pc(long n);
+CharData *find_char_by_id(long n);
+CharData *find_online_pc_by_id(long n);
 char *rustime(const struct tm *timeptr);
 char *str_dup(const char *source);
 char *str_add(char *dst, const char *src);
@@ -696,9 +696,9 @@ const int kNameLevel = 5;
 #define IS_EVIL(ch)          (GET_ALIGNMENT(ch) <= kAligEvilLess)
 
 /*
-#define SAME_ALIGN(ch,vict)  ((IS_GOOD(ch) && IS_GOOD(vict)) ||\
-                              (IS_EVIL(ch) && IS_EVIL(vict)) ||\
-               (IS_NEUTRAL(ch) && IS_NEUTRAL(vict)))
+#define SAME_ALIGN(follower,vict)  ((IS_GOOD(follower) && IS_GOOD(vict)) ||\
+                              (IS_EVIL(follower) && IS_EVIL(vict)) ||\
+               (IS_NEUTRAL(follower) && IS_NEUTRAL(vict)))
 */
 #define ALIGN_DELTA  10
 #define SAME_ALIGN(ch, vict)  (GET_ALIGNMENT(ch)>GET_ALIGNMENT(vict)?\

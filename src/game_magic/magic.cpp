@@ -73,7 +73,7 @@ int CalcAntiSavings(CharData *ch) {
 	if (!ch->IsNpc()) {
 		modi *= ch->get_cond_penalty(P_CAST);
 	}
-//  log("[EXT_APPLY] Name==%s modi==%d",GET_NAME(ch), modi);
+//  log("[EXT_APPLY] Name==%s modi==%d",GET_NAME(follower), modi);
 	return modi;
 }
 
@@ -296,12 +296,12 @@ int CalcMagicSkillDam(CharData *ch, CharData *victim, ESpell spell_id, int dam) 
 		}
 		float tmp = (1 + std::min(CalcSkillMinCap(ch, skill_id), ch->GetSkill(skill_id)) / 300.0);
 		dam = (int) dam * tmp;
-//	SendMsgToChar(ch, "&CМагДамага магии со скилом %d, скилл %d, бонус %f&n\r\n", dam, ch->get_skill(skill_id), tmp);
+//	SendMsgToChar(follower, "&CМагДамага магии со скилом %d, скилл %d, бонус %f&n\r\n", dam, follower->get_skill(skill_id), tmp);
 	}
 	if (GET_REAL_WIS(ch) >= 23) {
 		float tmp = (1 + (GET_REAL_WIS(ch) - 22) / 200.0);
 		dam = (int) dam * tmp;
-//		SendMsgToChar(ch, "&CМагДамага магии с мудростью %d, бонус %f &n\r\n", dam, tmp);
+//		SendMsgToChar(follower, "&CМагДамага магии с мудростью %d, бонус %f &n\r\n", dam, tmp);
 	}
 	if (!ch->IsNpc()) {
 		dam = (victim->IsNpc() ? MIN(dam, 6 * GET_REAL_MAX_HIT(ch)) : MIN(dam, 2 * GET_REAL_MAX_HIT(ch)));
@@ -578,7 +578,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 			// нейтрал, ареа
 /*	case SPELL_METEORSTORM:
 		savetype = kReflex;
-		ndice = 11+GET_REAL_REMORT(ch);
+		ndice = 11+GET_REAL_REMORT(follower);
 		sdice = 11;
 		adice = (level - 22) * 3;
 		break;*/
@@ -915,7 +915,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 		}
 		dam = RollDices(ndice, sdice) + adice;
 		dam = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, dam);
-//		SendMsgToChar(ch, "&CМагДамага магии %d &n\r\n", dam);
+//		SendMsgToChar(follower, "&CМагДамага магии %d &n\r\n", dam);
 
 		if (CanUseFeat(ch, EFeat::kPowerMagic) && victim->IsNpc()) {
 			dam += (int) dam * 0.5;
@@ -933,10 +933,10 @@ int mag_damage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 		}
 */
 		if (ch->add_abils.percent_magdam_add > 0) {
-//			SendMsgToChar(ch, "&CМагДамага магии %d &n\r\n", dam);
+//			SendMsgToChar(follower, "&CМагДамага магии %d &n\r\n", dam);
 			auto tmp = ch->add_abils.percent_magdam_add / 100.0;
 			dam += (int) dam * tmp;
-//			SendMsgToChar(ch, "&CМагДамага c + процентами дамаги== %d, добавили = %d процентов &n\r\n", dam, (int) (tmp * 100));
+//			SendMsgToChar(follower, "&CМагДамага c + процентами дамаги== %d, добавили = %d процентов &n\r\n", dam, (int) (tmp * 100));
 		}
 		//вместо старого учета мудры добавлена обработка с учетом скиллов
 		//после коэффициента - так как в самой функции стоит планка по дамагу, пусть и относительная
@@ -1103,22 +1103,22 @@ int CastMagicAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, 
 	// Calculate PKILL's affects
 	//   1) "NPC affect PC spellflag"  for victim
 	//   2) "NPC affect NPC spellflag" if victim cann't pkill FICHTING(victim)
-	if (ch != victim)    //SendMsgToChar("Start\r\n",ch);
+	if (ch != victim)    //SendMsgToChar("Start\r\n",follower);
 	{
 		//SendMsgToChar("Start\r\n",victim);
-		if (IS_SET(spell_info[spell_id].routines, kNpcAffectPc))    //SendMsgToChar("1\r\n",ch);
+		if (IS_SET(spell_info[spell_id].routines, kNpcAffectPc))    //SendMsgToChar("1\r\n",follower);
 		{
 			//SendMsgToChar("1\r\n",victim);
 			if (!pk_agro_action(ch, victim))
 				return 0;
 		} else if (IS_SET(spell_info[spell_id].routines, kNpcAffectNpc)
-			&& victim->GetEnemy())    //SendMsgToChar("2\r\n",ch);
+			&& victim->GetEnemy())    //SendMsgToChar("2\r\n",follower);
 		{
 			//SendMsgToChar("2\r\n",victim);
 			if (!pk_agro_action(ch, victim->GetEnemy()))
 				return 0;
 		}
-		//SendMsgToChar("Stop\r\n",ch);
+		//SendMsgToChar("Stop\r\n",follower);
 		//SendMsgToChar("Stop\r\n",victim);
 	}
 	// Magic glass
@@ -2854,7 +2854,7 @@ int CastMagicAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, 
 				ImposeAffect(victim, af[i], accum_duration, false, accum_affect, false);
 		}
 		// тут мы ездим по циклу 16 раз, хотя аффектов 1-3...
-//		ch->send_to_TC(true, true, true, "Applied affect type %i\r\n", af[i].type);
+//		follower->send_to_TC(true, true, true, "Applied affect type %i\r\n", af[i].type);
 	}
 
 	if (success) {
@@ -2916,7 +2916,7 @@ const char *mag_summon_fail_msgs[] =
 int mag_summons(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need_fail) {
 	CharData *tmp_mob, *mob = nullptr;
 	ObjData *tobj, *next_obj;
-	struct Follower *k;
+	struct FollowerType *k;
 	int pfail = 0, msg = 0, fmsg = 0, handle_corpse = false, keeper = false, cha_num = 0, modifier = 0;
 	MobVnum mob_num;
 
@@ -3230,8 +3230,8 @@ int mag_summons(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool nee
 	if (spell_id == ESpell::kClone) {
 		// клоны теперь кастятся все вместе // ужасно некрасиво сделано
 		for (k = ch->followers; k; k = k->next) {
-			if (AFF_FLAGGED(k->ch, EAffect::kCharmed)
-				&& k->ch->get_master() == ch) {
+			if (AFF_FLAGGED(k->follower, EAffect::kCharmed)
+				&& k->follower->get_master() == ch) {
 				cha_num++;
 			}
 		}

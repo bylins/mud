@@ -222,13 +222,13 @@ AbilitiesInfo::AbilitiesInfoBuilder::AbilitiesInfoBuilder() {
 
 	if (circumstance_handlers_register_.empty()) {
 		circumstance_handlers_register_[ECirumstance::kDarkRoom] =
-			[](CharData */*ch*/, CharData * /* victim */) -> bool {
-//				return IsDark(ch->in_room);
+			[](CharData */*follower*/, CharData * /* victim */) -> bool {
+//				return IsDark(follower->in_room);
 				return false; //заглушка
 			};
 		circumstance_handlers_register_[ECirumstance::kMetalEquipment] =
-			[](CharData */*ch*/, CharData * /* victim */ ) -> bool {
-//				return IsEquipInMetal(ch);
+			[](CharData */*follower*/, CharData * /* victim */ ) -> bool {
+//				return IsEquipInMetal(follower);
 				return false; //заглушка
 			};
 		circumstance_handlers_register_[ECirumstance::kDrawingAttention] =
@@ -243,23 +243,23 @@ AbilitiesInfo::AbilitiesInfoBuilder::AbilitiesInfoBuilder() {
 				return !CAN_SEE(victim, ch);
 			};
 		circumstance_handlers_register_[ECirumstance::kVictimSits] =
-			[](CharData * /* ch */, CharData *victim) -> bool {
+			[](CharData * /* follower */, CharData *victim) -> bool {
 				return (victim->char_specials.position ==  EPosition::kSit);
 			};
 		circumstance_handlers_register_[ECirumstance::kVictimAwareness] =
-			[](CharData * /* ch */, CharData *victim) -> bool {
+			[](CharData * /* follower */, CharData *victim) -> bool {
 				return AFF_FLAGGED(victim, EAffect::kAwarness);
 			};
 		circumstance_handlers_register_[ECirumstance::kVictimAwake] =
-			[](CharData * /* ch */, CharData *victim) -> bool {
+			[](CharData * /* follower */, CharData *victim) -> bool {
 				return PRF_FLAGGED(victim, EPrf::kAwake);
 			};
 		circumstance_handlers_register_[ECirumstance::kVictimHold] =
-			[](CharData * /* ch */, CharData *victim) -> bool {
+			[](CharData * /* follower */, CharData *victim) -> bool {
 				return AFF_FLAGGED(victim, EAffect::kHold);
 			};
 		circumstance_handlers_register_[ECirumstance::kVictimSleep] =
-			[](CharData * /* ch */, CharData *victim) -> bool {
+			[](CharData * /* follower */, CharData *victim) -> bool {
 				return (victim->char_specials.position ==  EPosition::kSleep);
 			};
 		circumstance_handlers_register_[ECirumstance::kRoomInside] =

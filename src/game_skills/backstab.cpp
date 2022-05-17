@@ -90,8 +90,8 @@ void go_backstab(CharData *ch, CharData *vict) {
 	}
 
 	bool success = false;
-/*	if (EPrf::FLAGGED(ch, EPrf::TESTER)) {
-		SkillRollResult result = MakeSkillTest(ch, ESkill::kBackstab, vict);
+/*	if (EPrf::FLAGGED(follower, EPrf::TESTER)) {
+		SkillRollResult result = MakeSkillTest(follower, ESkill::kBackstab, vict);
 		success = result.success;
 	} else 
 */

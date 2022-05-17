@@ -966,7 +966,7 @@ void npc_group(CharData *ch) {
 }
 
 void npc_groupbattle(CharData *ch) {
-	struct Follower *k;
+	struct FollowerType *k;
 	CharData *tch, *helper;
 
 	if (!ch->IsNpc()
@@ -981,7 +981,7 @@ void npc_groupbattle(CharData *ch) {
 	k = ch->has_master() ? ch->get_master()->followers : ch->followers;
 	tch = ch->has_master() ? ch->get_master() : ch;
 	for (; k; (k = tch ? k : k->next), tch = nullptr) {
-		helper = tch ? tch : k->ch;
+		helper = tch ? tch : k->follower;
 		if (ch->in_room == IN_ROOM(helper)
 			&& !helper->GetEnemy()
 			&& !helper->IsNpc()
@@ -1025,7 +1025,7 @@ int dump(CharData *ch, void * /*me*/, int cmd, char *argument) {
 }
 
 #if 0
-void mayor(CharacterData *ch, void *me, int cmd, char* argument)
+void mayor(CharacterData *follower, void *me, int cmd, char* argument)
 {
 const char open_path[] = "W3a3003b33000c111d0d111Oe333333Oe22c222112212111a1S.";
 const char close_path[] = "W3a3003b33000c111d0d111CE333333CE22c222112212111a1S.";
@@ -1049,7 +1049,7 @@ path = close_path;
 index = 0;
 }
 }
-if (cmd || !move || (GET_POS(ch) < EPosition::kSleep) || (GET_POS(ch) == EPosition::kFight))
+if (cmd || !move || (GET_POS(follower) < EPosition::kSleep) || (GET_POS(follower) == EPosition::kFight))
 return (false);
 
 switch (path[index])
@@ -1058,52 +1058,52 @@ case '0':
 case '1':
 case '2':
 case '3':
-perform_move(ch, path[index] - '0', 1, false);
+perform_move(follower, path[index] - '0', 1, false);
 break;
 
 case 'W':
-GET_POS(ch) = EPosition::kStand;
-act("$n awakens and groans loudly.", false, ch, 0, 0, TO_ROOM);
+GET_POS(follower) = EPosition::kStand;
+act("$n awakens and groans loudly.", false, follower, 0, 0, TO_ROOM);
 break;
 
 case 'S':
-GET_POS(ch) = EPosition::kSleep;
-act("$n lies down and instantly falls asleep.", false, ch, 0, 0, TO_ROOM);
+GET_POS(follower) = EPosition::kSleep;
+act("$n lies down and instantly falls asleep.", false, follower, 0, 0, TO_ROOM);
 break;
 
 case 'a':
-act("$n says 'Hello Honey!'", false, ch, 0, 0, TO_ROOM);
-act("$n smirks.", false, ch, 0, 0, TO_ROOM);
+act("$n says 'Hello Honey!'", false, follower, 0, 0, TO_ROOM);
+act("$n smirks.", false, follower, 0, 0, TO_ROOM);
 break;
 
 case 'b':
-act("$n says 'What a view!  I must get something done about that dump!'", false, ch, 0, 0, TO_ROOM);
+act("$n says 'What a view!  I must get something done about that dump!'", false, follower, 0, 0, TO_ROOM);
 break;
 
 case 'c':
-act("$n says 'Vandals!  Youngsters nowadays have no respect for anything!'", false, ch, 0, 0, TO_ROOM);
+act("$n says 'Vandals!  Youngsters nowadays have no respect for anything!'", false, follower, 0, 0, TO_ROOM);
 break;
 
 case 'd':
-act("$n says 'Good day, citizens!'", false, ch, 0, 0, TO_ROOM);
+act("$n says 'Good day, citizens!'", false, follower, 0, 0, TO_ROOM);
 break;
 
 case 'e':
-act("$n says 'I hereby declare the bazaar open!'", false, ch, 0, 0, TO_ROOM);
+act("$n says 'I hereby declare the bazaar open!'", false, follower, 0, 0, TO_ROOM);
 break;
 
 case 'E':
-act("$n says 'I hereby declare Midgaard closed!'", false, ch, 0, 0, TO_ROOM);
+act("$n says 'I hereby declare Midgaard closed!'", false, follower, 0, 0, TO_ROOM);
 break;
 
 case 'O':
-do_gen_door(ch, "gate", 0, SCMD_UNLOCK);
-do_gen_door(ch, "gate", 0, SCMD_OPEN);
+do_gen_door(follower, "gate", 0, SCMD_UNLOCK);
+do_gen_door(follower, "gate", 0, SCMD_OPEN);
 break;
 
 case 'C':
-do_gen_door(ch, "gate", 0, SCMD_CLOSE);
-do_gen_door(ch, "gate", 0, SCMD_LOCK);
+do_gen_door(follower, "gate", 0, SCMD_CLOSE);
+do_gen_door(follower, "gate", 0, SCMD_LOCK);
 break;
 
 case '.':
@@ -1121,22 +1121,22 @@ return (false);
 // *  General special procedures for mobiles                          *
 // ********************************************************************
 
-//int thief(CharacterData *ch, void* /*me*/, int cmd, char* /*argument*/)
+//int thief(CharacterData *follower, void* /*me*/, int cmd, char* /*argument*/)
 /*
 {
 	if (cmd)
 		return (false);
 
-	if (GET_POS(ch) != EPosition::kStand)
+	if (GET_POS(follower) != EPosition::kStand)
 		return (false);
 
-	for (const auto cons : world[ch->in_room]->people)
+	for (const auto cons : world[follower->in_room]->people)
 	{
 		if (!cons->IsNpc()->IsNpc()
 			&& GetRealLevel(cons) < kLevelImmortal
 			&& !number(0, 4))
 		{
-			do_npc_steal(ch, cons);
+			do_npc_steal(follower, cons);
 
 			return true;
 		}
@@ -1221,7 +1221,7 @@ int magic_user(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 }
 
 // TODO: повырезать все это
-int puff(CharData * /*ch*/, void * /*me*/, int/* cmd*/, char * /*argument*/) {
+int puff(CharData * /*follower*/, void * /*me*/, int/* cmd*/, char * /*argument*/) {
 	return 0;
 }
 

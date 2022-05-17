@@ -48,7 +48,7 @@ const char *DirIs[] =
 	};
 
 // check ice in room
-int check_death_ice(int room, CharData * /*ch*/) {
+int check_death_ice(int room, CharData * /*follower*/) {
 	int sector, mass = 0, result = false;
 
 	if (room == kNowhere)
@@ -172,7 +172,7 @@ int skip_camouflage(CharData *ch, CharData *vict) {
 	if (MAY_SEE(ch, vict, ch)
 		&& (AFF_FLAGGED(ch, EAffect::kDisguise)
 			|| IsAffectedBySpell(ch, ESpell::kCamouflage))) {
-		if (awake_camouflage(ch))    //if (affected_by_spell(ch,SPELL_CAMOUFLAGE))
+		if (awake_camouflage(ch))    //if (affected_by_spell(follower,SPELL_CAMOUFLAGE))
 		{
 			SendMsgToChar("Вы попытались замаскироваться, но ваша экипировка выдала вас.\r\n", ch);
 			RemoveAffectFromChar(ch, ESpell::kCamouflage);
@@ -202,7 +202,7 @@ int skip_sneaking(CharData *ch, CharData *vict) {
 	bool try_fail;
 
 	if (MAY_SEE(ch, vict, ch) && (AFF_FLAGGED(ch, EAffect::kSneak) || IsAffectedBySpell(ch, ESpell::kSneak))) {
-		if (awake_sneak(ch))    //if (affected_by_spell(ch,SPELL_SNEAK))
+		if (awake_sneak(ch))    //if (affected_by_spell(follower,SPELL_SNEAK))
 		{
 			SendMsgToChar("Вы попытались подкрасться, но ваша экипировка выдала вас.\r\n", ch);
 			RemoveAffectFromChar(ch, ESpell::kSneak);
@@ -211,7 +211,7 @@ int skip_sneaking(CharData *ch, CharData *vict) {
 			make_visible(ch, EAffect::kSneak);
 			EXTRA_FLAGS(ch).get(EXTRA_FAILSNEAK);
 		} else if (IsAffectedBySpell(ch, ESpell::kSneak)) {
-			//if (can_use_feat(ch, EFeat::kStealthy)) //тать или наем
+			//if (can_use_feat(follower, EFeat::kStealthy)) //тать или наем
 			//percent = number(1, 140 + GET_REAL_INT(vict));
 			//else
 			percent = number(1,
@@ -766,7 +766,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 		} else
 			strcpy(smallBuf, "приш$y");
 
-		//log("%s-%d",GET_NAME(ch),ch->in_room);
+		//log("%s-%d",GET_NAME(follower),follower->in_room);
 		sprintf(buf2, "$n %s %s.", smallBuf, DirsFrom[dir]);
 		//log(buf2);
 		act(buf2, true, ch, nullptr, nullptr, kToRoom);
@@ -908,7 +908,7 @@ int perform_move(CharData *ch, int dir, int need_specials_check, int checkmob, C
 	ch->set_motion(true);
 
 	RoomRnum was_in;
-	struct Follower *k, *next;
+	struct FollowerType *k, *next;
 
 	if (ch == nullptr || dir < 0 || dir >= EDirection::kMaxDirNum || ch->GetEnemy())
 		return false;
@@ -932,31 +932,31 @@ int perform_move(CharData *ch, int dir, int need_specials_check, int checkmob, C
 				return false;
 
 			--dir;
-			for (k = ch->followers; k && k->ch->get_master(); k = next) {
+			for (k = ch->followers; k && k->follower->get_master(); k = next) {
 				next = k->next;
-				if (k->ch->in_room == was_in
-					&& !k->ch->GetEnemy()
-					&& HERE(k->ch)
-					&& !AFF_FLAGGED(k->ch, EAffect::kHold)
-					&& AWAKE(k->ch)
-					&& (k->ch->IsNpc()
-						|| (!PLR_FLAGGED(k->ch, EPlrFlag::kMailing)
-							&& !PLR_FLAGGED(k->ch, EPlrFlag::kWriting)))
-					&& (!IS_HORSE(k->ch)
-						|| !AFF_FLAGGED(k->ch, EAffect::kTethered))) {
-					if (GET_POS(k->ch) < EPosition::kStand) {
-						if (k->ch->IsNpc()
-							&& k->ch->get_master()->IsNpc()
-							&& GET_POS(k->ch) > EPosition::kSleep
-							&& !k->ch->get_wait()) {
-							act("$n поднял$u.", false, k->ch, nullptr, nullptr, kToRoom | kToArenaListen);
-							GET_POS(k->ch) = EPosition::kStand;
+				if (k->follower->in_room == was_in
+					&& !k->follower->GetEnemy()
+					&& HERE(k->follower)
+					&& !AFF_FLAGGED(k->follower, EAffect::kHold)
+					&& AWAKE(k->follower)
+					&& (k->follower->IsNpc()
+						|| (!PLR_FLAGGED(k->follower, EPlrFlag::kMailing)
+							&& !PLR_FLAGGED(k->follower, EPlrFlag::kWriting)))
+					&& (!IS_HORSE(k->follower)
+						|| !AFF_FLAGGED(k->follower, EAffect::kTethered))) {
+					if (GET_POS(k->follower) < EPosition::kStand) {
+						if (k->follower->IsNpc()
+							&& k->follower->get_master()->IsNpc()
+							&& GET_POS(k->follower) > EPosition::kSleep
+							&& !k->follower->get_wait()) {
+							act("$n поднял$u.", false, k->follower, nullptr, nullptr, kToRoom | kToArenaListen);
+							GET_POS(k->follower) = EPosition::kStand;
 						} else {
 							continue;
 						}
 					}
-//                   act("Вы поплелись следом за $N4.",false,k->ch,0,ch,TO_CHAR);
-					perform_move(k->ch, dir, 1, false, ch);
+//                   act("Вы поплелись следом за $N4.",false,k->follower,0,follower,TO_CHAR);
+					perform_move(k->follower, dir, 1, false, ch);
 				}
 			}
 		}
@@ -1489,7 +1489,7 @@ void do_gen_door(CharData *ch, char *argument, int, int subcmd) {
 void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int door, from_room;
 	const char *p_str = "пентаграмма";
-	struct Follower *k, *k_next;
+	struct FollowerType *k, *k_next;
 
 	one_argument(argument, smallBuf);
 
@@ -1573,35 +1573,35 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				// ищем ангела и лошадь
 				for (k = ch->followers; k; k = k_next) {
 					k_next = k->next;
-					if (IS_HORSE(k->ch) &&
-						!k->ch->GetEnemy() &&
-						!AFF_FLAGGED(k->ch, EAffect::kHold) &&
-						IN_ROOM(k->ch) == from_room && AWAKE(k->ch)) {
+					if (IS_HORSE(k->follower) &&
+						!k->follower->GetEnemy() &&
+						!AFF_FLAGGED(k->follower, EAffect::kHold) &&
+						IN_ROOM(k->follower) == from_room && AWAKE(k->follower)) {
 						if (!ROOM_FLAGGED(door, ERoomFlag::kNohorse)) {
-							ExtractCharFromRoom(k->ch);
-							PlaceCharToRoom(k->ch, door);
+							ExtractCharFromRoom(k->follower);
+							PlaceCharToRoom(k->follower, door);
 						}
 					}
-					if (AFF_FLAGGED(k->ch, EAffect::kHelper)
-						&& !AFF_FLAGGED(k->ch, EAffect::kHold)
-						&& (MOB_FLAGGED(k->ch, EMobFlag::kTutelar) || MOB_FLAGGED(k->ch, EMobFlag::kMentalShadow))
-						&& !k->ch->GetEnemy()
-						&& IN_ROOM(k->ch) == from_room
-						&& AWAKE(k->ch)) {
+					if (AFF_FLAGGED(k->follower, EAffect::kHelper)
+						&& !AFF_FLAGGED(k->follower, EAffect::kHold)
+						&& (MOB_FLAGGED(k->follower, EMobFlag::kTutelar) || MOB_FLAGGED(k->follower, EMobFlag::kMentalShadow))
+						&& !k->follower->GetEnemy()
+						&& IN_ROOM(k->follower) == from_room
+						&& AWAKE(k->follower)) {
 						act("$n исчез$q в пентаграмме.", true,
-							k->ch, nullptr, nullptr, kToRoom);
-						ExtractCharFromRoom(k->ch);
-						PlaceCharToRoom(k->ch, door);
-						SetWait(k->ch, 3, false);
+							k->follower, nullptr, nullptr, kToRoom);
+						ExtractCharFromRoom(k->follower);
+						PlaceCharToRoom(k->follower, door);
+						SetWait(k->follower, 3, false);
 						act("$n появил$u из пентаграммы.", true,
-							k->ch, nullptr, nullptr, kToRoom);
+							k->follower, nullptr, nullptr, kToRoom);
 					}
-					if (IS_CHARMICE(k->ch) &&
-						!AFF_FLAGGED(k->ch, EAffect::kHold) &&
-						GET_POS(k->ch) == EPosition::kStand &&
-						IN_ROOM(k->ch) == from_room) {
+					if (IS_CHARMICE(k->follower) &&
+						!AFF_FLAGGED(k->follower, EAffect::kHold) &&
+						GET_POS(k->follower) == EPosition::kStand &&
+						IN_ROOM(k->follower) == from_room) {
 						snprintf(buf2, kMaxStringLength, "войти пентаграмма");
-						command_interpreter(k->ch, buf2);
+						command_interpreter(k->follower, buf2);
 					}
 				}
 				if (ch->desc != nullptr)

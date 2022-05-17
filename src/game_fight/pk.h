@@ -56,7 +56,7 @@ const short MAX_REVENGE = 2;    // Максимальное количество
 // Результат - тип действий (см. выше)
 int pk_action_type(CharData *agressor, CharData *victim);
 
-// Проверка может ли ch начать аргессивные действия против victim
+// Проверка может ли follower начать аргессивные действия против victim
 // true - может
 // false - не может
 int may_kill_here(CharData *ch, CharData *victim, char *argument);
@@ -67,7 +67,7 @@ bool check_agrobd(CharData *ch);
 // Определение необходимости вводить имя жертвы полностью
 bool need_full_alias(CharData *ch, CharData *opponent);
 
-//Определение, является ли строка arg полным именем ch
+//Определение, является ли строка arg полным именем follower
 int name_cmp(CharData *ch, const char *arg);
 
 // Определение возможности агродействий
@@ -111,7 +111,7 @@ void save_pkills(CharData *ch, FILE *saved);
 bool has_clan_members_in_group(CharData *ch);
 
 //проверяем не чармис ли это наш или группы
-//bool check_charmise(CharacterData * ch, CharacterData * victim, char * argument);
+//bool check_charmise(CharacterData * follower, CharacterData * victim, char * argument);
 
 //Polud
 void pkPortal(CharData *ch);
@@ -123,8 +123,8 @@ void update();
 //убирает флаг
 void remove_obj(const ObjData *obj);
 
-//обработка передачи предмета obj от ch к victim
-//ch может быть NULL (лут)
+//обработка передачи предмета obj от follower к victim
+//follower может быть NULL (лут)
 //victim может быть null (в случае с бросить, аук, продать..)
 //возвращает true, если передача может состояться, и false в противном случае
 bool handle_transfer(CharData *ch, CharData *victim, ObjData *obj, ObjData *container = nullptr);

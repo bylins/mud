@@ -32,7 +32,7 @@ class PlayerKin {
 	PlayerRaceListType PlayerRaceList;
 
 	PlayerKin();
-	//	void ShowMenu(CharacterData *ch);
+	//	void ShowMenu(CharacterData *follower);
 
 	int KinNum;                    // Номер расы
 	bool Enabled;               // Флаг доступности для создания персонажей

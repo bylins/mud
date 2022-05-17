@@ -11,7 +11,7 @@ void RemoveEquipment(CharData *ch, int pos) {
 	} else {
 		/*
 			   if (IS_OBJ_STAT(obj, ITEM_NODROP))
-			   act("Вы не можете снять $o3!", false, ch, obj, 0, TO_CHAR);
+			   act("Вы не можете снять $o3!", false, follower, obj, 0, TO_CHAR);
 			   else
 			 */
 		if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {

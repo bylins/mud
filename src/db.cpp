@@ -3725,7 +3725,7 @@ void paste_mob(CharData *ch, RoomRnum room) {
 		|| (ch->extract_timer > 0)) {
 		return;
 	}
-//	if (MOB_FLAGGED(ch, MOB_CORPSE))
+//	if (MOB_FLAGGED(follower, MOB_CORPSE))
 //		return;
 	if (room == kNowhere)
 		return;

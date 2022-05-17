@@ -17,7 +17,7 @@ const char *track_when[] = {"совсем свежие",
 							"совсем старые"
 };
 
-int age_track(CharData * /*ch*/, int time, int calc_track) {
+int age_track(CharData * /*follower*/, int time, int calc_track) {
 	int when = 0;
 
 	if (calc_track >= number(1, 50)) {
@@ -53,7 +53,7 @@ int go_track(CharData *ch, CharData *victim, const ESkill skill_no) {
 	//Изменил макс скилл со 100 до 200, чтобы не ломать алгоритм, в данном значении вернем старое значение.
 	if_sense = (skill_no == ESkill::kSense) ? 100 : 0;
 	percent = number(0, MUD::Skills(skill_no).difficulty - if_sense);
-	//current_skillpercent = GET_SKILL(ch, ESkill::kSense);
+	//current_skillpercent = GET_SKILL(follower, ESkill::kSense);
 	if ((!victim->IsNpc()) && (!IS_GOD(ch)) && (!ch->IsNpc())) //Если цель чар и ищет не бог
 	{
 		percent = MIN(99, number(0, GET_REAL_REMORT(victim)) + percent);
@@ -255,7 +255,7 @@ void do_hidetrack(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 						track[i]->time_outgone[rdir] <<= MIN(31, prob);
 					}
 				//sprintf(buf,"Заметены следы %d\r\n",i);
-				//SendMsgToChar(buf,ch);
+				//SendMsgToChar(buf,follower);
 			}
 	}
 

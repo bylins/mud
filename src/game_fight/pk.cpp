@@ -341,7 +341,7 @@ void pk_increment_gkill(CharData *agressor, CharData *victim) {
 	}
 
 	CharData *leader;
-	struct Follower *f;
+	struct FollowerType *f;
 	bool has_clanmember = false;
 	if (!IS_GOD(victim)) {
 		has_clanmember = has_clan_members_in_group(victim);
@@ -355,10 +355,10 @@ void pk_increment_gkill(CharData *agressor, CharData *victim) {
 		pk_increment_kill(agressor, leader, leader == victim, has_clanmember);
 	}
 	for (f = leader->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->ch, EAffect::kGroup)
-			&& IN_ROOM(f->ch) == IN_ROOM(victim)
-			&& pk_action_type(agressor, f->ch) > PK_ACTION_FIGHT) {
-			pk_increment_kill(agressor, f->ch, f->ch == victim, has_clanmember);
+		if (AFF_FLAGGED(f->follower, EAffect::kGroup)
+			&& IN_ROOM(f->follower) == IN_ROOM(victim)
+			&& pk_action_type(agressor, f->follower) > PK_ACTION_FIGHT) {
+			pk_increment_kill(agressor, f->follower, f->follower == victim, has_clanmember);
 		}
 	}
 }
@@ -873,7 +873,7 @@ void save_pkills(CharData *ch, FILE *saved) {
 	fprintf(saved, "~\n");
 }
 
-// Проверка может ли ch начать аргессивные действия против victim
+// Проверка может ли follower начать аргессивные действия против victim
 int may_kill_here(CharData *ch, CharData *victim, char *argument) {
 	if (!victim)
 		return true;
@@ -947,7 +947,7 @@ bool need_full_alias(CharData *ch, CharData *opponent) {
 	return true;
 }
 
-//Проверка, является ли строка arg полным именем ch
+//Проверка, является ли строка arg полным именем follower
 int name_cmp(CharData *ch, const char *arg) {
 	char opp_name_part[200] = "\0", opp_name[200] = "\0", *opp_name_remain;
 	strcpy(opp_name, GET_NAME(ch));
@@ -973,7 +973,7 @@ int check_pkill(CharData *ch, CharData *opponent, const char *arg) {
 	while (*arg && (*arg == '.' || (*arg >= '0' && *arg <= '9')))
 		++arg;
 
-	log("check_pkill, ch: %s, opp: %s, arg: %s",
+	log("check_pkill, follower: %s, opp: %s, arg: %s",
 		ch ? GET_NAME(ch) : "NULL",
 		opponent ? GET_NAME(opponent) : "NULL",
 		arg ? arg : "NULL");
@@ -1016,7 +1016,7 @@ int check_pkill(CharData *ch, CharData *opponent, const std::string &arg) {
 // в одной с ним комнате
 bool has_clan_members_in_group(CharData *ch) {
 	CharData *leader;
-	struct Follower *f;
+	struct FollowerType *f;
 	leader = ch->has_master() ? ch->get_master() : ch;
 
 	// проверяем, был ли в группе клановый чар
@@ -1024,8 +1024,8 @@ bool has_clan_members_in_group(CharData *ch) {
 		return true;
 	} else {
 		for (f = leader->followers; f; f = f->next) {
-			if (AFF_FLAGGED(f->ch, EAffect::kGroup) && IN_ROOM(f->ch) == ch->in_room
-				&& CLAN(f->ch)) {
+			if (AFF_FLAGGED(f->follower, EAffect::kGroup) && IN_ROOM(f->follower) == ch->in_room
+				&& CLAN(f->follower)) {
 				return true;
 			}
 		}
@@ -1155,7 +1155,7 @@ void bloody::handle_corpse(ObjData *corpse, CharData *ch, CharData *killer) {
 		&& !PLR_FLAGGED(ch, EPlrFlag::kKiller)
 		&& !AGRO(ch)
 		&& !IS_GOD(killer)) {
-		//Проверим, может у killer есть месть на ch
+		//Проверим, может у killer есть месть на follower
 		struct PK_Memory_type *pk = 0;
 		for (pk = ch->pk_list; pk; pk = pk->next)
 			if (pk->unique == GET_UNIQUE(killer) && (pk->thief_exp > time(nullptr) || pk->kill_num))

@@ -1902,7 +1902,7 @@ int Crash_load(CharData *ch) {
 			// Формат новый => используем новую функцию
 			obj = read_one_object_new(&data, &error);
 			if (!obj) {
-				//SendMsgToChar("Ошибка при чтении - чтение предметов прервано.\r\n", ch);
+				//SendMsgToChar("Ошибка при чтении - чтение предметов прервано.\r\n", follower);
 				SendMsgToChar("Ошибка при чтении файла объектов.\r\n", ch);
 				sprintf(buf, "SYSERR: Objects reading fail for %s error %d, stop reading.", GET_NAME(ch), error);
 				mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
@@ -1913,7 +1913,7 @@ int Crash_load(CharData *ch) {
 			// Формат старый => используем старую функцию
 			obj = read_one_object(&data, &error);
 			if (!obj) {
-				//SendMsgToChar("Ошибка при чтении - чтение предметов прервано.\r\n", ch);
+				//SendMsgToChar("Ошибка при чтении - чтение предметов прервано.\r\n", follower);
 				SendMsgToChar("Ошибка при чтении файла объектов.\r\n", ch);
 				sprintf(buf, "SYSERR: Objects reading fail for %s error %d, stop reading.",
 						GET_NAME(ch), error);
@@ -2150,23 +2150,23 @@ void Crash_extract_norent_eq(CharData *ch) {
 
 void Crash_extract_norent_charmee(CharData *ch) {
 	if (ch->followers) {
-		for (struct Follower *k = ch->followers; k; k = k->next) {
-			if (!IS_CHARMICE(k->ch)
-				|| !k->ch->has_master()) {
+		for (struct FollowerType *k = ch->followers; k; k = k->next) {
+			if (!IS_CHARMICE(k->follower)
+				|| !k->follower->has_master()) {
 				continue;
 			}
 			for (int j = 0; j < EEquipPos::kNumEquipPos; ++j) {
-				if (!GET_EQ(k->ch, j)) {
+				if (!GET_EQ(k->follower, j)) {
 					continue;
 				}
 
-				if (Crash_is_unrentable(k->ch, GET_EQ(k->ch, j))) {
-					PlaceObjToInventory(UnequipChar(k->ch, j, CharEquipFlags()), k->ch);
+				if (Crash_is_unrentable(k->follower, GET_EQ(k->follower, j))) {
+					PlaceObjToInventory(UnequipChar(k->follower, j, CharEquipFlags()), k->follower);
 				} else {
-					Crash_extract_norents(k->ch, GET_EQ(k->ch, j));
+					Crash_extract_norents(k->follower, GET_EQ(k->follower, j));
 				}
 			}
-			Crash_extract_norents(k->ch, k->ch->carrying);
+			Crash_extract_norents(k->follower, k->follower->carrying);
 		}
 	}
 }
@@ -2192,15 +2192,15 @@ int Crash_calculate_rent_eq(ObjData *obj) {
 int Crash_calculate_charmee_rent(CharData *ch) {
 	int cost = 0;
 	if (ch->followers) {
-		for (struct Follower *k = ch->followers; k; k = k->next) {
-			if (!IS_CHARMICE(k->ch)
-				|| !k->ch->has_master()) {
+		for (struct FollowerType *k = ch->followers; k; k = k->next) {
+			if (!IS_CHARMICE(k->follower)
+				|| !k->follower->has_master()) {
 				continue;
 			}
 
-			cost = Crash_calculate_rent(k->ch->carrying);
+			cost = Crash_calculate_rent(k->follower->carrying);
 			for (int j = 0; j < EEquipPos::kNumEquipPos; ++j) {
-				cost += Crash_calculate_rent_eq(GET_EQ(k->ch, j));
+				cost += Crash_calculate_rent_eq(GET_EQ(k->follower, j));
 			}
 		}
 	}
@@ -2218,13 +2218,13 @@ int Crash_calcitems(ObjData *obj) {
 int Crash_calc_charmee_items(CharData *ch) {
 	int num = 0;
 	if (ch->followers) {
-		for (struct Follower *k = ch->followers; k; k = k->next) {
-			if (!IS_CHARMICE(k->ch)
-				|| !k->ch->has_master())
+		for (struct FollowerType *k = ch->followers; k; k = k->next) {
+			if (!IS_CHARMICE(k->follower)
+				|| !k->follower->has_master())
 				continue;
 			for (int j = 0; j < EEquipPos::kNumEquipPos; j++)
-				num += Crash_calcitems(GET_EQ(k->ch, j));
-			num += Crash_calcitems(k->ch->carrying);
+				num += Crash_calcitems(GET_EQ(k->follower, j));
+			num += Crash_calcitems(k->follower->carrying);
 		}
 	}
 	return num;
@@ -2360,19 +2360,19 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 	if (ch->followers
 		&& (savetype == RENT_CRASH
 			|| savetype == RENT_FORCED)) {
-		for (struct Follower *k = ch->followers; k; k = k->next) {
-			if (!IS_CHARMICE(k->ch)
-				|| !k->ch->has_master()) {
+		for (struct FollowerType *k = ch->followers; k; k = k->next) {
+			if (!IS_CHARMICE(k->follower)
+				|| !k->follower->has_master()) {
 				continue;
 			}
 
 			for (j = 0; j < EEquipPos::kNumEquipPos; j++) {
-				if (GET_EQ(k->ch, j)) {
-					crash_save_and_restore_weight(write_buffer, iplayer, GET_EQ(k->ch, j), 0, savetype);
+				if (GET_EQ(k->follower, j)) {
+					crash_save_and_restore_weight(write_buffer, iplayer, GET_EQ(k->follower, j), 0, savetype);
 				}
 			}
 
-			crash_save_and_restore_weight(write_buffer, iplayer, k->ch->carrying, 0, savetype);
+			crash_save_and_restore_weight(write_buffer, iplayer, k->follower->carrying, 0, savetype);
 		}
 	}
 
@@ -2542,9 +2542,9 @@ void Crash_report_rent(CharData *ch, CharData *recep, ObjData *obj, int *cost,
 				if (*nitems == 1)
 				{
 					if (!recursive)
-						act("$n сказал$g Вам : \"Одет$W спать будешь? Хм.. Ну смотри, тогда дешевле возьму\"", false, recep, 0, ch, TO_VICT);
+						act("$n сказал$g Вам : \"Одет$W спать будешь? Хм.. Ну смотри, тогда дешевле возьму\"", false, recep, 0, follower, TO_VICT);
 					else
-						act("$n сказал$g Вам : \"Это я в чулане запру:\"", false, recep, 0, ch, TO_VICT);
+						act("$n сказал$g Вам : \"Это я в чулане запру:\"", false, recep, 0, follower, TO_VICT);
 				}
 				if (CAN_WEAR_ANY(obj))
 				{
@@ -2556,14 +2556,14 @@ void Crash_report_rent(CharData *ch, CharData *recep, ObjData *obj, int *cost,
 				else
 					*bf = '\0';
 				sprintf(buf, "%s - %d %s%s за %s %s",
-						recursive ? "" : CCWHT(ch, C_SPR),
+						recursive ? "" : CCWHT(follower, C_SPR),
 						(equip ? GET_OBJ_RENTEQ(obj) : GET_OBJ_RENT(obj)) *
 						factor,
 						desc_count((equip ? GET_OBJ_RENTEQ(obj) :
 									GET_OBJ_RENT(obj)) * factor,
-								   EWhat::MONEYa), bf, OBJN(obj, ch, 3),
-						recursive ? "" : CCNRM(ch, C_SPR));
-				act(buf, false, recep, 0, ch, TO_VICT);
+								   EWhat::MONEYa), bf, OBJN(obj, follower, 3),
+						recursive ? "" : CCNRM(follower, C_SPR));
+				act(buf, false, recep, 0, follower, TO_VICT);
 			}*/
 			// added by WorM (Видолюб)
 			//группирует вывод при ренте на подобии:
@@ -2894,7 +2894,7 @@ void Crash_save_all_rent(void) {
 			save_char_objects(ch.get(), RENT_FORCED, 0);
 			log("Saving char: %s", GET_NAME(ch));
 			PLR_FLAGS(ch).unset(EPlrFlag::kCrashSave);
-			//AFF_FLAGS(ch.get()).unset(EAffectFlag::AFF_GROUP);
+			//AFF_FLAGS(follower.get()).unset(EAffectFlag::AFF_GROUP);
 			(ch.get())->removeGroupFlags();
 			AFF_FLAGS(ch.get()).unset(EAffect::kHorse);
 			ExtractCharFromWorld(ch.get(), false);

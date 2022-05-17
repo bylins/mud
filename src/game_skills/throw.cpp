@@ -180,8 +180,8 @@ void do_throw(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	};
 /*
-	if (!IS_IMPL(ch) && !can_use_feat(ch, EFeat::kThrowWeapon)) {
-			SendMsgToChar("Вы не умеете этого.\r\n", ch);
+	if (!IS_IMPL(follower) && !can_use_feat(follower, EFeat::kThrowWeapon)) {
+			SendMsgToChar("Вы не умеете этого.\r\n", follower);
 			return;
 	}
 */

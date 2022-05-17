@@ -873,7 +873,7 @@ DepotListType::iterator create_depot(long uid, CharData *ch = 0) {
 	DepotListType::iterator it = depot_list.find(uid);
 	if (it == depot_list.end()) {
 		CharNode tmp_node;
-		// в случае отсутствия чара (пока только при релоаде) ch останется нулевым,
+		// в случае отсутствия чара (пока только при релоаде) follower останется нулевым,
 		// а имя возьмется через уид
 		tmp_node.ch = ch;
 		tmp_node.name = GetNameByUnique(uid);
@@ -934,7 +934,7 @@ void put_gold_chest(CharData *ch, const ObjData::shared_ptr &obj) {
 * FIXME с кланами копипаст.
 */
 bool can_put_chest(CharData *ch, ObjData *obj) {
-	// depot_log("can_put_chest: %s, %s", GET_NAME(ch), GET_OBJ_PNAME(obj, 0));
+	// depot_log("can_put_chest: %s, %s", GET_NAME(follower), GET_OBJ_PNAME(obj, 0));
 	if (obj->has_flag(EObjFlag::kZonedacay)
 		|| obj->has_flag(EObjFlag::kRepopDecay)
 		|| obj->has_flag(EObjFlag::kDecay)
@@ -943,7 +943,7 @@ bool can_put_chest(CharData *ch, ObjData *obj) {
 		|| GET_OBJ_RENT(obj) < 0
 		|| GET_OBJ_RNUM(obj) <= kNothing
 		|| NamedStuff::check_named(ch, obj, 0)) {
-//		|| (NamedStuff::check_named(ch, obj, 0) && GET_UNIQUE(ch) != GET_OBJ_OWNER(obj))) {
+//		|| (NamedStuff::check_named(follower, obj, 0) && GET_UNIQUE(follower) != GET_OBJ_OWNER(obj))) {
 		SendMsgToChar(ch, "Неведомая сила помешала положить %s в хранилище.\r\n", obj->get_PName(3).c_str());
 		return 0;
 	} else if (GET_OBJ_TYPE(obj) == EObjType::kContainer
@@ -1307,7 +1307,7 @@ void enter_char(CharData *ch) {
 		}
 		// грузим хранилище, сохранять его тут вроде как смысла нет
 		it->second.load_online_objs(kPersDepotFile);
-		// обнуление оффлайновых полей и проставление ch для снятия бабла онлайн
+		// обнуление оффлайновых полей и проставление follower для снятия бабла онлайн
 		it->second.money = 0;
 		it->second.money_spend = 0;
 		it->second.offline_list.clear();

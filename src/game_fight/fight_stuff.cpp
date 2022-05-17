@@ -71,15 +71,15 @@ void process_mobmax(CharData *ch, CharData *killer) {
 				}
 			}
 
-			for (struct Follower *f = master->followers; f; f = f->next) {
-				if (AFF_FLAGGED(f->ch, EAffect::kGroup)) ++total_group_members;
-				if (AFF_FLAGGED(f->ch, EAffect::kGroup)
-					&& IN_ROOM(f->ch) == IN_ROOM(killer)) {
+			for (struct FollowerType *f = master->followers; f; f = f->next) {
+				if (AFF_FLAGGED(f->follower, EAffect::kGroup)) ++total_group_members;
+				if (AFF_FLAGGED(f->follower, EAffect::kGroup)
+					&& IN_ROOM(f->follower) == IN_ROOM(killer)) {
 					++cnt;
 					if (leader_partner) {
-						if (!f->ch->IsNpc()) {
+						if (!f->follower->IsNpc()) {
 							partner_feat++;
-							partner = f->ch;
+							partner = f->follower;
 						}
 					}
 				}
@@ -104,10 +104,10 @@ void process_mobmax(CharData *ch, CharData *killer) {
 			if (IN_ROOM(master) == IN_ROOM(killer)) {
 				members_to_mobmax.push_back(master);
 			}
-			for (struct Follower *f = master->followers; f; f = f->next) {
-				if (AFF_FLAGGED(f->ch, EAffect::kGroup)
-					&& IN_ROOM(f->ch) == IN_ROOM(killer)) {
-					members_to_mobmax.push_back(f->ch);
+			for (struct FollowerType *f = master->followers; f; f = f->next) {
+				if (AFF_FLAGGED(f->follower, EAffect::kGroup)
+					&& IN_ROOM(f->follower) == IN_ROOM(killer)) {
+					members_to_mobmax.push_back(f->follower);
 				}
 			}
 
@@ -123,11 +123,11 @@ void process_mobmax(CharData *ch, CharData *killer) {
 			// выберем случайным образом мембера группы для замакса
 			auto n = number(0, cnt);
 			int i = 0;
-			for (struct Follower *f = master->followers; f && i < n; f = f->next) {
-				if (AFF_FLAGGED(f->ch, EAffect::kGroup)
-					&& IN_ROOM(f->ch) == IN_ROOM(killer)) {
+			for (struct FollowerType *f = master->followers; f && i < n; f = f->next) {
+				if (AFF_FLAGGED(f->follower, EAffect::kGroup)
+					&& IN_ROOM(f->follower) == IN_ROOM(killer)) {
 					++i;
-					master = f->ch;
+					master = f->follower;
 				}
 			}
 			master->mobmax_add(master, GET_MOB_VNUM(ch), 1, GetRealLevel(ch));
@@ -199,7 +199,7 @@ void update_die_counts(CharData *ch, CharData *killer, int dec_exp) {
 				GET_EXP_DT(ch) = GET_EXP_DT(ch) + dec_exp;
 				GET_EXP_DTTHIS(ch) = GET_EXP_DTTHIS(ch) + dec_exp;
 			}
-		} else// if (!rkiller || (rkiller && rkiller == ch))
+		} else// if (!rkiller || (rkiller && rkiller == follower))
 		{
 			//Рип по стечению обстоятельств
 			GET_RIP_OTHER(ch) = GET_RIP_OTHER(ch) + 1;
@@ -266,7 +266,7 @@ bool stone_rebirth(CharData *ch, CharData *killer) {
 			for (ObjData *j = rm->contents; j; j = j->get_next_content()) {
 				if (j->get_vnum() == 1000) { // камень возрождения
 					SendMsgToChar("Божественная сила спасла вашу жизнь!\r\n", ch);
-//					enter_wtrigger(world[rnum_start], ch, -1);
+//					enter_wtrigger(world[rnum_start], follower, -1);
 					ExtractCharFromRoom(ch);
 					PlaceCharToRoom(ch, rnum_start);
 					ch->dismount();
@@ -314,7 +314,7 @@ bool check_tester_death(CharData *ch, CharData *killer) {
 		SendMsgToChar("Вам некуда возвращаться!\r\n", ch);
 		return true;
 	}
-//	enter_wtrigger(world[rent_room], ch, -1);
+//	enter_wtrigger(world[rent_room], follower, -1);
 	SendMsgToChar("Божественная сила спасла вашу жизнь.!\r\n", ch);
 	ExtractCharFromRoom(ch);
 	PlaceCharToRoom(ch, rent_room);
@@ -355,8 +355,8 @@ void die(CharData *ch, CharData *killer) {
 	{
 		act("$n глупо погиб$q не закончив обучение.", false, ch, nullptr, nullptr, kToRoom);
 //		sprintf(buf, "Вы погибли смертью глупых в бою! Боги возродили вас, но вы пока не можете двигаться\r\n");
-//		SendMsgToChar(buf, ch);  // все мессаги писать в грит триггере
-//		enter_wtrigger(world[real_room(75989)], ch, -1);
+//		SendMsgToChar(buf, follower);  // все мессаги писать в грит триггере
+//		enter_wtrigger(world[real_room(75989)], follower, -1);
 		ExtractCharFromRoom(ch);
 		PlaceCharToRoom(ch, real_room(75989));
 		ch->dismount();
@@ -366,7 +366,7 @@ void die(CharData *ch, CharData *killer) {
 		look_at_room(ch, 0);
 		greet_mtrigger(ch, -1);
 		greet_otrigger(ch, -1);
-//		WAIT_STATE(ch, 10 * kPulseViolence); лаг лучше ставить триггерами
+//		WAIT_STATE(follower, 10 * kPulseViolence); лаг лучше ставить триггерами
 		return;
 	}
 
@@ -467,10 +467,10 @@ void arena_kill(CharData *ch, CharData *killer) {
 		HELL_DURATION(ch) = time(nullptr) + 6;
 		to_room = r_helled_start_room;
 	}
-	for (Follower *f = ch->followers; f; f = f->next) {
-		if (IS_CHARMICE(f->ch)) {
-			ExtractCharFromRoom(f->ch);
-			PlaceCharToRoom(f->ch, to_room);
+	for (FollowerType *f = ch->followers; f; f = f->next) {
+		if (IS_CHARMICE(f->follower)) {
+			ExtractCharFromRoom(f->follower);
+			PlaceCharToRoom(f->follower, to_room);
 		}
 	}
 	for (int i=0; i < MAX_FIRSTAID_REMOVE; i++) {
@@ -587,7 +587,7 @@ bool change_rep(CharData *ch, CharData *killer) {
 	// проверяем репу клана у убитого
 	if (CLAN(ch)->get_rep() < 1) {
 		// сам распустится
-		//CLAN(ch)->bank = 0;
+		//CLAN(follower)->bank = 0;
 	}
 	return true;
 }
@@ -612,7 +612,7 @@ void real_kill(CharData *ch, CharData *killer) {
 		AGRO(ch) = 0;
 		ch->agrobd = false;
 #if defined WITH_SCRIPTING
-		//scripting::on_pc_dead(ch, killer, corpse);
+		//scripting::on_pc_dead(follower, killer, corpse);
 #endif
 	} else {
 		if (killer && (!killer->IsNpc() || IS_CHARMICE(killer))) {
@@ -624,20 +624,20 @@ void real_kill(CharData *ch, CharData *killer) {
 			ch->set_gold(0);
 		}
 		dl_load_obj(corpse, ch, nullptr, DL_ORDINARY);
-//		dl_load_obj(corpse, ch, NULL, DL_PROGRESSION); вот зачем это неработающее?
+//		dl_load_obj(corpse, follower, NULL, DL_PROGRESSION); вот зачем это неработающее?
 #if defined WITH_SCRIPTING
-		//scripting::on_npc_dead(ch, killer, corpse);
+		//scripting::on_npc_dead(follower, killer, corpse);
 #endif
 	}
 /*	до будущих времен
-	if (!ch->IsNpc() && GET_REAL_REMORT(ch) > 7 && (GetRealLevel(ch) == 29 || GetRealLevel(ch) == 30))
+	if (!follower->IsNpc() && GET_REAL_REMORT(follower) > 7 && (GetRealLevel(follower) == 29 || GetRealLevel(follower) == 30))
 	{
 		// лоадим свиток с экспой
 		const auto rnum = real_object(100);
 		if (rnum >= 0)
 		{
 			const auto o = world_objects.create_from_prototype_by_rnum(rnum);
-			o->set_owner(GET_UNIQUE(ch));
+			o->set_owner(GET_UNIQUE(follower));
 			obj_to_obj(o.get(), corpse);
 		}
 
@@ -774,7 +774,7 @@ int get_extend_exp(int exp, CharData *ch, CharData *victim) {
 	return (exp);
 }
 
-// When ch kills victim
+// When follower kills victim
 void change_alignment(CharData *ch, CharData *victim) {
 	/*
 	 * new alignment change algorithm: if you kill a monster with alignment A,
@@ -785,7 +785,7 @@ void change_alignment(CharData *ch, CharData *victim) {
 
 /*++
    Функция начисления опыта
-      ch - кому опыт начислять
+      follower - кому опыт начислять
            Вызов этой функции для NPC смысла не имеет, но все равно
            какие-то проверки внутри зачем то делаются
 --*/
@@ -793,7 +793,7 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 
 
 // Странно, но для NPC эта функция тоже должна работать
-//  if (ch->IsNpc() || !OK_GAIN_EXP(ch,victim))
+//  if (follower->IsNpc() || !OK_GAIN_EXP(follower,victim))
 	if (!OK_GAIN_EXP(ch, victim)) {
 		SendMsgToChar("Ваше деяние никто не оценил.\r\n", ch);
 		return;
@@ -897,7 +897,7 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
  после чего вызывает функцию получения опыта для всех членов группы
  Т.к. членом группы может быть только PC, то эта функция раздаст опыт только PC
 
-   ch - обязательно член группы, из чего следует:
+   follower - обязательно член группы, из чего следует:
             1. Это не NPC
             2. Он находится в группе лидера (или сам лидер)
 
@@ -906,7 +906,7 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 --*/
 void group_gain(CharData *killer, CharData *victim) {
 	int inroom_members, koef = 100, maxlevel;
-	struct Follower *f;
+	struct FollowerType *f;
 	int partner_count = 0;
 	int total_group_members = 1;
 	bool use_partner_exp = false;
@@ -937,20 +937,20 @@ void group_gain(CharData *killer, CharData *victim) {
 
 	// Вычисляем максимальный уровень в группе
 	for (f = leader->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->ch, EAffect::kGroup)) ++total_group_members;
-		if (AFF_FLAGGED(f->ch, EAffect::kGroup)
-			&& f->ch->in_room == IN_ROOM(killer)) {
+		if (AFF_FLAGGED(f->follower, EAffect::kGroup)) ++total_group_members;
+		if (AFF_FLAGGED(f->follower, EAffect::kGroup)
+			&& f->follower->in_room == IN_ROOM(killer)) {
 			// если в группе наем, то режим опыт всей группе
 			// дабы наема не выгодно было бы брать в группу
 			// ставим 300, чтобы вообще под ноль резало
-			if (CanUseFeat(f->ch, EFeat::kCynic)) {
+			if (CanUseFeat(f->follower, EFeat::kCynic)) {
 				maxlevel = 300;
 			}
 			// просмотр членов группы в той же комнате
 			// член группы => PC автоматически
 			++inroom_members;
-			maxlevel = MAX(maxlevel, GetRealLevel(f->ch));
-			if (!f->ch->IsNpc()) {
+			maxlevel = MAX(maxlevel, GetRealLevel(f->follower));
+			if (!f->follower->IsNpc()) {
 				partner_count++;
 			}
 		}
@@ -995,9 +995,9 @@ void group_gain(CharData *killer, CharData *victim) {
 	}
 
 	for (f = leader->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->ch, EAffect::kGroup)
-			&& f->ch->in_room == IN_ROOM(killer)) {
-			perform_group_gain(f->ch, victim, inroom_members, koef);
+		if (AFF_FLAGGED(f->follower, EAffect::kGroup)
+			&& f->follower->in_room == IN_ROOM(killer)) {
+			perform_group_gain(f->follower, victim, inroom_members, koef);
 		}
 	}
 }
@@ -1142,7 +1142,7 @@ char *replace_string(const char *str, const char *weapon_singular, const char *w
 
 bool check_valid_chars(CharData *ch, CharData *victim, const char *fname, int line) {
 	if (!ch || ch->purged() || !victim || victim->purged()) {
-		log("SYSERROR: ch = %s, victim = %s (%s:%d)",
+		log("SYSERROR: follower = %s, victim = %s (%s:%d)",
 			ch ? (ch->purged() ? "purged" : "true") : "false",
 			victim ? (victim->purged() ? "purged" : "true") : "false",
 			fname, line);

@@ -437,9 +437,9 @@ CharData *get_char(char *name, bool pc) {
 
 	if (*name == UID_CHAR || *name == UID_CHAR_ALL) {
 		if (pc)
-			i = find_pc(atoi(name + 1));
+			i = find_online_pc_by_id(atoi(name + 1));
 		else
-			i = find_char(atoi(name + 1));
+			i = find_char_by_id(atoi(name + 1));
 		if (i && (i->IsNpc() || !GET_INVIS_LEV(i))) {
 			return i;
 		}
@@ -500,7 +500,7 @@ CharData *get_char_by_obj(ObjData *obj, char *name) {
 		return nullptr;
 
 	if (*name == UID_CHAR || *name == UID_CHAR_ALL) {
-		ch = find_char(atoi(name + 1));
+		ch = find_char_by_id(atoi(name + 1));
 
 		if (ch && (ch->IsNpc() || !GET_INVIS_LEV(ch)))
 			return ch;
@@ -544,7 +544,7 @@ CharData *get_char_by_room(RoomData *room, char *name) {
 	}
 
 	if (*name == UID_CHAR || *name == UID_CHAR_ALL) {
-		ch = find_char(atoi(name + 1));
+		ch = find_char_by_id(atoi(name + 1));
 
 		if (ch
 			&& (ch->IsNpc()
@@ -1620,7 +1620,7 @@ void find_replacement(void *go,
 					break;
 				}
 				if (!ch) {
-					log("SYSERROR: null ch (%s:%d %s)", __FILE__, __LINE__, __func__);
+					log("SYSERROR: null follower (%s:%d %s)", __FILE__, __LINE__, __func__);
 					break;
 				}
 				if ((o = get_object_in_equip(ch, name)));
@@ -2302,8 +2302,8 @@ void find_replacement(void *go,
 							num = 0;
 						}
 						for (auto f = k->followers; f; f = f->next) {
-							if (AFF_FLAGGED(f->ch, EAffect::kGroup)
-									&& !f->ch->IsNpc() && IN_ROOM(f->ch) == c->in_room) {
+							if (AFF_FLAGGED(f->follower, EAffect::kGroup)
+									&& !f->follower->IsNpc() && IN_ROOM(f->follower) == c->in_room) {
 								num++;
 							}
 						}
@@ -2313,9 +2313,9 @@ void find_replacement(void *go,
 							if (AFF_FLAGGED(k, EAffect::kGroup) && IN_ROOM(k) == c->in_room && !k->IsNpc() && k != c)
 								k->add_nogata(share);
 							for (auto f = k->followers; f; f = f->next) {
-								if (AFF_FLAGGED(f->ch, EAffect::kGroup)
-										&& !f->ch->IsNpc() && IN_ROOM(f->ch) == c->in_room && f->ch != c) {
-									f->ch->add_nogata(share);
+								if (AFF_FLAGGED(f->follower, EAffect::kGroup)
+										&& !f->follower->IsNpc() && IN_ROOM(f->follower) == c->in_room && f->follower != c) {
+									f->follower->add_nogata(share);
 								}
 							}
 							sprintf(buf, "Вы разделили %d %s на %d  -  по %d каждому.\r\n",
@@ -2788,7 +2788,7 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "group")) {
 			CharData *l;
-			struct Follower *f;
+			struct FollowerType *f;
 			if (!AFF_FLAGGED(c, EAffect::kGroup)) {
 				return;
 			}
@@ -2799,10 +2799,10 @@ void find_replacement(void *go,
 			// l - лидер группы
 			sprintf(str + strlen(str), "%c%ld ", uid_type, GET_ID(l));
 			for (f = l->followers; f; f = f->next) {
-				if (!AFF_FLAGGED(f->ch, EAffect::kGroup)) {
+				if (!AFF_FLAGGED(f->follower, EAffect::kGroup)) {
 					continue;
 				}
-				sprintf(str + strlen(str), "%c%ld ", uid_type, GET_ID(f->ch));
+				sprintf(str + strlen(str), "%c%ld ", uid_type, GET_ID(f->follower));
 			}
 		} else if (!str_cmp(field, "attackers")) {
 			CharData *t;
@@ -3071,7 +3071,7 @@ void find_replacement(void *go,
 				}
 			}
 			if ((*subfield == UID_CHAR) || (*subfield == UID_CHAR_ALL)) {
-				char_to = find_char(atoi(subfield + 1));
+				char_to = find_char_by_id(atoi(subfield + 1));
 				if (!(char_to && CanTakeObj(char_to, o))) {
 					trig_log(trig, "object.put: субъект-приемник не найден или не может нести этот объект");
 					return;

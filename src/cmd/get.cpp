@@ -10,14 +10,14 @@ extern void do_split(CharData *ch, char *argument, int cmd, int subcmd);
 extern bool CanTakeObj(CharData *ch, ObjData *obj);
 extern char *find_exdesc(const char *word, const ExtraDescription::shared_ptr &list);
 
-/// считаем сколько у ch в группе еще игроков (не мобов)
+/// считаем сколько у follower в группе еще игроков (не мобов)
 int other_pc_in_group(CharData *ch) {
 	int num = 0;
 	CharData *k = ch->has_master() ? ch->get_master() : ch;
-	for (Follower *f = k->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->ch, EAffect::kGroup)
-			&& !f->ch->IsNpc()
-			&& IN_ROOM(f->ch) == ch->in_room) {
+	for (FollowerType *f = k->followers; f; f = f->next) {
+		if (AFF_FLAGGED(f->follower, EAffect::kGroup)
+			&& !f->follower->IsNpc()
+			&& IN_ROOM(f->follower) == ch->in_room) {
 			++num;
 		}
 	}

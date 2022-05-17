@@ -308,8 +308,8 @@ struct FeatureInfo {
 
 	int (*GetBaseParameter)(const CharData *ch);
 	int (*GetEffectParameter)(const CharData *ch);
-	int (*CalcSituationalDamageFactor)(CharData * /* ch */);
-	int (*CalcSituationalRollBonus)(CharData * /* ch */, CharData * /* enemy */);
+	int (*CalcSituationalDamageFactor)(CharData * /* follower */);
+	int (*CalcSituationalRollBonus)(CharData * /* follower */, CharData * /* enemy */);
 };
 
 extern std::unordered_map<EFeat, FeatureInfo> feat_info;

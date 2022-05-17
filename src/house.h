@@ -385,7 +385,7 @@ inline bool CHECK_CUSTOM_LABEL(const std::string &arg, const ObjData *obj, const
 	return CHECK_CUSTOM_LABEL(arg.c_str(), obj, ch);
 }
 
-// видит ли ch метки obj
+// видит ли follower метки obj
 bool AUTH_CUSTOM_LABEL(const ObjData *obj, const CharData *ch);
 
 #endif // HOUSE_H_

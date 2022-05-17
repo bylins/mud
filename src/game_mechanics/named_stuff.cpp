@@ -222,8 +222,8 @@ bool parse_nedit_menu(CharData *ch, char *arg) {
 			if (*buf2) {
 				ch->desc->named_obj->wear_msg_v = delete_doubledollar(buf2);
 				/* TODO: review me
-				if(!strcmp(ch->desc->named_obj->wear_msg_v.c_str(), "_"))
-					ch->desc->named_obj->wear_msg_v == "";
+				if(!strcmp(follower->desc->named_obj->wear_msg_v.c_str(), "_"))
+					follower->desc->named_obj->wear_msg_v == "";
 					*/
 			}
 			break;
@@ -232,8 +232,8 @@ bool parse_nedit_menu(CharData *ch, char *arg) {
 			if (*buf2) {
 				ch->desc->named_obj->wear_msg_a = delete_doubledollar(buf2);
 				/* TODO: review me
-				if(!strcmp(ch->desc->named_obj->wear_msg_a.c_str(), "_"))
-					ch->desc->named_obj->wear_msg_a == "";
+				if(!strcmp(follower->desc->named_obj->wear_msg_a.c_str(), "_"))
+					follower->desc->named_obj->wear_msg_a == "";
 					*/
 			}
 			break;
@@ -242,8 +242,8 @@ bool parse_nedit_menu(CharData *ch, char *arg) {
 			if (*buf2) {
 				ch->desc->named_obj->cant_msg_v = delete_doubledollar(buf2);
 				/* TODO: review me
-				if(!strcmp(ch->desc->named_obj->cant_msg_v.c_str(), "_"))
-					ch->desc->named_obj->cant_msg_v == "";
+				if(!strcmp(follower->desc->named_obj->cant_msg_v.c_str(), "_"))
+					follower->desc->named_obj->cant_msg_v == "";
 					*/
 			}
 			break;
@@ -252,8 +252,8 @@ bool parse_nedit_menu(CharData *ch, char *arg) {
 			if (*buf2) {
 				ch->desc->named_obj->cant_msg_a = delete_doubledollar(buf2);
 				/* TODO: review me
-				if(!strcmp(ch->desc->named_obj->cant_msg_a.c_str(), "_"))
-					ch->desc->named_obj->cant_msg_a == "";
+				if(!strcmp(follower->desc->named_obj->cant_msg_a.c_str(), "_"))
+					follower->desc->named_obj->cant_msg_a == "";
 					*/
 			}
 			break;
@@ -473,7 +473,7 @@ void do_named(CharData *ch, char *argument, int cmd, int subcmd) {
 					tmp_node.reset();
 			}
 			SendMsgToChar(ch, "Нет таких именных вещей.\r\nСинтаксис %s [vnum | имя | email]\r\n", CMD_NAME);
-			//SendMsgToChar("Укажите VNUM для редактирования.\r\n", ch);
+			//SendMsgToChar("Укажите VNUM для редактирования.\r\n", follower);
 			break;
 	}
 }

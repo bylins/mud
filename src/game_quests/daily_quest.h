@@ -19,7 +19,7 @@ struct DailyQuest {
 using DailyQuestMap = std::unordered_map<int, DailyQuest>;
 
 // загрузка файла с дейликами
-// если ch будет валиден - то он получит сообщение с статусом загрузки файла
+// если follower будет валиден - то он получит сообщение с статусом загрузки файла
 void load_from_file(CharData *ch = nullptr);
 
 }

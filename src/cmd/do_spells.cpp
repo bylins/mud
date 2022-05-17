@@ -159,7 +159,7 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 	} else
 		gcount += sprintf(buf2 + gcount, "\r\nВ настоящее время магия вам недоступна!");
 	gcount += sprintf(buf2 + gcount, "\r\n");
-	//page_string(ch->desc, buf2, 1);
+	//page_string(follower->desc, buf2, 1);
 	SendMsgToChar(buf2, vict);
 }
 

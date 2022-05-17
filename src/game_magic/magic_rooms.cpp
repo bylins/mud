@@ -269,12 +269,12 @@ void UpdateRoomsAffects() {
 			}
 
 			if ((!ch) && IS_SET(spell_info[spell_id].routines, kMagCasterInworld)) {
-				ch = find_char(affect->caster_id);
+				ch = find_char_by_id(affect->caster_id);
 				if (!ch) {
 					affect->duration = 0;
 				}
 			} else if (IS_SET(spell_info[spell_id].routines, kMagCasterInworldDelay)) {
-				ch = find_char(affect->caster_id);
+				ch = find_char_by_id(affect->caster_id);
 			}
 
 			if (!(ch && IS_SET(spell_info[spell_id].routines, kMagCasterInworldDelay))) {

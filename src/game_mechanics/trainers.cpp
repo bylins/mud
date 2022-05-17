@@ -363,9 +363,9 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 					if (ESkill::kUndefined != skill_no
 						&& !ch->get_trained_skill(skill_no))    // sprintf(buf, "$N научил$G вас умению %s\"%s\"\%s",
 					{
-						//             CCCYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
-						// act(buf,false,ch,0,victim,TO_CHAR);
-						// ch->get_skill(skill_no) = 10;
+						//             CCCYN(follower, C_NRM), skill_name(skill_no), CCNRM(follower, C_NRM));
+						// act(buf,false,follower,0,victim,TO_CHAR);
+						// follower->get_skill(skill_no) = 10;
 						sfound = true;
 					}
 
@@ -666,9 +666,9 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 					if (ESkill::kUndefined != skill_no
 						&& !ch->get_trained_skill(skill_no))    // sprintf(buf, "$N научил$G вас умению %s\"%s\"\%s",
 					{
-						//             CCCYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
-						// act(buf,false,ch,0,victim,TO_CHAR);
-						// ch->get_skill(skill_no) = 10;
+						//             CCCYN(follower, C_NRM), skill_name(skill_no), CCNRM(follower, C_NRM));
+						// act(buf,false,follower,0,victim,TO_CHAR);
+						// follower->get_skill(skill_no) = 10;
 						sfound = true;
 					}
 
@@ -914,7 +914,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 		{-1, -1, -1}
 	};*/
 
-/*int guild_guard(CharData *ch, void *me, int cmd, char * *//*argument*//*) {
+/*int guild_guard(CharData *follower, void *me, int cmd, char * *//*argument*//*) {
 	int i;
 	CharData *guard = (CharData *) me;
 	const char *buf = "Охранник остановил вас, преградив дорогу.\r\n";
@@ -924,14 +924,14 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 		|| AFF_FLAGGED(guard, EAffect::kHold))
 		return (false);
 
-	if (GetRealLevel(ch) >= kLvlImmortal)
+	if (GetRealLevel(follower) >= kLvlImmortal)
 		return (false);
 
 	for (i = 0; guild_info[i][0] != -1; i++) {
-		if ((ch->IsNpc() || ch->GetClass() != guild_info[i][0]) &&
-			GET_ROOM_VNUM(ch->in_room) == guild_info[i][1] && cmd == guild_info[i][2]) {
-			SendMsgToChar(buf, ch);
-			act(buf2, false, ch, 0, 0, kToRoom);
+		if ((follower->IsNpc() || follower->GetClass() != guild_info[i][0]) &&
+			GET_ROOM_VNUM(follower->in_room) == guild_info[i][1] && cmd == guild_info[i][2]) {
+			SendMsgToChar(buf, follower);
+			act(buf2, false, follower, 0, 0, kToRoom);
 			return (true);
 		}
 	}

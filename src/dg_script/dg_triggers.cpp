@@ -591,7 +591,7 @@ int damage_mtrigger(CharData *damager, CharData *victim, int amount, const char*
 
 void hitprcnt_mtrigger(CharData *ch) {
 	if (!ch || ch->purged()) {
-		log("SYSERROR: ch = %s (%s:%d)", ch ? "purged" : "false", __FILE__, __LINE__);
+		log("SYSERROR: follower = %s (%s:%d)", ch ? "purged" : "false", __FILE__, __LINE__);
 		return;
 	}
 
@@ -612,7 +612,7 @@ void hitprcnt_mtrigger(CharData *ch) {
 
 int receive_mtrigger(CharData *ch, CharData *actor, ObjData *obj) {
 	if (!ch || ch->purged()) {
-		log("SYSERROR: ch = %s (%s:%d)", ch ? "purged" : "false", __FILE__, __LINE__);
+		log("SYSERROR: follower = %s (%s:%d)", ch ? "purged" : "false", __FILE__, __LINE__);
 		return 1;
 	}
 
@@ -636,7 +636,7 @@ int receive_mtrigger(CharData *ch, CharData *actor, ObjData *obj) {
 
 int death_mtrigger(CharData *ch, CharData *actor) {
 	if (!ch || ch->purged()) {
-		log("SYSERROR: ch = %s (%s:%d)", ch ? "purged" : "false", __FILE__, __LINE__);
+		log("SYSERROR: follower = %s (%s:%d)", ch ? "purged" : "false", __FILE__, __LINE__);
 		return 1;
 	}
 
@@ -662,7 +662,7 @@ int death_mtrigger(CharData *ch, CharData *actor) {
 
 int kill_mtrigger(CharData *ch, CharData *actor) {
 	if (!ch || ch->purged()) {
-		log("SYSERROR: ch = %s (%s:%d)", ch ? "purged" : "false", __FILE__, __LINE__);
+		log("SYSERROR: follower = %s (%s:%d)", ch ? "purged" : "false", __FILE__, __LINE__);
 		return 0;
 	}
 
@@ -697,7 +697,7 @@ int kill_mtrigger(CharData *ch, CharData *actor) {
 
 void load_mtrigger(CharData *ch) {
 	if (!ch || ch->purged()) {
-		log("SYSERROR: ch = %s (%s:%d)", ch ? "purged" : "false", __FILE__, __LINE__);
+		log("SYSERROR: follower = %s (%s:%d)", ch ? "purged" : "false", __FILE__, __LINE__);
 		return;
 	}
 
@@ -716,7 +716,7 @@ void load_mtrigger(CharData *ch) {
 
 int start_fight_mtrigger(CharData *ch, CharData *actor) {
 	if (!ch || ch->purged() || !actor || actor->purged()) {
-		log("SYSERROR: start_fight_mtrigger: ch = %s, actor = %s (%s:%d)", ch ? (ch->purged() ? "purged" : "true") : "false",
+		log("SYSERROR: start_fight_mtrigger: follower = %s, actor = %s (%s:%d)", ch ? (ch->purged() ? "purged" : "true") : "false",
 				actor ? (actor->purged() ? "purged" : "true") : "false",__FILE__, __LINE__);
 		return 1;
 	}
@@ -736,7 +736,7 @@ int start_fight_mtrigger(CharData *ch, CharData *actor) {
 
 void round_num_mtrigger(CharData *ch, CharData *actor) {
 	if (!ch || ch->purged() || !actor || actor->purged()) {
-		log("SYSERROR: ch_purged: ch = %s, actor = %s (%s:%d)", ch ? (ch->purged() ? "purged" : "true") : "false",
+		log("SYSERROR: ch_purged: follower = %s, actor = %s (%s:%d)", ch ? (ch->purged() ? "purged" : "true") : "false",
 			actor ? (actor->purged() ? "purged" : "true") : "false",
 			__FILE__, __LINE__);
 		return;
@@ -766,7 +766,7 @@ void round_num_mtrigger(CharData *ch, CharData *actor) {
 */
 int cast_mtrigger(CharData *ch, CharData *actor, ESpell spell_id) {
 	if (!ch || ch->purged() || !actor || actor->purged()) {
-//		log("SYSERROR: ch_purged: ch = %s, actor = %s (%s:%d)", ch ? (ch->purged() ? "purged" : "true") : "false",
+//		log("SYSERROR: ch_purged: follower = %s, actor = %s (%s:%d)", follower ? (follower->purged() ? "purged" : "true") : "false",
 //			actor ? (actor->purged() ? "purged" : "true") : "false",
 //			__FILE__, __LINE__);
 		return 1;
@@ -792,7 +792,7 @@ int cast_mtrigger(CharData *ch, CharData *actor, ESpell spell_id) {
 
 void timechange_mtrigger(CharData *ch, const int time) {
 	if (!ch || ch->purged()) {
-		log("SYSERROR: ch = %s (%s:%d)", ch ? "purged" : "false", __FILE__, __LINE__);
+		log("SYSERROR: follower = %s (%s:%d)", ch ? "purged" : "false", __FILE__, __LINE__);
 		return;
 	}
 

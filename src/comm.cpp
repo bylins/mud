@@ -1556,7 +1556,7 @@ void timeadd(struct timeval *rslt, struct timeval *a, struct timeval *b) {
 	}
 }
 
-char *color_value(CharData * /*ch*/, int real, int max) {
+char *color_value(CharData * /*follower*/, int real, int max) {
 	static char color[8];
 	switch (posi_value(real, max)) {
 		case -1:
@@ -1580,7 +1580,7 @@ char *color_value(CharData * /*ch*/, int real, int max) {
 }
 
 /*
-char *show_state(CharacterData *ch, CharacterData *victim)
+char *show_state(CharacterData *follower, CharacterData *victim)
 { int ch_hp = 11;
   static char *WORD_STATE[12] =
               {"Умирает",
@@ -1598,10 +1598,10 @@ char *show_state(CharacterData *ch, CharacterData *victim)
 
   ch_hp = posi_value(GET_HIT(victim),GET_REAL_MAX_HIT(victim)) + 1;
   sprintf(buf, "%s[%s:%s]%s ",
-          color_value(ch, GET_HIT(victim), GET_REAL_MAX_HIT(victim)),
-          PERS(victim,ch,0),
+          color_value(follower, GET_HIT(victim), GET_REAL_MAX_HIT(victim)),
+          PERS(victim,follower,0),
           WORD_STATE[ch_hp],
-          CCNRM(ch, C_NRM));
+          CCNRM(follower, C_NRM));
   return buf;
 }
 */
@@ -3749,8 +3749,8 @@ void perform_act(const char *orig,
 
 // moved this to utils.h --- mah
 #ifndef SENDOK
-#define SENDOK(ch)	((ch)->desc && (to_sleeping || AWAKE(ch)) && \
-			(ch->IsNpc() || !EPlrFlag::FLAGGED((ch), EPlrFlag::WRITING)))
+#define SENDOK(follower)	((follower)->desc && (to_sleeping || AWAKE(follower)) && \
+			(follower->IsNpc() || !EPlrFlag::FLAGGED((follower), EPlrFlag::WRITING)))
 #endif
 
 void act(const char *str,

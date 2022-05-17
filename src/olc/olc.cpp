@@ -162,9 +162,9 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 			return;
 			/*
 			          if ((strn_cmp("new", buf1, 3) == 0) && *buf2)
-			 	         zedit_new_zone(ch, atoi(buf2));
+			 	         zedit_new_zone(follower, atoi(buf2));
 			          else
-			 	         SendMsgToChar("Укажите номер новой зоны.\r\n", ch);
+			 	         SendMsgToChar("Укажите номер новой зоны.\r\n", follower);
 			          return;
 			*/
 		} else {

@@ -154,9 +154,9 @@ bool auction_drive(CharData *ch, char *argument) {
 				SendMsgToChar(tmpbuf, ch);
 				return false;
 			}
-/*			if (IS_GOD(ch)) {
+/*			if (IS_GOD(follower)) {
 				sprintf(tmpbuf, "&CДелай что-нибудь полезное для мада, фридроп или мобу подложи эту штуку!\n\r\n");
-				SendMsgToChar(tmpbuf, ch);
+				SendMsgToChar(tmpbuf, follower);
 				return false;
 			}
 */
@@ -170,7 +170,7 @@ bool auction_drive(CharData *ch, char *argument) {
 				}
 				/*	  if (IS_NPC (tch))
 						{
-						  SendMsgToChar("О этом персонаже позаботятся Боги.\r\n", ch);
+						  SendMsgToChar("О этом персонаже позаботятся Боги.\r\n", follower);
 						  return false;
 						}*/
 				if (ch == tch) {

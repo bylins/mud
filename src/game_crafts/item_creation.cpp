@@ -1231,10 +1231,10 @@ int MakeRecept::can_make(CharData *ch) {
 		}
 		if (real_object(parts[i].proto) < 0)
 			return (false);
-		//SendMsgToChar("Образец был невозвратимо утерян.\r\n",ch); //леший знает чего тут надо писать
+		//SendMsgToChar("Образец был невозвратимо утерян.\r\n",follower); //леший знает чего тут надо писать
 		if (!(ingrobj = get_obj_in_list_ingr(parts[i].proto, ch->carrying))) {
 			//sprintf(tmpbuf,"Для '%d' у вас нет '%d'.\r\n",obj_proto,parts[i].proto);
-			//SendMsgToChar(tmpbuf,ch);
+			//SendMsgToChar(tmpbuf,follower);
 			return (false);
 		}
 		int ingr_lev = get_ingr_lev(ingrobj);
@@ -1646,7 +1646,7 @@ int MakeRecept::make(CharData *ch) {
 			itemtag = "На $o5 стоит клеймо 'Выковал$g $n'.";
 			dam = 70;
 			// Бонус сила
-			//stat_bonus = number(0, GET_REAL_STR(ch));
+			//stat_bonus = number(0, GET_REAL_STR(follower));
 			break;
 		case ESkill::kMakeBow: charwork = "Вы начали мастерить $o3.";
 			roomwork = "$n начал$g мастерить что-то очень напоминающее $o3.";
@@ -1659,7 +1659,7 @@ int MakeRecept::make(CharData *ch) {
 			tagging = "Вы вырезали свое имя на $o5.";
 			itemtag = "На $o5 видна метка 'Смастерил$g $n'.";
 			// Бонус ловкость
-			//stat_bonus = number(0, GET_REAL_DEX(ch));
+			//stat_bonus = number(0, GET_REAL_DEX(follower));
 			dam = 40;
 			break;
 		case ESkill::kMakeWear: charwork = "Вы взяли в руку иголку и начали шить $o3.";
@@ -1673,7 +1673,7 @@ int MakeRecept::make(CharData *ch) {
 			tagging = "Вы пришили к $o2 бирку со своим именем.";
 			itemtag = "На $o5 вы заметили бирку 'Сшил$g $n'.";
 			// Бонус тело , не спрашивайте почему :))
-			//stat_bonus = number(0, GET_REAL_CON(ch));
+			//stat_bonus = number(0, GET_REAL_CON(follower));
 			dam = 30;
 			break;
 		case ESkill::kMakeAmulet: charwork = "Вы взяли в руки необходимые материалы и начали мастерить $o3.";
@@ -1699,7 +1699,7 @@ int MakeRecept::make(CharData *ch) {
 			tagging = "Вы приладили к $o2 табличку со своим именем.";
 			itemtag = "С нижней стороны $o1 укреплена табличка 'Cделано $n4'.";
 			// Бонус харя
-			//stat_bonus = number(0, GET_REAL_CHA(ch));
+			//stat_bonus = number(0, GET_REAL_CHA(follower));
 			dam = 30;
 			break;
 		case ESkill::kMakeStaff: charwork = "Вы начали мастерить $o3.";
@@ -1714,7 +1714,7 @@ int MakeRecept::make(CharData *ch) {
 			tagging = "Вы начертили на $o2 свое имя.";
 			itemtag = "Среди рунных знаков видна надпись 'Создано $n4'.";
 			// Бонус ум.
-			//stat_bonus = number(0, GET_REAL_INT(ch));
+			//stat_bonus = number(0, GET_REAL_INT(follower));
 			dam = 70;
 			break;
 		case ESkill::kMakePotion: charwork = "Вы достали небольшой горшочек и развели под ним огонь, начав варить $o3.";
@@ -1729,7 +1729,7 @@ int MakeRecept::make(CharData *ch) {
 			tagging = "Вы на прикрепили к $o2 бирку со своим именем.";
 			itemtag = "На $o1 вы заметили бирку 'Сварено $n4'";
 			// Бонус мудра
-			//stat_bonus = number(0, GET_REAL_WIS(ch));
+			//stat_bonus = number(0, GET_REAL_WIS(follower));
 			dam = 40;
 			break;
 		default: break;
@@ -1812,7 +1812,7 @@ int MakeRecept::make(CharData *ch) {
 			// если не хватает то удаляем игридиент и фейлим.
 			int state = craft_weight;
 			// Обсчет веса ингров в цикле, если не хватило веса берем следующий ингр в инве, если не хватает, делаем фэйл (make_fail) и брекаем внешний цикл, смысл дальше ингры смотреть?
-			//SendMsgToChar(ch, "Требуется вес %d вес ингра %d требуемое кол ингров %d\r\n", state, GET_OBJ_WEIGHT(ingrs[i]), ingr_cnt);
+			//SendMsgToChar(follower, "Требуется вес %d вес ингра %d требуемое кол ингров %d\r\n", state, GET_OBJ_WEIGHT(ingrs[i]), ingr_cnt);
 			int obj_vnum_tmp = GET_OBJ_VNUM(ingrs[i]);
 			while (state > 0) {
 				//Переделаем слегка логику итераций
@@ -2148,7 +2148,7 @@ int MakeRecept::stat_modify(CharData *ch, int value, float devider) {
 	}
 	return res;
 }
-void MakeRecept::add_rnd_skills(CharData * /*ch*/, ObjData *obj_from, ObjData *obj_to) {
+void MakeRecept::add_rnd_skills(CharData * /*follower*/, ObjData *obj_from, ObjData *obj_to) {
 	if (obj_from->has_skills()) {
 		int rskill;
 		int z = 0;

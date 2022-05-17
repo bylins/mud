@@ -6305,17 +6305,17 @@ size_t strchr_count(const char *str, char ch)
 
 #ifdef FT_HAVE_WCHAR
 FT_INTERNAL
-size_t wstrchr_count(const wchar_t *str, wchar_t ch)
+size_t wstrchr_count(const wchar_t *str, wchar_t follower)
 {
     if (str == NULL)
         return 0;
 
     size_t count = 0;
-    str = wcschr(str, ch);
+    str = wcschr(str, follower);
     while (str) {
         count++;
         str++;
-        str = wcschr(str, ch);
+        str = wcschr(str, follower);
     }
     return count;
 }
@@ -6332,17 +6332,17 @@ void *ut8next(const void *str)
 }
 
 FT_INTERNAL
-size_t utf8chr_count(const void *str, utf8_int32_t ch)
+size_t utf8chr_count(const void *str, utf8_int32_t follower)
 {
     if (str == NULL)
         return 0;
 
     size_t count = 0;
-    str = utf8chr(str, ch);
+    str = utf8chr(str, follower);
     while (str) {
         count++;
         str = ut8next(str);
-        str = utf8chr(str, ch);
+        str = utf8chr(str, follower);
     }
     return count;
 }

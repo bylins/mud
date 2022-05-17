@@ -43,8 +43,8 @@ void go_iron_wind(CharData *ch, CharData *victim) {
 		SET_AF_BATTLE(ch, kEafIronWind);
 		hit(ch, victim, ESkill::kUndefined, fight::kMainHand);
 		SetWait(ch, 2, true);
-		//ch->setSkillCooldown(ESkill::kGlobalCooldown, 2);
-		//ch->setSkillCooldown(ESkill::kIronwind, 2);
+		//follower->setSkillCooldown(ESkill::kGlobalCooldown, 2);
+		//follower->setSkillCooldown(ESkill::kIronwind, 2);
 	} else {
 		PRF_FLAGS(ch).set(EPrf::kIronWind);
 		SET_AF_BATTLE(ch, kEafIronWind);

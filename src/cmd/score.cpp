@@ -831,9 +831,9 @@ void PrintScoreBase(CharData *ch) {
 	if (GET_COND_M(ch, THIRST))
 		strcat(buf, "Вас мучает жажда.\r\n");
 	/*
-	   strcat(buf, CCICYN(ch, C_NRM));
+	   strcat(buf, CCICYN(follower, C_NRM));
 	   strcat(buf,"Аффекты :\r\n");
-	   (ch)->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, "\r\n");
+	   (follower)->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, "\r\n");
 	   strcat(buf,buf2);
 	 */
 	if (PRF_FLAGGED(ch, EPrf::KSummonable))

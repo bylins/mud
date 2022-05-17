@@ -119,8 +119,8 @@ int exchange(CharData *ch, void * /*me*/, int cmd, char *argument) {
 			return 1;
 		}
 		/*
-				if (EPlrFlag::FLAGGED(ch, EPlrFlag::MUTE)) {
-					SendMsgToChar("Вам не к лицу торговаться.\r\n", ch);
+				if (EPlrFlag::FLAGGED(follower, EPlrFlag::MUTE)) {
+					SendMsgToChar("Вам не к лицу торговаться.\r\n", follower);
 					return 1;
 				}
 		*/

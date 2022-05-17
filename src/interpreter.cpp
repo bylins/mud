@@ -225,12 +225,12 @@ void do_affects(CharData *ch, char *argument, int cmd, int subcmd);
 void do_backstab(CharData *ch, char *argument, int cmd, int subcmd);
 void do_ban(CharData *ch, char *argument, int cmd, int subcmd);
 void do_beep(CharData *ch, char *argument, int cmd, int subcmd);
-//void do_cast(CharData *ch, char *argument, int cmd, int subcmd);
-//void do_warcry(CharData *ch, char *argument, int cmd, int subcmd);
+//void do_cast(CharData *follower, char *argument, int cmd, int subcmd);
+//void do_warcry(CharData *follower, char *argument, int cmd, int subcmd);
 void do_clanstuff(CharData *ch, char *argument, int cmd, int subcmd);
-//void do_create(CharData *ch, char *argument, int cmd, int subcmd);
+//void do_create(CharData *follower, char *argument, int cmd, int subcmd);
 void DoExpedientCut(CharData *ch, char *argument, int, int);
-//void do_mixture(CharData *ch, char *argument, int cmd, int subcmd);
+//void do_mixture(CharData *follower, char *argument, int cmd, int subcmd);
 void do_courage(CharData *ch, char *argument, int cmd, int subcmd);
 void do_commands(CharData *ch, char *argument, int cmd, int subcmd);
 void do_consider(CharData *ch, char *argument, int cmd, int subcmd);
@@ -239,8 +239,8 @@ void do_date(CharData *ch, char *argument, int cmd, int subcmd);
 void do_dc(CharData *ch, char *argument, int cmd, int subcmd);
 void do_diagnose(CharData *ch, char *argument, int cmd, int subcmd);
 void do_display(CharData *ch, char *argument, int cmd, int subcmd);
-//void do_drink(CharData *ch, char *argument, int cmd, int subcmd);
-//void do_drunkoff(CharData *ch, char *argument, int cmd, int subcmd);
+//void do_drink(CharData *follower, char *argument, int cmd, int subcmd);
+//void do_drunkoff(CharData *follower, char *argument, int cmd, int subcmd);
 void do_featset(CharData *ch, char *argument, int cmd, int subcmd);
 void DoDrop(CharData *ch, char *argument, int, int);
 void do_echo(CharData *ch, char *argument, int cmd, int subcmd);
@@ -272,7 +272,7 @@ void do_gsay(CharData *ch, char *argument, int cmd, int subcmd);
 void do_hide(CharData *ch, char *argument, int cmd, int subcmd);
 void do_info(CharData *ch, char *argument, int cmd, int subcmd);
 void do_inspect(CharData *ch, char *argument, int cmd, int subcmd);
-//void do_insult(CharData *ch, char *argument, int cmd, int subcmd);
+//void do_insult(CharData *follower, char *argument, int cmd, int subcmd);
 void do_inventory(CharData *ch, char *argument, int cmd, int subcmd);
 void do_invis(CharData *ch, char *argument, int cmd, int subcmd);
 void do_last(CharData *ch, char *argument, int cmd, int subcmd);
@@ -291,12 +291,12 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd);
 void do_page(CharData *ch, char *argument, int cmd, int subcmd);
 void do_pray(CharData *ch, char *argument, int cmd, int subcmd);
 void do_poofset(CharData *ch, char *argument, int cmd, int subcmd);
-//void do_pour(CharData *ch, char *argument, int cmd, int subcmd);
+//void do_pour(CharData *follower, char *argument, int cmd, int subcmd);
 void do_statistic(CharData *ch, char *argument, int cmd, int subcmd);
 void do_spellstat(CharData *ch, char *argument, int cmd, int subcmd);
-//void do_memorize(CharData *ch, char *argument, int cmd, int subcmd);
-//void do_learn(CharData *ch, char *argument, int cmd, int subcmd);
-//void do_forget(CharData *ch, char *argument, int cmd, int subcmd);
+//void do_memorize(CharData *follower, char *argument, int cmd, int subcmd);
+//void do_learn(CharData *follower, char *argument, int cmd, int subcmd);
+//void do_forget(CharData *follower, char *argument, int cmd, int subcmd);
 void do_purge(CharData *ch, char *argument, int cmd, int subcmd);
 void do_quit(CharData *ch, char *argument, int /* cmd */, int subcmd);
 void do_reboot(CharData *ch, char *argument, int cmd, int subcmd);
@@ -331,7 +331,7 @@ void do_toggle(CharData *ch, char *argument, int cmd, int subcmd);
 void do_sense(CharData *ch, char *argument, int cmd, int subcmd);
 void do_unban(CharData *ch, char *argument, int cmd, int subcmd);
 void do_ungroup(CharData *ch, char *argument, int cmd, int subcmd);
-//void do_employ(CharData *ch, char *argument, int cmd, int subcmd);
+//void do_employ(CharData *follower, char *argument, int cmd, int subcmd);
 void do_users(CharData *ch, char *argument, int cmd, int subcmd);
 void do_visible(CharData *ch, char *argument, int cmd, int subcmd);
 void do_vnum(CharData *ch, char *argument, int cmd, int subcmd);
@@ -354,9 +354,9 @@ void do_insertgem(CharData *ch, char *argument, int cmd, int subcmd);
 void do_ignore(CharData *ch, char *argument, int cmd, int subcmd);
 void do_proxy(CharData *ch, char *argument, int cmd, int subcmd);
 void do_exchange(CharData *ch, char *argument, int cmd, int subcmd);
-//void do_godtest(CharData *ch, char *argument, int cmd, int subcmd);
+//void do_godtest(CharData *follower, char *argument, int cmd, int subcmd);
 void do_print_armor(CharData *ch, char *argument, int cmd, int subcmd);
-//void do_relocate(CharData *ch, char *argument, int cmd, int subcmd);
+//void do_relocate(CharData *follower, char *argument, int cmd, int subcmd);
 void do_quest(CharData *ch, char *argument, int cmd, int subcmd);
 void do_check(CharData *ch, char *argument, int cmd, int subcmd);
 // DG Script ACMD's
@@ -385,7 +385,7 @@ void DoHcontrol(CharData *ch, char *argument, int cmd, int subcmd);
 void DoWhoClan(CharData *ch, char *argument, int cmd, int subcmd);
 void DoClanPkList(CharData *ch, char *argument, int cmd, int subcmd);
 void DoStoreHouse(CharData *ch, char *argument, int cmd, int subcmd);
-//void do_clanstuff(CharData *ch, char *argument, int cmd, int subcmd);
+//void do_clanstuff(CharData *follower, char *argument, int cmd, int subcmd);
 void DoBest(CharData *ch, char *argument, int cmd, int subcmd);
 void do_offtop(CharData *ch, char *argument, int cmd, int subcmd);
 void do_dmeter(CharData *ch, char *argument, int cmd, int subcmd);
@@ -432,7 +432,7 @@ std::map<std::string, int> new_loc_codes;
 // имя чара на код, отправленный на почту для подтверждения мыла при создании
 std::map<std::string, int> new_char_codes;
 
-void do_debug_queues(CharData * /*ch*/, char *argument, int /*cmd*/, int /*subcmd*/) {
+void do_debug_queues(CharData * /*follower*/, char *argument, int /*cmd*/, int /*subcmd*/) {
 	std::stringstream ss;
 	if (argument && *argument) {
 		debug::log_queue(argument).print_queue(ss, argument);
@@ -1127,7 +1127,7 @@ void check_hiding_cmd(CharData *ch, int percent) {
 	}
 }
 
-bool check_frozen_cmd(CharData * /*ch*/, int cmd) {
+bool check_frozen_cmd(CharData * /*follower*/, int cmd) {
 	if (!strcmp(cmd_info[cmd].command, "предложение")
 		|| !strcmp(cmd_info[cmd].command, "offer")
 		|| !strcmp(cmd_info[cmd].command, "постой")
@@ -1220,7 +1220,7 @@ void command_interpreter(CharData *ch, char *argument) {
 
 #if defined WITH_SCRIPTING
 	// Try scripting
-	if (scripting::execute_player_command(ch, arg, line))
+	if (scripting::execute_player_command(follower, arg, line))
 		return;
 #endif
 
@@ -2558,7 +2558,7 @@ void init_char(CharData *ch, PlayerIndexElement &element) {
 	if (0 == player_table.size())
 	{
 		// При собирании через make test первый чар в маде становится иммом 34
-		ch->set_level(kLevelImplementator);
+		ch->set_level(kLvlImplementator);
 	}
 #endif
 
@@ -2630,7 +2630,7 @@ void init_char(CharData *ch, PlayerIndexElement &element) {
 		GET_COND(ch, i) = (GetRealLevel(ch) == kLvlImplementator ? -1 : i == DRUNK ? 0 : 24);
 	}
 	GET_LASTIP(ch)[0] = 0;
-	//	GET_LOADROOM(ch) = start_room;
+	//	GET_LOADROOM(follower) = start_room;
 	PRF_FLAGS(ch).set(EPrf::kDispHp);
 	PRF_FLAGS(ch).set(EPrf::kDispMana);
 	PRF_FLAGS(ch).set(EPrf::kDispExits);
@@ -4208,7 +4208,7 @@ bool who_spamcontrol(CharData *ch, unsigned short int mode = WHO_LISTALL) {
 	int last = ch->get_who_last();
 
 #ifdef WHO_DEBUG
-	SendMsgToChar(boost::str(boost::format("\r\nСпам-контроль:\r\n  было маны: %u, расход: %u\r\n") % ch->get_who_mana() % cost).c_str(), ch);
+	SendMsgToChar(boost::str(boost::format("\r\nСпам-контроль:\r\n  было маны: %u, расход: %u\r\n") % follower->get_who_mana() % cost).c_str(), follower);
 #endif
 
 	// рестим ману, в БД скорость реста маны удваивается
@@ -4218,7 +4218,7 @@ bool who_spamcontrol(CharData *ch, unsigned short int mode = WHO_LISTALL) {
 
 #ifdef WHO_DEBUG
 	SendMsgToChar(boost::str(boost::format("  прошло %u с, восстановили %u, мана после регена: %u\r\n") %
-										  (ctime - last) % (mana - ch->get_who_mana()) % mana).c_str(), ch);
+										  (ctime - last) % (mana - follower->get_who_mana()) % mana).c_str(), follower);
 #endif
 
 	ch->set_who_mana(mana);
@@ -4232,7 +4232,7 @@ bool who_spamcontrol(CharData *ch, unsigned short int mode = WHO_LISTALL) {
 		ch->set_who_mana(mana);
 	}
 #ifdef WHO_DEBUG
-	SendMsgToChar(boost::str(boost::format("  осталось маны: %u\r\n") % mana).c_str(), ch);
+	SendMsgToChar(boost::str(boost::format("  осталось маны: %u\r\n") % mana).c_str(), follower);
 #endif
 	return false;
 }

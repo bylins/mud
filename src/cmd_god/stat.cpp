@@ -49,7 +49,7 @@ void do_statip(CharData *ch, CharData *k) {
 void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	int i, i2, found = 0;
 	ObjData *j;
-	struct Follower *fol;
+	struct FollowerType *fol;
 	char tmpbuf[128];
 	buf[0] = 0;
 	int god_level = PRF_FLAGGED(ch, EPrf::kCoderinfo) ? kLvlImplementator : GetRealLevel(ch);
@@ -475,7 +475,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		sprintf(buf, "Ведущий: %s, Ведомые:", (k->has_master() ? GET_NAME(k->get_master()) : "<нет>"));
 
 		for (fol = k->followers; fol; fol = fol->next) {
-			sprintf(buf2, "%s %s", found++ ? "," : "", PERS(fol->ch, ch, 0));
+			sprintf(buf2, "%s %s", found++ ? "," : "", PERS(fol->follower, ch, 0));
 			strcat(buf, buf2);
 			if (strlen(buf) >= 62) {
 				if (fol->next)
@@ -1114,7 +1114,7 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 			sprintf(buf1 + strlen(buf1), "       Заклинание \"%s\" (%d) - %s.\r\n",
 					GetSpellName(aff->type),
 					aff->duration,
-					((k = find_char(aff->caster_id))
+					((k = find_char_by_id(aff->caster_id))
 					 ? GET_NAME(k)
 					 : "неизвестно"));
 		}

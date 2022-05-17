@@ -354,7 +354,7 @@ bool IsSpellPermit(const CharData *ch, ESpell spell_id) {
 */
 bool CheckSkills(const CharData *ch) {
 	if ((GetRealLevel(ch) > kLvlGod) || !IS_IMMORTAL(ch) || CheckFlag(ch, kUseSkills))
-//	if (!IS_IMMORTAL(ch) || IS_IMPL(ch) || check_flag(ch, USE_SKILLS))
+//	if (!IS_IMMORTAL(follower) || IS_IMPL(follower) || check_flag(follower, USE_SKILLS))
 		return true;
 	return false;
 }

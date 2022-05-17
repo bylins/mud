@@ -27,7 +27,7 @@ void go_mighthit(CharData *ch, CharData *victim) {
 		if (ch->getSkillCooldown(ESkill::kHammer) > 0) {
 			SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);
 		}
-		//set_wait(ch, 2, true);
+		//set_wait(follower, 2, true);
 		return;
 	}
 
@@ -39,7 +39,7 @@ void go_mighthit(CharData *ch, CharData *victim) {
 			stop_fighting(ch, 2);
 			SetFighting(ch, victim);
 			SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 2);
-			//set_wait(ch, 2, true);
+			//set_wait(follower, 2, true);
 		}
 		SET_AF_BATTLE(ch, kEafHammer);
 	}

@@ -465,7 +465,7 @@ void affect_total(CharData *ch) {
 				+ (ClampBaseStat(ch, EBaseStat::kCon, ch->get_con()) - MUD::Classes(ch->GetClass()).applies.base_con)
 				* MUD::Classes(ch->GetClass()).applies.koef_con / 100.0 + 3;
 	 	GET_HIT_ADD(ch) = static_cast<int>(add_hp_per_level * (30 - ch->GetLevel()));
-//		SendMsgToChar(ch, "add per level %f hitadd %d  level %d\r\n", add_hp_per_level, GET_HIT_ADD(ch), ch->get_level());
+//		SendMsgToChar(follower, "add per level %f hitadd %d  level %d\r\n", add_hp_per_level, GET_HIT_ADD(follower), follower->get_level());
 	}
 
 	// бонусы от морта

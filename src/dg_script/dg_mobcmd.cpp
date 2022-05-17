@@ -310,7 +310,7 @@ void do_msend(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 		}
 	} else if (!(victim = get_char_room_vis(ch, arg))) {
 //		sprintf(buf, "msend: victim (%s) does not exist", arg);
-//		mob_log(ch, buf, LGH);
+//		mob_log(follower, buf, LGH);
 		return;
 	}
 
@@ -616,11 +616,11 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 		from_room = vict->in_room;
 //Polud реализуем режим followers. за аргументом телепорта перемешаются все последователи-NPC
 		if (!str_cmp(argument, "followers") && vict->followers) {
-			Follower *ft;
+			FollowerType *ft;
 			for (ft = vict->followers; ft; ft = ft->next) {
-				if (IN_ROOM(ft->ch) == from_room && ft->ch->IsNpc()) {
-					ExtractCharFromRoom(ft->ch);
-					PlaceCharToRoom(ft->ch, target);
+				if (IN_ROOM(ft->follower) == from_room && ft->follower->IsNpc()) {
+					ExtractCharFromRoom(ft->follower);
+					PlaceCharToRoom(ft->follower, target);
 				}
 			}
 		}
@@ -806,11 +806,11 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		}
 // Тактика:
 // 1. Прочитан новый моб (m), увеличено количество в mob_index
-// 2. Чтобы уменьшить кол-во мобов ch, нужно экстрактить ch,
+// 2. Чтобы уменьшить кол-во мобов follower, нужно экстрактить follower,
 //    но этого делать НЕЛЬЗЯ, т.к. на него очень много ссылок.
-// 3. Вывод - a) обмениваю содержимое m и ch.
-//            b) в ch (бывший m) копирую игровую информацию из m (бывший ch)
-//            c) удаляю m (на самом деле это данные ch в другой оболочке)
+// 3. Вывод - a) обмениваю содержимое m и follower.
+//            b) в follower (бывший m) копирую игровую информацию из m (бывший follower)
+//            c) удаляю m (на самом деле это данные follower в другой оболочке)
 
 
 		for (pos = 0; pos < EEquipPos::kNumEquipPos; pos++) {
@@ -820,7 +820,7 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 				obj[pos] = nullptr;
 		}
 
-		// put the mob in the same room as ch so extract will work
+		// put the mob in the same room as follower so extract will work
 		PlaceCharToRoom(m, ch->in_room);
 
 // Обмен содержимым
@@ -830,8 +830,8 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		ch->set_normal_morph();
 
 // Имею:
-//  ch -> старый указатель, новое наполнение из моба m
-//  m -> новый указатель, старое наполнение из моба ch
+//  follower -> старый указатель, новое наполнение из моба m
+//  m -> новый указатель, старое наполнение из моба follower
 //  tmpmob -> врем. переменная, наполнение из оригинального моба m
 
 // Копирование игровой информации (для m сохраняются оригинальные значения)

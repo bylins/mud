@@ -84,7 +84,7 @@ void DoTrample(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 				const auto &aff = *aff_i;
 				if (GET_ID(ch) != aff->caster_id) {
-					caster = find_char(aff->caster_id);
+					caster = find_char_by_id(aff->caster_id);
 					if (caster && !same_group(ch, caster)) {
 						pk_thiefs_action(ch, caster);
 						sprintf(buf,

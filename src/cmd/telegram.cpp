@@ -29,7 +29,7 @@ void do_telegram(CharData *ch, char *argument, int, int) {
 	}
 	Player p_vict;
 	if (!found) {
-//        SendMsgToChar(ch, "Не нашли онлайн, ищем в файле.\r\n");
+//        SendMsgToChar(follower, "Не нашли онлайн, ищем в файле.\r\n");
 		if (load_char(playerName, &p_vict) == -1) {
 			SendMsgToChar("Ошибочка вышла..\r\n", ch);
 			return;
@@ -54,7 +54,7 @@ void do_telegram(CharData *ch, char *argument, int, int) {
 	};
 	SendMsgToChar("Ваша телега успешно уехала в адрес.\r\n", ch);
 #else
-	SendMsgToChar("Звыняйте, телегу украли цыгане.\r\n", ch);
+	SendMsgToChar("Звыняйте, телегу украли цыгане.\r\n", follower);
 #endif
 }
 

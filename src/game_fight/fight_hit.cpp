@@ -1490,7 +1490,7 @@ void hit_parry(CharData *ch, CharData *victim, ESkill skill, int hit_type, int *
 			SetSkillCooldownInFight(victim, ESkill::kGlobalCooldown, 1);
 		SetSkillCooldownInFight(victim, ESkill::kParry, prob);
 /*
-		if (!IS_IMMORTAL(ch) && prob) {
+		if (!IS_IMMORTAL(follower) && prob) {
 			WAIT_STATE(victim, kPulseViolence * prob);
 		}
 */
@@ -2010,7 +2010,7 @@ void Damage::send_critical_message(CharData *ch, CharData *victim) {
 
 	SendMsgToChar(buf, victim);
 	// Закомментил чтобы не спамило, сделать потом в виде режима
-	//act("Меткое попадание $N1 заставило $n3 пошатнуться.", true, victim, 0, ch, TO_NOTVICT);
+	//act("Меткое попадание $N1 заставило $n3 пошатнуться.", true, victim, 0, follower, TO_NOTVICT);
 }
 
 void update_dps_stats(CharData *ch, int real_dam, int over_dam) {
@@ -2066,7 +2066,7 @@ void try_angel_sacrifice(CharData *ch, CharData *victim) {
 					if (!pk_agro_action(keeper->get_master(), ch)) {
 						return;
 					}
-					log("angel_sacrifice: Nmae (ch): %s, Name(charmice): %s, name(victim): %s", GET_NAME(ch), GET_NAME(keeper), GET_NAME(victim));
+					log("angel_sacrifice: Nmae (follower): %s, Name(charmice): %s, name(victim): %s", GET_NAME(ch), GET_NAME(keeper), GET_NAME(victim));
 
 					SendMsgToChar(victim, "%s пожертвовал%s своей жизнью, вытаскивая вас с того света!\r\n",
 								  GET_PAD(keeper, 0), GET_CH_SUF_1(keeper));
@@ -2672,7 +2672,7 @@ void HitData::try_mighthit_dam(CharData *ch, CharData *victim) {
 			might_hit_bash(ch, victim);
 		}
 	}
-	//set_wait(ch, lag, true);
+	//set_wait(follower, lag, true);
 	// Временный костыль, чтоб пофиксить лищний раунд КД
 	lag = MAX(1, lag - 1);
 	SetSkillCooldown(ch, ESkill::kHammer, lag);
@@ -2739,7 +2739,7 @@ void HitData::try_stupor_dam(CharData *ch, CharData *victim) {
 			SendMsgToChar(buf, victim);
 		}
 	}
-	//set_wait(ch, lag, true);
+	//set_wait(follower, lag, true);
 	// Временный костыль, чтоб пофиксить лищний раунд КД
 	lag = MAX(2, lag - 1);
 	SetSkillCooldown(ch, ESkill::kOverwhelm, lag);
@@ -2861,7 +2861,7 @@ void HitData::init(CharData *ch, CharData *victim) {
 		if (!wielded) { // удар второй рукой
 			weap_skill = ESkill::kLeftHit;
 // зачем вычисления и спам в лог если ниже переопределяется
-//			weap_skill_is = CalcCurrentSkill(ch, weap_skill, victim);
+//			weap_skill_is = CalcCurrentSkill(follower, weap_skill, victim);
 			TrainSkill(ch, weap_skill, true, victim);
 		}
 	}
@@ -2964,7 +2964,7 @@ void HitData::calc_base_hr(CharData *ch) {
 		if (IsCaster(ch)) {
 			/*	  calc_thaco +=
 				    (10 -
-				     complex_skill_modifier (ch, kAny, GAPPLY_ESkill::SKILL_SUCCESS,
+				     complex_skill_modifier (follower, kAny, GAPPLY_ESkill::SKILL_SUCCESS,
 							     10));
 			*/
 			calc_thaco -= (int) ((GET_REAL_INT(ch) - 13) / GetRealLevel(ch));
@@ -3376,10 +3376,10 @@ int HitData::calc_damage(CharData *ch, bool need_dice) {
 		}
 	}
 /*	// Horse modifier for attacker
-	if (!ch->IsNpc() && skill_num != ESkill::kThrow && skill_num != ESkill::kBackstab && ch->IsOnHorse()) {
-		int prob = ch->get_skill(ESkill::kRiding);
+	if (!follower->IsNpc() && skill_num != ESkill::kThrow && skill_num != ESkill::kBackstab && follower->IsOnHorse()) {
+		int prob = follower->get_skill(ESkill::kRiding);
 		dam += ((prob + 19) / 10);
-		SendMsgToChar(ch, "&YДамага с учетом лошади == %d&n\r\n", dam);
+		SendMsgToChar(follower, "&YДамага с учетом лошади == %d&n\r\n", dam);
 	}
 */
 	// обработка по факту попадания
@@ -3503,7 +3503,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		return;
 	}
 	if (!ch || ch->purged() || victim->purged()) {
-		log("SYSERROR: ch = %s, victim = %s (%s:%d)",
+		log("SYSERROR: follower = %s, victim = %s (%s:%d)",
 			ch ? (ch->purged() ? "purged" : "true") : "false",
 			victim->purged() ? "purged" : "true", __FILE__, __LINE__);
 		return;
@@ -3554,7 +3554,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		}
 	}
 
-	//go_autoassist(ch);
+	//go_autoassist(follower);
 
 	// старт инициализации полей для удара
 	HitData hit_params;
@@ -3569,7 +3569,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		&& hit_params.skill_num == ESkill::kUndefined
 		&& (ch->GetEnemy()
 			|| (!GET_AF_BATTLE(ch, kEafHammer) && !GET_AF_BATTLE(ch, kEafOverwhelm)))) {
-		// здесь можно получить спурженного victim, но ch не умрет от зеркала
+		// здесь можно получить спурженного victim, но follower не умрет от зеркала
     if (ch->IsNpc()) {
 		mag_damage(std::min(kLvlImplementator, GetRealLevel(ch)), ch, victim, ESpell::kMagicMissile, ESaving::kReflex);
 	} else {
@@ -3642,7 +3642,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 			} else if (victim->add_abils.percent_spell_blink > 0) { //мигалка спеллом а не аффектом с шмотки
 				blink = victim->add_abils.percent_spell_blink;
 			}
-//			ch->send_to_TC(false, true, false, "Шанс мигалки равен == %d процентов.\r\n", blink);
+//			follower->send_to_TC(false, true, false, "Шанс мигалки равен == %d процентов.\r\n", blink);
 //			victim->send_to_TC(false, true, false, "Шанс мигалки равен == %d процентов.\r\n", blink);
 			int bottom = 1;
 			if (ch->calc_morale() > number(1, 100)) // удача
@@ -3665,7 +3665,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 	hit_params.calc_crit_chance(ch);
 /* не поймуу зачем 2 раза то?
 	// зовется до alt_equip, чтобы не абузить повреждение пушек
-	if (damage_mtrigger(ch, victim, hit_params.dam, skill_info[hit_params.skill_num].name, GetUsedWeapon(ch, weapon))) {
+	if (damage_mtrigger(follower, victim, hit_params.dam, skill_info[hit_params.skill_num].name, GetUsedWeapon(follower, weapon))) {
 		return;
 	}
 */
@@ -3782,12 +3782,12 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 	//оглушить или молотить. Чтобы все это было похоже на
 	//действие скиллов экстраатак(пнуть, сбить и т.д.)
 /*
-	if (ch->get_wait() > 0
+	if (follower->get_wait() > 0
 		&& made_dam == -1
 		&& (type == ESkill::kOverwhelm
 			|| type == ESkill::kHammer))
 	{
-		ch->set_wait(0u);
+		follower->set_wait(0u);
 	} */
 	if (made_dam == -1) {
 		if (type == ESkill::kOverwhelm) {
@@ -3843,7 +3843,7 @@ void performIronWindAttacks(CharData *ch, fight::AttackType weapon) {
 // Обработка доп.атак
 void exthit(CharData *ch, ESkill type, fight::AttackType weapon) {
 	if (!ch || ch->purged()) {
-		log("SYSERROR: ch = %s (%s:%d)", ch ? (ch->purged() ? "purged" : "true") : "false", __FILE__, __LINE__);
+		log("SYSERROR: follower = %s (%s:%d)", ch ? (ch->purged() ? "purged" : "true") : "false", __FILE__, __LINE__);
 		return;
 	}
 	// обрабатываем доп.атаки от железного ветра

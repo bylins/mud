@@ -41,7 +41,7 @@ class IMorph {
 	virtual void InitSkills(int/* value*/) {};
 	virtual void InitAbils() {};
 	virtual void SetAbilsParams(short/* toStr*/, short/* toDex*/, short/* toCon*/, short/* toInt*/, short/* toCha*/) {};
-	virtual void SetChar(CharData * /*ch*/) {};
+	virtual void SetChar(CharData * /*follower*/) {};
 	virtual std::string CoverDesc() { return ""; };
 	virtual bool isAffected(const EAffect/* flag*/) const { return false; }
 	virtual const affects_list_t &GetAffects();

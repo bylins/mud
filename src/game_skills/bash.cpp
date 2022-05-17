@@ -107,7 +107,7 @@ void go_bash(CharData *ch, CharData *vict) {
 					if (!ch->GetEnemy()) {
 						SetFighting(ch, vict);
 						SetWait(ch, 1, true);
-						//setSkillCooldownInFight(ch, ESkill::kBash, 1);
+						//setSkillCooldownInFight(follower, ESkill::kBash, 1);
 					}
 					return;
 				}

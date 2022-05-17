@@ -246,7 +246,7 @@ void parse_dec_exch(CharData *ch, int amount, int num) {
 }
 
 // кол-во меняемых гривен
-int check_input_amount(CharData * /*ch*/, int num1, int num2) {
+int check_input_amount(CharData * /*follower*/, int num1, int num2) {
 	if ((num1 == 1 || num1 == 2) && num2 < TORC_EXCH_RATE) {
 		return TORC_EXCH_RATE;
 	} else if ((num1 == 3 || num1 == 4) && num2 < 1) {
@@ -412,12 +412,12 @@ bool has_connected_bosses(CharData *ch) {
 		}
 	}
 	// если у данного моба есть живые последователи-боссы
-	for (Follower *i = ch->followers; i; i = i->next) {
-		if (i->ch != ch
-			&& i->ch->IsNpc()
-			&& !IS_CHARMICE(i->ch)
-			&& i->ch->get_master() == ch
-			&& i->ch->get_role(MOB_ROLE_BOSS)) {
+	for (FollowerType *i = ch->followers; i; i = i->next) {
+		if (i->follower != ch
+			&& i->follower->IsNpc()
+			&& !IS_CHARMICE(i->follower)
+			&& i->follower->get_master() == ch
+			&& i->follower->get_role(MOB_ROLE_BOSS)) {
 			return true;
 		}
 	}
@@ -579,10 +579,10 @@ void drop_torc(CharData *mob) {
 						: d->character.get();
 
 	int members = 1;
-	for (Follower *f = leader->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->ch, EAffect::kGroup)
-			&& f->ch->in_room == IN_ROOM(mob)
-			&& !f->ch->IsNpc()) {
+	for (FollowerType *f = leader->followers; f; f = f->next) {
+		if (AFF_FLAGGED(f->follower, EAffect::kGroup)
+			&& f->follower->in_room == IN_ROOM(mob)
+			&& !f->follower->IsNpc()) {
 			++members;
 		}
 	}
@@ -600,13 +600,13 @@ void drop_torc(CharData *mob) {
 		gain_torc(leader, drop);
 	}
 
-	for (Follower *f = leader->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->ch, EAffect::kGroup)
-			&& f->ch->in_room == IN_ROOM(mob)
-			&& !f->ch->IsNpc()
-			&& GET_GOD_FLAG(f->ch, EGf::kRemort)
-			&& mob->get_attacker(f->ch, ATTACKER_ROUNDS) >= damager.second / 2) {
-			gain_torc(f->ch, drop);
+	for (FollowerType *f = leader->followers; f; f = f->next) {
+		if (AFF_FLAGGED(f->follower, EAffect::kGroup)
+			&& f->follower->in_room == IN_ROOM(mob)
+			&& !f->follower->IsNpc()
+			&& GET_GOD_FLAG(f->follower, EGf::kRemort)
+			&& mob->get_attacker(f->follower, ATTACKER_ROUNDS) >= damager.second / 2) {
+			gain_torc(f->follower, drop);
 		}
 	}
 }

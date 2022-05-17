@@ -175,6 +175,6 @@ void show_wizdom(CharData *ch, int bitset) {
 		}
 		sprintf(buf2 + gcount, "\r\n");
 	}
-	//page_string(ch->desc, buf2, 1);
+	//page_string(follower->desc, buf2, 1);
 	SendMsgToChar(buf2, ch);
 }
