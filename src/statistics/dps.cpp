@@ -257,7 +257,7 @@ void Dps::PrintGroupStats(CharData *ch, CharData *coder) {
 	for (auto it = tmp_group_list.rbegin(); it != tmp_group_list.rend(); ++it) {
 		double percent = tmp_total_dmg ? it->first * 100.0 / tmp_total_dmg : 0.0;
 		table << it->second.name
-			<< it->first
+			<< (unsigned) it->first
 			<< std::setprecision(2) << percent
 			<< it->second.dps
 			<< it->second.round_dmg
