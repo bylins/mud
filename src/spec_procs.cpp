@@ -966,7 +966,7 @@ void npc_group(CharData *ch) {
 }
 
 void npc_groupbattle(CharData *ch) {
-	struct Follower *k;
+	struct FollowerType *k;
 	CharData *tch, *helper;
 
 	if (!ch->IsNpc()
@@ -981,7 +981,7 @@ void npc_groupbattle(CharData *ch) {
 	k = ch->has_master() ? ch->get_master()->followers : ch->followers;
 	tch = ch->has_master() ? ch->get_master() : ch;
 	for (; k; (k = tch ? k : k->next), tch = nullptr) {
-		helper = tch ? tch : k->ch;
+		helper = tch ? tch : k->follower;
 		if (ch->in_room == IN_ROOM(helper)
 			&& !helper->GetEnemy()
 			&& !helper->IsNpc()

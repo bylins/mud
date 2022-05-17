@@ -1786,11 +1786,11 @@ namespace {
 void change_npc_leader(CharData *ch) {
 	std::vector<CharData *> tmp_list;
 
-	for (Follower *i = ch->followers; i; i = i->next) {
-		if (i->ch->IsNpc()
-			&& !IS_CHARMICE(i->ch)
-			&& i->ch->get_master() == ch) {
-			tmp_list.push_back(i->ch);
+	for (FollowerType *i = ch->followers; i; i = i->next) {
+		if (i->follower->IsNpc()
+			&& !IS_CHARMICE(i->follower)
+			&& i->follower->get_master() == ch) {
+			tmp_list.push_back(i->follower);
 		}
 	}
 	if (tmp_list.empty()) {
