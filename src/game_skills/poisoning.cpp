@@ -2,8 +2,7 @@
 #include "handler.h"
 #include "liquid.h"
 #include "game_mechanics/poison.h"
-
-extern void weight_change_object(ObjData *obj, int weight);
+#include "utils/utils_char_obj.inl"
 
 void DoPoisoning(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!ch->GetSkill(ESkill::kPoisoning)) {

@@ -22,8 +22,6 @@ const int kMortallyDrunked = 18;
 const int kMaxCondition = 48;
 const int kNormCondition = 22;
 
-extern void weight_change_object(ObjData *obj, int weight);
-
 const char *diag_liquid_timer(const ObjData *obj);
 
 const char *drinks[] = {"воды",
