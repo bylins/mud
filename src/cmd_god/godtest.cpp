@@ -18,7 +18,7 @@ void do_godtest(CharData *ch, char */*argument*/, int /* cmd */, int /* subcmd *
 	std::ostringstream out;
 	//MUD::Classes(ECharClass::kPaladine).Print(ch, out);
 	for (const auto &guild : MUD::Guilds()) {
-		guild.Print(out);
+		guild.Print(ch, out);
 	}
 //	MUD::Guilds(0).Print(out);
 	page_string(ch->desc, out.str());

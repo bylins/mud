@@ -12,6 +12,7 @@
 #include "color.h"
 #include "game_magic/magic_utils.h"
 #include "structs/global_objects.h"
+#include "utils/table_wrapper.h"
 
 //extern int guild_info[][3];
 typedef int special_f(CharData *, void *, int, char *);
@@ -961,7 +962,7 @@ ItemPtr GuildInfoBuilder::Build(DataNode &node) {
 	}
 }
 
-ItemPtr GuildInfoBuilder::ParseGuild(DataNode &node) {
+ItemPtr GuildInfoBuilder::ParseGuild(DataNode node) {
 	auto vnum = std::max(0, parse::ReadAsInt(node.GetValue("vnum")));
 	auto mode = SkillInfoBuilder::ParseItemMode(node, EItemMode::kEnabled);
 
@@ -979,10 +980,10 @@ ItemPtr GuildInfoBuilder::ParseGuild(DataNode &node) {
 		guild_info->trainers_ = parse::ReadAsIntSet(node.GetValue("vnums"));
 	}
 
-/*	if (node.GoToSibling("stats")) {
-		ParseStats(info, node);
+	if (node.GoToSibling("skills")) {
+		ParseSkills(guild_info, node);
 	}
-
+/*
 	if (node.GoToSibling("skills")) {
 		ParseSkills(info, node);
 	}
@@ -995,11 +996,23 @@ ItemPtr GuildInfoBuilder::ParseGuild(DataNode &node) {
 		ParseFeats(info, node);
 	}*/
 
+
 	return guild_info;
 }
 
-void GuildInfo::Print(std::ostringstream &buffer) const {
-	buffer << "Print guild:" << "\n"
+void GuildInfoBuilder::ParseSkills(ItemPtr &info, parser_wrapper::DataNode &node) {
+	for (const auto &talent_node : node.Children()) {
+		auto skill_id = parse::ReadAsConstant<ESkill>(talent_node.GetValue("id"));
+		auto it = info->taught_skills_.try_emplace(skill_id, Condition());
+		if (!it.second) {
+			err_log("Talent '%s' has already exist id guild '%s'. Redundant definition had been ignored.",
+					NAME_BY_ITEM<ESkill>(skill_id).c_str(), info->GetName().c_str());
+		}
+	}
+}
+
+void GuildInfo::Print(CharData *ch, std::ostringstream &buffer) const {
+	buffer << "Print guild:" << std::endl
 		   << " Vnum: " << KGRN << GetId() << KNRM << std::endl
 		   << " TextId: " << KGRN << GetTextId() << KNRM << std::endl
 		   << " Name: " << KGRN << name_ << KNRM << std::endl;
@@ -1010,6 +1023,16 @@ void GuildInfo::Print(std::ostringstream &buffer) const {
 		}
 		buffer.seekp(-2, std::ios_base::end);
 		buffer << "." << KNRM << std::endl;
+	}
+	if (!taught_skills_.empty()) {
+		buffer << " Trained skills: " << std::endl;
+		table_wrapper::Table table;
+		table << table_wrapper::kHeader << "Id" << "Name" << table_wrapper::kEndRow;
+		for (const auto &skill : taught_skills_) {
+			table << NAME_BY_ITEM(skill.first) << MUD::Skills(skill.first).GetName() << table_wrapper::kEndRow;
+		}
+		table_wrapper::DecorateNoBorderTable(ch, table);
+		table_wrapper::PrintTableToStream(buffer, table);
 	}
 	buffer << std::endl;
 }

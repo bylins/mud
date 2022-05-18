@@ -2515,7 +2515,6 @@ void boot_db(void) {
 	log("Load zone traffic.");
 	zone_traffic_load();
 
-	//Polud грузим параметры рас мобов
 	boot_profiler.next_step("Loading mob races");
 	log("Load mob races.");
 	load_mobraces();
@@ -2598,8 +2597,8 @@ void boot_db(void) {
 	Bonus::bonus_log_load();
 	load_speedwalk();
 
-	boot_profiler.next_step("Loading ");
-	log("Loading class base stat limits");
+	boot_profiler.next_step("Loading cities cfg");
+	log("Loading cities cfg.");
 	load_cities();
 	shutdown_parameters.mark_boot_time();
 	log("Boot db -- DONE.");
