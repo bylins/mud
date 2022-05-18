@@ -246,6 +246,27 @@ int ReadAsInt(const char *value) {
 }
 
 /**
+ * Прочитать значение value как массив int, разделенный 'I'.
+ */
+std::set<int> ReadAsIntSet(const char *value) {
+	if (strcmp(value, "") == 0) {
+		throw std::runtime_error("string is empty");
+	}
+
+	auto str_array = utils::SplitString(value, '|');
+	std::set<int> num_set;
+	for (const auto &str : str_array) {
+		try {
+			num_set.emplace(std::stoi(str, nullptr));
+		} catch (...) {
+			err_log("value '%s' cannot be converted into num.", str.c_str());
+		}
+	}
+
+	return num_set;
+}
+
+/**
  * Прочитать значение value как float.
  * Ecxeption: при неудаче, сообщение - содержимое value.
  */

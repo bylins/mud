@@ -4,7 +4,7 @@
 \brief Модуль механики учителей умений/заклинаний/способностей.
 */
 
-#include "trainers.h"
+#include "guilds.h"
 
 #include <boost/algorithm/string.hpp>
 
@@ -939,50 +939,47 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 	return (false);
 }*/
 
-/*
-namespace trainers {
+namespace guilds {
 
 using DataNode = parser_wrapper::DataNode;
-using Optional = TrainerInfoBuilder::ItemOptional;
+using ItemPtr = GuildInfoBuilder::ItemPtr;
 
-void TrainersLoader::Load(DataNode data) {
-	MUD::Classes().Init(data.Children());
+void GuildsLoader::Load(DataNode data) {
+	MUD::Guilds().Init(data.Children());
 }
 
-void TrainersLoader::Reload(DataNode data) {
-	MUD::Classes().Reload(data.Children());
+void GuildsLoader::Reload(DataNode data) {
+	MUD::Guilds().Reload(data.Children());
 }
 
-Optional TrainerInfoBuilder::Build(DataNode &node) {
-	auto trainer_info =  std::make_optional(std::make_shared<TrainerInfo>());
+ItemPtr GuildInfoBuilder::Build(DataNode &node) {
 	try {
-		ParseTrainer(trainer_info, node);
+		return ParseGuild(node);
 	} catch (std::exception &e) {
-		err_log("Trainer info parsing error: '%s'", e.what());
-		trainer_info = std::nullopt;
+		err_log("Guild parsing error: '%s'", e.what());
+		return nullptr;
 	}
-	return trainer_info;
 }
 
-void TrainerInfoBuilder::ParseTrainer(Optional &info, DataNode &node) {
+ItemPtr GuildInfoBuilder::ParseGuild(DataNode &node) {
+	auto vnum = std::max(0, parse::ReadAsInt(node.GetValue("vnum")));
+	auto mode = SkillInfoBuilder::ParseItemMode(node, EItemMode::kEnabled);
+
+	std::string text_id{"kUndefined"};
+	std::string name{"undefined"};
 	try {
-		info.value()->id_ = parse::ReadAsConstant<ECharClass>(node.GetValue("id"));
-	} catch (std::exception &e) {
-		err_log("Incorrect class id (%s).", e.what());
-		info = std::nullopt;
-		return;
+		text_id = parse::ReadAsStr(node.GetValue("text_id"));
+		name = parse::ReadAsStr(node.GetValue("name"));
+	} catch (...) {
 	}
 
-	try {
-		info.value()->mode = parse::ReadAsConstant<EItemMode>(node.GetValue("mode"));
-	} catch (std::exception &) {
+	auto guild_info =  std::make_shared<GuildInfo>(vnum, text_id, name, mode);
+
+	if (node.GoToChild("trainers")) {
+		guild_info->trainers_ = parse::ReadAsIntSet(node.GetValue("vnums"));
 	}
 
-	if (node.GoToChild("name")) {
-		ParseName(info, node);
-	}
-
-	if (node.GoToSibling("stats")) {
+/*	if (node.GoToSibling("stats")) {
 		ParseStats(info, node);
 	}
 
@@ -996,9 +993,26 @@ void TrainerInfoBuilder::ParseTrainer(Optional &info, DataNode &node) {
 
 	if (node.GoToSibling("feats")) {
 		ParseFeats(info, node);
+	}*/
+
+	return guild_info;
+}
+
+void GuildInfo::Print(std::ostringstream &buffer) const {
+	buffer << "Print guild:" << "\n"
+		   << " Vnum: " << KGRN << GetId() << KNRM << std::endl
+		   << " TextId: " << KGRN << GetTextId() << KNRM << std::endl
+		   << " Name: " << KGRN << name_ << KNRM << std::endl;
+	if (!trainers_.empty()) {
+		buffer << " Trainer vnums: " << KGRN;
+		for (const auto vnum : trainers_) {
+			buffer << vnum << ", ";
+		}
+		buffer.seekp(-2, std::ios_base::end);
+		buffer << "." << KNRM << std::endl;
 	}
+	buffer << std::endl;
 }
 
 }
-*/
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

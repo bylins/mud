@@ -11,7 +11,7 @@
 #include "entities/char_player.h"
 #include "noob.h"
 #include "utils/utils_char_obj.inl"
-#include "game_mechanics/trainers.h"
+#include "game_mechanics/guilds.h"
 
 int exchange(CharData *ch, void *me, int cmd, char *argument);
 int horse_keeper(CharData *ch, void *me, int cmd, char *argument);

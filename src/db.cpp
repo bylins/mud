@@ -36,7 +36,7 @@
 #include "depot.h"
 #include "game_economics/ext_money.h"
 #include "game_mechanics/bonus.h"
-#include "game_mechanics/trainers.h"
+#include "game_mechanics/guilds.h"
 #include "game_fight/fight.h"
 #include "game_fight/mobact.h"
 #include "utils/file_crc.h"
@@ -1077,6 +1077,8 @@ void do_reboot(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		MUD::CfgManager().ReloadCfg("skills");
 	} else if (!str_cmp(arg, "classes")) {
 		MUD::CfgManager().ReloadCfg("classes");
+	} else if (!str_cmp(arg, "guilds")) {
+		MUD::CfgManager().ReloadCfg("guilds");
 	} else if (!str_cmp(arg, "imagic"))
 		init_im();
 	else if (!str_cmp(arg, "ztypes"))
@@ -2310,6 +2312,10 @@ void boot_db(void) {
 	boot_profiler.next_step("Assigning character classs info.");
 	log("Assigning character classs info.");
 	MUD::CfgManager().LoadCfg("classes");
+
+	boot_profiler.next_step("Assigning guilds info.");
+	log("Assigning guilds info.");
+	MUD::CfgManager().LoadCfg("guilds");
 
 	InitSpellLevels();
 

@@ -267,7 +267,7 @@ set(SOURCES
 		src/cmd_god/mark.cpp
 		src/game_crafts/fry.cpp
 		src/cmd/refill.cpp
-		src/game_mechanics/trainers.cpp
+        src/game_mechanics/guilds.cpp
 		src/cmd/do_features.cpp
 		src/cmd/do_spells.cpp
 		src/cmd/do_skills.cpp)
@@ -518,7 +518,7 @@ set(HEADERS
 		src/game_crafts/fry.h
 		src/cmd/refill.h
 		src/cmd/sign.h
-		src/game_mechanics/trainers.h
+        src/game_mechanics/guilds.h
 		src/cmd/do_features.h
 		src/cmd/do_spells.h
 		src/cmd/do_skills.h)

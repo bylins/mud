@@ -13,10 +13,14 @@
 #include "entities/player_races.h"
 #include "game_classes/classes.h"*/
 
-// This is test command for different testings
+// It is test command for different testings
 void do_godtest(CharData *ch, char */*argument*/, int /* cmd */, int /* subcmd */) {
 	std::ostringstream out;
-	MUD::Classes(ECharClass::kPaladine).Print(ch, out);
+	//MUD::Classes(ECharClass::kPaladine).Print(ch, out);
+	for (const auto &guild : MUD::Guilds()) {
+		guild.Print(out);
+	}
+//	MUD::Guilds(0).Print(out);
 	page_string(ch->desc, out.str());
 
 /*	std:: ostringstream out;

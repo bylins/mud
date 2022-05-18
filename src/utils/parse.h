@@ -4,13 +4,14 @@
 #ifndef PARSE_HPP_INCLUDED
 #define PARSE_HPP_INCLUDED
 
+#include <string>
+#include <set>
+
 #include "conf.h"
 #include "utils/pugixml/pugixml.h"
 #include "sysdep.h"
 #include "structs/structs.h"
 #include "comm.h"
-
-#include <string>
 
 namespace text_id {
 
@@ -43,6 +44,7 @@ pugi::xml_node GetChild(const pugi::xml_node &node, const char *name);
 
 const char *ReadAsStr(const char *value);
 int ReadAsInt(const char *value);
+std::set<int> ReadAsIntSet(const char *value);
 float ReadAsFloat(const char *value);
 double ReadAsDouble(const char *value);
 bool ReadAsBool(const char *value);
