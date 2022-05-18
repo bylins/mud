@@ -2916,7 +2916,7 @@ const char *mag_summon_fail_msgs[] =
 int mag_summons(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need_fail) {
 	CharData *tmp_mob, *mob = nullptr;
 	ObjData *tobj, *next_obj;
-	struct Follower *k;
+	struct FollowerType *k;
 	int pfail = 0, msg = 0, fmsg = 0, handle_corpse = false, keeper = false, cha_num = 0, modifier = 0;
 	MobVnum mob_num;
 
@@ -3230,8 +3230,8 @@ int mag_summons(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool nee
 	if (spell_id == ESpell::kClone) {
 		// клоны теперь кастятся все вместе // ужасно некрасиво сделано
 		for (k = ch->followers; k; k = k->next) {
-			if (AFF_FLAGGED(k->ch, EAffect::kCharmed)
-				&& k->ch->get_master() == ch) {
+			if (AFF_FLAGGED(k->follower, EAffect::kCharmed)
+				&& k->follower->get_master() == ch) {
 				cha_num++;
 			}
 		}

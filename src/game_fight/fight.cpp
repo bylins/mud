@@ -54,8 +54,8 @@ void npc_wield(CharData *ch);
 void npc_armor(CharData *ch);
 
 void go_autoassist(CharData *ch) {
-	struct Follower *k;
-	struct Follower *d;
+	struct FollowerType *k;
+	struct FollowerType *d;
 	CharData *ch_lider = 0;
 	if (ch->has_master()) {
 		ch_lider = ch->get_master();
@@ -65,18 +65,18 @@ void go_autoassist(CharData *ch) {
 
 	buf2[0] = '\0';
 	for (k = ch_lider->followers; k; k = k->next) {
-		if (PRF_FLAGGED(k->ch, EPrf::kAutoassist) &&
-			(IN_ROOM(k->ch) == IN_ROOM(ch)) && !k->ch->GetEnemy() &&
-			(GET_POS(k->ch) == EPosition::kStand) && k->ch->get_wait() <= 0) {
+		if (PRF_FLAGGED(k->follower, EPrf::kAutoassist) &&
+			(IN_ROOM(k->follower) == IN_ROOM(ch)) && !k->follower->GetEnemy() &&
+			(GET_POS(k->follower) == EPosition::kStand) && k->follower->get_wait() <= 0) {
 			// Здесь проверяем на кастеров
-			if (IsCaster(k->ch)) {
+			if (IsCaster(k->follower)) {
 				// здесь проходим по чармисам кастера, и если находим их, то вписываем в драку
-				for (d = k->ch->followers; d; d = d->next)
-					if ((IN_ROOM(d->ch) == IN_ROOM(ch)) && !d->ch->GetEnemy() &&
-						(GET_POS(d->ch) == EPosition::kStand) && d->ch->get_wait() <= 0)
-						do_assist(d->ch, buf2, 0, 0);
+				for (d = k->follower->followers; d; d = d->next)
+					if ((IN_ROOM(d->follower) == IN_ROOM(ch)) && !d->follower->GetEnemy() &&
+						(GET_POS(d->follower) == EPosition::kStand) && d->follower->get_wait() <= 0)
+						do_assist(d->follower, buf2, 0, 0);
 			} else {
-				do_assist(k->ch, buf2, 0, 0);
+				do_assist(k->follower, buf2, 0, 0);
 			}
 		}
 	}
@@ -1218,24 +1218,24 @@ void check_mob_helpers() {
 }
 
 void try_angel_rescue(CharData *ch) {
-	struct Follower *k, *k_next;
+	struct FollowerType *k, *k_next;
 
 	for (k = ch->followers; k; k = k_next) {
 		k_next = k->next;
-		if (AFF_FLAGGED(k->ch, EAffect::kHelper)
-			&& MOB_FLAGGED(k->ch, EMobFlag::kTutelar)
-			&& !k->ch->GetEnemy()
-			&& IN_ROOM(k->ch) == ch->in_room
-			&& CAN_SEE(k->ch, ch)
-			&& AWAKE(k->ch)
-			&& MAY_ACT(k->ch)
-			&& GET_POS(k->ch) >= EPosition::kFight) {
+		if (AFF_FLAGGED(k->follower, EAffect::kHelper)
+			&& MOB_FLAGGED(k->follower, EMobFlag::kTutelar)
+			&& !k->follower->GetEnemy()
+			&& IN_ROOM(k->follower) == ch->in_room
+			&& CAN_SEE(k->follower, ch)
+			&& AWAKE(k->follower)
+			&& MAY_ACT(k->follower)
+			&& GET_POS(k->follower) >= EPosition::kFight) {
 			for (const auto vict : world[ch->in_room]->people) {
 				if (vict->GetEnemy() == ch
 					&& vict != ch
-					&& vict != k->ch) {
-					if (k->ch->GetSkill(ESkill::kRescue)) {
-						go_rescue(k->ch, ch, vict);
+					&& vict != k->follower) {
+					if (k->follower->GetSkill(ESkill::kRescue)) {
+						go_rescue(k->follower, ch, vict);
 					}
 
 					break;

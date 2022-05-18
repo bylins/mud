@@ -818,7 +818,7 @@ class CharData : public ProtectedCharData {
 	std::vector<int> kill_list; //used only for MTRIG_KILL
  public:
 	// FOLLOWERS
-	struct Follower *followers;
+	struct FollowerType *followers;
 	CharData::ptr_t get_master() const { return m_master; }
 	void set_master(CharData::ptr_t master);
 	bool has_master() const { return nullptr != m_master; }

@@ -498,7 +498,7 @@ void SpellPortal(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 
 void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/) {
 	RoomRnum ch_room, vic_room;
-	struct Follower *k, *k_next;
+	struct FollowerType *k, *k_next;
 
 	if (ch == nullptr || victim == nullptr || ch == victim) {
 		return;
@@ -614,16 +614,16 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 	// призываем чармисов
 	for (k = victim->followers; k; k = k_next) {
 		k_next = k->next;
-		if (IN_ROOM(k->ch) == vic_room) {
-			if (AFF_FLAGGED(k->ch, EAffect::kCharmed)) {
-				if (!k->ch->GetEnemy()) {
+		if (IN_ROOM(k->follower) == vic_room) {
+			if (AFF_FLAGGED(k->follower, EAffect::kCharmed)) {
+				if (!k->follower->GetEnemy()) {
 					act("$n растворил$u на ваших глазах.",
-						true, k->ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					ExtractCharFromRoom(k->ch);
-					PlaceCharToRoom(k->ch, ch_room);
+						true, k->follower, nullptr, nullptr, kToRoom | kToArenaListen);
+					ExtractCharFromRoom(k->follower);
+					PlaceCharToRoom(k->follower, ch_room);
 					act("$n прибыл$g за хозяином.",
-						true, k->ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					act("$n призвал$g вас!", false, ch, nullptr, k->ch, kToVict);
+						true, k->follower, nullptr, nullptr, kToRoom | kToArenaListen);
+					act("$n призвал$g вас!", false, ch, nullptr, k->follower, kToVict);
 				}
 			}
 		}
@@ -832,18 +832,18 @@ void SpellCreateWeapon(int/* level*/, CharData* /*ch*/, CharData* /*victim*/, Ob
 }
 
 int CheckCharmices(CharData *ch, CharData *victim, ESpell spell_id) {
-	struct Follower *k;
+	struct FollowerType *k;
 	int cha_summ = 0, reformed_hp_summ = 0;
 	bool undead_in_group = false, living_in_group = false;
 
 	for (k = ch->followers; k; k = k->next) {
-		if (AFF_FLAGGED(k->ch, EAffect::kCharmed)
-			&& k->ch->get_master() == ch) {
+		if (AFF_FLAGGED(k->follower, EAffect::kCharmed)
+			&& k->follower->get_master() == ch) {
 			cha_summ++;
 			//hp_summ += GET_REAL_MAX_HIT(k->ch);
-			reformed_hp_summ += GetReformedCharmiceHp(ch, k->ch, spell_id);
+			reformed_hp_summ += GetReformedCharmiceHp(ch, k->follower, spell_id);
 // Проверка на тип последователей -- некрасиво, зато эффективно
-			if (MOB_FLAGGED(k->ch, EMobFlag::kCorpse)) {
+			if (MOB_FLAGGED(k->follower, EMobFlag::kCorpse)) {
 				undead_in_group = true;
 			} else {
 				living_in_group = true;
@@ -2053,7 +2053,7 @@ void do_sacrifice(CharData *ch, int dam) {
 
 void SpellSacrifice(int/* level*/, CharData *ch, CharData *victim, ObjData* /*obj*/) {
 	int dam, d0 = GET_HIT(victim);
-	struct Follower *f;
+	struct FollowerType *f;
 
 	// Высосать жизнь - некроманы - уровень 18 круг 6й (5)
 	// *** мин 54 макс 66 (330)
@@ -2076,11 +2076,11 @@ void SpellSacrifice(int/* level*/, CharData *ch, CharData *victim, ObjData* /*ob
 	do_sacrifice(ch, dam);
 	if (!ch->IsNpc()) {
 		for (f = ch->followers; f; f = f->next) {
-			if (f->ch->IsNpc()
-				&& AFF_FLAGGED(f->ch, EAffect::kCharmed)
-				&& MOB_FLAGGED(f->ch, EMobFlag::kCorpse)
-				&& ch->in_room == IN_ROOM(f->ch)) {
-				do_sacrifice(f->ch, dam);
+			if (f->follower->IsNpc()
+				&& AFF_FLAGGED(f->follower, EAffect::kCharmed)
+				&& MOB_FLAGGED(f->follower, EMobFlag::kCorpse)
+				&& ch->in_room == IN_ROOM(f->follower)) {
+				do_sacrifice(f->follower, dam);
 			}
 		}
 	}
@@ -2134,18 +2134,18 @@ void SpellSummonAngel(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData
 	MobVnum mob_num = 108;
 	//int modifier = 0;
 	CharData *mob = nullptr;
-	struct Follower *k, *k_next;
+	struct FollowerType *k, *k_next;
 
 	auto eff_cha = get_effective_cha(ch);
 
 	for (k = ch->followers; k; k = k_next) {
 		k_next = k->next;
-		if (MOB_FLAGGED(k->ch,
+		if (MOB_FLAGGED(k->follower,
 						EMobFlag::kTutelar))    //SendMsgToChar("Боги не обратили на вас никакого внимания!\r\n", ch);
 		{
 			//return;
 			//пуржим старого ангела
-			stop_follower(k->ch, kSfCharmlost);
+			stop_follower(k->follower, kSfCharmlost);
 		}
 	}
 
@@ -2325,11 +2325,11 @@ void SpellMentalShadow(int/* level*/, CharData *ch, CharData* /*victim*/, ObjDat
 	MobVnum mob_num = kMobMentalShadow;
 
 	CharData *mob = nullptr;
-	struct Follower *k, *k_next;
+	struct FollowerType *k, *k_next;
 	for (k = ch->followers; k; k = k_next) {
 		k_next = k->next;
-		if (MOB_FLAGGED(k->ch, EMobFlag::kMentalShadow)) {
-			stop_follower(k->ch, false);
+		if (MOB_FLAGGED(k->follower, EMobFlag::kMentalShadow)) {
+			stop_follower(k->follower, false);
 		}
 	}
 	auto eff_int = get_effective_int(ch);

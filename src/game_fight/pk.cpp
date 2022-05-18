@@ -341,7 +341,7 @@ void pk_increment_gkill(CharData *agressor, CharData *victim) {
 	}
 
 	CharData *leader;
-	struct Follower *f;
+	struct FollowerType *f;
 	bool has_clanmember = false;
 	if (!IS_GOD(victim)) {
 		has_clanmember = has_clan_members_in_group(victim);
@@ -355,10 +355,10 @@ void pk_increment_gkill(CharData *agressor, CharData *victim) {
 		pk_increment_kill(agressor, leader, leader == victim, has_clanmember);
 	}
 	for (f = leader->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->ch, EAffect::kGroup)
-			&& IN_ROOM(f->ch) == IN_ROOM(victim)
-			&& pk_action_type(agressor, f->ch) > PK_ACTION_FIGHT) {
-			pk_increment_kill(agressor, f->ch, f->ch == victim, has_clanmember);
+		if (AFF_FLAGGED(f->follower, EAffect::kGroup)
+			&& IN_ROOM(f->follower) == IN_ROOM(victim)
+			&& pk_action_type(agressor, f->follower) > PK_ACTION_FIGHT) {
+			pk_increment_kill(agressor, f->follower, f->follower == victim, has_clanmember);
 		}
 	}
 }
@@ -1016,7 +1016,7 @@ int check_pkill(CharData *ch, CharData *opponent, const std::string &arg) {
 // в одной с ним комнате
 bool has_clan_members_in_group(CharData *ch) {
 	CharData *leader;
-	struct Follower *f;
+	struct FollowerType *f;
 	leader = ch->has_master() ? ch->get_master() : ch;
 
 	// проверяем, был ли в группе клановый чар
@@ -1024,8 +1024,8 @@ bool has_clan_members_in_group(CharData *ch) {
 		return true;
 	} else {
 		for (f = leader->followers; f; f = f->next) {
-			if (AFF_FLAGGED(f->ch, EAffect::kGroup) && IN_ROOM(f->ch) == ch->in_room
-				&& CLAN(f->ch)) {
+			if (AFF_FLAGGED(f->follower, EAffect::kGroup) && IN_ROOM(f->follower) == ch->in_room
+				&& CLAN(f->follower)) {
 				return true;
 			}
 		}

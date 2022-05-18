@@ -616,11 +616,11 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 		from_room = vict->in_room;
 //Polud реализуем режим followers. за аргументом телепорта перемешаются все последователи-NPC
 		if (!str_cmp(argument, "followers") && vict->followers) {
-			Follower *ft;
+			FollowerType *ft;
 			for (ft = vict->followers; ft; ft = ft->next) {
-				if (IN_ROOM(ft->ch) == from_room && ft->ch->IsNpc()) {
-					ExtractCharFromRoom(ft->ch);
-					PlaceCharToRoom(ft->ch, target);
+				if (IN_ROOM(ft->follower) == from_room && ft->follower->IsNpc()) {
+					ExtractCharFromRoom(ft->follower);
+					PlaceCharToRoom(ft->follower, target);
 				}
 			}
 		}

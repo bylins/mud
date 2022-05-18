@@ -816,13 +816,13 @@ void change_leader(CharData *ch, CharData *vict) {
 	CharData *leader = vict;
 	if (!leader) {
 		// лидер умер, ищем согрупника с максимальным скиллом лидерки
-		for (struct Follower *l = ch->followers; l; l = l->next) {
-			if (!is_group_member(ch, l->ch))
+		for (struct FollowerType *l = ch->followers; l; l = l->next) {
+			if (!is_group_member(ch, l->follower))
 				continue;
 			if (!leader)
-				leader = l->ch;
-			else if (l->ch->GetSkill(ESkill::kLeadership) > leader->GetSkill(ESkill::kLeadership))
-				leader = l->ch;
+				leader = l->follower;
+			else if (l->follower->GetSkill(ESkill::kLeadership) > leader->GetSkill(ESkill::kLeadership))
+				leader = l->follower;
 		}
 	}
 
@@ -832,12 +832,12 @@ void change_leader(CharData *ch, CharData *vict) {
 
 	// для реследования используем стандартные функции
 	std::vector<CharData *> temp_list;
-	for (struct Follower *n = nullptr, *l = ch->followers; l; l = n) {
+	for (struct FollowerType *n = nullptr, *l = ch->followers; l; l = n) {
 		n = l->next;
-		if (!is_group_member(ch, l->ch)) {
+		if (!is_group_member(ch, l->follower)) {
 			continue;
 		} else {
-			CharData *temp_vict = l->ch;
+			CharData *temp_vict = l->follower;
 			if (temp_vict->has_master()
 				&& stop_follower(temp_vict, kSfSilence)) {
 				continue;
@@ -872,9 +872,9 @@ void change_leader(CharData *ch, CharData *vict) {
 	ch->dps_copy(leader);
 	perform_group(leader, leader);
 	int followers = 0;
-	for (struct Follower *f = leader->followers; f; f = f->next) {
+	for (struct FollowerType *f = leader->followers; f; f = f->next) {
 		if (followers < max_group_size(leader)) {
-			if (perform_group(leader, f->ch))
+			if (perform_group(leader, f->follower))
 				++followers;
 		} else {
 			SendMsgToChar("Вы больше никого не можете принять в группу.\r\n", ch);
@@ -1037,7 +1037,7 @@ void print_one_line(CharData *ch, CharData *k, int leader, int header) {
 
 void print_list_group(CharData *ch) {
 	CharData *k;
-	struct Follower *f;
+	struct FollowerType *f;
 	int count = 1;
 	k = (ch->has_master() ? ch->get_master() : ch);
 	if (AFF_FLAGGED(ch, EAffect::kGroup)) {
@@ -1048,10 +1048,10 @@ void print_list_group(CharData *ch) {
 		}
 
 		for (f = k->followers; f; f = f->next) {
-			if (!AFF_FLAGGED(f->ch, EAffect::kGroup)) {
+			if (!AFF_FLAGGED(f->follower, EAffect::kGroup)) {
 				continue;
 			}
-			sprintf(buf1, "%d. Согруппник: %s\r\n", count, GET_NAME(f->ch));
+			sprintf(buf1, "%d. Согруппник: %s\r\n", count, GET_NAME(f->follower));
 			SendMsgToChar(buf1, ch);
 			count++;
 		}
@@ -1063,7 +1063,7 @@ void print_list_group(CharData *ch) {
 void print_group(CharData *ch) {
 	int gfound = 0, cfound = 0;
 	CharData *k;
-	struct Follower *f, *g;
+	struct FollowerType *f, *g;
 
 	k = ch->has_master() ? ch->get_master() : ch;
 	if (!ch->IsNpc())
@@ -1076,21 +1076,21 @@ void print_group(CharData *ch) {
 		}
 
 		for (f = k->followers; f; f = f->next) {
-			if (!AFF_FLAGGED(f->ch, EAffect::kGroup)) {
+			if (!AFF_FLAGGED(f->follower, EAffect::kGroup)) {
 				continue;
 			}
-			print_one_line(ch, f->ch, false, gfound++);
+			print_one_line(ch, f->follower, false, gfound++);
 		}
 	}
 
 	for (f = ch->followers; f; f = f->next) {
-		if (!(AFF_FLAGGED(f->ch, EAffect::kCharmed)
-			|| MOB_FLAGGED(f->ch, EMobFlag::kTutelar) || MOB_FLAGGED(f->ch, EMobFlag::kMentalShadow))) {
+		if (!(AFF_FLAGGED(f->follower, EAffect::kCharmed)
+			|| MOB_FLAGGED(f->follower, EMobFlag::kTutelar) || MOB_FLAGGED(f->follower, EMobFlag::kMentalShadow))) {
 			continue;
 		}
 		if (!cfound)
 			SendMsgToChar("Ваши последователи:\r\n", ch);
-		print_one_line(ch, f->ch, false, cfound++);
+		print_one_line(ch, f->follower, false, cfound++);
 	}
 	if (!gfound && !cfound) {
 		SendMsgToChar("Но вы же не член (в лучшем смысле этого слова) группы!\r\n", ch);
@@ -1098,51 +1098,51 @@ void print_group(CharData *ch) {
 	}
 	if (PRF_FLAGGED(ch, EPrf::kShowGroup)) {
 		for (g = k->followers, cfound = 0; g; g = g->next) {
-			for (f = g->ch->followers; f; f = f->next) {
-				if (!(AFF_FLAGGED(f->ch, EAffect::kCharmed)
-					|| MOB_FLAGGED(f->ch, EMobFlag::kTutelar) || MOB_FLAGGED(f->ch, EMobFlag::kMentalShadow))
+			for (f = g->follower->followers; f; f = f->next) {
+				if (!(AFF_FLAGGED(f->follower, EAffect::kCharmed)
+					|| MOB_FLAGGED(f->follower, EMobFlag::kTutelar) || MOB_FLAGGED(f->follower, EMobFlag::kMentalShadow))
 					|| !AFF_FLAGGED(ch, EAffect::kGroup)) {
 					continue;
 				}
 
-				if (f->ch->get_master() == ch
-					|| !AFF_FLAGGED(f->ch->get_master(), EAffect::kGroup)) {
+				if (f->follower->get_master() == ch
+					|| !AFF_FLAGGED(f->follower->get_master(), EAffect::kGroup)) {
 					continue;
 				}
 
 				// shapirus: при включенном режиме не показываем клонов и хранителей
 				if (PRF_FLAGGED(ch, EPrf::kNoClones)
-					&& f->ch->IsNpc()
-					&& (MOB_FLAGGED(f->ch, EMobFlag::kClone)
-						|| GET_MOB_VNUM(f->ch) == kMobKeeper)) {
+					&& f->follower->IsNpc()
+					&& (MOB_FLAGGED(f->follower, EMobFlag::kClone)
+						|| GET_MOB_VNUM(f->follower) == kMobKeeper)) {
 					continue;
 				}
 
 				if (!cfound) {
 					SendMsgToChar("Последователи членов вашей группы:\r\n", ch);
 				}
-				print_one_line(ch, f->ch, false, cfound++);
+				print_one_line(ch, f->follower, false, cfound++);
 			}
 
 			if (ch->has_master()) {
-				if (!(AFF_FLAGGED(g->ch, EAffect::kCharmed)
-					|| MOB_FLAGGED(g->ch, EMobFlag::kTutelar) || MOB_FLAGGED(g->ch, EMobFlag::kMentalShadow))
+				if (!(AFF_FLAGGED(g->follower, EAffect::kCharmed)
+					|| MOB_FLAGGED(g->follower, EMobFlag::kTutelar) || MOB_FLAGGED(g->follower, EMobFlag::kMentalShadow))
 					|| !AFF_FLAGGED(ch, EAffect::kGroup)) {
 					continue;
 				}
 
 				// shapirus: при включенном режиме не показываем клонов и хранителей
 				if (PRF_FLAGGED(ch, EPrf::kNoClones)
-					&& g->ch->IsNpc()
-					&& (MOB_FLAGGED(g->ch, EMobFlag::kClone)
-						|| GET_MOB_VNUM(g->ch) == kMobKeeper)) {
+					&& g->follower->IsNpc()
+					&& (MOB_FLAGGED(g->follower, EMobFlag::kClone)
+						|| GET_MOB_VNUM(g->follower) == kMobKeeper)) {
 					continue;
 				}
 
 				if (!cfound) {
 					SendMsgToChar("Последователи членов вашей группы:\r\n", ch);
 				}
-				print_one_line(ch, g->ch, false, cfound++);
+				print_one_line(ch, g->follower, false, cfound++);
 			}
 		}
 	}
@@ -1150,7 +1150,7 @@ void print_group(CharData *ch) {
 
 void do_group(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *vict;
-	struct Follower *f;
+	struct FollowerType *f;
 	int found, f_number;
 
 	argument = one_argument(argument, buf);
@@ -1184,7 +1184,7 @@ void do_group(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 // вычисляем количество последователей
 	for (f_number = 0, f = ch->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->ch, EAffect::kGroup)) {
+		if (AFF_FLAGGED(f->follower, EAffect::kGroup)) {
 			f_number++;
 		}
 	}
@@ -1197,7 +1197,7 @@ void do_group(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SendMsgToChar("Вы больше никого не можете принять в группу.\r\n", ch);
 				return;
 			}
-			found += perform_group(ch, f->ch);
+			found += perform_group(ch, f->follower);
 		}
 
 		if (!found) {
@@ -1266,7 +1266,7 @@ void do_group(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_ungroup(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	struct Follower *f, *next_fol;
+	struct FollowerType *f, *next_fol;
 	CharData *tch;
 
 	one_argument(argument, buf);
@@ -1281,14 +1281,14 @@ void do_ungroup(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		sprintf(buf2, "Вы исключены из группы %s.\r\n", GET_PAD(ch, 1));
 		for (f = ch->followers; f; f = next_fol) {
 			next_fol = f->next;
-			if (AFF_FLAGGED(f->ch, EAffect::kGroup)) {
+			if (AFF_FLAGGED(f->follower, EAffect::kGroup)) {
 				//AFF_FLAGS(f->ch).unset(EAffectFlag::AFF_GROUP);
-				f->ch->removeGroupFlags();
-				SendMsgToChar(buf2, f->ch);
-				if (!AFF_FLAGGED(f->ch, EAffect::kCharmed)
-					&& !(f->ch->IsNpc()
-						&& AFF_FLAGGED(f->ch, EAffect::kHorse))) {
-					stop_follower(f->ch, kSfEmpty);
+				f->follower->removeGroupFlags();
+				SendMsgToChar(buf2, f->follower);
+				if (!AFF_FLAGGED(f->follower, EAffect::kCharmed)
+					&& !(f->follower->IsNpc()
+						&& AFF_FLAGGED(f->follower, EAffect::kHorse))) {
+					stop_follower(f->follower, kSfEmpty);
 				}
 			}
 		}
@@ -1299,7 +1299,7 @@ void do_ungroup(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	for (f = ch->followers; f; f = next_fol) {
 		next_fol = f->next;
-		tch = f->ch;
+		tch = f->follower;
 		if (isname(buf, tch->get_pc_name())
 			&& !AFF_FLAGGED(tch, EAffect::kCharmed)
 			&& !IS_HORSE(tch)) {
@@ -1317,7 +1317,7 @@ void do_ungroup(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void do_report(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	CharData *k;
-	struct Follower *f;
+	struct FollowerType *f;
 
 	if (!AFF_FLAGGED(ch, EAffect::kGroup) && !AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		SendMsgToChar("И перед кем вы отчитываетесь?\r\n", ch);
@@ -1351,10 +1351,10 @@ void do_report(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	CAP(buf);
 	k = ch->has_master() ? ch->get_master() : ch;
 	for (f = k->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->ch, EAffect::kGroup)
-			&& f->ch != ch
-			&& !AFF_FLAGGED(f->ch, EAffect::kDeafness)) {
-			SendMsgToChar(buf, f->ch);
+		if (AFF_FLAGGED(f->follower, EAffect::kGroup)
+			&& f->follower != ch
+			&& !AFF_FLAGGED(f->follower, EAffect::kDeafness)) {
+			SendMsgToChar(buf, f->follower);
 		}
 	}
 
@@ -1370,7 +1370,7 @@ void do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 void do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, int currency) {
 	int amount, num, share, rest;
 	CharData *k;
-	struct Follower *f;
+	struct FollowerType *f;
 
 	if (ch->IsNpc())
 		return;
@@ -1407,9 +1407,9 @@ void do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, int cur
 		}
 
 		for (f = k->followers; f; f = f->next) {
-			if (AFF_FLAGGED(f->ch, EAffect::kGroup)
-				&& !f->ch->IsNpc()
-				&& IN_ROOM(f->ch) == ch->in_room) {
+			if (AFF_FLAGGED(f->follower, EAffect::kGroup)
+				&& !f->follower->IsNpc()
+				&& IN_ROOM(f->follower) == ch->in_room) {
 				num++;
 			}
 		}
@@ -1446,15 +1446,15 @@ void do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, int cur
 			}
 		}
 		for (f = k->followers; f; f = f->next) {
-			if (AFF_FLAGGED(f->ch, EAffect::kGroup)
-				&& !f->ch->IsNpc()
-				&& IN_ROOM(f->ch) == ch->in_room
-				&& f->ch != ch) {
-				SendMsgToChar(buf, f->ch);
+			if (AFF_FLAGGED(f->follower, EAffect::kGroup)
+				&& !f->follower->IsNpc()
+				&& IN_ROOM(f->follower) == ch->in_room
+				&& f->follower != ch) {
+				SendMsgToChar(buf, f->follower);
 				switch (currency) {
-					case currency::ICE : f->ch->add_ice_currency(share);
+					case currency::ICE : f->follower->add_ice_currency(share);
 						break;
-					case currency::GOLD : f->ch->add_gold(share, true, true);
+					case currency::GOLD : f->follower->add_gold(share, true, true);
 						break;
 				}
 			}
