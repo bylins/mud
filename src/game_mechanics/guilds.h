@@ -8,6 +8,7 @@
 #define BYLINS_SRC_GAME_MECHANICS_GUILDS_H_
 
 #include <set>
+#include <feats.h>
 
 #include "boot/cfg_manager.h"
 #include "game_skills/skills.h"
@@ -32,13 +33,12 @@ class GuildsLoader : virtual public cfg_manager::ICfgLoader {
 
 class GuildInfo : public info_container::BaseItem<int> {
 	friend class GuildInfoBuilder;
-	class GuildTalent;
 
 	std::string name_;
 	std::set<MobVnum> trainers_;
-	std::map<ESkill, Condition> taught_skills_;
-//	std::map<ESpell, ConditionSRoster> taught_spells_;
-//	std::map<EFeat, ConditionSRoster> taught_feats_;
+	std::map<ESkill, Condition> learning_skills_;
+	std::map<ESpell, Condition> learning_spells_;
+	std::map<EFeat, Condition> learning_feats_;
 
  public:
 	GuildInfo() = default;
@@ -55,18 +55,12 @@ class GuildInfoBuilder : public info_container::IItemBuilder<GuildInfo> {
  private:
 	static ItemPtr ParseGuild(parser_wrapper::DataNode node);
 	static void ParseSkills(ItemPtr &info, parser_wrapper::DataNode &node);
+	static void ParseSpells(ItemPtr &info, parser_wrapper::DataNode &node);
+	static void ParseFeats(ItemPtr &info, parser_wrapper::DataNode &node);
 };
 
 using GuildsInfo = info_container::InfoContainer<int, GuildInfo, GuildInfoBuilder>;
 
-class GuildInfo::GuildTalent {
-	std::vector<Condition> conditions_roster_;
- public:
-	virtual std::string_view GetDisplayStr() = 0;
-	virtual bool CheckName(const std::string &talent_name) = 0;
-	virtual bool SoftCheck(CharData *ch) = 0;
-	virtual bool TryLearn(CharData *ch) = 0;
-};
 
 }
 #endif //BYLINS_SRC_GAME_MECHANICS_GUILDS_H_

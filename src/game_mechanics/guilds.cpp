@@ -11,6 +11,7 @@
 #include "boot/boot_constants.h"
 #include "color.h"
 #include "game_magic/magic_utils.h"
+#include "game_magic/spells_info.h"
 #include "structs/global_objects.h"
 #include "utils/table_wrapper.h"
 
@@ -885,60 +886,18 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 	return 0;
 }
 
-// ********************************************************************
-// *  Special procedures for mobiles                                  *
-// ********************************************************************
-
 /*
- * ...And the appropriate rooms for each guildmaster/guildguard; controls
- * which types of people the various guildguards let through.  i.e., the
- * first line shows that from room 3017, only MAGIC_USERS are allowed
- * to go south.
- *
- * Don't forget to visit spec_assign.cpp if you create any new mobiles that
- * should be a guild master or guard so they can act appropriately. If you
- * "recycle" the existing mobs that are used in other guilds for your new
- * guild, then you don't have to change that file, only here.
+ 	Проблема тут в следующем. Умения, способности и заклинания очень похожи в плане механизма хранения в гильдиях,
+ 	проверки на доступность изучения и так далее, но все-таки не полностью идентичны. Кроме того, на момент написания
+ 	этого комментария на хранение в info_container переведены лишь умения. Поэтому не представляется возможным выделить
+ 	какой-то общий интерфес или хотя бы применить шаблонизацию (шаблон со специализацией в данном случае не имеет
+ 	смысла).
+
+ 	Что нужно сделать: перевести фиты и заклинания также на инфо_контейнер и, вероятно, ввести некий общий интерфейс
+ 	для всех контейнеров талантов, позволяющий прповерять, может ли персонаж изучить этот талант, обеспечивающий
+ 	собсвтенно изучение и так далее. Пока решил не заморачиваться и сделать простым дублированием кода.
+
  */
-/*int guild_info[][3] =
-	{
-		// Midgaard
-		{ECharClass::kConjurer, 3017, SCMD_SOUTH},
-		{ECharClass::kSorcerer, 3004, SCMD_NORTH},
-		{ECharClass::kThief, 3027, SCMD_EAST},
-		{ECharClass::kWarrior, 3021, SCMD_EAST},
-
-		// Brass Dragon
-		{-999 *//* all *//* , 5065, SCMD_WEST},
-
-		// this must go last -- add new guards above!
-		{-1, -1, -1}
-	};*/
-
-/*int guild_guard(CharData *ch, void *me, int cmd, char * *//*argument*//*) {
-	int i;
-	CharData *guard = (CharData *) me;
-	const char *buf = "Охранник остановил вас, преградив дорогу.\r\n";
-	const char *buf2 = "Охранник остановил $n, преградив $m дорогу.";
-
-	if (!IS_MOVE(cmd) || AFF_FLAGGED(guard, EAffect::kBlind)
-		|| AFF_FLAGGED(guard, EAffect::kHold))
-		return (false);
-
-	if (GetRealLevel(ch) >= kLvlImmortal)
-		return (false);
-
-	for (i = 0; guild_info[i][0] != -1; i++) {
-		if ((ch->IsNpc() || ch->GetClass() != guild_info[i][0]) &&
-			GET_ROOM_VNUM(ch->in_room) == guild_info[i][1] && cmd == guild_info[i][2]) {
-			SendMsgToChar(buf, ch);
-			act(buf2, false, ch, 0, 0, kToRoom);
-			return (true);
-		}
-	}
-
-	return (false);
-}*/
 
 namespace guilds {
 
@@ -983,30 +942,47 @@ ItemPtr GuildInfoBuilder::ParseGuild(DataNode node) {
 	if (node.GoToSibling("skills")) {
 		ParseSkills(guild_info, node);
 	}
-/*
-	if (node.GoToSibling("skills")) {
-		ParseSkills(info, node);
-	}
 
 	if (node.GoToSibling("spells")) {
-		ParseSpells(info, node);
+		ParseSpells(guild_info, node);
 	}
 
 	if (node.GoToSibling("feats")) {
-		ParseFeats(info, node);
-	}*/
-
+		ParseFeats(guild_info, node);
+	}
 
 	return guild_info;
 }
 
-void GuildInfoBuilder::ParseSkills(ItemPtr &info, parser_wrapper::DataNode &node) {
+void GuildInfoBuilder::ParseSkills(ItemPtr &info, DataNode &node) {
 	for (const auto &talent_node : node.Children()) {
-		auto skill_id = parse::ReadAsConstant<ESkill>(talent_node.GetValue("id"));
-		auto it = info->taught_skills_.try_emplace(skill_id, Condition());
+		auto talent_id = parse::ReadAsConstant<ESkill>(talent_node.GetValue("id"));
+		auto it = info->learning_skills_.try_emplace(talent_id, Condition());
 		if (!it.second) {
 			err_log("Talent '%s' has already exist id guild '%s'. Redundant definition had been ignored.",
-					NAME_BY_ITEM<ESkill>(skill_id).c_str(), info->GetName().c_str());
+					NAME_BY_ITEM<ESkill>(talent_id).c_str(), info->GetName().c_str());
+		}
+	}
+}
+
+void GuildInfoBuilder::ParseSpells(ItemPtr &info, DataNode &node) {
+	for (const auto &talent_node : node.Children()) {
+		auto talent_id = parse::ReadAsConstant<ESpell>(talent_node.GetValue("id"));
+		auto it = info->learning_spells_.try_emplace(talent_id, Condition());
+		if (!it.second) {
+			err_log("Talent '%s' has already exist id guild '%s'. Redundant definition had been ignored.",
+					NAME_BY_ITEM<ESpell>(talent_id).c_str(), info->GetName().c_str());
+		}
+	}
+}
+
+void GuildInfoBuilder::ParseFeats(ItemPtr &info, DataNode &node) {
+	for (const auto &talent_node : node.Children()) {
+		auto talent_id = parse::ReadAsConstant<EFeat>(talent_node.GetValue("id"));
+		auto it = info->learning_feats_.try_emplace(talent_id, Condition());
+		if (!it.second) {
+			err_log("Talent '%s' has already exist id guild '%s'. Redundant definition had been ignored.",
+					NAME_BY_ITEM<EFeat>(talent_id).c_str(), info->GetName().c_str());
 		}
 	}
 }
@@ -1017,23 +993,47 @@ void GuildInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 		   << " TextId: " << KGRN << GetTextId() << KNRM << std::endl
 		   << " Name: " << KGRN << name_ << KNRM << std::endl;
 	if (!trainers_.empty()) {
-		buffer << " Trainer vnums: " << KGRN;
+		buffer << " Trainers vnums: " << KGRN;
 		for (const auto vnum : trainers_) {
 			buffer << vnum << ", ";
 		}
 		buffer.seekp(-2, std::ios_base::end);
 		buffer << "." << KNRM << std::endl;
 	}
-	if (!taught_skills_.empty()) {
+	if (!learning_skills_.empty()) {
 		buffer << " Trained skills: " << std::endl;
 		table_wrapper::Table table;
 		table << table_wrapper::kHeader << "Id" << "Name" << table_wrapper::kEndRow;
-		for (const auto &skill : taught_skills_) {
-			table << NAME_BY_ITEM(skill.first) << MUD::Skills(skill.first).GetName() << table_wrapper::kEndRow;
+		for (const auto &talent : learning_skills_) {
+			table << NAME_BY_ITEM(talent.first) << MUD::Skills(talent.first).GetName() << table_wrapper::kEndRow;
 		}
 		table_wrapper::DecorateNoBorderTable(ch, table);
 		table_wrapper::PrintTableToStream(buffer, table);
 	}
+
+	if (!learning_skills_.empty()) {
+		buffer << " Trained spells: " << std::endl;
+		table_wrapper::Table table;
+		table << table_wrapper::kHeader << "Id" << "Name" << table_wrapper::kEndRow;
+		for (const auto &talent : learning_spells_) {
+			table << NAME_BY_ITEM(talent.first) << spell_info[talent.first].name << table_wrapper::kEndRow;
+		}
+		table_wrapper::DecorateNoBorderTable(ch, table);
+		table_wrapper::PrintTableToStream(buffer, table);
+	}
+
+	if (!learning_skills_.empty()) {
+		buffer << " Trained feats: " << std::endl;
+		table_wrapper::Table table;
+		table << table_wrapper::kHeader << "Id" << "Name" << table_wrapper::kEndRow;
+		for (const auto &talent : learning_feats_) {
+			table << NAME_BY_ITEM(talent.first) << feat_info[talent.first].name << table_wrapper::kEndRow;
+		}
+		table_wrapper::DecorateNoBorderTable(ch, table);
+		table_wrapper::PrintTableToStream(buffer, table);
+	}
+
+
 	buffer << std::endl;
 }
 
