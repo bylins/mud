@@ -226,8 +226,8 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			act(buf, false, helpee, 0, ch, kToVict | kToNotDeaf);
 			return;
 		}
-//		if (k && helpee != k->ch) {
-		if (k && helpee) {
+		if (k && helpee != k->follower) {
+//		if (k && helpee) {
 			act("Вы уже наняли $N3.", false, ch, 0, k->follower, kToChar);
 			return;
 		}
@@ -269,14 +269,21 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					break;
 				}
 			}
-
 			if (aff != k->follower->affected.end()) {
-				af.duration = (*aff)->duration + CalcDuration(helpee, times * kTimeKoeff, 0, 0, 0, 0);
+				long oldcost = MAX(0, (int) (((*aff)->duration - 1) / 2) * (int) abs(k->follower->mob_specials.hire_price));
+				if (oldcost > 0) {
+					if (k->follower->mob_specials.hire_price < 0) {
+						ch->add_bank(oldcost);
+					} else {
+						ch->add_gold(oldcost);
+					}
+				}
+				sprintf(buf, "Вам вернули нерастраченный задаток в %ld %s.\r\n", oldcost, GetDeclensionInNumber(cost, EWhat::kMoneyA));
+				SendMsgToChar(buf, ch);
+				af.duration = CalcDuration(helpee, times * kTimeKoeff, 0, 0, 0, 0);
 			}
 		}
-
 		RemoveAffectFromChar(helpee, ESpell::kCharm);
-
 		if (!IS_IMMORTAL(ch)) {
 			if (isname(isbank, "банк bank")) {
 				ch->remove_bank(cost);
@@ -362,8 +369,7 @@ void do_freehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd
 	if (!IS_IMMORTAL(ch)) {
 		for (const auto &aff : k->follower->affected) {
 			if (aff->type == ESpell::kCharm) {
-				const auto
-					cost = MAX(0, (int) ((aff->duration - 1) / 2) * (int) abs(k->follower->mob_specials.hire_price));
+				long cost = MAX(0, (int) ((aff->duration - 1) / 2) * (int) abs(k->follower->mob_specials.hire_price));
 				if (cost > 0) {
 					if (k->follower->mob_specials.hire_price < 0) {
 						ch->add_bank(cost);
@@ -371,7 +377,7 @@ void do_freehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd
 						ch->add_gold(cost);
 					}
 				}
-
+				SendMsgToChar(ch, "Вам вернули нерастраченный задаток в %ld %s.\r\n", cost, GetDeclensionInNumber(cost, EWhat::kMoneyA));
 				break;
 			}
 		}
