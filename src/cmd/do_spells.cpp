@@ -100,13 +100,13 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 				continue;
 			if (can_cast) {
 				slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-										   "%s|<...%4d.> %s%-38s&n|",
+										   "%s|<...%4d.> %s%-30s&n|",
 										   slots[slot_num] % 114 <
 											   10 ? "\r\n" : "  ",
 										   CalcSpellManacost(ch, spell_id), GetSpellColor(spell_id), spell_info[spell_id].name);
 			} else {
 				slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-										   "%s|+--------+ %s%-38s&n|",
+										   "%s|+--------+ %s%-30s&n|",
 										   slots[slot_num] % 114 <
 											   10 ? "\r\n" : "  ", GetSpellColor(spell_id), spell_info[spell_id].name);
 			}
@@ -115,10 +115,8 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 			if (IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp)) {
 				time_str.append("[");
 				time_str.append(std::to_string(MAX(1,
-												   static_cast<int>(std::ceil(
-													   static_cast<double>(temporary_spells::GetSpellLeftTime(ch,
-																											  spell_id))
-														   / kSecsPerMudHour)))));
+						static_cast<int>(std::ceil(static_cast<double>(temporary_spells::GetSpellLeftTime(ch, spell_id))
+						/ kSecsPerMudHour)))));
 				time_str.append("]");
 			}
 			if (CalcMinSpellLvl(ch, spell_id) > GetRealLevel(ch) && IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow)) {
@@ -128,19 +126,20 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 				sprintf(buf1, "%s", "K");
 			}
 			slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-									   "%s|<%s%c%c%c%c%c%c%c>%s %-30s %-7s&n|",
-									   slots[slot_num] % 114 < 10 ? "\r\n" : "  ",
-									   IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow) ? buf1 : ".",
-									   IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp) ? 'T' : '.',
-									   IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kPotionCast) ? 'P' : '.',
-									   IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kWandCast) ? 'W' : '.',
-									   IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kScrollCast) ? 'S' : '.',
-									   IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kItemCast) ? 'I' : '.',
-									   IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kRunes) ? 'R' : '.',
-									   '.',
-									   GetSpellColor(spell_id),
-									   spell_info[spell_id].name,
-									   time_str.c_str());
+					"%s|<%s%c%c%c%c%c%c%c>%s%s%-30s %-7s&n|",
+					slots[slot_num] % 116 < 10 ? "\r\n" : "  ",
+					IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow) ? buf1 : ".",
+					IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp) ? 'T' : '.',
+					IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kPotionCast) ? 'P' : '.',
+					IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kWandCast) ? 'W' : '.',
+					IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kScrollCast) ? 'S' : '.',
+					IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kItemCast) ? 'I' : '.',
+					IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kRunes) ? 'R' : '.',
+					 '.',
+					(CalcMinSpellLvl(ch, spell_id) - GetRealLevel(ch) < 10) ? "  " : " ",
+					GetSpellColor(spell_id),
+					spell_info[spell_id].name,
+					time_str.c_str());
 		}
 		is_full = true;
 	};
