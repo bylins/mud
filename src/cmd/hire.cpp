@@ -277,9 +277,8 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					} else {
 						ch->add_gold(oldcost);
 					}
-					sprintf(buf, "Вам вернули нерастраченный задаток в %ld %s.\r\n", oldcost, GetDeclensionInNumber(cost, EWhat::kMoneyA));
+					SendMsgToChar(ch, "Вам вернули нерастраченный задаток в %ld %s.\r\n", oldcost, GetDeclensionInNumber(cost, EWhat::kMoneyA));
 				}
-				SendMsgToChar(buf, ch);
 				af.duration = CalcDuration(helpee, times * kTimeKoeff, 0, 0, 0, 0);
 			}
 		}

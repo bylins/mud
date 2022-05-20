@@ -304,13 +304,14 @@ void do_msend(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 
 	if (*arg == UID_CHAR) {
 		if (!(victim = get_char(arg, true))) {
-			sprintf(buf, "msend: victim (%s) UID does not exist", arg + 1);
-			mob_log(ch, buf, LGH);
+// Надоел спам чармисов
+//			sprintf(buf, "msend: victim (%s) UID does not exist", arg + 1);
+//			mob_log(ch, buf, LGH);
 			return;
 		}
 	} else if (!(victim = get_char_room_vis(ch, arg))) {
-//		sprintf(buf, "msend: victim (%s) does not exist", arg);
-//		mob_log(ch, buf, LGH);
+		sprintf(buf, "msend: victim (%s) does not exist", arg);
+		mob_log(ch, buf, LGH);
 		return;
 	}
 
