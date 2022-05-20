@@ -15,42 +15,9 @@
 #include "structs/global_objects.h"
 #include "utils/table_wrapper.h"
 
-//extern int guild_info[][3];
 typedef int special_f(CharData *, void *, int, char *);
 extern void ASSIGNMASTER(MobVnum mob, special_f, int learn_info);
 
-struct guild_learn_type {
-	EFeat feat_no;
-	ESkill skill_no;
-	ESpell spell_no;
-	int level;
-};
-
-struct guild_mono_type {
-	guild_mono_type() : races(0), classes(0), religion(0), alignment(0), learn_info(nullptr) {};
-	Bitvector races;
-	Bitvector classes;
-	Bitvector religion;
-	Bitvector alignment;
-	struct guild_learn_type *learn_info;
-};
-
-struct guild_poly_type {
-	Bitvector races;        // bitvector //
-	Bitvector classes;        // bitvector //
-	Bitvector religion;        // bitvector //
-	Bitvector alignment;        // bitvector //
-	EFeat feat_no;
-	ESkill skill_no;
-	ESpell spell_no;
-	int level;
-};
-
-int GUILDS_MONO_USED = 0;
-int GUILDS_POLY_USED = 0;
-
-struct guild_mono_type *guild_mono_info = nullptr;
-struct guild_poly_type **guild_poly_info = nullptr;
 /*
 void init_guilds() {
 	FILE *magic;
@@ -894,35 +861,27 @@ int DoGuildLearn(CharData *ch, void *me, int cmd, char *argument) {
 		return 0;
 	}
 
+	/*
+	 *  Это не слишком красиво, потому что кто-нибудь может затереть поле stored в инлексе и гильдия перестанет работать,
+	 *  но позволяет не искать каждый раз тренера по всем гильдиям. По уму, нужно, чтобы поле stored как-то конструировалось
+	 *  в комплекте с самой спецфункцией, и независимо его нельзя было бы перезаписать.
+	 */
 	auto *trainer = (CharData *) me;
 	Vnum guild_vnum{-1};
 	if (auto rnum = trainer->get_rnum(); rnum >= 0) {
 		guild_vnum = mob_index[rnum].stored;
 	}
+	const auto &guild = MUD::Guilds(guild_vnum);
 
-	if (guild_vnum < 0) {
+	if (guild.GetId() < 0) {
 		act("$N сказал$G : 'Извини, $n, я уже в отставке.'", false, ch, nullptr, trainer, kToChar);
 		err_log("try to call DoGuildLearn wuthout assigned guild vnum.");
 		return 0;
 	}
 
-	MUD::Guilds(guild_vnum).DisplayMenu(ch);
+	guild.Process(trainer, ch, argument);
 	return 1;
 }
-
-
-/*
- 	Проблема тут в следующем. Умения, способности и заклинания очень похожи в плане механизма хранения в гильдиях,
- 	проверки на доступность изучения и так далее, но все-таки не полностью идентичны. Кроме того, на момент написания
- 	этого комментария на хранение в info_container переведены лишь умения. Поэтому не представляется возможным выделить
- 	какой-то общий интерфес или хотя бы применить шаблонизацию (шаблон со специализацией в данном случае не имеет
- 	смысла).
-
- 	Что нужно сделать: перевести фиты и заклинания также на инфо_контейнер и, вероятно, ввести некий общий интерфейс
- 	для всех контейнеров талантов, позволяющий прповерять, может ли персонаж изучить этот талант, обеспечивающий
- 	собсвтенно изучение и так далее. Пока решил не заморачиваться и сделать простым дублированием кода.
-
- */
 
 namespace guilds {
 
@@ -945,9 +904,10 @@ void GuildsLoader::Reload(DataNode data) {
 	AssignGuildsToTrainers();
 }
 
-std::string_view GuildInfo::GetMessage(EGuildMsg msg_id) {
-	static const std::unordered_map<EGuildMsg, std::string_view> guild_msgs = {
+const std::string &GuildInfo::GetMessage(EGuildMsg msg_id) {
+	static const std::unordered_map<EGuildMsg, std::string> guild_msgs = {
 		{EGuildMsg::kGreeting, "$N сказал$G: 'Я могу научить тебя следующему:'"},
+		{EGuildMsg::kCannot, "$N сказал$G: 'Я не могу тебя этому научить.'"},
 		{EGuildMsg::kSkill, "умение"},
 		{EGuildMsg::kSpell, "заклинание"},
 		{EGuildMsg::kFeat, "способность"},
@@ -1020,10 +980,11 @@ void GuildInfo::AssignToTrainers() const {
 	}
 };
 
-void GuildInfo::DisplayMenu(CharData *ch) const {
-	std::ostringstream out;
-	out << GetMessage(EGuildMsg::kGreeting) << std::endl;
+void GuildInfo::DisplayMenu(CharData *trainer, CharData *ch) const {
+	act(GetMessage(EGuildMsg::kGreeting), false, ch, nullptr, trainer, kToChar);
+	//out << GetMessage(EGuildMsg::kGreeting) << std::endl;
 
+	std::ostringstream out;
 	auto count{1};
 	table_wrapper::Table table;
 	for (const auto &talent : learning_talents_) {
@@ -1039,7 +1000,7 @@ void GuildInfo::DisplayMenu(CharData *ch) const {
 				table << GetMessage(EGuildMsg::kFeat);
 				break;
 		}
-		table << talent->GetName() << KNRM;
+		table << (static_cast<std::string>(talent->GetName()) + KNRM);
 		table << "100 кун" << table_wrapper::kEndRow;
 		++count;
 	}
@@ -1049,6 +1010,31 @@ void GuildInfo::DisplayMenu(CharData *ch) const {
 
 	SendMsgToChar(out.str(), ch);
 }
+
+void GuildInfo::Process(CharData *trainer, CharData *ch, const std::string &argument) const {
+	if (argument.empty()) {
+		DisplayMenu(trainer, ch);
+		return;
+	}
+
+	// ввели число
+	std::size_t talent_num{0};
+	try {
+		talent_num = std::stoi(argument);
+	} catch (std::exception &) {
+		// Это не число, ищем по имени
+		SendMsgToChar(ch, "Вы ввели '%s', но поиск по имени пока не реализован.", argument.c_str());
+	}
+	if (talent_num <= 0 || talent_num >= learning_talents_.size()) {
+		act(GetMessage(EGuildMsg::kCannot), false, ch, nullptr, trainer, kToChar);
+		return;
+	}
+
+	SendMsgToChar(ch, "Вы ввели число '%lu', но поиск по номеру пока не реализован.", talent_num);
+
+	//first=s.substr(0,s.find(' '));
+	//auto arguments = utils::SplitString(argument);
+};
 
 void GuildInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 	buffer << "Print guild:" << std::endl
@@ -1077,15 +1063,15 @@ void GuildInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 	buffer << std::endl;
 }
 
-std::string GuildInfo::GuildSkill::GetIdAsStr() const {
+const std::string &GuildInfo::GuildSkill::GetIdAsStr() const {
 	return NAME_BY_ITEM<ESkill>(id_);
 }
 
 std::string_view GuildInfo::GuildSkill::GetName() const {
-	return MUD::Skills(id_).GetName();
+	return MUD::Skills(id_).name;
 }
 
-std::string GuildInfo::GuildSpell::GetIdAsStr() const {
+const std::string &GuildInfo::GuildSpell::GetIdAsStr() const {
 	return NAME_BY_ITEM<ESpell>(id_);
 }
 
@@ -1093,7 +1079,7 @@ std::string_view GuildInfo::GuildSpell::GetName() const {
 	return spell_info[id_].name;
 }
 
-std::string GuildInfo::GuildFeat::GetIdAsStr() const {
+const std::string &GuildInfo::GuildFeat::GetIdAsStr() const {
 	return NAME_BY_ITEM<EFeat>(id_);
 }
 

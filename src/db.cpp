@@ -2423,10 +2423,6 @@ void boot_db(void) {
 	log("Booting special assignment");
 	init_spec_procs();
 
-/*	boot_profiler.next_step("Loading guilds");
-	log("Booting guilds");
-	init_guilds();*/
-
 	boot_profiler.next_step("Assigning guilds info.");
 	log("Assigning guilds info.");
 	MUD::CfgManager().LoadCfg("guilds");

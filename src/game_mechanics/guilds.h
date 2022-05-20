@@ -33,7 +33,7 @@ class GuildInfo : public info_container::BaseItem<int> {
 	friend class GuildInfoBuilder;
 
 	enum class ETalent { kSkill, kSpell, kFeat };
-	enum class EGuildMsg { kGreeting, kSkill, kSpell, kFeat, kError };
+	enum class EGuildMsg { kGreeting, kCannot, kSkill, kSpell, kFeat, kError };
 
 	class IGuildTalent {
 		ETalent talent_type_;
@@ -42,7 +42,7 @@ class GuildInfo : public info_container::BaseItem<int> {
 			: talent_type_(talent_type) {};
 
 		[[nodiscard]] ETalent GetTalentType() { return talent_type_; };
-		[[nodiscard]] virtual std::string GetIdAsStr() const = 0;
+		[[nodiscard]] virtual const std::string &GetIdAsStr() const = 0;
 		[[nodiscard]] virtual std::string_view GetName() const = 0;
 	};
 
@@ -53,7 +53,7 @@ class GuildInfo : public info_container::BaseItem<int> {
 			: IGuildTalent(talent_type), id_(id) {};
 
 		[[nodiscard]] ESkill GetId() const { return id_; };
-		[[nodiscard]] std::string GetIdAsStr() const final;
+		[[nodiscard]] const std::string &GetIdAsStr() const final;
 		[[nodiscard]] std::string_view GetName() const final;
 	};
 
@@ -64,7 +64,7 @@ class GuildInfo : public info_container::BaseItem<int> {
 		: IGuildTalent(talent_type), id_(id) {};
 
 		[[nodiscard]] ESpell GetId() const { return id_; };
-		[[nodiscard]] std::string GetIdAsStr() const final;
+		[[nodiscard]] const std::string &GetIdAsStr() const final;
 		[[nodiscard]] std::string_view GetName() const final;
 	};
 
@@ -75,7 +75,7 @@ class GuildInfo : public info_container::BaseItem<int> {
 		: IGuildTalent(talent_type), id_(id) {};
 
 		[[nodiscard]] EFeat GetId() const { return id_; };
-		[[nodiscard]] std::string GetIdAsStr() const final;
+		[[nodiscard]] const std::string &GetIdAsStr() const final;
 		[[nodiscard]] std::string_view GetName() const final;
 	};
 
@@ -87,7 +87,8 @@ class GuildInfo : public info_container::BaseItem<int> {
 	TalentsRoster learning_talents_;
 
 	const std::string &GetName() { return name_; };
-	static std::string_view GetMessage(EGuildMsg msg_id);
+	static const std::string & GetMessage(EGuildMsg msg_id);
+	void DisplayMenu(CharData *trainer, CharData *ch) const;
 
  public:
 	GuildInfo() = default;
@@ -97,7 +98,7 @@ class GuildInfo : public info_container::BaseItem<int> {
 	void Print(CharData *ch, std::ostringstream &buffer) const;
 	void AssignToTrainers() const;
 
-	void DisplayMenu(CharData *ch) const;
+	void Process(CharData *trainer, CharData *ch, const std::string &argument) const;
 };
 
 class GuildInfoBuilder : public info_container::IItemBuilder<GuildInfo> {

@@ -96,6 +96,15 @@ inline void act(const std::stringstream &str,
 	act(str.str().c_str(), hide_invisible, ch, obj, vict_obj, type);
 }
 
+inline void act(const std::string &str,
+				int hide_invisible,
+				CharData *ch,
+				const ObjData *obj,
+				const void *vict_obj,
+				int type) {
+	act(str.c_str(), hide_invisible, ch, obj, vict_obj, type, "");
+};
+
 unsigned long get_ip(const char *addr);
 
 #define SUN_CONTROL     (1 << 0)
