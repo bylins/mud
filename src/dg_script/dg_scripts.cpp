@@ -2747,7 +2747,15 @@ void find_replacement(void *go,
 			if (!*subfield || (pos = atoi(subfield)) <= 0) {
 				sprintf(str, "%d", c->get_wait());
 			} else if (!IS_IMMORTAL(c)) {
-				SetWaitState(c, pos * kPulseViolence);
+				char tmp;
+				if (sscanf(subfield, "%d %c", &pos, &tmp) == 2) {
+					if (tmp == 'p') {
+						SetWaitState(c, pos);
+					}
+				}
+				else {
+					SetWaitState(c, pos * kPulseViolence);
+				}
 			}
 		} else if (!str_cmp(field, "apply_value")) {
 			int num;
