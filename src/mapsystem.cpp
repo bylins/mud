@@ -378,7 +378,7 @@ void draw_spec_mobs(const CharData *ch, int room_rnum, int next_y, int next_x, i
 			} else if (func == horse_keeper
 				&& (all || ch->map_check_option(MAP_MODE_MOB_SPEC_HORSE))) {
 				put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_HORSE, cur_depth);
-			} else if ((func == guild_mono || func == guild_poly)
+			} else if ((func == DoGuildLearn)
 				&& (all || ch->map_check_option(MAP_MODE_MOB_SPEC_TEACH))) {
 				put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_TEACH, cur_depth);
 			} else if (func == torc

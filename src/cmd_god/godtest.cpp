@@ -15,13 +15,16 @@
 
 // It is test command for different testings
 void do_godtest(CharData *ch, char */*argument*/, int /* cmd */, int /* subcmd */) {
-	std::ostringstream out;
-	//MUD::Classes(ECharClass::kPaladine).Print(ch, out);
+
+	MUD::Guilds(1).DisplayMenu(ch);
+
+/*	std::ostringstream out;
 	for (const auto &guild : MUD::Guilds()) {
 		guild.Print(ch, out);
 	}
-//	MUD::Guilds(0).Print(out);
-	page_string(ch->desc, out.str());
+	page_string(ch->desc, out.str());*/
+
+	//MUD::Classes(ECharClass::kPaladine).Print(ch, out);
 
 /*	std:: ostringstream out;
 	out << "В настоящий момент процiдурка пуста." << std::endl

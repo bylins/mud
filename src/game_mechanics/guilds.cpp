@@ -51,7 +51,7 @@ int GUILDS_POLY_USED = 0;
 
 struct guild_mono_type *guild_mono_info = nullptr;
 struct guild_poly_type **guild_poly_info = nullptr;
-
+/*
 void init_guilds() {
 	FILE *magic;
 	char name[kMaxInputLength],
@@ -274,9 +274,9 @@ void init_guilds() {
 	}
 	fclose(magic);
 }
-
-#define SCMD_LEARN 1
-
+*/
+//#define SCMD_LEARN 1
+/*
 int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 	int command = 0, gcount = 0, info_num = 0, found = false, sfound = false, i, bits;
 	auto *victim = (CharData *) me;
@@ -884,7 +884,32 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 	}
 
 	return 0;
+}*/
+
+int DoGuildLearn(CharData *ch, void *me, int cmd, char *argument) {
+	if (ch->IsNpc()) {
+		return 0;
+	}
+	if (!CMD_IS("учить") && !CMD_IS("practice")) {
+		return 0;
+	}
+
+	auto *trainer = (CharData *) me;
+	Vnum guild_vnum{-1};
+	if (auto rnum = trainer->get_rnum(); rnum >= 0) {
+		guild_vnum = mob_index[rnum].stored;
+	}
+
+	if (guild_vnum < 0) {
+		act("$N сказал$G : 'Извини, $n, я уже в отставке.'", false, ch, nullptr, trainer, kToChar);
+		err_log("try to call DoGuildLearn wuthout assigned guild vnum.");
+		return 0;
+	}
+
+	MUD::Guilds(guild_vnum).DisplayMenu(ch);
+	return 1;
 }
+
 
 /*
  	Проблема тут в следующем. Умения, способности и заклинания очень похожи в плане механизма хранения в гильдиях,
@@ -904,12 +929,36 @@ namespace guilds {
 using DataNode = parser_wrapper::DataNode;
 using ItemPtr = GuildInfoBuilder::ItemPtr;
 
+void GuildsLoader::AssignGuildsToTrainers() {
+	for (const auto& guild : MUD::Guilds()) {
+		guild.AssignToTrainers();
+	}
+}
+
 void GuildsLoader::Load(DataNode data) {
 	MUD::Guilds().Init(data.Children());
+	AssignGuildsToTrainers();
 }
 
 void GuildsLoader::Reload(DataNode data) {
 	MUD::Guilds().Reload(data.Children());
+	AssignGuildsToTrainers();
+}
+
+std::string_view GuildInfo::GetMessage(EGuildMsg msg_id) {
+	static const std::unordered_map<EGuildMsg, std::string_view> guild_msgs = {
+		{EGuildMsg::kGreeting, "$N сказал$G: 'Я могу научить тебя следующему:'"},
+		{EGuildMsg::kSkill, "умение"},
+		{EGuildMsg::kSpell, "заклинание"},
+		{EGuildMsg::kFeat, "способность"},
+		{EGuildMsg::kError, "У кодера какие-то проблемы."},
+	};
+
+	if (guild_msgs.contains(msg_id)) {
+		return guild_msgs.at(msg_id);
+	} else {
+		return guild_msgs.at(EGuildMsg::kError);
+	}
 }
 
 ItemPtr GuildInfoBuilder::Build(DataNode &node) {
@@ -939,52 +988,66 @@ ItemPtr GuildInfoBuilder::ParseGuild(DataNode node) {
 		guild_info->trainers_ = parse::ReadAsIntSet(node.GetValue("vnums"));
 	}
 
-	if (node.GoToSibling("skills")) {
-		ParseSkills(guild_info, node);
-	}
-
-	if (node.GoToSibling("spells")) {
-		ParseSpells(guild_info, node);
-	}
-
-	if (node.GoToSibling("feats")) {
-		ParseFeats(guild_info, node);
+	if (node.GoToSibling("talents")) {
+		ParseTalents(guild_info, node);
 	}
 
 	return guild_info;
 }
 
-void GuildInfoBuilder::ParseSkills(ItemPtr &info, DataNode &node) {
+void GuildInfoBuilder::ParseTalents(ItemPtr &info, DataNode &node) {
+	static const std::string skill_element{"skill"};
+	static const std::string spell_element{"spell"};
+	static const std::string feat_element{"geat"};
+
 	for (const auto &talent_node : node.Children()) {
-		auto talent_id = parse::ReadAsConstant<ESkill>(talent_node.GetValue("id"));
-		auto it = info->learning_skills_.try_emplace(talent_id, Condition());
-		if (!it.second) {
-			err_log("Talent '%s' has already exist id guild '%s'. Redundant definition had been ignored.",
-					NAME_BY_ITEM<ESkill>(talent_id).c_str(), info->GetName().c_str());
+		if (talent_node.GetName() == skill_element) {
+			auto talent_id = parse::ReadAsConstant<ESkill>(talent_node.GetValue("id"));
+			info->learning_talents_.emplace_back(std::make_unique<GuildInfo::GuildSkill>(GuildInfo::ETalent::kSkill, talent_id));
+		} else if (talent_node.GetName() == spell_element) {
+			auto talent_id = parse::ReadAsConstant<ESpell>(talent_node.GetValue("id"));
+			info->learning_talents_.emplace_back(std::make_unique<GuildInfo::GuildSpell>(GuildInfo::ETalent::kSpell, talent_id));
+		} else if (talent_node.GetName() == feat_element) {
+			auto talent_id = parse::ReadAsConstant<EFeat>(talent_node.GetValue("id"));
+			info->learning_talents_.emplace_back(std::make_unique<GuildInfo::GuildFeat>(GuildInfo::ETalent::kFeat, talent_id));
 		}
 	}
 }
 
-void GuildInfoBuilder::ParseSpells(ItemPtr &info, DataNode &node) {
-	for (const auto &talent_node : node.Children()) {
-		auto talent_id = parse::ReadAsConstant<ESpell>(talent_node.GetValue("id"));
-		auto it = info->learning_spells_.try_emplace(talent_id, Condition());
-		if (!it.second) {
-			err_log("Talent '%s' has already exist id guild '%s'. Redundant definition had been ignored.",
-					NAME_BY_ITEM<ESpell>(talent_id).c_str(), info->GetName().c_str());
-		}
+void GuildInfo::AssignToTrainers() const {
+	for (const auto trainer_vnum : trainers_) {
+		ASSIGNMASTER(trainer_vnum, DoGuildLearn, GetId());
 	}
-}
+};
 
-void GuildInfoBuilder::ParseFeats(ItemPtr &info, DataNode &node) {
-	for (const auto &talent_node : node.Children()) {
-		auto talent_id = parse::ReadAsConstant<EFeat>(talent_node.GetValue("id"));
-		auto it = info->learning_feats_.try_emplace(talent_id, Condition());
-		if (!it.second) {
-			err_log("Talent '%s' has already exist id guild '%s'. Redundant definition had been ignored.",
-					NAME_BY_ITEM<EFeat>(talent_id).c_str(), info->GetName().c_str());
+void GuildInfo::DisplayMenu(CharData *ch) const {
+	std::ostringstream out;
+	out << GetMessage(EGuildMsg::kGreeting) << std::endl;
+
+	auto count{1};
+	table_wrapper::Table table;
+	for (const auto &talent : learning_talents_) {
+		table << (KCYN + std::to_string(count) + KNRM + ")" + KGRN);
+		switch (talent->GetTalentType()) {
+			case ETalent::kSkill:
+				table << GetMessage(EGuildMsg::kSkill);
+				break;
+			case ETalent::kSpell:
+				table << GetMessage(EGuildMsg::kSpell);
+				break;
+			case ETalent::kFeat:
+				table << GetMessage(EGuildMsg::kFeat);
+				break;
 		}
+		table << talent->GetName() << KNRM;
+		table << "100 кун" << table_wrapper::kEndRow;
+		++count;
 	}
+	table_wrapper::DecorateNoBorderTable(ch, table);
+	table_wrapper::PrintTableToStream(out, table);
+	out << std::endl;
+
+	SendMsgToChar(out.str(), ch);
 }
 
 void GuildInfo::Print(CharData *ch, std::ostringstream &buffer) const {
@@ -1000,41 +1063,42 @@ void GuildInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 		buffer.seekp(-2, std::ios_base::end);
 		buffer << "." << KNRM << std::endl;
 	}
-	if (!learning_skills_.empty()) {
-		buffer << " Trained skills: " << std::endl;
+	if (!learning_talents_.empty()) {
+		buffer << " Trained talents: " << std::endl;
 		table_wrapper::Table table;
 		table << table_wrapper::kHeader << "Id" << "Name" << table_wrapper::kEndRow;
-		for (const auto &talent : learning_skills_) {
-			table << NAME_BY_ITEM(talent.first) << MUD::Skills(talent.first).GetName() << table_wrapper::kEndRow;
+		for (const auto &talent: learning_talents_) {
+			table << talent->GetIdAsStr() << talent->GetName() << table_wrapper::kEndRow;
 		}
 		table_wrapper::DecorateNoBorderTable(ch, table);
 		table_wrapper::PrintTableToStream(buffer, table);
 	}
-
-	if (!learning_skills_.empty()) {
-		buffer << " Trained spells: " << std::endl;
-		table_wrapper::Table table;
-		table << table_wrapper::kHeader << "Id" << "Name" << table_wrapper::kEndRow;
-		for (const auto &talent : learning_spells_) {
-			table << NAME_BY_ITEM(talent.first) << spell_info[talent.first].name << table_wrapper::kEndRow;
-		}
-		table_wrapper::DecorateNoBorderTable(ch, table);
-		table_wrapper::PrintTableToStream(buffer, table);
-	}
-
-	if (!learning_skills_.empty()) {
-		buffer << " Trained feats: " << std::endl;
-		table_wrapper::Table table;
-		table << table_wrapper::kHeader << "Id" << "Name" << table_wrapper::kEndRow;
-		for (const auto &talent : learning_feats_) {
-			table << NAME_BY_ITEM(talent.first) << feat_info[talent.first].name << table_wrapper::kEndRow;
-		}
-		table_wrapper::DecorateNoBorderTable(ch, table);
-		table_wrapper::PrintTableToStream(buffer, table);
-	}
-
 
 	buffer << std::endl;
+}
+
+std::string GuildInfo::GuildSkill::GetIdAsStr() const {
+	return NAME_BY_ITEM<ESkill>(id_);
+}
+
+std::string_view GuildInfo::GuildSkill::GetName() const {
+	return MUD::Skills(id_).GetName();
+}
+
+std::string GuildInfo::GuildSpell::GetIdAsStr() const {
+	return NAME_BY_ITEM<ESpell>(id_);
+}
+
+std::string_view GuildInfo::GuildSpell::GetName() const {
+	return spell_info[id_].name;
+}
+
+std::string GuildInfo::GuildFeat::GetIdAsStr() const {
+	return NAME_BY_ITEM<EFeat>(id_);
+}
+
+std::string_view GuildInfo::GuildFeat::GetName() const {
+	return feat_info[id_].name;
 }
 
 }

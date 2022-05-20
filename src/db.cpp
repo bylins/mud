@@ -2313,10 +2313,6 @@ void boot_db(void) {
 	log("Assigning character classs info.");
 	MUD::CfgManager().LoadCfg("classes");
 
-	boot_profiler.next_step("Assigning guilds info.");
-	log("Assigning guilds info.");
-	MUD::CfgManager().LoadCfg("guilds");
-
 	InitSpellLevels();
 
 	boot_profiler.next_step("Loading zone types and ingredient for each zone type");
@@ -2427,9 +2423,13 @@ void boot_db(void) {
 	log("Booting special assignment");
 	init_spec_procs();
 
-	boot_profiler.next_step("Loading guilds");
+/*	boot_profiler.next_step("Loading guilds");
 	log("Booting guilds");
-	init_guilds();
+	init_guilds();*/
+
+	boot_profiler.next_step("Assigning guilds info.");
+	log("Assigning guilds info.");
+	MUD::CfgManager().LoadCfg("guilds");
 
 	boot_profiler.next_step("Loading portals for 'town portal' spell");
 	log("Booting portals for 'town portal' spell");

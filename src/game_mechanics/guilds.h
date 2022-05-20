@@ -16,16 +16,14 @@
 
 class CharData;
 
-void init_guilds();
-int guild_mono(CharData *ch, void *me, int cmd, char *argument);
-int guild_poly(CharData *ch, void *me, int cmd, char *argument);
-
+int DoGuildLearn(CharData *ch, void *me, int cmd, char *argument);
 
 namespace guilds {
 
-class Condition {};
+class ConditionsRoster {};
 
 class GuildsLoader : virtual public cfg_manager::ICfgLoader {
+	static void AssignGuildsToTrainers();
  public:
 	void Load(parser_wrapper::DataNode data) final;
 	void Reload(parser_wrapper::DataNode data) final;
@@ -34,19 +32,72 @@ class GuildsLoader : virtual public cfg_manager::ICfgLoader {
 class GuildInfo : public info_container::BaseItem<int> {
 	friend class GuildInfoBuilder;
 
+	enum class ETalent { kSkill, kSpell, kFeat };
+	enum class EGuildMsg { kGreeting, kSkill, kSpell, kFeat, kError };
+
+	class IGuildTalent {
+		ETalent talent_type_;
+		public:
+		explicit IGuildTalent(ETalent talent_type)
+			: talent_type_(talent_type) {};
+
+		[[nodiscard]] ETalent GetTalentType() { return talent_type_; };
+		[[nodiscard]] virtual std::string GetIdAsStr() const = 0;
+		[[nodiscard]] virtual std::string_view GetName() const = 0;
+	};
+
+	class GuildSkill : public IGuildTalent {
+		ESkill id_;
+	 public:
+		explicit GuildSkill(ETalent talent_type, ESkill id)
+			: IGuildTalent(talent_type), id_(id) {};
+
+		[[nodiscard]] ESkill GetId() const { return id_; };
+		[[nodiscard]] std::string GetIdAsStr() const final;
+		[[nodiscard]] std::string_view GetName() const final;
+	};
+
+	class GuildSpell : public IGuildTalent {
+		ESpell id_;
+	 public:
+		explicit GuildSpell(ETalent talent_type, ESpell id)
+		: IGuildTalent(talent_type), id_(id) {};
+
+		[[nodiscard]] ESpell GetId() const { return id_; };
+		[[nodiscard]] std::string GetIdAsStr() const final;
+		[[nodiscard]] std::string_view GetName() const final;
+	};
+
+	class GuildFeat : public IGuildTalent {
+		EFeat id_;
+	 public:
+		explicit GuildFeat(ETalent talent_type, EFeat id)
+		: IGuildTalent(talent_type), id_(id) {};
+
+		[[nodiscard]] EFeat GetId() const { return id_; };
+		[[nodiscard]] std::string GetIdAsStr() const final;
+		[[nodiscard]] std::string_view GetName() const final;
+	};
+
+	using TalentPtr = std::unique_ptr<IGuildTalent>;
+	using TalentsRoster = std::vector<TalentPtr>;
+
 	std::string name_;
 	std::set<MobVnum> trainers_;
-	std::map<ESkill, Condition> learning_skills_;
-	std::map<ESpell, Condition> learning_spells_;
-	std::map<EFeat, Condition> learning_feats_;
+	TalentsRoster learning_talents_;
+
+	const std::string &GetName() { return name_; };
+	static std::string_view GetMessage(EGuildMsg msg_id);
 
  public:
 	GuildInfo() = default;
 	GuildInfo(int id, std::string &text_id, std::string &name, EItemMode mode)
 	: BaseItem<int>(id, text_id, mode), name_{name} {};
 
-	const std::string &GetName() { return name_; };
 	void Print(CharData *ch, std::ostringstream &buffer) const;
+	void AssignToTrainers() const;
+
+	void DisplayMenu(CharData *ch) const;
 };
 
 class GuildInfoBuilder : public info_container::IItemBuilder<GuildInfo> {
@@ -54,13 +105,10 @@ class GuildInfoBuilder : public info_container::IItemBuilder<GuildInfo> {
 	ItemPtr Build(parser_wrapper::DataNode &node) final;
  private:
 	static ItemPtr ParseGuild(parser_wrapper::DataNode node);
-	static void ParseSkills(ItemPtr &info, parser_wrapper::DataNode &node);
-	static void ParseSpells(ItemPtr &info, parser_wrapper::DataNode &node);
-	static void ParseFeats(ItemPtr &info, parser_wrapper::DataNode &node);
+	static void ParseTalents(ItemPtr &info, parser_wrapper::DataNode &node);
 };
 
 using GuildsInfo = info_container::InfoContainer<int, GuildInfo, GuildInfoBuilder>;
-
 
 }
 #endif //BYLINS_SRC_GAME_MECHANICS_GUILDS_H_
