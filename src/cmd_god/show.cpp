@@ -69,6 +69,32 @@ void ShowClassInfo(CharData *ch, const std::string &class_name, const std::strin
 	page_string(ch->desc, out.str());
 }
 
+void ShowGuildInfo(CharData *ch, const std::string &guild_locator) {
+	std::ostringstream out;
+	if (guild_locator.empty()) {
+		for (const auto &guild : MUD::Guilds()) {
+			guild.Print(ch, out);
+		}
+	} else {
+		Vnum guild_vnum{-1};
+		try {
+			guild_vnum = std::stoi(guild_locator);
+		} catch (...) {
+			SendMsgToChar("Формат: show guild [vnum]", ch);
+			return;
+		}
+
+		const auto &guild = MUD::Guilds(guild_vnum);
+		if (guild.GetId() == info_container::kUndefinedVnum) {
+			SendMsgToChar("Гильдии с таким vnum не существует.", ch);
+			return;
+		}
+		guild.Print(ch, out);
+	}
+
+	page_string(ch->desc, out.str());
+}
+
 namespace {
 
 bool sort_by_zone_mob_level(int rnum1, int rnum2) {
@@ -242,6 +268,7 @@ struct show_struct show_fields[] = {
 	{"worlds", kLvlImmortal},
 	{"triggers", kLvlImmortal},
 	{"class", kLvlImmortal},
+	{"guild", kLvlImmortal},
 	{"\n", 0}
 };
 
@@ -704,6 +731,9 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			break;
 		case 29: // class
 			ShowClassInfo(ch, value, value1);
+			break;
+		case 30: // guild
+			ShowGuildInfo(ch, value);
 			break;
 		default: SendMsgToChar("Извините, неверная команда.\r\n", ch);
 			break;

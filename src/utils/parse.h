@@ -64,7 +64,6 @@ void ReadAsConstantsSet(std::unordered_set<T> &roster, const char *value) {
 	if (strcmp(value, "") == 0) {
 		throw std::runtime_error("string is empty");
 	}
-	std::cout << value << std::endl;
 	std::vector<std::string> str_array;
 	utils::SplitString(str_array, value, '|');
 	for (const auto &str : str_array) {

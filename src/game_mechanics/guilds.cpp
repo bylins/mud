@@ -1089,6 +1089,7 @@ bool GuildInfo::IGuildTalent::IsUnlearnable(CharData *ch) const {
 		return true;
 	}
 
+	//return (!trained_classes_.contains(ch->GetClass()) || IsUnavailableForClass(ch));
 	return !trained_classes_.contains(ch->GetClass());
 }
 
@@ -1115,6 +1116,10 @@ std::string_view GuildInfo::GuildSkill::GetName() const {
 	return MUD::Skills(id_).name;
 }
 
+/*bool GuildInfo::GuildSkill::IsUnavailableForClass(CharData *ch) const {
+	return !CanGetSkill(ch, id_);
+}*/
+
 const std::string &GuildInfo::GuildSpell::GetIdAsStr() const {
 	return NAME_BY_ITEM<ESpell>(id_);
 }
@@ -1123,6 +1128,10 @@ std::string_view GuildInfo::GuildSpell::GetName() const {
 	return spell_info[id_].name;
 }
 
+/*bool GuildInfo::GuildSpell::IsUnavailableForClass(CharData *ch) const {
+	return !CanGetSpell(ch, id_);
+}*/
+
 const std::string &GuildInfo::GuildFeat::GetIdAsStr() const {
 	return NAME_BY_ITEM<EFeat>(id_);
 }
@@ -1130,6 +1139,10 @@ const std::string &GuildInfo::GuildFeat::GetIdAsStr() const {
 std::string_view GuildInfo::GuildFeat::GetName() const {
 	return feat_info[id_].name;
 }
+/*
+bool GuildInfo::GuildFeat::IsUnavailableForClass(CharData *ch) const {
+	return !CanGetFeat(ch, id_);
+}*/
 
 }
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
