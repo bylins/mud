@@ -258,10 +258,10 @@ void Dps::PrintGroupStats(CharData *ch, CharData *coder) {
 		double percent = tmp_total_dmg ? it->first * 100.0 / tmp_total_dmg : 0.0;
 		table << it->second.name
 			<< (unsigned) it->first
-			<< std::setprecision(2) << percent
-			<< it->second.dps
-			<< it->second.round_dmg
-			<< it->second.over_dmg << table_wrapper::kEndRow;
+			<< std::setprecision(2) << (unsigned) percent
+			<< (unsigned) it->second.dps
+			<< (unsigned) it->second.round_dmg
+			<< (unsigned) it->second.over_dmg << table_wrapper::kEndRow;
 	}
 	tmp_group_list.clear();
 

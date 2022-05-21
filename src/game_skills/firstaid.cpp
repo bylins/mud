@@ -100,7 +100,10 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act("У вас не хватит умения вылечить $N3.", false, ch, nullptr, vict, kToChar);
 	} else {
 		timed.skill = ESkill::kFirstAid;
-		timed.time = IS_IMMORTAL(ch) ? 2 : IS_PALADINE(ch) ? 4 : IS_SORCERER(ch) ? 2 : 6;
+		int time = IS_IMMORTAL(ch) ? 1 : IS_PALADINE(ch) ? 4 : IS_SORCERER(ch) ? 2 : 6;
+		if (CanUseFeat(ch, EFeat::kPhysicians))
+			time /=2;
+		timed.time = time;
 		ImposeTimedSkill(ch, &timed);
 		if (vict != ch) {
 			ImproveSkill(ch, ESkill::kFirstAid, success, nullptr);

@@ -195,8 +195,9 @@ enum class EFeat {
 	kMagicalShield = 155,		//заговоренный щит" - фит для витязей, защита от директ спеллов
 	kAnimalMaster = 156,		//хозяин животных
 	kSlashMaster = 157, 				//двойной удар двуручем
+	kPhysicians = 158,
 	kFirst = kBerserker,
-	kLast = kSlashMaster				// !!! Не забываем менять !!!
+	kLast = kPhysicians				// !!! Не забываем менять !!!
 };
 
 template<>
