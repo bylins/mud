@@ -271,9 +271,9 @@ struct Punish {
 };
 
 // Structure used for entities following other entities //
-struct Follower {
-	CharData *ch = nullptr;
-	struct Follower *next = nullptr;
+struct FollowerType {
+	CharData *follower = nullptr;
+	struct FollowerType *next = nullptr;
 };
 
 // Structure used for tracking a mob //

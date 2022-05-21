@@ -1725,7 +1725,7 @@ CharData::followers_list_t CharData::get_followers_list() const {
 	CharData::followers_list_t result;
 	auto pos = followers;
 	while (pos) {
-		const auto follower = pos->ch;
+		const auto follower = pos->follower;
 		result.push_back(follower);
 		pos = pos->next;
 	}
@@ -1747,7 +1747,7 @@ void CharData::cleanup_script() {
 }
 
 void CharData::add_follower_silently(CharData *ch) {
-	struct Follower *k;
+	struct FollowerType *k;
 
 	if (ch->has_master()) {
 		log("SYSERR: add_follower_implementation(%s->%s) when master existing(%s)...",
@@ -1763,7 +1763,7 @@ void CharData::add_follower_silently(CharData *ch) {
 
 	CREATE(k, 1);
 
-	k->ch = ch;
+	k->follower = ch;
 	k->next = followers;
 	followers = k;
 }
@@ -2059,15 +2059,15 @@ bool CharData::have_mind() const {
 }
 
 bool CharData::has_horse(bool same_room) const {
-	struct Follower *f;
+	struct FollowerType *f;
 
 	if (this->IsNpc()) {
 		return false;
 	}
 
 	for (f = this->followers; f; f = f->next) {
-		if (f->ch->IsNpc() && AFF_FLAGGED(f->ch, EAffect::kHorse)
-			&& (!same_room || this->in_room == IN_ROOM(f->ch))) {
+		if (f->follower->IsNpc() && AFF_FLAGGED(f->follower, EAffect::kHorse)
+			&& (!same_room || this->in_room == IN_ROOM(f->follower))) {
 			return true;
 		}
 	}
@@ -2120,14 +2120,14 @@ void CharData::dismount() {
 }
 
 CharData *CharData::get_horse() {
-	struct Follower *f;
+	struct FollowerType *f;
 
 	if (this->IsNpc())
 		return nullptr;
 
 	for (f = this->followers; f; f = f->next) {
-		if (f->ch->IsNpc() && AFF_FLAGGED(f->ch, EAffect::kHorse)) {
-			return (f->ch);
+		if (f->follower->IsNpc() && AFF_FLAGGED(f->follower, EAffect::kHorse)) {
+			return (f->follower);
 		}
 	}
 	return nullptr;

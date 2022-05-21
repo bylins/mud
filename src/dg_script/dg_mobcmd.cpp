@@ -304,13 +304,14 @@ void do_msend(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 
 	if (*arg == UID_CHAR) {
 		if (!(victim = get_char(arg, true))) {
-			sprintf(buf, "msend: victim (%s) UID does not exist", arg + 1);
-			mob_log(ch, buf, LGH);
+// Надоел спам чармисов
+//			sprintf(buf, "msend: victim (%s) UID does not exist", arg + 1);
+//			mob_log(ch, buf, LGH);
 			return;
 		}
 	} else if (!(victim = get_char_room_vis(ch, arg))) {
-//		sprintf(buf, "msend: victim (%s) does not exist", arg);
-//		mob_log(ch, buf, LGH);
+		sprintf(buf, "msend: victim (%s) does not exist", arg);
+		mob_log(ch, buf, LGH);
 		return;
 	}
 
@@ -616,11 +617,11 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 		from_room = vict->in_room;
 //Polud реализуем режим followers. за аргументом телепорта перемешаются все последователи-NPC
 		if (!str_cmp(argument, "followers") && vict->followers) {
-			Follower *ft;
+			FollowerType *ft;
 			for (ft = vict->followers; ft; ft = ft->next) {
-				if (IN_ROOM(ft->ch) == from_room && ft->ch->IsNpc()) {
-					ExtractCharFromRoom(ft->ch);
-					PlaceCharToRoom(ft->ch, target);
+				if (IN_ROOM(ft->follower) == from_room && ft->follower->IsNpc()) {
+					ExtractCharFromRoom(ft->follower);
+					PlaceCharToRoom(ft->follower, target);
 				}
 			}
 		}

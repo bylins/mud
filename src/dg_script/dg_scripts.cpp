@@ -2302,8 +2302,8 @@ void find_replacement(void *go,
 							num = 0;
 						}
 						for (auto f = k->followers; f; f = f->next) {
-							if (AFF_FLAGGED(f->ch, EAffect::kGroup)
-									&& !f->ch->IsNpc() && IN_ROOM(f->ch) == c->in_room) {
+							if (AFF_FLAGGED(f->follower, EAffect::kGroup)
+									&& !f->follower->IsNpc() && IN_ROOM(f->follower) == c->in_room) {
 								num++;
 							}
 						}
@@ -2313,9 +2313,9 @@ void find_replacement(void *go,
 							if (AFF_FLAGGED(k, EAffect::kGroup) && IN_ROOM(k) == c->in_room && !k->IsNpc() && k != c)
 								k->add_nogata(share);
 							for (auto f = k->followers; f; f = f->next) {
-								if (AFF_FLAGGED(f->ch, EAffect::kGroup)
-										&& !f->ch->IsNpc() && IN_ROOM(f->ch) == c->in_room && f->ch != c) {
-									f->ch->add_nogata(share);
+								if (AFF_FLAGGED(f->follower, EAffect::kGroup)
+										&& !f->follower->IsNpc() && IN_ROOM(f->follower) == c->in_room && f->follower != c) {
+									f->follower->add_nogata(share);
 								}
 							}
 							sprintf(buf, "Вы разделили %d %s на %d  -  по %d каждому.\r\n",
@@ -2503,7 +2503,7 @@ void find_replacement(void *go,
 			} else {
 				strcpy(str, "1");
 			}
-		} else if (!str_cmp(field, "can_get_skill")) {
+		} else if (!str_cmp(field, "cangetskill")) {
 			auto skill_id = FixNameAndFindSkillId(subfield);
 			if (skill_id > ESkill::kUndefined) {
 				if (CanGetSkill(c, skill_id)) {
@@ -2516,7 +2516,7 @@ void find_replacement(void *go,
 				trig_log(trig, buf);
 				strcpy(str, "0");
 			}
-		} else if (!str_cmp(field, "can_get_spell")) {
+		} else if (!str_cmp(field, "cangetspell")) {
 			auto spell_id = FixNameAndFindSpellId(subfield);
 			if (spell_id > ESpell::kUndefined) {
 				if (CanGetSpell(c, spell_id)) {
@@ -2529,7 +2529,7 @@ void find_replacement(void *go,
 				trig_log(trig, buf);
 				strcpy(str, "0");
 			}
-		} else if (!str_cmp(field, "can_get_feat")) {
+		} else if (!str_cmp(field, "cangetfeat")) {
 			if (auto id = FindFeatId(subfield); id != EFeat::kUndefined) {
 				if (CanGetFeat(c, id))
 					strcpy(str, "1");
@@ -2549,29 +2549,41 @@ void find_replacement(void *go,
 			sprintf(str, "%d", GET_MOB_VNUM(c));
 		} else if (!str_cmp(field, "str")) {
 			sprintf(str, "%d", c->get_str());
-		} else if (!str_cmp(field, "stradd"))
+		} else if (!str_cmp(field, "stradd")) {
 			sprintf(str, "%d", GET_STR_ADD(c));
-		else if (!str_cmp(field, "int")) {
+		} else if (!str_cmp(field, "realstr")) {
+			sprintf(str, "%d", GET_REAL_STR(c));
+		} else if (!str_cmp(field, "int")) {
 			sprintf(str, "%d", c->get_int());
-		} else if (!str_cmp(field, "intadd"))
+		} else if (!str_cmp(field, "intadd")) {
 			sprintf(str, "%d", GET_INT_ADD(c));
-		else if (!str_cmp(field, "wis")) {
+		} else if (!str_cmp(field, "realint")) {
+			sprintf(str, "%d", GET_REAL_INT(c));
+		} else if (!str_cmp(field, "wis")) {
 			sprintf(str, "%d", c->get_wis());
-		} else if (!str_cmp(field, "wisadd"))
+		} else if (!str_cmp(field, "wisadd")) {
 			sprintf(str, "%d", GET_WIS_ADD(c));
-		else if (!str_cmp(field, "dex")) {
+		} else if (!str_cmp(field, "realwis")) {
+			sprintf(str, "%d", GET_REAL_WIS(c));
+		} else if (!str_cmp(field, "dex")) {
 			sprintf(str, "%d", c->get_dex());
-		} else if (!str_cmp(field, "dexadd"))
+		} else if (!str_cmp(field, "dexadd")) {
 			sprintf(str, "%d", c->get_dex_add());
-		else if (!str_cmp(field, "con")) {
+		} else if (!str_cmp(field, "realdex")) {
+			sprintf(str, "%d", GET_REAL_DEX(c));
+		} else if (!str_cmp(field, "con")) {
 			sprintf(str, "%d", c->get_con());
 		} else if (!str_cmp(field, "conadd")) {
 			sprintf(str, "%d", GET_CON_ADD(c));
+		} else if (!str_cmp(field, "realcon")) {
+			sprintf(str, "%d", GET_REAL_CON(c));
 		} else if (!str_cmp(field, "cha")) {
 			sprintf(str, "%d", c->get_cha());
-		} else if (!str_cmp(field, "chaadd"))
+		} else if (!str_cmp(field, "chaadd")) {
 			sprintf(str, "%d", GET_CHA_ADD(c));
-		else if (!str_cmp(field, "size")) {
+		} else if (!str_cmp(field, "realcha")) {
+			sprintf(str, "%d", GET_REAL_CHA(c));
+		} else if (!str_cmp(field, "size")) {
 			sprintf(str, "%d", GET_SIZE(c));
 		} else if (!str_cmp(field, "sizeadd")) {
 			if (*subfield)
@@ -2579,6 +2591,8 @@ void find_replacement(void *go,
 					(sbyte) MAX(1, gm_char_field(c, field, subfield, (long) GET_SIZE_ADD(c)));
 				else
 				sprintf(str, "%d", GET_SIZE_ADD(c));
+		} else if (!str_cmp(field, "realsize")) {
+			sprintf(str, "%d", GET_REAL_SIZE(c));
 		} else if (!str_cmp(field, "room")) {
 			if (!*subfield) {
 				int n = find_room_uid(world[IN_ROOM(c)]->room_vn);
@@ -2747,7 +2761,15 @@ void find_replacement(void *go,
 			if (!*subfield || (pos = atoi(subfield)) <= 0) {
 				sprintf(str, "%d", c->get_wait());
 			} else if (!IS_IMMORTAL(c)) {
-				SetWaitState(c, pos * kPulseViolence);
+				char tmp;
+				if (sscanf(subfield, "%d %c", &pos, &tmp) == 2) {
+					if (tmp == 'p') {
+						SetWaitState(c, pos);
+					}
+				}
+				else {
+					SetWaitState(c, pos * kPulseViolence);
+				}
 			}
 		} else if (!str_cmp(field, "apply_value")) {
 			int num;
@@ -2788,7 +2810,7 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "group")) {
 			CharData *l;
-			struct Follower *f;
+			struct FollowerType *f;
 			if (!AFF_FLAGGED(c, EAffect::kGroup)) {
 				return;
 			}
@@ -2799,10 +2821,10 @@ void find_replacement(void *go,
 			// l - лидер группы
 			sprintf(str + strlen(str), "%c%ld ", uid_type, GET_ID(l));
 			for (f = l->followers; f; f = f->next) {
-				if (!AFF_FLAGGED(f->ch, EAffect::kGroup)) {
+				if (!AFF_FLAGGED(f->follower, EAffect::kGroup)) {
 					continue;
 				}
-				sprintf(str + strlen(str), "%c%ld ", uid_type, GET_ID(f->ch));
+				sprintf(str + strlen(str), "%c%ld ", uid_type, GET_ID(f->follower));
 			}
 		} else if (!str_cmp(field, "attackers")) {
 			CharData *t;

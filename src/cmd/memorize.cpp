@@ -81,14 +81,13 @@ void show_wizdom(CharData *ch, int bitset) {
 			slot_num = MUD::Classes(ch->GetClass()).spells[spell_id].GetCircle() - 1;
 			max_slot = std::max(slot_num, max_slot);
 			slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-									   "%2s|[%2d] %-31s|",
-									   slots[slot_num] % 80 <
-										   10 ? "\r\n" : "  ", count, spell_info[spell_id].name);
+					"%2s|[%2d] %-31s|",
+					slots[slot_num] % 80 < 10 ? "\r\n" : "  ", 
+					count,
+					spell_info[spell_id].name);
 			is_full++;
 		};
-
-		gcount +=
-			sprintf(buf2 + gcount, "  %sВы знаете следующие заклинания :%s", KICYN, KNRM);
+		gcount += sprintf(buf2 + gcount, "  %sВы знаете следующие заклинания :%s", KICYN, KNRM);
 		if (is_full) {
 			for (i = 0; i < max_slot + 1; i++) {
 				if (slots[i]) {
@@ -143,10 +142,10 @@ void show_wizdom(CharData *ch, int bitset) {
 				}
 				slot_num = MUD::Classes(ch->GetClass()).spells[spell_id].GetCircle() - 1;
 				slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-										   "%2s|[%2d] %-26s%5s|",
-										   slots[slot_num] % 80 <
-											   10 ? "\r\n" : "  ", to_underlying(cnt[index]),
-										   spell_info[spell_id].name, q == ch->mem_queue.queue ? timestr : "");
+						"%2s|[%2d] %-26s%5s|",
+						slots[slot_num] % 80 < 10 ? "\r\n" : "  ", 
+						to_underlying(cnt[index]),
+						spell_info[spell_id].name, q == ch->mem_queue.queue ? timestr : "");
 				cnt[index] = ESpell::kUndefined;
 			}
 
@@ -170,8 +169,7 @@ void show_wizdom(CharData *ch, int bitset) {
 		for (i = 0; i < imax_slot; i++) {
 			slot_num = std::max(0, CalcCircleSlotsAmount(ch, i + 1) - s[i]);
 			gcount += sprintf(buf2 + gcount, "%s%2d-%2d%s  ",
-							  slot_num ? CCICYN(ch, C_NRM) : "",
-							  i + 1, slot_num, slot_num ? CCNRM(ch, C_NRM) : "");
+					slot_num ? CCICYN(ch, C_NRM) : "", i + 1, slot_num, slot_num ? CCNRM(ch, C_NRM) : "");
 		}
 		sprintf(buf2 + gcount, "\r\n");
 	}

@@ -2553,7 +2553,7 @@ void init_char(CharData *ch, PlayerIndexElement &element) {
 	if (0 == player_table.size())
 	{
 		// При собирании через make test первый чар в маде становится иммом 34
-		ch->set_level(kLevelImplementator);
+		ch->set_level(kLvlImplementator);
 	}
 #endif
 

@@ -260,7 +260,8 @@ bool MayCastInNomagic(CharData *caster, ESpell spell_id) {
 	if (IS_GRGOD(caster) || IS_SET(spell_info[spell_id].routines, kMagWarcry)) {
 		return true;
 	}
-
+	if (caster->IsNpc() && !(AFF_FLAGGED(caster, EAffect::kCharmed) || MOB_FLAGGED(caster, EMobFlag::kTutelar)))
+		return true;
 	return false;
 }
 
@@ -448,7 +449,7 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 					return true;
 				}
 				if (!ch->IsNpc()) {
-					struct Follower *k, *k_next;
+					struct FollowerType *k, *k_next;
 					char tmpname[kMaxInputLength];
 					char *tmp = tmpname;
 					strcpy(tmp, t);
@@ -456,9 +457,9 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 					int tnum = get_number(&tmp); // возвращает 1, если первая цель
 					for (k = ch->followers; k; k = k_next) {
 						k_next = k->next;
-						if (isname(tmp, k->ch->get_pc_name())) {
+						if (isname(tmp, k->follower->get_pc_name())) {
 							if (++fnum == tnum) {// нашли!!
-								*tch = k->ch;
+								*tch = k->follower;
 								return true;
 							}
 						}

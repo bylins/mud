@@ -71,15 +71,15 @@ void process_mobmax(CharData *ch, CharData *killer) {
 				}
 			}
 
-			for (struct Follower *f = master->followers; f; f = f->next) {
-				if (AFF_FLAGGED(f->ch, EAffect::kGroup)) ++total_group_members;
-				if (AFF_FLAGGED(f->ch, EAffect::kGroup)
-					&& IN_ROOM(f->ch) == IN_ROOM(killer)) {
+			for (struct FollowerType *f = master->followers; f; f = f->next) {
+				if (AFF_FLAGGED(f->follower, EAffect::kGroup)) ++total_group_members;
+				if (AFF_FLAGGED(f->follower, EAffect::kGroup)
+					&& IN_ROOM(f->follower) == IN_ROOM(killer)) {
 					++cnt;
 					if (leader_partner) {
-						if (!f->ch->IsNpc()) {
+						if (!f->follower->IsNpc()) {
 							partner_feat++;
-							partner = f->ch;
+							partner = f->follower;
 						}
 					}
 				}
@@ -104,10 +104,10 @@ void process_mobmax(CharData *ch, CharData *killer) {
 			if (IN_ROOM(master) == IN_ROOM(killer)) {
 				members_to_mobmax.push_back(master);
 			}
-			for (struct Follower *f = master->followers; f; f = f->next) {
-				if (AFF_FLAGGED(f->ch, EAffect::kGroup)
-					&& IN_ROOM(f->ch) == IN_ROOM(killer)) {
-					members_to_mobmax.push_back(f->ch);
+			for (struct FollowerType *f = master->followers; f; f = f->next) {
+				if (AFF_FLAGGED(f->follower, EAffect::kGroup)
+					&& IN_ROOM(f->follower) == IN_ROOM(killer)) {
+					members_to_mobmax.push_back(f->follower);
 				}
 			}
 
@@ -123,11 +123,11 @@ void process_mobmax(CharData *ch, CharData *killer) {
 			// выберем случайным образом мембера группы для замакса
 			auto n = number(0, cnt);
 			int i = 0;
-			for (struct Follower *f = master->followers; f && i < n; f = f->next) {
-				if (AFF_FLAGGED(f->ch, EAffect::kGroup)
-					&& IN_ROOM(f->ch) == IN_ROOM(killer)) {
+			for (struct FollowerType *f = master->followers; f && i < n; f = f->next) {
+				if (AFF_FLAGGED(f->follower, EAffect::kGroup)
+					&& IN_ROOM(f->follower) == IN_ROOM(killer)) {
 					++i;
-					master = f->ch;
+					master = f->follower;
 				}
 			}
 			master->mobmax_add(master, GET_MOB_VNUM(ch), 1, GetRealLevel(ch));
@@ -467,10 +467,10 @@ void arena_kill(CharData *ch, CharData *killer) {
 		HELL_DURATION(ch) = time(nullptr) + 6;
 		to_room = r_helled_start_room;
 	}
-	for (Follower *f = ch->followers; f; f = f->next) {
-		if (IS_CHARMICE(f->ch)) {
-			ExtractCharFromRoom(f->ch);
-			PlaceCharToRoom(f->ch, to_room);
+	for (FollowerType *f = ch->followers; f; f = f->next) {
+		if (IS_CHARMICE(f->follower)) {
+			ExtractCharFromRoom(f->follower);
+			PlaceCharToRoom(f->follower, to_room);
 		}
 	}
 	for (int i=0; i < MAX_FIRSTAID_REMOVE; i++) {
@@ -906,7 +906,7 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 --*/
 void group_gain(CharData *killer, CharData *victim) {
 	int inroom_members, koef = 100, maxlevel;
-	struct Follower *f;
+	struct FollowerType *f;
 	int partner_count = 0;
 	int total_group_members = 1;
 	bool use_partner_exp = false;
@@ -937,20 +937,20 @@ void group_gain(CharData *killer, CharData *victim) {
 
 	// Вычисляем максимальный уровень в группе
 	for (f = leader->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->ch, EAffect::kGroup)) ++total_group_members;
-		if (AFF_FLAGGED(f->ch, EAffect::kGroup)
-			&& f->ch->in_room == IN_ROOM(killer)) {
+		if (AFF_FLAGGED(f->follower, EAffect::kGroup)) ++total_group_members;
+		if (AFF_FLAGGED(f->follower, EAffect::kGroup)
+			&& f->follower->in_room == IN_ROOM(killer)) {
 			// если в группе наем, то режим опыт всей группе
 			// дабы наема не выгодно было бы брать в группу
 			// ставим 300, чтобы вообще под ноль резало
-			if (CanUseFeat(f->ch, EFeat::kCynic)) {
+			if (CanUseFeat(f->follower, EFeat::kCynic)) {
 				maxlevel = 300;
 			}
 			// просмотр членов группы в той же комнате
 			// член группы => PC автоматически
 			++inroom_members;
-			maxlevel = MAX(maxlevel, GetRealLevel(f->ch));
-			if (!f->ch->IsNpc()) {
+			maxlevel = MAX(maxlevel, GetRealLevel(f->follower));
+			if (!f->follower->IsNpc()) {
 				partner_count++;
 			}
 		}
@@ -995,9 +995,9 @@ void group_gain(CharData *killer, CharData *victim) {
 	}
 
 	for (f = leader->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->ch, EAffect::kGroup)
-			&& f->ch->in_room == IN_ROOM(killer)) {
-			perform_group_gain(f->ch, victim, inroom_members, koef);
+		if (AFF_FLAGGED(f->follower, EAffect::kGroup)
+			&& f->follower->in_room == IN_ROOM(killer)) {
+			perform_group_gain(f->follower, victim, inroom_members, koef);
 		}
 	}
 }

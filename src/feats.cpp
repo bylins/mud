@@ -1225,15 +1225,15 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	Follower *k;
+	FollowerType *k;
 	CharData *follower = nullptr;
 	for (k = ch->followers; k; k = k->next) {
-		if (AFF_FLAGGED(k->ch, EAffect::kCharmed)
-			&& k->ch->get_master() == ch
-			&& MOB_FLAGGED(k->ch, EMobFlag::kClone)
-			&& !IsAffectedBySpell(k->ch, ESpell::kCapable)
-			&& ch->in_room == IN_ROOM(k->ch)) {
-			follower = k->ch;
+		if (AFF_FLAGGED(k->follower, EAffect::kCharmed)
+			&& k->follower->get_master() == ch
+			&& MOB_FLAGGED(k->follower, EMobFlag::kClone)
+			&& !IsAffectedBySpell(k->follower, ESpell::kCapable)
+			&& ch->in_room == IN_ROOM(k->follower)) {
+			follower = k->follower;
 			break;
 		}
 	}
