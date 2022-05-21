@@ -15,17 +15,10 @@
 
 // It is test command for different testings
 void do_godtest(CharData *ch, char */*argument*/, int /* cmd */, int /* subcmd */) {
-
-	std::ostringstream out;
-	for (const auto &guild : MUD::Guilds()) {
-		guild.Print(ch, out);
-	}
-	page_string(ch->desc, out.str());
-
-/*	std:: ostringstream out;
+	std:: ostringstream out;
 	out << "В настоящий момент процiдурка пуста." << std::endl
 		<< "Если вам хочется что-то godtest - придется ее реализовать." << std::endl;
-	page_string(ch->desc, out.str());*/
+	page_string(ch->desc, out.str());
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

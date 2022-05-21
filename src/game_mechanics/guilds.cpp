@@ -6,7 +6,8 @@
 
 #include "guilds.h"
 
-#include <boost/algorithm/string.hpp>
+//#include <iostream>
+//#include <boost/algorithm/string.hpp>
 
 #include "boot/boot_constants.h"
 #include "color.h"
@@ -18,231 +19,6 @@
 typedef int special_f(CharData *, void *, int, char *);
 extern void ASSIGNMASTER(MobVnum mob, special_f, int learn_info);
 
-/*
-void init_guilds() {
-	FILE *magic;
-	char name[kMaxInputLength],
-		line[256], line1[256], line2[256], line3[256], line4[256], line5[256], line6[256], *pos;
-	int i, num, type = 0, lines = 0, level, pgcount = 0, mgcount = 0;
-	ESkill skill_id = ESkill::kUndefined;
-	std::unique_ptr<struct guild_poly_type, decltype(free) *> poly_guild(nullptr, free);
-	struct guild_mono_type mono_guild;
-	std::unique_ptr<struct guild_learn_type, decltype(free) *> mono_guild_learn(nullptr, free);
-
-	if (!(magic = fopen(LIB_MISC "guilds.lst", "r"))) {
-		log("Cann't open guilds list file...");
-		return;
-	}
-	auto spell_id{ESpell::kUndefined};
-	auto feat_id{EFeat::kUndefined};
-	while (get_line(magic, name)) {
-		if (!name[0] || name[0] == ';')
-			continue;
-		log("<%s>", name);
-		if ((lines = sscanf(name, "%s %s %s %s %s %s %s", line, line1, line2, line3, line4, line5, line6)) == 0)
-			continue;
-		// log("%d",lines);
-
-		if (!strn_cmp(line, "monoguild", strlen(line))
-			|| !strn_cmp(line, "одноклассовая", strlen(line))) {
-			type = 1;
-			if (lines < 5) {
-				log("Bad format for monoguild header, #s #s #s #s #s need...");
-				graceful_exit(1);
-			}
-			mono_guild_learn.reset();
-			mono_guild.learn_info = nullptr;
-			mono_guild.races = 0;
-			mono_guild.classes = 0;
-			mono_guild.religion = 0;
-			mono_guild.alignment = 0;
-			mgcount = 0;
-			for (i = 0; *(line1 + i); i++)
-				if (strchr("!1xX", *(line1 + i)))
-					SET_BIT(mono_guild.races, (1 << i));
-			for (i = 0; *(line2 + i); i++)
-				if (strchr("!1xX", *(line2 + i)))
-					SET_BIT(mono_guild.classes, (1 << i));
-			for (i = 0; *(line3 + i); i++)
-				if (strchr("!1xX", *(line3 + i)))
-					SET_BIT(mono_guild.religion, (1 << i));
-			for (i = 0; *(line4 + i); i++)
-				if (strchr("!1xX", *(line4 + i)))
-					SET_BIT(mono_guild.alignment, (1 << i));
-		} else if (!strn_cmp(line, "polyguild", strlen(line))
-			|| !strn_cmp(line, "многоклассовая", strlen(line))) {
-			type = 2;
-			poly_guild.reset();
-			pgcount = 0;
-		} else if (!strn_cmp(line, "master", strlen(line))
-			|| !strn_cmp(line, "учитель", strlen(line))) {
-			if ((num = atoi(line1)) == 0 || real_mobile(num) < 0) {
-				log("WARNING: Can't assign master %s in guilds.lst. Skipped.", line1);
-				continue;
-			}
-
-			if (!((type == 1 && mono_guild_learn) || type == 11) &&
-				!((type == 2 && poly_guild) || type == 12)) {
-				log("WARNING: Can't define guild info for master %s. Skipped.", line1);
-				continue;
-			}
-			if (type == 1 || type == 11) {
-				if (type == 1) {
-					if (!guild_mono_info) {
-						CREATE(guild_mono_info, GUILDS_MONO_USED + 1);
-					} else {
-						RECREATE(guild_mono_info, GUILDS_MONO_USED + 1);
-					}
-					log("Create mono guild %d", GUILDS_MONO_USED + 1);
-					mono_guild.learn_info = mono_guild_learn.release();
-					RECREATE(mono_guild.learn_info, mgcount + 1);
-					(mono_guild.learn_info + mgcount)->skill_no = ESkill::kUndefined;
-					(mono_guild.learn_info + mgcount)->feat_no = EFeat::kUndefined;
-					(mono_guild.learn_info + mgcount)->spell_no = ESpell::kUndefined;
-					(mono_guild.learn_info + mgcount)->level = -1;
-					guild_mono_info[GUILDS_MONO_USED] = mono_guild;
-					GUILDS_MONO_USED++;
-					type = 11;
-				}
-				log("Assign mono guild %d to mobile %s", GUILDS_MONO_USED, line1);
-				ASSIGNMASTER(num, guild_mono, GUILDS_MONO_USED);
-			}
-			if (type == 2 || type == 12) {
-				if (type == 2) {
-					if (!guild_poly_info) {
-						CREATE(guild_poly_info, GUILDS_POLY_USED + 1);
-					} else {
-						RECREATE(guild_poly_info, GUILDS_POLY_USED + 1);
-					}
-					log("Create poly guild %d", GUILDS_POLY_USED + 1);
-					auto ptr = poly_guild.release();
-					RECREATE(ptr, pgcount + 1);
-					(ptr + pgcount)->feat_no = EFeat::kUndefined;
-					(ptr + pgcount)->skill_no = ESkill::kUndefined;
-					(ptr + pgcount)->spell_no = ESpell::kUndefined;
-					(ptr + pgcount)->level = -1;
-					guild_poly_info[GUILDS_POLY_USED] = ptr;
-					GUILDS_POLY_USED++;
-					type = 12;
-				}
-				//log("Assign poly guild %d to mobile %s", GUILDS_POLY_USED, line1);
-				ASSIGNMASTER(num, guild_poly, GUILDS_POLY_USED);
-			}
-		} else if (type == 1) {
-			if (lines < 3) {
-				log("You need use 3 arguments for monoguild");
-				graceful_exit(1);
-			}
-			spell_id = static_cast<ESpell>(atoi(line));
-			if (spell_id < ESpell::kFirst  || spell_id > ESpell::kLast) {
-				spell_id = FixNameAndFindSpellId(line);
-			}
-
-			skill_id = static_cast<ESkill>(atoi(line1));
-			if (MUD::Skills().IsInvalid(skill_id)) {
-				skill_id = FixNameAndFindSkillId(line1);
-			}
-
-			feat_id = static_cast<EFeat>(atoi(line));
-			if (feat_id < EFeat::kFirst || feat_id >= EFeat::kLast) {
-				if ((pos = strchr(line1, '.')))
-					*pos = ' ';
-				feat_id = FindFeatId(line1);
-			}
-
-			if (MUD::Skills().IsInvalid(skill_id) && spell_id < ESpell::kFirst && feat_id < EFeat::kFirst) {
-				log("Unknown skill, spell or feat for monoguild");
-				graceful_exit(1);
-			}
-
-			if ((level = atoi(line2)) == 0 || level >= kLvlImmortal) {
-				log("Use 1-%d level for guilds", kLvlImmortal);
-				graceful_exit(1);
-			}
-
-			auto ptr = mono_guild_learn.release();
-			if (!ptr) {
-				CREATE(ptr, mgcount + 1);
-			} else {
-				RECREATE(ptr, mgcount + 1);
-			}
-			mono_guild_learn.reset(ptr);
-
-			ptr += mgcount;
-			ptr->spell_no = spell_id;
-			ptr->skill_no = skill_id;
-			ptr->feat_no = feat_id;
-			ptr->level = level;
-			mgcount++;
-		} else if (type == 2) {
-			if (lines < 7) {
-				log("You need use 7 arguments for polyguild");
-				graceful_exit(1);
-			}
-			auto ptr = poly_guild.release();
-			if (!ptr) {
-				CREATE(ptr, pgcount + 1);
-			} else {
-				RECREATE(ptr, pgcount + 1);
-			}
-			poly_guild.reset(ptr);
-
-			ptr += pgcount;
-			ptr->races = 0;
-			ptr->classes = 0;
-			ptr->religion = 0;
-			ptr->alignment = 0;
-			for (i = 0; *(line + i); i++)
-				if (strchr("!1xX", *(line + i)))
-					SET_BIT(ptr->races, (1 << i));
-			for (i = 0; *(line1 + i); i++)
-				if (strchr("!1xX", *(line1 + i)))
-					SET_BIT(ptr->classes, (1 << i));
-			for (i = 0; *(line2 + i); i++)
-				if (strchr("!1xX", *(line2 + i)))
-					SET_BIT(ptr->religion, (1 << i));
-			for (i = 0; *(line3 + i); i++)
-				if (strchr("!1xX", *(line3 + i)))
-					SET_BIT(ptr->alignment, (1 << i));
-
-			spell_id = static_cast<ESpell>(atoi(line4));
-			if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast) {
-				spell_id = FixNameAndFindSpellId(line4);
-			}
-
-			skill_id = static_cast<ESkill>(atoi(line5));
-			if (MUD::Skills().IsInvalid(skill_id)) {
-				skill_id = FixNameAndFindSkillId(line5);
-			}
-
-			feat_id = static_cast<EFeat>(atoi(line4));
-			if (feat_id < EFeat::kFirst || feat_id > EFeat::kLast) {
-				if ((pos = strchr(line5, '.')))
-					*pos = ' ';
-
-				feat_id = FindFeatId(line1);
-				sprintf(buf, "feature number 2: %d", to_underlying(feat_id));
-				feat_id = FindFeatId(line5);
-			}
-			if (MUD::Skills().IsInvalid(skill_id) && spell_id < ESpell::kFirst && feat_id < EFeat::kFirst) {
-				log("Unknown skill, spell or feat for polyguild - \'%s\'", line5);
-				graceful_exit(1);
-			}
-			if ((level = atoi(line6)) == 0 || level >= kLvlImmortal) {
-				log("Use 1-%d level for guilds", kLvlImmortal);
-				graceful_exit(1);
-			}
-			ptr->spell_no = spell_id;
-			ptr->skill_no = skill_id;
-			ptr->feat_no = feat_id;
-			ptr->level = level;
-			pgcount++;
-		}
-	}
-	fclose(magic);
-}
-*/
-//#define SCMD_LEARN 1
 /*
 int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 	int command = 0, gcount = 0, info_num = 0, found = false, sfound = false, i, bits;
@@ -907,10 +683,17 @@ void GuildsLoader::Reload(DataNode data) {
 const std::string &GuildInfo::GetMessage(EGuildMsg msg_id) {
 	static const std::unordered_map<EGuildMsg, std::string> guild_msgs = {
 		{EGuildMsg::kGreeting, "$N сказал$G: 'Я могу научить тебя следующему:'"},
-		{EGuildMsg::kCannot, "$N сказал$G: 'Я не могу тебя этому научить.'"},
 		{EGuildMsg::kSkill, "умение"},
 		{EGuildMsg::kSpell, "заклинание"},
 		{EGuildMsg::kFeat, "способность"},
+		{EGuildMsg::kDidNotTeach, "$N сказал$G: 'Я никогда и никого ЭТОМУ не учил$G!'"},
+		{EGuildMsg::kInquiry, "$n о чем-то спросил$g $N3."},
+		{EGuildMsg::kCannotToChar, "$N сказал$G: 'Я не могу тебя этому научить'."},
+		{EGuildMsg::kCannotToRoom, "$N сказал$G $n2: 'Я не могу тебя этому научить'."},
+		{EGuildMsg::kAskToChar, "Вы попросились в ученики к $N2."},
+		{EGuildMsg::kAskToRoom, "$n попросил$u в ученики к $N2."},
+		{EGuildMsg::kAllSkills, "$N сказал$G: '$n, нельзя научиться всем умениям или способностям сразу. Выбери необходимые!'"},
+		{EGuildMsg::kListEmpty, "$N сказал$G : 'Похоже, $n, я не смогу тебе помочь'."},
 		{EGuildMsg::kError, "У кодера какие-то проблемы."},
 	};
 
@@ -993,8 +776,6 @@ void GuildInfo::AssignToTrainers() const {
 };
 
 void GuildInfo::DisplayMenu(CharData *trainer, CharData *ch) const {
-	act(GetMessage(EGuildMsg::kGreeting), false, ch, nullptr, trainer, kToChar);
-
 	std::ostringstream out;
 	auto count{0};
 	table_wrapper::Table table;
@@ -1017,14 +798,22 @@ void GuildInfo::DisplayMenu(CharData *trainer, CharData *ch) const {
 				table << GetMessage(EGuildMsg::kFeat);
 				break;
 		}
-		table << (static_cast<std::string>(talent->GetName()) + KNRM);
+		table << ("'" + static_cast<std::string>(talent->GetName()) + "'" + KNRM);
 		table << "100 кун" << table_wrapper::kEndRow;
 	}
-	table_wrapper::DecorateNoBorderTable(ch, table);
-	table_wrapper::PrintTableToStream(out, table);
-	out << std::endl;
 
-	SendMsgToChar(out.str(), ch);
+	act(GetMessage(EGuildMsg::kAskToChar), false, ch, nullptr, trainer, kToChar);
+	act(GetMessage(EGuildMsg::kAskToRoom), false, ch, nullptr, trainer, kToRoom);
+	if (count) {
+		act(GetMessage(EGuildMsg::kGreeting), false, ch, nullptr, trainer, kToChar);
+		table_wrapper::DecorateNoBorderTable(ch, table);
+		table_wrapper::PrintTableToStream(out, table);
+		out << std::endl;
+		SendMsgToChar(out.str(), ch);
+	} else {
+		act(GetMessage(EGuildMsg::kListEmpty), false, ch, nullptr, trainer, kToChar);
+		act(GetMessage(EGuildMsg::kListEmpty), false, ch, nullptr, trainer, kToRoom);
+	}
 }
 
 void GuildInfo::Process(CharData *trainer, CharData *ch, const std::string &argument) const {
@@ -1033,24 +822,66 @@ void GuildInfo::Process(CharData *trainer, CharData *ch, const std::string &argu
 		return;
 	}
 
-	// ввели число
-	std::size_t talent_num{0};
+	act(GetMessage(EGuildMsg::kInquiry), false, ch, nullptr, trainer, kToRoom);
 	try {
-		talent_num = std::stoi(argument);
+		std::size_t talent_num = std::stoi(argument);
+		LearnWithTalentNum(trainer, ch, talent_num);
 	} catch (std::exception &) {
-		// Это не число, ищем по имени
-		SendMsgToChar(ch, "Вы ввели '%s', но поиск по имени пока не реализован.", argument.c_str());
+		LearnWithTalentName(trainer, ch, argument);
 	}
-	if (talent_num <= 0 || talent_num >= learning_talents_.size()) {
-		act(GetMessage(EGuildMsg::kCannot), false, ch, nullptr, trainer, kToChar);
-		return;
-	}
-
-	SendMsgToChar(ch, "Вы ввели число '%lu', но поиск по номеру пока не реализован.", talent_num);
-
-	//first=s.substr(0,s.find(' '));
-	//auto arguments = utils::SplitString(argument);
+//first=s.substr(0,s.find(' '));
 };
+
+void GuildInfo::LearnWithTalentNum(CharData *trainer, CharData *ch, std::size_t talent_num) const {
+	if (talent_num <= 0 || talent_num >= learning_talents_.size()) {
+		act(GetMessage(EGuildMsg::kDidNotTeach), false, ch, nullptr, trainer, kToChar|kToRoom);
+	}
+
+	--talent_num;
+	for (const auto &talent : learning_talents_) {
+		if (talent_num < 0) {
+				act(GetMessage(EGuildMsg::kCannotToChar),
+					false, ch, nullptr, trainer, kToChar);
+				act(GetMessage(EGuildMsg::kCannotToRoom),
+					false, ch, nullptr, trainer, kToRoom);
+			return;
+		}
+		if (!talent_num) {
+			if (talent->IsUnlearnable(ch)) {
+				act(GetMessage(EGuildMsg::kCannotToChar),
+					false, ch, nullptr, trainer, kToChar);
+				act(GetMessage(EGuildMsg::kCannotToRoom),
+					false, ch, nullptr, trainer, kToRoom);
+				return;
+			}
+			SendMsgToChar(ch, "Найден талант '%s'.", static_cast<std::string>(talent->GetName()).c_str());
+			// Do learn
+			break;
+		}
+		if (talent->IsUnlearnable(ch)) {
+			continue;
+		}
+		--talent_num;
+	}
+}
+
+void GuildInfo::LearnWithTalentName(CharData *trainer, CharData *ch, const std::string &talent_name) const {
+	if (utils::IsAbbrev(talent_name, "все") || utils::IsAbbrev(talent_name, "all")) {
+		SendMsgToChar(ch, "Введено '%s' - учим все подряд.", talent_name.c_str());
+	}
+
+	for (const auto &talent : learning_talents_) {
+		if (talent->IsUnlearnable(ch)) {
+			continue;
+		}
+		if (IsEquivalent(talent_name.c_str(), static_cast<std::string>(talent->GetName()).c_str())) {
+			SendMsgToChar(ch, "Найден талант '%s'.", static_cast<std::string>(talent->GetName()).c_str());
+			// Do learn
+			return;
+		}
+	}
+
+}
 
 void GuildInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 	buffer << "Print guild:" << std::endl
@@ -1081,16 +912,10 @@ void GuildInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 }
 
 bool GuildInfo::IGuildTalent::IsUnlearnable(CharData *ch) const {
-	if (trained_classes_.empty()) {
-		return false;
-	}
-
 	if (ch->IsNpc()) {
 		return true;
 	}
-
-	//return (!trained_classes_.contains(ch->GetClass()) || IsUnavailableForClass(ch));
-	return !trained_classes_.contains(ch->GetClass());
+	return !((trained_classes_.empty() || trained_classes_.contains(ch->GetClass())) && IsAvailable(ch));
 }
 
 std::string GuildInfo::IGuildTalent::GetClassesList() const {
@@ -1116,9 +941,9 @@ std::string_view GuildInfo::GuildSkill::GetName() const {
 	return MUD::Skills(id_).name;
 }
 
-/*bool GuildInfo::GuildSkill::IsUnavailableForClass(CharData *ch) const {
-	return !CanGetSkill(ch, id_);
-}*/
+bool GuildInfo::GuildSkill::IsAvailable(CharData *ch) const {
+	return CanGetSkill(ch, id_);
+}
 
 const std::string &GuildInfo::GuildSpell::GetIdAsStr() const {
 	return NAME_BY_ITEM<ESpell>(id_);
@@ -1128,9 +953,9 @@ std::string_view GuildInfo::GuildSpell::GetName() const {
 	return spell_info[id_].name;
 }
 
-/*bool GuildInfo::GuildSpell::IsUnavailableForClass(CharData *ch) const {
-	return !CanGetSpell(ch, id_);
-}*/
+bool GuildInfo::GuildSpell::IsAvailable(CharData *ch) const {
+	return CanGetSpell(ch, id_);
+}
 
 const std::string &GuildInfo::GuildFeat::GetIdAsStr() const {
 	return NAME_BY_ITEM<EFeat>(id_);
@@ -1139,10 +964,10 @@ const std::string &GuildInfo::GuildFeat::GetIdAsStr() const {
 std::string_view GuildInfo::GuildFeat::GetName() const {
 	return feat_info[id_].name;
 }
-/*
-bool GuildInfo::GuildFeat::IsUnavailableForClass(CharData *ch) const {
-	return !CanGetFeat(ch, id_);
-}*/
+
+bool GuildInfo::GuildFeat::IsAvailable(CharData *ch) const {
+	return CanGetFeat(ch, id_);
+}
 
 }
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

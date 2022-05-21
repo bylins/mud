@@ -31,7 +31,20 @@ class GuildInfo : public info_container::BaseItem<int> {
 	friend class GuildInfoBuilder;
 
 	enum class ETalent { kSkill, kSpell, kFeat };
-	enum class EGuildMsg { kGreeting, kCannot, kSkill, kSpell, kFeat, kError };
+	enum class EGuildMsg {
+		kGreeting,
+		kCannotToChar,
+		kAskToChar,
+		kCannotToRoom,
+		kAskToRoom,
+		kInquiry,
+		kSkill,
+		kSpell,
+		kFeat,
+		kDidNotTeach,
+		kAllSkills,
+		kListEmpty,
+		kError};
 
 	class IGuildTalent {
 		ETalent talent_type_;
@@ -43,7 +56,7 @@ class GuildInfo : public info_container::BaseItem<int> {
 		[[nodiscard]] ETalent GetTalentType() { return talent_type_; };
 		[[nodiscard]] bool IsUnlearnable(CharData *ch) const;
 		[[nodiscard]] std::string GetClassesList() const;
-		//[[nodiscard]] virtual bool IsUnavailableForClass(CharData *ch) const = 0;
+		[[nodiscard]] virtual bool IsAvailable(CharData *ch) const = 0;
 		[[nodiscard]] virtual const std::string &GetIdAsStr() const = 0;
 		[[nodiscard]] virtual std::string_view GetName() const = 0;
 	};
@@ -55,7 +68,7 @@ class GuildInfo : public info_container::BaseItem<int> {
 			: IGuildTalent(talent_type, classes), id_(id) {};
 
 		[[nodiscard]] ESkill GetId() const { return id_; };
-		///[[nodiscard]] bool IsUnavailableForClass(CharData *ch) const final;
+		[[nodiscard]] bool IsAvailable(CharData *ch) const final;
 		[[nodiscard]] const std::string &GetIdAsStr() const final;
 		[[nodiscard]] std::string_view GetName() const final;
 	};
@@ -67,7 +80,7 @@ class GuildInfo : public info_container::BaseItem<int> {
 		: IGuildTalent(talent_type, classes), id_(id) {};
 
 		[[nodiscard]] ESpell GetId() const { return id_; };
-		//[[nodiscard]] bool IsUnavailableForClass(CharData *ch) const final;
+		[[nodiscard]] bool IsAvailable(CharData *ch) const final;
 		[[nodiscard]] const std::string &GetIdAsStr() const final;
 		[[nodiscard]] std::string_view GetName() const final;
 	};
@@ -79,7 +92,7 @@ class GuildInfo : public info_container::BaseItem<int> {
 		: IGuildTalent(talent_type, classes), id_(id) {};
 
 		[[nodiscard]] EFeat GetId() const { return id_; };
-		///[[nodiscard]] bool IsUnavailableForClass(CharData *ch) const final;
+		[[nodiscard]] bool IsAvailable(CharData *ch) const final;
 		[[nodiscard]] const std::string &GetIdAsStr() const final;
 		[[nodiscard]] std::string_view GetName() const final;
 	};
@@ -94,6 +107,8 @@ class GuildInfo : public info_container::BaseItem<int> {
 	const std::string &GetName() { return name_; };
 	static const std::string & GetMessage(EGuildMsg msg_id);
 	void DisplayMenu(CharData *trainer, CharData *ch) const;
+	void LearnWithTalentNum(CharData *trainer, CharData *ch, std::size_t talent_num) const;
+	void LearnWithTalentName(CharData *trainer, CharData *ch, const std::string &talent_name) const;
 
  public:
 	GuildInfo() = default;
@@ -102,7 +117,6 @@ class GuildInfo : public info_container::BaseItem<int> {
 
 	void Print(CharData *ch, std::ostringstream &buffer) const;
 	void AssignToTrainers() const;
-
 	void Process(CharData *trainer, CharData *ch, const std::string &argument) const;
 };
 

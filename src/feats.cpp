@@ -363,34 +363,34 @@ void InitFeatures() {
 /*	InitFeat(EFeat::, "NAME", EFeatType::kAffect, feat_app);
 	feat_app.clear();*/
 //68
-	InitFeat(EFeat::kPunchFocus, "любимое_оружие: голые руки", EFeatType::kSkillMod, feat_app,
+	InitFeat(EFeat::kPunchFocus, "любимое оружие: голые руки", EFeatType::kSkillMod, feat_app,
 			 0, ESkill::kPunch);
 //69
-	InitFeat(EFeat::kClubsFocus, "любимое_оружие: палица", EFeatType::kSkillMod, feat_app,
+	InitFeat(EFeat::kClubsFocus, "любимое оружие: палица", EFeatType::kSkillMod, feat_app,
 			 0, ESkill::kClubs);
 //70
-	InitFeat(EFeat::kAxesFocus, "любимое_оружие: секира", EFeatType::kSkillMod, feat_app,
+	InitFeat(EFeat::kAxesFocus, "любимое оружие: секира", EFeatType::kSkillMod, feat_app,
 			 0, ESkill::kAxes);
 //71
-	InitFeat(EFeat::kLongsFocus, "любимое_оружие: меч", EFeatType::kSkillMod, feat_app,
+	InitFeat(EFeat::kLongsFocus, "любимое оружие: меч", EFeatType::kSkillMod, feat_app,
 			 0, ESkill::kLongBlades);
 //72
-	InitFeat(EFeat::kShortsFocus, "любимое_оружие: нож", EFeatType::kSkillMod, feat_app,
+	InitFeat(EFeat::kShortsFocus, "любимое оружие: нож", EFeatType::kSkillMod, feat_app,
 			 0, ESkill::kShortBlades);
 //73
-		InitFeat(EFeat::kNonstandartsFocus, "любимое_оружие: необычное", EFeatType::kSkillMod,
+		InitFeat(EFeat::kNonstandartsFocus, "любимое оружие: необычное", EFeatType::kSkillMod,
 				 feat_app, 0, ESkill::kNonstandart);
 //74
-	InitFeat(EFeat::kTwohandsFocus, "любимое_оружие: двуручник", EFeatType::kSkillMod, feat_app,
+	InitFeat(EFeat::kTwohandsFocus, "любимое оружие: двуручник", EFeatType::kSkillMod, feat_app,
 			 0, ESkill::kTwohands);
 //75
-	InitFeat(EFeat::kPicksFocus, "любимое_оружие: кинжал", EFeatType::kSkillMod, feat_app,
+	InitFeat(EFeat::kPicksFocus, "любимое оружие: кинжал", EFeatType::kSkillMod, feat_app,
 			 0, ESkill::kPicks);
 //76
-	InitFeat(EFeat::kSpadesFocus, "любимое_оружие: копье", EFeatType::kSkillMod, feat_app,
+	InitFeat(EFeat::kSpadesFocus, "любимое оружие: копье", EFeatType::kSkillMod, feat_app,
 			 0, ESkill::kSpades);
 //77
-	InitFeat(EFeat::kBowsFocus, "любимое_оружие: лук", EFeatType::kSkillMod, feat_app,
+	InitFeat(EFeat::kBowsFocus, "любимое оружие: лук", EFeatType::kSkillMod, feat_app,
 			 0, ESkill::kBows);
 //78
 	InitFeat(EFeat::kAimingAttack, "прицельная атака", EFeatType::kActivated, feat_app);
@@ -774,7 +774,7 @@ bool CanGetFeat(CharData *ch, EFeat feat) {
 		<< " Мин. реморт: " << MUD::Classes(ch->get_class()).feats[feat].GetMinRemort() << std::endl;
 	SendMsgToChar(out.str(), ch);*/
 
-	if ((!MUD::Classes(ch->GetClass()).feats[feat].IsAvailable() &&
+	if ((MUD::Classes(ch->GetClass()).feats.IsUnavailable(feat) &&
 		!PlayerRace::FeatureCheck(GET_KIN(ch), GET_RACE(ch), to_underlying(feat))) ||
 		(GET_REAL_REMORT(ch) < MUD::Classes(ch->GetClass()).feats[feat].GetMinRemort())) {
 		return false;
