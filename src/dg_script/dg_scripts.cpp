@@ -2503,7 +2503,7 @@ void find_replacement(void *go,
 			} else {
 				strcpy(str, "1");
 			}
-		} else if (!str_cmp(field, "can_get_skill")) {
+		} else if (!str_cmp(field, "cangetskill")) {
 			auto skill_id = FixNameAndFindSkillId(subfield);
 			if (skill_id > ESkill::kUndefined) {
 				if (CanGetSkill(c, skill_id)) {
@@ -2516,7 +2516,7 @@ void find_replacement(void *go,
 				trig_log(trig, buf);
 				strcpy(str, "0");
 			}
-		} else if (!str_cmp(field, "can_get_spell")) {
+		} else if (!str_cmp(field, "cangetspell")) {
 			auto spell_id = FixNameAndFindSpellId(subfield);
 			if (spell_id > ESpell::kUndefined) {
 				if (CanGetSpell(c, spell_id)) {
@@ -2529,7 +2529,7 @@ void find_replacement(void *go,
 				trig_log(trig, buf);
 				strcpy(str, "0");
 			}
-		} else if (!str_cmp(field, "can_get_feat")) {
+		} else if (!str_cmp(field, "cangetfeat")) {
 			if (auto id = FindFeatId(subfield); id != EFeat::kUndefined) {
 				if (CanGetFeat(c, id))
 					strcpy(str, "1");
