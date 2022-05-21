@@ -931,7 +931,7 @@ ItemPtr GuildInfoBuilder::Build(DataNode &node) {
 }
 
 ItemPtr GuildInfoBuilder::ParseGuild(DataNode node) {
-	auto vnum = std::max(0, parse::ReadAsInt(node.GetValue("vnum")));
+	auto vnum = std::clamp(parse::ReadAsInt(node.GetValue("vnum")), 0, kMaxProtoNumber);
 	auto mode = SkillInfoBuilder::ParseItemMode(node, EItemMode::kEnabled);
 
 	std::string text_id{"kUndefined"};
@@ -945,7 +945,8 @@ ItemPtr GuildInfoBuilder::ParseGuild(DataNode node) {
 	auto guild_info =  std::make_shared<GuildInfo>(vnum, text_id, name, mode);
 
 	if (node.GoToChild("trainers")) {
-		guild_info->trainers_ = parse::ReadAsIntSet(node.GetValue("vnums"));
+		//guild_info->trainers_ = parse::ReadAsIntSet(node.GetValue("vnums"));
+		parse::ReadAsIntSet(guild_info->trainers_, node.GetValue("vnums"));
 	}
 
 	if (node.GoToSibling("talents")) {
@@ -958,19 +959,30 @@ ItemPtr GuildInfoBuilder::ParseGuild(DataNode node) {
 void GuildInfoBuilder::ParseTalents(ItemPtr &info, DataNode &node) {
 	static const std::string skill_element{"skill"};
 	static const std::string spell_element{"spell"};
-	static const std::string feat_element{"geat"};
+	static const std::string feat_element{"feat"};
 
-	for (const auto &talent_node : node.Children()) {
+	for (auto &talent_node : node.Children()) {
+		std::unordered_set<ECharClass> char_classes;
+		if (talent_node.GoToChild("class")) {
+			parse::ReadAsConstantsSet<ECharClass>(char_classes, talent_node.GetValue("val"));
+			talent_node.GoToParent();
+		}
+
 		if (talent_node.GetName() == skill_element) {
 			auto talent_id = parse::ReadAsConstant<ESkill>(talent_node.GetValue("id"));
-			info->learning_talents_.emplace_back(std::make_unique<GuildInfo::GuildSkill>(GuildInfo::ETalent::kSkill, talent_id));
+			info->learning_talents_.emplace_back(std::make_unique<GuildInfo::GuildSkill>(
+				GuildInfo::ETalent::kSkill, talent_id, char_classes));
 		} else if (talent_node.GetName() == spell_element) {
 			auto talent_id = parse::ReadAsConstant<ESpell>(talent_node.GetValue("id"));
-			info->learning_talents_.emplace_back(std::make_unique<GuildInfo::GuildSpell>(GuildInfo::ETalent::kSpell, talent_id));
+			info->learning_talents_.emplace_back(std::make_unique<GuildInfo::GuildSpell>(
+				GuildInfo::ETalent::kSpell, talent_id, char_classes));
 		} else if (talent_node.GetName() == feat_element) {
 			auto talent_id = parse::ReadAsConstant<EFeat>(talent_node.GetValue("id"));
-			info->learning_talents_.emplace_back(std::make_unique<GuildInfo::GuildFeat>(GuildInfo::ETalent::kFeat, talent_id));
+			info->learning_talents_.emplace_back(std::make_unique<GuildInfo::GuildFeat>(
+				GuildInfo::ETalent::kFeat, talent_id, char_classes));
 		}
+
+		char_classes.clear();
 	}
 }
 
@@ -982,12 +994,17 @@ void GuildInfo::AssignToTrainers() const {
 
 void GuildInfo::DisplayMenu(CharData *trainer, CharData *ch) const {
 	act(GetMessage(EGuildMsg::kGreeting), false, ch, nullptr, trainer, kToChar);
-	//out << GetMessage(EGuildMsg::kGreeting) << std::endl;
 
 	std::ostringstream out;
-	auto count{1};
+	auto count{0};
 	table_wrapper::Table table;
 	for (const auto &talent : learning_talents_) {
+		if (talent->IsUnlearnable(ch)) {
+			continue;
+		}
+
+		++count;
+
 		table << (KCYN + std::to_string(count) + KNRM + ")" + KGRN);
 		switch (talent->GetTalentType()) {
 			case ETalent::kSkill:
@@ -1002,7 +1019,6 @@ void GuildInfo::DisplayMenu(CharData *trainer, CharData *ch) const {
 		}
 		table << (static_cast<std::string>(talent->GetName()) + KNRM);
 		table << "100 кун" << table_wrapper::kEndRow;
-		++count;
 	}
 	table_wrapper::DecorateNoBorderTable(ch, table);
 	table_wrapper::PrintTableToStream(out, table);
@@ -1049,18 +1065,46 @@ void GuildInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 		buffer.seekp(-2, std::ios_base::end);
 		buffer << "." << KNRM << std::endl;
 	}
+
 	if (!learning_talents_.empty()) {
 		buffer << " Trained talents: " << std::endl;
 		table_wrapper::Table table;
-		table << table_wrapper::kHeader << "Id" << "Name" << table_wrapper::kEndRow;
+		table << table_wrapper::kHeader << "Id" << "Name" << "Classes" << table_wrapper::kEndRow;
 		for (const auto &talent: learning_talents_) {
-			table << talent->GetIdAsStr() << talent->GetName() << table_wrapper::kEndRow;
+			table << talent->GetIdAsStr() << talent->GetName() << talent->GetClassesList() << table_wrapper::kEndRow;
 		}
 		table_wrapper::DecorateNoBorderTable(ch, table);
 		table_wrapper::PrintTableToStream(buffer, table);
 	}
 
 	buffer << std::endl;
+}
+
+bool GuildInfo::IGuildTalent::IsUnlearnable(CharData *ch) const {
+	if (trained_classes_.empty()) {
+		return false;
+	}
+
+	if (ch->IsNpc()) {
+		return true;
+	}
+
+	return !trained_classes_.contains(ch->GetClass());
+}
+
+std::string GuildInfo::IGuildTalent::GetClassesList() const {
+	std::ostringstream buffer;
+	if (!trained_classes_.empty()) {
+		for (const auto class_id : trained_classes_) {
+			buffer << NAME_BY_ITEM(class_id) << ", ";
+		}
+		buffer.seekp(-2, std::ios_base::end);
+		buffer << ".";
+	} else {
+		buffer << "all";
+	}
+
+	return buffer.str();
 }
 
 const std::string &GuildInfo::GuildSkill::GetIdAsStr() const {

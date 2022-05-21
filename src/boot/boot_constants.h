@@ -6,7 +6,7 @@
 #include <unordered_map>
 
 // arbitrary constants used by index_boot() (must be unique)
-#define MAX_PROTO_NUMBER 9999999    //Максимально возможный номер комнаты, предмета и т.д.
+const int kMaxProtoNumber = 9999999;    //Максимально возможный номер комнаты, предмета и т.д.
 
 #define MIN_ZONE_LEVEL    1
 #define MAX_ZONE_LEVEL    50
@@ -62,7 +62,6 @@ enum SetStuffMode {
 #define LIB_TEXT      "text/"
 #define LIB_TEXT_HELP "text/help/"
 #define LIB_CFG         "cfg/"
-#define LIB_CFG_CLASSES "cfg/classes/"
 #define LIB_MISC      "misc/"
 #define LIB_ACCOUNTS  "plrs/accounts/"
 #define LIB_MISC_CRAFT        "misc/crafts/"

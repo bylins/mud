@@ -12,6 +12,7 @@
 #include "sysdep.h"
 #include "structs/structs.h"
 #include "comm.h"
+#include "utils/logger.h"
 
 namespace text_id {
 
@@ -44,7 +45,7 @@ pugi::xml_node GetChild(const pugi::xml_node &node, const char *name);
 
 const char *ReadAsStr(const char *value);
 int ReadAsInt(const char *value);
-std::set<int> ReadAsIntSet(const char *value);
+void ReadAsIntSet(std::unordered_set<int> &num_set, const char *value);
 float ReadAsFloat(const char *value);
 double ReadAsDouble(const char *value);
 bool ReadAsBool(const char *value);
@@ -55,6 +56,23 @@ T ReadAsConstant(const char *value) {
 		return ITEM_BY_NAME<T>(value);
 	} catch (const std::out_of_range &) {
 		throw std::runtime_error(value);
+	}
+}
+
+template<typename T>
+void ReadAsConstantsSet(std::unordered_set<T> &roster, const char *value) {
+	if (strcmp(value, "") == 0) {
+		throw std::runtime_error("string is empty");
+	}
+	std::cout << value << std::endl;
+	std::vector<std::string> str_array;
+	utils::SplitString(str_array, value, '|');
+	for (const auto &str : str_array) {
+		try {
+			roster.emplace(ITEM_BY_NAME<T>(str));
+		} catch (...) {
+			err_log("value '%s' is incorrcect constant in this context.", str.c_str());
+		}
 	}
 }
 

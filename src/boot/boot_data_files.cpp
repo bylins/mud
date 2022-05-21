@@ -114,7 +114,7 @@ bool DiscreteFile::discrete_load(const EBootType mode) {
 				exit(1);
 			}
 
-			if (nr >= MAX_PROTO_NUMBER) {
+			if (nr >= kMaxProtoNumber) {
 				return true;    // TODO: we need to return false here, but I don't know how to react on this for now.
 			}
 

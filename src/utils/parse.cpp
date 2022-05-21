@@ -246,15 +246,15 @@ int ReadAsInt(const char *value) {
 }
 
 /**
- * Прочитать значение value как массив int, разделенный 'I'.
+ * Прочитать значение value как массив int, разделенный 'I' и записать знаения в num_set.
  */
-std::set<int> ReadAsIntSet(const char *value) {
+void ReadAsIntSet(std::unordered_set<int> &num_set, const char *value) {
 	if (strcmp(value, "") == 0) {
 		throw std::runtime_error("string is empty");
 	}
 
-	auto str_array = utils::SplitString(value, '|');
-	std::set<int> num_set;
+	std::vector<std::string> str_array;
+	utils::SplitString(str_array, value, '|');
 	for (const auto &str : str_array) {
 		try {
 			num_set.emplace(std::stoi(str, nullptr));
@@ -262,8 +262,6 @@ std::set<int> ReadAsIntSet(const char *value) {
 			err_log("value '%s' cannot be converted into num.", str.c_str());
 		}
 	}
-
-	return num_set;
 }
 
 /**

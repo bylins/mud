@@ -20,8 +20,6 @@ int DoGuildLearn(CharData *ch, void *me, int cmd, char *argument);
 
 namespace guilds {
 
-class ConditionsRoster {};
-
 class GuildsLoader : virtual public cfg_manager::ICfgLoader {
 	static void AssignGuildsToTrainers();
  public:
@@ -37,11 +35,14 @@ class GuildInfo : public info_container::BaseItem<int> {
 
 	class IGuildTalent {
 		ETalent talent_type_;
+		std::unordered_set<ECharClass> trained_classes_;
 		public:
-		explicit IGuildTalent(ETalent talent_type)
-			: talent_type_(talent_type) {};
+		explicit IGuildTalent(ETalent talent_type, std::unordered_set<ECharClass> &classes)
+			: talent_type_(talent_type), trained_classes_(classes) {};
 
 		[[nodiscard]] ETalent GetTalentType() { return talent_type_; };
+		[[nodiscard]] bool IsUnlearnable(CharData *ch) const;
+		[[nodiscard]] std::string GetClassesList() const;
 		[[nodiscard]] virtual const std::string &GetIdAsStr() const = 0;
 		[[nodiscard]] virtual std::string_view GetName() const = 0;
 	};
@@ -49,8 +50,8 @@ class GuildInfo : public info_container::BaseItem<int> {
 	class GuildSkill : public IGuildTalent {
 		ESkill id_;
 	 public:
-		explicit GuildSkill(ETalent talent_type, ESkill id)
-			: IGuildTalent(talent_type), id_(id) {};
+		explicit GuildSkill(ETalent talent_type, ESkill id, std::unordered_set<ECharClass> &classes)
+			: IGuildTalent(talent_type, classes), id_(id) {};
 
 		[[nodiscard]] ESkill GetId() const { return id_; };
 		[[nodiscard]] const std::string &GetIdAsStr() const final;
@@ -60,8 +61,8 @@ class GuildInfo : public info_container::BaseItem<int> {
 	class GuildSpell : public IGuildTalent {
 		ESpell id_;
 	 public:
-		explicit GuildSpell(ETalent talent_type, ESpell id)
-		: IGuildTalent(talent_type), id_(id) {};
+		explicit GuildSpell(ETalent talent_type, ESpell id, std::unordered_set<ECharClass> &classes)
+		: IGuildTalent(talent_type, classes), id_(id) {};
 
 		[[nodiscard]] ESpell GetId() const { return id_; };
 		[[nodiscard]] const std::string &GetIdAsStr() const final;
@@ -71,8 +72,8 @@ class GuildInfo : public info_container::BaseItem<int> {
 	class GuildFeat : public IGuildTalent {
 		EFeat id_;
 	 public:
-		explicit GuildFeat(ETalent talent_type, EFeat id)
-		: IGuildTalent(talent_type), id_(id) {};
+		explicit GuildFeat(ETalent talent_type, EFeat id, std::unordered_set<ECharClass> &classes)
+		: IGuildTalent(talent_type, classes), id_(id) {};
 
 		[[nodiscard]] EFeat GetId() const { return id_; };
 		[[nodiscard]] const std::string &GetIdAsStr() const final;
@@ -83,7 +84,7 @@ class GuildInfo : public info_container::BaseItem<int> {
 	using TalentsRoster = std::vector<TalentPtr>;
 
 	std::string name_;
-	std::set<MobVnum> trainers_;
+	std::unordered_set<MobVnum> trainers_;
 	TalentsRoster learning_talents_;
 
 	const std::string &GetName() { return name_; };

@@ -1910,8 +1910,8 @@ void zedit_parse(DescriptorData *d, char *arg) {
 		case ZEDIT_TYPE_A_LIST:
 			// * Add or delete new zone in the type A zones list.
 			pos = atoi(arg);
-			if (!is_number(arg) || (pos < 1) || (pos > MAX_PROTO_NUMBER)) {
-				SendMsgToChar(d->character.get(), "Повторите ввод (1-%d) : ", MAX_PROTO_NUMBER);
+			if (!is_number(arg) || (pos < 1) || (pos > kMaxProtoNumber)) {
+				SendMsgToChar(d->character.get(), "Повторите ввод (1-%d) : ", kMaxProtoNumber);
 			} else {
 				for (i = 0; i < OLC_ZONE(d)->typeA_count; i++) {
 					if (OLC_ZONE(d)->typeA_list[i] == pos)    // нашли совпадающий -- убираем элемент
@@ -1953,8 +1953,8 @@ void zedit_parse(DescriptorData *d, char *arg) {
 		case ZEDIT_TYPE_B_LIST:
 			// * Add or delete new zone in the type A zones list.
 			pos = atoi(arg);
-			if (!is_number(arg) || (pos < 1) || (pos > MAX_PROTO_NUMBER)) {
-				SendMsgToChar(d->character.get(), "Повторите ввод (1-%d) : ", MAX_PROTO_NUMBER);
+			if (!is_number(arg) || (pos < 1) || (pos > kMaxProtoNumber)) {
+				SendMsgToChar(d->character.get(), "Повторите ввод (1-%d) : ", kMaxProtoNumber);
 			} else {
 				for (i = 0; i < OLC_ZONE(d)->typeB_count; i++) {
 					if (OLC_ZONE(d)->typeB_list[i] == pos)    // нашли совпадающий -- убираем элемент

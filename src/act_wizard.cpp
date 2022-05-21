@@ -4343,8 +4343,8 @@ void do_liblist(CharData *ch, char *argument, int cmd, int subcmd) {
 		last = first + 99;
 	}
 
-	if ((first < 0) || (first > MAX_PROTO_NUMBER) || (last < 0) || (last > MAX_PROTO_NUMBER)) {
-		sprintf(buf, "Значения должны быть между 0 и %d.\n\r", MAX_PROTO_NUMBER);
+	if ((first < 0) || (first > kMaxProtoNumber) || (last < 0) || (last > kMaxProtoNumber)) {
+		sprintf(buf, "Значения должны быть между 0 и %d.\n\r", kMaxProtoNumber);
 		SendMsgToChar(buf, ch);
 		return;
 	}
