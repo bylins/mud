@@ -144,7 +144,11 @@ ItemPtr GuildInfoBuilder::ParseGuild(DataNode node) {
 	auto guild_info = std::make_shared<GuildInfo>(vnum, text_id, name, mode);
 
 	if (node.GoToChild("trainers")) {
-		parse::ReadAsIntSet(guild_info->trainers_, node.GetValue("vnums"));
+		try {
+			parse::ReadAsIntSet(guild_info->trainers_, node.GetValue("vnums"));
+		} catch (std::runtime_error &e) {
+			err_log("trainers error (%s) in guild '%s'.", e.what(), guild_info->GetName().c_str());
+		}
 	}
 
 	if (node.GoToSibling("talents")) {
@@ -162,22 +166,30 @@ void GuildInfoBuilder::ParseTalents(ItemPtr &info, DataNode &node) {
 	for (auto &talent_node: node.Children()) {
 		std::unordered_set<ECharClass> char_classes;
 		if (talent_node.GoToChild("class")) {
-			parse::ReadAsConstantsSet<ECharClass>(char_classes, talent_node.GetValue("val"));
+			try {
+				parse::ReadAsConstantsSet<ECharClass>(char_classes, talent_node.GetValue("val"));
+			} catch (std::exception &e) {
+				err_log("classes list (%s) in guild '%s'.", e.what(), info->GetName().c_str());
+			}
 			talent_node.GoToParent();
 		}
 
-		if (talent_node.GetName() == skill_element) {
-			auto talent_id = parse::ReadAsConstant<ESkill>(talent_node.GetValue("id"));
-			info->learning_talents_.emplace_back(std::make_unique<GuildInfo::GuildSkill>(
-				GuildInfo::ETalent::kSkill, talent_id, char_classes));
-		} else if (talent_node.GetName() == spell_element) {
-			auto talent_id = parse::ReadAsConstant<ESpell>(talent_node.GetValue("id"));
-			info->learning_talents_.emplace_back(std::make_unique<GuildInfo::GuildSpell>(
-				GuildInfo::ETalent::kSpell, talent_id, char_classes));
-		} else if (talent_node.GetName() == feat_element) {
-			auto talent_id = parse::ReadAsConstant<EFeat>(talent_node.GetValue("id"));
-			info->learning_talents_.emplace_back(std::make_unique<GuildInfo::GuildFeat>(
-				GuildInfo::ETalent::kFeat, talent_id, char_classes));
+		try {
+			if (talent_node.GetName() == skill_element) {
+				auto talent_id = parse::ReadAsConstant<ESkill>(talent_node.GetValue("id"));
+				info->learning_talents_.emplace_back(std::make_unique<GuildInfo::GuildSkill>(
+					GuildInfo::ETalent::kSkill, talent_id, char_classes));
+			} else if (talent_node.GetName() == spell_element) {
+				auto talent_id = parse::ReadAsConstant<ESpell>(talent_node.GetValue("id"));
+				info->learning_talents_.emplace_back(std::make_unique<GuildInfo::GuildSpell>(
+					GuildInfo::ETalent::kSpell, talent_id, char_classes));
+			} else if (talent_node.GetName() == feat_element) {
+				auto talent_id = parse::ReadAsConstant<EFeat>(talent_node.GetValue("id"));
+				info->learning_talents_.emplace_back(std::make_unique<GuildInfo::GuildFeat>(
+					GuildInfo::ETalent::kFeat, talent_id, char_classes));
+			}
+		} catch (std::exception &e) {
+			err_log("talent format error (%s) in guild '%s'.", e.what(), info->GetName().c_str());
 		}
 
 		char_classes.clear();
