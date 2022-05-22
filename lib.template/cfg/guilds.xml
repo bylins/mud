@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<guilds>
+    <guild text_id="kElder" vnum="0" name="старейшина">
+        <trainers vnums="4000"/>
+        <talents>
+            <skill id="kKick">
+            </skill>
+        </talents>
+    </guild>
+</guilds>

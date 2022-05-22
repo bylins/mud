@@ -64,7 +64,9 @@ int DoGuildLearn(CharData *ch, void *me, int cmd, char *argument) {
 		return 0;
 	}
 
-	guild.Process(trainer, ch, argument);
+	std::string params{argument};
+	utils::Trim(params);
+	guild.Process(trainer, ch, params);
 	return 1;
 }
 
@@ -95,7 +97,7 @@ const std::string &GuildInfo::GetMessage(EGuildMsg msg_id) {
 		{EGuildMsg::kSkill, "умение"},
 		{EGuildMsg::kSpell, "заклинание"},
 		{EGuildMsg::kFeat, "способность"},
-		{EGuildMsg::kDidNotTeach, "$N сказал$G: 'Я никогда и никого ЭТОМУ не учил$G!'"},
+		{EGuildMsg::kDidNotTeach, "$N уставил$U на $n3 прорычал$G: 'Я никогда и никого ЭТОМУ не учил$G!'"},
 		{EGuildMsg::kInquiry, "$n о чем-то спросил$g $N3."},
 		{EGuildMsg::kCannotToChar, "$N сказал$G: 'Я не могу тебя этому научить'."},
 		{EGuildMsg::kCannotToRoom, "$N сказал$G $n2: 'Я не могу тебя этому научить'."},
@@ -106,6 +108,7 @@ const std::string &GuildInfo::GetMessage(EGuildMsg msg_id) {
 		{EGuildMsg::kAllSkills,
 		 "$N сказал$G: '$n, нельзя научиться всем умениям или способностям сразу. Выбери необходимые!'"},
 		{EGuildMsg::kTalentEarned, "Под наставничеством $N1 вы изучили "},
+		{EGuildMsg::kNothingLearned, "$N ничему новому вас не научил$G."},
 		{EGuildMsg::kListEmpty, "$N сказал$G : 'Похоже, $n, я не смогу тебе помочь'."},
 		{EGuildMsg::kError, "У кодера какие-то проблемы."},
 	};
@@ -233,6 +236,12 @@ void GuildInfo::Process(CharData *trainer, CharData *ch, const std::string &argu
 	}
 
 	act(GetMessage(EGuildMsg::kInquiry), false, ch, nullptr, trainer, kToRoom);
+
+	if (utils::IsAbbrev(argument, "все") || utils::IsAbbrev(argument, "all")) {
+		LearnAll(trainer, ch);
+		return;
+	}
+
 	try {
 		std::size_t talent_num = std::stoi(argument);
 		LearnWithTalentNum(trainer, ch, talent_num);
@@ -264,10 +273,6 @@ void GuildInfo::LearnWithTalentNum(CharData *trainer, CharData *ch, std::size_t 
 }
 
 void GuildInfo::LearnWithTalentName(CharData *trainer, CharData *ch, const std::string &talent_name) const {
-	if (utils::IsAbbrev(talent_name, "все") || utils::IsAbbrev(talent_name, "all")) {
-		SendMsgToChar(ch, "Введено '%s' - учим все подряд.", talent_name.c_str());
-	}
-
 	auto result = std::find_if(learning_talents_.begin(), learning_talents_.end(),
 							   [ch, &talent_name](const TalentPtr &talent) {
 								   if (talent->IsUnlearnable(ch)) {
@@ -290,7 +295,7 @@ void GuildInfo::LearnWithTalentName(CharData *trainer, CharData *ch, const std::
 	}
 }
 // \todo убрать дублирование кода с выбором названия таланта
-void GuildInfo::Learn(CharData *trainer, CharData *ch, const TalentPtr &talent) {
+void GuildInfo::Learn(CharData *trainer, CharData *ch, const TalentPtr &talent) const {
 	auto msg = GetMessage(EGuildMsg::kTalentEarned);
 	switch (talent->GetTalentType()) {
 		case ETalent::kSkill:
@@ -308,6 +313,36 @@ void GuildInfo::Learn(CharData *trainer, CharData *ch, const TalentPtr &talent) 
 	act(msg, false, ch, nullptr, trainer, kToChar);
 	talent->SetTalent(ch);
 };
+
+void GuildInfo::LearnAll(CharData *trainer, CharData *ch) const {
+	auto skill_feat_count{0};
+	auto spell_count{0};
+	auto need_msg{true};
+	for (const auto &talent : learning_talents_) {
+		if (talent->IsUnlearnable(ch)) {
+			continue;
+		}
+		if (talent->GetTalentType() == ETalent::kSpell) {
+			if (need_msg) {
+				act(GetMessage(EGuildMsg::kDoLearnToChar), false, ch, nullptr, trainer, kToChar);
+				act(GetMessage(EGuildMsg::kDoLearnToRoom), false, ch, nullptr, trainer, kToRoom);
+				need_msg = false;
+			}
+			Learn(trainer, ch, talent);
+			++spell_count;
+		} else {
+			++skill_feat_count;
+		}
+	}
+
+	if (!skill_feat_count && !spell_count) {
+		act(GetMessage(EGuildMsg::kNothingLearned), false, ch, nullptr, trainer, kToChar);
+		act(GetMessage(EGuildMsg::kDidNotTeach), false, ch, nullptr, trainer, kToRoom);
+	} else if (skill_feat_count && !spell_count) {
+		act(GetMessage(EGuildMsg::kAllSkills), false, ch, nullptr, trainer, kToChar);
+		act(GetMessage(EGuildMsg::kAllSkills), false, ch, nullptr, trainer, kToRoom);
+	}
+}
 
 void GuildInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 	buffer << "Print guild:" << std::endl

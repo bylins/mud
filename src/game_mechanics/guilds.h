@@ -46,6 +46,7 @@ class GuildInfo : public info_container::BaseItem<int> {
 		kDidNotTeach,
 		kAllSkills,
 		kTalentEarned,
+		kNothingLearned,
 		kListEmpty,
 		kError};
 
@@ -112,10 +113,11 @@ class GuildInfo : public info_container::BaseItem<int> {
 	std::unordered_set<MobVnum> trainers_;
 	TalentsRoster learning_talents_;
 
-	const std::string &GetName() { return name_; };
-	static const std::string & GetMessage(EGuildMsg msg_id);
+	const std::string &GetName() const { return name_; };
+	static const std::string &GetMessage(EGuildMsg msg_id);
 	void DisplayMenu(CharData *trainer, CharData *ch) const;
-	static void Learn(CharData *trainer, CharData *ch, const TalentPtr &talent) ;
+	void Learn(CharData *trainer, CharData *ch, const TalentPtr &talent) const;
+	void LearnAll(CharData *trainer, CharData *ch) const;
 	void LearnWithTalentNum(CharData *trainer, CharData *ch, std::size_t talent_num) const;
 	void LearnWithTalentName(CharData *trainer, CharData *ch, const std::string &talent_name) const;
 
