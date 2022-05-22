@@ -36,7 +36,7 @@
 #include "depot.h"
 #include "game_economics/ext_money.h"
 #include "game_mechanics/bonus.h"
-#include "game_mechanics/trainers.h"
+#include "game_mechanics/guilds.h"
 #include "game_fight/fight.h"
 #include "game_fight/mobact.h"
 #include "utils/file_crc.h"
@@ -1077,6 +1077,8 @@ void do_reboot(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		MUD::CfgManager().ReloadCfg("skills");
 	} else if (!str_cmp(arg, "classes")) {
 		MUD::CfgManager().ReloadCfg("classes");
+	} else if (!str_cmp(arg, "guilds")) {
+		MUD::CfgManager().ReloadCfg("guilds");
 	} else if (!str_cmp(arg, "imagic"))
 		init_im();
 	else if (!str_cmp(arg, "ztypes"))
@@ -2421,9 +2423,9 @@ void boot_db(void) {
 	log("Booting special assignment");
 	init_spec_procs();
 
-	boot_profiler.next_step("Loading guilds");
-	log("Booting guilds");
-	init_guilds();
+	boot_profiler.next_step("Assigning guilds info.");
+	log("Assigning guilds info.");
+	MUD::CfgManager().LoadCfg("guilds");
 
 	boot_profiler.next_step("Loading portals for 'town portal' spell");
 	log("Booting portals for 'town portal' spell");
@@ -2509,7 +2511,6 @@ void boot_db(void) {
 	log("Load zone traffic.");
 	zone_traffic_load();
 
-	//Polud грузим параметры рас мобов
 	boot_profiler.next_step("Loading mob races");
 	log("Load mob races.");
 	load_mobraces();
@@ -2592,8 +2593,8 @@ void boot_db(void) {
 	Bonus::bonus_log_load();
 	load_speedwalk();
 
-	boot_profiler.next_step("Loading ");
-	log("Loading class base stat limits");
+	boot_profiler.next_step("Loading cities cfg");
+	log("Loading cities cfg.");
 	load_cities();
 	shutdown_parameters.mark_boot_time();
 	log("Boot db -- DONE.");

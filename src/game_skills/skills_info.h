@@ -20,18 +20,18 @@ class SkillsLoader : virtual public cfg_manager::ICfgLoader {
 /*
  * Класс-описание конкретного умения.
  */
-struct SkillInfo : public info_container::IItem<ESkill> {
-	ESkill id{ESkill::kFirst};
+class SkillInfo : public info_container::BaseItem<ESkill> {
+ public:
+	SkillInfo() = default;
+	SkillInfo(ESkill id, EItemMode mode)
+		: BaseItem<ESkill>(id, mode) {};
+
 	std::string name{"!undefined!"};
 	std::string short_name{"!error"};
 	ESaving save_type{ESaving::kFirst};
 	int difficulty{200};
-	int cap{1};
+	int cap{1000};
 	bool autosuccess{false};
-	EItemMode mode{EItemMode::kService};
-
-	[[nodiscard]] ESkill GetId() const final { return id; };
-	[[nodiscard]] EItemMode GetMode() const final { return mode; };
 
 	/*
 	 * Имя скилла в виде C-строки. По возможности используйте std::string
@@ -46,10 +46,10 @@ struct SkillInfo : public info_container::IItem<ESkill> {
  */
 class SkillInfoBuilder : public info_container::IItemBuilder<SkillInfo> {
  public:
-	ItemOptional Build(parser_wrapper::DataNode &node) final;
+	ItemPtr Build(parser_wrapper::DataNode &node) final;
  private:
-	static ItemOptional &ParseObligatoryValues(ItemOptional &optional, parser_wrapper::DataNode &node);
-	static ItemOptional &ParseDispensableValues(ItemOptional &optional, parser_wrapper::DataNode &node);
+	static ItemPtr ParseObligatoryValues(parser_wrapper::DataNode &node);
+	static void ParseDispensableValues(ItemPtr &item_ptr, parser_wrapper::DataNode &node);
 };
 
 using SkillsInfo = info_container::InfoContainer<ESkill, SkillInfo, SkillInfoBuilder>;

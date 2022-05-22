@@ -79,7 +79,7 @@ ECharClass FindAvailableCharClassId(const std::string &class_name) {
 	for (const auto &it: MUD::Classes()) {
 		if (it.IsAvailable()) {
 		 	if (CompareParam(class_name, it.GetPluralName()) || CompareParam(class_name, it.GetName())) {
-				return it.id;
+				return it.GetId();
 		 	}
 		}
 	}

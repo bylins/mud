@@ -3657,7 +3657,7 @@ void perform_act(const char *orig,
 					else CHECK_NULL(obj, arena ? GET_OBJ_SUF_4(obj) : GET_OBJ_VIS_SUF_4(obj, to));
 					dg_victim = (CharData *) vict_obj;
 					break;
-//WorM Добавил суффикс глуп(ым,ой,ыми)
+//суффикс глуп(ым,ой,ыми)
 				case 'r': i = IS_IMMORTAL(ch) || (arena) ? GET_CH_SUF_7(ch) : GET_CH_VIS_SUF_7(ch, to);
 					break;
 				case 'R':
@@ -3667,7 +3667,7 @@ void perform_act(const char *orig,
 					else CHECK_NULL(obj, arena ? GET_OBJ_SUF_7(obj) : GET_OBJ_VIS_SUF_7(obj, to));
 					dg_victim = (CharData *) vict_obj;
 					break;
-//WorM Добавил суффикс как(ое,ой,ая,ие)
+//суффикс как(ое,ой,ая,ие)
 				case 'x': i = IS_IMMORTAL(ch) || (arena) ? GET_CH_SUF_8(ch) : GET_CH_VIS_SUF_8(ch, to);
 					break;
 				case 'X':
@@ -3677,7 +3677,7 @@ void perform_act(const char *orig,
 					else CHECK_NULL(obj, arena ? GET_OBJ_SUF_8(obj) : GET_OBJ_VIS_SUF_8(obj, to));
 					dg_victim = (CharData *) vict_obj;
 					break;
-//Polud Добавил склонение местоимения Ваш(е,а,и)
+//склонение местоимения Ваш(е,а,и)
 				case 'z':
 					if (obj)
 						i = OYOU(obj);
@@ -3688,7 +3688,6 @@ void perform_act(const char *orig,
 						i = HYOU((const CharData *) vict_obj);
 					else CHECK_NULL(vict_obj, HYOU((const CharData *) vict_obj))
 					break;
-//-Polud
 				default: log("SYSERR: Illegal $-code to act(): %c", *orig);
 					log("SYSERR: %s", orig);
 					i = "";

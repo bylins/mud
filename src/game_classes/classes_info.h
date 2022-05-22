@@ -29,24 +29,21 @@ class ClassesLoader : virtual public cfg_manager::ICfgLoader {
 	void Reload(parser_wrapper::DataNode data) final;
 };
 
-struct CharClassInfo : public info_container::IItem<ECharClass> {
-	template<typename E>
-	class TalentInfo : public info_container::IItem<E> {
+class CharClassInfo : public info_container::BaseItem<ECharClass> {
+ public:
+	template<typename TalentIndexEnum>
+	class TalentInfo : public info_container::BaseItem<TalentIndexEnum> {
 	public:
 		TalentInfo() = default;
-		TalentInfo(E id, int min_level, int min_remort, EItemMode mode)
-			: id_{id}, min_level_{min_level}, min_remort_{min_remort}, mode_{mode} {};
+		TalentInfo(TalentIndexEnum id, int min_level, int min_remort, EItemMode mode)
+			: BaseItem<TalentIndexEnum>(id, mode), min_level_{min_level}, min_remort_{min_remort} {};
 
-		[[nodiscard]] E GetId() const final { return id_; };
-		[[nodiscard]] EItemMode GetMode() const final { return mode_; };
 		[[nodiscard]] int GetMinLevel() const { return min_level_; };
 		[[nodiscard]] int GetMinRemort() const { return min_remort_; };
 
 	 protected:
-		E id_{E::kUndefined};
-		int min_level_{kLvlImplementator};
-		int min_remort_{kMaxRemort + 1};
-		EItemMode mode_{EItemMode::kService};
+		int min_level_{kMinCharLevel};
+		int min_remort_{kMinRemort};
 	};
 
 	class SkillInfo : public TalentInfo<ESkill> {
@@ -63,7 +60,7 @@ struct CharClassInfo : public info_container::IItem<ECharClass> {
 
 	class SkillInfoBuilder : public info_container::IItemBuilder<SkillInfo> {
 	 public:
-		ItemOptional Build(parser_wrapper::DataNode &node) final;
+		ItemPtr Build(parser_wrapper::DataNode &node) final;
 	};
 
 	using Skills = info_container::InfoContainer<ESkill, SkillInfo, SkillInfoBuilder>;
@@ -86,7 +83,7 @@ struct CharClassInfo : public info_container::IItem<ECharClass> {
 
 	class SpellInfoBuilder : public info_container::IItemBuilder<SpellInfo> {
 	 public:
-		ItemOptional Build(parser_wrapper::DataNode &node) final;
+		ItemPtr Build(parser_wrapper::DataNode &node) final;
 	};
 
 	using Spells = info_container::InfoContainer<ESpell, SpellInfo, SpellInfoBuilder>;
@@ -107,27 +104,22 @@ struct CharClassInfo : public info_container::IItem<ECharClass> {
 
 	class FeatInfoBuilder : public info_container::IItemBuilder<FeatInfo> {
 	 public:
-		ItemOptional Build(parser_wrapper::DataNode &node) final;
+		ItemPtr Build(parser_wrapper::DataNode &node) final;
 	};
 
 	using Feats = info_container::InfoContainer<EFeat, FeatInfo, FeatInfoBuilder>;
 
 // =====================================================================================================================
 
-	CharClassInfo() {
-		names = std::make_unique<base_structs::ItemName>();
-
-		for (auto stat = EBaseStat::kFirst; stat <= EBaseStat::kLast; ++stat) {
-			base_stats[stat] = CharClassInfo::BaseStatLimits();
-		}
+	CharClassInfo()
+		: BaseItem<ECharClass>() {
+		InnerInit();
 	};
 
-	/* Базовые поля */
-	ECharClass id{ECharClass::kFirst};
-	EItemMode mode{EItemMode::kEnabled};
-
-	[[nodiscard]] ECharClass GetId() const final { return id; };
-	[[nodiscard]] EItemMode GetMode() const final { return mode; };
+	CharClassInfo(ECharClass id, EItemMode mode)
+		: BaseItem<ECharClass>(id, mode) {
+		InnerInit();
+	};
 
 	/* Имена */
 	std::unique_ptr<base_structs::ItemName> names;
@@ -203,23 +195,32 @@ struct CharClassInfo : public info_container::IItem<ECharClass> {
 	/* Прочее */
 	void Print(CharData *ch, std::ostringstream &buffer) const;
 	void PrintHeader(std::ostringstream &buffer) const;
+
+ private:
+	void InnerInit() {
+		names = std::make_unique<base_structs::ItemName>();
+		for (auto stat = EBaseStat::kFirst; stat <= EBaseStat::kLast; ++stat) {
+			base_stats[stat] = CharClassInfo::BaseStatLimits();
+		}
+	}
 };
 
 class CharClassInfoBuilder : public info_container::IItemBuilder<CharClassInfo> {
  public:
-	ItemOptional Build(parser_wrapper::DataNode &node) final;
+	CharClassInfoBuilder() {}
+	ItemPtr Build(parser_wrapper::DataNode &node) final;
  private:
 	static parser_wrapper::DataNode SelectDataNode(parser_wrapper::DataNode &node);
 	static std::optional<std::string> GetCfgFileName(parser_wrapper::DataNode &node);
-	static void ParseClass(ItemOptional &info, parser_wrapper::DataNode &node);
-	static void ParseStats(ItemOptional &info, parser_wrapper::DataNode &node);
-	static void ParseBaseStats(ItemOptional &info, parser_wrapper::DataNode &node);
-	static void ParseName(ItemOptional &info, parser_wrapper::DataNode &node);
-	static void ParseSkills(ItemOptional &info, parser_wrapper::DataNode &node);
-	static void ParseSpells(ItemOptional &info, parser_wrapper::DataNode &node);
-	static void ParseFeats(ItemOptional &info, parser_wrapper::DataNode &node);
+	static ItemPtr ParseClass(parser_wrapper::DataNode &node);
+	static void ParseStats(ItemPtr &info, parser_wrapper::DataNode &node);
+	static void ParseBaseStats(ItemPtr &info, parser_wrapper::DataNode &node);
+	static void ParseName(ItemPtr &info, parser_wrapper::DataNode &node);
+	static void ParseSkills(ItemPtr &info, parser_wrapper::DataNode &node);
+	static void ParseSpells(ItemPtr &info, parser_wrapper::DataNode &node);
+	static void ParseFeats(ItemPtr &info, parser_wrapper::DataNode &node);
 	// временная функция
-	static void TemporarySetStat(ItemOptional &info);
+	static void TemporarySetStat(ItemPtr &info);
 };
 
 using ClassesInfo = info_container::InfoContainer<ECharClass, CharClassInfo, CharClassInfoBuilder>;

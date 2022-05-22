@@ -20,25 +20,14 @@ void DoSpells(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 const char *GetSpellColor(ESpell spell_id) {
 	switch (spell_info[spell_id].spell_class) {
 		case kTypeAir: return "&W";
-			break;
 		case kTypeFire: return "&R";
-			break;
 		case kTypeWater: return "&C";
-			break;
 		case kTypeEarth: return "&y";
-			break;
 		case kTypeLight: return "&Y";
-			break;
 		case kTypeDark: return "&K";
-			break;
 		case kTypeMind: return "&M";
-			break;
 		case kTypeLife: return "&G";
-			break;
-		case kTypeNeutral: return "&n";
-			break;
 		default: return "&n";
-			break;
 	}
 }
 

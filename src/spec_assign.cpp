@@ -58,7 +58,7 @@ void ASSIGNMOB(MobVnum mob, int fname(CharData *, void *, int, char *)) {
 			clear_mob_charm(&mob_proto[rnum]);
 		}
 	} else {
-		log("SYSERR: Attempt to assign spec to non-existant mob #%d", mob);
+		err_log("Attempt to assign spec to non-existant mob #%d", mob);
 	}
 }
 
@@ -68,7 +68,7 @@ void ASSIGNOBJ(ObjVnum obj, special_f fname) {
 	if (rnum >= 0) {
 		obj_proto.func(rnum, fname);
 	} else {
-		log("SYSERR: Attempt to assign spec to non-existant obj #%d", obj);
+		err_log("Attempt to assign spec to non-existant obj #%d", obj);
 	}
 }
 
@@ -78,7 +78,7 @@ void ASSIGNROOM(RoomVnum room, special_f fname) {
 	if (rnum != kNowhere) {
 		world[rnum]->func = fname;
 	} else {
-		log("SYSERR: Attempt to assign spec to non-existant room #%d", room);
+		err_log("Attempt to assign spec to non-existant room #%d", room);
 	}
 }
 
@@ -89,7 +89,7 @@ void ASSIGNMASTER(MobVnum mob, special_f fname, int learn_info) {
 		mob_index[rnum].func = fname;
 		mob_index[rnum].stored = learn_info;
 	} else {
-		log("SYSERR: Attempt to assign spec to non-existant mob #%d", mob);
+		err_log("Attempt to assign spec to non-existant mob #%d", mob);
 	}
 }
 

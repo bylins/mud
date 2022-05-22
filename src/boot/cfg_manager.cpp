@@ -9,6 +9,7 @@
 #include "cfg_manager.h"
 
 #include "game_classes/classes_info.h"
+#include "game_mechanics/guilds.h"
 #include "game_skills/skills_info.h"
 
 namespace cfg_manager {
@@ -20,6 +21,8 @@ CfgManager::CfgManager() {
 										   std::make_unique<classes::ClassesLoader>(classes::ClassesLoader())));
 	loaders_.emplace("skills", LoaderInfo("cfg/skills.xml",
 										  std::make_unique<SkillsLoader>(SkillsLoader())));
+	loaders_.emplace("guilds", LoaderInfo("cfg/guilds.xml",
+										  std::make_unique<guilds::GuildsLoader>(guilds::GuildsLoader())));
 }
 
 void CfgManager::ReloadCfg(const std::string &id) {

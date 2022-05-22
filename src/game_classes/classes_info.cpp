@@ -17,7 +17,7 @@
 namespace classes {
 
 using DataNode = parser_wrapper::DataNode;
-using Optional = CharClassInfoBuilder::ItemOptional;
+using ItemPtr = CharClassInfoBuilder::ItemPtr;
 
 void ClassesLoader::Load(DataNode data) {
 	MUD::Classes().Init(data.Children());
@@ -27,16 +27,14 @@ void ClassesLoader::Reload(DataNode data) {
 	MUD::Classes().Reload(data.Children());
 }
 
-Optional CharClassInfoBuilder::Build(DataNode &node) {
-	auto class_info =  std::make_optional(std::make_shared<CharClassInfo>());
+ItemPtr CharClassInfoBuilder::Build(DataNode &node) {
 	try {
 		auto class_node = SelectDataNode(node);
-		ParseClass(class_info, class_node);
+		return ParseClass(class_node);
 	} catch (std::exception &e) {
 		err_log("Classes parsing error: '%s'", e.what());
-		class_info = std::nullopt;
+		return nullptr;
 	}
-	return class_info;
 }
 
 DataNode CharClassInfoBuilder::SelectDataNode(DataNode &node) {
@@ -61,19 +59,16 @@ std::optional<std::string> CharClassInfoBuilder::GetCfgFileName(DataNode &node) 
 	return full_file_name;
 }
 
-void CharClassInfoBuilder::ParseClass(Optional &info, DataNode &node) {
+ItemPtr CharClassInfoBuilder::ParseClass(DataNode &node) {
+	auto id{ECharClass::kUndefined};
 	try {
-		info.value()->id = parse::ReadAsConstant<ECharClass>(node.GetValue("id"));
+		id = parse::ReadAsConstant<ECharClass>(node.GetValue("id"));
 	} catch (std::exception &e) {
 		err_log("Incorrect class id (%s).", e.what());
-		info = std::nullopt;
-		return;
+		return nullptr;
 	}
-
-	try {
-		info.value()->mode = parse::ReadAsConstant<EItemMode>(node.GetValue("mode"));
-	} catch (std::exception &) {
-	}
+	auto mode = CharClassInfoBuilder::ParseItemMode(node, EItemMode::kEnabled);
+	auto info = std::make_shared<CharClassInfo>(id, mode);
 
 	if (node.GoToChild("name")) {
 		ParseName(info, node);
@@ -96,16 +91,18 @@ void CharClassInfoBuilder::ParseClass(Optional &info, DataNode &node) {
 	}
 
 	TemporarySetStat(info);	// Временное проставление параметроа не из файла, а вручную
+
+	return info;
 }
 
-void CharClassInfoBuilder::ParseStats(Optional &info, DataNode &node) {
+void CharClassInfoBuilder::ParseStats(ItemPtr &info, DataNode &node) {
 	node.GoToChild("base_stats");
 	ParseBaseStats(info, node);
 
 	node.GoToParent();
 }
 
-void CharClassInfoBuilder::ParseBaseStats(Optional &info, DataNode &node) {
+void CharClassInfoBuilder::ParseBaseStats(ItemPtr &info, DataNode &node) {
 	auto base_stat_limits = CharClassInfo::BaseStatLimits();
 	for (const auto &stat_node : node.Children("stat")) {
 		EBaseStat id;
@@ -120,7 +117,7 @@ void CharClassInfoBuilder::ParseBaseStats(Optional &info, DataNode &node) {
 			out << "Incorrect base stat limits format (wrong value: " << e.what() << ").";
 			throw std::runtime_error(out.str());
 		}
-		info.value()->base_stats[id] = base_stat_limits;
+		info->base_stats[id] = base_stat_limits;
 	}
 }
 
@@ -142,13 +139,13 @@ void CharClassInfo::PrintBaseStatsTable(CharData *ch, std::ostringstream &buffer
 	table_wrapper::PrintTableToStream(buffer, table);
 }
 
-void CharClassInfoBuilder::ParseName(Optional &info, DataNode &node) {
+void CharClassInfoBuilder::ParseName(ItemPtr &info, DataNode &node) {
 	try {
-		info.value()->abbr = parse::ReadAsStr(node.GetValue("abbr"));
+		info->abbr = parse::ReadAsStr(node.GetValue("abbr"));
 	} catch (std::exception &) {
-		info.value()->abbr = "--";
+		info->abbr = "--";
 	}
-	info.value()->names = base_structs::ItemName::Build(node);
+	info->names = base_structs::ItemName::Build(node);
 }
 
 int ParseLevelDecrement(DataNode &node) {
@@ -162,30 +159,30 @@ int ParseLevelDecrement(DataNode &node) {
 // Для парсинга талантов всегда используем Reload (строгий парсинг), потому что класс с неверно прописанными
 // талантами не должен быть загружен, иначе при некорректном файле у игроков постираются выученные спеллы/скиллы.
 
-void CharClassInfoBuilder::ParseSkills(Optional &info, DataNode &node) {
-	info.value()->skill_level_decrement_ = ParseLevelDecrement(node);
-	info.value()->skills.Reload(node.Children());
+void CharClassInfoBuilder::ParseSkills(ItemPtr &info, DataNode &node) {
+	info->skill_level_decrement_ = ParseLevelDecrement(node);
+	info->skills.Reload(node.Children());
 }
 
-void CharClassInfoBuilder::ParseSpells(Optional &info, DataNode &node) {
-	info.value()->spell_level_decrement_ = ParseLevelDecrement(node);
-	info.value()->spells.Reload(node.Children());
+void CharClassInfoBuilder::ParseSpells(ItemPtr &info, DataNode &node) {
+	info->spell_level_decrement_ = ParseLevelDecrement(node);
+	info->spells.Reload(node.Children());
 }
 
-void CharClassInfoBuilder::ParseFeats(Optional &info, DataNode &node) {
+void CharClassInfoBuilder::ParseFeats(ItemPtr &info, DataNode &node) {
 	try {
-		info.value()->remorts_for_feat_slot_ =
+		info->remorts_for_feat_slot_ =
 			std::clamp(parse::ReadAsInt(node.GetValue("remorts_for_slot")), 1, kMaxRemort) ;
 	} catch (std::exception &e) {
-		info.value()->remorts_for_feat_slot_ = kMaxRemort;
+		info->remorts_for_feat_slot_ = kMaxRemort;
 	}
-	info.value()->feats.Reload(node.Children());
+	info->feats.Reload(node.Children());
 }
 
 void CharClassInfo::PrintHeader(std::ostringstream &buffer) const {
 	buffer << "Print class:" << "\n"
-		   << " Id: " << KGRN << NAME_BY_ITEM<ECharClass>(id) << KNRM << std::endl
-		   << " Mode: " << KGRN << NAME_BY_ITEM<EItemMode>(mode) << KNRM << std::endl
+		   << " Id: " << KGRN << NAME_BY_ITEM<ECharClass>(GetId()) << KNRM << std::endl
+		   << " Mode: " << KGRN << NAME_BY_ITEM<EItemMode>(GetMode()) << KNRM << std::endl
 		   << " Abbr: " << KGRN << GetAbbr() << KNRM << std::endl
 		   << " Name: " << KGRN << GetName()
 		   << "/" << names->GetSingular(ECase::kGen)
@@ -252,7 +249,7 @@ void CharClassInfo::PrintSkillsTable(CharData *ch, std::ostringstream &buffer) c
 	table_wrapper::PrintTableToStream(buffer, table);
 }
 
-CharClassInfo::SkillInfoBuilder::ItemOptional CharClassInfo::SkillInfoBuilder::Build(DataNode &node) {
+CharClassInfo::SkillInfoBuilder::ItemPtr CharClassInfo::SkillInfoBuilder::Build(DataNode &node) {
 	auto skill_id{ESkill::kUndefined};
 	int min_lvl, min_remort;
 	long improve;
@@ -269,8 +266,9 @@ CharClassInfo::SkillInfoBuilder::ItemOptional CharClassInfo::SkillInfoBuilder::B
 
 	auto skill_mode = SkillInfoBuilder::ParseItemMode(node, EItemMode::kEnabled);
 
-	// \todo Нужно подумать, как переделать интерфейс, возможно - через ссылку на метод или лямбду
-	return std::make_optional(std::make_shared<CharClassInfo::SkillInfo>(skill_id, min_lvl, min_remort, improve, skill_mode));
+/*	auto info = std::make_shared<CharClassInfo::SkillInfo>(skill_id, skill_mode);
+	return info;*/
+	return std::make_shared<CharClassInfo::SkillInfo>(skill_id, min_lvl, min_remort, improve, skill_mode);
 }
 
 void CharClassInfo::PrintSpellsTable(CharData *ch, std::ostringstream &buffer) const {
@@ -294,7 +292,7 @@ void CharClassInfo::PrintSpellsTable(CharData *ch, std::ostringstream &buffer) c
 	table_wrapper::PrintTableToStream(buffer, table);
 }
 
-CharClassInfo::SpellInfoBuilder::ItemOptional CharClassInfo::SpellInfoBuilder::Build(DataNode &node) {
+CharClassInfo::SpellInfoBuilder::ItemPtr CharClassInfo::SpellInfoBuilder::Build(DataNode &node) {
 	auto spell_id{ESpell::kUndefined};
 	int min_lvl, min_remort, circle, mem;
 	double cast;
@@ -315,8 +313,7 @@ CharClassInfo::SpellInfoBuilder::ItemOptional CharClassInfo::SpellInfoBuilder::B
 
 	auto spell_mode = SpellInfoBuilder::ParseItemMode(node, EItemMode::kEnabled);
 
-	// \todo Нужно подумать, как переделать интерфейс, возможно - через ссылку на метод или лямбду
-	return std::make_optional(std::make_shared<CharClassInfo::SpellInfo>(spell_id, min_lvl, min_remort, circle, mem, cast, spell_mode));
+	return std::make_shared<CharClassInfo::SpellInfo>(spell_id, min_lvl, min_remort, circle, mem, cast, spell_mode);
 }
 
 void CharClassInfo::PrintFeatsTable(CharData *ch, std::ostringstream &buffer) const {
@@ -339,7 +336,7 @@ void CharClassInfo::PrintFeatsTable(CharData *ch, std::ostringstream &buffer) co
 	table_wrapper::PrintTableToStream(buffer, table);
 }
 
-CharClassInfo::FeatInfoBuilder::ItemOptional CharClassInfo::FeatInfoBuilder::Build(DataNode &node) {
+CharClassInfo::FeatInfoBuilder::ItemPtr CharClassInfo::FeatInfoBuilder::Build(DataNode &node) {
 	auto feat_id{EFeat::kUndefined};
 	int min_lvl, min_remort, slot;
 	bool inborn{false};
@@ -356,8 +353,8 @@ CharClassInfo::FeatInfoBuilder::ItemOptional CharClassInfo::FeatInfoBuilder::Bui
 	}
 
 	auto feat_mode = FeatInfoBuilder::ParseItemMode(node, EItemMode::kEnabled);
-	// \todo Нужно подумать, как переделать интерфейс, возможно - через ссылку на метод или лямбду
-	return std::make_optional(std::make_shared<CharClassInfo::FeatInfo>(feat_id, min_lvl, min_remort, slot, inborn, feat_mode));
+
+	return std::make_shared<CharClassInfo::FeatInfo>(feat_id, min_lvl, min_remort, slot, inborn, feat_mode);
 }
 
 /*
@@ -365,70 +362,70 @@ CharClassInfo::FeatInfoBuilder::ItemOptional CharClassInfo::FeatInfoBuilder::Bui
  *  На самом деле, почти все проставляемые тут параметры должны быть прочитаны из конфига,
  *  но пока сделано так. Постепенно нужно все это вынести в конфиг.
  */
-void CharClassInfoBuilder::TemporarySetStat(Optional &info) {
-	switch (info.value()->id) {
+void CharClassInfoBuilder::TemporarySetStat(ItemPtr &info) {
+	switch (info->GetId()) {
 		case ECharClass::kSorcerer: {
-			info.value()->applies = {40, 10, 12, 50};
+			info->applies = {40, 10, 12, 50};
 		}
 			break;
 		case ECharClass::kConjurer: {
-			info.value()->inborn_affects.push_back({EAffect::kInfravision, 0, true});
-			info.value()->applies = {35, 10, 10, 50};
+			info->inborn_affects.push_back({EAffect::kInfravision, 0, true});
+			info->applies = {35, 10, 10, 50};
 		}
 			break;
 		case ECharClass::kThief: {
-			info.value()->inborn_affects.push_back({EAffect::kInfravision, 0, true});
-			info.value()->inborn_affects.push_back({EAffect::kDetectLife, 0, true});
-			info.value()->inborn_affects.push_back({EAffect::kBlink, 0, true});
-			info.value()->applies = {55, 10, 14, 50};
+			info->inborn_affects.push_back({EAffect::kInfravision, 0, true});
+			info->inborn_affects.push_back({EAffect::kDetectLife, 0, true});
+			info->inborn_affects.push_back({EAffect::kBlink, 0, true});
+			info->applies = {55, 10, 14, 50};
 		}
 			break;
 		case ECharClass::kWarrior: {
-			info.value()->applies = {105, 10, 22, 50};
+			info->applies = {105, 10, 22, 50};
 		}
 			break;
 		case ECharClass::kAssasine: {
-			info.value()->inborn_affects.push_back({EAffect::kInfravision, 0, true});
-			info.value()->applies = {50, 10, 14, 50};
+			info->inborn_affects.push_back({EAffect::kInfravision, 0, true});
+			info->applies = {50, 10, 14, 50};
 		}
 			break;
 		case ECharClass::kGuard: {
-			info.value()->applies = {105, 10, 17, 50};
+			info->applies = {105, 10, 17, 50};
 		}
 			break;
 		case ECharClass::kCharmer: {
-			info.value()->applies = {35, 10, 10, 50};
+			info->applies = {35, 10, 10, 50};
 		}
 			break;
 		case ECharClass::kWizard: {
-			info.value()->applies = {35, 10, 10, 50};
+			info->applies = {35, 10, 10, 50};
 		}
 			break;
 		case ECharClass::kNecromancer: {
-			info.value()->inborn_affects.push_back({EAffect::kInfravision, 0, true});
-			info.value()->applies = {35, 10, 11, 50};
+			info->inborn_affects.push_back({EAffect::kInfravision, 0, true});
+			info->applies = {35, 10, 11, 50};
 		}
 			break;
 		case ECharClass::kPaladine: {
-			info.value()->applies = {100, 10, 14, 50};
+			info->applies = {100, 10, 14, 50};
 		}
 			break;
 		case ECharClass::kRanger: {
-			info.value()->inborn_affects.push_back({EAffect::kInfravision, 0, true});
-			info.value()->inborn_affects.push_back({EAffect::kDetectLife, 0, true});
-			info.value()->applies = {100, 10, 14, 50};
+			info->inborn_affects.push_back({EAffect::kInfravision, 0, true});
+			info->inborn_affects.push_back({EAffect::kDetectLife, 0, true});
+			info->applies = {100, 10, 14, 50};
 		}
 			break;
 		case ECharClass::kVigilant: {
-			info.value()->applies = {100, 10, 14, 50};
+			info->applies = {100, 10, 14, 50};
 		}
 			break;
 		case ECharClass::kMerchant: {
-			info.value()->applies = {50, 10, 14, 50};
+			info->applies = {50, 10, 14, 50};
 		}
 			break;
 		case ECharClass::kMagus: {
-			info.value()->applies = {40, 10, 12, 50};
+			info->applies = {40, 10, 12, 50};
 		}
 			break;
 		default: break;

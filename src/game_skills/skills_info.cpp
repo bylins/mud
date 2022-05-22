@@ -1,11 +1,10 @@
 #include "color.h"
 #include "structs/global_objects.h"
-#include "utils/parse.h"
 
 struct AttackMessages fight_messages[kMaxMessages];
 
 using DataNode = parser_wrapper::DataNode;
-using Optional = SkillInfoBuilder::ItemOptional;
+using ItemPtr = SkillInfoBuilder::ItemPtr;
 
 void SkillsLoader::Load(DataNode data) {
 	MUD::Skills().Init(data.Children());
@@ -15,50 +14,49 @@ void SkillsLoader::Reload(DataNode data) {
 	MUD::Skills().Reload(data.Children());
 }
 
-Optional SkillInfoBuilder::Build(DataNode &node) {
-	auto skill_info = MUD::Skills().MakeItemOptional();
-	skill_info = std::move(ParseDispensableValues(skill_info, node));
-	skill_info = std::move(ParseObligatoryValues(skill_info, node));
+ItemPtr SkillInfoBuilder::Build(DataNode &node) {
+	auto skill_info = ParseObligatoryValues(node);
+	if (skill_info) {
+		ParseDispensableValues(skill_info, node);
+	}
 	return skill_info;
 }
 
-Optional &SkillInfoBuilder::ParseDispensableValues(Optional &optional, DataNode &node) {
+void SkillInfoBuilder::ParseDispensableValues(ItemPtr &item_ptr, DataNode &node) {
 	try {
-		optional.value()->difficulty = parse::ReadAsInt(node.GetValue("difficulty"));
-	} catch (std::exception &) {}
-	try {
-		optional.value()->save_type = parse::ReadAsConstant<ESaving>(node.GetValue("saving"));
-	} catch (std::exception &) {}
-	try {
-		optional.value()->mode = parse::ReadAsConstant<EItemMode>(node.GetValue("mode"));
-	} catch (std::exception &) {
-		optional.value()->mode = EItemMode::kEnabled;
+		item_ptr->name = parse::ReadAsStr(node.GetValue("name"));
+		item_ptr->short_name = parse::ReadAsStr(node.GetValue("abbr"));
+		item_ptr->save_type = parse::ReadAsConstant<ESaving>(node.GetValue("saving"));
+		item_ptr->difficulty = parse::ReadAsInt(node.GetValue("difficulty"));
+		item_ptr->cap = parse::ReadAsInt(node.GetValue("cap"));
+	} catch (std::exception &e) {
+		err_log("invalid skill description (incorrect value: %s). Setted by default;", e.what());
 	}
-	return optional;
 }
 
-Optional &SkillInfoBuilder::ParseObligatoryValues(Optional &optional, DataNode &node) {
+ItemPtr SkillInfoBuilder::ParseObligatoryValues(DataNode &node) {
+	auto id{ESkill::kUndefined};
+	auto mode{EItemMode::kDisabled};
 	try {
-		optional.value()->id = parse::ReadAsConstant<ESkill>(node.GetValue("id"));
-		optional.value()->name = parse::ReadAsStr(node.GetValue("name"));
-		optional.value()->short_name = parse::ReadAsStr(node.GetValue("abbr"));
-		optional.value()->cap = parse::ReadAsInt(node.GetValue("cap"));
+		id = parse::ReadAsConstant<ESkill>(node.GetValue("id"));
+		mode = SkillInfoBuilder::ParseItemMode(node, EItemMode::kEnabled);
 	} catch (std::exception &e) {
-		err_log("invalid skill description (incorrect value: %s).", e.what());
-		optional = std::nullopt;
+		err_log("incorrect skill id (%s). ", e.what());
+		return nullptr;
 	}
-	return optional;
+
+	return std::make_shared<SkillInfo>(id, mode);
 }
 
 void SkillInfo::Print(std::stringstream &buffer) const {
-	buffer << "Print skill:" << "\n"
-		   << " Id: " << KGRN << NAME_BY_ITEM<ESkill>(id) << KNRM << "\n"
-		   << " Name: " << KGRN << name << KNRM << "\n"
-		   << " Abbreviation: " << KGRN << short_name << KNRM << "\n"
-		   << " Save type: " << KGRN << NAME_BY_ITEM<ESaving>(save_type) << KNRM << "\n"
-		   << " Difficulty: " << KGRN << difficulty << KNRM << "\n"
-		   << " Skill cap: " << KGRN << cap << KNRM << "\n"
-		   << " Mode: " << KGRN << NAME_BY_ITEM<EItemMode>(mode) << KNRM << std::endl;
+	buffer << "Print skill:" << std::endl
+		   << " Id: " << KGRN << NAME_BY_ITEM<ESkill>(GetId()) << KNRM << std::endl
+		   << " Name: " << KGRN << name << KNRM << std::endl
+		   << " Abbreviation: " << KGRN << short_name << KNRM << std::endl
+		   << " Save type: " << KGRN << NAME_BY_ITEM<ESaving>(save_type) << KNRM << std::endl
+		   << " Difficulty: " << KGRN << difficulty << KNRM << std::endl
+		   << " Skill cap: " << KGRN << cap << KNRM << std::endl
+		   << " Mode: " << KGRN << NAME_BY_ITEM<EItemMode>(GetMode()) << KNRM << std::endl;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

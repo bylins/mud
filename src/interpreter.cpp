@@ -1159,7 +1159,7 @@ void command_interpreter(CharData *ch, char *argument) {
 	char *line;
 
 	// just drop to next line for hitting CR
-	ch->check_aggressive = 0;
+	ch->check_aggressive = false;
 	skip_spaces(&argument);
 
 	if (!*argument)
@@ -1723,8 +1723,7 @@ int special(CharData *ch, int cmd, char *arg, int fnum) {
 
 	// special in inventory? //
 	for (i = ch->carrying; i; i = i->get_next_content()) {
-		if (GET_OBJ_SPEC(i) != nullptr
-			&& GET_OBJ_SPEC(i)(ch, i, cmd, arg)) {
+		if (GET_OBJ_SPEC(i) != nullptr && GET_OBJ_SPEC(i)(ch, i, cmd, arg)) {
 			check_hiding_cmd(ch, -1);
 			return (1);
 		}
@@ -1734,10 +1733,7 @@ int special(CharData *ch, int cmd, char *arg, int fnum) {
 //Polud чтобы продавцы не мешали друг другу в одной комнате, предусмотрим возможность различать их по номеру
 	int specialNum = 1; //если номер не указан - по умолчанию берется первый
 	for (const auto k : world[ch->in_room]->people) {
-		if (GET_MOB_SPEC(k) != nullptr
-			&& (fnum == 1
-				|| fnum == specialNum++)
-			&& GET_MOB_SPEC(k)(ch, k, cmd, arg)) {
+		if (GET_MOB_SPEC(k) != nullptr && (fnum == 1 || fnum == specialNum++) && GET_MOB_SPEC(k)(ch, k, cmd, arg)) {
 			check_hiding_cmd(ch, -1);
 			return (1);
 		}
@@ -1746,8 +1742,7 @@ int special(CharData *ch, int cmd, char *arg, int fnum) {
 	// special in object present? //
 	for (i = world[ch->in_room]->contents; i; i = i->get_next_content()) {
 		auto spec = GET_OBJ_SPEC(i);
-		if (spec != nullptr
-			&& spec(ch, i, cmd, arg)) {
+		if (spec != nullptr && spec(ch, i, cmd, arg)) {
 			check_hiding_cmd(ch, -1);
 			return (1);
 		}

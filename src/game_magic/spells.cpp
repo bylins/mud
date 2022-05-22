@@ -98,6 +98,10 @@ bool CanGetSpell(const CharData *ch, ESpell spell_id, int req_lvl) {
 
 // Функция определяет возможность изучения спелла из книги или в гильдии
 bool CanGetSpell(CharData *ch, ESpell spell_id) {
+	if (MUD::Classes(ch->GetClass()).spells.IsUnavailable(spell_id)) {
+		return false;
+	}
+
 	if (CalcMinSpellLvl(ch, spell_id) > GetRealLevel(ch) ||
 		MUD::Classes(ch->GetClass()).spells[spell_id].GetMinRemort() > GET_REAL_REMORT(ch)) {
 		return false;

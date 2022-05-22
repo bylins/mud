@@ -130,15 +130,13 @@ bool IsAbbrev(const char *arg1, const char *arg2) {
 	}
 }
 
-std::vector<std::string> SplitString(const std::string& s, char delimiter) {
-	std::vector<std::string> tokens;
+void SplitString(std::vector<std::string> &tokens, const std::string& s, char delimiter) {
 	std::string token;
 	std::istringstream tokens_stream(s);
 	while (std::getline(tokens_stream, token, delimiter)) {
 		utils::Trim(token);
 		tokens.push_back(token);
 	}
-	return tokens;
 }
 
 void ConvertToLow(std::string &text) {

@@ -18,7 +18,7 @@
 #include "cmd_god/ban.h"
 #include "game_mechanics/birthplaces.h"
 #include "game_mechanics/celebrates.h"
-#include "game_mechanics/trainers.h"
+#include "game_mechanics/guilds.h"
 #include "utils/utils_char_obj.inl"
 #include "entities/char_data.h"
 #include "entities/char_player.h"
@@ -4181,10 +4181,8 @@ std::string print_special(CharData *mob) {
 			out += "exchange";
 		else if (func == horse_keeper)
 			out += "horse";
-		else if (func == guild_mono)
-			out += "teacher (mono)";
-		else if (func == guild_poly)
-			out += "teacher (poly)";
+		else if (func == DoGuildLearn)
+			out += "guild trainer";
 		else if (func == torc)
 			out += "torc";
 		else if (func == Noob::outfit)
@@ -4345,8 +4343,8 @@ void do_liblist(CharData *ch, char *argument, int cmd, int subcmd) {
 		last = first + 99;
 	}
 
-	if ((first < 0) || (first > MAX_PROTO_NUMBER) || (last < 0) || (last > MAX_PROTO_NUMBER)) {
-		sprintf(buf, "Значения должны быть между 0 и %d.\n\r", MAX_PROTO_NUMBER);
+	if ((first < 0) || (first > kMaxProtoNumber) || (last < 0) || (last > kMaxProtoNumber)) {
+		sprintf(buf, "Значения должны быть между 0 и %d.\n\r", kMaxProtoNumber);
 		SendMsgToChar(buf, ch);
 		return;
 	}

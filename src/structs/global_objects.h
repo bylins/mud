@@ -5,6 +5,7 @@
 #include "game_classes/classes_info.h"
 #include "game_fight/pk.h"
 #include "game_mechanics/celebrates.h"
+#include "game_mechanics/guilds.h"
 #include "utils/logger.h"
 #include "heartbeat.h"
 #include "speedwalks.h"
@@ -42,6 +43,8 @@ class GlobalObjects {
 	static const SkillInfo &Skills(ESkill skill_id);
 	static classes::ClassesInfo &Classes();
 	static const classes::CharClassInfo &Classes(ECharClass class_id);
+	static guilds::GuildsInfo &Guilds();
+	static const guilds::GuildInfo &Guilds(Vnum guild_vnum);
 	static WorldObjects &world_objects();
 	static ShopExt::ShopListType &Shops();
 	static Characters &characters();

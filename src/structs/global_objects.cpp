@@ -26,6 +26,7 @@ struct GlobalObjectsStorage {
 	SkillsInfo skills_info;
 	cfg_manager::CfgManager cfg_mngr;
 	classes::ClassesInfo classes_info;
+	guilds::GuildsInfo guilds_info;
 	WorldObjects world_objects;
 	ShopExt::ShopListType shop_list;
 	PlayersIndex player_table;
@@ -77,6 +78,14 @@ classes::ClassesInfo &GlobalObjects::Classes() {
 
 const classes::CharClassInfo &GlobalObjects::Classes(ECharClass class_id) {
 	return global_objects().classes_info[class_id];
+}
+
+guilds::GuildsInfo &GlobalObjects::Guilds() {
+	return global_objects().guilds_info;
+}
+
+const guilds::GuildInfo &GlobalObjects::Guilds(Vnum guild_vnum) {
+	return global_objects().guilds_info[guild_vnum];
 }
 
 WorldObjects &GlobalObjects::world_objects() {

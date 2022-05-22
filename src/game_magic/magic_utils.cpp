@@ -167,69 +167,56 @@ void FixName(T &name) {
 }
 
 ESkill FindSkillId(const char *name) {
-	int ok;
-	char const *temp, *temp2;
-	char first[256], first2[256];
-
 	for (const auto &skill : MUD::Skills()) {
-		if (utils::IsAbbrev(name, skill.GetName())) {
-			return (skill.GetId());
-		}
-
-		ok = true;
-		// It won't be changed, but other uses of this function elsewhere may.
-		temp = any_one_arg(skill.GetName(), first);
-		temp2 = any_one_arg(name, first2);
-		while (*first && *first2 && ok) {
-			if (!utils::IsAbbrev(first2, first)) {
-				ok = false;
-			}
-			temp = any_one_arg(temp, first);
-			temp2 = any_one_arg(temp2, first2);
-		}
-
-		if (ok && !*first2) {
-			return (skill.GetId());
+		if (IsEquivalent(name, skill.GetName())) {
+			return skill.GetId();
 		}
 	}
-
 	return ESkill::kUndefined;
 }
 
 ESpell FindSpellNum(const char *name) {
-	int ok;
-	char const *temp, *temp2, *realname;
-	char first[256], first2[256];
-
 	int use_syn = (((ubyte) *name <= (ubyte) 'z')
 		&& ((ubyte) *name >= (ubyte) 'a'))
 		|| (((ubyte) *name <= (ubyte) 'Z') && ((ubyte) *name >= (ubyte) 'A'));
 
 	for (auto spell_id = ESpell::kFirst ; spell_id <= ESpell::kLast; ++spell_id) {
-		realname = (use_syn) ? spell_info[spell_id].syn : spell_info[spell_id].name;
+		char const *realname = (use_syn) ? spell_info[spell_id].syn : spell_info[spell_id].name;
 
 		if (!realname || !*realname) {
 			continue;
 		}
-		if (utils::IsAbbrev(name, realname)) {
-			return static_cast<ESpell>(spell_id);
+		if (IsEquivalent(name, realname)) {
+			return spell_id;
 		}
-		ok = true;
-		// It won't be changed, but other uses of this function elsewhere may.
-		temp = any_one_arg(realname, first);
-		temp2 = any_one_arg(name, first2);
-		while (*first && *first2 && ok) {
-			if (!utils::IsAbbrev(first2, first))
-				ok = false;
-			temp = any_one_arg(temp, first);
-			temp2 = any_one_arg(temp2, first2);
-		}
-		if (ok && !*first2) {
-			return static_cast<ESpell>(spell_id);
-		}
-
 	}
 	return ESpell::kUndefined;
+}
+
+bool IsEquivalent(const std::string &first_str, const std::string &second_str) {
+	return IsEquivalent(first_str.c_str(), second_str.c_str());
+};
+
+bool IsEquivalent(const char *first_str, const char *second_str) {
+	char const *temp, *temp2;
+	char first[256], first2[256];
+
+	if (utils::IsAbbrev(first_str, second_str)) {
+		return true;
+	}
+	auto ok{true};
+	temp = any_one_arg(second_str, first);
+	temp2 = any_one_arg(first_str, first2);
+	while (*first && *first2 && ok) {
+		if (!utils::IsAbbrev(first2, first))
+			ok = false;
+		temp = any_one_arg(temp, first);
+		temp2 = any_one_arg(temp2, first2);
+	}
+	if (ok && !*first2) {
+		return true;
+	}
+	return false;
 }
 
 /*void fix_name_feat(char *name) {

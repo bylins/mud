@@ -110,11 +110,12 @@ void ConvertToLow(std::string &text);
 void ConvertToLow(char *text);
 
 /**
- * Разделить строку на элементы по разделителю.
+ * Разделить строку на элементы по разделителю и записать в вектор tokens.
+ * @param tokens - приемный вектор.
  * @param s - разделяемая строка.
- * @param delimiter - символ-разделитель.
+ * @param delimiter - символ-разделитель, по умолчаниб - пробел.
  */
-std::vector<std::string> SplitString(const std::string& s, char delimiter = ' ');
+void SplitString(std::vector<std::string> &tokens, const std::string& s, char delimiter = ' ');
 
 /**
  * Обрезать пробелы слева.
