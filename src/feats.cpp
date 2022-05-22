@@ -685,6 +685,8 @@ void InitFeatures() {
 	InitFeat(EFeat::kAnimalMaster, "хозяин животных", EFeatType::kNormal, feat_app);
 //157
 	InitFeat(EFeat::kSlashMaster, "рубака", EFeatType::kNormal, feat_app);
+//158
+	InitFeat(EFeat::kPhysicians, "врачеватель", EFeatType::kNormal, feat_app);
 
 // Не забудьде добавит фит в void init_EFeat_ITEM_NAMES()
 }
@@ -1741,6 +1743,7 @@ void init_EFeat_ITEM_NAMES() {
 	EFeat_name_by_value[EFeat::kMagicalShield] = "kMagicalShield";
 	EFeat_name_by_value[EFeat::kAnimalMaster] = "kAnimalMaster";
 	EFeat_name_by_value[EFeat::kSlashMaster] = "kSlashMaster";
+	EFeat_name_by_value[EFeat::kPhysicians] = "kPhysicians";
 
 	for (const auto &i : EFeat_name_by_value) {
 		EFeat_value_by_name[i.second] = i.first;
