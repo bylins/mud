@@ -76,7 +76,7 @@ class CharClassInfo : public info_container::BaseItem<ECharClass> {
 		[[nodiscard]] double GetCastMod() const { return cast_mod_; };
 
 	 private:
-		int circle_{kMaxMemoryCircle};
+		int circle_{0};
 		int mem_mod_{0};
 		double cast_mod_{0.0};
 	};

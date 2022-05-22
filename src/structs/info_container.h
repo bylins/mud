@@ -47,8 +47,8 @@ class BaseItem {
 	EItemMode mode_{EItemMode::kDisabled};
 
   public:
-	BaseItem<IdEnum>() = default;
-	BaseItem<IdEnum>(IdEnum id, EItemMode mode)
+	BaseItem() = default;
+	BaseItem(IdEnum id, EItemMode mode)
 	    	: id_(id), mode_(mode) {};
 
 	[[nodiscard]] EItemMode GetMode() const { return mode_; };
@@ -347,8 +347,8 @@ class BaseItem<int> {
 	std::string text_id_{"undefined"};
 
  public:
-	BaseItem<int>() = default;
-	BaseItem<int>(int id, std::string &text_id, EItemMode mode)
+	BaseItem() = default;
+	BaseItem(int id, std::string &text_id, EItemMode mode)
 		: id_(id), mode_(mode), text_id_{text_id} {};
 
 	[[nodiscard]] EItemMode GetMode() const { return mode_; };
