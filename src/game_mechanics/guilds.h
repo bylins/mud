@@ -63,6 +63,7 @@ class GuildInfo : public info_container::BaseItem<int> {
 		[[nodiscard]] virtual bool IsAvailable(CharData *ch) const = 0;
 		[[nodiscard]] virtual const std::string &GetIdAsStr() const = 0;
 		[[nodiscard]] virtual std::string_view GetName() const = 0;
+		virtual void SetTalent(CharData *ch) const = 0;
 	};
 
 	class GuildSkill : public IGuildTalent {
@@ -75,6 +76,7 @@ class GuildInfo : public info_container::BaseItem<int> {
 		[[nodiscard]] bool IsAvailable(CharData *ch) const final;
 		[[nodiscard]] const std::string &GetIdAsStr() const final;
 		[[nodiscard]] std::string_view GetName() const final;
+		virtual void SetTalent(CharData *ch) const final;
 	};
 
 	class GuildSpell : public IGuildTalent {
@@ -87,6 +89,7 @@ class GuildInfo : public info_container::BaseItem<int> {
 		[[nodiscard]] bool IsAvailable(CharData *ch) const final;
 		[[nodiscard]] const std::string &GetIdAsStr() const final;
 		[[nodiscard]] std::string_view GetName() const final;
+		virtual void SetTalent(CharData *ch) const final;
 	};
 
 	class GuildFeat : public IGuildTalent {
@@ -99,6 +102,7 @@ class GuildInfo : public info_container::BaseItem<int> {
 		[[nodiscard]] bool IsAvailable(CharData *ch) const final;
 		[[nodiscard]] const std::string &GetIdAsStr() const final;
 		[[nodiscard]] std::string_view GetName() const final;
+		virtual void SetTalent(CharData *ch) const final;
 	};
 
 	using TalentPtr = std::unique_ptr<IGuildTalent>;

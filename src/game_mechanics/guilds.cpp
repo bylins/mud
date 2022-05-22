@@ -7,7 +7,6 @@
 #include "guilds.h"
 
 //#include <iostream>
-//#include <boost/algorithm/string.hpp>
 
 #include "boot/boot_constants.h"
 #include "color.h"
@@ -292,7 +291,7 @@ void GuildInfo::LearnWithTalentName(CharData *trainer, CharData *ch, const std::
 }
 // \todo убрать дублирование кода с выбором названия таланта
 void GuildInfo::Learn(CharData *trainer, CharData *ch, const TalentPtr &talent) {
-	auto msg = GetMessage(EGuildMsg::kTalentEarned) + " ";
+	auto msg = GetMessage(EGuildMsg::kTalentEarned);
 	switch (talent->GetTalentType()) {
 		case ETalent::kSkill:
 			msg += GetMessage(EGuildMsg::kSkill);
@@ -307,6 +306,7 @@ void GuildInfo::Learn(CharData *trainer, CharData *ch, const TalentPtr &talent) 
 	msg += KIYEL + (" '" + static_cast<std::string>(talent->GetName()) + "'") + KNRM + ".";
 
 	act(msg, false, ch, nullptr, trainer, kToChar);
+	talent->SetTalent(ch);
 };
 
 void GuildInfo::Print(CharData *ch, std::ostringstream &buffer) const {
@@ -373,6 +373,10 @@ bool GuildInfo::GuildSkill::IsAvailable(CharData *ch) const {
 	return (CanGetSkill(ch, id_) && ch->GetSkill(id_) == 0);
 }
 
+void GuildInfo::GuildSkill::SetTalent(CharData *ch) const {
+	ch->set_skill(id_, 10);
+}
+
 const std::string &GuildInfo::GuildSpell::GetIdAsStr() const {
 	return NAME_BY_ITEM<ESpell>(id_);
 }
@@ -385,6 +389,10 @@ bool GuildInfo::GuildSpell::IsAvailable(CharData *ch) const {
 	return CanGetSpell(ch, id_) && !IS_SPELL_KNOWN(ch, id_);
 }
 
+void GuildInfo::GuildSpell::SetTalent(CharData *ch) const {
+	SET_BIT(GET_SPELL_TYPE(ch, id_), ESpellType::kKnow);
+}
+
 const std::string &GuildInfo::GuildFeat::GetIdAsStr() const {
 	return NAME_BY_ITEM<EFeat>(id_);
 }
@@ -395,6 +403,10 @@ std::string_view GuildInfo::GuildFeat::GetName() const {
 
 bool GuildInfo::GuildFeat::IsAvailable(CharData *ch) const {
 	return CanGetFeat(ch, id_) && !ch->HaveFeat(id_);
+}
+
+void GuildInfo::GuildFeat::SetTalent(CharData *ch) const {
+	ch->SetFeat(id_);
 }
 
 }
