@@ -33,14 +33,16 @@ class GuildInfo : public info_container::BaseItem<int> {
 	enum class ETalent { kSkill, kSpell, kFeat };
 	enum class EGuildMsg {
 		kGreeting,
-		kCannotToChar,
-		kAskToChar,
-		kCannotToRoom,
-		kAskToRoom,
-		kInquiry,
 		kSkill,
 		kSpell,
 		kFeat,
+		kCannotToChar,
+		kCannotToRoom,
+		kAskToChar,
+		kAskToRoom,
+		kDoLearnToChar,
+		kDoLearnToRoom,
+		kInquiry,
 		kDidNotTeach,
 		kAllSkills,
 		kListEmpty,
@@ -54,7 +56,8 @@ class GuildInfo : public info_container::BaseItem<int> {
 			: talent_type_(talent_type), trained_classes_(classes) {};
 
 		[[nodiscard]] ETalent GetTalentType() { return talent_type_; };
-		[[nodiscard]] bool IsUnlearnable(CharData *ch) const;
+		[[nodiscard]] bool IsLearnable(CharData *ch) const;
+		[[nodiscard]] bool IsUnlearnable(CharData *ch) const { return !IsLearnable(ch); };
 		[[nodiscard]] std::string GetClassesList() const;
 		[[nodiscard]] virtual bool IsAvailable(CharData *ch) const = 0;
 		[[nodiscard]] virtual const std::string &GetIdAsStr() const = 0;

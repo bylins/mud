@@ -12,9 +12,9 @@ class ObjData;
 /**
  * Проверяется что первая строка является эквивалентом второй, например
  * строка 'ог ша' является эквивалентом строки 'огненный шар'.
- * @return - true, если строки эквивалентны
  */
 bool IsEquivalent(const char *first_str, const char *second_str);
+bool IsEquivalent(const std::string &first_str, const std::string &second_str);
 
 ESkill FindSkillId(const char *name);
 ESkill FixNameAndFindSkillId(char *name);

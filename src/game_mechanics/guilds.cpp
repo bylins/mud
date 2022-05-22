@@ -665,7 +665,7 @@ using DataNode = parser_wrapper::DataNode;
 using ItemPtr = GuildInfoBuilder::ItemPtr;
 
 void GuildsLoader::AssignGuildsToTrainers() {
-	for (const auto& guild : MUD::Guilds()) {
+	for (const auto &guild: MUD::Guilds()) {
 		guild.AssignToTrainers();
 	}
 }
@@ -692,7 +692,10 @@ const std::string &GuildInfo::GetMessage(EGuildMsg msg_id) {
 		{EGuildMsg::kCannotToRoom, "$N сказал$G $n2: 'Я не могу тебя этому научить'."},
 		{EGuildMsg::kAskToChar, "Вы попросились в ученики к $N2."},
 		{EGuildMsg::kAskToRoom, "$n попросил$u в ученики к $N2."},
-		{EGuildMsg::kAllSkills, "$N сказал$G: '$n, нельзя научиться всем умениям или способностям сразу. Выбери необходимые!'"},
+		{EGuildMsg::kDoLearnToChar, "Вы получили несколько наставлений и мудрых советов от $N1."},
+		{EGuildMsg::kDoLearnToRoom, "$N дал$G $n2 несколько наставлений."},
+		{EGuildMsg::kAllSkills,
+		 "$N сказал$G: '$n, нельзя научиться всем умениям или способностям сразу. Выбери необходимые!'"},
 		{EGuildMsg::kListEmpty, "$N сказал$G : 'Похоже, $n, я не смогу тебе помочь'."},
 		{EGuildMsg::kError, "У кодера какие-то проблемы."},
 	};
@@ -725,10 +728,9 @@ ItemPtr GuildInfoBuilder::ParseGuild(DataNode node) {
 	} catch (...) {
 	}
 
-	auto guild_info =  std::make_shared<GuildInfo>(vnum, text_id, name, mode);
+	auto guild_info = std::make_shared<GuildInfo>(vnum, text_id, name, mode);
 
 	if (node.GoToChild("trainers")) {
-		//guild_info->trainers_ = parse::ReadAsIntSet(node.GetValue("vnums"));
 		parse::ReadAsIntSet(guild_info->trainers_, node.GetValue("vnums"));
 	}
 
@@ -744,7 +746,7 @@ void GuildInfoBuilder::ParseTalents(ItemPtr &info, DataNode &node) {
 	static const std::string spell_element{"spell"};
 	static const std::string feat_element{"feat"};
 
-	for (auto &talent_node : node.Children()) {
+	for (auto &talent_node: node.Children()) {
 		std::unordered_set<ECharClass> char_classes;
 		if (talent_node.GoToChild("class")) {
 			parse::ReadAsConstantsSet<ECharClass>(char_classes, talent_node.GetValue("val"));
@@ -770,7 +772,7 @@ void GuildInfoBuilder::ParseTalents(ItemPtr &info, DataNode &node) {
 }
 
 void GuildInfo::AssignToTrainers() const {
-	for (const auto trainer_vnum : trainers_) {
+	for (const auto trainer_vnum: trainers_) {
 		ASSIGNMASTER(trainer_vnum, DoGuildLearn, GetId());
 	}
 };
@@ -779,7 +781,7 @@ void GuildInfo::DisplayMenu(CharData *trainer, CharData *ch) const {
 	std::ostringstream out;
 	auto count{0};
 	table_wrapper::Table table;
-	for (const auto &talent : learning_talents_) {
+	for (const auto &talent: learning_talents_) {
 		if (talent->IsUnlearnable(ch)) {
 			continue;
 		}
@@ -788,14 +790,11 @@ void GuildInfo::DisplayMenu(CharData *trainer, CharData *ch) const {
 
 		table << (KCYN + std::to_string(count) + KNRM + ")" + KGRN);
 		switch (talent->GetTalentType()) {
-			case ETalent::kSkill:
-				table << GetMessage(EGuildMsg::kSkill);
+			case ETalent::kSkill: table << GetMessage(EGuildMsg::kSkill);
 				break;
-			case ETalent::kSpell:
-				table << GetMessage(EGuildMsg::kSpell);
+			case ETalent::kSpell: table << GetMessage(EGuildMsg::kSpell);
 				break;
-			case ETalent::kFeat:
-				table << GetMessage(EGuildMsg::kFeat);
+			case ETalent::kFeat: table << GetMessage(EGuildMsg::kFeat);
 				break;
 		}
 		table << ("'" + static_cast<std::string>(talent->GetName()) + "'" + KNRM);
@@ -825,25 +824,47 @@ void GuildInfo::Process(CharData *trainer, CharData *ch, const std::string &argu
 	act(GetMessage(EGuildMsg::kInquiry), false, ch, nullptr, trainer, kToRoom);
 	try {
 		std::size_t talent_num = std::stoi(argument);
+		talent_num = std::clamp(talent_num, 1UL, learning_talents_.size());
 		LearnWithTalentNum(trainer, ch, talent_num);
 	} catch (std::exception &) {
 		LearnWithTalentName(trainer, ch, argument);
 	}
-//first=s.substr(0,s.find(' '));
 };
 
 void GuildInfo::LearnWithTalentNum(CharData *trainer, CharData *ch, std::size_t talent_num) const {
-	if (talent_num <= 0 || talent_num >= learning_talents_.size()) {
-		act(GetMessage(EGuildMsg::kDidNotTeach), false, ch, nullptr, trainer, kToChar|kToRoom);
-	}
+/*	if (talent_num <= 0 || talent_num >= learning_talents_.size()) {
+		act(GetMessage(EGuildMsg::kDidNotTeach),
+			false, ch, nullptr, trainer, kToChar | kToRoom);
+	}*/
 
 	--talent_num;
-	for (const auto &talent : learning_talents_) {
+	auto result = std::count_if(learning_talents_.begin(), std::next(learning_talents_.begin(), talent_num),
+								[ch](const TalentPtr &talent) {
+									if (talent->IsUnlearnable(ch)) {
+										return true;
+									}
+									return false;
+								});
+	talent_num += result;
+
+	if (talent_num >= learning_talents_.size() || learning_talents_[talent_num]->IsUnlearnable(ch)) {
+		act(GetMessage(EGuildMsg::kCannotToChar), false, ch, nullptr, trainer, kToChar);
+		act(GetMessage(EGuildMsg::kCannotToRoom), false, ch, nullptr, trainer, kToRoom);
+		return;
+	}
+
+	act(GetMessage(EGuildMsg::kDoLearnToChar), false, ch, nullptr, trainer, kToChar);
+	act(GetMessage(EGuildMsg::kDoLearnToRoom), false, ch, nullptr, trainer, kToRoom);
+	SendMsgToChar(ch, "Найден талант '%s'.", static_cast<std::string>(learning_talents_[talent_num]->GetName()).c_str());
+	// Do learn
+
+/*	--talent_num;
+	for (const auto &talent: learning_talents_) {
 		if (talent_num < 0) {
-				act(GetMessage(EGuildMsg::kCannotToChar),
-					false, ch, nullptr, trainer, kToChar);
-				act(GetMessage(EGuildMsg::kCannotToRoom),
-					false, ch, nullptr, trainer, kToRoom);
+			act(GetMessage(EGuildMsg::kCannotToChar),
+				false, ch, nullptr, trainer, kToChar);
+			act(GetMessage(EGuildMsg::kCannotToRoom),
+				false, ch, nullptr, trainer, kToRoom);
 			return;
 		}
 		if (!talent_num) {
@@ -862,7 +883,7 @@ void GuildInfo::LearnWithTalentNum(CharData *trainer, CharData *ch, std::size_t 
 			continue;
 		}
 		--talent_num;
-	}
+	}*/
 }
 
 void GuildInfo::LearnWithTalentName(CharData *trainer, CharData *ch, const std::string &talent_name) const {
@@ -870,17 +891,28 @@ void GuildInfo::LearnWithTalentName(CharData *trainer, CharData *ch, const std::
 		SendMsgToChar(ch, "Введено '%s' - учим все подряд.", talent_name.c_str());
 	}
 
-	for (const auto &talent : learning_talents_) {
-		if (talent->IsUnlearnable(ch)) {
-			continue;
-		}
-		if (IsEquivalent(talent_name.c_str(), static_cast<std::string>(talent->GetName()).c_str())) {
-			SendMsgToChar(ch, "Найден талант '%s'.", static_cast<std::string>(talent->GetName()).c_str());
-			// Do learn
-			return;
-		}
-	}
+	auto result = std::find_if(learning_talents_.begin(), learning_talents_.end(),
+							   [ch, &talent_name](const TalentPtr &talent) {
+								   if (talent->IsUnlearnable(ch)) {
+									   return false;
+								   }
+								   if (IsEquivalent(talent_name,
+													static_cast<std::string>(talent->GetName()))) {
+									   return true;
+								   }
+								   return false;
+							   });
 
+	if (result != learning_talents_.end()) {
+		act(GetMessage(EGuildMsg::kDoLearnToChar), false, ch, nullptr, trainer, kToChar);
+		act(GetMessage(EGuildMsg::kDoLearnToRoom), false, ch, nullptr, trainer, kToRoom);
+		SendMsgToChar(ch, "Найден талант '%s'.", static_cast<std::string>((*result)->GetName()).c_str());
+		// Do learn
+		return;
+	} else {
+		act(GetMessage(EGuildMsg::kListEmpty), false, ch, nullptr, trainer, kToChar);
+		act(GetMessage(EGuildMsg::kListEmpty), false, ch, nullptr, trainer, kToRoom);
+	}
 }
 
 void GuildInfo::Print(CharData *ch, std::ostringstream &buffer) const {
@@ -888,9 +920,10 @@ void GuildInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 		   << " Vnum: " << KGRN << GetId() << KNRM << std::endl
 		   << " TextId: " << KGRN << GetTextId() << KNRM << std::endl
 		   << " Name: " << KGRN << name_ << KNRM << std::endl;
+
 	if (!trainers_.empty()) {
 		buffer << " Trainers vnums: " << KGRN;
-		for (const auto vnum : trainers_) {
+		for (const auto vnum: trainers_) {
 			buffer << vnum << ", ";
 		}
 		buffer.seekp(-2, std::ios_base::end);
@@ -911,17 +944,17 @@ void GuildInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 	buffer << std::endl;
 }
 
-bool GuildInfo::IGuildTalent::IsUnlearnable(CharData *ch) const {
+bool GuildInfo::IGuildTalent::IsLearnable(CharData *ch) const {
 	if (ch->IsNpc()) {
-		return true;
+		return false;
 	}
-	return !((trained_classes_.empty() || trained_classes_.contains(ch->GetClass())) && IsAvailable(ch));
+	return ((trained_classes_.empty() || trained_classes_.contains(ch->GetClass())) && IsAvailable(ch));
 }
 
 std::string GuildInfo::IGuildTalent::GetClassesList() const {
 	std::ostringstream buffer;
 	if (!trained_classes_.empty()) {
-		for (const auto class_id : trained_classes_) {
+		for (const auto class_id: trained_classes_) {
 			buffer << NAME_BY_ITEM(class_id) << ", ";
 		}
 		buffer.seekp(-2, std::ios_base::end);

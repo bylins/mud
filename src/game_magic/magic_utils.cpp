@@ -193,6 +193,9 @@ ESpell FindSpellNum(const char *name) {
 	return ESpell::kUndefined;
 }
 
+bool IsEquivalent(const std::string &first_str, const std::string &second_str) {
+	return IsEquivalent(first_str.c_str(), second_str.c_str());
+};
 
 bool IsEquivalent(const char *first_str, const char *second_str) {
 	char const *temp, *temp2;
