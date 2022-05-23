@@ -68,7 +68,7 @@ class GuildInfo : public info_container::BaseItem<int> {
 		[[nodiscard]] std::string GetClassesList() const;
 		[[nodiscard]] bool TakePayment(CharData *ch) const;
 		[[nodiscard]] long CalcPrice(CharData *buyer) const;
-		[[nodiscard]] static std::string GetPriceCurrencyStr(uint64_t price);
+		[[nodiscard]] std::string GetPriceCurrencyStr(uint64_t price) const;
 
 		[[nodiscard]] virtual bool IsAvailable(CharData *ch) const = 0;
 		[[nodiscard]] virtual const std::string &GetIdAsStr() const = 0;

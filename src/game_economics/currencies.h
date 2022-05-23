@@ -64,7 +64,7 @@ class CurrencyInfo : public info_container::BaseItem<int> {
 	[[nodiscard]] const std::string &GetPluralName(ECase name_case = ECase::kNom) const;
 	[[nodiscard]] const char *GetCName(ECase name_case) const;
 	[[nodiscard]] const char *GetPluralCName(ECase name_case) const;
-	[[nodiscard]] const std::string &GetNameWithAmount(long amount) const;
+	[[nodiscard]] const std::string &GetNameWithAmount(uint64_t amount) const;
 
 	void Print(CharData */*ch*/, std::ostringstream &buffer) const;
 };

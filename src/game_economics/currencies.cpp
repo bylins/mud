@@ -107,7 +107,7 @@ const char *CurrencyInfo::GetPluralCName(ECase name_case) const {
 	return names_->GetPlural(name_case).c_str();
 }
 
-const std::string &CurrencyInfo::GetNameWithAmount(long amount) const {
+const std::string &CurrencyInfo::GetNameWithAmount(uint64_t amount) const {
 	auto remainder = amount % 20;
 	if ((remainder >= 5 && remainder <= 19) || remainder == 0) {
 		return GetPluralName(ECase::kGen);

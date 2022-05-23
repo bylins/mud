@@ -175,7 +175,7 @@ void GuildInfo::DisplayMenu(CharData *trainer, CharData *ch) const {
 	auto count{0};
 	table_wrapper::Table table;
 	//table << table_wrapper::kHeader << "#" << "Талант" << "Название" << "Цена" << table_wrapper::kEndRow;
-	for (const auto &talent: learning_talents_) {
+	for (const auto &talent : learning_talents_) {
 		if (talent->IsUnlearnable(ch)) {
 			continue;
 		}
@@ -287,23 +287,21 @@ void GuildInfo::LearnAll(CharData *trainer, CharData *ch) const {
 		if (talent->IsUnlearnable(ch)) {
 			continue;
 		}
-		if (talent->GetTalentType() == ETalent::kSpell) {
-			if (ProcessPayment(trainer, ch, talent)) {
-				if (need_msg) {
-					act(GetMessage(EGuildMsg::kLearnToChar),
-						false, ch, nullptr, trainer, kToChar);
-					act(GetMessage(EGuildMsg::kLearnToRoom),
-						false, ch, nullptr, trainer, kToRoom);
-					need_msg = false;
-				}
-				Learn(trainer, ch, talent);
-			} else {
-				return;
-			}
-			++spell_count;
-		} else {
+		if (talent->GetTalentType() != ETalent::kSpell) {
 			++skill_feat_count;
+			continue;
 		}
+		if (ProcessPayment(trainer, ch, talent)) {
+			if (need_msg) {
+				act(GetMessage(EGuildMsg::kLearnToChar), false, ch, nullptr, trainer, kToChar);
+				act(GetMessage(EGuildMsg::kLearnToRoom), false, ch, nullptr, trainer, kToRoom);
+				need_msg = false;
+			}
+			Learn(trainer, ch, talent);
+		} else {
+			return;
+		}
+		++spell_count;
 	}
 
 	if (!skill_feat_count && !spell_count) {
@@ -364,7 +362,7 @@ void GuildInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 }
 
 bool GuildInfo::IGuildTalent::IsLearnable(CharData *ch) const {
-	if (ch->IsNpc()) {
+	if (ch->IsNpc() || currency_vnum_ == info_container::kUndefinedVnum) {
 		return false;
 	}
 	return ((trained_classes_.empty() || trained_classes_.contains(ch->GetClass())) && IsAvailable(ch));
@@ -415,8 +413,13 @@ long GuildInfo::IGuildTalent::CalcPrice(CharData *buyer) const {
 	return start_price_ + (start_price_*remort_percemt_*buyer->get_remort())/100;
 }
 
-std::string GuildInfo::IGuildTalent::GetPriceCurrencyStr(uint64_t price) {
-	return GetDeclensionInNumber(price, EWhat::kMoneyU);
+std::string GuildInfo::IGuildTalent::GetPriceCurrencyStr(uint64_t price) const {
+	if (currency_vnum_ != info_container::kUndefinedVnum) {
+		return MUD::Currencies(currency_vnum_).GetNameWithAmount(price);
+	} else {
+		return GetMessage(EGuildMsg::kError);
+	}
+	//return GetDeclensionInNumber(price, EWhat::kMoneyU);
 }
 
 bool GuildInfo::IGuildTalent::TakePayment(CharData *ch) const {
