@@ -13,7 +13,7 @@
 #include "game_magic/magic_utils.h"
 #include "game_magic/spells_info.h"
 #include "structs/global_objects.h"
-#include "utils/table_wrapper.h"
+//#include "utils/table_wrapper.h"
 
 typedef int special_f(CharData *, void *, int, char *);
 extern void ASSIGNMASTER(MobVnum mob, special_f, int learn_info);
@@ -72,7 +72,7 @@ int DoGuildLearn(CharData *ch, void *me, int cmd, char *argument) {
 
 namespace guilds {
 
-using DataNode = parser_wrapper::DataNode;
+//using DataNode = parser_wrapper::DataNode;
 using ItemPtr = GuildInfoBuilder::ItemPtr;
 
 void GuildsLoader::Load(DataNode data) {
@@ -97,7 +97,7 @@ const std::string &GuildInfo::GetMessage(EGuildMsg msg_id) {
 		{EGuildMsg::kSkill, "умение"},
 		{EGuildMsg::kSpell, "заклинание"},
 		{EGuildMsg::kFeat, "способность"},
-		{EGuildMsg::kDidNotTeach, "$N уставил$U на $n3 прорычал$G: 'Я никогда и никого ЭТОМУ не учил$G!'"},
+		{EGuildMsg::kDidNotTeach, "$N уставил$U на $n3 и прорычал$G: 'Я никогда и никого ЭТОМУ не учил$G!'"},
 		{EGuildMsg::kInquiry, "$n о чем-то спросил$g $N3."},
 		{EGuildMsg::kCannotToChar, "$N сказал$G: 'Я не могу тебя этому научить'."},
 		{EGuildMsg::kCannotToRoom, "$N сказал$G $n2: 'Я не могу тебя этому научить'."},
@@ -159,10 +159,6 @@ ItemPtr GuildInfoBuilder::ParseGuild(DataNode node) {
 }
 
 void GuildInfoBuilder::ParseTalents(ItemPtr &info, DataNode &node) {
-	static const std::string skill_element{"skill"};
-	static const std::string spell_element{"spell"};
-	static const std::string feat_element{"feat"};
-
 	for (auto &talent_node: node.Children()) {
 		std::unordered_set<ECharClass> char_classes;
 		if (talent_node.GoToChild("class")) {
@@ -175,18 +171,12 @@ void GuildInfoBuilder::ParseTalents(ItemPtr &info, DataNode &node) {
 		}
 
 		try {
-			if (talent_node.GetName() == skill_element) {
-				auto talent_id = parse::ReadAsConstant<ESkill>(talent_node.GetValue("id"));
-				info->learning_talents_.emplace_back(std::make_unique<GuildInfo::GuildSkill>(
-					GuildInfo::ETalent::kSkill, talent_id, char_classes));
-			} else if (talent_node.GetName() == spell_element) {
-				auto talent_id = parse::ReadAsConstant<ESpell>(talent_node.GetValue("id"));
-				info->learning_talents_.emplace_back(std::make_unique<GuildInfo::GuildSpell>(
-					GuildInfo::ETalent::kSpell, talent_id, char_classes));
-			} else if (talent_node.GetName() == feat_element) {
-				auto talent_id = parse::ReadAsConstant<EFeat>(talent_node.GetValue("id"));
-				info->learning_talents_.emplace_back(std::make_unique<GuildInfo::GuildFeat>(
-					GuildInfo::ETalent::kFeat, talent_id, char_classes));
+			if (strcmp(talent_node.GetName(), "skill") == 0) {
+				info->learning_talents_.emplace_back(std::make_unique<GuildInfo::GuildSkill>(talent_node));
+			} else if (strcmp(talent_node.GetName(), "spell") == 0) {
+				info->learning_talents_.emplace_back(std::make_unique<GuildInfo::GuildSpell>(talent_node));
+			} else if (strcmp(talent_node.GetName(), "feat") == 0) {
+				info->learning_talents_.emplace_back(std::make_unique<GuildInfo::GuildFeat>(talent_node));
 			}
 		} catch (std::exception &e) {
 			err_log("talent format error (%s) in guild '%s'.", e.what(), info->GetName().c_str());
@@ -206,6 +196,7 @@ void GuildInfo::DisplayMenu(CharData *trainer, CharData *ch) const {
 	std::ostringstream out;
 	auto count{0};
 	table_wrapper::Table table;
+	//table << table_wrapper::kHeader << "#" << "Талант" << "Название" << "Цена" << table_wrapper::kEndRow;
 	for (const auto &talent: learning_talents_) {
 		if (talent->IsUnlearnable(ch)) {
 			continue;
@@ -223,7 +214,14 @@ void GuildInfo::DisplayMenu(CharData *trainer, CharData *ch) const {
 				break;
 		}
 		table << ("'" + static_cast<std::string>(talent->GetName()) + "'" + KNRM);
-		table << "бесплатно"; // \todo не забыть добавить отображение цены
+
+		auto price = talent->CalcPrice(ch);
+		if (price) {
+			table << PrintNumberByDigits(price) << talent->GetPriceCurrencyStr(price);
+		} else {
+			table << " " <<"бесплатно";
+		}
+
 		table << table_wrapper::kEndRow;
 	}
 
@@ -407,6 +405,59 @@ std::string GuildInfo::IGuildTalent::GetClassesList() const {
 	return buffer.str();
 }
 
+GuildInfo::IGuildTalent::IGuildTalent(ETalent talent_type, DataNode &node) {
+
+	talent_type_ = talent_type;
+
+	if (node.GoToChild("class")) {
+		try {
+			parse::ReadAsConstantsSet<ECharClass>(trained_classes_, node.GetValue("val"));
+		} catch (std::exception &e) {
+			err_log("wrong class list format (%s).", e.what());
+		}
+		node.GoToParent();
+	}
+
+	//<price currency="kKuna" start="2" remort_percent="400"/>
+	// \todo Добавить учет разных валют
+	if (node.GoToChild("price")) {
+/*		try {
+			parse::ReadAsConstantsSet<ECharClass>(trained_classes_, node.GetValue("val"));
+		} catch (std::exception &e) {
+			err_log("wrong class list format (%s).", e.what());
+		}*/
+		try {
+			start_price_ = parse::ReadAsInt(node.GetValue("start"));
+			remort_percemt_ = parse::ReadAsInt(node.GetValue("remort_percent"));
+		} catch (std::exception &e) {
+			err_log("wrong price format (%s).", e.what());
+		}
+		node.GoToParent();
+	}
+}
+
+uint64_t GuildInfo::IGuildTalent::CalcPrice(CharData *buyer) const {
+	return start_price_ + (start_price_*remort_percemt_*buyer->get_remort())/100;
+}
+
+std::string GuildInfo::IGuildTalent::GetPriceCurrencyStr(uint64_t price) {
+	return GetDeclensionInNumber(price, EWhat::kMoneyU);
+}
+
+void GuildInfo::GuildSkill::ParseSkillNode(DataNode &node) {
+	id_ = parse::ReadAsConstant<ESkill>(node.GetValue("id"));
+	if (node.GoToChild("upgrade")) {
+		try {
+			amount_ = parse::ReadAsInt(node.GetValue("amount"));
+			min_skill_ = parse::ReadAsInt(node.GetValue("min"));
+			max_skill_ = parse::ReadAsInt(node.GetValue("max"));
+		} catch (std::exception &e) {
+			err_log("wrong upgrade format (%s).", e.what());
+		}
+		node.GoToParent();
+	}
+}
+
 const std::string &GuildInfo::GuildSkill::GetIdAsStr() const {
 	return NAME_BY_ITEM<ESkill>(id_);
 }
@@ -424,6 +475,10 @@ void GuildInfo::GuildSkill::SetTalent(CharData *ch) const {
 	ch->set_skill(id_, 10);
 }
 
+void GuildInfo::GuildSpell::ParseSpellNode(DataNode &node) {
+	id_ = parse::ReadAsConstant<ESpell>(node.GetValue("id"));
+}
+
 const std::string &GuildInfo::GuildSpell::GetIdAsStr() const {
 	return NAME_BY_ITEM<ESpell>(id_);
 }
@@ -438,6 +493,10 @@ bool GuildInfo::GuildSpell::IsAvailable(CharData *ch) const {
 
 void GuildInfo::GuildSpell::SetTalent(CharData *ch) const {
 	SET_BIT(GET_SPELL_TYPE(ch, id_), ESpellType::kKnow);
+}
+
+void GuildInfo::GuildFeat::ParseFeatNode(DataNode &node) {
+	id_ = parse::ReadAsConstant<EFeat>(node.GetValue("id"));
 }
 
 const std::string &GuildInfo::GuildFeat::GetIdAsStr() const {

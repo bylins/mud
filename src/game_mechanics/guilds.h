@@ -13,12 +13,15 @@
 #include "boot/cfg_manager.h"
 #include "game_skills/skills.h"
 #include "structs/info_container.h"
+#include "utils/table_wrapper.h"
 
 class CharData;
 
 int DoGuildLearn(CharData *ch, void *me, int cmd, char *argument);
 
 namespace guilds {
+
+using DataNode = parser_wrapper::DataNode;
 
 class GuildsLoader : virtual public cfg_manager::ICfgLoader {
 	static void AssignGuildsToTrainers();
@@ -52,15 +55,20 @@ class GuildInfo : public info_container::BaseItem<int> {
 
 	class IGuildTalent {
 		ETalent talent_type_;
+		int start_price_{0};
+		int remort_percemt_{0};
 		std::unordered_set<ECharClass> trained_classes_;
+
 		public:
-		explicit IGuildTalent(ETalent talent_type, std::unordered_set<ECharClass> &classes)
-			: talent_type_(talent_type), trained_classes_(classes) {};
+		explicit IGuildTalent(ETalent talent_type, DataNode &node);
 
 		[[nodiscard]] ETalent GetTalentType() { return talent_type_; };
 		[[nodiscard]] bool IsLearnable(CharData *ch) const;
 		[[nodiscard]] bool IsUnlearnable(CharData *ch) const { return !IsLearnable(ch); };
 		[[nodiscard]] std::string GetClassesList() const;
+		[[nodiscard]] uint64_t CalcPrice(CharData *buyer) const;
+		[[nodiscard]] static std::string GetPriceCurrencyStr(uint64_t price);
+
 		[[nodiscard]] virtual bool IsAvailable(CharData *ch) const = 0;
 		[[nodiscard]] virtual const std::string &GetIdAsStr() const = 0;
 		[[nodiscard]] virtual std::string_view GetName() const = 0;
@@ -68,42 +76,59 @@ class GuildInfo : public info_container::BaseItem<int> {
 	};
 
 	class GuildSkill : public IGuildTalent {
-		ESkill id_;
+		ESkill id_{ESkill::kUndefined};
+		int amount_{10};
+		int min_skill_{0};
+		int max_skill_{10};
+
+		void ParseSkillNode(DataNode &node);
 	 public:
-		explicit GuildSkill(ETalent talent_type, ESkill id, std::unordered_set<ECharClass> &classes)
-			: IGuildTalent(talent_type, classes), id_(id) {};
+		explicit GuildSkill(DataNode &node)
+			: IGuildTalent(ETalent::kSkill, node) {
+			ParseSkillNode(node);
+		};
 
 		[[nodiscard]] ESkill GetId() const { return id_; };
 		[[nodiscard]] bool IsAvailable(CharData *ch) const final;
 		[[nodiscard]] const std::string &GetIdAsStr() const final;
 		[[nodiscard]] std::string_view GetName() const final;
-		virtual void SetTalent(CharData *ch) const final;
+		void SetTalent(CharData *ch) const final;
 	};
 
 	class GuildSpell : public IGuildTalent {
-		ESpell id_;
+		ESpell id_{ESpell::kUndefined};
+		ESpellType spell_type_{ESpellType::kKnow};
+		uint32_t spell_time_{1};
+
+		void ParseSpellNode(DataNode &node);
 	 public:
-		explicit GuildSpell(ETalent talent_type, ESpell id, std::unordered_set<ECharClass> &classes)
-		: IGuildTalent(talent_type, classes), id_(id) {};
+		explicit GuildSpell(DataNode &node)
+		: IGuildTalent(ETalent::kSpell, node) {
+			ParseSpellNode(node);
+		};
 
 		[[nodiscard]] ESpell GetId() const { return id_; };
 		[[nodiscard]] bool IsAvailable(CharData *ch) const final;
 		[[nodiscard]] const std::string &GetIdAsStr() const final;
 		[[nodiscard]] std::string_view GetName() const final;
-		virtual void SetTalent(CharData *ch) const final;
+		void SetTalent(CharData *ch) const final;
 	};
 
 	class GuildFeat : public IGuildTalent {
-		EFeat id_;
+		EFeat id_{EFeat::kUndefined};
+
+		void ParseFeatNode(DataNode &node);
 	 public:
-		explicit GuildFeat(ETalent talent_type, EFeat id, std::unordered_set<ECharClass> &classes)
-		: IGuildTalent(talent_type, classes), id_(id) {};
+		explicit GuildFeat(DataNode &node)
+		: IGuildTalent(ETalent::kFeat, node) {
+			ParseFeatNode(node);
+		};
 
 		[[nodiscard]] EFeat GetId() const { return id_; };
 		[[nodiscard]] bool IsAvailable(CharData *ch) const final;
 		[[nodiscard]] const std::string &GetIdAsStr() const final;
 		[[nodiscard]] std::string_view GetName() const final;
-		virtual void SetTalent(CharData *ch) const final;
+		void SetTalent(CharData *ch) const final;
 	};
 
 	using TalentPtr = std::unique_ptr<IGuildTalent>;
