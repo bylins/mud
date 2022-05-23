@@ -13,30 +13,9 @@
 #include "game_magic/magic_utils.h"
 #include "game_magic/spells_info.h"
 #include "structs/global_objects.h"
-//#include "utils/table_wrapper.h"
 
 typedef int special_f(CharData *, void *, int, char *);
 extern void ASSIGNMASTER(MobVnum mob, special_f, int learn_info);
-
-/*
-		act("$N сказал$G : 'Извини, $n, я уже в отставке.'", false, ch, nullptr, victim, kToChar);
-		act("$N сказал$g : '$n, я не учу таких, как ты.'", false, ch, nullptr, victim, kToChar);
-		gcount += sprintf(buf, "Я могу научить тебя следующему:\r\n");
-		act("$N сказал$G : 'Похоже, твои знания полнее моих.'", false, ch, nullptr, victim, kToChar);
-		gcount += sprintf(buf, "$N научил$G вас магии %s\"%s\"%s",
-		act("$N сказал$G : \r\n" "'$n, к сожалению, это может сильно затруднить твое постижение умений.'\r\n" "'Выбери лишь самые необходимые тебе умения.'", false, ch, nullptr, victim, kToChar);
-		act("$N ничему новому вас не научил$G.", false, ch, nullptr, victim, kToChar);
-		act("$N сказал$g вам : 'Ничем помочь не могу, ты уже владеешь этой способностью.'",	false, ch, nullptr, victim, kToChar);
-		act("$N сказал$G : 'Я не могу тебя этому научить.'", false, ch, nullptr, victim, kToChar);
-		sprintf(buf, "$N научил$G вас способности %s\"%s\"%s", CCCYN(ch, C_NRM), GetFeatName(feat_no), CCNRM(ch, C_NRM));
-		act("$N сказал$G : 'Мне не ведомо такое мастерство.'", false, ch, nullptr, victim, kToChar);
-		act("$N сказал$g вам : 'Ничем помочь не могу, ты уже владеешь этим умением.'", false, ch, nullptr, victim, kToChar);
-		strcpy(buf, "Вы уже умеете это.");
-		sprintf(buf, "$N научил$G вас магии %s\"%s\"%s", CCCYN(ch, C_NRM), GetSpellName(spell_no), CCNRM(ch, C_NRM));
-		act("$N сказал$G : 'Я и сам$G не знаю такой магии.'", false, ch, nullptr, victim, kToChar);
-		act("$N сказал$G вам : 'Я никогда и никого этому не учил$G.'", false, ch, nullptr, victim, kToChar);
-		gcount += sprintf(buf, "Я могу научить тебя следующему:\r\n");
-}*/
 
 int DoGuildLearn(CharData *ch, void *me, int cmd, char *argument) {
 	if (ch->IsNpc()) {
@@ -72,7 +51,6 @@ int DoGuildLearn(CharData *ch, void *me, int cmd, char *argument) {
 
 namespace guilds {
 
-//using DataNode = parser_wrapper::DataNode;
 using ItemPtr = GuildInfoBuilder::ItemPtr;
 
 void GuildsLoader::Load(DataNode data) {
@@ -100,8 +78,8 @@ const std::string &GuildInfo::GetMessage(EGuildMsg msg_id) {
 		{EGuildMsg::kCannotToRoom, "$N сказал$G $n2: 'Я не могу тебя этому научить'."},
 		{EGuildMsg::kAskToChar, "Вы попросились в обучение к $N2."},
 		{EGuildMsg::kAskToRoom, "$n попросил$u в ученики к $N2."},
-		{EGuildMsg::kDoLearnToChar, "Вы получили несколько уроков и мудрых советов от $N1."},
-		{EGuildMsg::kDoLearnToRoom, "$N дал$G $n2 несколько наставлений."},
+		{EGuildMsg::kLearnToChar, "Вы получили несколько уроков и мудрых советов от $N1."},
+		{EGuildMsg::kLearnToRoom, "$N дал$G $n2 несколько наставлений."},
 		{EGuildMsg::kAllSkills,
 		 "$N сказал$G: '$n, нельзя научиться всем умениям или способностям сразу. Выбери необходимые!'"},
 		{EGuildMsg::kTalentEarned, "Под наставничеством $N1 вы изучили "},
@@ -295,8 +273,8 @@ void GuildInfo::LearnWithTalentName(CharData *trainer, CharData *ch, const std::
 
 void GuildInfo::LearnSingle(CharData *trainer, CharData *ch, const TalentPtr &talent) {
 	if (ProcessPayment(trainer, ch, talent)) {
-		act(GetMessage(EGuildMsg::kDoLearnToChar), false, ch, nullptr, trainer, kToChar);
-		act(GetMessage(EGuildMsg::kDoLearnToRoom), false, ch, nullptr, trainer, kToRoom);
+		act(GetMessage(EGuildMsg::kLearnToChar), false, ch, nullptr, trainer, kToChar);
+		act(GetMessage(EGuildMsg::kLearnToRoom), false, ch, nullptr, trainer, kToRoom);
 		Learn(trainer, ch, talent);
 	}
 }
@@ -312,8 +290,10 @@ void GuildInfo::LearnAll(CharData *trainer, CharData *ch) const {
 		if (talent->GetTalentType() == ETalent::kSpell) {
 			if (ProcessPayment(trainer, ch, talent)) {
 				if (need_msg) {
-					act(GetMessage(EGuildMsg::kDoLearnToChar), false, ch, nullptr, trainer, kToChar);
-					act(GetMessage(EGuildMsg::kDoLearnToRoom), false, ch, nullptr, trainer, kToRoom);
+					act(GetMessage(EGuildMsg::kLearnToChar),
+						false, ch, nullptr, trainer, kToChar);
+					act(GetMessage(EGuildMsg::kLearnToRoom),
+						false, ch, nullptr, trainer, kToRoom);
 					need_msg = false;
 				}
 				Learn(trainer, ch, talent);
@@ -345,12 +325,12 @@ void GuildInfo::Learn(CharData *trainer, CharData *ch, const TalentPtr &talent) 
 };
 
 bool GuildInfo::ProcessPayment(CharData *trainer, CharData *ch, const TalentPtr &talent) {
-	if (talent->IsInsolvent(ch)) {
+	if (!talent->TakePayment(ch)) {
 		act(GetMessage(EGuildMsg::kIsInsolvent), false, ch, nullptr, trainer, kToChar);
 		act(GetMessage(EGuildMsg::kIsInsolvent), false, ch, nullptr, trainer, kToRoom);
 		return false;
 	}
-// \todo Сделать процесс взымания платы и сообщение о передаче денег
+// \todo Сделать сообщение о взымании платы.
 	return true;
 }
 
@@ -444,10 +424,17 @@ std::string GuildInfo::IGuildTalent::GetPriceCurrencyStr(uint64_t price) {
 	return GetDeclensionInNumber(price, EWhat::kMoneyU);
 }
 
-bool GuildInfo::IGuildTalent::IsInsolvent(CharData *ch) const {
+bool GuildInfo::IGuildTalent::TakePayment(CharData *ch) const {
 	auto price = CalcPrice(ch);
-	auto money = ch->get_gold() + ch->get_bank();
-	return (price >= money);
+	auto money = ch->get_gold(); // \todo не забыть учет валют
+
+	if (price && price > money) {
+		return false;
+	}
+
+	money -= price;
+	ch->set_gold(money, true);
+	return true;
 }
 
 void GuildInfo::GuildSkill::ParseSkillNode(DataNode &node) {

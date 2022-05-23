@@ -40,8 +40,8 @@ class GuildInfo : public info_container::BaseItem<int> {
 		kCannotToRoom,
 		kAskToChar,
 		kAskToRoom,
-		kDoLearnToChar,
-		kDoLearnToRoom,
+		kLearnToChar,
+		kLearnToRoom,
 		kInquiry,
 		kDidNotTeach,
 		kAllSkills,
@@ -65,7 +65,7 @@ class GuildInfo : public info_container::BaseItem<int> {
 		[[nodiscard]] bool IsLearnable(CharData *ch) const;
 		[[nodiscard]] bool IsUnlearnable(CharData *ch) const { return !IsLearnable(ch); };
 		[[nodiscard]] std::string GetClassesList() const;
-		[[nodiscard]] bool IsInsolvent(CharData *ch) const;
+		[[nodiscard]] bool TakePayment(CharData *ch) const;
 		[[nodiscard]] long CalcPrice(CharData *buyer) const;
 		[[nodiscard]] static std::string GetPriceCurrencyStr(uint64_t price);
 
