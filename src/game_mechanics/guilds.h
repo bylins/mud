@@ -54,6 +54,7 @@ class GuildInfo : public info_container::BaseItem<int> {
 
 	class IGuildTalent {
 		ETalent talent_type_;
+		Vnum currency_vnum_{0};
 		int start_price_{0};
 		int remort_percemt_{0};
 		std::unordered_set<ECharClass> trained_classes_;

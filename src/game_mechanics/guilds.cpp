@@ -398,15 +398,10 @@ GuildInfo::IGuildTalent::IGuildTalent(ETalent talent_type, DataNode &node) {
 		node.GoToParent();
 	}
 
-	//<price currency="kKuna" start="2" remort_percent="400"/>
-	// \todo Добавить учет разных валют
 	if (node.GoToChild("price")) {
-/*		try {
-			parse::ReadAsConstantsSet<ECharClass>(trained_classes_, node.GetValue("val"));
-		} catch (std::exception &e) {
-			err_log("wrong class list format (%s).", e.what());
-		}*/
 		try {
+			auto currency_text_id = parse::ReadAsStr(node.GetValue("currency"));
+			currency_vnum_ = MUD::Currencies().FindAvailableItem(currency_text_id).GetId();
 			start_price_ = parse::ReadAsInt(node.GetValue("start"));
 			remort_percemt_ = parse::ReadAsInt(node.GetValue("remort_percent"));
 		} catch (std::exception &e) {

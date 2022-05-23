@@ -27,6 +27,7 @@ struct GlobalObjectsStorage {
 	cfg_manager::CfgManager cfg_mngr;
 	classes::ClassesInfo classes_info;
 	guilds::GuildsInfo guilds_info;
+	currencies::CurrenciesInfo currencies_info;
 	WorldObjects world_objects;
 	ShopExt::ShopListType shop_list;
 	PlayersIndex player_table;
@@ -87,6 +88,14 @@ guilds::GuildsInfo &GlobalObjects::Guilds() {
 const guilds::GuildInfo &GlobalObjects::Guilds(Vnum guild_vnum) {
 	return global_objects().guilds_info[guild_vnum];
 }
+
+currencies::CurrenciesInfo &GlobalObjects::Currencies() {
+	return global_objects().currencies_info;
+};
+
+const currencies::CurrencyInfo &GlobalObjects::Currencies(Vnum currency_vnum) {
+	return global_objects().currencies_info[currency_vnum];
+};
 
 WorldObjects &GlobalObjects::world_objects() {
 	return global_objects().world_objects;

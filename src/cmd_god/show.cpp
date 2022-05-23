@@ -95,6 +95,32 @@ void ShowGuildInfo(CharData *ch, const std::string &guild_locator) {
 	page_string(ch->desc, out.str());
 }
 
+void ShowCurrencyInfo(CharData *ch, const std::string &locator) {
+	std::ostringstream out;
+	if (locator.empty()) {
+		for (const auto &item : MUD::Currencies()) {
+			item.Print(ch, out);
+		}
+	} else {
+		Vnum vnum{-1};
+		try {
+			vnum = std::stoi(locator);
+		} catch (...) {
+			SendMsgToChar("Формат: show guild [vnum]", ch);
+			return;
+		}
+
+		const auto &item = MUD::Currencies(vnum);
+		if (item.GetId() == info_container::kUndefinedVnum) {
+			SendMsgToChar("Элемента с таким vnum не существует.", ch);
+			return;
+		}
+		item.Print(ch, out);
+	}
+
+	page_string(ch->desc, out.str());
+}
+
 namespace {
 
 bool sort_by_zone_mob_level(int rnum1, int rnum2) {
@@ -269,6 +295,7 @@ struct show_struct show_fields[] = {
 	{"triggers", kLvlImmortal},
 	{"class", kLvlImmortal},
 	{"guild", kLvlImmortal},
+	{"currency", kLvlImmortal},
 	{"\n", 0}
 };
 
@@ -734,6 +761,9 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			break;
 		case 30: // guild
 			ShowGuildInfo(ch, value);
+			break;
+		case 31: // currency
+			ShowCurrencyInfo(ch, value);
 			break;
 		default: SendMsgToChar("Извините, неверная команда.\r\n", ch);
 			break;

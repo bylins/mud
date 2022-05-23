@@ -1079,6 +1079,8 @@ void do_reboot(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		MUD::CfgManager().ReloadCfg("classes");
 	} else if (!str_cmp(arg, "guilds")) {
 		MUD::CfgManager().ReloadCfg("guilds");
+	} else if (!str_cmp(arg, "currencies")) {
+		MUD::CfgManager().ReloadCfg("currencies");
 	} else if (!str_cmp(arg, "imagic"))
 		init_im();
 	else if (!str_cmp(arg, "ztypes"))
@@ -2241,6 +2243,10 @@ void boot_db(void) {
 	file_to_string_alloc(NAME_RULES_FILE, &name_rules);
 	if (file_to_string_alloc(GREETINGS_FILE, &GREETINGS) == 0)
 		prune_crlf(GREETINGS);
+
+	boot_profiler.next_step("Loading currencies cfg.");
+	log("Loading currencies cfg.");
+	MUD::CfgManager().LoadCfg("currencies");
 
 	boot_profiler.next_step("Loading skills cfg.");
 	log("Loading skills cfg.");
