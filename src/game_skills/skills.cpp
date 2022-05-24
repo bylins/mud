@@ -1964,8 +1964,7 @@ bool CanGetSkill(CharData *ch, ESkill skill) {
 		return false;
 	}
 
-	if (GET_REAL_REMORT(ch) < MUD::Classes(ch->GetClass()).skills[skill].GetMinRemort() ||
-		MUD::Classes(ch->GetClass()).skills[skill].IsUnavailable()) {
+	if (GET_REAL_REMORT(ch) < MUD::Classes(ch->GetClass()).skills[skill].GetMinRemort()) {
 		return false;
 	}
 

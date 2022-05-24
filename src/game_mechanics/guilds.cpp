@@ -91,6 +91,7 @@ const std::string &GuildInfo::GetMessage(EGuildMsg msg_id) {
 		 "$N сказал$G : 'Вот у меня забот нет - голодранцев наставлять! Иди-ка, $n, подзаработай сначала!"},
 		{EGuildMsg::kFree, "бесплатно"},
 		{EGuildMsg::kTemporary, "временно"},
+		{EGuildMsg::kAvailable, "тебе доступно "},
 		{EGuildMsg::kError, "У кодера какие-то проблемы."},
 	};
 
@@ -173,6 +174,36 @@ void GuildInfo::AssignToTrainers() const {
 	}
 };
 
+void GuildInfo::Process(CharData *trainer, CharData *ch, std::string &argument) const {
+	if (argument.empty()) {
+		DisplayMenu(trainer, ch);
+		return;
+	}
+
+	act(GetMessage(EGuildMsg::kInquiry), false, ch, nullptr, trainer, kToRoom);
+
+	if (utils::IsAbbrev(argument, "все") || utils::IsAbbrev(argument, "all")) {
+		LearnAll(trainer, ch);
+		return;
+	}
+
+/*	int practices{-1};
+	try {
+		if (auto pos = argument.find(' '); pos != std::string::npos) {
+			auto first_arg = argument.substr(0, pos);
+			practices = std::max(0, std::stoi(first_arg));
+			argument.erase(0, pos + 1);
+		}
+	} catch (std::exception &) {}*/
+
+	try {
+		std::size_t talent_num = std::stoi(argument);
+		LearnWithTalentNum(trainer, ch, talent_num);
+	} catch (std::exception &) {
+		LearnWithTalentName(trainer, ch, argument);
+	}
+};
+
 void GuildInfo::DisplayMenu(CharData *trainer, CharData *ch) const {
 	std::ostringstream out;
 	auto count{0};
@@ -185,8 +216,8 @@ void GuildInfo::DisplayMenu(CharData *trainer, CharData *ch) const {
 
 		++count;
 		table << (KCYN + std::to_string(count) + KNRM + ")" + KGRN)
-			<< talent->GetTalentTypeName()
-			<< ("'" + static_cast<std::string>(talent->GetName()) + "'" + KNRM);
+			  << talent->GetTalentTypeName()
+			  << ("'" + static_cast<std::string>(talent->GetName()) + "'" + KNRM);
 
 		auto price = talent->CalcPrice(ch);
 		if (price) {
@@ -194,7 +225,7 @@ void GuildInfo::DisplayMenu(CharData *trainer, CharData *ch) const {
 		} else {
 			table << "--" << GetMessage(EGuildMsg::kFree);
 		}
-		table << talent->GetAnnotation();
+		table << talent->GetAnnotation(ch);
 		table << table_wrapper::kEndRow;
 	}
 
@@ -211,27 +242,6 @@ void GuildInfo::DisplayMenu(CharData *trainer, CharData *ch) const {
 		act(GetMessage(EGuildMsg::kListEmpty), false, ch, nullptr, trainer, kToRoom);
 	}
 }
-
-void GuildInfo::Process(CharData *trainer, CharData *ch, const std::string &argument) const {
-	if (argument.empty()) {
-		DisplayMenu(trainer, ch);
-		return;
-	}
-
-	act(GetMessage(EGuildMsg::kInquiry), false, ch, nullptr, trainer, kToRoom);
-
-	if (utils::IsAbbrev(argument, "все") || utils::IsAbbrev(argument, "all")) {
-		LearnAll(trainer, ch);
-		return;
-	}
-
-	try {
-		std::size_t talent_num = std::stoi(argument);
-		LearnWithTalentNum(trainer, ch, talent_num);
-	} catch (std::exception &) {
-		LearnWithTalentName(trainer, ch, argument);
-	}
-};
 
 void GuildInfo::LearnWithTalentNum(CharData *trainer, CharData *ch, std::size_t talent_num) const {
 	talent_num = std::clamp(talent_num, 1UL, learning_talents_.size());
@@ -442,9 +452,9 @@ void GuildInfo::GuildSkill::ParseSkillNode(DataNode &node) {
 	id_ = parse::ReadAsConstant<ESkill>(node.GetValue("id"));
 	if (node.GoToChild("upgrade")) {
 		try {
-			amount_ = parse::ReadAsInt(node.GetValue("amount"));
-			min_skill_ = parse::ReadAsInt(node.GetValue("min"));
-			max_skill_ = parse::ReadAsInt(node.GetValue("max"));
+			practices_ = std::max(1, parse::ReadAsInt(node.GetValue("practices")));
+			min_skill_ = std::max(0, parse::ReadAsInt(node.GetValue("min")));
+			max_skill_ = std::max(1, parse::ReadAsInt(node.GetValue("max")));
 		} catch (std::exception &e) {
 			err_log("wrong upgrade format (%s).", e.what());
 		}
@@ -460,17 +470,32 @@ std::string_view GuildInfo::GuildSkill::GetName() const {
 	return MUD::Skills(id_).name;
 }
 
+int GuildInfo::GuildSkill::CalcGuildSkillCap(CharData *ch) const {
+	return std::min(ch->GetSkill(id_) + practices_, std::min(CalcSkillHardCap(ch, id_), max_skill_));
+}
+
+int GuildInfo::GuildSkill::CalcPracticesAmount(CharData *ch) const {
+	return std::clamp(CalcGuildSkillCap(ch) - ch->GetSkill(id_), 1, practices_);
+}
+
+long GuildInfo::GuildSkill::CalcPrice(CharData *buyer) const {
+	return GuildInfo::IGuildTalent::CalcPrice(buyer)*CalcPracticesAmount(buyer);
+};
+
 bool GuildInfo::GuildSkill::IsAvailable(CharData *ch) const {
-	// \todo Сделать учет апгрейда
-	return (CanGetSkill(ch, id_) && ch->GetSkill(id_) == 0);
+	auto skill = ch->GetSkill(id_);
+	return CanGetSkill(ch, id_) && skill >= min_skill_ && skill < max_skill_ && skill < CalcSkillHardCap(ch, id_);
 }
 
 void GuildInfo::GuildSkill::SetTalent(CharData *ch) const {
-	ch->set_skill(id_, 10);
+	ch->set_skill(id_, ch->GetSkill(id_) + CalcPracticesAmount(ch));
 }
 
-std::string GuildInfo::GuildSkill::GetAnnotation() const {
-	return "";
+std::string GuildInfo::GuildSkill::GetAnnotation(CharData *ch) const {
+	std::ostringstream out;
+	out << min_skill_ << "-" << max_skill_
+		<< " (" << GetMessage(EGuildMsg::kAvailable) << CalcPracticesAmount(ch) << ")";
+	return out.str();
 }
 
 void GuildInfo::GuildSpell::ParseSpellNode(DataNode &node) {
@@ -490,17 +515,7 @@ std::string_view GuildInfo::GuildSpell::GetName() const {
 }
 
 bool GuildInfo::GuildSpell::IsAvailable(CharData *ch) const {
-	switch (spell_type_) {
-		case ESpellType::kKnow: {
-			return CanGetSpell(ch, id_) && !IS_SPELL_KNOWN(ch, id_);
-			break;
-		}
-		case ESpellType::kTemp: {
-			return CanGetSpell(ch, id_);
-			break;
-		}
-		default: return false;
-	}
+	return CanGetSpell(ch, id_) && !IS_SPELL_KNOWN(ch, id_);
 }
 
 void GuildInfo::GuildSpell::SetTalent(CharData *ch) const {
@@ -512,7 +527,7 @@ void GuildInfo::GuildSpell::SetTalent(CharData *ch) const {
 	}
 }
 
-std::string GuildInfo::GuildSpell::GetAnnotation() const {
+std::string GuildInfo::GuildSpell::GetAnnotation(CharData * /*ch*/) const {
 	if (spell_type_ == ESpellType::kTemp) {
 		std::ostringstream out;
 		out << GetMessage(EGuildMsg::kTemporary) << " ("
@@ -542,7 +557,7 @@ void GuildInfo::GuildFeat::SetTalent(CharData *ch) const {
 	ch->SetFeat(id_);
 }
 
-std::string GuildInfo::GuildFeat::GetAnnotation() const {
+std::string GuildInfo::GuildFeat::GetAnnotation(CharData * /*ch*/) const {
 	return "";
 }
 

@@ -51,6 +51,7 @@ class GuildInfo : public info_container::BaseItem<int> {
 		kIsInsolvent,
 		kFree,
 		kTemporary,
+		kAvailable,
 		kError};
 
 	class IGuildTalent {
@@ -68,20 +69,20 @@ class GuildInfo : public info_container::BaseItem<int> {
 		[[nodiscard]] bool IsUnlearnable(CharData *ch) const { return !IsLearnable(ch); };
 		[[nodiscard]] std::string GetClassesList() const;
 		[[nodiscard]] bool TakePayment(CharData *ch) const;
-		[[nodiscard]] long CalcPrice(CharData *buyer) const;
 		[[nodiscard]] std::string GetPriceCurrencyStr(uint64_t price) const;
 
+		[[nodiscard]] virtual long CalcPrice(CharData *buyer) const;
 		[[nodiscard]] virtual bool IsAvailable(CharData *ch) const = 0;
 		[[nodiscard]] virtual const std::string &GetIdAsStr() const = 0;
 		[[nodiscard]] virtual std::string_view GetName() const = 0;
 		[[nodiscard]] virtual std::string GetTalentTypeName() const = 0;
-		[[nodiscard]] virtual std::string GetAnnotation() const = 0;
+		[[nodiscard]] virtual std::string GetAnnotation(CharData *ch) const = 0;
 		virtual void SetTalent(CharData *ch) const = 0;
 	};
 
 	class GuildSkill : public IGuildTalent {
 		ESkill id_{ESkill::kUndefined};
-		int amount_{10};
+		int practices_{1};
 		int min_skill_{0};
 		int max_skill_{10};
 
@@ -93,11 +94,14 @@ class GuildInfo : public info_container::BaseItem<int> {
 		};
 
 		[[nodiscard]] ESkill GetId() const { return id_; };
+		[[nodiscard]] int CalcGuildSkillCap(CharData *ch) const;
+		[[nodiscard]] int CalcPracticesAmount(CharData *ch) const;
+		[[nodiscard]] long CalcPrice(CharData *buyer) const final;
 		[[nodiscard]] bool IsAvailable(CharData *ch) const final;
 		[[nodiscard]] const std::string &GetIdAsStr() const final;
 		[[nodiscard]] std::string_view GetName() const final;
 		[[nodiscard]] std::string GetTalentTypeName() const final { return "умение"; };
-		[[nodiscard]] std::string GetAnnotation() const final;
+		[[nodiscard]] std::string GetAnnotation(CharData *ch) const final;
 		void SetTalent(CharData *ch) const final;
 	};
 
@@ -118,7 +122,7 @@ class GuildInfo : public info_container::BaseItem<int> {
 		[[nodiscard]] const std::string &GetIdAsStr() const final;
 		[[nodiscard]] std::string_view GetName() const final;
 		[[nodiscard]] std::string GetTalentTypeName() const final { return "заклинание"; };
-		[[nodiscard]] std::string GetAnnotation() const final;
+		[[nodiscard]] std::string GetAnnotation(CharData * /*ch*/) const final;
 		void SetTalent(CharData *ch) const final;
 	};
 
@@ -137,7 +141,7 @@ class GuildInfo : public info_container::BaseItem<int> {
 		[[nodiscard]] const std::string &GetIdAsStr() const final;
 		[[nodiscard]] std::string_view GetName() const final;
 		[[nodiscard]] std::string GetTalentTypeName() const final { return "способность"; };
-		[[nodiscard]] std::string GetAnnotation() const final;
+		[[nodiscard]] std::string GetAnnotation(CharData * /*ch*/) const final;
 		void SetTalent(CharData *ch) const final;
 	};
 
@@ -166,7 +170,7 @@ class GuildInfo : public info_container::BaseItem<int> {
 
 	void Print(CharData *ch, std::ostringstream &buffer) const;
 	void AssignToTrainers() const;
-	void Process(CharData *trainer, CharData *ch, const std::string &argument) const;
+	void Process(CharData *trainer, CharData *ch, std::string &argument) const;
 };
 
 class GuildInfoBuilder : public info_container::IItemBuilder<GuildInfo> {
