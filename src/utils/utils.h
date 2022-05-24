@@ -1065,7 +1065,7 @@ int awake_invis(CharData *ch);
 int awake_camouflage(CharData *ch);
 int awake_sneak(CharData *ch);
 int awaking(CharData *ch, int mode);
-std::string time_format(int timer, int flag = 0);
+std::string FormatTimeToStr(long in_timer, bool flag = 0);
 
 size_t count_colors(const char *str, size_t len = 0);
 char *colored_name(const char *str, size_t len, const bool left_align = false);

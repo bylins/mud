@@ -1309,12 +1309,12 @@ bool IsValidEmail(const char *address) {
 }
 
 /**
-* Вывод времени (минут) в зависимости от их кол-ва с округлением вплоть до месяцев.
+* Вывод времени (в минутах) в зависимости от их кол-ва с округлением вплоть до месяцев.
 * Для таймеров славы по 'glory имя' и 'слава информация'.
 * \param flag - по дефолту 0 - 1 минута, 1 неделя;
 *                          1 - 1 минуту, 1 неделю.
 */
-std::string time_format(int in_timer, int flag) {
+std::string FormatTimeToStr(long in_timer, bool flag) {
 	char buffer[256];
 	std::ostringstream out;
 

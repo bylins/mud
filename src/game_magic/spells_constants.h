@@ -289,6 +289,23 @@ enum EElement : int {
 	kTypeLife
 };
 
+// PLAYER SPELLS TYPES //
+enum ESpellType {
+	kUnknowm = 0,
+	kKnow = 1 << 0,
+	kTemp = 1 << 1,
+	kPotionCast = 1 << 2,
+	kWandCast = 1 << 3,
+	kScrollCast = 1 << 4,
+	kItemCast = 1 << 5,
+	kRunes = 1 << 6
+};
+
+template<>
+ESpellType ITEM_BY_NAME<ESpellType>(const std::string &name);
+template<>
+const std::string &NAME_BY_ITEM<ESpellType>(const ESpellType spell);
+
 constexpr Bitvector kMagDamage = 1 << 0;
 constexpr Bitvector kMagAffects = 1 << 1;
 constexpr Bitvector kMagUnaffects = 1 << 2;

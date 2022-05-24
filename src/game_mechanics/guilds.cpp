@@ -13,6 +13,7 @@
 #include "game_mechanics/glory_const.h"
 #include "game_magic/magic_utils.h"
 #include "game_magic/spells_info.h"
+#include "game_magic/magic_temp_spells.h"
 #include "structs/global_objects.h"
 
 typedef int special_f(CharData *, void *, int, char *);
@@ -89,6 +90,7 @@ const std::string &GuildInfo::GetMessage(EGuildMsg msg_id) {
 		{EGuildMsg::kIsInsolvent,
 		 "$N сказал$G : 'Вот у меня забот нет - голодранцев наставлять! Иди-ка, $n, подзаработай сначала!"},
 		{EGuildMsg::kFree, "бесплатно"},
+		{EGuildMsg::kTemporary, "временно"},
 		{EGuildMsg::kError, "У кодера какие-то проблемы."},
 	};
 
@@ -192,7 +194,7 @@ void GuildInfo::DisplayMenu(CharData *trainer, CharData *ch) const {
 		} else {
 			table << "--" << GetMessage(EGuildMsg::kFree);
 		}
-
+		table << talent->GetAnnotation();
 		table << table_wrapper::kEndRow;
 	}
 
@@ -467,8 +469,16 @@ void GuildInfo::GuildSkill::SetTalent(CharData *ch) const {
 	ch->set_skill(id_, 10);
 }
 
+std::string GuildInfo::GuildSkill::GetAnnotation() const {
+	return "";
+}
+
 void GuildInfo::GuildSpell::ParseSpellNode(DataNode &node) {
 	id_ = parse::ReadAsConstant<ESpell>(node.GetValue("id"));
+	try {
+		spell_type_ = parse::ReadAsConstant<ESpellType>(node.GetValue("type"));
+		spell_time_sec_ = kSecsPerRealMin * std::max(0, parse::ReadAsInt(node.GetValue("time")));
+	} catch (std::exception &) { }
 }
 
 const std::string &GuildInfo::GuildSpell::GetIdAsStr() const {
@@ -484,7 +494,21 @@ bool GuildInfo::GuildSpell::IsAvailable(CharData *ch) const {
 }
 
 void GuildInfo::GuildSpell::SetTalent(CharData *ch) const {
-	SET_BIT(GET_SPELL_TYPE(ch, id_), ESpellType::kKnow);
+	if (spell_type_ == ESpellType::kTemp) {
+		temporary_spells::AddSpell(ch, id_, time(nullptr), spell_time_sec_);
+	} else {
+		SET_BIT(GET_SPELL_TYPE(ch, id_), ESpellType::kKnow);
+	}
+}
+
+std::string GuildInfo::GuildSpell::GetAnnotation() const {
+	if (spell_type_ == ESpellType::kTemp) {
+		std::ostringstream out;
+		out << GetMessage(EGuildMsg::kTemporary) << " ("
+			<< FormatTimeToStr(spell_time_sec_/kSecsPerRealMin) << ")";
+		return out.str();
+	}
+	return "";
 }
 
 void GuildInfo::GuildFeat::ParseFeatNode(DataNode &node) {
@@ -505,6 +529,10 @@ bool GuildInfo::GuildFeat::IsAvailable(CharData *ch) const {
 
 void GuildInfo::GuildFeat::SetTalent(CharData *ch) const {
 	ch->SetFeat(id_);
+}
+
+std::string GuildInfo::GuildFeat::GetAnnotation() const {
+	return "";
 }
 
 /*

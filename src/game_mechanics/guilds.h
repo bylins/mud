@@ -50,6 +50,7 @@ class GuildInfo : public info_container::BaseItem<int> {
 		kListEmpty,
 		kIsInsolvent,
 		kFree,
+		kTemporary,
 		kError};
 
 	class IGuildTalent {
@@ -74,6 +75,7 @@ class GuildInfo : public info_container::BaseItem<int> {
 		[[nodiscard]] virtual const std::string &GetIdAsStr() const = 0;
 		[[nodiscard]] virtual std::string_view GetName() const = 0;
 		[[nodiscard]] virtual std::string GetTalentTypeName() const = 0;
+		[[nodiscard]] virtual std::string GetAnnotation() const = 0;
 		virtual void SetTalent(CharData *ch) const = 0;
 	};
 
@@ -95,13 +97,14 @@ class GuildInfo : public info_container::BaseItem<int> {
 		[[nodiscard]] const std::string &GetIdAsStr() const final;
 		[[nodiscard]] std::string_view GetName() const final;
 		[[nodiscard]] std::string GetTalentTypeName() const final { return "умение"; };
+		[[nodiscard]] std::string GetAnnotation() const final;
 		void SetTalent(CharData *ch) const final;
 	};
 
 	class GuildSpell : public IGuildTalent {
 		ESpell id_{ESpell::kUndefined};
 		ESpellType spell_type_{ESpellType::kKnow};
-		uint32_t spell_time_{1};
+		std::time_t spell_time_sec_{60};
 
 		void ParseSpellNode(DataNode &node);
 	 public:
@@ -115,6 +118,7 @@ class GuildInfo : public info_container::BaseItem<int> {
 		[[nodiscard]] const std::string &GetIdAsStr() const final;
 		[[nodiscard]] std::string_view GetName() const final;
 		[[nodiscard]] std::string GetTalentTypeName() const final { return "заклинание"; };
+		[[nodiscard]] std::string GetAnnotation() const final;
 		void SetTalent(CharData *ch) const final;
 	};
 
@@ -133,6 +137,7 @@ class GuildInfo : public info_container::BaseItem<int> {
 		[[nodiscard]] const std::string &GetIdAsStr() const final;
 		[[nodiscard]] std::string_view GetName() const final;
 		[[nodiscard]] std::string GetTalentTypeName() const final { return "способность"; };
+		[[nodiscard]] std::string GetAnnotation() const final;
 		void SetTalent(CharData *ch) const final;
 	};
 

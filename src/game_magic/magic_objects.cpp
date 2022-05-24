@@ -115,7 +115,7 @@ std::string print_spell_str(CharData *ch, ESpell spell_id, int timer) {
 			} else {
 				out << CCCYN(ch, C_NRM) << "Наложено заклинание '"
 					<< (spell_info[spell_id].name ? spell_info[spell_id].name : "<null>") << "' ("
-					<< time_format(timer, true) << ").\r\n" << CCNRM(ch, C_NRM);
+					<< FormatTimeToStr(timer, true) << ").\r\n" << CCNRM(ch, C_NRM);
 			}
 			break;
 	}
