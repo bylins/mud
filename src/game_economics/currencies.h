@@ -13,18 +13,6 @@
 
 namespace currencies {
 
-/*enum class ECurrency {
-	kUndefined = -1,
-	kKuna = 0,
-	kGrivna,
-	kZlatnik,
-	kGlory,
-	kMagicIce,
-	kNogata,
-	kFirst = kKuna,
-	kLast = kNogata, // Не забываем менять при добаввлении новых элементов.
-};*/
-
 class CurrenciesLoader : virtual public cfg_manager::ICfgLoader {
  public:
 	void Load(parser_wrapper::DataNode data) final;
@@ -79,12 +67,7 @@ class CurrencyInfoBuilder : public info_container::IItemBuilder<CurrencyInfo> {
 using CurrenciesInfo = info_container::InfoContainer<int, CurrencyInfo, CurrencyInfoBuilder>;
 
 } //namespace currencies
-/*
-template<>
-const std::string &NAME_BY_ITEM<currencies::ECurrency>(currencies::ECurrency item);
-template<>
-currencies::ECurrency ITEM_BY_NAME<currencies::ECurrency>(const std::string &name);
-*/
+
 #endif //BYLINS_SRC_GAME_ECONOMICS_CURRENCIES_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

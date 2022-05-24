@@ -10,6 +10,7 @@
 
 #include "boot/boot_constants.h"
 #include "color.h"
+#include "game_mechanics/glory_const.h"
 #include "game_magic/magic_utils.h"
 #include "game_magic/spells_info.h"
 #include "structs/global_objects.h"
@@ -419,20 +420,20 @@ std::string GuildInfo::IGuildTalent::GetPriceCurrencyStr(uint64_t price) const {
 	} else {
 		return GetMessage(EGuildMsg::kError);
 	}
-	//return GetDeclensionInNumber(price, EWhat::kMoneyU);
 }
+
+bool HasEnoughCurrency(CharData *ch, Vnum currency_id, long amount);
+void WithdrawCurrency(CharData *ch, Vnum currency_id, long amount);
 
 bool GuildInfo::IGuildTalent::TakePayment(CharData *ch) const {
 	auto price = CalcPrice(ch);
-	auto money = ch->get_gold(); // \todo не забыть учет валют
 
-	if (price && price > money) {
-		return false;
+	if (HasEnoughCurrency(ch, currency_vnum_, price)) {
+		WithdrawCurrency(ch, currency_vnum_, price);
+		return true;
 	}
 
-	money -= price;
-	ch->set_gold(money, true);
-	return true;
+	return false;
 }
 
 void GuildInfo::GuildSkill::ParseSkillNode(DataNode &node) {
@@ -504,6 +505,63 @@ bool GuildInfo::GuildFeat::IsAvailable(CharData *ch) const {
 
 void GuildInfo::GuildFeat::SetTalent(CharData *ch) const {
 	ch->SetFeat(id_);
+}
+
+/*
+ *  Костыльные функции для проверки/снятия валют, поскольку системы валют пока нет.
+ */
+
+bool HasEnoughCurrency(CharData *ch, Vnum currency_id, long amount) {
+	switch (currency_id) {
+		case 0: { // куны
+			return ch->get_gold() >= amount;
+		}
+		case 1: { // слава
+			const auto total_glory = GloryConst::get_glory(GET_UNIQUE(ch));
+			return total_glory >= amount;
+		}
+		case 2: { // гривны
+			return ch->get_hryvn() >= amount;
+		}
+		case 3: { // лед
+			return ch->get_ice_currency() >= amount;
+		}
+		case 4: { // ногаты
+			return ch->get_nogata() >= amount;
+		}
+		default:
+			return false;
+	}
+}
+
+void WithdrawCurrency(CharData *ch, Vnum currency_id, long amount) {
+	switch (currency_id) {
+		case 0: { // куны
+			ch->remove_gold(amount);
+			break;
+		}
+		case 1: { // слава
+			GloryConst::add_total_spent(amount);
+			GloryConst::remove_glory(GET_UNIQUE(ch), amount);
+			GloryConst::transfer_log("%s spent %ld const glory in a guild.", GET_NAME(ch), amount);
+			break;
+		}
+		case 2: { // гривны
+			ch->sub_hryvn(amount);
+			ch->spent_hryvn_sub(amount);
+			break;
+		}
+		case 3: { // лед
+			ch->sub_ice_currency(amount);
+			break;
+		}
+		case 4: { // ногаты
+			ch->sub_nogata(amount);
+			break;
+		}
+		default:
+			return;
+	}
 }
 
 }

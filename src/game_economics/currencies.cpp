@@ -120,43 +120,4 @@ const std::string &CurrencyInfo::GetNameWithAmount(uint64_t amount) const {
 
 } // namespace currencies
 
-/*
-typedef std::map<currencies::ECurrency, std::string> ECurrency_name_by_value_t;
-typedef std::map<const std::string, currencies::ECurrency> ECurrency_value_by_name_t;
-ECurrency_name_by_value_t ECurrency_name_by_value;
-ECurrency_value_by_name_t ECurrency_value_by_name;
-
-void init_ECurrency_ITEM_NAMES() {
-	ECurrency_name_by_value.clear();
-	ECurrency_value_by_name.clear();
-
-	ECurrency_name_by_value[currencies::ECurrency::kKuna] = "kKuna";
-	ECurrency_name_by_value[currencies::ECurrency::kGrivna] = "kKuna";
-	ECurrency_name_by_value[currencies::ECurrency::kZlatnik] = "kZlatnik";
-	ECurrency_name_by_value[currencies::ECurrency::kGlory] = "kGlory";
-	ECurrency_name_by_value[currencies::ECurrency::kMagicIce] = "kMagicIce";
-	ECurrency_name_by_value[currencies::ECurrency::kNogata] = "kNogata";
-
-	for (const auto &i : ECurrency_name_by_value) {
-		ECurrency_value_by_name[i.second] = i.first;
-	}
-}
-
-template<>
-const std::string &NAME_BY_ITEM<currencies::ECurrency>(const currencies::ECurrency item) {
-	if (ECurrency_name_by_value.empty()) {
-		init_ECurrency_ITEM_NAMES();
-	}
-	return ECurrency_name_by_value.at(item);
-}
-
-template<>
-currencies::ECurrency ITEM_BY_NAME<currencies::ECurrency>(const std::string &name) {
-	if (ECurrency_name_by_value.empty()) {
-		init_ECurrency_ITEM_NAMES();
-	}
-	return ECurrency_value_by_name.at(name);
-}
-*/
-
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
