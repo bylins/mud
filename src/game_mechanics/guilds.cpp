@@ -490,12 +490,23 @@ std::string_view GuildInfo::GuildSpell::GetName() const {
 }
 
 bool GuildInfo::GuildSpell::IsAvailable(CharData *ch) const {
-	return CanGetSpell(ch, id_) && !IS_SPELL_KNOWN(ch, id_);
+	switch (spell_type_) {
+		case ESpellType::kKnow: {
+			return CanGetSpell(ch, id_) && !IS_SPELL_KNOWN(ch, id_);
+			break;
+		}
+		case ESpellType::kTemp: {
+			return CanGetSpell(ch, id_);
+			break;
+		}
+		default: return false;
+	}
 }
 
 void GuildInfo::GuildSpell::SetTalent(CharData *ch) const {
 	if (spell_type_ == ESpellType::kTemp) {
-		temporary_spells::AddSpell(ch, id_, time(nullptr), spell_time_sec_);
+		auto spell_duration = spell_time_sec_ + temporary_spells::GetSpellLeftTime(ch, id_);
+		temporary_spells::AddSpell(ch, id_, time(nullptr), spell_duration);
 	} else {
 		SET_BIT(GET_SPELL_TYPE(ch, id_), ESpellType::kKnow);
 	}
