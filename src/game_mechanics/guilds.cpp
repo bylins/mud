@@ -188,15 +188,6 @@ void GuildInfo::Process(CharData *trainer, CharData *ch, std::string &argument) 
 		return;
 	}
 
-/*	int practices{-1};
-	try {
-		if (auto pos = argument.find(' '); pos != std::string::npos) {
-			auto first_arg = argument.substr(0, pos);
-			practices = std::max(0, std::stoi(first_arg));
-			argument.erase(0, pos + 1);
-		}
-	} catch (std::exception &) {}*/
-
 	try {
 		std::size_t talent_num = std::stoi(argument);
 		LearnWithTalentNum(trainer, ch, talent_num);
@@ -209,7 +200,6 @@ void GuildInfo::DisplayMenu(CharData *trainer, CharData *ch) const {
 	std::ostringstream out;
 	auto count{0};
 	table_wrapper::Table table;
-	//table << table_wrapper::kHeader << "#" << "Талант" << "Название" << "Цена" << table_wrapper::kEndRow;
 	for (const auto &talent : learning_talents_) {
 		if (talent->IsUnlearnable(ch)) {
 			continue;
@@ -375,9 +365,14 @@ void GuildInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 	if (!learning_talents_.empty()) {
 		buffer << " Trained talents: " << std::endl;
 		table_wrapper::Table table;
-		table << table_wrapper::kHeader << "Id" << "Name" << "Classes" << table_wrapper::kEndRow;
+		table << table_wrapper::kHeader << "Id" << "Name" << "Currency" << "Annotation" << table_wrapper::kEndRow;
 		for (const auto &talent: learning_talents_) {
-			table << talent->GetIdAsStr() << talent->GetName() << talent->GetClassesList() << table_wrapper::kEndRow;
+			table << talent->GetIdAsStr()
+				<< talent->GetName()
+				<< MUD::Currencies(talent->GetCurrencyId()).GetPluralName()
+				<< talent->GetAnnotation(ch)
+				//<< talent->GetClassesList()
+				<< table_wrapper::kEndRow;
 		}
 		table_wrapper::DecorateNoBorderTable(ch, table);
 		table_wrapper::PrintTableToStream(buffer, table);
