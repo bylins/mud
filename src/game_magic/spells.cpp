@@ -88,7 +88,8 @@ int CalcMinSpellLvl(const CharData *ch, ESpell spell_id) {
 }
 
 bool CanGetSpell(const CharData *ch, ESpell spell_id, int req_lvl) {
-	if (CalcMinSpellLvl(ch, spell_id, req_lvl) > GetRealLevel(ch) ||
+	if (MUD::Classes(ch->GetClass()).spells.IsUnavailable(spell_id) ||
+		CalcMinSpellLvl(ch, spell_id, req_lvl) > GetRealLevel(ch) ||
 		MUD::Classes(ch->GetClass()).spells[spell_id].GetMinRemort() > GET_REAL_REMORT(ch)) {
 		return false;
 	}
@@ -1561,10 +1562,10 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 					auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(obj, 1));
 					if (spell_id >= ESpell::kFirst && spell_id <= ESpell::kLast) {
 						drndice = GET_OBJ_VAL(obj, 1);
-						if (MUD::Classes(ch->GetClass()).spells[spell_id].GetMinRemort() > GET_REAL_REMORT(ch)) {
-							drsdice = 34;
-						} else {
+						if (MUD::Classes(ch->GetClass()).spells.IsAvailable(spell_id)) {
 							drsdice = CalcMinSpellLvl(ch, spell_id, GET_OBJ_VAL(obj, 2));
+						} else {
+							drsdice = kLvlImplementator;
 						}
 						sprintf(buf, "содержит заклинание        : \"%s\"\r\n", GetSpellName(spell_id));
 						SendMsgToChar(buf, ch);
