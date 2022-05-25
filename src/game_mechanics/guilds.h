@@ -53,6 +53,8 @@ class GuildInfo : public info_container::BaseItem<int> {
 		kTemporary,
 		kYouGive,
 		kSomeoneGive,
+		kFailToChar,
+		kFailToRoom,
 		kError};
 
 	class IGuildTalent {
@@ -60,6 +62,7 @@ class GuildInfo : public info_container::BaseItem<int> {
 		Vnum currency_vnum_{0};
 		int start_price_{0};
 		int remort_percemt_{0};
+		int fail_chance_{0};
 		std::unordered_set<ECharClass> trained_classes_;
 
 		public:
@@ -67,9 +70,11 @@ class GuildInfo : public info_container::BaseItem<int> {
 
 		[[nodiscard]] ETalent GetTalentType() const { return talent_type_; };
 		[[nodiscard]] Vnum GetCurrencyId() const { return currency_vnum_; };
+		[[nodiscard]] int GetFailChance() const { return fail_chance_; };
 		[[nodiscard]] bool IsLearnable(CharData *ch) const;
 		[[nodiscard]] bool IsUnlearnable(CharData *ch) const { return !IsLearnable(ch); };
 		[[nodiscard]] bool TakePayment(CharData *ch) const;
+		[[nodiscard]] bool IsLearningFailed() const;
 		[[nodiscard]] std::string GetClassesList() const;
 		[[nodiscard]] std::string GetPriceCurrencyStr(long price) const;
 

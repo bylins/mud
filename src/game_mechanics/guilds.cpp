@@ -6,8 +6,6 @@
 
 #include "guilds.h"
 
-//#include <iostream>
-
 #include "boot/boot_constants.h"
 #include "color.h"
 #include "game_mechanics/glory_const.h"
@@ -93,6 +91,8 @@ const std::string &GuildInfo::GetMessage(EGuildMsg msg_id) {
 		{EGuildMsg::kTemporary, "временно"},
 		{EGuildMsg::kYouGive, "Вы дали "},
 		{EGuildMsg::kSomeoneGive, "$n дал$g "},
+		{EGuildMsg::kFailToChar, "...но все уроки влетели вам в одно ухо, да вылетели в другое."},
+		{EGuildMsg::kFailToRoom, "...но, судя по осовелому взгляду $n1, наука $N1 не пошла $m впрок."},
 		{EGuildMsg::kError, "У кодера какие-то проблемы."},
 	};
 
@@ -143,16 +143,6 @@ ItemPtr GuildInfoBuilder::ParseGuild(DataNode node) {
 
 void GuildInfoBuilder::ParseTalents(ItemPtr &info, DataNode &node) {
 	for (auto &talent_node: node.Children()) {
-		std::unordered_set<ECharClass> char_classes;
-		if (talent_node.GoToChild("class")) {
-			try {
-				parse::ReadAsConstantsSet<ECharClass>(char_classes, talent_node.GetValue("val"));
-			} catch (std::exception &e) {
-				err_log("classes list (%s) in guild '%s'.", e.what(), info->GetName().c_str());
-			}
-			talent_node.GoToParent();
-		}
-
 		try {
 			if (strcmp(talent_node.GetName(), "skill") == 0) {
 				info->learning_talents_.emplace_back(std::make_unique<GuildInfo::GuildSkill>(talent_node));
@@ -164,8 +154,6 @@ void GuildInfoBuilder::ParseTalents(ItemPtr &info, DataNode &node) {
 		} catch (std::exception &e) {
 			err_log("talent format error (%s) in guild '%s'.", e.what(), info->GetName().c_str());
 		}
-
-		char_classes.clear();
 	}
 }
 
@@ -318,12 +306,16 @@ void GuildInfo::LearnAll(CharData *trainer, CharData *ch) const {
 }
 
 void GuildInfo::Learn(CharData *trainer, CharData *ch, const TalentPtr &talent) {
-	std::ostringstream out;
-	out << GetMessage(EGuildMsg::kTalentEarned) << talent->GetTalentTypeName() <<
-		KIYEL << " '" << talent->GetName() << "'" << KNRM << ".";
-	act(out.str(), false, ch, nullptr, trainer, kToChar);
-
-	talent->SetTalent(ch);
+	if (talent->IsLearningFailed()) {
+		act(GetMessage(EGuildMsg::kFailToChar), false, ch, nullptr, trainer, kToChar);
+		act(GetMessage(EGuildMsg::kFailToRoom), false, ch, nullptr, trainer, kToRoom);
+	} else {
+		std::ostringstream out;
+		out << GetMessage(EGuildMsg::kTalentEarned) << talent->GetTalentTypeName() <<
+			KIYEL << " '" << talent->GetName() << "'" << KNRM << ".";
+		act(out.str(), false, ch, nullptr, trainer, kToChar);
+		talent->SetTalent(ch);
+	}
 };
 
 bool GuildInfo::ProcessPayment(CharData *trainer, CharData *ch, const TalentPtr &talent) {
@@ -365,13 +357,15 @@ void GuildInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 	if (!learning_talents_.empty()) {
 		buffer << " Trained talents: " << std::endl;
 		table_wrapper::Table table;
-		table << table_wrapper::kHeader << "Id" << "Name" << "Currency" << "Annotation" << table_wrapper::kEndRow;
+		table << table_wrapper::kHeader
+			<< "Id" << "Name" << "Currency" << "Annotation" << "Fail" << "Classes" << table_wrapper::kEndRow;
 		for (const auto &talent: learning_talents_) {
 			table << talent->GetIdAsStr()
 				<< talent->GetName()
 				<< MUD::Currencies(talent->GetCurrencyId()).GetPluralName()
 				<< talent->GetAnnotation(ch)
-				//<< talent->GetClassesList()
+				<< talent->GetFailChance()
+				<< talent->GetClassesList()
 				<< table_wrapper::kEndRow;
 		}
 		table_wrapper::DecorateNoBorderTable(ch, table);
@@ -406,6 +400,12 @@ std::string GuildInfo::IGuildTalent::GetClassesList() const {
 GuildInfo::IGuildTalent::IGuildTalent(ETalent talent_type, DataNode &node) {
 
 	talent_type_ = talent_type;
+
+	try {
+		fail_chance_ = std::clamp(parse::ReadAsInt(node.GetValue("fail")), 0, 100);
+	} catch (std::exception &e) {
+		err_log("wrong fail chance format (%s).", e.what());
+	}
 
 	if (node.GoToChild("class")) {
 		try {
@@ -453,6 +453,11 @@ bool GuildInfo::IGuildTalent::TakePayment(CharData *ch) const {
 	}
 
 	return false;
+}
+
+bool GuildInfo::IGuildTalent::IsLearningFailed() const {
+	auto roll = number(1, 100);
+	return fail_chance_ < roll;
 }
 
 void GuildInfo::GuildSkill::ParseSkillNode(DataNode &node) {
