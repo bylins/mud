@@ -45,7 +45,7 @@ auto create_prototype()
 
 	result->set_action_description(ACTION_DESCRIPTION);
 
-	for (auto i = 0u; i < CObjectPrototype::NUM_PADS; i++)
+	for (auto i = ECase::kFirstCase; i <= ECase::kLastCase; i++)
 	{
 		const std::string case_name = CASE_PREFIX + std::to_string(i);
 		result->set_PName(i, case_name);
@@ -107,7 +107,7 @@ TEST(Object_Copy, Assignment_Operator)
 	//ASSERT_NE(object->get_ilevel(), prototype->get_ilevel());
 	ASSERT_NE(object->get_rnum(), prototype->get_rnum());
 
-	for (auto i = 0u; i < CObjectPrototype::NUM_PADS; i++)
+	for (auto i = ECase::kFirstCase; i <= ECase::kLastCase; i++)
 	{
 		ASSERT_NE(object->get_PName(i), prototype->get_PName(i));
 	}
@@ -154,7 +154,7 @@ TEST(Object_Copy, Assignment_Operator)
 	//EXPECT_EQ(object->get_ilevel(), prototype->get_ilevel());
 	EXPECT_EQ(object->get_rnum(), prototype->get_rnum());
 
-	for (auto i = 0u; i < CObjectPrototype::NUM_PADS; i++)
+	for (auto i = ECase::kFirstCase; i <= ECase::kLastCase; i++)
 	{
 		EXPECT_EQ(object->get_PName(i), prototype->get_PName(i));
 	}

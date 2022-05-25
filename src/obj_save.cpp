@@ -567,7 +567,7 @@ ObjData::shared_ptr read_one_object(char **data, int *error) {
 		object->set_aliases(buffer);
 		// Падежи
 		*error = 5;
-		for (i = 0; i < CObjectPrototype::NUM_PADS; i++) {
+		for (i = ECase::kFirstCase; i <= ECase::kLastCase; i++) {
 			if (!get_buf_lines(data, buffer)) {
 				return object;
 			}
@@ -822,7 +822,7 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 			out << "Alia: " << GET_OBJ_ALIAS(object) << "~\n";
 		}
 		// Падежи
-		for (i = 0; i < CObjectPrototype::NUM_PADS; i++) {
+		for (i = ECase::kFirstCase; i <= ECase::kLastCase; i++) {
 			if (str_cmp(GET_OBJ_PNAME(object, i), GET_OBJ_PNAME(proto, i))) {
 				out << "Pad" << i << ": " << GET_OBJ_PNAME(object, i) << "~\n";
 			}
@@ -1041,7 +1041,7 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 		}
 
 		// Падежи
-		for (i = 0; i < CObjectPrototype::NUM_PADS; i++) {
+		for (i = ECase::kFirstCase; i <= ECase::kLastCase; i++) {
 			if (!GET_OBJ_PNAME(object, i).empty()) {
 				out << "Pad" << i << ": " << GET_OBJ_PNAME(object, i) << "~\n";
 			}

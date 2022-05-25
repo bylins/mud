@@ -1,8 +1,8 @@
 #include "depot.h"
 #include "entities/char_data.h"
 #include "entities/world_objects.h"
+#include "game_economics/currencies.h"
 #include "game_fight/pk.h"
-#include "handler.h"
 #include "house.h"
 #include "utils/utils_char_obj.inl"
 
@@ -73,7 +73,7 @@ int perform_put(CharData *ch, ObjData::shared_ptr obj, ObjData *cont) {
 					ExtractObjFromWorld(temp);
 					ExtractObjFromObj(obj.get());
 					ExtractObjFromWorld(obj.get());
-					obj = create_money(money);
+					obj = currencies::CreateCurrencyObj(money);
 					if (!obj) {
 						return 0;
 					}
@@ -172,7 +172,7 @@ void do_put(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						return;
 					}
 
-					const auto obj = create_money(howmany);
+					const auto obj = currencies::CreateCurrencyObj(howmany);
 
 					if (!obj) {
 						return;

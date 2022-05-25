@@ -1,6 +1,7 @@
 //#include "drop.h"
 
 #include "entities/char_data.h"
+#include "game_economics/currencies.h"
 #include "handler.h"
 #include "game_fight/pk.h"
 
@@ -29,7 +30,7 @@ void PerformDropGold(CharData *ch, int amount) {
 			}
 		}
 
-		const auto obj = create_money(amount + additional_amount);
+		const auto obj = currencies::CreateCurrencyObj(amount + additional_amount);
 		int result = drop_wtrigger(obj.get(), ch);
 
 		if (!result) {
@@ -48,7 +49,8 @@ void PerformDropGold(CharData *ch, int amount) {
 					amount,
 					GetDeclensionInNumber(amount, EWhat::kMoneyU));
 			mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
-			sprintf(buf, "$n бросил$g %s на землю.", money_desc(amount, 3));
+			sprintf(buf, "$n бросил$g %s на землю.",
+					currencies::GetCurrencyObjDescription(currencies::KunaVnum, amount, ECase::kAcc));
 			act(buf, true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 		}
 		PlaceObjToRoom(obj.get(), ch->in_room);

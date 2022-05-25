@@ -31,7 +31,7 @@ bool start();
 using id_t = std::string;    ///< Common type for IDs.
 
 class Cases {
-	const static int CASES_COUNT = CObjectPrototype::NUM_PADS;
+	constexpr static int CASES_COUNT = ECase::kLastCase + 1;
 
 	using cases_t = std::array<std::string, CASES_COUNT>;
 

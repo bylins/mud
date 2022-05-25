@@ -64,12 +64,13 @@ class GuildInfo : public info_container::BaseItem<int> {
 		public:
 		explicit IGuildTalent(ETalent talent_type, DataNode &node);
 
-		[[nodiscard]] ETalent GetTalentType() { return talent_type_; };
+		[[nodiscard]] ETalent GetTalentType() const { return talent_type_; };
+		[[nodiscard]] Vnum GetCurrencyId() const { return currency_vnum_; };
 		[[nodiscard]] bool IsLearnable(CharData *ch) const;
 		[[nodiscard]] bool IsUnlearnable(CharData *ch) const { return !IsLearnable(ch); };
-		[[nodiscard]] std::string GetClassesList() const;
 		[[nodiscard]] bool TakePayment(CharData *ch) const;
-		[[nodiscard]] std::string GetPriceCurrencyStr(uint64_t price) const;
+		[[nodiscard]] std::string GetClassesList() const;
+		[[nodiscard]] std::string GetPriceCurrencyStr(long price) const;
 
 		[[nodiscard]] virtual long CalcPrice(CharData *buyer) const;
 		[[nodiscard]] virtual bool IsAvailable(CharData *ch) const = 0;
@@ -95,7 +96,7 @@ class GuildInfo : public info_container::BaseItem<int> {
 
 		[[nodiscard]] ESkill GetId() const { return id_; };
 		[[nodiscard]] int CalcGuildSkillCap(CharData *ch) const;
-		[[nodiscard]] int CalcPracticesAmount(CharData *ch) const;
+		[[nodiscard]] int CalcPracticesQuantity(CharData *ch) const;
 		[[nodiscard]] long CalcPrice(CharData *buyer) const final;
 		[[nodiscard]] bool IsAvailable(CharData *ch) const final;
 		[[nodiscard]] const std::string &GetIdAsStr() const final;

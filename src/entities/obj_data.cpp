@@ -548,7 +548,7 @@ void ObjData::copy_name_from(const CObjectPrototype *src) {
 	set_description(!src->get_description().empty() ? src->get_description().c_str() : "неопределено");
 
 	//Копируем имя по падежам
-	for (i = 0; i < NUM_PADS; i++)
+	for (i = ECase::kFirstCase; i <= ECase::kLastCase; i++)
 		set_PName(i, src->get_PName(i));
 }
 

@@ -628,7 +628,7 @@ void ObjectFile::parse_object(const int nr) {
 	strcpy(buf, tobj->get_short_description().c_str());
 	tobj->set_PName(0, colorLOW(buf)); //именительный падеж равен короткому описанию
 
-	for (j = 1; j < CObjectPrototype::NUM_PADS; j++) {
+	for (j = ECase::kGen; j <= ECase::kLastCase; j++) {
 		tobj->set_PName(j, colorLOW(fread_string()));
 	}
 
@@ -1023,7 +1023,7 @@ void MobileFile::parse_mobile(const int nr) {
 
 	// real name
 	mob_proto[i].player_data.PNames[0] = mob_proto[i].get_npc_name();
-	for (j = 1; j < CObjectPrototype::NUM_PADS; j++) {
+	for (j = ECase::kGen; j <= ECase::kLastCase; j++) {
 		mob_proto[i].player_data.PNames[j] = fread_string();
 	}
 	mob_proto[i].player_data.long_descr = colorCAP(fread_string());

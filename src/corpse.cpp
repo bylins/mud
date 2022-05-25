@@ -11,6 +11,7 @@
 #include "house.h"
 #include "utils/parse.h"
 #include "utils/random.h"
+#include "game_economics/currencies.h"
 
 #include <boost/algorithm/string.hpp>
 
@@ -474,11 +475,11 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 	// following 'if' clause added to fix gold duplication loophole
 	if (ch->get_gold() > 0) {
 		if (ch->IsNpc()) {
-			const auto money = create_money(ch->get_gold());
+			const auto money = currencies::CreateCurrencyObj(ch->get_gold());
 			PlaceObjIntoObj(money.get(), corpse.get());
 		} else {
 			const int amount = ch->get_gold();
-			const auto money = create_money(amount);
+			const auto money = currencies::CreateCurrencyObj(amount);
 			ObjData *purse = 0;
 			if (amount >= 100) {
 				purse = system_obj::create_purse(ch, amount);

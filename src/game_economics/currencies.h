@@ -9,9 +9,17 @@
 #define BYLINS_SRC_GAME_ECONOMICS_CURRENCIES_H_
 
 #include "boot/cfg_manager.h"
+#include "entities/obj_data.h"
 #include "structs/info_container.h"
 
 namespace currencies {
+
+/**
+ *  Данные валюты слишком глубоко "прошиты" в коде и являются базовыми.
+ *  Поэтому, хотя они описаны в конфиге валют, их внумы доподнительно прописаны в коде.
+ */
+const int KunaVnum = 0;
+const int GloryVnum = 1;
 
 class CurrenciesLoader : virtual public cfg_manager::ICfgLoader {
  public:
@@ -52,7 +60,7 @@ class CurrencyInfo : public info_container::BaseItem<int> {
 	[[nodiscard]] const std::string &GetPluralName(ECase name_case = ECase::kNom) const;
 	[[nodiscard]] const char *GetCName(ECase name_case) const;
 	[[nodiscard]] const char *GetPluralCName(ECase name_case) const;
-	[[nodiscard]] const std::string &GetNameWithAmount(uint64_t amount) const;
+	[[nodiscard]] const std::string &GetNameWithQuantity(uint64_t quantity) const;
 
 	void Print(CharData */*ch*/, std::ostringstream &buffer) const;
 };
@@ -65,6 +73,10 @@ class CurrencyInfoBuilder : public info_container::IItemBuilder<CurrencyInfo> {
 };
 
 using CurrenciesInfo = info_container::InfoContainer<int, CurrencyInfo, CurrencyInfoBuilder>;
+
+// utils
+char *GetCurrencyObjDescription(Vnum currency_id, long quantity, ECase gram_case);
+ObjData::shared_ptr CreateCurrencyObj(long quantity);
 
 } //namespace currencies
 

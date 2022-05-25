@@ -2960,7 +2960,7 @@ void renum_zone_table(void) {
 int trans_obj_name(ObjData *obj, CharData *ch) {
 	// ищем метку @p , @p1 ... и заменяем на падежи.
 	int i, k;
-	for (i = 0; i < CObjectPrototype::NUM_PADS; i++) {
+	for (i = ECase::kFirstCase; i <= ECase::kLastCase; i++) {
 		std::string obj_pad = GET_OBJ_PNAME(obj_proto[GET_OBJ_RNUM(obj)], i);
 		size_t j = obj_pad.find("@p");
 		if (std::string::npos != j && 0 < j) {

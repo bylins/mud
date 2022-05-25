@@ -57,8 +57,6 @@ int IsTimedBySkill(CharData *ch, ESkill id);
 void DecreaseFeatTimer(CharData *ch, EFeat feat_id);
 
 // utility //
-char *money_desc(int amount, int padis);
-ObjData::shared_ptr create_money(int amount);
 char *fname(const char *namelist);
 int get_number(char **name);
 int get_number(std::string &name);
