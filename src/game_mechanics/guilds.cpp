@@ -91,7 +91,8 @@ const std::string &GuildInfo::GetMessage(EGuildMsg msg_id) {
 		 "$N сказал$G : 'Вот у меня забот нет - голодранцев наставлять! Иди-ка, $n, подзаработай сначала!"},
 		{EGuildMsg::kFree, "бесплатно"},
 		{EGuildMsg::kTemporary, "временно"},
-		{EGuildMsg::kAvailable, "тебе доступно "},
+		{EGuildMsg::kYouGive, "Вы дали "},
+		{EGuildMsg::kSomeoneGive, "$n дал$g "},
 		{EGuildMsg::kError, "У кодера какие-то проблемы."},
 	};
 
@@ -343,14 +344,14 @@ bool GuildInfo::ProcessPayment(CharData *trainer, CharData *ch, const TalentPtr 
 	}
 
 	auto price = talent->CalcPrice(ch);
-	auto description = currencies::GetCurrencyObjDescription(talent->GetCurrencyId(), price, ECase::kAcc);
+	auto description = MUD::Currencies(talent->GetCurrencyId()).GetObjName(price, ECase::kAcc);
 	std::ostringstream out;
 
-	out << "Вы дали " << description << " $N2.";
+	out << GetMessage(EGuildMsg::kYouGive) << description << " $N2.";
 	act(out.str(), false, ch, nullptr, trainer, kToChar);
 
 	out.str(std::string());
-	out << "$n дал$g " << description << " $N2.";
+	out << GetMessage(EGuildMsg::kSomeoneGive) << description << " $N2.";
 	act(out.str(), false, ch, nullptr, trainer, kToRoom);
 
 	return true;
@@ -504,8 +505,7 @@ void GuildInfo::GuildSkill::SetTalent(CharData *ch) const {
 
 std::string GuildInfo::GuildSkill::GetAnnotation(CharData *ch) const {
 	std::ostringstream out;
-	out << min_skill_ << "-" << max_skill_
-		<< " (" << GetMessage(EGuildMsg::kAvailable) << CalcPracticesQuantity(ch) << ")";
+	out << min_skill_ << "-" << max_skill_ << " (+" << CalcPracticesQuantity(ch) << ")";
 	return out.str();
 }
 

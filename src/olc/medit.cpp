@@ -2064,7 +2064,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 			return;
 #endif
 
-		case MEDIT_SEX: OLC_MOB(d)->set_sex(static_cast<ESex>(MAX(0, MIN(NUM_GENDERS, atoi(arg)))));
+		case MEDIT_SEX: OLC_MOB(d)->set_sex(static_cast<EGender>(MAX(0, MIN(NUM_GENDERS, atoi(arg)))));
 			break;
 
 		case MEDIT_HITROLL: GET_HR(OLC_MOB(d)) = MAX(0, MIN(500, atoi(arg)));

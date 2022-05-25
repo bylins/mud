@@ -87,8 +87,8 @@ class PlayerRace {
 	static bool FeatureCheck(int Kin, int Race, int Feat);
 	static int GetKinNumByName(const std::string &KinName);
 	static int GetRaceNumByName(int Kin, const std::string &RaceName);
-	static std::string GetKinNameByNum(int KinNum, const ESex Sex);
-	static std::string GetRaceNameByNum(int KinNum, int RaceNum, const ESex Sex);
+	static std::string GetKinNameByNum(int KinNum, const EGender Sex);
+	static std::string GetRaceNameByNum(int KinNum, int RaceNum, const EGender Sex);
 	static std::string ShowRacesMenu(int KinNum);
 	static int CheckRace(int KinNum, char *arg);
 	static std::string ShowKinsMenu();

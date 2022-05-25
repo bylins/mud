@@ -301,15 +301,15 @@ bool CObject::load_from_node(const pugi::xml_node *node) {
 		}
 	}
 
-	load_result = CHelper::load_flag<ESex>(*node, "sex",
-										   [&](const auto sex) { this->set_sex(sex); },
-										   [&](const auto name) {
+	load_result = CHelper::load_flag<EGender>(*node, "sex",
+											  [&](const auto sex) { this->set_sex(sex); },
+											  [&](const auto name) {
 											   logger(
 												   "WARNING: Failed to set sex '%s' for object with VNUM %d. object will be skipped.\n",
 												   name,
 												   this->get_vnum());
 										   },
-										   [&]() {
+											  [&]() {
 											   logger(
 												   "WARNING: \"sex\" tag for object with VNUM %d not found. Setting to default value: %s.\n",
 												   this->get_vnum(),

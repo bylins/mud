@@ -45,10 +45,15 @@ ItemPtr CurrencyInfoBuilder::ParseCurrency(DataNode node) {
 
 	auto currency_info = std::make_shared<CurrencyInfo>(vnum, text_id, name, mode);
 
-	try {
-		currency_info->locked_ = parse::ReadAsBool(node.GetValue("locked"));
-		currency_info->account_shared_ = parse::ReadAsBool(node.GetValue("account_shared"));
-	} catch (...) {}
+	if (node.GoToChild("flags")) {
+		try {
+			currency_info->locked_ = parse::ReadAsBool(node.GetValue("locked"));
+			currency_info->account_shared_ = parse::ReadAsBool(node.GetValue("account_shared"));
+		} catch (std::runtime_error &e) {
+			err_log("incorrect flags (%s) in currency '%s'.", e.what(), currency_info->name_.c_str());
+		}
+		node.GoToParent();
+	}
 
 	if (node.GoToChild("permits")) {
 		try {
@@ -62,12 +67,15 @@ ItemPtr CurrencyInfoBuilder::ParseCurrency(DataNode node) {
 			currency_info->max_clan_tax_ = std::clamp(parse::ReadAsInt(node.GetValue("clan_tax")), 0, 100);
 
 		} catch (std::runtime_error &e) {
-			err_log("permits (%s) in currency '%s'.", e.what(), currency_info->name_.c_str());
+			err_log("incorrect permits (%s) in currency '%s'.", e.what(), currency_info->name_.c_str());
 		}
 		node.GoToParent();
 	}
 
 	if (node.GoToChild("name")) {
+		try {
+			currency_info->gender_ = parse::ReadAsConstant<EGender>(node.GetValue("gender"));
+		} catch (std::exception &e) {}
 		currency_info->names_ = base_structs::ItemName::Build(node);
 	}
 
@@ -107,7 +115,7 @@ const char *CurrencyInfo::GetPluralCName(ECase name_case) const {
 	return names_->GetPlural(name_case).c_str();
 }
 
-const std::string &CurrencyInfo::GetNameWithQuantity(uint64_t quantity) const {
+const std::string &CurrencyInfo::GetNameWithQuantity(long quantity) const {
 	auto remainder = quantity % 20;
 	if ((remainder >= 5 && remainder <= 19) || remainder == 0) {
 		return GetPluralName(ECase::kGen);
@@ -118,43 +126,8 @@ const std::string &CurrencyInfo::GetNameWithQuantity(uint64_t quantity) const {
 	}
 }
 
-/*std::string CurrenciesInfo::GetCurrencyObjDescription(Vnum currency_id, long quantity, ECase name_case) {
-	using Cases = std::unordered_map<ECase, std::string>;
-	using CurrencyObjDescription = std::unordered_map<ENumber, Cases>;
-	static const std::vector<CurrencyObjDescription> descriptions {	{
-			{ENumber::kSingular, {
-				{ECase::kNom, ""},
-				{ECase::kGen, ""},
-				{ECase::kDat, ""},
-				{ECase::kAcc, ""},
-				{ECase::kIns, ""},
-				{ECase::kPre, ""},
-			}
-			},
-			{ENumber::kPlural, {
-				{ECase::kNom, ""},
-				{ECase::kGen, ""},
-				{ECase::kDat, ""},
-				{ECase::kAcc, ""},
-				{ECase::kIns, ""},
-				{ECase::kPre, ""},
-			}
-			},
-		}
-		};
-
-	return std::string();
-}*/
-
-char *GetCurrencyObjDescription(Vnum currency_id, long quantity, ECase gram_case) {
-	static char buf[128];
-	const char *single[6][3] = {{"на", "ин", "о"},
-								{"ной", "ого", "ого"},
-								{"ной", "ому", "ому"},
-								{"ну", "ого", "о"},
-								{"ной", "ним", "им"},
-								{"ной", "ном", "ом"}
-	}, *plural[6][3] =
+std::string CurrencyInfo::GetObjName(long quantity, ECase gram_case) const {
+	const char *plural[6][3] =
 		{
 			{
 				"ая", "а", "а"}, {
@@ -165,117 +138,106 @@ char *GetCurrencyObjDescription(Vnum currency_id, long quantity, ECase gram_case
 				"ой", "е", "е"}
 		};
 
+	using Cases = std::unordered_map<ECase, std::string>;
+	using Suffixes = std::unordered_map<EGender, Cases>;
+
+	static const Suffixes kNumeralSuffixes {
+		{EGender::kMale, {
+			{ECase::kNom, "ин"},
+			{ECase::kGen, "ного"},
+			{ECase::kDat, "ному"},
+			{ECase::kAcc, "нин"},
+			{ECase::kIns, "ним"},
+			{ECase::kPre, "ном"}
+			}
+		},
+		{EGender::kFemale,{
+			{ECase::kNom, "на"},
+			{ECase::kGen, "ной"},
+			{ECase::kDat, "ной"},
+			{ECase::kAcc, "ну"},
+			{ECase::kIns, "ной"},
+			{ECase::kPre, "ной"}
+			}
+		},
+		{EGender::kNeutral, {
+			{ECase::kNom, "но"},
+			{ECase::kGen, "ного"},
+			{ECase::kDat, "ному"},
+			{ECase::kAcc, "но"},
+			{ECase::kIns, "ним"},
+			{ECase::kPre, "ном"}
+			}
+		},
+		{EGender::kPoly, {
+			{ECase::kNom, "ни"},
+			{ECase::kGen, "них"},
+			{ECase::kDat, "ним"},
+			{ECase::kAcc, "ни"},
+			{ECase::kIns, "ними"},
+			{ECase::kPre, "них"}
+			}
+		}
+	};
+
 
 	if (quantity <= 0) {
 		log("SYSERR: Try to create negative or 0 money (%ld).", quantity);
-		return (nullptr);
+		return {};
 	}
-	if (quantity == 1) {
-		//sprintf(buf, "одн%s кун%s", single[padis][0], single[padis][1]);
-		sprintf(buf, "од%s %s",
-				single[gram_case][0], MUD::Currencies(currency_id).GetCName(gram_case));
-	} else if (quantity <= 10)
-		sprintf(buf, "малюсеньк%s горстк%s %s",
-				plural[gram_case][0], plural[gram_case][1],
-				MUD::Currencies(currency_id).GetPluralCName(ECase::kGen));
-	else if (quantity <= 20)
-		sprintf(buf, "маленьк%s горстк%s %s",
-				plural[gram_case][0], plural[gram_case][1],
-				MUD::Currencies(currency_id).GetPluralCName(ECase::kGen));
-	else if (quantity <= 75)
-		sprintf(buf, "небольш%s горстк%s %s",
-				plural[gram_case][0], plural[gram_case][1],
-				MUD::Currencies(currency_id).GetPluralCName(ECase::kGen));
-	else if (quantity <= 200)
-		sprintf(buf, "маленьк%s кучк%s %s",
-				plural[gram_case][0], plural[gram_case][1],
-				MUD::Currencies(currency_id).GetPluralCName(ECase::kGen));
-	else if (quantity <= 1000)
-		sprintf(buf, "небольш%s кучк%s %s",
-				plural[gram_case][0], plural[gram_case][1],
-				MUD::Currencies(currency_id).GetPluralCName(ECase::kGen));
-	else if (quantity <= 5000)
-		sprintf(buf, "кучк%s %s",
-				plural[gram_case][1],
-				MUD::Currencies(currency_id).GetPluralCName(ECase::kGen));
-	else if (quantity <= 10000)
-		sprintf(buf, "больш%s кучк%s %s",
-				plural[gram_case][0], plural[gram_case][1],
-				MUD::Currencies(currency_id).GetPluralCName(ECase::kGen));
-	else if (quantity <= 20000)
-		sprintf(buf, "груд%s %s",
-				plural[gram_case][2],
-				MUD::Currencies(currency_id).GetPluralCName(ECase::kGen));
-	else if (quantity <= 75000)
-		sprintf(buf, "больш%s груд%s %s",
-				plural[gram_case][0], plural[gram_case][2],
-				MUD::Currencies(currency_id).GetPluralCName(ECase::kGen));
-	else if (quantity <= 150000)
-		sprintf(buf, "горк%s %s",
-				plural[gram_case][1],
-				MUD::Currencies(currency_id).GetPluralCName(ECase::kGen));
-	else if (quantity <= 250000)
-		sprintf(buf, "гор%s %s",
-				plural[gram_case][2],
-				MUD::Currencies(currency_id).GetPluralCName(ECase::kGen));
-	else
-		sprintf(buf, "огромн%s гор%s %s",
-				plural[gram_case][0], plural[gram_case][2],
-				MUD::Currencies(currency_id).GetPluralCName(ECase::kGen));
 
-	return (buf);
+	std::ostringstream out;
+	if (quantity == 1) {
+		out << "од" << kNumeralSuffixes.at(GetGender()).at(gram_case) << " " << GetName(gram_case);
+	} else if (quantity <= 20) {
+		out << "малюсеньк" << plural[gram_case][0] << " горстк" << plural[gram_case][1]
+			<< " " << GetPluralName(ECase::kGen);
+	} else if (quantity <= 50) {
+		out << "маленьк" << plural[gram_case][0] << " горстк" << plural[gram_case][1]
+			<< " " << GetPluralName(ECase::kGen);
+	} else if (quantity <= 150) {
+		out << "небольш" << plural[gram_case][0] << " горстк" << plural[gram_case][1]
+			<< " " << GetPluralName(ECase::kGen);
+	} else if (quantity <= 300) {
+		out << "маленьк" << plural[gram_case][0] << " кучк" << plural[gram_case][1]
+			<< " " << GetPluralName(ECase::kGen);
+	} else if (quantity <= 1000) {
+		out << "небольш" << plural[gram_case][0] << " кучк" << plural[gram_case][1]
+			<< " " << GetPluralName(ECase::kGen);
+	} else if (quantity <= 5000) {
+		out << "кучк" << plural[gram_case][1] << " " << GetPluralName(ECase::kGen);
+	} else if (quantity <= 20000) {
+		out << "больш" << plural[gram_case][0] << " кучк" << plural[gram_case][1]
+			<< " " << GetPluralName(ECase::kGen);
+	} else if (quantity <= 50000) {
+		out << "небольш" << plural[gram_case][0] << " горк" << plural[gram_case][1]
+			<< " " << GetPluralName(ECase::kGen);
+	} else if (quantity <= 75000) {
+		out << "горк" << plural[gram_case][1] << " " << GetPluralName(ECase::kGen);
+	} else if (quantity <= 100000) {
+		out << "больш" << plural[gram_case][0] << " горк" << plural[gram_case][1]
+			<< " " << GetPluralName(ECase::kGen);
+	} else if (quantity <= 150000) {
+		out << "груд" << plural[gram_case][2] << " " << GetPluralCName(ECase::kGen);
+	} else if (quantity <= 250000) {
+		out << "больш" << plural[gram_case][0] << " груд" << plural[gram_case][2]
+			<< " " << GetPluralName(ECase::kGen);
+	} else if (quantity <= 500000) {
+		out << "гор" << plural[gram_case][1] << " " << GetPluralName(ECase::kGen);
+	} else if (quantity <= 1000000) {
+		out << "больш" << plural[gram_case][0] << " гор" << plural[gram_case][2]
+			<< " " << GetPluralName(ECase::kGen);
+	} else  {
+		out << "огромн" << plural[gram_case][0] << " гор" << plural[gram_case][2]
+			<< " " << GetPluralName(ECase::kGen);
+	}
+
+	return out.str();
 }
-
-ObjData::shared_ptr CreateCurrencyObj(long quantity) {
-	char buf[200];
-
-	if (quantity <= 0) {
-		log("SYSERR: Try to create negative or 0 money. (%ld)", quantity);
-		return (nullptr);
-	}
-	auto obj = world_objects.create_blank();
-	ExtraDescription::shared_ptr new_descr(new ExtraDescription());
-
-	if (quantity == 1) {
-		sprintf(buf, "coin gold кун деньги денег монет %s", GetCurrencyObjDescription(KunaVnum, quantity, ECase::kNom));
-		obj->set_aliases(buf);
-		obj->set_short_description("куна");
-		obj->set_description("Одна куна лежит здесь.");
-		new_descr->keyword = str_dup("coin gold монет кун денег");
-		new_descr->description = str_dup("Всего лишь одна куна.");
-		for (int i = ECase::kFirstCase; i <= ECase::kLastCase; i++) {
-			obj->set_PName(i, GetCurrencyObjDescription(KunaVnum, quantity, static_cast<ECase>(i)));
-		}
-	} else {
-		sprintf(buf, "coins gold кун денег %s", GetCurrencyObjDescription(KunaVnum, quantity, ECase::kNom));
-		obj->set_aliases(buf);
-		obj->set_short_description(GetCurrencyObjDescription(KunaVnum, quantity, ECase::kNom));
-		for (int i = ECase::kFirstCase; i <= ECase::kLastCase; i++) {
-			obj->set_PName(i, GetCurrencyObjDescription(KunaVnum, quantity, static_cast<ECase>(i)));
-		}
-
-		sprintf(buf, "Здесь лежит %s.", GetCurrencyObjDescription(KunaVnum, quantity, ECase::kNom));
-		obj->set_description(CAP(buf));
-
-		new_descr->keyword = str_dup("coins gold кун денег");
-	}
-
-	new_descr->next = nullptr;
-	obj->set_ex_description(new_descr);
-
-	obj->set_type(EObjType::kMoney);
-	obj->set_wear_flags(to_underlying(EWearFlag::kTake));
-	obj->set_sex(ESex::kFemale);
-	obj->set_val(0, quantity);
-	obj->set_cost(quantity);
-	obj->set_maximum_durability(ObjData::DEFAULT_MAXIMUM_DURABILITY);
-	obj->set_current_durability(ObjData::DEFAULT_CURRENT_DURABILITY);
-	obj->set_timer(24 * 60 * 7);
-	obj->set_weight(1);
-	obj->set_extra_flag(EObjFlag::kNodonate);
-	obj->set_extra_flag(EObjFlag::kNosell);
-
-	return obj;
+const char *CurrencyInfo::GetObjCName(long quantity, ECase gram_case) const {
+	static char buf[128];
+	sprintf(buf, "%s", GetObjName(quantity, gram_case).c_str());
+	return buf;
 }
 
 } // namespace currencies

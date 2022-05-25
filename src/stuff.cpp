@@ -394,7 +394,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 	obj->set_PName(3, "острые когти");
 	obj->set_PName(4, "острыми когтями");
 	obj->set_PName(5, "острых когтях");
-	obj->set_sex(ESex::kPoly);
+	obj->set_sex(EGender::kPoly);
 	obj->set_type(EObjType::kWeapon);
 	// среднее оружки
 	obj->set_val(1, floorf(diff/18.0)); // при 100 скила куб. = 5  	при 200 скила = 11
@@ -514,7 +514,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 		position = 11; // слот щит
 		break;		
 	default: //ESkill::kUndefined / тут шкура(армор)
-		obj->set_sex(ESex::kFemale);
+		obj->set_sex(EGender::kFemale);
 		obj->set_description("Прочная шкура лежит здесь.");
 		obj->set_ex_description(descr.c_str(), "Прочная шкура лежит здесь.");
 		obj->set_aliases("прочная шкура");
@@ -527,7 +527,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 		obj->set_PName(5, "прочной шкуре");
 		obj->set_type(EObjType::kArmor);
 		if (diff == -1) { // тут делаем сапоги 
-			obj->set_sex(ESex::kPoly);
+			obj->set_sex(EGender::kPoly);
 			obj->set_weight(50);
 			obj->set_description("Оторванная лапа зверя лежит здесь.");
 			obj->set_ex_description(descr.c_str(), "Оторванная лапа зверя лежит здесь.");

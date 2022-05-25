@@ -51,7 +51,8 @@ class GuildInfo : public info_container::BaseItem<int> {
 		kIsInsolvent,
 		kFree,
 		kTemporary,
-		kAvailable,
+		kYouGive,
+		kSomeoneGive,
 		kError};
 
 	class IGuildTalent {

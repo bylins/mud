@@ -3574,7 +3574,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 					("Может быть 'мужчина', 'женщина', или 'бесполое'(а вот это я еще не оценил :).\r\n", ch);
 				return (0);
 			}
-			vict->set_sex(static_cast<ESex>(i));
+			vict->set_sex(static_cast<EGender>(i));
 			break;
 
 		case 39:        // set age

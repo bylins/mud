@@ -332,7 +332,7 @@ class CharacterWrapper : public Wrapper<CharacterData> {
 
 	void set_sex(const byte v) {
 		Ensurer ch(*this);
-		ch->set_sex(static_cast<ESex>(v));
+		ch->set_sex(static_cast<EGender>(v));
 	}
 
 	ubyte get_weight() const {
@@ -902,7 +902,7 @@ class ObjWrapper : private std::shared_ptr<ObjectData>, public Wrapper<ObjectDat
 
 	void set_sex(const int v) {
 		Ensurer obj(*this);
-		obj->set_sex(static_cast<ESex>(v));
+		obj->set_sex(static_cast<EGender>(v));
 	}
 	int get_spell() const {
 		Ensurer obj(*this);
