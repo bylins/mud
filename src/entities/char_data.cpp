@@ -296,7 +296,7 @@ size_t CharData::remove_random_affects(const size_t count) {
 * вынесено в отдельную функцию, чтобы дергать из purge().
 */
 void CharData::zero_init() {
-	set_sex(ESex::kMale);
+	set_sex(EGender::kMale);
 	set_race(0);
 	protecting_ = nullptr;
 	touching_ = nullptr;
@@ -821,19 +821,19 @@ bool OK_GAIN_EXP(const CharData *ch, const CharData *victim) {
 }
 
 bool IS_MALE(const CharData *ch) {
-	return GET_SEX(ch) == ESex::kMale;
+	return GET_SEX(ch) == EGender::kMale;
 }
 
 bool IS_FEMALE(const CharData *ch) {
-	return GET_SEX(ch) == ESex::kFemale;
+	return GET_SEX(ch) == EGender::kFemale;
 }
 
 bool IS_NOSEXY(const CharData *ch) {
-	return GET_SEX(ch) == ESex::kNeutral;
+	return GET_SEX(ch) == EGender::kNeutral;
 }
 
 bool IS_POLY(const CharData *ch) {
-	return GET_SEX(ch) == ESex::kPoly;
+	return GET_SEX(ch) == EGender::kPoly;
 }
 
 bool IMM_CAN_SEE(const CharData *sub, const CharData *obj) {
@@ -1067,14 +1067,14 @@ void CharData::set_last_exchange(time_t num) {
 	last_exchange_ = num;
 }
 
-ESex CharData::get_sex() const {
+EGender CharData::get_sex() const {
 	return player_data.sex;
 }
 
-void CharData::set_sex(const ESex sex) {
+void CharData::set_sex(const EGender sex) {
 /*	if (to_underlying(sex) >= 0
-		&& to_underlying(sex) < ESex::kLast) {*/
-	if (sex < ESex::kLast) {
+		&& to_underlying(sex) < EGender::kLast) {*/
+	if (sex < EGender::kLast) {
 		player_data.sex = sex;
 	}
 }

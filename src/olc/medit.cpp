@@ -389,7 +389,7 @@ void medit_save_internally(DescriptorData *d) {
 				// Возможна небольшая утечка памяти, но иначе очень большая запара
 				GET_LDESC(live_mob) = GET_LDESC(mob_proto + rmob_num);
 				GET_DDESC(live_mob) = GET_DDESC(mob_proto + rmob_num);
-				for (j = 0; j < CObjectPrototype::NUM_PADS; j++) {
+				for (j = ECase::kFirstCase; j <= ECase::kLastCase; j++) {
 					live_mob->player_data.PNames[j] = mob_proto[rmob_num].player_data.PNames[j];
 				}
 				live_mob->helpers = (mob_proto + rmob_num)->helpers;
@@ -2064,7 +2064,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 			return;
 #endif
 
-		case MEDIT_SEX: OLC_MOB(d)->set_sex(static_cast<ESex>(MAX(0, MIN(NUM_GENDERS, atoi(arg)))));
+		case MEDIT_SEX: OLC_MOB(d)->set_sex(static_cast<EGender>(MAX(0, MIN(NUM_GENDERS, atoi(arg)))));
 			break;
 
 		case MEDIT_HITROLL: GET_HR(OLC_MOB(d)) = MAX(0, MIN(500, atoi(arg)));

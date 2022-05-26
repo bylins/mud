@@ -419,7 +419,8 @@ enum ECase {
 	kAcc,
 	kIns,
 	kPre,
-	kNumGrammaticalCases
+	kFirstCase = kNom,
+	kLastCase = kPre,
 };
 
 namespace base_structs {
@@ -429,7 +430,7 @@ class ItemName {
 	ItemName();
 
 	using Ptr = std::unique_ptr<ItemName>;
-	using NameCases = std::array<std::string, ECase::kNumGrammaticalCases>;
+	using NameCases = std::array<std::string, ECase::kLastCase + 1>;
 	ItemName(ItemName &&i) noexcept;
 	ItemName &operator=(ItemName &&i) noexcept;
 

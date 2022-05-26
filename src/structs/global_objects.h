@@ -4,6 +4,7 @@
 #include "game_abilities/abilities_info.h"
 #include "game_classes/classes_info.h"
 #include "game_fight/pk.h"
+#include "game_economics/currencies.h"
 #include "game_magic/spells_info.h"
 #include "game_mechanics/celebrates.h"
 #include "game_mechanics/guilds.h"
@@ -48,6 +49,8 @@ class GlobalObjects {
 	static const classes::CharClassInfo &Classes(ECharClass class_id);
 	static guilds::GuildsInfo &Guilds();
 	static const guilds::GuildInfo &Guilds(Vnum guild_vnum);
+	static currencies::CurrenciesInfo &Currencies();
+	static const currencies::CurrencyInfo &Currencies(Vnum currency_vnum);
 	static WorldObjects &world_objects();
 	static ShopExt::ShopListType &Shops();
 	static Characters &characters();

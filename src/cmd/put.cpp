@@ -1,10 +1,13 @@
 #include "depot.h"
 #include "entities/char_data.h"
 #include "entities/world_objects.h"
+#include "game_economics/currencies.h"
 #include "game_fight/pk.h"
-#include "handler.h"
 #include "house.h"
 #include "utils/utils_char_obj.inl"
+#include "structs/global_objects.h"
+
+ObjData::shared_ptr CreateCurrencyObj(long quantity);
 
 // чтобы словить невозможность положить в клан-сундук,
 // иначе при пол все сун будет спам на каждый предмет, мол низя
@@ -73,7 +76,7 @@ int perform_put(CharData *ch, ObjData::shared_ptr obj, ObjData *cont) {
 					ExtractObjFromWorld(temp);
 					ExtractObjFromObj(obj.get());
 					ExtractObjFromWorld(obj.get());
-					obj = create_money(money);
+					obj = CreateCurrencyObj(money);
 					if (!obj) {
 						return 0;
 					}
@@ -172,7 +175,7 @@ void do_put(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						return;
 					}
 
-					const auto obj = create_money(howmany);
+					const auto obj = CreateCurrencyObj(howmany);
 
 					if (!obj) {
 						return;
@@ -233,6 +236,62 @@ void do_put(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		}
 	}
+}
+
+ObjData::shared_ptr CreateCurrencyObj(long quantity) {
+	char buf[200];
+
+	if (quantity <= 0) {
+		log("SYSERR: Try to create negative or 0 money. (%ld)", quantity);
+		return (nullptr);
+	}
+	auto obj = world_objects.create_blank();
+	ExtraDescription::shared_ptr new_descr(new ExtraDescription());
+
+	if (quantity == 1) {
+		sprintf(buf, "coin gold кун деньги денег монет %s",
+				MUD::Currencies(currencies::kKunaVnum).GetObjCName(quantity, ECase::kNom));
+		obj->set_aliases(buf);
+		obj->set_short_description("куна");
+		obj->set_description("Одна куна лежит здесь.");
+		new_descr->keyword = str_dup("coin gold монет кун денег");
+		new_descr->description = str_dup("Всего лишь одна куна.");
+		for (int i = ECase::kFirstCase; i <= ECase::kLastCase; i++) {
+			obj->set_PName(i,
+						   MUD::Currencies(currencies::kKunaVnum).GetObjCName(quantity, static_cast<ECase>(i)));
+		}
+	} else {
+		sprintf(buf, "coins gold кун денег %s",
+				MUD::Currencies(currencies::kKunaVnum).GetObjCName(quantity, ECase::kNom));
+		obj->set_aliases(buf);
+		obj->set_short_description(MUD::Currencies(currencies::kKunaVnum).GetObjCName(quantity, ECase::kNom));
+		for (int i = ECase::kFirstCase; i <= ECase::kLastCase; i++) {
+			obj->set_PName(i, MUD::Currencies(currencies::kKunaVnum).GetObjCName(quantity, static_cast<ECase>(i)));
+		}
+
+		sprintf(buf, "Здесь лежит %s.",
+				MUD::Currencies(currencies::kKunaVnum).GetObjCName(quantity, ECase::kNom));
+		obj->set_description(CAP(buf));
+
+		new_descr->keyword = str_dup("coins gold кун денег");
+	}
+
+	new_descr->next = nullptr;
+	obj->set_ex_description(new_descr);
+
+	obj->set_type(EObjType::kMoney);
+	obj->set_wear_flags(to_underlying(EWearFlag::kTake));
+	obj->set_sex(EGender::kFemale);
+	obj->set_val(0, quantity);
+	obj->set_cost(quantity);
+	obj->set_maximum_durability(ObjData::DEFAULT_MAXIMUM_DURABILITY);
+	obj->set_current_durability(ObjData::DEFAULT_CURRENT_DURABILITY);
+	obj->set_timer(24 * 60 * 7);
+	obj->set_weight(1);
+	obj->set_extra_flag(EObjFlag::kNodonate);
+	obj->set_extra_flag(EObjFlag::kNosell);
+
+	return obj;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

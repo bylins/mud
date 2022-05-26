@@ -232,7 +232,7 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 				object->set_material(static_cast<EObjMaterial>(atoi(buffer)));
 			} else if (!strcmp(read_line, "Sexx")) {
 				*error = 19;
-				object->set_sex(static_cast<ESex>(atoi(buffer)));
+				object->set_sex(static_cast<EGender>(atoi(buffer)));
 			} else if (!strcmp(read_line, "Tmer")) {
 				*error = 20;
 				object->set_timer(atoi(buffer));
@@ -567,7 +567,7 @@ ObjData::shared_ptr read_one_object(char **data, int *error) {
 		object->set_aliases(buffer);
 		// Падежи
 		*error = 5;
-		for (i = 0; i < CObjectPrototype::NUM_PADS; i++) {
+		for (i = ECase::kFirstCase; i <= ECase::kLastCase; i++) {
 			if (!get_buf_lines(data, buffer)) {
 				return object;
 			}
@@ -616,7 +616,7 @@ ObjData::shared_ptr read_one_object(char **data, int *error) {
 		|| sscanf(buffer, " %d %d %d %d", t, t + 1, t + 2, t + 3) != 4) {
 		return object;
 	}
-	object->set_sex(static_cast<ESex>(t[0]));
+	object->set_sex(static_cast<EGender>(t[0]));
 	object->set_timer(t[1]);
 	object->set_spell(t[2]);
 	object->set_level(t[3]);
@@ -822,7 +822,7 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 			out << "Alia: " << GET_OBJ_ALIAS(object) << "~\n";
 		}
 		// Падежи
-		for (i = 0; i < CObjectPrototype::NUM_PADS; i++) {
+		for (i = ECase::kFirstCase; i <= ECase::kLastCase; i++) {
 			if (str_cmp(GET_OBJ_PNAME(object, i), GET_OBJ_PNAME(proto, i))) {
 				out << "Pad" << i << ": " << GET_OBJ_PNAME(object, i) << "~\n";
 			}
@@ -1041,7 +1041,7 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 		}
 
 		// Падежи
-		for (i = 0; i < CObjectPrototype::NUM_PADS; i++) {
+		for (i = ECase::kFirstCase; i <= ECase::kLastCase; i++) {
 			if (!GET_OBJ_PNAME(object, i).empty()) {
 				out << "Pad" << i << ": " << GET_OBJ_PNAME(object, i) << "~\n";
 			}
@@ -1080,7 +1080,7 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 			out << "Mter: " << GET_OBJ_MATER(object) << "~\n";
 		}
 		// Пол
-		if (ESex::kNeutral != GET_OBJ_SEX(object)) {
+		if (EGender::kNeutral != GET_OBJ_SEX(object)) {
 			out << "Sexx: " << static_cast<int>(GET_OBJ_SEX(object)) << "~\n";
 		}
 		// Таймер

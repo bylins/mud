@@ -36,7 +36,7 @@ typedef struct _im_tlist_tag im_tlist;
 
 struct _im_memb_tag {
 	int power;        // сила ингредиента
-	ESex sex;        // род описателя (0-сред,1-муж,2-жен,3-мн.ч)
+	EGender sex;        // род описателя (0-сред,1-муж,2-жен,3-мн.ч)
 	char **aliases;        // массив пар алиасов
 	struct _im_memb_tag *next;    // ссылка на следующий
 };

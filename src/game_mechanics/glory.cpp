@@ -341,7 +341,7 @@ int remove_glory(long uid, int amount) {
 
 // * Просто, чтобы не дублировать в разных местах одно и тоже.
 void print_denial_message(CharData *ch, int denial) {
-	SendMsgToChar(ch, "Вы не сможете изменить уже вложенные очки славы (%s).\r\n", time_format(denial).c_str());
+	SendMsgToChar(ch, "Вы не сможете изменить уже вложенные очки славы (%s).\r\n", FormatTimeToStr(denial).c_str());
 }
 
 /**
@@ -734,17 +734,17 @@ void print_glory(CharData *ch, GloryListType::iterator &it) {
 	std::ostringstream out;
 	for (auto tm_it = it->second->timers.cbegin(); tm_it != it->second->timers.cend(); ++tm_it) {
 		switch ((*tm_it)->stat) {
-			case G_STR: out << "Сила : +" << (*tm_it)->glory << " (" << time_format((*tm_it)->timer) << ")\r\n";
+			case G_STR: out << "Сила : +" << (*tm_it)->glory << " (" << FormatTimeToStr((*tm_it)->timer) << ")\r\n";
 				break;
-			case G_DEX: out << "Подв : +" << (*tm_it)->glory << " (" << time_format((*tm_it)->timer) << ")\r\n";
+			case G_DEX: out << "Подв : +" << (*tm_it)->glory << " (" << FormatTimeToStr((*tm_it)->timer) << ")\r\n";
 				break;
-			case G_INT: out << "Ум   : +" << (*tm_it)->glory << " (" << time_format((*tm_it)->timer) << ")\r\n";
+			case G_INT: out << "Ум   : +" << (*tm_it)->glory << " (" << FormatTimeToStr((*tm_it)->timer) << ")\r\n";
 				break;
-			case G_WIS: out << "Мудр : +" << (*tm_it)->glory << " (" << time_format((*tm_it)->timer) << ")\r\n";
+			case G_WIS: out << "Мудр : +" << (*tm_it)->glory << " (" << FormatTimeToStr((*tm_it)->timer) << ")\r\n";
 				break;
-			case G_CON: out << "Тело : +" << (*tm_it)->glory << " (" << time_format((*tm_it)->timer) << ")\r\n";
+			case G_CON: out << "Тело : +" << (*tm_it)->glory << " (" << FormatTimeToStr((*tm_it)->timer) << ")\r\n";
 				break;
-			case G_CHA: out << "Обаян: +" << (*tm_it)->glory << " (" << time_format((*tm_it)->timer) << ")\r\n";
+			case G_CHA: out << "Обаян: +" << (*tm_it)->glory << " (" << FormatTimeToStr((*tm_it)->timer) << ")\r\n";
 				break;
 			default: log("Glory: некорректный номер стата %d (uid: %ld)", (*tm_it)->stat, it->first);
 		}

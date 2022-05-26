@@ -76,7 +76,7 @@ class CharClassInfo : public info_container::BaseItem<ECharClass> {
 		[[nodiscard]] double GetCastMod() const { return cast_mod_; };
 
 	 private:
-		int circle_{0};
+		int circle_{kMaxMemoryCircle};
 		int mem_mod_{0};
 		double cast_mod_{0.0};
 	};
@@ -98,7 +98,7 @@ class CharClassInfo : public info_container::BaseItem<ECharClass> {
 		[[nodiscard]] bool IsInborn() const { return inborn_; };
 
 	 private:
-		int slot_{kMaxMemoryCircle};
+		int slot_{0};
 		bool inborn_{false};
 	};
 
@@ -142,12 +142,12 @@ class CharClassInfo : public info_container::BaseItem<ECharClass> {
 	Skills skills;
 	int skill_level_decrement_{kMinTalentLevelDecrement};
 	[[nodiscard]] int GetSkillLvlDecrement() const { return skill_level_decrement_; };
-	[[nodiscard]] int GetMaxCircle() const;
 	void PrintSkillsTable(CharData *ch, std::ostringstream &buffer) const;
 
 	Spells spells;
 	int spell_level_decrement_{kMinTalentLevelDecrement};
 	[[nodiscard]] int GetSpellLvlDecrement() const { return spell_level_decrement_; };
+	[[nodiscard]] int GetMaxCircle() const;
 	void PrintSpellsTable(CharData *ch, std::ostringstream &buffer) const;
 
 	Feats feats;
@@ -207,7 +207,6 @@ class CharClassInfo : public info_container::BaseItem<ECharClass> {
 
 class CharClassInfoBuilder : public info_container::IItemBuilder<CharClassInfo> {
  public:
-	CharClassInfoBuilder() {}
 	ItemPtr Build(parser_wrapper::DataNode &node) final;
  private:
 	static parser_wrapper::DataNode SelectDataNode(parser_wrapper::DataNode &node);

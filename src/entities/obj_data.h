@@ -134,8 +134,6 @@ class CObjectPrototype {
 	constexpr static EObjType DEFAULT_TYPE = kOther;
 	constexpr static EObjMaterial DEFAULT_MATERIAL = kMaterialUndefined;
 
-	constexpr static int NUM_PADS = 6;
-
 	constexpr static int DEFAULT_COST = 100;
 	constexpr static int DEFAULT_RENT_ON = 100;
 	constexpr static int DEFAULT_RENT_OFF = 100;
@@ -157,7 +155,7 @@ class CObjectPrototype {
 	using skills_t = std::map<ESkill, int>;
 	using vals_t = std::array<int, VALS_COUNT>;
 	using wear_flags_t = std::underlying_type<EWearFlag>::type;
-	using pnames_t = std::array<std::string, NUM_PADS>;
+	using pnames_t = std::array<std::string, ECase::kLastCase + 1>;
 	using triggers_list_t = std::list<ObjVnum>;
 	using triggers_list_ptr = std::shared_ptr<triggers_list_t>;
 	using affected_t = std::array<obj_affected_type, kMaxObjAffect>;
@@ -175,7 +173,7 @@ class CObjectPrototype {
 										   m_maximum_durability(DEFAULT_MAXIMUM_DURABILITY),
 										   m_current_durability(DEFAULT_CURRENT_DURABILITY),
 										   m_material(DEFAULT_MATERIAL),
-										   m_sex(ESex::kMale),
+										   m_sex(EGender::kMale),
 										   m_wear_flags(to_underlying(EWearFlag::kUndefined)),
 										   m_timer(DEFAULT_TIMER),
 										   m_minimum_remorts(DEFAULT_MINIMUM_REMORTS),  // для хранения количеста мортов. если отричательное тогда до какого морта
@@ -292,7 +290,7 @@ class CObjectPrototype {
 	void set_skill(const int _) { m_skill = _; }
 	void set_spell(const int _) { m_spell = std::clamp(static_cast<ESpell>(_), ESpell::kUndefined, ESpell::kLast); }
 	void set_type(const EObjType _) { m_type = _; }
-	void set_sex(const ESex _) { m_sex = _; }
+	void set_sex(const EGender _) { m_sex = _; }
 	void set_value(const ObjVal::EValueKey key, const int value) { return m_values.set(key, value); }
 	void set_values(const ObjVal &_) { m_values = _; }
 	void set_wear_flag(const EWearFlag flag);
@@ -388,7 +386,7 @@ class CObjectPrototype {
 	int m_current_durability;
 
 	EObjMaterial m_material;
-	ESex m_sex;
+	EGender m_sex;
 
 	FlagData m_extra_flags;    // If it hums, glows, etc.      //
 	FlagData m_waffect_flags;

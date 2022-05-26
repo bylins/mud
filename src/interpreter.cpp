@@ -2370,14 +2370,14 @@ void do_entergame(DescriptorData *d) {
 	}
 
 	switch (GET_SEX(d->character)) {
-		case ESex::kLast: [[fallthrough]];
-		case ESex::kNeutral: sprintf(buf, "%s вошло в игру.", GET_NAME(d->character));
+		case EGender::kLast: [[fallthrough]];
+		case EGender::kNeutral: sprintf(buf, "%s вошло в игру.", GET_NAME(d->character));
 			break;
-		case ESex::kMale: sprintf(buf, "%s вошел в игру.", GET_NAME(d->character));
+		case EGender::kMale: sprintf(buf, "%s вошел в игру.", GET_NAME(d->character));
 			break;
-		case ESex::kFemale: sprintf(buf, "%s вошла в игру.", GET_NAME(d->character));
+		case EGender::kFemale: sprintf(buf, "%s вошла в игру.", GET_NAME(d->character));
 			break;
-		case ESex::kPoly: sprintf(buf, "%s вошли в игру.", GET_NAME(d->character));
+		case EGender::kPoly: sprintf(buf, "%s вошли в игру.", GET_NAME(d->character));
 			break;
 	}
 
@@ -2567,7 +2567,7 @@ void init_char(CharData *ch, PlayerIndexElement &element) {
 	ch->player_data.time.logon = time(nullptr);
 
 	// make favors for sex
-	if (ch->get_sex() == ESex::kMale) {
+	if (ch->get_sex() == EGender::kMale) {
 		ch->player_data.weight = number(120, 180);
 		ch->player_data.height = number(160, 200);
 	} else {
@@ -3237,11 +3237,11 @@ void nanny(DescriptorData *d, char *arg) {
 
 			switch (UPPER(*arg)) {
 				case 'М':
-				case 'M': d->character->set_sex(ESex::kMale);
+				case 'M': d->character->set_sex(EGender::kMale);
 					break;
 
 				case 'Ж':
-				case 'F': d->character->set_sex(ESex::kFemale);
+				case 'F': d->character->set_sex(EGender::kFemale);
 					break;
 
 				default: SEND_TO_Q("Это может быть и пол, но явно не ваш :)\r\n" "А какой у ВАС пол? ", d);

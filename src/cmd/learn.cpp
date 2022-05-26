@@ -262,7 +262,7 @@ void ProcessLowRemortOrLevelException(CharData *ch, ObjData *book) {
 	const char *positon = number(0, 1) ? "вон та" : (number(0, 1) ? "вот эта" : "пятая справа");
 	const char *what = number(0, 1) ? "жука" : (number(0, 1) ? "бабочку" : "русалку");
 	const char
-		*whom = book->get_sex() == ESex::kFemale ? "нее" : (book->get_sex() == ESex::kPoly ? "них" : "него");
+		*whom = book->get_sex() == EGender::kFemale ? "нее" : (book->get_sex() == EGender::kPoly ? "них" : "него");
 	sprintf(buf,
 			"- \"Какие интересные буковки! Особенно %s, похожая на %s\".\r\n"
 			"Полюбовавшись еще несколько минут на сию красоту, вы с чувством выполненного\r\n"

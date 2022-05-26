@@ -16,7 +16,7 @@
  * ========================================================================================
  */
 
-enum class ESex : byte {
+enum class EGender : byte {
 	kNeutral = 0,
 	kMale = 1,
 	kFemale = 2,
@@ -25,9 +25,9 @@ enum class ESex : byte {
 };
 
 template<>
-ESex ITEM_BY_NAME<ESex>(const std::string &name);
+EGender ITEM_BY_NAME<EGender>(const std::string &name);
 template<>
-const std::string &NAME_BY_ITEM(ESex item);
+const std::string &NAME_BY_ITEM(EGender item);
 
 /*
  * ========================================================================================
@@ -259,7 +259,7 @@ enum EPrf : Bitvector {
 const __uint8_t kReligionPoly = 0;
 const __uint8_t kReligionMono = 1;
 
-typedef std::array<const char *, static_cast<std::size_t>(ESex::kLast)> religion_genders_t;
+typedef std::array<const char *, static_cast<std::size_t>(EGender::kLast)> religion_genders_t;
 typedef std::array<religion_genders_t, 3> religion_names_t;
 extern const religion_names_t religion_name;
 

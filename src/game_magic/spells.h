@@ -46,18 +46,6 @@ constexpr Bitvector kEafAutoblock = 1 << 19;	// автоматический б�
 constexpr Bitvector kEafPoisoned = 1 << 20;		// отравление с пушек раз в раунд
 constexpr Bitvector kEafFirstPoison = 1 << 21;	// отравление цели первый раз за бой
 
-// PLAYER SPELLS TYPES //
-enum ESpellType {
-	kUnknowm = 0,
-	kKnow = 1 << 0,
-	kTemp = 1 << 1,
-	kPotionCast = 1 << 2,
-	kWandCast = 1 << 3,
-	kScrollCast = 1 << 4,
-	kItemCast = 1 << 5,
-	kRunes = 1 << 6
-};
-
 /// Flags for ingredient items (kIngredient)
 enum EIngredientFlag {
 	kItemRunes = 1 << 0,

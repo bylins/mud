@@ -609,7 +609,7 @@ void ObjectFile::parse_object(const int nr) {
 	// *** Add some initialization fields
 	tobj->set_maximum_durability(ObjData::DEFAULT_MAXIMUM_DURABILITY);
 	tobj->set_current_durability(ObjData::DEFAULT_CURRENT_DURABILITY);
-	tobj->set_sex(ESex::kMale);
+	tobj->set_sex(EGender::kMale);
 	tobj->set_timer(ObjData::DEFAULT_TIMER);
 	tobj->set_level(1);
 	tobj->set_destroyer(ObjData::DEFAULT_DESTROYER);
@@ -628,7 +628,7 @@ void ObjectFile::parse_object(const int nr) {
 	strcpy(buf, tobj->get_short_description().c_str());
 	tobj->set_PName(0, colorLOW(buf)); //именительный падеж равен короткому описанию
 
-	for (j = 1; j < CObjectPrototype::NUM_PADS; j++) {
+	for (j = ECase::kGen; j <= ECase::kLastCase; j++) {
 		tobj->set_PName(j, colorLOW(fread_string()));
 	}
 
@@ -668,7 +668,7 @@ void ObjectFile::parse_object(const int nr) {
 		log("SYSERR: Format error in *2th* numeric line (expecting 4 args, got %d), %s", parsed_entries, m_buffer);
 		exit(1);
 	}
-	tobj->set_sex(static_cast<ESex>(t[0]));
+	tobj->set_sex(static_cast<EGender>(t[0]));
 	int timer = t[1] > 0 ? t[1] : ObjData::SEVEN_DAYS;
 	// шмоток с бесконечным таймером проставленным через olc или текстовый редактор
 	// не должно быть
@@ -1023,7 +1023,7 @@ void MobileFile::parse_mobile(const int nr) {
 
 	// real name
 	mob_proto[i].player_data.PNames[0] = mob_proto[i].get_npc_name();
-	for (j = 1; j < CObjectPrototype::NUM_PADS; j++) {
+	for (j = ECase::kGen; j <= ECase::kLastCase; j++) {
 		mob_proto[i].player_data.PNames[j] = fread_string();
 	}
 	mob_proto[i].player_data.long_descr = colorCAP(fread_string());
@@ -1175,7 +1175,7 @@ void MobileFile::parse_simple_mob(int i, int nr) {
 
 	mob_proto[i].char_specials.position = static_cast<EPosition>(t[0]);
 	mob_proto[i].mob_specials.default_pos = static_cast<EPosition>(t[1]);
-	mob_proto[i].set_sex(static_cast<ESex>(t[2]));
+	mob_proto[i].set_sex(static_cast<EGender>(t[2]));
 
 	mob_proto[i].player_data.Race = ENpcRace::kBasic;
 	mob_proto[i].set_class(ECharClass::kNpcBase);
