@@ -36,39 +36,39 @@ std::unordered_map<int, std::string> SECTOR_TYPE_BY_VALUE = {
 	{ESector::kThickIce, "thick ice"}
 };
 
-typedef std::map<ESex, std::string> ESex_name_by_value_t;
-typedef std::map<const std::string, ESex> ESex_value_by_name_t;
-ESex_name_by_value_t ESex_name_by_value;
-ESex_value_by_name_t ESex_value_by_name;
+typedef std::map<EGender, std::string> EGender_name_by_value_t;
+typedef std::map<const std::string, EGender> EGender_value_by_name_t;
+EGender_name_by_value_t EGender_name_by_value;
+EGender_value_by_name_t EGender_value_by_name;
 
-void init_ESex_ITEM_NAMES() {
-	ESex_name_by_value.clear();
-	ESex_value_by_name.clear();
+void init_EGender_ITEM_NAMES() {
+	EGender_name_by_value.clear();
+	EGender_value_by_name.clear();
 
-	ESex_name_by_value[ESex::kNeutral] = "kNeutral";
-	ESex_name_by_value[ESex::kMale] = "kMale";
-	ESex_name_by_value[ESex::kFemale] = "kFemale";
-	ESex_name_by_value[ESex::kPoly] = "kPoly";
+	EGender_name_by_value[EGender::kNeutral] = "kNeutral";
+	EGender_name_by_value[EGender::kMale] = "kMale";
+	EGender_name_by_value[EGender::kFemale] = "kFemale";
+	EGender_name_by_value[EGender::kPoly] = "kPoly";
 
-	for (const auto &i : ESex_name_by_value) {
-		ESex_value_by_name[i.second] = i.first;
+	for (const auto &i : EGender_name_by_value) {
+		EGender_value_by_name[i.second] = i.first;
 	}
 }
 
 template<>
-ESex ITEM_BY_NAME(const std::string &name) {
-	if (ESex_name_by_value.empty()) {
-		init_ESex_ITEM_NAMES();
+EGender ITEM_BY_NAME(const std::string &name) {
+	if (EGender_name_by_value.empty()) {
+		init_EGender_ITEM_NAMES();
 	}
-	return ESex_value_by_name.at(name);
+	return EGender_value_by_name.at(name);
 }
 
 template<>
-const std::string &NAME_BY_ITEM(const ESex item) {
-	if (ESex_name_by_value.empty()) {
-		init_ESex_ITEM_NAMES();
+const std::string &NAME_BY_ITEM(const EGender item) {
+	if (EGender_name_by_value.empty()) {
+		init_EGender_ITEM_NAMES();
 	}
-	return ESex_name_by_value.at(item);
+	return EGender_name_by_value.at(item);
 }
 
 typedef std::map<EWearFlag, std::string> EWearFlag_name_by_value_t;

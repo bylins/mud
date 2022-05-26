@@ -266,7 +266,6 @@ std::string GetAffExpiredText(ESpell spell_id) {
 	return spell_to_text.at(spell_id);
 }
 
-// TODO:refactor and replate int spell by ESpell
 std::optional<CastPhraseList> GetCastPhrase(ESpell spell_id) {
 	// маппинг заклинания в текстовую пару [для язычника, для христианина]
 	static const std::map<ESpell, CastPhraseList> cast_to_text {
@@ -840,4 +839,39 @@ std::ostream& operator<<(std::ostream &os, const ESpell &s){
 	return os;
 };
 
+typedef std::map<ESpellType, std::string> ESpellType_name_by_value_t;
+typedef std::map<const std::string, ESpellType> ESpellType_value_by_name_t;
+ESpellType_name_by_value_t ESpellType_name_by_value;
+ESpellType_value_by_name_t ESpellType_value_by_name;
+void init_ESpellType_ITEM_NAMES() {
+	ESpellType_value_by_name.clear();
+	ESpellType_name_by_value.clear();
+
+	ESpellType_name_by_value[ESpellType::kKnow] = "kKnow";
+	ESpellType_name_by_value[ESpellType::kTemp] = "kTemp";
+/*	ESpellType_name_by_value[ESpellType::kRunes] = "kRunes";
+	ESpellType_name_by_value[ESpellType::kItemCast] = "kItemCast";
+	ESpellType_name_by_value[ESpellType::kPotionCast] = "kPotionCast";
+	ESpellType_name_by_value[ESpellType::kWandCast] = "kWandCast";*/
+
+	for (const auto &i : ESpellType_name_by_value) {
+		ESpellType_value_by_name[i.second] = i.first;
+	}
+}
+
+template<>
+const std::string &NAME_BY_ITEM<ESpellType>(const ESpellType item) {
+	if (ESpellType_name_by_value.empty()) {
+		init_ESpellType_ITEM_NAMES();
+	}
+	return ESpellType_name_by_value.at(item);
+}
+
+template<>
+ESpellType ITEM_BY_NAME(const std::string &name) {
+	if (ESpellType_name_by_value.empty()) {
+		init_ESpellType_ITEM_NAMES();
+	}
+	return ESpellType_value_by_name.at(name);
+}
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

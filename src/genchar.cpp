@@ -447,11 +447,11 @@ void roll_real_abils(CharData *ch) {
 //  4 - творительный (кем? чем?)
 //  5 - предложный (о ком? о чем?)
 // result - результат
-void GetCase(const char *name, const ESex sex, int caseNum, char *result) {
+void GetCase(const char *name, const EGender sex, int caseNum, char *result) {
 	size_t len = strlen(name);
 
 	if (strchr("цкнгшщзхфвпрлджчсмтб", name[len - 1]) != nullptr
-		&& sex == ESex::kMale) {
+		&& sex == EGender::kMale) {
 		strcpy(result, name);
 		if (caseNum == 1)
 			strcat(result, "а"); // Ивана
@@ -479,7 +479,7 @@ void GetCase(const char *name, const ESex sex, int caseNum, char *result) {
 		else
 			strcat(result, "я"); // Аня, Ваня
 	} else if (name[len - 1] == 'й'
-		&& sex == ESex::kMale) {
+		&& sex == EGender::kMale) {
 		strncpy(result, name, len - 1);
 		result[len - 1] = '\0';
 		if (caseNum == 1)

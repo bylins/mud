@@ -88,7 +88,8 @@ int CalcMinSpellLvl(const CharData *ch, ESpell spell_id) {
 }
 
 bool CanGetSpell(const CharData *ch, ESpell spell_id, int req_lvl) {
-	if (CalcMinSpellLvl(ch, spell_id, req_lvl) > GetRealLevel(ch) ||
+	if (MUD::Classes(ch->GetClass()).spells.IsUnavailable(spell_id) ||
+		CalcMinSpellLvl(ch, spell_id, req_lvl) > GetRealLevel(ch) ||
 		MUD::Classes(ch->GetClass()).spells[spell_id].GetMinRemort() > GET_REAL_REMORT(ch)) {
 		return false;
 	}
@@ -1049,13 +1050,13 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 							};
 			//проверяем GENDER 
 			switch ((victim)->get_sex()) {
-					case ESex::kNeutral:
+					case EGender::kNeutral:
 					gender = 0;
 					break;
-					case ESex::kMale:
+					case EGender::kMale:
 					gender = 1;
 					break;
-					case ESex::kFemale:
+					case EGender::kFemale:
 					gender = 2;
 					break;
 					default:
@@ -1561,10 +1562,10 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 					auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(obj, 1));
 					if (spell_id >= ESpell::kFirst && spell_id <= ESpell::kLast) {
 						drndice = GET_OBJ_VAL(obj, 1);
-						if (MUD::Classes(ch->GetClass()).spells[spell_id].GetMinRemort() > GET_REAL_REMORT(ch)) {
-							drsdice = 34;
-						} else {
+						if (MUD::Classes(ch->GetClass()).spells.IsAvailable(spell_id)) {
 							drsdice = CalcMinSpellLvl(ch, spell_id, GET_OBJ_VAL(obj, 2));
+						} else {
+							drsdice = kLvlImplementator;
 						}
 						sprintf(buf, "содержит заклинание        : \"%s\"\r\n", GetSpellName(spell_id));
 						SendMsgToChar(buf, ch);
@@ -2222,7 +2223,7 @@ void SpellSummonAngel(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData
 	}
 
 	if (IS_FEMALE(ch)) {
-		mob->set_sex(ESex::kMale);
+		mob->set_sex(EGender::kMale);
 		mob->set_pc_name("Небесный защитник");
 		mob->player_data.PNames[0] = "Небесный защитник";
 		mob->player_data.PNames[1] = "Небесного защитника";
@@ -2234,7 +2235,7 @@ void SpellSummonAngel(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData
 		mob->player_data.long_descr = str_dup("Небесный защитник летает тут.\r\n");
 		mob->player_data.description = str_dup("Сияющая призрачная фигура о двух крылах.\r\n");
 	} else {
-		mob->set_sex(ESex::kFemale);
+		mob->set_sex(EGender::kFemale);
 		mob->set_pc_name("Небесная защитница");
 		mob->player_data.PNames[0] = "Небесная защитница";
 		mob->player_data.PNames[1] = "Небесной защитницы";

@@ -37,7 +37,7 @@ struct char_player_data {
 	std::string long_descr;    // for 'look'
 	std::string description;    // Extra descriptions
 	std::string title;        // PC / NPC's title
-	ESex sex;        // PC / NPC's sex
+	EGender sex;        // PC / NPC's sex
 	struct time_data time;            // PC's AGE in days
 	ubyte weight;        // PC / NPC's weight
 	ubyte height;        // PC / NPC's height
@@ -451,8 +451,8 @@ class CharData : public ProtectedCharData {
 	time_t get_last_exchange() const;
 	void set_last_exchange(time_t num);
 
-	ESex get_sex() const;
-	void set_sex(const ESex sex);
+	EGender get_sex() const;
+	void set_sex(const EGender sex);
 	ubyte get_weight() const;
 	void set_weight(const ubyte);
 	ubyte get_height() const;

@@ -876,7 +876,7 @@ ObjData *create_charmice_box(CharData *ch) {
 	obj->set_PName(3, "узелок");
 	obj->set_PName(4, "узелком");
 	obj->set_PName(5, "узелке");
-	obj->set_sex(ESex::kMale);
+	obj->set_sex(EGender::kMale);
 	obj->set_type(EObjType::kContainer);
 	obj->set_wear_flags(to_underlying(EWearFlag::kTake));
 	obj->set_weight(1);

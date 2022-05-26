@@ -270,7 +270,8 @@ set(SOURCES
         src/game_mechanics/guilds.cpp
 		src/cmd/do_features.cpp
 		src/cmd/do_spells.cpp
-		src/cmd/do_skills.cpp)
+		src/cmd/do_skills.cpp
+		src/game_economics/currencies.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -521,7 +522,8 @@ set(HEADERS
         src/game_mechanics/guilds.h
 		src/cmd/do_features.h
 		src/cmd/do_spells.h
-		src/cmd/do_skills.h)
+		src/cmd/do_skills.h
+		src/game_economics/currencies.h)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 # Build types

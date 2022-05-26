@@ -11,6 +11,7 @@
 #include "house.h"
 #include "utils/parse.h"
 #include "utils/random.h"
+#include "game_economics/currencies.h"
 
 #include <boost/algorithm/string.hpp>
 
@@ -23,6 +24,7 @@
 extern int max_npc_corpse_time, max_pc_corpse_time;
 extern MobRaceListType mobraces_list;
 extern void obj_to_corpse(ObjData *corpse, CharData *ch, int rnum, bool setload);
+extern ObjData::shared_ptr CreateCurrencyObj(long quantity);
 
 namespace GlobalDrop {
 std::vector<table_drop> tables_drop;
@@ -358,7 +360,7 @@ bool check_mob(ObjData *corpse, CharData *mob) {
 
 void make_arena_corpse(CharData *ch, CharData *killer) {
 	auto corpse = world_objects.create_blank();
-	corpse->set_sex(ESex::kPoly);
+	corpse->set_sex(EGender::kPoly);
 
 	sprintf(buf2, "Останки %s лежат на земле.", GET_PAD(ch, 1));
 	corpse->set_description(buf2);
@@ -417,7 +419,7 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 	auto corpse = world_objects.create_blank();
 	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
 	corpse->set_aliases(buf2);
-	corpse->set_sex(ESex::kMale);
+	corpse->set_sex(EGender::kMale);
 	sprintf(buf2, "Труп %s лежит здесь.", GET_PAD(ch, 1));
 	corpse->set_description(buf2);
 	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
@@ -474,12 +476,12 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 	// following 'if' clause added to fix gold duplication loophole
 	if (ch->get_gold() > 0) {
 		if (ch->IsNpc()) {
-			const auto money = create_money(ch->get_gold());
+			const auto money = CreateCurrencyObj(ch->get_gold());
 			PlaceObjIntoObj(money.get(), corpse.get());
 		} else {
 			const int amount = ch->get_gold();
-			const auto money = create_money(amount);
-			ObjData *purse = 0;
+			const auto money = CreateCurrencyObj(amount);
+			ObjData *purse = nullptr;
 			if (amount >= 100) {
 				purse = system_obj::create_purse(ch, amount);
 				if (purse) {

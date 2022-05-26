@@ -56,7 +56,7 @@ struct item_desc_node {
 	std::string description;
 	std::string short_description;
 	std::array<std::string, 6> PNames;
-	ESex sex;
+	EGender sex;
 	CObjectPrototype::triggers_list_t trigs;
 };
 

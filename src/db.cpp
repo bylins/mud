@@ -1079,6 +1079,8 @@ void do_reboot(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		MUD::CfgManager().ReloadCfg("classes");
 	} else if (!str_cmp(arg, "guilds")) {
 		MUD::CfgManager().ReloadCfg("guilds");
+	} else if (!str_cmp(arg, "currencies")) {
+		MUD::CfgManager().ReloadCfg("currencies");
 	} else if (!str_cmp(arg, "imagic"))
 		init_im();
 	else if (!str_cmp(arg, "ztypes"))
@@ -2242,6 +2244,10 @@ void boot_db(void) {
 	if (file_to_string_alloc(GREETINGS_FILE, &GREETINGS) == 0)
 		prune_crlf(GREETINGS);
 
+	boot_profiler.next_step("Loading currencies cfg.");
+	log("Loading currencies cfg.");
+	MUD::CfgManager().LoadCfg("currencies");
+
 	boot_profiler.next_step("Loading skills cfg.");
 	log("Loading skills cfg.");
 	MUD::CfgManager().LoadCfg("skills");
@@ -2954,7 +2960,7 @@ void renum_zone_table(void) {
 int trans_obj_name(ObjData *obj, CharData *ch) {
 	// ищем метку @p , @p1 ... и заменяем на падежи.
 	int i, k;
-	for (i = 0; i < CObjectPrototype::NUM_PADS; i++) {
+	for (i = ECase::kFirstCase; i <= ECase::kLastCase; i++) {
 		std::string obj_pad = GET_OBJ_PNAME(obj_proto[GET_OBJ_RNUM(obj)], i);
 		size_t j = obj_pad.find("@p");
 		if (std::string::npos != j && 0 < j) {

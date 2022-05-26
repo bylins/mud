@@ -1227,7 +1227,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	GET_LOADROOM(this) = kNowhere;
 	GET_RELIGION(this) = 1;
 	GET_RACE(this) = 1;
-	this->set_sex(ESex::kNeutral);
+	this->set_sex(EGender::kNeutral);
 	GET_COND(this, THIRST) = kNormCondition;
 	GET_WEIGHT(this) = 50;
 	GET_WIMP_LEV(this) = 0;
@@ -1755,7 +1755,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 				if (!strcmp(tag, "Size"))
 					GET_SIZE(this) = num;
 				else if (!strcmp(tag, "Sex ")) {
-					this->set_sex(static_cast<ESex>(num));
+					this->set_sex(static_cast<EGender>(num));
 				} else if (!strcmp(tag, "Skil")) {
 					do {
 						fbgetline(fl, line);

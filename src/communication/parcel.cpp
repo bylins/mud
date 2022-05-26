@@ -172,12 +172,12 @@ bool can_send(CharData *ch, CharData *mailman, ObjData *obj, long vict_uid) {
 	}
 	if (invalid_anti_class(&t_vict, obj)) {
 		switch (GET_SEX(&t_vict)) {
-			case ESex::kMale:
+			case EGender::kMale:
 				act("$n сказал$g вам : 'Знаю я такого добра молодца - эта вещь явно на него не налезет.'\r\n",
 					false, mailman, 0, ch, kToVict);
 				break;
 
-			case ESex::kFemale:
+			case EGender::kFemale:
 				act("$n сказал$g вам : 'Знаю я такую красну девицу - эта вещь явно на нее не налезет.'\r\n",
 					false, mailman, 0, ch, kToVict);
 				break;
@@ -487,7 +487,7 @@ ObjData *create_parcel() {
 	obj->set_PName(3, "посылку");
 	obj->set_PName(4, "посылкой");
 	obj->set_PName(5, "посылке");
-	obj->set_sex(ESex::kFemale);
+	obj->set_sex(EGender::kFemale);
 	obj->set_type(EObjType::kContainer);
 	obj->set_wear_flags(to_underlying(EWearFlag::kTake));
 	obj->set_weight(1);

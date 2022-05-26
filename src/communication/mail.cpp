@@ -511,7 +511,7 @@ void receive(CharData *ch, CharData *mailman) {
 		obj->set_PName(3, "письмо");
 		obj->set_PName(4, "письмом");
 		obj->set_PName(5, "письме");
-		obj->set_sex(ESex::kNeutral);
+		obj->set_sex(EGender::kNeutral);
 		obj->set_type(EObjType::kNote);
 		obj->set_wear_flags(to_underlying(EWearFlag::kTake) | to_underlying(EWearFlag::kHold));
 		obj->set_weight(1);

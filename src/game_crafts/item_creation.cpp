@@ -1486,7 +1486,7 @@ void MakeRecept::make_object(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_PART
 			GET_OBJ_PNAME(ingrs[1], 4).c_str(),
 			GET_OBJ_PNAME(ingrs[2], 4).c_str());
 	obj->set_aliases(buf);
-	for (i = 0; i < CObjectPrototype::NUM_PADS; i++) // ставим падежи в имя с учетов ингров
+	for (i = ECase::kFirstCase; i <= ECase::kLastCase; i++) // ставим падежи в имя с учетов ингров
 	{
 		sprintf(buf, "%s", GET_OBJ_PNAME(obj, i).c_str());
 		strcat(buf, " из ");
@@ -1499,11 +1499,11 @@ void MakeRecept::make_object(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_PART
 		if (i == 0) // именительный падеж
 		{
 			obj->set_short_description(buf);
-			if (GET_OBJ_SEX(obj) == ESex::kMale) {
+			if (GET_OBJ_SEX(obj) == EGender::kMale) {
 				snprintf(buf2, kMaxStringLength, "Брошенный %s лежит тут.", buf);
-			} else if (GET_OBJ_SEX(obj) == ESex::kFemale) {
+			} else if (GET_OBJ_SEX(obj) == EGender::kFemale) {
 				snprintf(buf2, kMaxStringLength, "Брошенная %s лежит тут.", buf);
-			} else if (GET_OBJ_SEX(obj) == ESex::kPoly) {
+			} else if (GET_OBJ_SEX(obj) == EGender::kPoly) {
 				snprintf(buf2, kMaxStringLength, "Брошенные %s лежат тут.", buf);
 			}
 			obj->set_description(buf2); // описание на земле

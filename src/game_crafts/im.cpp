@@ -533,7 +533,7 @@ void init_im(void) {
 					im_memb *ins_after, *ins_before;
 					CREATE(mptr->aliases, 2 * (mptr->power + 1));
 					mptr->power = power;
-					mptr->sex = static_cast<ESex>(sex);
+					mptr->sex = static_cast<EGender>(sex);
 					p = mptr->aliases;
 					while (get_line(im_file, tmp)) {
 						if (*tmp == '~')

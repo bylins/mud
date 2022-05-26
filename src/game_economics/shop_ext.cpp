@@ -103,7 +103,7 @@ void load_item_desc() {
 			child = item.child("PNames5");
 			desc_node.PNames[5] = child.child_value();
 			child = item.child("sex");
-			desc_node.sex = static_cast<ESex>(atoi(child.child_value()));
+			desc_node.sex = static_cast<EGender>(atoi(child.child_value()));
 
 			// парсим список триггеров
 			pugi::xml_node trig_list = item.child("triggers");

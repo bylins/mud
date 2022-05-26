@@ -220,9 +220,10 @@ const char *CharClassInfo::GetCName(ECase name_case) const {
 const char *CharClassInfo::GetPluralCName(ECase name_case) const {
 	return names->GetPlural(name_case).c_str();
 }
+
 int CharClassInfo::GetMaxCircle() const {
 	auto it = std::max_element(spells.begin(), spells.end(), [](auto &a, auto &b){
-		return (a.GetCircle() < b.GetCircle());
+		return (a.GetCircle() < b.GetCircle() || a.IsInvalid());
 	});
 	return it->GetCircle();
 }

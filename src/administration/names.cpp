@@ -52,7 +52,7 @@ int was_agree_name(DescriptorData *d) {
 			for (i = 1; i < 6; i++) {
 				d->character->player_data.PNames[i] = std::string(mortname[i]);
 			}
-			d->character->set_sex(static_cast<ESex>(sex));
+			d->character->set_sex(static_cast<EGender>(sex));
 			// Auto-Agree char ...
 			NAME_GOD(d->character) = immlev + 1000;
 			NAME_ID_GOD(d->character) = get_id_by_name(immname);
@@ -154,7 +154,7 @@ struct NewName {
 	std::string name4; // --//--
 	std::string name5; // --//--
 	std::string email; // мыло
-	ESex sex;         // часто не ясно, для какоо пола падежи вообще
+	EGender sex;         // часто не ясно, для какоо пола падежи вообще
 };
 
 typedef std::shared_ptr<NewName> NewNamePtr;

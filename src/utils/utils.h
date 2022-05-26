@@ -764,9 +764,9 @@ const int kNameLevel = 5;
                           IS_FEMALE(ch) ? "ая" : "ие")
 
 #define GET_OBJ_SEX(obj) ((obj)->get_sex())
-#define IS_OBJ_NOSEXY(obj)    (GET_OBJ_SEX(obj) == ESex::kNeutral)
-#define IS_OBJ_MALE(obj)   (GET_OBJ_SEX(obj) == ESex::kMale)
-#define IS_OBJ_FEMALE(obj)    (GET_OBJ_SEX(obj) == ESex::kFemale)
+#define IS_OBJ_NOSEXY(obj)    (GET_OBJ_SEX(obj) == EGender::kNeutral)
+#define IS_OBJ_MALE(obj)   (GET_OBJ_SEX(obj) == EGender::kMale)
+#define IS_OBJ_FEMALE(obj)    (GET_OBJ_SEX(obj) == EGender::kFemale)
 
 #define GET_OBJ_MIW(obj) ((obj)->get_max_in_world())
 
@@ -833,7 +833,7 @@ const int kNameLevel = 5;
                             IS_FEMALE(ch) ? "ей" : "ими")
 #define GET_CH_POLY_1(ch) (IS_POLY(ch) ? "те" : "")
 
-#define GET_OBJ_POLY_1(ch, obj) ((GET_OBJ_SEX(obj) == ESex::kPoly) ? "ят" : "ит")
+#define GET_OBJ_POLY_1(ch, obj) ((GET_OBJ_SEX(obj) == EGender::kPoly) ? "ят" : "ит")
 
 #define PUNCTUAL_WAIT_STATE(ch, cycle) do { GET_PUNCTUAL_WAIT_STATE(ch) = (cycle); } while(0)
 #define GET_PUNCTUAL_WAIT(ch)          GET_PUNCTUAL_WAIT_STATE(ch)
@@ -889,15 +889,15 @@ const int kNameLevel = 5;
 
 // compound utilities and other macros *********************************
 
-#define HSHR(ch) (ESex::kNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "его": (IS_FEMALE(ch) ? "ее" : "их")) :"его")
-#define HSSH(ch) (ESex::kNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "он": (IS_FEMALE(ch) ? "она" : "они")) :"оно")
-#define HMHR(ch) (ESex::kNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "ему": (IS_FEMALE(ch) ? "ей" : "им")) :"ему")
-#define HYOU(ch) (ESex::kNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "ваш": (IS_FEMALE(ch) ? "ваша" : (IS_NOSEXY(ch) ? "ваше": "ваши"))) :"ваш")
+#define HSHR(ch) (EGender::kNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "его": (IS_FEMALE(ch) ? "ее" : "их")) :"его")
+#define HSSH(ch) (EGender::kNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "он": (IS_FEMALE(ch) ? "она" : "они")) :"оно")
+#define HMHR(ch) (EGender::kNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "ему": (IS_FEMALE(ch) ? "ей" : "им")) :"ему")
+#define HYOU(ch) (EGender::kNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "ваш": (IS_FEMALE(ch) ? "ваша" : (IS_NOSEXY(ch) ? "ваше": "ваши"))) :"ваш")
 
-#define OSHR(ch) (ESex::kNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::kMale ? "его": (GET_OBJ_SEX(ch) == ESex::kFemale ? "ее" : "их")) :"его")
-#define OSSH(ch) (ESex::kNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::kMale ? "он": (GET_OBJ_SEX(ch) == ESex::kFemale ? "она" : "они")) :"оно")
-#define OMHR(ch) (ESex::kNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::kMale ? "ему": (GET_OBJ_SEX(ch) == ESex::kFemale ? "ей" : "им")) :"ему")
-#define OYOU(ch) (ESex::kNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::kMale ? "ваш": (GET_OBJ_SEX(ch) == ESex::kFemale ? "ваша" : "ваши")) :"ваше")
+#define OSHR(ch) (EGender::kNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == EGender::kMale ? "его": (GET_OBJ_SEX(ch) == EGender::kFemale ? "ее" : "их")) :"его")
+#define OSSH(ch) (EGender::kNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == EGender::kMale ? "он": (GET_OBJ_SEX(ch) == EGender::kFemale ? "она" : "они")) :"оно")
+#define OMHR(ch) (EGender::kNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == EGender::kMale ? "ему": (GET_OBJ_SEX(ch) == EGender::kFemale ? "ей" : "им")) :"ему")
+#define OYOU(ch) (EGender::kNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == EGender::kMale ? "ваш": (GET_OBJ_SEX(ch) == EGender::kFemale ? "ваша" : "ваши")) :"ваше")
 
 #define HERE(ch)  (((ch)->IsNpc() || (ch)->desc || NORENTABLE(ch)))
 
@@ -1065,7 +1065,7 @@ int awake_invis(CharData *ch);
 int awake_camouflage(CharData *ch);
 int awake_sneak(CharData *ch);
 int awaking(CharData *ch, int mode);
-std::string time_format(int timer, int flag = 0);
+std::string FormatTimeToStr(long in_timer, bool flag = 0);
 
 size_t count_colors(const char *str, size_t len = 0);
 char *colored_name(const char *str, size_t len, const bool left_align = false);

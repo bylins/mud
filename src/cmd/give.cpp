@@ -1,8 +1,10 @@
 #include "entities/char_data.h"
 #include "entities/world_objects.h"
+#include "game_economics/currencies.h"
 #include "game_fight/pk.h"
 #include "house.h"
 #include "utils/utils_char_obj.inl"
+#include "structs/global_objects.h"
 
 extern void get_check_money(CharData *ch, ObjData *obj, ObjData *cont);
 extern void split_or_clan_tax(CharData *ch, long amount);
@@ -95,7 +97,8 @@ void perform_give_gold(CharData *ch, CharData *vict, int amount) {
 	SendMsgToChar(OK, ch);
 	sprintf(buf, "$n дал$g вам %d %s.", amount, GetDeclensionInNumber(amount, EWhat::kMoneyU));
 	act(buf, false, ch, nullptr, vict, kToVict);
-	sprintf(buf, "$n дал$g %s $N2.", money_desc(amount, 3));
+	sprintf(buf, "$n дал$g %s $N2.",
+			MUD::Currencies(currencies::kKunaVnum).GetObjCName(amount, ECase::kAcc));
 	act(buf, true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 	if (!(ch->IsNpc() || vict->IsNpc())) {
 		sprintf(buf,

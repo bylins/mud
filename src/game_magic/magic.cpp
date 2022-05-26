@@ -3076,7 +3076,7 @@ int mag_summons(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool nee
 		mob->player_data.PNames[5] = std::string(buf2);
 		sprintf(buf2, "умертвия %s", GET_PAD(mob, 1));
 		mob->player_data.PNames[1] = std::string(buf2);
-		mob->set_sex(ESex::kNeutral);
+		mob->set_sex(EGender::kNeutral);
 		MOB_FLAGS(mob).set(EMobFlag::kResurrected);
 		if (CanUseFeat(ch, EFeat::kFuryOfDarkness)) {
 			GET_DR(mob) = GET_DR(mob) + GET_DR(mob) * 0.20;
@@ -3213,7 +3213,7 @@ int mag_summons(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool nee
 
 		GET_POS(mob) = EPosition::kStand;
 		GET_DEFAULT_POS(mob) = EPosition::kStand;
-		mob->set_sex(ESex::kMale);
+		mob->set_sex(EGender::kMale);
 
 		mob->set_class(ch->GetClass());
 		GET_WEIGHT(mob) = GET_WEIGHT(ch);
