@@ -51,7 +51,7 @@ void DisplayFeats(CharData *ch, CharData *vict, bool all_feats) {
 	for (i = 1; i < max_slot; i++) {
 		if (all_feats) {
 			// на каком уровне будет слот i?
-			j = feat_slot_lvl(GET_REMORT(ch), MUD::Classes(ch->GetClass()).GetRemortsNumForFeatSlot(), i);
+			j = feat_slot_lvl(GET_REMORT(ch), MUD::Class(ch->GetClass()).GetRemortsNumForFeatSlot(), i);
 			sprintf(names[i], "\r\nКруг %-2d (%-2d уровень):\r\n", i + 1, j);
 		} else {
 			*names[i] = '\0';
@@ -72,7 +72,7 @@ void DisplayFeats(CharData *ch, CharData *vict, bool all_feats) {
 						  " Пометкой [И] выделены уже изученные способности.\r\n"
 						  " Пометкой [Д] выделены доступные для изучения способности.\r\n"
 						  " Пометкой [Н] выделены способности, недоступные вам в настоящий момент.\r\n\r\n", vict);
-		for (const auto &feat : MUD::Classes(ch->GetClass()).feats) {
+		for (const auto &feat : MUD::Class(ch->GetClass()).feats) {
 			if (feat.IsUnavailable() &&
 				!PlayerRace::FeatureCheck((int) GET_KIN(ch), (int) GET_RACE(ch), to_underlying(feat.GetId()))) {
 				continue;
@@ -125,7 +125,7 @@ void DisplayFeats(CharData *ch, CharData *vict, bool all_feats) {
 
 	sprintf(buf1, "Вы обладаете следующими способностями :\r\n");
 
-	for (const auto &feat : MUD::Classes(ch->GetClass()).feats) {
+	for (const auto &feat : MUD::Class(ch->GetClass()).feats) {
 		if (strlen(buf2) >= kMaxStringLength - 60) {
 			strcat(buf2, "***ПЕРЕПОЛНЕНИЕ***\r\n");
 			break;

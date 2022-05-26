@@ -11,7 +11,7 @@ PickProbabilityInformation get_pick_probability(CharData *ch, int lock_complexit
 
 	// используем сложность скила для дополнительного ограничения шанса прокачки
 	const int skill = CalcCurrentSkill(ch, ESkill::kPickLock, nullptr);
-	const int prob_diff = number(1, MUD::Skills(ESkill::kPickLock).difficulty);
+	const int prob_diff = number(1, MUD::Skill(ESkill::kPickLock).difficulty);
 
 	// высчитываем дополнительный шанс ограничения прокачки (от сложности скила)
 	const int min_chance = 50;

@@ -525,7 +525,7 @@ int CharData::GetSkill(const ESkill skill_id) const {
 	if (ROOM_FLAGGED(this->in_room, ERoomFlag::kDominationArena)) {
 		return std::clamp(skill, 0, CalcSkillRemortCap(this));
 	}
-	return std::clamp(skill, 0, MUD::Skills(skill_id).cap);
+	return std::clamp(skill, 0, MUD::Skill(skill_id).cap);
 }
 
 //  Скилл со шмоток.
@@ -533,7 +533,7 @@ int CharData::GetSkill(const ESkill skill_id) const {
 // всем остальным -- не более 5% с шмотки
 int CharData::get_equipped_skill(const ESkill skill_id) const {
 	int skill = 0;
-	bool is_native = this->IsNpc() || MUD::Classes(chclass_).skills[skill_id].IsAvailable();
+	bool is_native = this->IsNpc() || MUD::Class(chclass_).skills[skill_id].IsAvailable();
 	for (auto i : equipment) {
 		if (i) {
 			if (is_native) {
@@ -562,7 +562,7 @@ int CharData::get_inborn_skill(const ESkill skill_num) {
 		auto it = skills.find(skill_num);
 		if (it != skills.end()) {
 			//return normalize_skill(it->second.skillLevel, skill_num);
-			return std::clamp(it->second.skillLevel, 0, MUD::Skills(skill_num).cap);
+			return std::clamp(it->second.skillLevel, 0, MUD::Skill(skill_num).cap);
 		}
 	}
 	return 0;
@@ -570,12 +570,12 @@ int CharData::get_inborn_skill(const ESkill skill_num) {
 
 int CharData::get_trained_skill(const ESkill skill_id) const {
 	if (ROOM_FLAGGED(this->in_room, ERoomFlag::kDominationArena)) {
-		if (MUD::Classes(chclass_).skills[skill_id].IsAvailable()) {
+		if (MUD::Class(chclass_).skills[skill_id].IsAvailable()) {
 			return 100;
 		}
 	}
 	if (privilege::CheckSkills(this)) {
-		return std::clamp(current_morph_->get_trained_skill(skill_id), 0, MUD::Skills(skill_id).cap);
+		return std::clamp(current_morph_->get_trained_skill(skill_id), 0, MUD::Skill(skill_id).cap);
 	}
 	return 0;
 }
@@ -2200,7 +2200,7 @@ player_special_data::shared_ptr player_special_data::s_for_mobiles = std::make_s
 int ClampBaseStat(const CharData *ch, const EBaseStat stat_id, const int stat_value) {
 	return ch->IsNpc()
 		   ? std::clamp(stat_value, kLeastBaseStat, kMobBaseStatCap)
-		   : std::clamp(stat_value, kLeastBaseStat, MUD::Classes(ch->GetClass()).GetBaseStatCap(stat_id));
+		   : std::clamp(stat_value, kLeastBaseStat, MUD::Class(ch->GetClass()).GetBaseStatCap(stat_id));
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

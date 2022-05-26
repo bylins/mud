@@ -90,7 +90,7 @@ void LearnSkillBook(CharData *ch, ObjData *obj) {
 		throw LearningError();
 	}
 
-	auto skill_name = MUD::Skills(skill_id).GetName();
+	auto skill_name = MUD::Skill(skill_id).GetName();
 	if (ch->GetSkill(skill_id)) {
 		throw AlreadyKnown(skill_name);
 	}
@@ -113,7 +113,7 @@ void LearnSkillUpgradeBook(CharData *ch, ObjData *obj) {
 	}
 
 	const auto book_skill_cap = GET_OBJ_VAL(obj, 3);
-	auto skill_name = MUD::Skills(skill_id).GetName();
+	auto skill_name = MUD::Skill(skill_id).GetName();
 	if ((book_skill_cap > 0 && ch->get_trained_skill(skill_id) >= book_skill_cap) ||
 		(book_skill_cap <= 0 && ch->get_trained_skill(skill_id) >= CalcSkillRemortCap(ch))) {
 		throw AlreadyKnown(skill_name);

@@ -35,11 +35,11 @@ void go_strangle(CharData *ch, CharData *vict) {
 
 	int prob = CalcCurrentSkill(ch, ESkill::kStrangle, vict);
 	int delay = 6 - std::min(4, (ch->GetSkill(ESkill::kStrangle) + 30) / 50);
-	int percent = number(1, MUD::Skills(ESkill::kStrangle).difficulty);
+	int percent = number(1, MUD::Skill(ESkill::kStrangle).difficulty);
 
 	bool success = percent <= prob;
 	TrainSkill(ch, ESkill::kStrangle, success, vict);
-	SendSkillBalanceMsg(ch, MUD::Skills(ESkill::kStrangle).name, percent, prob, success);
+	SendSkillBalanceMsg(ch, MUD::Skill(ESkill::kStrangle).name, percent, prob, success);
 	if (!success) {
 		Damage dmg(SkillDmg(ESkill::kStrangle), fight::kZeroDmg, fight::kPhysDmg, nullptr);
 		dmg.flags.set(fight::kIgnoreArmor);

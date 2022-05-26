@@ -3367,7 +3367,7 @@ int vnum_flag(char *searchname, CharData *ch) {
 	f = false;
 	ESkill skill_id;
 	for (skill_id = ESkill::kFirst; skill_id <= ESkill::kLast; ++skill_id) {
-		if (utils::IsAbbrev(searchname, MUD::Skills(skill_id).GetName())) {
+		if (utils::IsAbbrev(searchname, MUD::Skill(skill_id).GetName())) {
 			f = true;
 			break;
 		}
@@ -3380,7 +3380,7 @@ int vnum_flag(char *searchname, CharData *ch) {
 					snprintf(buf, kMaxStringLength, "%3d. [%5d] %s : %s,  значение: %d\r\n",
 							 ++found, i->get_vnum(),
 							 i->get_short_description().c_str(),
-							 MUD::Skills(skill_id).GetName(), it->second);
+							 MUD::Skill(skill_id).GetName(), it->second);
 					out += buf;
 				}
 			}
@@ -5139,7 +5139,7 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 			if (IS_MANA_CASTER(ch)) {
 				GET_SPELL_TYPE(ch, spell_id) = ESpellType::kRunes;
-			} else if (MUD::Classes(ch->GetClass()).spells[spell_id].GetCircle() >= 8) {
+			} else if (MUD::Class(ch->GetClass()).spells[spell_id].GetCircle() >= 8) {
 				GET_SPELL_TYPE(ch, spell_id) = ESpellType::kUnknowm;
 				GET_SPELL_MEM(ch, spell_id) = 0;
 			}

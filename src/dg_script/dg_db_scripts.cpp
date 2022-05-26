@@ -300,7 +300,7 @@ void trg_featturn(CharData *ch, EFeat feat_id, int featdiff, int vnum) {
 		}
 	} else {
 		if (featdiff) {
-			if (MUD::Classes(ch->GetClass()).feats.IsAvailable(feat_id)) {
+			if (MUD::Class(ch->GetClass()).feats.IsAvailable(feat_id)) {
 				sprintf(buf, "Вы обрели способность '%s'.\r\n", feat_info[feat_id].name);
 				SendMsgToChar(buf, ch);
 				log("Add %s to %s (trigfeatturn) trigvnum %d", feat_info[feat_id].name, GET_NAME(ch), vnum);
@@ -316,33 +316,33 @@ void trg_skillturn(CharData *ch, const ESkill skill_id, int skilldiff, int vnum)
 			return;
 		}
 		ch->set_skill(skill_id, 0);
-		SendMsgToChar(ch, "Вас лишили умения '%s'.\r\n", MUD::Skills(skill_id).GetName());
-		log("Remove %s from %s (trigskillturn)", MUD::Skills(skill_id).GetName(), GET_NAME(ch));
-	} else if (skilldiff && MUD::Classes(ch->GetClass()).skills[skill_id].IsAvailable()) {
+		SendMsgToChar(ch, "Вас лишили умения '%s'.\r\n", MUD::Skill(skill_id).GetName());
+		log("Remove %s from %s (trigskillturn)", MUD::Skill(skill_id).GetName(), GET_NAME(ch));
+	} else if (skilldiff && MUD::Class(ch->GetClass()).skills[skill_id].IsAvailable()) {
 		ch->set_skill(skill_id, 5);
-		SendMsgToChar(ch, "Вы изучили умение '%s'.\r\n", MUD::Skills(skill_id).GetName());
-		log("Add %s to %s (trigskillturn) trigvnum %d", MUD::Skills(skill_id).GetName(), GET_NAME(ch), vnum);
+		SendMsgToChar(ch, "Вы изучили умение '%s'.\r\n", MUD::Skill(skill_id).GetName());
+		log("Add %s to %s (trigskillturn) trigvnum %d", MUD::Skill(skill_id).GetName(), GET_NAME(ch), vnum);
 	}
 }
 
 void AddSkill(CharData *ch, const ESkill skillnum, int skilldiff, int vnum) {
 	int skill = ch->get_trained_skill(skillnum);
-	ch->set_skill(skillnum, std::clamp(skill + skilldiff, 1, MUD::Skills(skillnum).cap));
+	ch->set_skill(skillnum, std::clamp(skill + skilldiff, 1, MUD::Skill(skillnum).cap));
 
 	if (skill > ch->get_trained_skill(skillnum)) {
-		SendMsgToChar(ch, "Ваше умение '%s' понизилось.\r\n", MUD::Skills(skillnum).GetName());
+		SendMsgToChar(ch, "Ваше умение '%s' понизилось.\r\n", MUD::Skill(skillnum).GetName());
 		log("Decrease %s to %s from %d to %d (diff %d)(trigskilladd) trigvnum %d",
-			MUD::Skills(skillnum).GetName(), GET_NAME(ch), skill,
+			MUD::Skill(skillnum).GetName(), GET_NAME(ch), skill,
 			ch->get_trained_skill(skillnum), skilldiff, vnum);
 	} else if (skill < ch->get_trained_skill(skillnum)) {
-		SendMsgToChar(ch, "Вы повысили свое умение '%s'.\r\n", MUD::Skills(skillnum).GetName());
+		SendMsgToChar(ch, "Вы повысили свое умение '%s'.\r\n", MUD::Skill(skillnum).GetName());
 		log("Raise %s to %s from %d to %d (diff %d)(trigskilladd) trigvnum %d",
-			MUD::Skills(skillnum).GetName(), GET_NAME(ch), skill,
+			MUD::Skill(skillnum).GetName(), GET_NAME(ch), skill,
 			ch->get_trained_skill(skillnum), skilldiff, vnum);
 	} else {
-		SendMsgToChar(ch, "Ваше умение '%s' не изменилось.\r\n", MUD::Skills(skillnum).GetName());
+		SendMsgToChar(ch, "Ваше умение '%s' не изменилось.\r\n", MUD::Skill(skillnum).GetName());
 		log("Unchanged %s to %s from %d to %d (diff %d)(trigskilladd) trigvnum %d",
-			MUD::Skills(skillnum).GetName(), GET_NAME(ch), skill,
+			MUD::Skill(skillnum).GetName(), GET_NAME(ch), skill,
 			ch->get_trained_skill(skillnum), skilldiff, vnum);
 	}
 }

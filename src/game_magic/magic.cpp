@@ -79,7 +79,7 @@ int CalcAntiSavings(CharData *ch) {
 }
 
 int CalcClassAntiSavingsMod(CharData *ch, ESpell spell_id) {
-	auto mod = MUD::Classes(ch->GetClass()).spells[spell_id].GetCastMod();
+	auto mod = MUD::Class(ch->GetClass()).spells[spell_id].GetCastMod();
 	auto skill = ch->GetSkill(GetMagicSkillId(spell_id));
 	return static_cast<int>(mod*skill);
 }

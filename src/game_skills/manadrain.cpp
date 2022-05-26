@@ -56,7 +56,7 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	skill = ch->GetSkill(ESkill::kJinx);
 
-	percent = number(1, MUD::Skills(ESkill::kJinx).difficulty);
+	percent = number(1, MUD::Skill(ESkill::kJinx).difficulty);
 	prob = std::max(20, 90 - 5 * std::max(0, GetRealLevel(vict) - GetRealLevel(ch)));
 	ImproveSkill(ch, ESkill::kJinx, percent > prob, vict);
 

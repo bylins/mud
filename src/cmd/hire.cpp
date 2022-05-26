@@ -130,9 +130,9 @@ int GetReformedCharmiceHp(CharData *ch, CharData *victim, ESpell spell_id) {
 
 	if (spell_id == ESpell::kResurrection || spell_id == ESpell::kAnimateDead) {
 		eff_cha = CalcEffectiveWis(ch, spell_id);
-		stat_cap = MUD::Classes(ch->GetClass()).GetBaseStatCap(EBaseStat::kWis);
+		stat_cap = MUD::Class(ch->GetClass()).GetBaseStatCap(EBaseStat::kWis);
 	} else {
-		stat_cap = MUD::Classes(ch->GetClass()).GetBaseStatCap(EBaseStat::kCha);
+		stat_cap = MUD::Class(ch->GetClass()).GetBaseStatCap(EBaseStat::kCha);
 		eff_cha = get_effective_cha(ch);
 	}
 

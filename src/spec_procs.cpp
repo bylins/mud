@@ -467,7 +467,7 @@ int has_curse(ObjData *obj) {
 		if (i.aff_spell <= ESpell::kUndefined || !IS_OBJ_AFF(obj, i.aff_pos)) {
 			continue;
 		}
-		if (IS_SET(spell_info[i.aff_spell].routines, kNpcAffectPc | kNpcDamagePc)) {
+		if (MUD::Spell(i.aff_spell).AllowTarget(kNpcAffectPc | kNpcDamagePc)){
 			return true;
 		}
 	}

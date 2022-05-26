@@ -2186,7 +2186,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 			} else if (sscanf(arg, "%d %d", &plane, &bit) < 2) {
 				SendMsgToChar("Не указан уровень владения умением.\r\n", d->character.get());
 			} else {
-				OLC_MOB(d)->set_skill(skill_id, std::clamp(bit, 0, MUD::Skills(skill_id).cap));
+				OLC_MOB(d)->set_skill(skill_id, std::clamp(bit, 0, MUD::Skill(skill_id).cap));
 			}
 			medit_disp_skills(d);
 			return;

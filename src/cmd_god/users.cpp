@@ -210,24 +210,24 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 							"[%2d %2d %s]",
 							GetRealLevel(d->original),
 							GET_REAL_REMORT(d->original),
-							MUD::Classes(d->original->GetClass()).GetAbbr().c_str());
+							MUD::Class(d->original->GetClass()).GetAbbr().c_str());
 				} else {
 					sprintf(classname,
 							"[%2d %s]   ",
 							GetRealLevel(d->original),
-							MUD::Classes(d->original->GetClass()).GetAbbr().c_str());
+							MUD::Class(d->original->GetClass()).GetAbbr().c_str());
 				}
 			} else if (showremorts) {
 				sprintf(classname,
 						"[%2d %2d %s]",
 						GetRealLevel(d->character),
 						GET_REAL_REMORT(d->character),
-						MUD::Classes(d->character->GetClass()).GetAbbr().c_str());
+						MUD::Class(d->character->GetClass()).GetAbbr().c_str());
 			} else {
 				sprintf(classname,
 						"[%2d %s]   ",
 						GetRealLevel(d->character),
-						MUD::Classes(d->character->GetClass()).GetAbbr().c_str());
+						MUD::Class(d->character->GetClass()).GetAbbr().c_str());
 			}
 		} else {
 			strcpy(classname, "      -      ");

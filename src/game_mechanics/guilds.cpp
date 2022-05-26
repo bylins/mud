@@ -35,7 +35,7 @@ int DoGuildLearn(CharData *ch, void *me, int cmd, char *argument) {
 	if (auto rnum = trainer->get_rnum(); rnum >= 0) {
 		guild_vnum = mob_index[rnum].stored;
 	}
-	const auto &guild = MUD::Guilds(guild_vnum);
+	const auto &guild = MUD::Guild(guild_vnum);
 
 	if (guild.GetId() < 0) {
 		act("$N сказал$G : 'Извини, $n, я уже в отставке.'", false, ch, nullptr, trainer, kToChar);
@@ -326,7 +326,7 @@ bool GuildInfo::ProcessPayment(CharData *trainer, CharData *ch, const TalentPtr 
 	}
 
 	auto price = talent->CalcPrice(ch);
-	auto description = MUD::Currencies(talent->GetCurrencyId()).GetObjName(price, ECase::kAcc);
+	auto description = MUD::Currency(talent->GetCurrencyId()).GetObjName(price, ECase::kAcc);
 	std::ostringstream out;
 
 	out << GetMessage(EGuildMsg::kYouGive) << description << " $N2.";
@@ -358,11 +358,11 @@ void GuildInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 		buffer << " Trained talents: " << std::endl;
 		table_wrapper::Table table;
 		table << table_wrapper::kHeader
-			<< "Id" << "Name" << "Currency" << "Annotation" << "Fail" << "Classes" << table_wrapper::kEndRow;
+			<< "Id" << "Name" << "Currency" << "Annotation" << "Fail" << "Class" << table_wrapper::kEndRow;
 		for (const auto &talent: learning_talents_) {
 			table << talent->GetIdAsStr()
 				<< talent->GetName()
-				<< MUD::Currencies(talent->GetCurrencyId()).GetPluralName()
+				<< MUD::Currency(talent->GetCurrencyId()).GetPluralName()
 				<< talent->GetAnnotation(ch)
 				<< talent->GetFailChance()
 				<< talent->GetClassesList()
@@ -435,14 +435,14 @@ long GuildInfo::IGuildTalent::CalcPrice(CharData *buyer) const {
 
 std::string GuildInfo::IGuildTalent::GetPriceCurrencyStr(long price) const {
 	if (currency_vnum_ != info_container::kUndefinedVnum) {
-		return MUD::Currencies(currency_vnum_).GetNameWithQuantity(price);
+		return MUD::Currency(currency_vnum_).GetNameWithAmount(price);
 	} else {
 		return GetMessage(EGuildMsg::kError);
 	}
 }
 
-bool HasEnoughCurrency(CharData *ch, Vnum currency_id, long quantity);
-void WithdrawCurrency(CharData *ch, Vnum currency_id, long quantity);
+bool HasEnoughCurrency(CharData *ch, Vnum currency_id, long amount);
+void WithdrawCurrency(CharData *ch, Vnum currency_id, long amount);
 
 bool GuildInfo::IGuildTalent::TakePayment(CharData *ch) const {
 	auto price = CalcPrice(ch);
@@ -479,7 +479,7 @@ const std::string &GuildInfo::GuildSkill::GetIdAsStr() const {
 }
 
 std::string_view GuildInfo::GuildSkill::GetName() const {
-	return MUD::Skills(id_).name;
+	return MUD::Skill(id_).name;
 }
 
 int GuildInfo::GuildSkill::CalcGuildSkillCap(CharData *ch) const {
@@ -576,52 +576,52 @@ std::string GuildInfo::GuildFeat::GetAnnotation(CharData * /*ch*/) const {
  *  Костыльные функции для проверки/снятия валют, поскольку системы валют пока нет.
  */
 
-bool HasEnoughCurrency(CharData *ch, Vnum currency_id, long quantity) {
+bool HasEnoughCurrency(CharData *ch, Vnum currency_id, long amount) {
 	switch (currency_id) {
 		case 0: { // куны
-			return ch->get_gold() >= quantity;
+			return ch->get_gold() >= amount;
 		}
 		case 1: { // слава
 			const auto total_glory = GloryConst::get_glory(GET_UNIQUE(ch));
-			return total_glory >= quantity;
+			return total_glory >= amount;
 		}
 		case 2: { // гривны
-			return ch->get_hryvn() >= quantity;
+			return ch->get_hryvn() >= amount;
 		}
 		case 3: { // лед
-			return ch->get_ice_currency() >= quantity;
+			return ch->get_ice_currency() >= amount;
 		}
 		case 4: { // ногаты
-			return ch->get_nogata() >= quantity;
+			return ch->get_nogata() >= amount;
 		}
 		default:
 			return false;
 	}
 }
 
-void WithdrawCurrency(CharData *ch, Vnum currency_id, long quantity) {
+void WithdrawCurrency(CharData *ch, Vnum currency_id, long amount) {
 	switch (currency_id) {
 		case 0: { // куны
-			ch->remove_gold(quantity);
+			ch->remove_gold(amount);
 			break;
 		}
 		case 1: { // слава
-			GloryConst::add_total_spent(quantity);
-			GloryConst::remove_glory(GET_UNIQUE(ch), quantity);
-			GloryConst::transfer_log("%s spent %ld const glory in a guild.", GET_NAME(ch), quantity);
+			GloryConst::add_total_spent(amount);
+			GloryConst::remove_glory(GET_UNIQUE(ch), amount);
+			GloryConst::transfer_log("%s spent %ld const glory in a guild.", GET_NAME(ch), amount);
 			break;
 		}
 		case 2: { // гривны
-			ch->sub_hryvn(quantity);
-			ch->spent_hryvn_sub(quantity);
+			ch->sub_hryvn(amount);
+			ch->spent_hryvn_sub(amount);
 			break;
 		}
 		case 3: { // лед
-			ch->sub_ice_currency(quantity);
+			ch->sub_ice_currency(amount);
 			break;
 		}
 		case 4: { // ногаты
-			ch->sub_nogata(quantity);
+			ch->sub_nogata(amount);
 			break;
 		}
 		default:

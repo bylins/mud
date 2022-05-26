@@ -104,7 +104,7 @@ void PrintScoreList(CharData *ch) {
 	buf1[0] = LOWER(buf1[0]);
 	SendMsgToChar(ch, "Вы %s, %s, %s, %s, уровень %d, перевоплощений %d.\r\n", ch->get_name().c_str(),
 				  buf,
-				  MUD::Classes(ch->GetClass()).GetCName(),
+				  MUD::Class(ch->GetClass()).GetCName(),
 				  buf1,
 				  GetRealLevel(ch),
 				  GET_REAL_REMORT(ch));
@@ -656,7 +656,7 @@ void PrintAdditionalInfo(CharData *ch, std::ostringstream &out) {
 void PrintScoreAll(CharData *ch) {
 	// Пишем заголовок таблицы (увы, библиоетка таблиц их не поддерживает)
 	std::ostringstream out;
-	out << "  Вы " << ch->get_name() << ", " << MUD::Classes(ch->GetClass()).GetName() << ". Ваши показатели:" << std::endl;
+	out << "  Вы " << ch->get_name() << ", " << MUD::Class(ch->GetClass()).GetName() << ". Ваши показатели:" << std::endl;
 
 	// Заполняем основную таблицу и выводим в поток
 	table_wrapper::Table table;
@@ -681,7 +681,7 @@ void PrintScoreBase(CharData *ch) {
 		<< PlayerRace::GetKinNameByNum(GET_KIN(ch), GET_SEX(ch)) << ", "
 		<< PlayerRace::GetRaceNameByNum(GET_KIN(ch), GET_RACE(ch), GET_SEX(ch)) << ", "
 		<< religion_name[GET_RELIGION(ch)][static_cast<int>(GET_SEX(ch))] << ", "
-		<< MUD::Classes(ch->GetClass()).GetCName() << " "
+		<< MUD::Class(ch->GetClass()).GetCName() << " "
 		<< GetRealLevel(ch) << " уровня)." << std::endl;
 
 	PrintNameStatusInfo(ch, out);

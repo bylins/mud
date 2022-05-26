@@ -2583,7 +2583,7 @@ float get_effective_cha(CharData *ch) {
 	int key_value, key_value_add;
 
 	key_value = ch->get_cha();
-	auto max_cha = MUD::Classes(ch->GetClass()).GetBaseStatCap(EBaseStat::kCha);
+	auto max_cha = MUD::Class(ch->GetClass()).GetBaseStatCap(EBaseStat::kCha);
 	key_value_add = std::min(max_cha - ch->get_cha(), GET_CHA_ADD(ch));
 
 	float eff_cha = 0.0;
@@ -2603,7 +2603,7 @@ float get_effective_cha(CharData *ch) {
 float CalcEffectiveWis(CharData *ch, ESpell spell_id) {
 	int key_value, key_value_add;
 
-	auto max_wis = MUD::Classes(ch->GetClass()).GetBaseStatCap(EBaseStat::kWis);
+	auto max_wis = MUD::Class(ch->GetClass()).GetBaseStatCap(EBaseStat::kWis);
 
 	if (spell_id == ESpell::kResurrection || spell_id == ESpell::kAnimateDead) {
 		key_value = ch->get_wis();
@@ -2632,7 +2632,7 @@ float get_effective_int(CharData *ch) {
 	int key_value, key_value_add;
 
 	key_value = ch->get_int();
-	auto max_int = MUD::Classes(ch->GetClass()).GetBaseStatCap(EBaseStat::kInt);
+	auto max_int = MUD::Class(ch->GetClass()).GetBaseStatCap(EBaseStat::kInt);
 	key_value_add = std::min(max_int - ch->get_int(), GET_INT_ADD(ch));
 
 	float eff_int = 0.0;
@@ -2656,9 +2656,9 @@ int CalcCharmPoint(CharData *ch, ESpell spell_id) {
 
 	if (spell_id == ESpell::kResurrection || spell_id == ESpell::kAnimateDead) {
 		eff_cha = CalcEffectiveWis(ch, spell_id);
-		stat_cap = MUD::Classes(ch->GetClass()).GetBaseStatCap(EBaseStat::kWis);
+		stat_cap = MUD::Class(ch->GetClass()).GetBaseStatCap(EBaseStat::kWis);
 	} else {
-		stat_cap = MUD::Classes(ch->GetClass()).GetBaseStatCap(EBaseStat::kCha);
+		stat_cap = MUD::Class(ch->GetClass()).GetBaseStatCap(EBaseStat::kCha);
 		eff_cha = get_effective_cha(ch);
 	}
 

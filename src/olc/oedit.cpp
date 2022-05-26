@@ -559,7 +559,7 @@ void oedit_disp_skills2_menu(DescriptorData *d) {
 		}
 
 		sprintf(buf, "%s%2d%s) %s%-20.20s %s", grn, to_underlying(skill_id), nrm, yel,
-				MUD::Skills(skill_id).GetName(), !(++columns % 3) ? "\r\n" : "");
+				MUD::Skill(skill_id).GetName(), !(++columns % 3) ? "\r\n" : "");
 		SendMsgToChar(buf, d->character.get());
 	}
 	sprintf(buf, "\r\n%sВыберите умение (0 - выход) : ", nrm);
@@ -622,7 +622,7 @@ void oedit_disp_skills_mod_menu(DescriptorData *d) {
 			strcpy(buf1, "     ");
 		}
 		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, to_underlying(skill_id), nrm,
-				 MUD::Skills(skill_id).GetName(), buf1, !(++columns % 2) ? "\r\n" : "");
+				 MUD::Skill(skill_id).GetName(), buf1, !(++columns % 2) ? "\r\n" : "");
 		SendMsgToChar(buf, d->character.get());
 	}
 	SendMsgToChar("\r\nУкажите номер и уровень владения умением (0 - конец) : ", d->character.get());
@@ -1850,8 +1850,8 @@ void oedit_parse(DescriptorData *d, char *arg) {
 							}
 							skill_id = static_cast<ESkill>(number);
 							if (skill_id > ESkill::kLast
-								|| !MUD::Skills(skill_id).GetName()
-								|| *MUD::Skills(skill_id).GetName() == '!') {
+								|| !MUD::Skill(skill_id).GetName()
+								|| *MUD::Skill(skill_id).GetName() == '!') {
 								SendMsgToChar("Неизвестное умение, повторите.\r\n", d->character.get());
 								oedit_disp_val2_menu(d);
 								return;

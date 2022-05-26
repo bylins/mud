@@ -885,7 +885,7 @@ void addshot_damage(CharData *ch, ESkill type, fight::AttackType weapon) {
 	// а для скилла до сотни все остается как было
 	prob = std::min(100, prob);
 
-	auto difficulty = MUD::Skills(ESkill::kAddshot).difficulty;
+	auto difficulty = MUD::Skill(ESkill::kAddshot).difficulty;
 	int percent = number(1, difficulty);
 	// 1й доп - не более 100% при скилее 100+
 	if (prob * sit_mod >= percent / 2)
@@ -1365,10 +1365,10 @@ void hit_touching(CharData *ch, CharData *vict, int *dam) {
 		&& (IS_IMMORTAL(vict) || vict->IsNpc()
 			|| !(GET_EQ(vict, EEquipPos::kWield) || GET_EQ(vict, EEquipPos::kBoths)))
 		&& GET_POS(vict) > EPosition::kSleep) {
-		int percent = number(1, MUD::Skills(ESkill::kIntercept).difficulty);
+		int percent = number(1, MUD::Skill(ESkill::kIntercept).difficulty);
 		int prob = CalcCurrentSkill(vict, ESkill::kIntercept, ch);
 		TrainSkill(vict, ESkill::kIntercept, prob >= percent, ch);
-		SendSkillBalanceMsg(ch, MUD::Skills(ESkill::kIntercept).name, percent, prob, prob >= 70);
+		SendSkillBalanceMsg(ch, MUD::Skill(ESkill::kIntercept).name, percent, prob, prob >= 70);
 		if (IS_IMMORTAL(vict) || GET_GOD_FLAG(vict, EGf::kGodsLike)) {
 			percent = prob;
 		}
@@ -1401,7 +1401,7 @@ void hit_touching(CharData *ch, CharData *vict, int *dam) {
 }
 
 void hit_deviate(CharData *ch, CharData *victim, int *dam) {
-	int range = number(1, MUD::Skills(ESkill::kDodge).difficulty);
+	int range = number(1, MUD::Skill(ESkill::kDodge).difficulty);
 	int prob = CalcCurrentSkill(victim, ESkill::kDodge, ch);
 	if (GET_GOD_FLAG(victim, EGf::kGodscurse)) {
 		prob = 0;
@@ -1448,11 +1448,11 @@ void hit_parry(CharData *ch, CharData *victim, ESkill skill, int hit_type, int *
 		SendMsgToChar("У вас нечем отклонить атаку противника\r\n", victim);
 		CLR_AF_BATTLE(victim, kEafParry);
 	} else {
-		int range = number(1, MUD::Skills(ESkill::kParry).difficulty);
+		int range = number(1, MUD::Skill(ESkill::kParry).difficulty);
 		int prob = CalcCurrentSkill(victim, ESkill::kParry, ch);
 		prob = prob * 100 / range;
 		TrainSkill(victim, ESkill::kParry, prob < 100, ch);
-		SendSkillBalanceMsg(ch, MUD::Skills(ESkill::kParry).name, range, prob, prob >= 70);
+		SendSkillBalanceMsg(ch, MUD::Skill(ESkill::kParry).name, range, prob, prob >= 70);
 		if (prob < 70
 			|| ((skill == ESkill::kBows || hit_type == fight::type_maul)
 				&& !IS_IMMORTAL(victim)
@@ -1508,7 +1508,7 @@ void hit_multyparry(CharData *ch, CharData *victim, ESkill skill, int hit_type, 
 		|| IS_IMMORTAL(victim))) {
 		SendMsgToChar("У вас нечем отклонять атаки противников\r\n", victim);
 	} else {
-		int range = number(1, MUD::Skills(ESkill::kMultiparry).difficulty) + 15*victim->battle_counter;
+		int range = number(1, MUD::Skill(ESkill::kMultiparry).difficulty) + 15*victim->battle_counter;
 		int prob = CalcCurrentSkill(victim, ESkill::kMultiparry, ch);
 		prob = prob * 100 / range;
 
@@ -1522,7 +1522,7 @@ void hit_multyparry(CharData *ch, CharData *victim, ESkill skill, int hit_type, 
 		}
 
 		TrainSkill(victim, ESkill::kMultiparry, prob >= 50, ch);
-		SendSkillBalanceMsg(ch, MUD::Skills(ESkill::kMultiparry).name, range, prob, prob >= 50);
+		SendSkillBalanceMsg(ch, MUD::Skill(ESkill::kMultiparry).name, range, prob, prob >= 50);
 		if (prob < 50) {
 			act("Вы не смогли отбить атаку $N1", false, victim, 0, ch, kToChar);
 			act("$N не сумел$G отбить вашу атаку", false, ch, 0, victim, kToChar);
@@ -1555,12 +1555,12 @@ void hit_block(CharData *ch, CharData *victim, int *dam) {
 		|| IS_IMMORTAL(victim))) {
 		SendMsgToChar("У вас нечем отразить атаку противника\r\n", victim);
 	} else {
-		int range = number(1, MUD::Skills(ESkill::kShieldBlock).difficulty);
+		int range = number(1, MUD::Skill(ESkill::kShieldBlock).difficulty);
 		int prob = CalcCurrentSkill(victim, ESkill::kShieldBlock, ch);
 		prob = prob * 100 / range;
 		++(victim->battle_counter);
 		TrainSkill(victim, ESkill::kShieldBlock, prob > 99, ch);
-		SendSkillBalanceMsg(ch, MUD::Skills(ESkill::kShieldBlock).name, range, prob, prob > 99);
+		SendSkillBalanceMsg(ch, MUD::Skill(ESkill::kShieldBlock).name, range, prob, prob > 99);
 		if (prob < 100) {
 			act("Вы не смогли отразить атаку $N1", false, victim, 0, ch, kToChar);
 			act("$N не сумел$G отразить вашу атаку", false, ch, 0, victim, kToChar);
@@ -2442,7 +2442,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	dam = std::clamp(dam, 0, kMaxHits);
 	if (dam >= 0) {
 		if (dmg_type == fight::kPhysDmg) {
-			if (!damage_mtrigger(ch, victim, dam, MUD::Skills(skill_id).GetName(), 1, wielded))
+			if (!damage_mtrigger(ch, victim, dam, MUD::Skill(skill_id).GetName(), 1, wielded))
 				return 0;
 		} else if (dmg_type == fight::kMagicDmg) {
 			if (!damage_mtrigger(ch, victim, dam, GetSpellName(spell_id), 0, wielded))
@@ -2587,7 +2587,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 }
 
 void HitData::try_mighthit_dam(CharData *ch, CharData *victim) {
-	int percent = number(1, MUD::Skills(ESkill::kHammer).difficulty);
+	int percent = number(1, MUD::Skill(ESkill::kHammer).difficulty);
 	int prob = CalcCurrentSkill(ch, ESkill::kHammer, victim);
 	TrainSkill(ch, ESkill::kHammer, percent <= prob, victim);
 	int lag = 0, might = 0;
@@ -2600,7 +2600,7 @@ void HitData::try_mighthit_dam(CharData *ch, CharData *victim) {
 		prob = 0;
 	}
 
-	SendSkillBalanceMsg(ch, MUD::Skills(ESkill::kHammer).name, percent, prob, percent <= prob);
+	SendSkillBalanceMsg(ch, MUD::Skill(ESkill::kHammer).name, percent, prob, percent <= prob);
 	if (percent > prob || dam == 0) {
 		sprintf(buf, "&c&qВаш богатырский удар пропал впустую.&Q&n\r\n");
 		SendMsgToChar(buf, ch);
@@ -2680,10 +2680,10 @@ void HitData::try_mighthit_dam(CharData *ch, CharData *victim) {
 }
 
 void HitData::try_stupor_dam(CharData *ch, CharData *victim) {
-	int percent = number(1, MUD::Skills(ESkill::kOverwhelm).difficulty);
+	int percent = number(1, MUD::Skill(ESkill::kOverwhelm).difficulty);
 	int prob = CalcCurrentSkill(ch, ESkill::kOverwhelm, victim);
 	TrainSkill(ch, ESkill::kOverwhelm, prob >= percent, victim);
-	SendSkillBalanceMsg(ch, MUD::Skills(ESkill::kOverwhelm).name, percent, prob, prob >= percent);
+	SendSkillBalanceMsg(ch, MUD::Skill(ESkill::kOverwhelm).name, percent, prob, prob >= percent);
 	int lag = 0;
 
 	if (AFF_FLAGGED(victim, EAffect::kHold)) {
@@ -2881,7 +2881,7 @@ void HitData::init(CharData *ch, CharData *victim) {
 	//* обработка ESkill::kNoParryHit //
 	if (skill_num == ESkill::kUndefined && ch->GetSkill(ESkill::kNoParryHit)) {
 		int tmp_skill = CalcCurrentSkill(ch, ESkill::kNoParryHit, victim);
-		bool success = tmp_skill >= number(1, MUD::Skills(ESkill::kNoParryHit).difficulty);
+		bool success = tmp_skill >= number(1, MUD::Skill(ESkill::kNoParryHit).difficulty);
 		TrainSkill(ch, ESkill::kNoParryHit, success, victim);
 		if (success) {
 			hit_no_parry = true;
@@ -3054,7 +3054,7 @@ void HitData::calc_rand_hr(CharData *ch, CharData *victim) {
 
 	// courage
 	if (IsAffectedBySpell(ch, ESpell::kCourage)) {
-		int range = number(1, MUD::Skills(ESkill::kCourage).difficulty + GET_REAL_MAX_HIT(ch) - GET_HIT(ch));
+		int range = number(1, MUD::Skill(ESkill::kCourage).difficulty + GET_REAL_MAX_HIT(ch) - GET_HIT(ch));
 		int prob = CalcCurrentSkill(ch, ESkill::kCourage, victim);
 		TrainSkill(ch, ESkill::kCourage, prob > range, victim);
 		if (prob > range) {
@@ -3099,7 +3099,7 @@ void HitData::calc_rand_hr(CharData *ch, CharData *victim) {
 		&& !AFF_FLAGGED(victim, EAffect::kMagicStopFight)
 		&& !AFF_FLAGGED(victim, EAffect::kHold)) {
 		bool success = CalcCurrentSkill(ch, ESkill::kAwake, victim)
-			>= number(1, MUD::Skills(ESkill::kAwake).difficulty);
+			>= number(1, MUD::Skill(ESkill::kAwake).difficulty);
 		if (success) {
 			// > и зачем так? кто балансом занимается поправте.
 			// воткнул мин. разницу, чтобы анализаторы не ругались
@@ -3129,7 +3129,7 @@ void HitData::calc_stat_hr(CharData *ch) {
 		&& skill_num != ESkill::kBackstab
 		&& !(wielded && GET_OBJ_TYPE(wielded) == EObjType::kWeapon)
 		&& !ch->IsNpc()) {
-		calc_thaco += (MUD::Skills(ESkill::kLeftHit).difficulty - ch->GetSkill(ESkill::kLeftHit)) / 10;
+		calc_thaco += (MUD::Skill(ESkill::kLeftHit).difficulty - ch->GetSkill(ESkill::kLeftHit)) / 10;
 	}
 
 	// courage
@@ -3141,7 +3141,7 @@ void HitData::calc_stat_hr(CharData *ch) {
 	// Horse modifier for attacker
 	if (!ch->IsNpc() && skill_num != ESkill::kThrow && skill_num != ESkill::kBackstab && ch->IsOnHorse()) {
 		int prob = ch->GetSkill(ESkill::kRiding);
-		int range = MUD::Skills(ESkill::kRiding).difficulty / 2;
+		int range = MUD::Skill(ESkill::kRiding).difficulty / 2;
 
 		dam += ((prob + 19) / 10);
 
@@ -3341,7 +3341,7 @@ void HitData::calc_crit_chance(CharData *ch) {
 }
 int HitData::calc_damage(CharData *ch, bool need_dice) {
 	if (PRF_FLAGGED(ch, EPrf::kExecutor)) {
-		SendMsgToChar(ch, "&YСкилл: %s. Дамага без бонусов == %d&n\r\n", MUD::Skills(weap_skill).GetName(), dam);
+		SendMsgToChar(ch, "&YСкилл: %s. Дамага без бонусов == %d&n\r\n", MUD::Skill(weap_skill).GetName(), dam);
 	}
 	if (ch->GetSkill(weap_skill) == 0) {
 		calc_thaco += (50 - MIN(50, GET_REAL_INT(ch))) / 3;
@@ -3368,7 +3368,7 @@ int HitData::calc_damage(CharData *ch, bool need_dice) {
 		SendMsgToChar(ch, "&YДамага с учетом перков мощная-улучш == %d&n\r\n", dam);
 	// courage
 	if (IsAffectedBySpell(ch, ESpell::kCourage)) {
-		int range = number(1, MUD::Skills(ESkill::kCourage).difficulty + GET_REAL_MAX_HIT(ch) - GET_HIT(ch));
+		int range = number(1, MUD::Skill(ESkill::kCourage).difficulty + GET_REAL_MAX_HIT(ch) - GET_HIT(ch));
 		int prob = CalcCurrentSkill(ch, ESkill::kCourage, ch);
 		if (prob > range) {
 			dam += ((ch->GetSkill(ESkill::kCourage) + 19) / 20);
@@ -3742,13 +3742,13 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 	if (!IS_CHARMICE(ch) && GET_AF_BATTLE(ch, kEafPunctual) && GET_PUNCTUAL_WAIT(ch) <= 0 && ch->get_wait() <= 0
 		&& (hit_params.diceroll >= 18 - AFF_FLAGGED(victim, EAffect::kHold))) {
 		int percent = CalcCurrentSkill(ch, ESkill::kPunctual, victim);
-		bool success = percent >= number(1, MUD::Skills(ESkill::kPunctual).difficulty);
+		bool success = percent >= number(1, MUD::Skill(ESkill::kPunctual).difficulty);
 		TrainSkill(ch, ESkill::kPunctual, success, victim);
 		if (!IS_IMMORTAL(ch)) {
 			PUNCTUAL_WAIT_STATE(ch, 1 * kPulseViolence);
 		}
 		if (success && (hit_params.calc_thaco - hit_params.diceroll < hit_params.victim_ac - 5
-				|| percent >= MUD::Skills(ESkill::kPunctual).difficulty)) {
+				|| percent >= MUD::Skill(ESkill::kPunctual).difficulty)) {
 			if (!MOB_FLAGGED(victim, EMobFlag::kNotKillPunctual)) {
 				hit_params.set_flag(fight::kCritHit);
 				// CRIT_HIT и так щиты игнорит, но для порядку

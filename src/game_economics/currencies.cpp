@@ -115,8 +115,8 @@ const char *CurrencyInfo::GetPluralCName(ECase name_case) const {
 	return names_->GetPlural(name_case).c_str();
 }
 
-const std::string &CurrencyInfo::GetNameWithQuantity(long quantity) const {
-	auto remainder = quantity % 20;
+const std::string &CurrencyInfo::GetNameWithAmount(long amount) const {
+	auto remainder = amount % 20;
 	if ((remainder >= 5 && remainder <= 19) || remainder == 0) {
 		return GetPluralName(ECase::kGen);
 	} else if (remainder >= 2 && remainder <= 4) {
@@ -126,7 +126,7 @@ const std::string &CurrencyInfo::GetNameWithQuantity(long quantity) const {
 	}
 }
 
-std::string CurrencyInfo::GetObjName(long quantity, ECase gram_case) const {
+std::string CurrencyInfo::GetObjName(long amount, ECase gram_case) const {
 	const char *plural[6][3] =
 		{
 			{
@@ -181,50 +181,50 @@ std::string CurrencyInfo::GetObjName(long quantity, ECase gram_case) const {
 	};
 
 
-	if (quantity <= 0) {
-		log("SYSERR: Try to create negative or 0 money (%ld).", quantity);
+	if (amount <= 0) {
+		log("SYSERR: Try to create negative or 0 money (%ld).", amount);
 		return {};
 	}
 
 	std::ostringstream out;
-	if (quantity == 1) {
+	if (amount == 1) {
 		out << "од" << kNumeralSuffixes.at(GetGender()).at(gram_case) << " " << GetName(gram_case);
-	} else if (quantity <= 20) {
+	} else if (amount <= 20) {
 		out << "малюсеньк" << plural[gram_case][0] << " горстк" << plural[gram_case][1]
 			<< " " << GetPluralName(ECase::kGen);
-	} else if (quantity <= 50) {
+	} else if (amount <= 50) {
 		out << "маленьк" << plural[gram_case][0] << " горстк" << plural[gram_case][1]
 			<< " " << GetPluralName(ECase::kGen);
-	} else if (quantity <= 150) {
+	} else if (amount <= 150) {
 		out << "небольш" << plural[gram_case][0] << " горстк" << plural[gram_case][1]
 			<< " " << GetPluralName(ECase::kGen);
-	} else if (quantity <= 300) {
+	} else if (amount <= 300) {
 		out << "маленьк" << plural[gram_case][0] << " кучк" << plural[gram_case][1]
 			<< " " << GetPluralName(ECase::kGen);
-	} else if (quantity <= 1000) {
+	} else if (amount <= 1000) {
 		out << "небольш" << plural[gram_case][0] << " кучк" << plural[gram_case][1]
 			<< " " << GetPluralName(ECase::kGen);
-	} else if (quantity <= 5000) {
+	} else if (amount <= 5000) {
 		out << "кучк" << plural[gram_case][1] << " " << GetPluralName(ECase::kGen);
-	} else if (quantity <= 20000) {
+	} else if (amount <= 20000) {
 		out << "больш" << plural[gram_case][0] << " кучк" << plural[gram_case][1]
 			<< " " << GetPluralName(ECase::kGen);
-	} else if (quantity <= 50000) {
+	} else if (amount <= 50000) {
 		out << "небольш" << plural[gram_case][0] << " горк" << plural[gram_case][1]
 			<< " " << GetPluralName(ECase::kGen);
-	} else if (quantity <= 75000) {
+	} else if (amount <= 75000) {
 		out << "горк" << plural[gram_case][1] << " " << GetPluralName(ECase::kGen);
-	} else if (quantity <= 100000) {
+	} else if (amount <= 100000) {
 		out << "больш" << plural[gram_case][0] << " горк" << plural[gram_case][1]
 			<< " " << GetPluralName(ECase::kGen);
-	} else if (quantity <= 150000) {
+	} else if (amount <= 150000) {
 		out << "груд" << plural[gram_case][2] << " " << GetPluralCName(ECase::kGen);
-	} else if (quantity <= 250000) {
+	} else if (amount <= 250000) {
 		out << "больш" << plural[gram_case][0] << " груд" << plural[gram_case][2]
 			<< " " << GetPluralName(ECase::kGen);
-	} else if (quantity <= 500000) {
+	} else if (amount <= 500000) {
 		out << "гор" << plural[gram_case][1] << " " << GetPluralName(ECase::kGen);
-	} else if (quantity <= 1000000) {
+	} else if (amount <= 1000000) {
 		out << "больш" << plural[gram_case][0] << " гор" << plural[gram_case][2]
 			<< " " << GetPluralName(ECase::kGen);
 	} else  {
@@ -234,9 +234,9 @@ std::string CurrencyInfo::GetObjName(long quantity, ECase gram_case) const {
 
 	return out.str();
 }
-const char *CurrencyInfo::GetObjCName(long quantity, ECase gram_case) const {
+const char *CurrencyInfo::GetObjCName(long amount, ECase gram_case) const {
 	static char buf[128];
-	sprintf(buf, "%s", GetObjName(quantity, gram_case).c_str());
+	sprintf(buf, "%s", GetObjName(amount, gram_case).c_str());
 	return buf;
 }
 

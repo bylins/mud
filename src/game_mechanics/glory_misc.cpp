@@ -171,7 +171,7 @@ int start_stats_count(CharData *ch) {
 * В случае старого ролла тут это всплывет из-за нулевых статов.
 */
 bool bad_start_stats(CharData *ch) {
-	const auto &ch_class = MUD::Classes(ch->GetClass());
+	const auto &ch_class = MUD::Class(ch->GetClass());
 	if (ch->get_start_stat(G_STR) > ch_class.GetBaseStatGenMax(EBaseStat::kStr) ||
 		ch->get_start_stat(G_STR) < ch_class.GetBaseStatGenMin(EBaseStat::kStr) ||
 		ch->get_start_stat(G_DEX) > ch_class.GetBaseStatGenMax(EBaseStat::kDex) ||
@@ -234,7 +234,7 @@ bool check_stats(CharData *ch) {
 
 		// данную фигню мы делаем для того, чтобы из ролла нельзя было случайно так просто выйти
 		// сразу, не раскидав статы, а то много любителей тригов и просто нажатий не глядя
-		const auto &ch_class = MUD::Classes(ch->GetClass());
+		const auto &ch_class = MUD::Class(ch->GetClass());
 		ch->set_str(ch_class.GetBaseStatGenMin(EBaseStat::kStr));
 		ch->set_dex(ch_class.GetBaseStatGenMin(EBaseStat::kDex));
 		ch->set_int(ch_class.GetBaseStatGenMin(EBaseStat::kInt));

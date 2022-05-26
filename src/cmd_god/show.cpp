@@ -54,17 +54,17 @@ void ShowClassInfo(CharData *ch, const std::string &class_name, const std::strin
 
 	std::ostringstream out;
 	if (params.empty()) {
-		MUD::Classes(class_id).Print(ch, out);
+		MUD::Class(class_id).Print(ch, out);
 	} else {
-		MUD::Classes(class_id).PrintHeader(out);
+		MUD::Class(class_id).PrintHeader(out);
 		if (utils::IsAbbrev(params, "stats") || utils::IsAbbrev(params, "параметры")) {
-			MUD::Classes(class_id).PrintBaseStatsTable(ch, out);
+			MUD::Class(class_id).PrintBaseStatsTable(ch, out);
 		} else if (utils::IsAbbrev(params, "skills") || utils::IsAbbrev(params, "умения")) {
-			MUD::Classes(class_id).PrintSkillsTable(ch, out);
+			MUD::Class(class_id).PrintSkillsTable(ch, out);
 		} else if (utils::IsAbbrev(params, "spells") || utils::IsAbbrev(params, "заклинания")) {
-			MUD::Classes(class_id).PrintSpellsTable(ch, out);
+			MUD::Class(class_id).PrintSpellsTable(ch, out);
 		} else if (utils::IsAbbrev(params, "feats") || utils::IsAbbrev(params, "способности")) {
-			MUD::Classes(class_id).PrintFeatsTable(ch, out);
+			MUD::Class(class_id).PrintFeatsTable(ch, out);
 		}
 	}
 	page_string(ch->desc, out.str());
@@ -83,7 +83,7 @@ void ShowSpellInfo(CharData *ch, const std::string &spell_name) {
 	}
 
 	std::ostringstream out;
-	MUD::Spells(id).Print(out);
+	MUD::Spell(id).Print(out);
 	page_string(ch->desc, out.str());
 }
 
@@ -102,7 +102,7 @@ void ShowGuildInfo(CharData *ch, const std::string &guild_locator) {
 			return;
 		}
 
-		const auto &guild = MUD::Guilds(guild_vnum);
+		const auto &guild = MUD::Guild(guild_vnum);
 		if (guild.GetId() == info_container::kUndefinedVnum) {
 			SendMsgToChar("Гильдии с таким vnum не существует.", ch);
 			return;
@@ -128,7 +128,7 @@ void ShowCurrencyInfo(CharData *ch, const std::string &locator) {
 			return;
 		}
 
-		const auto &item = MUD::Currencies(vnum);
+		const auto &item = MUD::Currency(vnum);
 		if (item.GetId() == info_container::kUndefinedVnum) {
 			SendMsgToChar("Элемента с таким vnum не существует.", ch);
 			return;

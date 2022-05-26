@@ -32,7 +32,7 @@ ItemPtr CharClassInfoBuilder::Build(DataNode &node) {
 		auto class_node = SelectDataNode(node);
 		return ParseClass(class_node);
 	} catch (std::exception &e) {
-		err_log("Classes parsing error: '%s'", e.what());
+		err_log("Class parsing error: '%s'", e.what());
 		return nullptr;
 	}
 }
@@ -240,7 +240,7 @@ void CharClassInfo::PrintSkillsTable(CharData *ch, std::ostringstream &buffer) c
 			continue;
 		}
 		table << NAME_BY_ITEM<ESkill>(skill.GetId())
-				<< MUD::Skills(skill.GetId()).name
+				<< MUD::Skill(skill.GetId()).name
 				<< skill.GetMinLevel()
 				<< skill.GetMinRemort()
 				<< skill.GetImprove()

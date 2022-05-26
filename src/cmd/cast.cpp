@@ -16,11 +16,11 @@ auto FindSubstituteSpellId(CharData *ch, ESpell spell_id) {
 
 	auto subst_spell_id{ESpell::kUndefined};
 	if (CanUseFeat(ch, EFeat::kSpellSubstitute) && healing_spells.contains(spell_id)) {
-		for (const auto &test_spell : MUD::Classes(ch->GetClass()).spells) {
+		for (const auto &test_spell : MUD::Class(ch->GetClass()).spells) {
 			auto test_spell_id = test_spell.GetId();
 			if (GET_SPELL_MEM(ch, test_spell_id) &&
-				MUD::Classes(ch->GetClass()).spells[test_spell_id].GetCircle() ==
-					MUD::Classes(ch->GetClass()).spells[spell_id].GetCircle()) {
+				MUD::Class(ch->GetClass()).spells[test_spell_id].GetCircle() ==
+					MUD::Class(ch->GetClass()).spells[spell_id].GetCircle()) {
 				subst_spell_id = test_spell_id;
 				break;
 			}
@@ -87,7 +87,7 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		return;
 	}
 
-	if (const auto spell = MUD::Classes(ch->GetClass()).spells[spell_id];
+	if (const auto spell = MUD::Class(ch->GetClass()).spells[spell_id];
 		(!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp | ESpellType::kKnow) ||
 		GET_REAL_REMORT(ch) < spell.GetMinRemort()) &&
 		(GetRealLevel(ch) < kLvlGreatGod) && !ch->IsNpc()) {

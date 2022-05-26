@@ -86,7 +86,7 @@ void handle_recall_spells(CharData *ch) {
 	}
 
 	//максимальный доступный чару круг
-	auto max_circle = MUD::Classes(ch->GetClass()).GetMaxCircle();
+	auto max_circle = MUD::Class(ch->GetClass()).GetMaxCircle();
 	//обрабатываем только каждые RECALL_SPELLS_INTERVAL секунд
 	int secs_left = (kSecsPerPlayerAffect * aff->duration) / kSecsPerMudHour - kSecsPerPlayerAffect;
 	if (secs_left/kRecallSpellsInterval < max_circle - aff->modifier || secs_left <= 2) {
@@ -96,7 +96,7 @@ void handle_recall_spells(CharData *ch) {
 		struct SpellMemQueueItem *next = nullptr, *prev = nullptr, *i = ch->mem_queue.queue;
 		while (i) {
 			next = i->next;
-			if (MUD::Classes(ch->GetClass()).spells[i->spell_id].GetCircle() == slot_to_restore) {
+			if (MUD::Class(ch->GetClass()).spells[i->spell_id].GetCircle() == slot_to_restore) {
 				if (!found_spells) {
 					SendMsgToChar("Ваша голова прояснилась, в памяти всплыло несколько новых заклинаний.\r\n", ch);
 					found_spells = true;

@@ -461,9 +461,9 @@ void affect_total(CharData *ch) {
 		ch->set_int_add(ch->get_remort_add());
 		ch->set_wis_add(ch->get_remort_add());
 		ch->set_cha_add(ch->get_remort_add());
-		double add_hp_per_level = MUD::Classes(ch->GetClass()).applies.base_con
-				+ (ClampBaseStat(ch, EBaseStat::kCon, ch->get_con()) - MUD::Classes(ch->GetClass()).applies.base_con)
-				* MUD::Classes(ch->GetClass()).applies.koef_con / 100.0 + 3;
+		double add_hp_per_level = MUD::Class(ch->GetClass()).applies.base_con
+				+ (ClampBaseStat(ch, EBaseStat::kCon, ch->get_con()) - MUD::Class(ch->GetClass()).applies.base_con)
+				* MUD::Class(ch->GetClass()).applies.koef_con / 100.0 + 3;
 	 	GET_HIT_ADD(ch) = static_cast<int>(add_hp_per_level * (30 - ch->GetLevel()));
 //		SendMsgToChar(ch, "add per level %f hitadd %d  level %d\r\n", add_hp_per_level, GET_HIT_ADD(ch), ch->get_level());
 	}
@@ -550,7 +550,7 @@ void affect_total(CharData *ch) {
 	// move race and class modifiers
 	if (!ch->IsNpc()) {
 		if (ch->GetClass() >= ECharClass::kFirst && ch->GetClass() <= ECharClass::kLast) {
-			for (const auto aff : MUD::Classes(ch->GetClass()).inborn_affects) {
+			for (const auto aff : MUD::Class(ch->GetClass()).inborn_affects) {
 				affect_modify(ch, EApply::kNone, aff.mod, aff.affect, aff.add);
 			}
 		}

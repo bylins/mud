@@ -71,7 +71,7 @@ void TopPlayer::PrintPlayersChart(CharData *ch) {
 			<< it.second.begin()->name_
 			<< it.second.begin()->remort_
 			<< GetDeclensionInNumber(it.second.begin()->remort_, EWhat::kRemort)
-			<< MUD::Classes(it.first).GetName() << table_wrapper::kEndRow;
+			<< MUD::Class(it.first).GetName() << table_wrapper::kEndRow;
 	}
 	table_wrapper::DecorateNoBorderTable(ch, table);
 	table_wrapper::PrintTableToChar(ch, table);
@@ -79,7 +79,7 @@ void TopPlayer::PrintPlayersChart(CharData *ch) {
 
 void TopPlayer::PrintClassChart(CharData *ch, ECharClass id) {
 	std::ostringstream out;
-	out << KWHT << " Лучшие " << MUD::Classes(id).GetPluralName() << ":" << KNRM << std::endl;
+	out << KWHT << " Лучшие " << MUD::Class(id).GetPluralName() << ":" << KNRM << std::endl;
 
 	table_wrapper::Table table;
 	for (const auto &it: TopPlayer::chart_[id]) {

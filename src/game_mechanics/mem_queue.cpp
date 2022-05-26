@@ -43,11 +43,11 @@ int CalcSpellManacost(const CharData *ch, ESpell spell_id) {
 					   spell_info[spell_id].mana_min));
 	} else {
 		if (!IS_MANA_CASTER(ch) && GetRealLevel(ch) >= CalcMinSpellLvl(ch, spell_id)
-			&& GET_REAL_REMORT(ch) >= MUD::Classes(ch->GetClass()).spells[spell_id].GetMinRemort()) {
+			&& GET_REAL_REMORT(ch) >= MUD::Class(ch->GetClass()).spells[spell_id].GetMinRemort()) {
 			result = std::max(spell_info[spell_id].mana_max - (spell_info[spell_id].mana_change *
 								  (GetRealLevel(ch) - CalcMinSpellLvl(ch, spell_id))),
 							  spell_info[spell_id].mana_min);
-			auto class_mem_mod = MUD::Classes(ch->GetClass()).spells[spell_id].GetMemMod();
+			auto class_mem_mod = MUD::Class(ch->GetClass()).spells[spell_id].GetMemMod();
 			if (class_mem_mod < 0) {
 				result = result*(100 - abs(class_mem_mod))/100;
 			} else {
@@ -108,7 +108,7 @@ void MemQ_remember(CharData *ch, ESpell spell_id) {
 
 	// проверить количество слотов
 	slots = MemQ_slots(ch);
-	slotn = MUD::Classes(ch->GetClass()).spells[spell_id].GetCircle() - 1;
+	slotn = MUD::Class(ch->GetClass()).spells[spell_id].GetCircle() - 1;
 	slotcnt = classes::CalcCircleSlotsAmount(ch, slotn + 1);
 	slotcnt -= slots[slotn];    // кол-во свободных слотов
 
@@ -178,9 +178,9 @@ int *MemQ_slots(CharData *ch) {
 		if (spell_mem == 0) {
 			continue;
 		}
-		sloti = MUD::Classes(ch->GetClass()).spells[spell_id].GetCircle() - 1;
+		sloti = MUD::Class(ch->GetClass()).spells[spell_id].GetCircle() - 1;
 		if (CalcMinSpellLvl(ch, spell_id) > GetRealLevel(ch) ||
-			MUD::Classes(ch->GetClass()).spells[spell_id].GetMinRemort() > GET_REAL_REMORT(ch)) {
+			MUD::Class(ch->GetClass()).spells[spell_id].GetMinRemort() > GET_REAL_REMORT(ch)) {
 			GET_SPELL_MEM(ch, spell_id) = 0;
 			continue;
 		}
@@ -193,11 +193,11 @@ int *MemQ_slots(CharData *ch) {
 	}
 
 	for (q = &ch->mem_queue.queue; q[0];) {
-		sloti = MUD::Classes(ch->GetClass()).spells[q[0]->spell_id].GetCircle() - 1;
+		sloti = MUD::Class(ch->GetClass()).spells[q[0]->spell_id].GetCircle() - 1;
 		if (sloti >= 0 && sloti <= 10) {
 			--slots[sloti];
 			if (slots[sloti] >= 0 && CalcMinSpellLvl(ch, q[0]->spell_id) <= GetRealLevel(ch) &&
-				MUD::Classes(ch->GetClass()).spells[q[0]->spell_id].GetMinRemort() <= GET_REAL_REMORT(ch)) {
+				MUD::Class(ch->GetClass()).spells[q[0]->spell_id].GetMinRemort() <= GET_REAL_REMORT(ch)) {
 				q = &(q[0]->next);
 			} else {
 				if (q == &ch->mem_queue.queue)
@@ -251,14 +251,14 @@ void forget_all_spells(CharData *ch) {
 	}
 	struct SpellMemQueueItem *qi_cur, **qi = &ch->mem_queue.queue;
 	while (*qi) {
-		--slots[MUD::Classes(ch->GetClass()).spells[(*(qi))->spell_id].GetCircle() - 1];
+		--slots[MUD::Class(ch->GetClass()).spells[(*(qi))->spell_id].GetCircle() - 1];
 		qi = &((*qi)->next);
 	}
 	int slotn;
 
 	for (auto spell_id = ESpell::kFirst ; spell_id <= ESpell::kLast; ++spell_id) {
 		if (PRF_FLAGGED(ch, EPrf::kAutomem) && GET_SPELL_MEM(ch, spell_id)) {
-			slotn = MUD::Classes(ch->GetClass()).spells[spell_id].GetCircle() - 1;
+			slotn = MUD::Class(ch->GetClass()).spells[spell_id].GetCircle() - 1;
 			for (unsigned j = 0; (slots[slotn] > 0 && j < GET_SPELL_MEM(ch, spell_id)); ++j, --slots[slotn]) {
 				ch->mem_queue.total += CalcSpellManacost(ch, spell_id);
 				CREATE(qi_cur, 1);

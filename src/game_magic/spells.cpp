@@ -74,23 +74,23 @@ ESkill GetMagicSkillId(ESpell spell_id) {
 //Определим мин уровень для изучения спелла из книги
 //req_lvl - требуемый уровень из книги
 int CalcMinSpellLvl(const CharData *ch, ESpell spell_id, int req_lvl) {
-	int min_lvl = std::max(req_lvl, MUD::Classes(ch->GetClass()).spells[spell_id].GetMinLevel())
-		- (std::max(0, GET_REAL_REMORT(ch)/MUD::Classes(ch->GetClass()).GetSpellLvlDecrement()));
+	int min_lvl = std::max(req_lvl, MUD::Class(ch->GetClass()).spells[spell_id].GetMinLevel())
+		- (std::max(0, GET_REAL_REMORT(ch)/ MUD::Class(ch->GetClass()).GetSpellLvlDecrement()));
 
 	return std::max(1, min_lvl);
 }
 
 int CalcMinSpellLvl(const CharData *ch, ESpell spell_id) {
-	auto min_lvl = MUD::Classes(ch->GetClass()).spells[spell_id].GetMinLevel()
-		- GET_REAL_REMORT(ch)/MUD::Classes(ch->GetClass()).GetSpellLvlDecrement();
+	auto min_lvl = MUD::Class(ch->GetClass()).spells[spell_id].GetMinLevel()
+		- GET_REAL_REMORT(ch)/ MUD::Class(ch->GetClass()).GetSpellLvlDecrement();
 
 	return std::max(1, min_lvl);
 }
 
 bool CanGetSpell(const CharData *ch, ESpell spell_id, int req_lvl) {
-	if (MUD::Classes(ch->GetClass()).spells.IsUnavailable(spell_id) ||
+	if (MUD::Class(ch->GetClass()).spells.IsUnavailable(spell_id) ||
 		CalcMinSpellLvl(ch, spell_id, req_lvl) > GetRealLevel(ch) ||
-		MUD::Classes(ch->GetClass()).spells[spell_id].GetMinRemort() > GET_REAL_REMORT(ch)) {
+		MUD::Class(ch->GetClass()).spells[spell_id].GetMinRemort() > GET_REAL_REMORT(ch)) {
 		return false;
 	}
 
@@ -99,12 +99,12 @@ bool CanGetSpell(const CharData *ch, ESpell spell_id, int req_lvl) {
 
 // Функция определяет возможность изучения спелла из книги или в гильдии
 bool CanGetSpell(CharData *ch, ESpell spell_id) {
-	if (MUD::Classes(ch->GetClass()).spells.IsUnavailable(spell_id)) {
+	if (MUD::Class(ch->GetClass()).spells.IsUnavailable(spell_id)) {
 		return false;
 	}
 
 	if (CalcMinSpellLvl(ch, spell_id) > GetRealLevel(ch) ||
-		MUD::Classes(ch->GetClass()).spells[spell_id].GetMinRemort() > GET_REAL_REMORT(ch)) {
+		MUD::Class(ch->GetClass()).spells[spell_id].GetMinRemort() > GET_REAL_REMORT(ch)) {
 		return false;
 	}
 
@@ -1426,10 +1426,10 @@ void print_book_uprgd_skill(CharData *ch, const ObjData *obj) {
 	}
 	if (GET_OBJ_VAL(obj, 3) > 0) {
 		SendMsgToChar(ch, "повышает умение \"%s\" (максимум %d)\r\n",
-					  MUD::Skills(skill_id).GetName(), GET_OBJ_VAL(obj, 3));
+					  MUD::Skill(skill_id).GetName(), GET_OBJ_VAL(obj, 3));
 	} else {
 		SendMsgToChar(ch, "повышает умение \"%s\" (не больше максимума текущего перевоплощения)\r\n",
-					  MUD::Skills(skill_id).GetName());
+					  MUD::Skill(skill_id).GetName());
 	}
 }
 
@@ -1562,7 +1562,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 					auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(obj, 1));
 					if (spell_id >= ESpell::kFirst && spell_id <= ESpell::kLast) {
 						drndice = GET_OBJ_VAL(obj, 1);
-						if (MUD::Classes(ch->GetClass()).spells.IsAvailable(spell_id)) {
+						if (MUD::Class(ch->GetClass()).spells.IsAvailable(spell_id)) {
 							drsdice = CalcMinSpellLvl(ch, spell_id, GET_OBJ_VAL(obj, 2));
 						} else {
 							drsdice = kLvlImplementator;
@@ -1578,12 +1578,12 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 					auto skill_id = static_cast<ESkill>(GET_OBJ_VAL(obj, 1));
 					if (MUD::Skills().IsValid(skill_id)) {
 						drndice = GET_OBJ_VAL(obj, 1);
-						if (MUD::Classes(ch->GetClass()).skills[skill_id].IsAvailable()) {
+						if (MUD::Class(ch->GetClass()).skills[skill_id].IsAvailable()) {
 							drsdice = GetSkillMinLevel(ch, skill_id, GET_OBJ_VAL(obj, 2));
 						} else {
 							drsdice = kLvlImplementator;
 						}
-						sprintf(buf, "содержит секрет умения     : \"%s\"\r\n", MUD::Skills(skill_id).GetName());
+						sprintf(buf, "содержит секрет умения     : \"%s\"\r\n", MUD::Skill(skill_id).GetName());
 						SendMsgToChar(buf, ch);
 						sprintf(buf, "уровень изучения (для вас) : %d\r\n", drsdice);
 						SendMsgToChar(buf, ch);
@@ -1619,7 +1619,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 					const auto feat_id = static_cast<EFeat>(GET_OBJ_VAL(obj, 1));
 					if (feat_id >= EFeat::kFirst && feat_id <= EFeat::kLast) {
 						if (CanGetFeat(ch, feat_id)) {
-							drsdice = MUD::Classes(ch->GetClass()).feats[feat_id].GetSlot();
+							drsdice = MUD::Class(ch->GetClass()).feats[feat_id].GetSlot();
 						} else {
 							drsdice = kLvlImplementator;
 						}
@@ -1773,7 +1773,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 				continue;
 
 			sprintf(buf, "   %s%s%s%s%s%d%%%s\r\n",
-					CCCYN(ch, C_NRM), MUD::Skills(skill_id).GetName(), CCNRM(ch, C_NRM),
+					CCCYN(ch, C_NRM), MUD::Skill(skill_id).GetName(), CCNRM(ch, C_NRM),
 					CCCYN(ch, C_NRM),
 					percent < 0 ? " ухудшает на " : " улучшает на ", abs(percent), CCNRM(ch, C_NRM));
 			SendMsgToChar(buf, ch);
@@ -2679,7 +2679,7 @@ int CheckRecipeItems(CharData *ch, ESpell spell_id, ESpellType spell_type, int e
 			if (!obj) {
 				return false;
 			} else {
-				percent = number(1, MUD::Skills(skill_id).difficulty);
+				percent = number(1, MUD::Skill(skill_id).difficulty);
 				auto prob = CalcCurrentSkill(ch, skill_id, nullptr);
 
 				if (MUD::Skills().IsValid(skill_id) && percent > prob) {

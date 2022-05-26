@@ -713,10 +713,10 @@ bool CanUseFeat(const CharData *ch, EFeat feat) {
 	if (ch->IsNpc()) {
 		return true;
 	};
-	if (CalcMaxFeatSlotPerLvl(ch) < MUD::Classes(ch->GetClass()).feats[feat].GetSlot()) {
+	if (CalcMaxFeatSlotPerLvl(ch) < MUD::Class(ch->GetClass()).feats[feat].GetSlot()) {
 		return false;
 	};
-	if (GET_REAL_REMORT(ch) < MUD::Classes(ch->GetClass()).feats[feat].GetMinRemort()) {
+	if (GET_REAL_REMORT(ch) < MUD::Class(ch->GetClass()).feats[feat].GetMinRemort()) {
 		return false;
 	};
 
@@ -776,9 +776,9 @@ bool CanGetFeat(CharData *ch, EFeat feat) {
 		<< " Мин. реморт: " << MUD::Classes(ch->get_class()).feats[feat].GetMinRemort() << std::endl;
 	SendMsgToChar(out.str(), ch);*/
 
-	if ((MUD::Classes(ch->GetClass()).feats.IsUnavailable(feat) &&
+	if ((MUD::Class(ch->GetClass()).feats.IsUnavailable(feat) &&
 		!PlayerRace::FeatureCheck(GET_KIN(ch), GET_RACE(ch), to_underlying(feat))) ||
-		(GET_REAL_REMORT(ch) < MUD::Classes(ch->GetClass()).feats[feat].GetMinRemort())) {
+		(GET_REAL_REMORT(ch) < MUD::Class(ch->GetClass()).feats[feat].GetMinRemort())) {
 		return false;
 	}
 
@@ -919,7 +919,7 @@ bool CanGetFeat(CharData *ch, EFeat feat) {
 }
 
 bool CheckVacantFeatSlot(CharData *ch, EFeat feat_id) {
-	if (MUD::Classes(ch->GetClass()).feats[feat_id].IsInborn()
+	if (MUD::Class(ch->GetClass()).feats[feat_id].IsInborn()
 		|| PlayerRace::FeatureCheck(GET_KIN(ch), GET_RACE(ch), to_underlying(feat_id))) {
 		return true;
 	}
@@ -931,13 +931,13 @@ bool CheckVacantFeatSlot(CharData *ch, EFeat feat_id) {
 	//Мы не можем просто учесть кол-во способностей меньше требуемого и больше требуемого,
 	//т.к. возможны свободные слоты меньше требуемого, и при этом верхние заняты все
 	auto slot_list = std::vector<int>();
-	for (const auto &feat : MUD::Classes(ch->GetClass()).feats) {
+	for (const auto &feat : MUD::Class(ch->GetClass()).feats) {
 		if (feat.IsInborn() || PlayerRace::FeatureCheck(GET_KIN(ch), GET_RACE(ch), to_underlying(feat.GetId()))) {
 			continue;
 		}
 
 		if (ch->HaveFeat(feat.GetId())) {
-			if (feat.GetSlot() >= MUD::Classes(ch->GetClass()).feats[feat_id].GetSlot()) {
+			if (feat.GetSlot() >= MUD::Class(ch->GetClass()).feats[feat_id].GetSlot()) {
 				++hifeat;
 			} else {
 				slot_list.push_back(feat.GetSlot());
@@ -960,8 +960,8 @@ bool CheckVacantFeatSlot(CharData *ch, EFeat feat_id) {
 	//число высоких слотов, занятых низкоуровневыми способностями,
 	//с учетом, что низкоуровневые могут и не занимать слотов выше им положенных,
 	//а также собственно число слотов, занятых высокоуровневыми способностями
-	if (CalcMaxFeatSlotPerLvl(ch) - MUD::Classes(ch->GetClass()).feats[feat_id].GetSlot() -
-		hifeat - std::max(0, lowfeat - MUD::Classes(ch->GetClass()).feats[feat_id].GetSlot()) > 0) {
+	if (CalcMaxFeatSlotPerLvl(ch) - MUD::Class(ch->GetClass()).feats[feat_id].GetSlot() -
+		hifeat - std::max(0, lowfeat - MUD::Class(ch->GetClass()).feats[feat_id].GetSlot()) > 0) {
 		return true;
 	}
 
@@ -1208,7 +1208,7 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	const auto spell = MUD::Classes(ch->GetClass()).spells[spell_id];
+	const auto spell = MUD::Class(ch->GetClass()).spells[spell_id];
 	if ((!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp | ESpellType::kKnow) ||
 		GET_REAL_REMORT(ch) < spell.GetMinRemort()) &&
 		(GetRealLevel(ch) < kLvlGreatGod) && (!ch->IsNpc())) {
@@ -1267,7 +1267,7 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	timed.feat = EFeat::kSpellCapabler;
 
-	switch (MUD::Classes(ch->GetClass()).spells[spell_id].GetCircle()) {
+	switch (MUD::Class(ch->GetClass()).spells[spell_id].GetCircle()) {
 		case 1:
 		case 2:
 		case 3:
@@ -1326,7 +1326,7 @@ void UnsetRaceFeats(CharData *ch) {
 }
 
 void SetInbornFeats(CharData *ch) {
-	for (const auto &feat : MUD::Classes(ch->GetClass()).feats) {
+	for (const auto &feat : MUD::Class(ch->GetClass()).feats) {
 		if (feat.IsInborn() && !ch->HaveFeat(feat.GetId()) && CanGetFeat(ch, feat.GetId())) {
 			ch->SetFeat(feat.GetId());
 		}
@@ -1341,7 +1341,7 @@ void SetInbornAndRaceFeats(CharData *ch) {
 void UnsetInaccessibleFeats(CharData *ch) {
 	for (auto feat_id = EFeat::kFirst; feat_id <= EFeat::kLast; ++feat_id) {
 		if (ch->HaveFeat(feat_id)) {
-			if (MUD::Classes(ch->GetClass()).feats.IsUnavailable(feat_id)) {
+			if (MUD::Class(ch->GetClass()).feats.IsUnavailable(feat_id)) {
 				ch->UnsetFeat(feat_id);
 			}
 		}
@@ -1573,13 +1573,13 @@ int CalcRollBonusOfGroupFormation(CharData *ch, CharData * /* enemy */) {
 
 int CalcMaxFeatSlotPerLvl(const CharData *ch) {
 	return (kMinBaseFeatsSlotsAmount + GetRealLevel(ch)*(kMaxBaseFeatsSlotsAmount - 1 +
-		GET_REAL_REMORT(ch)/MUD::Classes(ch->GetClass()).GetRemortsNumForFeatSlot())/kLastFeatSlotLvl);
+		GET_REAL_REMORT(ch)/ MUD::Class(ch->GetClass()).GetRemortsNumForFeatSlot())/kLastFeatSlotLvl);
 }
 
 int CalcFeatSlotsAmountPerRemort(CharData *ch) {
 	//auto result = kMaxBaseFeatsSlotsAmount + ch->get_remort()/MUD::Classes(ch->GetClass()).GetRemortsNumForFeatSlot();
 	auto result = kMinBaseFeatsSlotsAmount + kMaxPlayerLevel*(kMaxBaseFeatsSlotsAmount - 1 +
-		ch->get_remort()/MUD::Classes(ch->GetClass()).GetRemortsNumForFeatSlot())/kLastFeatSlotLvl;
+		ch->get_remort()/ MUD::Class(ch->GetClass()).GetRemortsNumForFeatSlot())/kLastFeatSlotLvl;
 	return result;
 }
 

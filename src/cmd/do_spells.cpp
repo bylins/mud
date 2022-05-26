@@ -50,7 +50,7 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 	}
 	for (const auto &spl_info : spell_info) {
 		auto spell_id = spl_info.first;
-		const auto &spell = MUD::Classes(ch->GetClass()).spells[spell_id];
+		const auto &spell = MUD::Class(ch->GetClass()).spells[spell_id];
 		if (!GET_SPELL_TYPE(ch, spell_id) && !all)
 			continue;
 		if (!IS_MANA_CASTER(ch) && !IS_GOD(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {

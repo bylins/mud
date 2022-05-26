@@ -1422,7 +1422,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			log("SYSERROR : Unknown skill No %d for MOB #%d", t[0], nr);
 			return;
 		}
-		t[1] = std::clamp(t[1], 0, MUD::Skills(skill_id).cap);
+		t[1] = std::clamp(t[1], 0, MUD::Skill(skill_id).cap);
 		(mob_proto + i)->set_skill(skill_id, t[1]);
 	}
 

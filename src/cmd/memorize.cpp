@@ -40,7 +40,7 @@ void do_memorize(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	const auto spell = MUD::Classes(ch->GetClass()).spells[spell_id];
+	const auto spell = MUD::Class(ch->GetClass()).spells[spell_id];
 	if (GetRealLevel(ch) < CalcMinSpellLvl(ch, spell_id)
 		|| GET_REAL_REMORT(ch) < spell.GetMinRemort()
 		|| CalcCircleSlotsAmount(ch, spell.GetCircle()) <= 0) {
@@ -78,7 +78,7 @@ void show_wizdom(CharData *ch, int bitset) {
 				count = 10;
 			if (!count)
 				continue;
-			slot_num = MUD::Classes(ch->GetClass()).spells[spell_id].GetCircle() - 1;
+			slot_num = MUD::Class(ch->GetClass()).spells[spell_id].GetCircle() - 1;
 			max_slot = std::max(slot_num, max_slot);
 			slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
 					"%2s|[%2d] %-31s|",
@@ -140,7 +140,7 @@ void show_wizdom(CharData *ch, int bitset) {
 				if (cnt[index] == ESpell::kUndefined) {
 					continue;
 				}
-				slot_num = MUD::Classes(ch->GetClass()).spells[spell_id].GetCircle() - 1;
+				slot_num = MUD::Class(ch->GetClass()).spells[spell_id].GetCircle() - 1;
 				slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
 						"%2s|[%2d] %-26s%5s|",
 						slots[slot_num] % 80 < 10 ? "\r\n" : "  ", 
