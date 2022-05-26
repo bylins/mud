@@ -75,6 +75,25 @@ void ReadAsConstantsSet(std::unordered_set<T> &roster, const char *value) {
 	}
 }
 
+template<typename T>
+Bitvector ReadAsConstantsBitvector(const char *value) {
+	if (strcmp(value, "") == 0) {
+		throw std::runtime_error("string is empty");
+	}
+	std::vector<std::string> str_array;
+	utils::SplitString(str_array, value, '|');
+	Bitvector result{0};
+	for (const auto &str : str_array) {
+		try {
+			result |= ITEM_BY_NAME<T>(str);
+		} catch (...) {
+			err_log("value '%s' is incorrcect constant in this context.", str.c_str());
+		}
+	}
+
+	return result;
+}
+
 } // namespace Parse
 
 #endif // PARSE_HPP_INCLUDED

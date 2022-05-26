@@ -50,9 +50,9 @@ class SpellInfo : public info_container::BaseItem<ESpell> {
 	[[nodiscard]] bool IsFlagged(Bitvector flag) const;
 	[[nodiscard]] bool AllowTarget(Bitvector target_type) const;
 	[[nodiscard]] bool IsViolent() const { return violent_; };
+	[[nodiscard]] bool IsBelongedTo(EElement element) const { return element_ == element; };
 
 	[[nodiscard]] long GetDanger() const { return danger_; };
-	[[nodiscard]] EElement GetElement() const { return element_; };
 	[[nodiscard]] EPosition GetMinPos() const { return min_position_; };
 
 	[[nodiscard]] int GetMinMana() const { return min_mana_; };

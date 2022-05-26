@@ -914,4 +914,105 @@ ESpellType ITEM_BY_NAME(const std::string &name) {
 	return ESpellType_value_by_name.at(name);
 }
 
+typedef std::map<EMagic, std::string> EMagic_name_by_value_t;
+typedef std::map<const std::string, EMagic> EMagic_value_by_name_t;
+EMagic_name_by_value_t EMagic_name_by_value;
+EMagic_value_by_name_t EMagic_value_by_name;
+void init_EMagic_ITEM_NAMES() {
+	EMagic_value_by_name.clear();
+	EMagic_name_by_value.clear();
+
+	EMagic_name_by_value[EMagic::kMagDamage] = "kMagDamage";
+	EMagic_name_by_value[EMagic::kMagAffects] = "kMagAffects";
+	EMagic_name_by_value[EMagic::kMagUnaffects] = "kMagUnaffects";
+	EMagic_name_by_value[EMagic::kMagPoints] = "kMagPoints";
+	EMagic_name_by_value[EMagic::kMagAlterObjs] = "kMagAlterObjs";
+	EMagic_name_by_value[EMagic::kMagGroups] = "kMagGroups";
+	EMagic_name_by_value[EMagic::kMagMasses] = "kMagMasses";
+	EMagic_name_by_value[EMagic::kMagAreas] = "kMagAreas";
+	EMagic_name_by_value[EMagic::kMagSummons] = "kMagSummons";
+	EMagic_name_by_value[EMagic::kMagCreations] = "kMagCreations";
+	EMagic_name_by_value[EMagic::kMagManual] = "kMagManual";
+	EMagic_name_by_value[EMagic::kMagWarcry] = "kMagWarcry";
+	EMagic_name_by_value[EMagic::kMagNeedControl] = "kMagNeedControl";
+	EMagic_name_by_value[EMagic::kMagNone] = "kMagNone";
+	EMagic_name_by_value[EMagic::kNpcDamagePc] = "kNpcDamagePc";
+	EMagic_name_by_value[EMagic::kNpcDamagePcMinhp] = "kNpcDamagePcMinhp";
+	EMagic_name_by_value[EMagic::kNpcAffectPc] = "kNpcAffectPc";
+	EMagic_name_by_value[EMagic::kNpcAffectPcCaster] = "kNpcAffectPcCaster";
+	EMagic_name_by_value[EMagic::kNpcAffectNpc] = "kNpcAffectNpc";
+	EMagic_name_by_value[EMagic::kNpcUnaffectNpc] = "kNpcUnaffectNpc";
+	EMagic_name_by_value[EMagic::kNpcUnaffectNpcCaster] = "kNpcUnaffectNpcCaster";
+	EMagic_name_by_value[EMagic::kNpcDummy] = "kNpcDummy";
+	EMagic_name_by_value[EMagic::kMagRoom] = "kMagRoom";
+	EMagic_name_by_value[EMagic::kMagCasterInroom] = "kMagCasterInroom";
+	EMagic_name_by_value[EMagic::kMagCasterInworld] = "kMagCasterInworld";
+	EMagic_name_by_value[EMagic::kMagCasterAnywhere] = "kMagCasterAnywhere";
+	EMagic_name_by_value[EMagic::kMagCasterInworldDelay] = "kMagCasterInworldDelay";
+
+	for (const auto &i : EMagic_name_by_value) {
+		EMagic_value_by_name[i.second] = i.first;
+	}
+}
+
+template<>
+const std::string &NAME_BY_ITEM<EMagic>(const EMagic item) {
+	if (EMagic_name_by_value.empty()) {
+		init_EMagic_ITEM_NAMES();
+	}
+	return EMagic_name_by_value.at(item);
+}
+
+template<>
+EMagic ITEM_BY_NAME(const std::string &name) {
+	if (EMagic_name_by_value.empty()) {
+		init_EMagic_ITEM_NAMES();
+	}
+	return EMagic_value_by_name.at(name);
+}
+
+typedef std::map<ETarget, std::string> ETarget_name_by_value_t;
+typedef std::map<const std::string, ETarget> ETarget_value_by_name_t;
+ETarget_name_by_value_t ETarget_name_by_value;
+ETarget_value_by_name_t ETarget_value_by_name;
+void init_ETarget_ITEM_NAMES() {
+	ETarget_value_by_name.clear();
+	ETarget_name_by_value.clear();
+
+	ETarget_name_by_value[ETarget::kTarIgnore] = "kTarIgnore";
+	ETarget_name_by_value[ETarget::kTarCharRoom] = "kTarCharRoom";
+	ETarget_name_by_value[ETarget::kTarCharWorld] = "kTarCharWorld";
+	ETarget_name_by_value[ETarget::kTarFightSelf] = "kTarFightSelf";
+	ETarget_name_by_value[ETarget::kTarFightVict] = "kTarFightVict";
+	ETarget_name_by_value[ETarget::kTarSelfOnly] = "kTarSelfOnly";
+	ETarget_name_by_value[ETarget::kTarNotSelf] = "kTarNotSelf";
+	ETarget_name_by_value[ETarget::kTarObjInv] = "kTarObjInv";
+	ETarget_name_by_value[ETarget::kTarObjRoom] = "kTarObjRoom";
+	ETarget_name_by_value[ETarget::kTarObjWorld] = "kTarObjWorld";
+	ETarget_name_by_value[ETarget::kTarObjEquip] = "kTarObjEquip";
+	ETarget_name_by_value[ETarget::kTarRoomThis] = "kTarRoomThis";
+	ETarget_name_by_value[ETarget::kTarRoomDir] = "kTarRoomDir";
+	ETarget_name_by_value[ETarget::kTarRoomWorld] = "kTarRoomWorld";
+
+	for (const auto &i : ETarget_name_by_value) {
+		ETarget_value_by_name[i.second] = i.first;
+	}
+}
+
+template<>
+const std::string &NAME_BY_ITEM<ETarget>(const ETarget item) {
+	if (ETarget_name_by_value.empty()) {
+		init_ETarget_ITEM_NAMES();
+	}
+	return ETarget_name_by_value.at(item);
+}
+
+template<>
+ETarget ITEM_BY_NAME(const std::string &name) {
+	if (ETarget_name_by_value.empty()) {
+		init_ETarget_ITEM_NAMES();
+	}
+	return ETarget_value_by_name.at(name);
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

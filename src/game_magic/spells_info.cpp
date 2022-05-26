@@ -1302,15 +1302,26 @@ ItemPtr SpellInfoBuilder::ParseSpell(DataNode node) {
 		}
 		node.GoToParent();
 	}
-/*
-	if (node.GoToSibling("targets")) {
 
+	if (node.GoToChild("targets")) {
+		try {
+			info->targets_ = parse::ReadAsConstantsBitvector<ETarget>(node.GetValue("val"));
+		} catch (std::exception &e) {
+			err_log("Incorrect 'mana' section (spell: %s, value: %s).",
+					NAME_BY_ITEM(info->GetId()).c_str(), e.what());
+		}
+		node.GoToParent();
 	}
 
-	if (node.GoToSibling("flags")) {
-
-	}*/
-	//node.GoToSibling("flags");
+	if (node.GoToChild("flags")) {
+		try {
+			info->flags_ = parse::ReadAsConstantsBitvector<EMagic>(node.GetValue("val"));
+		} catch (std::exception &e) {
+			err_log("Incorrect 'mana' section (spell: %s, value: %s).",
+					NAME_BY_ITEM(info->GetId()).c_str(), e.what());
+		}
+		node.GoToParent();
+	}
 
 	return info;
 }
@@ -1323,7 +1334,6 @@ bool SpellInfo::AllowTarget(Bitvector target_type) const {
 	return IS_SET(targets_, target_type);
 }
 
-// \todo Не забыть добавить поля
 void SpellInfo::Print(std::ostringstream &buffer) const {
 	buffer << "Print spell:" << std::endl
 		   << " Id: " << KGRN << NAME_BY_ITEM<ESpell>(GetId()) << KNRM
@@ -1336,13 +1346,10 @@ void SpellInfo::Print(std::ostringstream &buffer) const {
 		   << " Danger: " << KGRN << danger_ << KNRM << std::endl
 		   << " Mana min: " << KGRN << min_mana_ << KNRM
 		   << " Mana max: " << KGRN << max_mana_ << KNRM
-		   << " Mana change: " << KGRN << mana_change_ << KNRM << std::endl;
+		   << " Mana change: " << KGRN << mana_change_ << KNRM << std::endl
+		   << " Flags: " << KGRN << flags_ << KNRM << std::endl
+		   << " Targets: " << KGRN << targets_ << KNRM << std::endl;
 }
-
-/*
-Bitvector flags_{0};
-Bitvector targets_{0};
-*/
 
 }
 
