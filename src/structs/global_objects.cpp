@@ -24,6 +24,7 @@ struct GlobalObjectsStorage {
 
 	abilities::AbilitiesInfo abilities_info;
 	SkillsInfo skills_info;
+	spells::SpellsInfo spells_info;
 	cfg_manager::CfgManager cfg_mngr;
 	classes::ClassesInfo classes_info;
 	guilds::GuildsInfo guilds_info;
@@ -66,6 +67,14 @@ SkillsInfo &GlobalObjects::Skills() {
 
 const SkillInfo &GlobalObjects::Skills(const ESkill skill_id) {
 	return global_objects().skills_info[skill_id];
+}
+
+spells::SpellsInfo &GlobalObjects::Spells() {
+	return global_objects().spells_info;
+}
+
+const spells::SpellInfo &GlobalObjects::Spells(const ESpell spell_id) {
+	return global_objects().spells_info[spell_id];
 }
 
 cfg_manager::CfgManager &GlobalObjects::CfgManager() {

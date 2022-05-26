@@ -20,6 +20,7 @@
 #include "entities/world_objects.h"
 #include "game_economics/shop_ext.h"
 #include "game_economics/ext_money.h"
+#include "game_magic/magic_utils.h"
 #include "game_mechanics/glory.h"
 #include "game_mechanics/glory_const.h"
 #include "game_mechanics/glory_misc.h"
@@ -66,6 +67,23 @@ void ShowClassInfo(CharData *ch, const std::string &class_name, const std::strin
 			MUD::Classes(class_id).PrintFeatsTable(ch, out);
 		}
 	}
+	page_string(ch->desc, out.str());
+}
+
+void ShowSpellInfo(CharData *ch, const std::string &spell_name) {
+	if (spell_name.empty()) {
+		SendMsgToChar("Формат: show spell [название заклинания]", ch);
+		return;
+	}
+
+	auto id = FindSpellIdWithName(spell_name);
+	if (id == ESpell::kUndefined) {
+		SendMsgToChar("Неизвестное название заклинания.", ch);
+		return;
+	}
+
+	std::ostringstream out;
+	MUD::Spells(id).Print(out);
 	page_string(ch->desc, out.str());
 }
 
@@ -269,6 +287,7 @@ struct show_struct show_fields[] = {
 	{"triggers", kLvlImmortal},
 	{"class", kLvlImmortal},
 	{"guild", kLvlImmortal},
+	{"spellinfo", kLvlImmortal},
 	{"\n", 0}
 };
 
@@ -734,6 +753,9 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			break;
 		case 30: // guild
 			ShowGuildInfo(ch, value);
+			break;
+		case 31: // spell
+			ShowSpellInfo(ch, value);
 			break;
 		default: SendMsgToChar("Извините, неверная команда.\r\n", ch);
 			break;

@@ -840,4 +840,43 @@ std::ostream& operator<<(std::ostream &os, const ESpell &s){
 	return os;
 };
 
+typedef std::map<EElement, std::string> EElement_name_by_value_t;
+typedef std::map<const std::string, EElement> EElement_value_by_name_t;
+EElement_name_by_value_t EElement_name_by_value;
+EElement_value_by_name_t EElement_value_by_name;
+void init_EElement_ITEM_NAMES() {
+	EElement_value_by_name.clear();
+	EElement_name_by_value.clear();
+
+	EElement_name_by_value[EElement::kUndefined] = "kUndefined";
+	EElement_name_by_value[EElement::kAir] = "kAir";
+	EElement_name_by_value[EElement::kFire] = "kFire";
+	EElement_name_by_value[EElement::kWater] = "kWater";
+	EElement_name_by_value[EElement::kEarth] = "kEarth";
+	EElement_name_by_value[EElement::kLight] = "kLight";
+	EElement_name_by_value[EElement::kDark] = "kDark";
+	EElement_name_by_value[EElement::kMind] = "kMind";
+	EElement_name_by_value[EElement::kLife] = "kLife";
+
+	for (const auto &i : EElement_name_by_value) {
+		EElement_value_by_name[i.second] = i.first;
+	}
+}
+
+template<>
+const std::string &NAME_BY_ITEM<EElement>(const EElement item) {
+	if (EElement_name_by_value.empty()) {
+		init_EElement_ITEM_NAMES();
+	}
+	return EElement_name_by_value.at(item);
+}
+
+template<>
+EElement ITEM_BY_NAME(const std::string &name) {
+	if (EElement_name_by_value.empty()) {
+		init_EElement_ITEM_NAMES();
+	}
+	return EElement_value_by_name.at(name);
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

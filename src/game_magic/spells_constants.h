@@ -277,17 +277,22 @@ ESpell ITEM_BY_NAME<ESpell>(const std::string &name);
 template<>
 const std::string &NAME_BY_ITEM<ESpell>(const ESpell spell);
 
-enum EElement : int {
-	kTypeNeutral = 0,
-	kTypeAir,
-	kTypeFire,
-	kTypeWater,
-	kTypeEarth,
-	kTypeLight,
-	kTypeDark,
-	kTypeMind,
-	kTypeLife
+enum class EElement {
+	kUndefined = 0,
+	kAir,
+	kFire,
+	kWater,
+	kEarth,
+	kLight,
+	kDark,
+	kMind,
+	kLife
 };
+
+template<>
+EElement ITEM_BY_NAME<EElement>(const std::string &name);
+template<>
+const std::string &NAME_BY_ITEM<EElement>(const EElement element);
 
 constexpr Bitvector kMagDamage = 1 << 0;
 constexpr Bitvector kMagAffects = 1 << 1;

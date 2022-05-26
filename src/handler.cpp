@@ -2826,45 +2826,6 @@ bool IsAwakeOthers(CharData *ch) {
 	return false;
 }
 
-int ApplyResist(CharData *ch, int resist_type, int effect) {
-	auto resistance = GET_RESIST(ch, resist_type);
-	if (resistance <= 0) {
-		return effect - resistance*effect/100;
-	}
-	if (!ch->IsNpc()) {
-		resistance = std::min(kMaxPlayerResist, resistance);
-	}
-	auto result = static_cast<int>(effect - (resistance + number(0, resistance))*effect/200.0);
-	return std::max(0, result);
-}
-
-int GetResisTypeWithSpellClass(int spell_class) {
-	switch (spell_class) {
-		case kTypeFire: return EResist::kFire;
-			break;
-		case kTypeDark: return EResist::kDark;
-			break;
-		case kTypeAir: return EResist::kAir;
-			break;
-		case kTypeWater: return EResist::kWater;
-			break;
-		case kTypeEarth: return EResist::kEarth;
-			break;
-		case kTypeLight: return EResist::kVitality;
-			break;
-		case kTypeMind: return EResist::kMind;
-			break;
-		case kTypeLife: return EResist::kImmunity;
-			break;
-		default: return EResist::kVitality;
-			break;
-	}
-};
-
-int GetResistType(ESpell spell_id) {
-	return GetResisTypeWithSpellClass(spell_info[spell_id].spell_class);
-}
-
 // * Берется минимальная цена ренты шмотки, не важно, одетая она будет или снятая.
 int get_object_low_rent(ObjData *obj) {
 	int rent = GET_OBJ_RENT(obj) > GET_OBJ_RENTEQ(obj) ? GET_OBJ_RENTEQ(obj) : GET_OBJ_RENT(obj);

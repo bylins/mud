@@ -49,24 +49,24 @@ int what_sky = kSkyCloudless;
 // * Special spells appear below.
 
 ESkill GetMagicSkillId(ESpell spell_id) {
-	switch (spell_info[spell_id].spell_class) {
-		case kTypeAir: return ESkill::kAirMagic;
+	switch (spell_info[spell_id].element) {
+		case EElement::kAir: return ESkill::kAirMagic;
 			break;
-		case kTypeFire: return ESkill::kFireMagic;
+		case EElement::kFire: return ESkill::kFireMagic;
 			break;
-		case kTypeWater: return ESkill::kWaterMagic;
+		case EElement::kWater: return ESkill::kWaterMagic;
 			break;
-		case kTypeEarth: return ESkill::kEarthMagic;
+		case EElement::kEarth: return ESkill::kEarthMagic;
 			break;
-		case kTypeLight: return ESkill::kLightMagic;
+		case EElement::kLight: return ESkill::kLightMagic;
 			break;
-		case kTypeDark: return ESkill::kDarkMagic;
+		case EElement::kDark: return ESkill::kDarkMagic;
 			break;
-		case kTypeMind: return ESkill::kMindMagic;
+		case EElement::kMind: return ESkill::kMindMagic;
 			break;
-		case kTypeLife: return ESkill::kLifeMagic;
+		case EElement::kLife: return ESkill::kLifeMagic;
 			break;
-		case kTypeNeutral: [[fallthrough]];
+		case EElement::kUndefined: [[fallthrough]];
 		default: return ESkill::kUndefined;
 	}
 }

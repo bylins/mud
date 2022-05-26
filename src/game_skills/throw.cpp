@@ -145,7 +145,7 @@ void go_throw(CharData *ch, CharData *victim) {
 	}
 	AbilitySystem::TechniqueRoll roll;
 	Damage damage(SkillDmg(ESkill::kThrow), fight::kZeroDmg, dmg_type, nullptr); //х3 как тут с оружием
-	damage.magic_type = kTypeDark;
+	damage.element = EElement::kDark;
 
 	ActionTargeting::FoesRosterType
 		roster{ch, victim, [](CharData *ch, CharData *victim) { return CAN_SEE(ch, victim); }};

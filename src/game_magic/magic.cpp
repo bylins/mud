@@ -24,6 +24,7 @@
 #include "game_fight/mobact.h"
 #include "game_fight/pk.h"
 #include "handler.h"
+#include "magic_utils.h"
 #include "obj_prototypes.h"
 #include "utils/random.h"
 #include "structs/global_objects.h"
@@ -889,28 +890,32 @@ int mag_damage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 		double koeff = 1;
 		if (victim->IsNpc()) {
 			if (NPC_FLAGGED(victim, ENpcFlag::kFireCreature)) {
-				if (IS_SET(spell_info[spell_id].spell_class, kTypeFire))
+				if (spell_info[spell_id].element == EElement::kFire) {
 					koeff /= 2;
-				if (IS_SET(spell_info[spell_id].spell_class, kTypeWater))
+				} else if (spell_info[spell_id].element == EElement::kWater) {
 					koeff *= 2;
+				}
 			}
 			if (NPC_FLAGGED(victim, ENpcFlag::kAirCreature)) {
-				if (IS_SET(spell_info[spell_id].spell_class, kTypeEarth))
+				if (spell_info[spell_id].element == EElement::kEarth) {
 					koeff *= 2;
-				if (IS_SET(spell_info[spell_id].spell_class, kTypeAir))
+				} else if (spell_info[spell_id].element == EElement::kAir) {
 					koeff /= 2;
+				}
 			}
 			if (NPC_FLAGGED(victim, ENpcFlag::kWaterCreature)) {
-				if (IS_SET(spell_info[spell_id].spell_class, kTypeFire))
+				if (spell_info[spell_id].element == EElement::kFire) {
 					koeff *= 2;
-				if (IS_SET(spell_info[spell_id].spell_class, kTypeWater))
+				} else if (spell_info[spell_id].element == EElement::kWater) {
 					koeff /= 2;
+				}
 			}
 			if (NPC_FLAGGED(victim, ENpcFlag::kEarthCreature)) {
-				if (IS_SET(spell_info[spell_id].spell_class, kTypeEarth))
+				if (spell_info[spell_id].element == EElement::kEarth) {
 					koeff /= 2;
-				if (IS_SET(spell_info[spell_id].spell_class, kTypeAir))
+				} else if (spell_info[spell_id].element == EElement::kAir) {
 					koeff *= 2;
+				}
 			}
 		}
 		dam = RollDices(ndice, sdice) + adice;

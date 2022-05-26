@@ -4,6 +4,7 @@
 #include "game_abilities/abilities_info.h"
 #include "game_classes/classes_info.h"
 #include "game_fight/pk.h"
+#include "game_magic/spells_info.h"
 #include "game_mechanics/celebrates.h"
 #include "game_mechanics/guilds.h"
 #include "utils/logger.h"
@@ -41,6 +42,8 @@ class GlobalObjects {
 	static abilities::AbilitiesInfo &Abilities();
 	static SkillsInfo &Skills();
 	static const SkillInfo &Skills(ESkill skill_id);
+	static spells::SpellsInfo &Spells();
+	static const spells::SpellInfo &Spells(ESpell spell_id);
 	static classes::ClassesInfo &Classes();
 	static const classes::CharClassInfo &Classes(ECharClass class_id);
 	static guilds::GuildsInfo &Guilds();

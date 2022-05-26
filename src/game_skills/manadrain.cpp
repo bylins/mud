@@ -61,7 +61,7 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	ImproveSkill(ch, ESkill::kJinx, percent > prob, vict);
 
 	Damage manadrainDamage(SkillDmg(ESkill::kJinx), fight::kZeroDmg, fight::kMagicDmg, nullptr);
-	manadrainDamage.magic_type = kTypeDark;
+	manadrainDamage.element = EElement::kDark;
 	if (percent <= prob) {
 		skill = std::max(10, skill - 10 * std::max(0, GetRealLevel(ch) - GetRealLevel(vict)));
 		drained_mana = (GET_MAX_MANA(ch) - ch->mem_queue.stored) * skill / 100;

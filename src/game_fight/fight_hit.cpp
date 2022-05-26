@@ -6,6 +6,7 @@
 #include "pk.h"
 #include "statistics/dps.h"
 #include "house_exp.h"
+#include "game_magic/magic_utils.h"
 #include "game_mechanics/poison.h"
 #include "game_mechanics/bonus.h"
 #include "mobact.h"
@@ -2313,7 +2314,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		if (spell_id > ESpell::kUndefined) {
 			dam = ApplyResist(victim, GetResistType(spell_id), dam);
 		} else {
-			dam = ApplyResist(victim, GetResisTypeWithSpellClass(magic_type), dam);
+			dam = ApplyResist(victim, GetResisTypeWithElement(element), dam);
 		};
 	};
 

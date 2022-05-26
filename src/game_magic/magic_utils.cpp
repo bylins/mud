@@ -175,7 +175,7 @@ ESkill FindSkillId(const char *name) {
 	return ESkill::kUndefined;
 }
 
-ESpell FindSpellNum(const char *name) {
+ESpell FindSpellId(const char *name) {
 	int use_syn = (((ubyte) *name <= (ubyte) 'z')
 		&& ((ubyte) *name >= (ubyte) 'a'))
 		|| (((ubyte) *name <= (ubyte) 'Z') && ((ubyte) *name >= (ubyte) 'A'));
@@ -190,6 +190,19 @@ ESpell FindSpellNum(const char *name) {
 			return spell_id;
 		}
 	}
+	return ESpell::kUndefined;
+}
+
+ESpell FindSpellIdWithName(const std::string &name) {
+	for (const auto &spell : MUD::Spells()) {
+		if (spell.IsInvalid()) {
+			continue;
+		}
+		if (IsEquivalent(name, spell.GetName())) {
+			return spell.GetId();
+		}
+	}
+
 	return ESpell::kUndefined;
 }
 
@@ -235,12 +248,12 @@ ESkill FixNameFndFindSkillId(std::string &name) {
 
 ESpell FixNameAndFindSpellId(char *name) {
 	FixName(name);
-	return FindSpellNum(name);
+	return FindSpellId(name);
 }
 
 ESpell FixNameAndFindSpellId(std::string &name) {
 	FixName(name);
-	return FindSpellNum(name.c_str());
+	return FindSpellId(name.c_str());
 }
 
 bool MayCastInNomagic(CharData *caster, ESpell spell_id) {
@@ -679,5 +692,43 @@ int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell
 	return (prob > number(0, 100));
 }
 
+EResist GetResisTypeWithElement(EElement element) {
+	switch (element) {
+		case EElement::kFire: return EResist::kFire;
+			break;
+		case EElement::kDark: return EResist::kDark;
+			break;
+		case EElement::kAir: return EResist::kAir;
+			break;
+		case EElement::kWater: return EResist::kWater;
+			break;
+		case EElement::kEarth: return EResist::kEarth;
+			break;
+		case EElement::kLight: return EResist::kVitality;
+			break;
+		case EElement::kMind: return EResist::kMind;
+			break;
+		case EElement::kLife: return EResist::kImmunity;
+			break;
+		default: return EResist::kVitality;
+			break;
+	}
+};
+
+EResist GetResistType(ESpell spell_id) {
+	return GetResisTypeWithElement(spell_info[spell_id].element);
+}
+
+int ApplyResist(CharData *ch, int resist_type, int effect) {
+	auto resistance = GET_RESIST(ch, resist_type);
+	if (resistance <= 0) {
+		return effect - resistance*effect/100;
+	}
+	if (!ch->IsNpc()) {
+		resistance = std::min(kMaxPlayerResist, resistance);
+	}
+	auto result = static_cast<int>(effect - (resistance + number(0, resistance))*effect/200.0);
+	return std::max(0, result);
+}
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
