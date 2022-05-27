@@ -1420,8 +1420,8 @@ int text_processed(char *field, char *subfield, struct TriggerVar *vd, char *str
 	} else if (!str_cmp(field, "trim"))    // trim
 	{
 		std::string str_to_trim(vd->value);
-		str_to_trim.erase(std::find_if_not(str_to_trim.rbegin(), str_to_trim.rend(), isspace).base(), str_to_trim.end());
-		str_to_trim.erase(str_to_trim.begin(), std::find_if_not(str_to_trim.begin(), str_to_trim.end(), isspace));
+		utils::Ltrim(str_to_trim);
+		utils::Rtrim(str_to_trim);
 		strcpy(str, str_to_trim.c_str());
 		return true;
 	} else if (!str_cmp(field, "contains"))    // contains

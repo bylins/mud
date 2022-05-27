@@ -1481,8 +1481,10 @@ void game_loop(socket_t mother_desc)
 		if (missed_pulses > (1 * kPassesPerSec)) {
 			const auto missed_seconds = missed_pulses / kPassesPerSec;
 			const auto current_pulse = GlobalObjects::heartbeat().pulse_number();
-			log("SYSERR: Missed %d seconds worth of pulses (%d) on the pulse %d.",
+			char tmpbuf[256];
+			sprintf(tmpbuf,"WARNING: Missed %d seconds worth of pulses (%d) on the pulse %d.",
 				static_cast<int>(missed_seconds), missed_pulses, current_pulse);
+			mudlog(tmpbuf, LGH, kLvlImmortal, SYSLOG, true);
 			missed_pulses = 1 * kPassesPerSec;
 		}
 

@@ -457,7 +457,7 @@ bool GuildInfo::IGuildTalent::TakePayment(CharData *ch) const {
 
 bool GuildInfo::IGuildTalent::IsLearningFailed() const {
 	auto roll = number(1, 100);
-	return fail_chance_ < roll;
+	return  roll <= fail_chance_;
 }
 
 void GuildInfo::GuildSkill::ParseSkillNode(DataNode &node) {
