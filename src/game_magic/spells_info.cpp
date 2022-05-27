@@ -133,6 +133,56 @@ ItemPtr SpellInfoBuilder::ParseSpell(DataNode node) {
 		node.GoToParent();
 	}
 
+	if (node.GoToChild("effects")) {
+		if (node.GoToChild("damage")) {
+			if (node.GoToChild("amount")) {
+				auto effect_ptr = std::make_shared<SpellDmg>();
+				try {
+					effect_ptr->dice_num = parse::ReadAsInt(node.GetValue("ndice"));
+					effect_ptr->dice_size = parse::ReadAsInt(node.GetValue("sdice"));
+					effect_ptr->dice_add = parse::ReadAsInt(node.GetValue("adice"));
+					effect_ptr->low_skill_bonus = parse::ReadAsDouble(node.GetValue("low_skill_bonus"));
+					effect_ptr->hi_skill_bonus = parse::ReadAsDouble(node.GetValue("hi_skill_bonus"));
+				} catch (std::exception &e) {
+					err_log("Incorrect 'damage' section (spell: %s, value: %s).",
+							NAME_BY_ITEM(info->GetId()).c_str(), e.what());
+				}
+				info->effects_[EEffect::kDamage] = std::move(effect_ptr);
+				node.GoToParent();
+			}
+			node.GoToParent();
+		}
+		if (node.GoToChild("area")) {
+			auto effect_ptr = std::make_shared<SpellArea>();
+			if (node.GoToChild("decay")) {
+				try {
+					effect_ptr->free_targets = parse::ReadAsInt(node.GetValue("free_targets"));
+					effect_ptr->level_decay = parse::ReadAsInt(node.GetValue("level"));
+					effect_ptr->cast_decay = parse::ReadAsDouble(node.GetValue("cast"));
+				} catch (std::exception &e) {
+					err_log("Incorrect 'area' section (spell: %s, value: %s).",
+							NAME_BY_ITEM(info->GetId()).c_str(), e.what());
+				}
+				node.GoToParent();
+			}
+			if (node.GoToChild("victims")) {
+				try {
+					effect_ptr->skill_divisor = parse::ReadAsInt(node.GetValue("skill_divisor"));
+					effect_ptr->targets_dice_size = parse::ReadAsInt(node.GetValue("dice_size"));
+					effect_ptr->min_targets = parse::ReadAsInt(node.GetValue("min_targets"));
+					effect_ptr->max_targets = parse::ReadAsInt(node.GetValue("max_targets"));
+				} catch (std::exception &e) {
+					err_log("Incorrect 'area' section (spell: %s, value: %s).",
+							NAME_BY_ITEM(info->GetId()).c_str(), e.what());
+				}
+				node.GoToParent();
+			}
+			info->effects_[EEffect::kArea] = std::move(effect_ptr);
+			node.GoToParent();
+		}
+		node.GoToParent();
+	}
+
 	return info;
 }
 
@@ -159,6 +209,24 @@ void SpellInfo::Print(std::ostringstream &buffer) const {
 		   << " Mana change: " << KGRN << mana_change_ << KNRM << std::endl
 		   << " Flags: " << KGRN << flags_ << KNRM << std::endl
 		   << " Targets: " << KGRN << targets_ << KNRM << std::endl;
+
+			if (effects_.contains(EEffect::kDamage)) {
+				auto dmg = std::dynamic_pointer_cast<SpellDmg>(effects_.at(EEffect::kDamage));
+				buffer << " Damage:" << KGRN << dmg->dice_num << "d" << dmg->dice_size << "+" << dmg->dice_add
+					<< KNRM << " Low skill bonus: " << KGRN << dmg->low_skill_bonus << KNRM << " Hi skill bonus: "
+					<< KGRN << dmg->hi_skill_bonus << KNRM << std::endl;
+			}
+
+			if (effects_.contains(EEffect::kArea)) {
+				auto area = std::dynamic_pointer_cast<SpellArea>(effects_.at(EEffect::kArea));
+				buffer << " Area:" << std::endl
+					<< "  Cast decay: " << KGRN << area->cast_decay << KNRM << " Level decay: " << KGRN
+					<< area->level_decay << KNRM << " Free targets: " << KGRN << area->free_targets << KNRM
+					<< std::endl
+					<< "  Skill divisor: " << KGRN << area->skill_divisor << KNRM << " Targets dice:" << KGRN
+					<< area->targets_dice_size << KNRM << " Min targets: " << KGRN << area->min_targets << KNRM
+					<< " Max targets: " << KGRN << area->max_targets << KNRM << std::endl;
+			}
 }
 
 }

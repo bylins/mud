@@ -10,6 +10,41 @@
 
 namespace spells {
 
+/*
+ *  Классы эффектов заклинания
+ */
+
+enum class EEffect {
+	kDamage,
+	kArea
+};
+
+class IEffect {
+ public:
+	virtual ~IEffect() = default;
+};
+
+struct SpellDmg : public IEffect {
+	int dice_num{1};
+	int dice_size{1};
+	int dice_add{1};
+	double low_skill_bonus{0.0};
+	double hi_skill_bonus{0.0};
+};
+
+struct SpellArea : public IEffect {
+	double cast_decay{0.0};
+	int level_decay{0};
+	int free_targets{1};
+
+	int skill_divisor{1};
+	int targets_dice_size{1};
+	int min_targets{1};
+	int max_targets{1};
+};
+
+using EffectPtr = std::shared_ptr<IEffect>;
+using DmgPtr = std::shared_ptr<IEffect>;
 using DataNode = parser_wrapper::DataNode;
 
 /**
@@ -37,6 +72,8 @@ class SpellInfo : public info_container::BaseItem<ESpell> {
 	int min_mana_{100};        // Min amount of mana used by a spell (highest lev) //
 	int max_mana_{120};        // Max amount of mana used by a spell (lowest lev) //
 	int mana_change_{1};    // Change in mana used by spell from lev to lev //
+
+	std::unordered_map<EEffect, EffectPtr> effects_;
 
  public:
 	SpellInfo() = default;
