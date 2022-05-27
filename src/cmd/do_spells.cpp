@@ -90,13 +90,13 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 				continue;
 			if (can_cast) {
 				slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-										   "%s|<...%4d.> %s%-30s&n|",
+										   "%s|<...%4d.> %s%-38s&n|",
 										   slots[slot_num] % 114 <
 											   10 ? "\r\n" : "  ",
 										   CalcSpellManacost(ch, spell_id), GetSpellColor(spell_id), MUD::Spell(spell_id).GetCName());
 			} else {
 				slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-										   "%s|+--------+ %s%-30s&n|",
+										   "%s|+--------+ %s%-38s&n|",
 										   slots[slot_num] % 114 <
 											   10 ? "\r\n" : "  ", GetSpellColor(spell_id), MUD::Spell(spell_id).GetCName());
 			}
@@ -145,8 +145,9 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 			//else
 			//gcount += sprintf(buf2+gcount,"\n\rПусто.");
 		}
-	} else
+	} else {
 		gcount += sprintf(buf2 + gcount, "\r\nВ настоящее время магия вам недоступна!");
+	}
 	gcount += sprintf(buf2 + gcount, "\r\n");
 	//page_string(ch->desc, buf2, 1);
 	SendMsgToChar(buf2, vict);

@@ -2306,8 +2306,6 @@ void do_entergame(DescriptorData *d) {
 			if (IS_SPELL_SET(d->character, spell.GetId(), ESpellType::kKnow)) {
 				if (MUD::Class((d->character)->GetClass()).spells[spell.GetId()].IsInvalid()) {
 					UNSET_SPELL_TYPE(d->character, spell.GetId(), ESpellType::kKnow);
-					imm_log("Unset spell '%s' from character '%s'.",
-							spell.GetCName(), d->character->get_name().c_str());
 				}
 			}
 		}
