@@ -4,6 +4,7 @@
 #include "game_mechanics/mem_queue.h"
 #include "handler.h"
 #include "color.h"
+#include "structs/global_objects.h"
 
 inline bool in_mem(char *arg) {
 	return (strlen(arg) != 0) &&
@@ -85,9 +86,9 @@ void do_forget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 		} else {
 			--GET_SPELL_MEM(ch, spell_id);
-			ch->caster_level -= spell_info[spell_id].danger;
+			ch->caster_level -= MUD::Spell(spell_id).GetDanger();
 			sprintf(buf, "Вы удалили заклинание '%s%s%s' из %s.\r\n",
-					KICYN, spell_info[spell_id].name,
+					KICYN, MUD::Spell(spell_id).GetCName(),
 					KNRM, GET_RELIGION(ch) == kReligionMono ? "своего часослова" : "своих рез");
 			SendMsgToChar(buf, ch);
 		}

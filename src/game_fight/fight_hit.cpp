@@ -2445,7 +2445,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 			if (!damage_mtrigger(ch, victim, dam, MUD::Skill(skill_id).GetName(), 1, wielded))
 				return 0;
 		} else if (dmg_type == fight::kMagicDmg) {
-			if (!damage_mtrigger(ch, victim, dam, GetSpellName(spell_id), 0, wielded))
+			if (!damage_mtrigger(ch, victim, dam, MUD::Spell(spell_id).GetCName(), 0, wielded))
 				return 0;
 		}
 	}
@@ -3544,13 +3544,13 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 					if (IS_IMMORTAL(tch) || ch->in_room == kNowhere || IN_ROOM(tch) == kNowhere)
 						continue;
 					if (tch != ch && !same_group(ch, tch)) {
-						mag_damage(GetRealLevel(ch), ch, tch, spell_id, ESaving::kStability);
+						CastDamage(GetRealLevel(ch), ch, tch, spell_id, ESaving::kStability);
 					}
 				}
 				return;
 			}
 			// а теперь просто дышащие
-			mag_damage(GetRealLevel(ch), ch, victim, spell_id, ESaving::kStability);
+			CastDamage(GetRealLevel(ch), ch, victim, spell_id, ESaving::kStability);
 			return;
 		}
 	}
@@ -3572,9 +3572,9 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 			|| (!GET_AF_BATTLE(ch, kEafHammer) && !GET_AF_BATTLE(ch, kEafOverwhelm)))) {
 		// здесь можно получить спурженного victim, но ch не умрет от зеркала
     if (ch->IsNpc()) {
-		mag_damage(std::min(kLvlImplementator, GetRealLevel(ch)), ch, victim, ESpell::kMagicMissile, ESaving::kReflex);
+		CastDamage(std::min(kLvlImplementator, GetRealLevel(ch)), ch, victim, ESpell::kMagicMissile, ESaving::kReflex);
 	} else {
-		mag_damage(1, ch, victim, ESpell::kMagicMissile, ESaving::kReflex);
+		CastDamage(1, ch, victim, ESpell::kMagicMissile, ESaving::kReflex);
     }
 		if (ch->purged() || victim->purged()) {
 			return;

@@ -46,24 +46,27 @@ class SpellInfo : public info_container::BaseItem<ESpell> {
 	friend class SpellInfoBuilder;
 
 	[[nodiscard]] const std::string &GetName() const { return name_; };
+	/**
+ 	* Имя заклинания скилла в виде C-строки. По возможности используйте std::string
+ 	*/
+	[[nodiscard]] const char *GetCName() const { return name_.c_str(); };
+	[[nodiscard]] const std::string &GetEngName() const { return name_eng_; };
+	/**
+ 	* Имя заклинания скилла в виде C-строки. По возможности используйте std::string
+ 	*/
+	[[nodiscard]] const char *GetEngCName() const { return name_eng_.c_str(); };
 
 	[[nodiscard]] bool IsFlagged(Bitvector flag) const;
 	[[nodiscard]] bool AllowTarget(Bitvector target_type) const;
 	[[nodiscard]] bool IsViolent() const { return violent_; };
-	[[nodiscard]] bool IsBelongedTo(EElement element) const { return element_ == element; };
 
 	[[nodiscard]] long GetDanger() const { return danger_; };
 	[[nodiscard]] EPosition GetMinPos() const { return min_position_; };
+	[[nodiscard]] EElement GetElement() const { return element_; };
 
 	[[nodiscard]] int GetMinMana() const { return min_mana_; };
 	[[nodiscard]] int GetMaxMana() const { return max_mana_; };
 	[[nodiscard]] int GetManaChange() const { return mana_change_; };
-
-	/**
-	 * Имя заклинания скилла в виде C-строки. По возможности используйте std::string
-	 */
-	[[nodiscard]] const char *GetCName() const { return name_.c_str(); };
-
 	void Print(std::ostringstream &buffer) const;
 };
 
@@ -79,27 +82,9 @@ class SpellInfoBuilder : public info_container::IItemBuilder<SpellInfo> {
 
 using SpellsInfo = info_container::InfoContainer<ESpell, SpellInfo, SpellInfoBuilder>;
 
+void InitSpellsCreate();
+
 }
-
-// ==================================================================================================================
-// ==================================================================================================================
-// ==================================================================================================================
-
-extern const char *unused_spellname;
-
-struct SpellInfo {
-	EPosition min_position;    // Position for caster   //
-	int mana_min;        // Min amount of mana used by a spell (highest lev) //
-	int mana_max;        // Max amount of mana used by a spell (lowest lev) //
-	int mana_change;    // Change in mana used by spell from lev to lev //
-	long danger;
-	Bitvector routines;
-	int violent;
-	int targets;
-	EElement element;
-	const char *name;
-	const char *syn;
-};
 
 struct SpellCreateItem {
 	std::array<int, 3> items;
@@ -115,9 +100,7 @@ struct SpellCreate {
 	struct SpellCreateItem runes;
 };
 
-extern std::unordered_map<ESpell, SpellInfo> spell_info;
 extern std::unordered_map<ESpell, SpellCreate> spell_create;
 
-void InitSpells();
 
 #endif //SPELLS_INFO_H_

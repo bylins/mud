@@ -522,11 +522,11 @@ const std::string &GuildInfo::GuildSpell::GetIdAsStr() const {
 }
 
 std::string_view GuildInfo::GuildSpell::GetName() const {
-	return spell_info[id_].name;
+	return MUD::Spell(id_).GetName();
 }
 
 bool GuildInfo::GuildSpell::IsAvailable(CharData *ch) const {
-	return CanGetSpell(ch, id_) && !IS_SPELL_KNOWN(ch, id_);
+	return CanGetSpell(ch, id_) && !IS_SPELL_SET(ch, id_, ESpellType::kKnow);
 }
 
 void GuildInfo::GuildSpell::SetTalent(CharData *ch) const {

@@ -70,7 +70,7 @@ void show_wizdom(CharData *ch, int bitset) {
 			if (!GET_SPELL_TYPE(ch, spell_id)) {
 				continue;
 			}
-			if (!spell_info[spell_id].name || *spell_info[spell_id].name == '!') {
+			if (MUD::Spell(spell_id).IsInvalid()) {
 				continue;
 			}
 			count = GET_SPELL_MEM(ch, spell_id);
@@ -84,7 +84,7 @@ void show_wizdom(CharData *ch, int bitset) {
 					"%2s|[%2d] %-31s|",
 					slots[slot_num] % 80 < 10 ? "\r\n" : "  ", 
 					count,
-					spell_info[spell_id].name);
+					MUD::Spell(spell_id).GetCName());
 			is_full++;
 		};
 		gcount += sprintf(buf2 + gcount, "  %sВы знаете следующие заклинания :%s", KICYN, KNRM);
@@ -145,7 +145,7 @@ void show_wizdom(CharData *ch, int bitset) {
 						"%2s|[%2d] %-26s%5s|",
 						slots[slot_num] % 80 < 10 ? "\r\n" : "  ", 
 						to_underlying(cnt[index]),
-						spell_info[spell_id].name, q == ch->mem_queue.queue ? timestr : "");
+						MUD::Spell(spell_id).GetCName(), q == ch->mem_queue.queue ? timestr : "");
 				cnt[index] = ESpell::kUndefined;
 			}
 

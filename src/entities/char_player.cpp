@@ -588,7 +588,7 @@ void Player::save_char() {
 		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 			if (GET_SPELL_TYPE(this, spell_id)) {
 				fprintf(saved, "%d %d %s\n", to_underlying(spell_id),
-						GET_SPELL_TYPE(this, spell_id), spell_info[spell_id].name);
+						GET_SPELL_TYPE(this, spell_id), MUD::Spell(spell_id).GetCName());
 			}
 		}
 		fprintf(saved, "0 0\n");
@@ -602,7 +602,7 @@ void Player::save_char() {
 					to_underlying(temp_spell.first),
 					static_cast<long int>(temp_spell.second.set_time),
 					static_cast<long int>(temp_spell.second.duration),
-					spell_info[temp_spell.first].name);
+					MUD::Spell(temp_spell.first).GetCName());
 		}
 		fprintf(saved, "0 0 0\n");
 	}
@@ -777,7 +777,7 @@ void Player::save_char() {
 			if (aff->type >= ESpell::kFirst) {
 				fprintf(saved, "%d %d %d %d %d %d %s\n", to_underlying(aff->type), aff->duration,
 						aff->modifier, aff->location, static_cast<int>(aff->bitvector),
-						static_cast<int>(aff->battleflag), GetSpellName(aff->type));
+						static_cast<int>(aff->battleflag), MUD::Spell(aff->type).GetCName());
 			}
 		}
 		fprintf(saved, "0 0 0 0 0 0\n");
@@ -892,7 +892,8 @@ void Player::save_char() {
 
 	auto it = this->charmeeHistory.begin();
 	if (this->charmeeHistory.size() > 0 &&
-		(IS_SPELL_KNOWN(this, ESpell::kCharm) || CanUseFeat(this, EFeat::kEmployer) || IS_IMMORTAL(this))) {
+		(IS_SPELL_SET(this, ESpell::kCharm, ESpellType::kKnow) ||
+		CanUseFeat(this, EFeat::kEmployer) || IS_IMMORTAL(this))) {
 		fprintf(saved, "Chrm:\n");
 		for (; it != this->charmeeHistory.end(); ++it) {
 			fprintf(saved, "%d %d %d %d %d %d\n",
@@ -1782,7 +1783,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 						fbgetline(fl, line);
 						sscanf(line, "%d %d", &num, &num2);
 						auto spell_id = static_cast<ESpell>(num);
-						if (spell_id > ESpell::kUndefined && spell_info[spell_id].name) {
+						if (spell_id > ESpell::kUndefined && MUD::Spell(spell_id).IsValid()) {
 							GET_SPELL_TYPE(this, spell_id) = num2;
 						}
 					} while (num != 0);
@@ -1857,7 +1858,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 						fbgetline(fl, line);
 						sscanf(line, "%d %ld %ld", &num, &lnum, &lnum3);
 						auto spell_id = static_cast<ESpell>(num);
-						if (num != 0 && spell_info[spell_id].name) {
+						if (num != 0 && MUD::Spell(spell_id).IsValid()) {
 							temporary_spells::AddSpell(this, spell_id, lnum, lnum3);
 						}
 					} while (num != 0);

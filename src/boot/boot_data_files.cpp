@@ -18,7 +18,6 @@
 #include <regex>
 
 extern int scheck;                        // TODO: get rid of this line
-extern const char *unused_spellname;    // TODO: get rid of this line
 CharData *mob_proto;                    // TODO: get rid of this global variable
 
 extern void extract_trigger(Trigger *trig);
@@ -946,9 +945,7 @@ bool ObjectFile::check_object_spell_number(ObjData *obj, unsigned val) {
 		return true;
 	}
 
-	bool error = false;
-	const char *spellname;
-
+	auto error{false};
 	if (GET_OBJ_VAL(obj, val) == -1)    // i.e.: no spell
 		return error;
 
@@ -957,7 +954,7 @@ bool ObjectFile::check_object_spell_number(ObjData *obj, unsigned val) {
 	* spell which is actually a skill.
 	*/
 	auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(obj, val));
-	if (spell_id == ESpell::kUndefined) {
+	if (MUD::Spell(spell_id).IsInvalid()) {
 		error = true;
 	}
 
@@ -972,10 +969,9 @@ bool ObjectFile::check_object_spell_number(ObjData *obj, unsigned val) {
 	}
 
 	// Now check for unnamed spells.
-	spellname = GetSpellName(spell_id);
-	if (error && (spellname == unused_spellname || !str_cmp("UNDEFINED", spellname))) {
+	if (error) {
 		log("SYSERR: Object #%d (%s) uses '%s' spell #%d.", GET_OBJ_VNUM(obj),
-			obj->get_short_description().c_str(), spellname, GET_OBJ_VAL(obj, val));
+			obj->get_short_description().c_str(), MUD::Spell(spell_id).GetCName(), GET_OBJ_VAL(obj, val));
 	}
 
 	return error;
@@ -1437,7 +1433,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			return;
 		}
 		GET_SPELL_MEM(mob_proto + i, spell_id) += 1;
-		(mob_proto + i)->caster_level += (IS_SET(spell_info[spell_id].routines, NPC_CALCULATE) ? 1 : 0);
+		(mob_proto + i)->caster_level += (MUD::Spell(spell_id).IsFlagged(NPC_CALCULATE) ? 1 : 0);
 	}
 
 	CASE("Helper") {

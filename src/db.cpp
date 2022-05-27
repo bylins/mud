@@ -203,7 +203,6 @@ void LoadGuardians();
 TimeInfoData *mud_time_passed(time_t t2, time_t t1);
 void free_alias(struct alias_data *a);
 void load_messages();
-void InitSpells(void);
 void sort_commands();
 void Read_Invalid_List();
 int find_name(const char *name);
@@ -2257,6 +2256,7 @@ void boot_db(void) {
 	boot_profiler.next_step("Loading spells cfg.");
 	log("Loading spells cfg.");
 	MUD::CfgManager().LoadCfg("spells");
+	spells::InitSpellsCreate();
 
 	boot_profiler.next_step("Loading abilities definitions");
 	log("Loading abilities.");
@@ -2308,10 +2308,6 @@ void boot_db(void) {
 	boot_profiler.next_step("Loading player races definitions");
 	log("Loading player races definitions.");
 	PlayerRace::Load(XMLLoad(LIB_MISC PLAYER_RACE_FILE, RACE_MAIN_TAG, PLAYER_RACE_ERROR_STR, doc));
-
-	boot_profiler.next_step("Loading spell definitions");
-	log("Loading spell definitions.");
-	InitSpells();
 
 	boot_profiler.next_step("Loading features definitions");
 	log("Loading features definitions.");

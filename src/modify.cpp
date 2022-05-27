@@ -56,7 +56,6 @@ void show_string(DescriptorData *d, char *input);
 #define PARSE_EDIT        7
 
 extern const char *MENU;
-extern const char *unused_spellname;
 
 // local functions
 void smash_tilde(char *str);
@@ -972,9 +971,10 @@ void do_skillset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		strcpy(help, "Возможные умения:\r\n");
 
 		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
-			if (spell_info[spell_id].name == unused_spellname)    // This is valid.
+			if (MUD::Spell(spell_id).IsInvalid()) {    // This is valid.
 				continue;
-			sprintf(help + strlen(help), "%30s", spell_info[spell_id].name);
+			}
+			sprintf(help + strlen(help), "%30s", MUD::Spell(spell_id).GetCName());
 			if (qend++ % 4 == 3) {
 				strcat(help, "\r\n");
 				SendMsgToChar(help, ch);
@@ -1046,10 +1046,8 @@ void do_skillset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		value = MUD::Skill(skill_id).cap;
 	}
 
-	// * FindSkillId() guarantees a valid spell_info[] index, or -1, and we
-	// * checked for the -1 above so we are safe here.
 	sprintf(buf2, "%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict),
-			spell_id >= ESpell::kFirst ? spell_info[spell_id].name : MUD::Skill(skill_id).GetName(), value);
+			spell_id >= ESpell::kFirst ? MUD::Spell(spell_id).GetCName() : MUD::Skill(skill_id).GetName(), value);
 	mudlog(buf2, BRF, kLvlImmortal, SYSLOG, true);
 	if (spell_id >= ESpell::kFirst && spell_id <= ESpell::kLast) {
 		if (value == 0 && IS_SET(GET_SPELL_TYPE(vict, spell_id), ESpellType::kTemp)) {
@@ -1068,7 +1066,7 @@ void do_skillset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		vict->set_skill(skill_id, value);
 	}
 	sprintf(buf2, "Вы изменили для %s '%s' на %d.\r\n", GET_PAD(vict, 1),
-			spell_id > ESpell::kUndefined ? spell_info[spell_id].name : MUD::Skill(skill_id).GetName(), value);
+			spell_id > ESpell::kUndefined ? MUD::Spell(spell_id).GetCName() : MUD::Skill(skill_id).GetName(), value);
 	SendMsgToChar(buf2, ch);
 }
 

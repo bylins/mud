@@ -123,7 +123,7 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	ObjData *tobj;
 	RoomData *troom;
 	auto target = FindCastTarget(spell_id, arg, ch, &tch, &tobj, &troom);
-	if (target && (tch == ch) && spell_info[spell_id].violent) {
+	if (target && (tch == ch) && MUD::Spell(spell_id).IsViolent()) {
 		SendMsgToChar("Лекари не рекомендуют использовать ЭТО на себя!\r\n", ch);
 		return;
 	}
@@ -155,7 +155,7 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		if (ch->GetEnemy() && !IS_IMPL(ch)) {
 			ch->SetCast(spell_id, substitute_spell_id, tch, tobj, troom);
 			sprintf(buf, "Вы приготовились применить заклинание %s'%s'%s%s.\r\n",
-					CCCYN(ch, C_NRM), spell_info[spell_id].name, CCNRM(ch, C_NRM),
+					CCCYN(ch, C_NRM), MUD::Spell(spell_id).GetCName(), CCNRM(ch, C_NRM),
 					tch == ch ? " на себя" : tch ? " на $N3" : tobj ? " на $o3" : troom ? " на всех" : "");
 			act(buf, false, ch, tobj, tch, kToChar);
 		} else if (CastSpell(ch, tch, tobj, troom, spell_id, substitute_spell_id) >= 0) {

@@ -316,7 +316,7 @@ int CalcMagicSkillDam(CharData *ch, CharData *victim, ESpell spell_id, int dam) 
 	return (dam);
 }
 
-int mag_damage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESaving savetype) {
+int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESaving savetype) {
 	int dam = 0, rand = 0, count = 1, modi = 0, ndice = 0, sdice = 0, adice = 0, no_savings = false;
 	ObjData *obj = nullptr;
 
@@ -331,7 +331,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 	if ((spell_id != ESpell::kLightingBreath && spell_id != ESpell::kFireBreath && spell_id != ESpell::kGasBreath
 		&& spell_id != ESpell::kAcidBreath)
 		|| ch == victim) {
-		if (!IS_SET(spell_info[spell_id].routines, kMagWarcry)) {
+		if (!MUD::Spell(spell_id).IsFlagged(kMagWarcry)) {
 			if (ch != victim && spell_id <= ESpell::kLast &&
 				((AFF_FLAGGED(victim, EAffect::kMagicGlass) && number(1, 100) < (GetRealLevel(victim) / 3)))) {
 				act("Магическое зеркало $N1 отразило вашу магию!", false, ch, nullptr, victim, kToChar);
@@ -339,7 +339,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 				act("Ваше магическое зеркало отразило поражение $n1!", false, ch, nullptr, victim, kToVict);
 				log("[MAG DAMAGE] Зеркало - полное отражение: %s damage %s (%d)",
 					GET_NAME(ch), GET_NAME(victim), to_underlying(spell_id));
-				return (mag_damage(level, ch, ch, spell_id, savetype));
+				return (CastDamage(level, ch, ch, spell_id, savetype));
 			}
 		} else {
 			if (ch != victim && spell_id <= ESpell::kLast && IS_GOD(victim)
@@ -347,11 +347,11 @@ int mag_damage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 				act("Звуковой барьер $N1 отразил ваш крик!", false, ch, nullptr, victim, kToChar);
 				act("Звуковой барьер $N1 отразил крик $n1!", false, ch, nullptr, victim, kToNotVict);
 				act("Ваш звуковой барьер отразил крик $n1!", false, ch, nullptr, victim, kToVict);
-				return (mag_damage(level, ch, ch, spell_id, savetype));
+				return (CastDamage(level, ch, ch, spell_id, savetype));
 			}
 		}
 
-		if (!IS_SET(spell_info[spell_id].routines, kMagWarcry) && AFF_FLAGGED(victim, EAffect::kShadowCloak)
+		if (!MUD::Spell(spell_id).IsFlagged(kMagWarcry) && AFF_FLAGGED(victim, EAffect::kShadowCloak)
 			&& spell_id <= ESpell::kLast && number(1, 100) < 21) {
 			act("Густая тень вокруг $N1 жадно поглотила вашу магию.", false, ch, nullptr, victim, kToChar);
 			act("Густая тень вокруг $N1 жадно поглотила магию $n1.", false, ch, nullptr, victim, kToNotVict);
@@ -361,12 +361,13 @@ int mag_damage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 			return (0);
 		}
 		// Блочим маг дамагу от директ спелов для Витязей : шанс (скил/20 + вес.щита/2) ~ 30% при 200 скила и 40вес щита
-		if (!IS_SET(spell_info[spell_id].routines, kMagWarcry) && !IS_SET(spell_info[spell_id].routines, kMagMasses)
-			&& !IS_SET(spell_info[spell_id].routines, kMagAreas)
-			&& (victim->GetSkill(ESkill::kShieldBlock) > 100) && GET_EQ(victim, kShield)
-			&& CanUseFeat(victim, EFeat::kMagicalShield)
-			&& (number(1, 100)
-				< ((victim->GetSkill(ESkill::kShieldBlock)) / 20 + GET_OBJ_WEIGHT(GET_EQ(victim, kShield)) / 2))) {
+		if (!MUD::Spell(spell_id).IsFlagged(kMagWarcry) &&
+			!MUD::Spell(spell_id).IsFlagged(kMagMasses) &&
+			!MUD::Spell(spell_id).IsFlagged(kMagAreas) &&
+			(victim->GetSkill(ESkill::kShieldBlock) > 100) && GET_EQ(victim, kShield) &&
+			CanUseFeat(victim, EFeat::kMagicalShield) &&
+			(number(1, 100)	<
+			((victim->GetSkill(ESkill::kShieldBlock)) / 20 + GET_OBJ_WEIGHT(GET_EQ(victim, kShield)) / 2))) {
 			act("Ловким движением $N0 отразил щитом вашу магию.", false, ch, nullptr, victim, kToChar);
 			act("Ловким движением $N0 отразил щитом магию $n1.", false, ch, nullptr, victim, kToNotVict);
 			act("Вы отразили своим щитом магию $n1.", false, ch, nullptr, victim, kToVict);
@@ -890,30 +891,30 @@ int mag_damage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 		double koeff = 1;
 		if (victim->IsNpc()) {
 			if (NPC_FLAGGED(victim, ENpcFlag::kFireCreature)) {
-				if (spell_info[spell_id].element == EElement::kFire) {
+				if (MUD::Spell(spell_id).GetElement() == EElement::kFire) {
 					koeff /= 2;
-				} else if (spell_info[spell_id].element == EElement::kWater) {
+				} else if (MUD::Spell(spell_id).GetElement() == EElement::kWater) {
 					koeff *= 2;
 				}
 			}
 			if (NPC_FLAGGED(victim, ENpcFlag::kAirCreature)) {
-				if (spell_info[spell_id].element == EElement::kEarth) {
+				if (MUD::Spell(spell_id).GetElement() == EElement::kEarth) {
 					koeff *= 2;
-				} else if (spell_info[spell_id].element == EElement::kAir) {
+				} else if (MUD::Spell(spell_id).GetElement() == EElement::kAir) {
 					koeff /= 2;
 				}
 			}
 			if (NPC_FLAGGED(victim, ENpcFlag::kWaterCreature)) {
-				if (spell_info[spell_id].element == EElement::kFire) {
+				if (MUD::Spell(spell_id).GetElement() == EElement::kFire) {
 					koeff *= 2;
-				} else if (spell_info[spell_id].element == EElement::kWater) {
+				} else if (MUD::Spell(spell_id).GetElement() == EElement::kWater) {
 					koeff /= 2;
 				}
 			}
 			if (NPC_FLAGGED(victim, ENpcFlag::kEarthCreature)) {
-				if (spell_info[spell_id].element == EElement::kEarth) {
+				if (MUD::Spell(spell_id).GetElement() == EElement::kEarth) {
 					koeff /= 2;
-				} else if (spell_info[spell_id].element == EElement::kAir) {
+				} else if (MUD::Spell(spell_id).GetElement() == EElement::kAir) {
 					koeff *= 2;
 				}
 			}
@@ -927,7 +928,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 		}
 		if (AFF_FLAGGED(ch, EAffect::kDaturaPoison))
 			dam -= dam * GET_POISON(ch) / 100;
-		if (!IS_SET(spell_info[spell_id].routines, kMagWarcry)) {
+		if (!MUD::Spell(spell_id).IsFlagged(kMagWarcry)) {
 			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi))
 				koeff /= 2;
 		}
@@ -1092,7 +1093,7 @@ bool ProcessMatComponents(CharData *caster, int /*vnum*/, ESpell spell_id) {
 	return (false);
 }
 
-int CastMagicAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, ESaving savetype) {
+int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, ESaving savetype) {
 	bool accum_affect = false, accum_duration = false, success = true;
 	bool update_spell = false;
 	const char *to_vict = nullptr, *to_room = nullptr;
@@ -1106,30 +1107,20 @@ int CastMagicAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, 
 	}
 
 	// Calculate PKILL's affects
-	//   1) "NPC affect PC spellflag"  for victim
-	//   2) "NPC affect NPC spellflag" if victim cann't pkill FICHTING(victim)
-	if (ch != victim)    //SendMsgToChar("Start\r\n",ch);
-	{
-		//SendMsgToChar("Start\r\n",victim);
-		if (IS_SET(spell_info[spell_id].routines, kNpcAffectPc))    //SendMsgToChar("1\r\n",ch);
-		{
-			//SendMsgToChar("1\r\n",victim);
-			if (!pk_agro_action(ch, victim))
+	if (ch != victim) {
+		if (MUD::Spell(spell_id).IsFlagged(kNpcAffectPc)) {
+			if (!pk_agro_action(ch, victim)) {
 				return 0;
-		} else if (IS_SET(spell_info[spell_id].routines, kNpcAffectNpc)
-			&& victim->GetEnemy())    //SendMsgToChar("2\r\n",ch);
-		{
-			//SendMsgToChar("2\r\n",victim);
+			}
+		} else if (MUD::Spell(spell_id).IsFlagged(kNpcAffectNpc) && victim->GetEnemy())	{
 			if (!pk_agro_action(ch, victim->GetEnemy()))
 				return 0;
 		}
-		//SendMsgToChar("Stop\r\n",ch);
-		//SendMsgToChar("Stop\r\n",victim);
 	}
 	// Magic glass
-	if (!IS_SET(spell_info[spell_id].routines, kMagWarcry)) {
+	if (!MUD::Spell(spell_id).IsFlagged(kMagWarcry)) {
 		if (ch != victim
-			&& spell_info[spell_id].violent
+			&& MUD::Spell(spell_id).IsViolent()
 			&& ((!IS_GOD(ch)
 				&& AFF_FLAGGED(victim, EAffect::kMagicGlass)
 				&& (ch->in_room == IN_ROOM(victim)) //зеркало сработает только если оба в одной комнате
@@ -1140,22 +1131,22 @@ int CastMagicAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, 
 			act("Магическое зеркало $N1 отразило вашу магию!", false, ch, nullptr, victim, kToChar);
 			act("Магическое зеркало $N1 отразило магию $n1!", false, ch, nullptr, victim, kToNotVict);
 			act("Ваше магическое зеркало отразило поражение $n1!", false, ch, nullptr, victim, kToVict);
-			CastMagicAffect(level, ch, ch, spell_id, savetype);
+			CastAffect(level, ch, ch, spell_id, savetype);
 			return 0;
 		}
 	} else {
-		if (ch != victim && spell_info[spell_id].violent && IS_GOD(victim)
+		if (ch != victim && MUD::Spell(spell_id).IsViolent() && IS_GOD(victim)
 			&& (ch->IsNpc() || GetRealLevel(victim) > (GetRealLevel(ch) + GET_REAL_REMORT(ch) / 2))) {
 			act("Звуковой барьер $N1 отразил ваш крик!", false, ch, nullptr, victim, kToChar);
 			act("Звуковой барьер $N1 отразил крик $n1!", false, ch, nullptr, victim, kToNotVict);
 			act("Ваш звуковой барьер отразил крик $n1!", false, ch, nullptr, victim, kToVict);
-			CastMagicAffect(level, ch, ch, spell_id, savetype);
+			CastAffect(level, ch, ch, spell_id, savetype);
 			return 0;
 		}
 	}
 	//  блочим директ аффекты вредных спелов для Витязей  шанс = (скил/20 + вес.щита/2)  ()
-	if (ch != victim && spell_info[spell_id].violent && !IS_SET(spell_info[spell_id].routines, kMagWarcry)
-		&& !IS_SET(spell_info[spell_id].routines, kMagMasses) && !IS_SET(spell_info[spell_id].routines, kMagAreas)
+	if (ch != victim && MUD::Spell(spell_id).IsViolent() && !MUD::Spell(spell_id).IsFlagged(kMagWarcry)
+		&& !MUD::Spell(spell_id).IsFlagged(kMagMasses) && !MUD::Spell(spell_id).IsFlagged(kMagAreas)
 		&& (victim->GetSkill(ESkill::kShieldBlock) > 100) && GET_EQ(victim, EEquipPos::kShield)
 		&& CanUseFeat(victim, EFeat::kMagicalShield)
 		&& (number(1, 100) < ((victim->GetSkill(ESkill::kShieldBlock)) / 20
@@ -1166,7 +1157,7 @@ int CastMagicAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, 
 		return (0);
 	}
 
-	if (!IS_SET(spell_info[spell_id].routines, kMagWarcry) && ch != victim && spell_info[spell_id].violent
+	if (!MUD::Spell(spell_id).IsFlagged(kMagWarcry) && ch != victim && MUD::Spell(spell_id).IsViolent()
 		&& number(1, 999) <= GET_AR(victim) * 10) {
 		SendMsgToChar(NOEFFECT, ch);
 		return 0;
@@ -2354,7 +2345,7 @@ int CastMagicAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, 
 					to_room = "$n3 оглушило.";
 					to_vict = "Вас оглушило.";
 					spell_id = ESpell::kMagicBattle;
-					CastMagicAffect(level, ch, victim, ESpell::kBlindness, ESaving::kStability);
+					CastAffect(level, ch, victim, ESpell::kBlindness, ESaving::kStability);
 					break;
 				default: break;
 			}
@@ -2839,7 +2830,7 @@ int CastMagicAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, 
 		}
 	}
 	// позитивные аффекты - продлеваем, если они уже на цели
-	if (!spell_info[spell_id].violent && IsAffectedBySpell(victim, spell_id) && success) {
+	if (!MUD::Spell(spell_id).IsViolent() && IsAffectedBySpell(victim, spell_id) && success) {
 		update_spell = true;
 	}
 	// вот такой оригинальный способ запретить рекасты негативных аффектов - через флаг апдейта
@@ -2918,7 +2909,7 @@ const char *mag_summon_fail_msgs[] =
 		"У вас нет подходящего трупа!\r\n"
 	};
 
-int mag_summons(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need_fail) {
+int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need_fail) {
 	CharData *tmp_mob, *mob = nullptr;
 	ObjData *tobj, *next_obj;
 	struct FollowerType *k;
@@ -3243,7 +3234,7 @@ int mag_summons(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool nee
 		cha_num = std::max(1, (GetRealLevel(ch) + 4) / 5 - 2) - cha_num;
 		if (cha_num < 1)
 			return 0;
-		mag_summons(level, ch, obj, spell_id, 0);
+		CastSummon(level, ch, obj, spell_id, 0);
 	}
 	if (spell_id == ESpell::kAnimateDead) {
 		MOB_FLAGS(mob).set(EMobFlag::kResurrected);
@@ -3429,8 +3420,7 @@ int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id, ESa
 
 bool CheckNodispel(const Affect<EApply>::shared_ptr &affect) {
 	return !affect
-		|| !spell_info[affect->type].name
-		|| *spell_info[affect->type].name == '!'
+		|| MUD::Spell(affect->type).IsInvalid()
 		|| affect->bitvector == to_underlying(EAffect::kCharmed)
 		|| affect->type == ESpell::kCharm
 		|| affect->type == ESpell::kQUest
@@ -3528,10 +3518,10 @@ int CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell spell_id
 	}
 	spell_id = spell;
 	if (ch != victim && !remove) {
-		if (IS_SET(spell_info[spell_id].routines, kNpcAffectNpc)) {
+		if (MUD::Spell(spell_id).IsFlagged(kNpcAffectNpc)) {
 			if (!pk_agro_action(ch, victim))
 				return 0;
-		} else if (IS_SET(spell_info[spell_id].routines, kNpcAffectPc) && victim->GetEnemy()) {
+		} else if (MUD::Spell(spell_id).IsFlagged(kNpcAffectPc) && victim->GetEnemy()) {
 			if (!pk_agro_action(ch, victim->GetEnemy()))
 				return 0;
 		}
@@ -3863,7 +3853,7 @@ void ReactToCast(CharData *victim, CharData *caster, ESpell spell_id) {
 	if (caster == victim)
 		return;
 
-	if (!CheckMobList(victim) || !spell_info[spell_id].violent)
+	if (!CheckMobList(victim) || !MUD::Spell(spell_id).IsViolent())
 		return;
 
 	if (AFF_FLAGGED(victim, EAffect::kCharmed) ||
@@ -3920,32 +3910,32 @@ int CastToSingleTarget(int level, CharData *caster, CharData *cvict, ObjData *ov
 	if (!cast_mtrigger(cvict, caster, spell_id)) {
 		return -1;
 	}
-	if (IS_SET(spell_info[spell_id].routines, kMagWarcry) && cvict && IS_UNDEAD(cvict))
+	if (MUD::Spell(spell_id).IsFlagged(kMagWarcry) && cvict && IS_UNDEAD(cvict))
 		return 1;
 
-	if (IS_SET(spell_info[spell_id].routines, kMagDamage))
-		if (mag_damage(level, caster, cvict, spell_id, saving) == -1)
+	if (MUD::Spell(spell_id).IsFlagged(kMagDamage))
+		if (CastDamage(level, caster, cvict, spell_id, saving) == -1)
 			return (-1);    // Successful and target died, don't cast again.
 
-	if (IS_SET(spell_info[spell_id].routines, kMagAffects))
-		CastMagicAffect(level, caster, cvict, spell_id, saving);
+	if (MUD::Spell(spell_id).IsFlagged(kMagAffects))
+		CastAffect(level, caster, cvict, spell_id, saving);
 
-	if (IS_SET(spell_info[spell_id].routines, kMagUnaffects))
+	if (MUD::Spell(spell_id).IsFlagged(kMagUnaffects))
 		CastUnaffects(level, caster, cvict, spell_id, saving);
 
-	if (IS_SET(spell_info[spell_id].routines, kMagPoints))
+	if (MUD::Spell(spell_id).IsFlagged(kMagPoints))
 		CastToPoints(level, caster, cvict, spell_id, saving);
 
-	if (IS_SET(spell_info[spell_id].routines, kMagAlterObjs))
+	if (MUD::Spell(spell_id).IsFlagged(kMagAlterObjs))
 		CastToAlterObjs(level, caster, ovict, spell_id, saving);
 
-	if (IS_SET(spell_info[spell_id].routines, kMagSummons))
-		mag_summons(level, caster, ovict, spell_id, 1);    // saving =1 -- ВРЕМЕННО, показатель что фэйлить надо
+	if (MUD::Spell(spell_id).IsFlagged(kMagSummons))
+		CastSummon(level, caster, ovict, spell_id, true);    // saving =1 -- ВРЕМЕННО, показатель что фэйлить надо
 
-	if (IS_SET(spell_info[spell_id].routines, kMagCreations))
+	if (MUD::Spell(spell_id).IsFlagged(kMagCreations))
 		CastCreation(level, caster, spell_id);
 
-	if (IS_SET(spell_info[spell_id].routines, kMagManual))
+	if (MUD::Spell(spell_id).IsFlagged(kMagManual))
 		CastManual(level, caster, cvict, ovict, spell_id, saving);
 
 	ReactToCast(cvict, caster, spell_id);

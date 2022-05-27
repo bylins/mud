@@ -49,7 +49,7 @@ int what_sky = kSkyCloudless;
 // * Special spells appear below.
 
 ESkill GetMagicSkillId(ESpell spell_id) {
-	switch (spell_info[spell_id].element) {
+	switch (MUD::Spell(spell_id).GetElement()) {
 		case EElement::kAir: return ESkill::kAirMagic;
 			break;
 		case EElement::kFire: return ESkill::kFireMagic;
@@ -1106,11 +1106,11 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 				GET_PR(victim) = (GET_PR(victim) + GET_REAL_REMORT(ch) - 12);
 			}
 			// спелы не работают пока 
-			// SET_SPELL(victim, SPELL_CURE_BLIND, 1); // -?
-			// SET_SPELL(victim, SPELL_REMOVE_DEAFNESS, 1); // -?
-			// SET_SPELL(victim, SPELL_REMOVE_HOLD, 1); // -?
-			// SET_SPELL(victim, SPELL_REMOVE_POISON, 1); // -?
-			// SET_SPELL(victim, SPELL_HEAL, 1);
+			// SET_SPELL_MEM(victim, SPELL_CURE_BLIND, 1); // -?
+			// SET_SPELL_MEM(victim, SPELL_REMOVE_DEAFNESS, 1); // -?
+			// SET_SPELL_MEM(victim, SPELL_REMOVE_HOLD, 1); // -?
+			// SET_SPELL_MEM(victim, SPELL_REMOVE_POISON, 1); // -?
+			// SET_SPELL_MEM(victim, SPELL_HEAL, 1);
 
 			//NPC_FLAGS(victim).set(NPC_WIELDING); // тут пока закомитим
 			GET_LIKES(victim) = 10 + r_cha; // устанавливаем возможность авто применения умений
@@ -1523,18 +1523,30 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 
 	switch (GET_OBJ_TYPE(obj)) {
 		case EObjType::kScroll:
-		case EObjType::kPotion: sprintf(buf, "Содержит заклинание: ");
-				sprintf(buf + strlen(buf), " %s", GetSpellName(static_cast<ESpell>(GET_OBJ_VAL(obj, 1))));
-				sprintf(buf + strlen(buf), ", %s", GetSpellName(static_cast<ESpell>(GET_OBJ_VAL(obj, 2))));
-				sprintf(buf + strlen(buf), ", %s", GetSpellName(static_cast<ESpell>(GET_OBJ_VAL(obj, 3))));
-			strcat(buf, "\r\n");
-			SendMsgToChar(buf, ch);
+		case EObjType::kPotion: {
+			std::ostringstream out;
+			out << "Содержит заклинание: ";
+			for (auto val = 1; val < 4; ++val) {
+				auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(obj, val));
+				if (MUD::Spell(spell_id).IsValid()) {
+					out << MUD::Spell(spell_id).GetName();
+					if (val < 3) {
+						out << ", ";
+					} else {
+						out << ".";
+					}
+				}
+			}
+			out << std::endl;
+			SendMsgToChar(out.str(), ch);
 			break;
-
+		}
 		case EObjType::kWand:
 		case EObjType::kStaff: sprintf(buf, "Вызывает заклинания: ");
-			sprintf(buf + strlen(buf), " %s\r\n", GetSpellName(static_cast<ESpell>(GET_OBJ_VAL(obj, 3))));
-			sprintf(buf + strlen(buf), "Зарядов %d (осталось %d).\r\n", GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
+			sprintf(buf + strlen(buf), " %s\r\n",
+					MUD::Spell(static_cast<ESpell>(GET_OBJ_VAL(obj, 3))).GetCName());
+			sprintf(buf + strlen(buf), "Зарядов %d (осталось %d).\r\n",
+					GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
 			SendMsgToChar(buf, ch);
 			break;
 
@@ -1567,7 +1579,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 						} else {
 							drsdice = kLvlImplementator;
 						}
-						sprintf(buf, "содержит заклинание        : \"%s\"\r\n", GetSpellName(spell_id));
+						sprintf(buf, "содержит заклинание        : \"%s\"\r\n", MUD::Spell(spell_id).GetCName());
 						SendMsgToChar(buf, ch);
 						sprintf(buf, "уровень изучения (для вас) : %d\r\n", drsdice);
 						SendMsgToChar(buf, ch);
@@ -2068,7 +2080,7 @@ void SpellSacrifice(int/* level*/, CharData *ch, CharData *victim, ObjData* /*ob
 		return;
 	}
 
-	dam = mag_damage(GetRealLevel(ch), ch, victim, ESpell::kSacrifice, ESaving::kStability);
+	dam = CastDamage(GetRealLevel(ch), ch, victim, ESpell::kSacrifice, ESaving::kStability);
 	// victim может быть спуржен
 
 	if (dam < 0)
@@ -2114,8 +2126,8 @@ void SpellHolystrike(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData*
 			}
 		}
 
-		CastMagicAffect(GetRealLevel(ch), ch, tch, ESpell::kHolystrike, ESaving::kStability);
-		mag_damage(GetRealLevel(ch), ch, tch, ESpell::kHolystrike, ESaving::kStability);
+		CastAffect(GetRealLevel(ch), ch, tch, ESpell::kHolystrike, ESaving::kStability);
+		CastDamage(GetRealLevel(ch), ch, tch, ESpell::kHolystrike, ESaving::kStability);
 	}
 
 	act(msg2, false, ch, nullptr, nullptr, kToChar);
@@ -2290,10 +2302,10 @@ void SpellSummonAngel(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData
 	mob->set_skill(ESkill::kAwake, floorf(base_awake + additional_awake_for_charisma * eff_cha));
 	mob->set_skill(ESkill::kMultiparry, floorf(base_multiparry + additional_multiparry_for_charisma * eff_cha));
 	int base_spell = 2;
-	SET_SPELL(mob, ESpell::kCureBlind, base_spell);
-	SET_SPELL(mob, ESpell::kRemoveHold, base_spell);
-	SET_SPELL(mob, ESpell::kRemovePoison, base_spell);
-	SET_SPELL(mob, ESpell::kHeal, floorf(base_heal + additional_heal_for_charisma * eff_cha));
+	SET_SPELL_MEM(mob, ESpell::kCureBlind, base_spell);
+	SET_SPELL_MEM(mob, ESpell::kRemoveHold, base_spell);
+	SET_SPELL_MEM(mob, ESpell::kRemovePoison, base_spell);
+	SET_SPELL_MEM(mob, ESpell::kHeal, floorf(base_heal + additional_heal_for_charisma * eff_cha));
 
 	if (mob->GetSkill(ESkill::kAwake)) {
 		PRF_FLAGS(mob).set(EPrf::kAwake);
@@ -2365,19 +2377,19 @@ void SpellMentalShadow(int/* level*/, CharData *ch, CharData* /*victim*/, ObjDat
 	GET_AC(mob) = floorf(base_ac + additional_ac * eff_int);
 	// Добавление заклов и аффектов в зависимости от интелекта кудеса
 	if (eff_int >= 28 && eff_int < 32) {
-     	SET_SPELL(mob, ESpell::kRemoveSilence, 1);
+     	SET_SPELL_MEM(mob, ESpell::kRemoveSilence, 1);
 	} else if (eff_int >= 32 && eff_int < 38) {
-		SET_SPELL(mob, ESpell::kRemoveSilence, 1);
+		SET_SPELL_MEM(mob, ESpell::kRemoveSilence, 1);
 		af.bitvector = to_underlying(EAffect::kShadowCloak);
 		affect_to_char(mob, af);
 
 	} else if(eff_int >= 38 && eff_int < 44) {
-		SET_SPELL(mob, ESpell::kRemoveSilence, 2);
+		SET_SPELL_MEM(mob, ESpell::kRemoveSilence, 2);
 		af.bitvector = to_underlying(EAffect::kShadowCloak);
 		affect_to_char(mob, af);
 		
 	} else if(eff_int >= 44) {
-		SET_SPELL(mob, ESpell::kRemoveSilence, 3);
+		SET_SPELL_MEM(mob, ESpell::kRemoveSilence, 3);
 		af.bitvector = to_underlying(EAffect::kShadowCloak);
 		affect_to_char(mob, af);
 		af.bitvector = to_underlying(EAffect::kBrokenChains);
@@ -2497,7 +2509,7 @@ int CheckRecipeValues(CharData *ch, ESpell spell_id, ESpellType spell_type, int 
 		strcat(buf, CCNRM(ch, C_NRM));
 		if (spell_type == ESpellType::kItemCast || spell_type == ESpellType::kRunes) {
 			strcat(buf, "для создания магии '");
-			strcat(buf, GetSpellName(spell_id));
+			strcat(buf, MUD::Spell(spell_id).GetCName());
 			strcat(buf, "'.");
 		} else {
 			strcat(buf, "для создания ");
@@ -2744,7 +2756,7 @@ int CheckRecipeItems(CharData *ch, ESpell spell_id, ESpellType spell_type, int e
 				act("$n сложил$g руны, которые вспыхнули ярким пламенем.",
 					true, ch, nullptr, nullptr, kToRoom);
 				sprintf(buf, "$n сложил$g руны в заклинание '%s'%s%s.",
-						GetSpellName(spell_id),
+						MUD::Spell(spell_id).GetCName(),
 						(targ && targ != ch ? " на " : ""),
 						(targ && targ != ch ? GET_PAD(targ, 1) : ""));
 				act(buf, true, ch, nullptr, nullptr, kToArenaListen);

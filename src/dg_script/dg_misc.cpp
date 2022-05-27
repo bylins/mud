@@ -12,6 +12,7 @@
 #include "handler.h"
 #include "dg_event.h"
 #include "game_magic/magic.h"
+#include "structs/global_objects.h"
 
 extern const char *what_sky_type[];
 extern int what_sky;
@@ -49,31 +50,31 @@ int find_dg_cast_target(ESpell spell_id, const char *t, CharData *ch, CharData *
 			what_sky = 5 + (what_sky >> 1);
 	}
 
-	if (IS_SET(spell_info[spell_id].targets, kTarIgnore))
+	if (MUD::Spell(spell_id).AllowTarget(kTarIgnore))
 		return true;
 
-	if (IS_SET(spell_info[spell_id].targets, kTarRoomThis))
+	if (MUD::Spell(spell_id).AllowTarget(kTarRoomThis))
 		return true;
 
 	if (*t) {
-		if (IS_SET(spell_info[spell_id].targets, kTarCharRoom)) {
+		if (MUD::Spell(spell_id).AllowTarget(kTarCharRoom)) {
 			if ((*tch = get_char_vis(ch, t, EFind::kCharInRoom)) != nullptr) {
 				return true;
 			}
 		}
-		if (IS_SET(spell_info[spell_id].targets, kTarCharWorld)) {
+		if (MUD::Spell(spell_id).AllowTarget(kTarCharWorld)) {
 			if ((*tch = get_char_vis(ch, t, EFind::kCharInWorld)) != nullptr) {
 				return true;
 			}
 		}
 
-		if (IS_SET(spell_info[spell_id].targets, kTarObjInv)) {
+		if (MUD::Spell(spell_id).AllowTarget(kTarObjInv)) {
 			if ((*tobj = get_obj_in_list_vis(ch, t, ch->carrying)) != nullptr) {
 				return true;
 			}
 		}
 
-		if (IS_SET(spell_info[spell_id].targets, kTarObjEquip)) {
+		if (MUD::Spell(spell_id).AllowTarget(kTarObjEquip)) {
 			int i;
 			for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
 				if (GET_EQ(ch, i) && isname(t, GET_EQ(ch, i)->get_aliases())) {
@@ -83,25 +84,25 @@ int find_dg_cast_target(ESpell spell_id, const char *t, CharData *ch, CharData *
 			}
 		}
 
-		if (IS_SET(spell_info[spell_id].targets, kTarObjRoom))
+		if (MUD::Spell(spell_id).AllowTarget(kTarObjRoom))
 			if ((*tobj = get_obj_in_list_vis(ch, t, world[ch->in_room]->contents)) != nullptr)
 				return true;
 
-		if (IS_SET(spell_info[spell_id].targets, kTarObjWorld))
+		if (MUD::Spell(spell_id).AllowTarget(kTarObjWorld))
 			if ((*tobj = get_obj_vis(ch, t)) != nullptr)
 				return true;
 	} else {
-		if (IS_SET(spell_info[spell_id].targets, kTarFightSelf))
+		if (MUD::Spell(spell_id).AllowTarget(kTarFightSelf))
 			if (ch->GetEnemy() != nullptr) {
 				*tch = ch;
 				return true;
 			}
-		if (IS_SET(spell_info[spell_id].targets, kTarFightVict))
+		if (MUD::Spell(spell_id).AllowTarget(kTarFightVict))
 			if (ch->GetEnemy() != nullptr) {
 				*tch = ch->GetEnemy();
 				return true;
 			}
-		if (IS_SET(spell_info[spell_id].targets, kTarCharRoom) && !spell_info[spell_id].violent) {
+		if (MUD::Spell(spell_id).AllowTarget(kTarCharRoom) && !MUD::Spell(spell_id).IsViolent()) {
 			*tch = ch;
 			return true;
 		}

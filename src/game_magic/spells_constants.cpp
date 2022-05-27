@@ -672,7 +672,7 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kFullFeed] = "kFullFeed";
 	ESpell_name_by_value[ESpell::kColdWind] = "kColdWind";
 	ESpell_name_by_value[ESpell::kBattle] = "kBattle";
-	ESpell_name_by_value[ESpell::kHaemorrhage] = "kHaemorragis";
+	ESpell_name_by_value[ESpell::kHaemorrhage] = "kHaemorrhage";
 	ESpell_name_by_value[ESpell::kCourage] = "kCourage";
 	ESpell_name_by_value[ESpell::kWaterbreath] = "kWaterbreath";
 	ESpell_name_by_value[ESpell::kSlowdown] = "kSlowdown";
@@ -754,6 +754,9 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kWarcryOfPower] = "kWarcryOfPower";
 	ESpell_name_by_value[ESpell::kWarcryOfBless] = "kWarcryOfBless";
 	ESpell_name_by_value[ESpell::kWarcryOfCourage] = "kWarcryOfCourage";
+	ESpell_name_by_value[ESpell::kWarcryOfExperience] = "kWarcryOfExperience";
+	ESpell_name_by_value[ESpell::kWarcryOfLuck] = "kWarcryOfLuck";
+	ESpell_name_by_value[ESpell::kWarcryOfPhysdamage] = "kWarcryOfPhysdamage";
 	ESpell_name_by_value[ESpell::kRuneLabel] = "kRuneLabel";
 	ESpell_name_by_value[ESpell::kAconitumPoison] = "kAconitumPoison";
 	ESpell_name_by_value[ESpell::kScopolaPoison] = "kScopolaPoison";
@@ -807,6 +810,14 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kMassFailure] = "kMassFailure";
 	ESpell_name_by_value[ESpell::kSnare] = "kSnare";
 	ESpell_name_by_value[ESpell::kExpedientFail] = "kExpedientFail";
+	ESpell_name_by_value[ESpell::kFireBreath] = "kFireBreath";
+	ESpell_name_by_value[ESpell::kGasBreath] = "kGasBreath";
+	ESpell_name_by_value[ESpell::kFrostBreath] = "kFrostBreath";
+	ESpell_name_by_value[ESpell::kAcidBreath] = "kAcidBreath";
+	ESpell_name_by_value[ESpell::kLightingBreath] = "kLightingBreath";
+	ESpell_name_by_value[ESpell::kIdentify] = "kIdentify";
+	ESpell_name_by_value[ESpell::kFullIdentify] = "kFullIdentify";
+	ESpell_name_by_value[ESpell::kQUest] = "kQUest";
 
 	for (const auto &i : ESpell_name_by_value) {
 		ESpell_value_by_name[i.second] = i.first;
@@ -935,7 +946,6 @@ void init_EMagic_ITEM_NAMES() {
 	EMagic_name_by_value[EMagic::kMagManual] = "kMagManual";
 	EMagic_name_by_value[EMagic::kMagWarcry] = "kMagWarcry";
 	EMagic_name_by_value[EMagic::kMagNeedControl] = "kMagNeedControl";
-	EMagic_name_by_value[EMagic::kMagNone] = "kMagNone";
 	EMagic_name_by_value[EMagic::kNpcDamagePc] = "kNpcDamagePc";
 	EMagic_name_by_value[EMagic::kNpcDamagePcMinhp] = "kNpcDamagePcMinhp";
 	EMagic_name_by_value[EMagic::kNpcAffectPc] = "kNpcAffectPc";
@@ -979,6 +989,7 @@ void init_ETarget_ITEM_NAMES() {
 	ETarget_value_by_name.clear();
 	ETarget_name_by_value.clear();
 
+	ETarget_name_by_value[ETarget::kTarNone] = "kTarNone";
 	ETarget_name_by_value[ETarget::kTarIgnore] = "kTarIgnore";
 	ETarget_name_by_value[ETarget::kTarCharRoom] = "kTarCharRoom";
 	ETarget_name_by_value[ETarget::kTarCharWorld] = "kTarCharWorld";

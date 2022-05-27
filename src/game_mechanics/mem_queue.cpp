@@ -36,17 +36,17 @@ int CalcSpellManacost(const CharData *ch, ESpell spell_id) {
 			* (float) mana_gain_cs[VPOSI(55 - GET_REAL_INT(ch), 10, 50)]
 			/ (float) int_app[VPOSI(55 - GET_REAL_INT(ch), 10, 50)].mana_per_tic
 			* 60
-			* std::max(spell_info[spell_id].mana_max
-						   - (spell_info[spell_id].mana_change
+			* std::max(MUD::Spell(spell_id).GetMaxMana()
+						   - (MUD::Spell(spell_id).GetManaChange()
 							   * (GetRealLevel(ch)
 								   - spell_create[spell_id].runes.min_caster_level)),
-					   spell_info[spell_id].mana_min));
+					   MUD::Spell(spell_id).GetMinMana()));
 	} else {
 		if (!IS_MANA_CASTER(ch) && GetRealLevel(ch) >= CalcMinSpellLvl(ch, spell_id)
 			&& GET_REAL_REMORT(ch) >= MUD::Class(ch->GetClass()).spells[spell_id].GetMinRemort()) {
-			result = std::max(spell_info[spell_id].mana_max - (spell_info[spell_id].mana_change *
+			result = std::max(MUD::Spell(spell_id).GetMaxMana() - (MUD::Spell(spell_id).GetManaChange() *
 								  (GetRealLevel(ch) - CalcMinSpellLvl(ch, spell_id))),
-							  spell_info[spell_id].mana_min);
+							  MUD::Spell(spell_id).GetMinMana());
 			auto class_mem_mod = MUD::Class(ch->GetClass()).spells[spell_id].GetMemMod();
 			if (class_mem_mod < 0) {
 				result = result*(100 - abs(class_mem_mod))/100;
@@ -96,7 +96,7 @@ ESpell MemQ_learn(CharData *ch) {
 	ch->mem_queue.queue = i->next;
 	free(i);
 	sprintf(buf, "Вы выучили заклинание \"%s%s%s\".\r\n",
-			CCICYN(ch, C_NRM), spell_info[spell_id].name, CCNRM(ch, C_NRM));
+			CCICYN(ch, C_NRM), MUD::Spell(spell_id).GetCName(), CCNRM(ch, C_NRM));
 	SendMsgToChar(buf, ch);
 	return spell_id;
 }
@@ -119,10 +119,10 @@ void MemQ_remember(CharData *ch, ESpell spell_id) {
 
 	if (GET_RELIGION(ch) == kReligionMono)
 		sprintf(buf, "Вы дописали заклинание \"%s%s%s\" в свой часослов.\r\n",
-				CCIMAG(ch, C_NRM), spell_info[spell_id].name, CCNRM(ch, C_NRM));
+				CCIMAG(ch, C_NRM), MUD::Spell(spell_id).GetCName(), CCNRM(ch, C_NRM));
 	else
 		sprintf(buf, "Вы занесли заклинание \"%s%s%s\" в свои резы.\r\n",
-				CCIMAG(ch, C_NRM), spell_info[spell_id].name, CCNRM(ch, C_NRM));
+				CCIMAG(ch, C_NRM), MUD::Spell(spell_id).GetCName(), CCNRM(ch, C_NRM));
 	SendMsgToChar(buf, ch);
 
 	ch->mem_queue.total += CalcSpellManacost(ch, spell_id);
@@ -154,7 +154,7 @@ void MemQ_forget(CharData *ch, ESpell spell_id) {
 		free(ptr);
 		sprintf(buf,
 				"Вы вычеркнули заклинание \"%s%s%s\" из списка для запоминания.\r\n",
-				CCIMAG(ch, C_NRM), spell_info[spell_id].name, CCNRM(ch, C_NRM));
+				CCIMAG(ch, C_NRM), MUD::Spell(spell_id).GetCName(), CCNRM(ch, C_NRM));
 		SendMsgToChar(buf, ch);
 	}
 }

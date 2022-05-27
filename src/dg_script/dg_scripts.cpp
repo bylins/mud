@@ -53,7 +53,6 @@ extern const char *genders[];
 extern const char *exit_bits[];
 extern IndexData *mob_index;
 extern TimeInfoData time_info;
-const char *GetSpellName(ESpell spell_id);
 
 extern bool CanTakeObj(CharData *ch, ObjData *obj);
 extern void split_or_clan_tax(CharData *ch, long amount);

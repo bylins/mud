@@ -4513,7 +4513,7 @@ std::string statToPrint() {
 	for (auto & it : SpellUsage::usage) {
 		out << std::setw(35) << MUD::Class(it.first).GetName() << std::endl;
 		for (auto & itt : it.second) {
-			out << std::setw(25) << spell_info[itt.first].name << " : " << itt.second << std::endl;
+			out << std::setw(25) << MUD::Spell(itt.first).GetName() << " : " << itt.second << std::endl;
 		}
 	}
 	return out.str();

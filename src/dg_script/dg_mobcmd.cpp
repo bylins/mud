@@ -976,7 +976,6 @@ void do_mdoor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 }
 
 // increases spells & skills
-const char *GetSpellName(ESpell spell_id);
 ESpell FixNameAndFindSpellId(char *name);
 
 void do_mfeatturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {

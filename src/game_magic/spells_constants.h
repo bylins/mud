@@ -325,7 +325,6 @@ enum EMagic : Bitvector {
 	kMagManual = 1 << 10,
 	kMagWarcry = 1 << 11,
 	kMagNeedControl = 1 << 12,
-	kMagNone = 1 << 13,
 // А чего это тут дырка Ж)
 	kNpcDamagePc = 1 << 16,
 	kNpcDamagePcMinhp = 1 << 17,
@@ -348,6 +347,7 @@ template<>
 const std::string &NAME_BY_ITEM<EMagic>(const EMagic item);
 
 enum ETarget : Bitvector {
+	kTarNone = 0,
 	kTarIgnore = 1 << 0,
 	kTarCharRoom = 1 << 1,
 	kTarCharWorld = 1 << 2,	// не ищет мобов при касте чарами (призвать/переместиться/переход)

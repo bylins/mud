@@ -66,7 +66,7 @@ void LearnSpellBook(CharData *ch, ObjData *obj) {
 	if (!CanGetSpell(ch, spell_id, GET_OBJ_VAL(obj, 2))) {
 		throw LowRemortOrLvl();
 	}
-	auto spell_name = spell_info[spell_id].name;
+	auto spell_name = MUD::Spell(spell_id).GetName();
 	if (GET_SPELL_TYPE(ch, spell_id) & ESpellType::kKnow) {
 		throw AlreadyKnown(spell_name);
 	}

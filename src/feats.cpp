@@ -20,8 +20,6 @@
 #include "game_fight/pk.h"
 #include "structs/global_objects.h"
 
-extern const char *unused_spellname;
-
 //struct FeatureInfo feat_info[to_underlying(EFeat::kLastFeat) + 1];
 std::unordered_map<EFeat, FeatureInfo> feat_info;
 
@@ -98,7 +96,7 @@ void InitFeat(EFeat feat, const char *name, EFeatType type, CFeatArray app, int 
 
 void InitFeatByDefault(EFeat feat_id) {
 	feat_info[feat_id].id = feat_id;
-	feat_info[feat_id].name = unused_spellname;
+	feat_info[feat_id].name = "!UNUSED!";
 	feat_info[feat_id].type = EFeatType::kUnused;
 	feat_info[feat_id].always_available = false;
 	feat_info[feat_id].uses_weapon_skill = false;
@@ -1256,9 +1254,11 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (!ch->IsNpc() && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, EPrf::kAutomem))
 		MemQ_remember(ch, spell_id);
 
-	if (!IS_SET(spell_info[spell_id].routines, kMagDamage) || !spell_info[spell_id].violent ||
-		IS_SET(spell_info[spell_id].routines, kMagMasses) || IS_SET(spell_info[spell_id].routines, kMagGroups) ||
-		IS_SET(spell_info[spell_id].routines, kMagAreas)) {
+	if (!MUD::Spell(spell_id).IsViolent() ||
+		!MUD::Spell(spell_id).IsFlagged(kMagDamage) ||
+		MUD::Spell(spell_id).IsFlagged(kMagMasses) ||
+		MUD::Spell(spell_id).IsFlagged(kMagGroups) ||
+		MUD::Spell(spell_id).IsFlagged(kMagAreas)) {
 		SendMsgToChar("Вы конечно мастер, но не такой магии.\r\n", ch);
 		return;
 	}

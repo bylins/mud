@@ -27,7 +27,7 @@ void doList(CharData *ch, CharData *boss, bool isFavList) {
 	if (m->empty()) {
 		if (CanUseFeat(ch, EFeat::kEmployer))
 			tell_to_char(boss, ch, "Ступай, поначалу заведи знакомства, потом ко мне приходи.");
-		else if (IS_SPELL_KNOWN(ch, ESpell::kCharm))
+		else if (IS_SPELL_SET(ch, ESpell::kCharm, ESpellType::kKnow))
 			tell_to_char(boss, ch, "Поищи себе марионетку, да потренируйся, а затем ко мне приходи.");
 		else if (IS_IMMORTAL(ch))
 			tell_to_char(boss, ch, "Не гневайся, боже, но не было у тебя последователей еще.");
@@ -39,7 +39,7 @@ void doList(CharData *ch, CharData *boss, bool isFavList) {
 	} else if (CanUseFeat(ch, EFeat::kEmployer)) {
 		sprintf(buf, "%s тех, с кем знакомство ты водишь:",
 				isFavList ? "Краткий список" : "Полный список");
-	} else if (IS_SPELL_KNOWN(ch, ESpell::kCharm)) {
+	} else if (IS_SPELL_SET(ch, ESpell::kCharm, ESpellType::kKnow)) {
 		sprintf(buf, "Вот %s тварей земных, чьим разумом ты владел с помощью чар колдовских:",
 				isFavList ? "краткий список" : "полный список");
 	}
@@ -71,7 +71,6 @@ void doList(CharData *ch, CharData *boss, bool isFavList) {
 
 void doStat(CharData *ch) {
 	if (!ch) return;
-	return;
 };
 
 void doBring(CharData *ch, CharData *boss, unsigned int pos, char *bank) {
@@ -107,7 +106,7 @@ void doBring(CharData *ch, CharData *boss, unsigned int pos, char *bank) {
 		}
 		mob = read_mobile(rnum, REAL);
 		PlaceCharToRoom(mob, ch->in_room);
-		if (IS_SPELL_KNOWN(ch, ESpell::kCharm)) {
+		if (IS_SPELL_SET(ch, ESpell::kCharm, ESpellType::kKnow)) {
 			act("$n окрикнул$g своих парней и скрыл$u из виду.",
 				true, boss, nullptr, nullptr, kToRoom);
 			act("Спустя некоторое время, взмыленная ватага вернулась, волоча на аркане $n3.",

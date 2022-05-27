@@ -1191,7 +1191,7 @@ std::string print_spell(CharData *ch, const ObjData *obj, int num) {
 	char buf_[kMaxInputLength];
 	snprintf(buf_, sizeof(buf_), "Содержит заклинание: %s%s (%d ур.)%s\r\n",
 			 CCCYN(ch, C_NRM),
-			 GetSpellName(static_cast<ESpell>(obj->get_value(spell))),
+			 MUD::Spell(static_cast<ESpell>(obj->get_value(spell))).GetCName(),
 			 obj->get_value(level),
 			 CCNRM(ch, C_NRM));
 

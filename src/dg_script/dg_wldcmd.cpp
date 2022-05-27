@@ -484,7 +484,6 @@ void do_wload(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 }
 
 // increases spells & skills //
-const char *GetSpellName(ESpell spell_id);
 ESpell FixNameAndFindSpellId(char *name);
 
 void do_wdamage(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {

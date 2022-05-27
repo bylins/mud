@@ -2297,20 +2297,25 @@ void do_entergame(DescriptorData *d) {
 
 	if (!IS_IMMORTAL(d->character)) {
 		for (const auto &skill : MUD::Skills()) {
-			if (MUD::Class((d->character)->GetClass()).skills[skill.GetId()].IsUnavailable()) {
+			if (MUD::Class((d->character)->GetClass()).skills[skill.GetId()].IsInvalid()) {
 				d->character->set_skill(skill.GetId(), 0);
+			}
+		}
+
+		for (const auto &spell : MUD::Spells()) {
+			if (IS_SPELL_SET(d->character, spell.GetId(), ESpellType::kKnow)) {
+				if (MUD::Class((d->character)->GetClass()).spells[spell.GetId()].IsInvalid()) {
+					UNSET_SPELL_TYPE(d->character, spell.GetId(), ESpellType::kKnow);
+					imm_log("Unset spell '%s' from character '%s'.",
+							spell.GetCName(), d->character->get_name().c_str());
+				}
 			}
 		}
 	}
 
-	if (GET_SPELL_TYPE(d->character, ESpell::kRelocate) == ESpellType::kKnow && !IS_GOD(d->character)) {
-		GET_SPELL_TYPE(d->character, ESpell::kRelocate) = ESpellType::kUnknowm;
-	}
-
-	//Проверим временные заклы пока нас не было
 	temporary_spells::update_char_times(d->character.get(), time(nullptr));
 
-	// Карачун. Редкая бага. Сбрасываем явно не нужные аффекты.
+	// Сбрасываем явно не нужные аффекты.
 	d->character->remove_affect(EAffect::kGroup);
 	d->character->remove_affect(EAffect::kHorse);
 
@@ -2381,7 +2386,7 @@ void do_entergame(DescriptorData *d) {
 			break;
 	}
 
-	mudlog(buf, NRM, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
+	mudlog(buf, NRM, std::max(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 	d->has_prompt = 0;
 	login_change_invoice(d->character.get());
 	affect_total(d->character.get());

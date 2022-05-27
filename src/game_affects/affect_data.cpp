@@ -121,8 +121,7 @@ std::array<EAffect, 3> char_stealth_aff =
 
 template<>
 bool Affect<EApply>::removable() const {
-	return !spell_info[type].name
-		|| *spell_info[type].name == '!'
+	return MUD::Spell(type).IsInvalid()
 		|| type == ESpell::kSleep
 		|| type == ESpell::kPoison
 		|| type == ESpell::kWeaknes
@@ -661,7 +660,7 @@ void affect_total(CharData *ch) {
 		auto spell_id{ESpell::kFirst};
 		for (ch->caster_level = 0; !ch->IsNpc() && spell_id <= ESpell::kLast; ++spell_id) {
 			if (IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow | ESpellType::kTemp)) {
-				ch->caster_level += (spell_info[spell_id].danger * GET_SPELL_MEM(ch, spell_id));
+				ch->caster_level += MUD::Spell(spell_id).GetDanger()*GET_SPELL_MEM(ch, spell_id);
 			}
 		}
 	}

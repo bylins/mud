@@ -4076,7 +4076,7 @@ void do_affects(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 			}
 
 			*buf2 = '\0';
-			strcpy(sp_name, GetSpellName(aff->type));
+			strcpy(sp_name, MUD::Spell(aff->type).GetCName());
 			int mod = 0;
 			if (aff->battleflag == kAfPulsedec) {
 				mod = aff->duration / 51; //если в пульсах приводим к тикам 25.5 в сек 2 минуты
