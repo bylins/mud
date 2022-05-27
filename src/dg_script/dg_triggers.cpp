@@ -168,7 +168,7 @@ char *one_phrase(char *arg, char *first_arg) {
 }
 
 int is_substring(const char *sub, const char *string) {
-	const char *s = str_str(string, sub);
+	const char *s = strstr(string, sub);
 
 	if (s) {
 		size_t len = strlen(string);

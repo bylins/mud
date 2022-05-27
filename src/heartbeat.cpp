@@ -581,9 +581,13 @@ void Heartbeat::operator()(const int missed_pulses) {
 	utils::CExecutionTimer timer;
 	pulse(missed_pulses, label);
 	const auto execution_time = timer.delta();
-	if (kPassesPerSec / 60.0 < execution_time.count()) {
-		log("SYSERR: Long-running tick #%d worked for %.4f seconds (missed pulses argument has value %d)",
-			pulse_number(), execution_time.count(), missed_pulses);
+	if (kPassesPerSec / 25.0 < execution_time.count()) {
+//		log("SYSERR: Long-running tick #%d worked for %.4f seconds (missed pulses argument has value %d)",
+//			pulse_number(), execution_time.count(), missed_pulses);
+		char tmpbuf[256];
+		sprintf(tmpbuf, "WARNING: Long-running tick #%d worked for %.4f seconds (missed pulses argument has value %d), last trig %d",
+			pulse_number(), execution_time.count(), missed_pulses, last_trig_vnum);
+		mudlog(tmpbuf, LGH, kLvlImmortal, SYSLOG, true);
 	}
 	m_measurements.add(label, pulse_number(), execution_time.count());
 	if (GlobalObjects::stats_sender().ready()) {

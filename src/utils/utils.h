@@ -154,7 +154,6 @@ void kill_ems(char *str);
 void cut_one_word(std::string &str, std::string &word);
 size_t strl_cpy(char *dst, const char *src, size_t siz);
 
-
 extern bool GetAffectNumByName(const std::string &affName, EAffect &result);
 void tell_to_char(CharData *keeper, CharData *ch, const char *arg);
 bool is_head(std::string name);

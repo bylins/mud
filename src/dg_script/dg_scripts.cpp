@@ -1412,33 +1412,54 @@ int text_processed(char *field, char *subfield, struct TriggerVar *vd, char *str
 	if (!vd || !vd->name || !vd->value)
 		return false;
 
-	if (!str_cmp(field, "strlen"))    // strlen
-	{
+	if (!str_cmp(field, "strlen")) {
 		sprintf(str, "%lu", static_cast<unsigned long>(strlen(vd->value)));
 		return true;
-	} else if (!str_cmp(field, "trim"))    // trim
-	{
-		std::string str_to_trim(vd->value);
-		str_to_trim.erase(std::find_if_not(str_to_trim.rbegin(), str_to_trim.rend(), isspace).base(), str_to_trim.end());
-		str_to_trim.erase(str_to_trim.begin(), std::find_if_not(str_to_trim.begin(), str_to_trim.end(), isspace));
+	} else if (!str_cmp(field, "trim")) {
+		std::string str_to_trim = vd->value;
+		utils::Ltrim(str_to_trim);
+		utils::Rtrim(str_to_trim);
 		strcpy(str, str_to_trim.c_str());
 		return true;
-	} else if (!str_cmp(field, "contains"))    // contains
-	{
-		if (str_str(vd->value, subfield))
+	} else if (!str_cmp(field, "fullword")) {
+//не работает с русским
+/*			std::string word = subfield;
+			std::string sentence = vd->value;
+			std::regex rgx("\\b" + word + "\\b"); 
+			if (std::regex_search(sentence, rgx))
+*/
+		std::string sentence = vd->value;
+		std::vector<std::string> tmpstr;
+		std::istringstream is(sentence);
+		std::string temp;
+		while(is >> temp)
+			tmpstr.push_back(temp); // перенесем фразу в вектор
+		if (std::find(tmpstr.begin(), tmpstr.end(), subfield) != tmpstr.end())
+// вариант номер два
+/*		std::string sentence = vd->value;
+		std::stringstream parser(sentence);
+		std::istream_iterator<std::string> start(parser);
+		std::istream_iterator<std::string> end;
+		std::vector<std::string> words(start, end);
+		if(find(words.begin(), words.end(), subfield) != words.end())
+*/
 			sprintf(str, "1");
 		else
 			sprintf(str, "0");
 		return true;
-	} else if (!str_cmp(field, "car"))    // car
-	{
+	} else if (!str_cmp(field, "contains")) {
+		if (strstr(vd->value, subfield))
+			sprintf(str, "1");
+		else
+			sprintf(str, "0");
+		return true;
+	} else if (!str_cmp(field, "car")) {
 		char *car = vd->value;
 		while (*car && !isspace(*car))
 			*str++ = *car++;
 		*str = '\0';
 		return true;
-	} else if (!str_cmp(field, "cdr"))    // cdr
-	{
+	} else if (!str_cmp(field, "cdr")) {
 		char *cdr = vd->value;
 		while (*cdr && !isspace(*cdr))
 			cdr++;    // skip 1st field
@@ -3542,7 +3563,7 @@ void eval_op(const char *op,
 		else
 			sprintf(result, "%d", str_cmp(lhs, rhs) > 0);
 	} else if (!strcmp("/=", op))
-		sprintf(result, "%c", str_str(lhs, rhs) ? '1' : '0');
+		sprintf(result, "%c", strstr(lhs, rhs) ? '1' : '0');
 	else if (!strcmp("*", op))
 		sprintf(result, "%d", atoi(lhs) * atoi(rhs));
 	else if (!strcmp("/", op))
