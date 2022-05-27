@@ -3605,6 +3605,9 @@ void zone_update(void) {
 	int k = 0;
 	struct reset_q_element *update_u, *temp;
 	static int timer = 0;
+	log("[ZONEUPDATETIMER] Start");	
+	utils::CExecutionTimer timer_step;
+	utils::CExecutionTimer common_timer;
 
 	// jelson 10/22/92
 	if (((++timer * kPulseZone) / kPassesPerSec) >= 60)    // one minute has passed
@@ -3615,6 +3618,7 @@ void zone_update(void) {
 		 */
 
 		timer = 0;
+		log("[ZONEUPDATETIMER] Start For, Count: %f", timer_step.delta().count());
 
 		// since one minute has passed, increment zone ages
 		for (std::size_t i = 0; i < zone_table.size(); i++) {
@@ -3626,7 +3630,7 @@ void zone_update(void) {
 				zone_table[i].age < ZO_DEAD && zone_table[i].reset_mode &&
 				(zone_table[i].reset_idle || zone_table[i].used))    // enqueue zone
 			{
-
+				log("[ZONEUPDATETIMER] To table, name: %s, rnum: %ld, Count: %f", zone_table[i].name, i, timer_step.delta().count());
 				CREATE(update_u, 1);
 				update_u->zone_to_reset = static_cast<ZoneRnum>(i);
 				update_u->next = nullptr;
@@ -3642,7 +3646,7 @@ void zone_update(void) {
 			}
 		}
 	}
-
+	log("[ZONEUPDATETIMER] Start update, Count: %f", timer_step.delta().count());
 	// end - one minute has passed
 	// dequeue zones (if possible) and reset
 	// this code is executed every 10 seconds (i.e. kPulseZone)
@@ -3650,7 +3654,9 @@ void zone_update(void) {
 		if (zone_table[update_u->zone_to_reset].reset_mode == 2
 			|| (is_empty(update_u->zone_to_reset) && zone_table[update_u->zone_to_reset].reset_mode != 3)
 			|| can_be_reset(update_u->zone_to_reset)) {
+			log("[ZONEUPDATETIMER] Start Reset_zone, name: %s, Count: %f", zone_table[update_u->zone_to_reset].name, timer_step.delta().count());
 			reset_zone(update_u->zone_to_reset);
+			log("[ZONEUPDATETIMER] End Reset_zone, name: %s, Count: %f", zone_table[update_u->zone_to_reset].name, timer_step.delta().count());
 			char tmp[128];
 			snprintf(tmp, sizeof(tmp), "Auto zone reset: %s (%d)",
 					 zone_table[update_u->zone_to_reset].name,
@@ -3662,7 +3668,9 @@ void zone_update(void) {
 					for (ZoneRnum j = 0; j < static_cast<ZoneRnum>(zone_table.size()); j++) {
 						if (zone_table[j].vnum ==
 							zone_table[update_u->zone_to_reset].typeA_list[i]) {
+							log("[ZONEUPDATETIMER] [Complex] Start Reset_zone, name: %s, Count: %f", zone_table[update_u->zone_to_reset].name, timer_step.delta().count());
 							reset_zone(j);
+							log("[ZONEUPDATETIMER] [Complex] End Reset_zone, name: %s, Count: %f", zone_table[update_u->zone_to_reset].name, timer_step.delta().count());
 							snprintf(tmp, sizeof(tmp),
 									 " ]\r\n[ Also resetting: %s (%d)",
 									 zone_table[j].name, zone_table[j].vnum);
@@ -3690,6 +3698,8 @@ void zone_update(void) {
 			if (k >= kZonesReset)
 				break;
 		}
+	log("[ZONEUPDATETIMER] End zone_update, Count: %f", common_timer.delta().count());
+
 }
 
 bool can_be_reset(ZoneRnum zone) {
