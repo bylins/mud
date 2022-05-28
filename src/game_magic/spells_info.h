@@ -22,6 +22,8 @@ enum class EEffect {
 class IEffect {
  public:
 	virtual ~IEffect() = default;
+
+	virtual void Print(std::ostringstream &buffer) const = 0;
 };
 
 struct SpellDmg : public IEffect {
@@ -31,6 +33,8 @@ struct SpellDmg : public IEffect {
 	int dice_add{1};
 	double low_skill_bonus{0.0};
 	double hi_skill_bonus{0.0};
+
+	void Print(std::ostringstream &buffer) const override;
 };
 
 struct SpellArea : public IEffect {
@@ -42,6 +46,8 @@ struct SpellArea : public IEffect {
 	int targets_dice_size{1};
 	int min_targets{1};
 	int max_targets{1};
+
+	void Print(std::ostringstream &buffer) const override;
 };
 
 using EffectPtr = std::shared_ptr<IEffect>;
@@ -117,9 +123,18 @@ class SpellInfo : public info_container::BaseItem<ESpell> {
  */
 class SpellInfoBuilder : public info_container::IItemBuilder<SpellInfo> {
  public:
-	ItemPtr Build(parser_wrapper::DataNode &node) final;
+	ItemPtr Build(DataNode &node) final;
  private:
 	static ItemPtr ParseSpell(DataNode node);
+	static ItemPtr ParseHeader(DataNode &node);
+	static void ParseName(ItemPtr &info, DataNode &node);
+	static void ParseMisc(ItemPtr &info, DataNode &node);
+	static void ParseMana(ItemPtr &info, DataNode &node);
+	static void ParseTargets(ItemPtr &info, DataNode &node);
+	static void ParseFlags(ItemPtr &info, DataNode &node);
+	static void ParseEffects(ItemPtr &info, DataNode &node);
+	static void ParseDmgSection(ItemPtr &info, DataNode &node);
+	static void ParseAreaSection(ItemPtr &info, DataNode &node);
 };
 
 using SpellsInfo = info_container::InfoContainer<ESpell, SpellInfo, SpellInfoBuilder>;

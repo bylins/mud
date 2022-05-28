@@ -7,7 +7,7 @@
 /*
  * Эта структура и все с ней связанное - часть нерабочей, но недовырезанной системы то ли создания свитков,
  * посохов и так далее, то ли их применения. Сейчас на нее завязано применение рун. По уму, после переписывания
- * системы рун надо или вырезать остатки, или наоборот - довести до рабочео состояния и подключить.
+ * системы рун надо или вырезать остатки, или наоборот - довести до рабочего состояния и подключить.
  */
 std::unordered_map<ESpell, SpellCreate> spell_create;
 
@@ -38,7 +38,7 @@ void InitSpellCreate(ESpell spell_id) {
 }
 
 void InitSpellsCreate() {
-	for (const auto &spell : MUD::Spells()) {
+	for (const auto &spell: MUD::Spells()) {
 		InitSpellCreate(spell.GetId());
 	}
 }
@@ -63,21 +63,39 @@ ItemPtr SpellInfoBuilder::Build(DataNode &node) {
 }
 
 ItemPtr SpellInfoBuilder::ParseSpell(DataNode node) {
+	auto info = ParseHeader(node);
+
+	ParseName(info, node);
+	ParseMisc(info, node);
+	ParseMana(info, node);
+	ParseTargets(info, node);
+	ParseFlags(info, node);
+	ParseEffects(info, node);
+
+	return info;
+}
+
+ItemPtr SpellInfoBuilder::ParseHeader(DataNode &node) {
 	auto id{ESpell::kUndefined};
 	try {
 		id = parse::ReadAsConstant<ESpell>(node.GetValue("id"));
 	} catch (std::exception &e) {
 		err_log("Incorrect spell id (%s).", e.what());
-		return nullptr;
+		//return nullptr;
+		throw;
 	}
 	auto mode = SpellInfoBuilder::ParseItemMode(node, EItemMode::kEnabled);
-	auto info = std::make_shared<SpellInfo>(id, mode);
 
+	auto info = std::make_shared<SpellInfo>(id, mode);
 	try {
 		info->element_ = parse::ReadAsConstant<EElement>(node.GetValue("element"));
 	} catch (std::exception &) {
 	}
 
+	return info;
+}
+
+void SpellInfoBuilder::ParseName(ItemPtr &info, DataNode &node) {
 	if (node.GoToChild("name")) {
 		try {
 			info->name_ = parse::ReadAsStr(node.GetValue("rus"));
@@ -88,7 +106,9 @@ ItemPtr SpellInfoBuilder::ParseSpell(DataNode node) {
 		}
 		node.GoToParent();
 	}
+}
 
+void SpellInfoBuilder::ParseMisc(ItemPtr &info, DataNode &node) {
 	if (node.GoToChild("misc")) {
 		try {
 			info->min_position_ = parse::ReadAsConstant<EPosition>(node.GetValue("pos"));
@@ -100,7 +120,9 @@ ItemPtr SpellInfoBuilder::ParseSpell(DataNode node) {
 		}
 		node.GoToParent();
 	}
+}
 
+void SpellInfoBuilder::ParseMana(ItemPtr &info, DataNode &node) {
 	if (node.GoToChild("mana")) {
 		try {
 			info->min_mana_ = parse::ReadAsInt(node.GetValue("min"));
@@ -112,84 +134,96 @@ ItemPtr SpellInfoBuilder::ParseSpell(DataNode node) {
 		}
 		node.GoToParent();
 	}
+}
 
+void SpellInfoBuilder::ParseTargets(ItemPtr &info, DataNode &node) {
 	if (node.GoToChild("targets")) {
 		try {
 			info->targets_ = parse::ReadAsConstantsBitvector<ETarget>(node.GetValue("val"));
 		} catch (std::exception &e) {
-			err_log("Incorrect 'mana' section (spell: %s, value: %s).",
+			err_log("Incorrect 'targets' section (spell: %s, value: %s).",
 					NAME_BY_ITEM(info->GetId()).c_str(), e.what());
 		}
 		node.GoToParent();
 	}
+}
 
+void SpellInfoBuilder::ParseFlags(ItemPtr &info, DataNode &node) {
 	if (node.GoToChild("flags")) {
 		try {
 			info->flags_ = parse::ReadAsConstantsBitvector<EMagic>(node.GetValue("val"));
 		} catch (std::exception &e) {
-			err_log("Incorrect 'mana' section (spell: %s, value: %s).",
+			err_log("Incorrect 'flags' section (spell: %s, value: %s).",
 					NAME_BY_ITEM(info->GetId()).c_str(), e.what());
 		}
 		node.GoToParent();
 	}
+}
 
+void SpellInfoBuilder::ParseEffects(ItemPtr &info, DataNode &node) {
 	if (node.GoToChild("effects")) {
-		if (node.GoToChild("damage")) {
-			auto ptr = std::make_shared<SpellDmg>();
+		ParseDmgSection(info, node);
+		ParseAreaSection(info, node);
+		node.GoToParent();
+	}
+}
+
+void SpellInfoBuilder::ParseDmgSection(ItemPtr &info, DataNode &node) {
+	if (node.GoToChild("damage")) {
+		auto ptr = std::make_shared<SpellDmg>();
+		try {
+			ptr->saving = parse::ReadAsConstant<ESaving>(node.GetValue("saving"));
+		} catch (std::exception &e) {
+			err_log("Incorrect 'saving' value (spell: %s, value: %s).",
+					NAME_BY_ITEM(info->GetId()).c_str(), e.what());
+		}
+		if (node.GoToChild("amount")) {
 			try {
-				ptr->saving = parse::ReadAsConstant<ESaving>(node.GetValue("saving"));
+				ptr->dice_num = std::max(1, parse::ReadAsInt(node.GetValue("ndice")));
+				ptr->dice_size = std::max(1, parse::ReadAsInt(node.GetValue("sdice")));
+				ptr->dice_add = parse::ReadAsInt(node.GetValue("adice"));
+				ptr->low_skill_bonus = parse::ReadAsDouble(node.GetValue("low_skill_bonus"));
+				ptr->hi_skill_bonus = parse::ReadAsDouble(node.GetValue("hi_skill_bonus"));
 			} catch (std::exception &e) {
-				err_log("Incorrect 'saving' value (spell: %s, value: %s).",
+				err_log("Incorrect 'damage/amount' section (spell: %s, value: %s).",
 						NAME_BY_ITEM(info->GetId()).c_str(), e.what());
 			}
-			if (node.GoToChild("amount")) {
-				try {
-					ptr->dice_num = std::max(1, parse::ReadAsInt(node.GetValue("ndice")));
-					ptr->dice_size = std::max(1, parse::ReadAsInt(node.GetValue("sdice")));
-					ptr->dice_add = parse::ReadAsInt(node.GetValue("adice"));
-					ptr->low_skill_bonus = parse::ReadAsDouble(node.GetValue("low_skill_bonus"));
-					ptr->hi_skill_bonus = parse::ReadAsDouble(node.GetValue("hi_skill_bonus"));
-				} catch (std::exception &e) {
-					err_log("Incorrect 'damage' section (spell: %s, value: %s).",
-							NAME_BY_ITEM(info->GetId()).c_str(), e.what());
-				}
-				info->effects_[EEffect::kDamage] = std::move(ptr);
-				node.GoToParent();
-			}
-			node.GoToParent();
-		}
-		if (node.GoToChild("area")) {
-			auto ptr = std::make_shared<SpellArea>();
-			if (node.GoToChild("decay")) {
-				try {
-					ptr->free_targets = std::max(0, parse::ReadAsInt(node.GetValue("free_targets")));
-					ptr->level_decay = parse::ReadAsInt(node.GetValue("level"));
-					ptr->cast_decay = parse::ReadAsDouble(node.GetValue("cast"));
-				} catch (std::exception &e) {
-					err_log("Incorrect 'area' section (spell: %s, value: %s).",
-							NAME_BY_ITEM(info->GetId()).c_str(), e.what());
-				}
-				node.GoToParent();
-			}
-			if (node.GoToChild("victims")) {
-				try {
-					ptr->skill_divisor = std::max(1, parse::ReadAsInt(node.GetValue("skill_divisor")));
-					ptr->targets_dice_size = std::max(1, parse::ReadAsInt(node.GetValue("dice_size")));
-					ptr->min_targets = std::max(1, parse::ReadAsInt(node.GetValue("min_targets")));
-					ptr->max_targets = std::max(1, parse::ReadAsInt(node.GetValue("max_targets")));
-				} catch (std::exception &e) {
-					err_log("Incorrect 'area' section (spell: %s, value: %s).",
-							NAME_BY_ITEM(info->GetId()).c_str(), e.what());
-				}
-				node.GoToParent();
-			}
-			info->effects_[EEffect::kArea] = std::move(ptr);
+			info->effects_[EEffect::kDamage] = std::move(ptr);
 			node.GoToParent();
 		}
 		node.GoToParent();
 	}
+}
 
-	return info;
+void SpellInfoBuilder::ParseAreaSection(ItemPtr &info, DataNode &node) {
+	if (node.GoToChild("area")) {
+		auto ptr = std::make_shared<SpellArea>();
+		if (node.GoToChild("decay")) {
+			try {
+				ptr->free_targets = std::max(0, parse::ReadAsInt(node.GetValue("free_targets")));
+				ptr->level_decay = parse::ReadAsInt(node.GetValue("level"));
+				ptr->cast_decay = parse::ReadAsDouble(node.GetValue("cast"));
+			} catch (std::exception &e) {
+				err_log("Incorrect 'area/decay' section (spell: %s, value: %s).",
+						NAME_BY_ITEM(info->GetId()).c_str(), e.what());
+			}
+			node.GoToParent();
+		}
+		if (node.GoToChild("victims")) {
+			try {
+				ptr->skill_divisor = std::max(1, parse::ReadAsInt(node.GetValue("skill_divisor")));
+				ptr->targets_dice_size = std::max(1, parse::ReadAsInt(node.GetValue("dice_size")));
+				ptr->min_targets = std::max(1, parse::ReadAsInt(node.GetValue("min_targets")));
+				ptr->max_targets = std::max(1, parse::ReadAsInt(node.GetValue("max_targets")));
+			} catch (std::exception &e) {
+				err_log("Incorrect 'area/victims' section (spell: %s, value: %s).",
+						NAME_BY_ITEM(info->GetId()).c_str(), e.what());
+			}
+			node.GoToParent();
+		}
+		info->effects_[EEffect::kArea] = std::move(ptr);
+		node.GoToParent();
+	}
 }
 
 bool SpellInfo::IsFlagged(const Bitvector flag) const {
@@ -234,27 +268,30 @@ void SpellInfo::Print(std::ostringstream &buffer) const {
 		   << " Flags: " << KGRN << flags_ << KNRM << std::endl
 		   << " Targets: " << KGRN << targets_ << KNRM << std::endl;
 
-			if (effects_.contains(EEffect::kDamage)) {
-				auto dmg = std::dynamic_pointer_cast<SpellDmg>(effects_.at(EEffect::kDamage));
-				buffer << " Damage: " << KGRN << dmg->dice_num
-					<< "d" << dmg->dice_size
-					<< "+" << dmg->dice_add << KNRM
-					<< " Low skill bonus: " << KGRN << dmg->low_skill_bonus << KNRM
-					<< " Hi skill bonus: " << KGRN << dmg->hi_skill_bonus << KNRM
-					<< " Saving: " << KGRN << NAME_BY_ITEM<ESaving>(dmg->saving) << KNRM << std::endl;
-			}
+	for (const auto &effect: effects_) {
+		effect.second->Print(buffer);
+	}
+}
 
-			if (effects_.contains(EEffect::kArea)) {
-				auto area = std::dynamic_pointer_cast<SpellArea>(effects_.at(EEffect::kArea));
-				buffer << " Area:" << std::endl
-					<< "  Cast decay: " << KGRN << area->cast_decay << KNRM
-					<< " Level decay: " << KGRN << area->level_decay << KNRM
-					<< " Free targets: " << KGRN << area->free_targets << KNRM << std::endl
-					<< "  Skill divisor: " << KGRN << area->skill_divisor << KNRM
-					<< " Targets dice:" << KGRN << area->targets_dice_size << KNRM
-					<< " Min targets: " << KGRN << area->min_targets << KNRM
-					<< " Max targets: " << KGRN << area->max_targets << KNRM << std::endl;
-			}
+void SpellDmg::Print(std::ostringstream &buffer) const {
+	buffer << " Damage: " << std::endl
+		   << KGRN << "  " << dice_num
+		   << "d" << dice_size
+		   << "+" << dice_add << KNRM
+		   << " Low skill bonus: " << KGRN << low_skill_bonus << KNRM
+		   << " Hi skill bonus: " << KGRN << hi_skill_bonus << KNRM
+		   << " Saving: " << KGRN << NAME_BY_ITEM<ESaving>(saving) << KNRM << std::endl;
+}
+
+void SpellArea::Print(std::ostringstream &buffer) const {
+	buffer << " Area:" << std::endl
+		   << "  Cast decay: " << KGRN << cast_decay << KNRM
+		   << " Level decay: " << KGRN << level_decay << KNRM
+		   << " Free targets: " << KGRN << free_targets << KNRM << std::endl
+		   << "  Skill divisor: " << KGRN << skill_divisor << KNRM
+		   << " Targets dice: " << KGRN << targets_dice_size << KNRM
+		   << " Min targets: " << KGRN << min_targets << KNRM
+		   << " Max targets: " << KGRN << max_targets << KNRM << std::endl;
 }
 
 }
