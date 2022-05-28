@@ -179,6 +179,10 @@ ESkill FindSkillId(const char *name) {
 	return ESkill::kUndefined;
 }
 
+ESpell FindSpellId(const std::string &name) {
+	return FindSpellId(name.c_str());
+}
+
 ESpell FindSpellId(const char *name) {
 	int use_syn = (((ubyte) *name <= (ubyte) 'z')
 		&& ((ubyte) *name >= (ubyte) 'a'))

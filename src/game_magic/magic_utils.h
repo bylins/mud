@@ -20,6 +20,7 @@ ESkill FindSkillId(const char *name);
 ESkill FixNameAndFindSkillId(char *name);
 ESkill FixNameFndFindSkillId(std::string &name);
 
+ESpell FindSpellId(const std::string &name);
 ESpell FindSpellId(const char *name);
 ESpell FixNameAndFindSpellId(std::string &name);
 

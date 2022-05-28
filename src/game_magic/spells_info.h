@@ -45,8 +45,6 @@ struct SpellArea : public IEffect {
 };
 
 using EffectPtr = std::shared_ptr<IEffect>;
-using DmgPtr = std::shared_ptr<IEffect>;
-using AreaPtr = std::shared_ptr<IEffect>;
 using DataNode = parser_wrapper::DataNode;
 
 /**
@@ -109,6 +107,7 @@ class SpellInfo : public info_container::BaseItem<ESpell> {
 
 	/* Эффекты */
 	SpellDmg GetDmg() const;
+	SpellArea GetArea() const;
 
 	void Print(std::ostringstream &buffer) const;
 };

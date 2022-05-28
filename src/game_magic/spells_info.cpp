@@ -209,6 +209,15 @@ SpellDmg SpellInfo::GetDmg() const {
 	}
 }
 
+SpellArea SpellInfo::GetArea() const {
+	if (effects_.contains(EEffect::kArea)) {
+		return *std::dynamic_pointer_cast<SpellArea>(effects_.at(EEffect::kArea));
+	} else {
+		err_log("getting area parameters from spell '%s' has no 'area' effect section.", GetCName());
+		return {};
+	}
+}
+
 void SpellInfo::Print(std::ostringstream &buffer) const {
 	buffer << "Print spell:" << std::endl
 		   << " Id: " << KGRN << NAME_BY_ITEM<ESpell>(GetId()) << KNRM
@@ -247,7 +256,6 @@ void SpellInfo::Print(std::ostringstream &buffer) const {
 					<< " Max targets: " << KGRN << area->max_targets << KNRM << std::endl;
 			}
 }
-
 
 }
 

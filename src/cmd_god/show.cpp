@@ -76,7 +76,9 @@ void ShowSpellInfo(CharData *ch, const std::string &spell_name) {
 		return;
 	}
 
-	auto id = FindSpellIdWithName(spell_name);
+	// Это очень тупо, но иначе надо переписывать всю команду. Пока некогда.
+	auto name_copy = spell_name;
+	auto id = FixNameAndFindSpellId(name_copy);
 	if (id == ESpell::kUndefined) {
 		SendMsgToChar("Неизвестное название заклинания.", ch);
 		return;

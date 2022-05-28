@@ -3646,409 +3646,326 @@ struct AreaSpellParams {
 	const char *to_char{nullptr};
 	const char *to_room{nullptr};
 	const char *to_vict{nullptr};
-	float castSuccessPercentDecay{0.0};
-	int skillDivisor{1};
-	int diceSize{1};
-	int minTargetsAmount{1};
-	int maxTargetsAmount{1};
-	int freeTargets{1};
-	int castLevelDecay{0};
 };
 
-// Svent TODO Перенести эту порнографию в спеллпарсер
 const AreaSpellParams mag_messages[] =
 	{
-		{ESpell::kPaladineInspiration, // групповой
+		{ESpell::kPaladineInspiration,
 		 "Ваш точный удар воодушевил и придал новых сил!",
 		 "Точный удар $n1 воодушевил и придал новых сил!",
-		 nullptr,
-		 0.0, 20, 2, 1, 20, 3, 0},
+		 nullptr},
 		{ESpell::kEviless,
 		 "Вы запросили помощи у Чернобога. Долг перед темными силами стал чуточку больше..",
 		 "Внезапно появившееся чёрное облако скрыло $n3 на мгновение от вашего взгляда.",
-		 nullptr,
-		 0.0, 20, 2, 1, 20, 3, 0},
+		 nullptr},
 		{ESpell::kMassBlindness,
 		 "У вас над головой возникла яркая вспышка, которая ослепила все живое.",
 		 "Вдруг над головой $n1 возникла яркая вспышка.",
-		 "Вы невольно взглянули на вспышку света, вызванную $n4, и ваши глаза заслезились.",
-		 0.05, 20, 2, 5, 20, 3, 2},
+		 "Вы невольно взглянули на вспышку света, вызванную $n4, и ваши глаза заслезились."},
 		{ESpell::kMassHold,
 		 "Вы сжали зубы от боли, когда из вашего тела вырвалось множество невидимых каменных лучей.",
 		 nullptr,
-		 "В вас попал каменный луч, исходящий от $n1.",
-		 0.05, 20, 2, 5, 20, 3, 2},
+		 "В вас попал каменный луч, исходящий от $n1."},
 		{ESpell::kMassCurse,
 		 "Медленно оглянувшись, вы прошептали древние слова.",
 		 nullptr,
-		 "$n злобно посмотрел$g на вас и начал$g шептать древние слова.",
-		 0.05, 20, 3, 5, 20, 3, 2},
+		 "$n злобно посмотрел$g на вас и начал$g шептать древние слова."},
 		{ESpell::kMassSilence,
 		 "Поведя вокруг грозным взглядом, вы заставили всех замолчать.",
 		 nullptr,
-		 "Вы встретились взглядом с $n4, и у вас появилось ощущение, что горлу чего-то не хватает.",
-		 0.05, 20, 2, 5, 20, 3, 2},
+		 "Вы встретились взглядом с $n4, и у вас появилось ощущение, что горлу чего-то не хватает."},
 		{ESpell::kDeafness,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.05, 10, 3, 5, 20, 3, 2},
+		 nullptr},
 		{ESpell::kMassDeafness,
 		 "Вы нахмурились, склонив голову, и громкий хлопок сотряс воздух.",
 		 "Как только $n0 склонил$g голову, раздался оглушающий хлопок.",
-		 nullptr,
-		 0.05, 10, 3, 5, 20, 3, 2},
+		 nullptr},
 		{ESpell::kMassSlow,
 		 "Положив ладони на землю, вы вызвали цепкие корни,\r\nопутавшие существ, стоящих рядом с вами.",
 		 nullptr,
-		 "$n вызвал$g цепкие корни, опутавшие ваши ноги.",
-		 0.05, 10, 3, 5, 20, 3, 2},
+		 "$n вызвал$g цепкие корни, опутавшие ваши ноги."},
 		{ESpell::kArmageddon,
 		 "Вы сплели руки в замысловатом жесте, и все потускнело!",
 		 "$n сплел$g руки в замысловатом жесте, и все потускнело!",
-		 nullptr,
-		 0.05, 25, 2, 5, 20, 3, 2},
+		 nullptr},
 		{ESpell::kEarthquake,
 		 "Вы опустили руки, и земля начала дрожать вокруг вас!",
 		 "$n опустил$g руки, и земля задрожала!",
-		 nullptr,
-		 0.05, 25, 2, 5, 20, 5, 2},
+		 nullptr},
 		{ESpell::kThunderStone,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.05, 25, 2, 3, 15, 3, 4},
+		 nullptr},
 		{ESpell::kColdWind,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.05, 40, 2, 2, 5, 5, 4},
+		 nullptr},
 		{ESpell::kAcid,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.05, 20, 2, 3, 8, 4, 4},
+		 nullptr},
 		{ESpell::kLightingBolt,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.05, 15, 3, 3, 6, 4, 4},
+		 nullptr},
 		{ESpell::kCallLighting,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.05, 15, 3, 3, 5, 4, 4},
+		 nullptr},
 		{ESpell::kWhirlwind,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.05, 40, 1, 1, 3, 3, 4},
+		 nullptr},
 		{ESpell::kDamageSerious,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.05, 20, 3, 1, 6, 6, 4},
+		 nullptr},
 		{ESpell::kFireBlast,
 		 "Вы вызвали потоки подземного пламени!",
 		 "$n0 вызвал$g потоки пламени из глубин земли!",
-		 nullptr,
-		 0.05, 20, 2, 5, 20, 3, 3},
+		 nullptr},
 		{ESpell::kIceStorm,
 		 "Вы воздели руки к небу, и тысячи мелких льдинок хлынули вниз!",
 		 "$n воздел$g руки к небу, и тысячи мелких льдинок хлынули вниз!",
-		 nullptr,
-		 0.05, 30, 2, 5, 20, 3, 4},
+		 nullptr},
 		{ESpell::kDustStorm,
 		 "Вы взмахнули руками и вызвали огромное пылевое облако,\r\nскрывшее все вокруг.",
 		 "Вас поглотила пылевая буря, вызванная $n4.",
-		 nullptr,
-		 0.05, 15, 2, 5, 20, 3, 2},
+		 nullptr},
 		{ESpell::kMassFear,
 		 "Вы оглядели комнату устрашающим взглядом, заставив всех содрогнуться.",
 		 "$n0 оглядел$g комнату устрашающим взглядом.",
-		 nullptr,
-		 0.05, 15, 2, 5, 20, 3, 3},
+		 nullptr},
 		{ESpell::kGlitterDust,
 		 "Вы слегка прищелкнули пальцами, и вокруг сгустилось облако блестящей пыли.",
 		 "$n0 сотворил$g облако блестящей пыли, медленно осевшее на землю.",
-		 nullptr,
-		 0.05, 15, 3, 5, 20, 5, 3},
+		 nullptr},
 		{ESpell::kSonicWave,
 		 "Вы оттолкнули от себя воздух руками, и он плотным кольцом стремительно двинулся во все стороны!",
 		 "$n махнул$g руками, и огромное кольцо сжатого воздуха распостранилось во все стороны!",
-		 nullptr,
-		 0.05, 20, 2, 5, 20, 3, 3},
+		 nullptr},
 		{ESpell::kChainLighting,
 		 "Вы подняли руки к небу и оно осветилось яркими вспышками!",
 		 "$n поднял$g руки к небу и оно осветилось яркими вспышками!",
-		 nullptr,
-		 0.05, 10, 3, 1, 8, 1, 5},
+		 nullptr},
 		{ESpell::kEarthfall,
 		 "Вы высоко подбросили комок земли и он, увеличиваясь на глазах, обрушился вниз.",
 		 "$n высоко подбросил$g комок земли, который, увеличиваясь на глазах, стал падать вниз.",
-		 nullptr,
-		 0.05, 20, 2, 1, 3, 1, 8},
+		 nullptr},
 		{ESpell::kShock,
 		 "Яркая вспышка слетела с кончиков ваших пальцев и с оглушительным грохотом взорвалась в воздухе.",
 		 "Выпущенная $n1 яркая вспышка с оглушительным грохотом взорвалась в воздухе.",
-		 nullptr,
-		 0.05, 35, 2, 1, 4, 2, 8},
+		 nullptr},
 		{ESpell::kBurdenOfTime,
 		 "Вы скрестили руки на груди, вызвав яркую вспышку синего света.",
 		 "$n0 скрестил$g руки на груди, вызвав яркую вспышку синего света.",
-		 nullptr,
-		 0.05, 20, 2, 5, 20, 3, 8},
+		 nullptr},
 		{ESpell::kFailure,
 		 "Вы простерли руки над головой, вызвав череду раскатов грома.",
 		 "$n0 вызвал$g череду раскатов грома, заставивших все вокруг содрогнуться.",
-		 nullptr,
-		 0.05, 15, 2, 1, 5, 3, 8},
+		 nullptr},
 		{ESpell::kScream,
 		 "Вы испустили кошмарный вопль, едва не разорвавший вам горло.",
 		 "$n0 испустил$g кошмарный вопль, отдавшийся в вашей душе замогильным холодом.",
-		 nullptr,
-		 0.05, 40, 3, 1, 8, 3, 5},
+		 nullptr},
 		{ESpell::kBurningHands,
 		 "С ваших ладоней сорвался поток жаркого пламени.",
 		 "$n0 испустил$g поток жаркого багрового пламени!",
-		 nullptr,
-		 0.05, 20, 2, 5, 20, 3, 7},
+		 nullptr},
 		{ESpell::kIceBolts,
 		 "Из ваших рук вылетел сноп ледяных стрел.",
 		 "$n0 метнул$g во врагов сноп ледяных стрел.",
-		 nullptr,
-		 0.05, 30, 2, 1, 5, 3, 7},
+		 nullptr},
 		{ESpell::kWarcryOfChallenge,
 		 nullptr,
 		 "Вы не стерпели насмешки, и бросились на $n1!",
-		 nullptr,
-		 0.01, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kWarcryOfMenace,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.01, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kWarcryOfRage,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.01, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kWarcryOfMadness,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.01, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kWarcryOfThunder,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.01, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kWarcryOfDefence,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.01, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kGroupHeal,
 		 "Вы подняли голову вверх и ощутили яркий свет, ласково бегущий по вашему телу.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.01, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kGroupArmor,
 		 "Вы создали защитную сферу, которая окутала вас и пространство рядом с вами.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kGroupRecall,
 		 "Вы выкрикнули заклинание и хлопнули в ладоши.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kGroupStrength,
 		 "Вы призвали мощь Вселенной.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kGroupBless,
 		 "Прикрыв глаза, вы прошептали таинственную молитву.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kGroupHaste,
 		 "Разведя руки в стороны, вы ощутили всю мощь стихии ветра.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kGroupFly,
 		 "Ваше заклинание вызвало белое облако, которое разделилось, подхватывая вас и товарищей.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kGroupInvisible,
 		 "Вы вызвали прозрачный туман, поглотивший все дружественное вам.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kGroupMagicGlass,
 		 "Вы произнесли несколько резких слов, и все вокруг засеребрилось.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kGroupSanctuary,
 		 "Вы подняли руки к небу и произнесли священную молитву.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kGroupPrismaticAura,
 		 "Силы духа, призванные вами, окутали вас и окружающих голубоватым сиянием.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kFireAura,
 		 "Силы огня пришли к вам на помощь и защитили вас.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kAirAura,
 		 "Силы воздуха пришли к вам на помощь и защитили вас.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kIceAura,
 		 "Силы холода пришли к вам на помощь и защитили вас.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kGroupRefresh,
 		 "Ваша магия наполнила воздух зеленоватым сиянием.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kWarcryOfDefence,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kWarcryOfBattle,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kWarcryOfPower,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kWarcryOfBless,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kWarcryOfCourage,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kSightOfDarkness,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kGroupSincerity,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kMagicalGaze,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kAllSeeingEye,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kEyeOfGods,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kBreathingAtDepth,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kGeneralRecovery,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kCommonMeal,
 		 "Вы услышали гомон невидимых лакеев, готовящих трапезу.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kStoneWall,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kSnakeEyes,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kEarthAura,
 		 "Земля одарила вас своей защитой.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kGroupProtectFromEvil,
 		 "Сила света подавила в вас страх к тьме.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kGroupBlink,
 		 "Очертания вас и соратников замерцали в такт биения сердца, став прозрачней.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kGroupCloudly,
 		 "Пелена тумана окутала вас и окружающих, скрыв очертания.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kGroupAwareness,
 		 "Произнесенные слова обострили ваши чувства и внимательность ваших соратников.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kWarcryOfExperience,
 		 "Вы приготовились к обретению нового опыта.",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kWarcryOfLuck,
 		 "Вы ощутили, что вам улыбнулась удача.",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kWarcryOfPhysdamage,
 		 "Боевой клич придал вам сил!",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kMassFailure,
 		 "Вняв вашему призыву, Змей Велес коснулся недобрым взглядом ваших супостатов.\r\n",
 		 nullptr,
-		 "$n провыл$g несколько странно звучащих слов и от тяжелого взгляда из-за края мира у вас подкосились ноги.",
-		 0.03, 25, 2, 3, 15, 4, 6},
+		 "$n провыл$g несколько странно звучащих слов и от тяжелого взгляда из-за края мира у вас подкосились ноги."},
 		{ESpell::kSnare,
 		 "Вы соткали магические тенета, опутавшие ваших врагов.\r\n",
 		 nullptr,
-		 "$n что-то прошептал$g, странно скрючив пальцы, и взлетевшие откуда ни возьмись ловчие сети опутали вас",
-		 0.03, 25, 2, 3, 15, 5, 6},
-		{ESpell::kUndefined, nullptr, nullptr, nullptr, 0.01, 1, 1, 1, 1, 1, 0}
+		 "$n что-то прошептал$g, странно скрючив пальцы, и взлетевшие откуда ни возьмись ловчие сети опутали вас"},
+		{ESpell::kUndefined,
+		 nullptr,
+		 nullptr,
+		 nullptr}
 	};
 
 int FindIndexOfMsg(ESpell spell_id) {
@@ -4061,12 +3978,10 @@ int FindIndexOfMsg(ESpell spell_id) {
 	return i;
 }
 
-int TrySendCastMessages(CharData *ch, CharData *victim, RoomData *room, ESpell spell_id) {
-	int msgIndex = FindIndexOfMsg(spell_id);
+void TrySendCastMessages(CharData *ch, CharData *victim, RoomData *room, int msgIndex) {
 	if (mag_messages[msgIndex].spell < ESpell::kFirst) {
-		sprintf(buf, "ERROR: Нет сообщений в mag_messages для заклинания с номером %d.", to_underlying(spell_id));
+		sprintf(buf, "ERROR: Нет сообщений в mag_messages для заклинания.");
 		mudlog(buf, BRF, kLvlBuilder, SYSLOG, true);
-		return msgIndex;
 	}
 	if (room && world[ch->in_room] == room) {
 		if (IsAbleToSay(ch)) {
@@ -4079,13 +3994,13 @@ int TrySendCastMessages(CharData *ch, CharData *victim, RoomData *room, ESpell s
 			}
 		}
 	}
-	return msgIndex;
 };
 
-int CalcAmountOfTargets(const CharData *ch, const int msg_index, const ESpell spell_id) {
+int CalcAmountOfTargets(const CharData *ch, const ESpell spell_id) {
+	const auto params = MUD::Spell(spell_id).GetArea();
 	auto amount = ch->GetSkill(GetMagicSkillId(spell_id));
-	amount = RollDices(amount/mag_messages[msg_index].skillDivisor, mag_messages[msg_index].diceSize);
-	return mag_messages[msg_index].minTargetsAmount + std::min(amount, mag_messages[msg_index].maxTargetsAmount);
+	amount = RollDices(amount/params.skill_divisor, params.targets_dice_size);
+	return params.min_targets + std::min(amount, params.max_targets);
 }
 
 int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, ESpell spell_id, int level) {
@@ -4093,21 +4008,25 @@ int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, ESpell spell
 		return 0;
 	}
 
-	ActionTargeting::FoesRosterType
-		roster{ch, victim, [](CharData *, CharData *target) { return !IS_HORSE(target); }};
-	int msgIndex = TrySendCastMessages(ch, victim, room, spell_id);
-	int targetsAmount = CalcAmountOfTargets(ch, msgIndex, spell_id);
+	ActionTargeting::FoesRosterType roster{ch, victim,
+										   [](CharData *, CharData *target) {
+											   return !IS_HORSE(target);
+										   }};
+	int msgIndex = FindIndexOfMsg(spell_id);
+	TrySendCastMessages(ch, victim, room, msgIndex);
+	int targetsAmount = CalcAmountOfTargets(ch, spell_id);
 	int targetsCounter = 1;
-	float castDecay = 0.0;
 	int levelDecay = 0;
+	double castDecay = 0.0;
+	const auto params = MUD::Spell(spell_id).GetArea();
 	if (CanUseFeat(ch, EFeat::kMultipleCast)) {
-		castDecay = mag_messages[msgIndex].castSuccessPercentDecay * 0.6;
-		levelDecay = MAX(MIN(1, mag_messages[msgIndex].castLevelDecay), mag_messages[msgIndex].castLevelDecay - 1);
+		castDecay = params.cast_decay * 0.6;
+		levelDecay = MAX(MIN(1, params.level_decay), params.level_decay - 1);
 	} else {
-		castDecay = mag_messages[msgIndex].castSuccessPercentDecay;
-		levelDecay = mag_messages[msgIndex].castLevelDecay;
+		castDecay = params.cast_decay;
+		levelDecay = params.level_decay;
 	}
-	const int CASTER_CAST_SUCCESS = GET_CAST_SUCCESS(ch);
+	const int kCasterCastSuccess = GET_CAST_SUCCESS(ch);
 
 	for (const auto &target: roster) {
 		if (mag_messages[msgIndex].to_vict != nullptr && target->desc) {
@@ -4119,9 +4038,9 @@ int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, ESpell spell
 		}
 		if (!ch->IsNpc()) {
 			++targetsCounter;
-			if (targetsCounter > mag_messages[msgIndex].freeTargets) {
-				int tax = CASTER_CAST_SUCCESS * castDecay * (targetsCounter - mag_messages[msgIndex].freeTargets);
-				GET_CAST_SUCCESS(ch) = std::max(-200, CASTER_CAST_SUCCESS - tax);
+			if (targetsCounter > params.free_targets) {
+				int tax = kCasterCastSuccess * castDecay * (targetsCounter - params.free_targets);
+				GET_CAST_SUCCESS(ch) = std::max(-200, kCasterCastSuccess - tax);
 				level = std::max(1, level - levelDecay);
 				if (PRF_FLAGGED(ch, EPrf::kTester)) {
 					SendMsgToChar(ch,
@@ -4137,7 +4056,7 @@ int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, ESpell spell
 		}
 	}
 
-	GET_CAST_SUCCESS(ch) = CASTER_CAST_SUCCESS;
+	GET_CAST_SUCCESS(ch) = kCasterCastSuccess;
 	return 1;
 }
 
@@ -4148,7 +4067,7 @@ int CallMagicToGroup(int level, CharData *ch, ESpell spell_id) {
 		return 0;
 	}
 
-	TrySendCastMessages(ch, nullptr, world[IN_ROOM(ch)], spell_id);
+	TrySendCastMessages(ch, nullptr, world[IN_ROOM(ch)], FindIndexOfMsg(spell_id));
 
 	ActionTargeting::FriendsRosterType roster{ch, ch};
 	roster.flip();
