@@ -146,7 +146,7 @@ ItemPtr SpellInfoBuilder::ParseSpell(DataNode node) {
 				try {
 					ptr->dice_num = std::max(1, parse::ReadAsInt(node.GetValue("ndice")));
 					ptr->dice_size = std::max(1, parse::ReadAsInt(node.GetValue("sdice")));
-					ptr->dice_add = parse::ReadAsDouble(node.GetValue("adice"));
+					ptr->dice_add = parse::ReadAsInt(node.GetValue("adice"));
 					ptr->low_skill_bonus = parse::ReadAsDouble(node.GetValue("low_skill_bonus"));
 					ptr->hi_skill_bonus = parse::ReadAsDouble(node.GetValue("hi_skill_bonus"));
 				} catch (std::exception &e) {
@@ -192,11 +192,11 @@ ItemPtr SpellInfoBuilder::ParseSpell(DataNode node) {
 	return info;
 }
 
-bool SpellInfo::IsFlagged(Bitvector flag) const {
+bool SpellInfo::IsFlagged(const Bitvector flag) const {
 	return IS_SET(flags_, flag);
 }
 
-bool SpellInfo::AllowTarget(Bitvector target_type) const {
+bool SpellInfo::AllowTarget(const Bitvector target_type) const {
 	return IS_SET(targets_, target_type);
 }
 

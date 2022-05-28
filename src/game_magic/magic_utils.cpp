@@ -584,16 +584,14 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpel
 	}
 
 	if ((!tch || IN_ROOM(tch) == kNowhere) && !tobj && !troom &&
-		MUD::Spell(spell_id).AllowTarget(
-			   kTarCharRoom | kTarCharWorld | kTarFightSelf | kTarFightVict
-				   | kTarObjInv | kTarObjRoom | kTarObjWorld | kTarObjEquip | kTarRoomThis
-				   | kTarRoomDir)) {
+		MUD::Spell(spell_id).AllowTarget(kTarCharRoom | kTarCharWorld | kTarFightSelf | kTarFightVict |
+			kTarObjInv | kTarObjRoom | kTarObjWorld | kTarObjEquip | kTarRoomThis | kTarRoomDir)) {
 		SendMsgToChar("Цель заклинания недоступна.\r\n", ch);
 		return 0;
 	}
 
 	if (tch != nullptr && IN_ROOM(tch) != ch->in_room) {
-		if (MUD::Spell(spell_id).AllowTarget(kTarCharWorld)) {
+		if (!MUD::Spell(spell_id).AllowTarget(kTarCharWorld)) {
 			SendMsgToChar("Цель заклинания недоступна.\r\n", ch);
 			return 0;
 		}
