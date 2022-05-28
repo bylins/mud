@@ -2080,7 +2080,7 @@ void SpellSacrifice(int/* level*/, CharData *ch, CharData *victim, ObjData* /*ob
 		return;
 	}
 
-	dam = CastDamage(GetRealLevel(ch), ch, victim, ESpell::kSacrifice, ESaving::kStability);
+	dam = CastDamage(GetRealLevel(ch), ch, victim, ESpell::kSacrifice);
 	// victim может быть спуржен
 
 	if (dam < 0)
@@ -2126,8 +2126,8 @@ void SpellHolystrike(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData*
 			}
 		}
 
-		CastAffect(GetRealLevel(ch), ch, tch, ESpell::kHolystrike, ESaving::kStability);
-		CastDamage(GetRealLevel(ch), ch, tch, ESpell::kHolystrike, ESaving::kStability);
+		CastAffect(GetRealLevel(ch), ch, tch, ESpell::kHolystrike);
+		CastDamage(GetRealLevel(ch), ch, tch, ESpell::kHolystrike);
 	}
 
 	act(msg2, false, ch, nullptr, nullptr, kToChar);

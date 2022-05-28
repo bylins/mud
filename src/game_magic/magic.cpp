@@ -316,7 +316,7 @@ int CalcMagicSkillDam(CharData *ch, CharData *victim, ESpell spell_id, int dam) 
 	return (dam);
 }
 
-int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESaving savetype) {
+int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	int dam = 0, rand = 0, count = 1, modi = 0, no_savings = false;
 	ObjData *obj = nullptr;
 
@@ -337,7 +337,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 				act("Ваше магическое зеркало отразило поражение $n1!", false, ch, nullptr, victim, kToVict);
 				log("[MAG DAMAGE] Зеркало - полное отражение: %s damage %s (%d)",
 					GET_NAME(ch), GET_NAME(victim), to_underlying(spell_id));
-				return (CastDamage(level, ch, ch, spell_id, savetype));
+				return (CastDamage(level, ch, ch, spell_id));
 			}
 		} else {
 			if (ch != victim && spell_id <= ESpell::kLast && IS_GOD(victim)
@@ -345,7 +345,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 				act("Звуковой барьер $N1 отразил ваш крик!", false, ch, nullptr, victim, kToChar);
 				act("Звуковой барьер $N1 отразил крик $n1!", false, ch, nullptr, victim, kToNotVict);
 				act("Ваш звуковой барьер отразил крик $n1!", false, ch, nullptr, victim, kToVict);
-				return (CastDamage(level, ch, ch, spell_id, savetype));
+				return (CastDamage(level, ch, ch, spell_id));
 			}
 		}
 
@@ -770,7 +770,7 @@ bool ProcessMatComponents(CharData *caster, int /*vnum*/, ESpell spell_id) {
 	return (false);
 }
 
-int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, ESaving savetype) {
+int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	bool accum_affect = false, accum_duration = false, success = true;
 	bool update_spell = false;
 	const char *to_vict = nullptr, *to_room = nullptr;
@@ -808,7 +808,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 			act("Магическое зеркало $N1 отразило вашу магию!", false, ch, nullptr, victim, kToChar);
 			act("Магическое зеркало $N1 отразило магию $n1!", false, ch, nullptr, victim, kToNotVict);
 			act("Ваше магическое зеркало отразило поражение $n1!", false, ch, nullptr, victim, kToVict);
-			CastAffect(level, ch, ch, spell_id, savetype);
+			CastAffect(level, ch, ch, spell_id);
 			return 0;
 		}
 	} else {
@@ -817,7 +817,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 			act("Звуковой барьер $N1 отразил ваш крик!", false, ch, nullptr, victim, kToChar);
 			act("Звуковой барьер $N1 отразил крик $n1!", false, ch, nullptr, victim, kToNotVict);
 			act("Ваш звуковой барьер отразил крик $n1!", false, ch, nullptr, victim, kToVict);
-			CastAffect(level, ch, ch, spell_id, savetype);
+			CastAffect(level, ch, ch, spell_id);
 			return 0;
 		}
 	}
@@ -862,6 +862,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 	const auto koef_duration = CalcDurationCoef(spell_id, ch->GetSkill(GetMagicSkillId(spell_id)));
 	const auto koef_modifier = CalcModCoef(spell_id, ch->GetSkill(GetMagicSkillId(spell_id)));
 
+	auto savetype{ESaving::kStability};
 	switch (spell_id) {
 		case ESpell::kChillTouch: savetype = ESaving::kStability;
 			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
@@ -2014,7 +2015,9 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 					spell_id = ESpell::kMagicBattle;
 					break;
 
-				case ESpell::kShock: SetWaitState(victim, 2 * kPulseViolence);
+				case ESpell::kShock:
+					savetype = ESaving::kStability;
+					SetWaitState(victim, 2 * kPulseViolence);
 					af[0].duration = ApplyResist(victim, GetResistType(spell_id),
 												 CalcDuration(victim, 2, 0, 0, 0, 0)) * koef_duration;
 					af[0].bitvector = to_underlying(EAffect::kMagicStopFight);
@@ -2022,7 +2025,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 					to_room = "$n3 оглушило.";
 					to_vict = "Вас оглушило.";
 					spell_id = ESpell::kMagicBattle;
-					CastAffect(level, ch, victim, ESpell::kBlindness, ESaving::kStability);
+					CastAffect(level, ch, victim, ESpell::kBlindness);
 					break;
 				default: break;
 			}
@@ -2998,7 +3001,7 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 	return 1;
 }
 
-int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id, ESaving /*savetype*/) {
+int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	int hit = 0; //если выставить больше нуля, то лечит
 	int move = 0; //если выставить больше нуля, то реген хп
 	bool extraHealing = false; //если true, то лечит сверх макс.хп
@@ -3106,7 +3109,7 @@ bool CheckNodispel(const Affect<EApply>::shared_ptr &affect) {
 		|| affect->type == ESpell::kEviless;
 }
 
-int CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell spell_id, ESaving/* type*/) {
+int CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell spell_id) {
 	int remove = 0;
 	const char *to_vict = nullptr, *to_room = nullptr;
 
@@ -3219,7 +3222,7 @@ int CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell spell_id
 	return 1;
 }
 
-int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id, ESaving /* savetype*/) {
+int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id) {
 	const char *to_char = nullptr;
 
 	if (obj == nullptr) {
@@ -3464,7 +3467,7 @@ int CastCreation(int/* level*/, CharData *ch, ESpell spell_id) {
 	return 1;
 }
 
-int CastManual(int level, CharData *caster, CharData *cvict, ObjData *ovict, ESpell spell_id, ESaving /*saving*/) {
+int CastManual(int level, CharData *caster, CharData *cvict, ObjData *ovict, ESpell spell_id) {
 	switch (spell_id) {
 		case ESpell::kGroupRecall:
 		case ESpell::kWorldOfRecall: SpellRecall(level, caster, cvict, ovict);
@@ -3571,49 +3574,45 @@ void ReactToCast(CharData *victim, CharData *caster, ESpell spell_id) {
 	}
 }
 
-// Применение заклинания к одной цели
-//---------------------------------------------------------
-int CastToSingleTarget(int level, CharData *caster, CharData *cvict, ObjData *ovict, ESpell spell_id, ESaving saving) {
-	//туповато конечно, но подобные проверки тут как счупалцьа перепутаны
-	//и чтоб сделать по человечески надо треть пары модулей перелопатить
+int CastToSingleTarget(int level, CharData *caster, CharData *cvict, ObjData *ovict, ESpell spell_id) {
 	if (cvict && (caster != cvict))
-		// при разнице уровня более чем в 2 раза закл фэйл
-		if (IS_GOD(cvict) ||
-			(((GetRealLevel(cvict) / 2) > (GetRealLevel(caster) + (GET_REAL_REMORT(caster) / 2))) &&
+		if (IS_GOD(cvict) || (((GetRealLevel(cvict) / 2) > (GetRealLevel(caster) + (GET_REAL_REMORT(caster) / 2))) &&
 				!caster->IsNpc())) {
 			SendMsgToChar(NOEFFECT, caster);
 			return (-1);
 		}
+
 	if (!cast_mtrigger(cvict, caster, spell_id)) {
 		return -1;
 	}
+
 	if (MUD::Spell(spell_id).IsFlagged(kMagWarcry) && cvict && IS_UNDEAD(cvict))
 		return 1;
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagDamage))
-		if (CastDamage(level, caster, cvict, spell_id, saving) == -1)
+		if (CastDamage(level, caster, cvict, spell_id) == -1)
 			return (-1);    // Successful and target died, don't cast again.
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagAffects))
-		CastAffect(level, caster, cvict, spell_id, saving);
+		CastAffect(level, caster, cvict, spell_id);
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagUnaffects))
-		CastUnaffects(level, caster, cvict, spell_id, saving);
+		CastUnaffects(level, caster, cvict, spell_id);
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagPoints))
-		CastToPoints(level, caster, cvict, spell_id, saving);
+		CastToPoints(level, caster, cvict, spell_id);
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagAlterObjs))
-		CastToAlterObjs(level, caster, ovict, spell_id, saving);
+		CastToAlterObjs(level, caster, ovict, spell_id);
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagSummons))
-		CastSummon(level, caster, ovict, spell_id, true);    // saving =1 -- ВРЕМЕННО, показатель что фэйлить надо
+		CastSummon(level, caster, ovict, spell_id, true);
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagCreations))
 		CastCreation(level, caster, spell_id);
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagManual))
-		CastManual(level, caster, cvict, ovict, spell_id, saving);
+		CastManual(level, caster, cvict, ovict, spell_id);
 
 	ReactToCast(cvict, caster, spell_id);
 	return 1;
@@ -4091,7 +4090,7 @@ int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, ESpell spell
 		if (mag_messages[msgIndex].to_vict != nullptr && target->desc) {
 			act(mag_messages[msgIndex].to_vict, false, ch, nullptr, target, kToVict);
 		}
-		CastToSingleTarget(level, ch, target, nullptr, spell_id, ESaving::kStability);
+		CastToSingleTarget(level, ch, target, nullptr, spell_id);
 		if (ch->purged()) {
 			return 1;
 		}
@@ -4131,7 +4130,7 @@ int CallMagicToGroup(int level, CharData *ch, ESpell spell_id) {
 	ActionTargeting::FriendsRosterType roster{ch, ch};
 	roster.flip();
 	for (const auto target: roster) {
-		CastToSingleTarget(level, ch, target, nullptr, spell_id, ESaving::kStability);
+		CastToSingleTarget(level, ch, target, nullptr, spell_id);
 	}
 	return 1;
 }

@@ -372,7 +372,7 @@ int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict
 		return room_spells::CallMagicToRoom(level, caster, rvict, spell_id);
 	}
 
-	return CastToSingleTarget(level, caster, cvict, ovict, spell_id, ESaving::kStability);
+	return CastToSingleTarget(level, caster, cvict, ovict, spell_id);
 }
 
 const char *what_sky_type[] = {"пасмурно",

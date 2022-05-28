@@ -830,7 +830,7 @@ unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const
 									act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 										false, ch, GET_EQ(ch, pos), nullptr, kToChar);
 								} else {
-									CastAffect(GetRealLevel(ch), ch, ch, i.aff_spell, ESaving::kWill);
+									CastAffect(GetRealLevel(ch), ch, ch, i.aff_spell);
 								}
 							}
 						}
@@ -861,7 +861,7 @@ unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const
 								act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 									false, ch, obj, nullptr, kToChar);
 							} else {
-								CastAffect(GetRealLevel(ch), ch, ch, i.aff_spell, ESaving::kWill);
+								CastAffect(GetRealLevel(ch), ch, ch, i.aff_spell);
 							}
 						}
 					}
@@ -1042,7 +1042,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 						act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 							false, ch, obj, nullptr, kToChar);
 					} else {
-						CastAffect(GetRealLevel(ch), ch, ch, j.aff_spell, ESaving::kWill);
+						CastAffect(GetRealLevel(ch), ch, ch, j.aff_spell);
 					}
 				}
 			}

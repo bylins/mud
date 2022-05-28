@@ -53,14 +53,14 @@ int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, ESpell spell
 int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level);
 int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpell spell_id, ESpell spell_subst);
 
-int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESaving savetype);
-int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, ESaving savetype);
+int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id);
+int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id);
 int mag_summons(int level, CharData *ch, ObjData *obj, ESpell spell_id, ESaving savetype);
-int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id, ESaving);
-int CastUnaffects(int, CharData *ch, CharData *victim, ESpell spell_id, ESaving);
-int CastToAlterObjs(int, CharData *ch, ObjData *obj, ESpell spell_id, ESaving);
+int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id);
+int CastUnaffects(int, CharData *ch, CharData *victim, ESpell spell_id);
+int CastToAlterObjs(int, CharData *ch, ObjData *obj, ESpell spell_id);
 int CastCreation(int, CharData *ch, ESpell spell_id);
-int CastToSingleTarget(int level, CharData *caster, CharData *cvict, ObjData *ovict, ESpell spell_id, ESaving saving);
+int CastToSingleTarget(int level, CharData *caster, CharData *cvict, ObjData *ovict, ESpell spell_id);
 
 bool ProcessMatComponents(CharData *caster, CharData *victim, ESpell spell_id);
 float CalcModCoef(ESpell spell_id, int percent);

@@ -3544,13 +3544,13 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 					if (IS_IMMORTAL(tch) || ch->in_room == kNowhere || IN_ROOM(tch) == kNowhere)
 						continue;
 					if (tch != ch && !same_group(ch, tch)) {
-						CastDamage(GetRealLevel(ch), ch, tch, spell_id, ESaving::kStability);
+						CastDamage(GetRealLevel(ch), ch, tch, spell_id);
 					}
 				}
 				return;
 			}
 			// а теперь просто дышащие
-			CastDamage(GetRealLevel(ch), ch, victim, spell_id, ESaving::kStability);
+			CastDamage(GetRealLevel(ch), ch, victim, spell_id);
 			return;
 		}
 	}
@@ -3572,9 +3572,9 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 			|| (!GET_AF_BATTLE(ch, kEafHammer) && !GET_AF_BATTLE(ch, kEafOverwhelm)))) {
 		// здесь можно получить спурженного victim, но ch не умрет от зеркала
     if (ch->IsNpc()) {
-		CastDamage(std::min(kLvlImplementator, GetRealLevel(ch)), ch, victim, ESpell::kMagicMissile, ESaving::kReflex);
+		CastDamage(std::min(kLvlImplementator, GetRealLevel(ch)), ch, victim, ESpell::kMagicMissile);
 	} else {
-		CastDamage(1, ch, victim, ESpell::kMagicMissile, ESaving::kReflex);
+		CastDamage(1, ch, victim, ESpell::kMagicMissile);
     }
 		if (ch->purged() || victim->purged()) {
 			return;
