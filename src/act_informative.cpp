@@ -2932,24 +2932,6 @@ void do_time(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	gods_day_now(ch);
 }
 
-int get_moon(int sky) {
-	if (weather_info.sunlight == kSunRise || weather_info.sunlight == kSunLight || sky == kSkyRaining)
-		return (0);
-	else if (weather_info.moon_day <= kNewMoonStop || weather_info.moon_day >= kNewMoonStart)
-		return (1);
-	else if (weather_info.moon_day < kHalfMoonStart)
-		return (2);
-	else if (weather_info.moon_day < kFullMoonStart)
-		return (3);
-	else if (weather_info.moon_day <= kFullMoonStop)
-		return (4);
-	else if (weather_info.moon_day < kLastHalfMoonStart)
-		return (5);
-	else
-		return (6);
-	return (0);
-}
-
 void do_weather(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int sky = weather_info.sky, weather_type = weather_info.weather_type;
 	const char *sky_look[] = {"облачное",

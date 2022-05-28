@@ -11,8 +11,8 @@
 *  $Date$                                           *
 *  $Revision$                                                      *
 ************************************************************************ */
-#ifndef _MAGIC_H_
-#define _MAGIC_H_
+#ifndef MAGIC_H_
+#define MAGIC_H_
 
 #include "spells_info.h"
 
@@ -42,8 +42,8 @@ const int kMobFirekeeper = 3022;
 const int kMaxSpellAffects = 16; // change it if you need more
 
 bool is_room_forbidden(RoomData *room);
-void mobile_affect_update(void);
-void player_affect_update(void);
+void mobile_affect_update();
+void player_affect_update();
 void print_rune_log();
 void ShowAffExpiredMsg(ESpell aff_type, CharData *ch);
 
@@ -55,7 +55,6 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpel
 
 int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id);
 int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id);
-int mag_summons(int level, CharData *ch, ObjData *obj, ESpell spell_id, ESaving savetype);
 int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id);
 int CastUnaffects(int, CharData *ch, CharData *victim, ESpell spell_id);
 int CastToAlterObjs(int, CharData *ch, ObjData *obj, ESpell spell_id);
@@ -63,9 +62,9 @@ int CastCreation(int, CharData *ch, ESpell spell_id);
 int CastToSingleTarget(int level, CharData *caster, CharData *cvict, ObjData *ovict, ESpell spell_id);
 
 bool ProcessMatComponents(CharData *caster, CharData *victim, ESpell spell_id);
-float CalcModCoef(ESpell spell_id, int percent);
 int CalcClassAntiSavingsMod(CharData *ch, ESpell spell_id);
+float CalcModCoef(ESpell spell_id, int percent);
 
-#endif
+#endif // MAGIC_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
