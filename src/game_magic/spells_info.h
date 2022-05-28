@@ -25,6 +25,7 @@ class IEffect {
 };
 
 struct SpellDmg : public IEffect {
+	ESaving saving{ESaving::kReflex};
 	int dice_num{1};
 	int dice_size{1};
 	int dice_add{1};
@@ -45,6 +46,7 @@ struct SpellArea : public IEffect {
 
 using EffectPtr = std::shared_ptr<IEffect>;
 using DmgPtr = std::shared_ptr<IEffect>;
+using AreaPtr = std::shared_ptr<IEffect>;
 using DataNode = parser_wrapper::DataNode;
 
 /**
@@ -104,6 +106,10 @@ class SpellInfo : public info_container::BaseItem<ESpell> {
 	[[nodiscard]] int GetMinMana() const { return min_mana_; };
 	[[nodiscard]] int GetMaxMana() const { return max_mana_; };
 	[[nodiscard]] int GetManaChange() const { return mana_change_; };
+
+	/* Эффекты */
+	SpellDmg GetDmg() const;
+
 	void Print(std::ostringstream &buffer) const;
 };
 

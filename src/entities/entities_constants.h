@@ -124,7 +124,7 @@ enum EResist {
 
 EResist& operator++(EResist &r);
 
-const int kMaxPlayerResist = 75;
+const int kMaxPcResist = 75;
 
 /*
  * Character equipment positions: used as index for char_data.equipment[]

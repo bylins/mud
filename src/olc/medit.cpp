@@ -1792,7 +1792,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 			} else if (sscanf(arg, "%d %d", &plane, &bit) < 2) {
 				SendMsgToChar("Не указан уровень сопротивления.\r\n", d->character.get());
 			} else {
-				GET_RESIST(OLC_MOB(d), number) =  std::clamp(bit, kMinResistance, kMaxResistance);
+				GET_RESIST(OLC_MOB(d), number) =  std::clamp(bit, kMinResistance, kMaxNpcResist);
 			}
 			medit_disp_resistances(d);
 			return;

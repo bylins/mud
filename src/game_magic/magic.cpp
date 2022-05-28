@@ -317,7 +317,7 @@ int CalcMagicSkillDam(CharData *ch, CharData *victim, ESpell spell_id, int dam) 
 }
 
 int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESaving savetype) {
-	int dam = 0, rand = 0, count = 1, modi = 0, ndice = 0, sdice = 0, adice = 0, no_savings = false;
+	int dam = 0, rand = 0, count = 1, modi = 0, no_savings = false;
 	ObjData *obj = nullptr;
 
 	if (victim == nullptr || victim->in_room == kNowhere || ch == nullptr)
@@ -328,9 +328,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 
 	log("[MAG DAMAGE] %s damage %s (%d)", GET_NAME(ch), GET_NAME(victim), to_underlying(spell_id));
 	// Magic glass
-	if ((spell_id != ESpell::kLightingBreath && spell_id != ESpell::kFireBreath && spell_id != ESpell::kGasBreath
-		&& spell_id != ESpell::kAcidBreath)
-		|| ch == victim) {
+	if (!IsBreath(spell_id) || ch == victim) {
 		if (!MUD::Spell(spell_id).IsFlagged(kMagWarcry)) {
 			if (ch != victim && spell_id <= ESpell::kLast &&
 				((AFF_FLAGGED(victim, EAffect::kMagicGlass) && number(1, 100) < (GetRealLevel(victim) / 3)))) {
@@ -358,7 +356,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 			act("Густая тень вокруг вас поглотила магию $n1.", false, ch, nullptr, victim, kToVict);
 			log("[MAG DAMAGE] Мантия  - поглощение урона: %s damage %s (%d)",
 				GET_NAME(ch), GET_NAME(victim), to_underlying(spell_id));
-			return (0);
+			return 0;
 		}
 		// Блочим маг дамагу от директ спелов для Витязей : шанс (скил/20 + вес.щита/2) ~ 30% при 200 скила и 40вес щита
 		if (!MUD::Spell(spell_id).IsFlagged(kMagWarcry) &&
@@ -389,37 +387,26 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 	if (!ch->IsNpc() && (GetRealLevel(ch) > 10))
 		modi += (GetRealLevel(ch) - 10);
 
-	// вводим переменную-модификатор владения школы магии	
-	const int
-		ms_mod = CalcModCoef(spell_id, ch->GetSkill(GetMagicSkillId(spell_id))); // к кубикам от % владения магии
-
-//расчет на 30 морт 30 левел 90 мудры
+	auto spell_dmg = MUD::Spell(spell_id).GetDmg();
+	if (IsBreath(spell_id)) {
+		if (!ch->IsNpc())
+			return 0;
+		spell_dmg.saving = ESaving::kStability;
+		spell_dmg.dice_num = ch->mob_specials.damnodice;
+		spell_dmg.dice_size = ch->mob_specials.damsizedice;
+		spell_dmg.dice_add = GetRealDamroll(ch) + str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
+	}
 
 	switch (spell_id) {
-		// магическая стрела
-		//  мин 2+10 среднее 5+10 макс 8+10
-		// нейтрал
-		case ESpell::kMagicMissile: modi += 300;
-			ndice = 2;
-			sdice = 4;
-			adice = 10;
-			// если есть фит магическая стрела, то стрелок на 30 уровне будет 6
+		case ESpell::kMagicMissile:
+			modi += 300;
 			if (CanUseFeat(ch, EFeat::kMagicArrows))
 				count = (level + 9) / 5;
 			else
 				count = (level + 9) / 10;
 			break;
-			// ледяное прикосновение 
-			// мин 15+30 среднее 22.5+30 макс 30+30  
-		case ESpell::kChillTouch: savetype = ESaving::kReflex;
-			ndice = 15;
-			sdice = 2;
-			adice = level;
-			break;
-			// кислота 
-			// 6+24 мин 48+24 макс 90+24
-			// нейтрал
-		case ESpell::kAcid: savetype = ESaving::kReflex;
+
+		case ESpell::kAcid:
 			obj = nullptr;
 			if (victim->IsNpc()) {
 				rand = number(1, 50);
@@ -431,31 +418,17 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 				}
 			}
 			if (obj) {
-				ndice = 6;
-				sdice = 10;
-				adice = level;
+				spell_dmg.dice_size = spell_dmg.dice_size - spell_dmg.dice_size / 3;
 				act("Кислота покрыла $o3.", false, victim, obj, nullptr, kToChar);
 				alterate_object(obj, number(level * 2, level * 4), 100);
-			} else {
-				ndice = 6;
-				sdice = 15;
-				adice = (level - 18) * 2;
 			}
 			break;
 
-			// землетрясение
-			// мин 6+16 среднее 48+16 макс 90+16 (240)
-		case ESpell::kEarthquake: savetype = ESaving::kReflex;
-			ndice = 6;
-			sdice = 15;
-			adice = (level - 22) * 2;
-			// если наездник, то считаем не сейвисы, а ESkill::kRiding
+		case ESpell::kEarthquake:
 			if (ch->IsOnHorse()) {
-//		    5% шанс успеха,
 				rand = number(1, 100);
 				if (rand > 95)
 					break;
-				// провал - 5% шанс или скилл наездника vs скилл магии кастера на кубике d6
 				if (rand < 5 || (CalcCurrentSkill(victim, ESkill::kRiding, nullptr) * number(1, 6))
 					< GET_SKILL(ch, ESkill::kEarthMagic) * number(1, 6)) {//фейл
 					ch->drop_from_horse();
@@ -473,12 +446,8 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 				SetWaitState(victim, 2 * kPulseViolence);
 			}
 			break;
-			//звуковая волна зависит от школы
-			// мин 10+20 среднее 45+20 макс 80+20
-		case ESpell::kSonicWave: savetype = ESaving::kStability;
-			ndice = 5 + ms_mod;
-			sdice = 8;
-			adice = level / 3 + 2 * ms_mod;
+
+		case ESpell::kSonicWave:
 			if (GET_POS(victim) > EPosition::kSit &&
 				!IS_IMMORTAL(victim) && (number(1, 999) > GET_AR(victim) * 10) &&
 				(AFF_FLAGGED(victim, EAffect::kHold) || !CalcGeneralSaving(ch, victim, ESaving::kStability, CALC_SUCCESS(modi, 60)))) {
@@ -490,155 +459,10 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 			}
 			break;
 
-			// горящие руки
-			// мин 8+10 среднее 16+10 мах 24+10
-			// ОГОНЬ
-		case ESpell::kBurningHands: savetype = ESaving::kReflex;
-			ndice = 8;
-			sdice = 3;
-			adice = (level + 2) / 3;
-			break;
-
-			// обжигающая хватка
-			// мин 10+10 среднее 35+10 макс 60+10)
-			// ОГОНЬ
-		case ESpell::kShockingGasp: savetype = ESaving::kReflex;
-			ndice = 10;
-			sdice = 6;
-			adice = (level + 2) / 3;
-			break;
-
-			// молния
-			// мин 3+6 среднее 9+6 - макс 15+6 
-			// ВОЗДУХ
-		case ESpell::kLightingBolt: savetype = ESaving::kReflex;
-			ndice = 3;
-			sdice = 5;
-			count = (level + 6) / 6;
-			break;
-
-			// яркий блик нет резиста
-			// мин 10+10 среднее 30+10 макс 50+10
-			// ОГОНЬ
-		case ESpell::kShineFlash: ndice = 10;
-			sdice = 5;
-			adice = (level + 2) / 3;
-			break;
-
-			// шаровая молния ов)
-			// мин 37+30 среднее 129.5 +30 макс 222+30
-			// ВОЗДУХ
-//дебаф
-//			af[0].location = APPLY_HITROLL;
-//			af[1].location = APPLY_CAST_SUCCESS;
-
-		case ESpell::kCallLighting: savetype = ESaving::kReflex;
-			ndice = 7 + GET_REAL_REMORT(ch);
-			sdice = 6;
-			adice = level;
-			break;
-
-			// ледяные стрелы
-			// мин 6+30 среднее 18+30 макс 30+30
-			// ОГОНЬ
-		case ESpell::kIceBolts: savetype = ESaving::kStability;
-			ndice = 6;
-			sdice = 5;
-			adice = level;
-			break;
-
-			// ледяной ветер
-			// мин 10+30 среднее 30+30 макс 50+30
-			// ВОДА
-		case ESpell::kColdWind: savetype = ESaving::kStability;
-			ndice = 10;
-			sdice = 5;
-			adice = level;
-			break;
-
-			// Огненный шар
-			// мин 10+25 среднее 110+25 макс 210+25
-			// ОГОНЬ
-		case ESpell::kFireball: savetype = ESaving::kReflex;
-			ndice = 10;
-			sdice = 21;
-			adice = (level - 25) * 5;
-			break;
-
-			// Огненный поток 
-			// массовое
-			// мин 40+30 среднее 80+30 макс 120*30
-			// ОГОНЬ, ареа
-		case ESpell::kFireBlast: savetype = ESaving::kStability;
-			ndice = 10 + GET_REAL_REMORT(ch);
-			sdice = 3;
-			adice = level;
-			break;
-
-			// метеоритный шторм - уровень 22 круг 7 (4 слота)
-			// *** мин 66 макс 80  (240)
-			// нейтрал, ареа
-/*	case SPELL_METEORSTORM:
-		savetype = kReflex;
-		ndice = 11+GET_REAL_REMORT(ch);
-		sdice = 11;
-		adice = (level - 22) * 3;
-		break;*/
-
-			// цепь молний
-			// массовое
-			// мин 32+90 среднее 80+90 макс 128+90
-			// ВОЗДУХ, ареа
-		case ESpell::kChainLighting: savetype = ESaving::kStability;
-			ndice = 2 + GET_REAL_REMORT(ch);
-			sdice = 4;
-			adice = (level + GET_REAL_REMORT(ch)) * 2;
-			break;
-
-			// гнев богов)
-			// мин 10+180 среднее 70+180 макс 130+180
-			// ВОДА
-		case ESpell::kGodsWrath: savetype = ESaving::kWill;
-			ndice = 10;
-			sdice = 13;
-			adice = level * 6;
-			break;
-
-			// ледяной шторм
-			// массовое
-			// мин 5+20 среднее 27.5+20 макс 50+20
-			// ВОДА, ареа
-		case ESpell::kIceStorm: savetype = ESaving::kStability;
-			ndice = 5;
-			sdice = 10;
-			adice = (level - 26) * 5;
-			break;
-
-			// суд богов
-			// массовое
-			// мин 16+120 среднее 32+150 макс 38+180
-			// ВОЗДУХ, ареа
-		case ESpell::kArmageddon: savetype = ESaving::kWill;
-			if (!(ch->IsNpc())) {
-				ndice = 10 + ((GET_REAL_REMORT(ch) / 3) - 4);
-				sdice = level / 9;
-				adice = level * (number(4, 6));
-			} else {
-				ndice = 12;
-				sdice = 3;
-				adice = level * 6;
-			}
-			break;
-			// каменное проклятие
-			//  мин 12+30 среднее 486+30 макс 990+30
 		case ESpell::kStunning:
 			if (ch == victim ||
 				((number(1, 999) > GET_AR(victim) * 10) &&
 					!CalcGeneralSaving(ch, victim, ESaving::kCritical, CALC_SUCCESS(modi, GET_REAL_WIS(ch))))) {
-				savetype = ESaving::kStability;
-				ndice = GET_REAL_WIS(ch) / 5;    //18
-				sdice = GET_REAL_WIS(ch);        //90
-				adice = 5 + (GET_REAL_WIS(ch) - 20) / 6;    //5+11
 				int choice_stunning = 750;
 				if (CanUseFeat(ch, EFeat::kDarkPact))
 					choice_stunning -= GET_REAL_REMORT(ch) * 15;
@@ -647,49 +471,22 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 					act("Каменное проклятие $n1 отшибло сознание у $N1.", false, ch, nullptr, victim, kToNotVict);
 					act("У вас отшибло сознание, вам очень плохо...", false, ch, nullptr, victim, kToVict);
 					GET_POS(victim) = EPosition::kStun;
-					SetWaitState(victim, adice * kPulseViolence);
+					SetWaitState(victim, (5 + (GET_REAL_WIS(ch) - 20)) * kPulseViolence);
 				}
-			} else {
-				ndice = GET_REAL_WIS(ch) / 7;    //12
-				sdice = GET_REAL_WIS(ch);        //80
-				adice = level;
 			}
 			break;
 
-			// круг пустоты - круг 28 уровень 9 (1)
-			// мин 40+17 среднее 1820+17 макс 3600 +17
-			// для всех
-		case ESpell::kVacuum: savetype = ESaving::kStability;
-			ndice = std::max(1, (GET_REAL_WIS(ch) - 10) / 2);    //40
-			sdice = std::max(1, GET_REAL_WIS(ch) - 10);            //90
-			adice = 4 + std::max(1, GetRealLevel(ch) + 1 + (GET_REAL_WIS(ch) - 29)) / 7;    //17
+		case ESpell::kVacuum:
 			if (ch == victim ||
 				(!CalcGeneralSaving(ch, victim, ESaving::kCritical, CALC_SUCCESS(modi, GET_REAL_WIS(ch))) &&
-					(number(1, 999) > GET_AR(victim) * 10) &&
-					number(0, 1000) <= 500)) {
+					(number(1, 999) > GET_AR(victim) * 10) && number(0, 1000) <= 500)) {
 				GET_POS(victim) = EPosition::kStun;
-				SetWaitState(victim, adice * kPulseViolence);
+				auto wait = 4 + std::max(1, GetRealLevel(ch) + 1 + (GET_REAL_WIS(ch) - 29)) / 7;    //17*/
+				SetWaitState(victim, wait*kPulseViolence);
 			}
 			break;
 
-		case ESpell::kDamageLight: savetype = ESaving::kCritical;
-			ndice = 4;
-			sdice = 3;
-			adice = (level + 2) / 3;
-			break;
-		case ESpell::kDamageSerious: savetype = ESaving::kCritical;
-			ndice = 10;
-			sdice = 3;
-			adice = (level + 1) / 2;
-			break;
-		case ESpell::kDamageCritic: savetype = ESaving::kCritical;
-			ndice = 15;
-			sdice = 4;
-			adice = (level + 1) / 2;
-			break;
-		case ESpell::kDispelEvil: ndice = 4;
-			sdice = 4;
-			adice = level;
+		case ESpell::kDispelEvil:
 			if (ch != victim && IS_EVIL(ch) && !IS_IMMORTAL(ch) && GET_HIT(ch) > 1) {
 				SendMsgToChar("Ваша магия обратилась против вас.", ch);
 				GET_HIT(ch) = 1;
@@ -697,12 +494,11 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 			if (!IS_EVIL(victim)) {
 				if (victim != ch)
 					act("Боги защитили $N3 от вашей магии.", false, ch, nullptr, victim, kToChar);
-				return (0);
+				return 0;
 			};
 			break;
-		case ESpell::kDispelGood: ndice = 4;
-			sdice = 4;
-			adice = level;
+
+		case ESpell::kDispelGood:
 			if (ch != victim && IS_GOOD(ch) && !IS_IMMORTAL(ch) && GET_HIT(ch) > 1) {
 				SendMsgToChar("Ваша магия обратилась против вас.", ch);
 				GET_HIT(ch) = 1;
@@ -710,42 +506,16 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 			if (!IS_GOOD(victim)) {
 				if (victim != ch)
 					act("Боги защитили $N3 от вашей магии.", false, ch, nullptr, victim, kToChar);
-				return (0);
+				return 0;
 			};
 			break;
-		case ESpell::kHarm: savetype = ESaving::kCritical;
-			ndice = 7;
-			sdice = level;
-			adice = level * GET_REAL_REMORT(ch) / 4;
-			//adice = (level + 4) / 5;
-			break;
 
-		case ESpell::kFireBreath:
-		case ESpell::kFrostBreath:
-		case ESpell::kAcidBreath:
-		case ESpell::kLightingBreath:
-		case ESpell::kGasBreath: savetype = ESaving::kStability;
-			if (!ch->IsNpc())
-				return (0);
-			ndice = ch->mob_specials.damnodice;
-			sdice = ch->mob_specials.damsizedice;
-			adice = GetRealDamroll(ch) + str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
-			break;
-			// высосать жизнь
 		case ESpell::kSacrifice:
 			if (IS_IMMORTAL(victim))
 				break;
-			ndice = 8;
-			sdice = 8;
-			adice = level;
 			break;
-			// пылевая буря
-			// массовое
-			// мин 5+120 среднее 17.5+120  макс 30+120
-		case ESpell::kDustStorm: savetype = ESaving::kStability;
-			ndice = 5;
-			sdice = 6;
-			adice = level + GET_REAL_REMORT(ch) * 3;
+
+		case ESpell::kDustStorm:
 			if (GET_POS(victim) > EPosition::kSit &&
 				!IS_IMMORTAL(victim) && (number(1, 999) > GET_AR(victim) * 10) &&
 				(!CalcGeneralSaving(ch, victim, ESaving::kReflex, CALC_SUCCESS(modi, 30)))) {
@@ -756,77 +526,11 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 				SetWaitState(victim, 2 * kPulseViolence);
 			}
 			break;
-			// камнепад
-			// массовое на комнату
-			// мин 8+60 среднее 36+60 макс 64+60
-		case ESpell::kEarthfall: savetype = ESaving::kReflex;
-			ndice = 8;
-			sdice = 8;
-			adice = level * 2;
-			break;
-			// шок
-			// массовое на комнату
-			// мин 6+90 среднее 48+90 макс 90+90
-		case ESpell::kShock: savetype = ESaving::kReflex;
-			ndice = 6;
-			sdice = level / 2;
-			adice = (level + GET_REAL_REMORT(ch)) * 2;
-			break;
-			// вопль
-			// массовое на комнату
-			// мин 10+90 среднее 185+90 макс 360*90
-		case ESpell::kScream: savetype = ESaving::kStability;
-			ndice = 10;
-			sdice = (level + GET_REAL_REMORT(ch)) / 5;    //36
-			adice = level + GET_REAL_REMORT(ch) * 2;    //90
-			break;
-			// вихрь
-			// мин 16+35 среднее 176+40  макс 336+40
-		case ESpell::kWhirlwind: savetype = ESaving::kReflex;
-			if (!(ch->IsNpc())) {
-				ndice = 10 + ((GET_REAL_REMORT(ch) / 3) - 4);    //16
-				sdice = 18 + (3 - (30 - level) / 3);            //21
-				adice = (level + GET_REAL_REMORT(ch) - 25) * (number(1, 3));    //35..40..45
-			} else {
-				ndice = 10;
-				sdice = 21;
-				adice = (level - 5) * (number(2, 4));
-			}
-			break;
-			// зубы индрика - без резиста
-			// мин 33+61 среднее 82,5+61 макс 132+61
-		case ESpell::kIndriksTeeth: ndice = 3 + GET_REAL_REMORT(ch);
-			sdice = 4;
-			adice = level + GET_REAL_REMORT(ch) + 1;
-			break;
-			// кислотная стрела
-			// мин 20+35 среднее 210+35 макс 400+35
-		case ESpell::kAcidArrow: savetype = ESaving::kReflex;
-			ndice = 10 + GET_REAL_REMORT(ch) / 3;
-			sdice = 20;
-			adice = level + GET_REAL_REMORT(ch) - 25;
-			break;
-			//громовой камень
-			// мин 33+61 среднее 115.5+61 макс 198+61
-		case ESpell::kThunderStone: savetype = ESaving::kReflex;
-			ndice = 3 + GET_REAL_REMORT(ch);
-			sdice = 6;
-			adice = 1 + level + GET_REAL_REMORT(ch);
-			break;
-			// глыба
-			// мин 20+35 среднее 210 +40 макс 400+45
-		case ESpell::kClod: savetype = ESaving::kReflex;
-			ndice = 10 + GET_REAL_REMORT(ch) / 3;
-			sdice = 20;
-			adice = (level + GET_REAL_REMORT(ch) - 25) * (number(1, 3));    //35..40..45
-			break;
-			// силы света
-			// мин 10 + 150 среднее 45+150 макс 80+150
+
 		case ESpell::kHolystrike:
 			if (AFF_FLAGGED(victim, EAffect::kForcesOfEvil)) {
 				dam = -1;
 				no_savings = true;
-				// смерть или диспелл :)
 				if (CalcGeneralSaving(ch, victim, ESaving::kWill, modi)) {
 					act("Черное облако вокруг вас нейтрализовало действие тумана, растворившись в нем.",
 						false, victim, nullptr, nullptr, kToChar);
@@ -838,21 +542,10 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 					if (victim->IsNpc())
 						dam += 99;    // чтобы насмерть
 				}
-			} else {
-				ndice = 10;
-				sdice = 8;
-				adice = level * 5;
 			}
 			break;
 
-		case ESpell::kWarcryOfRage: ndice = (level + 3) / 4;
-			sdice = 6;
-			adice = RollDices(GET_REAL_REMORT(ch) / 2, 8);
-			break;
-
 		case ESpell::kWarcryOfThunder: {
-			ndice = GET_REAL_REMORT(ch) + (level + 2) / 3;
-			sdice = 5;
 			if (GET_POS(victim) > EPosition::kSit && !IS_IMMORTAL(victim) && (AFF_FLAGGED(victim, EAffect::kHold) ||
 				!CalcGeneralSaving(ch, victim, ESaving::kStability, GET_REAL_CON(ch)))) {
 				act("$n3 повалило на землю.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
@@ -863,29 +556,21 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 			}
 			break;
 		}
-			// стрелы, нет в мире
-			// мин 33+61 среднее 82,5+61 макс 132+61
+
 		case ESpell::kArrowsFire:
 		case ESpell::kArrowsWater:
 		case ESpell::kArrowsEarth:
 		case ESpell::kArrowsAir:
 		case ESpell::kArrowsDeath:
-			if (!(ch->IsNpc())) {
+			if (!ch->IsNpc()) {
 				act("Ваша магическая стрела поразила $N1.", false, ch, nullptr, victim, kToChar);
 				act("Магическая стрела $n1 поразила $N1.", false, ch, nullptr, victim, kToNotVict);
 				act("Магическая стрела настигла вас.", false, ch, nullptr, victim, kToVict);
-				ndice = 3 + GET_REAL_REMORT(ch);
-				sdice = 4;
-				adice = level + GET_REAL_REMORT(ch) + 1;
-			} else {
-				ndice = 20;
-				sdice = 4;
-				adice = level * 3;
 			}
-
 			break;
+
 		default: break;
-	}            // switch(spell_id)
+	}
 
 	if (!dam && !no_savings) {
 		double koeff = 1;
@@ -919,42 +604,34 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 				}
 			}
 		}
-		dam = RollDices(ndice, sdice) + adice;
+		dam = RollDices(spell_dmg.dice_num, spell_dmg.dice_size) + spell_dmg.dice_add;
 		dam = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, dam);
-//		SendMsgToChar(ch, "&CМагДамага магии %d &n\r\n", dam);
 
 		if (CanUseFeat(ch, EFeat::kPowerMagic) && victim->IsNpc()) {
-			dam += (int) dam * 0.5;
+			dam += dam / 2;
 		}
 		if (AFF_FLAGGED(ch, EAffect::kDaturaPoison))
 			dam -= dam * GET_POISON(ch) / 100;
 		if (!MUD::Spell(spell_id).IsFlagged(kMagWarcry)) {
-			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi))
+			if (ch != victim && CalcGeneralSaving(ch, victim, spell_dmg.saving, modi))
 				koeff /= 2;
 		}
-/* // и зачем эта хрень только путает
-		if (dam > 0) {
-			koeff *= 1000;
-			dam = (int) MMAX(1.0, (dam * MMAX(300.0, MMIN(koeff, 2500.0)) / 1000.0)); //капаем максимальный бонус не более х4
-		}
-*/
+
 		if (ch->add_abils.percent_magdam_add > 0) {
-//			SendMsgToChar(ch, "&CМагДамага магии %d &n\r\n", dam);
 			auto tmp = ch->add_abils.percent_magdam_add / 100.0;
 			dam += (int) dam * tmp;
-//			SendMsgToChar(ch, "&CМагДамага c + процентами дамаги== %d, добавили = %d процентов &n\r\n", dam, (int) (tmp * 100));
 		}
-		//вместо старого учета мудры добавлена обработка с учетом скиллов
-		//после коэффициента - так как в самой функции стоит планка по дамагу, пусть и относительная
 		dam = CalcMagicSkillDam(ch, victim, spell_id, dam);
 	}
 
 	//Голодный кастер меньше дамажит!
-	if (!ch->IsNpc())
+	if (!ch->IsNpc()) {
 		dam *= ch->get_cond_penalty(P_DAMROLL);
+	}
 
-	if (number(1, 100) <= MIN(75, GET_MR(victim)))
+	if (number(1, 100) <= std::min(ch->IsNpc() ? kMaxNpcResist : kMaxPcResist, GET_MR(victim))) {
 		dam = 0;
+	}
 
 	for (; count > 0 && rand >= 0; count--) {
 		if (ch->in_room != kNowhere

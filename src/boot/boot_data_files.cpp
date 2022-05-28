@@ -1259,7 +1259,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			return;
 		}
 		for (unsigned kk = 0; kk < array_string.size(); ++kk) {
-			GET_RESIST(mob_proto + i, kk) = std::clamp(atoi(array_string[kk].c_str()), kMinResistance, kMaxResistance);
+			GET_RESIST(mob_proto + i, kk) = std::clamp(atoi(array_string[kk].c_str()), kMinResistance, kMaxNpcResist);
 		}
 
 

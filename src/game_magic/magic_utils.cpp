@@ -722,7 +722,7 @@ int ApplyResist(CharData *ch, int resist_type, int effect) {
 		return effect - resistance*effect/100;
 	}
 	if (!ch->IsNpc()) {
-		resistance = std::min(kMaxPlayerResist, resistance);
+		resistance = std::min(kMaxPcResist, resistance);
 	}
 	auto result = static_cast<int>(effect - (resistance + number(0, resistance))*effect/200.0);
 	return std::max(0, result);

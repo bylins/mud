@@ -227,8 +227,8 @@ const int kMinCharLevel = 0;
 const int kMaxMobLevel = 100;
 const int kMaxSaving = 400; //максимальное значение воля, здоровье, стойкость, реакция
 constexpr int kMinSaving = -kMaxSaving;
-const int kMaxResistance = 100;
-constexpr int kMinResistance = -kMaxResistance;
+const int kMaxNpcResist = 100;
+constexpr int kMinResistance = -kMaxNpcResist;
 const int kStrongMobLevel = 30;
 
 bool sprintbitwd(Bitvector bitvector, const char *names[], char *result, const char *div, const int print_flag = 0);
