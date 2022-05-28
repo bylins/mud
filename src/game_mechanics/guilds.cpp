@@ -326,15 +326,17 @@ bool GuildInfo::ProcessPayment(CharData *trainer, CharData *ch, const TalentPtr 
 	}
 
 	auto price = talent->CalcPrice(ch);
-	auto description = MUD::Currency(talent->GetCurrencyId()).GetObjName(price, ECase::kAcc);
-	std::ostringstream out;
+	if (price > 0) {
+		auto description = MUD::Currency(talent->GetCurrencyId()).GetObjName(price, ECase::kAcc);
+		std::ostringstream out;
 
-	out << GetMessage(EGuildMsg::kYouGive) << description << " $N2.";
-	act(out.str(), false, ch, nullptr, trainer, kToChar);
+		out << GetMessage(EGuildMsg::kYouGive) << description << " $N2.";
+		act(out.str(), false, ch, nullptr, trainer, kToChar);
 
-	out.str(std::string());
-	out << GetMessage(EGuildMsg::kSomeoneGive) << description << " $N2.";
-	act(out.str(), false, ch, nullptr, trainer, kToRoom);
+		out.str(std::string());
+		out << GetMessage(EGuildMsg::kSomeoneGive) << description << " $N2.";
+		act(out.str(), false, ch, nullptr, trainer, kToRoom);
+	}
 
 	return true;
 }
@@ -600,6 +602,7 @@ bool HasEnoughCurrency(CharData *ch, Vnum currency_id, long amount) {
 }
 
 void WithdrawCurrency(CharData *ch, Vnum currency_id, long amount) {
+	amount = std::max(0L, amount);
 	switch (currency_id) {
 		case 0: { // куны
 			ch->remove_gold(amount);
