@@ -26,7 +26,6 @@ extern const char *unused_spellname;
 std::unordered_map<EFeat, FeatureInfo> feat_info;
 
 /* Служебные функции */
-void InitFeatByDefault(EFeat feat_id);
 bool CheckVacantFeatSlot(CharData *ch, EFeat feat);
 
 /* Функции для работы с переключаемыми способностями */
@@ -37,9 +36,6 @@ EFeat GetFeatureNum(char *feat_name);
 
 /* Ситуативные бонусы, пишутся для специфических способностей по потребности */
 int CalcRollBonusOfGroupFormation(CharData *ch, CharData * /* enemy */);
-
-/* Активные способности */
-void do_lightwalk(CharData *ch, char *argument, int cmd, int subcmd);
 
 /* Extern */
 extern void SetSkillCooldown(CharData *ch, ESkill skill, int pulses);
@@ -96,42 +92,19 @@ void InitFeat(EFeat feat, const char *name, EFeatType type, CFeatArray app, int 
 	}
 }
 
-void InitFeatByDefault(EFeat feat_id) {
-	feat_info[feat_id].id = feat_id;
-	feat_info[feat_id].name = unused_spellname;
-	feat_info[feat_id].type = EFeatType::kUnused;
-	feat_info[feat_id].always_available = false;
-	feat_info[feat_id].uses_weapon_skill = false;
-	feat_info[feat_id].damage_bonus = 0;
-	feat_info[feat_id].success_degree_damage_bonus = 5;
-	feat_info[feat_id].saving = ESaving::kStability;
-	feat_info[feat_id].diceroll_bonus = abilities::kMaxRollBonus;
-	feat_info[feat_id].base_skill = ESkill::kUndefined;
-	feat_info[feat_id].critfail_threshold = abilities::kDefaultCritfailThreshold;
-	feat_info[feat_id].critsuccess_threshold = abilities::kDefaultCritsuccessThreshold;
-
-	for (auto i = 0; i < kMaxFeatAffect; i++) {
-		feat_info[feat_id].affected[i].location = EApply::kNone;
-		feat_info[feat_id].affected[i].modifier = 0;
-	}
-
-	feat_info[feat_id].GetBaseParameter = &GET_REAL_INT;
-	feat_info[feat_id].GetEffectParameter = &GET_REAL_STR;
-	feat_info[feat_id].CalcSituationalDamageFactor =
-		([](CharData *) -> int {
-			return 0;
-		});
-	feat_info[feat_id].CalcSituationalRollBonus =
-		([](CharData *, CharData *) -> int {
-			return 0;
-		});
+FeatureInfo::FeatureInfo(EFeat feat_id) {
+	id = feat_id;
+	affected.fill({EApply::kNone, 0});
+	GetBaseParameter = &GET_REAL_INT;
+	GetEffectParameter = &GET_REAL_STR;
 }
 
 void InitFeatures() {
-	CFeatArray feat_app;
 	for (auto i = EFeat::kUndefined; i <= EFeat::kLast; ++i) {
-		InitFeatByDefault(i);
+		feat_info[i] = FeatureInfo(i);
 	}
+
+	CFeatArray feat_app;
 //1
 	InitFeat(EFeat::kBerserker, "предсмертная ярость", EFeatType::kNormal, feat_app);
 	feat_app.clear();
@@ -761,20 +734,13 @@ bool CanUseFeat(const CharData *ch, EFeat feat) {
 
 bool CanGetFeat(CharData *ch, EFeat feat) {
 	int count = 0;
+
 	if (feat < EFeat::kFirst || feat > EFeat::kLast) {
 		return false;
 	}
 	if (feat_info[feat].always_available) {
 		return false;
 	};
-
-/*	std::ostringstream out;
-	out << "Сопосбность: "
-		<< feat_info[feat].name << " "
-		<< " Врожденная: " << (MUD::Classes(ch->get_class()).feats[feat].IsInborn() ? "Y" : "N") << " "
-		<< " Мин. уровень: " << MUD::Classes(ch->get_class()).feats[feat].GetMinLevel() << " "
-		<< " Мин. реморт: " << MUD::Classes(ch->get_class()).feats[feat].GetMinRemort() << std::endl;
-	SendMsgToChar(out.str(), ch);*/
 
 	if ((MUD::Classes(ch->GetClass()).feats.IsUnavailable(feat) &&
 		!PlayerRace::FeatureCheck(GET_KIN(ch), GET_RACE(ch), to_underlying(feat))) ||
@@ -976,335 +942,6 @@ int GetModifier(EFeat feat_id, int location) {
 		}
 	}
 	return 0;
-}
-
-void CheckBerserk(CharData *ch) {
-	struct TimedFeat timed;
-	int prob;
-
-	if (IsAffectedBySpell(ch, ESpell::kBerserk) &&
-		(GET_HIT(ch) > GET_REAL_MAX_HIT(ch) / 2)) {
-		RemoveAffectFromChar(ch, ESpell::kBerserk);
-		SendMsgToChar("Предсмертное исступление оставило вас.\r\n", ch);
-	}
-
-	if (CanUseFeat(ch, EFeat::kBerserker) && ch->GetEnemy() &&
-		!IsTimedByFeat(ch, EFeat::kBerserker) && !AFF_FLAGGED(ch, EAffect::kBerserk)
-		&& (GET_HIT(ch) < GET_REAL_MAX_HIT(ch) / 4)) {
-		CharData *vict = ch->GetEnemy();
-		timed.feat = EFeat::kBerserker;
-		timed.time = 4;
-		ImposeTimedFeat(ch, &timed);
-
-		Affect<EApply> af;
-		af.type = ESpell::kBerserk;
-		af.duration = CalcDuration(ch, 1, 60, 30, 0, 0);
-		af.modifier = 0;
-		af.location = EApply::kNone;
-		af.battleflag = 0;
-
-		prob = ch->IsNpc() ? 601 : (751 - GetRealLevel(ch) * 5);
-		if (number(1, 1000) < prob) {
-			af.bitvector = to_underlying(EAffect::kBerserk);
-			act("Вас обуяла предсмертная ярость!", false, ch, nullptr, nullptr, kToChar);
-			act("$n0 исступленно взвыл$g и бросил$u на противника!", false, ch, nullptr, vict, kToNotVict);
-			act("$n0 исступленно взвыл$g и бросил$u на вас!", false, ch, nullptr, vict, kToVict);
-		} else {
-			af.bitvector = 0;
-			act("Вы истошно завопили, пытаясь напугать противника. Без толку.", false, ch, nullptr, nullptr, kToChar);
-			act("$n0 истошно завопил$g, пытаясь напугать противника. Забавно...", false, ch, nullptr, vict, kToNotVict);
-			act("$n0 истошно завопил$g, пытаясь напугать вас. Забавно...", false, ch, nullptr, vict, kToVict);
-		}
-		ImposeAffect(ch, af, true, false, true, false);
-	}
-}
-
-void do_lightwalk(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	struct TimedFeat timed;
-
-	if (ch->IsNpc() || !CanUseFeat(ch, EFeat::kLightWalk)) {
-		SendMsgToChar("Вы не можете этого.\r\n", ch);
-		return;
-	}
-
-	if (ch->IsOnHorse()) {
-		act("Позаботьтесь сперва о мягких тапочках для $N3...", false, ch, nullptr, ch->get_horse(), kToChar);
-		return;
-	}
-
-	if (IsAffectedBySpell(ch, ESpell::kLightWalk)) {
-		SendMsgToChar("Вы уже двигаетесь легким шагом.\r\n", ch);
-		return;
-	}
-	if (IsTimedByFeat(ch, EFeat::kLightWalk)) {
-		SendMsgToChar("Вы слишком утомлены для этого.\r\n", ch);
-		return;
-	}
-
-	RemoveAffectFromChar(ch, ESpell::kLightWalk);
-
-	timed.feat = EFeat::kLightWalk;
-	timed.time = 24;
-	ImposeTimedFeat(ch, &timed);
-
-	SendMsgToChar("Хорошо, вы попытаетесь идти, не оставляя лишних следов.\r\n", ch);
-	Affect<EApply> af;
-	af.type = ESpell::kLightWalk;
-	af.duration = CalcDuration(ch, 2, GetRealLevel(ch), 5, 2, 8);
-	af.modifier = 0;
-	af.location = EApply::kNone;
-	af.battleflag = 0;
-	if (number(1, 1000) > number(1, GET_REAL_DEX(ch) * 50)) {
-		af.bitvector = 0;
-		SendMsgToChar("Вам не хватает ловкости...\r\n", ch);
-	} else {
-		af.bitvector = to_underlying(EAffect::kLightWalk);
-		SendMsgToChar("Ваши шаги стали легче перышка.\r\n", ch);
-	}
-	affect_to_char(ch, af);
-}
-
-void do_fit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
-	ObjData *obj;
-	CharData *vict;
-	char arg1[kMaxInputLength];
-	char arg2[kMaxInputLength];
-
-	//отключено пока для не-иммов
-	if (GetRealLevel(ch) < kLvlImmortal) {
-		SendMsgToChar("Вы не можете этого.", ch);
-		return;
-	};
-
-	//Может ли игрок использовать эту способность?
-	if ((subcmd == SCMD_DO_ADAPT) && !CanUseFeat(ch, EFeat::kToFitItem)) {
-		SendMsgToChar("Вы не умеете этого.", ch);
-		return;
-	};
-	if ((subcmd == SCMD_MAKE_OVER) && !CanUseFeat(ch, EFeat::kToFitClotches)) {
-		SendMsgToChar("Вы не умеете этого.", ch);
-		return;
-	};
-
-	//Есть у нас предмет, который хотят переделать?
-	argument = one_argument(argument, arg1);
-
-	if (!*arg1) {
-		SendMsgToChar("Что вы хотите переделать?\r\n", ch);
-		return;
-	};
-
-	if (!(obj = get_obj_in_list_vis(ch, arg1, ch->carrying))) {
-		sprintf(buf, "У вас нет \'%s\'.\r\n", arg1);
-		SendMsgToChar(buf, ch);
-		return;
-	};
-
-	//На кого переделываем?
-	argument = one_argument(argument, arg2);
-	if (!(vict = get_char_vis(ch, arg2, EFind::kCharInRoom))) {
-		SendMsgToChar("Под кого вы хотите переделать эту вещь?\r\n Нет такого создания в округе!\r\n", ch);
-		return;
-	};
-
-	//Предмет уже имеет владельца
-	if (GET_OBJ_OWNER(obj) != 0) {
-		SendMsgToChar("У этой вещи уже есть владелец.\r\n", ch);
-		return;
-
-	};
-
-	if ((GET_OBJ_WEAR(obj) <= 1) || obj->has_flag(EObjFlag::KSetItem)) {
-		SendMsgToChar("Этот предмет невозможно переделать.\r\n", ch);
-		return;
-	}
-
-	switch (subcmd) {
-		case SCMD_DO_ADAPT:
-			if (GET_OBJ_MATER(obj) != EObjMaterial::kMaterialUndefined
-				&& GET_OBJ_MATER(obj) != EObjMaterial::kBulat
-				&& GET_OBJ_MATER(obj) != EObjMaterial::kBronze
-				&& GET_OBJ_MATER(obj) != EObjMaterial::kIron
-				&& GET_OBJ_MATER(obj) != EObjMaterial::kSteel
-				&& GET_OBJ_MATER(obj) != EObjMaterial::kForgedSteel
-				&& GET_OBJ_MATER(obj) != EObjMaterial::kPreciousMetel
-				&& GET_OBJ_MATER(obj) != EObjMaterial::kWood
-				&& GET_OBJ_MATER(obj) != EObjMaterial::kHardWood
-				&& GET_OBJ_MATER(obj) != EObjMaterial::kGlass) {
-				sprintf(buf, "К сожалению %s сделан%s из неподходящего материала.\r\n",
-						GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_SUF_6(obj));
-				SendMsgToChar(buf, ch);
-				return;
-			}
-			break;
-		case SCMD_MAKE_OVER:
-			if (GET_OBJ_MATER(obj) != EObjMaterial::kBone
-				&& GET_OBJ_MATER(obj) != EObjMaterial::kCloth
-				&& GET_OBJ_MATER(obj) != EObjMaterial::kSkin
-				&& GET_OBJ_MATER(obj) != EObjMaterial::kOrganic) {
-				sprintf(buf, "К сожалению %s сделан%s из неподходящего материала.\r\n",
-						GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_SUF_6(obj));
-				SendMsgToChar(buf, ch);
-				return;
-			}
-			break;
-		default:
-			SendMsgToChar("Это какая-то ошибка...\r\n", ch);
-			return;
-			break;
-	};
-	obj->set_owner(GET_UNIQUE(vict));
-	sprintf(buf, "Вы долго пыхтели и сопели, переделывая работу по десять раз.\r\n");
-	sprintf(buf + strlen(buf), "Вы извели кучу времени и 10000 кун золотом.\r\n");
-	sprintf(buf + strlen(buf), "В конце-концов подогнали %s точно по мерке %s.\r\n",
-			GET_OBJ_PNAME(obj, 3).c_str(), GET_PAD(vict, 1));
-
-	SendMsgToChar(buf, ch);
-}
-
-#include "game_classes/classes_spell_slots.h" // удалить после вырезания do_spell_capable
-#include "game_magic/spells_info.h"
-
-// Вложить закл в клона
-void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-
-	using classes::CalcCircleSlotsAmount;
-
-	struct TimedFeat timed;
-
-	if (!IS_IMPL(ch) && (ch->IsNpc() || !CanUseFeat(ch, EFeat::kSpellCapabler))) {
-		SendMsgToChar("Вы не столь могущественны.\r\n", ch);
-		return;
-	}
-
-	if (IsTimedByFeat(ch, EFeat::kSpellCapabler) && !IS_IMPL(ch)) {
-		SendMsgToChar("Невозможно использовать это так часто.\r\n", ch);
-		return;
-	}
-
-	char *s;
-	if (ch->IsNpc() && AFF_FLAGGED(ch, EAffect::kCharmed))
-		return;
-
-	if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
-		SendMsgToChar("Вы не смогли вымолвить и слова.\r\n", ch);
-		return;
-	}
-
-	s = strtok(argument, "'*!");
-	if (s == nullptr) {
-		SendMsgToChar("ЧТО вы хотите колдовать?\r\n", ch);
-		return;
-	}
-	s = strtok(nullptr, "'*!");
-	if (s == nullptr) {
-		SendMsgToChar("Название заклинания должно быть заключено в символы : ' или * или !\r\n", ch);
-		return;
-	}
-
-	auto spell_id = FixNameAndFindSpellId(s);
-	if (spell_id == ESpell::kUndefined) {
-		SendMsgToChar("И откуда вы набрались таких выражений?\r\n", ch);
-		return;
-	}
-
-	const auto spell = MUD::Classes(ch->GetClass()).spells[spell_id];
-	if ((!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp | ESpellType::kKnow) ||
-		GET_REAL_REMORT(ch) < spell.GetMinRemort()) &&
-		(GetRealLevel(ch) < kLvlGreatGod) && (!ch->IsNpc())) {
-		if (GetRealLevel(ch) < CalcMinSpellLvl(ch, spell_id) ||
-			CalcCircleSlotsAmount(ch, spell.GetCircle()) <= 0) {
-			SendMsgToChar("Рано еще вам бросаться такими словами!\r\n", ch);
-			return;
-		} else {
-			SendMsgToChar("Было бы неплохо изучить, для начала, это заклинание...\r\n", ch);
-			return;
-		}
-	}
-
-	if (!GET_SPELL_MEM(ch, spell_id) && !IS_IMMORTAL(ch)) {
-		SendMsgToChar("Вы совершенно не помните, как произносится это заклинание...\r\n", ch);
-		return;
-	}
-
-	FollowerType *k;
-	CharData *follower = nullptr;
-	for (k = ch->followers; k; k = k->next) {
-		if (AFF_FLAGGED(k->follower, EAffect::kCharmed)
-			&& k->follower->get_master() == ch
-			&& MOB_FLAGGED(k->follower, EMobFlag::kClone)
-			&& !IsAffectedBySpell(k->follower, ESpell::kCapable)
-			&& ch->in_room == IN_ROOM(k->follower)) {
-			follower = k->follower;
-			break;
-		}
-	}
-	if (!GET_SPELL_MEM(ch, spell_id) && !IS_IMMORTAL(ch)) {
-		SendMsgToChar("Вы совершенно не помните, как произносится это заклинание...\r\n", ch);
-		return;
-	}
-
-	if (!follower) {
-		SendMsgToChar("Хорошо бы найти подходящую цель для этого.\r\n", ch);
-		return;
-	}
-
-	act("Вы принялись зачаровывать $N3.", false, ch, nullptr, follower, kToChar);
-	act("$n принял$u делать какие-то пассы и что-то бормотать в сторону $N3.", false, ch, nullptr, follower, kToRoom);
-
-	GET_SPELL_MEM(ch, spell_id)--;
-	if (!ch->IsNpc() && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, EPrf::kAutomem))
-		MemQ_remember(ch, spell_id);
-
-	if (!IS_SET(spell_info[spell_id].routines, kMagDamage) || !spell_info[spell_id].violent ||
-		IS_SET(spell_info[spell_id].routines, kMagMasses) || IS_SET(spell_info[spell_id].routines, kMagGroups) ||
-		IS_SET(spell_info[spell_id].routines, kMagAreas)) {
-		SendMsgToChar("Вы конечно мастер, но не такой магии.\r\n", ch);
-		return;
-	}
-	// Что-то малопонятное... что фит может делать в качестве идентификатора аффекта? Бред.
-	//RemoveAffectFromChar(ch, to_underlying(EFeat::kSpellCapabler));
-
-	timed.feat = EFeat::kSpellCapabler;
-
-	switch (MUD::Classes(ch->GetClass()).spells[spell_id].GetCircle()) {
-		case 1:
-		case 2:
-		case 3:
-		case 4:
-		case 5://1-5 слоты кд 4 тика
-			timed.time = 4;
-			break;
-		case 6:
-		case 7://6-7 слоты кд 6 тиков
-			timed.time = 6;
-			break;
-		case 8://8 слот кд 10 тиков
-			timed.time = 10;
-			break;
-		case 9://9 слот кд 12 тиков
-			timed.time = 12;
-			break;
-		default://10 слот или тп
-			timed.time = 24;
-	}
-	ImposeTimedFeat(ch, &timed);
-
-	GET_CAST_SUCCESS(follower) = GET_REAL_REMORT(ch) * 4;
-	Affect<EApply> af;
-	af.type = ESpell::kCapable;
-	af.duration = 48;
-	if (GET_REAL_REMORT(ch) > 0) {
-		af.modifier = GET_REAL_REMORT(ch) * 4;//вешаецо аффект который дает +морт*4 касту
-		af.location = EApply::kCastSuccess;
-	} else {
-		af.modifier = 0;
-		af.location = EApply::kNone;
-	}
-	af.battleflag = 0;
-	af.bitvector = 0;
-	affect_to_char(follower, af);
-	follower->mob_specials.capable_spell = spell_id;
 }
 
 // \todo Надо как-то переделать загрузку родовых способностей, чтобы там было не int, а сразу EFeat

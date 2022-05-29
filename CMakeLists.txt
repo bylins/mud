@@ -271,7 +271,9 @@ set(SOURCES
 		src/cmd/do_features.cpp
 		src/cmd/do_spells.cpp
 		src/cmd/do_skills.cpp
-		src/game_economics/currencies.cpp)
+		src/game_economics/currencies.cpp
+		src/game_skills/spell_capable.cpp
+		src/game_skills/lightwalk.cpp src/game_skills/death_rage.cpp src/game_skills/fit.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -523,7 +525,9 @@ set(HEADERS
 		src/cmd/do_features.h
 		src/cmd/do_spells.h
 		src/cmd/do_skills.h
-		src/game_economics/currencies.h)
+		src/game_economics/currencies.h
+		src/game_skills/spell_capable.h
+		src/game_skills/lightwalk.h src/game_skills/death_rage.h src/game_skills/fit.h)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 # Build types

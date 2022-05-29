@@ -10,6 +10,7 @@
 #define FILE_FEATURES_H_INCLUDED
 
 #include "game_abilities/abilities_items_set.h"
+#include "game_abilities/abilities_constants.h"
 #include "game_skills/skills.h"
 #include "structs/structs.h"
 #include "conf.h"
@@ -240,7 +241,6 @@ int GetModifier(EFeat feat_id, int location);
 EFeat FindFeatId(const char *name, bool alias = false);
 EFeat FindWeaponMasterFeat(ESkill skill);
 void InitFeatures();
-void CheckBerserk(CharData *ch);
 
 void UnsetInaccessibleFeats(CharData *ch);
 void SetRaceFeats(CharData *ch);
@@ -288,29 +288,32 @@ class CFeatArray {
 };
 
 struct FeatureInfo {
-	EFeat id;
-	EFeatType type;
-	bool uses_weapon_skill;
-	bool always_available;
-	const char *name;
+	EFeat id{EFeat::kUndefined};
+	EFeatType type{EFeatType::kUnused};
+	bool uses_weapon_skill{false};
+	bool always_available{false};
+	const char *name = "!undefined!";
 	std::array<CFeatArray::CFeatAffect, kMaxFeatAffect> affected;
 	std::string alias;
 	// Параметры для нового базового броска на способность
 	// Пока тут, до переписывания системы способностей
-	int damage_bonus;
-	int success_degree_damage_bonus;
-	int diceroll_bonus;
-	int critfail_threshold;
-	int critsuccess_threshold;
-	ESaving saving;
-	ESkill base_skill;
+	int damage_bonus{0};
+	int success_degree_damage_bonus{0};
+	int diceroll_bonus{abilities::kMinRollBonus};
+	int critfail_threshold{abilities::kDefaultCritfailThreshold};
+	int critsuccess_threshold{abilities::kDefaultCritsuccessThreshold};
+	ESaving saving{ESaving::kFirst};
+	ESkill base_skill{ESkill::kUndefined};
 
 	TechniqueItemKitsGroup item_kits;
 
 	int (*GetBaseParameter)(const CharData *ch);
 	int (*GetEffectParameter)(const CharData *ch);
-	int (*CalcSituationalDamageFactor)(CharData * /* ch */);
-	int (*CalcSituationalRollBonus)(CharData * /* ch */, CharData * /* enemy */);
+	int (*CalcSituationalDamageFactor)(CharData * /* ch */){[](CharData *) {return 0;}};
+	int (*CalcSituationalRollBonus)(CharData * /*ch*/, CharData * /*enemy*/){[](CharData *, CharData *) {return 0;}};
+
+	FeatureInfo() = default;
+	FeatureInfo(EFeat feat_id);
 };
 
 extern std::unordered_map<EFeat, FeatureInfo> feat_info;

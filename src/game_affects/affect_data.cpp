@@ -7,6 +7,7 @@
 #include "game_mechanics/deathtrap.h"
 #include "game_magic/magic.h"
 #include "game_mechanics/poison.h"
+#include "game_skills/death_rage.h"
 #include "structs/global_objects.h"
 #include "handler.h"
 
@@ -675,7 +676,7 @@ void affect_total(CharData *ch) {
 			}
 		}
 	}
-	CheckBerserk(ch);
+	CheckDeathRage(ch);
 	if (ch->GetEnemy() || IsAffectedBySpell(ch, ESpell::kGlitterDust)) {
 		AFF_FLAGS(ch).unset(EAffect::kHide);
 		AFF_FLAGS(ch).unset(EAffect::kSneak);

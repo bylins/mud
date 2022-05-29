@@ -96,9 +96,11 @@
 #include "game_skills/campfire.h"
 #include "game_skills/chopoff.h"
 #include "game_skills/disarm.h"
+#include "game_skills/fit.h"
 #include "game_skills/firstaid.h"
 #include "game_skills/ironwind.h"
 #include "game_skills/kick.h"
+#include "game_skills/lightwalk.h"
 #include "game_skills/manadrain.h"
 #include "game_skills/mighthit.h"
 #include "game_skills/parry.h"
@@ -117,6 +119,7 @@
 #include "game_skills/relocate.h"
 #include "game_skills/repair.h"
 #include "game_skills/skinning.h"
+#include "game_skills/spell_capable.h"
 #include "game_magic/spells.h"
 #include "time.h"
 #include "title.h"
@@ -256,7 +259,6 @@ void do_horseput(CharData *ch, char *argument, int cmd, int subcmd);
 void do_horseget(CharData *ch, char *argument, int cmd, int subcmd);
 void do_horsetake(CharData *ch, char *argument, int cmd, int subcmd);
 void do_hidemove(CharData *ch, char *argument, int cmd, int subcmd);
-void do_fit(CharData *ch, char *argument, int cmd, int subcmd);
 void do_force(CharData *ch, char *argument, int cmd, int subcmd);
 void do_forcetime(CharData *ch, char *argument, int cmd, int subcmd);
 void do_glory(CharData *ch, char *argument, int cmd, int subcmd);
@@ -280,7 +282,6 @@ void do_mode(CharData *ch, char *argument, int cmd, int subcmd);
 void do_deviate(CharData *ch, char *argument, int cmd, int subcmd);
 void do_levels(CharData *ch, char *argument, int cmd, int subcmd);
 void do_liblist(CharData *ch, char *argument, int cmd, int subcmd);
-void do_lightwalk(CharData *ch, char *argument, int cmd, int subcmd);
 void do_load(CharData *ch, char *argument, int cmd, int subcmd);
 void do_loadstat(CharData *ch, char *argument, int cmd, int subbcmd);
 void do_look(CharData *ch, char *argument, int cmd, int subcmd);
@@ -318,7 +319,6 @@ void do_skillset(CharData *ch, char *argument, int cmd, int subcmd);
 void do_sneak(CharData *ch, char *argument, int cmd, int subcmd);
 void do_snoop(CharData *ch, char *argument, int cmd, int subcmd);
 void do_spec_comm(CharData *ch, char *argument, int cmd, int subcmd);
-void do_spell_capable(CharData *ch, char *argument, int cmd, int subcmd);
 void do_split(CharData *ch, char *argument, int cmd, int subcmd);
 void do_split(CharData *ch, char *argument, int cmd, int subcmd, int currency);
 void do_steal(CharData *ch, char *argument, int cmd, int subcmd);
@@ -560,7 +560,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"заточить", EPosition::kRest, DoSharpening, 0, 0, 500},
 		{"заучить", EPosition::kRest, do_memorize, 0, 0, 0},
 		{"зачитать", EPosition::kRest, do_employ, 0, SCMD_RECITE, 500},
-		{"зачаровать", EPosition::kStand, do_spell_capable, 1, 0, 0},
+		{"зачаровать", EPosition::kStand, DoSpellCapable, 1, 0, 0},
 		{"зачистить", EPosition::kDead, do_sanitize, kLvlGreatGod, 0, 0},
 		{"золото", EPosition::kRest, do_gold, 0, 0, 0},
 		{"зона", EPosition::kRest, do_zone, 0, 0, 0},
@@ -668,7 +668,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"перевоплотитьс", EPosition::kStand, do_remort, 0, 0, -1},
 		{"перевоплотиться", EPosition::kStand, do_remort, 0, 1, -1},
 		{"перелить", EPosition::kStand, do_pour, 0, SCMD_POUR, 500},
-		{"перешить", EPosition::kRest, do_fit, 0, SCMD_MAKE_OVER, 500},
+		{"перешить", EPosition::kRest, DoFit, 0, kScmdMakeOver, 500},
 		{"пить", EPosition::kRest, do_drink, 0, SCMD_DRINK, 400},
 		{"писать", EPosition::kStand, do_write, 1, 0, -1},
 		{"пклист", EPosition::kSleep, DoClanPkList, 0, 0, 0},
@@ -679,7 +679,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"подняться", EPosition::kRest, do_stand, 0, 0, -1},
 		{"поджарить", EPosition::kRest, do_fry, 0, 0, -1},
 		{"перевязать", EPosition::kRest, do_bandage, 0, 0, 0},
-		{"переделать", EPosition::kRest, do_fit, 0, SCMD_DO_ADAPT, 500},
+		{"переделать", EPosition::kRest, DoFit, 0, kScmdDoAdapt, 500},
 		{"подсмотреть", EPosition::kRest, do_look, 0, SCMD_LOOK_HIDE, 0},
 		{"положить", EPosition::kRest, do_put, 0, 0, 400},
 		{"получить", EPosition::kStand, do_not_here, 1, 0, -1},
@@ -738,7 +738,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"синоним", EPosition::kDead, do_alias, 0, 0, 0},
 		{"сдемигодам", EPosition::kDead, do_sdemigod, kLvlImmortal, 0, 0},
 		{"сказать", EPosition::kRest, do_tell, 0, 0, -1},
-		{"скользить", EPosition::kStand, do_lightwalk, 0, 0, 0},
+		{"скользить", EPosition::kStand, DoLightwalk, 0, 0, 0},
 		{"следовать", EPosition::kRest, do_follow, 0, 0, 500},
 		{"сложить", EPosition::kFight, do_mixture, 0, SCMD_RUNES, -1},
 		{"слава", EPosition::kStand, Glory::do_spend_glory, 0, 0, 0},
@@ -807,7 +807,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{";", EPosition::kDead, do_wiznet, kLvlImmortal, 0, -1},
 		{"advance", EPosition::kDead, do_advance, kLvlImplementator, 0, 0},
 		{"alias", EPosition::kDead, do_alias, 0, 0, 0},
-		{"alter", EPosition::kRest, do_fit, 0, SCMD_MAKE_OVER, 500},
+		{"alter", EPosition::kRest, DoFit, 0, kScmdMakeOver, 500},
 		{"ask", EPosition::kRest, do_spec_comm, 0, SCMD_ASK, -1},
 		{"assist", EPosition::kFight, do_assist, 1, 0, -1},
 		{"attack", EPosition::kFight, do_hit, 0, SCMD_MURDER, -1},
@@ -854,7 +854,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"featset", EPosition::kSleep, do_featset, kLvlImplementator, 0, 0},
 		{"features", EPosition::kSleep, DoFeatures, 0, 0, 0},
 		{"fill", EPosition::kStand, do_pour, 0, SCMD_FILL, 500},
-		{"fit", EPosition::kRest, do_fit, 0, SCMD_DO_ADAPT, 500},
+		{"fit", EPosition::kRest, DoFit, 0, kScmdDoAdapt, 500},
 		{"flee", EPosition::kFight, DoFlee, 1, 0, -1},
 		{"follow", EPosition::kRest, do_follow, 0, 0, -1},
 		{"force", EPosition::kSleep, do_force, kLvlGreatGod, 0, 0},
@@ -865,7 +865,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"give", EPosition::kRest, do_give, 0, 0, 500},
 		{"godnews", EPosition::kDead, Boards::DoBoard, 1, Boards::GODNEWS_BOARD, -1},
 		{"gold", EPosition::kRest, do_gold, 0, 0, 0},
-		{"glide", EPosition::kStand, do_lightwalk, 0, 0, 0},
+		{"glide", EPosition::kStand, DoLightwalk, 0, 0, 0},
 		{"glory", EPosition::kRest, GloryConst::do_glory, kLvlImplementator, 0, 0},
 		{"glorytemp", EPosition::kRest, do_glory, kLvlBuilder, 0, 0},
 		{"gossip", EPosition::kRest, do_gen_comm, 0, SCMD_GOSSIP, -1},
