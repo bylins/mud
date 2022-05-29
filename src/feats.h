@@ -15,6 +15,8 @@
 #include "structs/structs.h"
 #include "conf.h"
 #include "game_classes/classes_constants.h"
+#include "boot/cfg_manager.h"
+#include "structs/info_container.h"
 
 #include <array>
 #include <bitset>
@@ -317,6 +319,47 @@ struct FeatureInfo {
 };
 
 extern std::unordered_map<EFeat, FeatureInfo> feat_info;
+
+// =====================================================================================================================
+// =====================================================================================================================
+// =====================================================================================================================
+
+namespace feats {
+
+using DataNode = parser_wrapper::DataNode;
+
+class FeatsLoader : virtual public cfg_manager::ICfgLoader {
+ public:
+	void Load(parser_wrapper::DataNode data) final;
+	void Reload(parser_wrapper::DataNode data) final;
+};
+
+class FeatInfo : public info_container::BaseItem<EFeat> {
+	friend class FeatInfoBuilder;
+
+	std::string name_;
+
+ public:
+	FeatInfo() = default;
+	FeatInfo(EFeat id, std::string &name, EItemMode mode)
+		: BaseItem<EFeat>(id, mode), name_{name} {};
+
+	const std::string &GetName() const { return name_; };
+	const std::string &GetCName() const { return name_.c_str(); };
+
+	void Print(CharData *ch, std::ostringstream &buffer) const;
+};
+
+class FeatInfoBuilder : public info_container::IItemBuilder<FeatInfo> {
+ public:
+	ItemPtr Build(parser_wrapper::DataNode &node) final;
+ private:
+	static ItemPtr ParseFeat(parser_wrapper::DataNode node);
+};
+
+using GuildsInfo = info_container::InfoContainer<int, FeatInfo, FeatInfoBuilder>;
+
+}
 
 #endif // __FEATURES_HPP__
 

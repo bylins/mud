@@ -1403,4 +1403,8 @@ EFeat ITEM_BY_NAME<EFeat>(const std::string &name) {
 	return EFeat_value_by_name.at(name);
 }
 
+namespace feats {
+
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

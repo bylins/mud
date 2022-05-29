@@ -8,6 +8,7 @@
 
 #include "cfg_manager.h"
 
+#include  "feats.h"
 #include "game_classes/classes_info.h"
 #include "game_economics/currencies.h"
 #include "game_mechanics/guilds.h"
@@ -24,6 +25,8 @@ CfgManager::CfgManager() {
 										   std::make_unique<classes::ClassesLoader>(classes::ClassesLoader())));
 	loaders_.emplace("skills", LoaderInfo("cfg/skills.xml",
 										  std::make_unique<SkillsLoader>(SkillsLoader())));
+	loaders_.emplace("feats", LoaderInfo("cfg/feats.xml",
+										  std::make_unique<feats::FeatsLoader>(feats::FeatsLoader())));
 	loaders_.emplace("guilds", LoaderInfo("cfg/guilds.xml",
 										  std::make_unique<guilds::GuildsLoader>(guilds::GuildsLoader())));
 }
