@@ -310,6 +310,57 @@ EAntiFlag ITEM_BY_NAME(const std::string &name) {
 	return EAntiFlag_value_by_name.at(name);
 }
 
+typedef std::map<EPosition, std::string> EPosition_name_by_value_t;
+typedef std::map<const std::string, EPosition> EPosition_value_by_name_t;
+EPosition_name_by_value_t EPosition_name_by_value;
+EPosition_value_by_name_t EPosition_value_by_name;
+
+void init_EPosition_ITEM_NAMES() {
+	EPosition_name_by_value.clear();
+	EPosition_value_by_name.clear();
+
+	EPosition_name_by_value[EPosition::kUndefined] = "kUndefined";
+	EPosition_name_by_value[EPosition::kDead] = "kDead";
+	EPosition_name_by_value[EPosition::kPerish] = "kPerish";
+	EPosition_name_by_value[EPosition::kIncap] = "kIncap";
+	EPosition_name_by_value[EPosition::kStun] = "kStun";
+	EPosition_name_by_value[EPosition::kSleep] = "kSleep";
+	EPosition_name_by_value[EPosition::kRest] = "kRest";
+	EPosition_name_by_value[EPosition::kSit] = "kSit";
+	EPosition_name_by_value[EPosition::kFight] = "kFight";
+	EPosition_name_by_value[EPosition::kStand] = "kStand";
+	EPosition_name_by_value[EPosition::kLast] = "kLast";
+
+	for (const auto &i : EPosition_name_by_value) {
+		EPosition_value_by_name[i.second] = i.first;
+	}
+}
+
+int operator-(EPosition p1,  EPosition p2) {
+	return (static_cast<int>(p1) - static_cast<int>(p2));
+}
+
+EPosition operator--(const EPosition &p) {
+	auto pp = (p == EPosition::kDead) ? EPosition::kDead : static_cast<EPosition>(static_cast<int>(p)-1);
+	return pp;
+}
+
+template<>
+const std::string &NAME_BY_ITEM<EPosition>(const EPosition item) {
+	if (EPosition_name_by_value.empty()) {
+		init_EPosition_ITEM_NAMES();
+	}
+	return EPosition_name_by_value.at(item);
+}
+
+template<>
+EPosition ITEM_BY_NAME<EPosition>(const std::string &name) {
+	if (EPosition_name_by_value.empty()) {
+		init_EPosition_ITEM_NAMES();
+	}
+	return EPosition_value_by_name.at(name);
+}
+
 typedef std::map<EBaseStat, std::string> EBaseStat_name_by_value_t;
 typedef std::map<const std::string, EBaseStat> EBaseStat_value_by_name_t;
 EBaseStat_name_by_value_t EBaseStat_name_by_value;
@@ -393,15 +444,6 @@ const religion_names_t religion_name = {
 	religion_genders_t{"Христианин", "Христианин", "Христианка", "Христиане"},
 	religion_genders_t{"", "", "", ""}        // for undefined religion
 };
-
-int operator-(EPosition p1,  EPosition p2) {
-	return (static_cast<int>(p1) - static_cast<int>(p2));
-}
-
-EPosition operator--(const EPosition &p) {
-	auto pp = (p == EPosition::kDead) ? EPosition::kDead : static_cast<EPosition>(static_cast<int>(p)-1);
-	return pp;
-}
 
 ESaving& operator++(ESaving &s) {
 	s =  static_cast<ESaving>(to_underlying(s) + 1);

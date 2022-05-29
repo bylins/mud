@@ -35,6 +35,7 @@
 #include "olc/olc.h"
 #include "msdp/msdp_constants.h"
 #include "game_magic/magic_items.h"
+#include "structs/global_objects.h"
 
 // Structures
 CharData *combat_list = nullptr;    // head of l-list of fighting entities
@@ -990,7 +991,7 @@ void mob_casting(CharData *ch) {
 
 	memset(&battle_spells, 0, sizeof(battle_spells));
 	for (auto spell_id = ESpell::kFirst ; spell_id <= ESpell::kLast; ++spell_id) {
-		if (GET_SPELL_MEM(ch, spell_id) && IS_SET(spell_info[spell_id].routines, NPC_CALCULATE)) {
+		if (GET_SPELL_MEM(ch, spell_id) && MUD::Spell(spell_id).IsFlagged(NPC_CALCULATE)) {
 			battle_spells[spells++] = spell_id;
 		}
 	}
@@ -1010,8 +1011,7 @@ void mob_casting(CharData *ch) {
 					break;
 				}
 
-				if (GET_OBJ_VAL(item, 2) > 0 &&
-					IS_SET(spell_info[spell_id].routines, NPC_CALCULATE)) {
+				if (GET_OBJ_VAL(item, 2) > 0 && MUD::Spell(spell_id).IsFlagged(NPC_CALCULATE)) {
 					battle_spells[spells++] = spell_id;
 				}
 				break;
@@ -1024,8 +1024,7 @@ void mob_casting(CharData *ch) {
 							GET_OBJ_VNUM(item), item->get_PName(0).c_str(), i, GET_OBJ_VAL(item, i));
 						continue;
 					}
-					if (IS_SET(spell_info[spell_id].routines,
-							   kNpcAffectNpc | kNpcUnaffectNpc | kNpcUnaffectNpcCaster)) {
+					if (MUD::Spell(spell_id).IsFlagged(kNpcAffectNpc | kNpcUnaffectNpc | kNpcUnaffectNpcCaster)) {
 						battle_spells[spells++] = spell_id;
 					}
 				}
@@ -1040,7 +1039,7 @@ void mob_casting(CharData *ch) {
 						continue;
 					}
 
-					if (IS_SET(spell_info[spell_id].routines, NPC_CALCULATE)) {
+					if (MUD::Spell(spell_id).IsFlagged(NPC_CALCULATE)) {
 						battle_spells[spells++] = spell_id;
 					}
 				}
@@ -1070,28 +1069,29 @@ void mob_casting(CharData *ch) {
 			spell_id_2 = battle_spells[(sp_num = number(0, spells - 1))];
 		}
 		if (spell_id_2 >= ESpell::kFirst && spell_id_2 <= ESpell::kLast) {
-			if (spell_info[spell_id_2].routines & kNpcDamagePcMinhp) {
+			if (MUD::Spell(spell_id_2).IsFlagged(kNpcDamagePcMinhp)) {
 				if (!AFF_FLAGGED(ch, EAffect::kCharmed))
 					victim = find_target(ch);
-			} else if (spell_info[spell_id_2].routines & kNpcDamagePc) {
+			} else if (MUD::Spell(spell_id_2).IsFlagged(kNpcDamagePc)) {
 				if (!AFF_FLAGGED(ch, EAffect::kCharmed))
 					victim = find_target(ch);
-			} else if (spell_info[spell_id_2].routines & kNpcAffectPcCaster) {
+			} else if (MUD::Spell(spell_id_2).IsFlagged(kNpcAffectPcCaster)) {
 				if (!AFF_FLAGGED(ch, EAffect::kCharmed))
 					victim = find_opp_caster(ch);
-			} else if (spell_info[spell_id_2].routines & kNpcAffectPc) {
+			} else if (MUD::Spell(spell_id_2).IsFlagged(kNpcAffectPc)) {
 				if (!AFF_FLAGGED(ch, EAffect::kCharmed))
 					victim = find_opp_affectee(ch, spell_id_2);
-			} else if (spell_info[spell_id_2].routines & kNpcAffectNpc)
+			} else if (MUD::Spell(spell_id_2).IsFlagged(kNpcAffectNpc)) {
 				victim = find_affectee(ch, spell_id_2);
-			else if (spell_info[spell_id_2].routines & kNpcUnaffectNpcCaster)
+			} else if (MUD::Spell(spell_id_2).IsFlagged(kNpcUnaffectNpcCaster)) {
 				victim = find_caster(ch, spell_id_2);
-			else if (spell_info[spell_id_2].routines & kNpcUnaffectNpc)
+			} else if (MUD::Spell(spell_id_2).IsFlagged(kNpcUnaffectNpc)) {
 				victim = find_friend(ch, spell_id_2);
-			else if (spell_info[spell_id_2].routines & kNpcDummy)
+			} else if (MUD::Spell(spell_id_2).IsFlagged(kNpcDummy)) {
 				victim = find_friend_cure(ch, spell_id_2);
-			else
+			} else {
 				spell_id_2 = ESpell::kUndefined;
+			}
 		}
 	}
 

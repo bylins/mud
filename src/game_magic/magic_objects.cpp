@@ -10,6 +10,7 @@
 #include "entities/char_data.h"
 #include "utils/utils_char_obj.inl"
 #include "spells_info.h"
+#include "structs/global_objects.h"
 
 /*
 Система следующая:
@@ -110,12 +111,11 @@ std::string print_spell_str(CharData *ch, ESpell spell_id, int timer) {
 		default:
 			if (timer == -1) {
 				out << CCCYN(ch, C_NRM) << "Наложено постоянное заклинание '"
-					<< (spell_info[spell_id].name ? spell_info[spell_id].name : "<null>")
-					<< "'" << ".\r\n" << CCNRM(ch, C_NRM);
+					<< MUD::Spell(spell_id).GetName() << "'" << ".\r\n" << CCNRM(ch, C_NRM);
 			} else {
 				out << CCCYN(ch, C_NRM) << "Наложено заклинание '"
-					<< (spell_info[spell_id].name ? spell_info[spell_id].name : "<null>") << "' ("
-					<< FormatTimeToStr(timer, true) << ").\r\n" << CCNRM(ch, C_NRM);
+					<< MUD::Spell(spell_id).GetName() << "' (" << FormatTimeToStr(timer, true) << ").\r\n"
+					<< CCNRM(ch, C_NRM);
 			}
 			break;
 	}

@@ -45,7 +45,7 @@ void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 	int victims_amount = 20;
 	int victims_hp_amount = skill * 25 + std::max(0, skill - 80) * 50;
 	Damage damage(SkillDmg(ESkill::kTurnUndead), fight::kZeroDmg, fight::kMagicDmg, nullptr);
-	damage.magic_type = kTypeLight;
+	damage.element = EElement::kLight;
 	damage.flags.set(fight::kIgnoreFireShield);
 	TechniqueRoll roll;
 	ActionTargeting::FoesRosterType roster{ch, [](CharData *, CharData *target) { return IS_UNDEAD(target); }};

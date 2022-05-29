@@ -76,11 +76,11 @@ void go_stun(CharData *ch, CharData *vict) {
 	//float num = MIN(95, (pow(GET_SKILL(ch, ESkill::kStun), 2) + pow(weap_weight, 2) + pow(GET_REAL_STR(ch), 2)) /
 	//(pow(GET_REAL_DEX(vict), 2) + (GET_REAL_CON(vict) - GET_SAVE(vict, kStability)) * 30.0));
 
-	int percent = number(1, MUD::Skills(ESkill::kStun).difficulty);
+	int percent = number(1, MUD::Skill(ESkill::kStun).difficulty);
 	int prob = CalcCurrentSkill(ch, ESkill::kStun, vict);
 	bool success = percent <= prob;
 	TrainSkill(ch, ESkill::kStun, success, vict);
-	SendSkillBalanceMsg(ch, MUD::Skills(ESkill::kStun).name, percent, prob, success);
+	SendSkillBalanceMsg(ch, MUD::Skill(ESkill::kStun).name, percent, prob, success);
 	if (!success) {
 		act("У вас не получилось ошеломить $N3, надо больше тренироваться!",
 			false, ch, nullptr, vict, kToChar);

@@ -536,10 +536,11 @@ void oedit_disp_spells_menu(DescriptorData *d) {
 	SendMsgToChar("[H[J", d->character);
 #endif
 	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
-		if (!spell_info[spell_id].name || *spell_info[spell_id].name == '!' || *spell_info[spell_id].name == '*')
+		if (MUD::Spell(spell_id).IsInvalid()) {
 			continue;
+		}
 		sprintf(buf, "%s%2d%s) %s%-30.30s %s", grn, to_underlying(spell_id), nrm, yel,
-				spell_info[spell_id].name, !(++columns % 4) ? "\r\n" : "");
+				MUD::Spell(spell_id).GetCName(), !(++columns % 4) ? "\r\n" : "");
 		SendMsgToChar(buf, d->character.get());
 	}
 	sprintf(buf, "\r\n%sВыберите магию (0 - выход) : ", nrm);
@@ -559,7 +560,7 @@ void oedit_disp_skills2_menu(DescriptorData *d) {
 		}
 
 		sprintf(buf, "%s%2d%s) %s%-20.20s %s", grn, to_underlying(skill_id), nrm, yel,
-				MUD::Skills(skill_id).GetName(), !(++columns % 3) ? "\r\n" : "");
+				MUD::Skill(skill_id).GetName(), !(++columns % 3) ? "\r\n" : "");
 		SendMsgToChar(buf, d->character.get());
 	}
 	sprintf(buf, "\r\n%sВыберите умение (0 - выход) : ", nrm);
@@ -622,7 +623,7 @@ void oedit_disp_skills_mod_menu(DescriptorData *d) {
 			strcpy(buf1, "     ");
 		}
 		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, to_underlying(skill_id), nrm,
-				 MUD::Skills(skill_id).GetName(), buf1, !(++columns % 2) ? "\r\n" : "");
+				 MUD::Skill(skill_id).GetName(), buf1, !(++columns % 2) ? "\r\n" : "");
 		SendMsgToChar(buf, d->character.get());
 	}
 	SendMsgToChar("\r\nУкажите номер и уровень владения умением (0 - конец) : ", d->character.get());
@@ -1051,7 +1052,7 @@ std::string print_spell_value(ObjData *obj, const ObjVal::EValueKey key1, const 
 	}
 	char buf_[kMaxInputLength];
 	snprintf(buf_, sizeof(buf_), "%s:%d",
-			 GetSpellName(static_cast<ESpell>(obj->get_value(key1))), obj->get_value(key2));
+			 MUD::Spell(static_cast<ESpell>(obj->get_value(key1))).GetCName(), obj->get_value(key2));
 	return buf_;
 }
 
@@ -1276,7 +1277,7 @@ bool parse_val_spell_num(DescriptorData *d, const ObjVal::EValueKey key, int val
 	OLC_OBJ(d)->set_value(key, val);
 	SendMsgToChar(d->character.get(), "Выбранное заклинание: %s\r\n"
 									  "Ведите уровень заклинания от 1 до 50 (0 - выход) :",
-				  GetSpellName(spell_id));
+				  MUD::Spell(spell_id).GetCName());
 	return true;
 }
 
@@ -1832,8 +1833,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 								return;
 							}
 							auto spell_id = static_cast<ESpell>(number);
-							if (spell_id < ESpell::kFirst || (spell_id > ESpell::kLast ||
-								!spell_info[spell_id].name || *spell_info[spell_id].name == '!')) {
+							if (MUD::Spell(spell_id).IsInvalid()) {
 								SendMsgToChar("Неизвестное заклинание, повторите.\r\n", d->character.get());
 								oedit_disp_val2_menu(d);
 								return;
@@ -1850,8 +1850,8 @@ void oedit_parse(DescriptorData *d, char *arg) {
 							}
 							skill_id = static_cast<ESkill>(number);
 							if (skill_id > ESkill::kLast
-								|| !MUD::Skills(skill_id).GetName()
-								|| *MUD::Skills(skill_id).GetName() == '!') {
+								|| !MUD::Skill(skill_id).GetName()
+								|| *MUD::Skill(skill_id).GetName() == '!') {
 								SendMsgToChar("Неизвестное умение, повторите.\r\n", d->character.get());
 								oedit_disp_val2_menu(d);
 								return;

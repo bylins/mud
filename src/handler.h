@@ -42,11 +42,6 @@ bool IsAwakeOthers(CharData *ch);
 
 void CheckLight(CharData *ch, int was_equip, int was_single, int was_holylight, int was_holydark, int koef);
 
-// Resistance calculate //
-int ApplyResist(CharData *ch, int resist_type, int effect);
-int GetResisTypeWithSpellClass(int spell_class);
-int GetResistType(ESpell spell_id);
-
 // handling the affected-structures //
 void ImposeTimedFeat(CharData *ch, TimedFeat *timed);
 void ExpireTimedFeat(CharData *ch, TimedFeat *timed);

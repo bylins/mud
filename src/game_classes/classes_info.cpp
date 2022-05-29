@@ -32,7 +32,7 @@ ItemPtr CharClassInfoBuilder::Build(DataNode &node) {
 		auto class_node = SelectDataNode(node);
 		return ParseClass(class_node);
 	} catch (std::exception &e) {
-		err_log("Classes parsing error: '%s'", e.what());
+		err_log("Class parsing error: '%s'", e.what());
 		return nullptr;
 	}
 }
@@ -222,10 +222,21 @@ const char *CharClassInfo::GetPluralCName(ECase name_case) const {
 }
 
 int CharClassInfo::GetMaxCircle() const {
-	auto it = std::max_element(spells.begin(), spells.end(), [](auto &a, auto &b){
-		return (a.GetCircle() < b.GetCircle() || a.IsInvalid());
-	});
-	return it->GetCircle();
+/*	auto it = std::max_element(spells.begin(), spells.end(), [](auto &a, auto &b){
+		return (a.GetCircle() < b.GetCircle());
+	});*/
+	//return it->GetCircle();
+
+	// Это наглый костыль, который поставлен потому, что иначе надо всем классам в конфиге прописывать
+	// undefined спелл. Ибо нефиг выделываться, используя внутри инфо_контейнер его же.
+	// \todo не забыть убрать
+	int circle{0};
+	for (const auto &spell : spells) {
+		if (spell.IsValid() && spell.GetCircle() > circle) {
+			circle = spell.GetCircle();
+		}
+	}
+	return circle;
 }
 
 void CharClassInfo::PrintSkillsTable(CharData *ch, std::ostringstream &buffer) const {
@@ -240,7 +251,7 @@ void CharClassInfo::PrintSkillsTable(CharData *ch, std::ostringstream &buffer) c
 			continue;
 		}
 		table << NAME_BY_ITEM<ESkill>(skill.GetId())
-				<< MUD::Skills(skill.GetId()).name
+				<< MUD::Skill(skill.GetId()).name
 				<< skill.GetMinLevel()
 				<< skill.GetMinRemort()
 				<< skill.GetImprove()
@@ -266,9 +277,6 @@ CharClassInfo::SkillInfoBuilder::ItemPtr CharClassInfo::SkillInfoBuilder::Build(
 	}
 
 	auto skill_mode = SkillInfoBuilder::ParseItemMode(node, EItemMode::kEnabled);
-
-/*	auto info = std::make_shared<CharClassInfo::SkillInfo>(skill_id, skill_mode);
-	return info;*/
 	return std::make_shared<CharClassInfo::SkillInfo>(skill_id, min_lvl, min_remort, improve, skill_mode);
 }
 
@@ -281,7 +289,7 @@ void CharClassInfo::PrintSpellsTable(CharData *ch, std::ostringstream &buffer) c
 		<< "Id" << "Spell" << "Lvl" << "Rem" << "Circle" << "Mem" << "Cast" << "Mode" << table_wrapper::kEndRow;
 	for (const auto &spell : spells) {
 		table << NAME_BY_ITEM<ESpell>(spell.GetId())
-			<< GetSpellName(spell.GetId())
+			<< MUD::Spell(spell.GetId()).GetName()
 			<< spell.GetMinLevel()
 			<< spell.GetMinRemort()
 			<< spell.GetCircle()

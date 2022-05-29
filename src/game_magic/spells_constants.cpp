@@ -672,7 +672,7 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kFullFeed] = "kFullFeed";
 	ESpell_name_by_value[ESpell::kColdWind] = "kColdWind";
 	ESpell_name_by_value[ESpell::kBattle] = "kBattle";
-	ESpell_name_by_value[ESpell::kHaemorrhage] = "kHaemorragis";
+	ESpell_name_by_value[ESpell::kHaemorrhage] = "kHaemorrhage";
 	ESpell_name_by_value[ESpell::kCourage] = "kCourage";
 	ESpell_name_by_value[ESpell::kWaterbreath] = "kWaterbreath";
 	ESpell_name_by_value[ESpell::kSlowdown] = "kSlowdown";
@@ -754,6 +754,9 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kWarcryOfPower] = "kWarcryOfPower";
 	ESpell_name_by_value[ESpell::kWarcryOfBless] = "kWarcryOfBless";
 	ESpell_name_by_value[ESpell::kWarcryOfCourage] = "kWarcryOfCourage";
+	ESpell_name_by_value[ESpell::kWarcryOfExperience] = "kWarcryOfExperience";
+	ESpell_name_by_value[ESpell::kWarcryOfLuck] = "kWarcryOfLuck";
+	ESpell_name_by_value[ESpell::kWarcryOfPhysdamage] = "kWarcryOfPhysdamage";
 	ESpell_name_by_value[ESpell::kRuneLabel] = "kRuneLabel";
 	ESpell_name_by_value[ESpell::kAconitumPoison] = "kAconitumPoison";
 	ESpell_name_by_value[ESpell::kScopolaPoison] = "kScopolaPoison";
@@ -807,6 +810,14 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kMassFailure] = "kMassFailure";
 	ESpell_name_by_value[ESpell::kSnare] = "kSnare";
 	ESpell_name_by_value[ESpell::kExpedientFail] = "kExpedientFail";
+	ESpell_name_by_value[ESpell::kFireBreath] = "kFireBreath";
+	ESpell_name_by_value[ESpell::kGasBreath] = "kGasBreath";
+	ESpell_name_by_value[ESpell::kFrostBreath] = "kFrostBreath";
+	ESpell_name_by_value[ESpell::kAcidBreath] = "kAcidBreath";
+	ESpell_name_by_value[ESpell::kLightingBreath] = "kLightingBreath";
+	ESpell_name_by_value[ESpell::kIdentify] = "kIdentify";
+	ESpell_name_by_value[ESpell::kFullIdentify] = "kFullIdentify";
+	ESpell_name_by_value[ESpell::kQUest] = "kQUest";
 
 	for (const auto &i : ESpell_name_by_value) {
 		ESpell_value_by_name[i.second] = i.first;
@@ -838,6 +849,45 @@ std::ostream& operator<<(std::ostream &os, const ESpell &s){
 	os << to_underlying(s) << " (" << NAME_BY_ITEM<ESpell>(s) << ")";
 	return os;
 };
+
+typedef std::map<EElement, std::string> EElement_name_by_value_t;
+typedef std::map<const std::string, EElement> EElement_value_by_name_t;
+EElement_name_by_value_t EElement_name_by_value;
+EElement_value_by_name_t EElement_value_by_name;
+void init_EElement_ITEM_NAMES() {
+	EElement_value_by_name.clear();
+	EElement_name_by_value.clear();
+
+	EElement_name_by_value[EElement::kUndefined] = "kUndefined";
+	EElement_name_by_value[EElement::kAir] = "kAir";
+	EElement_name_by_value[EElement::kFire] = "kFire";
+	EElement_name_by_value[EElement::kWater] = "kWater";
+	EElement_name_by_value[EElement::kEarth] = "kEarth";
+	EElement_name_by_value[EElement::kLight] = "kLight";
+	EElement_name_by_value[EElement::kDark] = "kDark";
+	EElement_name_by_value[EElement::kMind] = "kMind";
+	EElement_name_by_value[EElement::kLife] = "kLife";
+
+	for (const auto &i : EElement_name_by_value) {
+		EElement_value_by_name[i.second] = i.first;
+	}
+}
+
+template<>
+const std::string &NAME_BY_ITEM<EElement>(const EElement item) {
+	if (EElement_name_by_value.empty()) {
+		init_EElement_ITEM_NAMES();
+	}
+	return EElement_name_by_value.at(item);
+}
+
+template<>
+EElement ITEM_BY_NAME(const std::string &name) {
+	if (EElement_name_by_value.empty()) {
+		init_EElement_ITEM_NAMES();
+	}
+	return EElement_value_by_name.at(name);
+}
 
 typedef std::map<ESpellType, std::string> ESpellType_name_by_value_t;
 typedef std::map<const std::string, ESpellType> ESpellType_value_by_name_t;
@@ -874,4 +924,106 @@ ESpellType ITEM_BY_NAME(const std::string &name) {
 	}
 	return ESpellType_value_by_name.at(name);
 }
+
+typedef std::map<EMagic, std::string> EMagic_name_by_value_t;
+typedef std::map<const std::string, EMagic> EMagic_value_by_name_t;
+EMagic_name_by_value_t EMagic_name_by_value;
+EMagic_value_by_name_t EMagic_value_by_name;
+void init_EMagic_ITEM_NAMES() {
+	EMagic_value_by_name.clear();
+	EMagic_name_by_value.clear();
+
+	EMagic_name_by_value[EMagic::kMagDamage] = "kMagDamage";
+	EMagic_name_by_value[EMagic::kMagAffects] = "kMagAffects";
+	EMagic_name_by_value[EMagic::kMagUnaffects] = "kMagUnaffects";
+	EMagic_name_by_value[EMagic::kMagPoints] = "kMagPoints";
+	EMagic_name_by_value[EMagic::kMagAlterObjs] = "kMagAlterObjs";
+	EMagic_name_by_value[EMagic::kMagGroups] = "kMagGroups";
+	EMagic_name_by_value[EMagic::kMagMasses] = "kMagMasses";
+	EMagic_name_by_value[EMagic::kMagAreas] = "kMagAreas";
+	EMagic_name_by_value[EMagic::kMagSummons] = "kMagSummons";
+	EMagic_name_by_value[EMagic::kMagCreations] = "kMagCreations";
+	EMagic_name_by_value[EMagic::kMagManual] = "kMagManual";
+	EMagic_name_by_value[EMagic::kMagWarcry] = "kMagWarcry";
+	EMagic_name_by_value[EMagic::kMagNeedControl] = "kMagNeedControl";
+	EMagic_name_by_value[EMagic::kNpcDamagePc] = "kNpcDamagePc";
+	EMagic_name_by_value[EMagic::kNpcDamagePcMinhp] = "kNpcDamagePcMinhp";
+	EMagic_name_by_value[EMagic::kNpcAffectPc] = "kNpcAffectPc";
+	EMagic_name_by_value[EMagic::kNpcAffectPcCaster] = "kNpcAffectPcCaster";
+	EMagic_name_by_value[EMagic::kNpcAffectNpc] = "kNpcAffectNpc";
+	EMagic_name_by_value[EMagic::kNpcUnaffectNpc] = "kNpcUnaffectNpc";
+	EMagic_name_by_value[EMagic::kNpcUnaffectNpcCaster] = "kNpcUnaffectNpcCaster";
+	EMagic_name_by_value[EMagic::kNpcDummy] = "kNpcDummy";
+	EMagic_name_by_value[EMagic::kMagRoom] = "kMagRoom";
+	EMagic_name_by_value[EMagic::kMagCasterInroom] = "kMagCasterInroom";
+	EMagic_name_by_value[EMagic::kMagCasterInworld] = "kMagCasterInworld";
+	EMagic_name_by_value[EMagic::kMagCasterAnywhere] = "kMagCasterAnywhere";
+	EMagic_name_by_value[EMagic::kMagCasterInworldDelay] = "kMagCasterInworldDelay";
+
+	for (const auto &i : EMagic_name_by_value) {
+		EMagic_value_by_name[i.second] = i.first;
+	}
+}
+
+template<>
+const std::string &NAME_BY_ITEM<EMagic>(const EMagic item) {
+	if (EMagic_name_by_value.empty()) {
+		init_EMagic_ITEM_NAMES();
+	}
+	return EMagic_name_by_value.at(item);
+}
+
+template<>
+EMagic ITEM_BY_NAME(const std::string &name) {
+	if (EMagic_name_by_value.empty()) {
+		init_EMagic_ITEM_NAMES();
+	}
+	return EMagic_value_by_name.at(name);
+}
+
+typedef std::map<ETarget, std::string> ETarget_name_by_value_t;
+typedef std::map<const std::string, ETarget> ETarget_value_by_name_t;
+ETarget_name_by_value_t ETarget_name_by_value;
+ETarget_value_by_name_t ETarget_value_by_name;
+void init_ETarget_ITEM_NAMES() {
+	ETarget_value_by_name.clear();
+	ETarget_name_by_value.clear();
+
+	ETarget_name_by_value[ETarget::kTarNone] = "kTarNone";
+	ETarget_name_by_value[ETarget::kTarIgnore] = "kTarIgnore";
+	ETarget_name_by_value[ETarget::kTarCharRoom] = "kTarCharRoom";
+	ETarget_name_by_value[ETarget::kTarCharWorld] = "kTarCharWorld";
+	ETarget_name_by_value[ETarget::kTarFightSelf] = "kTarFightSelf";
+	ETarget_name_by_value[ETarget::kTarFightVict] = "kTarFightVict";
+	ETarget_name_by_value[ETarget::kTarSelfOnly] = "kTarSelfOnly";
+	ETarget_name_by_value[ETarget::kTarNotSelf] = "kTarNotSelf";
+	ETarget_name_by_value[ETarget::kTarObjInv] = "kTarObjInv";
+	ETarget_name_by_value[ETarget::kTarObjRoom] = "kTarObjRoom";
+	ETarget_name_by_value[ETarget::kTarObjWorld] = "kTarObjWorld";
+	ETarget_name_by_value[ETarget::kTarObjEquip] = "kTarObjEquip";
+	ETarget_name_by_value[ETarget::kTarRoomThis] = "kTarRoomThis";
+	ETarget_name_by_value[ETarget::kTarRoomDir] = "kTarRoomDir";
+	ETarget_name_by_value[ETarget::kTarRoomWorld] = "kTarRoomWorld";
+
+	for (const auto &i : ETarget_name_by_value) {
+		ETarget_value_by_name[i.second] = i.first;
+	}
+}
+
+template<>
+const std::string &NAME_BY_ITEM<ETarget>(const ETarget item) {
+	if (ETarget_name_by_value.empty()) {
+		init_ETarget_ITEM_NAMES();
+	}
+	return ETarget_name_by_value.at(item);
+}
+
+template<>
+ETarget ITEM_BY_NAME(const std::string &name) {
+	if (ETarget_name_by_value.empty()) {
+		init_ETarget_ITEM_NAMES();
+	}
+	return ETarget_value_by_name.at(name);
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

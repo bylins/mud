@@ -39,7 +39,7 @@ void go_bash(CharData *ch, CharData *vict) {
 
 	vict = TryToFindProtector(vict, ch);
 
-	int percent = number(1, MUD::Skills(ESkill::kBash).difficulty);
+	int percent = number(1, MUD::Skill(ESkill::kBash).difficulty);
 	int prob = CalcCurrentSkill(ch, ESkill::kBash, vict);
 
 	if (AFF_FLAGGED(vict, EAffect::kHold) || GET_GOD_FLAG(vict, EGf::kGodscurse)) {
@@ -51,7 +51,7 @@ void go_bash(CharData *ch, CharData *vict) {
 	bool success = percent <= prob;
 	TrainSkill(ch, ESkill::kBash, success, vict);
 
-	SendSkillBalanceMsg(ch, MUD::Skills(ESkill::kBash).name, percent, prob, success);
+	SendSkillBalanceMsg(ch, MUD::Skill(ESkill::kBash).name, percent, prob, success);
 	if (!success) {
 		Damage dmg(SkillDmg(ESkill::kBash), fight::kZeroDmg, fight::kPhysDmg, nullptr);
 		dmg.Process(ch, vict);
@@ -85,7 +85,7 @@ void go_bash(CharData *ch, CharData *vict) {
 				SendMsgToChar("У вас нечем отразить атаку противника.\r\n", vict);
 			else {
 				int range, prob2;
-				range = number(1, MUD::Skills(ESkill::kShieldBlock).difficulty);
+				range = number(1, MUD::Skill(ESkill::kShieldBlock).difficulty);
 				prob2 = CalcCurrentSkill(vict, ESkill::kShieldBlock, ch);
 				bool success2 = prob2 >= range;
 				TrainSkill(vict, ESkill::kShieldBlock, success2, ch);

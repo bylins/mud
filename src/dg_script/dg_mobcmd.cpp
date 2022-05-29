@@ -976,7 +976,6 @@ void do_mdoor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 }
 
 // increases spells & skills
-const char *GetSpellName(ESpell spell_id);
 ESpell FixNameAndFindSpellId(char *name);
 
 void do_mfeatturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
@@ -1082,7 +1081,7 @@ void do_mskillturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 	}
 
 	if (is_skill) {
-		if (MUD::Classes(victim->GetClass()).skills[skill_id].IsAvailable()) {
+		if (MUD::Class(victim->GetClass()).skills[skill_id].IsAvailable()) {
 			trg_skillturn(victim, skill_id, skilldiff, last_trig_vnum);
 		} else {
 			sprintf(buf, "mskillturn: skill and character class mismatch");

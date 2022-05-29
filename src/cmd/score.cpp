@@ -104,7 +104,7 @@ void PrintScoreList(CharData *ch) {
 	buf1[0] = LOWER(buf1[0]);
 	SendMsgToChar(ch, "Вы %s, %s, %s, %s, уровень %d, перевоплощений %d.\r\n", ch->get_name().c_str(),
 				  buf,
-				  MUD::Classes(ch->GetClass()).GetCName(),
+				  MUD::Class(ch->GetClass()).GetCName(),
 				  buf1,
 				  GetRealLevel(ch),
 				  GET_REAL_REMORT(ch));
@@ -586,14 +586,14 @@ int PrintProtectiveStatsToTable(CharData *ch, table_wrapper::Table &table, std::
 	table[++row][col] = "Сопротивления: ";	table[row][col + 1] = " ";
 	table[++row][col] = "Урону";			table[row][col + 1] = std::to_string(GET_PR(ch));
 	table[++row][col] = "Заклинаниям";		table[row][col + 1] = std::to_string(GET_MR(ch));
-	table[++row][col] = "Магии огня";		table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kFire), kMaxPlayerResist));
-	table[++row][col] = "Магии воды";		table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kWater), kMaxPlayerResist));
-	table[++row][col] = "Магии земли";		table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kEarth), kMaxPlayerResist));
-	table[++row][col] = "Магии воздуха";	table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kAir), kMaxPlayerResist));
-	table[++row][col] = "Магии тьмы";		table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kDark), kMaxPlayerResist));
-	table[++row][col] = "Магии разума";		table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kMind), kMaxPlayerResist));
-	table[++row][col] = "Тяжелым ранам";	table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kVitality), kMaxPlayerResist));
-	table[++row][col] = "Ядам и болезням";	table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kImmunity), kMaxPlayerResist));
+	table[++row][col] = "Магии огня";		table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kFire), kMaxPcResist));
+	table[++row][col] = "Магии воды";		table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kWater), kMaxPcResist));
+	table[++row][col] = "Магии земли";		table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kEarth), kMaxPcResist));
+	table[++row][col] = "Магии воздуха";	table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kAir), kMaxPcResist));
+	table[++row][col] = "Магии тьмы";		table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kDark), kMaxPcResist));
+	table[++row][col] = "Магии разума";		table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kMind), kMaxPcResist));
+	table[++row][col] = "Тяжелым ранам";	table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kVitality), kMaxPcResist));
+	table[++row][col] = "Ядам и болезням";	table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kImmunity), kMaxPcResist));
 
 	return 2; // заполнено столбцов
 }
@@ -656,7 +656,7 @@ void PrintAdditionalInfo(CharData *ch, std::ostringstream &out) {
 void PrintScoreAll(CharData *ch) {
 	// Пишем заголовок таблицы (увы, библиоетка таблиц их не поддерживает)
 	std::ostringstream out;
-	out << "  Вы " << ch->get_name() << ", " << MUD::Classes(ch->GetClass()).GetName() << ". Ваши показатели:" << std::endl;
+	out << "  Вы " << ch->get_name() << ", " << MUD::Class(ch->GetClass()).GetName() << ". Ваши показатели:" << std::endl;
 
 	// Заполняем основную таблицу и выводим в поток
 	table_wrapper::Table table;
@@ -681,7 +681,7 @@ void PrintScoreBase(CharData *ch) {
 		<< PlayerRace::GetKinNameByNum(GET_KIN(ch), GET_SEX(ch)) << ", "
 		<< PlayerRace::GetRaceNameByNum(GET_KIN(ch), GET_RACE(ch), GET_SEX(ch)) << ", "
 		<< religion_name[GET_RELIGION(ch)][static_cast<int>(GET_SEX(ch))] << ", "
-		<< MUD::Classes(ch->GetClass()).GetCName() << " "
+		<< MUD::Class(ch->GetClass()).GetCName() << " "
 		<< GetRealLevel(ch) << " уровня)." << std::endl;
 
 	PrintNameStatusInfo(ch, out);

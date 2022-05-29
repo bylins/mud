@@ -179,7 +179,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	SendMsgToChar(buf, ch);
 
 	if (!k->IsNpc()) {
-		strcpy(smallBuf, MUD::Classes(k->GetClass()).GetCName());
+		strcpy(smallBuf, MUD::Class(k->GetClass()).GetCName());
 		sprintf(buf, "Племя: %s, Род: %s, Профессия: %s",
 				PlayerRace::GetKinNameByNum(GET_KIN(k), GET_SEX(k)).c_str(),
 				k->get_race_name().c_str(),
@@ -502,7 +502,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 			sprintf(buf, "Заклинания: (%3d%s|%s) %s%-21s%s ", aff->duration + 1,
 					(aff->battleflag & kAfPulsedec) || (aff->battleflag & kAfSameTime) ? "плс" : "мин",
 					(aff->battleflag & kAfBattledec) || (aff->battleflag & kAfSameTime) ? "рнд" : "мин",
-					CCCYN(ch, C_NRM), GetSpellName(aff->type), CCNRM(ch, C_NRM));
+					CCCYN(ch, C_NRM), MUD::Spell(aff->type).GetCName(), CCNRM(ch, C_NRM));
 			if (aff->modifier) {
 				sprintf(buf2, "%+d to %s", aff->modifier, apply_types[(int) aff->location]);
 				strcat(buf, buf2);
@@ -742,15 +742,15 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 				case EBook::kSpell: {
 					auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(j, 1));
 					if (spell_id >= ESpell::kFirst && spell_id <= ESpell::kLast) {
-						sprintf(buf, "содержит заклинание        : \"%s\"", GetSpellName(spell_id));
+						sprintf(buf, "содержит заклинание        : \"%s\"", MUD::Spell(spell_id).GetCName());
 					} else
 						sprintf(buf, "неверный номер заклинания");
 					break;
 				}
 				case EBook::kSkill: {
 					auto skill_id = static_cast<ESkill>(GET_OBJ_VAL(j, 1));
-					if (MUD::Skills(skill_id).IsValid()) {
-						sprintf(buf, "содержит секрет умения     : \"%s\"", MUD::Skills(skill_id).GetName());
+					if (MUD::Skill(skill_id).IsValid()) {
+						sprintf(buf, "содержит секрет умения     : \"%s\"", MUD::Skill(skill_id).GetName());
 					} else
 						sprintf(buf, "неверный номер умения");
 					break;
@@ -760,10 +760,10 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 					if (MUD::Skills().IsValid(skill_id)) {
 						if (GET_OBJ_VAL(j, 3) > 0) {
 							sprintf(buf, "повышает умение \"%s\" (максимум %d)",
-									MUD::Skills(skill_id).GetName(), GET_OBJ_VAL(j, 3));
+									MUD::Skill(skill_id).GetName(), GET_OBJ_VAL(j, 3));
 						} else {
 							sprintf(buf, "повышает умение \"%s\" (не больше максимума текущего перевоплощения)",
-									MUD::Skills(skill_id).GetName());
+									MUD::Skill(skill_id).GetName());
 						}
 					} else {
 						sprintf(buf, "неверный номер повышаемоего умения");
@@ -810,18 +810,27 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 			break;
 
 		case EObjType::kScroll:
-		case EObjType::kPotion:
-			sprintf(buf, "Заклинания: (Уровень %d) %s, %s, %s",
-					GET_OBJ_VAL(j, 0),
-					GetSpellName(static_cast<ESpell>(GET_OBJ_VAL(j, 1))),
-					GetSpellName(static_cast<ESpell>(GET_OBJ_VAL(j, 2))),
-					GetSpellName(static_cast<ESpell>(GET_OBJ_VAL(j, 3))));
+		case EObjType::kPotion: {
+			std::ostringstream out;
+			out << "Заклинания: (Уровень %d" << GET_OBJ_VAL(j, 0) << ") ";
+			for (auto val = 1; val < 4; ++val) {
+				auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(j, val));
+				if (MUD::Spell(spell_id).IsValid()) {
+					out << MUD::Spell(spell_id).GetName();
+					if (val < 3) {
+						out << ", ";
+					} else {
+						out << ".";
+					}
+				}
+			}
+			sprintf(buf, "%s", out.str().c_str());
 			break;
-
+		}
 		case EObjType::kWand:
 		case EObjType::kStaff:
 			sprintf(buf, "Заклинание: %s уровень %d, %d (из %d) зарядов осталось",
-					GetSpellName(static_cast<ESpell>(GET_OBJ_VAL(j, 3))),
+					MUD::Spell(static_cast<ESpell>(GET_OBJ_VAL(j, 3))).GetCName(),
 					GET_OBJ_VAL(j, 0),
 					GET_OBJ_VAL(j, 2),
 					GET_OBJ_VAL(j, 1));
@@ -915,7 +924,8 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 		case EObjType::kMagicContaner:
 		case EObjType::kMagicArrow:
 			sprintf(buf, "Заклинание: [%s]. Объем [%d]. Осталось стрел[%d].",
-					GetSpellName(static_cast<ESpell>(GET_OBJ_VAL(j, 0))), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2));
+					MUD::Spell(static_cast<ESpell>(GET_OBJ_VAL(j, 0))).GetCName(),
+					GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2));
 			break;
 
 		default:
@@ -970,7 +980,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 			if (it.second == 0) {
 				continue;
 			}
-			sprintf(buf, " %+d%% to %s", it.second, MUD::Skills(it.first).GetName());
+			sprintf(buf, " %+d%% to %s", it.second, MUD::Skill(it.first).GetName());
 			SendMsgToChar(buf, ch);
 		}
 	}
@@ -1112,7 +1122,7 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 		sprintf(buf1, " Аффекты на комнате:\r\n");
 		for (const auto &aff : rm->affected) {
 			sprintf(buf1 + strlen(buf1), "       Заклинание \"%s\" (%d) - %s.\r\n",
-					GetSpellName(aff->type),
+					MUD::Spell(aff->type).GetCName(),
 					aff->duration,
 					((k = find_char(aff->caster_id))
 					 ? GET_NAME(k)

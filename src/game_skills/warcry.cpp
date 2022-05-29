@@ -4,6 +4,7 @@
 #include "color.h"
 #include "game_magic/magic_utils.h"
 #include "game_magic/spells_info.h"
+#include "structs/global_objects.h"
 
 void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc() && AFF_FLAGGED(ch, EAffect::kCharmed))
@@ -28,21 +29,15 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		sprintf(buf, "Вам доступны :\r\n");
 		auto cnt{0};;
 		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
-			const char *realname = spell_info[spell_id].name
-									   && *spell_info[spell_id].name ? spell_info[spell_id].name :
-								   spell_info[spell_id].syn
-									   && *spell_info[spell_id].syn
-								   ? spell_info[spell_id].syn
-								   : nullptr;
+			const char *realname = MUD::Spell(spell_id).GetCName();
 
 			if (realname
-				&& IS_SET(spell_info[spell_id].routines, kMagWarcry)
-				&& ch->GetSkill(ESkill::kWarcry) >= spell_info[spell_id].mana_change) {
+				&& MUD::Spell(spell_id).IsFlagged(kMagWarcry)
+				&& ch->GetSkill(ESkill::kWarcry) >= MUD::Spell(spell_id).GetManaChange()) {
 				if (!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow | ESpellType::kTemp))
 					continue;
 				sprintf(buf + strlen(buf), "%s%2d%s) %s%s%s\r\n",
-						KGRN, cnt++, KNRM,
-						spell_info[spell_id].violent ? KIRED : KIGRN, realname, KNRM);
+						KGRN, cnt++, KNRM, MUD::Spell(spell_id).IsViolent() ? KIRED : KIGRN, realname, KNRM);
 			}
 		}
 		SendMsgToChar(buf, ch);
@@ -58,7 +53,7 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	auto spell_id = FixNameAndFindSpellId(wc_name);
 
 	if (spell_id == ESpell::kUndefined
-		|| (ch->GetSkill(ESkill::kWarcry) < spell_info[spell_id].mana_change)
+		|| (ch->GetSkill(ESkill::kWarcry) < MUD::Spell(spell_id).GetManaChange())
 		|| !IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow | ESpellType::kTemp)) {
 		SendMsgToChar("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
@@ -69,9 +64,9 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	// например как сделано с заклинаниями - брать клич в !!
 	// либо гарантировать что все кличи будут всегда из 1 слова
 
-	if (spell_info[spell_id].targets != kTarIgnore) {
+	if (!MUD::Spell(spell_id).AllowTarget(kTarIgnore)) {
 		std::stringstream str_log;
-		str_log << "Для клича #" << spell_id << ", установлены некорректные цели: " << spell_info[spell_id].targets;
+		str_log << "Для клича #" << spell_id << ", установлены некорректные цели!";
 		mudlog(str_log.str(), BRF, kLvlGod, SYSLOG, true);
 		SendMsgToChar("Вы ничего не смогли выкрикнуть. Обратитесь к богам.\r\n", ch);
 		return;
@@ -86,7 +81,7 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (GET_MOVE(ch) < spell_info[spell_id].mana_max) {
+	if (GET_MOVE(ch) < MUD::Spell(spell_id).GetMaxMana()) {
 		SendMsgToChar("У вас не хватит сил для этого.\r\n", ch);
 		return;
 	}
@@ -99,7 +94,7 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SetWaitState(ch, kPulseViolence);
 			}
 			ImposeTimedSkill(ch, &timed);
-			GET_MOVE(ch) -= spell_info[spell_id].mana_max;
+			GET_MOVE(ch) -= MUD::Spell(spell_id).GetMaxMana();
 		}
 		TrainSkill(ch, ESkill::kWarcry, true, nullptr);
 	}

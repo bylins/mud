@@ -2009,7 +2009,7 @@ void look_in_direction(CharData *ch, int dir, int info_is) {
 				SendMsgToChar("&R&q", ch);
 				count = 0;
 				for (const auto tch : world[rdata->to_room()]->people) {
-					percent = number(1, MUD::Skills(ESkill::kLooking).difficulty);
+					percent = number(1, MUD::Skill(ESkill::kLooking).difficulty);
 					probe = CalcCurrentSkill(ch, ESkill::kLooking, tch);
 					TrainSkill(ch, ESkill::kLooking, probe >= percent, tch);
 					if (HERE(tch) && INVIS_OK(ch, tch) && probe >= percent
@@ -2061,7 +2061,7 @@ void hear_in_direction(CharData *ch, int dir, int info_is) {
 		SendMsgToChar(buf, ch);
 		count = 0;
 		for (const auto tch : world[rdata->to_room()]->people) {
-			percent = number(1, MUD::Skills(ESkill::kHearing).difficulty);
+			percent = number(1, MUD::Skill(ESkill::kHearing).difficulty);
 			probe = CalcCurrentSkill(ch, ESkill::kHearing, tch);
 			TrainSkill(ch, ESkill::kHearing, probe >= percent, tch);
 			// Если сражаются то слышем только борьбу.
@@ -2441,7 +2441,7 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 		look_at_char(found_char, ch);
 		if (ch != found_char) {
 			if (subcmd == SCMD_LOOK_HIDE && ch->GetSkill(ESkill::kPry) > 0) {
-				fnum = number(1, MUD::Skills(ESkill::kPry).difficulty);
+				fnum = number(1, MUD::Skill(ESkill::kPry).difficulty);
 				found = CalcCurrentSkill(ch, ESkill::kPry, found_char);
 				TrainSkill(ch, ESkill::kPry, found < fnum, found_char);
 				if (!IS_IMMORTAL(ch))
@@ -2932,24 +2932,6 @@ void do_time(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	gods_day_now(ch);
 }
 
-int get_moon(int sky) {
-	if (weather_info.sunlight == kSunRise || weather_info.sunlight == kSunLight || sky == kSkyRaining)
-		return (0);
-	else if (weather_info.moon_day <= kNewMoonStop || weather_info.moon_day >= kNewMoonStart)
-		return (1);
-	else if (weather_info.moon_day < kHalfMoonStart)
-		return (2);
-	else if (weather_info.moon_day < kFullMoonStart)
-		return (3);
-	else if (weather_info.moon_day <= kFullMoonStop)
-		return (4);
-	else if (weather_info.moon_day < kLastHalfMoonStart)
-		return (5);
-	else
-		return (6);
-	return (0);
-}
-
 void do_weather(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int sky = weather_info.sky, weather_type = weather_info.weather_type;
 	const char *sky_look[] = {"облачное",
@@ -3175,7 +3157,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (IS_IMPL(ch) || PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
 				sprintf(buf, "%s[%2d %s] %-30s%s",
 						IS_GOD(tch) ? CCWHT(ch, C_SPR) : "",
-						GetRealLevel(tch), MUD::Classes(tch->GetClass()).GetCName(),
+						GetRealLevel(tch), MUD::Class(tch->GetClass()).GetCName(),
 						tmp, IS_GOD(tch) ? CCNRM(ch, C_SPR) : "");
 			} else {
 				sprintf(buf, "%s%-30s%s",
@@ -3189,7 +3171,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "",
 						GetRealLevel(tch),
 						GET_REAL_REMORT(tch),
-						MUD::Classes(tch->GetClass()).GetAbbr().c_str(),
+						MUD::Class(tch->GetClass()).GetAbbr().c_str(),
 						tch->get_pfilepos(),
 						CCPK(ch, C_NRM, tch),
 						IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "", tch->race_or_title().c_str(), CCNRM(ch, C_NRM));
@@ -3378,7 +3360,7 @@ void do_statistic(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 	const int class_name_col_width{15};
 	const int number_col_width{3};
 	for (const auto &it : players) {
-		out << std::left << std::setw(class_name_col_width) << MUD::Classes(it.first).GetPluralName() << " "
+		out << std::left << std::setw(class_name_col_width) << MUD::Class(it.first).GetPluralName() << " "
 			<< KIRED << "[" << KICYN
 			<< std::setw(number_col_width) << std::right << it.second.first + it.second.second
 			<< KIRED << "|" << KICYN
@@ -4076,7 +4058,7 @@ void do_affects(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 			}
 
 			*buf2 = '\0';
-			strcpy(sp_name, GetSpellName(aff->type));
+			strcpy(sp_name, MUD::Spell(aff->type).GetCName());
 			int mod = 0;
 			if (aff->battleflag == kAfPulsedec) {
 				mod = aff->duration / 51; //если в пульсах приводим к тикам 25.5 в сек 2 минуты

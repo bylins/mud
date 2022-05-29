@@ -830,7 +830,7 @@ unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const
 									act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 										false, ch, GET_EQ(ch, pos), nullptr, kToChar);
 								} else {
-									CastMagicAffect(GetRealLevel(ch), ch, ch, i.aff_spell, ESaving::kWill);
+									CastAffect(GetRealLevel(ch), ch, ch, i.aff_spell);
 								}
 							}
 						}
@@ -861,7 +861,7 @@ unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const
 								act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 									false, ch, obj, nullptr, kToChar);
 							} else {
-								CastMagicAffect(GetRealLevel(ch), ch, ch, i.aff_spell, ESaving::kWill);
+								CastAffect(GetRealLevel(ch), ch, ch, i.aff_spell);
 							}
 						}
 					}
@@ -1042,7 +1042,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 						act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 							false, ch, obj, nullptr, kToChar);
 					} else {
-						CastMagicAffect(GetRealLevel(ch), ch, ch, j.aff_spell, ESaving::kWill);
+						CastAffect(GetRealLevel(ch), ch, ch, j.aff_spell);
 					}
 				}
 			}
@@ -2583,7 +2583,7 @@ float get_effective_cha(CharData *ch) {
 	int key_value, key_value_add;
 
 	key_value = ch->get_cha();
-	auto max_cha = MUD::Classes(ch->GetClass()).GetBaseStatCap(EBaseStat::kCha);
+	auto max_cha = MUD::Class(ch->GetClass()).GetBaseStatCap(EBaseStat::kCha);
 	key_value_add = std::min(max_cha - ch->get_cha(), GET_CHA_ADD(ch));
 
 	float eff_cha = 0.0;
@@ -2603,7 +2603,7 @@ float get_effective_cha(CharData *ch) {
 float CalcEffectiveWis(CharData *ch, ESpell spell_id) {
 	int key_value, key_value_add;
 
-	auto max_wis = MUD::Classes(ch->GetClass()).GetBaseStatCap(EBaseStat::kWis);
+	auto max_wis = MUD::Class(ch->GetClass()).GetBaseStatCap(EBaseStat::kWis);
 
 	if (spell_id == ESpell::kResurrection || spell_id == ESpell::kAnimateDead) {
 		key_value = ch->get_wis();
@@ -2632,7 +2632,7 @@ float get_effective_int(CharData *ch) {
 	int key_value, key_value_add;
 
 	key_value = ch->get_int();
-	auto max_int = MUD::Classes(ch->GetClass()).GetBaseStatCap(EBaseStat::kInt);
+	auto max_int = MUD::Class(ch->GetClass()).GetBaseStatCap(EBaseStat::kInt);
 	key_value_add = std::min(max_int - ch->get_int(), GET_INT_ADD(ch));
 
 	float eff_int = 0.0;
@@ -2656,9 +2656,9 @@ int CalcCharmPoint(CharData *ch, ESpell spell_id) {
 
 	if (spell_id == ESpell::kResurrection || spell_id == ESpell::kAnimateDead) {
 		eff_cha = CalcEffectiveWis(ch, spell_id);
-		stat_cap = MUD::Classes(ch->GetClass()).GetBaseStatCap(EBaseStat::kWis);
+		stat_cap = MUD::Class(ch->GetClass()).GetBaseStatCap(EBaseStat::kWis);
 	} else {
-		stat_cap = MUD::Classes(ch->GetClass()).GetBaseStatCap(EBaseStat::kCha);
+		stat_cap = MUD::Class(ch->GetClass()).GetBaseStatCap(EBaseStat::kCha);
 		eff_cha = get_effective_cha(ch);
 	}
 
@@ -2718,45 +2718,6 @@ bool IsAwakeOthers(CharData *ch) {
 	}
 
 	return false;
-}
-
-int ApplyResist(CharData *ch, int resist_type, int effect) {
-	auto resistance = GET_RESIST(ch, resist_type);
-	if (resistance <= 0) {
-		return effect - resistance*effect/100;
-	}
-	if (!ch->IsNpc()) {
-		resistance = std::min(kMaxPlayerResist, resistance);
-	}
-	auto result = static_cast<int>(effect - (resistance + number(0, resistance))*effect/200.0);
-	return std::max(0, result);
-}
-
-int GetResisTypeWithSpellClass(int spell_class) {
-	switch (spell_class) {
-		case kTypeFire: return EResist::kFire;
-			break;
-		case kTypeDark: return EResist::kDark;
-			break;
-		case kTypeAir: return EResist::kAir;
-			break;
-		case kTypeWater: return EResist::kWater;
-			break;
-		case kTypeEarth: return EResist::kEarth;
-			break;
-		case kTypeLight: return EResist::kVitality;
-			break;
-		case kTypeMind: return EResist::kMind;
-			break;
-		case kTypeLife: return EResist::kImmunity;
-			break;
-		default: return EResist::kVitality;
-			break;
-	}
-};
-
-int GetResistType(ESpell spell_id) {
-	return GetResisTypeWithSpellClass(spell_info[spell_id].spell_class);
 }
 
 // * Берется минимальная цена ренты шмотки, не важно, одетая она будет или снятая.

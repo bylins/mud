@@ -6,6 +6,7 @@
 #include "administration/privilege.h"
 #include "game_magic/spells_info.h"
 #include "game_mechanics/mem_queue.h"
+#include "structs/global_objects.h"
 
 void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (ch->IsNpc())
@@ -70,7 +71,7 @@ void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	target = FindCastTarget(spell_id, arg, ch, &tch, &tobj, &troom);
 
-	if (target && (tch == ch) && spell_info[spell_id].violent) {
+	if (target && (tch == ch) && MUD::Spell(spell_id).IsViolent()) {
 		SendMsgToChar("Лекари не рекомендуют использовать ЭТО на себя!\r\n", ch);
 		return;
 	}
@@ -80,7 +81,7 @@ void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
-	if (tch != ch && !IS_IMMORTAL(ch) && IS_SET(spell_info[spell_id].targets, kTarSelfOnly)) {
+	if (tch != ch && !IS_IMMORTAL(ch) && MUD::Spell(spell_id).AllowTarget(kTarSelfOnly)) {
 		SendMsgToChar("Вы можете колдовать это только на себя!\r\n", ch);
 		return;
 	}

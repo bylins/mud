@@ -17,6 +17,7 @@
 #include "handler.h"
 #include "game_magic/spells_info.h"
 #include "olc/olc.h"
+#include "structs/global_objects.h"
 
 extern const char *dirs[];
 
@@ -783,7 +784,7 @@ int cast_mtrigger(CharData *ch, CharData *actor, ESpell spell_id) {
 			ADD_UID_CHAR_VAR(local_buf, t, actor, "actor", 0);
 			sprintf(buf, "%d", to_underlying(spell_id));
 			add_var_cntx(&GET_TRIG_VARS(t), "castnum", buf, 0);
-			add_var_cntx(&GET_TRIG_VARS(t), "castname", spell_info[spell_id].name, 0);
+			add_var_cntx(&GET_TRIG_VARS(t), "castname", MUD::Spell(spell_id).GetCName(), 0);
 			return script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
 		}
 	}

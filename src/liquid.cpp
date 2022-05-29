@@ -678,7 +678,7 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	timed.time = CanUseFeat(ch, EFeat::kDrunkard) ? GetModifier(EFeat::kDrunkard, kFeatTimer) : 12;
 	ImposeTimedSkill(ch, &timed);
 
-	percent = number(1, MUD::Skills(ESkill::kHangovering).difficulty);
+	percent = number(1, MUD::Skill(ESkill::kHangovering).difficulty);
 	prob = CalcCurrentSkill(ch, ESkill::kHangovering, nullptr);
 	TrainSkill(ch, ESkill::kHangovering, percent <= prob, nullptr);
 	amount = MIN(amount, GET_OBJ_VAL(obj, 1));
@@ -1191,7 +1191,7 @@ std::string print_spell(CharData *ch, const ObjData *obj, int num) {
 	char buf_[kMaxInputLength];
 	snprintf(buf_, sizeof(buf_), "Содержит заклинание: %s%s (%d ур.)%s\r\n",
 			 CCCYN(ch, C_NRM),
-			 GetSpellName(static_cast<ESpell>(obj->get_value(spell))),
+			 MUD::Spell(static_cast<ESpell>(obj->get_value(spell))).GetCName(),
 			 obj->get_value(level),
 			 CCNRM(ch, C_NRM));
 

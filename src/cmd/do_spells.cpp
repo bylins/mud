@@ -18,15 +18,15 @@ void DoSpells(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 const char *GetSpellColor(ESpell spell_id) {
-	switch (spell_info[spell_id].spell_class) {
-		case kTypeAir: return "&W";
-		case kTypeFire: return "&R";
-		case kTypeWater: return "&C";
-		case kTypeEarth: return "&y";
-		case kTypeLight: return "&Y";
-		case kTypeDark: return "&K";
-		case kTypeMind: return "&M";
-		case kTypeLife: return "&G";
+	switch (MUD::Spell(spell_id).GetElement()) {
+		case EElement::kAir: return "&W";
+		case EElement::kFire: return "&R";
+		case EElement::kWater: return "&C";
+		case EElement::kEarth: return "&y";
+		case EElement::kLight: return "&Y";
+		case EElement::kDark: return "&K";
+		case EElement::kMind: return "&M";
+		case EElement::kLife: return "&G";
 		default: return "&n";
 	}
 }
@@ -48,9 +48,10 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 		*names[i] = '\0';
 		slots[i] = 0;
 	}
-	for (const auto &spl_info : spell_info) {
-		auto spell_id = spl_info.first;
-		const auto &spell = MUD::Classes(ch->GetClass()).spells[spell_id];
+
+	for (const auto &spl_info : MUD::Spells()) {
+		auto spell_id = spl_info.GetId();
+		const auto &class_spell = MUD::Class(ch->GetClass()).spells[spell_id];
 		if (!GET_SPELL_TYPE(ch, spell_id) && !all)
 			continue;
 		if (!IS_MANA_CASTER(ch) && !IS_GOD(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
@@ -58,13 +59,13 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 				continue;
 		}
 		if ((CalcMinSpellLvl(ch, spell_id) > GetRealLevel(ch) ||
-			spell.GetMinRemort() > GET_REAL_REMORT(ch) ||
-			CalcCircleSlotsAmount(ch, spell.GetCircle()) <= 0) &&
+			class_spell.GetMinRemort() > GET_REAL_REMORT(ch) ||
+			CalcCircleSlotsAmount(ch, class_spell.GetCircle()) <= 0) &&
 			all && !GET_SPELL_TYPE(ch, spell_id)) {
 			continue;
 		}
 
-		if (!spell_info[spell_id].name || *spell_info[spell_id].name == '!')
+		if (MUD::Spell(spell_id).IsInvalid())
 			continue;
 
 		if ((GET_SPELL_TYPE(ch, spell_id) & 0xFF) == ESpellType::kRunes &&
@@ -78,10 +79,10 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 			can_cast = true;
 		}
 
-		if (spell.GetMinRemort() > GET_REAL_REMORT(ch)) {
+		if (class_spell.GetMinRemort() > GET_REAL_REMORT(ch)) {
 			slot_num = kMaxMemoryCircle - 1;
 		} else {
-			slot_num = spell.GetCircle() - 1;
+			slot_num = class_spell.GetCircle() - 1;
 		}
 		max_slot = std::max(slot_num + 1, max_slot);
 		if (IS_MANA_CASTER(ch)) {
@@ -89,15 +90,15 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 				continue;
 			if (can_cast) {
 				slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-										   "%s|<...%4d.> %s%-30s&n|",
+										   "%s|<...%4d.> %s%-38s&n|",
 										   slots[slot_num] % 114 <
 											   10 ? "\r\n" : "  ",
-										   CalcSpellManacost(ch, spell_id), GetSpellColor(spell_id), spell_info[spell_id].name);
+										   CalcSpellManacost(ch, spell_id), GetSpellColor(spell_id), MUD::Spell(spell_id).GetCName());
 			} else {
 				slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-										   "%s|+--------+ %s%-30s&n|",
+										   "%s|+--------+ %s%-38s&n|",
 										   slots[slot_num] % 114 <
-											   10 ? "\r\n" : "  ", GetSpellColor(spell_id), spell_info[spell_id].name);
+											   10 ? "\r\n" : "  ", GetSpellColor(spell_id), MUD::Spell(spell_id).GetCName());
 			}
 		} else {
 			time_str.clear();
@@ -127,7 +128,7 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 					 '.',
 					(CalcMinSpellLvl(ch, spell_id) - GetRealLevel(ch) < 10) ? "  " : " ",
 					GetSpellColor(spell_id),
-					spell_info[spell_id].name,
+					MUD::Spell(spell_id).GetCName(),
 					time_str.c_str());
 		}
 		is_full = true;
@@ -144,8 +145,9 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 			//else
 			//gcount += sprintf(buf2+gcount,"\n\rПусто.");
 		}
-	} else
+	} else {
 		gcount += sprintf(buf2 + gcount, "\r\nВ настоящее время магия вам недоступна!");
+	}
 	gcount += sprintf(buf2 + gcount, "\r\n");
 	//page_string(ch->desc, buf2, 1);
 	SendMsgToChar(buf2, vict);

@@ -34,7 +34,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 	if (!pk_agro_action(ch, vict))
 		return;
 
-	int percent = number(1, MUD::Skills(ESkill::kUndercut).difficulty);
+	int percent = number(1, MUD::Skill(ESkill::kUndercut).difficulty);
 	int prob = CalcCurrentSkill(ch, ESkill::kUndercut, vict);
 
 	if (IsAffectedBySpell(ch, ESpell::kWeb)) {
@@ -54,7 +54,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 
 	bool success = percent <= prob;
 	TrainSkill(ch, ESkill::kUndercut, success, vict);
-	SendSkillBalanceMsg(ch, MUD::Skills(ESkill::kUndercut).name, percent, prob, success);
+	SendSkillBalanceMsg(ch, MUD::Skill(ESkill::kUndercut).name, percent, prob, success);
 	if (!success) {
 		sprintf(buf, "%sВы попытались подсечь $N3, но упали сами...%s", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 		act(buf, false, ch, nullptr, vict, kToChar);

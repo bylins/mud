@@ -59,7 +59,7 @@ int CalcBasseStatsSum(CharData *ch) {
 void genchar_disp_menu(CharData *ch) {
 	char buf[kMaxStringLength];
 
-	const auto &ch_class = MUD::Classes(ch->GetClass());
+	const auto &ch_class = MUD::Class(ch->GetClass());
 	sprintf(buf,
 			"\r\n              -      +\r\n"
 			"  Сила     : (А) %2d (З)        [%2d - %2d]\r\n"
@@ -93,7 +93,7 @@ void genchar_disp_menu(CharData *ch) {
 }
 
 int genchar_parse(CharData *ch, char *arg) {
-	const auto &ch_class = MUD::Classes(ch->GetClass());
+	const auto &ch_class = MUD::Class(ch->GetClass());
 	switch (*arg) {
 		case 'А':
 		case 'а': ch->set_str(std::max(ch->GetInbornStr() - 1, ch_class.GetBaseStatGenMin(EBaseStat::kStr)));
@@ -148,7 +148,7 @@ int genchar_parse(CharData *ch, char *arg) {
 			return kGencharExit;
 		case 'О':
 		case 'о': {
-			const auto &tmp_class = MUD::Classes(ch->GetClass());
+			const auto &tmp_class = MUD::Class(ch->GetClass());
 			ch->set_str(tmp_class.GetBaseStatGenAuto(EBaseStat::kStr));
 			ch->set_dex(tmp_class.GetBaseStatGenAuto(EBaseStat::kDex));
 			ch->set_int(tmp_class.GetBaseStatGenAuto(EBaseStat::kInt));

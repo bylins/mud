@@ -24,6 +24,7 @@
 #include "game_fight/mobact.h"
 #include "game_fight/pk.h"
 #include "handler.h"
+#include "magic_utils.h"
 #include "obj_prototypes.h"
 #include "utils/random.h"
 #include "structs/global_objects.h"
@@ -78,7 +79,7 @@ int CalcAntiSavings(CharData *ch) {
 }
 
 int CalcClassAntiSavingsMod(CharData *ch, ESpell spell_id) {
-	auto mod = MUD::Classes(ch->GetClass()).spells[spell_id].GetCastMod();
+	auto mod = MUD::Class(ch->GetClass()).spells[spell_id].GetCastMod();
 	auto skill = ch->GetSkill(GetMagicSkillId(spell_id));
 	return static_cast<int>(mod*skill);
 }
@@ -281,42 +282,119 @@ bool IsBreath(ESpell spell_id) {
 	return magic_breath.contains(spell_id);
 }
 
-int CalcMagicSkillDam(CharData *ch, CharData *victim, ESpell spell_id, int dam) {
-	victim->send_to_TC(false, true, true, "&CВраг по вам: %s.МагДамага магии %d&n\r\n", GET_NAME(ch), dam);
-	if (ch->IsNpc() && !IsBreath(spell_id)) {
-		dam += (int) dam * ((GET_REAL_WIS(ch) - 22) * 5) / 100.0;
-	}
-	auto skill_id = GetMagicSkillId(spell_id);
-	if (MUD::Skills().IsValid(skill_id)) {
-		if (ch->IsNpc()) {
-			dam += (int) dam * ch->GetSkill(skill_id) / 300.0;
-			victim->send_to_TC(false, true, true,  "&CВраг по вам: %s. МагДамага магии с умением  и мудростью %d&n\r\n",
-					GET_NAME(ch), dam);
-			return (dam);
-		}
-		float tmp = (1 + std::min(CalcSkillMinCap(ch, skill_id), ch->GetSkill(skill_id)) / 300.0);
-		dam = (int) dam * tmp;
-//	SendMsgToChar(ch, "&CМагДамага магии со скилом %d, скилл %d, бонус %f&n\r\n", dam, ch->get_skill(skill_id), tmp);
-	}
-	if (GET_REAL_WIS(ch) >= 23) {
-		float tmp = (1 + (GET_REAL_WIS(ch) - 22) / 200.0);
-		dam = (int) dam * tmp;
-//		SendMsgToChar(ch, "&CМагДамага магии с мудростью %d, бонус %f &n\r\n", dam, tmp);
-	}
-	if (!ch->IsNpc()) {
-		dam = (victim->IsNpc() ? MIN(dam, 6 * GET_REAL_MAX_HIT(ch)) : MIN(dam, 2 * GET_REAL_MAX_HIT(ch)));
-	}
-	ch->send_to_TC(false,
-				   true,
-				   true,
-				   "&CЦель: %s. МагДамага магии с умением  и мудростью %d&n\r\n",
-				   GET_NAME(victim),
-				   dam);
-	return (dam);
+double CalcMagicSkillCoeff(CharData *ch, ESpell spell_id) {
+	auto dmg = MUD::Spell(spell_id).GetDmg();
+	auto skill = ch->GetSkill(GetMagicSkillId(spell_id));
+	auto low_skill = std::min(skill, abilities::kNoviceSkillThreshold);
+	auto hi_skill = std::max(0, skill - abilities::kNoviceSkillThreshold);
+
+	return (low_skill*dmg.low_skill_bonus + hi_skill*dmg.hi_skill_bonus)/100.0;
 }
 
-int mag_damage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESaving savetype) {
-	int dam = 0, rand = 0, count = 1, modi = 0, ndice = 0, sdice = 0, adice = 0, no_savings = false;
+double CalcMagicWisCoeff(CharData *ch, ESpell spell_id) {
+	// victim->send_to_TC(false, true, true, "&CВраг по вам: %s.МагДамага магии %d&n\r\n", GET_NAME(ch), dam);
+	// victim->send_to_TC(false, true, true,  "&CВраг по вам: %s. МагДамага магии с умением  и мудростью %d&n\r\n", GET_NAME(ch), dam);
+	// ch->send_to_TC(false,true, true, "&CЦель: %s. МагДамага магии с умением  и мудростью %d&n\r\n", GET_NAME(victim), dam);
+	// SendMsgToChar(ch, "&CМагДамага магии со скилом %d, скилл %d, бонус %f&n\r\n", dam, ch->get_skill(skill_id), tmp);
+	// SendMsgToChar(ch, "&CМагДамага магии с мудростью %d, бонус %f &n\r\n", dam, tmp);
+
+	if (ch->IsNpc() && !IsBreath(spell_id)) {
+		return (GET_REAL_WIS(ch) - 22)*5.0/ 100.0;
+	} else {
+		return (GET_REAL_WIS(ch) - 22)/200.0;
+	}
+}
+
+double CalcMagicElementCoeff(CharData *victim, ESpell spell_id) {
+	double element_coeff = 1.0;
+	if (victim->IsNpc()) {
+		if (NPC_FLAGGED(victim, ENpcFlag::kFireCreature)) {
+			if (MUD::Spell(spell_id).GetElement() == EElement::kFire) {
+				element_coeff /= 2.0;
+			} else if (MUD::Spell(spell_id).GetElement() == EElement::kWater) {
+				element_coeff *= 2.0;
+			}
+		}
+		if (NPC_FLAGGED(victim, ENpcFlag::kAirCreature)) {
+			if (MUD::Spell(spell_id).GetElement() == EElement::kEarth) {
+				element_coeff *= 2.0;
+			} else if (MUD::Spell(spell_id).GetElement() == EElement::kAir) {
+				element_coeff /= 2.0;
+			}
+		}
+		if (NPC_FLAGGED(victim, ENpcFlag::kWaterCreature)) {
+			if (MUD::Spell(spell_id).GetElement() == EElement::kFire) {
+				element_coeff *= 2.0;
+			} else if (MUD::Spell(spell_id).GetElement() == EElement::kWater) {
+				element_coeff /= 2.0;
+			}
+		}
+		if (NPC_FLAGGED(victim, ENpcFlag::kEarthCreature)) {
+			if (MUD::Spell(spell_id).GetElement() == EElement::kEarth) {
+				element_coeff /= 2.0;
+			} else if (MUD::Spell(spell_id).GetElement() == EElement::kAir) {
+				element_coeff *= 2.0;
+			}
+		}
+	}
+	return element_coeff;
+}
+
+int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id, spells::SpellDmg &spell_dmg) {
+	int total_dmg{0};
+	if (number(1, 100) > std::min(ch->IsNpc() ? kMaxNpcResist : kMaxPcResist, GET_MR(victim))) {
+		auto base_dmg = RollDices(spell_dmg.dice_num, spell_dmg.dice_size) + spell_dmg.dice_add;
+		if (!ch->IsNpc()) {
+			base_dmg *= ch->get_cond_penalty(P_DAMROLL);
+		}
+
+		auto skill_mod = base_dmg * CalcMagicSkillCoeff(ch, spell_id);
+		auto wis_mod = base_dmg * CalcMagicWisCoeff(ch, spell_id);
+		auto bonus_mod = base_dmg * (ch->add_abils.percent_magdam_add / 100.0);
+		auto complex_mod = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, base_dmg) - base_dmg;
+		auto poison_mod = AFF_FLAGGED(ch, EAffect::kDaturaPoison) ? (-base_dmg * GET_POISON(ch) / 100) : 0;
+		auto power_mod = (CanUseFeat(ch, EFeat::kPowerMagic) && victim->IsNpc()) ? base_dmg / 2 : 0;
+		auto elem_coeff = CalcMagicElementCoeff(victim, spell_id);
+
+		total_dmg = static_cast<int>((base_dmg + skill_mod + wis_mod + bonus_mod +
+			complex_mod + poison_mod + power_mod) * elem_coeff);
+
+		ch->send_to_TC(false,
+					   true,
+					   true,
+					   "&CMag.dmg (%s). Base: %d, Skill: %2.2f, Wis: %2.2f, Bonus: %1.2f, Cmplx: %d, Poison: %d, Power: %d, Elem.coeff: %1.2f, Total: %d &n\r\n",
+					   GET_NAME(victim),
+					   base_dmg,
+					   skill_mod,
+					   wis_mod,
+					   bonus_mod,
+					   complex_mod,
+					   poison_mod,
+					   power_mod,
+					   elem_coeff,
+					   total_dmg);
+
+		victim->send_to_TC(false,
+						   true,
+						   true,
+						   "&CMag.dmg (%s). Base: %d, Skill: %2.2f, Wis: %2.2f, Bonus: %1.2f, Cmplx: %d, Poison: %d, Power: %d, Elem.coeff: %1.2f, Total: %d &n\r\n",
+						   GET_NAME(ch),
+						   base_dmg,
+						   skill_mod,
+						   wis_mod,
+						   bonus_mod,
+						   complex_mod,
+						   poison_mod,
+						   power_mod,
+						   elem_coeff,
+						   total_dmg);
+	}
+
+	return total_dmg;
+}
+
+int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
+	int rand = 0, count = 1, modi = 0;
 	ObjData *obj = nullptr;
 
 	if (victim == nullptr || victim->in_room == kNowhere || ch == nullptr)
@@ -327,10 +405,8 @@ int mag_damage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 
 	log("[MAG DAMAGE] %s damage %s (%d)", GET_NAME(ch), GET_NAME(victim), to_underlying(spell_id));
 	// Magic glass
-	if ((spell_id != ESpell::kLightingBreath && spell_id != ESpell::kFireBreath && spell_id != ESpell::kGasBreath
-		&& spell_id != ESpell::kAcidBreath)
-		|| ch == victim) {
-		if (!IS_SET(spell_info[spell_id].routines, kMagWarcry)) {
+	if (!IsBreath(spell_id) || ch == victim) {
+		if (!MUD::Spell(spell_id).IsFlagged(kMagWarcry)) {
 			if (ch != victim && spell_id <= ESpell::kLast &&
 				((AFF_FLAGGED(victim, EAffect::kMagicGlass) && number(1, 100) < (GetRealLevel(victim) / 3)))) {
 				act("Магическое зеркало $N1 отразило вашу магию!", false, ch, nullptr, victim, kToChar);
@@ -338,7 +414,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 				act("Ваше магическое зеркало отразило поражение $n1!", false, ch, nullptr, victim, kToVict);
 				log("[MAG DAMAGE] Зеркало - полное отражение: %s damage %s (%d)",
 					GET_NAME(ch), GET_NAME(victim), to_underlying(spell_id));
-				return (mag_damage(level, ch, ch, spell_id, savetype));
+				return (CastDamage(level, ch, ch, spell_id));
 			}
 		} else {
 			if (ch != victim && spell_id <= ESpell::kLast && IS_GOD(victim)
@@ -346,35 +422,34 @@ int mag_damage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 				act("Звуковой барьер $N1 отразил ваш крик!", false, ch, nullptr, victim, kToChar);
 				act("Звуковой барьер $N1 отразил крик $n1!", false, ch, nullptr, victim, kToNotVict);
 				act("Ваш звуковой барьер отразил крик $n1!", false, ch, nullptr, victim, kToVict);
-				return (mag_damage(level, ch, ch, spell_id, savetype));
+				return (CastDamage(level, ch, ch, spell_id));
 			}
 		}
 
-		if (!IS_SET(spell_info[spell_id].routines, kMagWarcry) && AFF_FLAGGED(victim, EAffect::kShadowCloak)
+		if (!MUD::Spell(spell_id).IsFlagged(kMagWarcry) && AFF_FLAGGED(victim, EAffect::kShadowCloak)
 			&& spell_id <= ESpell::kLast && number(1, 100) < 21) {
 			act("Густая тень вокруг $N1 жадно поглотила вашу магию.", false, ch, nullptr, victim, kToChar);
 			act("Густая тень вокруг $N1 жадно поглотила магию $n1.", false, ch, nullptr, victim, kToNotVict);
 			act("Густая тень вокруг вас поглотила магию $n1.", false, ch, nullptr, victim, kToVict);
 			log("[MAG DAMAGE] Мантия  - поглощение урона: %s damage %s (%d)",
 				GET_NAME(ch), GET_NAME(victim), to_underlying(spell_id));
-			return (0);
+			return 0;
 		}
 		// Блочим маг дамагу от директ спелов для Витязей : шанс (скил/20 + вес.щита/2) ~ 30% при 200 скила и 40вес щита
-		if (!IS_SET(spell_info[spell_id].routines, kMagWarcry) && !IS_SET(spell_info[spell_id].routines, kMagMasses)
-			&& !IS_SET(spell_info[spell_id].routines, kMagAreas)
-			&& (victim->GetSkill(ESkill::kShieldBlock) > 100) && GET_EQ(victim, kShield)
-			&& CanUseFeat(victim, EFeat::kMagicalShield)
-			&& (number(1, 100)
-				< ((victim->GetSkill(ESkill::kShieldBlock)) / 20 + GET_OBJ_WEIGHT(GET_EQ(victim, kShield)) / 2))) {
-			act("Ловким движением $N0 отразил щитом вашу магию.", false, ch, nullptr, victim, kToChar);
-			act("Ловким движением $N0 отразил щитом магию $n1.", false, ch, nullptr, victim, kToNotVict);
+		if (!MUD::Spell(spell_id).IsFlagged(kMagWarcry) &&
+			!MUD::Spell(spell_id).IsFlagged(kMagMasses) &&
+			!MUD::Spell(spell_id).IsFlagged(kMagAreas) &&
+			(victim->GetSkill(ESkill::kShieldBlock) > 100) && GET_EQ(victim, kShield) &&
+			CanUseFeat(victim, EFeat::kMagicalShield) &&
+			(number(1, 100)	<
+			((victim->GetSkill(ESkill::kShieldBlock)) / 20 + GET_OBJ_WEIGHT(GET_EQ(victim, kShield)) / 2))) {
+			act("Ловким движением щита $N отразил вашу магию.", false, ch, nullptr, victim, kToChar);
+			act("Ловким движением щита $N отразил магию $n1.", false, ch, nullptr, victim, kToNotVict);
 			act("Вы отразили своим щитом магию $n1.", false, ch, nullptr, victim, kToVict);
-			return (0);
+			return 0;
 		}
 	}
 
-	// позиции до начала атаки для расчета модификаторов в damage()
-	// в принципе могут меняться какими-то заклами, но пока по дефолту нет
 	auto ch_start_pos = GET_POS(ch);
 	auto victim_start_pos = GET_POS(victim);
 
@@ -387,37 +462,27 @@ int mag_damage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 	if (!ch->IsNpc() && (GetRealLevel(ch) > 10))
 		modi += (GetRealLevel(ch) - 10);
 
-	// вводим переменную-модификатор владения школы магии	
-	const int
-		ms_mod = CalcModCoef(spell_id, ch->GetSkill(GetMagicSkillId(spell_id))); // к кубикам от % владения магии
+	auto spell_dmg = MUD::Spell(spell_id).GetDmg();
+	if (IsBreath(spell_id)) {
+		if (!ch->IsNpc())
+			return 0;
+		spell_dmg.saving = ESaving::kStability;
+		spell_dmg.dice_num = ch->mob_specials.damnodice;
+		spell_dmg.dice_size = ch->mob_specials.damsizedice;
+		spell_dmg.dice_add = GetRealDamroll(ch) + str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
+	}
 
-//расчет на 30 морт 30 левел 90 мудры
-
+	auto instant_death{false};
 	switch (spell_id) {
-		// магическая стрела
-		//  мин 2+10 среднее 5+10 макс 8+10
-		// нейтрал
-		case ESpell::kMagicMissile: modi += 300;
-			ndice = 2;
-			sdice = 4;
-			adice = 10;
-			// если есть фит магическая стрела, то стрелок на 30 уровне будет 6
+		case ESpell::kMagicMissile: {
+			modi += 300;
 			if (CanUseFeat(ch, EFeat::kMagicArrows))
 				count = (level + 9) / 5;
 			else
 				count = (level + 9) / 10;
 			break;
-			// ледяное прикосновение 
-			// мин 15+30 среднее 22.5+30 макс 30+30  
-		case ESpell::kChillTouch: savetype = ESaving::kReflex;
-			ndice = 15;
-			sdice = 2;
-			adice = level;
-			break;
-			// кислота 
-			// 6+24 мин 48+24 макс 90+24
-			// нейтрал
-		case ESpell::kAcid: savetype = ESaving::kReflex;
+		}
+		case ESpell::kAcid: {
 			obj = nullptr;
 			if (victim->IsNpc()) {
 				rand = number(1, 50);
@@ -429,31 +494,17 @@ int mag_damage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 				}
 			}
 			if (obj) {
-				ndice = 6;
-				sdice = 10;
-				adice = level;
+				spell_dmg.dice_size = spell_dmg.dice_size - spell_dmg.dice_size / 3;
 				act("Кислота покрыла $o3.", false, victim, obj, nullptr, kToChar);
 				alterate_object(obj, number(level * 2, level * 4), 100);
-			} else {
-				ndice = 6;
-				sdice = 15;
-				adice = (level - 18) * 2;
 			}
 			break;
-
-			// землетрясение
-			// мин 6+16 среднее 48+16 макс 90+16 (240)
-		case ESpell::kEarthquake: savetype = ESaving::kReflex;
-			ndice = 6;
-			sdice = 15;
-			adice = (level - 22) * 2;
-			// если наездник, то считаем не сейвисы, а ESkill::kRiding
+		}
+		case ESpell::kEarthquake: {
 			if (ch->IsOnHorse()) {
-//		    5% шанс успеха,
 				rand = number(1, 100);
 				if (rand > 95)
 					break;
-				// провал - 5% шанс или скилл наездника vs скилл магии кастера на кубике d6
 				if (rand < 5 || (CalcCurrentSkill(victim, ESkill::kRiding, nullptr) * number(1, 6))
 					< GET_SKILL(ch, ESkill::kEarthMagic) * number(1, 6)) {//фейл
 					ch->drop_from_horse();
@@ -461,7 +512,8 @@ int mag_damage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 				}
 			}
 			if (GET_POS(victim) > EPosition::kSit && !IS_IMMORTAL(victim) && (number(1, 999) > GET_AR(victim) * 10) &&
-				(AFF_FLAGGED(victim, EAffect::kHold) || !CalcGeneralSaving(ch, victim, ESaving::kReflex, CALC_SUCCESS(modi, 30)))) {
+				(AFF_FLAGGED(victim, EAffect::kHold)
+					|| !CalcGeneralSaving(ch, victim, ESaving::kReflex, CALC_SUCCESS(modi, 30)))) {
 				if (IS_HORSE(ch))
 					ch->drop_from_horse();
 				act("$n3 повалило на землю.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
@@ -471,15 +523,12 @@ int mag_damage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 				SetWaitState(victim, 2 * kPulseViolence);
 			}
 			break;
-			//звуковая волна зависит от школы
-			// мин 10+20 среднее 45+20 макс 80+20
-		case ESpell::kSonicWave: savetype = ESaving::kStability;
-			ndice = 5 + ms_mod;
-			sdice = 8;
-			adice = level / 3 + 2 * ms_mod;
+		}
+		case ESpell::kSonicWave: {
 			if (GET_POS(victim) > EPosition::kSit &&
 				!IS_IMMORTAL(victim) && (number(1, 999) > GET_AR(victim) * 10) &&
-				(AFF_FLAGGED(victim, EAffect::kHold) || !CalcGeneralSaving(ch, victim, ESaving::kStability, CALC_SUCCESS(modi, 60)))) {
+				(AFF_FLAGGED(victim, EAffect::kHold)
+					|| !CalcGeneralSaving(ch, victim, ESaving::kStability, CALC_SUCCESS(modi, 60)))) {
 				act("$n3 повалило на землю.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 				act("Вас повалило на землю.", false, victim, nullptr, nullptr, kToChar);
 				GET_POS(victim) = EPosition::kSit;
@@ -487,156 +536,11 @@ int mag_damage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 				SetWaitState(victim, 2 * kPulseViolence);
 			}
 			break;
-
-			// горящие руки
-			// мин 8+10 среднее 16+10 мах 24+10
-			// ОГОНЬ
-		case ESpell::kBurningHands: savetype = ESaving::kReflex;
-			ndice = 8;
-			sdice = 3;
-			adice = (level + 2) / 3;
-			break;
-
-			// обжигающая хватка
-			// мин 10+10 среднее 35+10 макс 60+10)
-			// ОГОНЬ
-		case ESpell::kShockingGasp: savetype = ESaving::kReflex;
-			ndice = 10;
-			sdice = 6;
-			adice = (level + 2) / 3;
-			break;
-
-			// молния
-			// мин 3+6 среднее 9+6 - макс 15+6 
-			// ВОЗДУХ
-		case ESpell::kLightingBolt: savetype = ESaving::kReflex;
-			ndice = 3;
-			sdice = 5;
-			count = (level + 6) / 6;
-			break;
-
-			// яркий блик нет резиста
-			// мин 10+10 среднее 30+10 макс 50+10
-			// ОГОНЬ
-		case ESpell::kShineFlash: ndice = 10;
-			sdice = 5;
-			adice = (level + 2) / 3;
-			break;
-
-			// шаровая молния ов)
-			// мин 37+30 среднее 129.5 +30 макс 222+30
-			// ВОЗДУХ
-//дебаф
-//			af[0].location = APPLY_HITROLL;
-//			af[1].location = APPLY_CAST_SUCCESS;
-
-		case ESpell::kCallLighting: savetype = ESaving::kReflex;
-			ndice = 7 + GET_REAL_REMORT(ch);
-			sdice = 6;
-			adice = level;
-			break;
-
-			// ледяные стрелы
-			// мин 6+30 среднее 18+30 макс 30+30
-			// ОГОНЬ
-		case ESpell::kIceBolts: savetype = ESaving::kStability;
-			ndice = 6;
-			sdice = 5;
-			adice = level;
-			break;
-
-			// ледяной ветер
-			// мин 10+30 среднее 30+30 макс 50+30
-			// ВОДА
-		case ESpell::kColdWind: savetype = ESaving::kStability;
-			ndice = 10;
-			sdice = 5;
-			adice = level;
-			break;
-
-			// Огненный шар
-			// мин 10+25 среднее 110+25 макс 210+25
-			// ОГОНЬ
-		case ESpell::kFireball: savetype = ESaving::kReflex;
-			ndice = 10;
-			sdice = 21;
-			adice = (level - 25) * 5;
-			break;
-
-			// Огненный поток 
-			// массовое
-			// мин 40+30 среднее 80+30 макс 120*30
-			// ОГОНЬ, ареа
-		case ESpell::kFireBlast: savetype = ESaving::kStability;
-			ndice = 10 + GET_REAL_REMORT(ch);
-			sdice = 3;
-			adice = level;
-			break;
-
-			// метеоритный шторм - уровень 22 круг 7 (4 слота)
-			// *** мин 66 макс 80  (240)
-			// нейтрал, ареа
-/*	case SPELL_METEORSTORM:
-		savetype = kReflex;
-		ndice = 11+GET_REAL_REMORT(ch);
-		sdice = 11;
-		adice = (level - 22) * 3;
-		break;*/
-
-			// цепь молний
-			// массовое
-			// мин 32+90 среднее 80+90 макс 128+90
-			// ВОЗДУХ, ареа
-		case ESpell::kChainLighting: savetype = ESaving::kStability;
-			ndice = 2 + GET_REAL_REMORT(ch);
-			sdice = 4;
-			adice = (level + GET_REAL_REMORT(ch)) * 2;
-			break;
-
-			// гнев богов)
-			// мин 10+180 среднее 70+180 макс 130+180
-			// ВОДА
-		case ESpell::kGodsWrath: savetype = ESaving::kWill;
-			ndice = 10;
-			sdice = 13;
-			adice = level * 6;
-			break;
-
-			// ледяной шторм
-			// массовое
-			// мин 5+20 среднее 27.5+20 макс 50+20
-			// ВОДА, ареа
-		case ESpell::kIceStorm: savetype = ESaving::kStability;
-			ndice = 5;
-			sdice = 10;
-			adice = (level - 26) * 5;
-			break;
-
-			// суд богов
-			// массовое
-			// мин 16+120 среднее 32+150 макс 38+180
-			// ВОЗДУХ, ареа
-		case ESpell::kArmageddon: savetype = ESaving::kWill;
-			if (!(ch->IsNpc())) {
-				ndice = 10 + ((GET_REAL_REMORT(ch) / 3) - 4);
-				sdice = level / 9;
-				adice = level * (number(4, 6));
-			} else {
-				ndice = 12;
-				sdice = 3;
-				adice = level * 6;
-			}
-			break;
-			// каменное проклятие
-			//  мин 12+30 среднее 486+30 макс 990+30
-		case ESpell::kStunning:
+		}
+		case ESpell::kStunning: {
 			if (ch == victim ||
 				((number(1, 999) > GET_AR(victim) * 10) &&
 					!CalcGeneralSaving(ch, victim, ESaving::kCritical, CALC_SUCCESS(modi, GET_REAL_WIS(ch))))) {
-				savetype = ESaving::kStability;
-				ndice = GET_REAL_WIS(ch) / 5;    //18
-				sdice = GET_REAL_WIS(ch);        //90
-				adice = 5 + (GET_REAL_WIS(ch) - 20) / 6;    //5+11
 				int choice_stunning = 750;
 				if (CanUseFeat(ch, EFeat::kDarkPact))
 					choice_stunning -= GET_REAL_REMORT(ch) * 15;
@@ -645,49 +549,22 @@ int mag_damage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 					act("Каменное проклятие $n1 отшибло сознание у $N1.", false, ch, nullptr, victim, kToNotVict);
 					act("У вас отшибло сознание, вам очень плохо...", false, ch, nullptr, victim, kToVict);
 					GET_POS(victim) = EPosition::kStun;
-					SetWaitState(victim, adice * kPulseViolence);
+					SetWaitState(victim, (5 + (GET_REAL_WIS(ch) - 20)) * kPulseViolence);
 				}
-			} else {
-				ndice = GET_REAL_WIS(ch) / 7;    //12
-				sdice = GET_REAL_WIS(ch);        //80
-				adice = level;
 			}
 			break;
-
-			// круг пустоты - круг 28 уровень 9 (1)
-			// мин 40+17 среднее 1820+17 макс 3600 +17
-			// для всех
-		case ESpell::kVacuum: savetype = ESaving::kStability;
-			ndice = std::max(1, (GET_REAL_WIS(ch) - 10) / 2);    //40
-			sdice = std::max(1, GET_REAL_WIS(ch) - 10);            //90
-			adice = 4 + std::max(1, GetRealLevel(ch) + 1 + (GET_REAL_WIS(ch) - 29)) / 7;    //17
+		}
+		case ESpell::kVacuum: {
 			if (ch == victim ||
 				(!CalcGeneralSaving(ch, victim, ESaving::kCritical, CALC_SUCCESS(modi, GET_REAL_WIS(ch))) &&
-					(number(1, 999) > GET_AR(victim) * 10) &&
-					number(0, 1000) <= 500)) {
+					(number(1, 999) > GET_AR(victim) * 10) && number(0, 1000) <= 500)) {
 				GET_POS(victim) = EPosition::kStun;
-				SetWaitState(victim, adice * kPulseViolence);
+				auto wait = 4 + std::max(1, GetRealLevel(ch) + 1 + (GET_REAL_WIS(ch) - 29)) / 7;    //17*/
+				SetWaitState(victim, wait * kPulseViolence);
 			}
 			break;
-
-		case ESpell::kDamageLight: savetype = ESaving::kCritical;
-			ndice = 4;
-			sdice = 3;
-			adice = (level + 2) / 3;
-			break;
-		case ESpell::kDamageSerious: savetype = ESaving::kCritical;
-			ndice = 10;
-			sdice = 3;
-			adice = (level + 1) / 2;
-			break;
-		case ESpell::kDamageCritic: savetype = ESaving::kCritical;
-			ndice = 15;
-			sdice = 4;
-			adice = (level + 1) / 2;
-			break;
-		case ESpell::kDispelEvil: ndice = 4;
-			sdice = 4;
-			adice = level;
+		}
+		case ESpell::kDispelEvil: {
 			if (ch != victim && IS_EVIL(ch) && !IS_IMMORTAL(ch) && GET_HIT(ch) > 1) {
 				SendMsgToChar("Ваша магия обратилась против вас.", ch);
 				GET_HIT(ch) = 1;
@@ -695,12 +572,11 @@ int mag_damage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 			if (!IS_EVIL(victim)) {
 				if (victim != ch)
 					act("Боги защитили $N3 от вашей магии.", false, ch, nullptr, victim, kToChar);
-				return (0);
+				return 0;
 			};
 			break;
-		case ESpell::kDispelGood: ndice = 4;
-			sdice = 4;
-			adice = level;
+		}
+		case ESpell::kDispelGood: {
 			if (ch != victim && IS_GOOD(ch) && !IS_IMMORTAL(ch) && GET_HIT(ch) > 1) {
 				SendMsgToChar("Ваша магия обратилась против вас.", ch);
 				GET_HIT(ch) = 1;
@@ -708,42 +584,16 @@ int mag_damage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 			if (!IS_GOOD(victim)) {
 				if (victim != ch)
 					act("Боги защитили $N3 от вашей магии.", false, ch, nullptr, victim, kToChar);
-				return (0);
+				return 0;
 			};
 			break;
-		case ESpell::kHarm: savetype = ESaving::kCritical;
-			ndice = 7;
-			sdice = level;
-			adice = level * GET_REAL_REMORT(ch) / 4;
-			//adice = (level + 4) / 5;
-			break;
-
-		case ESpell::kFireBreath:
-		case ESpell::kFrostBreath:
-		case ESpell::kAcidBreath:
-		case ESpell::kLightingBreath:
-		case ESpell::kGasBreath: savetype = ESaving::kStability;
-			if (!ch->IsNpc())
-				return (0);
-			ndice = ch->mob_specials.damnodice;
-			sdice = ch->mob_specials.damsizedice;
-			adice = GetRealDamroll(ch) + str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
-			break;
-			// высосать жизнь
-		case ESpell::kSacrifice:
+		}
+		case ESpell::kSacrifice: {
 			if (IS_IMMORTAL(victim))
 				break;
-			ndice = 8;
-			sdice = 8;
-			adice = level;
 			break;
-			// пылевая буря
-			// массовое
-			// мин 5+120 среднее 17.5+120  макс 30+120
-		case ESpell::kDustStorm: savetype = ESaving::kStability;
-			ndice = 5;
-			sdice = 6;
-			adice = level + GET_REAL_REMORT(ch) * 3;
+		}
+		case ESpell::kDustStorm: {
 			if (GET_POS(victim) > EPosition::kSit &&
 				!IS_IMMORTAL(victim) && (number(1, 999) > GET_AR(victim) * 10) &&
 				(!CalcGeneralSaving(ch, victim, ESaving::kReflex, CALC_SUCCESS(modi, 30)))) {
@@ -754,77 +604,9 @@ int mag_damage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 				SetWaitState(victim, 2 * kPulseViolence);
 			}
 			break;
-			// камнепад
-			// массовое на комнату
-			// мин 8+60 среднее 36+60 макс 64+60
-		case ESpell::kEarthfall: savetype = ESaving::kReflex;
-			ndice = 8;
-			sdice = 8;
-			adice = level * 2;
-			break;
-			// шок
-			// массовое на комнату
-			// мин 6+90 среднее 48+90 макс 90+90
-		case ESpell::kShock: savetype = ESaving::kReflex;
-			ndice = 6;
-			sdice = level / 2;
-			adice = (level + GET_REAL_REMORT(ch)) * 2;
-			break;
-			// вопль
-			// массовое на комнату
-			// мин 10+90 среднее 185+90 макс 360*90
-		case ESpell::kScream: savetype = ESaving::kStability;
-			ndice = 10;
-			sdice = (level + GET_REAL_REMORT(ch)) / 5;    //36
-			adice = level + GET_REAL_REMORT(ch) * 2;    //90
-			break;
-			// вихрь
-			// мин 16+35 среднее 176+40  макс 336+40
-		case ESpell::kWhirlwind: savetype = ESaving::kReflex;
-			if (!(ch->IsNpc())) {
-				ndice = 10 + ((GET_REAL_REMORT(ch) / 3) - 4);    //16
-				sdice = 18 + (3 - (30 - level) / 3);            //21
-				adice = (level + GET_REAL_REMORT(ch) - 25) * (number(1, 3));    //35..40..45
-			} else {
-				ndice = 10;
-				sdice = 21;
-				adice = (level - 5) * (number(2, 4));
-			}
-			break;
-			// зубы индрика - без резиста
-			// мин 33+61 среднее 82,5+61 макс 132+61
-		case ESpell::kIndriksTeeth: ndice = 3 + GET_REAL_REMORT(ch);
-			sdice = 4;
-			adice = level + GET_REAL_REMORT(ch) + 1;
-			break;
-			// кислотная стрела
-			// мин 20+35 среднее 210+35 макс 400+35
-		case ESpell::kAcidArrow: savetype = ESaving::kReflex;
-			ndice = 10 + GET_REAL_REMORT(ch) / 3;
-			sdice = 20;
-			adice = level + GET_REAL_REMORT(ch) - 25;
-			break;
-			//громовой камень
-			// мин 33+61 среднее 115.5+61 макс 198+61
-		case ESpell::kThunderStone: savetype = ESaving::kReflex;
-			ndice = 3 + GET_REAL_REMORT(ch);
-			sdice = 6;
-			adice = 1 + level + GET_REAL_REMORT(ch);
-			break;
-			// глыба
-			// мин 20+35 среднее 210 +40 макс 400+45
-		case ESpell::kClod: savetype = ESaving::kReflex;
-			ndice = 10 + GET_REAL_REMORT(ch) / 3;
-			sdice = 20;
-			adice = (level + GET_REAL_REMORT(ch) - 25) * (number(1, 3));    //35..40..45
-			break;
-			// силы света
-			// мин 10 + 150 среднее 45+150 макс 80+150
-		case ESpell::kHolystrike:
+		}
+		case ESpell::kHolystrike: {
 			if (AFF_FLAGGED(victim, EAffect::kForcesOfEvil)) {
-				dam = -1;
-				no_savings = true;
-				// смерть или диспелл :)
 				if (CalcGeneralSaving(ch, victim, ESaving::kWill, modi)) {
 					act("Черное облако вокруг вас нейтрализовало действие тумана, растворившись в нем.",
 						false, victim, nullptr, nullptr, kToChar);
@@ -832,25 +614,12 @@ int mag_damage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 						false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 					RemoveAffectFromChar(victim, ESpell::kEviless);
 				} else {
-					dam = std::max(1, GET_HIT(victim) + 1);
-					if (victim->IsNpc())
-						dam += 99;    // чтобы насмерть
+					instant_death = true;
 				}
-			} else {
-				ndice = 10;
-				sdice = 8;
-				adice = level * 5;
 			}
 			break;
-
-		case ESpell::kWarcryOfRage: ndice = (level + 3) / 4;
-			sdice = 6;
-			adice = RollDices(GET_REAL_REMORT(ch) / 2, 8);
-			break;
-
+		}
 		case ESpell::kWarcryOfThunder: {
-			ndice = GET_REAL_REMORT(ch) + (level + 2) / 3;
-			sdice = 5;
 			if (GET_POS(victim) > EPosition::kSit && !IS_IMMORTAL(victim) && (AFF_FLAGGED(victim, EAffect::kHold) ||
 				!CalcGeneralSaving(ch, victim, ESaving::kStability, GET_REAL_CON(ch)))) {
 				act("$n3 повалило на землю.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
@@ -861,94 +630,31 @@ int mag_damage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 			}
 			break;
 		}
-			// стрелы, нет в мире
-			// мин 33+61 среднее 82,5+61 макс 132+61
 		case ESpell::kArrowsFire:
 		case ESpell::kArrowsWater:
 		case ESpell::kArrowsEarth:
 		case ESpell::kArrowsAir:
-		case ESpell::kArrowsDeath:
-			if (!(ch->IsNpc())) {
+		case ESpell::kArrowsDeath: {
+			if (!ch->IsNpc()) {
 				act("Ваша магическая стрела поразила $N1.", false, ch, nullptr, victim, kToChar);
 				act("Магическая стрела $n1 поразила $N1.", false, ch, nullptr, victim, kToNotVict);
 				act("Магическая стрела настигла вас.", false, ch, nullptr, victim, kToVict);
-				ndice = 3 + GET_REAL_REMORT(ch);
-				sdice = 4;
-				adice = level + GET_REAL_REMORT(ch) + 1;
-			} else {
-				ndice = 20;
-				sdice = 4;
-				adice = level * 3;
 			}
-
 			break;
+		}
 		default: break;
-	}            // switch(spell_id)
-
-	if (!dam && !no_savings) {
-		double koeff = 1;
-		if (victim->IsNpc()) {
-			if (NPC_FLAGGED(victim, ENpcFlag::kFireCreature)) {
-				if (IS_SET(spell_info[spell_id].spell_class, kTypeFire))
-					koeff /= 2;
-				if (IS_SET(spell_info[spell_id].spell_class, kTypeWater))
-					koeff *= 2;
-			}
-			if (NPC_FLAGGED(victim, ENpcFlag::kAirCreature)) {
-				if (IS_SET(spell_info[spell_id].spell_class, kTypeEarth))
-					koeff *= 2;
-				if (IS_SET(spell_info[spell_id].spell_class, kTypeAir))
-					koeff /= 2;
-			}
-			if (NPC_FLAGGED(victim, ENpcFlag::kWaterCreature)) {
-				if (IS_SET(spell_info[spell_id].spell_class, kTypeFire))
-					koeff *= 2;
-				if (IS_SET(spell_info[spell_id].spell_class, kTypeWater))
-					koeff /= 2;
-			}
-			if (NPC_FLAGGED(victim, ENpcFlag::kEarthCreature)) {
-				if (IS_SET(spell_info[spell_id].spell_class, kTypeEarth))
-					koeff /= 2;
-				if (IS_SET(spell_info[spell_id].spell_class, kTypeAir))
-					koeff *= 2;
-			}
-		}
-		dam = RollDices(ndice, sdice) + adice;
-		dam = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, dam);
-//		SendMsgToChar(ch, "&CМагДамага магии %d &n\r\n", dam);
-
-		if (CanUseFeat(ch, EFeat::kPowerMagic) && victim->IsNpc()) {
-			dam += (int) dam * 0.5;
-		}
-		if (AFF_FLAGGED(ch, EAffect::kDaturaPoison))
-			dam -= dam * GET_POISON(ch) / 100;
-		if (!IS_SET(spell_info[spell_id].routines, kMagWarcry)) {
-			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi))
-				koeff /= 2;
-		}
-/* // и зачем эта хрень только путает
-		if (dam > 0) {
-			koeff *= 1000;
-			dam = (int) MMAX(1.0, (dam * MMAX(300.0, MMIN(koeff, 2500.0)) / 1000.0)); //капаем максимальный бонус не более х4
-		}
-*/
-		if (ch->add_abils.percent_magdam_add > 0) {
-//			SendMsgToChar(ch, "&CМагДамага магии %d &n\r\n", dam);
-			auto tmp = ch->add_abils.percent_magdam_add / 100.0;
-			dam += (int) dam * tmp;
-//			SendMsgToChar(ch, "&CМагДамага c + процентами дамаги== %d, добавили = %d процентов &n\r\n", dam, (int) (tmp * 100));
-		}
-		//вместо старого учета мудры добавлена обработка с учетом скиллов
-		//после коэффициента - так как в самой функции стоит планка по дамагу, пусть и относительная
-		dam = CalcMagicSkillDam(ch, victim, spell_id, dam);
 	}
 
-	//Голодный кастер меньше дамажит!
-	if (!ch->IsNpc())
-		dam *= ch->get_cond_penalty(P_DAMROLL);
-
-	if (number(1, 100) <= MIN(75, GET_MR(victim)))
-		dam = 0;
+	int total_dmg{0};
+	if (instant_death) {
+		total_dmg = std::max(1, GET_HIT(victim) + 1);
+		if (victim->IsNpc()) {
+			total_dmg += 99;
+		}
+	} else {
+		total_dmg = CalcTotalSpellDmg(ch, victim, spell_id, spell_dmg);
+	}
+	total_dmg = std::clamp(total_dmg, 0, kMaxHits);
 
 	for (; count > 0 && rand >= 0; count--) {
 		if (ch->in_room != kNowhere
@@ -956,7 +662,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, ESpell spell_id, ESavi
 			&& GET_POS(ch) > EPosition::kStun
 			&& GET_POS(victim) > EPosition::kDead) {
 			// инит полей для дамага
-			Damage dmg(SpellDmg(spell_id), dam, fight::kMagicDmg);
+			Damage dmg(SpellDmg(spell_id), total_dmg, fight::kMagicDmg);
 			dmg.ch_start_pos = ch_start_pos;
 			dmg.victim_start_pos = victim_start_pos;
 
@@ -1087,7 +793,7 @@ bool ProcessMatComponents(CharData *caster, int /*vnum*/, ESpell spell_id) {
 	return (false);
 }
 
-int CastMagicAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, ESaving savetype) {
+int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	bool accum_affect = false, accum_duration = false, success = true;
 	bool update_spell = false;
 	const char *to_vict = nullptr, *to_room = nullptr;
@@ -1101,30 +807,20 @@ int CastMagicAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, 
 	}
 
 	// Calculate PKILL's affects
-	//   1) "NPC affect PC spellflag"  for victim
-	//   2) "NPC affect NPC spellflag" if victim cann't pkill FICHTING(victim)
-	if (ch != victim)    //SendMsgToChar("Start\r\n",ch);
-	{
-		//SendMsgToChar("Start\r\n",victim);
-		if (IS_SET(spell_info[spell_id].routines, kNpcAffectPc))    //SendMsgToChar("1\r\n",ch);
-		{
-			//SendMsgToChar("1\r\n",victim);
-			if (!pk_agro_action(ch, victim))
+	if (ch != victim) {
+		if (MUD::Spell(spell_id).IsFlagged(kNpcAffectPc)) {
+			if (!pk_agro_action(ch, victim)) {
 				return 0;
-		} else if (IS_SET(spell_info[spell_id].routines, kNpcAffectNpc)
-			&& victim->GetEnemy())    //SendMsgToChar("2\r\n",ch);
-		{
-			//SendMsgToChar("2\r\n",victim);
+			}
+		} else if (MUD::Spell(spell_id).IsFlagged(kNpcAffectNpc) && victim->GetEnemy())	{
 			if (!pk_agro_action(ch, victim->GetEnemy()))
 				return 0;
 		}
-		//SendMsgToChar("Stop\r\n",ch);
-		//SendMsgToChar("Stop\r\n",victim);
 	}
 	// Magic glass
-	if (!IS_SET(spell_info[spell_id].routines, kMagWarcry)) {
+	if (!MUD::Spell(spell_id).IsFlagged(kMagWarcry)) {
 		if (ch != victim
-			&& spell_info[spell_id].violent
+			&& MUD::Spell(spell_id).IsViolent()
 			&& ((!IS_GOD(ch)
 				&& AFF_FLAGGED(victim, EAffect::kMagicGlass)
 				&& (ch->in_room == IN_ROOM(victim)) //зеркало сработает только если оба в одной комнате
@@ -1135,22 +831,22 @@ int CastMagicAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, 
 			act("Магическое зеркало $N1 отразило вашу магию!", false, ch, nullptr, victim, kToChar);
 			act("Магическое зеркало $N1 отразило магию $n1!", false, ch, nullptr, victim, kToNotVict);
 			act("Ваше магическое зеркало отразило поражение $n1!", false, ch, nullptr, victim, kToVict);
-			CastMagicAffect(level, ch, ch, spell_id, savetype);
+			CastAffect(level, ch, ch, spell_id);
 			return 0;
 		}
 	} else {
-		if (ch != victim && spell_info[spell_id].violent && IS_GOD(victim)
+		if (ch != victim && MUD::Spell(spell_id).IsViolent() && IS_GOD(victim)
 			&& (ch->IsNpc() || GetRealLevel(victim) > (GetRealLevel(ch) + GET_REAL_REMORT(ch) / 2))) {
 			act("Звуковой барьер $N1 отразил ваш крик!", false, ch, nullptr, victim, kToChar);
 			act("Звуковой барьер $N1 отразил крик $n1!", false, ch, nullptr, victim, kToNotVict);
 			act("Ваш звуковой барьер отразил крик $n1!", false, ch, nullptr, victim, kToVict);
-			CastMagicAffect(level, ch, ch, spell_id, savetype);
+			CastAffect(level, ch, ch, spell_id);
 			return 0;
 		}
 	}
 	//  блочим директ аффекты вредных спелов для Витязей  шанс = (скил/20 + вес.щита/2)  ()
-	if (ch != victim && spell_info[spell_id].violent && !IS_SET(spell_info[spell_id].routines, kMagWarcry)
-		&& !IS_SET(spell_info[spell_id].routines, kMagMasses) && !IS_SET(spell_info[spell_id].routines, kMagAreas)
+	if (ch != victim && MUD::Spell(spell_id).IsViolent() && !MUD::Spell(spell_id).IsFlagged(kMagWarcry)
+		&& !MUD::Spell(spell_id).IsFlagged(kMagMasses) && !MUD::Spell(spell_id).IsFlagged(kMagAreas)
 		&& (victim->GetSkill(ESkill::kShieldBlock) > 100) && GET_EQ(victim, EEquipPos::kShield)
 		&& CanUseFeat(victim, EFeat::kMagicalShield)
 		&& (number(1, 100) < ((victim->GetSkill(ESkill::kShieldBlock)) / 20
@@ -1161,7 +857,7 @@ int CastMagicAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, 
 		return (0);
 	}
 
-	if (!IS_SET(spell_info[spell_id].routines, kMagWarcry) && ch != victim && spell_info[spell_id].violent
+	if (!MUD::Spell(spell_id).IsFlagged(kMagWarcry) && ch != victim && MUD::Spell(spell_id).IsViolent()
 		&& number(1, 999) <= GET_AR(victim) * 10) {
 		SendMsgToChar(NOEFFECT, ch);
 		return 0;
@@ -1189,6 +885,7 @@ int CastMagicAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, 
 	const auto koef_duration = CalcDurationCoef(spell_id, ch->GetSkill(GetMagicSkillId(spell_id)));
 	const auto koef_modifier = CalcModCoef(spell_id, ch->GetSkill(GetMagicSkillId(spell_id)));
 
+	auto savetype{ESaving::kStability};
 	switch (spell_id) {
 		case ESpell::kChillTouch: savetype = ESaving::kStability;
 			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
@@ -2341,7 +2038,9 @@ int CastMagicAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, 
 					spell_id = ESpell::kMagicBattle;
 					break;
 
-				case ESpell::kShock: SetWaitState(victim, 2 * kPulseViolence);
+				case ESpell::kShock:
+					savetype = ESaving::kStability;
+					SetWaitState(victim, 2 * kPulseViolence);
 					af[0].duration = ApplyResist(victim, GetResistType(spell_id),
 												 CalcDuration(victim, 2, 0, 0, 0, 0)) * koef_duration;
 					af[0].bitvector = to_underlying(EAffect::kMagicStopFight);
@@ -2349,7 +2048,7 @@ int CastMagicAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, 
 					to_room = "$n3 оглушило.";
 					to_vict = "Вас оглушило.";
 					spell_id = ESpell::kMagicBattle;
-					CastMagicAffect(level, ch, victim, ESpell::kBlindness, ESaving::kStability);
+					CastAffect(level, ch, victim, ESpell::kBlindness);
 					break;
 				default: break;
 			}
@@ -2834,7 +2533,7 @@ int CastMagicAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, 
 		}
 	}
 	// позитивные аффекты - продлеваем, если они уже на цели
-	if (!spell_info[spell_id].violent && IsAffectedBySpell(victim, spell_id) && success) {
+	if (!MUD::Spell(spell_id).IsViolent() && IsAffectedBySpell(victim, spell_id) && success) {
 		update_spell = true;
 	}
 	// вот такой оригинальный способ запретить рекасты негативных аффектов - через флаг апдейта
@@ -2913,7 +2612,7 @@ const char *mag_summon_fail_msgs[] =
 		"У вас нет подходящего трупа!\r\n"
 	};
 
-int mag_summons(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need_fail) {
+int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need_fail) {
 	CharData *tmp_mob, *mob = nullptr;
 	ObjData *tobj, *next_obj;
 	struct FollowerType *k;
@@ -3238,7 +2937,7 @@ int mag_summons(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool nee
 		cha_num = std::max(1, (GetRealLevel(ch) + 4) / 5 - 2) - cha_num;
 		if (cha_num < 1)
 			return 0;
-		mag_summons(level, ch, obj, spell_id, 0);
+		CastSummon(level, ch, obj, spell_id, 0);
 	}
 	if (spell_id == ESpell::kAnimateDead) {
 		MOB_FLAGS(mob).set(EMobFlag::kResurrected);
@@ -3325,7 +3024,7 @@ int mag_summons(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool nee
 	return 1;
 }
 
-int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id, ESaving /*savetype*/) {
+int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	int hit = 0; //если выставить больше нуля, то лечит
 	int move = 0; //если выставить больше нуля, то реген хп
 	bool extraHealing = false; //если true, то лечит сверх макс.хп
@@ -3424,8 +3123,7 @@ int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id, ESa
 
 bool CheckNodispel(const Affect<EApply>::shared_ptr &affect) {
 	return !affect
-		|| !spell_info[affect->type].name
-		|| *spell_info[affect->type].name == '!'
+		|| MUD::Spell(affect->type).IsInvalid()
 		|| affect->bitvector == to_underlying(EAffect::kCharmed)
 		|| affect->type == ESpell::kCharm
 		|| affect->type == ESpell::kQUest
@@ -3434,7 +3132,7 @@ bool CheckNodispel(const Affect<EApply>::shared_ptr &affect) {
 		|| affect->type == ESpell::kEviless;
 }
 
-int CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell spell_id, ESaving/* type*/) {
+int CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell spell_id) {
 	int remove = 0;
 	const char *to_vict = nullptr, *to_room = nullptr;
 
@@ -3523,10 +3221,10 @@ int CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell spell_id
 	}
 	spell_id = spell;
 	if (ch != victim && !remove) {
-		if (IS_SET(spell_info[spell_id].routines, kNpcAffectNpc)) {
+		if (MUD::Spell(spell_id).IsFlagged(kNpcAffectNpc)) {
 			if (!pk_agro_action(ch, victim))
 				return 0;
-		} else if (IS_SET(spell_info[spell_id].routines, kNpcAffectPc) && victim->GetEnemy()) {
+		} else if (MUD::Spell(spell_id).IsFlagged(kNpcAffectPc) && victim->GetEnemy()) {
 			if (!pk_agro_action(ch, victim->GetEnemy()))
 				return 0;
 		}
@@ -3547,7 +3245,7 @@ int CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell spell_id
 	return 1;
 }
 
-int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id, ESaving /* savetype*/) {
+int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id) {
 	const char *to_char = nullptr;
 
 	if (obj == nullptr) {
@@ -3792,7 +3490,7 @@ int CastCreation(int/* level*/, CharData *ch, ESpell spell_id) {
 	return 1;
 }
 
-int CastManual(int level, CharData *caster, CharData *cvict, ObjData *ovict, ESpell spell_id, ESaving /*saving*/) {
+int CastManual(int level, CharData *caster, CharData *cvict, ObjData *ovict, ESpell spell_id) {
 	switch (spell_id) {
 		case ESpell::kGroupRecall:
 		case ESpell::kWorldOfRecall: SpellRecall(level, caster, cvict, ovict);
@@ -3858,7 +3556,7 @@ void ReactToCast(CharData *victim, CharData *caster, ESpell spell_id) {
 	if (caster == victim)
 		return;
 
-	if (!CheckMobList(victim) || !spell_info[spell_id].violent)
+	if (!CheckMobList(victim) || !MUD::Spell(spell_id).IsViolent())
 		return;
 
 	if (AFF_FLAGGED(victim, EAffect::kCharmed) ||
@@ -3899,49 +3597,45 @@ void ReactToCast(CharData *victim, CharData *caster, ESpell spell_id) {
 	}
 }
 
-// Применение заклинания к одной цели
-//---------------------------------------------------------
-int CastToSingleTarget(int level, CharData *caster, CharData *cvict, ObjData *ovict, ESpell spell_id, ESaving saving) {
-	//туповато конечно, но подобные проверки тут как счупалцьа перепутаны
-	//и чтоб сделать по человечески надо треть пары модулей перелопатить
+int CastToSingleTarget(int level, CharData *caster, CharData *cvict, ObjData *ovict, ESpell spell_id) {
 	if (cvict && (caster != cvict))
-		// при разнице уровня более чем в 2 раза закл фэйл
-		if (IS_GOD(cvict) ||
-			(((GetRealLevel(cvict) / 2) > (GetRealLevel(caster) + (GET_REAL_REMORT(caster) / 2))) &&
+		if (IS_GOD(cvict) || (((GetRealLevel(cvict) / 2) > (GetRealLevel(caster) + (GET_REAL_REMORT(caster) / 2))) &&
 				!caster->IsNpc())) {
 			SendMsgToChar(NOEFFECT, caster);
 			return (-1);
 		}
+
 	if (!cast_mtrigger(cvict, caster, spell_id)) {
 		return -1;
 	}
-	if (IS_SET(spell_info[spell_id].routines, kMagWarcry) && cvict && IS_UNDEAD(cvict))
+
+	if (MUD::Spell(spell_id).IsFlagged(kMagWarcry) && cvict && IS_UNDEAD(cvict))
 		return 1;
 
-	if (IS_SET(spell_info[spell_id].routines, kMagDamage))
-		if (mag_damage(level, caster, cvict, spell_id, saving) == -1)
+	if (MUD::Spell(spell_id).IsFlagged(kMagDamage))
+		if (CastDamage(level, caster, cvict, spell_id) == -1)
 			return (-1);    // Successful and target died, don't cast again.
 
-	if (IS_SET(spell_info[spell_id].routines, kMagAffects))
-		CastMagicAffect(level, caster, cvict, spell_id, saving);
+	if (MUD::Spell(spell_id).IsFlagged(kMagAffects))
+		CastAffect(level, caster, cvict, spell_id);
 
-	if (IS_SET(spell_info[spell_id].routines, kMagUnaffects))
-		CastUnaffects(level, caster, cvict, spell_id, saving);
+	if (MUD::Spell(spell_id).IsFlagged(kMagUnaffects))
+		CastUnaffects(level, caster, cvict, spell_id);
 
-	if (IS_SET(spell_info[spell_id].routines, kMagPoints))
-		CastToPoints(level, caster, cvict, spell_id, saving);
+	if (MUD::Spell(spell_id).IsFlagged(kMagPoints))
+		CastToPoints(level, caster, cvict, spell_id);
 
-	if (IS_SET(spell_info[spell_id].routines, kMagAlterObjs))
-		CastToAlterObjs(level, caster, ovict, spell_id, saving);
+	if (MUD::Spell(spell_id).IsFlagged(kMagAlterObjs))
+		CastToAlterObjs(level, caster, ovict, spell_id);
 
-	if (IS_SET(spell_info[spell_id].routines, kMagSummons))
-		mag_summons(level, caster, ovict, spell_id, 1);    // saving =1 -- ВРЕМЕННО, показатель что фэйлить надо
+	if (MUD::Spell(spell_id).IsFlagged(kMagSummons))
+		CastSummon(level, caster, ovict, spell_id, true);
 
-	if (IS_SET(spell_info[spell_id].routines, kMagCreations))
+	if (MUD::Spell(spell_id).IsFlagged(kMagCreations))
 		CastCreation(level, caster, spell_id);
 
-	if (IS_SET(spell_info[spell_id].routines, kMagManual))
-		CastManual(level, caster, cvict, ovict, spell_id, saving);
+	if (MUD::Spell(spell_id).IsFlagged(kMagManual))
+		CastManual(level, caster, cvict, ovict, spell_id);
 
 	ReactToCast(cvict, caster, spell_id);
 	return 1;
@@ -3952,409 +3646,326 @@ struct AreaSpellParams {
 	const char *to_char{nullptr};
 	const char *to_room{nullptr};
 	const char *to_vict{nullptr};
-	float castSuccessPercentDecay{0.0};
-	int skillDivisor{1};
-	int diceSize{1};
-	int minTargetsAmount{1};
-	int maxTargetsAmount{1};
-	int freeTargets{1};
-	int castLevelDecay{0};
 };
 
-// Svent TODO Перенести эту порнографию в спеллпарсер
 const AreaSpellParams mag_messages[] =
 	{
-		{ESpell::kPaladineInspiration, // групповой
+		{ESpell::kPaladineInspiration,
 		 "Ваш точный удар воодушевил и придал новых сил!",
 		 "Точный удар $n1 воодушевил и придал новых сил!",
-		 nullptr,
-		 0.0, 20, 2, 1, 20, 3, 0},
+		 nullptr},
 		{ESpell::kEviless,
 		 "Вы запросили помощи у Чернобога. Долг перед темными силами стал чуточку больше..",
 		 "Внезапно появившееся чёрное облако скрыло $n3 на мгновение от вашего взгляда.",
-		 nullptr,
-		 0.0, 20, 2, 1, 20, 3, 0},
+		 nullptr},
 		{ESpell::kMassBlindness,
 		 "У вас над головой возникла яркая вспышка, которая ослепила все живое.",
 		 "Вдруг над головой $n1 возникла яркая вспышка.",
-		 "Вы невольно взглянули на вспышку света, вызванную $n4, и ваши глаза заслезились.",
-		 0.05, 20, 2, 5, 20, 3, 2},
+		 "Вы невольно взглянули на вспышку света, вызванную $n4, и ваши глаза заслезились."},
 		{ESpell::kMassHold,
 		 "Вы сжали зубы от боли, когда из вашего тела вырвалось множество невидимых каменных лучей.",
 		 nullptr,
-		 "В вас попал каменный луч, исходящий от $n1.",
-		 0.05, 20, 2, 5, 20, 3, 2},
+		 "В вас попал каменный луч, исходящий от $n1."},
 		{ESpell::kMassCurse,
 		 "Медленно оглянувшись, вы прошептали древние слова.",
 		 nullptr,
-		 "$n злобно посмотрел$g на вас и начал$g шептать древние слова.",
-		 0.05, 20, 3, 5, 20, 3, 2},
+		 "$n злобно посмотрел$g на вас и начал$g шептать древние слова."},
 		{ESpell::kMassSilence,
 		 "Поведя вокруг грозным взглядом, вы заставили всех замолчать.",
 		 nullptr,
-		 "Вы встретились взглядом с $n4, и у вас появилось ощущение, что горлу чего-то не хватает.",
-		 0.05, 20, 2, 5, 20, 3, 2},
+		 "Вы встретились взглядом с $n4, и у вас появилось ощущение, что горлу чего-то не хватает."},
 		{ESpell::kDeafness,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.05, 10, 3, 5, 20, 3, 2},
+		 nullptr},
 		{ESpell::kMassDeafness,
 		 "Вы нахмурились, склонив голову, и громкий хлопок сотряс воздух.",
 		 "Как только $n0 склонил$g голову, раздался оглушающий хлопок.",
-		 nullptr,
-		 0.05, 10, 3, 5, 20, 3, 2},
+		 nullptr},
 		{ESpell::kMassSlow,
 		 "Положив ладони на землю, вы вызвали цепкие корни,\r\nопутавшие существ, стоящих рядом с вами.",
 		 nullptr,
-		 "$n вызвал$g цепкие корни, опутавшие ваши ноги.",
-		 0.05, 10, 3, 5, 20, 3, 2},
+		 "$n вызвал$g цепкие корни, опутавшие ваши ноги."},
 		{ESpell::kArmageddon,
 		 "Вы сплели руки в замысловатом жесте, и все потускнело!",
 		 "$n сплел$g руки в замысловатом жесте, и все потускнело!",
-		 nullptr,
-		 0.05, 25, 2, 5, 20, 3, 2},
+		 nullptr},
 		{ESpell::kEarthquake,
 		 "Вы опустили руки, и земля начала дрожать вокруг вас!",
 		 "$n опустил$g руки, и земля задрожала!",
-		 nullptr,
-		 0.05, 25, 2, 5, 20, 5, 2},
+		 nullptr},
 		{ESpell::kThunderStone,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.05, 25, 2, 3, 15, 3, 4},
+		 nullptr},
 		{ESpell::kColdWind,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.05, 40, 2, 2, 5, 5, 4},
+		 nullptr},
 		{ESpell::kAcid,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.05, 20, 2, 3, 8, 4, 4},
+		 nullptr},
 		{ESpell::kLightingBolt,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.05, 15, 3, 3, 6, 4, 4},
+		 nullptr},
 		{ESpell::kCallLighting,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.05, 15, 3, 3, 5, 4, 4},
+		 nullptr},
 		{ESpell::kWhirlwind,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.05, 40, 1, 1, 3, 3, 4},
+		 nullptr},
 		{ESpell::kDamageSerious,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.05, 20, 3, 1, 6, 6, 4},
+		 nullptr},
 		{ESpell::kFireBlast,
 		 "Вы вызвали потоки подземного пламени!",
 		 "$n0 вызвал$g потоки пламени из глубин земли!",
-		 nullptr,
-		 0.05, 20, 2, 5, 20, 3, 3},
+		 nullptr},
 		{ESpell::kIceStorm,
 		 "Вы воздели руки к небу, и тысячи мелких льдинок хлынули вниз!",
 		 "$n воздел$g руки к небу, и тысячи мелких льдинок хлынули вниз!",
-		 nullptr,
-		 0.05, 30, 2, 5, 20, 3, 4},
+		 nullptr},
 		{ESpell::kDustStorm,
 		 "Вы взмахнули руками и вызвали огромное пылевое облако,\r\nскрывшее все вокруг.",
 		 "Вас поглотила пылевая буря, вызванная $n4.",
-		 nullptr,
-		 0.05, 15, 2, 5, 20, 3, 2},
+		 nullptr},
 		{ESpell::kMassFear,
 		 "Вы оглядели комнату устрашающим взглядом, заставив всех содрогнуться.",
 		 "$n0 оглядел$g комнату устрашающим взглядом.",
-		 nullptr,
-		 0.05, 15, 2, 5, 20, 3, 3},
+		 nullptr},
 		{ESpell::kGlitterDust,
 		 "Вы слегка прищелкнули пальцами, и вокруг сгустилось облако блестящей пыли.",
 		 "$n0 сотворил$g облако блестящей пыли, медленно осевшее на землю.",
-		 nullptr,
-		 0.05, 15, 3, 5, 20, 5, 3},
+		 nullptr},
 		{ESpell::kSonicWave,
 		 "Вы оттолкнули от себя воздух руками, и он плотным кольцом стремительно двинулся во все стороны!",
 		 "$n махнул$g руками, и огромное кольцо сжатого воздуха распостранилось во все стороны!",
-		 nullptr,
-		 0.05, 20, 2, 5, 20, 3, 3},
+		 nullptr},
 		{ESpell::kChainLighting,
 		 "Вы подняли руки к небу и оно осветилось яркими вспышками!",
 		 "$n поднял$g руки к небу и оно осветилось яркими вспышками!",
-		 nullptr,
-		 0.05, 10, 3, 1, 8, 1, 5},
+		 nullptr},
 		{ESpell::kEarthfall,
 		 "Вы высоко подбросили комок земли и он, увеличиваясь на глазах, обрушился вниз.",
 		 "$n высоко подбросил$g комок земли, который, увеличиваясь на глазах, стал падать вниз.",
-		 nullptr,
-		 0.05, 20, 2, 1, 3, 1, 8},
+		 nullptr},
 		{ESpell::kShock,
 		 "Яркая вспышка слетела с кончиков ваших пальцев и с оглушительным грохотом взорвалась в воздухе.",
 		 "Выпущенная $n1 яркая вспышка с оглушительным грохотом взорвалась в воздухе.",
-		 nullptr,
-		 0.05, 35, 2, 1, 4, 2, 8},
+		 nullptr},
 		{ESpell::kBurdenOfTime,
 		 "Вы скрестили руки на груди, вызвав яркую вспышку синего света.",
 		 "$n0 скрестил$g руки на груди, вызвав яркую вспышку синего света.",
-		 nullptr,
-		 0.05, 20, 2, 5, 20, 3, 8},
+		 nullptr},
 		{ESpell::kFailure,
 		 "Вы простерли руки над головой, вызвав череду раскатов грома.",
 		 "$n0 вызвал$g череду раскатов грома, заставивших все вокруг содрогнуться.",
-		 nullptr,
-		 0.05, 15, 2, 1, 5, 3, 8},
+		 nullptr},
 		{ESpell::kScream,
 		 "Вы испустили кошмарный вопль, едва не разорвавший вам горло.",
 		 "$n0 испустил$g кошмарный вопль, отдавшийся в вашей душе замогильным холодом.",
-		 nullptr,
-		 0.05, 40, 3, 1, 8, 3, 5},
+		 nullptr},
 		{ESpell::kBurningHands,
 		 "С ваших ладоней сорвался поток жаркого пламени.",
 		 "$n0 испустил$g поток жаркого багрового пламени!",
-		 nullptr,
-		 0.05, 20, 2, 5, 20, 3, 7},
+		 nullptr},
 		{ESpell::kIceBolts,
 		 "Из ваших рук вылетел сноп ледяных стрел.",
 		 "$n0 метнул$g во врагов сноп ледяных стрел.",
-		 nullptr,
-		 0.05, 30, 2, 1, 5, 3, 7},
+		 nullptr},
 		{ESpell::kWarcryOfChallenge,
 		 nullptr,
 		 "Вы не стерпели насмешки, и бросились на $n1!",
-		 nullptr,
-		 0.01, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kWarcryOfMenace,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.01, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kWarcryOfRage,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.01, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kWarcryOfMadness,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.01, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kWarcryOfThunder,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.01, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kWarcryOfDefence,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.01, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kGroupHeal,
 		 "Вы подняли голову вверх и ощутили яркий свет, ласково бегущий по вашему телу.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.01, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kGroupArmor,
 		 "Вы создали защитную сферу, которая окутала вас и пространство рядом с вами.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kGroupRecall,
 		 "Вы выкрикнули заклинание и хлопнули в ладоши.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kGroupStrength,
 		 "Вы призвали мощь Вселенной.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kGroupBless,
 		 "Прикрыв глаза, вы прошептали таинственную молитву.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kGroupHaste,
 		 "Разведя руки в стороны, вы ощутили всю мощь стихии ветра.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kGroupFly,
 		 "Ваше заклинание вызвало белое облако, которое разделилось, подхватывая вас и товарищей.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kGroupInvisible,
 		 "Вы вызвали прозрачный туман, поглотивший все дружественное вам.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kGroupMagicGlass,
 		 "Вы произнесли несколько резких слов, и все вокруг засеребрилось.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kGroupSanctuary,
 		 "Вы подняли руки к небу и произнесли священную молитву.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kGroupPrismaticAura,
 		 "Силы духа, призванные вами, окутали вас и окружающих голубоватым сиянием.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kFireAura,
 		 "Силы огня пришли к вам на помощь и защитили вас.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kAirAura,
 		 "Силы воздуха пришли к вам на помощь и защитили вас.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kIceAura,
 		 "Силы холода пришли к вам на помощь и защитили вас.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kGroupRefresh,
 		 "Ваша магия наполнила воздух зеленоватым сиянием.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kWarcryOfDefence,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kWarcryOfBattle,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kWarcryOfPower,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kWarcryOfBless,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kWarcryOfCourage,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kSightOfDarkness,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kGroupSincerity,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kMagicalGaze,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kAllSeeingEye,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kEyeOfGods,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kBreathingAtDepth,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kGeneralRecovery,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kCommonMeal,
 		 "Вы услышали гомон невидимых лакеев, готовящих трапезу.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kStoneWall,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kSnakeEyes,
 		 nullptr,
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kEarthAura,
 		 "Земля одарила вас своей защитой.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kGroupProtectFromEvil,
 		 "Сила света подавила в вас страх к тьме.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kGroupBlink,
 		 "Очертания вас и соратников замерцали в такт биения сердца, став прозрачней.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kGroupCloudly,
 		 "Пелена тумана окутала вас и окружающих, скрыв очертания.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kGroupAwareness,
 		 "Произнесенные слова обострили ваши чувства и внимательность ваших соратников.\r\n",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kWarcryOfExperience,
 		 "Вы приготовились к обретению нового опыта.",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kWarcryOfLuck,
 		 "Вы ощутили, что вам улыбнулась удача.",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kWarcryOfPhysdamage,
 		 "Боевой клич придал вам сил!",
 		 nullptr,
-		 nullptr,
-		 0.0, 20, 2, 5, 20, 3, 0},
+		 nullptr},
 		{ESpell::kMassFailure,
 		 "Вняв вашему призыву, Змей Велес коснулся недобрым взглядом ваших супостатов.\r\n",
 		 nullptr,
-		 "$n провыл$g несколько странно звучащих слов и от тяжелого взгляда из-за края мира у вас подкосились ноги.",
-		 0.03, 25, 2, 3, 15, 4, 6},
+		 "$n провыл$g несколько странно звучащих слов и от тяжелого взгляда из-за края мира у вас подкосились ноги."},
 		{ESpell::kSnare,
 		 "Вы соткали магические тенета, опутавшие ваших врагов.\r\n",
 		 nullptr,
-		 "$n что-то прошептал$g, странно скрючив пальцы, и взлетевшие откуда ни возьмись ловчие сети опутали вас",
-		 0.03, 25, 2, 3, 15, 5, 6},
-		{ESpell::kUndefined, nullptr, nullptr, nullptr, 0.01, 1, 1, 1, 1, 1, 0}
+		 "$n что-то прошептал$g, странно скрючив пальцы, и взлетевшие откуда ни возьмись ловчие сети опутали вас"},
+		{ESpell::kUndefined,
+		 nullptr,
+		 nullptr,
+		 nullptr}
 	};
 
 int FindIndexOfMsg(ESpell spell_id) {
@@ -4367,12 +3978,10 @@ int FindIndexOfMsg(ESpell spell_id) {
 	return i;
 }
 
-int TrySendCastMessages(CharData *ch, CharData *victim, RoomData *room, ESpell spell_id) {
-	int msgIndex = FindIndexOfMsg(spell_id);
+void TrySendCastMessages(CharData *ch, CharData *victim, RoomData *room, int msgIndex) {
 	if (mag_messages[msgIndex].spell < ESpell::kFirst) {
-		sprintf(buf, "ERROR: Нет сообщений в mag_messages для заклинания с номером %d.", to_underlying(spell_id));
+		sprintf(buf, "ERROR: Нет сообщений в mag_messages для заклинания.");
 		mudlog(buf, BRF, kLvlBuilder, SYSLOG, true);
-		return msgIndex;
 	}
 	if (room && world[ch->in_room] == room) {
 		if (IsAbleToSay(ch)) {
@@ -4385,13 +3994,13 @@ int TrySendCastMessages(CharData *ch, CharData *victim, RoomData *room, ESpell s
 			}
 		}
 	}
-	return msgIndex;
 };
 
-int CalcAmountOfTargets(const CharData *ch, const int msg_index, const ESpell spell_id) {
+int CalcAmountOfTargets(const CharData *ch, const ESpell spell_id) {
+	const auto params = MUD::Spell(spell_id).GetArea();
 	auto amount = ch->GetSkill(GetMagicSkillId(spell_id));
-	amount = RollDices(amount/mag_messages[msg_index].skillDivisor, mag_messages[msg_index].diceSize);
-	return mag_messages[msg_index].minTargetsAmount + std::min(amount, mag_messages[msg_index].maxTargetsAmount);
+	amount = RollDices(amount/params.skill_divisor, params.targets_dice_size);
+	return params.min_targets + std::min(amount, params.max_targets);
 }
 
 int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, ESpell spell_id, int level) {
@@ -4399,35 +4008,39 @@ int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, ESpell spell
 		return 0;
 	}
 
-	ActionTargeting::FoesRosterType
-		roster{ch, victim, [](CharData *, CharData *target) { return !IS_HORSE(target); }};
-	int msgIndex = TrySendCastMessages(ch, victim, room, spell_id);
-	int targetsAmount = CalcAmountOfTargets(ch, msgIndex, spell_id);
+	ActionTargeting::FoesRosterType roster{ch, victim,
+										   [](CharData *, CharData *target) {
+											   return !IS_HORSE(target);
+										   }};
+	int msgIndex = FindIndexOfMsg(spell_id);
+	TrySendCastMessages(ch, victim, room, msgIndex);
+	int targetsAmount = CalcAmountOfTargets(ch, spell_id);
 	int targetsCounter = 1;
-	float castDecay = 0.0;
 	int levelDecay = 0;
+	double castDecay = 0.0;
+	const auto params = MUD::Spell(spell_id).GetArea();
 	if (CanUseFeat(ch, EFeat::kMultipleCast)) {
-		castDecay = mag_messages[msgIndex].castSuccessPercentDecay * 0.6;
-		levelDecay = MAX(MIN(1, mag_messages[msgIndex].castLevelDecay), mag_messages[msgIndex].castLevelDecay - 1);
+		castDecay = params.cast_decay * 0.6;
+		levelDecay = MAX(MIN(1, params.level_decay), params.level_decay - 1);
 	} else {
-		castDecay = mag_messages[msgIndex].castSuccessPercentDecay;
-		levelDecay = mag_messages[msgIndex].castLevelDecay;
+		castDecay = params.cast_decay;
+		levelDecay = params.level_decay;
 	}
-	const int CASTER_CAST_SUCCESS = GET_CAST_SUCCESS(ch);
+	const int kCasterCastSuccess = GET_CAST_SUCCESS(ch);
 
 	for (const auto &target: roster) {
 		if (mag_messages[msgIndex].to_vict != nullptr && target->desc) {
 			act(mag_messages[msgIndex].to_vict, false, ch, nullptr, target, kToVict);
 		}
-		CastToSingleTarget(level, ch, target, nullptr, spell_id, ESaving::kStability);
+		CastToSingleTarget(level, ch, target, nullptr, spell_id);
 		if (ch->purged()) {
 			return 1;
 		}
 		if (!ch->IsNpc()) {
 			++targetsCounter;
-			if (targetsCounter > mag_messages[msgIndex].freeTargets) {
-				int tax = CASTER_CAST_SUCCESS * castDecay * (targetsCounter - mag_messages[msgIndex].freeTargets);
-				GET_CAST_SUCCESS(ch) = std::max(-200, CASTER_CAST_SUCCESS - tax);
+			if (targetsCounter > params.free_targets) {
+				int tax = kCasterCastSuccess * castDecay * (targetsCounter - params.free_targets);
+				GET_CAST_SUCCESS(ch) = std::max(-200, kCasterCastSuccess - tax);
 				level = std::max(1, level - levelDecay);
 				if (PRF_FLAGGED(ch, EPrf::kTester)) {
 					SendMsgToChar(ch,
@@ -4443,7 +4056,7 @@ int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, ESpell spell
 		}
 	}
 
-	GET_CAST_SUCCESS(ch) = CASTER_CAST_SUCCESS;
+	GET_CAST_SUCCESS(ch) = kCasterCastSuccess;
 	return 1;
 }
 
@@ -4454,12 +4067,12 @@ int CallMagicToGroup(int level, CharData *ch, ESpell spell_id) {
 		return 0;
 	}
 
-	TrySendCastMessages(ch, nullptr, world[IN_ROOM(ch)], spell_id);
+	TrySendCastMessages(ch, nullptr, world[IN_ROOM(ch)], FindIndexOfMsg(spell_id));
 
 	ActionTargeting::FriendsRosterType roster{ch, ch};
 	roster.flip();
 	for (const auto target: roster) {
-		CastToSingleTarget(level, ch, target, nullptr, spell_id, ESaving::kStability);
+		CastToSingleTarget(level, ch, target, nullptr, spell_id);
 	}
 	return 1;
 }

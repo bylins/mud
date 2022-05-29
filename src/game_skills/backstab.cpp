@@ -96,7 +96,7 @@ void go_backstab(CharData *ch, CharData *vict) {
 	} else 
 */
 {
-		int percent = number(1, MUD::Skills(ESkill::kBackstab).difficulty);
+		int percent = number(1, MUD::Skill(ESkill::kBackstab).difficulty);
 		int prob = CalcCurrentSkill(ch, ESkill::kBackstab, vict);
 
 		if (CanUseFeat(ch, EFeat::kShadowStrike)) {
@@ -120,7 +120,7 @@ void go_backstab(CharData *ch, CharData *vict) {
 			prob = 0;
 		}
 		success = percent <= prob;
-		SendSkillBalanceMsg(ch, MUD::Skills(ESkill::kBackstab).name, percent, prob, success);
+		SendSkillBalanceMsg(ch, MUD::Skill(ESkill::kBackstab).name, percent, prob, success);
 	}
 
 	TrainSkill(ch, ESkill::kBackstab, success, vict);

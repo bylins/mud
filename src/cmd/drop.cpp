@@ -53,7 +53,7 @@ void PerformDropGold(CharData *ch, int amount) {
 					GetDeclensionInNumber(amount, EWhat::kMoneyU));
 			mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 			sprintf(buf, "$n бросил$g %s на землю.",
-					MUD::Currencies(currencies::kKunaVnum).GetObjCName(amount, ECase::kAcc));
+					MUD::Currency(currencies::kKunaVnum).GetObjCName(amount, ECase::kAcc));
 			act(buf, true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 		}
 		PlaceObjToRoom(obj.get(), ch->in_room);

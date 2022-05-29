@@ -1104,7 +1104,7 @@ void check_hiding_cmd(CharData *ch, int percent) {
 	if (IsAffectedBySpell(ch, ESpell::kHide)) {
 		if (percent == -2) {
 			if (AFF_FLAGGED(ch, EAffect::kSneak)) {
-				remove_hide = number(1, MUD::Skills(ESkill::kSneak).difficulty) >
+				remove_hide = number(1, MUD::Skill(ESkill::kSneak).difficulty) >
 					CalcCurrentSkill(ch, ESkill::kSneak, nullptr);
 			} else {
 				percent = 500;
@@ -2297,20 +2297,23 @@ void do_entergame(DescriptorData *d) {
 
 	if (!IS_IMMORTAL(d->character)) {
 		for (const auto &skill : MUD::Skills()) {
-			if (MUD::Classes((d->character)->GetClass()).skills[skill.GetId()].IsUnavailable()) {
+			if (MUD::Class((d->character)->GetClass()).skills[skill.GetId()].IsInvalid()) {
 				d->character->set_skill(skill.GetId(), 0);
+			}
+		}
+
+		for (const auto &spell : MUD::Spells()) {
+			if (IS_SPELL_SET(d->character, spell.GetId(), ESpellType::kKnow)) {
+				if (MUD::Class((d->character)->GetClass()).spells[spell.GetId()].IsInvalid()) {
+					UNSET_SPELL_TYPE(d->character, spell.GetId(), ESpellType::kKnow);
+				}
 			}
 		}
 	}
 
-	if (GET_SPELL_TYPE(d->character, ESpell::kRelocate) == ESpellType::kKnow && !IS_GOD(d->character)) {
-		GET_SPELL_TYPE(d->character, ESpell::kRelocate) = ESpellType::kUnknowm;
-	}
-
-	//Проверим временные заклы пока нас не было
 	temporary_spells::update_char_times(d->character.get(), time(nullptr));
 
-	// Карачун. Редкая бага. Сбрасываем явно не нужные аффекты.
+	// Сбрасываем явно не нужные аффекты.
 	d->character->remove_affect(EAffect::kGroup);
 	d->character->remove_affect(EAffect::kHorse);
 
@@ -2381,7 +2384,7 @@ void do_entergame(DescriptorData *d) {
 			break;
 	}
 
-	mudlog(buf, NRM, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
+	mudlog(buf, NRM, std::max(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 	d->has_prompt = 0;
 	login_change_invoice(d->character.get());
 	affect_total(d->character.get());
@@ -2749,7 +2752,7 @@ void DisplaySelectCharClassMenu(DescriptorData *d) {
 	std::sort(char_classes.begin(), char_classes.end());
 	for (const auto &it : char_classes) {
 		out << "  " << KCYN << std::right << std::setw(3) << to_underlying(it) + 1 << KNRM << ") "
-		<< KGRN << std::left << MUD::Classes(it).GetName() << std::endl << KNRM;
+			<< KGRN << std::left << MUD::Class(it).GetName() << std::endl << KNRM;
 	}
 	write_to_output(out.str().c_str(), d);
 }

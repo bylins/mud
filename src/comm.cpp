@@ -1711,7 +1711,7 @@ char *make_prompt(DescriptorData *d) {
 			// у кого руки дойдут - может переделать на метод класса...
 			count += sprintf(prompt + count,
 							 "%s:%d ",
-							 MUD::Skills(ESkill::kGlobalCooldown).GetAbbr(),
+							 MUD::Skill(ESkill::kGlobalCooldown).GetAbbr(),
 							 d->character->getSkillCooldownInPulses(ESkill::kGlobalCooldown));
 			for (const auto &skill : MUD::Skills()) {
 				if (skill.IsAvailable()) {

@@ -98,7 +98,7 @@ void perform_give_gold(CharData *ch, CharData *vict, int amount) {
 	sprintf(buf, "$n дал$g вам %d %s.", amount, GetDeclensionInNumber(amount, EWhat::kMoneyU));
 	act(buf, false, ch, nullptr, vict, kToVict);
 	sprintf(buf, "$n дал$g %s $N2.",
-			MUD::Currencies(currencies::kKunaVnum).GetObjCName(amount, ECase::kAcc));
+			MUD::Currency(currencies::kKunaVnum).GetObjCName(amount, ECase::kAcc));
 	act(buf, true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 	if (!(ch->IsNpc() || vict->IsNpc())) {
 		sprintf(buf,

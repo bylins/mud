@@ -1096,8 +1096,7 @@ void medit_disp_spells(DescriptorData *d) {
 #endif
 	int columns = 0;
 	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
-		if (!spell_info[spell_id].name
-			|| *spell_info[spell_id].name == '!') {
+		if (MUD::Spell(spell_id).IsUnavailable()) {
 			continue;
 		}
 		if (GET_SPELL_MEM(OLC_MOB(d), spell_id)) {
@@ -1106,7 +1105,7 @@ void medit_disp_spells(DescriptorData *d) {
 			strcpy(buf1, "     ");
 		}
 		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, to_underlying(spell_id), nrm,
-				 spell_info[spell_id].name, buf1, !(++columns % 2) ? "\r\n" : "");
+				 MUD::Spell(spell_id).GetCName(), buf1, !(++columns % 2) ? "\r\n" : "");
 		SendMsgToChar(buf, d->character.get());
 	}
 	SendMsgToChar("\r\nУкажите номер и количество заклинаний (0 - конец) : ", d->character.get());
@@ -1793,7 +1792,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 			} else if (sscanf(arg, "%d %d", &plane, &bit) < 2) {
 				SendMsgToChar("Не указан уровень сопротивления.\r\n", d->character.get());
 			} else {
-				GET_RESIST(OLC_MOB(d), number) =  std::clamp(bit, kMinResistance, kMaxResistance);
+				GET_RESIST(OLC_MOB(d), number) =  std::clamp(bit, kMinResistance, kMaxNpcResist);
 			}
 			medit_disp_resistances(d);
 			return;
@@ -2186,7 +2185,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 			} else if (sscanf(arg, "%d %d", &plane, &bit) < 2) {
 				SendMsgToChar("Не указан уровень владения умением.\r\n", d->character.get());
 			} else {
-				OLC_MOB(d)->set_skill(skill_id, std::clamp(bit, 0, MUD::Skills(skill_id).cap));
+				OLC_MOB(d)->set_skill(skill_id, std::clamp(bit, 0, MUD::Skill(skill_id).cap));
 			}
 			medit_disp_skills(d);
 			return;
@@ -2198,7 +2197,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 				break;
 			}
 			auto spell_id = static_cast<ESpell>(number);
-			if (spell_id < ESpell::kFirst || !spell_info[spell_id].name || *spell_info[spell_id].name == '!') {
+			if (MUD::Spell(spell_id).IsInvalid()) {
 				SendMsgToChar("Неизвестное заклинание.\r\n", d->character.get());
 			} else if (sscanf(arg, "%d %d", &plane, &bit) < 2) {
 				SendMsgToChar("Не указано количество заклинаний.\r\n", d->character.get());
