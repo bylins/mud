@@ -222,10 +222,21 @@ const char *CharClassInfo::GetPluralCName(ECase name_case) const {
 }
 
 int CharClassInfo::GetMaxCircle() const {
-	auto it = std::max_element(spells.begin(), spells.end(), [](auto &a, auto &b){
-		return (a.GetCircle() < b.GetCircle() || a.IsInvalid());
-	});
-	return it->GetCircle();
+/*	auto it = std::max_element(spells.begin(), spells.end(), [](auto &a, auto &b){
+		return (a.GetCircle() < b.GetCircle());
+	});*/
+	//return it->GetCircle();
+
+	// Это наглый костыль, который поставлен потому, что иначе надо всем классам в конфиге прописывать
+	// undefined спелл. Ибо нефиг выделываться, используя внутри инфо_контейнер его же.
+	// \todo не забыть убрать
+	int circle{0};
+	for (const auto &spell : spells) {
+		if (spell.IsValid() && spell.GetCircle() > circle) {
+			circle = spell.GetCircle();
+		}
+	}
+	return circle;
 }
 
 void CharClassInfo::PrintSkillsTable(CharData *ch, std::ostringstream &buffer) const {
@@ -266,9 +277,6 @@ CharClassInfo::SkillInfoBuilder::ItemPtr CharClassInfo::SkillInfoBuilder::Build(
 	}
 
 	auto skill_mode = SkillInfoBuilder::ParseItemMode(node, EItemMode::kEnabled);
-
-/*	auto info = std::make_shared<CharClassInfo::SkillInfo>(skill_id, skill_mode);
-	return info;*/
 	return std::make_shared<CharClassInfo::SkillInfo>(skill_id, min_lvl, min_remort, improve, skill_mode);
 }
 
