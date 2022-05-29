@@ -330,8 +330,8 @@ using DataNode = parser_wrapper::DataNode;
 
 class FeatsLoader : virtual public cfg_manager::ICfgLoader {
  public:
-	void Load(parser_wrapper::DataNode data) final;
-	void Reload(parser_wrapper::DataNode data) final;
+	void Load(DataNode data) final;
+	void Reload(DataNode data) final;
 };
 
 class FeatInfo : public info_container::BaseItem<EFeat> {
@@ -341,23 +341,24 @@ class FeatInfo : public info_container::BaseItem<EFeat> {
 
  public:
 	FeatInfo() = default;
-	FeatInfo(EFeat id, std::string &name, EItemMode mode)
-		: BaseItem<EFeat>(id, mode), name_{name} {};
+	FeatInfo(EFeat id, EItemMode mode)
+		: BaseItem<EFeat>(id, mode) {};
 
-	const std::string &GetName() const { return name_; };
-	const std::string &GetCName() const { return name_.c_str(); };
+	[[nodiscard]] const std::string &GetName() const { return name_; };
+	[[nodiscard]] const char *GetCName() const { return name_.c_str(); };
 
-	void Print(CharData *ch, std::ostringstream &buffer) const;
+	void Print(std::ostringstream &buffer) const;
 };
 
 class FeatInfoBuilder : public info_container::IItemBuilder<FeatInfo> {
  public:
-	ItemPtr Build(parser_wrapper::DataNode &node) final;
+	ItemPtr Build(DataNode &node) final;
  private:
-	static ItemPtr ParseFeat(parser_wrapper::DataNode node);
+	static ItemPtr ParseFeat(DataNode &node);
+	static ItemPtr ParseHeader(DataNode &node);
 };
 
-using GuildsInfo = info_container::InfoContainer<int, FeatInfo, FeatInfoBuilder>;
+using FeatsInfo = info_container::InfoContainer<EFeat, FeatInfo, FeatInfoBuilder>;
 
 }
 

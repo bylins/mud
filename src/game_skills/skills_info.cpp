@@ -48,7 +48,7 @@ ItemPtr SkillInfoBuilder::ParseObligatoryValues(DataNode &node) {
 	return std::make_shared<SkillInfo>(id, mode);
 }
 
-void SkillInfo::Print(std::stringstream &buffer) const {
+void SkillInfo::Print(std::ostringstream &buffer) const {
 	buffer << "Print skill:" << std::endl
 		   << " Id: " << KGRN << NAME_BY_ITEM<ESkill>(GetId()) << KNRM << std::endl
 		   << " Name: " << KGRN << name << KNRM << std::endl

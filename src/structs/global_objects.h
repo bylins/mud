@@ -7,6 +7,7 @@
 #include "game_economics/currencies.h"
 #include "game_mechanics/celebrates.h"
 #include "game_mechanics/guilds.h"
+#include "feats.h"
 #include "utils/logger.h"
 #include "heartbeat.h"
 #include "speedwalks.h"
@@ -42,6 +43,8 @@ class GlobalObjects {
 	static abilities::AbilitiesInfo &Abilities();
 	static SkillsInfo &Skills();
 	static const SkillInfo &Skills(ESkill skill_id);
+	static feats::FeatsInfo &Feats();
+	static const feats::FeatInfo &Feat(EFeat feat_id);
 	static classes::ClassesInfo &Classes();
 	static const classes::CharClassInfo &Classes(ECharClass class_id);
 	static guilds::GuildsInfo &Guilds();

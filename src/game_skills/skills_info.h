@@ -38,7 +38,7 @@ class SkillInfo : public info_container::BaseItem<ESkill> {
 	 */
 	[[nodiscard]] const char *GetName() const { return name.c_str(); };
 	[[nodiscard]] const char *GetAbbr() const { return short_name.c_str(); };
-	void Print(std::stringstream &buffer) const;
+	void Print(std::ostringstream &buffer) const;
 };
 
 /*

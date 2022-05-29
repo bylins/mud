@@ -19,6 +19,7 @@
 #include "color.h"
 #include "game_fight/pk.h"
 #include "structs/global_objects.h"
+#include "feats.h"
 
 extern const char *unused_spellname;
 
@@ -1404,6 +1405,57 @@ EFeat ITEM_BY_NAME<EFeat>(const std::string &name) {
 }
 
 namespace feats {
+
+using ItemPtr = FeatInfoBuilder::ItemPtr;
+
+void FeatsLoader::Load(DataNode data) {
+	MUD::Feats().Init(data.Children());
+}
+
+void FeatsLoader::Reload(DataNode data) {
+	MUD::Feats().Reload(data.Children());
+}
+
+ItemPtr FeatInfoBuilder::Build(DataNode &node) {
+	try {
+		return ParseFeat(node);
+	} catch (std::exception &e) {
+		err_log("Feat parsing error (incorrect value '%s')", e.what());
+		return nullptr;
+	}
+}
+
+ItemPtr FeatInfoBuilder::ParseFeat(DataNode &node) {
+	auto info = ParseHeader(node);
+
+	return info;
+}
+
+ItemPtr FeatInfoBuilder::ParseHeader(DataNode &node) {
+	auto id{EFeat::kUndefined};
+	try {
+		id = parse::ReadAsConstant<EFeat>(node.GetValue("id"));
+	} catch (std::exception &e) {
+		err_log("Incorrect feat id (%s).", e.what());
+		throw;
+	}
+	auto mode = FeatInfoBuilder::ParseItemMode(node, EItemMode::kEnabled);
+
+	auto info = std::make_shared<FeatInfo>(id, mode);
+	try {
+		info->name_ = parse::ReadAsStr(node.GetValue("name"));
+	} catch (std::exception &) {
+	}
+
+	return info;
+}
+
+void FeatInfo::Print(std::ostringstream &buffer) const {
+	buffer << "Print feat:" << std::endl
+		   << " Id: " << KGRN << NAME_BY_ITEM<EFeat>(GetId()) << KNRM << std::endl
+		   << " Name: " << KGRN << name_ << KNRM << std::endl
+		   << " Mode: " << KGRN << NAME_BY_ITEM<EItemMode>(GetMode()) << KNRM << std::endl;
+}
 
 }
 
