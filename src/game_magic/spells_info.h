@@ -5,52 +5,12 @@
 #include "game_classes/classes_constants.h"
 #include "game_magic/spells_constants.h"
 #include "entities/entities_constants.h"
+#include "structs/effect.h"
 #include "structs/structs.h"
 #include "structs/info_container.h"
 
 namespace spells {
 
-/*
- *  Классы эффектов заклинания
- */
-
-enum class EEffect {
-	kDamage,
-	kArea
-};
-
-class IEffect {
- public:
-	virtual ~IEffect() = default;
-
-	virtual void Print(std::ostringstream &buffer) const = 0;
-};
-
-struct SpellDmg : public IEffect {
-	ESaving saving{ESaving::kReflex};
-	int dice_num{1};
-	int dice_size{1};
-	int dice_add{1};
-	double low_skill_bonus{0.0};
-	double hi_skill_bonus{0.0};
-
-	void Print(std::ostringstream &buffer) const override;
-};
-
-struct SpellArea : public IEffect {
-	double cast_decay{0.0};
-	int level_decay{0};
-	int free_targets{1};
-
-	int skill_divisor{1};
-	int targets_dice_size{1};
-	int min_targets{1};
-	int max_targets{1};
-
-	void Print(std::ostringstream &buffer) const override;
-};
-
-using EffectPtr = std::shared_ptr<IEffect>;
 using DataNode = parser_wrapper::DataNode;
 
 /**
@@ -79,7 +39,7 @@ class SpellInfo : public info_container::BaseItem<ESpell> {
 	int max_mana_{120};        // Max amount of mana used by a spell (lowest lev) //
 	int mana_change_{1};    // Change in mana used by spell from lev to lev //
 
-	std::unordered_map<EEffect, EffectPtr> effects_;
+	std::unordered_map<effects::EEffect, effects::EffectPtr> effects_;
 
  public:
 	SpellInfo() = default;
@@ -112,8 +72,8 @@ class SpellInfo : public info_container::BaseItem<ESpell> {
 	[[nodiscard]] int GetManaChange() const { return mana_change_; };
 
 	/* Эффекты */
-	SpellDmg GetDmg() const;
-	SpellArea GetArea() const;
+	effects::Damage GetDmg() const;
+	effects::Area GetArea() const;
 
 	void Print(std::ostringstream &buffer) const;
 };

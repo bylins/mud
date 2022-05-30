@@ -1,12 +1,3 @@
-/*************************************************************************
-*   File: features.cpp                                 Part of Bylins    *
-*   Features code                                                        *
-*                                                                        *
-*  $Author$                                                     *
-*  $Date$                                          *
-*  $Revision$                	                                 *
-************************************************************************ */
-
 //#include "feats.h"
 
 #include <boost/algorithm/string.hpp>

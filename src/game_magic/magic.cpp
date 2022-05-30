@@ -340,7 +340,7 @@ double CalcMagicElementCoeff(CharData *victim, ESpell spell_id) {
 	return element_coeff;
 }
 
-int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id, spells::SpellDmg &spell_dmg) {
+int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id, effects::Damage &spell_dmg) {
 	int total_dmg{0};
 	if (number(1, 100) > std::min(ch->IsNpc() ? kMaxNpcResist : kMaxPcResist, GET_MR(victim))) {
 		auto base_dmg = RollDices(spell_dmg.dice_num, spell_dmg.dice_size) + spell_dmg.dice_add;

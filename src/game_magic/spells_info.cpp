@@ -170,7 +170,7 @@ void SpellInfoBuilder::ParseEffects(ItemPtr &info, DataNode &node) {
 
 void SpellInfoBuilder::ParseDmgSection(ItemPtr &info, DataNode &node) {
 	if (node.GoToChild("damage")) {
-		auto ptr = std::make_shared<SpellDmg>();
+		auto ptr = std::make_shared<effects::Damage>();
 		try {
 			ptr->saving = parse::ReadAsConstant<ESaving>(node.GetValue("saving"));
 		} catch (std::exception &e) {
@@ -188,7 +188,7 @@ void SpellInfoBuilder::ParseDmgSection(ItemPtr &info, DataNode &node) {
 				err_log("Incorrect 'damage/amount' section (spell: %s, value: %s).",
 						NAME_BY_ITEM(info->GetId()).c_str(), e.what());
 			}
-			info->effects_[EEffect::kDamage] = std::move(ptr);
+			info->effects_[effects::EEffect::kDamage] = std::move(ptr);
 			node.GoToParent();
 		}
 		node.GoToParent();
@@ -197,7 +197,7 @@ void SpellInfoBuilder::ParseDmgSection(ItemPtr &info, DataNode &node) {
 
 void SpellInfoBuilder::ParseAreaSection(ItemPtr &info, DataNode &node) {
 	if (node.GoToChild("area")) {
-		auto ptr = std::make_shared<SpellArea>();
+		auto ptr = std::make_shared<effects::Area>();
 		if (node.GoToChild("decay")) {
 			try {
 				ptr->free_targets = std::max(0, parse::ReadAsInt(node.GetValue("free_targets")));
@@ -221,7 +221,7 @@ void SpellInfoBuilder::ParseAreaSection(ItemPtr &info, DataNode &node) {
 			}
 			node.GoToParent();
 		}
-		info->effects_[EEffect::kArea] = std::move(ptr);
+		info->effects_[effects::EEffect::kArea] = std::move(ptr);
 		node.GoToParent();
 	}
 }
@@ -234,18 +234,18 @@ bool SpellInfo::AllowTarget(const Bitvector target_type) const {
 	return IS_SET(targets_, target_type);
 }
 
-SpellDmg SpellInfo::GetDmg() const {
-	if (effects_.contains(EEffect::kDamage)) {
-		return *std::dynamic_pointer_cast<SpellDmg>(effects_.at(EEffect::kDamage));
+effects::Damage SpellInfo::GetDmg() const {
+	if (effects_.contains(effects::EEffect::kDamage)) {
+		return *std::dynamic_pointer_cast<effects::Damage>(effects_.at(effects::EEffect::kDamage));
 	} else {
 		err_log("getting damage parameters from spell '%s' has no 'damage' effect section.", GetCName());
 		return {};
 	}
 }
 
-SpellArea SpellInfo::GetArea() const {
-	if (effects_.contains(EEffect::kArea)) {
-		return *std::dynamic_pointer_cast<SpellArea>(effects_.at(EEffect::kArea));
+effects::Area SpellInfo::GetArea() const {
+	if (effects_.contains(effects::EEffect::kArea)) {
+		return *std::dynamic_pointer_cast<effects::Area>(effects_.at(effects::EEffect::kArea));
 	} else {
 		err_log("getting area parameters from spell '%s' has no 'area' effect section.", GetCName());
 		return {};
@@ -271,27 +271,6 @@ void SpellInfo::Print(std::ostringstream &buffer) const {
 	for (const auto &effect: effects_) {
 		effect.second->Print(buffer);
 	}
-}
-
-void SpellDmg::Print(std::ostringstream &buffer) const {
-	buffer << " Damage: " << std::endl
-		   << KGRN << "  " << dice_num
-		   << "d" << dice_size
-		   << "+" << dice_add << KNRM
-		   << " Low skill bonus: " << KGRN << low_skill_bonus << KNRM
-		   << " Hi skill bonus: " << KGRN << hi_skill_bonus << KNRM
-		   << " Saving: " << KGRN << NAME_BY_ITEM<ESaving>(saving) << KNRM << std::endl;
-}
-
-void SpellArea::Print(std::ostringstream &buffer) const {
-	buffer << " Area:" << std::endl
-		   << "  Cast decay: " << KGRN << cast_decay << KNRM
-		   << " Level decay: " << KGRN << level_decay << KNRM
-		   << " Free targets: " << KGRN << free_targets << KNRM << std::endl
-		   << "  Skill divisor: " << KGRN << skill_divisor << KNRM
-		   << " Targets dice: " << KGRN << targets_dice_size << KNRM
-		   << " Min targets: " << KGRN << min_targets << KNRM
-		   << " Max targets: " << KGRN << max_targets << KNRM << std::endl;
 }
 
 }
