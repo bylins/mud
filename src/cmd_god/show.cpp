@@ -95,9 +95,7 @@ void ShowFeatInfo(CharData *ch, const std::string &name) {
 		return;
 	}
 
-	auto name_copy = name;
-	FixName(name_copy);
-	auto id = FixNameAndFindFeatId(name_copy);
+	auto id = FixNameAndFindFeatId(name);
 	if (id == EFeat::kUndefined) {
 		SendMsgToChar("Неизвестное название способности.", ch);
 		return;

@@ -1629,13 +1629,13 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 
 				case EBook::kFeat: {
 					const auto feat_id = static_cast<EFeat>(GET_OBJ_VAL(obj, 1));
-					if (feat_id >= EFeat::kFirst && feat_id <= EFeat::kLast) {
+					if (MUD::Feat(feat_id).IsValid()) {
 						if (CanGetFeat(ch, feat_id)) {
 							drsdice = MUD::Class(ch->GetClass()).feats[feat_id].GetSlot();
 						} else {
 							drsdice = kLvlImplementator;
 						}
-						sprintf(buf, "содержит секрет способности : \"%s\"\r\n", GetFeatName(feat_id));
+						sprintf(buf, "содержит секрет способности : \"%s\"\r\n", MUD::Feat(feat_id).GetCName());
 						SendMsgToChar(buf, ch);
 						sprintf(buf, "уровень изучения (для вас) : %d\r\n", drsdice);
 						SendMsgToChar(buf, ch);

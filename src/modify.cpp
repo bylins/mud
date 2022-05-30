@@ -865,11 +865,11 @@ void do_featset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			<< "Возможные способности:" << std:: endl;
 
 		table_wrapper::Table table;
-		for (auto feat = EFeat::kFirst; feat <= EFeat::kLast; ++feat) {
-			if (feat_info[feat].type == EFeatType::kUnused) {
+		for (const auto &feat : MUD::Feats()) {
+			if (feat.IsInvalid()) {
 				continue;
 			}
-			table << GetFeatName(feat);
+			table << feat.GetName();
 			if (table.cur_col() % 3 == 0) {
 				table << table_wrapper::kEndRow;
 			}
@@ -909,7 +909,7 @@ void do_featset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	strcpy(help, (argument + 1));
 	help[qend - 1] = '\0';
 
-	auto feat_id = FindFeatId(help);
+	auto feat_id =  FixNameAndFindFeatId(help);
 	if (feat_id == EFeat::kUndefined) {
 		SendMsgToChar("Неизвестная способность.\r\n", ch);
 		return;
@@ -934,7 +934,7 @@ void do_featset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	sprintf(buf2, "%s changed %s's %s to '%s'.", GET_NAME(ch), GET_NAME(vict),
-			feat_info[feat_id].name, value ? "enabled" : "disabled");
+			MUD::Feat(feat_id).GetCName(), value ? "enabled" : "disabled");
 	mudlog(buf2, BRF, -1, SYSLOG, true);
 	imm_log("%s", buf2);
 	if (feat_id >= EFeat::kFirst && feat_id <= EFeat::kLast) {
@@ -945,9 +945,9 @@ void do_featset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	}
 	sprintf(buf2, "Вы изменили для %s '%s' на '%s'.\r\n", GET_PAD(vict, 1),
-			feat_info[feat_id].name, value ? "доступно" : "недоступно");
+			MUD::Feat(feat_id).GetCName(), value ? "доступно" : "недоступно");
 	if (!CanGetFeat(vict, feat_id) && value == 1) {
-		SendMsgToChar("Эта способность не доступна данному персонажу и будет удалена при повторном входе в игру.\r\n",
+		SendMsgToChar("Эта способность недоступна персонажу и будет удалена при повторном входе в игру.\r\n",
 					 ch);
 	}
 	SendMsgToChar(buf2, ch);

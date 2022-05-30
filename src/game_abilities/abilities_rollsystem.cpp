@@ -3,6 +3,7 @@
 */
 
 #include "abilities_rollsystem.h"
+#include "structs/global_objects.h"
 
 namespace AbilitySystem {
 
@@ -32,7 +33,7 @@ void AbilityRoll::PerformAbilityTest() {
 	if (PRF_FLAGGED(actor_, EPrf::kTester)) {
 		SendMsgToChar(actor_,
 					  "&CНавык: %s, Рейтинг навыка: %d, Рейтинг цели: %d, Сложность: %d Бросок d100: %d, Итог: %d (%s)&n\r\n",
-					  ability_->name,
+					  MUD::Feat(ability_->id).GetCName(),
 					  actor_rating_,
 					  target_rating,
 					  difficulty,

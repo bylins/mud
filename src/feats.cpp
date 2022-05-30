@@ -1,7 +1,6 @@
 //#include "feats.h"
 
 #include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/trim_all.hpp>
 
 #include "game_abilities/abilities_constants.h"
 #include "action_targeting.h"
@@ -9,6 +8,7 @@
 #include "entities/player_races.h"
 #include "color.h"
 #include "game_fight/pk.h"
+#include "game_magic/magic_utils.h"
 #include "structs/global_objects.h"
 #include "feats.h"
 
@@ -22,7 +22,6 @@ bool CheckVacantFeatSlot(CharData *ch, EFeat feat);
 bool CheckAccessActivatedFeat(CharData *ch, EFeat feat_id);
 void ActivateFeat(CharData *ch, EFeat feat_id);
 void DeactivateFeature(CharData *ch, EFeat feat_id);
-EFeat GetFeatureNum(char *feat_name);
 
 /* Ситуативные бонусы, пишутся для специфических способностей по потребности */
 int CalcRollBonusOfGroupFormation(CharData *ch, CharData * /* enemy */);
@@ -35,42 +34,8 @@ EFeat& operator++(EFeat &f) {
 	return f;
 };
 
-///
-/// Поиск номера способности по имени
-/// \param alias = false
-/// true для поиска при вводе имени способности игроком у учителей
-///
-EFeat FindFeatId(const char *name, bool alias) {
-	for (auto index = EFeat::kFirst; index <= EFeat::kLast; ++index) {
-		bool flag = true;
-		std::string name_feat(alias ? feat_info[index].alias.c_str() : feat_info[index].name);
-		std::vector<std::string> strs_feat, strs_args;
-		boost::split(strs_feat, name_feat, boost::is_any_of(" "));
-		boost::split(strs_args, name, boost::is_any_of(" "));
-		const int bound = static_cast<int>(strs_feat.size() >= strs_args.size()
-										   ? strs_args.size()
-										   : strs_feat.size());
-		for (int i = 0; i < bound; i++) {
-			if (!boost::starts_with(strs_feat[i], strs_args[i])) {
-				flag = false;
-			}
-		}
-		if (flag) {
-			return index;
-		}
-	}
-	return EFeat::kUndefined;
-}
-
 void InitFeat(EFeat feat, const char *name, EFeatType type, CFeatArray app, int roll_bonus = abilities::kMaxRollBonus,
 			  ESkill base_skill = ESkill::kUndefined, ESaving saving = ESaving::kStability) {
-	if (name) {
-		feat_info[feat].name = name;
-		std::string alias(name);
-		std::replace_if(alias.begin(), alias.end(), boost::is_any_of("_:"), ' ');
-		boost::trim_all(alias);
-		feat_info[feat].alias = alias;
-	}
 	feat_info[feat].id = feat;
 	feat_info[feat].diceroll_bonus = roll_bonus;
 	feat_info[feat].base_skill = base_skill;
@@ -654,18 +619,6 @@ void InitFeatures() {
 // Не забудьде добавит фит в void init_EFeat_ITEM_NAMES()
 }
 
-const char *GetFeatName(EFeat id) {
-	if (id >= EFeat::kFirst && id <= EFeat::kLast) {
-		return (feat_info[id].name);
-	} else {
-		if (id == EFeat::kUndefined) {
-			return "UNUSED";
-		} else {
-			return "UNDEFINED";
-		}
-	}
-}
-
 bool CanUseFeat(const CharData *ch, EFeat feat) {
 	if (feat_info[feat].always_available) {
 		return true;
@@ -725,7 +678,7 @@ bool CanUseFeat(const CharData *ch, EFeat feat) {
 bool CanGetFeat(CharData *ch, EFeat feat) {
 	int count = 0;
 
-	if (feat < EFeat::kFirst || feat > EFeat::kLast) {
+	if (MUD::Feat(feat).IsInvalid()) {
 		return false;
 	}
 	if (feat_info[feat].always_available) {
@@ -1005,7 +958,7 @@ void CFeatArray::clear() {
 }
 
 bool TryFlipActivatedFeature(CharData *ch, char *argument) {
-	auto feat_id = GetFeatureNum(argument);
+	auto feat_id = FindFeatId(argument);
 	if (feat_id <= EFeat::kUndefined) {
 		return false;
 	}
@@ -1075,7 +1028,7 @@ void ActivateFeat(CharData *ch, EFeat feat_id) {
 	SendMsgToChar(ch,
 				  "%sВы решили использовать способность '%s'.%s\r\n",
 				  CCIGRN(ch, C_SPR),
-				  feat_info[feat_id].name,
+				  MUD::Feat(feat_id).GetCName(),
 				  CCNRM(ch, C_OFF));
 }
 
@@ -1108,7 +1061,7 @@ void DeactivateFeature(CharData *ch, EFeat feat_id) {
 		default: break;
 	}
 	SendMsgToChar(ch, "%sВы прекратили использовать способность '%s'.%s\r\n",
-				  CCIGRN(ch, C_SPR), feat_info[feat_id].name, CCNRM(ch, C_OFF));
+				  CCIGRN(ch, C_SPR), MUD::Feat(feat_id).GetCName(), CCNRM(ch, C_OFF));
 }
 
 bool CheckAccessActivatedFeat(CharData *ch, EFeat feat_id) {
@@ -1122,11 +1075,6 @@ bool CheckAccessActivatedFeat(CharData *ch, EFeat feat_id) {
 	}
 
 	return true;
-}
-
-EFeat GetFeatureNum(char *feat_name) {
-	skip_spaces(&feat_name);
-	return FindFeatId(feat_name);
 }
 
 EFeat FindWeaponMasterFeat(ESkill skill) {

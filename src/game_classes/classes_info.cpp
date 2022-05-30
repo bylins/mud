@@ -7,12 +7,10 @@
 
 #include "classes_info.h"
 
-//#include <algorithm>
-
 #include "color.h"
 #include "utils/pugixml/pugixml.h"
 #include "structs/global_objects.h"
-#include "utils/table_wrapper.h"
+//#include "utils/table_wrapper.h"
 
 namespace classes {
 
@@ -334,7 +332,7 @@ void CharClassInfo::PrintFeatsTable(CharData *ch, std::ostringstream &buffer) co
 		  << "Id" << "Feature" << "Lvl" << "Rem" << "Slot" << "Inborn" << "Mode" << table_wrapper::kEndRow;
 	for (const auto &feat : feats) {
 		table << NAME_BY_ITEM<EFeat>(feat.GetId())
-			<< feat_info[feat.GetId()].name
+			<< MUD::Feat(feat.GetId()).GetName()
 			<< feat.GetMinLevel()
 			<< feat.GetMinRemort()
 			<< feat.GetSlot()

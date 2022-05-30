@@ -590,13 +590,13 @@ void oedit_disp_feats_menu(DescriptorData *d) {
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
-	for (auto counter = EFeat::kFirst; counter < EFeat::kLast; ++counter) {
-		if (!feat_info[counter].name || *feat_info[counter].name == '!') {
+	for (const auto &feat : MUD::Feats()) {
+		if (feat.IsInvalid()) {
 			continue;
 		}
 
-		sprintf(buf, "%s%2d%s) %s%-20.20s %s", grn, to_underlying(counter), nrm, yel,
-				feat_info[counter].name, !(++columns % 3) ? "\r\n" : "");
+		sprintf(buf, "%s%2d%s) %s%-20.20s %s", grn, to_underlying(feat.GetId()), nrm, yel,
+				feat.GetCName(), !(++columns % 3) ? "\r\n" : "");
 		SendMsgToChar(buf, d->character.get());
 	}
 	sprintf(buf, "\r\n%sВыберите способность (0 - выход) : ", nrm);
@@ -1873,8 +1873,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 								return;
 							}
 							auto feat_id = static_cast<EFeat>(number);
-							if (feat_id < EFeat::kFirst || feat_id > EFeat::kLast ||
-								!feat_info[feat_id].name || *feat_info[feat_id].name == '!') {
+							if (MUD::Feat(feat_id).IsInvalid()) {
 								SendMsgToChar("Неизвестная способность, повторите.\r\n", d->character.get());
 								oedit_disp_val2_menu(d);
 								return;

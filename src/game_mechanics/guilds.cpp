@@ -559,7 +559,7 @@ const std::string &GuildInfo::GuildFeat::GetIdAsStr() const {
 }
 
 std::string_view GuildInfo::GuildFeat::GetName() const {
-	return feat_info[id_].name;
+	return MUD::Feat(id_).GetName();
 }
 
 bool GuildInfo::GuildFeat::IsAvailable(CharData *ch) const {

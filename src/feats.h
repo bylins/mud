@@ -236,11 +236,9 @@ struct TimedFeat {
 	struct TimedFeat *next{nullptr};
 };
 
-const char *GetFeatName(EFeat id);
 int CalcMaxFeatSlotPerLvl(const CharData *ch);
 int CalcFeatSlotsAmountPerRemort(CharData *ch);
 int GetModifier(EFeat feat_id, int location);
-EFeat FindFeatId(const char *name, bool alias = false);
 EFeat FindWeaponMasterFeat(ESkill skill);
 void InitFeatures();
 
@@ -294,9 +292,8 @@ struct FeatureInfo {
 	EFeatType type{EFeatType::kUnused};
 	bool uses_weapon_skill{false};
 	bool always_available{false};
-	const char *name = "!undefined!";
 	std::array<CFeatArray::CFeatAffect, kMaxFeatAffect> affected;
-	std::string alias;
+
 	// Параметры для нового базового броска на способность
 	// Пока тут, до переписывания системы способностей
 	int damage_bonus{0};
@@ -315,7 +312,7 @@ struct FeatureInfo {
 	int (*CalcSituationalRollBonus)(CharData * /*ch*/, CharData * /*enemy*/){[](CharData *, CharData *) {return 0;}};
 
 	FeatureInfo() = default;
-	FeatureInfo(EFeat feat_id);
+	explicit FeatureInfo(EFeat feat_id);
 };
 
 extern std::unordered_map<EFeat, FeatureInfo> feat_info;

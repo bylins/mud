@@ -83,12 +83,12 @@ void DisplayFeats(CharData *ch, CharData *vict, bool all_feats) {
 						CanGetFeat(ch, feat.GetId()) ? KNRM : KRED,
 						ch->HaveFeat(feat.GetId()) ? "[И]" :
 						CanGetFeat(ch, feat.GetId()) ? "[Д]" : "[Н]",
-						feat_info[feat.GetId()].name, KNRM);
+						MUD::Feat(feat.GetId()).GetCName(), KNRM);
 			} else {
 				sprintf(buf, "    %s %-30s\r\n",
 						ch->HaveFeat(feat.GetId()) ? "[И]" :
 						CanGetFeat(ch, feat.GetId()) ? "[Д]" : "[Н]",
-						feat_info[feat.GetId()].name);
+						MUD::Feat(feat.GetId()).GetCName());
 			}
 
 			if (feat.IsInborn() ||
@@ -131,8 +131,10 @@ void DisplayFeats(CharData *ch, CharData *vict, bool all_feats) {
 			break;
 		}
 		if (ch->HaveFeat(feat.GetId())) {
-			if (!feat_info[feat.GetId()].name || *feat_info[feat.GetId()].name == '!')
+			if (MUD::Feat(feat.GetId()).IsInvalid()) {
+				ch->UnsetFeat(feat.GetId());
 				continue;
+			}
 
 			switch (feat.GetId()) {
 				case EFeat::kBerserker:
@@ -164,11 +166,11 @@ void DisplayFeats(CharData *ch, CharData *vict, bool all_feats) {
 			}
 			if (CanUseFeat(ch, feat.GetId())) {
 				sprintf(buf + strlen(buf), "%s%s%s\r\n",
-						CCIYEL(vict, C_NRM), feat_info[feat.GetId()].name, CCNRM(vict, C_NRM));
+						CCIYEL(vict, C_NRM), MUD::Feat(feat.GetId()).GetCName(), CCNRM(vict, C_NRM));
 			} else if (clr(vict, C_NRM)) {
-				sprintf(buf + strlen(buf), "%s\r\n", feat_info[feat.GetId()].name);
+				sprintf(buf + strlen(buf), "%s\r\n", MUD::Feat(feat.GetId()).GetCName());
 			} else {
-				sprintf(buf, "[-Н-] %s\r\n", feat_info[feat.GetId()].name);
+				sprintf(buf, "[-Н-] %s\r\n", MUD::Feat(feat.GetId()).GetCName());
 			}
 			if (feat.IsInborn() ||
 				PlayerRace::FeatureCheck((int) GET_KIN(ch), (int) GET_RACE(ch), to_underlying(feat.GetId()))) {
@@ -193,7 +195,7 @@ void DisplayFeats(CharData *ch, CharData *vict, bool all_feats) {
 					// Если способность не врожденная и под нее нет слота - удаляем
 					//	чтобы можно было менять слоты на лету и чтобы не читерили
 					sprintf(msg, "WARNING: Unset out of slots feature '%s' for character '%s'!",
-							feat_info[feat.GetId()].name, GET_NAME(ch));
+							MUD::Feat(feat.GetId()).GetCName(), GET_NAME(ch));
 					mudlog(msg, BRF, kLvlImplementator, SYSLOG, true);
 					ch->UnsetFeat(feat.GetId());
 				}

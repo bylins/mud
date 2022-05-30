@@ -175,7 +175,7 @@ void LearnFeatBook(CharData *ch, ObjData *obj) {
 		throw LearningError();
 	}
 
-	auto feat_name = GetFeatName(feat_id);
+	auto feat_name = MUD::Feat(feat_id).GetName();
 	if (ch->HaveFeat(feat_id)) {
 		throw AlreadyKnown(feat_name);
 	}

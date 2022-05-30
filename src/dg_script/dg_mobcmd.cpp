@@ -1000,7 +1000,7 @@ void do_mfeatturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 		*pos = ' ';
 
 	const auto feat_id = FindFeatId(featname);
-	if (feat_id >= EFeat::kFirst && feat_id <= EFeat::kLast)
+	if (MUD::Feat(feat_id).IsAvailable())
 		isFeat = 1;
 	else {
 		mob_log(ch, "mfeatturn: feature not found");

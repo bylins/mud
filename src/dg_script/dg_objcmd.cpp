@@ -717,10 +717,10 @@ void do_ofeatturn(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 		*pos = ' ';
 
 	const auto feat_id = FindFeatId(featname);
-	if (feat_id >= EFeat::kFirst && feat_id <= EFeat::kLast)
+	if (MUD::Feat(feat_id).IsAvailable())
 		isFeat = 1;
 	else {
-		sprintf(buf, "ofeatturn: %s skill/recipe not found", featname);
+		sprintf(buf, "ofeatturn: '%s' feat not found", featname);
 		obj_log(obj, buf);
 		return;
 	}

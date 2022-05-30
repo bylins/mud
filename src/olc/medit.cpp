@@ -992,19 +992,19 @@ void medit_disp_features(DescriptorData *d) {
 	SendMsgToChar("[H[J", d->character);
 #endif
 
-	for (auto counter = EFeat::kFirst; counter <= EFeat::kLast; ++counter) {
-		if (!feat_info[counter].name || *feat_info[counter].name == '!') {
+	for (const auto &feat : MUD::Feats()) {
+		if (feat.IsInvalid()) {
 			continue;
 		}
 
-		if (OLC_MOB(d)->HaveFeat(counter)) {
+		if (OLC_MOB(d)->HaveFeat(feat.GetId())) {
 			sprintf(buf1, " %s[%s*%s]%s ", cyn, grn, cyn, nrm);
 		} else {
 			strcpy(buf1, "     ");
 		}
 
-		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, to_underlying(counter), nrm,
-				 feat_info[counter].name, buf1, !(++columns % 2) ? "\r\n" : "");
+		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, to_underlying(feat.GetId()), nrm,
+				 feat.GetCName(), buf1, !(++columns % 2) ? "\r\n" : "");
 		SendMsgToChar(buf, d->character.get());
 	}
 
@@ -1770,8 +1770,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 				break;
 			}
 			auto feat_id = static_cast<EFeat>(number);
-			if (feat_id < EFeat::kFirst || feat_id > EFeat::kLast ||
-				!feat_info[feat_id].name || *feat_info[feat_id].name == '!') {
+			if (MUD::Feat(feat_id).IsInvalid()) {
 				SendMsgToChar("Неверный номер.\r\n", d->character.get());
 			} else if (OLC_MOB(d)->HaveFeat(feat_id)) {
 				OLC_MOB(d)->UnsetFeat(feat_id);

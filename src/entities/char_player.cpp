@@ -18,7 +18,6 @@
 #include "game_magic/magic_temp_spells.h"
 #include "administration/accounts.h"
 #include "liquid.h"
-#include "game_magic/spells_info.h"
 
 #include <boost/lexical_cast.hpp>
 
@@ -542,7 +541,7 @@ void Player::save_char() {
 		fprintf(saved, "Feat:\n");
 		for (auto feat : MUD::Class(this->GetClass()).feats) {
 			if (this->HaveFeat(feat.GetId())) {
-				fprintf(saved, "%d %s\n", to_underlying(feat.GetId()), feat_info[feat.GetId()].name);
+				fprintf(saved, "%d %s\n", to_underlying(feat.GetId()), MUD::Feat(feat.GetId()).GetCName());
 			}
 		}
 		fprintf(saved, "0 0\n");
@@ -551,7 +550,7 @@ void Player::save_char() {
 	if (GetRealLevel(this) < kLvlImmortal) {
 		fprintf(saved, "FtTm:\n");
 		for (auto tf = this->timed_feat; tf; tf = tf->next) {
-			fprintf(saved, "%d %d %s\n", to_underlying(tf->feat), tf->time, feat_info[tf->feat].name);
+			fprintf(saved, "%d %d %s\n", to_underlying(tf->feat), tf->time, MUD::Feat(tf->feat).GetCName());
 		}
 		fprintf(saved, "0 0\n");
 	}

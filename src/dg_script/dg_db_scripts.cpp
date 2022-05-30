@@ -293,17 +293,18 @@ void trg_featturn(CharData *ch, EFeat feat_id, int featdiff, int vnum) {
 		if (featdiff)
 			return;
 		else {
-			sprintf(buf, "Вы утратили способность '%s'.\r\n", feat_info[feat_id].name);
+			sprintf(buf, "Вы утратили способность '%s'.\r\n", MUD::Feat(feat_id).GetCName());
 			SendMsgToChar(buf, ch);
-			log("Remove %s to %s (trigfeatturn) trigvnum %d", feat_info[feat_id].name, GET_NAME(ch), vnum);
+			log("Remove %s to %s (trigfeatturn) trigvnum %d", MUD::Feat(feat_id).GetCName(), GET_NAME(ch), vnum);
 			ch->UnsetFeat(feat_id);
 		}
 	} else {
 		if (featdiff) {
 			if (MUD::Class(ch->GetClass()).feats.IsAvailable(feat_id)) {
-				sprintf(buf, "Вы обрели способность '%s'.\r\n", feat_info[feat_id].name);
+				sprintf(buf, "Вы обрели способность '%s'.\r\n", MUD::Feat(feat_id).GetCName());
 				SendMsgToChar(buf, ch);
-				log("Add %s to %s (trigfeatturn) trigvnum %d", feat_info[feat_id].name, GET_NAME(ch), vnum);
+				log("Add %s to %s (trigfeatturn) trigvnum %d",
+					MUD::Feat(feat_id).GetCName(), GET_NAME(ch), vnum);
 				ch->SetFeat(feat_id);
 			}
 		};

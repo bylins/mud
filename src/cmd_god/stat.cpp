@@ -772,8 +772,8 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 					break;
 				case EBook::kFeat: {
 					const auto feat_id = static_cast<EFeat>(GET_OBJ_VAL(j, 1));
-					if (feat_id >= EFeat::kFirst && feat_id <= EFeat::kLast) {
-						sprintf(buf, "содержит секрет способности : \"%s\"", GetFeatName(feat_id));
+					if (MUD::Feat(feat_id).IsValid()) {
+						sprintf(buf, "содержит секрет способности : \"%s\"", MUD::Feat(feat_id).GetCName());
 					} else {
 						sprintf(buf, "неверный номер способности");
 					}

@@ -155,9 +155,18 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 
 // \todo куча дублированного кода... надо подумать, как сделать одинаковый интерфейс
 
+EFeat FindFeatId(const char *name) {
+	for (const auto &feat : MUD::Feats()) {
+		if (feat.IsValid() && IsEquivalent(name, feat.GetName())) {
+			return feat.GetId();
+		}
+	}
+	return EFeat::kUndefined;
+}
+
 ESkill FindSkillId(const char *name) {
 	for (const auto &skill : MUD::Skills()) {
-		if (IsEquivalent(name, skill.GetName())) {
+		if (skill.IsValid() && IsEquivalent(name, skill.GetName())) {
 			return skill.GetId();
 		}
 	}
@@ -225,9 +234,16 @@ bool IsEquivalent(const char *first_str, const char *second_str) {
 	return false;
 }
 
-/*void fix_name_feat(char *name) {
-	fix_name(name);
-}*/
+template<typename T>
+void FixName(T &name) {
+	size_t pos = 0;
+	while ('\0' != name[pos] && pos < kMaxStringLength) {
+		if (('.' == name[pos]) || ('_' == name[pos])) {
+			name[pos] = ' ';
+		}
+		++pos;
+	}
+}
 
 ESkill FixNameAndFindSkillId(char *name) {
 	FixName(name);
@@ -249,9 +265,10 @@ ESpell FixNameAndFindSpellId(std::string &name) {
 	return FindSpellId(name.c_str());
 }
 
-EFeat FixNameAndFindFeatId(std::string &name) {
-	FixName(name);
-	return FindFeatId(name.c_str());
+EFeat FixNameAndFindFeatId(const std::string &name) {
+	auto copy = name;
+	FixName(copy);
+	return FindFeatId(copy.c_str());
 }
 
 bool MayCastInNomagic(CharData *caster, ESpell spell_id) {

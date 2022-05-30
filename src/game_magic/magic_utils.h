@@ -25,7 +25,8 @@ ESpell FindSpellId(const std::string &name);
 ESpell FindSpellId(const char *name);
 ESpell FixNameAndFindSpellId(std::string &name);
 
-EFeat FixNameAndFindFeatId(std::string &name);
+EFeat FindFeatId(const char *name);
+EFeat FixNameAndFindFeatId(const std::string &name);
 
 ESpell FindSpellIdWithName(const std::string &name);
 
@@ -40,16 +41,5 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpel
 int ApplyResist(CharData *ch, int resist_type, int effect);
 EResist GetResisTypeWithElement(EElement element);
 EResist GetResistType(ESpell spell_id);
-
-template<typename T>
-void FixName(T &name) {
-	size_t pos = 0;
-	while ('\0' != name[pos] && pos < kMaxStringLength) {
-		if (('.' == name[pos]) || ('_' == name[pos])) {
-			name[pos] = ' ';
-		}
-		++pos;
-	}
-}
 
 #endif // SPELL_PARSER_HPP_

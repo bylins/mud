@@ -575,8 +575,8 @@ void do_wfeatturn(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, T
 		*pos = ' ';
 	}
 
-	const auto featnum = FindFeatId(featname);
-	if (featnum >= EFeat::kFirst && featnum <= EFeat::kLast) {
+	const auto feat_id = FindFeatId(featname);
+	if (MUD::Feat(feat_id).IsAvailable()) {
 		isFeat = true;
 	} else {
 		wld_log(room, "wfeatturn: feature not found");
@@ -598,7 +598,7 @@ void do_wfeatturn(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, T
 	}
 
 	if (isFeat) {
-		trg_featturn(ch, featnum, featdiff, last_trig_vnum);
+		trg_featturn(ch, feat_id, featdiff, last_trig_vnum);
 	}
 }
 /*
