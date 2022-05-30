@@ -89,6 +89,25 @@ void ShowSpellInfo(CharData *ch, const std::string &spell_name) {
 	page_string(ch->desc, out.str());
 }
 
+void ShowFeatInfo(CharData *ch, const std::string &name) {
+	if (name.empty()) {
+		SendMsgToChar("Формат: show spell [название способности]", ch);
+		return;
+	}
+
+	auto name_copy = name;
+	FixName(name_copy);
+	auto id = FixNameAndFindFeatId(name_copy);
+	if (id == EFeat::kUndefined) {
+		SendMsgToChar("Неизвестное название способности.", ch);
+		return;
+	}
+
+	std::ostringstream out;
+	MUD::Feat(id).Print(out);
+	page_string(ch->desc, out.str());
+}
+
 void ShowGuildInfo(CharData *ch, const std::string &guild_locator) {
 	std::ostringstream out;
 	if (guild_locator.empty()) {
@@ -317,6 +336,7 @@ struct show_struct show_fields[] = {
 	{"guild", kLvlImmortal},
 	{"currency", kLvlImmortal},
 	{"spellinfo", kLvlImmortal},
+	{"featinfo", kLvlImmortal},
 	{"\n", 0}
 };
 
@@ -788,6 +808,9 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			break;
 		case 32: // spell
 			ShowSpellInfo(ch, value);
+			break;
+		case 33: // feat
+			ShowFeatInfo(ch, value);
 			break;
 		default: SendMsgToChar("Извините, неверная команда.\r\n", ch);
 			break;

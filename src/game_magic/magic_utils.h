@@ -1,6 +1,7 @@
 #ifndef SPELL_PARSER_HPP_
 #define SPELL_PARSER_HPP_
 
+#include "feats.h"
 #include "entities/entities_constants.h"
 #include "game_magic/spells.h"
 #include "game_skills/skills.h"
@@ -24,6 +25,8 @@ ESpell FindSpellId(const std::string &name);
 ESpell FindSpellId(const char *name);
 ESpell FixNameAndFindSpellId(std::string &name);
 
+EFeat FixNameAndFindFeatId(std::string &name);
+
 ESpell FindSpellIdWithName(const std::string &name);
 
 int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch, ObjData **tobj, RoomData **troom);
@@ -37,5 +40,16 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpel
 int ApplyResist(CharData *ch, int resist_type, int effect);
 EResist GetResisTypeWithElement(EElement element);
 EResist GetResistType(ESpell spell_id);
+
+template<typename T>
+void FixName(T &name) {
+	size_t pos = 0;
+	while ('\0' != name[pos] && pos < kMaxStringLength) {
+		if (('.' == name[pos]) || ('_' == name[pos])) {
+			name[pos] = ' ';
+		}
+		++pos;
+	}
+}
 
 #endif // SPELL_PARSER_HPP_

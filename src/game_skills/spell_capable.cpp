@@ -46,7 +46,7 @@ void DoSpellCapable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	const auto spell = MUD::Classes(ch->GetClass()).spells[spell_id];
+	const auto spell = MUD::Class(ch->GetClass()).spells[spell_id];
 	if ((!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp | ESpellType::kKnow) ||
 		GET_REAL_REMORT(ch) < spell.GetMinRemort()) &&
 		(GetRealLevel(ch) < kLvlGreatGod) && (!ch->IsNpc())) {
@@ -94,9 +94,11 @@ void DoSpellCapable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!ch->IsNpc() && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, EPrf::kAutomem))
 		MemQ_remember(ch, spell_id);
 
-	if (!IS_SET(spell_info[spell_id].routines, kMagDamage) || !spell_info[spell_id].violent ||
-		IS_SET(spell_info[spell_id].routines, kMagMasses) || IS_SET(spell_info[spell_id].routines, kMagGroups) ||
-		IS_SET(spell_info[spell_id].routines, kMagAreas)) {
+	if (!MUD::Spell(spell_id).IsViolent() ||
+		!MUD::Spell(spell_id).IsFlagged(kMagDamage) ||
+		MUD::Spell(spell_id).IsFlagged(kMagMasses) ||
+		MUD::Spell(spell_id).IsFlagged(kMagGroups) ||
+		MUD::Spell(spell_id).IsFlagged(kMagAreas)) {
 		SendMsgToChar("Вы конечно мастер, но не такой магии.\r\n", ch);
 		return;
 	}
@@ -105,7 +107,7 @@ void DoSpellCapable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	timed.feat = EFeat::kSpellCapabler;
 
-	switch (MUD::Classes(ch->GetClass()).spells[spell_id].GetCircle()) {
+	switch (MUD::Class(ch->GetClass()).spells[spell_id].GetCircle()) {
 		case 1:
 		case 2:
 		case 3:

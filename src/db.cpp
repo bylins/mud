@@ -1076,6 +1076,8 @@ void do_reboot(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		MUD::CfgManager().ReloadCfg("skills");
 	} else if (!str_cmp(arg, "spells")) {
 		MUD::CfgManager().ReloadCfg("spells");
+	} else if (!str_cmp(arg, "feats")) {
+		MUD::CfgManager().ReloadCfg("feats");
 	} else if (!str_cmp(arg, "classes")) {
 		MUD::CfgManager().ReloadCfg("classes");
 	} else if (!str_cmp(arg, "guilds")) {
@@ -2252,6 +2254,10 @@ void boot_db(void) {
 	boot_profiler.next_step("Loading skills cfg.");
 	log("Loading skills cfg.");
 	MUD::CfgManager().LoadCfg("skills");
+
+	boot_profiler.next_step("Loading feats cfg.");
+	log("Loading feats cfg.");
+	MUD::CfgManager().LoadCfg("feats");
 
 	boot_profiler.next_step("Loading spells cfg.");
 	log("Loading spells cfg.");

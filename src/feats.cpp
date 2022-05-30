@@ -1451,7 +1451,7 @@ ItemPtr FeatInfoBuilder::ParseHeader(DataNode &node) {
 void FeatInfo::Print(std::ostringstream &buffer) const {
 	buffer << "Print feat:" << std::endl
 		   << " Id: " << KGRN << NAME_BY_ITEM<EFeat>(GetId()) << KNRM << std::endl
-		   << " Name: " << KGRN << name_ << KNRM << std::endl
+		   << " Name: " << KGRN << GetName() << KNRM << std::endl
 		   << " Mode: " << KGRN << NAME_BY_ITEM<EItemMode>(GetMode()) << KNRM << std::endl;
 }
 

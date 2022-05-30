@@ -14,7 +14,7 @@
 
 #include "magic_utils.h"
 
-#include "game_classes/classes.h"
+//#include "game_classes/classes.h"
 #include "structs/global_objects.h"
 #include "handler.h"
 #include "color.h"
@@ -153,22 +153,7 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 	}
 }
 
-/*
- * This function should be used anytime you are not 100% sure that you have
- * a valid spell/skill number.  A typical for() loop would not need to use
- * this because you can guarantee > 0 and <= SPELLS_COUNT.
- */
-
-template<typename T>
-void FixName(T &name) {
-	size_t pos = 0;
-	while ('\0' != name[pos] && pos < kMaxStringLength) {
-		if (('.' == name[pos]) || ('_' == name[pos])) {
-			name[pos] = ' ';
-		}
-		++pos;
-	}
-}
+// \todo куча дублированного кода... надо подумать, как сделать одинаковый интерфейс
 
 ESkill FindSkillId(const char *name) {
 	for (const auto &skill : MUD::Skills()) {
@@ -262,6 +247,11 @@ ESpell FixNameAndFindSpellId(char *name) {
 ESpell FixNameAndFindSpellId(std::string &name) {
 	FixName(name);
 	return FindSpellId(name.c_str());
+}
+
+EFeat FixNameAndFindFeatId(std::string &name) {
+	FixName(name);
+	return FindFeatId(name.c_str());
 }
 
 bool MayCastInNomagic(CharData *caster, ESpell spell_id) {
