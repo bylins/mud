@@ -11,6 +11,7 @@
 #include "game_abilities/abilities_items_set.h"
 #include "game_abilities/abilities_constants.h"
 #include "game_skills/skills.h"
+#include "structs/effect.h"
 #include "structs/structs.h"
 #include "conf.h"
 #include "game_classes/classes_constants.h"
@@ -337,6 +338,7 @@ class FeatInfo : public info_container::BaseItem<EFeat> {
 	friend class FeatInfoBuilder;
 
 	std::string name_;
+	effects::Effects effects_;
 
  public:
 	FeatInfo() = default;
@@ -355,6 +357,7 @@ class FeatInfoBuilder : public info_container::IItemBuilder<FeatInfo> {
  private:
 	static ItemPtr ParseFeat(DataNode &node);
 	static ItemPtr ParseHeader(DataNode &node);
+	static void ParseEffects(ItemPtr &info, DataNode &node);
 };
 
 using FeatsInfo = info_container::InfoContainer<EFeat, FeatInfo, FeatInfoBuilder>;

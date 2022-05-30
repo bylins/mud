@@ -1417,6 +1417,7 @@ ItemPtr FeatInfoBuilder::Build(DataNode &node) {
 ItemPtr FeatInfoBuilder::ParseFeat(DataNode &node) {
 	auto info = ParseHeader(node);
 
+	ParseEffects(info, node);
 	return info;
 }
 
@@ -1439,11 +1440,20 @@ ItemPtr FeatInfoBuilder::ParseHeader(DataNode &node) {
 	return info;
 }
 
+void FeatInfoBuilder::ParseEffects(ItemPtr &info, DataNode &node) {
+	if (node.GoToChild("effects")) {
+		info->effects_.Build(node);
+		node.GoToParent();
+	}
+}
+
 void FeatInfo::Print(std::ostringstream &buffer) const {
 	buffer << "Print feat:" << std::endl
 		   << " Id: " << KGRN << NAME_BY_ITEM<EFeat>(GetId()) << KNRM << std::endl
 		   << " Name: " << KGRN << GetName() << KNRM << std::endl
 		   << " Mode: " << KGRN << NAME_BY_ITEM<EItemMode>(GetMode()) << KNRM << std::endl;
+
+	effects_.Print(buffer);
 }
 
 }

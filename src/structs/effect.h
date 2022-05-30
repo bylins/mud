@@ -11,12 +11,14 @@
 
 #include "game_affects/affect_contants.h" // возможно, апплаи стоит перенести как раз сбда..
 #include "entities/entities_constants.h"
+#include "utils/parser_wrapper.h"
 
 namespace effects {
 
 enum class EEffect {
 	kDamage,
-	kArea
+	kArea,
+	kApply
 };
 
 class IEffect {
@@ -51,13 +53,40 @@ struct Area : public IEffect {
 };
 
 struct Apply : public IEffect {
-	std::unordered_map<EApply, int> applies;
+	struct Mod {
+		int mod{0};
+		int cap{0};
+		double remort_bonus{0.0};
+
+		Mod() = default;
+		Mod(int mod, int cap, double remort_bonus)
+			: mod(mod), cap(cap), remort_bonus(remort_bonus) {};
+	};
+
+	std::unordered_map<EApply, Mod> applies;
 
 	void Print(std::ostringstream &buffer) const override;
 };
 
 using EffectPtr = std::shared_ptr<IEffect>;
-using Effects = std::unordered_map<EEffect, EffectPtr>;
+
+class Effects {
+	using EffectsRoster = std::unordered_multimap<EEffect, EffectPtr>;
+	using EffectsRosterPtr = std::unique_ptr<EffectsRoster>;
+	EffectsRosterPtr effects_;
+
+	static void ParseEffect(EffectsRosterPtr &info, parser_wrapper::DataNode node);
+	static void ParseDamageEffect(EffectsRosterPtr &info, parser_wrapper::DataNode &node);
+	static void ParseAreaEffect(EffectsRosterPtr &info, parser_wrapper::DataNode &node);
+	static void ParseAppliesEffect(EffectsRosterPtr &info, parser_wrapper::DataNode &node);
+ public:
+	Effects() {
+		effects_ = std::make_unique<EffectsRoster>();
+	};
+
+	void Build(parser_wrapper::DataNode &node);
+	void Print(std::ostringstream &buffer) const;
+};
 
 }
 
