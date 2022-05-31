@@ -16,7 +16,7 @@
 #include "backtrace.h"
 #include "structs/global_objects.h"
 #include "liquid.h"
-
+#include "utils/utils_time.h"
 #include <boost/format.hpp>
 #include <random>
 
@@ -850,18 +850,22 @@ bool CAN_SEE(const CharData *sub, const CharData *obj) {
 
 // * Внутри цикла чар нигде не пуржится и сам список соответственно не меняется.
 void change_fighting(CharData *ch, int need_stop) {
+//	utils::CExecutionTimer time;
+//	log("change_fighting start %f vnum %d", time.delta().count(), GET_MOB_VNUM(ch));
 	//Loop for all entities is necessary for unprotecting
-	for (const auto &k : character_list) {
+//	for (const auto &k : character_list) {
+	for (const auto &k : world[ch->in_room]->people) {
+
 		if (k->get_protecting() == ch) {
 			k->set_protecting(0);
 			CLR_AF_BATTLE(k, kEafProtect);
 		}
-
+//		log("change_fighting protecting %f", time.delta().count());
 		if (k->get_touching() == ch) {
 			k->set_touching(0);
 			CLR_AF_BATTLE(k, kEafProtect);
 		}
-
+//		log("change_fighting touching %f", time.delta().count());
 		if (k->GetExtraVictim() == ch) {
 			k->SetExtraAttack(kExtraAttackUnused, 0);
 		}
@@ -869,28 +873,29 @@ void change_fighting(CharData *ch, int need_stop) {
 		if (k->GetCastChar() == ch) {
 			k->SetCast(ESpell::kUndefined, ESpell::kUndefined, 0, 0, 0);
 		}
+//		log("change_fighting set cast %f", time.delta().count());
 
 		if (k->GetEnemy() == ch && IN_ROOM(k) != kNowhere) {
-			log("[Change fighting] Change victim");
-
+//			log("change_fighting Change victim %f", time.delta().count());
 			bool found = false;
 			for (const auto j : world[ch->in_room]->people) {
-				if (j->GetEnemy() == k.get()) {
-					act("Вы переключили внимание на $N3.", false, k.get(), 0, j, kToChar);
-					act("$n переключил$u на вас!", false, k.get(), 0, j, kToVict);
+				if (j->GetEnemy() == k) {
+					act("Вы переключили внимание на $N3.", false, k, 0, j, kToChar);
+					act("$n переключил$u на вас!", false, k, 0, j, kToVict);
 					k->SetEnemy(j);
 					found = true;
-
+//					log("change_fighting Change victim %f", time.delta().count());
 					break;
 				}
 			}
 
-			if (!found
-				&& need_stop) {
-				stop_fighting(k.get(), false);
+			if (!found && need_stop) {
+//				log("change_fighting stop fighting %f", time.delta().count());
+				stop_fighting(k, false);
 			}
 		}
 	}
+//	log("change_fighting stop %f", time.delta().count());
 }
 
 int CharData::get_serial_num() {
