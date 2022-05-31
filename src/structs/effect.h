@@ -10,12 +10,16 @@
 #define BYLINS_SRC_STRUCTS_EFFECT_H_
 
 #include "game_affects/affect_contants.h" // возможно, апплаи стоит перенести как раз сбда..
+#include "feats_constants.h"
+#include "game_skills/skills.h"
 #include "entities/entities_constants.h"
 #include "utils/parser_wrapper.h"
 
 namespace effects {
 
 enum class EEffect {
+	kSkillMod,
+	kTimerMod,
 	kDamage,
 	kArea,
 	kApply
@@ -26,6 +30,19 @@ class IEffect {
 	virtual ~IEffect() = default;
 
 	virtual void Print(std::ostringstream &buffer) const = 0;
+};
+
+struct SkillMod : public IEffect {
+	std::unordered_map<ESkill, int> skill_mods;
+
+	void Print(std::ostringstream &buffer) const override;
+};
+
+struct SkillTimerMod : public IEffect {
+	std::unordered_map<ESkill, int> skill_timer_mods;
+	std::unordered_map<EFeat, int> feat_timer_mods;
+
+	void Print(std::ostringstream &buffer) const override;
 };
 
 struct Damage : public IEffect {
@@ -82,6 +99,8 @@ class Effects {
 	static void ParseDamageEffect(EffectsRosterPtr &info, parser_wrapper::DataNode &node);
 	static void ParseAreaEffect(EffectsRosterPtr &info, parser_wrapper::DataNode &node);
 	static void ParseAppliesEffect(EffectsRosterPtr &info, parser_wrapper::DataNode &node);
+	static void ParseTimerMods(EffectsRosterPtr &info, parser_wrapper::DataNode &node);
+	static void ParseSkillMods(EffectsRosterPtr &info, parser_wrapper::DataNode &node);
  public:
 	Effects() {
 		effects_ = std::make_unique<EffectsRoster>();

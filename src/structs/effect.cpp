@@ -1,13 +1,49 @@
-#include "effect.h"
-
-//#include <sstream>
+//#include "effect.h"
 
 #include "color.h"
 #include "entities/char_data.h"
-//#include "utils/parse.h"
 #include "utils/table_wrapper.h"
+#include "global_objects.h"
 
 namespace effects {
+
+void SkillTimerMod::Print(std::ostringstream &buffer) const {
+	buffer << " Timer mods:" << std::endl;
+	table_wrapper::Table table;
+	table << table_wrapper::kHeader
+		  << "Type" << "Id" << "Name" << "Mod" << table_wrapper::kEndRow;
+	for (const auto &timer_mod: skill_timer_mods) {
+		table << "Skill"
+			  << NAME_BY_ITEM<ESkill>(timer_mod.first)
+			  << MUD::Skill(timer_mod.first).GetName()
+			  << timer_mod.second
+			  << table_wrapper::kEndRow;
+	}
+	for (const auto &timer_mod: feat_timer_mods) {
+		table << "Feat"
+			  << NAME_BY_ITEM<EFeat>(timer_mod.first)
+			  << MUD::Feat(timer_mod.first).GetName()
+			  << timer_mod.second
+			  << table_wrapper::kEndRow;
+	}
+	table_wrapper::PrintTableToStream(buffer, table);
+	buffer << std::endl;
+}
+
+void SkillMod::Print(std::ostringstream &buffer) const {
+	buffer << " Skill mods:" << std::endl;
+	table_wrapper::Table table;
+	table << table_wrapper::kHeader
+		  << "Id" << "Name" << "Mod" << table_wrapper::kEndRow;
+	for (const auto &mod: skill_mods) {
+		table << NAME_BY_ITEM<ESkill>(mod.first)
+			  << MUD::Skill(mod.first).GetName()
+			  << mod.second
+			  << table_wrapper::kEndRow;
+	}
+	table_wrapper::PrintTableToStream(buffer, table);
+	buffer << std::endl;
+}
 
 void Damage::Print(std::ostringstream &buffer) const {
 	buffer << " Damage: " << std::endl
@@ -34,7 +70,7 @@ void Applies::Print(std::ostringstream &buffer) const {
 	buffer << " Applies:" << std::endl;
 	table_wrapper::Table table;
 	table << table_wrapper::kHeader
-		<< "Location" << "Mod" << "Level bonus" << "Remort bonus" << "Cap" << table_wrapper::kEndRow;
+		  << "Location" << "Mod" << "Level bonus" << "Remort bonus" << "Cap" << table_wrapper::kEndRow;
 	for (const auto &apply: applies_roster) {
 		table << NAME_BY_ITEM<EApply>(apply.first)
 			  << apply.second.mod
@@ -78,6 +114,10 @@ void Effects::ParseEffect(EffectsRosterPtr &info, parser_wrapper::DataNode node)
 		ParseAreaEffect(info, node);
 	} else if (strcmp(node.GetName(), "applies") == 0) {
 		ParseAppliesEffect(info, node);
+	} else if (strcmp(node.GetName(), "timer_mod") == 0) {
+		ParseTimerMods(info, node);
+	} else if (strcmp(node.GetName(), "skill_mod") == 0) {
+		ParseSkillMods(info, node);
 	}
 }
 
@@ -98,7 +138,7 @@ void Effects::ParseDamageEffect(EffectsRosterPtr &info, parser_wrapper::DataNode
 }
 
 void Effects::ParseAreaEffect(EffectsRosterPtr &info, parser_wrapper::DataNode &node) {
-	auto ptr = std::make_shared<effects::Area>();
+	auto ptr = std::make_shared<Area>();
 	if (node.GoToChild("decay")) {
 		ptr->free_targets = std::max(0, parse::ReadAsInt(node.GetValue("free_targets")));
 		ptr->level_decay = parse::ReadAsInt(node.GetValue("level"));
@@ -117,21 +157,42 @@ void Effects::ParseAreaEffect(EffectsRosterPtr &info, parser_wrapper::DataNode &
 }
 
 void Effects::ParseAppliesEffect(EffectsRosterPtr &info, parser_wrapper::DataNode &node) {
-	auto ptr = std::make_shared<effects::Applies>();
+	auto ptr = std::make_shared<Applies>();
 	for (const auto &apply: node.Children("apply")) {
-		try {
-			auto location = parse::ReadAsConstant<EApply>(apply.GetValue("location"));
-			auto val = parse::ReadAsInt(apply.GetValue("val"));
-			auto lvl_bonus = parse::ReadAsDouble(apply.GetValue("lvl_bonus"));
-			auto remort_bonus = parse::ReadAsDouble(apply.GetValue("remort_bonus"));
-			auto cap = parse::ReadAsInt(apply.GetValue("cap"));
-			ptr->applies_roster.emplace(location, Applies::Mod(val, cap, lvl_bonus, remort_bonus));
-		} catch (std::exception &e) {
-			err_log("Incorrect value '%s' in apply effect.", e.what());
-		}
+		auto location = parse::ReadAsConstant<EApply>(apply.GetValue("location"));
+		auto val = parse::ReadAsInt(apply.GetValue("val"));
+		auto lvl_bonus = parse::ReadAsDouble(apply.GetValue("lvl_bonus"));
+		auto remort_bonus = parse::ReadAsDouble(apply.GetValue("remort_bonus"));
+		auto cap = parse::ReadAsInt(apply.GetValue("cap"));
+		ptr->applies_roster.emplace(location, Applies::Mod(val, cap, lvl_bonus, remort_bonus));
 	}
 
 	info->insert({EEffect::kApply, std::move(ptr)});
+}
+
+void Effects::ParseTimerMods(EffectsRosterPtr &info, parser_wrapper::DataNode &node) {
+	auto ptr = std::make_shared<SkillTimerMod>();
+	for (const auto &timer_mod: node.Children("skill_timer")) {
+		auto id = parse::ReadAsConstant<ESkill>(timer_mod.GetValue("id"));
+		auto mod = parse::ReadAsInt(timer_mod.GetValue("val"));
+		ptr->skill_timer_mods.emplace(id, mod);
+	}
+	for (const auto &timer_mod: node.Children("feat_timer")) {
+		auto id = parse::ReadAsConstant<EFeat>(timer_mod.GetValue("id"));
+		auto mod = parse::ReadAsInt(timer_mod.GetValue("val"));
+		ptr->feat_timer_mods.emplace(id, mod);;
+	}
+	info->insert({EEffect::kTimerMod, std::move(ptr)});
+}
+
+void Effects::ParseSkillMods(EffectsRosterPtr &info, parser_wrapper::DataNode &node) {
+	auto ptr = std::make_shared<SkillMod>();
+	for (const auto &skill_mod: node.Children("skill")) {
+		auto id = parse::ReadAsConstant<ESkill>(skill_mod.GetValue("id"));
+		auto mod = parse::ReadAsInt(skill_mod.GetValue("val"));
+		ptr->skill_mods.emplace(id, mod);
+	}
+	info->insert({EEffect::kSkillMod, std::move(ptr)});
 }
 
 /*
