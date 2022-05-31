@@ -16,7 +16,7 @@
 #include "backtrace.h"
 #include "structs/global_objects.h"
 #include "liquid.h"
-
+#include "utils/utils_time.h"
 #include <boost/format.hpp>
 #include <random>
 
@@ -850,6 +850,8 @@ bool CAN_SEE(const CharData *sub, const CharData *obj) {
 
 // * Внутри цикла чар нигде не пуржится и сам список соответственно не меняется.
 void change_fighting(CharData *ch, int need_stop) {
+	utils::CExecutionTimer time;
+	log("change_fighting start %f", time.delta().count());
 	//Loop for all entities is necessary for unprotecting
 	for (const auto &k : character_list) {
 		if (k->get_protecting() == ch) {
@@ -871,8 +873,7 @@ void change_fighting(CharData *ch, int need_stop) {
 		}
 
 		if (k->GetEnemy() == ch && IN_ROOM(k) != kNowhere) {
-			log("[Change fighting] Change victim");
-
+			log("change_fighting Change victim %f", time.delta().count());
 			bool found = false;
 			for (const auto j : world[ch->in_room]->people) {
 				if (j->GetEnemy() == k.get()) {
@@ -880,17 +881,19 @@ void change_fighting(CharData *ch, int need_stop) {
 					act("$n переключил$u на вас!", false, k.get(), 0, j, kToVict);
 					k->SetEnemy(j);
 					found = true;
-
+					log("change_fighting Change victim %f", time.delta().count());
 					break;
 				}
 			}
 
 			if (!found
 				&& need_stop) {
+					log("change_fighting stop fighting %f", time.delta().count());
 				stop_fighting(k.get(), false);
 			}
 		}
 	}
+		log("change_fighting stop %f", time.delta().count());
 }
 
 int CharData::get_serial_num() {
