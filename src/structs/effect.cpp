@@ -33,13 +33,15 @@ void Area::Print(std::ostringstream &buffer) const {
 void Applies::Print(std::ostringstream &buffer) const {
 	buffer << " Applies:" << std::endl;
 	table_wrapper::Table table;
-	table << table_wrapper::kHeader << "Location" << "Mod" << "Remort bonus" << "Cap" << table_wrapper::kEndRow;
-	for (const auto &apply : applies_roster) {
+	table << table_wrapper::kHeader
+		<< "Location" << "Mod" << "Level bonus" << "Remort bonus" << "Cap" << table_wrapper::kEndRow;
+	for (const auto &apply: applies_roster) {
 		table << NAME_BY_ITEM<EApply>(apply.first)
-			<< apply.second.mod
-			<< apply.second.remort_bonus
-			<< apply.second.cap
-			<< table_wrapper::kEndRow;
+			  << apply.second.mod
+			  << apply.second.lvl_bonus
+			  << apply.second.remort_bonus
+			  << apply.second.cap
+			  << table_wrapper::kEndRow;
 	}
 	// \todo Сделать тут оформление таблицы
 	table_wrapper::PrintTableToStream(buffer, table);
@@ -47,7 +49,7 @@ void Applies::Print(std::ostringstream &buffer) const {
 }
 
 void Effects::Print(std::ostringstream &buffer) const {
-	for (const auto &effect : *effects_) {
+	for (const auto &effect: *effects_) {
 		effect.second->Print(buffer);
 	}
 }
@@ -116,15 +118,14 @@ void Effects::ParseAreaEffect(EffectsRosterPtr &info, parser_wrapper::DataNode &
 
 void Effects::ParseAppliesEffect(EffectsRosterPtr &info, parser_wrapper::DataNode &node) {
 	auto ptr = std::make_shared<effects::Applies>();
-	//err_log("Парсим аплаи");
-	for (const auto &apply : node.Children("apply")) {
-		//err_log("Парсим отдельный аплай");
+	for (const auto &apply: node.Children("apply")) {
 		try {
 			auto location = parse::ReadAsConstant<EApply>(apply.GetValue("location"));
 			auto val = parse::ReadAsInt(apply.GetValue("val"));
+			auto lvl_bonus = parse::ReadAsDouble(apply.GetValue("lvl_bonus"));
 			auto remort_bonus = parse::ReadAsDouble(apply.GetValue("remort_bonus"));
 			auto cap = parse::ReadAsInt(apply.GetValue("cap"));
-			ptr->applies_roster.emplace(location, Applies::Mod(val, cap, remort_bonus));
+			ptr->applies_roster.emplace(location, Applies::Mod(val, cap, lvl_bonus, remort_bonus));
 		} catch (std::exception &e) {
 			err_log("Incorrect value '%s' in apply effect.", e.what());
 		}
@@ -159,17 +160,23 @@ const Applies::AppliesRoster  &Effects::GetApplies() const {
 void Effects::ImposeApplies(CharData *ch) const {
 	if (effects_->contains(effects::EEffect::kApply)) {
 		auto ramge = effects_->equal_range(EEffect::kApply);
-		for (auto it = ramge.first;  it != ramge.second; ++it) {
+		for (auto it = ramge.first; it != ramge.second; ++it) {
 			std::dynamic_pointer_cast<Applies>(it->second)->ImposeApplies(ch);
 		}
 	}
 };
 
 void Applies::ImposeApplies(CharData *ch) const {
-	for (const auto &apply : applies_roster) {
-		auto mod = static_cast<int>(apply.second.mod + apply.second.remort_bonus*ch->get_remort());
+	for (const auto &apply: applies_roster) {
+		auto mod = static_cast<int>(apply.second.mod +
+			apply.second.lvl_bonus * ch->GetLevel() +
+			apply.second.remort_bonus * ch->get_remort());
 		if (apply.second.cap) {
-			mod = std::clamp(mod, -apply.second.cap, apply.second.cap);
+			if (apply.second.cap > 0) {
+				mod = std::min(mod, apply.second.cap);
+			} else {
+				mod = std::max(mod, apply.second.cap);
+			}
 		}
 		affect_modify(ch, apply.first, mod, EAffect::kUndefinded, true);
 	}

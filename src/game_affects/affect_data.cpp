@@ -501,37 +501,13 @@ void affect_total(CharData *ch) {
 	}
 	ch->obj_bonus().apply_affects(ch);
 
-	// move features modifiers
-/*	for (auto i = EFeat::kFirst; i <= EFeat::kLast; ++i) {
-		if (CanUseFeat(ch, i) && (feat_info[i].type == EFeatType::kAffect)) {
-			for (int j = 0; j < kMaxFeatAffect; ++j) {
-				affect_modify(ch, feat_info[i].affected[j].location, feat_info[i].affected[j].modifier,
-							  EAffect::kUndefinded, true);
-			}
-		}
-	}*/
-
 	for (auto i = EFeat::kFirst; i <= EFeat::kLast; ++i) {
 		if (CanUseFeat(ch, i)) {
 			MUD::Feat(i).effects.ImposeApplies(ch);
 		}
 	}
 
-	// Обработка изворотливости (с) Числобог
-/*	if (CanUseFeat(ch, EFeat::kDodger)) {
-		affect_modify(ch, EApply::kSavingReflex, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), EAffect::kUndefinded, true);
-		affect_modify(ch, EApply::kSavingWill, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), EAffect::kUndefinded, true);
-		affect_modify(ch, EApply::kSavingStability, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), EAffect::kUndefinded, true);
-		affect_modify(ch, EApply::kSavingCritical, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), EAffect::kUndefinded, true);
-	}*/
-
-	// Обработка "выносливости" и "богатырского здоровья
-	// Знаю, что кривовато, придумаете, как лучше - делайте
 	if (!ch->IsNpc()) {
-		if (CanUseFeat(ch, EFeat::kEndurance))
-			affect_modify(ch, EApply::kMove, GetRealLevel(ch) * 2, static_cast<EAffect>(0), true);
-		if (CanUseFeat(ch, EFeat::kSplendidHealth))
-			affect_modify(ch, EApply::kHp, GetRealLevel(ch) * 2, static_cast<EAffect>(0), true);
 		if (NORENTABLE(ch) == 0 && !domination) // мы не на новой арене и не ПК
 			GloryConst::apply_modifiers(ch);
 		apply_natural_affects(ch);

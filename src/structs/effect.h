@@ -56,11 +56,12 @@ struct Applies : public IEffect {
 	struct Mod {
 		int mod{0};
 		int cap{0};
+		double lvl_bonus{0.0};
 		double remort_bonus{0.0};
 
 		Mod() = default;
-		Mod(int mod, int cap, double remort_bonus)
-			: mod(mod), cap(cap), remort_bonus(remort_bonus) {};
+		Mod(int mod, int cap, double lvl_bonus, double remort_bonus)
+			: mod(mod), cap(cap), lvl_bonus(lvl_bonus), remort_bonus(remort_bonus) {};
 	};
 
 	using AppliesRoster = std::unordered_map<EApply, Mod>;
