@@ -335,12 +335,14 @@ class FeatInfo : public info_container::BaseItem<EFeat> {
 	friend class FeatInfoBuilder;
 
 	std::string name_;
-	effects::Effects effects_;
+
 
  public:
 	FeatInfo() = default;
 	FeatInfo(EFeat id, EItemMode mode)
 		: BaseItem<EFeat>(id, mode) {};
+
+	effects::Effects effects;
 
 	[[nodiscard]] const std::string &GetName() const { return name_; };
 	[[nodiscard]] const char *GetCName() const { return name_.c_str(); };

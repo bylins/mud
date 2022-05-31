@@ -52,7 +52,7 @@ struct Area : public IEffect {
 	void Print(std::ostringstream &buffer) const override;
 };
 
-struct Apply : public IEffect {
+struct Applies : public IEffect {
 	struct Mod {
 		int mod{0};
 		int cap{0};
@@ -63,9 +63,11 @@ struct Apply : public IEffect {
 			: mod(mod), cap(cap), remort_bonus(remort_bonus) {};
 	};
 
-	std::unordered_map<EApply, Mod> applies;
+	using AppliesRoster = std::unordered_map<EApply, Mod>;
+	AppliesRoster applies_roster;
 
 	void Print(std::ostringstream &buffer) const override;
+	void ImposeApplies(CharData *ch) const;
 };
 
 using EffectPtr = std::shared_ptr<IEffect>;
@@ -86,6 +88,10 @@ class Effects {
 
 	void Build(parser_wrapper::DataNode &node);
 	void Print(std::ostringstream &buffer) const;
+
+	//[[nodiscard]] const Applies::AppliesRoster &GetApplies() const;
+
+	void ImposeApplies(CharData *ch) const;
 };
 
 }

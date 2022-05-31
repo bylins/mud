@@ -502,33 +502,28 @@ void affect_total(CharData *ch) {
 	ch->obj_bonus().apply_affects(ch);
 
 	// move features modifiers
-	for (auto i = EFeat::kFirst; i <= EFeat::kLast; ++i) {
+/*	for (auto i = EFeat::kFirst; i <= EFeat::kLast; ++i) {
 		if (CanUseFeat(ch, i) && (feat_info[i].type == EFeatType::kAffect)) {
 			for (int j = 0; j < kMaxFeatAffect; ++j) {
 				affect_modify(ch, feat_info[i].affected[j].location, feat_info[i].affected[j].modifier,
 							  EAffect::kUndefinded, true);
 			}
 		}
-	}
+	}*/
 
-	// EFeat::kImpregnable учитывается дважды: выше начисляем единичку за 0 мортов, а теперь по 1 за каждый морт
-	if (CanUseFeat(ch, EFeat::kImpregnable)) {
-		for (int j = 0; j < kMaxFeatAffect; j++) {
-			affect_modify(ch,
-						  feat_info[EFeat::kImpregnable].affected[j].location,
-						  std::min(9, feat_info[EFeat::kImpregnable].affected[j].modifier * GET_REAL_REMORT(ch)),
-						  EAffect::kUndefinded,
-						  true);
+	for (auto i = EFeat::kFirst; i <= EFeat::kLast; ++i) {
+		if (CanUseFeat(ch, i)) {
+			MUD::Feat(i).effects.ImposeApplies(ch);
 		}
 	}
 
 	// Обработка изворотливости (с) Числобог
-	if (CanUseFeat(ch, EFeat::kDodger)) {
+/*	if (CanUseFeat(ch, EFeat::kDodger)) {
 		affect_modify(ch, EApply::kSavingReflex, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), EAffect::kUndefinded, true);
 		affect_modify(ch, EApply::kSavingWill, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), EAffect::kUndefinded, true);
 		affect_modify(ch, EApply::kSavingStability, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), EAffect::kUndefinded, true);
 		affect_modify(ch, EApply::kSavingCritical, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), EAffect::kUndefinded, true);
-	}
+	}*/
 
 	// Обработка "выносливости" и "богатырского здоровья
 	// Знаю, что кривовато, придумаете, как лучше - делайте

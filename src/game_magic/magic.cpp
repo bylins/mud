@@ -353,16 +353,15 @@ int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id, effects::
 		auto bonus_mod = base_dmg * (ch->add_abils.percent_magdam_add / 100.0);
 		auto complex_mod = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, base_dmg) - base_dmg;
 		auto poison_mod = AFF_FLAGGED(ch, EAffect::kDaturaPoison) ? (-base_dmg * GET_POISON(ch) / 100) : 0;
-		auto power_mod = (CanUseFeat(ch, EFeat::kPowerMagic) && victim->IsNpc()) ? base_dmg / 2 : 0;
 		auto elem_coeff = CalcMagicElementCoeff(victim, spell_id);
 
 		total_dmg = static_cast<int>((base_dmg + skill_mod + wis_mod + bonus_mod +
-			complex_mod + poison_mod + power_mod) * elem_coeff);
+			complex_mod + poison_mod) * elem_coeff);
 
 		ch->send_to_TC(false,
 					   true,
 					   true,
-					   "&CMag.dmg (%s). Base: %d, Skill: %2.2f, Wis: %2.2f, Bonus: %1.2f, Cmplx: %d, Poison: %d, Power: %d, Elem.coeff: %1.2f, Total: %d &n\r\n",
+					   "&CMag.dmg (%s). Base: %d, Skill: %2.2f, Wis: %2.2f, Bonus: %1.2f, Cmplx: %d, Poison: %d, Elem.coeff: %1.2f, Total: %d &n\r\n",
 					   GET_NAME(victim),
 					   base_dmg,
 					   skill_mod,
@@ -370,14 +369,13 @@ int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id, effects::
 					   bonus_mod,
 					   complex_mod,
 					   poison_mod,
-					   power_mod,
 					   elem_coeff,
 					   total_dmg);
 
 		victim->send_to_TC(false,
 						   true,
 						   true,
-						   "&CMag.dmg (%s). Base: %d, Skill: %2.2f, Wis: %2.2f, Bonus: %1.2f, Cmplx: %d, Poison: %d, Power: %d, Elem.coeff: %1.2f, Total: %d &n\r\n",
+						   "&CMag.dmg (%s). Base: %d, Skill: %2.2f, Wis: %2.2f, Bonus: %1.2f, Cmplx: %d, Poison: %d, Elem.coeff: %1.2f, Total: %d &n\r\n",
 						   GET_NAME(ch),
 						   base_dmg,
 						   skill_mod,
@@ -385,8 +383,7 @@ int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id, effects::
 						   bonus_mod,
 						   complex_mod,
 						   poison_mod,
-						   power_mod,
-						   elem_coeff,
+									   elem_coeff,
 						   total_dmg);
 	}
 

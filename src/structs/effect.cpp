@@ -3,7 +3,8 @@
 //#include <sstream>
 
 #include "color.h"
-#include "utils/parse.h"
+#include "entities/char_data.h"
+//#include "utils/parse.h"
 #include "utils/table_wrapper.h"
 
 namespace effects {
@@ -29,11 +30,11 @@ void Area::Print(std::ostringstream &buffer) const {
 		   << " Max targets: " << KGRN << max_targets << KNRM << std::endl;
 }
 
-void Apply::Print(std::ostringstream &buffer) const {
+void Applies::Print(std::ostringstream &buffer) const {
 	buffer << " Applies:" << std::endl;
 	table_wrapper::Table table;
 	table << table_wrapper::kHeader << "Location" << "Mod" << "Remort bonus" << "Cap" << table_wrapper::kEndRow;
-	for (const auto &apply : applies) {
+	for (const auto &apply : applies_roster) {
 		table << NAME_BY_ITEM<EApply>(apply.first)
 			<< apply.second.mod
 			<< apply.second.remort_bonus
@@ -63,6 +64,10 @@ void Effects::Build(parser_wrapper::DataNode &node) {
 	}
 	effects_ = std::move(roster);
 }
+
+/*
+ *  Парсеры эффектов
+ */
 
 void Effects::ParseEffect(EffectsRosterPtr &info, parser_wrapper::DataNode node) {
 	if (strcmp(node.GetName(), "damage") == 0) {
@@ -110,7 +115,7 @@ void Effects::ParseAreaEffect(EffectsRosterPtr &info, parser_wrapper::DataNode &
 }
 
 void Effects::ParseAppliesEffect(EffectsRosterPtr &info, parser_wrapper::DataNode &node) {
-	auto ptr = std::make_shared<effects::Apply>();
+	auto ptr = std::make_shared<effects::Applies>();
 	//err_log("Парсим аплаи");
 	for (const auto &apply : node.Children("apply")) {
 		//err_log("Парсим отдельный аплай");
@@ -119,7 +124,7 @@ void Effects::ParseAppliesEffect(EffectsRosterPtr &info, parser_wrapper::DataNod
 			auto val = parse::ReadAsInt(apply.GetValue("val"));
 			auto remort_bonus = parse::ReadAsDouble(apply.GetValue("remort_bonus"));
 			auto cap = parse::ReadAsInt(apply.GetValue("cap"));
-			ptr->applies.emplace(location, Apply::Mod(val, cap, remort_bonus));
+			ptr->applies_roster.emplace(location, Applies::Mod(val, cap, remort_bonus));
 		} catch (std::exception &e) {
 			err_log("Incorrect value '%s' in apply effect.", e.what());
 		}
@@ -128,6 +133,47 @@ void Effects::ParseAppliesEffect(EffectsRosterPtr &info, parser_wrapper::DataNod
 	info->insert({EEffect::kApply, std::move(ptr)});
 }
 
+/*
+ *  Геттеры эффектов
+ */
+/*
+effects::Area Effects::GetArea() const {
+	if (effects_->contains(effects::EEffect::kArea)) {
+		return *std::dynamic_pointer_cast<effects::Area>(effects_->at(effects::EEffect::kArea));
+	} else {
+		err_log("getting area parameters from spell '%s' has no 'area' effect section.", GetCName());
+		return {};
+	}
+}*/
+
+/*
+const Applies::AppliesRoster  &Effects::GetApplies() const {
+	if (effects_->contains(effects::EEffect::kApply)) {
+		return std::dynamic_pointer_cast<Applies>(effects_->find(EEffect::kApply)->second)->applies_roster;
+	} else {
+		err_log("getting area parameters from spell '%s' has no 'area' effect section.", GetCName());
+		return {};
+	}
+}*/
+
+void Effects::ImposeApplies(CharData *ch) const {
+	if (effects_->contains(effects::EEffect::kApply)) {
+		auto ramge = effects_->equal_range(EEffect::kApply);
+		for (auto it = ramge.first;  it != ramge.second; ++it) {
+			std::dynamic_pointer_cast<Applies>(it->second)->ImposeApplies(ch);
+		}
+	}
+};
+
+void Applies::ImposeApplies(CharData *ch) const {
+	for (const auto &apply : applies_roster) {
+		auto mod = static_cast<int>(apply.second.mod + apply.second.remort_bonus*ch->get_remort());
+		if (apply.second.cap) {
+			mod = std::clamp(mod, -apply.second.cap, apply.second.cap);
+		}
+		affect_modify(ch, apply.first, mod, EAffect::kUndefinded, true);
+	}
+}
 
 }
 
