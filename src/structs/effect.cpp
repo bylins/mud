@@ -137,25 +137,24 @@ void Effects::ParseAppliesEffect(EffectsRosterPtr &info, parser_wrapper::DataNod
 /*
  *  Геттеры эффектов
  */
-/*
-effects::Area Effects::GetArea() const {
-	if (effects_->contains(effects::EEffect::kArea)) {
-		return *std::dynamic_pointer_cast<effects::Area>(effects_->at(effects::EEffect::kArea));
-	} else {
-		err_log("getting area parameters from spell '%s' has no 'area' effect section.", GetCName());
-		return {};
-	}
-}*/
 
-/*
-const Applies::AppliesRoster  &Effects::GetApplies() const {
-	if (effects_->contains(effects::EEffect::kApply)) {
-		return std::dynamic_pointer_cast<Applies>(effects_->find(EEffect::kApply)->second)->applies_roster;
+std::optional<Damage> Effects::GetDmg() const {
+	if (effects_->contains(EEffect::kDamage)) {
+		return *std::dynamic_pointer_cast<Damage>(effects_->find(EEffect::kDamage)->second);
 	} else {
-		err_log("getting area parameters from spell '%s' has no 'area' effect section.", GetCName());
-		return {};
+		err_log("getting damage parameters from talent has no 'damage' effect section.");
+		return std::nullopt;
 	}
-}*/
+}
+
+std::optional<Area> Effects::GetArea() const {
+	if (effects_->contains(EEffect::kArea)) {
+		return *std::dynamic_pointer_cast<Area>(effects_->find(EEffect::kArea)->second);
+	} else {
+		err_log("getting area parameters from talent has no 'area' effect section.");
+		return std::nullopt;
+	}
+}
 
 void Effects::ImposeApplies(CharData *ch) const {
 	if (effects_->contains(effects::EEffect::kApply)) {

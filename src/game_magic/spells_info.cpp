@@ -81,7 +81,6 @@ ItemPtr SpellInfoBuilder::ParseHeader(DataNode &node) {
 		id = parse::ReadAsConstant<ESpell>(node.GetValue("id"));
 	} catch (std::exception &e) {
 		err_log("Incorrect spell id (%s).", e.what());
-		//return nullptr;
 		throw;
 	}
 	auto mode = SpellInfoBuilder::ParseItemMode(node, EItemMode::kEnabled);
@@ -162,66 +161,7 @@ void SpellInfoBuilder::ParseFlags(ItemPtr &info, DataNode &node) {
 
 void SpellInfoBuilder::ParseEffects(ItemPtr &info, DataNode &node) {
 	if (node.GoToChild("effects")) {
-		ParseDmgSection(info, node);
-		ParseAreaSection(info, node);
-		node.GoToParent();
-	}
-}
-
-void SpellInfoBuilder::ParseDmgSection(ItemPtr &info, DataNode &node) {
-	if (node.GoToChild("damage")) {
-		auto ptr = std::make_shared<effects::Damage>();
-		try {
-			ptr->saving = parse::ReadAsConstant<ESaving>(node.GetValue("saving"));
-		} catch (std::exception &e) {
-			err_log("Incorrect 'saving' value (spell: %s, value: %s).",
-					NAME_BY_ITEM(info->GetId()).c_str(), e.what());
-		}
-		if (node.GoToChild("amount")) {
-			try {
-				ptr->dice_num = std::max(1, parse::ReadAsInt(node.GetValue("ndice")));
-				ptr->dice_size = std::max(1, parse::ReadAsInt(node.GetValue("sdice")));
-				ptr->dice_add = parse::ReadAsInt(node.GetValue("adice"));
-				ptr->low_skill_bonus = parse::ReadAsDouble(node.GetValue("low_skill_bonus"));
-				ptr->hi_skill_bonus = parse::ReadAsDouble(node.GetValue("hi_skill_bonus"));
-			} catch (std::exception &e) {
-				err_log("Incorrect 'damage/amount' section (spell: %s, value: %s).",
-						NAME_BY_ITEM(info->GetId()).c_str(), e.what());
-			}
-			info->effects_[effects::EEffect::kDamage] = std::move(ptr);
-			node.GoToParent();
-		}
-		node.GoToParent();
-	}
-}
-
-void SpellInfoBuilder::ParseAreaSection(ItemPtr &info, DataNode &node) {
-	if (node.GoToChild("area")) {
-		auto ptr = std::make_shared<effects::Area>();
-		if (node.GoToChild("decay")) {
-			try {
-				ptr->free_targets = std::max(0, parse::ReadAsInt(node.GetValue("free_targets")));
-				ptr->level_decay = parse::ReadAsInt(node.GetValue("level"));
-				ptr->cast_decay = parse::ReadAsDouble(node.GetValue("cast"));
-			} catch (std::exception &e) {
-				err_log("Incorrect 'area/decay' section (spell: %s, value: %s).",
-						NAME_BY_ITEM(info->GetId()).c_str(), e.what());
-			}
-			node.GoToParent();
-		}
-		if (node.GoToChild("victims")) {
-			try {
-				ptr->skill_divisor = std::max(1, parse::ReadAsInt(node.GetValue("skill_divisor")));
-				ptr->targets_dice_size = std::max(1, parse::ReadAsInt(node.GetValue("dice_size")));
-				ptr->min_targets = std::max(1, parse::ReadAsInt(node.GetValue("min_targets")));
-				ptr->max_targets = std::max(1, parse::ReadAsInt(node.GetValue("max_targets")));
-			} catch (std::exception &e) {
-				err_log("Incorrect 'area/victims' section (spell: %s, value: %s).",
-						NAME_BY_ITEM(info->GetId()).c_str(), e.what());
-			}
-			node.GoToParent();
-		}
-		info->effects_[effects::EEffect::kArea] = std::move(ptr);
+		info->effects.Build(node);
 		node.GoToParent();
 	}
 }
@@ -232,24 +172,6 @@ bool SpellInfo::IsFlagged(const Bitvector flag) const {
 
 bool SpellInfo::AllowTarget(const Bitvector target_type) const {
 	return IS_SET(targets_, target_type);
-}
-
-effects::Damage SpellInfo::GetDmg() const {
-	if (effects_.contains(effects::EEffect::kDamage)) {
-		return *std::dynamic_pointer_cast<effects::Damage>(effects_.at(effects::EEffect::kDamage));
-	} else {
-		err_log("getting damage parameters from spell '%s' has no 'damage' effect section.", GetCName());
-		return {};
-	}
-}
-
-effects::Area SpellInfo::GetArea() const {
-	if (effects_.contains(effects::EEffect::kArea)) {
-		return *std::dynamic_pointer_cast<effects::Area>(effects_.at(effects::EEffect::kArea));
-	} else {
-		err_log("getting area parameters from spell '%s' has no 'area' effect section.", GetCName());
-		return {};
-	}
 }
 
 void SpellInfo::Print(std::ostringstream &buffer) const {
@@ -268,9 +190,7 @@ void SpellInfo::Print(std::ostringstream &buffer) const {
 		   << " Flags: " << KGRN << flags_ << KNRM << std::endl
 		   << " Targets: " << KGRN << targets_ << KNRM << std::endl;
 
-	for (const auto &effect: effects_) {
-		effect.second->Print(buffer);
-	}
+	effects.Print(buffer);
 }
 
 }

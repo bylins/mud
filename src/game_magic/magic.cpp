@@ -283,12 +283,15 @@ bool IsBreath(ESpell spell_id) {
 }
 
 double CalcMagicSkillCoeff(CharData *ch, ESpell spell_id) {
-	auto dmg = MUD::Spell(spell_id).GetDmg();
-	auto skill = ch->GetSkill(GetMagicSkillId(spell_id));
-	auto low_skill = std::min(skill, abilities::kNoviceSkillThreshold);
-	auto hi_skill = std::max(0, skill - abilities::kNoviceSkillThreshold);
-
-	return (low_skill*dmg.low_skill_bonus + hi_skill*dmg.hi_skill_bonus)/100.0;
+	auto dmg = MUD::Spell(spell_id).effects.GetDmg();
+	if (dmg) {
+		auto skill = ch->GetSkill(GetMagicSkillId(spell_id));
+		auto low_skill = std::min(skill, abilities::kNoviceSkillThreshold);
+		auto hi_skill = std::max(0, skill - abilities::kNoviceSkillThreshold);
+		return (low_skill * dmg.value().low_skill_bonus + hi_skill * dmg.value().hi_skill_bonus) / 100.0;
+	} else {
+		return 0.0;
+	}
 }
 
 double CalcMagicWisCoeff(CharData *ch, ESpell spell_id) {
@@ -459,14 +462,18 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	if (!ch->IsNpc() && (GetRealLevel(ch) > 10))
 		modi += (GetRealLevel(ch) - 10);
 
-	auto spell_dmg = MUD::Spell(spell_id).GetDmg();
+	auto spell_dmg = MUD::Spell(spell_id).effects.GetDmg();
+	if (!spell_dmg) {
+		return 0;
+	}
+
 	if (IsBreath(spell_id)) {
 		if (!ch->IsNpc())
 			return 0;
-		spell_dmg.saving = ESaving::kStability;
-		spell_dmg.dice_num = ch->mob_specials.damnodice;
-		spell_dmg.dice_size = ch->mob_specials.damsizedice;
-		spell_dmg.dice_add = GetRealDamroll(ch) + str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
+		spell_dmg.value().saving = ESaving::kStability;
+		spell_dmg.value().dice_num = ch->mob_specials.damnodice;
+		spell_dmg.value().dice_size = ch->mob_specials.damsizedice;
+		spell_dmg.value().dice_add = GetRealDamroll(ch) + str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
 	}
 
 	auto instant_death{false};
@@ -491,7 +498,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				}
 			}
 			if (obj) {
-				spell_dmg.dice_size = spell_dmg.dice_size - spell_dmg.dice_size / 3;
+				spell_dmg.value().dice_size = spell_dmg.value().dice_size - spell_dmg.value().dice_size / 3;
 				act("Кислота покрыла $o3.", false, victim, obj, nullptr, kToChar);
 				alterate_object(obj, number(level * 2, level * 4), 100);
 			}
@@ -649,7 +656,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			total_dmg += 99;
 		}
 	} else {
-		total_dmg = CalcTotalSpellDmg(ch, victim, spell_id, spell_dmg);
+		total_dmg = CalcTotalSpellDmg(ch, victim, spell_id, spell_dmg.value());
 	}
 	total_dmg = std::clamp(total_dmg, 0, kMaxHits);
 
@@ -3994,14 +4001,18 @@ void TrySendCastMessages(CharData *ch, CharData *victim, RoomData *room, int msg
 };
 
 int CalcAmountOfTargets(const CharData *ch, const ESpell spell_id) {
-	const auto params = MUD::Spell(spell_id).GetArea();
+	auto params = MUD::Spell(spell_id).effects.GetArea();
+	if (!params) {
+		return 0;
+	}
 	auto amount = ch->GetSkill(GetMagicSkillId(spell_id));
-	amount = RollDices(amount/params.skill_divisor, params.targets_dice_size);
-	return params.min_targets + std::min(amount, params.max_targets);
+	amount = RollDices(amount/params.value().skill_divisor, params.value().targets_dice_size);
+	return params.value().min_targets + std::min(amount, params.value().max_targets);
 }
 
 int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, ESpell spell_id, int level) {
-	if (ch == nullptr || IN_ROOM(ch) == kNowhere) {
+	const auto params = MUD::Spell(spell_id).effects.GetArea();
+	if (ch == nullptr || IN_ROOM(ch) == kNowhere || !params) {
 		return 0;
 	}
 
@@ -4015,13 +4026,12 @@ int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, ESpell spell
 	int targetsCounter = 1;
 	int levelDecay = 0;
 	double castDecay = 0.0;
-	const auto params = MUD::Spell(spell_id).GetArea();
 	if (CanUseFeat(ch, EFeat::kMultipleCast)) {
-		castDecay = params.cast_decay * 0.6;
-		levelDecay = MAX(MIN(1, params.level_decay), params.level_decay - 1);
+		castDecay = params.value().cast_decay * 0.6;
+		levelDecay = MAX(MIN(1, params.value().level_decay), params.value().level_decay - 1);
 	} else {
-		castDecay = params.cast_decay;
-		levelDecay = params.level_decay;
+		castDecay = params.value().cast_decay;
+		levelDecay = params.value().level_decay;
 	}
 	const int kCasterCastSuccess = GET_CAST_SUCCESS(ch);
 
@@ -4035,8 +4045,8 @@ int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, ESpell spell
 		}
 		if (!ch->IsNpc()) {
 			++targetsCounter;
-			if (targetsCounter > params.free_targets) {
-				int tax = kCasterCastSuccess * castDecay * (targetsCounter - params.free_targets);
+			if (targetsCounter > params.value().free_targets) {
+				int tax = kCasterCastSuccess * castDecay * (targetsCounter - params.value().free_targets);
 				GET_CAST_SUCCESS(ch) = std::max(-200, kCasterCastSuccess - tax);
 				level = std::max(1, level - levelDecay);
 				if (PRF_FLAGGED(ch, EPrf::kTester)) {

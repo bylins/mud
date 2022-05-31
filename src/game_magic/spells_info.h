@@ -39,7 +39,7 @@ class SpellInfo : public info_container::BaseItem<ESpell> {
 	int max_mana_{120};        // Max amount of mana used by a spell (lowest lev) //
 	int mana_change_{1};    // Change in mana used by spell from lev to lev //
 
-	std::unordered_map<effects::EEffect, effects::EffectPtr> effects_;
+	//std::unordered_map<effects::EEffect, effects::EffectPtr> effects_;
 
  public:
 	SpellInfo() = default;
@@ -47,6 +47,8 @@ class SpellInfo : public info_container::BaseItem<ESpell> {
 		: BaseItem<ESpell>(id, mode) {};
 
 	friend class SpellInfoBuilder;
+
+	effects::Effects effects;
 
 	[[nodiscard]] const std::string &GetName() const { return name_; };
 	/**
@@ -72,8 +74,8 @@ class SpellInfo : public info_container::BaseItem<ESpell> {
 	[[nodiscard]] int GetManaChange() const { return mana_change_; };
 
 	/* Эффекты */
-	effects::Damage GetDmg() const;
-	effects::Area GetArea() const;
+	//effects::Damage GetDmg() const;
+	//effects::Area GetArea() const;
 
 	void Print(std::ostringstream &buffer) const;
 };
@@ -93,8 +95,8 @@ class SpellInfoBuilder : public info_container::IItemBuilder<SpellInfo> {
 	static void ParseTargets(ItemPtr &info, DataNode &node);
 	static void ParseFlags(ItemPtr &info, DataNode &node);
 	static void ParseEffects(ItemPtr &info, DataNode &node);
-	static void ParseDmgSection(ItemPtr &info, DataNode &node);
-	static void ParseAreaSection(ItemPtr &info, DataNode &node);
+/*	static void ParseDmgSection(ItemPtr &info, DataNode &node);
+	static void ParseAreaSection(ItemPtr &info, DataNode &node);*/
 };
 
 using SpellsInfo = info_container::InfoContainer<ESpell, SpellInfo, SpellInfoBuilder>;

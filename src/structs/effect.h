@@ -90,9 +90,9 @@ class Effects {
 	void Build(parser_wrapper::DataNode &node);
 	void Print(std::ostringstream &buffer) const;
 
-	//[[nodiscard]] const Applies::AppliesRoster &GetApplies() const;
-
 	void ImposeApplies(CharData *ch) const;
+	[[nodiscard]] std::optional<Damage> GetDmg() const;
+	[[nodiscard]] std::optional<Area> GetArea() const;
 };
 
 }
