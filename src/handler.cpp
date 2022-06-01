@@ -33,6 +33,7 @@
 #include "game_classes/classes_spell_slots.h"
 #include "depot.h"
 #include "structs/global_objects.h"
+#include "utils/utils_time.h"
 
 using classes::CalcCircleSlotsAmount;
 
@@ -1829,6 +1830,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 	std::string name = GET_NAME(ch);
 	DescriptorData *t_desc;
 	log("[Extract char] Start function for char %s VNUM: %d", name.c_str(), GET_MOB_VNUM(ch));
+	utils::CExecutionTimer timer;
 	if (!ch->IsNpc() && !ch->desc) {
 //		log("[Extract char] Extract descriptors");
 		for (t_desc = descriptor_list; t_desc; t_desc = t_desc->next) {
@@ -1950,7 +1952,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 		character_list.remove(ch);
 	}
 
-	log("[Extract char] Stop function for char %s ", name.c_str());
+	log("[Extract char] Stop function for char %s, delta %f", name.c_str(), timer.delta().count());
 }
 
 /* ***********************************************************************
