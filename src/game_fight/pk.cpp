@@ -922,6 +922,7 @@ int may_kill_here(CharData *ch, CharData *victim, char *argument) {
 	//Проверка на чармиса(своего или группы)
 	if (argument) {
 		skip_spaces(&argument);
+		utils::remove_colors(argument);
 		if (victim && IS_CHARMICE(victim) && victim->get_master() && !victim->get_master()->IsNpc()) {
 			if (!name_cmp(victim, argument)) {
 				SendMsgToChar(ch, "Для исключения незапланированной агрессии введите имя жертвы полностью.\r\n");
@@ -977,7 +978,6 @@ int check_pkill(CharData *ch, CharData *opponent, const char *arg) {
 		ch ? GET_NAME(ch) : "NULL",
 		opponent ? GET_NAME(opponent) : "NULL",
 		arg ? arg : "NULL");
-
 	if (name_cmp(opponent, arg))
 		return true;
 
@@ -999,7 +999,6 @@ int check_pkill(CharData *ch, CharData *opponent, const std::string &arg) {
 	for (i = arg.begin(); i != arg.end() && (*i == '.' || (*i >= '0' && *i <= '9')); i++);
 
 	std::string tmp(i, arg.end());
-
 	strcpy(opp_name, GET_NAME(opponent));
 	for (opp_name_remain = opp_name; *opp_name_remain;) {
 		opp_name_remain = one_argument(opp_name_remain, opp_name_part);

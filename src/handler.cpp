@@ -1900,11 +1900,11 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 		// TODO: странно все это с пуржем в stop_follower
 		return;
 	}
-
+// дублируется в ExtractCharFromRoom
 //	log("[Extract char] Stop fighting self");
-	if (ch->GetEnemy()) {
-		stop_fighting(ch, true);
-	}
+//	if (ch->GetEnemy()) {
+//		stop_fighting(ch, true);
+//	}
 
 //	log("[Extract char] Stop all fight for opponee");
 	change_fighting(ch, true);
