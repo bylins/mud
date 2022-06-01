@@ -522,10 +522,23 @@ int CharData::GetSkill(const ESkill skill_id) const {
 	if (AFF_FLAGGED(this, EAffect::kSkillReduce)) {
 		skill -= skill * GET_POISON(this) / 100;
 	}
+
 	if (ROOM_FLAGGED(this->in_room, ERoomFlag::kDominationArena)) {
-		return std::clamp(skill, 0, CalcSkillRemortCap(this));
+		skill = std::clamp(skill, 0, CalcSkillRemortCap(this));
+	} else {
+		skill = std::clamp(skill, 0, MUD::Skill(skill_id).cap);
 	}
-	return std::clamp(skill, 0, MUD::Skill(skill_id).cap);
+
+	utils::CExecutionTimer time;
+	skill += GetBonusSkill(skill_id);
+	log("GetSkillMod time - %f", time.delta().count());
+	return skill;
+
+/*	if (ROOM_FLAGGED(this->in_room, ERoomFlag::kDominationArena)) {
+		return std::clamp(skill, 0, CalcSkillRemortCap(this));
+	} else {
+		return std::clamp(skill, 0, MUD::Skill(skill_id).cap);
+	}*/
 }
 
 //  Скилл со шмоток.
@@ -533,7 +546,7 @@ int CharData::GetSkill(const ESkill skill_id) const {
 // всем остальным -- не более 5% с шмотки
 int CharData::get_equipped_skill(const ESkill skill_id) const {
 	int skill = 0;
-	bool is_native = this->IsNpc() || MUD::Class(chclass_).skills[skill_id].IsAvailable();
+	bool is_native = this->IsNpc() || MUD::Class(chclass_).skills[skill_id].IsValid();
 	for (auto i : equipment) {
 		if (i) {
 			if (is_native) {
@@ -561,7 +574,6 @@ int CharData::get_inborn_skill(const ESkill skill_num) {
 	if (privilege::CheckSkills(this)) {
 		auto it = skills.find(skill_num);
 		if (it != skills.end()) {
-			//return normalize_skill(it->second.skillLevel, skill_num);
 			return std::clamp(it->second.skillLevel, 0, MUD::Skill(skill_num).cap);
 		}
 	}
@@ -578,6 +590,19 @@ int CharData::get_trained_skill(const ESkill skill_id) const {
 		return std::clamp(current_morph_->get_trained_skill(skill_id), 0, MUD::Skill(skill_id).cap);
 	}
 	return 0;
+}
+/*
+ * Бонусы скилла от модифицирующих талантов (способностей, навыков),
+ * хотя при желании модификатор можно добавить и спеллам.
+ */
+int CharData::GetBonusSkill(const ESkill skill_id) const {
+	int bonus{0};
+	for (const auto &feat : MUD::Feats()) {
+		if (CanUseFeat(this, feat.GetId())) {
+			bonus += feat.effects.GetSkillMod(skill_id);
+		}
+	}
+	return bonus;
 }
 
 // * Нулевой скилл мы не сетим, а при обнулении уже имеющегося удалем эту запись.

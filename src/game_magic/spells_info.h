@@ -73,11 +73,7 @@ class SpellInfo : public info_container::BaseItem<ESpell> {
 	[[nodiscard]] int GetMaxMana() const { return max_mana_; };
 	[[nodiscard]] int GetManaChange() const { return mana_change_; };
 
-	/* Эффекты */
-	//effects::Damage GetDmg() const;
-	//effects::Area GetArea() const;
-
-	void Print(std::ostringstream &buffer) const;
+	void Print(CharData *ch, std::ostringstream &buffer) const;
 };
 
 /**
@@ -95,8 +91,6 @@ class SpellInfoBuilder : public info_container::IItemBuilder<SpellInfo> {
 	static void ParseTargets(ItemPtr &info, DataNode &node);
 	static void ParseFlags(ItemPtr &info, DataNode &node);
 	static void ParseEffects(ItemPtr &info, DataNode &node);
-/*	static void ParseDmgSection(ItemPtr &info, DataNode &node);
-	static void ParseAreaSection(ItemPtr &info, DataNode &node);*/
 };
 
 using SpellsInfo = info_container::InfoContainer<ESpell, SpellInfo, SpellInfoBuilder>;

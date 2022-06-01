@@ -85,7 +85,7 @@ void ShowSpellInfo(CharData *ch, const std::string &spell_name) {
 	}
 
 	std::ostringstream out;
-	MUD::Spell(id).Print(out);
+	MUD::Spell(id).Print(ch, out);
 	page_string(ch->desc, out.str());
 }
 
@@ -102,7 +102,7 @@ void ShowFeatInfo(CharData *ch, const std::string &name) {
 	}
 
 	std::ostringstream out;
-	MUD::Feat(id).Print(out);
+	MUD::Feat(id).Print(ch, out);
 	page_string(ch->desc, out.str());
 }
 

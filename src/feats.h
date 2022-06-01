@@ -138,7 +138,7 @@ class FeatInfo : public info_container::BaseItem<EFeat> {
 	[[nodiscard]] const std::string &GetName() const { return name_; };
 	[[nodiscard]] const char *GetCName() const { return name_.c_str(); };
 
-	void Print(std::ostringstream &buffer) const;
+	void Print(CharData *ch, std::ostringstream &buffer) const;
 };
 
 class FeatInfoBuilder : public info_container::IItemBuilder<FeatInfo> {

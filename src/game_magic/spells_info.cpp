@@ -1,7 +1,7 @@
 #include "spells_info.h"
 
 #include "color.h"
-#include "spells.h"
+//#include "spells.h"
 #include "structs/global_objects.h"
 
 /*
@@ -174,7 +174,7 @@ bool SpellInfo::AllowTarget(const Bitvector target_type) const {
 	return IS_SET(targets_, target_type);
 }
 
-void SpellInfo::Print(std::ostringstream &buffer) const {
+void SpellInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 	buffer << "Print spell:" << std::endl
 		   << " Id: " << KGRN << NAME_BY_ITEM<ESpell>(GetId()) << KNRM
 		   << " Mode: " << KGRN << NAME_BY_ITEM<EItemMode>(GetMode()) << KNRM << std::endl
@@ -190,7 +190,7 @@ void SpellInfo::Print(std::ostringstream &buffer) const {
 		   << " Flags: " << KGRN << flags_ << KNRM << std::endl
 		   << " Targets: " << KGRN << targets_ << KNRM << std::endl;
 
-	effects.Print(buffer);
+	effects.Print(ch, buffer);
 }
 
 }

@@ -522,14 +522,14 @@ void InitFeatures() {
 }
 
 bool CanUseFeat(const CharData *ch, EFeat feat) {
-	if (feat_info[feat].always_available) {
-		return true;
-	};
-	if ((feat == EFeat::kUndefined) || !ch->HaveFeat(feat)) {
+	if (MUD::Feat(feat).IsInvalid()) {
 		return false;
 	};
-	if (ch->IsNpc()) {
+	if (feat_info[feat].always_available || ch->IsNpc()) {
 		return true;
+	};
+	if (!ch->HaveFeat(feat)) {
+		return false;
 	};
 	if (CalcMaxFeatSlotPerLvl(ch) < MUD::Class(ch->GetClass()).feats[feat].GetSlot()) {
 		return false;
@@ -1114,13 +1114,13 @@ void FeatInfoBuilder::ParseEffects(ItemPtr &info, DataNode &node) {
 	}
 }
 
-void FeatInfo::Print(std::ostringstream &buffer) const {
+void FeatInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 	buffer << "Print feat:" << std::endl
 		   << " Id: " << KGRN << NAME_BY_ITEM<EFeat>(GetId()) << KNRM << std::endl
 		   << " Name: " << KGRN << GetName() << KNRM << std::endl
 		   << " Mode: " << KGRN << NAME_BY_ITEM<EItemMode>(GetMode()) << KNRM << std::endl;
 
-	effects.Print(buffer);
+	effects.Print(ch, buffer);
 }
 
 }

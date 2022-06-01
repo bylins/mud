@@ -7,7 +7,7 @@
 
 namespace effects {
 
-void SkillTimerMod::Print(std::ostringstream &buffer) const {
+void TimerMod::Print(CharData *ch, std::ostringstream &buffer) const {
 	buffer << " Timer mods:" << std::endl;
 	table_wrapper::Table table;
 	table << table_wrapper::kHeader
@@ -26,11 +26,12 @@ void SkillTimerMod::Print(std::ostringstream &buffer) const {
 			  << timer_mod.second
 			  << table_wrapper::kEndRow;
 	}
+	table_wrapper::DecorateNoBorderTable(ch, table);
 	table_wrapper::PrintTableToStream(buffer, table);
 	buffer << std::endl;
 }
 
-void SkillMod::Print(std::ostringstream &buffer) const {
+void SkillMod::Print(CharData *ch, std::ostringstream &buffer) const {
 	buffer << " Skill mods:" << std::endl;
 	table_wrapper::Table table;
 	table << table_wrapper::kHeader
@@ -41,11 +42,12 @@ void SkillMod::Print(std::ostringstream &buffer) const {
 			  << mod.second
 			  << table_wrapper::kEndRow;
 	}
+	table_wrapper::DecorateNoBorderTable(ch, table);
 	table_wrapper::PrintTableToStream(buffer, table);
 	buffer << std::endl;
 }
 
-void Damage::Print(std::ostringstream &buffer) const {
+void Damage::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 	buffer << " Damage: " << std::endl
 		   << KGRN << "  " << dice_num
 		   << "d" << dice_size
@@ -55,7 +57,7 @@ void Damage::Print(std::ostringstream &buffer) const {
 		   << " Saving: " << KGRN << NAME_BY_ITEM<ESaving>(saving) << KNRM << std::endl;
 }
 
-void Area::Print(std::ostringstream &buffer) const {
+void Area::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 	buffer << " Area:" << std::endl
 		   << "  Cast decay: " << KGRN << cast_decay << KNRM
 		   << " Level decay: " << KGRN << level_decay << KNRM
@@ -66,7 +68,7 @@ void Area::Print(std::ostringstream &buffer) const {
 		   << " Max targets: " << KGRN << max_targets << KNRM << std::endl;
 }
 
-void Applies::Print(std::ostringstream &buffer) const {
+void Applies::Print(CharData *ch, std::ostringstream &buffer) const {
 	buffer << " Applies:" << std::endl;
 	table_wrapper::Table table;
 	table << table_wrapper::kHeader
@@ -79,14 +81,20 @@ void Applies::Print(std::ostringstream &buffer) const {
 			  << apply.second.cap
 			  << table_wrapper::kEndRow;
 	}
-	// \todo Сделать тут оформление таблицы
+	table_wrapper::DecorateNoBorderTable(ch, table);
 	table_wrapper::PrintTableToStream(buffer, table);
 	buffer << std::endl;
 }
 
-void Effects::Print(std::ostringstream &buffer) const {
+void Effects::Print(CharData *ch, std::ostringstream &buffer) const {
+	buffer << " Effect IDs: ";
 	for (const auto &effect: *effects_) {
-		effect.second->Print(buffer);
+		buffer << to_underlying(effect.first) << " "; // ABYRVALG
+	}
+	buffer << std::endl;
+
+	for (const auto &effect: *effects_) {
+		effect.second->Print(ch, buffer);
 	}
 }
 
@@ -96,7 +104,7 @@ void Effects::Build(parser_wrapper::DataNode &node) {
 		try {
 			ParseEffect(roster, effect);
 		} catch (std::exception &e) {
-			err_log("Incorrect value '%s' in '%s' effect.", e.what(), node.GetName());
+			err_log("Incorrect value '%s' in '%s'.", e.what(), node.GetName());
 			return;
 		}
 	}
@@ -114,9 +122,9 @@ void Effects::ParseEffect(EffectsRosterPtr &info, parser_wrapper::DataNode node)
 		ParseAreaEffect(info, node);
 	} else if (strcmp(node.GetName(), "applies") == 0) {
 		ParseAppliesEffect(info, node);
-	} else if (strcmp(node.GetName(), "timer_mod") == 0) {
+	} else if (strcmp(node.GetName(), "timer_mods") == 0) {
 		ParseTimerMods(info, node);
-	} else if (strcmp(node.GetName(), "skill_mod") == 0) {
+	} else if (strcmp(node.GetName(), "skill_mods") == 0) {
 		ParseSkillMods(info, node);
 	}
 }
@@ -170,22 +178,25 @@ void Effects::ParseAppliesEffect(EffectsRosterPtr &info, parser_wrapper::DataNod
 	info->insert({EEffect::kApply, std::move(ptr)});
 }
 
-void Effects::ParseTimerMods(EffectsRosterPtr &info, parser_wrapper::DataNode &node) {
-	auto ptr = std::make_shared<SkillTimerMod>();
-	for (const auto &timer_mod: node.Children("skill_timer")) {
-		auto id = parse::ReadAsConstant<ESkill>(timer_mod.GetValue("id"));
+void Effects::ParseTimerMods(EffectsRosterPtr &info, parser_wrapper::DataNode node) {
+	auto ptr = std::make_shared<TimerMod>();
+	for (const auto &timer_mod: node.Children()) {
 		auto mod = parse::ReadAsInt(timer_mod.GetValue("val"));
-		ptr->skill_timer_mods.emplace(id, mod);
+		if (strcmp(timer_mod.GetName(), "skill_timer") == 0) {
+			auto id = parse::ReadAsConstant<ESkill>(timer_mod.GetValue("id"));
+			ptr->skill_timer_mods.emplace(id, mod);
+		} else if (strcmp(timer_mod.GetName(), "feat_timer") == 0) {
+			auto id = parse::ReadAsConstant<EFeat>(timer_mod.GetValue("id"));
+			ptr->feat_timer_mods.emplace(id, mod);
+		}
 	}
-	for (const auto &timer_mod: node.Children("feat_timer")) {
-		auto id = parse::ReadAsConstant<EFeat>(timer_mod.GetValue("id"));
-		auto mod = parse::ReadAsInt(timer_mod.GetValue("val"));
-		ptr->feat_timer_mods.emplace(id, mod);;
+
+	if (!ptr->skill_timer_mods.empty() || !ptr->feat_timer_mods.empty()) {
+		info->insert({EEffect::kTimerMod, std::move(ptr)});
 	}
-	info->insert({EEffect::kTimerMod, std::move(ptr)});
 }
 
-void Effects::ParseSkillMods(EffectsRosterPtr &info, parser_wrapper::DataNode &node) {
+void Effects::ParseSkillMods(EffectsRosterPtr &info, parser_wrapper::DataNode node) {
 	auto ptr = std::make_shared<SkillMod>();
 	for (const auto &skill_mod: node.Children("skill")) {
 		auto id = parse::ReadAsConstant<ESkill>(skill_mod.GetValue("id"));
@@ -197,11 +208,13 @@ void Effects::ParseSkillMods(EffectsRosterPtr &info, parser_wrapper::DataNode &n
 
 /*
  *  Геттеры эффектов
+ *  Area и Dmg возвпращаются только по одному, потому что для обраьотки их списка надо переписывать всю логику
+ *  работы с арекастами, а даже, скорее, переносить ее внутрь эффекта (как сделано с Applies).
  */
 
 std::optional<Damage> Effects::GetDmg() const {
 	if (effects_->contains(EEffect::kDamage)) {
-		return *std::dynamic_pointer_cast<Damage>(effects_->find(EEffect::kDamage)->second);
+		return *std::static_pointer_cast<Damage>(effects_->find(EEffect::kDamage)->second);
 	} else {
 		err_log("getting damage parameters from talent has no 'damage' effect section.");
 		return std::nullopt;
@@ -210,7 +223,7 @@ std::optional<Damage> Effects::GetDmg() const {
 
 std::optional<Area> Effects::GetArea() const {
 	if (effects_->contains(EEffect::kArea)) {
-		return *std::dynamic_pointer_cast<Area>(effects_->find(EEffect::kArea)->second);
+		return *std::static_pointer_cast<Area>(effects_->find(EEffect::kArea)->second);
 	} else {
 		err_log("getting area parameters from talent has no 'area' effect section.");
 		return std::nullopt;
@@ -218,13 +231,13 @@ std::optional<Area> Effects::GetArea() const {
 }
 
 void Effects::ImposeApplies(CharData *ch) const {
-	if (effects_->contains(effects::EEffect::kApply)) {
-		auto ramge = effects_->equal_range(EEffect::kApply);
-		for (auto it = ramge.first; it != ramge.second; ++it) {
-			std::dynamic_pointer_cast<Applies>(it->second)->ImposeApplies(ch);
+	if (effects_->contains(EEffect::kApply)) {
+		auto range = effects_->equal_range(EEffect::kApply);
+		for (auto it = range.first; it != range.second; ++it) {
+			std::static_pointer_cast<Applies>(it->second)->ImposeApplies(ch);
 		}
 	}
-};
+}
 
 void Applies::ImposeApplies(CharData *ch) const {
 	for (const auto &apply: applies_roster) {
@@ -240,6 +253,25 @@ void Applies::ImposeApplies(CharData *ch) const {
 		}
 		affect_modify(ch, apply.first, mod, EAffect::kUndefinded, true);
 	}
+}
+
+int Effects::GetSkillMod(ESkill skill_id) const {
+	int mod{0};
+	if (effects_->contains(EEffect::kSkillMod)) {
+		auto range = effects_->equal_range(EEffect::kSkillMod);
+		for (auto it = range.first; it != range.second; ++it) {
+			mod += std::static_pointer_cast<SkillMod>(it->second)->GetMod(skill_id);
+		}
+	}
+	return mod;
+}
+
+int SkillMod::GetMod(ESkill skill_id) const {
+	//err_log("Get mod for skill '%s'.\r\n", NAME_BY_ITEM<ESkill>(skill_id).c_str());
+	if (skill_mods.contains(skill_id)) {
+		return skill_mods.at(skill_id);
+	}
+	return 0;
 }
 
 }

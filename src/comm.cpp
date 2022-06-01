@@ -544,7 +544,7 @@ void flush_queues(DescriptorData *d);
 void nonblock(socket_t s);
 int perform_subst(DescriptorData *t, char *orig, char *subst);
 int perform_alias(DescriptorData *d, char *orig);
-char *make_prompt(DescriptorData *point);
+std::string make_prompt(DescriptorData *point);
 struct in_addr *get_bind_addr(void);
 int parse_ip(const char *addr, struct in_addr *inaddr);
 int set_sendbuf(socket_t s);
@@ -1630,61 +1630,39 @@ char *show_state(CharData *ch, CharData *victim) {
 	return buf;
 }
 
-char *make_prompt(DescriptorData *d) {
-	static char prompt[kMaxPromptLength + 1];
-	static const char *dirs[] = {"С", "В", "Ю", "З", "^", "v"};
-
-	int ch_hp, sec_hp;
-	int perc;
-
-	// Note, prompt is truncated at kMaxPromptLength entities (structs.h )
+std::string make_prompt(DescriptorData *d) {
+	std::ostringstream out;
 	if (d->showstr_count) {
-		sprintf(prompt,
-				"\rЛистать : <RETURN>, Q<К>онец, R<П>овтор, B<Н>азад, или номер страницы (%d/%d).",
-				d->showstr_page,
-				d->showstr_count);
+		out << "\rЛистать : <RETURN>, Q<К>онец, R<П>овтор, B<Н>азад, или номер страницы ("
+			<< d->showstr_page << "/" << d->showstr_count << ").";
 	} else if (d->writer) {
-		strcpy(prompt, "] ");
+		out << "] ";
 	} else if (STATE(d) == CON_PLAYING && !d->character->IsNpc()) {
-		int count = 0;
-		*prompt = '\0';
+		if (GET_INVIS_LEV(d->character)) {
+			out << "i" << GET_INVIS_LEV(d->character) << " ";
+		}
 
-		// Invisibitity
-		if (GET_INVIS_LEV(d->character))
-			count += sprintf(prompt + count, "i%d ", GET_INVIS_LEV(d->character));
-
-		// Hits state
 		if (PRF_FLAGGED(d->character, EPrf::kDispHp)) {
-			count +=
-				sprintf(prompt + count, "%s",
-						color_value(d->character.get(), GET_HIT(d->character), GET_REAL_MAX_HIT(d->character)));
-			count += sprintf(prompt + count, "%dH%s ", GET_HIT(d->character), CCNRM(d->character, C_NRM));
+			out << color_value(d->character.get(), GET_HIT(d->character), GET_REAL_MAX_HIT(d->character))
+				<< GET_HIT(d->character) << "H" << KNRM << " ";
 		}
-		// Moves state
+
 		if (PRF_FLAGGED(d->character, EPrf::kDispMove)) {
-			count +=
-				sprintf(prompt + count, "%s",
-						color_value(d->character.get(), GET_MOVE(d->character), GET_REAL_MAX_MOVE(d->character)));
-			count += sprintf(prompt + count, "%dM%s ", GET_MOVE(d->character), CCNRM(d->character, C_NRM));
+			out << color_value(d->character.get(), GET_MOVE(d->character), GET_REAL_MAX_MOVE(d->character))
+				<< GET_MOVE(d->character) << "M" << KNRM << " ";
 		}
-		// Mana state
+
 		if (PRF_FLAGGED(d->character, EPrf::kDispMana) && IS_MANA_CASTER(d->character)) {
-			perc = (100 * d->character->mem_queue.stored) / GET_MAX_MANA((d->character).get());
-			count +=
-				sprintf(prompt + count, "%s%dз%s ",
-						CCMANA(d->character, C_NRM, perc),
-						d->character->mem_queue.stored, CCNRM(d->character, C_NRM));
+			int perc = (100 * d->character->mem_queue.stored) / GET_MAX_MANA((d->character).get());
+			out << CCMANA(d->character, C_NRM, perc) << "э" << d->character->mem_queue.stored << KNRM << " ";
 		}
-		// Expirience
-		// if (EPrf::FLAGGED(d->character, EPrf::DISPEXP))
-		//    count += sprintf(prompt + count, "%ldx ", GET_EXP(d->character));
+
 		if (PRF_FLAGGED(d->character, EPrf::kDispExp)) {
 			if (IS_IMMORTAL(d->character)) {
-				count += sprintf(prompt + count, "??? ");
+				out << "??? ";
 			} else {
-				count += sprintf(prompt + count, "%ldо ",
-								 GetExpUntilNextLvl(d->character.get(),
-													GetRealLevel(d->character) + 1) - GET_EXP(d->character));
+				out << GetExpUntilNextLvl(d->character.get(), GetRealLevel(d->character) + 1) - GET_EXP(d->character)
+					<< "о ";
 			}
 		}
 
@@ -1692,127 +1670,88 @@ char *make_prompt(DescriptorData *d) {
 			if (!d->character->mem_queue.Empty()) {
 				auto mana_gain = CalcManaGain(d->character.get());
 				if (mana_gain) {
-					sec_hp = std::max(0, 1 + d->character->mem_queue.total - d->character->mem_queue.stored);
+					int sec_hp = std::max(0, 1 + d->character->mem_queue.total - d->character->mem_queue.stored);
 					sec_hp = sec_hp*60/mana_gain;
-					ch_hp = sec_hp/60;
+					int ch_hp = sec_hp/60;
 					sec_hp %= 60;
-					count += sprintf(prompt + count, "Зауч:%d:%02d ", ch_hp, sec_hp);
+					out << "Зауч:" << ch_hp << ":" << std::setw(2) << std::setfill('0') << sec_hp;
 				} else {
-					count += sprintf(prompt + count, "Зауч:- ");
+					out << "Зауч:- ";
 				}
 			} else {
-				count += sprintf(prompt + count, "Зауч:0 ");
+				out << "Зауч:0 ";
 			}
 		}
-		// Cooldowns
+
 		if (PRF_FLAGGED(d->character, EPrf::kDispCooldowns)) {
-			// И вся эта дичь потому, что процелура составления промпта не является членом player, как дОлжно,
-			// потому мы не можем просто пройтись по списку _имеющихся у игрока_ скиллов
-			// у кого руки дойдут - может переделать на метод класса...
-			count += sprintf(prompt + count,
-							 "%s:%d ",
-							 MUD::Skill(ESkill::kGlobalCooldown).GetAbbr(),
-							 d->character->getSkillCooldownInPulses(ESkill::kGlobalCooldown));
+			out << MUD::Skill(ESkill::kGlobalCooldown).GetAbbr() << ":"
+				<< d->character->getSkillCooldownInPulses(ESkill::kGlobalCooldown) << " ";
+
 			for (const auto &skill : MUD::Skills()) {
 				if (skill.IsAvailable()) {
 					int cooldown = d->character->getSkillCooldownInPulses(skill.GetId());
 					if (cooldown > 0) {
-						count += sprintf(prompt + count, "%s:%d ", skill.GetAbbr(), cooldown);
+						out << skill.GetAbbr() << ":" << cooldown << " ";
 					}
 				}
 			}
 		}
+
 		// Заряды и таймеры умений
 		if (PRF_FLAGGED(d->character, EPrf::kDispTimed)) {
-			if (d->character->GetSkill(ESkill::kIdentify))
-				count += sprintf(prompt + count, "Пз:%d ", IsTimedBySkill(d->character.get(), ESkill::kIdentify));
-			if (d->character->GetSkill(ESkill::kHangovering))
-				count += sprintf(prompt + count, "Опх:%d ", IsTimedBySkill(d->character.get(), ESkill::kHangovering));
-			if (d->character->GetSkill(ESkill::kFirstAid))
-				count += sprintf(prompt + count, "Лч:%d ", IsTimedBySkill(d->character.get(), ESkill::kFirstAid));
-			if (d->character->GetSkill(ESkill::kDisguise))
-				count += sprintf(prompt + count, "Мс:%d ", IsTimedBySkill(d->character.get(), ESkill::kDisguise));
-			if (d->character->GetSkill(ESkill::kRepair))
-				count += sprintf(prompt + count, "Рм:%d ", IsTimedBySkill(d->character.get(), ESkill::kRepair));
-			if (d->character->GetSkill(ESkill::kCourage))
-				count += sprintf(prompt + count, "Яр:%d ", IsTimedBySkill(d->character.get(), ESkill::kCourage));
-			if (d->character->GetSkill(ESkill::kJinx))
-				count += sprintf(prompt + count, "Сг:%d ", IsTimedBySkill(d->character.get(), ESkill::kJinx));
-			if (d->character->GetSkill(ESkill::kTownportal))
-				count += sprintf(prompt + count, "Вр:%d ", IsTimedBySkill(d->character.get(), ESkill::kTownportal));
-			if (d->character->GetSkill(ESkill::kWarcry)) {
-				int wc_count = (kHoursPerDay - IsTimedBySkill(d->character.get(), ESkill::kWarcry)) / kHoursPerWarcry;
-				count += sprintf(prompt + count, "Кл:%d ", wc_count);
-			}
-			if (d->character->GetSkill(ESkill::kTurnUndead)) {
-				if (CanUseFeat(d->character.get(), EFeat::kExorcist)) {
-					count += sprintf(prompt + count,
-									 "Из:%d ",
-									 (kHoursPerDay - IsTimedBySkill(d->character.get(), ESkill::kTurnUndead))
-										 / (kHoursPerTurnUndead - 2));
-				} else {
-					count += sprintf(prompt + count,
-									 "Из:%d ",
-									 (kHoursPerDay - IsTimedBySkill(d->character.get(), ESkill::kTurnUndead))
-										 / kHoursPerTurnUndead);
+			for (auto timed = d->character->timed; timed; timed = timed->next) {
+				if (timed->skill != ESkill::kWarcry && timed->skill != ESkill::kTurnUndead) {
+					out << MUD::Skill(timed->skill).GetAbbr() << ":" << timed->time << " ";
 				}
 			}
-			if (d->character->GetSkill(ESkill::kStrangle))
-				count += sprintf(prompt + count, "Уд:%d ", IsTimedBySkill(d->character.get(), ESkill::kStrangle));
-			if (d->character->GetSkill(ESkill::kStun))
-				count += sprintf(prompt + count, "Ош:%d ", IsTimedBySkill(d->character.get(), ESkill::kStun));
-
-			if (d->character->HaveFeat(EFeat::kRelocate))
-				count += sprintf(prompt + count, "Пр:%d ", IsTimedByFeat(d->character.get(), EFeat::kRelocate));
-			if (d->character->HaveFeat(EFeat::kSpellCapabler))
-				count += sprintf(prompt + count, "Зч:%d ", IsTimedByFeat(d->character.get(), EFeat::kSpellCapabler));
-			if (d->character->HaveFeat(EFeat::kShadowThrower))
-				count += sprintf(prompt + count, "Зо:%d ", IsTimedByFeat(d->character.get(), EFeat::kShadowThrower));
+			if (d->character->GetSkill(ESkill::kWarcry)) {
+				int wc_count = (kHoursPerDay - IsTimedBySkill(d->character.get(), ESkill::kWarcry)) / kHoursPerWarcry;
+				out << MUD::Skill(ESkill::kWarcry).GetAbbr() << ":" << wc_count << " ";
+			}
+			if (d->character->GetSkill(ESkill::kTurnUndead)) {
+				int bonus{0};
+				CanUseFeat(d->character.get(), EFeat::kExorcist) ? (bonus += 2) : (bonus = 0);
+				out << MUD::Skill(ESkill::kTurnUndead).GetAbbr() << ":"
+					<< (kHoursPerDay - IsTimedBySkill(d->character.get(), ESkill::kTurnUndead)) /
+						(kHoursPerTurnUndead - bonus) << " ";
+			}
 		}
 
 		if (!d->character->GetEnemy() || IN_ROOM(d->character) != IN_ROOM(d->character->GetEnemy())) {
 			if (PRF_FLAGGED(d->character, EPrf::kDispLvl))
-				count += sprintf(prompt + count, "%dL ", GetRealLevel(d->character));
+				out << GetRealLevel(d->character) << "L ";
 
 			if (PRF_FLAGGED(d->character, EPrf::kDispMoney))
-				count += sprintf(prompt + count, "%ldG ", d->character->get_gold());
+				out << d->character->get_gold() << "G ";
 
 			if (PRF_FLAGGED(d->character, EPrf::kDispExits)) {
-				count += sprintf(prompt + count, "Вых:");
+				static const char *dirs[] = {"С", "В", "Ю", "З", "^", "v"};
+				out << "Вых:";
 				if (!AFF_FLAGGED(d->character, EAffect::kBlind)) {
 					for (auto dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
 						if (EXIT(d->character, dir) && EXIT(d->character, dir)->to_room() != kNowhere &&
 							!EXIT_FLAGGED(EXIT(d->character, dir), EExitFlag::kHidden)) {
-							count += EXIT_FLAGGED(EXIT(d->character, dir), EExitFlag::kClosed)
-									 ? sprintf(prompt + count, "(%s)", dirs[dir])
-									 : sprintf(prompt + count, "%s", dirs[dir]);
+							EXIT_FLAGGED(EXIT(d->character, dir), EExitFlag::kClosed) ?
+								(out << "(" << dirs[dir] << ")") :  (out << dirs[dir]);
 						}
 					}
 				}
 			}
 		} else {
 			if (PRF_FLAGGED(d->character, EPrf::kDispFight)) {
-				count += sprintf(prompt + count, "%s", show_state(d->character.get(), d->character.get()));
+				out << show_state(d->character.get(), d->character.get());
 			}
-
-			if (d->character->GetEnemy()->GetEnemy()
-				&& d->character->GetEnemy()->GetEnemy() != d->character.get()) {
-				count +=
-					sprintf(prompt + count, "%s",
-							show_state(d->character.get(), d->character->GetEnemy()->GetEnemy()));
+			if (d->character->GetEnemy()->GetEnemy() && d->character->GetEnemy()->GetEnemy() != d->character.get()) {
+				out << show_state(d->character.get(), d->character->GetEnemy()->GetEnemy());
 			}
-
-			count += sprintf(prompt + count, "%s", show_state(d->character.get(), d->character->GetEnemy()));
+			out << show_state(d->character.get(), d->character->GetEnemy());
 		};
-		strcat(prompt, "> ");
-	} else if (STATE(d) == CON_PLAYING
-		&& d->character->IsNpc()) {
-		sprintf(prompt, "{%s}-> ", GET_NAME(d->character));
-	} else {
-		*prompt = '\0';
+		out << "> ";
+	} else if (STATE(d) == CON_PLAYING && d->character->IsNpc()) {
+		out << "{" << GET_NAME(d->character) << "}-> ";
 	}
 
-	return prompt;
+	return out.str();
 }
 
 void write_to_q(const char *txt, struct TextBlocksQueue *queue, int aliased) {
@@ -2309,7 +2248,7 @@ int process_output(DescriptorData *t) {
 		t->msdp_report_changed_vars();
 
 	// add a prompt
-	strncat(i, make_prompt(t), kMaxPromptLength);
+	strncat(i, make_prompt(t).c_str(), kMaxPromptLength);
 
 	// easy color
 	int pos;

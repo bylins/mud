@@ -29,20 +29,21 @@ class IEffect {
  public:
 	virtual ~IEffect() = default;
 
-	virtual void Print(std::ostringstream &buffer) const = 0;
+	virtual void Print(CharData *ch, std::ostringstream &buffer) const = 0;
 };
 
 struct SkillMod : public IEffect {
 	std::unordered_map<ESkill, int> skill_mods;
 
-	void Print(std::ostringstream &buffer) const override;
+	[[nodiscard]] int GetMod(ESkill skill_id) const;
+	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };
 
-struct SkillTimerMod : public IEffect {
+struct TimerMod : public IEffect {
 	std::unordered_map<ESkill, int> skill_timer_mods;
 	std::unordered_map<EFeat, int> feat_timer_mods;
 
-	void Print(std::ostringstream &buffer) const override;
+	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };
 
 struct Damage : public IEffect {
@@ -53,7 +54,7 @@ struct Damage : public IEffect {
 	double low_skill_bonus{0.0};
 	double hi_skill_bonus{0.0};
 
-	void Print(std::ostringstream &buffer) const override;
+	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };
 
 struct Area : public IEffect {
@@ -66,7 +67,7 @@ struct Area : public IEffect {
 	int min_targets{1};
 	int max_targets{1};
 
-	void Print(std::ostringstream &buffer) const override;
+	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };
 
 struct Applies : public IEffect {
@@ -84,7 +85,7 @@ struct Applies : public IEffect {
 	using AppliesRoster = std::unordered_map<EApply, Mod>;
 	AppliesRoster applies_roster;
 
-	void Print(std::ostringstream &buffer) const override;
+	void Print(CharData *ch, std::ostringstream &buffer) const override;
 	void ImposeApplies(CharData *ch) const;
 };
 
@@ -99,19 +100,20 @@ class Effects {
 	static void ParseDamageEffect(EffectsRosterPtr &info, parser_wrapper::DataNode &node);
 	static void ParseAreaEffect(EffectsRosterPtr &info, parser_wrapper::DataNode &node);
 	static void ParseAppliesEffect(EffectsRosterPtr &info, parser_wrapper::DataNode &node);
-	static void ParseTimerMods(EffectsRosterPtr &info, parser_wrapper::DataNode &node);
-	static void ParseSkillMods(EffectsRosterPtr &info, parser_wrapper::DataNode &node);
+	static void ParseTimerMods(EffectsRosterPtr &info, parser_wrapper::DataNode node);
+	static void ParseSkillMods(EffectsRosterPtr &info, parser_wrapper::DataNode node);
  public:
 	Effects() {
 		effects_ = std::make_unique<EffectsRoster>();
 	};
 
 	void Build(parser_wrapper::DataNode &node);
-	void Print(std::ostringstream &buffer) const;
+	void Print(CharData *ch, std::ostringstream &buffer) const;
 
 	void ImposeApplies(CharData *ch) const;
 	[[nodiscard]] std::optional<Damage> GetDmg() const;
 	[[nodiscard]] std::optional<Area> GetArea() const;
+	[[nodiscard]] int GetSkillMod(ESkill skill_id) const;
 };
 
 }
