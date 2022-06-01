@@ -2651,7 +2651,7 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "maxskill")) {
 			const ESkill skillnum = FixNameAndFindSkillId(subfield);
-			if (skillnum > ESkill::kUndefined) {
+			if (MUD::Skill(skillnum).IsAvailable()) {
 				sprintf(str, "%d", CalcSkillHardCap(c, skillnum));
 			} else {
 				strcpy(str, "0");
