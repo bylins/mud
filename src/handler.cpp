@@ -1615,11 +1615,9 @@ void ExtractObjFromWorld(ObjData *obj) {
 	ObjData *temp;
 
 	strcpy(name, obj->get_PName(0).c_str());
-	log("Extracting obj %s vnum == %d room = %d timer == %d",
-		name,
-		GET_OBJ_VNUM(obj),
-		get_room_where_obj(obj, false),
-		obj->get_timer());
+	log("[Extract obj] Start for: %s vnum == %d room = %d timer == %d",
+			name, GET_OBJ_VNUM(obj), get_room_where_obj(obj, false), obj->get_timer());
+	utils::CExecutionTimer timer;
 // TODO: в дебаг log("Start extract obj %s", name);
 
 	// Get rid of the contents of the object, as well.
@@ -1682,6 +1680,7 @@ void ExtractObjFromWorld(ObjData *obj) {
 
 	obj->get_script()->set_purged();
 	world_objects.remove(obj);
+	log("[Extract obj] Stop, delta %f", timer.delta().count());
 }
 
 void UpdateObject(ObjData *obj, int use) {
