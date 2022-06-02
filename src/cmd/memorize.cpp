@@ -81,8 +81,8 @@ void show_wizdom(CharData *ch, int bitset) {
 			slot_num = MUD::Classes(ch->GetClass()).spells[spell_id].GetCircle() - 1;
 			max_slot = std::max(slot_num, max_slot);
 			slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-					"%2s|[%2d] %-31s|",
-					slots[slot_num] % 80 < 10 ? "\r\n" : "  ", 
+					"%2s|[%2d] %-35s|",
+					slots[slot_num] % 88 < 10 ? "\r\n" : "  ",
 					count,
 					spell_info[spell_id].name);
 			is_full++;
@@ -142,8 +142,8 @@ void show_wizdom(CharData *ch, int bitset) {
 				}
 				slot_num = MUD::Classes(ch->GetClass()).spells[spell_id].GetCircle() - 1;
 				slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-						"%2s|[%2d] %-26s%5s|",
-						slots[slot_num] % 80 < 10 ? "\r\n" : "  ", 
+						"%2s|[%2d] %-30s%5s|",
+						slots[slot_num] % 88 < 10 ? "\r\n" : "  ",
 						to_underlying(cnt[index]),
 						spell_info[spell_id].name, q == ch->mem_queue.queue ? timestr : "");
 				cnt[index] = ESpell::kUndefined;
