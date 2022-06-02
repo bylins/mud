@@ -4,25 +4,34 @@
 #include "entities/char_data.h"
 #include "utils/table_wrapper.h"
 #include "global_objects.h"
+//#include "effect.h"
 
 namespace effects {
 
-void TimerMod::Print(CharData *ch, std::ostringstream &buffer) const {
-	buffer << " Timer mods:" << std::endl;
+void FeatTimerMod::Print(CharData *ch, std::ostringstream &buffer) const {
+	buffer << " Feat timers mods:" << std::endl;
 	table_wrapper::Table table;
 	table << table_wrapper::kHeader
-		  << "Type" << "Id" << "Name" << "Mod" << table_wrapper::kEndRow;
-	for (const auto &timer_mod: skill_timer_mods) {
-		table << "Skill"
-			  << NAME_BY_ITEM<ESkill>(timer_mod.first)
-			  << MUD::Skill(timer_mod.first).GetName()
+		  << "Id" << "Name" << "Mod" << table_wrapper::kEndRow;
+	for (const auto &timer_mod: mods) {
+		table << NAME_BY_ITEM<EFeat>(timer_mod.first)
+			  << MUD::Feat(timer_mod.first).GetName()
 			  << timer_mod.second
 			  << table_wrapper::kEndRow;
 	}
-	for (const auto &timer_mod: feat_timer_mods) {
-		table << "Feat"
-			  << NAME_BY_ITEM<EFeat>(timer_mod.first)
-			  << MUD::Feat(timer_mod.first).GetName()
+	table_wrapper::DecorateNoBorderTable(ch, table);
+	table_wrapper::PrintTableToStream(buffer, table);
+	buffer << std::endl;
+}
+
+void SkillTimerMod::Print(CharData *ch, std::ostringstream &buffer) const {
+	buffer << " Skill timers mods:" << std::endl;
+	table_wrapper::Table table;
+	table << table_wrapper::kHeader
+		  << "Id" << "Name" << "Mod" << table_wrapper::kEndRow;
+	for (const auto &timer_mod: mods) {
+		table << NAME_BY_ITEM<ESkill>(timer_mod.first)
+			  << MUD::Skill(timer_mod.first).GetName()
 			  << timer_mod.second
 			  << table_wrapper::kEndRow;
 	}
@@ -36,7 +45,7 @@ void SkillMod::Print(CharData *ch, std::ostringstream &buffer) const {
 	table_wrapper::Table table;
 	table << table_wrapper::kHeader
 		  << "Id" << "Name" << "Mod" << table_wrapper::kEndRow;
-	for (const auto &mod: skill_mods) {
+	for (const auto &mod: mods) {
 		table << NAME_BY_ITEM<ESkill>(mod.first)
 			  << MUD::Skill(mod.first).GetName()
 			  << mod.second
@@ -87,12 +96,6 @@ void Applies::Print(CharData *ch, std::ostringstream &buffer) const {
 }
 
 void Effects::Print(CharData *ch, std::ostringstream &buffer) const {
-	buffer << " Effect IDs: ";
-	for (const auto &effect: *effects_) {
-		buffer << to_underlying(effect.first) << " "; // ABYRVALG
-	}
-	buffer << std::endl;
-
 	for (const auto &effect: *effects_) {
 		effect.second->Print(ch, buffer);
 	}
@@ -122,8 +125,10 @@ void Effects::ParseEffect(EffectsRosterPtr &info, parser_wrapper::DataNode node)
 		ParseAreaEffect(info, node);
 	} else if (strcmp(node.GetName(), "applies") == 0) {
 		ParseAppliesEffect(info, node);
-	} else if (strcmp(node.GetName(), "timer_mods") == 0) {
-		ParseTimerMods(info, node);
+	} else if (strcmp(node.GetName(), "skill_timer_mods") == 0) {
+		ParseSkillTimerMods(info, node);
+	} else if (strcmp(node.GetName(), "feat_timer_mods") == 0) {
+		ParseFeatTimerMods(info, node);
 	} else if (strcmp(node.GetName(), "skill_mods") == 0) {
 		ParseSkillMods(info, node);
 	}
@@ -178,30 +183,38 @@ void Effects::ParseAppliesEffect(EffectsRosterPtr &info, parser_wrapper::DataNod
 	info->insert({EEffect::kApply, std::move(ptr)});
 }
 
-void Effects::ParseTimerMods(EffectsRosterPtr &info, parser_wrapper::DataNode node) {
-	auto ptr = std::make_shared<TimerMod>();
+void Effects::ParseSkillTimerMods(EffectsRosterPtr &info, parser_wrapper::DataNode node) {
+	auto ptr = std::make_shared<SkillTimerMod>();
 	for (const auto &timer_mod: node.Children()) {
 		auto mod = parse::ReadAsInt(timer_mod.GetValue("val"));
-		if (strcmp(timer_mod.GetName(), "skill_timer") == 0) {
-			auto id = parse::ReadAsConstant<ESkill>(timer_mod.GetValue("id"));
-			ptr->skill_timer_mods.emplace(id, mod);
-		} else if (strcmp(timer_mod.GetName(), "feat_timer") == 0) {
-			auto id = parse::ReadAsConstant<EFeat>(timer_mod.GetValue("id"));
-			ptr->feat_timer_mods.emplace(id, mod);
-		}
+		auto id = parse::ReadAsConstant<ESkill>(timer_mod.GetValue("id"));
+		ptr->mods.emplace(id, mod);
 	}
 
-	if (!ptr->skill_timer_mods.empty() || !ptr->feat_timer_mods.empty()) {
-		info->insert({EEffect::kTimerMod, std::move(ptr)});
+	if (!ptr->mods.empty()) {
+		info->insert({EEffect::kSkillTimerMod, std::move(ptr)});
+	}
+}
+
+void Effects::ParseFeatTimerMods(EffectsRosterPtr &info, parser_wrapper::DataNode node) {
+	auto ptr = std::make_shared<FeatTimerMod>();
+	for (const auto &timer_mod: node.Children()) {
+		auto mod = parse::ReadAsInt(timer_mod.GetValue("val"));
+		auto id = parse::ReadAsConstant<EFeat>(timer_mod.GetValue("id"));
+		ptr->mods.emplace(id, mod);
+	}
+
+	if (!ptr->mods.empty()) {
+		info->insert({EEffect::kFeatTimerMod, std::move(ptr)});
 	}
 }
 
 void Effects::ParseSkillMods(EffectsRosterPtr &info, parser_wrapper::DataNode node) {
 	auto ptr = std::make_shared<SkillMod>();
-	for (const auto &skill_mod: node.Children("skill")) {
+	for (const auto &skill_mod: node.Children()) {
 		auto id = parse::ReadAsConstant<ESkill>(skill_mod.GetValue("id"));
 		auto mod = parse::ReadAsInt(skill_mod.GetValue("val"));
-		ptr->skill_mods.emplace(id, mod);
+		ptr->mods.emplace(id, mod);
 	}
 	info->insert({EEffect::kSkillMod, std::move(ptr)});
 }
@@ -231,11 +244,9 @@ std::optional<Area> Effects::GetArea() const {
 }
 
 void Effects::ImposeApplies(CharData *ch) const {
-	if (effects_->contains(EEffect::kApply)) {
-		auto range = effects_->equal_range(EEffect::kApply);
-		for (auto it = range.first; it != range.second; ++it) {
-			std::static_pointer_cast<Applies>(it->second)->ImposeApplies(ch);
-		}
+	auto range = effects_->equal_range(EEffect::kApply);
+	for (auto it = range.first; it != range.second; ++it) {
+		std::static_pointer_cast<Applies>(it->second)->ImposeApplies(ch);
 	}
 }
 
@@ -257,19 +268,32 @@ void Applies::ImposeApplies(CharData *ch) const {
 
 int Effects::GetSkillMod(ESkill skill_id) const {
 	int mod{0};
-	if (effects_->contains(EEffect::kSkillMod)) {
-		auto range = effects_->equal_range(EEffect::kSkillMod);
-		for (auto it = range.first; it != range.second; ++it) {
-			mod += std::static_pointer_cast<SkillMod>(it->second)->GetMod(skill_id);
-		}
+	auto range = effects_->equal_range(EEffect::kSkillMod);
+	for (auto it = range.first; it != range.second; ++it) {
+		mod += std::static_pointer_cast<SkillMod>(it->second)->GetVal(skill_id);
 	}
 	return mod;
 }
 
-int SkillMod::GetMod(ESkill skill_id) const {
-	//err_log("Get mod for skill '%s'.\r\n", NAME_BY_ITEM<ESkill>(skill_id).c_str());
-	if (skill_mods.contains(skill_id)) {
-		return skill_mods.at(skill_id);
+int SkillMod::GetVal(ESkill skill_id) const {
+	if (mods.contains(skill_id)) {
+		return mods.at(skill_id);
+	}
+	return 0;
+}
+
+int Effects::GetTimerMod(ESkill skill_id) const {
+	int mod{0};
+	auto range = effects_->equal_range(EEffect::kSkillTimerMod);
+	for (auto it = range.first; it != range.second; ++it) {
+		mod += std::static_pointer_cast<SkillTimerMod>(it->second)->GetVal(skill_id);
+	}
+	return mod;
+}
+
+int SkillTimerMod::GetVal(ESkill skill_id) const {
+	if (mods.contains(skill_id)) {
+		return mods.at(skill_id);
 	}
 	return 0;
 }

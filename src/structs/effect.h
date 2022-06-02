@@ -19,7 +19,8 @@ namespace effects {
 
 enum class EEffect {
 	kSkillMod,
-	kTimerMod,
+	kSkillTimerMod,
+	kFeatTimerMod,
 	kDamage,
 	kArea,
 	kApply
@@ -33,16 +34,23 @@ class IEffect {
 };
 
 struct SkillMod : public IEffect {
-	std::unordered_map<ESkill, int> skill_mods;
+	std::unordered_map<ESkill, int> mods;
 
-	[[nodiscard]] int GetMod(ESkill skill_id) const;
+	[[nodiscard]] int GetVal(ESkill skill_id) const;
 	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };
 
-struct TimerMod : public IEffect {
-	std::unordered_map<ESkill, int> skill_timer_mods;
-	std::unordered_map<EFeat, int> feat_timer_mods;
+struct SkillTimerMod : public IEffect {
+	std::unordered_map<ESkill, int> mods;
 
+	[[nodiscard]] int GetVal(ESkill skill_id) const;
+	void Print(CharData *ch, std::ostringstream &buffer) const override;
+};
+
+struct FeatTimerMod : public IEffect {
+	std::unordered_map<EFeat, int> mods;
+
+	[[nodiscard]] int GetVal(EFeat feat_id) const;
 	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };
 
@@ -100,8 +108,9 @@ class Effects {
 	static void ParseDamageEffect(EffectsRosterPtr &info, parser_wrapper::DataNode &node);
 	static void ParseAreaEffect(EffectsRosterPtr &info, parser_wrapper::DataNode &node);
 	static void ParseAppliesEffect(EffectsRosterPtr &info, parser_wrapper::DataNode &node);
-	static void ParseTimerMods(EffectsRosterPtr &info, parser_wrapper::DataNode node);
 	static void ParseSkillMods(EffectsRosterPtr &info, parser_wrapper::DataNode node);
+	static void ParseSkillTimerMods(EffectsRosterPtr &info, parser_wrapper::DataNode node);
+	static void ParseFeatTimerMods(EffectsRosterPtr &info, parser_wrapper::DataNode node);
  public:
 	Effects() {
 		effects_ = std::make_unique<EffectsRoster>();
@@ -114,6 +123,7 @@ class Effects {
 	[[nodiscard]] std::optional<Damage> GetDmg() const;
 	[[nodiscard]] std::optional<Area> GetArea() const;
 	[[nodiscard]] int GetSkillMod(ESkill skill_id) const;
+	[[nodiscard]] int GetTimerMod(ESkill skill_id) const;
 };
 
 }
