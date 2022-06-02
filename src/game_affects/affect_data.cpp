@@ -503,7 +503,7 @@ void affect_total(CharData *ch) {
 
 	for (auto i = EFeat::kFirst; i <= EFeat::kLast; ++i) {
 		if (CanUseFeat(ch, i)) {
-			MUD::Feat(i).effects.ImposeApplies(ch);
+			MUD::Feat(i).passive_effects.ImposeApplies(ch);
 		}
 	}
 

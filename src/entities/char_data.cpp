@@ -16,7 +16,7 @@
 #include "backtrace.h"
 #include "structs/global_objects.h"
 #include "liquid.h"
-#include "utils/utils_time.h"
+//#include "utils/utils_time.h"
 #include <boost/format.hpp>
 #include <random>
 
@@ -601,7 +601,7 @@ int CharData::GetBonusSkill(const ESkill skill_id) const {
 	int bonus{0};
 	for (const auto &feat : MUD::Feats()) {
 		if (CanUseFeat(this, feat.GetId())) {
-			bonus += feat.effects.GetSkillMod(skill_id);
+			bonus += feat.passive_effects.GetSkillMod(skill_id);
 		}
 	}
 	return bonus;

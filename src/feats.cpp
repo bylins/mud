@@ -1111,7 +1111,6 @@ int CalcMaxFeatSlotPerLvl(const CharData *ch) {
 }
 
 int CalcFeatSlotsAmountPerRemort(CharData *ch) {
-	//auto result = kMaxBaseFeatsSlotsAmount + ch->get_remort()/MUD::Classes(ch->GetClass()).GetRemortsNumForFeatSlot();
 	auto result = kMinBaseFeatsSlotsAmount + kMaxPlayerLevel*(kMaxBaseFeatsSlotsAmount - 1 +
 		ch->get_remort()/ MUD::Class(ch->GetClass()).GetRemortsNumForFeatSlot())/kLastFeatSlotLvl;
 	return result;
@@ -1165,8 +1164,8 @@ ItemPtr FeatInfoBuilder::ParseHeader(DataNode &node) {
 }
 
 void FeatInfoBuilder::ParseEffects(ItemPtr &info, DataNode &node) {
-	if (node.GoToChild("effects")) {
-		info->effects.Build(node);
+	if (node.GoToChild("passive_effects")) {
+		info->passive_effects.Build(node);
 		node.GoToParent();
 	}
 }
@@ -1177,7 +1176,7 @@ void FeatInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 		   << " Name: " << KGRN << GetName() << KNRM << std::endl
 		   << " Mode: " << KGRN << NAME_BY_ITEM<EItemMode>(GetMode()) << KNRM << std::endl;
 
-	effects.Print(ch, buffer);
+	passive_effects.Print(ch, buffer);
 }
 
 }

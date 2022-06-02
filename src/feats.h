@@ -133,7 +133,7 @@ class FeatInfo : public info_container::BaseItem<EFeat> {
 	FeatInfo(EFeat id, EItemMode mode)
 		: BaseItem<EFeat>(id, mode) {};
 
-	effects::Effects effects;
+	effects::PassiveEffects passive_effects;
 
 	[[nodiscard]] const std::string &GetName() const { return name_; };
 	[[nodiscard]] const char *GetCName() const { return name_.c_str(); };

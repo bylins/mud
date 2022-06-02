@@ -13,45 +13,50 @@
 #include "feats_constants.h"
 #include "game_skills/skills.h"
 #include "entities/entities_constants.h"
+#include "utils/parse.h"
 #include "utils/parser_wrapper.h"
+#include "utils/table_wrapper.h"
 
 namespace effects {
 
 enum class EEffect {
-	kSkillMod,
-	kSkillTimerMod,
-	kFeatTimerMod,
 	kDamage,
-	kArea,
-	kApply
+	kArea
 };
+
+// ====================================================================================================================
+// ====================================================================================================================
+// ====================================================================================================================
+
+class PassiveEffects {
+ public:
+	PassiveEffects();
+	//explicit PassiveEffects(parser_wrapper::DataNode &node);
+	~PassiveEffects();
+
+
+	void ImposeApplies(CharData *ch) const;
+	[[nodiscard]] int GetSkillMod(ESkill skill_id) const;
+	[[nodiscard]] int GetTimerMod(ESkill skill_id) const;
+	[[nodiscard]] int GetTimerMod(EFeat feat_id) const;
+
+	void Build(parser_wrapper::DataNode &node);
+	void Print(CharData *ch, std::ostringstream &buffer) const;
+
+ private:
+	class PassiveEffectsImpl;
+	std::unique_ptr<PassiveEffectsImpl> pimpl_{nullptr};
+};
+
+// ====================================================================================================================
+// ====================================================================================================================
+// ====================================================================================================================
 
 class IEffect {
  public:
 	virtual ~IEffect() = default;
 
 	virtual void Print(CharData *ch, std::ostringstream &buffer) const = 0;
-};
-
-struct SkillMod : public IEffect {
-	std::unordered_map<ESkill, int> mods;
-
-	[[nodiscard]] int GetVal(ESkill skill_id) const;
-	void Print(CharData *ch, std::ostringstream &buffer) const override;
-};
-
-struct SkillTimerMod : public IEffect {
-	std::unordered_map<ESkill, int> mods;
-
-	[[nodiscard]] int GetVal(ESkill skill_id) const;
-	void Print(CharData *ch, std::ostringstream &buffer) const override;
-};
-
-struct FeatTimerMod : public IEffect {
-	std::unordered_map<EFeat, int> mods;
-
-	[[nodiscard]] int GetVal(EFeat feat_id) const;
-	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };
 
 struct Damage : public IEffect {
@@ -78,25 +83,6 @@ struct Area : public IEffect {
 	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };
 
-struct Applies : public IEffect {
-	struct Mod {
-		int mod{0};
-		int cap{0};
-		double lvl_bonus{0.0};
-		double remort_bonus{0.0};
-
-		Mod() = default;
-		Mod(int mod, int cap, double lvl_bonus, double remort_bonus)
-			: mod(mod), cap(cap), lvl_bonus(lvl_bonus), remort_bonus(remort_bonus) {};
-	};
-
-	using AppliesRoster = std::unordered_map<EApply, Mod>;
-	AppliesRoster applies_roster;
-
-	void Print(CharData *ch, std::ostringstream &buffer) const override;
-	void ImposeApplies(CharData *ch) const;
-};
-
 using EffectPtr = std::shared_ptr<IEffect>;
 
 class Effects {
@@ -107,10 +93,7 @@ class Effects {
 	static void ParseEffect(EffectsRosterPtr &info, parser_wrapper::DataNode node);
 	static void ParseDamageEffect(EffectsRosterPtr &info, parser_wrapper::DataNode &node);
 	static void ParseAreaEffect(EffectsRosterPtr &info, parser_wrapper::DataNode &node);
-	static void ParseAppliesEffect(EffectsRosterPtr &info, parser_wrapper::DataNode &node);
-	static void ParseSkillMods(EffectsRosterPtr &info, parser_wrapper::DataNode node);
-	static void ParseSkillTimerMods(EffectsRosterPtr &info, parser_wrapper::DataNode node);
-	static void ParseFeatTimerMods(EffectsRosterPtr &info, parser_wrapper::DataNode node);
+
  public:
 	Effects() {
 		effects_ = std::make_unique<EffectsRoster>();
@@ -119,11 +102,8 @@ class Effects {
 	void Build(parser_wrapper::DataNode &node);
 	void Print(CharData *ch, std::ostringstream &buffer) const;
 
-	void ImposeApplies(CharData *ch) const;
 	[[nodiscard]] std::optional<Damage> GetDmg() const;
 	[[nodiscard]] std::optional<Area> GetArea() const;
-	[[nodiscard]] int GetSkillMod(ESkill skill_id) const;
-	[[nodiscard]] int GetTimerMod(ESkill skill_id) const;
 };
 
 }
