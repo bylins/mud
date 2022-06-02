@@ -195,9 +195,9 @@ void player_affect_update() {
 		// на всякий случай проверка на пурж, в целом пурж чармисов внутри
 		// такого цикла сейчас выглядит безопасным, чармисы если и есть, то они
 		// добавлялись в чар-лист в начало списка и идут до самого чара
-		if (i->purged()
-			|| i->IsNpc()
-			|| deathtrap::tunnel_damage(i.get())) {
+		if (i->IsNpc())
+			return;
+		if (i->purged() || deathtrap::tunnel_damage(i.get())) {
 			return;
 		}
 
@@ -251,6 +251,14 @@ void player_affect_update() {
 
 // This file update battle affects only
 void battle_affect_update(CharData *ch) {
+	if (ch->purged()) {
+		char tmpbuf[256];
+		sprintf(tmpbuf,"WARNING: battle_affect_update ch purged. Name %s vnum %d", 
+				GET_NAME(ch),
+				GET_MOB_VNUM(ch));
+		mudlog(tmpbuf, LGH, kLvlImmortal, SYSLOG, true);
+		return;
+	}
 	if (ch->IsNpc() && MOB_FLAGGED(ch, EMobFlag::kTutelar)) {
 		if (ch->get_master()) {
 			log("АНГЕЛ хозяин %s batle affect update start", GET_NAME(ch->get_master()));

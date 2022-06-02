@@ -2656,6 +2656,8 @@ void find_replacement(void *go,
 			} else {
 				strcpy(str, "0");
 			}
+		} else if (!str_cmp(field, "maxremortskill")) {
+				sprintf(str, "%d", CalcSkillRemortCap(c));
 		} else if (!str_cmp(field, "skill")) {
 			strcpy(str, skill_percent(trig, c, subfield));
 		} else if (!str_cmp(field, "feat")) {
