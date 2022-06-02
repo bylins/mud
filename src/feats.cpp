@@ -115,45 +115,25 @@ void InitFeatures() {
 //28
 	InitFeat(EFeat::kCombatCasting, "боевое колдовство", EFeatType::kNormal, feat_app);
 //29
-	feat_app.insert(to_underlying(EFeat::kPunchFocus), 1);
 	InitFeat(EFeat::kPunchMaster, "мастер кулачного боя", EFeatType::kNormal, feat_app);
-	feat_app.clear();
 //30
-	feat_app.insert(to_underlying(EFeat::kClubsFocus), 1);
 	InitFeat(EFeat::kClubsMaster, "мастер палицы", EFeatType::kNormal, feat_app);
-	feat_app.clear();
 //31
-	feat_app.insert(to_underlying(EFeat::kAxesFocus), 1);
 	InitFeat(EFeat::kAxesMaster, "мастер секиры", EFeatType::kNormal, feat_app);
-	feat_app.clear();
 //32
-	feat_app.insert(to_underlying(EFeat::kLongsFocus), 1);
 	InitFeat(EFeat::kLongsMaster, "мастер меча", EFeatType::kNormal, feat_app);
-	feat_app.clear();
 //33
-	feat_app.insert(to_underlying(EFeat::kShortsFocus), 1);
 	InitFeat(EFeat::kShortsMaster, "мастер ножа", EFeatType::kNormal, feat_app);
-	feat_app.clear();
 //34
-	feat_app.insert(to_underlying(EFeat::kNonstandartsFocus), 1);
 	InitFeat(EFeat::kNonstandartsMaster, "мастер необычного оружия", EFeatType::kNormal, feat_app);
-	feat_app.clear();
 //35
-	feat_app.insert(to_underlying(EFeat::kTwohandsFocus), 1);
 	InitFeat(EFeat::kTwohandsMaster, "мастер двуручника", EFeatType::kNormal, feat_app);
-	feat_app.clear();
 //36
-	feat_app.insert(to_underlying(EFeat::kPicksFocus), 1);
 	InitFeat(EFeat::kPicksMaster, "мастер кинжала", EFeatType::kNormal, feat_app);
-	feat_app.clear();
 //37
-	feat_app.insert(to_underlying(EFeat::kSpadesFocus), 1);
 	InitFeat(EFeat::kSpadesMaster, "мастер копья", EFeatType::kNormal, feat_app);
-	feat_app.clear();
 //38
-	feat_app.insert(to_underlying(EFeat::kBowsFocus), 1);
 	InitFeat(EFeat::kBowsMaster, "мастер лучник", EFeatType::kNormal, feat_app);
-	feat_app.clear();
 //39
 	InitFeat(EFeat::kForestPath, "лесные тропы", EFeatType::kNormal, feat_app);
 //40
@@ -211,25 +191,25 @@ void InitFeatures() {
 //66
 	InitFeat(EFeat::kHitrollBonus, "твердая рука", EFeatType::kAffect, feat_app);
 //68
-	InitFeat(EFeat::kPunchFocus, "любимое оружие: голые руки", EFeatType::kSkillMod, feat_app, 0, ESkill::kPunch);
+	InitFeat(EFeat::kPunchFocus, "любимое оружие: голые руки", EFeatType::kSkillMod, feat_app);
 //69
-	InitFeat(EFeat::kClubsFocus, "любимое оружие: палица", EFeatType::kSkillMod, feat_app, 0, ESkill::kClubs);
+	InitFeat(EFeat::kClubsFocus, "любимое оружие: палица", EFeatType::kSkillMod, feat_app);
 //70
-	InitFeat(EFeat::kAxesFocus, "любимое оружие: секира", EFeatType::kSkillMod, feat_app, 0, ESkill::kAxes);
+	InitFeat(EFeat::kAxesFocus, "любимое оружие: секира", EFeatType::kSkillMod, feat_app);
 //71
-	InitFeat(EFeat::kLongsFocus, "любимое оружие: меч", EFeatType::kSkillMod, feat_app, 0, ESkill::kLongBlades);
+	InitFeat(EFeat::kLongsFocus, "любимое оружие: меч", EFeatType::kSkillMod, feat_app);
 //72
-	InitFeat(EFeat::kShortsFocus, "любимое оружие: нож", EFeatType::kSkillMod, feat_app, 0, ESkill::kShortBlades);
+	InitFeat(EFeat::kShortsFocus, "любимое оружие: нож", EFeatType::kSkillMod, feat_app);
 //73
-	InitFeat(EFeat::kNonstandartsFocus, "любимое оружие: необычное", EFeatType::kSkillMod, feat_app, 0, ESkill::kNonstandart);
+	InitFeat(EFeat::kNonstandartsFocus, "любимое оружие: необычное", EFeatType::kSkillMod, feat_app);
 //74
-	InitFeat(EFeat::kTwohandsFocus, "любимое оружие: двуручник", EFeatType::kSkillMod, feat_app, 0, ESkill::kTwohands);
+	InitFeat(EFeat::kTwohandsFocus, "любимое оружие: двуручник", EFeatType::kSkillMod, feat_app);
 //75
-	InitFeat(EFeat::kPicksFocus, "любимое оружие: кинжал", EFeatType::kSkillMod, feat_app, 0, ESkill::kPicks);
+	InitFeat(EFeat::kPicksFocus, "любимое оружие: кинжал", EFeatType::kSkillMod, feat_app);
 //76
-	InitFeat(EFeat::kSpadesFocus, "любимое оружие: копье", EFeatType::kSkillMod, feat_app, 0, ESkill::kSpades);
+	InitFeat(EFeat::kSpadesFocus, "любимое оружие: копье", EFeatType::kSkillMod, feat_app);
 //77
-	InitFeat(EFeat::kBowsFocus, "любимое оружие: лук", EFeatType::kSkillMod, feat_app, 0, ESkill::kBows);
+	InitFeat(EFeat::kBowsFocus, "любимое оружие: лук", EFeatType::kSkillMod, feat_app);
 //78
 	InitFeat(EFeat::kAimingAttack, "прицельная атака", EFeatType::kActivated, feat_app);
 //79
@@ -577,6 +557,105 @@ bool CanUseFeat(const CharData *ch, EFeat feat) {
 	return true;
 }
 
+bool CanGetFocusFeat(const CharData *ch, const EFeat feat_id) {
+	int count{0};
+	for (auto focus_feat_id = EFeat::kPunchFocus; focus_feat_id <= EFeat::kBowsFocus; ++focus_feat_id) {
+		if (ch->HaveFeat(focus_feat_id)) {
+			count++;
+		}
+	}
+
+	if (count >= 2 + GET_REAL_REMORT(ch) / 6) {
+		return false;
+	}
+
+	switch (feat_id) {
+		case EFeat::kPunchFocus:
+			return ch->GetOwnSkill(ESkill::kPunch);
+			break;
+		case EFeat::kClubsFocus:
+			return ch->GetOwnSkill(ESkill::kClubs);
+			break;
+		case EFeat::kAxesFocus:
+			return ch->GetOwnSkill(ESkill::kAxes);
+			break;
+		case EFeat::kLongsFocus:
+			return ch->GetOwnSkill(ESkill::kLongBlades);
+			break;
+		case EFeat::kShortsFocus:
+			return ch->GetOwnSkill(ESkill::kShortBlades);
+			break;
+		case EFeat::kNonstandartsFocus:
+			return ch->GetOwnSkill(ESkill::kNonstandart);
+			break;
+		case EFeat::kTwohandsFocus:
+			return ch->GetOwnSkill(ESkill::kTwohands);
+			break;
+		case EFeat::kPicksFocus:
+			return ch->GetOwnSkill(ESkill::kPicks);
+			break;
+		case EFeat::kSpadesFocus:
+			return ch->GetOwnSkill(ESkill::kSpades);
+			break;
+		case EFeat::kBowsFocus:
+			return ch->GetOwnSkill(ESkill::kBows);
+			break;
+		default:
+			return false;
+			break;
+	}
+}
+
+bool CanGetMasterFeat(const CharData *ch, const EFeat feat_id) {
+	int count{0};
+	for (auto master_feat = EFeat::kPunchMaster; master_feat <= EFeat::kBowsMaster; ++master_feat) {
+		if (ch->HaveFeat(master_feat)) {
+			count++;
+		}
+	}
+	if (count >= 1 + GET_REAL_REMORT(ch) / 7) {
+		return false;
+	}
+
+	switch (feat_id) {
+		case EFeat::kPunchMaster:
+			return ch->HaveFeat(EFeat::kPunchFocus) && ch->GetOwnSkill(ESkill::kPunch);
+			break;
+		case EFeat::kClubsMaster:
+			return ch->HaveFeat(EFeat::kClubsFocus) && ch->GetOwnSkill(ESkill::kClubs);
+			break;
+		case EFeat::kAxesMaster:
+			return ch->HaveFeat(EFeat::kAxesFocus) && ch->GetOwnSkill(ESkill::kAxes);
+			break;
+		case EFeat::kLongsMaster:
+			return ch->HaveFeat(EFeat::kLongsFocus) && ch->GetOwnSkill(ESkill::kLongBlades);
+			break;
+		case EFeat::kShortsMaster:
+			return ch->HaveFeat(EFeat::kShortsFocus) && ch->GetOwnSkill(ESkill::kShortBlades);
+			break;
+		case EFeat::kNonstandartsMaster:
+			return ch->HaveFeat(EFeat::kNonstandartsFocus) && ch->GetOwnSkill(ESkill::kNonstandart);
+			break;
+		case EFeat::kTwohandsMaster:
+			return ch->HaveFeat(EFeat::kTwohandsFocus) && ch->GetOwnSkill(ESkill::kTwohands);
+			break;
+		case EFeat::kPicksMaster:
+			return ch->HaveFeat(EFeat::kPicksFocus) && ch->GetOwnSkill(ESkill::kPicks);
+			break;
+		case EFeat::kSpadesMaster:
+			return ch->HaveFeat(EFeat::kSpadesFocus) && ch->GetOwnSkill(ESkill::kSpades);
+			break;
+		case EFeat::kBowsMaster:
+			return ch->HaveFeat(EFeat::kBowsFocus) && ch->GetOwnSkill(ESkill::kBows);
+			break;
+		default:
+			return false;
+			break;
+	}
+
+	return false;
+}
+
 bool CanGetFeat(CharData *ch, EFeat feat) {
 	int count = 0;
 
@@ -599,24 +678,24 @@ bool CanGetFeat(CharData *ch, EFeat feat) {
 
 	switch (feat) {
 		case EFeat::kParryArrow:
-			return (ch->GetSkill(ESkill::kMultiparry) || ch->GetSkill(ESkill::kParry));
+			return ch->GetOwnSkill(ESkill::kMultiparry) || ch->GetOwnSkill(ESkill::kParry);
 			break;
 		case EFeat::kConnoiseur:
-			return (ch->GetSkill(ESkill::kIdentify));
+			return ch->GetOwnSkill(ESkill::kIdentify);
 			break;
 		case EFeat::kExorcist:
-			return (ch->GetSkill(ESkill::kTurnUndead));
+			return ch->GetOwnSkill(ESkill::kTurnUndead);
 			break;
 		case EFeat::kHealer:
-			return (ch->GetSkill(ESkill::kFirstAid));
+			return ch->GetOwnSkill(ESkill::kFirstAid);
 			break;
 		case EFeat::kStealthy:
-			return (ch->GetSkill(ESkill::kHide) ||
-				ch->GetSkill(ESkill::kSneak) ||
-				ch->GetSkill(ESkill::kDisguise));
+			return ch->GetOwnSkill(ESkill::kHide) ||
+				ch->GetOwnSkill(ESkill::kSneak) ||
+				ch->GetOwnSkill(ESkill::kDisguise);
 			break;
 		case EFeat::kTracker:
-			return (ch->GetSkill(ESkill::kTrack) || ch->GetSkill(ESkill::kSense));
+			return (ch->GetOwnSkill(ESkill::kTrack) || ch->GetOwnSkill(ESkill::kSense));
 			break;
 		case EFeat::kPunchMaster:
 		case EFeat::kClubsMaster:
@@ -626,27 +705,18 @@ bool CanGetFeat(CharData *ch, EFeat feat) {
 		case EFeat::kNonstandartsMaster:
 		case EFeat::kTwohandsMaster:
 		case EFeat::kPicksMaster:
-		case EFeat::kSpadesMaster:
+		case EFeat::kSpadesMaster: [[fallthrough]];
 		case EFeat::kBowsMaster:
-// \todo Вынести счетчик в отдельную функцию и перестать страдать фигней с хранением перка фокуса в инфе о перке мастера
-			if (!ch->HaveFeat(static_cast<EFeat>(feat_info[feat].affected[0].location))) {
-				return false;
-			}
-			for (auto master_feat = EFeat::kPunchMaster; master_feat <= EFeat::kBowsMaster; ++master_feat) {
-				if (ch->HaveFeat(master_feat)) {
-					count++;
-				}
-			}
-			if (count >= 1 + GET_REAL_REMORT(ch) / 7) {
-				return false;
-			}
+			return CanGetMasterFeat(ch, feat);
 			break;
-		case EFeat::kWarriorSpirit: return (ch->HaveFeat(EFeat::kGreatFortitude));
+		case EFeat::kWarriorSpirit:
+			return ch->HaveFeat(EFeat::kGreatFortitude);
 			break;
 		case EFeat::kNimbleFingers:
-			return (ch->GetSkill(ESkill::kSteal) || ch->GetSkill(ESkill::kPickLock));
+			return ch->GetOwnSkill(ESkill::kSteal) || ch->GetOwnSkill(ESkill::kPickLock);
 			break;
-		case EFeat::kGreatPowerAttack: return (ch->HaveFeat(EFeat::kPowerAttack));
+		case EFeat::kGreatPowerAttack:
+			return ch->HaveFeat(EFeat::kPowerAttack);
 			break;
 		case EFeat::kPunchFocus:
 		case EFeat::kClubsFocus:
@@ -656,71 +726,58 @@ bool CanGetFeat(CharData *ch, EFeat feat) {
 		case EFeat::kNonstandartsFocus:
 		case EFeat::kTwohandsFocus:
 		case EFeat::kPicksFocus:
-		case EFeat::kSpadesFocus:
+		case EFeat::kSpadesFocus: [[fallthrough]];
 		case EFeat::kBowsFocus:
-			if (!ch->GetSkill(feat_info[feat].base_skill)) {
-				return false;
-			}
-
-			for (auto feat_id = EFeat::kPunchFocus; feat_id <= EFeat::kBowsFocus; ++feat_id) {
-				if (ch->HaveFeat(feat_id)) {
-					count++;
-				}
-			}
-
-			if (count >= 2 + GET_REAL_REMORT(ch) / 6) {
-				return false;
-			}
+			return CanGetFocusFeat(ch, feat);
 			break;
 		case EFeat::kGreatAimingAttack:
-			return (ch->HaveFeat(EFeat::kAimingAttack));
+			return ch->HaveFeat(EFeat::kAimingAttack);
 			break;
 		case EFeat::kDoubleShot:
-			return (ch->HaveFeat(EFeat::kBowsFocus) &&
-				ch->GetSkill(ESkill::kBows) > 39);
+			return ch->HaveFeat(EFeat::kBowsFocus) && ch->GetOwnSkill(ESkill::kBows) > 39;
 			break;
 		case EFeat::kJeweller:
-			return (ch->GetSkill(ESkill::kJewelry) > 59);
+			return ch->GetOwnSkill(ESkill::kJewelry) > 59;
 			break;
 		case EFeat::kCutting:
-			return (ch->HaveFeat(EFeat::kShortsMaster) ||
+			return ch->HaveFeat(EFeat::kShortsMaster) ||
 				ch->HaveFeat(EFeat::kPicksMaster) ||
 				ch->HaveFeat(EFeat::kLongsMaster) ||
-				ch->HaveFeat(EFeat::kSpadesMaster));
+				ch->HaveFeat(EFeat::kSpadesMaster);
 			break;
 		case EFeat::kScirmisher:
-			return (ch->GetSkill(ESkill::kRescue));
+			return ch->GetOwnSkill(ESkill::kRescue);
 			break;
 		case EFeat::kTactician:
-			return (ch->GetSkill(ESkill::kLeadership) > 99);
+			return ch->GetOwnSkill(ESkill::kLeadership) > 99;
 			break;
 		case EFeat::kShadowThrower:
-			return (ch->HaveFeat(EFeat::kPowerThrow) &&
-				(ch->GetSkill(ESkill::kDarkMagic) > 120));
+			return ch->HaveFeat(EFeat::kPowerThrow) &&
+				ch->GetOwnSkill(ESkill::kDarkMagic) > 120;
 			break;
 		case EFeat::kShadowDagger:
 		case EFeat::kShadowSpear: [[fallthrough]];
 		case EFeat::kShadowClub:
-			return (ch->HaveFeat(EFeat::kShadowThrower) &&
-				(ch->GetSkill(ESkill::kDarkMagic) > 130));
+			return ch->HaveFeat(EFeat::kShadowThrower) &&
+				ch->GetOwnSkill(ESkill::kDarkMagic) > 130;
 			break;
 		case EFeat::kDoubleThrower:
-			return (ch->HaveFeat(EFeat::kPowerThrow) &&
-				(ch->GetSkill(ESkill::kThrow) > 100));
+			return ch->HaveFeat(EFeat::kPowerThrow) &&
+				ch->GetOwnSkill(ESkill::kThrow) > 100;
 			break;
 		case EFeat::kTripleThrower:
-			return (ch->HaveFeat(EFeat::kDeadlyThrow) &&
-				(ch->GetSkill(ESkill::kThrow) > 130));
+			return ch->HaveFeat(EFeat::kDeadlyThrow) &&
+				ch->GetOwnSkill(ESkill::kThrow) > 130;
 			break;
 		case EFeat::kPowerThrow:
-			return (ch->GetSkill(ESkill::kThrow) > 90);
+			return ch->GetOwnSkill(ESkill::kThrow) > 90;
 			break;
 		case EFeat::kDeadlyThrow:
-			return (ch->HaveFeat(EFeat::kPowerThrow) &&
-				(ch->GetSkill(ESkill::kThrow) > 110));
+			return ch->HaveFeat(EFeat::kPowerThrow) &&
+				ch->GetOwnSkill(ESkill::kThrow) > 110;
 			break;
 		case EFeat::kSerratedBlade:
-			return (ch->HaveFeat(EFeat::kCutting));
+			return ch->HaveFeat(EFeat::kCutting);
 			break;
 		default: return true;
 			break;

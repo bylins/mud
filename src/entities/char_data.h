@@ -368,6 +368,7 @@ class CharData : public ProtectedCharData {
 	void set_skill(short remort);
 	void clear_skills();
 	int GetSkill(const ESkill skill_id) const;
+	int GetOwnSkill(const ESkill skill_id) const;
 	int get_skills_count() const;
 	int get_equipped_skill(const ESkill skill_id) const;
 	int get_trained_skill(const ESkill skill_id) const;

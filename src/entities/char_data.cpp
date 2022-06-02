@@ -523,27 +523,29 @@ int CharData::GetSkill(const ESkill skill_id) const {
 		skill -= skill * GET_POISON(this) / 100;
 	}
 
-	if (ROOM_FLAGGED(this->in_room, ERoomFlag::kDominationArena)) {
-		skill = std::clamp(skill, 0, CalcSkillRemortCap(this));
-	} else {
-		skill = std::clamp(skill, 0, MUD::Skill(skill_id).cap);
-	}
-
-	utils::CExecutionTimer time;
+	//utils::CExecutionTimer time;
 	skill += GetBonusSkill(skill_id);
-	log("GetSkillMod time - %f", time.delta().count());
-	return skill;
+	//log("GetSkillMod time - %f", time.delta().count());
 
-/*	if (ROOM_FLAGGED(this->in_room, ERoomFlag::kDominationArena)) {
+	if (ROOM_FLAGGED(this->in_room, ERoomFlag::kDominationArena)) {
 		return std::clamp(skill, 0, CalcSkillRemortCap(this));
 	} else {
-		return std::clamp(skill, 0, MUD::Skill(skill_id).cap);
-	}*/
+		return skill;
+	}
 }
 
-//  Скилл со шмоток.
-// мобам и тем классам, у которых скилл является родным, учитываем скилл с каждой шмотки полностью,
-// всем остальным -- не более 5% с шмотки
+/*
+ * Умение с учетом способностей, но без экипировки.
+ */
+int CharData::GetOwnSkill(const ESkill skill_id) const {
+	return get_trained_skill(skill_id) + GetBonusSkill(skill_id);
+}
+
+/*
+ * Бонусы умения от экипировки
+ * Nобам и тем классам, у которых скилл является родным, учитываем
+ * умение полностью, всем остальным -- не более 5% с одного предмета
+ */
 int CharData::get_equipped_skill(const ESkill skill_id) const {
 	int skill = 0;
 	bool is_native = this->IsNpc() || MUD::Class(chclass_).skills[skill_id].IsValid();
