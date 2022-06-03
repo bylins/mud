@@ -208,7 +208,6 @@ enum class EFeatType {
 };
 
 // Количество пар "параметр-значение" у способности
-const int kMaxFeatAffect = 5;
 const int kLastFeatSlotLvl = 28;
 const int kMinFeatSlotIndex = 0;
 const int kMinBaseFeatsSlotsAmount = 1;	// Минимально возможное число слотов способностей на 0 морте

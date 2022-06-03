@@ -30,22 +30,17 @@ int CalcRollBonusOfGroupFormation(CharData *ch, CharData * /* enemy */);
 /* Extern */
 extern void SetSkillCooldown(CharData *ch, ESkill skill, int pulses);
 
-void InitFeat(EFeat feat, const char *name, EFeatType type, CFeatArray app, int roll_bonus = abilities::kMaxRollBonus,
+void InitFeat(EFeat feat, const char *name, EFeatType type = EFeatType::kNormal, int roll_bonus = abilities::kMaxRollBonus,
 			  ESkill base_skill = ESkill::kUndefined, ESaving saving = ESaving::kStability) {
 	feat_info[feat].id = feat;
 	feat_info[feat].diceroll_bonus = roll_bonus;
 	feat_info[feat].base_skill = base_skill;
 	feat_info[feat].saving = saving;
 	feat_info[feat].type = type;
-	for (auto i = 0; i < kMaxFeatAffect; i++) {
-		feat_info[feat].affected[i].location = app.affected[i].location;
-		feat_info[feat].affected[i].modifier = app.affected[i].modifier;
-	}
 }
 
 FeatureInfo::FeatureInfo(EFeat feat_id) {
 	id = feat_id;
-	affected.fill({EApply::kNone, 0});
 	GetBaseParameter = &GET_REAL_INT;
 	GetEffectParameter = &GET_REAL_STR;
 }
@@ -55,283 +50,274 @@ void InitFeatures() {
 		feat_info[i] = FeatureInfo(i);
 	}
 
-	CFeatArray feat_app;
 //1
-	InitFeat(EFeat::kBerserker, "предсмертная ярость", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kBerserker, "предсмертная ярость");
 //2
-	InitFeat(EFeat::kParryArrow, "отбить стрелу", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kParryArrow, "отбить стрелу");
 //3
-	InitFeat(EFeat::kBlindFight, "слепой бой", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kBlindFight, "слепой бой");
 //4
-	InitFeat(EFeat::kImpregnable, "непробиваемый", EFeatType::kAffect, feat_app);
-//5-*
-	InitFeat(EFeat::kApproachingAttack, "встречная атака", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kImpregnable, "непробиваемый");
+//5
+	InitFeat(EFeat::kApproachingAttack, "встречная атака");
 //6
-	InitFeat(EFeat::kDefender, "щитоносец", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kDefender, "щитоносец");
 //7
-	InitFeat(EFeat::kDodger, "изворотливость", EFeatType::kAffect, feat_app);
+	InitFeat(EFeat::kDodger, "изворотливость");
 //8
-	InitFeat(EFeat::kLightWalk, "легкая поступь", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kLightWalk, "легкая поступь");
 //9
-	InitFeat(EFeat::kWriggler, "проныра", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kWriggler, "проныра");
 //10
-	InitFeat(EFeat::kSpellSubstitute, "подмена заклинания", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kSpellSubstitute, "подмена заклинания");
 //11
-	InitFeat(EFeat::kPowerAttack, "мощная атака", EFeatType::kActivated, feat_app);
+	InitFeat(EFeat::kPowerAttack, "мощная атака", EFeatType::kActivated);
 //12
-	InitFeat(EFeat::kWoodenSkin, "деревянная кожа", EFeatType::kAffect, feat_app);
+	InitFeat(EFeat::kWoodenSkin, "деревянная кожа");
 //13
-	InitFeat(EFeat::kIronSkin, "железная кожа", EFeatType::kAffect, feat_app);
+	InitFeat(EFeat::kIronSkin, "железная кожа");
 //14
-	feat_app.insert(kFeatTimer, 8);
-	InitFeat(EFeat::kConnoiseur, "знаток", EFeatType::kSkillMod, feat_app);
-	feat_app.clear();
+	InitFeat(EFeat::kConnoiseur, "знаток");
 //15
-	InitFeat(EFeat::kExorcist, "изгоняющий нежить", EFeatType::kSkillMod, feat_app);
+	InitFeat(EFeat::kExorcist, "изгоняющий нежить");
 //16
-	InitFeat(EFeat::kHealer, "целитель", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kHealer, "целитель");
 //17
-	InitFeat(EFeat::kLightingReflex, "мгновенная реакция", EFeatType::kAffect, feat_app);
+	InitFeat(EFeat::kLightingReflex, "мгновенная реакция");
 //18
-	feat_app.insert(kFeatTimer, 8);
-	InitFeat(EFeat::kDrunkard, "пьяница", EFeatType::kSkillMod, feat_app);
-	feat_app.clear();
+	InitFeat(EFeat::kDrunkard, "пьяница");
 //19
-	InitFeat(EFeat::kPowerMagic, "мощь колдовства", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kPowerMagic, "мощь колдовства");
 //20
-	InitFeat(EFeat::kEndurance, "выносливость", EFeatType::kAffect, feat_app);
+	InitFeat(EFeat::kEndurance, "выносливость");
 //21
-	InitFeat(EFeat::kGreatFortitude, "сила духа", EFeatType::kAffect, feat_app);
+	InitFeat(EFeat::kGreatFortitude, "сила духа");
 //22
-	InitFeat(EFeat::kFastRegen, "быстрое заживление", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kFastRegen, "быстрое заживление");
 //23
-	InitFeat(EFeat::kStealthy, "незаметность", EFeatType::kSkillMod, feat_app);
+	InitFeat(EFeat::kStealthy, "незаметность");
 //25
-	InitFeat(EFeat::kSplendidHealth, "богатырское здоровье", EFeatType::kAffect, feat_app);
+	InitFeat(EFeat::kSplendidHealth, "богатырское здоровье");
 //26
-	InitFeat(EFeat::kTracker, "следопыт", EFeatType::kSkillMod, feat_app);
+	InitFeat(EFeat::kTracker, "следопыт");
 //27
-	InitFeat(EFeat::kWeaponFinesse, "ловкий удар", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kWeaponFinesse, "ловкий удар");
 //28
-	InitFeat(EFeat::kCombatCasting, "боевое колдовство", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kCombatCasting, "боевое колдовство");
 //29
-	InitFeat(EFeat::kPunchMaster, "мастер кулачного боя", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kPunchMaster, "мастер кулачного боя");
 //30
-	InitFeat(EFeat::kClubsMaster, "мастер палицы", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kClubsMaster, "мастер палицы");
 //31
-	InitFeat(EFeat::kAxesMaster, "мастер секиры", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kAxesMaster, "мастер секиры");
 //32
-	InitFeat(EFeat::kLongsMaster, "мастер меча", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kLongsMaster, "мастер меча");
 //33
-	InitFeat(EFeat::kShortsMaster, "мастер ножа", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kShortsMaster, "мастер ножа");
 //34
-	InitFeat(EFeat::kNonstandartsMaster, "мастер необычного оружия", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kNonstandartsMaster, "мастер необычного оружия");
 //35
-	InitFeat(EFeat::kTwohandsMaster, "мастер двуручника", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kTwohandsMaster, "мастер двуручника");
 //36
-	InitFeat(EFeat::kPicksMaster, "мастер кинжала", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kPicksMaster, "мастер кинжала");
 //37
-	InitFeat(EFeat::kSpadesMaster, "мастер копья", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kSpadesMaster, "мастер копья");
 //38
-	InitFeat(EFeat::kBowsMaster, "мастер лучник", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kBowsMaster, "мастер лучник");
 //39
-	InitFeat(EFeat::kForestPath, "лесные тропы", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kForestPath, "лесные тропы");
 //40
-	InitFeat(EFeat::kMountainPath, "горные тропы", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kMountainPath, "горные тропы");
 //41
-	InitFeat(EFeat::kLuckyGuy, "счастливчик", EFeatType::kAffect, feat_app);
+	InitFeat(EFeat::kLuckyGuy, "счастливчик");
 //42
-	InitFeat(EFeat::kWarriorSpirit, "боевой дух", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kWarriorSpirit, "боевой дух");
 //43
-	InitFeat(EFeat::kReliableHealth, "крепкое здоровье", EFeatType::kAffect, feat_app);
+	InitFeat(EFeat::kReliableHealth, "крепкое здоровье");
 //44
-	InitFeat(EFeat::kExcellentMemory, "превосходная память", EFeatType::kAffect, feat_app);
+	InitFeat(EFeat::kExcellentMemory, "превосходная память");
 //45
-	InitFeat(EFeat::kAnimalDextery, "звериная прыть", EFeatType::kAffect, feat_app);
+	InitFeat(EFeat::kAnimalDextery, "звериная прыть");
 //46
-	InitFeat(EFeat::kLegibleWritting, "чёткий почерк", EFeatType::kAffect, feat_app);
+	InitFeat(EFeat::kLegibleWritting, "чёткий почерк");
 //47
-	InitFeat(EFeat::kIronMuscles, "стальные мышцы", EFeatType::kAffect, feat_app);
+	InitFeat(EFeat::kIronMuscles, "стальные мышцы");
 //48
-	InitFeat(EFeat::kMagicSign, "знак чародея", EFeatType::kAffect, feat_app);
+	InitFeat(EFeat::kMagicSign, "знак чародея");
 //49
-	InitFeat(EFeat::kGreatEndurance, "двужильность", EFeatType::kAffect, feat_app);
+	InitFeat(EFeat::kGreatEndurance, "двужильность");
 //50
-	InitFeat(EFeat::kBestDestiny, "лучшая доля", EFeatType::kAffect, feat_app);
+	InitFeat(EFeat::kBestDestiny, "лучшая доля");
 //51
-	InitFeat(EFeat::kHerbalist, "травник", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kHerbalist, "травник");
 //52
-	InitFeat(EFeat::kJuggler, "жонглер", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kJuggler, "жонглер");
 //53
-	InitFeat(EFeat::kNimbleFingers, "ловкач", EFeatType::kSkillMod, feat_app);
+	InitFeat(EFeat::kNimbleFingers, "ловкач");
 //54
-	InitFeat(EFeat::kGreatPowerAttack, "улучшенная мощная атака", EFeatType::kActivated, feat_app);
+	InitFeat(EFeat::kGreatPowerAttack, "улучшенная мощная атака", EFeatType::kActivated);
 //55
-	InitFeat(EFeat::kStrongImmunity, "привычка к яду", EFeatType::kAffect, feat_app);
+	InitFeat(EFeat::kStrongImmunity, "привычка к яду");
 //56
-	InitFeat(EFeat::kMobility, "подвижность", EFeatType::kAffect, feat_app);
+	InitFeat(EFeat::kMobility, "подвижность");
 //57
-	InitFeat(EFeat::kNaturalStr, "силач", EFeatType::kAffect, feat_app);
+	InitFeat(EFeat::kNaturalStr, "силач");
 //58
-	InitFeat(EFeat::kNaturalDex, "проворство", EFeatType::kAffect, feat_app);
+	InitFeat(EFeat::kNaturalDex, "проворство");
 //59
-	InitFeat(EFeat::kNaturalInt, "природный ум", EFeatType::kAffect, feat_app);
+	InitFeat(EFeat::kNaturalInt, "природный ум");
 //60
-	InitFeat(EFeat::kNaturalWis, "мудрец", EFeatType::kAffect, feat_app);
+	InitFeat(EFeat::kNaturalWis, "мудрец");
 //61
-	InitFeat(EFeat::kNaturalCon, "здоровяк", EFeatType::kAffect, feat_app);
+	InitFeat(EFeat::kNaturalCon, "здоровяк");
 //62
-	InitFeat(EFeat::kNaturalCha, "природное обаяние", EFeatType::kAffect, feat_app);
+	InitFeat(EFeat::kNaturalCha, "природное обаяние");
 //63
-	InitFeat(EFeat::kMnemonicEnhancer, "отличная память", EFeatType::kAffect, feat_app);
+	InitFeat(EFeat::kMnemonicEnhancer, "отличная память");
 //64 -*
-	InitFeat(EFeat::kMagneticPersonality, "предводитель", EFeatType::kSkillMod, feat_app);
+	InitFeat(EFeat::kMagneticPersonality, "предводитель");
 //65
-	InitFeat(EFeat::kDamrollBonus, "тяжел на руку", EFeatType::kAffect, feat_app);
+	InitFeat(EFeat::kDamrollBonus, "тяжел на руку");
 //66
-	InitFeat(EFeat::kHitrollBonus, "твердая рука", EFeatType::kAffect, feat_app);
+	InitFeat(EFeat::kHitrollBonus, "твердая рука");
 //68
-	InitFeat(EFeat::kPunchFocus, "любимое оружие: голые руки", EFeatType::kSkillMod, feat_app);
+	InitFeat(EFeat::kPunchFocus, "любимое оружие: голые руки");
 //69
-	InitFeat(EFeat::kClubsFocus, "любимое оружие: палица", EFeatType::kSkillMod, feat_app);
+	InitFeat(EFeat::kClubsFocus, "любимое оружие: палица");
 //70
-	InitFeat(EFeat::kAxesFocus, "любимое оружие: секира", EFeatType::kSkillMod, feat_app);
+	InitFeat(EFeat::kAxesFocus, "любимое оружие: секира");
 //71
-	InitFeat(EFeat::kLongsFocus, "любимое оружие: меч", EFeatType::kSkillMod, feat_app);
+	InitFeat(EFeat::kLongsFocus, "любимое оружие: меч");
 //72
-	InitFeat(EFeat::kShortsFocus, "любимое оружие: нож", EFeatType::kSkillMod, feat_app);
+	InitFeat(EFeat::kShortsFocus, "любимое оружие: нож");
 //73
-	InitFeat(EFeat::kNonstandartsFocus, "любимое оружие: необычное", EFeatType::kSkillMod, feat_app);
+	InitFeat(EFeat::kNonstandartsFocus, "любимое оружие: необычное");
 //74
-	InitFeat(EFeat::kTwohandsFocus, "любимое оружие: двуручник", EFeatType::kSkillMod, feat_app);
+	InitFeat(EFeat::kTwohandsFocus, "любимое оружие: двуручник");
 //75
-	InitFeat(EFeat::kPicksFocus, "любимое оружие: кинжал", EFeatType::kSkillMod, feat_app);
+	InitFeat(EFeat::kPicksFocus, "любимое оружие: кинжал");
 //76
-	InitFeat(EFeat::kSpadesFocus, "любимое оружие: копье", EFeatType::kSkillMod, feat_app);
+	InitFeat(EFeat::kSpadesFocus, "любимое оружие: копье");
 //77
-	InitFeat(EFeat::kBowsFocus, "любимое оружие: лук", EFeatType::kSkillMod, feat_app);
+	InitFeat(EFeat::kBowsFocus, "любимое оружие: лук");
 //78
-	InitFeat(EFeat::kAimingAttack, "прицельная атака", EFeatType::kActivated, feat_app);
+	InitFeat(EFeat::kAimingAttack, "прицельная атака", EFeatType::kActivated);
 //79
-	InitFeat(EFeat::kGreatAimingAttack, "улучшенная прицельная атака", EFeatType::kActivated, feat_app);
+	InitFeat(EFeat::kGreatAimingAttack, "улучшенная прицельная атака", EFeatType::kActivated);
 //80
-	InitFeat(EFeat::kDoubleShot, "двойной выстрел", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kDoubleShot, "двойной выстрел");
 //81
-	InitFeat(EFeat::kPorter, "тяжеловоз", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kPorter, "тяжеловоз");
 //82
-	InitFeat(EFeat::kSecretRunes, "тайные руны", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kSecretRunes, "тайные руны");
 //86
-	InitFeat(EFeat::kToFitItem, "переделать", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kToFitItem, "переделать");
 //87
-	InitFeat(EFeat::kToFitClotches, "перешить", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kToFitClotches, "перешить");
 //88
-	InitFeat(EFeat::kStrengthConcentration, "концентрация силы", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kStrengthConcentration, "концентрация силы");
 //89
-	InitFeat(EFeat::kDarkReading, "кошачий глаз", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kDarkReading, "кошачий глаз");
 //90
-	InitFeat(EFeat::kSpellCapabler, "зачаровать", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kSpellCapabler, "зачаровать");
 //91
-	InitFeat(EFeat::kWearingLightArmor, "легкие доспехи", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kWearingLightArmor, "легкие доспехи");
 //92
-	InitFeat(EFeat::kWearingMediumArmor, "средние доспехи", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kWearingMediumArmor, "средние доспехи");
 //93
-	InitFeat(EFeat::kWearingHeavyArmor, "тяжелые доспехи", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kWearingHeavyArmor, "тяжелые доспехи");
 //94
-	InitFeat(EFeat::kGemsInlay, "инкрустация", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kGemsInlay, "инкрустация");
 //95
-	InitFeat(EFeat::kWarriorStrength, "богатырская сила", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kWarriorStrength, "богатырская сила");
 //96
-	InitFeat(EFeat::kRelocate, "переместиться", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kRelocate, "переместиться");
 //97
-	InitFeat(EFeat::kSilverTongue, "сладкоречие", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kSilverTongue, "сладкоречие");
 //98
-	InitFeat(EFeat::kBully, "забияка", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kBully, "забияка");
 //99
-	InitFeat(EFeat::kThieveStrike, "воровской удар", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kThieveStrike, "воровской удар");
 //100
-	InitFeat(EFeat::kJeweller, "искусный ювелир", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kJeweller, "искусный ювелир");
 //101
-	InitFeat(EFeat::kSkilledTrader, "торговая сметка", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kSkilledTrader, "торговая сметка");
 //102
-	InitFeat(EFeat::kZombieDrover, "погонщик умертвий", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kZombieDrover, "погонщик умертвий");
 //103
-	InitFeat(EFeat::kEmployer, "навык найма", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kEmployer, "навык найма");
 //104
-	InitFeat(EFeat::kMagicUser, "использование амулетов", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kMagicUser, "использование амулетов");
 //105
-	InitFeat(EFeat::kGoldTongue, "златоуст", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kGoldTongue, "златоуст");
 //106
-	InitFeat(EFeat::kCalmness, "хладнокровие", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kCalmness, "хладнокровие");
 //107
-	InitFeat(EFeat::kRetreat, "отступление", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kRetreat, "отступление");
 //108
-	InitFeat(EFeat::kShadowStrike, "танцующая тень", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kShadowStrike, "танцующая тень");
 //109
-	InitFeat(EFeat::kThrifty, "запасливость", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kThrifty, "запасливость");
 //110
-	InitFeat(EFeat::kCynic, "циничность", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kCynic, "циничность");
 //111
-	InitFeat(EFeat::kPartner, "напарник", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kPartner, "напарник");
 //112
-	InitFeat(EFeat::kFavorOfDarkness, "помощь тьмы", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kFavorOfDarkness, "помощь тьмы");
 //113
-	InitFeat(EFeat::kFuryOfDarkness, "ярость тьмы", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kFuryOfDarkness, "ярость тьмы");
 //114
-	InitFeat(EFeat::kRegenOfDarkness, "темное восстановление", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kRegenOfDarkness, "темное восстановление");
 //115
-	InitFeat(EFeat::kSoulLink, "родство душ", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kSoulLink, "родство душ");
 //116
-	InitFeat(EFeat::kStrongClutch, "сильная хватка", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kStrongClutch, "сильная хватка");
 //117
-	InitFeat(EFeat::kMagicArrows, "магические стрелы", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kMagicArrows, "магические стрелы");
 //118
-	InitFeat(EFeat::kSoulsCollector, "колекционер душ", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kSoulsCollector, "колекционер душ");
 //119
-	InitFeat(EFeat::kDarkPact, "темная сделка", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kDarkPact, "темная сделка");
 //120
-	InitFeat(EFeat::kCorruption, "порча", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kCorruption, "порча");
 //121
-	InitFeat(EFeat::kHarvestOfLife, "жатва жизни", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kHarvestOfLife, "жатва жизни");
 //122
-	InitFeat(EFeat::kLoyalAssist, "верный помощник", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kLoyalAssist, "верный помощник");
 //123
-	InitFeat(EFeat::kHauntingSpirit, "блуждающий дух", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kHauntingSpirit, "блуждающий дух");
 //124
-	InitFeat(EFeat::kSnakeRage, "ярость змеи", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kSnakeRage, "ярость змеи");
 //126
-	InitFeat(EFeat::kElderTaskmaster, "старший надсмотрщик", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kElderTaskmaster, "старший надсмотрщик");
 //127
-	InitFeat(EFeat::kLordOfUndeads, "повелитель нежити", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kLordOfUndeads, "повелитель нежити");
 //128
-	InitFeat(EFeat::kWarlock, "темный маг", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kWarlock, "темный маг");
 //129
-	InitFeat(EFeat::kElderPriest, "старший жрец", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kElderPriest, "старший жрец");
 //130
-	InitFeat(EFeat::kHighLich, "верховный лич", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kHighLich, "верховный лич");
 //131
-	InitFeat(EFeat::kDarkRitual, "темный ритуал", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kDarkRitual, "темный ритуал");
 //132
-	InitFeat(EFeat::kTeamsterOfUndead, "погонщик нежити", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kTeamsterOfUndead, "погонщик нежити");
 //133
-	InitFeat(EFeat::kScirmisher, "держать строй", EFeatType::kActivated, feat_app,
-			 90, ESkill::kRescue, ESaving::kReflex);
+	InitFeat(EFeat::kScirmisher, "держать строй", EFeatType::kActivated, 90, ESkill::kRescue, ESaving::kReflex);
 	feat_info[EFeat::kScirmisher].GetBaseParameter = &GET_REAL_DEX;
 	feat_info[EFeat::kScirmisher].CalcSituationalRollBonus = &CalcRollBonusOfGroupFormation;
 //134
-	InitFeat(EFeat::kTactician, "десяцкий", EFeatType::kActivated, feat_app,
-			 90, ESkill::kLeadership, ESaving::kReflex);
+	InitFeat(EFeat::kTactician, "десяцкий", EFeatType::kActivated, 90, ESkill::kLeadership, ESaving::kReflex);
 	feat_info[EFeat::kTactician].GetBaseParameter = &GET_REAL_CHA;
 	feat_info[EFeat::kTactician].CalcSituationalRollBonus = &CalcRollBonusOfGroupFormation;
 //135
-	InitFeat(EFeat::kLiveShield, "живой щит", EFeatType::kNormal, feat_app);
-// === Проскок номеров (типа резерв под татей) ===
+	InitFeat(EFeat::kLiveShield, "живой щит");
 //137
-	InitFeat(EFeat::kSerratedBlade, "воровская заточка", EFeatType::kActivated, feat_app);
+	InitFeat(EFeat::kSerratedBlade, "воровская заточка", EFeatType::kActivated);
 //138
-	InitFeat(EFeat::kEvasion, "скользкий тип", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kEvasion, "скользкий тип");
 //139
-	InitFeat(EFeat::kCutting, "порез", EFeatType::kTechnique, feat_app,
-			 110, ESkill::kPunch, ESaving::kReflex);
+	InitFeat(EFeat::kCutting, "порез", EFeatType::kTechnique, 110, ESkill::kPunch, ESaving::kReflex);
 	feat_info[EFeat::kCutting].GetBaseParameter = &GET_REAL_DEX;
 	feat_info[EFeat::kCutting].GetEffectParameter = &GET_REAL_STR;
 	feat_info[EFeat::kCutting].uses_weapon_skill = true;
@@ -377,16 +363,15 @@ void InitFeatures() {
 	feat_info[EFeat::kCutting].item_kits.push_back(std::move(item_kit));
 
 //140
-	InitFeat(EFeat::kFInesseShot, "ловкий выстрел", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kFInesseShot, "ловкий выстрел");
 //141
-	InitFeat(EFeat::kObjectEnchanter, "наложение чар", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kObjectEnchanter, "наложение чар");
 //142
-	InitFeat(EFeat::kDeftShooter, "ловкий стрелок", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kDeftShooter, "ловкий стрелок");
 //143
-	InitFeat(EFeat::kMagicShooter, "магический выстрел", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kMagicShooter, "магический выстрел");
 //144
-	InitFeat(EFeat::kThrowWeapon, "метнуть", EFeatType::kTechnique, feat_app,
-			 100, ESkill::kThrow, ESaving::kReflex);
+	InitFeat(EFeat::kThrowWeapon, "метнуть", EFeatType::kTechnique, 100, ESkill::kThrow, ESaving::kReflex);
 	feat_info[EFeat::kThrowWeapon].GetBaseParameter = &GET_REAL_DEX;
 	feat_info[EFeat::kThrowWeapon].GetEffectParameter = &GET_REAL_STR;
 	feat_info[EFeat::kThrowWeapon].uses_weapon_skill = false;
@@ -421,8 +406,7 @@ void InitFeatures() {
 									  ESkill::kAny, EObjFlag::kThrowing));
 	feat_info[EFeat::kThrowWeapon].item_kits.push_back(std::move(item_kit));
 //145
-	InitFeat(EFeat::kShadowThrower, "змеево оружие", EFeatType::kTechnique, feat_app,
-			 100, ESkill::kDarkMagic, ESaving::kWill);
+	InitFeat(EFeat::kShadowThrower, "змеево оружие", EFeatType::kTechnique, 100, ESkill::kDarkMagic, ESaving::kWill);
 	feat_info[EFeat::kShadowThrower].GetBaseParameter = &GET_REAL_DEX;
 	feat_info[EFeat::kShadowThrower].GetEffectParameter = &GET_REAL_INT;
 	feat_info[EFeat::kShadowThrower].damage_bonus = -30;
@@ -448,39 +432,31 @@ void InitFeatures() {
 									  ESkill::kAny, EObjFlag::kThrowing));
 	feat_info[EFeat::kShadowThrower].item_kits.push_back(std::move(item_kit));
 //146
-	InitFeat(EFeat::kShadowDagger, "змеев кинжал", EFeatType::kNormal, feat_app,
-			 80, ESkill::kDarkMagic, ESaving::kStability);
+	InitFeat(EFeat::kShadowDagger, "змеев кинжал", EFeatType::kNormal, 80, ESkill::kDarkMagic, ESaving::kStability);
 	feat_info[EFeat::kShadowDagger].GetBaseParameter = &GET_REAL_INT;
 	feat_info[EFeat::kShadowDagger].uses_weapon_skill = false;
 //147
-	InitFeat(EFeat::kShadowSpear, "змеево копьё", EFeatType::kNormal, feat_app,
-			 80, ESkill::kDarkMagic, ESaving::kStability);
+	InitFeat(EFeat::kShadowSpear, "змеево копьё", EFeatType::kNormal, 80, ESkill::kDarkMagic, ESaving::kStability);
 	feat_info[EFeat::kShadowSpear].GetBaseParameter = &GET_REAL_INT;
 	feat_info[EFeat::kShadowSpear].uses_weapon_skill = false;
 //148
-	InitFeat(EFeat::kShadowClub, "змеева палица", EFeatType::kNormal, feat_app,
-			 80, ESkill::kDarkMagic, ESaving::kStability);
+	InitFeat(EFeat::kShadowClub, "змеева палица", EFeatType::kNormal, 80, ESkill::kDarkMagic, ESaving::kStability);
 	feat_info[EFeat::kShadowClub].GetBaseParameter = &GET_REAL_INT;
 	feat_info[EFeat::kShadowClub].uses_weapon_skill = false;
 //149
-	InitFeat(EFeat::kDoubleThrower, "двойной бросок", EFeatType::kActivated, feat_app,
-			 100, ESkill::kPunch, ESaving::kReflex);
+	InitFeat(EFeat::kDoubleThrower, "двойной бросок", EFeatType::kActivated, 100, ESkill::kPunch, ESaving::kReflex);
 	feat_info[EFeat::kDoubleThrower].GetBaseParameter = &GET_REAL_DEX;
 //150
-	InitFeat(EFeat::kTripleThrower, "тройной бросок", EFeatType::kActivated, feat_app,
-			 100, ESkill::kPunch, ESaving::kReflex);
+	InitFeat(EFeat::kTripleThrower, "тройной бросок", EFeatType::kActivated, 100, ESkill::kPunch, ESaving::kReflex);
 	feat_info[EFeat::kTripleThrower].GetBaseParameter = &GET_REAL_DEX;
 //1151
-	InitFeat(EFeat::kPowerThrow, "размах", EFeatType::kNormal, feat_app, 100,
-			 ESkill::kPunch, ESaving::kReflex);
+	InitFeat(EFeat::kPowerThrow, "размах", EFeatType::kNormal, 100, ESkill::kPunch, ESaving::kReflex);
 	feat_info[EFeat::kPowerThrow].GetBaseParameter = &GET_REAL_STR;
 //152
-	InitFeat(EFeat::kDeadlyThrow, "широкий размах", EFeatType::kNormal, feat_app,
-			 100, ESkill::kPunch, ESaving::kReflex);
+	InitFeat(EFeat::kDeadlyThrow, "широкий размах", EFeatType::kNormal, 100, ESkill::kPunch, ESaving::kReflex);
 	feat_info[EFeat::kDeadlyThrow].GetBaseParameter = &GET_REAL_STR;
 //153
-	InitFeat(EFeat::kUndeadsTurn, "turn undead", EFeatType::kTechnique, feat_app,
-			 70, ESkill::kTurnUndead, ESaving::kStability);
+	InitFeat(EFeat::kUndeadsTurn, "turn undead", EFeatType::kTechnique, 70, ESkill::kTurnUndead, ESaving::kStability);
 	feat_info[EFeat::kUndeadsTurn].GetBaseParameter = &GET_REAL_INT;
 	feat_info[EFeat::kUndeadsTurn].GetEffectParameter = &GET_REAL_WIS;
 	feat_info[EFeat::kUndeadsTurn].uses_weapon_skill = false;
@@ -488,15 +464,15 @@ void InitFeatures() {
 	feat_info[EFeat::kUndeadsTurn].damage_bonus = -30;
 	feat_info[EFeat::kUndeadsTurn].success_degree_damage_bonus = 2;
 //154
-	InitFeat(EFeat::kMultipleCast, "изощренные чары", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kMultipleCast, "изощренные чары");
 //155	
-	InitFeat(EFeat::kMagicalShield, "заговоренный щит", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kMagicalShield, "заговоренный щит");
 //156
-	InitFeat(EFeat::kAnimalMaster, "хозяин животных", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kAnimalMaster, "хозяин животных");
 //157
-	InitFeat(EFeat::kSlashMaster, "рубака", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kSlashMaster, "рубака");
 //158
-	InitFeat(EFeat::kPhysicians, "врачеватель", EFeatType::kNormal, feat_app);
+	InitFeat(EFeat::kPhysicians, "врачеватель");
 
 // Не забудьде добавит фит в void init_EFeat_ITEM_NAMES()
 }
@@ -505,11 +481,11 @@ bool CanUseFeat(const CharData *ch, EFeat feat) {
 	if (MUD::Feat(feat).IsInvalid()) {
 		return false;
 	};
-	if (feat_info[feat].always_available || ch->IsNpc()) {
-		return true;
-	};
-	if (!ch->HaveFeat(feat)) {
+	if (!ch->HaveFeat(feat) && !feat_info[feat].always_available) {
 		return false;
+	};
+	if (ch->IsNpc()) {
+		return true;
 	};
 	if (CalcMaxFeatSlotPerLvl(ch) < MUD::Class(ch->GetClass()).feats[feat].GetSlot()) {
 		return false;
@@ -837,15 +813,6 @@ bool CheckVacantFeatSlot(CharData *ch, EFeat feat_id) {
 	return false;
 }
 
-int GetModifier(EFeat feat_id, int location) {
-	for (int i = 0; i < kMaxFeatAffect; i++) {
-		if (feat_info[feat_id].affected[i].location == location) {
-			return (int) feat_info[feat_id].affected[i].modifier;
-		}
-	}
-	return 0;
-}
-
 // \todo Надо как-то переделать загрузку родовых способностей, чтобы там было не int, а сразу EFeat
 void SetRaceFeats(CharData *ch) {
 	auto race_features = PlayerRace::GetRaceFeatures((int) GET_KIN(ch), (int) GET_RACE(ch));
@@ -884,35 +851,6 @@ void UnsetInaccessibleFeats(CharData *ch) {
 				ch->UnsetFeat(feat_id);
 			}
 		}
-	}
-}
-
-int CFeatArray::pos(int pos /*= -1*/) {
-	if (pos == -1) {
-		return pos_;
-	} else if (pos >= 0 && pos < kMaxFeatAffect) {
-		pos_ = pos;
-		return pos_;
-	}
-	sprintf(buf, "SYSERR: invalid argument (%d) was sended to features::aff_aray.pos!", pos);
-	mudlog(buf, BRF, kLvlGod, SYSLOG, true);
-	return pos_;
-}
-
-void CFeatArray::insert(const int location, int modifier) {
-	affected[pos_].location = location;
-	affected[pos_].modifier = modifier;
-	pos_++;
-	if (pos_ >= kMaxFeatAffect) {
-		pos_ = 0;
-	}
-}
-
-void CFeatArray::clear() {
-	pos_ = 0;
-	for (auto & i : affected) {
-		i.location = EApply::kNone;
-		i.modifier = 0;
 	}
 }
 
@@ -1164,8 +1102,8 @@ ItemPtr FeatInfoBuilder::ParseHeader(DataNode &node) {
 }
 
 void FeatInfoBuilder::ParseEffects(ItemPtr &info, DataNode &node) {
-	if (node.GoToChild("passive_effects")) {
-		info->passive_effects.Build(node);
+	if (node.GoToChild("effects")) {
+		info->effects.Build(node);
 		node.GoToParent();
 	}
 }
@@ -1176,7 +1114,7 @@ void FeatInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 		   << " Name: " << KGRN << GetName() << KNRM << std::endl
 		   << " Mode: " << KGRN << NAME_BY_ITEM<EItemMode>(GetMode()) << KNRM << std::endl;
 
-	passive_effects.Print(ch, buffer);
+	effects.Print(ch, buffer);
 }
 
 }

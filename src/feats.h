@@ -29,7 +29,6 @@ struct TimedFeat {
 
 int CalcMaxFeatSlotPerLvl(const CharData *ch);
 int CalcFeatSlotsAmountPerRemort(CharData *ch);
-int GetModifier(EFeat feat_id, int location);
 EFeat FindWeaponMasterFeat(ESkill skill);
 void InitFeatures();
 
@@ -42,48 +41,11 @@ bool CanGetFeat(CharData *ch, EFeat feat);
 bool TryFlipActivatedFeature(CharData *ch, char *argument);
 Bitvector GetPrfWithFeatNumber(EFeat feat_id);
 
-/*
-	Класс для удобства вбивания значений в массив affected структуры способности
-*/
-class CFeatArray {
- public:
-	explicit CFeatArray() :
-		pos_{0} {}
-
-	int pos(int pos = -1);
-	void insert(int location, int modifier);
-	void clear();
-
-	struct CFeatAffect {
-		int location;
-		int modifier;
-
-		CFeatAffect() :
-			location{0}, modifier{0} {}
-
-		CFeatAffect(int location, int modifier) :
-			location(location), modifier(modifier) {}
-
-		bool operator!=(const CFeatAffect &r) const {
-			return (location != r.location || modifier != r.modifier);
-		}
-		bool operator==(const CFeatAffect &r) const {
-			return !(*this != r);
-		}
-	};
-
-	struct CFeatAffect affected[kMaxFeatAffect];
-
- private:
-	int pos_;
-};
-
 struct FeatureInfo {
 	EFeat id{EFeat::kUndefined};
 	EFeatType type{EFeatType::kUnused};
 	bool uses_weapon_skill{false};
 	bool always_available{false};
-	std::array<CFeatArray::CFeatAffect, kMaxFeatAffect> affected;
 
 	// Параметры для нового базового броска на способность
 	// Пока тут, до переписывания системы способностей
@@ -133,7 +95,7 @@ class FeatInfo : public info_container::BaseItem<EFeat> {
 	FeatInfo(EFeat id, EItemMode mode)
 		: BaseItem<EFeat>(id, mode) {};
 
-	effects::PassiveEffects passive_effects;
+	effects::PassiveEffects effects;
 
 	[[nodiscard]] const std::string &GetName() const { return name_; };
 	[[nodiscard]] const char *GetCName() const { return name_.c_str(); };

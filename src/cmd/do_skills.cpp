@@ -50,19 +50,15 @@ void DisplaySkills(CharData *ch, CharData *vict, const char *filter/* = nullptr*
 			auto skill_id = skill.GetId();
 			switch (skill_id) {
 				case ESkill::kWarcry:
-					sprintf(buf,
-							"[-%d-] ",
-							(kHoursPerDay - IsTimedBySkill(ch, skill_id)) / kHoursPerWarcry);
+					sprintf(buf, "[-%d-] ", (kHoursPerDay - IsTimedBySkill(ch, skill_id)) / kHoursPerWarcry);
 					break;
-				case ESkill::kTurnUndead:
-					if (CanUseFeat(ch, EFeat::kExorcist)) {
-						sprintf(buf,
-								"[-%d-] ",
-								(kHoursPerDay - IsTimedBySkill(ch, skill_id)) / (kHoursPerTurnUndead - 2));
-					} else {
-						sprintf(buf, "[-%d-] ", (kHoursPerDay - IsTimedBySkill(ch, skill_id)) / kHoursPerTurnUndead);
-					}
+				case ESkill::kTurnUndead: {
+					auto bonus = CanUseFeat(ch, EFeat::kExorcist) ?
+								 MUD::Feat(EFeat::kExorcist).effects.GetTimerMod(EFeat::kExorcist) : 0;
+					bonus = std::max(1, kHoursPerTurnUndead + bonus);
+					sprintf(buf, "[-%d-] ", (kHoursPerDay - IsTimedBySkill(ch, skill_id)) / bonus);
 					break;
+				}
 				case ESkill::kFirstAid:
 				case ESkill::kHangovering:
 				case ESkill::kIdentify:

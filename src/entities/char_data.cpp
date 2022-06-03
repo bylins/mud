@@ -519,13 +519,16 @@ void CharData::purge() {
 // * Скилл с учетом всех плюсов и минусов от шмоток/яда.
 int CharData::GetSkill(const ESkill skill_id) const {
 	int skill = get_trained_skill(skill_id) + get_equipped_skill(skill_id);
+
+	//utils::CExecutionTimer time;
+	if (skill) {
+		skill += GetBonusSkill(skill_id);
+	}
+	//log("GetSkillMod time - %f", time.delta().count());
+
 	if (AFF_FLAGGED(this, EAffect::kSkillReduce)) {
 		skill -= skill * GET_POISON(this) / 100;
 	}
-
-	//utils::CExecutionTimer time;
-	skill += GetBonusSkill(skill_id);
-	//log("GetSkillMod time - %f", time.delta().count());
 
 	if (ROOM_FLAGGED(this->in_room, ERoomFlag::kDominationArena)) {
 		return std::clamp(skill, 0, CalcSkillRemortCap(this));
@@ -601,7 +604,7 @@ int CharData::GetBonusSkill(const ESkill skill_id) const {
 	int bonus{0};
 	for (const auto &feat : MUD::Feats()) {
 		if (CanUseFeat(this, feat.GetId())) {
-			bonus += feat.passive_effects.GetSkillMod(skill_id);
+			bonus += feat.effects.GetSkillMod(skill_id);
 		}
 	}
 	return bonus;

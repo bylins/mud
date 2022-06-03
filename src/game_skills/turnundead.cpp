@@ -8,6 +8,7 @@
 #include "game_abilities/abilities_rollsystem.h"
 #include "handler.h"
 #include "cmd/flee.h"
+#include <structs/global_objects.h>
 
 using namespace AbilitySystem;
 
@@ -26,8 +27,8 @@ void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 	TimedSkill timed;
 	timed.skill = ESkill::kTurnUndead;
 	if (CanUseFeat(ch, EFeat::kExorcist)) {
-		timed.time = IsTimedBySkill(ch, ESkill::kTurnUndead) + kHoursPerTurnUndead - 2;
-		skill += 10;
+		timed.time = IsTimedBySkill(ch, ESkill::kTurnUndead) + kHoursPerTurnUndead +
+			MUD::Feat(EFeat::kExorcist).effects.GetTimerMod(ESkill::kTurnUndead);
 	} else {
 		timed.time = IsTimedBySkill(ch, ESkill::kTurnUndead) + kHoursPerTurnUndead;
 	}

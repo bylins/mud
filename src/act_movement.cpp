@@ -211,13 +211,8 @@ int skip_sneaking(CharData *ch, CharData *vict) {
 			make_visible(ch, EAffect::kSneak);
 			EXTRA_FLAGS(ch).get(EXTRA_FAILSNEAK);
 		} else if (IsAffectedBySpell(ch, ESpell::kSneak)) {
-			//if (can_use_feat(ch, EFeat::kStealthy)) //тать или наем
-			//percent = number(1, 140 + GET_REAL_INT(vict));
-			//else
-			percent = number(1,
-							 (CanUseFeat(ch, EFeat::kStealthy) ? 102 : 112)
-								 + (GET_REAL_INT(vict) * (vict->get_role(MOB_ROLE_BOSS) ? 3 : 1))
-								 + (GetRealLevel(vict) > 30 ? GetRealLevel(vict) : 0));
+			percent = number(1, 112 + (GET_REAL_INT(vict) * (vict->get_role(MOB_ROLE_BOSS) ? 3 : 1)) +
+				(GetRealLevel(vict) > 30 ? GetRealLevel(vict) : 0));
 			prob = CalcCurrentSkill(ch, ESkill::kSneak, vict);
 
 			int catch_level = (GetRealLevel(vict) - GetRealLevel(ch));

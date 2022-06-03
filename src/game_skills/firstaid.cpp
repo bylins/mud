@@ -59,7 +59,8 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			} else {
 				percent = CalcCurrentSkill(ch, ESkill::kFirstAid, vict);
 				prob = static_cast<int>(percent*GetRealLevel(ch)/2);
-				SendMsgToChar(ch, "&RУровень цели %d Отхилено %d хитов, скилл %d\r\n", GetRealLevel(vict), prob, percent);
+				SendMsgToChar(ch, "&RУровень цели %d. Восстановлено %dhp , умение %d\r\n",
+							  GetRealLevel(vict), prob, percent);
 				GET_HIT(vict) += prob;
 				GET_HIT(vict) = std::min(GET_HIT(vict), GET_REAL_MAX_HIT(vict));
 				update_pos(vict);
