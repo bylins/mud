@@ -1651,9 +1651,9 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 				PlaceObjToRoom(temp, obj->get_in_room());
 				CheckObjDecay(temp);
 			} else if (obj->get_in_obj()) {
-				ExtractObjFromWorld(temp);
+				ExtractObjFromWorld(temp, false);
 			} else {
-				ExtractObjFromWorld(temp);
+				ExtractObjFromWorld(temp, false);
 			}
 		}
 		if (showlog)
