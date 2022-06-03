@@ -776,7 +776,6 @@ int cast_mtrigger(CharData *ch, CharData *actor, ESpell spell_id) {
 	if (!CheckScript(ch, MTRIG_CAST) || !CAN_START_MTRIG(ch) || GET_INVIS_LEV(actor)) {
 		return 1;
 	}
-
 	char local_buf[kMaxInputLength];
 	for (auto t : SCRIPT(ch)->trig_list) {
 		if (TRIGGER_CHECK(t, MTRIG_CAST)
@@ -784,7 +783,13 @@ int cast_mtrigger(CharData *ch, CharData *actor, ESpell spell_id) {
 			ADD_UID_CHAR_VAR(local_buf, t, actor, "actor", 0);
 			sprintf(buf, "%d", to_underlying(spell_id));
 			add_var_cntx(&GET_TRIG_VARS(t), "castnum", buf, 0);
-			add_var_cntx(&GET_TRIG_VARS(t), "castname", MUD::Spell(spell_id).GetCName(), 0);
+			add_var_cntx(&GET_TRIG_VARS(t), "castname", MUD::Spell(spell_id).GetCName(), 0);, 0);
+			if (MUD::Spell(spell_id).IsViolent()) {
+				add_var_cntx(&GET_TRIG_VARS(t), "castagro", "1", 0);
+			}
+			else {
+				add_var_cntx(&GET_TRIG_VARS(t), "castagro", "0", 0);
+			}
 			return script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
 		}
 	}

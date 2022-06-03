@@ -24,6 +24,7 @@
 void PrintScoreBase(CharData *ch);
 void PrintScoreList(CharData *ch);
 void PrintScoreAll(CharData *ch);
+void PrintRentableInfo(CharData *ch, std::ostringstream &out);
 const char *GetPositionStr(CharData *ch);
 const char *GetShortPositionStr(CharData *ch);
 int CalcHitroll(CharData *ch);
@@ -219,6 +220,10 @@ void PrintScoreList(CharData *ch) {
 						  + std::string(" без потерь для опыта.")).substr(0, 76).c_str()));
 
 	SendMsgToChar(ch, "Вы можете принять в группу максимум %d соратников.\r\n", max_group_size(ch));
+	std::ostringstream out;
+	out.str("");
+	PrintRentableInfo(ch, out);
+	SendMsgToChar(out.str(), ch);
 }
 
 /*
@@ -227,7 +232,7 @@ void PrintScoreList(CharData *ch) {
 
 const std::string &InfoStrPrefix(CharData *ch) {
 	static const std::string cyan_star{KICYN " * " KNRM};
-	static const std::string space_str{" "};
+	static const std::string space_str{""};
 	if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {
 		return space_str;
 	} else {

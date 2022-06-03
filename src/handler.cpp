@@ -33,6 +33,7 @@
 #include "game_classes/classes_spell_slots.h"
 #include "depot.h"
 #include "structs/global_objects.h"
+#include "utils/utils_time.h"
 
 using classes::CalcCircleSlotsAmount;
 
@@ -1614,11 +1615,9 @@ void ExtractObjFromWorld(ObjData *obj) {
 	ObjData *temp;
 
 	strcpy(name, obj->get_PName(0).c_str());
-	log("Extracting obj %s vnum == %d room = %d timer == %d",
-		name,
-		GET_OBJ_VNUM(obj),
-		get_room_where_obj(obj, false),
-		obj->get_timer());
+	log("[Extract obj] Start for: %s vnum == %d room = %d timer == %d",
+			name, GET_OBJ_VNUM(obj), get_room_where_obj(obj, false), obj->get_timer());
+	utils::CExecutionTimer timer;
 // TODO: в дебаг log("Start extract obj %s", name);
 
 	// Get rid of the contents of the object, as well.
@@ -1681,6 +1680,7 @@ void ExtractObjFromWorld(ObjData *obj) {
 
 	obj->get_script()->set_purged();
 	world_objects.remove(obj);
+	log("[Extract obj] Stop, delta %f", timer.delta().count());
 }
 
 void UpdateObject(ObjData *obj, int use) {
@@ -1829,6 +1829,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 	std::string name = GET_NAME(ch);
 	DescriptorData *t_desc;
 	log("[Extract char] Start function for char %s VNUM: %d", name.c_str(), GET_MOB_VNUM(ch));
+	utils::CExecutionTimer timer;
 	if (!ch->IsNpc() && !ch->desc) {
 //		log("[Extract char] Extract descriptors");
 		for (t_desc = descriptor_list; t_desc; t_desc = t_desc->next) {
@@ -1900,11 +1901,11 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 		// TODO: странно все это с пуржем в stop_follower
 		return;
 	}
-
+// дублируется в ExtractCharFromRoom
 //	log("[Extract char] Stop fighting self");
-	if (ch->GetEnemy()) {
-		stop_fighting(ch, true);
-	}
+//	if (ch->GetEnemy()) {
+//		stop_fighting(ch, true);
+//	}
 
 //	log("[Extract char] Stop all fight for opponee");
 	change_fighting(ch, true);
@@ -1950,7 +1951,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 		character_list.remove(ch);
 	}
 
-	log("[Extract char] Stop function for char %s ", name.c_str());
+	log("[Extract char] Stop function for char %s, delta %f", name.c_str(), timer.delta().count());
 }
 
 /* ***********************************************************************

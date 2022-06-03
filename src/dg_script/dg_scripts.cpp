@@ -2650,11 +2650,13 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "maxskill")) {
 			const ESkill skillnum = FixNameAndFindSkillId(subfield);
-			if (skillnum > ESkill::kUndefined) {
+			if (MUD::Skills(skillnum).IsAvailable()) {
 				sprintf(str, "%d", CalcSkillHardCap(c, skillnum));
 			} else {
 				strcpy(str, "0");
 			}
+		} else if (!str_cmp(field, "maxremortskill")) {
+				sprintf(str, "%d", CalcSkillRemortCap(c));
 		} else if (!str_cmp(field, "skill")) {
 			strcpy(str, skill_percent(trig, c, subfield));
 		} else if (!str_cmp(field, "feat")) {
