@@ -159,9 +159,23 @@ void DecreaseFeatTimer(CharData *ch, EFeat feat_id) {
 	}
 };
 
-void ImposeTimedFeat(CharData *ch, TimedFeat *timed) {
-	struct TimedFeat *timed_alloc, *skj;
+template <class TalentId>
+int GetTalentTimerMod(CharData *ch, TalentId id) {
+	// ABYRVALG Тут нужен цикл по способностям _персонажа_, но в настоящий момнет это невозможно из-за особенностей
+	// реализации конйтенера способносткй у персонажа.
+	int mod{0};
+	for (const auto &feat : MUD::Feats()) {
+		if (CanUseFeat(ch, feat.GetId())) {
+			mod += feat.effects.GetTimerMod(id);
+		}
+	}
+	return mod;
+}
 
+void ImposeTimedFeat(CharData *ch, TimedFeat *timed) {
+	timed->time = std::max(1, timed->time + GetTalentTimerMod(ch, timed->feat));
+
+	struct TimedFeat *timed_alloc, *skj;
 	for (skj = ch->timed_feat; skj; skj = skj->next) {
 		if (skj->feat == timed->feat) {
 			skj->time = timed->time;
@@ -200,9 +214,9 @@ int IsTimedByFeat(CharData *ch, EFeat feat) {
  * Insert an TimedSkill in a char_data structure
  */
 void ImposeTimedSkill(CharData *ch, struct TimedSkill *timed) {
-	struct TimedSkill *timed_alloc, *skj;
+	timed->time = std::max(1, timed->time + GetTalentTimerMod(ch, timed->skill));
 
-	// Карачун. Правка бага. Если такой скилл уже есть в списке, просто меняем таймер.
+	struct TimedSkill *timed_alloc, *skj;
 	for (skj = ch->timed; skj; skj = skj->next) {
 		if (skj->skill == timed->skill) {
 			skj->time = timed->time;

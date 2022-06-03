@@ -1710,9 +1710,8 @@ std::string make_prompt(DescriptorData *d) {
 			}
 			if (d->character->GetSkill(ESkill::kTurnUndead)) {
 				int bonus{0};
-				bonus += CanUseFeat(d->character.get(), EFeat::kExorcist) ?
-					MUD::Feat(EFeat::kExorcist).effects.GetTimerMod(EFeat::kExorcist) : 0;
-				bonus =  std::max(1, kHoursPerTurnUndead + bonus);
+				bonus = kHoursPerTurnUndead + (CanUseFeat(d->character.get(), EFeat::kExorcist) ? -2 : 0);
+				bonus =  std::max(1, bonus);
 				out << MUD::Skill(ESkill::kTurnUndead).GetAbbr() << ":"
 					<< (kHoursPerDay - IsTimedBySkill(d->character.get(), ESkill::kTurnUndead)) / bonus << " ";
 			}

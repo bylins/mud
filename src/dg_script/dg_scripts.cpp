@@ -2649,9 +2649,9 @@ void find_replacement(void *go,
 				}
 			}
 		} else if (!str_cmp(field, "maxskill")) {
-			const ESkill skillnum = FixNameAndFindSkillId(subfield);
-			if (MUD::Skills(skillnum).IsAvailable()) {
-				sprintf(str, "%d", CalcSkillHardCap(c, skillnum));
+			const auto skill_id = FixNameAndFindSkillId(subfield);
+			if (MUD::Skill(skill_id).IsAvailable()) {
+				sprintf(str, "%d", CalcSkillHardCap(c, skill_id));
 			} else {
 				strcpy(str, "0");
 			}

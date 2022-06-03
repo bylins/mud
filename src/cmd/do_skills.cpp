@@ -53,8 +53,7 @@ void DisplaySkills(CharData *ch, CharData *vict, const char *filter/* = nullptr*
 					sprintf(buf, "[-%d-] ", (kHoursPerDay - IsTimedBySkill(ch, skill_id)) / kHoursPerWarcry);
 					break;
 				case ESkill::kTurnUndead: {
-					auto bonus = CanUseFeat(ch, EFeat::kExorcist) ?
-								 MUD::Feat(EFeat::kExorcist).effects.GetTimerMod(EFeat::kExorcist) : 0;
+					auto bonus = CanUseFeat(ch, EFeat::kExorcist) ? -2 : 0;
 					bonus = std::max(1, kHoursPerTurnUndead + bonus);
 					sprintf(buf, "[-%d-] ", (kHoursPerDay - IsTimedBySkill(ch, skill_id)) / bonus);
 					break;

@@ -675,9 +675,7 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	timed.skill = ESkill::kHangovering;
-	auto time = 12 + (CanUseFeat(ch, EFeat::kDrunkard) ?
-		MUD::Feat(EFeat::kDrunkard).effects.GetTimerMod(ESkill::kHangovering) : 0);
-	timed.time = std::max(1, time);
+	timed.time = 12;
 	ImposeTimedSkill(ch, &timed);
 
 	percent = number(1, MUD::Skill(ESkill::kHangovering).difficulty);
