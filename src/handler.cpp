@@ -1610,49 +1610,55 @@ RoomVnum get_room_where_obj(ObjData *obj, bool deep) {
 	return kNowhere;
 }
 
-void ExtractObjFromWorld(ObjData *obj) {
+void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 	char name[kMaxStringLength];
 	ObjData *temp;
+	int roomload = get_room_where_obj(obj, false);
+	utils::CExecutionTimer timer;
 
 	strcpy(name, obj->get_PName(0).c_str());
-	log("[Extract obj] Start for: %s vnum == %d room = %d timer == %d",
-			name, GET_OBJ_VNUM(obj), get_room_where_obj(obj, false), obj->get_timer());
-	utils::CExecutionTimer timer;
-// TODO: в дебаг log("Start extract obj %s", name);
-
-	// Get rid of the contents of the object, as well.
+//	if (roomload == 0 && showlog)
+//			debug::backtrace(runtime_config.logs(SYSLOG).handle());
+	if (showlog) {
+		log("[Extract obj] Start for: %s vnum == %d room = %d timer == %d",
+				name, GET_OBJ_VNUM(obj), roomload, obj->get_timer());
+	}
 	// Обработка содержимого контейнера при его уничтожении
-
 	purge_otrigger(obj);
-
-	while (obj->get_contains()) {
-		temp = obj->get_contains();
-		ExtractObjFromObj(temp);
-
-		if (obj->get_carried_by()) {
-			if (obj->get_carried_by()->IsNpc()
-				|| (IS_CARRYING_N(obj->get_carried_by()) >= CAN_CARRY_N(obj->get_carried_by()))) {
-				PlaceObjToRoom(temp, IN_ROOM(obj->get_carried_by()));
+	if (showlog)
+		log("[Extract obj] purge_otrigger, delta %f", timer.delta().count());
+	if (obj->get_contains()) {
+		while (obj->get_contains()) {
+			temp = obj->get_contains();
+			ExtractObjFromObj(temp);
+			if (obj->get_carried_by()) {
+				if (obj->get_carried_by()->IsNpc()
+					|| (IS_CARRYING_N(obj->get_carried_by()) >= CAN_CARRY_N(obj->get_carried_by()))) {
+					PlaceObjToRoom(temp, IN_ROOM(obj->get_carried_by()));
+					CheckObjDecay(temp);
+				} else {
+					PlaceObjToInventory(temp, obj->get_carried_by());
+				}
+			} else if (obj->get_worn_by() != nullptr) {
+				if (obj->get_worn_by()->IsNpc()
+					|| (IS_CARRYING_N(obj->get_worn_by()) >= CAN_CARRY_N(obj->get_worn_by()))) {
+					PlaceObjToRoom(temp, IN_ROOM(obj->get_worn_by()));
+					CheckObjDecay(temp);
+				} else {
+					PlaceObjToInventory(temp, obj->get_worn_by());
+				}
+			} else if (obj->get_in_room() != kNowhere) {
+				PlaceObjToRoom(temp, obj->get_in_room());
 				CheckObjDecay(temp);
+			} else if (obj->get_in_obj()) {
+				ExtractObjFromWorld(temp, false);
 			} else {
-				PlaceObjToInventory(temp, obj->get_carried_by());
+				ExtractObjFromWorld(temp, false);
 			}
-		} else if (obj->get_worn_by() != nullptr) {
-			if (obj->get_worn_by()->IsNpc()
-				|| (IS_CARRYING_N(obj->get_worn_by()) >= CAN_CARRY_N(obj->get_worn_by()))) {
-				PlaceObjToRoom(temp, IN_ROOM(obj->get_worn_by()));
-				CheckObjDecay(temp);
-			} else {
-				PlaceObjToInventory(temp, obj->get_worn_by());
-			}
-		} else if (obj->get_in_room() != kNowhere) {
-			PlaceObjToRoom(temp, obj->get_in_room());
-			CheckObjDecay(temp);
-		} else if (obj->get_in_obj()) {
-			ExtractObjFromWorld(temp);
-		} else {
-			ExtractObjFromWorld(temp);
 		}
+		if (showlog)
+			log("[Extract obj] Delta for container: %s vnum == %d room = %d timer == %d delta_time %f",
+					name, GET_OBJ_VNUM(obj), get_room_where_obj(obj, false), obj->get_timer(), timer.delta().count());
 	}
 	// Содержимое контейнера удалено
 
@@ -1680,7 +1686,8 @@ void ExtractObjFromWorld(ObjData *obj) {
 
 	obj->get_script()->set_purged();
 	world_objects.remove(obj);
-	log("[Extract obj] Stop, delta %f", timer.delta().count());
+	if (showlog)
+		log("[Extract obj] Stop, delta %f", timer.delta().count());
 }
 
 void UpdateObject(ObjData *obj, int use) {
@@ -1753,7 +1760,7 @@ void UpdateCharObjects(CharData *ch) {
 */
 void DropObjOnZoneReset(CharData *ch, ObjData *obj, bool inv, bool zone_reset) {
 	if (zone_reset && !obj->has_flag(EObjFlag::kTicktimer))
-		ExtractObjFromWorld(obj);
+		ExtractObjFromWorld(obj, false);
 	else {
 		if (inv)
 			act("Вы выбросили $o3 на землю.", false, ch, obj, nullptr, kToChar);

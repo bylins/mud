@@ -9,7 +9,7 @@
 #include "game_mechanics/poison.h"
 #include "structs/global_objects.h"
 #include "handler.h"
-
+#include "utils/utils_time.h"
 bool no_bad_affects(ObjData *obj) {
 	static std::list<EWeaponAffect> bad_waffects =
 		{
@@ -191,7 +191,9 @@ void UpdateAffectOnPulse(CharData *ch) {
 }
 
 void player_affect_update() {
-	character_list.foreach_on_copy([](const CharData::shared_ptr &i) {
+	utils::CExecutionTimer timer;
+	int count = 0;
+	character_list.foreach_on_copy([&count](const CharData::shared_ptr &i) {
 		// на всякий случай проверка на пурж, в целом пурж чармисов внутри
 		// такого цикла сейчас выглядит безопасным, чармисы если и есть, то они
 		// добавлялись в чар-лист в начало списка и идут до самого чара
@@ -200,15 +202,13 @@ void player_affect_update() {
 		if (i->purged() || deathtrap::tunnel_damage(i.get())) {
 			return;
 		}
-
+		count++;
 		UpdateAffectOnPulse(i.get());
-
 		bool was_purged = false;
 		auto next_affect_i = i->affected.begin();
 		for (auto affect_i = next_affect_i; affect_i != i->affected.end(); affect_i = next_affect_i) {
 			++next_affect_i;
 			const auto &affect = *affect_i;
-
 			if (affect->duration >= 1) {
 				if (IS_SET(affect->battleflag, kAfSameTime) && !i->GetEnemy()) {
 					// здесь плеера могут спуржить
@@ -236,17 +236,15 @@ void player_affect_update() {
 						}
 					}
 				}
-
 				i->affect_remove(affect_i);
 			}
 		}
-
 		if (!was_purged) {
 			MemQ_slots(i.get());    // сколько каких слотов занято (с коррекцией)
-
 			affect_total(i.get());
 		}
 	});
+	log("player affect update: timer %f, num players %d", timer.delta().count(), count);
 }
 
 // This file update battle affects only
