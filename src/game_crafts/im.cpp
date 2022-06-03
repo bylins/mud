@@ -882,7 +882,7 @@ void im_reset_room(RoomData *room, int level, int type) {
 	for (o = room->contents; o; o = next) {
 		next = o->get_next_content();
 		if (GET_OBJ_TYPE(o) == EObjType::kMagicIngredient) {
-			ExtractObjFromWorld(o);
+			ExtractObjFromWorld(o, false);
 		}
 	}
 

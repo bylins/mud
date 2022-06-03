@@ -3605,101 +3605,72 @@ void zone_update(void) {
 	int k = 0;
 	struct reset_q_element *update_u, *temp;
 	static int timer = 0;
-	log("[ZONEUPDATETIMER] Start");	
-	utils::CExecutionTimer timer_step;
-	utils::CExecutionTimer common_timer;
-
-	// jelson 10/22/92
+	utils::CExecutionTimer timer_count;
 	if (((++timer * kPulseZone) / kPassesPerSec) >= 60)    // one minute has passed
 	{
 		/*
 		 * NOT accurate unless kPulseZone is a multiple of kPassesPerSec or a
 		 * factor of 60
 		 */
-
 		timer = 0;
-		log("[ZONEUPDATETIMER] Start For, Count: %f", timer_step.delta().count());
-
-		// since one minute has passed, increment zone ages
 		for (std::size_t i = 0; i < zone_table.size(); i++) {
 			if (zone_table[i].age < zone_table[i].lifespan && zone_table[i].reset_mode &&
 				(zone_table[i].reset_idle || zone_table[i].used))
 				(zone_table[i].age)++;
-
 			if (zone_table[i].age >= zone_table[i].lifespan &&
 				zone_table[i].age < ZO_DEAD && zone_table[i].reset_mode &&
-				(zone_table[i].reset_idle || zone_table[i].used))    // enqueue zone
-			{
-				log("[ZONEUPDATETIMER] To table, name: %s, rnum: %ld, Count: %f", zone_table[i].name, i, timer_step.delta().count());
+				(zone_table[i].reset_idle || zone_table[i].used)) {
 				CREATE(update_u, 1);
 				update_u->zone_to_reset = static_cast<ZoneRnum>(i);
 				update_u->next = nullptr;
-
 				if (!reset_q.head)
 					reset_q.head = reset_q.tail = update_u;
 				else {
 					reset_q.tail->next = update_u;
 					reset_q.tail = update_u;
 				}
-
 				zone_table[i].age = ZO_DEAD;
 			}
 		}
 	}
-	log("[ZONEUPDATETIMER] Start update, Count: %f", timer_step.delta().count());
-	// end - one minute has passed
-	// dequeue zones (if possible) and reset
-	// this code is executed every 10 seconds (i.e. kPulseZone)
 	for (update_u = reset_q.head; update_u; update_u = update_u->next)
 		if (zone_table[update_u->zone_to_reset].reset_mode == 2
 			|| (is_empty(update_u->zone_to_reset) && zone_table[update_u->zone_to_reset].reset_mode != 3)
 			|| can_be_reset(update_u->zone_to_reset)) {
-			log("[ZONEUPDATETIMER] Start Reset_zone, name: %s, Count: %f", zone_table[update_u->zone_to_reset].name, timer_step.delta().count());
+
 			reset_zone(update_u->zone_to_reset);
-			log("[ZONEUPDATETIMER] End Reset_zone, name: %s, Count: %f", zone_table[update_u->zone_to_reset].name, timer_step.delta().count());
-			char tmp[128];
-			snprintf(tmp, sizeof(tmp), "Auto zone reset: %s (%d)",
-					 zone_table[update_u->zone_to_reset].name,
-					 zone_table[update_u->zone_to_reset].vnum);
-			std::string out(tmp);
+			std::stringstream out;
+			out << "Auto zone reset: " << zone_table[update_u->zone_to_reset].name << " ("
+					<<  zone_table[update_u->zone_to_reset].vnum << ")";
 			if (zone_table[update_u->zone_to_reset].reset_mode == 3) {
 				for (auto i = 0; i < zone_table[update_u->zone_to_reset].typeA_count; i++) {
 					//Ищем ZoneRnum по vnum
 					for (ZoneRnum j = 0; j < static_cast<ZoneRnum>(zone_table.size()); j++) {
 						if (zone_table[j].vnum ==
 							zone_table[update_u->zone_to_reset].typeA_list[i]) {
-							log("[ZONEUPDATETIMER] [Complex] Start Reset_zone, name: %s, Count: %f", zone_table[update_u->zone_to_reset].name, timer_step.delta().count());
 							reset_zone(j);
-							log("[ZONEUPDATETIMER] [Complex] End Reset_zone, name: %s, Count: %f", zone_table[update_u->zone_to_reset].name, timer_step.delta().count());
-							snprintf(tmp, sizeof(tmp),
-									 " ]\r\n[ Also resetting: %s (%d)",
-									 zone_table[j].name, zone_table[j].vnum);
-							out += tmp;
+							out << " ]\r\n[ Also resetting: " << zone_table[j].name << " ("
+									<<  zone_table[j].name << ")";
 							break;
 						}
 					}
 				}
 			}
-			mudlog(out.c_str(), LGH, kLvlGod, SYSLOG, false);
-			// dequeue
+			out << " ]\r\n[ Time reset: " << timer_count.delta().count();
+			mudlog(out.str(), LGH, kLvlGod, SYSLOG, false);
 			if (update_u == reset_q.head)
 				reset_q.head = reset_q.head->next;
 			else {
 				for (temp = reset_q.head; temp->next != update_u; temp = temp->next);
-
 				if (!update_u->next)
 					reset_q.tail = temp;
-
 				temp->next = update_u->next;
 			}
-
 			free(update_u);
 			k++;
 			if (k >= kZonesReset)
 				break;
 		}
-	log("[ZONEUPDATETIMER] End zone_update, Count: %f", common_timer.delta().count());
-
 }
 
 bool can_be_reset(ZoneRnum zone) {
@@ -4475,9 +4446,8 @@ void ZoneReset::reset_zone_essential() {
 							} else {
 								PlaceObjToInventory(obj.get(), mob);
 							}
-							if (!(obj->get_carried_by() == mob)
-								&& !(obj->get_worn_by() == mob)) {
-								ExtractObjFromWorld(obj.get());
+							if (!(obj->get_carried_by() == mob) && !(obj->get_worn_by() == mob)) {
+								ExtractObjFromWorld(obj.get(), false);
 								tobj = nullptr;
 							} else {
 								tobj = obj.get();
@@ -4500,7 +4470,6 @@ void ZoneReset::reset_zone_essential() {
 					}
 
 					if (const auto obj = GetObjByRnum(ZCMD.arg2, world[ZCMD.arg1]->contents)) {
-						ExtractObjFromRoom(obj);
 						ExtractObjFromWorld(obj);
 						curr_state = 1;
 					}
@@ -4639,7 +4608,10 @@ void ZoneReset::reset_zone_essential() {
 		for (int rnum = rnum_start; rnum <= rnum_stop; rnum++) {
 			RoomData *room = world[rnum];
 			reset_wtrigger(room);
-			im_reset_room(room, zone_table[m_zone_rnum].level, zone_table[m_zone_rnum].type);
+			int sect = real_sector(real_room(room->room_vn));
+			if (!(sect == ESector::kWaterSwim || sect == ESector::kWaterNoswim || sect == ESector::kOnlyFlying)) {
+				im_reset_room(room, zone_table[m_zone_rnum].level, zone_table[m_zone_rnum].type);
+			}
 			RoomData *gate_room = OneWayPortal::get_from_room(room);
 			if (gate_room)   // случай врат
 			{

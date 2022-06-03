@@ -332,7 +332,7 @@ void do_otransform(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		if (wearer) {
 			EquipObj(wearer, obj, pos, CharEquipFlags());
 		}
-		ExtractObjFromWorld(o.get());
+		ExtractObjFromWorld(o.get(), false);
 	}
 }
 
@@ -350,7 +350,7 @@ void do_opurge(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigge
 
 	if (!(ch = get_char_by_obj(obj, arg))) {
 		if ((o = get_obj_by_obj(obj, arg))) {
-			ExtractObjFromWorld(o);
+			ExtractObjFromWorld(o, false);
 		} else
 			obj_log(obj, "opurge: bad argument");
 		return;
