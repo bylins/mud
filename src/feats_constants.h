@@ -198,24 +198,9 @@ EFeat ITEM_BY_NAME<EFeat>(const std::string &name);
 
 EFeat& operator++(EFeat &f);
 
-enum class EFeatType {
-	kUnused = -1,
-	kNormal = 0,
-	kAffect = 1,
-	kSkillMod = 2,
-	kActivated = 3,
-	kTechnique = 4,
-};
-
-// Количество пар "параметр-значение" у способности
-const int kLastFeatSlotLvl = 28;
-const int kMinFeatSlotIndex = 0;
+const int kLastFeatSlotLvl = 28;		// На каком уровне появится последний слот под способность.
 const int kMinBaseFeatsSlotsAmount = 1;	// Минимально возможное число слотов способностей на 0 морте
 const int kMaxBaseFeatsSlotsAmount = 6;	// Максимально возможное число слотов способностей на 0 морте.
-
-// Поля изменений для способностей (кроме EFeatType::kAffect, для них используются стардартные поля APPLY)
-const int kFeatTimer = 1;
-//const int FEAT_SKILL = 2;
 
 #endif //BYLINS_SRC_FEATS_CONSTANTS_H_
 

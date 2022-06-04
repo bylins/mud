@@ -43,7 +43,6 @@ Bitvector GetPrfWithFeatNumber(EFeat feat_id);
 
 struct FeatureInfo {
 	EFeat id{EFeat::kUndefined};
-	EFeatType type{EFeatType::kUnused};
 	bool uses_weapon_skill{false};
 	bool always_available{false};
 

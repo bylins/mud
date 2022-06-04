@@ -351,7 +351,7 @@ CharClassInfo::FeatInfoBuilder::ItemPtr CharClassInfo::FeatInfoBuilder::Build(Da
 		feat_id = parse::ReadAsConstant<EFeat>(node.GetValue("id"));
 		min_lvl = std::clamp(parse::ReadAsInt(node.GetValue("level")), kMinCharLevel, kMaxPlayerLevel);
 		min_remort = std::clamp(parse::ReadAsInt(node.GetValue("remort")), kMinRemort, kMaxRemort);
-		slot = std::clamp(parse::ReadAsInt(node.GetValue("slot")), kMinFeatSlotIndex, to_underlying(EFeat::kLast));
+		slot = std::clamp(parse::ReadAsInt(node.GetValue("slot")), 0, to_underlying(EFeat::kLast));
 		inborn = parse::ReadAsBool(node.GetValue("inborn"));
 	} catch (std::exception &e) {
 		std::ostringstream out;

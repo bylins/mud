@@ -20,7 +20,6 @@ std::unordered_map<EFeat, FeatureInfo> feat_info;
 bool CheckVacantFeatSlot(CharData *ch, EFeat feat);
 
 /* Функции для работы с переключаемыми способностями */
-bool CheckAccessActivatedFeat(CharData *ch, EFeat feat_id);
 void ActivateFeat(CharData *ch, EFeat feat_id);
 void DeactivateFeature(CharData *ch, EFeat feat_id);
 
@@ -30,13 +29,12 @@ int CalcRollBonusOfGroupFormation(CharData *ch, CharData * /* enemy */);
 /* Extern */
 extern void SetSkillCooldown(CharData *ch, ESkill skill, int pulses);
 
-void InitFeat(EFeat feat, const char *name, EFeatType type = EFeatType::kNormal, int roll_bonus = abilities::kMaxRollBonus,
+void InitFeat(EFeat feat, const char *name, int roll_bonus = abilities::kMaxRollBonus,
 			  ESkill base_skill = ESkill::kUndefined, ESaving saving = ESaving::kStability) {
 	feat_info[feat].id = feat;
 	feat_info[feat].diceroll_bonus = roll_bonus;
 	feat_info[feat].base_skill = base_skill;
 	feat_info[feat].saving = saving;
-	feat_info[feat].type = type;
 }
 
 FeatureInfo::FeatureInfo(EFeat feat_id) {
@@ -71,7 +69,7 @@ void InitFeatures() {
 //10
 	InitFeat(EFeat::kSpellSubstitute, "подмена заклинания");
 //11
-	InitFeat(EFeat::kPowerAttack, "мощная атака", EFeatType::kActivated);
+	InitFeat(EFeat::kPowerAttack, "мощная атака");
 //12
 	InitFeat(EFeat::kWoodenSkin, "деревянная кожа");
 //13
@@ -155,7 +153,7 @@ void InitFeatures() {
 //53
 	InitFeat(EFeat::kNimbleFingers, "ловкач");
 //54
-	InitFeat(EFeat::kGreatPowerAttack, "улучшенная мощная атака", EFeatType::kActivated);
+	InitFeat(EFeat::kGreatPowerAttack, "улучшенная мощная атака");
 //55
 	InitFeat(EFeat::kStrongImmunity, "привычка к яду");
 //56
@@ -201,9 +199,9 @@ void InitFeatures() {
 //77
 	InitFeat(EFeat::kBowsFocus, "любимое оружие: лук");
 //78
-	InitFeat(EFeat::kAimingAttack, "прицельная атака", EFeatType::kActivated);
+	InitFeat(EFeat::kAimingAttack, "прицельная атака");
 //79
-	InitFeat(EFeat::kGreatAimingAttack, "улучшенная прицельная атака", EFeatType::kActivated);
+	InitFeat(EFeat::kGreatAimingAttack, "улучшенная прицельная атака");
 //80
 	InitFeat(EFeat::kDoubleShot, "двойной выстрел");
 //81
@@ -303,21 +301,21 @@ void InitFeatures() {
 //132
 	InitFeat(EFeat::kTeamsterOfUndead, "погонщик нежити");
 //133
-	InitFeat(EFeat::kScirmisher, "держать строй", EFeatType::kActivated, 90, ESkill::kRescue, ESaving::kReflex);
+	InitFeat(EFeat::kScirmisher, "держать строй", 90, ESkill::kRescue, ESaving::kReflex);
 	feat_info[EFeat::kScirmisher].GetBaseParameter = &GET_REAL_DEX;
 	feat_info[EFeat::kScirmisher].CalcSituationalRollBonus = &CalcRollBonusOfGroupFormation;
 //134
-	InitFeat(EFeat::kTactician, "десяцкий", EFeatType::kActivated, 90, ESkill::kLeadership, ESaving::kReflex);
+	InitFeat(EFeat::kTactician, "десяцкий", 90, ESkill::kLeadership, ESaving::kReflex);
 	feat_info[EFeat::kTactician].GetBaseParameter = &GET_REAL_CHA;
 	feat_info[EFeat::kTactician].CalcSituationalRollBonus = &CalcRollBonusOfGroupFormation;
 //135
 	InitFeat(EFeat::kLiveShield, "живой щит");
 //137
-	InitFeat(EFeat::kSerratedBlade, "воровская заточка", EFeatType::kActivated);
+	InitFeat(EFeat::kSerratedBlade, "воровская заточка");
 //138
 	InitFeat(EFeat::kEvasion, "скользкий тип");
 //139
-	InitFeat(EFeat::kCutting, "порез", EFeatType::kTechnique, 110, ESkill::kPunch, ESaving::kReflex);
+	InitFeat(EFeat::kCutting, "порез", 110, ESkill::kPunch, ESaving::kReflex);
 	feat_info[EFeat::kCutting].GetBaseParameter = &GET_REAL_DEX;
 	feat_info[EFeat::kCutting].GetEffectParameter = &GET_REAL_STR;
 	feat_info[EFeat::kCutting].uses_weapon_skill = true;
@@ -371,7 +369,7 @@ void InitFeatures() {
 //143
 	InitFeat(EFeat::kMagicShooter, "магический выстрел");
 //144
-	InitFeat(EFeat::kThrowWeapon, "метнуть", EFeatType::kTechnique, 100, ESkill::kThrow, ESaving::kReflex);
+	InitFeat(EFeat::kThrowWeapon, "метнуть", 100, ESkill::kThrow, ESaving::kReflex);
 	feat_info[EFeat::kThrowWeapon].GetBaseParameter = &GET_REAL_DEX;
 	feat_info[EFeat::kThrowWeapon].GetEffectParameter = &GET_REAL_STR;
 	feat_info[EFeat::kThrowWeapon].uses_weapon_skill = false;
@@ -406,7 +404,7 @@ void InitFeatures() {
 									  ESkill::kAny, EObjFlag::kThrowing));
 	feat_info[EFeat::kThrowWeapon].item_kits.push_back(std::move(item_kit));
 //145
-	InitFeat(EFeat::kShadowThrower, "змеево оружие", EFeatType::kTechnique, 100, ESkill::kDarkMagic, ESaving::kWill);
+	InitFeat(EFeat::kShadowThrower, "змеево оружие", 100, ESkill::kDarkMagic, ESaving::kWill);
 	feat_info[EFeat::kShadowThrower].GetBaseParameter = &GET_REAL_DEX;
 	feat_info[EFeat::kShadowThrower].GetEffectParameter = &GET_REAL_INT;
 	feat_info[EFeat::kShadowThrower].damage_bonus = -30;
@@ -432,31 +430,31 @@ void InitFeatures() {
 									  ESkill::kAny, EObjFlag::kThrowing));
 	feat_info[EFeat::kShadowThrower].item_kits.push_back(std::move(item_kit));
 //146
-	InitFeat(EFeat::kShadowDagger, "змеев кинжал", EFeatType::kNormal, 80, ESkill::kDarkMagic, ESaving::kStability);
+	InitFeat(EFeat::kShadowDagger, "змеев кинжал", 80, ESkill::kDarkMagic, ESaving::kStability);
 	feat_info[EFeat::kShadowDagger].GetBaseParameter = &GET_REAL_INT;
 	feat_info[EFeat::kShadowDagger].uses_weapon_skill = false;
 //147
-	InitFeat(EFeat::kShadowSpear, "змеево копьё", EFeatType::kNormal, 80, ESkill::kDarkMagic, ESaving::kStability);
+	InitFeat(EFeat::kShadowSpear, "змеево копьё", 80, ESkill::kDarkMagic, ESaving::kStability);
 	feat_info[EFeat::kShadowSpear].GetBaseParameter = &GET_REAL_INT;
 	feat_info[EFeat::kShadowSpear].uses_weapon_skill = false;
 //148
-	InitFeat(EFeat::kShadowClub, "змеева палица", EFeatType::kNormal, 80, ESkill::kDarkMagic, ESaving::kStability);
+	InitFeat(EFeat::kShadowClub, "змеева палица", 80, ESkill::kDarkMagic, ESaving::kStability);
 	feat_info[EFeat::kShadowClub].GetBaseParameter = &GET_REAL_INT;
 	feat_info[EFeat::kShadowClub].uses_weapon_skill = false;
 //149
-	InitFeat(EFeat::kDoubleThrower, "двойной бросок", EFeatType::kActivated, 100, ESkill::kPunch, ESaving::kReflex);
+	InitFeat(EFeat::kDoubleThrower, "двойной бросок", 100, ESkill::kPunch, ESaving::kReflex);
 	feat_info[EFeat::kDoubleThrower].GetBaseParameter = &GET_REAL_DEX;
 //150
-	InitFeat(EFeat::kTripleThrower, "тройной бросок", EFeatType::kActivated, 100, ESkill::kPunch, ESaving::kReflex);
+	InitFeat(EFeat::kTripleThrower, "тройной бросок", 100, ESkill::kPunch, ESaving::kReflex);
 	feat_info[EFeat::kTripleThrower].GetBaseParameter = &GET_REAL_DEX;
 //1151
-	InitFeat(EFeat::kPowerThrow, "размах", EFeatType::kNormal, 100, ESkill::kPunch, ESaving::kReflex);
+	InitFeat(EFeat::kPowerThrow, "размах", 100, ESkill::kPunch, ESaving::kReflex);
 	feat_info[EFeat::kPowerThrow].GetBaseParameter = &GET_REAL_STR;
 //152
-	InitFeat(EFeat::kDeadlyThrow, "широкий размах", EFeatType::kNormal, 100, ESkill::kPunch, ESaving::kReflex);
+	InitFeat(EFeat::kDeadlyThrow, "широкий размах", 100, ESkill::kPunch, ESaving::kReflex);
 	feat_info[EFeat::kDeadlyThrow].GetBaseParameter = &GET_REAL_STR;
 //153
-	InitFeat(EFeat::kUndeadsTurn, "turn undead", EFeatType::kTechnique, 70, ESkill::kTurnUndead, ESaving::kStability);
+	InitFeat(EFeat::kUndeadsTurn, "turn undead", 70, ESkill::kTurnUndead, ESaving::kStability);
 	feat_info[EFeat::kUndeadsTurn].GetBaseParameter = &GET_REAL_INT;
 	feat_info[EFeat::kUndeadsTurn].GetEffectParameter = &GET_REAL_WIS;
 	feat_info[EFeat::kUndeadsTurn].uses_weapon_skill = false;
@@ -857,12 +855,13 @@ void UnsetInaccessibleFeats(CharData *ch) {
 
 bool TryFlipActivatedFeature(CharData *ch, char *argument) {
 	auto feat_id = FindFeatId(argument);
-	if (feat_id <= EFeat::kUndefined) {
+	if (MUD::Feat(feat_id).IsInvalid()) {
 		return false;
 	}
-	if (!CheckAccessActivatedFeat(ch, feat_id)) {
+	if (!CanUseFeat(ch, feat_id)) {
+		SendMsgToChar("Вы не в состоянии использовать эту способность.\r\n", ch);
 		return true;
-	};
+	}
 	if (PRF_FLAGGED(ch, GetPrfWithFeatNumber(feat_id))) {
 		DeactivateFeature(ch, feat_id);
 	} else {
@@ -921,7 +920,10 @@ void ActivateFeat(CharData *ch, EFeat feat_id) {
 		case EFeat::kTripleThrower: PRF_FLAGS(ch).unset(EPrf::kDoubleThrow);
 			PRF_FLAGS(ch).set(EPrf::kTripleThrow);
 			break;
-		default: break;
+		default:
+			SendMsgToChar("Эту способность невозможно применить таким образом.\r\n", ch);
+			return;
+			break;
 	}
 	SendMsgToChar(ch,
 				  "%sВы решили использовать способность '%s'.%s\r\n",
@@ -956,23 +958,13 @@ void DeactivateFeature(CharData *ch, EFeat feat_id) {
 			break;
 		case EFeat::kTripleThrower: PRF_FLAGS(ch).unset(EPrf::kTripleThrow);
 			break;
-		default: break;
+		default:
+			SendMsgToChar("Эту способность невозможно применить таким образом.\r\n", ch);
+			return;
+			break;
 	}
 	SendMsgToChar(ch, "%sВы прекратили использовать способность '%s'.%s\r\n",
 				  CCIGRN(ch, C_SPR), MUD::Feat(feat_id).GetCName(), CCNRM(ch, C_OFF));
-}
-
-bool CheckAccessActivatedFeat(CharData *ch, EFeat feat_id) {
-	if (!CanUseFeat(ch, feat_id)) {
-		SendMsgToChar("Вы не в состоянии использовать эту способность.\r\n", ch);
-		return false;
-	}
-	if (feat_info[feat_id].type != EFeatType::kActivated) {
-		SendMsgToChar("Эту способность невозможно применить таким образом.\r\n", ch);
-		return false;
-	}
-
-	return true;
 }
 
 EFeat FindWeaponMasterFeat(ESkill skill) {
