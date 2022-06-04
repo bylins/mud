@@ -13,7 +13,7 @@
 #include "color.h"
 #include "utils/random.h"
 
-const int kSkillCapOnZeroRemort = 80;
+const int kZeroRemortSkillCap = 80;
 const int kSkillCapBonusPerRemort = 5;;
 
 const int kNoviceSkillThreshold = 75;
@@ -1774,7 +1774,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 }
 
 void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victim) {
-	const int trained_skill = ch->get_trained_skill(skill);
+	const int trained_skill = ch->GetMorphSkill(skill);
 
 	if (trained_skill <= 0 || trained_skill >= CalcSkillMinCap(ch, skill)) {
 		return;
@@ -1805,7 +1805,7 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 	}
 
 	// Если чар нуб, то до 50% скиллы качаются гораздо быстрее
-	int INT_PLAYER = (ch->get_trained_skill(skill) < 51
+	int INT_PLAYER = (ch->GetMorphSkill(skill) < 51
 		&& (AFF_FLAGGED(ch, EAffect::kNoobRegen))) ? 50 : GET_REAL_INT(ch);
 
 	long div = int_app[INT_PLAYER].improve;
@@ -1832,7 +1832,7 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 		ch->set_morphed_skill(skill, (trained_skill + number(1, 2)));
 		if (!IS_IMMORTAL(ch)) {
 			ch->set_morphed_skill(skill,
-								  (MIN(kSkillCapOnZeroRemort + GET_REAL_REMORT(ch) * 5, ch->get_trained_skill(skill))));
+								  (MIN(kZeroRemortSkillCap + GET_REAL_REMORT(ch) * 5, ch->GetMorphSkill(skill))));
 		}
 		if (victim && victim->IsNpc()) {
 			MOB_FLAGS(victim).set(EMobFlag::kNoSkillTrain);
@@ -1843,7 +1843,7 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 void TrainSkill(CharData *ch, const ESkill skill, bool success, CharData *vict) {
 	if (!ch->IsNpc()) {
 		if (skill != ESkill::kSideAttack
-			&& ch->get_trained_skill(skill) > 0
+			&& ch->GetMorphSkill(skill) > 0
 			&& (!vict
 				|| (vict->IsNpc()
 					&& !MOB_FLAGGED(vict, EMobFlag::kProtect)
@@ -1856,7 +1856,7 @@ void TrainSkill(CharData *ch, const ESkill skill, bool success, CharData *vict) 
 		if (ch->GetSkill(skill) > 0
 			&& GET_REAL_INT(ch) <= number(0, 1000 - 20 * GET_REAL_WIS(ch))
 			&& ch->GetSkill(skill) < MUD::Skill(skill).difficulty) {
-			ch->set_skill(skill, ch->get_trained_skill(skill) + 1);
+			ch->set_skill(skill, ch->GetMorphSkill(skill) + 1);
 		}
 	}
 }
@@ -1923,7 +1923,7 @@ bool CanGetSkill(CharData *ch, ESkill skill) {
 }
 
 int CalcSkillRemortCap(const CharData *ch) {
-	return kSkillCapOnZeroRemort + GET_REAL_REMORT(ch) * kSkillCapBonusPerRemort;
+	return kZeroRemortSkillCap + GET_REAL_REMORT(ch) * kSkillCapBonusPerRemort;
 }
 
 int CalcSkillWisdomCap(const CharData *ch) {

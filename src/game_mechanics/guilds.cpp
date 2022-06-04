@@ -485,11 +485,11 @@ std::string_view GuildInfo::GuildSkill::GetName() const {
 }
 
 int GuildInfo::GuildSkill::CalcGuildSkillCap(CharData *ch) const {
-	return std::min(ch->GetSkill(id_) + practices_, std::min(CalcSkillHardCap(ch, id_), max_skill_));
+	return std::min(ch->GetTrainedSkill(id_) + practices_, std::min(CalcSkillHardCap(ch, id_), max_skill_));
 }
 
 int GuildInfo::GuildSkill::CalcPracticesQuantity(CharData *ch) const {
-	return std::clamp(CalcGuildSkillCap(ch) - ch->GetSkill(id_), 1, practices_);
+	return std::clamp(CalcGuildSkillCap(ch) - ch->GetTrainedSkill(id_), 1, practices_);
 }
 
 long GuildInfo::GuildSkill::CalcPrice(CharData *buyer) const {
@@ -497,12 +497,12 @@ long GuildInfo::GuildSkill::CalcPrice(CharData *buyer) const {
 };
 
 bool GuildInfo::GuildSkill::IsAvailable(CharData *ch) const {
-	auto skill = ch->GetSkill(id_);
+	auto skill = ch->GetTrainedSkill(id_);
 	return CanGetSkill(ch, id_) && skill >= min_skill_ && skill < max_skill_ && skill < CalcSkillHardCap(ch, id_);
 }
 
 void GuildInfo::GuildSkill::SetTalent(CharData *ch) const {
-	ch->set_skill(id_, ch->GetSkill(id_) + CalcPracticesQuantity(ch));
+	ch->set_skill(id_, ch->GetTrainedSkill(id_) + CalcPracticesQuantity(ch));
 }
 
 std::string GuildInfo::GuildSkill::GetAnnotation(CharData *ch) const {

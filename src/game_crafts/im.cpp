@@ -1179,7 +1179,7 @@ void im_improve_recipe(CharData *ch, im_rskill *rs, int success) {
 			SendMsgToChar(buf, ch);
 			rs->perc += number(1, 2);
 			if (!IS_IMMORTAL(ch))
-				rs->perc = MIN(kSkillCapOnZeroRemort + GET_REAL_REMORT(ch) * 5, rs->perc);
+				rs->perc = MIN(kZeroRemortSkillCap + GET_REAL_REMORT(ch) * 5, rs->perc);
 		}
 	}
 }

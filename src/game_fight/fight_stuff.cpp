@@ -244,8 +244,8 @@ void update_leadership(CharData *ch, CharData *killer) {
 		&& AFF_FLAGGED(ch, EAffect::kGroup)
 		&& ch->has_master()
 		&& ch->in_room == IN_ROOM(ch->get_master())
-		&& ch->get_master()->get_inborn_skill(ESkill::kLeadership) > 1) {
-		const auto current_skill = ch->get_master()->get_trained_skill(ESkill::kLeadership);
+		&& ch->get_master()->GetTrainedSkill(ESkill::kLeadership) > 1) {
+		const auto current_skill = ch->get_master()->GetMorphSkill(ESkill::kLeadership);
 		ch->get_master()->set_skill(ESkill::kLeadership, current_skill - 1);
 	}
 }

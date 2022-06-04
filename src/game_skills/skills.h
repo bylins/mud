@@ -20,7 +20,7 @@
 #include "game_magic/spells_constants.h"
 #include "structs/structs.h"
 
-extern const int kSkillCapOnZeroRemort;
+extern const int kZeroRemortSkillCap;
 extern const int kSkillCapBonusPerRemort;
 extern const int kMinTalentLevelDecrement;
 extern const long kMinImprove;

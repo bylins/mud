@@ -1395,15 +1395,15 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		act(aura_txt, false, i, nullptr, ch, kToVict);
 	if (IS_MANA_CASTER(i)) {
 		*aura_txt = '\0';
-		if (i->get_trained_skill(ESkill::kDarkMagic) > 0)
+		if (i->GetMorphSkill(ESkill::kDarkMagic) > 0)
 			strcat(aura_txt, "...все сферы магии кружатся над головой");
-		else if (i->get_trained_skill(ESkill::kAirMagic) > 0)
+		else if (i->GetMorphSkill(ESkill::kAirMagic) > 0)
 			strcat(aura_txt, "...сферы четырех магий кружатся над головой");
-		else if (i->get_trained_skill(ESkill::kEarthMagic) > 0)
+		else if (i->GetMorphSkill(ESkill::kEarthMagic) > 0)
 			strcat(aura_txt, "...сферы трех магий кружатся над головой");
-		else if (i->get_trained_skill(ESkill::kWaterMagic) > 0)
+		else if (i->GetMorphSkill(ESkill::kWaterMagic) > 0)
 			strcat(aura_txt, "...сферы двух магий кружатся над головой");
-		else if (i->get_trained_skill(ESkill::kFireMagic) > 0)
+		else if (i->GetMorphSkill(ESkill::kFireMagic) > 0)
 			strcat(aura_txt, "...сфера огня кружит над головой");
 		if (*aura_txt)
 			act(aura_txt, false, i, nullptr, ch, kToVict);

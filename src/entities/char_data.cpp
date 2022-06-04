@@ -516,15 +516,15 @@ void CharData::purge() {
 	}
 }
 
-// * Скилл с учетом всех плюсов и минусов от шмоток/яда.
+/*
+ * Умение с учетом всех бонусов и штрафов (экипировка, таланты, яд).
+ */
 int CharData::GetSkill(const ESkill skill_id) const {
-	int skill = get_trained_skill(skill_id) + get_equipped_skill(skill_id);
+	int skill = GetMorphSkill(skill_id) + GetEquippedSkill(skill_id);
 
-	//utils::CExecutionTimer time;
 	if (skill) {
-		skill += GetBonusSkill(skill_id);
+		skill += GetTalentsSkillBonus(skill_id);
 	}
-	//log("GetSkillMod time - %f", time.delta().count());
 
 	if (AFF_FLAGGED(this, EAffect::kSkillReduce)) {
 		skill -= skill * GET_POISON(this) / 100;
@@ -538,44 +538,38 @@ int CharData::GetSkill(const ESkill skill_id) const {
 }
 
 /*
- * Умение с учетом способностей, но без экипировки.
+ * Умение с учетом талантов, но без экипировки.
  */
-int CharData::GetOwnSkill(const ESkill skill_id) const {
-	return get_trained_skill(skill_id) + GetBonusSkill(skill_id);
+int CharData::GetSkillWithoutEquip(const ESkill skill_id) const {
+	return GetTrainedSkill(skill_id) + GetTalentsSkillBonus(skill_id);
 }
 
 /*
- * Бонусы умения от экипировки
- * Nобам и тем классам, у которых скилл является родным, учитываем
- * умение полностью, всем остальным -- не более 5% с одного предмета
+ * Бонусы умения от экипировки. Учитываются, только
+ * если у персонажа уже изучено данное умение.
  */
-int CharData::get_equipped_skill(const ESkill skill_id) const {
+int CharData::GetEquippedSkill(const ESkill skill_id) const {
 	int skill = 0;
 	bool is_native = this->IsNpc() || MUD::Class(chclass_).skills[skill_id].IsValid();
-	for (auto i : equipment) {
-		if (i) {
-			if (is_native) {
-				skill += i->get_skill(skill_id);
-			}
-			// На новый год включаем
-			/*else
-			{
-				skill += (std::min(5, equipment[i]->get_skill(skill_num)));
-			}*/
+	for (const auto item : equipment) {
+		if (item && is_native) {
+				skill += item->get_skill(skill_id);
 		}
 	}
 	if (is_native) {
 		skill += obj_bonus_.get_skill(skill_id);
 	}
-	if(get_trained_skill(skill_id) > 0) {
+	if(GetMorphSkill(skill_id) > 0) {
 		skill += get_skill_bonus();
 	}
 	
 	return skill;
 }
 
-// * Родной тренированный скилл чара.
-int CharData::get_inborn_skill(const ESkill skill_num) {
+/*
+ * Уровень умения без учета каких-либо бонусов.
+ */
+int CharData::GetTrainedSkill(const ESkill skill_num) const {
 	if (privilege::CheckSkills(this)) {
 		auto it = skills.find(skill_num);
 		if (it != skills.end()) {
@@ -584,8 +578,10 @@ int CharData::get_inborn_skill(const ESkill skill_num) {
 	}
 	return 0;
 }
-
-int CharData::get_trained_skill(const ESkill skill_id) const {
+/*
+ * Умение с учетом формы превращения и т.п.
+ */
+int CharData::GetMorphSkill(const ESkill skill_id) const {
 	if (ROOM_FLAGGED(this->in_room, ERoomFlag::kDominationArena)) {
 		if (MUD::Class(chclass_).skills[skill_id].IsAvailable()) {
 			return 100;
@@ -597,10 +593,10 @@ int CharData::get_trained_skill(const ESkill skill_id) const {
 	return 0;
 }
 /*
- * Бонусы скилла от модифицирующих талантов (способностей, навыков),
- * хотя при желании модификатор можно добавить и спеллам.
+ * Бонусы умения от талантов (способностей, навыков).
+ * При желании модификатор можно добавить и заклинаниям.
  */
-int CharData::GetBonusSkill(const ESkill skill_id) const {
+int CharData::GetTalentsSkillBonus(const ESkill skill_id) const {
 	int bonus{0};
 	for (const auto &feat : MUD::Feats()) {
 		if (CanUseFeat(this, feat.GetId())) {
@@ -631,9 +627,9 @@ void CharData::set_skill(const ESkill skill_id, int percent) {
 
 void CharData::set_skill(short remort) {
 	int skill;
-	int maxSkillLevel = kSkillCapOnZeroRemort + remort * kSkillCapBonusPerRemort;
+	int maxSkillLevel = kZeroRemortSkillCap + remort * kSkillCapBonusPerRemort;
 	for (auto & it : skills) {
-		skill = get_trained_skill(it.first) + get_equipped_skill(it.first);
+		skill = GetMorphSkill(it.first) + GetEquippedSkill(it.first);
 		if (skill > maxSkillLevel) {
 			it.second.skillLevel = maxSkillLevel;
 		};
@@ -1686,11 +1682,11 @@ void CharData::set_morph(MorphPtr morph) {
 };
 
 void CharData::reset_morph() {
-	int value = this->get_trained_skill(ESkill::kMorph);
+	int value = this->GetMorphSkill(ESkill::kMorph);
 	SendMsgToChar(str(boost::format(current_morph_->GetMessageToChar()) % "человеком") + "\r\n", this);
 	act(str(boost::format(current_morph_->GetMessageToRoom()) % "человеком").c_str(), true, this, 0, 0, kToRoom);
 	this->current_morph_ = GetNormalMorphNew(this);
-	this->set_morphed_skill(ESkill::kMorph, (std::min(kSkillCapOnZeroRemort + GET_REAL_REMORT(this) * 5, value)));
+	this->set_morphed_skill(ESkill::kMorph, (std::min(kZeroRemortSkillCap + GET_REAL_REMORT(this) * 5, value)));
 //	REMOVE_BIT(AFF_FLAGS(this, AFF_MORPH), AFF_MORPH);
 };
 

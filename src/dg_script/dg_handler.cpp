@@ -63,7 +63,7 @@ const char *skill_percent(Trigger *trig, CharData *ch, char *skill) {
 
 	const ESkill skill_id = FixNameAndFindSkillId(skill);
 	if (MUD::Skills().IsValid(skill_id)) {
-		sprintf(retval, "%d", ch->get_trained_skill(skill_id));
+		sprintf(retval, "%d", ch->GetMorphSkill(skill_id));
 		return retval;
 	}
 	rid = im_get_recipe_by_name(skill);

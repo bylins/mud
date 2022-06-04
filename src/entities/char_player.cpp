@@ -561,7 +561,7 @@ void Player::save_char() {
 		int skill_val;
 		for (const auto &skill : MUD::Skills()) {
 			if (skill.IsAvailable()) {
-				skill_val = this->get_inborn_skill(skill.GetId());
+				skill_val = this->GetTrainedSkill(skill.GetId());
 				if (skill_val) {
 					fprintf(saved, "%d %d %s\n", to_underlying(skill.GetId()), skill_val, skill.GetName());
 				}

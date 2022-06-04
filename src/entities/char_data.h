@@ -368,10 +368,10 @@ class CharData : public ProtectedCharData {
 	void set_skill(short remort);
 	void clear_skills();
 	int GetSkill(const ESkill skill_id) const;
-	int GetOwnSkill(const ESkill skill_id) const;
+	int GetSkillWithoutEquip(const ESkill skill_id) const;
 	int get_skills_count() const;
-	int get_equipped_skill(const ESkill skill_id) const;
-	int get_trained_skill(const ESkill skill_id) const;
+	int GetEquippedSkill(const ESkill skill_id) const;
+	int GetMorphSkill(const ESkill skill_id) const;
 	int get_skill_bonus() const;
 	void set_skill_bonus(int);
 
@@ -569,8 +569,8 @@ class CharData : public ProtectedCharData {
 	std::string get_morphed_title() const;
 	std::string get_cover_desc();
 	std::string get_morph_desc() const;
-	int GetBonusSkill(const ESkill skill_id) const;
-	int get_inborn_skill(const ESkill skill_num);
+	int GetTalentsSkillBonus(const ESkill skill_id) const;
+	int GetTrainedSkill(const ESkill skill_num) const;
 	void set_morphed_skill(const ESkill skill_num, int percent);
 	bool isAffected(const EAffect flag) const;
 	const IMorph::affects_list_t &GetMorphAffects();

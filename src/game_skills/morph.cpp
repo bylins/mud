@@ -40,7 +40,7 @@ std::string AnimalMorph::GetMorphTitle() const {
 };
 
 int NormalMorph::get_trained_skill(const ESkill skill_num) {
-	return ch_->get_inborn_skill(skill_num);
+	return ch_->GetTrainedSkill(skill_num);
 }
 
 int AnimalMorph::get_trained_skill(const ESkill skill_num) {
