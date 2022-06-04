@@ -30,48 +30,15 @@ struct TimedFeat {
 int CalcMaxFeatSlotPerLvl(const CharData *ch);
 int CalcFeatSlotsAmountPerRemort(CharData *ch);
 EFeat FindWeaponMasterFeat(ESkill skill);
-void InitFeatures();
 
 void UnsetInaccessibleFeats(CharData *ch);
 void SetRaceFeats(CharData *ch);
 void UnsetRaceFeats(CharData *ch);
 void SetInbornAndRaceFeats(CharData *ch);
-bool CanUseFeat(const CharData *ch, EFeat feat);
+bool CanUseFeat(const CharData *ch, EFeat feat_id);
 bool CanGetFeat(CharData *ch, EFeat feat);
 bool TryFlipActivatedFeature(CharData *ch, char *argument);
 Bitvector GetPrfWithFeatNumber(EFeat feat_id);
-
-struct FeatureInfo {
-	EFeat id{EFeat::kUndefined};
-	bool uses_weapon_skill{false};
-	bool always_available{false};
-
-	// Параметры для нового базового броска на способность
-	// Пока тут, до переписывания системы способностей
-	int damage_bonus{0};
-	int success_degree_damage_bonus{0};
-	int diceroll_bonus{abilities::kMinRollBonus};
-	int critfail_threshold{abilities::kDefaultCritfailThreshold};
-	int critsuccess_threshold{abilities::kDefaultCritsuccessThreshold};
-	ESaving saving{ESaving::kFirst};
-	ESkill base_skill{ESkill::kUndefined};
-
-	TechniqueItemKitsGroup item_kits;
-
-	int (*GetBaseParameter)(const CharData *ch);
-	int (*GetEffectParameter)(const CharData *ch);
-	int (*CalcSituationalDamageFactor)(CharData * /* ch */){[](CharData *) {return 0;}};
-	int (*CalcSituationalRollBonus)(CharData * /*ch*/, CharData * /*enemy*/){[](CharData *, CharData *) {return 0;}};
-
-	FeatureInfo() = default;
-	explicit FeatureInfo(EFeat feat_id);
-};
-
-extern std::unordered_map<EFeat, FeatureInfo> feat_info;
-
-// =====================================================================================================================
-// =====================================================================================================================
-// =====================================================================================================================
 
 namespace feats {
 
@@ -87,7 +54,6 @@ class FeatInfo : public info_container::BaseItem<EFeat> {
 	friend class FeatInfoBuilder;
 
 	std::string name_;
-
 
  public:
 	FeatInfo() = default;

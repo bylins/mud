@@ -148,7 +148,6 @@ void init_EFeat_ITEM_NAMES() {
 	EFeat_name_by_value[EFeat::kObjectEnchanter] = "kObjectEnchanter";
 	EFeat_name_by_value[EFeat::kDeftShooter] = "kDeftShooter";
 	EFeat_name_by_value[EFeat::kMagicShooter] = "kMagicShooter";
-	EFeat_name_by_value[EFeat::kThrowWeapon] = "kThrowWeapon";
 	EFeat_name_by_value[EFeat::kShadowThrower] = "kShadowThrower";
 	EFeat_name_by_value[EFeat::kShadowDagger] = "kShadowDagger";
 	EFeat_name_by_value[EFeat::kShadowSpear] = "kShadowSpear";
@@ -157,7 +156,6 @@ void init_EFeat_ITEM_NAMES() {
 	EFeat_name_by_value[EFeat::kTripleThrower] = "kTripleThrower";
 	EFeat_name_by_value[EFeat::kPowerThrow] = "kPowerThrow";
 	EFeat_name_by_value[EFeat::kDeadlyThrow] = "kDeadlyThrow";
-	EFeat_name_by_value[EFeat::kUndeadsTurn] = "kUndeadsTurn";
 	EFeat_name_by_value[EFeat::kMultipleCast] = "kMultipleCast";
 	EFeat_name_by_value[EFeat::kMagicalShield] = "kMagicalShield";
 	EFeat_name_by_value[EFeat::kAnimalMaster] = "kAnimalMaster";

@@ -42,6 +42,7 @@ class GlobalObjects {
  public:
 	static cfg_manager::CfgManager &CfgManager();
 	static abilities::AbilitiesInfo &Abilities();
+	static const abilities::AbilityInfo &Ability(abilities::EAbility ability_id);
 	static SkillsInfo &Skills();
 	static const SkillInfo &Skill(ESkill skill_id);
 	static spells::SpellsInfo &Spells();

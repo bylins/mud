@@ -17,7 +17,6 @@
 
 //#include "db.h"
 
-#include "game_abilities/abilities_info.h"
 #include "cmd_god/ban.h"
 #include "boards/boards.h"
 #include "boot/boot_data_files.h"
@@ -1071,7 +1070,7 @@ void do_reboot(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (!str_cmp(arg, "portals"))
 		init_portals();
 	else if (!str_cmp(arg, "abilities")) {
-		MUD::Abilities().Reload();
+		MUD::CfgManager().ReloadCfg("abilities");
 	} else if (!str_cmp(arg, "skills")) {
 		MUD::CfgManager().ReloadCfg("skills");
 	} else if (!str_cmp(arg, "spells")) {
@@ -2266,7 +2265,7 @@ void boot_db(void) {
 
 	boot_profiler.next_step("Loading abilities definitions");
 	log("Loading abilities.");
-	MUD::Abilities().Init();
+	MUD::CfgManager().LoadCfg("abilities");
 
 	pugi::xml_document doc;
 
@@ -2314,10 +2313,6 @@ void boot_db(void) {
 	boot_profiler.next_step("Loading player races definitions");
 	log("Loading player races definitions.");
 	PlayerRace::Load(XMLLoad(LIB_MISC PLAYER_RACE_FILE, RACE_MAIN_TAG, PLAYER_RACE_ERROR_STR, doc));
-
-	boot_profiler.next_step("Loading features definitions");
-	log("Loading features definitions.");
-	InitFeatures();
 
 	boot_profiler.next_step("Loading ingredients magic");
 	log("Booting IM");

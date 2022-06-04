@@ -2,7 +2,6 @@
 
 #include "action_targeting.h"
 #include "game_abilities/abilities_rollsystem.h"
-
 #include "game_fight/pk.h"
 #include "game_fight/fight.h"
 #include "game_fight/fight_hit.h"
@@ -14,26 +13,29 @@
 
 // Временная костыльная функция до реализации встроенного механизма работы сайдскиллов
 // TODO Не забыть реализовать постоянный механизм
-void PerformShadowThrowSideAbilities(AbilitySystem::TechniqueRoll &technique) {
+void PerformShadowThrowSideAbilities(abilities_roll::TechniqueRoll &technique) {
 	ObjData *weapon = GET_EQ(technique.GetActor(), technique.GetWeaponEquipPosition());
 	if (!weapon) {
 		return;
 	}
 
-	auto feature_id{EFeat::kUndefined};
+	auto ability_id{abilities::EAbility::kUndefined};
+	// У персонажей пока нет абилок и надо как-то утанавливать соответствие абилки и фита
+	auto feat_id{EFeat::kUndefined};
 	std::string to_char, to_vict, to_room;
-	void (*DoSideAction)(AbilitySystem::TechniqueRoll &technique);
+	void (*DoSideAction)(abilities_roll::TechniqueRoll &technique);
 	Bitvector mob_no_flag = EMobFlag::kMobDeleted;
 
 	switch (static_cast<ESkill>(weapon->get_skill())) {
 		case ESkill::kSpades:
 			mob_no_flag = EMobFlag::kNoBash;
-			feature_id = EFeat::kShadowSpear;
+			ability_id = abilities::EAbility::kShadowSpear;
+			feat_id = EFeat::kShadowSpear;
 			to_char = "Попадание копья повалило $n3 наземь.";
 			to_vict =
 				"Копье $N1 попало вам в колено. Вы рухнули наземь! Кажется, ваши приключения сейчас закончатся...";
 			to_room = "Копье $N1 сбило $n3 наземь!";
-			DoSideAction = ([](AbilitySystem::TechniqueRoll &technique) {
+			DoSideAction = ([](abilities_roll::TechniqueRoll &technique) {
 				if (technique.GetRival()->IsOnHorse()) { //если на лошади - падение с лагом 3
 					technique.GetRival()->drop_from_horse();
 				} else { // иначе просто садится на попу с лагом 2
@@ -45,11 +47,12 @@ void PerformShadowThrowSideAbilities(AbilitySystem::TechniqueRoll &technique) {
 		case ESkill::kShortBlades:
 		case ESkill::kPicks:
 			mob_no_flag = EMobFlag::kNoSilence;
-			feature_id = EFeat::kShadowDagger;
+			ability_id = abilities::EAbility::kShadowDagger;
+			feat_id = EFeat::kShadowDagger;
 			to_char = "Меткое попадание вашего кинжала заставило $n3 умолкнуть.";
 			to_vict = "Бросок $N1 угодил вам в горло. Вы прикусили язык!";
 			to_room = "Меткое попадание $N1 заставило $n3 умолкнуть!";
-			DoSideAction = ([](AbilitySystem::TechniqueRoll &technique) {
+			DoSideAction = ([](abilities_roll::TechniqueRoll &technique) {
 				Affect<EApply> af;
 				af.type = ESpell::kBattle;
 				af.bitvector = to_underlying(EAffect::kSilence);
@@ -59,11 +62,12 @@ void PerformShadowThrowSideAbilities(AbilitySystem::TechniqueRoll &technique) {
 			});
 			break;
 		case ESkill::kClubs:mob_no_flag = EMobFlag::kNoOverwhelm;
-			feature_id = EFeat::kShadowClub;
+			ability_id = abilities::EAbility::kShadowClub;
+			feat_id = EFeat::kShadowClub;
 			to_char = "Попадание булавы ошеломило $n3.";
 			to_vict = "Брошенная $N4 булава врезалась вам в лоб! Какие красивые звёздочки вокруг...";
 			to_room = "Попадание булавы $N1 ошеломило $n3!";
-			DoSideAction = ([](AbilitySystem::TechniqueRoll &technique) {
+			DoSideAction = ([](abilities_roll::TechniqueRoll &technique) {
 				Affect<EApply> af;
 				af.type = ESpell::kBattle;
 				af.bitvector = to_underlying(EAffect::kStopFight);
@@ -74,15 +78,15 @@ void PerformShadowThrowSideAbilities(AbilitySystem::TechniqueRoll &technique) {
 			});
 			break;
 		default:
-			feature_id = EFeat::kUndefined;
+			ability_id = abilities::EAbility::kUndefined;
 			break;
 	};
 
-	if (!CanUseFeat(technique.GetActor(), feature_id)) {
+	if (!CanUseFeat(technique.GetActor(), feat_id)) {
 		return;
 	};
-	AbilitySystem::TechniqueRoll side_roll;
-	side_roll.Init(technique.GetActor(), feature_id, technique.GetRival());
+	abilities_roll::TechniqueRoll side_roll;
+	side_roll.Init(technique.GetActor(), ability_id, technique.GetRival());
 	if (side_roll.IsSuccess() && !MOB_FLAGGED(technique.GetRival(), mob_no_flag)) {
 		act(to_char.c_str(), false, technique.GetRival(), nullptr, technique.GetActor(), kToVict);
 		act(to_vict.c_str(), false, technique.GetRival(), nullptr, technique.GetActor(), kToChar);
@@ -92,7 +96,7 @@ void PerformShadowThrowSideAbilities(AbilitySystem::TechniqueRoll &technique) {
 };
 
 // TODO: Перенести подобную логику в модуль абилок, разделить уровни
-void PerformWeaponThrow(AbilitySystem::TechniqueRoll &technique, Damage &damage) {
+void PerformWeaponThrow(abilities_roll::TechniqueRoll &technique, Damage &damage) {
 	damage.dam = fight::kZeroDmg;
 	if (technique.IsSuccess()) {
 		damage.dam = technique.CalcDamage();
@@ -104,7 +108,7 @@ void PerformWeaponThrow(AbilitySystem::TechniqueRoll &technique, Damage &damage)
 		if (IsTimedByFeat(technique.GetActor(), EFeat::kShadowThrower)) {
 			DecreaseFeatTimer(technique.GetActor(), EFeat::kShadowThrower);
 		};
-		if (technique.GetAbilityId() == EFeat::kShadowThrower) {
+		if (technique.GetAbilityId() == abilities::EAbility::kShadowThrower) {
 			PerformShadowThrowSideAbilities(technique);
 		};
 	} else {
@@ -129,13 +133,13 @@ void go_throw(CharData *ch, CharData *victim) {
 	// TODO: Возможно, стоит добавить простой тест на добавление целей.
 	int victims_amount = 1 + PRF_FLAGGED(ch, EPrf::kDoubleThrow) + 2 * PRF_FLAGGED(ch, EPrf::kTripleThrow);
 
-	auto technique_id = EFeat::kThrowWeapon;
+	auto technique_id = abilities::EAbility::kThrowWeapon;
 	auto dmg_type = fight::kPhysDmg;
 	if (PRF_FLAGGED(ch, EPrf::kShadowThrow)) {
 		SendMsgToChar("Рукоять оружия в вашей руке налилась неестественным холодом.\r\n", ch);
 		act("Оружие в руках $n1 окружила призрачная дымка.",
 			true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-		technique_id = EFeat::kShadowThrower;
+		technique_id = abilities::EAbility::kShadowThrower;
 		dmg_type = fight::kMagicDmg;
 		TimedFeat timed;
 		timed.feat = EFeat::kShadowThrower;
@@ -143,7 +147,7 @@ void go_throw(CharData *ch, CharData *victim) {
 		ImposeTimedFeat(ch, &timed);
 		PRF_FLAGS(ch).unset(EPrf::kShadowThrow);
 	}
-	AbilitySystem::TechniqueRoll roll;
+	abilities_roll::TechniqueRoll roll;
 	Damage damage(SkillDmg(ESkill::kThrow), fight::kZeroDmg, dmg_type, nullptr); //х3 как тут с оружием
 	damage.element = EElement::kDark;
 
@@ -164,7 +168,7 @@ void go_throw(CharData *ch, CharData *victim) {
 	};
 
 	SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);
-	if (technique_id == EFeat::kThrowWeapon) {
+	if (technique_id == abilities::EAbility::kThrowWeapon) {
 		SetSkillCooldownInFight(ch, ESkill::kThrow, 3);
 	}
 }
@@ -177,6 +181,11 @@ void do_throw(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 	if (ch->HasCooldown(ESkill::kThrow)) {
 		SendMsgToChar("Так и рука отвалится, нужно передохнуть.\r\n", ch);
+		return;
+	};
+
+	if (subcmd == SCMD_SHADOW_THROW && !CanUseFeat(ch, EFeat::kShadowThrower)) {
+		SendMsgToChar("Вы этого не умеете.\r\n", ch);
 		return;
 	};
 /*

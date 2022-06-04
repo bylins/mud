@@ -172,7 +172,9 @@ enum class EFeat {
 	kObjectEnchanter = 141,		//зачаровывание предметов
 	kDeftShooter = 142,			//ловкий стрелок
 	kMagicShooter = 143,		//магический выстрел
-	kThrowWeapon = 144,			//метнуть
+
+	// UNUSED = 144,			//
+
 	kShadowThrower = 145,		//змеево оружие
 	kShadowDagger = 146,		//змеев кинжал
 	kShadowSpear = 147,			//змеево копье
@@ -181,11 +183,13 @@ enum class EFeat {
 	kTripleThrower = 150,		//тройной бросок
 	kPowerThrow = 151,			//размах
 	kDeadlyThrow = 152,			//широкий размах
-	kUndeadsTurn = 153,			//затычка для "изгнать нежить"
-	kMultipleCast = 154,		//уменьшение штрафа за число циелей для масскастов
-	kMagicalShield = 155,		//заговоренный щит" - фит для витязей, защита от директ спеллов
+
+	//UNUSED = 153,			//
+
+	kMultipleCast = 154,		//уменьшение штрафа за число целей для масскастов
+	kMagicalShield = 155,		//защита от директ спеллов щитом
 	kAnimalMaster = 156,		//хозяин животных
-	kSlashMaster = 157, 				//двойной удар двуручем
+	kSlashMaster = 157, 		//двойной удар двуручем
 	kPhysicians = 158,
 	kFirst = kBerserker,
 	kLast = kPhysicians				// !!! Не забываем менять !!!

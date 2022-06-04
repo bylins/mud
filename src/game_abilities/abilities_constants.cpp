@@ -10,9 +10,18 @@ using AbilityIdNameTableType = std::unordered_map<abilities::EAbility, std::stri
 AbilityIdNameTableType ability_id_name_table;
 void InitAbilityNameIdTable() {
 	ability_name_id_table["kUndefined"] = abilities::EAbility::kUndefined;
-	ability_name_id_table["kBackstab"] = abilities::EAbility::kBackstab;
-	ability_name_id_table["kKick"] = abilities::EAbility::kKick;
+	ability_name_id_table["kScirmisher"] = abilities::EAbility::kScirmisher;
+	ability_name_id_table["kTactician"] = abilities::EAbility::kTactician;
+	ability_name_id_table["kCutting"] = abilities::EAbility::kCutting;
 	ability_name_id_table["kThrowWeapon"] = abilities::EAbility::kThrowWeapon;
+	ability_name_id_table["kShadowThrower"] = abilities::EAbility::kShadowThrower;
+	ability_name_id_table["kShadowDagger"] = abilities::EAbility::kShadowDagger;
+	ability_name_id_table["kShadowSpear"] = abilities::EAbility::kShadowSpear;
+	ability_name_id_table["kShadowClub"] = abilities::EAbility::kShadowClub;
+	ability_name_id_table["kDoubleThrower"] = abilities::EAbility::kDoubleThrower;
+	ability_name_id_table["kTripleThrower"] = abilities::EAbility::kTripleThrower;
+	ability_name_id_table["kPowerThrow"] = abilities::EAbility::kPowerThrow;
+	ability_name_id_table["kDeadlyThrow"] = abilities::EAbility::kDeadlyThrow;
 	ability_name_id_table["kTurnUndead"] = abilities::EAbility::kTurnUndead;
 
 	for (const auto &i: ability_name_id_table) {

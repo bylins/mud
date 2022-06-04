@@ -8,7 +8,8 @@
 
 #include "cfg_manager.h"
 
-#include  "feats.h"
+//#include  "feats.h"
+#include "game_abilities/abilities_info.h"
 #include "game_classes/classes_info.h"
 #include "game_magic/spells_info.h"
 #include "game_economics/currencies.h"
@@ -18,14 +19,15 @@
 namespace cfg_manager {
 
 CfgManager::CfgManager() {
-/*	loaders_.emplace("abilities", "cfg/abilities.xml");
-	loaders_.emplace("mobraces", "cfg/mob_races.xml");*/
+/* loaders_.emplace("mobraces", "cfg/mob_races.xml");*/
 	loaders_.emplace("currencies", LoaderInfo("cfg/economics/currencies.xml",
 											  std::make_unique<currencies::CurrenciesLoader>(currencies::CurrenciesLoader())));
 	loaders_.emplace("classes", LoaderInfo("cfg/classes/pc_classes.xml",
 										   std::make_unique<classes::ClassesLoader>(classes::ClassesLoader())));
 	loaders_.emplace("skills", LoaderInfo("cfg/skills.xml",
 										  std::make_unique<SkillsLoader>(SkillsLoader())));
+	loaders_.emplace("abilities", LoaderInfo("cfg/abilities.xml",
+										  std::make_unique<abilities::AbilitiesLoader>(abilities::AbilitiesLoader())));
 	loaders_.emplace("spells", LoaderInfo("cfg/spells.xml",
 										  std::make_unique<spells::SpellsLoader>(spells::SpellsLoader())));
 	loaders_.emplace("feats", LoaderInfo("cfg/feats.xml",

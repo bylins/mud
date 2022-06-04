@@ -1281,7 +1281,6 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 				victim->set_skill(ESkill::kRescue, k_skills*0.6);
 				victim->set_skill(ESkill::kNoParryHit, k_skills*0.6);
 				victim->SetFeat(EFeat::kClubsMaster);
-				victim->SetFeat(EFeat::kThrowWeapon);
 				victim->SetFeat(EFeat::kDoubleThrower);
 				victim->SetFeat(EFeat::kTripleThrower);
 				victim->SetFeat(EFeat::kPowerThrow);
@@ -1341,7 +1340,6 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 						false, ch, nullptr, victim, kToChar);
 				}
 				
-				victim->SetFeat(EFeat::kThrowWeapon);
 				victim->SetFeat(EFeat::kDoubleThrower);
 				victim->SetFeat(EFeat::kTripleThrower);
 				victim->SetFeat(EFeat::kPowerThrow);

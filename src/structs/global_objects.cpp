@@ -63,6 +63,10 @@ abilities::AbilitiesInfo &GlobalObjects::Abilities() {
 	return global_objects().abilities_info;
 }
 
+const abilities::AbilityInfo &GlobalObjects::Ability(abilities::EAbility ability_id) {
+	return global_objects().abilities_info[ability_id];
+}
+
 SkillsInfo &GlobalObjects::Skills() {
 	return global_objects().skills_info;
 }

@@ -5,16 +5,16 @@
 #include "abilities_rollsystem.h"
 #include "structs/global_objects.h"
 
-namespace AbilitySystem {
+namespace abilities_roll {
 
-void AgainstRivalRoll::Init(CharData *actor, EFeat ability, CharData *victim) {
+void AgainstRivalRoll::Init(CharData *actor, abilities::EAbility ability, CharData *victim) {
 	rival_ = victim;
 	AbilityRoll::Init(actor, ability);
 };
 
-void AbilityRoll::Init(CharData *actor, EFeat ability_id) {
+void AbilityRoll::Init(CharData *actor, abilities::EAbility ability_id) {
 	actor_ = actor;
-	ability_ = &feat_info[ability_id];
+	ability_ = ability_id;
 	if (TryRevealWrongConditions()) {
 		success_ = false;
 		return;
@@ -33,7 +33,7 @@ void AbilityRoll::PerformAbilityTest() {
 	if (PRF_FLAGGED(actor_, EPrf::kTester)) {
 		SendMsgToChar(actor_,
 					  "&CНавык: %s, Рейтинг навыка: %d, Рейтинг цели: %d, Сложность: %d Бросок d100: %d, Итог: %d (%s)&n\r\n",
-					  MUD::Feat(ability_->id).GetCName(),
+					  MUD::Ability(ability_).GetCName(),
 					  actor_rating_,
 					  target_rating,
 					  difficulty,
@@ -56,15 +56,15 @@ bool AbilityRoll::TryRevealWrongConditions() {
 };
 
 bool AbilityRoll::IsActorCantUseAbility() {
-	if (!IS_IMPL(actor_) && !CanUseFeat(actor_, ability_->id)) {
+/*	if (!IS_IMPL(actor_) && !CanUseFeat(actor_, ability_->id)) {
 		deny_msg_ = "Вы не можете использовать этот навык.\r\n";
 		wrong_conditions_ = true;
-	};
+	};*/
 	return wrong_conditions_;
 }
 
 void AbilityRoll::DetermineBaseSkill() {
-	base_skill_ = ability_->base_skill;
+	base_skill_ = MUD::Ability(ability_).GetBaseSkill();
 }
 
 void AbilityRoll::SendDenyMsgToActor() {
@@ -88,14 +88,14 @@ void AbilityRoll::ProcessingResult(int result, int roll) {
 };
 
 bool AbilityRoll::RevealCritsuccess(int roll) {
-	if (roll < ability_->critsuccess_threshold) {
+	if (roll < MUD::Ability(ability_).GetCritsuccessThreshold()) {
 		return true;
 	}
 	return false;
 };
 
 bool AbilityRoll::RevealCritfail(int roll) {
-	if ((roll > ability_->critfail_threshold) && IsActorMoraleFailure()) {
+	if ((roll > MUD::Ability(ability_).GetCritfailThreshold()) && IsActorMoraleFailure()) {
 		return true;
 	}
 	return false;
@@ -124,7 +124,7 @@ bool AgainstRivalRoll::IsActorMoraleFailure() {
 // TODO: переделать на static, чтобы иметь возможность считать рейтинги, к примеру, при наложении аффектов
 int AbilityRoll::CalcActorRating() {
 	int skill_rating = CalcBaseSkillRating();
-	int parameter_rating = ability_->GetBaseParameter(actor_) / abilities::kStatRatingDivider;
+	int parameter_rating = MUD::Ability(ability_).GetBaseParameter(actor_) / abilities::kStatRatingDivider;
 	int roll_bonus = CalcRollBonus();
 	return (skill_rating + parameter_rating + roll_bonus);
 };
@@ -135,7 +135,7 @@ void AgainstRivalRoll::TrainBaseSkill(bool success) {
 };
 
 int AgainstRivalRoll::CalcTargetRating() {
-	return std::max(0, CalcSaving(actor_, rival_, ability_->saving, 0));
+	return std::max(0, CalcSaving(actor_, rival_, MUD::Ability(ability_).GetSaving(), 0));
 };
 
 //TODO: избавиться от target в calculate_skill и убрать обертку
@@ -144,14 +144,15 @@ int AgainstRivalRoll::CalcBaseSkillRating() {
 };
 
 int AgainstRivalRoll::CalcRollBonus() {
-	return std::clamp(ability_->diceroll_bonus + ability_->CalcSituationalRollBonus(actor_, rival_),
+	return std::clamp(MUD::Ability(ability_).GetRollBonus() +
+						  MUD::Ability(ability_).CalcSituationalRollBonus(actor_, rival_),
 					  abilities::kMinRollBonus, abilities::kMaxRollBonus);
 };
 
 void TechniqueRoll::DetermineBaseSkill() {
 	if (CheckTechniqueKit()) {
 		if (base_skill_ == ESkill::kUndefined) {
-			base_skill_ = ability_->base_skill;
+			base_skill_ = MUD::Ability(ability_).GetBaseSkill();
 		}
 	} else {
 		wrong_conditions_ = true;
@@ -160,12 +161,12 @@ void TechniqueRoll::DetermineBaseSkill() {
 }
 
 bool TechniqueRoll::CheckTechniqueKit() {
-	if (ability_->item_kits.empty()) {
+	if (MUD::Ability(ability_).GetItemKits().empty()) {
 		return true;
 	};
-	for (const auto &itemKit : ability_->item_kits) {
+	for (const auto &itemKit: MUD::Ability(ability_).GetItemKits()) {
 		bool kit_fit = true;
-		for (const auto &item : *itemKit) {
+		for (const auto &item: *itemKit) {
 			if (IsSuitableItem(item)) {
 				continue;
 			};
@@ -184,7 +185,7 @@ bool TechniqueRoll::IsSuitableItem(const TechniqueItem &item) {
 	if (item == char_item) {
 		if (char_item->get_type() == EObjType::kWeapon) {
 			weapon_equip_position_ = item.wear_position;
-			if (ability_->uses_weapon_skill) {
+			if (MUD::Ability(ability_).IsWeaponTechnique()) {
 				base_skill_ = static_cast<ESkill>(char_item->get_skill());
 			};
 		};
@@ -195,14 +196,14 @@ bool TechniqueRoll::IsSuitableItem(const TechniqueItem &item) {
 
 //	TODO: Привести подсчет дамага к одному знаменателю с несколькими возможными точками входа.
 int AbilityRoll::CalcBaseDamage() {
-	int base_parameter = ability_->GetBaseParameter(actor_);
+	int base_parameter = MUD::Ability(ability_).GetBaseParameter(actor_);
 	int dice_num = actor_->GetSkill(base_skill_) / abilities::kDmgDicepoolSkillDivider;
 	dice_num = std::min(dice_num, base_parameter);
 	return RollDices(std::max(1, dice_num), abilities::kDmgDiceSize);
 };
 
 int AbilityRoll::CalcAddDamage() {
-	int dice_num = ability_->GetEffectParameter(actor_);
+	int dice_num = MUD::Ability(ability_).GetEffectParameter(actor_);
 	int dice_size = abilities::kDmgDiceSize;
 	return RollDices(dice_num, dice_size);
 }
@@ -210,7 +211,7 @@ int AbilityRoll::CalcAddDamage() {
 int TechniqueRoll::CalcAddDamage() {
 	ObjData *weapon = actor_->equipment[weapon_equip_position_];
 	if (weapon) {
-		int dice_num = ability_->GetEffectParameter(actor_) + GET_OBJ_VAL(weapon, 1);
+		int dice_num = MUD::Ability(ability_).GetEffectParameter(actor_) + GET_OBJ_VAL(weapon, 1);
 		int dice_size = GET_OBJ_VAL(weapon, 2);
 		return RollDices(dice_num, dice_size);
 	}
@@ -219,15 +220,15 @@ int TechniqueRoll::CalcAddDamage() {
 };
 
 int AbilityRoll::CalcAbilityDamageBonus(int dmg) {
-	return (dmg*ability_->damage_bonus/100);
+	return (dmg * MUD::Ability(ability_).GetDamageBonus() / 100);
 };
 
 int AbilityRoll::CalcSuccessDegreeDamageBonus(int dmg) {
-	return (dmg*success_degree_*ability_->success_degree_damage_bonus/100);
+	return (dmg * success_degree_ * MUD::Ability(ability_).GetSuccessDegreeDamageBonus() / 100);
 };
 
 int AbilityRoll::CalcSituationalDamageBonus(int dmg) {
-	return (dmg*ability_->CalcSituationalDamageFactor(actor_)/100);
+	return (dmg * MUD::Ability(ability_).CalcSituationalDamageFactor(actor_) / 100);
 };
 
 int TechniqueRoll::CalcDamage() {

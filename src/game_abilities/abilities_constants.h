@@ -12,16 +12,19 @@ namespace abilities {
 /// Идентификаторы навыков
 enum class EAbility {
 	kUndefined,
-	kBackstab,
-	kKick,
+	kScirmisher,
+	kTactician,
+	kCutting,
 	kThrowWeapon,
-	kTurnUndead,
-	kLastPCAbility,
-	// Below abilities is for mob or game events only.
-	kTriggerDamage,
-	kUnderwater,
-	kSlowDeathTrap,
-	kOneRoomDamage
+	kShadowThrower,
+	kShadowDagger,
+	kShadowSpear,
+	kShadowClub,
+	kDoubleThrower,
+	kTripleThrower,
+	kPowerThrow,
+	kDeadlyThrow,
+	kTurnUndead
 };
 
 /// Идентификаторы типов сообщений навыков

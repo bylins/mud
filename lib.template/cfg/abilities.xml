@@ -28,12 +28,12 @@
         <id val="kUndefined" />
         <name val="!undefined" />
         <abbreviation val="!Undef" />
-        <base_skill val="kUndefined" />
+        <base_skill_ val="kUndefined" />
         <saving val="kReflex" />
         <base_stat val="kDex" />
         <difficulty val="0" />
-        <critfail_threshold val="95" />
-        <critsuccess_threshold val="6" />
+        <critfail_threshold_ val="95" />
+        <critsuccess_threshold_ val="6" />
         <mob_vs_pc_penalty val="30" />
         <pc_vs_pc_penalty val="15" />
         <!-- Сообщения навыка kUndefined являются сообщениями "по умолчанию".

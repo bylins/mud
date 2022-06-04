@@ -277,7 +277,7 @@ set(SOURCES
 		src/game_skills/death_rage.cpp
 		src/game_skills/fit.cpp
 		src/structs/effect.cpp
-		src/feats_constants.cpp)
+		src/feats_constants.cpp src/game_abilities/abilities_items_set.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
