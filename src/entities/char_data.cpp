@@ -1518,6 +1518,25 @@ void CharData::set_skill_bonus(int param) {
 	skill_bonus_ = param;
 }
 
+int CharData::GetAddSkill(ESkill skill_id) const {
+	auto it = skills_add_.find(skill_id);
+	if (it != skills_add_.end()) {
+		return it->second;
+	}
+	return 0;
+}
+
+void CharData::SetAddSkill(ESkill skill_id, int value) {
+/*	auto it = skills_add_.find(skill_id);
+	if (it != skills_add_.end()) {
+		skills_add_[skill_id] += value;
+	} else {
+		skills_add_[skill_id] = value;
+	}*/
+	skills_add_[skill_id] += value;
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void CharData::clear_add_apply_affects() {

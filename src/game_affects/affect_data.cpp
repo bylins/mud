@@ -509,9 +509,10 @@ void affect_total(CharData *ch) {
 	}
 	ch->obj_bonus().apply_affects(ch);
 
-	for (auto i = EFeat::kFirst; i <= EFeat::kLast; ++i) {
-		if (CanUseFeat(ch, i)) {
-			MUD::Feat(i).effects.ImposeApplies(ch);
+	for (const auto &feat : MUD::Feats()) {
+		if (CanUseFeat(ch, feat.GetId())) {
+			feat.effects.ImposeApplies(ch);
+			//feat.effects.GetSkillMod(ESkill::kTurnUndead);
 		}
 	}
 
@@ -722,7 +723,7 @@ void affect_to_char(CharData *ch, const Affect<EApply> &af) {
 	CheckLight(ch, kLightUndef, was_lgt, was_hlgt, was_hdrk, 1);
 }
 
-void affect_modify(CharData *ch, byte loc, int mod, const EAffect bitv, bool add) {
+void affect_modify(CharData *ch, EApply loc, int mod, const EAffect bitv, bool add) {
 	if (add) {
 		AFF_FLAGS(ch).set(bitv);
 	} else {

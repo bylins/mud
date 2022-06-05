@@ -374,6 +374,8 @@ class CharData : public ProtectedCharData {
 	int GetMorphSkill(const ESkill skill_id) const;
 	int get_skill_bonus() const;
 	void set_skill_bonus(int);
+	int GetAddSkill(ESkill skill_id) const;
+	void SetAddSkill(ESkill skill_id, int value);
 
 	int get_obj_slot(int slot_num);
 	void add_obj_slot(int slot_num, int count);
@@ -742,14 +744,11 @@ class CharData : public ProtectedCharData {
 	// для боссов: таймер (в секундах), включающийся по окончанию боя
 	// через который происходит сброс списка атакующих и рефреш моба
 	int restore_timer_;
-	// всякие хитрые бонусы с сетов (здесь, чтобы чармисов не обделить)
-	obj_sets::activ_sum obj_bonus_;
-	// для режимов
-	// количество набранных очков
-	int count_score;
-	// души, онли чернок
-	int souls;
-	int skill_bonus_;
+	obj_sets::activ_sum obj_bonus_;					// всякие хитрые бонусы с сетов (здесь, чтобы чармисов не обделить)
+	int count_score;								// для режимов - количество набранных очков
+	int souls;										// души, онли чернок
+	int skill_bonus_;								// бонус ко всем умениям
+	std::unordered_map<ESkill, int> skills_add_; 	// Бонусы к отдельным умениям
 
  public:
 	bool isInSameRoom(const CharData *ch) const { return (this->in_room == ch->in_room); };

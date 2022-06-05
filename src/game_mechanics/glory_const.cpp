@@ -1054,12 +1054,13 @@ void add_total_spent(int amount) {
 }
 
 void apply_modifiers(CharData *ch) {
-	GloryListType::iterator it = glory_list.find(GET_UNIQUE(ch));
-	if (it == glory_list.end())
+	auto it = glory_list.find(GET_UNIQUE(ch));
+	if (it == glory_list.end()) {
 		return;
+	}
 
 	for (std::map<int, int>::const_iterator i = it->second->stats.begin(); i != it->second->stats.end(); ++i) {
-		int location = 0;
+		auto location{EApply::kNone};
 		bool add = true;
 		switch (i->first) {
 			case GLORY_HIT: location = EApply::kHp;
