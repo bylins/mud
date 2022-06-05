@@ -216,14 +216,14 @@ bool IsEquivalent(const char *first_str, const char *second_str) {
 	char const *temp, *temp2;
 	char first[256], first2[256];
 
-	if (utils::IsAbbrev(first_str, second_str)) {
+	if (utils::IsAbbr(first_str, second_str)) {
 		return true;
 	}
 	auto ok{true};
 	temp = any_one_arg(second_str, first);
 	temp2 = any_one_arg(first_str, first2);
 	while (*first && *first2 && ok) {
-		if (!utils::IsAbbrev(first2, first))
+		if (!utils::IsAbbr(first2, first))
 			ok = false;
 		temp = any_one_arg(temp, first);
 		temp2 = any_one_arg(temp2, first2);

@@ -24,9 +24,9 @@ void do_order(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!*name || !*message)
 		SendMsgToChar("Приказать что и кому?\r\n", ch);
 	else if (!(vict = get_char_vis(ch, name, EFind::kCharInRoom)) &&
-		!utils::IsAbbrev(name, "followers") && !utils::IsAbbrev(name, "все") && !utils::IsAbbrev(name, "всем"))
+		!utils::IsAbbr(name, "followers") && !utils::IsAbbr(name, "все") && !utils::IsAbbr(name, "всем"))
 		SendMsgToChar("Вы не видите такого персонажа.\r\n", ch);
-	else if (ch == vict && !utils::IsAbbrev(name, "все") && !utils::IsAbbrev(name, "всем"))
+	else if (ch == vict && !utils::IsAbbr(name, "все") && !utils::IsAbbr(name, "всем"))
 		SendMsgToChar("Вы начали слышать императивные голоса - срочно к психиатру!\r\n", ch);
 	else {
 		if (vict && !vict->IsNpc() && !IS_GOD(ch)) {
@@ -40,9 +40,9 @@ void do_order(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		if (vict
-			&& !utils::IsAbbrev(name, "все")
-			&& !utils::IsAbbrev(name, "всем")
-			&& !utils::IsAbbrev(name, "followers")) {
+			&& !utils::IsAbbr(name, "все")
+			&& !utils::IsAbbr(name, "всем")
+			&& !utils::IsAbbr(name, "followers")) {
 			sprintf(buf, "$N приказал$g вам '%s'", message);
 			act(buf, false, vict, 0, ch, kToChar | kToNotDeaf);
 			act("$n отдал$g приказ $N2.", false, ch, 0, vict, kToRoom | kToNotDeaf);

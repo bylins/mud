@@ -571,7 +571,6 @@ class CharData : public ProtectedCharData {
 	std::string get_morphed_title() const;
 	std::string get_cover_desc();
 	std::string get_morph_desc() const;
-	int GetTalentsSkillBonus(const ESkill skill_id) const;
 	int GetTrainedSkill(const ESkill skill_num) const;
 	void set_morphed_skill(const ESkill skill_num, int percent);
 	bool isAffected(const EAffect flag) const;

@@ -1061,7 +1061,7 @@ int find_door(CharData *ch, const char *type, char *dir, EDoorScmd scmd) {
 					return (door);
 				else
 					return (FD_WRONG_DOOR_NAME); //НЕ ПРАВИЛЬНО НАЗВАЛИ ДВЕРЬ В ЭТОМ НАПРАВЛЕНИИ
-			} else if (utils::IsAbbrev(type, "дверь") || utils::IsAbbrev(type, "door")) {
+			} else if (utils::IsAbbr(type, "дверь") || utils::IsAbbr(type, "door")) {
 				//Аргумент соответствует "дверь" или "door" и есть в указанном направлении
 				return (door);
 			} else
@@ -1082,7 +1082,7 @@ int find_door(CharData *ch, const char *type, char *dir, EDoorScmd scmd) {
 					if (isname(type, EXIT(ch, door)->keyword) || isname(type, EXIT(ch, door)->vkeyword))
 						//Аргумент соответствует имени этой двери
 						found = true;
-				} else if (DOOR_IS(ch, door) && (utils::IsAbbrev(type, "дверь") || utils::IsAbbrev(type, "door")))
+				} else if (DOOR_IS(ch, door) && (utils::IsAbbr(type, "дверь") || utils::IsAbbr(type, "door")))
 					//Дверь не имеет особых алиасов, аргумент соответствует двери
 					found = true;
 			}

@@ -1148,7 +1148,7 @@ void do_stat(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	int level = PRF_FLAGGED(ch, EPrf::kCoderinfo) ? kLvlImplementator : GetRealLevel(ch);
 
-	if (utils::IsAbbrev(buf1, "room") && level >= kLvlBuilder) {
+	if (utils::IsAbbr(buf1, "room") && level >= kLvlBuilder) {
 		int vnum, rnum = kNowhere;
 		if (*buf2 && (vnum = atoi(buf2))) {
 			if ((rnum = real_room(vnum)) != kNowhere)
@@ -1158,7 +1158,7 @@ void do_stat(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 		if (!*buf2)
 			do_stat_room(ch);
-	} else if (utils::IsAbbrev(buf1, "mob") && level >= kLvlBuilder) {
+	} else if (utils::IsAbbr(buf1, "mob") && level >= kLvlBuilder) {
 		if (!*buf2)
 			SendMsgToChar("Состояние какого создания?\r\n", ch);
 		else {
@@ -1167,7 +1167,7 @@ void do_stat(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			else
 				SendMsgToChar("Нет такого создания в этом МАДе.\r\n", ch);
 		}
-	} else if (utils::IsAbbrev(buf1, "player")) {
+	} else if (utils::IsAbbr(buf1, "player")) {
 		if (!*buf2) {
 			SendMsgToChar("Состояние какого игрока?\r\n", ch);
 		} else {
@@ -1176,7 +1176,7 @@ void do_stat(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			else
 				SendMsgToChar("Этого персонажа сейчас нет в игре.\r\n", ch);
 		}
-	} else if (utils::IsAbbrev(buf1, "ip")) {
+	} else if (utils::IsAbbr(buf1, "ip")) {
 		if (!*buf2) {
 			SendMsgToChar("Состояние ip какого игрока?\r\n", ch);
 		} else {
@@ -1195,7 +1195,7 @@ void do_stat(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SendMsgToChar("Такого игрока нет ВООБЩЕ.\r\n", ch);
 			}
 		}
-	} else if (utils::IsAbbrev(buf1, "file")) {
+	} else if (utils::IsAbbr(buf1, "file")) {
 		if (!*buf2) {
 			SendMsgToChar("Состояние какого игрока(из файла)?\r\n", ch);
 		} else {
@@ -1211,7 +1211,7 @@ void do_stat(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SendMsgToChar("Такого игрока нет ВООБЩЕ.\r\n", ch);
 			}
 		}
-	} else if (utils::IsAbbrev(buf1, "object") && level >= kLvlBuilder) {
+	} else if (utils::IsAbbr(buf1, "object") && level >= kLvlBuilder) {
 		if (!*buf2)
 			SendMsgToChar("Состояние какого предмета?\r\n", ch);
 		else {

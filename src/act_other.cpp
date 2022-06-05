@@ -1829,15 +1829,15 @@ void set_autoloot_mode(CharData *ch, char *argument) {
 		} else {
 			SendMsgToChar(message_off, ch);
 		}
-	} else if (utils::IsAbbrev(argument, "все")) {
+	} else if (utils::IsAbbr(argument, "все")) {
 		PRF_FLAGS(ch).set(EPrf::kAutoloot);
 		PRF_FLAGS(ch).unset(EPrf::kNoIngrLoot);
 		SendMsgToChar(message_on, ch);
-	} else if (utils::IsAbbrev(argument, "ингредиенты")) {
+	} else if (utils::IsAbbr(argument, "ингредиенты")) {
 		PRF_FLAGS(ch).set(EPrf::kAutoloot);
 		PRF_FLAGS(ch).set(EPrf::kNoIngrLoot);
 		SendMsgToChar(message_no_ingr, ch);
-	} else if (utils::IsAbbrev(argument, "нет")) {
+	} else if (utils::IsAbbr(argument, "нет")) {
 		PRF_FLAGS(ch).unset(EPrf::kAutoloot);
 		PRF_FLAGS(ch).unset(EPrf::kNoIngrLoot);
 		SendMsgToChar(message_off, ch);

@@ -512,7 +512,12 @@ void affect_total(CharData *ch) {
 	for (const auto &feat : MUD::Feats()) {
 		if (CanUseFeat(ch, feat.GetId())) {
 			feat.effects.ImposeApplies(ch);
-			//feat.effects.GetSkillMod(ESkill::kTurnUndead);
+			auto skills_mods = feat.effects.GetSkillMods();
+			if (skills_mods) {
+				for (const auto &skill_mod : skills_mods.value()) {
+					ch->SetAddSkill(skill_mod.first, skill_mod.second);
+				}
+			}
 		}
 	}
 

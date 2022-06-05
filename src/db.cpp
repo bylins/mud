@@ -3297,7 +3297,7 @@ int vnum_flag(char *searchname, CharData *ch) {
 			plane_offset = 0;
 			continue;
 		};
-		if (utils::IsAbbrev(searchname, extra_bits[counter])) {
+		if (utils::IsAbbr(searchname, extra_bits[counter])) {
 			f = true;
 			break;
 		}
@@ -3316,7 +3316,7 @@ int vnum_flag(char *searchname, CharData *ch) {
 	f = false;
 // ---------------------
 	for (counter = 0; *apply_types[counter] != '\n'; counter++) {
-		if (utils::IsAbbrev(searchname, apply_types[counter])) {
+		if (utils::IsAbbr(searchname, apply_types[counter])) {
 			f = true;
 			break;
 		}
@@ -3343,7 +3343,7 @@ int vnum_flag(char *searchname, CharData *ch) {
 			plane_offset = 0;
 			continue;
 		};
-		if (utils::IsAbbrev(searchname, weapon_affects[counter])) {
+		if (utils::IsAbbr(searchname, weapon_affects[counter])) {
 			f = true;
 			break;
 		}
@@ -3364,7 +3364,7 @@ int vnum_flag(char *searchname, CharData *ch) {
 	f = false;
 	ESkill skill_id;
 	for (skill_id = ESkill::kFirst; skill_id <= ESkill::kLast; ++skill_id) {
-		if (utils::IsAbbrev(searchname, MUD::Skill(skill_id).GetName())) {
+		if (utils::IsAbbr(searchname, MUD::Skill(skill_id).GetName())) {
 			f = true;
 			break;
 		}
@@ -3555,8 +3555,7 @@ CharData *read_mobile(MobVnum nr, int type) {                // and MobRnum
 		MOB_FLAGS(mob).set(EMobFlag::kNoSummon);
 	}
 
-//Polud - поставим флаг стражнику
-	guardian_type::iterator it = guardian_list.find(GET_MOB_VNUM(mob));
+	auto it = guardian_list.find(GET_MOB_VNUM(mob));
 	if (it != guardian_list.end()) {
 		MOB_FLAGS(mob).set(EMobFlag::kCityGuardian);
 	}

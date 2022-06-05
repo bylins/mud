@@ -487,7 +487,7 @@ void do_dgoload(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 		return;
 	}
 
-	if (utils::IsAbbrev(arg1, "mob")) {
+	if (utils::IsAbbr(arg1, "mob")) {
 		if ((mob = read_mobile(number, VIRTUAL)) == nullptr) {
 			obj_log(obj, "oload: bad mob vnum");
 			return;
@@ -496,7 +496,7 @@ void do_dgoload(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 		idnum = mob->id;
 		PlaceCharToRoom(mob, room);
 		load_mtrigger(mob);
-	} else if (utils::IsAbbrev(arg1, "obj")) {
+	} else if (utils::IsAbbr(arg1, "obj")) {
 		const auto object = world_objects.create_from_prototype_by_vnum(number);
 		if (!object) {
 			obj_log(obj, "oload: bad object vnum");

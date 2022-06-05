@@ -1104,10 +1104,10 @@ void do_attach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	rn = real_trigger(tn);
 	if (rn >= 0
-		&& ((utils::IsAbbrev(arg, "mtr") && trig_index[rn]->proto->get_attach_type() != MOB_TRIGGER)
-			|| (utils::IsAbbrev(arg, "otr") && trig_index[rn]->proto->get_attach_type() != OBJ_TRIGGER)
-			|| (utils::IsAbbrev(arg, "wtr") && trig_index[rn]->proto->get_attach_type() != WLD_TRIGGER))) {
-		tn = (utils::IsAbbrev(arg, "mtr") ? 0 : utils::IsAbbrev(arg, "otr") ? 1 : utils::IsAbbrev(arg, "wtr") ? 2 : 3);
+		&& ((utils::IsAbbr(arg, "mtr") && trig_index[rn]->proto->get_attach_type() != MOB_TRIGGER)
+			|| (utils::IsAbbr(arg, "otr") && trig_index[rn]->proto->get_attach_type() != OBJ_TRIGGER)
+			|| (utils::IsAbbr(arg, "wtr") && trig_index[rn]->proto->get_attach_type() != WLD_TRIGGER))) {
+		tn = (utils::IsAbbr(arg, "mtr") ? 0 : utils::IsAbbr(arg, "otr") ? 1 : utils::IsAbbr(arg, "wtr") ? 2 : 3);
 		sprintf(buf,
 				"Trigger %d (%s) has wrong attach_type %s expected %s.\r\n",
 				tn,
@@ -1117,7 +1117,7 @@ void do_attach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar(buf, ch);
 		return;
 	}
-	if (utils::IsAbbrev(arg, "mtr")) {
+	if (utils::IsAbbr(arg, "mtr")) {
 		if ((victim = get_char_vis(ch, targ_name, EFind::kCharInWorld))) {
 			if (victim->IsNpc())    // have a valid mob, now get trigger
 			{
@@ -1137,7 +1137,7 @@ void do_attach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		} else {
 			SendMsgToChar("That mob does not exist.\r\n", ch);
 		}
-	} else if (utils::IsAbbrev(arg, "otr")) {
+	} else if (utils::IsAbbr(arg, "otr")) {
 		if ((object = get_obj_vis(ch, targ_name)))    // have a valid obj, now get trigger
 		{
 			rn = real_trigger(tn);
@@ -1155,7 +1155,7 @@ void do_attach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SendMsgToChar("That trigger does not exist.\r\n", ch);
 		} else
 			SendMsgToChar("That object does not exist.\r\n", ch);
-	} else if (utils::IsAbbrev(arg, "wtr")) {
+	} else if (utils::IsAbbr(arg, "wtr")) {
 		if (a_isdigit(*targ_name) && !strchr(targ_name, '.')) {
 			if ((room = find_target_room(ch, targ_name, 0)) != kNowhere)    // have a valid room, now get trigger
 			{
@@ -1210,14 +1210,14 @@ void do_detach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar("That trigger was not found.\r\n", ch);
 		}
 	} else {
-		if (utils::IsAbbrev(arg1, "mob")) {
+		if (utils::IsAbbr(arg1, "mob")) {
 			if (!(victim = get_char_vis(ch, arg2, EFind::kCharInWorld)))
 				SendMsgToChar("No such mobile around.\r\n", ch);
 			else if (!*arg3)
 				SendMsgToChar("You must specify a trigger to remove.\r\n", ch);
 			else
 				trigger = arg3;
-		} else if (utils::IsAbbrev(arg1, "object")) {
+		} else if (utils::IsAbbr(arg1, "object")) {
 			if (!(object = get_obj_vis(ch, arg2)))
 				SendMsgToChar("No such object around.\r\n", ch);
 			else if (!*arg3)

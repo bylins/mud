@@ -371,7 +371,7 @@ void do_mload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 		mob_log(ch, "mload: bad syntax");
 		return;
 	}
-	if (utils::IsAbbrev(arg1, "mob")) {
+	if (utils::IsAbbr(arg1, "mob")) {
 		if ((mob = read_mobile(number, VIRTUAL)) == nullptr) {
 			mob_log(ch, "mload: bad mob vnum");
 			return;
@@ -381,7 +381,7 @@ void do_mload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 		idnum = mob->id;
 		PlaceCharToRoom(mob, ch->in_room);
 		load_mtrigger(mob);
-	} else if (utils::IsAbbrev(arg1, "obj")) {
+	} else if (utils::IsAbbr(arg1, "obj")) {
 		const auto object = world_objects.create_from_prototype_by_vnum(number);
 		if (!object) {
 			mob_log(ch, "mload: bad object vnum");

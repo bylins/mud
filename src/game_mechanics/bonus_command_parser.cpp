@@ -44,7 +44,7 @@ void ArgumentsParser::parse() {
 	}
 
 	StringStreamFinalizer broadcast_message(m_broadcast_message);
-	if (utils::IsAbbrev(m_first_argument.c_str(), "отменить")) {
+	if (utils::IsAbbr(m_first_argument.c_str(), "отменить")) {
 		broadcast_message << "Бонус был отменен.\r\n";
 		m_result = ER_STOP;
 		return;
@@ -71,23 +71,23 @@ void ArgumentsParser::parse() {
 		return;
 	}
 
-	if (utils::IsAbbrev(m_first_argument.c_str(), "двойной")) {
+	if (utils::IsAbbr(m_first_argument.c_str(), "двойной")) {
 		out << "двойной бонус";
 		m_bonus_multiplier = 2;
-	} else if (utils::IsAbbrev(m_first_argument.c_str(), "тройной")) {
+	} else if (utils::IsAbbr(m_first_argument.c_str(), "тройной")) {
 		out << "тройной бонус";
 		m_bonus_multiplier = 3;
 	} else {
 		// logic error.
 	}
 
-	if (utils::IsAbbrev(m_second_argument.c_str(), "оружейный")) {
+	if (utils::IsAbbr(m_second_argument.c_str(), "оружейный")) {
 		out << " оружейного опыта";
 		m_bonus_type = Bonus::EBonusType::BONUS_WEAPON_EXP;
-	} else if (utils::IsAbbrev(m_second_argument.c_str(), "опыт")) {
+	} else if (utils::IsAbbr(m_second_argument.c_str(), "опыт")) {
 		out << " опыта";
 		m_bonus_type = Bonus::EBonusType::BONUS_EXP;
-	} else if (utils::IsAbbrev(m_second_argument.c_str(), "урон")) {
+	} else if (utils::IsAbbr(m_second_argument.c_str(), "урон")) {
 		out << " увеличенного урона";
 		m_bonus_type = Bonus::EBonusType::BONUS_DAMAGE;
 	} else {

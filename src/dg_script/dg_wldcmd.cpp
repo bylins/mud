@@ -445,7 +445,7 @@ void do_wload(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 		wld_log(room, "wload: bad syntax");
 		return;
 	}
-	if (utils::IsAbbrev(arg1, "mob")) {
+	if (utils::IsAbbr(arg1, "mob")) {
 		if ((mob = read_mobile(number, VIRTUAL)) == nullptr) {
 			wld_log(room, "wload: bad mob vnum");
 			return;
@@ -454,7 +454,7 @@ void do_wload(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 		idnum = mob->id;
 		PlaceCharToRoom(mob, real_room(room->room_vn));
 		load_mtrigger(mob);
-	} else if (utils::IsAbbrev(arg1, "obj")) {
+	} else if (utils::IsAbbr(arg1, "obj")) {
 		const auto object = world_objects.create_from_prototype_by_vnum(number);
 		if (!object) {
 			wld_log(room, "wload: bad object vnum");

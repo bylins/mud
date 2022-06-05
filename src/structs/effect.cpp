@@ -123,10 +123,9 @@ std::optional<Area> Effects::GetArea() const {
 
 template <class IdType>
 class Mod {
-	std::unordered_map<IdType, int> mods_;
-
  public:
-	Mod() = delete;
+	using Mods = std::map<IdType, int>;
+	Mod() = default;
 	explicit Mod(parser_wrapper::DataNode &node) {
 		for (const auto &mod: node.Children()) {
 			auto val = parse::ReadAsInt(mod.GetValue("val"));
@@ -134,6 +133,14 @@ class Mod {
 			mods_.emplace(id, val);
 		}
 	}
+
+	[[nodiscard]] bool Empty() const {
+		return mods_.empty();
+	}
+
+	[[nodiscard]] const Mods &GetMods() const {
+		return mods_;
+	};
 
 	[[nodiscard]] int GetMod(IdType id) const {
 		auto it = mods_.find(id);
@@ -155,6 +162,9 @@ class Mod {
 		table_wrapper::PrintTableToStream(buffer, table);
 		buffer << std::endl;
 	};
+
+ private:
+	Mods mods_;
 };
 
 class Applies {
@@ -172,7 +182,7 @@ class Applies {
 	std::unordered_map<EApply, ApplyMod> applies_roster_;
 
 public:
-	Applies() = delete;
+	Applies() = default;
 	explicit Applies(parser_wrapper::DataNode &node);
 
 	void Print(CharData *ch, std::ostringstream &buffer) const;
@@ -180,10 +190,10 @@ public:
 };
 
 class PassiveEffects::PassiveEffectsImpl {
-	std::unique_ptr< Applies > applies_;
-	std::unique_ptr< Mod<ESkill> > skill_mods_;
-	std::unique_ptr< Mod<ESkill> > skill_timer_mods_;
-	std::unique_ptr< Mod<EFeat> > feat_timer_mods_;
+	Applies applies_;
+	Mod<ESkill> skill_mods_;
+	Mod<ESkill> skill_timer_mods_;
+	Mod<EFeat> feat_timer_mods_;
 
 	void ParseEffect(parser_wrapper::DataNode &node);
 	void ParseApplies(parser_wrapper::DataNode &node);
@@ -196,6 +206,7 @@ class PassiveEffects::PassiveEffectsImpl {
 	explicit PassiveEffectsImpl(parser_wrapper::DataNode &node);
 
 	void ImposeApplies(CharData *ch) const;
+	[[nodiscard]] const Mod<ESkill>::Mods &GetSkillMods() const;
 	[[nodiscard]] int GetSkillMod(ESkill skill_id) const;
 	[[nodiscard]] int GetTimerMod(ESkill skill_id) const;
 	[[nodiscard]] int GetTimerMod(EFeat feat_id) const;
@@ -226,69 +237,55 @@ void PassiveEffects::PassiveEffectsImpl::ParseEffect(parser_wrapper::DataNode &n
 }
 
 void PassiveEffects::PassiveEffectsImpl::ParseApplies(parser_wrapper::DataNode &node) {
-	auto ptr = std::make_unique<Applies>(node);
-	applies_ = std::move(ptr);
+	applies_ = Applies(node);
 }
 
 void PassiveEffects::PassiveEffectsImpl::ParseSkillTimerMods(parser_wrapper::DataNode &node) {
-	auto ptr = std::make_unique< Mod<ESkill> >(node);
-	skill_timer_mods_ = std::move(ptr);
+	skill_timer_mods_ = Mod<ESkill>(node);
 }
 
 void PassiveEffects::PassiveEffectsImpl::ParseFeatTimerMods(parser_wrapper::DataNode &node) {
-	auto ptr = std::make_unique< Mod<EFeat> >(node);
-	feat_timer_mods_ = std::move(ptr);
+	feat_timer_mods_ = Mod<EFeat>(node);
 }
 
 void PassiveEffects::PassiveEffectsImpl::ParseSkillMods(parser_wrapper::DataNode &node) {
 	auto ptr = std::make_unique< Mod<ESkill> >(node);
-	skill_mods_ = std::move(ptr);
+	skill_mods_ = Mod<ESkill>(node);
 }
 
 void PassiveEffects::PassiveEffectsImpl::ImposeApplies(CharData *ch) const {
-	if (!applies_) {
-		return;
-	}
+	applies_.Impose(ch);
+}
 
-	applies_->Impose(ch);
+[[nodiscard]] const Mod<ESkill>::Mods &PassiveEffects::PassiveEffectsImpl::GetSkillMods() const {
+	return skill_mods_.GetMods();
 }
 
 int PassiveEffects::PassiveEffectsImpl::GetSkillMod(ESkill skill_id) const {
-	if (!skill_mods_) {
-		return 0;
-	}
-	return skill_mods_->GetMod(skill_id);
+	return skill_mods_.GetMod(skill_id);
 }
 
 int PassiveEffects::PassiveEffectsImpl::GetTimerMod(ESkill skill_id) const {
-	if (!skill_timer_mods_) {
-		return 0;
-	}
-	return skill_timer_mods_->GetMod(skill_id);
+	return skill_timer_mods_.GetMod(skill_id);
 }
 
 int PassiveEffects::PassiveEffectsImpl::GetTimerMod(EFeat feat_id) const {
-	if (!feat_timer_mods_) {
-		return 0;
-	}
-	return feat_timer_mods_->GetMod(feat_id);
+	return feat_timer_mods_.GetMod(feat_id);
 }
 
 void PassiveEffects::PassiveEffectsImpl::Print(CharData *ch, std::ostringstream &buffer) const {
-	if (applies_) {
-		applies_->Print(ch, buffer);
-	}
-	if (skill_mods_) {
+	applies_.Print(ch, buffer);
+	if (!skill_mods_.Empty()) {
 		buffer << " Skill mods:" << std::endl;
-		skill_mods_->Print(ch, buffer);
+		skill_mods_.Print(ch, buffer);
 	}
-	if (skill_timer_mods_) {
+	if (!skill_timer_mods_.Empty()) {
 		buffer << " Skills timer mods:" << std::endl;
-		skill_timer_mods_->Print(ch, buffer);
+		skill_timer_mods_.Print(ch, buffer);
 	}
-	if (feat_timer_mods_) {
+	if (!feat_timer_mods_.Empty()) {
 		buffer << " Feats timer mods:" << std::endl;
-		feat_timer_mods_->Print(ch, buffer);
+		feat_timer_mods_.Print(ch, buffer);
 	}
 }
 
@@ -308,6 +305,10 @@ Applies::Applies(parser_wrapper::DataNode &node) {
 }
 
 void Applies::Print(CharData *ch, std::ostringstream &buffer) const {
+	if (applies_roster_.empty()) {
+		return;
+	}
+
 	buffer << std::endl << " Applies:" << std::endl;
 	table_wrapper::Table table;
 	table << table_wrapper::kHeader
@@ -363,6 +364,13 @@ void PassiveEffects::ImposeApplies(CharData *ch) const {
 	if (pimpl_) {
 		pimpl_->ImposeApplies(ch);
 	}
+}
+
+std::optional<PassiveEffects::SkillMods> PassiveEffects::GetSkillMods() const {
+	if (pimpl_) {
+		return pimpl_->GetSkillMods();
+	}
+	return std::nullopt;
 }
 
 int PassiveEffects::GetSkillMod(ESkill skill_id) const {

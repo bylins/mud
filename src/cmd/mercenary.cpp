@@ -192,20 +192,20 @@ int mercenary(CharData *ch, void * /*me*/, int cmd, char *argument) {
 	unsigned int pos;
 
 	three_arguments(argument, subCmd, cmdParam, bank);
-	if (utils::IsAbbrev(subCmd, "стат") || utils::IsAbbrev(subCmd, "stat")) {
+	if (utils::IsAbbr(subCmd, "стат") || utils::IsAbbr(subCmd, "stat")) {
 		return (1);
-	} else if (utils::IsAbbrev(subCmd, "список") || utils::IsAbbrev(subCmd, "list")) {
-		if (utils::IsAbbrev(cmdParam, "полный") || utils::IsAbbrev(cmdParam, "full"))
+	} else if (utils::IsAbbr(subCmd, "список") || utils::IsAbbr(subCmd, "list")) {
+		if (utils::IsAbbr(cmdParam, "полный") || utils::IsAbbr(cmdParam, "full"))
 			MERC::doList(ch, boss, false);
 		else
 			MERC::doList(ch, boss, true);
 		return (1);
-	} else if (utils::IsAbbrev(subCmd, "привести") || utils::IsAbbrev(subCmd, "bring")) {
+	} else if (utils::IsAbbr(subCmd, "привести") || utils::IsAbbr(subCmd, "bring")) {
 		pos = MERC::getPos(cmdParam, ch, boss);
 		if (pos == 0) return (1);
 		MERC::doBring(ch, boss, pos, bank);
 		return (1);
-	} else if (utils::IsAbbrev(subCmd, "фаворит") || utils::IsAbbrev(subCmd, "favorite")) {
+	} else if (utils::IsAbbr(subCmd, "фаворит") || utils::IsAbbr(subCmd, "favorite")) {
 		pos = MERC::getPos(cmdParam, ch, boss);
 		if (pos == 0) return (1);
 		MERC::doForget(ch, boss, pos);

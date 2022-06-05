@@ -2846,7 +2846,7 @@ int process_input(DescriptorData *t) {
 
 			skip_spaces(&commandln);
 			for (; cnt != starting_pos; cnt--) {
-				if (t->history[cnt] && utils::IsAbbrev(commandln, t->history[cnt])) {
+				if (t->history[cnt] && utils::IsAbbr(commandln, t->history[cnt])) {
 					strcpy(tmp, t->history[cnt]);
 					strcpy(t->last_input, tmp);
 					SEND_TO_Q(tmp, t);

@@ -86,10 +86,10 @@ void DoScore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc())
 		return;
 
-	if (utils::IsAbbrev(argument, "все") || utils::IsAbbrev(argument, "all")) {
+	if (utils::IsAbbr(argument, "все") || utils::IsAbbr(argument, "all")) {
 		PrintScoreAll(ch);
 		return;
-	} else if (utils::IsAbbrev(argument, "список") || utils::IsAbbrev(argument, "list")) {
+	} else if (utils::IsAbbr(argument, "список") || utils::IsAbbr(argument, "list")) {
 		PrintScoreList(ch);
 		return;
 	} else {

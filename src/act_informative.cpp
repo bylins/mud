@@ -2563,13 +2563,13 @@ void do_look(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 				ch->desc->msdp_report("ROOM");
 			}
 			look_at_room(ch, 1);
-		} else if (utils::IsAbbrev(arg, "in") || utils::IsAbbrev(arg, "внутрь"))
+		} else if (utils::IsAbbr(arg, "in") || utils::IsAbbr(arg, "внутрь"))
 			look_in_obj(ch, arg2);
 			// did the char type 'look <direction>?'
 		else if (((look_type = search_block(arg, dirs, false)) >= 0) ||
 			((look_type = search_block(arg, Dirs, false)) >= 0))
 			look_in_direction(ch, look_type, EXIT_SHOW_WALL);
-		else if (utils::IsAbbrev(arg, "at") || utils::IsAbbrev(arg, "на"))
+		else if (utils::IsAbbr(arg, "at") || utils::IsAbbr(arg, "на"))
 			look_at_target(ch, arg2, subcmd);
 		else
 			look_at_target(ch, argument, subcmd);
@@ -2780,7 +2780,7 @@ void PrintMyStat(CharData *ch) {
 // Отображение количества рипов
 void do_mystat(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	skip_spaces(&argument);
-	if (utils::IsAbbrev(argument, "очистить") || utils::IsAbbrev(argument, "clear")) {
+	if (utils::IsAbbr(argument, "очистить") || utils::IsAbbr(argument, "clear")) {
 		ClearMyStat(ch);
 	} else {
 		PrintMyStat(ch);
@@ -2809,7 +2809,7 @@ void do_equipment(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				found = true;
 			}
 		} else {
-			if (utils::IsAbbrev(argument, "все") || utils::IsAbbrev(argument, "all")) {
+			if (utils::IsAbbr(argument, "все") || utils::IsAbbr(argument, "all")) {
 				if (GET_EQ(ch, 18))
 					if ((i == 16) || (i == 17))
 						continue;

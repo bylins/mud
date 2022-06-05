@@ -4290,7 +4290,7 @@ void DoStoreHouse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char *stufina = one_argument(argument, arg);
 	skip_spaces(&stufina);
 
-	if (utils::IsAbbrev(arg, "характеристики") || utils::IsAbbrev(arg, "identify") || utils::IsAbbrev(arg, "опознать")) {
+	if (utils::IsAbbr(arg, "характеристики") || utils::IsAbbr(arg, "identify") || utils::IsAbbr(arg, "опознать")) {
 		if ((ch->get_bank() < kChestIdentPay) && (GetRealLevel(ch) < kLvlImplementator)) {
 			SendMsgToChar("У вас недостаточно денег в банке для такого исследования.\r\n", ch);
 			return;
@@ -4444,13 +4444,13 @@ void Clan::HouseStat(CharData *ch, std::string &buffer) {
 	// клан стат [!опыт/!заработанным/!последнему/!имя] [имя/все]
 	sortParameter = SORT_STAT_BY_EXP;
 	if (buffer2.length() > 1) {
-		if ((buffer2[0] == '!') && (utils::IsAbbrev(buffer2.c_str() + 1, "опыту"))) // опыту дружине
+		if ((buffer2[0] == '!') && (utils::IsAbbr(buffer2.c_str() + 1, "опыту"))) // опыту дружине
 			sortParameter = SORT_STAT_BY_CLANEXP;
-		else if ((buffer2[0] == '!') && (utils::IsAbbrev(buffer2.c_str() + 1, "заработанным")))
+		else if ((buffer2[0] == '!') && (utils::IsAbbr(buffer2.c_str() + 1, "заработанным")))
 			sortParameter = SORT_STAT_BY_MONEY;
-		else if ((buffer2[0] == '!') && (utils::IsAbbrev(buffer2.c_str() + 1, "последнему")))
+		else if ((buffer2[0] == '!') && (utils::IsAbbr(buffer2.c_str() + 1, "последнему")))
 			sortParameter = SORT_STAT_BY_LOGON;
-		else if ((buffer2[0] == '!') && (utils::IsAbbrev(buffer2.c_str() + 1, "имя")))
+		else if ((buffer2[0] == '!') && (utils::IsAbbr(buffer2.c_str() + 1, "имя")))
 			sortParameter = SORT_STAT_BY_NAME;
 
 		// берем следующий параметр

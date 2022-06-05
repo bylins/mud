@@ -115,7 +115,7 @@ int postmaster(CharData *ch, void *me, int cmd, char *argument) {
 		return (1);
 	} else if (CMD_IS("receive") || CMD_IS("получить")) {
 		one_argument(argument, arg);
-		if (utils::IsAbbrev(arg, "вещи")) {
+		if (utils::IsAbbr(arg, "вещи")) {
 			NamedStuff::receive_items(ch, (CharData *) me);
 		} else {
 			postmaster_receive_mail(ch, (CharData *) me, cmd, argument);

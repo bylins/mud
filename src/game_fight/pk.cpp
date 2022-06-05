@@ -653,11 +653,11 @@ void do_revenge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	two_arguments(argument, arg, arg2);
 
 	// отображать только находящихся онлайн
-	bOnlineOnly = !(utils::IsAbbrev(arg2, "все") || utils::IsAbbrev(arg2, "all"));
+	bOnlineOnly = !(utils::IsAbbr(arg2, "все") || utils::IsAbbr(arg2, "all"));
 
 	// "месть мне [все]"
 	// кто может мне отомстить
-	if (utils::IsAbbrev(arg, "мне") || utils::IsAbbrev(arg, "me")) {
+	if (utils::IsAbbr(arg, "мне") || utils::IsAbbr(arg, "me")) {
 		if (bOnlineOnly) {
 			strcat(buf, "Вам имеют право отомстить (находятся сейчас онлайн):\r\n");
 		} else {

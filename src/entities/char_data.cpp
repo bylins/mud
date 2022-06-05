@@ -523,7 +523,7 @@ int CharData::GetSkill(const ESkill skill_id) const {
 	int skill = GetMorphSkill(skill_id) + GetEquippedSkill(skill_id);
 
 	if (skill) {
-		skill += GetTalentsSkillBonus(skill_id);
+		skill += GetAddSkill(skill_id);
 	}
 
 	if (AFF_FLAGGED(this, EAffect::kSkillReduce)) {
@@ -541,7 +541,11 @@ int CharData::GetSkill(const ESkill skill_id) const {
  * Умение с учетом талантов, но без экипировки.
  */
 int CharData::GetSkillWithoutEquip(const ESkill skill_id) const {
-	return GetTrainedSkill(skill_id) + GetTalentsSkillBonus(skill_id);
+	auto skill = GetTrainedSkill(skill_id);
+	if (skill) {
+		skill += GetAddSkill(skill_id);
+	}
+	return skill;
 }
 
 /*
@@ -591,19 +595,6 @@ int CharData::GetMorphSkill(const ESkill skill_id) const {
 		return std::clamp(current_morph_->get_trained_skill(skill_id), 0, MUD::Skill(skill_id).cap);
 	}
 	return 0;
-}
-/*
- * Бонусы умения от талантов (способностей, навыков).
- * При желании модификатор можно добавить и заклинаниям.
- */
-int CharData::GetTalentsSkillBonus(const ESkill skill_id) const {
-	int bonus{0};
-	for (const auto &feat : MUD::Feats()) {
-		if (CanUseFeat(this, feat.GetId())) {
-			bonus += feat.effects.GetSkillMod(skill_id);
-		}
-	}
-	return bonus;
 }
 
 // * Нулевой скилл мы не сетим, а при обнулении уже имеющегося удалем эту запись.
@@ -1527,12 +1518,6 @@ int CharData::GetAddSkill(ESkill skill_id) const {
 }
 
 void CharData::SetAddSkill(ESkill skill_id, int value) {
-/*	auto it = skills_add_.find(skill_id);
-	if (it != skills_add_.end()) {
-		skills_add_[skill_id] += value;
-	} else {
-		skills_add_[skill_id] = value;
-	}*/
 	skills_add_[skill_id] += value;
 }
 
@@ -1551,6 +1536,7 @@ void CharData::clear_add_apply_affects() {
 	set_wis_add(0);
 	set_cha_add(0);
 	set_skill_bonus(0);
+	skills_add_.clear();
 }
 ///////////////////////////////////////////////////////////////////////////////
 int CharData::get_zone_group() const {

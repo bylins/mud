@@ -104,8 +104,8 @@ std::string remove_colors(std::string string);
 shared_string_ptr get_string_without_colors(const char *string);
 std::string get_string_without_colors(const std::string &string);
 
-bool IsAbbrev(const char *arg1, const char *arg2);
-inline int IsAbbrev(const std::string &arg1, const char *arg2) { return IsAbbrev(arg1.c_str(), arg2); }
+bool IsAbbr(const char *arg1, const char *arg2);
+inline int IsAbbrev(const std::string &arg1, const char *arg2) { return IsAbbr(arg1.c_str(), arg2); }
 void ConvertToLow(std::string &text);
 void ConvertToLow(char *text);
 

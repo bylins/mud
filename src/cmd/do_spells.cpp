@@ -11,7 +11,7 @@ void DoSpells(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc())
 		return;
 	skip_spaces(&argument);
-	if (utils::IsAbbrev(argument, "все") || utils::IsAbbrev(argument, "all"))
+	if (utils::IsAbbr(argument, "все") || utils::IsAbbr(argument, "all"))
 		DisplaySpells(ch, ch, true);
 	else
 		DisplaySpells(ch, ch, false);

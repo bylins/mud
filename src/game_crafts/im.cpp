@@ -80,14 +80,14 @@ int im_get_recipe_by_name(char *name) {
 		return -1;
 
 	for (rid = top_imrecipes; rid >= 0; --rid) {
-		if (utils::IsAbbrev(name, imrecipes[rid].name))
+		if (utils::IsAbbr(name, imrecipes[rid].name))
 			break;
 
 		ok = true;
 		temp = any_one_arg(imrecipes[rid].name, first);
 		temp2 = any_one_arg(name, first2);
 		while (*first && *first2 && ok) {
-			if (!utils::IsAbbrev(first2, first))
+			if (!utils::IsAbbr(first2, first))
 				ok = false;
 			temp = any_one_arg(temp, first);
 			temp2 = any_one_arg(temp2, first2);
@@ -1045,7 +1045,7 @@ void do_recipes(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc())
 		return;
 	skip_spaces(&argument);
-	if (utils::IsAbbrev(argument, "все") || utils::IsAbbrev(argument, "all"))
+	if (utils::IsAbbr(argument, "все") || utils::IsAbbr(argument, "all"))
 		list_recipes(ch, true);
 	else
 		list_recipes(ch, false);
