@@ -18,7 +18,7 @@
 #include "abilities_items_set.h"
 #include "boot/cfg_manager.h"
 #include "structs/info_container.h"
-#include "structs/effect.h"
+#include "talents_effects.h"
 
 namespace abilities {
 
@@ -56,7 +56,7 @@ class AbilityInfo : public info_container::BaseItem<EAbility> {
 	AbilityInfo(EAbility id, EItemMode mode)
 		: BaseItem<EAbility>(id, mode) {};
 
-	effects::PassiveEffects effects;
+	talents_effects::Effects effects;
 
 	[[nodiscard]] const std::string &GetName() const { return name_; };
 	[[nodiscard]] const std::string &GetAbbr() const { return abbr_; };

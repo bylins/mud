@@ -11,7 +11,7 @@
 #include "game_abilities/abilities_items_set.h"
 #include "game_abilities/abilities_constants.h"
 #include "game_skills/skills.h"
-#include "structs/effect.h"
+#include "game_abilities/talents_effects.h"
 #include "structs/structs.h"
 #include "conf.h"
 #include "game_classes/classes_constants.h"
@@ -60,7 +60,7 @@ class FeatInfo : public info_container::BaseItem<EFeat> {
 	FeatInfo(EFeat id, EItemMode mode)
 		: BaseItem<EFeat>(id, mode) {};
 
-	effects::PassiveEffects effects;
+	talents_effects::Effects effects;
 
 	[[nodiscard]] const std::string &GetName() const { return name_; };
 	[[nodiscard]] const char *GetCName() const { return name_.c_str(); };

@@ -283,7 +283,7 @@ bool IsBreath(ESpell spell_id) {
 }
 
 double CalcMagicSkillCoeff(CharData *ch, ESpell spell_id) {
-	auto dmg = MUD::Spell(spell_id).effects.GetDmg();
+	auto dmg = MUD::Spell(spell_id).actions.GetDmg();
 	if (dmg) {
 		auto skill = ch->GetSkill(GetMagicSkillId(spell_id));
 		auto low_skill = std::min(skill, abilities::kNoviceSkillThreshold);
@@ -343,13 +343,28 @@ double CalcMagicElementCoeff(CharData *victim, ESpell spell_id) {
 	return element_coeff;
 }
 
-int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id, effects::Damage &spell_dmg) {
+int CalcBaseDmg(CharData *ch, ESpell spell_id, const talents_actions::Damage &spell_dmg) {
+	auto base_dmg{0};
+	if (IsBreath(spell_id)) {
+		if (!ch->IsNpc()) {
+			return 0;
+		}
+		base_dmg = ch->mob_specials.damnodice * ch->mob_specials.damsizedice +
+			GetRealDamroll(ch) + str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
+	} else {
+		base_dmg = RollDices(spell_dmg.dice_num, spell_dmg.dice_size) + spell_dmg.dice_add;
+	}
+
+	if (!ch->IsNpc()) {
+		base_dmg *= ch->get_cond_penalty(P_DAMROLL);
+	}
+	return base_dmg;
+}
+
+int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id, const talents_actions::Damage &spell_dmg) {
 	int total_dmg{0};
 	if (number(1, 100) > std::min(ch->IsNpc() ? kMaxNpcResist : kMaxPcResist, GET_MR(victim))) {
-		auto base_dmg = RollDices(spell_dmg.dice_num, spell_dmg.dice_size) + spell_dmg.dice_add;
-		if (!ch->IsNpc()) {
-			base_dmg *= ch->get_cond_penalty(P_DAMROLL);
-		}
+		auto base_dmg = CalcBaseDmg(ch, spell_id, spell_dmg);
 
 		auto skill_mod = base_dmg * CalcMagicSkillCoeff(ch, spell_id);
 		auto wis_mod = base_dmg * CalcMagicWisCoeff(ch, spell_id);
@@ -462,18 +477,9 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	if (!ch->IsNpc() && (GetRealLevel(ch) > 10))
 		modi += (GetRealLevel(ch) - 10);
 
-	auto spell_dmg = MUD::Spell(spell_id).effects.GetDmg();
+	auto spell_dmg = MUD::Spell(spell_id).actions.GetDmg();
 	if (!spell_dmg) {
 		return 0;
-	}
-
-	if (IsBreath(spell_id)) {
-		if (!ch->IsNpc())
-			return 0;
-		spell_dmg.value().saving = ESaving::kStability;
-		spell_dmg.value().dice_num = ch->mob_specials.damnodice;
-		spell_dmg.value().dice_size = ch->mob_specials.damsizedice;
-		spell_dmg.value().dice_add = GetRealDamroll(ch) + str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
 	}
 
 	auto instant_death{false};
@@ -4001,7 +4007,7 @@ void TrySendCastMessages(CharData *ch, CharData *victim, RoomData *room, int msg
 };
 
 int CalcAmountOfTargets(const CharData *ch, const ESpell spell_id) {
-	auto params = MUD::Spell(spell_id).effects.GetArea();
+	auto params = MUD::Spell(spell_id).actions.GetArea();
 	if (!params) {
 		return 0;
 	}
@@ -4011,7 +4017,7 @@ int CalcAmountOfTargets(const CharData *ch, const ESpell spell_id) {
 }
 
 int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, ESpell spell_id, int level) {
-	const auto params = MUD::Spell(spell_id).effects.GetArea();
+	const auto params = MUD::Spell(spell_id).actions.GetArea();
 	if (ch == nullptr || IN_ROOM(ch) == kNowhere || !params) {
 		return 0;
 	}

@@ -5,7 +5,7 @@
 #include "game_classes/classes_constants.h"
 #include "game_magic/spells_constants.h"
 #include "entities/entities_constants.h"
-#include "structs/effect.h"
+#include "game_abilities/talents_actions.h"
 #include "structs/structs.h"
 #include "structs/info_container.h"
 
@@ -48,7 +48,7 @@ class SpellInfo : public info_container::BaseItem<ESpell> {
 
 	friend class SpellInfoBuilder;
 
-	effects::Effects effects;
+	talents_actions::Actions actions;
 
 	[[nodiscard]] const std::string &GetName() const { return name_; };
 	/**
@@ -90,7 +90,7 @@ class SpellInfoBuilder : public info_container::IItemBuilder<SpellInfo> {
 	static void ParseMana(ItemPtr &info, DataNode &node);
 	static void ParseTargets(ItemPtr &info, DataNode &node);
 	static void ParseFlags(ItemPtr &info, DataNode &node);
-	static void ParseEffects(ItemPtr &info, DataNode &node);
+	static void ParseActions(ItemPtr &info, DataNode &node);
 };
 
 using SpellsInfo = info_container::InfoContainer<ESpell, SpellInfo, SpellInfoBuilder>;

@@ -276,9 +276,10 @@ set(SOURCES
 		src/game_skills/lightwalk.cpp
 		src/game_skills/death_rage.cpp
 		src/game_skills/fit.cpp
-		src/structs/effect.cpp
+		src/game_abilities/talents_effects.cpp
 		src/feats_constants.cpp
-		src/game_abilities/abilities_items_set.cpp)
+		src/game_abilities/abilities_items_set.cpp
+		src/game_abilities/talents_actions.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -535,8 +536,9 @@ set(HEADERS
 		src/game_skills/lightwalk.h
 		src/game_skills/death_rage.h
 		src/game_skills/fit.h
-		src/structs/effect.h
-		src/feats_constants.h)
+		src/game_abilities/talents_effects.h
+		src/feats_constants.h
+		src/game_abilities/talents_actions.h)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 # Build types

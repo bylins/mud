@@ -70,7 +70,7 @@ ItemPtr SpellInfoBuilder::ParseSpell(DataNode node) {
 	ParseMana(info, node);
 	ParseTargets(info, node);
 	ParseFlags(info, node);
-	ParseEffects(info, node);
+	ParseActions(info, node);
 
 	return info;
 }
@@ -159,9 +159,9 @@ void SpellInfoBuilder::ParseFlags(ItemPtr &info, DataNode &node) {
 	}
 }
 
-void SpellInfoBuilder::ParseEffects(ItemPtr &info, DataNode &node) {
-	if (node.GoToChild("effects")) {
-		info->effects.Build(node);
+void SpellInfoBuilder::ParseActions(ItemPtr &info, DataNode &node) {
+	if (node.GoToChild("actions")) {
+		info->actions.Build(node);
 		node.GoToParent();
 	}
 }
@@ -190,7 +190,7 @@ void SpellInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 		   << " Flags: " << KGRN << flags_ << KNRM << std::endl
 		   << " Targets: " << KGRN << targets_ << KNRM << std::endl;
 
-	effects.Print(ch, buffer);
+	actions.Print(ch, buffer);
 }
 
 }
