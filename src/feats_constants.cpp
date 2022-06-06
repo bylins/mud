@@ -16,7 +16,7 @@ void init_EFeat_ITEM_NAMES() {
 	EFeat_name_by_value[EFeat::kParryArrow] = "kParryArrow";
 	EFeat_name_by_value[EFeat::kBlindFight] = "kBlindFight";
 	EFeat_name_by_value[EFeat::kImpregnable] = "kImpregnable";
-	EFeat_name_by_value[EFeat::kApproachingAttack] = "kApproachingAttack";
+	EFeat_name_by_value[EFeat::kNightVision] = "kNightVision";
 	EFeat_name_by_value[EFeat::kDefender] = "kDefender";
 	EFeat_name_by_value[EFeat::kDodger] = "kDodger";
 	EFeat_name_by_value[EFeat::kLightWalk] = "kLightWalk";
@@ -35,6 +35,7 @@ void init_EFeat_ITEM_NAMES() {
 	EFeat_name_by_value[EFeat::kGreatFortitude] = "kGreatFortitude";
 	EFeat_name_by_value[EFeat::kFastRegen] = "kFastRegen";
 	EFeat_name_by_value[EFeat::kStealthy] = "kStealthy";
+	EFeat_name_by_value[EFeat::kWolfScent] = "kWolfScent";
 	EFeat_name_by_value[EFeat::kSplendidHealth] = "kSplendidHealth";
 	EFeat_name_by_value[EFeat::kTracker] = "kTracker";
 	EFeat_name_by_value[EFeat::kWeaponFinesse] = "kWeaponFinesse";

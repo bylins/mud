@@ -534,13 +534,6 @@ void affect_total(CharData *ch) {
 
 	// move race and class modifiers
 	if (!ch->IsNpc()) {
-		if (ch->GetClass() >= ECharClass::kFirst && ch->GetClass() <= ECharClass::kLast) {
-			for (const auto aff : MUD::Class(ch->GetClass()).inborn_affects) {
-				affect_modify(ch, EApply::kNone, aff.mod, aff.affect, aff.add);
-			}
-		}
-
-		// Apply other PC modifiers
 		const unsigned wdex = PlayerSystem::weight_dex_penalty(ch);
 		if (wdex != 0) {
 			ch->set_dex_add(ch->get_dex_add() - wdex);

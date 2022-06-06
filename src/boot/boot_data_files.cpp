@@ -1401,7 +1401,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			return;
 		}
 		auto feat_id = static_cast<EFeat>(t[0]);
-		if (feat_id < EFeat::kFirst || feat_id > EFeat::kLast) {
+		if (MUD::Feats().IsUnknown(feat_id)) {
 			log("SYSERROR : Unknown feat No %d for MOB #%d", t[0], i);
 			return;
 		}

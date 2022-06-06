@@ -683,9 +683,10 @@ void medit_save_to_disk(int zone_num) {
 			strcpy(buf1, "Special_Bitvector: ");
 			NPC_FLAGS(mob).tascii(4, buf1);
 			fprintf(mob_file, "%s\n", buf1);
-			for (auto feat_id = EFeat::kFirst; feat_id <= EFeat::kLast; ++feat_id) {
-				if (mob->HaveFeat(feat_id))
-					fprintf(mob_file, "Feat: %d\n", to_underlying(feat_id));
+			for (const auto &feat : MUD::Feats()) {
+				if (mob->HaveFeat(feat.GetId())) {
+					fprintf(mob_file, "Feat: %d\n", to_underlying(feat.GetId()));
+				}
 			}
 			for (const auto &skill : MUD::Skills()) {
 				if (mob->GetSkill(skill.GetId()) && skill.IsValid()) {

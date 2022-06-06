@@ -5130,8 +5130,8 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	while (ch->timed_feat) {
 		ExpireTimedFeat(ch, ch->timed_feat);
 	}
-	for (auto feat = EFeat::kFirst; feat <= EFeat::kLast; ++feat) {
-		ch->UnsetFeat(feat);
+	for (const auto &feat : MUD::Feats()) {
+		ch->UnsetFeat(feat.GetId());
 	}
 
 	if (ch->get_remort() >= 9 && ch->get_remort() % 3 == 0) {

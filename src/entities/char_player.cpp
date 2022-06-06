@@ -1435,7 +1435,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 						fbgetline(fl, line);
 						sscanf(line, "%d", &num);
 						auto feat_id = static_cast<EFeat>(num);
-						if (feat_id >= EFeat::kFirst && feat_id <= EFeat::kLast) {
+						if (MUD::Feat(feat_id).IsAvailable()) {
 							if (MUD::Class(this->GetClass()).feats.IsAvailable(feat_id) ||
 								PlayerRace::FeatureCheck((int) GET_KIN(this), (int) GET_RACE(this), num)) {
 								this->SetFeat(feat_id);

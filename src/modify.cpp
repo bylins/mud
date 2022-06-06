@@ -914,6 +914,10 @@ void do_featset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Неизвестная способность.\r\n", ch);
 		return;
 	}
+	if (MUD::Feat(feat_id).IsInvalid()) {
+		SendMsgToChar("Отключенное или служебное значение.\r\n", ch);
+		return;
+	}
 
 	argument += qend + 1;    // skip to next parameter //
 	argument = one_argument(argument, buf);
@@ -937,13 +941,12 @@ void do_featset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			MUD::Feat(feat_id).GetCName(), value ? "enabled" : "disabled");
 	mudlog(buf2, BRF, -1, SYSLOG, true);
 	imm_log("%s", buf2);
-	if (feat_id >= EFeat::kFirst && feat_id <= EFeat::kLast) {
-		if (value) {
-			vict->SetFeat(feat_id);
-		} else {
-			vict->UnsetFeat(feat_id);
-		}
+	if (value) {
+		vict->SetFeat(feat_id);
+	} else {
+		vict->UnsetFeat(feat_id);
 	}
+
 	sprintf(buf2, "Вы изменили для %s '%s' на '%s'.\r\n", GET_PAD(vict, 1),
 			MUD::Feat(feat_id).GetCName(), value ? "доступно" : "недоступно");
 	if (!CanGetFeat(vict, feat_id) && value == 1) {

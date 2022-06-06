@@ -121,7 +121,7 @@ std::optional<Area> Effects::GetArea() const {
 // ====================================================================================================================
 // ====================================================================================================================
 
-template <class IdType>
+template<class IdType>
 class Mod {
  public:
 	using Mods = std::map<IdType, int>;
@@ -152,7 +152,7 @@ class Mod {
 
 	void Print(CharData *ch, std::ostringstream &buffer) const {
 		table_wrapper::Table table;
-		table << table_wrapper::kHeader  << "Id" << "Mod" << table_wrapper::kEndRow;
+		table << table_wrapper::kHeader << "Id" << "Mod" << table_wrapper::kEndRow;
 		for (const auto &mod: mods_) {
 			table << NAME_BY_ITEM<IdType>(mod.first)
 				  << mod.second
@@ -169,19 +169,20 @@ class Mod {
 
 class Applies {
 	struct ApplyMod {
+		EAffect affect{EAffect::kUndefinded};
 		int mod{0};
 		int cap{0};
 		double lvl_bonus{0.0};
 		double remort_bonus{0.0};
 
 		ApplyMod() = default;
-		ApplyMod(int mod, int cap, double lvl_bonus, double remort_bonus)
-			: mod(mod), cap(cap), lvl_bonus(lvl_bonus), remort_bonus(remort_bonus) {};
+		ApplyMod(EAffect affect, int mod, int cap, double lvl_bonus, double remort_bonus)
+			: affect(affect), mod(mod), cap(cap), lvl_bonus(lvl_bonus), remort_bonus(remort_bonus) {};
 	};
 
 	std::unordered_map<EApply, ApplyMod> applies_roster_;
 
-public:
+ public:
 	Applies() = default;
 	explicit Applies(parser_wrapper::DataNode &node);
 
@@ -249,7 +250,7 @@ void PassiveEffects::PassiveEffectsImpl::ParseFeatTimerMods(parser_wrapper::Data
 }
 
 void PassiveEffects::PassiveEffectsImpl::ParseSkillMods(parser_wrapper::DataNode &node) {
-	auto ptr = std::make_unique< Mod<ESkill> >(node);
+	auto ptr = std::make_unique<Mod<ESkill> >(node);
 	skill_mods_ = Mod<ESkill>(node);
 }
 
@@ -293,11 +294,12 @@ Applies::Applies(parser_wrapper::DataNode &node) {
 	for (const auto &apply: node.Children()) {
 		try {
 			auto location = parse::ReadAsConstant<EApply>(apply.GetValue("location"));
+			auto affect = parse::ReadAsConstant<EAffect>(apply.GetValue("affect"));
 			auto val = parse::ReadAsInt(apply.GetValue("val"));
 			auto lvl_bonus = parse::ReadAsDouble(apply.GetValue("lvl_bonus"));
 			auto remort_bonus = parse::ReadAsDouble(apply.GetValue("remort_bonus"));
 			auto cap = parse::ReadAsInt(apply.GetValue("cap"));
-			applies_roster_.emplace(location, Applies::ApplyMod(val, cap, lvl_bonus, remort_bonus));
+			applies_roster_.emplace(location, Applies::ApplyMod(affect, val, cap, lvl_bonus, remort_bonus));
 		} catch (std::exception &e) {
 			err_log("Incorrect value '%s' in '%s'.", e.what(), node.GetName());
 		}
@@ -312,9 +314,10 @@ void Applies::Print(CharData *ch, std::ostringstream &buffer) const {
 	buffer << std::endl << " Applies:" << std::endl;
 	table_wrapper::Table table;
 	table << table_wrapper::kHeader
-		  << "Location" << "Mod" << "Level bonus" << "Remort bonus" << "Cap" << table_wrapper::kEndRow;
+		  << "Location" << "Affect" << "Mod" << "Level bonus" << "Remort bonus" << "Cap" << table_wrapper::kEndRow;
 	for (const auto &apply: applies_roster_) {
 		table << NAME_BY_ITEM<EApply>(apply.first)
+			  << NAME_BY_ITEM<EAffect>(apply.second.affect)
 			  << apply.second.mod
 			  << apply.second.lvl_bonus
 			  << apply.second.remort_bonus
@@ -338,7 +341,7 @@ void Applies::Impose(CharData *ch) const {
 				mod = std::max(mod, apply.second.cap);
 			}
 		}
-		affect_modify(ch, apply.first, mod, EAffect::kUndefinded, true);
+		affect_modify(ch, apply.first, mod, apply.second.affect, true);
 	}
 }
 

@@ -376,14 +376,14 @@ void CharClassInfoBuilder::TemporarySetStat(ItemPtr &info) {
 		}
 			break;
 		case ECharClass::kConjurer: {
-			info->inborn_affects.push_back({EAffect::kInfravision, 0, true});
+			//info->inborn_affects.push_back({EAffect::kInfravision, 0, true});
 			info->applies = {35, 10, 10, 50};
 		}
 			break;
 		case ECharClass::kThief: {
-			info->inborn_affects.push_back({EAffect::kInfravision, 0, true});
-			info->inborn_affects.push_back({EAffect::kDetectLife, 0, true});
-			info->inborn_affects.push_back({EAffect::kBlink, 0, true});
+			//info->inborn_affects.push_back({EAffect::kInfravision, 0, true});
+			//info->inborn_affects.push_back({EAffect::kDetectLife, 0, true});
+			//info->inborn_affects.push_back({EAffect::kBlink, 0, true});
 			info->applies = {55, 10, 14, 50};
 		}
 			break;
@@ -392,7 +392,7 @@ void CharClassInfoBuilder::TemporarySetStat(ItemPtr &info) {
 		}
 			break;
 		case ECharClass::kAssasine: {
-			info->inborn_affects.push_back({EAffect::kInfravision, 0, true});
+			//info->inborn_affects.push_back({EAffect::kInfravision, 0, true});
 			info->applies = {50, 10, 14, 50};
 		}
 			break;
@@ -409,7 +409,7 @@ void CharClassInfoBuilder::TemporarySetStat(ItemPtr &info) {
 		}
 			break;
 		case ECharClass::kNecromancer: {
-			info->inborn_affects.push_back({EAffect::kInfravision, 0, true});
+			//info->inborn_affects.push_back({EAffect::kInfravision, 0, true});
 			info->applies = {35, 10, 11, 50};
 		}
 			break;
@@ -418,8 +418,8 @@ void CharClassInfoBuilder::TemporarySetStat(ItemPtr &info) {
 		}
 			break;
 		case ECharClass::kRanger: {
-			info->inborn_affects.push_back({EAffect::kInfravision, 0, true});
-			info->inborn_affects.push_back({EAffect::kDetectLife, 0, true});
+			//info->inborn_affects.push_back({EAffect::kInfravision, 0, true});
+			//info->inborn_affects.push_back({EAffect::kDetectLife, 0, true});
 			info->applies = {100, 10, 14, 50};
 		}
 			break;

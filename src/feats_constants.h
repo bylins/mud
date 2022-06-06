@@ -15,7 +15,7 @@ enum class EFeat {
 	kParryArrow = 2,			//отбить стрелу
 	kBlindFight = 3,			//слепой бой
 	kImpregnable = 4,			//непробиваемый
-	kApproachingAttack = 5,		//встречная атака
+	kNightVision = 5,			//ночное зрение
 	kDefender = 6,				//щитоносец
 	kDodger = 7,				//изворотливость
 	kLightWalk = 8,				//легкая поступь
@@ -34,9 +34,7 @@ enum class EFeat {
 	kGreatFortitude = 21,		//сила духа
 	kFastRegen = 22,			//быстрое заживление
 	kStealthy = 23,				//незаметность
-
-//	UNUSED = 24,				//удалено - можно использовать
-
+	kWolfScent = 24,			//чувствовать жизнь способностью
 	kSplendidHealth = 25,		//богатырское здоровье
 	kTracker = 26,				//следопыт
 	kWeaponFinesse = 27,		//ловкий удар
@@ -80,7 +78,7 @@ enum class EFeat {
 	kDamrollBonus = 65,			//тяжел на руку
 	kHitrollBonus = 66,			//твердая рука
 
-//	UNUSED = 67,				//удалено - можно использовать
+	// UNUSED = 67,				// удалено
 
 	kPunchFocus = 68,			//любимое оружие: голые руки
 	kClubsFocus = 69,			//любимое оружие: палица

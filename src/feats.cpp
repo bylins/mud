@@ -385,10 +385,10 @@ void SetInbornAndRaceFeats(CharData *ch) {
 }
 
 void UnsetInaccessibleFeats(CharData *ch) {
-	for (auto feat_id = EFeat::kFirst; feat_id <= EFeat::kLast; ++feat_id) {
-		if (ch->HaveFeat(feat_id)) {
-			if (MUD::Class(ch->GetClass()).feats.IsUnavailable(feat_id)) {
-				ch->UnsetFeat(feat_id);
+	for (const auto &feat : MUD::Feats()) {
+		if (ch->HaveFeat(feat.GetId())) {
+			if (MUD::Class(ch->GetClass()).feats.IsUnavailable(feat.GetId())) {
+				ch->UnsetFeat(feat.GetId());
 			}
 		}
 	}

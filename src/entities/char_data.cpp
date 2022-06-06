@@ -1955,16 +1955,16 @@ void CharData::restore_npc() {
 	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 		GET_SPELL_MEM(this, spell_id) = GET_SPELL_MEM(proto, spell_id);
 	}
-	// рестор для скилов
+
 	for (const auto &skill : MUD::Skills()) {
 		if (skill.IsValid()) {
 			this->set_skill(skill.GetId(), GET_SKILL(proto, skill.GetId()));
 		}
 	}
-	// рестор для фитов
-	for (auto i = EFeat::kFirst; i <= EFeat::kLast; ++i) {
-		if (!proto->HaveFeat(i)) {
-				this->UnsetFeat(i);
+
+	for (const auto &feat : MUD::Feats()) {
+		if (!proto->HaveFeat(feat.GetId())) {
+				this->UnsetFeat(feat.GetId());
 		}
 	}
 	this->caster_level = proto->caster_level;

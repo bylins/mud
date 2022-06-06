@@ -170,15 +170,6 @@ class CharClassInfo : public info_container::BaseItem<ECharClass> {
 	auto GetBaseStatCap(EBaseStat stat_id) const { return base_stats.at(stat_id).cap; };
 
 	/* вторичные параметры */
-
-	/* врожденные аффекты */
-	struct InbornAffect {
-		EAffect affect{EAffect::kUndefinded};
-		int mod{0};
-		bool add{true};
-	};
-	std::vector<InbornAffect> inborn_affects;
-
 	/* Какая-то вторичная дичь, определяющая бонусы-штрафы */
 	// \todo Нужно будет посмотреть, можно ли это переработать или вообще избавиться
 	struct ClassApplies {

@@ -3635,13 +3635,10 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 			ubyte blink;
 			if (victim->IsNpc()) {
 				blink = 25;
-			} else {
-				blink = 10;
-			}
-			if (CanUseFeat(ch, EFeat::kThieveStrike)) {
-				blink = 10 + GET_REAL_REMORT(ch) * 2 / 3;
-			} else if (victim->add_abils.percent_spell_blink > 0) { //мигалка спеллом а не аффектом с шмотки
+			} else if (victim->add_abils.percent_spell_blink > 0) {
 				blink = victim->add_abils.percent_spell_blink;
+			} else  {
+				blink = 10;
 			}
 //			ch->send_to_TC(false, true, false, "Шанс мигалки равен == %d процентов.\r\n", blink);
 //			victim->send_to_TC(false, true, false, "Шанс мигалки равен == %d процентов.\r\n", blink);
