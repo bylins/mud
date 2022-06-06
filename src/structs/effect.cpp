@@ -207,8 +207,7 @@ class PassiveEffects::PassiveEffectsImpl {
 	explicit PassiveEffectsImpl(parser_wrapper::DataNode &node);
 
 	void ImposeApplies(CharData *ch) const;
-	[[nodiscard]] const Mod<ESkill>::Mods &GetSkillMods() const;
-	[[nodiscard]] int GetSkillMod(ESkill skill_id) const;
+	void ImposeSkillsMods(CharData *ch) const;
 	[[nodiscard]] int GetTimerMod(ESkill skill_id) const;
 	[[nodiscard]] int GetTimerMod(EFeat feat_id) const;
 
@@ -258,12 +257,13 @@ void PassiveEffects::PassiveEffectsImpl::ImposeApplies(CharData *ch) const {
 	applies_.Impose(ch);
 }
 
-[[nodiscard]] const Mod<ESkill>::Mods &PassiveEffects::PassiveEffectsImpl::GetSkillMods() const {
-	return skill_mods_.GetMods();
-}
-
-int PassiveEffects::PassiveEffectsImpl::GetSkillMod(ESkill skill_id) const {
-	return skill_mods_.GetMod(skill_id);
+void PassiveEffects::PassiveEffectsImpl::ImposeSkillsMods(CharData *ch) const {
+	if (skill_mods_.Empty()) {
+		return;
+	}
+	for (const auto &skill_mod : skill_mods_.GetMods()) {
+		ch->SetAddSkill(skill_mod.first, skill_mod.second);
+	}
 }
 
 int PassiveEffects::PassiveEffectsImpl::GetTimerMod(ESkill skill_id) const {
@@ -369,18 +369,10 @@ void PassiveEffects::ImposeApplies(CharData *ch) const {
 	}
 }
 
-std::optional<PassiveEffects::SkillMods> PassiveEffects::GetSkillMods() const {
+void PassiveEffects::ImposeSkillsMods(CharData *ch) const {
 	if (pimpl_) {
-		return pimpl_->GetSkillMods();
+		pimpl_->ImposeSkillsMods(ch);
 	}
-	return std::nullopt;
-}
-
-int PassiveEffects::GetSkillMod(ESkill skill_id) const {
-	if (pimpl_) {
-		return pimpl_->GetSkillMod(skill_id);
-	}
-	return 0;
 }
 
 int PassiveEffects::GetTimerMod(ESkill skill_id) const {

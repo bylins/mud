@@ -30,14 +30,11 @@ enum class EEffect {
 
 class PassiveEffects {
  public:
-	using SkillMods = std::map<ESkill, int>;
-
 	PassiveEffects();
 	~PassiveEffects();
 
 	void ImposeApplies(CharData *ch) const;
-	[[nodiscard]] std::optional<SkillMods> GetSkillMods() const;
-	[[nodiscard]] int GetSkillMod(ESkill skill_id) const;
+	void ImposeSkillsMods(CharData *ch) const;
 	[[nodiscard]] int GetTimerMod(ESkill skill_id) const;
 	[[nodiscard]] int GetTimerMod(EFeat feat_id) const;
 
