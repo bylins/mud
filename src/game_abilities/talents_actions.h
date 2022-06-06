@@ -9,6 +9,7 @@
 #ifndef BYLINS_SRC_STRUCTS_TALENTS_ACTIONS_H_
 #define BYLINS_SRC_STRUCTS_TALENTS_ACTIONS_H_
 
+#include "game_skills/skills.h"
 #include "entities/entities_constants.h"
 #include "utils/parser_wrapper.h"
 
@@ -28,13 +29,26 @@ class IAction {
 	virtual void Print(CharData *ch, std::ostringstream &buffer) const = 0;
 };
 
-struct Damage : public IAction {
-	ESaving saving{ESaving::kReflex};
-	int dice_num{1};
-	int dice_size{1};
-	int dice_add{1};
-	double low_skill_bonus{0.0};
-	double hi_skill_bonus{0.0};
+class Damage : public IAction {
+	int dice_num_{1};
+	int dice_size_{1};
+	int dice_add_{1};
+
+	ESkill base_skill_{ESkill::kUndefined};
+	double low_skill_bonus_{0.0};
+	double hi_skill_bonus_{0.0};
+
+	EBaseStat base_stat_{EBaseStat::kFirst};
+	int base_stat_threshold_{10};
+	double base_stat_weight_{0.0};
+
+	ESaving saving_{ESaving::kReflex};
+ public:
+	explicit Damage(parser_wrapper::DataNode &node);
+
+	[[nodiscard]] int RollDmgDices() const;
+	[[nodiscard]] double CalcSkillDmgCoeff(const CharData *ch) const;
+	[[nodiscard]] double CalcBaseStatCoeff(const CharData *ch) const;
 
 	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };
@@ -49,6 +63,7 @@ struct Area : public IAction {
 	int min_targets{1};
 	int max_targets{1};
 
+	[[nodiscard]] int CalcTargetsQuantity(int skill_level) const;
 	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };
 
@@ -71,8 +86,8 @@ class Actions {
 	void Build(parser_wrapper::DataNode &node);
 	void Print(CharData *ch, std::ostringstream &buffer) const;
 
-	[[nodiscard]] std::optional<Damage> GetDmg() const;
-	[[nodiscard]] std::optional<Area> GetArea() const;
+	[[nodiscard]] const Damage &GetDmg() const;
+	[[nodiscard]] const Area &GetArea() const;
 };
 
 }

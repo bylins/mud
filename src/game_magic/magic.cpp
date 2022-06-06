@@ -282,32 +282,6 @@ bool IsBreath(ESpell spell_id) {
 	return magic_breath.contains(spell_id);
 }
 
-double CalcMagicSkillCoeff(CharData *ch, ESpell spell_id) {
-	auto dmg = MUD::Spell(spell_id).actions.GetDmg();
-	if (dmg) {
-		auto skill = ch->GetSkill(GetMagicSkillId(spell_id));
-		auto low_skill = std::min(skill, abilities::kNoviceSkillThreshold);
-		auto hi_skill = std::max(0, skill - abilities::kNoviceSkillThreshold);
-		return (low_skill * dmg.value().low_skill_bonus + hi_skill * dmg.value().hi_skill_bonus) / 100.0;
-	} else {
-		return 0.0;
-	}
-}
-
-double CalcMagicWisCoeff(CharData *ch, ESpell spell_id) {
-	// victim->send_to_TC(false, true, true, "&CВраг по вам: %s.МагДамага магии %d&n\r\n", GET_NAME(ch), dam);
-	// victim->send_to_TC(false, true, true,  "&CВраг по вам: %s. МагДамага магии с умением  и мудростью %d&n\r\n", GET_NAME(ch), dam);
-	// ch->send_to_TC(false,true, true, "&CЦель: %s. МагДамага магии с умением  и мудростью %d&n\r\n", GET_NAME(victim), dam);
-	// SendMsgToChar(ch, "&CМагДамага магии со скилом %d, скилл %d, бонус %f&n\r\n", dam, ch->get_skill(skill_id), tmp);
-	// SendMsgToChar(ch, "&CМагДамага магии с мудростью %d, бонус %f &n\r\n", dam, tmp);
-
-	if (ch->IsNpc() && !IsBreath(spell_id)) {
-		return (GET_REAL_WIS(ch) - 22)*5.0/ 100.0;
-	} else {
-		return (GET_REAL_WIS(ch) - 22)/200.0;
-	}
-}
-
 double CalcMagicElementCoeff(CharData *victim, ESpell spell_id) {
 	double element_coeff = 1.0;
 	if (victim->IsNpc()) {
@@ -349,10 +323,10 @@ int CalcBaseDmg(CharData *ch, ESpell spell_id, const talents_actions::Damage &sp
 		if (!ch->IsNpc()) {
 			return 0;
 		}
-		base_dmg = ch->mob_specials.damnodice * ch->mob_specials.damsizedice +
+		base_dmg = RollDices(ch->mob_specials.damnodice, ch->mob_specials.damsizedice) +
 			GetRealDamroll(ch) + str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
 	} else {
-		base_dmg = RollDices(spell_dmg.dice_num, spell_dmg.dice_size) + spell_dmg.dice_add;
+		base_dmg = spell_dmg.RollDmgDices();
 	}
 
 	if (!ch->IsNpc()) {
@@ -361,13 +335,14 @@ int CalcBaseDmg(CharData *ch, ESpell spell_id, const talents_actions::Damage &sp
 	return base_dmg;
 }
 
-int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id, const talents_actions::Damage &spell_dmg) {
+int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id) {
+	auto spell_dmg = MUD::Spell(spell_id).actions.GetDmg();
 	int total_dmg{0};
 	if (number(1, 100) > std::min(ch->IsNpc() ? kMaxNpcResist : kMaxPcResist, GET_MR(victim))) {
 		auto base_dmg = CalcBaseDmg(ch, spell_id, spell_dmg);
 
-		auto skill_mod = base_dmg * CalcMagicSkillCoeff(ch, spell_id);
-		auto wis_mod = base_dmg * CalcMagicWisCoeff(ch, spell_id);
+		auto skill_mod = base_dmg * spell_dmg.CalcSkillDmgCoeff(ch);
+		auto wis_mod = base_dmg * spell_dmg.CalcBaseStatCoeff(ch);
 		auto bonus_mod = base_dmg * (ch->add_abils.percent_magdam_add / 100.0);
 		auto complex_mod = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, base_dmg) - base_dmg;
 		auto poison_mod = AFF_FLAGGED(ch, EAffect::kDaturaPoison) ? (-base_dmg * GET_POISON(ch) / 100) : 0;
@@ -477,11 +452,6 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	if (!ch->IsNpc() && (GetRealLevel(ch) > 10))
 		modi += (GetRealLevel(ch) - 10);
 
-	auto spell_dmg = MUD::Spell(spell_id).actions.GetDmg();
-	if (!spell_dmg) {
-		return 0;
-	}
-
 	auto instant_death{false};
 	switch (spell_id) {
 		case ESpell::kMagicMissile: {
@@ -504,7 +474,9 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				}
 			}
 			if (obj) {
-				spell_dmg.value().dice_size = spell_dmg.value().dice_size - spell_dmg.value().dice_size / 3;
+				// уберем костыльное снижение урона за бессмысленностью - все ранво мало кто пользуктся
+				// лучше потом реалиховать нормальную механику модификацию урона от обстоятельств
+				// spell_dmg.value().dice_size = spell_dmg.value().dice_size * 2 / 3;
 				act("Кислота покрыла $o3.", false, victim, obj, nullptr, kToChar);
 				alterate_object(obj, number(level * 2, level * 4), 100);
 			}
@@ -662,7 +634,11 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			total_dmg += 99;
 		}
 	} else {
-		total_dmg = CalcTotalSpellDmg(ch, victim, spell_id, spell_dmg.value());
+		try {
+			total_dmg = CalcTotalSpellDmg(ch, victim, spell_id);
+		} catch (std::exception &e) {
+			err_log("%s", e.what());
+		}
 	}
 	total_dmg = std::clamp(total_dmg, 0, kMaxHits);
 
@@ -4006,70 +3982,64 @@ void TrySendCastMessages(CharData *ch, CharData *victim, RoomData *room, int msg
 	}
 };
 
-int CalcAmountOfTargets(const CharData *ch, const ESpell spell_id) {
-	auto params = MUD::Spell(spell_id).actions.GetArea();
-	if (!params) {
-		return 0;
-	}
-	auto amount = ch->GetSkill(GetMagicSkillId(spell_id));
-	amount = RollDices(amount/params.value().skill_divisor, params.value().targets_dice_size);
-	return params.value().min_targets + std::min(amount, params.value().max_targets);
-}
-
 int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, ESpell spell_id, int level) {
-	const auto params = MUD::Spell(spell_id).actions.GetArea();
-	if (ch == nullptr || IN_ROOM(ch) == kNowhere || !params) {
+	if (ch == nullptr || IN_ROOM(ch) == kNowhere) {
 		return 0;
 	}
 
-	ActionTargeting::FoesRosterType roster{ch, victim,
-										   [](CharData *, CharData *target) {
-											   return !IS_HORSE(target);
-										   }};
-	int msgIndex = FindIndexOfMsg(spell_id);
-	TrySendCastMessages(ch, victim, room, msgIndex);
-	int targetsAmount = CalcAmountOfTargets(ch, spell_id);
-	int targetsCounter = 1;
-	int levelDecay = 0;
-	double castDecay = 0.0;
-	if (CanUseFeat(ch, EFeat::kMultipleCast)) {
-		castDecay = params.value().cast_decay * 0.6;
-		levelDecay = MAX(MIN(1, params.value().level_decay), params.value().level_decay - 1);
-	} else {
-		castDecay = params.value().cast_decay;
-		levelDecay = params.value().level_decay;
-	}
-	const int kCasterCastSuccess = GET_CAST_SUCCESS(ch);
+	try {
+		const auto params = MUD::Spell(spell_id).actions.GetArea();
+		ActionTargeting::FoesRosterType roster{ch, victim,
+											   [](CharData *, CharData *target) {
+												   return !IS_HORSE(target);
+											   }};
+		int msgIndex = FindIndexOfMsg(spell_id);
+		TrySendCastMessages(ch, victim, room, msgIndex);
+		int targetsAmount = params.CalcTargetsQuantity(ch->GetSkill(GetMagicSkillId(spell_id)));
+		int targetsCounter = 1;
+		int levelDecay = 0;
+		double castDecay = 0.0;
+		if (CanUseFeat(ch, EFeat::kMultipleCast)) {
+			castDecay = params.cast_decay * 0.6;
+			levelDecay = MAX(MIN(1, params.level_decay), params.level_decay - 1);
+		} else {
+			castDecay = params.cast_decay;
+			levelDecay = params.level_decay;
+		}
+		const int kCasterCastSuccess = GET_CAST_SUCCESS(ch);
 
-	for (const auto &target: roster) {
-		if (mag_messages[msgIndex].to_vict != nullptr && target->desc) {
-			act(mag_messages[msgIndex].to_vict, false, ch, nullptr, target, kToVict);
-		}
-		CastToSingleTarget(level, ch, target, nullptr, spell_id);
-		if (ch->purged()) {
-			return 1;
-		}
-		if (!ch->IsNpc()) {
-			++targetsCounter;
-			if (targetsCounter > params.value().free_targets) {
-				int tax = kCasterCastSuccess * castDecay * (targetsCounter - params.value().free_targets);
-				GET_CAST_SUCCESS(ch) = std::max(-200, kCasterCastSuccess - tax);
-				level = std::max(1, level - levelDecay);
-				if (PRF_FLAGGED(ch, EPrf::kTester)) {
-					SendMsgToChar(ch,
-								  "&GМакс. целей: %d, Каст: %d, Уровень заклинания: %d.&n\r\n",
-								  targetsAmount,
-								  GET_CAST_SUCCESS(ch),
-								  level);
-				}
+		for (const auto &target: roster) {
+			if (mag_messages[msgIndex].to_vict != nullptr && target->desc) {
+				act(mag_messages[msgIndex].to_vict, false, ch, nullptr, target, kToVict);
+			}
+			CastToSingleTarget(level, ch, target, nullptr, spell_id);
+			if (ch->purged()) {
+				return 1;
+			}
+			if (!ch->IsNpc()) {
+				++targetsCounter;
+				if (targetsCounter > params.free_targets) {
+					int tax = kCasterCastSuccess * castDecay * (targetsCounter - params.free_targets);
+					GET_CAST_SUCCESS(ch) = std::max(-200, kCasterCastSuccess - tax);
+					level = std::max(1, level - levelDecay);
+					if (PRF_FLAGGED(ch, EPrf::kTester)) {
+						SendMsgToChar(ch,
+									  "&GМакс. целей: %d, Каст: %d, Уровень заклинания: %d.&n\r\n",
+									  targetsAmount,
+									  GET_CAST_SUCCESS(ch),
+									  level);
+					}
+				};
 			};
-		};
-		if (targetsCounter >= targetsAmount) {
-			break;
+			if (targetsCounter >= targetsAmount) {
+				break;
+			}
 		}
-	}
 
-	GET_CAST_SUCCESS(ch) = kCasterCastSuccess;
+		GET_CAST_SUCCESS(ch) = kCasterCastSuccess;
+	} catch (std::runtime_error &e) {
+		err_log("%s", e.what());
+	}
 	return 1;
 }
 
