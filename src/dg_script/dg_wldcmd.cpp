@@ -412,7 +412,7 @@ void do_wpurge(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trig
 
 	if (!(ch = get_char_by_room(room, arg))) {
 		if ((obj = get_obj_by_room(room, arg))) {
-			ExtractObjFromWorld(obj);
+			ExtractObjFromWorld(obj, false);
 		} else {
 			wld_log(room, "wpurge: bad argument");
 		}

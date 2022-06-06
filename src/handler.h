@@ -81,7 +81,7 @@ void PlaceObjIntoObj(ObjData *obj, ObjData *obj_to);
 void ExtractObjFromObj(ObjData *obj);
 void object_list_new_owner(ObjData *list, CharData *ch);
 
-void ExtractObjFromWorld(ObjData *obj);
+void ExtractObjFromWorld(ObjData *obj, bool showlog = true);
 
 // ******* characters ********* //
 

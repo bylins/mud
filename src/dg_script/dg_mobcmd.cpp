@@ -226,22 +226,22 @@ void do_mjunk(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 	if ((find_all_dots(arg) == kFindIndiv) && !junk_all) {
 		if ((obj = get_object_in_equip_vis(ch, arg, ch->equipment, &pos)) != nullptr) {
 			UnequipChar(ch, pos, CharEquipFlags());
-			ExtractObjFromWorld(obj);
+			ExtractObjFromWorld(obj, false);
 			return;
 		}
 		if ((obj = get_obj_in_list_vis(ch, arg, ch->carrying)) != nullptr)
-			ExtractObjFromWorld(obj);
+			ExtractObjFromWorld(obj, false);
 		return;
 	} else {
 		for (obj = ch->carrying; obj != nullptr; obj = obj_next) {
 			obj_next = obj->get_next_content();
 			if (arg[3] == '\0' || isname(arg + 4, obj->get_aliases())) {
-				ExtractObjFromWorld(obj);
+				ExtractObjFromWorld(obj, false);
 			}
 		}
 		while ((obj = get_object_in_equip_vis(ch, arg, ch->equipment, &pos))) {
 			UnequipChar(ch, pos, CharEquipFlags());
-			ExtractObjFromWorld(obj);
+			ExtractObjFromWorld(obj, false);
 		}
 	}
 }
@@ -440,7 +440,7 @@ void do_mpurge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigge
 
 	if (victim == nullptr) {
 		if ((obj = get_obj_by_char(ch, arg))) {
-			ExtractObjFromWorld(obj);
+			ExtractObjFromWorld(obj, false);
 		} else {
 			mob_log(ch, "mpurge: bad argument");
 		}
