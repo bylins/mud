@@ -18,6 +18,7 @@
 #include "entities/char_data.h"
 #include "entities/world_characters.h"
 #include "entities/world_objects.h"
+#include "game_abilities/abilities_info.h"
 #include "game_economics/shop_ext.h"
 #include "game_economics/ext_money.h"
 #include "game_magic/magic_utils.h"
@@ -72,7 +73,7 @@ void ShowClassInfo(CharData *ch, const std::string &class_name, const std::strin
 
 void ShowSpellInfo(CharData *ch, const std::string &spell_name) {
 	if (spell_name.empty()) {
-		SendMsgToChar("Формат: show spell [название заклинания]", ch);
+		SendMsgToChar("Формат: show spellinfo [название заклинания]", ch);
 		return;
 	}
 
@@ -91,7 +92,7 @@ void ShowSpellInfo(CharData *ch, const std::string &spell_name) {
 
 void ShowFeatInfo(CharData *ch, const std::string &name) {
 	if (name.empty()) {
-		SendMsgToChar("Формат: show spell [название способности]", ch);
+		SendMsgToChar("Формат: show featinfo [название способности]", ch);
 		return;
 	}
 
@@ -103,6 +104,23 @@ void ShowFeatInfo(CharData *ch, const std::string &name) {
 
 	std::ostringstream out;
 	MUD::Feat(id).Print(ch, out);
+	page_string(ch->desc, out.str());
+}
+
+void ShowAbilityInfo(CharData *ch, const std::string &name) {
+	if (name.empty()) {
+		SendMsgToChar("Формат: show abilityinfo [название навыка]", ch);
+		return;
+	}
+
+	auto id = FixNameAndFindAbilityId(name);
+	if (id == abilities::EAbility::kUndefined) {
+		SendMsgToChar("Неизвестное название навыка.", ch);
+		return;
+	}
+
+	std::ostringstream out;
+	MUD::Ability(id).Print(ch, out);
 	page_string(ch->desc, out.str());
 }
 
@@ -335,6 +353,7 @@ struct show_struct show_fields[] = {
 	{"currency", kLvlImmortal},
 	{"spellinfo", kLvlImmortal},
 	{"featinfo", kLvlImmortal},
+	{"abilityinfo", kLvlImmortal},
 	{"\n", 0}
 };
 
@@ -809,6 +828,9 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			break;
 		case 33: // feat
 			ShowFeatInfo(ch, value);
+			break;
+		case 34: // ability
+			ShowAbilityInfo(ch, value);
 			break;
 		default: SendMsgToChar("Извините, неверная команда.\r\n", ch);
 			break;

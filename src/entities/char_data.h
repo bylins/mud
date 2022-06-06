@@ -650,6 +650,7 @@ class CharData : public ProtectedCharData {
 	void cleanup_script();
 
 	bool IsNpc() const { return char_specials.saved.act.get(EMobFlag::kNpc); }
+	bool IsPlayer() const { return !IsNpc(); }
 	bool have_mind() const;
 
  private:
@@ -950,6 +951,8 @@ inline bool IS_FEMALE(const CharData::shared_ptr &ch) { return IS_FEMALE(ch.get(
 bool IS_NOSEXY(const CharData *ch);
 inline bool IS_NOSEXY(const CharData::shared_ptr &ch) { return IS_NOSEXY(ch.get()); }
 bool IS_POLY(const CharData *ch);
+
+int GetRealBaseStat(const CharData *ch, EBaseStat stat_id);
 
 int ClampBaseStat(const CharData *ch, EBaseStat stat_id, int stat_value);
 

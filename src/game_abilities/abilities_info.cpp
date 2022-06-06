@@ -4,7 +4,7 @@
 
 #include "abilities_info.h"
 
-//#include "entities/char_data.h"
+#include "entities/char_data.h"
 #include "action_targeting.h"
 #include "color.h"
 //#include "utils/parser_wrapper.h"
@@ -38,7 +38,9 @@ ItemPtr AbilityInfoBuilder::Build(DataNode &node) {
 ItemPtr AbilityInfoBuilder::ParseAbility(DataNode &node) {
 	auto info = ParseHeader(node);
 
-	//ParseEffects(info, node);
+	ParseBaseVals(info, node);
+	ParseThresholds(info, node);
+	ParsePenalties(info, node);
 	TemporarySetStat(info);
 	return info;
 }
@@ -63,28 +65,41 @@ ItemPtr AbilityInfoBuilder::ParseHeader(DataNode &node) {
 	return info;
 }
 
+void AbilityInfoBuilder::ParseBaseVals(ItemPtr &info, DataNode &node) {
+	if (node.GoToChild("base")) {
+		info->base_skill_ = parse::ReadAsConstant<ESkill>(node.GetValue("skill"));
+		info->base_stat_ = parse::ReadAsConstant<EBaseStat>(node.GetValue("stat"));
+		info->saving_ = parse::ReadAsConstant<ESaving>(node.GetValue("saving"));
+		info->roll_bonus_ = parse::ReadAsInt(node.GetValue("roll_bonus"));
+		node.GoToParent();
+	}
+}
+
+void AbilityInfoBuilder::ParseThresholds(ItemPtr &info, DataNode &node) {
+	if (node.GoToChild("thresholds")) {
+		info->critsuccess_threshold_ = parse::ReadAsInt(node.GetValue("critsuccess"));
+		info->critfail_threshold_ = parse::ReadAsInt(node.GetValue("critfail"));
+		node.GoToParent();
+	}
+}
+
+void AbilityInfoBuilder::ParsePenalties(ItemPtr &info, DataNode &node) {
+	if (node.GoToChild("penalties")) {
+		info->pvp_penalty = parse::ReadAsInt(node.GetValue("pvp"));
+		info->pve_penalty = parse::ReadAsInt(node.GetValue("pve"));
+		info->evp_penalty = parse::ReadAsInt(node.GetValue("evp"));
+		node.GoToParent();
+	}
+}
+
 void AbilityInfoBuilder::TemporarySetStat(ItemPtr &info) {
 	switch (info->GetId()) {
-		case EAbility::kScirmisher: {
-			info->diceroll_bonus_ = 90;
-			info->base_skill_ = ESkill::kRescue;
-			info->saving_ = ESaving::kReflex;
-			info->GetBaseParameter = &GET_REAL_DEX;
-			info->CalcSituationalRollBonus = &CalcRollBonusOfGroupFormation;
-			break;
-		}
+		case EAbility::kScirmisher: [[fallthrough]];
 		case EAbility::kTactician: {
-			info->diceroll_bonus_ = 90;
-			info->base_skill_ = ESkill::kLeadership;
-			info->saving_ = ESaving::kReflex;
-			info->GetBaseParameter = &GET_REAL_CHA;
 			info->CalcSituationalRollBonus = &CalcRollBonusOfGroupFormation;
 			break;
 		}
 		case EAbility::kCutting: {
-			info->diceroll_bonus_ = 110;
-			info->saving_ = ESaving::kCritical;
-			info->GetBaseParameter = &GET_REAL_DEX;
 			info->GetEffectParameter = &GET_REAL_STR;
 			info->uses_weapon_skill_ = true;
 			info->damage_bonus_ = 15;
@@ -129,10 +144,6 @@ void AbilityInfoBuilder::TemporarySetStat(ItemPtr &info) {
 			break;
 		}
 		case EAbility::kThrowWeapon: {
-			info->diceroll_bonus_ = 100;
-			info->base_skill_ = ESkill::kThrow;
-			info->saving_ = ESaving::kReflex;
-			info->GetBaseParameter = &GET_REAL_DEX;
 			info->GetEffectParameter = &GET_REAL_STR;
 			info->uses_weapon_skill_ = false;
 			info->damage_bonus_ = 20;
@@ -165,10 +176,6 @@ void AbilityInfoBuilder::TemporarySetStat(ItemPtr &info) {
 			break;
 		}
 		case EAbility::kShadowThrower: {
-			info->diceroll_bonus_ = 100;
-			info->base_skill_ = ESkill::kDarkMagic;
-			info->saving_ = ESaving::kWill;
-			info->GetBaseParameter = &GET_REAL_DEX;
 			info->GetEffectParameter = &GET_REAL_INT;
 			info->damage_bonus_ = -30;
 			info->success_degree_damage_bonus_ = 1;
@@ -197,32 +204,10 @@ void AbilityInfoBuilder::TemporarySetStat(ItemPtr &info) {
 		case EAbility::kShadowDagger:
 		case EAbility::kShadowSpear: [[fallthrough]];
 		case EAbility::kShadowClub: {
-			info->diceroll_bonus_ = 80;
-			info->base_skill_ = ESkill::kDarkMagic;
-			info->saving_ = ESaving::kStability;
-			info->GetBaseParameter = &GET_REAL_INT;
 			info->uses_weapon_skill_ = false;
 			break;
 		}
-		case EAbility::kDoubleThrower: [[fallthrough]];
-		case EAbility::kTripleThrower: {
-			info->diceroll_bonus_ = 100;
-			info->saving_ = ESaving::kReflex;
-			info->GetBaseParameter = &GET_REAL_DEX;
-			break;
-		}
-		case EAbility::kPowerThrow: [[fallthrough]];
-		case EAbility::kDeadlyThrow: {
-			info->diceroll_bonus_ = 100;
-			info->saving_ = ESaving::kReflex;
-			info->GetBaseParameter = &GET_REAL_STR;
-			break;
-		}
 		case EAbility::kTurnUndead: {
-			info->diceroll_bonus_ = 70;
-			info->base_skill_ = ESkill::kTurnUndead;
-			info->saving_ = ESaving::kStability;
-			info->GetBaseParameter = &GET_REAL_INT;
 			info->GetEffectParameter = &GET_REAL_WIS;
 			info->uses_weapon_skill_ = false;
 			info->damage_bonus_ = -30;
@@ -244,25 +229,26 @@ int CalcRollBonusOfGroupFormation(CharData *ch, CharData * /* enemy */) {
 	int skirmishers = roster.count([](CharData *ch) { return PRF_FLAGGED(ch, EPrf::kSkirmisher); });
 	int uncoveredSquadMembers = roster.amount() - skirmishers;
 	if (AFF_FLAGGED(ch, EAffect::kBlind)) {
-		return (skirmishers*2 - uncoveredSquadMembers)*abilities::kCircumstanceFactor - 40;
+		return (skirmishers * 2 - uncoveredSquadMembers) * abilities::kCircumstanceFactor - 40;
 	};
-	return (skirmishers*2 - uncoveredSquadMembers)*abilities::kCircumstanceFactor;
+	return (skirmishers * 2 - uncoveredSquadMembers) * abilities::kCircumstanceFactor;
 };
 
 void AbilityInfo::Print(CharData * /*ch*/, std::ostringstream &buffer) const {
-	buffer << "Print ability:" << "\n"
-		   << " Id: " << KGRN << NAME_BY_ITEM<EAbility>(GetId()) << KNRM << "\n"
-		   << " Name: " << KGRN << GetName() << KNRM << "\n"
-		   << " Abbr: " << KGRN << GetAbbr() << KNRM << "\n";
-/*		   << " Base skill: " << KGRN << NAME_BY_ITEM<ESkill>(GetBaseSkillId()) << KNRM << "\n"
-		   << " Base characteristic: " << KGRN << NAME_BY_ITEM<EBaseStat>(GetBaseStatId()) << KNRM
-		   << "\n"
-		   << " Saving type: " << KGRN << NAME_BY_ITEM<ESaving>(GetSavingId()) << KNRM << "\n"
-		   << " Difficulty: " << KGRN << GetDifficulty() << KNRM << "\n"
-		   << " Critical fail threshold: " << KGRN << GetCritfailThreshold() << KNRM << "\n"
-		   << " Critical success threshold: " << KGRN << GetCritsuccessThreshold() << KNRM << "\n"
-		   << " Mob vs PC penalty: " << KGRN << GetMVPPenalty() << KNRM << "\n"
-		   << " PC vs PC penalty: " << KGRN << GetPVPPenalty() << KNRM << "\n"
+	buffer << "Print ability:" << std::endl
+		   << " Id: " << KGRN << NAME_BY_ITEM<EAbility>(GetId()) << KNRM << std::endl
+		   << " Name: " << KGRN << GetName() << KNRM << std::endl
+		   << " Abbr: " << KGRN << GetAbbr() << KNRM << std::endl
+		   << " Base skill: " << KGRN << NAME_BY_ITEM<ESkill>(base_skill_) << KNRM << std::endl
+		   << " Base stat: " << KGRN << NAME_BY_ITEM<EBaseStat>(base_stat_) << KNRM << std::endl
+		   << " Saving: " << KGRN << NAME_BY_ITEM<ESaving>(saving_) << KNRM << std::endl
+		   << " Roll bonus: " << KGRN << roll_bonus_ << KNRM << std::endl
+		   << " Penalties [PvP/PvE/EvP]: "
+		   << KGRN << pvp_penalty << "/" << pve_penalty << "/" << evp_penalty << KNRM << std::endl
+		   << " Critical thresholds [success/fail]: "
+		   << KGRN << "critsuccess - " << critsuccess_threshold_ << "/" << critfail_threshold_ << KNRM << std::endl;
+
+/*		   << "\n"
 		   << " Circumstance modificators:\n";*/
 //	for (auto &item : circumstance_handlers_) {
 //		buffer << "   " << NAME_BY_ITEM<ECirumstance>(item.id_) << ": " << KGRN << item.mod_ << KNRM << "\n";
@@ -272,6 +258,10 @@ void AbilityInfo::Print(CharData * /*ch*/, std::ostringstream &buffer) const {
 //		buffer << "   " << NAME_BY_ITEM<EAbilityMsg>(it.first) << ": " << KGRN << it.second << KNRM << "\n";
 //	}
 	buffer << std::endl;
+}
+
+int AbilityInfo::GetBaseParameter(const CharData *ch) const {
+	return GetRealBaseStat(ch, base_stat_);
 }
 
 }; // abilities

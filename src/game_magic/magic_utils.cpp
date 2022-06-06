@@ -155,6 +155,15 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 
 // \todo куча дублированного кода... надо подумать, как сделать одинаковый интерфейс
 
+abilities::EAbility FindAbilityId(const char *name) {
+	for (const auto &ability : MUD::Abilities()) {
+		if (ability.IsValid() && IsEquivalent(name, ability.GetName())) {
+			return ability.GetId();
+		}
+	}
+	return abilities::EAbility::kUndefined;
+}
+
 EFeat FindFeatId(const char *name) {
 	for (const auto &feat : MUD::Feats()) {
 		if (feat.IsValid() && IsEquivalent(name, feat.GetName())) {
@@ -269,6 +278,12 @@ EFeat FixNameAndFindFeatId(const std::string &name) {
 	auto copy = name;
 	FixName(copy);
 	return FindFeatId(copy.c_str());
+}
+
+abilities::EAbility FixNameAndFindAbilityId(const std::string &name) {
+	auto copy = name;
+	FixName(copy);
+	return FindAbilityId(copy.c_str());
 }
 
 bool MayCastInNomagic(CharData *caster, ESpell spell_id) {

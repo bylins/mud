@@ -40,11 +40,15 @@ class AbilityInfo : public info_container::BaseItem<EAbility> {
 	bool uses_weapon_skill_{false};
 	int damage_bonus_{0};
 	int success_degree_damage_bonus_{0};
-	int diceroll_bonus_{abilities::kMinRollBonus};
+	int roll_bonus_{abilities::kMinRollBonus};
+	int pvp_penalty{0};
+	int pve_penalty{0};
+	int evp_penalty{0};
 	int critfail_threshold_{abilities::kDefaultCritfailThreshold};
 	int critsuccess_threshold_{abilities::kDefaultCritsuccessThreshold};
 	ESaving saving_{ESaving::kFirst};
 	ESkill base_skill_{ESkill::kUndefined};
+	EBaseStat base_stat_{EBaseStat::kStr};
 	TechniqueItemKitsGroup item_kits_;
 
  public:
@@ -60,7 +64,11 @@ class AbilityInfo : public info_container::BaseItem<EAbility> {
 
 	[[nodiscard]] ESkill GetBaseSkill() const { return base_skill_; };
 	[[nodiscard]] ESaving GetSaving() const { return saving_; };
-	[[nodiscard]] int GetRollBonus() const { return diceroll_bonus_; };
+	[[nodiscard]] int GetBaseParameter(const CharData *ch) const;
+	[[nodiscard]] int GetRollBonus() const { return roll_bonus_; };
+	[[nodiscard]] int GetPvpPenalty() const { return pvp_penalty; };
+	[[nodiscard]] int GetPvePenalty() const { return pve_penalty; };
+	[[nodiscard]] int GetEvpPenalty() const { return evp_penalty; };
 	[[nodiscard]] int GetCritsuccessThreshold() const { return critsuccess_threshold_; };
 	[[nodiscard]] int GetCritfailThreshold() const { return critfail_threshold_; };
 	[[nodiscard]] int GetDamageBonus() const { return damage_bonus_; };
@@ -68,7 +76,6 @@ class AbilityInfo : public info_container::BaseItem<EAbility> {
 	[[nodiscard]] bool IsWeaponTechnique() const { return uses_weapon_skill_; };
 	[[nodiscard]] const TechniqueItemKitsGroup &GetItemKits() const { return item_kits_; };
 
-	int (*GetBaseParameter)(const CharData *ch){[](const CharData *) { return 0; }};
 	int (*GetEffectParameter)(const CharData *ch){[](const CharData *) { return 0; }};
 	int (*CalcSituationalDamageFactor)(CharData * /* ch */){[](CharData *) { return 0; }};
 	int (*CalcSituationalRollBonus)(CharData * /*ch*/, CharData * /*enemy*/){[](CharData *, CharData *) { return 0; }};
@@ -82,6 +89,9 @@ class AbilityInfoBuilder : public info_container::IItemBuilder<AbilityInfo> {
  private:
 	static ItemPtr ParseAbility(DataNode &node);
 	static ItemPtr ParseHeader(DataNode &node);
+	static void ParseBaseVals(ItemPtr &info, DataNode &node);
+	static void ParseThresholds(ItemPtr &info, DataNode &node);
+	static void ParsePenalties(ItemPtr &info, DataNode &node);
 	//static void ParseEffects(ItemPtr &info, DataNode &node);
 	//static void ParseActions(ItemPtr &info, DataNode &node);
 	static void TemporarySetStat(ItemPtr &info);

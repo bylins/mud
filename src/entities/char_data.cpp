@@ -2239,4 +2239,22 @@ int ClampBaseStat(const CharData *ch, const EBaseStat stat_id, const int stat_va
 		   : std::clamp(stat_value, kLeastBaseStat, MUD::Class(ch->GetClass()).GetBaseStatCap(stat_id));
 }
 
+int GetRealBaseStat(const CharData *ch, EBaseStat stat_id) {
+	static const std::unordered_map<EBaseStat, int (*)(const CharData *ch)> stat_getters =
+		{
+			{EBaseStat::kStr, &GET_REAL_STR},
+			{EBaseStat::kDex, &GET_REAL_DEX},
+			{EBaseStat::kCon, &GET_REAL_CON},
+			{EBaseStat::kInt, &GET_REAL_INT},
+			{EBaseStat::kWis, &GET_REAL_WIS},
+			{EBaseStat::kCha, &GET_REAL_CHA}
+		};
+
+	try {
+		return stat_getters.at(stat_id)(ch);
+	} catch (std::out_of_range &) {
+		return 1;
+	}
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

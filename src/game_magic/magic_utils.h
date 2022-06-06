@@ -28,6 +28,9 @@ ESpell FixNameAndFindSpellId(std::string &name);
 EFeat FindFeatId(const char *name);
 EFeat FixNameAndFindFeatId(const std::string &name);
 
+abilities::EAbility FindAbilityId(const std::string &name);
+abilities::EAbility FixNameAndFindAbilityId(const std::string &name);
+
 ESpell FindSpellIdWithName(const std::string &name);
 
 int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch, ObjData **tobj, RoomData **troom);

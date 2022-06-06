@@ -144,9 +144,21 @@ int AgainstRivalRoll::CalcBaseSkillRating() {
 };
 
 int AgainstRivalRoll::CalcRollBonus() {
-	return std::clamp(MUD::Ability(ability_).GetRollBonus() +
-						  MUD::Ability(ability_).CalcSituationalRollBonus(actor_, rival_),
-					  abilities::kMinRollBonus, abilities::kMaxRollBonus);
+	auto bonus = MUD::Ability(ability_).GetRollBonus();
+	if (actor_->IsPlayer()) {
+		if (rival_->IsNpc()) {
+			bonus += MUD::Ability(ability_).GetPvePenalty();
+		} else {
+			bonus += MUD::Ability(ability_).GetPvpPenalty();
+		}
+	} else {
+		if (rival_->IsPlayer()) {
+			bonus += MUD::Ability(ability_).GetEvpPenalty();
+		}
+	}
+	bonus += MUD::Ability(ability_).CalcSituationalRollBonus(actor_, rival_);
+
+	return std::clamp(bonus, abilities::kMinRollBonus, abilities::kMaxRollBonus);
 };
 
 void TechniqueRoll::DetermineBaseSkill() {
