@@ -169,6 +169,7 @@ class Mod {
 
 class Applies {
 	struct ApplyMod {
+		EApply location{EApply::kNone};
 		EAffect affect{EAffect::kUndefinded};
 		int mod{0};
 		int cap{0};
@@ -176,11 +177,12 @@ class Applies {
 		double remort_bonus{0.0};
 
 		ApplyMod() = default;
-		ApplyMod(EAffect affect, int mod, int cap, double lvl_bonus, double remort_bonus)
-			: affect(affect), mod(mod), cap(cap), lvl_bonus(lvl_bonus), remort_bonus(remort_bonus) {};
+		ApplyMod(EApply location, EAffect affect, int mod, int cap, double lvl_bonus, double remort_bonus)
+			: location(location), affect(affect), mod(mod), cap(cap), lvl_bonus(lvl_bonus), remort_bonus(remort_bonus)
+			{};
 	};
 
-	std::unordered_map<EApply, ApplyMod> applies_roster_;
+	std::vector<ApplyMod> applies_roster_;
 
  public:
 	Applies() = default;
@@ -295,11 +297,11 @@ Applies::Applies(parser_wrapper::DataNode &node) {
 		try {
 			auto location = parse::ReadAsConstant<EApply>(apply.GetValue("location"));
 			auto affect = parse::ReadAsConstant<EAffect>(apply.GetValue("affect"));
-			auto val = parse::ReadAsInt(apply.GetValue("val"));
+			auto mod = parse::ReadAsInt(apply.GetValue("val"));
+			auto cap = parse::ReadAsInt(apply.GetValue("cap"));
 			auto lvl_bonus = parse::ReadAsDouble(apply.GetValue("lvl_bonus"));
 			auto remort_bonus = parse::ReadAsDouble(apply.GetValue("remort_bonus"));
-			auto cap = parse::ReadAsInt(apply.GetValue("cap"));
-			applies_roster_.emplace(location, Applies::ApplyMod(affect, val, cap, lvl_bonus, remort_bonus));
+			applies_roster_.emplace_back(Applies::ApplyMod(location, affect, mod, cap, lvl_bonus, remort_bonus));
 		} catch (std::exception &e) {
 			err_log("Incorrect value '%s' in '%s'.", e.what(), node.GetName());
 		}
@@ -316,12 +318,12 @@ void Applies::Print(CharData *ch, std::ostringstream &buffer) const {
 	table << table_wrapper::kHeader
 		  << "Location" << "Affect" << "Mod" << "Level bonus" << "Remort bonus" << "Cap" << table_wrapper::kEndRow;
 	for (const auto &apply: applies_roster_) {
-		table << NAME_BY_ITEM<EApply>(apply.first)
-			  << NAME_BY_ITEM<EAffect>(apply.second.affect)
-			  << apply.second.mod
-			  << apply.second.lvl_bonus
-			  << apply.second.remort_bonus
-			  << apply.second.cap
+		table << NAME_BY_ITEM<EApply>(apply.location)
+			  << NAME_BY_ITEM<EAffect>(apply.affect)
+			  << apply.mod
+			  << apply.lvl_bonus
+			  << apply.remort_bonus
+			  << apply.cap
 			  << table_wrapper::kEndRow;
 	}
 	table_wrapper::DecorateNoBorderTable(ch, table);
@@ -331,17 +333,17 @@ void Applies::Print(CharData *ch, std::ostringstream &buffer) const {
 
 void Applies::Impose(CharData *ch) const {
 	for (const auto &apply: applies_roster_) {
-		auto mod = static_cast<int>(apply.second.mod +
-			apply.second.lvl_bonus * ch->GetLevel() +
-			apply.second.remort_bonus * ch->get_remort());
-		if (apply.second.cap) {
-			if (apply.second.cap > 0) {
-				mod = std::min(mod, apply.second.cap);
+		auto mod = static_cast<int>(apply.mod +
+			apply.lvl_bonus * ch->GetLevel() +
+			apply.remort_bonus * ch->get_remort());
+		if (apply.cap) {
+			if (apply.cap > 0) {
+				mod = std::min(mod, apply.cap);
 			} else {
-				mod = std::max(mod, apply.second.cap);
+				mod = std::max(mod, apply.cap);
 			}
 		}
-		affect_modify(ch, apply.first, mod, apply.second.affect, true);
+		affect_modify(ch, apply.location, mod, apply.affect, true);
 	}
 }
 
