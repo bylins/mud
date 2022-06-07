@@ -805,7 +805,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 	}
 
 	if (!ch->IsNpc()) {
-		size = (MAX(0, GET_REAL_SIZE(ch) - 50));
+		size = std::max(0, GET_REAL_SIZE(ch) - 50);
 	} else {
 		size = size_app[GET_POS_SIZE(ch)].interpolate / 2;
 	}
@@ -836,7 +836,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		case ESkill::kBash: {
 			parameter_bonus += dex_bonus(GET_REAL_DEX(ch));
 			bonus = size + (GET_EQ(ch, EEquipPos::kShield) ?
-							weapon_app[MIN(35, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield))))].bashing : 0);
+							weapon_app[std::clamp(GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield)), 0, 35)].bashing : 0);
 			if (PRF_FLAGGED(ch, EPrf::kAwake)) {
 				bonus = -50;
 			}
@@ -956,7 +956,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 			}
 			if (GET_EQ(ch, EEquipPos::kHold)
 				&& GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kHold)) == EObjType::kWeapon) {
-				bonus += weapon_app[MAX(0, MIN(50, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kHold))))].parrying;
+				bonus += weapon_app[std::clamp(GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kHold)), 0, 50)].parrying;
 			}
 			break;
 		}
@@ -964,7 +964,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		case ESkill::kShieldBlock: {
 			parameter_bonus += dex_bonus(GET_REAL_DEX(ch));
 			bonus += GET_EQ(ch, EEquipPos::kShield) ?
-					 MIN(10, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield)) - 20)) : 0;
+					 std::clamp(GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield - 20)), 0, 10) : 0;
 			break;
 		}
 
@@ -1074,16 +1074,16 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		case ESkill::kPunctual: {
 			parameter_bonus = dex_bonus(GET_REAL_INT(ch));
 			if (GET_EQ(ch, EEquipPos::kWield))
-				bonus += MAX(18, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kWield))) - 18
-					+ MAX(25, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kWield))) - 25
-					+ MAX(30, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kWield))) - 30;
+				bonus += std::max(18, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kWield))) - 18
+					+ std::max(25, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kWield))) - 25
+					+ std::max(30, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kWield))) - 30;
 			if (GET_EQ(ch, EEquipPos::kHold))
-				bonus += MAX(18, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kHold))) - 18
-					+ MAX(25, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kHold))) - 25
-					+ MAX(30, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kHold))) - 30;
+				bonus += std::max(18, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kHold))) - 18
+					+ std::max(25, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kHold))) - 25
+					+ std::max(30, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kHold))) - 30;
 			if (GET_EQ(ch, EEquipPos::kBoths))
-				bonus += MAX(25, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kBoths))) - 25
-					+ MAX(30, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kBoths))) - 30;
+				bonus += std::max(25, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kBoths))) - 25
+					+ std::max(30, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kBoths))) - 30;
 			break;
 		}
 
@@ -1177,8 +1177,8 @@ ELuckTestResult MakeLuckTest(CharData *ch, CharData *vict) {
 	if (luck < 0) {
 		luck = luck * 10;
 	}
-	const int bonus_limit = MIN(150, luck * 10);
-	int fail_limit = MIN(990, 950 + luck * 10 / 6);
+	const int bonus_limit = std::min(150, luck * 10);
+	int fail_limit = std::min(990, 950 + luck * 10 / 6);
 	if (luck >= 50) {
 		fail_limit = 999;
 	}
@@ -1265,7 +1265,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 	base_percent += int_app[GET_REAL_INT(ch)].to_skilluse;
 	if (!ch->IsNpc()) {
-		size = (MAX(0, GET_REAL_SIZE(ch) - 50));
+		size = std::max(0, GET_REAL_SIZE(ch) - 50);
 	} else {
 		size = size_app[GET_POS_SIZE(ch)].interpolate / 2;
 	}
@@ -1300,7 +1300,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 			bonus = size
 				+ dex_bonus(GET_REAL_DEX(ch))
 				+ (GET_EQ(ch, EEquipPos::kShield)
-				   ? weapon_app[MIN(35, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield))))].bashing
+				   ? weapon_app[std::clamp(GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield)), 0, 35)].bashing
 				   : 0);
 			if (vict) {
 				if (GET_POS(vict) < EPosition::kFight && GET_POS(vict) > EPosition::kSleep) {
@@ -1454,7 +1454,8 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 			if (GET_EQ(ch, EEquipPos::kHold)
 				&& GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kHold)) == EObjType::kWeapon) {
-				bonus += weapon_app[MAX(0, MIN(50, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kHold))))].parrying;
+				bonus +=
+					weapon_app[std::clamp(GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kHold)), 0, 50)].parrying;
 			}
 			victim_modi = 100;
 			break;
@@ -1462,8 +1463,9 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kShieldBlock: {
 			int shield_mod =
-				GET_EQ(ch, EEquipPos::kShield) ? MIN(10, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield)) - 20)) : 0;
-			int dex_mod = MAX(0, (GET_REAL_DEX(ch) - 20) / 3);
+				GET_EQ(ch, EEquipPos::kShield) ?
+					std::min(10, std::max(0, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield)) - 20)) : 0;
+			int dex_mod = std::max(0, (GET_REAL_DEX(ch) - 20) / 3);
 			bonus = dex_mod + shield_mod;
 			break;
 		}
@@ -1818,7 +1820,7 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 	prob -= 5 * wis_bonus(GET_REAL_WIS(ch), WIS_MAX_SKILLS);
 	prob += number(1, trained_skill * 5);
 
-	int skill_is = number(1, MAX(1, prob));
+	int skill_is = number(1, std::max(1, prob));
 	if ((victim && skill_is <= GET_REAL_INT(ch) * GetRealLevel(victim) / GetRealLevel(ch))
 		|| (!victim && skill_is <= GET_REAL_INT(ch))) {
 		if (success) {
@@ -1832,7 +1834,7 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 		ch->set_morphed_skill(skill, (trained_skill + number(1, 2)));
 		if (!IS_IMMORTAL(ch)) {
 			ch->set_morphed_skill(skill,
-								  (MIN(kZeroRemortSkillCap + GET_REAL_REMORT(ch) * 5, ch->GetMorphSkill(skill))));
+								  (std::min(kZeroRemortSkillCap + GET_REAL_REMORT(ch) * 5, ch->GetMorphSkill(skill))));
 		}
 		if (victim && victim->IsNpc()) {
 			MOB_FLAGS(victim).set(EMobFlag::kNoSkillTrain);
@@ -1892,7 +1894,7 @@ int GetSkillMinLevel(CharData *ch, ESkill skill, int req_lvl) {
 int GetSkillMinLevel(CharData *ch, ESkill skill) {
 	int min_lvl = MUD::Class(ch->GetClass()).skills[skill].GetMinLevel() -
 		std::max(0, GET_REAL_REMORT(ch)/ MUD::Class(ch->GetClass()).GetSkillLvlDecrement());
-	return MAX(1, min_lvl);
+	return std::max(1, min_lvl);
 };
 
 bool CanGetSkill(CharData *ch, ESkill skill, int req_lvl) {
