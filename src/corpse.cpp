@@ -152,8 +152,8 @@ void init() {
 			day_start = 0;
 		}
 		std::string tmp_str = parse::ReadAattrAsStr(node, "sects");
-		std::list<std::string> strs;
-		boost::split(strs, tmp_str, boost::is_any_of(" "));
+		std::vector<std::string> strs;
+		utils::Split(strs, tmp_str);
 		for (const auto &i : strs) {
 			tmp.sects.push_back(std::stoi(i));
 		}

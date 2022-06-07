@@ -410,7 +410,8 @@ void process() {
 		} else {
 			std::string alias = it.second.get_alias();
 			std::vector<std::string> str_list;
-			boost::split(str_list, alias, boost::is_any_of(","));
+			//boost::split(str_list, alias, boost::is_any_of(","));
+			utils::Split(str_list, alias, ',');
 			for (auto & k : str_list) {
 				k.erase(boost::remove_if(k, boost::is_any_of(" ,.")), k.end());
 				HelpSystem::add_static(set_name + "сет" + k, out.str(), 0, true);
