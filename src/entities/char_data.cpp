@@ -74,7 +74,7 @@ CharData::CharData() :
 	followers(nullptr) {
 	this->zero_init();
 	current_morph_ = GetNormalMorphNew(this);
-	caching::character_cache.add(this);
+	caching::character_cache.Add(this);
 	this->set_skill(ESkill::kGlobalCooldown, 1);
 }
 
@@ -400,7 +400,7 @@ void CharData::zero_init() {
  * вызовов до выхода в обработку heartbeat(), где раз в минуту удаляются оболочки.
  */
 void CharData::purge() {
-	caching::character_cache.remove(this);
+	caching::character_cache.Remove(this);
 
 	if (!get_name().empty()) {
 		log("[FREE CHAR] (%s)", GET_NAME(this));
