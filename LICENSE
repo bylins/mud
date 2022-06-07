@@ -1,45 +1,166 @@
-The CircleMUD License
+
+
+
+                   Многоползовательский мир Былины
+                   Лиценция
+
+Код МПМ "Былины" был создан группой 
+разработчиков на основе CircleMUD:
+Дмитрий Лица
+Андрей Сердюков 
+Константин Будников 
+Алексей Сидоров
+Александр Бурлаченко
+
+  МПМ Былины яляется лицензированым продуктом. Текст лицензии приведен ниже. Если 
+вы хотите как либо использовать исходный код МПМ "Былины", вы должны прочитать
+эту лицензию и компилировать только при принятии всех пунктов.
+
+  МПМ Былины основаны на коде CircleMUD. CircleMUD также является лицензированым
+ПО. Его лицензия является неотъемлемой частью лицензии МПМ Былины и вы обязаны
+исполнять ее условия при использовании МПМ Былины.
+
+  При использовании кода МПМ Былины вы обязаны соблюдать следующие условия:
+1. Вы не можете использовать код в коммерческих целях
+2. При модификации кода, вы также должны открыть его для публичного доступа 
+и использования.
+3. При любом использовнии обязательно должны быть указаны имена авторов МПМ 
+"Былины".
+4. Использование системы заклинаний, социалов, зон МПМ Былины - запрещено.
+5. При использовании вы должны выполнить условия приведенной ниже лицензии 
+
+==========================================================
+CircleMUD.
+
+                             CircleMUD License
 
 CircleMUD was created by:
+
 Jeremy Elson
 Department of Computer Science
 Johns Hopkins University
-Baltimore, MD 21218 USA
+Baltimore, MD  21218  USA
 jelson@circlemud.org
-CircleMUD is licensed software. This file contains the text of the CircleMUD license. If you wish to use the CircleMUD system in any way, or use any of its source code, you must read this license and are legally bound to comply with it.
 
-CircleMUD is a derivative work based on the DikuMUD system written by Hans Henrik Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert, and Sebastian Hammer. DikuMUD is also licensed software; you are legally bound to comply with the original DikuMUD license as well as the CircleMUD license if you wish to use CircleMUD.
 
-Use of the CircleMUD code in any capacity implies that you have read, understood, and agreed to abide by the terms and conditions set down by this license and the DikuMUD license. If you use CircleMUD without complying with the license, you are breaking the law.
 
-Using CircleMUD legally is easy. In short, the license requires three things:
+CircleMUD is licensed software.  This file contains the text of the CircleMUD
+license.  If you wish to use the CircleMUD system in any way, or use any of
+its source code, you must read this license and are legally bound to comply
+with it.
 
-You must not use CircleMUD to make money or be compensated in any way.
-You must give the authors credit for their work.
-You must comply with the DikuMUD license.
-That's it -- those are the main conditions set down by this license. Unfortunately, past experience has shown that many people are not willing to follow the spirit of the license, so the remainder of this document will clearly define those conditions in an attempt to prevent people from circumventing them.
+CircleMUD is a derivative work based on the DikuMUD system written by Hans
+Henrik Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert, and Sebastian
+Hammer.  DikuMUD is also licensed software; you are legally bound to comply
+with the original DikuMUD license as well as the CircleMUD license if you
+wish to use CircleMUD.
 
-The first condition says that you must not use CircleMUD to make money in any way or be otherwise compensated. CircleMUD was developed in people's uncompensated spare time and was given to you free of charge, and you must not use it to make money. CircleMUD must not in any way be used to facilitate your acceptance of fees, donations, or other compensation. Examples include, but are not limited to the following:
+Use of the CircleMUD code in any capacity implies that you have read,
+understood, and agreed to abide by the terms and conditions set down by this
+license and the DikuMUD license.  If you use CircleMUD without complying with
+the license, you are breaking the law.
 
-If you run CircleMUD, you must not require any type of fee or donation in exchange for being able to play CircleMUD. You must not solicit, offer or accept any kind of donation from your players in exchange for enhanced status in the game such as increased levels, character stats, gold, or equipment.
-You must not solicit or accept money or other donations in exchange for running CircleMUD. You must not accept money or other donations from your players for purposes such as hardware upgrades for running CircleMUD.
-You must not sell CircleMUD. You must not accept any type of fee in exchange for distributing or copying CircleMUD.
-If you are a CircleMUD administrator, You must not accept any type of reimbursement for money spent out of pocket for running CircleMUD, i.e., for equipment expenses or fees incurred from service providers.
-The second part of the license states that you must give credit to the creators of CircleMUD. A great deal of work went into the creation of CircleMUD, and it was given to you completely free of charge; claiming that you wrote the MUD yourself is a slap in the face to everyone who worked to bring you a high quality product while asking for nothing but credit for their work in return.
+Using CircleMUD legally is easy.  In short, the license requires three things:
+
+1) You must not use CircleMUD to make money or be compensated in any way.
+2) You must give the authors credit for their work.
+3) You must comply with the DikuMUD license.
+
+That's it -- those are the main conditions set down by this license.
+Unfortunately, past experience has shown that many people are not willing
+to follow the spirit of the license, so the remainder of this document will
+clearly define those conditions in an attempt to prevent people from
+circumventing them.
+
+The first condition says that you must not use CircleMUD to make money in
+any way or be otherwise compensated.  CircleMUD was developed in people's
+uncompensated spare time and was given to you free of charge, and you must
+not use it to make money.  CircleMUD must not in any way be used to
+facilitate your acceptance of fees, donations, or other compensation.
+Examples include, but are not limited to the following:
+
+-- If you run CircleMUD, you must not require any type of fee or donation
+   in exchange for being able to play CircleMUD.  You must not solicit,
+   offer or accept any kind of donation from your players in exchange for
+   enhanced status in the game such as increased levels, character stats,
+   gold, or equipment.
+
+-- You must not solicit or accept money or other donations in exchange for
+   running CircleMUD.  You must not accept money or other donations from
+   your players for purposes such as hardware upgrades for running
+   CircleMUD.
+
+-- You must not sell CircleMUD.  You must not accept any type of fee in
+   exchange for distributing or copying CircleMUD.
+
+-- If you are a CircleMUD administrator, You must not accept any type of
+   reimbursement for money spent out of pocket for running CircleMUD, i.e.,
+   for equipment expenses or fees incurred from service providers.
+
+
+The second part of the license states that you must give credit to the
+creators of CircleMUD.  A great deal of work went into the creation of
+CircleMUD, and it was given to you completely free of charge; claiming that
+you wrote the MUD yourself is a slap in the face to everyone who worked to
+bring you a high quality product while asking for nothing but credit for
+their work in return.
+
 Specifically, the following are required:
 
-The text in the 'credits' file distributed with CircleMUD must be preserved. You may add your own credits to the file, but the existing text must not be removed, abridged, truncated, or changed in any way. This file must be displayed when the 'credits' command is used from within the MUD.
-The "CIRCLEMUD" help entry must be maintained intact and unchanged, and displayed in its entirety when the 'help circlemud' command is used.
-The login sequence must contain the names of the DikuMUD and CircleMUD creators. The 'login sequence' is defined as the text seen by players between the time they connect to the MUD and when they start to play the game itself.
-This license must be distributed AS IS with all copies or portions of the CircleMUD that you distribute, if any, including works derived from CircleMUD.
-You must not remove, change, or modify any notices of copyright, licensing or authorship found in any CircleMUD source code files.
-Claims that any of the above requirements are inapplicable to a particular MUD for reasons such as "our MUD is totally rewritten" or similar are completely invalid. If you can write a MUD completely from scratch then you are encouraged to do so by all means, but use of any part of the CircleMUD or DikuMUD source code requires that their respective licenses be followed, including the crediting requirements.
-The third part of the license simply states that you must comply with the DikuMUD license. This is required because CircleMUD is a DikuMUD derivative. The DikuMUD license is included below.
-You are allowed to use, modify and redistribute all CircleMUD source code and documentation as long as such use does not violate any of the rules set down by this license.
+-- The text in the 'credits' file distributed with CircleMUD must be
+   preserved.  You may add your own credits to the file, but the existing
+   text must not be removed, abridged, truncated, or changed in any way.
+   This file must be displayed when the 'credits' command is used from
+   within the MUD.
 
-Jeremy Elson
+-- The "CIRCLEMUD" help entry must be maintained intact and unchanged, and
+   displayed in its entirety when the 'help circlemud' command is used.
 
-Everything below this line is the original, unmodified DikuMUD license. You must comply with the CircleMUD license above, as well as the DikuMUD license below.
+-- The login sequence must contain the names of the DikuMUD and CircleMUD
+   creators.  The 'login sequence' is defined as the text seen by players
+   between the time they connect to the MUD and when they start to play
+   the game itself.
+
+-- This license must be distributed AS IS with all copies or portions of
+   the CircleMUD that you distribute, if any, including works derived from
+   CircleMUD.
+
+-- You must not remove, change, or modify any notices of copyright,
+   licensing or authorship found in any CircleMUD source code files.
+
+-- Claims that any of the above requirements are inapplicable to a particular
+   MUD for reasons such as "our MUD is totally rewritten" or similar are
+   completely invalid.  If you can write a MUD completely from scratch then
+   you are encouraged to do so by all means, but use of any part of the
+   CircleMUD or DikuMUD source code requires that their respective licenses
+   be followed, including the crediting requirements.
+   
+   
+The third part of the license simply states that you must comply with the
+DikuMUD license.  This is required because CircleMUD is a DikuMUD derivative.
+The DikuMUD license is included below.
+
+
+You are allowed to use, modify and redistribute all CircleMUD source code
+and documentation as long as such use does not violate any of the rules
+set down by this license.
+
+
+--Jeremy Elson
+
+CircleMUD 3 -- Copyright (C) 1994-2001, The CircleMUD Group
+Other portions copyright by authors as noted in ChangeLog and source code.
+
+
+
+===========================================================================
+
+
+Everything below this line is the original, unmodified DikuMUD license.
+You must comply with the CircleMUD license above, as well as the DikuMUD
+license below.
+
+---------------------------------------------------------------------------
 
 
 /* ************************************************************************
