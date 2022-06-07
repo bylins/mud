@@ -28,7 +28,7 @@ double Damage::CalcSkillDmgCoeff(const CharData *const ch) const {
 }
 
 double Damage::CalcBaseStatCoeff(const CharData *const ch) const {
-	return (GetRealBaseStat(ch, base_stat_) - base_stat_threshold_) * base_stat_weight_;
+	return (GetRealBaseStat(ch, base_stat_) - base_stat_threshold_) * base_stat_weight_ / 100.0;
 }
 
 Damage::Damage(parser_wrapper::DataNode &node) {

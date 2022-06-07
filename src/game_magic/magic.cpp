@@ -3993,45 +3993,45 @@ int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, ESpell spell
 											   [](CharData *, CharData *target) {
 												   return !IS_HORSE(target);
 											   }};
-		int msgIndex = FindIndexOfMsg(spell_id);
-		TrySendCastMessages(ch, victim, room, msgIndex);
-		int targetsAmount = params.CalcTargetsQuantity(ch->GetSkill(GetMagicSkillId(spell_id)));
-		int targetsCounter = 1;
-		int levelDecay = 0;
-		double castDecay = 0.0;
+		int msg_index = FindIndexOfMsg(spell_id);
+		TrySendCastMessages(ch, victim, room, msg_index);
+		int targets_num = params.CalcTargetsQuantity(ch->GetSkill(GetMagicSkillId(spell_id)));
+		int targets_counter = 1;
+		int lvl_decay = 0;
+		double cast_decay = 0.0;
 		if (CanUseFeat(ch, EFeat::kMultipleCast)) {
-			castDecay = params.cast_decay * 0.6;
-			levelDecay = MAX(MIN(1, params.level_decay), params.level_decay - 1);
+			cast_decay = params.cast_decay * 0.6;
+			lvl_decay = std::max(0, params.level_decay - 1);
 		} else {
-			castDecay = params.cast_decay;
-			levelDecay = params.level_decay;
+			cast_decay = params.cast_decay;
+			lvl_decay = params.level_decay;
 		}
 		const int kCasterCastSuccess = GET_CAST_SUCCESS(ch);
 
 		for (const auto &target: roster) {
-			if (mag_messages[msgIndex].to_vict != nullptr && target->desc) {
-				act(mag_messages[msgIndex].to_vict, false, ch, nullptr, target, kToVict);
+			if (mag_messages[msg_index].to_vict != nullptr && target->desc) {
+				act(mag_messages[msg_index].to_vict, false, ch, nullptr, target, kToVict);
 			}
 			CastToSingleTarget(level, ch, target, nullptr, spell_id);
 			if (ch->purged()) {
 				return 1;
 			}
 			if (!ch->IsNpc()) {
-				++targetsCounter;
-				if (targetsCounter > params.free_targets) {
-					int tax = kCasterCastSuccess * castDecay * (targetsCounter - params.free_targets);
+				++targets_counter;
+				if (targets_counter > params.free_targets) {
+					int tax = kCasterCastSuccess * cast_decay * (targets_counter - params.free_targets);
 					GET_CAST_SUCCESS(ch) = std::max(-200, kCasterCastSuccess - tax);
-					level = std::max(1, level - levelDecay);
+					level = std::max(1, level - lvl_decay);
 					if (PRF_FLAGGED(ch, EPrf::kTester)) {
 						SendMsgToChar(ch,
 									  "&GМакс. целей: %d, Каст: %d, Уровень заклинания: %d.&n\r\n",
-									  targetsAmount,
+									  targets_num,
 									  GET_CAST_SUCCESS(ch),
 									  level);
 					}
 				};
 			};
-			if (targetsCounter >= targetsAmount) {
+			if (targets_counter >= targets_num) {
 				break;
 			}
 		}
