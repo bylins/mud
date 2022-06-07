@@ -166,7 +166,7 @@ void ClanPkLog::load(const std::string &abbrev) {
 
 	std::string buffer;
 	while (std::getline(file, buffer)) {
-		boost::trim(buffer);
+		utils::Trim(buffer);
 		buffer += "\r\n";
 		pk_log.push_back(buffer);
 	}
@@ -334,7 +334,7 @@ void ClanChestLog::add(const std::string &text) {
 }
 
 void ClanChestLog::print(CharData *ch, std::string &text) const {
-	boost::trim(text);
+	utils::Trim(text);
 	std::string out, bufer_out;
 	if (text.empty()) {
 		out += "История хранилища дружины:\r\n";
@@ -349,7 +349,7 @@ void ClanChestLog::print(CharData *ch, std::string &text) const {
 		for (std::list<std::string>::const_iterator i = chest_log_.begin(),
 				 iend = chest_log_.end(); i != iend; ++i) {
 			bufer_out = *i;
-			utils::remove_colors(bufer_out);
+			utils::RemoveColors(bufer_out);
 			if ((bufer_out).find(text) != std::string::npos) {
 				out += *i;
 			}
@@ -396,7 +396,7 @@ void ClanChestLog::load(const std::string &abbrev) {
 
 	std::string buffer;
 	while (std::getline(file, buffer)) {
-		boost::trim(buffer);
+		utils::Trim(buffer);
 		buffer += "\r\n";
 		chest_log_.push_back(buffer);
 	}

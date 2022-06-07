@@ -1244,12 +1244,12 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 	}
 
 	int base_percent = ch->GetSkill(skill_id);
-	int total_percent = 0;
-	int victim_sav = 0; // савис жертвы,
-	int victim_modi = 0; // другие модификаторы, влияющие на прохождение
-	int bonus = 0; // бонус от дополнительных параметров.
-	int size = 0; // бонусы/штрафы размера (не спрашивайте...)
-	bool ignore_luck = false; // Для скиллов, не учитывающих удачу
+	int total_percent{0};
+	int victim_sav{0};			// савис жертвы,
+	int victim_modi{0};			// другие модификаторы, влияющие на прохождение
+	int bonus{0};				// бонус от дополнительных параметров.
+	int size{0};				// бонусы/штрафы размера (не спрашивайте...)
+	bool ignore_luck{false};	// Для скиллов, не учитывающих удачу
 
 	if (base_percent <= 0) {
 		return 0;

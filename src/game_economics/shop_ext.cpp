@@ -8,7 +8,6 @@
 #include "obj_prototypes.h"
 #include "handler.h"
 #include "house.h"
-#include "utils/parse.h"
 
 #include <boost/algorithm/string.hpp>
 
@@ -111,7 +110,7 @@ void load_item_desc() {
 			for (pugi::xml_node trig = trig_list.child("trig"); trig; trig = trig.next_sibling("trig")) {
 				int trig_vnum;
 				std::string tmp_value = trig.child_value();
-				boost::trim(tmp_value);
+				utils::Trim(tmp_value);
 				try {
 					trig_vnum = std::stoi(tmp_value, nullptr, 10);
 				}

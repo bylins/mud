@@ -328,7 +328,7 @@ void TriggersFile::parse_trigger(int vnum) {
 		std::string line = cmds.substr(pos, (pos_end == std::string::npos) ? pos_end : pos_end - pos);
 		// exclude empty lines, but always include the last one to make sure the list is not empty
 		if (!line.empty() || pos_end == std::string::npos) {
-			boost::trim_right(line);
+			utils::TrimRight(line);
 			ptr->reset(new cmdlist_element());
 			indent_trigger(line, &indlev);
 			(*ptr)->cmd = line;

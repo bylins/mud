@@ -7,13 +7,9 @@
 #include "entities/char_data.h"
 #include "color.h"
 #include "utils/pugixml/pugixml.h"
-#include "utils/parse.h"
-#include "entities/zone.h"
 
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
-
-#include <sstream>
 
 using namespace ExtMoney;
 using namespace Remort;
@@ -29,11 +25,7 @@ namespace Remort {
 const char *CONFIG_FILE = LIB_MISC"remort.xml";
 std::string WHERE_TO_REMORT_STR;
 
-void init();
-bool can_remort_now(CharData *ch);
-void show_config(CharData *ch);
 int calc_torc_daily(int rmrt);
-bool need_torc(CharData *ch);
 
 } // namespace Remort
 
@@ -290,7 +282,7 @@ void torc_exch_parse(CharData *ch, const char *arg) {
 
 	std::string param2(arg), param1;
 	GetOneParam(param2, param1);
-	boost::trim(param2);
+	utils::Trim(param2);
 
 	int num1 = 0, num2 = 0;
 

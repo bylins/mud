@@ -965,7 +965,7 @@ bool parse_text_olc(CharData *ch, const std::string &str, std::bitset<TOTAL_MAP_
 void Options::text_olc(CharData *ch, const char *arg) {
 	std::string str(arg), first_arg;
 	GetOneParam(str, first_arg);
-	boost::trim(str);
+	utils::Trim(str);
 
 	if (isname(first_arg, "редактировать") || isname(first_arg, "опции") || isname(first_arg, "меню")
 		|| isname(first_arg, "edit") || isname(first_arg, "options") || isname(first_arg, "menu")) {

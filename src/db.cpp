@@ -5698,7 +5698,7 @@ void load_mobraces() {
 			struct ingredient tmp_ingr;
 			tmp_ingr.imtype = im.attribute("type").as_int();
 			tmp_ingr.imname = string(im.attribute("name").value());
-			boost::trim(tmp_ingr.imname);
+			utils::Trim(tmp_ingr.imname);
 			int cur_lvl = 1;
 			int prob_value = 1;
 			for (pugi::xml_node prob = im.child("prob"); prob; prob = prob.next_sibling("prob")) {

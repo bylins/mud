@@ -8,7 +8,6 @@
 #include "obj_prototypes.h"
 #include "obj_sets_stuff.h"
 #include "utils/pugixml/pugixml.h"
-#include "utils/parse.h"
 #include "color.h"
 #include "modify.h"
 #include "help.h"
@@ -727,7 +726,7 @@ std::string print_obj_list(const SetNode &set) {
 		left = !left;
 	}
 
-	boost::trim_right(out);
+	utils::TrimRight(out);
 	return out + "\r\n";
 }
 
@@ -803,7 +802,7 @@ std::string print_activ_affects(const FlagData &aff) {
 		// каждой строки " + " и выделить сами аффекты цветом
 		std::string aff_str(" + Аффекты :\r\n");
 		aff_str += line_split_str(buf_, ",", 74, 0);
-		boost::trim_right(aff_str);
+		utils::TrimRight(aff_str);
 		char filler[64];
 		snprintf(filler, sizeof(filler), "\n%s +    %s", KNRM, KCYN);
 		boost::replace_all(aff_str, "\n", filler);

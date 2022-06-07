@@ -55,8 +55,6 @@ void show_string(DescriptorData *d, char *input);
 #define PARSE_LIST_NUM    6
 #define PARSE_EDIT        7
 
-extern const char *MENU;
-
 // local functions
 void smash_tilde(char *str);
 void do_skillset(CharData *ch, char *argument, int cmd, int subcmd);
@@ -754,7 +752,7 @@ void string_add(DescriptorData *d, char *str) {
 			if (terminator == 1
 				&& d->writer->get_string()) {
 				std::string body = d->writer->get_string();
-				boost::trim(body);
+				utils::Trim(body);
 				if (body.empty()) {
 					CLAN(d->character)->write_mod(body);
 					SendMsgToChar("Сообщение удалено.\r\n", d->character.get());

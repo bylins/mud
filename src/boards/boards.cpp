@@ -292,7 +292,7 @@ void DoBoard(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		}
 
 		// обработка сабжа
-		boost::trim(buffer2);
+		utils::Trim(buffer2);
 		if (buffer2.length() > 40) {
 			buffer2.erase(40, std::string::npos);
 			SendMsgToChar(ch, "Тема сообщения укорочена до '%s'.\r\n", buffer2.c_str());

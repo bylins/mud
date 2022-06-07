@@ -1461,7 +1461,7 @@ void StringReplace(std::string &buffer, char s, const std::string &d) {
 
 std::string &format_news_message(std::string &text) {
 	StringReplace(text, '\n', "\n   ");
-	boost::trim(text);
+	utils::Trim(text);
 	text.insert(0, "   ");
 	text += '\n';
 	return text;

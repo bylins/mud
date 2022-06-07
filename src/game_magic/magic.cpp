@@ -2052,8 +2052,8 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
 										 CalcDuration(victim, 4, 0, 0, 0, 0)) * koef_duration;
 			af[0].modifier =
-				-1 * MAX(1,
-						 (MIN(29, GetRealLevel(ch)) - MIN(24, GetRealLevel(victim)) +
+				-1 * std::max(1,
+						 (std::min(29, GetRealLevel(ch)) - std::min(24, GetRealLevel(victim)) +
 							 GET_REAL_REMORT(ch) / 3) * GET_MAX_HIT(victim) / 100);
 			af[0].bitvector = to_underlying(EAffect::kCrying);
 			if (victim->IsNpc()) {
@@ -2356,7 +2356,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 		case ESpell::kWarcryOfBattle: {
 			af[0].location = EApply::kAc;
-			af[0].modifier = -(10 + MIN(20, 2 * GET_REAL_REMORT(ch)));
+			af[0].modifier = -(10 + std::min(20, 2 * GET_REAL_REMORT(ch)));
 			af[0].duration = CalcDuration(victim, 2, ch->GetSkill(ESkill::kWarcry), 20, 10, 0) * koef_duration;
 			to_room = nullptr;
 			break;
@@ -2382,7 +2382,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 		case ESpell::kWarcryOfPower: {
 			af[0].location = EApply::kHp;
-			af[0].modifier = MIN(200, (4 * ch->get_con() + ch->GetSkill(ESkill::kWarcry)) / 2);
+			af[0].modifier = std::min(200, (4 * ch->get_con() + ch->GetSkill(ESkill::kWarcry)) / 2);
 			af[0].duration = CalcDuration(victim, 2, ch->GetSkill(ESkill::kWarcry), 20, 10, 0) * koef_duration;
 			to_vict = nullptr;
 			to_room = nullptr;

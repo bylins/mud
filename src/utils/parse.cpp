@@ -254,7 +254,7 @@ void ReadAsIntSet(std::unordered_set<int> &num_set, const char *value) {
 	}
 
 	std::vector<std::string> str_array;
-	utils::SplitString(str_array, value, '|');
+	utils::Split(str_array, value, '|');
 	for (const auto &str : str_array) {
 		try {
 			num_set.emplace(std::stoi(str, nullptr));

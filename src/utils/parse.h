@@ -65,7 +65,7 @@ void ReadAsConstantsSet(std::unordered_set<T> &roster, const char *value) {
 		throw std::runtime_error("string is empty");
 	}
 	std::vector<std::string> str_array;
-	utils::SplitString(str_array, value, '|');
+	utils::Split(str_array, value, '|');
 	for (const auto &str : str_array) {
 		try {
 			roster.emplace(ITEM_BY_NAME<T>(str));
@@ -81,7 +81,7 @@ Bitvector ReadAsConstantsBitvector(const char *value) {
 		throw std::runtime_error("string is empty");
 	}
 	std::vector<std::string> str_array;
-	utils::SplitString(str_array, value, '|');
+	utils::Split(str_array, value, '|');
 	Bitvector result{0};
 	for (const auto &str : str_array) {
 		try {

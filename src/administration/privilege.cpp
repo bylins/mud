@@ -9,7 +9,6 @@
 #include "boards/boards.h"
 
 #include <boost/tokenizer.hpp>
-#include <boost/algorithm/string.hpp>
 
 /**
 * Система привилегий иммов и демигодов, совмещенная с бывшим god.lst.
@@ -213,7 +212,7 @@ void Load() {
 
 				file >> temp; // "="
 				std::getline(file, commands);
-				boost::trim(commands);
+				utils::Trim(commands);
 				group_list[name] = commands;
 			}
 			continue;
@@ -229,7 +228,7 @@ void Load() {
 				name_convert(name);
 				tmp_god.name = name;
 				std::getline(file, commands);
-				boost::trim(commands);
+				utils::Trim(commands);
 				parse_command_line(commands);
 				insert_default_command(uid);
 				god_list[uid] = tmp_god;

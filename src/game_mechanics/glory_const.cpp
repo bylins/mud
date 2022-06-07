@@ -602,7 +602,7 @@ void do_spend_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		std::string name;
 		GetOneParam(buffer, name);
 		// buffer = кол-во
-		boost::trim(buffer);
+		utils::Trim(buffer);
 
 		Player p_vict;
 		CharData *vict = &p_vict;
