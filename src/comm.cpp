@@ -1674,7 +1674,7 @@ std::string make_prompt(DescriptorData *d) {
 					sec_hp = sec_hp*60/mana_gain;
 					int ch_hp = sec_hp/60;
 					sec_hp %= 60;
-					out << "Зауч:" << ch_hp << ":" << std::setw(2) << std::setfill('0') << sec_hp;
+					out << "Зауч:" << ch_hp << ":" << std::setw(2) << std::setfill('0') << sec_hp << " ";
 				} else {
 					out << "Зауч:- ";
 				}
@@ -1701,7 +1701,7 @@ std::string make_prompt(DescriptorData *d) {
 		if (PRF_FLAGGED(d->character, EPrf::kDispTimed)) {
 			for (auto timed = d->character->timed; timed; timed = timed->next) {
 				if (timed->skill != ESkill::kWarcry && timed->skill != ESkill::kTurnUndead) {
-					out << MUD::Skill(timed->skill).GetAbbr() << ":" << timed->time << " ";
+					out << MUD::Skill(timed->skill).GetAbbr() << ":" << +timed->time << " ";
 				}
 			}
 			if (d->character->GetSkill(ESkill::kWarcry)) {
