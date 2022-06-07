@@ -1171,7 +1171,7 @@ int CalcCircleSlotsAmount(CharData *ch, int circle) {
 		return SPELL_SLOTS_FOR_IMMORTAL;
 	}
 
-	if (MUD::Classes(ch->GetClass()).GetMaxCircle() < circle) {
+	if (MUD::Class(ch->GetClass()).GetMaxCircle() < circle) {
 		return 0;
 	}
 

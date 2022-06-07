@@ -106,6 +106,7 @@ void init_EAffectFlag_ITEM_NAMES() {
 	EAffectFlag_value_by_name.clear();
 	EAffectFlag_name_by_value.clear();
 
+	EAffectFlag_name_by_value[EAffect::kUndefinded] = "kUndefinded";
 	EAffectFlag_name_by_value[EAffect::kBlind] = "kBlind";
 	EAffectFlag_name_by_value[EAffect::kInvisible] = "kInvisible";
 	EAffectFlag_name_by_value[EAffect::kDetectAlign] = "kDetectAlign";

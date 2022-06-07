@@ -9,38 +9,32 @@
 */
 
 #include "abilities_constants.h"
-#include "entities/char_data.h"
+#include "entities/entities_constants.h"
+#include "game_skills/skills.h"
+#include "abilities_items_set.h"
 
 #include <string>
 
-namespace AbilitySystem {
+class CharData;
+
+namespace abilities_roll {
 
 class AbilityRoll {
  protected:
-	CharData *actor_;
-	int actor_rating_;
-	int success_degree_;
-	const FeatureInfo *ability_;
-	bool success_;
-	bool critical_fail_;
-	bool critical_success_;
-	bool wrong_conditions_;
-	ESkill base_skill_;
-	std::string deny_msg_;
+	CharData *actor_{nullptr};
+	abilities::EAbility ability_{abilities::EAbility::kUndefined};
+	ESkill base_skill_{ESkill::kUndefined};
+	int actor_rating_{0};
+	int success_degree_{0};
+	bool success_{false};
+	bool critical_fail_{false};
+	bool critical_success_{false};
+	bool wrong_conditions_{false};
+	std::string deny_msg_{"Если вы это прочитали, значит, у кодера проблема.\r\n"};
 
-	AbilityRoll() :
-		actor_{nullptr},
-		actor_rating_{0},
-		success_degree_{0},
-		ability_{nullptr},
-		success_{false},
-		critical_fail_{false},
-		critical_success_{false},
-		wrong_conditions_(false),
-		base_skill_{ESkill::kUndefined},
-		deny_msg_{"Если вы это прочитали, значит, у кодера проблема.\r\n"} {};
+	AbilityRoll() = default;
 
-	virtual void Init(CharData *actor, EFeat ability_id);
+	virtual void Init(CharData *actor, abilities::EAbility ability_id);
 	virtual void ProcessingResult(int result, int roll);
 	virtual void PerformAbilityTest();
 	virtual void DetermineBaseSkill();
@@ -65,10 +59,10 @@ class AbilityRoll {
 	[[nodiscard]] bool IsCriticalFail() const { return critical_fail_; };
 	[[nodiscard]] bool IsCriticalSuccess() const { return critical_success_; };
 	[[nodiscard]] bool IsWrongConditions() const { return wrong_conditions_; };
-	[[nodiscard]] ESkill GetBaseSkill() const { return base_skill_; };
+	//[[nodiscard]] ESkill GetBaseSkill() const { return base_skill_; };
 	[[nodiscard]] int GetSuccessDegree() const { return success_degree_; };
 	[[nodiscard]] int GetActorRating() const { return actor_rating_; };
-	[[nodiscard]] EFeat GetAbilityId() { return ability_->id; };
+	[[nodiscard]] abilities::EAbility GetAbilityId() { return ability_; };
 	[[nodiscard]] CharData *GetActor() { return actor_; };
 	void SendDenyMsgToActor();
 };
@@ -77,7 +71,7 @@ class AbilityRoll {
 
 class AgainstRivalRoll : public AbilityRoll {
  protected:
-	CharData *rival_;
+	CharData *rival_{nullptr};
 
 	void TrainBaseSkill(bool success) override;
 	int CalcTargetRating() override;
@@ -86,18 +80,17 @@ class AgainstRivalRoll : public AbilityRoll {
 	bool IsActorMoraleFailure() override;
 
  public:
-	void Init(CharData *actor, EFeat ability_id, CharData *victim);
+	void Init(CharData *actor, abilities::EAbility ability_id, CharData *victim);
 	CharData *GetRival() { return rival_; };
 
-	AgainstRivalRoll() :
-		rival_{nullptr} {};
+	AgainstRivalRoll() = default;
 };
 
 //  -------------------------------------------------------
 
 class TechniqueRoll : public AgainstRivalRoll {
  protected:
-	int weapon_equip_position_;
+	EEquipPos weapon_equip_position_{EEquipPos::kWield};
 
 	int CalcAddDamage() override;
 	void DetermineBaseSkill() override;
@@ -108,8 +101,7 @@ class TechniqueRoll : public AgainstRivalRoll {
 	[[nodiscard]] int GetWeaponEquipPosition() const { return weapon_equip_position_; };
 	int CalcDamage();
 
-	TechniqueRoll() :
-		weapon_equip_position_{EEquipPos::kWield} {};
+	TechniqueRoll() = default;
 };
 
 }; //namespace AbilitySystem

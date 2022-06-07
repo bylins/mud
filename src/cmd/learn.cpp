@@ -66,7 +66,7 @@ void LearnSpellBook(CharData *ch, ObjData *obj) {
 	if (!CanGetSpell(ch, spell_id, GET_OBJ_VAL(obj, 2))) {
 		throw LowRemortOrLvl();
 	}
-	auto spell_name = spell_info[spell_id].name;
+	auto spell_name = MUD::Spell(spell_id).GetName();
 	if (GET_SPELL_TYPE(ch, spell_id) & ESpellType::kKnow) {
 		throw AlreadyKnown(spell_name);
 	}
@@ -90,7 +90,7 @@ void LearnSkillBook(CharData *ch, ObjData *obj) {
 		throw LearningError();
 	}
 
-	auto skill_name = MUD::Skills(skill_id).GetName();
+	auto skill_name = MUD::Skill(skill_id).GetName();
 	if (ch->GetSkill(skill_id)) {
 		throw AlreadyKnown(skill_name);
 	}
@@ -113,9 +113,9 @@ void LearnSkillUpgradeBook(CharData *ch, ObjData *obj) {
 	}
 
 	const auto book_skill_cap = GET_OBJ_VAL(obj, 3);
-	auto skill_name = MUD::Skills(skill_id).GetName();
-	if ((book_skill_cap > 0 && ch->get_trained_skill(skill_id) >= book_skill_cap) ||
-		(book_skill_cap <= 0 && ch->get_trained_skill(skill_id) >= CalcSkillRemortCap(ch))) {
+	auto skill_name = MUD::Skill(skill_id).GetName();
+	if ((book_skill_cap > 0 && ch->GetMorphSkill(skill_id) >= book_skill_cap) ||
+		(book_skill_cap <= 0 && ch->GetMorphSkill(skill_id) >= CalcSkillRemortCap(ch))) {
 		throw AlreadyKnown(skill_name);
 	}
 	if (!CanGetSkill(ch, skill_id, GET_OBJ_VAL(obj, 2))) {
@@ -126,7 +126,7 @@ void LearnSkillUpgradeBook(CharData *ch, ObjData *obj) {
 	}
 
 	SendSuccessLearningMessage(ch, obj, skill_name);
-	const auto left_skill_level = ch->get_trained_skill(skill_id) + GET_OBJ_VAL(obj, 2);
+	const auto left_skill_level = ch->GetMorphSkill(skill_id) + GET_OBJ_VAL(obj, 2);
 	if (book_skill_cap > 0) {
 		ch->set_skill(skill_id, std::min(left_skill_level, GET_OBJ_VAL(obj, 3)));
 	} else {
@@ -170,12 +170,12 @@ void LearnReceiptBook(CharData *ch, ObjData *obj) {
 
 void LearnFeatBook(CharData *ch, ObjData *obj) {
 	auto feat_id = static_cast<EFeat>(GET_OBJ_VAL(obj, 1));
-	if (feat_id < EFeat::kFirst || feat_id > EFeat::kLast) {
+	if (MUD::Feat(feat_id).IsUnavailable()) {
 		SendMsgToChar("СПОСОБНОСТЬ НЕ ОПРЕДЕЛЕНА - сообщите Богам!\r\n", ch);
 		throw LearningError();
 	}
 
-	auto feat_name = GetFeatName(feat_id);
+	auto feat_name = MUD::Feat(feat_id).GetName();
 	if (ch->HaveFeat(feat_id)) {
 		throw AlreadyKnown(feat_name);
 	}

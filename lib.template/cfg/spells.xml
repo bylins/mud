@@ -1,0 +1,1767 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<spells>
+    <spell id="kUndefined" element="kDark" mode="kDisabled">
+        <name rus="!undefined!" eng="!undefined!"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kArmor" element="kDark" mode="kEnabled">
+        <name rus="защита" eng="armor"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kTeleport" element="kDark" mode="kEnabled">
+        <name rus="прыжок" eng="teleport"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kBless" element="kDark" mode="kEnabled">
+        <name rus="доблесть" eng="bless"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kBlindness" element="kDark" mode="kEnabled">
+        <name rus="слепота" eng="blind"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kBurningHands" element="kDark" mode="kEnabled">
+        <name rus="горящие руки" eng="burning hands"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kCallLighting" element="kDark" mode="kEnabled">
+        <name rus="шаровая молния" eng="call lightning"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kCharm" element="kDark" mode="kEnabled">
+        <name rus="подчинить разум" eng="mind control"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kChillTouch" element="kDark" mode="kEnabled">
+        <name rus="ледяное прикосновение" eng="chill touch"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kClone" element="kDark" mode="kEnabled">
+        <name rus="клонирование" eng="clone"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kIceBolts" element="kDark" mode="kEnabled">
+        <name rus="ледяные стрелы" eng="ice bolts"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kControlWeather" element="kDark" mode="kEnabled">
+        <name rus="контроль погоды" eng="weather control"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kCreateFood" element="kDark" mode="kEnabled">
+        <name rus="создать пищу" eng="create food"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kCreateWater" element="kDark" mode="kEnabled">
+        <name rus="создать воду" eng="create water"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kCureBlind" element="kDark" mode="kEnabled">
+        <name rus="вылечить слепоту" eng="cure blind"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kCureCritic" element="kDark" mode="kEnabled">
+        <name rus="критическое исцеление" eng="critical cure"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kCureLight" element="kDark" mode="kEnabled">
+        <name rus="легкое исцеление" eng="light cure"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kCurse" element="kDark" mode="kEnabled">
+        <name rus="проклятие" eng="curse"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kDetectAlign" element="kDark" mode="kEnabled">
+        <name rus="определение наклонностей" eng="detect alignment"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kDetectInvis" element="kDark" mode="kEnabled">
+        <name rus="видеть невидимое" eng="detect invisible"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kDetectMagic" element="kDark" mode="kEnabled">
+        <name rus="определение магии" eng="detect magic"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kDetectPoison" element="kDark" mode="kEnabled">
+        <name rus="определение яда" eng="detect poison"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kDispelEvil" element="kDark" mode="kEnabled">
+        <name rus="изгнать зло" eng="dispel evil"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kEarthquake" element="kDark" mode="kEnabled">
+        <name rus="землетрясение" eng="earthquake"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kEnchantWeapon" element="kDark" mode="kEnabled">
+        <name rus="заколдовать оружие" eng="enchant weapon"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kEnergyDrain" element="kDark" mode="kEnabled">
+        <name rus="истощить энергию" eng="energy drain"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kFireball" element="kDark" mode="kEnabled">
+        <name rus="огненный шар" eng="fireball"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kHarm" element="kDark" mode="kEnabled">
+        <name rus="вред" eng="harm"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kHeal" element="kDark" mode="kEnabled">
+        <name rus="исцеление" eng="heal"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kInvisible" element="kDark" mode="kEnabled">
+        <name rus="невидимость" eng="invisible"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kLightingBolt" element="kDark" mode="kEnabled">
+        <name rus="молния" eng="lightning bolt"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kLocateObject" element="kDark" mode="kEnabled">
+        <name rus="разыскать предмет" eng="locate object"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kMagicMissile" element="kDark" mode="kEnabled">
+        <name rus="магическая стрела" eng="magic missle"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kPoison" element="kDark" mode="kEnabled">
+        <name rus="яд" eng="poison"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kProtectFromEvil" element="kDark" mode="kEnabled">
+        <name rus="защита от тьмы" eng="protect evil"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kRemoveCurse" element="kDark" mode="kEnabled">
+        <name rus="снять проклятие" eng="remove curse"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kSanctuary" element="kDark" mode="kEnabled">
+        <name rus="освящение" eng="sanctuary"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kShockingGasp" element="kDark" mode="kEnabled">
+        <name rus="обжигающая хватка" eng="shocking grasp"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kSleep" element="kDark" mode="kEnabled">
+        <name rus="сон" eng="sleep"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kStrength" element="kDark" mode="kEnabled">
+        <name rus="сила" eng="strength"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kSummon" element="kDark" mode="kEnabled">
+        <name rus="призвать" eng="summon"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kPatronage" element="kDark" mode="kEnabled">
+        <name rus="покровительство" eng="patronage"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kWorldOfRecall" element="kDark" mode="kEnabled">
+        <name rus="слово возврата" eng="recall"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kRemovePoison" element="kDark" mode="kEnabled">
+        <name rus="удалить яд" eng="remove poison"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kSenseLife" element="kDark" mode="kEnabled">
+        <name rus="определение жизни" eng="sense life"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kAnimateDead" element="kDark" mode="kEnabled">
+        <name rus="поднять труп" eng="animate dead"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kDispelGood" element="kDark" mode="kEnabled">
+        <name rus="рассеять свет" eng="dispel good"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kGroupArmor" element="kDark" mode="kEnabled">
+        <name rus="групповая защита" eng="group armor"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kGroupHeal" element="kDark" mode="kEnabled">
+        <name rus="групповое исцеление" eng="group heal"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kGroupRecall" element="kDark" mode="kEnabled">
+        <name rus="групповой возврат" eng="group recall"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kInfravision" element="kDark" mode="kEnabled">
+        <name rus="видение ночью" eng="infravision"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kWaterwalk" element="kDark" mode="kEnabled">
+        <name rus="водохождение" eng="waterwalk"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kCureSerious" element="kDark" mode="kEnabled">
+        <name rus="серьезное исцеление" eng="serious cure"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kGroupStrength" element="kDark" mode="kEnabled">
+        <name rus="групповая сила" eng="group strength"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kHold" element="kDark" mode="kEnabled">
+        <name rus="оцепенение" eng="hold"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kPowerHold" element="kDark" mode="kEnabled">
+        <name rus="длительное оцепенение" eng="power hold"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kMassHold" element="kDark" mode="kEnabled">
+        <name rus="массовое оцепенение" eng="mass hold"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kFly" element="kDark" mode="kEnabled">
+        <name rus="полет" eng="fly"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kBrokenChains" element="kDark" mode="kEnabled">
+        <name rus="разбитые оковы" eng="broken chains"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kNoflee" element="kDark" mode="kEnabled">
+        <name rus="приковать противника" eng="noflee"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kCreateLight" element="kDark" mode="kEnabled">
+        <name rus="создать свет" eng="create light"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kDarkness" element="kDark" mode="kEnabled">
+        <name rus="тьма" eng="darkness"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kStoneSkin" element="kDark" mode="kEnabled">
+        <name rus="каменная кожа" eng="stoneskin"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kCloudly" element="kDark" mode="kEnabled">
+        <name rus="затуманивание" eng="cloudly"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kSilence" element="kDark" mode="kEnabled">
+        <name rus="молчание" eng="sielence"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kLight" element="kDark" mode="kEnabled">
+        <name rus="свет" eng="sun shine"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kChainLighting" element="kDark" mode="kEnabled">
+        <name rus="цепь молний" eng="chain lightning"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kFireBlast" element="kDark" mode="kStability">
+        <name rus="огненный поток" eng="fireblast"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kGodsWrath" element="kDark" mode="kEnabled">
+        <name rus="гнев богов" eng="gods wrath"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kWeaknes" element="kDark" mode="kEnabled">
+        <name rus="слабость" eng="weakness"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kGroupInvisible" element="kDark" mode="kEnabled">
+        <name rus="групповая невидимость" eng="group invisible"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kShadowCloak" element="kDark" mode="kEnabled">
+        <name rus="мантия теней" eng="shadow cloak"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kAcid" element="kDark" mode="kEnabled">
+        <name rus="кислота" eng="acid"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kRepair" element="kDark" mode="kEnabled">
+        <name rus="починка" eng="repair"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kEnlarge" element="kDark" mode="kEnabled">
+        <name rus="увеличение" eng="enlarge"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kFear" element="kDark" mode="kEnabled">
+        <name rus="страх" eng="fear"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kSacrifice" element="kDark" mode="kEnabled">
+        <name rus="высосать жизнь" eng="sacrifice"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kWeb" element="kDark" mode="kEnabled">
+        <name rus="сеть" eng="web"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kBlink" element="kDark" mode="kEnabled">
+        <name rus="мигание" eng="blink"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kRemoveHold" element="kDark" mode="kEnabled">
+        <name rus="снять оцепенение" eng="remove hold"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kCamouflage" element="kDark" mode="kService">
+        <name rus="!маскировка!" eng="!set by skill!"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kPowerBlindness" element="kDark" mode="kEnabled">
+        <name rus="полная слепота" eng="power blind"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kMassBlindness" element="kDark" mode="kEnabled">
+        <name rus="массовая слепота" eng="mass blind"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kPowerSilence" element="kDark" mode="kEnabled">
+        <name rus="длительное молчание" eng="power sielence"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kExtraHits" element="kDark" mode="kEnabled">
+        <name rus="увеличить жизнь" eng="extra hits"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kResurrection" element="kDark" mode="kEnabled">
+        <name rus="оживить труп" eng="ressurection"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kMagicShield" element="kDark" mode="kEnabled">
+        <name rus="волшебный щит" eng="magic shield"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kForbidden" element="kDark" mode="kEnabled">
+        <name rus="запечатать комнату" eng="forbidden"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kMassSilence" element="kDark" mode="kEnabled">
+        <name rus="массовое молчание" eng="mass sielence"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kRemoveSilence" element="kDark" mode="kEnabled">
+        <name rus="снять молчание" eng="remove sielence"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kDamageLight" element="kDark" mode="kEnabled">
+        <name rus="легкий вред" eng="light damage"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kDamageSerious" element="kDark" mode="kEnabled">
+        <name rus="серьезный вред" eng="serious damage"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kDamageCritic" element="kDark" mode="kEnabled">
+        <name rus="критический вред" eng="critical damage"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kMassCurse" element="kDark" mode="kEnabled">
+        <name rus="массовое проклятие" eng="mass curse"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kArmageddon" element="kDark" mode="kEnabled">
+        <name rus="суд богов" eng="armageddon"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kGroupFly" element="kDark" mode="kEnabled">
+        <name rus="групповой полет" eng="group fly"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kGroupBless" element="kDark" mode="kEnabled">
+        <name rus="групповая доблесть" eng="group bless"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kResfresh" element="kDark" mode="kEnabled">
+        <name rus="восстановление" eng="refresh"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kStunning" element="kDark" mode="kEnabled">
+        <name rus="каменное проклятие" eng="stunning"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kHide" element="kDark" mode="kService">
+        <name rus="!спрятался!" eng="!set by skill!"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kSneak" element="kDark" mode="kService">
+        <name rus="!крадется!" eng="!set by skill!"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kDrunked" element="kDark" mode="kService">
+        <name rus="!опьянение!" eng="!set by programm!"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kAbstinent" element="kDark" mode="kService">
+        <name rus="!абстиненция!" eng="!set by programm!"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kFullFeed" element="kDark" mode="kEnabled">
+        <name rus="насыщение" eng="full"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kColdWind" element="kDark" mode="kEnabled">
+        <name rus="ледяной ветер" eng="cold wind"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kBattle" element="kDark" mode="kService">
+        <name rus="!получил в бою!" eng="!set by programm!"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kHaemorrhage" element="kDark" mode="kService">
+        <name rus="!кровотечение!" eng="!set by programm!"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kCourage" element="kDark" mode="kService">
+        <name rus="!ярость!" eng="!set by programm!"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kWaterbreath" element="kDark" mode="kEnabled">
+        <name rus="дышать водой" eng="waterbreath"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kSlowdown" element="kDark" mode="kEnabled">
+        <name rus="медлительность" eng="slow"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kHaste" element="kDark" mode="kEnabled">
+        <name rus="ускорение" eng="haste"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kMassSlow" element="kDark" mode="kEnabled">
+        <name rus="массовая медлительность" eng="mass slow"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kGroupHaste" element="kDark" mode="kEnabled">
+        <name rus="групповое ускорение" eng="group haste"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kGodsShield" element="kDark" mode="kEnabled">
+        <name rus="защита богов" eng="gods shield"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kFever" element="kDark" mode="kEnabled">
+        <name rus="лихорадка" eng="plaque"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kCureFever" element="kDark" mode="kEnabled">
+        <name rus="вылечить лихорадку" eng="cure plaque"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kAwareness" element="kDark" mode="kEnabled">
+        <name rus="внимательность" eng="awarness"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kReligion" element="kDark" mode="kService">
+        <name rus="!молитва или жертва!" eng="!pray or donate!"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kAirShield" element="kDark" mode="kEnabled">
+        <name rus="воздушный щит" eng="air shield"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kPortal" element="kDark" mode="kEnabled">
+        <name rus="переход" eng="portal"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kDispellMagic" element="kDark" mode="kEnabled">
+        <name rus="развеять магию" eng="dispel magic"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kSummonKeeper" element="kDark" mode="kEnabled">
+        <name rus="защитник" eng="keeper"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kFastRegeneration" element="kDark" mode="kEnabled">
+        <name rus="быстрое восстановление" eng="fast regeneration"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kCreateWeapon" element="kDark" mode="kEnabled">
+        <name rus="создать оружие" eng="create weapon"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kFireShield" element="kDark" mode="kEnabled">
+        <name rus="огненный щит" eng="fire shield"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kRelocate" element="kDark" mode="kEnabled">
+        <name rus="переместиться" eng="relocate"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kSummonFirekeeper" element="kDark" mode="kEnabled">
+        <name rus="огненный защитник" eng="fire keeper"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kIceShield" element="kDark" mode="kEnabled">
+        <name rus="ледяной щит" eng="ice protect"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kIceStorm" element="kDark" mode="kEnabled">
+        <name rus="ледяной шторм" eng="ice storm"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kLessening" element="kDark" mode="kEnabled">
+        <name rus="уменьшение" eng="enless"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kShineFlash" element="kDark" mode="kEnabled">
+        <name rus="яркий блик" eng="shine flash"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kMadness" element="kDark" mode="kEnabled">
+        <name rus="безумие" eng="madness"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kGroupMagicGlass" element="kDark" mode="kEnabled">
+        <name rus="магическое зеркало" eng="group magicglass"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kCloudOfArrows" element="kDark" mode="kEnabled">
+        <name rus="облако стрел" eng="cloud of arrous"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kVacuum" element="kDark" mode="kEnabled">
+        <name rus="круг пустоты" eng="vacuum sphere"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kMeteorStorm" element="kDark" mode="kEnabled">
+        <name rus="метеоритный дождь" eng="meteor storm"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kStoneHands" element="kDark" mode="kEnabled">
+        <name rus="каменные руки" eng="stonehand"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kMindless" element="kDark" mode="kEnabled">
+        <name rus="повреждение разума" eng="mindness"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kPrismaticAura" element="kDark" mode="kEnabled">
+        <name rus="призматическая аура" eng="prismatic aura"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kEviless" element="kDark" mode="kEnabled">
+        <name rus="силы зла" eng="eviless"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kAirAura" element="kDark" mode="kEnabled">
+        <name rus="воздушная аура" eng="air aura"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kFireAura" element="kDark" mode="kEnabled">
+        <name rus="огненная аура" eng="fire aura"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kIceAura" element="kDark" mode="kEnabled">
+        <name rus="ледяная аура" eng="ice aura"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kShock" element="kDark" mode="kEnabled">
+        <name rus="шок" eng="shock"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kMagicGlass" element="kDark" mode="kEnabled">
+        <name rus="зеркало магии" eng="magic glassie"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kGroupSanctuary" element="kDark" mode="kEnabled">
+        <name rus="групповое освящение" eng="group sanctuary"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kGroupPrismaticAura" element="kDark" mode="kEnabled">
+        <name rus="групповая призматическая аура" eng="group prismatic aura"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kDeafness" element="kDark" mode="kEnabled">
+        <name rus="глухота" eng="deafness"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kPowerDeafness" element="kDark" mode="kEnabled">
+        <name rus="длительная глухота" eng="power deafness"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kRemoveDeafness" element="kDark" mode="kEnabled">
+        <name rus="снять глухоту" eng="remove deafness"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kMassDeafness" element="kDark" mode="kEnabled">
+        <name rus="массовая глухота" eng="mass deafness"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kDustStorm" element="kDark" mode="kEnabled">
+        <name rus="пылевая буря" eng="dust storm"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kEarthfall" element="kDark" mode="kEnabled">
+        <name rus="камнепад" eng="earth fall"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kSonicWave" element="kDark" mode="kStability">
+        <name rus="звуковая волна" eng="sonic wave"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kHolystrike" element="kDark" mode="kEnabled">
+        <name rus="силы света" eng="holystrike"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kSumonAngel" element="kDark" mode="kEnabled">
+        <name rus="ангел-хранитель" eng="angel"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kMassFear" element="kDark" mode="kEnabled">
+        <name rus="массовый страх" eng="mass fear"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kFascination" element="kDark" mode="kEnabled">
+        <name rus="обаяние" eng="fascination"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kCrying" element="kDark" mode="kEnabled">
+        <name rus="плач" eng="crying"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kOblivion" element="kDark" mode="kEnabled">
+        <name rus="забвение" eng="oblivion"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kBurdenOfTime" element="kDark" mode="kTesting">
+        <name rus="бремя времени" eng="burden time"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kGroupRefresh" element="kDark" mode="kEnabled">
+        <name rus="групповое восстановление" eng="group refresh"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kPeaceful" element="kDark" mode="kEnabled">
+        <name rus="смирение" eng="peaceful"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kMagicBattle" element="kDark" mode="kService">
+        <name rus="!получил в бою!" eng="!set by programm!"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kBerserk" element="kDark" mode="kService">
+        <name rus="!предсмертная ярость!" eng="!set by programm!"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kStoneBones" element="kDark" mode="kEnabled">
+        <name rus="каменные кости" eng="stone bones"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kRoomLight" element="kDark" mode="kEnabled">
+        <name rus="осветить комнату" eng="room light"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kPoosinedFog" element="kDark" mode="kEnabled">
+        <name rus="ядовитый туман" eng="poisoned fog"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kThunderstorm" element="kDark" mode="kEnabled">
+        <name rus="буря отмщения" eng="storm of vengeance"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kLightWalk" element="kDark" mode="kService">
+        <name rus="!легкая поступь!" eng="!set by programm!"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kFailure" element="kDark" mode="kEnabled">
+        <name rus="недоля" eng="failure"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kClanPray" element="kDark" mode="kService">
+        <name rus="!клановые чары!" eng="!clan affect!"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kGlitterDust" element="kDark" mode="kEnabled">
+        <name rus="блестящая пыль" eng="glitterdust"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kScream" element="kDark" mode="kEnabled">
+        <name rus="вопль" eng="scream"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kCatGrace" element="kDark" mode="kEnabled">
+        <name rus="кошачья ловкость" eng="cats grace"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kBullBody" element="kDark" mode="kEnabled">
+        <name rus="бычье тело" eng="bull body"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kSnakeWisdom" element="kDark" mode="kEnabled">
+        <name rus="мудрость змеи" eng="snake wisdom"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kGimmicry" element="kDark" mode="kEnabled">
+        <name rus="хитроумие" eng="gimmickry"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kWarcryOfChallenge" element="kDark" mode="kTesting">
+        <name rus="клич вызова" eng="warcry of challenge"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kWarcryOfMenace" element="kDark" mode="kTesting">
+        <name rus="клич угрозы" eng="warcry of menace"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kWarcryOfRage" element="kDark" mode="kTesting">
+        <name rus="клич ярости" eng="warcry of rage"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kWarcryOfMadness" element="kDark" mode="kTesting">
+        <name rus="клич безумия" eng="warcry of madness"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kWarcryOfThunder" element="kDark" mode="kTesting">
+        <name rus="клич грома" eng="warcry of thunder"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kWarcryOfDefence" element="kDark" mode="kEnabled">
+        <name rus="клич обороны" eng="warcry of defense"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kWarcryOfBattle" element="kDark" mode="kEnabled">
+        <name rus="клич битвы" eng="warcry of battle"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kWarcryOfPower" element="kDark" mode="kEnabled">
+        <name rus="клич мощи" eng="warcry of power"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kWarcryOfBless" element="kDark" mode="kEnabled">
+        <name rus="клич доблести" eng="warcry of bless"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kWarcryOfCourage" element="kDark" mode="kEnabled">
+        <name rus="клич отваги" eng="warcry of courage"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kRuneLabel" element="kDark" mode="kEnabled">
+        <name rus="рунная метка" eng="rune label"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kAconitumPoison" element="kDark" mode="kEnabled">
+        <name rus="яд аконита" eng="aconitum poison"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kScopolaPoison" element="kDark" mode="kEnabled">
+        <name rus="яд скополии" eng="scopolia poison"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kBelenaPoison" element="kDark" mode="kEnabled">
+        <name rus="яд белены" eng="belena poison"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kDaturaPoison" element="kDark" mode="kEnabled">
+        <name rus="яд дурмана" eng="datura poison"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kTimerRestore" element="kDark" mode="kEnabled">
+        <name rus="обновление таймера" eng=" timer repair"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kLucky" element="kDark" mode="kEnabled">
+        <name rus="боевое везение" eng="lacky"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kBandage" element="kDark" mode="kEnabled">
+        <name rus="перевязка" eng="!set by programm!"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kNoBandage" element="kDark" mode="kService">
+        <name rus="!нельзя перевязываться!" eng="!set by programm!"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kCapable" element="kDark" mode="kService">
+        <name rus="!зачарован!" eng="!set by programm!"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kStrangle" element="kDark" mode="kService">
+        <name rus="!удушье!" eng="!set by programm!"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kRecallSpells" element="kDark" mode="kService">
+        <name rus="!вспоминает заклинания!" eng="!set by programm!"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kHypnoticPattern" element="kDark" mode="kEnabled">
+        <name rus="чарующий узор" eng="hypnotic pattern"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kSolobonus" element="kDark" mode="kEnabled">
+        <name rus="награда" eng="bonus"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kVampirism" element="kDark" mode="kEnabled">
+        <name rus="вампиризм" eng="vampire"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kRestoration" element="kDark" mode="kEnabled">
+        <name rus="реконструкция" eng="reconstruction"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kDeathAura" element="kDark" mode="kEnabled">
+        <name rus="аура смерти" eng="aura death"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kRecovery" element="kDark" mode="kEnabled">
+        <name rus="темное прикосновение" eng="recovery"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kMassRecovery" element="kDark" mode="kEnabled">
+        <name rus="прикосновение смерти" eng="mass recovery"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kAuraOfEvil" element="kDark" mode="kEnabled">
+        <name rus="аура зла" eng="aura evil"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kMentalShadow" element="kDark" mode="kEnabled">
+        <name rus="ментальная тень" eng="mental shadow"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kBlackTentacles" element="kDark" mode="kEnabled">
+        <name rus="навьи руки" eng="evards black tentacles"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kWhirlwind" element="kDark" mode="kEnabled">
+        <name rus="вихрь" eng="whirlwind"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kIndriksTeeth" element="kDark" mode="kEnabled">
+        <name rus="зубы индрика" eng="indriks teeth"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kAcidArrow" element="kDark" mode="kEnabled">
+        <name rus="кислотная стрела" eng="acid arrow"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kThunderStone" element="kDark" mode="kEnabled">
+        <name rus="громовой камень" eng="thunderstone"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kClod" element="kDark" mode="kEnabled">
+        <name rus="глыба" eng="clod"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kExpedient" element="kDark" mode="kService">
+        <name rus="!боевой прием!" eng="!set by programm!"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kSightOfDarkness" element="kDark" mode="kEnabled">
+        <name rus="зрение тьмы" eng="sight darkness"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kGroupSincerity" element="kDark" mode="kEnabled">
+        <name rus="общая искренность" eng="general sincerity"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kMagicalGaze" element="kDark" mode="kEnabled">
+        <name rus="магический взор" eng="magical gaze"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kAllSeeingEye" element="kDark" mode="kEnabled">
+        <name rus="всевидящее око" eng="allseeing eye"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kEyeOfGods" element="kDark" mode="kEnabled">
+        <name rus="око богов" eng="eye gods"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kBreathingAtDepth" element="kDark" mode="kEnabled">
+        <name rus="дыхание глубин" eng="breathing at depth"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kGeneralRecovery" element="kDark" mode="kEnabled">
+        <name rus="общее восстановление" eng="general recovery"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kCommonMeal" element="kDark" mode="kEnabled">
+        <name rus="общая трапеза" eng="common meal"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kStoneWall" element="kDark" mode="kEnabled">
+        <name rus="каменная стена" eng="stone wall"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kSnakeEyes" element="kDark" mode="kEnabled">
+        <name rus="глаза змея" eng="snake eyes"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kEarthAura" element="kDark" mode="kEnabled">
+        <name rus="земной поклон" eng="earth aura"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kGroupProtectFromEvil" element="kDark" mode="kEnabled">
+        <name rus="групповая защита от тьмы" eng="group protect evil"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kArrowsFire" element="kDark" mode="kEnabled">
+        <name rus="стрелы огня" eng="arrows of fire"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kArrowsWater" element="kDark" mode="kEnabled">
+        <name rus="стрелы воды" eng="arrows of water"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kArrowsEarth" element="kDark" mode="kEnabled">
+        <name rus="стрелы земли" eng="arrows of earth"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kArrowsAir" element="kDark" mode="kEnabled">
+        <name rus="стрелы воздуха" eng="arrows of air"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kArrowsDeath" element="kDark" mode="kEnabled">
+        <name rus="стрелы смерти" eng="arrows of death"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kPaladineInspiration" element="kDark" mode="kEnabled">
+        <name rus="воодушевление" eng="inspiration"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kDexterity" element="kDark" mode="kEnabled">
+        <name rus="ловкость" eng="dexterity"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kGroupBlink" element="kDark" mode="kEnabled">
+        <name rus="групповое мигание" eng="group blink"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kGroupCloudly" element="kDark" mode="kEnabled">
+        <name rus="групповое затуманивание" eng="group cloudly"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kGroupAwareness" element="kDark" mode="kEnabled">
+        <name rus="групповая внимательность" eng="group awarness"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kWarcryOfExperience" element="kDark" mode="kEnabled">
+        <name rus="клич обучения" eng="warcry of training"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kWarcryOfLuck" element="kDark" mode="kEnabled">
+        <name rus="клич везения" eng="warcry of luck"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kWarcryOfPhysdamage" element="kDark" mode="kEnabled">
+        <name rus="клич точности" eng="warcry of accuracy"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kMassFailure" element="kDark" mode="kEnabled">
+        <name rus="взор Велеса" eng="gaze of Veles"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kSnare" element="kDark" mode="kEnabled">
+        <name rus="западня" eng="snare"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kFireBreath" element="kDark" mode="kService">
+        <name rus="огненное дыхание" eng="fire breath"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kGasBreath" element="kDark" mode="kService">
+        <name rus="зловонное дыхание" eng="gas breath"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kFrostBreath" element="kDark" mode="kService">
+        <name rus="ледяное дыхание" eng="frost breath"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kAcidBreath" element="kDark" mode="kService">
+        <name rus="кислотное дыхание" eng="acid breath"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kLightingBreath" element="kDark" mode="kService">
+        <name rus="ослепляющее дыхание" eng="lightning breath"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kExpedientFail" element="kDark" mode="kService">
+        <name rus="!неудачный прием!" eng="!expediend fail!"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kIdentify" element="kDark" mode="kEnabled">
+        <name rus="идентификация" eng="identify"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kFullIdentify" element="kDark" mode="kEnabled">
+        <name rus="полная идентификация" eng="identify"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kQUest" element="kDark" mode="kService">
+        <name rus="!чары!" eng="!quest spell!"/>
+        <misc pos="kStand" violent="Y" danger="100"/>
+        <mana max="5" min="10" change="2"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+</spells>

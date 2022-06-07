@@ -425,7 +425,6 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 #define NPC_FLAGS(ch)  ((ch)->mob_specials.npc_flags)
 #define ROOM_AFF_FLAGS(room)  ((room)->affected_by)
 #define EXTRA_FLAGS(ch) ((ch)->Temporary)
-#define SPELL_ROUTINES(spl) (spell_info[spl].routines)
 
 #define IS_MOB(ch)          ((ch)->IsNpc() && (ch)->get_rnum() >= 0)
 
@@ -439,7 +438,6 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 #define EXIT_FLAGGED(exit, flag)     (IS_SET((exit)->exit_info, (flag)))
 #define OBJVAL_FLAGGED(obj, flag)    (IS_SET(GET_OBJ_VAL((obj), 1), (flag)))
 #define OBJWEAR_FLAGGED(obj, mask)   ((obj)->get_wear_mask(mask))
-#define HAS_SPELL_ROUTINE(spl, flag) (IS_SET(SPELL_ROUTINES(spl), (flag)))
 
 #define PLR_TOG_CHK(ch, flag) (PLR_FLAGS(ch).toggle(flag))
 #define PRF_TOG_CHK(ch, flag) (PRF_FLAGS(ch).toggle(flag))
@@ -666,10 +664,12 @@ const int kNameLevel = 5;
 #define CLAN_MEMBER(ch)        ((ch)->player_specials->clan_member)
 #define GET_CLAN_STATUS(ch)    ((ch)->player_specials->clanStatus)
 
+#define IS_SPELL_SET(ch, i, pct) (GET_SPELL_TYPE((ch), (i)) & (pct))
 #define GET_SPELL_TYPE(ch, i) ((ch)->real_abils.SplKnw[to_underlying(i)])
+#define SET_SPELL_TYPE(ch, i, pct) (GET_SPELL_TYPE((ch), (i)) |= (pct))
+#define UNSET_SPELL_TYPE(ch, i, pct) (GET_SPELL_TYPE((ch), (i)) &= ~(pct))
 #define GET_SPELL_MEM(ch, i)  ((ch)->real_abils.SplMem[to_underlying(i)])
-#define IS_SPELL_KNOWN(ch, i) (GET_SPELL_TYPE((ch), (i)) == ESpellType::kKnow)
-#define SET_SPELL(ch, i, pct) ((ch)->real_abils.SplMem[to_underlying(i)] = (pct))
+#define SET_SPELL_MEM(ch, i, pct) ((ch)->real_abils.SplMem[to_underlying(i)] = (pct))
 
 #define GET_EQ(ch, i)      ((ch)->equipment[i])
 

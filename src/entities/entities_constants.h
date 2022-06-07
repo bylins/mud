@@ -54,6 +54,11 @@ enum class EPosition {
 int operator-(EPosition p1,  EPosition p2);
 EPosition operator--(const EPosition &p);
 
+template<>
+const std::string &NAME_BY_ITEM<EPosition>(EPosition item);
+template<>
+EPosition ITEM_BY_NAME<EPosition>(const std::string &name);
+
 /**
  * Character base stats ids.
  */
@@ -119,7 +124,7 @@ enum EResist {
 
 EResist& operator++(EResist &r);
 
-const int kMaxPlayerResist = 75;
+const int kMaxPcResist = 75;
 
 /*
  * Character equipment positions: used as index for char_data.equipment[]

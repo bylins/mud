@@ -371,7 +371,7 @@ void do_mload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 		mob_log(ch, "mload: bad syntax");
 		return;
 	}
-	if (utils::IsAbbrev(arg1, "mob")) {
+	if (utils::IsAbbr(arg1, "mob")) {
 		if ((mob = read_mobile(number, VIRTUAL)) == nullptr) {
 			mob_log(ch, "mload: bad mob vnum");
 			return;
@@ -381,7 +381,7 @@ void do_mload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 		idnum = mob->id;
 		PlaceCharToRoom(mob, ch->in_room);
 		load_mtrigger(mob);
-	} else if (utils::IsAbbrev(arg1, "obj")) {
+	} else if (utils::IsAbbr(arg1, "obj")) {
 		const auto object = world_objects.create_from_prototype_by_vnum(number);
 		if (!object) {
 			mob_log(ch, "mload: bad object vnum");
@@ -976,7 +976,6 @@ void do_mdoor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 }
 
 // increases spells & skills
-const char *GetSpellName(ESpell spell_id);
 ESpell FixNameAndFindSpellId(char *name);
 
 void do_mfeatturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
@@ -1001,7 +1000,7 @@ void do_mfeatturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 		*pos = ' ';
 
 	const auto feat_id = FindFeatId(featname);
-	if (feat_id >= EFeat::kFirst && feat_id <= EFeat::kLast)
+	if (MUD::Feat(feat_id).IsAvailable())
 		isFeat = 1;
 	else {
 		mob_log(ch, "mfeatturn: feature not found");
@@ -1082,7 +1081,7 @@ void do_mskillturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 	}
 
 	if (is_skill) {
-		if (MUD::Classes(victim->GetClass()).skills[skill_id].IsAvailable()) {
+		if (MUD::Class(victim->GetClass()).skills[skill_id].IsAvailable()) {
 			trg_skillturn(victim, skill_id, skilldiff, last_trig_vnum);
 		} else {
 			sprintf(buf, "mskillturn: skill and character class mismatch");

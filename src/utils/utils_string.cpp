@@ -112,7 +112,7 @@ void DelegatedStringWriter::clear() {
 	m_delegated_string_ = nullptr;
 }
 
-bool IsAbbrev(const char *arg1, const char *arg2) {
+bool IsAbbr(const char *arg1, const char *arg2) {
 	if (!*arg1) {
 		return false;
 	}

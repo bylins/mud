@@ -1324,35 +1324,30 @@ void InitSpellLevels() {
 			spell_create[sp_num].potion.items[2] = i[2];
 			spell_create[sp_num].potion.rnumber = i[3];
 			spell_create[sp_num].potion.min_caster_level = i[4];
-			//log("CREATE potion FOR MAGIC '%s'", GetSpellName(sp_num));
 		} else if (!strn_cmp(line3, "wand", c)) {
 			spell_create[sp_num].wand.items[0] = i[0];
 			spell_create[sp_num].wand.items[1] = i[1];
 			spell_create[sp_num].wand.items[2] = i[2];
 			spell_create[sp_num].wand.rnumber = i[3];
 			spell_create[sp_num].wand.min_caster_level = i[4];
-			//log("CREATE wand FOR MAGIC '%s'", GetSpellName(sp_num));
 		} else if (!strn_cmp(line3, "scroll", c)) {
 			spell_create[sp_num].scroll.items[0] = i[0];
 			spell_create[sp_num].scroll.items[1] = i[1];
 			spell_create[sp_num].scroll.items[2] = i[2];
 			spell_create[sp_num].scroll.rnumber = i[3];
 			spell_create[sp_num].scroll.min_caster_level = i[4];
-			//log("CREATE scroll FOR MAGIC '%s'", GetSpellName(sp_num));
 		} else if (!strn_cmp(line3, "items", c)) {
 			spell_create[sp_num].items.items[0] = i[0];
 			spell_create[sp_num].items.items[1] = i[1];
 			spell_create[sp_num].items.items[2] = i[2];
 			spell_create[sp_num].items.rnumber = i[3];
 			spell_create[sp_num].items.min_caster_level = i[4];
-			//log("CREATE items FOR MAGIC '%s'", GetSpellName(sp_num));
 		} else if (!strn_cmp(line3, "runes", c)) {
 			spell_create[sp_num].runes.items[0] = i[0];
 			spell_create[sp_num].runes.items[1] = i[1];
 			spell_create[sp_num].runes.items[2] = i[2];
 			spell_create[sp_num].runes.rnumber = i[3];
 			spell_create[sp_num].runes.min_caster_level = i[4];
-			//log("CREATE runes FOR MAGIC '%s'", GetSpellName(sp_num));
 		} else {
 			log("Unknown items option : %s", line3);
 			graceful_exit(1);

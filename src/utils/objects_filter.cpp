@@ -13,60 +13,60 @@
 #include "structs/global_objects.h"
 
 bool ParseFilter::init_type(const char *str) {
-	if (utils::IsAbbrev(str, "свет")
-		|| utils::IsAbbrev(str, "light")) {
+	if (utils::IsAbbr(str, "свет")
+		|| utils::IsAbbr(str, "light")) {
 		type = EObjType::kLightSource;
-	} else if (utils::IsAbbrev(str, "свиток")
-		|| utils::IsAbbrev(str, "scroll")) {
+	} else if (utils::IsAbbr(str, "свиток")
+		|| utils::IsAbbr(str, "scroll")) {
 		type = EObjType::kScroll;
-	} else if (utils::IsAbbrev(str, "палочка")
-		|| utils::IsAbbrev(str, "wand")) {
+	} else if (utils::IsAbbr(str, "палочка")
+		|| utils::IsAbbr(str, "wand")) {
 		type = EObjType::kWand;
-	} else if (utils::IsAbbrev(str, "посох")
-		|| utils::IsAbbrev(str, "staff")) {
+	} else if (utils::IsAbbr(str, "посох")
+		|| utils::IsAbbr(str, "staff")) {
 		type = EObjType::kStaff;
-	} else if (utils::IsAbbrev(str, "оружие")
-		|| utils::IsAbbrev(str, "weapon")) {
+	} else if (utils::IsAbbr(str, "оружие")
+		|| utils::IsAbbr(str, "weapon")) {
 		type = EObjType::kWeapon;
-	} else if (utils::IsAbbrev(str, "броня")
-		|| utils::IsAbbrev(str, "armor")) {
+	} else if (utils::IsAbbr(str, "броня")
+		|| utils::IsAbbr(str, "armor")) {
 		type = EObjType::kArmor;
-	} else if (utils::IsAbbrev(str, "напиток")
-		|| utils::IsAbbrev(str, "potion")) {
+	} else if (utils::IsAbbr(str, "напиток")
+		|| utils::IsAbbr(str, "potion")) {
 		type = EObjType::kPotion;
-	} else if (utils::IsAbbrev(str, "прочее")
-		|| utils::IsAbbrev(str, "другое")
-		|| utils::IsAbbrev(str, "other")) {
+	} else if (utils::IsAbbr(str, "прочее")
+		|| utils::IsAbbr(str, "другое")
+		|| utils::IsAbbr(str, "other")) {
 		type = EObjType::kOther;
-	} else if (utils::IsAbbrev(str, "контейнер")
-		|| utils::IsAbbrev(str, "container")) {
+	} else if (utils::IsAbbr(str, "контейнер")
+		|| utils::IsAbbr(str, "container")) {
 		type = EObjType::kContainer;
-	} else if (utils::IsAbbrev(str, "материал")
-		|| utils::IsAbbrev(str, "material")) {
+	} else if (utils::IsAbbr(str, "материал")
+		|| utils::IsAbbr(str, "material")) {
 		type = EObjType::kCraftMaterial;
-	} else if (utils::IsAbbrev(str, "зачарованный")
-		|| utils::IsAbbrev(str, "enchant")) {
+	} else if (utils::IsAbbr(str, "зачарованный")
+		|| utils::IsAbbr(str, "enchant")) {
 		type = EObjType::kEnchant;
-	} else if (utils::IsAbbrev(str, "емкость")
-		|| utils::IsAbbrev(str, "tank")) {
+	} else if (utils::IsAbbr(str, "емкость")
+		|| utils::IsAbbr(str, "tank")) {
 		type = EObjType::kLiquidContainer;
-	} else if (utils::IsAbbrev(str, "книга")
-		|| utils::IsAbbrev(str, "book")) {
+	} else if (utils::IsAbbr(str, "книга")
+		|| utils::IsAbbr(str, "book")) {
 		type = EObjType::kBook;
-	} else if (utils::IsAbbrev(str, "руна")
-		|| utils::IsAbbrev(str, "rune")) {
+	} else if (utils::IsAbbr(str, "руна")
+		|| utils::IsAbbr(str, "rune")) {
 		type = EObjType::kIngredient;
-	} else if (utils::IsAbbrev(str, "ингредиент")
-		|| utils::IsAbbrev(str, "ingradient")) {
+	} else if (utils::IsAbbr(str, "ингредиент")
+		|| utils::IsAbbr(str, "ingradient")) {
 		type = EObjType::kMagicIngredient;
-	} else if (utils::IsAbbrev(str, "легкие")
-		|| utils::IsAbbrev(str, "легкая")) {
+	} else if (utils::IsAbbr(str, "легкие")
+		|| utils::IsAbbr(str, "легкая")) {
 		type = EObjType::kLightArmor;
-	} else if (utils::IsAbbrev(str, "средние")
-		|| utils::IsAbbrev(str, "средняя")) {
+	} else if (utils::IsAbbr(str, "средние")
+		|| utils::IsAbbr(str, "средняя")) {
 		type = EObjType::kMediumArmor;
-	} else if (utils::IsAbbrev(str, "тяжелые")
-		|| utils::IsAbbrev(str, "тяжелая")) {
+	} else if (utils::IsAbbr(str, "тяжелые")
+		|| utils::IsAbbr(str, "тяжелая")) {
 		type = EObjType::kHeavyArmor;
 	} else {
 		return false;
@@ -76,17 +76,17 @@ bool ParseFilter::init_type(const char *str) {
 }
 
 bool ParseFilter::init_state(const char *str) {
-	if (utils::IsAbbrev(str, "ужасно"))
+	if (utils::IsAbbr(str, "ужасно"))
 		state = 0;
-	else if (utils::IsAbbrev(str, "скоро сломается"))
+	else if (utils::IsAbbr(str, "скоро сломается"))
 		state = 20;
-	else if (utils::IsAbbrev(str, "плоховато"))
+	else if (utils::IsAbbr(str, "плоховато"))
 		state = 40;
-	else if (utils::IsAbbrev(str, "средне"))
+	else if (utils::IsAbbr(str, "средне"))
 		state = 60;
-	else if (utils::IsAbbrev(str, "идеально"))
+	else if (utils::IsAbbr(str, "идеально"))
 		state = 80;
-	else if (utils::IsAbbrev(str, "нерушимо"))
+	else if (utils::IsAbbr(str, "нерушимо"))
 		state = 1000;
 	else return false;
 
@@ -94,52 +94,52 @@ bool ParseFilter::init_state(const char *str) {
 }
 
 bool ParseFilter::init_wear(const char *str) {
-	if (utils::IsAbbrev(str, "палец")) {
+	if (utils::IsAbbr(str, "палец")) {
 		wear = EWearFlag::kFinger;
 		wear_message = 1;
-	} else if (utils::IsAbbrev(str, "шея") || utils::IsAbbrev(str, "грудь")) {
+	} else if (utils::IsAbbr(str, "шея") || utils::IsAbbr(str, "грудь")) {
 		wear = EWearFlag::kNeck;
 		wear_message = 2;
-	} else if (utils::IsAbbrev(str, "тело")) {
+	} else if (utils::IsAbbr(str, "тело")) {
 		wear = EWearFlag::kBody;
 		wear_message = 3;
-	} else if (utils::IsAbbrev(str, "голова")) {
+	} else if (utils::IsAbbr(str, "голова")) {
 		wear = EWearFlag::kHead;
 		wear_message = 4;
-	} else if (utils::IsAbbrev(str, "ноги")) {
+	} else if (utils::IsAbbr(str, "ноги")) {
 		wear = EWearFlag::kLegs;
 		wear_message = 5;
-	} else if (utils::IsAbbrev(str, "ступни")) {
+	} else if (utils::IsAbbr(str, "ступни")) {
 		wear = EWearFlag::kFeet;
 		wear_message = 6;
-	} else if (utils::IsAbbrev(str, "кисти")) {
+	} else if (utils::IsAbbr(str, "кисти")) {
 		wear = EWearFlag::kHands;
 		wear_message = 7;
-	} else if (utils::IsAbbrev(str, "руки")) {
+	} else if (utils::IsAbbr(str, "руки")) {
 		wear = EWearFlag::kArms;
 		wear_message = 8;
-	} else if (utils::IsAbbrev(str, "щит")) {
+	} else if (utils::IsAbbr(str, "щит")) {
 		wear = EWearFlag::kShield;
 		wear_message = 9;
-	} else if (utils::IsAbbrev(str, "плечи")) {
+	} else if (utils::IsAbbr(str, "плечи")) {
 		wear = EWearFlag::kShoulders;
 		wear_message = 10;
-	} else if (utils::IsAbbrev(str, "пояс")) {
+	} else if (utils::IsAbbr(str, "пояс")) {
 		wear = EWearFlag::kWaist;
 		wear_message = 11;
-	} else if (utils::IsAbbrev(str, "запястья")) {
+	} else if (utils::IsAbbr(str, "запястья")) {
 		wear = EWearFlag::kWrist;
 		wear_message = 12;
-	} else if (utils::IsAbbrev(str, "правая")) {
+	} else if (utils::IsAbbr(str, "правая")) {
 		wear = EWearFlag::kWield;
 		wear_message = 13;
-	} else if (utils::IsAbbrev(str, "левая")) {
+	} else if (utils::IsAbbr(str, "левая")) {
 		wear = EWearFlag::kHold;
 		wear_message = 14;
-	} else if (utils::IsAbbrev(str, "обе")) {
+	} else if (utils::IsAbbr(str, "обе")) {
 		wear = EWearFlag::kBoth;
 		wear_message = 15;
-	} else if (utils::IsAbbrev(str, "колчан")) {
+	} else if (utils::IsAbbr(str, "колчан")) {
 		wear = EWearFlag::kQuiver;
 		wear_message = 16;
 	} else {
@@ -188,31 +188,31 @@ bool ParseFilter::init_remorts(const char *str) {
 
 
 bool ParseFilter::init_weap_class(const char *str) {
-	if (utils::IsAbbrev(str, "луки")) {
+	if (utils::IsAbbr(str, "луки")) {
 		weap_class = ESkill::kBows;
 		weap_message = 0;
-	} else if (utils::IsAbbrev(str, "короткие")) {
+	} else if (utils::IsAbbr(str, "короткие")) {
 		weap_class = ESkill::kShortBlades;
 		weap_message = 1;
-	} else if (utils::IsAbbrev(str, "длинные")) {
+	} else if (utils::IsAbbr(str, "длинные")) {
 		weap_class = ESkill::kLongBlades;
 		weap_message = 2;
-	} else if (utils::IsAbbrev(str, "секиры")) {
+	} else if (utils::IsAbbr(str, "секиры")) {
 		weap_class = ESkill::kAxes;
 		weap_message = 3;
-	} else if (utils::IsAbbrev(str, "палицы")) {
+	} else if (utils::IsAbbr(str, "палицы")) {
 		weap_class = ESkill::kClubs;
 		weap_message = 4;
-	} else if (utils::IsAbbrev(str, "иное")) {
+	} else if (utils::IsAbbr(str, "иное")) {
 		weap_class = ESkill::kNonstandart;
 		weap_message = 5;
-	} else if (utils::IsAbbrev(str, "двуручники")) {
+	} else if (utils::IsAbbr(str, "двуручники")) {
 		weap_class = ESkill::kTwohands;
 		weap_message = 6;
-	} else if (utils::IsAbbrev(str, "проникающее")) {
+	} else if (utils::IsAbbr(str, "проникающее")) {
 		weap_class = ESkill::kPicks;
 		weap_message = 7;
-	} else if (utils::IsAbbrev(str, "копья")) {
+	} else if (utils::IsAbbr(str, "копья")) {
 		weap_class = ESkill::kSpades;
 		weap_message = 8;
 	} else {

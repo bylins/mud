@@ -34,7 +34,7 @@ void go_disarm(CharData *ch, CharData *vict) {
 		return;
 	if (!pk_agro_action(ch, vict))
 		return;
-	int percent = number(1, MUD::Skills(ESkill::kDisarm).difficulty);
+	int percent = number(1, MUD::Skill(ESkill::kDisarm).difficulty);
 	int prob = CalcCurrentSkill(ch, ESkill::kDisarm, vict);
 	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(vict, EGf::kGodscurse) || GET_GOD_FLAG(ch, EGf::kGodsLike))
 		prob = percent;
@@ -44,7 +44,7 @@ void go_disarm(CharData *ch, CharData *vict) {
 
 	bool success = percent <= prob;
 	TrainSkill(ch, ESkill::kDisarm, success, vict);
-	SendSkillBalanceMsg(ch, MUD::Skills(ESkill::kDisarm).name, percent, prob, success);
+	SendSkillBalanceMsg(ch, MUD::Skill(ESkill::kDisarm).name, percent, prob, success);
 	if (!success || GET_EQ(vict, pos)->has_flag(EObjFlag::kNodisarm)) {
 		SendMsgToChar(ch,
 					  "%sВы не сумели обезоружить %s...%s\r\n",

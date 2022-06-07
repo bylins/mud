@@ -7,6 +7,7 @@
 #include "game_mechanics/deathtrap.h"
 #include "game_magic/magic.h"
 #include "game_mechanics/poison.h"
+#include "game_skills/death_rage.h"
 #include "structs/global_objects.h"
 #include "handler.h"
 #include "utils/utils_time.h"
@@ -121,8 +122,7 @@ std::array<EAffect, 3> char_stealth_aff =
 
 template<>
 bool Affect<EApply>::removable() const {
-	return !spell_info[type].name
-		|| *spell_info[type].name == '!'
+	return MUD::Spell(type).IsInvalid()
 		|| type == ESpell::kSleep
 		|| type == ESpell::kPoison
 		|| type == ESpell::kWeaknes
@@ -467,9 +467,9 @@ void affect_total(CharData *ch) {
 		ch->set_int_add(ch->get_remort_add());
 		ch->set_wis_add(ch->get_remort_add());
 		ch->set_cha_add(ch->get_remort_add());
-		double add_hp_per_level = MUD::Classes(ch->GetClass()).applies.base_con
-				+ (ClampBaseStat(ch, EBaseStat::kCon, ch->get_con()) - MUD::Classes(ch->GetClass()).applies.base_con)
-				* MUD::Classes(ch->GetClass()).applies.koef_con / 100.0 + 3;
+		double add_hp_per_level = MUD::Class(ch->GetClass()).applies.base_con
+				+ (ClampBaseStat(ch, EBaseStat::kCon, ch->get_con()) - MUD::Class(ch->GetClass()).applies.base_con)
+				* MUD::Class(ch->GetClass()).applies.koef_con / 100.0 + 3;
 	 	GET_HIT_ADD(ch) = static_cast<int>(add_hp_per_level * (30 - ch->GetLevel()));
 //		SendMsgToChar(ch, "add per level %f hitadd %d  level %d\r\n", add_hp_per_level, GET_HIT_ADD(ch), ch->get_level());
 	}
@@ -507,42 +507,14 @@ void affect_total(CharData *ch) {
 	}
 	ch->obj_bonus().apply_affects(ch);
 
-	// move features modifiers
-	for (auto i = EFeat::kFirst; i <= EFeat::kLast; ++i) {
-		if (CanUseFeat(ch, i) && (feat_info[i].type == EFeatType::kAffect)) {
-			for (int j = 0; j < kMaxFeatAffect; ++j) {
-				affect_modify(ch, feat_info[i].affected[j].location, feat_info[i].affected[j].modifier,
-							  EAffect::kUndefinded, true);
-			}
+	for (const auto &feat : MUD::Feats()) {
+		if (CanUseFeat(ch, feat.GetId())) {
+			feat.effects.ImposeApplies(ch);
+			feat.effects.ImposeSkillsMods(ch);
 		}
 	}
 
-	// EFeat::kImpregnable учитывается дважды: выше начисляем единичку за 0 мортов, а теперь по 1 за каждый морт
-	if (CanUseFeat(ch, EFeat::kImpregnable)) {
-		for (int j = 0; j < kMaxFeatAffect; j++) {
-			affect_modify(ch,
-						  feat_info[EFeat::kImpregnable].affected[j].location,
-						  std::min(9, feat_info[EFeat::kImpregnable].affected[j].modifier * GET_REAL_REMORT(ch)),
-						  EAffect::kUndefinded,
-						  true);
-		}
-	}
-
-	// Обработка изворотливости (с) Числобог
-	if (CanUseFeat(ch, EFeat::kDodger)) {
-		affect_modify(ch, EApply::kSavingReflex, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), EAffect::kUndefinded, true);
-		affect_modify(ch, EApply::kSavingWill, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), EAffect::kUndefinded, true);
-		affect_modify(ch, EApply::kSavingStability, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), EAffect::kUndefinded, true);
-		affect_modify(ch, EApply::kSavingCritical, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), EAffect::kUndefinded, true);
-	}
-
-	// Обработка "выносливости" и "богатырского здоровья
-	// Знаю, что кривовато, придумаете, как лучше - делайте
 	if (!ch->IsNpc()) {
-		if (CanUseFeat(ch, EFeat::kEndurance))
-			affect_modify(ch, EApply::kMove, GetRealLevel(ch) * 2, static_cast<EAffect>(0), true);
-		if (CanUseFeat(ch, EFeat::kSplendidHealth))
-			affect_modify(ch, EApply::kHp, GetRealLevel(ch) * 2, static_cast<EAffect>(0), true);
 		if (NORENTABLE(ch) == 0 && !domination) // мы не на новой арене и не ПК
 			GloryConst::apply_modifiers(ch);
 		apply_natural_affects(ch);
@@ -555,13 +527,6 @@ void affect_total(CharData *ch) {
 
 	// move race and class modifiers
 	if (!ch->IsNpc()) {
-		if (ch->GetClass() >= ECharClass::kFirst && ch->GetClass() <= ECharClass::kLast) {
-			for (const auto aff : MUD::Classes(ch->GetClass()).inborn_affects) {
-				affect_modify(ch, EApply::kNone, aff.mod, aff.affect, aff.add);
-			}
-		}
-
-		// Apply other PC modifiers
 		const unsigned wdex = PlayerSystem::weight_dex_penalty(ch);
 		if (wdex != 0) {
 			ch->set_dex_add(ch->get_dex_add() - wdex);
@@ -667,7 +632,7 @@ void affect_total(CharData *ch) {
 		auto spell_id{ESpell::kFirst};
 		for (ch->caster_level = 0; !ch->IsNpc() && spell_id <= ESpell::kLast; ++spell_id) {
 			if (IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow | ESpellType::kTemp)) {
-				ch->caster_level += (spell_info[spell_id].danger * GET_SPELL_MEM(ch, spell_id));
+				ch->caster_level += MUD::Spell(spell_id).GetDanger()*GET_SPELL_MEM(ch, spell_id);
 			}
 		}
 	}
@@ -681,7 +646,7 @@ void affect_total(CharData *ch) {
 			}
 		}
 	}
-	CheckBerserk(ch);
+	CheckDeathRage(ch);
 	if (ch->GetEnemy() || IsAffectedBySpell(ch, ESpell::kGlitterDust)) {
 		AFF_FLAGS(ch).unset(EAffect::kHide);
 		AFF_FLAGS(ch).unset(EAffect::kSneak);
@@ -749,7 +714,7 @@ void affect_to_char(CharData *ch, const Affect<EApply> &af) {
 	CheckLight(ch, kLightUndef, was_lgt, was_hlgt, was_hdrk, 1);
 }
 
-void affect_modify(CharData *ch, byte loc, int mod, const EAffect bitv, bool add) {
+void affect_modify(CharData *ch, EApply loc, int mod, const EAffect bitv, bool add) {
 	if (add) {
 		AFF_FLAGS(ch).set(bitv);
 	} else {

@@ -1,6 +1,7 @@
 #ifndef SPELL_PARSER_HPP_
 #define SPELL_PARSER_HPP_
 
+#include "feats.h"
 #include "entities/entities_constants.h"
 #include "game_magic/spells.h"
 #include "game_skills/skills.h"
@@ -20,9 +21,17 @@ ESkill FindSkillId(const char *name);
 ESkill FixNameAndFindSkillId(char *name);
 ESkill FixNameFndFindSkillId(std::string &name);
 
-ESpell FindSpellNum(const char *name);
-ESpell FixNameAndFindSpellId(char *name);
+ESpell FindSpellId(const std::string &name);
+ESpell FindSpellId(const char *name);
 ESpell FixNameAndFindSpellId(std::string &name);
+
+EFeat FindFeatId(const char *name);
+EFeat FixNameAndFindFeatId(const std::string &name);
+
+abilities::EAbility FindAbilityId(const std::string &name);
+abilities::EAbility FixNameAndFindAbilityId(const std::string &name);
+
+ESpell FindSpellIdWithName(const std::string &name);
 
 int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch, ObjData **tobj, RoomData **troom);
 void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj);
@@ -30,5 +39,10 @@ int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict
 int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell_id);
 int CalcRequiredLevel(const CharData *ch, ESpell spell_id);
 int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpell spell_id, ESpell spell_subst);
+
+// Resistance calculate //
+int ApplyResist(CharData *ch, int resist_type, int effect);
+EResist GetResisTypeWithElement(EElement element);
+EResist GetResistType(ESpell spell_id);
 
 #endif // SPELL_PARSER_HPP_

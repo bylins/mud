@@ -387,7 +387,7 @@ void olc_add_stat(CharData *ch, int stat) {
 		case GLORY_CON:
 			if (ch->desc->glory_const->olc_free_glory >= need_glory
 				&& ch->desc->glory_const->stat_cur[stat]
-					+ ch->desc->glory_const->stat_add[stat] < MUD::Classes(ch->GetClass()).GetBaseStatCap(EBaseStat::kCon))
+					+ ch->desc->glory_const->stat_add[stat] < MUD::Class(ch->GetClass()).GetBaseStatCap(EBaseStat::kCon))
 				ok = true;
 			else
 				SendMsgToChar(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
@@ -395,7 +395,7 @@ void olc_add_stat(CharData *ch, int stat) {
 		case GLORY_STR:
 			if (ch->desc->glory_const->olc_free_glory >= need_glory
 				&& ch->desc->glory_const->stat_cur[stat]
-					+ ch->desc->glory_const->stat_add[stat] < MUD::Classes(ch->GetClass()).GetBaseStatCap(EBaseStat::kStr))
+					+ ch->desc->glory_const->stat_add[stat] < MUD::Class(ch->GetClass()).GetBaseStatCap(EBaseStat::kStr))
 				ok = true;
 			else
 				SendMsgToChar(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
@@ -403,7 +403,7 @@ void olc_add_stat(CharData *ch, int stat) {
 		case GLORY_DEX:
 			if (ch->desc->glory_const->olc_free_glory >= need_glory
 				&& ch->desc->glory_const->stat_cur[stat]
-					+ ch->desc->glory_const->stat_add[stat] < MUD::Classes(ch->GetClass()).GetBaseStatCap(EBaseStat::kDex))
+					+ ch->desc->glory_const->stat_add[stat] < MUD::Class(ch->GetClass()).GetBaseStatCap(EBaseStat::kDex))
 				ok = true;
 			else
 				SendMsgToChar(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
@@ -411,7 +411,7 @@ void olc_add_stat(CharData *ch, int stat) {
 		case GLORY_INT:
 			if (ch->desc->glory_const->olc_free_glory >= need_glory
 				&& ch->desc->glory_const->stat_cur[stat]
-					+ ch->desc->glory_const->stat_add[stat] < MUD::Classes(ch->GetClass()).GetBaseStatCap(EBaseStat::kInt))
+					+ ch->desc->glory_const->stat_add[stat] < MUD::Class(ch->GetClass()).GetBaseStatCap(EBaseStat::kInt))
 				ok = true;
 			else
 				SendMsgToChar(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
@@ -419,7 +419,7 @@ void olc_add_stat(CharData *ch, int stat) {
 		case GLORY_WIS:
 			if (ch->desc->glory_const->olc_free_glory >= need_glory
 				&& ch->desc->glory_const->stat_cur[stat]
-					+ ch->desc->glory_const->stat_add[stat] < MUD::Classes(ch->GetClass()).GetBaseStatCap(EBaseStat::kWis))
+					+ ch->desc->glory_const->stat_add[stat] < MUD::Class(ch->GetClass()).GetBaseStatCap(EBaseStat::kWis))
 				ok = true;
 			else
 				SendMsgToChar(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
@@ -427,7 +427,7 @@ void olc_add_stat(CharData *ch, int stat) {
 		case GLORY_CHA:
 			if (ch->desc->glory_const->olc_free_glory >= need_glory
 				&& ch->desc->glory_const->stat_cur[stat]
-					+ ch->desc->glory_const->stat_add[stat] < MUD::Classes(ch->GetClass()).GetBaseStatCap(EBaseStat::kCha))
+					+ ch->desc->glory_const->stat_add[stat] < MUD::Class(ch->GetClass()).GetBaseStatCap(EBaseStat::kCha))
 				ok = true;
 			else
 				SendMsgToChar(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
@@ -774,7 +774,7 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		mode = ADD_GLORY;
 	} else if (*num == '-') {
 		mode = SUB_GLORY;
-	} else if (utils::IsAbbrev(num, "reset")) {
+	} else if (utils::IsAbbr(num, "reset")) {
 		mode = RESET_GLORY;
 	}
 	// точки убираем, чтобы карма всегда писалась
@@ -1054,12 +1054,13 @@ void add_total_spent(int amount) {
 }
 
 void apply_modifiers(CharData *ch) {
-	GloryListType::iterator it = glory_list.find(GET_UNIQUE(ch));
-	if (it == glory_list.end())
+	auto it = glory_list.find(GET_UNIQUE(ch));
+	if (it == glory_list.end()) {
 		return;
+	}
 
 	for (std::map<int, int>::const_iterator i = it->second->stats.begin(); i != it->second->stats.end(); ++i) {
-		int location = 0;
+		auto location{EApply::kNone};
 		bool add = true;
 		switch (i->first) {
 			case GLORY_HIT: location = EApply::kHp;

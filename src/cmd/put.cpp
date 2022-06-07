@@ -250,7 +250,7 @@ ObjData::shared_ptr CreateCurrencyObj(long quantity) {
 
 	if (quantity == 1) {
 		sprintf(buf, "coin gold кун деньги денег монет %s",
-				MUD::Currencies(currencies::kKunaVnum).GetObjCName(quantity, ECase::kNom));
+				MUD::Currency(currencies::kKunaVnum).GetObjCName(quantity, ECase::kNom));
 		obj->set_aliases(buf);
 		obj->set_short_description("куна");
 		obj->set_description("Одна куна лежит здесь.");
@@ -258,19 +258,19 @@ ObjData::shared_ptr CreateCurrencyObj(long quantity) {
 		new_descr->description = str_dup("Всего лишь одна куна.");
 		for (int i = ECase::kFirstCase; i <= ECase::kLastCase; i++) {
 			obj->set_PName(i,
-						   MUD::Currencies(currencies::kKunaVnum).GetObjCName(quantity, static_cast<ECase>(i)));
+						   MUD::Currency(currencies::kKunaVnum).GetObjCName(quantity, static_cast<ECase>(i)));
 		}
 	} else {
 		sprintf(buf, "coins gold кун денег %s",
-				MUD::Currencies(currencies::kKunaVnum).GetObjCName(quantity, ECase::kNom));
+				MUD::Currency(currencies::kKunaVnum).GetObjCName(quantity, ECase::kNom));
 		obj->set_aliases(buf);
-		obj->set_short_description(MUD::Currencies(currencies::kKunaVnum).GetObjCName(quantity, ECase::kNom));
+		obj->set_short_description(MUD::Currency(currencies::kKunaVnum).GetObjCName(quantity, ECase::kNom));
 		for (int i = ECase::kFirstCase; i <= ECase::kLastCase; i++) {
-			obj->set_PName(i, MUD::Currencies(currencies::kKunaVnum).GetObjCName(quantity, static_cast<ECase>(i)));
+			obj->set_PName(i, MUD::Currency(currencies::kKunaVnum).GetObjCName(quantity, static_cast<ECase>(i)));
 		}
 
 		sprintf(buf, "Здесь лежит %s.",
-				MUD::Currencies(currencies::kKunaVnum).GetObjCName(quantity, ECase::kNom));
+				MUD::Currency(currencies::kKunaVnum).GetObjCName(quantity, ECase::kNom));
 		obj->set_description(CAP(buf));
 
 		new_descr->keyword = str_dup("coins gold кун денег");

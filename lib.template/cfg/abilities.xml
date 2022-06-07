@@ -1,67 +1,76 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <!--
 Формат:
-    <ability>
-        <id val="kKick" /> - обязательное поле, ид навыка из enum EAbilities
-        <name val="пнуть" /> - обязательное поле, имя навыка.
-        <abbreviation val="Пн" /> - обязательное поле, краткое имя навыка.
-        <base_skill val="kKick" /> - обязательное поле, базовое умение.
-        <base_stat val="kDex" /> - обязательное поле, базовый параметр.
-        <saving val="kReflex" /> - необязательное. Сейв. По умолчанию - реакция.
-        <difficulty val="5" /> - необязательное поле. По умолчанию ноль.
-        <critfail_threshold val="95" /> - необязательное. По умолчанию 95.
-        <critsuccess_threshold val="6" /> - необязательное. По умолчанию 6.
-        <mob_vs_pc_penalty val="30" /> - штраф, если моб атакует игрока, по умолчанию 30
-        <pc_vs_pc_penalty val="15" /> - штраф, если игрок атакует игрока, по умолчанию 15
-        <circumstances>
-            <circumstance id="kMetalEquipment" inverted="0" val="-20" /> - бонус/штраф в зависимости от обстоятельств применения навыка
-                                                                "inverted" - необязательный логический знак инверсии значения
-                                                                (т.е., например, НЕ экипирован в металл)
-        </circumstances>
-        <messages>
-                <msg_set id="kBasicMsgTry" val="Хорошо. Вы попытаетесь пнуть $N3." />
-        </messages>
-    </ability>
 -->
 <abilities>
-    <ability>
-        <id val="kUndefined" />
-        <name val="!undefined" />
-        <abbreviation val="!Undef" />
-        <base_skill val="kUndefined" />
-        <saving val="kReflex" />
-        <base_stat val="kDex" />
-        <difficulty val="0" />
-        <critfail_threshold val="95" />
-        <critsuccess_threshold val="6" />
-        <mob_vs_pc_penalty val="30" />
-        <pc_vs_pc_penalty val="15" />
-        <!-- Сообщения навыка kUndefined являются сообщениями "по умолчанию".
-             Не забывайте при добавлении нового типа сообщения добавлять его сюда. -->
-        <messages>
-            <msg_set id="kBasicMsgTry" val="Хорошо. Вы попытаетесь это сделать." />
-            <msg_set id="kKillMsgToDamager" val="Ваш коварный приём отправил $N3 на тот свет." />
-            <msg_set id="kKillMsgToVictim" val="$n повредил$g вас. Кажется, это бабка уже не отшепчет." />
-            <msg_set id="kKillMsgToOnlookers" val="$N погиб$Q от коварной атаки $n1." />
-            <msg_set id="kMissMsgToDamager" val="Ваш приём пропал втуне." />
-            <msg_set id="kMissMsgToVictim" val="$n попытал$u нанести вам вред, но промахнул$u." />
-            <msg_set id="kMissMsgToOnlookers" val="$n безуспешно попытал$u атаковать $N3." />
-            <msg_set id="kDmgMsgToDamager" val="Вы повредили $N3 своей коварной атакой." />
-            <msg_set id="kDmgMsgToVictim" val="Коварная атака $n1 нанесла вам повреждения." />
-            <msg_set id="kDmgMsgToOnlookers" val="Атака $n1 повредил$g $N3. $N явно не в восторге." />
-            <msg_set id="kDmgGodMsgToDamager" val="$N глянул$G на вас так, что вы покраснели." />
-            <msg_set id="kDmgGodMsgToVictim" val="$n3 плохо тренировал$u - промазал$g по $N2." />
-            <msg_set id="kDmgGodMsgToOnlookers" val="$n чуть не хватил кондратий при попытке атаковать $N1." />
-            <msg_set id="kDenyMsgHaveNoAbility" val="Вы этого не умеете." />
-            <msg_set id="kDenyMsgNoVictim" val="Вы не видите цель." />
-            <msg_set id="kDenyMsgOnHorse" val="Верхом это сделать затруднительно." />
-            <msg_set id="kDenyMsgAbilityCooldown" val="Вам нужно набраться сил." />
-            <msg_set id="kDenyMsgActorIsVictim" val="Вы, определенно, садомазохист!" />
-            <msg_set id="kDenyMsgHaveNoWeapon" val="У вас нет оружия." />
-            <msg_set id="kDenyMsgWrongWeapon" val="Вы вооружены неподходящим оружием." />
-            <msg_set id="kDenyMsgWrongVictim" val="Ваша цель неуязвима к этому навыку." />
-            <msg_set id="kDenyMsgWrongPosition" val="Похоже, в такой позе вы много не навоюете." />
-            <msg_set id="kDenyMsgIsNotAbleToAct" val="Вы временно не в состоянии сражаться." />
-        </messages>
+    <ability id="kUndefined" name="!undefined" abbr="!Undef" mode="kService">
+        <base skill="kUndefined" stat ="kDex" saving="kReflex" roll_bonus="0"/>
+        <thresholds critsuccess="6" critfail="95"/>
+        <penalties pvp="0" pve="0" evp="0"/>
+    </ability>
+    <ability id="kScirmisher" name="Держать строй" abbr="Дс" mode="kEnabled">
+        <base skill="kRescue" stat ="kDex" saving="kReflex" roll_bonus="90"/>
+        <thresholds critsuccess="6" critfail="95"/>
+        <penalties pvp="0" pve="0" evp="0"/>
+    </ability>
+    <ability id="kTactician" name="Десяцкий" abbr="Дс" mode="kEnabled">
+        <base skill="kLeadership" stat ="kCha" saving="kReflex" roll_bonus="90"/>
+        <thresholds critsuccess="6" critfail="95"/>
+        <penalties pvp="0" pve="0" evp="0"/>
+    </ability>
+    <ability id="kCutting" name="Порез" abbr="Пр" mode="kEnabled">
+        <base skill="kLeadership" stat ="kDex" saving="kCritical" roll_bonus="110"/>
+        <thresholds critsuccess="6" critfail="95"/>
+        <penalties pvp="0" pve="0" evp="0"/>
+    </ability>
+    <ability id="kThrowWeapon" name="Метнуть" abbr="Мт" mode="kEnabled">
+        <base skill="kThrow" stat ="kDex" saving="kReflex" roll_bonus="100"/>
+        <thresholds critsuccess="6" critfail="95"/>
+        <penalties pvp="0" pve="0" evp="0"/>
+    </ability>
+    <ability id="kShadowThrower" name="Змеево оружие" abbr="Зо" mode="kEnabled">
+        <base skill="kDarkMagic" stat ="kDex" saving="kWill" roll_bonus="100"/>
+        <thresholds critsuccess="6" critfail="95"/>
+        <penalties pvp="0" pve="0" evp="0"/>
+    </ability>
+    <ability id="kShadowDagger" name="Змевв кинжал" abbr="Зк" mode="kEnabled">
+        <base skill="kDarkMagic" stat ="kInt" saving="kStability" roll_bonus="80"/>
+        <thresholds critsuccess="6" critfail="95"/>
+        <penalties pvp="0" pve="0" evp="0"/>
+    </ability>
+    <ability id="kShadowSpear" name="Змеево копье" abbr="Зкп" mode="kEnabled">
+        <base skill="kDarkMagic" stat ="kInt" saving="kStability" roll_bonus="80"/>
+        <thresholds critsuccess="6" critfail="95"/>
+        <penalties pvp="0" pve="0" evp="0"/>
+    </ability>
+    <ability id="kShadowClub" name="Змеева палица" abbr="Зп" mode="kEnabled">
+        <base skill="kDarkMagic" stat ="kInt" saving="kStability" roll_bonus="80"/>
+        <thresholds critsuccess="6" critfail="95"/>
+        <penalties pvp="0" pve="0" evp="0"/>
+    </ability>
+    <ability id="kDoubleThrower" name="Двойной бросок" abbr="Дб" mode="kEnabled">
+        <base skill="kDarkMagic" stat ="kDex" saving="kReflex" roll_bonus="100"/>
+        <thresholds critsuccess="6" critfail="95"/>
+        <penalties pvp="0" pve="0" evp="0"/>
+    </ability>
+    <ability id="kTripleThrower" name="Тройной бросо" abbr="Тб" mode="kEnabled">
+        <base skill="kDarkMagic" stat ="kDex" saving="kReflex" roll_bonus="100"/>
+        <thresholds critsuccess="6" critfail="95"/>
+        <penalties pvp="0" pve="0" evp="0"/>
+    </ability>
+    <ability id="kPowerThrow" name="Размех" abbr="Размах" mode="kEnabled">
+        <base skill="kDarkMagic" stat ="kStr" saving="kReflex" roll_bonus="100"/>
+        <thresholds critsuccess="6" critfail="95"/>
+        <penalties pvp="0" pve="0" evp="0"/>
+    </ability>
+    <ability id="kDeadlyThrow" name="Широкий рахмах" abbr="Шр" mode="kEnabled">
+        <base skill="kDarkMagic" stat ="kStr" saving="kReflex" roll_bonus="100"/>
+        <thresholds critsuccess="6" critfail="95"/>
+        <penalties pvp="0" pve="0" evp="0"/>
+    </ability>
+    <ability id="kTurnUndead" name="Изгнать нежить" abbr="Ин" mode="kEnabled">
+        <base skill="kTurnUndead" stat ="kInt" saving="kStability" roll_bonus="70"/>
+        <thresholds critsuccess="6" critfail="95"/>
+        <penalties pvp="0" pve="0" evp="0"/>
     </ability>
 </abilities>

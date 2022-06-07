@@ -133,7 +133,7 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		return;
 	}
 
-	percent = number(1, MUD::Skills(ESkill::kJewelry).difficulty);
+	percent = number(1, MUD::Skill(ESkill::kJewelry).difficulty);
 	prob = ch->GetSkill(ESkill::kJewelry);
 
 	SetWaitState(ch, kPulseViolence);

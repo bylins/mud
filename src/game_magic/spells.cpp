@@ -49,24 +49,24 @@ int what_sky = kSkyCloudless;
 // * Special spells appear below.
 
 ESkill GetMagicSkillId(ESpell spell_id) {
-	switch (spell_info[spell_id].spell_class) {
-		case kTypeAir: return ESkill::kAirMagic;
+	switch (MUD::Spell(spell_id).GetElement()) {
+		case EElement::kAir: return ESkill::kAirMagic;
 			break;
-		case kTypeFire: return ESkill::kFireMagic;
+		case EElement::kFire: return ESkill::kFireMagic;
 			break;
-		case kTypeWater: return ESkill::kWaterMagic;
+		case EElement::kWater: return ESkill::kWaterMagic;
 			break;
-		case kTypeEarth: return ESkill::kEarthMagic;
+		case EElement::kEarth: return ESkill::kEarthMagic;
 			break;
-		case kTypeLight: return ESkill::kLightMagic;
+		case EElement::kLight: return ESkill::kLightMagic;
 			break;
-		case kTypeDark: return ESkill::kDarkMagic;
+		case EElement::kDark: return ESkill::kDarkMagic;
 			break;
-		case kTypeMind: return ESkill::kMindMagic;
+		case EElement::kMind: return ESkill::kMindMagic;
 			break;
-		case kTypeLife: return ESkill::kLifeMagic;
+		case EElement::kLife: return ESkill::kLifeMagic;
 			break;
-		case kTypeNeutral: [[fallthrough]];
+		case EElement::kUndefined: [[fallthrough]];
 		default: return ESkill::kUndefined;
 	}
 }
@@ -74,23 +74,23 @@ ESkill GetMagicSkillId(ESpell spell_id) {
 //Определим мин уровень для изучения спелла из книги
 //req_lvl - требуемый уровень из книги
 int CalcMinSpellLvl(const CharData *ch, ESpell spell_id, int req_lvl) {
-	int min_lvl = std::max(req_lvl, MUD::Classes(ch->GetClass()).spells[spell_id].GetMinLevel())
-		- (std::max(0, GET_REAL_REMORT(ch)/MUD::Classes(ch->GetClass()).GetSpellLvlDecrement()));
+	int min_lvl = std::max(req_lvl, MUD::Class(ch->GetClass()).spells[spell_id].GetMinLevel())
+		- (std::max(0, GET_REAL_REMORT(ch)/ MUD::Class(ch->GetClass()).GetSpellLvlDecrement()));
 
 	return std::max(1, min_lvl);
 }
 
 int CalcMinSpellLvl(const CharData *ch, ESpell spell_id) {
-	auto min_lvl = MUD::Classes(ch->GetClass()).spells[spell_id].GetMinLevel()
-		- GET_REAL_REMORT(ch)/MUD::Classes(ch->GetClass()).GetSpellLvlDecrement();
+	auto min_lvl = MUD::Class(ch->GetClass()).spells[spell_id].GetMinLevel()
+		- GET_REAL_REMORT(ch)/ MUD::Class(ch->GetClass()).GetSpellLvlDecrement();
 
 	return std::max(1, min_lvl);
 }
 
 bool CanGetSpell(const CharData *ch, ESpell spell_id, int req_lvl) {
-	if (MUD::Classes(ch->GetClass()).spells.IsUnavailable(spell_id) ||
+	if (MUD::Class(ch->GetClass()).spells.IsUnavailable(spell_id) ||
 		CalcMinSpellLvl(ch, spell_id, req_lvl) > GetRealLevel(ch) ||
-		MUD::Classes(ch->GetClass()).spells[spell_id].GetMinRemort() > GET_REAL_REMORT(ch)) {
+		MUD::Class(ch->GetClass()).spells[spell_id].GetMinRemort() > GET_REAL_REMORT(ch)) {
 		return false;
 	}
 
@@ -99,12 +99,12 @@ bool CanGetSpell(const CharData *ch, ESpell spell_id, int req_lvl) {
 
 // Функция определяет возможность изучения спелла из книги или в гильдии
 bool CanGetSpell(CharData *ch, ESpell spell_id) {
-	if (MUD::Classes(ch->GetClass()).spells.IsUnavailable(spell_id)) {
+	if (MUD::Class(ch->GetClass()).spells.IsUnavailable(spell_id)) {
 		return false;
 	}
 
 	if (CalcMinSpellLvl(ch, spell_id) > GetRealLevel(ch) ||
-		MUD::Classes(ch->GetClass()).spells[spell_id].GetMinRemort() > GET_REAL_REMORT(ch)) {
+		MUD::Class(ch->GetClass()).spells[spell_id].GetMinRemort() > GET_REAL_REMORT(ch)) {
 		return false;
 	}
 
@@ -1106,11 +1106,11 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 				GET_PR(victim) = (GET_PR(victim) + GET_REAL_REMORT(ch) - 12);
 			}
 			// спелы не работают пока 
-			// SET_SPELL(victim, SPELL_CURE_BLIND, 1); // -?
-			// SET_SPELL(victim, SPELL_REMOVE_DEAFNESS, 1); // -?
-			// SET_SPELL(victim, SPELL_REMOVE_HOLD, 1); // -?
-			// SET_SPELL(victim, SPELL_REMOVE_POISON, 1); // -?
-			// SET_SPELL(victim, SPELL_HEAL, 1);
+			// SET_SPELL_MEM(victim, SPELL_CURE_BLIND, 1); // -?
+			// SET_SPELL_MEM(victim, SPELL_REMOVE_DEAFNESS, 1); // -?
+			// SET_SPELL_MEM(victim, SPELL_REMOVE_HOLD, 1); // -?
+			// SET_SPELL_MEM(victim, SPELL_REMOVE_POISON, 1); // -?
+			// SET_SPELL_MEM(victim, SPELL_HEAL, 1);
 
 			//NPC_FLAGS(victim).set(NPC_WIELDING); // тут пока закомитим
 			GET_LIKES(victim) = 10 + r_cha; // устанавливаем возможность авто применения умений
@@ -1281,7 +1281,6 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 				victim->set_skill(ESkill::kRescue, k_skills*0.6);
 				victim->set_skill(ESkill::kNoParryHit, k_skills*0.6);
 				victim->SetFeat(EFeat::kClubsMaster);
-				victim->SetFeat(EFeat::kThrowWeapon);
 				victim->SetFeat(EFeat::kDoubleThrower);
 				victim->SetFeat(EFeat::kTripleThrower);
 				victim->SetFeat(EFeat::kPowerThrow);
@@ -1341,7 +1340,6 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 						false, ch, nullptr, victim, kToChar);
 				}
 				
-				victim->SetFeat(EFeat::kThrowWeapon);
 				victim->SetFeat(EFeat::kDoubleThrower);
 				victim->SetFeat(EFeat::kTripleThrower);
 				victim->SetFeat(EFeat::kPowerThrow);
@@ -1426,10 +1424,10 @@ void print_book_uprgd_skill(CharData *ch, const ObjData *obj) {
 	}
 	if (GET_OBJ_VAL(obj, 3) > 0) {
 		SendMsgToChar(ch, "повышает умение \"%s\" (максимум %d)\r\n",
-					  MUD::Skills(skill_id).GetName(), GET_OBJ_VAL(obj, 3));
+					  MUD::Skill(skill_id).GetName(), GET_OBJ_VAL(obj, 3));
 	} else {
 		SendMsgToChar(ch, "повышает умение \"%s\" (не больше максимума текущего перевоплощения)\r\n",
-					  MUD::Skills(skill_id).GetName());
+					  MUD::Skill(skill_id).GetName());
 	}
 }
 
@@ -1523,18 +1521,30 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 
 	switch (GET_OBJ_TYPE(obj)) {
 		case EObjType::kScroll:
-		case EObjType::kPotion: sprintf(buf, "Содержит заклинание: ");
-				sprintf(buf + strlen(buf), " %s", GetSpellName(static_cast<ESpell>(GET_OBJ_VAL(obj, 1))));
-				sprintf(buf + strlen(buf), ", %s", GetSpellName(static_cast<ESpell>(GET_OBJ_VAL(obj, 2))));
-				sprintf(buf + strlen(buf), ", %s", GetSpellName(static_cast<ESpell>(GET_OBJ_VAL(obj, 3))));
-			strcat(buf, "\r\n");
-			SendMsgToChar(buf, ch);
+		case EObjType::kPotion: {
+			std::ostringstream out;
+			out << "Содержит заклинание: ";
+			for (auto val = 1; val < 4; ++val) {
+				auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(obj, val));
+				if (MUD::Spell(spell_id).IsValid()) {
+					out << MUD::Spell(spell_id).GetName();
+					if (val < 3) {
+						out << ", ";
+					} else {
+						out << ".";
+					}
+				}
+			}
+			out << std::endl;
+			SendMsgToChar(out.str(), ch);
 			break;
-
+		}
 		case EObjType::kWand:
 		case EObjType::kStaff: sprintf(buf, "Вызывает заклинания: ");
-			sprintf(buf + strlen(buf), " %s\r\n", GetSpellName(static_cast<ESpell>(GET_OBJ_VAL(obj, 3))));
-			sprintf(buf + strlen(buf), "Зарядов %d (осталось %d).\r\n", GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
+			sprintf(buf + strlen(buf), " %s\r\n",
+					MUD::Spell(static_cast<ESpell>(GET_OBJ_VAL(obj, 3))).GetCName());
+			sprintf(buf + strlen(buf), "Зарядов %d (осталось %d).\r\n",
+					GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
 			SendMsgToChar(buf, ch);
 			break;
 
@@ -1562,12 +1572,12 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 					auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(obj, 1));
 					if (spell_id >= ESpell::kFirst && spell_id <= ESpell::kLast) {
 						drndice = GET_OBJ_VAL(obj, 1);
-						if (MUD::Classes(ch->GetClass()).spells.IsAvailable(spell_id)) {
+						if (MUD::Class(ch->GetClass()).spells.IsAvailable(spell_id)) {
 							drsdice = CalcMinSpellLvl(ch, spell_id, GET_OBJ_VAL(obj, 2));
 						} else {
 							drsdice = kLvlImplementator;
 						}
-						sprintf(buf, "содержит заклинание        : \"%s\"\r\n", GetSpellName(spell_id));
+						sprintf(buf, "содержит заклинание        : \"%s\"\r\n", MUD::Spell(spell_id).GetCName());
 						SendMsgToChar(buf, ch);
 						sprintf(buf, "уровень изучения (для вас) : %d\r\n", drsdice);
 						SendMsgToChar(buf, ch);
@@ -1578,12 +1588,12 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 					auto skill_id = static_cast<ESkill>(GET_OBJ_VAL(obj, 1));
 					if (MUD::Skills().IsValid(skill_id)) {
 						drndice = GET_OBJ_VAL(obj, 1);
-						if (MUD::Classes(ch->GetClass()).skills[skill_id].IsAvailable()) {
+						if (MUD::Class(ch->GetClass()).skills[skill_id].IsAvailable()) {
 							drsdice = GetSkillMinLevel(ch, skill_id, GET_OBJ_VAL(obj, 2));
 						} else {
 							drsdice = kLvlImplementator;
 						}
-						sprintf(buf, "содержит секрет умения     : \"%s\"\r\n", MUD::Skills(skill_id).GetName());
+						sprintf(buf, "содержит секрет умения     : \"%s\"\r\n", MUD::Skill(skill_id).GetName());
 						SendMsgToChar(buf, ch);
 						sprintf(buf, "уровень изучения (для вас) : %d\r\n", drsdice);
 						SendMsgToChar(buf, ch);
@@ -1617,13 +1627,13 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 
 				case EBook::kFeat: {
 					const auto feat_id = static_cast<EFeat>(GET_OBJ_VAL(obj, 1));
-					if (feat_id >= EFeat::kFirst && feat_id <= EFeat::kLast) {
+					if (MUD::Feat(feat_id).IsValid()) {
 						if (CanGetFeat(ch, feat_id)) {
-							drsdice = MUD::Classes(ch->GetClass()).feats[feat_id].GetSlot();
+							drsdice = MUD::Class(ch->GetClass()).feats[feat_id].GetSlot();
 						} else {
 							drsdice = kLvlImplementator;
 						}
-						sprintf(buf, "содержит секрет способности : \"%s\"\r\n", GetFeatName(feat_id));
+						sprintf(buf, "содержит секрет способности : \"%s\"\r\n", MUD::Feat(feat_id).GetCName());
 						SendMsgToChar(buf, ch);
 						sprintf(buf, "уровень изучения (для вас) : %d\r\n", drsdice);
 						SendMsgToChar(buf, ch);
@@ -1773,7 +1783,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 				continue;
 
 			sprintf(buf, "   %s%s%s%s%s%d%%%s\r\n",
-					CCCYN(ch, C_NRM), MUD::Skills(skill_id).GetName(), CCNRM(ch, C_NRM),
+					CCCYN(ch, C_NRM), MUD::Skill(skill_id).GetName(), CCNRM(ch, C_NRM),
 					CCCYN(ch, C_NRM),
 					percent < 0 ? " ухудшает на " : " улучшает на ", abs(percent), CCNRM(ch, C_NRM));
 			SendMsgToChar(buf, ch);
@@ -2068,7 +2078,7 @@ void SpellSacrifice(int/* level*/, CharData *ch, CharData *victim, ObjData* /*ob
 		return;
 	}
 
-	dam = mag_damage(GetRealLevel(ch), ch, victim, ESpell::kSacrifice, ESaving::kStability);
+	dam = CastDamage(GetRealLevel(ch), ch, victim, ESpell::kSacrifice);
 	// victim может быть спуржен
 
 	if (dam < 0)
@@ -2114,8 +2124,8 @@ void SpellHolystrike(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData*
 			}
 		}
 
-		CastMagicAffect(GetRealLevel(ch), ch, tch, ESpell::kHolystrike, ESaving::kStability);
-		mag_damage(GetRealLevel(ch), ch, tch, ESpell::kHolystrike, ESaving::kStability);
+		CastAffect(GetRealLevel(ch), ch, tch, ESpell::kHolystrike);
+		CastDamage(GetRealLevel(ch), ch, tch, ESpell::kHolystrike);
 	}
 
 	act(msg2, false, ch, nullptr, nullptr, kToChar);
@@ -2290,10 +2300,10 @@ void SpellSummonAngel(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData
 	mob->set_skill(ESkill::kAwake, floorf(base_awake + additional_awake_for_charisma * eff_cha));
 	mob->set_skill(ESkill::kMultiparry, floorf(base_multiparry + additional_multiparry_for_charisma * eff_cha));
 	int base_spell = 2;
-	SET_SPELL(mob, ESpell::kCureBlind, base_spell);
-	SET_SPELL(mob, ESpell::kRemoveHold, base_spell);
-	SET_SPELL(mob, ESpell::kRemovePoison, base_spell);
-	SET_SPELL(mob, ESpell::kHeal, floorf(base_heal + additional_heal_for_charisma * eff_cha));
+	SET_SPELL_MEM(mob, ESpell::kCureBlind, base_spell);
+	SET_SPELL_MEM(mob, ESpell::kRemoveHold, base_spell);
+	SET_SPELL_MEM(mob, ESpell::kRemovePoison, base_spell);
+	SET_SPELL_MEM(mob, ESpell::kHeal, floorf(base_heal + additional_heal_for_charisma * eff_cha));
 
 	if (mob->GetSkill(ESkill::kAwake)) {
 		PRF_FLAGS(mob).set(EPrf::kAwake);
@@ -2365,19 +2375,19 @@ void SpellMentalShadow(int/* level*/, CharData *ch, CharData* /*victim*/, ObjDat
 	GET_AC(mob) = floorf(base_ac + additional_ac * eff_int);
 	// Добавление заклов и аффектов в зависимости от интелекта кудеса
 	if (eff_int >= 28 && eff_int < 32) {
-     	SET_SPELL(mob, ESpell::kRemoveSilence, 1);
+     	SET_SPELL_MEM(mob, ESpell::kRemoveSilence, 1);
 	} else if (eff_int >= 32 && eff_int < 38) {
-		SET_SPELL(mob, ESpell::kRemoveSilence, 1);
+		SET_SPELL_MEM(mob, ESpell::kRemoveSilence, 1);
 		af.bitvector = to_underlying(EAffect::kShadowCloak);
 		affect_to_char(mob, af);
 
 	} else if(eff_int >= 38 && eff_int < 44) {
-		SET_SPELL(mob, ESpell::kRemoveSilence, 2);
+		SET_SPELL_MEM(mob, ESpell::kRemoveSilence, 2);
 		af.bitvector = to_underlying(EAffect::kShadowCloak);
 		affect_to_char(mob, af);
 		
 	} else if(eff_int >= 44) {
-		SET_SPELL(mob, ESpell::kRemoveSilence, 3);
+		SET_SPELL_MEM(mob, ESpell::kRemoveSilence, 3);
 		af.bitvector = to_underlying(EAffect::kShadowCloak);
 		affect_to_char(mob, af);
 		af.bitvector = to_underlying(EAffect::kBrokenChains);
@@ -2497,7 +2507,7 @@ int CheckRecipeValues(CharData *ch, ESpell spell_id, ESpellType spell_type, int 
 		strcat(buf, CCNRM(ch, C_NRM));
 		if (spell_type == ESpellType::kItemCast || spell_type == ESpellType::kRunes) {
 			strcat(buf, "для создания магии '");
-			strcat(buf, GetSpellName(spell_id));
+			strcat(buf, MUD::Spell(spell_id).GetCName());
 			strcat(buf, "'.");
 		} else {
 			strcat(buf, "для создания ");
@@ -2679,7 +2689,7 @@ int CheckRecipeItems(CharData *ch, ESpell spell_id, ESpellType spell_type, int e
 			if (!obj) {
 				return false;
 			} else {
-				percent = number(1, MUD::Skills(skill_id).difficulty);
+				percent = number(1, MUD::Skill(skill_id).difficulty);
 				auto prob = CalcCurrentSkill(ch, skill_id, nullptr);
 
 				if (MUD::Skills().IsValid(skill_id) && percent > prob) {
@@ -2744,7 +2754,7 @@ int CheckRecipeItems(CharData *ch, ESpell spell_id, ESpellType spell_type, int e
 				act("$n сложил$g руны, которые вспыхнули ярким пламенем.",
 					true, ch, nullptr, nullptr, kToRoom);
 				sprintf(buf, "$n сложил$g руны в заклинание '%s'%s%s.",
-						GetSpellName(spell_id),
+						MUD::Spell(spell_id).GetCName(),
 						(targ && targ != ch ? " на " : ""),
 						(targ && targ != ch ? GET_PAD(targ, 1) : ""));
 				act(buf, true, ch, nullptr, nullptr, kToArenaListen);

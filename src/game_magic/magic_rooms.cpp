@@ -5,6 +5,7 @@
 #include "entities/char_data.h"
 #include "magic.h" //Включено ради material_component_processing
 #include "utils/table_wrapper.h"
+#include "structs/global_objects.h"
 
 //#include <iomanip>
 
@@ -76,7 +77,7 @@ void ShowAffectedRooms(CharData *ch) {
 	int count = 1;
 	for (const auto r : affected_rooms) {
 		for (const auto &af : r->affected) {
-			table << count << r->room_vn << spell_info[af->type].name
+			table << count << r->room_vn << MUD::Spell(af->type).GetName()
 				<< get_name_by_id(af->caster_id) << af->duration * 2 << table_wrapper::kEndRow;
 			++count;
 		}
@@ -132,7 +133,7 @@ ESpell RemoveControlledRoomAffect(CharData *ch) {
 	long casterID = GET_ID(ch);
 	auto filter =
 		[&casterID](auto &af) {
-			return (af->caster_id == casterID && IS_SET(spell_info[af->type].routines, kMagNeedControl));
+			return (af->caster_id == casterID && MUD::Spell(af->type).IsFlagged(kMagNeedControl));
 		};
 	return RemoveAffectFromRooms(ESpell::kUndefined, filter);
 }
@@ -257,27 +258,27 @@ void UpdateRoomsAffects() {
 			auto spell_id = affect->type;
 			ch = nullptr;
 
-			if (IS_SET(spell_info[spell_id].routines, kMagCasterInroom)
-				|| IS_SET(spell_info[spell_id].routines, kMagCasterInworld)) {
+			if (MUD::Spell(spell_id).IsFlagged(kMagCasterInroom) ||
+				MUD::Spell(spell_id).IsFlagged(kMagCasterInworld)) {
 				ch = find_char_in_room(affect->caster_id, *room);
 				if (!ch) {
 					affect->duration = 0;
 				}
-			} else if (IS_SET(spell_info[spell_id].routines, kMagCasterInworldDelay)) {
+			} else if (MUD::Spell(spell_id).IsFlagged(kMagCasterInworldDelay)) {
 				//Если спелл с задержкой таймера - то обнулять не надо, даже если чара нет, просто тикаем таймером как обычно
 				ch = find_char_in_room(affect->caster_id, *room);
 			}
 
-			if ((!ch) && IS_SET(spell_info[spell_id].routines, kMagCasterInworld)) {
+			if ((!ch) && MUD::Spell(spell_id).IsFlagged(kMagCasterInworld)) {
 				ch = find_char(affect->caster_id);
 				if (!ch) {
 					affect->duration = 0;
 				}
-			} else if (IS_SET(spell_info[spell_id].routines, kMagCasterInworldDelay)) {
+			} else if (MUD::Spell(spell_id).IsFlagged(kMagCasterInworldDelay)) {
 				ch = find_char(affect->caster_id);
 			}
 
-			if (!(ch && IS_SET(spell_info[spell_id].routines, kMagCasterInworldDelay))) {
+			if (!(ch && MUD::Spell(spell_id).IsFlagged(kMagCasterInworldDelay))) {
 				switch (spell_id) {
 					case ESpell::kRuneLabel: affect->duration--;
 					default: break;
@@ -321,7 +322,7 @@ void UpdateRoomsAffects() {
 // =============================================================== //
 
 // Применение заклинания к комнате //
-int CastSpellToRoom(int/* level*/, CharData *ch, RoomData *room, ESpell spell_id) {
+int CallMagicToRoom(int/* level*/, CharData *ch, RoomData *room, ESpell spell_id) {
 	bool accum_affect = false, accum_duration = false, success = true;
 	bool update_spell = false;
 	// Должен ли данный спелл быть только 1 в мире от этого кастера?
@@ -485,13 +486,11 @@ int CastSpellToRoom(int/* level*/, CharData *ch, RoomData *room, ESpell spell_id
 		default: break;
 	}
 	if (success) {
-		if (IS_SET(spell_info[spell_id].routines, kMagNeedControl)) {
+		if (MUD::Spell(spell_id).IsFlagged(kMagNeedControl)) {
 			auto found_spell = RemoveControlledRoomAffect(ch);
 			if (found_spell != ESpell::kUndefined) {
-				SendMsgToChar(ch,
-							  "Вы прервали заклинание !%s! и приготовились применить !%s!\r\n",
-							  spell_info[found_spell].name,
-							  spell_info[spell_id].name);
+				SendMsgToChar(ch, "Вы прервали заклинание !%s! и приготовились применить !%s!\r\n",
+							  MUD::Spell(found_spell).GetCName(), MUD::Spell(spell_id).GetCName());
 			}
 		} else {
 			auto RoomAffect_i = FindAffect(room, spell_id);

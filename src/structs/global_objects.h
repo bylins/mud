@@ -5,8 +5,10 @@
 #include "game_classes/classes_info.h"
 #include "game_fight/pk.h"
 #include "game_economics/currencies.h"
+#include "game_magic/spells_info.h"
 #include "game_mechanics/celebrates.h"
 #include "game_mechanics/guilds.h"
+#include "feats.h"
 #include "utils/logger.h"
 #include "heartbeat.h"
 #include "speedwalks.h"
@@ -40,14 +42,19 @@ class GlobalObjects {
  public:
 	static cfg_manager::CfgManager &CfgManager();
 	static abilities::AbilitiesInfo &Abilities();
+	static const abilities::AbilityInfo &Ability(abilities::EAbility ability_id);
 	static SkillsInfo &Skills();
-	static const SkillInfo &Skills(ESkill skill_id);
+	static const SkillInfo &Skill(ESkill skill_id);
+	static spells::SpellsInfo &Spells();
+	static const spells::SpellInfo &Spell(ESpell spell_id);
+	static feats::FeatsInfo &Feats();
+	static const feats::FeatInfo &Feat(EFeat feat_id);
 	static classes::ClassesInfo &Classes();
-	static const classes::CharClassInfo &Classes(ECharClass class_id);
+	static const classes::CharClassInfo &Class(ECharClass class_id);
 	static guilds::GuildsInfo &Guilds();
-	static const guilds::GuildInfo &Guilds(Vnum guild_vnum);
+	static const guilds::GuildInfo &Guild(Vnum guild_vnum);
 	static currencies::CurrenciesInfo &Currencies();
-	static const currencies::CurrencyInfo &Currencies(Vnum currency_vnum);
+	static const currencies::CurrencyInfo &Currency(Vnum currency_vnum);
 	static WorldObjects &world_objects();
 	static ShopExt::ShopListType &Shops();
 	static Characters &characters();

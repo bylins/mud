@@ -18,7 +18,6 @@
 #include "game_magic/magic_temp_spells.h"
 #include "administration/accounts.h"
 #include "liquid.h"
-#include "game_magic/spells_info.h"
 
 #include <boost/lexical_cast.hpp>
 
@@ -540,9 +539,9 @@ void Player::save_char() {
 
 	if (GetRealLevel(this) < kLvlImmortal) {
 		fprintf(saved, "Feat:\n");
-		for (auto feat : MUD::Classes(this->GetClass()).feats) {
+		for (auto feat : MUD::Class(this->GetClass()).feats) {
 			if (this->HaveFeat(feat.GetId())) {
-				fprintf(saved, "%d %s\n", to_underlying(feat.GetId()), feat_info[feat.GetId()].name);
+				fprintf(saved, "%d %s\n", to_underlying(feat.GetId()), MUD::Feat(feat.GetId()).GetCName());
 			}
 		}
 		fprintf(saved, "0 0\n");
@@ -551,7 +550,7 @@ void Player::save_char() {
 	if (GetRealLevel(this) < kLvlImmortal) {
 		fprintf(saved, "FtTm:\n");
 		for (auto tf = this->timed_feat; tf; tf = tf->next) {
-			fprintf(saved, "%d %d %s\n", to_underlying(tf->feat), tf->time, feat_info[tf->feat].name);
+			fprintf(saved, "%d %d %s\n", to_underlying(tf->feat), tf->time, MUD::Feat(tf->feat).GetCName());
 		}
 		fprintf(saved, "0 0\n");
 	}
@@ -562,7 +561,7 @@ void Player::save_char() {
 		int skill_val;
 		for (const auto &skill : MUD::Skills()) {
 			if (skill.IsAvailable()) {
-				skill_val = this->get_inborn_skill(skill.GetId());
+				skill_val = this->GetTrainedSkill(skill.GetId());
 				if (skill_val) {
 					fprintf(saved, "%d %d %s\n", to_underlying(skill.GetId()), skill_val, skill.GetName());
 				}
@@ -588,7 +587,7 @@ void Player::save_char() {
 		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 			if (GET_SPELL_TYPE(this, spell_id)) {
 				fprintf(saved, "%d %d %s\n", to_underlying(spell_id),
-						GET_SPELL_TYPE(this, spell_id), spell_info[spell_id].name);
+						GET_SPELL_TYPE(this, spell_id), MUD::Spell(spell_id).GetCName());
 			}
 		}
 		fprintf(saved, "0 0\n");
@@ -602,7 +601,7 @@ void Player::save_char() {
 					to_underlying(temp_spell.first),
 					static_cast<long int>(temp_spell.second.set_time),
 					static_cast<long int>(temp_spell.second.duration),
-					spell_info[temp_spell.first].name);
+					MUD::Spell(temp_spell.first).GetCName());
 		}
 		fprintf(saved, "0 0 0\n");
 	}
@@ -777,7 +776,7 @@ void Player::save_char() {
 			if (aff->type >= ESpell::kFirst) {
 				fprintf(saved, "%d %d %d %d %d %d %s\n", to_underlying(aff->type), aff->duration,
 						aff->modifier, aff->location, static_cast<int>(aff->bitvector),
-						static_cast<int>(aff->battleflag), GetSpellName(aff->type));
+						static_cast<int>(aff->battleflag), MUD::Spell(aff->type).GetCName());
 			}
 		}
 		fprintf(saved, "0 0 0 0 0 0\n");
@@ -892,7 +891,8 @@ void Player::save_char() {
 
 	auto it = this->charmeeHistory.begin();
 	if (this->charmeeHistory.size() > 0 &&
-		(IS_SPELL_KNOWN(this, ESpell::kCharm) || CanUseFeat(this, EFeat::kEmployer) || IS_IMMORTAL(this))) {
+		(IS_SPELL_SET(this, ESpell::kCharm, ESpellType::kKnow) ||
+		CanUseFeat(this, EFeat::kEmployer) || IS_IMMORTAL(this))) {
 		fprintf(saved, "Chrm:\n");
 		for (; it != this->charmeeHistory.end(); ++it) {
 			fprintf(saved, "%d %d %d %d %d %d\n",
@@ -1435,8 +1435,8 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 						fbgetline(fl, line);
 						sscanf(line, "%d", &num);
 						auto feat_id = static_cast<EFeat>(num);
-						if (feat_id >= EFeat::kFirst && feat_id <= EFeat::kLast) {
-							if (MUD::Classes(this->GetClass()).feats.IsAvailable(feat_id) ||
+						if (MUD::Feat(feat_id).IsAvailable()) {
+							if (MUD::Class(this->GetClass()).feats.IsAvailable(feat_id) ||
 								PlayerRace::FeatureCheck((int) GET_KIN(this), (int) GET_RACE(this), num)) {
 								this->SetFeat(feat_id);
 							}
@@ -1762,7 +1762,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 						sscanf(line, "%d %d", &num, &num2);
 						if (num != 0) {
 							auto skill_id = static_cast<ESkill>(num);
-							if (MUD::Classes(this->GetClass()).skills[skill_id].IsAvailable()) {
+							if (MUD::Class(this->GetClass()).skills[skill_id].IsAvailable()) {
 								this->set_skill(skill_id, num2);
 							}
 						}
@@ -1782,7 +1782,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 						fbgetline(fl, line);
 						sscanf(line, "%d %d", &num, &num2);
 						auto spell_id = static_cast<ESpell>(num);
-						if (spell_id > ESpell::kUndefined && spell_info[spell_id].name) {
+						if (spell_id > ESpell::kUndefined && MUD::Spell(spell_id).IsValid()) {
 							GET_SPELL_TYPE(this, spell_id) = num2;
 						}
 					} while (num != 0);
@@ -1857,7 +1857,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 						fbgetline(fl, line);
 						sscanf(line, "%d %ld %ld", &num, &lnum, &lnum3);
 						auto spell_id = static_cast<ESpell>(num);
-						if (num != 0 && spell_info[spell_id].name) {
+						if (num != 0 && MUD::Spell(spell_id).IsValid()) {
 							temporary_spells::AddSpell(this, spell_id, lnum, lnum3);
 						}
 					} while (num != 0);
@@ -1903,7 +1903,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 		}
 	} else if (!IS_IMMORTAL(this)) {
 		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
-			const auto spell = MUD::Classes(this->GetClass()).spells[spell_id];
+			const auto spell = MUD::Class(this->GetClass()).spells[spell_id];
 			if (spell.GetCircle() == kMaxMemoryCircle) {
 				REMOVE_BIT(GET_SPELL_TYPE(this, spell.GetId()), ESpellType::kKnow | ESpellType::kTemp);
 			}
@@ -2155,9 +2155,9 @@ namespace PlayerSystem {
 /// \return кол-во хп, втыкаемых чару от родного тела
 ///
 int con_natural_hp(CharData *ch) {
-	double add_hp_per_level = MUD::Classes(ch->GetClass()).applies.base_con
-		+ (ClampBaseStat(ch, EBaseStat::kCon, ch->get_con()) - MUD::Classes(ch->GetClass()).applies.base_con)
-			* MUD::Classes(ch->GetClass()).applies.koef_con / 100.0 + 3;
+	double add_hp_per_level = MUD::Class(ch->GetClass()).applies.base_con
+		+ (ClampBaseStat(ch, EBaseStat::kCon, ch->get_con()) - MUD::Class(ch->GetClass()).applies.base_con)
+			* MUD::Class(ch->GetClass()).applies.koef_con / 100.0 + 3;
 	return 10 + static_cast<int>(add_hp_per_level * GetRealLevel(ch));
 }
 
@@ -2166,7 +2166,7 @@ int con_natural_hp(CharData *ch) {
 ///
 int con_add_hp(CharData *ch) {
 	int con_add = std::max(0, GET_REAL_CON(ch) - ch->get_con());
-	return MUD::Classes(ch->GetClass()).applies.koef_con * con_add * GetRealLevel(ch) / 100;
+	return MUD::Class(ch->GetClass()).applies.koef_con * con_add * GetRealLevel(ch) / 100;
 }
 
 ///

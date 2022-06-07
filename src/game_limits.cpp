@@ -86,7 +86,7 @@ void handle_recall_spells(CharData *ch) {
 	}
 
 	//максимальный доступный чару круг
-	auto max_circle = MUD::Classes(ch->GetClass()).GetMaxCircle();
+	auto max_circle = MUD::Class(ch->GetClass()).GetMaxCircle();
 	//обрабатываем только каждые RECALL_SPELLS_INTERVAL секунд
 	int secs_left = (kSecsPerPlayerAffect * aff->duration) / kSecsPerMudHour - kSecsPerPlayerAffect;
 	if (secs_left/kRecallSpellsInterval < max_circle - aff->modifier || secs_left <= 2) {
@@ -96,7 +96,7 @@ void handle_recall_spells(CharData *ch) {
 		struct SpellMemQueueItem *next = nullptr, *prev = nullptr, *i = ch->mem_queue.queue;
 		while (i) {
 			next = i->next;
-			if (MUD::Classes(ch->GetClass()).spells[i->spell_id].GetCircle() == slot_to_restore) {
+			if (MUD::Class(ch->GetClass()).spells[i->spell_id].GetCircle() == slot_to_restore) {
 				if (!found_spells) {
 					SendMsgToChar("Ваша голова прояснилась, в памяти всплыло несколько новых заклинаний.\r\n", ch);
 					found_spells = true;
@@ -108,7 +108,7 @@ void handle_recall_spells(CharData *ch) {
 				}
 				ch->mem_queue.total = std::max(0, ch->mem_queue.total - CalcSpellManacost(ch, i->spell_id));
 				sprintf(buf, "Вы вспомнили заклинание \"%s%s%s\".\r\n",
-						CCICYN(ch, C_NRM), spell_info[i->spell_id].name, CCNRM(ch, C_NRM));
+						CCICYN(ch, C_NRM), MUD::Spell(i->spell_id).GetCName(), CCNRM(ch, C_NRM));
 				SendMsgToChar(buf, ch);
 				GET_SPELL_MEM(ch, i->spell_id)++;
 				free(i);
@@ -680,7 +680,7 @@ void beat_points_update(int pulse) {
 			while (i->mem_queue.stored > GET_MEM_CURRENT(i.get()) && !i->mem_queue.Empty()) {
 				auto spell_id = MemQ_learn(i.get());
 				++GET_SPELL_MEM(i, spell_id);
-				i->caster_level += spell_info[spell_id].danger;
+				i->caster_level += MUD::Spell(spell_id).GetDanger();
 			}
 
 			if (i->mem_queue.Empty()) {
@@ -1692,8 +1692,8 @@ void point_update() {
 						const auto spell_id = real_spell[count];
 						if (GET_SPELL_MEM(mob_proto + mob_num, spell_id) > GET_SPELL_MEM(i, spell_id)) {
 							GET_SPELL_MEM(i, spell_id)++;
-							mana += ((spell_info[spell_id].mana_max + spell_info[spell_id].mana_min) / 2);
-							i->caster_level += (IS_SET(spell_info[spell_id].routines, NPC_CALCULATE) ? 1 : 0);
+							mana += ((MUD::Spell(spell_id).GetMaxMana() + MUD::Spell(spell_id).GetMinMana()) / 2);
+							i->caster_level += (MUD::Spell(spell_id).IsFlagged(NPC_CALCULATE) ? 1 : 0);
 						}
 
 						++count;

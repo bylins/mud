@@ -73,7 +73,7 @@ std::string print_skill(const CObjectPrototype::skills_t::value_type &skill, boo
 	if (skill.second != 0) {
 		out += boost::str(boost::format("%s%s%s%s%s%s%d%%%s\r\n")
 							  % (activ ? " +    " : "   ") % KCYN
-							  % MUD::Skills(skill.first).GetName() % KNRM
+							  % MUD::Skill(skill.first).GetName() % KNRM
 							  % KCYN % (skill.second < 0 ? " ухудшает на " : " улучшает на ")
 							  % abs(skill.second) % KNRM);
 	}
@@ -284,7 +284,7 @@ std::string activators_obj::print() {
 		//node.clss += cls_it.first < kNumPlayerClasses * kNumKins ? class_name[cls_it.first] : "чармисы";
 		auto class_id = static_cast<ECharClass>(cls_it.first);
 		if (MUD::Classes().IsAvailable(class_id)) {
-			node.clss += MUD::Classes(class_id).GetName();
+			node.clss += MUD::Class(class_id).GetName();
 		} else if (class_id > ECharClass::kLast && class_id <= ECharClass::kNpcLast) {
 			node.clss += "чармисы";
 		}

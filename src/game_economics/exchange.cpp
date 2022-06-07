@@ -138,29 +138,29 @@ int exchange(CharData *ch, void * /*me*/, int cmd, char *argument) {
 
 		argument = one_argument(argument, arg1);
 
-		if (utils::IsAbbrev(arg1, "выставить") || utils::IsAbbrev(arg1, "exhibit"))
+		if (utils::IsAbbr(arg1, "выставить") || utils::IsAbbr(arg1, "exhibit"))
 			exchange_exhibit(ch, argument);
-		else if (utils::IsAbbrev(arg1, "цена") || utils::IsAbbrev(arg1, "cost"))
+		else if (utils::IsAbbr(arg1, "цена") || utils::IsAbbr(arg1, "cost"))
 			exchange_change_cost(ch, argument);
-		else if (utils::IsAbbrev(arg1, "снять") || utils::IsAbbrev(arg1, "withdraw"))
+		else if (utils::IsAbbr(arg1, "снять") || utils::IsAbbr(arg1, "withdraw"))
 			exchange_withdraw(ch, argument);
-		else if (utils::IsAbbrev(arg1, "информация") || utils::IsAbbrev(arg1, "information"))
+		else if (utils::IsAbbr(arg1, "информация") || utils::IsAbbr(arg1, "information"))
 			exchange_information(ch, argument);
-		else if (utils::IsAbbrev(arg1, "характеристики") || utils::IsAbbrev(arg1, "identify"))
+		else if (utils::IsAbbr(arg1, "характеристики") || utils::IsAbbr(arg1, "identify"))
 			exchange_identify(ch, argument);
-		else if (utils::IsAbbrev(arg1, "купить") || utils::IsAbbrev(arg1, "purchase"))
+		else if (utils::IsAbbr(arg1, "купить") || utils::IsAbbr(arg1, "purchase"))
 			exchange_purchase(ch, argument);
-		else if (utils::IsAbbrev(arg1, "предложения") || utils::IsAbbrev(arg1, "offers"))
+		else if (utils::IsAbbr(arg1, "предложения") || utils::IsAbbr(arg1, "offers"))
 			exchange_offers(ch, argument);
-		else if (utils::IsAbbrev(arg1, "фильтрация") || utils::IsAbbrev(arg1, "filter"))
+		else if (utils::IsAbbr(arg1, "фильтрация") || utils::IsAbbr(arg1, "filter"))
 			exchange_setfilter(ch, argument);
-		else if (utils::IsAbbrev(arg1, "save") && (GetRealLevel(ch) >= kLvlImplementator))
+		else if (utils::IsAbbr(arg1, "save") && (GetRealLevel(ch) >= kLvlImplementator))
 			exchange_database_save();
-		else if (utils::IsAbbrev(arg1, "savebackup") && (GetRealLevel(ch) >= kLvlImplementator))
+		else if (utils::IsAbbr(arg1, "savebackup") && (GetRealLevel(ch) >= kLvlImplementator))
 			exchange_database_save(true);
-		else if (utils::IsAbbrev(arg1, "reload") && (GetRealLevel(ch) >= kLvlImplementator))
+		else if (utils::IsAbbr(arg1, "reload") && (GetRealLevel(ch) >= kLvlImplementator))
 			exchange_database_reload(false);
-		else if (utils::IsAbbrev(arg1, "reloadbackup") && (GetRealLevel(ch) >= kLvlImplementator))
+		else if (utils::IsAbbr(arg1, "reloadbackup") && (GetRealLevel(ch) >= kLvlImplementator))
 			exchange_database_reload(true);
 		else
 			SendMsgToChar(info_message, ch);
@@ -732,7 +732,7 @@ int exchange_offers(CharData *ch, char *arg) {
 		strcpy(multifilter, arg4 + 1);
 	}
 
-	if (utils::IsAbbrev(arg1, "все") || utils::IsAbbrev(arg1, "all")) {
+	if (utils::IsAbbr(arg1, "все") || utils::IsAbbr(arg1, "all")) {
 		show_type = 0;
 		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!')) {
 			snprintf(filter, FILTER_LENGTH, "И%s", arg2);
@@ -741,7 +741,7 @@ int exchange_offers(CharData *ch, char *arg) {
 			strcat(filter, " О");
 			strcat(filter, multifilter);
 		}
-	} else if (utils::IsAbbrev(arg1, "мои") || utils::IsAbbrev(arg1, "mine")) {
+	} else if (utils::IsAbbr(arg1, "мои") || utils::IsAbbr(arg1, "mine")) {
 		show_type = 1;
 		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!')) {
 			sprintf(buf, "%s", filter);
@@ -751,7 +751,7 @@ int exchange_offers(CharData *ch, char *arg) {
 			strcat(filter, " О");
 			strcat(filter, multifilter);
 		}
-	} else if (utils::IsAbbrev(arg1, "руны") || utils::IsAbbrev(arg1, "runes")) {
+	} else if (utils::IsAbbr(arg1, "руны") || utils::IsAbbr(arg1, "runes")) {
 		show_type = 2;
 		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!')) {
 			sprintf(buf, "%s", filter);
@@ -761,7 +761,7 @@ int exchange_offers(CharData *ch, char *arg) {
 			strcat(filter, " С");
 			strcat(filter, multifilter);
 		}
-	} else if (utils::IsAbbrev(arg1, "броня") || utils::IsAbbrev(arg1, "armor")) {
+	} else if (utils::IsAbbr(arg1, "броня") || utils::IsAbbr(arg1, "armor")) {
 		show_type = 3;
 		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!')) {
 			sprintf(buf, "%s", filter);
@@ -771,7 +771,7 @@ int exchange_offers(CharData *ch, char *arg) {
 			strcat(filter, " О");
 			strcat(filter, multifilter);
 		}
-	} else if (utils::IsAbbrev(arg1, "оружие") || utils::IsAbbrev(arg1, "weapons")) {
+	} else if (utils::IsAbbr(arg1, "оружие") || utils::IsAbbr(arg1, "weapons")) {
 		show_type = 4;
 		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!')) {
 			sprintf(buf, "%s", filter);
@@ -781,25 +781,25 @@ int exchange_offers(CharData *ch, char *arg) {
 			strcat(filter, " К");
 			strcat(filter, multifilter);
 		}
-	} else if (utils::IsAbbrev(arg1, "книги") || utils::IsAbbrev(arg1, "books")) {
+	} else if (utils::IsAbbr(arg1, "книги") || utils::IsAbbr(arg1, "books")) {
 		show_type = 5;
 		if ((*arg2) && (*arg2 != '*')) {
 			sprintf(buf, "%s", filter);
 			snprintf(filter, FILTER_LENGTH, "%s И%s", buf, arg2);
 		}
-	} else if (utils::IsAbbrev(arg1, "ингредиенты") || utils::IsAbbrev(arg1, "ingradients")) {
+	} else if (utils::IsAbbr(arg1, "ингредиенты") || utils::IsAbbr(arg1, "ingradients")) {
 		show_type = 6;
 		if ((*arg2) && (*arg2 != '*')) {
 			sprintf(buf, "%s", filter);
 			snprintf(filter, FILTER_LENGTH, "%s И%s", buf, arg2);
 		}
-	} else if (utils::IsAbbrev(arg1, "прочие") || utils::IsAbbrev(arg1, "other")) {
+	} else if (utils::IsAbbr(arg1, "прочие") || utils::IsAbbr(arg1, "other")) {
 		show_type = 7;
 		if ((*arg2) && (*arg2 != '*')) {
 			sprintf(buf, "%s", filter);
 			snprintf(filter, FILTER_LENGTH, "%s И%s", buf, arg2);
 		}
-	} else if (utils::IsAbbrev(arg1, "последние") || utils::IsAbbrev(arg1, "last")) {
+	} else if (utils::IsAbbr(arg1, "последние") || utils::IsAbbr(arg1, "last")) {
 		show_type = 8;
 		// я х3 как тут писать сравнение времен
 	}
@@ -830,7 +830,7 @@ int exchange_offers(CharData *ch, char *arg) {
 		}
 	}
 */
-	else if (utils::IsAbbrev(arg1, "аффект") || utils::IsAbbrev(arg1, "affect")) {
+	else if (utils::IsAbbr(arg1, "аффект") || utils::IsAbbr(arg1, "affect")) {
 		if (ch->get_total_gold() < EXCHANGE_IDENT_PAY / 2 && GetRealLevel(ch) < kLvlImplementator) {
 			SendMsgToChar("У вас не хватит на это денег!\r\n", ch);
 			return 0;
@@ -1368,9 +1368,9 @@ void show_lots(char *filter, short int show_type, CharData *ch) {
 			continue;
 		}
 		// ну идиотизм сидеть статить 5-10 страниц резных
-		if (utils::IsAbbrev("резное запястье", GET_EXCHANGE_ITEM(j)->get_PName(0).c_str())
-			|| utils::IsAbbrev("широкое серебряное обручье", GET_EXCHANGE_ITEM(j)->get_PName(0).c_str())
-			|| utils::IsAbbrev("медное запястье", GET_EXCHANGE_ITEM(j)->get_PName(0).c_str())) {
+		if (utils::IsAbbr("резное запястье", GET_EXCHANGE_ITEM(j)->get_PName(0).c_str())
+			|| utils::IsAbbr("широкое серебряное обручье", GET_EXCHANGE_ITEM(j)->get_PName(0).c_str())
+			|| utils::IsAbbr("медное запястье", GET_EXCHANGE_ITEM(j)->get_PName(0).c_str())) {
 			GET_EXCHANGE_ITEM(j)->get_affect_flags().sprintbits(weapon_affects, buf, ",");
 			// небольшое дублирование кода, чтобы зря не гонять по аффектам всех шмоток
 			if (!strcmp(buf,
@@ -1540,10 +1540,10 @@ void do_exchange(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 
 	if (ch->IsNpc()) {
 		SendMsgToChar("Торговать?! Да вы же не человек!\r\n", ch);
-	} else if ((utils::IsAbbrev(arg1, "выставить") || utils::IsAbbrev(arg1, "exhibit")
-		|| utils::IsAbbrev(arg1, "цена") || utils::IsAbbrev(arg1, "cost")
-		|| utils::IsAbbrev(arg1, "снять") || utils::IsAbbrev(arg1, "withdraw")
-		|| utils::IsAbbrev(arg1, "купить") || utils::IsAbbrev(arg1, "purchase")) && !IS_IMPL(ch)) {
+	} else if ((utils::IsAbbr(arg1, "выставить") || utils::IsAbbr(arg1, "exhibit")
+		|| utils::IsAbbr(arg1, "цена") || utils::IsAbbr(arg1, "cost")
+		|| utils::IsAbbr(arg1, "снять") || utils::IsAbbr(arg1, "withdraw")
+		|| utils::IsAbbr(arg1, "купить") || utils::IsAbbr(arg1, "purchase")) && !IS_IMPL(ch)) {
 		SendMsgToChar("Вам необходимо находиться возле базарного торговца, чтобы воспользоваться этой командой.\r\n",
 					 ch);
 	} else

@@ -8,8 +8,9 @@
 #include "game_abilities/abilities_rollsystem.h"
 #include "handler.h"
 #include "cmd/flee.h"
+//#include <structs/global_objects.h>
 
-using namespace AbilitySystem;
+//using namespace abilities;
 
 void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
@@ -27,7 +28,6 @@ void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 	timed.skill = ESkill::kTurnUndead;
 	if (CanUseFeat(ch, EFeat::kExorcist)) {
 		timed.time = IsTimedBySkill(ch, ESkill::kTurnUndead) + kHoursPerTurnUndead - 2;
-		skill += 10;
 	} else {
 		timed.time = IsTimedBySkill(ch, ESkill::kTurnUndead) + kHoursPerTurnUndead;
 	}
@@ -45,13 +45,13 @@ void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 	int victims_amount = 20;
 	int victims_hp_amount = skill * 25 + std::max(0, skill - 80) * 50;
 	Damage damage(SkillDmg(ESkill::kTurnUndead), fight::kZeroDmg, fight::kMagicDmg, nullptr);
-	damage.magic_type = kTypeLight;
+	damage.element = EElement::kLight;
 	damage.flags.set(fight::kIgnoreFireShield);
-	TechniqueRoll roll;
+	abilities_roll::TechniqueRoll roll;
 	ActionTargeting::FoesRosterType roster{ch, [](CharData *, CharData *target) { return IS_UNDEAD(target); }};
-	for (const auto target : roster) {
+	for (const auto target: roster) {
 		damage.dam = fight::kZeroDmg;
-		roll.Init(ch, EFeat::kUndeadsTurn, target);
+		roll.Init(ch, abilities::EAbility::kTurnUndead, target);
 		if (roll.IsSuccess()) {
 			if (roll.IsCriticalSuccess() && GetRealLevel(ch) > target->GetLevel() + RollDices(1, 5)) {
 				SendMsgToChar(ch, "&GВы окончательно изгнали %s из мира!&n\r\n", GET_PAD(target, 3));

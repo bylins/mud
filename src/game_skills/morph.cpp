@@ -40,7 +40,7 @@ std::string AnimalMorph::GetMorphTitle() const {
 };
 
 int NormalMorph::get_trained_skill(const ESkill skill_num) {
-	return ch_->get_inborn_skill(skill_num);
+	return ch_->GetTrainedSkill(skill_num);
 }
 
 int AnimalMorph::get_trained_skill(const ESkill skill_num) {
@@ -101,8 +101,8 @@ void ShowKnownMorphs(CharData *ch) {
 std::string FindMorphId(CharData *ch, char *arg) {
 	std::list<std::string> morphsList = ch->get_morphs();
 	for (std::list<std::string>::const_iterator it = morphsList.begin(); it != morphsList.end(); ++it) {
-		if (utils::IsAbbrev(arg, IdToMorphMap[*it]->PadName().c_str())
-			|| utils::IsAbbrev(arg, IdToMorphMap[*it]->Name().c_str())) {
+		if (utils::IsAbbr(arg, IdToMorphMap[*it]->PadName().c_str())
+			|| utils::IsAbbr(arg, IdToMorphMap[*it]->Name().c_str())) {
 			return *it;
 		}
 	}
@@ -111,8 +111,8 @@ std::string FindMorphId(CharData *ch, char *arg) {
 
 std::string GetMorphIdByName(char *arg) {
 	for (MorphListType::const_iterator it = IdToMorphMap.begin(); it != IdToMorphMap.end(); ++it) {
-		if (utils::IsAbbrev(arg, it->second->PadName().c_str())
-			|| utils::IsAbbrev(arg, it->second->Name().c_str())) {
+		if (utils::IsAbbr(arg, it->second->PadName().c_str())
+			|| utils::IsAbbr(arg, it->second->Name().c_str())) {
 			return it->first;
 		}
 	}
@@ -189,7 +189,7 @@ void do_morph(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, arg);
 
 	if (ch->is_morphed()) {
-		if (utils::IsAbbrev(arg, "назад")) {
+		if (utils::IsAbbr(arg, "назад")) {
 			ch->reset_morph();
 			SetWaitState(ch, kPulseViolence);
 			return;

@@ -14,7 +14,7 @@
 
 #include "magic_utils.h"
 
-#include "game_classes/classes.h"
+//#include "game_classes/classes.h"
 #include "structs/global_objects.h"
 #include "handler.h"
 #include "color.h"
@@ -47,7 +47,7 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 		*helpee_vict, *damagee_vict, *format;
 
 	*buf = '\0';
-	strcpy(lbuf, spell_info[spell_id].syn);
+	strcpy(lbuf, MUD::Spell(spell_id).GetEngCName());
 	// Say phrase ?
 	const auto &cast_phrase_list = GetCastPhrase(spell_id);
 	if (!cast_phrase_list) {
@@ -88,12 +88,14 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 				SendMsgToChar(OK, ch);
 			}
 		} else {
-			if (IS_SET(spell_info[spell_id].routines, kMagWarcry))
+			if (MUD::Spell(spell_id).IsFlagged(kMagWarcry))
 				sprintf(buf, "Вы выкрикнули \"%s%s%s\".\r\n",
-						spell_info[spell_id].violent ? CCIRED(ch, C_NRM) : CCIGRN(ch, C_NRM), spell_info[spell_id].name, CCNRM(ch, C_NRM));
+						MUD::Spell(spell_id).IsViolent() ? CCIRED(ch, C_NRM) : CCIGRN(ch, C_NRM),
+						MUD::Spell(spell_id).GetCName(), CCNRM(ch, C_NRM));
 			else
 				sprintf(buf, "Вы произнесли заклинание \"%s%s%s\".\r\n",
-						spell_info[spell_id].violent ? CCIRED(ch, C_NRM) : CCIGRN(ch, C_NRM), spell_info[spell_id].name, CCNRM(ch, C_NRM));
+						MUD::Spell(spell_id).IsViolent() ? CCIRED(ch, C_NRM) : CCIGRN(ch, C_NRM),
+						MUD::Spell(spell_id).GetCName(), CCNRM(ch, C_NRM));
 			SendMsgToChar(buf, ch);
 		}
 		const std::string &cast_phrase = GET_RELIGION(ch) ? cast_phrase_list->text_for_christian : cast_phrase_list->text_for_heathen;
@@ -120,7 +122,7 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 		format = say_to_something;
 	}
 
-	sprintf(buf1, format, GetSpellName(spell_id));
+	sprintf(buf1, format, MUD::Spell(spell_id).GetCName());
 	sprintf(buf2, format, buf);
 
 	for (const auto i : world[ch->in_room]->people) {
@@ -138,50 +140,59 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 	act(buf1, 1, ch, tobj, tch, kToArenaListen);
 
 	if (tch != nullptr && tch != ch && IN_ROOM(tch) == ch->in_room && !AFF_FLAGGED(tch, EAffect::kDeafness)) {
-		if (spell_info[spell_id].violent) {
+		if (MUD::Spell(spell_id).IsViolent()) {
 			sprintf(buf1, damagee_vict,
-					IS_SET(GET_SPELL_TYPE(tch, spell_id), ESpellType::kKnow | ESpellType::kTemp) ? GetSpellName(spell_id) : buf);
+					IS_SET(GET_SPELL_TYPE(tch, spell_id), ESpellType::kKnow | ESpellType::kTemp) ?
+					MUD::Spell(spell_id).GetCName() : buf);
 		} else {
 			sprintf(buf1, helpee_vict,
-					IS_SET(GET_SPELL_TYPE(tch, spell_id), ESpellType::kKnow | ESpellType::kTemp) ? GetSpellName(spell_id) : buf);
+					IS_SET(GET_SPELL_TYPE(tch, spell_id), ESpellType::kKnow | ESpellType::kTemp) ?
+					MUD::Spell(spell_id).GetCName() : buf);
 		}
 		act(buf1, false, ch, nullptr, tch, kToVict);
 	}
 }
 
-/*
- * This function should be used anytime you are not 100% sure that you have
- * a valid spell/skill number.  A typical for() loop would not need to use
- * this because you can guarantee > 0 and <= SPELLS_COUNT.
- */
+// \todo куча дублированного кода... надо подумать, как сделать одинаковый интерфейс
 
-template<typename T>
-void FixName(T &name) {
-	size_t pos = 0;
-	while ('\0' != name[pos] && pos < kMaxStringLength) {
-		if (('.' == name[pos]) || ('_' == name[pos])) {
-			name[pos] = ' ';
+abilities::EAbility FindAbilityId(const char *name) {
+	for (const auto &ability : MUD::Abilities()) {
+		if (ability.IsValid() && IsEquivalent(name, ability.GetName())) {
+			return ability.GetId();
 		}
-		++pos;
 	}
+	return abilities::EAbility::kUndefined;
+}
+
+EFeat FindFeatId(const char *name) {
+	for (const auto &feat : MUD::Feats()) {
+		if (feat.IsValid() && IsEquivalent(name, feat.GetName())) {
+			return feat.GetId();
+		}
+	}
+	return EFeat::kUndefined;
 }
 
 ESkill FindSkillId(const char *name) {
 	for (const auto &skill : MUD::Skills()) {
-		if (IsEquivalent(name, skill.GetName())) {
+		if (skill.IsValid() && IsEquivalent(name, skill.GetName())) {
 			return skill.GetId();
 		}
 	}
 	return ESkill::kUndefined;
 }
 
-ESpell FindSpellNum(const char *name) {
+ESpell FindSpellId(const std::string &name) {
+	return FindSpellId(name.c_str());
+}
+
+ESpell FindSpellId(const char *name) {
 	int use_syn = (((ubyte) *name <= (ubyte) 'z')
 		&& ((ubyte) *name >= (ubyte) 'a'))
 		|| (((ubyte) *name <= (ubyte) 'Z') && ((ubyte) *name >= (ubyte) 'A'));
 
 	for (auto spell_id = ESpell::kFirst ; spell_id <= ESpell::kLast; ++spell_id) {
-		char const *realname = (use_syn) ? spell_info[spell_id].syn : spell_info[spell_id].name;
+		char const *realname = (use_syn) ? MUD::Spell(spell_id).GetEngCName() : MUD::Spell(spell_id).GetCName();
 
 		if (!realname || !*realname) {
 			continue;
@@ -193,6 +204,19 @@ ESpell FindSpellNum(const char *name) {
 	return ESpell::kUndefined;
 }
 
+ESpell FindSpellIdWithName(const std::string &name) {
+	for (const auto &spell : MUD::Spells()) {
+		if (spell.IsInvalid()) {
+			continue;
+		}
+		if (IsEquivalent(name, spell.GetName())) {
+			return spell.GetId();
+		}
+	}
+
+	return ESpell::kUndefined;
+}
+
 bool IsEquivalent(const std::string &first_str, const std::string &second_str) {
 	return IsEquivalent(first_str.c_str(), second_str.c_str());
 };
@@ -201,14 +225,14 @@ bool IsEquivalent(const char *first_str, const char *second_str) {
 	char const *temp, *temp2;
 	char first[256], first2[256];
 
-	if (utils::IsAbbrev(first_str, second_str)) {
+	if (utils::IsAbbr(first_str, second_str)) {
 		return true;
 	}
 	auto ok{true};
 	temp = any_one_arg(second_str, first);
 	temp2 = any_one_arg(first_str, first2);
 	while (*first && *first2 && ok) {
-		if (!utils::IsAbbrev(first2, first))
+		if (!utils::IsAbbr(first2, first))
 			ok = false;
 		temp = any_one_arg(temp, first);
 		temp2 = any_one_arg(temp2, first2);
@@ -219,9 +243,16 @@ bool IsEquivalent(const char *first_str, const char *second_str) {
 	return false;
 }
 
-/*void fix_name_feat(char *name) {
-	fix_name(name);
-}*/
+template<typename T>
+void FixName(T &name) {
+	size_t pos = 0;
+	while ('\0' != name[pos] && pos < kMaxStringLength) {
+		if (('.' == name[pos]) || ('_' == name[pos])) {
+			name[pos] = ' ';
+		}
+		++pos;
+	}
+}
 
 ESkill FixNameAndFindSkillId(char *name) {
 	FixName(name);
@@ -235,19 +266,32 @@ ESkill FixNameFndFindSkillId(std::string &name) {
 
 ESpell FixNameAndFindSpellId(char *name) {
 	FixName(name);
-	return FindSpellNum(name);
+	return FindSpellId(name);
 }
 
 ESpell FixNameAndFindSpellId(std::string &name) {
 	FixName(name);
-	return FindSpellNum(name.c_str());
+	return FindSpellId(name.c_str());
+}
+
+EFeat FixNameAndFindFeatId(const std::string &name) {
+	auto copy = name;
+	FixName(copy);
+	return FindFeatId(copy.c_str());
+}
+
+abilities::EAbility FixNameAndFindAbilityId(const std::string &name) {
+	auto copy = name;
+	FixName(copy);
+	return FindAbilityId(copy.c_str());
 }
 
 bool MayCastInNomagic(CharData *caster, ESpell spell_id) {
-	if (IS_GRGOD(caster) || IS_SET(spell_info[spell_id].routines, kMagWarcry)) {
+	if (IS_GRGOD(caster) || MUD::Spell(spell_id).IsFlagged(kMagWarcry)) {
 		return true;
 	}
-	if (caster->IsNpc() && !(AFF_FLAGGED(caster, EAffect::kCharmed) || MOB_FLAGGED(caster, EMobFlag::kTutelar)))
+	if (caster->IsNpc() &&
+		!(AFF_FLAGGED(caster, EAffect::kCharmed) || MOB_FLAGGED(caster, EMobFlag::kTutelar)))
 		return true;
 	return false;
 }
@@ -259,40 +303,40 @@ bool MayCastHere(CharData *caster, CharData *victim, ESpell spell_id) {
 		return true;
 	}
 
-	if (ROOM_FLAGGED(IN_ROOM(caster), ERoomFlag::kNoBattle) && spell_info[spell_id].violent) {
+	if (ROOM_FLAGGED(IN_ROOM(caster), ERoomFlag::kNoBattle) && MUD::Spell(spell_id).IsViolent()) {
 		return false;
 	}
 
-	ignore = IS_SET(spell_info[spell_id].targets, kTarIgnore)
-		|| IS_SET(spell_info[spell_id].routines, kMagMasses)
-		|| IS_SET(spell_info[spell_id].routines, kMagGroups);
+	ignore = MUD::Spell(spell_id).AllowTarget(kTarIgnore)
+		|| MUD::Spell(spell_id).IsFlagged(kMagMasses)
+		|| MUD::Spell(spell_id).IsFlagged(kMagGroups);
 
 	if (!ignore && !victim) {
 		return true;
 	}
 
-	if (ignore && !IS_SET(spell_info[spell_id].routines, kMagMasses) && !IS_SET(spell_info[spell_id].routines, kMagGroups)) {
-		if (spell_info[spell_id].violent) {
+	if (ignore && !MUD::Spell(spell_id).IsFlagged(kMagMasses) &&
+		!MUD::Spell(spell_id).IsFlagged(kMagGroups)) {
+		if (MUD::Spell(spell_id).IsViolent()) {
 			return false;
 		}
 		return victim == nullptr ? true : false;
 	}
 
-	ignore = victim
-		&& (IS_SET(spell_info[spell_id].targets, kTarCharRoom)
-			|| IS_SET(spell_info[spell_id].targets, kTarCharWorld))
-		&& !IS_SET(spell_info[spell_id].routines, kMagAreas);
+	ignore = victim && (MUD::Spell(spell_id).AllowTarget(kTarCharRoom) ||
+				MUD::Spell(spell_id).AllowTarget(kTarCharWorld)) &&
+					!MUD::Spell(spell_id).IsFlagged(kMagAreas);
 
 	for (const auto ch_vict : world[caster->in_room]->people) {
 		if (IS_IMMORTAL(ch_vict))
 			continue;
 		if (!HERE(ch_vict))
 			continue;
-		if (spell_info[spell_id].violent && same_group(caster, ch_vict))
+		if (MUD::Spell(spell_id).IsViolent() && same_group(caster, ch_vict))
 			continue;
 		if (ignore && ch_vict != victim)
 			continue;
-		if (spell_info[spell_id].violent) {
+		if (MUD::Spell(spell_id).IsViolent()) {
 			if (!may_kill_here(caster, ch_vict, NoArgument)) {
 				return false;
 			}
@@ -326,7 +370,7 @@ int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict
 	}
 
 	if (!MayCastHere(caster, cvict, spell_id)) {
-		if (IS_SET(spell_info[spell_id].routines, kMagWarcry)) {
+		if (MUD::Spell(spell_id).IsFlagged(kMagWarcry)) {
 			SendMsgToChar("Ваш громовой глас сотряс воздух, но ничего не произошло!\r\n", caster);
 			act("Вы вздрогнули от неожиданного крика, но ничего не произошло.",
 				false, caster, nullptr, nullptr, kToRoom | kToArenaListen);
@@ -342,19 +386,19 @@ int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict
 		SpellUsage::AddSpellStat(caster->GetClass(), spell_id);
 	}
 
-	if (IS_SET(spell_info[spell_id].routines, kMagAreas) || IS_SET(spell_info[spell_id].routines, kMagMasses)) {
+	if (MUD::Spell(spell_id).IsFlagged(kMagAreas) || MUD::Spell(spell_id).IsFlagged(kMagMasses)) {
 		return CallMagicToArea(caster, cvict, rvict, spell_id, level);
 	}
 
-	if (IS_SET(spell_info[spell_id].routines, kMagGroups)) {
+	if (MUD::Spell(spell_id).IsFlagged(kMagGroups)) {
 		return CallMagicToGroup(level, caster, spell_id);
 	}
 
-	if (IS_SET(spell_info[spell_id].routines, kMagRoom)) {
-		return room_spells::CastSpellToRoom(level, caster, rvict, spell_id);
+	if (MUD::Spell(spell_id).IsFlagged(kMagRoom)) {
+		return room_spells::CallMagicToRoom(level, caster, rvict, spell_id);
 	}
 
-	return CastToSingleTarget(level, caster, cvict, ovict, spell_id, ESaving::kStability);
+	return CastToSingleTarget(level, caster, cvict, ovict, spell_id);
 }
 
 const char *what_sky_type[] = {"пасмурно",
@@ -413,24 +457,24 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 
 	strcpy(cast_argument, t);
 
-	if (IS_SET(spell_info[spell_id].targets, kTarRoomThis))
+	if (MUD::Spell(spell_id).AllowTarget(kTarRoomThis))
 		return true;
-	if (IS_SET(spell_info[spell_id].targets, kTarIgnore))
+	if (MUD::Spell(spell_id).AllowTarget(kTarIgnore))
 		return true;
 	else if (*t) {
-		if (IS_SET(spell_info[spell_id].targets, kTarCharRoom)) {
+		if (MUD::Spell(spell_id).AllowTarget(kTarCharRoom)) {
 			if ((*tch = get_char_vis(ch, t, EFind::kCharInRoom)) != nullptr) {
-				if (spell_info[spell_id].violent && !check_pkill(ch, *tch, t))
+				if (MUD::Spell(spell_id).IsViolent() && !check_pkill(ch, *tch, t))
 					return false;
 				return true;
 			}
 		}
 
-		if (IS_SET(spell_info[spell_id].targets, kTarCharWorld)) {
+		if (MUD::Spell(spell_id).AllowTarget(kTarCharWorld)) {
 			if ((*tch = get_char_vis(ch, t, EFind::kCharInWorld)) != nullptr) {
 				// чтобы мобов не чекали
 				if (ch->IsNpc() || !(*tch)->IsNpc()) {
-					if (spell_info[spell_id].violent && !check_pkill(ch, *tch, t)) {
+					if (MUD::Spell(spell_id).IsViolent() && !check_pkill(ch, *tch, t)) {
 						return false;
 					}
 					return true;
@@ -455,21 +499,21 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 			}
 		}
 
-		if (IS_SET(spell_info[spell_id].targets, kTarObjInv))
+		if (MUD::Spell(spell_id).AllowTarget(kTarObjInv))
 			if ((*tobj = get_obj_in_list_vis(ch, t, ch->carrying)) != nullptr)
 				return true;
 
-		if (IS_SET(spell_info[spell_id].targets, kTarObjEquip)) {
+		if (MUD::Spell(spell_id).AllowTarget(kTarObjEquip)) {
 			int tmp;
 			if ((*tobj = get_object_in_equip_vis(ch, t, ch->equipment, &tmp)) != nullptr)
 				return true;
 		}
 
-		if (IS_SET(spell_info[spell_id].targets, kTarObjRoom))
+		if (MUD::Spell(spell_id).AllowTarget(kTarObjRoom))
 			if ((*tobj = get_obj_in_list_vis(ch, t, world[ch->in_room]->contents)) != nullptr)
 				return true;
 
-		if (IS_SET(spell_info[spell_id].targets, kTarObjWorld)) {
+		if (MUD::Spell(spell_id).AllowTarget(kTarObjWorld)) {
 //			if ((*tobj = get_obj_vis(ch, t)) != NULL)
 //				return true;
 			if (spell_id == ESpell::kLocateObject) {
@@ -482,29 +526,29 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 			}
 		}
 	} else {
-		if (IS_SET(spell_info[spell_id].targets, kTarFightSelf))
+		if (MUD::Spell(spell_id).AllowTarget(kTarFightSelf))
 			if (ch->GetEnemy() != nullptr) {
 				*tch = ch;
 				return true;
 			}
-		if (IS_SET(spell_info[spell_id].targets, kTarFightVict))
+		if (MUD::Spell(spell_id).AllowTarget(kTarFightVict))
 			if (ch->GetEnemy() != nullptr) {
 				*tch = ch->GetEnemy();
 				return true;
 			}
-		if (IS_SET(spell_info[spell_id].targets, kTarCharRoom) && !spell_info[spell_id].violent) {
+		if (MUD::Spell(spell_id).AllowTarget(kTarCharRoom) && !MUD::Spell(spell_id).IsViolent()) {
 			*tch = ch;
 			return true;
 		}
 	}
 	// TODO: добавить обработку TAR_ROOM_DIR и TAR_ROOM_WORLD
-	if (IS_SET(spell_info[spell_id].routines, kMagWarcry))
+	if (MUD::Spell(spell_id).IsFlagged(kMagWarcry))
 		sprintf(buf, "И на %s же вы хотите так громко крикнуть?\r\n",
-				IS_SET(spell_info[spell_id].targets, kTarObjRoom | kTarObjInv | kTarObjWorld | kTarObjEquip)
+				MUD::Spell(spell_id).AllowTarget(kTarObjRoom | kTarObjInv | kTarObjWorld | kTarObjEquip)
 				? "ЧТО" : "КОГО");
 	else
 		sprintf(buf, "На %s Вы хотите ЭТО колдовать?\r\n",
-				IS_SET(spell_info[spell_id].targets, kTarObjRoom | kTarObjInv | kTarObjWorld | kTarObjEquip)
+				MUD::Spell(spell_id).AllowTarget(kTarObjRoom | kTarObjInv | kTarObjWorld | kTarObjEquip)
 				? "ЧТО" : "КОГО");
 	SendMsgToChar(buf, ch);
 	return false;
@@ -525,7 +569,7 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpel
 	}
 
 	if (tch && ch) {
-		if (IS_MOB(tch) && IS_MOB(ch) && !SAME_ALIGN(ch, tch) && !spell_info[spell_id].violent) {
+		if (IS_MOB(tch) && IS_MOB(ch) && !SAME_ALIGN(ch, tch) && !MUD::Spell(spell_id).IsViolent()) {
 			return 0;
 		}
 	}
@@ -534,7 +578,7 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpel
 		troom = world[ch->in_room];
 	}
 
-	if (GET_POS(ch) < spell_info[spell_id].min_position) {
+	if (GET_POS(ch) < MUD::Spell(spell_id).GetMinPos()) {
 		switch (GET_POS(ch)) {
 			case EPosition::kSleep: SendMsgToChar("Вы спите и не могете думать больше ни о чем.\r\n", ch);
 				break;
@@ -555,43 +599,42 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpel
 		return 0;
 	}
 
-	if (tch != ch && !IS_IMMORTAL(ch) && IS_SET(spell_info[spell_id].targets, kTarSelfOnly)) {
+	if (tch != ch && !IS_IMMORTAL(ch) && MUD::Spell(spell_id).AllowTarget(kTarSelfOnly)) {
 		SendMsgToChar("Вы можете колдовать это только на себя!\r\n", ch);
 		return 0;
 	}
 
-	if (tch == ch && IS_SET(spell_info[spell_id].targets, kTarNotSelf)) {
+	if (tch == ch && MUD::Spell(spell_id).AllowTarget(kTarNotSelf)) {
 		SendMsgToChar("Колдовать? ЭТО? На себя?! Да вы с ума сошли!\r\n", ch);
 		return 0;
 	}
 
 	if ((!tch || IN_ROOM(tch) == kNowhere) && !tobj && !troom &&
-		IS_SET(spell_info[spell_id].targets,
-			   kTarCharRoom | kTarCharWorld | kTarFightSelf | kTarFightVict
-				   | kTarObjInv | kTarObjRoom | kTarObjWorld | kTarObjEquip | kTarRoomThis
-				   | kTarRoomDir)) {
+		MUD::Spell(spell_id).AllowTarget(kTarCharRoom | kTarCharWorld | kTarFightSelf | kTarFightVict |
+			kTarObjInv | kTarObjRoom | kTarObjWorld | kTarObjEquip | kTarRoomThis | kTarRoomDir)) {
 		SendMsgToChar("Цель заклинания недоступна.\r\n", ch);
 		return 0;
 	}
 
 	if (tch != nullptr && IN_ROOM(tch) != ch->in_room) {
-		if (!IS_SET(spell_info[spell_id].targets, kTarCharWorld)) {
+		if (!MUD::Spell(spell_id).AllowTarget(kTarCharWorld)) {
 			SendMsgToChar("Цель заклинания недоступна.\r\n", ch);
 			return 0;
 		}
 	}
 
 	if (AFF_FLAGGED(ch, EAffect::kPeaceful)) {
-		auto ignore = IS_SET(spell_info[spell_id].targets, kTarIgnore) ||
-			IS_SET(spell_info[spell_id].routines, kMagMasses) || IS_SET(spell_info[spell_id].routines, kMagGroups);
+		auto ignore = MUD::Spell(spell_id).AllowTarget(kTarIgnore) ||
+			MUD::Spell(spell_id).IsFlagged(kMagMasses) ||
+			MUD::Spell(spell_id).IsFlagged(kMagGroups);
 		if (ignore) { // индивидуальная цель
-			if (spell_info[spell_id].violent) {
+			if (MUD::Spell(spell_id).IsViolent()) {
 				SendMsgToChar("Ваша душа полна смирения, и вы не желаете творить зло.\r\n", ch);
 				return false;    // нельзя злые кастовать
 			}
 		}
 		for (const auto ch_vict : world[ch->in_room]->people) {
-			if (spell_info[spell_id].violent) {
+			if (MUD::Spell(spell_id).IsViolent()) {
 				if (ch_vict == tch) {
 					SendMsgToChar("Ваша душа полна смирения, и вы не желаете творить зло.\r\n", ch);
 					return false;
@@ -621,7 +664,7 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpel
 	}
 
 	if (ch->IsNpc()) {
-		ch->caster_level -= (IS_SET(spell_info[spell_id].routines, NPC_CALCULATE) ? 1 : 0);
+		ch->caster_level -= (MUD::Spell(spell_id).IsFlagged(NPC_CALCULATE) ? 1 : 0);
 	} else {
 		affect_total(ch);
 	}
@@ -657,13 +700,13 @@ int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell
 
 	prob = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_SUCCESS, prob);
 	if (GET_GOD_FLAG(ch, EGf::kGodscurse) ||
-		(spell_info[spell_id].violent && victim && GET_GOD_FLAG(victim, EGf::kGodsLike)) ||
-		(!spell_info[spell_id].violent && victim && GET_GOD_FLAG(victim, EGf::kGodscurse))) {
+		(MUD::Spell(spell_id).IsViolent() && victim && GET_GOD_FLAG(victim, EGf::kGodsLike)) ||
+		(!MUD::Spell(spell_id).IsViolent() && victim && GET_GOD_FLAG(victim, EGf::kGodscurse))) {
 		prob -= 50;
 	}
 
-	if ((spell_info[spell_id].violent && victim && GET_GOD_FLAG(victim, EGf::kGodscurse)) ||
-		(!spell_info[spell_id].violent && victim && GET_GOD_FLAG(victim, EGf::kGodsLike))) {
+	if ((MUD::Spell(spell_id).IsViolent() && victim && GET_GOD_FLAG(victim, EGf::kGodscurse)) ||
+		(!MUD::Spell(spell_id).IsViolent() && victim && GET_GOD_FLAG(victim, EGf::kGodsLike))) {
 		prob += 50;
 	}
 
@@ -679,5 +722,34 @@ int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell
 	return (prob > number(0, 100));
 }
 
+EResist GetResisTypeWithElement(EElement element) {
+	switch (element) {
+		case EElement::kFire: return EResist::kFire;
+		case EElement::kDark: return EResist::kDark;
+		case EElement::kAir: return EResist::kAir;
+		case EElement::kWater: return EResist::kWater;
+		case EElement::kEarth: return EResist::kEarth;
+		case EElement::kLight: return EResist::kVitality;
+		case EElement::kMind: return EResist::kMind;
+		case EElement::kLife: return EResist::kImmunity;
+		default: return EResist::kVitality;
+	}
+};
+
+EResist GetResistType(ESpell spell_id) {
+	return GetResisTypeWithElement(MUD::Spell(spell_id).GetElement());
+}
+
+int ApplyResist(CharData *ch, int resist_type, int effect) {
+	auto resistance = GET_RESIST(ch, resist_type);
+	if (resistance <= 0) {
+		return effect - resistance*effect/100;
+	}
+	if (!ch->IsNpc()) {
+		resistance = std::min(kMaxPcResist, resistance);
+	}
+	auto result = static_cast<int>(effect - (resistance + number(0, resistance))*effect/200.0);
+	return std::max(0, result);
+}
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

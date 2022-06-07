@@ -18,8 +18,10 @@
 #include "entities/char_data.h"
 #include "entities/world_characters.h"
 #include "entities/world_objects.h"
+#include "game_abilities/abilities_info.h"
 #include "game_economics/shop_ext.h"
 #include "game_economics/ext_money.h"
+#include "game_magic/magic_utils.h"
 #include "game_mechanics/glory.h"
 #include "game_mechanics/glory_const.h"
 #include "game_mechanics/glory_misc.h"
@@ -53,19 +55,72 @@ void ShowClassInfo(CharData *ch, const std::string &class_name, const std::strin
 
 	std::ostringstream out;
 	if (params.empty()) {
-		MUD::Classes(class_id).Print(ch, out);
+		MUD::Class(class_id).Print(ch, out);
 	} else {
-		MUD::Classes(class_id).PrintHeader(out);
+		MUD::Class(class_id).PrintHeader(out);
 		if (utils::IsAbbrev(params, "stats") || utils::IsAbbrev(params, "параметры")) {
-			MUD::Classes(class_id).PrintBaseStatsTable(ch, out);
+			MUD::Class(class_id).PrintBaseStatsTable(ch, out);
 		} else if (utils::IsAbbrev(params, "skills") || utils::IsAbbrev(params, "умения")) {
-			MUD::Classes(class_id).PrintSkillsTable(ch, out);
+			MUD::Class(class_id).PrintSkillsTable(ch, out);
 		} else if (utils::IsAbbrev(params, "spells") || utils::IsAbbrev(params, "заклинания")) {
-			MUD::Classes(class_id).PrintSpellsTable(ch, out);
+			MUD::Class(class_id).PrintSpellsTable(ch, out);
 		} else if (utils::IsAbbrev(params, "feats") || utils::IsAbbrev(params, "способности")) {
-			MUD::Classes(class_id).PrintFeatsTable(ch, out);
+			MUD::Class(class_id).PrintFeatsTable(ch, out);
 		}
 	}
+	page_string(ch->desc, out.str());
+}
+
+void ShowSpellInfo(CharData *ch, const std::string &spell_name) {
+	if (spell_name.empty()) {
+		SendMsgToChar("Формат: show spellinfo [название заклинания]", ch);
+		return;
+	}
+
+	// Это очень тупо, но иначе надо переписывать всю команду. Пока некогда.
+	auto name_copy = spell_name;
+	auto id = FixNameAndFindSpellId(name_copy);
+	if (id == ESpell::kUndefined) {
+		SendMsgToChar("Неизвестное название заклинания.", ch);
+		return;
+	}
+
+	std::ostringstream out;
+	MUD::Spell(id).Print(ch, out);
+	page_string(ch->desc, out.str());
+}
+
+void ShowFeatInfo(CharData *ch, const std::string &name) {
+	if (name.empty()) {
+		SendMsgToChar("Формат: show featinfo [название способности]", ch);
+		return;
+	}
+
+	auto id = FixNameAndFindFeatId(name);
+	if (id == EFeat::kUndefined) {
+		SendMsgToChar("Неизвестное название способности.", ch);
+		return;
+	}
+
+	std::ostringstream out;
+	MUD::Feat(id).Print(ch, out);
+	page_string(ch->desc, out.str());
+}
+
+void ShowAbilityInfo(CharData *ch, const std::string &name) {
+	if (name.empty()) {
+		SendMsgToChar("Формат: show abilityinfo [название навыка]", ch);
+		return;
+	}
+
+	auto id = FixNameAndFindAbilityId(name);
+	if (id == abilities::EAbility::kUndefined) {
+		SendMsgToChar("Неизвестное название навыка.", ch);
+		return;
+	}
+
+	std::ostringstream out;
+	MUD::Ability(id).Print(ch, out);
 	page_string(ch->desc, out.str());
 }
 
@@ -84,7 +139,7 @@ void ShowGuildInfo(CharData *ch, const std::string &guild_locator) {
 			return;
 		}
 
-		const auto &guild = MUD::Guilds(guild_vnum);
+		const auto &guild = MUD::Guild(guild_vnum);
 		if (guild.GetId() == info_container::kUndefinedVnum) {
 			SendMsgToChar("Гильдии с таким vnum не существует.", ch);
 			return;
@@ -110,7 +165,7 @@ void ShowCurrencyInfo(CharData *ch, const std::string &locator) {
 			return;
 		}
 
-		const auto &item = MUD::Currencies(vnum);
+		const auto &item = MUD::Currency(vnum);
 		if (item.GetId() == info_container::kUndefinedVnum) {
 			SendMsgToChar("Элемента с таким vnum не существует.", ch);
 			return;
@@ -296,6 +351,9 @@ struct show_struct show_fields[] = {
 	{"class", kLvlImmortal},
 	{"guild", kLvlImmortal},
 	{"currency", kLvlImmortal},
+	{"spellinfo", kLvlImmortal},
+	{"featinfo", kLvlImmortal},
+	{"abilityinfo", kLvlImmortal},
 	{"\n", 0}
 };
 
@@ -764,6 +822,15 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			break;
 		case 31: // currency
 			ShowCurrencyInfo(ch, value);
+			break;
+		case 32: // spell
+			ShowSpellInfo(ch, value);
+			break;
+		case 33: // feat
+			ShowFeatInfo(ch, value);
+			break;
+		case 34: // ability
+			ShowAbilityInfo(ch, value);
 			break;
 		default: SendMsgToChar("Извините, неверная команда.\r\n", ch);
 			break;

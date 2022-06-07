@@ -7,12 +7,10 @@
 
 #include "classes_info.h"
 
-//#include <algorithm>
-
 #include "color.h"
 #include "utils/pugixml/pugixml.h"
 #include "structs/global_objects.h"
-#include "utils/table_wrapper.h"
+//#include "utils/table_wrapper.h"
 
 namespace classes {
 
@@ -32,7 +30,7 @@ ItemPtr CharClassInfoBuilder::Build(DataNode &node) {
 		auto class_node = SelectDataNode(node);
 		return ParseClass(class_node);
 	} catch (std::exception &e) {
-		err_log("Classes parsing error: '%s'", e.what());
+		err_log("Class parsing error: '%s'", e.what());
 		return nullptr;
 	}
 }
@@ -222,10 +220,21 @@ const char *CharClassInfo::GetPluralCName(ECase name_case) const {
 }
 
 int CharClassInfo::GetMaxCircle() const {
-	auto it = std::max_element(spells.begin(), spells.end(), [](auto &a, auto &b){
-		return (a.GetCircle() < b.GetCircle() || a.IsInvalid());
-	});
-	return it->GetCircle();
+/*	auto it = std::max_element(spells.begin(), spells.end(), [](auto &a, auto &b){
+		return (a.GetCircle() < b.GetCircle());
+	});*/
+	//return it->GetCircle();
+
+	// Это наглый костыль, который поставлен потому, что иначе надо всем классам в конфиге прописывать
+	// undefined спелл. Ибо нефиг выделываться, используя внутри инфо_контейнер его же.
+	// \todo не забыть убрать
+	int circle{0};
+	for (const auto &spell : spells) {
+		if (spell.IsValid() && spell.GetCircle() > circle) {
+			circle = spell.GetCircle();
+		}
+	}
+	return circle;
 }
 
 void CharClassInfo::PrintSkillsTable(CharData *ch, std::ostringstream &buffer) const {
@@ -240,7 +249,7 @@ void CharClassInfo::PrintSkillsTable(CharData *ch, std::ostringstream &buffer) c
 			continue;
 		}
 		table << NAME_BY_ITEM<ESkill>(skill.GetId())
-				<< MUD::Skills(skill.GetId()).name
+				<< MUD::Skill(skill.GetId()).name
 				<< skill.GetMinLevel()
 				<< skill.GetMinRemort()
 				<< skill.GetImprove()
@@ -266,9 +275,6 @@ CharClassInfo::SkillInfoBuilder::ItemPtr CharClassInfo::SkillInfoBuilder::Build(
 	}
 
 	auto skill_mode = SkillInfoBuilder::ParseItemMode(node, EItemMode::kEnabled);
-
-/*	auto info = std::make_shared<CharClassInfo::SkillInfo>(skill_id, skill_mode);
-	return info;*/
 	return std::make_shared<CharClassInfo::SkillInfo>(skill_id, min_lvl, min_remort, improve, skill_mode);
 }
 
@@ -281,7 +287,7 @@ void CharClassInfo::PrintSpellsTable(CharData *ch, std::ostringstream &buffer) c
 		<< "Id" << "Spell" << "Lvl" << "Rem" << "Circle" << "Mem" << "Cast" << "Mode" << table_wrapper::kEndRow;
 	for (const auto &spell : spells) {
 		table << NAME_BY_ITEM<ESpell>(spell.GetId())
-			<< GetSpellName(spell.GetId())
+			<< MUD::Spell(spell.GetId()).GetName()
 			<< spell.GetMinLevel()
 			<< spell.GetMinRemort()
 			<< spell.GetCircle()
@@ -326,7 +332,7 @@ void CharClassInfo::PrintFeatsTable(CharData *ch, std::ostringstream &buffer) co
 		  << "Id" << "Feature" << "Lvl" << "Rem" << "Slot" << "Inborn" << "Mode" << table_wrapper::kEndRow;
 	for (const auto &feat : feats) {
 		table << NAME_BY_ITEM<EFeat>(feat.GetId())
-			<< feat_info[feat.GetId()].name
+			<< MUD::Feat(feat.GetId()).GetName()
 			<< feat.GetMinLevel()
 			<< feat.GetMinRemort()
 			<< feat.GetSlot()
@@ -345,7 +351,7 @@ CharClassInfo::FeatInfoBuilder::ItemPtr CharClassInfo::FeatInfoBuilder::Build(Da
 		feat_id = parse::ReadAsConstant<EFeat>(node.GetValue("id"));
 		min_lvl = std::clamp(parse::ReadAsInt(node.GetValue("level")), kMinCharLevel, kMaxPlayerLevel);
 		min_remort = std::clamp(parse::ReadAsInt(node.GetValue("remort")), kMinRemort, kMaxRemort);
-		slot = std::clamp(parse::ReadAsInt(node.GetValue("slot")), kMinFeatSlotIndex, to_underlying(EFeat::kLast));
+		slot = std::clamp(parse::ReadAsInt(node.GetValue("slot")), 0, to_underlying(EFeat::kLast));
 		inborn = parse::ReadAsBool(node.GetValue("inborn"));
 	} catch (std::exception &e) {
 		std::ostringstream out;
@@ -370,14 +376,14 @@ void CharClassInfoBuilder::TemporarySetStat(ItemPtr &info) {
 		}
 			break;
 		case ECharClass::kConjurer: {
-			info->inborn_affects.push_back({EAffect::kInfravision, 0, true});
+			//info->inborn_affects.push_back({EAffect::kInfravision, 0, true});
 			info->applies = {35, 10, 10, 50};
 		}
 			break;
 		case ECharClass::kThief: {
-			info->inborn_affects.push_back({EAffect::kInfravision, 0, true});
-			info->inborn_affects.push_back({EAffect::kDetectLife, 0, true});
-			info->inborn_affects.push_back({EAffect::kBlink, 0, true});
+			//info->inborn_affects.push_back({EAffect::kInfravision, 0, true});
+			//info->inborn_affects.push_back({EAffect::kDetectLife, 0, true});
+			//info->inborn_affects.push_back({EAffect::kBlink, 0, true});
 			info->applies = {55, 10, 14, 50};
 		}
 			break;
@@ -386,7 +392,7 @@ void CharClassInfoBuilder::TemporarySetStat(ItemPtr &info) {
 		}
 			break;
 		case ECharClass::kAssasine: {
-			info->inborn_affects.push_back({EAffect::kInfravision, 0, true});
+			//info->inborn_affects.push_back({EAffect::kInfravision, 0, true});
 			info->applies = {50, 10, 14, 50};
 		}
 			break;
@@ -403,7 +409,7 @@ void CharClassInfoBuilder::TemporarySetStat(ItemPtr &info) {
 		}
 			break;
 		case ECharClass::kNecromancer: {
-			info->inborn_affects.push_back({EAffect::kInfravision, 0, true});
+			//info->inborn_affects.push_back({EAffect::kInfravision, 0, true});
 			info->applies = {35, 10, 11, 50};
 		}
 			break;
@@ -412,8 +418,8 @@ void CharClassInfoBuilder::TemporarySetStat(ItemPtr &info) {
 		}
 			break;
 		case ECharClass::kRanger: {
-			info->inborn_affects.push_back({EAffect::kInfravision, 0, true});
-			info->inborn_affects.push_back({EAffect::kDetectLife, 0, true});
+			//info->inborn_affects.push_back({EAffect::kInfravision, 0, true});
+			//info->inborn_affects.push_back({EAffect::kDetectLife, 0, true});
 			info->applies = {100, 10, 14, 50};
 		}
 			break;

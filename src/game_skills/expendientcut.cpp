@@ -20,7 +20,7 @@ void ApplyNoFleeAffect(CharData *ch, int duration) {
 	SendMsgToChar("Вы выпали из ритма боя.\r\n", ch);
 }
 
-void ApplyDebuffs(AbilitySystem::TechniqueRoll &roll) {
+void ApplyDebuffs(abilities_roll::TechniqueRoll &roll) {
 	Affect<EApply> cut;
 	cut.type = ESpell::kBattle;
 	cut.duration = CalcDuration(roll.GetActor(), 3 * number(2, 4), 0, 0, 0, 0);;
@@ -37,7 +37,7 @@ void ApplyDebuffs(AbilitySystem::TechniqueRoll &roll) {
 	ImposeAffect(roll.GetRival(), cut, false, true, false, true);
 }
 
-void PerformCutSuccess(AbilitySystem::TechniqueRoll &roll) {
+void PerformCutSuccess(abilities_roll::TechniqueRoll &roll) {
 	act("$n сделал$g неуловимое движение и на мгновение исчез$q из вида.",
 		false, roll.GetActor(), nullptr, roll.GetRival(), kToVict);
 	act("$n сделал$g неуловимое движение, сместившись за спину $N1.",
@@ -47,7 +47,7 @@ void PerformCutSuccess(AbilitySystem::TechniqueRoll &roll) {
 	}
 }
 
-void PerformCutFail(AbilitySystem::TechniqueRoll &roll) {
+void PerformCutFail(abilities_roll::TechniqueRoll &roll) {
 	act("Ваши свистящие удары пропали втуне, не задев $N3.",
 		false, roll.GetActor(), nullptr, roll.GetRival(), kToChar);
 	if (roll.IsCriticalFail()) {
@@ -73,8 +73,8 @@ void GoExpedientCut(CharData *ch, CharData *vict) {
 
 	vict = TryToFindProtector(vict, ch);
 
-	AbilitySystem::TechniqueRoll roll;
-	roll.Init(ch, EFeat::kCutting, vict);
+	abilities_roll::TechniqueRoll roll;
+	roll.Init(ch, abilities::EAbility::kCutting, vict);
 
 	if (roll.IsWrongConditions()) {
 		roll.SendDenyMsgToActor();

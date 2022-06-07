@@ -683,9 +683,10 @@ void medit_save_to_disk(int zone_num) {
 			strcpy(buf1, "Special_Bitvector: ");
 			NPC_FLAGS(mob).tascii(4, buf1);
 			fprintf(mob_file, "%s\n", buf1);
-			for (auto feat_id = EFeat::kFirst; feat_id <= EFeat::kLast; ++feat_id) {
-				if (mob->HaveFeat(feat_id))
-					fprintf(mob_file, "Feat: %d\n", to_underlying(feat_id));
+			for (const auto &feat : MUD::Feats()) {
+				if (mob->HaveFeat(feat.GetId())) {
+					fprintf(mob_file, "Feat: %d\n", to_underlying(feat.GetId()));
+				}
 			}
 			for (const auto &skill : MUD::Skills()) {
 				if (mob->GetSkill(skill.GetId()) && skill.IsValid()) {
@@ -992,19 +993,19 @@ void medit_disp_features(DescriptorData *d) {
 	SendMsgToChar("[H[J", d->character);
 #endif
 
-	for (auto counter = EFeat::kFirst; counter <= EFeat::kLast; ++counter) {
-		if (!feat_info[counter].name || *feat_info[counter].name == '!') {
+	for (const auto &feat : MUD::Feats()) {
+		if (feat.IsInvalid()) {
 			continue;
 		}
 
-		if (OLC_MOB(d)->HaveFeat(counter)) {
+		if (OLC_MOB(d)->HaveFeat(feat.GetId())) {
 			sprintf(buf1, " %s[%s*%s]%s ", cyn, grn, cyn, nrm);
 		} else {
 			strcpy(buf1, "     ");
 		}
 
-		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, to_underlying(counter), nrm,
-				 feat_info[counter].name, buf1, !(++columns % 2) ? "\r\n" : "");
+		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, to_underlying(feat.GetId()), nrm,
+				 feat.GetCName(), buf1, !(++columns % 2) ? "\r\n" : "");
 		SendMsgToChar(buf, d->character.get());
 	}
 
@@ -1096,8 +1097,7 @@ void medit_disp_spells(DescriptorData *d) {
 #endif
 	int columns = 0;
 	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
-		if (!spell_info[spell_id].name
-			|| *spell_info[spell_id].name == '!') {
+		if (MUD::Spell(spell_id).IsUnavailable()) {
 			continue;
 		}
 		if (GET_SPELL_MEM(OLC_MOB(d), spell_id)) {
@@ -1106,7 +1106,7 @@ void medit_disp_spells(DescriptorData *d) {
 			strcpy(buf1, "     ");
 		}
 		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, to_underlying(spell_id), nrm,
-				 spell_info[spell_id].name, buf1, !(++columns % 2) ? "\r\n" : "");
+				 MUD::Spell(spell_id).GetCName(), buf1, !(++columns % 2) ? "\r\n" : "");
 		SendMsgToChar(buf, d->character.get());
 	}
 	SendMsgToChar("\r\nУкажите номер и количество заклинаний (0 - конец) : ", d->character.get());
@@ -1771,8 +1771,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 				break;
 			}
 			auto feat_id = static_cast<EFeat>(number);
-			if (feat_id < EFeat::kFirst || feat_id > EFeat::kLast ||
-				!feat_info[feat_id].name || *feat_info[feat_id].name == '!') {
+			if (MUD::Feat(feat_id).IsInvalid()) {
 				SendMsgToChar("Неверный номер.\r\n", d->character.get());
 			} else if (OLC_MOB(d)->HaveFeat(feat_id)) {
 				OLC_MOB(d)->UnsetFeat(feat_id);
@@ -1793,7 +1792,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 			} else if (sscanf(arg, "%d %d", &plane, &bit) < 2) {
 				SendMsgToChar("Не указан уровень сопротивления.\r\n", d->character.get());
 			} else {
-				GET_RESIST(OLC_MOB(d), number) =  std::clamp(bit, kMinResistance, kMaxResistance);
+				GET_RESIST(OLC_MOB(d), number) =  std::clamp(bit, kMinResistance, kMaxNpcResist);
 			}
 			medit_disp_resistances(d);
 			return;
@@ -2186,7 +2185,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 			} else if (sscanf(arg, "%d %d", &plane, &bit) < 2) {
 				SendMsgToChar("Не указан уровень владения умением.\r\n", d->character.get());
 			} else {
-				OLC_MOB(d)->set_skill(skill_id, std::clamp(bit, 0, MUD::Skills(skill_id).cap));
+				OLC_MOB(d)->set_skill(skill_id, std::clamp(bit, 0, MUD::Skill(skill_id).cap));
 			}
 			medit_disp_skills(d);
 			return;
@@ -2198,7 +2197,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 				break;
 			}
 			auto spell_id = static_cast<ESpell>(number);
-			if (spell_id < ESpell::kFirst || !spell_info[spell_id].name || *spell_info[spell_id].name == '!') {
+			if (MUD::Spell(spell_id).IsInvalid()) {
 				SendMsgToChar("Неизвестное заклинание.\r\n", d->character.get());
 			} else if (sscanf(arg, "%d %d", &plane, &bit) < 2) {
 				SendMsgToChar("Не указано количество заклинаний.\r\n", d->character.get());

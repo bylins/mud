@@ -5,46 +5,27 @@
 	Класс наборов экипировки, требующейся для выполнения приема.
 */
 
-#include "entities/obj_data.h"
 #include "game_skills/skills.h"
-#include "structs/structs.h"
-#include "utils/utils.h"
+#include "entities/entities_constants.h"
+
+class ObjData;
 
 struct TechniqueItem {
-	int wear_position;
-	EObjType type;
-	ESkill skill;
-	bool flagged;
-	EObjFlag flag;
+	EEquipPos wear_position{EEquipPos::kLight};
+	EObjType type{EObjType::kItemUndefined};
+	ESkill skill{ESkill::kAny};
+	bool flagged{false};
+	EObjFlag flag{EObjFlag::kGlow};
 
-	// TODO: Добавить учет типов ударов (уколол и проч).
-	bool operator==(const ObjData *item) const {
-		return (item
-			&& (type == GET_OBJ_TYPE(item))
-			&& ((skill == ESkill::kAny) || (skill == static_cast<ESkill>(item->get_skill())))
-			&& (flagged ? item->has_flag(flag) : true));
-	};
+	TechniqueItem() = default;
+	TechniqueItem(EEquipPos wear_position, EObjType obj_type)
+		: wear_position{wear_position}, type(obj_type) {};
+	TechniqueItem(EEquipPos wear_position, EObjType obj_type, ESkill obj_skill)
+		: wear_position{wear_position}, type(obj_type), skill(obj_skill) {};
+	TechniqueItem(EEquipPos wear_position, EObjType obj_type, ESkill obj_skill, EObjFlag extra_flag)
+		: wear_position{wear_position}, type(obj_type), skill(obj_skill), flagged(true), flag(extra_flag) {};
 
-	TechniqueItem() :
-		wear_position{-1},
-		type{EObjType::kItemUndefined},
-		skill{ESkill::kAny},
-		flagged{false},
-		flag{EObjFlag::kGlow} {};
-
-	TechniqueItem(int wear_position, EObjType obj_type) :
-		wear_position{wear_position}, skill{ESkill::kAny}, flagged{false}, flag{EObjFlag::kGlow} {
-		type = obj_type;
-	};
-	TechniqueItem(int wear_position, EObjType obj_type, ESkill obj_skill) :
-		TechniqueItem(wear_position, obj_type) {
-		skill = obj_skill;
-	};
-	TechniqueItem(int wear_position, EObjType obj_type, ESkill obj_skill, EObjFlag extra_flag) :
-		TechniqueItem(wear_position, obj_type, obj_skill) {
-		flag = extra_flag;
-		flagged = true;
-	};
+	bool operator==(const ObjData *item) const;
 };
 
 using TechniqueItemKit = std::vector<TechniqueItem>;

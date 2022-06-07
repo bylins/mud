@@ -3,6 +3,7 @@
 #include "entities/world_characters.h"
 #include "color.h"
 #include "spells_info.h"
+#include "structs/global_objects.h"
 
 namespace temporary_spells {
 void AddSpell(CharData *ch, ESpell spell_id, time_t set_time, time_t duration) {
@@ -71,7 +72,7 @@ void update_char_times(CharData *ch, time_t now) {
 
 				sprintf(buf,
 						"Вы забыли заклинание \"%s%s%s\".\r\n",
-						CCIMAG(ch, C_NRM), spell_info[it->first].name, CCNRM(ch, C_NRM));
+						CCIMAG(ch, C_NRM), MUD::Spell(it->first).GetCName(), CCNRM(ch, C_NRM));
 				SendMsgToChar(buf, ch);
 			}
 

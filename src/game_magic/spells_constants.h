@@ -277,17 +277,22 @@ ESpell ITEM_BY_NAME<ESpell>(const std::string &name);
 template<>
 const std::string &NAME_BY_ITEM<ESpell>(const ESpell spell);
 
-enum EElement : int {
-	kTypeNeutral = 0,
-	kTypeAir,
-	kTypeFire,
-	kTypeWater,
-	kTypeEarth,
-	kTypeLight,
-	kTypeDark,
-	kTypeMind,
-	kTypeLife
+enum class EElement {
+	kUndefined = 0,
+	kAir,
+	kFire,
+	kWater,
+	kEarth,
+	kLight,
+	kDark,
+	kMind,
+	kLife
 };
+
+template<>
+EElement ITEM_BY_NAME<EElement>(const std::string &name);
+template<>
+const std::string &NAME_BY_ITEM<EElement>(const EElement element);
 
 // PLAYER SPELLS TYPES //
 enum ESpellType {
@@ -304,50 +309,65 @@ enum ESpellType {
 template<>
 ESpellType ITEM_BY_NAME<ESpellType>(const std::string &name);
 template<>
-const std::string &NAME_BY_ITEM<ESpellType>(const ESpellType spell);
+const std::string &NAME_BY_ITEM<ESpellType>(const ESpellType item);
 
-constexpr Bitvector kMagDamage = 1 << 0;
-constexpr Bitvector kMagAffects = 1 << 1;
-constexpr Bitvector kMagUnaffects = 1 << 2;
-constexpr Bitvector kMagPoints = 1 << 3;
-constexpr Bitvector kMagAlterObjs = 1 << 4;
-constexpr Bitvector kMagGroups = 1 << 5;
-constexpr Bitvector kMagMasses = 1 << 6;
-constexpr Bitvector kMagAreas = 1 << 7;
-constexpr Bitvector kMagSummons = 1 << 8;
-constexpr Bitvector kMagCreations = 1 << 9;
-constexpr Bitvector kMagManual = 1 << 10;
-constexpr Bitvector kMagWarcry = 1 << 11;
-constexpr Bitvector kMagNeedControl = 1 << 12;
+enum EMagic : Bitvector {
+	kMagDamage = 1 << 0,
+	kMagAffects = 1 << 1,
+	kMagUnaffects = 1 << 2,
+	kMagPoints = 1 << 3,
+	kMagAlterObjs = 1 << 4,
+	kMagGroups = 1 << 5,
+	kMagMasses = 1 << 6,
+	kMagAreas = 1 << 7,
+	kMagSummons = 1 << 8,
+	kMagCreations = 1 << 9,
+	kMagManual = 1 << 10,
+	kMagWarcry = 1 << 11,
+	kMagNeedControl = 1 << 12,
 // А чего это тут дырка Ж)
-constexpr Bitvector kNpcDamagePc = 1 << 16;
-constexpr Bitvector kNpcDamagePcMinhp = 1 << 17;
-constexpr Bitvector kNpcAffectPc = 1 << 18;
-constexpr Bitvector kNpcAffectPcCaster = 1 << 19;
-constexpr Bitvector kNpcAffectNpc = 1 << 20;
-constexpr Bitvector kNpcUnaffectNpc = 1 << 21;
-constexpr Bitvector kNpcUnaffectNpcCaster = 1 << 22;
-constexpr Bitvector kNpcDummy = 1 << 23;
-constexpr Bitvector kMagRoom = 1 << 24;
-constexpr Bitvector kMagCasterInroom = 1 << 25; // Аффект от этого спелла действует пока кастер в комнате //
-constexpr Bitvector kMagCasterInworld = 1 << 26; // висит пока кастер в мире //
-constexpr Bitvector kMagCasterAnywhere = 1 << 27; // висит пока не упадет сам //
-constexpr Bitvector kMagCasterInworldDelay = 1 << 28; // висит пока кастер в мире, плюс таймер после ухода кастера//
+	kNpcDamagePc = 1 << 16,
+	kNpcDamagePcMinhp = 1 << 17,
+	kNpcAffectPc = 1 << 18,
+	kNpcAffectPcCaster = 1 << 19,
+	kNpcAffectNpc = 1 << 20,
+	kNpcUnaffectNpc = 1 << 21,
+	kNpcUnaffectNpcCaster = 1 << 22,
+	kNpcDummy = 1 << 23,
+	kMagRoom = 1 << 24,
+	kMagCasterInroom = 1 << 25, // Аффект от этого спелла действует пока кастер в комнате //
+	kMagCasterInworld = 1 << 26, // висит пока кастер в мире //
+	kMagCasterAnywhere = 1 << 27, // висит пока не упадет сам //
+	kMagCasterInworldDelay = 1 << 28 // висит пока кастер в мире, плюс таймер после ухода кастера//
+};
 
-constexpr Bitvector kTarIgnore = 1 << 0;
-constexpr Bitvector kTarCharRoom = 1 << 1;
-constexpr Bitvector kTarCharWorld = 1 << 2;	// не ищет мобов при касте чарами (призвать/переместиться/переход)
-constexpr Bitvector kTarFightSelf = 1 << 3;
-constexpr Bitvector kTarFightVict = 1 << 4;
-constexpr Bitvector kTarSelfOnly = 1 << 5;	// Only a check, use with i.e. TAR_CHAR_ROOM //
-constexpr Bitvector kTarNotSelf = 1 << 6;	// Only a check, use with i.e. TAR_CHAR_ROOM //
-constexpr Bitvector kTarObjInv = 1 << 7;
-constexpr Bitvector kTarObjRoom = 1 << 8;
-constexpr Bitvector kTarObjWorld = 1 << 9;
-constexpr Bitvector kTarObjEquip = 1 << 10;
-constexpr Bitvector kTarRoomThis = 1 << 11;	// Цель комната в которой сидит чар//
-constexpr Bitvector kTarRoomDir = 1 << 12;	// Цель комната в каком-то направлении от чара//
-constexpr Bitvector kTarRoomWorld = 1 << 13;	// Цель какая-то комната в мире//
+template<>
+EMagic ITEM_BY_NAME<EMagic>(const std::string &name);
+template<>
+const std::string &NAME_BY_ITEM<EMagic>(const EMagic item);
+
+enum ETarget : Bitvector {
+	kTarNone = 0,
+	kTarIgnore = 1 << 0,
+	kTarCharRoom = 1 << 1,
+	kTarCharWorld = 1 << 2,	// не ищет мобов при касте чарами (призвать/переместиться/переход)
+	kTarFightSelf = 1 << 3,
+	kTarFightVict = 1 << 4,
+	kTarSelfOnly = 1 << 5,	// Only a check, use with i.e. TAR_CHAR_ROOM //
+	kTarNotSelf = 1 << 6,	// Only a check, use with i.e. TAR_CHAR_ROOM //
+	kTarObjInv = 1 << 7,
+	kTarObjRoom = 1 << 8,
+	kTarObjWorld = 1 << 9,
+	kTarObjEquip = 1 << 10,
+	kTarRoomThis = 1 << 11,	// Цель комната в которой сидит чар//
+	kTarRoomDir = 1 << 12,	// Цель комната в каком-то направлении от чара//
+	kTarRoomWorld = 1 << 13	// Цель какая-то комната в мире//
+};
+
+template<>
+ETarget ITEM_BY_NAME<ETarget>(const std::string &name);
+template<>
+const std::string &NAME_BY_ITEM<ETarget>(const ETarget item);
 
 constexpr Bitvector kMtypeNeutral = 1 << 0;
 constexpr Bitvector kMtypeAggressive = 1 << 1;

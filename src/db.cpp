@@ -17,7 +17,6 @@
 
 //#include "db.h"
 
-#include "game_abilities/abilities_info.h"
 #include "cmd_god/ban.h"
 #include "boards/boards.h"
 #include "boot/boot_data_files.h"
@@ -203,7 +202,6 @@ void LoadGuardians();
 TimeInfoData *mud_time_passed(time_t t2, time_t t1);
 void free_alias(struct alias_data *a);
 void load_messages();
-void InitSpells(void);
 void sort_commands();
 void Read_Invalid_List();
 int find_name(const char *name);
@@ -1072,9 +1070,13 @@ void do_reboot(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (!str_cmp(arg, "portals"))
 		init_portals();
 	else if (!str_cmp(arg, "abilities")) {
-		MUD::Abilities().Reload();
+		MUD::CfgManager().ReloadCfg("abilities");
 	} else if (!str_cmp(arg, "skills")) {
 		MUD::CfgManager().ReloadCfg("skills");
+	} else if (!str_cmp(arg, "spells")) {
+		MUD::CfgManager().ReloadCfg("spells");
+	} else if (!str_cmp(arg, "feats")) {
+		MUD::CfgManager().ReloadCfg("feats");
 	} else if (!str_cmp(arg, "classes")) {
 		MUD::CfgManager().ReloadCfg("classes");
 	} else if (!str_cmp(arg, "guilds")) {
@@ -2252,9 +2254,18 @@ void boot_db(void) {
 	log("Loading skills cfg.");
 	MUD::CfgManager().LoadCfg("skills");
 
+	boot_profiler.next_step("Loading feats cfg.");
+	log("Loading feats cfg.");
+	MUD::CfgManager().LoadCfg("feats");
+
+	boot_profiler.next_step("Loading spells cfg.");
+	log("Loading spells cfg.");
+	MUD::CfgManager().LoadCfg("spells");
+	spells::InitSpellsCreate();
+
 	boot_profiler.next_step("Loading abilities definitions");
 	log("Loading abilities.");
-	MUD::Abilities().Init();
+	MUD::CfgManager().LoadCfg("abilities");
 
 	pugi::xml_document doc;
 
@@ -2302,14 +2313,6 @@ void boot_db(void) {
 	boot_profiler.next_step("Loading player races definitions");
 	log("Loading player races definitions.");
 	PlayerRace::Load(XMLLoad(LIB_MISC PLAYER_RACE_FILE, RACE_MAIN_TAG, PLAYER_RACE_ERROR_STR, doc));
-
-	boot_profiler.next_step("Loading spell definitions");
-	log("Loading spell definitions.");
-	InitSpells();
-
-	boot_profiler.next_step("Loading features definitions");
-	log("Loading features definitions.");
-	InitFeatures();
 
 	boot_profiler.next_step("Loading ingredients magic");
 	log("Booting IM");
@@ -3294,7 +3297,7 @@ int vnum_flag(char *searchname, CharData *ch) {
 			plane_offset = 0;
 			continue;
 		};
-		if (utils::IsAbbrev(searchname, extra_bits[counter])) {
+		if (utils::IsAbbr(searchname, extra_bits[counter])) {
 			f = true;
 			break;
 		}
@@ -3313,7 +3316,7 @@ int vnum_flag(char *searchname, CharData *ch) {
 	f = false;
 // ---------------------
 	for (counter = 0; *apply_types[counter] != '\n'; counter++) {
-		if (utils::IsAbbrev(searchname, apply_types[counter])) {
+		if (utils::IsAbbr(searchname, apply_types[counter])) {
 			f = true;
 			break;
 		}
@@ -3340,7 +3343,7 @@ int vnum_flag(char *searchname, CharData *ch) {
 			plane_offset = 0;
 			continue;
 		};
-		if (utils::IsAbbrev(searchname, weapon_affects[counter])) {
+		if (utils::IsAbbr(searchname, weapon_affects[counter])) {
 			f = true;
 			break;
 		}
@@ -3361,7 +3364,7 @@ int vnum_flag(char *searchname, CharData *ch) {
 	f = false;
 	ESkill skill_id;
 	for (skill_id = ESkill::kFirst; skill_id <= ESkill::kLast; ++skill_id) {
-		if (utils::IsAbbrev(searchname, MUD::Skills(skill_id).GetName())) {
+		if (utils::IsAbbr(searchname, MUD::Skill(skill_id).GetName())) {
 			f = true;
 			break;
 		}
@@ -3374,7 +3377,7 @@ int vnum_flag(char *searchname, CharData *ch) {
 					snprintf(buf, kMaxStringLength, "%3d. [%5d] %s : %s,  значение: %d\r\n",
 							 ++found, i->get_vnum(),
 							 i->get_short_description().c_str(),
-							 MUD::Skills(skill_id).GetName(), it->second);
+							 MUD::Skill(skill_id).GetName(), it->second);
 					out += buf;
 				}
 			}
@@ -3552,8 +3555,7 @@ CharData *read_mobile(MobVnum nr, int type) {                // and MobRnum
 		MOB_FLAGS(mob).set(EMobFlag::kNoSummon);
 	}
 
-//Polud - поставим флаг стражнику
-	guardian_type::iterator it = guardian_list.find(GET_MOB_VNUM(mob));
+	auto it = guardian_list.find(GET_MOB_VNUM(mob));
 	if (it != guardian_list.end()) {
 		MOB_FLAGS(mob).set(EMobFlag::kCityGuardian);
 	}
@@ -5100,8 +5102,8 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	while (ch->timed_feat) {
 		ExpireTimedFeat(ch, ch->timed_feat);
 	}
-	for (auto feat = EFeat::kFirst; feat <= EFeat::kLast; ++feat) {
-		ch->UnsetFeat(feat);
+	for (const auto &feat : MUD::Feats()) {
+		ch->UnsetFeat(feat.GetId());
 	}
 
 	if (ch->get_remort() >= 9 && ch->get_remort() % 3 == 0) {
@@ -5115,7 +5117,7 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 			if (IS_MANA_CASTER(ch)) {
 				GET_SPELL_TYPE(ch, spell_id) = ESpellType::kRunes;
-			} else if (MUD::Classes(ch->GetClass()).spells[spell_id].GetCircle() >= 8) {
+			} else if (MUD::Class(ch->GetClass()).spells[spell_id].GetCircle() >= 8) {
 				GET_SPELL_TYPE(ch, spell_id) = ESpellType::kUnknowm;
 				GET_SPELL_MEM(ch, spell_id) = 0;
 			}

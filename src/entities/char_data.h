@@ -368,11 +368,14 @@ class CharData : public ProtectedCharData {
 	void set_skill(short remort);
 	void clear_skills();
 	int GetSkill(const ESkill skill_id) const;
+	int GetSkillWithoutEquip(const ESkill skill_id) const;
 	int get_skills_count() const;
-	int get_equipped_skill(const ESkill skill_id) const;
-	int get_trained_skill(const ESkill skill_id) const;
+	int GetEquippedSkill(const ESkill skill_id) const;
+	int GetMorphSkill(const ESkill skill_id) const;
 	int get_skill_bonus() const;
 	void set_skill_bonus(int);
+	int GetAddSkill(ESkill skill_id) const;
+	void SetAddSkill(ESkill skill_id, int value);
 
 	int get_obj_slot(int slot_num);
 	void add_obj_slot(int slot_num, int count);
@@ -568,7 +571,7 @@ class CharData : public ProtectedCharData {
 	std::string get_morphed_title() const;
 	std::string get_cover_desc();
 	std::string get_morph_desc() const;
-	int get_inborn_skill(const ESkill skill_num);
+	int GetTrainedSkill(const ESkill skill_num) const;
 	void set_morphed_skill(const ESkill skill_num, int percent);
 	bool isAffected(const EAffect flag) const;
 	const IMorph::affects_list_t &GetMorphAffects();
@@ -647,6 +650,7 @@ class CharData : public ProtectedCharData {
 	void cleanup_script();
 
 	bool IsNpc() const { return char_specials.saved.act.get(EMobFlag::kNpc); }
+	bool IsPlayer() const { return !IsNpc(); }
 	bool have_mind() const;
 
  private:
@@ -740,14 +744,11 @@ class CharData : public ProtectedCharData {
 	// для боссов: таймер (в секундах), включающийся по окончанию боя
 	// через который происходит сброс списка атакующих и рефреш моба
 	int restore_timer_;
-	// всякие хитрые бонусы с сетов (здесь, чтобы чармисов не обделить)
-	obj_sets::activ_sum obj_bonus_;
-	// для режимов
-	// количество набранных очков
-	int count_score;
-	// души, онли чернок
-	int souls;
-	int skill_bonus_;
+	obj_sets::activ_sum obj_bonus_;					// всякие хитрые бонусы с сетов (здесь, чтобы чармисов не обделить)
+	int count_score;								// для режимов - количество набранных очков
+	int souls;										// души, онли чернок
+	int skill_bonus_;								// бонус ко всем умениям
+	std::unordered_map<ESkill, int> skills_add_; 	// Бонусы к отдельным умениям
 
  public:
 	bool isInSameRoom(const CharData *ch) const { return (this->in_room == ch->in_room); };
@@ -950,6 +951,8 @@ inline bool IS_FEMALE(const CharData::shared_ptr &ch) { return IS_FEMALE(ch.get(
 bool IS_NOSEXY(const CharData *ch);
 inline bool IS_NOSEXY(const CharData::shared_ptr &ch) { return IS_NOSEXY(ch.get()); }
 bool IS_POLY(const CharData *ch);
+
+int GetRealBaseStat(const CharData *ch, EBaseStat stat_id);
 
 int ClampBaseStat(const CharData *ch, EBaseStat stat_id, int stat_value);
 

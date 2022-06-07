@@ -56,7 +56,6 @@ void show_string(DescriptorData *d, char *input);
 #define PARSE_EDIT        7
 
 extern const char *MENU;
-extern const char *unused_spellname;
 
 // local functions
 void smash_tilde(char *str);
@@ -866,11 +865,11 @@ void do_featset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			<< "Возможные способности:" << std:: endl;
 
 		table_wrapper::Table table;
-		for (auto feat = EFeat::kFirst; feat <= EFeat::kLast; ++feat) {
-			if (feat_info[feat].type == EFeatType::kUnused) {
+		for (const auto &feat : MUD::Feats()) {
+			if (feat.IsInvalid()) {
 				continue;
 			}
-			table << GetFeatName(feat);
+			table << feat.GetName();
 			if (table.cur_col() % 3 == 0) {
 				table << table_wrapper::kEndRow;
 			}
@@ -910,9 +909,13 @@ void do_featset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	strcpy(help, (argument + 1));
 	help[qend - 1] = '\0';
 
-	auto feat_id = FindFeatId(help);
+	auto feat_id =  FixNameAndFindFeatId(help);
 	if (feat_id == EFeat::kUndefined) {
 		SendMsgToChar("Неизвестная способность.\r\n", ch);
+		return;
+	}
+	if (MUD::Feat(feat_id).IsInvalid()) {
+		SendMsgToChar("Отключенное или служебное значение.\r\n", ch);
 		return;
 	}
 
@@ -935,20 +938,19 @@ void do_featset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	sprintf(buf2, "%s changed %s's %s to '%s'.", GET_NAME(ch), GET_NAME(vict),
-			feat_info[feat_id].name, value ? "enabled" : "disabled");
+			MUD::Feat(feat_id).GetCName(), value ? "enabled" : "disabled");
 	mudlog(buf2, BRF, -1, SYSLOG, true);
 	imm_log("%s", buf2);
-	if (feat_id >= EFeat::kFirst && feat_id <= EFeat::kLast) {
-		if (value) {
-			vict->SetFeat(feat_id);
-		} else {
-			vict->UnsetFeat(feat_id);
-		}
+	if (value) {
+		vict->SetFeat(feat_id);
+	} else {
+		vict->UnsetFeat(feat_id);
 	}
+
 	sprintf(buf2, "Вы изменили для %s '%s' на '%s'.\r\n", GET_PAD(vict, 1),
-			feat_info[feat_id].name, value ? "доступно" : "недоступно");
+			MUD::Feat(feat_id).GetCName(), value ? "доступно" : "недоступно");
 	if (!CanGetFeat(vict, feat_id) && value == 1) {
-		SendMsgToChar("Эта способность не доступна данному персонажу и будет удалена при повторном входе в игру.\r\n",
+		SendMsgToChar("Эта способность недоступна персонажу и будет удалена при повторном входе в игру.\r\n",
 					 ch);
 	}
 	SendMsgToChar(buf2, ch);
@@ -972,9 +974,10 @@ void do_skillset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		strcpy(help, "Возможные умения:\r\n");
 
 		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
-			if (spell_info[spell_id].name == unused_spellname)    // This is valid.
+			if (MUD::Spell(spell_id).IsInvalid()) {    // This is valid.
 				continue;
-			sprintf(help + strlen(help), "%30s", spell_info[spell_id].name);
+			}
+			sprintf(help + strlen(help), "%30s", MUD::Spell(spell_id).GetCName());
 			if (qend++ % 4 == 3) {
 				strcat(help, "\r\n");
 				SendMsgToChar(help, ch);
@@ -1041,15 +1044,13 @@ void do_skillset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вы не можете добавить умение для мобов.\r\n", ch);
 		return;
 	}
-	if (value > MUD::Skills(skill_id).cap && spell_id < ESpell::kFirst) {
+	if (value > MUD::Skill(skill_id).cap && spell_id < ESpell::kFirst) {
 		SendMsgToChar("Превышено максимально возможное значение умения.\r\n", ch);
-		value = MUD::Skills(skill_id).cap;
+		value = MUD::Skill(skill_id).cap;
 	}
 
-	// * FindSkillId() guarantees a valid spell_info[] index, or -1, and we
-	// * checked for the -1 above so we are safe here.
 	sprintf(buf2, "%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict),
-			spell_id >= ESpell::kFirst ? spell_info[spell_id].name : MUD::Skills(skill_id).GetName(), value);
+			spell_id >= ESpell::kFirst ? MUD::Spell(spell_id).GetCName() : MUD::Skill(skill_id).GetName(), value);
 	mudlog(buf2, BRF, kLvlImmortal, SYSLOG, true);
 	if (spell_id >= ESpell::kFirst && spell_id <= ESpell::kLast) {
 		if (value == 0 && IS_SET(GET_SPELL_TYPE(vict, spell_id), ESpellType::kTemp)) {
@@ -1068,7 +1069,7 @@ void do_skillset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		vict->set_skill(skill_id, value);
 	}
 	sprintf(buf2, "Вы изменили для %s '%s' на %d.\r\n", GET_PAD(vict, 1),
-			spell_id > ESpell::kUndefined ? spell_info[spell_id].name : MUD::Skills(skill_id).GetName(), value);
+			spell_id > ESpell::kUndefined ? MUD::Spell(spell_id).GetCName() : MUD::Skill(skill_id).GetName(), value);
 	SendMsgToChar(buf2, ch);
 }
 

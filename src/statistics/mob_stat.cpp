@@ -47,7 +47,7 @@ void AddClassExp(ECharClass class_id, int exp) {
 
 std::string PrintClassExpStat(const ECharClass id, unsigned long long top_exp) {
 	std::ostringstream out;
-	out << std::left << std::setw(15) << MUD::Classes(id).GetPluralName() << " " << std::left << KICYN;
+	out << std::left << std::setw(15) << MUD::Class(id).GetPluralName() << " " << std::left << KICYN;
 	const int points_amount{10};
 	int stars{0};
 	if (top_exp > 0) {
@@ -109,7 +109,7 @@ void LogClassesExpStat() {
 	log("Saving class exp stats.");
 	for (const auto & i : (*tmp_array)) {
 		log("class_exp: %13s   %15lld   %3llu%%",
-			MUD::Classes(i.first).GetPluralCName(), i.second, top_exp != 0 ? i.second * 100 / top_exp : 0);
+			MUD::Class(i.first).GetPluralCName(), i.second, top_exp != 0 ? i.second * 100 / top_exp : 0);
 	}
 }
 

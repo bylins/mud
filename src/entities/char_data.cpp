@@ -16,7 +16,7 @@
 #include "backtrace.h"
 #include "structs/global_objects.h"
 #include "liquid.h"
-#include "utils/utils_time.h"
+//#include "utils/utils_time.h"
 #include <boost/format.hpp>
 #include <random>
 
@@ -516,66 +516,83 @@ void CharData::purge() {
 	}
 }
 
-// * Скилл с учетом всех плюсов и минусов от шмоток/яда.
+/*
+ * Умение с учетом всех бонусов и штрафов (экипировка, таланты, яд).
+ */
 int CharData::GetSkill(const ESkill skill_id) const {
-	int skill = get_trained_skill(skill_id) + get_equipped_skill(skill_id);
+	int skill = GetMorphSkill(skill_id) + GetEquippedSkill(skill_id);
+
+	if (skill) {
+		skill += GetAddSkill(skill_id);
+	}
+
 	if (AFF_FLAGGED(this, EAffect::kSkillReduce)) {
 		skill -= skill * GET_POISON(this) / 100;
 	}
+
 	if (ROOM_FLAGGED(this->in_room, ERoomFlag::kDominationArena)) {
 		return std::clamp(skill, 0, CalcSkillRemortCap(this));
+	} else {
+		return skill;
 	}
-	return std::clamp(skill, 0, MUD::Skills(skill_id).cap);
 }
 
-//  Скилл со шмоток.
-// мобам и тем классам, у которых скилл является родным, учитываем скилл с каждой шмотки полностью,
-// всем остальным -- не более 5% с шмотки
-int CharData::get_equipped_skill(const ESkill skill_id) const {
+/*
+ * Умение с учетом талантов, но без экипировки.
+ */
+int CharData::GetSkillWithoutEquip(const ESkill skill_id) const {
+	auto skill = GetTrainedSkill(skill_id);
+	if (skill) {
+		skill += GetAddSkill(skill_id);
+	}
+	return skill;
+}
+
+/*
+ * Бонусы умения от экипировки. Учитываются, только
+ * если у персонажа уже изучено данное умение.
+ */
+int CharData::GetEquippedSkill(const ESkill skill_id) const {
 	int skill = 0;
-	bool is_native = this->IsNpc() || MUD::Classes(chclass_).skills[skill_id].IsAvailable();
-	for (auto i : equipment) {
-		if (i) {
-			if (is_native) {
-				skill += i->get_skill(skill_id);
-			}
-			// На новый год включаем
-			/*else
-			{
-				skill += (std::min(5, equipment[i]->get_skill(skill_num)));
-			}*/
+	bool is_native = this->IsNpc() || MUD::Class(chclass_).skills[skill_id].IsValid();
+	for (const auto item : equipment) {
+		if (item && is_native) {
+				skill += item->get_skill(skill_id);
 		}
 	}
 	if (is_native) {
 		skill += obj_bonus_.get_skill(skill_id);
 	}
-	if(get_trained_skill(skill_id) > 0) {
+	if(GetMorphSkill(skill_id) > 0) {
 		skill += get_skill_bonus();
 	}
 	
 	return skill;
 }
 
-// * Родной тренированный скилл чара.
-int CharData::get_inborn_skill(const ESkill skill_num) {
+/*
+ * Уровень умения без учета каких-либо бонусов.
+ */
+int CharData::GetTrainedSkill(const ESkill skill_num) const {
 	if (privilege::CheckSkills(this)) {
 		auto it = skills.find(skill_num);
 		if (it != skills.end()) {
-			//return normalize_skill(it->second.skillLevel, skill_num);
-			return std::clamp(it->second.skillLevel, 0, MUD::Skills(skill_num).cap);
+			return std::clamp(it->second.skillLevel, 0, MUD::Skill(skill_num).cap);
 		}
 	}
 	return 0;
 }
-
-int CharData::get_trained_skill(const ESkill skill_id) const {
+/*
+ * Умение с учетом формы превращения и т.п.
+ */
+int CharData::GetMorphSkill(const ESkill skill_id) const {
 	if (ROOM_FLAGGED(this->in_room, ERoomFlag::kDominationArena)) {
-		if (MUD::Classes(chclass_).skills[skill_id].IsAvailable()) {
+		if (MUD::Class(chclass_).skills[skill_id].IsAvailable()) {
 			return 100;
 		}
 	}
 	if (privilege::CheckSkills(this)) {
-		return std::clamp(current_morph_->get_trained_skill(skill_id), 0, MUD::Skills(skill_id).cap);
+		return std::clamp(current_morph_->get_trained_skill(skill_id), 0, MUD::Skill(skill_id).cap);
 	}
 	return 0;
 }
@@ -601,9 +618,9 @@ void CharData::set_skill(const ESkill skill_id, int percent) {
 
 void CharData::set_skill(short remort) {
 	int skill;
-	int maxSkillLevel = kSkillCapOnZeroRemort + remort * kSkillCapBonusPerRemort;
+	int maxSkillLevel = kZeroRemortSkillCap + remort * kSkillCapBonusPerRemort;
 	for (auto & it : skills) {
-		skill = get_trained_skill(it.first) + get_equipped_skill(it.first);
+		skill = GetMorphSkill(it.first) + GetEquippedSkill(it.first);
 		if (skill > maxSkillLevel) {
 			it.second.skillLevel = maxSkillLevel;
 		};
@@ -1492,6 +1509,19 @@ void CharData::set_skill_bonus(int param) {
 	skill_bonus_ = param;
 }
 
+int CharData::GetAddSkill(ESkill skill_id) const {
+	auto it = skills_add_.find(skill_id);
+	if (it != skills_add_.end()) {
+		return it->second;
+	}
+	return 0;
+}
+
+void CharData::SetAddSkill(ESkill skill_id, int value) {
+	skills_add_[skill_id] += value;
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void CharData::clear_add_apply_affects() {
@@ -1506,6 +1536,7 @@ void CharData::clear_add_apply_affects() {
 	set_wis_add(0);
 	set_cha_add(0);
 	set_skill_bonus(0);
+	skills_add_.clear();
 }
 ///////////////////////////////////////////////////////////////////////////////
 int CharData::get_zone_group() const {
@@ -1656,11 +1687,11 @@ void CharData::set_morph(MorphPtr morph) {
 };
 
 void CharData::reset_morph() {
-	int value = this->get_trained_skill(ESkill::kMorph);
+	int value = this->GetMorphSkill(ESkill::kMorph);
 	SendMsgToChar(str(boost::format(current_morph_->GetMessageToChar()) % "человеком") + "\r\n", this);
 	act(str(boost::format(current_morph_->GetMessageToRoom()) % "человеком").c_str(), true, this, 0, 0, kToRoom);
 	this->current_morph_ = GetNormalMorphNew(this);
-	this->set_morphed_skill(ESkill::kMorph, (std::min(kSkillCapOnZeroRemort + GET_REAL_REMORT(this) * 5, value)));
+	this->set_morphed_skill(ESkill::kMorph, (std::min(kZeroRemortSkillCap + GET_REAL_REMORT(this) * 5, value)));
 //	REMOVE_BIT(AFF_FLAGS(this, AFF_MORPH), AFF_MORPH);
 };
 
@@ -1924,16 +1955,16 @@ void CharData::restore_npc() {
 	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 		GET_SPELL_MEM(this, spell_id) = GET_SPELL_MEM(proto, spell_id);
 	}
-	// рестор для скилов
+
 	for (const auto &skill : MUD::Skills()) {
 		if (skill.IsValid()) {
 			this->set_skill(skill.GetId(), GET_SKILL(proto, skill.GetId()));
 		}
 	}
-	// рестор для фитов
-	for (auto i = EFeat::kFirst; i <= EFeat::kLast; ++i) {
-		if (!proto->HaveFeat(i)) {
-				this->UnsetFeat(i);
+
+	for (const auto &feat : MUD::Feats()) {
+		if (!proto->HaveFeat(feat.GetId())) {
+				this->UnsetFeat(feat.GetId());
 		}
 	}
 	this->caster_level = proto->caster_level;
@@ -2205,7 +2236,25 @@ player_special_data::shared_ptr player_special_data::s_for_mobiles = std::make_s
 int ClampBaseStat(const CharData *ch, const EBaseStat stat_id, const int stat_value) {
 	return ch->IsNpc()
 		   ? std::clamp(stat_value, kLeastBaseStat, kMobBaseStatCap)
-		   : std::clamp(stat_value, kLeastBaseStat, MUD::Classes(ch->GetClass()).GetBaseStatCap(stat_id));
+		   : std::clamp(stat_value, kLeastBaseStat, MUD::Class(ch->GetClass()).GetBaseStatCap(stat_id));
+}
+
+int GetRealBaseStat(const CharData *ch, EBaseStat stat_id) {
+	static const std::unordered_map<EBaseStat, int (*)(const CharData *ch)> stat_getters =
+		{
+			{EBaseStat::kStr, &GET_REAL_STR},
+			{EBaseStat::kDex, &GET_REAL_DEX},
+			{EBaseStat::kCon, &GET_REAL_CON},
+			{EBaseStat::kInt, &GET_REAL_INT},
+			{EBaseStat::kWis, &GET_REAL_WIS},
+			{EBaseStat::kCha, &GET_REAL_CHA}
+		};
+
+	try {
+		return stat_getters.at(stat_id)(ch);
+	} catch (std::out_of_range &) {
+		return 1;
+	}
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

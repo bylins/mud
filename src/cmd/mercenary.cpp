@@ -27,7 +27,7 @@ void doList(CharData *ch, CharData *boss, bool isFavList) {
 	if (m->empty()) {
 		if (CanUseFeat(ch, EFeat::kEmployer))
 			tell_to_char(boss, ch, "Ступай, поначалу заведи знакомства, потом ко мне приходи.");
-		else if (IS_SPELL_KNOWN(ch, ESpell::kCharm))
+		else if (IS_SPELL_SET(ch, ESpell::kCharm, ESpellType::kKnow))
 			tell_to_char(boss, ch, "Поищи себе марионетку, да потренируйся, а затем ко мне приходи.");
 		else if (IS_IMMORTAL(ch))
 			tell_to_char(boss, ch, "Не гневайся, боже, но не было у тебя последователей еще.");
@@ -39,7 +39,7 @@ void doList(CharData *ch, CharData *boss, bool isFavList) {
 	} else if (CanUseFeat(ch, EFeat::kEmployer)) {
 		sprintf(buf, "%s тех, с кем знакомство ты водишь:",
 				isFavList ? "Краткий список" : "Полный список");
-	} else if (IS_SPELL_KNOWN(ch, ESpell::kCharm)) {
+	} else if (IS_SPELL_SET(ch, ESpell::kCharm, ESpellType::kKnow)) {
 		sprintf(buf, "Вот %s тварей земных, чьим разумом ты владел с помощью чар колдовских:",
 				isFavList ? "краткий список" : "полный список");
 	}
@@ -71,7 +71,6 @@ void doList(CharData *ch, CharData *boss, bool isFavList) {
 
 void doStat(CharData *ch) {
 	if (!ch) return;
-	return;
 };
 
 void doBring(CharData *ch, CharData *boss, unsigned int pos, char *bank) {
@@ -107,7 +106,7 @@ void doBring(CharData *ch, CharData *boss, unsigned int pos, char *bank) {
 		}
 		mob = read_mobile(rnum, REAL);
 		PlaceCharToRoom(mob, ch->in_room);
-		if (IS_SPELL_KNOWN(ch, ESpell::kCharm)) {
+		if (IS_SPELL_SET(ch, ESpell::kCharm, ESpellType::kKnow)) {
 			act("$n окрикнул$g своих парней и скрыл$u из виду.",
 				true, boss, nullptr, nullptr, kToRoom);
 			act("Спустя некоторое время, взмыленная ватага вернулась, волоча на аркане $n3.",
@@ -193,20 +192,20 @@ int mercenary(CharData *ch, void * /*me*/, int cmd, char *argument) {
 	unsigned int pos;
 
 	three_arguments(argument, subCmd, cmdParam, bank);
-	if (utils::IsAbbrev(subCmd, "стат") || utils::IsAbbrev(subCmd, "stat")) {
+	if (utils::IsAbbr(subCmd, "стат") || utils::IsAbbr(subCmd, "stat")) {
 		return (1);
-	} else if (utils::IsAbbrev(subCmd, "список") || utils::IsAbbrev(subCmd, "list")) {
-		if (utils::IsAbbrev(cmdParam, "полный") || utils::IsAbbrev(cmdParam, "full"))
+	} else if (utils::IsAbbr(subCmd, "список") || utils::IsAbbr(subCmd, "list")) {
+		if (utils::IsAbbr(cmdParam, "полный") || utils::IsAbbr(cmdParam, "full"))
 			MERC::doList(ch, boss, false);
 		else
 			MERC::doList(ch, boss, true);
 		return (1);
-	} else if (utils::IsAbbrev(subCmd, "привести") || utils::IsAbbrev(subCmd, "bring")) {
+	} else if (utils::IsAbbr(subCmd, "привести") || utils::IsAbbr(subCmd, "bring")) {
 		pos = MERC::getPos(cmdParam, ch, boss);
 		if (pos == 0) return (1);
 		MERC::doBring(ch, boss, pos, bank);
 		return (1);
-	} else if (utils::IsAbbrev(subCmd, "фаворит") || utils::IsAbbrev(subCmd, "favorite")) {
+	} else if (utils::IsAbbr(subCmd, "фаворит") || utils::IsAbbr(subCmd, "favorite")) {
 		pos = MERC::getPos(cmdParam, ch, boss);
 		if (pos == 0) return (1);
 		MERC::doForget(ch, boss, pos);

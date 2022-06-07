@@ -238,7 +238,7 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	percent = number(1, MUD::Skills(ESkill::kDigging).difficulty);
+	percent = number(1, MUD::Skill(ESkill::kDigging).difficulty);
 	prob = ch->GetSkill(ESkill::kDigging);
 	old_int = ch->get_int();
 	old_wis = ch->get_wis();

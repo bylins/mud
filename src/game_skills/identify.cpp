@@ -1,8 +1,8 @@
 #include "identify.h"
 
 #include "entities/char_data.h"
-
 #include "handler.h"
+#include "structs/global_objects.h"
 
 void do_identify(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *cvict = nullptr, *caster = ch;
@@ -29,8 +29,9 @@ void do_identify(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	if (!IS_IMMORTAL(ch)) {
 		timed.skill = ESkill::kIdentify;
-		timed.time = MAX((CanUseFeat(ch, EFeat::kConnoiseur) ? GetModifier(EFeat::kConnoiseur, kFeatTimer) : 12)
-							 - ((GET_SKILL(ch, ESkill::kIdentify) - 25) / 25), 1); //12..5 or 8..1
+		auto time = 12;
+		time = std::max(1, time);
+		timed.time = std::max(time - ((GET_SKILL(ch, ESkill::kIdentify) - 25) / 25), 1); //12..5 or 8..1
 		ImposeTimedSkill(ch, &timed);
 	}
 	MANUAL_SPELL(SkillIdentify)

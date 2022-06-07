@@ -344,7 +344,7 @@ void do_sneak(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 	SendMsgToChar("Хорошо, вы попытаетесь двигаться бесшумно.\r\n", ch);
 	EXTRA_FLAGS(ch).unset(EXTRA_FAILSNEAK);
-	percent = number(1, MUD::Skills(ESkill::kSneak).difficulty);
+	percent = number(1, MUD::Skill(ESkill::kSneak).difficulty);
 	prob = CalcCurrentSkill(ch, ESkill::kSneak, nullptr);
 
 	Affect<EApply> af;
@@ -397,7 +397,7 @@ void do_camouflage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 
 	SendMsgToChar("Вы начали усиленно маскироваться.\r\n", ch);
 	EXTRA_FLAGS(ch).unset(EXTRA_FAILCAMOUFLAGE);
-	percent = number(1, MUD::Skills(ESkill::kDisguise).difficulty);
+	percent = number(1, MUD::Skill(ESkill::kDisguise).difficulty);
 	prob = CalcCurrentSkill(ch, ESkill::kDisguise, nullptr);
 
 	Affect<EApply> af;
@@ -453,7 +453,7 @@ void do_hide(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 	SendMsgToChar("Хорошо, вы попытаетесь спрятаться.\r\n", ch);
 	EXTRA_FLAGS(ch).unset(EXTRA_FAILHIDE);
-	percent = number(1, MUD::Skills(ESkill::kHide).difficulty);
+	percent = number(1, MUD::Skill(ESkill::kHide).difficulty);
 	prob = CalcCurrentSkill(ch, ESkill::kHide, nullptr);
 
 	Affect<EApply> af;
@@ -491,7 +491,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 	}
 
 	// 101% is a complete failure
-	percent = number(1, MUD::Skills(ESkill::kSteal).difficulty);
+	percent = number(1, MUD::Skill(ESkill::kSteal).difficulty);
 
 	if (IS_IMMORTAL(ch) || (GET_POS(vict) <= EPosition::kSleep && !AFF_FLAGGED(vict, EAffect::kSleep)))
 		success = 1;    // ALWAYS SUCCESS, unless heavy object.
@@ -1829,15 +1829,15 @@ void set_autoloot_mode(CharData *ch, char *argument) {
 		} else {
 			SendMsgToChar(message_off, ch);
 		}
-	} else if (utils::IsAbbrev(argument, "все")) {
+	} else if (utils::IsAbbr(argument, "все")) {
 		PRF_FLAGS(ch).set(EPrf::kAutoloot);
 		PRF_FLAGS(ch).unset(EPrf::kNoIngrLoot);
 		SendMsgToChar(message_on, ch);
-	} else if (utils::IsAbbrev(argument, "ингредиенты")) {
+	} else if (utils::IsAbbr(argument, "ингредиенты")) {
 		PRF_FLAGS(ch).set(EPrf::kAutoloot);
 		PRF_FLAGS(ch).set(EPrf::kNoIngrLoot);
 		SendMsgToChar(message_no_ingr, ch);
-	} else if (utils::IsAbbrev(argument, "нет")) {
+	} else if (utils::IsAbbr(argument, "нет")) {
 		PRF_FLAGS(ch).unset(EPrf::kAutoloot);
 		PRF_FLAGS(ch).unset(EPrf::kNoIngrLoot);
 		SendMsgToChar(message_off, ch);

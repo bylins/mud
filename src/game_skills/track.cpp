@@ -52,7 +52,7 @@ int go_track(CharData *ch, CharData *victim, const ESkill skill_no) {
 	//Временная затычка. Перевести на резисты
 	//Изменил макс скилл со 100 до 200, чтобы не ломать алгоритм, в данном значении вернем старое значение.
 	if_sense = (skill_no == ESkill::kSense) ? 100 : 0;
-	percent = number(0, MUD::Skills(skill_no).difficulty - if_sense);
+	percent = number(0, MUD::Skill(skill_no).difficulty - if_sense);
 	//current_skillpercent = GET_SKILL(ch, ESkill::kSense);
 	if ((!victim->IsNpc()) && (!IS_GOD(ch)) && (!ch->IsNpc())) //Если цель чар и ищет не бог
 	{
@@ -163,8 +163,8 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	for (int c = 0; c < EDirection::kMaxDirNum; c++) {
 		if ((track && track->time_income[c]
-			&& calc_track >= number(0, MUD::Skills(ESkill::kTrack).difficulty))
-			|| (!track && calc_track < number(0, MUD::Skills(ESkill::kTrack).difficulty))) {
+			&& calc_track >= number(0, MUD::Skill(ESkill::kTrack).difficulty))
+			|| (!track && calc_track < number(0, MUD::Skill(ESkill::kTrack).difficulty))) {
 			found = true;
 			sprintf(buf + strlen(buf), "- %s следы ведут %s\r\n",
 					track_when[age_track
@@ -173,8 +173,8 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 							 time_income[c] : (1 << number(0, 25)), calc_track)], DirsFrom[Reverse[c]]);
 		}
 		if ((track && track->time_outgone[c]
-			&& calc_track >= number(0, MUD::Skills(ESkill::kTrack).difficulty))
-			|| (!track && calc_track < number(0, MUD::Skills(ESkill::kTrack).difficulty))) {
+			&& calc_track >= number(0, MUD::Skill(ESkill::kTrack).difficulty))
+			|| (!track && calc_track < number(0, MUD::Skill(ESkill::kTrack).difficulty))) {
 			found = true;
 			SET_BIT(ch->track_dirs, 1 << c);
 			sprintf(buf + strlen(buf), "- %s следы ведут %s\r\n",
@@ -234,7 +234,7 @@ void do_hidetrack(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 	}
 	if (!check_moves(ch, CanUseFeat(ch, EFeat::kStealthy) ? kHidetrackMoves / 2 : kHidetrackMoves))
 		return;
-	percent = number(1, MUD::Skills(ESkill::kHideTrack).difficulty);
+	percent = number(1, MUD::Skill(ESkill::kHideTrack).difficulty);
 	prob = CalcCurrentSkill(ch, ESkill::kHideTrack, nullptr);
 	if (percent > prob) {
 		SendMsgToChar("Вы безуспешно попытались замести свои следы.\r\n", ch);

@@ -19,6 +19,7 @@
 #include "color.h"
 #include "utils/random.h"
 #include "game_mechanics/celebrates.h"
+#include "structs/global_objects.h"
 
 Weather weather_info;
 extern void script_timechange_trigger_check(const int time);//Эксопрт тригеров смены времени
@@ -30,6 +31,24 @@ void calc_easter();
 
 int EasterMonth = 0;
 int EasterDay = 0;
+
+int get_moon(int sky) {
+	if (weather_info.sunlight == kSunRise || weather_info.sunlight == kSunLight || sky == kSkyRaining)
+		return 0;
+	else if (weather_info.moon_day <= kNewMoonStop || weather_info.moon_day >= kNewMoonStart)
+		return 1;
+	else if (weather_info.moon_day < kHalfMoonStart)
+		return 2;
+	else if (weather_info.moon_day < kFullMoonStart)
+		return 3;
+	else if (weather_info.moon_day <= kFullMoonStop)
+		return 4;
+	else if (weather_info.moon_day < kLastHalfMoonStart)
+		return 5;
+	else
+		return 6;
+	return 0;
+}
 
 void gods_day_now(CharData *ch) {
 	char mono[kMaxInputLength], poly[kMaxInputLength], real[kMaxInputLength];
@@ -848,46 +867,38 @@ int CalcWeatherSpellMod(CharData *ch, ESpell spell_id, int type, int value) {
 		SECT(ch->in_room) == ESector::kInside ||
 		SECT(ch->in_room) == ESector::kCity ||
 		ROOM_FLAGGED(ch->in_room, ERoomFlag::kIndoors) ||
-		ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoWeather) || ch->IsNpc()) {
+		ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoWeather)) {
 		return (modi);
 		}
 
 	sky = GET_ROOM_SKY(ch->in_room);
-
+	auto element = MUD::Spell(spell_id).GetElement();
 	switch (type) {
 		case GAPPLY_SPELL_SUCCESS:
 		case GAPPLY_SPELL_EFFECT:
-			switch (spell_id)    // Огненные спеллы - лето, день, безоблачно
-			{
-				case ESpell::kBurningHands:
-				case ESpell::kShockingGasp:
-				case ESpell::kShineFlash:
-				case ESpell::kIceBolts:
-				case ESpell::kFireball:
-				case ESpell::kFireBlast:
-					if (season == ESeason::kSummer &&
-						(weather_info.sunlight == kSunRise || weather_info.sunlight == kSunLight)) {
+			switch (element) {
+				case EElement::kFire: {
+					// Огненные спеллы - лето
+					if (season == ESeason::kSummer) {
 						if (sky == kSkyLightning)
 							modi += (modi * number(20, 50) / 100);
 						else if (sky == kSkyCloudless)
 							modi += (modi * number(10, 25) / 100);
 					}
 					break;
-					// Молнийные спеллы - облачно или дождливо
-				case ESpell::kCallLighting:
-				case ESpell::kLightingBolt:
-				case ESpell::kChainLighting:
-				case ESpell::kArmageddon:
-					if (sky == kSkyRaining)
-						modi += (modi * number(20, 50) / 100);
-					else if (sky == kSkyCloudy)
-						modi += (modi * number(10, 25) / 100);
+				}
+				case EElement::kAir: {
+					// Воздушные спеллы - осень
+					if (season == ESeason::kAutumn) {
+						if (sky == kSkyRaining)
+							modi += (modi * number(20, 50) / 100);
+						else if (sky == kSkyCloudy)
+							modi += (modi * number(10, 25) / 100);
+					}
 					break;
+				}
+				case EElement::kWater: {
 					// Водно-ледяные спеллы - зима
-				case ESpell::kChillTouch:
-				case ESpell::kIceStorm:
-				case ESpell::kColdWind:
-				case ESpell::kGodsWrath:
 					if (season == ESeason::kWinter) {
 						if (sky == kSkyRaining || sky == kSkyCloudy)
 							modi += (modi * number(20, 50) / 100);
@@ -895,12 +906,81 @@ int CalcWeatherSpellMod(CharData *ch, ESpell spell_id, int type, int value) {
 							modi += (modi * number(10, 25) / 100);
 					}
 					break;
+				}
+				case EElement::kEarth: {
+					// Земляные спеллы - осень
+					if (season == ESeason::kSpring) {
+						if (sky == kSkyRaining || sky == kSkyCloudy)
+							modi += (modi * number(20, 50) / 100);
+						else if (sky == kSkyCloudless || sky == kSkyLightning)
+							modi += (modi * number(10, 25) / 100);
+					}
+					break;
+				}
+				case EElement::kLight: {
+					switch (weather_info.sunlight) {
+						case kSunDark:
+							modi -= (modi * number(20, 50) / 100);
+							break;
+						case kSunSet:
+							modi -= (modi * number(10, 25) / 100);
+							break;
+						case kSunLight:
+							modi += (modi * number(20, 50) / 100);
+							break;
+						case kSunRise:
+							modi += (modi * number(10, 25) / 100);
+							break;
+					}
+					break;
+				}
+				case EElement::kDark: {
+					switch (weather_info.sunlight) {
+						case kSunDark:
+							modi += (modi * number(20, 50) / 100);
+							break;
+						case kSunSet:
+							modi += (modi * number(10, 25) / 100);
+							break;
+						case kSunLight:
+							modi -= (modi * number(20, 50) / 100);
+							break;
+						case kSunRise:
+							modi -= (modi * number(10, 25) / 100);
+							break;
+					}
+					break;
+				}
+				case EElement::kLife: {
+					auto moon = get_moon(world[ch->in_room]->weather.sky);
+					if (moon == 0) { // новолуние
+						modi -= (modi * number(20, 50) / 100);
+					} else if (moon < 3) { // 1-2 молодая луна
+						modi += (modi * number(10, 25) / 100);
+					} else if (moon == 4) { // полнолуние
+						modi += (modi * number(20, 50) / 100);
+					}  else if (moon > 4) { // убывающая луна
+						modi -= (modi * number(10, 25) / 100);
+					}
+					break;
+				}
+				case EElement::kMind: {
+					auto moon = get_moon(world[ch->in_room]->weather.sky);
+					if (moon == 0) { // новолуние
+						modi += (modi * number(20, 50) / 100);
+					} else if (moon < 3) { // 1-2 молодая луна
+						modi -= (modi * number(10, 25) / 100);
+					} else if (moon == 4) { // полнолуние
+						modi -= (modi * number(20, 50) / 100);
+					}  else if (moon > 4) { // убывающая луна
+						modi += (modi * number(10, 25) / 100);
+					}
+					break;
+				}
 				default: break;
 			}
 			break;
 	}
-	if (IS_IMMORTAL(ch))
-		modi = MAX(modi, value);
 	return (modi);
 }
 

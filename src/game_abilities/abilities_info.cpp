@@ -2,360 +2,266 @@
 // Created by Sventovit on 21.01.2022.
 //
 
-/*
- *  Todo:
- *  1. Добавить поддержку нескольких сообщений одного типа.
- *  2. Подумать и, вероятно, удалить контейнеры гетеров/сетеров. Этот класс не должен знать архитектуру обработчиков.
- */
-
-#include "game_abilities/abilities_info.h"
+#include "abilities_info.h"
 
 #include "entities/char_data.h"
+#include "action_targeting.h"
 #include "color.h"
-#include "utils/pugixml/pugixml.h"
-#include "game_mechanics/weather.h"
+//#include "utils/parser_wrapper.h"
+#include "structs/global_objects.h"
+//#include "game_mechanics/weather.h"
 
-#include <functional>
-#include <sstream>
-#include <iostream>
-
-using pugi::xml_node;
-
-extern xml_node XMLLoad(const char *PathToFile, const char *MainTag, const char *ErrorStr, pugi::xml_document &Doc);
 
 namespace abilities {
 
-const char *kAbilityCfgFile = LIB_CFG "abilities.xml";
-const char *kAbilityMainTag = "abilities";
-const char *kAbilityLoadFailMsg = "Abilities loading failed.";
+using ItemPtr = AbilityInfoBuilder::ItemPtr;
+
+int CalcRollBonusOfGroupFormation(CharData *ch, CharData * /* enemy */);
+
+void AbilitiesLoader::Load(DataNode data) {
+	MUD::Abilities().Init(data.Children());
+}
+
+void AbilitiesLoader::Reload(DataNode data) {
+	MUD::Abilities().Reload(data.Children());
+}
+
+ItemPtr AbilityInfoBuilder::Build(DataNode &node) {
+	try {
+		return ParseAbility(node);
+	} catch (std::exception &e) {
+		err_log("Ability parsing error (incorrect value '%s')", e.what());
+		return nullptr;
+	}
+}
+
+ItemPtr AbilityInfoBuilder::ParseAbility(DataNode &node) {
+	auto info = ParseHeader(node);
+
+	ParseBaseVals(info, node);
+	ParseThresholds(info, node);
+	ParsePenalties(info, node);
+	TemporarySetStat(info);
+	return info;
+}
+
+ItemPtr AbilityInfoBuilder::ParseHeader(DataNode &node) {
+	auto id{EAbility::kUndefined};
+	try {
+		id = parse::ReadAsConstant<EAbility>(node.GetValue("id"));
+	} catch (std::exception &e) {
+		err_log("Incorrect ability id (%s).", e.what());
+		throw;
+	}
+	auto mode = AbilityInfoBuilder::ParseItemMode(node, EItemMode::kEnabled);
+
+	auto info = std::make_shared<AbilityInfo>(id, mode);
+	try {
+		info->name_ = parse::ReadAsStr(node.GetValue("name"));
+		info->abbr_ = parse::ReadAsStr(node.GetValue("abbr"));
+	} catch (std::exception &) {
+	}
+
+	return info;
+}
+
+void AbilityInfoBuilder::ParseBaseVals(ItemPtr &info, DataNode &node) {
+	if (node.GoToChild("base")) {
+		info->base_skill_ = parse::ReadAsConstant<ESkill>(node.GetValue("skill"));
+		info->base_stat_ = parse::ReadAsConstant<EBaseStat>(node.GetValue("stat"));
+		info->saving_ = parse::ReadAsConstant<ESaving>(node.GetValue("saving"));
+		info->roll_bonus_ = parse::ReadAsInt(node.GetValue("roll_bonus"));
+		node.GoToParent();
+	}
+}
+
+void AbilityInfoBuilder::ParseThresholds(ItemPtr &info, DataNode &node) {
+	if (node.GoToChild("thresholds")) {
+		info->critsuccess_threshold_ = parse::ReadAsInt(node.GetValue("critsuccess"));
+		info->critfail_threshold_ = parse::ReadAsInt(node.GetValue("critfail"));
+		node.GoToParent();
+	}
+}
+
+void AbilityInfoBuilder::ParsePenalties(ItemPtr &info, DataNode &node) {
+	if (node.GoToChild("penalties")) {
+		info->pvp_penalty = parse::ReadAsInt(node.GetValue("pvp"));
+		info->pve_penalty = parse::ReadAsInt(node.GetValue("pve"));
+		info->evp_penalty = parse::ReadAsInt(node.GetValue("evp"));
+		node.GoToParent();
+	}
+}
+
+void AbilityInfoBuilder::TemporarySetStat(ItemPtr &info) {
+	switch (info->GetId()) {
+		case EAbility::kScirmisher: [[fallthrough]];
+		case EAbility::kTactician: {
+			info->CalcSituationalRollBonus = &CalcRollBonusOfGroupFormation;
+			break;
+		}
+		case EAbility::kCutting: {
+			info->GetEffectParameter = &GET_REAL_STR;
+			info->uses_weapon_skill_ = true;
+			info->damage_bonus_ = 15;
+			info->success_degree_damage_bonus_ = 5;
+			info->CalcSituationalRollBonus =
+				([](CharData */*ch*/, CharData *enemy) -> int {
+					int bonus{0};
+					if (AFF_FLAGGED(enemy, EAffect::kBlind)) {
+						bonus += 40;
+					}
+					if (GET_POS(enemy) < EPosition::kFight) {
+						bonus += 40;
+					}
+					return bonus;
+				});
+
+			info->item_kits_.reserve(4);
+
+			auto item_kit = std::make_unique<TechniqueItemKit>();
+			item_kit->reserve(2);
+			item_kit->push_back(TechniqueItem(EEquipPos::kWield, EObjType::kWeapon, ESkill::kShortBlades));
+			item_kit->push_back(TechniqueItem(EEquipPos::kHold, EObjType::kWeapon, ESkill::kShortBlades));
+			info->item_kits_.push_back(std::move(item_kit));
+
+			item_kit = std::make_unique<TechniqueItemKit>();
+			item_kit->reserve(2);
+			item_kit->push_back(TechniqueItem(EEquipPos::kWield, EObjType::kWeapon, ESkill::kLongBlades));
+			item_kit->push_back(TechniqueItem(EEquipPos::kHold, EObjType::kWeapon, ESkill::kLongBlades));
+			info->item_kits_.push_back(std::move(item_kit));
+
+			item_kit = std::make_unique<TechniqueItemKit>();
+			item_kit->reserve(2);
+			item_kit->push_back(TechniqueItem(EEquipPos::kWield, EObjType::kWeapon, ESkill::kSpades));
+			item_kit->push_back(TechniqueItem(EEquipPos::kHold, EObjType::kWeapon, ESkill::kSpades));
+			info->item_kits_.push_back(std::move(item_kit));
+
+			item_kit = std::make_unique<TechniqueItemKit>();
+			item_kit->reserve(2);
+			item_kit->push_back(TechniqueItem(EEquipPos::kWield, EObjType::kWeapon, ESkill::kPicks));
+			item_kit->push_back(TechniqueItem(EEquipPos::kHold, EObjType::kWeapon, ESkill::kPicks));
+			info->item_kits_.push_back(std::move(item_kit));
+			break;
+		}
+		case EAbility::kThrowWeapon: {
+			info->GetEffectParameter = &GET_REAL_STR;
+			info->uses_weapon_skill_ = false;
+			info->damage_bonus_ = 20;
+			info->success_degree_damage_bonus_ = 5;
+			info->CalcSituationalDamageFactor =
+				([](CharData *ch) -> int {
+					return (CanUseFeat(ch, EFeat::kPowerThrow) + CanUseFeat(ch, EFeat::kDeadlyThrow));
+				});
+			info->CalcSituationalRollBonus =
+				([](CharData *ch, CharData * /* enemy */) -> int {
+					if (AFF_FLAGGED(ch, EAffect::kBlind)) {
+						return -60;
+					}
+					return 0;
+				});
+
+			info->item_kits_.reserve(2);
+
+			auto item_kit = std::make_unique<TechniqueItemKit>();
+			item_kit->reserve(1);
+			item_kit->push_back(TechniqueItem(EEquipPos::kWield, EObjType::kWeapon,
+											  ESkill::kAny, EObjFlag::kThrowing));
+			info->item_kits_.push_back(std::move(item_kit));
+
+			item_kit = std::make_unique<TechniqueItemKit>();
+			item_kit->reserve(1);
+			item_kit->push_back(TechniqueItem(EEquipPos::kHold, EObjType::kWeapon,
+											  ESkill::kAny, EObjFlag::kThrowing));
+			info->item_kits_.push_back(std::move(item_kit));
+			break;
+		}
+		case EAbility::kShadowThrower: {
+			info->GetEffectParameter = &GET_REAL_INT;
+			info->damage_bonus_ = -30;
+			info->success_degree_damage_bonus_ = 1;
+			info->uses_weapon_skill_ = false;
+			info->CalcSituationalRollBonus =
+				([](CharData *ch, CharData * /* enemy */) -> int {
+					if (AFF_FLAGGED(ch, EAffect::kBlind)) {
+						return -60;
+					}
+					return 0;
+				});
+
+			info->item_kits_.reserve(2);
+			auto item_kit = std::make_unique<TechniqueItemKit>();
+			item_kit->reserve(1);
+			item_kit->push_back(TechniqueItem(EEquipPos::kWield, EObjType::kWeapon,
+											  ESkill::kAny, EObjFlag::kThrowing));
+			info->item_kits_.push_back(std::move(item_kit));
+			item_kit = std::make_unique<TechniqueItemKit>();
+			item_kit->reserve(1);
+			item_kit->push_back(TechniqueItem(EEquipPos::kHold, EObjType::kWeapon,
+											  ESkill::kAny, EObjFlag::kThrowing));
+			info->item_kits_.push_back(std::move(item_kit));
+			break;
+		}
+		case EAbility::kShadowDagger:
+		case EAbility::kShadowSpear: [[fallthrough]];
+		case EAbility::kShadowClub: {
+			info->uses_weapon_skill_ = false;
+			break;
+		}
+		case EAbility::kTurnUndead: {
+			info->GetEffectParameter = &GET_REAL_WIS;
+			info->uses_weapon_skill_ = false;
+			info->damage_bonus_ = -30;
+			info->success_degree_damage_bonus_ = 2;
+			break;
+		}
+		default: break;
+	}
+}
 
 /*
- * Имена сущностей и атрибутов файла настроек, чтобы не искать их по всему коду при желании переименовать.
- */
-const char *kValAttr = "val";
-const char *kIdAttr = "id";
-const char *kAbilityEntity = "ability";
-const char *kNameEntity = "name";
-const char *kIdEntity = "id";
-const char *kBaseSkillEntity = "base_skill";
-const char *kBaseStatEntity = "base_stat";
-const char *kSavingEntity = "saving";
-const char *kAbbreviationEntity = "abbreviation";
-const char *kDifficultyEntity = "difficulty";
-const char *kCritfailEntity = "critfail_threshold";
-const char *kCritsuccessEntity = "critsuccess_threshold";
-const char *kMvPPenaltyEntity = "mob_vs_pc_penalty";
-const char *kPvPPenaltyEntity = "pc_vs_pc_penalty";
-const char *kMessagesEntity = "messages";
-const char *kMsgEntity = "msg_set";
-const char *kCircimstancesEntity = "circumstances";
-const char *kCircimstanceEntity = "circumstance";
-const char *kInvertedAttr = "inverted";
-
-const std::string AbilityInfo::kMessageNotFound = "Если вы это прочитали - у кодера какие-то проблемы.";
-AbilityInfo::MsgRegister AbilityInfo::default_messages_;
-
-bool AbilitiesInfo::AbilitiesInfoBuilder::strict_parsing_ = false;
-AbilitiesInfo::AbilitiesInfoBuilder::BaseStatGettersRegister AbilitiesInfo::AbilitiesInfoBuilder::characteristic_getters_register_;
-AbilitiesInfo::AbilitiesInfoBuilder::SavingGettersRegister AbilitiesInfo::AbilitiesInfoBuilder::saving_getters_register_;
-AbilitiesInfo::AbilitiesInfoBuilder::CircumstanceHandlersRegister AbilitiesInfo::AbilitiesInfoBuilder::circumstance_handlers_register_;
-
-template<typename T>
-T FindConstantByName(const char *attribute_name, const xml_node &node) {
-	auto constants_name = node.attribute(attribute_name).value();
-	try {
-		return ITEM_BY_NAME<T>(constants_name);
-	} catch (const std::out_of_range &) {
-		throw std::runtime_error(constants_name);
-	}
-}
-
-void AbilitiesInfo::Init() {
-	AbilitiesInfoBuilder builder; // Для инициализации static полей.
-	abilities_ = std::move(AbilitiesInfoBuilder::Build(false).value());
+* Ситуативный бонус броска для "tactician feat" и "skirmisher feat":
+* Каждый персонаж в строю прикрывает двух, третий дает штраф.
+* Избыток "строевиков" повышает шанс на удачное срабатывание.
+* Svent TODO: Придумать более универсальный механизм бонусов/штрафов в зависимости от данных абилки
+*/
+int CalcRollBonusOfGroupFormation(CharData *ch, CharData * /* enemy */) {
+	ActionTargeting::FriendsRosterType roster{ch};
+	int skirmishers = roster.count([](CharData *ch) { return PRF_FLAGGED(ch, EPrf::kSkirmisher); });
+	int uncoveredSquadMembers = roster.amount() - skirmishers;
+	if (AFF_FLAGGED(ch, EAffect::kBlind)) {
+		return (skirmishers * 2 - uncoveredSquadMembers) * abilities::kCircumstanceFactor - 40;
+	};
+	return (skirmishers * 2 - uncoveredSquadMembers) * abilities::kCircumstanceFactor;
 };
 
-void AbilitiesInfo::Reload() {
-	auto new_abilities = AbilitiesInfoBuilder::Build(true);
-	if (new_abilities) {
-		abilities_ = std::move(new_abilities.value());
-	} else {
-		err_log("Abilities reloading was canceled: file damaged.");
-	}
-}
+void AbilityInfo::Print(CharData * /*ch*/, std::ostringstream &buffer) const {
+	buffer << "Print ability:" << std::endl
+		   << " Id: " << KGRN << NAME_BY_ITEM<EAbility>(GetId()) << KNRM << std::endl
+		   << " Name: " << KGRN << GetName() << KNRM << std::endl
+		   << " Abbr: " << KGRN << GetAbbr() << KNRM << std::endl
+		   << " Base skill: " << KGRN << NAME_BY_ITEM<ESkill>(base_skill_) << KNRM << std::endl
+		   << " Base stat: " << KGRN << NAME_BY_ITEM<EBaseStat>(base_stat_) << KNRM << std::endl
+		   << " Saving: " << KGRN << NAME_BY_ITEM<ESaving>(saving_) << KNRM << std::endl
+		   << " Roll bonus: " << KGRN << roll_bonus_ << KNRM << std::endl
+		   << " Penalties [PvP/PvE/EvP]: "
+		   << KGRN << pvp_penalty << "/" << pve_penalty << "/" << evp_penalty << KNRM << std::endl
+		   << " Critical thresholds [success/fail]: "
+		   << KGRN << "critsuccess - " << critsuccess_threshold_ << "/" << critfail_threshold_ << KNRM << std::endl;
 
-AbilitiesOptional AbilitiesInfo::AbilitiesInfoBuilder::Build(bool strict_parsing) {
-	strict_parsing_ = strict_parsing;
-	auto abilities = std::make_optional(std::make_unique<AbilitiesRegister>());
-	pugi::xml_document doc;
-	xml_node node = XMLLoad(kAbilityCfgFile, kAbilityMainTag, kAbilityLoadFailMsg, doc);
-	try {
-		Parse(abilities, node);
-	} catch (std::exception &) {
-		return std::nullopt;
-	}
-	AddDefaultValues(abilities.value());
-	AppointHandlers(abilities.value());
-
-	strict_parsing_ = false;
-	return abilities;
-}
-
-void AbilitiesInfo::AbilitiesInfoBuilder::Parse(AbilitiesOptional &abilities, xml_node &node) {
-	for (xml_node cur_node = node.child(kAbilityEntity); cur_node; cur_node = cur_node.next_sibling(kAbilityEntity)) {
-		auto ability = std::make_optional(std::make_unique<AbilityInfo>());
-		BuildAbilityInfo(ability, cur_node);
-		if (ability) {
-			EmplaceAbility(abilities.value(), ability.value());
-		} else if (strict_parsing_) {
-			throw std::exception();
-		}
-	}
-}
-
-void AbilitiesInfo::AbilitiesInfoBuilder::BuildAbilityInfo(AbilityOptional &ability, const xml_node &node) {
-	try {
-		ParseAbilityData(ability.value(), node);
-	} catch (std::exception const &e) {
-		ProcessLoadErrors(ability.value(), e);
-		ability = std::nullopt;
-	}
-}
-
-void AbilitiesInfo::AbilitiesInfoBuilder::ParseAbilityData(AbilityPtr &ability, const pugi::xml_node &node) {
-	ParseBaseValues(ability, node);
-	ParseCircumstances(ability, node);
-	ParseMessages(ability, node);
-}
-void AbilitiesInfo::AbilitiesInfoBuilder::ParseBaseValues(AbilityPtr &ability, const xml_node &node) {
-	ability->id_ = FindConstantByName<EAbility>(kValAttr, node.child(kIdEntity));
-	ability->name_ = node.child(kNameEntity).attribute(kValAttr).value();
-	ability->base_skill_id_ = FindConstantByName<ESkill>(kValAttr, node.child(kBaseSkillEntity));
-	ability->base_stat_id_ = FindConstantByName<EBaseStat>(kValAttr, node.child(kBaseStatEntity));
-	ability->saving_id_ = FindConstantByName<ESaving>(kValAttr, node.child(kSavingEntity));
-	ability->abbreviation_ = node.child(kAbbreviationEntity).attribute(kValAttr).value();
-	ability->difficulty_ = node.child(kDifficultyEntity).attribute(kValAttr).as_int();
-	ability->critfail_threshold_ = node.child(kCritfailEntity).attribute(kValAttr).as_int();
-	ability->critsuccess_threshold_ = node.child(kCritsuccessEntity).attribute(kValAttr).as_int();
-	ability->mob_vs_pc_penalty_ = node.child(kMvPPenaltyEntity).attribute(kValAttr).as_int();
-	ability->pc_vs_pc_penalty_ = node.child(kPvPPenaltyEntity).attribute(kValAttr).as_int();
-}
-
-void AbilitiesInfo::AbilitiesInfoBuilder::ParseCircumstances(AbilityPtr &ability, const xml_node &node) {
-	xml_node cur_node = node.child(kCircimstancesEntity).child(kCircimstanceEntity);
-	for (; cur_node; cur_node = cur_node.next_sibling(kCircimstanceEntity)) {
-		EmplaceCircumstanceInfo(ability, cur_node);
-	}
-}
-void AbilitiesInfo::AbilitiesInfoBuilder::EmplaceCircumstanceInfo(AbilityPtr &ability, const xml_node &node) {
-/*	auto mod = node.attribute(kValAttr).as_int();
-	auto inverted = node.attribute(kInvertedAttr).as_bool();
-	auto handler_id = FindConstantByName<ECirumstance>(kIdAttr, node);
-	ability->circumstance_handlers_ids_.push_front(handler_id);
-	auto handler = circumstance_handlers_register_[handler_id];
-	ability->circumstance_handlers_.emplace_front(AbilityInfo::CircumstanceInfo(handler, mod, inverted));*/
-	auto handler_id = FindConstantByName<ECirumstance>(kIdAttr, node);
-	auto handler = circumstance_handlers_register_[handler_id];
-	ability->circumstance_handlers_.emplace_front(AbilityInfo::CircumstanceInfo(handler, handler_id));
-	ability->circumstance_handlers_.front().mod_ = node.attribute(kValAttr).as_int();
-	ability->circumstance_handlers_.front().inverted_ = node.attribute(kInvertedAttr).as_bool();
-}
-
-void AbilitiesInfo::AbilitiesInfoBuilder::ParseMessages(AbilityPtr &ability, const xml_node &node) {
-	xml_node msg_node = node.child(kMessagesEntity).child(kMsgEntity);
-	for (; msg_node; msg_node = msg_node.next_sibling(kMsgEntity)) {
-		auto msg_id = FindConstantByName<EAbilityMsg>(kIdAttr, msg_node);
-		auto it = ability->messages_.try_emplace(msg_id, msg_node.attribute(kValAttr).value());
-		if (!it.second) {
-			err_log("Ability '%s' has two or more messages of the same type '%s'.\n",
-					NAME_BY_ITEM<EAbility>(ability->GetId()).c_str(), NAME_BY_ITEM<EAbilityMsg>(msg_id).c_str());
-		}
-	}
-}
-
-void AbilitiesInfo::AbilitiesInfoBuilder::ProcessLoadErrors(const AbilityPtr &ability, std::exception const &e) {
-	err_log("Incorrect value or message type '%s' detected in ability '%s'. Item had been skipped.",
-			e.what(), NAME_BY_ITEM<EAbility>(ability->GetId()).c_str());
-}
-
-void AbilitiesInfo::AbilitiesInfoBuilder::EmplaceAbility(AbilitiesRegisterPtr &abilities, AbilityPtr &ability) {
-	auto it = abilities->try_emplace(ability->GetId(), std::move(ability));
-	if (!it.second) {
-		err_log("Ability '%s' has already exist. Redundant definition had been ignored.",
-				NAME_BY_ITEM<EAbility>(it.first->second->GetId()).c_str());
-	}
-}
-
-void AbilitiesInfo::AbilitiesInfoBuilder::AddDefaultValues(AbilitiesRegisterPtr &abilities) {
-	// Всегда должна быть секция "kAbilityUndefined" со значениями по умолчанию, даже если её нет в файле.
-	abilities->try_emplace(EAbility::kUndefined, std::make_unique<AbilityInfo>());
-	// Сообщения секции "kAbilityUndefined" - это сообщения "по умолчанию", чтобы не писать для них отдельную секцию и парсинг.
-	abilities->at(EAbility::kUndefined)->default_messages_.merge(abilities->at(EAbility::kUndefined)->messages_);
-}
-
-/// \todo Если убирать "принт", то есть смысл убрать и сохранение идов, добавлять сразу геттер - дурацкая идея
-/// Либо наоборот, добавить хранение идов.
-void AbilitiesInfo::AbilitiesInfoBuilder::AppointHandlers(AbilitiesRegisterPtr &abilities) {
-	for (auto &item : *abilities) {
-		item.second->base_stat_getter_ =
-			characteristic_getters_register_[item.second->GetBaseStatId()];
-		item.second->saving_getter_ = saving_getters_register_[item.second->GetSavingId()];
-	}
-}
-
-AbilitiesInfo::AbilitiesInfoBuilder::AbilitiesInfoBuilder() {
-	if (characteristic_getters_register_.empty()) {
-		characteristic_getters_register_[EBaseStat::kDex] = GET_REAL_DEX;
-		characteristic_getters_register_[EBaseStat::kStr] = GET_REAL_STR;
-		characteristic_getters_register_[EBaseStat::kCon] = GET_REAL_CON;
-		characteristic_getters_register_[EBaseStat::kInt] = GET_REAL_INT;
-		characteristic_getters_register_[EBaseStat::kWis] = GET_REAL_WIS;
-		characteristic_getters_register_[EBaseStat::kCha] = GET_REAL_CHA;
-	}
-
-	if (saving_getters_register_.empty()) {
-/*		saving_getters_register_[ESaving::kWill] = GET_TOTAL_SAVING_WILL;
-		saving_getters_register_[ESaving::kReflex] = GET_TOTAL_SAVING_REFLEX;
-		saving_getters_register_[ESaving::kCritical] = GET_TOTAL_SAVING_CRITICAL;
-		saving_getters_register_[ESaving::kStability] = GET_TOTAL_SAVING_STABILITY;*/
-	}
-
-	if (circumstance_handlers_register_.empty()) {
-		circumstance_handlers_register_[ECirumstance::kDarkRoom] =
-			[](CharData */*ch*/, CharData * /* victim */) -> bool {
-//				return IsDark(ch->in_room);
-				return false; //заглушка
-			};
-		circumstance_handlers_register_[ECirumstance::kMetalEquipment] =
-			[](CharData */*ch*/, CharData * /* victim */ ) -> bool {
-//				return IsEquipInMetal(ch);
-				return false; //заглушка
-			};
-		circumstance_handlers_register_[ECirumstance::kDrawingAttention] =
-			[](CharData *ch, CharData */* victim */) -> bool {
-				return (AFF_FLAGGED(ch, EAffect::kStairs)
-					|| AFF_FLAGGED(ch, EAffect::kSanctuary)
-					|| AFF_FLAGGED(ch, EAffect::kSingleLight)
-					|| AFF_FLAGGED(ch, EAffect::kHolyLight));
-			};
-		circumstance_handlers_register_[ECirumstance::kAmbushAttack] =
-			[](CharData *ch, CharData *victim) -> bool {
-				return !CAN_SEE(victim, ch);
-			};
-		circumstance_handlers_register_[ECirumstance::kVictimSits] =
-			[](CharData * /* ch */, CharData *victim) -> bool {
-				return (victim->char_specials.position ==  EPosition::kSit);
-			};
-		circumstance_handlers_register_[ECirumstance::kVictimAwareness] =
-			[](CharData * /* ch */, CharData *victim) -> bool {
-				return AFF_FLAGGED(victim, EAffect::kAwarness);
-			};
-		circumstance_handlers_register_[ECirumstance::kVictimAwake] =
-			[](CharData * /* ch */, CharData *victim) -> bool {
-				return PRF_FLAGGED(victim, EPrf::kAwake);
-			};
-		circumstance_handlers_register_[ECirumstance::kVictimHold] =
-			[](CharData * /* ch */, CharData *victim) -> bool {
-				return AFF_FLAGGED(victim, EAffect::kHold);
-			};
-		circumstance_handlers_register_[ECirumstance::kVictimSleep] =
-			[](CharData * /* ch */, CharData *victim) -> bool {
-				return (victim->char_specials.position ==  EPosition::kSleep);
-			};
-		circumstance_handlers_register_[ECirumstance::kRoomInside] =
-			[](CharData *ch, CharData * /* victim */) -> bool {
-				return (SECT(ch->in_room) == ESector::kInside);
-			};
-		circumstance_handlers_register_[ECirumstance::kRoomCity] =
-			[](CharData *ch, CharData * /* victim */) -> bool {
-				return (SECT(ch->in_room) == ESector::kCity);
-			};
-		circumstance_handlers_register_[ECirumstance::kRoomForest] =
-			[](CharData *ch, CharData * /* victim */) -> bool {
-				return (SECT(ch->in_room) == ESector::kForest);
-			};
-		circumstance_handlers_register_[ECirumstance::kRoomHills] =
-			[](CharData *ch, CharData * /* victim */) -> bool {
-				return (SECT(ch->in_room) == ESector::kHills);
-			};
-		circumstance_handlers_register_[ECirumstance::kRoomMountain] =
-			[](CharData *ch, CharData * /* victim */) -> bool {
-				return (SECT(ch->in_room) == ESector::kMountain);
-			};
-		circumstance_handlers_register_[ECirumstance::kWeatherRaining] =
-			[](CharData *ch, CharData * /* victim */) -> bool {
-				return (GET_ROOM_SKY(ch->in_room) == kSkyRaining);
-			};
-		circumstance_handlers_register_[ECirumstance::kWeatherLighting] =
-			[](CharData *ch, CharData * /* victim */) -> bool {
-				return (GET_ROOM_SKY(ch->in_room) == kSkyLightning);
-			};
-	}
-};
-
-const AbilityInfo &AbilitiesInfo::operator[](EAbility ability_id) {
-	try {
-		return *abilities_->at(ability_id);
-	} catch (const std::out_of_range &) {
-		err_log("Incorrect ability id (%d) passed into Abilities", to_underlying(ability_id));
-		return *abilities_->at(EAbility::kUndefined);
-	}
-}
-
-std::string AbilityInfo::Print() const {
-	std::stringstream buffer;
-	buffer << "Print ability:" << "\n"
-		   << " Id: " << KGRN << NAME_BY_ITEM<EAbility>(GetId()) << KNRM << "\n"
-		   << " Name: " << KGRN << GetName() << KNRM << "\n"
-		   << " Abbreviation: " << KGRN << GetAbbreviation() << KNRM << "\n"
-		   << " Base skill: " << KGRN << NAME_BY_ITEM<ESkill>(GetBaseSkillId()) << KNRM << "\n"
-		   << " Base characteristic: " << KGRN << NAME_BY_ITEM<EBaseStat>(GetBaseStatId()) << KNRM
-		   << "\n"
-		   << " Saving type: " << KGRN << NAME_BY_ITEM<ESaving>(GetSavingId()) << KNRM << "\n"
-		   << " Difficulty: " << KGRN << GetDifficulty() << KNRM << "\n"
-		   << " Critical fail threshold: " << KGRN << GetCritfailThreshold() << KNRM << "\n"
-		   << " Critical success threshold: " << KGRN << GetCritsuccessThreshold() << KNRM << "\n"
-		   << " Mob vs PC penalty: " << KGRN << GetMVPPenalty() << KNRM << "\n"
-		   << " PC vs PC penalty: " << KGRN << GetPVPPenalty() << KNRM << "\n"
-		   << " Circumstance modificators:\n";
-/*	for (auto &item : circumstance_handlers_) {
-		buffer << "   " << NAME_BY_ITEM<ECirumstance>(item.id_) << ": " << KGRN << item.mod_ << KNRM << "\n";
-	}*/
-/*		   << " Messages:" << "\n";
-	for (auto &it : messages_) {
-		buffer << "   " << NAME_BY_ITEM<EAbilityMsg>(it.first) << ": " << KGRN << it.second << KNRM << "\n";
-	}*/
+/*		   << "\n"
+		   << " Circumstance modificators:\n";*/
+//	for (auto &item : circumstance_handlers_) {
+//		buffer << "   " << NAME_BY_ITEM<ECirumstance>(item.id_) << ": " << KGRN << item.mod_ << KNRM << "\n";
+//	}
+//		   << " Messages:" << "\n";
+//	for (auto &it : messages_) {
+//		buffer << "   " << NAME_BY_ITEM<EAbilityMsg>(it.first) << ": " << KGRN << it.second << KNRM << "\n";
+//	}
 	buffer << std::endl;
-	return buffer.str();
 }
 
-int AbilityInfo::GetCircumstanceMod(CharData *ch, CharData *victim) const {
-	int modificator = 0;
-	for (auto &item : circumstance_handlers_) {
-		if (item.inverted_ != item.Handle(ch, victim)) {
-			std::cout << "Circumstance " << NAME_BY_ITEM<ECirumstance>(item.id_) << " bonus: " << item.mod_ << "\n";
-			modificator += item.mod_;
-		}
-	}
-	return modificator;
-};
-
-const std::string &AbilityInfo::GetMsg(const EAbilityMsg msg_id) const {
-	try {
-		return messages_.at(msg_id);
-	} catch (const std::out_of_range &) {
-		return GetDefaultMsg(msg_id);
-	}
-}
-
-const std::string &AbilityInfo::GetDefaultMsg(const EAbilityMsg msg_id) const {
-	try {
-		return default_messages_.at(msg_id);
-	} catch (const std::out_of_range &) {
-		err_log("Message Id '%s' not found in ability '%s' or in default messages!",
-				NAME_BY_ITEM<EAbilityMsg>(msg_id).c_str(), name_.c_str());
-		return kMessageNotFound;
-	}
+int AbilityInfo::GetBaseParameter(const CharData *ch) const {
+	return GetRealBaseStat(ch, base_stat_);
 }
 
 }; // abilities

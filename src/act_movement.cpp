@@ -211,13 +211,8 @@ int skip_sneaking(CharData *ch, CharData *vict) {
 			make_visible(ch, EAffect::kSneak);
 			EXTRA_FLAGS(ch).get(EXTRA_FAILSNEAK);
 		} else if (IsAffectedBySpell(ch, ESpell::kSneak)) {
-			//if (can_use_feat(ch, EFeat::kStealthy)) //тать или наем
-			//percent = number(1, 140 + GET_REAL_INT(vict));
-			//else
-			percent = number(1,
-							 (CanUseFeat(ch, EFeat::kStealthy) ? 102 : 112)
-								 + (GET_REAL_INT(vict) * (vict->get_role(MOB_ROLE_BOSS) ? 3 : 1))
-								 + (GetRealLevel(vict) > 30 ? GetRealLevel(vict) : 0));
+			percent = number(1, 112 + (GET_REAL_INT(vict) * (vict->get_role(MOB_ROLE_BOSS) ? 3 : 1)) +
+				(GetRealLevel(vict) > 30 ? GetRealLevel(vict) : 0));
 			prob = CalcCurrentSkill(ch, ESkill::kSneak, vict);
 
 			int catch_level = (GetRealLevel(vict) - GetRealLevel(ch));
@@ -616,7 +611,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 	if (!IS_IMMORTAL(ch) && !ch->IsNpc())
 		GET_MOVE(ch) -= calculate_move_cost(ch, dir);
 
-	i = MUD::Skills(ESkill::kSneak).difficulty;
+	i = MUD::Skill(ESkill::kSneak).difficulty;
 	if (AFF_FLAGGED(ch, EAffect::kSneak) && !is_flee) {
 		if (ch->IsNpc())
 			invis = 1;
@@ -626,7 +621,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 			invis = 1;
 	}
 
-	i = MUD::Skills(ESkill::kDisguise).difficulty;
+	i = MUD::Skill(ESkill::kDisguise).difficulty;
 	if (AFF_FLAGGED(ch, EAffect::kDisguise) && !is_flee) {
 		if (ch->IsNpc())
 			invis = 1;
@@ -1006,7 +1001,7 @@ void do_hidemove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		af.modifier = 0;
 		af.duration = 1;
 		const int calculated_skill = CalcCurrentSkill(ch, ESkill::kSneak, nullptr);
-		const int chance = number(1, MUD::Skills(ESkill::kSneak).difficulty);
+		const int chance = number(1, MUD::Skill(ESkill::kSneak).difficulty);
 		af.bitvector = (chance < calculated_skill) ? to_underlying(EAffect::kSneak) : 0;
 		af.battleflag = 0;
 		ImposeAffect(ch, af, false, false, false, false);
@@ -1066,7 +1061,7 @@ int find_door(CharData *ch, const char *type, char *dir, EDoorScmd scmd) {
 					return (door);
 				else
 					return (FD_WRONG_DOOR_NAME); //НЕ ПРАВИЛЬНО НАЗВАЛИ ДВЕРЬ В ЭТОМ НАПРАВЛЕНИИ
-			} else if (utils::IsAbbrev(type, "дверь") || utils::IsAbbrev(type, "door")) {
+			} else if (utils::IsAbbr(type, "дверь") || utils::IsAbbr(type, "door")) {
 				//Аргумент соответствует "дверь" или "door" и есть в указанном направлении
 				return (door);
 			} else
@@ -1087,7 +1082,7 @@ int find_door(CharData *ch, const char *type, char *dir, EDoorScmd scmd) {
 					if (isname(type, EXIT(ch, door)->keyword) || isname(type, EXIT(ch, door)->vkeyword))
 						//Аргумент соответствует имени этой двери
 						found = true;
-				} else if (DOOR_IS(ch, door) && (utils::IsAbbrev(type, "дверь") || utils::IsAbbrev(type, "door")))
+				} else if (DOOR_IS(ch, door) && (utils::IsAbbr(type, "дверь") || utils::IsAbbr(type, "door")))
 					//Дверь не имеет особых алиасов, аргумент соответствует двери
 					found = true;
 			}

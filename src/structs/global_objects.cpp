@@ -24,6 +24,8 @@ struct GlobalObjectsStorage {
 
 	abilities::AbilitiesInfo abilities_info;
 	SkillsInfo skills_info;
+	spells::SpellsInfo spells_info;
+	feats::FeatsInfo feats_info;
 	cfg_manager::CfgManager cfg_mngr;
 	classes::ClassesInfo classes_info;
 	guilds::GuildsInfo guilds_info;
@@ -61,12 +63,32 @@ abilities::AbilitiesInfo &GlobalObjects::Abilities() {
 	return global_objects().abilities_info;
 }
 
+const abilities::AbilityInfo &GlobalObjects::Ability(abilities::EAbility ability_id) {
+	return global_objects().abilities_info[ability_id];
+}
+
 SkillsInfo &GlobalObjects::Skills() {
 	return global_objects().skills_info;
 }
 
-const SkillInfo &GlobalObjects::Skills(const ESkill skill_id) {
+const SkillInfo &GlobalObjects::Skill(ESkill skill_id) {
 	return global_objects().skills_info[skill_id];
+}
+
+spells::SpellsInfo &GlobalObjects::Spells() {
+	return global_objects().spells_info;
+}
+
+const spells::SpellInfo &GlobalObjects::Spell(ESpell spell_id) {
+	return global_objects().spells_info[spell_id];
+}
+
+feats::FeatsInfo &GlobalObjects::Feats() {
+	return global_objects().feats_info;
+}
+
+const feats::FeatInfo &GlobalObjects::Feat(const EFeat feat_id) {
+	return global_objects().feats_info[feat_id];
 }
 
 cfg_manager::CfgManager &GlobalObjects::CfgManager() {
@@ -77,7 +99,7 @@ classes::ClassesInfo &GlobalObjects::Classes() {
 	return global_objects().classes_info;
 }
 
-const classes::CharClassInfo &GlobalObjects::Classes(ECharClass class_id) {
+const classes::CharClassInfo &GlobalObjects::Class(ECharClass class_id) {
 	return global_objects().classes_info[class_id];
 }
 
@@ -85,7 +107,7 @@ guilds::GuildsInfo &GlobalObjects::Guilds() {
 	return global_objects().guilds_info;
 }
 
-const guilds::GuildInfo &GlobalObjects::Guilds(Vnum guild_vnum) {
+const guilds::GuildInfo &GlobalObjects::Guild(Vnum guild_vnum) {
 	return global_objects().guilds_info[guild_vnum];
 }
 
@@ -93,7 +115,7 @@ currencies::CurrenciesInfo &GlobalObjects::Currencies() {
 	return global_objects().currencies_info;
 };
 
-const currencies::CurrencyInfo &GlobalObjects::Currencies(Vnum currency_vnum) {
+const currencies::CurrencyInfo &GlobalObjects::Currency(Vnum currency_vnum) {
 	return global_objects().currencies_info[currency_vnum];
 };
 

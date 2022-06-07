@@ -16,11 +16,11 @@ auto FindSubstituteSpellId(CharData *ch, ESpell spell_id) {
 
 	auto subst_spell_id{ESpell::kUndefined};
 	if (CanUseFeat(ch, EFeat::kSpellSubstitute) && healing_spells.contains(spell_id)) {
-		for (const auto &test_spell : MUD::Classes(ch->GetClass()).spells) {
+		for (const auto &test_spell : MUD::Class(ch->GetClass()).spells) {
 			auto test_spell_id = test_spell.GetId();
 			if (GET_SPELL_MEM(ch, test_spell_id) &&
-				MUD::Classes(ch->GetClass()).spells[test_spell_id].GetCircle() ==
-					MUD::Classes(ch->GetClass()).spells[spell_id].GetCircle()) {
+				MUD::Class(ch->GetClass()).spells[test_spell_id].GetCircle() ==
+					MUD::Class(ch->GetClass()).spells[spell_id].GetCircle()) {
 				subst_spell_id = test_spell_id;
 				break;
 			}
@@ -87,7 +87,7 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		return;
 	}
 
-	if (const auto spell = MUD::Classes(ch->GetClass()).spells[spell_id];
+	if (const auto spell = MUD::Class(ch->GetClass()).spells[spell_id];
 		(!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp | ESpellType::kKnow) ||
 		GET_REAL_REMORT(ch) < spell.GetMinRemort()) &&
 		(GetRealLevel(ch) < kLvlGreatGod) && !ch->IsNpc()) {
@@ -123,7 +123,7 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	ObjData *tobj;
 	RoomData *troom;
 	auto target = FindCastTarget(spell_id, arg, ch, &tch, &tobj, &troom);
-	if (target && (tch == ch) && spell_info[spell_id].violent) {
+	if (target && (tch == ch) && MUD::Spell(spell_id).IsViolent()) {
 		SendMsgToChar("Лекари не рекомендуют использовать ЭТО на себя!\r\n", ch);
 		return;
 	}
@@ -155,7 +155,7 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		if (ch->GetEnemy() && !IS_IMPL(ch)) {
 			ch->SetCast(spell_id, substitute_spell_id, tch, tobj, troom);
 			sprintf(buf, "Вы приготовились применить заклинание %s'%s'%s%s.\r\n",
-					CCCYN(ch, C_NRM), spell_info[spell_id].name, CCNRM(ch, C_NRM),
+					CCCYN(ch, C_NRM), MUD::Spell(spell_id).GetCName(), CCNRM(ch, C_NRM),
 					tch == ch ? " на себя" : tch ? " на $N3" : tobj ? " на $o3" : troom ? " на всех" : "");
 			act(buf, false, ch, tobj, tch, kToChar);
 		} else if (CastSpell(ch, tch, tobj, troom, spell_id, substitute_spell_id) >= 0) {

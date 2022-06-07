@@ -27,7 +27,7 @@ void go_kick(CharData *ch, CharData *vict) {
 		SkillRollResult result = MakeSkillTest(ch, ESkill::kKick, vict);
 		success = result.success;
 	} else {
-		int percent = ((10 - (compute_armor_class(vict) / 10)) * 2) + number(1, MUD::Skills(ESkill::kKick).difficulty);
+		int percent = ((10 - (compute_armor_class(vict) / 10)) * 2) + number(1, MUD::Skill(ESkill::kKick).difficulty);
 		int prob = CalcCurrentSkill(ch, ESkill::kKick, vict);
 		if (GET_GOD_FLAG(vict, EGf::kGodscurse) || AFF_FLAGGED(vict, EAffect::kHold)) {
 			prob = percent;
@@ -39,7 +39,7 @@ void go_kick(CharData *ch, CharData *vict) {
 			prob /= 3;
 		}
 		success = percent <= prob;
-		SendSkillBalanceMsg(ch, MUD::Skills(ESkill::kKick).name, percent, prob, success);
+		SendSkillBalanceMsg(ch, MUD::Skill(ESkill::kKick).name, percent, prob, success);
 	}
 
 	TrainSkill(ch, ESkill::kKick, success, vict);

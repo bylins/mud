@@ -40,7 +40,7 @@ void do_memorize(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	const auto spell = MUD::Classes(ch->GetClass()).spells[spell_id];
+	const auto spell = MUD::Class(ch->GetClass()).spells[spell_id];
 	if (GetRealLevel(ch) < CalcMinSpellLvl(ch, spell_id)
 		|| GET_REAL_REMORT(ch) < spell.GetMinRemort()
 		|| CalcCircleSlotsAmount(ch, spell.GetCircle()) <= 0) {
@@ -70,7 +70,7 @@ void show_wizdom(CharData *ch, int bitset) {
 			if (!GET_SPELL_TYPE(ch, spell_id)) {
 				continue;
 			}
-			if (!spell_info[spell_id].name || *spell_info[spell_id].name == '!') {
+			if (MUD::Spell(spell_id).IsInvalid()) {
 				continue;
 			}
 			count = GET_SPELL_MEM(ch, spell_id);
@@ -78,13 +78,13 @@ void show_wizdom(CharData *ch, int bitset) {
 				count = 10;
 			if (!count)
 				continue;
-			slot_num = MUD::Classes(ch->GetClass()).spells[spell_id].GetCircle() - 1;
+			slot_num = MUD::Class(ch->GetClass()).spells[spell_id].GetCircle() - 1;
 			max_slot = std::max(slot_num, max_slot);
 			slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
 					"%2s|[%2d] %-35s|",
 					slots[slot_num] % 88 < 10 ? "\r\n" : "  ",
 					count,
-					spell_info[spell_id].name);
+					MUD::Spell(spell_id).GetCName());
 			is_full++;
 		};
 		gcount += sprintf(buf2 + gcount, "  %sВы знаете следующие заклинания :%s", KICYN, KNRM);
@@ -140,12 +140,12 @@ void show_wizdom(CharData *ch, int bitset) {
 				if (cnt[index] == ESpell::kUndefined) {
 					continue;
 				}
-				slot_num = MUD::Classes(ch->GetClass()).spells[spell_id].GetCircle() - 1;
+				slot_num = MUD::Class(ch->GetClass()).spells[spell_id].GetCircle() - 1;
 				slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
 						"%2s|[%2d] %-30s%5s|",
 						slots[slot_num] % 88 < 10 ? "\r\n" : "  ",
 						to_underlying(cnt[index]),
-						spell_info[spell_id].name, q == ch->mem_queue.queue ? timestr : "");
+						MUD::Spell(spell_id).GetCName(), q == ch->mem_queue.queue ? timestr : "");
 				cnt[index] = ESpell::kUndefined;
 			}
 

@@ -180,7 +180,7 @@ bool PoisonVictWithWeapon(CharData *ch, CharData *vict, ESpell spell_id) {
 // * Крит при отравлении с пушек.
 void ProcessCritWeaponPoison(CharData *ch, CharData *vict, ESpell/* spell_num*/) {
 	Affect<EApply> af;
-	int percent = number(1, MUD::Skills(ESkill::kPoisoning).difficulty * 3);
+	int percent = number(1, MUD::Skill(ESkill::kPoisoning).difficulty * 3);
 	int prob = CalcCurrentSkill(ch, ESkill::kPoisoning, vict);
 	if (prob >= percent) {
 		switch (number(1, 5)) {

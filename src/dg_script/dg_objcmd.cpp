@@ -487,7 +487,7 @@ void do_dgoload(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 		return;
 	}
 
-	if (utils::IsAbbrev(arg1, "mob")) {
+	if (utils::IsAbbr(arg1, "mob")) {
 		if ((mob = read_mobile(number, VIRTUAL)) == nullptr) {
 			obj_log(obj, "oload: bad mob vnum");
 			return;
@@ -496,7 +496,7 @@ void do_dgoload(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 		idnum = mob->id;
 		PlaceCharToRoom(mob, room);
 		load_mtrigger(mob);
-	} else if (utils::IsAbbrev(arg1, "obj")) {
+	} else if (utils::IsAbbr(arg1, "obj")) {
 		const auto object = world_objects.create_from_prototype_by_vnum(number);
 		if (!object) {
 			obj_log(obj, "oload: bad object vnum");
@@ -717,10 +717,10 @@ void do_ofeatturn(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 		*pos = ' ';
 
 	const auto feat_id = FindFeatId(featname);
-	if (feat_id >= EFeat::kFirst && feat_id <= EFeat::kLast)
+	if (MUD::Feat(feat_id).IsAvailable())
 		isFeat = 1;
 	else {
-		sprintf(buf, "ofeatturn: %s skill/recipe not found", featname);
+		sprintf(buf, "ofeatturn: '%s' feat not found", featname);
 		obj_log(obj, buf);
 		return;
 	}
@@ -781,7 +781,7 @@ void do_oskillturn(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 	}
 
 	if (is_skill) {
-		if (MUD::Classes(ch->GetClass()).skills[skill_id].IsAvailable()) {
+		if (MUD::Class(ch->GetClass()).skills[skill_id].IsAvailable()) {
 			trg_skillturn(ch, skill_id, skilldiff, last_trig_vnum);
 		} else {
 			sprintf(buf, "oskillturn: skill and character class mismatch");

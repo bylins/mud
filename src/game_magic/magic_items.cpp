@@ -5,6 +5,7 @@
 #include "obj_prototypes.h"
 #include "spells_info.h"
 #include "magic_utils.h"
+#include "structs/global_objects.h"
 
 const short kDefaultStaffLvl = 12;
 const short kDefaultWandLvl = 12;
@@ -52,7 +53,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 			} else {
 				obj->dec_val(2);
 				SetWaitState(ch, kPulseViolence);
-				if (HAS_SPELL_ROUTINE(spell_id, kMagMasses | kMagAreas)) {
+				if (MUD::Spell(spell_id).IsFlagged(kMagMasses | kMagAreas)) {
 					CallMagic(ch, nullptr, nullptr, world[ch->in_room], spell_id, level);
 				} else {
 					const auto people_copy = world[ch->in_room]->people;
@@ -72,7 +73,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 			}
 
 			if (!*argument) {
-				if (!IS_SET(spell_info[spell_id].routines, kMagAreas | kMagMasses)) {
+				if (!MUD::Spell(spell_id).IsFlagged(kMagAreas | kMagMasses)) {
 					tch = ch;
 				}
 			} else {
@@ -136,7 +137,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 			spell_id = static_cast<ESpell>(GET_OBJ_VAL(obj, 1));
 			if (!*argument) {
 				for (int slot = 1; slot < 4; slot++) {
-					if (IS_SET(spell_info[static_cast<ESpell>(GET_OBJ_VAL(obj, slot))].routines, kMagAreas | kMagMasses)) {
+					if (MUD::Spell(static_cast<ESpell>(GET_OBJ_VAL(obj, slot))).IsFlagged(kMagAreas | kMagMasses)) {
 						break;
 					}
 					tch = ch;

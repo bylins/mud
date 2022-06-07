@@ -15,24 +15,95 @@
 #define BYLINS_SRC_ABILITIES_ABILITIES_INFO_H_
 
 #include "abilities_constants.h"
-#include "boot/boot_constants.h"
-#include "entities/entities_constants.h"
-#include "utils/logger.h"
-#include "game_skills/skills.h"
-
-#include <string>
-#include <unordered_map>
-#include <optional>
-#include <forward_list>
-#include <utility>
-
-namespace pugi {
-class xml_node;
-}
+#include "abilities_items_set.h"
+#include "boot/cfg_manager.h"
+#include "structs/info_container.h"
+#include "talents_effects.h"
 
 namespace abilities {
 
-class AbilityInfo;
+using DataNode = parser_wrapper::DataNode;
+
+class AbilitiesLoader : virtual public cfg_manager::ICfgLoader {
+ public:
+	void Load(DataNode data) final;
+	void Reload(DataNode data) final;
+};
+
+class AbilityInfo : public info_container::BaseItem<EAbility> {
+	friend class AbilityInfoBuilder;
+
+	std::string name_;
+	std::string abbr_;
+
+// Костыльные параметры из старой системы способностей:
+	bool uses_weapon_skill_{false};
+	int damage_bonus_{0};
+	int success_degree_damage_bonus_{0};
+	int roll_bonus_{abilities::kMinRollBonus};
+	int pvp_penalty{0};
+	int pve_penalty{0};
+	int evp_penalty{0};
+	int critfail_threshold_{abilities::kDefaultCritfailThreshold};
+	int critsuccess_threshold_{abilities::kDefaultCritsuccessThreshold};
+	ESaving saving_{ESaving::kFirst};
+	ESkill base_skill_{ESkill::kUndefined};
+	EBaseStat base_stat_{EBaseStat::kStr};
+	TechniqueItemKitsGroup item_kits_;
+
+ public:
+	AbilityInfo() = default;
+	AbilityInfo(EAbility id, EItemMode mode)
+		: BaseItem<EAbility>(id, mode) {};
+
+	talents_effects::Effects effects;
+
+	[[nodiscard]] const std::string &GetName() const { return name_; };
+	[[nodiscard]] const std::string &GetAbbr() const { return abbr_; };
+	[[nodiscard]] const char *GetCName() const { return name_.c_str(); };
+
+	[[nodiscard]] ESkill GetBaseSkill() const { return base_skill_; };
+	[[nodiscard]] ESaving GetSaving() const { return saving_; };
+	[[nodiscard]] int GetBaseParameter(const CharData *ch) const;
+	[[nodiscard]] int GetRollBonus() const { return roll_bonus_; };
+	[[nodiscard]] int GetPvpPenalty() const { return pvp_penalty; };
+	[[nodiscard]] int GetPvePenalty() const { return pve_penalty; };
+	[[nodiscard]] int GetEvpPenalty() const { return evp_penalty; };
+	[[nodiscard]] int GetCritsuccessThreshold() const { return critsuccess_threshold_; };
+	[[nodiscard]] int GetCritfailThreshold() const { return critfail_threshold_; };
+	[[nodiscard]] int GetDamageBonus() const { return damage_bonus_; };
+	[[nodiscard]] int GetSuccessDegreeDamageBonus() const { return success_degree_damage_bonus_; };
+	[[nodiscard]] bool IsWeaponTechnique() const { return uses_weapon_skill_; };
+	[[nodiscard]] const TechniqueItemKitsGroup &GetItemKits() const { return item_kits_; };
+
+	int (*GetEffectParameter)(const CharData *ch){[](const CharData *) { return 0; }};
+	int (*CalcSituationalDamageFactor)(CharData * /* ch */){[](CharData *) { return 0; }};
+	int (*CalcSituationalRollBonus)(CharData * /*ch*/, CharData * /*enemy*/){[](CharData *, CharData *) { return 0; }};
+
+	void Print(CharData *ch, std::ostringstream &buffer) const;
+};
+
+class AbilityInfoBuilder : public info_container::IItemBuilder<AbilityInfo> {
+ public:
+	ItemPtr Build(DataNode &node) final;
+ private:
+	static ItemPtr ParseAbility(DataNode &node);
+	static ItemPtr ParseHeader(DataNode &node);
+	static void ParseBaseVals(ItemPtr &info, DataNode &node);
+	static void ParseThresholds(ItemPtr &info, DataNode &node);
+	static void ParsePenalties(ItemPtr &info, DataNode &node);
+	//static void ParseEffects(ItemPtr &info, DataNode &node);
+	//static void ParseActions(ItemPtr &info, DataNode &node);
+	static void TemporarySetStat(ItemPtr &info);
+};
+
+using AbilitiesInfo = info_container::InfoContainer<EAbility, AbilityInfo, AbilityInfoBuilder>;
+
+
+// ==============================================================================================================
+
+
+/*class AbilityInfo;
 using AbilityPtr = std::unique_ptr<AbilityInfo>;
 using AbilityOptional =  std::optional<AbilityPtr>;
 using AbilitiesRegister = std::unordered_map<EAbility, AbilityPtr>;
@@ -66,10 +137,10 @@ class AbilityInfo {
 		bool inverted_ = false;
 
 		CircumstanceInfo() = delete;
-/*		explicit CircumstanceInfo(CircumstanceHandler &handler, int mod, bool inverted) :
+*//*		explicit CircumstanceInfo(CircumstanceHandler &handler, int mod, bool inverted) :
 			Handle(handler),
 			mod_(mod),
-			inverted_(inverted) {};*/
+			inverted_(inverted) {};*//*
 		explicit CircumstanceInfo(CircumstanceHandler &handler, ECirumstance id) :
 			Handle(handler),
 			id_(id) {};
@@ -185,7 +256,7 @@ class AbilitiesInfo::AbilitiesInfoBuilder {
 	static void AppointHandlers(AbilitiesRegisterPtr &abilities);
 	static void EmplaceCircumstanceInfo(AbilityPtr &ability, const pugi::xml_node &node);
 	static void ParseBaseValues(AbilityPtr &ability, const pugi::xml_node &node);
-};
+};*/
 
 }
 

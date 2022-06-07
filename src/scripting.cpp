@@ -27,6 +27,7 @@ str.cpp - PyUnicode_FromString на PyUnicode_DecodeLocale, PyUnicode_FromString
 #include "constants.h"
 #include "modify.h"
 #include "game_magic/spells_info.h"
+#include "structs/global_objects.h"
 
 // Required because pyconfig.h defines ssize_t by himself
 #if defined(ssize_t)
@@ -682,7 +683,7 @@ void character_set_master(CharacterData *ch, CharacterData *master) {
 }
 
 std::string get_spell_type_str(const AFFECT_DATA<EApplyLocation> &af) {
-	return spell_info[af.type].name;
+	return MUD::Spell(af.type).GetName();
 }
 
 std::string get_location_str(const AFFECT_DATA<EApplyLocation> &af) {
