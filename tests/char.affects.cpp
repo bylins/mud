@@ -1,5 +1,6 @@
 #include "char.utilities.hpp"
 
+#include <algorithm>
 #include <gtest/gtest.h>
 
 TEST(CHAR_Affects, RandomlyRemove_WithEmptyAffects_RemoveZero)
