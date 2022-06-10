@@ -11,7 +11,6 @@
 #include "genchar.h"
 #include "entities/char_data.h"
 #include "color.h"
-#include "comm.h"
 #include "entities/char_player.h"
 #include "modify.h"
 #include "structs/global_objects.h"
@@ -74,7 +73,7 @@ void load_log() {
 			return;
 		}
 
-		boost::trim(buffer);
+		utils::Trim(buffer);
 		GloryLogPtr temp_node(new GloryLog);
 		temp_node->type = type;
 		temp_node->num = num;
@@ -112,7 +111,7 @@ void add_log(int type, int num, std::string punish, std::string reason, CharData
 	std::stringstream out;
 	out << GET_NAME(vict) << " : " << punish << " [" << reason << "]";
 	temp_node->karma = out.str();
-	glory_log.insert(std::make_pair(time(0), temp_node));
+	glory_log.insert(std::make_pair(time(nullptr), temp_node));
 	save_log();
 }
 

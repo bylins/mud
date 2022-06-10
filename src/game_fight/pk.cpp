@@ -922,7 +922,7 @@ int may_kill_here(CharData *ch, CharData *victim, char *argument) {
 	//Проверка на чармиса(своего или группы)
 	if (argument) {
 		skip_spaces(&argument);
-		utils::remove_colors(argument);
+		utils::RemoveColors(argument);
 		if (victim && IS_CHARMICE(victim) && victim->get_master() && !victim->get_master()->IsNpc()) {
 			if (!name_cmp(victim, argument)) {
 				SendMsgToChar(ch, "Для исключения незапланированной агрессии введите имя жертвы полностью.\r\n");

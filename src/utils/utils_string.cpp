@@ -18,7 +18,7 @@ std::string remove_colors_template(T string, int &new_length) {
 	return string;
 }
 
-std::string remove_colors(char *string) {
+std::string RemoveColors(char *string) {
 	if (string) {
 		int new_length = 0;
 		remove_colors_template<char *>(string, new_length);
@@ -27,14 +27,14 @@ std::string remove_colors(char *string) {
 	return string;
 }
 
-std::string remove_colors(std::string string) {
+std::string RemoveColors(std::string string) {
 	int new_length = 0;
 	remove_colors_template<std::string &>(string, new_length);
 	string.resize(new_length);
 	return string;
 }
 
-shared_string_ptr get_string_without_colors(const char *string) {
+shared_string_ptr GetStringWithoutColors(const char *string) {
 	shared_string_ptr result;
 	if (string) {
 #ifdef WIN32
@@ -46,16 +46,16 @@ shared_string_ptr get_string_without_colors(const char *string) {
 #undef strdup
 #endif
 
-		remove_colors(result.get());
+		RemoveColors(result.get());
 	}
 
 	return result;
 }
 
-std::string get_string_without_colors(const std::string &string) {
+std::string GetStringWithoutColors(const std::string &string) {
 	std::string result = string;
 
-	remove_colors(result);
+	RemoveColors(result);
 
 	return result;
 }
@@ -130,7 +130,7 @@ bool IsAbbr(const char *arg1, const char *arg2) {
 	}
 }
 
-void SplitString(std::vector<std::string> &tokens, const std::string& s, char delimiter) {
+void Split(std::vector<std::string> &tokens, const std::string& s, char delimiter) {
 	std::string token;
 	std::istringstream tokens_stream(s);
 	while (std::getline(tokens_stream, token, delimiter)) {
@@ -152,30 +152,30 @@ void ConvertToLow(char *text) {
 	}
 }
 
-void Ltrim(std::string &s) {
+void TrimLeft(std::string &s) {
 	s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
 		return !std::isspace(ch);
 	}));
 }
 
-void Rtrim(std::string &s) {
+void TrimRight(std::string &s) {
 	s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
 		return !std::isspace(ch);
 	}).base(), s.end());
 }
 
 void Trim(std::string &s) {
-	Ltrim(s);
-	Rtrim(s);
+	TrimLeft(s);
+	TrimRight(s);
 }
 
-std::string LtrimCopy(std::string s) {
-	Ltrim(s);
+std::string TrimLeftCopy(std::string s) {
+	TrimLeft(s);
 	return s;
 }
 
-std::string RtrimCopy(std::string s) {
-	Rtrim(s);
+std::string TrimRightCopy(std::string s) {
+	TrimRight(s);
 	return s;
 }
 

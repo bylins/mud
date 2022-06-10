@@ -945,11 +945,6 @@ const char *fullness[] =
 		""
 	};
 
-
-// str, int, wis, dex, con applies *************************************
-// str, dex and con deleted
-
-
 struct IntApplies int_app[] =
 	{
 //Ackn  SkUse  SpLv     SpCnt Impr Obser

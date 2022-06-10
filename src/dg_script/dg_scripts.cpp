@@ -1417,8 +1417,8 @@ int text_processed(char *field, char *subfield, struct TriggerVar *vd, char *str
 		return true;
 	} else if (!str_cmp(field, "trim")) {
 		std::string str_to_trim = vd->value;
-		utils::Ltrim(str_to_trim);
-		utils::Rtrim(str_to_trim);
+		utils::TrimLeft(str_to_trim);
+		utils::TrimRight(str_to_trim);
 		strcpy(str, str_to_trim.c_str());
 		return true;
 	} else if (!str_cmp(field, "fullword")) {

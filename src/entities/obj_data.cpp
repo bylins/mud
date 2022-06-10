@@ -48,7 +48,7 @@ ObjData::ObjData(const ObjVnum vnum) :
 	m_purged(false),
 	m_activator(false, 0) {
 	this->zero_init();
-	caching::obj_cache.add(this);
+	caching::obj_cache.Add(this);
 }
 
 ObjData::ObjData(const CObjectPrototype &other) :
@@ -74,7 +74,7 @@ ObjData::ObjData(const CObjectPrototype &other) :
 	m_serial_number(0),
 	m_purged(false),
 	m_activator(false, 0) {
-	caching::obj_cache.add(this);
+	caching::obj_cache.Add(this);
 }
 
 ObjData::ObjData(const ObjData &other) : CObjectPrototype(other.get_vnum()) {
@@ -82,7 +82,7 @@ ObjData::ObjData(const ObjData &other) : CObjectPrototype(other.get_vnum()) {
 
 	m_script.reset(new Script(*other.m_script));    // each object must have its own script. Just copy it
 
-	caching::obj_cache.add(this);
+	caching::obj_cache.Add(this);
 }
 
 ObjData::~ObjData() {
@@ -125,7 +125,7 @@ void ObjData::detach_ex_description() {
 
 // * См. Character::purge()
 void ObjData::purge() {
-	caching::obj_cache.remove(this);
+	caching::obj_cache.Remove(this);
 	//см. комментарий в структуре BloodyInfo из pk.cpp
 	bloody::remove_obj(this);
 	//weak_ptr тут бы был какраз в тему

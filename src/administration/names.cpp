@@ -20,8 +20,6 @@ namespace NewNames {
 static void save();
 static void cache_add(CharData *ch);
 }
-
-extern const char *genders[];
 extern void send_to_gods(char *text, bool demigod);
 
 // Check if name agree (name must be parsed)
@@ -425,7 +423,6 @@ void do_name(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	//boost::trim(command);
 	utils::Trim(command);
 	int action = -1;
 	if (CompareParam(command, "одобрить"))

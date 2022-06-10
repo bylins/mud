@@ -98,7 +98,7 @@ enum {
 #define SOUNDPROOF ("Стены заглушили ваши слова.\r\n")
 
 void prepare_write_mod(CharData *ch, std::string &param) {
-	boost::trim(param);
+	utils::Trim(param);
 	if (!param.empty() && (CompareParam(param, "очистить") || CompareParam(param, "удалить"))) {
 		std::string zero_str;
 		CLAN(ch)->write_mod(zero_str);
@@ -224,15 +224,15 @@ void Clan::ClanLoadSingle(const std::string& index) {
 			}
 		} else if (buffer == "Name:") {
 			std::getline(file, buffer);
-			boost::trim(buffer);
+			utils::Trim(buffer);
 			tempClan->name = buffer;
 		} else if (buffer == "Title:") {
 			std::getline(file, buffer);
-			boost::trim(buffer);
+			utils::Trim(buffer);
 			tempClan->title = buffer;
 		} else if (buffer == "TitleFemale:") {
 			std::getline(file, buffer);
-			boost::trim(buffer);
+			utils::Trim(buffer);
 			tempClan->title_female = buffer;
 		} else if (buffer == "Rent:") {
 			int rent = 0;
@@ -534,7 +534,7 @@ void Clan::ClanLoadSingle(const std::string& index) {
 				break;
 			}
 			std::getline(pkFile, buffer, '~');
-			boost::trim(buffer);
+			utils::Trim(buffer);
 			std::string authorName = GetNameByUnique(author);
 			std::string victimName = GetNameByUnique(victim, true);
 			name_convert(authorName);
@@ -567,18 +567,18 @@ void Clan::ClanLoadSingle(const std::string& index) {
 			temp.num = i;
 
 			std::getline(stuffFile, temp.name, '~');
-			boost::trim(temp.name);
+			utils::Trim(temp.name);
 
 			for (int j = 0; j < 6; j++) {
 				std::getline(stuffFile, buffer, '~');
-				boost::trim(buffer);
+				utils::Trim(buffer);
 				temp.PNames.push_back(buffer);
 			}
 
 			std::getline(stuffFile, temp.desc, '~');
-			boost::trim(temp.desc);
+			utils::Trim(temp.desc);
 			std::getline(stuffFile, temp.longdesc, '~');
-			boost::trim(temp.longdesc);
+			utils::Trim(temp.longdesc);
 
 			tempClan->clanstuff.push_back(temp);
 		}
@@ -1438,7 +1438,7 @@ void Clan::hcon_outcast(CharData *ch, std::string &buffer) {
 
 // бог, текст, клан/альянс
 void Clan::GodToChannel(CharData *ch, std::string text, int subcmd) {
-	boost::trim(text);
+	utils::Trim(text);
 	// на счет скобок я хз, по-моему так нагляднее все же в ифах, где условий штук 5, мож опять индентом пройтись? Ж)
 	if (text.empty()) {
 		SendMsgToChar("Что вы хотите им сообщить?\r\n", ch);
@@ -1511,7 +1511,7 @@ void Clan::GodToChannel(CharData *ch, std::string text, int subcmd) {
 
 // чар (или клановый бог), текст, клан/альянс
 void Clan::CharToChannel(CharData *ch, std::string text, int subcmd) {
-	boost::trim(text);
+	utils::Trim(text);
 	if (text.empty()) {
 		SendMsgToChar("Что вы хотите сообщить?\r\n", ch);
 		return;
@@ -2227,7 +2227,7 @@ void Clan::hcontrol_exphistory(CharData *ch, std::string &text) {
 
 	int month = 0;
 	if (!text.empty()) {
-		boost::trim(text);
+		utils::Trim(text);
 		try {
 			month = std::stoi(text, nullptr, 10);
 		}
@@ -2256,7 +2256,7 @@ void Clan::hcontrol_set_ingr_chest(CharData *ch, std::string &text) {
 	// <клан> <комната> - buffer2, text
 	std::string buffer2;
 	GetOneParam(text, buffer2);
-	boost::trim(text);
+	utils::Trim(text);
 
 	int clan_vnum = 0, room_vnum = 0;
 	if (!text.empty()) {
@@ -2879,7 +2879,7 @@ void DoClanPkList(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			SendMsgToChar("Запись не найдена.\r\n", ch);
 		}
 	} else {
-		boost::trim(buffer);
+		utils::Trim(buffer);
 		bool online = 1;
 
 		if (CompareParam(buffer, "all") || CompareParam(buffer, "все"))
@@ -5488,7 +5488,7 @@ const char *GOLD_TAX_FORMAT =
 void tax_manage(CharData *ch, std::string &buffer) {
 	if (!CLAN(ch)) return;
 
-	boost::trim(buffer);
+	utils::Trim(buffer);
 	if (!buffer.empty()) {
 		try {
 			auto tax = boost::lexical_cast<unsigned int>(buffer);

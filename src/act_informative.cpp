@@ -99,15 +99,13 @@ extern int top_imtypes;
 extern void show_code_date(CharData *ch);
 extern int nameserver_is_slow; //config.cpp
 extern std::vector<City> cities;
-// extern functions
-long GetExpUntilNextLvl(CharData *ch, int level);
+
 // local functions
 const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_state, int how);
 void list_obj_to_char(ObjData *list, CharData *ch, int mode, int show);
 char *diag_obj_to_char(CharData *i, ObjData *obj, int mode);
 const char *diag_obj_timer(const ObjData *obj);
 char *diag_timer_to_char(const ObjData *obj);
-int GetThac0(ECharClass class_id, int level);
 
 void do_affects(CharData *ch, char *argument, int cmd, int subcmd);
 void do_look(CharData *ch, char *argument, int cmd, int subcmd);
@@ -412,23 +410,23 @@ char *diag_shot_to_char(ObjData *obj, CharData *ch) {
 * При чтении писем и осмотре чара в его описании подставляем в начало каждой строки пробел
 * (для дурных тригов), пользуясь случаем передаю привет проне!
 */
-std::string space_before_string(char const *text) {
+/*std::string AddLeadingStringSpace(char const *text) {
 	if (text) {
 		std::string tmp(" ");
 		tmp += text;
 		boost::replace_all(tmp, "\n", "\n ");
-		boost::trim_right_if(tmp, boost::is_any_of(std::string(" ")));
+		utils::TrimRight(tmp);
 		return tmp;
 	}
 	return "";
-}
+}*/
 
-std::string space_before_string(const std::string& text) {
+std::string AddLeadingStringSpace(const std::string& text) {
 	if (!text.empty()) {
 		std::string tmp(" ");
 		tmp += text;
 		boost::replace_all(tmp, "\n", "\n ");
-		boost::trim_right_if(tmp, boost::is_any_of(std::string(" ")));
+		utils::TrimRight(tmp);
 		return tmp;
 	}
 	return "";
@@ -493,7 +491,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 		if (GET_OBJ_TYPE(object) == EObjType::kNote) {
 			if (!object->get_action_description().empty()) {
 				strcpy(buf, "Вы прочитали следующее :\r\n\r\n");
-				strcat(buf, space_before_string(object->get_action_description().c_str()).c_str());
+				strcat(buf, AddLeadingStringSpace(object->get_action_description()).c_str());
 				page_string(ch->desc, buf, 1);
 			} else {
 				SendMsgToChar("Чисто.\r\n", ch);
@@ -788,7 +786,7 @@ void look_at_char(CharData *i, CharData *ch) {
 		if (i->IsNpc())
 			SendMsgToChar(ch, " * %s", i->player_data.description.c_str());
 		else
-			SendMsgToChar(ch, "*\r\n%s*\r\n", space_before_string(i->player_data.description).c_str());
+			SendMsgToChar(ch, "*\r\n%s*\r\n", AddLeadingStringSpace(i->player_data.description).c_str());
 	} else if (!i->IsNpc()) {
 		strcpy(buf, "\r\nЭто");
 		if (i->is_morphed())

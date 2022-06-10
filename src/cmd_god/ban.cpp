@@ -273,7 +273,7 @@ void LoadProxyList() {
 	while (file) {
 		file >> textIp >> textIp2 >> num;
 		std::getline(file, buffer);
-		boost::trim(buffer);
+		utils::Trim(buffer);
 		if (textIp.empty() || textIp2.empty() || buffer.empty() || num < 2 || num > MAX_PROXY_CONNECT) {
 			log("Error read file: %s! IP: %s IP2: %s Num: %d Text: %s (%s %s %d)", PROXY_FILE, textIp.c_str(),
 				textIp2.c_str(), num, buffer.c_str(), __FILE__, __func__, __LINE__);

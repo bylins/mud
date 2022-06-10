@@ -395,7 +395,7 @@ bool ParseFilter::check_name(ObjData *obj, CharData *ch) const {
 	bool result = false;
 	char name_obj[kMaxStringLength];
 	strcpy(name_obj, GET_OBJ_PNAME(obj, 0).c_str());
-	utils::remove_colors(name_obj);
+	utils::RemoveColors(name_obj);
 	if (name.empty()
 		|| isname(name, name_obj)) {
 		result = true;

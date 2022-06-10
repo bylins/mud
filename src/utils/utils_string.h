@@ -99,10 +99,10 @@ class DelegatedStdStringWriter : public AbstractStringWriter {
 	std::string &m_string_;
 };
 
-std::string remove_colors(char *string);
-std::string remove_colors(std::string string);
-shared_string_ptr get_string_without_colors(const char *string);
-std::string get_string_without_colors(const std::string &string);
+std::string RemoveColors(char *string);
+std::string RemoveColors(std::string string);
+shared_string_ptr GetStringWithoutColors(const char *string);
+std::string GetStringWithoutColors(const std::string &string);
 
 bool IsAbbr(const char *arg1, const char *arg2);
 inline int IsAbbrev(const std::string &arg1, const char *arg2) { return IsAbbr(arg1.c_str(), arg2); }
@@ -115,17 +115,17 @@ void ConvertToLow(char *text);
  * @param s - разделяемая строка.
  * @param delimiter - символ-разделитель, по умолчаниб - пробел.
  */
-void SplitString(std::vector<std::string> &tokens, const std::string& s, char delimiter = ' ');
+void Split(std::vector<std::string> &tokens, const std::string& s, char delimiter = ' ');
 
 /**
  * Обрезать пробелы слева.
  */
-void Ltrim(std::string &s);
+void TrimLeft(std::string &s);
 
 /**
  *  Обрезать пробелы справа.
  */
-void Rtrim(std::string &s)
+void TrimRight(std::string &s)
 
 /**
  * Обрезать пробелы справа и слева.
@@ -135,13 +135,13 @@ void Trim(std::string &s);
 /**
  * Обрезать пробелы слева, вернуть копию.
  */
-std::string LtrimCopy(std::string s);
+std::string TrimLeftCopy(std::string s);
 
 /**
  *  Обрезать пробелы справа, вернуть копию.
  */
 
-std::string RtrimCopy(std::string s);
+std::string TrimRightCopy(std::string s);
 
 /**
  * Обрезать пробелы справа и слева, вернуть копию.

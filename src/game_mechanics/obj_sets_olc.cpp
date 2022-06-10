@@ -224,7 +224,7 @@ std::string main_menu_objlist(CharData *ch, const SetNode &set, int menu) {
 	}
 
 	if (!out.empty()) {
-		boost::trim_right(out);
+		utils::TrimRight(out);
 		return out + ("\r\n");
 	}
 	return out;

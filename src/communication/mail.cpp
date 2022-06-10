@@ -10,15 +10,13 @@
 
 #include "mail.h"
 
-#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string.hpp>
+//#include <boost/lexical_cast.hpp>
 
 #include "entities/world_objects.h"
 #include "handler.h"
 #include "parcel.h"
 #include "entities/char_player.h"
 #include "game_mechanics/named_stuff.h"
-#include "utils/parse.h"
 #include "color.h"
 #include "utils/pugixml/pugixml.h"
 
@@ -74,12 +72,11 @@ void add_undelivered(int from_uid, const char *name, int to_uid) {
 void print_undelivered(CharData *ch) {
 	auto i = undelivered_list.find(ch->get_uid());
 	if (i != undelivered_list.end()) {
-		std::string out(
-			"Информация по недоставленным (на момент перезагрузки) письмам.\r\n"
-			"Количество писем: ");
-		out += boost::lexical_cast<std::string>(i->second.total_num);
-		out += ", Адресаты:\r\n " + i->second.names + "\r\n";
-		SendMsgToChar(out, ch);
+		std::ostringstream out;
+		out << "Информация по недоставленным (на момент перезагрузки) письмам." << std::endl
+			<< "Количество писем: " << i->second.total_num << "." << std::endl
+			<< "Адресаты: " << i->second.names << "." << std::endl;
+		SendMsgToChar(out.str(), ch);
 	}
 }
 
@@ -536,7 +533,7 @@ void receive(CharData *ch, CharData *mailman) {
 				 buf_date, ch->get_name().c_str(), get_author_name(i->second.from).c_str());
 
 		std::string text = coder::base64_decode(i->second.text);
-		boost::trim_if(text, ::isspace);
+		utils::Trim(text);
 		obj->set_action_description(buf_ + text + "\r\n\r\n");
 
 		PlaceObjToInventory(obj.get(), ch);
@@ -594,7 +591,7 @@ void load() {
 		int to_uid = -1;
 		// вытаскиваем дату, отправителя и получателя
 		std::vector<std::string> param_list;
-		boost::split(param_list, header, boost::is_any_of(" "));
+		utils::Split(param_list, header);
 		if (param_list.size() == 3) {
 			message.date = coder::from_iso8601(param_list[0]);
 			try {

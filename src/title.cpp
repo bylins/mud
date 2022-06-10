@@ -4,7 +4,6 @@
 
 #include "title.h"
 
-#include <cmath>
 #include <boost/algorithm/string.hpp>
 
 #include "entities/char_player.h"
@@ -84,9 +83,9 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 	// какие тока извраты не приходится делать, чтобы соответствовать синтаксису одобрения имен
 	int result = TITLE_NEED_HELP;
 	if (IS_GOD(ch) || privilege::CheckFlag(ch, privilege::kTitle)) {
-		boost::trim(buffer);
+		utils::Trim(buffer);
 		if (CompareParam(buffer, "удалить")) {
-			boost::trim(buffer2);
+			utils::Trim(buffer2);
 			CharData *vict = get_player_pun(ch, buffer2, EFind::kCharInWorld);
 			if (!vict) {
 				SendMsgToChar("Нет такого игрока.\r\n", ch);
@@ -113,7 +112,7 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 	}
 
 	if (CompareParam(buffer2, "установить")) {
-		boost::trim(buffer);
+		utils::Trim(buffer);
 		if (buffer.size() > MAX_TITLE_LENGTH) {
 			if (PLR_FLAGGED(ch, EPlrFlag::kNoTitle)) {
 				SendMsgToChar(ch, "Вам запрещено устанавливать самому себе титул.\r\n");
@@ -130,8 +129,8 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 			beg_idx = buffer.find_first_not_of('!', beg_idx);
 			if (beg_idx != std::string::npos)
 				title = buffer.substr(beg_idx);
-			boost::trim(title);
-			boost::trim(pre_title);
+			utils::Trim(title);
+			utils::Trim(pre_title);
 			if (!pre_title.empty()) {
 				sprintf(buf2, "%c%s", UPPER(pre_title.substr(0, 1).c_str()[0]), pre_title.substr(1).c_str());
 				pre_title = buf2;

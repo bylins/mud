@@ -3,7 +3,6 @@
 #include "utils/logger.h"
 #include "boards_constants.h"
 
-#include <boost/algorithm/string/trim.hpp>
 #include <sstream>
 
 namespace Boards {
@@ -32,11 +31,11 @@ void ChangeLogLoaderImplementation::add_message(const std::string &author,
 		|| s_pos != std::string::npos) {
 		author_copy = author_copy.substr(0, std::min(e_pos, s_pos));
 	}
-	boost::trim(author_copy);
+	utils::Trim(author_copy);
 	message->author = author_copy;
 
 	std::string desc_copy = desc;
-	boost::trim(desc_copy);
+	utils::Trim(desc_copy);
 	message->text = desc_copy;
 
 	// из текста первая строка в заголовок
@@ -45,7 +44,7 @@ void ChangeLogLoaderImplementation::add_message(const std::string &author,
 		{
 			subj = subj.substr(0, 40);
 		} */
-	boost::trim(subj);
+	utils::Trim(subj);
 	message->subject = subj;
 	message->date = parsed_time;
 	message->unique = 1;

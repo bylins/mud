@@ -215,7 +215,7 @@ const ItemsList::items_list_t::value_type &ItemsList::node(const size_t index) c
 void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 	std::string buffer2(argument), buffer1;
 	GetOneParam(buffer2, buffer1);
-	boost::trim(buffer2);
+	utils::Trim(buffer2);
 
 	if (buffer1.empty()) {
 		tell_to_char(keeper, ch, "ЧТО ты хочешь купить?");
@@ -719,7 +719,7 @@ void shop_node::filter_shop_list(CharData *ch, const std::string &arg, int keepe
 void shop_node::process_cmd(CharData *ch, CharData *keeper, char *argument, const std::string &cmd) {
 	std::string buffer(argument), buffer1;
 	GetOneParam(buffer, buffer1);
-	boost::trim(buffer);
+	utils::Trim(buffer);
 
 	if (!can_buy
 		&& (cmd == "Продать"
@@ -817,7 +817,7 @@ void shop_node::process_cmd(CharData *ch, CharData *keeper, char *argument, cons
 
 void shop_node::process_ident(CharData *ch, CharData *keeper, char *argument, const std::string &cmd) {
 	std::string buffer(argument);
-	boost::trim(buffer);
+	utils::Trim(buffer);
 
 	if (buffer.empty()) {
 		tell_to_char(keeper, ch, "Характеристики ЧЕГО ты хочешь узнать?");
@@ -993,7 +993,7 @@ unsigned shop_node::get_item_num(std::string &item_name, int keeper_vnum) const 
 		print_value = "";
 		const auto &item = m_items_list.node(i);
 		if (item->empty()) {
-			name_value = utils::remove_colors(item->get_item_name(keeper_vnum));
+			name_value = utils::RemoveColors(item->get_item_name(keeper_vnum));
 			const auto rnum = obj_proto.rnum(item->vnum());
 			if (GET_OBJ_TYPE(obj_proto[rnum]) == EObjType::kLiquidContainer) {
 				name_value += " " + std::string(drinknames[GET_OBJ_VAL(obj_proto[rnum], 2)]);

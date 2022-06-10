@@ -4,7 +4,6 @@
 */
 #include "accounts.h"
 #include "password.h"
-#include <boost/algorithm/string.hpp>
 #include "entities/zone.h"
 
 std::unordered_map<std::string, std::shared_ptr<Account>> accounts;
@@ -108,31 +107,31 @@ void Account::read_from_file() {
 	std::vector<std::string> tmp;
 	if (in.is_open()) {
 		while (getline(in, line)) {
-			if (boost::starts_with(line, "DaiQ: ")) {
-				boost::split(tmp, line, boost::is_any_of(" "));
+			if (line.starts_with("DaiQ: ")) {
+				utils::Split(tmp, line);
 				DQuest tmp_quest;
 				tmp_quest.id = atoi(tmp[1].c_str());
 				tmp_quest.count = atoi(tmp[2].c_str());
 				tmp_quest.time = atoi(tmp[3].c_str());
 				this->dquests.push_back(tmp_quest);
 			}
-			if (boost::starts_with(line, "hl: ")) {
-				boost::split(tmp, line, boost::is_any_of(" "));
+			if (line.starts_with("hl: ")) {
+				utils::Split(tmp, line);
 				login_index tmp_li;
 				tmp_li.count = atoi(tmp[2].c_str());
 				tmp_li.last_login = atoi(tmp[3].c_str());
 				this->history_logins.insert(std::pair<std::string, login_index>(tmp[1].c_str(), tmp_li));
 			}
-			if (boost::starts_with(line, "p: ")) {
-				boost::split(tmp, line, boost::is_any_of(" "));
+			if (line.starts_with("p: ")) {
+				utils::Split(tmp, line);
 				this->add_player(atoi(tmp[1].c_str()));
 			}
-			if (boost::starts_with(line, "Pwd: ")) {
-				boost::split(tmp, line, boost::is_any_of(" "));
+			if (line.starts_with("Pwd: ")) {
+				utils::Split(tmp, line);
 				this->hash_password = tmp[1];
 			}
-			if (boost::starts_with(line, "ll: ")) {
-				boost::split(tmp, line, boost::is_any_of(" "));
+			if (line.starts_with("ll: ")) {
+				utils::Split(tmp, line);
 				this->last_login = atoi(tmp[1].c_str());
 			}
 		}

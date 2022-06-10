@@ -14,7 +14,6 @@
 #include "entities/world_objects.h"
 #include "entities/world_characters.h"
 #include "obj_prototypes.h"
-#include "handler.h"
 #include "color.h"
 #include "house.h"
 #include "depot.h"
@@ -354,7 +353,7 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 				std::string tmp_buf;
 
 				while (std::getline(text, tmp_buf)) {
-					boost::trim(tmp_buf);
+					utils::Trim(tmp_buf);
 					if (tmp_buf.empty() || tmp_buf[0] == '~') {
 						break;
 					}
@@ -373,13 +372,13 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 				std::string tmp_buf;
 
 				while (std::getline(text, tmp_buf)) {
-					boost::trim(tmp_buf);
+					utils::Trim(tmp_buf);
 					if (tmp_buf.empty() || tmp_buf[0] == '~') {
 						break;
 					}
 					switch (tmp_buf[0]) {
 						case 'I': tmp_aff.name_ = tmp_buf.substr(1);
-							boost::trim(tmp_aff.name_);
+							utils::Trim(tmp_aff.name_);
 							if (tmp_aff.name_.empty()) {
 								tmp_aff.name_ = "<null>";
 							}
