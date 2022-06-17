@@ -15,7 +15,6 @@
 #include <limits>
 
 #include <boost/format.hpp>
-#include <boost/lexical_cast.hpp>
 
 #include "entities/world_objects.h"
 #include "entities/world_characters.h"
@@ -3296,7 +3295,7 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 		GetOneParam(buffer, buffer2);
 		long gold = 0;
 		try {
-			gold = boost::lexical_cast<unsigned long>(buffer2);
+			gold = std::stol(buffer2, nullptr, 10);
 			if (gold <= 0) {
 				SendMsgToChar("Сколько вы хотите вложить?\r\n", ch);
 				return true;
@@ -3306,7 +3305,7 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 				return true;
 			}
 		}
-		catch (boost::bad_lexical_cast &) {
+		catch (const std::invalid_argument &) {
 			SendMsgToChar("Формат команды казна вложить <число>", ch);
 		}
 
@@ -5480,7 +5479,7 @@ void tax_manage(CharData *ch, std::string &buffer) {
 	utils::Trim(buffer);
 	if (!buffer.empty()) {
 		try {
-			auto tax = boost::lexical_cast<unsigned int>(buffer);
+			int tax = std::stoi(buffer, nullptr, 10);
 			if (tax <= MAX_GOLD_TAX_PCT) {
 				CLAN(ch)->set_gold_tax_pct(tax);
 				SendMsgToChar(ch, "Налог для ратников дружины установлен в %d%%\r\n", tax);
@@ -5488,12 +5487,12 @@ void tax_manage(CharData *ch, std::string &buffer) {
 				SendMsgToChar(GOLD_TAX_FORMAT, ch);
 			}
 		}
-		catch (boost::bad_lexical_cast &) {
+		catch (const std::invalid_argument &) {
 			SendMsgToChar(GOLD_TAX_FORMAT, ch);
 		}
 	} else {
 		SendMsgToChar(ch, "Текущий налог для ратников дружины: %d%%\r\n%s",
-					  CLAN(ch)->get_gold_tax_pct(), GOLD_TAX_FORMAT);
+		CLAN(ch)->get_gold_tax_pct(), GOLD_TAX_FORMAT);
 	}
 }
 
