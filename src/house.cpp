@@ -15,7 +15,6 @@
 #include <limits>
 
 #include <boost/format.hpp>
-#include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 
 #include "entities/world_objects.h"
@@ -1667,10 +1666,7 @@ void DoClanList(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc()) {
 		return;
 	}
-
 	std::string buffer = argument;
-	boost::trim_if(buffer, boost::is_any_of(std::string(" \'")));
-
 	if (buffer.empty()) {
 		// сортировка кланов по экспе
 		std::multimap<long long, Clan::shared_ptr> sort_clan;
@@ -1853,7 +1849,6 @@ bool char_to_pk_clan(CharData *ch) {
 void DoShowWars(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc()) return;
 	std::string buffer = argument;
-	boost::trim_if(buffer, boost::is_any_of(std::string(" \'")));
 
 	std::ostringstream buffer3;
 	buffer3 << "Дружины, находящиеся в состоянии войны:\r\n";
@@ -1902,7 +1897,6 @@ void DoShowWars(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 void do_show_alliance(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc()) return;
 	std::string buffer = argument;
-	boost::trim_if(buffer, boost::is_any_of(std::string(" \'")));
 
 	std::ostringstream buffer3;
 	buffer3 << "Дружины, находящиеся в состоянии союза:\r\n";
@@ -1956,7 +1950,6 @@ void DoShowPolitics(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	std::string buffer = argument;
-	boost::trim_if(buffer, boost::is_any_of(std::string(" \'")));
 	if (!buffer.empty() && CLAN(ch)->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_POLITICS]) {
 		CLAN(ch)->ManagePolitics(ch, buffer);
 		return;
@@ -2379,7 +2372,6 @@ void Clan::HcontrolBuild(CharData *ch, std::string &buffer) {
 	std::string abbrev;
 	GetOneParam(buffer, abbrev);
 	// название клана
-	boost::trim_if(buffer, boost::is_any_of(std::string(" \'")));
 	std::string name = buffer;
 
 	// тут проверяем наличие все этого дела
@@ -2489,7 +2481,6 @@ void Clan::HcontrolBuild(CharData *ch, std::string &buffer) {
 
 // удаление дружины (hcontrol destroy)
 void Clan::HcontrolDestroy(CharData *ch, std::string &buffer) {
-	boost::trim_if(buffer, boost::is_any_of(std::string(" \'")));
 	int rent = atoi(buffer.c_str());
 
 	ClanListType::iterator clan;
@@ -2739,7 +2730,6 @@ void DoClanPkList(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			SendMsgToChar("Давайте не будем засорять список всяким бредом?\r\n", ch);
 			return;
 		}
-		boost::trim_if(buffer, boost::is_any_of(std::string(" \'")));
 		if (buffer.empty()) {
 			SendMsgToChar("Потрудитесь прокомментировать, за что вы его так.\r\n", ch);
 			return;
@@ -4751,7 +4741,6 @@ void SetChestMode(CharData *ch, std::string &buffer) {
 		return;
 	}
 
-	boost::trim_if(buffer, boost::is_any_of(std::string(" \'")));
 	if (CompareParam(buffer, "нет")) {
 		PRF_FLAGS(ch).unset(EPrf::kDecayMode);
 		PRF_FLAGS(ch).unset(EPrf::kTakeMode);
