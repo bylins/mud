@@ -15,8 +15,6 @@
 #include <limits>
 
 #include <boost/format.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
 
 #include "entities/world_objects.h"
 #include "entities/world_characters.h"
@@ -1667,10 +1665,7 @@ void DoClanList(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc()) {
 		return;
 	}
-
 	std::string buffer = argument;
-	boost::trim_if(buffer, boost::is_any_of(std::string(" \'")));
-
 	if (buffer.empty()) {
 		// сортировка кланов по экспе
 		std::multimap<long long, Clan::shared_ptr> sort_clan;
@@ -1853,7 +1848,6 @@ bool char_to_pk_clan(CharData *ch) {
 void DoShowWars(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc()) return;
 	std::string buffer = argument;
-	boost::trim_if(buffer, boost::is_any_of(std::string(" \'")));
 
 	std::ostringstream buffer3;
 	buffer3 << "Дружины, находящиеся в состоянии войны:\r\n";
@@ -1902,7 +1896,6 @@ void DoShowWars(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 void do_show_alliance(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc()) return;
 	std::string buffer = argument;
-	boost::trim_if(buffer, boost::is_any_of(std::string(" \'")));
 
 	std::ostringstream buffer3;
 	buffer3 << "Дружины, находящиеся в состоянии союза:\r\n";
@@ -1956,7 +1949,6 @@ void DoShowPolitics(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	std::string buffer = argument;
-	boost::trim_if(buffer, boost::is_any_of(std::string(" \'")));
 	if (!buffer.empty() && CLAN(ch)->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_POLITICS]) {
 		CLAN(ch)->ManagePolitics(ch, buffer);
 		return;
@@ -2379,7 +2371,6 @@ void Clan::HcontrolBuild(CharData *ch, std::string &buffer) {
 	std::string abbrev;
 	GetOneParam(buffer, abbrev);
 	// название клана
-	boost::trim_if(buffer, boost::is_any_of(std::string(" \'")));
 	std::string name = buffer;
 
 	// тут проверяем наличие все этого дела
@@ -2489,7 +2480,6 @@ void Clan::HcontrolBuild(CharData *ch, std::string &buffer) {
 
 // удаление дружины (hcontrol destroy)
 void Clan::HcontrolDestroy(CharData *ch, std::string &buffer) {
-	boost::trim_if(buffer, boost::is_any_of(std::string(" \'")));
 	int rent = atoi(buffer.c_str());
 
 	ClanListType::iterator clan;
@@ -2739,7 +2729,6 @@ void DoClanPkList(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			SendMsgToChar("Давайте не будем засорять список всяким бредом?\r\n", ch);
 			return;
 		}
-		boost::trim_if(buffer, boost::is_any_of(std::string(" \'")));
 		if (buffer.empty()) {
 			SendMsgToChar("Потрудитесь прокомментировать, за что вы его так.\r\n", ch);
 			return;
@@ -3306,7 +3295,7 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 		GetOneParam(buffer, buffer2);
 		long gold = 0;
 		try {
-			gold = boost::lexical_cast<unsigned long>(buffer2);
+			gold = std::stol(buffer2, nullptr, 10);
 			if (gold <= 0) {
 				SendMsgToChar("Сколько вы хотите вложить?\r\n", ch);
 				return true;
@@ -3316,10 +3305,9 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 				return true;
 			}
 		}
-		catch (boost::bad_lexical_cast &) {
-			SendMsgToChar("Формат команды казна вложить <число>", ch);
+		catch (const std::invalid_argument &) {
+			SendMsgToChar("Формат команды казна вложить <число>\r\n", ch);
 		}
-
 		// на случай переполнения казны
 		if ((CLAN(ch)->bank + gold) < 0) {
 			long over = std::numeric_limits<long int>::max() - CLAN(ch)->bank;
@@ -3343,11 +3331,9 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 		SendMsgToChar(ch, "Вы вложили %ld %s.\r\n", gold, GetDeclensionInNumber(gold, EWhat::kMoneyU));
 		act("$n произвел$g финансовую операцию.", true, ch, 0, nullptr, kToRoom);
 		std::string log_text = boost::str(boost::format("%s вложил%s в казну %ld %s\r\n")
-											  % GET_NAME(ch) % GET_CH_SUF_1(ch) % gold % GetDeclensionInNumber(gold,
-																											   EWhat::kMoneyU));
+				% GET_NAME(ch) % GET_CH_SUF_1(ch) % gold % GetDeclensionInNumber(gold, EWhat::kMoneyU));
 		CLAN(ch)->chest_log.add(log_text);
 		return true;
-
 	} else if (CompareParam(buffer2, "получить") || CompareParam(buffer2, "withdraw")) {
 		if (!CLAN(ch)->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_BANK]) {
 			SendMsgToChar("К сожалению, у вас нет возможности транжирить средства дружины.\r\n", ch);
@@ -4751,7 +4737,6 @@ void SetChestMode(CharData *ch, std::string &buffer) {
 		return;
 	}
 
-	boost::trim_if(buffer, boost::is_any_of(std::string(" \'")));
 	if (CompareParam(buffer, "нет")) {
 		PRF_FLAGS(ch).unset(EPrf::kDecayMode);
 		PRF_FLAGS(ch).unset(EPrf::kTakeMode);
@@ -5491,7 +5476,7 @@ void tax_manage(CharData *ch, std::string &buffer) {
 	utils::Trim(buffer);
 	if (!buffer.empty()) {
 		try {
-			auto tax = boost::lexical_cast<unsigned int>(buffer);
+			int tax = std::stoi(buffer, nullptr, 10);
 			if (tax <= MAX_GOLD_TAX_PCT) {
 				CLAN(ch)->set_gold_tax_pct(tax);
 				SendMsgToChar(ch, "Налог для ратников дружины установлен в %d%%\r\n", tax);
@@ -5499,12 +5484,12 @@ void tax_manage(CharData *ch, std::string &buffer) {
 				SendMsgToChar(GOLD_TAX_FORMAT, ch);
 			}
 		}
-		catch (boost::bad_lexical_cast &) {
+		catch (const std::invalid_argument &) {
 			SendMsgToChar(GOLD_TAX_FORMAT, ch);
 		}
 	} else {
 		SendMsgToChar(ch, "Текущий налог для ратников дружины: %d%%\r\n%s",
-					  CLAN(ch)->get_gold_tax_pct(), GOLD_TAX_FORMAT);
+		CLAN(ch)->get_gold_tax_pct(), GOLD_TAX_FORMAT);
 	}
 }
 

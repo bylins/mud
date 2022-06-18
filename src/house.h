@@ -42,7 +42,7 @@ enum Privileges : unsigned {
 	/// всего привилегий
 	CLAN_PRIVILEGES_NUM
 };
-const unsigned MAX_GOLD_TAX_PCT = 50;
+const int MAX_GOLD_TAX_PCT = 50;
 const int MIN_GOLD_TAX_AMOUNT = 100;
 bool is_alliance(CharData *ch, char *clan_abbr);
 void check_player_in_house();
