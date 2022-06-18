@@ -3306,9 +3306,8 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 			}
 		}
 		catch (const std::invalid_argument &) {
-			SendMsgToChar("Формат команды казна вложить <число>", ch);
+			SendMsgToChar("Формат команды казна вложить <число>\r\n", ch);
 		}
-
 		// на случай переполнения казны
 		if ((CLAN(ch)->bank + gold) < 0) {
 			long over = std::numeric_limits<long int>::max() - CLAN(ch)->bank;
@@ -3332,11 +3331,9 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 		SendMsgToChar(ch, "Вы вложили %ld %s.\r\n", gold, GetDeclensionInNumber(gold, EWhat::kMoneyU));
 		act("$n произвел$g финансовую операцию.", true, ch, 0, nullptr, kToRoom);
 		std::string log_text = boost::str(boost::format("%s вложил%s в казну %ld %s\r\n")
-											  % GET_NAME(ch) % GET_CH_SUF_1(ch) % gold % GetDeclensionInNumber(gold,
-																											   EWhat::kMoneyU));
+				% GET_NAME(ch) % GET_CH_SUF_1(ch) % gold % GetDeclensionInNumber(gold, EWhat::kMoneyU));
 		CLAN(ch)->chest_log.add(log_text);
 		return true;
-
 	} else if (CompareParam(buffer2, "получить") || CompareParam(buffer2, "withdraw")) {
 		if (!CLAN(ch)->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_BANK]) {
 			SendMsgToChar("К сожалению, у вас нет возможности транжирить средства дружины.\r\n", ch);
