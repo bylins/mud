@@ -1191,7 +1191,9 @@ void command_interpreter(CharData *ch, char *argument) {
 	} else {
 		line = any_one_arg(argument, arg);
 	}
-
+	std::string line2 = line;
+	utils::Trim(line2);
+	line = strdup(line2.c_str());
 	const size_t length = strlen(arg);
 	if (1 < length && *(arg + length - 1) == '!') {
 		hardcopy = true;
