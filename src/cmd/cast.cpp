@@ -40,7 +40,6 @@ auto FindSubstituteSpellId(CharData *ch, ESpell spell_id) {
 void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	if (ch->IsNpc() && AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
-
 	if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
 		SendMsgToChar("Вы не смогли вымолвить и слова.\r\n", ch);
 		return;
@@ -48,8 +47,7 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	if (ch->HasCooldown(ESkill::kGlobalCooldown)) {
 		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
-	};
-
+	}
 	if (!ch->affected.empty()) {
 		for (const auto &aff : ch->affected) {
 			if (aff->location == EApply::kPlague && number(1, 100) < 10) { // лихорадка 10% фэйл закла
@@ -63,29 +61,24 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 			}
 		}
 	}
-
 	if (ch->is_morphed()) {
 		SendMsgToChar("Вы не можете произносить заклинания в звериной форме.\r\n", ch);
 		return;
 	}
-	
-	// get: blank, spell name, target name
 	if (!*argument) {
 		SendMsgToChar("ЧТО вы хотите колдовать?\r\n", ch);
 		return;
 	}
 	auto spell_name = strtok(argument, "'*!");
 	if (!str_cmp(spell_name, argument)) {
-		SendMsgToChar("Название заклинания должно быть заключено в символы : ' или * или !\r\n", ch);
+		SendMsgToChar("Название заклинания должно быть заключено в символы : * или !\r\n", ch);
 		return;
 	}
-
 	const auto spell_id = FixNameAndFindSpellId(spell_name);
 	if (spell_id == ESpell::kUndefined) {
 		SendMsgToChar("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
 	}
-
 	if (const auto spell = MUD::Class(ch->GetClass()).spells[spell_id];
 		(!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp | ESpellType::kKnow) ||
 		GET_REAL_REMORT(ch) < spell.GetMinRemort()) &&

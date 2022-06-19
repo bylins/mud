@@ -59,7 +59,7 @@ void do_forget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	s = strtok(argument, "'*!");
 	if (!str_cmp(s, argument)) {
-		SendMsgToChar("Название заклинания должно быть заключено в символы : ' или * или !\r\n", ch);
+		SendMsgToChar("Название заклинания должно быть заключено в символы : * или !\r\n", ch);
 		return;
 	}
 
