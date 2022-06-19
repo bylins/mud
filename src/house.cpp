@@ -1666,6 +1666,7 @@ void DoClanList(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	std::string buffer = argument;
+	utils::Trim(buffer);
 	if (buffer.empty()) {
 		// сортировка кланов по экспе
 		std::multimap<long long, Clan::shared_ptr> sort_clan;
@@ -1848,6 +1849,7 @@ bool char_to_pk_clan(CharData *ch) {
 void DoShowWars(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc()) return;
 	std::string buffer = argument;
+	utils::Trim(buffer);
 	std::ostringstream buffer3;
 	buffer3 << "Дружины, находящиеся в состоянии войны:\r\n";
 	if (!buffer.empty()) {
@@ -1895,6 +1897,7 @@ void DoShowWars(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 void do_show_alliance(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc()) return;
 	std::string buffer = argument;
+	utils::Trim(buffer);
 	std::ostringstream buffer3;
 	buffer3 << "Дружины, находящиеся в состоянии союза:\r\n";
 
