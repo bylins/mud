@@ -29,8 +29,8 @@ char *any_one_name(char *argument, char *first_arg) {
 	 * Библиотечная функция ispunct() неправильно работает для русского языка
 	 * (по крайней мере у меня). Пока закоментировал.
 	 */
-	for (arg = first_arg; *argument && !isspace(*argument)    /*&&
-									   (!ispunct(*argument) || *argument == '#' || *argument == '-') */ ;
+	for (arg = first_arg; *argument && !isspace(*argument) &&
+			(!ispunct(*argument) || *argument == '#' || *argument == '-');
 		 arg++, argument++)
 		*arg = LOWER(*argument);
 	*arg = '\0';
