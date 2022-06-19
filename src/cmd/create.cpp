@@ -53,14 +53,13 @@ void do_create(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
-	s = strtok(argument, "'*!");
-	if (s == nullptr) {
+	if (!*argument) {
 		sprintf(buf, "Уточните тип состава!\r\n");
 		SendMsgToChar(buf, ch);
 		return;
 	}
 	s = strtok(nullptr, "'*!");
-	if (s == nullptr) {
+	if (!str_cmp(s, argument)) {
 		SendMsgToChar("Название состава должно быть заключено в символы : ' или * или !\r\n", ch);
 		return;
 	}
