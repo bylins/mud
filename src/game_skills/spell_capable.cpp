@@ -29,13 +29,12 @@ void DoSpellCapable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	s = strtok(argument, "'*!");
-	if (s == nullptr) {
+	if (!*argument) {
 		SendMsgToChar("ЧТО вы хотите колдовать?\r\n", ch);
 		return;
 	}
 	s = strtok(nullptr, "'*!");
-	if (s == nullptr) {
+	if (!str_cmp(s, argument)) {
 		SendMsgToChar("Название заклинания должно быть заключено в символы : ' или * или !\r\n", ch);
 		return;
 	}

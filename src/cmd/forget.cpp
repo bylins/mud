@@ -53,13 +53,12 @@ void do_forget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Господи, тебе лень набрать skillset?\r\n", ch);
 		return;
 	}
-	s = strtok(argument, "'*!");
-	if (s == nullptr) {
+	if (!*argument) {
 		SendMsgToChar("Какое заклинание вы хотите забыть?\r\n", ch);
 		return;
 	}
-	s = strtok(nullptr, "'*!");
-	if (s == nullptr) {
+	s = strtok(argument, "'*!");
+	if (!str_cmp(s, argument)) {
 		SendMsgToChar("Название заклинания должно быть заключено в символы : ' или * или !\r\n", ch);
 		return;
 	}

@@ -23,16 +23,15 @@ void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	int target = 0;
 
 	// get: blank, spell name, target name
-	s = strtok(argument, "'*!");
-	if (!s) {
+	if (!*argument) {
 		if (subcmd == SCMD_RUNES)
 			SendMsgToChar("Что вы хотите сложить?\r\n", ch);
 		else if (subcmd == SCMD_ITEMS)
 			SendMsgToChar("Что вы хотите смешать?\r\n", ch);
 		return;
 	}
-	s = strtok(nullptr, "'*!");
-	if (!s) {
+	s = strtok(argument, "'*!");
+	if (!str_cmp(s, argument)) {
 		SendMsgToChar("Название вызываемой магии смеси должно быть заключено в символы : ' или * или !\r\n", ch);
 		return;
 	}

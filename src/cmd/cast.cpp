@@ -68,15 +68,14 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		SendMsgToChar("Вы не можете произносить заклинания в звериной форме.\r\n", ch);
 		return;
 	}
-
+	
 	// get: blank, spell name, target name
-	auto spell_name = strtok(argument, "'*!");
-	if (spell_name == nullptr) {
+	if (!*argument) {
 		SendMsgToChar("ЧТО вы хотите колдовать?\r\n", ch);
 		return;
 	}
-	spell_name = strtok(nullptr, "'*!");
-	if (spell_name == nullptr) {
+	auto spell_name = strtok(argument, "'*!");
+	if (!str_cmp(spell_name, argument)) {
 		SendMsgToChar("Название заклинания должно быть заключено в символы : ' или * или !\r\n", ch);
 		return;
 	}

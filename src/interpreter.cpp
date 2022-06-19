@@ -1191,6 +1191,15 @@ void command_interpreter(CharData *ch, char *argument) {
 	} else {
 		line = any_one_arg(argument, arg);
 	}
+	std::string line2 = line;
+	utils::Trim(line2);
+	line = strdup(line2.c_str());
+
+		log("интерпретер <%s, %d> {%5d} [%s]",
+			GET_NAME(ch),
+			GlobalObjects::heartbeat().pulse_number(),
+			GET_ROOM_VNUM(ch->in_room),
+			line);
 
 	const size_t length = strlen(arg);
 	if (1 < length && *(arg + length - 1) == '!') {
@@ -1198,7 +1207,6 @@ void command_interpreter(CharData *ch, char *argument) {
 		*(arg + length - 1) = '\0';
 		*(argument + length - 1) = ' ';
 	}
-
 	if (!ch->IsNpc()
 		&& !GET_INVIS_LEV(ch)
 		&& !AFF_FLAGGED(ch, EAffect::kHold)
