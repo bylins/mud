@@ -3463,10 +3463,10 @@ int HitData::calc_damage(CharData *ch, bool need_dice) {
 	if (ch->add_abils.percent_physdam_add > 0) {
 		int tmp;
 		if (need_dice) {
-			tmp = dam * (number(1, ch->add_abils.percent_physdam_add) / 100.0); 
+			tmp = dam * (number(1, ch->add_abils.percent_physdam_add * 2) / 100.0); 
 			dam += tmp;
 		} else {
-			tmp = dam * (ch->add_abils.percent_physdam_add / 2.0 / 100.0);
+			tmp = dam * (ch->add_abils.percent_physdam_add / 100.0);
 			dam += tmp;
 		}
 		if (PRF_FLAGGED(ch, EPrf::kExecutor))
