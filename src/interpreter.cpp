@@ -1200,7 +1200,6 @@ void command_interpreter(CharData *ch, char *argument) {
 		*(arg + length - 1) = '\0';
 		*(argument + length - 1) = ' ';
 	}
-
 	if (!ch->IsNpc()
 		&& !GET_INVIS_LEV(ch)
 		&& !AFF_FLAGGED(ch, EAffect::kHold)
