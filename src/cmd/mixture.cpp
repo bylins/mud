@@ -22,7 +22,6 @@ void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	char *s, *t;
 	int target = 0;
 
-	// get: blank, spell name, target name
 	if (!*argument) {
 		if (subcmd == SCMD_RUNES)
 			SendMsgToChar("Что вы хотите сложить?\r\n", ch);
@@ -32,14 +31,20 @@ void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 	s = strtok(argument, "'*!");
 	if (!str_cmp(s, argument)) {
-		SendMsgToChar("Название вызываемой магии смеси должно быть заключено в символы : ' или * или !\r\n", ch);
+		if (subcmd == SCMD_RUNES)
+			SendMsgToChar("Название вызываемой магии должно быть заключено в символы : * или !\r\n", ch);
+		else if (subcmd == SCMD_ITEMS)
+			SendMsgToChar("Название вызываемой смеси должно быть заключено в символы : * или !\r\n", ch);
 		return;
 	}
 	t = strtok(nullptr, "\0");
 
 	auto spell_id = FixNameAndFindSpellId(s);
 	if (spell_id == ESpell::kUndefined) {
-		SendMsgToChar("И откуда вы набрались рецептов?\r\n", ch);
+			if (subcmd == SCMD_RUNES)
+				SendMsgToChar("Вы бы еще сложить !абырвалг! попробовали!\r\n", ch);
+			else if (subcmd == SCMD_ITEMS)
+				SendMsgToChar("И откуда вы набрались рецептов?\r\n", ch);
 		return;
 	}
 
@@ -47,7 +52,10 @@ void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		&& subcmd == SCMD_ITEMS)
 		|| (!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kRunes)
 			&& subcmd == SCMD_RUNES)) && !IS_GOD(ch)) {
-		SendMsgToChar("Это блюдо вам явно не понравится.\r\n" "Научитесь его правильно готовить.\r\n", ch);
+			if (subcmd == SCMD_RUNES)
+				SendMsgToChar("Что-то пошло не так...\r\n", ch);
+			else if (subcmd == SCMD_ITEMS)
+				SendMsgToChar("Это блюдо вам явно не понравится, научитесь его правильно готовить.\r\n", ch);
 		return;
 	}
 

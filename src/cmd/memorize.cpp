@@ -14,7 +14,6 @@ void show_wizdom(CharData *ch, int bitset);
 void do_memorize(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char *s;
 
-	// get: blank, spell name, target name
 	if (!argument || !(*argument)) {
 		show_wizdom(ch, 0x07);
 		return;
@@ -29,16 +28,14 @@ void do_memorize(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	s = strtok(argument, "'*!");
 	if (!str_cmp(s, argument)) {
-		SendMsgToChar("Название заклинания должно быть заключено в символы : ' или * или !\r\n", ch);
+		SendMsgToChar("Название заклинания должно быть заключено в символы : * или !\r\n", ch);
 		return;
 	}
-
 	auto spell_id = FixNameAndFindSpellId(s);
 	if (spell_id == ESpell::kUndefined) {
 		SendMsgToChar("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
 	}
-
 	const auto spell = MUD::Class(ch->GetClass()).spells[spell_id];
 	if (GetRealLevel(ch) < CalcMinSpellLvl(ch, spell_id)
 		|| GET_REAL_REMORT(ch) < spell.GetMinRemort()

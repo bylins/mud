@@ -48,7 +48,6 @@ void do_forget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 		return;
 	}
-	// get: blank, spell name, target name
 	if (IS_IMMORTAL(ch)) {
 		SendMsgToChar("Господи, тебе лень набрать skillset?\r\n", ch);
 		return;
@@ -59,16 +58,14 @@ void do_forget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	s = strtok(argument, "'*!");
 	if (!str_cmp(s, argument)) {
-		SendMsgToChar("Название заклинания должно быть заключено в символы : ' или * или !\r\n", ch);
+		SendMsgToChar("Название заклинания должно быть заключено в символы : * или !\r\n", ch);
 		return;
 	}
-
 	auto spell_id = FixNameAndFindSpellId(s);
 	if (spell_id == ESpell::kUndefined) {
 		SendMsgToChar("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
 	}
-
 	if (!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow | ESpellType::kTemp)) {
 		SendMsgToChar("Трудно забыть то, чего не знаешь...\r\n", ch);
 		return;
