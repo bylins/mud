@@ -1448,7 +1448,7 @@ int text_processed(char *field, char *subfield, struct TriggerVar *vd, char *str
 			sprintf(str, "0");
 		return true;
 	} else if (!str_cmp(field, "contains")) {
-		if (strstr(vd->value, subfield))
+		if (str_str(vd->value, subfield))
 			sprintf(str, "1");
 		else
 			sprintf(str, "0");
@@ -3565,7 +3565,7 @@ void eval_op(const char *op,
 		else
 			sprintf(result, "%d", str_cmp(lhs, rhs) > 0);
 	} else if (!strcmp("/=", op))
-		sprintf(result, "%c", strstr(lhs, rhs) ? '1' : '0');
+		sprintf(result, "%c", str_str(lhs, rhs) ? '1' : '0');
 	else if (!strcmp("*", op))
 		sprintf(result, "%d", atoi(lhs) * atoi(rhs));
 	else if (!strcmp("/", op))
