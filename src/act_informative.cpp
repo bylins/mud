@@ -1567,7 +1567,7 @@ int paste_description(char *string, const char *tag, int need) {
 		return (false);
 	}
 
-	const char *pos = strstr(string, tag);
+	const char *pos = str_str(string, tag);
 	if (!pos) {
 		return false;
 	}
@@ -1575,7 +1575,7 @@ int paste_description(char *string, const char *tag, int need) {
 	if (!need) {
 		const size_t offset = pos - string;
 		string[offset] = '\0';
-		pos = strstr(pos + 1, tag);
+		pos = str_str(pos + 1, tag);
 		if (pos) {
 			auto to_pos = string + offset;
 			auto from_pos = pos + strlen(tag);
@@ -1596,7 +1596,7 @@ int paste_description(char *string, const char *tag, int need) {
 	}
 
 	strcat(buf, pos);
-	pos = strstr(buf, tag);
+	pos = str_str(buf, tag);
 	if (pos) {
 		const size_t offset = pos - buf;
 		buf[offset] = '\0';
