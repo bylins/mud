@@ -922,7 +922,6 @@ int may_kill_here(CharData *ch, CharData *victim, char *argument) {
 	//Проверка на чармиса(своего или группы)
 	if (argument) {
 		skip_spaces(&argument);
-		utils::RemoveColors(argument);
 		if (victim && IS_CHARMICE(victim) && victim->get_master() && !victim->get_master()->IsNpc()) {
 			if (!name_cmp(victim, argument)) {
 				SendMsgToChar(ch, "Для исключения незапланированной агрессии введите имя жертвы полностью.\r\n");
@@ -951,7 +950,8 @@ bool need_full_alias(CharData *ch, CharData *opponent) {
 //Проверка, является ли строка arg полным именем ch
 int name_cmp(CharData *ch, const char *arg) {
 	char opp_name_part[200] = "\0", opp_name[200] = "\0", *opp_name_remain;
-	strcpy(opp_name, GET_NAME(ch));
+	strcpy(opp_name, ch->get_pc_name().c_str());
+//	utils::RemoveColors(opp_name); алиасы не бывают цветными
 	for (opp_name_remain = opp_name; *opp_name_remain;) {
 		opp_name_remain = one_argument(opp_name_remain, opp_name_part);
 		if (!str_cmp(arg, opp_name_part)) {
