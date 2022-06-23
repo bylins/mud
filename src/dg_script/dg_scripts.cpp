@@ -2818,9 +2818,50 @@ void find_replacement(void *go,
 			//подозреваю что никто из билдеров даже не вкурсе насчет всего функционала этого affect
 			//к тому же аффекты в том списке не все кличи например никак там не отображаются
 		} else if (!str_cmp(field, "affected_by")) {
-			auto spell_id = FixNameAndFindSpellId(subfield);
-			if (spell_id >= ESpell::kFirst && spell_id < ESpell::kLast) {
-				sprintf(str, "%d", (int) IsAffectedBySpell(c, spell_id));
+			char *p = strchr(subfield, ',');
+			if (!p) {
+				auto spell_id = FixNameAndFindSpellId(subfield);
+				if (spell_id == ESpell::kUndefined) {
+					sprintf(buf, "Не найден спелл %s в списке affected_by", subfield);
+					trig_log(trig, buf);
+					return;
+				}
+				if (spell_id >= ESpell::kFirst && spell_id < ESpell::kLast) {
+					for (const auto &affect : c->affected) {
+						if (affect->type == spell_id) {
+							sprintf(str, "%s", "1");
+							return;
+						}
+					}
+					sprintf(str, "%s", "0");
+				}
+			} else {
+				int num;
+				*(p++) = '\0';
+				auto spell_id = FixNameAndFindSpellId(subfield);
+				if (spell_id == ESpell::kUndefined) {
+					sprintf(buf, "Не найден спелл %s в списке affected_by", p);
+					trig_log(trig, buf);
+					return;
+				}
+				for (num = 0; num < EApply::kNumberApplies; num++) {
+					if (!str_cmp(p, apply_types[num]))
+					break;
+				}
+				if (num == EApply::kNumberApplies) {
+					sprintf(buf, "Не найден апплай '%s' в списке affected_by", p);
+					trig_log(trig, buf);
+					return;
+				}
+				for (const auto &affect : c->affected) {
+					if (affect->type == spell_id) {
+						if (affect->location == num) {
+							sprintf(str, "%d", affect->modifier);
+							return;
+						}
+					}
+				}
+				sprintf(str, "%s", "0");
 			}
 		} else if (!str_cmp(field, "action")) {
 			if (c->IsNpc()) {
