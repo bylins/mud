@@ -1227,6 +1227,8 @@ void ObjVal::remove_incorrect_keys(int type) {
 
 std::string print_obj_affects(const obj_affected_type &affect) {
 	sprinttype(affect.location, apply_types, buf2);
+	if (buf2[0] == '*')
+		memmove(buf2, buf2 + 1, strlen(buf2) - 1);
 	bool negative = false;
 	for (int j = 0; *apply_negative[j] != '\n'; j++) {
 		if (!str_cmp(buf2, apply_negative[j])) {
@@ -1250,6 +1252,8 @@ std::string print_obj_affects(const obj_affected_type &affect) {
 
 void print_obj_affects(CharData *ch, const obj_affected_type &affect) {
 	sprinttype(affect.location, apply_types, buf2);
+	if (buf2[0] == '*')
+		memmove(buf2, buf2 + 1, strlen(buf2) - 1);
 	bool negative = false;
 	for (int j = 0; *apply_negative[j] != '\n'; j++) {
 		if (!str_cmp(buf2, apply_negative[j])) {

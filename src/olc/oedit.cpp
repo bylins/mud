@@ -1982,6 +1982,11 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			} else if (number < 0 || number >= EApply::kNumberApplies) {
 				oedit_disp_apply_menu(d);
 			} else {
+				if (apply_types[number][0] == '*') {
+					SendMsgToChar("&RЭтот параметр устанавливать запрещено.&n\r\n", d->character.get());
+					oedit_disp_apply_menu(d);
+					return;
+				}
 				OLC_OBJ(d)->set_affected_location(OLC_VAL(d), static_cast<EApply>(number));
 				SendMsgToChar("Modifier : ", d->character.get());
 				OLC_MODE(d) = OEDIT_APPLYMOD;
