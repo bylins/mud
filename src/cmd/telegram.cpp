@@ -65,7 +65,7 @@ size_t noop_cb(void *, size_t size, size_t nmemb, void *) {
 bool TelegramBot::sendMessage(unsigned long chatId, const std::string &msg) {
 	bool result = true;
 #if defined(HAVE_TG)
-	char msgBuf[1024];
+	char msgBuf[kMaxStringLength];
 	CURLcode res;
 	curl = curl_easy_init();
 	if (!curl)
@@ -73,7 +73,7 @@ bool TelegramBot::sendMessage(unsigned long chatId, const std::string &msg) {
 	if (chatId < 1 || msg.empty())
 		return false;
 	curl_easy_setopt(curl, CURLOPT_URL, this->uri.c_str());
-	sprintf(msgBuf, "%s%lu%s%s",
+	snprintf(msgBuf, kMaxStringLength,
 			this->chatIdParam.c_str(), chatId,
 			this->textParam.c_str(), curl_easy_escape(curl, msg.c_str(), msg.length()));
 	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, msgBuf);
