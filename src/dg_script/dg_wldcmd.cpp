@@ -434,7 +434,7 @@ void do_wpurge(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trig
 // loads a mobile or object into the room //
 void do_wload(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *trig) {
 	char arg1[kMaxInputLength], arg2[kMaxInputLength];
-	char uid[kMaxInputLength], varname[kMaxInputLength] = "loaded_uid";
+	char uid[kMaxInputLength], varname[kMaxInputLength] = "LoadedUid";
 	char uid_type;
 	int number = 0, idnum;
 	CharData *mob;

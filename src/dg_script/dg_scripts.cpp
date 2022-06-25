@@ -1718,7 +1718,7 @@ void find_replacement(void *go,
 					sprintf(str, "%d", num);
 			} else if (!str_cmp(field, "people") && num > 0) {
 				sprintf(str, "%d", trgvar_in_room(num));
-			} else if (!str_cmp(field, "zone_npc") && num > 0) {
+			} else if (!str_cmp(field, "zonenpc") && num > 0) {
 				int from = 0, to = 0;
 				get_zone_rooms(zone_rnum_from_vnum(num), &from , &to);
 				for (const auto &tch : character_list) {
@@ -1726,7 +1726,7 @@ void find_replacement(void *go,
 						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(tch));
 					}
 				}
-			} else if (!str_cmp(field, "zone_char") && num > 0) {
+			} else if (!str_cmp(field, "zonechar") && num > 0) {
 				int from = 0, to = 0;
 				get_zone_rooms(zone_rnum_from_vnum(num), &from , &to);
 				for (const auto &tch : character_list) {
@@ -1736,7 +1736,7 @@ void find_replacement(void *go,
 						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(tch));
 					}
 				}
-			} else if (!str_cmp(field, "zone_pc") && num > 0) {
+			} else if (!str_cmp(field, "zonepc") && num > 0) {
 				int from = 0, to = 0;
 				get_zone_rooms(zone_rnum_from_vnum(num), &from , &to);
 				for (const auto &tch : character_list) {
@@ -1748,7 +1748,7 @@ void find_replacement(void *go,
 						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(tch));
 					}
 				}
-			} else if (!str_cmp(field, "zone_all") && num > 0) {
+			} else if (!str_cmp(field, "zoneall") && num > 0) {
 				int from =0, to = 0;
 				get_zone_rooms(zone_rnum_from_vnum(num), &from , &to);
 				for (const auto &tch : character_list) {
@@ -2434,9 +2434,9 @@ void find_replacement(void *go,
 				} else
 					sprintf(str, "%ld", GET_EXP(c));
 			}
-		} else if (!str_cmp(field, "max_gain_exp")) {
+		} else if (!str_cmp(field, "MaxGainExp")) {
 			sprintf(str, "%ld", (long) max_exp_gain_pc(c));
-		} else if (!str_cmp(field, "tnl_exp")) {
+		} else if (!str_cmp(field, "TnlExp")) {
 			sprintf(str, "%ld", GetExpUntilNextLvl(c, c->GetLevel() + 1) - GET_EXP(c));
 		} else if (!str_cmp(field, "sex"))
 			sprintf(str, "%d", (int) GET_SEX(c));
@@ -2447,12 +2447,12 @@ void find_replacement(void *go,
 					str[i] = LOWER(str[i]);
 			} else
 				sprintf(str, "0");
-		} else if (!str_cmp(field, "clanrank")) {
+		} else if (!str_cmp(field, "ClanRank")) {
 			if (CLAN(c) && CLAN_MEMBER(c))
 				sprintf(str, "%d", CLAN_MEMBER(c)->rank_num);
 			else
 				sprintf(str, "0");
-		} else if (!str_cmp(field, "clanlevel")) {
+		} else if (!str_cmp(field, "ClanLevel")) {
 			if (CLAN(c) && CLAN_MEMBER(c))
 				sprintf(str, "%d", CLAN(c)->GetClanLevel());
 			else
@@ -2481,11 +2481,11 @@ void find_replacement(void *go,
 			strcpy(str, GET_CH_SUF_8(c));
 		else if (!str_cmp(field, "weight"))
 			sprintf(str, "%d", GET_WEIGHT(c));
-		else if (!str_cmp(field, "carry_weight"))
+		else if (!str_cmp(field, "CarryWeight"))
 			sprintf(str, "%d", c->char_specials.carry_weight);
 		else if (!str_cmp(field, "can_carry_weight"))
 			sprintf(str, "%d", CAN_CARRY_W(c));
-		else if (!str_cmp(field, "canbeseen")) {
+		else if (!str_cmp(field, "CanBeSeen")) {
 			if ((type == MOB_TRIGGER) && !CAN_SEE(((CharData *) go), c)) {
 				strcpy(str, "0");
 			} else {
@@ -2630,7 +2630,7 @@ void find_replacement(void *go,
 			if (c->has_horse(false)) {
 				sprintf(str, "%c%ld", uid_type, GET_ID(c->get_horse()));
 			}
-		} else if (!str_cmp(field, "riden_by")) {
+		} else if (!str_cmp(field, "riddenby")) {
 			if (IS_HORSE(c) && c->get_master()->IsOnHorse() && (GET_ID(c->get_master()->get_horse()) == GET_ID(c))) {
 				sprintf(str, "%c%ld", UID_CHAR, GET_ID(c->get_master()));
 			}
@@ -2742,7 +2742,7 @@ void find_replacement(void *go,
 			if (find_var_cntx(&((SCRIPT(c))->global_vars), subfield, sc->context)) {
 				strcpy(str, "1");
 			}
-		} else if (!str_cmp(field, "next_in_room")) {
+		} else if (!str_cmp(field, "nextinroom")) {
 			CharData *next = nullptr;
 			const auto room = world[c->in_room];
 
@@ -2793,7 +2793,7 @@ void find_replacement(void *go,
 					SetWaitState(c, pos * kPulseViolence);
 				}
 			}
-		} else if (!str_cmp(field, "apply_value")) {
+		} else if (!str_cmp(field, "applyvalue")) {
 			int num;
 			int sum  = 0;
 			for (num = 0; num < EApply::kNumberApplies; num++) {
@@ -2801,7 +2801,7 @@ void find_replacement(void *go,
 				break;
 			}
 			if (num == EApply::kNumberApplies) {
-				sprintf(buf, "Не найден апплай '%s' в списке apply_types", subfield);
+				sprintf(buf, "Не найден апплай '%s' в списке ApplyTypes", subfield);
 				trig_log(trig, buf);
 				return;
 			}
@@ -2817,12 +2817,12 @@ void find_replacement(void *go,
 			c->char_specials.saved.affected_by.gm_flag(subfield, affected_bits, str);
 			//подозреваю что никто из билдеров даже не вкурсе насчет всего функционала этого affect
 			//к тому же аффекты в том списке не все кличи например никак там не отображаются
-		} else if (!str_cmp(field, "affected_by")) {
+		} else if (!str_cmp(field, "affectedby")) {
 			char *p = strchr(subfield, ',');
 			if (!p) {
 				auto spell_id = FixNameAndFindSpellId(subfield);
 				if (spell_id == ESpell::kUndefined) {
-					sprintf(buf, "Не найден спелл %s в списке affected_by", subfield);
+					sprintf(buf, "Не найден спелл %s в списке AffectedBy", subfield);
 					trig_log(trig, buf);
 					return;
 				}
@@ -2840,7 +2840,7 @@ void find_replacement(void *go,
 				*(p++) = '\0';
 				auto spell_id = FixNameAndFindSpellId(subfield);
 				if (spell_id == ESpell::kUndefined) {
-					sprintf(buf, "Не найден спелл %s в списке affected_by", p);
+					sprintf(buf, "Не найден спелл %s в списке AffecteBby", p);
 					trig_log(trig, buf);
 					return;
 				}
@@ -2849,7 +2849,7 @@ void find_replacement(void *go,
 					break;
 				}
 				if (num == EApply::kNumberApplies) {
-					sprintf(buf, "Не найден апплай '%s' в списке affected_by", p);
+					sprintf(buf, "Не найден апплай '%s' в списке AffectedBy", p);
 					trig_log(trig, buf);
 					return;
 				}
@@ -2976,9 +2976,9 @@ void find_replacement(void *go,
 			}
 
 			return;
-		} else if (!str_cmp(field, "is_noob")) {
+		} else if (!str_cmp(field, "isnoob")) {
 			strcpy(str, Noob::is_noob(c) ? "1" : "0");
-		} else if (!str_cmp(field, "noob_outfit")) {
+		} else if (!str_cmp(field, "nooboutfit")) {
 			std::string vnum_str = Noob::print_start_outfit(c);
 			snprintf(str, kMaxTrglineLength, "%s", vnum_str.c_str());
 		} else {
@@ -3049,9 +3049,9 @@ void find_replacement(void *go,
 			sprintf(str, "%d", (int) GET_OBJ_TYPE(o));
 		} else if (!str_cmp(field, "timer")) {
 			sprintf(str, "%d", o->get_timer());
-		} else if (!str_cmp(field, "obj_max")) {
+		} else if (!str_cmp(field, "objmax")) {
 			sprintf(str, "%d", o->get_maximum_durability());
-		} else if (!str_cmp(field, "obj_cur")) {
+		} else if (!str_cmp(field, "objcur")) {
 			if (*subfield) {
 				skip_spaces(&subfield);
 				o->set_current_durability(atoi(subfield));
@@ -3099,13 +3099,13 @@ void find_replacement(void *go,
 			o->gm_extra_flag(subfield, extra_bits, str);
 		} else if (!str_cmp(field, "affect")) {
 			o->gm_affect_flag(subfield, weapon_affects, str);
-		} else if (!str_cmp(field, "carried_by")) {
+		} else if (!str_cmp(field, "carriedby")) {
 			if (o->get_carried_by()) {
 				sprintf(str, "%c%ld", UID_CHAR, GET_ID(o->get_carried_by()));
 			} else {
 				strcpy(str, "");
 			}
-		} else if (!str_cmp(field, "worn_by")) {
+		} else if (!str_cmp(field, "wornby")) {
 			if (o->get_worn_by()) {
 				sprintf(str, "%c%ld", UID_CHAR, GET_ID(o->get_worn_by()));
 			} else {
@@ -3265,7 +3265,7 @@ void find_replacement(void *go,
 			} else {
 				sprintf(str, "%d", GET_OBJ_RENT(o));
 			}
-		} else if (!str_cmp(field, "rent_eq")) {
+		} else if (!str_cmp(field, "renteq")) {
 			if (*subfield && a_isdigit(*subfield)) {
 				skip_spaces(&subfield);
 				o->set_rent_on(atoi(subfield));
@@ -5329,14 +5329,14 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 				charuidall_var(go, sc, trig, cmd);
 			} else if (!strn_cmp(cmd, "halt", 4)) {
 				break;
-			} else if (!strn_cmp(cmd, "dg_cast ", 8)) {
+			} else if (!strn_cmp(cmd, "DgCast ", 7)) {
 				do_dg_cast(go, sc, trig, type, cmd);
 				if (type == MOB_TRIGGER && reinterpret_cast<CharData *>(go)->purged()) {
 					depth--;
 					cur_trig = prev_trig;
 					return ret_val;
 				}
-			} else if (!strn_cmp(cmd, "dg_affect ", 10)) {
+			} else if (!strn_cmp(cmd, "DgAffect ", 9)) {
 				do_dg_affect(go, sc, trig, type, cmd);
 			} else if (!strn_cmp(cmd, "global ", 7)) {
 				process_global(sc, trig, cmd, sc->context);
