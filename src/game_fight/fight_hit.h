@@ -24,8 +24,8 @@ struct HitData {
 	void calc_rand_hr(CharData *ch, CharData *victim);
 	void calc_stat_hr(CharData *ch);
 	void calc_ac(CharData *victim);
-	void add_weapon_damage(CharData *ch, bool need_dice);
-	void add_hand_damage(CharData *ch, bool need_dice);
+	void add_weapon_damage(CharData *ch, bool need_dice = true);
+	void add_hand_damage(CharData *ch, bool need_dice = true);
 	void check_defense_skills(CharData *ch, CharData *victim);
 	void calc_crit_chance(CharData *ch);
 	int calc_damage(CharData *ch, bool need_dice);

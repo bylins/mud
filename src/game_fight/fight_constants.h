@@ -47,6 +47,7 @@ enum {
 	kIgnoreAbsorbe,			// игнор поглощения
 	kNoFleeDmg,				// от этого урона не нужно убегать (яд и т.п.)
 	kCritHit,				// крит удар
+	kCritLuck,				// крит удача
 	kIgnoreFireShield,		// игнор возврата дамаги от огненного щита
 	kMagicReflect,			// дамаг идет от магического зеркала или звукового барьера
 	kVictimFireShield,		// жертва имеет огненный щит
