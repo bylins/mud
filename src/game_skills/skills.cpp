@@ -781,7 +781,22 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		rate /= 2;
 		rate -= static_cast<int>(round(GET_SAVE(vict, MUD::Skill(skill_id).save_type) * kSaveWeight));
 	}
-
+	switch (MUD::Skill(skill_id).save_type) {
+		case ESaving::kStability:
+			rate += dex_bonus(GET_REAL_CON(ch) + (ch)->IsOnHorse() ? 20 : 0);
+			break;
+		case ESaving::kReflex:
+			rate += dex_bonus(GET_REAL_DEX(ch) + (ch)->IsOnHorse() ? -20 : 0);
+			break;
+		case ESaving::kCritical:
+			rate += dex_bonus(GET_REAL_CON(ch));
+			break;
+		case ESaving::kWill:
+			rate += dex_bonus(GET_REAL_WIS(ch));
+			break;
+		default:
+			break;
+	}
 	return rate;
 }
 
@@ -1181,7 +1196,7 @@ ELuckTestResult MakeLuckTest(CharData *ch, CharData *vict) {
 	if (luck < 0) {
 		luck = luck * 10;
 	}
-	const int bonus_limit = std::min(150, luck * 10);
+	const int bonus_limit = std::min(150, std::max(1, luck - 50));
 	int fail_limit = std::min(990, 950 + luck * 10 / 6);
 	if (luck >= 50) {
 		fail_limit = 999;

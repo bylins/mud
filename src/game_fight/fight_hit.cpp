@@ -1978,7 +1978,7 @@ bool Damage::dam_absorb(CharData *ch, CharData *victim) {
 		}
 	}
 	if (flags[fight::kIgnoreAbsorbe]) {
-		SendMsgToChar(ch, "Игнорируем абсорб\r\n");
+		SendMsgToChar(ch, "Вы игнорируете поглощение.\r\n");
 	}
 	if (dmg_type == fight::kMagicDmg
 		&& dam > 0
@@ -2299,8 +2299,8 @@ int Damage::Process(CharData *ch, CharData *victim) {
 			}
 		}
 		if (flags[fight::kIgnoreSanct])
-				SendMsgToChar(ch, "Вы ударили по санке %s.\r\n", victim->player_data.PNames[1].c_str());
-		if (AFF_FLAGGED(victim, EAffect::kSanctuary)  && !flags[fight::kIgnoreSanct] &&
+			SendMsgToChar(ch, "Вы игнорируете освящение.\r\n");
+		if (AFF_FLAGGED(victim, EAffect::kSanctuary) && !flags[fight::kIgnoreSanct] &&
 			!(skill_id == ESkill::kBackstab && CanUseFeat(ch, EFeat::kThieveStrike))) {
 			if (dmg_type == fight::kPhysDmg) {
 				dam /= 2;
@@ -2391,6 +2391,9 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	if (victim != ch) {
 		bool shield_full_absorb = magic_shields_dam(ch, victim);
 		// сначала броня
+		if (flags[fight::kIgnoreArmor]) {
+			SendMsgToChar(ch, "Вы игнорируете броню.\r\n");
+		}
 		armor_dam_reduce(victim);
 		// потом абсорб
 		bool armor_full_absorb = dam_absorb(ch, victim);
@@ -2883,7 +2886,7 @@ void HitData::init(CharData *ch, CharData *victim) {
 		SkillRollResult result = MakeSkillTest(ch, weap_skill, victim);
 		weap_skill_is = result.SkillRate;
 		if (result.CritLuck) {
-			SendMsgToChar(ch, "Вы удачно поразили в уязвимое место %s weap_skill == %d.\r\n", victim->player_data.PNames[1].c_str(), weap_skill_is);
+			SendMsgToChar(ch, "Вы удачно поразили %s в уязвимое место.\r\n", victim->player_data.PNames[1].c_str());
 			set_flag(fight::kCritLuck);
 			set_flag(fight::kIgnoreSanct);
 			set_flag(fight::kIgnoreArmor);
@@ -2892,7 +2895,7 @@ void HitData::init(CharData *ch, CharData *victim) {
 	} else {
 		weap_skill_is = CalcCurrentSkill(ch, weap_skill, victim);
 		if (weap_skill_is == MUD::Skill(weap_skill).cap) {
-			SendMsgToChar(ch, "Вы удачно поразили в уязвимое место %s weap_skill == %d.\r\n", victim->player_data.PNames[1].c_str(), weap_skill_is);
+			SendMsgToChar(ch, "Вы удачно поразили %s в уязвимое место.\r\n", victim->player_data.PNames[1].c_str());
 			set_flag(fight::kCritLuck);
 			set_flag(fight::kIgnoreSanct);
 			set_flag(fight::kIgnoreArmor);
