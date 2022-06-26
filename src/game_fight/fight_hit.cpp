@@ -1977,6 +1977,9 @@ bool Damage::dam_absorb(CharData *ch, CharData *victim) {
 			}
 		}
 	}
+	if (flags[fight::kIgnoreAbsorbe]) {
+		SendMsgToChar(ch, "Игнорируем абсорб\r\n");
+	}
 	if (dmg_type == fight::kMagicDmg
 		&& dam > 0
 		&& GET_ABSORBE(victim) > 0
@@ -2295,7 +2298,9 @@ int Damage::Process(CharData *ch, CharData *victim) {
 				dam /= 2;
 			}
 		}
-		if (AFF_FLAGGED(victim, EAffect::kSanctuary) &&
+		if (flags[fight::kIgnoreSanct])
+				SendMsgToChar(ch, "Вы ударили по санке %s.\r\n", victim->player_data.PNames[1].c_str());
+		if (AFF_FLAGGED(victim, EAffect::kSanctuary)  && !flags[fight::kIgnoreSanct] &&
 			!(skill_id == ESkill::kBackstab && CanUseFeat(ch, EFeat::kThieveStrike))) {
 			if (dmg_type == fight::kPhysDmg) {
 				dam /= 2;
@@ -2850,7 +2855,6 @@ int HitData::extdamage(CharData *ch, CharData *victim) {
  */
 void HitData::init(CharData *ch, CharData *victim) {
 	// Find weapon for attack number weapon //
-
 	if (weapon == fight::AttackType::kMainHand) {
 		if (!(wielded = GET_EQ(ch, EEquipPos::kWield))) {
 			wielded = GET_EQ(ch, EEquipPos::kBoths);
@@ -2875,9 +2879,26 @@ void HitData::init(CharData *ch, CharData *victim) {
 		// удар голыми руками
 		weap_skill = ESkill::kPunch;
 	}
-	weap_skill_is = CalcCurrentSkill(ch, weap_skill, victim);
-	TrainSkill(ch, weap_skill, true, victim);
-
+	if (PRF_FLAGGED(ch, EPrf::kTester)) {
+		SkillRollResult result = MakeSkillTest(ch, weap_skill, victim);
+		weap_skill_is = result.SkillRate;
+		if (result.CritLuck) {
+			SendMsgToChar(ch, "Вы удачно поразили в уязвимое место %s weap_skill == %d.\r\n", victim->player_data.PNames[1].c_str(), weap_skill_is);
+			set_flag(fight::kCritLuck);
+			set_flag(fight::kIgnoreSanct);
+			set_flag(fight::kIgnoreArmor);
+			set_flag(fight::kIgnoreAbsorbe);
+		}
+	} else {
+		weap_skill_is = CalcCurrentSkill(ch, weap_skill, victim);
+		if (weap_skill_is == MUD::Skill(weap_skill).cap) {
+			SendMsgToChar(ch, "Вы удачно поразили в уязвимое место %s weap_skill == %d.\r\n", victim->player_data.PNames[1].c_str(), weap_skill_is);
+			set_flag(fight::kCritLuck);
+			set_flag(fight::kIgnoreSanct);
+			set_flag(fight::kIgnoreArmor);
+			set_flag(fight::kIgnoreAbsorbe);
+		}
+	}
 	//* обработка ESkill::kNoParryHit //
 	if (skill_num == ESkill::kUndefined && ch->GetSkill(ESkill::kNoParryHit)) {
 		int tmp_skill = CalcCurrentSkill(ch, ESkill::kNoParryHit, victim);
@@ -3564,39 +3585,35 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 	hit_params.skill_num = type != ESkill::kOverwhelm && type != ESkill::kHammer ? type : ESkill::kUndefined;
 	hit_params.weapon = weapon;
 	hit_params.init(ch, victim);
-
 	//  дополнительный маг. дамаг независимо от попадания физ. атаки
 	if (AFF_FLAGGED(ch, EAffect::kCloudOfArrows)
 		&& hit_params.skill_num == ESkill::kUndefined
 		&& (ch->GetEnemy()
 			|| (!GET_AF_BATTLE(ch, kEafHammer) && !GET_AF_BATTLE(ch, kEafOverwhelm)))) {
 		// здесь можно получить спурженного victim, но ch не умрет от зеркала
-    if (ch->IsNpc()) {
+	if (ch->IsNpc()) {
 		CastDamage(std::min(kLvlImplementator, GetRealLevel(ch)), ch, victim, ESpell::kMagicMissile);
 	} else {
 		CastDamage(1, ch, victim, ESpell::kMagicMissile);
-    }
+	}
 		if (ch->purged() || victim->purged()) {
 			return;
 		}
 		auto skillnum = GetMagicSkillId(ESpell::kCloudOfArrows);
 		TrainSkill(ch, skillnum, true, victim);
 	}
-
 	// вычисление хитролов/ац
 	hit_params.calc_base_hr(ch);
 	hit_params.calc_rand_hr(ch, victim);
 	hit_params.calc_ac(victim);
 	bool need_dice = true; // чтоб работали кубики
 	hit_params.calc_damage(ch, need_dice); // попытка все собрать в кучу
-
 	// рандом разброс базового дамага для красоты
 	if (hit_params.dam > 0) {
 		int min_rnd = hit_params.dam - hit_params.dam / 4;
 		int max_rnd = hit_params.dam + hit_params.dam / 4;
 		hit_params.dam = MAX(1, number(min_rnd, max_rnd));
 	}
-
 	const int victim_lvl_miss = GetRealLevel(victim) + GET_REAL_REMORT(victim);
 	const int ch_lvl_miss = GetRealLevel(ch) + GET_REAL_REMORT(ch);
 
@@ -3651,7 +3668,6 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 				SendMsgToChar(buf, victim);
 				act("$n исчез$q из вашего поля зрения.", true, victim, nullptr, ch, kToVict);
 				act("$n исчез$q из поля зрения $N3.", true, victim, nullptr, ch, kToNotVict);
-
 				hit_params.dam = 0;
 				hit_params.extdamage(ch, victim);
 				return;

@@ -16,7 +16,8 @@
 const int kZeroRemortSkillCap = 80;
 const int kSkillCapBonusPerRemort = 5;;
 
-const int kNoviceSkillThreshold = 75;
+//const int kNoviceSkillThreshold = 75;
+const int kNoviceSkillThreshold = 0;
 const short kSkillDiceSize = 100;
 const short kSkillCriticalFailure = 6;
 const short kSkillCriticalSuccess = 95;
@@ -25,7 +26,8 @@ const int kMinSkillDegree = 0;
 const int kMaxSkillDegree = 10;
 const double kSkillWeight = 1.0;
 const double kNoviceSkillWeight = 0.75;
-const double kParameterWeight = 3.0;
+//const double kParameterWeight = 3.0;
+const double kParameterWeight = 1.0;
 const double kBonusWeight = 1.0;
 const double kSaveWeight = 1.0;
 
@@ -776,6 +778,7 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 	}
 
 	if (!MUD::Skill(skill_id).autosuccess) {
+		rate /= 2;
 		rate -= static_cast<int>(round(GET_SAVE(vict, MUD::Skill(skill_id).save_type) * kSaveWeight));
 	}
 
@@ -796,6 +799,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		return 0;
 	}
 
+	base_percent += int_app[GET_REAL_INT(ch)].to_skilluse;
 	if (!ch->IsNpc() && !ch->affected.empty()) {
 		for (const auto &aff: ch->affected) {
 			if (aff->location == EApply::kPlague) {
@@ -1153,12 +1157,12 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 	}
 
 	double rate = 0;
-	if (MakeLuckTest(ch, vict) != ELuckTestResult::kLuckTestFail) {
+//	if (MakeLuckTest(ch, vict) != ELuckTestResult::kLuckTestFail) {
 		rate = round(std::max(0, base_percent - kNoviceSkillThreshold) * kSkillWeight
 						 + std::min(kNoviceSkillThreshold, base_percent) * kNoviceSkillWeight
 						 + bonus * kBonusWeight
 						 + parameter_bonus * kParameterWeight);
-	}
+//	}
 
 	return static_cast<int>(rate);
 }
@@ -1194,11 +1198,21 @@ SkillRollResult MakeSkillTest(CharData *ch, ESkill skill_id, CharData *vict) {
 	int actor_rate = CalculateSkillRate(ch, skill_id, vict);
 	int victim_rate = CalculateVictimRate(ch, skill_id, vict);
 
-	int success_threshold = std::max(0, actor_rate - victim_rate - MUD::Skill(skill_id).difficulty);
-	int dice_roll = number(1, kSkillDiceSize);
-
-	// \TODO Механика критфейла и критуспеха пока не реализована.
+	int success_threshold = std::max(0, actor_rate - victim_rate);// - MUD::Skill(skill_id).difficulty);
+	int dice_roll = number(1, MUD::Skill(skill_id).difficulty); //number(1, kSkillDiceSize);
 	SkillRollResult result;
+	switch (MakeLuckTest(ch, vict)) {
+		case ELuckTestResult::kLuckTestSuccess: 
+			break;
+		case ELuckTestResult::kLuckTestFail: 
+			actor_rate = 0;
+			break;
+		case ELuckTestResult::kLuckTestCriticalSuccess: 
+			actor_rate = MUD::Skill(skill_id).cap;
+			result.CritLuck = true;
+			break;
+	}
+	result.SkillRate = success_threshold;
 	result.success = dice_roll <= success_threshold;
 	result.critical = (dice_roll > kSkillCriticalSuccess) || (dice_roll < kSkillCriticalFailure);
 	result.degree = std::abs(dice_roll - success_threshold) / kSkillDegreeDivider;
@@ -1213,15 +1227,18 @@ void SendSkillRollMsg(CharData *ch, CharData *victim, ESkill skill_id,
 	std::stringstream buffer;
 	buffer << KICYN
 		   << "Skill: '" << MUD::Skill(skill_id).name << "'"
-		   << " Rate: " << actor_rate
+		   << " SkillRate: " << result.SkillRate
+		   << " ActorRate: " << actor_rate
 		   << " Victim: " << victim->get_name()
 		   << " V.Rate: " << victim_rate
 		   << " Difficulty: " << MUD::Skill(skill_id).difficulty
-		   << " Threshold: " << threshold
-		   << " Roll: " << roll
+//		   << " Threshold: " << threshold
+		   << " Percent: " << roll
 		   << " Success: " << (result.success ? "&Gyes&C" : "&Rno&C")
-		   << " Crit: " << (result.critical ? "yes" : "no")
-		   << " Degree: " << result.degree
+//		   << " Crit: " << (result.critical ? "yes" : "no")
+		   << " CritLuck: " << (result.CritLuck ? "&Gyes&C" : "&Rno&C")
+//		   << " Degree: " << result.degree
+		   << " Saving: " << static_cast<int>(round(GET_SAVE(victim, MUD::Skill(skill_id).save_type) * kSaveWeight))
 		   << KNRM << std::endl;
 	ch->send_to_TC(false, true, true, buffer.str().c_str());
 }
@@ -1239,6 +1256,7 @@ void SendSkillBalanceMsg(CharData *ch, const std::string &skill_name, int percen
 }
 
 int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
+
 	if (MUD::Skills().IsInvalid(skill_id)) {
 		return 0;
 	}
@@ -1502,7 +1520,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 		case ESkill::kNonstandart: break;
 		case ESkill::kAxes: break;
 		case ESkill::kSideAttack: {
-			victim_sav = -GET_REAL_SAVING_REFLEX(vict) + dex_bonus(GET_REAL_DEX(ch)); //equal
+			victim_sav = -GET_REAL_SAVING_REFLEX(vict) + dex_bonus(GET_REAL_DEX(ch));
 			break;
 		}
 
@@ -1731,6 +1749,10 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 		default: break;
 	}
+
+	auto percent = base_percent + bonus + victim_sav + victim_modi/2;
+	total_percent = std::clamp(percent, 0, MUD::Skill(skill_id).cap);
+
 	std::string LuckTempStr = "Удача игнор";
 	if (!ignore_luck) {
 		switch (MakeLuckTest(ch, vict)) {
@@ -1739,18 +1761,18 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 				break;
 			case ELuckTestResult::kLuckTestFail: 
 				LuckTempStr = "Удача фэйл";
-				base_percent = 0;
+				total_percent = 0;
 				bonus = 0;
 				break;
 			case ELuckTestResult::kLuckTestCriticalSuccess: 
-				base_percent = MUD::Skill(skill_id).cap;
+				total_percent = MUD::Skill(skill_id).cap;
 				LuckTempStr = "Удача крит";
 				break;
 		}
 	}
-
-	auto percent = base_percent + bonus + victim_sav + victim_modi/2;
-	total_percent = std::clamp(percent, 0, MUD::Skill(skill_id).cap);
+//	if (number(1, 2) == 1) {
+//		total_percent = MUD::Skill(skill_id).cap;
+//	}
 
 	if (PRF_FLAGGED(ch, EPrf::kAwake) && (skill_id == ESkill::kBash)) {
 		total_percent /= 2;

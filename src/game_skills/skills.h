@@ -153,6 +153,8 @@ const std::string &NAME_BY_ITEM<ESkill>(ESkill item);
 struct SkillRollResult {
 	bool success{true};
 	bool critical{false};
+	bool CritLuck{false};
+	int SkillRate{0};
 	int degree{0};
 };
 
