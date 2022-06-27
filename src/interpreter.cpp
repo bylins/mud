@@ -3613,7 +3613,7 @@ void nanny(DescriptorData *d, char *arg) {
 					}
 
 					break;
-				case '8': d->character->get_account()->show_list_players(d);
+				case '8': d->character->get_account()->list_players(d);
 					break;
 
 				default: SEND_TO_Q("\r\nЭто не есть правильный ответ!\r\n", d);

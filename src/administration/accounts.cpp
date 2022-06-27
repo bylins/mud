@@ -5,7 +5,7 @@
 #include "accounts.h"
 #include "password.h"
 #include "entities/zone.h"
-
+#include <sstream>
 std::unordered_map<std::string, std::shared_ptr<Account>> accounts;
 extern std::string GetNameByUnique(long unique, bool god);
 extern bool CompareParam(const std::string &buffer, const char *arg, bool full);
@@ -62,17 +62,38 @@ void Account::complete_quest(int id) {
 	this->dquests.push_back(dq_tmp);
 }
 
-void Account::show_list_players(DescriptorData *d) {
-	SEND_TO_Q("Ваши персонажи:\r\n", d);
+void Account::purge_erased() {
+	std::string uid;
+	for (size_t i = 0; i < this->players_list.size(); i++) {
+		uid = GetNameByUnique(this->players_list[i]);
+		if (uid.empty()) {
+			this->players_list.erase(this->players_list.begin() + i);
+		}
+	}
+	save_to_file();
+}
+
+void Account::show_players(CharData *ch) {
 	int count = 1;
+	std::stringstream ss;
+	purge_erased();
+	ss << "Данные аккаунта: " << this->email << std::endl;
 	for (auto &x : this->players_list) {
 		std::string name = GetNameByUnique(x);
-		if (name.empty()) {
-//			SEND_TO_Q("тут удаленный чар, удаляю\r\n", d);  внутри цикла удалять нельзя :( надо переделать
-//			this->Account::remove_player(x);
-//			Account::remove_player(x);
-			continue;
-		}
+		name[0] = UPPER(name[0]);
+		ss << count << ") " << name << std::endl;
+		count++;
+	}
+	SendMsgToChar(ss.str(), ch);
+}
+
+void Account::list_players(DescriptorData *d) {
+	int count = 1;
+	std::stringstream ss;
+	purge_erased();
+	ss << "Данные аккаунта: " << this->email << std::endl;
+	for (auto &x : this->players_list) {
+		std::string name = GetNameByUnique(x);
 		SEND_TO_Q((std::to_string(count) + ") ").c_str(), d);
 		name[0] = UPPER(name[0]);
 		SEND_TO_Q(name.c_str(), d);
@@ -142,12 +163,14 @@ void Account::read_from_file() {
 std::string Account::get_email() {
 	return this->email;
 }
-
+\
 void Account::add_player(long uid) {
 	// если уже есть, то не добавляем
-	for (auto &x : this->players_list)
-		if (x == uid)
+	for (auto &x : this->players_list) {
+		if (x == uid) {
 			return;
+		}
+	}
 	this->players_list.push_back(uid);
 }
 
@@ -188,16 +211,15 @@ void Account::add_login(const std::string &ip_addr) {
 	this->history_logins.insert(std::pair<std::string, login_index>(ip_addr, tmp));
 }
 /* Показ хистори логинов */
-void Account::show_history_logins(DescriptorData *d) {
-	char temp_buf[256] = "\0";
+void Account::show_history_logins(CharData *ch) {
+	std::stringstream ss;
 	for (auto &x : this->history_logins) {
-		sprintf(temp_buf,
-				"IP: %s, count: %d, time: %s\r\n",
-				x.first.c_str(),
-				x.second.count,
-				rustime(localtime(&x.second.last_login)));
-		SEND_TO_Q(temp_buf, d);
+		ss << "IP: " << x.first
+				<< " count: " << x.second.count 
+				<< " time: " << rustime(localtime(&x.second.last_login)) 
+				<< std::endl;
 	}
+	SendMsgToChar(ss.str(), ch);
 }
 
 void Account::set_password(const std::string &password) {
