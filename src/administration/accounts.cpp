@@ -143,7 +143,7 @@ std::string Account::get_email() {
 	return this->email;
 }
 
-void Account::add_player(int uid) {
+void Account::add_player(long uid) {
 	// если уже есть, то не добавляем
 	for (auto &x : this->players_list)
 		if (x == uid)
@@ -151,7 +151,7 @@ void Account::add_player(int uid) {
 	this->players_list.push_back(uid);
 }
 
-void Account::remove_player(int uid) {
+void Account::remove_player(long uid) {
 	for (size_t i = 0; i < this->players_list.size(); i++) {
 		if (this->players_list[i] == uid) {
 			this->players_list.erase(this->players_list.begin() + i);

@@ -36,7 +36,7 @@ class Account {
 	std::vector<DQuest> dquests;
 	std::string karma;
 	// список чаров на мыле (только уиды)
-	std::vector<int> players_list;
+	std::vector<long> players_list;
 	// пароль (а точнее его хеш) аккаунта
 	std::string hash_password;
 	// дата последнего входа в аккаунт
@@ -54,8 +54,8 @@ class Account {
 	void complete_quest(int id);
 	static const std::shared_ptr<Account> get_account(const std::string &email);
 	void show_list_players(DescriptorData *d);
-	void add_player(int uid);
-	void remove_player(int uid);
+	void add_player(long uid);
+	void remove_player(long uid);
 	time_t get_last_login();
 	void set_last_login();
 	void set_password(const std::string &password);
