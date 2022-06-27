@@ -2,9 +2,7 @@
 // Created by Sventovit on 08.05.2022.
 //
 
-#include <boost/format.hpp>
-#include <boost/algorithm/string.hpp>
-
+#include "administration/accounts.h"
 #include "ban.h"
 #include "administration/privilege.h"
 #include "cmd/do_features.h"
@@ -31,6 +29,10 @@
 #include "statistics/mob_stat.h"
 #include "structs/global_objects.h"
 #include "utils/file_crc.h"
+#include "entities/char_player.h"
+
+#include <boost/format.hpp>
+#include <boost/algorithm/string.hpp>
 
 extern int buf_switches, buf_largecount, buf_overflows;
 extern unsigned long int number_of_bytes_read;
@@ -349,11 +351,12 @@ struct show_struct show_fields[] = {
 	{"worlds", kLvlImmortal},
 	{"triggers", kLvlImmortal},
 	{"class", kLvlImmortal},
-	{"guild", kLvlImmortal},
+	{"guild", kLvlImmortal}, //30
 	{"currency", kLvlImmortal},
 	{"spellinfo", kLvlImmortal},
 	{"featinfo", kLvlImmortal},
 	{"abilityinfo", kLvlImmortal},
+	{"account", kLvlGod}, //35
 	{"\n", 0}
 };
 
@@ -832,6 +835,21 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		case 34: // ability
 			ShowAbilityInfo(ch, value);
 			break;
+		case 35: {// account
+			if (!*value) {
+				SendMsgToChar("Уточните имя.\r\n", ch);
+				return;
+			}
+			Player t_chdata;
+			Player *chdata = &t_chdata;
+			if (load_char(value, chdata) < 0) {
+				SendMsgToChar("Нет такого игрока.\r\n", ch);
+				return;
+			}
+			chdata->get_account()->show_players(ch);
+			chdata->get_account()->show_history_logins(ch);
+			break;
+		}
 		default: SendMsgToChar("Извините, неверная команда.\r\n", ch);
 			break;
 	}

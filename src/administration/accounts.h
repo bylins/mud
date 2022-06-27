@@ -45,6 +45,7 @@ class Account {
 	std::unordered_map<std::string, login_index> history_logins;
 
  public:
+	void purge_erased();
 	Account(const std::string &name);
 	void save_to_file();
 	void read_from_file();
@@ -53,14 +54,15 @@ class Account {
 	int zero_hryvn(CharData *ch, int val);
 	void complete_quest(int id);
 	static const std::shared_ptr<Account> get_account(const std::string &email);
-	void show_list_players(DescriptorData *d);
+	void show_players(CharData *ch);
+	void list_players(DescriptorData *d);
 	void add_player(int uid);
 	void remove_player(int uid);
 	time_t get_last_login();
 	void set_last_login();
 	void set_password(const std::string &password);
 	bool compare_password(const std::string &password);
-	void show_history_logins(DescriptorData *d);
+	void show_history_logins(CharData *ch);
 	void add_login(const std::string &ip_addr);
 };
 
