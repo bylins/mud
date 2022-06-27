@@ -622,8 +622,8 @@ int exchange_purchase(CharData *ch, char *arg) {
 			return true;
 		}
 
-		seller->add_bank(GET_EXCHANGE_ITEM_COST(item));
-		ch->remove_both_gold(GET_EXCHANGE_ITEM_COST(item));
+		seller->add_bank(GET_EXCHANGE_ITEM_COST(item), true);
+		ch->remove_both_gold(GET_EXCHANGE_ITEM_COST(item), true);
 //Polud напишем письмецо чару, раз уж его нету онлайн
 		if (NOTIFY_EXCH_PRICE(seller) && GET_EXCHANGE_ITEM_COST(item) >= NOTIFY_EXCH_PRICE(seller)) {
 			sprintf(tmpbuf, "Базар : лот %d(%s) продан%s. %d %s переведено на ваш счет.\r\n", lot,
@@ -651,8 +651,8 @@ int exchange_purchase(CharData *ch, char *arg) {
 
 		return true;
 	} else {
-		seller->add_bank(GET_EXCHANGE_ITEM_COST(item));
-		ch->remove_both_gold(GET_EXCHANGE_ITEM_COST(item));
+		seller->add_bank(GET_EXCHANGE_ITEM_COST(item), true);
+		ch->remove_both_gold(GET_EXCHANGE_ITEM_COST(item), true);
 
 		act("Вы купили $O3 на базаре.\r\n", false, ch, 0, GET_EXCHANGE_ITEM(item), kToChar);
 		sprintf(tmpbuf, "Базар : лот %d(%s) продан%s за %d %s.\r\n", lot,

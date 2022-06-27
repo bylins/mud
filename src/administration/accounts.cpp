@@ -76,7 +76,7 @@ void Account::purge_erased() {
 void Account::show_players(CharData *ch) {
 	int count = 1;
 	std::stringstream ss;
-//	purge_erased();
+	purge_erased();
 	ss << "Данные аккаунта: " << this->email << std::endl;
 	for (auto &x : this->players_list) {
 		std::string name = GetNameByUnique(x);
@@ -84,7 +84,6 @@ void Account::show_players(CharData *ch) {
 		ss << count << ") " << name << std::endl;
 		count++;
 	}
-	ss << "Используйте inspect для построения полного списка." << std::endl;
 	SendMsgToChar(ss.str(), ch);
 }
 
@@ -164,16 +163,18 @@ void Account::read_from_file() {
 std::string Account::get_email() {
 	return this->email;
 }
-
-void Account::add_player(int uid) {
+\
+void Account::add_player(long uid) {
 	// если уже есть, то не добавляем
-	for (auto &x : this->players_list)
-		if (x == uid)
+	for (auto &x : this->players_list) {
+		if (x == uid) {
 			return;
+		}
+	}
 	this->players_list.push_back(uid);
 }
 
-void Account::remove_player(int uid) {
+void Account::remove_player(long uid) {
 	for (size_t i = 0; i < this->players_list.size(); i++) {
 		if (this->players_list[i] == uid) {
 			this->players_list.erase(this->players_list.begin() + i);

@@ -2483,7 +2483,7 @@ void find_replacement(void *go,
 			sprintf(str, "%d", GET_WEIGHT(c));
 		else if (!str_cmp(field, "CarryWeight"))
 			sprintf(str, "%d", c->char_specials.carry_weight);
-		else if (!str_cmp(field, "can_carry_weight"))
+		else if (!str_cmp(field, "cancarryweight"))
 			sprintf(str, "%d", CAN_CARRY_W(c));
 		else if (!str_cmp(field, "CanBeSeen")) {
 			if ((type == MOB_TRIGGER) && !CAN_SEE(((CharData *) go), c)) {
@@ -2499,19 +2499,19 @@ void find_replacement(void *go,
 			if (c->GetEnemy()) {
 				sprintf(str, "%c%ld", UID_CHAR, GET_ID(c->GetEnemy()));
 			}
-		} else if (!str_cmp(field, "is_killer")) {
+		} else if (!str_cmp(field, "iskiller")) {
 			if (PLR_FLAGGED(c, EPlrFlag::kKiller)) {
 				strcpy(str, "1");
 			} else {
 				strcpy(str, "0");
 			}
-		} else if (!str_cmp(field, "is_charmice")) {
+		} else if (!str_cmp(field, "ischarmice")) {
 			if (IS_CHARMICE(c)) {
 				strcpy(str, "1");
 			} else {
 				strcpy(str, "0");
 			}
-		} else if (!str_cmp(field, "is_thief")) {
+		} else if (!str_cmp(field, "isthief")) {
 			if (PLR_FLAGGED(c, EPlrFlag::kBurglar)) {
 				strcpy(str, "1");
 			} else {

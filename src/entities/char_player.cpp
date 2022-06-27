@@ -1104,6 +1104,13 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	if (GET_EXP(this) < GetExpUntilNextLvl(this, GetRealLevel(this))) {
 		set_exp(GetExpUntilNextLvl(this, GetRealLevel(this)));
 	}
+	this->account = Account::get_account(GET_EMAIL(this));
+	if (this->account == nullptr) {
+		const auto temp_account = std::make_shared<Account>(GET_EMAIL(this));
+		accounts.emplace(GET_EMAIL(this), temp_account);
+		this->account = temp_account;
+	}
+	this->account->add_player(this->get_uid());
 
 	if (reboot) {
 		fbclose(fl);
@@ -1929,13 +1936,6 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	// и в любом случае при ребуте это все пересчитывать не нужно
 	FileCRC::check_crc(filename, FileCRC::PLAYER, GET_UNIQUE(this));
 
-	this->account = Account::get_account(GET_EMAIL(this));
-	if (this->account == nullptr) {
-		const auto temp_account = std::make_shared<Account>(GET_EMAIL(this));
-		accounts.emplace(GET_EMAIL(this), temp_account);
-		this->account = temp_account;
-	}
-	this->account->add_player(GET_UNIQUE(this));
 	return (id);
 }
 
