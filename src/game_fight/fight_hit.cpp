@@ -2896,6 +2896,7 @@ void HitData::init(CharData *ch, CharData *victim) {
 		}
 	} else {
 		weap_skill_is = CalcCurrentSkill(ch, weap_skill, victim);
+		TrainSkill(ch, weap_skill, true, victim);
 		if (weap_skill_is == MUD::Skill(weap_skill).cap) {
 			SendMsgToChar(ch, "Вы удачно поразили %s в уязвимое место.\r\n", victim->player_data.PNames[3].c_str());
 			act("$n поразил$g вас в уязвимое место.", true, ch, nullptr, victim, kToVict);
