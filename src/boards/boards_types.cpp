@@ -3,6 +3,7 @@
 #include "boards_constants.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
+#include <sys/stat.h>
 
 namespace Boards {
 Board::Board(Boards::BoardTypes in_type) :
@@ -134,7 +135,6 @@ void Board::Save() {
 		log("Error open file: %s! (%s %s %d)", file_.c_str(), __FILE__, __func__, __LINE__);
 		return;
 	}
-
 	file << "Type: " << type_ << " "
 		 << "Clan: " << clan_rent_ << " "
 		 << "PersUID: " << pers_unique_ << " "
@@ -150,6 +150,13 @@ void Board::Save() {
 			 << (*message)->text << "~\n";
 	}
 	file.close();
+	if (chmod(file_.c_str(), S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) < 0) {
+		std::stringstream ss;
+		ss << "Error chmod file: " << file_.c_str() << " (" << __FILE__ << " "<< __func__ << "  "<< __LINE__ << ")";
+		mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
+		return;
+	}
+
 }
 
 void Board::renumerate_messages() {
