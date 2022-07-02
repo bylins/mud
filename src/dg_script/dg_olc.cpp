@@ -15,12 +15,12 @@
 **************************************************************************/
 
 #include "dg_olc.h"
-
 #include "entities/obj_data.h"
 #include "olc/olc.h"
 #include "dg_event.h"
 #include "entities/char_data.h"
 #include "entities/zone.h"
+#include <sys/stat.h>
 
 extern const char *trig_types[], *otrig_types[], *wtrig_types[];
 extern DescriptorData *descriptor_list;
@@ -493,16 +493,15 @@ void trigedit_save(DescriptorData *d) {
 
 	fprintf(trig_file, "$\n$\n");
 	fclose(trig_file);
-
-#ifdef CIRCLE_MAC
-	sprintf(buf, "%s:%d.trg", TRG_PREFIX, zone);
-#else
 	sprintf(buf, "%s/%d.trg", TRG_PREFIX, zone);
-#endif
-
 	remove(buf);
 	rename(fname, buf);
-
+	if (chmod(buf, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) < 0) {
+		std::stringstream ss;
+		ss << "Error chmod file: " << buf << " (" << __FILE__ << " "<< __func__ << "  "<< __LINE__ << ")";
+		mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
+		return;
+	}
 	SendMsgToChar("Saving Index file\r\n", d->character.get());
 	trigedit_create_index(zone, "trg");
 }

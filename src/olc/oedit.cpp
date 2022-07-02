@@ -39,6 +39,7 @@
 #include "game_skills/skills_info.h"
 #include "game_magic/spells_info.h"
 #include "structs/global_objects.h"
+#include <sys/stat.h>
 
 #include <array>
 #include <vector>
@@ -400,6 +401,12 @@ void oedit_save_to_disk(int zone_num) {
 	// * We're fubar'd if we crash between the two lines below.
 	remove(buf2);
 	rename(buf, buf2);
+	if (chmod(buf2, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) < 0) {
+		std::stringstream ss;
+		ss << "Error chmod file: " << buf2 << " (" << __FILE__ << " "<< __func__ << "  "<< __LINE__ << ")";
+		mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
+		return;
+	}
 
 	olc_remove_from_save_list(zone_table[zone_num].vnum, OLC_SAVE_OBJ);
 }
