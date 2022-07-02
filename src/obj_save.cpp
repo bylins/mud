@@ -21,8 +21,7 @@
 #include "utils/file_crc.h"
 #include "game_mechanics/named_stuff.h"
 #include "utils/utils_char_obj.inl"
-
-#include <boost/algorithm/string.hpp>
+#include <sys/stat.h>
 
 const int LOC_INVENTORY = 0;
 //const int MAX_BAG_ROWS = 5;
@@ -2396,6 +2395,12 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 		write_buffer << "\n$\n$\n";
 		file << write_buffer.rdbuf();
 		file.close();
+		if (chmod(fname, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) < 0) {
+			std::stringstream ss;
+			ss << "Error chmod file: " << fname << " (" << __FILE__ << " "<< __func__ << "  "<< __LINE__ << ")";
+			mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
+			return true;
+		}
 		FileCRC::check_crc(fname, FileCRC::UPDATE_TEXTOBJS, GET_UNIQUE(ch));
 	} else {
 		Crash_delete_files(iplayer);

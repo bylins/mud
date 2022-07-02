@@ -28,6 +28,7 @@
 #include "structs/structs.h"
 #include "sysdep.h"
 #include "conf.h"
+#include <sys/stat.h>
 
 #include <vector>
 
@@ -365,6 +366,12 @@ void redit_save_to_disk(int zone_num) {
 	// * We're fubar'd if we crash between the two lines below.
 	remove(buf2);
 	rename(buf, buf2);
+	if (chmod(buf2, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) < 0) {
+		std::stringstream ss;
+		ss << "Error chmod file: " << buf2 << " (" << __FILE__ << " "<< __func__ << "  "<< __LINE__ << ")";
+		mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
+		return;
+	}
 
 	olc_remove_from_save_list(zone_table[zone_num].vnum, OLC_SAVE_ROOM);
 }
