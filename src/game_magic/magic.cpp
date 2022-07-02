@@ -3074,7 +3074,7 @@ int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			return 0;
 			break;
 	}
-
+//	log("HEAL: до модификатора  Игрок: %s hit: %d GET_HIT: %d GET_REAL_MAX_HIT: %d", GET_NAME(victim), hit, GET_HIT(victim), GET_REAL_MAX_HIT(victim));
 	hit = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, hit);
 
 	if (hit && victim->GetEnemy() && ch != victim) {
@@ -3085,12 +3085,15 @@ int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	if (GET_HIT(victim) < kMaxHits && hit != 0) {
 		if (!extraHealing && GET_HIT(victim) < GET_REAL_MAX_HIT(victim)) {
 			if (AFF_FLAGGED(victim, EAffect::kLacerations)) {
+//				log("HEAL: порез Игрок: %s hit: %d GET_HIT: %d GET_REAL_MAX_HIT: %d", GET_NAME(victim), hit, GET_HIT(victim), GET_REAL_MAX_HIT(victim));
 				GET_HIT(victim) = std::min(GET_HIT(victim) + hit / 2, GET_REAL_MAX_HIT(victim));
 			} else {
+//				log("HEAL: Игрок: %s hit: %d GET_HIT: %d GET_REAL_MAX_HIT: %d", GET_NAME(victim), hit, GET_HIT(victim), GET_REAL_MAX_HIT(victim));
 				GET_HIT(victim) = std::min(GET_HIT(victim) + hit, GET_REAL_MAX_HIT(victim));
 			}
 		}
 		if (extraHealing) {
+//			log("HEAL: наддув Игрок: %s hit: %d GET_HIT: %d GET_REAL_MAX_HIT: %d", GET_NAME(victim), hit, GET_HIT(victim), GET_REAL_MAX_HIT(victim));
 			if (GET_REAL_MAX_HIT(victim) <= 0) {
 				GET_HIT(victim) = std::max(GET_HIT(victim), std::min(GET_HIT(victim) + hit, 1));
 			} else {
