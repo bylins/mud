@@ -22,6 +22,7 @@
 #include "game_mechanics/named_stuff.h"
 #include "utils/utils_char_obj.inl"
 #include <sys/stat.h>
+#include <sys/stat.h>
 
 const int LOC_INVENTORY = 0;
 //const int MAX_BAG_ROWS = 5;
@@ -1562,6 +1563,12 @@ int Crash_write_timer(const std::size_t index) {
 		fwrite(&(SAVEINFO(index)->time[i]), sizeof(SaveTimeInfo), 1, fl);
 	}
 	fclose(fl);
+	if (chmod(fname, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) < 0) {
+		std::stringstream ss;
+		ss << "Error chmod file: " << fname << " (" << __FILE__ << " "<< __func__ << "  "<< __LINE__ << ")";
+		mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
+		return false;
+	}
 	FileCRC::check_crc(fname, FileCRC::UPDATE_TIMEOBJS, player_table[index].unique);
 	return true;
 }
@@ -2399,7 +2406,7 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 			std::stringstream ss;
 			ss << "Error chmod file: " << fname << " (" << __FILE__ << " "<< __func__ << "  "<< __LINE__ << ")";
 			mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
-			return true;
+			return false;
 		}
 		FileCRC::check_crc(fname, FileCRC::UPDATE_TEXTOBJS, GET_UNIQUE(ch));
 	} else {
