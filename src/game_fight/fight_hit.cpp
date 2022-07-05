@@ -3342,9 +3342,9 @@ void HitData::calc_crit_chance(CharData *ch) {
 	dam_critic = 0;
 	int calc_critic = 0;
 
-	// Маги, волхвы и не-купеческие чармисы не умеют критать //
+	// Маги, волхвы и чармисы не умеют критать //
 	if ((!ch->IsNpc() && !IsMage(ch) && !IS_MAGUS(ch))
-		|| (ch->IsNpc() && (!AFF_FLAGGED(ch, EAffect::kCharmed)
+			|| (ch->IsNpc() && (!AFF_FLAGGED(ch, EAffect::kCharmed)
 			&& !AFF_FLAGGED(ch, EAffect::kHelper)))) {
 		calc_critic = std::min(ch->GetSkill(weap_skill), 70);
 		if (CanUseFeat(ch, FindWeaponMasterFeat(weap_skill))) {
@@ -3357,13 +3357,8 @@ void HitData::calc_crit_chance(CharData *ch) {
 			calc_critic += static_cast<int>(ch->GetSkill(ESkill::kPunctual) / 2);
 			calc_critic += static_cast<int>(ch->GetSkill(ESkill::kNoParryHit) / 3);
 		}
-		if (ch->IsNpc() && !AFF_FLAGGED(ch, EAffect::kCharmed)) {
-			calc_critic += GetRealLevel(ch);
-		}
-	} else {
-		reset_flag(fight::kCritHit);
+		calc_critic += GetRealLevel(ch) + GET_REAL_REMORT(ch);
 	}
-
 	if (number(0, 2000) < calc_critic) {
 		set_flag(fight::kCritHit);
 	} else {
@@ -3598,14 +3593,14 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 	//  дополнительный маг. дамаг независимо от попадания физ. атаки
 	if (AFF_FLAGGED(ch, EAffect::kCloudOfArrows)
 		&& hit_params.skill_num == ESkill::kUndefined
-		&& (ch->GetEnemy()
-			|| (!GET_AF_BATTLE(ch, kEafHammer) && !GET_AF_BATTLE(ch, kEafOverwhelm)))) {
+		&& (ch->GetEnemy() 
+		|| (!GET_AF_BATTLE(ch, kEafHammer) && !GET_AF_BATTLE(ch, kEafOverwhelm)))) {
 		// здесь можно получить спурженного victim, но ch не умрет от зеркала
-	if (ch->IsNpc()) {
-		CastDamage(std::min(kLvlImplementator, GetRealLevel(ch)), ch, victim, ESpell::kMagicMissile);
-	} else {
-		CastDamage(1, ch, victim, ESpell::kMagicMissile);
-	}
+		if (ch->IsNpc()) {
+			CastDamage(GetRealLevel(ch), ch, victim, ESpell::kMagicMissile);
+		} else {
+			CastDamage(1, ch, victim, ESpell::kMagicMissile);
+		}
 		if (ch->purged() || victim->purged()) {
 			return;
 		}
@@ -3616,47 +3611,47 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 	hit_params.calc_base_hr(ch);
 	hit_params.calc_rand_hr(ch, victim);
 	hit_params.calc_ac(victim);
-	bool need_dice = true; // чтоб работали кубики
-	hit_params.calc_damage(ch, need_dice); // попытка все собрать в кучу
+	hit_params.calc_damage(ch); // попытка все собрать в кучу
 	// рандом разброс базового дамага для красоты
 	if (hit_params.dam > 0) {
 		int min_rnd = hit_params.dam - hit_params.dam / 4;
 		int max_rnd = hit_params.dam + hit_params.dam / 4;
 		hit_params.dam = MAX(1, number(min_rnd, max_rnd));
 	}
-	const int victim_lvl_miss = GetRealLevel(victim) + GET_REAL_REMORT(victim);
-	const int ch_lvl_miss = GetRealLevel(ch) + GET_REAL_REMORT(ch);
+	if (hit_params.skill_num  == ESkill::kUndefined) { //автоатака, в скиллах все от удачи
+		const int victim_lvl_miss = GetRealLevel(victim) + GET_REAL_REMORT(victim);
+		const int ch_lvl_miss = GetRealLevel(ch) + GET_REAL_REMORT(ch);
 
-	// собсно выяснение попали или нет
-	if (victim_lvl_miss - ch_lvl_miss <= 5 || (!ch->IsNpc() && !victim->IsNpc())) {
-		// 5% шанс промазать, если цель в пределах 5 уровней или пвп случай
-		if ((number(1, 100) <= 5)) {
+		// собсно выяснение попали или нет
+		if (victim_lvl_miss - ch_lvl_miss <= 5 || (!ch->IsNpc() && !victim->IsNpc())) {
+			// 5% шанс промазать, если цель в пределах 5 уровней или пвп случай
+			if ((number(1, 100) <= 5)) {
+				hit_params.dam = 0;
+				hit_params.extdamage(ch, victim);
+				hitprcnt_mtrigger(victim);
+				return;
+			}
+		} else {
+			// шанс промазать = разнице уровней и мортов
+			const int diff = victim_lvl_miss - ch_lvl_miss;
+			if (number(1, 100) <= diff) {
+				hit_params.dam = 0;
+				hit_params.extdamage(ch, victim);
+				hitprcnt_mtrigger(victim);
+				return;
+			}
+		}
+		// всегда есть 5% вероятность попасть (diceroll == 20)
+		if ((hit_params.diceroll < 20 && AWAKE(victim))
+			&& hit_params.calc_thaco - hit_params.diceroll > hit_params.victim_ac) {
 			hit_params.dam = 0;
 			hit_params.extdamage(ch, victim);
 			hitprcnt_mtrigger(victim);
 			return;
 		}
-	} else {
-		// шанс промазать = разнице уровней и мортов
-		const int diff = victim_lvl_miss - ch_lvl_miss;
-		if (number(1, 100) <= diff) {
-			hit_params.dam = 0;
-			hit_params.extdamage(ch, victim);
-			hitprcnt_mtrigger(victim);
-			return;
-		}
-	}
-	// всегда есть 5% вероятность попасть (diceroll == 20)
-	if ((hit_params.diceroll < 20 && AWAKE(victim))
-		&& hit_params.calc_thaco - hit_params.diceroll > hit_params.victim_ac) {
-		hit_params.dam = 0;
-		hit_params.extdamage(ch, victim);
-		hitprcnt_mtrigger(victim);
-		return;
 	}
 	// даже в случае попадания можно уклониться мигалкой
 	if (AFF_FLAGGED(victim, EAffect::kBlink) || victim->add_abils.percent_spell_blink > 0) {
-
 		if (!GET_AF_BATTLE(ch, kEafHammer) && !GET_AF_BATTLE(ch, kEafOverwhelm)
 			&& (!(hit_params.skill_num == ESkill::kBackstab && CanUseFeat(ch, EFeat::kThieveStrike)))) {
 			ubyte blink;
@@ -3684,19 +3679,12 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 			}
 		}
 	}
-
 	// расчет критических ударов
 	hit_params.calc_crit_chance(ch);
-/* не поймуу зачем 2 раза то?
 	// зовется до alt_equip, чтобы не абузить повреждение пушек
-	if (damage_mtrigger(ch, victim, hit_params.dam, skill_info[hit_params.skill_num].name, GetUsedWeapon(ch, weapon))) {
-		return;
-	}
-*/
 	if (hit_params.weapon_pos) {
 		alt_equip(ch, hit_params.weapon_pos, hit_params.dam, 10);
 	}
-
 	if (hit_params.skill_num == ESkill::kBackstab) {
 		hit_params.reset_flag(fight::kCritHit);
 		hit_params.set_flag(fight::kIgnoreFireShield);
