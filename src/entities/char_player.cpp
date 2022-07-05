@@ -18,6 +18,7 @@
 #include "game_magic/magic_temp_spells.h"
 #include "administration/accounts.h"
 #include "liquid.h"
+#include <sys/stat.h>
 
 #include <boost/lexical_cast.hpp>
 
@@ -906,8 +907,13 @@ void Player::save_char() {
 		fprintf(saved, "0 0 0 0 0 0\n");// терминирующая строчка
 	}
 	fprintf(saved, "Tlgr: %lu\n", this->player_specials->saved.telegram_id);
-
 	fclose(saved);
+	if (chmod(filename, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) < 0) {
+		std::stringstream ss;
+		ss << "Error chmod file: " << filename << " (" << __FILE__ << " "<< __func__ << "  "<< __LINE__ << ")";
+		mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
+//		return;
+	}
 	FileCRC::check_crc(filename, FileCRC::UPDATE_PLAYER, GET_UNIQUE(this));
 
 	// восстанавливаем аффекты
