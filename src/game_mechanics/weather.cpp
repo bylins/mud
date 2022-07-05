@@ -867,7 +867,8 @@ int CalcWeatherSpellMod(CharData *ch, ESpell spell_id, int type, int value) {
 		SECT(ch->in_room) == ESector::kInside ||
 		SECT(ch->in_room) == ESector::kCity ||
 		ROOM_FLAGGED(ch->in_room, ERoomFlag::kIndoors) ||
-		ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoWeather)) {
+		ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoWeather) ||
+		!MUD::Spell(spell_id).IsViolent()) {
 		return (modi);
 		}
 

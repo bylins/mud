@@ -2882,7 +2882,8 @@ void HitData::init(CharData *ch, CharData *victim) {
 		// удар голыми руками
 		weap_skill = ESkill::kPunch;
 	}
-	if (PRF_FLAGGED(ch, EPrf::kTester)) {
+	TrainSkill(ch, weap_skill, true, victim);
+	if (PRF_FLAGGED(ch, EPrf::kTester) && ch != victim) {
 		SkillRollResult result = MakeSkillTest(ch, weap_skill, victim);
 		weap_skill_is = result.SkillRate;
 		if (result.CritLuck) {
@@ -2896,8 +2897,7 @@ void HitData::init(CharData *ch, CharData *victim) {
 		}
 	} else {
 		weap_skill_is = CalcCurrentSkill(ch, weap_skill, victim);
-		TrainSkill(ch, weap_skill, true, victim);
-		if (weap_skill_is == MUD::Skill(weap_skill).cap) {
+		if (weap_skill_is == MUD::Skill(weap_skill).cap && ch != victim) {
 			SendMsgToChar(ch, "Вы удачно поразили %s в уязвимое место.\r\n", victim->player_data.PNames[3].c_str());
 			act("$n поразил$g вас в уязвимое место.", true, ch, nullptr, victim, kToVict);
 			act("$n поразил$g $N3 в уязвимое место.", true, ch, nullptr, victim, kToNotVict);
