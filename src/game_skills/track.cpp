@@ -258,7 +258,7 @@ void do_hidetrack(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 				//SendMsgToChar(buf,ch);
 			}
 	}
-
+	SetWaitState(ch, kRealSec / 2);
 	for (i = 0; i <= EDirection::kMaxDirNum; i++)
 		if (track[i])
 			SET_BIT(track[i]->track_info, TRACK_HIDE);
