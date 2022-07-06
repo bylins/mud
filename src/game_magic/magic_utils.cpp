@@ -33,7 +33,7 @@ int CalcRequiredLevel(const CharData *ch, ESpell spell_id) {
 	if (required_level >= kLvlGod)
 		return required_level;
 	if (CanUseFeat(ch, EFeat::kSecretRunes)) {
-		int remort = GET_REAL_REMORT(ch);
+		int remort = GetRealRemort(ch);
 		required_level -= MIN(8, MAX(0, ((remort - 8) / 3) * 2 + (remort > 7 && remort < 11 ? 1 : 0)));
 	}
 

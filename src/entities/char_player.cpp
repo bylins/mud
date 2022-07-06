@@ -218,7 +218,7 @@ void Player::add_nogata(int value) {
 }
 
 void Player::add_hryvn(int value) {
-	if (GET_REAL_REMORT(this) < 6) {
+	if (GetRealRemort(this) < 6) {
 		SendMsgToChar(this, "Глянув на непонятный слиток, Вы решили выкинуть его...\r\n");
 		return;
 	} else if ((this->get_hryvn() + value) > cap_hryvn) {
@@ -251,7 +251,7 @@ void Player::dquest(const int id) {
 	const int zone_lvl = zone_table[world[this->in_room]->zone_rn].mob_level;
 	value = this->account->zero_hryvn(this, value);
 	if (zone_lvl < 25
-		&& zone_lvl <= (GetRealLevel(this) + GET_REAL_REMORT(this) / 5)) {
+		&& zone_lvl <= (GetRealLevel(this) + GetRealRemort(this) / 5)) {
 		value /= 2;
 	}
 
@@ -942,7 +942,7 @@ void Player::save_char() {
 	if (i >= 0) {
 		player_table[i].last_logon = LAST_LOGON(this);
 		player_table[i].level = GetRealLevel(this);
-		player_table[i].remorts = GET_REAL_REMORT(this);
+		player_table[i].remorts = GetRealRemort(this);
 		//added by WorM 2010.08.27 в индексе добавляем мыло
 		if (player_table[i].mail)
 			free(player_table[i].mail);
@@ -959,7 +959,7 @@ void Player::save_char() {
 // при включенном флаге файл читается только до поля Rebt, все остальные поля пропускаются
 // поэтому при каких-то изменениях в entrycount, must_be_deleted и TopPlayer::Refresh следует
 // убедиться, что изменный код работает с действительно проинициализированными полями персонажа
-// на данный момент это: EPlrFlag::FLAGS, GetClass(), GET_EXP, GET_IDNUM, LAST_LOGON, GetRealLevel, GET_NAME, GET_REAL_REMORT, GET_UNIQUE, GET_EMAIL
+// на данный момент это: EPlrFlag::FLAGS, GetClass(), GET_EXP, GET_IDNUM, LAST_LOGON, GetRealLevel, GET_NAME, GetRealRemort, GET_UNIQUE, GET_EMAIL
 // * \param reboot - по дефолту = false
 int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*= true*/) {
 	int id, num = 0, num2 = 0, num3 = 0, num4 = 0, num5 = 0, num6 = 0, i;
@@ -1920,7 +1920,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 			if (spell.GetCircle() == kMaxMemoryCircle) {
 				REMOVE_BIT(GET_SPELL_TYPE(this, spell.GetId()), ESpellType::kKnow | ESpellType::kTemp);
 			}
-			if (GET_REAL_REMORT(this) < spell.GetMinRemort()) {
+			if (GetRealRemort(this) < spell.GetMinRemort()) {
 				GET_SPELL_MEM(this, spell_id) = 0;
 			}
 		}

@@ -1871,7 +1871,7 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 		ch->set_morphed_skill(skill, (trained_skill + number(1, 2)));
 		if (!IS_IMMORTAL(ch)) {
 			ch->set_morphed_skill(skill,
-								  (std::min(kZeroRemortSkillCap + GET_REAL_REMORT(ch) * 5, ch->GetMorphSkill(skill))));
+								  (std::min(kZeroRemortSkillCap + GetRealRemort(ch) * 5, ch->GetMorphSkill(skill))));
 		}
 		if (victim && victim->IsNpc()) {
 			MOB_FLAGS(victim).set(EMobFlag::kNoSkillTrain);
@@ -1920,7 +1920,7 @@ int CalculateSkillAwakeModifier(CharData *killer, CharData *victim) {
 //req_lvl - требуемый уровень из книги
 int GetSkillMinLevel(CharData *ch, ESkill skill, int req_lvl) {
 	int min_lvl = std::max(req_lvl, MUD::Class(ch->GetClass()).skills[skill].GetMinLevel())
-		- std::max(0, GET_REAL_REMORT(ch) / MUD::Class(ch->GetClass()).GetSkillLvlDecrement());
+		- std::max(0, GetRealRemort(ch) / MUD::Class(ch->GetClass()).GetSkillLvlDecrement());
 	return std::max(1, min_lvl);
 };
 
@@ -1930,12 +1930,12 @@ int GetSkillMinLevel(CharData *ch, ESkill skill, int req_lvl) {
  */
 int GetSkillMinLevel(CharData *ch, ESkill skill) {
 	int min_lvl = MUD::Class(ch->GetClass()).skills[skill].GetMinLevel() -
-		std::max(0, GET_REAL_REMORT(ch)/ MUD::Class(ch->GetClass()).GetSkillLvlDecrement());
+		std::max(0, GetRealRemort(ch)/ MUD::Class(ch->GetClass()).GetSkillLvlDecrement());
 	return std::max(1, min_lvl);
 };
 
 bool CanGetSkill(CharData *ch, ESkill skill, int req_lvl) {
-	if (GET_REAL_REMORT(ch) < MUD::Class(ch->GetClass()).skills[skill].GetMinRemort() ||
+	if (GetRealRemort(ch) < MUD::Class(ch->GetClass()).skills[skill].GetMinRemort() ||
 		MUD::Class(ch->GetClass()).skills[skill].IsUnavailable()) {
 		return false;
 	}
@@ -1950,7 +1950,7 @@ bool CanGetSkill(CharData *ch, ESkill skill) {
 		return false;
 	}
 
-	if (GET_REAL_REMORT(ch) < MUD::Class(ch->GetClass()).skills[skill].GetMinRemort()) {
+	if (GetRealRemort(ch) < MUD::Class(ch->GetClass()).skills[skill].GetMinRemort()) {
 		return false;
 	}
 
@@ -1962,7 +1962,7 @@ bool CanGetSkill(CharData *ch, ESkill skill) {
 }
 
 int CalcSkillRemortCap(const CharData *ch) {
-	return kZeroRemortSkillCap + GET_REAL_REMORT(ch) * kSkillCapBonusPerRemort;
+	return kZeroRemortSkillCap + GetRealRemort(ch) * kSkillCapBonusPerRemort;
 }
 
 int CalcSkillWisdomCap(const CharData *ch) {

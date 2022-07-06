@@ -2138,7 +2138,7 @@ void find_replacement(void *go,
 		else if (!str_cmp(field, "level"))
 			sprintf(str, "%d", GetRealLevel(c));
 		else if (!str_cmp(field, "remort")) {
-				sprintf(str, "%d", GET_REAL_REMORT(c));
+				sprintf(str, "%d", GetRealRemort(c));
 		} else if (!str_cmp(field, "hitp")) {
 			if (*subfield)
 				GET_HIT(c) = (int) MAX(1, gm_char_field(c, field, subfield, (long) GET_HIT(c)));

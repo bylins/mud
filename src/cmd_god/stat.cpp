@@ -493,7 +493,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	k->char_specials.saved.affected_by.sprintbits(affected_bits, smallBuf, ",", 4);
 	sprintf(buf, "Аффекты: %s%s%s\r\n", CCYEL(ch, C_NRM), smallBuf, CCNRM(ch, C_NRM));
 	SendMsgToChar(buf, ch);
-	sprintf(buf, "&GПеревоплощений: %d\r\n&n", GET_REAL_REMORT(k));
+	sprintf(buf, "&GПеревоплощений: %d\r\n&n", GetRealRemort(k));
 	SendMsgToChar(buf, ch);
 	// Routine to show what spells a char is affected by
 	if (!k->affected.empty()) {

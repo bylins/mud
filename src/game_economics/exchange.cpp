@@ -124,7 +124,7 @@ int exchange(CharData *ch, void * /*me*/, int cmd, char *argument) {
 					return 1;
 				}
 		*/
-		if (GetRealLevel(ch) < EXCHANGE_MIN_CHAR_LEV && !GET_REAL_REMORT(ch)) {
+		if (GetRealLevel(ch) < EXCHANGE_MIN_CHAR_LEV && !GetRealRemort(ch)) {
 			sprintf(buf1,
 					"Вам стоит достичь хотя бы %d уровня, чтобы пользоваться базаром.\r\n",
 					EXCHANGE_MIN_CHAR_LEV);
@@ -254,7 +254,7 @@ int exchange_exhibit(CharData *ch, char *arg) {
 		return false;
 	}
 	for (j = exchange_item_list, counter = 0, counter_ming = 0;
-		 j && (counter + (counter_ming / 20) <= EXCHANGE_MAX_EXHIBIT_PER_CHAR + (GET_REAL_REMORT(ch) * 2));
+		 j && (counter + (counter_ming / 20) <= EXCHANGE_MAX_EXHIBIT_PER_CHAR + (GetRealRemort(ch) * 2));
 		 j = next_thing) {
 		next_thing = j->next;
 		if (GET_EXCHANGE_ITEM_SELLERID(j) == GET_IDNUM(ch)) {
@@ -267,7 +267,7 @@ int exchange_exhibit(CharData *ch, char *arg) {
 		}
 	}
 
-	if (counter + (counter_ming / 20) >= EXCHANGE_MAX_EXHIBIT_PER_CHAR + (GET_REAL_REMORT(ch) * 2)) {
+	if (counter + (counter_ming / 20) >= EXCHANGE_MAX_EXHIBIT_PER_CHAR + (GetRealRemort(ch) * 2)) {
 		SendMsgToChar("Вы уже выставили на базар максимальное количество предметов!\r\n", ch);
 		return false;
 	}

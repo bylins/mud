@@ -764,7 +764,7 @@ void EndowExpToChar(CharData *ch, int gain) {
 		gain = std::min(max_exp_gain_pc(ch), gain);    // put a cap on the max gain per kill
 		ch->set_exp(ch->get_exp() + gain);
 		if (ch->get_exp() >= GetExpUntilNextLvl(ch, kLvlImmortal)) {
-			if (!GET_GOD_FLAG(ch, EGf::kRemort) && GET_REAL_REMORT(ch) < kMaxRemort) {
+			if (!GET_GOD_FLAG(ch, EGf::kRemort) && GetRealRemort(ch) < kMaxRemort) {
 				if (Remort::can_remort_now(ch)) {
 					SendMsgToChar(ch, "%sПоздравляем, вы получили право на перевоплощение!%s\r\n",
 								  CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));

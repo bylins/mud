@@ -38,7 +38,7 @@ void do_memorize(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	const auto spell = MUD::Class(ch->GetClass()).spells[spell_id];
 	if (GetRealLevel(ch) < CalcMinSpellLvl(ch, spell_id)
-		|| GET_REAL_REMORT(ch) < spell.GetMinRemort()
+		|| GetRealRemort(ch) < spell.GetMinRemort()
 		|| CalcCircleSlotsAmount(ch, spell.GetCircle()) <= 0) {
 		SendMsgToChar("Рано еще вам бросаться такими словами!\r\n", ch);
 		return;

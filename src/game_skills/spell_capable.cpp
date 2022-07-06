@@ -47,7 +47,7 @@ void DoSpellCapable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	const auto spell = MUD::Class(ch->GetClass()).spells[spell_id];
 	if ((!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp | ESpellType::kKnow) ||
-		GET_REAL_REMORT(ch) < spell.GetMinRemort()) &&
+		GetRealRemort(ch) < spell.GetMinRemort()) &&
 		(GetRealLevel(ch) < kLvlGreatGod) && (!ch->IsNpc())) {
 		if (GetRealLevel(ch) < CalcMinSpellLvl(ch, spell_id) ||
 			CalcCircleSlotsAmount(ch, spell.GetCircle()) <= 0) {
@@ -129,12 +129,12 @@ void DoSpellCapable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	ImposeTimedFeat(ch, &timed);
 
-	GET_CAST_SUCCESS(follower) = GET_REAL_REMORT(ch) * 4;
+	GET_CAST_SUCCESS(follower) = GetRealRemort(ch) * 4;
 	Affect<EApply> af;
 	af.type = ESpell::kCapable;
 	af.duration = 48;
-	if (GET_REAL_REMORT(ch) > 0) {
-		af.modifier = GET_REAL_REMORT(ch) * 4;//вешаецо аффект который дает +морт*4 касту
+	if (GetRealRemort(ch) > 0) {
+		af.modifier = GetRealRemort(ch) * 4;//вешаецо аффект который дает +морт*4 касту
 		af.location = EApply::kCastSuccess;
 	} else {
 		af.modifier = 0;

@@ -43,7 +43,7 @@ int CalcSpellManacost(const CharData *ch, ESpell spell_id) {
 					   MUD::Spell(spell_id).GetMinMana()));
 	} else {
 		if (!IS_MANA_CASTER(ch) && GetRealLevel(ch) >= CalcMinSpellLvl(ch, spell_id)
-			&& GET_REAL_REMORT(ch) >= MUD::Class(ch->GetClass()).spells[spell_id].GetMinRemort()) {
+			&& GetRealRemort(ch) >= MUD::Class(ch->GetClass()).spells[spell_id].GetMinRemort()) {
 			result = std::max(MUD::Spell(spell_id).GetMaxMana() - (MUD::Spell(spell_id).GetManaChange() *
 								  (GetRealLevel(ch) - CalcMinSpellLvl(ch, spell_id))),
 							  MUD::Spell(spell_id).GetMinMana());
@@ -180,7 +180,7 @@ int *MemQ_slots(CharData *ch) {
 		}
 		sloti = MUD::Class(ch->GetClass()).spells[spell_id].GetCircle() - 1;
 		if (CalcMinSpellLvl(ch, spell_id) > GetRealLevel(ch) ||
-			MUD::Class(ch->GetClass()).spells[spell_id].GetMinRemort() > GET_REAL_REMORT(ch)) {
+			MUD::Class(ch->GetClass()).spells[spell_id].GetMinRemort() > GetRealRemort(ch)) {
 			GET_SPELL_MEM(ch, spell_id) = 0;
 			continue;
 		}
@@ -197,7 +197,7 @@ int *MemQ_slots(CharData *ch) {
 		if (sloti >= 0 && sloti <= 10) {
 			--slots[sloti];
 			if (slots[sloti] >= 0 && CalcMinSpellLvl(ch, q[0]->spell_id) <= GetRealLevel(ch) &&
-				MUD::Class(ch->GetClass()).spells[q[0]->spell_id].GetMinRemort() <= GET_REAL_REMORT(ch)) {
+				MUD::Class(ch->GetClass()).spells[q[0]->spell_id].GetMinRemort() <= GetRealRemort(ch)) {
 				q = &(q[0]->next);
 			} else {
 				if (q == &ch->mem_queue.queue)

@@ -413,7 +413,7 @@ void CharData::purge() {
 		id = get_ptable_by_name(GET_NAME(this));
 		if (id >= 0) {
 			player_table[id].level = GetRealLevel(this);
-			player_table[id].remorts = GET_REAL_REMORT(this);
+			player_table[id].remorts = GetRealRemort(this);
 			player_table[id].activity = number(0, OBJECT_SAVE_ACTIVITY - 1);
 		}
 	}
@@ -1691,7 +1691,7 @@ void CharData::reset_morph() {
 	SendMsgToChar(str(boost::format(current_morph_->GetMessageToChar()) % "человеком") + "\r\n", this);
 	act(str(boost::format(current_morph_->GetMessageToRoom()) % "человеком").c_str(), true, this, 0, 0, kToRoom);
 	this->current_morph_ = GetNormalMorphNew(this);
-	this->set_morphed_skill(ESkill::kMorph, (std::min(kZeroRemortSkillCap + GET_REAL_REMORT(this) * 5, value)));
+	this->set_morphed_skill(ESkill::kMorph, (std::min(kZeroRemortSkillCap + GetRealRemort(this) * 5, value)));
 //	REMOVE_BIT(AFF_FLAGS(this, AFF_MORPH), AFF_MORPH);
 };
 

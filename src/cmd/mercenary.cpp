@@ -63,7 +63,7 @@ void doList(CharData *ch, CharData *boss, bool isFavList) {
 	SendMsgToChar(ch, "------------------------------------------------------------\r\n");
 	sprintf(buf,
 			"А всего за %d кун моя ватага приведёт тебе любого из них живым и невредимым.",
-			1000 * (GET_REAL_REMORT(ch) + 1));
+			1000 * (GetRealRemort(ch) + 1));
 	tell_to_char(boss, ch, buf);
 	snprintf(buf, kMaxInputLength, "ухмы %s", GET_NAME(ch));
 	do_social(boss, buf);
@@ -77,7 +77,7 @@ void doBring(CharData *ch, CharData *boss, unsigned int pos, char *bank) {
 	CharData *mob;
 	std::map<int, MERCDATA> *m;
 	m = ch->getMercList();
-	const int cost = MERC::BASE_COST * (GET_REAL_REMORT(ch) + 1);
+	const int cost = MERC::BASE_COST * (GetRealRemort(ch) + 1);
 	MobRnum rnum;
 	std::map<int, MERCDATA>::iterator it = m->begin();
 	for (unsigned int num = 1; it != m->end(); ++it, ++num) {

@@ -651,7 +651,7 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
-	if (GetRealLevel(ch) < com_msgs[subcmd].min_lev && !GET_REAL_REMORT(ch)) {
+	if (GetRealLevel(ch) < com_msgs[subcmd].min_lev && !GetRealRemort(ch)) {
 		sprintf(buf1,
 				"Вам стоит достичь хотя бы %d уровня, чтобы вы могли %s.\r\n",
 				com_msgs[subcmd].min_lev, com_msgs[subcmd].action);
@@ -941,7 +941,7 @@ void do_offtop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar(SOUNDPROOF, ch);
 		return;
 	}
-	if (GetRealLevel(ch) < antispam::kMinOfftopLvl && !GET_REAL_REMORT(ch)) {
+	if (GetRealLevel(ch) < antispam::kMinOfftopLvl && !GetRealRemort(ch)) {
 		SendMsgToChar(ch, "Вам стоит достичь хотя бы %d уровня, чтобы вы могли оффтопить.\r\n",
 					  antispam::kMinOfftopLvl);
 		return;

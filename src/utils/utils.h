@@ -264,9 +264,9 @@ int GetRealLevel(const CharData *ch);
 int GetRealLevel(const std::shared_ptr<CharData> *ch);
 int GetRealLevel(const std::shared_ptr<CharData> &ch);
 
-short GET_REAL_REMORT(const CharData *ch);
-short GET_REAL_REMORT(const std::shared_ptr<CharData> *ch);
-short GET_REAL_REMORT(const std::shared_ptr<CharData> &ch);
+short GetRealRemort(const CharData *ch);
+short GetRealRemort(const std::shared_ptr<CharData> *ch);
+short GetRealRemort(const std::shared_ptr<CharData> &ch);
 
 #define IS_IMMORTAL(ch)     (!(ch)->IsNpc() && (ch)->GetLevel() >= kLvlImmortal)
 #define IS_GOD(ch)          (!(ch)->IsNpc() && (ch)->GetLevel() >= kLvlGod)
@@ -467,7 +467,7 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 #define GET_MEM_CURRENT(ch)   ((ch)->mem_queue.Empty() ? 0 : CalcSpellManacost(ch, (ch)->mem_queue.queue->spell_id))
 #define IS_CODER(ch)    (GetRealLevel(ch) < kLvlImmortal && PRF_FLAGGED(ch, EPrf::kCoderinfo))
 #define IS_COLORED(ch)    (pk_count (ch))
-#define MAX_PORTALS(ch)  ((GetRealLevel(ch)/3)+GET_REAL_REMORT(ch))
+#define MAX_PORTALS(ch)  ((GetRealLevel(ch)/3)+GetRealRemort(ch))
 
 #define GET_AF_BATTLE(ch, flag) ((ch)->battle_affects.get(flag))
 #define SET_AF_BATTLE(ch, flag) ((ch)->battle_affects.set(flag))

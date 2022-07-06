@@ -75,14 +75,14 @@ ESkill GetMagicSkillId(ESpell spell_id) {
 //req_lvl - требуемый уровень из книги
 int CalcMinSpellLvl(const CharData *ch, ESpell spell_id, int req_lvl) {
 	int min_lvl = std::max(req_lvl, MUD::Class(ch->GetClass()).spells[spell_id].GetMinLevel())
-		- (std::max(0, GET_REAL_REMORT(ch)/ MUD::Class(ch->GetClass()).GetSpellLvlDecrement()));
+		- (std::max(0, GetRealRemort(ch)/ MUD::Class(ch->GetClass()).GetSpellLvlDecrement()));
 
 	return std::max(1, min_lvl);
 }
 
 int CalcMinSpellLvl(const CharData *ch, ESpell spell_id) {
 	auto min_lvl = MUD::Class(ch->GetClass()).spells[spell_id].GetMinLevel()
-		- GET_REAL_REMORT(ch)/ MUD::Class(ch->GetClass()).GetSpellLvlDecrement();
+		- GetRealRemort(ch)/ MUD::Class(ch->GetClass()).GetSpellLvlDecrement();
 
 	return std::max(1, min_lvl);
 }
@@ -90,7 +90,7 @@ int CalcMinSpellLvl(const CharData *ch, ESpell spell_id) {
 bool CanGetSpell(const CharData *ch, ESpell spell_id, int req_lvl) {
 	if (MUD::Class(ch->GetClass()).spells.IsUnavailable(spell_id) ||
 		CalcMinSpellLvl(ch, spell_id, req_lvl) > GetRealLevel(ch) ||
-		MUD::Class(ch->GetClass()).spells[spell_id].GetMinRemort() > GET_REAL_REMORT(ch)) {
+		MUD::Class(ch->GetClass()).spells[spell_id].GetMinRemort() > GetRealRemort(ch)) {
 		return false;
 	}
 
@@ -104,7 +104,7 @@ bool CanGetSpell(CharData *ch, ESpell spell_id) {
 	}
 
 	if (CalcMinSpellLvl(ch, spell_id) > GetRealLevel(ch) ||
-		MUD::Class(ch->GetClass()).spells[spell_id].GetMinRemort() > GET_REAL_REMORT(ch)) {
+		MUD::Class(ch->GetClass()).spells[spell_id].GetMinRemort() > GetRealRemort(ch)) {
 		return false;
 	}
 
@@ -407,7 +407,7 @@ void SpellPortal(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 	}
 	// пентить чаров <=10 уровня, нельзя так-же нельзя пентать иммов
 	if (!IS_GOD(ch)) {
-		if ((!victim->IsNpc() && GetRealLevel(victim) <= 10 && GET_REAL_REMORT(ch) < 9) || IS_IMMORTAL(victim)
+		if ((!victim->IsNpc() && GetRealLevel(victim) <= 10 && GetRealRemort(ch) < 9) || IS_IMMORTAL(victim)
 			|| AFF_FLAGGED(victim, EAffect::kNoTeleport)) {
 			SendMsgToChar(SUMMON_FAIL, ch);
 			return;
@@ -929,7 +929,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 	else if (circle_follow(victim, ch))
 		SendMsgToChar("Следование по кругу запрещено.\r\n", ch);
 	else if (!IS_IMMORTAL(ch)
-		&& CalcGeneralSaving(ch, victim, ESaving::kWill, (GET_REAL_CHA(ch) - 10) * 4 + GET_REAL_REMORT(ch) * 3)) //предлагаю завязать на каст
+		&& CalcGeneralSaving(ch, victim, ESaving::kWill, (GET_REAL_CHA(ch) - 10) * 4 + GetRealRemort(ch) * 3)) //предлагаю завязать на каст
 		SendMsgToChar("Ваша магия потерпела неудачу.\r\n", ch);
 	else {
 		if (!CheckCharmices(ch, victim, ESpell::kCharm)) {
@@ -958,7 +958,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 		if (GET_REAL_INT(victim) > GET_REAL_INT(ch)) {
 			af.duration = CalcDuration(victim, GET_REAL_CHA(ch), 0, 0, 0, 0);
 		} else {
-			af.duration = CalcDuration(victim, GET_REAL_CHA(ch) + number(1, 10) + GET_REAL_REMORT(ch) * 2, 0, 0, 0, 0);
+			af.duration = CalcDuration(victim, GET_REAL_CHA(ch) + number(1, 10) + GetRealRemort(ch) * 2, 0, 0, 0, 0);
 		}
 
 		af.modifier = 0;
@@ -1100,10 +1100,10 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 			GET_DR(victim) = floorf(r_cha/6.0 + perc/20.0);  // дамрол
 			GET_ARMOUR(victim) = floorf(r_cha/4.0 + perc/10.0); // броня
 			 // почему-то не работает
-			if (GET_REAL_REMORT(ch) > 12) {
-				GET_AR(victim) = (GET_AR(victim) + GET_REAL_REMORT(ch) - 12);
-				GET_MR(victim) = (GET_MR(victim) + GET_REAL_REMORT(ch) - 12);
-				GET_PR(victim) = (GET_PR(victim) + GET_REAL_REMORT(ch) - 12);
+			if (GetRealRemort(ch) > 12) {
+				GET_AR(victim) = (GET_AR(victim) + GetRealRemort(ch) - 12);
+				GET_MR(victim) = (GET_MR(victim) + GetRealRemort(ch) - 12);
+				GET_PR(victim) = (GET_PR(victim) + GetRealRemort(ch) - 12);
 			}
 			// спелы не работают пока 
 			// SET_SPELL_MEM(victim, SPELL_CURE_BLIND, 1); // -?
@@ -1858,7 +1858,7 @@ void mort_show_char_values(CharData *victim, CharData *ch, int fullness) {
 	val2 = GET_REAL_MAX_HIT(victim);
 	sprintf(buf, "Уровень : %d, может выдержать повреждений : %d(%d), ", val0, val1, val2);
 	SendMsgToChar(buf, ch);
-	SendMsgToChar(ch, "Перевоплощений : %d\r\n", GET_REAL_REMORT(victim));
+	SendMsgToChar(ch, "Перевоплощений : %d\r\n", GetRealRemort(victim));
 	val0 = MIN(GET_AR(victim), 100);
 	val1 = MIN(GET_MR(victim), 100);
 	val2 = MIN(GET_PR(victim), 100);
@@ -2565,7 +2565,7 @@ bool mag_item_ok(CharData *ch, ObjData *obj, int spelltype) {
 			num += 64;
 		if (IS_SET(GET_OBJ_VAL(obj, 0), kMiLag128S))
 			num += 128;
-		if (GET_OBJ_VAL(obj, 3) + num - 5 * GET_REAL_REMORT(ch) >= time(nullptr))
+		if (GET_OBJ_VAL(obj, 3) + num - 5 * GetRealRemort(ch) >= time(nullptr))
 			return false;
 	}
 
@@ -2581,7 +2581,7 @@ bool mag_item_ok(CharData *ch, ObjData *obj, int spelltype) {
 			num += 8;
 		if (IS_SET(GET_OBJ_VAL(obj, 0), kMiLevel16))
 			num += 16;
-		if (GetRealLevel(ch) + GET_REAL_REMORT(ch) < num)
+		if (GetRealLevel(ch) + GetRealRemort(ch) < num)
 			return false;
 	}
 

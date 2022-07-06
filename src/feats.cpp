@@ -31,7 +31,7 @@ bool CanUseFeat(const CharData *ch, EFeat feat_id) {
 	if (CalcMaxFeatSlotPerLvl(ch) < MUD::Class(ch->GetClass()).feats[feat_id].GetSlot()) {
 		return false;
 	};
-	if (GET_REAL_REMORT(ch) < MUD::Class(ch->GetClass()).feats[feat_id].GetMinRemort()) {
+	if (GetRealRemort(ch) < MUD::Class(ch->GetClass()).feats[feat_id].GetMinRemort()) {
 		return false;
 	};
 
@@ -45,7 +45,7 @@ bool CanUseFeat(const CharData *ch, EFeat feat_id) {
 		case EFeat::kGreatAimingAttack: return (GET_REAL_DEX(ch) > 17);
 		case EFeat::kDoubleShot: return (ch->GetSkill(ESkill::kBows) > 39);
 		case EFeat::kJeweller: return (ch->GetSkill(ESkill::kJewelry) > 59);
-		case EFeat::kSkilledTrader: return ((GetRealLevel(ch) + GET_REAL_REMORT(ch) / 3) > 19);
+		case EFeat::kSkilledTrader: return ((GetRealLevel(ch) + GetRealRemort(ch) / 3) > 19);
 		case EFeat::kMagicUser: return (GetRealLevel(ch) < 25);
 		case EFeat::kLiveShield: return (ch->GetSkill(ESkill::kRescue) > 124);
 		case EFeat::kShadowThrower: return (ch->GetSkill(ESkill::kDarkMagic) > 120);
@@ -65,7 +65,7 @@ bool CanGetFocusFeat(const CharData *ch, const EFeat feat_id) {
 		}
 	}
 
-	if (count >= 2 + GET_REAL_REMORT(ch) / 6) {
+	if (count >= 2 + GetRealRemort(ch) / 6) {
 		return false;
 	}
 
@@ -91,7 +91,7 @@ bool CanGetMasterFeat(const CharData *ch, const EFeat feat_id) {
 			count++;
 		}
 	}
-	if (count >= 1 + GET_REAL_REMORT(ch) / 7) {
+	if (count >= 1 + GetRealRemort(ch) / 7) {
 		return false;
 	}
 
@@ -127,7 +127,7 @@ bool CanGetFeat(CharData *ch, EFeat feat) {
 
 	if ((MUD::Class(ch->GetClass()).feats.IsUnavailable(feat) &&
 		!PlayerRace::FeatureCheck(GET_KIN(ch), GET_RACE(ch), to_underlying(feat))) ||
-		(GET_REAL_REMORT(ch) < MUD::Class(ch->GetClass()).feats[feat].GetMinRemort())) {
+		(GetRealRemort(ch) < MUD::Class(ch->GetClass()).feats[feat].GetMinRemort())) {
 		return false;
 	}
 
@@ -462,7 +462,7 @@ Bitvector GetPrfWithFeatNumber(EFeat feat_id) {
 
 int CalcMaxFeatSlotPerLvl(const CharData *ch) {
 	return (kMinBaseFeatsSlotsAmount + GetRealLevel(ch)*(kMaxBaseFeatsSlotsAmount - 1 +
-		GET_REAL_REMORT(ch)/ MUD::Class(ch->GetClass()).GetRemortsNumForFeatSlot())/kLastFeatSlotLvl);
+		GetRealRemort(ch)/ MUD::Class(ch->GetClass()).GetRemortsNumForFeatSlot())/kLastFeatSlotLvl);
 }
 
 int CalcFeatSlotsAmountPerRemort(CharData *ch) {

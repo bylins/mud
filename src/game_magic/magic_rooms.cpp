@@ -431,7 +431,7 @@ int CallMagicToRoom(int/* level*/, CharData *ch, RoomData *room, ESpell spell_id
 			af[0].type = spell_id;
 			af[0].location = kNone;
 			af[0].modifier = 0;
-			af[0].duration = (kRuneLabelDuration + (GET_REAL_REMORT(ch) * 10)) * 3;
+			af[0].duration = (kRuneLabelDuration + (GetRealRemort(ch) * 10)) * 3;
 			af[0].caster_id = GET_ID(ch);
 			af[0].bitvector = ERoomAffect::kRuneLabel;
 			af[0].must_handled = false;
@@ -451,7 +451,7 @@ int CallMagicToRoom(int/* level*/, CharData *ch, RoomData *room, ESpell spell_id
 			af[0].type = spell_id;
 			af[0].location = kNone;
 			af[0].modifier = 0;
-			af[0].duration = 30 + (GetRealLevel(ch) + GET_REAL_REMORT(ch)) * RollDices(1, 3);
+			af[0].duration = 30 + (GetRealLevel(ch) + GetRealRemort(ch)) * RollDices(1, 3);
 			af[0].caster_id = GET_ID(ch);
 			af[0].bitvector = ERoomAffect::kHypnoticPattern;
 			af[0].must_handled = false;

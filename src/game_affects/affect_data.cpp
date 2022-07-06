@@ -100,10 +100,10 @@ int apply_armour(CharData *ch, int eq_pos) {
 // Была ошибка, у нубов реген хитов был всегда 50, хотя с 26 по 30, должен быть 60.
 // Теперь аффект регенерация новичка держится 3 реморта, с каждыи ремортом все слабее и слабее
 void apply_natural_affects(CharData *ch) {
-	if (GET_REAL_REMORT(ch) <= 3 && !IS_IMMORTAL(ch)) {
-		affect_modify(ch, EApply::kHpRegen, 60 - (GET_REAL_REMORT(ch) * 10), EAffect::kNoobRegen, true);
+	if (GetRealRemort(ch) <= 3 && !IS_IMMORTAL(ch)) {
+		affect_modify(ch, EApply::kHpRegen, 60 - (GetRealRemort(ch) * 10), EAffect::kNoobRegen, true);
 		affect_modify(ch, EApply::kMoveRegen, 100, EAffect::kNoobRegen, true);
-		affect_modify(ch, EApply::kMamaRegen, 100 - (GET_REAL_REMORT(ch) * 20), EAffect::kNoobRegen, true);
+		affect_modify(ch, EApply::kMamaRegen, 100 - (GetRealRemort(ch) * 20), EAffect::kNoobRegen, true);
 	}
 }
 
@@ -475,9 +475,9 @@ void affect_total(CharData *ch) {
 	}
 
 	// бонусы от морта
-	if (GET_REAL_REMORT(ch) >= 20) {
-		ch->add_abils.mresist += GET_REAL_REMORT(ch) - 19;
-		ch->add_abils.presist += GET_REAL_REMORT(ch) - 19;
+	if (GetRealRemort(ch) >= 20) {
+		ch->add_abils.mresist += GetRealRemort(ch) - 19;
+		ch->add_abils.presist += GetRealRemort(ch) - 19;
 	}
 
 	if (ch->IsNpc()) {

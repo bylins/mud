@@ -762,7 +762,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					} else if (wield) {
 						extra_duration = GET_OBJ_WEIGHT(wield) / 5;
 					}
-					af[i].duration += CalcDuration(victim, GET_REAL_REMORT(ch) / 2 + extra_duration, 0, 0, 0, 0);
+					af[i].duration += CalcDuration(victim, GetRealRemort(ch) / 2 + extra_duration, 0, 0, 0, 0);
 				}
 			}
 			ImposeAffect(victim, af[i], true, false, true, false);
@@ -787,7 +787,7 @@ int calculate_strconc_damage(CharData *ch, ObjData * /*wielded*/, int damage) {
 	}
 	float str_mod = (GET_REAL_STR(ch) - 25) * 0.4;
 	float lvl_mod = GetRealLevel(ch) * 0.2;
-	float rmt_mod = MIN(5, GET_REAL_REMORT(ch)) / 5.0;
+	float rmt_mod = MIN(5, GetRealRemort(ch)) / 5.0;
 	float res_mod = 1 + (str_mod + lvl_mod) / 10.0 * rmt_mod;
 
 	return static_cast<int>(damage * res_mod);
@@ -805,7 +805,7 @@ int calculate_noparryhit_dmg(CharData *ch, ObjData *wielded) {
 	float level_mod = static_cast<float>(GetRealLevel(ch)) / 30;
 	float skill_mod = static_cast<float>(ch->GetSkill(ESkill::kNoParryHit)) / 5;
 
-	return static_cast<int>((skill_mod + GET_REAL_REMORT(ch) * 3) * weap_mod * level_mod);
+	return static_cast<int>((skill_mod + GetRealRemort(ch) * 3) * weap_mod * level_mod);
 }
 
 void might_hit_bash(CharData *ch, CharData *victim) {
@@ -866,7 +866,7 @@ void addshot_damage(CharData *ch, ESkill type, fight::AttackType weapon) {
 	// поставим кап в 50 ловки для допвыстрела
 	float dex_mod = static_cast<float>(MAX(MIN(GET_REAL_DEX(ch), 50) - 21, 0)) / 29 * 2;
 	// штраф на 4й и 5й выстрелы для чаров ниже 5 мортов, по 20% за морт
-	float remort_mod = static_cast<float>(GET_REAL_REMORT(ch)) / 5;
+	float remort_mod = static_cast<float>(GetRealRemort(ch)) / 5;
 	if (remort_mod > 1) {
 		remort_mod = 1;
 	}
@@ -1958,7 +1958,7 @@ bool Damage::dam_absorb(CharData *ch, CharData *victim) {
 		&& dam > 0
 		&& GET_ABSORBE(victim) > 0) {
 		// шансы поглощения: непробиваемый в осторожке 15%, остальные 10%
-		int chance = 10 + GET_REAL_REMORT(victim) / 3;
+		int chance = 10 + GetRealRemort(victim) / 3;
 		if (CanUseFeat(victim, EFeat::kImpregnable)
 			&& PRF_FLAGS(victim).get(EPrf::kAwake)) {
 			chance += 5;
@@ -2023,7 +2023,7 @@ void update_dps_stats(CharData *ch, int real_dam, int over_dam) {
 		log("DmetrLog. Name(player): %s, class: %d, remort:%d, level:%d, dmg: %d, over_dmg:%d",
 			GET_NAME(ch),
 			to_underlying(ch->GetClass()),
-			GET_REAL_REMORT(ch),
+			GetRealRemort(ch),
 			GetRealLevel(ch),
 			real_dam,
 			over_dam);
@@ -2037,7 +2037,7 @@ void update_dps_stats(CharData *ch, int real_dam, int over_dam) {
 		if (!ch->get_master()->IsNpc()) {
 			log("DmetrLog. Name(charmice): %s, name(master): %s, class: %d, remort: %d, level: %d, dmg: %d, over_dmg:%d",
 				ch->get_name().c_str(), ch->get_master()->get_name().c_str(), to_underlying(ch->get_master()->GetClass()),
-				GET_REAL_REMORT(ch->get_master()), GetRealLevel(ch->get_master()), real_dam, over_dam);
+				GetRealRemort(ch->get_master()), GetRealLevel(ch->get_master()), real_dam, over_dam);
 		}
 
 		if (AFF_FLAGGED(ch->get_master(), EAffect::kGroup)) {
@@ -3310,7 +3310,7 @@ void HitData::add_weapon_damage(CharData *ch, bool need_dice) {
 void HitData::add_hand_damage(CharData *ch, bool need_dice) {
 
 	if (AFF_FLAGGED(ch, EAffect::kStoneHands)) {
-		dam += need_dice ? RollDices(2, 4) + GET_REAL_REMORT(ch) / 2  : 5 + GET_REAL_REMORT(ch) / 2;
+		dam += need_dice ? RollDices(2, 4) + GetRealRemort(ch) / 2  : 5 + GetRealRemort(ch) / 2;
 		if (CanUseFeat(ch, EFeat::kBully)) {
 			dam += GetRealLevel(ch) / 5;
 			dam += MAX(0, GET_REAL_STR(ch) - 25);
@@ -3357,7 +3357,7 @@ void HitData::calc_crit_chance(CharData *ch) {
 			calc_critic += static_cast<int>(ch->GetSkill(ESkill::kPunctual) / 2);
 			calc_critic += static_cast<int>(ch->GetSkill(ESkill::kNoParryHit) / 3);
 		}
-		calc_critic += GetRealLevel(ch) + GET_REAL_REMORT(ch);
+		calc_critic += GetRealLevel(ch) + GetRealRemort(ch);
 	}
 	if (number(0, 2000) < calc_critic) {
 		set_flag(fight::kCritHit);
@@ -3471,7 +3471,7 @@ int HitData::calc_damage(CharData *ch, bool need_dice) {
 	if (IsAffectedBySpell(ch, ESpell::kBerserk)) {
 		if (AFF_FLAGGED(ch, EAffect::kBerserk)) {
 			dam = (dam*std::max(150, 150 + GetRealLevel(ch) +
-				RollDices(0, GET_REAL_REMORT(ch)) * 2)) / 100;
+				RollDices(0, GetRealRemort(ch)) * 2)) / 100;
 			if (PRF_FLAGGED(ch, EPrf::kExecutor))
 				SendMsgToChar(ch, "&YДамага с учетом берсерка== %d&n\r\n", dam);
 		}
@@ -3619,8 +3619,8 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		hit_params.dam = MAX(1, number(min_rnd, max_rnd));
 	}
 	if (hit_params.skill_num  == ESkill::kUndefined) { //автоатака, в скиллах все от удачи
-		const int victim_lvl_miss = GetRealLevel(victim) + GET_REAL_REMORT(victim);
-		const int ch_lvl_miss = GetRealLevel(ch) + GET_REAL_REMORT(ch);
+		const int victim_lvl_miss = GetRealLevel(victim) + GetRealRemort(victim);
+		const int ch_lvl_miss = GetRealLevel(ch) + GetRealRemort(ch);
 
 		// собсно выяснение попали или нет
 		if (victim_lvl_miss - ch_lvl_miss <= 5 || (!ch->IsNpc() && !victim->IsNpc())) {
@@ -3730,7 +3730,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		hit_params.dam = ApplyResist(victim, EResist::kVitality, hit_params.dam);
 		// режем стаб
 		if (CanUseFeat(ch, EFeat::kShadowStrike) && !ch->IsNpc()) {
-			hit_params.dam = std::min(8000 + GET_REAL_REMORT(ch) * 20 * GetRealLevel(ch), hit_params.dam);
+			hit_params.dam = std::min(8000 + GetRealRemort(ch) * 20 * GetRealLevel(ch), hit_params.dam);
 		}
 
 		ch->send_to_TC(false, true, false, "&CДамага стаба равна = %d&n\r\n", hit_params.dam);
@@ -3886,7 +3886,7 @@ int CalcPcDamrollBonus(CharData *ch) {
 		{0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8};
 	int bonus = 0;
 	if (IS_VIGILANT(ch) || IS_GUARD(ch) || IS_RANGER(ch)) {
-		bonus = kRemortDamrollBonus[std::min(kMaxRemortForDamrollBonus, GET_REAL_REMORT(ch))];
+		bonus = kRemortDamrollBonus[std::min(kMaxRemortForDamrollBonus, GetRealRemort(ch))];
 	}
 	if (CanUseFeat(ch, EFeat::kBowsFocus) && ch->GetSkill(ESkill::kAddshot)) {
 		bonus *= 3;

@@ -224,7 +224,7 @@ void Applies::Impose(CharData *ch) const {
 	for (const auto &apply: applies_) {
 		auto mod = static_cast<int>(apply.mod +
 			apply.lvl_bonus * ch->GetLevel() +
-			apply.remort_bonus * GET_REAL_REMORT(ch));
+			apply.remort_bonus * GetRealRemort(ch));
 		if (apply.cap) {
 			if (apply.cap > 0) {
 				mod = std::min(mod, apply.cap);

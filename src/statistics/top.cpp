@@ -40,8 +40,8 @@ void TopPlayer::Refresh(CharData *short_ch, bool reboot) {
 	std::list<TopPlayer>::iterator it_exp;
 	for (it_exp = TopPlayer::chart_[short_ch->GetClass()].begin();
 		 it_exp != TopPlayer::chart_[short_ch->GetClass()].end(); ++it_exp) {
-		if (it_exp->remort_ < GET_REAL_REMORT(short_ch)
-			|| (it_exp->remort_ == GET_REAL_REMORT(short_ch) && it_exp->exp_ < GET_EXP(short_ch))) {
+		if (it_exp->remort_ < GetRealRemort(short_ch)
+			|| (it_exp->remort_ == GetRealRemort(short_ch) && it_exp->exp_ < GET_EXP(short_ch))) {
 			break;
 		}
 	}
@@ -49,7 +49,7 @@ void TopPlayer::Refresh(CharData *short_ch, bool reboot) {
 	if (short_ch->get_name().empty()) {
 		return; // у нас все может быть
 	}
-	TopPlayer temp_player(GET_UNIQUE(short_ch), GET_NAME(short_ch), GET_EXP(short_ch), GET_REAL_REMORT(short_ch));
+	TopPlayer temp_player(GET_UNIQUE(short_ch), GET_NAME(short_ch), GET_EXP(short_ch), GetRealRemort(short_ch));
 
 	if (it_exp != TopPlayer::chart_[short_ch->GetClass()].end()) {
 		TopPlayer::chart_[short_ch->GetClass()].insert(it_exp, temp_player);

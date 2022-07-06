@@ -209,7 +209,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					sprintf(classname,
 							"[%2d %2d %s]",
 							GetRealLevel(d->original),
-							GET_REAL_REMORT(d->original),
+							GetRealRemort(d->original),
 							MUD::Class(d->original->GetClass()).GetAbbr().c_str());
 				} else {
 					sprintf(classname,
@@ -221,7 +221,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				sprintf(classname,
 						"[%2d %2d %s]",
 						GetRealLevel(d->character),
-						GET_REAL_REMORT(d->character),
+						GetRealRemort(d->character),
 						MUD::Class(d->character->GetClass()).GetAbbr().c_str());
 			} else {
 				sprintf(classname,

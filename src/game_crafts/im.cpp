@@ -1001,13 +1001,13 @@ void list_recipes(CharData *ch, bool all_recipes) {
 			if (clr(ch, C_NRM))
 				sprintf(buf, "     %s%-30s%s %2d (%2d)%s\r\n",
 						(imrecipes[sortpos].level<0 || imrecipes[sortpos].level>GetRealLevel(ch) ||
-							imrecipes[sortpos].remort<0 || imrecipes[sortpos].remort>GET_REAL_REMORT(ch)) ?
+							imrecipes[sortpos].remort<0 || imrecipes[sortpos].remort>GetRealRemort(ch)) ?
 						KRED : rs ? KGRN : KNRM, imrecipes[sortpos].name, KCYN,
 						imrecipes[sortpos].level, imrecipes[sortpos].remort, KNRM);
 			else
 				sprintf(buf, " %s %-30s %2d (%2d)\r\n",
 						(imrecipes[sortpos].level<0 || imrecipes[sortpos].level>GetRealLevel(ch) ||
-							imrecipes[sortpos].remort<0 || imrecipes[sortpos].remort>GET_REAL_REMORT(ch)) ?
+							imrecipes[sortpos].remort<0 || imrecipes[sortpos].remort>GetRealRemort(ch)) ?
 						"[Н]" : rs ? "[И]" : "[Д]", imrecipes[sortpos].name,
 						imrecipes[sortpos].level, imrecipes[sortpos].remort);
 			strcat(buf1, buf);
@@ -1179,7 +1179,7 @@ void im_improve_recipe(CharData *ch, im_rskill *rs, int success) {
 			SendMsgToChar(buf, ch);
 			rs->perc += number(1, 2);
 			if (!IS_IMMORTAL(ch))
-				rs->perc = MIN(kZeroRemortSkillCap + GET_REAL_REMORT(ch) * 5, rs->perc);
+				rs->perc = MIN(kZeroRemortSkillCap + GetRealRemort(ch) * 5, rs->perc);
 		}
 	}
 }

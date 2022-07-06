@@ -1533,7 +1533,7 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				// Обработка флагов NOTELEPORTIN и NOTELEPORTOUT здесь же
 				if (!IS_IMMORTAL(ch)
 					&& ((!ch->IsNpc()
-						&& (!Clan::MayEnter(ch, door, kHousePortal) || (GetRealLevel(ch) <= 10 && world[door]->portal_time && GET_REAL_REMORT(ch) < 9)))
+						&& (!Clan::MayEnter(ch, door, kHousePortal) || (GetRealLevel(ch) <= 10 && world[door]->portal_time && GetRealRemort(ch) < 9)))
 						|| (ROOM_FLAGGED(from_room, ERoomFlag::kNoTeleportOut) || ROOM_FLAGGED(door, ERoomFlag::kNoTeleportIn))
 						|| AFF_FLAGGED(ch, EAffect::kNoTeleport)
 						|| (world[door]->pkPenterUnique

@@ -2035,16 +2035,16 @@ int GetRealLevel(const std::shared_ptr<CharData> &ch) {
 	return GetRealLevel(ch.get());
 }
 
-short GET_REAL_REMORT(const CharData *ch) {
+short GetRealRemort(const CharData *ch) {
 	return std::clamp(ch->get_remort() + ch->get_remort_add(), 0, kMaxRemort);
 }
 
-short GET_REAL_REMORT(const std::shared_ptr<CharData> &ch) {
-	return GET_REAL_REMORT(ch.get());
+short GetRealRemort(const std::shared_ptr<CharData> &ch) {
+	return GetRealRemort(ch.get());
 }
 
-/*short GET_REAL_REMORT(const std::shared_ptr<CharData> &ch) {
-	return GET_REAL_REMORT(ch.get());
+/*short GetRealRemort(const std::shared_ptr<CharData> &ch) {
+	return GetRealRemort(ch.get());
 }*/
 
 bool isname(const char *str, const char *namelist) {

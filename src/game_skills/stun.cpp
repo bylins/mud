@@ -107,7 +107,7 @@ void go_stun(CharData *ch, CharData *vict) {
 				nullptr, vict, kToNotVict | kToArenaListen);
 		}
 		GET_POS(vict) = EPosition::kIncap;
-		SetWaitState(vict, (2 + GET_REAL_REMORT(ch) / 5) * kPulseViolence);
+		SetWaitState(vict, (2 + GetRealRemort(ch) / 5) * kPulseViolence);
 		ch->setSkillCooldown(ESkill::kStun, 3 * kPulseViolence);
 		set_hit(ch, vict);
 	}

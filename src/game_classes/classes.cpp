@@ -985,7 +985,7 @@ void do_start(CharData *ch, int newbie) {
 	ch->set_level(1);
 	ch->set_exp(1);
 	ch->points.max_hit = 10;
-	if (newbie || (GET_REAL_REMORT(ch) >= 9 && GET_REAL_REMORT(ch) % 3 == 0)) {
+	if (newbie || (GetRealRemort(ch) >= 9 && GetRealRemort(ch) % 3 == 0)) {
 		ch->set_skill(ESkill::kHangovering, 10);
 	}
 
@@ -1074,7 +1074,7 @@ void levelup_events(CharData *ch) {
 	if (EXCHANGE_MIN_CHAR_LEV == GetRealLevel(ch)
 		&& !ch->get_disposable_flag(DIS_EXCHANGE_MESSAGE)) {
 		// по умолчанию базар у всех включен, поэтому не спамим даже однократно
-		if (GET_REAL_REMORT(ch) <= 0) {
+		if (GetRealRemort(ch) <= 0) {
 			SendMsgToChar(ch,
 						  "%sТеперь вы можете покупать и продавать вещи на базаре ('справка базар!').%s\r\n",
 						  CCIGRN(ch, C_SPR), CCNRM(ch, C_SPR));
@@ -1519,8 +1519,8 @@ long GetExpUntilNextLvl(CharData *ch, int level) {
 
 	// Exp required for normal mortals is below
 	float exp_modifier;
-	if (GET_REAL_REMORT(ch) < kMaxExpCoefficientsUsed) {
-		exp_modifier = static_cast<float>(exp_coefficients[GET_REAL_REMORT(ch)]);
+	if (GetRealRemort(ch) < kMaxExpCoefficientsUsed) {
+		exp_modifier = static_cast<float>(exp_coefficients[GetRealRemort(ch)]);
 	} else {
 		exp_modifier = static_cast<float>(exp_coefficients[kMaxExpCoefficientsUsed]);
 	}

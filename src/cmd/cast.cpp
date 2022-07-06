@@ -81,7 +81,7 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	}
 	if (const auto spell = MUD::Class(ch->GetClass()).spells[spell_id];
 		(!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp | ESpellType::kKnow) ||
-		GET_REAL_REMORT(ch) < spell.GetMinRemort()) &&
+		GetRealRemort(ch) < spell.GetMinRemort()) &&
 		(GetRealLevel(ch) < kLvlGreatGod) && !ch->IsNpc()) {
 		if (GetRealLevel(ch) < CalcMinSpellLvl(ch, spell_id)
 			|| classes::CalcCircleSlotsAmount(ch, spell.GetCircle()) <= 0) {
