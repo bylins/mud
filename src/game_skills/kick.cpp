@@ -74,21 +74,21 @@ void go_kick(CharData *ch, CharData *vict) {
 							to_room = "След сапога $n1 надолго запомнится $N2, если конечно он$Q выживет.";
 							af.type = ESpell::kBattle;
 							af.bitvector = to_underlying(EAffect::kStopRight);
-							af.duration = CalcDuration(vict, 3 + GET_REAL_REMORT(ch) / 4, 0, 0, 0, 0);
+							af.duration = CalcDuration(vict, 3 + GetRealRemort(ch) / 4, 0, 0, 0, 0);
 							af.battleflag = kAfBattledec | kAfPulsedec;
 						} else if (!AFF_FLAGGED(vict, EAffect::kStopLeft)) {
 							to_char = "Каблук вашего сапога надолго запомнится $N2, если конечно он выживет.";
 							to_vict = "Мощный удар ноги $n1 изуродовал вам левую руку.";
 							to_room = "След сапога $n1 надолго запомнится $N2, если конечно он выживет.";
 							af.bitvector = to_underlying(EAffect::kStopLeft);
-							af.duration = CalcDuration(vict, 3 + GET_REAL_REMORT(ch) / 4, 0, 0, 0, 0);
+							af.duration = CalcDuration(vict, 3 + GetRealRemort(ch) / 4, 0, 0, 0, 0);
 							af.battleflag = kAfBattledec | kAfPulsedec;
 						} else {
 							to_char = "Каблук вашего сапога надолго запомнится $N2, $M теперь даже бить вас нечем.";
 							to_vict = "Мощный удар ноги $n1 вывел вас из строя.";
 							to_room = "Каблук сапога $n1 надолго запомнится $N2, $M теперь даже биться нечем.";
 							af.bitvector = to_underlying(EAffect::kStopFight);
-							af.duration = CalcDuration(vict, 3 + GET_REAL_REMORT(ch) / 4, 0, 0, 0, 0);
+							af.duration = CalcDuration(vict, 3 + GetRealRemort(ch) / 4, 0, 0, 0, 0);
 							af.battleflag = kAfBattledec | kAfPulsedec;
 						}
 						dam *= 2;
@@ -99,7 +99,7 @@ void go_kick(CharData *ch, CharData *vict) {
 						to_room = "Сильно пнув ногой в челюсть $N3, $n заставил$q $S замолчать.";
 						af.type = ESpell::kBattle;
 						af.bitvector = to_underlying(EAffect::kSilence);
-						af.duration = CalcDuration(vict, 3 + GET_REAL_REMORT(ch) / 5, 0, 0, 0, 0);
+						af.duration = CalcDuration(vict, 3 + GetRealRemort(ch) / 5, 0, 0, 0, 0);
 						af.battleflag = kAfBattledec | kAfPulsedec;
 						dam *= 2;
 						break;

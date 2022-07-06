@@ -3501,7 +3501,7 @@ void nanny(DescriptorData *d, char *arg) {
 			switch (*arg) {
 				case '0': SEND_TO_Q("\r\nДо встречи на земле Киевской.\r\n", d);
 
-					if (GET_REAL_REMORT(d->character) == 0
+					if (GetRealRemort(d->character) == 0
 						&& GetRealLevel(d->character) <= 25
 						&& !PLR_FLAGS(d->character).get(EPlrFlag::kNoDelete)) {
 						int timeout = -1;
@@ -3577,7 +3577,7 @@ void nanny(DescriptorData *d, char *arg) {
 						break;
 					}
 
-					if (GET_REAL_REMORT(d->character) > 5) {
+					if (GetRealRemort(d->character) > 5) {
 						SEND_TO_Q("\r\nНельзя удалить себя достигнув шестого перевоплощения.\r\n", d);
 						SEND_TO_Q(MENU, d);
 						break;

@@ -35,7 +35,7 @@ void set_last_read(CharData *ch, BoardTypes type, time_t date) {
 }
 
 bool lvl_no_write(CharData *ch) {
-	if (GetRealLevel(ch) < MIN_WRITE_LEVEL && GET_REAL_REMORT(ch) <= 0) {
+	if (GetRealLevel(ch) < MIN_WRITE_LEVEL && GetRealRemort(ch) <= 0) {
 		return true;
 	}
 	return false;

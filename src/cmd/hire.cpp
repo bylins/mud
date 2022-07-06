@@ -107,7 +107,7 @@ long calc_hire_price(CharData *ch, CharData *victim) {
 	price += m_luck + m_ini + m_ar + m_mr + m_pr + m_dr + extraAttack;
 	// сколько персонаж может
 	float hirePoints = 0;
-	float rem_hirePoints = GET_REAL_REMORT(ch) * 1.8;
+	float rem_hirePoints = GetRealRemort(ch) * 1.8;
 	float int_hirePoints = GET_REAL_INT(ch) * 1.8;
 	float cha_hirePoints = GET_REAL_CHA(ch) * 1.8;
 	hirePoints += rem_hirePoints + int_hirePoints + cha_hirePoints;
@@ -209,7 +209,7 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act("$M сейчас, похоже, не до вас.", false, ch, 0, helpee, kToChar);
 	else if (circle_follow(helpee, ch))
 		SendMsgToChar("Следование по кругу запрещено.\r\n", ch);
-	else if (GET_REAL_REMORT(ch) < GET_REAL_REMORT(helpee))
+	else if (GetRealRemort(ch) < GetRealRemort(helpee))
 		act("$N сказал вам: \"Ты слишком слаб, чтобы нанять меня\".", false, ch, 0, helpee, kToChar);
 	else {
 		// Вы издеваетесь? Блок else на три экрана, реально?

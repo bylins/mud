@@ -56,7 +56,7 @@ int go_track(CharData *ch, CharData *victim, const ESkill skill_no) {
 	//current_skillpercent = GET_SKILL(ch, ESkill::kSense);
 	if ((!victim->IsNpc()) && (!IS_GOD(ch)) && (!ch->IsNpc())) //Если цель чар и ищет не бог
 	{
-		percent = MIN(99, number(0, GET_REAL_REMORT(victim)) + percent);
+		percent = MIN(99, number(0, GetRealRemort(victim)) + percent);
 	}
 	if (percent > CalcCurrentSkill(ch, skill_no, victim)) {
 		int tries = 10;

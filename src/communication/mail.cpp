@@ -432,7 +432,7 @@ void sub_poster(int uid) {
 bool check_poster_cnt(CharData *ch) {
 	auto i = poster_list.find(ch->get_uid());
 	if (i != poster_list.end()) {
-		if (GET_REAL_REMORT(ch) <= 0
+		if (GetRealRemort(ch) <= 0
 			&& GetRealLevel(ch) <= kNameLevel
 			&& i->second >= LOW_LVL_MAX_POST) {
 			return false;

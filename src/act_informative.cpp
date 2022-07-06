@@ -2391,7 +2391,7 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 			SendMsgToChar(port->wrd, ch);
 			SendMsgToChar("&n'.\r\n", ch);
 			return 0;
-		} else if (GetRealLevel(ch) < MAX(1, port->level - GET_REAL_REMORT(ch) / 2)) {
+		} else if (GetRealLevel(ch) < MAX(1, port->level - GetRealRemort(ch) / 2)) {
 			SendMsgToChar("На камне что-то написано огненными буквами.\r\n", ch);
 			SendMsgToChar("Но вы еще недостаточно искусны, чтобы разобрать слово.\r\n", ch);
 			return false;
@@ -3168,7 +3168,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				sprintf(buf, "%s[%2d %2d %s(%5d)] %s%s%s%s",
 						IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "",
 						GetRealLevel(tch),
-						GET_REAL_REMORT(tch),
+						GetRealRemort(tch),
 						MUD::Class(tch->GetClass()).GetAbbr().c_str(),
 						tch->get_pfilepos(),
 						CCPK(ch, C_NRM, tch),
@@ -3334,7 +3334,7 @@ void do_statistic(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 			continue;
 		}
 		CLAN(tch) ? ++clan : ++noclan;
-		GET_REAL_REMORT(tch) >= 1 ? ++rem : ++norem;
+		GetRealRemort(tch) >= 1 ? ++rem : ++norem;
 		pk_count(tch.get()) >= 1 ? ++pk : ++nopk;
 
 		if (GetRealLevel(tch) >= 25) {
@@ -3435,7 +3435,7 @@ void sendWhoami(CharData *ch) {
 			snprintf(buf, kMaxStringLength, "&WИмя одобрено %s %s&n\r\n", by_rank, buf1);
 		SendMsgToChar(buf, ch);
 	}
-	sprintf(buf, "Перевоплощений: %d\r\n", GET_REAL_REMORT(ch));
+	sprintf(buf, "Перевоплощений: %d\r\n", GetRealRemort(ch));
 	SendMsgToChar(buf, ch);
 	Clan::CheckPkList(ch);
 	if (ch->player_specials->saved.telegram_id != 0) { //тут прямое обращение, ибо базовый класс, а не наследник
@@ -3719,7 +3719,7 @@ void do_levels(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		ptr += sprintf(ptr, "%s[%2d] %13s-%-13s %-13s%s\r\n", (GetRealLevel(ch) == i) ? CCICYN(ch, C_NRM) : "", i,
 					   thousands_sep(GetExpUntilNextLvl(ch, i)).c_str(),
 					   thousands_sep(GetExpUntilNextLvl(ch, i + 1) - 1).c_str(),
-					   thousands_sep((int) (GetExpUntilNextLvl(ch, i + 1) - GetExpUntilNextLvl(ch, i)) / (10 + GET_REAL_REMORT(ch))).c_str(),
+					   thousands_sep((int) (GetExpUntilNextLvl(ch, i + 1) - GetExpUntilNextLvl(ch, i)) / (10 + GetRealRemort(ch))).c_str(),
 					   (GetRealLevel(ch) == i) ? CCNRM(ch, C_NRM) : "");
 	}
 
@@ -3748,7 +3748,7 @@ void do_consider(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Оценивайте игроков сами - тут я не советчик.\r\n", ch);
 		return;
 	}
-	diff = (GetRealLevel(victim) - GetRealLevel(ch) - GET_REAL_REMORT(ch));
+	diff = (GetRealLevel(victim) - GetRealLevel(ch) - GetRealRemort(ch));
 
 	if (diff <= -10)
 		SendMsgToChar("Ути-пути, моя рыбонька.\r\n", ch);

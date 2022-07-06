@@ -108,7 +108,7 @@ void PrintScoreList(CharData *ch) {
 				  MUD::Class(ch->GetClass()).GetCName(),
 				  buf1,
 				  GetRealLevel(ch),
-				  GET_REAL_REMORT(ch));
+				  GetRealRemort(ch));
 	SendMsgToChar(ch, "Ваш возраст: %d, размер: %d(%d), рост: %d(%d), вес %d(%d).\r\n",
 				  GET_AGE(ch),
 				  GET_SIZE(ch), GET_REAL_SIZE(ch),
@@ -213,9 +213,9 @@ void PrintScoreList(CharData *ch) {
 		SendMsgToChar(ch, "ВНИМАНИЕ! ваше имя запрещено богами. Очень скоро вы прекратите получать опыт.\r\n");
 	}
 	SendMsgToChar(ch, "Вы можете вступить в группу с максимальной разницей в %2d %-75s\r\n",
-				  grouping[ch->GetClass()][static_cast<int>(GET_REAL_REMORT(ch))],
+				  grouping[ch->GetClass()][static_cast<int>(GetRealRemort(ch))],
 				  (std::string(
-					  GetDeclensionInNumber(grouping[ch->GetClass()][static_cast<int>(GET_REAL_REMORT(
+					  GetDeclensionInNumber(grouping[ch->GetClass()][static_cast<int>(GetRealRemort(
 						  ch))], EWhat::kLvl)
 						  + std::string(" без потерь для опыта.")).substr(0, 76).c_str()));
 
@@ -319,8 +319,8 @@ void PrintBlindModeInfo(CharData *ch, std::ostringstream &out) {
 void PrintGroupMembershipInfo(CharData *ch, std::ostringstream &out) {
 	if (GetRealLevel(ch) < kLvlImmortal) {
 		out << InfoStrPrefix(ch) << "Вы можете вступить в группу с максимальной разницей "
-			<< grouping[ch->GetClass()][static_cast<int>(GET_REAL_REMORT(ch))] << " "
-			<< GetDeclensionInNumber(grouping[ch->GetClass()][static_cast<int>(GET_REAL_REMORT(ch))],
+			<< grouping[ch->GetClass()][static_cast<int>(GetRealRemort(ch))] << " "
+			<< GetDeclensionInNumber(grouping[ch->GetClass()][static_cast<int>(GetRealRemort(ch))],
 									 EWhat::kLvl)
 			<< " без потерь для опыта." << std::endl;
 
@@ -487,7 +487,7 @@ int PrintBaseInfoToTable(CharData *ch, table_wrapper::Table &table, std::size_t 
 	table[row][col] = std::string("Племя: ") + PlayerRace::GetRaceNameByNum(GET_KIN(ch), GET_RACE(ch), GET_SEX(ch));
 	table[++row][col] = std::string("Вера: ") + religion_name[GET_RELIGION(ch)][static_cast<int>(GET_SEX(ch))];
 	table[++row][col] = std::string("Уровень: ") + std::to_string(GetRealLevel(ch));
-	table[++row][col] = std::string("Перевоплощений: ") + std::to_string(GET_REAL_REMORT(ch));
+	table[++row][col] = std::string("Перевоплощений: ") + std::to_string(GetRealRemort(ch));
 	table[++row][col] = std::string("Возраст: ") + std::to_string(GET_AGE(ch));
 	if (ch->GetLevel() < kLvlImmortal) {
 		table[++row][col] = std::string("Опыт: ") + PrintNumberByDigits(GET_EXP(ch));
@@ -781,8 +781,8 @@ void PrintScoreBase(CharData *ch) {
 	if (GetRealLevel(ch) < kLvlImmortal) {
 		sprintf(buf + strlen(buf),
 				"Вы можете вступить в группу с максимальной разницей в %d %s без потерь для опыта.\r\n",
-				grouping[ch->GetClass()][static_cast<int>(GET_REAL_REMORT(ch))],
-				GetDeclensionInNumber(grouping[ch->GetClass()][static_cast<int>(GET_REAL_REMORT(ch))],
+				grouping[ch->GetClass()][static_cast<int>(GetRealRemort(ch))],
+				GetDeclensionInNumber(grouping[ch->GetClass()][static_cast<int>(GetRealRemort(ch))],
 									  EWhat::kLvl));
 	}
 

@@ -162,7 +162,7 @@ int go_sense(CharData *ch, CharData *victim) {
 	int percent, dir, skill = CalcCurrentSkill(ch, ESkill::kSense, victim);
 
 	skill = skill
-		- MAX(1, (GET_REAL_REMORT(victim) - GET_REAL_REMORT(ch)) * 5); // разница в ремортах *5 вычитается из текущего умения
+		- MAX(1, (GetRealRemort(victim) - GetRealRemort(ch)) * 5); // разница в ремортах *5 вычитается из текущего умения
 	skill = skill - MAX(1, (GetRealLevel(victim) - GetRealLevel(ch)) * 5);
 	skill = MAX(0, skill);
 	percent = number(0, MUD::Skill(ESkill::kSense).difficulty);
@@ -174,7 +174,7 @@ int go_sense(CharData *ch, CharData *victim) {
 		return dir;
 	}
 	ch->send_to_TC(false, true, false,
-				   "НЮХ: skill == %d percent ==%d реморт цели %d\r\n", skill, percent, GET_REAL_REMORT(victim));
+				   "НЮХ: skill == %d percent ==%d реморт цели %d\r\n", skill, percent, GetRealRemort(victim));
 	return find_first_step(ch->in_room, victim->in_room, ch);
 }
 

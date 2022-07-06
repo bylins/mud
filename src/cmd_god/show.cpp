@@ -495,8 +495,8 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				*buf1 = UPPER(*buf1);
 				snprintf(buf + strlen(buf), kMaxStringLength, "Имя одобрено богом %s\r\n", buf1);
 			}
-			if (GET_REAL_REMORT(vict) < 4)
-				sprintf(rem, "Перевоплощений: %d\r\n", GET_REAL_REMORT(vict));
+			if (GetRealRemort(vict) < 4)
+				sprintf(rem, "Перевоплощений: %d\r\n", GetRealRemort(vict));
 			else
 				sprintf(rem, "Перевоплощений: 3+\r\n");
 			sprintf(buf + strlen(buf), "%s", rem);

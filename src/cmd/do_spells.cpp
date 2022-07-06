@@ -59,7 +59,7 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 				continue;
 		}
 		if ((CalcMinSpellLvl(ch, spell_id) > GetRealLevel(ch) ||
-			class_spell.GetMinRemort() > GET_REAL_REMORT(ch) ||
+			class_spell.GetMinRemort() > GetRealRemort(ch) ||
 			CalcCircleSlotsAmount(ch, class_spell.GetCircle()) <= 0) &&
 			all && !GET_SPELL_TYPE(ch, spell_id)) {
 			continue;
@@ -79,7 +79,7 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 			can_cast = true;
 		}
 
-		if (class_spell.GetMinRemort() > GET_REAL_REMORT(ch)) {
+		if (class_spell.GetMinRemort() > GetRealRemort(ch)) {
 			slot_num = kMaxMemoryCircle - 1;
 		} else {
 			slot_num = class_spell.GetCircle() - 1;

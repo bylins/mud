@@ -975,7 +975,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 
 	if (!ch->IsNpc() || IS_CHARMICE(ch)) {
 		CharData *master = IS_CHARMICE(ch) && ch->has_master() ? ch->get_master() : ch;
-		if ((obj->get_auto_mort_req() >= 0) && (obj->get_auto_mort_req() > GET_REAL_REMORT(master))
+		if ((obj->get_auto_mort_req() >= 0) && (obj->get_auto_mort_req() > GetRealRemort(master))
 			&& !IS_IMMORTAL(master)) {
 			SendMsgToChar(master, "Для использования %s требуется %d %s.\r\n",
 						  GET_OBJ_PNAME(obj, 1).c_str(),
@@ -986,7 +986,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 				PlaceObjToInventory(obj, ch);
 			}
 			return;
-		} else if ((obj->get_auto_mort_req() < -1) && (abs(obj->get_auto_mort_req()) < GET_REAL_REMORT(master))
+		} else if ((obj->get_auto_mort_req() < -1) && (abs(obj->get_auto_mort_req()) < GetRealRemort(master))
 			&& !IS_IMMORTAL(master)) {
 			SendMsgToChar(master, "Максимально количество перевоплощений для использования %s равно %d.\r\n",
 						  GET_OBJ_PNAME(obj, 1).c_str(),
@@ -2581,7 +2581,7 @@ void check_portals(CharData *ch) {
 	// Пробегаем max_p порталы
 	for (tmp = GET_PORTALS(ch); tmp;) {
 		port = get_portal(tmp->vnum, nullptr);
-		if (!port || (portals >= max_p) || std::max(1, port->level - GET_REAL_REMORT(ch) / 2) > GetRealLevel(ch)) {
+		if (!port || (portals >= max_p) || std::max(1, port->level - GetRealRemort(ch) / 2) > GetRealLevel(ch)) {
 			if (dlt) {
 				dlt->next = tmp->next;
 			} else {
@@ -2694,7 +2694,7 @@ int CalcCharmPoint(CharData *ch, ESpell spell_id) {
 	} else {
 		r_hp = (1 - eff_cha + (int) eff_cha) * cha_app[(int) eff_cha].charms;
 	}
-	float remort_coeff = 1.0 + (((float) GET_REAL_REMORT(ch) - 9.0) * 1.2) / 100.0;
+	float remort_coeff = 1.0 + (((float) GetRealRemort(ch) - 9.0) * 1.2) / 100.0;
 	if (remort_coeff > 1.0f) {
 		r_hp *= remort_coeff;
 	}

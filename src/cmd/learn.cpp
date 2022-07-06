@@ -149,7 +149,7 @@ void LearnReceiptBook(CharData *ch, ObjData *obj) {
 
 	if (imrecipes[receipt_id].classknow[(int) ch->GetClass()] == kKnownRecipe &&
 		MAX(GET_OBJ_VAL(obj, 2), imrecipes[receipt_id].level) <= GetRealLevel(ch) &&
-		imrecipes[receipt_id].remort <= GET_REAL_REMORT(ch)) {
+		imrecipes[receipt_id].remort <= GetRealRemort(ch)) {
 		if (imrecipes[receipt_id].level == -1 || imrecipes[receipt_id].remort == -1) {
 			SendMsgToChar("Некорректная запись рецепта для вашего класса - сообщите Богам.\r\n", ch);
 			throw LowRemortOrLvl();

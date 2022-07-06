@@ -1240,7 +1240,7 @@ int MakeRecept::can_make(CharData *ch) {
 		int ingr_lev = get_ingr_lev(ingrobj);
 		// Если чар ниже уровня ингридиента то он не может делать рецепты с его
 		// участием.
-		if (!IS_IMPL(ch) && (ingr_lev > (GetRealLevel(ch) + 2 * GET_REAL_REMORT(ch)))) {
+		if (!IS_IMPL(ch) && (ingr_lev > (GetRealLevel(ch) + 2 * GetRealRemort(ch)))) {
 			SendMsgToChar("Вы слишком малого уровня и вам что-то не подходит для шитья.\r\n", ch);
 			return (false);
 		}
@@ -1610,7 +1610,7 @@ int MakeRecept::make(CharData *ch) {
 			break;
 		ingrs[i] = get_obj_in_list_ingr(parts[i].proto, ch->carrying);
 		ingr_lev = get_ingr_lev(ingrs[i]);
-		if (!IS_IMPL(ch) && (ingr_lev > (GetRealLevel(ch) + 2 * GET_REAL_REMORT(ch)))) {
+		if (!IS_IMPL(ch) && (ingr_lev > (GetRealLevel(ch) + 2 * GetRealRemort(ch)))) {
 			tmpstr = "Вы побоялись испортить " + ingrs[i]->get_PName(3)
 				+ "\r\n и прекратили работу над " + tobj->get_PName(4) + ".\r\n";
 			SendMsgToChar(tmpstr.c_str(), ch);
@@ -1756,7 +1756,7 @@ int MakeRecept::make(CharData *ch) {
 			created_lev += ingr_lev;
 		}
 		// Шанс испортить не ингредиент всетаки есть.
-		if ((number(0, 30) < (5 + ingr_lev - GetRealLevel(ch) - 2 * GET_REAL_REMORT(ch))) && !IS_IMPL(ch)) {
+		if ((number(0, 30) < (5 + ingr_lev - GetRealLevel(ch) - 2 * GetRealRemort(ch))) && !IS_IMPL(ch)) {
 			tmpstr = "Вы испортили " + ingrs[i]->get_PName(3) + ".\r\n";
 			SendMsgToChar(tmpstr.c_str(), ch);
 			//extract_obj(ingrs[i]); //заменим на обнуление веса

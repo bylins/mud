@@ -380,11 +380,11 @@ void die(CharData *ch, CharData *killer) {
 		{
 			if (!NORENTABLE(ch))
 				dec_exp =
-					(GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - GetExpUntilNextLvl(ch, GetRealLevel(ch))) / (3 + MIN(3, GET_REAL_REMORT(ch) / 5))
+					(GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - GetExpUntilNextLvl(ch, GetRealLevel(ch))) / (3 + MIN(3, GetRealRemort(ch) / 5))
 						/ ch->death_player_count();
 			else
 				dec_exp = (GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - GetExpUntilNextLvl(ch, GetRealLevel(ch)))
-					/ (3 + MIN(3, GET_REAL_REMORT(ch) / 5));
+					/ (3 + MIN(3, GetRealRemort(ch) / 5));
 			EndowExpToChar(ch, -dec_exp);
 			dec_exp = char_exp - GET_EXP(ch);
 			sprintf(buf, "Вы потеряли %ld %s опыта.\r\n", dec_exp, GetDeclensionInNumber(dec_exp, EWhat::kPoint));
@@ -630,7 +630,7 @@ void real_kill(CharData *ch, CharData *killer) {
 #endif
 	}
 /*	до будущих времен
-	if (!ch->IsNpc() && GET_REAL_REMORT(ch) > 7 && (GetRealLevel(ch) == 29 || GetRealLevel(ch) == 30))
+	if (!ch->IsNpc() && GetRealRemort(ch) > 7 && (GetRealLevel(ch) == 29 || GetRealLevel(ch) == 30))
 	{
 		// лоадим свиток с экспой
 		const auto rnum = real_object(100);
@@ -692,7 +692,7 @@ void raw_kill(CharData *ch, CharData *killer) {
 	if (ch->IsNpc() && killer) {
 		if (CanUseFeat(killer, EFeat::kSoulsCollector)) {
 			if (GetRealLevel(ch) >= GetRealLevel(killer)) {
-				if (killer->get_souls() < (GET_REAL_REMORT(killer) + 1)) {
+				if (killer->get_souls() < (GetRealRemort(killer) + 1)) {
 					act("&GВы забрали душу $N1 себе!&n", false, killer, nullptr, ch, kToChar);
 					act("$n забрал душу $N1 себе!", false, killer, nullptr, ch, kToNotVict | kToArenaListen);
 					killer->inc_souls();
@@ -717,7 +717,7 @@ void raw_kill(CharData *ch, CharData *killer) {
 }
 
 int get_remort_mobmax(CharData *ch) {
-	int remort = GET_REAL_REMORT(ch);
+	int remort = GetRealRemort(ch);
 	if (remort >= 18)
 		return 15;
 	if (remort >= 14)
@@ -770,7 +770,7 @@ int get_extend_exp(int exp, CharData *ch, CharData *victim) {
 	exp = exp * MAX(15, koef) / 100;
 
 	// делим на реморты
-	exp /= std::max(1.0, 0.5 * (GET_REAL_REMORT(ch) - kMaxExpCoefficientsUsed));
+	exp /= std::max(1.0, 0.5 * (GetRealRemort(ch) - kMaxExpCoefficientsUsed));
 	return (exp);
 }
 
@@ -1015,7 +1015,7 @@ void gain_battle_exp(CharData *ch, CharData *victim, int dam) {
 	// получение игроками экспы
 	if (!ch->IsNpc() && OK_GAIN_EXP(ch, victim)) {
 		int max_exp = MIN(max_exp_gain_pc(ch), (GetRealLevel(victim) * GET_MAX_HIT(victim) + 4) /
-			(5 * MAX(1, GET_REAL_REMORT(ch) - kMaxExpCoefficientsUsed - 1)));
+			(5 * MAX(1, GetRealRemort(ch) - kMaxExpCoefficientsUsed - 1)));
 		double coeff = MIN(dam, GET_HIT(victim)) / static_cast<double>(GET_MAX_HIT(victim));
 		int battle_exp = MAX(1, static_cast<int>(max_exp * coeff));
 		if (Bonus::is_bonus_active(Bonus::EBonusType::BONUS_WEAPON_EXP) && Bonus::can_get_bonus_exp(ch)) {
@@ -1032,7 +1032,7 @@ void gain_battle_exp(CharData *ch, CharData *victim, int dam) {
 		// проверяем что есть мастер и он может получать экспу с данной цели
 		if (master && OK_GAIN_EXP(master, victim)) {
 			int max_exp = MIN(max_exp_gain_pc(master), (GetRealLevel(victim) * GET_MAX_HIT(victim) + 4) /
-				(5 * MAX(1, GET_REAL_REMORT(master) - kMaxExpCoefficientsUsed - 1)));
+				(5 * MAX(1, GetRealRemort(master) - kMaxExpCoefficientsUsed - 1)));
 
 			double coeff = MIN(dam, GET_HIT(victim)) / static_cast<double>(GET_MAX_HIT(victim));
 			int battle_exp = MAX(1, static_cast<int>(max_exp * coeff));

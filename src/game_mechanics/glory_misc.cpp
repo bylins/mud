@@ -195,7 +195,7 @@ bool bad_start_stats(CharData *ch) {
 */
 int bad_real_stats(CharData *ch, int check) {
 	check -= kBaseStatsSum; // стартовые статы у всех по 95
-	check -= 6 * GET_REAL_REMORT(ch); // реморты
+	check -= 6 * GetRealRemort(ch); // реморты
 	// влитая слава
 	check -= Glory::get_spend_glory(ch);
 	check -= GloryConst::main_stats_count(ch);
@@ -222,12 +222,12 @@ bool check_stats(CharData *ch) {
 										 "Сила: %d, Ловкость: %d, Ум: %d, Мудрость: %d, Телосложение: %d, Обаяние: %d\r\n"
 										 "Просим вас заново распределить основные параметры персонажа.%s\r\n",
 				 CCIGRN(ch, C_SPR),
-				 ch->GetInbornStr() - GET_REAL_REMORT(ch),
-				 ch->GetInbornDex() - GET_REAL_REMORT(ch),
-				 ch->GetInbornInt() - GET_REAL_REMORT(ch),
-				 ch->GetInbornWis() - GET_REAL_REMORT(ch),
-				 ch->GetInbornCon() - GET_REAL_REMORT(ch),
-				 ch->GetInbornCha() - GET_REAL_REMORT(ch),
+				 ch->GetInbornStr() - GetRealRemort(ch),
+				 ch->GetInbornDex() - GetRealRemort(ch),
+				 ch->GetInbornInt() - GetRealRemort(ch),
+				 ch->GetInbornWis() - GetRealRemort(ch),
+				 ch->GetInbornCon() - GetRealRemort(ch),
+				 ch->GetInbornCha() - GetRealRemort(ch),
 				 CCNRM(ch, C_SPR));
 		SEND_TO_Q(buf, ch->desc);
 
@@ -262,13 +262,13 @@ void recalculate_stats(CharData *ch) {
 	ch->set_wis(ch->get_start_stat(G_WIS));
 	ch->set_cha(ch->get_start_stat(G_CHA));
 	// морты
-	if (GET_REAL_REMORT(ch)) {
-		ch->inc_str(GET_REAL_REMORT(ch));
-		ch->inc_dex(GET_REAL_REMORT(ch));
-		ch->inc_con(GET_REAL_REMORT(ch));
-		ch->inc_wis(GET_REAL_REMORT(ch));
-		ch->inc_int(GET_REAL_REMORT(ch));
-		ch->inc_cha(GET_REAL_REMORT(ch));
+	if (GetRealRemort(ch)) {
+		ch->inc_str(GetRealRemort(ch));
+		ch->inc_dex(GetRealRemort(ch));
+		ch->inc_con(GetRealRemort(ch));
+		ch->inc_wis(GetRealRemort(ch));
+		ch->inc_int(GetRealRemort(ch));
+		ch->inc_cha(GetRealRemort(ch));
 	}
 	// влитая слава
 	Glory::set_stats(ch);

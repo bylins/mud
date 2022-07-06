@@ -103,10 +103,10 @@ int free_rent = YES;
 
 // receptionist's surcharge on top of item costs
 int min_rent_cost(CharData *ch) {
-	if ((GetRealLevel(ch) < 15) && (GET_REAL_REMORT(ch) == 0))
+	if ((GetRealLevel(ch) < 15) && (GetRealRemort(ch) == 0))
 		return (0);
 	else
-		return ((GetRealLevel(ch) + 30 * GET_REAL_REMORT(ch)) * 2);
+		return ((GetRealLevel(ch) + 30 * GetRealRemort(ch)) * 2);
 }
 
 // Lifetime of crashfiles, forced-rent and idlesave files in days
@@ -283,7 +283,7 @@ int max_exp_gain_pc(CharData *ch) {
 	int result = 1;
 	if (!ch->IsNpc()) {
 		int max_per_lev = GetExpUntilNextLvl(ch, ch->GetLevel() + 1) - GetExpUntilNextLvl(ch, ch->GetLevel() + 0); //тут берем левел без плюсов от стафа
-		result = max_per_lev / (10 + GET_REAL_REMORT(ch));
+		result = max_per_lev / (10 + GetRealRemort(ch));
 	}
 	return result;
 }

@@ -206,7 +206,7 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 bool TitleSystem::check_title(const std::string &text, CharData *ch) {
 	if (!check_alphabet(text, ch, " ,.-?Ёё")) return 0;
 
-	if (GetRealLevel(ch) < 25 && !GET_REAL_REMORT(ch) && !IS_GOD(ch) && !privilege::CheckFlag(ch, privilege::kTitle)) {
+	if (GetRealLevel(ch) < 25 && !GetRealRemort(ch) && !IS_GOD(ch) && !privilege::CheckFlag(ch, privilege::kTitle)) {
 		SendMsgToChar(ch, "Для права на титул вы должны достигнуть 25го уровня или иметь перевоплощения.\r\n");
 		return 0;
 	}
@@ -225,7 +225,7 @@ bool TitleSystem::check_pre_title(std::string text, CharData *ch) {
 
 	if (IS_GOD(ch) || privilege::CheckFlag(ch, privilege::kTitle)) return 1;
 
-	if (!GET_REAL_REMORT(ch)) {
+	if (!GetRealRemort(ch)) {
 		SendMsgToChar(ch, "Вы должны иметь по крайней мере одно перевоплощение для предтитула.\r\n");
 		return 0;
 	}
@@ -243,7 +243,7 @@ bool TitleSystem::check_pre_title(std::string text, CharData *ch) {
 		SendMsgToChar(ch, "Слишком много слов в предтитуле.\r\n");
 		return 0;
 	}
-	if (word > GET_REAL_REMORT(ch)) {
+	if (word > GetRealRemort(ch)) {
 		SendMsgToChar(ch, "У вас недостаточно перевоплощений для стольких слов в предтитуле.\r\n");
 		return 0;
 	}

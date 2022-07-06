@@ -467,9 +467,9 @@ int calc_drop_torc(int zone_lvl, int members) {
 // если imm_stat == true, то вместо звездочек конкретные цифры тек/макс
 std::string draw_daily_limit(CharData *ch, bool imm_stat) {
 	const int today_torc = ch->get_today_torc();
-	const int torc_req_daily = calc_torc_daily(GET_REAL_REMORT(ch));
+	const int torc_req_daily = calc_torc_daily(GetRealRemort(ch));
 
-	TorcReq torc_req(GET_REAL_REMORT(ch));
+	TorcReq torc_req(GetRealRemort(ch));
 	if (torc_req.type >= kTotalTypes) {
 		torc_req.type = kTorcBronze;
 	}
@@ -495,11 +495,11 @@ std::string draw_daily_limit(CharData *ch, bool imm_stat) {
 // проверка дропа гривен на суточный замакс
 int check_daily_limit(CharData *ch, int drop) {
 	const int today_torc = ch->get_today_torc();
-	const int torc_req_daily = calc_torc_daily(GET_REAL_REMORT(ch));
+	const int torc_req_daily = calc_torc_daily(GetRealRemort(ch));
 
 	// из calc_torc_daily в любом случае взялось какое-то число бронзы
 	// даже если чар не имеет мортов для требования гривен
-	TorcReq torc_req(GET_REAL_REMORT(ch));
+	TorcReq torc_req(GetRealRemort(ch));
 	if (torc_req.type >= kTotalTypes) {
 		torc_req.type = kTorcBronze;
 	}
@@ -740,7 +740,7 @@ int calc_torc_daily(int rmrt) {
 
 // проверка, требуется ли от чара жертвовать для реморта
 bool need_torc(CharData *ch) {
-	TorcReq torc_req(GET_REAL_REMORT(ch));
+	TorcReq torc_req(GetRealRemort(ch));
 
 	if (torc_req.type < kTotalTypes && torc_req.amount > 0) {
 		return true;
@@ -819,7 +819,7 @@ int torc(CharData *ch, void *me, int cmd, char * /*argument*/) {
 			// чар уже жертвовал или от него и не требовалось
 			return 0;
 		} else if (need_torc(ch)) {
-			TorcReq torc_req(GET_REAL_REMORT(ch));
+			TorcReq torc_req(GetRealRemort(ch));
 			// чар еще не жертвовал и от него что-то требуется
 			message_low_torc(ch, torc_req.type, torc_req.amount, " (команда 'жертвовать').");
 			return 1;
@@ -842,7 +842,7 @@ int torc(CharData *ch, void *me, int cmd, char * /*argument*/) {
 			}
 		} else {
 			// пробуем пожертвовать
-			TorcReq torc_req(GET_REAL_REMORT(ch));
+			TorcReq torc_req(GetRealRemort(ch));
 			if (ch->get_ext_money(torc_req.type) >= torc_req.amount) {
 				const CharData *mob = reinterpret_cast<CharData *>(me);
 				donat_torc(ch, mob->get_name_str(), torc_req.type, torc_req.amount);

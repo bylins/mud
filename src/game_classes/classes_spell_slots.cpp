@@ -1214,8 +1214,8 @@ int CalcCircleSlotsAmount(CharData *ch, int circle) {
 		return 0;
 	}
 
-	return ((wis_is || (GET_REAL_REMORT(ch) > circle)) ?
-		std::min(kMaxSlotPerCircle, wis_is + ch->get_obj_slot(circle) + GET_REAL_REMORT(ch)) : 0);
+	return ((wis_is || (GetRealRemort(ch) > circle)) ?
+		std::min(kMaxSlotPerCircle, wis_is + ch->get_obj_slot(circle) + GetRealRemort(ch)) : 0);
 }
 
 }; // namespace ClassPlayer
