@@ -500,7 +500,6 @@ void trigedit_save(DescriptorData *d) {
 		std::stringstream ss;
 		ss << "Error chmod file: " << buf << " (" << __FILE__ << " "<< __func__ << "  "<< __LINE__ << ")";
 		mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
-		return;
 	}
 	SendMsgToChar("Saving Index file\r\n", d->character.get());
 	trigedit_create_index(zone, "trg");

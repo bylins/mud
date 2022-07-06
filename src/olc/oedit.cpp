@@ -405,7 +405,6 @@ void oedit_save_to_disk(int zone_num) {
 		std::stringstream ss;
 		ss << "Error chmod file: " << buf2 << " (" << __FILE__ << " "<< __func__ << "  "<< __LINE__ << ")";
 		mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
-		return;
 	}
 
 	olc_remove_from_save_list(zone_table[zone_num].vnum, OLC_SAVE_OBJ);
