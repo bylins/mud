@@ -104,7 +104,7 @@ void go_backstab(CharData *ch, CharData *vict) {
 		};
 
 		if (vict->GetEnemy()) {
-			prob = prob * (GET_REAL_DEX(ch) + 50) / 100;
+			prob = prob * (GetRealDex(ch) + 50) / 100;
 		}
 
 		if (AFF_FLAGGED(ch, EAffect::kHide)) {

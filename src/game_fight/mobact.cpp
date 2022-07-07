@@ -225,7 +225,7 @@ int find_door(CharData *ch, const bool track_method) {
 }
 
 int npc_track(CharData *ch) {
-	const auto result = find_door(ch, GET_REAL_INT(ch) < number(15, 20));
+	const auto result = find_door(ch, GetRealInt(ch) < number(15, 20));
 
 	return result;
 }
@@ -348,10 +348,10 @@ CharData *find_best_stupidmob_victim(CharData *ch, int extmode) {
 		// Mobile aggresive
 		if (!kill_this && extra_aggr) {
 			if (CanUseFeat(vict, EFeat::kSilverTongue)) {
-				const int number1 = number(1, GetRealLevel(vict) * GET_REAL_CHA(vict));
+				const int number1 = number(1, GetRealLevel(vict) * GetRealCha(vict));
 				const int range = ((GetRealLevel(ch) > 30)
-								   ? (GetRealLevel(ch) * 2 * GET_REAL_INT(ch) + GET_REAL_INT(ch) * 20)
-								   : (GetRealLevel(ch) * GET_REAL_INT(ch)));
+								   ? (GetRealLevel(ch) * 2 * GetRealInt(ch) + GetRealInt(ch) * 20)
+								   : (GetRealLevel(ch) * GetRealInt(ch)));
 				const int number2 = number(1, range);
 				const bool do_continue = number1 > number2;
 				if (do_continue) {
@@ -375,34 +375,34 @@ CharData *find_best_stupidmob_victim(CharData *ch, int extmode) {
 					&& (AFF_FLAGGED(vict, EAffect::kSingleLight)
 						|| AFF_FLAGGED(vict, EAffect::kHolyLight))))
 			&& (!use_light
-				|| GET_REAL_CHA(use_light) > GET_REAL_CHA(vict))) {
+				|| GetRealCha(use_light) > GetRealCha(vict))) {
 			use_light = vict;
 		}
 
 		if (!min_hp
-			|| GET_HIT(vict) + GET_REAL_CHA(vict) * 10 < GET_HIT(min_hp) + GET_REAL_CHA(min_hp) * 10) {
+			|| GET_HIT(vict) + GetRealCha(vict) * 10 < GET_HIT(min_hp) + GetRealCha(min_hp) * 10) {
 			min_hp = vict;
 		}
 
 		if (!min_lvl
-			|| GetRealLevel(vict) + number(1, GET_REAL_CHA(vict))
-				< GetRealLevel(min_lvl) + number(1, GET_REAL_CHA(min_lvl))) {
+			|| GetRealLevel(vict) + number(1, GetRealCha(vict))
+				< GetRealLevel(min_lvl) + number(1, GetRealCha(min_lvl))) {
 			min_lvl = vict;
 		}
 
 		if (IsCaster(vict) &&
-			(!caster	|| caster->caster_level * GET_REAL_CHA(vict) < GET_REAL_CHA(caster)*vict->caster_level)) {
+			(!caster	|| caster->caster_level * GetRealCha(vict) < GetRealCha(caster)*vict->caster_level)) {
 			caster = vict;
 		}
 	}
 
-	if (GET_REAL_INT(ch) < 5 + number(1, 6))
+	if (GetRealInt(ch) < 5 + number(1, 6))
 		best = victim;
-	else if (GET_REAL_INT(ch) < 10 + number(1, 6))
+	else if (GetRealInt(ch) < 10 + number(1, 6))
 		best = use_light ? use_light : victim;
-	else if (GET_REAL_INT(ch) < 15 + number(1, 6))
+	else if (GetRealInt(ch) < 15 + number(1, 6))
 		best = min_lvl ? min_lvl : (use_light ? use_light : victim);
-	else if (GET_REAL_INT(ch) < 25 + number(1, 6))
+	else if (GetRealInt(ch) < 25 + number(1, 6))
 		best = caster ? caster : (min_lvl ? min_lvl : (use_light ? use_light : victim));
 	else
 		best = min_hp ? min_hp : (caster ? caster : (min_lvl ? min_lvl : (use_light ? use_light : victim)));
@@ -442,7 +442,7 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 	int extra_aggr = 0;
 	bool kill_this;
 
-	int mobINT = GET_REAL_INT(ch);
+	int mobINT = GetRealInt(ch);
 	if (mobINT < kStupidMod) {
 		return find_best_stupidmob_victim(ch, extmode);
 	}
@@ -517,7 +517,7 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 
 		if (!kill_this && extra_aggr) {
 			if (CanUseFeat(vict, EFeat::kSilverTongue)
-				&& number(1, GetRealLevel(vict) * GET_REAL_CHA(vict)) > number(1, GetRealLevel(ch) * GET_REAL_INT(ch))) {
+				&& number(1, GetRealLevel(vict) * GetRealCha(vict)) > number(1, GetRealLevel(ch) * GetRealInt(ch))) {
 				continue;
 			}
 			kill_this = true;
@@ -642,12 +642,12 @@ int perform_best_mob_attack(CharData *ch, int extmode) {
 					&& IN_ROOM(f->follower) == IN_ROOM(best)) {
 					if (number(0, clone_number) == 1)
 						break;
-					if ((GET_REAL_INT(ch) < 20) && number(0, clone_number))
+					if ((GetRealInt(ch) < 20) && number(0, clone_number))
 						break;
-					if (GET_REAL_INT(ch) >= 30)
+					if (GetRealInt(ch) >= 30)
 						break;
-					if ((GET_REAL_INT(ch) >= 20)
-						&& number(1, 10 + VPOSI((35 - GET_REAL_INT(ch)), 0, 15) * clone_number) <= 10)
+					if ((GetRealInt(ch) >= 20)
+						&& number(1, 10 + VPOSI((35 - GetRealInt(ch)), 0, 15) * clone_number) <= 10)
 						break;
 					best = f->follower;
 					break;
@@ -1295,7 +1295,7 @@ void mobRemember(CharData *ch, CharData *victim) {
 	for (tmp = MEMORY(ch); tmp && !present; tmp = tmp->next)
 		if (tmp->id == GET_IDNUM(victim)) {
 			if (tmp->time > 0)
-				tmp->time = time(nullptr) + kMobMemKoeff * GET_REAL_INT(ch);
+				tmp->time = time(nullptr) + kMobMemKoeff * GetRealInt(ch);
 			present = true;
 		}
 
@@ -1303,7 +1303,7 @@ void mobRemember(CharData *ch, CharData *victim) {
 		CREATE(tmp, 1);
 		tmp->next = MEMORY(ch);
 		tmp->id = GET_IDNUM(victim);
-		tmp->time = time(nullptr) + kMobMemKoeff * GET_REAL_INT(ch);
+		tmp->time = time(nullptr) + kMobMemKoeff * GetRealInt(ch);
 		MEMORY(ch) = tmp;
 	}
 	if (!IsTimedBySkill(victim, ESkill::kHideTrack) && victim->GetSkill(ESkill::kHideTrack)) {

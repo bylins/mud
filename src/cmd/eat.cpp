@@ -57,11 +57,11 @@ void feed_charmice(CharData *ch, char *local_arg) {
 	}
 	if (weather_info.moon_day < 14) {
 		max_charm_duration =
-			CalcDuration(ch, GET_REAL_WIS(ch->get_master()) - 6 + number(0, weather_info.moon_day % 14), 0, 0, 0, 0);
+			CalcDuration(ch, GetRealWis(ch->get_master()) - 6 + number(0, weather_info.moon_day % 14), 0, 0, 0, 0);
 	} else {
 		max_charm_duration =
 			CalcDuration(ch,
-						 GET_REAL_WIS(ch->get_master()) - 6 + number(0, 14 - weather_info.moon_day % 14),
+						 GetRealWis(ch->get_master()) - 6 + number(0, 14 - weather_info.moon_day % 14),
 						 0, 0, 0, 0);
 	}
 

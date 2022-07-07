@@ -49,7 +49,7 @@ void go_kick(CharData *ch, CharData *vict) {
 		dmg.Process(ch, vict);
 		cooldown = 2;
 	} else {
-		int dam = str_bonus(GET_REAL_STR(ch), STR_TO_DAM) + GetRealDamroll(ch) + GetRealLevel(ch) / 6;
+		int dam = str_bonus(GetRealStr(ch), STR_TO_DAM) + GetRealDamroll(ch) + GetRealLevel(ch) / 6;
 		if (!ch->IsNpc() || (ch->IsNpc() && GET_EQ(ch, EEquipPos::kFeet))) {
 			int modi = std::max(0, (ch->GetSkill(ESkill::kKick) + 4) / 5);
 			dam += number(0, modi * 2);
@@ -62,7 +62,7 @@ void go_kick(CharData *ch, CharData *vict) {
 			af.type = ESpell::kBattle;
 			af.modifier = 0;
 			af.battleflag = 0;
-			float modi = ((ch->GetSkill(ESkill::kKick) + GET_REAL_STR(ch) * 5)
+			float modi = ((ch->GetSkill(ESkill::kKick) + GetRealStr(ch) * 5)
 				+ (GET_EQ(ch, EEquipPos::kFeet) ? GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kFeet)) : 0) * 3) / float(GET_SIZE(vict));
 			if (number(1, 1000) < modi * 10) {
 				switch (number(0, (ch->GetSkill(ESkill::kKick) - 150) / 10)) {

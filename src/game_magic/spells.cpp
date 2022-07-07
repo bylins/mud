@@ -257,7 +257,7 @@ void SpellRecall(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 			return;
 		}
 
-		if ((ch->IsNpc() && CalcGeneralSaving(ch, victim, ESaving::kWill, GET_REAL_INT(ch))) || IS_GOD(victim)) {
+		if ((ch->IsNpc() && CalcGeneralSaving(ch, victim, ESaving::kWill, GetRealInt(ch))) || IS_GOD(victim)) {
 			return;
 		}
 	}
@@ -665,7 +665,7 @@ void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *o
 
 		bloody_corpse = false;
 		if (!IS_GOD(ch)) {
-			if (number(1, 100) > (40 + std::max((GET_REAL_INT(ch) - 25) * 2, 0))) {
+			if (number(1, 100) > (40 + std::max((GetRealInt(ch) - 25) * 2, 0))) {
 				return false;
 			}
 
@@ -929,7 +929,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 	else if (circle_follow(victim, ch))
 		SendMsgToChar("Следование по кругу запрещено.\r\n", ch);
 	else if (!IS_IMMORTAL(ch)
-		&& CalcGeneralSaving(ch, victim, ESaving::kWill, (GET_REAL_CHA(ch) - 10) * 4 + GetRealRemort(ch) * 3)) //предлагаю завязать на каст
+		&& CalcGeneralSaving(ch, victim, ESaving::kWill, (GetRealCha(ch) - 10) * 4 + GetRealRemort(ch) * 3)) //предлагаю завязать на каст
 		SendMsgToChar("Ваша магия потерпела неудачу.\r\n", ch);
 	else {
 		if (!CheckCharmices(ch, victim, ESpell::kCharm)) {
@@ -955,10 +955,10 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 		Affect<EApply> af;
 		af.type = ESpell::kCharm;
 
-		if (GET_REAL_INT(victim) > GET_REAL_INT(ch)) {
-			af.duration = CalcDuration(victim, GET_REAL_CHA(ch), 0, 0, 0, 0);
+		if (GetRealInt(victim) > GetRealInt(ch)) {
+			af.duration = CalcDuration(victim, GetRealCha(ch), 0, 0, 0, 0);
 		} else {
-			af.duration = CalcDuration(victim, GET_REAL_CHA(ch) + number(1, 10) + GetRealRemort(ch) * 2, 0, 0, 0, 0);
+			af.duration = CalcDuration(victim, GetRealCha(ch) + number(1, 10) + GetRealRemort(ch) * 2, 0, 0, 0, 0);
 		}
 
 		af.modifier = 0;
@@ -975,7 +975,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 				false, ch, nullptr, victim, kToRoom | kToArenaListen);
 			// начинаем модификации victim
 			// создаем переменные модификаторов
-			int r_cha = GET_REAL_CHA(ch);
+			int r_cha = GetRealCha(ch);
 			int perc = ch->GetSkill(GetMagicSkillId(ESpell::kCharm));
 			ch->send_to_TC(false, true, false, "Значение хари:  %d.\r\n", r_cha);
 			ch->send_to_TC(false, true, false, "Значение скила магии: %d.\r\n", perc);
@@ -1179,7 +1179,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 					act("&B$N0 теперь сможет просто удавить всех своих врагов.&n\n",
 						false, ch, nullptr, victim, kToChar);
 				}
-				victim->set_str(floorf(GET_REAL_STR(victim)*1.3));
+				victim->set_str(floorf(GetRealStr(victim)*1.3));
 				skill_id = ESkill::kPunch;
 				break;
 			case 2:
@@ -1199,7 +1199,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 					victim->set_skill(ESkill::kFirstAid, k_skills*0.4);
 					victim->set_skill(ESkill::kParry, k_skills*0.7);
 				}
-				victim->set_str(floorf(GET_REAL_STR(victim)*1.2));
+				victim->set_str(floorf(GetRealStr(victim)*1.2));
 				skill_id = ESkill::kTwohands;
 				break;
 			case 3:
@@ -1219,7 +1219,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 					act("&c$N0 затаил$U в вашей тени...&n\n", false, ch, nullptr, victim, kToChar);
 					
 				}
-				victim->set_dex(floorf(GET_REAL_DEX(victim)*1.3));		
+				victim->set_dex(floorf(GetRealDex(victim)*1.3));
 				skill_id = ESkill::kPicks;
 				break;
 			case 4:
@@ -1242,8 +1242,8 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 				victim->SetFeat(EFeat::kThieveStrike);
 				victim->SetFeat(EFeat::kDefender);
 				victim->SetFeat(EFeat::kLiveShield);
-				victim->set_con(floorf(GET_REAL_CON(victim)*1.3));
-				victim->set_str(floorf(GET_REAL_STR(victim)*1.2));
+				victim->set_con(floorf(GetRealCon(victim)*1.3));
+				victim->set_str(floorf(GetRealStr(victim)*1.2));
 				skill_id = ESkill::kAxes;
 				break;
 			case 5:
@@ -1265,8 +1265,8 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 						false, ch, nullptr, victim, kToChar);
 					affect_to_char(victim, af);
 				}
-				victim->set_dex(floorf(GET_REAL_DEX(victim)*1.2));
-				victim->set_str(floorf(GET_REAL_STR(victim)*1.15));
+				victim->set_dex(floorf(GetRealDex(victim)*1.2));
+				victim->set_str(floorf(GetRealStr(victim)*1.15));
 				victim->mob_specials.extra_attack = floorf((r_cha*1.2 + perc) / 180.0); // срежем доп атаки
 				skill_id = ESkill::kBows;
 				break;
@@ -1293,7 +1293,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 						false, ch, nullptr, victim, kToChar);
 					victim->mob_specials.extra_attack = floorf((r_cha*1.2 + perc) / 100.0);
 				}
-				victim->set_str(floorf(GET_REAL_STR(victim)*1.25));
+				victim->set_str(floorf(GetRealStr(victim)*1.25));
 				
 				skill_id = ESkill::kClubs;
 			break;
@@ -1314,8 +1314,8 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 					act("&mДвижения $N1 сильно ускорились, и в глазах появились &Rогоньки&m безумия.&n\n",
 						false, ch, nullptr, victim, kToChar);
 				}
-				victim->set_dex(floorf(GET_REAL_DEX(victim)*1.1));
-				victim->set_str(floorf(GET_REAL_STR(victim)*1.35));
+				victim->set_dex(floorf(GetRealDex(victim)*1.1));
+				victim->set_str(floorf(GetRealStr(victim)*1.35));
 				
 				skill_id = ESkill::kLongBlades;
 			break;		
@@ -1344,8 +1344,8 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 				victim->SetFeat(EFeat::kTripleThrower);
 				victim->SetFeat(EFeat::kPowerThrow);
 				victim->SetFeat(EFeat::kDeadlyThrow);
-				victim->set_str(floorf(GET_REAL_STR(victim)*1.2));
-				victim->set_con(floorf(GET_REAL_CON(victim)*1.2));
+				victim->set_str(floorf(GetRealStr(victim)*1.2));
+				victim->set_con(floorf(GetRealCon(victim)*1.2));
 				skill_id = ESkill::kSpades;
 				break;
 			}

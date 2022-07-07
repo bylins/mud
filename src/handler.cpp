@@ -2720,7 +2720,7 @@ int IsEquipInMetall(CharData *ch) {
 		}
 	}
 
-	if (wgt > GET_REAL_STR(ch))
+	if (wgt > GetRealStr(ch))
 		return (true);
 
 	return (false);

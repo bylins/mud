@@ -36,7 +36,7 @@ void DoLightwalk(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 	af.modifier = 0;
 	af.location = EApply::kNone;
 	af.battleflag = 0;
-	if (number(1, 1000) > number(1, GET_REAL_DEX(ch) * 50)) {
+	if (number(1, 1000) > number(1, GetRealDex(ch) * 50)) {
 		af.bitvector = 0;
 		SendMsgToChar("Вам не хватает ловкости...\r\n", ch);
 	} else {

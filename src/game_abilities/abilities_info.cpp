@@ -100,7 +100,7 @@ void AbilityInfoBuilder::TemporarySetStat(ItemPtr &info) {
 			break;
 		}
 		case EAbility::kCutting: {
-			info->GetEffectParameter = &GET_REAL_STR;
+			info->GetEffectParameter = &GetRealStr;
 			info->uses_weapon_skill_ = true;
 			info->damage_bonus_ = 15;
 			info->success_degree_damage_bonus_ = 5;
@@ -144,7 +144,7 @@ void AbilityInfoBuilder::TemporarySetStat(ItemPtr &info) {
 			break;
 		}
 		case EAbility::kThrowWeapon: {
-			info->GetEffectParameter = &GET_REAL_STR;
+			info->GetEffectParameter = &GetRealStr;
 			info->uses_weapon_skill_ = false;
 			info->damage_bonus_ = 20;
 			info->success_degree_damage_bonus_ = 5;
@@ -176,7 +176,7 @@ void AbilityInfoBuilder::TemporarySetStat(ItemPtr &info) {
 			break;
 		}
 		case EAbility::kShadowThrower: {
-			info->GetEffectParameter = &GET_REAL_INT;
+			info->GetEffectParameter = &GetRealInt;
 			info->damage_bonus_ = -30;
 			info->success_degree_damage_bonus_ = 1;
 			info->uses_weapon_skill_ = false;
@@ -208,7 +208,7 @@ void AbilityInfoBuilder::TemporarySetStat(ItemPtr &info) {
 			break;
 		}
 		case EAbility::kTurnUndead: {
-			info->GetEffectParameter = &GET_REAL_WIS;
+			info->GetEffectParameter = &GetRealWis;
 			info->uses_weapon_skill_ = false;
 			info->damage_bonus_ = -30;
 			info->success_degree_damage_bonus_ = 2;

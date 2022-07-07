@@ -1410,7 +1410,7 @@ int print_spell_locate_object(CharData *ch, int count, std::string name) {
 		for (ObjListType::iterator obj_it = it->second.pers_online.begin(); obj_it != it->second.pers_online.end();
 			 ++obj_it) {
 			if (!IS_GOD(ch)) {
-				if (number(1, 100) > (40 + std::max((GET_REAL_INT(ch) - 25) * 2, 0))) {
+				if (number(1, 100) > (40 + std::max((GetRealInt(ch) - 25) * 2, 0))) {
 					continue;
 				}
 				if ((*obj_it)->has_flag(EObjFlag::kNolocate)

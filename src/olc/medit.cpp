@@ -615,13 +615,13 @@ void medit_save_to_disk(int zone_num) {
 
 			// * Deal with Extra stats in case they are there.
 			sum = 0;
-			for (auto save = ESaving::kFirst; save <= ESaving::kLast; ++save) {
-				sum += GET_SAVE(mob, save);
+			for (ESaving save = ESaving::kFirst; save <= ESaving::kLast; ++save) {
+				sum += GetSave(mob, save);
 			}
 			if (sum != 0)
 				fprintf(mob_file, "Saves: %d %d %d %d\n",
-						GET_SAVE(mob, ESaving::kWill), GET_SAVE(mob, ESaving::kCritical),
-						GET_SAVE(mob, ESaving::kStability), GET_SAVE(mob, ESaving::kReflex));
+						GetSave(mob, ESaving::kWill), GetSave(mob, ESaving::kCritical),
+						GetSave(mob, ESaving::kStability), GetSave(mob, ESaving::kReflex));
 			sum = 0;
 			fprintf(mob_file, "Resistances: %d %d %d %d %d %d %d %d\n",
 					GET_RESIST(mob, 0), GET_RESIST(mob, 1), GET_RESIST(mob, 2), GET_RESIST(mob, 3),
@@ -834,7 +834,7 @@ void medit_disp_saves(DescriptorData *d) {
 	for (auto s = ESaving::kFirst; s <= ESaving::kLast; ++s) {
 		auto i = to_underlying(s);
 		sprintf(buf, "%s%2d%s) %s : %s%d%s\r\n",
-				grn, i+1, nrm, apply_negative[i+1], cyn, GET_SAVE(OLC_MOB(d), s), nrm);
+				grn, i+1, nrm, apply_negative[i+1], cyn, GetSave(OLC_MOB(d), s), nrm);
 		SendMsgToChar(buf, d->character.get());
 	}
 	SendMsgToChar("Введите номер и величину спас-броска, отрицательное улучшает (0 - конец) : ", d->character.get());
@@ -1857,7 +1857,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 			} else if (sscanf(arg, "%d %d", &plane, &bit) < 2) {
 				SendMsgToChar("Не указана величина спас-броска.\r\n", d->character.get());
 			} else {
-				SET_SAVE(OLC_MOB(d), saving, std::clamp(bit, kMinSaving, kMaxSaving));
+				SetSave(OLC_MOB(d), saving, std::clamp(bit, kMinSaving, kMaxSaving));
 			}
 			medit_disp_saves(d);
 			return;

@@ -441,7 +441,7 @@ CharData *find_friend_cure(CharData *caster, ESpell spell_id) {
 		if (GET_HP_PERC(vict) < AFF_USED && (!victim || vict_val > GET_HP_PERC(vict))) {
 			victim = vict;
 			vict_val = GET_HP_PERC(vict);
-			if (GET_REAL_INT(caster) < number(10, 20)) {
+			if (GetRealInt(caster) < number(10, 20)) {
 				break;
 			}
 		}
@@ -516,7 +516,7 @@ CharData *find_friend(CharData *caster, ESpell spell_id) {
 				|| vict_val < GET_MAXDAMAGE(vict)) {
 				victim = vict;
 				vict_val = GET_MAXDAMAGE(vict);
-				if (GET_REAL_INT(caster) < number(10, 20)) {
+				if (GetRealInt(caster) < number(10, 20)) {
 					break;
 				}
 			}
@@ -592,7 +592,7 @@ CharData *find_caster(CharData *caster, ESpell spell_id) {
 				|| vict_val < GET_MAXCASTER(vict)) {
 				victim = vict;
 				vict_val = GET_MAXCASTER(vict);
-				if (GET_REAL_INT(caster) < number(10, 20)) {
+				if (GetRealInt(caster) < number(10, 20)) {
 					break;
 				}
 			}
@@ -655,7 +655,7 @@ CharData *find_affectee(CharData *caster, ESpell spell_id) {
 		return nullptr;
 	}
 
-	if (GET_REAL_INT(caster) > number(5, 15)) {
+	if (GetRealInt(caster) > number(5, 15)) {
 		for (const auto vict : world[IN_ROOM(caster)]->people) {
 			if (!vict->IsNpc()
 				|| AFF_FLAGGED(vict, EAffect::kCharmed)
@@ -706,7 +706,7 @@ CharData *find_opp_affectee(CharData *caster, ESpell spell_id) {
 	else if (spellreal == ESpell::kSnare)
 		spellreal = ESpell::kNoflee;
 
-	if (GET_REAL_INT(caster) > number(10, 20)) {
+	if (GetRealInt(caster) > number(10, 20)) {
 		for (const auto vict : world[caster->in_room]->people) {
 			if ((vict->IsNpc()
 				&& !((MOB_FLAGGED(vict, EMobFlag::kTutelar) || MOB_FLAGGED(vict, EMobFlag::kMentalShadow) || MOB_FLAGGED(vict, EMobFlag::kSummoned) // ()
@@ -718,7 +718,7 @@ CharData *find_opp_affectee(CharData *caster, ESpell spell_id) {
 			}
 
 			if ((!vict->GetEnemy()
-				&& (GET_REAL_INT(caster) < number(20, 27)
+				&& (GetRealInt(caster) < number(20, 27)
 					|| !in_same_battle(caster, vict, true)))
 				|| AFF_FLAGGED(vict, EAffect::kHold)
 				|| IsAffectedBySpell(vict, spellreal)) {
@@ -752,7 +752,7 @@ CharData *find_opp_caster(CharData *caster) {
 			continue;
 		}
 		if ((!vict->GetEnemy()
-			&& (GET_REAL_INT(caster) < number(15, 25)
+			&& (GetRealInt(caster) < number(15, 25)
 				|| !in_same_battle(caster, vict, true)))
 			|| AFF_FLAGGED(vict, EAffect::kHold) || AFF_FLAGGED(vict, EAffect::kSilence)
 			|| AFF_FLAGGED(vict, EAffect::kStrangled)
@@ -770,7 +770,7 @@ CharData *find_damagee(CharData *caster) {
 	CharData *victim = nullptr;
 	int vict_val = 0;
 
-	if (GET_REAL_INT(caster) > number(10, 20)) {
+	if (GetRealInt(caster) > number(10, 20)) {
 		for (const auto vict : world[IN_ROOM(caster)]->people) {
 			if ((vict->IsNpc()
 				&& !((MOB_FLAGGED(vict, EMobFlag::kTutelar)
@@ -783,13 +783,13 @@ CharData *find_damagee(CharData *caster) {
 			}
 
 			if ((!vict->GetEnemy()
-				&& (GET_REAL_INT(caster) < number(20, 27)
+				&& (GetRealInt(caster) < number(20, 27)
 					|| !in_same_battle(caster, vict, true)))
 				|| AFF_FLAGGED(vict, EAffect::kHold)) {
 				continue;
 			}
 
-			if (GET_REAL_INT(caster) >= number(25, 30)) {
+			if (GetRealInt(caster) >= number(25, 30)) {
 				if (!victim || vict_val < GET_MAXCASTER(vict)) {
 					victim = vict;
 					vict_val = GET_MAXCASTER(vict);
@@ -814,7 +814,7 @@ CharData *find_target(CharData *ch) {
 
 	currentVictim = ch->GetEnemy();
 
-	int mobINT = GET_REAL_INT(ch);
+	int mobINT = GetRealInt(ch);
 
 	if (mobINT < kStupidMod) {
 		return find_damagee(ch);
@@ -920,7 +920,7 @@ CharData *find_minhp(CharData *caster) {
 	CharData *victim = nullptr;
 	int vict_val = 0;
 
-	if (GET_REAL_INT(caster) > number(10, 20)) {
+	if (GetRealInt(caster) > number(10, 20)) {
 		for (const auto vict : world[IN_ROOM(caster)]->people) {
 			if ((vict->IsNpc()
 				&& !((MOB_FLAGGED(vict, EMobFlag::kTutelar) || MOB_FLAGGED(vict, EMobFlag::kMentalShadow) || MOB_FLAGGED(vict, EMobFlag::kSummoned) // ()
@@ -932,7 +932,7 @@ CharData *find_minhp(CharData *caster) {
 			}
 
 			if (!vict->GetEnemy()
-				&& (GET_REAL_INT(caster) < number(20, 27)
+				&& (GetRealInt(caster) < number(20, 27)
 					|| !in_same_battle(caster, vict, true))) {
 				continue;
 			}
@@ -1064,7 +1064,7 @@ void mob_casting(CharData *ch) {
 		}
 	}
 	// Ищем рандомную заклинашку и цель для нее
-	for (int i = 0; !victim && spells && i < GET_REAL_INT(ch) / 5; i++) {
+	for (int i = 0; !victim && spells && i < GetRealInt(ch) / 5; i++) {
 		if (spell_id_2 == ESpell::kUndefined) {
 			spell_id_2 = battle_spells[(sp_num = number(0, spells - 1))];
 		}
@@ -1426,7 +1426,7 @@ void using_charmice_skills(CharData *ch) {
 
 void using_mob_skills(CharData *ch) {
 	auto sk_num{ESkill::kUndefined};
-	for (int sk_use = GET_REAL_INT(ch); MAY_LIKES(ch) && sk_use > 0; sk_use--) {
+	for (int sk_use = GetRealInt(ch); MAY_LIKES(ch) && sk_use > 0; sk_use--) {
 		int do_this = number(0, 100);
 		if (do_this > GET_LIKES(ch)) {
 			continue;
@@ -1518,7 +1518,7 @@ void using_mob_skills(CharData *ch) {
 			&& ch->has_master()
 			&& (sk_num == ESkill::kRescue || sk_num == ESkill::kProtect)) {
 			CharData *caster = 0, *damager = 0;
-			int dumb_mob = (int) (GET_REAL_INT(ch) < number(5, 20));
+			int dumb_mob = (int) (GetRealInt(ch) < number(5, 20));
 
 			for (const auto attacker : world[ch->in_room]->people) {
 				CharData *vict = attacker->GetEnemy();    // выяснение жертвы
@@ -1571,7 +1571,7 @@ void using_mob_skills(CharData *ch) {
 			|| sk_num == ESkill::kDisarm) {
 			CharData *caster = 0, *damager = 0;
 
-			if (GET_REAL_INT(ch) < number(15, 25)) {
+			if (GetRealInt(ch) < number(15, 25)) {
 				caster = ch->GetEnemy();
 				damager = caster;
 			} else {
@@ -1759,7 +1759,7 @@ void process_npc_attack(CharData *ch) {
 	if (MAY_LIKES(ch)
 		&& !AFF_FLAGGED(ch, EAffect::kCharmed)
 		&& !AFF_FLAGGED(ch, EAffect::kNoBattleSwitch)
-		&& GET_REAL_INT(ch) > number(15, 25)) {
+		&& GetRealInt(ch) > number(15, 25)) {
 		perform_mob_switch(ch);
 	}
 

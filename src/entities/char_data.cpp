@@ -1335,8 +1335,8 @@ long CharData::remove_both_gold(long num, bool need_log) {
 
 // * Удача (мораль) для расчетов в скилах и вывода чару по счет все.
 int CharData::calc_morale() const {
-	return GET_REAL_CHA(this) / 2 + GET_MORALE(this);
-//	return cha_app[GET_REAL_CHA(this)].morale + GET_MORALE(this);
+	return GetRealCha(this) / 2 + GET_MORALE(this);
+//	return cha_app[GetRealCha(this)].morale + GET_MORALE(this);
 }
 ///////////////////////////////////////////////////////////////////////////////
 int CharData::get_str() const {
@@ -1945,12 +1945,12 @@ void CharData::restore_npc() {
 	this->set_protecting(nullptr);
 	// ресторим статы
 	proto->set_normal_morph();
-	this->set_str(GET_REAL_STR(proto));
-	this->set_int(GET_REAL_INT(proto));
-	this->set_wis(GET_REAL_WIS(proto));
-	this->set_dex(GET_REAL_DEX(proto));
-	this->set_con(GET_REAL_CON(proto));
-	this->set_cha(GET_REAL_CHA(proto));
+	this->set_str(GetRealStr(proto));
+	this->set_int(GetRealInt(proto));
+	this->set_wis(GetRealWis(proto));
+	this->set_dex(GetRealDex(proto));
+	this->set_con(GetRealCon(proto));
+	this->set_cha(GetRealCha(proto));
 	// ресторим мем	
 	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 		GET_SPELL_MEM(this, spell_id) = GET_SPELL_MEM(proto, spell_id);
@@ -2242,12 +2242,12 @@ int ClampBaseStat(const CharData *ch, const EBaseStat stat_id, const int stat_va
 int GetRealBaseStat(const CharData *ch, EBaseStat stat_id) {
 	static const std::unordered_map<EBaseStat, int (*)(const CharData *ch)> stat_getters =
 		{
-			{EBaseStat::kStr, &GET_REAL_STR},
-			{EBaseStat::kDex, &GET_REAL_DEX},
-			{EBaseStat::kCon, &GET_REAL_CON},
-			{EBaseStat::kInt, &GET_REAL_INT},
-			{EBaseStat::kWis, &GET_REAL_WIS},
-			{EBaseStat::kCha, &GET_REAL_CHA}
+			{EBaseStat::kStr, &GetRealStr},
+			{EBaseStat::kDex, &GetRealDex},
+			{EBaseStat::kCon, &GetRealCon},
+			{EBaseStat::kInt, &GetRealInt},
+			{EBaseStat::kWis, &GetRealWis},
+			{EBaseStat::kCha, &GetRealCha}
 		};
 
 	try {

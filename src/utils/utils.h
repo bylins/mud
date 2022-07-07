@@ -463,7 +463,7 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 #define GET_PC_NAME(ch) ((ch)->get_pc_name().c_str())
 #define GET_NAME(ch)    ((ch)->get_name().c_str())
 #define GET_TITLE(ch)   ((ch)->player_data.title)
-#define GET_MAX_MANA(ch)      (mana[MIN(50, GET_REAL_WIS(ch))])
+#define GET_MAX_MANA(ch)      (mana[MIN(50, GetRealWis(ch))])
 #define GET_MEM_CURRENT(ch)   ((ch)->mem_queue.Empty() ? 0 : CalcSpellManacost(ch, (ch)->mem_queue.queue->spell_id))
 #define IS_CODER(ch)    (GetRealLevel(ch) < kLvlImmortal && PRF_FLAGGED(ch, EPrf::kCoderinfo))
 #define IS_COLORED(ch)    (pk_count (ch))
@@ -579,10 +579,10 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_PR(ch)        ((ch)->add_abils.presist) // added by WorM (Видолюб) поглощение физ.урона в %
 #define GET_LIKES(ch)     ((ch)->mob_specials.like_work)
 
-#define GET_REAL_SAVING_STABILITY(ch)	(dex_bonus(GET_REAL_CON(ch)) - GET_SAVE(ch, ESaving::kStability) + ((ch)->IsOnHorse() ? 20 : 0))
-#define GET_REAL_SAVING_REFLEX(ch)	(dex_bonus(GET_REAL_DEX(ch)) - GET_SAVE(ch, ESaving::kReflex) + ((ch)->IsOnHorse() ? -20 : 0))
-#define GET_REAL_SAVING_CRITICAL(ch)	(dex_bonus(GET_REAL_CON(ch)) - GET_SAVE(ch, ESaving::kCritical))
-#define GET_REAL_SAVING_WILL(ch)	(dex_bonus(GET_REAL_WIS(ch)) - GET_SAVE(ch, ESaving::kWill))
+#define GET_REAL_SAVING_STABILITY(ch)	(dex_bonus(GetRealCon(ch)) - GetSave(ch, ESaving::kStability) + ((ch)->IsOnHorse() ? 20 : 0))
+#define GET_REAL_SAVING_REFLEX(ch)	(dex_bonus(GetRealDex(ch)) - GetSave(ch, ESaving::kReflex) + ((ch)->IsOnHorse() ? -20 : 0))
+#define GET_REAL_SAVING_CRITICAL(ch)	(dex_bonus(GetRealCon(ch)) - GetSave(ch, ESaving::kCritical))
+#define GET_REAL_SAVING_WILL(ch)	(dex_bonus(GetRealWis(ch)) - GetSave(ch, ESaving::kWill))
 
 #define GET_POS(ch)        ((ch)->char_specials.position)
 #define GET_IDNUM(ch)     ((ch)->get_idnum())
@@ -1251,19 +1251,19 @@ void message_str_need(CharData *ch, ObjData *obj, int type);
 int wis_bonus(int stat, int type);
 int CAN_CARRY_N(const CharData *ch);
 
-#define CAN_CARRY_W(ch) ((str_bonus(GET_REAL_STR(ch), STR_CARRY_W) * ((ch)->HaveFeat(EFeat::kPorter) ? 110 : 100))/100)
+#define CAN_CARRY_W(ch) ((str_bonus(GetRealStr(ch), STR_CARRY_W) * ((ch)->HaveFeat(EFeat::kPorter) ? 110 : 100))/100)
 
 #define OK_BOTH(ch, obj)  (GET_OBJ_WEIGHT(obj) <= \
-                          str_bonus(GET_REAL_STR(ch), STR_WIELD_W) + str_bonus(GET_REAL_STR(ch), STR_HOLD_W))
+                          str_bonus(GetRealStr(ch), STR_WIELD_W) + str_bonus(GetRealStr(ch), STR_HOLD_W))
 
 #define OK_WIELD(ch, obj) (GET_OBJ_WEIGHT(obj) <= \
-                          str_bonus(GET_REAL_STR(ch), STR_WIELD_W))
+                          str_bonus(GetRealStr(ch), STR_WIELD_W))
 
 #define OK_HELD(ch, obj)  (GET_OBJ_WEIGHT(obj) <= \
-                          str_bonus(GET_REAL_STR(ch), STR_HOLD_W))
+                          str_bonus(GetRealStr(ch), STR_HOLD_W))
 
 #define OK_SHIELD(ch, obj)  (GET_OBJ_WEIGHT(obj) <= \
-                          (2 * str_bonus(GET_REAL_STR(ch), STR_HOLD_W)))
+                          (2 * str_bonus(GetRealStr(ch), STR_HOLD_W)))
 
 #define IS_CORPSE(obj)     (GET_OBJ_TYPE(obj) == EObjType::kContainer && \
                GET_OBJ_VAL((obj), 3) == ObjData::CORPSE_INDICATOR)

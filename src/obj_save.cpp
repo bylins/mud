@@ -2505,7 +2505,7 @@ void Crash_report_rent_item(CharData *ch,
 							int equip,
 							int recursive) {
 	static char buf[256];
-	char bf[80], bf2[12];
+	char bf[80], bf2[14];
 
 	if (obj) {
 		if (CAN_WEAR_ANY(obj)) {
