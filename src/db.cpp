@@ -3209,8 +3209,8 @@ void set_test_data(CharData *mob) {
 						min_save = calc_boss_value(mob, min_save);
 
 						for (auto s = ESaving::kFirst; s <= ESaving::kLast; ++s) {
-							if (GET_SAVE(mob, s) > min_save) {
-								SET_SAVE(mob, s, min_save);
+							if (GetSave(mob, s) > min_save) {
+								SetSave(mob, s, min_save);
 							}
 						}
 						// 20..77

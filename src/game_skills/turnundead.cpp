@@ -84,7 +84,7 @@ void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 		};
 		damage.Process(ch, target);
 		if (!target->purged() && roll.IsSuccess() && !MOB_FLAGGED(target, EMobFlag::kNoFear)
-			&& !CalcGeneralSaving(ch, target, ESaving::kWill, GET_REAL_WIS(ch) + GET_REAL_INT(ch))) {
+			&& !CalcGeneralSaving(ch, target, ESaving::kWill, GetRealWis(ch) + GetRealInt(ch))) {
 			GoFlee(target);
 		};
 		--victims_amount;

@@ -611,7 +611,7 @@ void affect_total(CharData *ch) {
 	}
 
 	// calculate DAMAGE value
-	ch->damage_level = (str_bonus(GET_REAL_STR(ch), STR_TO_DAM) + GetRealDamroll(ch)) * 2;
+	ch->damage_level = (str_bonus(GetRealStr(ch), STR_TO_DAM) + GetRealDamroll(ch)) * 2;
 	if ((obj = GET_EQ(ch, EEquipPos::kBoths))
 		&& GET_OBJ_TYPE(obj) == EObjType::kWeapon) {
 		ch->damage_level += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + GET_OBJ_VAL(obj, 1)))
@@ -763,13 +763,13 @@ void affect_modify(CharData *ch, EApply loc, int mod, const EAffect bitv, bool a
 			break;
 		case EApply::kResistDark: GET_RESIST(ch, EResist::kDark) += mod;
 			break;
-		case EApply::kSavingWill: SET_SAVE(ch, ESaving::kWill, GET_SAVE(ch, ESaving::kWill) +  mod);
+		case EApply::kSavingWill: SetSave(ch, ESaving::kWill, GetSave(ch, ESaving::kWill) +  mod);
 			break;
-		case EApply::kSavingCritical: SET_SAVE(ch, ESaving::kCritical, GET_SAVE(ch, ESaving::kCritical) +  mod);
+		case EApply::kSavingCritical: SetSave(ch, ESaving::kCritical, GetSave(ch, ESaving::kCritical) +  mod);
 			break;
-		case EApply::kSavingStability: SET_SAVE(ch, ESaving::kStability, GET_SAVE(ch, ESaving::kStability) +  mod);
+		case EApply::kSavingStability: SetSave(ch, ESaving::kStability, GetSave(ch, ESaving::kStability) +  mod);
 			break;
-		case EApply::kSavingReflex: SET_SAVE(ch, ESaving::kReflex, GET_SAVE(ch, ESaving::kReflex) +  mod);
+		case EApply::kSavingReflex: SetSave(ch, ESaving::kReflex, GetSave(ch, ESaving::kReflex) +  mod);
 			break;
 		case EApply::kHpRegen: GET_HITREG(ch) += mod;
 			break;

@@ -58,10 +58,10 @@ int compute_armor_class(CharData *ch) {
 	int armorclass = GET_REAL_AC(ch);
 
 	if (AWAKE(ch)) {
-		int high_stat = GET_REAL_DEX(ch);
+		int high_stat = GetRealDex(ch);
 		// у игроков для ац берется макс стат: ловкость или 3/4 инты
 		if (!ch->IsNpc()) {
-			high_stat = std::max(high_stat, GET_REAL_INT(ch) * 3 / 4);
+			high_stat = std::max(high_stat, GetRealInt(ch) * 3 / 4);
 		}
 		armorclass -= dex_ac_bonus(high_stat) * 10;
 		armorclass += GetExtraAc0(ch->GetClass(), GetRealLevel(ch));
@@ -107,7 +107,7 @@ void haemorragia(CharData *ch, int percent) {
 	af[0].location = EApply::kHpRegen;
 	af[0].modifier = -percent;
 	//TODO: Отрицательное время, если тело больше 31?
-	af[0].duration = CalcDuration(ch, number(1, 31 - GET_REAL_CON(ch)), 0, 0, 0, 0);
+	af[0].duration = CalcDuration(ch, number(1, 31 - GetRealCon(ch)), 0, 0, 0, 0);
 	af[0].bitvector = 0;
 	af[0].battleflag = 0;
 	af[1].type = ESpell::kHaemorrhage;
@@ -779,13 +779,13 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 */
 int calculate_strconc_damage(CharData *ch, ObjData * /*wielded*/, int damage) {
 	if (ch->IsNpc()
-		|| GET_REAL_STR(ch) <= 25
+		|| GetRealStr(ch) <= 25
 		|| !CanUseFeat(ch, EFeat::kStrengthConcentration)
 		|| GET_AF_BATTLE(ch, kEafIronWind)
 		|| GET_AF_BATTLE(ch, kEafOverwhelm)) {
 		return damage;
 	}
-	float str_mod = (GET_REAL_STR(ch) - 25) * 0.4;
+	float str_mod = (GetRealStr(ch) - 25) * 0.4;
 	float lvl_mod = GetRealLevel(ch) * 0.2;
 	float rmt_mod = MIN(5, GetRealRemort(ch)) / 5.0;
 	float res_mod = 1 + (str_mod + lvl_mod) / 10.0 * rmt_mod;
@@ -864,7 +864,7 @@ void addshot_damage(CharData *ch, ESkill type, fight::AttackType weapon) {
 	TrainSkill(ch, ESkill::kAddshot, true, ch->GetEnemy());
 	// ловка роляет только выше 21 (стартовый максимум охота) и до 50
 	// поставим кап в 50 ловки для допвыстрела
-	float dex_mod = static_cast<float>(MAX(MIN(GET_REAL_DEX(ch), 50) - 21, 0)) / 29 * 2;
+	float dex_mod = static_cast<float>(MAX(MIN(GetRealDex(ch), 50) - 21, 0)) / 29 * 2;
 	// штраф на 4й и 5й выстрелы для чаров ниже 5 мортов, по 20% за морт
 	float remort_mod = static_cast<float>(GetRealRemort(ch)) / 5;
 	if (remort_mod > 1) {
@@ -1248,7 +1248,7 @@ int backstab_mult(int level) {
 * Влияение по 50% от скилла и дексы, максимум 36,18%.
 */
 int calculate_crit_backstab_percent(CharData *ch) {
-	return static_cast<int>(ch->GetSkill(ESkill::kBackstab) / 11.0 + (GET_REAL_DEX(ch) - 20) / (GET_REAL_DEX(ch) / 30.0));
+	return static_cast<int>(ch->GetSkill(ESkill::kBackstab) / 11.0 + (GetRealDex(ch) - 20) / (GetRealDex(ch) / 30.0));
 }
 
 /*
@@ -1457,7 +1457,7 @@ void hit_parry(CharData *ch, CharData *victim, ESkill skill, int hit_type, int *
 			|| ((skill == ESkill::kBows || hit_type == fight::type_maul)
 				&& !IS_IMMORTAL(victim)
 				&& (!CanUseFeat(victim, EFeat::kParryArrow)
-					|| number(1, 1000) >= 20 * MIN(GET_REAL_DEX(victim), 35)))) {
+					|| number(1, 1000) >= 20 * MIN(GetRealDex(victim), 35)))) {
 			act("Вы не смогли отбить атаку $N1", false, victim, 0, ch, kToChar);
 			act("$N не сумел$G отбить вашу атаку", false, ch, 0, victim, kToChar);
 			act("$n не сумел$g отбить атаку $N1", true, victim, 0, ch, kToNotVict | kToArenaListen);
@@ -1515,7 +1515,7 @@ void hit_multyparry(CharData *ch, CharData *victim, ESkill skill, int hit_type, 
 		if ((skill == ESkill::kBows || hit_type == fight::type_maul)
 			&& !IS_IMMORTAL(victim)
 			&& (!CanUseFeat(victim, EFeat::kParryArrow)
-				|| number(1, 1000) >= 20 * MIN(GET_REAL_DEX(victim), 35))) {
+				|| number(1, 1000) >= 20 * MIN(GetRealDex(victim), 35))) {
 			prob = 0;
 		} else {
 			++(victim->battle_counter);
@@ -2830,7 +2830,7 @@ int HitData::extdamage(CharData *ch, CharData *victim) {
 		&& ch->get_wait() <= 0
 		&& !AFF_FLAGGED(victim, EAffect::kPoisoned)
 		&& number(0, 100) < GET_LIKES(ch) + GetRealLevel(ch) - GetRealLevel(victim)
-		&& !CalcGeneralSaving(ch, victim, ESaving::kCritical, -GET_REAL_CON(victim))) {
+		&& !CalcGeneralSaving(ch, victim, ESaving::kCritical, -GetRealCon(victim))) {
 		poison_victim(ch, victim, MAX(1, GetRealLevel(ch) - GetRealLevel(victim)) * 10);
 	}
 		//* точный стиль //
@@ -2951,13 +2951,13 @@ void HitData::calc_base_hr(CharData *ch) {
 			// Apply HR for light weapon
 			int percent = 0;
 			switch (weapon_pos) {
-				case EEquipPos::kWield: percent = (str_bonus(GET_REAL_STR(ch), STR_WIELD_W) - GET_OBJ_WEIGHT(wielded) + 1) / 2;
+				case EEquipPos::kWield: percent = (str_bonus(GetRealStr(ch), STR_WIELD_W) - GET_OBJ_WEIGHT(wielded) + 1) / 2;
 					break;
-				case EEquipPos::kHold: percent = (str_bonus(GET_REAL_STR(ch), STR_HOLD_W) - GET_OBJ_WEIGHT(wielded) + 1) / 2;
+				case EEquipPos::kHold: percent = (str_bonus(GetRealStr(ch), STR_HOLD_W) - GET_OBJ_WEIGHT(wielded) + 1) / 2;
 					break;
 				case EEquipPos::kBoths:
-					percent = (str_bonus(GET_REAL_STR(ch), STR_WIELD_W) +
-						str_bonus(GET_REAL_STR(ch), STR_HOLD_W) - GET_OBJ_WEIGHT(wielded) + 1) / 2;
+					percent = (str_bonus(GetRealStr(ch), STR_WIELD_W) +
+						str_bonus(GetRealStr(ch), STR_HOLD_W) - GET_OBJ_WEIGHT(wielded) + 1) / 2;
 					break;
 			}
 			calc_thaco -= MIN(3, MAX(percent, 0));
@@ -2999,8 +2999,8 @@ void HitData::calc_base_hr(CharData *ch) {
 				     complex_skill_modifier (ch, kAny, GAPPLY_ESkill::SKILL_SUCCESS,
 							     10));
 			*/
-			calc_thaco -= (int) ((GET_REAL_INT(ch) - 13) / GetRealLevel(ch));
-			calc_thaco -= (int) ((GET_REAL_WIS(ch) - 13) / GetRealLevel(ch));
+			calc_thaco -= (int) ((GetRealInt(ch) - 13) / GetRealLevel(ch));
+			calc_thaco -= (int) ((GetRealWis(ch) - 13) / GetRealLevel(ch));
 		}
 	}
 
@@ -3041,9 +3041,9 @@ void HitData::calc_base_hr(CharData *ch) {
 
 	// Использование ловкости вместо силы для попадания
 	if (CanUseFeat(ch, EFeat::kWeaponFinesse)) {
-		calc_thaco -= str_bonus(GET_REAL_STR(ch), STR_TO_HIT) * p_hitroll;
+		calc_thaco -= str_bonus(GetRealStr(ch), STR_TO_HIT) * p_hitroll;
 	} else {
-		calc_thaco -= str_bonus(GET_REAL_DEX(ch), STR_TO_HIT) * p_hitroll;
+		calc_thaco -= str_bonus(GetRealDex(ch), STR_TO_HIT) * p_hitroll;
 	}
 	if ((skill_num == ESkill::kThrow
 		|| skill_num == ESkill::kBackstab)
@@ -3114,8 +3114,8 @@ void HitData::calc_rand_hr(CharData *ch, CharData *victim) {
 
 	// "Dirty" methods for battle
 	if (skill_num != ESkill::kThrow && skill_num != ESkill::kBackstab) {
-		int prob = (ch->GetSkill(weap_skill) + cha_app[GET_REAL_CHA(ch)].illusive) -
-			(victim->GetSkill(weap_skill) + int_app[GET_REAL_INT(victim)].observation);
+		int prob = (ch->GetSkill(weap_skill) + cha_app[GetRealCha(ch)].illusive) -
+			(victim->GetSkill(weap_skill) + int_app[GetRealInt(victim)].observation);
 		if (prob >= 30 && !GET_AF_BATTLE(victim, kEafAwake)
 			&& (ch->IsNpc() || !GET_AF_BATTLE(ch, kEafPunctual))) {
 			calc_thaco -= (ch->GetSkill(weap_skill) - victim->GetSkill(weap_skill) > 60 ? 2 : 1) * p_hitroll;
@@ -3313,7 +3313,7 @@ void HitData::add_hand_damage(CharData *ch, bool need_dice) {
 		dam += need_dice ? RollDices(2, 4) + GetRealRemort(ch) / 2  : 5 + GetRealRemort(ch) / 2;
 		if (CanUseFeat(ch, EFeat::kBully)) {
 			dam += GetRealLevel(ch) / 5;
-			dam += MAX(0, GET_REAL_STR(ch) - 25);
+			dam += MAX(0, GetRealStr(ch) - 25);
 		}
 	}
 	else
@@ -3370,8 +3370,8 @@ int HitData::calc_damage(CharData *ch, bool need_dice) {
 		SendMsgToChar(ch, "&YСкилл: %s. Дамага без бонусов == %d&n\r\n", MUD::Skill(weap_skill).GetName(), dam);
 	}
 	if (ch->GetSkill(weap_skill) == 0) {
-		calc_thaco += (50 - MIN(50, GET_REAL_INT(ch))) / 3;
-		dam -= (50 - MIN(50, GET_REAL_INT(ch))) / 6;
+		calc_thaco += (50 - MIN(50, GetRealInt(ch))) / 3;
+		dam -= (50 - MIN(50, GetRealInt(ch))) / 6;
 	} else {
 		GetClassWeaponMod(ch->GetClass(), weap_skill, &dam, &calc_thaco);
 	}
@@ -3420,12 +3420,14 @@ int HitData::calc_damage(CharData *ch, bool need_dice) {
 			SendMsgToChar(ch, "&YДамага +дамролы скилла== %d&n\r\n", dam);
 	}
 	if (CanUseFeat(ch, EFeat::kFInesseShot)) {
-		dam += str_bonus(GET_REAL_DEX(ch), STR_TO_DAM);
+		dam += str_bonus(GetRealDex(ch), STR_TO_DAM);
 	} else {
-		dam += str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
+		dam += str_bonus(GetRealStr(ch), STR_TO_DAM);
 	}
 	if (PRF_FLAGGED(ch, EPrf::kExecutor))
-		SendMsgToChar(ch, "&YДамага с бонусами от силы или ловкости == %d str_bonus == %d str == %d&n\r\n", dam, str_bonus(GET_REAL_STR(ch), STR_TO_DAM), GET_REAL_STR(ch));
+		SendMsgToChar(ch, "&YДамага с бонусами от силы или ловкости == %d str_bonus == %d str == %d&n\r\n", dam, str_bonus(
+						  GetRealStr(ch), STR_TO_DAM),
+					  GetRealStr(ch));
 	// оружие/руки и модификаторы урона скилов, с ними связанных
 	if (wielded && GET_OBJ_TYPE(wielded) == EObjType::kWeapon) {
 		add_weapon_damage(ch, need_dice);
@@ -3718,7 +3720,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		}
 
 		if (number(1, 100) < calculate_crit_backstab_percent(ch) * ch->get_cond_penalty(P_HITROLL)
-			&& !CalcGeneralSaving(ch, victim, ESaving::kReflex, dex_bonus(GET_REAL_DEX(ch)))) {
+			&& !CalcGeneralSaving(ch, victim, ESaving::kReflex, dex_bonus(GetRealDex(ch)))) {
 			hit_params.dam = static_cast<int>(hit_params.dam * hit_params.crit_backstab_multiplier(ch, victim));
 			if ((hit_params.dam > 0)
 				&& !AFF_FLAGGED(victim, EAffect::kShield)
@@ -3870,7 +3872,7 @@ void exthit(CharData *ch, ESkill type, fight::AttackType weapon) {
 		&& GET_EQ(ch, EEquipPos::kBoths)) {
 		// Лук в обеих руках - юзаем доп. или двойной выстрел
 		if (CanUseFeat(ch, EFeat::kDoubleShot) && !ch->GetSkill(ESkill::kAddshot)
-			&& MIN(850, 200 + ch->GetSkill(ESkill::kBows) * 4 + GET_REAL_DEX(ch) * 5) >= number(1, 1000)) {
+			&& MIN(850, 200 + ch->GetSkill(ESkill::kBows) * 4 + GetRealDex(ch) * 5) >= number(1, 1000)) {
 			hit(ch, ch->GetEnemy(), type, weapon);
 		} else if (ch->GetSkill(ESkill::kAddshot) > 0) {
 			addshot_damage(ch, type, weapon);

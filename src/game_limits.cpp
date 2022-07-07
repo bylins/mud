@@ -140,11 +140,11 @@ int CalcManaGain(const CharData *ch) {
 		}
 
 		if (!IS_MANA_CASTER(ch)) {
-			auto restore = int_app[GET_REAL_INT(ch)].mana_per_tic;
+			auto restore = int_app[GetRealInt(ch)].mana_per_tic;
 			gain = graf(age(ch)->year, restore - 8, restore - 4, restore,
 						restore + 5, restore, restore - 4, restore - 8);
 		} else {
-			gain = mana_gain_cs[GET_REAL_INT(ch)];
+			gain = mana_gain_cs[GetRealInt(ch)];
 		}
 
 		if (LIKE_ROOM(ch)) {
@@ -220,10 +220,10 @@ int CalcManaGain(const CharData::shared_ptr &ch) { return CalcManaGain(ch.get())
 
 // Hitpoint gain pr. game hour
 int hit_gain(CharData *ch) {
-	int gain = 0, restore = MAX(10, GET_REAL_CON(ch) * 3 / 2), percent = 100;
+	int gain = 0, restore = MAX(10, GetRealCon(ch) * 3 / 2), percent = 100;
 
 	if (ch->IsNpc())
-		gain = GetRealLevel(ch) + GET_REAL_CON(ch);
+		gain = GetRealLevel(ch) + GetRealCon(ch);
 	else {
 		if (!ch->desc || STATE(ch->desc) != CON_PLAYING)
 			return (0);
@@ -284,7 +284,7 @@ int hit_gain(const CharData::shared_ptr &ch) { return hit_gain(ch.get()); }
 
 // move gain pr. game hour //
 int move_gain(CharData *ch) {
-	int gain = 0, restore = GET_REAL_CON(ch) / 2, percent = 100;
+	int gain = 0, restore = GetRealCon(ch) / 2, percent = 100;
 
 	if (ch->IsNpc())
 		gain = GetRealLevel(ch);
@@ -1687,7 +1687,7 @@ void point_update() {
 				if (mob_num >= 0) {
 					auto mana{0};
 					auto count{0};
-					const auto max_mana = GET_REAL_INT(i) * 10;
+					const auto max_mana = GetRealInt(i) * 10;
 					while (count <= to_underlying(ESpell::kLast) && mana < max_mana) {
 						const auto spell_id = real_spell[count];
 						if (GET_SPELL_MEM(mob_proto + mob_num, spell_id) > GET_SPELL_MEM(i, spell_id)) {

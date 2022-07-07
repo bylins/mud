@@ -33,8 +33,8 @@ int CalcSpellManacost(const CharData *ch, ESpell spell_id) {
 
 	if (IS_MANA_CASTER(ch) && GetRealLevel(ch) >= CalcRequiredLevel(ch, spell_id)) {
 		result = static_cast<int>(kManaCostModifier
-			* (float) mana_gain_cs[VPOSI(55 - GET_REAL_INT(ch), 10, 50)]
-			/ (float) int_app[VPOSI(55 - GET_REAL_INT(ch), 10, 50)].mana_per_tic
+			* (float) mana_gain_cs[VPOSI(55 - GetRealInt(ch), 10, 50)]
+			/ (float) int_app[VPOSI(55 - GetRealInt(ch), 10, 50)].mana_per_tic
 			* 60
 			* std::max(MUD::Spell(spell_id).GetMaxMana()
 						   - (MUD::Spell(spell_id).GetManaChange()

@@ -122,12 +122,12 @@ void PrintScoreList(CharData *ch) {
 					  ch->mem_queue.stored, GET_MAX_MANA(ch), CalcManaGain(ch));
 	}
 	SendMsgToChar(ch, "Ваша сила: %d(%d), ловкость: %d(%d), телосложение: %d(%d), ум: %d(%d), мудрость: %d(%d), обаяние: %d(%d).\r\n",
-				 ch->get_str(), GET_REAL_STR(ch),
-				 ch->get_dex(), GET_REAL_DEX(ch),
-				 ch->get_con(), GET_REAL_CON(ch),
-				 ch->get_int(), GET_REAL_INT(ch),
-				 ch->get_wis(), GET_REAL_WIS(ch),
-				 ch->get_cha(), GET_REAL_CHA(ch));
+				  ch->get_str(), GetRealStr(ch),
+				  ch->get_dex(), GetRealDex(ch),
+				  ch->get_con(), GetRealCon(ch),
+				  ch->get_int(), GetRealInt(ch),
+				  ch->get_wis(), GetRealWis(ch),
+				  ch->get_cha(), GetRealCha(ch));
 
 	HitData hit_params;
 	hit_params.weapon = fight::kMainHand;
@@ -518,12 +518,12 @@ int PrintBaseInfoToTable(CharData *ch, table_wrapper::Table &table, std::size_t 
  */
 int PrintBaseStatsToTable(CharData *ch, table_wrapper::Table &table, std::size_t col) {
 	std::size_t row{0};
-	table[row][col] = "Сила";			table[row][col + 1] = std::to_string(ch->get_str()) + " (" + std::to_string(GET_REAL_STR(ch)) + ")";
-	table[++row][col] = "Ловкость";		table[row][col + 1] = std::to_string(ch->get_dex()) + " (" + std::to_string(GET_REAL_DEX(ch)) + ")";
-	table[++row][col] = "Телосложение";	table[row][col + 1] = std::to_string(ch->get_con()) + " (" + std::to_string(GET_REAL_CON(ch)) + ")";
-	table[++row][col] = "Мудрость";		table[row][col + 1] = std::to_string(ch->get_wis()) + " (" + std::to_string(GET_REAL_WIS(ch)) + ")";
-	table[++row][col] = "Интеллект";	table[row][col + 1] = std::to_string(ch->get_int()) + " (" + std::to_string(GET_REAL_INT(ch)) + ")";
-	table[++row][col] = "Обаяние";		table[row][col + 1] = std::to_string(ch->get_cha()) + " (" + std::to_string(GET_REAL_CHA(ch)) + ")";
+	table[row][col] = "Сила";			table[row][col + 1] = std::to_string(ch->get_str()) + " (" + std::to_string(GetRealStr(ch)) + ")";
+	table[++row][col] = "Ловкость";		table[row][col + 1] = std::to_string(ch->get_dex()) + " (" + std::to_string(GetRealDex(ch)) + ")";
+	table[++row][col] = "Телосложение";	table[row][col + 1] = std::to_string(ch->get_con()) + " (" + std::to_string(GetRealCon(ch)) + ")";
+	table[++row][col] = "Мудрость";		table[row][col + 1] = std::to_string(ch->get_wis()) + " (" + std::to_string(GetRealWis(ch)) + ")";
+	table[++row][col] = "Интеллект";	table[row][col + 1] = std::to_string(ch->get_int()) + " (" + std::to_string(GetRealInt(ch)) + ")";
+	table[++row][col] = "Обаяние";		table[row][col + 1] = std::to_string(ch->get_cha()) + " (" + std::to_string(GetRealCha(ch)) + ")";
 	table[++row][col] = "Рост";			table[row][col + 1] = std::to_string(GET_HEIGHT(ch)) + " (" + std::to_string(GET_REAL_HEIGHT(ch)) + ")";
 	table[++row][col] = "Вес";			table[row][col + 1] = std::to_string(GET_WEIGHT(ch)) + " (" + std::to_string(GET_REAL_WEIGHT(ch)) + ")";
 	table[++row][col] = "Размер";		table[row][col + 1] = std::to_string(GET_SIZE(ch)) + " (" + std::to_string(GET_REAL_SIZE(ch)) + ")";
@@ -723,12 +723,12 @@ void PrintScoreBase(CharData *ch) {
 			"  Размер %3d(%3d)"
 			"  Рост   %3d(%3d)"
 			"  Вес    %3d(%3d)%s\r\n",
-			CCICYN(ch, C_NRM), ch->get_str(), GET_REAL_STR(ch),
-			ch->get_dex(), GET_REAL_DEX(ch),
-			ch->get_con(), GET_REAL_CON(ch),
-			ch->get_wis(), GET_REAL_WIS(ch),
-			ch->get_int(), GET_REAL_INT(ch),
-			ch->get_cha(), GET_REAL_CHA(ch),
+			CCICYN(ch, C_NRM), ch->get_str(), GetRealStr(ch),
+			ch->get_dex(), GetRealDex(ch),
+			ch->get_con(), GetRealCon(ch),
+			ch->get_wis(), GetRealWis(ch),
+			ch->get_int(), GetRealInt(ch),
+			ch->get_cha(), GetRealCha(ch),
 			GET_SIZE(ch), GET_REAL_SIZE(ch),
 			GET_HEIGHT(ch), GET_REAL_HEIGHT(ch), GET_WEIGHT(ch), GET_REAL_WEIGHT(ch), CCNRM(ch, C_NRM));
 
@@ -990,7 +990,7 @@ int CalcHitroll(CharData *ch) {
 		if (GET_OBJ_TYPE(weapon) == EObjType::kWeapon) {
 			skill = static_cast<ESkill>(GET_OBJ_SKILL(weapon));
 			if (ch->GetSkill(skill) == 0) {
-				hr -= (50 - std::min(50, GET_REAL_INT(ch))) / 3;
+				hr -= (50 - std::min(50, GetRealInt(ch))) / 3;
 			} else {
 				GetClassWeaponMod(ch->GetClass(), skill, &max_dam, &hr);
 			}
@@ -1001,7 +1001,7 @@ int CalcHitroll(CharData *ch) {
 			if (GET_OBJ_TYPE(weapon) == EObjType::kWeapon) {
 				skill = static_cast<ESkill>(GET_OBJ_SKILL(weapon));
 				if (ch->GetSkill(skill) == 0) {
-					hr -= (50 - std::min(50, GET_REAL_INT(ch))) / 3;
+					hr -= (50 - std::min(50, GetRealInt(ch))) / 3;
 				} else {
 					GetClassWeaponMod(ch->GetClass(), skill, &max_dam, &hr);
 				}
@@ -1012,7 +1012,7 @@ int CalcHitroll(CharData *ch) {
 			if (GET_OBJ_TYPE(weapon) == EObjType::kWeapon) {
 				skill = static_cast<ESkill>(GET_OBJ_SKILL(weapon));
 				if (ch->GetSkill(skill) == 0) {
-					hr -= (50 - std::min(50, GET_REAL_INT(ch))) / 3;
+					hr -= (50 - std::min(50, GetRealInt(ch))) / 3;
 				} else {
 					GetClassWeaponMod(ch->GetClass(), skill, &max_dam, &hr);
 				}
@@ -1027,9 +1027,9 @@ int CalcHitroll(CharData *ch) {
 		HitData::CheckWeapFeats(ch, ESkill::kPunch, hr, max_dam);
 	}
 	if (CanUseFeat(ch, EFeat::kWeaponFinesse)) {
-		hr += str_bonus(GET_REAL_DEX(ch), STR_TO_HIT);
+		hr += str_bonus(GetRealDex(ch), STR_TO_HIT);
 	} else {
-		hr += str_bonus(GET_REAL_STR(ch), STR_TO_HIT);
+		hr += str_bonus(GetRealStr(ch), STR_TO_HIT);
 	}
 	hr += GET_REAL_HR(ch) - GetThac0(ch->GetClass(), GetRealLevel(ch));
 	if (PRF_FLAGGED(ch, EPrf::kPerformPowerAttack)) {

@@ -2170,7 +2170,7 @@ int con_natural_hp(CharData *ch) {
 /// \return кол-во хп, втыкаемых чару от добавленного шмотом/аффектами тела
 ///
 int con_add_hp(CharData *ch) {
-	int con_add = std::max(0, GET_REAL_CON(ch) - ch->get_con());
+	int con_add = std::max(0, GetRealCon(ch) - ch->get_con());
 	return MUD::Class(ch->GetClass()).applies.koef_con * con_add * GetRealLevel(ch) / 100;
 }
 

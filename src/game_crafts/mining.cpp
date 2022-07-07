@@ -242,8 +242,8 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	prob = ch->GetSkill(ESkill::kDigging);
 	old_int = ch->get_int();
 	old_wis = ch->get_wis();
-	ch->set_int(ch->get_int() + 14 - std::max(14, GET_REAL_INT(ch)));
-	ch->set_wis(ch->get_wis() + 14 - std::max(14, GET_REAL_WIS(ch)));
+	ch->set_int(ch->get_int() + 14 - std::max(14, GetRealInt(ch)));
+	ch->set_wis(ch->get_wis() + 14 - std::max(14, GetRealWis(ch)));
 	ImproveSkill(ch, ESkill::kDigging, 0, nullptr);
 	ch->set_int(old_int);
 	ch->set_wis(old_wis);

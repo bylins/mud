@@ -65,7 +65,7 @@ void go_bash(CharData *ch, CharData *vict) {
 			return;
 		}
 
-		int dam = str_bonus(GET_REAL_STR(ch), STR_TO_DAM) + GetRealDamroll(ch) +
+		int dam = str_bonus(GetRealStr(ch), STR_TO_DAM) + GetRealDamroll(ch) +
 			std::max(0, ch->GetSkill(ESkill::kBash) / 10 - 5) + GetRealLevel(ch) / 5;
 
 //делаем блокирование баша

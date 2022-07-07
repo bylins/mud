@@ -37,12 +37,12 @@ bool CanUseFeat(const CharData *ch, EFeat feat_id) {
 
 	switch (feat_id) {
 		case EFeat::kWeaponFinesse:
-		case EFeat::kFInesseShot: return (GET_REAL_DEX(ch) > GET_REAL_STR(ch) && GET_REAL_DEX(ch) > 17);
-		case EFeat::kParryArrow: return (GET_REAL_DEX(ch) > 15);
-		case EFeat::kPowerAttack: return (GET_REAL_STR(ch) > 19);
-		case EFeat::kGreatPowerAttack: return (GET_REAL_STR(ch) > 21);
-		case EFeat::kAimingAttack: return (GET_REAL_DEX(ch) > 15);
-		case EFeat::kGreatAimingAttack: return (GET_REAL_DEX(ch) > 17);
+		case EFeat::kFInesseShot: return (GetRealDex(ch) > GetRealStr(ch) && GetRealDex(ch) > 17);
+		case EFeat::kParryArrow: return (GetRealDex(ch) > 15);
+		case EFeat::kPowerAttack: return (GetRealStr(ch) > 19);
+		case EFeat::kGreatPowerAttack: return (GetRealStr(ch) > 21);
+		case EFeat::kAimingAttack: return (GetRealDex(ch) > 15);
+		case EFeat::kGreatAimingAttack: return (GetRealDex(ch) > 17);
 		case EFeat::kDoubleShot: return (ch->GetSkill(ESkill::kBows) > 39);
 		case EFeat::kJeweller: return (ch->GetSkill(ESkill::kJewelry) > 59);
 		case EFeat::kSkilledTrader: return ((GetRealLevel(ch) + GetRealRemort(ch) / 3) > 19);

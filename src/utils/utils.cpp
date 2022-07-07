@@ -1964,7 +1964,7 @@ void tell_to_char(CharData *keeper, CharData *ch, const char *arg) {
 }
 
 int CAN_CARRY_N(const CharData *ch) {
-	int n = 5 + GET_REAL_DEX(ch) / 2 + GetRealLevel(ch) / 2;
+	int n = 5 + GetRealDex(ch) / 2 + GetRealLevel(ch) / 2;
 	if (ch->HaveFeat(EFeat::kJuggler)) {
 		n += GetRealLevel(ch) / 2;
 		if (CanUseFeat(ch, EFeat::kThrifty)) {

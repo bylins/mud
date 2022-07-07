@@ -681,7 +681,7 @@ int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell
 	// Svent: Это очевидно какой-то тупой костыль, но пока не буду исправлять.
 	switch (saving) {
 		case ESaving::kStability:
-			prob = wis_bonus(GET_REAL_WIS(ch), WIS_FAILS) + GET_CAST_SUCCESS(ch);
+			prob = wis_bonus(GetRealWis(ch), WIS_FAILS) + GET_CAST_SUCCESS(ch);
 			if ((IsMage(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ERoomFlag::kForMages))
 				|| (IS_SORCERER(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ERoomFlag::kForSorcerers))
 				|| (IS_PALADINE(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ERoomFlag::kForPaladines))
