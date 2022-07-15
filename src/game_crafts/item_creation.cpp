@@ -1305,7 +1305,7 @@ void MakeRecept::make_value_wear(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_
 		wearkoeff = 45;
 	}
 	obj->set_val(0,
-				 ((GET_REAL_INT(ch) * GET_REAL_INT(ch) / 10 + ch->GetSkill(ESkill::kMakeWear)) / 100
+				 ((GetRealInt(ch) * GetRealInt(ch) / 10 + ch->GetSkill(ESkill::kMakeWear)) / 100
 					 + (GET_OBJ_VAL(ingrs[0], 3) + 1)) * wearkoeff
 					 / 100); //АС=((инта*инта/10+умелка)/100+левл.шкуры)*коэф.части тела
 	if (CAN_WEAR(obj, EWearFlag::kBody)) //0.9
@@ -1646,7 +1646,7 @@ int MakeRecept::make(CharData *ch) {
 			itemtag = "На $o5 стоит клеймо 'Выковал$g $n'.";
 			dam = 70;
 			// Бонус сила
-			//stat_bonus = number(0, GET_REAL_STR(ch));
+			//stat_bonus = number(0, GetRealStr(ch));
 			break;
 		case ESkill::kMakeBow: charwork = "Вы начали мастерить $o3.";
 			roomwork = "$n начал$g мастерить что-то очень напоминающее $o3.";
@@ -1659,7 +1659,7 @@ int MakeRecept::make(CharData *ch) {
 			tagging = "Вы вырезали свое имя на $o5.";
 			itemtag = "На $o5 видна метка 'Смастерил$g $n'.";
 			// Бонус ловкость
-			//stat_bonus = number(0, GET_REAL_DEX(ch));
+			//stat_bonus = number(0, GetRealDex(ch));
 			dam = 40;
 			break;
 		case ESkill::kMakeWear: charwork = "Вы взяли в руку иголку и начали шить $o3.";
@@ -1673,7 +1673,7 @@ int MakeRecept::make(CharData *ch) {
 			tagging = "Вы пришили к $o2 бирку со своим именем.";
 			itemtag = "На $o5 вы заметили бирку 'Сшил$g $n'.";
 			// Бонус тело , не спрашивайте почему :))
-			//stat_bonus = number(0, GET_REAL_CON(ch));
+			//stat_bonus = number(0, GetRealCon(ch));
 			dam = 30;
 			break;
 		case ESkill::kMakeAmulet: charwork = "Вы взяли в руки необходимые материалы и начали мастерить $o3.";
@@ -1699,7 +1699,7 @@ int MakeRecept::make(CharData *ch) {
 			tagging = "Вы приладили к $o2 табличку со своим именем.";
 			itemtag = "С нижней стороны $o1 укреплена табличка 'Cделано $n4'.";
 			// Бонус харя
-			//stat_bonus = number(0, GET_REAL_CHA(ch));
+			//stat_bonus = number(0, GetRealCha(ch));
 			dam = 30;
 			break;
 		case ESkill::kMakeStaff: charwork = "Вы начали мастерить $o3.";
@@ -1714,7 +1714,7 @@ int MakeRecept::make(CharData *ch) {
 			tagging = "Вы начертили на $o2 свое имя.";
 			itemtag = "Среди рунных знаков видна надпись 'Создано $n4'.";
 			// Бонус ум.
-			//stat_bonus = number(0, GET_REAL_INT(ch));
+			//stat_bonus = number(0, GetRealInt(ch));
 			dam = 70;
 			break;
 		case ESkill::kMakePotion: charwork = "Вы достали небольшой горшочек и развели под ним огонь, начав варить $o3.";
@@ -1729,7 +1729,7 @@ int MakeRecept::make(CharData *ch) {
 			tagging = "Вы на прикрепили к $o2 бирку со своим именем.";
 			itemtag = "На $o1 вы заметили бирку 'Сварено $n4'";
 			// Бонус мудра
-			//stat_bonus = number(0, GET_REAL_WIS(ch));
+			//stat_bonus = number(0, GetRealWis(ch));
 			dam = 40;
 			break;
 		default: break;

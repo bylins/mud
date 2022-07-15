@@ -69,10 +69,10 @@ long calc_hire_price(CharData *ch, CharData *victim) {
 
 	price += m_hit + m_lvl + m_ac + m_hr + m_armor + m_absorb;
 
-	int m_stab = GET_SAVE(victim, ESaving::kStability) * (-4);
-	int m_ref = GET_SAVE(victim, ESaving::kReflex) * (-4);
-	int m_crit = GET_SAVE(victim, ESaving::kCritical) * (-4);
-	int m_wil = GET_SAVE(victim, ESaving::kWill) * (-4);
+	int m_stab = GetSave(victim, ESaving::kStability) * (-4);
+	int m_ref = GetSave(victim, ESaving::kReflex) * (-4);
+	int m_crit = GetSave(victim, ESaving::kCritical) * (-4);
+	int m_wil = GetSave(victim, ESaving::kWill) * (-4);
 	ch->send_to_TC(true, true, true, "Сейвы: STAB:%d REF:%d CRIT:%d WILL:%d\r\n",
 				   m_stab, m_ref, m_crit, m_wil);
 	price += m_stab + m_ref + m_crit + m_wil;
@@ -108,8 +108,8 @@ long calc_hire_price(CharData *ch, CharData *victim) {
 	// сколько персонаж может
 	float hirePoints = 0;
 	float rem_hirePoints = GetRealRemort(ch) * 1.8;
-	float int_hirePoints = GET_REAL_INT(ch) * 1.8;
-	float cha_hirePoints = GET_REAL_CHA(ch) * 1.8;
+	float int_hirePoints = GetRealInt(ch) * 1.8;
+	float cha_hirePoints = GetRealCha(ch) * 1.8;
 	hirePoints += rem_hirePoints + int_hirePoints + cha_hirePoints;
 	hirePoints = hirePoints * 5 * GetRealLevel(ch);
 

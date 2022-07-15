@@ -262,7 +262,7 @@ int check_awake(CharData *ch, int what) {
 			}
 		}
 
-		if (IS_SET(what, kAcheckWeight) && wgt > GET_REAL_STR(ch) * 2)
+		if (IS_SET(what, kAcheckWeight) && wgt > GetRealStr(ch) * 2)
 			SET_BIT(retval, kAcheckWeight);
 	}
 	return (retval);

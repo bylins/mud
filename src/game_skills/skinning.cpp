@@ -347,7 +347,7 @@ void DoSkinning(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	const auto prob = number(1, MUD::Skills()[ESkill::kSkinning].difficulty);
 	const auto percent = CalcCurrentSkill(ch, ESkill::kSkinning, mob)
-		+ number(1, GET_REAL_DEX(ch)) + number(1, GET_REAL_STR(ch));
+		+ number(1, GetRealDex(ch)) + number(1, GetRealStr(ch));
 	TrainSkill(ch, ESkill::kSkinning, percent <= prob, mob);
 
 	ObjData::shared_ptr tobj;

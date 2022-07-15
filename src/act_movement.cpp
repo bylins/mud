@@ -148,7 +148,7 @@ int skip_hiding(CharData *ch, CharData *vict) {
 			make_visible(ch, EAffect::kHide);
 			EXTRA_FLAGS(ch).set(EXTRA_FAILHIDE);
 		} else if (IsAffectedBySpell(ch, ESpell::kHide)) {
-			percent = number(1, 82 + GET_REAL_INT(vict));
+			percent = number(1, 82 + GetRealInt(vict));
 			prob = CalcCurrentSkill(ch, ESkill::kHide, vict);
 			if (percent > prob) {
 				RemoveAffectFromChar(ch, ESpell::kHide);
@@ -179,7 +179,7 @@ int skip_camouflage(CharData *ch, CharData *vict) {
 			make_visible(ch, EAffect::kDisguise);
 			EXTRA_FLAGS(ch).set(EXTRA_FAILCAMOUFLAGE);
 		} else if (IsAffectedBySpell(ch, ESpell::kCamouflage)) {
-			percent = number(1, 82 + GET_REAL_INT(vict));
+			percent = number(1, 82 + GetRealInt(vict));
 			prob = CalcCurrentSkill(ch, ESkill::kDisguise, vict);
 			if (percent > prob) {
 				RemoveAffectFromChar(ch, ESpell::kCamouflage);
@@ -211,7 +211,7 @@ int skip_sneaking(CharData *ch, CharData *vict) {
 			make_visible(ch, EAffect::kSneak);
 			EXTRA_FLAGS(ch).get(EXTRA_FAILSNEAK);
 		} else if (IsAffectedBySpell(ch, ESpell::kSneak)) {
-			percent = number(1, 112 + (GET_REAL_INT(vict) * (vict->get_role(MOB_ROLE_BOSS) ? 3 : 1)) +
+			percent = number(1, 112 + (GetRealInt(vict) * (vict->get_role(MOB_ROLE_BOSS) ? 3 : 1)) +
 				(GetRealLevel(vict) > 30 ? GetRealLevel(vict) : 0));
 			prob = CalcCurrentSkill(ch, ESkill::kSneak, vict);
 

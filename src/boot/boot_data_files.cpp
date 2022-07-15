@@ -1183,7 +1183,7 @@ void MobileFile::parse_simple_mob(int i, int nr) {
 	* the warrior save table.
 	*/
 	for (auto save = ESaving::kFirst; save <= ESaving::kLast; ++save) {
-		SET_SAVE(mob_proto + i, save, 0);
+		SetSave(mob_proto + i, save, 0);
 	}
 }
 
@@ -1278,7 +1278,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			return;
 		}
 		for (auto save = ESaving::kFirst; save <= ESaving::kLast; ++save) {
-			SET_SAVE(mob_proto + i, save, std::clamp(t[to_underlying(save)], kMinSaving, kMaxSaving));
+			SetSave(mob_proto + i, save, std::clamp(t[to_underlying(save)], kMinSaving, kMaxSaving));
 		}
 	}
 // Svent: и что тут за коллекция магик намберов бесконечная? Вынести в настройки.

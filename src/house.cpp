@@ -4996,7 +4996,7 @@ int Clan::print_spell_locate_object(CharData *ch, int count, std::string name) {
 			if (Clan::is_clan_chest(chest)) {
 				for (temp = chest->get_contains(); temp; temp = temp->get_next_content()) {
 					if (!IS_GOD(ch)) {
-						if (number(1, 100) > (40 + MAX((GET_REAL_INT(ch) - 25) * 2, 0))) {
+						if (number(1, 100) > (40 + MAX((GetRealInt(ch) - 25) * 2, 0))) {
 							continue;
 						}
 						if (temp->has_flag(EObjFlag::kNolocate)) {

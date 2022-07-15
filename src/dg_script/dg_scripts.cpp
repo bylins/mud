@@ -2572,37 +2572,37 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "stradd")) {
 			sprintf(str, "%d", GET_STR_ADD(c));
 		} else if (!str_cmp(field, "realstr")) {
-			sprintf(str, "%d", GET_REAL_STR(c));
+			sprintf(str, "%d", GetRealStr(c));
 		} else if (!str_cmp(field, "int")) {
 			sprintf(str, "%d", c->get_int());
 		} else if (!str_cmp(field, "intadd")) {
 			sprintf(str, "%d", GET_INT_ADD(c));
 		} else if (!str_cmp(field, "realint")) {
-			sprintf(str, "%d", GET_REAL_INT(c));
+			sprintf(str, "%d", GetRealInt(c));
 		} else if (!str_cmp(field, "wis")) {
 			sprintf(str, "%d", c->get_wis());
 		} else if (!str_cmp(field, "wisadd")) {
 			sprintf(str, "%d", GET_WIS_ADD(c));
 		} else if (!str_cmp(field, "realwis")) {
-			sprintf(str, "%d", GET_REAL_WIS(c));
+			sprintf(str, "%d", GetRealWis(c));
 		} else if (!str_cmp(field, "dex")) {
 			sprintf(str, "%d", c->get_dex());
 		} else if (!str_cmp(field, "dexadd")) {
 			sprintf(str, "%d", c->get_dex_add());
 		} else if (!str_cmp(field, "realdex")) {
-			sprintf(str, "%d", GET_REAL_DEX(c));
+			sprintf(str, "%d", GetRealDex(c));
 		} else if (!str_cmp(field, "con")) {
 			sprintf(str, "%d", c->get_con());
 		} else if (!str_cmp(field, "conadd")) {
 			sprintf(str, "%d", GET_CON_ADD(c));
 		} else if (!str_cmp(field, "realcon")) {
-			sprintf(str, "%d", GET_REAL_CON(c));
+			sprintf(str, "%d", GetRealCon(c));
 		} else if (!str_cmp(field, "cha")) {
 			sprintf(str, "%d", c->get_cha());
 		} else if (!str_cmp(field, "chaadd")) {
 			sprintf(str, "%d", GET_CHA_ADD(c));
 		} else if (!str_cmp(field, "realcha")) {
-			sprintf(str, "%d", GET_REAL_CHA(c));
+			sprintf(str, "%d", GetRealCha(c));
 		} else if (!str_cmp(field, "size")) {
 			sprintf(str, "%d", GET_SIZE(c));
 		} else if (!str_cmp(field, "sizeadd")) {

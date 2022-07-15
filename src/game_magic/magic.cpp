@@ -70,7 +70,7 @@ int CalcAntiSavings(CharData *ch) {
 		modi = -250;
 	else
 		modi = GET_CAST_SUCCESS(ch);
-	modi += std::clamp((GET_REAL_WIS(ch) - 23)*3/2, 0, 20);
+	modi += std::clamp((GetRealWis(ch) - 23)*3/2, 0, 20);
 	if (!ch->IsNpc()) {
 		modi *= ch->get_cond_penalty(P_CAST);
 	}
@@ -87,7 +87,7 @@ int CalcClassAntiSavingsMod(CharData *ch, ESpell spell_id) {
 int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply) {
 	int temp_save_stat = 0, temp_awake_mod = 0;
 
-	if (-GET_SAVE(victim, saving) / 10 > number(1, 100)) {
+	if (-GetSave(victim, saving) / 10 > number(1, 100)) {
 		return 1;
 	}
 
@@ -108,21 +108,21 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply
 		case ESaving::kReflex:
 			if ((save > 0) && CanUseFeat(victim, EFeat::kDodger))
 				save >>= 1;
-			save -= dex_bonus(GET_REAL_DEX(victim));
-			temp_save_stat = dex_bonus(GET_REAL_DEX(victim));
+			save -= dex_bonus(GetRealDex(victim));
+			temp_save_stat = dex_bonus(GetRealDex(victim));
 			if (victim->IsOnHorse())
 				save += 20;
 			break;
-		case ESaving::kStability: save += -GET_REAL_CON(victim);
+		case ESaving::kStability: save += -GetRealCon(victim);
 			if (victim->IsOnHorse())
 				save -= 20;
-			temp_save_stat = GET_REAL_CON(victim);
+			temp_save_stat = GetRealCon(victim);
 			break;
-		case ESaving::kWill: save += -GET_REAL_WIS(victim);
-			temp_save_stat = GET_REAL_WIS(victim);
+		case ESaving::kWill: save += -GetRealWis(victim);
+			temp_save_stat = GetRealWis(victim);
 			break;
-		case ESaving::kCritical: save += -GET_REAL_CON(victim);
-			temp_save_stat = GET_REAL_CON(victim);
+		case ESaving::kCritical: save += -GetRealCon(victim);
+			temp_save_stat = GetRealCon(victim);
 			break;
 	}
 
@@ -145,7 +145,7 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply
 		save -= CalculateSkillAwakeModifier(killer, victim);
 	}
 
-	save += GET_SAVE(victim, saving);    // одежда
+	save += GetSave(victim, saving);    // одежда
 	save += ext_apply;    // внешний модификатор
 
 	if (IS_GOD(victim))
@@ -166,7 +166,7 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply
 						   GetExtendSavingThrows(class_sav, saving, GetRealLevel(victim)),
 						   temp_save_stat,
 						   temp_awake_mod,
-						   GET_SAVE(victim, saving),
+						   GetSave(victim, saving),
 						   ext_apply,
 						   save,
 						   number(1, 200));
@@ -181,7 +181,7 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply
 						   GetExtendSavingThrows(class_sav, saving, GetRealLevel(victim)),
 						   temp_save_stat,
 						   temp_awake_mod,
-						   GET_SAVE(victim, saving),
+						   GetSave(victim, saving),
 						   ext_apply,
 						   save,
 						   number(1, 200));
@@ -324,7 +324,7 @@ int CalcBaseDmg(CharData *ch, ESpell spell_id, const talents_actions::Damage &sp
 			return 0;
 		}
 		base_dmg = RollDices(ch->mob_specials.damnodice, ch->mob_specials.damsizedice) +
-			GetRealDamroll(ch) + str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
+			GetRealDamroll(ch) + str_bonus(GetRealStr(ch), STR_TO_DAM);
 	} else {
 		base_dmg = spell_dmg.RollDmgDices();
 	}
@@ -522,7 +522,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kStunning: {
 			if (ch == victim ||
 				((number(1, 999) > GET_AR(victim) * 10) &&
-					!CalcGeneralSaving(ch, victim, ESaving::kCritical, CALC_SUCCESS(modi, GET_REAL_WIS(ch))))) {
+					!CalcGeneralSaving(ch, victim, ESaving::kCritical, CALC_SUCCESS(modi, GetRealWis(ch))))) {
 				int choice_stunning = 750;
 				if (CanUseFeat(ch, EFeat::kDarkPact))
 					choice_stunning -= GetRealRemort(ch) * 15;
@@ -531,17 +531,17 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 					act("Каменное проклятие $n1 отшибло сознание у $N1.", false, ch, nullptr, victim, kToNotVict);
 					act("У вас отшибло сознание, вам очень плохо...", false, ch, nullptr, victim, kToVict);
 					GET_POS(victim) = EPosition::kStun;
-					SetWaitState(victim, (5 + (GET_REAL_WIS(ch) - 20)) * kPulseViolence);
+					SetWaitState(victim, (5 + (GetRealWis(ch) - 20)) * kPulseViolence);
 				}
 			}
 			break;
 		}
 		case ESpell::kVacuum: {
 			if (ch == victim ||
-				(!CalcGeneralSaving(ch, victim, ESaving::kCritical, CALC_SUCCESS(modi, GET_REAL_WIS(ch))) &&
+				(!CalcGeneralSaving(ch, victim, ESaving::kCritical, CALC_SUCCESS(modi, GetRealWis(ch))) &&
 					(number(1, 999) > GET_AR(victim) * 10) && number(0, 1000) <= 500)) {
 				GET_POS(victim) = EPosition::kStun;
-				auto wait = 4 + std::max(1, GetRealLevel(ch) + 1 + (GET_REAL_WIS(ch) - 29)) / 7;    //17*/
+				auto wait = 4 + std::max(1, GetRealLevel(ch) + 1 + (GetRealWis(ch) - 29)) / 7;    //17*/
 				SetWaitState(victim, wait * kPulseViolence);
 			}
 			break;
@@ -603,7 +603,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		}
 		case ESpell::kWarcryOfThunder: {
 			if (GET_POS(victim) > EPosition::kSit && !IS_IMMORTAL(victim) && (AFF_FLAGGED(victim, EAffect::kHold) ||
-				!CalcGeneralSaving(ch, victim, ESaving::kStability, GET_REAL_CON(ch)))) {
+				!CalcGeneralSaving(ch, victim, ESaving::kStability, GetRealCon(ch)))) {
 				act("$n3 повалило на землю.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 				act("Вас повалило на землю.", false, victim, nullptr, nullptr, kToChar);
 				GET_POS(victim) = EPosition::kSit;
@@ -1282,7 +1282,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
 										 CalcDuration(victim,
 													  0,
-													  GET_REAL_WIS(ch) + GET_REAL_INT(ch),
+													  GetRealWis(ch) + GetRealInt(ch),
 													  10,
 													  0,
 													  0))
@@ -1558,7 +1558,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 		case ESpell::kPoison: savetype = ESaving::kCritical;
 			if (ch != victim && (AFF_FLAGGED(victim, EAffect::kShield) ||
-				CalcGeneralSaving(ch, victim, savetype, modi - GET_REAL_CON(victim) / 2))) {
+				CalcGeneralSaving(ch, victim, savetype, modi - GetRealCon(victim) / 2))) {
 				if (ch->in_room
 					== IN_ROOM(victim)) // Добавлено чтобы яд нанесенный SPELL_POISONED_FOG не спамил чару постоянно
 					SendMsgToChar(NOEFFECT, ch);
@@ -1785,7 +1785,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kDeafness:
 			switch (spell_id) {
 				case ESpell::kWarcryOfRage: savetype = ESaving::kWill;
-					modi = GET_REAL_CON(ch);
+					modi = GetRealCon(ch);
 					break;
 				case ESpell::kSonicWave:
 				case ESpell::kMassDeafness:
@@ -1974,7 +1974,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kShock: {
 			switch (spell_id) {
 				case ESpell::kWarcryOfThunder: savetype = ESaving::kWill;
-					modi = GET_REAL_CON(ch) * 3 / 2;
+					modi = GetRealCon(ch) * 3 / 2;
 					break;
 				case ESpell::kIceStorm: savetype = ESaving::kReflex;
 					modi = CALC_SUCCESS(modi, 30);
@@ -2268,7 +2268,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 		case ESpell::kWarcryOfMenace: {
 			savetype = ESaving::kWill;
-			modi = GET_REAL_CON(ch);
+			modi = GetRealCon(ch);
 			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
 				SendMsgToChar(NOEFFECT, ch);
 				success = false;
@@ -2285,7 +2285,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 		case ESpell::kWarcryOfMadness: {
 			savetype = ESaving::kStability;
-			modi = GET_REAL_CON(ch) * 3 / 2;
+			modi = GetRealCon(ch) * 3 / 2;
 			if (ch == victim || !CalcGeneralSaving(ch, victim, savetype, modi)) {
 				af[0].location = EApply::kInt;
 				af[0].duration = ApplyResist(victim, GetResistType(spell_id),
@@ -2295,7 +2295,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				to_room = "$n0 потерял$g рассудок.";
 
 				savetype = ESaving::kStability;
-				modi = GET_REAL_CON(ch) * 2;
+				modi = GetRealCon(ch) * 2;
 				if (ch == victim || !CalcGeneralSaving(ch, victim, savetype, modi)) {
 					af[1].location = EApply::kCastSuccess;
 					af[1].duration = af[0].duration;
@@ -2309,7 +2309,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				}
 			} else {
 				savetype = ESaving::kStability;
-				modi = GET_REAL_CON(ch) * 2;
+				modi = GetRealCon(ch) * 2;
 				if (!CalcGeneralSaving(ch, victim, savetype, modi)) {
 					af[0].location = EApply::kCastSuccess;
 					af[0].duration = ApplyResist(victim, GetResistType(spell_id),
@@ -2840,7 +2840,7 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 	GET_GOLD_SiDs(mob) = 0;
 	const auto days_from_full_moon =
 		(weather_info.moon_day < 14) ? (14 - weather_info.moon_day) : (weather_info.moon_day - 14);
-	const auto duration = CalcDuration(mob, GET_REAL_WIS(ch) + number(0, days_from_full_moon), 0, 0, 0, 0);
+	const auto duration = CalcDuration(mob, GetRealWis(ch) + number(0, days_from_full_moon), 0, 0, 0, 0);
 	Affect<EApply> af;
 	af.type = ESpell::kCharm;
 	af.duration = duration;
@@ -2956,7 +2956,7 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 	if (spell_id == ESpell::kSummonKeeper) {
 		// Svent TODO: не забыть перенести это в ability
 		mob->set_level(GetRealLevel(ch));
-		int rating = (ch->GetSkill(ESkill::kLightMagic) + GET_REAL_CHA(ch)) / 2;
+		int rating = (ch->GetSkill(ESkill::kLightMagic) + GetRealCha(ch)) / 2;
 		GET_MAX_HIT(mob) = GET_HIT(mob) = 50 + RollDices(10, 10) + rating * 6;
 		mob->set_skill(ESkill::kPunch, 10 + rating * 1.5);
 		mob->set_skill(ESkill::kRescue, 50 + rating);
@@ -3022,15 +3022,15 @@ int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 	switch (spell_id) {
 		case ESpell::kCureLight:
-			hit = GET_REAL_MAX_HIT(victim) / 100 * GET_REAL_INT(ch) / 3 + ch->GetSkill(ESkill::kLifeMagic) / 2;
+			hit = GET_REAL_MAX_HIT(victim) / 100 * GetRealInt(ch) / 3 + ch->GetSkill(ESkill::kLifeMagic) / 2;
 			SendMsgToChar("Вы почувствовали себя немножко лучше.\r\n", victim);
 			break;
 		case ESpell::kCureSerious:
-			hit = GET_REAL_MAX_HIT(victim) / 100 * GET_REAL_INT(ch) / 2 + ch->GetSkill(ESkill::kLifeMagic) / 2;
+			hit = GET_REAL_MAX_HIT(victim) / 100 * GetRealInt(ch) / 2 + ch->GetSkill(ESkill::kLifeMagic) / 2;
 			SendMsgToChar("Вы почувствовали себя намного лучше.\r\n", victim);
 			break;
 		case ESpell::kCureCritic:
-			hit = int(GET_REAL_MAX_HIT(victim) / 100 * GET_REAL_INT(ch) / 1.5) + ch->GetSkill(ESkill::kLifeMagic) / 2;
+			hit = int(GET_REAL_MAX_HIT(victim) / 100 * GetRealInt(ch) / 1.5) + ch->GetSkill(ESkill::kLifeMagic) / 2;
 			SendMsgToChar("Вы почувствовали себя значительно лучше.\r\n", victim);
 			break;
 		case ESpell::kHeal:
@@ -3573,7 +3573,7 @@ void ReactToCast(CharData *victim, CharData *caster, ESpell spell_id) {
 	if (caster->purged()) {
 		return;
 	}
-	if (!CAN_SEE(victim, caster) && (GET_REAL_INT(victim) > 25 || GET_REAL_INT(victim) > number(10, 25))) {
+	if (!CAN_SEE(victim, caster) && (GetRealInt(victim) > 25 || GetRealInt(victim) > number(10, 25))) {
 		if (!AFF_FLAGGED(victim, EAffect::kDetectInvisible)
 			&& GET_SPELL_MEM(victim, ESpell::kDetectInvis) > 0)
 			CastSpell(victim, victim, nullptr, nullptr, ESpell::kDetectInvis, ESpell::kDetectInvis);

@@ -2609,7 +2609,7 @@ void init_char(CharData *ch, PlayerIndexElement &element) {
 
 	ch->char_specials.saved.affected_by = clear_flags;
 	for (auto save = ESaving::kFirst; save <= ESaving::kLast; ++save) {
-		SET_SAVE(ch, save, 0);
+		SetSave(ch, save, 0);
 	}
 	for (i = EResist::kFirstResist; i <= EResist::kLastResist; ++i) {
 		GET_RESIST(ch, i) = 0;

@@ -202,7 +202,7 @@ int npc_scavenge(CharData *ch) {
 	}
 
 	npc_dropunuse(ch);
-	if (world[ch->in_room]->contents && number(0, 25) <= GET_REAL_INT(ch)) {
+	if (world[ch->in_room]->contents && number(0, 25) <= GetRealInt(ch)) {
 		max = 1;
 		best_obj = nullptr;
 		cont = nullptr;
@@ -293,7 +293,7 @@ int npc_loot(CharData *ch) {
 	if (IS_SHOPKEEPER(ch))
 		return (false);
 	npc_dropunuse(ch);
-	if (world[ch->in_room]->contents && number(0, GET_REAL_INT(ch)) > 10) {
+	if (world[ch->in_room]->contents && number(0, GetRealInt(ch)) > 10) {
 		for (obj = world[ch->in_room]->contents; obj; obj = obj->get_next_content()) {
 			if (CAN_SEE_OBJ(ch, obj) && IS_CORPSE(obj)) {
 				// Сначала лутим то, что не в контейнерах
@@ -427,7 +427,7 @@ int npc_move(CharData *ch, int dir, int/* need_specials_check*/) {
 			}
 		}
 		if (EXIT_FLAGGED(rdata, EExitFlag::kClosed)) {
-			if (GET_REAL_INT(ch) >= 15
+			if (GetRealInt(ch) >= 15
 				|| GET_DEST(ch) != kNowhere
 				|| MOB_FLAGGED(ch, EMobFlag::kOpensDoor)) {
 				do_doorcmd(ch, 0, dir, SCMD_OPEN);
@@ -522,7 +522,7 @@ void npc_wield(CharData *ch) {
 		return;
 	}
 
-	if (GET_REAL_INT(ch) < 10 || IS_SHOPKEEPER(ch))
+	if (GetRealInt(ch) < 10 || IS_SHOPKEEPER(ch))
 		return;
 
 	if (GET_EQ(ch, EEquipPos::kHold)
@@ -538,7 +538,7 @@ void npc_wield(CharData *ch) {
 		both = GET_EQ(ch, EEquipPos::kBoths);
 	}
 
-	if (GET_REAL_INT(ch) < 15 && ((left && right) || (both)))
+	if (GetRealInt(ch) < 15 && ((left && right) || (both)))
 		return;
 
 	for (obj = ch->carrying; obj; obj = next) {
@@ -622,7 +622,7 @@ void npc_armor(CharData *ch) {
 	if (!NPC_FLAGGED(ch, ENpcFlag::kArmoring))
 		return;
 
-	if (GET_REAL_INT(ch) < 10 || IS_SHOPKEEPER(ch))
+	if (GetRealInt(ch) < 10 || IS_SHOPKEEPER(ch))
 		return;
 
 	for (obj = ch->carrying; obj; obj = next) {
@@ -700,7 +700,7 @@ void npc_armor(CharData *ch) {
 		}
 
 		if (GET_EQ(ch, where)) {
-			if (GET_REAL_INT(ch) < 15) {
+			if (GetRealInt(ch) < 15) {
 				continue;
 			}
 
@@ -721,7 +721,7 @@ void npc_armor(CharData *ch) {
 void npc_light(CharData *ch) {
 	ObjData *obj, *next;
 
-	if (GET_REAL_INT(ch) < 10 || IS_SHOPKEEPER(ch))
+	if (GetRealInt(ch) < 10 || IS_SHOPKEEPER(ch))
 		return;
 
 	if (AFF_FLAGGED(ch, EAffect::kInfravision))
@@ -761,7 +761,7 @@ int npc_battle_scavenge(CharData *ch) {
 	if (IS_SHOPKEEPER(ch))
 		return (false);
 
-	if (world[ch->in_room]->contents && number(0, GET_REAL_INT(ch)) > 10)
+	if (world[ch->in_room]->contents && number(0, GetRealInt(ch)) > 10)
 		for (obj = world[ch->in_room]->contents; obj; obj = next_obj) {
 			next_obj = obj->get_next_content();
 			if (CAN_GET_OBJ(ch, obj)
@@ -826,7 +826,7 @@ int do_npc_steal(CharData *ch, CharData *victim) {
 	if (!CAN_SEE(ch, victim))
 		return (false);
 
-	if (AWAKE(victim) && (number(0, std::max(0, GetRealLevel(ch) - int_app[GET_REAL_INT(victim)].observation)) == 0)) {
+	if (AWAKE(victim) && (number(0, std::max(0, GetRealLevel(ch) - int_app[GetRealInt(victim)].observation)) == 0)) {
 		act("Вы обнаружили руку $n1 в своем кармане.", false, ch, 0, victim, kToVict);
 		act("$n пытал$u обокрасть $N3.", true, ch, 0, victim, kToNotVict);
 	} else        // Steal some gold coins
@@ -863,7 +863,7 @@ int npc_steal(CharData *ch) {
 	for (const auto cons : world[ch->in_room]->people) {
 		if (!cons->IsNpc()
 			&& !IS_IMMORTAL(cons)
-			&& (number(0, GET_REAL_INT(ch)) > 10)) {
+			&& (number(0, GetRealInt(ch)) > 10)) {
 			return (do_npc_steal(ch, cons));
 		}
 	}
@@ -922,7 +922,7 @@ void npc_group(CharData *ch) {
 		members++;
 
 		if (!leader
-			|| GET_REAL_INT(vict) > GET_REAL_INT(leader)) {
+			|| GetRealInt(vict) > GetRealInt(leader)) {
 			leader = vict;
 		}
 	}

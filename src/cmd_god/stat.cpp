@@ -255,18 +255,18 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	sprintf(buf,
 			"Сила: [%s%d/%d%s]  Инт : [%s%d/%d%s]  Мудр : [%s%d/%d%s] \r\n"
 			"Ловк: [%s%d/%d%s]  Тело:[%s%d/%d%s]  Обаян:[%s%d/%d%s] Размер: [%s%d/%d%s]\r\n",
-			CCCYN(ch, C_NRM), k->GetInbornStr(), GET_REAL_STR(k), CCNRM(ch,
-																		C_NRM),
-			CCCYN(ch, C_NRM), k->GetInbornInt(), GET_REAL_INT(k), CCNRM(ch,
-																		C_NRM),
-			CCCYN(ch, C_NRM), k->GetInbornWis(), GET_REAL_WIS(k), CCNRM(ch,
-																		C_NRM),
-			CCCYN(ch, C_NRM), k->GetInbornDex(), GET_REAL_DEX(k), CCNRM(ch,
-																		C_NRM),
-			CCCYN(ch, C_NRM), k->GetInbornCon(), GET_REAL_CON(k), CCNRM(ch,
-																		C_NRM),
-			CCCYN(ch, C_NRM), k->GetInbornCha(), GET_REAL_CHA(k), CCNRM(ch,
-																		C_NRM),
+			CCCYN(ch, C_NRM), k->GetInbornStr(), GetRealStr(k), CCNRM(ch,
+																	  C_NRM),
+			CCCYN(ch, C_NRM), k->GetInbornInt(), GetRealInt(k), CCNRM(ch,
+																	  C_NRM),
+			CCCYN(ch, C_NRM), k->GetInbornWis(), GetRealWis(k), CCNRM(ch,
+																	  C_NRM),
+			CCCYN(ch, C_NRM), k->GetInbornDex(), GetRealDex(k), CCNRM(ch,
+																	  C_NRM),
+			CCCYN(ch, C_NRM), k->GetInbornCon(), GetRealCon(k), CCNRM(ch,
+																	  C_NRM),
+			CCCYN(ch, C_NRM), k->GetInbornCha(), GetRealCha(k), CCNRM(ch,
+																	  C_NRM),
 			CCCYN(ch, C_NRM), GET_SIZE(k), GET_REAL_SIZE(k), CCNRM(ch, C_NRM));
 	SendMsgToChar(buf, ch);
 
@@ -292,15 +292,15 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 			GET_ARMOUR(k),
 			GET_HR(k),
 			GET_REAL_HR(k),
-			GET_REAL_HR(k) + str_bonus(GET_REAL_STR(k), STR_TO_HIT),
+			GET_REAL_HR(k) + str_bonus(GetRealStr(k), STR_TO_HIT),
 			GET_DR(k),
 			GetRealDamroll(k),
-			GetRealDamroll(k) + str_bonus(GET_REAL_STR(k), STR_TO_DAM));
+			GetRealDamroll(k) + str_bonus(GetRealStr(k), STR_TO_DAM));
 	SendMsgToChar(buf, ch);
 	sprintf(buf,
 			"Защитн.аффекты: [Will:%d/Crit.:%d/Stab.:%d/Reflex:%d], Поглощ: [%d], Воля: [%d], Здор.: [%d], Стойк.: [%d], Реакц.: [%d]\r\n",
-			GET_SAVE(k, ESaving::kWill), GET_SAVE(k, ESaving::kCritical),
-			GET_SAVE(k, ESaving::kStability), GET_SAVE(k, ESaving::kReflex),
+			GetSave(k, ESaving::kWill), GetSave(k, ESaving::kCritical),
+			GetSave(k, ESaving::kStability), GetSave(k, ESaving::kReflex),
 			GET_ABSORBE(k),
 			GET_REAL_SAVING_WILL(k), GET_REAL_SAVING_CRITICAL(k),
 			GET_REAL_SAVING_STABILITY(k), GET_REAL_SAVING_REFLEX(k));

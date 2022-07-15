@@ -960,30 +960,30 @@ inline int ClampBaseStat(const CharData::shared_ptr &ch, const EBaseStat stat_id
 	return ClampBaseStat(ch.get(), stat_id, val);
 }
 
-inline auto GET_REAL_STR(const CharData *ch) {
+inline auto GetRealStr(const CharData *ch) {
 	return ClampBaseStat(ch, EBaseStat::kStr, ch->get_str() + ch->get_str_add());
 };
-inline auto GET_REAL_DEX(const CharData *ch) {
+inline auto GetRealDex(const CharData *ch) {
 	return ClampBaseStat(ch, EBaseStat::kDex, ch->get_dex() + ch->get_dex_add());
 }
-inline auto GET_REAL_CON(const CharData *ch) {
+inline auto GetRealCon(const CharData *ch) {
 	return ClampBaseStat(ch, EBaseStat::kCon, ch->get_con() + ch->get_con_add());
 };
-inline auto GET_REAL_WIS(const CharData *ch) {
+inline auto GetRealWis(const CharData *ch) {
 	return ClampBaseStat(ch, EBaseStat::kWis, ch->get_wis() + ch->get_wis_add());
 };
-inline auto GET_REAL_INT(const CharData *ch) {
+inline auto GetRealInt(const CharData *ch) {
 	return ClampBaseStat(ch, EBaseStat::kInt, ch->get_int() + ch->get_int_add());
 };
-inline auto GET_REAL_CHA(const CharData *ch) {
+inline auto GetRealCha(const CharData *ch) {
 	return ClampBaseStat(ch, EBaseStat::kCha, ch->get_cha() + ch->get_cha_add());
 };
 
-inline auto GET_SAVE(CharData *ch, ESaving save) {
+inline auto GetSave(CharData *ch, ESaving save) {
 	return ch->add_abils.apply_saving_throw[to_underlying(save)];
 }
 
-inline void SET_SAVE(CharData *ch, ESaving save, int mod) {
+inline void SetSave(CharData *ch, ESaving save, int mod) {
 	ch->add_abils.apply_saving_throw[to_underlying(save)] = mod;
 }
 
