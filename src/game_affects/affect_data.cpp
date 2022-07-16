@@ -209,6 +209,9 @@ void player_affect_update() {
 		for (auto affect_i = next_affect_i; affect_i != i->affected.end(); affect_i = next_affect_i) {
 			++next_affect_i;
 			const auto &affect = *affect_i;
+			if (IS_SET(affect->battleflag, kAfBattledec) && i->GetEnemy()) {
+				continue;
+			}
 			if (affect->duration >= 1) {
 				if (IS_SET(affect->battleflag, kAfSameTime) && !i->GetEnemy()) {
 					// здесь плеера могут спуржить
@@ -217,7 +220,14 @@ void player_affect_update() {
 						break;
 					}
 				}
-				affect->duration--;
+				sprintf(buf, "ЧАР: Спелл %s висит на %s длительносить %d\r\n", MUD::Spell(affect->type).GetCName(), GET_PAD(i, 5), affect->duration);
+				mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+				if (ROOM_FLAGGED(i->in_room, ERoomFlag::kArena)) {
+					affect->duration -= 16;
+					affect->duration = std::max(0, affect->duration);
+				}
+				else
+					affect->duration--;
 			} else if (affect->duration != -1) {
 				if ((affect->type > ESpell::kUndefined) && (affect->type <= ESpell::kLast)) {
 					if (next_affect_i == i->affected.end()
@@ -244,16 +254,15 @@ void player_affect_update() {
 			affect_total(i.get());
 		}
 	});
-	log("player affect update: timer %f, num players %d", timer.delta().count(), count);
+	log( "player affect update: timer %f, num players %d", timer.delta().count(), count);
 }
 
 // This file update battle affects only
 void battle_affect_update(CharData *ch) {
+	utils::CExecutionTimer timer;
 	if (ch->purged()) {
 		char tmpbuf[256];
-		sprintf(tmpbuf,"WARNING: battle_affect_update ch purged. Name %s vnum %d", 
-				GET_NAME(ch),
-				GET_MOB_VNUM(ch));
+		sprintf(tmpbuf,"WARNING: battle_affect_update ch purged. Name %s vnum %d", GET_NAME(ch), GET_MOB_VNUM(ch));
 		mudlog(tmpbuf, LGH, kLvlImmortal, SYSLOG, true);
 		return;
 	}
@@ -317,11 +326,12 @@ void battle_affect_update(CharData *ch) {
 			ch->affect_remove(affect_i);
 		}
 	}
-
 	affect_total(ch);
+	log( "battle affect update: timer %f", timer.delta().count());
 }
 
 void mobile_affect_update() {
+	utils::CExecutionTimer timer;
 	character_list.foreach_on_copy([](const CharData::shared_ptr &i) {
 		int was_charmed = false, charmed_msg = false;
 		bool was_purged = false;
@@ -342,7 +352,8 @@ void mobile_affect_update() {
 							break;
 						}
 					}
-
+					sprintf(buf, "МОБ: Спелл %s висит на %s длительносить %d\r\n", MUD::Spell(affect->type).GetCName(), GET_PAD(i, 5), affect->duration);
+					mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 					affect->duration--;
 					if (affect->type == ESpell::kCharm && !charmed_msg && affect->duration <= 1) {
 						act("$n начал$g растерянно оглядываться по сторонам.",
@@ -407,6 +418,7 @@ void mobile_affect_update() {
 			}
 		}
 	});
+	log("mobile affect update: timer %f", timer.delta().count());
 }
 
 // Call affect_remove with every spell of spelltype "skill"

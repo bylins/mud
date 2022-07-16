@@ -2504,8 +2504,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			}
 		default: break;
 	}
-
-
+	ch->send_to_TC(false, true, false, "Кастуем спелл %s по цели %s длительносить %d\r\n", MUD::Spell(af[0].type).GetCName(), GET_PAD(victim, 2), af[0].duration);
 	//проверка на обкаст мобов, имеющих от рождения встроенный аффкект
 	//чтобы этот аффект не очистился, при спадении спелла
 	if (victim->IsNpc() && success) {
@@ -2533,6 +2532,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		af[i].type = spell_id;
 		if (af[i].bitvector || af[i].location != EApply::kNone) {
 			af[i].duration = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, af[i].duration);
+
 			if (update_spell)
 				ImposeAffect(victim, af[i]);
 			else
