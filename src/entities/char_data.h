@@ -388,6 +388,7 @@ class CharData : public ProtectedCharData {
 	CharData *get_protecting() const;
 	CharData *who_protecting() const;
 	void set_protecting(CharData *vict);
+	void remove_protecting();
 
 	EExtraAttack get_extra_attack_mode() const;
 	CharData *GetExtraVictim() const;
@@ -667,8 +668,8 @@ class CharData : public ProtectedCharData {
 
 	CharSkillsType skills;    // список изученных скиллов
 	////////////////////////////////////////////////////////////////////////////
-	CharData *protecting_; // цель для 'прикрыть'
-	CharData *who_protecting_{0}; // кто прикрыл
+	CharData *protecting_{nullptr}; // цель для 'прикрыть'
+	CharData *who_protecting_{nullptr}; // кто прикрыл
 	CharData *touching_;   // цель для 'перехватить'
 	CharData *enemy_;
 
