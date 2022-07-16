@@ -743,6 +743,10 @@ set(FORT_ENABLE_TESTING OFF CACHE INTERNAL "")
 add_subdirectory(src/third_party_libs/libfort)
 target_link_libraries(circle.library fort)
 
+#fmt inegration
+add_subdirectory(src/third_party_libs/fmt)
+target_link_libraries(circle.library fmt::fmt)
+
 # Boost
 set(BOOST_MODULES ${BOOST_PYTHON_MODULE} system filesystem)
 if (WIN32)

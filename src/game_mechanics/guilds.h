@@ -34,7 +34,7 @@ class GuildInfo : public info_container::BaseItem<int> {
 	friend class GuildInfoBuilder;
 
 	enum class ETalent { kSkill, kSpell, kFeat };
-	enum class EGuildMsg {
+	enum class EMsg {
 		kGreeting,
 		kCannotToChar,
 		kCannotToRoom,
@@ -160,7 +160,7 @@ class GuildInfo : public info_container::BaseItem<int> {
 	TalentsRoster learning_talents_;
 
 	static void Learn(CharData *trainer, CharData *ch, const TalentPtr &talent);
-	[[nodiscard]] static const std::string &GetMessage(EGuildMsg msg_id);
+	[[nodiscard]] static const std::string &GetMsg(EMsg msg_id);
 	[[nodiscard]] static bool ProcessPayment(CharData *trainer, CharData *ch, const TalentPtr &talent);
 	static void LearnSingle(CharData *trainer, CharData *ch, const TalentPtr &talent);
 
