@@ -729,9 +729,11 @@ void CharData::set_protecting(CharData *vict) {
 	protecting_ = vict;
 	vict->who_protecting_ = this;
 }
+
 void CharData::remove_protecting() {
 	protecting_ = nullptr;
 }
+
 CharData *CharData::get_protecting() const {
 	return protecting_;
 }
