@@ -4,7 +4,7 @@
 #include "noob.h"
 
 #include "entities/char_data.h"
-#include "utils/pugixml/pugixml.h"
+#include "third_party_libs/pugixml/pugixml.h"
 #include "utils/parse.h"
 #include "handler.h"
 

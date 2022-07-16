@@ -21,7 +21,7 @@
 #include <filesystem>
 #include <memory>
 
-#include "utils/pugixml/pugixml.h"
+#include "third_party_libs/pugixml/pugixml.h"
 #include "structs/iterators.h"
 
 namespace parser_wrapper {

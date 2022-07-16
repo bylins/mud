@@ -138,7 +138,7 @@ set(SOURCES
 		src/game_fight/pk.cpp
 		src/entities/player_races.cpp
 		src/administration/privilege.cpp
-		src/utils/pugixml/pugixml.cpp
+        src/third_party_libs/pugixml/pugixml.cpp
 		src/game_quests/quested.cpp
 		src/utils/random.cpp
 		src/olc/redit.cpp
@@ -451,8 +451,8 @@ set(HEADERS
 		src/entities/player_i.h
 		src/entities/player_races.h
 		src/administration/privilege.h
-		src/utils/pugixml/pugiconfig.h
-		src/utils/pugixml/pugixml.h
+        src/third_party_libs/pugixml/pugiconfig.h
+        src/third_party_libs/pugixml/pugixml.h
 		src/game_quests/quested.h
 		src/utils/random.h
 		src/communication/remember.h
@@ -740,7 +740,7 @@ add_dependencies(circle.library versioning changelog)
 # Linfort integration
 # Disable building tests and examples in libfort project
 set(FORT_ENABLE_TESTING OFF CACHE INTERNAL "")
-add_subdirectory(src/utils/libfort)
+add_subdirectory(src/third_party_libs/libfort)
 target_link_libraries(circle.library fort)
 
 # Boost

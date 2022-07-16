@@ -6,7 +6,6 @@
 #define BIRTH_PLACES_HPP_INCLUDED
 
 //Для тех, у кого нет нормального файла рас, и нет зон.
-//Хотя по-хорошему внумам в коде делать вообще нефик
 const int kDefaultLoadroom = 4056;
 const int kBirthplaceUndefined = -1;
 #define BIRTH_PLACES_FILE "birthplaces.xml"
@@ -17,8 +16,7 @@ const int kBirthplaceUndefined = -1;
 #include "conf.h"
 #include "sysdep.h"
 #include "structs/structs.h"
-
-#include <utils/pugixml/pugixml.h>
+#include "third_party_libs/pugixml/pugixml.h"
 
 #include <vector>
 

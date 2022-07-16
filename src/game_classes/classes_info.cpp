@@ -8,7 +8,7 @@
 #include "classes_info.h"
 
 #include "color.h"
-#include "utils/pugixml/pugixml.h"
+#include "third_party_libs/pugixml/pugixml.h"
 #include "structs/global_objects.h"
 //#include "utils/table_wrapper.h"
 

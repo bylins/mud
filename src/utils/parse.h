@@ -8,7 +8,7 @@
 #include <set>
 
 #include "conf.h"
-#include "utils/pugixml/pugixml.h"
+#include "third_party_libs/pugixml/pugixml.h"
 #include "sysdep.h"
 #include "structs/structs.h"
 #include "comm.h"
