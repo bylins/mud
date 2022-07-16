@@ -13,7 +13,6 @@ void go_protect(CharData *ch, CharData *vict) {
 		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
-
 	ch->set_protecting(vict);
 	act("Вы попытаетесь прикрыть $N3 от нападения.", false, ch, 0, vict, kToChar);
 	SET_AF_BATTLE(ch, kEafProtect);
