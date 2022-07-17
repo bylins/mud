@@ -459,7 +459,7 @@ void affect_total(CharData *ch) {
 		}
 	}
 	if (domination) {
-		ch->set_remort_add(20 - ch->get_remort());
+		ch->set_remort_add(24 - ch->get_remort());
 		ch->set_level_add(30 - ch->GetLevel());
 		ch->set_str_add(ch->get_remort_add());
 		ch->set_dex_add(ch->get_remort_add());

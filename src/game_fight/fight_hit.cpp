@@ -3612,7 +3612,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		int max_rnd = hit_params.dam + hit_params.dam / 4;
 		hit_params.dam = MAX(1, number(min_rnd, max_rnd));
 	}
-	if (hit_params.skill_num  == ESkill::kUndefined) { //автоатака, в скиллах все от удачи
+	if (hit_params.skill_num  == ESkill::kUndefined && !hit_params.get_flags()[fight::kCritLuck]) { //автоатака
 		const int victim_lvl_miss = GetRealLevel(victim) + GetRealRemort(victim);
 		const int ch_lvl_miss = GetRealLevel(ch) + GetRealRemort(ch);
 
