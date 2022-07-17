@@ -282,9 +282,10 @@ void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, T
 			++next_ch;
 			ExtractCharFromRoom(ch);
 			PlaceCharToRoom(ch, target);
-			ch->dismount();
-			look_at_room(ch, true);
-			lastchar = ch;
+			if (!ch->IsNpc()) {
+				look_at_room(ch, true);
+				lastchar = ch;
+			}
 		}
 		if (lastchar) {
 			greet_mtrigger(lastchar, -1);
@@ -315,8 +316,10 @@ void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, T
 			PlaceCharToRoom(ch, target);
 			if (!onhorse)
 				ch->dismount();
-			look_at_room(ch, true);
-			lastchar = ch;
+			if (!ch->IsNpc()) {
+				look_at_room(ch, true);
+				lastchar = ch;
+			}
 		}
 		if (lastchar) {
 			greet_mtrigger(lastchar, -1);
