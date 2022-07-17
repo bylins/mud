@@ -1502,7 +1502,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 
 				case 'b':
 				case 'B': OLC_MODE(d) = MEDIT_LEVEL;
-					SendMsgToChar("Введите новое значение (0 автопростановка): ", d->character.get());
+					SendMsgToChar("Введите новое значение : ", d->character.get());
 					return;
 					break;
 				case 'c':
