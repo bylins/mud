@@ -655,12 +655,30 @@ void affect_total(CharData *ch) {
 	}
 }
 
-void ImposeAffect(CharData *ch,
-				  Affect<EApply> &af,
-				  bool add_dur,
-				  bool max_dur,
-				  bool add_mod,
-				  bool max_mod) {
+void ImposeAffect(CharData *ch, const Affect<EApply> &af) {
+	bool found = false;
+
+	for (const auto &affect : ch->affected) {
+		const bool same_affect = (af.location == EApply::kNone) && (affect->bitvector == af.bitvector);
+		const bool same_type = (af.location != EApply::kNone) && (affect->type == af.type) && (affect->location == af.location);
+		if (same_affect || same_type) {
+			if (affect->modifier < af.modifier) {
+				affect->modifier = af.modifier;
+			}
+			if (affect->duration < af.duration) {
+				affect->duration = af.duration;
+			}
+			affect_total(ch);
+			found = true;
+			break;
+		}
+	}
+	if (!found) {
+		affect_to_char(ch, af);
+	}
+}
+
+void ImposeAffect(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, bool add_mod, bool max_mod) {
 	bool found = false;
 
 	if (af.location) {
@@ -668,7 +686,6 @@ void ImposeAffect(CharData *ch,
 			const auto &affect = *affect_i;
 			if (affect->type == af.type
 				&& affect->location == af.location) {
-
 				if (add_dur) {
 					af.duration += affect->duration;
 				} else if (max_dur) {

@@ -120,32 +120,6 @@ void CheckLight(CharData *ch, int was_equip, int was_single, int was_holylight, 
 	}
 }
 
-void ImposeAffect(CharData *ch, const Affect<EApply> &af) {
-	bool found = false;
-	for (const auto &affect : ch->affected) {
-		const bool same_affect = (af.location == EApply::kNone) && (affect->bitvector == af.bitvector);
-		const bool same_type = (af.location != EApply::kNone) && (affect->type == af.type) && (affect->location == af.location);
-
-		if (same_affect || same_type) {
-			if (affect->modifier < af.modifier) {
-				affect->modifier = af.modifier;
-			}
-
-			if (affect->duration < af.duration) {
-				affect->duration = af.duration;
-			}
-
-			affect_total(ch);
-			found = true;
-			break;
-		}
-	}
-
-	if (!found) {
-		affect_to_char(ch, af);
-	}
-}
-
 void DecreaseFeatTimer(CharData *ch, EFeat feat_id) {
 	for (auto *skj = ch->timed_feat; skj; skj = skj->next) {
 		if (skj->feat == feat_id) {
