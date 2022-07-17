@@ -154,7 +154,7 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply
 		save -= 50;
 	else if (GET_GOD_FLAG(victim, EGf::kGodscurse))
 		save += 50;
-	if (victim->IsNpc() && !killer->IsNpc()) {
+	if (!killer->IsNpc()) {
 		killer->send_to_TC(false,
 						   true,
 						   true,
@@ -192,7 +192,9 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply
 
 int CalcGeneralSaving(CharData *killer, CharData *victim, ESaving type, int ext_apply) {
 	int save = CalcSaving(killer, victim, type, ext_apply);
-	if (std::max(10, save) <= number(1, 200)) {
+	int rnd = number(1, 200);
+	killer->send_to_TC(false, true, false, "Victim saving %d, random 1..200 %d", std::max(10, save), rnd);
+	if (std::max(10, save) <= rnd) {
 		return true;
 	}
 
