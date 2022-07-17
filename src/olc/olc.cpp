@@ -396,7 +396,11 @@ void get_char_cols(CharData *ch) {
 void disp_planes_values(DescriptorData *d, const char *names[], short num_column) {
 	int counter, column = 0, plane = 0;
 	char c;
+	if (d->character->GetLevel() < kLvlImplementator)
+		SendMsgToChar(d->character.get(), "Ваш уровень меньше имплементатора, список выводится не полностью.\r\n");
 	for (counter = 0, c = 'a' - 1; plane < NUM_PLANES; counter++) {
+		if (d->character->GetLevel() < kLvlImplementator && *names[counter] == '*')
+			continue;
 		if (*names[counter] == '\n') {
 			plane++;
 			c = 'a' - 1;
