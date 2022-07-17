@@ -399,8 +399,6 @@ void disp_planes_values(DescriptorData *d, const char *names[], short num_column
 	if (d->character->GetLevel() < kLvlImplementator)
 		SendMsgToChar(d->character.get(), "Ваш уровень меньше имплементатора, список выводится не полностью.\r\n");
 	for (counter = 0, c = 'a' - 1; plane < NUM_PLANES; counter++) {
-		if (d->character->GetLevel() < kLvlImplementator && *names[counter] == '*')
-			continue;
 		if (*names[counter] == '\n') {
 			plane++;
 			c = 'a' - 1;
@@ -409,6 +407,8 @@ void disp_planes_values(DescriptorData *d, const char *names[], short num_column
 			c = 'A';
 		} else
 			c++;
+		if (d->character->GetLevel() < kLvlImplementator && *names[counter] == '*')
+			continue;
 		sprintf(buf, "&g%c%d&n) %-30.30s %s", c, plane, names[counter], !(++column % num_column) ? "\r\n" : "");
 		SendMsgToChar(buf, d->character.get());
 	}
