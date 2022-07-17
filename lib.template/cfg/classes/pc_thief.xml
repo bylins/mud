@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<class id="kThief">
+    <name abbr="Тт">
+        <singular nom="тать" gen="татя" dat="татю" acc="татя" ins="татем" pre="тате"/>
+        <plural nom="тати" gen="татей" dat="татям" acc="татей" ins="татями" pre="татях"/>
+    </name>
+    <stats>
+        <base_stats>
+            <stat id="kStr"	gen_min="16"	gen_max="19"	auto="19"	cap="75"/>
+            <stat id="kDex"	gen_min="22"	gen_max="25"	auto="25"	cap="90"/>
+            <stat id="kCon"	gen_min="14"	gen_max="17"	auto="17"	cap="75"/>
+            <stat id="kWis"	gen_min="9"	gen_max="12"	auto="9"	cap="50"/>
+            <stat id="kInt"	gen_min="9"	gen_max="12"	auto="12"	cap="50"/>
+            <stat id="kCha"	gen_min="13"	gen_max="16"	auto="13"	cap="50"/>
+        </base_stats>
+    </stats>
+    <skills level_decrement="4">
+        <skill id="kSideAttack"		level="1"	remort="0"	improve="0"/>
+        <skill id="kLeadership"		level="1"	remort="0"	improve="1200"/>
+        <skill id="kUndercut"		level="1"	remort="0"	improve="3500"/>
+        <skill id="kPunch"		level="1"	remort="0"	improve="200"/>
+        <skill id="kShortBlades"	level="1"	remort="0"	improve="100"/>
+        <skill id="kClubs"		level="1"	remort="0"	improve="100"/>
+        <skill id="kPicks"		level="1"	remort="0"	improve="100"/>
+        <skill id="kNonstandart"	level="1"	remort="0"	improve="100"/>
+        <skill id="kSpades"		level="1"	remort="0"	improve="100"/>
+        <skill id="kBows"		level="1"	remort="0"	improve="200"/>
+        <skill id="kMakeWear"		level="1"	remort="0"	improve="1000"/>
+        <skill id="kHangovering"	level="3"	remort="0"	improve="94000"/>
+        <skill id="kHide"		level="5"	remort="0"	improve="300"/>
+        <skill id="kPickLock"		level="5"	remort="0"	improve="3000"/>
+        <skill id="kSteal"		level="5"	remort="0"	improve="5000"/>
+        <skill id="kDigging"		level="5"	remort="0"	improve="600"/>
+        <skill id="kHideTrack"		level="10"	remort="0"	improve="4000"/>
+        <skill id="kBackstab"		level="10"	remort="0"	improve="4500"/>
+        <skill id="kSneak"		level="10"	remort="0"	improve="3000"/>
+        <skill id="kHearing"		level="10"	remort="0"	improve="90"/>
+        <skill id="kDodge"		level="10"	remort="0"	improve="4000"/>
+        <skill id="kPry"		level="10"	remort="0"	improve="300"/>
+        <skill id="kSkinning"		level="10"	remort="0"	improve="2500"/>
+    </skills>
+    <spells level_decrement="3">
+        <!-- This class has no spells. -->
+    </spells>
+    <feats remorts_for_slot="4">
+        <feat id="kWriggler"			level="1"	remort="0"	slot="0"	inborn="1"/>
+        <feat id="kDodger"			level="1"	remort="0"	slot="0"	inborn="1"/>
+        <feat id="kThieveStrike"		level="1"	remort="0"	slot="0"	inborn="1"/>
+        <feat id="kCalmness"			level="1"	remort="0"	slot="0"	inborn="1"/>
+        <feat id="kRetreat"			level="1"	remort="0"	slot="0"	inborn="1"/>
+        <feat id="kHitrollBonus"		level="1"	remort="0"	slot="0"	inborn="1"/>
+	<feat id="kWolfScent"			level="1"	remort="0"	slot="0"	inborn="1"/>
+	<feat id="kNightVision"			level="1"	remort="0"	slot="0"	inborn="1"/>
+        <feat id="kDrunkard"			level="1"	remort="0"	slot="0"	inborn="0"/>
+        <feat id="kStrongImmunity"		level="1"	remort="0"	slot="0"	inborn="0"/>
+        <feat id="kForestPath"			level="1"	remort="0"	slot="0"	inborn="0"/>
+        <feat id="kMountainPath"		level="1"	remort="0"	slot="0"	inborn="0"/>
+        <feat id="kBlindFight"			level="1"	remort="0"	slot="0"	inborn="0"/>
+        <feat id="kLightWalk"			level="1"	remort="0"	slot="0"	inborn="0"/>
+        <feat id="kPunchFocus"			level="1"	remort="0"	slot="0"	inborn="0"/>
+        <feat id="kClubsFocus"			level="1"	remort="0"	slot="0"	inborn="0"/>
+        <feat id="kShortsFocus"			level="1"	remort="0"	slot="0"	inborn="0"/>
+        <feat id="kNonstandartsFocus"		level="1"	remort="0"	slot="0"	inborn="0"/>
+        <feat id="kPicksFocus"			level="1"	remort="0"	slot="0"	inborn="0"/>
+        <feat id="kSpadesFocus"			level="1"	remort="0"	slot="0"	inborn="0"/>
+        <feat id="kBowsFocus"			level="1"	remort="0"	slot="0"	inborn="0"/>
+        <feat id="kGreatFortitude"		level="1"	remort="0"	slot="1"	inborn="0"/>
+        <feat id="kNimbleFingers"		level="1"	remort="0"	slot="1"	inborn="0"/>
+        <feat id="kLightingReflex"		level="1"	remort="0"	slot="1"	inborn="0"/>
+        <feat id="kPorter"			level="1"	remort="0"	slot="1"	inborn="0"/>
+        <feat id="kJuggler"			level="1"	remort="0"	slot="2"	inborn="0"/>
+        <feat id="kWoodenSkin"			level="1"	remort="0"	slot="2"	inborn="0"/>
+        <feat id="kStealthy"			level="1"	remort="0"	slot="2"	inborn="0"/>
+        <feat id="kEndurance"			level="1"	remort="0"	slot="2"	inborn="0"/>
+        <feat id="kDoubleShot"			level="1"	remort="0"	slot="3"	inborn="0"/>
+        <feat id="kPunchMaster"			level="1"	remort="0"	slot="4"	inborn="0"/>
+        <feat id="kClubsMaster"			level="1"	remort="0"	slot="4"	inborn="0"/>
+        <feat id="kShortsMaster"		level="1"	remort="0"	slot="4"	inborn="0"/>
+        <feat id="kNonstandartsMaster"		level="1"	remort="0"	slot="4"	inborn="0"/>
+        <feat id="kPicksMaster"			level="1"	remort="0"	slot="4"	inborn="0"/>
+        <feat id="kSpadesMaster"		level="1"	remort="0"	slot="4"	inborn="0"/>
+        <feat id="kBowsMaster"			level="1"	remort="0"	slot="4"	inborn="0"/>
+        <feat id="kAimingAttack"		level="1"	remort="0"	slot="5"	inborn="0"/>
+        <feat id="kPowerAttack"			level="1"	remort="0"	slot="5"	inborn="0"/>
+        <feat id="kWeaponFinesse"		level="1"	remort="0"	slot="5"	inborn="0"/>
+        <feat id="kWarriorSpirit"		level="1"	remort="0"	slot="5"	inborn="0"/>
+        <feat id="kEvasion"			level="1"	remort="0"	slot="0"	inborn="0"/>
+        <feat id="kCutting"			level="1"	remort="0"	slot="0"	inborn="0"/>
+        <feat id="kSerratedBlade"		level="1"	remort="0"	slot="0"	inborn="0"/>
+    </feats>
+</class>
