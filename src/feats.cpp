@@ -1,13 +1,10 @@
 //#include "feats.h"
 //#include "feats_constants.h"
 
-#include <boost/algorithm/string.hpp>
+#include <third_party_libs/fmt/format.h>
 
-#include "action_targeting.h"
-#include "handler.h"
 #include "entities/player_races.h"
 #include "color.h"
-#include "game_fight/pk.h"
 #include "game_magic/magic_utils.h"
 #include "structs/global_objects.h"
 
@@ -361,9 +358,8 @@ void ActivateFeat(CharData *ch, EFeat feat_id) {
 			break;
 		case EFeat::kScirmisher:
 			if (!AFF_FLAGGED(ch, EAffect::kGroup)) {
-				SendMsgToChar(ch,
-							  "Голос десятника Никифора вдруг рявкнул: \"%s, тюрюхайло! 'В шеренгу по одному' иначе сполняется!\"\r\n",
-							  ch->get_name().c_str());
+				SendMsgToChar(fmt::format("Голос десятника Никифора вдруг рявкнул: \"{}, тюрюхайло! 'В шеренгу по одному' иначе сполняется!\"\r\n",
+							ch->get_name()), ch);
 				return;
 			}
 			if (PRF_FLAGGED(ch, EPrf::kSkirmisher)) {
@@ -384,11 +380,8 @@ void ActivateFeat(CharData *ch, EFeat feat_id) {
 			SendMsgToChar("Эту способность невозможно применить таким образом.\r\n", ch);
 			return;
 	}
-	SendMsgToChar(ch,
-				  "%sВы решили использовать способность '%s'.%s\r\n",
-				  CCIGRN(ch, C_SPR),
-				  MUD::Feat(feat_id).GetCName(),
-				  CCNRM(ch, C_OFF));
+	SendMsgToChar(fmt::format("{}Вы решили использовать способность '{}'.{}\r\n",
+							  KIGRN, MUD::Feat(feat_id).GetName(), KNRM), ch);
 }
 
 void DeactivateFeature(CharData *ch, EFeat feat_id) {
@@ -421,8 +414,9 @@ void DeactivateFeature(CharData *ch, EFeat feat_id) {
 			SendMsgToChar("Эту способность невозможно применить таким образом.\r\n", ch);
 			return;
 	}
-	SendMsgToChar(ch, "%sВы прекратили использовать способность '%s'.%s\r\n",
-				  CCIGRN(ch, C_SPR), MUD::Feat(feat_id).GetCName(), CCNRM(ch, C_OFF));
+
+	SendMsgToChar(fmt::format("{}Вы прекратили использовать способность '{}'.{}\r\n",
+							  KIGRN,  MUD::Feat(feat_id).GetName(), KNRM), ch);
 }
 
 EFeat FindWeaponMasterFeat(ESkill skill) {

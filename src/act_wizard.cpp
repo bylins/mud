@@ -4183,7 +4183,7 @@ std::string print_special(CharData *mob) {
 			out += "exchange";
 		else if (func == horse_keeper)
 			out += "horse";
-		else if (func == DoGuildLearn)
+		else if (func == guilds::GuildInfo::DoGuildLearn)
 			out += "guild trainer";
 		else if (func == torc)
 			out += "torc";

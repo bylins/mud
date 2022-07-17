@@ -17,9 +17,31 @@
 
 class CharData;
 
-int DoGuildLearn(CharData *ch, void *me, int cmd, char *argument);
-
 namespace guilds {
+
+enum class EMsg {
+	kGreeting,
+	kDischarge,
+	kCannotToChar,
+	kCannotToRoom,
+	kAskToChar,
+	kAskToRoom,
+	kLearnToChar,
+	kLearnToRoom,
+	kInquiry,
+	kDidNotTeach,
+	kAllSkills,
+	kTalentEarned,
+	kNothingLearned,
+	kListEmpty,
+	kIsInsolvent,
+	kFree,
+	kTemporary,
+	kYouGiveMoney,
+	kSomeoneGivesMoney,
+	kFailToChar,
+	kFailToRoom,
+	kError};
 
 using DataNode = parser_wrapper::DataNode;
 
@@ -34,28 +56,6 @@ class GuildInfo : public info_container::BaseItem<int> {
 	friend class GuildInfoBuilder;
 
 	enum class ETalent { kSkill, kSpell, kFeat };
-	enum class EMsg {
-		kGreeting,
-		kCannotToChar,
-		kCannotToRoom,
-		kAskToChar,
-		kAskToRoom,
-		kLearnToChar,
-		kLearnToRoom,
-		kInquiry,
-		kDidNotTeach,
-		kAllSkills,
-		kTalentEarned,
-		kNothingLearned,
-		kListEmpty,
-		kIsInsolvent,
-		kFree,
-		kTemporary,
-		kYouGive,
-		kSomeoneGive,
-		kFailToChar,
-		kFailToRoom,
-		kError};
 
 	class IGuildTalent {
 		ETalent talent_type_;
@@ -67,6 +67,7 @@ class GuildInfo : public info_container::BaseItem<int> {
 
 		public:
 		explicit IGuildTalent(ETalent talent_type, DataNode &node);
+		virtual ~IGuildTalent() = default;
 
 		[[nodiscard]] ETalent GetTalentType() const { return talent_type_; };
 		[[nodiscard]] Vnum GetCurrencyId() const { return currency_vnum_; };
@@ -160,9 +161,9 @@ class GuildInfo : public info_container::BaseItem<int> {
 	TalentsRoster learning_talents_;
 
 	static void Learn(CharData *trainer, CharData *ch, const TalentPtr &talent);
+	static void LearnSingle(CharData *trainer, CharData *ch, const TalentPtr &talent);
 	[[nodiscard]] static const std::string &GetMsg(EMsg msg_id);
 	[[nodiscard]] static bool ProcessPayment(CharData *trainer, CharData *ch, const TalentPtr &talent);
-	static void LearnSingle(CharData *trainer, CharData *ch, const TalentPtr &talent);
 
 	const std::string &GetName() const { return name_; };
 	void DisplayMenu(CharData *trainer, CharData *ch) const;
@@ -178,6 +179,7 @@ class GuildInfo : public info_container::BaseItem<int> {
 	void Print(CharData *ch, std::ostringstream &buffer) const;
 	void AssignToTrainers() const;
 	void Process(CharData *trainer, CharData *ch, std::string &argument) const;
+	static int DoGuildLearn(CharData *ch, void *me, int cmd, char *argument);
 };
 
 class GuildInfoBuilder : public info_container::IItemBuilder<GuildInfo> {
