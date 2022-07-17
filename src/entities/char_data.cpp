@@ -1959,7 +1959,7 @@ void CharData::restore_npc() {
 	//флаги
 	MOB_FLAGS(this) = MOB_FLAGS(proto);
 	this->set_touching(nullptr);
-	this->set_protecting(nullptr);
+	this->remove_protecting();
 	// ресторим статы
 	proto->set_normal_morph();
 	this->set_str(GetRealStr(proto));
