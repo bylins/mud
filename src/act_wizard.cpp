@@ -67,7 +67,7 @@
 #include "communication/parcel.h"
 #include "administration/password.h"
 #include "administration/privilege.h"
-#include "utils/pugixml/pugixml.h"
+#include "third_party_libs/pugixml/pugixml.h"
 #include "entities/room_data.h"
 #include "color.h"
 #include "game_mechanics/sets_drop.h"
@@ -4183,7 +4183,7 @@ std::string print_special(CharData *mob) {
 			out += "exchange";
 		else if (func == horse_keeper)
 			out += "horse";
-		else if (func == DoGuildLearn)
+		else if (func == guilds::GuildInfo::DoGuildLearn)
 			out += "guild trainer";
 		else if (func == torc)
 			out += "torc";

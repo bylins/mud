@@ -14,6 +14,9 @@
 
 #include "utils.h"
 
+#include <algorithm>
+#include <third_party_libs/fmt/format.h>
+
 #include "entities/world_characters.h"
 #include "obj_prototypes.h"
 #include "logger.h"
@@ -46,7 +49,6 @@
 #include "game_mechanics/obj_sets.h"
 #include "utils_string.h"
 
-#include <algorithm>
 
 #ifdef HAVE_ICONV
 #include <iconv.h>
@@ -1633,9 +1635,8 @@ void print_log() {
 } // ZoneExpStat
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string PrintNumberByDigits(long long num) {
-	const char digits_separator = ' ';
-	const int digits_num = 3;
+std::string PrintNumberByDigits(long long num, const char separator) {
+	const int digits_num{3};
 
 	bool negative{false};
 	if (num < 0) {
@@ -1651,29 +1652,29 @@ std::string PrintNumberByDigits(long long num) {
 		return "<Out Of Range>";
 	}
 
-	std::ostringstream out;
+	fmt::memory_buffer out;
 	if (negative) {
-		out << "-";
+		out.push_back('-');
 	}
 
 	if (digits_num >= buffer.size()) {
-		out << buffer;
+		format_to(std::back_inserter(out), "{}", buffer);
 	} else {
 		auto modulo = buffer.size() % digits_num;
 		if (modulo != 0) {
-			out << buffer.substr(0, modulo) << digits_separator;
+			format_to(std::back_inserter(out), "{}{}", buffer.substr(0, modulo), separator);
 		}
 
 		unsigned pos = modulo;
 		while (pos < buffer.size() - digits_num) {
-			out << buffer.substr(pos, digits_num) << digits_separator;
+			format_to(std::back_inserter(out), "{}{}", buffer.substr(pos, digits_num), separator);
 			pos += digits_num;
 		}
 
-		out << buffer.substr(pos, digits_num);
+		format_to(std::back_inserter(out), "{}", buffer.substr(pos, digits_num));
 	}
 
-	return out.str();
+	return to_string(out);
 }
 
 std::string thousands_sep(long long n) {

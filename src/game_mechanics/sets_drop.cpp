@@ -8,7 +8,7 @@
 
 #include "obj_prototypes.h"
 #include "entities/char_data.h"
-#include "utils/pugixml/pugixml.h"
+#include "third_party_libs/pugixml/pugixml.h"
 #include "house.h"
 #include "color.h"
 #include "help.h"

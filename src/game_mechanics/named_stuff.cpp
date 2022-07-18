@@ -14,7 +14,7 @@
 #include "handler.h"
 #include "house.h"
 #include "dg_script/dg_scripts.h"
-#include "utils/pugixml/pugixml.h"
+#include "third_party_libs/pugixml/pugixml.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
 #include "structs/structs.h"

@@ -4,12 +4,15 @@
 #ifndef PLAYER_RACES_HPP_INCLUDED
 #define PLAYER_RACES_HPP_INCLUDED
 
+#include <string>
+#include <vector>
+
+#include <third_party_libs/pugixml/pugixml.h>
+
+#include "entities_constants.h"
 #include "conf.h"
 #include "sysdep.h"
 #include "structs/structs.h"
-
-#include <string>
-#include <vector>
 
 const int RACE_UNDEFINED = -1;
 const int KIN_UNDEFINED = -1;
