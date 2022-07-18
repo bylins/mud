@@ -1741,9 +1741,10 @@ std::string MakePrompt(DescriptorData *d) {
 					for (auto dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
 						if (EXIT(ch, dir) && EXIT(ch, dir)->to_room() != kNowhere &&
 							!EXIT_FLAGGED(EXIT(ch, dir), EExitFlag::kHidden)) {
-								format_to(std::back_inserter(out),
-										  EXIT_FLAGGED(EXIT(ch, dir), EExitFlag::kClosed) ?
-										  "({})" : "{}", dirs[dir]);
+								if (EXIT_FLAGGED(EXIT(ch, dir), EExitFlag::kClosed)) 
+									format_to(std::back_inserter(out), "({})", dirs[dir]);
+								else
+									format_to(std::back_inserter(out), "{}", dirs[dir]);
 						}
 					}
 				}
