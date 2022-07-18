@@ -1471,8 +1471,9 @@ class StreamFlagsHolder {
 /**
  *  Напечатать число в виде строки с разделителем разрядов.
  *  @param num  - обрабатываемоле число.
+ *  @param separator - разделитель разрядов.
  */
-std::string PrintNumberByDigits(long long num);
+std::string PrintNumberByDigits(long long num, const char separator = ' ');
 
 #endif // UTILS_H_
 
