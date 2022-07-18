@@ -9,13 +9,21 @@ git clone https://github.com/bylins/mud
 
 cd mud
 
+mv -n lib.template/* lib
+
 mkdir build
 
 cd build
 
 cmake -DSCRIPTING=NO -DCMAKE_BUILD_TYPE=Test -DBUILD_TESTS=NO ..
 
-make
+make -j2 (2 это количество ядер в компьютере)
+
+cd ..
+
+build/circle 4000
+
+подключение из клиента #conn localhost 4000
 
 если используете clion следуйте этой статье: 
 https://blog.jetbrains.com/clion/2018/01/clion-and-linux-toolchain-on-windows-are-now-friends/

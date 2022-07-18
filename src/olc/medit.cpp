@@ -1180,7 +1180,7 @@ void medit_disp_menu(DescriptorData *d) {
 			grn, GET_PAD(mob, 5),
 			grn, GET_LDESC(mob).c_str(),
 			grn, GET_DDESC(mob).c_str(),
-			grn, nrm, cyn, GetRealLevel(mob), nrm,
+			grn, nrm, cyn, mob->GetLevel(), nrm,
 			grn, nrm, cyn, GET_ALIGNMENT(mob), nrm,
 			grn, nrm, cyn, GET_HR(mob), nrm,
 			grn, nrm, cyn, GET_DR(mob), nrm,
@@ -1502,9 +1502,9 @@ void medit_parse(DescriptorData *d, char *arg) {
 
 				case 'b':
 				case 'B': OLC_MODE(d) = MEDIT_LEVEL;
-					i++;
+					SendMsgToChar("Введите новое значение : ", d->character.get());
+					return;
 					break;
-
 				case 'c':
 				case 'C': OLC_MODE(d) = MEDIT_ALIGNMENT;
 					i++;

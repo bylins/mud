@@ -529,7 +529,8 @@ void do_mat(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *
 void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	char arg1[kMaxInputLength], arg2[kMaxInputLength];
 	int target;
-	CharData *vict, *horse;
+	CharData *vict, *lastchar = nullptr;
+	bool onhorse = false;
 	RoomRnum from_room;
 
 	if (AFF_FLAGGED(ch, EAffect::kCharmed))
@@ -550,11 +551,11 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 		mob_log(ch, "mteleport target is an invalid room");
 		return;
 	}
+	if (target == ch->in_room) {
+		mob_log(ch, "mteleport all: target is itself");
+		return;
+	}
 	if (!str_cmp(arg1, "all") || !str_cmp(arg1, "все")) {
-		if (target == ch->in_room) {
-			mob_log(ch, "mteleport all: target is itself");
-			return;
-		}
 		const auto people_copy = world[ch->in_room]->people;
 		for (const auto vict : people_copy) {
 			if (IN_ROOM(vict) == kNowhere) {
@@ -563,26 +564,44 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 			}
 			ExtractCharFromRoom(vict);
 			PlaceCharToRoom(vict, target);
-			// переделать чтоб чары смотрели в клетку после переноса, походу еще один цикл крутить, ну и мутево будет
-			if (!vict->IsNpc())
+			if (!vict->IsNpc()) {
 				look_at_room(vict, true);
+				lastchar = vict;
+			}
+		}
+		if (lastchar) {
+			greet_mtrigger(lastchar, -1);
+			greet_otrigger(lastchar, -1);
 		}
 	} else if (!str_cmp(arg1, "allchar") || !str_cmp(arg1, "всечары")) {
-		if (target == ch->in_room) {
-			mob_log(ch, "mteleport all: target is itself");
-			return;
-		}
 		const auto people_copy = world[ch->in_room]->people;
 		for (const auto vict : people_copy) {
 			if (IN_ROOM(vict) == kNowhere) {
 				mob_log(ch, "mteleport transports allchar from kNowhere");
 				return;
 			}
-			if (vict->IsNpc() && !IS_CHARMICE(vict))
+			if (vict->IsNpc() && !IS_CHARMICE(vict)) {
 				continue;
+			}
+			if (!str_cmp(argument, "horse") && vict->get_horse()) {
+				if (vict->IsOnHorse() || vict->has_horse(true)) {
+					ExtractCharFromRoom(vict->get_horse());
+					PlaceCharToRoom(vict->get_horse(), target);
+					onhorse = true;
+				}
+			}
 			ExtractCharFromRoom(vict);
 			PlaceCharToRoom(vict, target);
-			look_at_room(vict, true);
+			if (!onhorse)
+				vict->dismount();
+			if (!vict->IsNpc()) {
+				look_at_room(vict, true);
+				lastchar = vict;
+			}
+		}
+		if (lastchar) {
+			greet_mtrigger(lastchar, -1);
+			greet_otrigger(lastchar, -1);
 		}
 	} else {
 		if (*arg1 == UID_CHAR) {
@@ -605,14 +624,12 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 				PlaceCharToRoom(charmee, target);
 			}
 		}
-		if (vict->IsOnHorse() || vict->has_horse(true)) {
-			horse = vict->get_horse();
-		} else {
-			horse = nullptr;
-		}
-		if (!str_cmp(argument, "horse") && horse) {
-			ExtractCharFromRoom(horse);
-			PlaceCharToRoom(horse, target);
+		if (!str_cmp(argument, "horse") && vict->get_horse()) {
+			if (vict->IsOnHorse() || vict->has_horse(true)) {
+				ExtractCharFromRoom(vict->get_horse());
+				PlaceCharToRoom(vict->get_horse(), target);
+				onhorse = true;
+			}
 		}
 		from_room = vict->in_room;
 //Polud реализуем режим followers. за аргументом телепорта перемешаются все последователи-NPC
@@ -628,7 +645,8 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 //-Polud
 		ExtractCharFromRoom(vict);
 		PlaceCharToRoom(vict, target);
-		vict->dismount();
+		if (!onhorse)
+			vict->dismount();
 		look_at_room(vict, true);
 		greet_mtrigger(vict, -1);
 		greet_otrigger(vict, -1);
