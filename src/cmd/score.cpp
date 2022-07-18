@@ -232,7 +232,7 @@ void PrintScoreList(CharData *ch) {
 
 const std::string &InfoStrPrefix(CharData *ch) {
 	static const std::string cyan_star{KICYN " * " KNRM};
-	static const std::string space_str{""};
+	static const std::string space_str;
 	if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {
 		return space_str;
 	} else {

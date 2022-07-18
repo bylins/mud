@@ -31,6 +31,8 @@
 
 #include "comm.h"
 
+#include <third_party_libs/fmt/format.h>
+
 #include "structs/global_objects.h"
 #include "game_magic/magic.h"
 #include "entities/world_objects.h"
@@ -544,7 +546,7 @@ void flush_queues(DescriptorData *d);
 void nonblock(socket_t s);
 int perform_subst(DescriptorData *t, char *orig, char *subst);
 int perform_alias(DescriptorData *d, char *orig);
-std::string make_prompt(DescriptorData *point);
+std::string MakePrompt(DescriptorData *d);
 struct in_addr *get_bind_addr(void);
 int parse_ip(const char *addr, struct in_addr *inaddr);
 int set_sendbuf(socket_t s);
@@ -1630,128 +1632,138 @@ char *show_state(CharData *ch, CharData *victim) {
 	return buf;
 }
 
-std::string make_prompt(DescriptorData *d) {
-	std::ostringstream out;
+std::string MakePrompt(DescriptorData *d) {
+	const auto& ch = d->character;
+	auto out = fmt::memory_buffer();
+	out.reserve(kMaxPromptLength);
 	if (d->showstr_count) {
-		out << "\rЛистать : <RETURN>, Q<К>онец, R<П>овтор, B<Н>азад, или номер страницы ("
-			<< d->showstr_page << "/" << d->showstr_count << ").";
+		format_to(std::back_inserter(out),
+				  "\rЛистать : <RETURN>, Q<К>онец, R<П>овтор, B<Н>азад, или номер страницы ({}/{}).",
+				  d->showstr_page, d->showstr_count);
 	} else if (d->writer) {
-		out << "] ";
-	} else if (STATE(d) == CON_PLAYING && !d->character->IsNpc()) {
-		if (GET_INVIS_LEV(d->character)) {
-			out << "i" << GET_INVIS_LEV(d->character) << " ";
+		format_to(std::back_inserter(out), "] ");
+	} else if (d->connected == CON_PLAYING && !ch->IsNpc()) {
+		if (GET_INVIS_LEV(ch)) {
+			format_to(std::back_inserter(out), "i{} ", GET_INVIS_LEV(ch));
 		}
 
-		if (PRF_FLAGGED(d->character, EPrf::kDispHp)) {
-			out << color_value(d->character.get(), GET_HIT(d->character), GET_REAL_MAX_HIT(d->character))
-				<< GET_HIT(d->character) << "H" << KNRM << " ";
+		if (PRF_FLAGGED(ch, EPrf::kDispHp)) {
+			format_to(std::back_inserter(out), "{}{}H{} ",
+					  color_value(ch.get(), GET_HIT(ch), GET_REAL_MAX_HIT(ch)), GET_HIT(ch), KNRM);
 		}
 
-		if (PRF_FLAGGED(d->character, EPrf::kDispMove)) {
-			out << color_value(d->character.get(), GET_MOVE(d->character), GET_REAL_MAX_MOVE(d->character))
-				<< GET_MOVE(d->character) << "M" << KNRM << " ";
+		if (PRF_FLAGGED(ch, EPrf::kDispMove)) {
+			format_to(std::back_inserter(out), "{}{}M{} ",
+					  color_value(ch.get(), GET_MOVE(ch), GET_REAL_MAX_MOVE(ch)), GET_MOVE(ch),  KNRM);
 		}
 
-		if (PRF_FLAGGED(d->character, EPrf::kDispMana) && IS_MANA_CASTER(d->character)) {
-			int perc = (100 * d->character->mem_queue.stored) / GET_MAX_MANA((d->character).get());
-			out << CCMANA(d->character, C_NRM, perc) << "э" << d->character->mem_queue.stored << KNRM << " ";
+		if (PRF_FLAGGED(ch, EPrf::kDispMana) && IS_MANA_CASTER(ch)) {
+			int perc = (100 * ch->mem_queue.stored) / GET_MAX_MANA((ch).get());
+			format_to(std::back_inserter(out), "{}э{}{} ",
+					  CCMANA(ch, C_NRM, perc), ch->mem_queue.stored, KNRM);
 		}
 
-		if (PRF_FLAGGED(d->character, EPrf::kDispExp)) {
-			if (IS_IMMORTAL(d->character)) {
-				out << "??? ";
+		if (PRF_FLAGGED(ch, EPrf::kDispExp)) {
+			if (IS_IMMORTAL(ch)) {
+				format_to(std::back_inserter(out), "??? ");
 			} else {
-				out << GetExpUntilNextLvl(d->character.get(), GetRealLevel(d->character) + 1) - GET_EXP(d->character)
-					<< "о ";
+				format_to(std::back_inserter(out), "{}o ",
+						  GetExpUntilNextLvl(ch.get(), GetRealLevel(ch) + 1) - GET_EXP(ch));
 			}
 		}
 
-		if (PRF_FLAGGED(d->character, EPrf::kDispMana) && !IS_MANA_CASTER(d->character)) {
-			if (!d->character->mem_queue.Empty()) {
-				auto mana_gain = CalcManaGain(d->character.get());
+		if (PRF_FLAGGED(ch, EPrf::kDispMana) && !IS_MANA_CASTER(ch)) {
+			if (!ch->mem_queue.Empty()) {
+				auto mana_gain = CalcManaGain(ch.get());
 				if (mana_gain) {
-					int sec_hp = std::max(0, 1 + d->character->mem_queue.total - d->character->mem_queue.stored);
+					int sec_hp = std::max(0, 1 + ch->mem_queue.total - ch->mem_queue.stored);
 					sec_hp = sec_hp*60/mana_gain;
 					int ch_hp = sec_hp/60;
 					sec_hp %= 60;
-					out << "Зауч:" << ch_hp << ":" << std::setw(2) << std::setfill('0') << sec_hp << " ";
+					format_to(std::back_inserter(out), "Зауч:{}:{:02} ", ch_hp, sec_hp);
 				} else {
-					out << "Зауч:- ";
+					format_to(std::back_inserter(out), "Зауч:- ");
 				}
 			} else {
-				out << "Зауч:0 ";
+				format_to(std::back_inserter(out), "Зауч:0 ");
 			}
 		}
 
-		if (PRF_FLAGGED(d->character, EPrf::kDispCooldowns)) {
-			out << MUD::Skill(ESkill::kGlobalCooldown).GetAbbr() << ":"
-				<< d->character->getSkillCooldownInPulses(ESkill::kGlobalCooldown) << " ";
+		if (PRF_FLAGGED(ch, EPrf::kDispCooldowns)) {
+			format_to(std::back_inserter(out), "{}:{} ",
+					  MUD::Skill(ESkill::kGlobalCooldown).GetAbbr(),
+					  ch->getSkillCooldownInPulses(ESkill::kGlobalCooldown));
 
 			for (const auto &skill : MUD::Skills()) {
 				if (skill.IsAvailable()) {
-					int cooldown = d->character->getSkillCooldownInPulses(skill.GetId());
+					int cooldown = ch->getSkillCooldownInPulses(skill.GetId());
 					if (cooldown > 0) {
-						out << skill.GetAbbr() << ":" << cooldown << " ";
+						format_to(std::back_inserter(out), "{}:{} ", skill.GetAbbr(), cooldown);
 					}
 				}
 			}
 		}
 
-		// Заряды и таймеры умений
-		if (PRF_FLAGGED(d->character, EPrf::kDispTimed)) {
-			for (auto timed = d->character->timed; timed; timed = timed->next) {
+		if (PRF_FLAGGED(ch, EPrf::kDispTimed)) {
+			for (auto timed = ch->timed; timed; timed = timed->next) {
 				if (timed->skill != ESkill::kWarcry && timed->skill != ESkill::kTurnUndead) {
-					out << MUD::Skill(timed->skill).GetAbbr() << ":" << +timed->time << " ";
+					format_to(std::back_inserter(out), "{}:{} ",
+							  MUD::Skill(timed->skill).GetAbbr(), +timed->time);
 				}
 			}
-			if (d->character->GetSkill(ESkill::kWarcry)) {
-				int wc_count = (kHoursPerDay - IsTimedBySkill(d->character.get(), ESkill::kWarcry)) / kHoursPerWarcry;
-				out << MUD::Skill(ESkill::kWarcry).GetAbbr() << ":" << wc_count << " ";
+			if (ch->GetSkill(ESkill::kWarcry)) {
+				int wc_count = (kHoursPerDay - IsTimedBySkill(ch.get(), ESkill::kWarcry)) / kHoursPerWarcry;
+				format_to(std::back_inserter(out), "{}:{} ",
+						  MUD::Skill(ESkill::kWarcry).GetAbbr(), wc_count);
 			}
-			if (d->character->GetSkill(ESkill::kTurnUndead)) {
-				int bonus{0};
-				bonus = kHoursPerTurnUndead + (CanUseFeat(d->character.get(), EFeat::kExorcist) ? -2 : 0);
-				bonus =  std::max(1, bonus);
-				out << MUD::Skill(ESkill::kTurnUndead).GetAbbr() << ":"
-					<< (kHoursPerDay - IsTimedBySkill(d->character.get(), ESkill::kTurnUndead)) / bonus << " ";
+			if (ch->GetSkill(ESkill::kTurnUndead)) {
+				auto bonus =
+					std::max(1, kHoursPerTurnUndead + (CanUseFeat(ch.get(), EFeat::kExorcist) ? -2 : 0));
+				format_to(std::back_inserter(out), "{}:{} ",
+						  MUD::Skill(ESkill::kTurnUndead).GetAbbr(),
+						  (kHoursPerDay - IsTimedBySkill(ch.get(), ESkill::kTurnUndead)) / bonus);
 			}
 		}
 
-		if (!d->character->GetEnemy() || IN_ROOM(d->character) != IN_ROOM(d->character->GetEnemy())) {
-			if (PRF_FLAGGED(d->character, EPrf::kDispLvl))
-				out << GetRealLevel(d->character) << "L ";
+		if (!ch->GetEnemy() || IN_ROOM(ch) != IN_ROOM(ch->GetEnemy())) {
+			if (PRF_FLAGGED(ch, EPrf::kDispLvl)) {
+				format_to(std::back_inserter(out), "{}L ", GetRealLevel(ch));
+			}
 
-			if (PRF_FLAGGED(d->character, EPrf::kDispMoney))
-				out << d->character->get_gold() << "G ";
+			if (PRF_FLAGGED(ch, EPrf::kDispMoney)) {
+				format_to(std::back_inserter(out), "{}G ", ch->get_gold());
+			}
 
-			if (PRF_FLAGGED(d->character, EPrf::kDispExits)) {
+			if (PRF_FLAGGED(ch, EPrf::kDispExits)) {
 				static const char *dirs[] = {"С", "В", "Ю", "З", "^", "v"};
-				out << "Вых:";
-				if (!AFF_FLAGGED(d->character, EAffect::kBlind)) {
+				format_to(std::back_inserter(out), "Вых:");
+				if (!AFF_FLAGGED(ch, EAffect::kBlind)) {
 					for (auto dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
-						if (EXIT(d->character, dir) && EXIT(d->character, dir)->to_room() != kNowhere &&
-							!EXIT_FLAGGED(EXIT(d->character, dir), EExitFlag::kHidden)) {
-							EXIT_FLAGGED(EXIT(d->character, dir), EExitFlag::kClosed) ?
-								(out << "(" << dirs[dir] << ")") :  (out << dirs[dir]);
+						if (EXIT(ch, dir) && EXIT(ch, dir)->to_room() != kNowhere &&
+							!EXIT_FLAGGED(EXIT(ch, dir), EExitFlag::kHidden)) {
+								format_to(std::back_inserter(out),
+										  EXIT_FLAGGED(EXIT(ch, dir), EExitFlag::kClosed) ?
+										  "({})" : "{}", dirs[dir]);
 						}
 					}
 				}
 			}
 		} else {
-			if (PRF_FLAGGED(d->character, EPrf::kDispFight)) {
-				out << show_state(d->character.get(), d->character.get());
+			if (PRF_FLAGGED(ch, EPrf::kDispFight)) {
+				format_to(std::back_inserter(out), "{}", show_state(ch.get(), ch.get()));
 			}
-			if (d->character->GetEnemy()->GetEnemy() && d->character->GetEnemy()->GetEnemy() != d->character.get()) {
-				out << show_state(d->character.get(), d->character->GetEnemy()->GetEnemy());
+			if (ch->GetEnemy()->GetEnemy() && ch->GetEnemy()->GetEnemy() != ch.get()) {
+				format_to(std::back_inserter(out), "{}",
+						  show_state(ch.get(), ch->GetEnemy()->GetEnemy()));
 			}
-			out << show_state(d->character.get(), d->character->GetEnemy());
+			format_to(std::back_inserter(out), "{}", show_state(ch.get(), ch->GetEnemy()));
 		};
-		out << "> ";
-	} else if (STATE(d) == CON_PLAYING && d->character->IsNpc()) {
-		out << "{" << GET_NAME(d->character) << "}-> ";
+		out.push_back('>');
+	} else if (d->connected == CON_PLAYING && ch->IsNpc()) {
+		format_to(std::back_inserter(out), "{{}}-> ", ch->get_name());
 	}
 
-	return out.str();
+	return to_string(out);
 }
 
 void write_to_q(const char *txt, struct TextBlocksQueue *queue, int aliased) {
@@ -2248,7 +2260,7 @@ int process_output(DescriptorData *t) {
 		t->msdp_report_changed_vars();
 
 	// add a prompt
-	strncat(i, make_prompt(t).c_str(), kMaxPromptLength);
+	strncat(i, MakePrompt(t).c_str(), kMaxPromptLength);
 
 	// easy color
 	int pos;
