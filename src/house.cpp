@@ -15,6 +15,7 @@
 #include <limits>
 
 #include <boost/format.hpp>
+#include <third_party_libs/fmt/format.h>
 
 #include "entities/world_objects.h"
 #include "entities/world_characters.h"
@@ -644,7 +645,8 @@ void Clan::HconShow(CharData *ch) {
 	std::ostringstream buffer;
 	buffer
 		<< "Abbrev|  Rent|OutRent| Chest|iChest|  Guard|CreateDate|      StoredExp|      Bank|Items| Ing |DayTax|Lvl|Test|Распущена\r\n";
-	boost::format show("%6d|%6d|%7d|%6d|%6d|%7d|%10s|%15d|%10d|%5d|%5d|%6d|%3s|%4s|%9s\r\n");
+	//boost::format show("%6d|%6d|%7d|%6d|%6d|%7d|%10s|%15d|%10d|%5d|%5d|%6d|%3s|%4s|%9s\r\n");
+	std::string show("{:<4}|{:<6}|{:<7}|{:<6}|{:<6}|{:<7}|{:<10}|{:<15}|{:<10}|{:<5}|{:<5}|{:<6}|{:<3}|{:<4}|{:<9}\r\n");
 	int total_day_tax = 0;
 
 	for (auto & clan : Clan::ClanList) {
@@ -655,12 +657,11 @@ void Clan::HconShow(CharData *ch) {
 		cost += clan->calculate_clan_tax();
 		total_day_tax += cost;
 
-		buffer << show % clan->abbrev % clan->rent % clan->out_rent % clan->chest_room
-			% GET_ROOM_VNUM(clan->get_ingr_chest_room_rnum()) % clan->guard % timeBuf
-			% clan->clan_exp % clan->bank % clan->chest_objcount
-			% clan->ingr_chest_objcount_ % cost % clan->clan_level
-			% (clan->test_clan ? "y" : "n")
-			% ((clan->m_members.size() > 0) ? "Нет" : "Да");
+		buffer << fmt::format(show, clan->abbrev, clan->rent, clan->out_rent, clan->chest_room,
+			GET_ROOM_VNUM(clan->get_ingr_chest_room_rnum()), clan->guard, timeBuf,
+			clan->clan_exp, clan->bank, clan->chest_objcount,
+			clan->ingr_chest_objcount_, cost, clan->clan_level,
+			(clan->test_clan ? "y" : "n"), ((clan->m_members.size() > 0) ? "Нет" : "Да"));
 	}
 
 	buffer << "Total day tax: " << total_day_tax << "\r\n";
@@ -1677,20 +1678,23 @@ void DoClanList(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		std::ostringstream out;
+		// \todo Тут нужно использовать table_wrapper::Table а не формат.
 		boost::format clanTopFormat(" %5d  %6s   %-30s %14s%14s %9d\r\n");
 		out << "В игре зарегистрированы следующие дружины:\r\n"
 			<< "     #           Название                          Всего опыта    За 30 дней   Человек\r\n\r\n";
 		int count = 1;
-		for (auto it = sort_clan.rbegin(); it != sort_clan.rend(); ++it) {
-			if (it->second->m_members.size() == 0)
+		for (const auto& it : sort_clan) {
+			if (it.second->m_members.size() == 0) {
 				continue;
-			if (it->second->is_pk())
-				out << clanTopFormat % count % it->second->abbrev % it->second->name % ExpFormat(it->second->exp)
-					% ExpFormat(it->second->last_exp.get_exp()) % it->second->m_members.size();
+			}
+			const auto& clan = it.second;
+			if (clan->is_pk())
+				out << clanTopFormat % count % clan->abbrev % clan->name % ExpFormat(clan->exp)
+					% ExpFormat(clan->last_exp.get_exp()) % clan->m_members.size();
 			else
 				out << "&g"
-					<< clanTopFormat % count % it->second->abbrev % it->second->name % ExpFormat(it->second->exp)
-						% ExpFormat(it->second->last_exp.get_exp()) % it->second->m_members.size() << "&n";
+					<< clanTopFormat % count % clan->abbrev % clan->name % ExpFormat(clan->exp)
+						% ExpFormat(clan->last_exp.get_exp()) % clan->m_members.size() << "&n";
 			++count;
 		}
 		SendMsgToChar(out.str(), ch);
@@ -2985,10 +2989,9 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 		PlaceObjIntoObj(obj, chest);
 		ObjSaveSync::add(ch->get_uid(), CLAN(ch)->GetRent(), ObjSaveSync::CLAN_SAVE);
 
-		std::string log_text = boost::str(boost::format("%s сдал%s %s%s\r\n")
-											  % GET_NAME(ch) % GET_CH_SUF_1(ch) % obj->get_PName(3)
-											  % clan_get_custom_label(obj, CLAN(ch)));
-		CLAN(ch)->chest_log.add(log_text);
+		CLAN(ch)->chest_log.add(fmt::format("{} сдал{} {}{}\r\n",
+											ch->get_name(), GET_CH_SUF_1(ch), obj->get_PName(3),
+											clan_get_custom_label(obj, CLAN(ch))));
 
 		// канал хранилища
 		for (DescriptorData *d = descriptor_list; d; d = d->next) {
