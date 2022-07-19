@@ -322,7 +322,10 @@ void battle_affect_update(CharData *ch) {
 }
 
 void mobile_affect_update() {
-	character_list.foreach_on_copy([](const CharData::shared_ptr &i) {
+	utils::CExecutionTimer timer;
+	int count = 0;
+	character_list.foreach_on_copy([&count](const CharData::shared_ptr &i) {
+		count++;
 		int was_charmed = false, charmed_msg = false;
 		bool was_purged = false;
 
@@ -377,7 +380,7 @@ void mobile_affect_update() {
 
 		if (!was_purged) {
 			affect_total(i.get());
-
+/* Это какие таймскиллы у мобов? врата? релокейт? А, знаю, опознать, нуну.. 
 			decltype(i->timed) timed_skill;
 			for (auto timed = i->timed; timed; timed = timed_skill) {
 				timed_skill = timed->next;
@@ -387,7 +390,7 @@ void mobile_affect_update() {
 					ExpireTimedSkill(i.get(), timed);
 				}
 			}
-
+/* а мобы умеют? стопудова даже обработчика нет
 			decltype(i->timed_feat) timed_feat;
 			for (auto timed = i->timed_feat; timed; timed = timed_feat) {
 				timed_feat = timed->next;
@@ -397,16 +400,19 @@ void mobile_affect_update() {
 					ExpireTimedFeat(i.get(), timed);
 				}
 			}
-
+*/
+/* а мобы ходят в дт????? Если да то зачем им полная процедура как у плеера?
 			if (deathtrap::check_death_trap(i.get())) {
 				return;
 			}
-
+*/
 			if (was_charmed) {
 				stop_follower(i.get(), kSfCharmlost);
 			}
 		}
 	});
+	log("mobile affect update: timer %f, num players %d", timer.delta().count(), count);
+
 }
 
 // Call affect_remove with every spell of spelltype "skill"
@@ -531,7 +537,7 @@ void affect_total(CharData *ch) {
 		if (wdex != 0) {
 			ch->set_dex_add(ch->get_dex_add() - wdex);
 		}
-		GET_DR_ADD(ch) += GetExtraDamroll(ch->GetClass(), GetRealLevel(ch));
+			GET_DR_ADD(ch) += GetExtraDamroll(ch->GetClass(), GetRealLevel(ch));
 		if (!AFF_FLAGGED(ch, EAffect::kNoobRegen)) {
 			GET_HITREG(ch) += (GetRealLevel(ch) + 4) / 5 * 10;
 		}
@@ -545,7 +551,6 @@ void affect_total(CharData *ch) {
 				GET_HIT_ADD(ch) -= (i - 1);
 			}
 		}
-
 		if (!IS_IMMORTAL(ch) && ch->IsOnHorse()) {
 			AFF_FLAGS(ch).unset(EAffect::kHide);
 			AFF_FLAGS(ch).unset(EAffect::kSneak);
@@ -602,7 +607,7 @@ void affect_total(CharData *ch) {
 			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kShield, CharEquipFlags()), ch);
 			return;
 		}
-		if ((obj = GET_EQ(ch, EEquipPos::kQuiver)) && !GET_EQ(ch, EEquipPos::kBoths)) {
+		if (!ch->IsNpc() && (obj = GET_EQ(ch, EEquipPos::kQuiver)) && !GET_EQ(ch, EEquipPos::kBoths)) {
 			SendMsgToChar("Нету лука, нет и стрел.\r\n", ch);
 			act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, kToRoom);
 			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kQuiver, CharEquipFlags()), ch);
@@ -646,7 +651,8 @@ void affect_total(CharData *ch) {
 			}
 		}
 	}
-	CheckDeathRage(ch);
+	if (!ch->IsNpc())
+		CheckDeathRage(ch);
 	if (ch->GetEnemy() || IsAffectedBySpell(ch, ESpell::kGlitterDust)) {
 		AFF_FLAGS(ch).unset(EAffect::kHide);
 		AFF_FLAGS(ch).unset(EAffect::kSneak);

@@ -1759,7 +1759,7 @@ std::string MakePrompt(DescriptorData *d) {
 			}
 			format_to(std::back_inserter(out), "{}", show_state(ch.get(), ch->GetEnemy()));
 		};
-		out.push_back('>');
+		format_to(std::back_inserter(out), "> ");
 	} else if (d->connected == CON_PLAYING && ch->IsNpc()) {
 		format_to(std::back_inserter(out), "{{}}-> ", ch->get_name());
 	}
