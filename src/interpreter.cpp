@@ -2340,7 +2340,7 @@ void do_entergame(DescriptorData *d) {
 	STATE(d) = CON_PLAYING;
 	PRF_FLAGS(d->character).set(EPrf::kColor2); // цвет всегда полный
 // режимы по дефолту у нового чара
-	const bool new_char = GetRealLevel(d->character) <= 0 ? true : false;
+	const bool new_char = d->character->GetLevel() <= 0 ? true : false;
 	if (new_char) {
 		PRF_FLAGS(d->character).set(EPrf::kDrawMap);
 		PRF_FLAGS(d->character).set(EPrf::kGoAhead); //IAC GA

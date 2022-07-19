@@ -5267,7 +5267,7 @@ int must_be_deleted(CharData *short_ch) {
 
 	timeout = -1;
 	for (ci = 0; ci == 0 || pclean_criteria[ci].level > pclean_criteria[ci - 1].level; ci++) {
-		if (GetRealLevel(short_ch) <= pclean_criteria[ci].level) {
+		if (short_ch->GetLevel() <= pclean_criteria[ci].level) {
 			timeout = pclean_criteria[ci].days;
 			break;
 		}
