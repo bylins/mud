@@ -5431,7 +5431,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 void do_worldecho(char *msg) {
 	for (auto d = descriptor_list; d; d = d->next) {
 		if (STATE(d) == CON_PLAYING) {
-			SendMsgToChar(msg, d->character.get());
+			SendMsgToChar(d->character.get(), "%s\r\n", msg);
 		}
 	}
 }

@@ -27,7 +27,7 @@
 #include "conf.h"
 #include "config.h"
 #include "entities/entities_constants.h"
-#include "utils/pugixml/pugixml.h"
+//#include "utils/pugixml/pugixml.h"
 #include "structs/structs.h"
 #include "game_mechanics/weather.h"
 #include "utils_string.h"
@@ -1471,8 +1471,9 @@ class StreamFlagsHolder {
 /**
  *  Напечатать число в виде строки с разделителем разрядов.
  *  @param num  - обрабатываемоле число.
+ *  @param separator - разделитель разрядов.
  */
-std::string PrintNumberByDigits(long long num);
+std::string PrintNumberByDigits(long long num, const char separator = ' ');
 
 #endif // UTILS_H_
 

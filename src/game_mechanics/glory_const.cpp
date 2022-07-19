@@ -16,7 +16,7 @@
 
 #include "utils/logger.h"
 #include "utils/utils.h"
-#include "utils/pugixml/pugixml.h"
+#include "third_party_libs/pugixml/pugixml.h"
 #include "structs/structs.h"
 #include "color.h"
 #include "entities/char_data.h"

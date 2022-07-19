@@ -13,7 +13,6 @@ void go_protect(CharData *ch, CharData *vict) {
 		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
-
 	ch->set_protecting(vict);
 	act("Вы попытаетесь прикрыть $N3 от нападения.", false, ch, 0, vict, kToChar);
 	SET_AF_BATTLE(ch, kEafProtect);
@@ -24,7 +23,7 @@ void do_protect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!*arg) {
 		if (ch->get_protecting()) {
 			CLR_AF_BATTLE(ch, kEafProtect);
-			ch->set_protecting(0);
+			ch->remove_protecting();
 			SendMsgToChar("Вы перестали прикрывать своего товарища.\r\n", ch);
 		} else {
 			SendMsgToChar("Вы никого не прикрываете.\r\n", ch);
@@ -110,7 +109,7 @@ CharData *TryToFindProtector(CharData *victim, CharData *ch) {
 					victim,
 					kToChar);
 				act("$N пытается напасть на вас! Лучше бы вам отойти.", false, victim, 0, vict, kToChar);
-				vict->set_protecting(0);
+				vict->remove_protecting();
 				vict->battle_affects.unset(kEafProtect);
 				SetWaitState(vict, kPulseViolence);
 				Affect<EApply> af;

@@ -138,7 +138,7 @@ set(SOURCES
 		src/game_fight/pk.cpp
 		src/entities/player_races.cpp
 		src/administration/privilege.cpp
-		src/utils/pugixml/pugixml.cpp
+        src/third_party_libs/pugixml/pugixml.cpp
 		src/game_quests/quested.cpp
 		src/utils/random.cpp
 		src/olc/redit.cpp
@@ -451,8 +451,8 @@ set(HEADERS
 		src/entities/player_i.h
 		src/entities/player_races.h
 		src/administration/privilege.h
-		src/utils/pugixml/pugiconfig.h
-		src/utils/pugixml/pugixml.h
+        src/third_party_libs/pugixml/pugiconfig.h
+        src/third_party_libs/pugixml/pugixml.h
 		src/game_quests/quested.h
 		src/utils/random.h
 		src/communication/remember.h
@@ -540,7 +540,7 @@ set(HEADERS
 		src/feats_constants.h
 		src/game_abilities/talents_actions.h)
 
-set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
+set(CONFIGURATION_FILES lib/misc/configuration.xml)
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)
 if (NOT MSVC)
@@ -663,21 +663,21 @@ add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/src/version.cpp
 set_target_properties(versioning PROPERTIES FOLDER "Utility targets")
 
 set(CRAFT_TAILORING_FILES
-	lib.template/misc/craft/tailoring/index.xml)
+	lib/misc/craft/tailoring/index.xml)
 set(CRAFT_GENERAL_FILES
-	lib.template/misc/craft/index.xml)
+	lib/misc/craft/index.xml)
 set(CRAFT_MATERIAL_FILES
-	lib.template/misc/craft/tough_leather.xml
-	lib.template/misc/craft/soft_leather.xml
-	lib.template/misc/craft/inwrought_flax.xml)
+	lib/misc/craft/tough_leather.xml
+	lib/misc/craft/soft_leather.xml
+	lib/misc/craft/inwrought_flax.xml)
 set(CRAFT_RECIPE_FILES
-	lib.template/misc/craft/recipe1.xml)
+	lib/misc/craft/recipe1.xml)
 set(CRAFT_CRAFT_FILES
-	lib.template/misc/craft/craft1.xml)
+	lib/misc/craft/craft1.xml)
 set(CRAFT_TEMPLATE_FILES
-	lib.template/misc/craft/material_template.xml
-	lib.template/misc/craft/prototype_template.xml
-	lib.template/misc/craft/recipe_template.xml)
+	lib/misc/craft/material_template.xml
+	lib/misc/craft/prototype_template.xml
+	lib/misc/craft/recipe_template.xml)
 set(CRAFT_PROTOTYPES)
 set(CRAFT_SOURCE_FILES
 		src/game_crafts/craft_commands.cpp
@@ -710,9 +710,9 @@ set(CRAFT_FILES
 	${CRAFT_HEADER_FILES})
 
 set(MISC_FILES
-	lib.template/misc/noob_help.xml
-	lib.template/misc/configuration.xml
-	lib.template/misc/grouping)
+	lib/misc/noob_help.xml
+	lib/misc/configuration.xml
+	lib/misc/grouping)
 
 source_group("Misc" FILES ${MISC_FILES})
 
@@ -740,8 +740,12 @@ add_dependencies(circle.library versioning changelog)
 # Linfort integration
 # Disable building tests and examples in libfort project
 set(FORT_ENABLE_TESTING OFF CACHE INTERNAL "")
-add_subdirectory(src/utils/libfort)
+add_subdirectory(src/third_party_libs/libfort)
 target_link_libraries(circle.library fort)
+
+#fmt inegration
+add_subdirectory(src/third_party_libs/fmt)
+target_link_libraries(circle.library fmt::fmt)
 
 # Boost
 set(BOOST_MODULES ${BOOST_PYTHON_MODULE} system filesystem)

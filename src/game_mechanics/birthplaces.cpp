@@ -2,7 +2,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "utils/utils.h"
-#include "utils/pugixml/pugixml.h"
+#include "third_party_libs/pugixml/pugixml.h"
 
 const char *DEFAULT_RENT_HELP = "Попроси нашего кладовщика помочь тебе с экипировкой и припасами.";
 

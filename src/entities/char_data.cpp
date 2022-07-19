@@ -182,7 +182,7 @@ void CharData::reset() {
 	in_room = kNowhere;
 	carrying = nullptr;
 	next_fighting = nullptr;
-	set_protecting(nullptr);
+	remove_protecting();
 	set_touching(nullptr);
 	battle_affects = clear_flags;
 	poisoner = 0;
@@ -405,7 +405,15 @@ void CharData::purge() {
 	if (!get_name().empty()) {
 		log("[FREE CHAR] (%s)", GET_NAME(this));
 	}
-
+	if (this->who_protecting()) {
+//		std::stringstream ss;
+//		ss << "Чар " << GET_PAD(this ,0) <<  " выходит из игры его прикрывал " << GET_PAD(this->who_protecting(), 0) << std::endl; 
+		if (this == this->who_protecting()->get_protecting()) {
+//			ss << "Совпал прикрывающий и упавший в лд снимаю флаг прикрышки" << std::endl;
+			this->who_protecting()->remove_protecting();
+		}
+//		mudlog(ss.str(), CMP, kLvlImmortal, SYSLOG, true);
+	}
 	int i, id = -1;
 	struct alias_data *a;
 
@@ -719,10 +727,19 @@ CharData *CharData::get_touching() const {
 
 void CharData::set_protecting(CharData *vict) {
 	protecting_ = vict;
+	vict->who_protecting_ = this;
+}
+
+void CharData::remove_protecting() {
+	protecting_ = nullptr;
 }
 
 CharData *CharData::get_protecting() const {
 	return protecting_;
+}
+
+CharData *CharData::who_protecting() const {
+	return who_protecting_;
 }
 
 void CharData::SetEnemy(CharData *enemy) {
@@ -874,7 +891,7 @@ void change_fighting(CharData *ch, int need_stop) {
 	for (const auto &k : world[ch->in_room]->people) {
 
 		if (k->get_protecting() == ch) {
-			k->set_protecting(0);
+			k->remove_protecting();
 			CLR_AF_BATTLE(k, kEafProtect);
 		}
 //		log("change_fighting protecting %f", time.delta().count());
@@ -1942,7 +1959,7 @@ void CharData::restore_npc() {
 	//флаги
 	MOB_FLAGS(this) = MOB_FLAGS(proto);
 	this->set_touching(nullptr);
-	this->set_protecting(nullptr);
+	this->remove_protecting();
 	// ресторим статы
 	proto->set_normal_morph();
 	this->set_str(GetRealStr(proto));

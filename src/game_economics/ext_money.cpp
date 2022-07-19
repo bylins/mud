@@ -6,7 +6,7 @@
 
 #include "entities/char_data.h"
 #include "color.h"
-#include "utils/pugixml/pugixml.h"
+#include "third_party_libs/pugixml/pugixml.h"
 
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>

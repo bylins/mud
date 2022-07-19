@@ -1238,7 +1238,7 @@ SkillRollResult MakeSkillTest(CharData *ch, ESkill skill_id, CharData *vict) {
 }
 
 void SendSkillRollMsg(CharData *ch, CharData *victim, ESkill skill_id,
-	int actor_rate, int victim_rate, int threshold, int roll, SkillRollResult &result) {
+	int actor_rate, int victim_rate, int /*threshold*/, int roll, SkillRollResult &result) {
 	std::stringstream buffer;
 	buffer << KICYN
 		   << "Skill: '" << MUD::Skill(skill_id).name << "'"

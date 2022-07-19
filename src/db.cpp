@@ -5143,7 +5143,7 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	// Убираем все заученные порталы
 	check_portals(ch);
 	if (ch->get_protecting()) {
-		ch->set_protecting(0);
+		ch->remove_protecting();
 		ch->battle_affects.unset(kEafProtect);
 	}
 

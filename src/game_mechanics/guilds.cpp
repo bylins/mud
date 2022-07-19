@@ -4,50 +4,18 @@
 \brief Модуль механики учителей умений/заклинаний/способностей.
 */
 
-#include "guilds.h"
+//#include "guilds.h"
 
-#include "boot/boot_constants.h"
+#include <third_party_libs/fmt/format.h>
+
 #include "color.h"
 #include "game_mechanics/glory_const.h"
 #include "game_magic/magic_utils.h"
-#include "game_magic/spells_info.h"
 #include "game_magic/magic_temp_spells.h"
 #include "structs/global_objects.h"
 
 typedef int special_f(CharData *, void *, int, char *);
 extern void ASSIGNMASTER(MobVnum mob, special_f, int learn_info);
-
-int DoGuildLearn(CharData *ch, void *me, int cmd, char *argument) {
-	if (ch->IsNpc()) {
-		return 0;
-	}
-	if (!CMD_IS("учить") && !CMD_IS("practice")) {
-		return 0;
-	}
-
-	/*
-	 *  Это не слишком красиво, потому что кто-нибудь может затереть поле stored в индексе и гильдия перестанет работать,
-	 *  но позволяет не искать каждый раз тренера по всем гильдиям. По уму, нужно, чтобы поле stored как-то конструировалось
-	 *  в комплекте с самой спецфункцией, и независимо его нельзя было бы перезаписать.
-	 */
-	auto *trainer = (CharData *) me;
-	Vnum guild_vnum{-1};
-	if (auto rnum = trainer->get_rnum(); rnum >= 0) {
-		guild_vnum = mob_index[rnum].stored;
-	}
-	const auto &guild = MUD::Guild(guild_vnum);
-
-	if (guild.GetId() < 0) {
-		act("$N сказал$G : 'Извини, $n, я уже в отставке.'", false, ch, nullptr, trainer, kToChar);
-		err_log("try to call DoGuildLearn wuthout assigned guild vnum.");
-		return 0;
-	}
-
-	std::string params{argument};
-	utils::Trim(params);
-	guild.Process(trainer, ch, params);
-	return 1;
-}
 
 namespace guilds {
 
@@ -66,40 +34,6 @@ void GuildsLoader::Reload(DataNode data) {
 void GuildsLoader::AssignGuildsToTrainers() {
 	for (const auto &guild: MUD::Guilds()) {
 		guild.AssignToTrainers();
-	}
-}
-
-const std::string &GuildInfo::GetMessage(EGuildMsg msg_id) {
-	static const std::unordered_map<EGuildMsg, std::string> guild_msgs = {
-		{EGuildMsg::kGreeting, "$N сказал$G: 'Я могу научить тебя следующему:'"},
-		{EGuildMsg::kDidNotTeach, "$N уставил$U на $n3 и прорычал$G: 'Я никогда и никого ЭТОМУ не учил$G!'"},
-		{EGuildMsg::kInquiry, "$n о чем-то спросил$g $N3."},
-		{EGuildMsg::kCannotToChar, "$N сказал$G: 'Я не могу тебя этому научить'."},
-		{EGuildMsg::kCannotToRoom, "$N сказал$G $n2: 'Я не могу тебя этому научить'."},
-		{EGuildMsg::kAskToChar, "Вы попросились в обучение к $N2."},
-		{EGuildMsg::kAskToRoom, "$n попросил$u в ученики к $N2."},
-		{EGuildMsg::kLearnToChar, "Вы получили несколько уроков и мудрых советов от $N1."},
-		{EGuildMsg::kLearnToRoom, "$N дал$G $n2 несколько наставлений."},
-		{EGuildMsg::kAllSkills,
-		 "$N сказал$G: '$n, нельзя научиться всем умениям или способностям сразу. Выбери необходимые!'"},
-		{EGuildMsg::kTalentEarned, "Под наставничеством $N1 вы изучили "},
-		{EGuildMsg::kNothingLearned, "$N ничему новому вас не научил$G."},
-		{EGuildMsg::kListEmpty, "$N сказал$G : 'Похоже, $n, я не смогу тебе помочь'."},
-		{EGuildMsg::kIsInsolvent,
-		 "$N сказал$G : 'Вот у меня забот нет - голодранцев наставлять! Иди-ка, $n, подзаработай сначала!"},
-		{EGuildMsg::kFree, "бесплатно"},
-		{EGuildMsg::kTemporary, "временно"},
-		{EGuildMsg::kYouGive, "Вы дали "},
-		{EGuildMsg::kSomeoneGive, "$n дал$g "},
-		{EGuildMsg::kFailToChar, "...но все уроки влетели вам в одно ухо, да вылетели в другое."},
-		{EGuildMsg::kFailToRoom, "...но, судя по осовелому взгляду $n1, наука $N1 не пошла $m впрок."},
-		{EGuildMsg::kError, "У кодера какие-то проблемы."},
-	};
-
-	if (guild_msgs.contains(msg_id)) {
-		return guild_msgs.at(msg_id);
-	} else {
-		return guild_msgs.at(EGuildMsg::kError);
 	}
 }
 
@@ -157,6 +91,73 @@ void GuildInfoBuilder::ParseTalents(ItemPtr &info, DataNode &node) {
 	}
 }
 
+const std::string &GuildInfo::GetMsg(EMsg msg_id) {
+	static const std::unordered_map<EMsg, std::string> guild_msgs = {
+		{EMsg::kGreeting, "$N сказал$G: 'Я могу научить тебя следующему:'"},
+		{EMsg::kDischarge, "$N сказал$G : 'Извини, $n, я уже в отставке.'"},
+		{EMsg::kDidNotTeach, "$N уставил$U на $n3 и прорычал$G: 'Я никогда и никого ЭТОМУ не учил$G!'"},
+		{EMsg::kInquiry, "$n о чем-то спросил$g $N3."},
+		{EMsg::kCannotToChar, "$N сказал$G: 'Я не могу тебя этому научить'."},
+		{EMsg::kCannotToRoom, "$N сказал$G $n2: 'Я не могу тебя этому научить'."},
+		{EMsg::kAskToChar, "Вы попросились в обучение к $N2."},
+		{EMsg::kAskToRoom, "$n попросил$u в ученики к $N2."},
+		{EMsg::kLearnToChar, "Вы получили несколько уроков и мудрых советов от $N1."},
+		{EMsg::kLearnToRoom, "$N дал$G $n2 несколько наставлений."},
+		{EMsg::kAllSkills,
+		 "$N сказал$G: '$n, нельзя научиться всем умениям или способностям сразу. Выбери необходимые!'"},
+		{EMsg::kTalentEarned, "Под наставничеством $N1 вы изучили {} {}'{}'{}."},
+		{EMsg::kNothingLearned, "$N ничему новому вас не научил$G."},
+		{EMsg::kListEmpty, "$N сказал$G : 'Похоже, $n, я не смогу тебе помочь'."},
+		{EMsg::kIsInsolvent,
+		 "$N сказал$G : 'Вот у меня забот нет - голодранцев наставлять! Иди-ка, $n, подзаработай сначала!"},
+		{EMsg::kFree, "бесплатно"},
+		{EMsg::kTemporary, "временно"},
+		{EMsg::kYouGiveMoney, "Вы дали {} $N2."},
+		{EMsg::kSomeoneGivesMoney, "$n дал$g {} $N2."},
+		{EMsg::kFailToChar, "...но все уроки влетели вам в одно ухо, да вылетели в другое."},
+		{EMsg::kFailToRoom, "...но, судя по осовелому взгляду $n1, наука $N1 не пошла $m впрок."},
+		{EMsg::kError, "У кодера какие-то проблемы."},
+	};
+
+	if (guild_msgs.contains(msg_id)) {
+		return guild_msgs.at(msg_id);
+	} else {
+		return guild_msgs.at(EMsg::kError);
+	}
+}
+
+int GuildInfo::DoGuildLearn(CharData *ch, void *me, int cmd, char *argument) {
+	if (ch->IsNpc()) {
+		return 0;
+	}
+	if (!CMD_IS("учить") && !CMD_IS("practice")) {
+		return 0;
+	}
+
+	/*
+	 *  Это не слишком красиво, потому что кто-нибудь может затереть поле stored в индексе и гильдия перестанет работать,
+	 *  но позволяет не искать каждый раз тренера по всем гильдиям. По уму, нужно, чтобы поле stored как-то конструировалось
+	 *  в комплекте с самой спецфункцией, и независимо его нельзя было бы перезаписать.
+	 */
+	auto *trainer = (CharData *) me;
+	Vnum guild_vnum{-1};
+	if (auto rnum = trainer->get_rnum(); rnum >= 0) {
+		guild_vnum = mob_index[rnum].stored;
+	}
+	const auto &guild = MUD::Guild(guild_vnum);
+
+	if (guild.GetId() < 0) {
+		act(GetMsg(EMsg::kDischarge), false, ch, nullptr, trainer, kToChar);
+		err_log("try to call DoGuildLearn wuthout assigned guild vnum.");
+		return 0;
+	}
+
+	std::string params{argument};
+	utils::Trim(params);
+	guild.Process(trainer, ch, params);
+	return 1;
+}
+
 void GuildInfo::AssignToTrainers() const {
 	for (const auto trainer_vnum: trainers_) {
 		ASSIGNMASTER(trainer_vnum, DoGuildLearn, GetId());
@@ -169,7 +170,7 @@ void GuildInfo::Process(CharData *trainer, CharData *ch, std::string &argument) 
 		return;
 	}
 
-	act(GetMessage(EGuildMsg::kInquiry), false, ch, nullptr, trainer, kToRoom);
+	act(GetMsg(EMsg::kInquiry), false, ch, nullptr, trainer, kToRoom);
 
 	if (utils::IsAbbrev(argument, "все") || utils::IsAbbrev(argument, "all")) {
 		LearnAll(trainer, ch);
@@ -200,25 +201,25 @@ void GuildInfo::DisplayMenu(CharData *trainer, CharData *ch) const {
 
 		auto price = talent->CalcPrice(ch);
 		if (price) {
-			table << PrintNumberByDigits(price) << talent->GetPriceCurrencyStr(price);
+			table << price << talent->GetPriceCurrencyStr(price);
 		} else {
-			table << "--" << GetMessage(EGuildMsg::kFree);
+			table << "--" << GetMsg(EMsg::kFree);
 		}
 		table << talent->GetAnnotation(ch);
 		table << table_wrapper::kEndRow;
 	}
 
-	act(GetMessage(EGuildMsg::kAskToChar), false, ch, nullptr, trainer, kToChar);
-	act(GetMessage(EGuildMsg::kAskToRoom), false, ch, nullptr, trainer, kToRoom);
+	act(GetMsg(EMsg::kAskToChar), false, ch, nullptr, trainer, kToChar);
+	act(GetMsg(EMsg::kAskToRoom), false, ch, nullptr, trainer, kToRoom);
 	if (count) {
-		act(GetMessage(EGuildMsg::kGreeting), false, ch, nullptr, trainer, kToChar);
+		act(GetMsg(EMsg::kGreeting), false, ch, nullptr, trainer, kToChar);
 		table_wrapper::DecorateNoBorderTable(ch, table);
 		table_wrapper::PrintTableToStream(out, table);
-		out << std::endl;
+		out << "\n";
 		SendMsgToChar(out.str(), ch);
 	} else {
-		act(GetMessage(EGuildMsg::kListEmpty), false, ch, nullptr, trainer, kToChar);
-		act(GetMessage(EGuildMsg::kListEmpty), false, ch, nullptr, trainer, kToRoom);
+		act(GetMsg(EMsg::kListEmpty), false, ch, nullptr, trainer, kToChar);
+		act(GetMsg(EMsg::kListEmpty), false, ch, nullptr, trainer, kToRoom);
 	}
 }
 
@@ -238,8 +239,8 @@ void GuildInfo::LearnWithTalentNum(CharData *trainer, CharData *ch, std::size_t 
 		}
 	}
 
-	act(GetMessage(EGuildMsg::kCannotToChar), false, ch, nullptr, trainer, kToChar);
-	act(GetMessage(EGuildMsg::kCannotToRoom), false, ch, nullptr, trainer, kToRoom);
+	act(GetMsg(EMsg::kCannotToChar), false, ch, nullptr, trainer, kToChar);
+	act(GetMsg(EMsg::kCannotToRoom), false, ch, nullptr, trainer, kToRoom);
 }
 
 void GuildInfo::LearnWithTalentName(CharData *trainer, CharData *ch, const std::string &talent_name) const {
@@ -258,15 +259,15 @@ void GuildInfo::LearnWithTalentName(CharData *trainer, CharData *ch, const std::
 	if (result != learning_talents_.end()) {
 		LearnSingle(trainer, ch, *result);
 	} else {
-		act(GetMessage(EGuildMsg::kListEmpty), false, ch, nullptr, trainer, kToChar);
-		act(GetMessage(EGuildMsg::kListEmpty), false, ch, nullptr, trainer, kToRoom);
+		act(GetMsg(EMsg::kListEmpty), false, ch, nullptr, trainer, kToChar);
+		act(GetMsg(EMsg::kListEmpty), false, ch, nullptr, trainer, kToRoom);
 	}
 }
 
 void GuildInfo::LearnSingle(CharData *trainer, CharData *ch, const TalentPtr &talent) {
 	if (ProcessPayment(trainer, ch, talent)) {
-		act(GetMessage(EGuildMsg::kLearnToChar), false, ch, nullptr, trainer, kToChar);
-		act(GetMessage(EGuildMsg::kLearnToRoom), false, ch, nullptr, trainer, kToRoom);
+		act(GetMsg(EMsg::kLearnToChar), false, ch, nullptr, trainer, kToChar);
+		act(GetMsg(EMsg::kLearnToRoom), false, ch, nullptr, trainer, kToRoom);
 		Learn(trainer, ch, talent);
 	}
 }
@@ -285,8 +286,8 @@ void GuildInfo::LearnAll(CharData *trainer, CharData *ch) const {
 		}
 		if (ProcessPayment(trainer, ch, talent)) {
 			if (need_msg) {
-				act(GetMessage(EGuildMsg::kLearnToChar), false, ch, nullptr, trainer, kToChar);
-				act(GetMessage(EGuildMsg::kLearnToRoom), false, ch, nullptr, trainer, kToRoom);
+				act(GetMsg(EMsg::kLearnToChar), false, ch, nullptr, trainer, kToChar);
+				act(GetMsg(EMsg::kLearnToRoom), false, ch, nullptr, trainer, kToRoom);
 				need_msg = false;
 			}
 			Learn(trainer, ch, talent);
@@ -297,55 +298,53 @@ void GuildInfo::LearnAll(CharData *trainer, CharData *ch) const {
 	}
 
 	if (!skill_feat_count && !spell_count) {
-		act(GetMessage(EGuildMsg::kNothingLearned), false, ch, nullptr, trainer, kToChar);
-		act(GetMessage(EGuildMsg::kDidNotTeach), false, ch, nullptr, trainer, kToRoom);
+		act(GetMsg(EMsg::kNothingLearned), false, ch, nullptr, trainer, kToChar);
+		act(GetMsg(EMsg::kDidNotTeach), false, ch, nullptr, trainer, kToRoom);
 	} else if (skill_feat_count && !spell_count) {
-		act(GetMessage(EGuildMsg::kAllSkills), false, ch, nullptr, trainer, kToChar);
-		act(GetMessage(EGuildMsg::kAllSkills), false, ch, nullptr, trainer, kToRoom);
+		act(GetMsg(EMsg::kAllSkills), false, ch, nullptr, trainer, kToChar);
+		act(GetMsg(EMsg::kAllSkills), false, ch, nullptr, trainer, kToRoom);
 	}
 }
 
 void GuildInfo::Learn(CharData *trainer, CharData *ch, const TalentPtr &talent) {
 	if (talent->IsLearningFailed()) {
-		act(GetMessage(EGuildMsg::kFailToChar), false, ch, nullptr, trainer, kToChar);
-		act(GetMessage(EGuildMsg::kFailToRoom), false, ch, nullptr, trainer, kToRoom);
+		act(GetMsg(EMsg::kFailToChar), false, ch, nullptr, trainer, kToChar);
+		act(GetMsg(EMsg::kFailToRoom), false, ch, nullptr, trainer, kToRoom);
 	} else {
-		std::ostringstream out;
-		out << GetMessage(EGuildMsg::kTalentEarned) << talent->GetTalentTypeName() <<
-			KIYEL << " '" << talent->GetName() << "'" << KNRM << ".";
-		act(out.str(), false, ch, nullptr, trainer, kToChar);
+		auto out = fmt::format(GetMsg(EMsg::kTalentEarned),
+							   talent->GetTalentTypeName(), KIYEL, talent->GetName(), KNRM);
+		act(out, false, ch, nullptr, trainer, kToChar);
 		talent->SetTalent(ch);
 	}
 };
 
 bool GuildInfo::ProcessPayment(CharData *trainer, CharData *ch, const TalentPtr &talent) {
 	if (!talent->TakePayment(ch)) {
-		act(GetMessage(EGuildMsg::kIsInsolvent), false, ch, nullptr, trainer, kToChar);
-		act(GetMessage(EGuildMsg::kIsInsolvent), false, ch, nullptr, trainer, kToRoom);
+		act(GetMsg(EMsg::kIsInsolvent), false, ch, nullptr, trainer, kToChar);
+		act(GetMsg(EMsg::kIsInsolvent), false, ch, nullptr, trainer, kToRoom);
 		return false;
 	}
 
 	auto price = talent->CalcPrice(ch);
 	if (price > 0) {
 		auto description = MUD::Currency(talent->GetCurrencyId()).GetObjName(price, ECase::kAcc);
-		std::ostringstream out;
-
-		out << GetMessage(EGuildMsg::kYouGive) << description << " $N2.";
-		act(out.str(), false, ch, nullptr, trainer, kToChar);
-
-		out.str(std::string());
-		out << GetMessage(EGuildMsg::kSomeoneGive) << description << " $N2.";
-		act(out.str(), false, ch, nullptr, trainer, kToRoom);
+		act(fmt::format(GetMsg(EMsg::kYouGiveMoney), description),
+			false, ch, nullptr, trainer, kToChar);
+		act(fmt::format(GetMsg(EMsg::kSomeoneGivesMoney), description),
+			false, ch, nullptr, trainer, kToRoom);
 	}
 
 	return true;
 }
 
 void GuildInfo::Print(CharData *ch, std::ostringstream &buffer) const {
-	buffer << "Print guild:" << std::endl
-		   << " Vnum: " << KGRN << GetId() << KNRM << std::endl
-		   << " TextId: " << KGRN << GetTextId() << KNRM << std::endl
-		   << " Name: " << KGRN << name_ << KNRM << std::endl;
+/*	buffer << fmt::format("Print guild:\n Vnum: {grn}{}{nrm} \n TextId: {grn}{}{nrm}\n Name: {grn}{}{nrm}\n",
+				    GetId(), GetTextId(), name_, fmt::arg("grn", KGRN), fmt::arg("nrm", KNRM));*/
+
+	buffer << "Print guild:" << "\n"
+		   << " Vnum: " << KGRN << GetId() << KNRM << "\n"
+		   << " TextId: " << KGRN << GetTextId() << KNRM << "\n"
+		   << " Name: " << KGRN << name_ << KNRM << "\n";
 
 	if (!trainers_.empty()) {
 		buffer << " Trainers vnums: " << KGRN;
@@ -353,11 +352,11 @@ void GuildInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 			buffer << vnum << ", ";
 		}
 		buffer.seekp(-2, std::ios_base::end);
-		buffer << "." << KNRM << std::endl;
+		buffer << "." << KNRM << "\n";
 	}
 
 	if (!learning_talents_.empty()) {
-		buffer << " Trained talents: " << std::endl;
+		buffer << " Trained talents: " << "\n";
 		table_wrapper::Table table;
 		table << table_wrapper::kHeader
 			<< "Id" << "Name" << "Currency" << "Annotation" << "Fail" << "Class" << table_wrapper::kEndRow;
@@ -374,7 +373,7 @@ void GuildInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 		table_wrapper::PrintTableToStream(buffer, table);
 	}
 
-	buffer << std::endl;
+	buffer << "\n";
 }
 
 bool GuildInfo::IGuildTalent::IsLearnable(CharData *ch) const {
@@ -385,18 +384,20 @@ bool GuildInfo::IGuildTalent::IsLearnable(CharData *ch) const {
 }
 
 std::string GuildInfo::IGuildTalent::GetClassesList() const {
-	std::ostringstream buffer;
 	if (!trained_classes_.empty()) {
+		auto out = fmt::memory_buffer();
 		for (const auto class_id: trained_classes_) {
-			buffer << NAME_BY_ITEM(class_id) << ", ";
+			if (out.size()) {
+				format_to(std::back_inserter(out), ", {}", NAME_BY_ITEM(class_id));
+			} else {
+				format_to(std::back_inserter(out), "{}", NAME_BY_ITEM(class_id));
+			}
 		}
-		buffer.seekp(-2, std::ios_base::end);
-		buffer << ".";
+		format_to(std::back_inserter(out), ".");
+		return to_string(out);
 	} else {
-		buffer << "all";
+		return "all";
 	}
-
-	return buffer.str();
 }
 
 GuildInfo::IGuildTalent::IGuildTalent(ETalent talent_type, DataNode &node) {
@@ -439,7 +440,7 @@ std::string GuildInfo::IGuildTalent::GetPriceCurrencyStr(long price) const {
 	if (currency_vnum_ != info_container::kUndefinedVnum) {
 		return MUD::Currency(currency_vnum_).GetNameWithAmount(price);
 	} else {
-		return GetMessage(EGuildMsg::kError);
+		return GetMsg(EMsg::kError);
 	}
 }
 
@@ -485,7 +486,8 @@ std::string_view GuildInfo::GuildSkill::GetName() const {
 }
 
 int GuildInfo::GuildSkill::CalcGuildSkillCap(CharData *ch) const {
-	return std::min(ch->GetTrainedSkill(id_) + practices_, std::min(CalcSkillHardCap(ch, id_), max_skill_));
+	return std::min(ch->GetTrainedSkill(id_) + practices_,
+					std::min(CalcSkillHardCap(ch, id_), max_skill_));
 }
 
 int GuildInfo::GuildSkill::CalcPracticesQuantity(CharData *ch) const {
@@ -498,7 +500,8 @@ long GuildInfo::GuildSkill::CalcPrice(CharData *buyer) const {
 
 bool GuildInfo::GuildSkill::IsAvailable(CharData *ch) const {
 	auto skill = ch->GetTrainedSkill(id_);
-	return CanGetSkill(ch, id_) && skill >= min_skill_ && skill < max_skill_ && skill < CalcSkillHardCap(ch, id_);
+	return CanGetSkill(ch, id_) && skill >= min_skill_ &&
+		skill < max_skill_ && skill < CalcSkillHardCap(ch, id_);
 }
 
 void GuildInfo::GuildSkill::SetTalent(CharData *ch) const {
@@ -506,9 +509,7 @@ void GuildInfo::GuildSkill::SetTalent(CharData *ch) const {
 }
 
 std::string GuildInfo::GuildSkill::GetAnnotation(CharData *ch) const {
-	std::ostringstream out;
-	out << min_skill_ << "-" << max_skill_ << " (+" << CalcPracticesQuantity(ch) << ")";
-	return out.str();
+	return fmt::format("{}-{} (+{})", min_skill_, max_skill_, CalcPracticesQuantity(ch));
 }
 
 void GuildInfo::GuildSpell::ParseSpellNode(DataNode &node) {
@@ -542,10 +543,8 @@ void GuildInfo::GuildSpell::SetTalent(CharData *ch) const {
 
 std::string GuildInfo::GuildSpell::GetAnnotation(CharData * /*ch*/) const {
 	if (spell_type_ == ESpellType::kTemp) {
-		std::ostringstream out;
-		out << GetMessage(EGuildMsg::kTemporary) << " ("
-			<< FormatTimeToStr(spell_time_sec_/kSecsPerRealMin) << ")";
-		return out.str();
+		return fmt::format("{} ({})",
+						   GetMsg(EMsg::kTemporary), FormatTimeToStr(spell_time_sec_/kSecsPerRealMin));
 	}
 	return "";
 }

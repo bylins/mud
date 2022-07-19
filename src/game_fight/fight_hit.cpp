@@ -1977,9 +1977,6 @@ bool Damage::dam_absorb(CharData *ch, CharData *victim) {
 			}
 		}
 	}
-	if (flags[fight::kIgnoreAbsorbe]) {
-		SendMsgToChar(ch, "Вы игнорируете поглощение.\r\n");
-	}
 	if (dmg_type == fight::kMagicDmg
 		&& dam > 0
 		&& GET_ABSORBE(victim) > 0
@@ -2298,8 +2295,6 @@ int Damage::Process(CharData *ch, CharData *victim) {
 				dam /= 2;
 			}
 		}
-		if (flags[fight::kIgnoreSanct])
-			SendMsgToChar(ch, "Вы игнорируете освящение.\r\n");
 		if (AFF_FLAGGED(victim, EAffect::kSanctuary) && !flags[fight::kIgnoreSanct] &&
 			!(skill_id == ESkill::kBackstab && CanUseFeat(ch, EFeat::kThieveStrike))) {
 			if (dmg_type == fight::kPhysDmg) {
@@ -2391,9 +2386,6 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	if (victim != ch) {
 		bool shield_full_absorb = magic_shields_dam(ch, victim);
 		// сначала броня
-		if (flags[fight::kIgnoreArmor]) {
-			SendMsgToChar(ch, "Вы игнорируете броню.\r\n");
-		}
 		armor_dam_reduce(victim);
 		// потом абсорб
 		bool armor_full_absorb = dam_absorb(ch, victim);
@@ -3620,7 +3612,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		int max_rnd = hit_params.dam + hit_params.dam / 4;
 		hit_params.dam = MAX(1, number(min_rnd, max_rnd));
 	}
-	if (hit_params.skill_num  == ESkill::kUndefined) { //автоатака, в скиллах все от удачи
+	if (hit_params.skill_num  == ESkill::kUndefined && !hit_params.get_flags()[fight::kCritLuck]) { //автоатака
 		const int victim_lvl_miss = GetRealLevel(victim) + GetRealRemort(victim);
 		const int ch_lvl_miss = GetRealLevel(ch) + GetRealRemort(ch);
 

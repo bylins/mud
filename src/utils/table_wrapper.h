@@ -23,7 +23,7 @@
 #ifndef BYLINS_SRC_UTILS_TABLE_WRAPPER_H_
 #define BYLINS_SRC_UTILS_TABLE_WRAPPER_H_
 
-#include "utils/libfort/fort.hpp"
+#include "third_party_libs/libfort/fort.hpp"
 
 class CharData;
 
@@ -110,7 +110,7 @@ void DecorateServiceTable(CharData *ch, Table &table);
 void DecorateCuteTable(CharData *ch, Table &table);
 
 /**
- * Оформить таблицу в стиле "зебры".
+ * Оформить таблицу в стиле "зебра".
  * Каждая вторая строка, не считая заголовка, имеет фон указаного цвета.
  * @param ch - персонаж, для которого формируется таблица.
  * @param table - оформляемая таблица.
@@ -119,7 +119,7 @@ void DecorateCuteTable(CharData *ch, Table &table);
 void DecorateZebraTable(CharData *ch, Table &table, Color color);
 
 /**
- * Оформить таблицу в стиле текстовой "зебры".
+ * Оформить таблицу в стиле "зебра".
  * Каждая вторая строка, не считая заголовка, имеет текст указанного цвета.
  * @param ch - персонаж, для которого формируется таблица.
  * @param table - оформляемая таблица.
