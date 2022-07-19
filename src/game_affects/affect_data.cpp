@@ -209,9 +209,6 @@ void player_affect_update() {
 		for (auto affect_i = next_affect_i; affect_i != i->affected.end(); affect_i = next_affect_i) {
 			++next_affect_i;
 			const auto &affect = *affect_i;
-			if (IS_SET(affect->battleflag, kAfBattledec) && i->GetEnemy()) {
-				continue;
-			}
 			if (affect->duration >= 1) {
 				if (IS_SET(affect->battleflag, kAfSameTime) && !i->GetEnemy()) {
 					// здесь плеера могут спуржить
@@ -220,14 +217,7 @@ void player_affect_update() {
 						break;
 					}
 				}
-				sprintf(buf, "ЧАР: Спелл %s висит на %s длительносить %d\r\n", MUD::Spell(affect->type).GetCName(), GET_PAD(i, 5), affect->duration);
-				mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
-				if (ROOM_FLAGGED(i->in_room, ERoomFlag::kArena)) {
-					affect->duration -= 16;
-					affect->duration = std::max(0, affect->duration);
-				}
-				else
-					affect->duration--;
+				affect->duration--;
 			} else if (affect->duration != -1) {
 				if ((affect->type > ESpell::kUndefined) && (affect->type <= ESpell::kLast)) {
 					if (next_affect_i == i->affected.end()
@@ -254,15 +244,16 @@ void player_affect_update() {
 			affect_total(i.get());
 		}
 	});
-	log( "player affect update: timer %f, num players %d", timer.delta().count(), count);
+	log("player affect update: timer %f, num players %d", timer.delta().count(), count);
 }
 
 // This file update battle affects only
 void battle_affect_update(CharData *ch) {
-	utils::CExecutionTimer timer;
 	if (ch->purged()) {
 		char tmpbuf[256];
-		sprintf(tmpbuf,"WARNING: battle_affect_update ch purged. Name %s vnum %d", GET_NAME(ch), GET_MOB_VNUM(ch));
+		sprintf(tmpbuf,"WARNING: battle_affect_update ch purged. Name %s vnum %d", 
+				GET_NAME(ch),
+				GET_MOB_VNUM(ch));
 		mudlog(tmpbuf, LGH, kLvlImmortal, SYSLOG, true);
 		return;
 	}
@@ -326,13 +317,15 @@ void battle_affect_update(CharData *ch) {
 			ch->affect_remove(affect_i);
 		}
 	}
+
 	affect_total(ch);
-	log( "battle affect update: timer %f", timer.delta().count());
 }
 
 void mobile_affect_update() {
 	utils::CExecutionTimer timer;
-	character_list.foreach_on_copy([](const CharData::shared_ptr &i) {
+	int count = 0;
+	character_list.foreach_on_copy([&count](const CharData::shared_ptr &i) {
+		count++;
 		int was_charmed = false, charmed_msg = false;
 		bool was_purged = false;
 
@@ -352,8 +345,7 @@ void mobile_affect_update() {
 							break;
 						}
 					}
-					sprintf(buf, "МОБ: Спелл %s висит на %s длительносить %d\r\n", MUD::Spell(affect->type).GetCName(), GET_PAD(i, 5), affect->duration);
-					mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+
 					affect->duration--;
 					if (affect->type == ESpell::kCharm && !charmed_msg && affect->duration <= 1) {
 						act("$n начал$g растерянно оглядываться по сторонам.",
@@ -388,7 +380,7 @@ void mobile_affect_update() {
 
 		if (!was_purged) {
 			affect_total(i.get());
-
+/* Это какие таймскиллы у мобов? врата? релокейт? А, знаю, опознать, нуну.. 
 			decltype(i->timed) timed_skill;
 			for (auto timed = i->timed; timed; timed = timed_skill) {
 				timed_skill = timed->next;
@@ -398,7 +390,7 @@ void mobile_affect_update() {
 					ExpireTimedSkill(i.get(), timed);
 				}
 			}
-
+/* а мобы умеют? стопудова даже обработчика нет
 			decltype(i->timed_feat) timed_feat;
 			for (auto timed = i->timed_feat; timed; timed = timed_feat) {
 				timed_feat = timed->next;
@@ -408,17 +400,19 @@ void mobile_affect_update() {
 					ExpireTimedFeat(i.get(), timed);
 				}
 			}
-
+*/
+/* а мобы ходят в дт????? Если да то зачем им полная процедура как у плеера?
 			if (deathtrap::check_death_trap(i.get())) {
 				return;
 			}
-
+*/
 			if (was_charmed) {
 				stop_follower(i.get(), kSfCharmlost);
 			}
 		}
 	});
-	log("mobile affect update: timer %f", timer.delta().count());
+	log("mobile affect update: timer %f, num players %d", timer.delta().count(), count);
+
 }
 
 // Call affect_remove with every spell of spelltype "skill"
@@ -471,7 +465,7 @@ void affect_total(CharData *ch) {
 		}
 	}
 	if (domination) {
-		ch->set_remort_add(20 - ch->get_remort());
+		ch->set_remort_add(24 - ch->get_remort());
 		ch->set_level_add(30 - ch->GetLevel());
 		ch->set_str_add(ch->get_remort_add());
 		ch->set_dex_add(ch->get_remort_add());
@@ -543,7 +537,7 @@ void affect_total(CharData *ch) {
 		if (wdex != 0) {
 			ch->set_dex_add(ch->get_dex_add() - wdex);
 		}
-		GET_DR_ADD(ch) += GetExtraDamroll(ch->GetClass(), GetRealLevel(ch));
+			GET_DR_ADD(ch) += GetExtraDamroll(ch->GetClass(), GetRealLevel(ch));
 		if (!AFF_FLAGGED(ch, EAffect::kNoobRegen)) {
 			GET_HITREG(ch) += (GetRealLevel(ch) + 4) / 5 * 10;
 		}
@@ -557,7 +551,6 @@ void affect_total(CharData *ch) {
 				GET_HIT_ADD(ch) -= (i - 1);
 			}
 		}
-
 		if (!IS_IMMORTAL(ch) && ch->IsOnHorse()) {
 			AFF_FLAGS(ch).unset(EAffect::kHide);
 			AFF_FLAGS(ch).unset(EAffect::kSneak);
@@ -614,7 +607,7 @@ void affect_total(CharData *ch) {
 			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kShield, CharEquipFlags()), ch);
 			return;
 		}
-		if ((obj = GET_EQ(ch, EEquipPos::kQuiver)) && !GET_EQ(ch, EEquipPos::kBoths)) {
+		if (!ch->IsNpc() && (obj = GET_EQ(ch, EEquipPos::kQuiver)) && !GET_EQ(ch, EEquipPos::kBoths)) {
 			SendMsgToChar("Нету лука, нет и стрел.\r\n", ch);
 			act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, kToRoom);
 			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kQuiver, CharEquipFlags()), ch);
@@ -658,7 +651,8 @@ void affect_total(CharData *ch) {
 			}
 		}
 	}
-	CheckDeathRage(ch);
+	if (!ch->IsNpc())
+		CheckDeathRage(ch);
 	if (ch->GetEnemy() || IsAffectedBySpell(ch, ESpell::kGlitterDust)) {
 		AFF_FLAGS(ch).unset(EAffect::kHide);
 		AFF_FLAGS(ch).unset(EAffect::kSneak);
@@ -667,12 +661,30 @@ void affect_total(CharData *ch) {
 	}
 }
 
-void ImposeAffect(CharData *ch,
-				  Affect<EApply> &af,
-				  bool add_dur,
-				  bool max_dur,
-				  bool add_mod,
-				  bool max_mod) {
+void ImposeAffect(CharData *ch, const Affect<EApply> &af) {
+	bool found = false;
+
+	for (const auto &affect : ch->affected) {
+		const bool same_affect = (af.location == EApply::kNone) && (affect->bitvector == af.bitvector);
+		const bool same_type = (af.location != EApply::kNone) && (affect->type == af.type) && (affect->location == af.location);
+		if (same_affect || same_type) {
+			if (affect->modifier < af.modifier) {
+				affect->modifier = af.modifier;
+			}
+			if (affect->duration < af.duration) {
+				affect->duration = af.duration;
+			}
+			affect_total(ch);
+			found = true;
+			break;
+		}
+	}
+	if (!found) {
+		affect_to_char(ch, af);
+	}
+}
+
+void ImposeAffect(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, bool add_mod, bool max_mod) {
 	bool found = false;
 
 	if (af.location) {
@@ -680,7 +692,6 @@ void ImposeAffect(CharData *ch,
 			const auto &affect = *affect_i;
 			if (affect->type == af.type
 				&& affect->location == af.location) {
-
 				if (add_dur) {
 					af.duration += affect->duration;
 				} else if (max_dur) {
