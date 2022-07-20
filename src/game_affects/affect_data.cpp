@@ -380,7 +380,7 @@ void mobile_affect_update() {
 
 		if (!was_purged) {
 			affect_total(i.get());
-/* Это какие таймскиллы у мобов? врата? релокейт? А, знаю, опознать, нуну.. 
+// обработка таймеров скилов фитов игрока
 			decltype(i->timed) timed_skill;
 			for (auto timed = i->timed; timed; timed = timed_skill) {
 				timed_skill = timed->next;
@@ -390,7 +390,6 @@ void mobile_affect_update() {
 					ExpireTimedSkill(i.get(), timed);
 				}
 			}
-/* а мобы умеют? стопудова даже обработчика нет
 			decltype(i->timed_feat) timed_feat;
 			for (auto timed = i->timed_feat; timed; timed = timed_feat) {
 				timed_feat = timed->next;
@@ -400,12 +399,9 @@ void mobile_affect_update() {
 					ExpireTimedFeat(i.get(), timed);
 				}
 			}
-*/
-/* а мобы ходят в дт????? Если да то зачем им полная процедура как у плеера?
 			if (deathtrap::check_death_trap(i.get())) {
 				return;
 			}
-*/
 			if (was_charmed) {
 				stop_follower(i.get(), kSfCharmlost);
 			}

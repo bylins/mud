@@ -5261,7 +5261,7 @@ int must_be_deleted(CharData *short_ch) {
 		return 1;
 	}
 
-	if (GetRealRemort(short_ch)) {
+	if (short_ch->get_remort()) {
 		return (0);
 	}
 
