@@ -37,16 +37,14 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	int percent = number(1, MUD::Skills()[ESkill::kFirstAid].difficulty);
 	int prob = CalcCurrentSkill(ch, ESkill::kFirstAid, vict);
-
 	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike) || GET_GOD_FLAG(vict, EGf::kGodsLike)) {
 		percent = prob;
 	}
 	if (GET_GOD_FLAG(ch, EGf::kGodscurse) || GET_GOD_FLAG(vict, EGf::kGodscurse)) {
 		prob = 0;
 	}
-
 	auto success = (prob >= percent);
-	auto need{false};
+	bool need = false;
 	if ((GET_REAL_MAX_HIT(vict) > 0 && (GET_HIT(vict) * 100 / GET_REAL_MAX_HIT(vict)) < 31) ||
 		(GET_REAL_MAX_HIT(vict) <= 0 && GET_HIT(vict) < GET_REAL_MAX_HIT(vict)) ||
 		(GET_HIT(vict) < GET_REAL_MAX_HIT(vict) && CanUseFeat(ch, EFeat::kHealer))) {
@@ -67,37 +65,21 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		}
 	}
-
-	int count = 0;
 	auto spell_id{ESpell::kUndefined};
-	if (PRF_FLAGGED(ch, EPrf::kTester)) {
-		count = (GET_SKILL(ch, ESkill::kFirstAid) - 20) / 30;
-		SendMsgToChar(ch, "Снимаю %d аффектов\r\n", count);
-
-		const auto remove_count = vict->remove_random_affects(count);
-		SendMsgToChar(ch, "Снято %ld аффектов\r\n", remove_count);
-
-		//
-		need = true;
-		prob = true;
-	} else {
-		count = std::min(MAX_FIRSTAID_REMOVE, MAX_FIRSTAID_REMOVE * prob / 100);
-
-		for (percent = 0, prob = need; !need && percent < MAX_FIRSTAID_REMOVE &&
-			GetRemovableSpellId(percent) != ESpell::kUndefined; percent++) {
-			if (IsAffectedBySpell(vict, GetRemovableSpellId(percent))) {
-				need = true;
-				if (percent < count) {
-					spell_id = GetRemovableSpellId(percent);
-					prob = true;
-				}
+	bool enough_skill = false;
+	for (int count = MAX_FIRSTAID_REMOVE - 1; count >= 0; count--) {
+		spell_id = GetRemovableSpellId(count);
+		if (IsAffectedBySpell(vict, spell_id)) {
+			need = true;
+			if (prob / 10  > count) {
+				enough_skill = true;
+				break;
 			}
 		}
 	}
-
 	if (!need) {
 		act("$N в лечении не нуждается.", false, ch, nullptr, vict, kToChar);
-	} else if (!prob) {
+	} else if (!enough_skill) {
 		act("У вас не хватит умения вылечить $N3.", false, ch, nullptr, vict, kToChar);
 	} else {
 		timed.skill = ESkill::kFirstAid;

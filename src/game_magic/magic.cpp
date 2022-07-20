@@ -193,7 +193,7 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply
 int CalcGeneralSaving(CharData *killer, CharData *victim, ESaving type, int ext_apply) {
 	int save = CalcSaving(killer, victim, type, ext_apply);
 	int rnd = number(1, 200);
-	killer->send_to_TC(false, true, false, "Victim saving %d, random 1..200 %d", std::max(10, save), rnd);
+	killer->send_to_TC(false, true, false, "Victim saving %d, random 1..200 %d\r\n", std::max(10, save), rnd);
 	if (std::max(10, save) <= rnd) {
 		return true;
 	}
@@ -2506,8 +2506,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			}
 		default: break;
 	}
-
-
+	ch->send_to_TC(false, true, false, "Кастуем спелл %s по цели %s длительносить %d\r\n", MUD::Spell(af[0].type).GetCName(), GET_PAD(victim, 2), af[0].duration);
 	//проверка на обкаст мобов, имеющих от рождения встроенный аффкект
 	//чтобы этот аффект не очистился, при спадении спелла
 	if (victim->IsNpc() && success) {
@@ -2535,6 +2534,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		af[i].type = spell_id;
 		if (af[i].bitvector || af[i].location != EApply::kNone) {
 			af[i].duration = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, af[i].duration);
+
 			if (update_spell)
 				ImposeAffect(victim, af[i]);
 			else
