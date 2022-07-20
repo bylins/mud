@@ -193,7 +193,7 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply
 int CalcGeneralSaving(CharData *killer, CharData *victim, ESaving type, int ext_apply) {
 	int save = CalcSaving(killer, victim, type, ext_apply);
 	int rnd = number(1, 200);
-	killer->send_to_TC(false, true, false, "Victim saving %d, random 1..200 %d", std::max(10, save), rnd);
+	killer->send_to_TC(false, true, false, "Victim saving %d, random 1..200 %d\r\n", std::max(10, save), rnd);
 	if (std::max(10, save) <= rnd) {
 		return true;
 	}

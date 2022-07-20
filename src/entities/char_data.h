@@ -835,19 +835,19 @@ class CharData : public ProtectedCharData {
 	bool IsHorsePrevents();
 	void dismount();
 };
-# define MAX_FIRSTAID_REMOVE 13
+
+# define MAX_FIRSTAID_REMOVE 16
 inline ESpell GetRemovableSpellId(int num) {
-	static const ESpell spell[MAX_FIRSTAID_REMOVE] = {ESpell::kSleep, ESpell::kPoison, ESpell::kWeaknes, ESpell::kCurse,
-										 ESpell::kFever, ESpell::kSilence, ESpell::kBlindness, ESpell::kHaemorrhage,
-										 ESpell::kHold, ESpell::kPeaceful, ESpell::kColdWind, ESpell::kDeafness,
-										 ESpell::kBattle};
+	static const ESpell spell[MAX_FIRSTAID_REMOVE] = {ESpell::kPoison, ESpell::kMadness, ESpell::kWeb,
+		ESpell::kWeaknes, ESpell::kSlowdown, ESpell::kMindless, ESpell::kColdWind,
+		ESpell::kFever, ESpell::kCurse, ESpell::kDeafness, ESpell::kSilence,
+		ESpell::kBlindness, ESpell::kSleep, ESpell::kHold, ESpell::kHaemorrhage, ESpell::kBattle};
 	if (num < MAX_FIRSTAID_REMOVE) {
 		return spell[num];
 	} else {
 		return ESpell::kUndefined;
 	}
 }
-
 inline const player_special_data::ignores_t &CharData::get_ignores() const {
 	const auto &ps = get_player_specials();
 	return ps->ignores;

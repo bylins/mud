@@ -37,14 +37,12 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	int percent = number(1, MUD::Skills()[ESkill::kFirstAid].difficulty);
 	int prob = CalcCurrentSkill(ch, ESkill::kFirstAid, vict);
-
 	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike) || GET_GOD_FLAG(vict, EGf::kGodsLike)) {
 		percent = prob;
 	}
 	if (GET_GOD_FLAG(ch, EGf::kGodscurse) || GET_GOD_FLAG(vict, EGf::kGodscurse)) {
 		prob = 0;
 	}
-
 	auto success = (prob >= percent);
 	bool need = false;
 	if ((GET_REAL_MAX_HIT(vict) > 0 && (GET_HIT(vict) * 100 / GET_REAL_MAX_HIT(vict)) < 31) ||
@@ -67,15 +65,13 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		}
 	}
-
 	auto spell_id{ESpell::kUndefined};
-
 	bool enough_skill = false;
-	for (int count = MAX_FIRSTAID_REMOVE - 1; count == 0; count--) {
+	for (int count = MAX_FIRSTAID_REMOVE - 1; count >= 0; count--) {
 		spell_id = GetRemovableSpellId(count);
 		if (IsAffectedBySpell(vict, spell_id)) {
 			need = true;
-			if (prob / 10  < count) {
+			if (prob / 10  > count) {
 				enough_skill = true;
 				break;
 			}
@@ -83,7 +79,7 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	if (!need) {
 		act("$N в лечении не нуждается.", false, ch, nullptr, vict, kToChar);
-	} else if (enough_skill) {
+	} else if (!enough_skill) {
 		act("У вас не хватит умения вылечить $N3.", false, ch, nullptr, vict, kToChar);
 	} else {
 		timed.skill = ESkill::kFirstAid;
