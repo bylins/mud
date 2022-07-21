@@ -149,7 +149,7 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply
 	save += ext_apply;    // внешний модификатор
 
 	if (IS_GOD(victim))
-		save = -150;
+		save = -1000;
 	else if (GET_GOD_FLAG(victim, EGf::kGodsLike))
 		save -= 50;
 	else if (GET_GOD_FLAG(victim, EGf::kGodscurse))

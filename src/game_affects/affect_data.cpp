@@ -209,6 +209,10 @@ void player_affect_update() {
 		for (auto affect_i = next_affect_i; affect_i != i->affected.end(); affect_i = next_affect_i) {
 			++next_affect_i;
 			const auto &affect = *affect_i;
+			// нечего тикать аффектам вне раунда боя
+			if (IS_SET(affect->battleflag, kAfBattledec) && i->GetEnemy()) {
+				continue;
+			}
 			if (affect->duration >= 1) {
 				if (IS_SET(affect->battleflag, kAfSameTime) && !i->GetEnemy()) {
 					// здесь плеера могут спуржить
@@ -217,7 +221,19 @@ void player_affect_update() {
 						break;
 					}
 				}
-				affect->duration--;
+//				sprintf(buf, "ЧАР: Спелл %s висит на %s длительносить %d\r\n", MUD::Spell(affect->type).GetCName(), GET_PAD(i, 5), affect->duration);
+//				mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+				if (ROOM_FLAGGED(i->in_room, ERoomFlag::kDominationArena)) {
+					for (int count = MAX_FIRSTAID_REMOVE - 1; count >= 0; count--) {
+						if (affect->type == GetRemovableSpellId(count)) {
+							affect->duration -= 16;
+							affect->duration = std::max(0, affect->duration);
+							break;
+						}
+					}
+				}
+				else
+					affect->duration--;
 			} else if (affect->duration != -1) {
 				if ((affect->type > ESpell::kUndefined) && (affect->type <= ESpell::kLast)) {
 					if (next_affect_i == i->affected.end()
