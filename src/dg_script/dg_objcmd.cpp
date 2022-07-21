@@ -393,9 +393,8 @@ void do_oteleport(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 	}
 	if (target == rm) {
 		obj_log(obj, "oteleport target is itself");
-		return;
 	}
-	else if (!str_cmp(arg1, "all") || !str_cmp(arg1, "все")) {
+	if (!str_cmp(arg1, "all") || !str_cmp(arg1, "все")) {
 		const auto people_copy = world[rm]->people;
 		decltype(world[rm]->people)::const_iterator next_ch = people_copy.begin();
 		for (auto ch_i = next_ch; ch_i != people_copy.end(); ch_i = next_ch) {

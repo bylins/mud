@@ -553,7 +553,6 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 	}
 	if (target == ch->in_room) {
 		mob_log(ch, "mteleport all: target is itself");
-		return;
 	}
 	if (!str_cmp(arg1, "all") || !str_cmp(arg1, "все")) {
 		const auto people_copy = world[ch->in_room]->people;

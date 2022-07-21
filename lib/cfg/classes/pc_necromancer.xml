@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<class id="kNecromancer">
+    <name abbr="Чр">
+        <singular nom="чернокнижник" gen="чернокнижника" dat="чернокнижнику" acc="чернокнижника" ins="чернокнижником" pre="чернокнижнике"/>
+        <plural nom="чернокнижники" gen="чернокнижников" dat="чернокнижникам" acc="чернокнижников" ins="чернокнижниками" pre="чернокнижниках"/>
+    </name>
+    <stats>
+        <base_stats>
+            <stat id="kStr"	gen_min="9"		gen_max="15"	auto="14"	cap="50"/>
+            <stat id="kDex"	gen_min="9"		gen_max="13"	auto="9"	cap="50"/>
+            <stat id="kCon"	gen_min="11"	gen_max="14"	auto="14"	cap="50"/>
+            <stat id="kWis"	gen_min="20"	gen_max="23"	auto="23"	cap="90"/>
+            <stat id="kInt"	gen_min="20"	gen_max="25"	auto="25"	cap="50"/>
+            <stat id="kCha"	gen_min="10"	gen_max="12"	auto="10"	cap="50"/>
+        </base_stats>
+    </stats>
+    <skills level_decrement="4">
+        <skill id="kSideAttack"		level="1"	remort="0"	improve="0"/>
+        <skill id="kLeadership"		level="1"	remort="0"	improve="1200"/>
+        <skill id="kPunch"			level="1"	remort="0"	improve="100"/>
+        <skill id="kClubs"			level="1"	remort="0"	improve="300"/>
+        <skill id="kNonstandart"	level="1"	remort="0"	improve="300"/>
+        <skill id="kShortBlades"	level="1"	remort="0"	improve="100"/>
+        <skill id="kAirMagic"		level="1"	remort="0"	improve="400"/>
+        <skill id="kFireMagic"		level="1"	remort="0"	improve="400"/>
+        <skill id="kWaterMagic"		level="1"	remort="0"	improve="400"/>
+        <skill id="kEarthMagic"		level="1"	remort="0"	improve="400"/>
+        <skill id="kDarkMagic"		level="1"	remort="0"	improve="400"/>
+        <skill id="kMindMagic"		level="1"	remort="0"	improve="400"/>
+        <skill id="kHangovering"	level="3"	remort="0"	improve="54000"/>
+        <skill id="kDigging"		level="5"	remort="0"	improve="600"/>
+        <skill id="kIdentify"		level="10"	remort="0"	improve="3000"/>
+    </skills>
+    <spells level_decrement="3">
+        <spell id="kDetectAlign"		level="1"	remort="0"	circle="1"	mem="0"		cast="0.0"/>
+        <spell id="kMagicMissile"		level="1"	remort="0"	circle="1"	mem="0"		cast="0.0"/>
+        <spell id="kCreateLight"		level="1"	remort="0"	circle="1"	mem="0"		cast="0.0"/>
+        <spell id="kWeaknes"			level="5"	remort="0"	circle="1"	mem="0"		cast="0.0"/>
+        <spell id="kSenseLife"			level="20"	remort="0"	circle="2"	mem="0"		cast="0.0"/>
+        <spell id="kArmor"				level="4"	remort="0"	circle="2"	mem="0"		cast="0.0"/>
+        <spell id="kCurse"				level="4"	remort="0"	circle="2"	mem="0"		cast="0.0"/>
+        <spell id="kCloudly"			level="5"	remort="0"	circle="2"	mem="0"		cast="0.0"/>
+        <spell id="kWeb"				level="6"	remort="0"	circle="2"	mem="0"		cast="0.0"/>
+        <spell id="kResfresh"			level="7"	remort="0"	circle="3"	mem="0"		cast="0.0"/>
+        <spell id="kChillTouch"			level="7"	remort="0"	circle="3"	mem="0"		cast="0.0"/>
+        <spell id="kAnimateDead"		level="7"	remort="0"	circle="3"	mem="0"		cast="0.0"/>
+        <spell id="kStoneSkin"			level="9"	remort="0"	circle="3"	mem="0"		cast="0.0"/>
+        <spell id="kFear"				level="10"	remort="0"	circle="3"	mem="0"		cast="0.0"/>
+        <spell id="kAwareness"			level="10"	remort="0"	circle="3"	mem="0"		cast="0.0"/>
+        <spell id="kHaste"				level="20"	remort="0"	circle="4"	mem="0"		cast="0.0"/>
+        <spell id="kExtraHits"			level="13"	remort="0"	circle="4"	mem="0"		cast="0.0"/>
+        <spell id="kDispellMagic"		level="12"	remort="0"	circle="4"	mem="0"		cast="0.0"/>
+        <spell id="kWaterbreath"		level="15"	remort="0"	circle="4"	mem="0"		cast="0.0"/>
+        <spell id="kFever"				level="20"	remort="0"	circle="4"	mem="0"		cast="0.0"/>
+        <spell id="kDispelEvil"			level="12"	remort="0"	circle="4"	mem="0"		cast="0.0"/>
+        <spell id="kBlindness"			level="15"	remort="0"	circle="4"	mem="0"		cast="0.0"/>
+        <spell id="kFastRegeneration"	level="15"	remort="0"	circle="5"	mem="0"		cast="0.0"/>
+        <spell id="kDarkness"			level="15"	remort="0"	circle="5"	mem="0"		cast="0.0"/>
+        <spell id="kStoneBones"			level="15"	remort="0"	circle="5"	mem="0"		cast="0.0"/>
+        <spell id="kStoneHands"			level="20"	remort="0"	circle="5"	mem="0"		cast="0.0"/>
+        <spell id="kBlackTentacles"		level="17"	remort="0"	circle="5"	mem="-30"	cast="0.0"/>
+        <spell id="kGroupRefresh"		level="22"	remort="0"	circle="5"	mem="0"		cast="0.0"/>
+        <spell id="kPoison"				level="18"	remort="0"	circle="5"	mem="0"		cast="0.0"/>
+        <spell id="kRemoveHold"			level="20"	remort="0"	circle="5"	mem="0"		cast="0.0"/>
+        <spell id="kLocateObject"		level="18"	remort="0"	circle="6"	mem="0"		cast="0.0"/>
+        <spell id="kSacrifice"			level="18"	remort="0"	circle="6"	mem="0"		cast="0.0"/>
+        <spell id="kMassCurse"			level="22"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
+        <spell id="kShadowCloak"		level="24"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
+        <spell id="kSightOfDarkness"	level="25"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
+        <spell id="kSnakeEyes"			level="25"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
+        <spell id="kGroupHaste"			level="26"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
+        <spell id="kResurrection"		level="24"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
+        <spell id="kEarthquake"			level="26"	remort="0"	circle="8"	mem="0"		cast="0.0"/>
+        <spell id="kEnergyDrain"		level="26"	remort="0"	circle="8"	mem="0"		cast="0.0"/>
+        <spell id="kMindless"			level="29"	remort="0"	circle="8"	mem="0"		cast="0.0"/>
+        <spell id="kStunning"			level="29"	remort="6"	circle="9"	mem="0"		cast="0.0"/>
+        <spell id="kEviless"			level="29"	remort="0"	circle="9"	mem="0"		cast="0.0"/>
+        <spell id="kMassFear"			level="26"	remort="0"	circle="8"	mem="0"		cast="0.0"/>
+    </spells>
+    <feats remorts_for_slot="6">
+        <feat id="kMagicUser"			level="1"	remort="0"	slot="0"	inborn="1"/>
+        <feat id="kZombieDrover"		level="1"	remort="0"	slot="0"	inborn="1"/>
+        <feat id="kMnemonicEnhancer"		level="1"	remort="0"	slot="0"	inborn="1"/>
+        <feat id="kDarkReading"			level="1"	remort="0"	slot="0"	inborn="1"/>
+        <feat id="kPartner"			level="1"	remort="0"	slot="0"	inborn="0"/>
+        <feat id="kDrunkard"			level="1"	remort="0"	slot="0"	inborn="0"/>
+        <feat id="kStrongImmunity"		level="1"	remort="0"	slot="0"	inborn="0"/>
+        <feat id="kGreatFortitude"		level="1"	remort="0"	slot="0"	inborn="0"/>
+        <feat id="kForestPath"			level="1"	remort="0"	slot="0"	inborn="0"/>
+        <feat id="kMountainPath"		level="1"	remort="0"	slot="0"	inborn="0"/>
+        <feat id="kClubsFocus"			level="1"	remort="0"	slot="1"	inborn="0"/>
+        <feat id="kShortsFocus"			level="1"	remort="0"	slot="1"	inborn="0"/>
+        <feat id="kLightingReflex"		level="1"	remort="0"	slot="1"	inborn="0"/>
+        <feat id="kPorter"			level="1"	remort="0"	slot="1"	inborn="0"/>
+        <feat id="kJuggler"			level="1"	remort="0"	slot="2"	inborn="0"/>
+        <feat id="kHerbalist"			level="1"	remort="0"	slot="2"	inborn="0"/>
+        <feat id="kWoodenSkin"			level="1"	remort="0"	slot="2"	inborn="0"/>
+        <feat id="kEndurance"			level="1"	remort="0"	slot="2"	inborn="0"/>
+        <feat id="kConnoiseur"			level="1"	remort="0"	slot="3"	inborn="0"/>
+	<feat id="kTactician"			level="1"	remort="0"	slot="4"	inborn="0"/>
+        <feat id="kMultipleCast"		level="1"	remort="0"	slot="4"	inborn="0"/>
+        <feat id="kWarriorSpirit"		level="1"	remort="0"	slot="5"	inborn="0"/>
+    </feats>
+</class>
