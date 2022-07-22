@@ -12,6 +12,7 @@ void do_create(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	// get: blank, spell name, target name
 	argument = one_argument(argument, arg);
+	skip_spaces(&argument);
 
 	if (!*arg) {
 		if (subcmd == SCMD_RECIPE)
@@ -52,40 +53,34 @@ void do_create(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		SendMsgToChar(buf, ch);
 		return;
 	}
-
 	if (!*argument) {
 		sprintf(buf, "Уточните тип состава!\r\n");
 		SendMsgToChar(buf, ch);
 		return;
 	}
-	s = strtok(nullptr, "'*!");
+	s = strtok(argument, "'*!");
 	if (!str_cmp(s, argument)) {
 		SendMsgToChar("Название состава должно быть заключено в символы : ' или * или !\r\n", ch);
 		return;
 	}
-
 	auto spell_id = FixNameAndFindSpellId(s);
 	if (spell_id == ESpell::kUndefined) {
 		SendMsgToChar("И откуда вы набрались рецептов?\r\n", ch);
 		return;
 	}
-
 	// Caster is don't know this recipe
 	if (!IS_SET(GET_SPELL_TYPE(ch, spell_id), itemnum) && !IS_IMMORTAL(ch)) {
 		SendMsgToChar("Было бы неплохо прежде всего выучить этот состав.\r\n", ch);
 		return;
 	}
-
 	if (subcmd == SCMD_RECIPE) {
 		CheckRecipeValues(ch, spell_id, itemnum, true);
 		return;
 	}
-
 	if (!CheckRecipeValues(ch, spell_id, itemnum, false)) {
 		SendMsgToChar("Боги хранят в тайне этот состав.\r\n", ch);
 		return;
 	}
-
 	if (!CheckRecipeItems(ch, spell_id, itemnum, true)) {
 		SendMsgToChar("У вас нет нужных ингредиентов!\r\n", ch);
 		return;
