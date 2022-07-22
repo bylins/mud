@@ -226,11 +226,12 @@ void player_affect_update() {
 				if (ROOM_FLAGGED(i->in_room, ERoomFlag::kDominationArena)) {
 					for (int count = MAX_FIRSTAID_REMOVE - 1; count >= 0; count--) {
 						if (affect->type == GetRemovableSpellId(count)) {
-							affect->duration -= 16;
-							affect->duration = std::max(0, affect->duration);
+							affect->duration -= 15;
 							break;
 						}
 					}
+					affect->duration--;
+					affect->duration = std::max(0, affect->duration);
 				}
 				else
 					affect->duration--;
