@@ -5568,11 +5568,11 @@ void Clan::house_web_url(CharData *ch, const std::string &buffer) {
 // возвращает клан-метку с ведущим пробелом
 std::string clan_get_custom_label(ObjData *obj, Clan::shared_ptr clan) {
 	if (obj->get_custom_label()
-		&& obj->get_custom_label()->label_text
-		&& obj->get_custom_label()->clan
+		&& obj->get_custom_label()->LabelText
+		&& obj->get_custom_label()->ClanAbbrev
 		&& clan
-		&& !strcmp(clan->GetAbbrev(), obj->get_custom_label()->clan)) {
-		return boost::str(boost::format(" *%s*") % obj->get_custom_label()->label_text);
+		&& !strcmp(clan->GetAbbrev(), obj->get_custom_label()->ClanAbbrev)) {
+		return boost::str(boost::format(" *%s*") % obj->get_custom_label()->LabelText);
 	} else {
 		return "";
 	}
@@ -5580,29 +5580,29 @@ std::string clan_get_custom_label(ObjData *obj, Clan::shared_ptr clan) {
 
 bool CHECK_CUSTOM_LABEL_CORE(const ObjData *obj, const CharData *ch) {
 	return (obj->get_custom_label()->author == (ch)->get_idnum()
-		&& !(obj->get_custom_label()->clan))
+		&& !(obj->get_custom_label()->ClanAbbrev))
 		|| IS_IMPL(ch)
 		|| ((ch)->player_specials->clan
-			&& obj->get_custom_label()->clan != nullptr
-			&& !strcmp(obj->get_custom_label()->clan, ch->player_specials->clan->GetAbbrev()))
-		|| (obj->get_custom_label()->author_mail
-			&& !strcmp(GET_EMAIL(ch), obj->get_custom_label()->author_mail));
+			&& obj->get_custom_label()->ClanAbbrev != nullptr
+			&& !strcmp(obj->get_custom_label()->ClanAbbrev, ch->player_specials->clan->GetAbbrev()))
+		|| (obj->get_custom_label()->AuthorMail
+			&& !strcmp(GET_EMAIL(ch), obj->get_custom_label()->AuthorMail));
 }
 
 bool CHECK_CUSTOM_LABEL(const char *arg, const ObjData *obj, const CharData *ch) {
 	return obj->get_custom_label()
-		&& obj->get_custom_label()->label_text
+		&& obj->get_custom_label()->LabelText
 		&& (ch->IsNpc()
 			? ((IS_CHARMICE(ch) && ch->has_master())
 			   ? CHECK_CUSTOM_LABEL_CORE(obj, ch->get_master())
 			   : 0)
 			: CHECK_CUSTOM_LABEL_CORE(obj, ch))
-		&& isname(arg, obj->get_custom_label()->label_text);
+		&& isname(arg, obj->get_custom_label()->LabelText);
 }
 
 bool AUTH_CUSTOM_LABEL(const ObjData *obj, const CharData *ch) {
 	return obj->get_custom_label()
-		&& obj->get_custom_label()->label_text
+		&& obj->get_custom_label()->LabelText
 		&& (ch->IsNpc()
 			? ((IS_CHARMICE(ch) && ch->has_master())
 			   ? CHECK_CUSTOM_LABEL_CORE(obj, ch->get_master())

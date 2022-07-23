@@ -448,7 +448,7 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 				if (!object->get_custom_label()) {
 					object->set_custom_label(new custom_label());
 				}
-				object->get_custom_label()->label_text = str_dup(buffer);
+				object->get_custom_label()->LabelText = str_dup(buffer);
 			} else if (!strcmp(read_line, "ClID")) // id чара
 			{
 				*error = 61;
@@ -460,7 +460,7 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 				if (object->get_custom_label()->author > 0) {
 					for (std::size_t i = 0; i < player_table.size(); i++) {
 						if (player_table[i].id() == object->get_custom_label()->author) {
-							object->get_custom_label()->author_mail = str_dup(player_table[i].mail);
+							object->get_custom_label()->AuthorMail = str_dup(player_table[i].mail);
 							break;
 						}
 					}
@@ -471,7 +471,7 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 				if (!object->get_custom_label()) {
 					object->set_custom_label(new custom_label());
 				}
-				object->get_custom_label()->clan = str_dup(buffer);
+				object->get_custom_label()->ClanAbbrev = str_dup(buffer);
 			} else if (!strcmp(read_line, "Vals")) {
 				*error = 63;
 				if (!object->init_values_from_file(buffer)) {
@@ -1201,10 +1201,10 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 
 	// кастомная метка
 	if (object->get_custom_label()) {
-		out << "Clbl: " << object->get_custom_label()->label_text << "~\n";
+		out << "Clbl: " << object->get_custom_label()->LabelText << "~\n";
 		out << "ClID: " << object->get_custom_label()->author << "~\n";
-		if (object->get_custom_label()->clan) {
-			out << "ClCl: " << object->get_custom_label()->clan << "~\n";
+		if (object->get_custom_label()->ClanAbbrev) {
+			out << "ClCl: " << object->get_custom_label()->ClanAbbrev << "~\n";
 		}
 	}
 }
