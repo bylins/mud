@@ -123,6 +123,10 @@ void doBring(CharData *ch, CharData *boss, unsigned int pos, char *bank) {
 			else
 				ch->remove_gold(cost);
 		}
+		if (NPC_FLAGGED(mob, ENpcFlag::kNoMercList)) {
+			SendMsgToChar(ch, "%s показал большую дулю и свалил от вас подальше.\r\n", mob->get_npc_name().c_str());
+			ExtractCharFromWorld(mob, false);
+		}
 	}
 	return;
 };
