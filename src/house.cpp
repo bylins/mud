@@ -5581,8 +5581,7 @@ bool is_alliance_by_abbr(const CharData *ch, char *abbrev) {
 	for (auto & ClanTmp : Clan::ClanList) {
 		if ((CLAN(ch)->CheckPolitics(ClanTmp->GetRent()) == kPoliticsAlliance
 				&& ClanTmp->CheckPolitics(CLAN(ch)->GetRent()) == kPoliticsAlliance
-				&& !str_cmp(ClanTmp->get_abbrev().c_str(), abbrev))
-				|| CLAN(ch) == ClanTmp) {
+				&& !str_cmp(ClanTmp->get_abbrev().c_str(), abbrev))) {
 			return true;
 		}
 	}
