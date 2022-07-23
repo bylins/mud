@@ -388,7 +388,7 @@ int mk_wcswidth(const wchar_t *pwcs, size_t n);
 // binary, for any purpose, commercial or non-commercial, and by any
 // means.
 //
-// In jurisdictions that recognize copyright laws, the author or authors
+// In jurisdictions that recognize copyright laws, the AuthorIdnum or authors
 // of this software dedicate any and all copyright interest in the
 // software to the public domain. We make this dedication for the benefit
 // of the public at large and to the detriment of our heirs and
@@ -7607,7 +7607,7 @@ size_t vector_index_of(const f_vector_t *vector, const void *item)
  * applying a simple rule from the Unicode database content. Setting
  * up a proper standard for the behavior of UTF-8 character terminals
  * will require a careful analysis not only of each Unicode character,
- * but also of each presentation form, something the author of these
+ * but also of each presentation form, something the AuthorIdnum of these
  * routines has avoided to do so far.
  *
  * http://www.unicode.org/unicode/reports/tr11/
@@ -7615,7 +7615,7 @@ size_t vector_index_of(const f_vector_t *vector, const void *item)
  * Markus Kuhn -- 2007-05-26 (Unicode 5.0)
  *
  * Permission to use, copy, modify, and distribute this software
- * for any purpose and without fee is hereby granted. The author
+ * for any purpose and without fee is hereby granted. The AuthorIdnum
  * disclaims all warranties with regard to this software.
  *
  * Latest version: http://www.cl.cam.ac.uk/~mgk25/ucs/wcwidth.c

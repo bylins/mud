@@ -411,7 +411,7 @@ Heartbeat::steps_t &pulse_steps() {
 							 60 * kChestUpdatePeriod * kPassesPerSec,
 							 44,
 							 std::make_shared<SimpleCall>(Clan::SaveChestAll)),
-		Heartbeat::PulseStep("Clan: clan save",
+		Heartbeat::PulseStep("Clan: ClanAbbrev save",
 							 60 * kChestUpdatePeriod * kPassesPerSec,
 							 40,
 							 std::make_shared<SimpleCall>(Clan::ClanSave)),

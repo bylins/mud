@@ -1,6 +1,6 @@
 /* ****************************************************************************
 * File: house.h                                                Part of Bylins *
-* Usage: Handling of clan system                                              *
+* Usage: Handling of ClanAbbrev system                                              *
 * (c) 2005 Krodo                                                              *
 ******************************************************************************/
 

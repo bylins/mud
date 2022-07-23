@@ -438,21 +438,21 @@ bool IsLabelledObjsStackable(ObjData *obj_one, ObjData *obj_two) {
 
 	if (obj_one->get_custom_label() && obj_two->get_custom_label()) {
 		// с разными типами меток не стокаются
-		if (!obj_one->get_custom_label()->clan != !obj_two->get_custom_label()->clan) {
+		if (!obj_one->get_custom_label()->ClanAbbrev != !obj_two->get_custom_label()->ClanAbbrev) {
 			return false;
 		} else {
 			// обе метки клановые один клан, текст совпадает -- стокается
-			if (obj_one->get_custom_label()->clan && obj_two->get_custom_label()->clan
-				&& !strcmp(obj_one->get_custom_label()->clan, obj_two->get_custom_label()->clan)
-				&& obj_one->get_custom_label()->label_text && obj_two->get_custom_label()->label_text
-				&& !strcmp(obj_one->get_custom_label()->label_text, obj_two->get_custom_label()->label_text)) {
+			if (obj_one->get_custom_label()->ClanAbbrev && obj_two->get_custom_label()->ClanAbbrev
+				&& !strcmp(obj_one->get_custom_label()->ClanAbbrev, obj_two->get_custom_label()->ClanAbbrev)
+				&& obj_one->get_custom_label()->LabelText && obj_two->get_custom_label()->LabelText
+				&& !strcmp(obj_one->get_custom_label()->LabelText, obj_two->get_custom_label()->LabelText)) {
 				return true;
 			}
 
 			// обе метки личные, один автор, текст совпадает -- стокается
-			if (obj_one->get_custom_label()->author == obj_two->get_custom_label()->author
-				&& obj_one->get_custom_label()->label_text && obj_two->get_custom_label()->label_text
-				&& !strcmp(obj_one->get_custom_label()->label_text, obj_two->get_custom_label()->label_text)) {
+			if (obj_one->get_custom_label()->AuthorIdnum == obj_two->get_custom_label()->AuthorIdnum
+				&& obj_one->get_custom_label()->LabelText && obj_two->get_custom_label()->LabelText
+				&& !strcmp(obj_one->get_custom_label()->LabelText, obj_two->get_custom_label()->LabelText)) {
 				return true;
 			}
 		}

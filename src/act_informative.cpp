@@ -456,8 +456,8 @@ std::string char_get_custom_label(ObjData *obj, CharData *ch) {
 	const char *delim_r = nullptr;
 
 	// разные скобки для клановых и личных
-	if (obj->get_custom_label() && (ch->player_specials->clan && obj->get_custom_label()->clan != nullptr &&
-		!strcmp(obj->get_custom_label()->clan, ch->player_specials->clan->GetAbbrev()))) {
+	if (obj->get_custom_label() && (ch->player_specials->clan && obj->get_custom_label()->ClanAbbrev != nullptr &&
+		!strcmp(obj->get_custom_label()->ClanAbbrev, ch->player_specials->clan->GetAbbrev()))) {
 		delim_l = " *";
 		delim_r = "*";
 	} else {
@@ -467,8 +467,8 @@ std::string char_get_custom_label(ObjData *obj, CharData *ch) {
 
 	std::stringstream buffer;
 	if (AUTH_CUSTOM_LABEL(obj, ch)) {
-		buffer << delim_l << obj->get_custom_label()->label_text << delim_r;
-		//return boost::str(boost::format("%s%s%s") % delim_l % obj->get_custom_label()->label_text % delim_r);
+		buffer << delim_l << obj->get_custom_label()->LabelText << delim_r;
+		//return boost::str(boost::format("%s%s%s") % delim_l % obj->get_custom_label()->LabelText % delim_r);
 	}
 
 	return buffer.str();
@@ -2322,13 +2322,13 @@ void obj_info(CharData *ch, ObjData *obj, char buf[kMaxStringLength]) {
 		}
 		sprintf(buf + strlen(buf), "\r\n%s", CCNRM(ch, C_NRM));
 	}
-	if (AUTH_CUSTOM_LABEL(obj, ch) && obj->get_custom_label()->label_text) {
-		if (obj->get_custom_label()->clan) {
+	if (AUTH_CUSTOM_LABEL(obj, ch) && obj->get_custom_label()->LabelText) {
+		if (obj->get_custom_label()->ClanAbbrev) {
 			strcat(buf, "Метки дружины: ");
 		} else {
 			strcat(buf, "Ваши метки: ");
 		}
-		sprintf(buf + strlen(buf), "%s\r\n", obj->get_custom_label()->label_text);
+		sprintf(buf + strlen(buf), "%s\r\n", obj->get_custom_label()->LabelText);
 	}
 	sprintf(buf + strlen(buf), "%s", diag_uses_to_char(obj, ch));
 	sprintf(buf + strlen(buf), "%s", diag_shot_to_char(obj, ch));

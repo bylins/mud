@@ -77,13 +77,13 @@ void DoSign(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						labels[i] = '-';
 
 				std::shared_ptr<custom_label> label(new custom_label());
-				label->label_text = str_dup(labels);
-				label->author = ch->get_idnum();
-				label->author_mail = str_dup(GET_EMAIL(ch));
+				label->LabelText = str_dup(labels);
+				label->AuthorIdnum = ch->get_idnum();
+				label->AuthorMail = str_dup(GET_EMAIL(ch));
 
 				const char *msg = "Вы покрыли $o3 каракулями, которые никто кроме вас не разберет.";
 				if (clan && ch->player_specials->clan) {
-					label->clan = str_dup(ch->player_specials->clan->GetAbbrev());
+					label->ClanAbbrev = str_dup(ch->player_specials->clan->GetAbbrev());
 					msg = "Вы покрыли $o3 каракулями, понятными разве что вашим соратникам.";
 				}
 				target->set_custom_label(label);

@@ -626,26 +626,26 @@ class TimedSpell {
 // метки для команды "нацарапать"
 struct custom_label {
  public:
-	custom_label() : label_text(nullptr), clan(nullptr), author(-2), author_mail(nullptr) {}
+	custom_label() : LabelText(nullptr), ClanAbbrev(nullptr), AuthorIdnum(-2), AuthorMail(nullptr) {}
 	~custom_label();
 
-	char *label_text; // текст
-	char *clan;       // аббревиатура клана, если метка предназначена для клана
-	int author;       // кем нанесена: содержит результат ch->get_idnum(), по умолчанию -2
-	char *author_mail;// будем проверять по емейлу тоже
+	char *LabelText; // текст
+	char *ClanAbbrev;       // аббревиатура клана, если метка предназначена для клана
+	int AuthorIdnum;       // кем нанесена: содержит результат ch->get_idnum(), по умолчанию -2
+	char *AuthorMail;// будем проверять по емейлу тоже
 };
 
 inline custom_label::~custom_label() {
-	if (nullptr != label_text) {
-		free(label_text);
+	if (nullptr != LabelText) {
+		free(LabelText);
 	}
 
-	if (nullptr != clan) {
-		free(clan);
+	if (nullptr != ClanAbbrev) {
+		free(ClanAbbrev);
 	}
 
-	if (nullptr != author_mail) {
-		free(author_mail);
+	if (nullptr != AuthorMail) {
+		free(AuthorMail);
 	}
 }
 

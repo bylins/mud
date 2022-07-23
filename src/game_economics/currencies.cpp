@@ -95,7 +95,7 @@ void CurrencyInfo::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 		<< " Can be transfered to other account: " << KGRN << (transferable_to_other_ ? "Y" : "N") << KNRM << std::endl
 		<< " Transfer tax: " << KGRN << transfer_tax_ << KNRM << std::endl
 		<< " Drop on death: " << KGRN << drop_on_death_ << KNRM << std::endl
-		<< " Max clan tax: " << KGRN << max_clan_tax_ << KNRM << std::endl
+		<< " Max ClanAbbrev tax: " << KGRN << max_clan_tax_ << KNRM << std::endl
 		<< std::endl;
 }
 

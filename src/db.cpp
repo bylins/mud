@@ -1120,7 +1120,7 @@ void do_reboot(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		go_boot_socials();
 	else if (!str_cmp(arg, "schedule"))
 		load_sheduled_reboot();
-	else if (!str_cmp(arg, "clan")) {
+	else if (!str_cmp(arg, "ClanAbbrev")) {
 		skip_spaces(&argument);
 		if (!*argument) {
 			Clan::ClanLoad();

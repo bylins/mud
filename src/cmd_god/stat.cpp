@@ -598,8 +598,8 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 			CCNRM(ch, C_NRM),
 			j->get_aliases().c_str());
 	SendMsgToChar(buf, ch);
-	if (j->get_custom_label() && j->get_custom_label()->label_text) {
-		sprintf(buf, " нацарапано: '&c%s&n',", j->get_custom_label()->label_text);
+	if (j->get_custom_label() && j->get_custom_label()->LabelText) {
+		sprintf(buf, " нацарапано: '&c%s&n',", j->get_custom_label()->LabelText);
 		SendMsgToChar(buf, ch);
 	}
 	sprintf(buf, "\r\n");

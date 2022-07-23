@@ -234,7 +234,7 @@ bool GitChangeLogLoader::load(std::istream &is) {
 
 			case AUTHOR:
 				if (!commit.parse_author(buffer, is, line)) {
-					log("SYSERR: could not read commit author from changelog file at line %d. Wrong string: %s",
+					log("SYSERR: could not read commit AuthorIdnum from changelog file at line %d. Wrong string: %s",
 						line, buffer.c_str());
 					return false;
 				}

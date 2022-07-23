@@ -1,6 +1,6 @@
 /*****************************************************************************
 * File: house.cpp                                              Part of Bylins *
-* Usage: Handling of clan system                                              *
+* Usage: Handling of ClanAbbrev system                                              *
 * (c) 2005 Krodo                                                              *
 ******************************************************************************/
 
@@ -491,7 +491,7 @@ void Clan::ClanLoadSingle(const std::string& index) {
 			Player t_victim;
 			Player *victim = &t_victim;
 			if (load_char(tempClan->owner.c_str(), victim) < 0) {
-				log("SYSERROR: error read owner file %s for clan delete (%s:%d)",
+				log("SYSERROR: error read owner file %s for ClanAbbrev delete (%s:%d)",
 					tempClan->owner.c_str(), __FILE__, __LINE__);
 				return;
 			}
@@ -1671,8 +1671,8 @@ void DoClanList(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		// сортировка кланов по экспе
 		std::multimap<long long, Clan::shared_ptr> sort_clan;
 		for (const auto &clan : Clan::ClanList) {
-			//if (clan->test_clan)
-			//sort_clan.insert(std::make_pair(0, clan));
+			//if (ClanAbbrev->test_clan)
+			//sort_clan.insert(std::make_pair(0, ClanAbbrev));
 			sort_clan.insert(std::make_pair(clan->last_exp.get_exp(), clan));
 
 		}
@@ -1785,7 +1785,7 @@ void DoClanList(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	SendMsgToChar(buffer2.str(), ch);
 }
 
-// возвращает состояние политики clan по отношению к victim
+// возвращает состояние политики ClanAbbrev по отношению к victim
 // при отсутствии подразумевается нейтралитет
 int Clan::CheckPolitics(int victim) {
 	auto it = politics.find(victim);
@@ -2102,7 +2102,7 @@ void Clan::ManagePolitics(CharData *ch, std::string &buffer) {
 }
 
 const char *HCONTROL_FORMAT =
-	"Формат: hcontrol build <rent vnum> <outrent vnum> <guard vnum> <leader name> <abbreviation> <clan name>\r\n"
+	"Формат: hcontrol build <rent vnum> <outrent vnum> <guard vnum> <leader name> <abbreviation> <ClanAbbrev name>\r\n"
 	"        hcontrol show\r\n"
 	"        hcontrol destroy <house vnum> - удалить дружину\r\n"
 	"        hcontrol outcast <name> - исключить игрока из дружины\r\n"
@@ -2547,7 +2547,7 @@ void Clan::fix_clan_members_load_room(Clan::shared_ptr clan) {
 void Clan::DestroyClan(Clan::shared_ptr clan) {
 	fix_clan_members_load_room(clan);
 	const auto members = clan->m_members;    // copy members
-	clan->m_members.clear();                    // remove all members from clan
+	clan->m_members.clear();                    // remove all members from ClanAbbrev
 
 	for (const auto &clanVictim : Clan::ClanList) { //для всех кланов выставляем нейтралитет (тупо удаляем)
 		if (clan->rent != clanVictim->rent)
@@ -3714,7 +3714,7 @@ void Clan::MainMenu(DescriptorData *d) {
 
 void Clan::PrivilegeMenu(DescriptorData *d, unsigned num) {
 	if (num > d->clan_olc->clan->ranks.size()) {
-		log("Different size clan->ranks and clan->privileges! (%s %s %d)", __FILE__, __func__, __LINE__);
+		log("Different size ClanAbbrev->ranks and ClanAbbrev->privileges! (%s %s %d)", __FILE__, __func__, __LINE__);
 		if (d->character) {
 			d->clan_olc.reset();
 			STATE(d) = CON_PLAYING;
@@ -4813,7 +4813,7 @@ void do_clanstuff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			continue;
 		}
 
-		sprintf(buf, "%s %s clan%d!", it->name.c_str(), title.c_str(), CLAN(ch)->GetRent());
+		sprintf(buf, "%s %s ClanAbbrev%d!", it->name.c_str(), title.c_str(), CLAN(ch)->GetRent());
 		obj->set_aliases(buf);
 		obj->set_short_description(it->PNames[0] + " " + title);
 
@@ -5557,7 +5557,7 @@ void Clan::house_web_url(CharData *ch, const std::string &buffer) {
 		SendMsgToChar("Адрес сайта вашей дружины установлен.\r\n"
 					  "Обновление справки 'сайтыдружин' состоится в течении минуты.\r\n", ch);
 
-		snprintf(buf, sizeof(buf), "%s sets new clan website: %s", GET_NAME(ch), url.c_str());
+		snprintf(buf, sizeof(buf), "%s sets new ClanAbbrev website: %s", GET_NAME(ch), url.c_str());
 		mudlog(buf, LGH, kLvlImmortal, SYSLOG, true);
 	}
 
@@ -5568,41 +5568,41 @@ void Clan::house_web_url(CharData *ch, const std::string &buffer) {
 // возвращает клан-метку с ведущим пробелом
 std::string clan_get_custom_label(ObjData *obj, Clan::shared_ptr clan) {
 	if (obj->get_custom_label()
-		&& obj->get_custom_label()->label_text
-		&& obj->get_custom_label()->clan
+		&& obj->get_custom_label()->LabelText
+		&& obj->get_custom_label()->ClanAbbrev
 		&& clan
-		&& !strcmp(clan->GetAbbrev(), obj->get_custom_label()->clan)) {
-		return boost::str(boost::format(" *%s*") % obj->get_custom_label()->label_text);
+		&& !strcmp(clan->GetAbbrev(), obj->get_custom_label()->ClanAbbrev)) {
+		return boost::str(boost::format(" *%s*") % obj->get_custom_label()->LabelText);
 	} else {
 		return "";
 	}
 }
 
 bool CHECK_CUSTOM_LABEL_CORE(const ObjData *obj, const CharData *ch) {
-	return (obj->get_custom_label()->author == (ch)->get_idnum()
-		&& !(obj->get_custom_label()->clan))
+	return (obj->get_custom_label()->AuthorIdnum == (ch)->get_idnum()
+		&& !(obj->get_custom_label()->ClanAbbrev))
 		|| IS_IMPL(ch)
 		|| ((ch)->player_specials->clan
-			&& obj->get_custom_label()->clan != nullptr
-			&& !strcmp(obj->get_custom_label()->clan, ch->player_specials->clan->GetAbbrev()))
-		|| (obj->get_custom_label()->author_mail
-			&& !strcmp(GET_EMAIL(ch), obj->get_custom_label()->author_mail));
+			&& obj->get_custom_label()->ClanAbbrev != nullptr
+			&& !strcmp(obj->get_custom_label()->ClanAbbrev, ch->player_specials->clan->GetAbbrev()))
+		|| (obj->get_custom_label()->AuthorMail
+			&& !strcmp(GET_EMAIL(ch), obj->get_custom_label()->AuthorMail));
 }
 
 bool CHECK_CUSTOM_LABEL(const char *arg, const ObjData *obj, const CharData *ch) {
 	return obj->get_custom_label()
-		&& obj->get_custom_label()->label_text
+		&& obj->get_custom_label()->LabelText
 		&& (ch->IsNpc()
 			? ((IS_CHARMICE(ch) && ch->has_master())
 			   ? CHECK_CUSTOM_LABEL_CORE(obj, ch->get_master())
 			   : 0)
 			: CHECK_CUSTOM_LABEL_CORE(obj, ch))
-		&& isname(arg, obj->get_custom_label()->label_text);
+		&& isname(arg, obj->get_custom_label()->LabelText);
 }
 
 bool AUTH_CUSTOM_LABEL(const ObjData *obj, const CharData *ch) {
 	return obj->get_custom_label()
-		&& obj->get_custom_label()->label_text
+		&& obj->get_custom_label()->LabelText
 		&& (ch->IsNpc()
 			? ((IS_CHARMICE(ch) && ch->has_master())
 			   ? CHECK_CUSTOM_LABEL_CORE(obj, ch->get_master())

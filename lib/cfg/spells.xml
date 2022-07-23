@@ -1796,7 +1796,7 @@ effects -секция эффектов заклинания
         </talent_actions>
     </spell>
     <spell id="kClanPray" element="kUndefined" mode="kService">
-        <name rus="!клановые чары!" eng="!clan affect!"/>
+        <name rus="!клановые чары!" eng="!ClanAbbrev affect!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>

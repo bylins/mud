@@ -2440,7 +2440,7 @@ void find_replacement(void *go,
 			sprintf(str, "%ld", GetExpUntilNextLvl(c, c->GetLevel() + 1) - GET_EXP(c));
 		} else if (!str_cmp(field, "sex"))
 			sprintf(str, "%d", (int) GET_SEX(c));
-		else if (!str_cmp(field, "clan")) {
+		else if (!str_cmp(field, "ClanAbbrev")) {
 			if (CLAN(c)) {
 				sprintf(str, "%s", CLAN(c)->GetAbbrev());
 				for (i = 0; str[i]; i++)

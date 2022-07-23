@@ -1,7 +1,7 @@
 /************************************************************************
  *  OasisOLC - redit.c						v1.5	*
  *  Copyright 1996 Harvey Gilpin.					*
- *  Original author: Levork						*
+ *  Original AuthorIdnum: Levork						*
 * 									  *
 *  $Author$                                                        *
 *  $Date$                                           *
