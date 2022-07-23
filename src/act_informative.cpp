@@ -457,7 +457,7 @@ std::string char_get_custom_label(ObjData *obj, CharData *ch) {
 
 	// разные скобки для клановых и личных
 	if (obj->get_custom_label() && (ch->player_specials->clan && obj->get_custom_label()->ClanAbbrev != nullptr &&
-		!strcmp(obj->get_custom_label()->ClanAbbrev, ch->player_specials->clan->GetAbbrev()))) {
+		is_alliance_by_abbr(ch, obj->get_custom_label()->ClanAbbrev))) {
 		delim_l = " *";
 		delim_r = "*";
 	} else {

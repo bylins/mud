@@ -95,7 +95,7 @@ void PlaceCharToRoom(CharData *ch, RoomRnum room);
 void FleeToRoom(CharData *ch, RoomRnum room);
 inline void char_to_room(const CharData::shared_ptr &ch, RoomRnum room) { PlaceCharToRoom(ch.get(), room); }
 inline void char_flee_to_room(const CharData::shared_ptr &ch, RoomRnum room) { FleeToRoom(ch.get(), room); }
-void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset = 0);
+void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset = false);
 void ProcessRoomAffectsOnEntry(CharData *ch, RoomRnum room);
 
 // find if character can see //

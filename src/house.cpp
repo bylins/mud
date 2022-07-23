@@ -5577,6 +5577,17 @@ std::string clan_get_custom_label(ObjData *obj, Clan::shared_ptr clan) {
 		return "";
 	}
 }
+bool is_alliance_by_abbr(const CharData *ch, char *abbrev) {
+	for (auto & ClanTmp : Clan::ClanList) {
+		if ((CLAN(ch)->CheckPolitics(ClanTmp->GetRent()) == kPoliticsAlliance
+				&& ClanTmp->CheckPolitics(CLAN(ch)->GetRent()) == kPoliticsAlliance
+				&& !str_cmp(ClanTmp->get_abbrev().c_str(), abbrev))
+				|| CLAN(ch) == ClanTmp) {
+			return true;
+		}
+	}
+	return false;
+}
 
 bool CHECK_CUSTOM_LABEL_CORE(const ObjData *obj, const CharData *ch) {
 	return (obj->get_custom_label()->author == (ch)->get_idnum()
@@ -5584,7 +5595,7 @@ bool CHECK_CUSTOM_LABEL_CORE(const ObjData *obj, const CharData *ch) {
 		|| IS_IMPL(ch)
 		|| ((ch)->player_specials->clan
 			&& obj->get_custom_label()->ClanAbbrev != nullptr
-			&& !strcmp(obj->get_custom_label()->ClanAbbrev, ch->player_specials->clan->GetAbbrev()))
+			&& is_alliance_by_abbr(ch, obj->get_custom_label()->ClanAbbrev))
 		|| (obj->get_custom_label()->AuthorMail
 			&& !strcmp(GET_EMAIL(ch), obj->get_custom_label()->AuthorMail));
 }
