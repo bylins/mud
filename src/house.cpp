@@ -5587,7 +5587,6 @@ bool is_alliance_by_abbr(const CharData *ch, char *abbrev) {
 			return true;
 		}
 	}
-
 	return false;
 }
 
