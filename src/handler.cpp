@@ -1431,27 +1431,30 @@ bool PlaceObjToRoom(ObjData *object, RoomRnum room) {
 		log("SYSERR: Illegal value(s) passed to PlaceObjToRoom. (Room #%d/%d, obj %p)",
 			room, top_of_world, object);
 		return false;
+	} 
+	RestoreObject(object, nullptr);
+	ArrangeObjs(object, &world[room]->contents);
+	if (zone_table[world[room]->zone_rn].vnum * 100 + 99 == world[room]->room_vn) {
+		sprintf(buf, "Попытка загрузить объект в виртуальную комнату: objvnum %d, objname %s, roomvnum %d", 
+				object->get_vnum(), object->get_PName(0).c_str(), world[room]->room_vn);
+		mudlog(buf, CMP, kLvlGod, SYSLOG, true);
+	}
+	object->set_in_room(room);
+	object->set_carried_by(nullptr);
+	object->set_worn_by(nullptr);
+	if (ROOM_FLAGGED(room, ERoomFlag::kNoItem)) {
+		object->set_extra_flag(EObjFlag::kDecay);
+	}
+	if (object->get_script()->has_triggers()) {
+		object->set_destroyer(kScriptDestroyTimer);
+	} else if (object->has_flag(EObjFlag::kNodecay)) {
+		object->set_destroyer(kRoomNodestroyTimer);
+	} else if (GET_OBJ_TYPE(object) == EObjType::kMoney) {
+		object->set_destroyer(kMoneyDestroyTimer);
+	} else if (ROOM_FLAGGED(room, ERoomFlag::kDeathTrap)) {
+		object->set_destroyer(kDeathDestroyTimer);
 	} else {
-		RestoreObject(object, nullptr);
-		ArrangeObjs(object, &world[room]->contents);
-		object->set_in_room(room);
-		object->set_carried_by(nullptr);
-		object->set_worn_by(nullptr);
-		if (ROOM_FLAGGED(room, ERoomFlag::kNoItem)) {
-			object->set_extra_flag(EObjFlag::kDecay);
-		}
-
-		if (object->get_script()->has_triggers()) {
-			object->set_destroyer(kScriptDestroyTimer);
-		} else if (object->has_flag(EObjFlag::kNodecay)) {
-			object->set_destroyer(kRoomNodestroyTimer);
-		} else if (GET_OBJ_TYPE(object) == EObjType::kMoney) {
-			object->set_destroyer(kMoneyDestroyTimer);
-		} else if (ROOM_FLAGGED(room, ERoomFlag::kDeathTrap)) {
-			object->set_destroyer(kDeathDestroyTimer);
-		} else {
-			object->set_destroyer(kRoomDestroyTimer);
-		}
+		object->set_destroyer(kRoomDestroyTimer);
 	}
 	return true;
 }
