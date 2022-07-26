@@ -551,15 +551,15 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 		mob_log(ch, "mteleport target is an invalid room");
 		return;
 	}
-	if (target == ch->in_room) {
-		mob_log(ch, "mteleport all: target is itself");
-	}
 	if (!str_cmp(arg1, "all") || !str_cmp(arg1, "все")) {
 		const auto people_copy = world[ch->in_room]->people;
 		for (const auto vict : people_copy) {
 			if (IN_ROOM(vict) == kNowhere) {
 				mob_log(ch, "mteleport transports from kNowhere");
 				return;
+			}
+			if (target == vict->in_room) {
+				mob_log(ch, "mteleport all: target is itself");
 			}
 			ExtractCharFromRoom(vict);
 			PlaceCharToRoom(vict, target);
@@ -588,6 +588,9 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 					PlaceCharToRoom(vict->get_horse(), target);
 					onhorse = true;
 				}
+			}
+			if (target == vict->in_room) {
+				mob_log(ch, "mteleport allchar: target is itself");
 			}
 			ExtractCharFromRoom(vict);
 			PlaceCharToRoom(vict, target);
@@ -642,6 +645,9 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 			}
 		}
 //-Polud
+		if (target == vict->in_room) {
+			mob_log(ch, "mteleport: target is itself");
+		}
 		ExtractCharFromRoom(vict);
 		PlaceCharToRoom(vict, target);
 		if (!onhorse)

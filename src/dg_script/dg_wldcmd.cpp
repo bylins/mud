@@ -271,15 +271,15 @@ void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, T
 		return;
 	}
 	if (!str_cmp(arg1, "all") || !str_cmp(arg1, "все")) {
-		if (nr == room->room_vn) {
-			wld_log(room, "wteleport all target is itself");
-			return;
-		}
 		const auto people_copy = room->people;
 		decltype(people_copy)::const_iterator next_ch = people_copy.begin();
 		for (auto ch_i = next_ch; ch_i != people_copy.end(); ch_i = next_ch) {
 			const auto ch = *ch_i;
 			++next_ch;
+			if (target == ch->in_room) {
+				wld_log(room, "wteleport all target is itself");
+//				return;
+			}
 			ExtractCharFromRoom(ch);
 			PlaceCharToRoom(ch, target);
 			if (!ch->IsNpc()) {
@@ -293,10 +293,6 @@ void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, T
 		}
 	}
 	else if (!str_cmp(arg1, "allchar") || !str_cmp(arg1, "всечары")) {
-		if (nr == room->room_vn) {
-			wld_log(room, "wteleport allchar target is itself");
-			return;
-		}
 		const auto people_copy = room->people;
 		decltype(people_copy)::const_iterator next_ch = people_copy.begin();
 		for (auto ch_i = next_ch; ch_i != people_copy.end(); ch_i = next_ch) {
@@ -311,6 +307,10 @@ void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, T
 					PlaceCharToRoom(ch->get_horse(), target);
 					onhorse = true;
 				}
+			}
+			if (target == ch->in_room) {
+				wld_log(room, "wteleport allchar target is itself");
+//				return;
 			}
 			ExtractCharFromRoom(ch);
 			PlaceCharToRoom(ch, target);
@@ -342,6 +342,10 @@ void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, T
 					PlaceCharToRoom(ch->get_horse(), target);
 					onhorse = true;
 				}
+			}
+			if (target == ch->in_room) {
+				wld_log(room, "wteleport target is itself");
+//				return;
 			}
 			ExtractCharFromRoom(ch);
 			PlaceCharToRoom(ch, target);
