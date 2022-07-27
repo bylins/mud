@@ -1401,7 +1401,7 @@ void obj_point_update() {
 							true, world[j->get_in_room()]->first_character(), j.get(), nullptr, kToChar);
 					}
 
-					ExtractObjFromRoom(j.get());
+					RemoveObjFromRoom(j.get());
 				} else if (j->get_in_obj()) {
 					ExtractObjFromObj(j.get());
 				}
@@ -1502,7 +1502,7 @@ void obj_point_update() {
 							false, world[j->get_in_room()]->first_character(), j.get(), nullptr, kToRoom);
 					}
 
-					ExtractObjFromRoom(j.get());
+					RemoveObjFromRoom(j.get());
 				} else if (j->get_in_obj()) {
 					// если сыпется в находящемся у чара или чармиса контейнере, то об этом тоже сообщаем
 					CharData *cont_owner = nullptr;

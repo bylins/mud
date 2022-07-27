@@ -2291,7 +2291,7 @@ void Clan::hcontrol_set_ingr_chest(CharData *ch, std::string &text) {
 		for (ObjData *chest = world[(*i)->get_ingr_chest_room_rnum()]->contents; chest;
 			 chest = chest->get_next_content()) {
 			if (is_ingr_chest(chest)) {
-				ExtractObjFromRoom(chest);
+				RemoveObjFromRoom(chest);
 				PlaceObjToRoom(chest, room_rnum);
 				chest_moved = true;
 				break;
@@ -5385,7 +5385,7 @@ void Clan::set_ingr_chest(CharData *ch) {
 	if (ingr_chest_active()) {
 		for (ObjData *chest = world[get_ingr_chest_room_rnum()]->contents; chest; chest = chest->get_next_content()) {
 			if (is_ingr_chest(chest)) {
-				ExtractObjFromRoom(chest);
+				RemoveObjFromRoom(chest);
 				PlaceObjToRoom(chest, ch->in_room);
 				chest_moved = true;
 				break;
