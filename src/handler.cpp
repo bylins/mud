@@ -1510,10 +1510,10 @@ bool CheckObjDecay(ObjData *object) {
 	return false;
 }
 
-void ExtractObjFromRoom(ObjData *object) {
+void RemoveObjFromRoom(ObjData *object) {
 	if (!object || object->get_in_room() == kNowhere) {
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
-		log("SYSERR: NULL object (%p) or obj not in a room (%d) passed to ExtractObjFromRoom",
+		log("SYSERR: NULL object (%p) or obj not in a room (%d) passed to RemoveObjFromRoom",
 			object, object->get_in_room());
 		return;
 	}
@@ -1660,7 +1660,7 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 	}
 
 	if (obj->get_in_room() != kNowhere) {
-		ExtractObjFromRoom(obj);
+		RemoveObjFromRoom(obj);
 	} else if (obj->get_carried_by()) {
 		ExtractObjFromChar(obj);
 	} else if (obj->get_in_obj()) {

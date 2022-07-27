@@ -3178,7 +3178,7 @@ void find_replacement(void *go,
 			} else if (o->get_in_obj()) {
 				ExtractObjFromObj(o);
 			} else if (o->get_in_room() > kNowhere) {
-				ExtractObjFromRoom(o);
+				RemoveObjFromRoom(o);
 			} else {
 				trig_log(trig, "object.put: не удалось извлечь объект");
 				return;
