@@ -559,7 +559,8 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 				return;
 			}
 			if (target == vict->in_room) {
-				mob_log(ch, "mteleport all: target is itself");
+//				mob_log(ch, "mteleport all: target is itself");
+				continue;
 			}
 			ExtractCharFromRoom(vict);
 			PlaceCharToRoom(vict, target);
@@ -582,7 +583,11 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 			if (vict->IsNpc() && !IS_CHARMICE(vict)) {
 				continue;
 			}
-			if (!str_cmp(argument, "horse") && vict->get_horse()) {
+			if (target == vict->in_room) {
+//				mob_log(ch, "mteleport allchar: target is itself");
+				continue;
+			}
+			if (vict->get_horse()) {
 				if (vict->IsOnHorse() || vict->has_horse(true)) {
 					ExtractCharFromRoom(vict->get_horse());
 					PlaceCharToRoom(vict->get_horse(), target);
@@ -617,6 +622,10 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 			mob_log(ch, buf);
 			return;
 		}
+		if (target == vict->in_room) {
+//			mob_log(ch, "mteleport: target is itself");
+			return;
+		}
 		if (IS_CHARMICE(vict) && vict->in_room == vict->get_master()->in_room)
 			vict = vict->get_master();
 		const auto people_copy = world[IN_ROOM(vict)]->people;
@@ -626,7 +635,7 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 				PlaceCharToRoom(charmee, target);
 			}
 		}
-		if (!str_cmp(argument, "horse") && vict->get_horse()) {
+		if (vict->get_horse()) {
 			if (vict->IsOnHorse() || vict->has_horse(true)) {
 				ExtractCharFromRoom(vict->get_horse());
 				PlaceCharToRoom(vict->get_horse(), target);
@@ -634,7 +643,6 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 			}
 		}
 		from_room = vict->in_room;
-//Polud реализуем режим followers. за аргументом телепорта перемешаются все последователи-NPC
 		if (!str_cmp(argument, "followers") && vict->followers) {
 			FollowerType *ft;
 			for (ft = vict->followers; ft; ft = ft->next) {
@@ -643,10 +651,6 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 					PlaceCharToRoom(ft->follower, target);
 				}
 			}
-		}
-//-Polud
-		if (target == vict->in_room) {
-			mob_log(ch, "mteleport: target is itself");
 		}
 		ExtractCharFromRoom(vict);
 		PlaceCharToRoom(vict, target);
