@@ -277,8 +277,8 @@ void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, T
 			const auto ch = *ch_i;
 			++next_ch;
 			if (target == ch->in_room) {
-				wld_log(room, "wteleport all target is itself");
-//				return;
+//				wld_log(room, "wteleport all target is itself");
+				continue;
 			}
 			ExtractCharFromRoom(ch);
 			PlaceCharToRoom(ch, target);
@@ -301,16 +301,16 @@ void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, T
 			if (ch->IsNpc() && !IS_CHARMICE(ch)) {
 				continue;
 			}
-			if (!str_cmp(argument, "horse") && ch->get_horse()) {
+			if (target == ch->in_room) {
+//				wld_log(room, "wteleport allchar target is itself");
+				continue;
+			}
+			if (ch->get_horse()) {
 				if (ch->IsOnHorse() || ch->has_horse(true)) {
 					ExtractCharFromRoom(ch->get_horse());
 					PlaceCharToRoom(ch->get_horse(), target);
 					onhorse = true;
 				}
-			}
-			if (target == ch->in_room) {
-				wld_log(room, "wteleport allchar target is itself");
-//				return;
 			}
 			ExtractCharFromRoom(ch);
 			PlaceCharToRoom(ch, target);
@@ -327,6 +327,10 @@ void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, T
 		}
 	} else {
 		if ((ch = get_char_by_room(room, arg1))) { //уид ищется внутри
+			if (target == ch->in_room) {
+//				wld_log(room, "wteleport target is itself");
+				return;
+			}
 			if (IS_CHARMICE(ch) && ch->in_room == ch->get_master()->in_room)
 				ch = ch->get_master();
 			const auto people_copy = world[ch->in_room]->people;
@@ -336,16 +340,12 @@ void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, T
 					PlaceCharToRoom(charmee, target);
 				}
 			}
-			if (!str_cmp(argument, "horse") && ch->get_horse()) {
+			if (ch->get_horse()) {
 				if (ch->IsOnHorse() || ch->has_horse(true)) {
 					ExtractCharFromRoom(ch->get_horse());
 					PlaceCharToRoom(ch->get_horse(), target);
 					onhorse = true;
 				}
-			}
-			if (target == ch->in_room) {
-				wld_log(room, "wteleport target is itself");
-//				return;
 			}
 			ExtractCharFromRoom(ch);
 			PlaceCharToRoom(ch, target);

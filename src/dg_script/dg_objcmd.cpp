@@ -425,15 +425,17 @@ void do_oteleport(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 			if (ch->IsNpc() && !IS_CHARMICE(ch)) {
 				continue;
 			}
-			if (!str_cmp(argument, "horse") && ch->get_horse()) {
+			if (target == ch->in_room) {
+//				obj_log(obj, "oteleport allchar: target is itself");
+				continue;
+			}
+
+			if (ch->get_horse()) {
 				if (ch->IsOnHorse() || ch->has_horse(true)) {
 					ExtractCharFromRoom(ch->get_horse());
 					PlaceCharToRoom(ch->get_horse(), target);
 					onhorse = true;
 				}
-			}
-			if (target == ch->in_room) {
-				obj_log(obj, "oteleport allchar: target is itself");
 			}
 			ExtractCharFromRoom(ch);
 			PlaceCharToRoom(ch, target);
@@ -453,6 +455,10 @@ void do_oteleport(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 			obj_log(obj, "oteleport: no target found");
 			return;
 		}
+		if (target == ch->in_room) {
+//			obj_log(obj, "oteleport: target is itself");
+			return;
+		}
 		if (IS_CHARMICE(ch) && ch->in_room == ch->get_master()->in_room)
 			ch = ch->get_master();
 		const auto people_copy = world[ch->in_room]->people;
@@ -462,15 +468,12 @@ void do_oteleport(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 				PlaceCharToRoom(charmee, target);
 			}
 		}
-		if (!str_cmp(argument, "horse") && ch->get_horse()) {
+		if (ch->get_horse()) {
 			if (ch->IsOnHorse() || ch->has_horse(true)) {
 				ExtractCharFromRoom(ch->get_horse());
 				PlaceCharToRoom(ch->get_horse(), target);
 				onhorse = true;
 			}
-		}
-		if (target == ch->in_room) {
-			obj_log(obj, "oteleport: target is itself");
 		}
 		ExtractCharFromRoom(ch);
 		PlaceCharToRoom(ch, target);
