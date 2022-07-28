@@ -228,6 +228,12 @@ void olc_update_object(int robj_num, ObjData *obj, ObjData *olc_obj) {
 		}
 		obj->get_custom_label()->AuthorMail = str_dup(tmp.get_custom_label()->AuthorMail);
 	}
+	// восстановим силу ингров
+	if (tmp.get_type() == EObjType::kMagicIngredient) {
+		obj->set_val(0, tmp.get_val(0));
+		obj->set_val(1, tmp.get_val(1));
+		obj->set_val(2, tmp.get_val(2));
+	}
 }
 
 // * Обновление полей объектов при изменении их прототипа через олц.

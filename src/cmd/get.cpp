@@ -218,7 +218,7 @@ void get_from_container(CharData *ch, ObjData *cont, char *local_arg, int mode, 
 
 int perform_get_from_room(CharData *ch, ObjData *obj) {
 	if (CanTakeObj(ch, obj) && get_otrigger(obj, ch) && bloody::handle_transfer(nullptr, ch, obj)) {
-		ExtractObjFromRoom(obj);
+		RemoveObjFromRoom(obj);
 		PlaceObjToInventory(obj, ch);
 		if (obj->get_carried_by() == ch) {
 			if (bloody::is_bloody(obj)) {

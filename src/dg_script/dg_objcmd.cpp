@@ -437,6 +437,9 @@ void do_oteleport(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 					onhorse = true;
 				}
 			}
+			if (target == ch->in_room) {
+				obj_log(obj, "oteleport allchar: target is itself");
+			}
 			ExtractCharFromRoom(ch);
 			PlaceCharToRoom(ch, target);
 			if (!onhorse)
@@ -474,6 +477,9 @@ void do_oteleport(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 				PlaceCharToRoom(ch->get_horse(), target);
 				onhorse = true;
 			}
+		}
+		if (target == ch->in_room) {
+			obj_log(obj, "oteleport: target is itself");
 		}
 		ExtractCharFromRoom(ch);
 		PlaceCharToRoom(ch, target);

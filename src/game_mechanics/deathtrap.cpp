@@ -129,7 +129,7 @@ int deathtrap::check_death_trap(CharData *ch) {
 			//конец правки (с) Василиса
 			corpse = make_corpse(ch);
 			if (corpse != nullptr) {
-				ExtractObjFromRoom(corpse);    // для того, чтобы удалилость все содержимое
+				RemoveObjFromRoom(corpse);    // для того, чтобы удалилость все содержимое
 				ExtractObjFromWorld(corpse);
 			}
 			GET_HIT(ch) = GET_MOVE(ch) = 0;

@@ -265,7 +265,7 @@ int npc_scavenge(CharData *ch) {
 					ch->add_gold(GET_OBJ_VAL(best_obj, 0));
 					ExtractObjFromWorld(best_obj);
 				} else {
-					ExtractObjFromRoom(best_obj);
+					RemoveObjFromRoom(best_obj);
 					PlaceObjToInventory(best_obj, ch);
 				}
 			} else {
@@ -768,7 +768,7 @@ int npc_battle_scavenge(CharData *ch) {
 				&& !has_curse(obj)
 				&& (ObjSystem::is_armor_type(obj)
 					|| GET_OBJ_TYPE(obj) == EObjType::kWeapon)) {
-				ExtractObjFromRoom(obj);
+				RemoveObjFromRoom(obj);
 				PlaceObjToInventory(obj, ch);
 				act("$n поднял$g $o3.", false, ch, obj, 0, kToRoom);
 				max = true;
@@ -1263,7 +1263,7 @@ int janitor(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 		}
 
 		act("$n picks up some trash.", false, ch, 0, 0, kToRoom);
-		ExtractObjFromRoom(i);
+		RemoveObjFromRoom(i);
 		PlaceObjToInventory(i, ch);
 
 		return true;

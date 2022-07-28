@@ -45,10 +45,12 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	auto success = (prob >= percent);
 	bool need = false;
+	bool enough_skill = false;
 	if ((GET_REAL_MAX_HIT(vict) > 0 && (GET_HIT(vict) * 100 / GET_REAL_MAX_HIT(vict)) < 31) ||
 		(GET_REAL_MAX_HIT(vict) <= 0 && GET_HIT(vict) < GET_REAL_MAX_HIT(vict)) ||
 		(GET_HIT(vict) < GET_REAL_MAX_HIT(vict) && CanUseFeat(ch, EFeat::kHealer))) {
 		need = true;
+		enough_skill = true;
 		if (success) {
 			if (!PRF_FLAGGED(ch, EPrf::kTester)) {
 				int dif = GET_REAL_MAX_HIT(vict) - GET_HIT(vict);
@@ -66,7 +68,6 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	}
 	auto spell_id{ESpell::kUndefined};
-	bool enough_skill = false;
 	for (int count = MAX_FIRSTAID_REMOVE - 1; count >= 0; count--) {
 		spell_id = GetRemovableSpellId(count);
 		if (IsAffectedBySpell(vict, spell_id)) {
@@ -80,7 +81,7 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!need) {
 		act("$N в лечении не нуждается.", false, ch, nullptr, vict, kToChar);
 	} else if (!enough_skill) {
-		act("У вас не хватит умения вылечить $N3.", false, ch, nullptr, vict, kToChar);
+		act("У вас не хватило умения вылечить $N3.", false, ch, nullptr, vict, kToChar);
 	} else {
 		timed.skill = ESkill::kFirstAid;
 		int time = IS_IMMORTAL(ch) ? 1 : IS_PALADINE(ch) ? 4 : IS_SORCERER(ch) ? 2 : 6;

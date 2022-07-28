@@ -594,6 +594,9 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 					onhorse = true;
 				}
 			}
+			if (target == vict->in_room) {
+				mob_log(ch, "mteleport allchar: target is itself");
+			}
 			ExtractCharFromRoom(vict);
 			PlaceCharToRoom(vict, target);
 			if (!onhorse)

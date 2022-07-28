@@ -3877,14 +3877,19 @@ void paste_obj(ObjData *obj, RoomRnum room) {
 				ExtractObjFromWorld(obj);
 				return;
 			}
-			ExtractObjFromRoom(obj);
+			RemoveObjFromRoom(obj);
 			PlaceObjToRoom(obj, real_room(OBJ_GET_LASTROOM(obj)));
 		} else {
 			if (world[room]->room_vn == zone_table[world[room]->zone_rn].top) {
 				return;
 			}
+			// зачем сезонные переносить в виртуалку? спуржить нафиг
+			if (!month_ok) {
+				ExtractObjFromWorld(obj);
+				return;
+			}
 			obj->set_room_was_in(GET_ROOM_VNUM(room));
-			ExtractObjFromRoom(obj);
+			RemoveObjFromRoom(obj);
 			room = real_room(zone_table[world[room]->zone_rn].top);
 			if (room == kNowhere) {
 				room = real_room(OBJ_GET_LASTROOM(obj));

@@ -312,6 +312,10 @@ void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, T
 					onhorse = true;
 				}
 			}
+			if (target == ch->in_room) {
+				wld_log(room, "wteleport allchar target is itself");
+//				return;
+			}
 			ExtractCharFromRoom(ch);
 			PlaceCharToRoom(ch, target);
 			if (!onhorse)
@@ -346,6 +350,10 @@ void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, T
 					PlaceCharToRoom(ch->get_horse(), target);
 					onhorse = true;
 				}
+			}
+			if (target == ch->in_room) {
+				wld_log(room, "wteleport target is itself");
+//				return;
 			}
 			ExtractCharFromRoom(ch);
 			PlaceCharToRoom(ch, target);

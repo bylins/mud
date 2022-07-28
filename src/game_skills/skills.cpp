@@ -1856,8 +1856,8 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 	prob /= std::max(1L, div);
 	prob -= 5 * wis_bonus(GetRealWis(ch), WIS_MAX_SKILLS);
 	prob += number(1, trained_skill * 5);
-
 	int skill_is = number(1, std::max(1, prob));
+	ch->send_to_TC(true, true, true,"ImprooveSkill: prob=%d, div=%d, skill_is=%d, success=%d", prob, div, skill_is, success);
 	if ((victim && skill_is <= GetRealInt(ch) * GetRealLevel(victim) / GetRealLevel(ch))
 		|| (!victim && skill_is <= GetRealInt(ch))) {
 		if (success) {
