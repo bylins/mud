@@ -621,6 +621,30 @@ int SendSkillMessages(int dam, CharData *ch, CharData *vict, ESpell spell_id, co
 	return SendSkillMessages(dam, ch, vict, to_underlying(spell_id), add);
 }
 
+int GetRealSave(CharData *ch, const ESkill skill_id) {
+	int rate = static_cast<int>(round(GetSave(ch, MUD::Skill(skill_id).save_type) * kSaveWeight));
+	sprintf(buf, "Saving1 == %d", rate);
+	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+
+	switch (MUD::Skill(skill_id).save_type) {
+		case ESaving::kStability:
+			rate -= dex_bonus(GetRealCon(ch) + (ch->IsOnHorse() ? 20 : 0));
+			break;
+		case ESaving::kReflex:
+			rate -= dex_bonus(GetRealDex(ch) + (ch->IsOnHorse() ? -20 : 0));
+			break;
+		case ESaving::kCritical:
+			rate -= dex_bonus(GetRealCon(ch));
+			break;
+		case ESaving::kWill:
+			rate -= dex_bonus(GetRealWis(ch));
+			break;
+		default:
+			break;
+	}
+	return rate;
+}
+
 int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 	if (!vict) {
 		return 0;
@@ -779,23 +803,7 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 	if (!MUD::Skill(skill_id).autosuccess) {
 		rate /= 2;
-		rate -= static_cast<int>(round(GetSave(vict, MUD::Skill(skill_id).save_type) * kSaveWeight));
-	}
-	switch (MUD::Skill(skill_id).save_type) {
-		case ESaving::kStability:
-			rate += dex_bonus(GetRealCon(ch) + (ch)->IsOnHorse() ? 20 : 0);
-			break;
-		case ESaving::kReflex:
-			rate += dex_bonus(GetRealDex(ch) + (ch)->IsOnHorse() ? -20 : 0);
-			break;
-		case ESaving::kCritical:
-			rate += dex_bonus(GetRealCon(ch));
-			break;
-		case ESaving::kWill:
-			rate += dex_bonus(GetRealWis(ch));
-			break;
-		default:
-			break;
+		rate -= GetRealSave(vict, skill_id);
 	}
 	return rate;
 }
@@ -1240,9 +1248,14 @@ SkillRollResult MakeSkillTest(CharData *ch, ESkill skill_id, CharData *vict) {
 void SendSkillRollMsg(CharData *ch, CharData *victim, ESkill skill_id,
 	int actor_rate, int victim_rate, int /*threshold*/, int roll, SkillRollResult &result) {
 	std::stringstream buffer;
+	int save = GetRealSave(victim, skill_id);
+
+//	sprintf(buf, "Saving2 == %d dex_bouus %d", save, dex_bonus(GetRealDex(victim)));
+//	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 	buffer << KICYN
 		   << "Skill: '" << MUD::Skill(skill_id).name << "'"
-		   << " SkillRate: " << result.SkillRate
+//		   << " SkillRate: " << result.SkillRate
+		   << " Total_Percent: " << result.SkillRate
 		   << " ActorRate: " << actor_rate
 		   << " Victim: " << victim->get_name()
 		   << " V.Rate: " << victim_rate
@@ -1253,7 +1266,7 @@ void SendSkillRollMsg(CharData *ch, CharData *victim, ESkill skill_id,
 //		   << " Crit: " << (result.critical ? "yes" : "no")
 		   << " CritLuck: " << (result.CritLuck ? "&Gyes&C" : "&Rno&C")
 //		   << " Degree: " << result.degree
-		   << " Saving: " << static_cast<int>(round(GetSave(victim, MUD::Skill(skill_id).save_type) * kSaveWeight))
+		   << " Saving: " << save
 		   << KNRM << std::endl;
 	ch->send_to_TC(false, true, true, buffer.str().c_str());
 }
@@ -1394,7 +1407,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kPunch: {
-			victim_sav = -GET_REAL_SAVING_REFLEX(vict);
+			victim_sav = -GET_REAL_SAVING_STABILITY(vict);
 			break;
 		}
 
@@ -1535,7 +1548,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 		case ESkill::kNonstandart: break;
 		case ESkill::kAxes: break;
 		case ESkill::kSideAttack: {
-			victim_sav = -GET_REAL_SAVING_REFLEX(vict) + dex_bonus(GetRealDex(ch));
+			victim_sav = -GET_REAL_SAVING_STABILITY(vict);
 			break;
 		}
 

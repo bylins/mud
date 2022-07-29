@@ -90,11 +90,12 @@ void go_backstab(CharData *ch, CharData *vict) {
 	}
 
 	bool success = false;
-/*	if (EPrf::FLAGGED(ch, EPrf::TESTER)) {
+///*	
+	if (PRF_FLAGGED(ch, EPrf::kTester)) {
 		SkillRollResult result = MakeSkillTest(ch, ESkill::kBackstab, vict);
 		success = result.success;
 	} else 
-*/
+//*/
 {
 		int percent = number(1, MUD::Skill(ESkill::kBackstab).difficulty);
 		int prob = CalcCurrentSkill(ch, ESkill::kBackstab, vict);
