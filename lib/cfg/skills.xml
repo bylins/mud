@@ -21,7 +21,7 @@ mode - режим умения.
     <skill id="kAny"			name="!any"			abbr="Any"	saving="kFirst"		difficulty="1"		cap="1"		mode="kService"/>
     <skill id="kUndefined"		name="!UNDEF!"			abbr="!Icr"	saving="kFirst"		difficulty="1"		cap="1"		mode="kService"/>
     <skill id="kGlobalCooldown"		name="!cooldown"		abbr="ОЗ"	saving="kFirst"		difficulty="1"		cap="1"		mode="kService"/>
-    <skill id="kBackstab"		name="заколоть"			abbr="Зк"	saving="kCritical"	difficulty="200"	cap="1000"/>
+    <skill id="kBackstab"		name="заколоть"			abbr="Зк"	saving="kReflex"	difficulty="200"	cap="1000"/>
     <skill id="kBash"			name="сбить"			abbr="Сб"	saving="kStability"	difficulty="200"	cap="200"/>
     <skill id="kHide"			name="спрятаться"		abbr="Сп"	saving="kWill"		difficulty="100"	cap="200"/>
     <skill id="kKick"			name="пнуть"			abbr="Пн"	saving="kStability"	difficulty="200"	cap="200"/>

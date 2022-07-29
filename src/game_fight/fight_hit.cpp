@@ -2876,7 +2876,7 @@ void HitData::init(CharData *ch, CharData *victim) {
 	}
 	if (skill_num == ESkill::kUndefined) {
 		TrainSkill(ch, weap_skill, true, victim);
-		if (PRF_FLAGGED(ch, EPrf::kTester) && ch != victim) {
+//		if (!PRF_FLAGGED(ch, EPrf::kTester) && ch != victim) {
 			SkillRollResult result = MakeSkillTest(ch, weap_skill, victim);
 			weap_skill_is = result.SkillRate;
 			if (result.CritLuck) {
@@ -2888,7 +2888,7 @@ void HitData::init(CharData *ch, CharData *victim) {
 				set_flag(fight::kIgnoreArmor);
 				set_flag(fight::kIgnoreAbsorbe);
 			}
-		} else {
+/*		} else {
 			weap_skill_is = CalcCurrentSkill(ch, weap_skill, victim);
 			if (weap_skill_is == MUD::Skill(weap_skill).cap && ch != victim) {
 				SendMsgToChar(ch, "Вы удачно поразили %s в уязвимое место.\r\n", victim->player_data.PNames[3].c_str());
@@ -2899,7 +2899,7 @@ void HitData::init(CharData *ch, CharData *victim) {
 				set_flag(fight::kIgnoreArmor);
 				set_flag(fight::kIgnoreAbsorbe);
 			}
-		}
+		}*/
 	}
 	//* обработка ESkill::kNoParryHit //
 	if (skill_num == ESkill::kUndefined && ch->GetSkill(ESkill::kNoParryHit)) {
