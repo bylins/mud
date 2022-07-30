@@ -1377,22 +1377,14 @@ void show_lots(char *filter, short int show_type, CharData *ch) {
 						"ничего"))  // added by WorM (Видолюб) отображение не только аффектов, но и доп.свойств запястий
 			{
 				bool found = false;
-				int drndice = 0, drsdice = 0;
-
 				for (int n = 0; n < kMaxObjAffect; n++) {
-					drndice = GET_EXCHANGE_ITEM(j)->get_affected(n).location;
-					drsdice = GET_EXCHANGE_ITEM(j)->get_affected(n).modifier;
+					auto drndice = GET_EXCHANGE_ITEM(j)->get_affected(n).location;
+					int drsdice = GET_EXCHANGE_ITEM(j)->get_affected(n).modifier;
 					if ((drndice != EApply::kNone) && (drsdice != 0)) {
-						sprinttype(drndice, apply_types, buf2);
-						bool negative = false;
-						for (int k = 0; apply_negative[k].name != "\n"; k++) {
-							if (!str_cmp(buf2, apply_negative[k].name.c_str())) {
-								negative = true;
-								break;
-							}
-						}
+						bool negative = IsNegativeApply(drndice);
 						if (drsdice < 0)
 							negative = !negative;
+						sprinttype(drndice, apply_types, buf2);
 						snprintf(buf, kMaxStringLength, "%s %s%d", buf2, negative ? "-" : "+", abs(drsdice));
 						found = true;
 						break;

@@ -832,10 +832,10 @@ void medit_disp_saves(DescriptorData *d) {
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
-	for (int i = 0; apply_negative[i].name != "\n"; i++ ) {
-		if (apply_negative[i].savetype != ESaving::kNone) {
+	for (auto i: apply_negative) {
+		if (i.savetype != ESaving::kNone) {
 			sprintf(buf, "%s%2d%s) %s : %s%d%s\r\n",
-					grn, num++, nrm, apply_negative[i].name.c_str(), cyn, GetSave(OLC_MOB(d), apply_negative[i].savetype), nrm);
+					grn, num++, nrm, i.name.c_str(), cyn, GetSave(OLC_MOB(d), i.savetype), nrm);
 			SendMsgToChar(buf, d->character.get());
 		}
 	}

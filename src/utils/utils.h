@@ -141,6 +141,7 @@ void format_text(const utils::AbstractStringWriter::shared_ptr &writer, int mode
 int check_moves(CharData *ch, int how_moves);
 void koi_to_alt(char *str, int len);
 std::string koi_to_alt(const std::string &input);
+bool IsNegativeApply(EApply location);
 void koi_to_win(char *str, int len);
 void koi_to_utf8(char *str_i, char *str_o);
 void utf8_to_koi(char *str_i, char *str_o);

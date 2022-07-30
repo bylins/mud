@@ -82,15 +82,13 @@ extern const char *where[];
 extern const char *item_types[];
 extern const char *wear_bits[];
 extern const char *extra_bits[];
-//extern std::vector<ApplyNegative> apply_negative;
-extern const struct ApplyNegative apply_negative[];
+extern std::vector<ApplyNegative> apply_negative;
 extern const char *weapon_affects[];
 extern const char *anti_bits[];
 extern const char *no_bits[];
 extern const char *material_type[];
 extern const char *container_bits[];
 extern const char *fullness[];
-
 extern const std::vector<const char *> npc_role_types;
 extern const char *npc_race_types[];
 extern const char *places_of_birth[];
@@ -115,7 +113,6 @@ extern struct WeaponApplies weapon_app[];
 extern std::vector<PrayAffect> pray_affect;
 extern int rev_dir[];
 extern int movement_loss[];
-
 extern int mana[];
 extern int mana_gain_cs[];
 extern int mana_cost_cs[][9];

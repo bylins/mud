@@ -4928,21 +4928,17 @@ void do_print_armor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			<< GET_OBJ_PNAME(obj, 0) << "\r\n";
 
 		for (int i = 0; i < kMaxObjAffect; i++) {
-			int drndice = obj->get_affected(i).location;
+			auto drndice = obj->get_affected(i).location;
 			int drsdice = obj->get_affected(i).modifier;
 			if (drndice == EApply::kNone || !drsdice) {
 				continue;
 			}
 			sprinttype(drndice, apply_types, buf2);
-			bool negative = false;
-			for (int j = 0; apply_negative[i].name != "\n"; j++) {
-				if (!str_cmp(buf2, apply_negative[i].name.c_str())) {
-					negative = true;
-					break;
-				}
-			}
-			if (obj->get_affected(i).modifier < 0) {
-				negative = !negative;
+			bool negative = IsNegativeApply(drndice);
+			if (!negative && drsdice < 0) {
+				negative = true;
+			} else if (negative && drsdice < 0) {
+				negative = false;
 			}
 			snprintf(buf, kMaxStringLength, "   %s%s%s%s%s%d%s\r\n",
 					 CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM),
