@@ -60,8 +60,8 @@ struct PrayAffect {
 };
 struct ApplyNegative {
 	std::string name;
-	EApply location{kNone};
-	ESaving savetype{kNone};
+	EApply location;
+	ESaving savetype;
 };
 
 extern const char *circlemud_version;
