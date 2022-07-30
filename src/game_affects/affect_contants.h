@@ -185,6 +185,7 @@ struct WeaponAffect {
 /**
  * Modifier constants used with obj affects ('A' fields) and character affects
  */
+
 enum EApply {
 	kNone = 0,    // No effect         //
 	kStr = 1,    // Apply to strength    //

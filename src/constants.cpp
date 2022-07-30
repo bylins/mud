@@ -868,12 +868,13 @@ const char *anti_bits[] = {"!христиане",
 						   "\n"
 };
 
-const char *apply_negative[] = {"защита",
-								"воля",        // kWill
-								"здоровье",    // kCritical
-								"стойкость",    // kStability
-								"реакция",    // kReflex
-								"\n"
+//переделать на EApplyNegative
+std::vector<ApplyNegative> apply_negative = {
+	{"защита", EApply::kAc, ESaving::kNone},
+	{"воля", EApply::kSavingWill, ESaving::kWill},
+	{"здоровье", EApply::kSavingCritical, ESaving::kCritical},
+	{"стойкость", EApply::kSavingStability, ESaving::kStability},
+	{"реакция", EApply::kSavingReflex, ESaving::kReflex},
 };
 
 // MAT_

@@ -534,10 +534,8 @@ std::string ParseFilter::show_obj_aff(ObjData *obj) {
 					int mod = obj->get_affected(i).modifier;
 					char buf_[kMaxInputLength];
 					sprinttype(obj->get_affected(i).location, apply_types, buf_);
-					for (int j = 0; *apply_negative[j] != '\n'; j++) {
-						if (!str_cmp(buf_, apply_negative[j])) {
-							mod = -mod;
-						}
+					if (IsNegativeApply(obj->get_affected(i).location)) {
+						mod = -mod;
 					}
 					std::string return_str(buf_);
 					if (mod > 0)
@@ -563,11 +561,9 @@ bool ParseFilter::check_affect_apply(ObjData *obj) const {
 					int mod = obj->get_affected(i).modifier;
 					char buf_[kMaxInputLength];
 					sprinttype(obj->get_affected(i).location, apply_types, buf_);
-					for (int j = 0; *apply_negative[j] != '\n'; j++) {
-						if (!str_cmp(buf_, apply_negative[j])) {
-							mod = -mod;
-							break;
-						}
+					if (IsNegativeApply(obj->get_affected(i).location)) {
+						mod = -mod;
+						break;
 					}
 					result = true;
 					break;

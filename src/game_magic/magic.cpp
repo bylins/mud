@@ -124,6 +124,8 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply
 		case ESaving::kCritical: save += -GetRealCon(victim);
 			temp_save_stat = GetRealCon(victim);
 			break;
+		default:
+			break;
 	}
 
 	if (saving != ESaving::kReflex) {

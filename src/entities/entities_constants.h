@@ -95,6 +95,7 @@ enum class ESaving : int {
 	kCritical = 1,
 	kStability = 2,
 	kReflex = 3,
+	kNone = 4,
 	kFirst = kWill,
 	kLast = kReflex, // Не забываем менять при добаввлении новых элементов.
 };

@@ -13,6 +13,7 @@
 #define CONSTANTS_H_
 
 #include "game_classes/classes_constants.h"
+#include "entities/entities_constants.h"
 #include "structs/structs.h"
 #include "sysdep.h"
 #include "conf.h"
@@ -57,6 +58,11 @@ struct PrayAffect {
 	Bitvector bitvector;
 	int battleflag;
 };
+struct ApplyNegative {
+	std::string name;
+	EApply location{kNone};
+	ESaving savetype{kNone};
+};
 
 extern const char *circlemud_version;
 extern const char *dirs[];
@@ -76,14 +82,13 @@ extern const char *where[];
 extern const char *item_types[];
 extern const char *wear_bits[];
 extern const char *extra_bits[];
-extern const char *apply_negative[];
+extern std::vector<ApplyNegative> apply_negative;
 extern const char *weapon_affects[];
 extern const char *anti_bits[];
 extern const char *no_bits[];
 extern const char *material_type[];
 extern const char *container_bits[];
 extern const char *fullness[];
-
 extern const std::vector<const char *> npc_role_types;
 extern const char *npc_race_types[];
 extern const char *places_of_birth[];
@@ -108,7 +113,6 @@ extern struct WeaponApplies weapon_app[];
 extern std::vector<PrayAffect> pray_affect;
 extern int rev_dir[];
 extern int movement_loss[];
-
 extern int mana[];
 extern int mana_gain_cs[];
 extern int mana_cost_cs[][9];

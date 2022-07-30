@@ -2048,6 +2048,14 @@ short GetRealRemort(const std::shared_ptr<CharData> &ch) {
 	return GetRealRemort(ch.get());
 }*/
 
+bool IsNegativeApply(EApply location) {
+	for (auto elem : apply_negative) {
+		if (location == elem.location)
+			return true;
+	}
+	return false;
+}
+
 bool isname(const char *str, const char *namelist) {
 	bool once_ok = false;
 	const char *curname, *curstr, *laststr;

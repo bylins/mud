@@ -222,9 +222,11 @@ void Applies::Print(CharData *ch, std::ostringstream &buffer) const {
 
 void Applies::Impose(CharData *ch) const {
 	for (const auto &apply: applies_) {
-		auto mod = static_cast<int>(apply.mod +
-			apply.lvl_bonus * ch->GetLevel() +
-			apply.remort_bonus * GetRealRemort(ch));
+		auto mod = static_cast<int>(apply.mod);
+		if (IsNegativeApply(apply.location))
+			mod -= apply.lvl_bonus * GetRealLevel(ch) + apply.remort_bonus * GetRealRemort(ch);
+		else
+			mod += apply.lvl_bonus * GetRealLevel(ch) + apply.remort_bonus * GetRealRemort(ch);
 		if (apply.cap) {
 			if (apply.cap > 0) {
 				mod = std::min(mod, apply.cap);
