@@ -868,7 +868,6 @@ const char *anti_bits[] = {"!христиане",
 						   "\n"
 };
 
-//переделать на EApplyNegative
 std::vector<ApplyNegative> apply_negative = {
 	{"защита", EApply::kAc, ESaving::kNone},
 	{"воля", EApply::kSavingWill, ESaving::kWill},
