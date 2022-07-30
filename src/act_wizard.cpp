@@ -4935,8 +4935,8 @@ void do_print_armor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			sprinttype(drndice, apply_types, buf2);
 			bool negative = false;
-			for (int j = 0; *apply_negative[j] != '\n'; j++) {
-				if (!str_cmp(buf2, apply_negative[j])) {
+			for (int j = 0; apply_negative[i].name != "\n"; j++) {
+				if (!str_cmp(buf2, apply_negative[i].name.c_str())) {
 					negative = true;
 					break;
 				}

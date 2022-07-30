@@ -1385,8 +1385,8 @@ void show_lots(char *filter, short int show_type, CharData *ch) {
 					if ((drndice != EApply::kNone) && (drsdice != 0)) {
 						sprinttype(drndice, apply_types, buf2);
 						bool negative = false;
-						for (int k = 0; *apply_negative[k] != '\n'; k++) {
-							if (!str_cmp(buf2, apply_negative[k])) {
+						for (int k = 0; apply_negative[k].name != "\n"; k++) {
+							if (!str_cmp(buf2, apply_negative[k].name.c_str())) {
 								negative = true;
 								break;
 							}

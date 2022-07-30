@@ -828,14 +828,16 @@ void medit_disp_resistances(DescriptorData *d) {
 // *  Display saves
 void medit_disp_saves(DescriptorData *d) {
 	get_char_cols(d->character.get());
+	int num = 1;
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
-	for (auto s = ESaving::kFirst; s <= ESaving::kLast; ++s) {
-		auto i = to_underlying(s);
-		sprintf(buf, "%s%2d%s) %s : %s%d%s\r\n",
-				grn, i+1, nrm, apply_negative[i+1], cyn, GetSave(OLC_MOB(d), s), nrm);
-		SendMsgToChar(buf, d->character.get());
+	for (int i = 0; apply_negative[i].name != "\n"; i++ ) {
+		if (apply_negative[i].savetype != ESaving::kNone) {
+			sprintf(buf, "%s%2d%s) %s : %s%d%s\r\n",
+					grn, num++, nrm, apply_negative[i].name.c_str(), cyn, GetSave(OLC_MOB(d), apply_negative[i].savetype), nrm);
+			SendMsgToChar(buf, d->character.get());
+		}
 	}
 	SendMsgToChar("Введите номер и величину спас-броска, отрицательное улучшает (0 - конец) : ", d->character.get());
 }
