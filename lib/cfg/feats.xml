@@ -114,7 +114,7 @@
     <feat id="kLightingReflex" name="мгновенная реакция" mode="kEnabled">
         <talent_effects>
             <applies>
-                <apply location="kSavingReflex" val="10" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kSavingReflex" val="-10" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
@@ -146,8 +146,8 @@
     <feat id="kGreatFortitude" name="сила духа" mode="kEnabled">
         <talent_effects>
             <applies>
-                <apply location="kSavingWill" affect="kUndefinded" val="-10" lvl_bonus="0.0" remort_bonus="0.3" cap="-25"/>
-                <apply location="kSavingStability" affect="kUndefinded" val="-10" lvl_bonus="0.0" remort_bonus="0.3" cap="-25"/>
+                <apply location="kSavingWill" affect="kUndefinded" val="-10" lvl_bonus="0.0" remort_bonus="0.0" cap="-25"/>
+                <apply location="kSavingStability" affect="kUndefinded" val="-10" lvl_bonus="0.0" remort_bonus="0.0" cap="-25"/>
             </applies>
         </talent_effects>
     </feat>

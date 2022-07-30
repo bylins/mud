@@ -11,7 +11,7 @@
             <stat id="kCon"	gen_min="14"	gen_max="17"	auto="17"	cap="75"/>
             <stat id="kWis"	gen_min="9"	gen_max="12"	auto="9"	cap="50"/>
             <stat id="kInt"	gen_min="9"	gen_max="12"	auto="12"	cap="50"/>
-            <stat id="kCha"	gen_min="13"	gen_max="16"	auto="13"	cap="50"/>
+            <stat id="kCha"	gen_min="13"	gen_max="16"	auto="13"	cap="90"/>
         </base_stats>
     </stats>
     <skills level_decrement="4">
@@ -25,19 +25,19 @@
         <skill id="kNonstandart"	level="1"	remort="0"	improve="100"/>
         <skill id="kSpades"		level="1"	remort="0"	improve="100"/>
         <skill id="kBows"		level="1"	remort="0"	improve="200"/>
-        <skill id="kMakeWear"		level="1"	remort="0"	improve="1000"/>
+        <skill id="kMakeWear"		level="1"	remort="0"	improve="15000"/>
         <skill id="kHangovering"	level="3"	remort="0"	improve="94000"/>
         <skill id="kHide"		level="5"	remort="0"	improve="300"/>
         <skill id="kPickLock"		level="5"	remort="0"	improve="3000"/>
-        <skill id="kSteal"		level="5"	remort="0"	improve="5000"/>
+        <skill id="kSteal"		level="5"	remort="0"	improve="15000"/>
         <skill id="kDigging"		level="5"	remort="0"	improve="600"/>
         <skill id="kHideTrack"		level="10"	remort="0"	improve="4000"/>
         <skill id="kBackstab"		level="10"	remort="0"	improve="4500"/>
         <skill id="kSneak"		level="10"	remort="0"	improve="3000"/>
-        <skill id="kHearing"		level="10"	remort="0"	improve="90"/>
+        <skill id="kHearing"		level="10"	remort="0"	improve="900"/>
         <skill id="kDodge"		level="10"	remort="0"	improve="4000"/>
         <skill id="kPry"		level="10"	remort="0"	improve="300"/>
-        <skill id="kSkinning"		level="10"	remort="0"	improve="2500"/>
+        <skill id="kSkinning"		level="10"	remort="0"	improve="4500"/>
     </skills>
     <spells level_decrement="3">
         <!-- This class has no spells. -->

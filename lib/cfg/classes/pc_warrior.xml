@@ -8,7 +8,7 @@
         <base_stats>
             <stat id="kStr"	gen_min="21"	gen_max="25"	auto="25"	cap="90" />
             <stat id="kDex"	gen_min="8"		gen_max="11"	auto="8"	cap="50" />
-            <stat id="kCon"	gen_min="22"	gen_max="25"	auto="25"	cap="75" />
+            <stat id="kCon"	gen_min="22"	gen_max="25"	auto="25"	cap="90" />
             <stat id="kWis"	gen_min="11"	gen_max="15"	auto="12"	cap="50" />
             <stat id="kInt"	gen_min="11"	gen_max="15"	auto="15"	cap="50" />
             <stat id="kCha"	gen_min="10"	gen_max="10"	auto="10"	cap="50" />

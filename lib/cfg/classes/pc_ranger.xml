@@ -33,9 +33,9 @@
         <skill id="kMakeWear"		level="1"	remort="0"	improve="1500"/>
         <skill id="kHangovering"	level="3"	remort="0"	improve="93500"/>
         <skill id="kDigging"		level="5"	remort="0"	improve="600"/>
-        <skill id="kSkinning"		level="5"	remort="0"	improve="3000"/>
+        <skill id="kSkinning"		level="5"	remort="0"	improve="5000"/>
         <skill id="kLooking"		level="5"	remort="0"	improve="90"/>
-        <skill id="kFirstAid"		level="5"	remort="0"	improve="26000"/>
+        <skill id="kFirstAid"		level="5"	remort="0"	improve="52000"/>
         <skill id="kKick"			level="7"	remort="0"	improve="1500"/>
         <skill id="kDisguise"		level="10"	remort="0"	improve="3500"/>
         <skill id="kHideTrack"		level="10"	remort="0"	improve="3000"/>

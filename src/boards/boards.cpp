@@ -448,7 +448,7 @@ int Static::Special(CharData *ch, void *me, int cmd, char *argument) {
 		}
 		// общая доска
 		char buf_[kMaxInputLength];
-		snprintf(buf_, sizeof(buf_), "%s%s", cmd_info[cmd].command, argument);
+		snprintf(buf_, sizeof(buf_), "%s %s", cmd_info[cmd].command, argument);
 
 		if (act_board(ch, GET_OBJ_VNUM(board), buf_)) {
 			return 1;

@@ -3647,10 +3647,11 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 	// даже в случае попадания можно уклониться мигалкой
 	if (AFF_FLAGGED(victim, EAffect::kBlink) || victim->add_abils.percent_spell_blink > 0) {
 		if (!GET_AF_BATTLE(ch, kEafHammer) && !GET_AF_BATTLE(ch, kEafOverwhelm)
-			&& (!(hit_params.skill_num == ESkill::kBackstab && CanUseFeat(ch, EFeat::kThieveStrike)))) {
+			&& (!(hit_params.skill_num == ESkill::kBackstab && CanUseFeat(ch, EFeat::kThieveStrike)))
+			&& !hit_params.get_flags()[fight::kCritLuck]) {
 			ubyte blink;
 			if (victim->IsNpc()) {
-				blink = 25;
+				blink = 25 + GetRealRemort(victim);
 			} else if (victim->add_abils.percent_spell_blink > 0) {
 				blink = victim->add_abils.percent_spell_blink;
 			} else  {

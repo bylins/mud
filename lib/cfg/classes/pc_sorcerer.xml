@@ -37,7 +37,7 @@
         <skill id="kHangovering"	level="3"	remort="0"	improve="54000"/>
         <skill id="kDigging"		level="5"	remort="0"	improve="600"/>
         <skill id="kIdentify"		level="10"	remort="0"	improve="3000"/>
-        <skill id="kFirstAid"		level="10"	remort="0"	improve="38000"/>
+        <skill id="kFirstAid"		level="10"	remort="0"	improve="88000"/>
     </skills>
     <spells level_decrement="3">
         <spell id="kCreateFood"			level="1"	remort="0"	circle="1"	mem="0"		cast="0.0"/>

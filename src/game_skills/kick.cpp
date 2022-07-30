@@ -23,10 +23,10 @@ void go_kick(CharData *ch, CharData *vict) {
 	vict = TryToFindProtector(vict, ch);
 
 	bool success = false;
-	if (PRF_FLAGGED(ch, EPrf::kTester)) {
-		SkillRollResult result = MakeSkillTest(ch, ESkill::kKick, vict);
-		success = result.success;
-	} else {
+//	if (PRF_FLAGGED(ch, EPrf::kTester)) {
+	SkillRollResult result = MakeSkillTest(ch, ESkill::kKick, vict);
+	success = result.success;
+/*	} else {
 		int percent = ((10 - (compute_armor_class(vict) / 10)) * 2) + number(1, MUD::Skill(ESkill::kKick).difficulty);
 		int prob = CalcCurrentSkill(ch, ESkill::kKick, vict);
 		if (GET_GOD_FLAG(vict, EGf::kGodscurse) || AFF_FLAGGED(vict, EAffect::kHold)) {
@@ -41,7 +41,7 @@ void go_kick(CharData *ch, CharData *vict) {
 		success = percent <= prob;
 		SendSkillBalanceMsg(ch, MUD::Skill(ESkill::kKick).name, percent, prob, success);
 	}
-
+*/
 	TrainSkill(ch, ESkill::kKick, success, vict);
 	int cooldown = 2;
 	if (!success) {
@@ -49,13 +49,13 @@ void go_kick(CharData *ch, CharData *vict) {
 		dmg.Process(ch, vict);
 		cooldown = 2;
 	} else {
-		int dam = str_bonus(GetRealStr(ch), STR_TO_DAM) + GetRealDamroll(ch) + GetRealLevel(ch) / 6;
-		if (!ch->IsNpc() || (ch->IsNpc() && GET_EQ(ch, EEquipPos::kFeet))) {
-			int modi = std::max(0, (ch->GetSkill(ESkill::kKick) + 4) / 5);
-			dam += number(0, modi * 2);
-			modi = 5 * (10 + (GET_EQ(ch, EEquipPos::kFeet) ? GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kFeet)) : 0));
-			dam = modi * dam / 100;
-		}
+		int dam = str_bonus(GetRealStr(ch), STR_TO_DAM) + GetRealDamroll(ch) + GetRealLevel(ch);
+		int modi = std::max(0, (ch->GetSkill(ESkill::kKick) + GetRealRemort(ch)) / 3);
+		int nice = number(1, 200) <= number(0, number(0, ch->calc_morale()));
+		int bottom = nice ? modi / 10 : 0;
+		dam += number(bottom, modi * 2);
+		modi = 4 * (25 + (GET_EQ(ch, EEquipPos::kFeet) ? GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kFeet)) : 0));
+		dam = modi * dam / 100;
 		if (ch->IsOnHorse() && (ch->GetSkill(ESkill::kRiding) >= 150) && (ch->GetSkill(ESkill::kKick) >= 150)) {
 			Affect<EApply> af;
 			af.location = EApply::kNone;
@@ -140,6 +140,25 @@ void go_kick(CharData *ch, CharData *vict) {
 
 		if (GET_AF_BATTLE(vict, kEafAwake)) {
 			dam >>= (2 - (ch->IsOnHorse() ? 1 : 0));
+		}
+		if (result.CritLuck && !ch->IsOnHorse()) {
+			dam *= 2;
+			if (GET_POS(vict) > EPosition::kSit) {
+				GET_POS(vict) = EPosition::kSit;
+				to_char = "$N2 упал на жопу! (тестовое сообщение)";
+				to_vict = "Мощный удар $n1 свалил вас с ног.  (тестовое сообщение)";
+				to_room = "Мощный пинок $n1 усадил $N2 на землю! (тестовое сообщение)";
+				if (!ch->IsNpc()) {
+					sprintf(buf, "&G&q%s&Q&n", to_char);
+					act(buf, false, ch, nullptr, vict, kToChar);
+					sprintf(buf, "%s", to_room);
+					act(buf, true, ch, nullptr, vict, kToNotVict | kToArenaListen);
+				}
+				if (!vict->IsNpc()) {
+					sprintf(buf, "&R&q%s&Q&n", to_vict);
+					act(buf, false, ch, nullptr, vict, kToVict);
+				}
+			}
 		}
 		Damage dmg(SkillDmg(ESkill::kKick), dam, fight::kPhysDmg, nullptr);
 		dmg.Process(ch, vict);
