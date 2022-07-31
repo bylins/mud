@@ -1165,12 +1165,12 @@ void medit_disp_menu(DescriptorData *d) {
 			"%s8&n) Предложный (ехать на ком)      : %s&e\r\n"
 			"%s9&n) Короткое :-\r\n&R&q%s&e&Q"
 			"%sA&n) Полное (при осмотреть):-\r\n%s&e"
-			"%sB%s) Уровень     : [%s%4d%s],%sC%s) Наклонности:  [%s%4d%s]\r\n"
-			"%sD%s) Хитролы     : [%s%4d%s],%sE%s) Дамролы:      [%s%4d%s]\r\n"
-			"%sF%s) NumDamDice  : [%s%4d%s],%sG%s) SizeDamDice:  [%s%4d%s]\r\n"
-			"%sH%s) Num HP Dice : [%s%4d%s],%sI%s) Size HP Dice: [%s%4d%s],%sJ%s) HP Bonus:    [%s%5d%s]\r\n"
-			"%sK%s) Класс защиты: [%s%4d%s],%sL%s) Опыт:         [%s%9ld%s],\r\n"
-			"%sM%s) Куны        : [%s%4ld%s],%sN%s) NumGoldDice:  [%s%4d%s],%sO%s) SizeGoldDice: [%s%4d%s]\r\n",
+			"%sB%s) Уровень     : [%s%4d%s],%sC%s) Наклонности : [%s%4d%s]\r\n"
+			"%sD%s) Попадание   : [%s%4d%s],%sE%s) Повреждение : [%s%4d%s]\r\n"
+			"%sF%s) NumDamDice  : [%s%4d%s],%sG%s) SizeDamDice : [%s%4d%s]\r\n"
+			"%sH%s) NumHPDice   : [%s%4d%s],%sI%s) SizeHPDice  : [%s%4d%s],%sJ%s) Доп. Жизнь: [%s%5d%s]\r\n"
+			"%sK%s) Класс защиты: [%s%4d%s],%sL%s) Опыт        : [%s%9ld%s],\r\n"
+			"%sM%s) Куны        : [%s%4ld%s],%sN%s) NumGoldDice : [%s%4d%s],%sO%s) SizeGoldDice: [%s%4d%s]\r\n",
 			cyn, OLC_NUM(d), nrm,
 			grn, nrm, yel, genders[(int) GET_SEX(mob)], nrm,
 			grn, nrm, yel, GET_ALIAS(mob),
