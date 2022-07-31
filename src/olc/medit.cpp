@@ -1164,13 +1164,13 @@ void medit_disp_menu(DescriptorData *d) {
 			"%s7&n) Творительный (сражаться с кем) : %s&e\r\n"
 			"%s8&n) Предложный (ехать на ком)      : %s&e\r\n"
 			"%s9&n) Короткое :-\r\n&R&q%s&e&Q"
-			"%sA&n) Детальное:-\r\n%s&e"
-			"%sB%s) Уровень    : [%s%4d%s],%sC%s) Наклонности:  [%s%4d%s]\r\n"
-			"%sD%s) Хитролы    : [%s%4d%s],%sE%s) Дамролы:      [%s%4d%s]\r\n"
-			"%sF%s) NumDamDice : [%s%4d%s],%sG%s) SizeDamDice:  [%s%4d%s]\r\n"
-			"%sH%s) Num HP Dice: [%s%4d%s],%sI%s) Size HP Dice: [%s%4d%s],%sJ%s) HP Bonus:    [%s%5d%s]\r\n"
-			"%sK%s) ArmorClass : [%s%4d%s],%sL%s) Опыт:         [%s%9ld%s],\r\n"
-			"%sM%s) Gold       : [%s%4ld%s],%sN%s) NumGoldDice:  [%s%4d%s],%sO%s) SizeGoldDice: [%s%4d%s]\r\n",
+			"%sA&n) Полное (при осмотреть):-\r\n%s&e"
+			"%sB%s) Уровень     : [%s%4d%s],%sC%s) Наклонности:  [%s%4d%s]\r\n"
+			"%sD%s) Хитролы     : [%s%4d%s],%sE%s) Дамролы:      [%s%4d%s]\r\n"
+			"%sF%s) NumDamDice  : [%s%4d%s],%sG%s) SizeDamDice:  [%s%4d%s]\r\n"
+			"%sH%s) Num HP Dice : [%s%4d%s],%sI%s) Size HP Dice: [%s%4d%s],%sJ%s) HP Bonus:    [%s%5d%s]\r\n"
+			"%sK%s) Класс защиты: [%s%4d%s],%sL%s) Опыт:         [%s%9ld%s],\r\n"
+			"%sM%s) Куны        : [%s%4ld%s],%sN%s) NumGoldDice:  [%s%4d%s],%sO%s) SizeGoldDice: [%s%4d%s]\r\n",
 			cyn, OLC_NUM(d), nrm,
 			grn, nrm, yel, genders[(int) GET_SEX(mob)], nrm,
 			grn, nrm, yel, GET_ALIAS(mob),
@@ -1229,7 +1229,7 @@ void medit_disp_menu(DescriptorData *d) {
 	}
 
 	snprintf(buf, kMaxStringLength, "%sW%s) Флаги   (NPC) : %s%s\r\n"
-									 "%sY%s) Destination: %s%s\r\n"
+									 "%sY%s) Маршрут движения: %s%s\r\n"
 									 "%sZ%s) Помогают   : %s%s\r\n"
 									 "%sА%s) Умения     : \r\n"
 									 "%sБ%s) Заклинания : \r\n"
@@ -1237,19 +1237,19 @@ void medit_disp_menu(DescriptorData *d) {
 									 "%sЕ%s) Мудр : [%s%4d%s],%sЖ%s) Ум   : [%s%4d%s],%sЗ%s) Обая : [%s%4d%s]\r\n"
 									 "%sИ%s) Рост : [%s%4d%s],%sК%s) Вес  : [%s%4d%s],%sЛ%s) Разм : [%s%4d%s]\r\n"
 									 "%sМ%s) Дополнительные атаки: [%s%4d%s]\r\n"
-									 "%sХ%s) Реморты: [%s%4d%s]\r\n"
+									 "%sХ%s) Перевоплощений: [%s%4d%s]\r\n"
 									 "%sН%s) Шансы использования умений: [%s%4d%s]\r\n"
 									 "%sП%s) Загружаемые объекты: %s%s\r\n"
 									 "%sР%s) Роли моба: %s%s\r\n"
-									 "%sС%s) Резисты:\r\n"
+									 "%sС%s) Сопротивления:\r\n"
 									 "%sТ%s) Спас-броски:\r\n"
 									 "%sУ%s) Дополнительные параметры:\r\n"
 									 "%sФ%s) Способности:\r\n"
 									 "%sЦ%s) Раса моба: %s%s\r\n"
 									 "%sЧ%s) Клонирование:%s\r\n"
-									 "%sS%s) Script     : %s%s\r\n"
+									 "%sS%s) Триггера: %s%s\r\n"
 									 "%sЮ%s) Через сколько мобов замакс: [%s%4d%s]\r\n"
-									 "%sQ%s) Quit\r\n" "Ваш выбор: ",
+									 "%sQ%s) Выход:\r\n" "Ваш выбор: ",
 			 grn, nrm, cyn, buf1,
 			 grn, nrm, cyn, buf2,
 			 grn, nrm, cyn, mob->helpers ? "Yes" : "No",
