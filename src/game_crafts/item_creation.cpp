@@ -507,7 +507,8 @@ void mredit_disp_menu(DescriptorData *d) {
 }
 
 void do_list_make(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	string tmpstr, skill_name, obj_name;
+	std::string tmpstr, skill_name;
+	char *obj_name;
 	char tmpbuf[kMaxInputLength];
 	MakeRecept *trec;
 	if (make_recepts.size() == 0) {
@@ -515,16 +516,17 @@ void do_list_make(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 		return;
 	}
 	// Выдаем список рецептов всех рецептов как в магазине.
-	tmpstr = "###  Б  Умение  Предмет             Составляющие                         \r\n";
-	tmpstr += "------------------------------------------------------------------------------\r\n";
+	tmpstr = "###  Б  Умение  Предмет                                 Составляющие:                         \r\n";
+	tmpstr += "-------------------------------------------------------------------------------------------------------------------------------------------------------\r\n";
 	for (size_t i = 0; i < make_recepts.size(); i++) {
 		int j = 0;
 		skill_name = "Нет";
-		obj_name = "Нет";
+		obj_name = str_dup("Нет");
 		trec = make_recepts[i];
 		auto obj = get_object_prototype(trec->obj_proto);
 		if (obj) {
-			obj_name = obj->get_PName(0).substr(0, 11);
+			obj_name = str_dup(obj->get_PName(0).substr(0, 39).c_str());
+			utils::RemoveColors(obj_name);
 		}
 		while (make_skills[j].num != ESkill::kUndefined) {
 			if (make_skills[j].num == trec->skill) {
@@ -533,26 +535,26 @@ void do_list_make(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 			}
 			j++;
 		}
-		sprintf(tmpbuf, "%3zd  %-1s  %-6s  %-12s(%5d) :",
-				i + 1, (trec->locked ? "*" : " "), skill_name.c_str(), obj_name.c_str(), trec->obj_proto);
+		sprintf(tmpbuf, "%3zd  %-1s  %-6s  %-40s(%5d) :",
+				i + 1, (trec->locked ? "*" : " "), skill_name.c_str(), obj_name, trec->obj_proto);
 		tmpstr += string(tmpbuf);
 		for (int j = 0; j < MAX_PARTS; j++) {
 			if (trec->parts[j].proto != 0) {
 				obj = get_object_prototype(trec->parts[j].proto);
 				if (obj) {
-					obj_name = obj->get_PName(0).substr(0, 11);
+					obj_name = str_dup(obj->get_PName(0).substr(0, 34).c_str());
+					utils::RemoveColors(obj_name);
 				} else {
-					obj_name = "Нет";
+					obj_name = str_dup("Нет");
 				}
-				sprintf(tmpbuf, " %-12s(%5d)", obj_name.c_str(), trec->parts[j].proto);
+				sprintf(tmpbuf, " %-35s(%5d)", obj_name, trec->parts[j].proto);
 				if (j > 0) {
-					tmpstr += ",";
 					if (j % 2 == 0) {
 						// разбиваем строчки если ингров больше 2;
 						tmpstr += "\r\n";
-						tmpstr += "                                    :";
+						tmpstr += "                                                               ->";
 					}
-				};
+				}
 				tmpstr += string(tmpbuf);
 			} else {
 				break;
