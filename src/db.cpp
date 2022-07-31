@@ -65,6 +65,7 @@
 #include "utils/id_converter.h"
 #include "title.h"
 #include "statistics/top.h"
+#include "backtrace.h"
 
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
@@ -4658,10 +4659,19 @@ void reset_zone(ZoneRnum zone) {
 
 // Ищет RNUM первой и последней комнаты зоны
 // Еси возвращает 0 - комнат в зоне нету
-int get_zone_rooms(int zone_nr, int *first, int *last) {
-	*first = 0;
-	*last = 0;
-	auto numzone = zone_table[zone_nr].vnum * 100;
+int get_zone_rooms(ZoneRnum zone_nr, int *first, int *last) {
+//31.27.2022 месяц пройдет комменты можно стереть
+//	*first = 0;
+//	*last = 0;
+//	debug::backtrace(runtime_config.logs(SYSLOG).handle());
+//	auto numzone = zone_table[zone_nr].vnum * 100;
+//	sprintf(buf, "По новому ! Зона %d: первая клетка зоны %d, последняя %d", zone_table[zone_nr].vnum, zone_table[zone_nr].FirstRoom, zone_table[zone_nr].LastRoom);
+//	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+	*first = real_room(zone_table[zone_nr].FirstRoomVnum);
+	*last = real_room(zone_table[zone_nr].LastRoomVnum);
+	if (*first == kNowhere)
+		return 0;
+/*
 	for (int nr = kFirstRoom; nr <= top_of_world; nr++) {
 		if (world[nr]->room_vn >= numzone && *first == 0) {
 			*first = world[nr]->room_vn;
@@ -4679,37 +4689,17 @@ int get_zone_rooms(int zone_nr, int *first, int *last) {
 			}
 		}
 	}
+	sprintf(buf, "По старому! Зона %d: первая клетка зоны %d, последняя %d", zone_table[zone_nr].vnum, *first, *last);
+	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+
 	*first = real_room(*first);
 	*last = real_room(*last);
 	if (*first == kNowhere || *last == kNowhere)
 		return 0;
-	return 1;
-}
-/*
-// Ищет RNUM первой и последней комнаты зоны
-// Еси возвращает 0 - комнат в зоне нету
-int get_zone_rooms(int zone_nr, int *start, int *stop) {
-	auto first_room_vnum = zone_table[zone_nr].top;
-	auto rnum = real_room(first_room_vnum);
-
-	if (rnum == kNowhere)
-		return 0;
-	*stop = rnum - 1;
-	rnum = kNowhere;
-	while (zone_nr) {
-		first_room_vnum = zone_table[--zone_nr].top;
-		rnum = real_room(first_room_vnum);
-		if (rnum != kNowhere) {
-			++rnum;
-			break;
-		}
-	}
-	if (rnum == kNowhere)
-		rnum = 1;    // самая первая зона начинается с 1
-	*start = rnum;
-	return 1;
-}
 */
+	
+	return 1;
+}
 
 // for use in reset_zone; return true if zone 'nr' is free of PC's
 bool is_empty(ZoneRnum zone_nr) {
@@ -4726,6 +4716,8 @@ bool is_empty(ZoneRnum zone_nr) {
 			continue;
 		return false;
 	}
+//	sprintf(buf, "Is_Empty ! Зона %d", zone_table[zone_nr].vnum);
+//	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 
 	// Поиск link-dead игроков в зонах комнаты zone_nr
 	if (!get_zone_rooms(zone_nr, &rnum_start, &rnum_stop)) {

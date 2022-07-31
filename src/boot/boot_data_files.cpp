@@ -397,24 +397,26 @@ void WorldFile::parse_room(int virtual_nr) {
 	char line[256], flags[128];
 	char letter;
 
-	sprintf(buf2, "room #%d", virtual_nr);
-
 	if (virtual_nr <= (zone ? zone_table[zone - 1].top : -1)) {
 		log("SYSERR: Room #%d is below zone %d.", virtual_nr, zone);
 		exit(1);
 	}
+	if (zone == 0 && zone_table[zone].FirstRoomVnum == 0)
+		zone_table[zone].FirstRoomVnum = 100;
 	while (virtual_nr > zone_table[zone].top) {
 		if (++zone >= static_cast<ZoneRnum>(zone_table.size())) {
 			log("SYSERR: Room %d is outside of any zone.", virtual_nr);
 			exit(1);
 		}
 	}
+	if (zone_table[zone].FirstRoomVnum == 0)
+		zone_table[zone].FirstRoomVnum = virtual_nr;
+	zone_table[zone].LastRoomVnum = virtual_nr;
+
 	// Создаем новую комнату
 	world.push_back(new RoomData);
-
 	world[room_nr]->zone_rn = zone;
 	world[room_nr]->room_vn = virtual_nr;
-
 	world[room_nr]->set_name(fread_string());
 
 	std::string desc = fread_string();
