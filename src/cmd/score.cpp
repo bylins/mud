@@ -553,8 +553,8 @@ int PrintSecondaryStatsToTable(CharData *ch, table_wrapper::Table &table, std::s
 	auto max_dam = hit_params.calc_damage(ch, false);
 
 	std::size_t row{0};
-	table[row][col] = "Атака";			table[row][col + 1] = std::to_string(CalcHitroll(ch));
-	table[++row][col] = "Урон";			table[row][col + 1] = std::to_string(max_dam);
+	table[row][col] = "Попадание";		table[row][col + 1] = std::to_string(CalcHitroll(ch));
+	table[++row][col] = "Повреждение";	table[row][col + 1] = std::to_string(max_dam);
 	table[++row][col] = "Колдовство";	table[row][col + 1] = std::to_string(CalcAntiSavings(ch));
 	table[++row][col] = "Запоминание";	table[row][col + 1] = std::to_string(std::lround(GET_MANAREG(ch)*ch->get_cond_penalty(P_CAST)));
 	table[++row][col] = "Удача";		table[row][col + 1] = std::to_string(ch->calc_morale());
