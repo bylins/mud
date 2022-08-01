@@ -320,12 +320,6 @@ const char *action_bits[] = {"*спец",
 							 "игнорирует !моб",
 							 "игнорирует мирные",
 							 "*оживлен",
-							 "\n", //deleted flag
-							 "\n", //deleted flag
-							 "\n", //deleted flag
-							 "\n", //deleted flag
-							 "\n", //deleted flag
-							 "\n", //deleted flag
 							 "!оживить",
 							 "осторожный стиль",
 							 "игн.строй",
