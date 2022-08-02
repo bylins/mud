@@ -33,7 +33,6 @@
 #include "game_classes/classes_spell_slots.h"
 #include "depot.h"
 #include "structs/global_objects.h"
-#include "utils/utils_time.h"
 
 using classes::CalcCircleSlotsAmount;
 

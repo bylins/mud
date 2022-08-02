@@ -77,7 +77,6 @@
 #include "structs/descriptor_data.h"
 #include "structs/structs.h"
 #include "sysdep.h"
-#include "utils/utils_time.h"
 #include "title.h"
 #include "statistics/top.h"
 #include "utils/utils.h"

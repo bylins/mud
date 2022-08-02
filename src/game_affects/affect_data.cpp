@@ -11,6 +11,7 @@
 #include "structs/global_objects.h"
 #include "handler.h"
 #include "utils/utils_time.h"
+
 bool no_bad_affects(ObjData *obj) {
 	static std::list<EWeaponAffect> bad_waffects =
 		{

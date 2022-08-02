@@ -9,7 +9,6 @@
 #include "obj_prototypes.h"
 #include "craft_logger.h"
 #include "craft_static.h"
-#include "utils/utils_time.h"
 #include "utils/xml_loading_helper.h"
 #include "utils/parse.h"
 #include "db.h"

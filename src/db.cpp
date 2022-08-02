@@ -61,7 +61,6 @@
 #include "game_economics/shop_ext.h"
 #include "game_skills/townportal.h"
 #include "stuff.h"
-#include "utils/utils_time.h"
 #include "utils/id_converter.h"
 #include "title.h"
 #include "statistics/top.h"
@@ -175,7 +174,6 @@ void assign_objects();
 void assign_rooms();
 void init_spec_procs();
 void build_player_index();
-bool is_empty(ZoneRnum zone_nr);
 void reset_zone(ZoneRnum zone);
 int file_to_string(const char *name, char *buf);
 int file_to_string_alloc(const char *name, char **buf);
@@ -3637,9 +3635,8 @@ void zone_update(void) {
 	}
 	for (update_u = reset_q.head; update_u; update_u = update_u->next)
 		if (zone_table[update_u->zone_to_reset].reset_mode == 2
-			|| (is_empty(update_u->zone_to_reset) && zone_table[update_u->zone_to_reset].reset_mode != 3)
+			|| (zone_table[update_u->zone_to_reset].reset_mode != 3 && is_empty(update_u->zone_to_reset))
 			|| can_be_reset(update_u->zone_to_reset)) {
-
 			reset_zone(update_u->zone_to_reset);
 			std::stringstream out;
 			out << "Auto zone reset: " << zone_table[update_u->zone_to_reset].name << " ("
@@ -3652,7 +3649,7 @@ void zone_update(void) {
 							zone_table[update_u->zone_to_reset].typeA_list[i]) {
 							reset_zone(j);
 							out << " ]\r\n[ Also resetting: " << zone_table[j].name << " ("
-									<<  zone_table[j].name << ")";
+									<<  zone_table[j].vnum << ")";
 							break;
 						}
 					}
@@ -3686,8 +3683,9 @@ bool can_be_reset(ZoneRnum zone) {
 		//Ищем ZoneRnum по vnum
 		for (ZoneRnum j = 0; j < static_cast<ZoneRnum>(zone_table.size()); j++) {
 			if (zone_table[j].vnum == zone_table[zone].typeB_list[i]) {
-				if (!zone_table[zone].typeB_flag[i] || !is_empty(j))
+				if (!zone_table[zone].typeB_flag[i] || !is_empty(j)) {
 					return false;
+				}
 				break;
 			}
 		}
@@ -3697,8 +3695,9 @@ bool can_be_reset(ZoneRnum zone) {
 		//Ищем ZoneRnum по vnum
 		for (ZoneRnum j = 0; j < static_cast<ZoneRnum>(zone_table.size()); j++) {
 			if (zone_table[j].vnum == zone_table[zone].typeA_list[i]) {
-				if (!is_empty(j))
+				if (!is_empty(j)) {
 					return false;
+				}
 				break;
 			}
 		}
@@ -4702,9 +4701,22 @@ int get_zone_rooms(ZoneRnum zone_nr, int *first, int *last) {
 }
 
 // for use in reset_zone; return true if zone 'nr' is free of PC's
-bool is_empty(ZoneRnum zone_nr) {
+bool is_empty(ZoneRnum zone_nr, bool debug) {
 	int rnum_start, rnum_stop;
-
+	static ZoneRnum last_zone_nr = 0;
+	static bool result;
+	if (debug) {
+		sprintf(buf, "is_empty чек. Зона %d", zone_table[zone_nr].vnum);
+		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+	}
+	if (last_zone_nr == zone_nr) {
+		if (debug) {
+			sprintf(buf, "is_empty повтор. Зона %d, прошлый запрос %d", zone_table[zone_nr].vnum, zone_table[last_zone_nr].vnum);
+			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+		}
+		return result;
+	}
+	last_zone_nr = zone_nr;
 	for (auto i = descriptor_list; i; i = i->next) {
 		if (STATE(i) != CON_PLAYING)
 			continue;
@@ -4714,13 +4726,13 @@ bool is_empty(ZoneRnum zone_nr) {
 			continue;
 		if (world[i->character->in_room]->zone_rn != zone_nr)
 			continue;
+		result = false;
 		return false;
 	}
-//	sprintf(buf, "Is_Empty ! Зона %d", zone_table[zone_nr].vnum);
-//	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 
 	// Поиск link-dead игроков в зонах комнаты zone_nr
 	if (!get_zone_rooms(zone_nr, &rnum_start, &rnum_stop)) {
+		result = true;
 		return true;    // в зоне нет комнат :)
 	}
 
@@ -4728,6 +4740,7 @@ bool is_empty(ZoneRnum zone_nr) {
 // num_pc_in_room() использовать нельзя, т.к. считает вместе с иммами.
 		for (const auto c : world[rnum_start]->people) {
 			if (!c->IsNpc() && (GetRealLevel(c) < kLvlImmortal)) {
+				result = false;
 				return false;
 			}
 		}
@@ -4742,14 +4755,19 @@ bool is_empty(ZoneRnum zone_nr) {
 			|| world[was]->zone_rn != zone_nr) {
 			continue;
 		}
-
+		result = false;
 		return false;
 	}
 
 	if (room_spells::IsZoneRoomAffected(zone_nr, ESpell::kRuneLabel)) {
+		result = false;
 		return false;
 	}
-
+	if (debug) {
+		sprintf(buf, "is_empty чек по клеткам зоны. Зона %d в зоне НИКОГО!!!", zone_table[zone_nr].vnum);
+		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+	}
+	result = true;
 	return true;
 }
 
@@ -4762,7 +4780,6 @@ int mobs_in_room(int m_num, int r_num) {
 			count++;
 		}
 	}
-
 	return count;
 }
 

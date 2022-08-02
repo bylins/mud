@@ -39,7 +39,6 @@ extern unsigned long int number_of_bytes_read;
 extern unsigned long int number_of_bytes_written;
 extern const char *Dirs[];
 
-extern bool is_empty(ZoneRnum zone_nr);
 extern void show_apply(CharData *ch, CharData *vict);
 extern void print_rune_stats(CharData *ch);
 

@@ -32,6 +32,7 @@
 #include "game_mechanics/weather.h"
 #include "utils_string.h"
 #include "entities/zone.h"
+#include "utils/utils_time.h"
 
 struct RoomData;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 class CharData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.

@@ -623,8 +623,6 @@ int SendSkillMessages(int dam, CharData *ch, CharData *vict, ESpell spell_id, co
 
 int GetRealSave(CharData *ch, const ESkill skill_id) {
 	int rate = static_cast<int>(round(GetSave(ch, MUD::Skill(skill_id).save_type) * kSaveWeight));
-	sprintf(buf, "Saving1 == %d", rate);
-	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 
 	switch (MUD::Skill(skill_id).save_type) {
 		case ESaving::kStability:
