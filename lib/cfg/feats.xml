@@ -45,10 +45,10 @@
         <talent_effects>
             <applies>
                 <apply location="kSpelledBlink" val="5" affect="kBlink" lvl_bonus="0.2" remort_bonus="0.67" cap="30"/>
-                <apply location="kSavingWill" affect="kUndefinded" val="-10" lvl_bonus="-1.0" remort_bonus="-1.0" cap="-100"/>
-                <apply location="kSavingReflex" affect="kUndefinded" val="-10" lvl_bonus="-1.0" remort_bonus="-1.0" cap="-100"/>
-                <apply location="kSavingCritical" affect="kUndefinded" val="-10" lvl_bonus="-1.0" remort_bonus="-1.0" cap="-100"/>
-                <apply location="kSavingStability" affect="kUndefinded" val="-10" lvl_bonus="-1.0" remort_bonus="-1.0" cap="-100"/>
+                <apply location="kSavingWill" affect="kUndefinded" val="-10" lvl_bonus="1.0" remort_bonus="1.0" cap="-100"/>
+                <apply location="kSavingReflex" affect="kUndefinded" val="-10" lvl_bonus="1.0" remort_bonus="1.0" cap="-100"/>
+                <apply location="kSavingCritical" affect="kUndefinded" val="-10" lvl_bonus="1.0" remort_bonus="1.0" cap="-100"/>
+                <apply location="kSavingStability" affect="kUndefinded" val="-10" lvl_bonus="1.0" remort_bonus="1.0" cap="-100"/>
             </applies>
         </talent_effects>
     </feat>
@@ -146,13 +146,13 @@
     <feat id="kGreatFortitude" name="сила духа" mode="kEnabled">
         <talent_effects>
             <applies>
-                <apply location="kSavingWill" affect="kUndefinded" val="-10" lvl_bonus="0.0" remort_bonus="0.0" cap="-25"/>
-                <apply location="kSavingStability" affect="kUndefinded" val="-10" lvl_bonus="0.0" remort_bonus="0.0" cap="-25"/>
+                <apply location="kSavingWill" affect="kUndefinded" val="-10" lvl_bonus="0.0" remort_bonus="0.4" cap="-40"/>
+                <apply location="kSavingStability" affect="kUndefinded" val="-10" lvl_bonus="0.0" remort_bonus="0.4" cap="-40"/>
             </applies>
         </talent_effects>
     </feat>
     <feat id="kFastRegen" name="быстрое заживление" mode="kEnabled">
-        <talent_effects>
+        <talent_effects>4
             <applies>
                 <apply location="kHpRegen" val="35" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>

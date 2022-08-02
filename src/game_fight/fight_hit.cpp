@@ -13,6 +13,7 @@
 #include "game_fight/common.h"
 #include "game_fight/fight.h"
 #include "structs/global_objects.h"
+#include "backtrace.h"
 
 // extern
 int GetExtraAc0(ECharClass class_id, int level);
@@ -2878,6 +2879,11 @@ void HitData::init(CharData *ch, CharData *victim) {
 		weap_skill = ESkill::kPunch;
 	}
 	if (skill_num == ESkill::kUndefined) {
+		if (ch == victim) {
+			sprintf(buf, "АВТОАТАКА: victim == ch, сброшен стек");
+			mudlog(buf, CMP, kLvlGod, SYSLOG, true);
+			debug::backtrace(runtime_config.logs(SYSLOG).handle());
+		}
 		TrainSkill(ch, weap_skill, true, victim);
 //		if (!PRF_FLAGGED(ch, EPrf::kTester) && ch != victim) {
 			SkillRollResult result = MakeSkillTest(ch, weap_skill, victim);
