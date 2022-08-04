@@ -1141,11 +1141,11 @@ void oedit_disp_skills_menu(DescriptorData *d) {
 std::string print_values2_menu(ObjData *obj) {
 	if (GET_OBJ_TYPE(obj) == EObjType::kLiquidContainer
 		|| GET_OBJ_TYPE(obj) == EObjType::kFountain) {
-		return "Спец.параметры";
+		return "Спец. параметры";
 	}
 
-	char buf_[kMaxInputLength];
-	snprintf(buf_, sizeof(buf_), "Skill       : %d", GET_OBJ_SKILL(obj));
+	char buf_[kMaxInputLength];    
+	snprintf(buf_, sizeof(buf_), "Спец. параметры: %d", GET_OBJ_SKILL(obj));
 	return buf_;
 }
 
@@ -1203,7 +1203,7 @@ void oedit_disp_menu(DescriptorData *d) {
 			 "%sE%s) Запрещен    : %s%s\r\n"
 			 "%sF%s) Вес         : %s%8d   %sG%s) Цена        : %s%d\r\n"
 			 "%sH%s) Рента(снято): %s%8d   %sI%s) Рента(одето): %s%d\r\n"
-			 "%sJ%s) Мах.проч.   : %s%8d   %sK%s) Тек.проч    : %s%d\r\n"
+			 "%sJ%s) Макс.проч.  : %s%8d   %sK%s) Тек.проч    : %s%d\r\n"
 			 "%sL%s) Материал    : %s%s\r\n"
 			 "%sM%s) Таймер      : %s%8d   %sN%s) %s\r\n"
 			 "%sO%s) Values      : %s%d %d %d %d\r\n"
@@ -1231,7 +1231,7 @@ void oedit_disp_menu(DescriptorData *d) {
 			 grn, nrm, cyn,
 			 GET_OBJ_VAL(obj, 0), GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2),
 			 GET_OBJ_VAL(obj, 3), grn, nrm, grn, buf2, grn, nrm, grn, nrm, grn,
-			 nrm, cyn, !obj->get_proto_script().empty() ? "Set." : "Not Set.",
+			 nrm, cyn, !obj->get_proto_script().empty() ? "Присутствуют" : "Отсутствуют",
 			 grn, nrm, cyn, genders[gender],
 			 grn, nrm, cyn, GET_OBJ_MIW(obj),
 			 grn, nrm,
