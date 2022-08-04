@@ -61,7 +61,7 @@ int correct_unique(int unique);
 bool check_unlimited_timer(const CObjectPrototype *obj);
 void SaveGlobalUID();
 void flush_player_index();
-bool is_empty(ZoneRnum zone_nr, bool debug = true);
+bool is_empty(ZoneRnum zone_nr, bool debug = false);
 
 #define REAL          0
 #define VIRTUAL       (1 << 0)

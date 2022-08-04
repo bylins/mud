@@ -712,7 +712,7 @@ void oedit_disp_val1_menu(DescriptorData *d) {
 			break;
 
 		case EObjType::kIngredient:
-			SendMsgToChar("Первый байт - лаг после применения в сек, 5 бит - уровень : ",
+			SendMsgToChar("Первый байт - лаг после применения в сек, 6 бит - уровень : ",
 						 d->character.get());
 			break;
 

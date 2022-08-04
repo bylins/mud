@@ -699,7 +699,7 @@ void script_trigger_check() {
 			if (IS_SET(SCRIPT_TYPES(sc), MTRIG_RANDOM)) {
 				if (world[ch->in_room]->zone_rn != last_zone) {
 					last_zone = world[ch->in_room]->zone_rn;
-					IsEmpty = is_empty(world[ch->in_room]->zone_rn, true);
+					IsEmpty = is_empty(world[ch->in_room]->zone_rn);
 				}
 				if (!IsEmpty || IS_SET(SCRIPT_TYPES(sc), MTRIG_GLOBAL)) {
 					utils::CExecutionTimer timer;
@@ -735,7 +735,7 @@ void script_trigger_check() {
 					if (obj->get_in_room() != kNowhere) {
 							if (world[obj->get_in_room()]->zone_rn != last_zone) {
 								last_zone = world[obj->get_in_room()]->zone_rn;
-								IsEmpty = is_empty(world[obj->get_in_room()]->zone_rn, true);
+								IsEmpty = is_empty(world[obj->get_in_room()]->zone_rn);
 							}
 							if (!IsEmpty || IS_SET(SCRIPT_TYPES(sc), OTRIG_GLOBAL)) {
 								random_otrigger(obj.get());
@@ -771,7 +771,7 @@ void script_trigger_check() {
 			if (IS_SET(SCRIPT_TYPES(sc), WTRIG_RANDOM)) {
 				if (room->zone_rn != last_zone) {
 					last_zone = room->zone_rn;
-					IsEmpty = is_empty(room->zone_rn, true);
+					IsEmpty = is_empty(room->zone_rn);
 				}
 				if (!IsEmpty || IS_SET(SCRIPT_TYPES(sc), WTRIG_GLOBAL)) {
 					utils::CExecutionTimer timer;

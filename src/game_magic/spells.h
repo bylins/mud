@@ -73,6 +73,7 @@ constexpr Bitvector kMiLevel2 = 1 << 9;
 constexpr Bitvector kMiLevel4 = 1 << 10;
 constexpr Bitvector kMiLevel8 = 1 << 11;
 constexpr Bitvector kMiLevel16 = 1 << 12;
+constexpr Bitvector kMiLevel32 = 1 << 13;
 
 const int kTypeHit = 400;
 const int kTypeMagic = 420;

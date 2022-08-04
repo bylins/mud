@@ -2581,6 +2581,8 @@ bool mag_item_ok(CharData *ch, ObjData *obj, int spelltype) {
 			num += 8;
 		if (IS_SET(GET_OBJ_VAL(obj, 0), kMiLevel16))
 			num += 16;
+		if (IS_SET(GET_OBJ_VAL(obj, 0), kMiLevel32))
+			num += 32;
 		if (GetRealLevel(ch) + GetRealRemort(ch) < num)
 			return false;
 	}
@@ -2641,6 +2643,7 @@ int CheckRecipeItems(CharData *ch, ESpell spell_id, ESpellType spell_type, int e
 		if (item0 >= 0 && item0_rnum >= 0
 			&& GET_OBJ_VAL(obj, 1) == GET_OBJ_VAL(obj_proto[item0_rnum], 1)
 			&& mag_item_ok(ch, obj, spell_type)) {
+			obj->set_val(3, time(nullptr)); //в вал3 сохраним время когда мы заюзали руну
 			obj0 = obj;
 			item0 = -2;
 			objo = obj0;
@@ -2648,6 +2651,7 @@ int CheckRecipeItems(CharData *ch, ESpell spell_id, ESpellType spell_type, int e
 		} else if (item1 >= 0 && item1_rnum >= 0
 			&& GET_OBJ_VAL(obj, 1) == GET_OBJ_VAL(obj_proto[item1_rnum], 1)
 			&& mag_item_ok(ch, obj, spell_type)) {
+			obj->set_val(3, time(nullptr));
 			obj1 = obj;
 			item1 = -2;
 			objo = obj1;
@@ -2655,6 +2659,7 @@ int CheckRecipeItems(CharData *ch, ESpell spell_id, ESpellType spell_type, int e
 		} else if (item2 >= 0 && item2_rnum >= 0
 			&& GET_OBJ_VAL(obj, 1) == GET_OBJ_VAL(obj_proto[item2_rnum], 1)
 			&& mag_item_ok(ch, obj, spell_type)) {
+			obj->set_val(3, time(nullptr));
 			obj2 = obj;
 			item2 = -2;
 			objo = obj2;
@@ -2662,6 +2667,7 @@ int CheckRecipeItems(CharData *ch, ESpell spell_id, ESpellType spell_type, int e
 		} else if (item3 >= 0 && item3_rnum >= 0
 			&& GET_OBJ_VAL(obj, 1) == GET_OBJ_VAL(obj_proto[item3_rnum], 1)
 			&& mag_item_ok(ch, obj, spell_type)) {
+			obj->set_val(3, time(nullptr));
 			obj3 = obj;
 			item3 = -2;
 			objo = obj3;

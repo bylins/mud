@@ -2078,9 +2078,6 @@ void try_angel_sacrifice(CharData *ch, CharData *victim) {
 
 					ExtractCharFromWorld(keeper, 0);
 					GET_HIT(victim) = MIN(300, GET_MAX_HIT(victim) / 2);
-					if (victim->GetEnemy() != nullptr)
-						stop_fighting(victim, true);
-
 				}
 			}
 		}
