@@ -1413,26 +1413,26 @@ void hit_deviate(CharData *ch, CharData *victim, int *dam) {
 	}
 	TrainSkill(victim, ESkill::kDodge, prob < 100, ch);
 	if (prob < 60) {
-		act("Вы не смогли уклониться от атаки $N1", false, victim, 0, ch, kToChar);
-		act("$N не сумел$G уклониться от вашей атаки", false, ch, 0, victim, kToChar);
-		act("$n не сумел$g уклониться от атаки $N1", true, victim, 0, ch, kToNotVict | kToArenaListen);
+		act("Вы не смогли уклониться от атаки $N1.", false, victim, 0, ch, kToChar);
+		act("$N не сумел$G уклониться от вашей атаки.", false, ch, 0, victim, kToChar);
+		act("$n не сумел$g уклониться от атаки $N1.", true, victim, 0, ch, kToNotVict | kToArenaListen);
 		SET_AF_BATTLE(victim, kEafDodge);
 	} else if (prob < 100) {
-		act("Вы немного уклонились от атаки $N1", false, victim, 0, ch, kToChar);
-		act("$N немного уклонил$U от вашей атаки", false, ch, 0, victim, kToChar);
-		act("$n немного уклонил$u от атаки $N1", true, victim, 0, ch, kToNotVict | kToArenaListen);
+		act("Вы немного уклонились от атаки $N1.", false, victim, 0, ch, kToChar);
+		act("$N немного уклонил$U от вашей атаки.", false, ch, 0, victim, kToChar);
+		act("$n немного уклонил$u от атаки $N1.", true, victim, 0, ch, kToNotVict | kToArenaListen);
 		*dam = *dam * 10 / 15;
 		SET_AF_BATTLE(victim, kEafDodge);
 	} else if (prob < 200) {
-		act("Вы частично уклонились от атаки $N1", false, victim, 0, ch, kToChar);
-		act("$N частично уклонил$U от вашей атаки", false, ch, 0, victim, kToChar);
-		act("$n частично уклонил$u от атаки $N1", true, victim, 0, ch, kToNotVict | kToArenaListen);
+		act("Вы частично уклонились от атаки $N1.", false, victim, 0, ch, kToChar);
+		act("$N частично уклонил$U от вашей атаки.", false, ch, 0, victim, kToChar);
+		act("$n частично уклонил$u от атаки $N1.", true, victim, 0, ch, kToNotVict | kToArenaListen);
 		*dam = *dam / 2;
 		SET_AF_BATTLE(victim, kEafDodge);
 	} else {
-		act("Вы уклонились от атаки $N1", false, victim, 0, ch, kToChar);
-		act("$N уклонил$U от вашей атаки", false, ch, 0, victim, kToChar);
-		act("$n уклонил$u от атаки $N1", true, victim, 0, ch, kToNotVict | kToArenaListen);
+		act("Вы уклонились от атаки $N1.", false, victim, 0, ch, kToChar);
+		act("$N уклонил$U от вашей атаки.", false, ch, 0, victim, kToChar);
+		act("$n уклонил$u от атаки $N1.", true, victim, 0, ch, kToNotVict | kToArenaListen);
 		*dam = -1;
 		SET_AF_BATTLE(victim, kEafDodge);
 	}
@@ -1446,7 +1446,7 @@ void hit_parry(CharData *ch, CharData *victim, ESkill skill, int hit_type, int *
 		&& GET_OBJ_TYPE(GET_EQ(victim, EEquipPos::kHold)) == EObjType::kWeapon)
 		|| victim->IsNpc()
 		|| IS_IMMORTAL(victim))) {
-		SendMsgToChar("У вас нечем отклонить атаку противника\r\n", victim);
+		SendMsgToChar("У вас нечем отклонить атаку противника.\r\n", victim);
 		CLR_AF_BATTLE(victim, kEafParry);
 	} else {
 		int range = number(1, MUD::Skill(ESkill::kParry).difficulty);
@@ -1459,31 +1459,31 @@ void hit_parry(CharData *ch, CharData *victim, ESkill skill, int hit_type, int *
 				&& !IS_IMMORTAL(victim)
 				&& (!CanUseFeat(victim, EFeat::kParryArrow)
 					|| number(1, 1000) >= 20 * MIN(GetRealDex(victim), 35)))) {
-			act("Вы не смогли отбить атаку $N1", false, victim, 0, ch, kToChar);
-			act("$N не сумел$G отбить вашу атаку", false, ch, 0, victim, kToChar);
-			act("$n не сумел$g отбить атаку $N1", true, victim, 0, ch, kToNotVict | kToArenaListen);
+			act("Вы не смогли отбить атаку $N1.", false, victim, 0, ch, kToChar);
+			act("$N не сумел$G отбить вашу атаку.", false, ch, 0, victim, kToChar);
+			act("$n не сумел$g отбить атаку $N1.", true, victim, 0, ch, kToNotVict | kToArenaListen);
 			prob = 2;
 			SET_AF_BATTLE(victim, kEafUsedleft);
 		} else if (prob < 100) {
-			act("Вы немного отклонили атаку $N1", false, victim, 0, ch, kToChar);
-			act("$N немного отклонил$G вашу атаку", false, ch, 0, victim, kToChar);
-			act("$n немного отклонил$g атаку $N1", true, victim, 0, ch, kToNotVict | kToArenaListen);
+			act("Вы немного отклонили атаку $N1.", false, victim, 0, ch, kToChar);
+			act("$N немного отклонил$G вашу атаку.", false, ch, 0, victim, kToChar);
+			act("$n немного отклонил$g атаку $N1.", true, victim, 0, ch, kToNotVict | kToArenaListen);
 			alt_equip(victim, number(0, 2) ? EEquipPos::kWield : EEquipPos::kHold, *dam, 10);
 			prob = 1;
 			*dam = *dam * 10 / 15;
 			SET_AF_BATTLE(victim, kEafUsedleft);
 		} else if (prob < 170) {
-			act("Вы частично отклонили атаку $N1", false, victim, 0, ch, kToChar);
-			act("$N частично отклонил$G вашу атаку", false, ch, 0, victim, kToChar);
-			act("$n частично отклонил$g атаку $N1", true, victim, 0, ch, kToNotVict | kToArenaListen);
+			act("Вы частично отклонили атаку $N1.", false, victim, 0, ch, kToChar);
+			act("$N частично отклонил$G вашу атаку.", false, ch, 0, victim, kToChar);
+			act("$n частично отклонил$g атаку $N1.", true, victim, 0, ch, kToNotVict | kToArenaListen);
 			alt_equip(victim, number(0, 2) ? EEquipPos::kWield : EEquipPos::kHold, *dam, 15);
 			prob = 0;
 			*dam = *dam / 2;
 			SET_AF_BATTLE(victim, kEafUsedleft);
 		} else {
-			act("Вы полностью отклонили атаку $N1", false, victim, 0, ch, kToChar);
-			act("$N полностью отклонил$G вашу атаку", false, ch, 0, victim, kToChar);
-			act("$n полностью отклонил$g атаку $N1", true, victim, 0, ch, kToNotVict | kToArenaListen);
+			act("Вы полностью отклонили атаку $N1.", false, victim, 0, ch, kToChar);
+			act("$N полностью отклонил$G вашу атаку.", false, ch, 0, victim, kToChar);
+			act("$n полностью отклонил$g атаку $N1.", true, victim, 0, ch, kToNotVict | kToArenaListen);
 			alt_equip(victim, number(0, 2) ? EEquipPos::kWield : EEquipPos::kHold, *dam, 25);
 			prob = 0;
 			*dam = -1;
@@ -1507,7 +1507,7 @@ void hit_multyparry(CharData *ch, CharData *victim, ESkill skill, int hit_type, 
 		&& GET_OBJ_TYPE(GET_EQ(victim, EEquipPos::kHold)) == EObjType::kWeapon)
 		|| victim->IsNpc()
 		|| IS_IMMORTAL(victim))) {
-		SendMsgToChar("У вас нечем отклонять атаки противников\r\n", victim);
+		SendMsgToChar("У вас нечем отклонять атаки противников.\r\n", victim);
 	} else {
 		int range = number(1, MUD::Skill(ESkill::kMultiparry).difficulty) + 15*victim->battle_counter;
 		int prob = CalcCurrentSkill(victim, ESkill::kMultiparry, ch);
@@ -1525,25 +1525,25 @@ void hit_multyparry(CharData *ch, CharData *victim, ESkill skill, int hit_type, 
 		TrainSkill(victim, ESkill::kMultiparry, prob >= 50, ch);
 		SendSkillBalanceMsg(ch, MUD::Skill(ESkill::kMultiparry).name, range, prob, prob >= 50);
 		if (prob < 50) {
-			act("Вы не смогли отбить атаку $N1", false, victim, 0, ch, kToChar);
-			act("$N не сумел$G отбить вашу атаку", false, ch, 0, victim, kToChar);
-			act("$n не сумел$g отбить атаку $N1", true, victim, 0, ch, kToNotVict | kToArenaListen);
+			act("Вы не смогли отбить атаку $N1.", false, victim, 0, ch, kToChar);
+			act("$N не сумел$G отбить вашу атаку.", false, ch, 0, victim, kToChar);
+			act("$n не сумел$g отбить атаку $N1.", true, victim, 0, ch, kToNotVict | kToArenaListen);
 		} else if (prob < 90) {
-			act("Вы немного отклонили атаку $N1", false, victim, 0, ch, kToChar);
-			act("$N немного отклонил$G вашу атаку", false, ch, 0, victim, kToChar);
-			act("$n немного отклонил$g атаку $N1", true, victim, 0, ch, kToNotVict | kToArenaListen);
+			act("Вы немного отклонили атаку $N1.", false, victim, 0, ch, kToChar);
+			act("$N немного отклонил$G вашу атаку.", false, ch, 0, victim, kToChar);
+			act("$n немного отклонил$g атаку $N1.", true, victim, 0, ch, kToNotVict | kToArenaListen);
 			alt_equip(victim, number(0, 2) ? EEquipPos::kWield : EEquipPos::kHold, *dam, 10);
 			*dam = *dam * 10 / 15;
 		} else if (prob < 180) {
-			act("Вы частично отклонили атаку $N1", false, victim, 0, ch, kToChar);
-			act("$N частично отклонил$G вашу атаку", false, ch, 0, victim, kToChar);
-			act("$n частично отклонил$g атаку $N1", true, victim, 0, ch, kToNotVict | kToArenaListen);
+			act("Вы частично отклонили атаку $N1.", false, victim, 0, ch, kToChar);
+			act("$N частично отклонил$G вашу атаку.", false, ch, 0, victim, kToChar);
+			act("$n частично отклонил$g атаку $N1.", true, victim, 0, ch, kToNotVict | kToArenaListen);
 			alt_equip(victim, number(0, 2) ? EEquipPos::kWield : EEquipPos::kHold, *dam, 15);
 			*dam = *dam / 2;
 		} else {
-			act("Вы полностью отклонили атаку $N1", false, victim, 0, ch, kToChar);
-			act("$N полностью отклонил$G вашу атаку", false, ch, 0, victim, kToChar);
-			act("$n полностью отклонил$g атаку $N1", true, victim, 0, ch, kToNotVict | kToArenaListen);
+			act("Вы полностью отклонили атаку $N1.", false, victim, 0, ch, kToChar);
+			act("$N полностью отклонил$G вашу атаку.", false, ch, 0, victim, kToChar);
+			act("$n полностью отклонил$g атаку $N1.", true, victim, 0, ch, kToNotVict | kToArenaListen);
 			alt_equip(victim, number(0, 2) ? EEquipPos::kWield : EEquipPos::kHold, *dam, 25);
 			*dam = -1;
 		}
@@ -1554,7 +1554,7 @@ void hit_block(CharData *ch, CharData *victim, int *dam) {
 	if (!(GET_EQ(victim, EEquipPos::kShield)
 		|| victim->IsNpc()
 		|| IS_IMMORTAL(victim))) {
-		SendMsgToChar("У вас нечем отразить атаку противника\r\n", victim);
+		SendMsgToChar("У вас нечем отразить атаку противника.\r\n", victim);
 	} else {
 		int range = number(1, MUD::Skill(ESkill::kShieldBlock).difficulty);
 		int prob = CalcCurrentSkill(victim, ESkill::kShieldBlock, ch);
@@ -1563,25 +1563,25 @@ void hit_block(CharData *ch, CharData *victim, int *dam) {
 		TrainSkill(victim, ESkill::kShieldBlock, prob > 99, ch);
 		SendSkillBalanceMsg(ch, MUD::Skill(ESkill::kShieldBlock).name, range, prob, prob > 99);
 		if (prob < 100) {
-			act("Вы не смогли отразить атаку $N1", false, victim, 0, ch, kToChar);
-			act("$N не сумел$G отразить вашу атаку", false, ch, 0, victim, kToChar);
-			act("$n не сумел$g отразить атаку $N1", true, victim, 0, ch, kToNotVict | kToArenaListen);
+			act("Вы не смогли отразить атаку $N1.", false, victim, 0, ch, kToChar);
+			act("$N не сумел$G отразить вашу атаку.", false, ch, 0, victim, kToChar);
+			act("$n не сумел$g отразить атаку $N1.", true, victim, 0, ch, kToNotVict | kToArenaListen);
 		} else if (prob < 150) {
-			act("Вы немного отразили атаку $N1", false, victim, 0, ch, kToChar);
-			act("$N немного отразил$G вашу атаку", false, ch, 0, victim, kToChar);
-			act("$n немного отразил$g атаку $N1", true, victim, 0, ch, kToNotVict | kToArenaListen);
+			act("Вы немного отразили атаку $N1.", false, victim, 0, ch, kToChar);
+			act("$N немного отразил$G вашу атаку.", false, ch, 0, victim, kToChar);
+			act("$n немного отразил$g атаку $N1.", true, victim, 0, ch, kToNotVict | kToArenaListen);
 			alt_equip(victim, EEquipPos::kShield, *dam, 10);
 			*dam = *dam * 10 / 15;
 		} else if (prob < 250) {
-			act("Вы частично отразили атаку $N1", false, victim, 0, ch, kToChar);
-			act("$N частично отразил$G вашу атаку", false, ch, 0, victim, kToChar);
-			act("$n частично отразил$g атаку $N1", true, victim, 0, ch, kToNotVict | kToArenaListen);
+			act("Вы частично отразили атаку $N1.", false, victim, 0, ch, kToChar);
+			act("$N частично отразил$G вашу атаку.", false, ch, 0, victim, kToChar);
+			act("$n частично отразил$g атаку $N1.", true, victim, 0, ch, kToNotVict | kToArenaListen);
 			alt_equip(victim, EEquipPos::kShield, *dam, 15);
 			*dam = *dam / 2;
 		} else {
-			act("Вы полностью отразили атаку $N1", false, victim, 0, ch, kToChar);
-			act("$N полностью отразил$G вашу атаку", false, ch, 0, victim, kToChar);
-			act("$n полностью отразил$g атаку $N1", true, victim, 0, ch, kToNotVict | kToArenaListen);
+			act("Вы полностью отразили атаку $N1.", false, victim, 0, ch, kToChar);
+			act("$N полностью отразил$G вашу атаку.", false, ch, 0, victim, kToChar);
+			act("$n полностью отразил$g атаку $N1.", true, victim, 0, ch, kToNotVict | kToArenaListen);
 			alt_equip(victim, EEquipPos::kShield, *dam, 25);
 			*dam = -1;
 		}
@@ -2876,11 +2876,12 @@ void HitData::init(CharData *ch, CharData *victim) {
 		weap_skill = ESkill::kPunch;
 	}
 	if (skill_num == ESkill::kUndefined) {
-		if (ch == victim) {
+/*		if (ch == victim) {
 			sprintf(buf, "АВТОАТАКА: victim == ch, сброшен стек");
 			mudlog(buf, CMP, kLvlGod, SYSLOG, true);
 			debug::backtrace(runtime_config.logs(SYSLOG).handle());
 		}
+*/
 		TrainSkill(ch, weap_skill, true, victim);
 //		if (!PRF_FLAGGED(ch, EPrf::kTester) && ch != victim) {
 			SkillRollResult result = MakeSkillTest(ch, weap_skill, victim);
