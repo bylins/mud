@@ -154,7 +154,7 @@ void DoExpedientCut(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		return;
 	}
 
-	if (ch->GetEnemy() && vict->GetEnemy() != ch) {
+if ((vict->GetEnemy() != ch) && (ch->GetEnemy() != vict))  {
 		act("$N не сражается с вами, не трогайте $S.", false, ch, nullptr, vict, kToChar);
 		return;
 	}
