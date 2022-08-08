@@ -49,16 +49,15 @@ void go_kick(CharData *ch, CharData *vict) {
 		dmg.Process(ch, vict);
 		cooldown = 2;
 	} else {
-int dam =(str_bonus(GetRealStr(ch), STR_TO_DAM)) + GetRealDamroll(ch) + GetRealLevel(ch);
-int skill_modi =std::max(0, ((ch->GetSkill(ESkill::kKick)*2)/5));
-int nice =number(1,200) <= (number(0, number(0, ch->calc_morale()));
-int bottom =(nice?skill_modi/4 : 0);
-skill_modi =number(bottom, skill_modi);
-dam +=dam*skill_modi/100;
-int weight_modi = 5 * (20 + (GET_EQ(ch, EEquipPos::kFeet) ? GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kFeet)) : 0));
-dam =dam*weight_modi/100;
-
-dam =number(dam*2/5, dam);
+	int dam =str_bonus(GetRealStr(ch), STR_TO_DAM) + GetRealDamroll(ch) + GetRealLevel(ch);
+	int skill_modi =std::max(0, ch->GetSkill(ESkill::kKick) * 2 / 5);
+	int nice = number(1, 200) <= number(0, number(0, ch->calc_morale()));
+	int bottom = (nice? skill_modi / 4 : 0);
+	skill_modi = number(bottom, skill_modi);
+	dam += dam * skill_modi / 100;
+	int weight_modi = 5 * (20 + (GET_EQ(ch, EEquipPos::kFeet) ? GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kFeet)) : 0));
+	dam = dam * weight_modi / 100;
+	dam = number(dam * 2  /5, dam);
 		if (ch->IsOnHorse() && (ch->GetSkill(ESkill::kRiding) >= 150) && (ch->GetSkill(ESkill::kKick) >= 150)) {
 			Affect<EApply> af;
 			af.location = EApply::kNone;
