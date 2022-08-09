@@ -1066,7 +1066,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
  		// 1 при 10-19, 2 при 20-29 , 3 при 30-39....
 			int adj = r_cha/10;
 			sprintf(descr, "%s %s %s", state[gender][adj - 1][0], GET_PAD(victim, 0), GET_NAME(victim));
-			victim->set_pc_name(descr);
+			victim->SetCharAliases(descr);
 			sprintf(descr, "%s %s", state[gender][adj - 1][0], GET_PAD(victim, 0));
 			victim->set_npc_name(descr);
 			sprintf(descr, "%s %s", state[gender][adj - 1][0], GET_PAD(victim, 0));
@@ -2234,7 +2234,7 @@ void SpellSummonAngel(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData
 
 	if (IS_FEMALE(ch)) {
 		mob->set_sex(EGender::kMale);
-		mob->set_pc_name("Небесный защитник");
+		mob->SetCharAliases("Небесный защитник");
 		mob->player_data.PNames[0] = "Небесный защитник";
 		mob->player_data.PNames[1] = "Небесного защитника";
 		mob->player_data.PNames[2] = "Небесному защитнику";
@@ -2246,7 +2246,7 @@ void SpellSummonAngel(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData
 		mob->player_data.description = str_dup("Сияющая призрачная фигура о двух крылах.\r\n");
 	} else {
 		mob->set_sex(EGender::kFemale);
-		mob->set_pc_name("Небесная защитница");
+		mob->SetCharAliases("Небесная защитница");
 		mob->player_data.PNames[0] = "Небесная защитница";
 		mob->player_data.PNames[1] = "Небесной защитницы";
 		mob->player_data.PNames[2] = "Небесной защитнице";

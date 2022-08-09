@@ -21,7 +21,7 @@ void do_telegram(CharData *ch, char *argument, int, int) {
 	}
 	for (const auto &character : character_list) {
 		const auto i = character.get();
-		if (isname(playerName, i->get_pc_name())) {
+		if (isname(playerName, i->GetCharAliases())) {
 			found = true;
 			tgId = i->player_specials->saved.telegram_id;
 			break;

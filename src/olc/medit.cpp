@@ -67,7 +67,7 @@ void clear_mob_charm(CharData *mob);
 //-------------------------------------------------------------------
 
 // * Handy internal macros.
-#define GET_ALIAS(mob) ((mob)->get_pc_name().c_str())
+#define GET_ALIAS(mob) ((mob)->GetCharAliases().c_str())
 #define GET_SDESC(mob) ((mob)->get_npc_name().c_str())
 #define GET_LDESC(mob) ((mob)->player_data.long_descr)
 #define GET_DDESC(mob) ((mob)->player_data.description)
@@ -166,7 +166,7 @@ void medit_mobile_copy(CharData *dst, CharData *src, bool partial_copy)
 	*dst = *src;
 	dst->set_normal_morph();//вот это копировать не нада
 	if (partial_copy) {
-		dst->set_pc_name(tmp.get_pc_name());
+		dst->SetCharAliases(tmp.GetCharAliases());
 		dst->set_npc_name(tmp.get_npc_name());
 		dst->player_data.long_descr = tmp.player_data.long_descr;
 		dst->player_data.description = tmp.player_data.description;
@@ -278,7 +278,7 @@ void medit_setup(DescriptorData *d, int real_num)
 
 	if (real_num == -1) {
 		mob->set_rnum(kNobody);
-		mob->set_pc_name("неоконченный моб");
+		mob->SetCharAliases("неоконченный моб");
 		mob->set_npc_name("неоконченный моб");
 		mob->player_data.long_descr = "Неоконченный моб стоит тут.\r\n";
 		mob->player_data.description = "Выглядит достаточно незавершенно.\r\n";
@@ -384,7 +384,7 @@ void medit_save_internally(DescriptorData *d) {
 		// В живых мобах необходимо обновить строки, иначе будут крэши
 		for (const auto &live_mob : character_list) {
 			if (IS_MOB(live_mob) && GET_MOB_RNUM(live_mob) == rmob_num) {
-				live_mob->set_pc_name((mob_proto + rmob_num)->get_pc_name().c_str());
+				live_mob->SetCharAliases((mob_proto + rmob_num)->GetCharAliases().c_str());
 				live_mob->set_npc_name((mob_proto + rmob_num)->get_npc_name().c_str());
 				// Только строки. Остальное после ресета/ребута
 				// Возможна небольшая утечка памяти, но иначе очень большая запара
@@ -1864,7 +1864,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 			medit_disp_saves(d);
 			return;
 		}
-		case MEDIT_ALIAS: OLC_MOB(d)->set_pc_name(not_null(arg, "неопределен"));
+		case MEDIT_ALIAS: OLC_MOB(d)->SetCharAliases(not_null(arg, "неопределен"));
 			break;
 
 		case MEDIT_PAD0: OLC_MOB(d)->player_data.PNames[0] = std::string(not_null(arg, "кто-то"));

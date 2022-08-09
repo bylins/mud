@@ -3253,7 +3253,7 @@ int vnum_mobile(char *searchname, CharData *ch) {
 	int nr, found = 0;
 
 	for (nr = 0; nr <= top_of_mobt; nr++) {
-		if (isname(searchname, mob_proto[nr].get_pc_name())) {
+		if (isname(searchname, mob_proto[nr].GetCharAliases())) {
 			sprintf(buf, "%3d. [%5d] %s\r\n", ++found, mob_index[nr].vnum, mob_proto[nr].get_npc_name().c_str());
 			SendMsgToChar(buf, ch);
 		}

@@ -76,7 +76,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	if (IS_MOB(k)) {
 		sprintf(buf,
 				"Синонимы: &S%s&s, VNum: [%5d], RNum: [%5d]\r\n",
-				k->get_pc_name().c_str(),
+				k->GetCharAliases().c_str(),
 				GET_MOB_VNUM(k),
 				GET_MOB_RNUM(k));
 		SendMsgToChar(buf, ch);
@@ -598,8 +598,8 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 			CCNRM(ch, C_NRM),
 			j->get_aliases().c_str());
 	SendMsgToChar(buf, ch);
-	if (j->get_custom_label() && j->get_custom_label()->LabelText) {
-		sprintf(buf, " нацарапано: '&c%s&n',", j->get_custom_label()->LabelText);
+	if (j->get_custom_label() && j->get_custom_label()->text_label) {
+		sprintf(buf, " нацарапано: '&c%s&n',", j->get_custom_label()->text_label);
 		SendMsgToChar(buf, ch);
 	}
 	sprintf(buf, "\r\n");

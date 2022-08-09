@@ -950,7 +950,7 @@ bool need_full_alias(CharData *ch, CharData *opponent) {
 //Проверка, является ли строка arg полным именем ch
 int name_cmp(CharData *ch, const char *arg) {
 	char opp_name_part[200] = "\0", opp_name[200] = "\0", *opp_name_remain;
-	strcpy(opp_name, ch->get_pc_name().c_str());
+	strcpy(opp_name, ch->GetCharAliases().c_str());
 //	utils::RemoveColors(opp_name); алиасы не бывают цветными
 	for (opp_name_remain = opp_name; *opp_name_remain;) {
 		opp_name_remain = one_argument(opp_name_remain, opp_name_part);

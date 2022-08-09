@@ -444,7 +444,7 @@ CharData *get_char(char *name, bool pc) {
 	} else {
 		for (const auto &character : character_list) {
 			const auto i = character.get();
-			if (isname(name, i->get_pc_name())
+			if (isname(name, i->GetCharAliases())
 				&& (i->IsNpc()
 					|| !GET_INVIS_LEV(i))) {
 				return i;
@@ -504,21 +504,21 @@ CharData *get_char_by_obj(ObjData *obj, char *name) {
 			return ch;
 	} else {
 		if (obj->get_carried_by()
-			&& isname(name, obj->get_carried_by()->get_pc_name())
+			&& isname(name, obj->get_carried_by()->GetCharAliases())
 			&& (obj->get_carried_by()->IsNpc()
 				|| !GET_INVIS_LEV(obj->get_carried_by()))) {
 			return obj->get_carried_by();
 		}
 
 		if (obj->get_worn_by()
-			&& isname(name, obj->get_worn_by()->get_pc_name())
+			&& isname(name, obj->get_worn_by()->GetCharAliases())
 			&& (obj->get_worn_by()->IsNpc()
 				|| !GET_INVIS_LEV(obj->get_worn_by()))) {
 			return obj->get_worn_by();
 		}
 
 		for (const auto &ch : character_list) {
-			if (isname(name, ch->get_pc_name())
+			if (isname(name, ch->GetCharAliases())
 				&& (ch->IsNpc()
 					|| !GET_INVIS_LEV(ch))) {
 				return ch.get();
@@ -551,7 +551,7 @@ CharData *get_char_by_room(RoomData *room, char *name) {
 		}
 	} else {
 		for (const auto &ch : room->people) {
-			if (isname(name, ch->get_pc_name())
+			if (isname(name, ch->GetCharAliases())
 				&& (ch->IsNpc()
 					|| !GET_INVIS_LEV(ch))) {
 				return ch;
@@ -559,7 +559,7 @@ CharData *get_char_by_room(RoomData *room, char *name) {
 		}
 
 		for (const auto &ch : character_list) {
-			if (isname(name, ch->get_pc_name())
+			if (isname(name, ch->GetCharAliases())
 				&& (ch->IsNpc()
 					|| !GET_INVIS_LEV(ch))) {
 				return ch.get();
@@ -895,7 +895,7 @@ void find_uid_name(char *uid, char *name) {
 	ObjData *obj;
 
 	if ((ch = get_char(uid))) {
-		strcpy(name, ch->get_pc_name().c_str());
+		strcpy(name, ch->GetCharAliases().c_str());
 	} else if ((obj = get_obj(uid))) {
 		strcpy(name, obj->get_aliases().c_str());
 	} else {
@@ -2132,10 +2132,10 @@ void find_replacement(void *go,
 		}
 		else if (!str_cmp(field, "alias")) {
 			if (*subfield) {
-				c->set_pc_name(subfield);
+				c->SetCharAliases(subfield);
 			}
 			else {
-				strcpy(str, c->get_pc_name().c_str());
+				strcpy(str, c->GetCharAliases().c_str());
 			}
 		}
 		else if (!str_cmp(field, "id"))

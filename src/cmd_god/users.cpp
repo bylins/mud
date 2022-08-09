@@ -148,7 +148,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 				switch (sorting) {
 					case 'n':
-						if (0 < strcoll(t ? t->get_pc_name().c_str() : "", t_tmp ? t_tmp->get_pc_name().c_str() : "")) {
+						if (0 < strcoll(t ? t->GetCharAliases().c_str() : "", t_tmp ? t_tmp->GetCharAliases().c_str() : "")) {
 							flag_change = 1;
 						}
 						break;
@@ -257,13 +257,13 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		if (d->character
-			&& d->character->get_pc_name().c_str()) {
+			&& d->character->GetCharAliases().c_str()) {
 			if (d->original) {
 				sprintf(line,
 						format,
 						d->desc_num,
 						classname,
-						d->original->get_pc_name().c_str(),
+						d->original->GetCharAliases().c_str(),
 						state,
 						idletime,
 						timeptr);
@@ -272,7 +272,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						format,
 						d->desc_num,
 						classname,
-						d->character->get_pc_name().c_str(),
+						d->character->GetCharAliases().c_str(),
 						state,
 						idletime,
 						timeptr);

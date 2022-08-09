@@ -437,21 +437,21 @@ bool IsLabelledObjsStackable(ObjData *obj_one, ObjData *obj_two) {
 
 	if (obj_one->get_custom_label() && obj_two->get_custom_label()) {
 		// с разными типами меток не стокаются
-		if (!obj_one->get_custom_label()->ClanAbbrev != !obj_two->get_custom_label()->ClanAbbrev) {
+		if (!obj_one->get_custom_label()->clan_abbrev != !obj_two->get_custom_label()->clan_abbrev) {
 			return false;
 		} else {
 			// обе метки клановые один клан, текст совпадает -- стокается
-			if (obj_one->get_custom_label()->ClanAbbrev && obj_two->get_custom_label()->ClanAbbrev
-				&& !strcmp(obj_one->get_custom_label()->ClanAbbrev, obj_two->get_custom_label()->ClanAbbrev)
-				&& obj_one->get_custom_label()->LabelText && obj_two->get_custom_label()->LabelText
-				&& !strcmp(obj_one->get_custom_label()->LabelText, obj_two->get_custom_label()->LabelText)) {
+			if (obj_one->get_custom_label()->clan_abbrev && obj_two->get_custom_label()->clan_abbrev
+				&& !strcmp(obj_one->get_custom_label()->clan_abbrev, obj_two->get_custom_label()->clan_abbrev)
+				&& obj_one->get_custom_label()->text_label && obj_two->get_custom_label()->text_label
+				&& !strcmp(obj_one->get_custom_label()->text_label, obj_two->get_custom_label()->text_label)) {
 				return true;
 			}
 
 			// обе метки личные, один автор, текст совпадает -- стокается
 			if (obj_one->get_custom_label()->author == obj_two->get_custom_label()->author
-				&& obj_one->get_custom_label()->LabelText && obj_two->get_custom_label()->LabelText
-				&& !strcmp(obj_one->get_custom_label()->LabelText, obj_two->get_custom_label()->LabelText)) {
+				&& obj_one->get_custom_label()->text_label && obj_two->get_custom_label()->text_label
+				&& !strcmp(obj_one->get_custom_label()->text_label, obj_two->get_custom_label()->text_label)) {
 				return true;
 			}
 		}
@@ -1390,7 +1390,7 @@ CharData *SearchCharInRoomByName(char *name, RoomRnum room) {
 
 	int j = 0;
 	for (const auto i : world[room]->people) {
-		if (isname(tmp, i->get_pc_name())) {
+		if (isname(tmp, i->GetCharAliases())) {
 			if (++j == number) {
 				return i;
 			}
@@ -1966,7 +1966,7 @@ CharData *get_player_of_name(const char *name) {
 		if (i->IsNpc()) {
 			continue;
 		}
-		if (!isname(name, i->get_pc_name())) {
+		if (!isname(name, i->GetCharAliases())) {
 			continue;
 		}
 		return i.get();
@@ -1984,7 +1984,7 @@ CharData *get_player_vis(CharData *ch, const char *name, int inroom) {
 			continue;
 		if (!CAN_SEE_CHAR(ch, i))
 			continue;
-		if (!isname(name, i->get_pc_name())) {
+		if (!isname(name, i->GetCharAliases())) {
 			continue;
 		}
 		return i.get();
@@ -1998,7 +1998,7 @@ CharData *get_player_pun(CharData *ch, const char *name, int inroom) {
 			continue;
 		if ((inroom & EFind::kCharInRoom) && i->in_room != ch->in_room)
 			continue;
-		if (!isname(name, i->get_pc_name())) {
+		if (!isname(name, i->GetCharAliases())) {
 			continue;
 		}
 		return i.get();
@@ -2026,7 +2026,7 @@ CharData *get_char_room_vis(CharData *ch, const char *name) {
 	int j = 0;
 	for (const auto i : world[ch->in_room]->people) {
 		if (HERE(i) && CAN_SEE(ch, i)
-			&& isname(tmp, i->get_pc_name())) {
+			&& isname(tmp, i->GetCharAliases())) {
 			if (++j == number) {
 				return i;
 			}
@@ -2057,7 +2057,7 @@ CharData *get_char_vis(CharData *ch, const char *name, int where) {
 		int j = 0;
 		for (const auto &target : character_list) {
 			if (HERE(target) && CAN_SEE(ch, target)
-				&& isname(tmp, target->get_pc_name())) {
+				&& isname(tmp, target->GetCharAliases())) {
 				if (++j == number) {
 					return target.get();
 				}
