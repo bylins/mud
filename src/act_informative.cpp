@@ -456,8 +456,8 @@ std::string char_get_custom_label(ObjData *obj, CharData *ch) {
 	const char *delim_r = nullptr;
 
 	// разные скобки для клановых и личных
-	if (obj->get_custom_label() && (ch->player_specials->clan && obj->get_custom_label()->ClanAbbrev != nullptr &&
-		is_alliance_by_abbr(ch, obj->get_custom_label()->ClanAbbrev))) {
+	if (obj->get_custom_label() && (ch->player_specials->clan && obj->get_custom_label()->clan_abbrev != nullptr &&
+		is_alliance_by_abbr(ch, obj->get_custom_label()->clan_abbrev))) {
 		delim_l = " *";
 		delim_r = "*";
 	} else {
@@ -467,7 +467,7 @@ std::string char_get_custom_label(ObjData *obj, CharData *ch) {
 
 	std::stringstream buffer;
 	if (AUTH_CUSTOM_LABEL(obj, ch)) {
-		buffer << delim_l << obj->get_custom_label()->LabelText << delim_r;
+		buffer << delim_l << obj->get_custom_label()->text_label << delim_r;
 	}
 
 	return buffer.str();
@@ -2321,13 +2321,13 @@ void obj_info(CharData *ch, ObjData *obj, char buf[kMaxStringLength]) {
 		}
 		sprintf(buf + strlen(buf), "\r\n%s", CCNRM(ch, C_NRM));
 	}
-	if (AUTH_CUSTOM_LABEL(obj, ch) && obj->get_custom_label()->LabelText) {
-		if (obj->get_custom_label()->ClanAbbrev) {
+	if (AUTH_CUSTOM_LABEL(obj, ch) && obj->get_custom_label()->text_label) {
+		if (obj->get_custom_label()->clan_abbrev) {
 			strcat(buf, "Метки дружины: ");
 		} else {
 			strcat(buf, "Ваши метки: ");
 		}
-		sprintf(buf + strlen(buf), "%s\r\n", obj->get_custom_label()->LabelText);
+		sprintf(buf + strlen(buf), "%s\r\n", obj->get_custom_label()->text_label);
 	}
 	sprintf(buf + strlen(buf), "%s", diag_uses_to_char(obj, ch));
 	sprintf(buf + strlen(buf), "%s", diag_shot_to_char(obj, ch));
@@ -3518,7 +3518,7 @@ void perform_mortal_where(CharData *ch, char *arg) {
 				continue;
 			}
 
-			if (!isname(arg, i->get_pc_name())) {
+			if (!isname(arg, i->GetCharAliases())) {
 				continue;
 			}
 
@@ -3672,7 +3672,7 @@ void perform_immort_where(CharData *ch, char *arg) {
 		for (const auto &i : character_list) {
 			if (CAN_SEE(ch, i)
 				&& i->in_room != kNowhere
-				&& isname(arg, i->get_pc_name())) {
+				&& isname(arg, i->GetCharAliases())) {
 				ZoneData *zone = &zone_table[world[i->in_room]->zone_rn];
 				found = 1;
 				sprintf(buf,

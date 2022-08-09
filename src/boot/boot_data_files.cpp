@@ -1016,7 +1016,7 @@ void MobileFile::parse_mobile(const int nr) {
 	mob_proto[i].player_specials = player_special_data::s_for_mobiles;
 
 	// **** String data
-	mob_proto[i].set_pc_name(fread_string());
+	mob_proto[i].SetCharAliases(fread_string());
 	mob_proto[i].set_npc_name(fread_string());
 
 	// real name

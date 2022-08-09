@@ -951,18 +951,18 @@ const std::string &CharData::get_name_str() const {
 }
 
 const std::string &CharData::get_name() const {
-	return this->IsNpc() ? get_npc_name() : get_pc_name();
+	return this->IsNpc() ? get_npc_name() : GetCharAliases();
 }
 
 void CharData::set_name(const char *name) {
 	if (this->IsNpc()) {
 		set_npc_name(name);
 	} else {
-		set_pc_name(name);
+		SetCharAliases(name);
 	}
 }
 
-void CharData::set_pc_name(const char *name) {
+void CharData::SetCharAliases(const char *name) {
 	if (name) {
 		name_ = name;
 	} else {
@@ -1946,7 +1946,7 @@ void CharData::restore_npc() {
 	this->player_data.PNames[3] = proto->player_data.PNames[3];
 	this->player_data.PNames[4] = proto->player_data.PNames[4];
 	this->player_data.PNames[5] = proto->player_data.PNames[5];
-	this->set_pc_name(GET_PC_NAME(proto));
+	this->SetCharAliases(GET_PC_NAME(proto));
 	this->set_npc_name(GET_NAME(proto));
     // кубики // екстра атаки
 	this->mob_specials.damnodice = proto->mob_specials.damnodice;

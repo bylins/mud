@@ -1300,7 +1300,7 @@ void do_ungroup(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	for (f = ch->followers; f; f = next_fol) {
 		next_fol = f->next;
 		tch = f->follower;
-		if (isname(buf, tch->get_pc_name())
+		if (isname(buf, tch->GetCharAliases())
 			&& !AFF_FLAGGED(tch, EAffect::kCharmed)
 			&& !IS_HORSE(tch)) {
 			//AFF_FLAGS(tch).unset(EAffectFlag::AFF_GROUP);

@@ -1358,9 +1358,9 @@ int pet_shops(CharData *ch, void * /*me*/, int cmd, char *argument) {
 		AFF_FLAGS(pet).set(EAffect::kCharmed);
 
 		if (*pet_name) {
-			sprintf(buf, "%s %s", pet->get_pc_name().c_str(), pet_name);
-			// free(pet->get_pc_name()); don't free the prototype!
-			pet->set_pc_name(buf);
+			sprintf(buf, "%s %s", pet->GetCharAliases().c_str(), pet_name);
+			// free(pet->GetCharAliases()); don't free the prototype!
+			pet->SetCharAliases(buf);
 
 			sprintf(buf,
 					"%sA small sign on a chain around the neck says 'My name is %s'\r\n",

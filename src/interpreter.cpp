@@ -2955,7 +2955,7 @@ void nanny(DescriptorData *d, char *arg) {
 						}
 
 						CreateChar(d);
-						d->character->set_pc_name(CAP(tmp_name));
+						d->character->SetCharAliases(CAP(tmp_name));
 						d->character->player_data.PNames[0] = std::string(CAP(tmp_name));
 						d->character->set_pfilepos(player_i);
 						sprintf(buf, "Вы действительно выбрали имя %s [ Y(Д) / N(Н) ]? ", tmp_name);
@@ -3001,7 +3001,7 @@ void nanny(DescriptorData *d, char *arg) {
 						return;
 					}
 
-					d->character->set_pc_name(CAP(tmp_name));
+					d->character->SetCharAliases(CAP(tmp_name));
 					d->character->player_data.PNames[0] = std::string(CAP(tmp_name));
 					SEND_TO_Q(name_rules, d);
 					sprintf(buf, "Вы действительно выбрали имя  %s [ Y(Д) / N(Н) ]? ", tmp_name);
@@ -3052,7 +3052,7 @@ void nanny(DescriptorData *d, char *arg) {
 
 			} else if (UPPER(*arg) == 'N' || UPPER(*arg) == 'Н') {
 				SEND_TO_Q("Итак, чего изволите? Учтите, бананов нет :)\r\n" "Имя : ", d);
-				d->character->set_pc_name(nullptr);
+				d->character->SetCharAliases(nullptr);
 				STATE(d) = CON_GET_NAME;
 			} else {
 				SEND_TO_Q("Ответьте Yes(Да) or No(Нет) : ", d);
@@ -3105,7 +3105,7 @@ void nanny(DescriptorData *d, char *arg) {
 				return;
 			}
 
-			d->character->set_pc_name(CAP(tmp_name));
+			d->character->SetCharAliases(CAP(tmp_name));
 			d->character->player_data.PNames[0] = std::string(CAP(tmp_name));
 			if (is_player_deleted) {
 				d->character->set_pfilepos(player_i);
@@ -3444,7 +3444,7 @@ void nanny(DescriptorData *d, char *arg) {
 #endif
 			{
 				int random_number = number(1000000, 9999999);
-				new_char_codes[d->character->get_pc_name()] = random_number;
+				new_char_codes[d->character->GetCharAliases()] = random_number;
 				strncpy(GET_EMAIL(d->character), arg, 127);
 				*(GET_EMAIL(d->character) + 127) = '\0';
 				utils::ConvertToLow(GET_EMAIL(d->character));
@@ -3470,12 +3470,12 @@ void nanny(DescriptorData *d, char *arg) {
 		case CON_RANDOM_NUMBER: {
 			int code_rand = atoi(arg);
 
-			if (new_char_codes.count(d->character->get_pc_name()) != 0) {
-				if (new_char_codes[d->character->get_pc_name()] != code_rand) {
+			if (new_char_codes.count(d->character->GetCharAliases()) != 0) {
+				if (new_char_codes[d->character->GetCharAliases()] != code_rand) {
 					SEND_TO_Q("\r\nВы ввели неправильный код, попробуйте еще раз.\r\n", d);
 					break;
 				}
-				new_char_codes.erase(d->character->get_pc_name());
+				new_char_codes.erase(d->character->GetCharAliases());
 				DoAfterEmailConfirm(d);
 				break;
 			}

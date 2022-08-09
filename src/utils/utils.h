@@ -462,7 +462,7 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 #define IN_ROOM(ch)  ((ch)->in_room)
 #define GET_AGE(ch)     (age(ch)->year)
 #define GET_REAL_AGE(ch) (age(ch)->year + GET_AGE_ADD(ch))
-#define GET_PC_NAME(ch) ((ch)->get_pc_name().c_str())
+#define GET_PC_NAME(ch) ((ch)->GetCharAliases().c_str())
 #define GET_NAME(ch)    ((ch)->get_name().c_str())
 #define GET_TITLE(ch)   ((ch)->player_data.title)
 #define GET_MAX_MANA(ch)      (mana[MIN(50, GetRealWis(ch))])

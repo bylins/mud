@@ -2749,7 +2749,7 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 		ClearCharTalents(mob);
 
 		sprintf(buf2, "умертвие %s %s", GET_PAD(mob, 1), GET_NAME(mob));
-		mob->set_pc_name(buf2);
+		mob->SetCharAliases(buf2);
 		sprintf(buf2, "умертвие %s", GET_PAD(mob, 1));
 		mob->set_npc_name(buf2);
 		mob->player_data.long_descr = "";
@@ -2862,7 +2862,7 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 	MOB_FLAGS(mob).set(EMobFlag::kCorpse);
 	if (spell_id == ESpell::kClone) {
 		sprintf(buf2, "двойник %s %s", GET_PAD(ch, 1), GET_NAME(ch));
-		mob->set_pc_name(buf2);
+		mob->SetCharAliases(buf2);
 		sprintf(buf2, "двойник %s", GET_PAD(ch, 1));
 		mob->set_npc_name(buf2);
 		mob->player_data.long_descr = "";

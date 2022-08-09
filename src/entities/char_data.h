@@ -413,10 +413,10 @@ class CharData : public ProtectedCharData {
 
 	const std::string &get_name() const;
 	void set_name(const char *name);
-	const std::string &get_pc_name() const { return name_; }
-	void set_pc_name(const char *name);
-	void set_pc_name(const std::string &name) { name_ = name; }
-	void set_pc_name(std::string &&name) { name_ = name; }
+	const std::string &GetCharAliases() const { return name_; }
+	void SetCharAliases(const char *name);
+	void SetCharAliases(const std::string &name) { name_ = name; }
+	void SetCharAliases(std::string &&name) { name_ = name; }
 	const std::string &get_npc_name() const { return short_descr_; }
 	void set_npc_name(const char *name);
 	void set_npc_name(const std::string &name) { short_descr_ = name; }

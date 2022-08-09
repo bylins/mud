@@ -221,12 +221,12 @@ void olc_update_object(int robj_num, ObjData *obj, ObjData *olc_obj) {
 	//восстанавливаем метки, если они были
 	if (tmp.get_custom_label()) {
 		obj->set_custom_label(new custom_label());
-		obj->get_custom_label()->LabelText = str_dup(tmp.get_custom_label()->LabelText);
+		obj->get_custom_label()->text_label = str_dup(tmp.get_custom_label()->text_label);
 		obj->get_custom_label()->author = tmp.get_custom_label()->author;
-		if (tmp.get_custom_label()->ClanAbbrev != nullptr) {
-			obj->get_custom_label()->ClanAbbrev = str_dup(tmp.get_custom_label()->ClanAbbrev);
+		if (tmp.get_custom_label()->clan_abbrev != nullptr) {
+			obj->get_custom_label()->clan_abbrev = str_dup(tmp.get_custom_label()->clan_abbrev);
 		}
-		obj->get_custom_label()->AuthorMail = str_dup(tmp.get_custom_label()->AuthorMail);
+		obj->get_custom_label()->author_mail = str_dup(tmp.get_custom_label()->author_mail);
 	}
 	// восстановим силу ингров
 	if (tmp.get_type() == EObjType::kMagicIngredient) {
