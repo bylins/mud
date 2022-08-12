@@ -128,44 +128,35 @@ void DoExpedientCut(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		SendMsgToChar("Вы не владеете таким приемом.\r\n", ch);
 		return;
 	}
-
 	if (ch->IsHorsePrevents()) {
 		return;
 	}
-
 	if (GET_POS(ch) < EPosition::kFight) {
 		SendMsgToChar("Вам стоит встать на ноги.\r\n", ch);
 		return;
 	}
-
 	if (AFF_FLAGGED(ch, EAffect::kStopRight) || IsUnableToAct(ch)) {
 		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
-
 	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
 		SendMsgToChar("Кого вы хотите порезать?\r\n", ch);
 		return;
 	}
-
 	if (vict == ch) {
 		SendMsgToChar("Вы таки да? Ой-вей, но тут Древняя Русь, а не Палестина!\r\n", ch);
 		return;
 	}
-
-if ((vict->GetEnemy() != ch) && (ch->GetEnemy() != vict))  {
+	if (ch->GetEnemy() && ch->GetEnemy() != vict) {
 		act("$N не сражается с вами, не трогайте $S.", false, ch, nullptr, vict, kToChar);
 		return;
 	}
-
 	if (!may_kill_here(ch, vict, argument) || !check_pkill(ch, vict, arg)) {
 		return;
 	}
-
 	if (!IsHaveNoExtraAttack(ch)) {
 		return;
 	}
-
 	SetExtraAttackCut(ch, vict);
 }

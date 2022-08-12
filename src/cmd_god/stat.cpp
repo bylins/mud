@@ -618,7 +618,8 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	SendMsgToChar(ch, "Тип: %s, СпецПроцедура: %s", buf1, buf2);
 
 	if (GET_OBJ_OWNER(j)) {
-		SendMsgToChar(ch, ", Владелец : %s", get_name_by_unique(GET_OBJ_OWNER(j)));
+		auto *tmpstr = get_name_by_unique(GET_OBJ_OWNER(j));
+		SendMsgToChar(ch, ", Владелец : %s", tmpstr == nullptr ? "УДАЛЕН": tmpstr);
 	}
 //	if (GET_OBJ_ZONE(j))
 	SendMsgToChar(ch, ", Принадлежит зоне VNUM : %d", GET_OBJ_VNUM_ZONE_FROM(j));

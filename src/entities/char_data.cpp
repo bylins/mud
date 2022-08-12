@@ -2012,9 +2012,9 @@ void CharData::report_loop_error(const CharData::ptr_t master) const {
 	}
 	mudlog(additional_info.str().c_str(), DEF, -1, ERRLOG, true);
 
-	ss << "\nТекущий стек будет распечатан в ERRLOG.";
-	debug::backtrace(runtime_config.logs(ERRLOG).handle());
-	mudlog(ss.str().c_str(), DEF, kLvlImplementator, ERRLOG, false);
+	ss << "\nТекущий стек будет распечатан в SYSLOG.";
+	debug::backtrace(runtime_config.logs(SYSLOG).handle());
+	mudlog(ss.str().c_str(), LGH, kLvlImmortal, SYSLOG, false);
 }
 
 void CharData::print_leaders_chain(std::ostream &ss) const {

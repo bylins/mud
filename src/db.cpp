@@ -4810,9 +4810,10 @@ long get_ptable_by_name(const char *name) {
 		}
 	}
 	std::stringstream buffer;
-	buffer << "Char " << name << "(" << arg << ") not found !!!";
+	buffer << "Char " << name << " (" << arg << ") not found !!! Сброшен стек в сислог";
+	debug::backtrace(runtime_config.logs(SYSLOG).handle());
 //	sprintf(buf, "Char %s(%s) not found !!!", name, arg);
-	mudlog(buffer.str().c_str(), LGH, kLvlImmortal, SYSLOG, false);
+	mudlog(buffer.str().c_str(), CMP, kLvlImmortal, SYSLOG, false);
 	return (-1);
 }
 

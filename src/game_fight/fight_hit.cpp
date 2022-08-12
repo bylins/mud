@@ -2457,12 +2457,14 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	int real_dam = dam;
 	int over_dam = 0;
 
-	// собственно нанесение дамага
 	if (dam > GET_HIT(victim) + 11) {
 		real_dam = GET_HIT(victim) + 11;
 		over_dam = dam - real_dam;
 	}
+	// собственно нанесение дамага
 	GET_HIT(victim) -= dam;
+	victim->send_to_TC(false, true, true, "&MПолучен урон = %d&n\r\n", dam);
+	ch->send_to_TC(false, true, true, "&MПрименен урон = %d&n\r\n", dam);
 	// если на чармисе вампир
 	if (AFF_FLAGGED(ch, EAffect::kVampirism)) {
 		GET_HIT(ch) = std::clamp(GET_HIT(ch) + std::max(1, dam / 10),
@@ -2548,8 +2550,6 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	/// Use SendMsgToChar -- act() doesn't send message if you are DEAD.
 	char_dam_message(dam, ch, victim, flags[fight::kNoFleeDmg]);
 
-	victim->send_to_TC(false, true, true, "&MПолучен урон = %d&n\r\n", dam);
-	ch->send_to_TC(false, true, true, "&MПрименен урон = %d&n\r\n", dam);
 
 	// Проверить, что жертва все еще тут. Может уже сбежала по трусости.
 	// Думаю, простой проверки достаточно.
@@ -3777,8 +3777,6 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		}
 	}
 
-	ch->send_to_TC(false, true, true, "&CНанёс: Регуляр дамаг = %d&n\r\n", hit_params.dam);
-	victim->send_to_TC(false, true, true, "&CПолучил: Регуляр дамаг = %d&n\r\n", hit_params.dam);
 	// обнуляем флаги, если у нападающего есть лаг
 	if ((GET_AF_BATTLE(ch, kEafOverwhelm) || GET_AF_BATTLE(ch, kEafHammer)) && ch->get_wait() > 0) {
 		CLR_AF_BATTLE(ch, kEafOverwhelm);
@@ -3790,6 +3788,8 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 
 
 	// итоговый дамаг
+	ch->send_to_TC(false, true, true, "&CНанёс: Регуляр дамаг = %d&n\r\n", hit_params.dam);
+	victim->send_to_TC(false, true, true, "&CПолучил: Регуляр дамаг = %d&n\r\n", hit_params.dam);
 	int made_dam = hit_params.extdamage(ch, victim);
 
 	//Обнуление лага, когда виктим убит с применением
