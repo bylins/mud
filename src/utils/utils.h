@@ -151,7 +151,7 @@ char *format_act(const char *orig, CharData *ch, ObjData *obj, const void *vict_
 int roundup(float fl);
 bool IsValidEmail(const char *address);
 void skip_dots(char **string);
-const char *str_str(const char *cs, const char *ct);
+char *str_str(const char *cs, const char *ct);
 void kill_ems(char *str);
 void cut_one_word(std::string &str, std::string &word);
 size_t strl_cpy(char *dst, const char *src, size_t siz);

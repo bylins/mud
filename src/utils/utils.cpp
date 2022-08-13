@@ -1368,7 +1368,7 @@ void skip_dots(char **string) {
 
 // Return pointer to first occurrence in string ct in
 // cs, or nullptr if not present.  Case insensitive
-const char *str_str(const char *cs, const char *ct) {
+char *str_str(const char *cs, const char *ct) {
 	if (!cs || !ct) {
 		return nullptr;
 	}
@@ -1380,7 +1380,7 @@ const char *str_str(const char *cs, const char *ct) {
 			cs++;
 		}
 
-		const char *s = cs;
+		char *s = (char*)cs;
 		while (*t && *cs && (LOWER(*cs) == LOWER(*t))) {
 			t++;
 			cs++;
