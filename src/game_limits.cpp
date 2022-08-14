@@ -617,26 +617,29 @@ void beat_points_update(int pulse) {
 		return;
 
 	// only for PC's
-	character_list.foreach_on_copy([&](const auto &i) {
-		if (i->IsNpc())
-			return;
+	for (auto d = descriptor_list; d; d = d->next) {
+		if (STATE(d) != CON_PLAYING) 
+			continue;
+//	character_list.foreach_on_copy([&](const auto &i) {
+//		if (d->character.get()->IsNpc())
+//			return;
 
-		if (IN_ROOM(i) == kNowhere) {
+		if (IN_ROOM(d->character.get()) == kNowhere) {
 			log("SYSERR: Pulse character in kNowhere.");
-			return;
+			continue;
 		}
 
-		if (NORENTABLE(i) <= time(nullptr)) {
-			NORENTABLE(i) = 0;
-			AGRESSOR(i) = 0;
-			AGRO(i) = 0;
-			i->agrobd = false;
+		if (NORENTABLE(d->character.get()) <= time(nullptr)) {
+			NORENTABLE(d->character.get()) = 0;
+			AGRESSOR(d->character.get()) = 0;
+			AGRO(d->character.get()) = 0;
+			d->character.get()->agrobd = false;
 		}
 
-		if (AGRO(i) < time(nullptr)) {
-			AGRO(i) = 0;
+		if (AGRO(d->character.get()) < time(nullptr)) {
+			AGRO(d->character.get()) = 0;
 		}
-		beat_punish(i);
+		beat_punish(d->character);
 
 		// This line is used only to control all situations when someone is
 		// dead (EPosition::kDead). You can comment it to minimize heartbeat function
@@ -646,83 +649,83 @@ void beat_points_update(int pulse) {
 		//             if (GET_POS(i) == EPosition::kDead)
 		//                     die(i, NULL);
 
-		if (GET_POS(i) < EPosition::kStun) {
-			return;
+		if (GET_POS(d->character.get()) < EPosition::kStun) {
+			continue;
 		}
 
 		// Restore hitpoints
-		restore = hit_gain(i);
+		restore = hit_gain(d->character.get());
 		restore = interpolate(restore, pulse);
 
-		if (AFF_FLAGGED(i, EAffect::kBandage)) {
-			for (const auto &aff : i->affected) {
+		if (AFF_FLAGGED(d->character.get(), EAffect::kBandage)) {
+			for (const auto &aff : d->character.get()->affected) {
 				if (aff->type == ESpell::kBandage) {
-					restore += std::min(GET_REAL_MAX_HIT(i) / 10, aff->modifier);
+					restore += std::min(GET_REAL_MAX_HIT(d->character.get()) / 10, aff->modifier);
 					break;
 				}
 			}
 		}
 
-		if (GET_HIT(i) < GET_REAL_MAX_HIT(i)) {
-			GET_HIT(i) = std::min(GET_HIT(i) + restore, GET_REAL_MAX_HIT(i));
+		if (GET_HIT(d->character.get()) < GET_REAL_MAX_HIT(d->character.get())) {
+			GET_HIT(d->character.get()) = std::min(GET_HIT(d->character.get()) + restore, GET_REAL_MAX_HIT(d->character.get()));
 		}
 
 		// Restore PC caster mem
-		if (!IS_MANA_CASTER(i) && !i->mem_queue.Empty()) {
-			restore = CalcManaGain(i);
+		if (!IS_MANA_CASTER(d->character.get()) && !d->character.get()->mem_queue.Empty()) {
+			restore = CalcManaGain(d->character.get());
 			restore = interpolate(restore, pulse);
-			i->mem_queue.stored += restore;
+			d->character.get()->mem_queue.stored += restore;
 
-			if (AFF_FLAGGED(i, EAffect::kMemorizeSpells)) {
-				handle_recall_spells(i.get());
+			if (AFF_FLAGGED(d->character.get(), EAffect::kMemorizeSpells)) {
+				handle_recall_spells(d->character.get());
 			}
 
-			while (i->mem_queue.stored > GET_MEM_CURRENT(i.get()) && !i->mem_queue.Empty()) {
-				auto spell_id = MemQ_learn(i.get());
-				++GET_SPELL_MEM(i, spell_id);
-				i->caster_level += MUD::Spell(spell_id).GetDanger();
+			while (d->character.get()->mem_queue.stored > GET_MEM_CURRENT(d->character.get()) && !d->character.get()->mem_queue.Empty()) {
+				auto spell_id = MemQ_learn(d->character.get());
+				++GET_SPELL_MEM(d->character.get(), spell_id);
+				d->character.get()->caster_level += MUD::Spell(spell_id).GetDanger();
 			}
 
-			if (i->mem_queue.Empty()) {
-				if (GET_RELIGION(i) == kReligionMono) {
-					SendMsgToChar("Наконец ваши занятия окончены. Вы с улыбкой захлопнули свой часослов.\r\n", i.get());
+			if (d->character.get()->mem_queue.Empty()) {
+				if (GET_RELIGION(d->character.get()) == kReligionMono) {
+					SendMsgToChar("Наконец ваши занятия окончены. Вы с улыбкой захлопнули свой часослов.\r\n", d->character.get());
 					act("Окончив занятия, $n с улыбкой захлопнул$g часослов.",
-						false, i.get(), nullptr, nullptr, kToRoom);
+						false, d->character.get(), nullptr, nullptr, kToRoom);
 				} else {
-					SendMsgToChar("Наконец ваши занятия окончены. Вы с улыбкой убрали свои резы.\r\n", i.get());
-					act("Окончив занятия, $n с улыбкой убрал$g резы.", false, i.get(), nullptr, nullptr, kToRoom);
+					SendMsgToChar("Наконец ваши занятия окончены. Вы с улыбкой убрали свои резы.\r\n", d->character.get());
+					act("Окончив занятия, $n с улыбкой убрал$g резы.", false, d->character.get(), nullptr, nullptr, kToRoom);
 				}
 			}
 		}
 
-		if (!IS_MANA_CASTER(i) && i->mem_queue.Empty()) {
-			i->mem_queue.total = 0;
-			i->mem_queue.stored = 0;
+		if (!IS_MANA_CASTER(d->character.get()) && d->character.get()->mem_queue.Empty()) {
+			d->character.get()->mem_queue.total = 0;
+			d->character.get()->mem_queue.stored = 0;
 		}
 
 		// Гейн маны у волхвов
-		if (IS_MANA_CASTER(i) && i->mem_queue.stored < GET_MAX_MANA(i.get())) {
-			i->mem_queue.stored += CalcManaGain(i);
-			if (i->mem_queue.stored >= GET_MAX_MANA(i.get())) {
-				i->mem_queue.stored = GET_MAX_MANA(i.get());
-				SendMsgToChar("Ваша магическая энергия полностью восстановилась\r\n", i.get());
+		if (IS_MANA_CASTER(d->character.get()) && d->character.get()->mem_queue.stored < GET_MAX_MANA(d->character.get())) {
+			d->character.get()->mem_queue.stored += CalcManaGain(d->character.get());
+			if (d->character.get()->mem_queue.stored >= GET_MAX_MANA(d->character.get())) {
+				d->character.get()->mem_queue.stored = GET_MAX_MANA(d->character.get());
+				SendMsgToChar("Ваша магическая энергия полностью восстановилась\r\n", d->character.get());
 			}
 		}
 
-		if (IS_MANA_CASTER(i) && i->mem_queue.stored > GET_MAX_MANA(i.get())) {
-			i->mem_queue.stored = GET_MAX_MANA(i.get());
+		if (IS_MANA_CASTER(d->character.get()) && d->character.get()->mem_queue.stored > GET_MAX_MANA(d->character.get())) {
+			d->character.get()->mem_queue.stored = GET_MAX_MANA(d->character.get());
 		}
 
 		// Restore moves
-		restore = move_gain(i);
+		restore = move_gain(d->character.get());
 		restore = interpolate(restore, pulse);
 
 		//MZ.overflow_fix
-		if (GET_MOVE(i) < GET_REAL_MAX_MOVE(i)) {
-			GET_MOVE(i) = MIN(GET_MOVE(i) + restore, GET_REAL_MAX_MOVE(i));
+		if (GET_MOVE(d->character.get()) < GET_REAL_MAX_MOVE(d->character.get())) {
+			GET_MOVE(d->character.get()) = MIN(GET_MOVE(d->character.get()) + restore, GET_REAL_MAX_MOVE(d->character.get()));
 		}
 		//-MZ.overflow_fix
-	});
+	}
 }
 
 void update_clan_exp(CharData *ch, int gain) {
