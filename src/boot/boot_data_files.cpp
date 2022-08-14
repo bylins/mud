@@ -390,7 +390,7 @@ void WorldFile::read_entry(const int nr) {
 }
 
 void WorldFile::parse_room(int virtual_nr) {
-	static int room_nr = kFirstRoom;
+	static int room_realnum = kFirstRoom;
 	static ZoneRnum zone = 0;
 
 	int t[10], i;
@@ -415,14 +415,16 @@ void WorldFile::parse_room(int virtual_nr) {
 
 	// Создаем новую комнату
 	world.push_back(new RoomData);
-	world[room_nr]->zone_rn = zone;
-	world[room_nr]->room_vn = virtual_nr;
-	world[room_nr]->set_name(fread_string());
+	world[room_realnum]->zone_rn = zone;
+	world[room_realnum]->room_vn = virtual_nr;
+	std::string tmpstr = fread_string();
+	tmpstr[0] = UPPER(tmpstr[0]);
+	world[room_realnum]->set_name(tmpstr);
 
 	std::string desc = fread_string();
 	boost::trim_right_if(desc, boost::is_any_of(std::string(" _"))); //убираем пробелы в конце строки
 	desc.shrink_to_fit();
-	world[room_nr]->description_num = RoomDescription::add_desc(desc);
+	world[room_realnum]->description_num = RoomDescription::add_desc(desc);
 
 	if (!get_line(file(), line)) {
 		log("SYSERR: Expecting roomflags/sector type of room #%d but file ended!", virtual_nr);
@@ -434,33 +436,33 @@ void WorldFile::parse_room(int virtual_nr) {
 		exit(1);
 	}
 	// t[0] is the zone number; ignored with the zone-file system
-	world[room_nr]->flags_from_string(flags);
-	world[room_nr]->sector_type = t[2];
+	world[room_realnum]->flags_from_string(flags);
+	world[room_realnum]->sector_type = t[2];
 
-	check_room_flags(room_nr);
+	check_room_flags(room_realnum);
 
 	// Обнуляем флаги от аффектов и сами аффекты на комнате.
-	world[room_nr]->affected_by.clear();
+	world[room_realnum]->affected_by.clear();
 	// Обнуляем базовые параметры (пока нет их загрузки)
-	memset(&world[room_nr]->base_property, 0, sizeof(RoomState));
+	memset(&world[room_realnum]->base_property, 0, sizeof(RoomState));
 
 	// Обнуляем добавочные параметры комнаты
-	memset(&world[room_nr]->add_property, 0, sizeof(RoomState));
+	memset(&world[room_realnum]->add_property, 0, sizeof(RoomState));
 
-	world[room_nr]->func = nullptr;
-	world[room_nr]->contents = nullptr;
-	world[room_nr]->track = nullptr;
-	world[room_nr]->light = 0;    // Zero light sources
-	world[room_nr]->fires = 0;
-	world[room_nr]->gdark = 0;
-	world[room_nr]->glight = 0;
-	world[room_nr]->proto_script.reset(new ObjData::triggers_list_t());
+	world[room_realnum]->func = nullptr;
+	world[room_realnum]->contents = nullptr;
+	world[room_realnum]->track = nullptr;
+	world[room_realnum]->light = 0;    // Zero light sources
+	world[room_realnum]->fires = 0;
+	world[room_realnum]->gdark = 0;
+	world[room_realnum]->glight = 0;
+	world[room_realnum]->proto_script.reset(new ObjData::triggers_list_t());
 
 	for (i = 0; i < EDirection::kMaxDirNum; i++) {
-		world[room_nr]->dir_option[i] = nullptr;
+		world[room_realnum]->dir_option[i] = nullptr;
 	}
 
-	world[room_nr]->ex_description = nullptr;
+	world[room_realnum]->ex_description = nullptr;
 
 	sprintf(buf, "SYSERR: Format error in room #%d (expecting D/E/S)", virtual_nr);
 
@@ -470,7 +472,7 @@ void WorldFile::parse_room(int virtual_nr) {
 			exit(1);
 		}
 		switch (*line) {
-			case 'D': setup_dir(room_nr, atoi(line + 1));
+			case 'D': setup_dir(room_realnum, atoi(line + 1));
 				break;
 
 			case 'E': {
@@ -478,8 +480,8 @@ void WorldFile::parse_room(int virtual_nr) {
 				new_descr->set_keyword(fread_string());
 				new_descr->set_description(fread_string());
 				if (new_descr->keyword && new_descr->description) {
-					new_descr->next = world[room_nr]->ex_description;
-					world[room_nr]->ex_description = new_descr;
+					new_descr->next = world[room_realnum]->ex_description;
+					world[room_realnum]->ex_description = new_descr;
 				} else {
 					sprintf(buf, "SYSERR: Format error in room #%d (Corrupt extradesc)", virtual_nr);
 					log("%s", buf);
@@ -498,13 +500,13 @@ void WorldFile::parse_room(int virtual_nr) {
 									 line); //оставлено для совместимости, удалить после пересохранения комнат
 							break;
 
-						case 'T': dg_read_trigger(world[room_nr], WLD_TRIGGER);
+						case 'T': dg_read_trigger(world[room_realnum], WLD_TRIGGER);
 							break;
 						default: letter = 0;
 							break;
 					}
 				} while (letter != 0);
-				top_of_world = room_nr++;
+				top_of_world = room_realnum++;
 				return;
 
 			default: log("%s", buf);
