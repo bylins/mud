@@ -148,9 +148,11 @@ void DoExpedientCut(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		SendMsgToChar("Вы таки да? Ой-вей, но тут Древняя Русь, а не Палестина!\r\n", ch);
 		return;
 	}
-	if (ch->GetEnemy() && ch->GetEnemy() != vict) {
+        if (ch->GetEnemy()) {
+        if (ch->GetEnemy() != vict && vict->GetEnemy() != ch) {
 		act("$N не сражается с вами, не трогайте $S.", false, ch, nullptr, vict, kToChar);
 		return;
+}
 	}
 	if (!may_kill_here(ch, vict, argument) || !check_pkill(ch, vict, arg)) {
 		return;
