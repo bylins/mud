@@ -1225,7 +1225,7 @@ void random_wtrigger(RoomData *room, int/* num*/, void * /*s*/, int/* types*/, c
 		return;
 
 	for (auto t : SCRIPT(room)->trig_list) {
-		if (TRIGGER_CHECK(t, WTRIG_RANDOM)
+		if (TRIGGER_CHECK(t, WTRIG_RANDOM) && (TRIGGER_CHECK(t, WTRIG_GLOBAL) || !is_empty(room->zone_rn))
 			&& (number(1, 100) <= GET_TRIG_NARG(t))) {
 			script_driver(room, t, WLD_TRIGGER, TRIG_NEW);
 			break;
