@@ -761,7 +761,6 @@ void script_trigger_check() {
 	alarge_amount = 0;
 	sum = 0;
 	RoomData *where = nullptr;
-	last_zone = -1;
 	for (std::size_t nr = kFirstRoom; nr <= static_cast<std::size_t>(top_of_world); nr++) {
 		if (SCRIPT(world[nr])->has_triggers()) {
 			auto room = world[nr];
@@ -769,19 +768,13 @@ void script_trigger_check() {
 			if (!where)
 				where = room;
 			if (IS_SET(SCRIPT_TYPES(sc), WTRIG_RANDOM)) {
-				if (room->zone_rn != last_zone) {
-					last_zone = room->zone_rn;
-					IsEmpty = is_empty(room->zone_rn);
-				}
-				if (!IsEmpty || IS_SET(SCRIPT_TYPES(sc), WTRIG_GLOBAL)) {
-					utils::CExecutionTimer timer;
-					random_wtrigger(room, room->room_vn, sc, sc->types, sc->trig_list);
-					amount = timer.delta().count();
-					sum += amount;
-					if (amount > alarge_amount) {
-						alarge_amount = amount;
-						where = room;
-					}
+				utils::CExecutionTimer timer;
+				random_wtrigger(room, room->room_vn, sc, sc->types, sc->trig_list);
+				amount = timer.delta().count();
+				sum += amount;
+				if (amount > alarge_amount) {
+					alarge_amount = amount;
+					where = room;
 				}
 			}
 		}
