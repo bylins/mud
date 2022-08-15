@@ -260,6 +260,8 @@ void redit_save_internally(DescriptorData *d) {
 	// Настало время добавить триггеры
 	SCRIPT(world[room_num])->cleanup();
 	assign_triggers(world[room_num], WLD_TRIGGER);
+	if (zone_table[OLC_ZNUM(d)].LastRoomVnum < OLC_NUM(d))
+		zone_table[OLC_ZNUM(d)].LastRoomVnum = OLC_NUM(d);
 	olc_add_to_save_list(zone_table[OLC_ZNUM(d)].vnum, OLC_SAVE_ROOM);
 }
 
