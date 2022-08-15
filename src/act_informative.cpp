@@ -1571,9 +1571,10 @@ int paste_description(char *string, const char *tag, int need) {
 		return false;
 	}
 	if (!need) {
-		*pos = '\0';
+/*		*pos = '\0';
 		if ((pos = str_str(pos + 1, tag)))
 			strcat(buf, pos + strlen(tag));
+*/
 		return false;
 	}
 
