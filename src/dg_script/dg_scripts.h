@@ -30,7 +30,7 @@ extern const char *attach_name[];
 const int DG_NO_TRIG = 256;    // don't check act trigger   //
 
 // mob trigger types //
-#define MTRIG_GLOBAL           (1 << 0)    // check even if zone empty   //
+#define MTRIG_RANDOM_GLOBAL           (1 << 0)    // check even if zone empty   //
 #define MTRIG_RANDOM           (1 << 1)    // checked randomly           //
 #define MTRIG_COMMAND          (1 << 2)    // character types a command  //
 #define MTRIG_SPEECH           (1 << 3)    // a char says a word/phrase  //
@@ -56,7 +56,7 @@ const int DG_NO_TRIG = 256;    // don't check act trigger   //
 #define MTRIG_TIMECHANGE       (1 << 23) // смена времени
 
 // obj trigger types //
-#define OTRIG_GLOBAL           (1 << 0)    // unused                     //
+#define OTRIG_RANDOM_GLOBAL           (1 << 0)    // unused                     //
 #define OTRIG_RANDOM           (1 << 1)    // checked randomly           //
 #define OTRIG_COMMAND          (1 << 2)    // character types a command  //
 #define OTRIG_PURGE           (1 << 3)    // object purge  //
@@ -80,7 +80,7 @@ const int DG_NO_TRIG = 256;    // don't check act trigger   //
 #define OTRIG_PUT              (1 << 21) // положили предмет в контейнер
 
 // wld trigger types //
-#define WTRIG_GLOBAL           (1 << 0)    // check even if zone empty   //
+#define WTRIG_RANDOM_GLOBAL           (1 << 0)    // check even if zone empty   //
 #define WTRIG_RANDOM           (1 << 1)    // checked randomly           //
 #define WTRIG_COMMAND          (1 << 2)    // character types a command  //
 #define WTRIG_SPEECH           (1 << 3)    // a char says word/phrase    //

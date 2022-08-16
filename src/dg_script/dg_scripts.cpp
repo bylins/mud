@@ -696,20 +696,14 @@ void script_trigger_check() {
 			who = ch.get();
 		if (SCRIPT(ch)->has_triggers()) {
 			auto sc = SCRIPT(ch).get();
-			if (IS_SET(SCRIPT_TYPES(sc), MTRIG_RANDOM)) {
-				if (world[ch->in_room]->zone_rn != last_zone) {
-					last_zone = world[ch->in_room]->zone_rn;
-					IsEmpty = is_empty(world[ch->in_room]->zone_rn);
-				}
-				if (!IsEmpty || IS_SET(SCRIPT_TYPES(sc), MTRIG_GLOBAL)) {
-					utils::CExecutionTimer timer;
-					random_mtrigger(ch.get());
-					amount = timer.delta().count();
-					sum += amount;
-					if (amount > alarge_amount) {
-						alarge_amount = amount;
-						who = ch.get();
-					}
+			if (IS_SET(SCRIPT_TYPES(sc), MTRIG_RANDOM) || IS_SET(SCRIPT_TYPES(sc), MTRIG_RANDOM_GLOBAL)) {
+				utils::CExecutionTimer timer;
+				random_mtrigger(ch.get());
+				amount = timer.delta().count();
+				sum += amount;
+				if (amount > alarge_amount) {
+					alarge_amount = amount;
+					who = ch.get();
 				}
 			}
 		}
@@ -731,25 +725,14 @@ void script_trigger_check() {
 				}
 			} else if (obj->get_script()->has_triggers()) {
 				auto sc = obj->get_script().get();
-				if (IS_SET(SCRIPT_TYPES(sc), OTRIG_RANDOM)) {
-					if (obj->get_in_room() != kNowhere) {
-							if (world[obj->get_in_room()]->zone_rn != last_zone) {
-								last_zone = world[obj->get_in_room()]->zone_rn;
-								IsEmpty = is_empty(world[obj->get_in_room()]->zone_rn);
-							}
-							if (!IsEmpty || IS_SET(SCRIPT_TYPES(sc), OTRIG_GLOBAL)) {
-								random_otrigger(obj.get());
-							}
-					}
-					else {
+				if (IS_SET(SCRIPT_TYPES(sc), OTRIG_RANDOM_GLOBAL) || IS_SET(SCRIPT_TYPES(sc), OTRIG_RANDOM)) {
 					utils::CExecutionTimer timer;
-						random_otrigger(obj.get());
-						amount = timer.delta().count();
-						sum += amount;
-							if (amount > alarge_amount) {
-							alarge_amount = amount;
-							what = obj.get();
-						}
+					random_otrigger(obj.get());
+					amount = timer.delta().count();
+					sum += amount;
+					if (amount > alarge_amount) {
+						alarge_amount = amount;
+						what = obj.get();
 					}
 				}
 			}
@@ -767,7 +750,7 @@ void script_trigger_check() {
 			auto sc = SCRIPT(room).get();
 			if (!where)
 				where = room;
-			if (IS_SET(SCRIPT_TYPES(sc), WTRIG_RANDOM)) {
+			if (IS_SET(SCRIPT_TYPES(sc), WTRIG_RANDOM) || IS_SET(SCRIPT_TYPES(sc), WTRIG_RANDOM_GLOBAL)) {
 				utils::CExecutionTimer timer;
 				random_wtrigger(room, room->room_vn, sc, sc->types, sc->trig_list);
 				amount = timer.delta().count();
@@ -791,8 +774,7 @@ void script_timechange_trigger_check(const int time) {
 			auto sc = SCRIPT(ch).get();
 
 			if (IS_SET(SCRIPT_TYPES(sc), MTRIG_TIMECHANGE)
-				&& (!is_empty(world[ch->in_room]->zone_rn)
-					|| IS_SET(SCRIPT_TYPES(sc), MTRIG_GLOBAL))) {
+				&& (!is_empty(world[ch->in_room]->zone_rn))) {
 				timechange_mtrigger(ch.get(), time);
 			}
 		}
@@ -813,8 +795,7 @@ void script_timechange_trigger_check(const int time) {
 			auto sc = SCRIPT(room).get();
 
 			if (IS_SET(SCRIPT_TYPES(sc), WTRIG_TIMECHANGE)
-				&& (!is_empty(room->zone_rn)
-					|| IS_SET(SCRIPT_TYPES(sc), WTRIG_GLOBAL))) {
+				&& (!is_empty(room->zone_rn))) {
 				timechange_wtrigger(room, time);
 			}
 		}

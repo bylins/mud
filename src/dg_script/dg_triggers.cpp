@@ -46,7 +46,7 @@ void ADD_UID_OBJ_VAR(char *buf, Trigger *trig, const CharData *go, const char *n
 }
 
 // mob trigger types
-const char *trig_types[] = {"Global",
+const char *trig_types[] = {"Random Global",
 							"Random",
 							"Command",
 							"Speech",
@@ -76,7 +76,7 @@ const char *trig_types[] = {"Global",
 };
 
 // obj trigger types
-const char *otrig_types[] = {"Global",
+const char *otrig_types[] = {"Random Global",
 							 "Random",
 							 "Command",
 							 "Разрушился",
@@ -106,7 +106,7 @@ const char *otrig_types[] = {"Global",
 };
 
 // wld trigger types
-const char *wtrig_types[] = {"Global",
+const char *wtrig_types[] = {"Random Global",
 							 "Random",
 							 "Command",
 							 "Speech",
@@ -212,13 +212,14 @@ void random_mtrigger(CharData *ch) {
 		return;
 	}
 
-	if (!CheckScript(ch, MTRIG_RANDOM)
+	if (!(CheckScript(ch, MTRIG_RANDOM) || CheckScript(ch, MTRIG_RANDOM_GLOBAL))
 		|| AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		return;
 	}
 
 	for (auto t : SCRIPT(ch)->trig_list) {
-		if (TRIGGER_CHECK(t, MTRIG_RANDOM)
+
+		if ((TRIGGER_CHECK(t, MTRIG_RANDOM_GLOBAL) || (TRIGGER_CHECK(t, MTRIG_RANDOM) && !is_empty(world[ch->in_room]->zone_rn)))
 			&& (number(1, 100) <= GET_TRIG_NARG(t))) {
 			script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
 			break;
@@ -820,16 +821,18 @@ void timechange_mtrigger(CharData *ch, const int time) {
 
 // *  object triggers
 void random_otrigger(ObjData *obj) {
-	if (!CheckSript(obj, OTRIG_RANDOM)) {
+	if (!(CheckSript(obj, OTRIG_RANDOM) || CheckSript(obj, OTRIG_RANDOM_GLOBAL))) {
 		return;
 	}
 
 	for (auto t : obj->get_script()->trig_list) {
-		if (TRIGGER_CHECK(t, OTRIG_RANDOM)
-			&& (number(1, 100) <= GET_TRIG_NARG(t))) {
-			script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW);
-
-			break;
+		if (TRIGGER_CHECK(t, OTRIG_RANDOM_GLOBAL) 
+				|| (obj->get_in_room() == kNowhere) //в инве или одет
+				|| (obj->get_in_room() != kNowhere && !is_empty(world[obj->get_in_room()]->zone_rn))) {
+			if (number(1, 100) <= GET_TRIG_NARG(t)) {
+				script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW);
+				break;
+			}
 		}
 	}
 }
@@ -1221,11 +1224,11 @@ void reset_wtrigger(RoomData *room) {
 }
 
 void random_wtrigger(RoomData *room, int/* num*/, void * /*s*/, int/* types*/, const TriggersList & /*list*/) {
-	if (!CheckSript(room, WTRIG_RANDOM))
+	if (!(CheckSript(room, WTRIG_RANDOM) || CheckSript(room, WTRIG_RANDOM_GLOBAL)))
 		return;
 
 	for (auto t : SCRIPT(room)->trig_list) {
-		if (TRIGGER_CHECK(t, WTRIG_RANDOM) && (TRIGGER_CHECK(t, WTRIG_GLOBAL) || !is_empty(room->zone_rn))
+		if ((TRIGGER_CHECK(t, WTRIG_RANDOM_GLOBAL) || (TRIGGER_CHECK(t, WTRIG_RANDOM) && !is_empty(room->zone_rn)))
 			&& (number(1, 100) <= GET_TRIG_NARG(t))) {
 			script_driver(room, t, WLD_TRIGGER, TRIG_NEW);
 			break;

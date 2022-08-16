@@ -312,7 +312,6 @@ void TriggersFile::parse_trigger(int vnum) {
 
 	int trigger_type = 0;
 	asciiflag_conv(flags, &trigger_type);
-
 	const auto rnum = top_of_trigt;
 	Trigger *trig = new Trigger(rnum, std::move(name), static_cast<byte>(attach_type), trigger_type);
 
