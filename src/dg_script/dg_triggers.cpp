@@ -18,6 +18,7 @@
 #include "game_magic/spells_info.h"
 #include "olc/olc.h"
 #include "structs/global_objects.h"
+#include "backtrace.h"
 
 extern const char *dirs[];
 
@@ -827,8 +828,8 @@ void random_otrigger(ObjData *obj) {
 
 	for (auto t : obj->get_script()->trig_list) {
 		if (TRIGGER_CHECK(t, OTRIG_RANDOM_GLOBAL) 
-				|| (obj->get_in_room() == kNowhere) //в инве или одет
-				|| (obj->get_in_room() != kNowhere && !is_empty(world[obj->get_in_room()]->zone_rn))) {
+				|| (TRIGGER_CHECK(t, OTRIG_RANDOM) && obj->get_in_room() == kNowhere) //в инве или одет
+				|| (TRIGGER_CHECK(t, OTRIG_RANDOM) && obj->get_in_room() != kNowhere && !is_empty(world[obj->get_in_room()]->zone_rn))) {
 			if (number(1, 100) <= GET_TRIG_NARG(t)) {
 				script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW);
 				break;
@@ -989,7 +990,6 @@ int wear_otrigger(ObjData *obj, CharData *actor, int where) {
 	if (!CheckSript(obj, OTRIG_WEAR) || GET_INVIS_LEV(actor)) {
 		return 1;
 	}
-
 	for (auto t : obj->get_script()->trig_list) {
 		if (TRIGGER_CHECK(t, OTRIG_WEAR)) {
 			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
