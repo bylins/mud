@@ -254,8 +254,10 @@ void do_osend(ObjData *obj, char *argument, int/* cmd*/, int subcmd, Trigger *) 
 			sub_write(msg, ch, true, kToChar);
 		else if (subcmd == SCMD_OECHOAROUND)
 			sub_write(msg, ch, true, kToRoom);
-	} else
-		obj_log(obj, "no target found for osend");
+	} else {
+		sprintf(buf,"no target found for osend, argument: '%s'", argument);
+		obj_log(obj, buf);
+	}
 }
 
 // increases the target's exp
