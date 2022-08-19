@@ -304,25 +304,46 @@ void do_delete_obj(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	SendMsgToChar(buf2, ch);
 }
 
-void PrintZoneStat(CharData *ch, int start, int end) {
+bool comp(std::pair <int, int> a, std::pair<int, int> b) {
+	return a.second > b.second;
+}
+
+void PrintZoneStat(CharData *ch, int start, int end, bool sort) {
 	std::stringstream ss;
+
 	if (end == 0)
 		end = start;
+	std::vector<std::pair<int, int>> zone;
 	for (ZoneRnum i = start; i < static_cast<ZoneRnum>(zone_table.size()) && i <= end; i++) {
-		ss << "Zone: " << zone_table[i].vnum << " count_reset с ребута: " << zone_table[i].count_reset 
-					<< ", посещено: " << zone_table[i].traffic << ", название зоны: " << zone_table[i].name<< std::endl;
+		zone.push_back(std::make_pair(i, zone_table[i].traffic));
+//		ss << "Zone: " << zone_table[i].vnum << " count_reset с ребута: " << zone_table[i].count_reset 
+//					<< ", посещено: " << zone_table[i].traffic << ", название зоны: " << zone_table[i].name<< std::endl;
+	}
+	if (sort) {
+//		std::sort(zone.begin(), zone.end());
+		std::sort(zone.begin(), zone.end(), comp);
+//		std::reverse(zone.begin(), zone.end());
+	}
+	for (auto it : zone) {
+		ss << "Zone: " << zone_table[it.first].vnum << " count_reset с ребута: " << zone_table[it.first].count_reset 
+					<< ", посещено: " << zone_table[it.first].traffic << ", название зоны: " << zone_table[it.first].name<< std::endl;
 	}
 	page_string(ch->desc, ss.str());
 }
 
 void do_showzonestats(CharData *ch, char *argument, int, int) {
 	std::string buffer;
-	char arg1[kMaxInputLength], arg2[kMaxInputLength];
+	char arg1[kMaxInputLength], arg2[kMaxInputLength], arg3[kMaxInputLength];
+	bool sort = false;
+
 	three_arguments(argument, arg1, arg2, arg3);
+	if (!str_cmp(arg2, "-s") || !str_cmp(arg3, "-s"))
+		sort = true;
 	if (!*arg1) {
-		SendMsgToChar(ch, "Зоныстат Формат: 'все', диапазон через пробел, или 'очистить' -s. В конце для сортировки.\r\n");
+		SendMsgToChar(ch, "Зоныстат формат: 'все' или диапазон через пробел, -s в конце для сортировки. 'очистить' новая таблица\r\n");
 		return;
 	}
+//	SendMsgToChar(ch, "arg1=%s, arg2=%s, arg3=%s\r\n", arg1, arg2, arg3);
 	if (!str_cmp(arg1, "очистить")) {
 		const time_t ct = time(nullptr);
 		char *date = asctime(localtime(&ct));
@@ -335,20 +356,20 @@ void do_showzonestats(CharData *ch, char *argument, int, int) {
 		return;
 	}
 	if (!str_cmp(arg1, "все")) {
-		PrintZoneStat(ch, 0, 999999);
+		PrintZoneStat(ch, 0, 999999, sort);
 		return;
 	}
 	int tmp1 = RealZoneNum(atoi(arg1));
 	int tmp2 = RealZoneNum(atoi(arg2));
 	if (tmp1 >= 0 && !*arg2) {
-		PrintZoneStat(ch, tmp1, tmp1);
+		PrintZoneStat(ch, tmp1, tmp1, sort);
 		return;
 	}
 	if (tmp1 >= 0 && tmp2 > 0) {
-		PrintZoneStat(ch, tmp1, tmp2);
+		PrintZoneStat(ch, tmp1, tmp2, sort);
 		return;
 	}
-	SendMsgToChar(ch, "Зоныстат Формат: 'все', диапазон через пробел, или 'очистить'.\r\n");
+	SendMsgToChar(ch, "Зоныстат формат: 'все' или диапазон через пробел, -s в конце для сортировки. 'очистить' новая таблица\r\n");
 }
 
 void do_arena_restore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
