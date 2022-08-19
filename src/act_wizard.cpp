@@ -304,32 +304,51 @@ void do_delete_obj(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	SendMsgToChar(buf2, ch);
 }
 
+void PrintZoneStat(CharData *ch, int start, int end) {
+	std::stringstream ss;
+	if (end == 0)
+		end = start;
+	for (ZoneRnum i = start; i < static_cast<ZoneRnum>(zone_table.size()) && i <= end; i++) {
+		ss << "Zone: " << zone_table[i].vnum << " count_reset с ребута: " << zone_table[i].count_reset 
+					<< ", посещено: " << zone_table[i].traffic << ", название зоны: " << zone_table[i].name<< std::endl;
+	}
+	page_string(ch->desc, ss.str());
+}
+
 void do_showzonestats(CharData *ch, char *argument, int, int) {
 	std::string buffer;
-	one_argument(argument, arg);
-	if (!strcmp(arg, "очистить")) {
+	char arg1[kMaxInputLength], arg2[kMaxInputLength];
+	three_arguments(argument, arg1, arg2, arg3);
+	if (!*arg1) {
+		SendMsgToChar(ch, "Зоныстат Формат: 'все', диапазон через пробел, или 'очистить' -s. В конце для сортировки.\r\n");
+		return;
+	}
+	if (!str_cmp(arg1, "очистить")) {
 		const time_t ct = time(nullptr);
 		char *date = asctime(localtime(&ct));
 		SendMsgToChar(ch, "Начинаю новую запись статистики от %s", date);
 		zones_stat_date = ct;
-		zone_traffic_save();
 		for (auto & i : zone_table) {
 			i.traffic = 0;
 		}
+		ZoneTrafficSave();
 		return;
 	}
-	SendMsgToChar(ch,
-				  "Статистика с %sДля создания новой таблицы введите команду 'очистить'.\r\n",
-				  asctime(localtime(&zones_stat_date)));
-	for (ZoneRnum i = 0; i < static_cast<ZoneRnum>(zone_table.size()); i++) {
-		sprintf(buf, "Zone: %5d, count_reset с ребута: %3d, посещено: %5d, назвение зоны: %s",
-				zone_table[i].vnum,
-				zone_table[i].count_reset,
-				zone_table[i].traffic,
-				zone_table[i].name);
-		buffer += std::string(buf) + "\r\n";
+	if (!str_cmp(arg1, "все")) {
+		PrintZoneStat(ch, 0, 999999);
+		return;
 	}
-	page_string(ch->desc, buffer);
+	int tmp1 = RealZoneNum(atoi(arg1));
+	int tmp2 = RealZoneNum(atoi(arg2));
+	if (tmp1 >= 0 && !*arg2) {
+		PrintZoneStat(ch, tmp1, tmp1);
+		return;
+	}
+	if (tmp1 >= 0 && tmp2 > 0) {
+		PrintZoneStat(ch, tmp1, tmp2);
+		return;
+	}
+	SendMsgToChar(ch, "Зоныстат Формат: 'все', диапазон через пробел, или 'очистить'.\r\n");
 }
 
 void do_arena_restore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {

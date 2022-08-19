@@ -50,7 +50,7 @@ int get_level_by_unique(long unique);
 long get_lastlogon_by_unique(long unique);
 long get_ptable_by_unique(long unique);
 int get_zone_rooms(int, int *, int *);
-void zone_traffic_save();
+void ZoneTrafficSave();
 
 int load_char(const char *name, CharData *char_element, bool reboot = false, bool find_id = true);
 CharData *read_mobile(MobVnum nr, int type);

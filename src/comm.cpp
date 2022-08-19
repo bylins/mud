@@ -854,7 +854,7 @@ void stop_game(ush_int port) {
 	MoneyDropStat::print_log();
 	ZoneExpStat::print_log();
 	print_rune_log();
-	zone_traffic_save();
+	ZoneTrafficSave();
 #if defined WITH_SCRIPTING
 	//scripting::terminate();
 #endif
