@@ -2137,7 +2137,7 @@ void load_messages() {
 
 	fclose(fl);
 }
-void zone_traffic_save() {
+void ZoneTrafficSave() {
 	pugi::xml_document doc;
 	doc.append_child().set_name("zone_traffic");
 	pugi::xml_node node_list = doc.child("zone_traffic");

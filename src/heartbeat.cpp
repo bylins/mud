@@ -373,7 +373,7 @@ Heartbeat::steps_t &pulse_steps() {
 		Heartbeat::PulseStep("Zone update", kPulseZone, 5, std::make_shared<SimpleCall>(zone_update)),
 		Heartbeat::PulseStep("Money drop stat: print log",
 							 60 * 60 * kPassesPerSec,
-							 49,
+							 45,
 							 std::make_shared<SimpleCall>(MoneyDropStat::print_log)),
 		Heartbeat::PulseStep("Zone exp stat: print log",
 							 60 * 60 * kPassesPerSec,
@@ -381,7 +381,7 @@ Heartbeat::steps_t &pulse_steps() {
 							 std::make_shared<SimpleCall>(ZoneExpStat::print_log)),
 		Heartbeat::PulseStep("Print rune log",
 							 60 * 60 * kPassesPerSec,
-							 49,
+							 47,
 							 std::make_shared<SimpleCall>(print_rune_log)),
 		Heartbeat::PulseStep("Mob stats saving",
 							 60 * mob_stat::kSavePeriod * kPassesPerSec,
@@ -544,7 +544,9 @@ Heartbeat::steps_t &pulse_steps() {
 							 kPassesPerSec,
 							 23,
 							 std::make_shared<SimpleCall>([]() { FileCRC::save(false); })),
-		Heartbeat::PulseStep("Spells usage saving", 60 * 60 * kPassesPerSec, 0, std::make_shared<SpellUsageCall>())
+		Heartbeat::PulseStep("Spells usage saving", 60 * 60 * kPassesPerSec, 0, std::make_shared<SpellUsageCall>()),
+		Heartbeat::PulseStep("Zone traffic statistic saving", 30 * 60 * kPassesPerSec, 37, 
+							std::make_shared<SimpleCall>(ZoneTrafficSave))
 	};
 
 	return pulse_steps_storage;

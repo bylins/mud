@@ -155,6 +155,7 @@ char *str_str(const char *cs, const char *ct);
 void kill_ems(char *str);
 void cut_one_word(std::string &str, std::string &word);
 size_t strl_cpy(char *dst, const char *src, size_t siz);
+int RealZoneNum(ZoneVnum zvn);
 
 extern bool GetAffectNumByName(const std::string &affName, EAffect &result);
 void tell_to_char(CharData *keeper, CharData *ch, const char *arg);
