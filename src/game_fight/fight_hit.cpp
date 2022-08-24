@@ -853,56 +853,29 @@ void try_remove_extrahits(CharData *ch, CharData *victim) {
 	}
 }
 
-/**
-* Дамажим дополнительным выстрелом.
-* Проценты при 100 скилле и 21 ловки: 100  60 30 10
-* Проценты при 200 скилее и 50 ловки: 100 100 70 30
-* На заднице 70% от итоговых процентов.
-* У чармисов 100% и 60% без остальных допов.
-*/
 void addshot_damage(CharData *ch, ESkill type, fight::AttackType weapon) {
 	int prob = CalcCurrentSkill(ch, ESkill::kAddshot, ch->GetEnemy());
-	TrainSkill(ch, ESkill::kAddshot, true, ch->GetEnemy());
-	// ловка роляет только выше 21 (стартовый максимум охота) и до 50
-	// поставим кап в 50 ловки для допвыстрела
-	float dex_mod = static_cast<float>(MAX(MIN(GetRealDex(ch), 50) - 21, 0)) / 29 * 2;
-	// штраф на 4й и 5й выстрелы для чаров ниже 5 мортов, по 20% за морт
-	float remort_mod = static_cast<float>(GetRealRemort(ch)) / 5;
-	if (remort_mod > 1) {
-		remort_mod = 1;
-	}
-	// на жопе процентовка снижается на 70% от текущего максимума каждого допа
-	float sit_mod = (GET_POS(ch) >= EPosition::kFight) ? 1 : 0.7;
-
-	// у чармисов никаких плюшек от 100+ скилла и максимум 2 доп атаки
-	if (IS_CHARMICE(ch)) {
-		prob = MIN(100, prob);
-		dex_mod = 0;
-		remort_mod = 0;
-	}
-
-	// выше 100% идет другая формула
-	// скилл выше 100 добавляет равный ловке процент в максимуме
-	// а для скилла до сотни все остается как было
-	prob = std::min(100, prob);
-
-	auto difficulty = MUD::Skill(ESkill::kAddshot).difficulty;
+	int dex_mod = std::max(GetRealDex(ch) - 25, 0) * 10;
+	int pc_mod =IS_CHARMICE(ch) ? 0 : 1;
+	auto difficulty = MUD::Skill(ESkill::kAddshot).difficulty * 5;
 	int percent = number(1, difficulty);
-	// 1й доп - не более 100% при скилее 100+
-	if (prob * sit_mod >= percent / 2)
+	
+	TrainSkill(ch, ESkill::kAddshot, true, ch->GetEnemy());
+	if (percent <= prob * 9 + dex_mod) {
 		hit(ch, ch->GetEnemy(), type, weapon);
+	}
 	percent = number(1, difficulty);
-	// 2й доп - 60% при скилле 100, до 100% при максимуме скилла и дексы
-	if ((prob * 3 + dex_mod * 100) * sit_mod > percent * 5 / 2 && ch->GetEnemy())
+	if (percent <= (prob * 6 + dex_mod) && ch->GetEnemy()) {
 		hit(ch, ch->GetEnemy(), type, weapon);
+	}
 	percent = number(1, difficulty);
-	// 3й доп - 30% при скилле 100, до 70% при максимуме скилла и дексы (при 5+ мортов)
-	if ((prob * 3 + dex_mod * 200) * remort_mod * sit_mod > percent * 5 && ch->GetEnemy())
+	if (percent <= (prob * 4 + dex_mod / 2) * pc_mod && ch->GetEnemy()) {
 		hit(ch, ch->GetEnemy(), type, weapon);
+	}
 	percent = number(1, difficulty);
-	// 4й доп - 20% при скилле 100, до 60% при максимуме скилла и дексы (при 5+ мортов)
-	if ((prob + dex_mod * 100) * remort_mod * sit_mod > percent * 5 / 2 && ch->GetEnemy())
+	if (percent <= (prob * 19 / 8 + dex_mod / 2) * pc_mod && ch->GetEnemy()) {
 		hit(ch, ch->GetEnemy(), type, weapon);
+	}
 }
 
 // бонусы/штрафы классам за юзание определенных видов оружия
