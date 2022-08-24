@@ -855,24 +855,27 @@ void try_remove_extrahits(CharData *ch, CharData *victim) {
 
 void addshot_damage(CharData *ch, ESkill type, fight::AttackType weapon) {
 	int prob = CalcCurrentSkill(ch, ESkill::kAddshot, ch->GetEnemy());
-	TrainSkill(ch, ESkill::kAddshot, true, ch->GetEnemy());
-int dex_mod = std::max(GetRealDex(ch) - 25, 0) * 10;
-	// я┐ я┤п╟я─п╪п╦я│п╬п╡ п╫п╦п╨п╟п╨п╦я┘ п©п╩я▌я┬п╣п╨ п╬я┌ п╩п╬п╡п╨п╦ п╦ п╪п╟п╨я│п╦п╪я┐п╪ 2 п╢п╬п© п╟я┌п╟п╨п╦
-	 int pc_mod =IS_CHARMICE(ch) ? 0 : 1;
+	int dex_mod = std::max(GetRealDex(ch) - 25, 0) * 10;
+	int pc_mod =IS_CHARMICE(ch) ? 0 : 1;
 	auto difficulty = MUD::Skill(ESkill::kAddshot).difficulty * 5;
 	int percent = number(1, difficulty);
-	if (percent <= prob * 9 + dex_mod)
+	
+	TrainSkill(ch, ESkill::kAddshot, true, ch->GetEnemy());
+	if (percent <= prob * 9 + dex_mod) {
 		hit(ch, ch->GetEnemy(), type, weapon);
+	}
 	percent = number(1, difficulty);
-	if ((percent <= (prob * 6 + dex_mod) && ch->GetEnemy())
+	if (percent <= (prob * 6 + dex_mod) && ch->GetEnemy()) {
 		hit(ch, ch->GetEnemy(), type, weapon);
+	}
 	percent = number(1, difficulty);
-	if (percent <= (prob * 4 + dex_mod / 2) * pc_mod && ch
-->GetEnemy())
+	if (percent <= (prob * 4 + dex_mod / 2) * pc_mod && ch->GetEnemy()) {
 		hit(ch, ch->GetEnemy(), type, weapon);
+	}
 	percent = number(1, difficulty);
-	if (percent <= (prob * 19 / 8 + dex_mod / 2) * pc_mod && ch->GetEnemy())
+	if (percent <= (prob * 19 / 8 + dex_mod / 2) * pc_mod && ch->GetEnemy()) {
 		hit(ch, ch->GetEnemy(), type, weapon);
+	}
 }
 
 // бонусы/штрафы классам за юзание определенных видов оружия
