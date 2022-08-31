@@ -5313,7 +5313,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 			} else if (!strn_cmp(cmd, "halt", 4)) {
 				break;
 			} else if (!strn_cmp(cmd, "DgCast ", 7)) {
-				do_dg_cast(go, sc, trig, type, cmd);
+				do_dg_cast(go, trig, type, cmd);
 				if (type == MOB_TRIGGER && reinterpret_cast<CharData *>(go)->purged()) {
 					depth--;
 					cur_trig = prev_trig;
