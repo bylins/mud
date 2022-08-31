@@ -903,8 +903,8 @@ void do_wportal(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 	act("Лазурная пентаграмма возникла в воздухе.", false, world[curroom]->first_character(), 0, 0, kToChar);
 	act("Лазурная пентаграмма возникла в воздухе.", false, world[curroom]->first_character(), 0, 0, kToRoom);
 }
-
-void wld_dg_cast(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *trig) {
+// для команды wat
+void WldDgCast(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *trig) {
 	do_dg_cast(room, trig, WLD_TRIGGER, argument);
 }
 
@@ -932,7 +932,7 @@ const struct wld_command_info wld_cmd_info[] =
 		{"wspellitem", do_wspellitem, 0},
 		{"wspellturntemp", do_wspellturntemp, 0},
 		{"wportal", do_wportal, 0},
-		{"dgcast", wld_dg_cast, 0},
+		{"dgcast", WldDgCast, 0},
 		{"\n", 0, 0}        // this must be last
 	};
 
