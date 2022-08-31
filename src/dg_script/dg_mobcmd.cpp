@@ -1427,6 +1427,10 @@ void do_mzoneecho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 		send_to_zone(buf, zone);
 	}
 }
+// для команды mat
+void MobDgCast(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *trig) {
+	do_dg_cast(ch, trig, MOB_TRIGGER, argument);
+}
 
 const struct mob_command_info mob_cmd_info[] =
 	{
@@ -1458,6 +1462,7 @@ const struct mob_command_info mob_cmd_info[] =
 		{"mspellitem", EPosition::kDead, do_mspellitem, -1, false},
 		{"mportal", EPosition::kDead, do_mportal, -1, false},
 		{"mzoneecho", EPosition::kDead, do_mzoneecho, -1, false},
+		{"dgcast", EPosition::kDead, MobDgCast, -1, false},
 		{"\n", EPosition::kDead, nullptr, 0, false}
 		// this must be last
 	};

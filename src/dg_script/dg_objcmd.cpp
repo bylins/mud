@@ -1016,6 +1016,10 @@ void do_ozoneecho(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 		send_to_zone(buf, zone);
 	}
 }
+// для команды oat
+void ObjDgCast(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *trig) {
+	do_dg_cast(obj, trig, OBJ_TRIGGER, argument);
+}
 
 const struct obj_command_info obj_cmd_info[] =
 	{
@@ -1043,6 +1047,7 @@ const struct obj_command_info obj_cmd_info[] =
 		{"ospellitem", do_ospellitem, 0},
 		{"oportal", do_oportal, 0},
 		{"ozoneecho", do_ozoneecho, 0},
+		{"dgcast", ObjDgCast, 0},
 		{"\n", 0, 0}        // this must be last
 	};
 
