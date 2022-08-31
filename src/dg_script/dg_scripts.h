@@ -422,7 +422,7 @@ Trigger *read_trigger(int nr);
 // void add_var(struct TriggerVar **var_list, char *name, char *value, long id);
 CharData *dg_caster_owner_obj(ObjData *obj);
 RoomData *dg_room_of_obj(ObjData *obj);
-void do_dg_cast(void *go, Script *sc, Trigger *trig, int type, char *cmd);
+void do_dg_cast(void *go, Trigger *trig, int type, char *cmd);
 void do_dg_affect(void *go, Script *sc, Trigger *trig, int type, char *cmd);
 
 void add_var_cntx(struct TriggerVar **var_list, const char *name, const char *value, long id);

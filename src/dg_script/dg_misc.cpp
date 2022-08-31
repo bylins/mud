@@ -119,13 +119,12 @@ int find_dg_cast_target(ESpell spell_id, const char *t, CharData *ch, CharData *
 // LIMITATION: a target MUST exist for the spell unless the spell is
 // set to TAR_IGNORE. Also, group spells are not permitted
 // code borrowed from do_cast()
-void do_dg_cast(void *go, Script * /*sc*/, Trigger *trig, int type, char *cmd) {
+void do_dg_cast(void *go, Trigger *trig, int type, char *cmd) {
 	CharData *caster = nullptr;
 	RoomData *caster_room = nullptr;
 	char *s, *t;
 	int target = 0;
 	bool dummy_mob = false;
-
 
 	// need to get the caster or the room of the temporary caster
 	switch (type) {
@@ -201,9 +200,7 @@ void do_dg_cast(void *go, Script * /*sc*/, Trigger *trig, int type, char *cmd) {
 			caster->player_data.PNames[4] = "Богами";
 			caster->player_data.PNames[5] = "Богах";
 		}
-
 		caster_room->people.push_front(caster);
-
 		IN_ROOM(caster) = real_room(caster_room->room_vn);
 	}
 
