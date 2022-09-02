@@ -346,7 +346,7 @@ void Logger::operator()(const char *format, ...) {
 
 	if (free_space <= length) {
 		const char truncated[] = "[TRUNCATED]\n";
-		strncpy(buffer + BUFFER_SIZE - sizeof(truncated), truncated, sizeof(truncated));
+		strncpy(buffer + BUFFER_SIZE - sizeof(truncated), truncated, (size_t)sizeof(truncated));
 	}
 
 	// Use the following line to redirect crafts log into syslog:

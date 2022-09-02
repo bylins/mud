@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <!--
 Формат:
-<skill id="kReligion" name="!молитва или жертва!" abbr="Error" saving="kFirst" difficulty="1" cap="1" mode="kDisabled"/>
+<skill id="kReligion" name="!молитва или жертва!" abbr="Error" saving="kWill" difficulty="1" cap="1" mode="kDisabled"/>
 id - уникальный идентификатор, должен быть константой из ESkill.
 name - имя скилла, уникальность не обязательна.
 abbr - аббревиатура (показывается в строке статуса и т.п.)
@@ -17,10 +17,10 @@ mode - режим умения.
 По умолчанию состояние скилла kEnabled, указывать не обязательно.
 -->
 <skills>
-    <skill id="kReligion"		name="!молитва или жертва!"	abbr="Error"	saving="kFirst"		difficulty="1"		cap="1"		mode="kService"/>
-    <skill id="kAny"			name="!any"			abbr="Any"	saving="kFirst"		difficulty="1"		cap="1"		mode="kService"/>
-    <skill id="kUndefined"		name="!UNDEF!"			abbr="!Icr"	saving="kFirst"		difficulty="1"		cap="1"		mode="kService"/>
-    <skill id="kGlobalCooldown"		name="!cooldown"		abbr="ОЗ"	saving="kFirst"		difficulty="1"		cap="1"		mode="kService"/>
+    <skill id="kReligion"		name="!молитва или жертва!"	abbr="Error"	saving="kWill"		difficulty="1"		cap="1"		mode="kService"/>
+    <skill id="kAny"			name="!any"			abbr="Any"	saving="kWill"		difficulty="1"		cap="1"		mode="kService"/>
+    <skill id="kUndefined"		name="!UNDEF!"			abbr="!Icr"	saving="kWill"		difficulty="1"		cap="1"		mode="kService"/>
+    <skill id="kGlobalCooldown"		name="!cooldown"		abbr="ОЗ"	saving="kWill"		difficulty="1"		cap="1"		mode="kService"/>
     <skill id="kBackstab"		name="заколоть"			abbr="Зк"	saving="kReflex"	difficulty="200"	cap="1000"/>
     <skill id="kBash"			name="сбить"			abbr="Сб"	saving="kStability"	difficulty="200"	cap="200"/>
     <skill id="kHide"			name="спрятаться"		abbr="Сп"	saving="kWill"		difficulty="100"	cap="200"/>
@@ -101,10 +101,10 @@ mode - режим умения.
     <skill id="kStun"			name="ошеломить"		abbr="Ош"	saving="kStability"	difficulty="200"	cap="200"/>
     <skill id="kMakeAmulet"		name="смастерить оберег"	abbr="Со"	saving="kReflex"	difficulty="200"	cap="200"/>
     <skill id="kCutting"		name="!порез!"			abbr="Пр"	saving="kStability"	difficulty="200"	cap="200"	mode="kDisabled"/>
-    <skill id="kCreateBow"		name="!отключено"		abbr="!error"	saving="kFirst"		difficulty="1"		cap="1"		mode="kDisabled"/>
-    <skill id="kCreatePotion"		name="!отключено"		abbr="!error"	saving="kFirst"		difficulty="1"		cap="1"		mode="kDisabled"/>
-    <skill id="kCreateScroll"		name="!отключено"		abbr="!error"	saving="kFirst"		difficulty="1"		cap="1"		mode="kDisabled"/>
-    <skill id="kCreateWand"		name="!отключено"		abbr="!error"	saving="kFirst"		difficulty="1"		cap="1"		mode="kDisabled"/>
-    <skill id="kMakeStaff"		name="!отключено"		abbr="!error"	saving="kFirst"		difficulty="1"		cap="1"		mode="kDisabled"/>
-    <skill id="kMakePotion"		name="!отключено"		abbr="!error"	saving="kFirst"		difficulty="1"		cap="1"		mode="kDisabled"/>
+    <skill id="kCreateBow"		name="!отключено"		abbr="!error"	saving="kWill"		difficulty="1"		cap="1"		mode="kDisabled"/>
+    <skill id="kCreatePotion"		name="!отключено"		abbr="!error"	saving="kWill"		difficulty="1"		cap="1"		mode="kDisabled"/>
+    <skill id="kCreateScroll"		name="!отключено"		abbr="!error"	saving="kWill"		difficulty="1"		cap="1"		mode="kDisabled"/>
+    <skill id="kCreateWand"		name="!отключено"		abbr="!error"	saving="kWill"		difficulty="1"		cap="1"		mode="kDisabled"/>
+    <skill id="kMakeStaff"		name="!отключено"		abbr="!error"	saving="kWill"		difficulty="1"		cap="1"		mode="kDisabled"/>
+    <skill id="kMakePotion"		name="!отключено"		abbr="!error"	saving="kWill"		difficulty="1"		cap="1"		mode="kDisabled"/>
 </skills>

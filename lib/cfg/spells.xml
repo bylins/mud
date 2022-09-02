@@ -1004,7 +1004,7 @@ effects -секция эффектов заклинания
                 <damage saving="kWill">
                     <dices ndice="30" sdice="4" adice="180"/>
                     <base_skill id="kAirMagic" low_skill_bonus="0.5" hi_skill_bonus="2.25"/>
-                    <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    <base_stat id="kWis" threshold="32" weight="4.5"/>
                 </damage>
                 <area>
                     <decay cast="0.05" level="2" free_targets="3"/>
@@ -2254,7 +2254,7 @@ effects -секция эффектов заклинания
                 <damage saving="kReflex">
                     <dices ndice="15" sdice="6" adice="30"/>
                     <base_skill id="kEarthMagic" low_skill_bonus="0.3" hi_skill_bonus="1.25"/>
-                    <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    <base_stat id="kWis" threshold="40" weight="3.5"/>
                 </damage>
                 <area>
                     <decay cast="0.05" level="2" free_targets="3"/>

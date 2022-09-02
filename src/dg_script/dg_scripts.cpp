@@ -27,7 +27,7 @@
 #include "olc/olc.h"
 #include "administration/privilege.h"
 #include "game_fight/fight_hit.h"
-
+#include "utils/utils_char_obj.inl"
 
 extern int max_exp_gain_pc(CharData *ch);
 extern long GetExpUntilNextLvl(CharData *ch, int level);
