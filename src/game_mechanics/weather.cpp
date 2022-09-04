@@ -121,30 +121,27 @@ const int sunrise[][2] = {{8, 17},
 
 void another_hour(int/* mode*/) {
 	time_info.hours++;
-
+	int time_day;
 	if (time_info.hours == sunrise[time_info.month][0]) {
 		weather_info.sunlight = kSunRise;
 		SendMsgToOutdoor("На востоке показались первые солнечные лучи.\r\n", SUN_CONTROL);
-		// Вы с дуба рухнули - каждый тик бегать по ~100-150к объектов в мире?
-		// Надо делать через собственный лист объектов с такими тригами в собственном же неймспейсе
-		// См. как сделаны slow DT например.
-		//script_timechange_trigger_check(25);//рассвет
+		time_day = kSunRise;
 	} else if (time_info.hours == sunrise[time_info.month][0] + 1) {
 		weather_info.sunlight = kSunLight;
 		SendMsgToOutdoor("Начался день.\r\n", SUN_CONTROL);
-		//script_timechange_trigger_check(26);//день
+		time_day = kSunLight;
 	} else if (time_info.hours == sunrise[time_info.month][1]) {
 		weather_info.sunlight = kSunSet;
 		SendMsgToOutdoor("Солнце медленно исчезло за горизонтом.\r\n", SUN_CONTROL);
-		//script_timechange_trigger_check(27);//закат
+		time_day = kSunSet;
 	} else if (time_info.hours == sunrise[time_info.month][1] + 1) {
 		weather_info.sunlight = kSunDark;
 		SendMsgToOutdoor("Началась ночь.\r\n", SUN_CONTROL);
-		//script_timechange_trigger_check(28);//ночь
-	}
+		time_day = kSunDark;
+	} else
+		time_day = 0;
 
-	if (time_info.hours >= kHoursPerDay)    // Changed by HHS due to bug ???
-	{
+	if (time_info.hours >= kHoursPerDay) {
 		time_info.hours = 0;
 		time_info.day++;
 
@@ -168,8 +165,7 @@ void another_hour(int/* mode*/) {
 			}
 		}
 	}
-	//script_timechange_trigger_check(24);//просто смена часа
-	//script_timechange_trigger_check(time_info.hours);//выполняется для конкретного часа
+	script_timechange_trigger_check(time_info.hours, time_day);//выполняется для конкретного часа
 
 	if ((weather_info.sunlight == kSunSet ||
 		weather_info.sunlight == kSunDark) &&

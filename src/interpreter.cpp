@@ -777,7 +777,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"убрать", EPosition::kRest, do_remove, 0, 0, 400},
 		{"ударить", EPosition::kFight, do_hit, 0, SCMD_HIT, -1},
 		{"удавить", EPosition::kFight, do_strangle, 0, 0, -1},
-		{"удалить", EPosition::kStand, do_delete_obj, kLvlImplementator, 0, 0},
+		{"удалитьпредмет", EPosition::kStand, do_delete_obj, kLvlImplementator, 0, 0},
 		{"уклониться", EPosition::kFight, do_deviate, 1, 0, -1},
 		{"украсть", EPosition::kStand, do_steal, 1, 0, 0},
 		{"укрепить", EPosition::kRest, DoArmoring, 0, 0, -1},
