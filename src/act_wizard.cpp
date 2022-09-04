@@ -3155,8 +3155,8 @@ void do_wizutil(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		SendMsgToChar("А он ведь старше вас....\r\n", ch);
 	else {
 		switch (subcmd) {
-			case SCMD_REROLL: SendMsgToChar("Перегенерирую...\r\n", ch);
-				roll_real_abils(vict);
+			case SCMD_REROLL: SendMsgToChar("Отключено...\r\n", ch);
+/*				roll_real_abils(vict);
 				log("(GC) %s has rerolled %s.", GET_NAME(ch), GET_NAME(vict));
 				imm_log("%s has rerolled %s.", GET_NAME(ch), GET_NAME(vict));
 				sprintf(buf,
@@ -3164,6 +3164,7 @@ void do_wizutil(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 						vict->GetInbornStr(), vict->GetInbornInt(), vict->GetInbornWis(),
 						vict->GetInbornDex(), vict->GetInbornCon(), vict->GetInbornCha());
 				SendMsgToChar(buf, ch);
+*/
 				break;
 			case SCMD_NOTITLE: result = PLR_TOG_CHK(vict, EPlrFlag::kNoTitle);
 				sprintf(buf, "(GC) Notitle %s for %s by %s.", ONOFF(result), GET_NAME(vict), GET_NAME(ch));
