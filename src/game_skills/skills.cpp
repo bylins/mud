@@ -1977,7 +1977,21 @@ int CalcSkillRemortCap(const CharData *ch) {
 }
 
 int CalcSkillWisdomCap(const CharData *ch) {
-	return std::min(CalcSkillRemortCap(ch), wis_bonus(GetRealWis(ch), WIS_MAX_LEARN_L20) * GetRealLevel(ch) / 20);
+	// считаем требования по мудре для капа по скиллов по морту на текущий морт
+	int requirement = 10 + (GetRealRemort(ch) / 5 * 6);
+	// на 5 морте требуется 16 мудры, на 10- 22, на 15- 28 И так далее, на 75 морте 100
+	// кап равномерно увеличивается с каждым левелом
+	float cap = CalcSkillRemortCap(ch) * GetRealLevel(ch) / 30;
+	int diff = requirement - GetRealWis(ch);
+
+	if(diff > 0) { // если требование по морту выше, чем текущая мудра чара уменьшим кап на 5 * недостаток мудры процентов
+		cap -= cap * (diff * 5) / 100;
+	} else { // если мудра привосходит требование дадим бонус к капу, равный 0.2 * левел * лишняя мудра процентов капа
+		float WisdomMod = std::min(5.0, 0.2 * GetRealLevel(ch));
+		cap += cap * (WisdomMod * -diff) / 100;
+		cap = std::min(CalcSkillRemortCap(ch), (int) cap);
+	}
+	return (int) cap;
 }
 
 int CalcSkillHardCap(const CharData *ch, const ESkill skill) {
