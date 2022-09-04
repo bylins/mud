@@ -114,7 +114,7 @@ int genchar_parse(CharData *ch, char *arg) {
 		case 'ж': ch->set_cha(std::max(ch->GetInbornCha() - 1, ch_class.GetBaseStatGenMin(EBaseStat::kCha)));
 			break;
 		case 'З':
-		case 'з': ch->set_str(std::min(ch->GetInbornCha() + 1, ch_class.GetBaseStatGenMax(EBaseStat::kStr)));
+		case 'з': ch->set_str(std::min(ch->GetInbornStr() + 1, ch_class.GetBaseStatGenMax(EBaseStat::kStr)));
 			break;
 		case 'И':
 		case 'и': ch->set_dex(std::min(ch->GetInbornDex() + 1, ch_class.GetBaseStatGenMax(EBaseStat::kDex)));
@@ -168,7 +168,7 @@ int genchar_parse(CharData *ch, char *arg) {
 	return kGencharContinue;
 }
 
-void set_real_abils(CharData *ch) {
+void SetStartAbils(CharData *ch) {
 	const auto &tmp_class = MUD::Class(ch->GetClass());
 	ch->set_str(tmp_class.GetBaseStatGenMin(EBaseStat::kStr));
 	ch->set_dex(tmp_class.GetBaseStatGenMin(EBaseStat::kDex));

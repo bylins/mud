@@ -3403,7 +3403,7 @@ void nanny(DescriptorData *d, char *arg) {
 			SEND_TO_Q(genchar_help, d);
 			SEND_TO_Q("\r\n\r\nНажмите любую клавишу.\r\n", d);
 			STATE(d) = CON_ROLL_STATS;
-			set_real_abils(d->character.get());
+			SetStartAbils(d->character.get());
 			break;
 
 		case CON_ROLL_STATS:
