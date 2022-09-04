@@ -37,10 +37,10 @@ constexpr int kSecsPerMudMonth = kDaysPerMonth*kSecsPerMudDay;
 constexpr int kSecsPerMudYear = kMonthsPerYear*kSecsPerMudMonth;
 
 // Sun state for Weather //
-const __uint8_t kSunDark = 0;
-const __uint8_t kSunRise = 1;
-const __uint8_t kSunLight = 2;
-const __uint8_t kSunSet = 3;
+const __uint8_t kSunDark = 1;
+const __uint8_t kSunRise = 2;
+const __uint8_t kSunLight = 3;
+const __uint8_t kSunSet = 4;
 
 // Moon change type //
 const __uint8_t kNewMoonStart = 27;

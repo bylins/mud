@@ -368,7 +368,7 @@ void kill_pc_wtrigger(CharData *killer, CharData *victim);
 
 // function prototypes from scripts.cpp //
 void script_trigger_check(void);
-void script_timechange_trigger_check(const int time);
+void script_timechange_trigger_check(const int time, const int time_day);
 bool add_trigger(Script *sc, Trigger *t, int loc);
 
 void do_stat_trigger(CharData *ch, Trigger *trig);
@@ -467,15 +467,15 @@ bool CheckSript(const RoomData *go, const long type);
 
 // typedefs that the dg functions rely on //
 
-void timechange_mtrigger(CharData *ch, const int time);
+void timechange_mtrigger(CharData *ch, const int time, const int time_day);
 int pick_otrigger(ObjData *obj, CharData *actor);
 int open_otrigger(ObjData *obj, CharData *actor, int unlock);
 int close_otrigger(ObjData *obj, CharData *actor, int lock);
-int timechange_otrigger(ObjData *obj, const int time);
+int timechange_otrigger(ObjData *obj, const int time, const int time_day);
 int pick_wtrigger(RoomData *room, CharData *actor, int dir);
 int open_wtrigger(RoomData *room, CharData *actor, int dir, int unlock);
 int close_wtrigger(RoomData *room, CharData *actor, int dir, int lock);
-int timechange_wtrigger(RoomData *room, const int time);
+int timechange_wtrigger(RoomData *room, const int time, const int time_day);
 
 void trg_featturn(CharData *ch, EFeat feat_id, int featdiff, int vnum);
 void trg_skillturn(CharData *ch, const ESkill skill_id, int skilldiff, int vnum);

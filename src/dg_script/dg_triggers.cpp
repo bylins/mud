@@ -797,7 +797,7 @@ int cast_mtrigger(CharData *ch, CharData *actor, ESpell spell_id) {
 	return 1;
 }
 
-void timechange_mtrigger(CharData *ch, const int time) {
+void timechange_mtrigger(CharData *ch, const int time, const int time_day) {
 	if (!ch || ch->purged()) {
 		log("SYSERROR: ch = %s (%s:%d)", ch ? "purged" : "false", __FILE__, __LINE__);
 		return;
@@ -807,15 +807,14 @@ void timechange_mtrigger(CharData *ch, const int time) {
 
 	if (!CheckScript(ch, MTRIG_TIMECHANGE))
 		return;
-
 	for (auto t : SCRIPT(ch)->trig_list) {
-		if (TRIGGER_CHECK(t, MTRIG_TIMECHANGE)
-			&& (time == GET_TRIG_NARG(t))) {
+		if (TRIGGER_CHECK(t, MTRIG_TIMECHANGE)) {
 			snprintf(buf, kMaxInputLength, "%d", time);
 			add_var_cntx(&GET_TRIG_VARS(t), "time", buf, 0);
+			snprintf(buf, kMaxInputLength, "%d", time_day);
+			add_var_cntx(&GET_TRIG_VARS(t), "timeday", buf, 0);
 			script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
-
-			continue;
+			break;
 		}
 	}
 }
@@ -1187,23 +1186,22 @@ void greet_otrigger(CharData *actor, int dir) {
 	}
 }
 
-int timechange_otrigger(ObjData *obj, const int time) {
+int timechange_otrigger(ObjData *obj, const int time, const int time_day) {
 	char buf[kMaxInputLength];
 
 	if (!CheckSript(obj, OTRIG_TIMECHANGE)) {
 		return 1;
 	}
-
-	for (auto t : obj->get_script()->trig_list) {
-		if (TRIGGER_CHECK(t, OTRIG_TIMECHANGE)
-			&& (time == GET_TRIG_NARG(t))) {
+	for (Trigger *t : obj->get_script()->trig_list) {
+		if (TRIGGER_CHECK(t, OTRIG_TIMECHANGE)) {
 			snprintf(buf, kMaxInputLength, "%d", time);
 			add_var_cntx(&GET_TRIG_VARS(t), "time", buf, 0);
-
-			return script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW);
+			snprintf(buf, kMaxInputLength, "%d", time_day);
+			add_var_cntx(&GET_TRIG_VARS(t), "timeday", buf, 0);
+			script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW);
+			break;
 		}
 	}
-
 	return 1;
 }
 
@@ -1460,7 +1458,7 @@ int close_wtrigger(RoomData *room, CharData *actor, int dir, int lock) {
 	return 1;
 }
 
-int timechange_wtrigger(RoomData *room, const int time) {
+int timechange_wtrigger(RoomData *room, const int time, const int time_day) {
 	char buf[kMaxInputLength];
 
 	if (!CheckSript(room, WTRIG_TIMECHANGE)) {
@@ -1468,16 +1466,15 @@ int timechange_wtrigger(RoomData *room, const int time) {
 	}
 
 	for (auto t : SCRIPT(room)->trig_list) {
-		if (TRIGGER_CHECK(t, WTRIG_TIMECHANGE)
-			&& (time == GET_TRIG_NARG(t))) {
+		if (TRIGGER_CHECK(t, WTRIG_TIMECHANGE)) {
 			snprintf(buf, kMaxInputLength, "%d", time);
 			add_var_cntx(&GET_TRIG_VARS(t), "time", buf, 0);
+			snprintf(buf, kMaxInputLength, "%d", time_day);
+			add_var_cntx(&GET_TRIG_VARS(t), "timeday", buf, 0);
 			script_driver(room, t, WLD_TRIGGER, TRIG_NEW);
-
-			continue;
+			break;;
 		}
 	}
-
 	return 1;
 }
 
