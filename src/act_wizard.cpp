@@ -3155,7 +3155,9 @@ void do_wizutil(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		SendMsgToChar("А он ведь старше вас....\r\n", ch);
 	else {
 		switch (subcmd) {
-			case SCMD_REROLL: SendMsgToChar("Отключено...\r\n", ch);
+			case SCMD_REROLL: SendMsgToChar("Сбрасываю параметры...\r\n", ch);
+				vict->set_start_stat(G_STR, 0);
+				SendMsgToChar(vict, "&GВам сбросили парамерты персонажа, стоит перезайти в игру.\r\n&n");
 /*				roll_real_abils(vict);
 				log("(GC) %s has rerolled %s.", GET_NAME(ch), GET_NAME(vict));
 				imm_log("%s has rerolled %s.", GET_NAME(ch), GET_NAME(vict));
