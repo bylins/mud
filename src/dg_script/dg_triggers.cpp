@@ -220,7 +220,7 @@ void random_mtrigger(CharData *ch) {
 
 	for (auto t : SCRIPT(ch)->trig_list) {
 
-		if ((TRIGGER_CHECK(t, MTRIG_RANDOM_GLOBAL) || (TRIGGER_CHECK(t, MTRIG_RANDOM) && !is_empty(world[ch->in_room]->zone_rn)))
+		if ((TRIGGER_CHECK(t, MTRIG_RANDOM_GLOBAL) || (TRIGGER_CHECK(t, MTRIG_RANDOM) && zone_table[world[ch->in_room]->zone_rn].used))
 			&& (number(1, 100) <= GET_TRIG_NARG(t))) {
 			script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
 			break;
@@ -828,7 +828,7 @@ void random_otrigger(ObjData *obj) {
 	for (auto t : obj->get_script()->trig_list) {
 		if (TRIGGER_CHECK(t, OTRIG_RANDOM_GLOBAL) 
 				|| (TRIGGER_CHECK(t, OTRIG_RANDOM) && obj->get_in_room() == kNowhere) //в инве или одет
-				|| (TRIGGER_CHECK(t, OTRIG_RANDOM) && obj->get_in_room() != kNowhere && !is_empty(world[obj->get_in_room()]->zone_rn))) {
+				|| (TRIGGER_CHECK(t, OTRIG_RANDOM) && obj->get_in_room() != kNowhere && zone_table[world[obj->get_in_room()]->zone_rn].used)) {
 			if (number(1, 100) <= GET_TRIG_NARG(t)) {
 				script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW);
 				break;
@@ -1226,7 +1226,7 @@ void random_wtrigger(RoomData *room, int/* num*/, void * /*s*/, int/* types*/, c
 		return;
 
 	for (auto t : SCRIPT(room)->trig_list) {
-		if ((TRIGGER_CHECK(t, WTRIG_RANDOM_GLOBAL) || (TRIGGER_CHECK(t, WTRIG_RANDOM) && !is_empty(room->zone_rn)))
+		if ((TRIGGER_CHECK(t, WTRIG_RANDOM_GLOBAL) || (TRIGGER_CHECK(t, WTRIG_RANDOM) && zone_table[room->zone_rn].used))
 			&& (number(1, 100) <= GET_TRIG_NARG(t))) {
 			script_driver(room, t, WLD_TRIGGER, TRIG_NEW);
 			break;
