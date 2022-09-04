@@ -774,12 +774,12 @@ void script_trigger_check() {
 void script_timechange_trigger_check(const int time, const int time_day) {
 	utils::CExecutionTimer timercheck;
 	std::stringstream buffer;
+
 	for (const auto &ch : character_list) {
 		if (SCRIPT(ch)->has_triggers()) {
 			auto sc = SCRIPT(ch).get();
-
 			if (IS_SET(SCRIPT_TYPES(sc), MTRIG_TIMECHANGE)
-				&& (!is_empty(world[ch->in_room]->zone_rn))) {
+					&& (!is_empty(world[ch->in_room]->zone_rn))) {
 				timechange_mtrigger(ch.get(), time, time_day);
 			}
 		}
@@ -798,11 +798,8 @@ void script_timechange_trigger_check(const int time, const int time_day) {
 		if (SCRIPT(world[nr])->has_triggers()) {
 			auto room = world[nr];
 			auto sc = SCRIPT(room).get();
-			if (IS_SET(SCRIPT_TYPES(sc), WTRIG_TIMECHANGE)) {
-//				&& (!is_empty(room->zone_rn))) {
-				sprintf(buf, "запускаем триггер время %d", time);
-				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-
+			if (IS_SET(SCRIPT_TYPES(sc), WTRIG_TIMECHANGE)
+					&& (!is_empty(room->zone_rn))) {
 				timechange_wtrigger(room, time, time_day);
 			}
 		}
