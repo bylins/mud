@@ -343,7 +343,6 @@ void do_showzonestats(CharData *ch, char *argument, int, int) {
 		SendMsgToChar(ch, "Зоныстат формат: 'все' или диапазон через пробел, -s в конце для сортировки. 'очистить' новая таблица\r\n");
 		return;
 	}
-//	SendMsgToChar(ch, "arg1=%s, arg2=%s, arg3=%s\r\n", arg1, arg2, arg3);
 	if (!str_cmp(arg1, "очистить")) {
 		const time_t ct = time(nullptr);
 		char *date = asctime(localtime(&ct));
@@ -355,6 +354,7 @@ void do_showzonestats(CharData *ch, char *argument, int, int) {
 		ZoneTrafficSave();
 		return;
 	}
+	SendMsgToChar(ch, "Статистика с %s", asctime(localtime(&zones_stat_date)));
 	if (!str_cmp(arg1, "все")) {
 		PrintZoneStat(ch, 0, 999999, sort);
 		return;
