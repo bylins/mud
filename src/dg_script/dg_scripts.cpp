@@ -1709,7 +1709,7 @@ void find_replacement(void *go,
 				sprintf(str, "%d", trgvar_in_room(num));
 			} else if (!str_cmp(field, "zonenpc") && num > 0) {
 				int from = 0, to = 0;
-				get_zone_rooms(zone_rnum_from_vnum(num), &from , &to);
+				get_zone_rooms(ZoneRnumFromVnum(num), &from , &to);
 				for (const auto &tch : character_list) {
 					if ((tch->IsNpc() && !IS_CHARMICE(tch)) && (tch->in_room >= from && tch->in_room <= to)) {
 						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(tch));
@@ -1717,7 +1717,7 @@ void find_replacement(void *go,
 				}
 			} else if (!str_cmp(field, "zonechar") && num > 0) {
 				int from = 0, to = 0;
-				get_zone_rooms(zone_rnum_from_vnum(num), &from , &to);
+				get_zone_rooms(ZoneRnumFromVnum(num), &from , &to);
 				for (const auto &tch : character_list) {
 					if (!tch->IsNpc() && !tch->desc)
 						continue;
@@ -1727,19 +1727,17 @@ void find_replacement(void *go,
 				}
 			} else if (!str_cmp(field, "zonepc") && num > 0) {
 				int from = 0, to = 0;
-				get_zone_rooms(zone_rnum_from_vnum(num), &from , &to);
-				for (const auto &tch : character_list) {
-					if (tch->IsNpc())
+				get_zone_rooms(ZoneRnumFromVnum(num), &from , &to);
+				for (auto d = descriptor_list; d; d = d->next) {
+					if (STATE(d) != CON_PLAYING) 
 						continue;
-					if (!tch->desc)
-						continue;
-					if (tch->in_room >= from && tch->in_room <= to) {
-						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(tch));
+					if (d->character->in_room >= from && d->character->in_room <= to) {
+						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(d->character));
 					}
 				}
 			} else if (!str_cmp(field, "zoneall") && num > 0) {
 				int from =0, to = 0;
-				get_zone_rooms(zone_rnum_from_vnum(num), &from , &to);
+				get_zone_rooms(ZoneRnumFromVnum(num), &from , &to);
 				for (const auto &tch : character_list) {
 					if (!tch->IsNpc() && !tch->desc)
 						continue;
