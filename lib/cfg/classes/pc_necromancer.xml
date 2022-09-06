@@ -37,36 +37,36 @@
         <spell id="kCreateLight"		level="1"	remort="0"	circle="1"	mem="0"		cast="0.0"/>
         <spell id="kWeaknes"			level="5"	remort="0"	circle="1"	mem="0"		cast="0.0"/>
         <spell id="kSenseLife"			level="20"	remort="0"	circle="2"	mem="0"		cast="0.0"/>
-        <spell id="kArmor"				level="4"	remort="0"	circle="2"	mem="0"		cast="0.0"/>
-        <spell id="kCurse"				level="4"	remort="0"	circle="2"	mem="0"		cast="0.0"/>
+        <spell id="kArmor"			level="4"	remort="0"	circle="2"	mem="0"		cast="0.0"/>
+        <spell id="kCurse"			level="4"	remort="0"	circle="2"	mem="0"		cast="0.0"/>
         <spell id="kCloudly"			level="5"	remort="0"	circle="2"	mem="0"		cast="0.0"/>
-        <spell id="kWeb"				level="6"	remort="0"	circle="2"	mem="0"		cast="0.0"/>
+        <spell id="kWeb"			level="6"	remort="0"	circle="2"	mem="0"		cast="0.0"/>
         <spell id="kResfresh"			level="7"	remort="0"	circle="3"	mem="0"		cast="0.0"/>
         <spell id="kChillTouch"			level="7"	remort="0"	circle="3"	mem="0"		cast="0.0"/>
         <spell id="kAnimateDead"		level="7"	remort="0"	circle="3"	mem="0"		cast="0.0"/>
         <spell id="kStoneSkin"			level="9"	remort="0"	circle="3"	mem="0"		cast="0.0"/>
-        <spell id="kFear"				level="10"	remort="0"	circle="3"	mem="0"		cast="0.0"/>
+        <spell id="kFear"			level="10"	remort="0"	circle="3"	mem="0"		cast="0.0"/>
         <spell id="kAwareness"			level="10"	remort="0"	circle="3"	mem="0"		cast="0.0"/>
-        <spell id="kHaste"				level="20"	remort="0"	circle="4"	mem="0"		cast="0.0"/>
+        <spell id="kHaste"			level="20"	remort="0"	circle="4"	mem="0"		cast="0.0"/>
         <spell id="kExtraHits"			level="13"	remort="0"	circle="4"	mem="0"		cast="0.0"/>
         <spell id="kDispellMagic"		level="12"	remort="0"	circle="4"	mem="0"		cast="0.0"/>
         <spell id="kWaterbreath"		level="15"	remort="0"	circle="4"	mem="0"		cast="0.0"/>
-        <spell id="kFever"				level="20"	remort="0"	circle="4"	mem="0"		cast="0.0"/>
+        <spell id="kFever"			level="20"	remort="0"	circle="4"	mem="0"		cast="0.0"/>
         <spell id="kDispelEvil"			level="12"	remort="0"	circle="4"	mem="0"		cast="0.0"/>
         <spell id="kBlindness"			level="15"	remort="0"	circle="4"	mem="0"		cast="0.0"/>
-        <spell id="kFastRegeneration"	level="15"	remort="0"	circle="5"	mem="0"		cast="0.0"/>
+        <spell id="kFastRegeneration"		level="15"	remort="0"	circle="5"	mem="0"		cast="0.0"/>
         <spell id="kDarkness"			level="15"	remort="0"	circle="5"	mem="0"		cast="0.0"/>
         <spell id="kStoneBones"			level="15"	remort="0"	circle="5"	mem="0"		cast="0.0"/>
         <spell id="kStoneHands"			level="20"	remort="0"	circle="5"	mem="0"		cast="0.0"/>
         <spell id="kBlackTentacles"		level="17"	remort="0"	circle="5"	mem="-30"	cast="0.0"/>
         <spell id="kGroupRefresh"		level="22"	remort="0"	circle="5"	mem="0"		cast="0.0"/>
-        <spell id="kPoison"				level="18"	remort="0"	circle="5"	mem="0"		cast="0.0"/>
+        <spell id="kPoison"			level="18"	remort="0"	circle="5"	mem="0"		cast="0.0"/>
         <spell id="kRemoveHold"			level="20"	remort="0"	circle="5"	mem="0"		cast="0.0"/>
         <spell id="kLocateObject"		level="18"	remort="0"	circle="6"	mem="0"		cast="0.0"/>
-        <spell id="kSacrifice"			level="18"	remort="0"	circle="6"	mem="0"		cast="0.0"/>
+        <spell id="kSacrifice"			level="18"	remort="0"	circle="6"	mem="-70"	cast="0.0"/>
         <spell id="kMassCurse"			level="22"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
         <spell id="kShadowCloak"		level="24"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
-        <spell id="kSightOfDarkness"	level="25"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
+        <spell id="kSightOfDarkness"		level="25"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
         <spell id="kSnakeEyes"			level="25"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
         <spell id="kGroupHaste"			level="26"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
         <spell id="kResurrection"		level="24"	remort="0"	circle="7"	mem="0"		cast="0.0"/>

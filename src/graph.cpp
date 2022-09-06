@@ -153,8 +153,10 @@ int find_first_step(RoomRnum src, RoomRnum target, CharData *ch) {
 		}
 	}
 	bfs_queue.clear();
-	sprintf(buf, "Mob (mob: %s vnum: %d) can't find path.", GET_NAME(ch), GET_MOB_VNUM(ch));
-	mudlog(buf, NRM, -1, ERRLOG, true);
+	if (ch->IsNpc()) {
+		sprintf(buf, "[%d] Mob (mob: %s vnum: %d) can't find path.", GET_ROOM_VNUM(ch->in_room), GET_NAME(ch), GET_MOB_VNUM(ch));
+		mudlog(buf, NRM, -1, ERRLOG, true);
+	}
 	return (kBfsNoPath);
 }
 
