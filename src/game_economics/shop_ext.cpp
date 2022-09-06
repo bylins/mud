@@ -472,7 +472,7 @@ void town_shop_keepers() {
 			&& GET_ROOM_VNUM(ch->in_room) % 100 != 99
 			&& zone_list.find(world[ch->in_room]->zone_rn) == zone_list.end()) {
 			int rnum_start, rnum_end;
-			if (get_zone_rooms(world[ch->in_room]->zone_rn, &rnum_start, &rnum_end)) {
+			if (GetZoneRooms(world[ch->in_room]->zone_rn, &rnum_start, &rnum_end)) {
 				CharData *mob = read_mobile(1901, VIRTUAL);
 				if (mob) {
 					PlaceCharToRoom(mob, number(rnum_start, rnum_end));

@@ -102,7 +102,7 @@ int find_first_step(RoomRnum src, RoomRnum target, CharData *ch) {
 		// notrack мобам не помеха
 		through_notrack = true;
 		if (MOB_FLAGGED(ch, EMobFlag::kStayZone)) {
-			get_zone_rooms(world[src]->zone_rn, &rnum_start, &rnum_stop);
+			GetZoneRooms(world[src]->zone_rn, &rnum_start, &rnum_stop);
 			edge = EDGE_ZONE;
 		} else {
 			edge = EDGE_WORLD;

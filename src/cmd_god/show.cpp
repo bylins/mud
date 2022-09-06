@@ -286,7 +286,7 @@ std::string print_zone_exits(ZoneRnum zone) {
 void print_zone_to_buf(char **bufptr, ZoneRnum zone) {
 	const size_t BUFFER_SIZE = 1024;
 	int rfirst, rlast;
-	get_zone_rooms(zone, &rfirst, &rlast);
+	GetZoneRooms(zone, &rfirst, &rlast);
 	char tmpstr[BUFFER_SIZE];
 	snprintf(tmpstr, BUFFER_SIZE,
 			 "%3d %s\r\n"

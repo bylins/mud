@@ -270,11 +270,11 @@ void SpellRecall(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 		return;
 	}
 
-	(void) get_zone_rooms(world[to_room]->zone_rn, &rnum_start, &rnum_stop);
+	(void) GetZoneRooms(world[to_room]->zone_rn, &rnum_start, &rnum_stop);
 	fnd_room = GetTeleportTargetRoom(victim, rnum_start, rnum_stop);
 	if (fnd_room == kNowhere) {
 		to_room = Clan::CloseRent(to_room);
-		(void) get_zone_rooms(world[to_room]->zone_rn, &rnum_start, &rnum_stop);
+		(void) GetZoneRooms(world[to_room]->zone_rn, &rnum_start, &rnum_stop);
 		fnd_room = GetTeleportTargetRoom(victim, rnum_start, rnum_stop);
 	}
 
@@ -309,7 +309,7 @@ void SpellTeleport(int /* level */, CharData *ch, CharData */*victim*/, ObjData 
 		return;
 	}
 
-	get_zone_rooms(world[in_room]->zone_rn, &rnum_start, &rnum_stop);
+	GetZoneRooms(world[in_room]->zone_rn, &rnum_start, &rnum_stop);
 	fnd_room = GetTeleportTargetRoom(ch, rnum_start, rnum_stop);
 	if (fnd_room == kNowhere) {
 		SendMsgToChar(SUMMON_FAIL, ch);

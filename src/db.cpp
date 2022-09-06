@@ -188,8 +188,8 @@ int mobs_in_room(int m_num, int r_num);
 void new_build_player_index();
 void renum_obj_zone();
 void renum_mob_zone();
-//int get_zone_rooms(int, int *, int *);
-//int get_zone_rooms1(int, int *, int *);
+//int GetZoneRooms(int, int *, int *);
+//int GetZoneRooms1(int, int *, int *);
 void init_basic_values();
 void init_portals();
 void init_im();
@@ -2018,7 +2018,7 @@ void set_zone_town() {
 	for (ZoneRnum i = 0; i < static_cast<ZoneRnum>(zone_table.size()); ++i) {
 		zone_table[i].is_town = false;
 		int rnum_start = 0, rnum_end = 0;
-		if (!get_zone_rooms(i, &rnum_start, &rnum_end)) {
+		if (!GetZoneRooms(i, &rnum_start, &rnum_end)) {
 			continue;
 		}
 
@@ -4608,7 +4608,7 @@ void ZoneReset::reset_zone_essential() {
 
 	int rnum_start = 0;
 	int rnum_stop = 0;
-	if (get_zone_rooms(m_zone_rnum, &rnum_start, &rnum_stop)) {
+	if (GetZoneRooms(m_zone_rnum, &rnum_start, &rnum_stop)) {
 		// все внутренние резеты комнат зоны теперь идут за один цикл
 		// резет порталов теперь тут же и переписан, чтобы не гонять по всем румам, ибо жрал половину времени резета -- Krodo
 		for (int rnum = rnum_start; rnum <= rnum_stop; rnum++) {
@@ -4658,7 +4658,7 @@ void reset_zone(ZoneRnum zone) {
 
 // Ищет RNUM первой и последней комнаты зоны
 // Еси возвращает 0 - комнат в зоне нету
-int get_zone_rooms(ZoneRnum zone_nr, int *first, int *last) {
+int GetZoneRooms(ZoneRnum zone_nr, int *first, int *last) {
 //31.27.2022 месяц пройдет комменты можно стереть
 //	*first = 0;
 //	*last = 0;
@@ -4731,7 +4731,7 @@ bool is_empty(ZoneRnum zone_nr, bool debug) {
 	}
 
 	// Поиск link-dead игроков в зонах комнаты zone_nr
-	if (!get_zone_rooms(zone_nr, &rnum_start, &rnum_stop)) {
+	if (!GetZoneRooms(zone_nr, &rnum_start, &rnum_stop)) {
 		result = true;
 		return true;    // в зоне нет комнат :)
 	}

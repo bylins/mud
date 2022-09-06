@@ -1709,7 +1709,7 @@ void find_replacement(void *go,
 				sprintf(str, "%d", trgvar_in_room(num));
 			} else if (!str_cmp(field, "zonenpc") && num > 0) {
 				int from = 0, to = 0;
-				get_zone_rooms(ZoneRnumFromVnum(num), &from , &to);
+				GetZoneRooms(ZoneRnumFromVnum(num), &from , &to);
 				for (const auto &tch : character_list) {
 					if ((tch->IsNpc() && !IS_CHARMICE(tch)) && (tch->in_room >= from && tch->in_room <= to)) {
 						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(tch));
@@ -1717,7 +1717,7 @@ void find_replacement(void *go,
 				}
 			} else if (!str_cmp(field, "zonechar") && num > 0) {
 				int from = 0, to = 0;
-				get_zone_rooms(ZoneRnumFromVnum(num), &from , &to);
+				GetZoneRooms(ZoneRnumFromVnum(num), &from , &to);
 				for (const auto &tch : character_list) {
 					if (!tch->IsNpc() && !tch->desc)
 						continue;
@@ -1727,7 +1727,7 @@ void find_replacement(void *go,
 				}
 			} else if (!str_cmp(field, "zonepc") && num > 0) {
 				int from = 0, to = 0;
-				get_zone_rooms(ZoneRnumFromVnum(num), &from , &to);
+				GetZoneRooms(ZoneRnumFromVnum(num), &from , &to);
 				for (auto d = descriptor_list; d; d = d->next) {
 					if (STATE(d) != CON_PLAYING) 
 						continue;
@@ -1737,7 +1737,7 @@ void find_replacement(void *go,
 				}
 			} else if (!str_cmp(field, "zoneall") && num > 0) {
 				int from =0, to = 0;
-				get_zone_rooms(ZoneRnumFromVnum(num), &from , &to);
+				GetZoneRooms(ZoneRnumFromVnum(num), &from , &to);
 				for (const auto &tch : character_list) {
 					if (!tch->IsNpc() && !tch->desc)
 						continue;
@@ -3350,11 +3350,11 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "firstvnum")) {
 			int x,y;
-			get_zone_rooms(r->zone_rn, &x , &y);
+			GetZoneRooms(r->zone_rn, &x , &y);
 			sprintf(str, "%d", world[x]->room_vn);
 		} else if (!str_cmp(field, "lastvnum")) {
 			int x,y;
-			get_zone_rooms(r->zone_rn, &x , &y);
+			GetZoneRooms(r->zone_rn, &x , &y);
 			sprintf(str, "%d", world[y]->room_vn);
 		}
 		else if (!str_cmp(field, "char")

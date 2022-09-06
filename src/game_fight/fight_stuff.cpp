@@ -259,7 +259,7 @@ bool stone_rebirth(CharData *ch, CharData *killer) {
 		return false;
 	}
 	act("$n погиб$q смертью храбрых.", false, ch, nullptr, nullptr, kToRoom);
-	get_zone_rooms(world[ch->in_room]->zone_rn, &rnum_start, &rnum_stop);
+	GetZoneRooms(world[ch->in_room]->zone_rn, &rnum_start, &rnum_stop);
 	for (; rnum_start <= rnum_stop; rnum_start++) {
 		RoomData *rm = world[rnum_start];
 		if (rm->contents) {

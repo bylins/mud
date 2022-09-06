@@ -915,7 +915,7 @@ void is_empty_ch(ZoneRnum zone_nr, CharData *ch) {
 	if (found)
 		return;
 	// Поиск link-dead игроков в зонах комнаты zone_nr
-	if (!get_zone_rooms(zone_nr, &rnum_start, &rnum_stop)) {
+	if (!GetZoneRooms(zone_nr, &rnum_start, &rnum_stop)) {
 		sprintf(buf2, "Нет комнат в зоне %d.", static_cast<int>(zone_table[zone_nr].vnum));
 		SendMsgToChar(buf2, ch);
 		return;    // в зоне нет комнат :)
