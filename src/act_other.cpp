@@ -573,7 +573,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 			{
 				if (IS_CARRYING_N(ch) + 1 < CAN_CARRY_N(ch)) {
 					if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj) < CAN_CARRY_W(ch)) {
-						ExtractObjFromChar(obj);
+						RemoveObjFromChar(obj);
 						PlaceObjToInventory(obj, ch);
 						act("Вы украли $o3 у $N1!", false, ch, obj, vict, kToChar);
 					}
@@ -2275,7 +2275,7 @@ void do_pray(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		act(buf, false, ch, obj, nullptr, kToRoom | kToArenaListen);
 		sprintf(buf, "Вы принесли $o3 в жертву %s.", pray_whom[metter]);
 		act(buf, false, ch, obj, nullptr, kToChar);
-		ExtractObjFromChar(obj);
+		RemoveObjFromChar(obj);
 		ExtractObjFromWorld(obj);
 	}
 }

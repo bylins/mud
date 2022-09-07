@@ -2445,7 +2445,7 @@ void extract_item(CharData *ch, ObjData *obj, int spelltype) {
 					 char_get_custom_label(obj, ch).c_str());
 			act(buf, false, ch, obj, nullptr, kToChar);
 		}
-		ExtractObjFromChar(obj);
+		RemoveObjFromChar(obj);
 		ExtractObjFromWorld(obj);
 	}
 }

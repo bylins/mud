@@ -3161,9 +3161,9 @@ void find_replacement(void *go,
 			if (o->get_worn_by()) {
 				UnequipChar(o->get_worn_by(), o->get_worn_on(), CharEquipFlags());
 			} else if (o->get_carried_by()) {
-				ExtractObjFromChar(o);
+				RemoveObjFromChar(o);
 			} else if (o->get_in_obj()) {
-				ExtractObjFromObj(o);
+				RemoveObjFromObj(o);
 			} else if (o->get_in_room() > kNowhere) {
 				RemoveObjFromRoom(o);
 			} else {

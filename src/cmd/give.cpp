@@ -52,7 +52,7 @@ void perform_give(CharData *ch, CharData *vict, ObjData *obj) {
 		return;    // object has been removed from world during script execution.
 	}
 
-	ExtractObjFromChar(obj);
+	RemoveObjFromChar(obj);
 	PlaceObjToInventory(obj, vict);
 
 	// передача объектов-денег и кошельков

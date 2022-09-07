@@ -821,7 +821,7 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 	}
 
 	if (obj) {
-		ExtractObjFromChar(obj);
+		RemoveObjFromChar(obj);
 		ExtractObjFromWorld(obj);
 	}
 }

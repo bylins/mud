@@ -86,11 +86,11 @@ inline void weight_change_object(ObjData *obj, int weight) {
 	if (obj->get_in_room() != kNowhere) {
 		obj->set_weight(std::max(1, GET_OBJ_WEIGHT(obj) + weight));
 	} else if ((tmp_ch = obj->get_carried_by())) {
-		ExtractObjFromChar(obj);
+		RemoveObjFromChar(obj);
 		obj->set_weight(std::max(1, GET_OBJ_WEIGHT(obj) + weight));
 		PlaceObjToInventory(obj, tmp_ch);
 	} else if ((tmp_obj = obj->get_in_obj())) {
-		ExtractObjFromObj(obj);
+		RemoveObjFromObj(obj);
 		obj->set_weight(std::max(1, GET_OBJ_WEIGHT(obj) + weight));
 		PlaceObjIntoObj(obj, tmp_obj);
 	} else {

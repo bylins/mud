@@ -255,7 +255,7 @@ void send_object(CharData *ch, CharData *mailman, long vict_uid, ObjData *obj) {
 	send_cost_buffer += SEND_COST;
 
 	ch->remove_both_gold(total_cost);
-	ExtractObjFromChar(obj);
+	RemoveObjFromChar(obj);
 	ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PARCEL_SAVE);
 
 	check_auction(nullptr, obj);

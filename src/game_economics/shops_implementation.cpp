@@ -1170,7 +1170,7 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 
 			return;
 		} else {
-			ExtractObjFromChar(obj);
+			RemoveObjFromChar(obj);
 			tell_to_char(keeper,
 						 ch,
 						 ("Получи за " + std::string(GET_OBJ_PNAME(obj, 3)) + " " + price_to_show + ".").c_str());

@@ -1273,7 +1273,7 @@ void clan_chest_point_update(ObjData *j) {
 			&& up_obj_where(j->get_in_obj()) != kNowhere
 			&& GET_OBJ_VNUM_ZONE_FROM(j) != zone_table[world[up_obj_where(j->get_in_obj())]->zone_rn].vnum)) {
 		clan_chest_invoice(j);
-		ExtractObjFromObj(j);
+		RemoveObjFromObj(j);
 		ExtractObjFromWorld(j);
 	}
 }
@@ -1377,7 +1377,7 @@ void obj_point_update() {
 				ObjData *jj, *next_thing2;
 				for (jj = j->get_contains(); jj; jj = next_thing2) {
 					next_thing2 = jj->get_next_content();    // Next in inventory
-					ExtractObjFromObj(jj);
+					RemoveObjFromObj(jj);
 					if (j->get_in_obj()) {
 						PlaceObjIntoObj(jj, j->get_in_obj());
 					} else if (j->get_carried_by()) {
@@ -1395,7 +1395,7 @@ void obj_point_update() {
 				if (j->get_carried_by()) {
 					act("$p рассыпал$U в ваших руках.",
 						false, j->get_carried_by(), j.get(), nullptr, kToChar);
-					ExtractObjFromChar(j.get());
+					RemoveObjFromChar(j.get());
 				} else if (j->get_in_room() != kNowhere) {
 					if (!world[j->get_in_room()]->people.empty()) {
 						act("Черви полностью сожрали $o3.",
@@ -1406,7 +1406,7 @@ void obj_point_update() {
 
 					RemoveObjFromRoom(j.get());
 				} else if (j->get_in_obj()) {
-					ExtractObjFromObj(j.get());
+					RemoveObjFromObj(j.get());
 				}
 				ExtractObjFromWorld(j.get());
 			}
@@ -1436,7 +1436,7 @@ void obj_point_update() {
 				ObjData *jj, *next_thing2;
 				for (jj = j->get_contains(); jj; jj = next_thing2) {
 					next_thing2 = jj->get_next_content();
-					ExtractObjFromObj(jj);
+					RemoveObjFromObj(jj);
 					if (j->get_in_obj()) {
 						PlaceObjIntoObj(jj, j->get_in_obj());
 					} else if (j->get_worn_by()) {
@@ -1490,7 +1490,7 @@ void obj_point_update() {
 								 char_get_custom_label(j.get(), j->get_carried_by()).c_str());
 						act(buf, false, j->get_carried_by(), j.get(), nullptr, kToChar);
 					}
-					ExtractObjFromChar(j.get());
+					RemoveObjFromChar(j.get());
 				} else if (j->get_in_room() != kNowhere) {
 					if (j->get_timer() <= 0 && j->has_flag(EObjFlag::kNodecay)) {
 						snprintf(buf, kMaxStringLength, "ВНИМАНИЕ!!! Объект: %s VNUM: %d рассыпался по таймеру на земле в комнате: %d",
@@ -1527,7 +1527,7 @@ void obj_point_update() {
 							act(buf, false, cont_owner, j.get(), nullptr, kToChar);
 						}
 					}
-					ExtractObjFromObj(j.get());
+					RemoveObjFromObj(j.get());
 				}
 				ExtractObjFromWorld(j.get());
 			} else {

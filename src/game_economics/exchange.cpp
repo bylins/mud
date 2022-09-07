@@ -290,7 +290,7 @@ int exchange_exhibit(CharData *ch, char *arg) {
 	if (check_unlimited_timer(obj)) // если нерушима таймер 1 неделя
 		obj->set_timer(10080);
 	GET_EXCHANGE_ITEM(item) = obj;
-	ExtractObjFromChar(obj);
+	RemoveObjFromChar(obj);
 
 	sprintf(tmpbuf, "Вы выставили на базар $O3 (лот %d) за %d %s.",
 			GET_EXCHANGE_ITEM_LOT(item), item_cost, GetDeclensionInNumber(item_cost, EWhat::kMoneyU));

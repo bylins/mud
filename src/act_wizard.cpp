@@ -421,7 +421,7 @@ void do_arena_restore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 		ObjData *obj;
 		for (obj = vict->carrying; obj; obj = vict->carrying) {
-			ExtractObjFromChar(obj);
+			RemoveObjFromChar(obj);
 			ExtractObjFromWorld(obj);
 		}
 		act("Все ваши вещи были удалены и все аффекты сняты $N4!",

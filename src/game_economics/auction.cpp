@@ -681,7 +681,7 @@ void trans_auction(int lot) {
 	tmpstr = "Вы купили " + obj->get_PName(3) + " на аукционе.\r\n";
 	SendMsgToChar(tmpstr.c_str(), tch);
 
-	ExtractObjFromChar(obj);
+	RemoveObjFromChar(obj);
 	PlaceObjToInventory(obj, tch);
 
 	ch->add_bank(GET_LOT(lot)->cost);
@@ -740,7 +740,7 @@ void sell_auction(int lot) {
 	tmpstr = "Вы купили " + obj->get_PName(3) + " на аукционе.\r\n";
 	SendMsgToChar(tmpstr.c_str(), tch);
 
-	ExtractObjFromChar(obj);
+	RemoveObjFromChar(obj);
 	PlaceObjToInventory(obj, tch);
 
 	ch->add_bank(GET_LOT(lot)->cost);

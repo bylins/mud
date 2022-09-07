@@ -1116,7 +1116,7 @@ void mob_casting(CharData *ch) {
 					for (int i = 1; i <= 3; i++) {
 						if (static_cast<ESpell>(GET_OBJ_VAL(item, i)) == spell_id_2) {
 							if (ch != victim) {
-								ExtractObjFromChar(item);
+								RemoveObjFromChar(item);
 								act("$n передал$g $o3 $N2.", false, ch, item, victim, kToRoom | kToArenaListen);
 								PlaceObjToInventory(item, victim);
 							} else {

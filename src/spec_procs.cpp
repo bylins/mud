@@ -183,7 +183,7 @@ void npc_dropunuse(CharData *ch) {
 		nobj = obj->get_next_content();
 		if (item_nouse(obj)) {
 			act("$n выбросил$g $o3.", false, ch, obj, 0, kToRoom);
-			ExtractObjFromChar(obj);
+			RemoveObjFromChar(obj);
 			PlaceObjToRoom(obj, ch->in_room);
 		}
 	}
@@ -275,7 +275,7 @@ int npc_scavenge(CharData *ch) {
 					ch->add_gold(GET_OBJ_VAL(best_obj, 0));
 					ExtractObjFromWorld(best_obj);
 				} else {
-					ExtractObjFromObj(best_obj);
+					RemoveObjFromObj(best_obj);
 					PlaceObjToInventory(best_obj, ch);
 				}
 			}
@@ -309,7 +309,7 @@ int npc_loot(CharData *ch) {
 							ch->add_gold(GET_OBJ_VAL(loot_obj, 0));
 							ExtractObjFromWorld(loot_obj);
 						} else {
-							ExtractObjFromObj(loot_obj);
+							RemoveObjFromObj(loot_obj);
 							PlaceObjToInventory(loot_obj, ch);
 							max++;
 						}
@@ -336,7 +336,7 @@ int npc_loot(CharData *ch) {
 									ch->add_gold(GET_OBJ_VAL(cobj, 0));
 									ExtractObjFromWorld(cobj);
 								} else {
-									ExtractObjFromObj(cobj);
+									RemoveObjFromObj(cobj);
 									PlaceObjToInventory(cobj, ch);
 									max++;
 								}
@@ -382,7 +382,7 @@ int npc_loot(CharData *ch) {
 									ch->add_gold(GET_OBJ_VAL(cobj, 0));
 									ExtractObjFromWorld(cobj);
 								} else {
-									ExtractObjFromObj(cobj);
+									RemoveObjFromObj(cobj);
 									PlaceObjToInventory(cobj, ch);
 									max++;
 								}
@@ -740,7 +740,7 @@ void npc_light(CharData *ch) {
 			}
 			if (GET_OBJ_VAL(obj, 2) == 0) {
 				act("$n выбросил$g $o3.", false, ch, obj, 0, kToRoom);
-				ExtractObjFromChar(obj);
+				RemoveObjFromChar(obj);
 				PlaceObjToRoom(obj, ch->in_room);
 				continue;
 			}
@@ -844,7 +844,7 @@ int do_npc_steal(CharData *ch, CharData *victim) {
 					<= CAN_CARRY_W(ch) && (!best || GET_OBJ_COST(obj) > GET_OBJ_COST(best)))
 					best = obj;
 			if (best) {
-				ExtractObjFromChar(best);
+				RemoveObjFromChar(best);
 				PlaceObjToInventory(best, ch);
 				max++;
 			}
@@ -1236,7 +1236,7 @@ int fido(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 			act("$n savagely devours a corpse.", false, ch, 0, 0, kToRoom);
 			for (temp = i->get_contains(); temp; temp = next_obj) {
 				next_obj = temp->get_next_content();
-				ExtractObjFromObj(temp);
+				RemoveObjFromObj(temp);
 				PlaceObjToRoom(temp, ch->in_room);
 			}
 			ExtractObjFromWorld(i);

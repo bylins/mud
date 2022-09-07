@@ -96,7 +96,7 @@ bool stop_follower(CharData *ch, int mode) {
 			// сначало бросаем лишнее
 				while (ch->carrying) {
 						ObjData *obj = ch->carrying;
-					ExtractObjFromChar(obj);
+					RemoveObjFromChar(obj);
 					PlaceObjToRoom(obj, ch->in_room);
 					}
 			

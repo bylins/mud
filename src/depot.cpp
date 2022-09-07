@@ -924,7 +924,7 @@ void put_gold_chest(CharData *ch, const ObjData::shared_ptr &obj) {
 	}
 	long gold = GET_OBJ_VAL(obj, 0);
 	ch->add_bank(gold);
-	ExtractObjFromChar(obj.get());
+	RemoveObjFromChar(obj.get());
 	ExtractObjFromWorld(obj.get());
 	SendMsgToChar(ch, "Вы вложили %ld %s.\r\n", gold, GetDeclensionInNumber(gold, EWhat::kMoneyU));
 }
@@ -1032,7 +1032,7 @@ bool put_depot(CharData *ch, const ObjData::shared_ptr &obj) {
 	act("Вы положили $o3 в персональное хранилище.", false, ch, obj.get(), 0, kToChar);
 	act("$n положил$g $o3 в персональное хранилище.", true, ch, obj.get(), 0, kToRoom);
 
-	ExtractObjFromChar(obj.get());
+	RemoveObjFromChar(obj.get());
 	check_auction(nullptr, obj.get());
 	world_objects.remove(obj);
 	ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PERS_CHEST_SAVE);
