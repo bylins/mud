@@ -1503,6 +1503,16 @@ int text_processed(char *field, char *subfield, struct TriggerVar *vd, char *str
 	return false;
 }
 
+bool IsUID(const char *name) {
+	if (*name == UID_CHAR
+			|| *name == UID_ROOM
+			|| *name == UID_OBJ
+			|| *name == UID_CHAR_ALL) {
+		return true;
+	}
+return false;
+}
+
 void find_replacement(void *go,
 					  Script *sc,
 					  Trigger *trig,
@@ -1620,7 +1630,7 @@ void find_replacement(void *go,
 		return;
 	}
 
-	if (vd) {
+	if (vd && IsUID(vd->value)) {
 		name = vd->value;
 		switch (type) {
 			case MOB_TRIGGER: ch = (CharData *) go;
