@@ -1674,12 +1674,10 @@ void find_replacement(void *go,
 				if (num >= 0)
 					sprintf(str, "%c", num > 0 ? '1' : '0');
 			} else if (!str_cmp(field, "pc")) {
-				for (const auto &tch : character_list) {
-					if (tch->IsNpc())
+				for (auto d = descriptor_list; d; d = d->next) {
+					if (STATE(d) != CON_PLAYING) 
 						continue;
-					if (IN_ROOM(tch) == kNowhere || !tch->desc)
-						continue;
-					if (!str_cmp(subfield, GET_NAME(tch))) {
+					if (!str_cmp(subfield, GET_NAME(d->character))) {
 						sprintf(str, "1");
 						return;
 					}
