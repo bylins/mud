@@ -1741,45 +1741,46 @@ void point_update() {
 		}
 	});
 }
-
-void repop_decay(ZoneRnum zone) {
-	const ZoneVnum zone_num = zone_table[zone].vnum;
-
-	world_objects.foreach_on_copy([&](const ObjData::shared_ptr &j) {
-		const ZoneVnum obj_zone_num = j->get_vnum() / 100;
-
-		if (obj_zone_num == zone_num
-			&& j->has_flag(EObjFlag::kRepopDecay)) {
-			if (j->get_worn_by()) {
-				act("$o рассыпал$U, вспыхнув ярким светом...",
-					false, j->get_worn_by(), j.get(), nullptr, kToChar);
-			} else if (j->get_carried_by()) {
-				act("$o рассыпал$U в ваших руках, вспыхнув ярким светом...",
-					false, j->get_carried_by(), j.get(), nullptr, kToChar);
-			} else if (j->get_in_room() != kNowhere) {
-				if (!world[j->get_in_room()]->people.empty()) {
-					act("$o рассыпал$U, вспыхнув ярким светом...",
-						false, world[j->get_in_room()]->first_character(), j.get(), nullptr, kToChar);
-					act("$o рассыпал$U, вспыхнув ярким светом...",
-						false, world[j->get_in_room()]->first_character(), j.get(), nullptr, kToRoom);
-				}
-			} else if (j->get_in_obj()) {
-				CharData *owner = nullptr;
-
-				if (j->get_in_obj()->get_carried_by()) {
-					owner = j->get_in_obj()->get_carried_by();
-				} else if (j->get_in_obj()->get_worn_by()) {
-					owner = j->get_in_obj()->get_worn_by();
-				}
-
-				if (owner) {
-					char buf[kMaxStringLength];
-					snprintf(buf, kMaxStringLength, "$o рассыпал$U в %s...", j->get_in_obj()->get_PName(5).c_str());
-					act(buf, false, owner, j.get(), nullptr, kToChar);
-				}
+void ExtractObjRepopDecay(const ObjData::shared_ptr obj) {
+	if (obj->get_worn_by()) {
+		act("$o рассыпал$U, вспыхнув ярким светом...",
+			false, obj->get_worn_by(), obj.get(), nullptr, kToChar);
+	} else if (obj->get_carried_by()) {
+		act("$o рассыпал$U в ваших руках, вспыхнув ярким светом...",
+				false, obj->get_carried_by(), obj.get(), nullptr, kToChar);
+	} else if (obj->get_in_room() != kNowhere) {
+		if (!world[obj->get_in_room()]->people.empty()) {
+			act("$o рассыпал$U, вспыхнув ярким светом...",
+					false, world[obj->get_in_room()]->first_character(), obj.get(), nullptr, kToChar);
+			act("$o рассыпал$U, вспыхнув ярким светом...",
+					false, world[obj->get_in_room()]->first_character(), obj.get(), nullptr, kToRoom);
+		}
+	} else if (obj->get_in_obj()) {
+		CharData *owner = nullptr;
+		if (obj->get_in_obj()->get_carried_by()) {
+			owner = obj->get_in_obj()->get_carried_by();
+		} else if (obj->get_in_obj()->get_worn_by()) {
+			owner = obj->get_in_obj()->get_worn_by();
 			}
 
-			ExtractObjFromWorld(j.get());
+		if (owner) {
+			char buf[kMaxStringLength];
+			snprintf(buf, kMaxStringLength, "$o рассыпал$U в %s...", obj->get_in_obj()->get_PName(5).c_str());
+			act(buf, false, owner, obj.get(), nullptr, kToChar);
+		}
+	}
+	ExtractObjFromWorld(obj.get());
+}
+
+void RepopDecay(std::vector<ZoneRnum> zone_list) {
+	world_objects.foreach_on_copy([&](const ObjData::shared_ptr &j) {
+		if (j->has_flag(EObjFlag::kRepopDecay)) {
+			const ZoneVnum obj_zone_num = j->get_vnum() / 100;
+			for (auto it = zone_list.begin(); it != zone_list.end(); ++it) {
+				if (obj_zone_num == zone_table[*it].vnum) {
+					ExtractObjRepopDecay(j);
+				}
+			}
 		}
 	});
 }
