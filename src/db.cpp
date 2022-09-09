@@ -150,8 +150,6 @@ const FlagData clear_flags;
 
 struct Portal *portals_list;    // Список проталов для townportal
 
-extern int number_of_social_messages;
-extern int number_of_social_commands;
 const char *ZONE_TRAFFIC_FILE = LIB_PLRSTUFF"zone_traffic.xml";
 time_t zones_stat_date;
 
@@ -196,7 +194,6 @@ void init_im();
 void init_zone_types();
 void LoadGuardians();
 
-// external functions
 TimeInfoData *mud_time_passed(time_t t2, time_t t1);
 void free_alias(struct alias_data *a);
 void load_messages();
@@ -207,18 +204,18 @@ int csort(const void *a, const void *b);
 void prune_crlf(char *txt);
 int Crash_read_timer(const std::size_t index, int temp);
 void Crash_clear_objects(const std::size_t index);
-extern void extract_trigger(Trigger *trig);
 int exchange_database_load(void);
 
 void create_rainsnow(int *wtype, int startvalue, int chance1, int chance2, int chance3);
 void calc_easter(void);
 void do_start(CharData *ch, int newbie);
-extern void repop_decay(ZoneRnum zone);    // рассыпание обьектов ITEM_REPOP_DECAY
 long GetExpUntilNextLvl(CharData *ch, int level);
 //extern char *fread_action(FILE *fl, int nr);
 void load_mobraces();
 
 // external vars
+extern int number_of_social_messages;
+extern int number_of_social_commands;
 extern int no_specials;
 extern RoomVnum mortal_start_room;
 extern RoomVnum immort_start_room;
@@ -232,6 +229,8 @@ extern char *house_rank[];
 extern struct PCCleanCriteria pclean_criteria[];
 extern void LoadProxyList();
 extern void add_karma(CharData *ch, const char *punish, const char *reason);
+extern void RepopDecay(std::vector<ZoneRnum> zone_list);    // рассыпание обьектов ITEM_REPOP_DECAY
+extern void extract_trigger(Trigger *trig);
 
 char *fread_action(FILE *fl, int nr) {
 	char buf[kMaxStringLength];
@@ -3633,11 +3632,13 @@ void zone_update(void) {
 			}
 		}
 	}
+	std::vector<ZoneRnum> zone_repop_list;
 	for (update_u = reset_q.head; update_u; update_u = update_u->next)
 		if (zone_table[update_u->zone_to_reset].reset_mode == 2
 			|| (zone_table[update_u->zone_to_reset].reset_mode != 3 && is_empty(update_u->zone_to_reset))
 			|| can_be_reset(update_u->zone_to_reset)) {
 			reset_zone(update_u->zone_to_reset);
+			zone_repop_list.push_back(update_u->zone_to_reset);
 			std::stringstream out;
 			out << "Auto zone reset: " << zone_table[update_u->zone_to_reset].name << " ("
 					<<  zone_table[update_u->zone_to_reset].vnum << ")";
@@ -3648,6 +3649,7 @@ void zone_update(void) {
 						if (zone_table[j].vnum ==
 							zone_table[update_u->zone_to_reset].typeA_list[i]) {
 							reset_zone(j);
+							zone_repop_list.push_back(j);
 							out << " ]\r\n[ Also resetting: " << zone_table[j].name << " ("
 									<<  zone_table[j].vnum << ")";
 							break;
@@ -3655,6 +3657,14 @@ void zone_update(void) {
 					}
 				}
 			}
+			std::stringstream ss;
+
+			ss << "В списке репопа: ";
+			for (auto it = zone_repop_list.begin(); it != zone_repop_list.end(); ++it) {
+				ss << zone_table[*it].vnum << " ";
+			}
+			mudlog(ss.str(), LGH, kLvlGod, SYSLOG, false);
+			RepopDecay(zone_repop_list);
 			out << " ]\r\n[ Time reset: " << timer_count.delta().count();
 			mudlog(out.str(), LGH, kLvlGod, SYSLOG, false);
 			if (update_u == reset_q.head)
@@ -4219,12 +4229,9 @@ void ZoneReset::reset_zone_essential() {
 	CharData *tmob = nullptr;    // for trigger assignment
 	ObjData *tobj = nullptr;    // for trigger assignment
 	const auto zone = m_zone_rnum;    // for ZCMD macro
-
 	int last_state, curr_state;    // статус завершения последней и текущей команды
 
 	log("[Reset] Start zone %s", zone_table[m_zone_rnum].name);
-	repop_decay(m_zone_rnum);    // рассыпание обьектов ITEM_REPOP_DECAY
-
 	//----------------------------------------------------------------------------
 	last_state = 1;        // для первой команды считаем, что все ок
 
@@ -4597,7 +4604,6 @@ void ZoneReset::reset_zone_essential() {
 			last_state = curr_state;
 		}
 	}
-
 	if (zone_table[m_zone_rnum].used) {
 		zone_table[m_zone_rnum].count_reset++;
 	}
@@ -4605,9 +4611,9 @@ void ZoneReset::reset_zone_essential() {
 	zone_table[m_zone_rnum].age = 0;
 	zone_table[m_zone_rnum].used = false;
 	process_celebrates(zone_table[m_zone_rnum].vnum);
-
 	int rnum_start = 0;
 	int rnum_stop = 0;
+
 	if (GetZoneRooms(m_zone_rnum, &rnum_start, &rnum_stop)) {
 		// все внутренние резеты комнат зоны теперь идут за один цикл
 		// резет порталов теперь тут же и переписан, чтобы не гонять по всем румам, ибо жрал половину времени резета -- Krodo
@@ -4631,7 +4637,6 @@ void ZoneReset::reset_zone_essential() {
 			paste_on_reset(room);
 		}
 	}
-
 	for (rnum_start = 0; rnum_start < static_cast<int>(zone_table.size()); rnum_start++) {
 		// проверяем, не содержится ли текущая зона в чьем-либо typeB_list
 		for (curr_state = zone_table[rnum_start].typeB_count; curr_state > 0; curr_state--) {
@@ -4642,7 +4647,6 @@ void ZoneReset::reset_zone_essential() {
 			}
 		}
 	}
-
 	//Если это ведущая зона, то при ее сбросе обнуляем typeB_flag
 	for (rnum_start = zone_table[m_zone_rnum].typeB_count; rnum_start > 0; rnum_start--)
 		zone_table[m_zone_rnum].typeB_flag[rnum_start - 1] = false;
