@@ -1711,29 +1711,15 @@ void point_update() {
 					GET_MOVE(i) = MIN(GET_MOVE(i) + move_gain(i), GET_REAL_MAX_MOVE(i));
 				}
 			}
-
-			// Update PC/NPC position
-			if (GET_POS(i) <= EPosition::kStun) {
-				update_pos(i);
-			}
 		} else if (GET_POS(i) == EPosition::kIncap) {
-			Damage dmg(SimpleDmg(kTypeSuffering), 1, fight::kUndefDmg);
-			dmg.flags.set(fight::kNoFleeDmg);
-
-			if (dmg.Process(i, i) == -1) {
-				return;
-			}
+			i->points.hit += 1;
+			act("$n пуская слюни забил$u в судорогах.", true, i, nullptr, nullptr, kToRoom | kToArenaListen);
 		} else if (GET_POS(i) == EPosition::kPerish) {
-			Damage dmg(SimpleDmg(kTypeSuffering), 2, fight::kUndefDmg);
-			dmg.flags.set(fight::kNoFleeDmg);
-
-			if (dmg.Process(i, i) == -1) {
-				return;
-			}
+			act("$n пуская слюни забил$u в судорогах.", true, i, nullptr, nullptr, kToRoom | kToArenaListen);
+			i->points.hit += 2;
 		}
-
+		update_pos(i);
 		UpdateCharObjects(i);
-
 		if (!i->IsNpc()
 			&& GetRealLevel(i) < idle_max_level
 			&& !PRF_FLAGGED(i, EPrf::kCoderinfo)) {

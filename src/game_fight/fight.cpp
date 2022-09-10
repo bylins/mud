@@ -13,7 +13,6 @@
 ************************************************************************ */
 
 #include "fight.h"
-
 #include "game_skills/bash.h"
 #include "game_skills/kick.h"
 #include "game_skills/chopoff.h"
@@ -22,7 +21,6 @@
 #include "game_skills/expendientcut.h"
 #include "game_skills/protect.h"
 #include "game_skills/ironwind.h"
-
 #include "assist.h"
 #include "entities/world_characters.h"
 #include "fight_hit.h"
@@ -91,13 +89,16 @@ void go_autoassist(CharData *ch) {
 void update_pos(CharData *victim) {
 	if ((GET_HIT(victim) > 0) && (GET_POS(victim) > EPosition::kStun))
 		GET_POS(victim) = GET_POS(victim);
-	else if (GET_HIT(victim) > 0 && victim->get_wait() <= 0 && !AFF_FLAGGED(victim, EAffect::kHold))
+	else if (GET_HIT(victim) > 0 && victim->get_wait() <= 0 && !AFF_FLAGGED(victim, EAffect::kHold)) {
 		GET_POS(victim) = EPosition::kStand;
+		SendMsgToChar("Вы встали.\r\n", victim);
+		act("$n поднял$u.", true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
+	}
 	else if (GET_HIT(victim) <= -11)
 		GET_POS(victim) = EPosition::kDead;
 	else if (GET_HIT(victim) <= -6)
 		GET_POS(victim) = EPosition::kPerish;
-	else if (GET_HIT(victim) <= -3)
+	else if (GET_HIT(victim) <= -1)
 		GET_POS(victim) = EPosition::kIncap;
 	else if (GET_POS(victim) == EPosition::kIncap && victim->get_wait() > 0)
 		GET_POS(victim) = EPosition::kIncap;
