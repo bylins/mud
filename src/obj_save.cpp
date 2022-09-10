@@ -2869,6 +2869,7 @@ int cryogenicist(CharData *ch, void *me, int cmd, char *argument) {
 
 void Crash_frac_save_all(int frac_part) {
 	DescriptorData *d;
+	utils::CExecutionTimer timer;
 
 	for (d = descriptor_list; d; d = d->next) {
 		if ((STATE(d) == CON_PLAYING) && !d->character->IsNpc() && GET_ACTIVITY(d->character) == frac_part) {
@@ -2877,6 +2878,7 @@ void Crash_frac_save_all(int frac_part) {
 			PLR_FLAGS(d->character).unset(EPlrFlag::kCrashSave);
 		}
 	}
+		log("Crash_frac_save_all: timer %f", timer.delta().count());
 }
 
 void Crash_save_all(void) {
@@ -2911,6 +2913,7 @@ void Crash_save_all_rent(void) {
 }
 
 void Crash_frac_rent_time(int frac_part) {
+	utils::CExecutionTimer timer;
 	for (std::size_t c = 0; c < player_table.size(); c++) {
 		if (player_table[c].activity == frac_part
 			&& player_table[c].unique != -1
@@ -2918,6 +2921,7 @@ void Crash_frac_rent_time(int frac_part) {
 			Crash_timer_obj(c, time(0));
 		}
 	}
+	log("Crash_frac_rent_time: timer %f", timer.delta().count());
 }
 
 void Crash_rent_time(int/* dectime*/) {
