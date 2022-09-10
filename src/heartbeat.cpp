@@ -202,8 +202,12 @@ class CrashFracSaveCall : public AbstractPulseAction {
 
 void CrashFracSaveCall::perform(int pulse_number, int) {
 	if (FRAC_SAVE && AUTO_SAVE) {
+		utils::CExecutionTimer timer;
 		Crash_frac_save_all((pulse_number / kPassesPerSec) % PLAYER_SAVE_ACTIVITY);
+		log("Crash_frac_save_all: timer %f", timer.delta().count());
+		timer.restart();
 		Crash_frac_rent_time((pulse_number / kPassesPerSec) % OBJECT_SAVE_ACTIVITY);
+		log("Crash_frac_rent_time: timer %f", timer.delta().count());
 	}
 }
 
