@@ -3331,6 +3331,7 @@ struct set_struct        /*
 		{"gloryhide", kLvlImplementator, PC, BINARY}, // 65
 		{"telegram", kLvlImplementator, PC, MISC}, // 66
 		{"nogata", kLvlImplementator, PC, NUMBER}, // 67
+		{"position", kLvlImplementator, PC, NUMBER},
 		{"\n", 0, BOTH, MISC}
 	};
 
@@ -3409,6 +3410,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			break;
 		case 6: vict->points.hit = RANGE(-9, vict->points.max_hit);
 			affect_total(vict);
+			update_pos(vict);
 			break;
 		case 7: break;
 		case 8: break;
@@ -4014,6 +4016,19 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 		}
 		case 67: vict->set_nogata(value);
 			break;
+		case 68: {
+			EPosition tmpval = (EPosition) value;
+			if (tmpval > EPosition::kDead && tmpval < EPosition::kLast) {
+				sprinttype(value, position_types, smallBuf);
+				sprintf(buf, "Для персонажа %s установлена позиция: %s.\r\n", GET_NAME(vict), smallBuf);
+				SendMsgToChar(buf, ch);
+				GET_POS(vict) = tmpval;
+			} else {
+				SendMsgToChar(ch, "Позиция может принимать значения от 1 до 8.\r\n");
+				return (0);
+			}
+			break;
+		}
 		default: SendMsgToChar("Не могу установить это!\r\n", ch);
 			return (0);
 	}
