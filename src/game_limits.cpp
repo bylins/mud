@@ -1713,9 +1713,9 @@ void point_update() {
 			}
 		} else if (GET_POS(i) == EPosition::kIncap) {
 			i->points.hit += 1;
-			act("$n пуская слюни забил$u в судорогах.", true, i, nullptr, nullptr, kToRoom | kToArenaListen);
+			act("$n, пуская слюни, забил$u в судорогах.", true, i, nullptr, nullptr, kToRoom | kToArenaListen);
 		} else if (GET_POS(i) == EPosition::kPerish) {
-			act("$n пуская слюни забил$u в судорогах.", true, i, nullptr, nullptr, kToRoom | kToArenaListen);
+			act("$n, пуская слюни, забил$u в судорогах.", true, i, nullptr, nullptr, kToRoom | kToArenaListen);
 			i->points.hit += 2;
 		}
 		update_pos(i);
