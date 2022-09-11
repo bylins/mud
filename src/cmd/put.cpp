@@ -62,7 +62,7 @@ int perform_put(CharData *ch, ObjData::shared_ptr obj, ObjData *cont) {
 		act("Неведомая сила помешала положить $o3 в $O3.", false, ch, obj.get(), cont, kToChar);
 	}
 	else {
-		ExtractObjFromChar(obj.get());
+		RemoveObjFromChar(obj.get());
 		// чтобы там по 1 куне гор не было, чару тож возвращается на счет, а не в инвентарь кучкой
 		if (obj->get_type() == EObjType::kMoney && obj->get_rnum() == 0) {
 			ObjData *temp, *obj_next;
@@ -72,9 +72,9 @@ int perform_put(CharData *ch, ObjData::shared_ptr obj, ObjData *cont) {
 					// тут можно просто в поле прибавить, но там описание для кун разное от кол-ва
 					int money = GET_OBJ_VAL(temp, 0);
 					money += GET_OBJ_VAL(obj, 0);
-					ExtractObjFromObj(temp);
+					RemoveObjFromObj(temp);
 					ExtractObjFromWorld(temp);
-					ExtractObjFromObj(obj.get());
+					RemoveObjFromObj(obj.get());
 					ExtractObjFromWorld(obj.get());
 					obj = CreateCurrencyObj(money);
 					if (!obj) {
@@ -186,7 +186,7 @@ void do_put(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 					// если положить не удалось - возвращаем все взад
 					if (perform_put(ch, obj, cont)) {
-						ExtractObjFromChar(obj.get());
+						RemoveObjFromChar(obj.get());
 						ExtractObjFromWorld(obj.get());
 						ch->add_gold(howmany);
 						return;

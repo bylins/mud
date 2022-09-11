@@ -115,7 +115,7 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 		ch->add_gold(value);
 	}
 
-	ExtractObjFromChar(obj);
+	RemoveObjFromChar(obj);
 	ExtractObjFromWorld(obj);
 }
 
@@ -140,7 +140,7 @@ bool perform_get_from_container(CharData *ch, ObjData *obj, ObjData *cont, int m
 			}
 			return true;
 		}
-		ExtractObjFromObj(obj);
+		RemoveObjFromObj(obj);
 		PlaceObjToInventory(obj, ch);
 		if (obj->get_carried_by() == ch) {
 			if (bloody::is_bloody(obj)) {

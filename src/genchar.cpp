@@ -168,271 +168,72 @@ int genchar_parse(CharData *ch, char *arg) {
 	return kGencharContinue;
 }
 
-/*
- * Roll the 6 stats for a character... each stat is made of the sum of
- * the best 3 out of 4 rolls of a 6-sided die.  Each class then decides
- * which priority will be given for the best to worst stats.
- */
-void roll_real_abils(CharData *ch) {
+void SetStartAbils(CharData *ch) {
+	const auto &tmp_class = MUD::Class(ch->GetClass());
+	ch->set_str(tmp_class.GetBaseStatGenMin(EBaseStat::kStr));
+	ch->set_dex(tmp_class.GetBaseStatGenMin(EBaseStat::kDex));
+	ch->set_con(tmp_class.GetBaseStatGenMin(EBaseStat::kCon));
+	ch->set_int(tmp_class.GetBaseStatGenMin(EBaseStat::kInt));
+	ch->set_wis(tmp_class.GetBaseStatGenMin(EBaseStat::kWis));
+	ch->set_cha(tmp_class.GetBaseStatGenMin(EBaseStat::kCha));
 	switch (ch->GetClass()) {
 		case ECharClass::kSorcerer: ch->set_cha(10);
-			do {
-				ch->set_con(12 + number(0, 3));
-				ch->set_wis(18 + number(0, 5));
-				ch->set_int(18 + number(0, 5));
-			}        // 57/48 roll 13/9
-			while (ch->get_con() + ch->get_wis() + ch->get_int() != 57);
-			do {
-				ch->set_str(11 + number(0, 3));
-				ch->set_dex(10 + number(0, 3));
-			}        // 92/88 roll 6/4
-			while (ch->get_str() + ch->get_con() + ch->get_dex() +
-				ch->get_wis() + ch->get_int() + ch->get_cha() != 92);
-			// ADD SPECIFIC STATS
-			ch->set_wis(ch->get_wis() + 2);
-			ch->set_int(ch->get_int() + 1);
 			GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(150, 180) : number(150, 200);
 			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 170) : number(120, 180);
 			break;
-
 		case ECharClass::kConjurer:
 		case ECharClass::kWizard:
 		case ECharClass::kCharmer:
-			do {
-				ch->set_str(10 + number(0, 4));
-				ch->set_wis(17 + number(0, 5));
-				ch->set_int(18 + number(0, 5));
-			}        // 55/45 roll 14/10
-			while (ch->get_str() + ch->get_wis() + ch->get_int() != 55);
-			do {
-				ch->set_con(10 + number(0, 3));
-				ch->set_dex(9 + number(0, 3));
-				ch->set_cha(13 + number(0, 3));
-			}        // 92/87 roll 9/5
-			while (ch->get_str() + ch->get_con() + ch->get_dex() +
-				ch->get_wis() + ch->get_int() + ch->get_cha() != 92);
-			// ADD SPECIFIC STATS
-			ch->set_wis(ch->get_wis() + 1);
-			ch->set_int(ch->get_int() + 2);
 			GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(150, 170) : number(150, 180);
 			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 150) : number(120, 180);
 			break;
-
 		case ECharClass::kNecromancer:
-			do {
-				ch->set_cha(10 + number(0, 2));
-				ch->set_wis(20 + number(0, 3));
-				ch->set_int(18 + number(0, 5));
-			}    // 58/48
-			while (ch->get_cha() + ch->get_wis() + ch->get_int() != 55);
-			do {
-				ch->set_str(9 + number(0, 6));
-				ch->set_dex(9 + number(0, 4));
-				ch->set_con(11 + number(0, 2));
-			}    // 96/84
-			while (ch->get_str() + ch->get_con() + ch->get_dex() +
-				ch->get_wis() + ch->get_int() + ch->get_cha() != 92);
-			// ADD SPECIFIC STATS
-			ch->set_con(ch->get_con() + 1);
-			ch->set_int(ch->get_int() + 2);
 			GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(150, 170) : number(150, 180);
 			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 150) : number(120, 180);
 			break;
-
 		case ECharClass::kThief:
-			do {
-				ch->set_str(16 + number(0, 3));
-				ch->set_con(14 + number(0, 3));
-				ch->set_dex(20 + number(0, 3));
-			}    // 59/50
-			while (ch->get_str() + ch->get_con() + ch->get_dex() != 57);
-			do {
-				ch->set_wis(9 + number(0, 3));
-				ch->set_cha(13 + number(0, 2));
-				ch->set_int(9 + number(0, 3));
-			}    // 96/88
-			while (ch->get_str() + ch->get_con() + ch->get_dex() +
-				ch->get_wis() + ch->get_int() + ch->get_cha() != 92);
-			// ADD SPECIFIC STATS
-			ch->set_dex(ch->get_dex() + 2);
-			ch->set_cha(ch->get_cha() + 1);
 			GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(150, 180) : number(150, 190);
 			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 170) : number(120, 180);
 			break;
-
 		case ECharClass::kWarrior: ch->set_cha(10);
-			do {
-				ch->set_str(20 + number(0, 4));
-				ch->set_dex(8 + number(0, 3));
-				ch->set_con(20 + number(0, 3));
-			}        // 55/48 roll 10/7
-			while (ch->get_str() + ch->get_con() + ch->get_dex() != 55);
-			do {
-				ch->set_int(11 + number(0, 4));
-				ch->set_wis(11 + number(0, 4));
-			}        // 92/87 roll 8/5
-			while (ch->get_str() + ch->get_con() + ch->get_dex() +
-				ch->get_wis() + ch->get_int() + ch->get_cha() != 92);
-			// ADD SPECIFIC STATS
-			ch->set_str(ch->get_str() + 1);
-			ch->set_con(ch->get_con() + 2);
 			GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(165, 180) : number(170, 200);
 			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(160, 180) : number(170, 200);
 			break;
-
 		case ECharClass::kAssasine: ch->set_cha(12);
-			do {
-				ch->set_str(16 + number(0, 5));
-				ch->set_dex(18 + number(0, 5));
-				ch->set_con(14 + number(0, 2));
-			}    // 60/48
-			while (ch->get_str() + ch->get_con() + ch->get_dex() != 55);
-			do {
-				ch->set_int(11 + number(0, 3));
-				ch->set_wis(11 + number(0, 3));
-			}    // 95/89
-			while (ch->get_str() + ch->get_con() + ch->get_dex() +
-				ch->get_wis() + ch->get_int() + ch->get_cha() != 92);
-			// ADD SPECIFIC STATS
-			ch->set_str(ch->get_str() + 1);
-			ch->set_con(ch->get_con() + 1);
-			ch->set_dex(ch->get_dex() + 1);
 			GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(150, 180) : number(150, 200);
 			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 180) : number(150, 200);
 			break;
-
 		case ECharClass::kGuard: ch->set_cha(12);
-			do {
-				ch->set_str(19 + number(0, 3));
-				ch->set_dex(13 + number(0, 3));
-				ch->set_con(16 + number(0, 5));
-			}        // 55/48 roll 11/7
-			while (ch->get_str() + ch->get_con() + ch->get_dex() != 55);
-			do {
-				ch->set_int(10 + number(0, 4));
-				ch->set_wis(10 + number(0, 4));
-			}        // 92/87 roll 8/5
-			while (ch->get_str() + ch->get_con() + ch->get_dex() +
-				ch->get_wis() + ch->get_int() + ch->get_cha() != 92);
-			// ADD SPECIFIC STATS
-			ch->set_str(ch->get_str() + 1);
-			ch->set_dex(ch->get_dex() + 1);
-			ch->set_con(ch->get_con() + 1);
 			GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(150, 180) : number(150, 200);
 			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(140, 170) : number(160, 200);
 			break;
-
 		case ECharClass::kPaladine:
-			do {
-				ch->set_str(18 + number(0, 3));
-				ch->set_wis(14 + number(0, 4));
-				ch->set_con(14 + number(0, 4));
-			}        // 53/46 roll 11/7
-			while (ch->get_str() + ch->get_con() + ch->get_wis() != 53);
-			do {
-				ch->set_int(12 + number(0, 4));
-				ch->set_dex(10 + number(0, 3));
-				ch->set_cha(12 + number(0, 4));
-			}        // 92/87 roll 11/5
-			while (ch->get_str() + ch->get_con() + ch->get_dex() +
-				ch->get_wis() + ch->get_int() + ch->get_cha() != 92);
-			// ADD SPECIFIC STATS
-			ch->set_str(ch->get_str() + 1);
-			ch->set_cha(ch->get_cha() + 1);
-			ch->set_wis(ch->get_wis() + 1);
 			GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(150, 180) : number(150, 200);
 			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(140, 175) : number(140, 190);
 			break;
-
 		case ECharClass::kRanger:
-
-			do {
-				ch->set_str(18 + number(0, 6));
-				ch->set_dex(13 + number(0, 6));
-				ch->set_con(14 + number(0, 4));
-			}        // 53/46 roll 12/7
-			while (ch->get_str() + ch->get_con() + ch->get_dex() != 53);
-			do {
-				ch->set_int(11 + number(0, 5));
-				ch->set_wis(11 + number(0, 5));
-				ch->set_cha(11 + number(0, 5));
-			}        // 92/85 roll 10/7
-			while (ch->get_str() + ch->get_con() + ch->get_dex() +
-				ch->get_wis() + ch->get_int() + ch->get_cha() != 92);
-			// ADD SPECIFIC STATS
-			ch->set_str(ch->get_str() + 1);
-			ch->set_dex(ch->get_dex() + 2);
 			GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(150, 180) : number(150, 200);
 			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 180) : number(120, 200);
 			break;
-
 		case ECharClass::kVigilant:
-			do {
-				ch->set_str(18 + number(0, 5));
-				ch->set_dex(14 + number(0, 3));
-				ch->set_con(14 + number(0, 6));
-			}        // 53/46 roll 11/7
-			while (ch->get_str() + ch->get_dex() + ch->get_con() != 55);
-			do {
-				ch->set_int(10 + number(0, 3));
-				ch->set_wis(11 + number(0, 4));
-				ch->set_cha(11 + number(0, 4));
-			}        // 92/85 roll 11/7
-			while (ch->get_str() + ch->get_con() + ch->get_dex() +
-				ch->get_wis() + ch->get_int() + ch->get_cha() != 92);
-			// ADD SPECIFIC STATS
-			ch->set_str(ch->get_str() + 2);
-			ch->set_cha(ch->get_cha() + 1);
 			GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(160, 180) : number(170, 200);
 			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(150, 180) : number(170, 200);
 			break;
-
 		case ECharClass::kMerchant:
-			do {
-				ch->set_str(18 + number(0, 3));
-				ch->set_con(12 + number(0, 6));
-				ch->set_dex(14 + number(0, 3));
-			}        // 55/48 roll 9/7
-			while (ch->get_str() + ch->get_con() + ch->get_dex() != 55);
-			do {
-				ch->set_wis(10 + number(0, 3));
-				ch->set_cha(12 + number(0, 4));
-				ch->set_int(10 + number(0, 4));
-			}        // 92/87 roll 9/5
-			while (ch->get_str() + ch->get_con() + ch->get_dex() +
-				ch->get_wis() + ch->get_int() + ch->get_cha() != 92);
-			// ADD SPECIFIC STATS
-			ch->set_con(ch->get_con() + 2);
-			ch->set_cha(ch->get_cha() + 1);
 			GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(150, 170) : number(150, 190);
 			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 180) : number(120, 200);
 			break;
-
 		case ECharClass::kMagus: ch->set_cha(12);
-			do {
-				ch->set_con(12 + number(0, 3));
-				ch->set_wis(15 + number(0, 3));
-				ch->set_int(17 + number(0, 5));
-			}        // 53/45 roll 12/8
-			while (ch->get_con() + ch->get_wis() + ch->get_int() != 53);
-			do {
-				ch->set_str(14 + number(0, 3));
-				ch->set_dex(10 + number(0, 2));
-			}        // 92/89 roll 5/3
-			while (ch->get_str() + ch->get_con() + ch->get_dex() +
-				ch->get_wis() + ch->get_int() + ch->get_cha() != 92);
-			// ADD SPECIFIC STATS
-			ch->set_str(ch->get_str() + 1);
-			ch->set_int(ch->get_int() + 2);
 			GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(150, 180) : number(150, 190);
 			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 170) : number(120, 180);
 			for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 				GET_SPELL_TYPE(ch, spell_id) = ESpellType::kRunes;
 			}
 			break;
-
-		default: log("SYSERROR : ATTEMPT STORE ABILITIES FOR UNKNOWN CLASS (Player %s)", GET_NAME(ch));
-	};
+		default: 
+			log("SYSERROR : ATTEMPT STORE ABILITIES FOR UNKNOWN CLASS (Player %s)", GET_NAME(ch));
+			break;
+	}
 }
 
 // Функция для склонения имени по падежам.

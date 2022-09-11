@@ -908,7 +908,7 @@ void extract_charmice(CharData *ch) {
 
 	while (ch->carrying) {
 		ObjData *obj = ch->carrying;
-		ExtractObjFromChar(obj);
+		RemoveObjFromChar(obj);
 		objects.push_back(obj);
 	}
 

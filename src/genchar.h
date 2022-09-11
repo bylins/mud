@@ -36,7 +36,7 @@ class CharData;
 
 int genchar_parse(CharData *ch, char *arg);
 void genchar_disp_menu(CharData *ch);
-void roll_real_abils(CharData *ch);
+void SetStartAbils(CharData *ch);
 void GetCase(const char *name, EGender sex, int caseNum, char *result);
 
 extern int max_stats[][6];

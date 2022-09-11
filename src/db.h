@@ -49,7 +49,7 @@ const char *get_name_by_unique(int unique);
 int get_level_by_unique(long unique);
 long get_lastlogon_by_unique(long unique);
 long get_ptable_by_unique(long unique);
-int get_zone_rooms(int, int *, int *);
+int GetZoneRooms(int, int *, int *);
 void ZoneTrafficSave();
 
 int load_char(const char *name, CharData *char_element, bool reboot = false, bool find_id = true);
@@ -179,7 +179,7 @@ struct reset_q_type {
 };
 
 const int OBJECT_SAVE_ACTIVITY = 300;
-const int PLAYER_SAVE_ACTIVITY = 300;
+const int PLAYER_SAVE_ACTIVITY = 310;
 const int MAX_SAVED_ITEMS = 1000;
 
 class PlayerIndexElement {

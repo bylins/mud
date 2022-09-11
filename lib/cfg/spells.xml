@@ -137,9 +137,9 @@ effects -секция эффектов заклинания
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <dices ndice="15" sdice="2" adice="30"/>
-                    <base_skill id="kWaterMagic" low_skill_bonus="2" hi_skill_bonus="0.75"/>
-                    <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    <dices ndice="15" sdice="4" adice="30"/>
+                    <base_skill id="kWaterMagic" low_skill_bonus="4" hi_skill_bonus="1.75"/>
+                    <base_stat id="kWis" threshold="32" weight="5"/>
                 </damage>
             </action>
         </talent_actions>
@@ -318,7 +318,7 @@ effects -секция эффектов заклинания
                 <damage saving="kReflex">
                     <dices ndice="21" sdice="10" adice="80"/>
                     <base_skill id="kFireMagic" low_skill_bonus="2.0" hi_skill_bonus="1.5"/>
-                    <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    <base_stat id="kWis" threshold="32" weight="4.5"/>
                 </damage>
             </action>
         </talent_actions>
@@ -385,9 +385,9 @@ effects -секция эффектов заклинания
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <dices ndice="2" sdice="4" adice="10"/>
-                    <base_skill id="kFireMagic" low_skill_bonus="2" hi_skill_bonus="0.75"/>
-                    <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    <dices ndice="6" sdice="4" adice="10"/>
+                    <base_skill id="kFireMagic" low_skill_bonus="5" hi_skill_bonus="0.75"/>
+                    <base_stat id="kWis" threshold="32" weight="5"/>
                 </damage>
             </action>
         </talent_actions>
@@ -806,15 +806,15 @@ effects -секция эффектов заклинания
     <spell id="kSacrifice" element="kDark" mode="kEnabled">
         <name rus="высосать жизнь" eng="sacrifice"/>
         <misc pos="kFight" violent="Y" danger="10"/>
-        <mana max="140" min="125" change="1"/>
+        <mana max="140" min="75" change="3"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagManual|kNpcDamagePc|kNpcDamagePcMinhp"/>
         <talent_actions>
             <action>
                 <damage saving="kWill">
-                    <dices ndice="8" sdice="10" adice="60"/>
+                    <dices ndice="8" sdice="15" adice="60"/>
                     <base_skill id="kDarkMagic" low_skill_bonus="2" hi_skill_bonus="2.5"/>
-                    <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    <base_stat id="kWis" threshold="32" weight="4.5"/>
                 </damage>
             </action>
         </talent_actions>
@@ -1598,7 +1598,7 @@ effects -секция эффектов заклинания
     <spell id="kEarthfall" element="kEarth" mode="kEnabled">
         <name rus="камнепад" eng="earth fall"/>
         <misc pos="kFight" violent="Y" danger="1"/>
-        <mana max="120" min="110" change="2"/>
+        <mana max="120" min="100" change="2"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAreas|kMagDamage|kMagAffects|kNpcDamagePc|kNpcDamagePcMinhp"/>
         <talent_actions>

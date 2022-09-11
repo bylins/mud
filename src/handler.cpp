@@ -631,7 +631,7 @@ void PlaceObjToInventory(ObjData *object, CharData *ch) {
 }
 
 // take an object from a char
-void ExtractObjFromChar(ObjData *object) {
+void RemoveObjFromChar(ObjData *object) {
 	if (!object || !object->get_carried_by()) {
 		log("SYSERR: NULL object or owner passed to obj_from_char");
 		return;
@@ -920,7 +920,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 		act("Вас обожгло при попытке использовать $o3.", false, ch, obj, nullptr, kToChar);
 		act("$n попытал$u использовать $o3 - и чудом не обгорел$g.", false, ch, obj, nullptr, kToRoom);
 		if (obj->get_carried_by()) {
-			ExtractObjFromChar(obj);
+			RemoveObjFromChar(obj);
 		}
 		PlaceObjToRoom(obj, ch->in_room);
 		CheckObjDecay(obj);
@@ -975,7 +975,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 	}
 
 	if (obj->get_carried_by()) {
-		ExtractObjFromChar(obj);
+		RemoveObjFromChar(obj);
 	}
 
 	was_lamp = IsWearingLight(ch);
@@ -1554,7 +1554,7 @@ void PlaceObjIntoObj(ObjData *obj, ObjData *obj_to) {
 }
 
 // remove an object from an object
-void ExtractObjFromObj(ObjData *obj) {
+void RemoveObjFromObj(ObjData *obj) {
 	if (obj->get_in_obj() == nullptr) {
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
 		log("SYSERR: (%s): trying to illegally extract obj from obj.", __FILE__);
@@ -1624,7 +1624,7 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 	if (obj->get_contains()) {
 		while (obj->get_contains()) {
 			temp = obj->get_contains();
-			ExtractObjFromObj(temp);
+			RemoveObjFromObj(temp);
 			if (obj->get_carried_by()) {
 				if (obj->get_carried_by()->IsNpc()
 					|| (IS_CARRYING_N(obj->get_carried_by()) >= CAN_CARRY_N(obj->get_carried_by()))) {
@@ -1665,9 +1665,9 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 	if (obj->get_in_room() != kNowhere) {
 		RemoveObjFromRoom(obj);
 	} else if (obj->get_carried_by()) {
-		ExtractObjFromChar(obj);
+		RemoveObjFromChar(obj);
 	} else if (obj->get_in_obj()) {
-		ExtractObjFromObj(obj);
+		RemoveObjFromObj(obj);
 	}
 
 	check_auction(nullptr, obj);
@@ -1873,7 +1873,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 //	log("[Extract char] Drop objects");
 	while (ch->carrying) {
 		ObjData *obj = ch->carrying;
-		ExtractObjFromChar(obj);
+		RemoveObjFromChar(obj);
 		DropObjOnZoneReset(ch, obj, true, zone_reset);
 	}
 

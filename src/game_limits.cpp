@@ -1273,7 +1273,7 @@ void clan_chest_point_update(ObjData *j) {
 			&& up_obj_where(j->get_in_obj()) != kNowhere
 			&& GET_OBJ_VNUM_ZONE_FROM(j) != zone_table[world[up_obj_where(j->get_in_obj())]->zone_rn].vnum)) {
 		clan_chest_invoice(j);
-		ExtractObjFromObj(j);
+		RemoveObjFromObj(j);
 		ExtractObjFromWorld(j);
 	}
 }
@@ -1377,7 +1377,7 @@ void obj_point_update() {
 				ObjData *jj, *next_thing2;
 				for (jj = j->get_contains(); jj; jj = next_thing2) {
 					next_thing2 = jj->get_next_content();    // Next in inventory
-					ExtractObjFromObj(jj);
+					RemoveObjFromObj(jj);
 					if (j->get_in_obj()) {
 						PlaceObjIntoObj(jj, j->get_in_obj());
 					} else if (j->get_carried_by()) {
@@ -1395,7 +1395,7 @@ void obj_point_update() {
 				if (j->get_carried_by()) {
 					act("$p рассыпал$U в ваших руках.",
 						false, j->get_carried_by(), j.get(), nullptr, kToChar);
-					ExtractObjFromChar(j.get());
+					RemoveObjFromChar(j.get());
 				} else if (j->get_in_room() != kNowhere) {
 					if (!world[j->get_in_room()]->people.empty()) {
 						act("Черви полностью сожрали $o3.",
@@ -1406,7 +1406,7 @@ void obj_point_update() {
 
 					RemoveObjFromRoom(j.get());
 				} else if (j->get_in_obj()) {
-					ExtractObjFromObj(j.get());
+					RemoveObjFromObj(j.get());
 				}
 				ExtractObjFromWorld(j.get());
 			}
@@ -1436,7 +1436,7 @@ void obj_point_update() {
 				ObjData *jj, *next_thing2;
 				for (jj = j->get_contains(); jj; jj = next_thing2) {
 					next_thing2 = jj->get_next_content();
-					ExtractObjFromObj(jj);
+					RemoveObjFromObj(jj);
 					if (j->get_in_obj()) {
 						PlaceObjIntoObj(jj, j->get_in_obj());
 					} else if (j->get_worn_by()) {
@@ -1490,7 +1490,7 @@ void obj_point_update() {
 								 char_get_custom_label(j.get(), j->get_carried_by()).c_str());
 						act(buf, false, j->get_carried_by(), j.get(), nullptr, kToChar);
 					}
-					ExtractObjFromChar(j.get());
+					RemoveObjFromChar(j.get());
 				} else if (j->get_in_room() != kNowhere) {
 					if (j->get_timer() <= 0 && j->has_flag(EObjFlag::kNodecay)) {
 						snprintf(buf, kMaxStringLength, "ВНИМАНИЕ!!! Объект: %s VNUM: %d рассыпался по таймеру на земле в комнате: %d",
@@ -1527,7 +1527,7 @@ void obj_point_update() {
 							act(buf, false, cont_owner, j.get(), nullptr, kToChar);
 						}
 					}
-					ExtractObjFromObj(j.get());
+					RemoveObjFromObj(j.get());
 				}
 				ExtractObjFromWorld(j.get());
 			} else {
@@ -1711,29 +1711,15 @@ void point_update() {
 					GET_MOVE(i) = MIN(GET_MOVE(i) + move_gain(i), GET_REAL_MAX_MOVE(i));
 				}
 			}
-
-			// Update PC/NPC position
-			if (GET_POS(i) <= EPosition::kStun) {
-				update_pos(i);
-			}
 		} else if (GET_POS(i) == EPosition::kIncap) {
-			Damage dmg(SimpleDmg(kTypeSuffering), 1, fight::kUndefDmg);
-			dmg.flags.set(fight::kNoFleeDmg);
-
-			if (dmg.Process(i, i) == -1) {
-				return;
-			}
+			i->points.hit += 1;
+			act("$n, пуская слюни, забил$u в судорогах.", true, i, nullptr, nullptr, kToRoom | kToArenaListen);
 		} else if (GET_POS(i) == EPosition::kPerish) {
-			Damage dmg(SimpleDmg(kTypeSuffering), 2, fight::kUndefDmg);
-			dmg.flags.set(fight::kNoFleeDmg);
-
-			if (dmg.Process(i, i) == -1) {
-				return;
-			}
+			act("$n, пуская слюни, забил$u в судорогах.", true, i, nullptr, nullptr, kToRoom | kToArenaListen);
+			i->points.hit += 2;
 		}
-
+		update_pos(i);
 		UpdateCharObjects(i);
-
 		if (!i->IsNpc()
 			&& GetRealLevel(i) < idle_max_level
 			&& !PRF_FLAGGED(i, EPrf::kCoderinfo)) {
@@ -1741,45 +1727,46 @@ void point_update() {
 		}
 	});
 }
-
-void repop_decay(ZoneRnum zone) {
-	const ZoneVnum zone_num = zone_table[zone].vnum;
-
-	world_objects.foreach_on_copy([&](const ObjData::shared_ptr &j) {
-		const ZoneVnum obj_zone_num = j->get_vnum() / 100;
-
-		if (obj_zone_num == zone_num
-			&& j->has_flag(EObjFlag::kRepopDecay)) {
-			if (j->get_worn_by()) {
-				act("$o рассыпал$U, вспыхнув ярким светом...",
-					false, j->get_worn_by(), j.get(), nullptr, kToChar);
-			} else if (j->get_carried_by()) {
-				act("$o рассыпал$U в ваших руках, вспыхнув ярким светом...",
-					false, j->get_carried_by(), j.get(), nullptr, kToChar);
-			} else if (j->get_in_room() != kNowhere) {
-				if (!world[j->get_in_room()]->people.empty()) {
-					act("$o рассыпал$U, вспыхнув ярким светом...",
-						false, world[j->get_in_room()]->first_character(), j.get(), nullptr, kToChar);
-					act("$o рассыпал$U, вспыхнув ярким светом...",
-						false, world[j->get_in_room()]->first_character(), j.get(), nullptr, kToRoom);
-				}
-			} else if (j->get_in_obj()) {
-				CharData *owner = nullptr;
-
-				if (j->get_in_obj()->get_carried_by()) {
-					owner = j->get_in_obj()->get_carried_by();
-				} else if (j->get_in_obj()->get_worn_by()) {
-					owner = j->get_in_obj()->get_worn_by();
-				}
-
-				if (owner) {
-					char buf[kMaxStringLength];
-					snprintf(buf, kMaxStringLength, "$o рассыпал$U в %s...", j->get_in_obj()->get_PName(5).c_str());
-					act(buf, false, owner, j.get(), nullptr, kToChar);
-				}
+void ExtractObjRepopDecay(const ObjData::shared_ptr obj) {
+	if (obj->get_worn_by()) {
+		act("$o рассыпал$U, вспыхнув ярким светом...",
+			false, obj->get_worn_by(), obj.get(), nullptr, kToChar);
+	} else if (obj->get_carried_by()) {
+		act("$o рассыпал$U в ваших руках, вспыхнув ярким светом...",
+				false, obj->get_carried_by(), obj.get(), nullptr, kToChar);
+	} else if (obj->get_in_room() != kNowhere) {
+		if (!world[obj->get_in_room()]->people.empty()) {
+			act("$o рассыпал$U, вспыхнув ярким светом...",
+					false, world[obj->get_in_room()]->first_character(), obj.get(), nullptr, kToChar);
+			act("$o рассыпал$U, вспыхнув ярким светом...",
+					false, world[obj->get_in_room()]->first_character(), obj.get(), nullptr, kToRoom);
+		}
+	} else if (obj->get_in_obj()) {
+		CharData *owner = nullptr;
+		if (obj->get_in_obj()->get_carried_by()) {
+			owner = obj->get_in_obj()->get_carried_by();
+		} else if (obj->get_in_obj()->get_worn_by()) {
+			owner = obj->get_in_obj()->get_worn_by();
 			}
 
-			ExtractObjFromWorld(j.get());
+		if (owner) {
+			char buf[kMaxStringLength];
+			snprintf(buf, kMaxStringLength, "$o рассыпал$U в %s...", obj->get_in_obj()->get_PName(5).c_str());
+			act(buf, false, owner, obj.get(), nullptr, kToChar);
+		}
+	}
+	ExtractObjFromWorld(obj.get());
+}
+
+void RepopDecay(std::vector<ZoneRnum> zone_list) {
+	world_objects.foreach_on_copy([&](const ObjData::shared_ptr &j) {
+		if (j->has_flag(EObjFlag::kRepopDecay)) {
+			const ZoneVnum obj_zone_num = j->get_vnum() / 100;
+			for (auto it = zone_list.begin(); it != zone_list.end(); ++it) {
+				if (obj_zone_num == zone_table[*it].vnum) {
+					ExtractObjRepopDecay(j);
+				}
+			}
 		}
 	});
 }

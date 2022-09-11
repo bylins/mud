@@ -343,7 +343,6 @@ void do_showzonestats(CharData *ch, char *argument, int, int) {
 		SendMsgToChar(ch, "Зоныстат формат: 'все' или диапазон через пробел, -s в конце для сортировки. 'очистить' новая таблица\r\n");
 		return;
 	}
-//	SendMsgToChar(ch, "arg1=%s, arg2=%s, arg3=%s\r\n", arg1, arg2, arg3);
 	if (!str_cmp(arg1, "очистить")) {
 		const time_t ct = time(nullptr);
 		char *date = asctime(localtime(&ct));
@@ -355,6 +354,7 @@ void do_showzonestats(CharData *ch, char *argument, int, int) {
 		ZoneTrafficSave();
 		return;
 	}
+	SendMsgToChar(ch, "Статистика с %s", asctime(localtime(&zones_stat_date)));
 	if (!str_cmp(arg1, "все")) {
 		PrintZoneStat(ch, 0, 999999, sort);
 		return;
@@ -421,7 +421,7 @@ void do_arena_restore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 		ObjData *obj;
 		for (obj = vict->carrying; obj; obj = vict->carrying) {
-			ExtractObjFromChar(obj);
+			RemoveObjFromChar(obj);
 			ExtractObjFromWorld(obj);
 		}
 		act("Все ваши вещи были удалены и все аффекты сняты $N4!",
@@ -915,7 +915,7 @@ void is_empty_ch(ZoneRnum zone_nr, CharData *ch) {
 	if (found)
 		return;
 	// Поиск link-dead игроков в зонах комнаты zone_nr
-	if (!get_zone_rooms(zone_nr, &rnum_start, &rnum_stop)) {
+	if (!GetZoneRooms(zone_nr, &rnum_start, &rnum_stop)) {
 		sprintf(buf2, "Нет комнат в зоне %d.", static_cast<int>(zone_table[zone_nr].vnum));
 		SendMsgToChar(buf2, ch);
 		return;    // в зоне нет комнат :)
@@ -3155,8 +3155,10 @@ void do_wizutil(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		SendMsgToChar("А он ведь старше вас....\r\n", ch);
 	else {
 		switch (subcmd) {
-			case SCMD_REROLL: SendMsgToChar("Перегенерирую...\r\n", ch);
-				roll_real_abils(vict);
+			case SCMD_REROLL: SendMsgToChar("Сбрасываю параметры...\r\n", ch);
+				vict->set_start_stat(G_STR, 0);
+				SendMsgToChar(vict, "&GВам сбросили парамерты персонажа, стоит перезайти в игру.\r\n&n");
+/*				roll_real_abils(vict);
 				log("(GC) %s has rerolled %s.", GET_NAME(ch), GET_NAME(vict));
 				imm_log("%s has rerolled %s.", GET_NAME(ch), GET_NAME(vict));
 				sprintf(buf,
@@ -3164,6 +3166,7 @@ void do_wizutil(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 						vict->GetInbornStr(), vict->GetInbornInt(), vict->GetInbornWis(),
 						vict->GetInbornDex(), vict->GetInbornCon(), vict->GetInbornCha());
 				SendMsgToChar(buf, ch);
+*/
 				break;
 			case SCMD_NOTITLE: result = PLR_TOG_CHK(vict, EPlrFlag::kNoTitle);
 				sprintf(buf, "(GC) Notitle %s for %s by %s.", ONOFF(result), GET_NAME(vict), GET_NAME(ch));
@@ -3328,6 +3331,7 @@ struct set_struct        /*
 		{"gloryhide", kLvlImplementator, PC, BINARY}, // 65
 		{"telegram", kLvlImplementator, PC, MISC}, // 66
 		{"nogata", kLvlImplementator, PC, NUMBER}, // 67
+		{"position", kLvlImplementator, PC, NUMBER},
 		{"\n", 0, BOTH, MISC}
 	};
 
@@ -3406,6 +3410,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			break;
 		case 6: vict->points.hit = RANGE(-9, vict->points.max_hit);
 			affect_total(vict);
+			update_pos(vict);
 			break;
 		case 7: break;
 		case 8: break;
@@ -4011,6 +4016,19 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 		}
 		case 67: vict->set_nogata(value);
 			break;
+		case 68: {
+			EPosition tmpval = (EPosition) value;
+			if (tmpval > EPosition::kDead && tmpval < EPosition::kLast) {
+				sprinttype(value, position_types, smallBuf);
+				sprintf(buf, "Для персонажа %s установлена позиция: %s.\r\n", GET_NAME(vict), smallBuf);
+				SendMsgToChar(buf, ch);
+				GET_POS(vict) = tmpval;
+			} else {
+				SendMsgToChar(ch, "Позиция может принимать значения от 1 до 8.\r\n");
+				return (0);
+			}
+			break;
+		}
 		default: SendMsgToChar("Не могу установить это!\r\n", ch);
 			return (0);
 	}

@@ -61,7 +61,7 @@ RoomVnum get_room_where_obj(ObjData *obj, bool deep = false);
 // ******** objects *********** //
 bool IsObjsStackable(ObjData *obj_one, ObjData *obj_two);
 void PlaceObjToInventory(ObjData *object, CharData *ch);
-void ExtractObjFromChar(ObjData *object);
+void RemoveObjFromChar(ObjData *object);
 
 void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_flags);
 ObjData *UnequipChar(CharData *ch, int pos, const CharEquipFlags& equip_flags);
@@ -78,7 +78,7 @@ bool CheckObjDecay(ObjData *object);
 bool PlaceObjToRoom(ObjData *object, RoomRnum room);
 void RemoveObjFromRoom(ObjData *object);
 void PlaceObjIntoObj(ObjData *obj, ObjData *obj_to);
-void ExtractObjFromObj(ObjData *obj);
+void RemoveObjFromObj(ObjData *obj);
 void object_list_new_owner(ObjData *list, CharData *ch);
 
 void ExtractObjFromWorld(ObjData *obj, bool showlog = true);

@@ -38,7 +38,7 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int percent = number(1, MUD::Skills()[ESkill::kFirstAid].difficulty);
 	int prob = CalcCurrentSkill(ch, ESkill::kFirstAid, vict);
 	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike) || GET_GOD_FLAG(vict, EGf::kGodsLike)) {
-		percent = prob;
+		percent = 0;
 	}
 	if (GET_GOD_FLAG(ch, EGf::kGodscurse) || GET_GOD_FLAG(vict, EGf::kGodscurse)) {
 		prob = 0;
@@ -52,19 +52,9 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		need = true;
 		enough_skill = true;
 		if (success) {
-			if (!PRF_FLAGGED(ch, EPrf::kTester)) {
-				int dif = GET_REAL_MAX_HIT(vict) - GET_HIT(vict);
-				int add = std::min(dif, (dif * (prob - percent) / 100) + 1);
-				GET_HIT(vict) += add;
-			} else {
-				percent = CalcCurrentSkill(ch, ESkill::kFirstAid, vict);
-				prob = static_cast<int>(percent*GetRealLevel(ch)/2);
-				SendMsgToChar(ch, "&RУровень цели %d. Восстановлено %dhp , умение %d\r\n",
-							  GetRealLevel(vict), prob, percent);
-				GET_HIT(vict) += prob;
-				GET_HIT(vict) = std::min(GET_HIT(vict), GET_REAL_MAX_HIT(vict));
-				update_pos(vict);
-			}
+			int dif = std::min(GET_REAL_MAX_HIT(vict), GET_REAL_MAX_HIT(vict) - GET_HIT(vict));
+			int add = std::min(dif, (dif * (prob - percent) / 100) + 1);
+			GET_HIT(vict) += add;
 		}
 	}
 	auto spell_id{ESpell::kUndefined};
@@ -89,16 +79,23 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			time /=2;
 		timed.time = time;
 		ImposeTimedSkill(ch, &timed);
+		ImproveSkill(ch, ESkill::kFirstAid, success, nullptr);
 		if (vict != ch) {
-			ImproveSkill(ch, ESkill::kFirstAid, success, nullptr);
 			if (success) {
 				act("Вы оказали первую помощь $N2.", false, ch, nullptr, vict, kToChar);
-				act("$N оказал$G вам первую помощь.", false, vict, nullptr, ch, kToChar);
 				act("$n оказал$g первую помощь $N2.",
 					true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 				if (spell_id != ESpell::kUndefined) {
 					RemoveAffectFromChar(vict, spell_id);
 				}
+				if (GET_SEX(ch) == EGender::kMale)
+					sprintf(buf, "%s оказал вам первую помощь.\r\n", ch->get_name().c_str());
+				else 
+					sprintf(buf, "%s оказала вам первую помощь.\r\n", ch->get_name().c_str());
+				SendMsgToChar(buf, vict);
+				if (vict->get_wait() > 0)
+					vict->set_wait(0);
+				update_pos(vict);
 			} else {
 				act("Вы безрезультатно попытались оказать первую помощь $N2.",
 					false, ch, nullptr, vict, kToChar);

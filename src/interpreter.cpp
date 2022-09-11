@@ -3399,14 +3399,11 @@ void nanny(DescriptorData *d, char *arg) {
 						  "Подумайте еще разок, и выберите:", d);
 				return;
 			}
-
 			GET_LOADROOM(d->character) = calc_loadroom(d->character.get(), load_result);
-
-			roll_real_abils(d->character.get());
 			SEND_TO_Q(genchar_help, d);
 			SEND_TO_Q("\r\n\r\nНажмите любую клавишу.\r\n", d);
 			STATE(d) = CON_ROLL_STATS;
-
+			SetStartAbils(d->character.get());
 			break;
 
 		case CON_ROLL_STATS:

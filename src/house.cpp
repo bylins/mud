@@ -2571,7 +2571,7 @@ void Clan::DestroyClan(Clan::shared_ptr clan) {
 		if (Clan::is_clan_chest(chest)) {
 			for (temp = chest->get_contains(); temp; temp = obj_next) {
 				obj_next = temp->get_next_content();
-				ExtractObjFromObj(temp);
+				RemoveObjFromObj(temp);
 				ExtractObjFromWorld(temp);
 			}
 			break;
@@ -2929,7 +2929,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 	if (GET_OBJ_TYPE(obj) == EObjType::kMoney) {
 		long gold = GET_OBJ_VAL(obj, 0);
 		if (IS_IMMORTAL(ch)) {
-			ExtractObjFromChar(obj);
+			RemoveObjFromChar(obj);
 			ExtractObjFromWorld(obj);
 			ch->add_gold(gold);
 			SendMsgToChar(ch, "Вам это не положено! Вы вновь обрели %ld %s.\r\n",
@@ -2943,7 +2943,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 			CLAN(ch)->m_members.add_money(GET_UNIQUE(ch), over);
 			gold -= over;
 			ch->add_gold(gold);
-			ExtractObjFromChar(obj);
+			RemoveObjFromChar(obj);
 			ExtractObjFromWorld(obj);
 			SendMsgToChar(ch,
 						  "Вам удалось вложить в казну дружины только %ld %s.\r\n",
@@ -2953,7 +2953,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 		}
 		CLAN(ch)->bank += gold;
 		CLAN(ch)->m_members.add_money(GET_UNIQUE(ch), gold);
-		ExtractObjFromChar(obj);
+		RemoveObjFromChar(obj);
 		ExtractObjFromWorld(obj);
 		SendMsgToChar(ch, "Вы вложили в казну дружины %ld %s.\r\n", gold, GetDeclensionInNumber(gold, EWhat::kMoneyU));
 
@@ -2985,7 +2985,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 				kToChar);
 			return false;
 		}
-		ExtractObjFromChar(obj);
+		RemoveObjFromChar(obj);
 		PlaceObjIntoObj(obj, chest);
 		ObjSaveSync::add(ch->get_uid(), CLAN(ch)->GetRent(), ObjSaveSync::CLAN_SAVE);
 
@@ -3029,7 +3029,7 @@ bool Clan::TakeChest(CharData *ch, ObjData *obj, ObjData *chest) {
 		return false;
 	}
 
-	ExtractObjFromObj(obj);
+	RemoveObjFromObj(obj);
 	PlaceObjToInventory(obj, ch);
 	ObjSaveSync::add(ch->get_uid(), CLAN(ch)->GetRent(), ObjSaveSync::CLAN_SAVE);
 
@@ -3115,7 +3115,7 @@ void Clan::ChestLoad() {
 			if (Clan::is_clan_chest(chest)) {
 				for (temp = chest->get_contains(); temp; temp = obj_next) {
 					obj_next = temp->get_next_content();
-					ExtractObjFromObj(temp);
+					RemoveObjFromObj(temp);
 					ExtractObjFromWorld(temp);
 				}
 				ExtractObjFromWorld(chest);
@@ -3218,7 +3218,7 @@ void Clan::ChestUpdate() {
 				if (Clan::is_clan_chest(chest)) {
 					for (temp = chest->get_contains(); temp; temp = obj_next) {
 						obj_next = temp->get_next_content();
-						ExtractObjFromObj(temp);
+						RemoveObjFromObj(temp);
 						ExtractObjFromWorld(temp);
 					}
 					break;
@@ -5135,7 +5135,7 @@ void Clan::init_ingr_chest() {
 			ObjData *obj_next;
 			for (ObjData *temp = chest->get_contains(); temp; temp = obj_next) {
 				obj_next = temp->get_next_content();
-				ExtractObjFromObj(temp);
+				RemoveObjFromObj(temp);
 				ExtractObjFromWorld(temp);
 			}
 			ExtractObjFromWorld(chest);
@@ -5248,7 +5248,7 @@ bool Clan::put_ingr_chest(CharData *ch, ObjData *obj, ObjData *chest) {
 
 		if (GET_OBJ_TYPE(obj) == EObjType::kMoney) {
 			int howmany = GET_OBJ_VAL(obj, 0);
-			ExtractObjFromChar(obj);
+			RemoveObjFromChar(obj);
 			ExtractObjFromWorld(obj);
 			ch->add_gold(howmany);
 			SendMsgToChar(ch, "Вы вновь обрели %d %s.\r\n", howmany, GetDeclensionInNumber(howmany, EWhat::kMoneyU));
@@ -5271,7 +5271,7 @@ bool Clan::put_ingr_chest(CharData *ch, ObjData *obj, ObjData *chest) {
 			return false;
 		}
 
-		ExtractObjFromChar(obj);
+		RemoveObjFromChar(obj);
 		PlaceObjIntoObj(obj, chest);
 		act("Вы положили $o3 в $O3.", false, ch, obj, chest, kToChar);
 		CLAN(ch)->ingr_chest_objcount_++;
@@ -5286,7 +5286,7 @@ bool Clan::take_ingr_chest(CharData *ch, ObjData *obj, ObjData *chest) {
 		return false;
 	}
 
-	ExtractObjFromObj(obj);
+	RemoveObjFromObj(obj);
 	PlaceObjToInventory(obj, ch);
 	if (obj->get_carried_by() == ch) {
 		act("Вы взяли $o3 из $O1.", false, ch, obj, chest, kToChar);
@@ -5349,7 +5349,7 @@ void Clan::purge_ingr_chest() {
 			ObjData *obj_next;
 			for (ObjData *temp = chest->get_contains(); temp; temp = obj_next) {
 				obj_next = temp->get_next_content();
-				ExtractObjFromObj(temp);
+				RemoveObjFromObj(temp);
 				ExtractObjFromWorld(temp);
 			}
 			break;

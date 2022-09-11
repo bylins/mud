@@ -751,7 +751,7 @@ bool ProcessMatComponents(CharData *caster, CharData *victim, ESpell spell_id) {
 	act(use, false, caster, tobj, nullptr, kToChar);
 	if (GET_OBJ_VAL(tobj, 2) < 1) {
 		act(exhausted, false, caster, tobj, nullptr, kToChar);
-		ExtractObjFromChar(tobj);
+		RemoveObjFromChar(tobj);
 		ExtractObjFromWorld(tobj);
 	}
 	return (false);
@@ -777,7 +777,7 @@ bool ProcessMatComponents(CharData *caster, int /*vnum*/, ESpell spell_id) {
 	act(use, false, caster, tobj, nullptr, kToChar);
 	if (GET_OBJ_VAL(tobj, 2) < 1) {
 		act(exhausted, false, caster, tobj, nullptr, kToChar);
-		ExtractObjFromChar(tobj);
+		RemoveObjFromChar(tobj);
 		ExtractObjFromWorld(tobj);
 	}
 	return (false);
@@ -3002,7 +3002,7 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 	if (handle_corpse) {
 		for (tobj = obj->get_contains(); tobj;) {
 			next_obj = tobj->get_next_content();
-			ExtractObjFromObj(tobj);
+			RemoveObjFromObj(tobj);
 			PlaceObjToRoom(tobj, ch->in_room);
 			if (!CheckObjDecay(tobj) && tobj->get_in_room() != kNowhere) {
 				act("На земле остал$U лежать $o.", false, ch, tobj, nullptr, kToRoom | kToArenaListen);
