@@ -218,7 +218,7 @@ void do_dg_cast(void *go, Trigger *trig, int type, char *cmd) {
 	if (*arg == UID_CHAR) {
 		tch = get_char(arg);
 		if (tch == nullptr) {
-			sprintf(buf2, "dg_cast: victim (%s) not found", arg + 1);
+			snprintf(buf2, kMaxStringLength, "dg_cast: victim (%s) not found", arg + 1);
 			trig_log(trig, buf2);
 		} else if (kNowhere == caster->in_room) {
 			sprintf(buf2, "dg_cast: caster (%s) in kNowhere", GET_NAME(caster));

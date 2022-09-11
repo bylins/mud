@@ -729,9 +729,11 @@ set_target_properties(changelog PROPERTIES FOLDER "Utility targets")
 
 # Main library file.
 add_library(circle.library STATIC ${CIRCLE_FILES})
-if (UNIX OR CYGWIN)
+if (UNIX AND NOT CYGWIN)
 	#add_definitions("--std=gnu++17")
 	add_definitions("-std=c++2a")
+elseif (CYGWIN)
+	add_definitions("-std=gnu++2a")
 else ()
 	set_target_properties(circle.library PROPERTIES CXX_STANDARD 14)
 endif ()

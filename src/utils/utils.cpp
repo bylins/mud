@@ -217,7 +217,7 @@ char *str_dup(const char *source) {
 	return (strcpy(new_z, ""));
 }
 
-char* strdup(const char *s) {
+/*char* strdup(const char *s) {
 	size_t slen = strlen(s);
 	char* result = malloc(slen + 1);
 	if(result == nullptr) {
@@ -226,6 +226,7 @@ char* strdup(const char *s) {
 	memcpy(result, s, slen+1);
 return result;
 }
+*/
 
 // * Strips \r\n from end of string.
 void prune_crlf(char *txt) {

@@ -219,7 +219,7 @@ unsigned long TxtToIp(std::string &text) {
 
 // тоже самое, только обратно для визуального отображения
 std::string IpToTxt(unsigned long ip) {
-	char text[16];
+	char text[32];
 	sprintf(text, "%lu.%lu.%lu.%lu", ip >> 24, ip >> 16 & 0xff, ip >> 8 & 0xff, ip & 0xff);
 	std::string buffer = text;
 	return buffer;

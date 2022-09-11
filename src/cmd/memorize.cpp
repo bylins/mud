@@ -120,7 +120,7 @@ void show_wizdom(CharData *ch, int bitset) {
 					if (min > 99)
 						sprintf(timestr, "&g%5d&n", min);
 					else
-						sprintf(timestr, "&g%2d:%02d&n", min, sec);
+						snprintf(timestr, sizeof(timestr), "&g%2d:%02d&n", min, sec);
 				} else {
 					sprintf(timestr, "&r    -&n");
 				}

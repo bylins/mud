@@ -2769,7 +2769,7 @@ int process_input(DescriptorData *t) {
 					} else
 						space_left++;
 				}
-			} else if (a_isascii(*ptr) && isprint(*ptr)) {
+			} else if (isascii(*ptr) && isprint(*ptr)) {
 				*(write_point++) = *ptr;
 				space_left--;
 				if (*ptr == '$' && STATE(t) != CON_SEDIT)    // copy one character
