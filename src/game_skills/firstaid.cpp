@@ -79,8 +79,8 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			time /=2;
 		timed.time = time;
 		ImposeTimedSkill(ch, &timed);
+		ImproveSkill(ch, ESkill::kFirstAid, success, nullptr);
 		if (vict != ch) {
-			ImproveSkill(ch, ESkill::kFirstAid, success, nullptr);
 			if (success) {
 				act("Вы оказали первую помощь $N2.", false, ch, nullptr, vict, kToChar);
 				act("$n оказал$g первую помощь $N2.",
