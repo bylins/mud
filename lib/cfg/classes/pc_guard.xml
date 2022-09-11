@@ -9,9 +9,9 @@
             <stat id="kStr"	gen_min="20"	gen_max="23"	auto="23"	cap="75"/>
             <stat id="kDex"	gen_min="14"	gen_max="17"	auto="17"	cap="75"/>
             <stat id="kCon"	gen_min="17"	gen_max="23"	auto="23"	cap="90"/>
-            <stat id="kWis"	gen_min="10"	gen_max="14"	auto="10"	cap="50"/>
+            <stat id="kWis"	gen_min="9"		gen_max="12"	auto="11"	cap="100"/>
             <stat id="kInt"	gen_min="10"	gen_max="14"	auto="10"	cap="50"/>
-            <stat id="kCha"	gen_min="12"	gen_max="12"	auto="12"	cap="50"/>
+            <stat id="kCha"	gen_min="11"	gen_max="14"	auto="11"	cap="50"/>
         </base_stats>
     </stats>
     <skills level_decrement="4">

@@ -424,10 +424,7 @@ void do_spec_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 void do_write(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	ObjData *paper, *pen = nullptr;
-	char *papername, *penname;
-
-	papername = buf1;
-	penname = buf2;
+	char papername[kMaxInputLength], penname[kMaxInputLength];
 
 	two_arguments(argument, papername, penname);
 
