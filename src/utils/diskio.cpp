@@ -13,7 +13,6 @@
 #include "sysdep.h"
 #include "utils/utils.h"
 #include "diskio.h"
-#include <cstdio>
 
 // комментарий на русском в надежде починить кодировки bitbucket
 
