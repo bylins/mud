@@ -1206,7 +1206,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		sprintf(buf1, "%s%s ", i->get_morphed_title().c_str(), PLR_FLAGGED(i, EPlrFlag::kKiller) ? " <ДУШЕГУБ>" : "");
 	}
 
-	sprintf(buf, "%s%s", AFF_FLAGGED(i, EAffect::kCharmed) ? "*" : "", buf1);
+	snprintf(buf, kMaxStringLength, "%s%s", AFF_FLAGGED(i, EAffect::kCharmed) ? "*" : "", buf1);
 	if (AFF_FLAGGED(i, EAffect::kInvisible))
 		sprintf(buf + strlen(buf), "(невидим%s) ", GET_CH_SUF_6(i));
 	if (AFF_FLAGGED(i, EAffect::kHide))
