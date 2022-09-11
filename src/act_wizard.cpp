@@ -101,10 +101,11 @@ using std::fstream;
 // external vars
 extern bool need_warn;
 extern FILE *player_fl;
-
 extern int circle_restrict;
 extern int load_into_inventory;
 extern time_t zones_stat_date;
+extern void RepopDecay(std::vector<ZoneRnum> zone_list);    // рассыпание обьектов ITEM_REPOP_DECAY
+
 void medit_save_to_disk(int zone_num);
 //extern const char *Dirs[];
 // for entities
@@ -3093,7 +3094,7 @@ void do_wiznet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 void do_zreset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	ZoneRnum i;
 	ZoneVnum j;
-
+	std::vector<ZoneRnum> zone_repop_list;
 	one_argument(argument, arg);
 	if (!*arg) {
 		SendMsgToChar("Укажите зону.\r\n", ch);
@@ -3101,9 +3102,12 @@ void do_zreset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	if (*arg == '*') {
 		for (i = 0; i < static_cast<ZoneRnum>(zone_table.size()); i++) {
+			zone_repop_list.push_back(i);
+		}
+		RepopDecay(zone_repop_list);
+		for (i = 0; i < static_cast<ZoneRnum>(zone_table.size()); i++) {
 			reset_zone(i);
 		}
-
 		SendMsgToChar("Перезагружаю мир.\r\n", ch);
 		sprintf(buf, "(GC) %s reset entire world.", GET_NAME(ch));
 		mudlog(buf, NRM, MAX(kLvlGreatGod, GET_INVIS_LEV(ch)), SYSLOG, true);
@@ -3121,6 +3125,8 @@ void do_zreset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (i >= 0 && i < static_cast<ZoneRnum>(zone_table.size())) {
+		zone_repop_list.push_back(i);
+		RepopDecay(zone_repop_list);
 		reset_zone(i);
 		sprintf(buf, "Перегружаю зону %d (#%d): %s.\r\n", i, zone_table[i].vnum, zone_table[i].name);
 		SendMsgToChar(buf, ch);

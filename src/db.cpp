@@ -3637,7 +3637,6 @@ void zone_update(void) {
 		if (zone_table[update_u->zone_to_reset].reset_mode == 2
 			|| (zone_table[update_u->zone_to_reset].reset_mode != 3 && is_empty(update_u->zone_to_reset))
 			|| can_be_reset(update_u->zone_to_reset)) {
-			reset_zone(update_u->zone_to_reset);
 			zone_repop_list.push_back(update_u->zone_to_reset);
 			std::stringstream out;
 			out << "Auto zone reset: " << zone_table[update_u->zone_to_reset].name << " ("
@@ -3648,7 +3647,6 @@ void zone_update(void) {
 					for (ZoneRnum j = 0; j < static_cast<ZoneRnum>(zone_table.size()); j++) {
 						if (zone_table[j].vnum ==
 							zone_table[update_u->zone_to_reset].typeA_list[i]) {
-							reset_zone(j);
 							zone_repop_list.push_back(j);
 							out << " ]\r\n[ Also resetting: " << zone_table[j].name << " ("
 									<<  zone_table[j].vnum << ")";
@@ -3658,13 +3656,13 @@ void zone_update(void) {
 				}
 			}
 			std::stringstream ss;
-
+			RepopDecay(zone_repop_list);
 			ss << "В списке репопа: ";
 			for (auto it = zone_repop_list.begin(); it != zone_repop_list.end(); ++it) {
 				ss << zone_table[*it].vnum << " ";
+				reset_zone(*it);
 			}
 			mudlog(ss.str(), LGH, kLvlGod, SYSLOG, false);
-			RepopDecay(zone_repop_list);
 			out << " ]\r\n[ Time reset: " << timer_count.delta().count();
 			mudlog(out.str(), LGH, kLvlGod, SYSLOG, false);
 			if (update_u == reset_q.head)
