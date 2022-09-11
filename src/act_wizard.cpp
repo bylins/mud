@@ -86,10 +86,11 @@
 #include "game_classes/classes_constants.h"
 #include "game_magic/spells_info.h"
 #include "game_magic/magic_rooms.h"
+
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
-
+#include <string.h>
 #include <sstream>
 #include <iomanip>
 #include <fstream>

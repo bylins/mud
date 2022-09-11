@@ -115,6 +115,7 @@ CharData *find_char(long n);
 CharData *find_pc(long n);
 char *rustime(const struct tm *timeptr);
 char *str_dup(const char *source);
+char* strdup(const char *s);
 char *str_add(char *dst, const char *src);
 int str_cmp(const char *arg1, const char *arg2);
 int str_cmp(const std::string &arg1, const char *arg2);

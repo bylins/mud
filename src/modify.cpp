@@ -1135,7 +1135,7 @@ char *next_page(char *str, CharData *ch) {
 						break;
 					default: color = KNRM;
 				}
-			strncpy(str, color, strlen(color));
+			strcpy(str, color);
 			str += (strlen(color) - 1);
 		} else if (*str == '\x1B' && !spec_code)
 			spec_code = true;
