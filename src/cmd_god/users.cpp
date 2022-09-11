@@ -15,7 +15,7 @@
 "Формат: users [-l minlevel[-maxlevel]] [-n name] [-h host] [-c classlist] [-o] [-p]\r\n"
 const int kMaxListLen = 200;
 void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	char line[200], line2[220], idletime[10], classname[128];
+	char line[256], line2[220], idletime[10], classname[128];
 	char state[30] = "\0", *timeptr, mode;
 	char name_search[kMaxInputLength] = "\0", host_search[kMaxInputLength];
 	char host_by_name[kMaxInputLength] = "\0";
@@ -316,7 +316,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		strcat(line, "\r\n");
 		if (STATE(d) != CON_PLAYING) {
-			sprintf(line2, "%s%s%s", CCGRN(ch, C_SPR), line, CCNRM(ch, C_SPR));
+			snprintf(line2, sizeof(line2), "%s%s%s", CCGRN(ch, C_SPR), line, CCNRM(ch, C_SPR));
 			strcpy(line, line2);
 		}
 

@@ -57,8 +57,7 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	char arg1[kMaxInputLength];
 	char arg2[kMaxInputLength];
 	char arg3[kMaxInputLength];
-	char buf[300];
-	char *gem, *item;
+	char gem[kMaxInputLength], item[kMaxInputLength];
 	ObjData *gemobj, *itemobj;
 
 	argument = two_arguments(argument, arg1, arg2);
@@ -94,7 +93,7 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		SendMsgToChar("Вплавить что?\r\n", ch);
 		return;
 	} else
-		gem = arg1;
+		strcpy(gem, arg1);
 
 	if (!(gemobj = get_obj_in_list_vis(ch, gem, ch->carrying))) {
 		sprintf(buf, "У вас нет '%s'.\r\n", gem);
@@ -112,7 +111,7 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		SendMsgToChar("Вплавить во что?\r\n", ch);
 		return;
 	} else
-		item = arg2;
+		strcpy(item, arg2);
 
 	if (!(itemobj = get_obj_in_list_vis(ch, item, ch->carrying))) {
 		sprintf(buf, "У вас нет '%s'.\r\n", item);

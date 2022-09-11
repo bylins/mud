@@ -3187,6 +3187,25 @@ void nonblock(socket_t s) {
 /* ******************************************************************
 *  signal-handling functions (formerly signals.c).  UNIX only.      *
 ****************************************************************** */
+#ifndef POSIX
+#define my_signal(signo, func) signal(signo, func)
+#else
+sigfunc *my_signal(int signo, sigfunc *func) {
+	struct sigaction act, oact;
+
+	act.sa_handler = func;
+	sigemptyset(&act.sa_mask);
+	act.sa_flags = 0;
+#ifdef SA_INTERRUPT
+	act.sa_flags |= SA_INTERRUPT;    // SunOS
+#endif
+
+	if (sigaction(signo, &act, &oact) < 0)
+		return (SIG_ERR);
+
+	return (oact.sa_handler);
+}
+#endif                // POSIX
 
 #if defined(CIRCLE_UNIX) || defined(CIRCLE_MACINTOSH)
 
@@ -3251,52 +3270,7 @@ RETSIGTYPE hupsig(int/* sig*/) {
  * SunOS Release 4.0.2 (sun386) needs this too, according to Tim Aldric.
  */
 
-#ifndef POSIX
-#define my_signal(signo, func) signal(signo, func)
-#else
-sigfunc *my_signal(int signo, sigfunc *func) {
-	struct sigaction act, oact;
-
-	act.sa_handler = func;
-	sigemptyset(&act.sa_mask);
-	act.sa_flags = 0;
-#ifdef SA_INTERRUPT
-	act.sa_flags |= SA_INTERRUPT;    // SunOS
-#endif
-
-	if (sigaction(signo, &act, &oact) < 0)
-		return (SIG_ERR);
-
-	return (oact.sa_handler);
-}
-#endif                // POSIX
-
 void signal_setup(void) {
-#ifndef CIRCLE_MACINTOSH
-	struct itimerval itime;
-	struct timeval interval;
-
-	/*
-	 * user signal 2: unrestrict game.  Used for emergencies if you lock
-	 * yourself out of the MUD somehow.  (Duh...)
-	 */
-	my_signal(SIGUSR2, unrestrict_game);
-
-	/*
-	 * set up the deadlock-protection so that the MUD aborts itself if it gets
-	 * caught in an infinite loop for more than 3 minutes.
-	 */
-	interval.tv_sec = 180;
-	interval.tv_usec = 0;
-	itime.it_interval = interval;
-	itime.it_value = interval;
-	setitimer(ITIMER_VIRTUAL, &itime, nullptr);
-	my_signal(SIGVTALRM, checkpointing);
-
-	// just to be on the safe side:
-	my_signal(SIGHUP, hupsig);
-	my_signal(SIGCHLD, reap);
-#endif                // CIRCLE_MACINTOSH
 	my_signal(SIGINT, hupsig);
 	my_signal(SIGTERM, hupsig);
 	my_signal(SIGPIPE, SIG_IGN);

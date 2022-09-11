@@ -3,7 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "room_data.h"
-
+#include "utils/utils.h"
 ExitData::ExitData() : keyword(nullptr),
 					   vkeyword(nullptr),
 					   exit_info(0),
