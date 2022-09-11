@@ -53,7 +53,7 @@ extern const char *genders[];
 extern const char *exit_bits[];
 extern IndexData *mob_index;
 extern TimeInfoData time_info;
-
+extern void RepopDecay(std::vector<ZoneRnum> zone_list);    // рассыпание обьектов ITEM_REPOP_DECAY
 extern bool CanTakeObj(CharData *ch, ObjData *obj);
 extern void split_or_clan_tax(CharData *ch, long amount);
 
@@ -1762,11 +1762,11 @@ void find_replacement(void *go,
 				if (num >= 0)
 					sprintf(str, "%d", num);
 			} else if (!str_cmp(field, "zreset") && num > 0) {
-				for (ZoneRnum i = 0; i < static_cast<ZoneRnum>(zone_table.size()); i++) {
-					if (zone_table[i].vnum == num) {
-						reset_zone(i);
-					}
-				}
+				std::vector<ZoneRnum> zone_repop_list;
+				ZoneRnum zrn = get_zone_rnum_by_zone_vnum(num);
+				zone_repop_list.push_back(zrn);
+				RepopDecay(zone_repop_list);
+				reset_zone(zrn);
 			} else if (!str_cmp(field, "mob") && num > 0) {
 				num = find_char_vnum(num);
 				if (num >= 0)
