@@ -8,10 +8,10 @@
         <base_stats>
             <stat id="kStr"	gen_min="19"	gen_max="25"	auto="25"	cap="50"/>
             <stat id="kDex"	gen_min="15"	gen_max="21"	auto="21"	cap="90"/>
-            <stat id="kCon"	gen_min="14"	gen_max="18"	auto="16"	cap="75"/>
-            <stat id="kWis"	gen_min="11"	gen_max="16"	auto="11"	cap="50"/>
+            <stat id="kCon"	gen_min="14"	gen_max="18"	auto="14"	cap="75"/>
+            <stat id="kWis"	gen_min="12"	gen_max="16"	auto="14"	cap="100"/>
             <stat id="kInt"	gen_min="11"	gen_max="16"	auto="11"	cap="50"/>
-            <stat id="kCha"	gen_min="11"	gen_max="16"	auto="11"	cap="50"/>
+            <stat id="kCha"	gen_min="10"	gen_max="12"	auto="10"	cap="50"/>
         </base_stats>
     </stats>
     <skills level_decrement="4">
