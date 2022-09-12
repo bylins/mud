@@ -1609,7 +1609,6 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 	ObjData *temp;
 	int roomload = get_room_where_obj(obj, false);
 	utils::CExecutionTimer timer;
-
 	strcpy(name, obj->get_PName(0).c_str());
 //	if (roomload == 0 && showlog)
 //			debug::backtrace(runtime_config.logs(SYSLOG).handle());
@@ -1641,7 +1640,7 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 				} else {
 					PlaceObjToInventory(temp, obj->get_worn_by());
 				}
-			} else if (obj->get_in_room() != kNowhere) {
+			} else if (obj->get_in_room() != kNowhere && temp->has_flag(EObjFlag::kTicktimer)) {
 				PlaceObjToRoom(temp, obj->get_in_room());
 				CheckObjDecay(temp);
 			} else if (obj->get_in_obj()) {
@@ -1672,7 +1671,6 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 
 	check_auction(nullptr, obj);
 	check_exchange(obj);
-
 	const auto rnum = GET_OBJ_RNUM(obj);
 	if (rnum >= 0) {
 		obj_proto.dec_number(rnum);
