@@ -1031,7 +1031,7 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			to_obj->set_val(3,
 							(n1 * t1 + n2 * t2)
 								/ (n1 + n2)); //усредним таймер в зависимости от наполненности обоих емкостей
-//				SendMsgToChar(ch, "n1 == %d, n2 == %d, t1 == %d, t2== %d, результат %d\r\n", n1, n2, t1, t2, GET_OBJ_VAL(to_obj, 3));
+				SendMsgToChar(ch, "n1 == %d, n2 == %d, t1 == %d, t2== %d, результат %d\r\n", n1, n2, t1, t2, GET_OBJ_VAL(to_obj, 3));
 			if (GET_OBJ_VAL(to_obj, 1) == 0) {
 				copy_potion_values(from_obj, to_obj);
 				// определение названия зелья по содержащемуся заклинанию //
@@ -1087,7 +1087,11 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	int t1 = GET_OBJ_VAL(from_obj, 3);
 	int t2 = GET_OBJ_VAL(to_obj, 3);
 	to_obj->set_val(3, (n1 * t1 + n2 * t2) / (n1 + n2)); //усредним таймер в зависимости от наполненности обоих емкостей
-//	SendMsgToChar(ch, "n1 == %d, n2 == %d, t1 == %d, t2== %d, результат %d\r\n", n1, n2, t1, t2, GET_OBJ_VAL(to_obj, 3));
+	sprintf(buf, "Игрок %s переливает жижку. Первая емкость: %s (%d) Вторая емкость %s (%d). SCMD %d", 
+		GET_NAME(ch), GET_OBJ_PNAME(from_obj, 1).c_str(), GET_OBJ_VNUM(from_obj), GET_OBJ_PNAME(to_obj, 1).c_str(),  GET_OBJ_VNUM(to_obj), subcmd);
+	mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+	sprintf(buf, "кол1 == %d, кол2 == %d, time1 == %d, time2== %d, результат %d\r\n", n1, n2, t1, t2, GET_OBJ_VAL(to_obj, 3));
+	mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 
 	// New alias //
 	if (GET_OBJ_VAL(to_obj, 1) == 0)
