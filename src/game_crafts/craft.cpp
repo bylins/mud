@@ -832,7 +832,7 @@ void CObject::load_extended_values(const pugi::xml_node *node) {
 												[&](const auto key, const auto value) {
 													CHelper::load_integer(value,
 																		  [&](const auto int_value) {
-																			  this->set_value(key, int_value);
+																			  this->SetPotionValueKey(key, int_value);
 																			  logger(
 																				  "Adding extended values pair (%s, %d) to object with VNUM %d.\n",
 																				  text_id::ToStr(text_id::kObjVals,

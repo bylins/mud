@@ -1,4 +1,4 @@
-/*************************************************************************
+/****************************[14~*********************************************
 *   File: liquid.cpp                                   Part of Bylins    *
 *   Все по жидкостям                                                     *
 *                                                                        *
@@ -197,20 +197,20 @@ ObjVal::EValueKey init_spell_lvl(int num) {
 }
 
 void reset_potion_values(CObjectPrototype *obj) {
-	obj->set_value(ObjVal::EValueKey::POTION_SPELL1_NUM, -1);
-	obj->set_value(ObjVal::EValueKey::POTION_SPELL1_LVL, -1);
-	obj->set_value(ObjVal::EValueKey::POTION_SPELL2_NUM, -1);
-	obj->set_value(ObjVal::EValueKey::POTION_SPELL2_LVL, -1);
-	obj->set_value(ObjVal::EValueKey::POTION_SPELL3_NUM, -1);
-	obj->set_value(ObjVal::EValueKey::POTION_SPELL3_LVL, -1);
-	obj->set_value(ObjVal::EValueKey::POTION_PROTO_VNUM, -1);
+	obj->SetPotionValueKey(ObjVal::EValueKey::POTION_SPELL1_NUM, -1);
+	obj->SetPotionValueKey(ObjVal::EValueKey::POTION_SPELL1_LVL, -1);
+	obj->SetPotionValueKey(ObjVal::EValueKey::POTION_SPELL2_NUM, -1);
+	obj->SetPotionValueKey(ObjVal::EValueKey::POTION_SPELL2_LVL, -1);
+	obj->SetPotionValueKey(ObjVal::EValueKey::POTION_SPELL3_NUM, -1);
+	obj->SetPotionValueKey(ObjVal::EValueKey::POTION_SPELL3_LVL, -1);
+	obj->SetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM, -1);
 }
 
 /// уровень в зельях (GET_OBJ_VAL(from_obj, 0)) пока один на все заклы
 bool copy_value(const CObjectPrototype *from_obj, CObjectPrototype *to_obj, int num) {
 	if (GET_OBJ_VAL(from_obj, num) > 0) {
-		to_obj->set_value(init_spell_num(num), GET_OBJ_VAL(from_obj, num));
-		to_obj->set_value(init_spell_lvl(num), GET_OBJ_VAL(from_obj, 0));
+		to_obj->SetPotionValueKey(init_spell_num(num), GET_OBJ_VAL(from_obj, num));
+		to_obj->SetPotionValueKey(init_spell_lvl(num), GET_OBJ_VAL(from_obj, 0));
 		return true;
 	}
 	return false;
@@ -228,7 +228,7 @@ void copy_potion_values(const CObjectPrototype *from_obj, CObjectPrototype *to_o
 	}
 
 	if (copied) {
-		to_obj->set_value(ObjVal::EValueKey::POTION_PROTO_VNUM, GET_OBJ_VNUM(from_obj));
+		to_obj->SetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM, GET_OBJ_VNUM(from_obj));
 	}
 }
 
@@ -237,8 +237,8 @@ void copy_potion_values(const CObjectPrototype *from_obj, CObjectPrototype *to_o
 using namespace drinkcon;
 
 int cast_potion_spell(CharData *ch, ObjData *obj, int num) {
-	const auto spell_id = static_cast<ESpell>(obj->get_value(init_spell_num(num)));
-	const int level = obj->get_value(init_spell_lvl(num));
+	const auto spell_id = static_cast<ESpell>(obj->GetPotionValueKey(init_spell_num(num)));
+	const int level = obj->GetPotionValueKey(init_spell_lvl(num));
 
 	if (spell_id > ESpell::kUndefined) {
 		return CallMagic(ch, ch, nullptr, world[ch->in_room], spell_id, level);
@@ -271,7 +271,7 @@ void do_drink_poison(CharData *ch, ObjData *jar, int amount) {
 }
 
 int cast_potion(CharData *ch, ObjData *jar) {
-	if (is_potion(jar) && jar->get_value(ObjVal::EValueKey::POTION_PROTO_VNUM) >= 0) {
+	if (is_potion(jar) && jar->GetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM) >= 0) {
 		act("$n выпил$g зелья из $o1.", true, ch, jar, 0, kToRoom);
 		SendMsgToChar(ch, "Вы выпили зелья из %s.\r\n", OBJN(jar, ch, 1));
 
@@ -828,11 +828,11 @@ int check_potion_spell(ObjData *from_obj, ObjData *to_obj, int num) {
 	const auto spell = init_spell_num(num);
 	const auto level = init_spell_lvl(num);
 
-	if (GET_OBJ_VAL(from_obj, num) != to_obj->get_value(spell)) {
+	if (GET_OBJ_VAL(from_obj, num) != to_obj->GetPotionValueKey(spell)) {
 		// не совпали заклы
 		return 0;
 	}
-	if (GET_OBJ_VAL(from_obj, 0) < to_obj->get_value(level)) {
+	if (GET_OBJ_VAL(from_obj, 0) < to_obj->GetPotionValueKey(level)) {
 		// переливаемое зелье ниже уровня закла в емкости
 		return -1;
 	}
@@ -844,8 +844,8 @@ int check_potion_spell(ObjData *from_obj, ObjData *to_obj, int num) {
 ///        -1 - попытка перелить зелье с меньшим уровнем закла
 int check_equal_potions(ObjData *from_obj, ObjData *to_obj) {
 	// емкость с уже перелитым ранее зельем
-	if (to_obj->get_value(ObjVal::EValueKey::POTION_PROTO_VNUM) > 0
-		&& GET_OBJ_VNUM(from_obj) != to_obj->get_value(ObjVal::EValueKey::POTION_PROTO_VNUM)) {
+	if (to_obj->GetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM) > 0
+		&& GET_OBJ_VNUM(from_obj) != to_obj->GetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM)) {
 		return 0;
 	}
 	// совпадение заклов и не меньшего уровня
@@ -865,11 +865,11 @@ int check_drincon_spell(ObjData *from_obj, ObjData *to_obj, int num) {
 	const auto spell = init_spell_num(num);
 	const auto level = init_spell_lvl(num);
 
-	if (from_obj->get_value(spell) != to_obj->get_value(spell)) {
+	if (from_obj->GetPotionValueKey(spell) != to_obj->GetPotionValueKey(spell)) {
 		// не совпали заклы
 		return 0;
 	}
-	if (from_obj->get_value(level) < to_obj->get_value(level)) {
+	if (from_obj->GetPotionValueKey(level) < to_obj->GetPotionValueKey(level)) {
 		// переливаемое зелье ниже уровня закла в емкости
 		return -1;
 	}
@@ -900,14 +900,14 @@ void spells_to_drinkcon(ObjData *from_obj, ObjData *to_obj) {
 	for (int i = 1; i <= 3; ++i) {
 		const auto spell = init_spell_num(i);
 		const auto level = init_spell_lvl(i);
-		to_obj->set_value(spell, from_obj->get_value(spell));
-		to_obj->set_value(level, from_obj->get_value(level));
+		to_obj->SetPotionValueKey(spell, from_obj->GetPotionValueKey(spell));
+		to_obj->SetPotionValueKey(level, from_obj->GetPotionValueKey(level));
 	}
 	// сохранение инфы о первоначальном источнике зелья
-	const int proto_vnum = from_obj->get_value(ObjVal::EValueKey::POTION_PROTO_VNUM) > 0
-						   ? from_obj->get_value(ObjVal::EValueKey::POTION_PROTO_VNUM)
+	const int proto_vnum = from_obj->GetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM) > 0
+						   ? from_obj->GetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM)
 						   : GET_OBJ_VNUM(from_obj);
-	to_obj->set_value(ObjVal::EValueKey::POTION_PROTO_VNUM, proto_vnum);
+	to_obj->SetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM, proto_vnum);
 }
 
 void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
@@ -1031,7 +1031,12 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			to_obj->set_val(3,
 							(n1 * t1 + n2 * t2)
 								/ (n1 + n2)); //усредним таймер в зависимости от наполненности обоих емкостей
-				SendMsgToChar(ch, "n1 == %d, n2 == %d, t1 == %d, t2== %d, результат %d\r\n", n1, n2, t1, t2, GET_OBJ_VAL(to_obj, 3));
+//				SendMsgToChar(ch, "n1 == %d, n2 == %d, t1 == %d, t2== %d, результат %d\r\n", n1, n2, t1, t2, GET_OBJ_VAL(to_obj, 3));
+				sprintf(buf, "Игрок %s наполняет емкость. Первая емкость: %s (%d) Вторая емкость %s (%d). SCMD %d", 
+						GET_NAME(ch), GET_OBJ_PNAME(from_obj, 1).c_str(), GET_OBJ_VNUM(from_obj), GET_OBJ_PNAME(to_obj, 1).c_str(),  GET_OBJ_VNUM(to_obj), subcmd);
+				mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+				sprintf(buf, "кол1 == %d, кол2 == %d, time1 == %d, time2== %d, результат %d\r\n", n1, n2, t1, t2, GET_OBJ_VAL(to_obj, 3));
+				mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 			if (GET_OBJ_VAL(to_obj, 1) == 0) {
 				copy_potion_values(from_obj, to_obj);
 				// определение названия зелья по содержащемуся заклинанию //
@@ -1188,15 +1193,15 @@ std::string print_spell(CharData *ch, const ObjData *obj, int num) {
 	const auto spell = init_spell_num(num);
 	const auto level = init_spell_lvl(num);
 
-	if (obj->get_value(spell) == -1) {
+	if (obj->GetPotionValueKey(spell) == -1) {
 		return "";
 	}
 
 	char buf_[kMaxInputLength];
 	snprintf(buf_, sizeof(buf_), "Содержит заклинание: %s%s (%d ур.)%s\r\n",
 			 CCCYN(ch, C_NRM),
-			 MUD::Spell(static_cast<ESpell>(obj->get_value(spell))).GetCName(),
-			 obj->get_value(level),
+			 MUD::Spell(static_cast<ESpell>(obj->GetPotionValueKey(spell))).GetCName(),
+			 obj->GetPotionValueKey(level),
 			 CCNRM(ch, C_NRM));
 
 	return buf_;
@@ -1240,13 +1245,13 @@ void identify(CharData *ch, const ObjData *obj) {
 	// емкость не пуста
 	if (amount > 0) {
 		// есть какие-то заклы
-		if (obj->get_value(ObjVal::EValueKey::POTION_PROTO_VNUM) >= 0) {
+		if (obj->GetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM) >= 0) {
 			if (IS_IMMORTAL(ch)) {
 				snprintf(buf_, sizeof(buf_), "Содержит %d %s %s (VNUM: %d).\r\n",
 						 amount,
 						 GetDeclensionInNumber(amount, EWhat::kGulp),
 						 drinks[GET_OBJ_VAL(obj, 2)],
-						 obj->get_value(ObjVal::EValueKey::POTION_PROTO_VNUM));
+						 obj->GetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM));
 			} else {
 				snprintf(buf_, sizeof(buf_), "Содержит %d %s %s.\r\n",
 						 amount,
