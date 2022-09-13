@@ -2125,7 +2125,7 @@ void find_replacement(void *go,
 			}
 		}
 		else if (!str_cmp(field, "id"))
-			sprintf(str, "%c%ld", uid_type, GET_ID(c));
+			sprintf(str, "%c%ld", UID_CHAR, GET_ID(c));
 		else if (!str_cmp(field, "uniq")) {
 			if (!c->IsNpc())
 				sprintf(str, "%d", GET_UNIQUE(c));

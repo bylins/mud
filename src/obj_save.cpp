@@ -2878,6 +2878,7 @@ void Crash_frac_save_all(int frac_part) {
 			PLR_FLAGS(d->character).unset(EPlrFlag::kCrashSave);
 		}
 	}
+	if (timer.delta().count() > 0.01)
 		log("Crash_frac_save_all: timer %f", timer.delta().count());
 }
 
@@ -2921,7 +2922,8 @@ void Crash_frac_rent_time(int frac_part) {
 			Crash_timer_obj(c, time(0));
 		}
 	}
-	log("Crash_frac_rent_time: timer %f", timer.delta().count());
+	if (timer.delta().count() > 0.01)
+		log("Crash_frac_rent_time: timer %f", timer.delta().count());
 }
 
 void Crash_rent_time(int/* dectime*/) {
