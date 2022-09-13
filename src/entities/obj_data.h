@@ -197,7 +197,7 @@ class CObjectPrototype {
 	auto get_spell() const { return m_spell; }
 	auto get_type() const { return m_type; }
 	auto get_val(size_t index) const { return m_vals[index]; }
-	auto get_value(const ObjVal::EValueKey key) const { return m_values.get(key); }
+	auto GetPotionValueKey(const ObjVal::EValueKey key) const { return m_values.get(key); }
 	auto get_wear_flags() const { return m_wear_flags; }
 	auto get_weight() const { return m_weight; }
 	auto serialize_values() const { return m_values.print_to_file(); }
@@ -291,8 +291,8 @@ class CObjectPrototype {
 	void set_spell(const int _) { m_spell = std::clamp(static_cast<ESpell>(_), ESpell::kUndefined, ESpell::kLast); }
 	void set_type(const EObjType _) { m_type = _; }
 	void set_sex(const EGender _) { m_sex = _; }
-	void set_value(const ObjVal::EValueKey key, const int value) { return m_values.set(key, value); }
-	void set_values(const ObjVal &_) { m_values = _; }
+	void SetPotionValueKey(const ObjVal::EValueKey key, const int value) { return m_values.set(key, value); }
+	void SetPotionValues(const ObjVal &_) { m_values = _; }
 	void set_wear_flag(const EWearFlag flag);
 	void set_wear_flags(const wear_flags_t _) { m_wear_flags = _; }
 	void set_weight(const int _) { m_weight = _; }
