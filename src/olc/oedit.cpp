@@ -206,8 +206,8 @@ void olc_update_object(int robj_num, ObjData *obj, ObjData *olc_obj) {
 		}
 		// сохранение в случае перелитых заклов
 		// пока там ничего кроме заклов и нет - копируем весь values
-		if (tmp.get_value(ObjVal::EValueKey::POTION_PROTO_VNUM) > 0) {
-			obj->set_values(tmp.get_all_values());
+		if (tmp.GetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM) > 0) {
+			obj->SetPotionValues(tmp.get_all_values());
 		}
 	}
 	if (tmp.has_flag(EObjFlag::kTicktimer))//если у старого объекта запущен таймер
@@ -1059,12 +1059,12 @@ void oedit_disp_magic_container_menu(DescriptorData *d) {
 }
 
 std::string print_spell_value(ObjData *obj, const ObjVal::EValueKey key1, const ObjVal::EValueKey key2) {
-	if (obj->get_value(key1) < 0) {
+	if (obj->GetPotionValueKey(key1) < 0) {
 		return "нет";
 	}
 	char buf_[kMaxInputLength];
 	snprintf(buf_, sizeof(buf_), "%s:%d",
-			 MUD::Spell(static_cast<ESpell>(obj->get_value(key1))).GetCName(), obj->get_value(key2));
+			 MUD::Spell(static_cast<ESpell>(obj->GetPotionValueKey(key1))).GetCName(), obj->GetPotionValueKey(key2));
 	return buf_;
 }
 
@@ -1265,12 +1265,12 @@ int planebit(const char *str, int *plane, int *bit) {
 }
 
 void check_potion_proto(ObjData *obj) {
-	if (obj->get_value(ObjVal::EValueKey::POTION_SPELL1_NUM) > 0
-		|| obj->get_value(ObjVal::EValueKey::POTION_SPELL2_NUM) > 0
-		|| obj->get_value(ObjVal::EValueKey::POTION_SPELL3_NUM) > 0) {
-		obj->set_value(ObjVal::EValueKey::POTION_PROTO_VNUM, 0);
+	if (obj->GetPotionValueKey(ObjVal::EValueKey::POTION_SPELL1_NUM) > 0
+		|| obj->GetPotionValueKey(ObjVal::EValueKey::POTION_SPELL2_NUM) > 0
+		|| obj->GetPotionValueKey(ObjVal::EValueKey::POTION_SPELL3_NUM) > 0) {
+		obj->SetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM, 0);
 	} else {
-		obj->set_value(ObjVal::EValueKey::POTION_PROTO_VNUM, -1);
+		obj->SetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM, -1);
 	}
 }
 
@@ -1280,13 +1280,13 @@ bool parse_val_spell_num(DescriptorData *d, const ObjVal::EValueKey key, int val
 		if (val != 0) {
 			SendMsgToChar("Неверный выбор.\r\n", d->character.get());
 		}
-		OLC_OBJ(d)->set_value(key, -1);
+		OLC_OBJ(d)->SetPotionValueKey(key, -1);
 		check_potion_proto(OLC_OBJ(d));
 		OLC_MODE(d) = OEDIT_DRINKCON_VALUES;
 		drinkcon_values_menu(d);
 		return false;
 	}
-	OLC_OBJ(d)->set_value(key, val);
+	OLC_OBJ(d)->SetPotionValueKey(key, val);
 	SendMsgToChar(d->character.get(), "Выбранное заклинание: %s\r\n"
 									  "Ведите уровень заклинания от 1 до 50 (0 - выход) :",
 				  MUD::Spell(spell_id).GetCName());
@@ -1300,13 +1300,13 @@ void parse_val_spell_lvl(DescriptorData *d, const ObjVal::EValueKey key, int val
 		}
 
 		switch (key) {
-			case ObjVal::EValueKey::POTION_SPELL1_LVL: OLC_OBJ(d)->set_value(ObjVal::EValueKey::POTION_SPELL1_NUM, -1);
+			case ObjVal::EValueKey::POTION_SPELL1_LVL: OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::POTION_SPELL1_NUM, -1);
 				break;
 
-			case ObjVal::EValueKey::POTION_SPELL2_LVL: OLC_OBJ(d)->set_value(ObjVal::EValueKey::POTION_SPELL2_NUM, -1);
+			case ObjVal::EValueKey::POTION_SPELL2_LVL: OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::POTION_SPELL2_NUM, -1);
 				break;
 
-			case ObjVal::EValueKey::POTION_SPELL3_LVL: OLC_OBJ(d)->set_value(ObjVal::EValueKey::POTION_SPELL3_NUM, -1);
+			case ObjVal::EValueKey::POTION_SPELL3_LVL: OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::POTION_SPELL3_NUM, -1);
 				break;
 
 			default: break;
@@ -1318,7 +1318,7 @@ void parse_val_spell_lvl(DescriptorData *d, const ObjVal::EValueKey key, int val
 
 		return;
 	}
-	OLC_OBJ(d)->set_value(key, val);
+	OLC_OBJ(d)->SetPotionValueKey(key, val);
 	check_potion_proto(OLC_OBJ(d));
 	OLC_MODE(d) = OEDIT_DRINKCON_VALUES;
 	drinkcon_values_menu(d);
