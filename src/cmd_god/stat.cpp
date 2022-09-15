@@ -42,8 +42,17 @@ void do_statip(CharData *ch, CharData *k) {
 		}
 		page_string(ch->desc, out.str());
 	}
-
 	log("End logon list stat");
+}
+
+void DoStatKarma(CharData *ch, CharData *victim) {
+	std::stringstream ss;
+	if (!KARMA(victim)) {
+		SendMsgToChar(ch, "Карма у игрока %s отсутствует.\r\n", GET_NAME(victim));
+		return;
+	}
+	ss << "Карма игрока " << GET_NAME(victim) << ":\r\n" << KARMA(victim);
+	SendMsgToChar(ss.str(), ch);
 }
 
 void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
@@ -573,12 +582,6 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		}
 		pk_list_sprintf(k, buf);
 		SendMsgToChar(buf, ch);
-		// Отображаем карму.
-		if (KARMA(k)) {
-			sprintf(buf, "Карма:\r\n%s", KARMA(k));
-			SendMsgToChar(buf, ch);
-		}
-
 	}
 }
 
@@ -1187,11 +1190,26 @@ void do_stat(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			} else {
 				SendMsgToChar("Этого персонажа сейчас нет в игре, смотрим пфайл.\r\n", ch);
 			}
-
 			Player t_vict;
 			if (load_char(buf2, &t_vict) > -1) {
-				//Clan::SetClanData(&t_vict); не понял зачем проставлять клановый статус тут?
 				do_statip(ch, &t_vict);
+			} else {
+				SendMsgToChar("Такого игрока нет ВООБЩЕ.\r\n", ch);
+			}
+		}
+	} else if (utils::IsAbbr(buf1, "karma") || utils::IsAbbr(buf1, "карма")) {
+		if (!*buf2) {
+			SendMsgToChar("Карму какого игрока?\r\n", ch);
+		} else {
+			if ((victim = get_player_vis(ch, buf2, EFind::kCharInWorld)) != nullptr) {
+				DoStatKarma(ch, victim);
+				return;
+			} else {
+				SendMsgToChar("Этого персонажа сейчас нет в игре, смотрим пфайл.\r\n", ch);
+			}
+			Player t_vict;
+			if (load_char(buf2, &t_vict) > -1) {
+				DoStatKarma(ch, &t_vict);
 			} else {
 				SendMsgToChar("Такого игрока нет ВООБЩЕ.\r\n", ch);
 			}
