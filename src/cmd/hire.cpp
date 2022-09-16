@@ -137,7 +137,7 @@ int GetReformedCharmiceHp(CharData *ch, CharData *victim, ESpell spell_id) {
 	}
 
 	if (spell_id != ESpell::kCharm) {
-		eff_cha = std::min(stat_cap, eff_cha + 2); // Все кроме чарма кастится с бонусом в 2
+		eff_cha = std::min(std::min(90.0, stat_cap), eff_cha + 2); // Все кроме чарма кастится с бонусом в 2
 	}
 
 	// Интерполяция между значениями для целых значений обаяния
