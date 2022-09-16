@@ -2604,13 +2604,11 @@ float get_effective_cha(CharData *ch) {
 
 float CalcEffectiveWis(CharData *ch, ESpell spell_id) {
 	int key_value, key_value_add;
-	int get_wis = std::min(90, ch->get_wis());
-
 	auto max_wis = MUD::Class(ch->GetClass()).GetBaseStatCap(EBaseStat::kWis);
 
 	if (spell_id == ESpell::kResurrection || spell_id == ESpell::kAnimateDead) {
-		key_value = get_wis;
-		key_value_add = std::min(max_wis - get_wis, GET_WIS_ADD(ch));
+		key_value = ch->get_wis();
+		key_value_add = std::min(max_wis - ch->get_wis(), GET_WIS_ADD(ch));
 	} else {
 		//если гдето вылезет косяком
 		key_value = 0;
@@ -2654,8 +2652,8 @@ float get_effective_int(CharData *ch) {
 
 int CalcCharmPoint(CharData *ch, ESpell spell_id) {
 	float r_hp = 0;
-	float eff_cha = 0.0;
-	float stat_cap{0.0};
+	auto eff_cha{0.0};
+	auto stat_cap{0.0};
 
 	if (spell_id == ESpell::kResurrection || spell_id == ESpell::kAnimateDead) {
 		eff_cha = CalcEffectiveWis(ch, spell_id);
@@ -2666,7 +2664,7 @@ int CalcCharmPoint(CharData *ch, ESpell spell_id) {
 	}
 
 	if (spell_id != ESpell::kCharm) {
-		eff_cha = std::min(stat_cap, eff_cha + 2); // Все кроме чарма кастится с бонусом в 2
+		eff_cha = std::min(std::min(90.0, stat_cap), eff_cha + 2); // Все кроме чарма кастится с бонусом в 2
 	}
 
 	if (eff_cha < stat_cap) {
