@@ -1979,7 +1979,7 @@ int pre_help(CharData *ch, char *arg) {
 // лимит коннектов с ип - сядут все сместе, что выглядит имхо странно, может там комп новый воткнули
 // и просто еще до иммов не достучались лимит поднять... вобщем сидит тот, кто не успел Ж)
 int check_dupes_host(DescriptorData *d, bool autocheck = false) {
-	if (!d->character || IS_IMMORTAL(d->character))
+	if (!d->character || IS_IMMORTAL(d->character) || d->character->desc->original)
 		return 1;
 
 	// в случае авточекалки нужная проверка уже выполнена до входа в функцию

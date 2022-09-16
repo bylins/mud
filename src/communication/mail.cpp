@@ -180,7 +180,7 @@ void postmaster_send_mail(CharData *ch, CharData *mailman, int/* cmd*/, char *ar
 		return;
 	}
 	if ((recipient = GetUniqueByName(buf)) <= 0) {
-		act("$n сказал$g вам, 'Извините, но такого игрока нет в игре!'", false, mailman, 0, ch, kToVict);
+		act("$n сказал$g вам, 'Извините, но такой игрок не зарегистрирован в игре!'", false, mailman, 0, ch, kToVict);
 		return;
 	}
 

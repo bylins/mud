@@ -912,9 +912,8 @@ void do_mdoor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 	char field[kMaxInputLength], *value;
 	RoomData *rm;
 	int dir, fd, to_room, lock;
-
-	const char *door_field[] =
-		{
+	char error[kMaxInputLength];
+	const char *door_field[] = {
 			"purge",
 			"description",
 			"flags",
@@ -923,7 +922,7 @@ void do_mdoor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 			"room",
 			"lock",
 			"\n"
-		};
+	};
 
 	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
@@ -934,21 +933,29 @@ void do_mdoor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 
 	if (!*target || !*direction || !*field) {
 		mob_log(ch, "mdoor called with too few args");
+		sprintf(buf, "mdoor argument: %s", error);
+		mob_log(ch, buf);
 		return;
 	}
 
 	if ((rm = get_room(target)) == nullptr) {
 		mob_log(ch, "mdoor: invalid target");
+		sprintf(buf, "mdoor argument: %s", error);
+		mob_log(ch, buf);
 		return;
 	}
 
 	if ((dir = search_block(direction, dirs, false)) == -1) {
 		mob_log(ch, "mdoor: invalid direction");
+		sprintf(buf, "mdoor argument: %s", error);
+		mob_log(ch, buf);
 		return;
 	}
 
 	if ((fd = search_block(field, door_field, false)) == -1) {
 		mob_log(ch, "mdoor: invalid field");
+		sprintf(buf, "mdoor argument: %s", error);
+		mob_log(ch, buf);
 		return;
 	}
 
