@@ -161,42 +161,47 @@ void do_wdoor(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 	char field[kMaxInputLength], *value;
 	RoomData *rm;
 	int dir, fd, to_room, lock;
-
-	const char *door_field[] = {"purge",
-								"description",
-								"flags",
-								"key",
-								"name",
-								"room",
-								"lock",
-								"\n"};
-
+	char error[kMaxInputLength];
+	const char *door_field[] = {
+		"purge",
+		"description",
+		"flags",
+		"key",
+		"name",
+		"room",
+		"lock",
+		"\n"
+	};
+	strcpy(error, argument);
 	argument = two_arguments(argument, target, direction);
 	value = one_argument(argument, field);
 	skip_spaces(&value);
-
 	if (!*target || !*direction || !*field) {
 		wld_log(room, "wdoor called with too few args");
+		sprintf(buf, "wdoor argument: %s", error);
+		wld_log(room, buf);
 		return;
 	}
-
 	if ((rm = get_room(target)) == nullptr) {
 		wld_log(room, "wdoor: invalid target");
+		sprintf(buf, "wdoor argument: %s", error);
+		wld_log(room, buf);
 		return;
 	}
-
 	if ((dir = search_block(direction, dirs, false)) == -1) {
 		wld_log(room, "wdoor: invalid direction");
+		sprintf(buf, "wdoor argument: %s", error);
+		wld_log(room, buf);
 		return;
 	}
-
 	if ((fd = search_block(field, door_field, false)) == -1) {
 		wld_log(room, "wdoor: invalid field");
+		sprintf(buf, "wdoor argument: %s", error);
+		wld_log(room, buf);
 		return;
 	}
 
 	auto exit = rm->dir_option[dir];
-
 	// purge exit
 	if (fd == 0) {
 		if (exit) {
@@ -212,19 +217,15 @@ void do_wdoor(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 			case 1:    // description //
 				exit->general_description = std::string(value) + "\r\n";
 				break;
-
 			case 2:    // flags       //
 				asciiflag_conv(value, &exit->exit_info);
 				break;
-
 			case 3:    // key         //
 				exit->key = atoi(value);
 				break;
-
 			case 4:    // name        //
 				exit->set_keywords(value);
 				break;
-
 			case 5:    // room        //
 				if ((to_room = real_room(atoi(value))) != kNowhere) {
 					exit->to_room(to_room);
@@ -232,7 +233,6 @@ void do_wdoor(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 					wld_log(room, "wdoor: invalid door target");
 				}
 				break;
-
 			case 6:    // lock - сложность замка         //
 				lock = atoi(value);
 				if (!(lock < 0 || lock > 255))

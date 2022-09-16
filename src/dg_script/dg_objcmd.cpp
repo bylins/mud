@@ -619,15 +619,16 @@ void do_odoor(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 	char field[kMaxInputLength], *value;
 	RoomData *rm;
 	int dir, fd, to_room, lock;
-
-	const char *door_field[] = {"purge",
-								"description",
-								"flags",
-								"key",
-								"name",
-								"room",
-								"lock",
-								"\n"
+	char error[kMaxInputLength];
+	const char *door_field[] = {
+			"purge",
+			"description",
+			"flags",
+			"key",
+			"name",
+			"room",
+			"lock",
+			"\n"
 	};
 
 	argument = two_arguments(argument, target, direction);
@@ -636,21 +637,29 @@ void do_odoor(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 
 	if (!*target || !*direction || !*field) {
 		obj_log(obj, "odoor called with too few args");
+		sprintf(buf, "odoor argument: %s", error);
+		obj_log(obj, buf);
 		return;
 	}
 
 	if ((rm = get_room(target)) == nullptr) {
 		obj_log(obj, "odoor: invalid target");
+		sprintf(buf, "odoor argument: %s", error);
+		obj_log(obj, buf);
 		return;
 	}
 
 	if ((dir = search_block(direction, dirs, false)) == -1) {
 		obj_log(obj, "odoor: invalid direction");
+		sprintf(buf, "odoor argument: %s", error);
+		obj_log(obj, buf);
 		return;
 	}
 
 	if ((fd = search_block(field, door_field, false)) == -1) {
 		obj_log(obj, "odoor: invalid field");
+		sprintf(buf, "odoor argument: %s", error);
+		obj_log(obj, buf);
 		return;
 	}
 

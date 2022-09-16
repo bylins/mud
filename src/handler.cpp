@@ -2586,7 +2586,7 @@ float get_effective_cha(CharData *ch) {
 
 	key_value = ch->get_cha();
 	auto max_cha = MUD::Class(ch->GetClass()).GetBaseStatCap(EBaseStat::kCha);
-	key_value_add = std::min(max_cha - ch->get_cha(), GET_CHA_ADD(ch));
+	key_value_add = std::min(max_cha - ch->get_cha(), GET_CHA_ADD(ch)); // до переделки формул ограничим кап так
 
 	float eff_cha = 0.0;
 	if (GetRealLevel(ch) <= 14) {
@@ -2604,12 +2604,13 @@ float get_effective_cha(CharData *ch) {
 
 float CalcEffectiveWis(CharData *ch, ESpell spell_id) {
 	int key_value, key_value_add;
+	int get_wis = std::min(90, ch->get_wis());
 
 	auto max_wis = MUD::Class(ch->GetClass()).GetBaseStatCap(EBaseStat::kWis);
 
 	if (spell_id == ESpell::kResurrection || spell_id == ESpell::kAnimateDead) {
-		key_value = ch->get_wis();
-		key_value_add = std::min(max_wis - ch->get_wis(), GET_WIS_ADD(ch));
+		key_value = get_wis;
+		key_value_add = std::min(max_wis - get_wis, GET_WIS_ADD(ch));
 	} else {
 		//если гдето вылезет косяком
 		key_value = 0;
