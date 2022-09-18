@@ -2176,10 +2176,10 @@ void MakeRecept::add_rnd_skills(CharData * /*ch*/, ObjData *obj_from, ObjData *o
 }
 int MakeRecept::add_flags(CharData *ch, FlagData *base_flag, const FlagData *add_flag, int/* delta*/) {
 // БЕз вариантов вообще :(
-	int tmpprob;
+	int tmpprob, skl = CalcCurrentSkill(ch, skill, 0);
 	for (int i = 0; i < 3; i++) {
 		for (int j = 0; j < 32; j++) {
-			tmpprob = number(0, 200) - CalcCurrentSkill(ch, skill, 0);
+			tmpprob = number(0, 200) - skl;
 			if ((add_flag->get_plane(i) & (1 << j)) && (tmpprob < 0)) {
 				base_flag->set_flag(i, 1 << j);
 			}

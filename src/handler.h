@@ -68,11 +68,11 @@ ObjData *UnequipChar(CharData *ch, int pos, const CharEquipFlags& equip_flags);
 bool HaveIncompatibleAlign(CharData *ch, ObjData *obj);
 
 ObjData *get_obj_in_list(char *name, ObjData *list);
-ObjData *GetObjByRnum(int obj_rnum, ObjData *list);
-ObjData *GetObjByVnum(int vnum, ObjData *list);
+ObjData *GetObjByRnumInContent(int obj_rnum, ObjData *list);
+ObjData *GetObjByVnumInContent(int vnum, ObjData *list);
 
 ObjData *get_obj(char *name, int vnum = 0);
-ObjData *SearchObjByVnum(ObjRnum rnum);
+ObjData *SearchObjByRnum(ObjRnum rnum);
 
 bool CheckObjDecay(ObjData *object);
 bool PlaceObjToRoom(ObjData *object, RoomRnum room);

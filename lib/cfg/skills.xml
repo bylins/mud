@@ -84,7 +84,7 @@ mode - режим умения.
     <skill id="kJinx"			name="сглазить"			abbr="Сг"	saving="kWill"		difficulty="100"	cap="200"/>
     <skill id="kNoParryHit"		name="скрытый удар"		abbr="Сд"	saving="kCritical"	difficulty="100"	cap="200"/>
     <skill id="kTownportal"		name="врата"			abbr="Вр"	saving="kReflex"	difficulty="100"	cap="200"/>
-    <skill id="kDigging"		name="горное дело"		abbr="Гд"	saving="kReflex"	difficulty="100"	cap="200"/>
+    <skill id="kDigging"		name="горное дело"		abbr="Гд"	saving="kReflex"	difficulty="100"	cap="100"/>
     <skill id="kJewelry"		name="ювелир"			abbr="Юв"	saving="kReflex"	difficulty="100"	cap="200"/>
     <skill id="kWarcry"			name="боевой клич"		abbr="Бк"	saving="kWill"		difficulty="100"	cap="200"/>
     <skill id="kTurnUndead"		name="изгнать нежить"		abbr="Из"	saving="kStability"	difficulty="100"	cap="1000"/>

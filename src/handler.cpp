@@ -1339,7 +1339,7 @@ int get_number(std::string &name) {
  * @param list - given list.
  * @return - ptr to found obj or nullptr.
  */
-ObjData *GetObjByRnum(ObjRnum rnum, ObjData *list) {
+ObjData *GetObjByRnumInContent(ObjRnum rnum, ObjData *list) {
 	ObjData *i;
 	for (i = list; i; i = i->get_next_content()) {
 		if (i->get_rnum() == rnum) {
@@ -1356,7 +1356,7 @@ ObjData *GetObjByRnum(ObjRnum rnum, ObjData *list) {
  * @param list - given list.
  * @return - ptr to found obj or nullptr.
  */
-ObjData *GetObjByVnum(ObjVnum vnum, ObjData *list) {
+ObjData *GetObjByVnumInContent(ObjVnum vnum, ObjData *list) {
 	ObjData *i;
 	for (i = list; i; i = i->get_next_content()) {
 		if (i->get_vnum() == vnum) {
@@ -1372,7 +1372,7 @@ ObjData *GetObjByVnum(ObjVnum vnum, ObjData *list) {
  * @param vnum - object vnum.
  * @return - ptr to found obj or nullptr.
  */
-ObjData *SearchObjByVnum(ObjRnum rnum) {
+ObjData *SearchObjByRnum(ObjRnum rnum) {
 	const auto result = world_objects.find_first_by_rnum(rnum);
 	return result.get();
 }

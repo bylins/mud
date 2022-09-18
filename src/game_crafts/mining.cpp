@@ -242,22 +242,17 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	prob = ch->GetSkill(ESkill::kDigging);
 	old_int = ch->get_int();
 	old_wis = ch->get_wis();
-	ch->set_int(ch->get_int() + 14 - std::max(14, GetRealInt(ch)));
-	ch->set_wis(ch->get_wis() + 14 - std::max(14, GetRealWis(ch)));
+	ch->set_int(13);
+	ch->set_int_add(0);
 	ImproveSkill(ch, ESkill::kDigging, 0, nullptr);
 	ch->set_int(old_int);
-	ch->set_wis(old_wis);
-
 	SetWaitState(ch, dig_vars.lag * kPulseViolence);
-
 	if (percent > prob / dig_vars.prob_divide) {
 		SendMsgToChar("Вы только зря расковыряли землю и раскидали камни.\r\n", ch);
 		act("$n отрыл$g смешную ямку.", false, ch, nullptr, nullptr, kToRoom);
 		return;
 	}
-
 	// возможность копать мощные камни зависит от навыка
-
 	random_stone = number(1, MIN(prob, 100));
 	if (random_stone >= dig_vars.stone9_skill)
 		stone_num = 9;
