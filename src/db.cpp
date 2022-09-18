@@ -4379,8 +4379,7 @@ void ZoneReset::reset_zone_essential() {
 						|| check_unlimited_timer(obj_proto[ZCMD.arg1].get()))
 						&& (ZCMD.arg4 <= 0
 							|| number(1, 100) <= ZCMD.arg4)) {
-//						if (ZCMD.arg2 > 0) {
-						if (ZCMD.arg2 == -10) { //невыполняемое условие до конвертации зонфайлов
+						if (ZCMD.arg2 > 0) {
 							RoomRnum arg2 = real_room(ZCMD.arg2);
 							if (arg2 == kNowhere) {
 								ZONE_ERROR("room in arg2 not found, command omited");
