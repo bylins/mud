@@ -4373,15 +4373,28 @@ void ZoneReset::reset_zone_essential() {
 
 				case 'P':
 					// object to object
-					// 'P' <flag> <ObjVnum> <max_in_world> <target_vnum> <load%|-1>
+					// 'P' <flag> <ObjVnum> <room or 0> <target_vnum> <load%|-1>
 					if ((obj_proto.actual_count(ZCMD.arg1) < GET_OBJ_MIW(obj_proto[ZCMD.arg1])
 						|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == ObjData::UNLIMITED_GLOBAL_MAXIMUM
 						|| check_unlimited_timer(obj_proto[ZCMD.arg1].get()))
 						&& (ZCMD.arg4 <= 0
 							|| number(1, 100) <= ZCMD.arg4)) {
-						if (!(obj_to = SearchObjByVnum(ZCMD.arg3))) {
-							ZONE_ERROR("target obj not found, command omited");
-							break;
+//						if (ZCMD.arg2 > 0) {
+						if (ZCMD.arg2 == -10) { //невыполняемое условие до конвертации зонфайлов
+							RoomRnum arg2 = real_room(ZCMD.arg2);
+							if (arg2 == kNowhere) {
+								ZONE_ERROR("room in arg2 not found, command omited");
+								break;
+							}
+							if (!(obj_to = GetObjByRnumInContent(ZCMD.arg3, world[arg2]->contents))) {
+								ZONE_ERROR("target obj not found in room, command omited");
+								break;
+							}
+						} else {
+							if (!(obj_to = SearchObjByRnum(ZCMD.arg3))) {
+								ZONE_ERROR("target obj not found in word, command omited");
+								break;
+							}
 						}
 						if (GET_OBJ_TYPE(obj_to) != EObjType::kContainer) {
 							ZONE_ERROR("attempt put obj to non container, omited");
@@ -4480,7 +4493,7 @@ void ZoneReset::reset_zone_essential() {
 						break;
 					}
 
-					if (const auto obj = GetObjByRnum(ZCMD.arg2, world[ZCMD.arg1]->contents)) {
+					if (const auto obj = GetObjByRnumInContent(ZCMD.arg2, world[ZCMD.arg1]->contents)) {
 						ExtractObjFromWorld(obj);
 						curr_state = 1;
 					}

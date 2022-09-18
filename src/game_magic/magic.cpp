@@ -742,7 +742,7 @@ bool ProcessMatComponents(CharData *caster, CharData *victim, ESpell spell_id) {
 		default: log("WARNING: wrong spell_id %d in %s:%d", to_underlying(spell_id), __FILE__, __LINE__);
 			return false;
 	}
-	ObjData *tobj = GetObjByVnum(vnum, caster->carrying);
+	ObjData *tobj = GetObjByVnumInContent(vnum, caster->carrying);
 	if (!tobj) {
 		act(missing, false, victim, nullptr, caster, kToChar);
 		return (true);
@@ -3336,9 +3336,9 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id) 
 
 			auto reagobj = GET_EQ(ch, EEquipPos::kHold);
 			if (reagobj
-				&& (GetObjByVnum(GlobalDrop::MAGIC1_ENCHANT_VNUM, reagobj)
-					|| GetObjByVnum(GlobalDrop::MAGIC2_ENCHANT_VNUM, reagobj)
-					|| GetObjByVnum(GlobalDrop::MAGIC3_ENCHANT_VNUM, reagobj))) {
+				&& (GetObjByVnumInContent(GlobalDrop::MAGIC1_ENCHANT_VNUM, reagobj)
+					|| GetObjByVnumInContent(GlobalDrop::MAGIC2_ENCHANT_VNUM, reagobj)
+					|| GetObjByVnumInContent(GlobalDrop::MAGIC3_ENCHANT_VNUM, reagobj))) {
 				// у нас имеется доп символ для зачарования
 				obj->set_enchant(ch->GetSkill(ESkill::kLightMagic), reagobj);
 				ProcessMatComponents(ch, reagobj->get_rnum(), spell_id); //может неправильный вызов
