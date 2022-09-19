@@ -729,9 +729,11 @@ void zedit_disp_commands(DescriptorData *d) {
 
 			case 'P':
 				sprintf(buf2,
-						"поместить %d [%s] в %d [%s], Load%% %d",
+						"поместить %d [%s] в %d [%s] (в комнате %d [%s]), Load%% %d",
 						item->cmd.arg1, name_by_vnum(item->cmd.arg1, OBJ_NAME),
-						item->cmd.arg3, name_by_vnum(item->cmd.arg3, OBJ_NAME), item->cmd.arg4);
+						item->cmd.arg3, name_by_vnum(item->cmd.arg3, OBJ_NAME), 
+						item->cmd.arg2, item->cmd.arg2 == 0? "везде" : name_by_vnum(item->cmd.arg2, ROOM_NAME),
+						item->cmd.arg4);
 				// hl - не изменяется
 				break;
 
@@ -1090,10 +1092,12 @@ void zedit_disp_arg2(DescriptorData *d) {
 	SendMsgToChar("\r\n", d->character.get());
 
 	switch (item->cmd.command) {
+		case 'P':sprintf(buf, "Комната в которой искать контейнер (0 искать по всему миру)\r\n"
+					"Текущее значение: %d\r\n" "Введите номер: ", item->cmd.arg2);
+			break;
 		case 'M':
 		case 'O':
 		case 'E':
-		case 'P':
 		case 'G':
 			sprintf(buf,
 					"Максимальное количество в мире\r\n"
@@ -1110,7 +1114,7 @@ void zedit_disp_arg2(DescriptorData *d) {
 		case 'R':
 			sprintf(buf,
 					"Выбор предмета\r\n"
-					"Текущий предмет: %d [%s]\r\n" "Введите номер  : ",
+					"Текущий предмет: %d [%s]\r\n" "Введите номер: ",
 					item->cmd.arg2,
 					name_by_vnum(item->cmd.arg2, OBJ_NAME));
 			break;
@@ -1126,7 +1130,7 @@ void zedit_disp_arg2(DescriptorData *d) {
 		case 'T':
 			sprintf(buf,
 					"Выбор триггера\r\n"
-					"Текущий триггер: %d [%s]\r\n" "Введите номер  : ",
+					"Текущий триггер: %d [%s]\r\n" "Введите номер: ",
 					item->cmd.arg2,
 					name_by_vnum(item->cmd.arg2, TRIG_NAME));
 			break;
@@ -1136,7 +1140,7 @@ void zedit_disp_arg2(DescriptorData *d) {
 				item->cmd.arg2 = OLC_NUM(d);
 			sprintf(buf,
 					"Выбор комнаты\r\n"
-					"Текущая комната: %d [%s]\r\n" "Введите номер  : ",
+					"Текущая комната: %d [%s]\r\n" "Введите номер: ",
 					item->cmd.arg2,
 					name_by_vnum(item->cmd.arg2, ROOM_NAME));
 			break;
@@ -1627,6 +1631,8 @@ void zedit_parse(DescriptorData *d, char *arg) {
 					CHECK_OBJ(d, pos);
 					if (item->cmd.command == 'G')
 						zedit_disp_arg4(d);
+					else if (item->cmd.command == 'P')
+						zedit_disp_arg2(d);
 					else
 						zedit_disp_arg3(d);
 					break;
