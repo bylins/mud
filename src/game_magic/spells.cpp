@@ -2590,7 +2590,7 @@ bool mag_item_ok(CharData *ch, ObjData *obj, int spelltype) {
 	return true;
 }
 
-int CheckRecipeItems(CharData *ch, ESpell spell_id, ESpellType spell_type, int extract, const CharData *targ) {
+int CheckRecipeItems(CharData *ch, ESpell spell_id, ESpellType spell_type, int extract, CharData *tch) {
 	ObjData *obj0 = nullptr, *obj1 = nullptr, *obj2 = nullptr, *obj3 = nullptr, *objo = nullptr;
 	int item0 = -1, item1 = -1, item2 = -1, item3 = -1;
 	int create = 0, obj_num = -1, percent = 0, num = 0;
@@ -2761,12 +2761,12 @@ int CheckRecipeItems(CharData *ch, ESpell spell_id, ESpellType spell_type, int e
 					true, ch, nullptr, nullptr, kToRoom);
 				sprintf(buf, "$n сложил$g руны в заклинание '%s'%s%s.",
 						MUD::Spell(spell_id).GetCName(),
-						(targ && targ != ch ? " на " : ""),
-						(targ && targ != ch ? GET_PAD(targ, 1) : ""));
+						(tch && tch != ch ? " на " : ""),
+						(tch && tch != ch ? GET_PAD(tch, 1) : ""));
 				act(buf, true, ch, nullptr, nullptr, kToArenaListen);
 				auto magic_skill = GetMagicSkillId(spell_id);
 				if (MUD::Skills().IsValid(magic_skill)) {
-					TrainSkill(ch, magic_skill, true, nullptr);
+					TrainSkill(ch, magic_skill, true, tch);
 				}
 			}
 		}

@@ -131,7 +131,7 @@ int CalcMinSpellLvl(const CharData *ch, ESpell spell_id, int req_lvl);
 int CalcMinSpellLvl(const CharData *ch, ESpell spell_id);
 ESkill GetMagicSkillId(ESpell spell_id);
 int CheckRecipeValues(CharData *ch, ESpell spell_id, ESpellType spell_type, int showrecipe);
-int CheckRecipeItems(CharData *ch, ESpell spell_id, ESpellType spell_type, int extract, const CharData *targ = nullptr);
+int CheckRecipeItems(CharData *ch, ESpell spell_id, ESpellType spell_type, int extract, CharData *tch = nullptr);
 
 //Polud статистика использования заклинаний
 typedef std::map<ESpell, int> SpellCountType;

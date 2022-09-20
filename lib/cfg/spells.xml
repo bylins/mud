@@ -41,6 +41,8 @@ effects -секция эффектов заклинания
         ndice, sdice, adice - количество кубиков, размер кубика, бонус (формула NdM+K)
         low_skill_bonus - сколько процентов урона добавлять за 1 очко скилла до 75 (по сути - рост урона с уровнем) - число с правающей точкой
         hi_skill_bonus - сколько процентов урона добавлять за 1 очко спелла выше 75 (рост урона с ремортами) - число с правающей точкой
+base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычитаем из параметра id,  weight - сколько в процентах добавим урон от 
+разницы id-threshold
     area - для ареа и масскастов
         decay - снижение силы заклинания с каждой целью
             cast="0.0" level="0" - сниэение успеха колдовства (float) и уровня заклинания (int) за каждую пораженную цель
@@ -386,8 +388,8 @@ effects -секция эффектов заклинания
             <action>
                 <damage saving="kReflex">
                     <dices ndice="6" sdice="4" adice="10"/>
-                    <base_skill id="kFireMagic" low_skill_bonus="5" hi_skill_bonus="0.75"/>
-                    <base_stat id="kWis" threshold="32" weight="5"/>
+                    <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="0.75"/>
+                    <base_stat id="kWis" threshold="22" weight="5"/>
                 </damage>
             </action>
         </talent_actions>

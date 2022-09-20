@@ -299,22 +299,22 @@
                 <upgrade practices="10" min="0" max="10"/>
             </skill>
             <skill id="kAirMagic" fail="0">
-                <class val="kSorcerer|kConjurer|kCharmer|kWizard|kNecromancer|kPaladine|kMerchant"/>
+                <class val="kSorcerer|kConjurer|kCharmer|kWizard|kNecromancer|kPaladine|kMerchant|kMagus"/>
                 <price currency="kKuna" start="2" remort_percent="400"/>
                 <upgrade practices="10" min="0" max="10"/>
             </skill>
             <skill id="kFireMagic" fail="0">
-                <class val="kSorcerer|kConjurer|kCharmer|kWizard|kNecromancer|kPaladine|kMerchant"/>
+                <class val="kSorcerer|kConjurer|kCharmer|kWizard|kNecromancer|kPaladine|kMerchant|kMagus"/>
                 <price currency="kKuna" start="2" remort_percent="400"/>
                 <upgrade practices="10" min="0" max="10"/>
             </skill>
             <skill id="kWaterMagic" fail="0">
-                <class val="kSorcerer|kConjurer|kCharmer|kWizard|kNecromancer|kPaladine|kMerchant"/>
+                <class val="kSorcerer|kConjurer|kCharmer|kWizard|kNecromancer|kPaladine|kMerchant|kMagus"/>
                 <price currency="kKuna" start="2" remort_percent="400"/>
                 <upgrade practices="10" min="0" max="10"/>
             </skill>
             <skill id="kEarthMagic" fail="0">
-                <class val="kSorcerer|kConjurer|kCharmer|kWizard|kNecromancer|kPaladine|kMerchant"/>
+                <class val="kSorcerer|kConjurer|kCharmer|kWizard|kNecromancer|kPaladine|kMerchant|kMagus"/>
                 <price currency="kKuna" start="2" remort_percent="400"/>
                 <upgrade practices="10" min="0" max="10"/>
             </skill>
@@ -395,7 +395,7 @@
                 <upgrade practices="10" min="0" max="10"/>
             </skill>
             <skill id="kDarkMagic" fail="0">
-                <class val="kSorcerer|kConjurer|kCharmer|kWizard|kNecromancer|kPaladine|kMerchant"/>
+                <class val="kSorcerer|kConjurer|kCharmer|kWizard|kNecromancer|kPaladine|kMerchant|kMagus"/>
                 <price currency="kKuna" start="3" remort_percent="400"/>
                 <upgrade practices="10" min="0" max="10"/>
             </skill>

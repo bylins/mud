@@ -4386,7 +4386,6 @@ void ZoneReset::reset_zone_essential() {
 								break;
 							}
 							if (!(obj_to = GetObjByRnumInContent(ZCMD.arg3, world[arg2]->contents))) {
-								ZONE_ERROR("target obj not found in room, command omited");
 								break;
 							}
 						} else {
