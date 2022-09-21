@@ -202,8 +202,8 @@ class CObjectPrototype {
 	auto get_weight() const { return m_weight; }
 	auto serialize_values() const { return m_values.print_to_file(); }
 	bool can_wear_any() const { return m_wear_flags > 0 && m_wear_flags != to_underlying(EWearFlag::kTake); }
-	bool get_affect(const EWeaponAffect weapon_affect) const { return m_waffect_flags.get(weapon_affect); }
-	bool get_affect(const Bitvector weapon_affect) const { return m_waffect_flags.get(weapon_affect); }
+	bool GetEWeaponAffect(const EWeaponAffect weapon_affect) const { return m_waffect_flags.get(weapon_affect); }
+	bool GetWeaponAffect(const Bitvector weapon_affect) const { return m_waffect_flags.get(weapon_affect); }
 	bool has_anti_flag(const EAntiFlag flag) const { return m_anti_flags.get(flag); }
 	bool has_flag(const EObjFlag packed_flag) const { return m_extra_flags.get(packed_flag); }
 	bool has_flag(const size_t plane, const Bitvector flag) const { return m_extra_flags.get_flag(plane, flag); }
@@ -256,8 +256,8 @@ class CObjectPrototype {
 	void load_no_flags(const char *string) { m_no_flags.from_string(string); }
 	void remove_incorrect_values_keys(const int type) { m_values.remove_incorrect_keys(type); }
 	void set_action_description(const std::string &_) { m_action_description = _; }
-	void set_affect_flag(const EWeaponAffect packed_flag) { m_waffect_flags.set(packed_flag); }
-	void set_affect_flags(const FlagData &flags) { m_waffect_flags = flags; }
+	void SetEWeaponAffectFlag(const EWeaponAffect packed_flag) { m_waffect_flags.set(packed_flag); }
+	void SetWeaponAffectFlags(const FlagData &flags) { m_waffect_flags = flags; }
 	void set_affected(const size_t index, const EApply location, const int modifier);
 	void set_affected(const size_t index, const obj_affected_type &affect) { m_affected[index] = affect; }
 	void set_affected_location(const size_t index, const EApply _) { m_affected[index].location = _; }
@@ -814,7 +814,7 @@ inline bool CAN_WEAR(const CObjectPrototype *obj, const EWearFlag part) { return
 inline bool CAN_WEAR_ANY(const CObjectPrototype *obj) { return obj->can_wear_any(); }
 inline void SET_OBJ_AFF(CObjectPrototype *obj, const Bitvector packed_flag) { return obj->set_obj_aff(packed_flag); }
 inline bool OBJ_AFFECT(const CObjectPrototype *obj,
-					   const Bitvector weapon_affect) { return obj->get_affect(weapon_affect); }
+					   const Bitvector weapon_affect) { return obj->GetWeaponAffect(weapon_affect); }
 
 inline bool OBJ_AFFECT(const CObjectPrototype *obj, const EWeaponAffect weapon_affect) {
 	return OBJ_AFFECT(obj, static_cast<Bitvector>(weapon_affect));

@@ -887,7 +887,7 @@ const int kNameLevel = 5;
                         (obj)->get_carried_by() ? IN_ROOM((obj)->get_carried_by()) : (obj)->get_in_room())
 #define IS_OBJ_ANTI(obj, stat) ((obj)->has_anti_flag(stat))
 #define IS_OBJ_NO(obj, stat) ((obj)->has_no_flag(stat))
-#define IS_OBJ_AFF(obj, stat) ((obj)->get_affect(stat))
+#define IS_OBJ_AFF(obj, stat) ((obj)->GetEWeaponAffect(stat))
 
 // compound utilities and other macros *********************************
 
