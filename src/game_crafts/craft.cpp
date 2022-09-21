@@ -412,7 +412,7 @@ bool CObject::load_from_node(const pugi::xml_node *node) {
 
 	// loading of object weapon affect flags
 	CHelper::load_flags<EWeaponAffect>(*node, "weapon_affects", "weapon_affect",
-									   [&](const auto flag) { this->set_affect_flag(flag); },
+									   [&](const auto flag) { this->SetEWeaponAffectFlag(flag); },
 									   [&](const auto value) {
 											   logger("Setting weapon affect flag '%s' for object with VNUM %d.\n",
 													  NAME_BY_ITEM(value).c_str(),

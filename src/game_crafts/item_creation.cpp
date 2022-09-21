@@ -1516,7 +1516,7 @@ void MakeRecept::make_object(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_PART
 
 	auto temp_flags = obj->get_affect_flags();
 	add_flags(ch, &temp_flags, &ingrs[0]->get_affect_flags(), get_ingr_pow(ingrs[0]));
-	obj->set_affect_flags(temp_flags);
+	obj->SetWeaponAffectFlags(temp_flags);
 	// перносим эффекты ... с ингров на прототип, 0 объект шкура переносим все, с остальных 1 рандом
 	temp_flags = obj->get_extra_flags();
 	add_flags(ch, &temp_flags, &GET_OBJ_EXTRA(ingrs[0]), get_ingr_pow(ingrs[0]));
@@ -1564,7 +1564,7 @@ void MakeRecept::make_object(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_PART
 		// переносим аффекты ... c ингров на прототип.
 		auto temp_flags = obj->get_affect_flags();
 		add_flags(ch, &temp_flags, &ingrs[j]->get_affect_flags(), get_ingr_pow(ingrs[j]));
-		obj->set_affect_flags(temp_flags);
+		obj->SetWeaponAffectFlags(temp_flags);
 		// перносим эффекты ... с ингров на прототип.
 		temp_flags = obj->get_extra_flags();
 		add_flags(ch, &temp_flags, &GET_OBJ_EXTRA(ingrs[j]), get_ingr_pow(ingrs[j]));
@@ -1998,7 +1998,7 @@ int MakeRecept::make(CharData *ch) {
 			// переносим аффекты ... c ингров на прототип.
 			auto temp_flags = obj->get_affect_flags();
 			add_flags(ch, &temp_flags, &ingrs[j]->get_affect_flags(), ingr_pow);
-			obj->set_affect_flags(temp_flags);
+			obj->SetWeaponAffectFlags(temp_flags);
 			temp_flags = obj->get_extra_flags();
 			// перносим эффекты ... с ингров на прототип.
 			add_flags(ch, &temp_flags, &GET_OBJ_EXTRA(ingrs[j]), ingr_pow);

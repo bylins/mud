@@ -142,7 +142,7 @@ void ObjData::set_serial_num(int num) {
 
 const std::string ObjData::activate_obj(const activation &__act) {
 	if (get_rnum() >= 0) {
-		set_affect_flags(__act.get_affects());
+		SetWeaponAffectFlags(__act.get_affects());
 		for (int i = 0; i < kMaxObjAffect; i++) {
 			set_affected(i, __act.get_affected_i(i));
 		}
@@ -181,7 +181,7 @@ const std::string ObjData::activate_obj(const activation &__act) {
 
 const std::string ObjData::deactivate_obj(const activation &__act) {
 	if (get_rnum() >= 0) {
-		set_affect_flags(obj_proto[get_rnum()]->get_affect_flags());
+		SetWeaponAffectFlags(obj_proto[get_rnum()]->get_affect_flags());
 		for (int i = 0; i < kMaxObjAffect; i++) {
 			set_affected(i, obj_proto[get_rnum()]->get_affected(i));
 		}
@@ -501,7 +501,7 @@ void ObjData::unset_enchant() {
 		}
 	}
 	// Возврат эфектов
-	set_affect_flags(obj_proto[get_rnum()]->get_affect_flags());
+	SetWeaponAffectFlags(obj_proto[get_rnum()]->get_affect_flags());
 	// поскольку все обнулилось можно втыкать слоты для ковки
 	if (obj_proto.at(get_rnum()).get()->has_flag(EObjFlag::kHasThreeSlots)) {
 		set_extra_flag(EObjFlag::kHasThreeSlots);

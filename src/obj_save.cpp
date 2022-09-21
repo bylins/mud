@@ -242,7 +242,7 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 				object->set_level(atoi(buffer));
 			} else if (!strcmp(read_line, "Affs")) {
 				*error = 23;
-				object->set_affect_flags(clear_flags);
+				object->SetWeaponAffectFlags(clear_flags);
 				object->load_affect_flags(buffer);
 			} else if (!strcmp(read_line, "Anti")) {
 				*error = 24;
@@ -624,7 +624,7 @@ ObjData::shared_ptr read_one_object(char **data, int *error) {
 		|| sscanf(buffer, " %s %s %s", f0, f1, f2) != 3) {
 		return object;
 	}
-	object->set_affect_flags(clear_flags);
+	object->SetWeaponAffectFlags(clear_flags);
 	object->set_anti_flags(clear_flags);
 	object->set_no_flags(clear_flags);
 	object->load_affect_flags(f0);
