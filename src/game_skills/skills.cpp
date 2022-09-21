@@ -1823,6 +1823,14 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 	return (total_percent);
 }
 
+void RemoveAllSkills(CharData *ch) {
+	for (auto i = ESkill::kFirst; i <= ESkill::kLast; ++i) {
+		if (MUD::Skills().IsValid(i)) {
+			ch->set_skill(i, 0);
+		}
+	}
+}
+
 void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victim) {
 	const int trained_skill = ch->GetMorphSkill(skill);
 
