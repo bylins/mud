@@ -116,7 +116,6 @@ EAffect ITEM_BY_NAME<EAffect>(const std::string &name);
 
 typedef std::list<EAffect> affects_list_t;
 
-const int kWeaponAffectAuraModifier = 2;
 enum class EWeaponAffect : Bitvector {
 	kBlindness = (1 << 0),			//0
 	kInvisibility = (1 << 1),

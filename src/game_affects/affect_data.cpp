@@ -446,28 +446,29 @@ void RemoveAffectFromChar(CharData *ch, ESpell spell_id) {
 	}
 }
 
-EApply GetApplyByWeaponAffect(EWeaponAffect element) {
+std::pair<EApply, int>  GetApplyByWeaponAffect(EWeaponAffect element, int value) {
+	value = 2;
 	switch (element) {
 		case EWeaponAffect::kFireAura:
-			return EApply::kResistFire;
+			return std::pair<EApply, int>(EApply::kResistFire, value);
 			break;
 		case EWeaponAffect::kAirAura:
-			return EApply::kResistAir;
+			return std::pair<EApply, int>(EApply::kResistAir, value);
 			break;
 		case EWeaponAffect::kIceAura:
-			return EApply::kResistWater;
+			return std::pair<EApply, int>(EApply::kResistWater, value);
 			break;
 		case EWeaponAffect::kEarthAura:
-			return EApply::kResistEarth;
+			return std::pair<EApply, int>(EApply::kResistEarth, value);
 			break;
 		case EWeaponAffect::kProtectFromDark:
-			return EApply::kResistDark;
+			return std::pair<EApply, int>(EApply::kResistDark, value);
 			break;
 		case EWeaponAffect::kProtectFromMind:
-			return EApply::kResistMind;
+			return std::pair<EApply, int>(EApply::kResistMind, value);
 			break;
 		default: 
-			return EApply::kNone;
+			return std::pair<EApply, int>(EApply::kNone, 0);
 			break;
 	}
 }
@@ -546,8 +547,8 @@ void affect_total(CharData *ch) {
 				// То же самое, но переформулировал
 				if (j.aff_bitvector == 0 || !IS_OBJ_AFF(obj, j.aff_pos)) 
 					continue;
-				affect_modify(ch, GetApplyByWeaponAffect(j.aff_pos), GetApplyByWeaponAffect(j.aff_pos) == EApply::kNone? 0 :
-						kWeaponAffectAuraModifier, static_cast<EAffect>(j.aff_bitvector), true);
+//				auto  = GetApplyByWeaponAffect
+				affect_modify(ch, GetApplyByWeaponAffect(j.aff_pos, 0).first, GetApplyByWeaponAffect(j.aff_pos, 0).second, static_cast<EAffect>(j.aff_bitvector), true);
 			}
 		}
 	}
