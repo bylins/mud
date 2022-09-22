@@ -76,7 +76,7 @@ enum class EAffect : Bitvector {
 	kPrismaticAura = kIntOne | (1u << 20),
 	kHelper = kIntOne | (1u << 21),
 	kForcesOfEvil = kIntOne | (1u << 22),
-	kAitAura = kIntOne | (1u << 23),
+	kAirAura = kIntOne | (1u << 23),
 	kFireAura = kIntOne | (1u << 24),
 	kIceAura = kIntOne | (1u << 25),
 	kDeafness = kIntOne | (1u << 26),
@@ -116,9 +116,9 @@ EAffect ITEM_BY_NAME<EAffect>(const std::string &name);
 
 typedef std::list<EAffect> affects_list_t;
 
-
+const int kWeaponAffectAuraModifier = 2;
 enum class EWeaponAffect : Bitvector {
-	kBlindness = (1 << 0),
+	kBlindness = (1 << 0),			//0
 	kInvisibility = (1 << 1),
 	kDetectAlign = (1 << 2),
 	kDetectInvisibility = (1 << 3),
@@ -128,7 +128,7 @@ enum class EWeaponAffect : Bitvector {
 	kSanctuary = (1 << 7),
 	kCurse = (1 << 8),
 	kInfravision = (1 << 9),
-	kPoison = (1 << 10),
+	kPoison = (1 << 10),			//10
 	kProtectedFromEvil = (1 << 11),
 	kProtectedFromGood = (1 << 12),
 	kSleep = (1 << 13),
@@ -138,7 +138,7 @@ enum class EWeaponAffect : Bitvector {
 	kHide = (1 << 17),
 	kHold = (1 << 18),
 	kFly = (1 << 19),
-	kSilence = (1 << 20),
+	kSilence = (1 << 20),			//20
 	kAwareness = (1 << 21),
 	kBlink = (1 << 22),
 	kNoFlee = (1 << 23),
@@ -148,7 +148,7 @@ enum class EWeaponAffect : Bitvector {
 	kDetectPoison = (1 << 27),
 	kSlow = (1 << 28),
 	kHaste = (1 << 29),
-	kWaterBreath = kIntOne | (1 << 0),
+	kWaterBreath = kIntOne | (1 << 0),//30
 	kHaemorrhage = kIntOne | (1 << 1),
 	kDisguising = kIntOne | (1 << 2),
 	kShield = kIntOne | (1 << 3),
@@ -158,16 +158,16 @@ enum class EWeaponAffect : Bitvector {
 	kMagicGlass = kIntOne | (1 << 7),
 	kStoneHand = kIntOne | (1 << 8),
 	kPrismaticAura = kIntOne | (1 << 9),
-	kAirAura = kIntOne | (1 << 10),
+	kAirAura = kIntOne | (1 << 10),		//40
 	kFireAura = kIntOne | (1 << 11),
 	kIceAura = kIntOne | (1 << 12),
 	kDeafness = kIntOne | (1 << 13),
 	kComamnder = kIntOne | (1 << 14),
-	kEarthAura = kIntOne | (1 << 15),
+	kEarthAura = kIntOne | (1 << 15),	//45
 // не забудьте поправить kWeaponAffectCount
 };
 
-constexpr size_t kWeaponAffectCount = 47;
+constexpr size_t kWeaponAffectCount = 46;
 
 template<>
 EWeaponAffect ITEM_BY_NAME<EWeaponAffect>(const std::string &name);

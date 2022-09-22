@@ -41,7 +41,7 @@ int CalcRequiredLevel(const CharData *ch, ESpell spell_id);
 int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpell spell_id, ESpell spell_subst);
 
 // Resistance calculate //
-int ApplyResist(CharData *ch, int resist_type, int effect);
+int ApplyResist(CharData *ch, EResist resist_type, int value);
 EResist GetResisTypeWithElement(EElement element);
 EResist GetResistType(ESpell spell_id);
 

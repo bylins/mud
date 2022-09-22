@@ -160,7 +160,7 @@ void init_EAffectFlag_ITEM_NAMES() {
 	EAffectFlag_name_by_value[EAffect::kPrismaticAura] = "kPrismaticAura";
 	EAffectFlag_name_by_value[EAffect::kHelper] = "kHelper";
 	EAffectFlag_name_by_value[EAffect::kForcesOfEvil] = "kForcesOfEvil";
-	EAffectFlag_name_by_value[EAffect::kAitAura] = "kAitAura";
+	EAffectFlag_name_by_value[EAffect::kAirAura] = "kAirAura";
 	EAffectFlag_name_by_value[EAffect::kFireAura] = "kFireAura";
 	EAffectFlag_name_by_value[EAffect::kIceAura] = "kIceAura";
 	EAffectFlag_name_by_value[EAffect::kDeafness] = "kDeafness";
@@ -328,7 +328,7 @@ WeaponAffectArray weapon_affect = {
 	WeaponAffect{EWeaponAffect::kMagicGlass, to_underlying(EAffect::kMagicGlass), ESpell::kUndefined},
 	WeaponAffect{EWeaponAffect::kStoneHand, to_underlying(EAffect::kStoneHands), ESpell::kUndefined},
 	WeaponAffect{EWeaponAffect::kPrismaticAura, to_underlying(EAffect::kPrismaticAura), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kAirAura, to_underlying(EAffect::kAitAura), ESpell::kUndefined},
+	WeaponAffect{EWeaponAffect::kAirAura, to_underlying(EAffect::kAirAura), ESpell::kUndefined},
 	WeaponAffect{EWeaponAffect::kFireAura, to_underlying(EAffect::kFireAura), ESpell::kUndefined},
 	WeaponAffect{EWeaponAffect::kIceAura, to_underlying(EAffect::kIceAura), ESpell::kUndefined},
 	WeaponAffect{EWeaponAffect::kDeafness, to_underlying(EAffect::kDeafness), ESpell::kUndefined},

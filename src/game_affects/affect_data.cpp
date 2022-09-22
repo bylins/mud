@@ -446,6 +446,26 @@ void RemoveAffectFromChar(CharData *ch, ESpell spell_id) {
 	}
 }
 
+EApply GetApplyByWeaponAffect(EWeaponAffect element) {
+	switch (element) {
+		case EWeaponAffect::kFireAura:
+			return EApply::kResistFire;
+			break;
+		case EWeaponAffect::kAirAura:
+			return EApply::kResistAir;
+			break;
+		case EWeaponAffect::kIceAura:
+			return EApply::kResistWater;
+			break;
+		case EWeaponAffect::kEarthAura:
+			return EApply::kResistEarth;
+			break;
+		default: 
+			return EApply::kNone;
+			break;
+	}
+}
+
 // This updates a character by subtracting everything he is affected by
 // restoring original abilities, and then affecting all again
 void affect_total(CharData *ch) {
@@ -518,10 +538,10 @@ void affect_total(CharData *ch) {
 			// Update weapon bitvectors
 			for (const auto &j : weapon_affect) {
 				// То же самое, но переформулировал
-				if (j.aff_bitvector == 0 || !IS_OBJ_AFF(obj, j.aff_pos)) {
+				if (j.aff_bitvector == 0 || !IS_OBJ_AFF(obj, j.aff_pos)) 
 					continue;
-				}
-				affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(j.aff_bitvector), true);
+				affect_modify(ch, GetApplyByWeaponAffect(j.aff_pos), GetApplyByWeaponAffect(j.aff_pos) == EApply::kNone? 0 :
+						kWeaponAffectAuraModifier, static_cast<EAffect>(j.aff_bitvector), true);
 			}
 		}
 	}
