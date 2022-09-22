@@ -35,8 +35,8 @@ enum class EAffect : Bitvector {
 	kCurse = 1u << 9,                    ///< Char is cursed
 	kInfravision = 1u << 10,                ///< Char can see in dark
 	kPoisoned = 1u << 11,                    ///< (R) Char is poisoned
-	kProtectedFromEvil = 1u << 12,            ///< Char protected from evil
-	kProtectedFromGood = 1u << 13,            ///< Char protected from good
+	kProtectFromDark = 1u << 12,            ///
+	kProtectFromMind = 1u << 13,            ///
 	kSleep = 1u << 14,                    ///< (R) Char magically asleep
 	kNoTrack = 1u << 15,                    ///< Char can't be tracked
 	kTethered = 1u << 16,                ///< Room for future expansion
@@ -129,8 +129,8 @@ enum class EWeaponAffect : Bitvector {
 	kCurse = (1 << 8),
 	kInfravision = (1 << 9),
 	kPoison = (1 << 10),			//10
-	kProtectedFromEvil = (1 << 11),
-	kProtectedFromGood = (1 << 12),
+	kProtectFromDark = (1 << 11),
+	kProtectFromMind = (1 << 12),
 	kSleep = (1 << 13),
 	kNoTrack = (1 << 14),
 	kBless = (1 << 15),

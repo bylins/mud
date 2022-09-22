@@ -460,6 +460,12 @@ EApply GetApplyByWeaponAffect(EWeaponAffect element) {
 		case EWeaponAffect::kEarthAura:
 			return EApply::kResistEarth;
 			break;
+		case EWeaponAffect::kProtectFromDark:
+			return EApply::kResistDark;
+			break;
+		case EWeaponAffect::kProtectFromMind:
+			return EApply::kResistMind;
+			break;
 		default: 
 			return EApply::kNone;
 			break;

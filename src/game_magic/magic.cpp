@@ -1604,7 +1604,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			}
 			af[0].duration =
 				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
-			af[0].bitvector = to_underlying(EAffect::kProtectedFromEvil);
+			af[0].bitvector = to_underlying(EAffect::kProtectFromDark);
 			accum_duration = true;
 			to_vict = "Вы подавили в себе страх к тьме.";
 			to_room = "$n подавил$g в себе страх к тьме.";

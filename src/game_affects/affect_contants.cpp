@@ -119,8 +119,8 @@ void init_EAffectFlag_ITEM_NAMES() {
 	EAffectFlag_name_by_value[EAffect::kCurse] = "kCurse";
 	EAffectFlag_name_by_value[EAffect::kInfravision] = "kInfravision";
 	EAffectFlag_name_by_value[EAffect::kPoisoned] = "kPoisoned";
-	EAffectFlag_name_by_value[EAffect::kProtectedFromEvil] = "kProtectedFromEvil";
-	EAffectFlag_name_by_value[EAffect::kProtectedFromGood] = "kProtectedFromGood";
+	EAffectFlag_name_by_value[EAffect::kProtectFromDark] = "kProtectFromDark";
+	EAffectFlag_name_by_value[EAffect::kProtectFromMind] = "kProtectFromMind";
 	EAffectFlag_name_by_value[EAffect::kSleep] = "kSleep";
 	EAffectFlag_name_by_value[EAffect::kNoTrack] = "kNoTrack";
 	EAffectFlag_name_by_value[EAffect::kTethered] = "kTethered";
@@ -231,8 +231,8 @@ void init_EWeaponAffectFlag_ITEM_NAMES() {
 	EWeaponAffectFlag_name_by_value[EWeaponAffect::kCurse] = "kCurse";
 	EWeaponAffectFlag_name_by_value[EWeaponAffect::kInfravision] = "kInfravision";
 	EWeaponAffectFlag_name_by_value[EWeaponAffect::kPoison] = "kPoison";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kProtectedFromEvil] = "kProtectedFromEvil";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kProtectedFromGood] = "kProtectedFromGood";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kProtectFromDark] = "kProtectFromDark";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kProtectFromMind] = "kProtectFromEvil";
 	EWeaponAffectFlag_name_by_value[EWeaponAffect::kSleep] = "kSleep";
 	EWeaponAffectFlag_name_by_value[EWeaponAffect::kNoTrack] = "kNoTrack";
 	EWeaponAffectFlag_name_by_value[EWeaponAffect::kBless] = "kBless";
@@ -299,8 +299,8 @@ WeaponAffectArray weapon_affect = {
 	WeaponAffect{EWeaponAffect::kCurse, to_underlying(EAffect::kCurse), ESpell::kUndefined},
 	WeaponAffect{EWeaponAffect::kInfravision, to_underlying(EAffect::kInfravision), ESpell::kUndefined},
 	WeaponAffect{EWeaponAffect::kPoison, 0, ESpell::kPoison},
-	WeaponAffect{EWeaponAffect::kProtectedFromEvil, to_underlying(EAffect::kProtectedFromEvil), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kProtectedFromGood, to_underlying(EAffect::kProtectedFromGood), ESpell::kUndefined},
+	WeaponAffect{EWeaponAffect::kProtectFromDark, to_underlying(EAffect::kProtectFromDark), ESpell::kUndefined},
+	WeaponAffect{EWeaponAffect::kProtectFromMind, to_underlying(EAffect::kProtectFromMind), ESpell::kUndefined},
 	WeaponAffect{EWeaponAffect::kSleep, 0, ESpell::kSleep},
 	WeaponAffect{EWeaponAffect::kNoTrack, to_underlying(EAffect::kNoTrack), ESpell::kUndefined},
 	WeaponAffect{EWeaponAffect::kBless, to_underlying(EAffect::kBless), ESpell::kUndefined},
