@@ -1884,6 +1884,7 @@ void do_load(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 		const auto obj = world_objects.create_from_prototype_by_rnum(r_num);
 		obj->set_crafter_uid(GET_UNIQUE(ch));
+		obj->set_vnum_zone_from(zone_table[world[ch->in_room]->zone_rn].vnum);
 
 		if (number == GlobalDrop::MAGIC1_ENCHANT_VNUM
 			|| number == GlobalDrop::MAGIC2_ENCHANT_VNUM
