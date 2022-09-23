@@ -2765,4 +2765,8 @@ void koi_to_utf8(char *str_i, char *str_o) {
 
 #endif // HAVE_ICONV
 
+ZoneVnum GetZoneVnumByCharPlace(CharData *ch) {
+		return zone_table[world[ch->in_room]->zone_rn].vnum;
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

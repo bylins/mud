@@ -397,7 +397,7 @@ void do_mload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 			}
 		}
 		log("Load obj #%d by %s (mload)", number, GET_NAME(ch));
-		object->set_vnum_zone_from(zone_table[world[ch->in_room]->zone_rn].vnum);
+		object->set_vnum_zone_from(GetZoneVnumByCharPlace(ch));
 		uid_type = UID_OBJ;
 		idnum = object->get_id();
 		if (CAN_WEAR(object.get(), EWearFlag::kTake)) {

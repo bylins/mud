@@ -350,7 +350,7 @@ void die(CharData *ch, CharData *killer) {
 	if (stone_rebirth(ch, killer)) {
 		return;
 	}
-	if (!ch->IsNpc() && (zone_table[world[ch->in_room]->zone_rn].vnum == 759)
+	if (!ch->IsNpc() && (GetZoneVnumByCharPlace(ch) == 759)
 		&& (GetRealLevel(ch) < 15)) //нуб помер в мадшколе
 	{
 		act("$n глупо погиб$q не закончив обучение.", false, ch, nullptr, nullptr, kToRoom);

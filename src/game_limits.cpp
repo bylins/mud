@@ -756,7 +756,7 @@ void EndowExpToChar(CharData *ch, int gain) {
 		return;
 	} else {
 		ch->dps_add_exp(gain);
-		ZoneExpStat::add(zone_table[world[ch->in_room]->zone_rn].vnum, gain);
+		ZoneExpStat::add(GetZoneVnumByCharPlace(ch), gain);
 	}
 
 	if (!ch->IsNpc() && ((GetRealLevel(ch) < 1 || GetRealLevel(ch) >= kLvlImmortal))) {

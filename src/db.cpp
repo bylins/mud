@@ -3062,7 +3062,7 @@ int dl_load_obj(ObjData *corpse, CharData *ch, CharData *chr, int DL_LOAD_TYPE) 
 						break;
 				}
 				if (load) {
-					tobj->set_vnum_zone_from(zone_table[world[ch->in_room]->zone_rn].vnum);
+					tobj->set_vnum_zone_from(GetZoneVnumByCharPlace(ch));
 					tobj->set_parent(GET_MOB_VNUM(ch));
 					if (DL_LOAD_TYPE == DL_SKIN) {
 						trans_obj_name(tobj.get(), ch);

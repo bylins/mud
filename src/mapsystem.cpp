@@ -579,7 +579,7 @@ void print_map(CharData *ch, CharData *imm) {
 	MAX_DEPTH_ROOMS = MAX_DEPTH_ROOM_STANDART;
 	if (ch->map_check_option(MAP_MODE_BIG)) {
 		for (unsigned int i = 0; i < cities.size(); i++) {
-			if (zone_table[world[ch->in_room]->zone_rn].vnum == cities[i].rent_vnum / 100) {
+			if (GetZoneVnumByCharPlace(ch) == cities[i].rent_vnum / 100) {
 				MAX_LINES = MAX_LINES_BIG;
 				MAX_LENGTH = MAX_LENGTH_BIG;
 				MAX_DEPTH_ROOMS = MAX_DEPTH_ROOM_BIG;
