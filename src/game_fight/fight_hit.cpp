@@ -3078,12 +3078,6 @@ void HitData::calc_rand_hr(CharData *ch, CharData *victim) {
 	if (!CAN_SEE(victim, ch))
 		calc_thaco -= (CanUseFeat(victim, EFeat::kBlindFight) ? 2 : 8);
 
-	// some protects
-	if (AFF_FLAGGED(victim, EAffect::kProtectedFromEvil) && IS_EVIL(ch))
-		calc_thaco += 2;
-	if (AFF_FLAGGED(victim, EAffect::kProtectedFromGood) && IS_GOOD(ch))
-		calc_thaco += 2;
-
 	// "Dirty" methods for battle
 	if (skill_num != ESkill::kThrow && skill_num != ESkill::kBackstab) {
 		int prob = (ch->GetSkill(weap_skill) + cha_app[GetRealCha(ch)].illusive) -

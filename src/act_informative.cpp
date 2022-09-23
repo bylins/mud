@@ -1342,13 +1342,6 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		strcat(aura_txt, " щитами ");
 	if (n > 0)
 		act(aura_txt, false, i, nullptr, ch, kToVict);
-	if (AFF_FLAGGED(ch, EAffect::kDetectAlign)) {
-		*aura_txt = '\0';
-		if (AFF_FLAGGED(i, EAffect::kCommander))
-			strcat(aura_txt, "... реет стяг над головой ");
-		if (*aura_txt)
-			act(aura_txt, false, i, nullptr, ch, kToVict);
-	}
 	if (AFF_FLAGGED(ch, EAffect::kDetectMagic)) {
 		*aura_txt = '\0';
 		n = 0;
@@ -1388,9 +1381,11 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		strcat(aura_txt, " ...глух$a");
 	if (AFF_FLAGGED(i, EAffect::kStrangled))
 		strcat(aura_txt, " ...задыхается");
+	if (AFF_FLAGGED(i, EAffect::kCommander))
+		strcat(aura_txt, " ...реет стяг над головой");
 	if (*aura_txt)
 		act(aura_txt, false, i, nullptr, ch, kToVict);
-	if (IS_MANA_CASTER(i)) {
+/*	if (IS_MANA_CASTER(i)) {
 		*aura_txt = '\0';
 		if (i->GetMorphSkill(ESkill::kDarkMagic) > 0)
 			strcat(aura_txt, "...все сферы магии кружатся над головой");
@@ -1405,7 +1400,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		if (*aura_txt)
 			act(aura_txt, false, i, nullptr, ch, kToVict);
 	}
-
+*/
 }
 
 void list_char_to_char(const RoomData::people_t &list, CharData *ch) {

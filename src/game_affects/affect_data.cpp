@@ -446,6 +446,35 @@ void RemoveAffectFromChar(CharData *ch, ESpell spell_id) {
 	}
 }
 
+std::pair<EApply, int>  GetApplyByWeaponAffect(EWeaponAffect element, CharData *ch) {
+	int value;
+	if (ch) //чтоб не было варнинга, ch передаю на будущее
+		value = 2;
+	switch (element) {
+		case EWeaponAffect::kFireAura:
+			return std::pair<EApply, int>(EApply::kResistFire, value);
+			break;
+		case EWeaponAffect::kAirAura:
+			return std::pair<EApply, int>(EApply::kResistAir, value);
+			break;
+		case EWeaponAffect::kIceAura:
+			return std::pair<EApply, int>(EApply::kResistWater, value);
+			break;
+		case EWeaponAffect::kEarthAura:
+			return std::pair<EApply, int>(EApply::kResistEarth, value);
+			break;
+		case EWeaponAffect::kProtectFromDark:
+			return std::pair<EApply, int>(EApply::kResistDark, value);
+			break;
+		case EWeaponAffect::kProtectFromMind:
+			return std::pair<EApply, int>(EApply::kResistMind, value);
+			break;
+		default: 
+			return std::pair<EApply, int>(EApply::kNone, 0);
+			break;
+	}
+}
+
 // This updates a character by subtracting everything he is affected by
 // restoring original abilities, and then affecting all again
 void affect_total(CharData *ch) {
@@ -521,7 +550,7 @@ void affect_total(CharData *ch) {
 				if (j.aff_bitvector == 0 || !IS_OBJ_AFF(obj, j.aff_pos)) {
 					continue;
 				}
-				affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(j.aff_bitvector), true);
+				affect_modify(ch, GetApplyByWeaponAffect(j.aff_pos, ch).first, GetApplyByWeaponAffect(j.aff_pos, ch).second, static_cast<EAffect>(j.aff_bitvector), true);
 			}
 		}
 	}

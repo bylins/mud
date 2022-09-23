@@ -130,7 +130,7 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply
 
 	if (saving != ESaving::kReflex) {
 		if ((save > 0) &&
-			(AFF_FLAGGED(victim, EAffect::kAitAura)
+			(AFF_FLAGGED(victim, EAffect::kAirAura)
 				|| AFF_FLAGGED(victim, EAffect::kFireAura)
 				|| AFF_FLAGGED(victim, EAffect::kEarthAura)
 				|| AFF_FLAGGED(victim, EAffect::kIceAura))) {
@@ -1000,7 +1000,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 		case ESpell::kAirAura: af[0].location = EApply::kResistAir;
 			af[0].modifier = level;
-			af[0].bitvector = to_underlying(EAffect::kAitAura);
+			af[0].bitvector = to_underlying(EAffect::kAirAura);
 			af[0].duration =
 				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
 			accum_duration = true;
@@ -1604,7 +1604,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			}
 			af[0].duration =
 				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
-			af[0].bitvector = to_underlying(EAffect::kProtectedFromEvil);
+			af[0].bitvector = to_underlying(EAffect::kProtectFromDark);
 			accum_duration = true;
 			to_vict = "Вы подавили в себе страх к тьме.";
 			to_room = "$n подавил$g в себе страх к тьме.";
