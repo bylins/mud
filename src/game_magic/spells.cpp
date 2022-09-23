@@ -1156,7 +1156,9 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 			}
 			affect_to_char(victim, af);
 			
-
+			// почистим изначальные скиллы, перки
+			RemoveAllSkills(victim);
+			victim->real_abils.Feats.reset();
 			// выбираем тип бойца - рандомно из 8 вариантов
 			int rnd = number(1, 8);
 			switch (rnd)
@@ -1355,32 +1357,28 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 		if (victim->helpers) {
 			victim->helpers = nullptr;
 		}
-
-		act("$n покорил$g ваше сердце настолько, что вы готовы на все ради н$s.",
-			false, ch, nullptr, victim, kToVict);
+// зачем мобу то писать?
+//		act("$n покорил$g ваше сердце настолько, что вы готовы на все ради н$s.",
+//			false, ch, nullptr, victim, kToVict);
 		if (victim->IsNpc()) {
-//Eli. Раздеваемся.
-			if (victim->IsNpc() && !MOB_FLAGGED(victim, EMobFlag::kSummoned)) { // только если не маг зверьки ()
+			if (!MOB_FLAGGED(victim, EMobFlag::kSummoned)) { // только если не маг зверьки ()
 				for (int i = 0; i < EEquipPos::kNumEquipPos; i++) {
 					if (GET_EQ(victim, i)) {
 						if (!remove_otrigger(GET_EQ(victim, i), victim)) {
 							continue;
 						}
-
-						act("Вы прекратили использовать $o3.",
-							false, victim, GET_EQ(victim, i), nullptr, kToChar);
 						act("$n прекратил$g использовать $o3.",
 							true, victim, GET_EQ(victim, i), nullptr, kToRoom);
 						PlaceObjToInventory(UnequipChar(victim, i, CharEquipFlag::show_msg), victim);
 					}
 				}
 			}
-//Eli закончили раздеваться.
 			MOB_FLAGS(victim).unset(EMobFlag::kAgressive);
 			MOB_FLAGS(victim).unset(EMobFlag::kSpec);
 			PRF_FLAGS(victim).unset(EPrf::kPunctual);
 			MOB_FLAGS(victim).set(EMobFlag::kNoSkillTrain);
-			victim->set_skill(ESkill::kPunctual, 0);
+			MOB_FLAGS(victim).unset(ENpcFlag::kWielding);
+			MOB_FLAGS(victim).unset(ENpcFlag::kArmoring);
 			// по идее при речарме и последующем креше можно оказаться с сейвом без шмота на чармисе -- Krodo
 			if (!NPC_FLAGGED(ch, ENpcFlag::kNoMercList))
 				ch->updateCharmee(GET_MOB_VNUM(victim), 0);

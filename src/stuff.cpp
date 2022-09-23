@@ -414,7 +414,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 	obj->set_extra_flag(EObjFlag::kDecay);
 	obj->set_extra_flag(EObjFlag::kNodisarm);
 	obj->set_extra_flag(EObjFlag::kBless);
-	obj->set_extra_flag(EObjFlag::kNodrop);
+//	obj->set_extra_flag(EObjFlag::kNodrop);
 
 	obj->set_maximum_durability(5000);
 	obj->set_current_durability(5000);
