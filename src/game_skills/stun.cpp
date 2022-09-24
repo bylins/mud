@@ -54,27 +54,10 @@ void do_stun(CharData *ch, char *argument, int, int) {
 
 void go_stun(CharData *ch, CharData *vict) {
 	TimedSkill timed;
-	if (GET_SKILL(ch, ESkill::kStun) < 150) {
-		ImproveSkill(ch, ESkill::kStun, true, vict);
-		timed.skill = ESkill::kStun;
-		timed.time = 7;
-		ImposeTimedSkill(ch, &timed);
-		act("У вас не получилось ошеломить $N3, надо больше тренироваться!",
-			false, ch, nullptr, vict, kToChar);
-		act("$N3 попытал$U ошеломить вас, но не получилось.",
-			false, vict, nullptr, ch, kToChar);
-		act("$n попытал$u ошеломить $N3, но плохому танцору и тапки мешают.",
-			true, ch, nullptr, vict, kToNotVict | kToArenaListen);
-		set_hit(ch, vict);
-		return;
-	}
 
 	timed.skill = ESkill::kStun;
-	timed.time = std::clamp(7 - (GET_SKILL(ch, ESkill::kStun) - 150) / 10, 2, 7);
+	timed.time = std::clamp(7 - (GET_SKILL(ch, ESkill::kStun) - (MUD::Skill(ESkill::kStun).cap / 4 * 3)) / 10, 2, 7);
 	ImposeTimedSkill(ch, &timed);
-	//weap_weight = GET_EQ(ch, WEAR_BOTHS)?  GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS)) : GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD));
-	//float num = MIN(95, (pow(GET_SKILL(ch, ESkill::kStun), 2) + pow(weap_weight, 2) + pow(GetRealStr(ch), 2)) /
-	//(pow(GetRealDex(vict), 2) + (GetRealCon(vict) - GetSave(vict, kStability)) * 30.0));
 
 	int percent = number(1, MUD::Skill(ESkill::kStun).difficulty);
 	int prob = CalcCurrentSkill(ch, ESkill::kStun, vict);
@@ -107,7 +90,7 @@ void go_stun(CharData *ch, CharData *vict) {
 				nullptr, vict, kToNotVict | kToArenaListen);
 		}
 		GET_POS(vict) = EPosition::kIncap;
-		SetWaitState(vict, (2 + GetRealRemort(ch) / 5) * kPulseViolence);
+		SetWaitState(vict, (2 + GetRealRemort(ch) / 5) * kPulseViolence * GET_SKILL(ch, ESkill::kStun) / MUD::Skill(ESkill::kStun).cap);
 		ch->setSkillCooldown(ESkill::kStun, 3 * kPulseViolence);
 		set_hit(ch, vict);
 	}
