@@ -202,7 +202,7 @@ void ProcessCritWeaponPoison(CharData *ch, CharData *vict, ESpell/* spell_num*/)
 						act("$N0 зашатал$U и не смог$Q устоять на ногах.",
 							true, ch, nullptr, vict, kToNotVict);
 						GET_POS(vict) = EPosition::kSit;
-						SetWaitState(vict, 3 * kPulseViolence);
+						SetWaitState(vict, 3 * kBattleRound);
 					}
 					break;
 				}

@@ -732,9 +732,9 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         <talent_actions>
             <action>
                 <damage saving="kWill">
-                    <dices ndice="15" sdice="10" adice="180"/>
-                    <base_skill id="kFireMagic" low_skill_bonus="1" hi_skill_bonus="2"/>
-                    <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    <dices ndice="25" sdice="30" adice="180"/>
+                    <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="2"/>
+                    <base_stat id="kWis" threshold="22" weight="2.5"/>
                 </damage>
             </action>
         </talent_actions>
@@ -2276,7 +2276,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
                 <damage saving="kReflex">
                     <dices ndice="30" sdice="25" adice="180"/>
                     <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="2"/>
-                    <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    <base_stat id="kWis" threshold="22" weight="2.5"/>
                 </damage>
             </action>
         </talent_actions>

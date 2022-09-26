@@ -90,8 +90,8 @@ void go_stun(CharData *ch, CharData *vict) {
 				nullptr, vict, kToNotVict | kToArenaListen);
 		}
 		GET_POS(vict) = EPosition::kIncap;
-		SetWaitState(vict, (2 + GetRealRemort(ch) / 5) * kPulseViolence * GET_SKILL(ch, ESkill::kStun) / MUD::Skill(ESkill::kStun).cap);
-		ch->setSkillCooldown(ESkill::kStun, 3 * kPulseViolence);
+		SetWaitState(vict, (2 + GetRealRemort(ch) / 5) * kBattleRound * GET_SKILL(ch, ESkill::kStun) / MUD::Skill(ESkill::kStun).cap);
+		ch->setSkillCooldown(ESkill::kStun, 3 * kBattleRound);
 		set_hit(ch, vict);
 	}
 }

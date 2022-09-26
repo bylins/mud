@@ -160,14 +160,14 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					dam *= (ch->GetSkill(ESkill::kPunctual) / 10);
 					if (GET_POS(victim) > EPosition::kSit)
 						GET_POS(victim) = EPosition::kSit;
-					SetWaitState(victim, 2 * kPulseViolence);
+					SetWaitState(victim, 2 * kBattleRound);
 					to_char = "повалило $N3 на землю";
 					to_vict = "повредило вам колено, повалив на землю";
 					break;
 				case 5:    // victim bashed
 					if (GET_POS(victim) > EPosition::kSit)
 						GET_POS(victim) = EPosition::kSit;
-					SetWaitState(victim, 2 * kPulseViolence);
+					SetWaitState(victim, 2 * kBattleRound);
 					to_char = "повалило $N3 на землю";
 					to_vict = "повредило вам колено, повалив на землю";
 					break;
@@ -248,20 +248,20 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					// nothing
 					return;
 				case 4:    // waits 1d6
-					SetWaitState(victim, number(2, 6) * kPulseViolence);
+					SetWaitState(victim, number(2, 6) * kBattleRound);
 					to_char = "сбило $N2 дыхание";
 					to_vict = "сбило вам дыхание";
 					break;
 
 				case 5:    // abdomin damaged, waits 1, speed/2
 					dam *= (ch->GetSkill(ESkill::kPunctual) / 8);
-					SetWaitState(victim, 2 * kPulseViolence);
+					SetWaitState(victim, 2 * kBattleRound);
 					to_char = "ранило $N3 в живот";
 					to_vict = "ранило вас в живот";
 					SET_AF_BATTLE(victim, kEafSlow);
 					break;
 				case 6:    // armor damaged else dam*3, waits 1d6
-					SetWaitState(victim, number(2, 6) * kPulseViolence);
+					SetWaitState(victim, number(2, 6) * kBattleRound);
 					if (GET_EQ(victim, EEquipPos::kWaist))
 						alt_equip(victim, EEquipPos::kWaist, 100, 100);
 					else
@@ -336,7 +336,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					// nothing
 					return;
 				case 4:    // waits 1d4, bashed
-					SetWaitState(victim, number(2, 5) * kPulseViolence);
+					SetWaitState(victim, number(2, 5) * kBattleRound);
 					if (GET_POS(victim) > EPosition::kSit)
 						GET_POS(victim) = EPosition::kSit;
 					to_char = "повредило $N2 грудь, свалив $S с ног";
@@ -344,7 +344,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					break;
 				case 5:    // chest damaged, waits 1, speed/2
 					dam *= (ch->GetSkill(ESkill::kPunctual) / 6);
-					SetWaitState(victim, 2 * kPulseViolence);
+					SetWaitState(victim, 2 * kBattleRound);
 					to_char = "повредило $N2 туловище";
 					to_vict = "повредило вам туловище";
 					af[0].type = ESpell::kBattle;
@@ -483,13 +483,13 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					break;
 				case 8:    // shield damaged, hands damaged, waits 1
 					alt_equip(victim, EEquipPos::kShield, 100, 100);
-					SetWaitState(victim, 2 * kPulseViolence);
+					SetWaitState(victim, 2 * kBattleRound);
 					dam *= (ch->GetSkill(ESkill::kPunctual) / 7);
 					to_char = "придержало $N3";
 					to_vict = "повредило вам руку";
 					break;
 				case 9:    // weapon putdown, hands damaged, waits 1d4
-					SetWaitState(victim, number(2, 4) * kPulseViolence);
+					SetWaitState(victim, number(2, 4) * kBattleRound);
 					if (GET_EQ(victim, EEquipPos::kBoths))
 						unequip_pos = EEquipPos::kBoths;
 					else if (GET_EQ(victim, EEquipPos::kWield))
@@ -565,13 +565,13 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					// nothing
 					return;
 				case 4:    // waits 1d6
-					SetWaitState(victim, number(2, 6) * kPulseViolence);
+					SetWaitState(victim, number(2, 6) * kBattleRound);
 					to_char = "помутило $N2 сознание";
 					to_vict = "помутило ваше сознание";
 					break;
 
 				case 5:    // head damaged, cap putdown, waits 1, HR-2 if no cap
-					SetWaitState(victim, 2 * kPulseViolence);
+					SetWaitState(victim, 2 * kBattleRound);
 					if (GET_EQ(victim, EEquipPos::kHead))
 						unequip_pos = EEquipPos::kHead;
 					else {
@@ -592,7 +592,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					to_vict = "повредило вам голову";
 					break;
 				case 7:    // cap damaged, waits 1d6, speed/2, HR-4
-					SetWaitState(victim, 2 * kPulseViolence);
+					SetWaitState(victim, 2 * kBattleRound);
 					alt_equip(victim, EEquipPos::kHead, 100, 100);
 					af[0].type = ESpell::kBattle;
 					af[0].location = EApply::kHitroll;
@@ -602,7 +602,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					to_vict = "ранило вас в голову";
 					break;
 				case 8:    // cap damaged, hits 0
-					SetWaitState(victim, 4 * kPulseViolence);
+					SetWaitState(victim, 4 * kBattleRound);
 					alt_equip(victim, EEquipPos::kHead, 100, 100);
 					//dam = GET_HIT(victim);
 					dam *= ch->GetSkill(ESkill::kPunctual) / 2;
@@ -815,7 +815,7 @@ void might_hit_bash(CharData *ch, CharData *victim) {
 	}
 
 	act("$n обреченно повалил$u на землю.", true, victim, 0, 0, kToRoom | kToArenaListen);
-	SetWaitState(victim, 3 * kPulseViolence);
+	SetWaitState(victim, 3 * kBattleRound);
 
 	if (GET_POS(victim) > EPosition::kSit) {
 		GET_POS(victim) = EPosition::kSit;
@@ -1368,7 +1368,7 @@ void hit_touching(CharData *ch, CharData *vict, int *dam) {
 		SetSkillCooldownInFight(vict, ESkill::kIntercept, prob);
 /*
 		if (!IS_IMMORTAL(vict)) {
-			WAIT_STATE(vict, prob * kPulseViolence);
+			WAIT_STATE(vict, prob * kBattleRound);
 		}
 */
 	}
@@ -1466,7 +1466,7 @@ void hit_parry(CharData *ch, CharData *victim, ESkill skill, int hit_type, int *
 		SetSkillCooldownInFight(victim, ESkill::kParry, prob);
 /*
 		if (!IS_IMMORTAL(ch) && prob) {
-			WAIT_STATE(victim, kPulseViolence * prob);
+			WAIT_STATE(victim, kBattleRound * prob);
 		}
 */
 		CLR_AF_BATTLE(victim, kEafParry);
@@ -2592,7 +2592,7 @@ void HitData::try_mighthit_dam(CharData *ch, CharData *victim) {
 					PERS(victim, ch, 3));
 			SendMsgToChar(buf, ch);
 			lag = 1;
-			SetWaitState(victim, kPulseViolence);
+			SetWaitState(victim, kBattleRound);
 			Affect<EApply> af;
 			af.type = ESpell::kBattle;
 			af.bitvector = to_underlying(EAffect::kStopFight);
@@ -2612,7 +2612,7 @@ void HitData::try_mighthit_dam(CharData *ch, CharData *victim) {
 			SendMsgToChar(buf, ch);
 			lag = 2;
 			dam += (dam / 1);
-			SetWaitState(victim, 2 * kPulseViolence);
+			SetWaitState(victim, 2 * kBattleRound);
 			Affect<EApply> af;
 			af.type = ESpell::kBattle;
 			af.bitvector = to_underlying(EAffect::kStopFight);
@@ -2632,7 +2632,7 @@ void HitData::try_mighthit_dam(CharData *ch, CharData *victim) {
 			SendMsgToChar(buf, ch);
 			lag = 2;
 			dam *= 4;
-			SetWaitState(victim, 3 * kPulseViolence);
+			SetWaitState(victim, 3 * kBattleRound);
 			Affect<EApply> af;
 			af.type = ESpell::kBattle;
 			af.bitvector = to_underlying(EAffect::kStopFight);
@@ -2682,7 +2682,7 @@ void HitData::try_stupor_dam(CharData *ch, CharData *victim) {
 			k = MIN(2, k);
 		}
 		dam *= MAX(2, number(1, k));
-		SetWaitState(victim, 3 * kPulseViolence);
+		SetWaitState(victim, 3 * kBattleRound);
 		sprintf(buf, "&R&qВаше сознание слегка помутилось после удара %s.&Q&n\r\n", PERS(ch, victim, 1));
 		SendMsgToChar(buf, victim);
 		act("$n оглушил$a $N3.", true, ch, 0, victim, kToNotVict | kToArenaListen);
@@ -2704,7 +2704,7 @@ void HitData::try_stupor_dam(CharData *ch, CharData *victim) {
 			k = MIN(4, k);
 		}
 		dam *= MAX(3, number(1, k));
-		SetWaitState(victim, 3 * kPulseViolence);
+		SetWaitState(victim, 3 * kBattleRound);
 		if (GET_POS(victim) > EPosition::kSit && !MOB_FLAGGED(victim, EMobFlag::kNoBash)) {
 			GET_POS(victim) = EPosition::kSit;
 			sprintf(buf, "&R&qОглушающий удар %s сбил вас с ног.&Q&n\r\n", PERS(ch, victim, 1));
@@ -3725,7 +3725,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		bool success = percent >= number(1, MUD::Skill(ESkill::kPunctual).difficulty);
 		TrainSkill(ch, ESkill::kPunctual, success, victim);
 		if (!IS_IMMORTAL(ch)) {
-			PUNCTUAL_WAIT_STATE(ch, 1 * kPulseViolence);
+			PUNCTUAL_WAIT_STATE(ch, 1 * kBattleRound);
 		}
 		if (success && (hit_params.calc_thaco - hit_params.diceroll < hit_params.victim_ac - 5
 				|| percent >= MUD::Skill(ESkill::kPunctual).difficulty)) {
@@ -3737,7 +3737,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 				ch->send_to_TC(false, true, false, "&CДамага точки равна = %d&n\r\n", hit_params.dam_critic);
 				victim->send_to_TC(false, true, false, "&CДамага точки равна = %d&n\r\n", hit_params.dam_critic);
 				if (!IS_IMMORTAL(ch)) {
-					PUNCTUAL_WAIT_STATE(ch, 2 * kPulseViolence);
+					PUNCTUAL_WAIT_STATE(ch, 2 * kBattleRound);
 				}
 				CallMagic(ch, victim, nullptr, nullptr, ESpell::kPaladineInspiration, GetRealLevel(ch));
 			}

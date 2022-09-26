@@ -217,10 +217,10 @@ void SetFighting(CharData *ch, CharData *vict) {
 	// раундов в большую сторону (для подножки, должно давать чару зазор в две
 	// секунды после подножки, чтобы моб всеравно встал только на 3й раунд)
 	if (ch->IsNpc() && ch->get_wait() > 0) {
-//		div_t tmp = div(static_cast<const int>(ch->get_wait()), static_cast<const int>(kPulseViolence));
-		auto tmp = div(ch->get_wait(), kPulseViolence);
+//		div_t tmp = div(static_cast<const int>(ch->get_wait()), static_cast<const int>(kBattleRound));
+		auto tmp = div(ch->get_wait(), kBattleRound);
 		if (tmp.rem > 0) {
-			SetWaitState(ch, (tmp.quot + 1) * kPulseViolence);
+			SetWaitState(ch, (tmp.quot + 1) * kBattleRound);
 		}
 	}
 	if (!ch->IsNpc() && (!ch->GetSkill(ESkill::kAwake))) {
@@ -1699,8 +1699,8 @@ void update_round_affs() {
 
 		if (GET_AF_BATTLE(ch, kEafBlock)) {
 			CLR_AF_BATTLE(ch, kEafBlock);
-			if (!IS_IMMORTAL(ch) && ch->get_wait() < kPulseViolence)
-				SetWaitState(ch, 1 * kPulseViolence);
+			if (!IS_IMMORTAL(ch) && ch->get_wait() < kBattleRound)
+				SetWaitState(ch, 1 * kBattleRound);
 		}
 
 		if (GET_AF_BATTLE(ch, kEafPoisoned)) {
@@ -1858,7 +1858,7 @@ void process_player_attack(CharData *ch, int min_init) {
 		} else {
 			CastSpell(ch, ch->GetCastChar(), ch->GetCastObj(), 0, ch->GetCastSpell(), ch->GetCastSubst());
 			if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike) || ch->get_wait() > 0)) {
-				SetWaitState(ch, kPulseViolence);
+				SetWaitState(ch, kBattleRound);
 			}
 			ch->SetCast(ESpell::kUndefined, ESpell::kUndefined, 0, 0, 0);
 		}

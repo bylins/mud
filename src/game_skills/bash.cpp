@@ -61,7 +61,7 @@ void go_bash(CharData *ch, CharData *vict) {
 		//не дадим башить мобов в лаге которые спят, оглушены и прочее
 		if (GET_POS(vict) <= EPosition::kStun && vict->get_wait() > 0) {
 			SendMsgToChar("Ваша жертва и так слишком слаба, надо быть милосерднее.\r\n", ch);
-			ch->setSkillCooldown(ESkill::kGlobalCooldown, kPulseViolence);
+			ch->setSkillCooldown(ESkill::kGlobalCooldown, kBattleRound);
 			return;
 		}
 

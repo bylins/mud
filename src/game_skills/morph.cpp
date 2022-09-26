@@ -191,7 +191,7 @@ void do_morph(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->is_morphed()) {
 		if (utils::IsAbbr(arg, "назад")) {
 			ch->reset_morph();
-			SetWaitState(ch, kPulseViolence);
+			SetWaitState(ch, kBattleRound);
 			return;
 		}
 		SendMsgToChar("Когти подстригите сначала...\r\n", ch);
@@ -222,7 +222,7 @@ void do_morph(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Ваша левая лапа не удержала " + ch->equipment[EEquipPos::kHold]->get_PName(3) + ".\r\n", ch);
 		RemoveEquipment(ch, EEquipPos::kHold);
 	}
-	SetWaitState(ch, 3 * kPulseViolence);
+	SetWaitState(ch, 3 * kBattleRound);
 }
 
 void PrintAllMorphsList(CharData *ch) {

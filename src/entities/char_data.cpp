@@ -670,8 +670,8 @@ unsigned CharData::getSkillCooldown(ESkill skillID) {
 };
 
 int CharData::getSkillCooldownInPulses(ESkill skillID) {
-	//return static_cast<int>(std::ceil(skillData->second.cooldown/(0.0 + kPulseViolence)));
-	return static_cast<int>(std::ceil(getSkillCooldown(skillID) / (0.0 + kPulseViolence)));
+	//return static_cast<int>(std::ceil(skillData->second.cooldown/(0.0 + kBattleRound)));
+	return static_cast<int>(std::ceil(getSkillCooldown(skillID) / (0.0 + kBattleRound)));
 };
 
 /* Понадобится - тогда и раскомментим...
@@ -2155,7 +2155,7 @@ bool CharData::drop_from_horse() {
 	sprintf(buf, "%s свалил%s со своего скакуна.", GET_PAD(plr, 0), GET_CH_SUF_2(plr));
 	act(buf, false, plr, 0, 0, kToRoom | kToArenaListen);
 	AFF_FLAGS(plr).unset(EAffect::kHorse);
-	SetWaitState(this, 3 * kPulseViolence);
+	SetWaitState(this, 3 * kBattleRound);
 	if (GET_POS(plr) > EPosition::kSit)
 		GET_POS(plr) = EPosition::kSit;
 	return true;

@@ -106,7 +106,7 @@ void go_kick(CharData *ch, CharData *vict) {
 						dam *= 2;
 						break;
 					case 4:
-					case 5:SetWaitState(vict, number(2, 5) * kPulseViolence);
+					case 5:SetWaitState(vict, number(2, 5) * kBattleRound);
 						if (GET_POS(vict) > EPosition::kSit) {
 							GET_POS(vict) = EPosition::kSit;
 						}

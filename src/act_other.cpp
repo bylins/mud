@@ -213,7 +213,7 @@ void do_save(CharData *ch, char * /*argument*/, int cmd, int/* subcmd*/) {
 	// Only tell the char we're saving if they actually typed "save"
 	if (cmd) {
 		SendMsgToChar("Сохраняю игрока, синонимы и вещи.\r\n", ch);
-		SetWaitState(ch, 3 * kPulseViolence);
+		SetWaitState(ch, 3 * kBattleRound);
 	}
 	write_aliases(ch);
 	ch->save_char();
@@ -642,7 +642,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 			ImproveSkill(ch, ESkill::kSteal, 0, vict);
 	}
 	if (!IS_IMMORTAL(ch) && ohoh)
-		SetWaitState(ch, 3 * kPulseViolence);
+		SetWaitState(ch, 3 * kBattleRound);
 	pk_thiefs_action(ch, vict);
 	if (ohoh && vict->IsNpc() && AWAKE(vict) && CAN_SEE(vict, ch) && MAY_ATTACK(vict))
 		hit(vict, ch, ESkill::kUndefined, fight::kMainHand);

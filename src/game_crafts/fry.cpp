@@ -43,7 +43,7 @@ void do_fry(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	if (tobj) {
 		can_carry_obj(ch, tobj.get());
 		ExtractObjFromWorld(meet);
-		SetWaitState(ch, 1 * kPulseViolence);
+		SetWaitState(ch, 1 * kBattleRound);
 	} else {
 		mudlog("Невозможно загрузить жаренное мясо в do_fry!", NRM, kLvlGreatGod, ERRLOG, true);
 	}

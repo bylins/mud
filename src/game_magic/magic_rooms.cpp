@@ -531,7 +531,7 @@ int CallMagicToRoom(int/* level*/, CharData *ch, RoomData *room, ESpell spell_id
 		SendMsgToChar(NOEFFECT, ch);
 
 	if (!IS_IMMORTAL(ch))
-		SetWaitState(ch, lag * kPulseViolence);
+		SetWaitState(ch, lag * kBattleRound);
 
 	return 0;
 

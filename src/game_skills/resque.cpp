@@ -43,7 +43,7 @@ void go_rescue(CharData *ch, CharData *vict, CharData *tmp_ch) {
 	SendSkillBalanceMsg(ch, MUD::Skill(ESkill::kRescue).name, percent, prob, success);
 	if (!success) {
 		act("Вы безуспешно пытались спасти $N3.", false, ch, 0, vict, kToChar);
-		ch->setSkillCooldown(ESkill::kGlobalCooldown, kPulseViolence);
+		ch->setSkillCooldown(ESkill::kGlobalCooldown, kBattleRound);
 		return;
 	}
 

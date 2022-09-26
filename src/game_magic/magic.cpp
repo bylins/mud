@@ -506,7 +506,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				act("Вас повалило на землю.", false, victim, nullptr, nullptr, kToChar);
 				GET_POS(victim) = EPosition::kSit;
 				update_pos(victim);
-				SetWaitState(victim, 2 * kPulseViolence);
+				SetWaitState(victim, 2 * kBattleRound);
 			}
 			break;
 		}
@@ -519,7 +519,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				act("Вас повалило на землю.", false, victim, nullptr, nullptr, kToChar);
 				GET_POS(victim) = EPosition::kSit;
 				update_pos(victim);
-				SetWaitState(victim, 2 * kPulseViolence);
+				SetWaitState(victim, 2 * kBattleRound);
 			}
 			break;
 		}
@@ -535,7 +535,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 					act("Каменное проклятие $n1 отшибло сознание у $N1.", false, ch, nullptr, victim, kToNotVict);
 					act("У вас отшибло сознание, вам очень плохо...", false, ch, nullptr, victim, kToVict);
 					GET_POS(victim) = EPosition::kStun;
-					SetWaitState(victim, (5 + (GetRealWis(ch) - 20)) * kPulseViolence);
+					SetWaitState(victim, (5 + (GetRealWis(ch) - 20)) * kBattleRound);
 				}
 			}
 			break;
@@ -546,7 +546,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 					(number(1, 999) > GET_AR(victim) * 10) && number(0, 1000) <= 500)) {
 				GET_POS(victim) = EPosition::kStun;
 				auto wait = 4 + std::max(1, GetRealLevel(ch) + 1 + (GetRealWis(ch) - 29)) / 7;    //17*/
-				SetWaitState(victim, wait * kPulseViolence);
+				SetWaitState(victim, wait * kBattleRound);
 			}
 			break;
 		}
@@ -587,7 +587,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				act("Вас повалило на землю.", false, victim, nullptr, nullptr, kToChar);
 				GET_POS(victim) = EPosition::kSit;
 				update_pos(victim);
-				SetWaitState(victim, 2 * kPulseViolence);
+				SetWaitState(victim, 2 * kBattleRound);
 			}
 			break;
 		}
@@ -612,7 +612,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				act("Вас повалило на землю.", false, victim, nullptr, nullptr, kToChar);
 				GET_POS(victim) = EPosition::kSit;
 				update_pos(victim);
-				SetWaitState(victim, 2 * kPulseViolence);
+				SetWaitState(victim, 2 * kBattleRound);
 			}
 			break;
 		}
@@ -2018,7 +2018,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 					break;
 
 				case ESpell::kIceStorm:
-				case ESpell::kEarthfall: SetWaitState(victim, 2 * kPulseViolence);
+				case ESpell::kEarthfall: SetWaitState(victim, 2 * kBattleRound);
 					af[0].duration = ApplyResist(victim, GetResistType(spell_id),
 												 CalcDuration(victim, 2, 0, 0, 0, 0)) * koef_duration;
 					af[0].bitvector = to_underlying(EAffect::kMagicStopFight);
@@ -2030,7 +2030,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 				case ESpell::kShock:
 					savetype = ESaving::kStability;
-					SetWaitState(victim, 2 * kPulseViolence);
+					SetWaitState(victim, 2 * kBattleRound);
 					af[0].duration = ApplyResist(victim, GetResistType(spell_id),
 												 CalcDuration(victim, 2, 0, 0, 0, 0)) * koef_duration;
 					af[0].bitvector = to_underlying(EAffect::kMagicStopFight);
@@ -2096,7 +2096,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				success = false;
 				break;
 			}
-			SetWaitState(victim, (level / 10 + 1) * kPulseViolence);
+			SetWaitState(victim, (level / 10 + 1) * kBattleRound);
 			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
 										 CalcDuration(victim, 3, 0, 0, 0, 0)) * koef_duration;
 			af[0].bitvector = to_underlying(EAffect::kSlow);
@@ -2118,7 +2118,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			if (victim->GetEnemy()) {
 				stop_fighting(victim, true);
 				change_fighting(victim, true);
-				SetWaitState(victim, 2 * kPulseViolence);
+				SetWaitState(victim, 2 * kBattleRound);
 			}
 			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
 										 CalcDuration(victim, 2, 0, 0, 0, 0)) * koef_duration;

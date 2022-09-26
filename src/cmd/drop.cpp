@@ -14,7 +14,7 @@ void PerformDropGold(CharData *ch, int amount) {
 	} else if (ch->get_gold() < amount) {
 		SendMsgToChar("У вас нет такой суммы!\r\n", ch);
 	} else {
-		SetWaitState(ch, kPulseViolence);    // to prevent coin-bombing
+		SetWaitState(ch, kBattleRound);    // to prevent coin-bombing
 		if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoItem)) {
 			act("Неведомая сила помешала вам сделать это!",
 				false, ch, nullptr, nullptr, kToChar);

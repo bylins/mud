@@ -26,7 +26,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 	if ((GET_POS(vict) < EPosition::kFight)) {
 		if (number(1, 100) < ch->GetSkill(ESkill::kUndercut)) {
 			SendMsgToChar("Вы приготовились провести подсечку, но вовремя остановились.\r\n", ch);
-			ch->setSkillCooldown(ESkill::kUndercut, kPulseViolence / 6);
+			ch->setSkillCooldown(ESkill::kUndercut, kBattleRound / 6);
 			return;
 		}
 	}

@@ -1547,7 +1547,7 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					act("$n с визгом отлетел$g от пентаграммы.\r\n", true, ch,
 						nullptr, nullptr, kToRoom | kToNotDeaf);
 					act("$n отлетел$g от пентаграммы.\r\n", true, ch, nullptr, nullptr, kToRoom | kToDeaf);
-					SetWaitState(ch, kPulseViolence);
+					SetWaitState(ch, kBattleRound);
 					return;
 				}
 				if (!enter_wtrigger(world[door], ch, -1))

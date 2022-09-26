@@ -1384,7 +1384,7 @@ void do_alias(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			GET_ALIASES(ch) = a;
 			SendMsgToChar("Алиас успешно добавлен.\r\n", ch);
 		}
-		SetWaitState(ch, 1 * kPulseViolence);
+		SetWaitState(ch, 1 * kBattleRound);
 		write_aliases(ch);
 	}
 }

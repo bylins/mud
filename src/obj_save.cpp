@@ -2852,7 +2852,7 @@ int gen_receptionist(CharData *ch, CharData *recep, int cmd, char * /*arg*/, int
 					GET_ROOM_VNUM(save_room));
 			GET_LOADROOM(ch) = GET_ROOM_VNUM(save_room);
 			mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
-			SetWaitState(ch, 1 * kPulseViolence);
+			SetWaitState(ch, 1 * kBattleRound);
 			ch->save_char();
 		}
 	}

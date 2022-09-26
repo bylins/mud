@@ -109,7 +109,7 @@ void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	if (CheckRecipeItems(ch, spell_id, subcmd == SCMD_ITEMS ? ESpellType::kItemCast : ESpellType::kRunes, true, tch)) {
 		if (!CalcCastSuccess(ch, tch, ESaving::kStability, spell_id)) {
-			SetWaitState(ch, kPulseViolence);
+			SetWaitState(ch, kBattleRound);
 			if (!tch || !SendSkillMessages(0, ch, tch, spell_id)) {
 				if (subcmd == SCMD_ITEMS)
 					SendMsgToChar("Вы неправильно смешали ингредиенты!\r\n", ch);
@@ -119,7 +119,7 @@ void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		} else {
 			if (CallMagic(ch, tch, tobj, world[ch->in_room], spell_id, GetRealLevel(ch)) >= 0) {
 				if (!(IS_IMMORTAL(ch) || ch->get_wait() > 0 ))
-					SetWaitState(ch, kPulseViolence);
+					SetWaitState(ch, kBattleRound);
 			}
 		}
 	}

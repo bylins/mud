@@ -52,7 +52,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 				act("И ничего не случилось.", false, ch, obj, nullptr, kToRoom | kToArenaListen);
 			} else {
 				obj->dec_val(2);
-				SetWaitState(ch, kPulseViolence);
+				SetWaitState(ch, kBattleRound);
 				if (MUD::Spell(spell_id).IsFlagged(kMagMasses | kMagAreas)) {
 					CallMagic(ch, nullptr, nullptr, world[ch->in_room], spell_id, level);
 				} else {
@@ -120,7 +120,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 			}
 
 			obj->dec_val(2);
-			SetWaitState(ch, kPulseViolence);
+			SetWaitState(ch, kBattleRound);
 			CallMagic(ch, tch, tobj, world[ch->in_room], spell_id, level);
 			break;
 
@@ -154,7 +154,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 				act("$n зачитал$g $o3.", false, ch, obj, nullptr, kToRoom | kToArenaListen);
 			}
 
-			SetWaitState(ch, kPulseViolence);
+			SetWaitState(ch, kBattleRound);
 			for (i = 1; i <= 3; i++) {
 				if (CallMagic(ch, tch, tobj, world[ch->in_room], static_cast<ESpell>(GET_OBJ_VAL(obj, i)), level) <= 0) {
 					break;
@@ -181,7 +181,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 				act("$n осушил$g $o3.", true, ch, obj, nullptr, kToRoom | kToArenaListen);
 			}
 
-			SetWaitState(ch, kPulseViolence);
+			SetWaitState(ch, kBattleRound);
 			for (i = 1; i <= 3; i++) {
 				if (CallMagic(ch, ch, nullptr, world[ch->in_room], static_cast<ESpell>(GET_OBJ_VAL(obj, i)), level) <= 0) {
 					break;

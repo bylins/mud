@@ -194,7 +194,7 @@ constexpr long long kPassesPerSec = 1000000 / kOptUsec;
 constexpr long long kRealSec = kPassesPerSec;
 constexpr long long kPulseZone = (1*kRealSec);
 constexpr long long kPulseMobile = (10*kRealSec);
-constexpr long long kPulseViolence = (2*kRealSec);
+constexpr long long kBattleRound = (2*kRealSec);
 
 const int kZonesReset = 1;    // number of zones to reset at one time //
 //#define PULSE_LOGROTATE (10 kRealSec)

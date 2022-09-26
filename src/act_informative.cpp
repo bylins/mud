@@ -2431,7 +2431,7 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 				found = CalcCurrentSkill(ch, ESkill::kPry, found_char);
 				TrainSkill(ch, ESkill::kPry, found < fnum, found_char);
 				if (!IS_IMMORTAL(ch))
-					SetWaitState(ch, 1 * kPulseViolence);
+					SetWaitState(ch, 1 * kBattleRound);
 				if (found >= fnum && (fnum < 100 || IS_IMMORTAL(ch)) && !IS_IMMORTAL(found_char))
 					return false;
 			}
@@ -2599,7 +2599,7 @@ void do_looking(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 			for (i = 0; i < EDirection::kMaxDirNum; i++)
 				look_in_direction(ch, i, EXIT_SHOW_LOOKING);
 			if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike)))
-				SetWaitState(ch, 1 * kPulseViolence);
+				SetWaitState(ch, 1 * kBattleRound);
 		}
 	} else
 		SendMsgToChar("Вам явно не хватает этого умения.\r\n", ch);
@@ -2626,7 +2626,7 @@ void do_hearing(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 			for (i = 0; i < EDirection::kMaxDirNum; i++)
 				hear_in_direction(ch, i, 0);
 			if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike)))
-				SetWaitState(ch, 1 * kPulseViolence);
+				SetWaitState(ch, 1 * kBattleRound);
 		}
 	} else
 		SendMsgToChar("Выучите сначала как это следует делать.\r\n", ch);

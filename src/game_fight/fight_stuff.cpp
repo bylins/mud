@@ -282,7 +282,7 @@ bool stone_rebirth(CharData *ch, CharData *killer) {
 					greet_mtrigger(ch, -1);
 					greet_otrigger(ch, -1);
 					act("$n медленно появил$u откуда-то.", false, ch, nullptr, nullptr, kToRoom);
-					SetWaitState(ch, 10 * kPulseViolence);
+					SetWaitState(ch, 10 * kBattleRound);
 					return true;
 				}
 			}
@@ -366,7 +366,7 @@ void die(CharData *ch, CharData *killer) {
 		look_at_room(ch, 0);
 		greet_mtrigger(ch, -1);
 		greet_otrigger(ch, -1);
-//		WAIT_STATE(ch, 10 * kPulseViolence); лаг лучше ставить триггерами
+//		WAIT_STATE(ch, 10 * kBattleRound); лаг лучше ставить триггерами
 		return;
 	}
 

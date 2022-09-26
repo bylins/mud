@@ -103,7 +103,7 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					  CCIRED(ch, C_NRM), CCINRM(ch, C_NRM));
 		pkPortal(ch);
 		timed.time = 18 - MIN(GetRealRemort(ch), 15);
-		SetWaitState(ch, 3 * kPulseViolence);
+		SetWaitState(ch, 3 * kBattleRound);
 		Affect<EApply> af;
 		af.duration = CalcDuration(ch, 3, 0, 0, 0, 0);
 		af.bitvector = to_underlying(EAffect::kNoTeleport);
@@ -111,7 +111,7 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		affect_to_char(ch, af);
 	} else {
 		timed.time = 2;
-		SetWaitState(ch, kPulseViolence);
+		SetWaitState(ch, kBattleRound);
 	}
 	ImposeTimedFeat(ch, &timed);
 	look_at_room(ch, 0);

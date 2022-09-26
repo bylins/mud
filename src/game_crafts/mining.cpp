@@ -246,7 +246,7 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	ch->set_int_add(0);
 	ImproveSkill(ch, ESkill::kDigging, 0, nullptr);
 	ch->set_int(old_int);
-	SetWaitState(ch, dig_vars.lag * kPulseViolence);
+	SetWaitState(ch, dig_vars.lag * kBattleRound);
 	if (percent > prob / dig_vars.prob_divide) {
 		SendMsgToChar("Вы только зря расковыряли землю и раскидали камни.\r\n", ch);
 		act("$n отрыл$g смешную ямку.", false, ch, nullptr, nullptr, kToRoom);

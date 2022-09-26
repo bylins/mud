@@ -104,7 +104,7 @@ void DoTrample(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (!IS_IMMORTAL(ch)) {
-		SetWaitState(ch, lag * kPulseViolence);
+		SetWaitState(ch, lag * kBattleRound);
 	}
 }
 

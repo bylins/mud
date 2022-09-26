@@ -2785,7 +2785,7 @@ void find_replacement(void *go,
 					}
 				}
 				else {
-					SetWaitState(c, pos * kPulseViolence);
+					SetWaitState(c, pos * kBattleRound);
 				}
 			}
 		} else if (!str_cmp(field, "applyvalue")) {
