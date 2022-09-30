@@ -19,7 +19,7 @@
 #include "game_mechanics/glory_const.h"
 #include "liquid.h"
 #include "structs/global_objects.h"
-
+#include "game_magic/magic.h"
 
 void PrintScoreBase(CharData *ch);
 void PrintScoreList(CharData *ch);
@@ -562,7 +562,7 @@ int PrintSecondaryStatsToTable(CharData *ch, table_wrapper::Table &table, std::s
 	table[++row][col] = "Физ. урон %";	table[row][col + 1] = std::to_string(ch->add_abils.percent_physdam_add + ch->obj_bonus().calc_phys_dmg(100));
 	table[++row][col] = "Инициатива";	table[row][col + 1] = std::to_string(calc_initiative(ch, false));
 	table[++row][col] = "Спас-броски:";	table[row][col + 1] = " ";
-	table[++row][col] = "Воля";			table[row][col + 1] = std::to_string(GET_REAL_SAVING_WILL(ch));
+	table[++row][col] = "Воля";			table[row][col + 1] = std::to_string(CalcSaving(ch, ch, ESaving::kWill, 0));
 	table[++row][col] = "Здоровье";		table[row][col + 1] = std::to_string(GET_REAL_SAVING_CRITICAL(ch));
 	table[++row][col] = "Стойкость";	table[row][col + 1] = std::to_string(GET_REAL_SAVING_STABILITY(ch));
 	table[++row][col] = "Реакция";		table[row][col + 1] = std::to_string(GET_REAL_SAVING_REFLEX(ch));

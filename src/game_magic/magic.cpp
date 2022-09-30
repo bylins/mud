@@ -62,6 +62,9 @@ bool is_room_forbidden(RoomData *room) {
 int CalcAntiSavings(CharData *ch) {
 	int modi = 0;
 
+	// временно
+	return  GET_CAST_SUCCESS(ch);
+
 	if (IS_IMMORTAL(ch))
 		modi = 350;
 	else if (GET_GOD_FLAG(ch, EGf::kGodsLike))
@@ -84,7 +87,53 @@ int CalcClassAntiSavingsMod(CharData *ch, ESpell spell_id) {
 	return static_cast<int>(mod*skill);
 }
 
-int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply) {
+int GetBasicSave(CharData *ch, ESaving saving) {
+	auto class_sav = ch->GetClass();
+	std::stringstream ss;
+	if (ch->IsNpc()) {
+		class_sav = ECharClass::kMob;    // неизвестный класс моба
+	} else {
+		if (class_sav < ECharClass::kFirst || class_sav > ECharClass::kLast) {
+			class_sav = ECharClass::kWarrior;
+		}
+	}
+	// Базовые спасброски профессии/уровня
+	int save = (100 - GetExtendSavingThrows(class_sav, saving, GetRealLevel(ch))) * -1;
+	ApplyNegative apn;
+	for (auto i: apply_negative) {
+		if (i.savetype == saving) {
+			apn = i;
+			break;
+		}
+	}
+
+	ss << "Базовый save персонажа " << GET_NAME(ch) << "(" << apn.name << "): " << save;
+	switch (saving) {
+		case ESaving::kReflex:
+			save -= GetRealDex(ch);
+			if (ch->IsOnHorse())
+				save += 20;
+			break;
+		case ESaving::kStability: 
+			save -= GetRealCon(ch);
+			if (ch->IsOnHorse())
+				save -= 20;
+			break;
+		case ESaving::kWill: 
+			save -= GetRealWis(ch);
+			break;
+		case ESaving::kCritical: 
+			save -= GetRealCon(ch);
+			break;
+		default:
+		break;
+	}
+	ss << " с учетом статов: " << save;
+	mudlog(ss.str(), CMP, kLvlImmortal, SYSLOG, true);
+	return save;
+}
+
+int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply, bool log_mode) {
 	int temp_save_stat = 0, temp_awake_mod = 0;
 
 	if (-GetSave(victim, saving) / 10 > number(1, 100)) {
@@ -101,42 +150,8 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply
 		}
 	}
 
-	// Базовые спасброски профессии/уровня
-	int save = GetExtendSavingThrows(class_sav, saving, GetRealLevel(victim));
+	int save = GetBasicSave(victim, saving); //отрицательное лучше
 
-	switch (saving) {
-		case ESaving::kReflex:
-			if ((save > 0) && CanUseFeat(victim, EFeat::kDodger))
-				save >>= 1;
-			save -= dex_bonus(GetRealDex(victim));
-			temp_save_stat = dex_bonus(GetRealDex(victim));
-			if (victim->IsOnHorse())
-				save += 20;
-			break;
-		case ESaving::kStability: save += -GetRealCon(victim);
-			if (victim->IsOnHorse())
-				save -= 20;
-			temp_save_stat = GetRealCon(victim);
-			break;
-		case ESaving::kWill: save += -GetRealWis(victim);
-			temp_save_stat = GetRealWis(victim);
-			break;
-		case ESaving::kCritical: save += -GetRealCon(victim);
-			temp_save_stat = GetRealCon(victim);
-			break;
-		default:
-			break;
-	}
-
-	if (saving != ESaving::kReflex) {
-		if ((save > 0) &&
-			(AFF_FLAGGED(victim, EAffect::kAirAura)
-				|| AFF_FLAGGED(victim, EAffect::kFireAura)
-				|| AFF_FLAGGED(victim, EAffect::kEarthAura)
-				|| AFF_FLAGGED(victim, EAffect::kIceAura))) {
-			save >>= 1;
-		}
-	}
 	// Учет осторожного стиля
 	if (PRF_FLAGGED(victim, EPrf::kAwake)) {
 		if (CanUseFeat(victim, EFeat::kImpregnable)) {

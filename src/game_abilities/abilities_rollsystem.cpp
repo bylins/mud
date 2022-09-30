@@ -4,6 +4,7 @@
 
 #include "abilities_rollsystem.h"
 #include "structs/global_objects.h"
+#include "game_magic/magic.h"
 
 namespace abilities_roll {
 
