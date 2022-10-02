@@ -20,6 +20,7 @@
 
 #include <vector>
 #include <array>
+#include <map>
 
 struct IntApplies {
 	int spell_aknowlege;    // drop_chance to know spell               //
@@ -58,6 +59,7 @@ struct PrayAffect {
 	Bitvector bitvector;
 	int battleflag;
 };
+
 struct ApplyNegative {
 	std::string name;
 	EApply location;
@@ -82,7 +84,8 @@ extern const char *where[];
 extern const char *item_types[];
 extern const char *wear_bits[];
 extern const char *extra_bits[];
-extern std::vector<ApplyNegative> apply_negative;
+extern const std::vector<ApplyNegative> apply_negative;
+extern const std::map<ESaving, std::string> saving_name;
 extern const char *weapon_affects[];
 extern const char *anti_bits[];
 extern const char *no_bits[];

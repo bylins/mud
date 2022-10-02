@@ -60,7 +60,9 @@ int CastUnaffects(int, CharData *ch, CharData *victim, ESpell spell_id);
 int CastToAlterObjs(int, CharData *ch, ObjData *obj, ESpell spell_id);
 int CastCreation(int, CharData *ch, ESpell spell_id);
 int CastToSingleTarget(int level, CharData *caster, CharData *cvict, ObjData *ovict, ESpell spell_id);
-
+int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply, bool need_log = true);
+int CalcGeneralSaving(CharData *killer, CharData *victim, ESaving type, int ext_apply);
+int GetBasicSave(CharData *ch, ESaving saving, bool log = false);
 bool ProcessMatComponents(CharData *caster, CharData *victim, ESpell spell_id);
 int CalcClassAntiSavingsMod(CharData *ch, ESpell spell_id);
 float CalcModCoef(ESpell spell_id, int percent);

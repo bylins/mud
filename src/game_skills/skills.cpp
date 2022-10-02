@@ -12,6 +12,7 @@
 #include "handler.h"
 #include "color.h"
 #include "utils/random.h"
+#include "game_magic/magic.h"
 
 const int kZeroRemortSkillCap = 80;
 const int kSkillCapBonusPerRemort = 5;;
@@ -1316,7 +1317,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 	switch (skill_id) {
 		case ESkill::kBackstab: {
-			victim_sav = -GET_REAL_SAVING_REFLEX(vict);
+			victim_sav = CalcSaving(ch, vict, ESaving::kReflex, 0);
 			bonus = dex_bonus(GetRealDex(ch)) * 2;
 			if (IsAwakeOthers(ch)
 				|| IsEquipInMetall(ch)) {
@@ -1340,7 +1341,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kBash: {
-			victim_sav = -GET_REAL_SAVING_REFLEX(vict);
+			victim_sav = CalcSaving(ch, vict, ESaving::kReflex, 0);
 			bonus = size
 				+ dex_bonus(GetRealDex(ch))
 				+ (GET_EQ(ch, EEquipPos::kShield)
@@ -1387,7 +1388,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kKick: {
-			victim_sav = -GET_REAL_SAVING_STABILITY(vict);
+			victim_sav = CalcSaving(ch, vict, ESaving::kStability, 0);
 			bonus = dex_bonus(GetRealDex(ch)) + dex_bonus(GetRealStr(ch));
 			if (vict) {
 				victim_modi += size_app[GET_POS_SIZE(vict)].interpolate;
@@ -1405,7 +1406,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kPunch: {
-			victim_sav = -GET_REAL_SAVING_STABILITY(vict);
+			victim_sav = CalcSaving(ch, vict, ESaving::kStability, 0);
 			break;
 		}
 
@@ -1446,7 +1447,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 				bonus += 20;
 
 			if (vict) {
-				victim_sav = -GET_REAL_SAVING_REFLEX(vict);
+				victim_sav = CalcSaving(ch, vict, ESaving::kReflex, 0);
 				if (!CAN_SEE(vict, ch))
 					bonus += 25;
 				if (AWAKE(vict)) {
@@ -1546,7 +1547,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 		case ESkill::kNonstandart: break;
 		case ESkill::kAxes: break;
 		case ESkill::kSideAttack: {
-			victim_sav = -GET_REAL_SAVING_STABILITY(vict);
+			victim_sav = CalcSaving(ch, vict, ESaving::kStability, 0);
 			break;
 		}
 
@@ -1557,7 +1558,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kDisarm: {
-			victim_sav = -GET_REAL_SAVING_REFLEX(vict);
+			victim_sav = CalcSaving(ch, vict, ESaving::kReflex, 0);
 			bonus = dex_bonus(GetRealDex(ch)) + dex_bonus(GetRealStr(ch));
 			if (vict) {
 				victim_modi -= dex_bonus(GetRealStr(ch));
@@ -1621,7 +1622,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kUndercut: {
-			victim_sav = -GET_REAL_SAVING_REFLEX(vict);
+			victim_sav = CalcSaving(ch, vict, ESaving::kReflex, 0);
 			bonus = dex_bonus(GetRealDex(ch)) + ((dex_bonus(GetRealDex(ch)) * 5) / 10)
 				+ size_app[GET_POS_SIZE(ch)].ac; // тест х3 признан вредительским
 			if (IsEquipInMetall(ch))
@@ -1640,7 +1641,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kHammer: {
-			victim_sav = -GET_REAL_SAVING_STABILITY(vict);
+			victim_sav = CalcSaving(ch, vict, ESaving::kStability, 0);
 			bonus = size + dex_bonus(GetRealStr(ch));
 
 			if (vict->IsNpc())
@@ -1651,7 +1652,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kOverwhelm: {
-			victim_sav = -GET_REAL_SAVING_STABILITY(vict);
+			victim_sav = CalcSaving(ch, vict, ESaving::kStability, 0);
 			bonus = dex_bonus(GetRealStr(ch));
 			if (GET_EQ(ch, EEquipPos::kWield))
 				bonus +=
@@ -1672,7 +1673,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kPunctual: {
-			victim_sav = -GET_REAL_SAVING_CRITICAL(vict);
+			victim_sav = CalcSaving(ch, vict, ESaving::kCritical, 0);
 			bonus = dex_bonus(GetRealInt(ch));
 			if (GET_EQ(ch, EEquipPos::kWield))
 				bonus += std::max(18, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kWield))) - 18
@@ -1741,7 +1742,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kStrangle: {
-			victim_sav = -GET_REAL_SAVING_REFLEX(vict);
+			victim_sav = CalcSaving(ch, vict, ESaving::kReflex, 0);
 			bonus = dex_bonus(GetRealDex(ch));
 			if (AFF_FLAGGED(vict, EAffect::kHold)) {
 				bonus += (base_percent + bonus) / 2;
@@ -1755,7 +1756,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kStun: {
-			victim_sav = -GET_REAL_SAVING_STABILITY(vict);
+			victim_sav = CalcSaving(ch, vict, ESaving::kStability, 0);
 			if (!vict->IsNpc())
 				victim_sav *= 2;
 			else
@@ -1820,6 +1821,18 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 			victim_modi / 2,
 			total_percent,
 			LuckTempStr.c_str());
+	if (!vict->IsNpc()) {
+			ch->send_to_TC(false, true, true,
+					"&CKiller: %s, skill: %s, base_percent: %d, bonus: %d, victim_save: %d, victim_modi: %d, total_percent: %d, удача: %s&n\r\n",
+					ch ? GET_NAME(ch) : "NULL",
+						   MUD::Skill(skill_id).GetName(),
+					base_percent,
+					bonus,
+					victim_sav,
+					victim_modi / 2,
+					total_percent,
+					LuckTempStr.c_str());
+	}
 	return (total_percent);
 }
 

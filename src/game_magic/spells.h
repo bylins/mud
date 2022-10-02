@@ -123,8 +123,6 @@ bool CatchBloodyCorpse(ObjData *l);
 
 // other prototypes //
 void InitSpellLevels();
-int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply);
-int CalcGeneralSaving(CharData *killer, CharData *victim, ESaving type, int ext_apply);
 bool CanGetSpell(CharData *ch, ESpell spell_id);
 bool CanGetSpell(const CharData *ch, ESpell spell_id, int req_lvl);
 int CalcMinSpellLvl(const CharData *ch, ESpell spell_id, int req_lvl);

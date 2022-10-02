@@ -8,6 +8,7 @@
 #include "game_abilities/abilities_rollsystem.h"
 #include "handler.h"
 #include "cmd/flee.h"
+#include "game_magic/magic.h"
 //#include <structs/global_objects.h>
 
 //using namespace abilities;

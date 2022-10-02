@@ -2865,7 +2865,7 @@ void HitData::init(CharData *ch, CharData *victim) {
 				act("$n поразил$g $N3 в уязвимое место.", true, ch, nullptr, victim, kToNotVict);
 				set_flag(fight::kCritLuck);
 				set_flag(fight::kIgnoreSanct);
-				set_flag(fight::kIgnoreArmor);
+				set_flag(fight::kHalfIgnoreArmor);
 				set_flag(fight::kIgnoreAbsorbe);
 			}
 /*		} else {

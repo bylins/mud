@@ -862,12 +862,19 @@ const char *anti_bits[] = {"!христиане",
 						   "\n"
 };
 
-std::vector<ApplyNegative> apply_negative = {
+const std::vector<ApplyNegative> apply_negative = {
 	{"защита", EApply::kAc, ESaving::kNone},
 	{"воля", EApply::kSavingWill, ESaving::kWill},
 	{"здоровье", EApply::kSavingCritical, ESaving::kCritical},
 	{"стойкость", EApply::kSavingStability, ESaving::kStability},
 	{"реакция", EApply::kSavingReflex, ESaving::kReflex},
+};
+
+const std::map<ESaving, std::string> saving_name = {
+	{ESaving::kWill, "воля"},
+	{ESaving::kCritical, "здоровье"},
+	{ESaving::kStability, "стойкость"},
+	{ESaving::kReflex, "реакция"},
 };
 
 // MAT_

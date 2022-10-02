@@ -19,7 +19,7 @@
 #include "game_mechanics/glory_const.h"
 #include "liquid.h"
 #include "structs/global_objects.h"
-
+#include "game_magic/magic.h"
 
 void PrintScoreBase(CharData *ch);
 void PrintScoreList(CharData *ch);
@@ -156,13 +156,13 @@ void PrintScoreList(CharData *ch) {
 				  MIN(GET_RESIST(ch, EResist::kMind), 75),
 				  MIN(GET_RESIST(ch, EResist::kImmunity), 75));
 	SendMsgToChar(ch, "Спас броски: воля: %d, здоровье: %d, стойкость: %d, реакция: %d, маг.резист: %d, физ.резист %d, отчар.резист: %d.\r\n",
-				  GET_REAL_SAVING_WILL(ch),
-				  GET_REAL_SAVING_CRITICAL(ch),
-				  GET_REAL_SAVING_STABILITY(ch),
-				  GET_REAL_SAVING_REFLEX(ch),
-				  GET_MR(ch),
-				  GET_PR(ch),
-				  GET_AR(ch));
+			-CalcSaving(ch, ch, ESaving::kWill, 0),
+			-CalcSaving(ch, ch, ESaving::kCritical, 0),
+			-CalcSaving(ch, ch, ESaving::kStability, 0),
+			-CalcSaving(ch, ch, ESaving::kReflex, 0),
+			GET_MR(ch),
+			GET_PR(ch),
+			GET_AR(ch));
 	SendMsgToChar(ch, "Восстановление: жизни: +%d%% (+%d), сил: +%d%% (+%d).\r\n",
 				  GET_HITREG(ch),
 				  hit_gain(ch),
@@ -562,10 +562,10 @@ int PrintSecondaryStatsToTable(CharData *ch, table_wrapper::Table &table, std::s
 	table[++row][col] = "Физ. урон %";	table[row][col + 1] = std::to_string(ch->add_abils.percent_physdam_add + ch->obj_bonus().calc_phys_dmg(100));
 	table[++row][col] = "Инициатива";	table[row][col + 1] = std::to_string(calc_initiative(ch, false));
 	table[++row][col] = "Спас-броски:";	table[row][col + 1] = " ";
-	table[++row][col] = "Воля";			table[row][col + 1] = std::to_string(GET_REAL_SAVING_WILL(ch));
-	table[++row][col] = "Здоровье";		table[row][col + 1] = std::to_string(GET_REAL_SAVING_CRITICAL(ch));
-	table[++row][col] = "Стойкость";	table[row][col + 1] = std::to_string(GET_REAL_SAVING_STABILITY(ch));
-	table[++row][col] = "Реакция";		table[row][col + 1] = std::to_string(GET_REAL_SAVING_REFLEX(ch));
+	table[++row][col] = "Воля";			table[row][col + 1] = std::to_string(-CalcSaving(ch, ch, ESaving::kWill, 0));
+	table[++row][col] = "Здоровье";		table[row][col + 1] = std::to_string(-CalcSaving(ch, ch, ESaving::kCritical, 0));
+	table[++row][col] = "Стойкость";	table[row][col + 1] = std::to_string(-CalcSaving(ch, ch, ESaving::kStability, 0));
+	table[++row][col] = "Реакция";		table[row][col + 1] = std::to_string(-CalcSaving(ch, ch, ESaving::kReflex, 0));
 
 	return 2; // заполнено столбцов
 }
