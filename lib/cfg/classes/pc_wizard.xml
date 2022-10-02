@@ -57,24 +57,24 @@
         <spell id="kDispellMagic"			level="12"	remort="0"	circle="4"	mem="0"		cast="0.0"/>
         <spell id="kBlink"					level="12"	remort="0"	circle="4"	mem="0"		cast="0.0"/>
         <spell id="kResfresh"				level="18"	remort="0"	circle="4"	mem="0"		cast="0.0"/>
-        <spell id="kRepair"					level="26"	remort="0"	circle="4"	mem="0"		cast="0.0"/>
+        <spell id="kRepair"					level="18"	remort="0"	circle="4"	mem="0"		cast="0.0"/>
         <spell id="kForbidden"				level="17"	remort="0"	circle="5"	mem="-75"	cast="0.0"/>
         <spell id="kAcid"					level="14"	remort="0"	circle="5"	mem="0"		cast="0.0"/>
         <spell id="kRuneLabel"				level="16"	remort="2"	circle="5"	mem="0"		cast="0.0"/>
         <spell id="kPowerHold"				level="18" 	remort="0"	circle="6"	mem="-20"	cast="0.0"/>
         <spell id="kLocateObject"			level="18"	remort="0"	circle="6"	mem="0"		cast="0.0"/>
         <spell id="kShadowCloak"			level="24"	remort="0"	circle="6"	mem="0"		cast="0.0"/>
-        <spell id="kTeleport"				level="26"	remort="0"	circle="6"	mem="0"		cast="0.0"/>
-        <spell id="kSummonFirekeeper"		level="24"	remort="4"	circle="7"	mem="0"		cast="0.0"/>
+        <spell id="kTeleport"				level="24"	remort="0"	circle="6"	mem="0"		cast="0.0"/>
+        <spell id="kSummonFirekeeper"			level="22"	remort="4"	circle="7"	mem="0"		cast="0.0"/>
         <spell id="kGroupArmor"				level="22"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
         <spell id="kGroupStrength"			level="22"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
-        <spell id="kGroupFly"				level="24"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
-        <spell id="kGroupRecall"			level="28"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
+        <spell id="kGroupFly"				level="22"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
+        <spell id="kGroupRecall"			level="26"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
         <spell id="kGroupInvisible"			level="22"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
         <spell id="kGroupSincerity"			level="26"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
-        <spell id="kAllSeeingEye"			level="25"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
-        <spell id="kBreathingAtDepth"		level="27"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
-        <spell id="kStoneWall"				level="28"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
+        <spell id="kAllSeeingEye"			level="26"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
+        <spell id="kBreathingAtDepth"		level="22"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
+        <spell id="kStoneWall"				level="24"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
         <spell id="kSnakeEyes"				level="25"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
         <spell id="kSightOfDarkness"		level="25"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
         <spell id="kMagicalGaze"			level="26"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
@@ -85,10 +85,10 @@
         <spell id="kDustStorm"				level="25"	remort="0"	circle="8"	mem="0"		cast="0.0"/>
         <spell id="kGroupPrismaticAura"		level="26"	remort="0"	circle="8"	mem="0"		cast="0.0"/>
         <spell id="kSumonAngel"				level="26"	remort="0"	circle="8"	mem="0"		cast="0.0"/>
-        <spell id="kGroupSanctuary"			level="27"	remort="0"	circle="8"	mem="0"		cast="0.0"/>
-        <spell id="kIceShield"				level="28"	remort="0"	circle="9"	mem="0"		cast="0.0"/>
-        <spell id="kGodsShield"				level="29"	remort="1"	circle="9"	mem="0"		cast="0.0"/>
-        <spell id="kMassHold"				level="29"	remort="4"	circle="9"	mem="-10"	cast="0.0"/>
+        <spell id="kGroupSanctuary"			level="26"	remort="0"	circle="8"	mem="0"		cast="0.0"/>
+        <spell id="kIceShield"				level="27"	remort="0"	circle="9"	mem="0"		cast="0.0"/>
+        <spell id="kGodsShield"				level="27"	remort="1"	circle="9"	mem="0"		cast="0.0"/>
+        <spell id="kMassHold"				level="27"	remort="4"	circle="9"	mem="-10"	cast="0.0"/>
     </spells>
     <feats remorts_for_slot="6">
         <feat id="kMagicUser"			level="1"	remort="0"	slot="0"	inborn="1"/>

@@ -523,11 +523,6 @@ void affect_total(CharData *ch) {
 //		SendMsgToChar(ch, "add per level %f hitadd %d  level %d\r\n", add_hp_per_level, GET_HIT_ADD(ch), ch->get_level());
 	}
 
-	// бонусы от морта
-	if (GetRealRemort(ch) >= 20) {
-		ch->add_abils.mresist += GetRealRemort(ch) - 19;
-		ch->add_abils.presist += GetRealRemort(ch) - 19;
-	}
 
 	if (ch->IsNpc()) {
 		(ch)->add_abils = (&mob_proto[GET_MOB_RNUM(ch)])->add_abils;
@@ -659,6 +654,7 @@ void affect_total(CharData *ch) {
 	}
 
 	// calculate DAMAGE value
+	// походу для выбора цели переключения в бою
 	ch->damage_level = (str_bonus(GetRealStr(ch), STR_TO_DAM) + GetRealDamroll(ch)) * 2;
 	if ((obj = GET_EQ(ch, EEquipPos::kBoths))
 		&& GET_OBJ_TYPE(obj) == EObjType::kWeapon) {
@@ -674,6 +670,16 @@ void affect_total(CharData *ch) {
 			ch->damage_level += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + GET_OBJ_VAL(obj, 1))) >> 1;
 		}
 	}
+
+	// бонусы от морта
+	if (GetRealRemort(ch) >= 20) {
+		ch->add_abils.mresist += GetRealRemort(ch) - 19;
+		ch->add_abils.presist += GetRealRemort(ch) - 19;
+	}
+
+	//капы
+	ch->add_abils.mresist = std::min(ch->IsNpc() ? kMaxNpcResist : kMaxPcResist, ch->add_abils.mresist);
+	ch->add_abils.presist = std::min(ch->IsNpc() ? kMaxNpcResist : kMaxPcResist, ch->add_abils.presist);
 
 	{
 		// Calculate CASTER value

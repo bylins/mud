@@ -132,8 +132,12 @@ void do_wsend(RoomData *room, char *argument, int/* cmd*/, int subcmd, Trigger *
 			sub_write(msg, ch, true, kToChar);
 		else if (subcmd == SCMD_WECHOAROUND)
 			sub_write(msg, ch, true, kToRoom);
-	} else
-		wld_log(room, "no target found for wsend", LGH);
+	} else {
+		if (*buf != UID_CHAR && *buf != UID_CHAR_ALL) {
+			sprintf(buf1, "no target (%s) found for wsend", buf);
+			wld_log(room, buf1);
+		}
+	}
 }
 
 void do_wzoneecho(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {

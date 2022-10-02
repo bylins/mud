@@ -19,7 +19,7 @@
         <skill id="kRiding"			level="1"	remort="0"	improve="100"/>
         <skill id="kLeadership"		level="1"	remort="0"	improve="950"/>
         <skill id="kClubs"			level="1"	remort="0"	improve="100"/>
-        <skill id="kPunctual"		level="1"	remort="0"	improve="900"/>
+        <skill id="kPunctual"		level="1"	remort="0"	improve="2500"/>
         <skill id="kPunch"			level="1"	remort="0"	improve="100"/>
         <skill id="kTrack"			level="1"	remort="0"	improve="3500"/>
         <skill id="kAxes"			level="1"	remort="0"	improve="200"/>
@@ -88,7 +88,8 @@
         <feat id="kLightingReflex"		level="1"	remort="0"	slot="1"	inborn="0"/>
         <feat id="kGreatFortitude"		level="1"	remort="0"	slot="1"	inborn="0"/>
         <feat id="kPorter"			level="1"	remort="0"	slot="1"	inborn="0"/>
-        <feat id="kJuggler"			level="1"	remort="0"	slot="2"	inborn="0"/>
+        <feat id="kSlashMaster"			level="1"	remort="0"	slot="1"	inborn="0"/>
+	<feat id="kJuggler"			level="1"	remort="0"	slot="2"	inborn="0"/>
         <feat id="kHerbalist"			level="1"	remort="0"	slot="2"	inborn="0"/>
         <feat id="kWoodenSkin"			level="1"	remort="0"	slot="2"	inborn="0"/>
         <feat id="kEndurance"			level="1"	remort="0"	slot="2"	inborn="0"/>
@@ -112,9 +113,8 @@
         <feat id="kPicksMaster"			level="1"	remort="0"	slot="4"	inborn="0"/>
         <feat id="kSpadesMaster"		level="1"	remort="0"	slot="4"	inborn="0"/>
         <feat id="kBowsMaster"			level="1"	remort="0"	slot="4"	inborn="0"/>
-		<feat id="kMagicalShield"		level="1"	remort="0"	slot="4"	inborn="0"/>
+	<feat id="kMagicalShield"		level="1"	remort="0"	slot="4"	inborn="0"/>
         <feat id="kExorcist"			level="1"	remort="0"	slot="5"	inborn="0"/>
         <feat id="kWarriorSpirit"		level="1"	remort="0"	slot="5"	inborn="0"/>
-        <feat id="kSlashMaster"			level="1"	remort="0"	slot="5"	inborn="0"/>
     </feats>
 </class>

@@ -336,7 +336,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
                 <damage saving="kCritical">
                     <dices ndice="8" sdice="20" adice="100"/>
                     <base_skill id="kDarkMagic" low_skill_bonus="1.5" hi_skill_bonus="3"/>
-                    <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    <base_stat id="kWis" threshold="32" weight="2.5"/>
                 </damage>
             </action>
         </talent_actions>
@@ -779,7 +779,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
                 <damage saving="kReflex">
                     <dices ndice="6" sdice="15" adice="30"/>
                     <base_skill id="kWaterMagic" low_skill_bonus="2" hi_skill_bonus="0.5"/>
-                    <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    <base_stat id="kWis" threshold="32" weight="5"/>
                 </damage>
             </action>
         </talent_actions>
@@ -1485,9 +1485,9 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         <talent_actions>
             <action>
                 <damage saving="kStability">
-                    <dices ndice="8" sdice="15" adice="90"/>
+                    <dices ndice="8" sdice="15" adice="60"/>
                     <base_skill id="kLightMagic" low_skill_bonus="0.75" hi_skill_bonus="1.75"/>
-                    <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    <base_stat id="kWis" threshold="32" weight="2.5"/>
                 </damage>
                 <area>
                     <decay cast="0.05" level="8" free_targets="2"/>

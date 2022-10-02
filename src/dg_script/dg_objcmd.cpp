@@ -255,8 +255,10 @@ void do_osend(ObjData *obj, char *argument, int/* cmd*/, int subcmd, Trigger *) 
 		else if (subcmd == SCMD_OECHOAROUND)
 			sub_write(msg, ch, true, kToRoom);
 	} else {
-		sprintf(buf,"no target found for osend, argument: '%s'", argument);
-		obj_log(obj, buf);
+		if (*buf != UID_CHAR && *buf != UID_CHAR_ALL) {
+			sprintf(buf1, "no target (%s) found for osend", buf);
+			obj_log(obj, buf1);
+		}
 	}
 }
 

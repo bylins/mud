@@ -54,13 +54,13 @@
         <spell id="kLocateObject"		level="20"	remort="0"	circle="3"	mem="0"		cast="0.4"/>
         <spell id="kSnare"			level="20"	remort="0"	circle="3"	mem="0"		cast="0.4"/>
         <spell id="kPowerHold"			level="24"	remort="0"	circle="4"	mem="0"		cast="0.5"/>
-        <spell id="kRepair"			level="25"	remort="0"	circle="4"	mem="0"		cast="0.4"/>
+        <spell id="kRepair"			level="24"	remort="0"	circle="4"	mem="0"		cast="0.4"/>
         <spell id="kGroupRefresh"		level="25"	remort="0"	circle="4"	mem="0"		cast="0.4"/>
         <spell id="kGroupAwareness"		level="25"	remort="0"	circle="4"	mem="0"		cast="0.4"/>
         <spell id="kGroupBlink"			level="25"	remort="0"	circle="4"	mem="0"		cast="0.4"/>
         <spell id="kGroupCloudly"		level="25"	remort="0"	circle="4"	mem="0"		cast="0.4"/>
-        <spell id="kGroupArmor"			level="26"	remort="0"	circle="4"	mem="0"		cast="0.4"/>
-        <spell id="kCommonMeal"			level="28"	remort="0"	circle="4"	mem="0"		cast="0.4"/>
+        <spell id="kGroupArmor"			level="22"	remort="0"	circle="4"	mem="0"		cast="0.4"/>
+        <spell id="kCommonMeal"			level="22"	remort="0"	circle="4"	mem="0"		cast="0.4"/>
 	<spell id="kMassFailure"		level="28"	remort="0"	circle="4"	mem="0"		cast="0.4"/>
     </spells>
     <feats remorts_for_slot="4">

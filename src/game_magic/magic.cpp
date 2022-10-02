@@ -535,7 +535,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 					act("Каменное проклятие $n1 отшибло сознание у $N1.", false, ch, nullptr, victim, kToNotVict);
 					act("У вас отшибло сознание, вам очень плохо...", false, ch, nullptr, victim, kToVict);
 					GET_POS(victim) = EPosition::kStun;
-					SetWaitState(victim, (5 + (GetRealWis(ch) - 20)) * kBattleRound);
+					SetWaitState(victim, (5 + (GetRealWis(ch) - 20) / 6) * kBattleRound);
 				}
 			}
 			break;
