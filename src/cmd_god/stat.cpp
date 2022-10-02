@@ -21,6 +21,7 @@
 #include "modify.h"
 #include "structs/global_objects.h"
 #include "depot.h"
+#include "game_magic/magic.h"
 
 void do_statip(CharData *ch, CharData *k) {
 	log("Start logon list stat");
@@ -307,12 +308,16 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 			GetRealDamroll(k) + str_bonus(GetRealStr(k), STR_TO_DAM));
 	SendMsgToChar(buf, ch);
 	sprintf(buf,
-			"Защитн.аффекты: [Will:%d/Crit.:%d/Stab.:%d/Reflex:%d], Поглощ: [%d], Воля: [%d], Здор.: [%d], Стойк.: [%d], Реакц.: [%d]\r\n",
-			GetSave(k, ESaving::kWill), GetSave(k, ESaving::kCritical),
-			GetSave(k, ESaving::kStability), GetSave(k, ESaving::kReflex),
+			"Защитн.аффекты: (базовые) [Will:%d/Crit.:%d/Stab.:%d/Reflex:%d], (полные) Поглощ: [%d], Воля: [%d], Здор.: [%d], Стойк.: [%d], Реакц.: [%d]\r\n",
+			GetBasicSave(k, ESaving::kWill),
+			GetBasicSave(k, ESaving::kCritical),
+			GetBasicSave(k, ESaving::kStability),
+			GetBasicSave(k, ESaving::kReflex),
 			GET_ABSORBE(k),
-			GET_REAL_SAVING_WILL(k), GET_REAL_SAVING_CRITICAL(k),
-			GET_REAL_SAVING_STABILITY(k), GET_REAL_SAVING_REFLEX(k));
+			CalcSaving(k, k, ESaving::kWill, 0),
+			CalcSaving(k, k, ESaving::kCritical, 0),
+			CalcSaving(k, k, ESaving::kStability, 0),
+			CalcSaving(k, k, ESaving::kReflex, 0));
 	SendMsgToChar(buf, ch);
 	sprintf(buf,
 			"Резисты: [Огонь:%d/Воздух:%d/Вода:%d/Земля:%d/Жизнь:%d/Разум:%d/Иммунитет:%d/Тьма:%d]\r\n",
@@ -320,12 +325,13 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 			GET_RESIST(k, 4), GET_RESIST(k, 5), GET_RESIST(k, 6), GET_RESIST(k, 7));
 	SendMsgToChar(buf, ch);
 	sprintf(buf,
-			"Защита от маг. аффектов : [%d], Защита от маг. урона : [%d], Защита от физ. урона : [%d]\r\n",
+			"Защита от маг. аффектов: [%d], Защита от маг. урона: [%d], Защита от физ. урона: [%d], Маг.урон: [%d], Физ.урон: [%d]\r\n",
 			GET_AR(k),
 			GET_MR(k),
-			GET_PR(k));
+			GET_PR(k),
+			k->add_abils.percent_magdam_add + k->obj_bonus().calc_mage_dmg(100),
+			k->add_abils.percent_physdam_add + k->obj_bonus().calc_phys_dmg(100));
 	SendMsgToChar(buf, ch);
-
 	sprintf(buf,
 			"Запом: [%d], УспехКолд: [%d], ВоссЖиз: [%d], ВоссСил: [%d], Поглощ: [%d], Удача: [%d], Иниц: [%d]\r\n",
 			GET_MANAREG(k),

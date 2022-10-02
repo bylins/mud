@@ -1756,7 +1756,7 @@ void do_mode(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	argument = one_argument(argument, arg);
-
+//	skip_spaces(&argument);
 	int i{0};
 	bool showhelp{false};
 	if (!*arg) {

@@ -582,12 +582,6 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_MR(ch)        ((ch)->add_abils.mresist)
 #define GET_PR(ch)        ((ch)->add_abils.presist) // added by WorM (Видолюб) поглощение физ.урона в %
 #define GET_LIKES(ch)     ((ch)->mob_specials.like_work)
-
-#define GET_REAL_SAVING_STABILITY(ch)	(dex_bonus(GetRealCon(ch)) - GetSave(ch, ESaving::kStability) + ((ch)->IsOnHorse() ? 20 : 0))
-#define GET_REAL_SAVING_REFLEX(ch)	(dex_bonus(GetRealDex(ch)) - GetSave(ch, ESaving::kReflex) + ((ch)->IsOnHorse() ? -20 : 0))
-#define GET_REAL_SAVING_CRITICAL(ch)	(dex_bonus(GetRealCon(ch)) - GetSave(ch, ESaving::kCritical))
-#define GET_REAL_SAVING_WILL(ch)	(dex_bonus(GetRealWis(ch)) - GetSave(ch, ESaving::kWill))
-
 #define GET_POS(ch)        ((ch)->char_specials.position)
 #define GET_IDNUM(ch)     ((ch)->get_idnum())
 #define GET_ID(x)         ((x)->id)

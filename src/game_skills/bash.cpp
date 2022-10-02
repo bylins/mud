@@ -124,6 +124,7 @@ void go_bash(CharData *ch, CharData *vict) {
 			if (!vict->drop_from_horse()) {
 				GET_POS(vict) = EPosition::kSit;
 				SetWait(vict, 3, false);
+				return;
 			}
 		}
 	}

@@ -4737,7 +4737,6 @@ void SetChestMode(CharData *ch, std::string &buffer) {
 		SendMsgToChar("Для начала обзаведитесь дружиной.\r\n", ch);
 		return;
 	}
-
 	if (CompareParam(buffer, "нет")) {
 		PRF_FLAGS(ch).unset(EPrf::kDecayMode);
 		PRF_FLAGS(ch).unset(EPrf::kTakeMode);
@@ -4751,6 +4750,7 @@ void SetChestMode(CharData *ch, std::string &buffer) {
 		PRF_FLAGS(ch).set(EPrf::kTakeMode);
 		SendMsgToChar("Ладушки.\r\n", ch);
 	} else if (CompareParam(buffer, "полный")) {
+
 		PRF_FLAGS(ch).set(EPrf::kDecayMode);
 		PRF_FLAGS(ch).set(EPrf::kTakeMode);
 		SendMsgToChar("Ладушки.\r\n", ch);

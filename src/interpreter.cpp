@@ -1600,19 +1600,16 @@ T one_argument_template(T argument, char *first_arg) {
 		*first_arg = '\0';
 		return (nullptr);
 	}
-
 	do {
 		skip_spaces(&argument);
-
 		first_arg = begin;
 		while (*argument && !a_isspace(*argument)) {
 			*(first_arg++) = a_lcc(*argument);
 			argument++;
 		}
-
 		*first_arg = '\0';
 	} while (fill_word(begin));
-
+	skip_spaces(&argument);
 	return (argument);
 }
 
