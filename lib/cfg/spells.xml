@@ -726,7 +726,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
     <spell id="kGodsWrath" element="kFire" mode="kEnabled">
         <name rus="гнев богов" eng="gods wrath"/>
         <misc pos="kFight" violent="Y" danger="15"/>
-        <mana max="140" min="120" change="1"/>
+        <mana max="110" min="100" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagDamage|kNpcDamagePc|kNpcDamagePcMinhp"/>
         <talent_actions>

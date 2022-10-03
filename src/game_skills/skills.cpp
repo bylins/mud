@@ -1821,8 +1821,8 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 			victim_modi / 2,
 			total_percent,
 			LuckTempStr.c_str());
-	if (!vict->IsNpc()) {
-			ch->send_to_TC(false, true, true,
+	if (vict && !vict->IsNpc()) {
+			vict->send_to_TC(false, true, true,
 					"&CKiller: %s, skill: %s, base_percent: %d, bonus: %d, victim_save: %d, victim_modi: %d, total_percent: %d, удача: %s&n\r\n",
 					ch ? GET_NAME(ch) : "NULL",
 						   MUD::Skill(skill_id).GetName(),

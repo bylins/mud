@@ -190,7 +190,7 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply
 				GetSave(victim, saving),
 				ext_apply,
 				save);
-		if (!victim->IsNpc()) {
+		if (killer != victim && !victim->IsNpc()) {
 			victim->send_to_TC(false, true, true,
 					"SAVING (%s): Killer==%s  Target==%s vnum==%d Level==%d base_save==%d save_equip==%d +bonus==%d result_save==%d\r\n",
 					saving_name.find(saving)->second.c_str(),
@@ -209,7 +209,7 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply
 }
 
 int CalcGeneralSaving(CharData *killer, CharData *victim, ESaving type, int ext_apply) {
-	int save = CalcSaving(killer, victim, type, ext_apply) * -1; //перевернем для восприятия
+	int save = CalcSaving(killer, victim, type, ext_apply, true) * -1; //перевернем для восприятия
 	int rnd = number(1, 100);
 	if (number(1, 200) <=5) { //абсолютный фейл
 		save /= 2;
