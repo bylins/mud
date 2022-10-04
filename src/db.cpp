@@ -3278,16 +3278,9 @@ int vnum_object(char *searchname, CharData *ch) {
 int vnum_flag(char *searchname, CharData *ch) {
 	int found = 0, plane = 0, counter = 0, plane_offset = 0;
 	bool f = false;
-// type:
-// 0 -- неизвестный тип
-// 1 -- объекты
-// 2 -- мобы
-// 4 -- комнаты
-// Ищем для объектов в списках: extra_bits[], apply_types[], weapon_affects[]
-// Ищем для мобов в списках  action_bits[], function_bits[],  affected_bits[], preference_bits[]
-// Ищем для комнат в списках room_bits[]
 	std::string out;
 
+// ---------------------- extra_bits
 	for (counter = 0, plane = 0, plane_offset = 0; plane < NUM_PLANES; counter++) {
 		if (*extra_bits[counter] == '\n') {
 			plane++;
@@ -3300,18 +3293,19 @@ int vnum_flag(char *searchname, CharData *ch) {
 		}
 		plane_offset++;
 	}
-
 	if (f) {
 		for (const auto &i : obj_proto) {
 			if (i->has_flag(plane, 1 << plane_offset)) {
-				snprintf(buf, kMaxStringLength, "%3d. [%5d] %s :   %s\r\n",
-						 ++found, i->get_vnum(), i->get_short_description().c_str(), extra_bits[counter]);
+				snprintf(buf, kMaxStringLength, "%3d. [%7d] %60s : %s\r\n",
+						++found, i->get_vnum(), 
+						utils::RemoveColors(i->get_short_description().c_str()).c_str(), 
+						extra_bits[counter]);
 				out += buf;
 			}
 		}
 	}
+// --------------------- apply_types
 	f = false;
-// ---------------------
 	for (counter = 0; *apply_types[counter] != '\n'; counter++) {
 		if (utils::IsAbbr(searchname, apply_types[counter])) {
 			f = true;
@@ -3322,9 +3316,9 @@ int vnum_flag(char *searchname, CharData *ch) {
 		for (const auto &i : obj_proto) {
 			for (plane = 0; plane < kMaxObjAffect; plane++) {
 				if (i->get_affected(plane).location == static_cast<EApply>(counter)) {
-					snprintf(buf, kMaxStringLength, "%3d. [%5d] %s : %s,  значение: %d\r\n",
+					snprintf(buf, kMaxStringLength, "%3d. [%7d] %60s : %s, значение: %d\r\n",
 							 ++found, i->get_vnum(),
-							 i->get_short_description().c_str(),
+							 utils::RemoveColors(i->get_short_description().c_str()).c_str(),
 							 apply_types[counter], i->get_affected(plane).modifier);
 					out += buf;
 					continue;
@@ -3332,8 +3326,8 @@ int vnum_flag(char *searchname, CharData *ch) {
 			}
 		}
 	}
+// --------------------- weapon affects
 	f = false;
-// ---------------------
 	for (counter = 0, plane = 0, plane_offset = 0; plane < NUM_PLANES; counter++) {
 		if (*weapon_affects[counter] == '\n') {
 			plane++;
@@ -3349,15 +3343,65 @@ int vnum_flag(char *searchname, CharData *ch) {
 	if (f) {
 		for (const auto &i : obj_proto) {
 			if (i->get_affect_flags().get_flag(plane, 1 << plane_offset)) {
-				snprintf(buf, kMaxStringLength, "%3d. [%5d] %s :   %s\r\n",
+				snprintf(buf, kMaxStringLength, "%3d. [%7d] %60s : %s\r\n",
 						 ++found, i->get_vnum(),
-						 i->get_short_description().c_str(),
+						 utils::RemoveColors(i->get_short_description().c_str()).c_str(),
 						 weapon_affects[counter]);
 				out += buf;
 			}
 		}
 	}
-
+// --------------------- anti_bits
+	f = false;
+	for (counter = 0, plane = 0, plane_offset = 0; plane < NUM_PLANES; counter++) {
+		if (*anti_bits[counter] == '\n') {
+			plane++;
+			plane_offset = 0;
+			continue;
+		};
+		if (utils::IsAbbr(searchname, anti_bits[counter])) {
+			f = true;
+			break;
+		}
+		plane_offset++;
+	}
+	if (f) {
+		for (const auto &i : obj_proto) {
+			if (i->get_affect_flags().get_flag(plane, 1 << plane_offset)) {
+				snprintf(buf, kMaxStringLength, "%3d. [%7d] %60s : запрещен для: %s\r\n",
+						 ++found, i->get_vnum(),
+						 utils::RemoveColors(i->get_short_description().c_str()).c_str(),
+						 anti_bits[counter]);
+				out += buf;
+			}
+		}
+	}
+// --------------------- no_bits
+	f = false;
+	for (counter = 0, plane = 0, plane_offset = 0; plane < NUM_PLANES; counter++) {
+		if (*no_bits[counter] == '\n') {
+			plane++;
+			plane_offset = 0;
+			continue;
+		};
+		if (utils::IsAbbr(searchname, no_bits[counter])) {
+			f = true;
+			break;
+		}
+		plane_offset++;
+	}
+	if (f) {
+		for (const auto &i : obj_proto) {
+			if (i->get_affect_flags().get_flag(plane, 1 << plane_offset)) {
+				snprintf(buf, kMaxStringLength, "%3d. [%7d] %60s : неудобен для: %s\r\n",
+						 ++found, i->get_vnum(),
+						 utils::RemoveColors(i->get_short_description().c_str()).c_str(),
+						 no_bits[counter]);
+				out += buf;
+			}
+		}
+	}
+//--------------------------------- skills
 	f = false;
 	ESkill skill_id;
 	for (skill_id = ESkill::kFirst; skill_id <= ESkill::kLast; ++skill_id) {
@@ -3371,16 +3415,15 @@ int vnum_flag(char *searchname, CharData *ch) {
 			if (i->has_skills()) {
 				auto it = i->get_skills().find(skill_id);
 				if (it != i->get_skills().end()) {
-					snprintf(buf, kMaxStringLength, "%3d. [%5d] %s : %s,  значение: %d\r\n",
+					snprintf(buf, kMaxStringLength, "%3d. [%7d] %60s : %s, значение: %d\r\n",
 							 ++found, i->get_vnum(),
-							 i->get_short_description().c_str(),
+							 utils::RemoveColors(i->get_short_description().c_str()).c_str(),
 							 MUD::Skill(skill_id).GetName(), it->second);
 					out += buf;
 				}
 			}
 		}
 	}
-
 	if (!out.empty()) {
 		page_string(ch->desc, out);
 	}
@@ -3392,11 +3435,11 @@ int vnum_room(char *searchname, CharData *ch) {
 
 	for (nr = 0; nr <= top_of_world; nr++) {
 		if (isname(searchname, world[nr]->name)) {
-			sprintf(buf, "%3d. [%5d] %s\r\n", ++found, world[nr]->room_vn, world[nr]->name);
+			sprintf(buf, "%3d. [%7d] %s\r\n", ++found, world[nr]->room_vn, world[nr]->name);
 			SendMsgToChar(buf, ch);
 		}
 	}
-	return (found);
+	return found;
 }
 
 int vnum_obj_trig(char *searchname, CharData *ch) {
