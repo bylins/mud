@@ -1437,7 +1437,7 @@ bool PlaceObjToRoom(ObjData *object, RoomRnum room) {
 		if (!(object->has_flag(EObjFlag::kAppearsDay)
 				|| object->has_flag(EObjFlag::kAppearsFullmoon)
 				|| object->has_flag(EObjFlag::kAppearsNight))) {
-			sprintf(buf, "Попытка загрузить объект в виртуальную комнату: objvnum %d, objname %s, roomvnum %d", 
+			sprintf(buf, "Попытка поместить объект в виртуальную комнату: objvnum %d, objname %s, roomvnum %d", 
 					object->get_vnum(), object->get_PName(0).c_str(), world[room]->room_vn);
 			mudlog(buf, CMP, kLvlGod, SYSLOG, true);
 		}
