@@ -410,23 +410,11 @@ char *diag_shot_to_char(ObjData *obj, CharData *ch) {
 * При чтении писем и осмотре чара в его описании подставляем в начало каждой строки пробел
 * (для дурных тригов), пользуясь случаем передаю привет проне!
 */
-/*std::string AddLeadingStringSpace(char const *text) {
-	if (text) {
-		std::string tmp(" ");
-		tmp += text;
-		boost::replace_all(tmp, "\n", "\n ");
-		utils::TrimRight(tmp);
-		return tmp;
-	}
-	return "";
-}*/
-
 std::string AddLeadingStringSpace(const std::string& text) {
 	if (!text.empty()) {
 		std::string tmp(" ");
 		tmp += text;
 		boost::replace_all(tmp, "\n", "\n ");
-		utils::TrimRight(tmp);
 		return tmp;
 	}
 	return "";
