@@ -533,7 +533,6 @@ void receive(CharData *ch, CharData *mailman) {
 		std::string text = coder::base64_decode(i->second.text);
 		utils::Trim(text);
 		obj->set_action_description(buf_ + text + "\r\n\r\n");
-
 		PlaceObjToInventory(obj.get(), ch);
 		act("$n дал$g вам письмо.", false, mailman, 0, ch, kToVict);
 		act("$N дал$G $n2 письмо.", false, ch, 0, mailman, kToRoom);

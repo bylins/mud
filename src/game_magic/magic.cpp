@@ -3015,6 +3015,7 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 		}
 		ExtractObjFromWorld(obj);
 	}
+	mob->char_specials.saved.alignment = ch->char_specials.saved.alignment; //выровняем алигмент чтоб не агрили вдруг
 	return 1;
 }
 
