@@ -388,15 +388,34 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 					  CCCYN(ch, C_NRM),
 					  k->mob_specials.MaxFactor,
 					  CCNRM(ch, C_NRM));
-		SendMsgToChar(ch, "Умения:&c");
+		SendMsgToChar(ch, "&GУмения:&c");
 		for (const auto &skill : MUD::Skills()) {
 			if (skill.IsValid() && k->GetSkill(skill.GetId())) {
-				SendMsgToChar(ch, " %s:[%3d]", skill.GetName(), k->GetSkill(skill.GetId()));
+				SendMsgToChar(ch, " %s:[%d]", skill.GetName(), k->GetSkill(skill.GetId()));
+			}
+		}
+		SendMsgToChar(ch, "\r\n");
+		SendMsgToChar(ch, "&GЗаклинания:&c");
+		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
+			if (MUD::Spell(spell_id).IsUnavailable()) {
+				continue;
+			}
+			if (GET_SPELL_MEM(k, spell_id)) {
+				SendMsgToChar(ch, " %s:[%d]", MUD::Spell(spell_id).GetCName(), GET_SPELL_MEM(k, spell_id));
+			}
+		}
+		SendMsgToChar(ch, "\r\n");
+		SendMsgToChar(ch, "&GСпособности:&c");
+		for (const auto &feat : MUD::Feats()) {
+			if (feat.IsInvalid()) {
+				continue;
+			}
+			if (k->HaveFeat(feat.GetId())) {
+				SendMsgToChar(ch, " '%s'", feat.GetCName());
 			}
 		}
 		SendMsgToChar(ch, CCNRM(ch, C_NRM));
 		SendMsgToChar(ch, "\r\n");
-
 		// информация о маршруте моба
 		if (k->mob_specials.dest_count > 0) {
 			// подготавливаем путевые точки
