@@ -558,13 +558,6 @@ bool ParseFilter::check_affect_apply(ObjData *obj) const {
 			result = false;
 			for (int i = 0; i < kMaxObjAffect; ++i) {
 				if (obj->get_affected(i).location == *it) {
-					int mod = obj->get_affected(i).modifier;
-					char buf_[kMaxInputLength];
-					sprinttype(obj->get_affected(i).location, apply_types, buf_);
-					if (IsNegativeApply(obj->get_affected(i).location)) {
-						mod = -mod;
-						break;
-					}
 					result = true;
 					break;
 				}
