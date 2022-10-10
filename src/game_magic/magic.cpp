@@ -180,7 +180,7 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply
 		save += 50;
 	if (need_log) {
 		killer->send_to_TC(false, true, true,
-				"SAVING (%s): Killer==%s  Target==%s vnum==%d Level==%d base_save==%d save_equip==%d +cast==%d result_save=%d\r\n",
+				"SAVING (%s): Killer==%s  Target==%s vnum==%d Level==%d base_save==%d save_equip==%d save_awake=-%d +cast==%d result_save=%d\r\n",
 				saving_name.find(saving)->second.c_str(),
 				GET_NAME(killer),
 				GET_NAME(victim),
@@ -188,11 +188,12 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply
 				GetRealLevel(victim),
 				GetBasicSave(victim, saving, false),
 				GetSave(victim, saving),
+				victim->GetSkill(ESkill::kAwake) / 5,
 				ext_apply,
 				save);
 		if (killer != victim && !victim->IsNpc()) {
 			victim->send_to_TC(false, true, true,
-					"SAVING (%s): Killer==%s  Target==%s vnum==%d Level==%d base_save==%d save_equip==%d +bonus==%d result_save==%d\r\n",
+					"SAVING (%s): Killer==%s  Target==%s vnum==%d Level==%d base_save==%d save_equip==%d save_awake=-%d +bonus==%d result_save==%d\r\n",
 					saving_name.find(saving)->second.c_str(),
 					GET_NAME(killer),
 					GET_NAME(victim),
@@ -200,6 +201,7 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply
 					GetRealLevel(victim),
 					GetBasicSave(victim, saving, false),
 					GetSave(victim, saving),
+					victim->GetSkill(ESkill::kAwake) / 5,
 					ext_apply,
 					save);
 		}
@@ -210,8 +212,8 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply
 
 int CalcGeneralSaving(CharData *killer, CharData *victim, ESaving type, int ext_apply) {
 	int save = CalcSaving(killer, victim, type, ext_apply, true) * -1; //перевернем для восприятия
-	int rnd = number(1, 100);
-	if (number(1, 200) <=5) { //абсолютный фейл
+	int rnd = number(1, 200);
+	if (number(1, 100) <=5) { //абсолютный фейл
 		save /= 2;
 		killer->send_to_TC(false, true, false, "Victim saving: %d, random 1..200: %d, абсолютный фэйл true\r\n", save, rnd);
 	} else {

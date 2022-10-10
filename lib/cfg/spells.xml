@@ -1608,7 +1608,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
                 <damage saving="kStability">
                     <dices ndice="10" sdice="12" adice="90"/>
                     <base_skill id="kEarthMagic" low_skill_bonus="0.75" hi_skill_bonus="1.5"/>
-                    <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    <base_stat id="kWis" threshold="50" weight="7"/>
                 </damage>
                 <area>
                     <decay cast="0.05" level="8" free_targets="1"/>
@@ -2255,8 +2255,8 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
             <action>
                 <damage saving="kReflex">
                     <dices ndice="15" sdice="6" adice="30"/>
-                    <base_skill id="kEarthMagic" low_skill_bonus="0.3" hi_skill_bonus="1.25"/>
-                    <base_stat id="kWis" threshold="40" weight="4.5"/>
+                    <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="2"/>
+                    <base_stat id="kWis" threshold="40" weight="5"/>
                 </damage>
                 <area>
                     <decay cast="0.05" level="2" free_targets="3"/>

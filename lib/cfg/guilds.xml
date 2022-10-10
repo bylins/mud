@@ -495,6 +495,11 @@
                 <price currency="kKuna" start="1" remort_percent="400"/>
                 <upgrade practices="10" min="0" max="10"/>
             </skill>
+            <skill id="kBash" fail="0">
+                <class val="kRanger"/>
+                <price currency="kKuna" start="50" remort_percent="200"/>
+                <upgrade practices="10" min="0" max="10"/>
+            </skill>
             <skill id="kSneak" fail="0">
                 <class val="kThief|kAssasine"/>
                 <price currency="kKuna" start="3" remort_percent="400"/>
