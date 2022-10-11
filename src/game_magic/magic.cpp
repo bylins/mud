@@ -473,13 +473,12 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		if (PRF_FLAGGED(ch, EPrf::kAwake) && !victim->IsNpc())
 			modi = modi - 50;
 	}
-	if (!ch->IsNpc() && (GetRealLevel(ch) > 10))
-		modi += (GetRealLevel(ch) - 10);
+//	if (!ch->IsNpc() && (GetRealLevel(ch) > 10))
+//		modi += (GetRealLevel(ch) - 10);
 
 	auto instant_death{false};
 	switch (spell_id) {
 		case ESpell::kMagicMissile: {
-			modi += 300;
 			if (CanUseFeat(ch, EFeat::kMagicArrows))
 				count = (level + 9) / 5;
 			else
