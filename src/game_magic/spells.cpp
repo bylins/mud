@@ -2045,7 +2045,7 @@ void SpellEnergydrain(int/* level*/, CharData *ch, CharData *victim, ObjData* /*
 	if (PRF_FLAGGED(ch, EPrf::kAwake))
 		modi = modi - 50;
 
-	if (ch == victim || !CalcGeneralSaving(ch, victim, ESaving::kWill, CALC_SUCCESS(modi, 33))) {
+	if (ch == victim || !CalcGeneralSaving(ch, victim, ESaving::kWill, modi)) {
 		for (auto spell_id = ESpell::kFirst ; spell_id <= ESpell::kLast; ++spell_id) {
 			GET_SPELL_MEM(victim, spell_id) = 0;
 		}

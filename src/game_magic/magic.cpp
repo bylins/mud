@@ -517,9 +517,8 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 					break;
 				}
 			}
-			if (GET_POS(victim) > EPosition::kSit && !IS_IMMORTAL(victim) && (number(1, 999) > GET_AR(victim) * 10) &&
-				(AFF_FLAGGED(victim, EAffect::kHold)
-					|| !CalcGeneralSaving(ch, victim, ESaving::kReflex, CALC_SUCCESS(modi, 30)))) {
+			if (GET_POS(victim) > EPosition::kSit && !IS_IMMORTAL(victim) && (number(1, 100) > GET_AR(victim)) &&
+					(AFF_FLAGGED(victim, EAffect::kHold) || !CalcGeneralSaving(ch, victim, ESaving::kReflex, modi))) {
 				if (IS_HORSE(ch))
 					ch->drop_from_horse();
 				act("$n3 повалило на землю.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
@@ -532,9 +531,8 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		}
 		case ESpell::kSonicWave: {
 			if (GET_POS(victim) > EPosition::kSit &&
-				!IS_IMMORTAL(victim) && (number(1, 999) > GET_AR(victim) * 10) &&
-				(AFF_FLAGGED(victim, EAffect::kHold)
-					|| !CalcGeneralSaving(ch, victim, ESaving::kStability, CALC_SUCCESS(modi, 60)))) {
+				!IS_IMMORTAL(victim) && (number(1, 100) > GET_AR(victim)) 
+						&& (AFF_FLAGGED(victim, EAffect::kHold) || !CalcGeneralSaving(ch, victim, ESaving::kStability, modi))) {
 				act("$n3 повалило на землю.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 				act("Вас повалило на землю.", false, victim, nullptr, nullptr, kToChar);
 				GET_POS(victim) = EPosition::kSit;
@@ -545,8 +543,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		}
 		case ESpell::kStunning: {
 			if (ch == victim ||
-				((number(1, 999) > GET_AR(victim) * 10) &&
-					!CalcGeneralSaving(ch, victim, ESaving::kCritical, CALC_SUCCESS(modi, GetRealWis(ch))))) {
+					((number(1, 100) > GET_AR(victim)) && !CalcGeneralSaving(ch, victim, ESaving::kCritical, modi))) {
 				int choice_stunning = 750;
 				if (CanUseFeat(ch, EFeat::kDarkPact))
 					choice_stunning -= GetRealRemort(ch) * 15;
@@ -562,8 +559,8 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		}
 		case ESpell::kVacuum: {
 			if (ch == victim ||
-				(!CalcGeneralSaving(ch, victim, ESaving::kCritical, CALC_SUCCESS(modi, GetRealWis(ch))) &&
-					(number(1, 999) > GET_AR(victim) * 10) && number(0, 1000) <= 500)) {
+					(!CalcGeneralSaving(ch, victim, ESaving::kCritical, modi) &&
+					(number(1, 100) > GET_AR(victim)) && number(0, 1000) <= 500)) {
 				GET_POS(victim) = EPosition::kStun;
 				auto wait = 4 + std::max(1, GetRealLevel(ch) + 1 + (GetRealWis(ch) - 29)) / 7;    //17*/
 				SetWaitState(victim, wait * kBattleRound);
@@ -601,8 +598,8 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		}
 		case ESpell::kDustStorm: {
 			if (GET_POS(victim) > EPosition::kSit &&
-				!IS_IMMORTAL(victim) && (number(1, 999) > GET_AR(victim) * 10) &&
-				(!CalcGeneralSaving(ch, victim, ESaving::kReflex, CALC_SUCCESS(modi, 30)))) {
+				!IS_IMMORTAL(victim) && (number(1, 100) > GET_AR(victim)) &&
+				(!CalcGeneralSaving(ch, victim, ESaving::kReflex, modi))) {
 				act("$n3 повалило на землю.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 				act("Вас повалило на землю.", false, victim, nullptr, nullptr, kToChar);
 				GET_POS(victim) = EPosition::kSit;
@@ -627,7 +624,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		}
 		case ESpell::kWarcryOfThunder: {
 			if (GET_POS(victim) > EPosition::kSit && !IS_IMMORTAL(victim) && (AFF_FLAGGED(victim, EAffect::kHold) ||
-				!CalcGeneralSaving(ch, victim, ESaving::kStability, GetRealCon(ch)))) {
+				!CalcGeneralSaving(ch, victim, ESaving::kStability, modi))) {
 				act("$n3 повалило на землю.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 				act("Вас повалило на землю.", false, victim, nullptr, nullptr, kToChar);
 				GET_POS(victim) = EPosition::kSit;
@@ -1986,13 +1983,13 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kShock: {
 			switch (spell_id) {
 				case ESpell::kWarcryOfThunder: savetype = ESaving::kWill;
-					modi = GetRealCon(ch) * 3 / 2;
+//					modi = GetRealCon(ch) * 3 / 2;
 					break;
 				case ESpell::kIceStorm: savetype = ESaving::kReflex;
-					modi = CALC_SUCCESS(modi, 30);
+//					modi = CALC_SUCCESS(modi, 30);
 					break;
 				case ESpell::kEarthfall: savetype = ESaving::kReflex;
-					modi = CALC_SUCCESS(modi, 95);
+//					modi = CALC_SUCCESS(modi, 95);
 					break;
 				case ESpell::kShock: savetype = ESaving::kReflex;
 					break;
@@ -2095,9 +2092,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			//Заклинания Забвение, Бремя времени. Далим.
 		case ESpell::kOblivion:
 		case ESpell::kBurdenOfTime: {
-			if (IS_IMMORTAL(victim)
-					|| CalcGeneralSaving(ch, victim, ESaving::kReflex,
-							CALC_SUCCESS(modi, (spell_id == ESpell::kOblivion ? 40 : 90)))) {
+			if (IS_IMMORTAL(victim) || CalcGeneralSaving(ch, victim, ESaving::kReflex, modi)) {
 				SendMsgToChar(NOEFFECT, ch);
 				success = false;
 				break;

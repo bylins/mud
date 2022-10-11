@@ -143,7 +143,7 @@ namespace SpellUsage {
 };
 //-Polud
 
-#define CALC_SUCCESS(modi, perc)         ((modi)-100+(perc))
+//#define CALC_SUCCESS(modi, perc)         ((modi)-100+(perc))
 
 const int kHoursPerWarcry = 4;
 const int kHoursPerTurnUndead = 8;
