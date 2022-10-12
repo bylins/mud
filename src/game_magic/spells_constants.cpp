@@ -204,7 +204,7 @@ std::string GetAffExpiredText(ESpell spell_id) {
 		{ESpell::kBelenaPoison, "В вашей крови не осталось ни капельки яда."},
 		{ESpell::kDaturaPoison, "В вашей крови не осталось ни капельки яда."},
 		{ESpell::kTimerRestore, "SPELL_TIMER_REPAIR"},
-		{ESpell::kLucky, "!SPELL_LACKY!"},
+		{ESpell::kCombatLuck, "!SPELL_CombatLuck!"},
 		{ESpell::kBandage, "Вы аккуратно перевязали свои раны."},
 		{ESpell::kNoBandage, "Вы снова можете перевязывать свои раны."},
 		{ESpell::kCapable, "!SPELL_CAPABLE!"},
@@ -477,7 +477,7 @@ std::optional<CastPhraseList> GetCastPhrase(ESpell spell_id) {
 		{ESpell::kBelenaPoison, {"трутизна", "... и пошлю на них зубы зверей и яд ползающих по земле."}},
 		{ESpell::kDaturaPoison, {"трутизна", "... и пошлю на них зубы зверей и яд ползающих по земле."}},
 		{ESpell::kTimerRestore, {"", ""}},
-		{ESpell::kLucky, {"", ""}},
+		{ESpell::kCombatLuck, {"", ""}},
 		{ESpell::kBandage, {"", ""}},
 		{ESpell::kNoBandage, {"", ""}},
 		{ESpell::kCapable, {"", ""}},
@@ -763,7 +763,7 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kBelenaPoison] = "kBelenaPoison";
 	ESpell_name_by_value[ESpell::kDaturaPoison] = "kDaturaPoison";
 	ESpell_name_by_value[ESpell::kTimerRestore] = "kTimerRestore";
-	ESpell_name_by_value[ESpell::kLucky] = "kLucky";
+	ESpell_name_by_value[ESpell::kCombatLuck] = "kCombatLuck";
 	ESpell_name_by_value[ESpell::kBandage] = "kBandage";
 	ESpell_name_by_value[ESpell::kNoBandage] = "kNoBandage";
 	ESpell_name_by_value[ESpell::kCapable] = "kCapable";

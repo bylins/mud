@@ -207,7 +207,7 @@ enum class ESpell {
 	kBelenaPoison = 191,
 	kDaturaPoison = 192,
 	kTimerRestore = 193,
-	kLucky = 194,
+	kCombatLuck = 194,
 	kBandage = 195,
 	kNoBandage = 196,
 	kCapable = 197,

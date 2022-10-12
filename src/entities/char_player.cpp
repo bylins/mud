@@ -1290,8 +1290,8 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 							af.location = static_cast<EApply>(num4);
 							af.bitvector = num5;
 							af.battleflag = num6;
-							if (af.type == ESpell::kLucky) {
-								af.handler.reset(new LackyAffectHandler());
+							if (af.type == ESpell::kCombatLuck) {
+								af.handler.reset(new CombatLuckAffectHandler());
 							}
 							affect_to_char(this, af);
 							i++;

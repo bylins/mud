@@ -57,10 +57,10 @@ class IAffectHandler {
 	virtual void Handle(StopFightParameters &/* params*/) {};
 };
 
-class LackyAffectHandler : public IAffectHandler {
+class CombatLuckAffectHandler : public IAffectHandler {
  public:
-	LackyAffectHandler() : round_(0), damToMe_(false), damFromMe_(false) {};
-	virtual ~LackyAffectHandler() {};
+	CombatLuckAffectHandler() : round_(0), damToMe_(false), damFromMe_(false) {};
+	virtual ~CombatLuckAffectHandler() {};
 	virtual void Handle(DamageActorParameters &params);
 	virtual void Handle(BattleRoundParameters &params);
 	virtual void Handle(DamageVictimParameters &params);

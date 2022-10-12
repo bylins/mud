@@ -1,12 +1,12 @@
 #include "affect_handler.h"
 
 //нужный Handler вызывается в зависимости от типа передаваемых параметров
-void LackyAffectHandler::Handle(DamageActorParameters &params) {
+void CombatLuckAffectHandler::Handle(DamageActorParameters &params) {
 	if (params.damage > 0) damFromMe_ = true;
 	params.damage += params.damage * (round_ * 4) / 100;
 }
 
-void LackyAffectHandler::Handle(DamageVictimParameters &params) {
+void CombatLuckAffectHandler::Handle(DamageVictimParameters &params) {
 	if (params.damage > 0) {
 		damToMe_ = true;
 	}
@@ -22,8 +22,8 @@ Affect<EApply>::shared_ptr find_affect(CharData *ch, ESpell aff_type) {
 	return Affect<EApply>::shared_ptr();
 }
 
-void LackyAffectHandler::Handle(BattleRoundParameters &params) {
-	auto af = find_affect(params.ch, ESpell::kLucky);
+void CombatLuckAffectHandler::Handle(BattleRoundParameters &params) {
+	auto af = find_affect(params.ch, ESpell::kCombatLuck);
 	if (damFromMe_ && !damToMe_) {
 		if (round_ < 5) {
 			++round_;
@@ -38,8 +38,8 @@ void LackyAffectHandler::Handle(BattleRoundParameters &params) {
 	damFromMe_ = false;
 }
 // тест
-void LackyAffectHandler::Handle(StopFightParameters &params) {
-	auto af = find_affect(params.ch, ESpell::kLucky);
+void CombatLuckAffectHandler::Handle(StopFightParameters &params) {
+	auto af = find_affect(params.ch, ESpell::kCombatLuck);
 	if (af) {
 		af->modifier = 0;
 	}

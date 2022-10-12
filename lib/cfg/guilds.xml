@@ -625,6 +625,15 @@
             </skill>
         </talents>
     </guild>
+   <guild text_id="kOldMagusNewKyiv" vnum="12" name="Волхв в НК">
+        <trainers vnums="49931"/>
+        <talents>
+            <feat id="kSecretRunes" fail="0">
+                <price currency="kKuna" start="50" remort_percent="200"/>
+            </feat>
+        </talents>
+   </guild>
+ 
 <!--
     <guild text_id="kTestGuild" vnum="12" name="тестовая гильдия">
         <trainers vnums="50051"/>
