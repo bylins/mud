@@ -31,7 +31,7 @@ int CalcSpellManacost(const CharData *ch, ESpell spell_id) {
 		return 1;
 	}
 
-	if (IS_MANA_CASTER(ch) && GetRealLevel(ch) >= CalcRequiredLevel(ch, spell_id)) {
+	if (IS_MANA_CASTER(ch) && GetRealLevel(ch) >= MagusCastRequiredLevel(ch, spell_id)) {
 		result = static_cast<int>(kManaCostModifier
 			* (float) mana_gain_cs[VPOSI(55 - GetRealInt(ch), 10, 50)]
 			/ (float) int_app[VPOSI(55 - GetRealInt(ch), 10, 50)].mana_per_tic

@@ -2453,11 +2453,11 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			to_room = "$n позеленел$g от действия яда.";
 			break;
 
-		case ESpell::kLucky: af[0].duration = CalcDuration(victim, 6, 0, 0, 0, 0);
-			af[0].bitvector = to_underlying(EAffect::kLacky);
+		case ESpell::kCombatLuck: af[0].duration = CalcDuration(victim, 6, 0, 0, 0, 0);
+			af[0].bitvector = to_underlying(EAffect::kCombatLuck);
 			//Polud пробный обработчик аффектов
-			af[0].handler.reset(new LackyAffectHandler());
-			af[0].type = ESpell::kLucky;
+			af[0].handler.reset(new CombatLuckAffectHandler());
+			af[0].type = ESpell::kCombatLuck;
 			af[0].location = EApply::kHitroll;
 			af[0].modifier = 0;
 			to_room = "$n вдохновенно выпятил$g грудь.";

@@ -27,16 +27,14 @@ char cast_argument[kMaxStringLength];
 extern int what_sky;
 
 
-int CalcRequiredLevel(const CharData *ch, ESpell spell_id) {
+int MagusCastRequiredLevel(const CharData *ch, ESpell spell_id) {
 	int required_level = spell_create[spell_id].runes.min_caster_level;
 
 	if (required_level >= kLvlGod)
 		return required_level;
 	if (CanUseFeat(ch, EFeat::kSecretRunes)) {
-		int remort = GetRealRemort(ch);
-		required_level -= MIN(8, MAX(0, ((remort - 8) / 3) * 2 + (remort > 7 && remort < 11 ? 1 : 0)));
+		required_level -= GetRealRemort(ch)/ MUD::Class(ch->GetClass()).GetSpellLvlDecrement();
 	}
-
 	return std::max(1, required_level);
 }
 
