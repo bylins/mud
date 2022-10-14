@@ -36,7 +36,7 @@
         <!-- This class has no spells. -->
     </spells>
     <feats remorts_for_slot="5">
-        <feat id="kSecretRunes"			level="1"	remort="3"	slot="5"	inborn="0"/>
+        <feat id="kSecretRunes"			level="1"	remort="3"	slot="1"	inborn="0"/>
         <feat id="kMagicUser"			level="1"	remort="0"	slot="0"	inborn="1"/>
         <feat id="kThrifty"			level="1"	remort="0"	slot="0"	inborn="1"/>
         <feat id="kEndurance"			level="1"	remort="0"	slot="0"	inborn="1"/>

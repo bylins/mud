@@ -87,14 +87,7 @@ int bonus_antisaving[] ={
 int CalcAntiSavings(CharData *ch) {
 	int modi = 0;
 
-	if (IS_IMMORTAL(ch))
-		modi = 1000;
-	else if (GET_GOD_FLAG(ch, EGf::kGodsLike))
-		modi = 250;
-	else if (GET_GOD_FLAG(ch, EGf::kGodscurse))
-		modi = -250;
-	else
-		modi = GET_CAST_SUCCESS(ch);
+	modi = GET_CAST_SUCCESS(ch);
 	modi += bonus_antisaving[GetRealWis(ch) - 1];
 	if (!ch->IsNpc()) {
 		modi *= ch->get_cond_penalty(P_CAST);
@@ -172,12 +165,6 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply
 	}
 	save -= GetSave(victim, saving) * -1;    // одежда бафы и слава
 	save += ext_apply;    // внешний модификатор (обычно +каст)
-	if (IS_GOD(victim))
-		save = -1000;
-	else if (GET_GOD_FLAG(victim, EGf::kGodsLike))
-		save -= 50;
-	else if (GET_GOD_FLAG(victim, EGf::kGodscurse))
-		save += 50;
 	if (need_log) {
 		killer->send_to_TC(false, true, true,
 				"SAVING (%s): Killer==%s  Target==%s vnum==%d Level==%d base_save==%d save_equip==%d save_awake=-%d +cast==%d result_save=%d\r\n",
@@ -211,15 +198,18 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply
 }
 
 int CalcGeneralSaving(CharData *killer, CharData *victim, ESaving type, int ext_apply) {
-	int save = CalcSaving(killer, victim, type, ext_apply, true) * -1; //перевернем для восприятия
-	int rnd = number(1, 200);
+	int save = CalcSaving(killer, victim, type, ext_apply, true); //перевернем для восприятия
+	int rnd = number(-200, 200);
 	if (number(1, 100) <=5) { //абсолютный фейл
 		save /= 2;
-		killer->send_to_TC(false, true, false, "Victim saving: %d, random 1..200: %d, абсолютный фэйл true\r\n", save, rnd);
+		SendMsgToChar(killer, "Тестовое сообщение: Противник %s (%d) , ваш бонус: %d, спасы противника: %d, random -200..200: %d, критнеудача: ДА, шанс успеха: %2.2f%%.\r\n", 
+				GET_NAME(victim), GetRealLevel(victim), ext_apply, save, rnd, ((save + 200) / 400.) * 100.);
 	} else {
-		killer->send_to_TC(false, true, false, "Victim saving: %d, random 1..200: %d, абсолютный фэйл false\r\n", save, rnd);
+		SendMsgToChar(killer, "Тестовое сообщение: Противник %s (%d) , ваш бонус: %d, спасы противника: %d, random -200..200: %d, критнеудача: НЕТ, шанс успеха: %2.2f%%.\r\n", 
+				GET_NAME(victim), GetRealLevel(victim), ext_apply, save, rnd, ((save + 200) / 400.) * 100.);
+//		killer->send_to_TC(false, true, false, "Victim saving: %d, random -200..200: %d, критудача нет, шанс успеха %2.2f%\r\n", save, rnd, ((save + 200) / 400.) * 100.);
 	}
-	if (save >= rnd) {
+	if (save <= rnd) {
 		// савинги прошли
 		return true;
 	}
