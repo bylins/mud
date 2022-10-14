@@ -200,14 +200,16 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply
 int CalcGeneralSaving(CharData *killer, CharData *victim, ESaving type, int ext_apply) {
 	int save = CalcSaving(killer, victim, type, ext_apply, true); //перевернем для восприятия
 	int rnd = number(-200, 200);
-	if (number(1, 100) <=5) { //абсолютный фейл
-		save /= 2;
-		SendMsgToChar(killer, "Тестовое сообщение: Противник %s (%d) , ваш бонус: %d, спасы противника: %d, random -200..200: %d, критнеудача: ДА, шанс успеха: %2.2f%%.\r\n", 
-				GET_NAME(victim), GetRealLevel(victim), ext_apply, save, rnd, ((save + 200) / 400.) * 100.);
-	} else {
-		SendMsgToChar(killer, "Тестовое сообщение: Противник %s (%d) , ваш бонус: %d, спасы противника: %d, random -200..200: %d, критнеудача: НЕТ, шанс успеха: %2.2f%%.\r\n", 
-				GET_NAME(victim), GetRealLevel(victim), ext_apply, save, rnd, ((save + 200) / 400.) * 100.);
+	if (ext_apply != 0) {
+		if (number(1, 100) <=5) { //абсолютный фейл
+			save /= 2;
+			SendMsgToChar(killer, "Тестовое сообщение: Противник %s (%d), ваш бонус: %d, спас '%s' противника: %d, итог: %d, random -200..200: %d, критудача: ДА, шанс успеха: %2.2f%%.\r\n", 
+					GET_NAME(victim), GetRealLevel(victim), ext_apply, saving_name.find(type)->second.c_str(), save - ext_apply, save, rnd, ((save + 200) / 400.) * 100.);
+		} else {
+			SendMsgToChar(killer, "Тестовое сообщение: Противник %s (%d), ваш бонус: %d, спас '%s' противника: %d, итог: %d, random -200..200: %d, критудача: НЕТ, шанс успеха: %2.2f%%.\r\n", 
+					GET_NAME(victim), GetRealLevel(victim), ext_apply, saving_name.find(type)->second.c_str(), save - ext_apply, save, rnd, ((save + 200) / 400.) * 100.);
 //		killer->send_to_TC(false, true, false, "Victim saving: %d, random -200..200: %d, критудача нет, шанс успеха %2.2f%\r\n", save, rnd, ((save + 200) / 400.) * 100.);
+		}
 	}
 	if (save <= rnd) {
 		// савинги прошли
