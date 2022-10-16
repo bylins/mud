@@ -2015,6 +2015,8 @@ bool stuff_before_round(CharData *ch) {
 // * Обработка текущих боев, дергается каждые 2 секунды.
 void perform_violence() {
 	int max_init = -100, min_init = 100;
+	utils::CExecutionTimer violence_timer;
+	static int violence_round = 0;
 
 	//* суммон хелперов
 	check_mob_helpers();
@@ -2088,7 +2090,7 @@ void perform_violence() {
 			}
 		}
 	}
-
+	log("initiative: (%d) min: %d, max:%d, time: %f", violence_round++, min_init, max_init, violence_timer.delta().count());
 	//* обновление аффектов и лагов после раунда
 	update_round_affs();
 
