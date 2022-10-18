@@ -2058,11 +2058,16 @@ void perform_violence() {
 		max_init = MAX(max_init, initiative);
 		min_init = MIN(min_init, initiative);
 	}
-
+	int size = 0;
+	std::stringstream ss;
 	//* обработка раунда по очередности инициативы
 	for (int initiative = max_init; initiative >= min_init; initiative--) {
+		size = 0;
+		ss.str("");
 		for (CharData *ch = combat_list; ch; ch = next_combat_list) {
 			next_combat_list = ch->next_fighting;
+			size++;
+			ss << GET_NAME(ch) << " (" << GET_MOB_VNUM(ch) << ") ";
 			if (ch->initiative != initiative || ch->in_room == kNowhere) {
 				continue;
 			}
@@ -2090,7 +2095,10 @@ void perform_violence() {
 			}
 		}
 	}
-	log("initiative: (%d) min: %d, max:%d, time: %f", violence_round++, min_init, max_init, violence_timer.delta().count());
+	if (violence_timer.delta().count() > 0.01) {
+		sprintf(buf, "initiative: (%d) min: %d, max:%d, time: %f, combat_list: %d", violence_round++, min_init, max_init, violence_timer.delta().count(), size);
+		log("combat list: %s\r\n%s", ss.str().c_str(), buf);
+	}
 	//* обновление аффектов и лагов после раунда
 	update_round_affs();
 
