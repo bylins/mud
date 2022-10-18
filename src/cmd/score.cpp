@@ -97,6 +97,8 @@ void DoScore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
+void PrintBonusStateInfo(CharData *ch, std::ostringstream &out);
+
 // \todo Переписать на вывод в поток с использованием общих со "счет все" функций
 void PrintScoreList(CharData *ch) {
 	sprintf(buf, "%s", PlayerRace::GetKinNameByNum(GET_KIN(ch), GET_SEX(ch)).c_str());
@@ -223,6 +225,7 @@ void PrintScoreList(CharData *ch) {
 	std::ostringstream out;
 	out.str("");
 	PrintRentableInfo(ch, out);
+	PrintBonusStateInfo(ch, out);
 	SendMsgToChar(out.str(), ch);
 }
 

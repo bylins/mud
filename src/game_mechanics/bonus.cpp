@@ -166,15 +166,12 @@ std::string active_bonus_as_string() {
 	if (bonus_info.time_bonus == -1) {
 		return std::string();
 	}
-
 	switch (bonus_info.type_bonus) {
-		case EBonusType::BONUS_DAMAGE: return "Сейчас идет бонус: повышенный урон.";
-
-		case EBonusType::BONUS_EXP: return "Сейчас идет бонус: повышенный опыт за убийство моба.";
-
-		case EBonusType::BONUS_WEAPON_EXP: return "Сейчас идет бонус: повышенный опыт от урона оружия.";
+		case EBonusType::BONUS_DAMAGE: return "Сейчас идет бонус: повышенный урон, множитель " + std::to_string(bonus_info.mult_bonus) + ".";
+		case EBonusType::BONUS_EXP: return "Сейчас идет бонус: повышенный опыт за убийство моба, множитель " + std::to_string(bonus_info.mult_bonus) + ".";
+		case EBonusType::BONUS_WEAPON_EXP: return "Сейчас идет бонус: повышенный опыт от урона оружия, множитель " + std::to_string(bonus_info.mult_bonus) + ".";
+		case EBonusType::BONUS_LEARNING: return "Сейчас идет бонус: ускоренное обучение, множитель " + std::to_string(bonus_info.mult_bonus) + ".";
 	}
-
 	return "Неизвестный бонус. Сообщите богам.";
 }
 

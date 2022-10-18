@@ -13,6 +13,7 @@
 #include "color.h"
 #include "utils/random.h"
 #include "game_magic/magic.h"
+#include "game_mechanics/bonus.h"
 
 const int kZeroRemortSkillCap = 80;
 const int kSkillCapBonusPerRemort = 5;;
@@ -1885,6 +1886,8 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 	}
 
 	int prob = success ? 20000 : 15000;
+	if (Bonus::is_bonus_active(Bonus::EBonusType::BONUS_LEARNING))
+		prob /= Bonus::get_mult_bonus();
 	prob /= std::max(1L, div);
 	prob -= 5 * wis_bonus(GetRealWis(ch), WIS_MAX_SKILLS);
 	prob += number(1, trained_skill * 5);
