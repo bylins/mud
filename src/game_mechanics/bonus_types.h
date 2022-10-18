@@ -5,7 +5,8 @@ namespace Bonus {
 enum class EBonusType {
 	BONUS_EXP = 0,
 	BONUS_WEAPON_EXP = 1,
-	BONUS_DAMAGE = 2
+	BONUS_DAMAGE = 2,
+	BONUS_LEARNING = 3
 };
 }
 

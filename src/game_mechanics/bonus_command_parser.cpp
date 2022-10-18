@@ -4,8 +4,7 @@
 #include "utils/utils.h"
 
 namespace Bonus {
-const char *USAGE_MESSAGE = "Синтаксис команды:\r\nбонус <двойной|тройной|отменить> [оружейный|опыт|урон] [время]";
-
+const char *USAGE_MESSAGE = "Синтаксис команды:\r\nбонус <двойной|тройной|отменить> [оружейный|опыт|урон|обучение] [время]";
 class StringStreamFinalizer {
  public:
 	explicit StringStreamFinalizer(std::string &destination) : m_destination(destination) {}
@@ -56,8 +55,8 @@ void ArgumentsParser::parse() {
 	}
 
 	if (!m_second_argument.empty()
-		&& !isname(m_second_argument, "оружейный опыт урон")) {
-		error_message << "Тип бонуса может быть &Wоружейный&n, &Wопыт&n или &Wурон&n.\r\n";
+		&& !isname(m_second_argument, "оружейный опыт урон обучение")) {
+		error_message << "Тип бонуса может быть &Wоружейный&n, &Wопыт&n, &Wурон&n или &Wобучение&n.\r\n";
 		return;
 	}
 
@@ -90,6 +89,9 @@ void ArgumentsParser::parse() {
 	} else if (utils::IsAbbr(m_second_argument.c_str(), "урон")) {
 		out << " увеличенного урона";
 		m_bonus_type = Bonus::EBonusType::BONUS_DAMAGE;
+	} else if (utils::IsAbbr(m_second_argument.c_str(), "обучение")) {
+		out << " ускоренного обучения";
+		m_bonus_type = Bonus::EBonusType::BONUS_LEARNING;
 	} else {
 		// logic error.
 	}
