@@ -552,8 +552,8 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		}
 		case ESpell::kVacuum: {
 			if (ch == victim ||
-					(!CalcGeneralSaving(ch, victim, ESaving::kCritical, modi) &&
-					(number(1, 100) > GET_AR(victim)) && number(0, 1000) <= 500)) {
+					((number(0, 100) <= 20) && (number(1, 100) > GET_AR(victim))
+							&& !CalcGeneralSaving(ch, victim, ESaving::kCritical, modi))) {
 				GET_POS(victim) = EPosition::kStun;
 				auto wait = 4 + std::max(1, GetRealLevel(ch) + 1 + (GetRealWis(ch) - 29)) / 7;    //17*/
 				SetWaitState(victim, wait * kBattleRound);
