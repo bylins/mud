@@ -2042,7 +2042,37 @@ void find_replacement(void *go,
 			if (c->IsNpc()) {
 				find_replacement(go, c->script.get(), nullptr, MOB_TRIGGER, subfield, nullptr, nullptr, str);
 			}
-		} else if (!str_cmp(field, "iname")) {
+		} else if (*field == 'u' || *field == 'U') {
+			if (!str_cmp(field, "uniq")) {
+				if (!c->IsNpc())
+					sprintf(str, "%d", GET_UNIQUE(c));
+			} else if (!str_cmp(field, "u")) {
+				strcpy(str, GET_CH_SUF_2(c));
+			} else if (!str_cmp(field, "UPiname")) {
+				std::string tmpname = GET_PAD(c, 0);
+				strcpy(str, colorCAP(tmpname).c_str());
+			} else if (!str_cmp(field, "UPrname")) {
+				std::string tmpname = GET_PAD(c, 1);
+				strcpy(str, colorCAP(tmpname).c_str());
+			} else if (!str_cmp(field, "UPdname")) {
+				std::string tmpname = GET_PAD(c, 2);
+				strcpy(str, colorCAP(tmpname).c_str());
+			} else if (!str_cmp(field, "UPvname")) {
+				std::string tmpname = GET_PAD(c, 3);
+				strcpy(str, colorCAP(tmpname).c_str());
+			} else if (!str_cmp(field, "UPtname")) {
+				std::string tmpname = GET_PAD(c, 4);
+				strcpy(str, colorCAP(tmpname).c_str());
+			} else if (!str_cmp(field, "UPpname")) {
+				std::string tmpname = GET_PAD(c, 5);
+				strcpy(str, colorCAP(tmpname).c_str());
+			} else if (!str_cmp(field, "UPname")) {
+				std::string tmpname = GET_NAME(c);
+				strcpy(str, colorCAP(tmpname).c_str());
+				CharacterLinkDrop = false;
+			}
+		}
+		else if (!str_cmp(field, "iname")) {
 			if (*subfield) {
 				if (strlen(subfield) > MAX_MOB_NAME)
 					subfield[MAX_MOB_NAME - 1] = '\0';
@@ -2126,10 +2156,6 @@ void find_replacement(void *go,
 		}
 		else if (!str_cmp(field, "id"))
 			sprintf(str, "%c%ld", UID_CHAR, GET_ID(c));
-		else if (!str_cmp(field, "uniq")) {
-			if (!c->IsNpc())
-				sprintf(str, "%d", GET_UNIQUE(c));
-		} 
 		else if (!str_cmp(field, "level"))
 			sprintf(str, "%d", GetRealLevel(c));
 		else if (!str_cmp(field, "remort")) {
@@ -2460,8 +2486,6 @@ void find_replacement(void *go,
 			strcpy(str, HSSH(c));
 		else if (!str_cmp(field, "g"))
 			strcpy(str, GET_CH_SUF_1(c));
-		else if (!str_cmp(field, "u"))
-			strcpy(str, GET_CH_SUF_2(c));
 		else if (!str_cmp(field, "w"))
 			strcpy(str, GET_CH_SUF_3(c));
 		else if (!str_cmp(field, "q"))
