@@ -1822,13 +1822,13 @@ void medit_parse(DescriptorData *d, char *arg) {
 					case MEDIT_MANAREG: GET_MANAREG(OLC_MOB(d)) = MIN(400, MAX(-400, bit));
 						break;
 
-					case MEDIT_CASTSUCCESS: GET_CAST_SUCCESS(OLC_MOB(d)) = MIN(400, MAX(-400, bit));
+					case MEDIT_CASTSUCCESS: GET_CAST_SUCCESS(OLC_MOB(d)) = MIN(1000, MAX(1000, bit));
 						break;
 
-					case MEDIT_SUCCESS: GET_MORALE(OLC_MOB(d)) = MIN(400, MAX(-400, bit));
+					case MEDIT_SUCCESS: GET_MORALE(OLC_MOB(d)) = MIN(200, MAX(0, bit));
 						break;
 
-					case MEDIT_INITIATIVE: GET_INITIATIVE(OLC_MOB(d)) = MIN(400, MAX(-400, bit));
+					case MEDIT_INITIATIVE: GET_INITIATIVE(OLC_MOB(d)) = MIN(100, MAX(-100, bit));
 						break;
 
 					case MEDIT_ABSORBE: GET_ABSORBE(OLC_MOB(d)) = MIN(200, MAX(-200, bit));
@@ -2215,22 +2215,22 @@ void medit_parse(DescriptorData *d, char *arg) {
 			return;
 		}
 
-		case MEDIT_STR: OLC_MOB(d)->set_str(atoi(arg));
+		case MEDIT_STR: OLC_MOB(d)->set_str(MIN(100, MAX(1, atoi(arg))));
 			break;
 
-		case MEDIT_DEX: OLC_MOB(d)->set_dex(atoi(arg));
+		case MEDIT_DEX: OLC_MOB(d)->set_dex(MIN(100, MAX(1, atoi(arg))));
 			break;
 
-		case MEDIT_CON: OLC_MOB(d)->set_con(atoi(arg));
+		case MEDIT_CON: OLC_MOB(d)->set_con(MIN(100, MAX(1, atoi(arg))));
 			break;
 
-		case MEDIT_WIS: OLC_MOB(d)->set_wis(MIN(50, MAX(1, atoi(arg))));
+		case MEDIT_WIS: OLC_MOB(d)->set_wis(MIN(100, MAX(1, atoi(arg))));
 			break;
 
-		case MEDIT_INT: OLC_MOB(d)->set_int(MIN(50, MAX(1, atoi(arg))));
+		case MEDIT_INT: OLC_MOB(d)->set_int(MIN(100, MAX(1, atoi(arg))));
 			break;
 
-		case MEDIT_CHA: OLC_MOB(d)->set_cha(MIN(50, MAX(1, atoi(arg))));
+		case MEDIT_CHA: OLC_MOB(d)->set_cha(MIN(100, MAX(1, atoi(arg))));
 			break;
 
 		case MEDIT_WEIGHT: GET_WEIGHT(OLC_MOB(d)) = MIN(200, MAX(1, atoi(arg)));
