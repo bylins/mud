@@ -559,7 +559,7 @@ void affect_total(CharData *ch) {
 	}
 
 	if (!ch->IsNpc()) {
-		if (NORENTABLE(ch) == 0 && !domination) // мы не на новой арене и не ПК
+		if (!domination) // мы не на новой арене и не ПК
 			GloryConst::apply_modifiers(ch);
 		apply_natural_affects(ch);
 	}
