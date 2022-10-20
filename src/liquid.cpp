@@ -343,7 +343,8 @@ ObjData *do_drink_get_jar(CharData *ch, char *jar_name) {
 
 		if (GET_OBJ_TYPE(jar) == EObjType::kLiquidContainer) {
 			SendMsgToChar("Прежде это стоит поднять.\r\n", ch);
-			return jar;
+//			return jar;
+			return nullptr;
 		}
 	}
 	return jar;

@@ -2345,7 +2345,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		dam = ResultDam;
 	}
 
-	if (!IS_IMMORTAL(ch) && AFF_FLAGGED(victim, EAffect::kShield)) {
+	if (!IS_IMMORTAL(ch) && AFF_FLAGGED(victim, EAffect::kGodsShield)) {
 		if (skill_id == ESkill::kBash) {
 			SendSkillMessages(dam, ch, victim, msg_num);
 		}
@@ -3676,7 +3676,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 
 		if (CanUseFeat(ch, EFeat::kShadowStrike) && !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)
 			&& victim->IsNpc()
-			&& !(AFF_FLAGGED(victim, EAffect::kShield) && !(MOB_FLAGGED(victim, EMobFlag::kProtect)))
+			&& !(AFF_FLAGGED(victim, EAffect::kGodsShield) && !(MOB_FLAGGED(victim, EMobFlag::kProtect)))
 			&& (number(1, 100) <= 6 * ch->get_cond_penalty(P_HITROLL))
 			&& !victim->get_role(MOB_ROLE_BOSS)) {
 			GET_HIT(victim) = 1;
@@ -3690,7 +3690,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 			&& !CalcGeneralSaving(ch, victim, ESaving::kReflex, dex_bonus(GetRealDex(ch)))) {
 			hit_params.dam = static_cast<int>(hit_params.dam * hit_params.crit_backstab_multiplier(ch, victim));
 			if ((hit_params.dam > 0)
-				&& !AFF_FLAGGED(victim, EAffect::kShield)
+				&& !AFF_FLAGGED(victim, EAffect::kGodsShield)
 				&& !(MOB_FLAGGED(victim, EMobFlag::kProtect))) {
 				SendMsgToChar("&GПрямо в сердце!&n\r\n", ch);
 			}

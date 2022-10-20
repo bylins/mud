@@ -1108,7 +1108,7 @@ void alt_equip(CharData *ch, int pos, int dam, int chance) {
 			pos = EEquipPos::kHold;
 	}
 
-	if (pos <= 0 || pos > EEquipPos::kBoths || !GET_EQ(ch, pos) || dam < 0 || AFF_FLAGGED(ch, EAffect::kShield))
+	if (pos <= 0 || pos > EEquipPos::kBoths || !GET_EQ(ch, pos) || dam < 0 || AFF_FLAGGED(ch, EAffect::kGodsShield))
 		return; // Добавил: под "зб" не убивается стаф (Купала)
 	alterate_object(GET_EQ(ch, pos), dam, chance);
 }

@@ -66,7 +66,7 @@ enum class EAffect : Bitvector {
 	kWaterBreath = kIntOne | (1u << 10),
 	kSlow = kIntOne | (1u << 11),
 	kHaste = kIntOne | (1u << 12),
-	kShield = kIntOne | (1u << 13),
+	kGodsShield = kIntOne | (1u << 13),
 	kAirShield = kIntOne | (1u << 14),
 	kFireShield = kIntOne | (1u << 15),
 	kIceShield = kIntOne | (1u << 16),

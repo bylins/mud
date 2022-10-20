@@ -119,7 +119,7 @@ void go_bash(CharData *ch, CharData *vict) {
 		dmg.flags.set(fight::kNoFleeDmg);
 		dam = dmg.Process(ch, vict);
 
-		if (dam > 0 || (dam == 0 && AFF_FLAGGED(vict, EAffect::kShield))) {
+		if (dam > 0 || (dam == 0 && AFF_FLAGGED(vict, EAffect::kGodsShield))) {
 			prob = 2;
 			if (!vict->drop_from_horse()) {
 				GET_POS(vict) = EPosition::kSit;
