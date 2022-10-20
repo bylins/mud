@@ -109,10 +109,10 @@ void do_antigods(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 		SendMsgToChar("Оно вам надо?\r\n", ch);
 		return;
 	}
-	if (AFF_FLAGGED(ch, EAffect::kShield)) {
+	if (AFF_FLAGGED(ch, EAffect::kGodsShield)) {
 		if (IsAffectedBySpell(ch, ESpell::kGodsShield))
 			RemoveAffectFromChar(ch, ESpell::kGodsShield);
-		AFF_FLAGS(ch).unset(EAffect::kShield);
+		AFF_FLAGS(ch).unset(EAffect::kGodsShield);
 		SendMsgToChar("Голубой кокон вокруг вашего тела угас.\r\n", ch);
 		act("&W$n отринул$g защиту, дарованную богами.&n", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 	} else
@@ -676,7 +676,7 @@ void do_steal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Воровать у своих? Это мерзко...\r\n", ch);
 		return;
 	}
-	if (vict->IsNpc() && (MOB_FLAGGED(vict, EMobFlag::kNoFight) || AFF_FLAGGED(vict, EAffect::kShield)
+	if (vict->IsNpc() && (MOB_FLAGGED(vict, EMobFlag::kNoFight) || AFF_FLAGGED(vict, EAffect::kGodsShield)
 		|| MOB_FLAGGED(vict, EMobFlag::kProtect))
 		&& !(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike))) {
 		SendMsgToChar("А ежели поймают? Посодют ведь!\r\nПодумав так, вы отказались от сего намеренья.\r\n", ch);

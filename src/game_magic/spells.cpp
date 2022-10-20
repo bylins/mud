@@ -540,7 +540,7 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 
 	if (!IS_IMMORTAL(ch)) {
 		if (!ch->IsNpc() || IS_CHARMICE(ch)) {
-			if (AFF_FLAGGED(ch, EAffect::kShield)) {
+			if (AFF_FLAGGED(ch, EAffect::kGodsShield)) {
 				SendMsgToChar(SUMMON_FAIL3, ch);
 				return;
 			}
@@ -610,11 +610,11 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 	act("$n растворил$u на ваших глазах.", true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 	ExtractCharFromRoom(victim);
 	PlaceCharToRoom(victim, ch_room);
-	victim->dismount();
-	act("$n прибыл$g по вызову.", true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-	act("$n призвал$g вас!", false, ch, nullptr, victim, kToVict);
 	CheckAutoNosummon(victim);
 	GET_POS(victim) = EPosition::kStand;
+	act("$n прибыл$g по вызову.", true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
+	act("$n призвал$g вас!", false, ch, nullptr, victim, kToVict);
+	victim->dismount();
 	look_at_room(victim, 0);
 	// призываем чармисов
 	for (k = victim->followers; k; k = k_next) {
@@ -904,7 +904,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 	} else if (!IS_IMMORTAL(ch)
 		&& (AFF_FLAGGED(victim, EAffect::kSanctuary) || MOB_FLAGGED(victim, EMobFlag::kProtect)))
 		SendMsgToChar("Ваша жертва освящена Богами!\r\n", ch);
-	else if (!IS_IMMORTAL(ch) && (AFF_FLAGGED(victim, EAffect::kShield) || MOB_FLAGGED(victim, EMobFlag::kProtect)))
+	else if (!IS_IMMORTAL(ch) && (AFF_FLAGGED(victim, EAffect::kGodsShield) || MOB_FLAGGED(victim, EMobFlag::kProtect)))
 		SendMsgToChar("Ваша жертва защищена Богами!\r\n", ch);
 	else if (!IS_IMMORTAL(ch) && MOB_FLAGGED(victim, EMobFlag::kNoCharm))
 		SendMsgToChar("Ваша жертва устойчива к этому!\r\n", ch);

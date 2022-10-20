@@ -86,8 +86,14 @@ int bonus_antisaving[] ={
 
 int CalcAntiSavings(CharData *ch) {
 	int modi = 0;
-
-	modi = GET_CAST_SUCCESS(ch);
+	if (IS_IMMORTAL(ch))
+		modi = 1000;
+	else if (GET_GOD_FLAG(ch, EGf::kGodsLike))
+		modi = 250;
+	else if (GET_GOD_FLAG(ch, EGf::kGodscurse))
+		modi = -250;
+	else
+		modi = ch->add_abils.cast_success;
 	modi += bonus_antisaving[GetRealWis(ch) - 1];
 	if (!ch->IsNpc()) {
 		modi *= ch->get_cond_penalty(P_CAST);
@@ -144,12 +150,12 @@ int GetBasicSave(CharData *ch, ESaving saving, bool log) {
 }
 
 //killer нужен для того чтоб вывести стату
-int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply, bool need_log) {
+int CalcSaving(CharData *killer, CharData *victim, ESaving saving, bool need_log) {
 	auto class_sav = victim->GetClass();
 	int save = GetBasicSave(victim, saving, true); //отрицательное лучше
 
 	if (victim->IsNpc()) {
-		class_sav = ECharClass::kMob;    
+		class_sav = ECharClass::kMob;
 	} else {
 		if (class_sav < ECharClass::kFirst || class_sav > ECharClass::kLast) {
 			class_sav = ECharClass::kWarrior;
@@ -163,11 +169,10 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply
 		}
 		save -= victim->GetSkill(ESkill::kAwake) / 5; //CalculateSkillAwakeModifier(killer, victim);
 	}
-	save -= GetSave(victim, saving) * -1;    // одежда бафы и слава
-	save += ext_apply;    // внешний модификатор (обычно +каст)
+	save += GetSave(victim, saving);    // одежда бафы и слава
 	if (need_log) {
 		killer->send_to_TC(false, true, true,
-				"SAVING (%s): Killer==%s  Target==%s vnum==%d Level==%d base_save==%d save_equip==%d save_awake=-%d +cast==%d result_save=%d\r\n",
+				"SAVING (%s): Killer==%s  Target==%s vnum==%d Level==%d base_save==%d save_equip==%d save_awake=-%d result_save=%d\r\n",
 				saving_name.find(saving)->second.c_str(),
 				GET_NAME(killer),
 				GET_NAME(victim),
@@ -176,11 +181,10 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply
 				GetBasicSave(victim, saving, false),
 				GetSave(victim, saving),
 				victim->GetSkill(ESkill::kAwake) / 5,
-				ext_apply,
 				save);
 		if (killer != victim && !victim->IsNpc()) {
 			victim->send_to_TC(false, true, true,
-					"SAVING (%s): Killer==%s  Target==%s vnum==%d Level==%d base_save==%d save_equip==%d save_awake=-%d +bonus==%d result_save==%d\r\n",
+					"SAVING (%s): Killer==%s  Target==%s vnum==%d Level==%d base_save==%d save_equip==%d save_awake=-%d result_save==%d\r\n",
 					saving_name.find(saving)->second.c_str(),
 					GET_NAME(killer),
 					GET_NAME(victim),
@@ -189,7 +193,6 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply
 					GetBasicSave(victim, saving, false),
 					GetSave(victim, saving),
 					victim->GetSkill(ESkill::kAwake) / 5,
-					ext_apply,
 					save);
 		}
 	}
@@ -198,19 +201,18 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply
 }
 
 int CalcGeneralSaving(CharData *killer, CharData *victim, ESaving type, int ext_apply) {
-	int save = CalcSaving(killer, victim, type, ext_apply, true); //перевернем для восприятия
+	int save = CalcSaving(killer, victim, type, true);
 	int rnd = number(-200, 200);
-	if (ext_apply != 0) {
-		if (number(1, 100) <=5) { //абсолютный фейл
-			save /= 2;
-			SendMsgToChar(killer, "Тестовое сообщение: Противник %s (%d), ваш бонус: %d, спас '%s' противника: %d, итог: %d, random -200..200: %d, критудача: ДА, шанс успеха: %2.2f%%.\r\n", 
-					GET_NAME(victim), GetRealLevel(victim), ext_apply, saving_name.find(type)->second.c_str(), save - ext_apply, save, rnd, ((save + 200) / 400.) * 100.);
-		} else {
-			SendMsgToChar(killer, "Тестовое сообщение: Противник %s (%d), ваш бонус: %d, спас '%s' противника: %d, итог: %d, random -200..200: %d, критудача: НЕТ, шанс успеха: %2.2f%%.\r\n", 
-					GET_NAME(victim), GetRealLevel(victim), ext_apply, saving_name.find(type)->second.c_str(), save - ext_apply, save, rnd, ((save + 200) / 400.) * 100.);
-//		killer->send_to_TC(false, true, false, "Victim saving: %d, random -200..200: %d, критудача нет, шанс успеха %2.2f%\r\n", save, rnd, ((save + 200) / 400.) * 100.);
-		}
+	if (number(1, 100) <=5) { //абсолютный фейл
+		save /= 2;
+		SendMsgToChar(killer, "Тестовое сообщение: Противник %s (%d), ваш бонус: %d, спас '%s' противника: %d, итог: %d, random -200..200: %d, критудача: ДА, шанс успеха: %2.2f%%.\r\n", 
+				GET_NAME(victim), GetRealLevel(victim), ext_apply, saving_name.find(type)->second.c_str(), save, save, rnd, ((std::clamp(save, -200, 200) + 200) / 400.) * 100.);
+	} else {
+		SendMsgToChar(killer, "Тестовое сообщение: Противник %s (%d), ваш бонус: %d, спас '%s' противника: %d, итог: %d, random -200..200: %d, критудача: НЕТ, шанс успеха: %2.2f%%.\r\n", 
+				GET_NAME(victim), GetRealLevel(victim), ext_apply, saving_name.find(type)->second.c_str(), save, save, rnd, ((std::clamp(save, -200, 200) + 200) / 400.) * 100.);
 	}
+	save += ext_apply;    // внешний модификатор (обычно +каст)
+
 	if (save <= rnd) {
 		// савинги прошли
 		return true;
@@ -1154,17 +1156,17 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			break;
 
 		case ESpell::kGodsShield: af[0].duration = CalcDuration(victim, 4, 0, 0, 0, 0) * koef_duration;
-			af[0].bitvector = to_underlying(EAffect::kShield);
+			af[0].bitvector = to_underlying(EAffect::kGodsShield);
 			af[0].location = EApply::kSavingStability;
 			af[0].modifier = -10;
 			af[0].battleflag = kAfBattledec;
 			af[1].duration = af[0].duration;
-			af[1].bitvector = to_underlying(EAffect::kShield);
+			af[1].bitvector = to_underlying(EAffect::kGodsShield);
 			af[1].location = EApply::kSavingWill;
 			af[1].modifier = -10;
 			af[1].battleflag = kAfBattledec;
 			af[2].duration = af[0].duration;
-			af[2].bitvector = to_underlying(EAffect::kShield);
+			af[2].bitvector = to_underlying(EAffect::kGodsShield);
 			af[2].location = EApply::kSavingReflex;
 			af[2].modifier = -10;
 			af[2].battleflag = kAfBattledec;
@@ -1569,7 +1571,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			break;
 
 		case ESpell::kPoison: savetype = ESaving::kCritical;
-			if (ch != victim && (AFF_FLAGGED(victim, EAffect::kShield) ||
+			if (ch != victim && (AFF_FLAGGED(victim, EAffect::kGodsShield) ||
 				CalcGeneralSaving(ch, victim, savetype, modi - GetRealCon(victim) / 2))) {
 				if (ch->in_room
 					== IN_ROOM(victim)) // Добавлено чтобы яд нанесенный SPELL_POISONED_FOG не спамил чару постоянно
@@ -2779,7 +2781,7 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 		ExtractCharFromWorld(mob, false);
 		return 0;
 	}
-	if (!IS_IMMORTAL(ch) && AFF_FLAGGED(mob, EAffect::kShield)) {
+	if (!IS_IMMORTAL(ch) && AFF_FLAGGED(mob, EAffect::kGodsShield)) {
 		SendMsgToChar("Боги защищают это существо даже после смерти.\r\n", ch);
 		ExtractCharFromWorld(mob, false);
 		return 0;

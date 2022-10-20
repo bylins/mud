@@ -1091,7 +1091,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		SendMsgToChar(buf, ch);
 
 		*aura_txt = '\0';
-		if (AFF_FLAGGED(i, EAffect::kShield)) {
+		if (AFF_FLAGGED(i, EAffect::kGodsShield)) {
 			strcat(aura_txt, "...окутан");
 			strcat(aura_txt, GET_CH_SUF_6(i));
 			strcat(aura_txt, " сверкающим коконом ");
@@ -1291,7 +1291,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 	SendMsgToChar(buf, ch);
 
 	*aura_txt = '\0';
-	if (AFF_FLAGGED(i, EAffect::kShield)) {
+	if (AFF_FLAGGED(i, EAffect::kGodsShield)) {
 		strcat(aura_txt, "...окутан");
 		strcat(aura_txt, GET_CH_SUF_6(i));
 		strcat(aura_txt, " сверкающим коконом ");

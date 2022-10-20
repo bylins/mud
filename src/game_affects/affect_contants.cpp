@@ -150,7 +150,7 @@ void init_EAffectFlag_ITEM_NAMES() {
 	EAffectFlag_name_by_value[EAffect::kWaterBreath] = "kWaterBreath";
 	EAffectFlag_name_by_value[EAffect::kSlow] = "kSlow";
 	EAffectFlag_name_by_value[EAffect::kHaste] = "kHaste";
-	EAffectFlag_name_by_value[EAffect::kShield] = "kShield";
+	EAffectFlag_name_by_value[EAffect::kGodsShield] = "kGodsShield";
 	EAffectFlag_name_by_value[EAffect::kAirShield] = "kAirShield";
 	EAffectFlag_name_by_value[EAffect::kFireShield] = "kFireShield";
 	EAffectFlag_name_by_value[EAffect::kIceShield] = "kIceShield";
@@ -321,7 +321,7 @@ WeaponAffectArray weapon_affect = {
 	WeaponAffect{EWeaponAffect::kWaterBreath, to_underlying(EAffect::kWaterBreath), ESpell::kUndefined},
 	WeaponAffect{EWeaponAffect::kHaemorrhage, to_underlying(EAffect::kHaemorrhage), ESpell::kUndefined},
 	WeaponAffect{EWeaponAffect::kDisguising, to_underlying(EAffect::kDisguise), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kShield, to_underlying(EAffect::kShield), ESpell::kUndefined},
+	WeaponAffect{EWeaponAffect::kShield, to_underlying(EAffect::kGodsShield), ESpell::kUndefined},
 	WeaponAffect{EWeaponAffect::kAirShield, to_underlying(EAffect::kAirShield), ESpell::kUndefined},
 	WeaponAffect{EWeaponAffect::kFireShield, to_underlying(EAffect::kFireShield), ESpell::kUndefined},
 	WeaponAffect{EWeaponAffect::kIceShield, to_underlying(EAffect::kIceShield), ESpell::kUndefined},
