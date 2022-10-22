@@ -4311,8 +4311,8 @@ void ZoneReset::reset_zone_essential() {
 						}
 						if (!mob_proto[mob->get_rnum()].get_role_bits().any()) {
 							int rndlev = mob->GetLevel();
-							rndlev += std::min(1, number(-2, +2));
-							mob->set_level(rndlev);
+							rndlev += number(-2, +2);
+							mob->set_level(std::max(1, rndlev));
 						}
 
 						PlaceCharToRoom(mob, ZCMD.arg3);
