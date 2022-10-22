@@ -1294,7 +1294,6 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 	int victim_sav{0};			// савис жертвы,
 	int victim_modi{0};			// другие модификаторы, влияющие на прохождение
 	int bonus{0};				// бонус от дополнительных параметров.
-	int size{0};				// бонусы/штрафы размера (не спрашивайте...)
 	bool ignore_luck{false};	// Для скиллов, не учитывающих удачу
 
 	if (base_percent <= 0) {
@@ -1310,11 +1309,6 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 	}
 
 	base_percent += int_app[GetRealInt(ch)].to_skilluse;
-	if (!ch->IsNpc()) {
-		size = std::max(0, GET_REAL_SIZE(ch) - 50);
-	} else {
-		size = size_app[GET_POS_SIZE(ch)].interpolate / 2;
-	}
 
 	switch (skill_id) {
 		case ESkill::kBackstab: {
@@ -1343,10 +1337,10 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kBash: {
 			victim_sav = CalcSaving(ch, vict, ESaving::kReflex, 0);
-			bonus = size
+			bonus = (GET_REAL_SIZE(ch) - 50)
 				+ dex_bonus(GetRealDex(ch))
 				+ (GET_EQ(ch, EEquipPos::kShield)
-				   ? weapon_app[std::clamp(GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield)), 0, 35)].bashing
+				   ? weapon_app[std::clamp(GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield)), 0, 50)].bashing
 				   : 0);
 			if (vict) {
 				if (GET_POS(vict) < EPosition::kFight && GET_POS(vict) > EPosition::kSleep) {
@@ -1529,8 +1523,9 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kProtect: {
-			bonus = dex_bonus(GetRealDex(ch)) + size;
-			victim_modi = 50;
+			bonus = dex_bonus(GetRealDex(ch));
+			float size_bonus = 50 * (GET_REAL_SIZE(ch) / GET_REAL_SIZE(vict));
+			victim_modi = (int)size_bonus;
 			break;
 		}
 
@@ -1643,7 +1638,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kHammer: {
 			victim_sav = CalcSaving(ch, vict, ESaving::kStability, 0);
-			bonus = size + dex_bonus(GetRealStr(ch));
+			bonus = (GET_REAL_SIZE(ch) - 50) + dex_bonus(GetRealStr(ch));
 
 			if (vict->IsNpc())
 				victim_modi -= (size_app[GET_POS_SIZE(vict)].shocking) / 2;
