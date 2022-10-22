@@ -1974,7 +1974,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kIceStorm:
 		case ESpell::kEarthfall:
 		case ESpell::kShock: {
-			switch (spell_id) {
+/*			switch (spell_id) {
 				case ESpell::kWarcryOfThunder: savetype = ESaving::kWill;
 //					modi = GetRealCon(ch) * 3 / 2;
 					break;
@@ -1988,6 +1988,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 					break;
 				default: break;
 			}
+*/
 			if (IS_IMMORTAL(victim) || (!IS_IMMORTAL(ch) && CalcGeneralSaving(ch, victim, savetype, modi))) {
 				success = false;
 				break;
@@ -2026,7 +2027,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 					break;
 
 				case ESpell::kShock:
-					savetype = ESaving::kStability;
 					SetWaitState(victim, 2 * kBattleRound);
 					af[0].duration = ApplyResist(victim, GetResistType(spell_id),
 							CalcDuration(victim, 2, 0, 0, 0, 0)) * koef_duration;

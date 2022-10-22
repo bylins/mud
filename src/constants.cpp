@@ -875,6 +875,7 @@ const std::map<ESaving, std::string> saving_name = {
 	{ESaving::kCritical, "здоровье"},
 	{ESaving::kStability, "стойкость"},
 	{ESaving::kReflex, "реакция"},
+	{ESaving::kNone, "отсутствует"},
 };
 
 // MAT_

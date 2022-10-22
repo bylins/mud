@@ -1525,7 +1525,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 		case ESkill::kProtect: {
 			bonus = dex_bonus(GetRealDex(ch));
 			float size_bonus = 50 * (GET_REAL_SIZE(ch) / GET_REAL_SIZE(vict));
-			victim_modi = (int)size_bonus;
+			victim_modi = static_cast<int>(size_bonus);
 			break;
 		}
 

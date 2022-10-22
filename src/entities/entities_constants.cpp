@@ -416,6 +416,7 @@ void init_ESaving_ITEM_NAMES() {
 	ESaving_name_by_value[ESaving::kStability] = "kStability";
 	ESaving_name_by_value[ESaving::kCritical] = "kCritical";
 	ESaving_name_by_value[ESaving::kReflex] = "kReflex";
+	ESaving_name_by_value[ESaving::kNone] = "kNone";
 
 	for (const auto &i : ESaving_name_by_value) {
 		ESaving_value_by_name[i.second] = i.first;
