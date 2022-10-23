@@ -2047,6 +2047,10 @@ void perform_violence() {
 		}
 
 		const int initiative = calc_initiative(ch, true);
+		if (initiative > 100) { //откуда больше 100??????
+			log("initiative calc: %s (%d) == %d", GET_NAME(ch), GET_MOB_VNUM(ch), initiative);
+		}
+		std::clamp(initiative, -100, 100);
 		if (initiative == 0) {
 			ch->initiative = -100; //Если кубик выпал в 0 - бей последним шанс 1 из 201
 			min_init = MIN(min_init, -100);

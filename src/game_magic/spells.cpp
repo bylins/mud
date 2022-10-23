@@ -1086,12 +1086,12 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 			GET_MAX_HIT(victim) += floorf(GET_MAX_HIT(ch)*0.33 + GetRealLevel(ch)*12 + r_cha*4 + perc*1.5);
 			GET_HIT(victim) = GET_MAX_HIT(victim);
 			// статы
-			victim->set_int(floorf((r_cha*0.2 + perc*0.15)));
-			victim->set_dex(floorf((r_cha*0.3 + perc*0.15)));
-			victim->set_str(floorf((r_cha*0.3 + perc*0.15)));
-			victim->set_con(floorf((r_cha*0.3 + perc*0.15)));
-			victim->set_wis(floorf((r_cha*0.2 + perc*0.15)));
-			victim->set_cha(floorf((r_cha*0.2 + perc*0.15)));
+			victim->set_int(std::min(90, static_cast<int>(floorf(r_cha*0.2 + perc*0.15))));
+			victim->set_dex(std::min(90, static_cast<int>(floorf(r_cha*0.3 + perc*0.15))));
+			victim->set_str(std::min(90, static_cast<int>(floorf(r_cha*0.3 + perc*0.15))));
+			victim->set_con(std::min(90, static_cast<int>(floorf(r_cha*0.3 + perc*0.15))));
+			victim->set_wis(std::min(90, static_cast<int>(floorf(r_cha*0.2 + perc*0.15))));
+			victim->set_cha(std::min(90, static_cast<int>(floorf(r_cha*0.2 + perc*0.15))));
 			// боевые показатели
 			GET_INITIATIVE(victim) = floorf(k_skills/4.0);	// инициатива
 			GET_MORALE(victim) = floorf(k_skills/5.0); 		// удача
