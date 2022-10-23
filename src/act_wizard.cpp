@@ -281,7 +281,7 @@ void do_delete_obj(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (player_table[pt_num].timer) {
 			for (auto i = player_table[pt_num].timer->time.begin(),
 					 iend = player_table[pt_num].timer->time.end(); i != iend; ++i) {
-				if (i->vnum == vnum) {
+				if (i->vnum == vnum && i->timer > 0) {
 					num++;
 					sprintf(buf2, "Player %s : item \[%d] deleted\r\n", player_table[pt_num].name(), i->vnum);;
 					SendMsgToChar(buf2, ch);
