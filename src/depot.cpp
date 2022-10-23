@@ -695,20 +695,16 @@ void update_timers() {
 // * Апдейт таймеров в оффлайн списках с расчетом общей ренты.
 void CharNode::update_offline_item(long uid) {
 	for (TimerListType::iterator obj_it = offline_list.begin(); obj_it != offline_list.end();) {
-		--(obj_it->timer);
+		int rnum = real_object(obj_it->vnum);
+		if (rnum < 0) {
+			depot_log("Что-то не так с объектом : %d", obj_it->vnum);
+			continue;
+		}
+		const auto obj = obj_proto[rnum];
+		if (!check_unlimited_timer(obj.get())) {
+			--(obj_it->timer);
+		}
 		if (obj_it->timer <= 0) {
-			int rnum = real_object(obj_it->vnum);
-			if (rnum < 0) {
-				depot_log("Что-то не так с объектом : %d", obj_it->vnum);
-				continue;
-			}
-			//const auto obj = world_objects.create_from_prototype_by_rnum(rnum);
-			const auto obj = obj_proto[rnum];
-			if (check_unlimited_timer(obj.get())) {
-				obj_it->timer = obj->get_timer();
-				continue;
-			}
-			//extract_obj(obj.get());
 			depot_log("update_offline_item %s: zero timer %d %d", name.c_str(), obj_it->vnum, obj_it->uid);
 			add_purged_message(uid, obj_it->vnum, obj_it->uid);
 			// шмотка уходит в лоад			

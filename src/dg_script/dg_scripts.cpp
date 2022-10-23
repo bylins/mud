@@ -2070,9 +2070,13 @@ void find_replacement(void *go,
 				std::string tmpname = GET_NAME(c);
 				strcpy(str, colorCAP(tmpname).c_str());
 				CharacterLinkDrop = false;
+			} else if (!str_cmp(field, "unsetquest")) {
+				if (*subfield && (num = atoi(subfield)) > 0) {
+					c->quested_remove(num);
+					strcpy(str, "1");
+				}
 			}
-		}
-		else if (!str_cmp(field, "iname")) {
+		} else if (!str_cmp(field, "iname")) {
 			if (*subfield) {
 				if (strlen(subfield) > MAX_MOB_NAME)
 					subfield[MAX_MOB_NAME - 1] = '\0';
@@ -2709,20 +2713,13 @@ void find_replacement(void *go,
 			}
 		}
 			// все эти блоки надо переписать на что-нибудь другое, их слишком много
-		else if (!str_cmp(field, "unsetquest") || !str_cmp(field, "alliance")) {
-			if (!str_cmp(field, "alliance")) {
-				if (*subfield) {
-					subfield = one_argument(subfield, buf);
-					if (ClanSystem::is_alliance(c, buf))
-						strcpy(str, "1");
-					else
-						strcpy(str, "0");
-				}
-			} else {
-				if (*subfield && (num = atoi(subfield)) > 0) {
-					c->quested_remove(num);
+		else if (!str_cmp(field, "alliance")) {
+			if (*subfield) {
+				subfield = one_argument(subfield, buf);
+				if (ClanSystem::is_alliance(c, buf))
 					strcpy(str, "1");
-				}
+				else
+					strcpy(str, "0");
 			}
 		} else if (!str_cmp(field, "eq")) {
 			int pos = -1;
