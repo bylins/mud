@@ -175,7 +175,7 @@ int get_stat_mod(int stat) {
 		case EApply::kSavingReflex: mod = -10;
 			break;
 		case EApply::kHpRegen:
-		case EApply::kMamaRegen: mod = 10;
+		case EApply::kManaRegen: mod = 10;
 			break;
 		case EApply::kMorale:
 		case EApply::kInitiative: mod = 3;
@@ -259,7 +259,7 @@ void generate_magic_enchant(ObjData *obj) {
 		EApply::kHitroll, EApply::kSavingWill, EApply::kSavingCritical,
 		EApply::kSavingStability, EApply::kHpRegen, EApply::kSavingReflex,
 		EApply::kMorale, EApply::kInitiative, EApply::kAbsorbe, EApply::kAffectResist, EApply::kMagicResist,
-		EApply::kMamaRegen, EApply::kCastSuccess, EApply::kResistMind, EApply::kDamroll);
+		EApply::kManaRegen, EApply::kCastSuccess, EApply::kResistMind, EApply::kDamroll);
 
 	switch (GET_OBJ_VNUM(obj)) {
 		case GlobalDrop::MAGIC1_ENCHANT_VNUM: {

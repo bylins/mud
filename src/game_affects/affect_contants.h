@@ -198,7 +198,7 @@ enum EApply {
 	kAge = 9,    // Apply to age         //
 	kWeight = 10,    // Apply to weight      //
 	kHeight = 11,    // Apply to height      //
-	kMamaRegen = 12,    // Apply to max mana    //
+	kManaRegen = 12,    // Apply to max mana    //
 	kHp = 13,    // Apply to max hit points //
 	kMove = 14,    // Apply to max move points   //
 	kGold = 15,    // Reserved       //

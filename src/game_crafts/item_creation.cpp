@@ -1463,7 +1463,7 @@ float MakeRecept::count_affect_weight(int num, int mod) {
 			break;
 		case EApply::kCastSuccess: weight = mod * 1.5;
 			break;
-		case EApply::kMamaRegen: weight = mod * 0.2;
+		case EApply::kManaRegen: weight = mod * 0.2;
 			break;
 		case EApply::kMorale: weight = mod * 1.0;
 			break;

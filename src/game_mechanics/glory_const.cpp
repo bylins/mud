@@ -1078,7 +1078,7 @@ void apply_modifiers(CharData *ch) {
 				break;
 			case GLORY_MIND: location = EApply::kResistMind;
 				break;
-			case GLORY_MANAREG: location = EApply::kMamaRegen;
+			case GLORY_MANAREG: location = EApply::kManaRegen;
 				break;
 			case GLORY_BONUSPSYS: location = EApply::kPhysicDamagePercent;
 				break;

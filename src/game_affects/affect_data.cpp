@@ -104,7 +104,7 @@ void apply_natural_affects(CharData *ch) {
 	if (GetRealRemort(ch) <= 3 && !IS_IMMORTAL(ch)) {
 		affect_modify(ch, EApply::kHpRegen, 60 - (GetRealRemort(ch) * 10), EAffect::kNoobRegen, true);
 		affect_modify(ch, EApply::kMoveRegen, 100, EAffect::kNoobRegen, true);
-		affect_modify(ch, EApply::kMamaRegen, 100 - (GetRealRemort(ch) * 20), EAffect::kNoobRegen, true);
+		affect_modify(ch, EApply::kManaRegen, 100 - (GetRealRemort(ch) * 20), EAffect::kNoobRegen, true);
 	}
 }
 
@@ -815,7 +815,7 @@ void affect_modify(CharData *ch, EApply loc, int mod, const EAffect bitv, bool a
 			break;
 		case EApply::kHeight: GET_HEIGHT_ADD(ch) += mod;
 			break;
-		case EApply::kMamaRegen: GET_MANAREG(ch) += mod;
+		case EApply::kManaRegen: GET_MANAREG(ch) += mod;
 			break;
 		case EApply::kHp: GET_HIT_ADD(ch) += mod;
 			break;

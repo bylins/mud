@@ -118,7 +118,7 @@ void haemorragia(CharData *ch, int percent) {
 	af[1].bitvector = 0;
 	af[1].battleflag = 0;
 	af[2].type = ESpell::kHaemorrhage;
-	af[2].location = EApply::kMamaRegen;
+	af[2].location = EApply::kManaRegen;
 	af[2].modifier = -percent;
 	af[2].duration = af[0].duration;
 	af[2].bitvector = 0;

@@ -432,7 +432,7 @@ void init_EApplyLocation_ITEM_NAMES() {
 	EApplyLocation_name_by_value[EApply::kAge] = "kAge";
 	EApplyLocation_name_by_value[EApply::kWeight] = "kWeight";
 	EApplyLocation_name_by_value[EApply::kHeight] = "kHeight";
-	EApplyLocation_name_by_value[EApply::kMamaRegen] = "kMamaRegen";
+	EApplyLocation_name_by_value[EApply::kManaRegen] = "kManaRegen";
 	EApplyLocation_name_by_value[EApply::kHp] = "kHp";
 	EApplyLocation_name_by_value[EApply::kMove] = "kMove";
 	EApplyLocation_name_by_value[EApply::kGold] = "kGold";

@@ -150,7 +150,7 @@ bool PoisonVictWithWeapon(CharData *ch, CharData *vict, ESpell spell_id) {
 		af[1].modifier = -remove_cast;
 		// -мем
 		int remove_mem = GET_MANAREG(vict) * (percent / 100);
-		af[2].location = EApply::kMamaRegen;
+		af[2].location = EApply::kManaRegen;
 		af[2].modifier = -remove_mem;
 
 		bool was_poisoned = true;

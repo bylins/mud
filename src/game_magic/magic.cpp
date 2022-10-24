@@ -1291,7 +1291,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				break;
 			}
 
-			af[0].location = EApply::kMamaRegen;
+			af[0].location = EApply::kManaRegen;
 			af[0].modifier = -50;
 			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
 										 CalcDuration(victim,
@@ -1545,7 +1545,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
 										 CalcDuration(victim, 0, level, 2, 0, 0)) * koef_duration;
 			af[0].modifier = -95;
-			af[1].location = EApply::kMamaRegen;
+			af[1].location = EApply::kManaRegen;
 			af[1].duration = af[0].duration;
 			af[1].modifier = -95;
 			af[2].location = EApply::kMoveRegen;
@@ -2299,7 +2299,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 					af[1].duration = af[0].duration;
 					af[1].modifier = -(RollDices((2 + level) / 3, 4) + RollDices(GetRealRemort(ch) / 2, 5));
 
-					af[2].location = EApply::kMamaRegen;
+					af[2].location = EApply::kManaRegen;
 					af[2].duration = af[1].duration;
 					af[2].modifier = af[1].modifier;
 					to_vict = "Вы обезумели.";
@@ -2314,7 +2314,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 												 CalcDuration(victim, 2, level + 3, 4, 6, 0)) * koef_duration;
 					af[0].modifier = -(RollDices((2 + level) / 3, 4) + RollDices(GetRealRemort(ch) / 2, 5));
 
-					af[1].location = EApply::kMamaRegen;
+					af[1].location = EApply::kManaRegen;
 					af[1].duration = af[0].duration;
 					af[1].modifier = af[0].modifier;
 					to_vict = "Вас охватила паника.";
@@ -2488,7 +2488,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 					af[0].duration = CalcDuration(victim, 3, 0, 0, 0, 0);
 					af[0].modifier = GetRealRemort(ch) / 5 * 2 + GetRealRemort(ch);
 					break;
-				case 3:af[0].location = EApply::kMamaRegen;
+				case 3:af[0].location = EApply::kManaRegen;
 					af[0].duration = CalcDuration(victim, 10, 0, 0, 0, 0);
 					af[0].modifier = GetRealRemort(ch) / 5 * 2 + GetRealRemort(ch) * 5;
 					break;
