@@ -551,12 +551,28 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			break;
 		}
 		case ESpell::kVacuum: {
-			if (ch == victim ||
-					((number(0, 100) <= 20) && (number(1, 100) > GET_AR(victim))
-							&& !CalcGeneralSaving(ch, victim, ESaving::kCritical, modi))) {
-				GET_POS(victim) = EPosition::kStun;
-				auto wait = 4 + std::max(1, GetRealLevel(ch) + 1 + (GetRealWis(ch) - 29)) / 7;    //17*/
-				SetWaitState(victim, wait * kBattleRound);
+			if (!IsAffectedBySpell(victim, spell_id)) {
+				{
+				if (ch == victim ||
+						((number(0, 100) <= 20) && (number(1, 100) > GET_AR(victim))
+								&& !CalcGeneralSaving(ch, victim, ESaving::kCritical, modi))) {
+					act("Круг пустоты отшиб сознание у $N1.", false, ch, nullptr, victim, kToChar);
+					act("$n0 упал$q без сознания!", true, victim, nullptr, ch, kToRoom | kToArenaListen);
+//					act("Круг пустоты $n1 отшиб сознание у $N1.", true, ch, nullptr, victim, kToNotVict); //х3 почеу-то не идет игрокам в клетке
+					act("У вас отшибло сознание, вам очень плохо...", false, ch, nullptr, victim, kToVict);
+					auto wait = 4 + std::max(1, GetRealLevel(ch) + 1 + (GetRealWis(ch) - 29)) / 7;    //17*/
+					Affect<EApply> af;
+					af.type = spell_id;
+					af.bitvector = to_underlying(EAffect::kMagicStopFight);
+					af.modifier = 0;
+					af.duration = ApplyResist(victim, GetResistType(spell_id), CalcDuration(victim, wait, 0, 0, 0, 0));
+					ch->send_to_TC(false, true, true, "Круг пустоты длительность = %d\r\n", af.duration);
+					af.battleflag = kAfSameTime;
+					af.location = EApply::kNone;
+					ImposeAffect(victim, af);
+					GET_POS(victim) = EPosition::kStun;
+//			SetWaitState(victim, wait * kBattleRound);
+				}
 			}
 			break;
 		}
@@ -1579,10 +1595,8 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				success = false;
 				break;
 			}
-
 			af[0].location = EApply::kStr;
-			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
-										 CalcDuration(victim, 0, level, 1, 0, 0)) * koef_duration;
+			af[0].duration = ApplyResist(victim, GetResistType(spell_id), CalcDuration(victim, 0, level, 1, 0, 0)) * koef_duration;
 			af[0].modifier = -2;
 			af[0].bitvector = to_underlying(EAffect::kPoisoned);
 			af[0].battleflag = kAfSameTime;

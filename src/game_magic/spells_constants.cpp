@@ -144,7 +144,7 @@ std::string GetAffExpiredText(ESpell spell_id) {
 		{ESpell::kMadness, "Безумие отпустило вас."},
 		{ESpell::kGroupMagicGlass, "!GROUP MAGICGLASS!"},
 		{ESpell::kCloudOfArrows, "Облако стрел вокруг вас рассеялось."},
-		{ESpell::kVacuum, "!VACUUM!"},
+		{ESpell::kVacuum, "Пустота вокруг вас исчезла."},
 		{ESpell::kMeteorStorm, "Последний громовой камень грянул в землю и все стихло."},
 		{ESpell::kStoneHands, "Ваши руки вернулись к прежнему состоянию."},
 		{ESpell::kMindless, "Ваш разум просветлел."},
