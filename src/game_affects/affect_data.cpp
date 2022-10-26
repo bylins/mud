@@ -143,8 +143,8 @@ bool Affect<EApply>::removable() const {
 		|| type == ESpell::kBattle;
 }
 // 
-// для мобов раз в 10 пульсов 10 раз
-void UpdateAffectOnPulse(CharData *ch) {
+// для мобов раз в 10 пульсов
+void UpdateAffectOnPulse(CharData *ch, int count) {
 	bool pulse_aff = false;
 
 	if (ch->GetEnemy()) {
@@ -156,7 +156,6 @@ void UpdateAffectOnPulse(CharData *ch) {
 		++next_affect_i;
 		const auto &affect = *affect_i;
 
-
 		if (!IS_SET(affect->battleflag, kAfPulsedec)) {
 			continue;
 		}
@@ -167,31 +166,22 @@ void UpdateAffectOnPulse(CharData *ch) {
 		}
 */
 		pulse_aff = true;
-		if (affect->duration >= 1) {
-			if (ch->IsNpc()) {
-				affect->duration--;
-			} else {
-				affect->duration -= MIN(affect->duration, kSecsPerPlayerAffect * kPassesPerSec);
-			}
+		if (affect->duration > 1) {
+			affect->duration -= count;
+			affect->duration = std::max(0, affect->duration);
 		} else if (affect->duration == -1)    // No action //
-		{
-			affect->duration = -1;    // GODs only! unlimited //
-		} else {
+			continue;
+		else {
 			if ((affect->type >= ESpell::kFirst) && (affect->type <= ESpell::kLast)) {
 				if (next_affect_i == ch->affected.end()
-					|| (*next_affect_i)->type != affect->type
-					|| (*next_affect_i)->duration > 0) {
-					if (affect->type > ESpell::kFirst
-						&& affect->type <= ESpell::kLast) {
-						ShowAffExpiredMsg(affect->type, ch);
-					}
+						|| (*next_affect_i)->type != affect->type
+						|| (*next_affect_i)->duration > 0) {
+					ShowAffExpiredMsg(affect->type, ch);
 				}
 			}
-
 			ch->affect_remove(affect_i);
 		}
 	}
-
 	if (pulse_aff) {
 		affect_total(ch);
 	}
@@ -210,7 +200,7 @@ void player_affect_update() {
 			return;
 		}
 		count++;
-		UpdateAffectOnPulse(i.get());
+//		UpdateAffectOnPulse(i.get()); //перенес аффект на пульс ниже
 		bool was_purged = false;
 		auto next_affect_i = i->affected.begin();
 		for (auto affect_i = next_affect_i; affect_i != i->affected.end(); affect_i = next_affect_i) {
@@ -237,25 +227,29 @@ void player_affect_update() {
 							break;
 						}
 					}
-					affect->duration--;
+					if (IS_SET(affect->battleflag, kAfPulsedec))
+						affect->duration -= MIN(affect->duration, kSecsPerPlayerAffect * kPassesPerSec);
+					else
+						affect->duration--;
 					affect->duration = std::max(0, affect->duration);
+				} else {
+					if (IS_SET(affect->battleflag, kAfPulsedec))
+						affect->duration -= MIN(affect->duration, kSecsPerPlayerAffect * kPassesPerSec);
+					else
+						affect->duration--;
 				}
-				else
-					affect->duration--;
 			} else if (affect->duration != -1) {
-				if ((affect->type > ESpell::kUndefined) && (affect->type <= ESpell::kLast)) {
+				if (affect->type >= ESpell::kFirst && affect->type <= ESpell::kLast) {
 					if (next_affect_i == i->affected.end()
-						|| (*next_affect_i)->type != affect->type
-						|| (*next_affect_i)->duration > 0) {
-						if (affect->type > ESpell::kUndefined && affect->type <= ESpell::kLast) {
-							//чтобы не выдавалось, "что теперь вы можете сражаться",
-							//хотя на самом деле не можете :)
-							if (!(affect->type == ESpell::kMagicBattle
+							|| (*next_affect_i)->type != affect->type
+							|| (*next_affect_i)->duration > 0) {
+						//чтобы не выдавалось, "что теперь вы можете сражаться",
+						//хотя на самом деле не можете :)
+						if (!(affect->type == ESpell::kMagicBattle
 								&& AFF_FLAGGED(i, EAffect::kStopFight))) {
-								if (!(affect->type == ESpell::kBattle
+							if (!(affect->type == ESpell::kBattle
 									&& AFF_FLAGGED(i, EAffect::kMagicStopFight))) {
-									ShowAffExpiredMsg(affect->type, i.get());
-								}
+								ShowAffExpiredMsg(affect->type, i.get());
 							}
 						}
 					}
@@ -316,7 +310,7 @@ void battle_affect_update(CharData *ch) {
 						   BRF, kLvlImplementator, SYSLOG, true);
 					return;
 				}
-				--((*affect_i)->duration);
+				((*affect_i)->duration)--;
 			} else {
 				if (ch->IsNpc())
 					--((*affect_i)->duration);
@@ -325,11 +319,10 @@ void battle_affect_update(CharData *ch) {
 			}
 		} else if ((*affect_i)->duration != -1) {
 			if ((*affect_i)->type >= ESpell::kFirst && (*affect_i)->type <= ESpell::kLast) {
-				if (next_affect_i == ch->affected.end() ||
-				(*next_affect_i)->type != (*affect_i)->type ||
-				(*next_affect_i)->duration > 0) {
-					if ((*affect_i)->type > ESpell::kUndefined && (*affect_i)->type <= ESpell::kLast)
-						ShowAffExpiredMsg((*affect_i)->type, ch);
+				if (next_affect_i == ch->affected.end() 
+						|| (*next_affect_i)->type != (*affect_i)->type
+						|| (*next_affect_i)->duration > 0) {
+					ShowAffExpiredMsg((*affect_i)->type, ch);
 				}
 			}
 			if (ch->IsNpc() && MOB_FLAGGED(ch, EMobFlag::kTutelar)) {
@@ -345,9 +338,9 @@ void battle_affect_update(CharData *ch) {
 			ch->affect_remove(affect_i);
 		}
 	}
-
 	affect_total(ch);
 }
+
 // раз в минуту
 void mobile_affect_update() {
 	utils::CExecutionTimer timer;
@@ -369,11 +362,9 @@ void mobile_affect_update() {
 						// здесь плеера могут спуржить
 						if (ProcessPoisonDmg(i.get(), affect) == -1) {
 							was_purged = true;
-
 							break;
 						}
 					}
-
 					affect->duration--;
 					if (affect->type == ESpell::kCharm && !charmed_msg && affect->duration <= 1) {
 						act("$n начал$g растерянно оглядываться по сторонам.",
@@ -400,12 +391,10 @@ void mobile_affect_update() {
 							}
 						}
 					}
-
 					i->affect_remove(affect_i);
 				}
 			}
 		}
-
 		if (!was_purged) {
 			affect_total(i.get());
 // обработка таймеров скилов фитов игрока
@@ -436,12 +425,12 @@ void mobile_affect_update() {
 		}
 	});
 	log("mobile affect update: timer %f, num players %d", timer.delta().count(), count);
-
 }
 
 // Call affect_remove with every spell of spelltype "skill"
 void RemoveAffectFromChar(CharData *ch, ESpell spell_id) {
 	auto next_affect_i = ch->affected.begin();
+
 	for (auto affect_i = next_affect_i; affect_i != ch->affected.end(); affect_i = next_affect_i) {
 		++next_affect_i;
 		const auto affect = *affect_i;
@@ -449,7 +438,6 @@ void RemoveAffectFromChar(CharData *ch, ESpell spell_id) {
 			ch->affect_remove(affect_i);
 		}
 	}
-
 	if (ch->IsNpc() && spell_id == ESpell::kCharm) {
 		ch->extract_timer = 5;
 		ch->mob_specials.hire_price = 0;// added by WorM (Видолюб) 2010.06.04 Сбрасываем цену найма
