@@ -552,7 +552,6 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		}
 		case ESpell::kVacuum: {
 			if (!IsAffectedBySpell(victim, spell_id)) {
-				{
 				if (ch == victim ||
 						((number(0, 100) <= 20) && (number(1, 100) > GET_AR(victim))
 								&& !CalcGeneralSaving(ch, victim, ESaving::kCritical, modi))) {

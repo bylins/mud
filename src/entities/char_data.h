@@ -836,12 +836,12 @@ class CharData : public ProtectedCharData {
 	void dismount();
 };
 
-# define MAX_FIRSTAID_REMOVE 16
+# define MAX_FIRSTAID_REMOVE 17
 inline ESpell GetRemovableSpellId(int num) {
 	static const ESpell spell[MAX_FIRSTAID_REMOVE] = {ESpell::kAbstinent, ESpell::kPoison, ESpell::kMadness,
 		ESpell::kWeaknes, ESpell::kSlowdown, ESpell::kMindless, ESpell::kColdWind,
 		ESpell::kFever, ESpell::kCurse, ESpell::kDeafness, ESpell::kSilence,
-		ESpell::kBlindness, ESpell::kSleep, ESpell::kHold, ESpell::kHaemorrhage, ESpell::kBattle};
+		ESpell::kBlindness, ESpell::kSleep, ESpell::kHold, ESpell::kVacuum, ESpell::kHaemorrhage, ESpell::kBattle};
 	if (num < MAX_FIRSTAID_REMOVE) {
 		return spell[num];
 	} else {
