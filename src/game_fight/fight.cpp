@@ -89,7 +89,10 @@ void go_autoassist(CharData *ch) {
 void update_pos(CharData *victim) {
 	if ((GET_HIT(victim) > 0) && (GET_POS(victim) > EPosition::kStun))
 		GET_POS(victim) = GET_POS(victim);
-	else if (GET_HIT(victim) > 0 && victim->get_wait() <= 0 && !AFF_FLAGGED(victim, EAffect::kHold)) {
+	else if (GET_HIT(victim) > 0
+			&& victim->get_wait() <= 0
+			&& !AFF_FLAGGED(victim, EAffect::kMagicStopFight)
+			&& !AFF_FLAGGED(victim, EAffect::kHold)) {
 		GET_POS(victim) = EPosition::kStand;
 		SendMsgToChar("Вы встали.\r\n", victim);
 		act("$n поднял$u.", true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
@@ -100,7 +103,8 @@ void update_pos(CharData *victim) {
 		GET_POS(victim) = EPosition::kPerish;
 	else if (GET_HIT(victim) <= -1)
 		GET_POS(victim) = EPosition::kIncap;
-	else if (GET_POS(victim) == EPosition::kIncap && victim->get_wait() > 0)
+	else if (GET_POS(victim) == EPosition::kIncap
+				&& (victim->get_wait() > 0 || AFF_FLAGGED(victim, EAffect::kMagicStopFight)))
 		GET_POS(victim) = EPosition::kIncap;
 	else
 		GET_POS(victim) = EPosition::kStun;

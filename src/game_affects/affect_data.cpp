@@ -142,8 +142,8 @@ bool Affect<EApply>::removable() const {
 		|| type == ESpell::kPowerDeafness
 		|| type == ESpell::kBattle;
 }
-
-// This file update pulse affects only
+// 
+// для мобов раз в 10 пульсов 10 раз
 void UpdateAffectOnPulse(CharData *ch) {
 	bool pulse_aff = false;
 
@@ -156,10 +156,16 @@ void UpdateAffectOnPulse(CharData *ch) {
 		++next_affect_i;
 		const auto &affect = *affect_i;
 
+
 		if (!IS_SET(affect->battleflag, kAfPulsedec)) {
 			continue;
 		}
-
+/*
+		if ((*affect_i)->type == ESpell::kVacuum) {
+			sprintf(buf, "MagicSop pulse dec time == %d", (*affect_i)->duration);
+			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+		}
+*/
 		pulse_aff = true;
 		if (affect->duration >= 1) {
 			if (ch->IsNpc()) {
@@ -190,7 +196,7 @@ void UpdateAffectOnPulse(CharData *ch) {
 		affect_total(ch);
 	}
 }
-
+// раз в 2 секунды
 void player_affect_update() {
 	utils::CExecutionTimer timer;
 	int count = 0;
@@ -295,7 +301,11 @@ void battle_affect_update(CharData *ch) {
 		if (ch->IsNpc() && (*affect_i)->location == EApply::kPoison) {
 			continue;
 		}
-
+/*		if ((*affect_i)->type == ESpell::kVacuum) {
+			sprintf(buf, "MagicSop BATTLE DEC time == %d", (*affect_i)->duration);
+			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+		}
+*/
 		if ((*affect_i)->duration >= 1) {
 			if (IS_SET((*affect_i)->battleflag, kAfSameTime)) {
 				if (ProcessPoisonDmg(ch, (*affect_i)) == -1) {// жертва умерла
@@ -338,7 +348,7 @@ void battle_affect_update(CharData *ch) {
 
 	affect_total(ch);
 }
-
+// раз в минуту
 void mobile_affect_update() {
 	utils::CExecutionTimer timer;
 	int count = 0;
@@ -708,6 +718,7 @@ void affect_total(CharData *ch) {
 		AFF_FLAGS(ch).unset(EAffect::kDisguise);
 		AFF_FLAGS(ch).unset(EAffect::kInvisible);
 	}
+	update_pos(ch);
 }
 
 void ImposeAffect(CharData *ch, const Affect<EApply> &af) {
