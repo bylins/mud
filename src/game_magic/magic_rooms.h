@@ -22,7 +22,8 @@ enum ERoomAffect : Bitvector {
 	kHypnoticPattern = 1 << 4,  // Комната под SPELL_HYPNOTIC_PATTERN //
 	kBlackTentacles = 1 << 5, 	// Комната под SPELL_EVARDS_BLACK_TENTACLES //
 	kMeteorstorm= 1 << 6,       // Комната под SPELL_METEORSTORM //
-	kThunderstorm = 1 << 7      // SPELL_THUNDERSTORM
+	kThunderstorm = 1 << 7,      // SPELL_THUNDERSTORM
+	kPortalTimer = 1 << 8      // врата
 };
 
 // Эффекты для комнат //
@@ -47,6 +48,9 @@ int CallMagicToRoom(int level, CharData *ch, RoomData *room, ESpell spell_id);
 int GetUniqueAffectDuration(long caster_id, ESpell spell_id);
 RoomAffectIt FindAffect(RoomData *room, ESpell type);
 RoomData *FindAffectedRoom(long caster_id, ESpell spell_id);
+void AddRoomToAffected(RoomData *room);
+void affect_room_join_fspell(RoomData *room, const Affect<ERoomApply> &af);
+
 
 }
 

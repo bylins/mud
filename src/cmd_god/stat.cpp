@@ -1148,7 +1148,7 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 	}
 
 	if (!rm->affected.empty()) {
-		sprintf(buf1, " Аффекты на комнате:\r\n");
+		sprintf(buf1, "&GАффекты на комнате:\r\n&n");
 		for (const auto &aff : rm->affected) {
 			sprintf(buf1 + strlen(buf1), "       Заклинание \"%s\" (%d) - %s.\r\n",
 					MUD::Spell(aff->type).GetCName(),

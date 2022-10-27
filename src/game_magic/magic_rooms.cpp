@@ -6,6 +6,7 @@
 #include "magic.h" //Включено ради material_component_processing
 #include "utils/table_wrapper.h"
 #include "structs/global_objects.h"
+#include "game_skills/townportal.h"
 
 //#include <iomanip>
 
@@ -245,6 +246,7 @@ void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::sh
 	}
 }
 
+// раз в 2 секунды
 void UpdateRoomsAffects() {
 	CharData *ch;
 
@@ -297,6 +299,15 @@ void UpdateRoomsAffects() {
 						|| (*next_affect_i)->duration > 0) {
 						SendRemoveAffectMsgToRoom(affect->type, real_room((*room)->room_vn));
 					}
+				}
+				if (affect->type == ESpell::kPortalTimer) {
+					(*room)->pkPenterUnique = 0;
+					(*room)->portal_time = 0;
+					OneWayPortal::remove(*room);
+//					act("Пентаграмма медленно растаяла. (врата)",
+//							false, (*room)->first_character(), nullptr, nullptr, kToRoom);
+//					act("Пентаграмма медленно растаяла.(врата)",
+//							false, (*room)->first_character(), nullptr, nullptr, kToChar);
 				}
 				RemoveAffect(*room, affect_i);
 				continue;  // Чтоб не вызвался обработчик

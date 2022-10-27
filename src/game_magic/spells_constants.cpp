@@ -254,7 +254,8 @@ std::string GetAffExpiredText(ESpell spell_id) {
 		{ESpell::kMassFailure, "Удача снова повернулась к вам лицом... и залепила пощечину."},
 		{ESpell::kSnare, "Покрывавшие вас сети колдовской западни растаяли."},
 		{ESpell::kQUest, "Наложенные на вас чары рассеялись."},
-		{ESpell::kExpedientFail, "Вы восстановили равновесие."}
+		{ESpell::kExpedientFail, "Вы восстановили равновесие."},
+		{ESpell::kPortalTimer, "Пентаграмма медленно растаяла."}
 	};
 
 	if (!spell_to_text.contains(spell_id)) {
@@ -818,6 +819,7 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kIdentify] = "kIdentify";
 	ESpell_name_by_value[ESpell::kFullIdentify] = "kFullIdentify";
 	ESpell_name_by_value[ESpell::kQUest] = "kQUest";
+	ESpell_name_by_value[ESpell::kPortalTimer] = "kPortalTimer";
 
 	for (const auto &i : ESpell_name_by_value) {
 		ESpell_value_by_name[i.second] = i.first;
