@@ -556,17 +556,17 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 						((number(0, 100) <= 20) && (number(1, 100) > GET_AR(victim))
 								&& !CalcGeneralSaving(ch, victim, ESaving::kCritical, modi))) {
 					act("Круг пустоты отшиб сознание у $N1.", false, ch, nullptr, victim, kToChar);
-					act("$n0 упал$q без сознания!", true, victim, nullptr, ch, kToRoom | kToArenaListen);
-//					act("Круг пустоты $n1 отшиб сознание у $N1.", true, ch, nullptr, victim, kToNotVict); //х3 почеу-то не идет игрокам в клетке
+//					act("$n0 упал$q без сознания!", true, victim, nullptr, ch, kToRoom | kToArenaListen);
+					act("Круг пустоты $n1 отшиб сознание у $N1.", false, ch, nullptr, victim, kToNotVict);
 					act("У вас отшибло сознание, вам очень плохо...", false, ch, nullptr, victim, kToVict);
-					auto wait = 4 + std::max(1, GetRealLevel(ch) + 1 + (GetRealWis(ch) - 29)) / 7;    //17*/
+					auto wait = 4 + std::max(1, GetRealLevel(ch) + (GetRealWis(ch) - 29)) / 7;
 					Affect<EApply> af;
 					af.type = spell_id;
 					af.bitvector = to_underlying(EAffect::kMagicStopFight);
 					af.modifier = 0;
-					af.duration = ApplyResist(victim, GetResistType(spell_id), CalcDuration(victim, wait, 0, 0, 0, 0));
-					ch->send_to_TC(false, true, true, "Круг пустоты длительность = %d\r\n", af.duration);
-					af.battleflag = kAfSameTime;
+					af.duration = wait * kBattleRound;
+					ch->send_to_TC(false, true, true, "Круг пустоты длительность = %d пульсов.\r\n", af.duration);
+					af.battleflag = kAfPulsedec;
 					af.location = EApply::kNone;
 					ImposeAffect(victim, af);
 					GET_POS(victim) = EPosition::kStun;
