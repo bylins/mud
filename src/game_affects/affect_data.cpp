@@ -147,10 +147,11 @@ bool Affect<EApply>::removable() const {
 void UpdateAffectOnPulse(CharData *ch, int count) {
 	bool pulse_aff = false;
 
+/*
 	if (ch->GetEnemy()) {
 		return;
 	}
-
+*/
 	auto next_affect_i = ch->affected.begin();
 	for (auto affect_i = next_affect_i; affect_i != ch->affected.end(); affect_i = next_affect_i) {
 		++next_affect_i;
@@ -310,13 +311,11 @@ void battle_affect_update(CharData *ch) {
 						   BRF, kLvlImplementator, SYSLOG, true);
 					return;
 				}
-				((*affect_i)->duration)--;
-			} else {
-				if (ch->IsNpc())
-					--((*affect_i)->duration);
-				else
-					(*affect_i)->duration -= std::min((*affect_i)->duration, kSecsPerMudHour / kSecsPerPlayerAffect);
 			}
+			if (ch->IsNpc())
+				--((*affect_i)->duration);
+			else
+				(*affect_i)->duration -= std::min((*affect_i)->duration, kSecsPerMudHour / kSecsPerPlayerAffect);
 		} else if ((*affect_i)->duration != -1) {
 			if ((*affect_i)->type >= ESpell::kFirst && (*affect_i)->type <= ESpell::kLast) {
 				if (next_affect_i == ch->affected.end() 
