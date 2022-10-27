@@ -117,6 +117,7 @@ void do_mportal(CharData *mob, char *argument, int/* cmd*/, int/* subcmd*/, Trig
 	world[curroom]->portal_room = target;
 	world[curroom]->portal_time = howlong;
 	world[curroom]->pkPenterUnique = 0;
+	AddPortalTimer(mob, world[curroom], howlong * 30 - 1);
 	OneWayPortal::add(world[target], world[curroom]);
 	act("Лазурная пентаграмма возникла в воздухе.",
 		false, world[curroom]->first_character(), nullptr, nullptr, kToChar);

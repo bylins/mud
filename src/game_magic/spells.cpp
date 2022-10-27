@@ -463,20 +463,7 @@ void SpellPortal(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 		to_room = ch->in_room;
 		world[fnd_room]->portal_room = to_room;
 		world[fnd_room]->portal_time = 1;
-
-		Affect<room_spells::ERoomApply> af;
-		af.type = ESpell::kPortalTimer;
-		af.bitvector = room_spells::ERoomAffect::kPortalTimer;
-		af.duration = 14; //раз в 2 секунды
-		af.modifier = 0;
-		af.battleflag = 0;
-		af.location = room_spells::ERoomApply::kNone;
-		af.caster_id = GET_ID(ch);
-		af.must_handled = false;
-		af.apply_time = 0;
-		affect_room_join_fspell(world[to_room], af);
-		room_spells::AddRoomToAffected(world[to_room]);
-
+		AddPortalTimer(ch, world[fnd_room], 29);
 		if (pkPortal) world[fnd_room]->pkPenterUnique = GET_UNIQUE(ch);
 
 		if (pkPortal) {
@@ -499,18 +486,7 @@ void SpellPortal(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 
 		world[to_room]->portal_room = fnd_room;
 		world[to_room]->portal_time = 1;
-
-		af.type = ESpell::kPortalTimer;
-		af.bitvector = room_spells::ERoomAffect::kPortalTimer;
-		af.duration = 29; //раз в 2 секунды
-		af.modifier = 0;
-		af.battleflag = 0;
-		af.location = room_spells::ERoomApply::kNone;
-		af.caster_id = GET_ID(ch);
-		af.must_handled = false;
-		af.apply_time = 0;
-		affect_room_join_fspell(world[fnd_room], af);
-		room_spells::AddRoomToAffected(world[fnd_room]);
+		AddPortalTimer(ch, world[to_room], 29);
 
 		if (pkPortal) world[to_room]->pkPenterUnique = GET_UNIQUE(ch);
 
