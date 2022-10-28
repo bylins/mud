@@ -31,6 +31,7 @@ void RefreshRoomAffects(RoomData *room);
 void affect_to_room(RoomData *room, const Affect<ERoomApply> &af);
 void affect_room_modify(RoomData *room, byte loc, sbyte mod, Bitvector bitv, bool add);
 void RoomRemoveAffect(RoomData *room, const RoomAffectIt &affect) {
+
 	if (room->affected.empty()) {
 		log("ERROR: Attempt to remove affect from no affected room!");
 		return;
