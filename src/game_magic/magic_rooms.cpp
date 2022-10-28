@@ -30,7 +30,7 @@ void RefreshRoomAffects(RoomData *room);
 void affect_to_room(RoomData *room, const Affect<ERoomApply> &af);
 void affect_room_modify(RoomData *room, byte loc, sbyte mod, Bitvector bitv, bool add);
 
-void RemoveAffect(RoomData *room, const RoomAffectIt &affect) {
+void RoomRemoveAffect(RoomData *room, const RoomAffectIt &affect) {
 	if (room->affected.empty()) {
 		log("ERROR: Attempt to remove affect from no affected room!");
 		return;
@@ -117,7 +117,7 @@ ESpell RemoveAffectFromRooms(ESpell spell_id, const F &filter) {
 		if (affect != room->affected.end()) {
 			SendRemoveAffectMsgToRoom((*affect)->type, real_room(room->room_vn));
 			spell_id = (*affect)->type;
-			RemoveAffect(room, affect);
+			RoomRemoveAffect(room, affect);
 			return spell_id;
 		}
 	}
@@ -309,7 +309,7 @@ void UpdateRoomsAffects() {
 //					act("Пентаграмма медленно растаяла.(врата)",
 //							false, (*room)->first_character(), nullptr, nullptr, kToChar);
 				}
-				RemoveAffect(*room, affect_i);
+				RoomRemoveAffect(*room, affect_i);
 				continue;  // Чтоб не вызвался обработчик
 			}
 
@@ -563,16 +563,13 @@ void affect_room_join_fspell(RoomData *room, const Affect<ERoomApply> &af) {
 	bool found = false;
 
 	for (const auto &hjp : room->affected) {
-		if (hjp->type == af.type
-			&& hjp->location == af.location) {
+		if (hjp->type == af.type && hjp->location == af.location) {
 			if (hjp->modifier < af.modifier) {
 				hjp->modifier = af.modifier;
 			}
-
 			if (hjp->duration < af.duration) {
 				hjp->duration = af.duration;
 			}
-
 			RefreshRoomAffects(room);
 			found = true;
 			break;
@@ -583,6 +580,21 @@ void affect_room_join_fspell(RoomData *room, const Affect<ERoomApply> &af) {
 		affect_to_room(room, af);
 	}
 }
+void AffectRoomJoinReplace(RoomData *room, const Affect<ERoomApply> &af) {
+	bool found = false;
+
+	for (auto &affect_i : room->affected) {
+		if (affect_i->type == af.type && affect_i->location == af.location) {
+			affect_i->duration = af.duration;
+			RefreshRoomAffects(room);
+			found = true;
+		}
+	}
+	if (!found) {
+		affect_to_room(room, af);
+	}
+}
+
 
 void affect_room_join(RoomData *room, Affect<ERoomApply> &af,
 					  bool add_dur, bool avg_dur, bool add_mod, bool avg_mod) {
@@ -596,22 +608,17 @@ void affect_room_join(RoomData *room, Affect<ERoomApply> &af,
 				if (add_dur) {
 					af.duration += affect->duration;
 				}
-
 				if (avg_dur) {
 					af.duration /= 2;
 				}
-
 				if (add_mod) {
 					af.modifier += affect->modifier;
 				}
-
 				if (avg_mod) {
 					af.modifier /= 2;
 				}
-
-				RemoveAffect(room, affect_i);
+				RoomRemoveAffect(room, affect_i); //тут будет крешь, нужно RefreshRoomAffects см выше
 				affect_to_room(room, af);
-
 				found = true;
 				break;
 			}

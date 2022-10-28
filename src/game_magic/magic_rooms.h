@@ -41,7 +41,7 @@ extern std::list<RoomData *> affected_rooms;
 
 void UpdateRoomsAffects();
 void ShowAffectedRooms(CharData *ch);
-void RemoveAffect(RoomData *room, const RoomAffectIt &affect);
+void RoomRemoveAffect(RoomData *room, const RoomAffectIt &affect);
 bool IsRoomAffected(RoomData *room, ESpell spell);
 bool IsZoneRoomAffected(int zone_vnum, ESpell spell);
 int CallMagicToRoom(int level, CharData *ch, RoomData *room, ESpell spell_id);
@@ -50,7 +50,8 @@ RoomAffectIt FindAffect(RoomData *room, ESpell type);
 RoomData *FindAffectedRoom(long caster_id, ESpell spell_id);
 void AddRoomToAffected(RoomData *room);
 void affect_room_join_fspell(RoomData *room, const Affect<ERoomApply> &af);
-
+void affect_room_join(RoomData *room, Affect<ERoomApply> &af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod);
+void AffectRoomJoinReplace(RoomData *room, const Affect<ERoomApply> &af);
 
 }
 
