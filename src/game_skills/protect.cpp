@@ -118,7 +118,7 @@ CharData *TryToFindProtector(CharData *victim, CharData *ch) {
 				af.location = EApply::kNone;
 				af.modifier = 0;
 				af.duration = CalcDuration(vict, 1, 0, 0, 0, 0);
-				af.battleflag = kAfBattledec | kAfPulsedec;
+				af.battleflag = kAfBattledec;
 				ImposeAffect(vict, af, true, false, true, false);
 				return victim;
 			}
