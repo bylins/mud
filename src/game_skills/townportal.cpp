@@ -56,9 +56,7 @@ void AddPortalTimer(CharData *ch, RoomData *room, int time) {
 	af.caster_id = ch? GET_ID(ch) : 0;
 	af.must_handled = false;
 	af.apply_time = 0;
-//	affect_room_join_fspell(room, af);
-	AffectRoomJoinReplace(room, af);
-//	affect_room_join(room, af, false, false, false, false);
+	room_spells::AffectRoomJoinReplace(room, af);
 	room_spells::AddRoomToAffected(room);
 }
 

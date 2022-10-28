@@ -26,11 +26,12 @@ void SendRemoveAffectMsgToRoom(ESpell affect_type, RoomRnum room);
 void AddRoomToAffected(RoomData *room);
 void affect_room_join_fspell(RoomData *room, const Affect<ERoomApply> &af);
 void affect_room_join(RoomData *room, Affect<ERoomApply> &af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod);
+void AffectRoomJoinReplace(RoomData *room, const Affect<ERoomApply> &af);
 void RefreshRoomAffects(RoomData *room);
 void affect_to_room(RoomData *room, const Affect<ERoomApply> &af);
 void affect_room_modify(RoomData *room, byte loc, sbyte mod, Bitvector bitv, bool add);
-
 void RoomRemoveAffect(RoomData *room, const RoomAffectIt &affect) {
+
 	if (room->affected.empty()) {
 		log("ERROR: Attempt to remove affect from no affected room!");
 		return;
