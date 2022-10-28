@@ -127,6 +127,7 @@ void do_oportal(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 	world[curroom]->portal_room = target;
 	world[curroom]->portal_time = howlong;
 	world[curroom]->pkPenterUnique = 0;
+	AddPortalTimer(nullptr, world[curroom], howlong * 30 - 1);
 //	sprintf(buf, "Ставим врата из %d в %d длит %d\r\n", currom, target, howlong );
 //	mudlog(buf, DEF, std::max(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 	OneWayPortal::add(world[target], world[curroom]);

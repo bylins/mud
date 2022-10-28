@@ -1101,7 +1101,7 @@ void room_point_update() {
 				world[count]->fires = 0;
 			}
 		}
-
+/*
 		if (world[count]->portal_time) {
 			world[count]->portal_time--;
 			if (!world[count]->portal_time) {
@@ -1113,6 +1113,7 @@ void room_point_update() {
 					false, world[count]->first_character(), nullptr, nullptr, kToChar);
 			}
 		}
+*/
 		if (world[count]->holes) {
 			world[count]->holes--;
 			if (!world[count]->holes || roundup(world[count]->holes) == world[count]->holes) {

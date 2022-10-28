@@ -93,7 +93,7 @@ void DoTrample(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						SendMsgToChar(buf, caster);
 					}
 				}
-				room_spells::RemoveAffect(world[ch->in_room], aff_i);
+				room_spells::RoomRemoveAffect(world[ch->in_room], aff_i);
 				lag = 3;
 			} else {
 				SendMsgToChar("А тут топтать и нечего :)\r\n", ch);

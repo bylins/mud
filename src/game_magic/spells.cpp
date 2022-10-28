@@ -463,6 +463,7 @@ void SpellPortal(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 		to_room = ch->in_room;
 		world[fnd_room]->portal_room = to_room;
 		world[fnd_room]->portal_time = 1;
+		AddPortalTimer(ch, world[fnd_room], 29);
 		if (pkPortal) world[fnd_room]->pkPenterUnique = GET_UNIQUE(ch);
 
 		if (pkPortal) {
@@ -485,6 +486,8 @@ void SpellPortal(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 
 		world[to_room]->portal_room = fnd_room;
 		world[to_room]->portal_time = 1;
+		AddPortalTimer(ch, world[to_room], 29);
+
 		if (pkPortal) world[to_room]->pkPenterUnique = GET_UNIQUE(ch);
 
 		if (pkPortal) {

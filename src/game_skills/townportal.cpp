@@ -3,6 +3,7 @@
 #include "modify.h"
 #include "handler.h"
 #include "game_fight/pk.h"
+#include "game_magic/magic_rooms.h"
 
 namespace OneWayPortal {
 
@@ -43,6 +44,23 @@ RoomData *get_from_room(RoomData *to_room) {
 }
 
 } // namespace OneWayPortal
+
+void AddPortalTimer(CharData *ch, RoomData *room, int time) {
+	Affect<room_spells::ERoomApply> af;
+	af.type = ESpell::kPortalTimer;
+	af.bitvector = room_spells::ERoomAffect::kPortalTimer;
+	af.duration = time; //раз в 2 секунды
+	af.modifier = 0;
+	af.battleflag = 0;
+	af.location = room_spells::ERoomApply::kNone;
+	af.caster_id = ch? GET_ID(ch) : 0;
+	af.must_handled = false;
+	af.apply_time = 0;
+//	affect_room_join_fspell(room, af);
+	AffectRoomJoinReplace(room, af);
+//	affect_room_join(room, af, false, false, false, false);
+	room_spells::AddRoomToAffected(room);
+}
 
 void spell_townportal(CharData *ch, char *arg) {
 	int gcount = 0, cn = 0, ispr = 0;
@@ -103,7 +121,8 @@ void spell_townportal(CharData *ch, char *arg) {
 		from_room->portal_room = real_room(port->vnum);
 		from_room->portal_time = 1;
 		from_room->pkPenterUnique = 0;
-		OneWayPortal::add(world[from_room->portal_room], from_room);
+		OneWayPortal::add(world[from_room->portal_room], from_room);  //какая то недоделка
+		AddPortalTimer(ch, from_room, 29);
 		act("Лазурная пентаграмма возникла в воздухе.", false, ch, 0, 0, kToChar);
 		act("$n сложил$g руки в молитвенном жесте, испрашивая у Богов врата...", false, ch, 0, 0, kToRoom);
 		act("Лазурная пентаграмма возникла в воздухе.", false, ch, 0, 0, kToRoom);

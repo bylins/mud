@@ -1244,6 +1244,13 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         <targets val="kTarCharWorld"/>
         <flags val="kMagManual"/>
     </spell>
+    <spell id="kPortalTimer" element="kLight" mode="kEnabled">
+        <name rus="Портал" eng="portal"/>
+        <misc pos="kStand" violent="N" danger="0"/>
+        <mana max="200" min="180" change="4"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
     <spell id="kDispellMagic" element="kLight" mode="kEnabled">
         <name rus="развеять магию" eng="dispel magic"/>
         <misc pos="kFight" violent="N" danger="0"/>

@@ -2736,7 +2736,7 @@ void RemoveRuneLabelFromWorld(CharData *ch, ESpell spell_id) {
 	if (affected_room) {
 		const auto aff = room_spells::FindAffect(affected_room, spell_id);
 		if (aff != affected_room->affected.end()) {
-			room_spells::RemoveAffect(affected_room, aff);
+			room_spells::RoomRemoveAffect(affected_room, aff);
 			SendMsgToChar("Ваша рунная метка удалена.\r\n", ch);
 		}
 	}
