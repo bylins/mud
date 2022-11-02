@@ -33,7 +33,7 @@
         <skill id="kBackstab"		level="5"	remort="0"	improve="6000"/>
         <skill id="kHide"		level="5"	remort="0"	improve="200"/>
         <skill id="kDigging"		level="5"	remort="0"	improve="600"/>
-        <skill id="kUndercut"		level="5"	remort="0"	improve="3500"/>
+        <skill id="kChopoff"		level="5"	remort="0"	improve="3500"/>
         <skill id="kSkinning"		level="10"	remort="0"	improve="5500"/>
         <skill id="kSneak"		level="10"	remort="0"	improve="30000"/>
         <skill id="kHideTrack"		level="10"	remort="0"	improve="2500"/>

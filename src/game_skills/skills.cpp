@@ -482,7 +482,7 @@ void init_ESkill_ITEM_NAMES() {
 	ESkill_name_by_value[ESkill::kDodge] = "kDodge";
 	ESkill_name_by_value[ESkill::kShieldBlock] = "kShieldBlock";
 	ESkill_name_by_value[ESkill::kLooking] = "kLooking";
-	ESkill_name_by_value[ESkill::kUndercut] = "kUndercut";
+	ESkill_name_by_value[ESkill::kChopoff] = "kChopoff";
 	ESkill_name_by_value[ESkill::kRepair] = "kRepair";
 	ESkill_name_by_value[ESkill::kSharpening] = "kSharpening";
 	ESkill_name_by_value[ESkill::kCourage] = "kCourage";
@@ -745,7 +745,7 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 			break;
 		}
 
-		case ESkill::kUndercut: {
+		case ESkill::kChopoff: {
 			if (AWAKE(vict) || AFF_FLAGGED(vict, EAffect::kAwarness) || MOB_FLAGGED(vict, EMobFlag::kMobAwake))
 				rate -= 20;
 			if (PRF_FLAGGED(vict, EPrf::kAwake))
@@ -1062,7 +1062,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 			break;
 		}
 
-		case ESkill::kUndercut: {
+		case ESkill::kChopoff: {
 			parameter_bonus = dex_bonus(GetRealDex(ch));
 			if (IsEquipInMetall(ch)) {
 				bonus -= 10;
@@ -1217,7 +1217,7 @@ ELuckTestResult MakeLuckTest(CharData *ch, CharData *vict) {
 	return ELuckTestResult::kLuckTestSuccess;
 }
 
-SkillRollResult MakeSkillTest(CharData *ch, ESkill skill_id, CharData *vict) {
+SkillRollResult MakeSkillTest(CharData *ch, ESkill skill_id, CharData *vict, bool need_log) {
 	int actor_rate = CalculateSkillRate(ch, skill_id, vict);
 	int victim_rate = CalculateVictimRate(ch, skill_id, vict);
 
@@ -1240,8 +1240,8 @@ SkillRollResult MakeSkillTest(CharData *ch, ESkill skill_id, CharData *vict) {
 	result.critical = (dice_roll > kSkillCriticalSuccess) || (dice_roll < kSkillCriticalFailure);
 	result.degree = std::abs(dice_roll - success_threshold) / kSkillDegreeDivider;
 	result.degree = std::clamp(result.degree, kMinSkillDegree, kMaxSkillDegree);
-
-	SendSkillRollMsg(ch, vict, skill_id, actor_rate, victim_rate, success_threshold, dice_roll, result);
+	if (need_log)
+		SendSkillRollMsg(ch, vict, skill_id, actor_rate, victim_rate, success_threshold, dice_roll, result);
 	return result;
 }
 
@@ -1283,7 +1283,7 @@ void SendSkillBalanceMsg(CharData *ch, const std::string &skill_name, int percen
 	ch->send_to_TC(false, true, true, buffer.str().c_str());
 }
 
-int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
+int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool need_log) {
 
 	if (MUD::Skills().IsInvalid(skill_id)) {
 		return 0;
@@ -1617,7 +1617,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 			break;
 		}
 
-		case ESkill::kUndercut: {
+		case ESkill::kChopoff: {
 			victim_sav = CalcSaving(ch, vict, ESaving::kReflex, 0);
 			bonus = dex_bonus(GetRealDex(ch)) + ((dex_bonus(GetRealDex(ch)) * 5) / 10)
 				+ size_app[GET_POS_SIZE(ch)].ac; // тест х3 признан вредительским

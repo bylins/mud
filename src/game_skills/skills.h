@@ -32,7 +32,7 @@ enum EExtraAttack {
 	kExtraAttackThrow,
 	kExtraAttackBash,
 	kExtraAttackKick,
-	kExtraAttackUndercut,
+	kExtraAttackChopoff,
 	kExtraAttackDisarm,
 	kExtraAttackCut,
 };
@@ -106,7 +106,7 @@ enum class ESkill : int {
 	kDodge = 157,
 	kShieldBlock = 158,
 	kLooking = 159,
-	kUndercut = 160,
+	kChopoff = 160,
 	kRepair = 161,
 					/* Снова просвет */
 	kSharpening = 164,
@@ -169,7 +169,7 @@ int SendSkillMessages(int dam, CharData *ch, CharData *vict, ESkill skill_id, st
 int SendSkillMessages(int dam, CharData *ch, CharData *vict, ESpell spell_id, std::string add = "");
 
 char *how_good(int skill_level, int skill_cap);
-int CalcCurrentSkill(CharData *ch, ESkill skill_id, CharData *vict);
+int CalcCurrentSkill(CharData *ch, ESkill skill_id, CharData *vict, bool need_log = true);
 void RemoveAllSkills(CharData *ch);
 void ImproveSkill(CharData *ch, ESkill skill, int success, CharData *victim);
 void TrainSkill(CharData *ch, ESkill skill, bool success, CharData *vict);
@@ -182,7 +182,7 @@ int CalcSkillRemortCap(const CharData *ch);
 int CalcSkillWisdomCap(const CharData *ch);
 int CalcSkillHardCap(const CharData *ch, ESkill skill);
 int CalcSkillMinCap(const CharData *ch, ESkill skill);
-SkillRollResult MakeSkillTest(CharData *ch, ESkill skill_id, CharData *vict);
+SkillRollResult MakeSkillTest(CharData *ch, ESkill skill_id, CharData *vict, bool need_log = true);
 void SendSkillBalanceMsg(CharData *ch, const std::string &skill_name, int percent, int prob, bool success);
 int CalculateSkillAwakeModifier(CharData *killer, CharData *victim);
 

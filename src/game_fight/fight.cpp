@@ -1399,8 +1399,8 @@ void using_charmice_skills(CharData *ch) {
 			ch->SetExtraAttack(kExtraAttackThrow, ch->GetEnemy());
 		}
 	} else if (!charmice_wielded_for_throw && (ch->get_extra_attack_mode() != kExtraAttackThrow)
-			&& !(GET_AF_BATTLE(ch, kEafOverwhelm) || GET_AF_BATTLE(ch, kEafHammer)) && ch->GetSkill(ESkill::kUndercut) > 0) { // подножка ()
-		const bool skill_ready = ch->getSkillCooldown(ESkill::kGlobalCooldown) <= 0 && ch->getSkillCooldown(ESkill::kUndercut) <= 0;
+			&& !(GET_AF_BATTLE(ch, kEafOverwhelm) || GET_AF_BATTLE(ch, kEafHammer)) && ch->GetSkill(ESkill::kChopoff) > 0) { // подножка ()
+		const bool skill_ready = ch->getSkillCooldown(ESkill::kGlobalCooldown) <= 0 && ch->getSkillCooldown(ESkill::kChopoff) <= 0;
 		if (master) {
 			std::stringstream msg;
 			msg << ch->get_name() << " использует подножку : " << ((do_skill_without_command && skill_ready) ? "ДА" : "НЕТ") << "\r\n";
@@ -1410,9 +1410,9 @@ void using_charmice_skills(CharData *ch) {
 		}
 		if (do_skill_without_command && skill_ready) {
 			if (GET_POS(ch) < EPosition::kFight) return;
-			ch->SetExtraAttack(kExtraAttackUndercut, ch->GetEnemy());
+			ch->SetExtraAttack(kExtraAttackChopoff, ch->GetEnemy());
 		} 
-	}   else if (((ch->get_extra_attack_mode() != kExtraAttackThrow) || (ch->get_extra_attack_mode() != kExtraAttackUndercut))
+	}   else if (((ch->get_extra_attack_mode() != kExtraAttackThrow) || (ch->get_extra_attack_mode() != kExtraAttackChopoff))
 			&& !(GET_AF_BATTLE(ch, kEafOverwhelm) || GET_AF_BATTLE(ch, kEafHammer)) && ch->GetSkill(ESkill::kIronwind) > 0) {  // вихрь ()
 		const bool skill_ready = ch->getSkillCooldown(ESkill::kGlobalCooldown) <= 0 && ch->getSkillCooldown(ESkill::kIronwind) <= 0;
 		if (master) {
@@ -1451,7 +1451,7 @@ void using_mob_skills(CharData *ch) {
 		} else if (do_this < 60 && !ch->get_touching()) {
 			sk_num = ESkill::kIntercept;
 		} else if (do_this < 70) {
-			sk_num = ESkill::kUndercut;
+			sk_num = ESkill::kChopoff;
 		} else if (do_this < 80) {
 			sk_num = ESkill::kThrow;
 		} else if (do_this < 90) {
@@ -1572,7 +1572,7 @@ void using_mob_skills(CharData *ch) {
 
 		////////////////////////////////////////////////////////////////////////
 		if (sk_num == ESkill::kBash
-			|| sk_num == ESkill::kUndercut
+			|| sk_num == ESkill::kChopoff
 			|| sk_num == ESkill::kDisarm) {
 			CharData *caster = 0, *damager = 0;
 
@@ -1609,7 +1609,7 @@ void using_mob_skills(CharData *ch) {
 			if (caster
 				&& (CAN_SEE(ch, caster) || ch->GetEnemy() == caster)
 				&& caster->caster_level > POOR_CASTER
-				&& (sk_num == ESkill::kBash || sk_num == ESkill::kUndercut)) {
+				&& (sk_num == ESkill::kBash || sk_num == ESkill::kChopoff)) {
 				if (sk_num == ESkill::kBash) {
 //SendMsgToChar(caster, "Баш предфункция\r\n");
 //sprintf(buf, "%s башат предфункция\r\n",GET_NAME(caster));
@@ -1625,7 +1625,7 @@ void using_mob_skills(CharData *ch) {
 //                mudlog(buf, LGH, MAX(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 
 					if (GET_POS(caster) >= EPosition::kFight
-						|| CalcCurrentSkill(ch, ESkill::kUndercut, caster) > number(50, 80)) {
+						|| CalcCurrentSkill(ch, ESkill::kChopoff, caster) > number(50, 80)) {
 						sk_use = 0;
 						go_chopoff(ch, caster);
 					}
@@ -1651,12 +1651,12 @@ void using_mob_skills(CharData *ch) {
 						sk_use = 0;
 						go_bash(ch, damager);
 					}
-				} else if (sk_num == ESkill::kUndercut) {
+				} else if (sk_num == ESkill::kChopoff) {
 					if (damager->IsOnHorse()) {
 						sk_use = 0;
 						go_chopoff(ch, damager->get_horse());
 					} else if (GET_POS(damager) >= EPosition::kFight
-						|| CalcCurrentSkill(ch, ESkill::kUndercut, damager) > number(50, 80)) {
+						|| CalcCurrentSkill(ch, ESkill::kChopoff, damager) > number(50, 80)) {
 						sk_use = 0;
 						go_chopoff(ch, damager);
 					}
@@ -1732,7 +1732,7 @@ bool using_extra_attack(CharData *ch) {
 		case kExtraAttackKick: go_kick(ch, ch->GetExtraVictim());
 			used = true;
 			break;
-		case kExtraAttackUndercut: go_chopoff(ch, ch->GetExtraVictim());
+		case kExtraAttackChopoff: go_chopoff(ch, ch->GetExtraVictim());
 			used = true;
 			break;
 		case kExtraAttackDisarm: go_disarm(ch, ch->GetExtraVictim());

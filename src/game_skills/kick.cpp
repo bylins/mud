@@ -93,10 +93,10 @@ void go_kick(CharData *ch, CharData *vict) {
 							af.duration = CalcDuration(vict, 3 + GetRealRemort(ch) / 4, 0, 0, 0, 0);
 							af.battleflag = kAfBattledec;
 						}
-						dam *= 2;
 						break;
 					case 2:
-					case 3:to_char = "Сильно пнув в челюсть, вы заставили $N3 замолчать.";
+					case 3:
+						to_char = "Сильно пнув в челюсть, вы заставили $N3 замолчать.";
 						to_vict = "Мощный удар ноги $n1 попал вам точно в челюсть, заставив вас замолчать.";
 						to_room = "Сильно пнув ногой в челюсть $N3, $n заставил$q $S замолчать.";
 						af.type = ESpell::kBattle;
@@ -105,17 +105,18 @@ void go_kick(CharData *ch, CharData *vict) {
 						af.battleflag = kAfBattledec;
 						dam *= 2;
 						break;
-					case 4:
-					case 5:SetWaitState(vict, number(2, 5) * kBattleRound);
-						if (GET_POS(vict) > EPosition::kSit) {
-							GET_POS(vict) = EPosition::kSit;
+					default:
+						if (!MOB_FLAGGED(vict, EMobFlag::kNoBash)) {
+							SetWaitState(vict, number(2, 5) * kBattleRound);
+							if (GET_POS(vict) > EPosition::kSit) {
+								GET_POS(vict) = EPosition::kSit;
+							}
+							to_char = "Ваш мощный пинок выбил пару зубов $N2, усадив $S на землю!";
+							to_vict = "Мощный удар ноги $n1 попал точно в голову, свалив вас с ног.";
+							to_room = "Мощный пинок $n1 выбил пару зубов $N2, усадив $S на землю!";
 						}
-						to_char = "Ваш мощный пинок выбил пару зубов $N2, усадив $S на землю!";
-						to_vict = "Мощный удар ноги $n1 попал точно в голову, свалив вас с ног.";
-						to_room = "Мощный пинок $n1 выбил пару зубов $N2, усадив $S на землю!";
-						dam *= 2;
+						dam *= 3;
 						break;
-					default:break;
 				}
 			} else if (number(1, 1000) < (ch->GetSkill(ESkill::kRiding) / 2)) {
 				dam *= 2;
@@ -145,20 +146,23 @@ void go_kick(CharData *ch, CharData *vict) {
 		}
 		if (result.CritLuck && !ch->IsOnHorse()) {
 			dam *= 2;
-			if (GET_POS(vict) > EPosition::kSit) {
-				GET_POS(vict) = EPosition::kSit;
-				to_char = "$N2 упал на жопу! (тестовое сообщение)";
-				to_vict = "Мощный удар $n1 свалил вас с ног.  (тестовое сообщение)";
-				to_room = "Мощный пинок $n1 усадил $N2 на землю! (тестовое сообщение)";
-				if (!ch->IsNpc()) {
-					sprintf(buf, "&G&q%s&Q&n", to_char);
-					act(buf, false, ch, nullptr, vict, kToChar);
-					sprintf(buf, "%s", to_room);
-					act(buf, true, ch, nullptr, vict, kToNotVict | kToArenaListen);
-				}
-				if (!vict->IsNpc()) {
-					sprintf(buf, "&R&q%s&Q&n", to_vict);
-					act(buf, false, ch, nullptr, vict, kToVict);
+			if (!MOB_FLAGGED(vict, EMobFlag::kNoBash)) {
+				if (GET_POS(vict) > EPosition::kSit) {
+					GET_POS(vict) = EPosition::kSit;
+					SetWaitState(vict, 2 * kBattleRound);
+					to_char = "$N упал на жопу! (тестовое сообщение)";
+					to_vict = "Мощный удар $n1 свалил вас с ног.  (тестовое сообщение)";
+					to_room = "Мощный пинок $n1 усадил $N2 на землю! (тестовое сообщение)";
+					if (!ch->IsNpc()) {
+						sprintf(buf, "&G&q%s&Q&n", to_char);
+						act(buf, false, ch, nullptr, vict, kToChar);
+						sprintf(buf, "%s", to_room);
+						act(buf, true, ch, nullptr, vict, kToNotVict | kToArenaListen);
+					}
+					if (!vict->IsNpc()) {
+						sprintf(buf, "&R&q%s&Q&n", to_vict);
+						act(buf, false, ch, nullptr, vict, kToVict);
+					}
 				}
 			}
 		}

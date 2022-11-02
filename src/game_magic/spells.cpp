@@ -1256,7 +1256,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 					false, ch, nullptr, victim, kToChar);
 				act("Движения $N1 сильно ускорились, из туловища выросло несколько новых лап.\nКоторые покрылись длинными когтями.",
 					false, ch, nullptr, victim, kToRoom | kToArenaListen);
-				victim->set_skill(ESkill::kUndercut, k_skills);
+				victim->set_skill(ESkill::kChopoff, k_skills);
 				victim->set_skill(ESkill::kDodge, k_skills*0.7);
 				victim->set_skill(ESkill::kAddshot, k_skills*0.7);
 				victim->set_skill(ESkill::kBows, k_skills*0.85);

@@ -160,7 +160,7 @@ int attack_best(CharData *ch, CharData *victim) {
 		if (ch->GetSkill(ESkill::kDisarm)) {
 			go_disarm(ch, victim);
 		}
-		if (ch->GetSkill(ESkill::kUndercut)) {
+		if (ch->GetSkill(ESkill::kChopoff)) {
 			go_chopoff(ch, victim);
 		}
 		if (!ch->GetEnemy()) {
