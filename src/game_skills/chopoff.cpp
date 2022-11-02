@@ -24,9 +24,9 @@ void go_chopoff(CharData *ch, CharData *vict) {
 		return;
 
 	if ((GET_POS(vict) < EPosition::kFight)) {
-		if (number(1, 100) < ch->GetSkill(ESkill::kUndercut)) {
+		if (number(1, 100) < ch->GetSkill(ESkill::kChopoff)) {
 			SendMsgToChar("Вы приготовились провести подсечку, но вовремя остановились.\r\n", ch);
-			ch->setSkillCooldown(ESkill::kUndercut, kBattleRound / 6);
+			ch->setSkillCooldown(ESkill::kChopoff, kBattleRound / 6);
 			return;
 		}
 	}
@@ -34,8 +34,8 @@ void go_chopoff(CharData *ch, CharData *vict) {
 	if (!pk_agro_action(ch, vict))
 		return;
 
-	int percent = number(1, MUD::Skill(ESkill::kUndercut).difficulty);
-	int prob = CalcCurrentSkill(ch, ESkill::kUndercut, vict);
+	int percent = number(1, MUD::Skill(ESkill::kChopoff).difficulty);
+	int prob = CalcCurrentSkill(ch, ESkill::kChopoff, vict);
 
 	if (IsAffectedBySpell(ch, ESpell::kWeb)) {
 		prob /= 3;
@@ -53,8 +53,8 @@ void go_chopoff(CharData *ch, CharData *vict) {
 		prob = 0;
 
 	bool success = percent <= prob;
-	TrainSkill(ch, ESkill::kUndercut, success, vict);
-	SendSkillBalanceMsg(ch, MUD::Skill(ESkill::kUndercut).name, percent, prob, success);
+	TrainSkill(ch, ESkill::kChopoff, success, vict);
+	SendSkillBalanceMsg(ch, MUD::Skill(ESkill::kChopoff).name, percent, prob, success);
 	if (!success) {
 		sprintf(buf, "%sВы попытались подсечь $N3, но упали сами...%s", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 		act(buf, false, ch, nullptr, vict, kToChar);
@@ -74,30 +74,33 @@ void go_chopoff(CharData *ch, CharData *vict) {
 			ImposeAffect(ch, af, false, false, false, false);
 			af.location = EApply::kMagicResist;
 			ImposeAffect(ch, af, false, false, false, false);
-			SendMsgToChar(ch,
-						  "%sВы покатились по земле, пытаясь избежать атак %s.%s\r\n",
-						  CCIGRN(ch, C_NRM),
-						  GET_PAD(vict, 1),
-						  CCNRM(ch, C_NRM));
+			SendMsgToChar(ch, "%sВы покатились по земле, пытаясь избежать атак %s.%s\r\n", CCIGRN(ch, C_NRM), GET_PAD(vict, 1), CCNRM(ch, C_NRM));
 			act("$n покатил$u по земле, пытаясь избежать ваших атак.", false, ch, nullptr, vict, kToVict);
 			act("$n покатил$u по земле, пытаясь избежать атак $N1.", true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 		}
 	} else {
-		SendMsgToChar(ch,
-					  "%sВы провели подсечку, ловко усадив %s на землю.%s\r\n",
-					  CCIBLU(ch, C_NRM),
-					  GET_PAD(vict, 3),
-					  CCNRM(ch, C_NRM));
-		act("$n ловко подсек$q вас, усадив на попу.", false, ch, nullptr, vict, kToVict);
-		act("$n ловко подсек$q $N3, уронив $S на землю.", true, ch, nullptr, vict, kToNotVict | kToArenaListen);
-		SetWait(vict, 3, false);
-
-		if (ch->isInSameRoom(vict)) {
-			GET_POS(vict) = EPosition::kSit;
-		}
-
 		if (IS_HORSE(vict) && vict->get_master()->IsOnHorse()) {
-			vict->drop_from_horse();
+			CharData *tch = vict->get_master();
+			act("$n ловко подсек$q $N3, заставив $S споткнуться.", true, ch, nullptr, vict, kToNotVict | kToArenaListen);
+			SendMsgToChar(ch, "%sВы провели подсечку, заставив %s споткнуться.%s\r\n",
+					CCIBLU(ch, C_NRM), GET_PAD(vict, 3), CCNRM(ch, C_NRM));
+			percent = number(1, MUD::Skill(ESkill::kRiding).difficulty);
+			prob = GET_SKILL(tch, ESkill::kRiding);
+			if (percent < prob) {
+				SendMsgToChar(tch, "Вы смогли удержаться на спине своего скакуна.\r\n");
+			} else {
+				vict->drop_from_horse();
+				SetWait(vict, 1, false); //лошади тоже немнога лагу
+			}
+		} else {
+			SendMsgToChar(ch, "%sВы провели подсечку, ловко усадив %s на землю.%s\r\n",
+					CCIBLU(ch, C_NRM), GET_PAD(vict, 3), CCNRM(ch, C_NRM));
+			act("$n ловко подсек$q вас, усадив на попу.", false, ch, nullptr, vict, kToVict);
+			act("$n ловко подсек$q $N3, уронив $S на землю.", true, ch, nullptr, vict, kToNotVict | kToArenaListen);
+			SetWait(vict, 3, false);
+			if (ch->isInSameRoom(vict)) {
+				GET_POS(vict) = EPosition::kSit;
+			}
 		}
 		prob = 1;
 	}
@@ -110,17 +113,17 @@ void go_chopoff(CharData *ch, CharData *vict) {
 	if (!success) {
 		SetWait(ch, prob, false);
 	} else {
-		SetSkillCooldownInFight(ch, ESkill::kUndercut, prob);
+		SetSkillCooldownInFight(ch, ESkill::kChopoff, prob);
 		SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);
 	}
 }
 
 void do_chopoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->GetSkill(ESkill::kUndercut) < 1) {
+	if (ch->GetSkill(ESkill::kChopoff) < 1) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kUndercut)) {
+	if (ch->HasCooldown(ESkill::kChopoff)) {
 		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
@@ -151,6 +154,6 @@ void do_chopoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else if (IsHaveNoExtraAttack(ch)) {
 		if (!ch->IsNpc())
 			act("Хорошо. Вы попытаетесь подсечь $N3.", false, ch, nullptr, vict, kToChar);
-		ch->SetExtraAttack(kExtraAttackUndercut, vict);
+		ch->SetExtraAttack(kExtraAttackChopoff, vict);
 	}
 }

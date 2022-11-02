@@ -12,7 +12,7 @@ int IsHaveNoExtraAttack(CharData *ch) {
 				break;
 			case kExtraAttackKick: message = "Невозможно. Вы пытаетесь пнуть $N3.";
 				break;
-			case kExtraAttackUndercut: message = "Невозможно. Вы пытаетесь подсечь $N3.";
+			case kExtraAttackChopoff: message = "Невозможно. Вы пытаетесь подсечь $N3.";
 				break;
 			case kExtraAttackDisarm: message = "Невозможно. Вы пытаетесь обезоружить $N3.";
 				break;

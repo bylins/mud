@@ -571,7 +571,7 @@
                 <price currency="kKuna" start="3" remort_percent="400"/>
                 <upgrade practices="10" min="0" max="10"/>
             </skill>
-            <skill id="kUndercut" fail="0">
+            <skill id="kChopoff" fail="0">
                 <class val="kAssasine"/>
                 <price currency="kKuna" start="2" remort_percent="400"/>
                 <upgrade practices="10" min="0" max="10"/>

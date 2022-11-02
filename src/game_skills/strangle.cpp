@@ -72,7 +72,7 @@ void go_strangle(CharData *ch, CharData *vict) {
 					false, vict, nullptr, ch, kToNotVict | kToArenaListen);
 				vict->drop_from_horse();
 			}
-			if (ch->GetSkill(ESkill::kUndercut) && ch->isInSameRoom(vict)) {
+			if (ch->GetSkill(ESkill::kChopoff) && ch->isInSameRoom(vict)) {
 				go_chopoff(ch, vict);
 			}
 			SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 2);
