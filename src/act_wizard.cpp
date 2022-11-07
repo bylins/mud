@@ -2025,7 +2025,10 @@ void do_purge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	{
 		act("$n произнес$q СЛОВО... вас окружило пламя!", false, ch, nullptr, nullptr, kToRoom);
 		SendMsgToRoom("Мир стал немного чище.\r\n", ch->in_room, false);
-
+		for (obj = world[ch->in_room]->contents; obj; obj = next_o) { //сначала шмотки, иначе потетеряешь весь стаф с случайных чармисов
+			next_o = obj->get_next_content();
+			ExtractObjFromWorld(obj);
+		}
 		const auto people_copy = world[ch->in_room]->people;
 		for (const auto vict : people_copy) {
 			if (vict->IsNpc()) {
@@ -2033,16 +2036,10 @@ void do_purge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					|| vict->has_master()) {
 					die_follower(vict);
 				}
-
 				if (!vict->purged()) {
 					ExtractCharFromWorld(vict, false);
 				}
 			}
-		}
-
-		for (obj = world[ch->in_room]->contents; obj; obj = next_o) {
-			next_o = obj->get_next_content();
-			ExtractObjFromWorld(obj);
 		}
 	}
 }
