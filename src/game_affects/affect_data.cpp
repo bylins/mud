@@ -147,6 +147,10 @@ bool Affect<EApply>::removable() const {
 void UpdateAffectOnPulse(CharData *ch, int count) {
 	bool pulse_aff = false;
 
+	if (ch->GetEnemy()) {
+		return;
+	}
+
 	if (ch->affected.empty()) {
 		return;
 	}
@@ -156,9 +160,6 @@ void UpdateAffectOnPulse(CharData *ch, int count) {
 		++next_affect_i;
 		const auto &affect = *affect_i;
 
-		if (IS_SET(affect->battleflag, kAfBattledec) && ch->GetEnemy()) {
-			continue;
-		}
 		if (!IS_SET(affect->battleflag, kAfPulsedec)) {
 			continue;
 		}
