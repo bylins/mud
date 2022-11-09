@@ -216,7 +216,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					af[0].type = ESpell::kBattle;
 					af[0].bitvector = to_underlying(EAffect::kStopFight);
 					af[0].duration = CalcDuration(victim, 30, 0, 0, 0, 0);
-					af[0].battleflag = kAfBattledec;
+					af[0].battleflag = kAfBattledec | kAfPulsedec;
 					af[1].type = ESpell::kBattle;
 					af[1].bitvector = to_underlying(EAffect::kNoFlee);
 					haemorragia(victim, 20);
@@ -232,7 +232,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					af[0].type = ESpell::kBattle;
 					af[0].bitvector = to_underlying(EAffect::kStopFight);
 					af[0].duration = CalcDuration(victim, 30, 0, 0, 0, 0);
-					af[0].battleflag = kAfBattledec;
+					af[0].battleflag = kAfBattledec | kAfPulsedec;
 					af[1].type = ESpell::kBattle;
 					af[1].bitvector = to_underlying(EAffect::kNoFlee);
 					haemorragia(victim, 50);
@@ -299,7 +299,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					af[0].type = ESpell::kBattle;
 					af[0].bitvector = to_underlying(EAffect::kStopFight);
 					af[0].duration = CalcDuration(victim, 30, 0, 0, 0, 0);
-					af[0].battleflag = kAfBattledec;
+					af[0].battleflag = kAfBattledec | kAfPulsedec;
 					af[1].type = ESpell::kBattle;
 					af[1].bitvector = to_underlying(EAffect::kNoFlee);
 					haemorragia(victim, 20);
@@ -312,7 +312,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					af[0].type = ESpell::kBattle;
 					af[0].bitvector = to_underlying(EAffect::kStopFight);
 					af[0].duration = CalcDuration(victim, 30, 0, 0, 0, 0);
-					af[0].battleflag = kAfBattledec;
+					af[0].battleflag = kAfBattledec | kAfPulsedec;
 					af[1].type = ESpell::kBattle;
 					af[1].bitvector = to_underlying(EAffect::kNoFlee);
 					haemorragia(victim, 40);
@@ -378,7 +378,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					af[0].type = ESpell::kBattle;
 					af[0].bitvector = to_underlying(EAffect::kStopFight);
 					af[0].duration = CalcDuration(victim, 30, 0, 0, 0, 0);
-					af[0].battleflag = kAfBattledec;
+					af[0].battleflag = kAfBattledec | kAfPulsedec;
 					af[1].type = ESpell::kBattle;
 					af[1].bitvector = to_underlying(EAffect::kNoFlee);
 					haemorragia(victim, 20);
@@ -403,7 +403,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					af[0].type = ESpell::kBattle;
 					af[0].bitvector = to_underlying(EAffect::kStopFight);
 					af[0].duration = CalcDuration(victim, 30, 0, 0, 0, 0);
-					af[0].battleflag = kAfBattledec;
+					af[0].battleflag = kAfBattledec | kAfPulsedec;
 					af[1].type = ESpell::kBattle;
 					af[1].bitvector = to_underlying(EAffect::kNoFlee);
 					haemorragia(victim, 40);
@@ -413,7 +413,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					af[0].type = ESpell::kBattle;
 					af[0].bitvector = to_underlying(EAffect::kStopFight);
 					af[0].duration = CalcDuration(victim, 30, 0, 0, 0, 0);
-					af[0].battleflag = kAfBattledec;
+					af[0].battleflag = kAfBattledec | kAfPulsedec;
 					dam *= ch->GetSkill(ESkill::kPunctual) / 2;
 					haemorragia(victim, 50);
 					to_char = "вывело $N3 из строя";
@@ -423,7 +423,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					af[0].type = ESpell::kBattle;
 					af[0].bitvector = to_underlying(EAffect::kStopFight);
 					af[0].duration = CalcDuration(victim, 30, 0, 0, 0, 0);
-					af[0].battleflag = kAfBattledec;
+					af[0].battleflag = kAfBattledec | kAfPulsedec;
 					dam *= ch->GetSkill(ESkill::kPunctual) / 2;
 					haemorragia(victim, 60);
 					to_char = "вывело $N3 из строя";
@@ -507,21 +507,21 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 						af[0].type = ESpell::kBattle;
 						af[0].bitvector = to_underlying(EAffect::kStopRight);
 						af[0].duration = CalcDuration(victim, 30, 0, 0, 0, 0);
-						af[0].battleflag = kAfBattledec;
+						af[0].battleflag = kAfBattledec | kAfPulsedec;
 					} else if (!AFF_FLAGGED(victim, EAffect::kStopLeft)) {
 						to_char = "ослабило атаку $N1";
 						to_vict = "изуродовало вам левую руку";
 						af[0].type = ESpell::kBattle;
 						af[0].bitvector = to_underlying(EAffect::kStopLeft);
 						af[0].duration = CalcDuration(victim, 30, 0, 0, 0, 0);
-						af[0].battleflag = kAfBattledec;
+						af[0].battleflag = kAfBattledec | kAfPulsedec;
 					} else {
 						to_char = "вывело $N3 из строя";
 						to_vict = "вывело вас из строя";
 						af[0].type = ESpell::kBattle;
 						af[0].bitvector = to_underlying(EAffect::kStopFight);
 						af[0].duration = CalcDuration(victim, 30, 0, 0, 0, 0);
-						af[0].battleflag = kAfBattledec;
+						af[0].battleflag = kAfBattledec | kAfPulsedec;
 					}
 					haemorragia(victim, 20);
 					break;
@@ -532,21 +532,21 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 						af[0].type = ESpell::kBattle;
 						af[0].bitvector = to_underlying(EAffect::kStopRight);
 						af[0].duration = CalcDuration(victim, 30, 0, 0, 0, 0);
-						af[0].battleflag = kAfBattledec;
+						af[0].battleflag = kAfBattledec | kAfPulsedec;
 					} else if (!AFF_FLAGGED(victim, EAffect::kStopLeft)) {
 						to_char = "ослабило натиск $N1";
 						to_vict = "изуродовало вам левую руку";
 						af[0].type = ESpell::kBattle;
 						af[0].bitvector = to_underlying(EAffect::kStopLeft);
 						af[0].duration = CalcDuration(victim, 30, 0, 0, 0, 0);
-						af[0].battleflag = kAfBattledec;
+						af[0].battleflag = kAfBattledec | kAfPulsedec;
 					} else {
 						to_char = "вывело $N3 из строя";
 						to_vict = "вывело вас из строя";
 						af[0].type = ESpell::kBattle;
 						af[0].bitvector = to_underlying(EAffect::kStopFight);
 						af[0].duration = CalcDuration(victim, 30, 0, 0, 0, 0);
-						af[0].battleflag = kAfBattledec;
+						af[0].battleflag = kAfBattledec | kAfPulsedec;
 					}
 					af[1].type = ESpell::kBattle;
 					af[1].bitvector = to_underlying(EAffect::kNoFlee);
@@ -614,7 +614,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					af[0].type = ESpell::kBattle;
 					af[0].bitvector = to_underlying(EAffect::kStopFight);
 					af[0].duration = CalcDuration(victim, 30, 0, 0, 0, 0);
-					af[0].battleflag = kAfBattledec;
+					af[0].battleflag = kAfBattledec | kAfPulsedec;
 					haemorragia(victim, 30);
 					dam *= (ch->GetSkill(ESkill::kPunctual) / 3);
 					to_char = "повергло $N3 в оцепенение";
@@ -640,7 +640,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					af[3].type = ESpell::kBattle;
 					af[3].bitvector = to_underlying(EAffect::kStopFight);
 					af[3].duration = CalcDuration(victim, 30, 0, 0, 0, 0);
-					af[3].battleflag = kAfBattledec;
+					af[3].battleflag = kAfBattledec | kAfPulsedec;
 					haemorragia(victim, 50);
 					to_char = "сорвало у $N1 крышу";
 					to_vict = "сорвало у вас крышу";
@@ -2599,7 +2599,7 @@ void HitData::try_mighthit_dam(CharData *ch, CharData *victim) {
 			af.location = EApply::kNone;
 			af.modifier = 0;
 			af.duration = CalcDuration(victim, 1, 0, 0, 0, 0);
-			af.battleflag = kAfBattledec;
+			af.battleflag = kAfBattledec | kAfPulsedec;
 			ImposeAffect(victim, af, true, false, true, false);
 			sprintf(buf, "&R&qВаше сознание затуманилось после удара %s.&Q&n\r\n", PERS(ch, victim, 1));
 			SendMsgToChar(buf, victim);
@@ -2619,7 +2619,7 @@ void HitData::try_mighthit_dam(CharData *ch, CharData *victim) {
 			af.location = EApply::kNone;
 			af.modifier = 0;
 			af.duration = CalcDuration(victim, 2, 0, 0, 0, 0);
-			af.battleflag = kAfBattledec;
+			af.battleflag = kAfBattledec | kAfPulsedec;
 			ImposeAffect(victim, af, true, false, true, false);
 			sprintf(buf, "&R&qВаше сознание помутилось после удара %s.&Q&n\r\n", PERS(ch, victim, 1));
 			SendMsgToChar(buf, victim);
@@ -2639,7 +2639,7 @@ void HitData::try_mighthit_dam(CharData *ch, CharData *victim) {
 			af.location = EApply::kNone;
 			af.modifier = 0;
 			af.duration = CalcDuration(victim, 3, 0, 0, 0, 0);
-			af.battleflag = kAfBattledec;
+			af.battleflag = kAfBattledec | kAfPulsedec;
 			ImposeAffect(victim, af, true, false, true, false);
 			sprintf(buf, "&R&qВаше сознание померкло после удара %s.&Q&n\r\n", PERS(ch, victim, 1));
 			SendMsgToChar(buf, victim);
