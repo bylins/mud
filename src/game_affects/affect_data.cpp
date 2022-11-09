@@ -162,12 +162,12 @@ void UpdateAffectOnPulse(CharData *ch, int count) {
 		if (!IS_SET(affect->battleflag, kAfPulsedec)) {
 			continue;
 		}
-
+/*
 		if ((*affect_i)->type == ESpell::kVacuum) {
-			sprintf(buf, "MagicSop pulse dec time == %d", (*affect_i)->duration);
+			sprintf(buf, "MagicStop pulse dec time == %d", (*affect_i)->duration);
 			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		}
-
+*/
 		pulse_aff = true;
 		if (affect->duration > 1) {
 			affect->duration -= count;
@@ -231,13 +231,13 @@ void player_affect_update() {
 						}
 					}
 					if (IS_SET(affect->battleflag, kAfPulsedec))
-						affect->duration -= MIN(affect->duration, kSecsPerPlayerAffect * kPassesPerSec);
+						affect->duration -= MIN(affect->duration, kRealSec / kSecsPerPlayerAffect);
 					else
 						affect->duration--;
 					affect->duration = std::max(0, affect->duration);
 				} else {
 					if (IS_SET(affect->battleflag, kAfPulsedec))
-						affect->duration -= MIN(affect->duration, kSecsPerPlayerAffect * kPassesPerSec);
+						affect->duration -= MIN(affect->duration, kRealSec / kSecsPerPlayerAffect);
 					else
 						affect->duration--;
 				}
