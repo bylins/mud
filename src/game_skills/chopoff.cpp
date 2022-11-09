@@ -68,7 +68,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 			af.location = EApply::kPhysicResist;
 			af.modifier = 50;
 			af.duration = CalcDuration(ch, 3, 0, 0, 0, 0);
-			af.battleflag = kAfBattledec;
+			af.battleflag = kAfBattledec | kAfPulsedec;
 			ImposeAffect(ch, af, false, false, false, false);
 			af.location = EApply::kAffectResist;
 			ImposeAffect(ch, af, false, false, false, false);

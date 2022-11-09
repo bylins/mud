@@ -2033,7 +2033,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 					af[0].duration = ApplyResist(victim, GetResistType(spell_id),
 							CalcDuration(victim, 2, 0, 0, 0, 0)) * koef_duration;
 					af[0].bitvector = to_underlying(EAffect::kMagicStopFight);
-					af[0].battleflag = kAfBattledec;
+					af[0].battleflag = kAfBattledec | kAfPulsedec;
 					to_room = "$n3 оглушило.";
 					to_vict = "Вас оглушило.";
 					spell_id = ESpell::kMagicBattle;
@@ -2044,7 +2044,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 					af[0].duration = ApplyResist(victim, GetResistType(spell_id),
 							CalcDuration(victim, 2, 0, 0, 0, 0)) * koef_duration;
 					af[0].bitvector = to_underlying(EAffect::kMagicStopFight);
-					af[0].battleflag = kAfBattledec;
+					af[0].battleflag = kAfBattledec | kAfPulsedec;
 					to_room = "$n3 оглушило.";
 					to_vict = "Вас оглушило.";
 					spell_id = ESpell::kMagicBattle;
@@ -2491,7 +2491,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			else
 				rnd = number(1, 4);
 			af[0].type = ESpell::kPaladineInspiration;
-			af[0].battleflag = kAfBattledec;
+			af[0].battleflag = kAfBattledec | kAfPulsedec;
 			switch (rnd) {
 				case 1:af[0].location = EApply::kPhysicDamagePercent;
 					af[0].duration = CalcDuration(victim, 5, 0, 0, 0, 0);

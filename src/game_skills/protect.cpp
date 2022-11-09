@@ -103,11 +103,7 @@ CharData *TryToFindProtector(CharData *victim, CharData *ch) {
 			&& GET_POS(vict) >= EPosition::kFight) {
 			if (vict == ch) {
 				act("Вы попытались напасть на того, кого прикрывали, и замерли в глубокой задумчивости.",
-					false,
-					vict,
-					0,
-					victim,
-					kToChar);
+					false, vict, 0, victim, kToChar);
 				act("$N пытается напасть на вас! Лучше бы вам отойти.", false, victim, 0, vict, kToChar);
 				vict->remove_protecting();
 				vict->battle_affects.unset(kEafProtect);
@@ -118,7 +114,7 @@ CharData *TryToFindProtector(CharData *victim, CharData *ch) {
 				af.location = EApply::kNone;
 				af.modifier = 0;
 				af.duration = CalcDuration(vict, 1, 0, 0, 0, 0);
-				af.battleflag = kAfBattledec;
+				af.battleflag = kAfBattledec | kAfPulsedec;
 				ImposeAffect(vict, af, true, false, true, false);
 				return victim;
 			}

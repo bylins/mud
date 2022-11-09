@@ -147,25 +147,27 @@ bool Affect<EApply>::removable() const {
 void UpdateAffectOnPulse(CharData *ch, int count) {
 	bool pulse_aff = false;
 
-/*
-	if (ch->GetEnemy()) {
+	if (ch->affected.empty()) {
 		return;
 	}
-*/
+
 	auto next_affect_i = ch->affected.begin();
 	for (auto affect_i = next_affect_i; affect_i != ch->affected.end(); affect_i = next_affect_i) {
 		++next_affect_i;
 		const auto &affect = *affect_i;
 
+		if (IS_SET(affect->battleflag, kAfBattledec) && ch->GetEnemy()) {
+			continue;
+		}
 		if (!IS_SET(affect->battleflag, kAfPulsedec)) {
 			continue;
 		}
-/*
+
 		if ((*affect_i)->type == ESpell::kVacuum) {
 			sprintf(buf, "MagicSop pulse dec time == %d", (*affect_i)->duration);
 			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		}
-*/
+
 		pulse_aff = true;
 		if (affect->duration > 1) {
 			affect->duration -= count;
@@ -187,7 +189,7 @@ void UpdateAffectOnPulse(CharData *ch, int count) {
 		affect_total(ch);
 	}
 }
-// раз в 2 секунды
+// игроки раз в 2 секунды
 void player_affect_update() {
 	utils::CExecutionTimer timer;
 	int count = 0;
