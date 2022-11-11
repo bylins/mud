@@ -78,7 +78,7 @@
         <spell id="kEnchantWeapon"		level="29"	remort="2"	circle="9"	mem="0"		cast="0.0"/>
         <spell id="kVacuum"			level="29"	remort="6"	circle="9"	mem="0"		cast="0.0"/>
         <spell id="kEarthfall"			level="29"	remort="3"	circle="9"	mem="0"		cast="0.0"/>
-        <spell id="kThunderstorm"		level="29"	remort="2"	circle="9"	mem="0"		cast="0.0"/>
+<!--        <spell id="kThunderstorm"		level="29"	remort="2"	circle="9"	mem="0"		cast="0.0"/> -->
     </spells>
     <feats remorts_for_slot="6">
         <feat id="kPowerMagic"			level="1"	remort="0"	slot="0"	inborn="1"/>

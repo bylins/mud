@@ -340,11 +340,11 @@ bool check_mob(ObjData *corpse, CharData *mob) {
 						|| (obj_rnum >= 0
 							&& obj_proto.actual_count(obj_rnum) < GET_OBJ_MIW(obj_proto[obj_rnum])))) {
 					act("&GГде-то высоко-высоко раздался мелодичный звон бубенчиков.&n", false, mob, 0, 0, kToRoom);
-					sprintf(buf, "Фридроп: упал предмет %s VNUM %d с моба %s VNUM %d",
+					sprintf(buf, "Фридроп: упал предмет %s VNUM %d с моба %s VNUM %d (%d lvl)",
 							obj_proto[obj_rnum]->get_short_description().c_str(),
 							obj_proto[obj_rnum]->get_vnum(),
 							GET_NAME(mob),
-							GET_MOB_VNUM(mob));
+							GET_MOB_VNUM(mob), GetRealLevel(mob));
 					mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 					obj_to_corpse(corpse, mob, obj_rnum, false);
 				}

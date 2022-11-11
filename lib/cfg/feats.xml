@@ -138,8 +138,8 @@
     <feat id="kEndurance" name="выносливость" mode="kEnabled">
         <talent_effects>
             <applies>
-                <apply location="kMove" val="2" affect="kUndefinded" lvl_bonus="2.0" remort_bonus="0.0" cap="0"/>
-                <apply location="kMoveRegen" val="40" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kMove" val="2" affect="kUndefinded" lvl_bonus="2.0" remort_bonus="4.0" cap="200"/>
+                <apply location="kMoveRegen" val="40" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="2.0" cap="100"/>
             </applies>
         </talent_effects>
     </feat>

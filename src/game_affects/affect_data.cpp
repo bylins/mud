@@ -232,13 +232,13 @@ void player_affect_update() {
 						}
 					}
 					if (IS_SET(affect->battleflag, kAfPulsedec))
-						affect->duration -= MIN(affect->duration, kRealSec / kSecsPerPlayerAffect);
+						affect->duration -= MIN(affect->duration, kSecsPerPlayerAffect * kPassesPerSec);
 					else
 						affect->duration--;
 					affect->duration = std::max(0, affect->duration);
 				} else {
 					if (IS_SET(affect->battleflag, kAfPulsedec))
-						affect->duration -= MIN(affect->duration, kRealSec / kSecsPerPlayerAffect);
+						affect->duration -= MIN(affect->duration, kSecsPerPlayerAffect * kPassesPerSec);
 					else
 						affect->duration--;
 				}
