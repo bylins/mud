@@ -403,7 +403,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 	obj->set_cost(1);
 	obj->set_rent_off(1);
 	obj->set_rent_on(1);
-	obj->set_timer(9999);
+	obj->set_timer(1);
 	//ставим флаги на шмотки
 	obj->set_wear_flags(to_underlying(EWearFlag::kTake));
 //	obj->set_wear_flags(to_underlying(EWearFlag::kUndefined)); // в теории никак не взять одежку

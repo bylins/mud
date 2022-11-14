@@ -51,7 +51,7 @@ void do_ignore(CharData *ch, char *argument, int cmd, int subcmd);
 
 void do_say(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
-//	create_charmice_stuff(ch, static_cast<ESkill>(atoi(argument)), 100); г номер тестировал чармстаф
+//	create_charmice_stuff(ch, static_cast<ESkill>(atoi(argument)), 100);// г номер тестировал чармстаф
 
 	if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
 		SendMsgToChar(SIELENCE, ch);
