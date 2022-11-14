@@ -395,7 +395,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 	obj->set_PName(4, "острыми когтями");
 	obj->set_PName(5, "острых когтях");
 	obj->set_sex(EGender::kPoly);
-	obj->set_type(EObjType::kWeapon);
+//	obj->set_type(EObjType::kWeapon);
 	// среднее оружки
 	obj->set_val(1, floorf(diff/18.0)); // при 100 скила куб. = 5  	при 200 скила = 11
 	obj->set_val(2, floorf(diff/27.0)); // при 100 скила граней = d4  при 200 скила = d7
@@ -406,12 +406,13 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 	obj->set_timer(9999);
 	//ставим флаги на шмотки
 	obj->set_wear_flags(to_underlying(EWearFlag::kTake));
-	obj->set_wear_flags(to_underlying(EWearFlag::kUndefined)); // в теории никак не взять одежку
+//	obj->set_wear_flags(to_underlying(EWearFlag::kUndefined)); // в теории никак не взять одежку
 	// obj->set_no_flag(ENoFlag::ITEM_NO_MONO); // пресекаем всяких абузеров
 	// obj->set_no_flag(ENoFlag::ITEM_NO_POLY); // 
 	obj->set_extra_flag(EObjFlag::kNosell);
 	obj->set_extra_flag(EObjFlag::kNolocate);
 	obj->set_extra_flag(EObjFlag::kDecay);
+	obj->set_extra_flag(EObjFlag::kNorent);
 	obj->set_extra_flag(EObjFlag::kNodisarm);
 	obj->set_extra_flag(EObjFlag::kBless);
 //	obj->set_extra_flag(EObjFlag::kNodrop);
@@ -422,9 +423,9 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 
 	obj->set_weight(floorf(diff/9.0));
 
-	switch (skill_id)
-	{
+	switch (skill_id) {
 	case ESkill::kClubs: // дубины
+		obj->set_type(EObjType::kWeapon);
 		obj->set_val(3, 12);
 		obj->set_skill(141);
 		obj->set_extra_flag(EObjFlag::kThrowing);
@@ -434,6 +435,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 		position = 16;
 		break;
 	case ESkill::kSpades: // копья
+		obj->set_type(EObjType::kWeapon);
 		obj->set_val(3, 11);
 		obj->set_skill(148);
 		obj->set_extra_flag(EObjFlag::kThrowing);
@@ -442,6 +444,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 		position = 16;
 		break;
 	case ESkill::kPicks: // стабер
+		obj->set_type(EObjType::kWeapon);
 		obj->set_val(3, 11);
 		obj->set_skill(147);
 		obj->set_affected(0, EApply::kStr, floorf(diff/16.0));
@@ -450,6 +453,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 		position = 16;
 		break;
 	case ESkill::kAxes: // секиры
+		obj->set_type(EObjType::kWeapon);
 		obj->set_val(3, 8);
 		obj->set_skill(142);
 		obj->set_affected(0, EApply::kStr, floorf(diff/12.0));
@@ -461,6 +465,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 		position = 16;
 		break;
 	case ESkill::kBows: // луки
+		obj->set_type(EObjType::kWeapon);
 		obj->set_val(3, 2);
 		obj->set_skill(154);
 		obj->set_affected(0, EApply::kStr, floorf(diff/20.0));
@@ -469,6 +474,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 		position = 18;
 		break;
 	case ESkill::kTwohands: // двуруч
+		obj->set_type(EObjType::kWeapon);
 		obj->set_val(3, 1);
 		obj->set_skill(146);
 		obj->set_weight(floorf(diff/4.0)); // 50 вес при 200% скила
@@ -484,6 +490,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 		position = 9;
 		break;
 	case ESkill::kLongBlades: // длинные
+		obj->set_type(EObjType::kWeapon);
 		obj->set_val(3, 10);
 		obj->set_skill(143);
 		obj->set_affected(0, EApply::kStr, floorf(diff/15.0));
@@ -514,18 +521,6 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 		position = 11; // слот щит
 		break;		
 	default: //ESkill::kUndefined / тут шкура(армор)
-		obj->set_sex(EGender::kFemale);
-		obj->set_description("Прочная шкура лежит здесь.");
-		obj->set_ex_description(descr.c_str(), "Прочная шкура лежит здесь.");
-		obj->set_aliases("прочная шкура");
-		obj->set_short_description("прочная шкура");
-		obj->set_PName(0, "прочная шкура");
-		obj->set_PName(1, "прочной шкурой");
-		obj->set_PName(2, "прочной шкуре");
-		obj->set_PName(3, "прочную шкуру");
-		obj->set_PName(4, "прочной шкурой");
-		obj->set_PName(5, "прочной шкуре");
-		obj->set_type(EObjType::kArmor);
 		if (diff == -1) { // тут делаем сапоги 
 			obj->set_sex(EGender::kPoly);
 			obj->set_weight(50);
@@ -542,6 +537,18 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 			position = 8; // слот ступни
 			break;
 		}
+		obj->set_type(EObjType::kArmor);
+		obj->set_sex(EGender::kFemale);
+		obj->set_description("Прочная шкура лежит здесь.");
+		obj->set_ex_description(descr.c_str(), "Прочная шкура лежит здесь.");
+		obj->set_aliases("прочная шкура");
+		obj->set_short_description("прочная шкура");
+		obj->set_PName(0, "прочная шкура");
+		obj->set_PName(1, "прочной шкурой");
+		obj->set_PName(2, "прочной шкуре");
+		obj->set_PName(3, "прочную шкуру");
+		obj->set_PName(4, "прочной шкурой");
+		obj->set_PName(5, "прочной шкуре");
 		obj->set_val(1, floorf(diff/11.0));
 		obj->set_val(2, floorf(diff/7.0));
 		obj->set_affected(0, EApply::kSavingStability, -floorf(diff*0.7));

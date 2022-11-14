@@ -19,6 +19,7 @@
 #include "entities/world_characters.h"
 #include "house.h"
 #include "spam.h"
+//#include "stuff.h"
 #include "utils/utils_char_obj.inl"
 
 // extern variables
@@ -49,7 +50,8 @@ void do_ignore(CharData *ch, char *argument, int cmd, int subcmd);
 #define SOUNDPROOF ("Стены заглушили ваши слова.\r\n")
 
 void do_say(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	skip_spaces(&argument);
+
+//	create_charmice_stuff(ch, static_cast<ESkill>(atoi(argument)), 100); г номер тестировал чармстаф
 
 	if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
 		SendMsgToChar(SIELENCE, ch);
