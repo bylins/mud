@@ -23,6 +23,8 @@
 #include "depot.h"
 #include "game_magic/magic.h"
 
+extern char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear);
+
 void do_statip(CharData *ch, CharData *k) {
 	log("Start logon list stat");
 
@@ -668,7 +670,8 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	{
 		SendMsgToChar(ch, ", &Gпадежи отличны от прототипа&n");
 	}
-	sprintf(buf, "\r\nL-Des: %s\r\n%s",
+	SendMsgToChar(ch, "\r\n%s", diag_weapon_to_char(j, 2));
+	sprintf(buf, "L-Des: %s\r\n%s",
 			!j->get_description().empty() ? j->get_description().c_str() : "Нет",
 			CCNRM(ch, C_NRM));
 	SendMsgToChar(buf, ch);

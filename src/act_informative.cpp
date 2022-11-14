@@ -254,7 +254,7 @@ char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear) {
 				break;
 			case ESkill::kSpades: skill = 9;
 				break;
-			default: sprintf(out_str, "!! Не принадлежит к известным типам оружия - сообщите Богам !!\r\n");
+			default: sprintf(out_str, "!! Не принадлежит к известным типам оружия - сообщите Богам (skill=%d) !!\r\n", obj->get_skill());
 				break;
 		}
 		if (skill) {
