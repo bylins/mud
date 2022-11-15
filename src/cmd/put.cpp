@@ -278,7 +278,6 @@ ObjData::shared_ptr CreateCurrencyObj(long quantity) {
 
 	new_descr->next = nullptr;
 	obj->set_ex_description(new_descr);
-
 	obj->set_type(EObjType::kMoney);
 	obj->set_wear_flags(to_underlying(EWearFlag::kTake));
 	obj->set_sex(EGender::kFemale);
@@ -290,7 +289,7 @@ ObjData::shared_ptr CreateCurrencyObj(long quantity) {
 	obj->set_weight(1);
 	obj->set_extra_flag(EObjFlag::kNodonate);
 	obj->set_extra_flag(EObjFlag::kNosell);
-
+	obj->unset_extraflag(EObjFlag::kNorent);
 	return obj;
 }
 
