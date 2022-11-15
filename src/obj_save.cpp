@@ -527,251 +527,6 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 	return (object);
 }
 
-// Данная процедура выбирает предмет из буфера
-// ВНИМАНИЕ!!! эта функция используется только для чтения вещей персонажа,
-// сохраненных в старом формате, для чтения нового формата применяется ф-ия read_one_object_new
-ObjData::shared_ptr read_one_object(char **data, int *error) {
-	char buffer[kMaxStringLength], f0[kMaxStringLength], f1[kMaxStringLength], f2[kMaxStringLength];
-	int vnum, i, j, t[5];
-
-	*error = 1;
-	// Станем на начало предмета
-	for (; **data != DIV_CHAR; (*data)++) {
-		if (!**data || **data == END_CHAR) {
-			return nullptr;
-		}
-	}
-	*error = 2;
-	// Пропустим #
-	(*data)++;
-	// Считаем vnum предмета
-	if (!get_buf_line(data, buffer)) {
-		return nullptr;
-	}
-	*error = 3;
-	if (!(vnum = atoi(buffer))) {
-		return nullptr;
-	}
-
-	ObjData::shared_ptr object;
-	if (vnum < 0)        // Предмет не имеет прототипа
-	{
-		object = world_objects.create_blank();
-		*error = 4;
-		if (!get_buf_lines(data, buffer)) {
-			return object;
-		}
-		// Алиасы
-		object->set_aliases(buffer);
-		// Падежи
-		*error = 5;
-		for (i = ECase::kFirstCase; i <= ECase::kLastCase; i++) {
-			if (!get_buf_lines(data, buffer)) {
-				return object;
-			}
-
-			object->set_PName(i, buffer);
-			if (i == 0) {
-				object->set_short_description(buffer);
-			}
-		}
-		// Описание когда на земле
-		*error = 6;
-		if (!get_buf_lines(data, buffer)) {
-			return object;
-		}
-		object->set_description(buffer);
-		// Описание при действии
-		*error = 7;
-		if (!get_buf_lines(data, buffer)) {
-			return object;
-		}
-		object->set_action_description(buffer);
-	} else {
-		object = world_objects.create_from_prototype_by_vnum(vnum);
-		if (!object) {
-			*error = 8;
-			return nullptr;
-		}
-	}
-
-	*error = 9;
-	if (!get_buf_line(data, buffer)
-		|| sscanf(buffer, " %s %d %d %d", f0, t + 1, t + 2, t + 3) != 4) {
-		return object;
-	}
-
-	int skill = 0;
-	asciiflag_conv(f0, &skill);
-	object->set_skill(skill);
-
-	object->set_maximum_durability(t[1]);
-	object->set_current_durability(t[2]);
-	object->set_material(static_cast<EObjMaterial>(t[3]));
-
-	*error = 10;
-	if (!get_buf_line(data, buffer)
-		|| sscanf(buffer, " %d %d %d %d", t, t + 1, t + 2, t + 3) != 4) {
-		return object;
-	}
-	object->set_sex(static_cast<EGender>(t[0]));
-	object->set_timer(t[1]);
-	object->set_spell(t[2]);
-	object->set_level(t[3]);
-
-	*error = 11;
-	if (!get_buf_line(data, buffer)
-		|| sscanf(buffer, " %s %s %s", f0, f1, f2) != 3) {
-		return object;
-	}
-	object->SetWeaponAffectFlags(clear_flags);
-	object->set_anti_flags(clear_flags);
-	object->set_no_flags(clear_flags);
-	object->load_affect_flags(f0);
-	object->load_anti_flags(f0);
-	object->load_no_flags(f0);
-
-	*error = 12;
-	if (!get_buf_line(data, buffer)
-		|| sscanf(buffer, " %d %s %s", t, f1, f2) != 3) {
-		return object;
-	}
-	object->set_type(static_cast<EObjType>(t[0]));
-	object->set_extra_flags(clear_flags);
-	object->set_wear_flags(0);
-	object->load_extra_flags(f1);
-
-	auto wear = object->get_wear_flags();
-	asciiflag_conv(f2, &wear);
-	object->set_wear_flags(wear);
-
-	*error = 13;
-	if (!get_buf_line(data, buffer)
-		|| sscanf(buffer, "%s %d %d %d", f0, t + 1, t + 2, t + 3) != 4) {
-		return object;
-	}
-	object->set_val(0, 0);
-	auto val0 = object->get_val(0);
-	asciiflag_conv(f0, &val0);
-
-	object->set_val(0, val0);
-	object->set_val(1, t[1]);
-	object->set_val(2, t[2]);
-	object->set_val(3, t[3]);
-
-	*error = 14;
-	if (!get_buf_line(data, buffer)
-		|| sscanf(buffer, "%d %d %d %d", t, t + 1, t + 2, t + 3) != 4) {
-		return object;
-	}
-	object->set_weight(t[0]);
-	object->set_cost(t[1]);
-	object->set_rent_off(t[2]);
-	object->set_rent_on(t[3]);
-
-	*error = 15;
-	if (!get_buf_line(data, buffer)
-		|| sscanf(buffer, "%d %d", t, t + 1) != 2) {
-		return object;
-	}
-	object->set_worn_on(t[0]);
-	object->set_owner(t[1]);
-
-	// Проверить вес фляг и т.п.
-	if (GET_OBJ_TYPE(object) == EObjType::kLiquidContainer
-		|| GET_OBJ_TYPE(object) == EObjType::kFountain) {
-		if (GET_OBJ_WEIGHT(object) < GET_OBJ_VAL(object, 1)) {
-			object->set_weight(GET_OBJ_VAL(object, 1) + 5);
-		}
-	}
-
-	object->set_ex_description(nullptr);    // Exclude doubling ex_description !!!
-	j = 0;
-
-	for (;;) {
-		if (!get_buf_line(data, buffer)) {
-			*error = 0;
-			for (; j < kMaxObjAffect; j++) {
-				object->set_affected(j, EApply::kNone, 0);
-			}
-
-			if (GET_OBJ_TYPE(object) == EObjType::kMagicIngredient) {
-				int err = im_assign_power(object.get());
-				if (err) {
-					*error = 100 + err;
-				}
-			}
-
-			return object;
-		}
-
-		switch (*buffer) {
-			case 'E': {
-				ExtraDescription::shared_ptr new_descr(new ExtraDescription());
-				if (!get_buf_lines(data, buffer)) {
-					*error = 16;
-					return object;
-				}
-				new_descr->keyword = str_dup(buffer);
-				if (!get_buf_lines(data, buffer)) {
-					*error = 17;
-					return object;
-				}
-				new_descr->description = str_dup(buffer);
-				new_descr->next = object->get_ex_description();
-				object->set_ex_description(new_descr);
-			}
-				break;
-
-			case 'A':
-				if (j >= kMaxObjAffect) {
-					*error = 18;
-					return object;
-				}
-				if (!get_buf_line(data, buffer)) {
-					*error = 19;
-					return object;
-				}
-				if (sscanf(buffer, " %d %d ", t, t + 1) == 2) {
-					object->set_affected(j, static_cast<EApply>(t[0]), t[1]);
-					j++;
-				}
-				break;
-
-			case 'M':
-				// Вставляем сюда уникальный номер создателя
-				if (!get_buf_line(data, buffer)) {
-					*error = 20;
-					return object;
-				}
-				if (sscanf(buffer, " %d ", t) == 1) {
-					object->set_crafter_uid(t[0]);
-				}
-				break;
-
-			case 'P':
-				if (!get_buf_line(data, buffer)) {
-					*error = 21;
-					return object;
-				}
-				if (sscanf(buffer, " %d ", t) == 1) {
-					int rnum;
-					object->set_parent(t[0]);
-					rnum = real_mobile(GET_OBJ_PARENT(object));
-					if (rnum > -1) {
-						trans_obj_name(object.get(), &mob_proto[rnum]);
-					}
-				}
-				break;
-
-			default: break;
-		}
-	}
-	*error = 22;
-
-	return object;
-}
-
 // shapirus: функция проверки наличия доп. описания в прототипе
 inline bool proto_has_descr(const ExtraDescription::shared_ptr &odesc, const ExtraDescription::shared_ptr &pdesc) {
 	for (auto desc = pdesc; desc; desc = desc->next) {
@@ -1752,7 +1507,6 @@ int Crash_load(CharData *ch) {
 	ObjData *obj2, *obj_list = nullptr;
 	int location, rnum;
 	struct container_list_type *tank_list = nullptr, *tank, *tank_to;
-	bool need_convert_character_objects = 0;    // add by Pereplut
 
 	if ((index = GET_INDEX(ch)) < 0)
 		return (1);
@@ -1889,10 +1643,6 @@ int Crash_load(CharData *ch) {
 	data = readdata;
 	*(data + fsize) = '\0';
 
-	// Проверка в каком формате записана информация о персонаже.
-	if (!strn_cmp(readdata, "@", 1))
-		need_convert_character_objects = 1;
-
 	//Создание объектов
 	long timer_dec = time(0) - SAVEINFO(index)->rent.time;
 	timer_dec = (timer_dec / kSecsPerMudHour) + (timer_dec % kSecsPerMudHour ? 1 : 0);
@@ -1901,31 +1651,14 @@ int Crash_load(CharData *ch) {
 		 reccount > 0 && *data && *data != END_CHAR; reccount--, fsize++) {
 		i++;
 		ObjData::shared_ptr obj;
-		if (need_convert_character_objects) {
-			// Формат новый => используем новую функцию
-			obj = read_one_object_new(&data, &error);
-			if (!obj) {
-				//SendMsgToChar("Ошибка при чтении - чтение предметов прервано.\r\n", ch);
-				SendMsgToChar("Ошибка при чтении файла объектов.\r\n", ch);
-				sprintf(buf, "SYSERR: Objects reading fail for %s error %d, stop reading.", GET_NAME(ch), error);
-				mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
-
-				continue;    //Ann
-			}
-		} else {
-			// Формат старый => используем старую функцию
-			obj = read_one_object(&data, &error);
-			if (!obj) {
-				//SendMsgToChar("Ошибка при чтении - чтение предметов прервано.\r\n", ch);
-				SendMsgToChar("Ошибка при чтении файла объектов.\r\n", ch);
-				sprintf(buf, "SYSERR: Objects reading fail for %s error %d, stop reading.",
-						GET_NAME(ch), error);
-				mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
-				//break;
-				continue;    //Ann
-			}
+		obj = read_one_object_new(&data, &error);
+		if (!obj) {
+			//SendMsgToChar("Ошибка при чтении - чтение предметов прервано.\r\n", ch);
+			SendMsgToChar("Ошибка при чтении файла объектов.\r\n", ch);
+			sprintf(buf, "SYSERR: Objects reading fail for %s error %d, stop reading.", GET_NAME(ch), error);
+			mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
+			continue;    //Ann
 		}
-
 		if (error) {
 			snprintf(buf,
 					 kMaxStringLength,

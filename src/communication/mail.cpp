@@ -517,7 +517,6 @@ void receive(CharData *ch, CharData *mailman) {
 		obj->set_timer(24 * 60);
 		obj->set_extra_flag(EObjFlag::kNodonate);
 		obj->set_extra_flag(EObjFlag::kNosell);
-		obj->set_extra_flag(EObjFlag::kNorent);
 
 		char buf_date[kMaxInputLength];
 		strftime(buf_date, sizeof(buf_date), "%H:%M %d-%m-%Y", localtime(&i->second.date));

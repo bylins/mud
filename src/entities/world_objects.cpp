@@ -87,6 +87,7 @@ WorldObjects::WorldObjects() :
 ObjData::shared_ptr WorldObjects::create_blank() {
 	const auto blank = create_from_prototype_by_rnum(0);
 	blank->set_extra_flag(EObjFlag::kTransformed);
+	blank->set_extra_flag(EObjFlag::kNorent);
 	return blank; //вместо -1 вставим реальный объект
 }
 
