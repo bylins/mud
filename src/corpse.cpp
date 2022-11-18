@@ -411,7 +411,7 @@ void make_arena_corpse(CharData *ch, CharData *killer) {
 }
 
 ObjData *make_corpse(CharData *ch, CharData *killer) {
-	ObjData *o;
+	ObjData *obj, *next_obj;
 	int i;
 
 	if (ch->IsNpc() && MOB_FLAGGED(ch, EMobFlag::kCorpse))
@@ -452,23 +452,27 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 	} else {
 		corpse->set_timer(max_pc_corpse_time * 2);
 	}
-
+	// выбросим трупы
+	for (obj = ch->carrying; obj; obj = next_obj) {
+		next_obj = obj->get_next_content();
+		if (IS_CORPSE(obj)) {
+			RemoveObjFromChar(obj);
+			PlaceObjToRoom(obj, ch->in_room);
+		}
+	}
 	// transfer character's equipment to the corpse
 	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
 		if (GET_EQ(ch, i)) {
 			remove_otrigger(GET_EQ(ch, i), ch);
-
 			PlaceObjToInventory(UnequipChar(ch, i, CharEquipFlags()), ch);
 		}
 	}
-
 	// Считаем вес шмоток после того как разденем чара
 	corpse->set_weight(GET_WEIGHT(ch) + IS_CARRYING_W(ch));
-
 	// transfer character's inventory to the corpse
 	corpse->set_contains(ch->carrying);
-	for (o = corpse->get_contains(); o != nullptr; o = o->get_next_content()) {
-		o->set_in_obj(corpse.get());
+	for (obj = corpse->get_contains(); obj != nullptr; obj = obj->get_next_content()) {
+		obj->set_in_obj(corpse.get());
 	}
 	object_list_new_owner(corpse.get(), nullptr);
 
@@ -523,6 +527,7 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 		return nullptr;
 	} else {
 		RoomRnum corpse_room = ch->in_room;
+
 		if (corpse_room == kStrangeRoom
 			&& ch->get_was_in_room() != kNowhere) {
 			corpse_room = ch->get_was_in_room();
