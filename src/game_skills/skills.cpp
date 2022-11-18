@@ -845,13 +845,13 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kBackstab: {
-			parameter_bonus += GetRealDex(ch);
+			parameter_bonus += GetRealDex(ch) * 2;
 			if (IsAwakeOthers(ch) || IsEquipInMetall(ch)) {
 				bonus += -50;
 			}
 			if (vict) {
 				if (!CAN_SEE(vict, ch)) {
-					bonus += 20;
+					bonus += 25;
 				}
 				if (GET_POS(vict) < EPosition::kFight) {
 					bonus += (20 * (EPosition::kFight - GET_POS(vict)));
