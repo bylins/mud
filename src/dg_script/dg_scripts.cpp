@@ -4121,7 +4121,7 @@ void process_set(Script * /*sc*/, Trigger *trig, char *cmd) {
 	skip_spaces(&value);
 
 	if (!*name) {
-		sprintf(buf2, "set w/o an arg: '%s'", cmd);
+		sprintf(buf2, "set w/o an argument, команда: '%s'", cmd);
 		trig_log(trig, buf2);
 		return;
 	}
@@ -4139,7 +4139,7 @@ void process_eval(void *go, Script *sc, Trigger *trig, int type, char *cmd) {
 	skip_spaces(&expr);
 
 	if (!*name) {
-		sprintf(buf2, "eval w/o an arg: '%s'", cmd);
+		sprintf(buf2, "eval w/o an arg, команда: '%s'", cmd);
 		trig_log(trig, buf2);
 		return;
 	}
@@ -4162,13 +4162,13 @@ void process_attach(void *go, Script *sc, Trigger *trig, int type, char *cmd) {
 	skip_spaces(&id_p);
 
 	if (!*trignum_s || atoi(trignum_s) == 0) {
-		sprintf(buf2, "attach: нет или ошибка в аргументе 1: аргумент '%s' комманда: '%s'", trignum_s, cmd);
+		sprintf(buf2, "attach: нет или ошибка в аргументе 1: аргумент '%s', команда: '%s'", trignum_s, cmd);
 		trig_log(trig, buf2);
 		return;
 	}
 
 	if (!id_p || !*id_p || atoi(id_p + 1) == 0) {
-		sprintf(buf2, "attach: нет или ошибка в аргументе 2: '%s'", cmd);
+		sprintf(buf2, "attach: нет или ошибка в аргументе 2, команда: '%s'", cmd);
 		trig_log(trig, buf2);
 		return;
 	}
@@ -4182,7 +4182,7 @@ void process_attach(void *go, Script *sc, Trigger *trig, int type, char *cmd) {
 		if (!o) {
 			r = get_room(id_p);
 			if (!r) {
-				sprintf(buf2, "attach: не найден аргумент 2 (кому): '%s'", cmd);
+				sprintf(buf2, "attach: не найден аргумент 2 (кому), команда: '%s'", cmd);
 				trig_log(trig, buf2);
 				return;
 			}
@@ -4258,13 +4258,13 @@ Trigger *process_detach(void *go, Script *sc, Trigger *trig, int type, char *cmd
 	skip_spaces(&id_p);
 
 	if (!*trignum_s) {
-		sprintf(buf2, "detach w/o an arg: '%s'", cmd);
+		sprintf(buf2, "detach w/o an arg, команда: '%s'", cmd);
 		trig_log(trig, buf2);
 		return retval;
 	}
 
 	if (!id_p || !*id_p || atoi(id_p + 1) == 0) {
-		sprintf(buf2, "detach invalid id arg(1): '%s'", cmd);
+		sprintf(buf2, "detach invalid id arg(1), команда: '%s'", cmd);
 		trig_log(trig, buf2);
 		return retval;
 	}
@@ -4278,7 +4278,7 @@ Trigger *process_detach(void *go, Script *sc, Trigger *trig, int type, char *cmd
 		if (!o) {
 			r = get_room(id_p);
 			if (!r) {
-				sprintf(buf2, "detach invalid id arg(2): '%s'", cmd);
+				sprintf(buf2, "detach invalid id arg(2), команда: '%s'", cmd);
 				trig_log(trig, buf2);
 				return retval;
 			}
@@ -4327,13 +4327,13 @@ int process_run(void *go, Script **sc, Trigger **trig, int type, char *cmd, int 
 	skip_spaces(&id_p);
 
 	if (!*trignum_s) {
-		sprintf(buf2, "run w/o an arg: '%s'", cmd);
+		sprintf(buf2, "run w/o an arg, команда: '%s'", cmd);
 		trig_log(*trig, buf2);
 		return (false);
 	}
 
 	if (!id_p || !*id_p || atoi(id_p + 1) == 0) {
-		sprintf(buf2, "run invalid id arg(1): '%s'", cmd);
+		sprintf(buf2, "run invalid id arg(1), команда: '%s'", cmd);
 		trig_log(*trig, buf2);
 		return (false);
 	}
@@ -4347,7 +4347,7 @@ int process_run(void *go, Script **sc, Trigger **trig, int type, char *cmd, int 
 		if (!o) {
 			r = get_room(id_p);
 			if (!r) {
-				sprintf(buf2, "run invalid id arg(3): '%s'", cmd);
+				sprintf(buf2, "run invalid id arg(3), команда: '%s'", cmd);
 				trig_log(*trig, buf2);
 				return (false);
 			}
@@ -4474,7 +4474,7 @@ void add_stuf_zone(Trigger *trig, char *cmd) {
 		ObjData::shared_ptr object;
 		object = world_objects.create_from_prototype_by_vnum(obj_vnum);
 		if (!object) {
-			sprintf(buf2, "Add stuf: wrong ObjVnum %d, arg: '%s'", obj_vnum, cmd);
+			sprintf(buf2, "Add stuf: wrong ObjVnum %d, команда: '%s'", obj_vnum, cmd);
 			trig_log(trig, buf2);
 			return;
 		}
@@ -4488,7 +4488,7 @@ void add_stuf_zone(Trigger *trig, char *cmd) {
 		room_vnum = number(15021, 15084);
 		object = world_objects.create_from_prototype_by_vnum(obj_vnum);
 		if (!object) {
-			sprintf(buf2, "Add stuf: wrong ObjVnum %d, arg: '%s'", obj_vnum, cmd);
+			sprintf(buf2, "Add stuf: wrong ObjVnum %d, команда: '%s'", obj_vnum, cmd);
 			trig_log(trig, buf2);
 			return;
 		}
@@ -4502,7 +4502,7 @@ void add_stuf_zone(Trigger *trig, char *cmd) {
 		room_vnum = number(15021, 15084);
 		object = world_objects.create_from_prototype_by_vnum(obj_vnum);
 		if (!object) {
-			sprintf(buf2, "Add stuf: wrong ObjVnum %d, arg: '%s'", obj_vnum, cmd);
+			sprintf(buf2, "Add stuf: wrong ObjVnum %d, команда: '%s'", obj_vnum, cmd);
 			trig_log(trig, buf2);
 			return;
 		}
@@ -4523,13 +4523,13 @@ void makeuid_var(void *go, Script *sc, Trigger *trig, int type, char *cmd) {
 	skip_spaces(&uid_p);
 
 	if (!*varname) {
-		sprintf(buf2, "makeuid w/o an arg: '%s'", cmd);
+		sprintf(buf2, "makeuid w/o an arg, команда: '%s'", cmd);
 		trig_log(trig, buf2);
 		return;
 	}
 
 	if (!uid_p || !*uid_p || atoi(uid_p + 1) == 0) {
-		sprintf(buf2, "makeuid invalid id arg: '%s'", cmd);
+		sprintf(buf2, "makeuid invalid id arg, команда: '%s'", cmd);
 		trig_log(trig, buf2);
 		return;
 	}
@@ -4556,19 +4556,19 @@ void calcuid_var(void *go, Script * /*sc*/, Trigger *trig, int type, char *cmd) 
 	three_arguments(t, vnum, what, count);
 
 	if (!*varname) {
-		sprintf(buf2, "calcuid w/o an arg: '%s'", cmd);
+		sprintf(buf2, "calcuid w/o an arg, команда: '%s'", cmd);
 		trig_log(trig, buf2);
 		return;
 	}
 
 	if (!*vnum || (result = atoi(vnum)) == 0) {
-		sprintf(buf2, "calcuid invalid VNUM arg: '%s'", cmd);
+		sprintf(buf2, "calcuid invalid VNUM arg, команда: '%s'", cmd);
 		trig_log(trig, buf2);
 		return;
 	}
 
 	if (!*what) {
-		sprintf(buf2, "calcuid exceed TYPE arg: '%s'", cmd);
+		sprintf(buf2, "calcuid exceed TYPE arg, команда: '%s'", cmd);
 		trig_log(trig, buf2);
 		return;
 	}
@@ -4594,7 +4594,7 @@ void calcuid_var(void *go, Script * /*sc*/, Trigger *trig, int type, char *cmd) 
 		uid_type = UID_OBJ;
 		result = find_obj_by_id_vnum__calcuid(result, count_num, type, go);
 	} else {
-		sprintf(buf2, "calcuid unknown TYPE arg: '%s'", cmd);
+		sprintf(buf2, "calcuid unknown TYPE arg, команда: '%s'", cmd);
 		trig_log(trig, buf2);
 		return;
 	}
@@ -4627,13 +4627,13 @@ void charuid_var(void * /*go*/, Script * /*sc*/, Trigger *trig, char *cmd) {
 	three_arguments(cmd, arg, varname, who);
 
 	if (!*varname) {
-		sprintf(buf2, "charuid w/o an arg: '%s'", cmd);
+		sprintf(buf2, "charuid w/o an arg, команда: '%s'", cmd);
 		trig_log(trig, buf2);
 		return;
 	}
 
 	if (!*who) {
-		sprintf(buf2, "charuid name is missing: '%s'", cmd);
+		sprintf(buf2, "charuid name is missing, команда: '%s'", cmd);
 		trig_log(trig, buf2);
 		return;
 	}
@@ -4672,13 +4672,13 @@ void charuidall_var(void * /*go*/, Script * /*sc*/, Trigger *trig, char *cmd) {
 	three_arguments(cmd, arg, varname, who);
 
 	if (!*varname) {
-		sprintf(buf2, "charuidall w/o an arg: '%s'", cmd);
+		sprintf(buf2, "charuidall w/o an arg, команда: '%s'", cmd);
 		trig_log(trig, buf2);
 		return;
 	}
 
 	if (!*who) {
-		sprintf(buf2, "charuidall name is missing: '%s'", cmd);
+		sprintf(buf2, "charuidall name is missing, команда: '%s'", cmd);
 		trig_log(trig, buf2);
 		return;
 	}
@@ -4743,19 +4743,19 @@ void calcuidall_var(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* type*/,
 	two_arguments(t, vnum, what);
 
 	if (!*varname) {
-		sprintf(buf2, "calcuidall w/o an arg: '%s'", cmd);
+		sprintf(buf2, "calcuidall w/o an arg, команда: '%s'", cmd);
 		trig_log(trig, buf2);
 		return;
 	}
 
 	if (!*vnum || (result = atoi(vnum)) == 0) {
-		sprintf(buf2, "calcuidall invalid VNUM arg: '%s'", cmd);
+		sprintf(buf2, "calcuidall invalid VNUM arg, команда: '%s'", cmd);
 		trig_log(trig, buf2);
 		return;
 	}
 
 	if (!*what) {
-		sprintf(buf2, "calcuidall exceed TYPE arg: '%s'", cmd);
+		sprintf(buf2, "calcuidall exceed TYPE arg, команда: '%s'", cmd);
 		trig_log(trig, buf2);
 		return;
 	}
@@ -4765,7 +4765,7 @@ void calcuidall_var(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* type*/,
 	} else if (!str_cmp(what, "obj")) {
 		result = find_all_obj_vnum(result, uid);
 	} else {
-		sprintf(buf2, "calcuidall unknown TYPE arg: '%s'", cmd);
+		sprintf(buf2, "calcuidall unknown TYPE arg, команда: '%s'", cmd);
 		trig_log(trig, buf2);
 		return;
 	}
@@ -4789,7 +4789,7 @@ int process_return(Trigger *trig, char *cmd) {
 	two_arguments(cmd, arg1, arg2);
 
 	if (!*arg2) {
-		sprintf(buf2, "return w/o an arg: '%s'", cmd);
+		sprintf(buf2, "return w/o an arg, команда: '%s'", cmd);
 		trig_log(trig, buf2);
 		return 1;
 	}
@@ -4809,7 +4809,7 @@ void process_unset(Script *sc, Trigger *trig, char *cmd) {
 	skip_spaces(&var);
 
 	if (!*var) {
-		sprintf(buf2, "unset w/o an arg: '%s'", cmd);
+		sprintf(buf2, "unset w/o an arg, команда: '%s'", cmd);
 		trig_log(trig, buf2);
 		return;
 	}
@@ -4841,7 +4841,7 @@ void process_remote(Script *sc, Trigger *trig, char *cmd) {
 	skip_spaces(&uid_p);
 
 	if (!*buf || !*buf2) {
-		sprintf(buf2, "remote: invalid arguments '%s'", cmd);
+		sprintf(buf2, "remote: invalid arguments, команда: '%s'", cmd);
 		trig_log(trig, buf2);
 		return;
 	}
@@ -4980,7 +4980,7 @@ void process_rdelete(Script *sc, Trigger *trig, char *cmd) {
 	skip_spaces(&uid_p);
 
 	if (!*buf || !*buf2) {
-		sprintf(buf2, "rdelete: invalid arguments '%s'", cmd);
+		sprintf(buf2, "rdelete: invalid arguments, команда: '%s'", cmd);
 		trig_log(trig, buf2);
 		return;
 	}
@@ -5027,7 +5027,7 @@ void process_global(Script *sc, Trigger *trig, char *cmd, long id) {
 	skip_spaces(&var);
 
 	if (!*var) {
-		sprintf(buf2, "global w/o an arg: '%s'", cmd);
+		sprintf(buf2, "global w/o an arg, команда: '%s'", cmd);
 		trig_log(trig, buf2);
 		return;
 	}
@@ -5054,7 +5054,7 @@ void process_worlds(Script * /*sc*/, Trigger *trig, char *cmd, long id) {
 	skip_spaces(&var);
 
 	if (!*var) {
-		sprintf(buf2, "worlds w/o an arg: '%s'", cmd);
+		sprintf(buf2, "worlds w/o an arg, команда: '%s'", cmd);
 		trig_log(trig, buf2);
 		return;
 	}
@@ -5080,7 +5080,7 @@ void process_context(Script *sc, Trigger *trig, char *cmd) {
 	skip_spaces(&var);
 
 	if (!*var) {
-		sprintf(buf2, "context w/o an arg: '%s'", cmd);
+		sprintf(buf2, "context w/o an arg, команда: '%s'", cmd);
 		trig_log(trig, buf2);
 		return;
 	}
