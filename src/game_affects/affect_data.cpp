@@ -11,6 +11,7 @@
 #include "structs/global_objects.h"
 #include "handler.h"
 #include "utils/utils_time.h"
+#include "genchar.h"
 
 bool no_bad_affects(ObjData *obj) {
 	static std::list<EWeaponAffect> bad_waffects =
@@ -510,20 +511,20 @@ void affect_total(CharData *ch) {
 	if (domination) {
 		ch->set_remort_add(24 - ch->get_remort());
 		ch->set_level_add(30 - ch->GetLevel());
-		ch->set_str_add(ch->get_remort_add());
-		ch->set_dex_add(ch->get_remort_add());
-		ch->set_con_add(ch->get_remort_add()); 
-		ch->set_int_add(ch->get_remort_add());
-		ch->set_wis_add(ch->get_remort_add());
-		ch->set_cha_add(ch->get_remort_add());
+		ch->set_str_add(ch->get_start_stat(G_STR) + 24 - ch->get_str());
+		ch->set_dex_add(ch->get_start_stat(G_DEX) + 24 - ch->get_dex());
+		ch->set_con_add(ch->get_start_stat(G_CON) + 24 - ch->get_con());
+		ch->set_int_add(ch->get_start_stat(G_INT) + 24 - ch->get_int());
+		ch->set_wis_add(ch->get_start_stat(G_WIS) + 24 - ch->get_wis());
+		ch->set_cha_add(ch->get_start_stat(G_CHA) + 24 - ch->get_cha());
 		double add_hp_per_level = MUD::Class(ch->GetClass()).applies.base_con
-				+ (ClampBaseStat(ch, EBaseStat::kCon, ch->get_con()) - MUD::Class(ch->GetClass()).applies.base_con)
+				+ (ClampBaseStat(ch, EBaseStat::kCon, GetRealCon(ch)) - MUD::Class(ch->GetClass()).applies.base_con)
 				* MUD::Class(ch->GetClass()).applies.koef_con / 100.0 + 3;
-	 	GET_HIT_ADD(ch) = static_cast<int>(add_hp_per_level * (30 - ch->GetLevel()));
-//		SendMsgToChar(ch, "add per level %f hitadd %d  level %d\r\n", add_hp_per_level, GET_HIT_ADD(ch), ch->get_level());
+		double hiton30lvl = 10 + add_hp_per_level * 30;
+		GET_HIT_ADD(ch) = hiton30lvl - GET_MAX_HIT(ch);
+//		SendMsgToChar(ch, "max_hit: %d, add per level: %f, hitadd: %d, start_con: %d, level: %d\r\n", 
+//			GET_REAL_MAX_HIT(ch), add_hp_per_level, GET_HIT_ADD(ch), ch->get_start_stat(G_CON), GetRealLevel(ch));
 	}
-
-
 	if (ch->IsNpc()) {
 		(ch)->add_abils = (&mob_proto[GET_MOB_RNUM(ch)])->add_abils;
 	}
