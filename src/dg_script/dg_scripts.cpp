@@ -2643,7 +2643,7 @@ void find_replacement(void *go,
 			else {
 				int p = atoi(subfield);
 				if (p > 0){
-					ExtractCharFromRoom(c);
+					RemoveCharFromRoom(c);
 					PlaceCharToRoom(c, real_room(p));
 				}
 			}

@@ -535,7 +535,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 						else
 							result = r_mortal_start_room;
 					}
-					ExtractCharFromRoom(vict);
+					RemoveCharFromRoom(vict);
 					PlaceCharToRoom(vict, result);
 					look_at_room(vict, result);
 				};
@@ -601,7 +601,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 						else
 							result = r_mortal_start_room;
 					}
-					ExtractCharFromRoom(vict);
+					RemoveCharFromRoom(vict);
 					PlaceCharToRoom(vict, result);
 					look_at_room(vict, result);
 				};
@@ -640,7 +640,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 							result = r_mortal_start_room;
 					}
 
-					ExtractCharFromRoom(vict);
+					RemoveCharFromRoom(vict);
 					PlaceCharToRoom(vict, result);
 					look_at_room(vict, result);
 					act("$n выпущен$a из комнаты имени!",
@@ -684,7 +684,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 							result = r_mortal_start_room;
 					}
 
-					ExtractCharFromRoom(vict);
+					RemoveCharFromRoom(vict);
 					PlaceCharToRoom(vict, result);
 					look_at_room(vict, result);
 				};
@@ -782,7 +782,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 					act("$n водворен$a в темницу!",
 						false, vict, nullptr, nullptr, kToRoom);
 
-					ExtractCharFromRoom(vict);
+					RemoveCharFromRoom(vict);
 					PlaceCharToRoom(vict, r_helled_start_room);
 					look_at_room(vict, r_helled_start_room);
 				};
@@ -811,7 +811,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 					act("$n водворен$a в темницу!",
 						false, vict, nullptr, nullptr, kToRoom);
 
-					ExtractCharFromRoom(vict);
+					RemoveCharFromRoom(vict);
 					PlaceCharToRoom(vict, r_helled_start_room);
 					look_at_room(vict, r_helled_start_room);
 				};
@@ -835,7 +835,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				if (IN_ROOM(vict) != kNowhere) {
 					act("$n водворен$a в комнату имени!",
 						false, vict, nullptr, nullptr, kToRoom);
-					ExtractCharFromRoom(vict);
+					RemoveCharFromRoom(vict);
 					PlaceCharToRoom(vict, r_named_start_room);
 					look_at_room(vict, r_named_start_room);
 				};
@@ -859,7 +859,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 					if (vict->desc && !check_dupes_host(vict->desc) && IN_ROOM(vict) != r_unreg_start_room) {
 						act("$n водворен$a в комнату для незарегистрированных игроков, играющих через прокси.",
 							false, vict, nullptr, nullptr, kToRoom);
-						ExtractCharFromRoom(vict);
+						RemoveCharFromRoom(vict);
 						PlaceCharToRoom(vict, r_unreg_start_room);
 						look_at_room(vict, r_unreg_start_room);
 					}
@@ -1549,13 +1549,13 @@ void do_at(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	// a location has been found.
 	original_loc = ch->in_room;
-	ExtractCharFromRoom(ch);
+	RemoveCharFromRoom(ch);
 	PlaceCharToRoom(ch, location);
 	command_interpreter(ch, command);
 
 	// check if the char is still there
 	if (ch->in_room == location) {
-		ExtractCharFromRoom(ch);
+		RemoveCharFromRoom(ch);
 		PlaceCharToRoom(ch, original_loc);
 	}
 	ch->dismount();
@@ -1622,7 +1622,7 @@ void do_goto(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		strcpy(buf, "$n растворил$u в клубах дыма.");
 
 	act(buf, true, ch, nullptr, nullptr, kToRoom);
-	ExtractCharFromRoom(ch);
+	RemoveCharFromRoom(ch);
 
 	PlaceCharToRoom(ch, location);
 	ch->dismount();
@@ -1654,7 +1654,7 @@ void do_teleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else if ((target = find_target_room(ch, buf2, 0)) != kNowhere) {
 		SendMsgToChar(OK, ch);
 		act("$n растворил$u в клубах дыма.", false, victim, nullptr, nullptr, kToRoom);
-		ExtractCharFromRoom(victim);
+		RemoveCharFromRoom(victim);
 		PlaceCharToRoom(victim, target);
 		victim->dismount();
 		act("$n появил$u, окутанн$w розовым туманом.",
@@ -3528,7 +3528,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				return (0);
 			}
 			if (IN_ROOM(vict) != kNowhere)    // Another Eric Green special.
-				ExtractCharFromRoom(vict);
+				RemoveCharFromRoom(vict);
 			PlaceCharToRoom(vict, rnum);
 			vict->dismount();
 			break;

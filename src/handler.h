@@ -89,8 +89,8 @@ CharData *SearchCharInRoomByName(char *name, RoomRnum room);
 CharData *SearchCharByRnum(MobRnum rnum);
 CharData *get_char(char *name, bool pc = false);
 
-void ExtractCharFromRoom(CharData *ch);
-inline void char_from_room(const CharData::shared_ptr &ch) { ExtractCharFromRoom(ch.get()); }
+void RemoveCharFromRoom(CharData *ch);
+inline void char_from_room(const CharData::shared_ptr &ch) { RemoveCharFromRoom(ch.get()); }
 void PlaceCharToRoom(CharData *ch, RoomRnum room);
 void FleeToRoom(CharData *ch, RoomRnum room);
 inline void char_to_room(const CharData::shared_ptr &ch, RoomRnum room) { PlaceCharToRoom(ch.get(), room); }

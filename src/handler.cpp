@@ -226,10 +226,10 @@ int IsTimedBySkill(CharData *ch, ESkill id) {
 }
 
 // move a player out of a room
-void ExtractCharFromRoom(CharData *ch) {
+void RemoveCharFromRoom(CharData *ch) {
 	if (ch == nullptr || ch->in_room == kNowhere) {
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
-		log("SYSERR: NULL character or kNowhere in %s, ExtractCharFromRoom", __FILE__);
+		log("SYSERR: NULL character or kNowhere in %s, RemoveCharFromRoom", __FILE__);
 		return;
 	}
 
@@ -1900,7 +1900,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 		// TODO: странно все это с пуржем в stop_follower
 		return;
 	}
-// дублируется в ExtractCharFromRoom
+// дублируется в RemoveCharFromRoom
 //	log("[Extract char] Stop fighting self");
 //	if (ch->GetEnemy()) {
 //		stop_fighting(ch, true);
@@ -1910,7 +1910,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 	change_fighting(ch, true);
 
 //	log("[Extract char] Remove char from room");
-	ExtractCharFromRoom(ch);
+	RemoveCharFromRoom(ch);
 
 	// pull the char from the list
 	MOB_FLAGS(ch).set(EMobFlag::kMobDeleted);

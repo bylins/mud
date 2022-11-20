@@ -487,7 +487,7 @@ void do_mgoto(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 	if (ch->GetEnemy())
 		stop_fighting(ch, true);
 
-	ExtractCharFromRoom(ch);
+	RemoveCharFromRoom(ch);
 	PlaceCharToRoom(ch, location);
 }
 
@@ -563,7 +563,7 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 //				mob_log(ch, "mteleport all: target is itself");
 				continue;
 			}
-			ExtractCharFromRoom(vict);
+			RemoveCharFromRoom(vict);
 			PlaceCharToRoom(vict, target);
 			if (!vict->IsNpc()) {
 				look_at_room(vict, true);
@@ -590,7 +590,7 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 			}
 			if (vict->get_horse()) {
 				if (vict->IsOnHorse() || vict->has_horse(true)) {
-					ExtractCharFromRoom(vict->get_horse());
+					RemoveCharFromRoom(vict->get_horse());
 					PlaceCharToRoom(vict->get_horse(), target);
 					onhorse = true;
 				}
@@ -598,7 +598,7 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 			if (target == vict->in_room) {
 				mob_log(ch, "mteleport allchar: target is itself");
 			}
-			ExtractCharFromRoom(vict);
+			RemoveCharFromRoom(vict);
 			PlaceCharToRoom(vict, target);
 			if (!onhorse)
 				vict->dismount();
@@ -632,13 +632,13 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 		const auto people_copy = world[IN_ROOM(vict)]->people;
 		for (const auto charmee : people_copy) {
 			if (IS_CHARMICE(charmee) && charmee->get_master()  == vict) {
-				ExtractCharFromRoom(charmee);
+				RemoveCharFromRoom(charmee);
 				PlaceCharToRoom(charmee, target);
 			}
 		}
 		if (vict->get_horse()) {
 			if (vict->IsOnHorse() || vict->has_horse(true)) {
-				ExtractCharFromRoom(vict->get_horse());
+				RemoveCharFromRoom(vict->get_horse());
 				PlaceCharToRoom(vict->get_horse(), target);
 				onhorse = true;
 			}
@@ -648,12 +648,12 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 			FollowerType *ft;
 			for (ft = vict->followers; ft; ft = ft->next) {
 				if (IN_ROOM(ft->follower) == from_room && ft->follower->IsNpc()) {
-					ExtractCharFromRoom(ft->follower);
+					RemoveCharFromRoom(ft->follower);
 					PlaceCharToRoom(ft->follower, target);
 				}
 			}
 		}
-		ExtractCharFromRoom(vict);
+		RemoveCharFromRoom(vict);
 		PlaceCharToRoom(vict, target);
 		if (!onhorse)
 			vict->dismount();

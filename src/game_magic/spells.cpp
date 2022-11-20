@@ -290,7 +290,7 @@ void SpellRecall(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 	if (!enter_wtrigger(world[fnd_room], ch, -1))
 		return;
 	act("$n исчез$q.", true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-	ExtractCharFromRoom(victim);
+	RemoveCharFromRoom(victim);
 	PlaceCharToRoom(victim, fnd_room);
 	victim->dismount();
 	act("$n появил$u в центре комнаты.", true, victim, nullptr, nullptr, kToRoom);
@@ -318,7 +318,7 @@ void SpellTeleport(int /* level */, CharData *ch, CharData */*victim*/, ObjData 
 	if (!enter_wtrigger(world[fnd_room], ch, -1))
 		return;
 	act("$n медленно исчез$q из виду.", false, ch, nullptr, nullptr, kToRoom);
-	ExtractCharFromRoom(ch);
+	RemoveCharFromRoom(ch);
 	PlaceCharToRoom(ch, fnd_room);
 	ch->dismount();
 	act("$n медленно появил$u откуда-то.", false, ch, nullptr, nullptr, kToRoom);
@@ -386,7 +386,7 @@ void SpellRelocate(int/* level*/, CharData *ch, CharData *victim, ObjData* /* ob
 //	check_auto_nosummon(victim);
 	act("$n медленно исчез$q из виду.", true, ch, nullptr, nullptr, kToRoom);
 	SendMsgToChar("Лазурные сполохи пронеслись перед вашими глазами.\r\n", ch);
-	ExtractCharFromRoom(ch);
+	RemoveCharFromRoom(ch);
 	PlaceCharToRoom(ch, fnd_room);
 	ch->dismount();
 	look_at_room(ch, 0);
@@ -611,7 +611,7 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 	if (!enter_wtrigger(world[ch_room], ch, -1))
 		return;
 	act("$n растворил$u на ваших глазах.", true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-	ExtractCharFromRoom(victim);
+	RemoveCharFromRoom(victim);
 	PlaceCharToRoom(victim, ch_room);
 	CheckAutoNosummon(victim);
 	GET_POS(victim) = EPosition::kStand;
@@ -627,7 +627,7 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 				if (!k->follower->GetEnemy()) {
 					act("$n растворил$u на ваших глазах.",
 						true, k->follower, nullptr, nullptr, kToRoom | kToArenaListen);
-					ExtractCharFromRoom(k->follower);
+					RemoveCharFromRoom(k->follower);
 					PlaceCharToRoom(k->follower, ch_room);
 					act("$n прибыл$g за хозяином.",
 						true, k->follower, nullptr, nullptr, kToRoom | kToArenaListen);

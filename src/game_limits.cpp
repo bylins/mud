@@ -995,12 +995,12 @@ void check_idling(CharData *ch) {
 				SendMsgToChar("Вы пропали в пустоте этого мира.\r\n", ch);
 
 				Crash_crashsave(ch);
-				ExtractCharFromRoom(ch);
+				RemoveCharFromRoom(ch);
 				PlaceCharToRoom(ch, kStrangeRoom);
 				RemoveRuneLabelFromWorld(ch, ESpell::kRuneLabel);
 			} else if (ch->char_specials.timer > idle_rent_time) {
 				if (ch->in_room != kNowhere)
-					ExtractCharFromRoom(ch);
+					RemoveCharFromRoom(ch);
 				PlaceCharToRoom(ch, kStrangeRoom);
 				Crash_idlesave(ch);
 				Depot::exit_char(ch);

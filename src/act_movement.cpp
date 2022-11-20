@@ -704,7 +704,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 		ImproveSkill(ch, ESkill::kTrack, true, nullptr);
 	}
 
-	ExtractCharFromRoom(ch);
+	RemoveCharFromRoom(ch);
 	//затычка для бегства. чтоьы не отрабатывал MSDP протокол
 	if (is_flee && !ch->IsNpc() && !CanUseFeat(ch, EFeat::kCalmness))
 		FleeToRoom(ch, go_to);
@@ -712,7 +712,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 		PlaceCharToRoom(ch, go_to);
 	if (horse) {
 		GET_HORSESTATE(horse) -= 1;
-		ExtractCharFromRoom(horse);
+		RemoveCharFromRoom(horse);
 		PlaceCharToRoom(horse, go_to);
 	}
 
@@ -1559,7 +1559,7 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 								  CCIRED(ch, C_NRM), CCINRM(ch, C_NRM));
 					pkPortal(ch);
 				}
-				ExtractCharFromRoom(ch);
+				RemoveCharFromRoom(ch);
 				PlaceCharToRoom(ch, door);
 				greet_mtrigger(ch, -1);
 				greet_otrigger(ch, -1);
@@ -1573,7 +1573,7 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						!AFF_FLAGGED(k->follower, EAffect::kHold) &&
 						IN_ROOM(k->follower) == from_room && AWAKE(k->follower)) {
 						if (!ROOM_FLAGGED(door, ERoomFlag::kNohorse)) {
-							ExtractCharFromRoom(k->follower);
+							RemoveCharFromRoom(k->follower);
 							PlaceCharToRoom(k->follower, door);
 						}
 					}
@@ -1585,7 +1585,7 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						&& AWAKE(k->follower)) {
 						act("$n исчез$q в пентаграмме.", true,
 							k->follower, nullptr, nullptr, kToRoom);
-						ExtractCharFromRoom(k->follower);
+						RemoveCharFromRoom(k->follower);
 						PlaceCharToRoom(k->follower, door);
 						SetWait(k->follower, 3, false);
 						act("$n появил$u из пентаграммы.", true,

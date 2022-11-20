@@ -199,7 +199,7 @@ void do_summon(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 	SendMsgToChar("Ваш скакун появился перед вами.\r\n", ch);
 	act("$n исчез$q в голубом пламени.", true, horse, nullptr, nullptr, kToRoom);
-	ExtractCharFromRoom(horse);
+	RemoveCharFromRoom(horse);
 	PlaceCharToRoom(horse, ch->in_room);
 	look_at_room(horse, 0);
 	act("$n появил$u из голубого пламени!", true, horse, nullptr, nullptr, kToRoom);
@@ -2313,7 +2313,7 @@ void do_recall(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		if (ch->in_room != rent_room) {
 			SendMsgToChar("Вы почувствовали, как чья-то огромная рука подхватила вас и куда-то унесла!\r\n", ch);
 			act("$n поднял$a глаза к небу и внезапно исчез$q!", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-			ExtractCharFromRoom(ch);
+			RemoveCharFromRoom(ch);
 			PlaceCharToRoom(ch, rent_room);
 			look_at_room(ch, 0);
 			act("$n внезапно появил$u в центре комнаты!", true, ch, nullptr, nullptr, kToRoom);

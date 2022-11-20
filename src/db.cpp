@@ -3832,14 +3832,14 @@ void paste_mob(CharData *ch, RoomRnum room) {
 				return;
 			}
 
-			ExtractCharFromRoom(ch);
+			RemoveCharFromRoom(ch);
 			PlaceCharToRoom(ch, real_room(GET_LASTROOM(ch)));
 		} else {
 			if (world[room]->room_vn == zone_table[world[room]->zone_rn].top)
 				return;
 
 			GET_LASTROOM(ch) = GET_ROOM_VNUM(room);
-			ExtractCharFromRoom(ch);
+			RemoveCharFromRoom(ch);
 			room = real_room(zone_table[world[room]->zone_rn].top);
 
 			if (room == kNowhere)
@@ -5255,7 +5255,7 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		else
 			load_room = r_mortal_start_room;
 	}
-	ExtractCharFromRoom(ch);
+	RemoveCharFromRoom(ch);
 	PlaceCharToRoom(ch, load_room);
 	look_at_room(ch, 0);
 	PLR_FLAGS(ch).set(EPlrFlag::kNoDelete);

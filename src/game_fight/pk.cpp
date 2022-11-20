@@ -376,7 +376,7 @@ bool pk_agro_action(CharData *agressor, CharData *victim) {
 		if (victim->GetEnemy() != nullptr)
 			stop_fighting(agressor, false);
 		act("$n был$g выдворен$a за пределы замка!", true, agressor, 0, 0, kToRoom);
-		ExtractCharFromRoom(agressor);
+		RemoveCharFromRoom(agressor);
 		if (IS_FEMALE(agressor))
 			SendMsgToChar("Охолонись малая, на своих бросаться не дело!\r\n", agressor);
 		else

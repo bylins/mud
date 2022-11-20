@@ -284,7 +284,7 @@ void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, T
 //				wld_log(room, "wteleport all target is itself");
 				continue;
 			}
-			ExtractCharFromRoom(ch);
+			RemoveCharFromRoom(ch);
 			PlaceCharToRoom(ch, target);
 			if (!ch->IsNpc()) {
 				look_at_room(ch, true);
@@ -311,7 +311,7 @@ void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, T
 			}
 			if (ch->get_horse()) {
 				if (ch->IsOnHorse() || ch->has_horse(true)) {
-					ExtractCharFromRoom(ch->get_horse());
+					RemoveCharFromRoom(ch->get_horse());
 					PlaceCharToRoom(ch->get_horse(), target);
 					onhorse = true;
 				}
@@ -320,7 +320,7 @@ void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, T
 				wld_log(room, "wteleport allchar target is itself");
 //				return;
 			}
-			ExtractCharFromRoom(ch);
+			RemoveCharFromRoom(ch);
 			PlaceCharToRoom(ch, target);
 			if (!onhorse)
 				ch->dismount();
@@ -344,13 +344,13 @@ void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, T
 			const auto people_copy = world[ch->in_room]->people;
 			for (const auto charmee : people_copy) {
 				if (IS_CHARMICE(charmee) && charmee->get_master() == ch) {
-					ExtractCharFromRoom(charmee);
+					RemoveCharFromRoom(charmee);
 					PlaceCharToRoom(charmee, target);
 				}
 			}
 			if (ch->get_horse()) {
 				if (ch->IsOnHorse() || ch->has_horse(true)) {
-					ExtractCharFromRoom(ch->get_horse());
+					RemoveCharFromRoom(ch->get_horse());
 					PlaceCharToRoom(ch->get_horse(), target);
 					onhorse = true;
 				}
@@ -359,7 +359,7 @@ void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, T
 				wld_log(room, "wteleport target is itself");
 //				return;
 			}
-			ExtractCharFromRoom(ch);
+			RemoveCharFromRoom(ch);
 			PlaceCharToRoom(ch, target);
 			if (!onhorse)
 				ch->dismount();

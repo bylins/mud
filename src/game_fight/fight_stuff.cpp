@@ -267,7 +267,7 @@ bool stone_rebirth(CharData *ch, CharData *killer) {
 				if (j->get_vnum() == 1000) { // камень возрождения
 					SendMsgToChar("Божественная сила спасла вашу жизнь!\r\n", ch);
 //					enter_wtrigger(world[rnum_start], ch, -1);
-					ExtractCharFromRoom(ch);
+					RemoveCharFromRoom(ch);
 					PlaceCharToRoom(ch, rnum_start);
 					ch->dismount();
 					GET_HIT(ch) = 1;
@@ -316,7 +316,7 @@ bool check_tester_death(CharData *ch, CharData *killer) {
 	}
 //	enter_wtrigger(world[rent_room], ch, -1);
 	SendMsgToChar("Божественная сила спасла вашу жизнь.!\r\n", ch);
-	ExtractCharFromRoom(ch);
+	RemoveCharFromRoom(ch);
 	PlaceCharToRoom(ch, rent_room);
 	ch->dismount();
 	GET_HIT(ch) = 1;
@@ -357,7 +357,7 @@ void die(CharData *ch, CharData *killer) {
 //		sprintf(buf, "Вы погибли смертью глупых в бою! Боги возродили вас, но вы пока не можете двигаться\r\n");
 //		SendMsgToChar(buf, ch);  // все мессаги писать в грит триггере
 //		enter_wtrigger(world[real_room(75989)], ch, -1);
-		ExtractCharFromRoom(ch);
+		RemoveCharFromRoom(ch);
 		PlaceCharToRoom(ch, real_room(75989));
 		ch->dismount();
 		GET_HIT(ch) = 1;
@@ -469,7 +469,7 @@ void arena_kill(CharData *ch, CharData *killer) {
 	}
 	for (FollowerType *f = ch->followers; f; f = f->next) {
 		if (IS_CHARMICE(f->follower)) {
-			ExtractCharFromRoom(f->follower);
+			RemoveCharFromRoom(f->follower);
 			PlaceCharToRoom(f->follower, to_room);
 		}
 	}
@@ -482,7 +482,7 @@ void arena_kill(CharData *ch, CharData *killer) {
 	RemoveAffectFromChar(ch, ESpell::kScopolaPoison);
 	RemoveAffectFromChar(ch, ESpell::kBelenaPoison);
 
-	ExtractCharFromRoom(ch);
+	RemoveCharFromRoom(ch);
 	PlaceCharToRoom(ch, to_room);
 	look_at_room(ch, to_room);
 	act("$n со стонами упал$g с небес...", false, ch, nullptr, nullptr, kToRoom);

@@ -93,7 +93,7 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 	act("$n медленно исчез$q из виду.", true, ch, nullptr, nullptr, kToRoom);
 	SendMsgToChar("Лазурные сполохи пронеслись перед вашими глазами.\r\n", ch);
-	ExtractCharFromRoom(ch);
+	RemoveCharFromRoom(ch);
 	PlaceCharToRoom(ch, fnd_room);
 	ch->dismount();
 	act("$n медленно появил$u откуда-то.", true, ch, nullptr, nullptr, kToRoom);
