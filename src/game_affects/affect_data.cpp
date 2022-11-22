@@ -164,12 +164,12 @@ void UpdateAffectOnPulse(CharData *ch, int count) {
 		if (!IS_SET(affect->battleflag, kAfPulsedec)) {
 			continue;
 		}
-
+/*
 		if ((*affect_i)->type == ESpell::kVacuum) {
 			sprintf(buf, "MagicStop pulse dec time == %d", (*affect_i)->duration);
 			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		}
-
+*/
 		pulse_aff = true;
 		if (affect->duration > 1) {
 			affect->duration -= count;
