@@ -172,12 +172,12 @@ void do_mkill(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 
 	if (*arg == UID_CHAR) {
 		if (!(victim = get_char(arg))) {
-			sprintf(buf, "mkill: victim (%s) not found", arg + 1);
+			sprintf(buf, "mkill: victim (%s) not found, команда: %s", arg + 1, argument);
 			mob_log(ch, buf);
 			return;
 		}
 	} else if (!(victim = get_char_room_vis(ch, arg))) {
-		sprintf(buf, "mkill: victim (%s) not found", arg);
+		sprintf(buf, "mkill: victim (%s) not found, , команда: %s", arg, argument);
 		mob_log(ch, buf);
 		return;
 	}
@@ -257,7 +257,6 @@ void do_mechoaround(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, T
 		return;
 
 	p = one_argument(argument, arg);
-	skip_spaces(&p);
 
 	if (!*arg) {
 		mob_log(ch, "mechoaround called with no argument");
@@ -266,12 +265,12 @@ void do_mechoaround(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, T
 
 	if (*arg == UID_CHAR) {
 		if (!(victim = get_char(arg))) {
-			sprintf(buf, "mechoaround: victim (%s) UID does not exist", arg + 1);
+			sprintf(buf, "mechoaround: victim (%s) UID does not exist, команда: %s", arg + 1, argument);
 			mob_log(ch, buf, LGH);
 			return;
 		}
 	} else if (!(victim = get_char_room_vis(ch, arg))) {
-		sprintf(buf, "mechoaround: victim (%s) does not exist", arg);
+		sprintf(buf, "mechoaround: victim (%s) does not exist, команда: %s", arg, argument);
 		mob_log(ch, buf, LGH);
 		return;
 	}
@@ -296,7 +295,6 @@ void do_msend(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 		return;
 
 	p = one_argument(argument, arg);
-	skip_spaces(&p);
 
 	if (!*arg) {
 		mob_log(ch, "msend called with no argument");
@@ -311,7 +309,7 @@ void do_msend(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 			return;
 		}
 	} else if (!(victim = get_char_room_vis(ch, arg))) {
-		sprintf(buf, "msend: victim (%s) does not exist", arg);
+		sprintf(buf, "msend: victim (%s) does not exist, команда: %s", arg, argument);
 		mob_log(ch, buf, LGH);
 		return;
 	}
@@ -1375,7 +1373,7 @@ void do_mdamage(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 	two_arguments(argument, name, amount);
 
 	if (!*name || !*amount || !a_isdigit(*amount)) {
-		sprintf(buf, "mdamage: bad syntax, arg %s", argument);
+		sprintf(buf, "mdamage: bad syntax, команда: %s", argument);
 		mob_log(ch, buf);
 		return;
 	}
@@ -1423,8 +1421,10 @@ void do_mzoneecho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 	msg = any_one_arg(argument, zone_name);
 	skip_spaces(&msg);
 
-	if (!*zone_name || !*msg)
-		mob_log(ch, "mzoneecho called with too few args");
+	if (!*zone_name || !*msg) {
+		sprintf(buf, "mzoneecho called with too few args, команда: %s", argument);
+		mob_log(ch, buf);
+	}
 	else if ((zone = get_zone_rnum_by_room_vnum(atoi(zone_name))) < 0) {
 		std::stringstream str_log;
 		str_log << "mzoneecho called for nonexistant zone: " << zone_name;
