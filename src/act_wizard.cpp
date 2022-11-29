@@ -2178,8 +2178,7 @@ void inspecting() {
 					continue;
 				}
 			}
-
-			show_pun(vict.get(), buf2);
+//			show_pun(vict.get(), buf2); ниже общий
 		}
 
 		if (it->second->sfor == IMAIL || it->second->sfor == ICHAR) {
@@ -2216,20 +2215,21 @@ void inspecting() {
 										  "Ошибка: пустой ip\r\n");//поиск прерываеться если криво заполнено поле ip для поиска
 							break;
 						}
-
-						if (!str_cmp(cur_log.ip, ch_log.ip)) {
-							sprintf(buf1 + strlen(buf1),
-									" IP:%s%-16s%s Количество входов с него:%5ld Последний раз: %-30s\r\n",
-									CCBLU(ch, C_SPR),
-									cur_log.ip,
-									CCNRM(ch, C_SPR),
-									cur_log.count,
-									rustime(localtime(&cur_log.lasttime)));
-/*							if (it->second->sfor == ICHAR)
-							{
-								sprintf(buf1 + strlen(buf1), "-> Count:%5ld Last : %s\r\n",
-									ch_log.count, rustime(localtime(&ch_log.lasttime)));
-							}*/
+						if (str_cmp(cur_log.ip, "135.181.219.76")) { // игнорим bylins.online
+							if (!str_cmp(cur_log.ip, ch_log.ip)) {
+								sprintf(buf1 + strlen(buf1),
+										" IP:%s%-16s%s Количество входов с него:%5ld Последний раз: %-30s\r\n",
+										CCBLU(ch, C_SPR),
+										cur_log.ip,
+										CCNRM(ch, C_SPR),
+										cur_log.count,
+										rustime(localtime(&cur_log.lasttime)));
+	/*							if (it->second->sfor == ICHAR)
+								{
+									sprintf(buf1 + strlen(buf1), "-> Count:%5ld Last : %s\r\n",
+										ch_log.count, rustime(localtime(&ch_log.lasttime)));
+								}*/
+							}
 						}
 					}
 				}
@@ -2247,6 +2247,7 @@ void inspecting() {
 				Clan::SetClanData(&vict);
 				if (CLAN(&vict))
 					sprintf(clanstatus, "%s", (&vict)->player_specials->clan->GetAbbrev());
+				show_pun(&vict, buf2);
 			}
 			sprintf(buf,
 					"--------------------\r\nИмя: %s%-12s%s e-mail: %s&S%-30s&s%s Last: %s. Level %d, Remort %d, Проф: %s, Клан: %s.\r\n",
