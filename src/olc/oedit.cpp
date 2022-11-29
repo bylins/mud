@@ -275,21 +275,21 @@ void oedit_save_internally(DescriptorData *d) {
 		// прототипов
 	} else {
 		// It's a new object, we must build new tables to contain it.
-		log("[OEdit] Save mem new %d(%zd/%zd)", OLC_NUM(d), 1 + obj_proto.size(), sizeof(ObjData));
+		log("[OEdit] Save mem an disk new %d(%zd/%zd)", OLC_NUM(d), 1 + obj_proto.size(), sizeof(ObjData));
 
 		const size_t index = obj_proto.add(OLC_OBJ(d), OLC_NUM(d));
 		obj_proto.zone(index, get_zone_rnum_by_obj_vnum(OLC_NUM(d)));
 	}
 
-	olc_add_to_save_list(zone_table[OLC_ZNUM(d)].vnum, OLC_SAVE_OBJ);
+//	olc_add_to_save_list(zone_table[OLC_ZNUM(d)].vnum, OLC_SAVE_OBJ);
+	oedit_save_to_disk(OLC_ZNUM(d));
 }
 
 //------------------------------------------------------------------------
 
-void oedit_save_to_disk(int zone_num) {
+void oedit_save_to_disk(ZoneRnum zone_num) {
 	int counter, counter2, realcounter;
 	FILE *fp;
-
 	sprintf(buf, "%s/%d.new", OBJ_PREFIX, zone_table[zone_num].vnum);
 	if (!(fp = fopen(buf, "w+"))) {
 		mudlog("SYSERR: OLC: Cannot open objects file!", BRF, kLvlBuilder, SYSLOG, true);
@@ -1353,7 +1353,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 				case 'y':
 				case 'Y':
 				case 'д':
-				case 'Д': SendMsgToChar("Saving object to memory.\r\n", d->character.get());
+				case 'Д': SendMsgToChar("Объект сохранен.\r\n", d->character.get());
 					OLC_OBJ(d)->remove_incorrect_values_keys(GET_OBJ_TYPE(OLC_OBJ(d)));
 					oedit_save_internally(d);
 					sprintf(buf, "OLC: %s edits obj %d", GET_NAME(d->character), OLC_NUM(d));
@@ -1369,7 +1369,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 					break;
 
 				default: SendMsgToChar("Неверный выбор!\r\n", d->character.get());
-					SendMsgToChar("Вы хотите сохранить этот предмет?\r\n", d->character.get());
+					SendMsgToChar("Вы желаете сохранить этот предмет?\r\n", d->character.get());
 					break;
 			}
 			return;
@@ -1381,7 +1381,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 				case 'Q':
 					if (OLC_VAL(d))    // Something has been modified.
 					{
-						SendMsgToChar("Вы хотите сохранить этот предмет? : ", d->character.get());
+						SendMsgToChar("Вы желаете сохранить этот предмет? : ", d->character.get());
 						OLC_MODE(d) = OEDIT_CONFIRM_SAVESTRING;
 					} else {
 						cleanup_olc(d, CLEANUP_ALL);

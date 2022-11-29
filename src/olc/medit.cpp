@@ -537,7 +537,8 @@ void medit_save_internally(DescriptorData *d) {
 	}
 #endif
 
-	olc_add_to_save_list(zone_table[OLC_ZNUM(d)].vnum, OLC_SAVE_MOB);
+//	olc_add_to_save_list(zone_table[OLC_ZNUM(d)].vnum, OLC_SAVE_MOB);
+	medit_save_to_disk(OLC_ZNUM(d));
 }
 
 //-------------------------------------------------------------------
@@ -547,7 +548,7 @@ void medit_save_internally(DescriptorData *d) {
  * saved in Extended format, regardless of whether they have any
  * extended fields.  Thanks to Sammy for ideas on this bit of code.
  */
-void medit_save_to_disk(int zone_num) {
+void medit_save_to_disk(ZoneRnum zone_num) {
 	struct Helper *helper;
 	int i, j, c, rmob_num, zone, top, sum;
 	FILE *mob_file;
@@ -1386,14 +1387,14 @@ void medit_parse(DescriptorData *d, char *arg) {
 				case 'д':
 				case 'Д':
 					// * Save the mob in memory and to disk.
-					SendMsgToChar("Saving mobile to memory.\r\n", d->character.get());
+//					SendMsgToChar("Saving mobile to memory a.\r\n", d->character.get());
 					medit_save_internally(d);
 					sprintf(buf, "OLC: %s edits mob %d", GET_NAME(d->character), OLC_NUM(d));
 					olc_log("%s edit mob %d", GET_NAME(d->character), OLC_NUM(d));
 					mudlog(buf, NRM, MAX(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
 					// * Do NOT free strings! Just the mob structure.
 					cleanup_olc(d, CLEANUP_STRUCTS);
-					SendMsgToChar("Mob saved to memory.\r\n", d->character.get());
+					SendMsgToChar("Моб сохранен.\r\n", d->character.get());
 					break;
 
 				case 'n':
@@ -1403,7 +1404,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 					break;
 
 				default: SendMsgToChar("Неверный выбор!\r\n", d->character.get());
-					SendMsgToChar("Вы хотите сохранить моба? : ", d->character.get());
+					SendMsgToChar("Вы желаете сохранить моба? : ", d->character.get());
 					break;
 			}
 			return;
@@ -1416,7 +1417,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 				case 'Q':
 					if (OLC_VAL(d))    // Anything been changed?
 					{
-						SendMsgToChar("Вы желаете сохранить изменения моба? (y/n): ", d->character.get());
+						SendMsgToChar("Вы желаете сохранить моба? (y/n): ", d->character.get());
 						OLC_MODE(d) = MEDIT_CONFIRM_SAVESTRING;
 					} else {
 						cleanup_olc(d, CLEANUP_ALL);
