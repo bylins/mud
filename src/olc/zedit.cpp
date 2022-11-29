@@ -415,8 +415,8 @@ void zedit_save_internally(DescriptorData *d) {
 			HelpSystem::reload(HelpSystem::STATIC);
 		}
 	}
-
-	olc_add_to_save_list(zone_table[OLC_ZNUM(d)].vnum, OLC_SAVE_ZONE);
+//	olc_add_to_save_list(zone_table[OLC_ZNUM(d)].vnum, OLC_SAVE_ZONE);
+	zedit_save_to_disk(OLC_ZNUM(d));
 }
 
 //------------------------------------------------------------------------
@@ -428,7 +428,7 @@ void zedit_save_internally(DescriptorData *d) {
  */
 #undef  ZCMD
 #define ZCMD    (zone_table[zone_num].cmd[subcmd])
-void zedit_save_to_disk(int zone_num) {
+void zedit_save_to_disk(ZoneRnum zone_num) {
 	int subcmd, arg1 = -1, arg2 = -1, arg3 = -1, arg4 = -1, i;
 	char fname[64];
 	const char *comment = nullptr;
@@ -1367,7 +1367,7 @@ void zedit_parse(DescriptorData *d, char *arg) {
 				case 'д':
 				case 'Д':
 					// * Save the zone in memory, hiding invisible people.
-					SendMsgToChar("Сохраняю зону в памяти.\r\n", d->character.get());
+					SendMsgToChar("Зона сохранена.\r\n", d->character.get());
 					zedit_save_internally(d);
 					sprintf(buf, "OLC: %s edits zone info for room %d.", GET_NAME(d->character), OLC_NUM(d));
 					olc_log("%s edit zone %d", GET_NAME(d->character), OLC_NUM(d));
@@ -1379,7 +1379,7 @@ void zedit_parse(DescriptorData *d, char *arg) {
 				case 'Н': cleanup_olc(d, CLEANUP_ALL);
 					break;
 				default: SendMsgToChar("Неверный выбор!\r\n", d->character.get());
-					SendMsgToChar("Вы желаете сохранить зону в памяти? : ", d->character.get());
+					SendMsgToChar("Вы желаете сохранить зону? : ", d->character.get());
 					break;
 			}
 			break;
@@ -1390,7 +1390,7 @@ void zedit_parse(DescriptorData *d, char *arg) {
 				case 'x':
 				case 'X':
 					if (OLC_ZONE(d)->age || OLC_ZONE(d)->vnum) {
-						SendMsgToChar("Вы желаете сохранить изменения зоны в памяти? (y/n) : ", d->character.get());
+						SendMsgToChar("Вы желаете сохранить зону? (y/n) : ", d->character.get());
 						OLC_MODE(d) = ZEDIT_CONFIRM_SAVESTRING;
 					} else {
 						SendMsgToChar("Не было изменений.\r\n", d->character.get());

@@ -111,6 +111,7 @@ ObjData::shared_ptr WorldObjects::create_from_prototype_by_rnum(ObjRnum rnum) {
 			new_object->set_timer(TEST_OBJECT_TIMER);
 			new_object->set_extra_flag(EObjFlag::kNolocate);
 			new_object->set_extra_flag(EObjFlag::KLimitedTimer);
+			new_object->set_extra_flag(EObjFlag::kTransformed);
 		}
 
 		new_object->clear_proto_script();

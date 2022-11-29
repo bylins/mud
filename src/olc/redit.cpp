@@ -262,12 +262,13 @@ void redit_save_internally(DescriptorData *d) {
 	assign_triggers(world[room_num], WLD_TRIGGER);
 	if (zone_table[OLC_ZNUM(d)].LastRoomVnum < OLC_NUM(d))
 		zone_table[OLC_ZNUM(d)].LastRoomVnum = OLC_NUM(d);
-	olc_add_to_save_list(zone_table[OLC_ZNUM(d)].vnum, OLC_SAVE_ROOM);
+//	olc_add_to_save_list(zone_table[OLC_ZNUM(d)].vnum, OLC_SAVE_ROOM);
+	redit_save_to_disk(OLC_ZNUM(d));
 }
 
 //------------------------------------------------------------------------
 
-void redit_save_to_disk(int zone_num) {
+void redit_save_to_disk(ZoneRnum zone_num) {
 	int counter, counter2, realcounter;
 	FILE *fp;
 	RoomData *room;
@@ -573,7 +574,7 @@ void redit_parse(DescriptorData *d, char *arg) {
 					mudlog(buf, NRM, std::max(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
 					// * Do NOT free strings! Just the room structure.
 					cleanup_olc(d, CLEANUP_STRUCTS);
-					SendMsgToChar("Room saved to memory.\r\n", d->character.get());
+					SendMsgToChar("Комната сохранена.\r\n", d->character.get());
 					break;
 
 				case 'n':
@@ -584,7 +585,7 @@ void redit_parse(DescriptorData *d, char *arg) {
 					cleanup_olc(d, CLEANUP_ALL);
 					break;
 				default:
-					SendMsgToChar("Неверный выбор!\r\nВы желаете сохранить комнату в памяти? : ",
+					SendMsgToChar("Неверный выбор!\r\nВы желаете сохранить комнату? : ",
 								 d->character.get());
 					break;
 			}
@@ -596,7 +597,7 @@ void redit_parse(DescriptorData *d, char *arg) {
 				case 'Q':
 					if (OLC_VAL(d))    // Something has been modified.
 					{
-						SendMsgToChar("Вы желаете сохранить комнату в памяти? : ", d->character.get());
+						SendMsgToChar("Вы желаете сохранить комнату? : ", d->character.get());
 						OLC_MODE(d) = REDIT_CONFIRM_SAVESTRING;
 					} else {
 						cleanup_olc(d, CLEANUP_ALL);
