@@ -1640,7 +1640,8 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 				} else {
 					PlaceObjToInventory(temp, obj->get_worn_by());
 				}
-			} else if (obj->get_in_room() != kNowhere && temp->has_flag(EObjFlag::kTicktimer)) {
+			} else if (obj->get_in_room() != kNowhere
+					&& (IS_CORPSE(obj) || temp->has_flag(EObjFlag::kTicktimer))) {
 				PlaceObjToRoom(temp, obj->get_in_room());
 				CheckObjDecay(temp);
 			} else if (obj->get_in_obj()) {

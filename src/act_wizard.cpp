@@ -2383,8 +2383,10 @@ void do_inspect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		sprintf(clanstatus, "%s", "нет");
 		if ((load_char(player_table[i].name(), &vict)) > -1) {
 			Clan::SetClanData(&vict);
-			if (CLAN(&vict))
+			if (CLAN(&vict)) {
 				sprintf(clanstatus, "%s", (&vict)->player_specials->clan->GetAbbrev());
+			}
+			show_pun(&vict, buf2);
 		}
 		strcpy(smallBuf, MUD::Class(player_table[i].plr_class).GetCName());
 		time_t mytime = player_table[i].last_logon;
@@ -2405,7 +2407,7 @@ void do_inspect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 			}
 
-			show_pun(vict.get(), buf2);
+//			show_pun(vict.get(), buf2);
 			if (vict && !LOGON_LIST(vict).empty()) {
 #ifdef TEST_BUILD
 				log("filling logon list");
