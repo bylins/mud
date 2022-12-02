@@ -2221,6 +2221,7 @@ void SpellSummonAngel(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData
 	float additional_shields_for_charisma = 0.0454; // 0.72 shield at 16 charisma, 1 shield at 23 charisma. 45 for 2 shields
 	int count_shields = base_shields + floorf(eff_cha * additional_shields_for_charisma);
 	if (count_shields > 0) {
+		MOB_FLAGS(mob).set(EMobFlag::kNoHold);
 		af.bitvector = to_underlying(EAffect::kAirShield);
 		affect_to_char(mob, af);
 	}
@@ -2300,7 +2301,8 @@ void SpellSummonAngel(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData
 	mob->set_skill(ESkill::kRescue, floorf(base_rescue + additional_rescue_for_charisma * eff_cha));
 	mob->set_skill(ESkill::kAwake, floorf(base_awake + additional_awake_for_charisma * eff_cha));
 	mob->set_skill(ESkill::kMultiparry, floorf(base_multiparry + additional_multiparry_for_charisma * eff_cha));
-	int base_spell = 2;
+
+	int base_spell = 2 + count_shields;
 	SET_SPELL_MEM(mob, ESpell::kCureBlind, base_spell);
 	SET_SPELL_MEM(mob, ESpell::kRemoveHold, base_spell);
 	SET_SPELL_MEM(mob, ESpell::kRemovePoison, base_spell);
