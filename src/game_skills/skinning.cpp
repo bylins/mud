@@ -311,15 +311,15 @@ void DoSkinning(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	auto obj = get_obj_in_list_vis(ch, arg, ch->carrying);
+//	auto obj = get_obj_in_list_vis(ch, arg, ch->carrying);
+//	if (!obj) {
+	auto obj = get_obj_in_list_vis(ch, arg, world[ch->in_room]->contents);
 	if (!obj) {
-		obj = get_obj_in_list_vis(ch, arg, world[ch->in_room]->contents);
-		if (!obj) {
-			snprintf(buf, kMaxInputLength, "Вы не видите здесь '%s'.\r\n", arg);
-			SendMsgToChar(buf, ch);
-			return;
-		}
+		snprintf(buf, kMaxInputLength, "Вы не видите здесь '%s'.\r\n", arg);
+		SendMsgToChar(buf, ch);
+		return;
 	}
+//	}
 
 	const auto mobn = GET_OBJ_VAL(obj, 2);
 	if (!IS_CORPSE(obj) || mobn < 0) {

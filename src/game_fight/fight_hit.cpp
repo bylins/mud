@@ -2366,7 +2366,10 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		if (flags[fight::kCritHit] && (GetRealLevel(victim) >= 5 || !ch->IsNpc())
 			&& !AFF_FLAGGED(victim, EAffect::kPrismaticAura)
 			&& !flags[fight::kVictimIceShield]) {
-			dam = MAX(dam, MIN(GET_REAL_MAX_HIT(victim) / 8, dam * 2)); //крит
+			int tmpdam = std::min(GET_REAL_MAX_HIT(victim) / 8, dam * 2);
+			tmpdam = ApplyResist(victim, EResist::kVitality, dam);
+			dam = MAX(dam, tmpdam); //крит
+//			dam = MAX(dam, MIN(GET_REAL_MAX_HIT(victim) / 8, dam * 2)); //крит
 		}
 		// полное поглощение
 		if (shield_full_absorb || armor_full_absorb) {
