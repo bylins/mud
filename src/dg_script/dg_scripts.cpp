@@ -1888,8 +1888,7 @@ void find_replacement(void *go,
 					ch = (CharData *) go;
 					for (const auto c : world[ch->in_room]->people) {
 						if (GET_INVIS_LEV(c)
-							|| (c == ch)
-							|| !CAN_SEE(ch, c)) {
+							|| (c == ch)) {
 							continue;
 						}
 
@@ -2922,10 +2921,9 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "people")) {
 			//const auto first_char = world[IN_ROOM(c)]->first_character();
 			const auto room = world[IN_ROOM(c)]->people;
-			const auto first_char = std::find_if(room.begin(), room.end(),
-												 [](CharData *ch) {
-													 return !GET_INVIS_LEV(ch);
-												 });
+			const auto first_char = std::find_if(room.begin(), room.end(), [](CharData *ch) {
+				return !GET_INVIS_LEV(ch);
+			});
 
 			if (first_char != room.end()) {
 				sprintf(str, "%c%ld", UID_CHAR, GET_ID(*first_char));
@@ -2963,7 +2961,7 @@ void find_replacement(void *go,
 
 			size_t str_length = strlen(str);
 			for (const auto rndm : world[inroom]->people) {
-				if (!CAN_SEE(c, rndm)
+				if ((c == rndm)
 					|| GET_INVIS_LEV(rndm)) {
 					continue;
 				}
