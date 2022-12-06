@@ -16,6 +16,7 @@
 #include "structs/global_objects.h"
 
 extern char *help;
+extern int top_imrecipes;
 
 namespace PrintActivators {
 
@@ -556,6 +557,130 @@ void init_zone_all() {
 	add_static("зоны", out.str(), 0, true);
 }
 
+std::string OutRecipiesHelp(ECharClass ch_class) {
+	std::stringstream out, out2;
+	std::string tmpstr;
+	int columns = 0, columns1 = 0;
+
+	out << "Список доступных рецептов:\r\n";
+	out2 << "\r\n\r\nРецепты, доступные после одного или нескольких перевоплощений:\r\n";
+	for (int sortpos = 0; sortpos <= top_imrecipes; sortpos++) {
+		if (!imrecipes[sortpos].classknow[to_underlying(ch_class)]) {
+				continue;
+		}
+		if (imrecipes[sortpos].remort > 0) {
+			tmpstr = !(++columns1 % 2) ? "\r\n" : "\t";
+			out2 << "\t" << std::left << std::setw(30) << imrecipes[sortpos].name << tmpstr;
+			continue;
+		}
+	tmpstr = !(++columns % 2) ? "\r\n" : "\t";
+	out << "\t" << std::left << std::setw(30) << imrecipes[sortpos].name << tmpstr;
+	}
+	out << out2.str() << "\r\n";
+	return out.str();
+}
+
+void ClassRecipiesHelp() {
+	std::stringstream out;
+
+	out << "ОТВАРЫЛЕКАРЯ РЕЦЕПТЫЛЕКАРЯ\r\n\r\n";
+	out << OutRecipiesHelp(ECharClass::kSorcerer);
+	out << "\r\nСм. также: &CЛЕКАРЬ, УМЕНИЯЛЕКАРЯ, ЗАКЛИНАНИЯЛЕКАРЯ, СПОСОБНОСТИЛЕКАРЯ&n";
+	add_static("РЕЦЕПТЫЛЕКАРЯ", out.str(), 0, true);
+	add_static("ОТВАРЫЛЕКАРЯ", out.str(), 0, true);
+
+	out.str("");
+	out << "ОТВАРЫКОЛДУНА РЕЦЕПТЫКОЛДУНА\r\n\r\n";
+	out << OutRecipiesHelp(ECharClass::kConjurer);
+	out << "\r\nСм. также: &CКОЛДУН, УМЕНИЯКОЛДУНА, ЗАКЛИНАНИЯКОЛДУНА, СПОСОБНОСТИКОЛДУНА&n";
+	add_static("РЕЦЕПТЫКОЛДУНА", out.str(), 0, true);
+	add_static("ОТВАРЫКОЛДУНА", out.str(), 0, true);
+
+	out.str("");
+	out << "ОТВАРЫТАТЯ РЕЦЕПТЫТАТЯ\r\n\r\n";
+	out << OutRecipiesHelp(ECharClass::kThief);
+	out << "\r\nСм. также: &CТАТЬ, УМЕНИЯТАТЯ, СПОСОБНОСТИТАТЯ&n";
+	add_static("РЕЦЕПТЫТАТЯ", out.str(), 0, true);
+	add_static("ОТВАРЫТАТЯ", out.str(), 0, true);
+
+	out.str("");
+	out << "ОТВАРЫБОГАТЫРЯ РЕЦЕПТЫБОГАТЫРЯ\r\n\r\n";
+	out << OutRecipiesHelp(ECharClass::kWarrior);
+	out << "\r\nСм. также: &CБОГАТЫРЬ, УМЕНИЯБОГАТЫРЯ, СПОСОБНОСТИБОГАТЫРЯ&n";
+	add_static("РЕЦЕПТЫБОГАТЫРЯ", out.str(), 0, true);
+	add_static("ОТВАРЫБОГАТЫРЯ", out.str(), 0, true);
+
+	out.str("");
+	out << "ОТВАРЫНАЕМНИКА РЕЦЕПТЫНАЕМНИКА\r\n\r\n";
+	out << OutRecipiesHelp(ECharClass::kAssasine);
+	out << "\r\nСм. также: &CНАЕМНИК, УМЕНИЯНАЕМНИКА, СПОСОБНОСТИНАЕМНИКА&n";
+	add_static("РЕЦЕПТЫНАЕМНИКА", out.str(), 0, true);
+	add_static("ОТВАРЫНАЕМНИКА", out.str(), 0, true);
+
+	out.str("");
+	out << "ОТВАРЫДРУЖИННИКА РЕЦЕПТЫДРУЖИННИКА\r\n\r\n";
+	out << OutRecipiesHelp(ECharClass::kGuard);
+	out << "\r\nСм. также: &CДРУЖИННИК, УМЕНИЯДРУЖИННИКА, СПОСОБНОСТИДРУЖИННИКА&n";
+	add_static("РЕЦЕПТЫДРУЖИННИКА", out.str(), 0, true);
+	add_static("ОТВАРЫДРУЖИННИКА", out.str(), 0, true);
+
+	out.str("");
+	out << "ОТВАРЫКУДЕСНИКА РЕЦЕПТЫКУДЕСНИКА\r\n\r\n";
+	out << OutRecipiesHelp(ECharClass::kCharmer);
+	out << "\r\nСм. также:КУДЕСНИК, УМЕНИЯКУДЕСНИКА, ЗАКЛИНАНИЯКУДЕСНИКА, СПОСОБНОСТИКУДЕСНИКА&n";
+	add_static("РЕЦЕПТЫКУДЕСНИКА", out.str(), 0, true);
+	add_static("ОТВАРЫКУДЕСНИКА", out.str(), 0, true);
+
+	out.str("");
+	out << "ОТВАРЫВОЛШЕБНИКА РЕЦЕПТЫВОЛШЕБНИКА\r\n\r\n";
+	out << OutRecipiesHelp(ECharClass::kWizard);
+	out << "\r\nСм. также: &CВОЛШЕБНИК, УМЕНИЯВОЛШЕБНИКА, ЗАКЛИНАНИЯВОЛШЕБНИКА, СПОСОБНОСТИВОЛШЕБНИКА&n";
+	add_static("РЕЦЕПТЫВОЛШЕБНИКА", out.str(), 0, true);
+	add_static("ОТВАРЫВОЛШЕБНИКА", out.str(), 0, true);
+
+	out.str("");
+	out << "ОТВАРЫЧЕРНОКНИЖНИКА РЕЦЕПТЫЧЕРНОКНИЖНИКА\r\n\r\n";
+	out << OutRecipiesHelp(ECharClass::kNecromancer);
+	out << "\r\nСм. также: &CЧЕРНОКНИЖНИК, УМЕНИЯЧЕРНОКНИЖНИКА, ЗАКЛИНАНИЯЧЕРНОКНИЖНИКА, СПОСОБНОСТИЧЕРНОКНИЖНИКА&n";
+	add_static("РЕЦЕПТЫЧЕРНОКНИЖНИКА", out.str(), 0, true);
+	add_static("ОТВАРЫЧЕРНОКНИЖНИКА", out.str(), 0, true);
+
+	out.str("");
+	out << "ОТВАРЫВИТЯЗЯ РЕЦЕПТЫВИТЯЗЯ\r\n\r\n";
+	out << OutRecipiesHelp(ECharClass::kPaladine);
+	out << "\r\nСм. также: &CВИТЯЗЬ, УМЕНИЯВИТЯЗЯ, ЗАКЛИНАНИЯВИТЯЗЯ, СПОСОБНОСТИВИТЯЗЯ&n";
+	add_static("РЕЦЕПТЫВИТЯЗЯ", out.str(), 0, true);
+	add_static("ОТВАРЫВИТЯЗЯ", out.str(), 0, true);
+
+	out.str("");
+	out << "ОТВАРЫОХОТНИКА РЕЦЕПТЫОХОТНИКА\r\n\r\n";
+	out << OutRecipiesHelp(ECharClass::kRanger);
+	out << "\r\nСм. также: &CОХОТНИК, УМЕНИЯОХОТНИКА, СПОСОБНОСТИОХОТНИКА&n";
+	add_static("РЕЦЕПТЫОХОТНИКА", out.str(), 0, true);
+	add_static("ОТВАРЫОХОТНИКА", out.str(), 0, true);
+
+	out.str("");
+	out << "ОТВАРЫКУЗНЕЦА РЕЦЕПТЫКУЗНЕЦА\r\n\r\n";
+	out << OutRecipiesHelp(ECharClass::kVigilant);
+	out << "\r\nСм. также: &CКУЗНЕЦ, УМЕНИЯКУЗНЕЦА, СПОСОБНОСТИКУЗНЕЦА&n";
+	add_static("РЕЦЕПТЫКУЗНЕЦА", out.str(), 0, true);
+	add_static("ОТВАРЫКУЗНЕЦА", out.str(), 0, true);
+
+	out.str("");
+	out << "ОТВАРЫКУПЦА РЕЦЕПТЫКУПЦА\r\n\r\n";
+	out << OutRecipiesHelp(ECharClass::kMerchant);
+	out << "\r\nСм. также: &CКУПЕЦ, УМЕНИЯКУПЦА, ЗАКЛИНАНИЯКУПЦА, СПОСОБНОСТИКУПЦА&n";
+	add_static("РЕЦЕПТЫКУПЦА", out.str(), 0, true);
+	add_static("ОТВАРЫКУПЦА", out.str(), 0, true);
+
+	out.str("");
+	out << "ОТВАРЫВОЛХВА РЕЦЕПТЫВОЛХВА\r\n\r\n";
+	out << OutRecipiesHelp(ECharClass::kMagus	);
+	out << "\r\nСм. также: &CВОЛХВ, УМЕНИЯВОЛХВА, ЗАКЛИНАНИЯВОЛХВА, СПОСОБНОСТИВОЛХВА&n";
+	add_static("РЕЦЕПТЫВОЛХВА", out.str(), 0, true);
+	add_static("ОТВАРЫВОЛХВА", out.str(), 0, true);
+}
+
 void init_group_zones() {
 	std::stringstream out;
 	for (std::size_t rnum = 0; rnum < zone_table.size(); ++rnum) {
@@ -580,6 +705,7 @@ void reload(Flags flag) {
 			world_loader.index_boot(DB_BOOT_HLP);
 			init_group_zones();
 			init_zone_all();
+			ClassRecipiesHelp();
 			PrintActivators::process();
 			obj_sets::init_xhelp();
 			// итоговая сортировка массива через дефолтное < для строковых ключей

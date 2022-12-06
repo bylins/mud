@@ -34,7 +34,6 @@ void do_imlist(CharData *ch, char *argument, int cmd, int subcmd);
 
 im_type *imtypes = nullptr;    // Список зарегестрированных ТИПОВ/МЕТАТИПОВ
 int top_imtypes = -1;        // Последний номер типа ИМ
-
 im_recipe *imrecipes = nullptr;    // Список зарегестрированных рецептов
 int top_imrecipes = -1;        // Последний номер рецепта ИМ
 
