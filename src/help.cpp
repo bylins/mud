@@ -547,6 +547,8 @@ void add_sets_drop(const std::string &key, const std::string &entry) {
 }
 void init_zone_all() {
 	std::stringstream out;
+
+	out << "ЗОНЫ\r\n\r\n";
 	for (std::size_t rnum = 0, i = 1; rnum < zone_table.size(); ++rnum) {
 		if (zone_table[rnum].location) {
 			out << boost::format("  %2d - %s. Расположена: %s. Группа: %d. Примерный уровень: %d.\r\n") % i
@@ -554,6 +556,7 @@ void init_zone_all() {
 			++i;
 		}
 	}
+	out << "\r\nСм. также: &CГРУППОВЫЕЗОНЫ&n";
 	add_static("зоны", out.str(), 0, true);
 }
 
@@ -563,7 +566,7 @@ std::string OutRecipiesHelp(ECharClass ch_class) {
 	int columns = 0, columns1 = 0;
 
 	out << "Список доступных рецептов:\r\n";
-	out2 << "\r\n\r\nРецепты, доступные после одного или нескольких перевоплощений:\r\n";
+	out2 << "Рецепты, доступные после одного или нескольких перевоплощений:\r\n";
 	for (int sortpos = 0; sortpos <= top_imrecipes; sortpos++) {
 		if (!imrecipes[sortpos].classknow[to_underlying(ch_class)]) {
 				continue;
@@ -576,7 +579,11 @@ std::string OutRecipiesHelp(ECharClass ch_class) {
 	tmpstr = !(++columns % 2) ? "\r\n" : "\t";
 	out << "\t" << std::left << std::setw(30) << imrecipes[sortpos].name << tmpstr;
 	}
-	out << out2.str() << "\r\n";
+	if (out.str().back() == '\t')
+		out << "\r\n";
+	if (out2.str().back() == '\t')
+		out2 << "\r\n";
+	out << out2.str();
 	return out.str();
 }
 
@@ -683,12 +690,15 @@ void ClassRecipiesHelp() {
 
 void init_group_zones() {
 	std::stringstream out;
+
+	out << "ГРУППОВЫЕЗОНЫ\r\n\r\n";
 	for (std::size_t rnum = 0; rnum < zone_table.size(); ++rnum) {
 		const auto group = zone_table[rnum].group;
 		if (group > 1) {
 			out << boost::format("  %2d - %s (гр. %d+).\r\n") % (1 + rnum) % zone_table[rnum].name % group;
 		}
 	}
+	out << "\r\nСм. также: &CЗОНЫ&n";
 	add_static("групповыезоны", out.str(), 0, true);
 }
 
