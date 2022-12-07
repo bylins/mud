@@ -384,11 +384,11 @@ void DoSkinning(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		for (const auto &it : entrails) {
 			if (it) {
-				if (obj->get_carried_by() == ch) {
+//				if (obj->get_carried_by() == ch) {
 					can_carry_obj(ch, it);
-				} else {
-					PlaceObjToRoom(it, ch->in_room);
-				}
+//				} else {
+//					PlaceObjToRoom(it, ch->in_room);
+//				}
 			}
 		}
 	}

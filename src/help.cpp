@@ -564,20 +564,32 @@ std::string OutRecipiesHelp(ECharClass ch_class) {
 	std::stringstream out, out2;
 	std::string tmpstr;
 	int columns = 0, columns2 = 0;
+	std::vector<std::string> skills_list;
+	std::vector<std::string> skills_list2;
 
 	out << "Список доступных рецептов:\r\n";
-	out2 << "Рецепты, доступные после одного или нескольких перевоплощений:\r\n";
+	out2 << "\r\n&GРецепты, доступные после одного или нескольких перевоплощений:&n\r\n";
 	for (int sortpos = 0; sortpos <= top_imrecipes; sortpos++) {
 		if (!imrecipes[sortpos].classknow[to_underlying(ch_class)]) {
 				continue;
 		}
 		if (imrecipes[sortpos].remort > 0) {
-			tmpstr = !(++columns2 % 2) ? "\r\n" : "\t";
-			out2 << "\t" << std::left << std::setw(30) << imrecipes[sortpos].name << tmpstr;
+			skills_list2.push_back(utils::SubstKtoW(imrecipes[sortpos].name));
 			continue;
 		}
-	tmpstr = !(++columns % 2) ? "\r\n" : "\t";
-	out << "\t" << std::left << std::setw(30) << imrecipes[sortpos].name << tmpstr;
+		skills_list.push_back(utils::SubstKtoW(imrecipes[sortpos].name));
+	}
+
+	std::sort(skills_list.begin(), skills_list.end());
+	for (auto it : skills_list) {
+		tmpstr = !(++columns % 2) ? "\r\n" : "\t";
+		out << "\t" << std::left << std::setw(30) << utils::SubstWtoK(it) << tmpstr;
+	}
+
+	std::sort(skills_list2.begin(), skills_list2.end());
+	for (auto it : skills_list2) {
+			tmpstr = !(++columns2 % 2) ? "\r\n" : "\t";
+			out2 << "\t" << "&C" << std::left << std::setw(30) << utils::SubstWtoK(it) << "&n" << tmpstr;
 	}
 	if (out.str().back() == '\t')
 		out << "\r\n";
