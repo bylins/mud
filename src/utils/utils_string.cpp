@@ -145,6 +145,28 @@ void ConvertToLow(std::string &text) {
 	}
 }
 
+void ConvertKtoW(std::string &text) {
+	for (char & it : text) {
+		it = KtoW(it);
+	}
+}
+
+void ConvertWtoK(std::string &text) {
+	for (char & it : text) {
+		it = WtoK(it);
+	}
+}
+
+std::string SubstKtoW(std::string s) {
+	ConvertKtoW(s);
+	return s;
+}
+
+std::string SubstWtoK(std::string s) {
+	ConvertWtoK(s);
+	return s;
+}
+
 void ConvertToLow(char *text) {
 	while (*text) {
 		*text = LOWER(*text);
