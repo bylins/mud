@@ -591,9 +591,10 @@ std::string OutSkillsHelp(ECharClass ch_class) {
 	std::stringstream out, out2;
 	std::string tmpstr;
 	int columns, columns2 = 0;
-//	std::vector<int> skills_list;
+	std::vector<std::string> skills_list;
+	std::vector<std::string> skills_list2;
 
-	out2 << "Уникальные умения:\r\n";
+	out2 << "\r\n&GУникальные умения:&n\r\n";
 	for (const auto &skill : MUD::Skills()) {
 		if (MUD::Class(ch_class).skills[skill.GetId()].IsInvalid()) {
 			continue;
@@ -607,12 +608,20 @@ std::string OutSkillsHelp(ECharClass ch_class) {
 			}
 		}
 		if (num == 1) {
-			tmpstr = !(++columns2 % 2) ? "\r\n" : "\t";
-			out2 << "\t" << "&C" << std::left << std::setw(30) << skill.GetName() << "&n" << tmpstr;
+			skills_list2.push_back(utils::SubstKtoW(skill.GetName()));
 			continue;
 		}
+		skills_list.push_back(utils::SubstKtoW(skill.GetName()));
+	}
+	std::sort(skills_list.begin(), skills_list.end());
+	for (auto it : skills_list) {
 		tmpstr = !(++columns % 2) ? "\r\n" : "\t";
-		out << "\t" << std::left << std::setw(30) << skill.GetName() << tmpstr;
+		out << "\t" << std::left << std::setw(30) << utils::SubstWtoK(it) << tmpstr;
+	}
+	std::sort(skills_list2.begin(), skills_list2.end());
+	for (auto it : skills_list2) {
+			tmpstr = !(++columns2 % 2) ? "\r\n" : "\t";
+			out2 << "\t" << "&C" << std::left << std::setw(30) << utils::SubstWtoK(it) << "&n" << tmpstr;
 	}
 	if (out.str().back() == '\t')
 		out << "\r\n";

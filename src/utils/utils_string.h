@@ -148,8 +148,19 @@ std::string TrimRightCopy(std::string s);
  */;
 std::string TrimCopy(std::string s);
 
-}
+// сконвертировать в WIN для сортировки
+void ConvertKtoW(std::string &text);
 
+// обратно
+void ConvertWtoK(std::string &text);
+
+// На копии
+std::string SubstKtoW(std::string s);
+
+// На копии
+std::string SubstWtoK(std::string s);
+
+}
 #endif // UTILS_STRING_HPP_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
