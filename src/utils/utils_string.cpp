@@ -206,6 +206,26 @@ std::string TrimCopy(std::string s) {
 	return s;
 }
 
+void SortKoiString(std::vector<std::string> &str) {
+	for (auto &it : str) {
+		ConvertKtoW(it);
+	}
+	std::sort(str.begin(), str.end(), std::less<std::string>());
+	for (auto &it : str) {
+		ConvertWtoK(it);
+	}
+}
+
+void SortKoiStringReverse(std::vector<std::string> &str) {
+	for (auto &it : str) {
+		ConvertKtoW(it);
+	}
+	std::sort(str.begin(), str.end(), std::greater<std::string>());
+	for (auto &it : str) {
+		ConvertWtoK(it);
+	}
+}
+
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

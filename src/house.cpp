@@ -499,7 +499,9 @@ void Clan::ClanLoadSingle(const std::string& index) {
 			victim->save_char();
 		}
 		Boards::Static::clan_delete_message(tempClan->abbrev, tempClan->rent / 100);
-		DestroyClan(tempClan);
+		char smallbuf[128];
+		sprintf(smallbuf, "неактивность");
+		DestroyClan(tempClan, smallbuf);
 		log("Clan deleted: %s", filename.c_str());
 	}
 
@@ -590,7 +592,9 @@ void Clan::ClanLoadSingle(const std::string& index) {
 	tempClan->chest_log.load(tempClan->get_file_abbrev());
 	if ((tempClan->bank <= 0) && (tempClan->m_members.size() > 0) && !tempClan->test_clan) {
 		Boards::Static::clan_delete_message(tempClan->abbrev, tempClan->rent / 100);
-		DestroyClan(tempClan);
+		char smallbuf[128];
+		sprintf(smallbuf, "банк_пуст");
+		DestroyClan(tempClan, smallbuf);
 		log("Clan deleted bank 0: %s", filename.c_str());
 	}
 	Clan::ClanList.push_back(tempClan);
@@ -2495,8 +2499,9 @@ void Clan::HcontrolDestroy(CharData *ch, std::string &buffer) {
 		SendMsgToChar(ch, "Дружины с номером %d не существует.\r\n", rent);
 		return;
 	}
-
-	DestroyClan(*clan);
+	char smallbuf[128];
+	sprintf(smallbuf, "распущена_богами");
+	DestroyClan(*clan, smallbuf);
 
 	SendMsgToChar("Дружина распущена.\r\n", ch);
 }
@@ -2544,16 +2549,14 @@ void Clan::fix_clan_members_load_room(Clan::shared_ptr clan) {
 	}
 }
 
-void Clan::DestroyClan(Clan::shared_ptr clan) {
+void Clan::DestroyClan(Clan::shared_ptr clan, char *reason) {
 	fix_clan_members_load_room(clan);
 	const auto members = clan->m_members;    // copy members
-	clan->m_members.clear();                    // remove all members from clan
 
 	for (const auto &clanVictim : Clan::ClanList) { //для всех кланов выставляем нейтралитет (тупо удаляем)
 		if (clan->rent != clanVictim->rent)
 			clanVictim->SetPolitics(clan->rent, kPoliticsNeutral);
 	}
-
 	clan->set_rep(0);
 	clan->builtOn = 0;
 	clan->exp = 0;
@@ -2583,13 +2586,24 @@ void Clan::DestroyClan(Clan::shared_ptr clan) {
 	clan->last_exp.fulldelete();
 	Clan::ClanSave();
 
+	char smallbuf[128];
 	for (const auto &it : members) {
 		DescriptorData *d = DescByUID(it.first);
 		if (d) {
 			Clan::SetClanData(d->character.get());
 			SendMsgToChar(d->character.get(), "Ваша дружина распущена. Желаем удачи!\r\n");
 		}
+		Player p_vict;
+		CharData *vict = &p_vict;
+		if (load_char(it.second->name.c_str(), vict) > -1) {
+			sprintf(smallbuf, "Исключен(а) из дружины '%s'. (распущена)",  clan->get_abbrev().c_str());
+			add_karma(vict, smallbuf, reason);
+			vict->save_char();
+		}
+
 	}
+	clan->m_members.clear();                    // remove all members from clan
+
 }
 
 // ктодружина (список соклановцев, находящихся онлайн)

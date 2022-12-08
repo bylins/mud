@@ -160,6 +160,12 @@ std::string SubstKtoW(std::string s);
 // На копии
 std::string SubstWtoK(std::string s);
 
+// соортировка KOI8-R строк, а-я
+void SortKoiString(std::vector<std::string> &str);
+
+// соортировка KOI8-R строк, я-а
+void SortKoiStringReverse(std::vector<std::string> &str);
+
 }
 #endif // UTILS_STRING_HPP_
 

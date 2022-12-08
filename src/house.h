@@ -339,7 +339,7 @@ class Clan {
 
 	static void HcontrolBuild(CharData *ch, std::string &buffer);
 	static void HcontrolDestroy(CharData *ch, std::string &buffer);
-	static void DestroyClan(Clan::shared_ptr clan);
+	static void DestroyClan(Clan::shared_ptr clan, char *reason);
 	static void fix_clan_members_load_room(Clan::shared_ptr clan);
 	static void hcontrol_title(CharData *ch, std::string &text);
 	static void hcontrol_rank(CharData *ch, std::string &text);
