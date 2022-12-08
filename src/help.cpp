@@ -574,22 +574,20 @@ std::string OutRecipiesHelp(ECharClass ch_class) {
 				continue;
 		}
 		if (imrecipes[sortpos].remort > 0) {
-			skills_list2.push_back(utils::SubstKtoW(imrecipes[sortpos].name));
+			skills_list2.push_back(imrecipes[sortpos].name);
 			continue;
 		}
-		skills_list.push_back(utils::SubstKtoW(imrecipes[sortpos].name));
+		skills_list.push_back(imrecipes[sortpos].name);
 	}
-
-	std::sort(skills_list.begin(), skills_list.end());
+	utils::SortKoiString(skills_list);
 	for (auto it : skills_list) {
 		tmpstr = !(++columns % 2) ? "\r\n" : "\t";
-		out << "\t" << std::left << std::setw(30) << utils::SubstWtoK(it) << tmpstr;
+		out << "\t" << std::left << std::setw(30) << it << tmpstr;
 	}
-
-	std::sort(skills_list2.begin(), skills_list2.end());
+	utils::SortKoiString(skills_list2);
 	for (auto it : skills_list2) {
 			tmpstr = !(++columns2 % 2) ? "\r\n" : "\t";
-			out2 << "\t" << "&C" << std::left << std::setw(30) << utils::SubstWtoK(it) << "&n" << tmpstr;
+			out2 << "\t" << "&C" << std::left << std::setw(30) << it << "&n" << tmpstr;
 	}
 	if (out.str().back() == '\t')
 		out << "\r\n";
