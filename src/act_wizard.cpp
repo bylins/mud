@@ -245,9 +245,10 @@ extern const char *deaf_social;
 // Adds karma string to KARMA
 void add_karma(CharData *ch, const char *punish, const char *reason) {
 	if (reason && (reason[0] != '.')) {
+		char smallbuf[kMaxInputLength];
 		time_t nt = time(nullptr);
-		sprintf(buf1, "%s :: %s [%s]\r\n", rustime(localtime(&nt)), punish, reason);
-		KARMA(ch) = str_add(KARMA(ch), buf1);
+		snprintf(smallbuf, kMaxInputLength, "%s :: %s [%s]\r\n", rustime(localtime(&nt)), punish, reason);
+		KARMA(ch) = str_add(KARMA(ch), smallbuf);
 	}
 }
 
