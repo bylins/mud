@@ -932,7 +932,9 @@ int perform_move(CharData *ch, int dir, int need_specials_check, int checkmob, C
 				if (k->follower->in_room == was_in
 					&& !k->follower->GetEnemy()
 					&& HERE(k->follower)
-					&& !AFF_FLAGGED(k->follower, EAffect::kHold)
+					&& !(AFF_FLAGGED(k->follower, EAffect::kHold)
+							|| AFF_FLAGGED(k->follower, EAffect::kStopFight)
+							|| AFF_FLAGGED(k->follower, EAffect::kMagicStopFight))
 					&& AWAKE(k->follower)
 					&& (k->follower->IsNpc()
 						|| (!PLR_FLAGGED(k->follower, EPlrFlag::kMailing)
