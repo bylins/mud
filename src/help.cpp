@@ -641,6 +641,154 @@ std::string OutSkillsHelp(ECharClass ch_class) {
 	return out.str();
 }
 
+std::string OutFeatureHelp(ECharClass ch_class) {
+	std::stringstream out, out2, out3;
+	std::string tmpstr;
+	int columns, columns2, columns3 = 0;
+	std::vector<std::string> feat_list;
+	std::vector<std::string> feat_list2;
+	std::vector<std::string> feat_list3;
+
+	out << "Приобретаемые способности:\r\n";
+	out2 << "\r\n&WУникальные приобретаемые способности:&n\r\n";
+	out3 << "\r\n&GВрожденные способности:&n\r\n";
+	for (const auto &feat : MUD::Class(ch_class).feats) {
+		int num = 0;
+
+		if (feat.IsUnavailable()) {
+			continue;
+		}
+		if (feat.IsInborn()) {
+			feat_list3.push_back(MUD::Feat(feat.GetId()).GetCName());
+			continue;
+		}
+		for (const auto &char_class: MUD::Classes()) {
+			if (char_class.IsAvailable()) {
+				for (const auto &feat2 : char_class.feats) {
+					if (feat2.GetId() == feat.GetId()) {
+						++num;
+					}
+				}
+			}
+		}
+		if (num == 1) {
+			feat_list2.push_back(MUD::Feat(feat.GetId()).GetCName());
+			continue;
+		}
+		feat_list.push_back(MUD::Feat(feat.GetId()).GetCName());
+	}
+	utils::SortKoiString(feat_list);
+	for (auto it : feat_list) {
+		tmpstr = !(++columns % 2) ? "\r\n" : "\t";
+		out << "\t" << std::left << std::setw(30) << it << tmpstr;
+	}
+	utils::SortKoiString(feat_list2);
+	for (auto it : feat_list2) {
+		tmpstr = !(++columns2 % 2) ? "\r\n" : "\t";
+		out2 << "\t" << "&C" << std::left << std::setw(30) << it << "&n" << tmpstr;
+	}
+	utils::SortKoiString(feat_list3);
+	for (auto it : feat_list3) {
+		tmpstr = !(++columns3 % 2) ? "\r\n" : "\t";
+		out3 << "\t" << "&C" << std::left << std::setw(30) << it << "&n" << tmpstr;
+	}
+	if (out.str().back() == '\t')
+		out << "\r\n";
+	if (out2.str().back() == '\t')
+		out2 << "\r\n";
+	if (out3.str().back() == '\t')
+		out3 << "\r\n";
+	out << out2.str() << out3.str();
+	return out.str();
+}
+
+void ClassFeatureHelp() {
+	std::stringstream out;
+
+	out << "СПОСОБНОСТИЛЕКАРЯ\r\n\r\n";
+	out << OutFeatureHelp(ECharClass::kSorcerer);
+	out << "\r\nСм. также: &CЛЕКАРЬ, ЗАКЛИНАНИЯЛЕКАРЯ, УМЕНИЯЛЕКАРЯ, ОТВАРЫЛЕКАРЯ&n";
+	add_static("СПОСОБНОСТИЛЕКАРЯ", out.str(), 0, true);
+
+	out.str("");
+	out << "СПОСОБНОСТИКОЛДУНА\r\n\r\n";
+	out << OutFeatureHelp(ECharClass::kConjurer);
+	out << "\r\nСм. также: &CКОЛДУН, ЗАКЛИНАНИЯКОЛДУНА, УМЕНИЯКОЛДУНА, ОТВАРЫКОЛДУНА&n";
+	add_static("СПОСОБНОСТИКОЛДУНА", out.str(), 0, true);
+
+	out.str("");
+	out << "СПОСОБНОСТИТАТЯ\r\n\r\n";
+	out << OutFeatureHelp(ECharClass::kThief);
+	out << "\r\nСм. также: &CТАТЬ, УМЕНИЯТАТЯ, ОТВАРЫТАТЯ&n";
+	add_static("СПОСОБНОСТИТАТЯ", out.str(), 0, true);
+
+	out.str("");
+	out << "СПОСОБНОСТИБОГАТЫРЯ\r\n\r\n";
+	out << OutFeatureHelp(ECharClass::kWarrior);
+	out << "\r\nСм. также: &CБОГАТЫРЬ, УМЕНИЯБОГАТЫРЯ, ОТВАРЫБОГАТЫРЯ&n";
+	add_static("СПОСОБНОСТИБОГАТЫРЯ", out.str(), 0, true);
+
+	out.str("");
+	out << "СПОСОБНОСТИНАЕМНИКА\r\n\r\n";
+	out << OutFeatureHelp(ECharClass::kAssasine);
+	out << "\r\nСм. также: &CНАЕМНИК, УМЕНИЯНАЕМНИКА, ОТВАРЫНАЕМНИКА&n";
+	add_static("СПОСОБНОСТИНАЕМНИКА", out.str(), 0, true);
+
+	out.str("");
+	out << "СПОСОБНОСТИДРУЖИННИКА\r\n\r\n";
+	out << OutFeatureHelp(ECharClass::kGuard);
+	out << "\r\nСм. также: &CДРУЖИННИК, УМЕНИЯДРУЖИННИКА, ОТВАРЫДРУЖИННИКА&n";
+	add_static("СПОСОБНОСТИДРУЖИННИКА", out.str(), 0, true);
+
+	out.str("");
+	out << "СПОСОБНОСТИКУДЕСНИКА\r\n\r\n";
+	out << OutFeatureHelp(ECharClass::kCharmer);
+	out << "\r\nСм. также:КУДЕСНИК, ОТВАРЫКУДЕСНИКА, ЗАКЛИНАНИЯКУДЕСНИКА, УМЕНИЯКУДЕСНИКА&n";
+	add_static("СПОСОБНОСТИКУДЕСНИКА", out.str(), 0, true);
+
+	out.str("");
+	out << "СПОСОБНОСТИВОЛШЕБНИКА\r\n\r\n";
+	out << OutFeatureHelp(ECharClass::kWizard);
+	out << "\r\nСм. также: &CВОЛШЕБНИК, ОТВАРЫВОЛШЕБНИКА, ЗАКЛИНАНИЯВОЛШЕБНИКА, УМЕНИЯВОЛШЕБНИКА&n";
+	add_static("СПОСОБНОСТИВОЛШЕБНИКА", out.str(), 0, true);
+
+	out.str("");
+	out << "СПОСОБНОСТИЧЕРНОКНИЖНИКА\r\n\r\n";
+	out << OutFeatureHelp(ECharClass::kNecromancer);
+	out << "\r\nСм. также: &CЧЕРНОКНИЖНИК, ОТВАРЫЧЕРНОКНИЖНИКА, ЗАКЛИНАНИЯЧЕРНОКНИЖНИКА, УМЕНИЯЧЕРНОКНИЖНИКА&n";
+	add_static("СПОСОБНОСТИЧЕРНОКНИЖНИКА", out.str(), 0, true);
+
+	out.str("");
+	out << "СПОСОБНОСТИВИТЯЗЯ\r\n\r\n";
+	out << OutFeatureHelp(ECharClass::kPaladine);
+	out << "\r\nСм. также: &CВИТЯЗЬ, ОТВАРЫВИТЯЗЯ, ЗАКЛИНАНИЯВИТЯЗЯ, УМЕНИЯВИТЯЗЯ&n";
+	add_static("СПОСОБНОСТИВИТЯЗЯ", out.str(), 0, true);
+
+	out.str("");
+	out << "СПОСОБНОСТИОХОТНИКА\r\n\r\n";
+	out << OutFeatureHelp(ECharClass::kRanger);
+	out << "\r\nСм. также: &CОХОТНИК, ОТВАРЫОХОТНИКА, УМЕНИЯОХОТНИКА&n";
+	add_static("СПОСОБНОСТИОХОТНИКА", out.str(), 0, true);
+
+	out.str("");
+	out << "СПОСОБНОСТИКУЗНЕЦА\r\n\r\n";
+	out << OutFeatureHelp(ECharClass::kVigilant);
+	out << "\r\nСм. также: &CКУЗНЕЦ, ОТВАРЫКУЗНЕЦА, УМЕНИЯКУЗНЕЦА&n";
+	add_static("СПОСОБНОСТИКУЗНЕЦА", out.str(), 0, true);
+
+	out.str("");
+	out << "СПОСОБНОСТИКУПЦА\r\n\r\n";
+	out << OutFeatureHelp(ECharClass::kMerchant);
+	out << "\r\nСм. также: &CКУПЕЦ, ОТВАРЫКУПЦА, ЗАКЛИНАНИЯКУПЦА, УМЕНИЯКУПЦА&n";
+	add_static("СПОСОБНОСТИКУПЦА", out.str(), 0, true);
+
+	out.str("");
+	out << "СПОСОБНОСТИВОЛХВА\r\n\r\n";
+	out << OutFeatureHelp(ECharClass::kMagus);
+	out << "\r\nСм. также: &CВОЛХВ, ОТВАРЫВОЛХВА, ЗАКЛИНАНИЯВОЛХВА, УМЕНИЯВОЛХВА&n";
+	add_static("СПОСОБНОСТИВОЛХВА", out.str(), 0, true);
+}
+
 void ClassSlillHelp() {
 	std::stringstream out;
 
@@ -653,7 +801,6 @@ void ClassSlillHelp() {
 	out << "УМЕНИЯКОЛДУНА\r\n\r\n";
 	out << OutSkillsHelp(ECharClass::kConjurer);
 	out << "\r\nСм. также: &CКОЛДУН, ЗАКЛИНАНИЯКОЛДУНА, СПОСОБНОСТИКОЛДУНА, ОТВАРЫКОЛДУНА&n";
-	add_static("РЕЦЕПТЫКОЛДУНА", out.str(), 0, true);
 	add_static("УМЕНИЯКОЛДУНА", out.str(), 0, true);
 
 	out.str("");
@@ -859,6 +1006,7 @@ void reload(Flags flag) {
 			init_zone_all();
 			ClassRecipiesHelp();
 			ClassSlillHelp();
+			ClassFeatureHelp();
 			PrintActivators::process();
 			obj_sets::init_xhelp();
 			// итоговая сортировка массива через дефолтное < для строковых ключей
