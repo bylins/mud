@@ -174,6 +174,20 @@ void ConvertToLow(char *text) {
 	}
 }
 
+std::string ConvertStrToLow(std::string s) {
+	for (char & it : s) {
+		it = UPPER(it);
+	}
+	return s;
+}
+
+std::string ConvertStrToUpper(std::string s) {
+	for (char & it : s) {
+		it = UPPER(it);
+	}
+	return s;
+}
+
 void TrimLeft(std::string &s) {
 	s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
 		return !std::isspace(ch);
