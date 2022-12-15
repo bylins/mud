@@ -1781,6 +1781,24 @@ void find_replacement(void *go,
 			}
 				//Polud world.maxobj(vnum) показывает максимальное количество предметов в мире,
 				//которое прописано в самом предмете с указанным vnum
+			else if ((!str_cmp(field, "nomaxobj") || !str_cmp(field, "nomaxbjs")) && num > 0) {
+				const auto rnum = real_object(num);
+				if (rnum >= 0) {
+					// если у прототипа беск.таймер,
+					// то их оч много в мире
+					if (check_unlimited_timer(obj_proto[rnum].get()) || (GET_OBJ_MIW(obj_proto[rnum]) < 0)) {
+						sprintf(str, "1");
+						return;
+					}
+					const auto count = count_obj_vnum(rnum);
+					if (count < GET_OBJ_MIW(obj_proto[rnum])) {
+						sprintf(str, "1");
+						return;
+					}
+					sprintf(str, "0");
+					return;
+				}
+			}
 			else if ((!str_cmp(field, "maxobj") || !str_cmp(field, "maxobjs")) && num > 0) {
 				num = real_object(num);
 				if (num >= 0) {

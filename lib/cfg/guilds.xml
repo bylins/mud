@@ -245,6 +245,11 @@
                 <price currency="kKuna" start="3" remort_percent="400"/>
                 <upgrade practices="10" min="0" max="10"/>
             </skill>
+            <skill id="kRepair" fail="0">
+                <class val="kVigilant"/>
+                <price currency="kKuna" start="3" remort_percent="400"/>
+                <upgrade practices="10" min="0" max="10"/>
+            </skill>
         </talents>
     </guild>
 
