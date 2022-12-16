@@ -166,6 +166,12 @@ void SortKoiString(std::vector<std::string> &str);
 // соортировка KOI8-R строк, я-а
 void SortKoiStringReverse(std::vector<std::string> &str);
 
+// строку в нижний регистр
+std::string ConvertStrToLow(std::string s);
+
+// строку в верхний регистр
+std::string ConvertStrToUpper(std::string s);
+
 }
 #endif // UTILS_STRING_HPP_
 

@@ -512,8 +512,8 @@ void add_static(const std::string &key, const std::string &entry,
 			key.c_str(), entry.c_str(), __FILE__, __LINE__, __func__);
 		return;
 	}
-
-	help_node tmp_node(key, entry);
+	std::string tmpentry = utils::ConvertStrToUpper(key) + "\r\n\r\n" + entry;
+	help_node tmp_node(key, tmpentry);
 	tmp_node.min_level = min_level;
 	tmp_node.no_immlog = no_immlog;
 	static_help.push_back(tmp_node);
@@ -548,7 +548,6 @@ void add_sets_drop(const std::string &key, const std::string &entry) {
 void init_zone_all() {
 	std::stringstream out;
 
-	out << "ЗОНЫ\r\n\r\n";
 	for (std::size_t rnum = 0, i = 1; rnum < zone_table.size(); ++rnum) {
 		if (zone_table[rnum].location) {
 			out << boost::format("  %2d - %s. Расположена: %s. Группа: %d. Примерный уровень: %d.\r\n") % i
@@ -705,85 +704,71 @@ std::string OutFeatureHelp(ECharClass ch_class) {
 void ClassFeatureHelp() {
 	std::stringstream out;
 
-	out << "СПОСОБНОСТИЛЕКАРЯ\r\n\r\n";
 	out << OutFeatureHelp(ECharClass::kSorcerer);
 	out << "\r\nСм. также: &CЛЕКАРЬ, ЗАКЛИНАНИЯЛЕКАРЯ, УМЕНИЯЛЕКАРЯ, ОТВАРЫЛЕКАРЯ&n";
 	add_static("СПОСОБНОСТИЛЕКАРЯ", out.str(), 0, true);
 
 	out.str("");
-	out << "СПОСОБНОСТИКОЛДУНА\r\n\r\n";
 	out << OutFeatureHelp(ECharClass::kConjurer);
 	out << "\r\nСм. также: &CКОЛДУН, ЗАКЛИНАНИЯКОЛДУНА, УМЕНИЯКОЛДУНА, ОТВАРЫКОЛДУНА&n";
 	add_static("СПОСОБНОСТИКОЛДУНА", out.str(), 0, true);
 
 	out.str("");
-	out << "СПОСОБНОСТИТАТЯ\r\n\r\n";
 	out << OutFeatureHelp(ECharClass::kThief);
 	out << "\r\nСм. также: &CТАТЬ, УМЕНИЯТАТЯ, ОТВАРЫТАТЯ&n";
 	add_static("СПОСОБНОСТИТАТЯ", out.str(), 0, true);
 
 	out.str("");
-	out << "СПОСОБНОСТИБОГАТЫРЯ\r\n\r\n";
 	out << OutFeatureHelp(ECharClass::kWarrior);
 	out << "\r\nСм. также: &CБОГАТЫРЬ, УМЕНИЯБОГАТЫРЯ, ОТВАРЫБОГАТЫРЯ&n";
 	add_static("СПОСОБНОСТИБОГАТЫРЯ", out.str(), 0, true);
 
 	out.str("");
-	out << "СПОСОБНОСТИНАЕМНИКА\r\n\r\n";
 	out << OutFeatureHelp(ECharClass::kAssasine);
 	out << "\r\nСм. также: &CНАЕМНИК, УМЕНИЯНАЕМНИКА, ОТВАРЫНАЕМНИКА&n";
 	add_static("СПОСОБНОСТИНАЕМНИКА", out.str(), 0, true);
 
 	out.str("");
-	out << "СПОСОБНОСТИДРУЖИННИКА\r\n\r\n";
 	out << OutFeatureHelp(ECharClass::kGuard);
 	out << "\r\nСм. также: &CДРУЖИННИК, УМЕНИЯДРУЖИННИКА, ОТВАРЫДРУЖИННИКА&n";
 	add_static("СПОСОБНОСТИДРУЖИННИКА", out.str(), 0, true);
 
 	out.str("");
-	out << "СПОСОБНОСТИКУДЕСНИКА\r\n\r\n";
 	out << OutFeatureHelp(ECharClass::kCharmer);
 	out << "\r\nСм. также:КУДЕСНИК, ОТВАРЫКУДЕСНИКА, ЗАКЛИНАНИЯКУДЕСНИКА, УМЕНИЯКУДЕСНИКА&n";
 	add_static("СПОСОБНОСТИКУДЕСНИКА", out.str(), 0, true);
 
 	out.str("");
-	out << "СПОСОБНОСТИВОЛШЕБНИКА\r\n\r\n";
 	out << OutFeatureHelp(ECharClass::kWizard);
 	out << "\r\nСм. также: &CВОЛШЕБНИК, ОТВАРЫВОЛШЕБНИКА, ЗАКЛИНАНИЯВОЛШЕБНИКА, УМЕНИЯВОЛШЕБНИКА&n";
 	add_static("СПОСОБНОСТИВОЛШЕБНИКА", out.str(), 0, true);
 
 	out.str("");
-	out << "СПОСОБНОСТИЧЕРНОКНИЖНИКА\r\n\r\n";
 	out << OutFeatureHelp(ECharClass::kNecromancer);
 	out << "\r\nСм. также: &CЧЕРНОКНИЖНИК, ОТВАРЫЧЕРНОКНИЖНИКА, ЗАКЛИНАНИЯЧЕРНОКНИЖНИКА, УМЕНИЯЧЕРНОКНИЖНИКА&n";
 	add_static("СПОСОБНОСТИЧЕРНОКНИЖНИКА", out.str(), 0, true);
 
 	out.str("");
-	out << "СПОСОБНОСТИВИТЯЗЯ\r\n\r\n";
 	out << OutFeatureHelp(ECharClass::kPaladine);
 	out << "\r\nСм. также: &CВИТЯЗЬ, ОТВАРЫВИТЯЗЯ, ЗАКЛИНАНИЯВИТЯЗЯ, УМЕНИЯВИТЯЗЯ&n";
 	add_static("СПОСОБНОСТИВИТЯЗЯ", out.str(), 0, true);
 
 	out.str("");
-	out << "СПОСОБНОСТИОХОТНИКА\r\n\r\n";
 	out << OutFeatureHelp(ECharClass::kRanger);
 	out << "\r\nСм. также: &CОХОТНИК, ОТВАРЫОХОТНИКА, УМЕНИЯОХОТНИКА&n";
 	add_static("СПОСОБНОСТИОХОТНИКА", out.str(), 0, true);
 
 	out.str("");
-	out << "СПОСОБНОСТИКУЗНЕЦА\r\n\r\n";
 	out << OutFeatureHelp(ECharClass::kVigilant);
 	out << "\r\nСм. также: &CКУЗНЕЦ, ОТВАРЫКУЗНЕЦА, УМЕНИЯКУЗНЕЦА&n";
 	add_static("СПОСОБНОСТИКУЗНЕЦА", out.str(), 0, true);
 
 	out.str("");
-	out << "СПОСОБНОСТИКУПЦА\r\n\r\n";
 	out << OutFeatureHelp(ECharClass::kMerchant);
 	out << "\r\nСм. также: &CКУПЕЦ, ОТВАРЫКУПЦА, ЗАКЛИНАНИЯКУПЦА, УМЕНИЯКУПЦА&n";
 	add_static("СПОСОБНОСТИКУПЦА", out.str(), 0, true);
 
 	out.str("");
-	out << "СПОСОБНОСТИВОЛХВА\r\n\r\n";
 	out << OutFeatureHelp(ECharClass::kMagus);
 	out << "\r\nСм. также: &CВОЛХВ, ОТВАРЫВОЛХВА, ЗАКЛИНАНИЯВОЛХВА, УМЕНИЯВОЛХВА&n";
 	add_static("СПОСОБНОСТИВОЛХВА", out.str(), 0, true);
@@ -792,85 +777,71 @@ void ClassFeatureHelp() {
 void ClassSlillHelp() {
 	std::stringstream out;
 
-	out << "УМЕНИЯЛЕКАРЯ\r\n\r\n";
 	out << OutSkillsHelp(ECharClass::kSorcerer);
 	out << "\r\nСм. также: &CЛЕКАРЬ, ЗАКЛИНАНИЯЛЕКАРЯ, СПОСОБНОСТИЛЕКАРЯ, ОТВАРЫЛЕКАРЯ&n";
 	add_static("УМЕНИЯЛЕКАРЯ", out.str(), 0, true);
 
 	out.str("");
-	out << "УМЕНИЯКОЛДУНА\r\n\r\n";
 	out << OutSkillsHelp(ECharClass::kConjurer);
 	out << "\r\nСм. также: &CКОЛДУН, ЗАКЛИНАНИЯКОЛДУНА, СПОСОБНОСТИКОЛДУНА, ОТВАРЫКОЛДУНА&n";
 	add_static("УМЕНИЯКОЛДУНА", out.str(), 0, true);
 
 	out.str("");
-	out << "УМЕНИЯТАТЯ\r\n\r\n";
 	out << OutSkillsHelp(ECharClass::kThief);
 	out << "\r\nСм. также: &CТАТЬ, СПОСОБНОСТИТАТЯ, ОТВАРЫТАТЯ&n";
 	add_static("УМЕНИЯТАТЯ", out.str(), 0, true);
 
 	out.str("");
-	out << "УМЕНИЯБОГАТЫРЯ\r\n\r\n";
 	out << OutSkillsHelp(ECharClass::kWarrior);
 	out << "\r\nСм. также: &CБОГАТЫРЬ, СПОСОБНОСТИБОГАТЫРЯ, ОТВАРЫБОГАТЫРЯ&n";
 	add_static("УМЕНИЯБОГАТЫРЯ", out.str(), 0, true);
 
 	out.str("");
-	out << "УМЕНИЯНАЕМНИКА\r\n\r\n";
 	out << OutSkillsHelp(ECharClass::kAssasine);
 	out << "\r\nСм. также: &CНАЕМНИК, СПОСОБНОСТИНАЕМНИКА, ОТВАРЫНАЕМНИКА&n";
 	add_static("УМЕНИЯНАЕМНИКА", out.str(), 0, true);
 
 	out.str("");
-	out << "УМЕНИЯДРУЖИННИКА\r\n\r\n";
 	out << OutSkillsHelp(ECharClass::kGuard);
 	out << "\r\nСм. также: &CДРУЖИННИК, СПОСОБНОСТИДРУЖИННИКА, ОТВАРЫДРУЖИННИКА&n";
 	add_static("УМЕНИЯДРУЖИННИКА", out.str(), 0, true);
 
 	out.str("");
-	out << "УМЕНИЯКУДЕСНИКА\r\n\r\n";
 	out << OutSkillsHelp(ECharClass::kCharmer);
 	out << "\r\nСм. также:КУДЕСНИК, ОТВАРЫКУДЕСНИКА, ЗАКЛИНАНИЯКУДЕСНИКА, СПОСОБНОСТИКУДЕСНИКА&n";
 	add_static("УМЕНИЯКУДЕСНИКА", out.str(), 0, true);
 
 	out.str("");
-	out << "УМЕНИЯВОЛШЕБНИКА\r\n\r\n";
 	out << OutSkillsHelp(ECharClass::kWizard);
 	out << "\r\nСм. также: &CВОЛШЕБНИК, ОТВАРЫВОЛШЕБНИКА, ЗАКЛИНАНИЯВОЛШЕБНИКА, СПОСОБНОСТИВОЛШЕБНИКА&n";
 	add_static("УМЕНИЯВОЛШЕБНИКА", out.str(), 0, true);
 
 	out.str("");
-	out << "УМЕНИЯЧЕРНОКНИЖНИКА\r\n\r\n";
 	out << OutSkillsHelp(ECharClass::kNecromancer);
 	out << "\r\nСм. также: &CЧЕРНОКНИЖНИК, ОТВАРЫЧЕРНОКНИЖНИКА, ЗАКЛИНАНИЯЧЕРНОКНИЖНИКА, СПОСОБНОСТИЧЕРНОКНИЖНИКА&n";
 	add_static("УМЕНИЯЧЕРНОКНИЖНИКА", out.str(), 0, true);
 
 	out.str("");
-	out << "УМЕНИЯВИТЯЗЯ\r\n\r\n";
 	out << OutSkillsHelp(ECharClass::kPaladine);
 	out << "\r\nСм. также: &CВИТЯЗЬ, ОТВАРЫВИТЯЗЯ, ЗАКЛИНАНИЯВИТЯЗЯ, СПОСОБНОСТИВИТЯЗЯ&n";
 	add_static("УМЕНИЯВИТЯЗЯ", out.str(), 0, true);
 
 	out.str("");
-	out << "УМЕНИЯОХОТНИКА\r\n\r\n";
 	out << OutSkillsHelp(ECharClass::kRanger);
 	out << "\r\nСм. также: &CОХОТНИК, ОТВАРЫОХОТНИКА, СПОСОБНОСТИОХОТНИКА&n";
 	add_static("УМЕНИЯОХОТНИКА", out.str(), 0, true);
 
 	out.str("");
-	out << "УМЕНИЯКУЗНЕЦА\r\n\r\n";
 	out << OutSkillsHelp(ECharClass::kVigilant);
 	out << "\r\nСм. также: &CКУЗНЕЦ, ОТВАРЫКУЗНЕЦА, СПОСОБНОСТИКУЗНЕЦА&n";
 	add_static("УМЕНИЯКУЗНЕЦА", out.str(), 0, true);
 
 	out.str("");
-	out << "УМЕНИЯКУПЦА\r\n\r\n";
 	out << OutSkillsHelp(ECharClass::kMerchant);
 	out << "\r\nСм. также: &CКУПЕЦ, ОТВАРЫКУПЦА, ЗАКЛИНАНИЯКУПЦА, СПОСОБНОСТИКУПЦА&n";
 	add_static("УМЕНИЯКУПЦА", out.str(), 0, true);
 
 	out.str("");
-	out << "УМЕНИЯВОЛХВА\r\n\r\n";
 	out << OutSkillsHelp(ECharClass::kMagus	);
 	out << "\r\nСм. также: &CВОЛХВ, ОТВАРЫВОЛХВА, ЗАКЛИНАНИЯВОЛХВА, СПОСОБНОСТИВОЛХВА&n";
 	add_static("УМЕНИЯВОЛХВА", out.str(), 0, true);
@@ -879,98 +850,84 @@ void ClassSlillHelp() {
 void ClassRecipiesHelp() {
 	std::stringstream out;
 
-	out << "ОТВАРЫЛЕКАРЯ РЕЦЕПТЫЛЕКАРЯ\r\n\r\n";
 	out << OutRecipiesHelp(ECharClass::kSorcerer);
 	out << "\r\nСм. также: &CЛЕКАРЬ, УМЕНИЯЛЕКАРЯ, ЗАКЛИНАНИЯЛЕКАРЯ, СПОСОБНОСТИЛЕКАРЯ&n";
 	add_static("РЕЦЕПТЫЛЕКАРЯ", out.str(), 0, true);
 	add_static("ОТВАРЫЛЕКАРЯ", out.str(), 0, true);
 
 	out.str("");
-	out << "ОТВАРЫКОЛДУНА РЕЦЕПТЫКОЛДУНА\r\n\r\n";
 	out << OutRecipiesHelp(ECharClass::kConjurer);
 	out << "\r\nСм. также: &CКОЛДУН, УМЕНИЯКОЛДУНА, ЗАКЛИНАНИЯКОЛДУНА, СПОСОБНОСТИКОЛДУНА&n";
 	add_static("РЕЦЕПТЫКОЛДУНА", out.str(), 0, true);
 	add_static("ОТВАРЫКОЛДУНА", out.str(), 0, true);
 
 	out.str("");
-	out << "ОТВАРЫТАТЯ РЕЦЕПТЫТАТЯ\r\n\r\n";
 	out << OutRecipiesHelp(ECharClass::kThief);
 	out << "\r\nСм. также: &CТАТЬ, УМЕНИЯТАТЯ, СПОСОБНОСТИТАТЯ&n";
 	add_static("РЕЦЕПТЫТАТЯ", out.str(), 0, true);
 	add_static("ОТВАРЫТАТЯ", out.str(), 0, true);
 
 	out.str("");
-	out << "ОТВАРЫБОГАТЫРЯ РЕЦЕПТЫБОГАТЫРЯ\r\n\r\n";
 	out << OutRecipiesHelp(ECharClass::kWarrior);
 	out << "\r\nСм. также: &CБОГАТЫРЬ, УМЕНИЯБОГАТЫРЯ, СПОСОБНОСТИБОГАТЫРЯ&n";
 	add_static("РЕЦЕПТЫБОГАТЫРЯ", out.str(), 0, true);
 	add_static("ОТВАРЫБОГАТЫРЯ", out.str(), 0, true);
 
 	out.str("");
-	out << "ОТВАРЫНАЕМНИКА РЕЦЕПТЫНАЕМНИКА\r\n\r\n";
 	out << OutRecipiesHelp(ECharClass::kAssasine);
 	out << "\r\nСм. также: &CНАЕМНИК, УМЕНИЯНАЕМНИКА, СПОСОБНОСТИНАЕМНИКА&n";
 	add_static("РЕЦЕПТЫНАЕМНИКА", out.str(), 0, true);
 	add_static("ОТВАРЫНАЕМНИКА", out.str(), 0, true);
 
 	out.str("");
-	out << "ОТВАРЫДРУЖИННИКА РЕЦЕПТЫДРУЖИННИКА\r\n\r\n";
 	out << OutRecipiesHelp(ECharClass::kGuard);
 	out << "\r\nСм. также: &CДРУЖИННИК, УМЕНИЯДРУЖИННИКА, СПОСОБНОСТИДРУЖИННИКА&n";
 	add_static("РЕЦЕПТЫДРУЖИННИКА", out.str(), 0, true);
 	add_static("ОТВАРЫДРУЖИННИКА", out.str(), 0, true);
 
 	out.str("");
-	out << "ОТВАРЫКУДЕСНИКА РЕЦЕПТЫКУДЕСНИКА\r\n\r\n";
 	out << OutRecipiesHelp(ECharClass::kCharmer);
 	out << "\r\nСм. также:КУДЕСНИК, УМЕНИЯКУДЕСНИКА, ЗАКЛИНАНИЯКУДЕСНИКА, СПОСОБНОСТИКУДЕСНИКА&n";
 	add_static("РЕЦЕПТЫКУДЕСНИКА", out.str(), 0, true);
 	add_static("ОТВАРЫКУДЕСНИКА", out.str(), 0, true);
 
 	out.str("");
-	out << "ОТВАРЫВОЛШЕБНИКА РЕЦЕПТЫВОЛШЕБНИКА\r\n\r\n";
 	out << OutRecipiesHelp(ECharClass::kWizard);
 	out << "\r\nСм. также: &CВОЛШЕБНИК, УМЕНИЯВОЛШЕБНИКА, ЗАКЛИНАНИЯВОЛШЕБНИКА, СПОСОБНОСТИВОЛШЕБНИКА&n";
 	add_static("РЕЦЕПТЫВОЛШЕБНИКА", out.str(), 0, true);
 	add_static("ОТВАРЫВОЛШЕБНИКА", out.str(), 0, true);
 
 	out.str("");
-	out << "ОТВАРЫЧЕРНОКНИЖНИКА РЕЦЕПТЫЧЕРНОКНИЖНИКА\r\n\r\n";
 	out << OutRecipiesHelp(ECharClass::kNecromancer);
 	out << "\r\nСм. также: &CЧЕРНОКНИЖНИК, УМЕНИЯЧЕРНОКНИЖНИКА, ЗАКЛИНАНИЯЧЕРНОКНИЖНИКА, СПОСОБНОСТИЧЕРНОКНИЖНИКА&n";
 	add_static("РЕЦЕПТЫЧЕРНОКНИЖНИКА", out.str(), 0, true);
 	add_static("ОТВАРЫЧЕРНОКНИЖНИКА", out.str(), 0, true);
 
 	out.str("");
-	out << "ОТВАРЫВИТЯЗЯ РЕЦЕПТЫВИТЯЗЯ\r\n\r\n";
 	out << OutRecipiesHelp(ECharClass::kPaladine);
 	out << "\r\nСм. также: &CВИТЯЗЬ, УМЕНИЯВИТЯЗЯ, ЗАКЛИНАНИЯВИТЯЗЯ, СПОСОБНОСТИВИТЯЗЯ&n";
 	add_static("РЕЦЕПТЫВИТЯЗЯ", out.str(), 0, true);
 	add_static("ОТВАРЫВИТЯЗЯ", out.str(), 0, true);
 
 	out.str("");
-	out << "ОТВАРЫОХОТНИКА РЕЦЕПТЫОХОТНИКА\r\n\r\n";
 	out << OutRecipiesHelp(ECharClass::kRanger);
 	out << "\r\nСм. также: &CОХОТНИК, УМЕНИЯОХОТНИКА, СПОСОБНОСТИОХОТНИКА&n";
 	add_static("РЕЦЕПТЫОХОТНИКА", out.str(), 0, true);
 	add_static("ОТВАРЫОХОТНИКА", out.str(), 0, true);
 
 	out.str("");
-	out << "ОТВАРЫКУЗНЕЦА РЕЦЕПТЫКУЗНЕЦА\r\n\r\n";
 	out << OutRecipiesHelp(ECharClass::kVigilant);
 	out << "\r\nСм. также: &CКУЗНЕЦ, УМЕНИЯКУЗНЕЦА, СПОСОБНОСТИКУЗНЕЦА&n";
 	add_static("РЕЦЕПТЫКУЗНЕЦА", out.str(), 0, true);
 	add_static("ОТВАРЫКУЗНЕЦА", out.str(), 0, true);
 
 	out.str("");
-	out << "ОТВАРЫКУПЦА РЕЦЕПТЫКУПЦА\r\n\r\n";
 	out << OutRecipiesHelp(ECharClass::kMerchant);
 	out << "\r\nСм. также: &CКУПЕЦ, УМЕНИЯКУПЦА, ЗАКЛИНАНИЯКУПЦА, СПОСОБНОСТИКУПЦА&n";
 	add_static("РЕЦЕПТЫКУПЦА", out.str(), 0, true);
 	add_static("ОТВАРЫКУПЦА", out.str(), 0, true);
 
 	out.str("");
-	out << "ОТВАРЫВОЛХВА РЕЦЕПТЫВОЛХВА\r\n\r\n";
 	out << OutRecipiesHelp(ECharClass::kMagus	);
 	out << "\r\nСм. также: &CВОЛХВ, УМЕНИЯВОЛХВА, ЗАКЛИНАНИЯВОЛХВА, СПОСОБНОСТИВОЛХВА&n";
 	add_static("РЕЦЕПТЫВОЛХВА", out.str(), 0, true);
@@ -980,7 +937,6 @@ void ClassRecipiesHelp() {
 void init_group_zones() {
 	std::stringstream out;
 
-	out << "ГРУППОВЫЕЗОНЫ\r\n\r\n";
 	for (std::size_t rnum = 0; rnum < zone_table.size(); ++rnum) {
 		const auto group = zone_table[rnum].group;
 		if (group > 1) {
