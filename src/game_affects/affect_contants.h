@@ -13,11 +13,10 @@
 const int kSecsPerPlayerAffect = 2;
 
 // Типы таймеров аффектов.
-constexpr Bitvector kAfDefault = 1u << 0;
-constexpr Bitvector kAfBattledec = 1u << 1;
-constexpr Bitvector kAfDeadkeep = 1u << 2;
-constexpr Bitvector kAfPulsedec = 1u << 3;
-constexpr Bitvector kAfSameTime = 1u << 4; // тикает раз в две секунды для PC, раз в минуту для NPC, или во время раунда в бою (чтобы не между раундами)
+constexpr Bitvector kAfBattledec = 1u << 0;
+constexpr Bitvector kAfDeadkeep = 1u << 1;
+constexpr Bitvector kAfPulsedec = 1u << 2;
+constexpr Bitvector kAfSameTime = 1u << 3; // тикает раз в две секунды для PC, раз в минуту для NPC, или во время раунда в бою (чтобы не между раундами)
 
 /**
  * Affect bits: used in char_data.char_specials.saved.affected_by //
