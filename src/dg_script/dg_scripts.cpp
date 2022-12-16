@@ -1781,7 +1781,7 @@ void find_replacement(void *go,
 			}
 				//Polud world.maxobj(vnum) показывает максимальное количество предметов в мире,
 				//которое прописано в самом предмете с указанным vnum
-			else if ((!str_cmp(field, "nomaxobj") || !str_cmp(field, "nomaxbjs")) && num > 0) {
+			else if (!str_cmp(field, "CanBeLoaded") && num > 0) {
 				const auto rnum = real_object(num);
 				if (rnum >= 0) {
 					// если у прототипа беск.таймер,
