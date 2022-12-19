@@ -168,7 +168,7 @@ void dg_obj_trigger(char *line, ObjData *obj) {
 
 	rnum = real_trigger(vnum);
 	if (rnum < 0) {
-		sprintf(line, "SYSERR: Trigger vnum #%d asked for but non-existant!", vnum);
+		sprintf(line, "SYSERR: Trigger vnum #%d asked for but non-existant for obj vnum %d!", vnum, GET_OBJ_VNUM(obj));
 		log("%s", line);
 		return;
 	}
