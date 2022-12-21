@@ -259,6 +259,10 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 				"Сейчас в мире : %d. ",
 				GET_MOB_RNUM(k) >= 0 ? mob_index[GET_MOB_RNUM(k)].total_online - (virt ? 1 : 0) : -1);
 		SendMsgToChar(buf, ch);
+		if (mob_online_by_vnum.contains(GET_MOB_VNUM(k))) {
+			sprintf(buf, "&BСейчас в мире по VNUM: %d.&n ", mob_online_by_vnum[GET_MOB_VNUM(k)]);
+			SendMsgToChar(buf, ch);
+		}
 		std::string stats;
 		mob_stat::GetLastMobKill(k, stats);
 		sprintf(buf, "Последний раз убит: %s", stats.c_str());

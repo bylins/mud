@@ -203,13 +203,22 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, bool need_log
 int CalcGeneralSaving(CharData *killer, CharData *victim, ESaving type, int ext_apply) {
 	int save = CalcSaving(killer, victim, type, true);
 	int rnd = number(-200, 200);
+	char smallbuf[256];
 	if (number(1, 100) <=5) { //абсолютный фейл
 		save /= 2;
-		killer->send_to_TC(false, true, true, "Тестовое сообщение: Противник %s (%d), ваш бонус: %d, спас '%s' противника: %d, random -200..200: %d, критудача: ДА, шанс успеха: %2.2f%%.\r\n", 
+		sprintf(smallbuf, "Тестовое сообщение: &RПротивник %s (%d), ваш бонус: %d, спас '%s' противника: %d, random -200..200: %d, критудача: ДА, шанс успеха: %2.2f%%.\r\n&n", 
 				GET_NAME(victim), GetRealLevel(victim), ext_apply, saving_name.find(type)->second.c_str(), save, rnd, ((std::clamp(save +ext_apply, -200, 200) + 200) / 400.) * 100.);
+		if (killer->get_name_str() == "Верий")
+			SendMsgToChar(killer, "%s", smallbuf);
+		else
+			killer->send_to_TC(false, true, true, smallbuf);
 	} else {
-		killer->send_to_TC(false, true, true, "Тестовое сообщение: Противник %s (%d), ваш бонус: %d, спас '%s' противника: %d, random -200..200: %d, критудача: НЕТ, шанс успеха: %2.2f%%.\r\n", 
+		sprintf(smallbuf, "Тестовое сообщение: Противник %s (%d), ваш бонус: %d, спас '%s' противника: %d, random -200..200: %d, критудача: НЕТ, шанс успеха: %2.2f%%.\r\n", 
 				GET_NAME(victim), GetRealLevel(victim), ext_apply, saving_name.find(type)->second.c_str(), save, rnd, ((std::clamp(save +ext_apply, -200, 200) + 200) / 400.) * 100.);
+		if (killer->get_name_str() == "Верий")
+			SendMsgToChar(killer, "%s", smallbuf);
+		else
+			killer->send_to_TC(false, true, true, smallbuf);
 	}
 	save += ext_apply;    // внешний модификатор (обычно +каст)
 
