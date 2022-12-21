@@ -1674,9 +1674,13 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(var, "exist")) {
 			if (!str_cmp(field, "mob") && (num = atoi(subfield)) > 0) {
-				num = count_char_vnum(num);
-				if (num >= 0)
-					sprintf(str, "%c", num > 0 ? '1' : '0');
+				if (auto it = mob_online_by_vnum.find(num); it != mob_online_by_vnum.end()) {
+					if (it->second > 0) {
+						sprintf(str, "1");
+						return;
+					}
+				}
+				sprintf(str, "0");
 			} else if (!str_cmp(field, "obj") && (num = atoi(subfield)) > 0) {
 				num = gcount_obj_vnum(num);
 				if (num >= 0)
@@ -1752,9 +1756,13 @@ void find_replacement(void *go,
 					}
 				}
 			} else if ((!str_cmp(field, "curmob") || !str_cmp(field, "curmobs")) && num > 0) {
-				num = count_char_vnum(num);
-				if (num >= 0)
-					sprintf(str, "%d", num);
+				if (auto it = mob_online_by_vnum.find(num); it != mob_online_by_vnum.end()) {
+					if (it->second > 0) {
+						sprintf(str, "%d", it->second);
+						return;
+					}
+				}
+				sprintf(str, "0");
 			} else if ((!str_cmp(field, "gamemob") || !str_cmp(field, "gamemobs")) && num > 0) {
 				num = gcount_char_vnum(num);
 				if (num >= 0)
