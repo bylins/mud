@@ -1493,7 +1493,10 @@ void obj_point_update() {
 					}
 					RemoveObjFromChar(j.get());
 				} else if (j->get_in_room() != kNowhere) {
-					if (j->get_timer() <= 0 && j->has_flag(EObjFlag::kNodecay)) {
+// билдер криво проставил таймер предмета на земле? Вякнем в мудлог
+					if (j->get_timer() <= 0 
+							&& j->has_flag(EObjFlag::kNodecay)
+							&& j->get_vnum_zone_from() == zone_table[world[j->get_in_room()]->zone_rn].vnum) {
 						snprintf(buf, kMaxStringLength, "ВНИМАНИЕ!!! Объект: %s VNUM: %d рассыпался по таймеру на земле в комнате: %d",
 								 GET_OBJ_PNAME(j.get(), 0).c_str(), GET_OBJ_VNUM(j.get()), world[j->get_in_room()]->room_vn);
 						mudlog(buf, CMP, kLvlGreatGod, ERRLOG, true);
