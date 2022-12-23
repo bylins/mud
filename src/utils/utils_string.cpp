@@ -139,10 +139,12 @@ void Split(std::vector<std::string> &tokens, const std::string& s, char delimite
 	}
 }
 
-void ConvertToLow(std::string &text) {
-	for (char & it : text) {
+
+std::string SubstToLow(std::string s) {
+	for (char & it : s) {
 		it = LOWER(it);
 	}
+	return s;
 }
 
 void ConvertKtoW(std::string &text) {
@@ -167,6 +169,12 @@ std::string SubstWtoK(std::string s) {
 	return s;
 }
 
+void ConvertToLow(std::string &text) {
+	for (char & it : text) {
+		it = LOWER(it);
+	}
+}
+
 void ConvertToLow(char *text) {
 	while (*text) {
 		*text = LOWER(*text);
@@ -174,14 +182,14 @@ void ConvertToLow(char *text) {
 	}
 }
 
-std::string ConvertStrToLow(std::string s) {
+std::string SubstStrToLow(std::string s) {
 	for (char & it : s) {
 		it = UPPER(it);
 	}
 	return s;
 }
 
-std::string ConvertStrToUpper(std::string s) {
+std::string SubstStrToUpper(std::string s) {
 	for (char & it : s) {
 		it = UPPER(it);
 	}
@@ -220,6 +228,15 @@ std::string TrimCopy(std::string s) {
 	return s;
 }
 
+std::string FixDot(std::string s) {
+	for (char &it : s) {
+		if (('.' == it) || ('_' == it)) {
+			it = ' ';
+		}
+	}
+	return s;
+}
+
 void SortKoiString(std::vector<std::string> &str) {
 	for (auto &it : str) {
 		ConvertKtoW(it);
@@ -229,6 +246,7 @@ void SortKoiString(std::vector<std::string> &str) {
 		ConvertWtoK(it);
 	}
 }
+
 
 void SortKoiStringReverse(std::vector<std::string> &str) {
 	for (auto &it : str) {

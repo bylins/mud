@@ -14,6 +14,7 @@
 #include "game_mechanics/sets_drop.h"
 #include "color.h"
 #include "structs/global_objects.h"
+#include "game_magic/magic_utils.h"
 
 extern char *help;
 extern int top_imrecipes;
@@ -512,7 +513,7 @@ void add_static(const std::string &key, const std::string &entry,
 			key.c_str(), entry.c_str(), __FILE__, __LINE__, __func__);
 		return;
 	}
-	std::string tmpentry = utils::ConvertStrToUpper(key) + "\r\n\r\n" + entry;
+	std::string tmpentry = utils::SubstStrToUpper(key) + "\r\n\r\n" + entry;
 	help_node tmp_node(key, tmpentry);
 	tmp_node.min_level = min_level;
 	tmp_node.no_immlog = no_immlog;
@@ -774,12 +775,12 @@ void ClassFeatureHelp() {
 	add_static("СПОСОБНОСТИВОЛХВА", out.str(), 0, true);
 }
 
-void ClassSlillHelp() {
+void ClassSkillHelp() {
 	std::stringstream out;
 
 	out << OutSkillsHelp(ECharClass::kSorcerer);
 	out << "\r\nСм. также: &CЛЕКАРЬ, ЗАКЛИНАНИЯЛЕКАРЯ, СПОСОБНОСТИЛЕКАРЯ, ОТВАРЫЛЕКАРЯ&n";
-	add_static("УМЕНИЯЛЕКАРЯ", out.str(), 0, true);
+	add_static("УМЕНИЯ ЛЕКАРЯ", out.str(), 0, true);
 
 	out.str("");
 	out << OutSkillsHelp(ECharClass::kConjurer);
@@ -961,15 +962,22 @@ void reload(Flags flag) {
 			init_group_zones();
 			init_zone_all();
 			ClassRecipiesHelp();
-			ClassSlillHelp();
+			ClassSkillHelp();
 			ClassFeatureHelp();
 			PrintActivators::process();
 			obj_sets::init_xhelp();
-			// итоговая сортировка массива через дефолтное < для строковых ключей
+			// итоговая сортировка массива через дефолтное < для строковых ключей 
+//			for (auto &recode : static_help) {
+//				utils::ConvertKtoW(recode.keyword);
+//			}
 			std::sort(static_help.begin(), static_help.end(),
 					  [](const help_node &lrs, const help_node &rhs) {
 						  return lrs.keyword < rhs.keyword;
 					  });
+//			for (auto &recode : static_help) {
+//				sprintf(buf, "sort keyword=%s|", recode.keyword.c_str());
+//				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+//			}
 			break;
 		case DYNAMIC: dynamic_help.clear();
 			SetsDrop::init_xhelp();
@@ -991,11 +999,15 @@ void reload_all() {
 }
 
 bool help_compare(const std::string &arg, const std::string &text, bool strong) {
+	std::string name = arg; 
+
 	if (strong) {
+
+		sprintf(buf, "strong arg=%s| text=%s|",arg.c_str(), text.c_str());
+		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		return arg == text;
 	}
-
-	return isname(arg, text);
+	return IsEquivalent(name, text);
 }
 
 void UserSearch::process(int flag) {
@@ -1066,22 +1078,30 @@ void UserSearch::print_key_list() const {
 
 void UserSearch::search(const std::vector<help_node> &cont) {
 	// поиск в сортированном по ключам массиве через lower_bound
-	auto i =
-		std::lower_bound(cont.begin(), cont.end(), arg_str,
-						 [](const help_node &h, const std::string& arg) {
-							 return h.keyword < arg;
-						 });
-
+	std::vector<help_node> cont1 = cont;
+//  в help_node список сортирован в кодировке win но сам в кои
+	auto i = std::lower_bound(cont.begin(), cont.end(), arg_str, [](const help_node &h, const std::string& arg) {
+//		sprintf(buf, "arg_str=%s| keyword=%s|",arg.c_str(), h.keyword.c_str());
+//		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+		return h.keyword < arg;
+	});
 	while (i != cont.end()) {
 		// проверка текущего кея с учетом флага строгости
+//		sprintf(buf, "2222 arg_str=%s| keyword=%s|",arg_str.c_str(), i->keyword.c_str());
+//		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		if (!help_compare(arg_str, i->keyword, strong)) {
 			return;
 		}
+//sprintf(buf, "compare");
+//mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+
 		// уровень топика (актуально для статик справки)
 		if (level < i->min_level) {
 			++i;
 			continue;
 		}
+//sprintf(buf, "level");
+//mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		// key_list заполняется в любом случае, если поиск
 		// идет без индекса topic_num, уникальность содержимого
 		// для последующих проверок отражается через diff_keys
@@ -1117,7 +1137,7 @@ void do_help(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	skip_spaces(&argument);
+//	skip_spaces(&argument);
 
 	// печатаем экран справки если нет аргументов
 	if (!*argument) {
@@ -1128,16 +1148,17 @@ void do_help(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	UserSearch user_search(ch);
 	// trust_level справки для демигодов - kLevelImmortal
 	user_search.level = GET_GOD_FLAG(ch, EGf::kDemigod) ? kLvlImmortal : GetRealLevel(ch);
-	// первый аргумент без пробелов, заодно в нижний регистр
-	one_argument(argument, arg);
+	utils::ConvertToLow(argument);
 	// Получаем topic_num для индексации топика
-	sscanf(arg, "%d.%s", &user_search.topic_num, arg);
+	sscanf(arg, "%d.%s", &user_search.topic_num, argument);
 	// если последний символ аргумента '!' -- включаем строгий поиск
-	if (strlen(arg) > 1 && *(arg + strlen(arg) - 1) == '!') {
+	if (strlen(argument) > 1 && *(argument + strlen(argument) - 1) == '!') {
 		user_search.strong = true;
-		*(arg + strlen(arg) - 1) = '\0';
+		*(argument + strlen(argument) - 1) = '\0';
+		user_search.arg_str = argument;
+	} else {
+		user_search.arg_str = utils::FixDot(argument);
 	}
-	user_search.arg_str = arg;
 
 	// поиск по всем массивам или до стопа по флагу
 	for (int i = STATIC; i < TOTAL_NUM && !user_search.stop; ++i) {

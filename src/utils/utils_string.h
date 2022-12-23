@@ -106,6 +106,9 @@ std::string GetStringWithoutColors(const std::string &string);
 
 bool IsAbbr(const char *arg1, const char *arg2);
 inline int IsAbbrev(const std::string &arg1, const char *arg2) { return IsAbbr(arg1.c_str(), arg2); }
+
+
+// строку в нижний регистр
 void ConvertToLow(std::string &text);
 void ConvertToLow(char *text);
 
@@ -166,11 +169,14 @@ void SortKoiString(std::vector<std::string> &str);
 // соортировка KOI8-R строк, я-а
 void SortKoiStringReverse(std::vector<std::string> &str);
 
+// Замена . и _ на пробел
+std::string FixDot(std::string s);
+
 // строку в нижний регистр
-std::string ConvertStrToLow(std::string s);
+std::string SubstStrToLow(std::string s);
 
 // строку в верхний регистр
-std::string ConvertStrToUpper(std::string s);
+std::string SubstStrToUpper(std::string s);
 
 }
 #endif // UTILS_STRING_HPP_

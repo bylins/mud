@@ -244,7 +244,7 @@ bool IsEquivalent(const char *first_str, const char *second_str) {
 template<typename T>
 void FixName(T &name) {
 	size_t pos = 0;
-	while ('\0' != name[pos] && pos < kMaxStringLength) {
+	while ('\0' != name[pos] && pos < kMaxInputLength) {
 		if (('.' == name[pos]) || ('_' == name[pos])) {
 			name[pos] = ' ';
 		}
