@@ -372,7 +372,7 @@ int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id) {
 		float base_dmg = CalcBaseDmg(ch, spell_id, spell_dmg);
 		float skill_mod = base_dmg * spell_dmg.CalcSkillDmgCoeff(ch);
 		float wis_mod = base_dmg * spell_dmg.CalcBaseStatCoeff(ch);
-		float bonus_mod = (ch->add_abils.percent_magdam_add + ch->obj_bonus().calc_mage_dmg(100)) / 100.0;
+		float bonus_mod = ch->add_abils.percent_magdam_add / 100.0;
 //		auto complex_mod = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, base_dmg) - base_dmg;
 		float poison_mod = AFF_FLAGGED(ch, EAffect::kDaturaPoison) ? (-base_dmg * GET_POISON(ch) / 100) : 0;
 		float elem_coeff = CalcMagicElementCoeff(victim, spell_id);
