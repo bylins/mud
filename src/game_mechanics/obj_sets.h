@@ -82,15 +82,13 @@ struct activ_sum {
 
 	bool operator!=(const activ_sum &r) const;
 	bool operator==(const activ_sum &r) const;
-	bool empty() const;
-	void clear();
+	bool IsEmpty() const;
+	void DoClear();
 
 	void update(CharData *ch);
 	void apply_affects(CharData *ch) const;
 
 	int get_skill(const ESkill num) const;
-	int calc_phys_dmg(int dam) const;
-	int calc_mage_dmg(int dam) const;
 
 	// аффекты (obj_flags.affects)
 	FlagData affects;

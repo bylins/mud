@@ -335,8 +335,8 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 			GET_AR(k),
 			GET_MR(k),
 			GET_PR(k),
-			k->add_abils.percent_magdam_add + k->obj_bonus().calc_mage_dmg(100),
-			k->add_abils.percent_physdam_add + k->obj_bonus().calc_phys_dmg(100));
+			k->add_abils.percent_magdam_add,
+			k->add_abils.percent_physdam_add);
 	SendMsgToChar(buf, ch);
 	sprintf(buf,
 			"Запом: [%d], УспехКолд: [%d], ВоссЖиз: [%d], ВоссСил: [%d], Поглощ: [%d], Удача: [%d], Иниц: [%d]\r\n",

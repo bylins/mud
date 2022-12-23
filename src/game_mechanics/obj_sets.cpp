@@ -1180,7 +1180,7 @@ bool activ_sum::operator==(const activ_sum &r) const {
 	return !(*this != r);
 }
 
-bool activ_sum::empty() const {
+bool activ_sum::IsEmpty() const {
 	if (!affects.empty()
 		|| !apply.empty()
 		|| !skills.empty()
@@ -1191,7 +1191,7 @@ bool activ_sum::empty() const {
 	return true;
 }
 
-void activ_sum::clear() {
+void activ_sum::DoClear() {
 	affects = clear_flags;
 	apply.clear();
 	skills.clear();
@@ -1218,7 +1218,7 @@ void check_enchants(CharData *ch) {
 }
 
 void activ_sum::update(CharData *ch) {
-	this->clear();
+	this->DoClear();
 	worn_sets.clear();
 	for (int i = 0; i < EEquipPos::kNumEquipPos; i++) {
 		worn_sets.add(GET_EQ(ch, i));
@@ -1237,14 +1237,10 @@ void activ_sum::apply_affects(CharData *ch) const {
 	for (auto &&i : apply) {
 		affect_modify(ch, i.location, i.modifier, static_cast<EAffect>(0), true);
 	}
-}
-
-int activ_sum::calc_phys_dmg(int dam) const {
-	return dam * bonus.phys_dmg / 100;
-}
-
-int activ_sum::calc_mage_dmg(int dam) const {
-	return dam * bonus.mage_dmg / 100;
+	if (bonus.phys_dmg > 0)
+		affect_modify(ch, EApply::kPhysicDamagePercent, bonus.phys_dmg, static_cast<EAffect>(0), true);
+	if (bonus.mage_dmg > 0)
+		affect_modify(ch, EApply::kMagicDamagePercent, bonus.mage_dmg, static_cast<EAffect>(0), true);
 }
 
 int activ_sum::get_skill(const ESkill num) const {

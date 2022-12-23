@@ -2401,12 +2401,6 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	DamageVictimParameters params1(ch, victim, dam);
 	handle_affects(params1);
 	dam = params1.damage;
-	// костыль для сетовых бонусов
-	if (dmg_type == fight::kPhysDmg) {
-		dam += ch->obj_bonus().calc_phys_dmg(dam);
-	} else if (dmg_type == fight::kMagicDmg) {
-		dam += ch->obj_bonus().calc_mage_dmg(dam);
-	}
 
 	// обратка от зеркал/огненного щита
 	if (flags[fight::kMagicReflect]) {
