@@ -1,110 +1,110 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <!--
-Формат:
-<skill id="kReligion" name="!молитва или жертва!" abbr="Error" saving="kWill" difficulty="1" cap="1" mode="kDisabled"/>
-id - уникальный идентификатор, должен быть константой из ESkill.
-name - имя скилла, уникальность не обязательна.
-abbr - аббревиатура (показывается в строке статуса и т.п.)
-saving - тип используемого спас-броска.
-difficulty - сложность, используется при расчете успеха/провала умения.
-cap - планка развития умения.
-mode - режим умения.
-    kDisabled - элемент отключен полностью. При обнаружении у персонажа - удаляется.
-    kService - элемент служебный. Не показывается через команды игрока, не должно быть возможно поставить вручную.
-    kFrozen - элемент временно отключен. Ивентовые, праздничные и т.п. элементы.
-    kTesting - элемент в режиме тестирования. По умолчанию не виден, но не удаляется и может быть установлен имморталом.
-    kEnabled - обычный режим по умолчанию, элемент полностью подключен.
-По умолчанию состояние скилла kEnabled, указывать не обязательно.
+п╓п╬я─п╪п╟я┌:
+<skill id="kReligion" name="!п╪п╬п╩п╦я┌п╡п╟ п╦п╩п╦ п╤п╣я─я┌п╡п╟!" abbr="Error" saving="kWill" difficulty="1" cap="1" mode="kDisabled"/>
+id - я┐п╫п╦п╨п╟п╩я▄п╫я▀п╧ п╦п╢п╣п╫я┌п╦я└п╦п╨п╟я┌п╬я─, п╢п╬п╩п╤п╣п╫ п╠я▀я┌я▄ п╨п╬п╫я│я┌п╟п╫я┌п╬п╧ п╦п╥ ESkill.
+name - п╦п╪я▐ я│п╨п╦п╩п╩п╟, я┐п╫п╦п╨п╟п╩я▄п╫п╬я│я┌я▄ п╫п╣ п╬п╠я▐п╥п╟я┌п╣п╩я▄п╫п╟.
+abbr - п╟п╠п╠я─п╣п╡п╦п╟я┌я┐я─п╟ (п©п╬п╨п╟п╥я▀п╡п╟п╣я┌я│я▐ п╡ я│я┌я─п╬п╨п╣ я│я┌п╟я┌я┐я│п╟ п╦ я┌.п©.)
+saving - я┌п╦п© п╦я│п©п╬п╩я▄п╥я┐п╣п╪п╬пЁп╬ я│п©п╟я│-п╠я─п╬я│п╨п╟.
+difficulty - я│п╩п╬п╤п╫п╬я│я┌я▄, п╦я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐ п©я─п╦ я─п╟я│я┤п╣я┌п╣ я┐я│п©п╣я┘п╟/п©я─п╬п╡п╟п╩п╟ я┐п╪п╣п╫п╦я▐.
+cap - п©п╩п╟п╫п╨п╟ я─п╟п╥п╡п╦я┌п╦я▐ я┐п╪п╣п╫п╦я▐.
+mode - я─п╣п╤п╦п╪ я┐п╪п╣п╫п╦я▐.
+    kDisabled - я█п╩п╣п╪п╣п╫я┌ п╬я┌п╨п╩я▌я┤п╣п╫ п©п╬п╩п╫п╬я│я┌я▄я▌. п÷я─п╦ п╬п╠п╫п╟я─я┐п╤п╣п╫п╦п╦ я┐ п©п╣я─я│п╬п╫п╟п╤п╟ - я┐п╢п╟п╩я▐п╣я┌я│я▐.
+    kService - я█п╩п╣п╪п╣п╫я┌ я│п╩я┐п╤п╣п╠п╫я▀п╧. п²п╣ п©п╬п╨п╟п╥я▀п╡п╟п╣я┌я│я▐ я┤п╣я─п╣п╥ п╨п╬п╪п╟п╫п╢я▀ п╦пЁя─п╬п╨п╟, п╫п╣ п╢п╬п╩п╤п╫п╬ п╠я▀я┌я▄ п╡п╬п╥п╪п╬п╤п╫п╬ п©п╬я│я┌п╟п╡п╦я┌я▄ п╡я─я┐я┤п╫я┐я▌.
+    kFrozen - я█п╩п╣п╪п╣п╫я┌ п╡я─п╣п╪п╣п╫п╫п╬ п╬я┌п╨п╩я▌я┤п╣п╫. п≤п╡п╣п╫я┌п╬п╡я▀п╣, п©я─п╟п╥п╢п╫п╦я┤п╫я▀п╣ п╦ я┌.п©. я█п╩п╣п╪п╣п╫я┌я▀.
+    kTesting - я█п╩п╣п╪п╣п╫я┌ п╡ я─п╣п╤п╦п╪п╣ я┌п╣я│я┌п╦я─п╬п╡п╟п╫п╦я▐. п÷п╬ я┐п╪п╬п╩я┤п╟п╫п╦я▌ п╫п╣ п╡п╦п╢п╣п╫, п╫п╬ п╫п╣ я┐п╢п╟п╩я▐п╣я┌я│я▐ п╦ п╪п╬п╤п╣я┌ п╠я▀я┌я▄ я┐я│я┌п╟п╫п╬п╡п╩п╣п╫ п╦п╪п╪п╬я─я┌п╟п╩п╬п╪.
+    kEnabled - п╬п╠я▀я┤п╫я▀п╧ я─п╣п╤п╦п╪ п©п╬ я┐п╪п╬п╩я┤п╟п╫п╦я▌, я█п╩п╣п╪п╣п╫я┌ п©п╬п╩п╫п╬я│я┌я▄я▌ п©п╬п╢п╨п╩я▌я┤п╣п╫.
+п÷п╬ я┐п╪п╬п╩я┤п╟п╫п╦я▌ я│п╬я│я┌п╬я▐п╫п╦п╣ я│п╨п╦п╩п╩п╟ kEnabled, я┐п╨п╟п╥я▀п╡п╟я┌я▄ п╫п╣ п╬п╠я▐п╥п╟я┌п╣п╩я▄п╫п╬.
 -->
 <skills>
-    <skill id="kReligion"		name="!молитва или жертва!"	abbr="Error"	saving="kWill"		difficulty="1"		cap="1"		mode="kService"/>
+    <skill id="kReligion"		name="!п╪п╬п╩п╦я┌п╡п╟ п╦п╩п╦ п╤п╣я─я┌п╡п╟!"	abbr="Error"	saving="kWill"		difficulty="1"		cap="1"		mode="kService"/>
     <skill id="kAny"			name="!any"			abbr="Any"	saving="kWill"		difficulty="1"		cap="1"		mode="kService"/>
     <skill id="kUndefined"		name="!UNDEF!"			abbr="!Icr"	saving="kWill"		difficulty="1"		cap="1"		mode="kService"/>
-    <skill id="kGlobalCooldown"		name="!cooldown"		abbr="ОЗ"	saving="kWill"		difficulty="1"		cap="1"		mode="kService"/>
-    <skill id="kBackstab"		name="заколоть"			abbr="Зк"	saving="kReflex"	difficulty="200"	cap="1000"/>
-    <skill id="kBash"			name="сбить"			abbr="Сб"	saving="kStability"	difficulty="200"	cap="200"/>
-    <skill id="kHide"			name="спрятаться"		abbr="Сп"	saving="kWill"		difficulty="100"	cap="200"/>
-    <skill id="kKick"			name="пнуть"			abbr="Пн"	saving="kStability"	difficulty="200"	cap="200"/>
-    <skill id="kPickLock"		name="взломать"			abbr="Вз"	saving="kReflex"	difficulty="120"	cap="200"/>
-    <skill id="kPunch"			name="кулачный бой"		abbr="Кб"	saving="kStability"	difficulty="100"	cap="1000"/>
-    <skill id="kRescue"			name="спасти"			abbr="Спс"	saving="kReflex"	difficulty="200"	cap="1000"/>
-    <skill id="kSneak"			name="подкрасться"		abbr="Пд"	saving="kWill"		difficulty="100"	cap="200"/>
-    <skill id="kSteal"			name="украсть"			abbr="Ук"	saving="kWill"		difficulty="100"	cap="200"/>
-    <skill id="kTrack"			name="выследить"		abbr="Выс"	saving="kReflex"	difficulty="100"	cap="1000"/>
-    <skill id="kParry"			name="парировать"		abbr="Пр"	saving="kStability"	difficulty="120"	cap="1000"/>
-    <skill id="kShieldBlock"		name="блокировать щитом"	abbr="Бщ"	saving="kReflex"	difficulty="200"	cap="200"/>
-    <skill id="kIntercept"		name="перехватить атаку"	abbr="Пх"	saving="kReflex"	difficulty="100"	cap="200"/>
-    <skill id="kProtect"		name="прикрыть"			abbr="Пк"	saving="kReflex"	difficulty="200"	cap="200"/>
-    <skill id="kTwohands"		name="двуручники"		abbr="Дв"	saving="kStability"	difficulty="160"	cap="1000"/>
-    <skill id="kLongBlades"		name="длинные лезвия"		abbr="Дл"	saving="kStability"	difficulty="160"	cap="1000"/>
-    <skill id="kSpades"			name="копья и рогатины"		abbr="Кр"	saving="kStability"	difficulty="160"	cap="1000"/>
-    <skill id="kShortBlades"		name="короткие лезвия"		abbr="Кл"	saving="kStability"	difficulty="160"	cap="1000"/>
-    <skill id="kBows"			name="луки"			abbr="Лк"	saving="kStability"	difficulty="160"	cap="1000"/>
-    <skill id="kClubs"			name="палицы и дубины"		abbr="Пд"	saving="kStability"	difficulty="160"	cap="1000"/>
-    <skill id="kPicks"			name="проникающее оружие"	abbr="Прн"	saving="kStability"	difficulty="160"	cap="1000"/>
-    <skill id="kNonstandart"		name="иное оружие"		abbr="Ин"	saving="kStability"	difficulty="160"	cap="1000"/>
-    <skill id="kAxes"			name="секиры"			abbr="Ск"	saving="kStability"	difficulty="160"	cap="1000"/>
-    <skill id="kSideAttack"		name="атака левой рукой"	abbr="Ал"	saving="kStability"	difficulty="100"	cap="200"/>
-    <skill id="kLooking"		name="приглядеться"		abbr="Прг"	saving="kReflex"	difficulty="100"	cap="200"/>
-    <skill id="kHearing"		name="прислушаться"		abbr="Прс"	saving="kReflex"	difficulty="100"	cap="200"/>
-    <skill id="kDisarm"			name="обезоружить"		abbr="Об"	saving="kStability"	difficulty="100"	cap="200"/>
-    <skill id="kMorph"			name="оборотничество"		abbr="Обр"	saving="kReflex"	difficulty="150"	cap="200"	mode="kTesting"/>
-    <skill id="kAddshot"		name="дополнительный выстрел"	abbr="Доп"	saving="kReflex"	difficulty="200"	cap="200"/>
-    <skill id="kDisguise"		name="маскировка"		abbr="Мск"	saving="kWill"		difficulty="100"	cap="200"/>
-    <skill id="kDodge"			name="уклониться"		abbr="Укл"	saving="kReflex"	difficulty="100"	cap="200"/>
-    <skill id="kChopoff"		name="подножка"			abbr="Пд"	saving="kReflex"	difficulty="200"	cap="200"/>
-    <skill id="kRepair"			name="ремонт"			abbr="Рм"	saving="kReflex"	difficulty="180"	cap="200"/>
-    <skill id="kCourage"		name="ярость"			abbr="Яр"	saving="kReflex"	difficulty="100"	cap="1000"/>
-    <skill id="kIdentify"		name="опознание"		abbr="Оп"	saving="kReflex"	difficulty="100"	cap="1000"/>
-    <skill id="kPry"			name="подсмотреть"		abbr="Пдм"	saving="kReflex"	difficulty="100"	cap="200"/>
-    <skill id="kSharpening"		name="заточить"			abbr="Зат"	saving="kReflex"	difficulty="100"	cap="200"/>
-    <skill id="kArmoring"		name="укрепить"			abbr="Укр"	saving="kReflex"	difficulty="100"	cap="200"/>
-    <skill id="kHangovering"		name="опохмелиться"		abbr="Опх"	saving="kReflex"	difficulty="100"	cap="200"/>
-    <skill id="kFirstAid"		name="лечить"			abbr="Лч"	saving="kReflex"	difficulty="100"	cap="200"/>
-    <skill id="kCampfire"		name="разжечь костер"		abbr="Рк"	saving="kReflex"	difficulty="160"	cap="1000"/>
-    <skill id="kLeftHit"		name="удар левой рукой"		abbr="Улр"	saving="kReflex"	difficulty="100"	cap="200"/>
-    <skill id="kHammer"			name="богатырский молот"	abbr="Бм"	saving="kStability"	difficulty="200"	cap="200"/>
-    <skill id="kOverwhelm"		name="оглушить"			abbr="Ог"	saving="kStability"	difficulty="200"	cap="200"/>
-    <skill id="kPoisoning"		name="отравить"			abbr="Отр"	saving="kStability"	difficulty="200"	cap="200"/>
-    <skill id="kLeadership"		name="лидерство"		abbr="Лд"	saving="kReflex"	difficulty="100"	cap="1000"/>
-    <skill id="kPunctual"		name="точный стиль"		abbr="Тс"	saving="kCritical"	difficulty="110"	cap="200"/>
-    <skill id="kAwake"			name="осторожный стиль"		abbr="Ос"	saving="kReflex"	difficulty="100"	cap="200"/>
-    <skill id="kSense"			name="найти"			abbr="Нйт"	saving="kWill"		difficulty="160"	cap="200"/>
-    <skill id="kRiding"			name="сражение верхом"		abbr="Срв"	saving="kReflex"	difficulty="200"	cap="1000"/>
-    <skill id="kHideTrack"		name="замести следы"		abbr="Зс"	saving="kReflex"	difficulty="120"	cap="200"/>
-    <skill id="kSkinning"		name="освежевать"		abbr="Осв"	saving="kReflex"	difficulty="120"	cap="200"/>
-    <skill id="kMultiparry"		name="веерная защита"		abbr="Вз"	saving="kReflex"	difficulty="140"	cap="200"/>
-    <skill id="kReforging"		name="перековать"		abbr="Прк"	saving="kReflex"	difficulty="140"	cap="200"/>
-    <skill id="kThrow"			name="метнуть"			abbr="Мт"	saving="kReflex"	difficulty="150"	cap="1000"/>
-    <skill id="kMakeBow"		name="смастерить лук"		abbr="Сл"	saving="kReflex"	difficulty="140"	cap="200"/>
-    <skill id="kMakeWeapon"		name="выковать оружие"		abbr="Вкр"	saving="kReflex"	difficulty="140"	cap="200"/>
-    <skill id="kMakeArmor"		name="выковать доспех"		abbr="Вкд"	saving="kReflex"	difficulty="140"	cap="200"/>
-    <skill id="kMakeWear"		name="сшить одежду"		abbr="Сш"	saving="kReflex"	difficulty="140"	cap="200"/>
-    <skill id="kMakeJewel"		name="смастерить диковинку"	abbr="Сд"	saving="kReflex"	difficulty="140"	cap="200"/>
-    <skill id="kJinx"			name="сглазить"			abbr="Сг"	saving="kWill"		difficulty="100"	cap="200"/>
-    <skill id="kNoParryHit"		name="скрытый удар"		abbr="Сд"	saving="kCritical"	difficulty="100"	cap="200"/>
-    <skill id="kTownportal"		name="врата"			abbr="Вр"	saving="kReflex"	difficulty="100"	cap="200"/>
-    <skill id="kDigging"		name="горное дело"		abbr="Гд"	saving="kReflex"	difficulty="100"	cap="100"/>
-    <skill id="kJewelry"		name="ювелир"			abbr="Юв"	saving="kReflex"	difficulty="100"	cap="200"/>
-    <skill id="kWarcry"			name="боевой клич"		abbr="Бк"	saving="kWill"		difficulty="100"	cap="200"/>
-    <skill id="kTurnUndead"		name="изгнать нежить"		abbr="Из"	saving="kStability"	difficulty="100"	cap="1000"/>
-    <skill id="kIronwind"		name="железный ветер"		abbr="Жв"	saving="kReflex"	difficulty="150"	cap="1000"/>
-    <skill id="kStrangle"		name="удавить"			abbr="Уд"	saving="kStability"	difficulty="200"	cap="200"/>
-    <skill id="kAirMagic"		name="магия воздуха"		abbr="Ма"	saving="kReflex"	difficulty="200"	cap="1000"/>
-    <skill id="kFireMagic"		name="магия огня"		abbr="Мо"	saving="kReflex"	difficulty="1000"	cap="1000"/>
-    <skill id="kWaterMagic"		name="магия воды"		abbr="Мвд"	saving="kReflex"	difficulty="1000"	cap="1000"/>
-    <skill id="kEarthMagic"		name="магия земли"		abbr="Мз"	saving="kReflex"	difficulty="1000"	cap="1000"/>
-    <skill id="kLightMagic"		name="магия света"		abbr="Мс"	saving="kReflex"	difficulty="1000"	cap="1000"/>
-    <skill id="kDarkMagic"		name="магия тьмы"		abbr="Мт"	saving="kReflex"	difficulty="1000"	cap="1000"/>
-    <skill id="kMindMagic"		name="магия разума"		abbr="Мр"	saving="kWill"		difficulty="1000"	cap="1000"/>
-    <skill id="kLifeMagic"		name="магия жизни"		abbr="Мж"	saving="kStability"	difficulty="1000"	cap="1000"/>
-    <skill id="kStun"			name="ошеломить"		abbr="Ош"	saving="kStability"	difficulty="200"	cap="200"/>
-    <skill id="kMakeAmulet"		name="смастерить оберег"	abbr="Со"	saving="kReflex"	difficulty="200"	cap="200"/>
-    <skill id="kCutting"		name="!порез!"			abbr="Пр"	saving="kStability"	difficulty="200"	cap="200"	mode="kDisabled"/>
-    <skill id="kCreateBow"		name="!отключено"		abbr="!error"	saving="kWill"		difficulty="1"		cap="1"		mode="kDisabled"/>
-    <skill id="kCreatePotion"		name="!отключено"		abbr="!error"	saving="kWill"		difficulty="1"		cap="1"		mode="kDisabled"/>
-    <skill id="kCreateScroll"		name="!отключено"		abbr="!error"	saving="kWill"		difficulty="1"		cap="1"		mode="kDisabled"/>
-    <skill id="kCreateWand"		name="!отключено"		abbr="!error"	saving="kWill"		difficulty="1"		cap="1"		mode="kDisabled"/>
-    <skill id="kMakeStaff"		name="!отключено"		abbr="!error"	saving="kWill"		difficulty="1"		cap="1"		mode="kDisabled"/>
-    <skill id="kMakePotion"		name="!отключено"		abbr="!error"	saving="kWill"		difficulty="1"		cap="1"		mode="kDisabled"/>
+    <skill id="kGlobalCooldown"		name="!cooldown"		abbr="п·п≈"	saving="kWill"		difficulty="1"		cap="1"		mode="kService"/>
+    <skill id="kBackstab"		name="п╥п╟п╨п╬п╩п╬я┌я▄"			abbr="п≈п╨"	saving="kReflex"	difficulty="200"	cap="1000"/>
+    <skill id="kBash"			name="я│п╠п╦я┌я▄"			abbr="п║п╠"	saving="kStability"	difficulty="200"	cap="200"/>
+    <skill id="kHide"			name="я│п©я─я▐я┌п╟я┌я▄я│я▐"		abbr="п║п©"	saving="kWill"		difficulty="100"	cap="200"/>
+    <skill id="kKick"			name="п©п╫я┐я┌я▄"			abbr="п÷п╫"	saving="kStability"	difficulty="200"	cap="200"/>
+    <skill id="kPickLock"		name="п╡п╥п╩п╬п╪п╟я┌я▄"			abbr="п▓п╥"	saving="kReflex"	difficulty="120"	cap="200"/>
+    <skill id="kPunch"			name="п╨я┐п╩п╟я┤п╫я▀п╧ п╠п╬п╧"		abbr="п п╠"	saving="kStability"	difficulty="100"	cap="1000"/>
+    <skill id="kRescue"			name="я│п©п╟я│я┌п╦"			abbr="п║п©я│"	saving="kReflex"	difficulty="200"	cap="1000"/>
+    <skill id="kSneak"			name="п©п╬п╢п╨я─п╟я│я┌я▄я│я▐"		abbr="п÷п╢"	saving="kWill"		difficulty="100"	cap="200"/>
+    <skill id="kSteal"			name="я┐п╨я─п╟я│я┌я▄"			abbr="пёп╨"	saving="kWill"		difficulty="100"	cap="200"/>
+    <skill id="kTrack"			name="п╡я▀я│п╩п╣п╢п╦я┌я▄"		abbr="п▓я▀я│"	saving="kReflex"	difficulty="100"	cap="1000"/>
+    <skill id="kParry"			name="п©п╟я─п╦я─п╬п╡п╟я┌я▄"		abbr="п÷я─"	saving="kStability"	difficulty="120"	cap="1000"/>
+    <skill id="kShieldBlock"		name="п╠п╩п╬п╨п╦я─п╬п╡п╟я┌я▄ я┴п╦я┌п╬п╪"	abbr="п▒я┴"	saving="kReflex"	difficulty="200"	cap="200"/>
+    <skill id="kIntercept"		name="п©п╣я─п╣я┘п╡п╟я┌п╦я┌я▄ п╟я┌п╟п╨я┐"	abbr="п÷я┘"	saving="kReflex"	difficulty="100"	cap="200"/>
+    <skill id="kProtect"		name="п©я─п╦п╨я─я▀я┌я▄"			abbr="п÷п╨"	saving="kReflex"	difficulty="200"	cap="200"/>
+    <skill id="kTwohands"		name="п╢п╡я┐я─я┐я┤п╫п╦п╨п╦"		abbr="п■п╡"	saving="kStability"	difficulty="160"	cap="1000"/>
+    <skill id="kLongBlades"		name="п╢п╩п╦п╫п╫я▀п╣ п╩п╣п╥п╡п╦я▐"		abbr="п■п╩"	saving="kStability"	difficulty="160"	cap="1000"/>
+    <skill id="kSpades"			name="п╨п╬п©я▄я▐ п╦ я─п╬пЁп╟я┌п╦п╫я▀"		abbr="п я─"	saving="kStability"	difficulty="160"	cap="1000"/>
+    <skill id="kShortBlades"		name="п╨п╬я─п╬я┌п╨п╦п╣ п╩п╣п╥п╡п╦я▐"		abbr="п п╩"	saving="kStability"	difficulty="160"	cap="1000"/>
+    <skill id="kBows"			name="п╩я┐п╨п╦"			abbr="п⌡п╨"	saving="kStability"	difficulty="160"	cap="1000"/>
+    <skill id="kClubs"			name="п©п╟п╩п╦я├я▀ п╦ п╢я┐п╠п╦п╫я▀"		abbr="п÷п╢"	saving="kStability"	difficulty="160"	cap="1000"/>
+    <skill id="kPicks"			name="п©я─п╬п╫п╦п╨п╟я▌я┴п╣п╣ п╬я─я┐п╤п╦п╣"	abbr="п÷я─п╫"	saving="kStability"	difficulty="160"	cap="1000"/>
+    <skill id="kNonstandart"		name="п╦п╫п╬п╣ п╬я─я┐п╤п╦п╣"		abbr="п≤п╫"	saving="kStability"	difficulty="160"	cap="1000"/>
+    <skill id="kAxes"			name="я│п╣п╨п╦я─я▀"			abbr="п║п╨"	saving="kStability"	difficulty="160"	cap="1000"/>
+    <skill id="kSideAttack"		name="п╟я┌п╟п╨п╟ п╩п╣п╡п╬п╧ я─я┐п╨п╬п╧"	abbr="п░п╩"	saving="kStability"	difficulty="100"	cap="200"/>
+    <skill id="kLooking"		name="п©я─п╦пЁп╩я▐п╢п╣я┌я▄я│я▐"		abbr="п÷я─пЁ"	saving="kReflex"	difficulty="100"	cap="200"/>
+    <skill id="kHearing"		name="п©я─п╦я│п╩я┐я┬п╟я┌я▄я│я▐"		abbr="п÷я─я│"	saving="kReflex"	difficulty="100"	cap="200"/>
+    <skill id="kDisarm"			name="п╬п╠п╣п╥п╬я─я┐п╤п╦я┌я▄"		abbr="п·п╠"	saving="kStability"	difficulty="100"	cap="200"/>
+    <skill id="kMorph"			name="п╬п╠п╬я─п╬я┌п╫п╦я┤п╣я│я┌п╡п╬"		abbr="п·п╠я─"	saving="kReflex"	difficulty="150"	cap="200"	mode="kTesting"/>
+    <skill id="kAddshot"		name="п╢п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫я▀п╧ п╡я▀я│я┌я─п╣п╩"	abbr="п■п╬п©"	saving="kReflex"	difficulty="200"	cap="200"/>
+    <skill id="kDisguise"		name="п╪п╟я│п╨п╦я─п╬п╡п╨п╟"		abbr="п°я│п╨"	saving="kWill"		difficulty="100"	cap="200"/>
+    <skill id="kDodge"			name="я┐п╨п╩п╬п╫п╦я┌я▄я│я▐"		abbr="пёп╨п╩"	saving="kReflex"	difficulty="100"	cap="200"/>
+    <skill id="kChopoff"		name="п©п╬п╢п╫п╬п╤п╨п╟"			abbr="п÷п╢"	saving="kReflex"	difficulty="200"	cap="200"/>
+    <skill id="kRepair"			name="я─п╣п╪п╬п╫я┌"			abbr="п═п╪"	saving="kReflex"	difficulty="180"	cap="200"/>
+    <skill id="kCourage"		name="я▐я─п╬я│я┌я▄"			abbr="п╞я─"	saving="kReflex"	difficulty="100"	cap="1000"/>
+    <skill id="kIdentify"		name="п╬п©п╬п╥п╫п╟п╫п╦п╣"		abbr="п·п©"	saving="kReflex"	difficulty="100"	cap="1000"/>
+    <skill id="kPry"			name="п©п╬п╢я│п╪п╬я┌я─п╣я┌я▄"		abbr="п÷п╢п╪"	saving="kReflex"	difficulty="100"	cap="200"/>
+    <skill id="kSharpening"		name="п╥п╟я┌п╬я┤п╦я┌я▄"			abbr="п≈п╟я┌"	saving="kReflex"	difficulty="100"	cap="200"/>
+    <skill id="kArmoring"		name="я┐п╨я─п╣п©п╦я┌я▄"			abbr="пёп╨я─"	saving="kReflex"	difficulty="100"	cap="200"/>
+    <skill id="kHangovering"		name="п╬п©п╬я┘п╪п╣п╩п╦я┌я▄я│я▐"		abbr="п·п©я┘"	saving="kReflex"	difficulty="100"	cap="200"/>
+    <skill id="kFirstAid"		name="п╩п╣я┤п╦я┌я▄"			abbr="п⌡я┤"	saving="kReflex"	difficulty="100"	cap="200"/>
+    <skill id="kCampfire"		name="я─п╟п╥п╤п╣я┤я▄ п╨п╬я│я┌п╣я─"		abbr="п═п╨"	saving="kReflex"	difficulty="160"	cap="1000"/>
+    <skill id="kLeftHit"		name="я┐п╢п╟я─ п╩п╣п╡п╬п╧ я─я┐п╨п╬п╧"		abbr="пёп╩я─"	saving="kReflex"	difficulty="100"	cap="200"/>
+    <skill id="kHammer"			name="п╠п╬пЁп╟я┌я▀я─я│п╨п╦п╧ п╪п╬п╩п╬я┌"	abbr="п▒п╪"	saving="kStability"	difficulty="200"	cap="200"/>
+    <skill id="kOverwhelm"		name="п╬пЁп╩я┐я┬п╦я┌я▄"			abbr="п·пЁ"	saving="kStability"	difficulty="200"	cap="200"/>
+    <skill id="kPoisoning"		name="п╬я┌я─п╟п╡п╦я┌я▄"			abbr="п·я┌я─"	saving="kStability"	difficulty="200"	cap="200"/>
+    <skill id="kLeadership"		name="п╩п╦п╢п╣я─я│я┌п╡п╬"		abbr="п⌡п╢"	saving="kReflex"	difficulty="100"	cap="1000"/>
+    <skill id="kPunctual"		name="я┌п╬я┤п╫я▀п╧ я│я┌п╦п╩я▄"		abbr="п╒я│"	saving="kCritical"	difficulty="110"	cap="200"/>
+    <skill id="kAwake"			name="п╬я│я┌п╬я─п╬п╤п╫я▀п╧ я│я┌п╦п╩я▄"		abbr="п·я│"	saving="kReflex"	difficulty="100"	cap="200"/>
+    <skill id="kSense"			name="п╫п╟п╧я┌п╦"			abbr="п²п╧я┌"	saving="kWill"		difficulty="160"	cap="200"/>
+    <skill id="kRiding"			name="я│я─п╟п╤п╣п╫п╦п╣ п╡п╣я─я┘п╬п╪"		abbr="п║я─п╡"	saving="kReflex"	difficulty="200"	cap="1000"/>
+    <skill id="kHideTrack"		name="п╥п╟п╪п╣я│я┌п╦ я│п╩п╣п╢я▀"		abbr="п≈я│"	saving="kReflex"	difficulty="120"	cap="200"/>
+    <skill id="kSkinning"		name="п╬я│п╡п╣п╤п╣п╡п╟я┌я▄"		abbr="п·я│п╡"	saving="kReflex"	difficulty="120"	cap="200"/>
+    <skill id="kMultiparry"		name="п╡п╣п╣я─п╫п╟я▐ п╥п╟я┴п╦я┌п╟"		abbr="п▓п╥"	saving="kReflex"	difficulty="140"	cap="200"/>
+    <skill id="kReforging"		name="п©п╣я─п╣п╨п╬п╡п╟я┌я▄"		abbr="п÷я─п╨"	saving="kReflex"	difficulty="140"	cap="200"/>
+    <skill id="kThrow"			name="п╪п╣я┌п╫я┐я┌я▄"			abbr="п°я┌"	saving="kReflex"	difficulty="150"	cap="1000"/>
+    <skill id="kMakeBow"		name="я│п╪п╟я│я┌п╣я─п╦я┌я▄ п╩я┐п╨"		abbr="п║п╩"	saving="kReflex"	difficulty="140"	cap="200"/>
+    <skill id="kMakeWeapon"		name="п╡я▀п╨п╬п╡п╟я┌я▄ п╬я─я┐п╤п╦п╣"		abbr="п▓п╨я─"	saving="kReflex"	difficulty="140"	cap="200"/>
+    <skill id="kMakeArmor"		name="п╡я▀п╨п╬п╡п╟я┌я▄ п╢п╬я│п©п╣я┘"		abbr="п▓п╨п╢"	saving="kReflex"	difficulty="140"	cap="200"/>
+    <skill id="kMakeWear"		name="я│я┬п╦я┌я▄ п╬п╢п╣п╤п╢я┐"		abbr="п║я┬"	saving="kReflex"	difficulty="140"	cap="200"/>
+    <skill id="kMakeJewel"		name="я│п╪п╟я│я┌п╣я─п╦я┌я▄ п╢п╦п╨п╬п╡п╦п╫п╨я┐"	abbr="п║п╢"	saving="kReflex"	difficulty="140"	cap="200"/>
+    <skill id="kJinx"			name="я│пЁп╩п╟п╥п╦я┌я▄"			abbr="п║пЁ"	saving="kWill"		difficulty="100"	cap="200"/>
+    <skill id="kNoParryHit"		name="я│п╨я─я▀я┌я▀п╧ я┐п╢п╟я─"		abbr="п║п╢"	saving="kCritical"	difficulty="100"	cap="200"/>
+    <skill id="kTownportal"		name="п╡я─п╟я┌п╟"			abbr="п▓я─"	saving="kReflex"	difficulty="100"	cap="200"/>
+    <skill id="kDigging"		name="пЁп╬я─п╫п╬п╣ п╢п╣п╩п╬"		abbr="п⌠п╢"	saving="kReflex"	difficulty="100"	cap="100"/>
+    <skill id="kJewelry"		name="я▌п╡п╣п╩п╦я─"			abbr="п╝п╡"	saving="kReflex"	difficulty="100"	cap="200"/>
+    <skill id="kWarcry"			name="п╠п╬п╣п╡п╬п╧ п╨п╩п╦я┤"		abbr="п▒п╨"	saving="kWill"		difficulty="100"	cap="200"/>
+    <skill id="kTurnUndead"		name="п╦п╥пЁп╫п╟я┌я▄ п╫п╣п╤п╦я┌я▄"		abbr="п≤п╥"	saving="kStability"	difficulty="100"	cap="1000"/>
+    <skill id="kIronwind"		name="п╤п╣п╩п╣п╥п╫я▀п╧ п╡п╣я┌п╣я─"		abbr="п√п╡"	saving="kReflex"	difficulty="150"	cap="1000"/>
+    <skill id="kStrangle"		name="я┐п╢п╟п╡п╦я┌я▄"			abbr="пёп╢"	saving="kStability"	difficulty="200"	cap="200"/>
+    <skill id="kAirMagic"		name="п╪п╟пЁп╦я▐ п╡п╬п╥п╢я┐я┘п╟"		abbr="п°п╟"	saving="kReflex"	difficulty="200"	cap="1000"/>
+    <skill id="kFireMagic"		name="п╪п╟пЁп╦я▐ п╬пЁп╫я▐"		abbr="п°п╬"	saving="kReflex"	difficulty="1000"	cap="1000"/>
+    <skill id="kWaterMagic"		name="п╪п╟пЁп╦я▐ п╡п╬п╢я▀"		abbr="п°п╡п╢"	saving="kReflex"	difficulty="1000"	cap="1000"/>
+    <skill id="kEarthMagic"		name="п╪п╟пЁп╦я▐ п╥п╣п╪п╩п╦"		abbr="п°п╥"	saving="kReflex"	difficulty="1000"	cap="1000"/>
+    <skill id="kLightMagic"		name="п╪п╟пЁп╦я▐ я│п╡п╣я┌п╟"		abbr="п°я│"	saving="kReflex"	difficulty="1000"	cap="1000"/>
+    <skill id="kDarkMagic"		name="п╪п╟пЁп╦я▐ я┌я▄п╪я▀"		abbr="п°я┌"	saving="kReflex"	difficulty="1000"	cap="1000"/>
+    <skill id="kMindMagic"		name="п╪п╟пЁп╦я▐ я─п╟п╥я┐п╪п╟"		abbr="п°я─"	saving="kWill"		difficulty="1000"	cap="1000"/>
+    <skill id="kLifeMagic"		name="п╪п╟пЁп╦я▐ п╤п╦п╥п╫п╦"		abbr="п°п╤"	saving="kStability"	difficulty="1000"	cap="1000"/>
+    <skill id="kStun"			name="п╬я┬п╣п╩п╬п╪п╦я┌я▄"		abbr="п·я┬"	saving="kStability"	difficulty="200"	cap="200"/>
+    <skill id="kMakeAmulet"		name="я│п╪п╟я│я┌п╣я─п╦я┌я▄ п╬п╠п╣я─п╣пЁ"	abbr="п║п╬"	saving="kReflex"	difficulty="200"	cap="200"/>
+    <skill id="kCutting"		name="!п©п╬я─п╣п╥!"			abbr="п÷я─"	saving="kStability"	difficulty="200"	cap="200"	mode="kDisabled"/>
+    <skill id="kCreateBow"		name="!п╬я┌п╨п╩я▌я┤п╣п╫п╬"		abbr="!error"	saving="kWill"		difficulty="1"		cap="1"		mode="kDisabled"/>
+    <skill id="kCreatePotion"		name="!п╬я┌п╨п╩я▌я┤п╣п╫п╬"		abbr="!error"	saving="kWill"		difficulty="1"		cap="1"		mode="kDisabled"/>
+    <skill id="kCreateScroll"		name="!п╬я┌п╨п╩я▌я┤п╣п╫п╬"		abbr="!error"	saving="kWill"		difficulty="1"		cap="1"		mode="kDisabled"/>
+    <skill id="kCreateWand"		name="!п╬я┌п╨п╩я▌я┤п╣п╫п╬"		abbr="!error"	saving="kWill"		difficulty="1"		cap="1"		mode="kDisabled"/>
+    <skill id="kMakeStaff"		name="!п╬я┌п╨п╩я▌я┤п╣п╫п╬"		abbr="!error"	saving="kWill"		difficulty="1"		cap="1"		mode="kDisabled"/>
+    <skill id="kMakePotion"		name="!п╬я┌п╨п╩я▌я┤п╣п╫п╬"		abbr="!error"	saving="kWill"		difficulty="1"		cap="1"		mode="kDisabled"/>
 </skills>

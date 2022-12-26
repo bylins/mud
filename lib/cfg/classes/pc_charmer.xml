@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <class id="kCharmer">
-    <name abbr="Кд">
-        <singular nom="кудесник" gen="кудесника" dat="кудеснику" acc="кудесника" ins="кудесником" pre="кудеснике"/>
-        <plural nom="кудесники" gen="кудесников" dat="кудесникам" acc="кудесников" ins="кудесниками" pre="кудесниках"/>
+    <name abbr="п п╢">
+        <singular nom="п╨я┐п╢п╣я│п╫п╦п╨" gen="п╨я┐п╢п╣я│п╫п╦п╨п╟" dat="п╨я┐п╢п╣я│п╫п╦п╨я┐" acc="п╨я┐п╢п╣я│п╫п╦п╨п╟" ins="п╨я┐п╢п╣я│п╫п╦п╨п╬п╪" pre="п╨я┐п╢п╣я│п╫п╦п╨п╣"/>
+        <plural nom="п╨я┐п╢п╣я│п╫п╦п╨п╦" gen="п╨я┐п╢п╣я│п╫п╦п╨п╬п╡" dat="п╨я┐п╢п╣я│п╫п╦п╨п╟п╪" acc="п╨я┐п╢п╣я│п╫п╦п╨п╬п╡" ins="п╨я┐п╢п╣я│п╫п╦п╨п╟п╪п╦" pre="п╨я┐п╢п╣я│п╫п╦п╨п╟я┘"/>
     </name>
     <stats>
         <base_stats>
@@ -72,7 +72,7 @@
         <spell id="kGroupFly"			level="25"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
         <spell id="kMassSilence"		level="26"	remort="2"	circle="8"	mem="0"		cast="0.0"/>
         <spell id="kEyeOfGods"			level="26"	remort="2"	circle="8"	mem="0"		cast="0.0"/>
-        <spell id="kForbidden"			level="25"	remort="0"	circle="8"	mem="-99"	cast="0.0"/>
+        <spell id="kForbidden"			level="25"	remort="0"	circle="8"	mem="-49"	cast="0.0"/>
         <spell id="kMassSlow"			level="26"	remort="0"	circle="8"	mem="0"		cast="0.0"/>
         <spell id="kMentalShadow"		level="16"	remort="0"	circle="4"	mem="0"		cast="0.0"/>
         <spell id="kGroupMagicGlass"	level="28"	remort="2"	circle="9"	mem="0"		cast="0.0"/>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <!--
-Формат:
+п╓п╬я─п╪п╟я┌:
 -->
 <abilities>
     <ability id="kUndefined" name="!undefined" abbr="!Undef" mode="kService">
@@ -8,67 +8,67 @@
         <thresholds critsuccess="6" critfail="95"/>
         <penalties pvp="0" pve="0" evp="0"/>
     </ability>
-    <ability id="kScirmisher" name="Держать строй" abbr="Дс" mode="kEnabled">
+    <ability id="kScirmisher" name="п■п╣я─п╤п╟я┌я▄ я│я┌я─п╬п╧" abbr="п■я│" mode="kEnabled">
         <base skill="kRescue" stat ="kDex" saving="kReflex" roll_bonus="90"/>
         <thresholds critsuccess="6" critfail="95"/>
         <penalties pvp="0" pve="0" evp="0"/>
     </ability>
-    <ability id="kTactician" name="Десяцкий" abbr="Дс" mode="kEnabled">
+    <ability id="kTactician" name="п■п╣я│я▐я├п╨п╦п╧" abbr="п■я│" mode="kEnabled">
         <base skill="kLeadership" stat ="kCha" saving="kReflex" roll_bonus="90"/>
         <thresholds critsuccess="6" critfail="95"/>
         <penalties pvp="0" pve="0" evp="0"/>
     </ability>
-    <ability id="kCutting" name="Порез" abbr="Пр" mode="kEnabled">
+    <ability id="kCutting" name="п÷п╬я─п╣п╥" abbr="п÷я─" mode="kEnabled">
         <base skill="kLeadership" stat ="kDex" saving="kCritical" roll_bonus="110"/>
         <thresholds critsuccess="6" critfail="95"/>
         <penalties pvp="0" pve="0" evp="0"/>
     </ability>
-    <ability id="kThrowWeapon" name="Метнуть" abbr="Мт" mode="kEnabled">
+    <ability id="kThrowWeapon" name="п°п╣я┌п╫я┐я┌я▄" abbr="п°я┌" mode="kEnabled">
         <base skill="kThrow" stat ="kDex" saving="kReflex" roll_bonus="100"/>
         <thresholds critsuccess="6" critfail="95"/>
         <penalties pvp="0" pve="0" evp="0"/>
     </ability>
-    <ability id="kShadowThrower" name="Змеево оружие" abbr="Зо" mode="kEnabled">
+    <ability id="kShadowThrower" name="п≈п╪п╣п╣п╡п╬ п╬я─я┐п╤п╦п╣" abbr="п≈п╬" mode="kEnabled">
         <base skill="kDarkMagic" stat ="kDex" saving="kWill" roll_bonus="100"/>
         <thresholds critsuccess="6" critfail="95"/>
         <penalties pvp="0" pve="0" evp="0"/>
     </ability>
-    <ability id="kShadowDagger" name="Змевв кинжал" abbr="Зк" mode="kEnabled">
+    <ability id="kShadowDagger" name="п≈п╪п╣п╣п╡ п╨п╦п╫п╤п╟п╩" abbr="п≈п╨" mode="kEnabled">
         <base skill="kDarkMagic" stat ="kInt" saving="kStability" roll_bonus="80"/>
         <thresholds critsuccess="6" critfail="95"/>
         <penalties pvp="0" pve="0" evp="0"/>
     </ability>
-    <ability id="kShadowSpear" name="Змеево копье" abbr="Зкп" mode="kEnabled">
+    <ability id="kShadowSpear" name="п≈п╪п╣п╣п╡п╬ п╨п╬п©я▄п╣" abbr="п≈п╨п©" mode="kEnabled">
         <base skill="kDarkMagic" stat ="kInt" saving="kStability" roll_bonus="80"/>
         <thresholds critsuccess="6" critfail="95"/>
         <penalties pvp="0" pve="0" evp="0"/>
     </ability>
-    <ability id="kShadowClub" name="Змеева палица" abbr="Зп" mode="kEnabled">
+    <ability id="kShadowClub" name="п≈п╪п╣п╣п╡п╟ п©п╟п╩п╦я├п╟" abbr="п≈п©" mode="kEnabled">
         <base skill="kDarkMagic" stat ="kInt" saving="kStability" roll_bonus="80"/>
         <thresholds critsuccess="6" critfail="95"/>
         <penalties pvp="0" pve="0" evp="0"/>
     </ability>
-    <ability id="kDoubleThrower" name="Двойной бросок" abbr="Дб" mode="kEnabled">
+    <ability id="kDoubleThrower" name="п■п╡п╬п╧п╫п╬п╧ п╠я─п╬я│п╬п╨" abbr="п■п╠" mode="kEnabled">
         <base skill="kDarkMagic" stat ="kDex" saving="kReflex" roll_bonus="100"/>
         <thresholds critsuccess="6" critfail="95"/>
         <penalties pvp="0" pve="0" evp="0"/>
     </ability>
-    <ability id="kTripleThrower" name="Тройной бросо" abbr="Тб" mode="kEnabled">
+    <ability id="kTripleThrower" name="п╒я─п╬п╧п╫п╬п╧ п╠я─п╬я│п╬" abbr="п╒п╠" mode="kEnabled">
         <base skill="kDarkMagic" stat ="kDex" saving="kReflex" roll_bonus="100"/>
         <thresholds critsuccess="6" critfail="95"/>
         <penalties pvp="0" pve="0" evp="0"/>
     </ability>
-    <ability id="kPowerThrow" name="Размех" abbr="Размах" mode="kEnabled">
+    <ability id="kPowerThrow" name="п═п╟п╥п╪п╟я┘" abbr="п═п╟п╥п╪п╟я┘" mode="kEnabled">
         <base skill="kDarkMagic" stat ="kStr" saving="kReflex" roll_bonus="100"/>
         <thresholds critsuccess="6" critfail="95"/>
         <penalties pvp="0" pve="0" evp="0"/>
     </ability>
-    <ability id="kDeadlyThrow" name="Широкий рахмах" abbr="Шр" mode="kEnabled">
+    <ability id="kDeadlyThrow" name="п╗п╦я─п╬п╨п╦п╧ я─п╟я┘п╪п╟я┘" abbr="п╗я─" mode="kEnabled">
         <base skill="kDarkMagic" stat ="kStr" saving="kReflex" roll_bonus="100"/>
         <thresholds critsuccess="6" critfail="95"/>
         <penalties pvp="0" pve="0" evp="0"/>
     </ability>
-    <ability id="kTurnUndead" name="Изгнать нежить" abbr="Ин" mode="kEnabled">
+    <ability id="kTurnUndead" name="п≤п╥пЁп╫п╟я┌я▄ п╫п╣п╤п╦я┌я▄" abbr="п≤п╫" mode="kEnabled">
         <base skill="kTurnUndead" stat ="kInt" saving="kStability" roll_bonus="70"/>
         <thresholds critsuccess="6" critfail="95"/>
         <penalties pvp="0" pve="0" evp="0"/>

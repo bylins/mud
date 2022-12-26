@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <class id="kThief">
-    <name abbr="Тт">
-        <singular nom="тать" gen="татя" dat="татю" acc="татя" ins="татем" pre="тате"/>
-        <plural nom="тати" gen="татей" dat="татям" acc="татей" ins="татями" pre="татях"/>
+    <name abbr="п╒я┌">
+        <singular nom="я┌п╟я┌я▄" gen="я┌п╟я┌я▐" dat="я┌п╟я┌я▌" acc="я┌п╟я┌я▐" ins="я┌п╟я┌п╣п╪" pre="я┌п╟я┌п╣"/>
+        <plural nom="я┌п╟я┌п╦" gen="я┌п╟я┌п╣п╧" dat="я┌п╟я┌я▐п╪" acc="я┌п╟я┌п╣п╧" ins="я┌п╟я┌я▐п╪п╦" pre="я┌п╟я┌я▐я┘"/>
     </name>
     <stats>
         <base_stats>

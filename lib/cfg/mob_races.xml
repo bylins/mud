@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <mob_races>
-  <mob_race id="100" name ="Обычный">
+  <mob_race id="100" name ="п·п╠я▀я┤п╫я▀п╧">
   </mob_race>
-  <mob_race id="101" name ="Человек">
+  <mob_race id="101" name ="п╖п╣п╩п╬п╡п╣п╨">
     <imlist>
-      <im type="201" name ="зубы">
+      <im type="201" name ="п╥я┐п╠я▀">
         <prob lvl="1">1</prob>
         <prob lvl="11">2</prob>
         <prob lvl="21">3</prob>
@@ -14,7 +14,7 @@
         <prob lvl="41">2</prob>
         <prob lvl="46">4</prob>
       </im>
-      <im type="203" name ="глаза">
+      <im type="203" name ="пЁп╩п╟п╥п╟">
         <prob lvl="1">1</prob>
         <prob lvl="11">1</prob>
         <prob lvl="21">2</prob>
@@ -24,7 +24,7 @@
         <prob lvl="41">2</prob>
         <prob lvl="46">3</prob>
       </im>
-      <im type="205" name ="волосы">
+      <im type="205" name ="п╡п╬п╩п╬я│я▀">
         <prob lvl="1">1</prob>
         <prob lvl="11">4</prob>
         <prob lvl="21">6</prob>
@@ -34,7 +34,7 @@
         <prob lvl="41">25</prob>
         <prob lvl="46">17</prob>
       </im>
-      <im type="206" name ="сердце">
+      <im type="206" name ="я│п╣я─п╢я├п╣">
         <prob lvl="1">1</prob>
         <prob lvl="11">3</prob>
         <prob lvl="21">5</prob>
@@ -46,9 +46,9 @@
       </im>
     </imlist>
   </mob_race>
-  <mob_race id="102" name ="Зверолюд">
+  <mob_race id="102" name ="п≈п╡п╣я─п╬п╩я▌п╢">
     <imlist>
-      <im type="1" name="шерсть">
+      <im type="1" name="я┬п╣я─я│я┌я▄">
         <prob lvl="1">1</prob>
         <prob lvl="11">6</prob>
         <prob lvl="21">11</prob>
@@ -58,7 +58,7 @@
         <prob lvl="41">40</prob>
         <prob lvl="46">32</prob>
       </im>
-      <im type="201" name ="зубы">
+      <im type="201" name ="п╥я┐п╠я▀">
         <prob lvl="1">1</prob>
         <prob lvl="11">2</prob>
         <prob lvl="21">3</prob>
@@ -68,7 +68,7 @@
         <prob lvl="41">2</prob>
         <prob lvl="46">4</prob>
       </im>
-      <im type="203" name ="глаза">
+      <im type="203" name ="пЁп╩п╟п╥п╟">
         <prob lvl="1">1</prob>
         <prob lvl="11">3</prob>
         <prob lvl="21">5</prob>
@@ -78,7 +78,7 @@
         <prob lvl="41">4</prob>
         <prob lvl="46">6</prob>
       </im>
-      <im type="204" name ="печень">
+      <im type="204" name ="п©п╣я┤п╣п╫я▄">
         <prob lvl="1">1</prob>
         <prob lvl="11">2</prob>
         <prob lvl="21">4</prob>
@@ -88,7 +88,7 @@
         <prob lvl="41">3</prob>
         <prob lvl="46">5</prob>
       </im>
-      <im type="205" name ="волосы">
+      <im type="205" name ="п╡п╬п╩п╬я│я▀">
         <prob lvl="1">1</prob>
         <prob lvl="11">6</prob>
         <prob lvl="21">7</prob>
@@ -98,7 +98,7 @@
         <prob lvl="41">27</prob>
         <prob lvl="46">19</prob>
       </im>
-      <im type="206" name ="сердце">
+      <im type="206" name ="я│п╣я─п╢я├п╣">
         <prob lvl="1">1</prob>
         <prob lvl="11">3</prob>
         <prob lvl="21">5</prob>
@@ -110,9 +110,9 @@
       </im>
     </imlist>
   </mob_race>
-  <mob_race id="103" name ="Птица">
+  <mob_race id="103" name ="п÷я┌п╦я├п╟">
     <imlist>
-      <im type="202" name ="когти">
+      <im type="202" name ="п╨п╬пЁя┌п╦">
         <prob lvl="1">1</prob>
         <prob lvl="11">13</prob>
         <prob lvl="21">18</prob>
@@ -122,7 +122,7 @@
         <prob lvl="41">48</prob>
         <prob lvl="46">31</prob>
       </im>
-      <im type="203" name ="глаза">
+      <im type="203" name ="пЁп╩п╟п╥п╟">
         <prob lvl="1">1</prob>
         <prob lvl="11">3</prob>
         <prob lvl="21">5</prob>
@@ -132,7 +132,7 @@
         <prob lvl="41">4</prob>
         <prob lvl="46">6</prob>
       </im>
-      <im type="204" name ="печень">
+      <im type="204" name ="п©п╣я┤п╣п╫я▄">
         <prob lvl="1">1</prob>
         <prob lvl="11">2</prob>
         <prob lvl="21">4</prob>
@@ -142,7 +142,7 @@
         <prob lvl="41">3</prob>
         <prob lvl="46">5</prob>
       </im>
-      <im type="206" name ="сердце">
+      <im type="206" name ="я│п╣я─п╢я├п╣">
         <prob lvl="1">1</prob>
         <prob lvl="11">3</prob>
         <prob lvl="21">5</prob>
@@ -152,7 +152,7 @@
         <prob lvl="41">4</prob>
         <prob lvl="46">6</prob>
       </im>
-      <im type="208" name ="крылья">
+      <im type="208" name ="п╨я─я▀п╩я▄я▐">
         <prob lvl="1">1</prob>
         <prob lvl="11">14</prob>
         <prob lvl="21">30</prob>
@@ -164,9 +164,9 @@
       </im>
     </imlist>
   </mob_race>
-  <mob_race id="104" name ="Животное">
+  <mob_race id="104" name ="п√п╦п╡п╬я┌п╫п╬п╣">
     <imlist>
-      <im type="1" name="шерсть">
+      <im type="1" name="я┬п╣я─я│я┌я▄">
         <prob lvl="1">1</prob>
         <prob lvl="11">14</prob>
         <prob lvl="21">22</prob>
@@ -176,7 +176,7 @@
         <prob lvl="41">41</prob>
         <prob lvl="46">33</prob>
       </im>
-      <im type="201" name ="зубы">
+      <im type="201" name ="п╥я┐п╠я▀">
         <prob lvl="1">1</prob>
         <prob lvl="11">3</prob>
         <prob lvl="21">5</prob>
@@ -186,7 +186,7 @@
         <prob lvl="41">4</prob>
         <prob lvl="46">6</prob>
       </im>
-      <im type="203" name ="глаза">
+      <im type="203" name ="пЁп╩п╟п╥п╟">
         <prob lvl="1">1</prob>
         <prob lvl="11">2</prob>
         <prob lvl="21">4</prob>
@@ -196,7 +196,7 @@
         <prob lvl="41">3</prob>
         <prob lvl="46">5</prob>
       </im>
-      <im type="204" name ="печень">
+      <im type="204" name ="п©п╣я┤п╣п╫я▄">
         <prob lvl="1">1</prob>
         <prob lvl="11">4</prob>
         <prob lvl="21">5</prob>
@@ -206,7 +206,7 @@
         <prob lvl="41">4</prob>
         <prob lvl="46">6</prob>
       </im>
-      <im type="206" name ="сердце">
+      <im type="206" name ="я│п╣я─п╢я├п╣">
         <prob lvl="1">1</prob>
         <prob lvl="11">3</prob>
         <prob lvl="21">5</prob>
@@ -218,9 +218,9 @@
       </im>
     </imlist>
   </mob_race>
-  <mob_race id="105" name ="Пресмыкающееся">
+  <mob_race id="105" name ="п÷я─п╣я│п╪я▀п╨п╟я▌я┴п╣п╣я│я▐">
     <imlist>
-      <im type="201" name ="зубы">
+      <im type="201" name ="п╥я┐п╠я▀">
         <prob lvl="1">1</prob>
         <prob lvl="11">3</prob>
         <prob lvl="21">5</prob>
@@ -230,7 +230,7 @@
         <prob lvl="41">4</prob>
         <prob lvl="46">6</prob>
       </im>
-      <im type="203" name ="глаза">
+      <im type="203" name ="пЁп╩п╟п╥п╟">
         <prob lvl="1">1</prob>
         <prob lvl="11">2</prob>
         <prob lvl="21">4</prob>
@@ -240,7 +240,7 @@
         <prob lvl="41">3</prob>
         <prob lvl="46">5</prob>
       </im>
-      <im type="204" name ="печень">
+      <im type="204" name ="п©п╣я┤п╣п╫я▄">
         <prob lvl="1">1</prob>
         <prob lvl="11">2</prob>
         <prob lvl="21">4</prob>
@@ -250,7 +250,7 @@
         <prob lvl="41">3</prob>
         <prob lvl="46">5</prob>
       </im>
-      <im type="206" name ="сердце">
+      <im type="206" name ="я│п╣я─п╢я├п╣">
         <prob lvl="1">1</prob>
         <prob lvl="11">3</prob>
         <prob lvl="21">5</prob>
@@ -260,7 +260,7 @@
         <prob lvl="41">4</prob>
         <prob lvl="46">6</prob>
       </im>
-      <im type="207" name ="чешуйка">
+      <im type="207" name ="я┤п╣я┬я┐п╧п╨п╟">
         <prob lvl="1">1</prob>
         <prob lvl="11">12</prob>
         <prob lvl="21">31</prob>
@@ -272,9 +272,9 @@
       </im>
     </imlist>
   </mob_race>
-  <mob_race id="106" name ="Рыба">
+  <mob_race id="106" name ="п═я▀п╠п╟">
     <imlist>
-      <im type="203" name ="глаза">
+      <im type="203" name ="пЁп╩п╟п╥п╟">
         <prob lvl="1">1</prob>
         <prob lvl="11">3</prob>
         <prob lvl="21">5</prob>
@@ -284,7 +284,7 @@
         <prob lvl="41">4</prob>
         <prob lvl="46">6</prob>
       </im>
-      <im type="204" name ="печень">
+      <im type="204" name ="п©п╣я┤п╣п╫я▄">
         <prob lvl="1">1</prob>
         <prob lvl="11">2</prob>
         <prob lvl="21">4</prob>
@@ -294,7 +294,7 @@
         <prob lvl="41">3</prob>
         <prob lvl="46">5</prob>
       </im>
-      <im type="206" name ="сердце">
+      <im type="206" name ="я│п╣я─п╢я├п╣">
         <prob lvl="1">1</prob>
         <prob lvl="11">3</prob>
         <prob lvl="21">5</prob>
@@ -304,7 +304,7 @@
         <prob lvl="41">4</prob>
         <prob lvl="46">6</prob>
       </im>
-      <im type="207" name ="чешуйка">
+      <im type="207" name ="я┤п╣я┬я┐п╧п╨п╟">
         <prob lvl="1">1</prob>
         <prob lvl="11">7</prob>
         <prob lvl="21">25</prob>
@@ -316,15 +316,15 @@
       </im>
     </imlist>
   </mob_race>
-  <mob_race id="107" name ="Насекомое">
+  <mob_race id="107" name ="п²п╟я│п╣п╨п╬п╪п╬п╣">
   </mob_race>
-  <mob_race id="108" name ="Растение">
+  <mob_race id="108" name ="п═п╟я│я┌п╣п╫п╦п╣">
   </mob_race>
-  <mob_race id="109" name ="Предмет">
+  <mob_race id="109" name ="п÷я─п╣п╢п╪п╣я┌">
   </mob_race>
-  <mob_race id="110" name ="Живой труп">
+  <mob_race id="110" name ="п√п╦п╡п╬п╧ я┌я─я┐п©">
     <imlist>
-      <im type="201" name ="зубы">
+      <im type="201" name ="п╥я┐п╠я▀">
         <prob lvl="1">1</prob>
         <prob lvl="11">3</prob>
         <prob lvl="21">5</prob>
@@ -334,7 +334,7 @@
         <prob lvl="41">4</prob>
         <prob lvl="46">6</prob>
       </im>
-      <im type="203" name ="глаза">
+      <im type="203" name ="пЁп╩п╟п╥п╟">
         <prob lvl="1">1</prob>
         <prob lvl="11">3</prob>
         <prob lvl="21">4</prob>
@@ -346,11 +346,11 @@
       </im>
     </imlist>
   </mob_race>
-  <mob_race id="111" name ="Призрак">
+  <mob_race id="111" name ="п÷я─п╦п╥я─п╟п╨">
   </mob_race>
-  <mob_race id="112" name ="Нечисть">
+  <mob_race id="112" name ="п²п╣я┤п╦я│я┌я▄">
     <imlist>
-      <im type="1" name="шерсть">
+      <im type="1" name="я┬п╣я─я│я┌я▄">
         <prob lvl="1">1</prob>
         <prob lvl="11">5</prob>
         <prob lvl="21">15</prob>
@@ -360,7 +360,7 @@
         <prob lvl="41">15</prob>
         <prob lvl="46">12</prob>
       </im>
-      <im type="201" name ="зубы">
+      <im type="201" name ="п╥я┐п╠я▀">
         <prob lvl="1">1</prob>
         <prob lvl="11">3</prob>
         <prob lvl="21">5</prob>
@@ -370,7 +370,7 @@
         <prob lvl="41">4</prob>
         <prob lvl="46">6</prob>
       </im>
-      <im type="202" name ="когти">
+      <im type="202" name ="п╨п╬пЁя┌п╦">
         <prob lvl="1">1</prob>
         <prob lvl="11">7</prob>
         <prob lvl="21">9</prob>
@@ -380,7 +380,7 @@
         <prob lvl="41">48</prob>
         <prob lvl="46">24</prob>
       </im>
-      <im type="203" name ="глаза">
+      <im type="203" name ="пЁп╩п╟п╥п╟">
         <prob lvl="1">1</prob>
         <prob lvl="11">3</prob>
         <prob lvl="21">5</prob>
@@ -390,7 +390,7 @@
         <prob lvl="41">4</prob>
         <prob lvl="46">6</prob>
       </im>
-      <im type="204" name ="печень">
+      <im type="204" name ="п©п╣я┤п╣п╫я▄">
         <prob lvl="1">1</prob>
         <prob lvl="11">3</prob>
         <prob lvl="21">4</prob>
@@ -400,7 +400,7 @@
         <prob lvl="41">3</prob>
         <prob lvl="46">5</prob>
       </im>
-      <im type="205" name ="волосы">
+      <im type="205" name ="п╡п╬п╩п╬я│я▀">
         <prob lvl="1">1</prob>
         <prob lvl="11">6</prob>
         <prob lvl="21">8</prob>
@@ -410,7 +410,7 @@
         <prob lvl="41">27</prob>
         <prob lvl="46">19</prob>
       </im>
-      <im type="206" name ="сердце">
+      <im type="206" name ="я│п╣я─п╢я├п╣">
         <prob lvl="1">1</prob>
         <prob lvl="11">3</prob>
         <prob lvl="21">5</prob>
@@ -420,7 +420,7 @@
         <prob lvl="41">4</prob>
         <prob lvl="46">6</prob>
       </im>
-      <im type="207" name ="чешуйка">
+      <im type="207" name ="я┤п╣я┬я┐п╧п╨п╟">
         <prob lvl="1">1</prob>
         <prob lvl="11">7</prob>
         <prob lvl="21">15</prob>
@@ -432,11 +432,11 @@
       </im>
     </imlist>
   </mob_race>
-  <mob_race id="113" name ="Нематериальный дух">
+  <mob_race id="113" name ="п²п╣п╪п╟я┌п╣я─п╦п╟п╩я▄п╫я▀п╧ п╢я┐я┘">
   </mob_race>
-  <mob_race id="114" name ="Магическое создание">
+  <mob_race id="114" name ="п°п╟пЁп╦я┤п╣я│п╨п╬п╣ я│п╬п╥п╢п╟п╫п╦п╣">
     <imlist>
-      <im type="203" name ="глаза">
+      <im type="203" name ="пЁп╩п╟п╥п╟">
         <prob lvl="1">1</prob>
         <prob lvl="11">3</prob>
         <prob lvl="21">5</prob>
@@ -446,7 +446,7 @@
         <prob lvl="41">4</prob>
         <prob lvl="46">6</prob>
       </im>
-      <im type="206" name ="сердце">
+      <im type="206" name ="я│п╣я─п╢я├п╣">
         <prob lvl="1">1</prob>
         <prob lvl="11">3</prob>
         <prob lvl="21">5</prob>

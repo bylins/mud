@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <!--
-Формат (пример):
+п╓п╬я─п╪п╟я┌ (п©я─п╦п╪п╣я─):
     <spell id="kPowerDeafness" element="kTypeMind" mode="kEnabled">
-        <name rus="длительная глухота" eng="power deafness"/>
+        <name rus="п╢п╩п╦я┌п╣п╩я▄п╫п╟я▐ пЁп╩я┐я┘п╬я┌п╟" eng="power deafness"/>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="120" min="90" change="4"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
@@ -22,34 +22,34 @@
         </effects>
     </spell>
 
-spell   id - ид из массива идентификаторов заклинаний.
-        element - стихия заклинания
-        mode - режим (по умолчанию - kEnabled, но лучше указывать явно)
+spell   id - п╦п╢ п╦п╥ п╪п╟я│я│п╦п╡п╟ п╦п╢п╣п╫я┌п╦я└п╦п╨п╟я┌п╬я─п╬п╡ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╧.
+        element - я│я┌п╦я┘п╦я▐ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐
+        mode - я─п╣п╤п╦п╪ (п©п╬ я┐п╪п╬п╩я┤п╟п╫п╦я▌ - kEnabled, п╫п╬ п╩я┐я┤я┬п╣ я┐п╨п╟п╥я▀п╡п╟я┌я▄ я▐п╡п╫п╬)
 name
-  rus - название заклинания на русском
-  eng - на английском
+  rus - п╫п╟п╥п╡п╟п╫п╦п╣ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐ п╫п╟ я─я┐я│я│п╨п╬п╪
+  eng - п╫п╟ п╟п╫пЁп╩п╦п╧я│п╨п╬п╪
 misc
-    pos - минимальная похиция для применяющего (обычно определяет, можно ли применять заклинание в бою)
-    violent - является ли агроспеллом (Y или N, можно 1 или 0)
-    danger - степень "опасности" спелла, используется для ИИ мобов
+    pos - п╪п╦п╫п╦п╪п╟п╩я▄п╫п╟я▐ п©п╬я┘п╦я├п╦я▐ п╢п╩я▐ п©я─п╦п╪п╣п╫я▐я▌я┴п╣пЁп╬ (п╬п╠я▀я┤п╫п╬ п╬п©я─п╣п╢п╣п╩я▐п╣я┌, п╪п╬п╤п╫п╬ п╩п╦ п©я─п╦п╪п╣п╫я▐я┌я▄ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╣ п╡ п╠п╬я▌)
+    violent - я▐п╡п╩я▐п╣я┌я│я▐ п╩п╦ п╟пЁя─п╬я│п©п╣п╩п╩п╬п╪ (Y п╦п╩п╦ N, п╪п╬п╤п╫п╬ 1 п╦п╩п╦ 0)
+    danger - я│я┌п╣п©п╣п╫я▄ "п╬п©п╟я│п╫п╬я│я┌п╦" я│п©п╣п╩п╩п╟, п╦я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐ п╢п╩я▐ п≤п≤ п╪п╬п╠п╬п╡
 mana
-    max, min, change - параметры длительности и скорости мема
-targets - на кого может применяться, записывать подряд без пробелов с разделителем - вертикальной чертой
-flags -что это собственно такое - бафф, дебафф, фраг... формат аналогичен формату целей
-effects -секция эффектов заклинания
-    damage amount - количество урона
-        ndice, sdice, adice - количество кубиков, размер кубика, бонус (формула NdM+K)
-        low_skill_bonus - сколько процентов урона добавлять за 1 очко скилла до 75 (по сути - рост урона с уровнем) - число с правающей точкой
-        hi_skill_bonus - сколько процентов урона добавлять за 1 очко спелла выше 75 (рост урона с ремортами) - число с правающей точкой
-base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычитаем из параметра id,  weight - сколько в процентах добавим урон от 
-разницы id-threshold
-    area - для ареа и масскастов
-        decay - снижение силы заклинания с каждой целью
-            cast="0.0" level="0" - сниэение успеха колдовства (float) и уровня заклинания (int) за каждую пораженную цель
-            free_targets="1" - сколько целей будет поражено без снижения успеха колдовтсва и уровня
-        victims - счетчик числа целей
-            skill_divisor="1" dice_size="1" - количество кубиков - умение/делитель. размер кубика - dice size
-            min_targets="1" max_targets="1" - бросок кубика прибавляется к min_targets и ограничивается сверху max_targets
+    max, min, change - п©п╟я─п╟п╪п╣я┌я─я▀ п╢п╩п╦я┌п╣п╩я▄п╫п╬я│я┌п╦ п╦ я│п╨п╬я─п╬я│я┌п╦ п╪п╣п╪п╟
+targets - п╫п╟ п╨п╬пЁп╬ п╪п╬п╤п╣я┌ п©я─п╦п╪п╣п╫я▐я┌я▄я│я▐, п╥п╟п©п╦я│я▀п╡п╟я┌я▄ п©п╬п╢я─я▐п╢ п╠п╣п╥ п©я─п╬п╠п╣п╩п╬п╡ я│ я─п╟п╥п╢п╣п╩п╦я┌п╣п╩п╣п╪ - п╡п╣я─я┌п╦п╨п╟п╩я▄п╫п╬п╧ я┤п╣я─я┌п╬п╧
+flags -я┤я┌п╬ я█я┌п╬ я│п╬п╠я│я┌п╡п╣п╫п╫п╬ я┌п╟п╨п╬п╣ - п╠п╟я└я└, п╢п╣п╠п╟я└я└, я└я─п╟пЁ... я└п╬я─п╪п╟я┌ п╟п╫п╟п╩п╬пЁп╦я┤п╣п╫ я└п╬я─п╪п╟я┌я┐ я├п╣п╩п╣п╧
+effects -я│п╣п╨я├п╦я▐ я█я└я└п╣п╨я┌п╬п╡ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐
+    damage amount - п╨п╬п╩п╦я┤п╣я│я┌п╡п╬ я┐я─п╬п╫п╟
+        ndice, sdice, adice - п╨п╬п╩п╦я┤п╣я│я┌п╡п╬ п╨я┐п╠п╦п╨п╬п╡, я─п╟п╥п╪п╣я─ п╨я┐п╠п╦п╨п╟, п╠п╬п╫я┐я│ (я└п╬я─п╪я┐п╩п╟ NdM+K)
+        low_skill_bonus - я│п╨п╬п╩я▄п╨п╬ п©я─п╬я├п╣п╫я┌п╬п╡ я┐я─п╬п╫п╟ п╢п╬п╠п╟п╡п╩я▐я┌я▄ п╥п╟ 1 п╬я┤п╨п╬ я│п╨п╦п╩п╩п╟ п╢п╬ 75 (п©п╬ я│я┐я┌п╦ - я─п╬я│я┌ я┐я─п╬п╫п╟ я│ я┐я─п╬п╡п╫п╣п╪) - я┤п╦я│п╩п╬ я│ п©я─п╟п╡п╟я▌я┴п╣п╧ я┌п╬я┤п╨п╬п╧
+        hi_skill_bonus - я│п╨п╬п╩я▄п╨п╬ п©я─п╬я├п╣п╫я┌п╬п╡ я┐я─п╬п╫п╟ п╢п╬п╠п╟п╡п╩я▐я┌я▄ п╥п╟ 1 п╬я┤п╨п╬ я│п©п╣п╩п╩п╟ п╡я▀я┬п╣ 75 (я─п╬я│я┌ я┐я─п╬п╫п╟ я│ я─п╣п╪п╬я─я┌п╟п╪п╦) - я┤п╦я│п╩п╬ я│ п©я─п╟п╡п╟я▌я┴п╣п╧ я┌п╬я┤п╨п╬п╧
+base_stat id - (п╫п╟п©я─п╦п╪п╣я─ "kWis") п╨п╟п╨п╬п╧ п╠п╣я─п╣п╪ п©п╟я─п╟п╪п╣я┌я─,  threshold - я│п╨п╬п╩я▄п╨п╬ п╡я▀я┤п╦я┌п╟п╣п╪ п╦п╥ п©п╟я─п╟п╪п╣я┌я─п╟ id,  weight - я│п╨п╬п╩я▄п╨п╬ п╡ п©я─п╬я├п╣п╫я┌п╟я┘ п╢п╬п╠п╟п╡п╦п╪ я┐я─п╬п╫ п╬я┌ 
+я─п╟п╥п╫п╦я├я▀ id-threshold
+    area - п╢п╩я▐ п╟я─п╣п╟ п╦ п╪п╟я│я│п╨п╟я│я┌п╬п╡
+        decay - я│п╫п╦п╤п╣п╫п╦п╣ я│п╦п╩я▀ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐ я│ п╨п╟п╤п╢п╬п╧ я├п╣п╩я▄я▌
+            cast="0.0" level="0" - я│п╫п╦я█п╣п╫п╦п╣ я┐я│п©п╣я┘п╟ п╨п╬п╩п╢п╬п╡я│я┌п╡п╟ (float) п╦ я┐я─п╬п╡п╫я▐ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐ (int) п╥п╟ п╨п╟п╤п╢я┐я▌ п©п╬я─п╟п╤п╣п╫п╫я┐я▌ я├п╣п╩я▄
+            free_targets="1" - я│п╨п╬п╩я▄п╨п╬ я├п╣п╩п╣п╧ п╠я┐п╢п╣я┌ п©п╬я─п╟п╤п╣п╫п╬ п╠п╣п╥ я│п╫п╦п╤п╣п╫п╦я▐ я┐я│п©п╣я┘п╟ п╨п╬п╩п╢п╬п╡я┌я│п╡п╟ п╦ я┐я─п╬п╡п╫я▐
+        victims - я│я┤п╣я┌я┤п╦п╨ я┤п╦я│п╩п╟ я├п╣п╩п╣п╧
+            skill_divisor="1" dice_size="1" - п╨п╬п╩п╦я┤п╣я│я┌п╡п╬ п╨я┐п╠п╦п╨п╬п╡ - я┐п╪п╣п╫п╦п╣/п╢п╣п╩п╦я┌п╣п╩я▄. я─п╟п╥п╪п╣я─ п╨я┐п╠п╦п╨п╟ - dice size
+            min_targets="1" max_targets="1" - п╠я─п╬я│п╬п╨ п╨я┐п╠п╦п╨п╟ п©я─п╦п╠п╟п╡п╩я▐п╣я┌я│я▐ п╨ min_targets п╦ п╬пЁя─п╟п╫п╦я┤п╦п╡п╟п╣я┌я│я▐ я│п╡п╣я─я┘я┐ max_targets
 -->
 <spells>
     <spell id="kUndefined" element="kUndefined" mode="kDisabled">
@@ -60,35 +60,35 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         <flags val="kMagManual"/>
     </spell>
     <spell id="kArmor" element="kLight" mode="kEnabled">
-        <name rus="защита" eng="armor"/>
+        <name rus="п╥п╟я┴п╦я┌п╟" eng="armor"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="40" min="30" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
     </spell>
     <spell id="kTeleport" element="kAir" mode="kEnabled">
-        <name rus="прыжок" eng="teleport"/>
+        <name rus="п©я─я▀п╤п╬п╨" eng="teleport"/>
         <misc pos="kStand" violent="N" danger="1"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarCharRoom"/>
         <flags val="kMagManual|kNpcDamagePc"/>
     </spell>
     <spell id="kBless" element="kLight" mode="kEnabled">
-        <name rus="доблесть" eng="bless"/>
+        <name rus="п╢п╬п╠п╩п╣я│я┌я▄" eng="bless"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf|kTarObjInv|kTarObjEquip"/>
         <flags val="kMagAffects|kMagAlterObjs|kNpcAffectNpc"/>
     </spell>
     <spell id="kBlindness" element="kDark" mode="kEnabled">
-        <name rus="слепота" eng="blind"/>
+        <name rus="я│п╩п╣п©п╬я┌п╟" eng="blind"/>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="70" min="40" change="2"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
     </spell>
     <spell id="kBurningHands" element="kFire" mode="kEnabled">
-        <name rus="горящие руки" eng="burning hands"/>
+        <name rus="пЁп╬я─я▐я┴п╦п╣ я─я┐п╨п╦" eng="burning hands"/>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="40" min="30" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -108,7 +108,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kCallLighting" element="kAir" mode="kEnabled">
-        <name rus="шаровая молния" eng="call lightning"/>
+        <name rus="я┬п╟я─п╬п╡п╟я▐ п╪п╬п╩п╫п╦я▐" eng="call lightning"/>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="85" min="50" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -124,14 +124,14 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kCharm" element="kMind" mode="kEnabled">
-        <name rus="подчинить разум" eng="mind control"/>
+        <name rus="п©п╬п╢я┤п╦п╫п╦я┌я▄ я─п╟п╥я┐п╪" eng="mind control"/>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarNotSelf"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kChillTouch" element="kWater" mode="kEnabled">
-        <name rus="ледяное прикосновение" eng="chill touch"/>
+        <name rus="п╩п╣п╢я▐п╫п╬п╣ п©я─п╦п╨п╬я│п╫п╬п╡п╣п╫п╦п╣" eng="chill touch"/>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="55" min="45" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -147,14 +147,14 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kClone" element="kDark" mode="kEnabled">
-        <name rus="клонирование" eng="clone"/>
+        <name rus="п╨п╩п╬п╫п╦я─п╬п╡п╟п╫п╦п╣" eng="clone"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="150" min="130" change="5"/>
         <targets val="kTarCharRoom|kTarSelfOnly"/>
         <flags val="kMagSummons"/>
     </spell>
     <spell id="kIceBolts" element="kWater" mode="kEnabled">
-        <name rus="ледяные стрелы" eng="ice bolts"/>
+        <name rus="п╩п╣п╢я▐п╫я▀п╣ я│я┌я─п╣п╩я▀" eng="ice bolts"/>
         <misc pos="kFight" violent="Y" danger="3"/>
         <mana max="90" min="55" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -174,84 +174,84 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kControlWeather" element="kAir" mode="kEnabled">
-        <name rus="контроль погоды" eng="weather control"/>
+        <name rus="п╨п╬п╫я┌я─п╬п╩я▄ п©п╬пЁп╬п╢я▀" eng="weather control"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="100" min="90" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kCreateFood" element="kLife" mode="kEnabled">
-        <name rus="создать пищу" eng="create food"/>
+        <name rus="я│п╬п╥п╢п╟я┌я▄ п©п╦я┴я┐" eng="create food"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="40" min="30" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagCreations"/>
     </spell>
     <spell id="kCreateWater" element="kWater" mode="kEnabled">
-        <name rus="создать воду" eng="create water"/>
+        <name rus="я│п╬п╥п╢п╟я┌я▄ п╡п╬п╢я┐" eng="create water"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="40" min="30" change="1"/>
         <targets val="kTarObjInv|kTarObjEquip|kTarCharRoom"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kCureBlind" element="kLight" mode="kEnabled">
-        <name rus="вылечить слепоту" eng="cure blind"/>
+        <name rus="п╡я▀п╩п╣я┤п╦я┌я▄ я│п╩п╣п©п╬я┌я┐" eng="cure blind"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="110" min="90" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagUnaffects|kNpcUnaffectNpc"/>
     </spell>
     <spell id="kCureCritic" element="kLife" mode="kEnabled">
-        <name rus="критическое исцеление" eng="critical cure"/>
+        <name rus="п╨я─п╦я┌п╦я┤п╣я│п╨п╬п╣ п╦я│я├п╣п╩п╣п╫п╦п╣" eng="critical cure"/>
         <misc pos="kFight" violent="N" danger="3"/>
         <mana max="100" min="90" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagPoints|kNpcDummy"/>
     </spell>
     <spell id="kCureLight" element="kLife" mode="kEnabled">
-        <name rus="легкое исцеление" eng="light cure"/>
+        <name rus="п╩п╣пЁп╨п╬п╣ п╦я│я├п╣п╩п╣п╫п╦п╣" eng="light cure"/>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="40" min="30" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagPoints|kNpcDummy"/>
     </spell>
     <spell id="kCurse" element="kDark" mode="kEnabled">
-        <name rus="проклятие" eng="curse"/>
+        <name rus="п©я─п╬п╨п╩я▐я┌п╦п╣" eng="curse"/>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict|kTarObjInv"/>
         <flags val="kMagAffects|kMagAlterObjs|kNpcAffectPc"/>
     </spell>
     <spell id="kDetectAlign" element="kMind" mode="kEnabled">
-        <name rus="определение наклонностей" eng="detect alignment"/>
+        <name rus="п╬п©я─п╣п╢п╣п╩п╣п╫п╦п╣ п╫п╟п╨п╩п╬п╫п╫п╬я│я┌п╣п╧" eng="detect alignment"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="40" min="30" change="1"/>
         <targets val="kTarCharRoom"/>
         <flags val="kMagAffects"/>
     </spell>
     <spell id="kDetectInvis" element="kMind" mode="kEnabled">
-        <name rus="видеть невидимое" eng="detect invisible"/>
+        <name rus="п╡п╦п╢п╣я┌я▄ п╫п╣п╡п╦п╢п╦п╪п╬п╣" eng="detect invisible"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="100" min="55" change="3"/>
         <targets val="kTarCharRoom"/>
         <flags val="kMagAffects"/>
     </spell>
     <spell id="kDetectMagic" element="kMind" mode="kEnabled">
-        <name rus="определение магии" eng="detect magic"/>
+        <name rus="п╬п©я─п╣п╢п╣п╩п╣п╫п╦п╣ п╪п╟пЁп╦п╦" eng="detect magic"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="100" min="55" change="3"/>
         <targets val="kTarCharRoom"/>
         <flags val="kMagAffects"/>
     </spell>
     <spell id="kDetectPoison" element="kMind" mode="kEnabled">
-        <name rus="определение яда" eng="detect poison"/>
+        <name rus="п╬п©я─п╣п╢п╣п╩п╣п╫п╦п╣ я▐п╢п╟" eng="detect poison"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="40" min="30" change="1"/>
         <targets val="kTarCharRoom"/>
         <flags val="kMagAffects"/>
     </spell>
     <spell id="kDispelEvil" element="kLight" mode="kEnabled">
-        <name rus="изгнать зло" eng="dispel evil"/>
+        <name rus="п╦п╥пЁп╫п╟я┌я▄ п╥п╩п╬" eng="dispel evil"/>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="100" min="90" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -267,7 +267,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kEarthquake" element="kEarth" mode="kEnabled">
-        <name rus="землетрясение" eng="earthquake"/>
+        <name rus="п╥п╣п╪п╩п╣я┌я─я▐я│п╣п╫п╦п╣" eng="earthquake"/>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="110" min="90" change="2"/>
         <targets val="kTarIgnore"/>
@@ -287,14 +287,14 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kEnchantWeapon" element="kLight" mode="kEnabled">
-        <name rus="заколдовать оружие" eng="enchant weapon"/>
+        <name rus="п╥п╟п╨п╬п╩п╢п╬п╡п╟я┌я▄ п╬я─я┐п╤п╦п╣" eng="enchant weapon"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="140" min="110" change="2"/>
         <targets val="kTarObjInv"/>
         <flags val="kMagAlterObjs"/>
     </spell>
     <spell id="kEnergyDrain" element="kDark" mode="kEnabled">
-        <name rus="истощить энергию" eng="energy drain"/>
+        <name rus="п╦я│я┌п╬я┴п╦я┌я▄ я█п╫п╣я─пЁп╦я▌" eng="energy drain"/>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="150" min="140" change="2"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -310,7 +310,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kFireball" element="kFire" mode="kEnabled">
-        <name rus="огненный шар" eng="fireball"/>
+        <name rus="п╬пЁп╫п╣п╫п╫я▀п╧ я┬п╟я─" eng="fireball"/>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -326,7 +326,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kHarm" element="kDark" mode="kEnabled">
-        <name rus="вред" eng="harm"/>
+        <name rus="п╡я─п╣п╢" eng="harm"/>
         <misc pos="kFight" violent="Y" danger="5"/>
         <mana max="110" min="100" change="2"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -342,21 +342,21 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kHeal" element="kLife" mode="kEnabled">
-        <name rus="исцеление" eng="heal"/>
+        <name rus="п╦я│я├п╣п╩п╣п╫п╦п╣" eng="heal"/>
         <misc pos="kFight" violent="N" danger="10"/>
         <mana max="110" min="100" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagPoints|kNpcDummy"/>
     </spell>
     <spell id="kInvisible" element="kMind" mode="kEnabled">
-        <name rus="невидимость" eng="invisible"/>
+        <name rus="п╫п╣п╡п╦п╢п╦п╪п╬я│я┌я▄" eng="invisible"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="50" min="40" change="3"/>
         <targets val="kTarCharRoom|kTarObjInv|kTarObjRoom"/>
         <flags val="kMagAffects|kMagAlterObjs"/>
     </spell>
     <spell id="kLightingBolt" element="kAir" mode="kEnabled">
-        <name rus="молния" eng="lightning bolt"/>
+        <name rus="п╪п╬п╩п╫п╦я▐" eng="lightning bolt"/>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -372,14 +372,14 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kLocateObject" element="kMind" mode="kEnabled">
-        <name rus="разыскать предмет" eng="locate object"/>
+        <name rus="я─п╟п╥я▀я│п╨п╟я┌я▄ п©я─п╣п╢п╪п╣я┌" eng="locate object"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="140" min="110" change="2"/>
         <targets val="kTarObjWorld"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kMagicMissile" element="kFire" mode="kEnabled">
-        <name rus="магическая стрела" eng="magic missle"/>
+        <name rus="п╪п╟пЁп╦я┤п╣я│п╨п╟я▐ я│я┌я─п╣п╩п╟" eng="magic missle"/>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="40" min="30" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -395,35 +395,35 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kPoison" element="kLife" mode="kEnabled">
-        <name rus="яд" eng="poison"/>
+        <name rus="я▐п╢" eng="poison"/>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarObjInv|kTarFightVict"/>
         <flags val="kMagAffects|kMagAlterObjs|kNpcAffectPc"/>
     </spell>
     <spell id="kProtectFromEvil" element="kLight" mode="kEnabled">
-        <name rus="защита от тьмы" eng="protect evil"/>
+        <name rus="п╥п╟я┴п╦я┌п╟ п╬я┌ я┌я▄п╪я▀" eng="protect evil"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="60" min="45" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
     </spell>
     <spell id="kRemoveCurse" element="kLight" mode="kEnabled">
-        <name rus="снять проклятие" eng="remove curse"/>
+        <name rus="я│п╫я▐я┌я▄ п©я─п╬п╨п╩я▐я┌п╦п╣" eng="remove curse"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="50" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf|kTarObjInv|kTarObjEquip"/>
         <flags val="kMagUnaffects|kMagAlterObjs|kNpcUnaffectNpc"/>
     </spell>
     <spell id="kSanctuary" element="kLight" mode="kEnabled">
-        <name rus="освящение" eng="sanctuary"/>
+        <name rus="п╬я│п╡я▐я┴п╣п╫п╦п╣" eng="sanctuary"/>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="85" min="70" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
     </spell>
     <spell id="kShockingGasp" element="kFire" mode="kEnabled">
-        <name rus="обжигающая хватка" eng="shocking grasp"/>
+        <name rus="п╬п╠п╤п╦пЁп╟я▌я┴п╟я▐ я┘п╡п╟я┌п╨п╟" eng="shocking grasp"/>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="50" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -439,63 +439,63 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kSleep" element="kMind" mode="kEnabled">
-        <name rus="сон" eng="sleep"/>
+        <name rus="я│п╬п╫" eng="sleep"/>
         <misc pos="kFight" violent="Y" danger="0"/>
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
     </spell>
     <spell id="kStrength" element="kLife" mode="kEnabled">
-        <name rus="сила" eng="strength"/>
+        <name rus="я│п╦п╩п╟" eng="strength"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="40" min="30" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
     </spell>
     <spell id="kSummon" element="kMind" mode="kEnabled">
-        <name rus="призвать" eng="summon"/>
+        <name rus="п©я─п╦п╥п╡п╟я┌я▄" eng="summon"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="110" min="100" change="2"/>
         <targets val="kTarCharWorld|kTarNotSelf"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kPatronage" element="kLight" mode="kEnabled">
-        <name rus="покровительство" eng="patronage"/>
+        <name rus="п©п╬п╨я─п╬п╡п╦я┌п╣п╩я▄я│я┌п╡п╬" eng="patronage"/>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="85" min="70" change="2"/>
         <targets val="kTarSelfOnly|kTarCharRoom"/>
         <flags val="kMagPoints|kMagAffects"/>
     </spell>
     <spell id="kWorldOfRecall" element="kMind" mode="kEnabled">
-        <name rus="слово возврата" eng="recall"/>
+        <name rus="я│п╩п╬п╡п╬ п╡п╬п╥п╡я─п╟я┌п╟" eng="recall"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="140" min="100" change="4"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagManual|kNpcDamagePc"/>
     </spell>
     <spell id="kRemovePoison" element="kLife" mode="kEnabled">
-        <name rus="удалить яд" eng="remove poison"/>
+        <name rus="я┐п╢п╟п╩п╦я┌я▄ я▐п╢" eng="remove poison"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="60" min="45" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf|kTarObjInv|kTarObjRoom"/>
         <flags val="kMagUnaffects|kMagAlterObjs|kNpcUnaffectNpc"/>
     </spell>
     <spell id="kSenseLife" element="kLife" mode="kEnabled">
-        <name rus="определение жизни" eng="sense life"/>
+        <name rus="п╬п©я─п╣п╢п╣п╩п╣п╫п╦п╣ п╤п╦п╥п╫п╦" eng="sense life"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="85" min="70" change="1"/>
         <targets val="kTarCharRoom"/>
         <flags val="kMagAffects"/>
     </spell>
     <spell id="kAnimateDead" element="kDark" mode="kEnabled">
-        <name rus="поднять труп" eng="animate dead"/>
+        <name rus="п©п╬п╢п╫я▐я┌я▄ я┌я─я┐п©" eng="animate dead"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="50" min="35" change="3"/>
         <targets val="kTarObjRoom"/>
         <flags val="kMagSummons"/>
     </spell>
     <spell id="kDispelGood" element="kDark" mode="kEnabled">
-        <name rus="рассеять свет" eng="dispel good"/>
+        <name rus="я─п╟я│я│п╣я▐я┌я▄ я│п╡п╣я┌" eng="dispel good"/>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="100" min="90" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -511,7 +511,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kGroupArmor" element="kLight" mode="kEnabled">
-        <name rus="групповая защита" eng="group armor"/>
+        <name rus="пЁя─я┐п©п©п╬п╡п╟я▐ п╥п╟я┴п╦я┌п╟" eng="group armor"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="110" min="100" change="2"/>
         <targets val="kTarIgnore"/>
@@ -526,7 +526,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kGroupHeal" element="kLife" mode="kEnabled">
-        <name rus="групповое исцеление" eng="group heal"/>
+        <name rus="пЁя─я┐п©п©п╬п╡п╬п╣ п╦я│я├п╣п╩п╣п╫п╦п╣" eng="group heal"/>
         <misc pos="kFight" violent="N" danger="30"/>
         <mana max="110" min="100" change="2"/>
         <targets val="kTarIgnore"/>
@@ -541,7 +541,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kGroupRecall" element="kMind" mode="kEnabled">
-        <name rus="групповой возврат" eng="group recall"/>
+        <name rus="пЁя─я┐п©п©п╬п╡п╬п╧ п╡п╬п╥п╡я─п╟я┌" eng="group recall"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="125" min="120" change="2"/>
         <targets val="kTarIgnore"/>
@@ -556,28 +556,28 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kInfravision" element="kLight" mode="kEnabled">
-        <name rus="видение ночью" eng="infravision"/>
+        <name rus="п╡п╦п╢п╣п╫п╦п╣ п╫п╬я┤я▄я▌" eng="infravision"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="50" min="40" change="2"/>
         <targets val="kTarCharRoom"/>
         <flags val="kMagAffects"/>
     </spell>
     <spell id="kWaterwalk" element="kWater" mode="kEnabled">
-        <name rus="водохождение" eng="waterwalk"/>
+        <name rus="п╡п╬п╢п╬я┘п╬п╤п╢п╣п╫п╦п╣" eng="waterwalk"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom"/>
         <flags val="kMagAffects"/>
     </spell>
     <spell id="kCureSerious" element="kLife" mode="kEnabled">
-        <name rus="серьезное исцеление" eng="serious cure"/>
+        <name rus="я│п╣я─я▄п╣п╥п╫п╬п╣ п╦я│я├п╣п╩п╣п╫п╦п╣" eng="serious cure"/>
         <misc pos="kFight" violent="N" danger="2"/>
         <mana max="85" min="70" change="4"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagPoints|kNpcDummy"/>
     </spell>
     <spell id="kGroupStrength" element="kMind" mode="kEnabled">
-        <name rus="групповая сила" eng="group strength"/>
+        <name rus="пЁя─я┐п©п©п╬п╡п╟я▐ я│п╦п╩п╟" eng="group strength"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
@@ -592,21 +592,21 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kHold" element="kMind" mode="kEnabled">
-        <name rus="оцепенение" eng="hold"/>
+        <name rus="п╬я├п╣п©п╣п╫п╣п╫п╦п╣" eng="hold"/>
         <misc pos="kFight" violent="Y" danger="3"/>
         <mana max="100" min="40" change="2"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
     </spell>
     <spell id="kPowerHold" element="kMind" mode="kEnabled">
-        <name rus="длительное оцепенение" eng="power hold"/>
+        <name rus="п╢п╩п╦я┌п╣п╩я▄п╫п╬п╣ п╬я├п╣п©п╣п╫п╣п╫п╦п╣" eng="power hold"/>
         <misc pos="kFight" violent="Y" danger="4"/>
         <mana max="140" min="90" change="4"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
     </spell>
     <spell id="kMassHold" element="kMind" mode="kEnabled">
-        <name rus="массовое оцепенение" eng="mass hold"/>
+        <name rus="п╪п╟я│я│п╬п╡п╬п╣ п╬я├п╣п©п╣п╫п╣п╫п╦п╣" eng="mass hold"/>
         <misc pos="kFight" violent="Y" danger="5"/>
         <mana max="150" min="130" change="5"/>
         <targets val="kTarIgnore"/>
@@ -621,70 +621,70 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kFly" element="kAir" mode="kEnabled">
-        <name rus="полет" eng="fly"/>
+        <name rus="п©п╬п╩п╣я┌" eng="fly"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="50" min="35" change="1"/>
         <targets val="kTarCharRoom|kTarObjInv|kTarObjEquip"/>
         <flags val="kMagAffects|kMagAlterObjs"/>
     </spell>
     <spell id="kBrokenChains" element="kMind" mode="kEnabled">
-        <name rus="разбитые оковы" eng="broken chains"/>
+        <name rus="я─п╟п╥п╠п╦я┌я▀п╣ п╬п╨п╬п╡я▀" eng="broken chains"/>
         <misc pos="kFight" violent="N" danger="5"/>
         <mana max="125" min="110" change="2"/>
         <targets val="kTarSelfOnly|kTarCharRoom"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
     </spell>
     <spell id="kNoflee" element="kMind" mode="kEnabled">
-        <name rus="приковать противника" eng="noflee"/>
+        <name rus="п©я─п╦п╨п╬п╡п╟я┌я▄ п©я─п╬я┌п╦п╡п╫п╦п╨п╟" eng="noflee"/>
         <misc pos="kFight" violent="Y" danger="0"/>
         <mana max="100" min="90" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
     </spell>
     <spell id="kCreateLight" element="kLight" mode="kEnabled">
-        <name rus="создать свет" eng="create light"/>
+        <name rus="я│п╬п╥п╢п╟я┌я▄ я│п╡п╣я┌" eng="create light"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="40" min="30" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagCreations"/>
     </spell>
     <spell id="kDarkness" element="kDark" mode="kEnabled">
-        <name rus="тьма" eng="darkness"/>
+        <name rus="я┌я▄п╪п╟" eng="darkness"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="100" min="70" change="2"/>
         <targets val="kTarCharRoom|kTarObjInv|kTarObjEquip"/>
         <flags val="kMagAffects|kMagAlterObjs"/>
     </spell>
     <spell id="kStoneSkin" element="kEarth" mode="kEnabled">
-        <name rus="каменная кожа" eng="stoneskin"/>
+        <name rus="п╨п╟п╪п╣п╫п╫п╟я▐ п╨п╬п╤п╟" eng="stoneskin"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
     </spell>
     <spell id="kCloudly" element="kWater" mode="kEnabled">
-        <name rus="затуманивание" eng="cloudly"/>
+        <name rus="п╥п╟я┌я┐п╪п╟п╫п╦п╡п╟п╫п╦п╣" eng="cloudly"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
     </spell>
     <spell id="kSilence" element="kMind" mode="kEnabled">
-        <name rus="молчание" eng="sielence"/>
+        <name rus="п╪п╬п╩я┤п╟п╫п╦п╣" eng="sielence"/>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="100" min="40" change="2"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc|kNpcAffectPcCaster"/>
     </spell>
     <spell id="kLight" element="kLight" mode="kEnabled">
-        <name rus="свет" eng="sun shine"/>
+        <name rus="я│п╡п╣я┌" eng="sun shine"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="100" min="70" change="2"/>
         <targets val="kTarCharRoom|kTarObjInv|kTarObjEquip"/>
         <flags val="kMagAffects|kMagAlterObjs"/>
     </spell>
     <spell id="kChainLighting" element="kAir" mode="kEnabled">
-        <name rus="цепь молний" eng="chain lightning"/>
+        <name rus="я├п╣п©я▄ п╪п╬п╩п╫п╦п╧" eng="chain lightning"/>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="120" min="110" change="2"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -704,7 +704,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kFireBlast" element="kFire" mode="kStability">
-        <name rus="огненный поток" eng="fireblast"/>
+        <name rus="п╬пЁп╫п╣п╫п╫я▀п╧ п©п╬я┌п╬п╨" eng="fireblast"/>
         <misc pos="kFight" violent="Y" danger="5"/>
         <mana max="110" min="90" change="2"/>
         <targets val="kTarIgnore"/>
@@ -724,7 +724,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kGodsWrath" element="kFire" mode="kEnabled">
-        <name rus="гнев богов" eng="gods wrath"/>
+        <name rus="пЁп╫п╣п╡ п╠п╬пЁп╬п╡" eng="gods wrath"/>
         <misc pos="kFight" violent="Y" danger="15"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -740,14 +740,14 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kWeaknes" element="kLife" mode="kEnabled">
-        <name rus="слабость" eng="weakness"/>
+        <name rus="я│п╩п╟п╠п╬я│я┌я▄" eng="weakness"/>
         <misc pos="kFight" violent="Y" danger="0"/>
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
     </spell>
     <spell id="kGroupInvisible" element="kMind" mode="kEnabled">
-        <name rus="групповая невидимость" eng="group invisible"/>
+        <name rus="пЁя─я┐п©п©п╬п╡п╟я▐ п╫п╣п╡п╦п╢п╦п╪п╬я│я┌я▄" eng="group invisible"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="150" min="130" change="5"/>
         <targets val="kTarIgnore"/>
@@ -762,14 +762,14 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kShadowCloak" element="kDark" mode="kEnabled">
-        <name rus="мантия теней" eng="shadow cloak"/>
+        <name rus="п╪п╟п╫я┌п╦я▐ я┌п╣п╫п╣п╧" eng="shadow cloak"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="100" min="70" change="3"/>
         <targets val="kTarSelfOnly|kTarCharRoom"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
     </spell>
     <spell id="kAcid" element="kWater" mode="kEnabled">
-        <name rus="кислота" eng="acid"/>
+        <name rus="п╨п╦я│п╩п╬я┌п╟" eng="acid"/>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="90" min="65" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -785,28 +785,28 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kRepair" element="kLight" mode="kEnabled">
-        <name rus="починка" eng="repair"/>
+        <name rus="п©п╬я┤п╦п╫п╨п╟" eng="repair"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarObjInv|kTarObjEquip"/>
         <flags val="kMagAlterObjs"/>
     </spell>
     <spell id="kEnlarge" element="kLife" mode="kEnabled">
-        <name rus="увеличение" eng="enlarge"/>
+        <name rus="я┐п╡п╣п╩п╦я┤п╣п╫п╦п╣" eng="enlarge"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarSelfOnly"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
     </spell>
     <spell id="kFear" element="kDark" mode="kEnabled">
-        <name rus="страх" eng="fear"/>
+        <name rus="я│я┌я─п╟я┘" eng="fear"/>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagManual|kNpcDamagePc"/>
     </spell>
     <spell id="kSacrifice" element="kDark" mode="kEnabled">
-        <name rus="высосать жизнь" eng="sacrifice"/>
+        <name rus="п╡я▀я│п╬я│п╟я┌я▄ п╤п╦п╥п╫я▄" eng="sacrifice"/>
         <misc pos="kFight" violent="Y" danger="10"/>
         <mana max="140" min="75" change="3"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -822,42 +822,42 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kWeb" element="kMind" mode="kEnabled">
-        <name rus="сеть" eng="web"/>
+        <name rus="я│п╣я┌я▄" eng="web"/>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
     </spell>
     <spell id="kBlink" element="kLight" mode="kEnabled">
-        <name rus="мигание" eng="blink"/>
+        <name rus="п╪п╦пЁп╟п╫п╦п╣" eng="blink"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="70" min="55" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
     </spell>
     <spell id="kRemoveHold" element="kLight" mode="kEnabled">
-        <name rus="снять оцепенение" eng="remove hold"/>
+        <name rus="я│п╫я▐я┌я▄ п╬я├п╣п©п╣п╫п╣п╫п╦п╣" eng="remove hold"/>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="110" min="90" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagUnaffects|kNpcUnaffectNpc"/>
     </spell>
     <spell id="kCamouflage" element="kUndefined" mode="kService">
-        <name rus="!маскировка!" eng="!set by skill!"/>
+        <name rus="!п╪п╟я│п╨п╦я─п╬п╡п╨п╟!" eng="!set by skill!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kPowerBlindness" element="kDark" mode="kEnabled">
-        <name rus="полная слепота" eng="power blind"/>
+        <name rus="п©п╬п╩п╫п╟я▐ я│п╩п╣п©п╬я┌п╟" eng="power blind"/>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
     </spell>
     <spell id="kMassBlindness" element="kDark" mode="kEnabled">
-        <name rus="массовая слепота" eng="mass blind"/>
+        <name rus="п╪п╟я│я│п╬п╡п╟я▐ я│п╩п╣п©п╬я┌п╟" eng="mass blind"/>
         <misc pos="kFight" violent="Y" danger="4"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
@@ -872,42 +872,42 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kPowerSilence" element="kMind" mode="kEnabled">
-        <name rus="длительное молчание" eng="power sielence"/>
+        <name rus="п╢п╩п╦я┌п╣п╩я▄п╫п╬п╣ п╪п╬п╩я┤п╟п╫п╦п╣" eng="power sielence"/>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="120" min="90" change="4"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc|kNpcAffectPcCaster"/>
     </spell>
     <spell id="kExtraHits" element="kLife" mode="kEnabled">
-        <name rus="увеличить жизнь" eng="extra hits"/>
+        <name rus="я┐п╡п╣п╩п╦я┤п╦я┌я▄ п╤п╦п╥п╫я▄" eng="extra hits"/>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="100" min="85" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagPoints|kNpcDummy"/>
     </spell>
     <spell id="kResurrection" element="kDark" mode="kEnabled">
-        <name rus="оживить труп" eng="ressurection"/>
+        <name rus="п╬п╤п╦п╡п╦я┌я▄ я┌я─я┐п©" eng="ressurection"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="120" min="100" change="2"/>
         <targets val="kTarObjRoom"/>
         <flags val="kMagSummons"/>
     </spell>
     <spell id="kMagicShield" element="kLight" mode="kEnabled">
-        <name rus="волшебный щит" eng="magic shield"/>
+        <name rus="п╡п╬п╩я┬п╣п╠п╫я▀п╧ я┴п╦я┌" eng="magic shield"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="50" min="30" change="2"/>
         <targets val="kTarSelfOnly|kTarCharRoom"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
     </spell>
     <spell id="kForbidden" element="kMind" mode="kEnabled">
-        <name rus="запечатать комнату" eng="forbidden"/>
+        <name rus="п╥п╟п©п╣я┤п╟я┌п╟я┌я▄ п╨п╬п╪п╫п╟я┌я┐" eng="forbidden"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="125" min="110" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagRoom"/>
     </spell>
     <spell id="kMassSilence" element="kMind" mode="kEnabled">
-        <name rus="массовое молчание" eng="mass sielence"/>
+        <name rus="п╪п╟я│я│п╬п╡п╬п╣ п╪п╬п╩я┤п╟п╫п╦п╣" eng="mass sielence"/>
         <misc pos="kFight" violent="Y" danger="3"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
@@ -922,14 +922,14 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kRemoveSilence" element="kLight" mode="kEnabled">
-        <name rus="снять молчание" eng="remove sielence"/>
+        <name rus="я│п╫я▐я┌я▄ п╪п╬п╩я┤п╟п╫п╦п╣" eng="remove sielence"/>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="70" min="55" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagUnaffects|kNpcUnaffectNpc|kNpcUnaffectNpcCaster"/>
     </spell>
     <spell id="kDamageLight" element="kDark" mode="kEnabled">
-        <name rus="легкий вред" eng="light damage"/>
+        <name rus="п╩п╣пЁп╨п╦п╧ п╡я─п╣п╢" eng="light damage"/>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="40" min="30" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -945,7 +945,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kDamageSerious" element="kDark" mode="kEnabled">
-        <name rus="серьезный вред" eng="serious damage"/>
+        <name rus="я│п╣я─я▄п╣п╥п╫я▀п╧ п╡я─п╣п╢" eng="serious damage"/>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="85" min="55" change="4"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -965,7 +965,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kDamageCritic" element="kDark" mode="kEnabled">
-        <name rus="критический вред" eng="critical damage"/>
+        <name rus="п╨я─п╦я┌п╦я┤п╣я│п╨п╦п╧ п╡я─п╣п╢" eng="critical damage"/>
         <misc pos="kFight" violent="Y" danger="3"/>
         <mana max="100" min="90" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -981,7 +981,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kMassCurse" element="kDark" mode="kEnabled">
-        <name rus="массовое проклятие" eng="mass curse"/>
+        <name rus="п╪п╟я│я│п╬п╡п╬п╣ п©я─п╬п╨п╩я▐я┌п╦п╣" eng="mass curse"/>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
@@ -996,7 +996,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kArmageddon" element="kAir" mode="kEnabled">
-        <name rus="суд богов" eng="armageddon"/>
+        <name rus="я│я┐п╢ п╠п╬пЁп╬п╡" eng="armageddon"/>
         <misc pos="kFight" violent="Y" danger="10"/>
         <mana max="150" min="130" change="5"/>
         <targets val="kTarIgnore"/>
@@ -1016,7 +1016,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kGroupFly" element="kAir" mode="kEnabled">
-        <name rus="групповой полет" eng="group fly"/>
+        <name rus="пЁя─я┐п©п©п╬п╡п╬п╧ п©п╬п╩п╣я┌" eng="group fly"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
@@ -1031,7 +1031,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kGroupBless" element="kLight" mode="kEnabled">
-        <name rus="групповая доблесть" eng="group bless"/>
+        <name rus="пЁя─я┐п©п©п╬п╡п╟я▐ п╢п╬п╠п╩п╣я│я┌я▄" eng="group bless"/>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
@@ -1046,14 +1046,14 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kResfresh" element="kLife" mode="kEnabled">
-        <name rus="восстановление" eng="refresh"/>
+        <name rus="п╡п╬я│я│я┌п╟п╫п╬п╡п╩п╣п╫п╦п╣" eng="refresh"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="80" min="60" change="1"/>
         <targets val="kTarCharRoom"/>
         <flags val="kMagPoints"/>
     </spell>
     <spell id="kStunning" element="kEarth" mode="kEnabled">
-        <name rus="каменное проклятие" eng="stunning"/>
+        <name rus="п╨п╟п╪п╣п╫п╫п╬п╣ п©я─п╬п╨п╩я▐я┌п╦п╣" eng="stunning"/>
         <misc pos="kFight" violent="Y" danger="15"/>
         <mana max="150" min="140" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -1069,42 +1069,42 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kHide" element="kUndefined" mode="kService">
-        <name rus="!спрятался!" eng="!set by skill!"/>
+        <name rus="!я│п©я─я▐я┌п╟п╩я│я▐!" eng="!set by skill!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kSneak" element="kUndefined" mode="kService">
-        <name rus="!крадется!" eng="!set by skill!"/>
+        <name rus="!п╨я─п╟п╢п╣я┌я│я▐!" eng="!set by skill!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kDrunked" element="kUndefined" mode="kService">
-        <name rus="!опьянение!" eng="!set by programm!"/>
+        <name rus="!п╬п©я▄я▐п╫п╣п╫п╦п╣!" eng="!set by programm!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kAbstinent" element="kUndefined" mode="kService">
-        <name rus="!абстиненция!" eng="!set by programm!"/>
+        <name rus="!п╟п╠я│я┌п╦п╫п╣п╫я├п╦я▐!" eng="!set by programm!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kFullFeed" element="kLife" mode="kEnabled">
-        <name rus="насыщение" eng="full"/>
+        <name rus="п╫п╟я│я▀я┴п╣п╫п╦п╣" eng="full"/>
         <misc pos="kStand" violent="N" danger="10"/>
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom"/>
         <flags val="kMagPoints"/>
     </spell>
     <spell id="kColdWind" element="kAir" mode="kEnabled">
-        <name rus="ледяной ветер" eng="cold wind"/>
+        <name rus="п╩п╣п╢я▐п╫п╬п╧ п╡п╣я┌п╣я─" eng="cold wind"/>
         <misc pos="kFight" violent="Y" danger="15"/>
         <mana max="100" min="90" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -1124,49 +1124,49 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kBattle" element="kUndefined" mode="kService">
-        <name rus="!получил в бою!" eng="!set by programm!"/>
+        <name rus="!п©п╬п╩я┐я┤п╦п╩ п╡ п╠п╬я▌!" eng="!set by programm!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kHaemorrhage" element="kUndefined" mode="kService">
-        <name rus="!кровотечение!" eng="!set by programm!"/>
+        <name rus="!п╨я─п╬п╡п╬я┌п╣я┤п╣п╫п╦п╣!" eng="!set by programm!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kCourage" element="kUndefined" mode="kService">
-        <name rus="!ярость!" eng="!set by programm!"/>
+        <name rus="!я▐я─п╬я│я┌я▄!" eng="!set by programm!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kWaterbreath" element="kWater" mode="kEnabled">
-        <name rus="дышать водой" eng="waterbreath"/>
+        <name rus="п╢я▀я┬п╟я┌я▄ п╡п╬п╢п╬п╧" eng="waterbreath"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="85" min="70" change="4"/>
         <targets val="kTarCharRoom"/>
         <flags val="kMagAffects"/>
     </spell>
     <spell id="kSlowdown" element="kMind" mode="kEnabled">
-        <name rus="медлительность" eng="slow"/>
+        <name rus="п╪п╣п╢п╩п╦я┌п╣п╩я▄п╫п╬я│я┌я▄" eng="slow"/>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
     </spell>
     <spell id="kHaste" element="kMind" mode="kEnabled">
-        <name rus="ускорение" eng="haste"/>
+        <name rus="я┐я│п╨п╬я─п╣п╫п╦п╣" eng="haste"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
     </spell>
     <spell id="kMassSlow" element="kMind" mode="kEnabled">
-        <name rus="массовая медлительность" eng="mass slow"/>
+        <name rus="п╪п╟я│я│п╬п╡п╟я▐ п╪п╣п╢п╩п╦я┌п╣п╩я▄п╫п╬я│я┌я▄" eng="mass slow"/>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
@@ -1181,7 +1181,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kGroupHaste" element="kMind" mode="kEnabled">
-        <name rus="групповое ускорение" eng="group haste"/>
+        <name rus="пЁя─я┐п©п©п╬п╡п╬п╣ я┐я│п╨п╬я─п╣п╫п╦п╣" eng="group haste"/>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
@@ -1196,119 +1196,119 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kGodsShield" element="kLight" mode="kEnabled">
-        <name rus="защита богов" eng="gods shield"/>
+        <name rus="п╥п╟я┴п╦я┌п╟ п╠п╬пЁп╬п╡" eng="gods shield"/>
         <misc pos="kFight" violent="N" danger="2"/>
         <mana max="150" min="140" change="1"/>
         <targets val="kTarCharRoom|kTarSelfOnly"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
     </spell>
     <spell id="kFever" element="kLife" mode="kEnabled">
-        <name rus="лихорадка" eng="plaque"/>
+        <name rus="п╩п╦я┘п╬я─п╟п╢п╨п╟" eng="plaque"/>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
     </spell>
     <spell id="kCureFever" element="kLife" mode="kEnabled">
-        <name rus="вылечить лихорадку" eng="cure plaque"/>
+        <name rus="п╡я▀п╩п╣я┤п╦я┌я▄ п╩п╦я┘п╬я─п╟п╢п╨я┐" eng="cure plaque"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="85" min="70" change="4"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagUnaffects|kNpcUnaffectNpc"/>
     </spell>
     <spell id="kAwareness" element="kMind" mode="kEnabled">
-        <name rus="внимательность" eng="awarness"/>
+        <name rus="п╡п╫п╦п╪п╟я┌п╣п╩я▄п╫п╬я│я┌я▄" eng="awarness"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="100" min="90" change="1"/>
         <targets val="kTarCharRoom|kTarSelfOnly"/>
         <flags val="kMagAffects"/>
     </spell>
     <spell id="kReligion" element="kUndefined" mode="kService">
-        <name rus="!молитва или жертва!" eng="!pray or donate!"/>
+        <name rus="!п╪п╬п╩п╦я┌п╡п╟ п╦п╩п╦ п╤п╣я─я┌п╡п╟!" eng="!pray or donate!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kAirShield" element="kAir" mode="kEnabled">
-        <name rus="воздушный щит" eng="air shield"/>
+        <name rus="п╡п╬п╥п╢я┐я┬п╫я▀п╧ я┴п╦я┌" eng="air shield"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
     </spell>
     <spell id="kPortal" element="kLight" mode="kEnabled">
-        <name rus="переход" eng="portal"/>
+        <name rus="п©п╣я─п╣я┘п╬п╢" eng="portal"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="200" min="180" change="4"/>
         <targets val="kTarCharWorld"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kPortalTimer" element="kLight" mode="kEnabled">
-        <name rus="Портал" eng="portal"/>
+        <name rus="п÷п╬я─я┌п╟п╩" eng="portal"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="200" min="180" change="4"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kDispellMagic" element="kLight" mode="kEnabled">
-        <name rus="развеять магию" eng="dispel magic"/>
+        <name rus="я─п╟п╥п╡п╣я▐я┌я▄ п╪п╟пЁп╦я▌" eng="dispel magic"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="85" min="70" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagUnaffects"/>
     </spell>
     <spell id="kSummonKeeper" element="kLight" mode="kEnabled">
-        <name rus="защитник" eng="keeper"/>
+        <name rus="п╥п╟я┴п╦я┌п╫п╦п╨" eng="keeper"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="100" min="80" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagSummons"/>
     </spell>
     <spell id="kFastRegeneration" element="kLife" mode="kEnabled">
-        <name rus="быстрое восстановление" eng="fast regeneration"/>
+        <name rus="п╠я▀я│я┌я─п╬п╣ п╡п╬я│я│я┌п╟п╫п╬п╡п╩п╣п╫п╦п╣" eng="fast regeneration"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="100" min="90" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
     </spell>
     <spell id="kCreateWeapon" element="kLight" mode="kEnabled">
-        <name rus="создать оружие" eng="create weapon"/>
+        <name rus="я│п╬п╥п╢п╟я┌я▄ п╬я─я┐п╤п╦п╣" eng="create weapon"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="130" min="110" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kFireShield" element="kFire" mode="kEnabled">
-        <name rus="огненный щит" eng="fire shield"/>
+        <name rus="п╬пЁп╫п╣п╫п╫я▀п╧ я┴п╦я┌" eng="fire shield"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
     </spell>
     <spell id="kRelocate" element="kAir" mode="kEnabled">
-        <name rus="переместиться" eng="relocate"/>
+        <name rus="п©п╣я─п╣п╪п╣я│я┌п╦я┌я▄я│я▐" eng="relocate"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarCharWorld"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kSummonFirekeeper" element="kFire" mode="kEnabled">
-        <name rus="огненный защитник" eng="fire keeper"/>
+        <name rus="п╬пЁп╫п╣п╫п╫я▀п╧ п╥п╟я┴п╦я┌п╫п╦п╨" eng="fire keeper"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="150" min="140" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagSummons"/>
     </spell>
     <spell id="kIceShield" element="kWater" mode="kEnabled">
-        <name rus="ледяной щит" eng="ice protect"/>
+        <name rus="п╩п╣п╢я▐п╫п╬п╧ я┴п╦я┌" eng="ice protect"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
     </spell>
     <spell id="kIceStorm" element="kWater" mode="kEnabled">
-        <name rus="ледяной шторм" eng="ice storm"/>
+        <name rus="п╩п╣п╢я▐п╫п╬п╧ я┬я┌п╬я─п╪" eng="ice storm"/>
         <misc pos="kFight" violent="Y" danger="5"/>
         <mana max="125" min="90" change="3"/>
         <targets val="kTarIgnore"/>
@@ -1328,14 +1328,14 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kLessening" element="kLife" mode="kEnabled">
-        <name rus="уменьшение" eng="enless"/>
+        <name rus="я┐п╪п╣п╫я▄я┬п╣п╫п╦п╣" eng="enless"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects"/>
     </spell>
     <spell id="kShineFlash" element="kFire" mode="kEnabled">
-        <name rus="яркий блик" eng="shine flash"/>
+        <name rus="я▐я─п╨п╦п╧ п╠п╩п╦п╨" eng="shine flash"/>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="60" min="45" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -1351,14 +1351,14 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kMadness" element="kMind" mode="kEnabled">
-        <name rus="безумие" eng="madness"/>
+        <name rus="п╠п╣п╥я┐п╪п╦п╣" eng="madness"/>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="130" min="110" change="2"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
     </spell>
     <spell id="kGroupMagicGlass" element="kAir" mode="kEnabled">
-        <name rus="магическое зеркало" eng="group magicglass"/>
+        <name rus="п╪п╟пЁп╦я┤п╣я│п╨п╬п╣ п╥п╣я─п╨п╟п╩п╬" eng="group magicglass"/>
         <misc pos="kFight" violent="N" danger="4"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
@@ -1373,14 +1373,14 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kCloudOfArrows" element="kFire" mode="kEnabled">
-        <name rus="облако стрел" eng="cloud of arrous"/>
+        <name rus="п╬п╠п╩п╟п╨п╬ я│я┌я─п╣п╩" eng="cloud of arrous"/>
         <misc pos="kFight" violent="N" danger="4"/>
         <mana max="95" min="80" change="2"/>
         <targets val="kTarSelfOnly|kTarCharRoom"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
     </spell>
     <spell id="kVacuum" element="kDark" mode="kEnabled">
-        <name rus="круг пустоты" eng="vacuum sphere"/>
+        <name rus="п╨я─я┐пЁ п©я┐я│я┌п╬я┌я▀" eng="vacuum sphere"/>
         <misc pos="kFight" violent="Y" danger="15"/>
         <mana max="150" min="140" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -1396,35 +1396,35 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kMeteorStorm" element="kEarth" mode="kEnabled">
-        <name rus="метеоритный дождь" eng="meteor storm"/>
+        <name rus="п╪п╣я┌п╣п╬я─п╦я┌п╫я▀п╧ п╢п╬п╤п╢я▄" eng="meteor storm"/>
         <misc pos="kFight" violent="Y" danger="0"/>
         <mana max="125" min="110" change="2"/>
         <targets val="kTarRoomThis"/>
         <flags val="kMagNeedControl|kMagRoom|kMagCasterInroom"/>
     </spell>
     <spell id="kStoneHands" element="kEarth" mode="kEnabled">
-        <name rus="каменные руки" eng="stonehand"/>
+        <name rus="п╨п╟п╪п╣п╫п╫я▀п╣ я─я┐п╨п╦" eng="stonehand"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="40" min="30" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
     </spell>
     <spell id="kMindless" element="kMind" mode="kEnabled">
-        <name rus="повреждение разума" eng="mindness"/>
+        <name rus="п©п╬п╡я─п╣п╤п╢п╣п╫п╦п╣ я─п╟п╥я┐п╪п╟" eng="mindness"/>
         <misc pos="kFight" violent="Y" danger="0"/>
         <mana max="120" min="110" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc|kNpcAffectPcCaster"/>
     </spell>
     <spell id="kPrismaticAura" element="kLight" mode="kEnabled">
-        <name rus="призматическая аура" eng="prismatic aura"/>
+        <name rus="п©я─п╦п╥п╪п╟я┌п╦я┤п╣я│п╨п╟я▐ п╟я┐я─п╟" eng="prismatic aura"/>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="85" min="70" change="4"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
     </spell>
     <spell id="kEviless" element="kDark" mode="kEnabled">
-        <name rus="силы зла" eng="eviless"/>
+        <name rus="я│п╦п╩я▀ п╥п╩п╟" eng="eviless"/>
         <misc pos="kStand" violent="N" danger="3"/>
         <mana max="150" min="130" change="5"/>
         <targets val="kTarIgnore"/>
@@ -1439,7 +1439,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kAirAura" element="kAir" mode="kEnabled">
-        <name rus="воздушная аура" eng="air aura"/>
+        <name rus="п╡п╬п╥п╢я┐я┬п╫п╟я▐ п╟я┐я─п╟" eng="air aura"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
@@ -1454,7 +1454,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kFireAura" element="kFire" mode="kEnabled">
-        <name rus="огненная аура" eng="fire aura"/>
+        <name rus="п╬пЁп╫п╣п╫п╫п╟я▐ п╟я┐я─п╟" eng="fire aura"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
@@ -1469,7 +1469,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kIceAura" element="kWater" mode="kEnabled">
-        <name rus="ледяная аура" eng="ice aura"/>
+        <name rus="п╩п╣п╢я▐п╫п╟я▐ п╟я┐я─п╟" eng="ice aura"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
@@ -1484,7 +1484,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kShock" element="kLight" mode="kEnabled">
-        <name rus="шок" eng="shock"/>
+        <name rus="я┬п╬п╨" eng="shock"/>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="100" min="90" change="2"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -1504,14 +1504,14 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kMagicGlass" element="kLight" mode="kEnabled">
-        <name rus="зеркало магии" eng="magic glassie"/>
+        <name rus="п╥п╣я─п╨п╟п╩п╬ п╪п╟пЁп╦п╦" eng="magic glassie"/>
         <misc pos="kFight" violent="N" danger="2"/>
         <mana max="120" min="110" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
     </spell>
     <spell id="kGroupSanctuary" element="kLight" mode="kEnabled">
-        <name rus="групповое освящение" eng="group sanctuary"/>
+        <name rus="пЁя─я┐п©п©п╬п╡п╬п╣ п╬я│п╡я▐я┴п╣п╫п╦п╣" eng="group sanctuary"/>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
@@ -1526,7 +1526,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kGroupPrismaticAura" element="kLight" mode="kEnabled">
-        <name rus="групповая призматическая аура" eng="group prismatic aura"/>
+        <name rus="пЁя─я┐п©п©п╬п╡п╟я▐ п©я─п╦п╥п╪п╟я┌п╦я┤п╣я│п╨п╟я▐ п╟я┐я─п╟" eng="group prismatic aura"/>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
@@ -1541,7 +1541,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kDeafness" element="kMind" mode="kEnabled">
-        <name rus="глухота" eng="deafness"/>
+        <name rus="пЁп╩я┐я┘п╬я┌п╟" eng="deafness"/>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="100" min="40" change="2"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
@@ -1556,21 +1556,21 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kPowerDeafness" element="kMind" mode="kEnabled">
-        <name rus="длительная глухота" eng="power deafness"/>
+        <name rus="п╢п╩п╦я┌п╣п╩я▄п╫п╟я▐ пЁп╩я┐я┘п╬я┌п╟" eng="power deafness"/>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="120" min="90" change="4"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc|kNpcAffectPcCaster"/>
     </spell>
     <spell id="kRemoveDeafness" element="kLife" mode="kEnabled">
-        <name rus="снять глухоту" eng="remove deafness"/>
+        <name rus="я│п╫я▐я┌я▄ пЁп╩я┐я┘п╬я┌я┐" eng="remove deafness"/>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="90" min="80" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagUnaffects|kNpcUnaffectNpc|kNpcUnaffectNpcCaster"/>
     </spell>
     <spell id="kMassDeafness" element="kMind" mode="kEnabled">
-        <name rus="массовая глухота" eng="mass deafness"/>
+        <name rus="п╪п╟я│я│п╬п╡п╟я▐ пЁп╩я┐я┘п╬я┌п╟" eng="mass deafness"/>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
@@ -1585,7 +1585,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kDustStorm" element="kEarth" mode="kEnabled">
-        <name rus="пылевая буря" eng="dust storm"/>
+        <name rus="п©я▀п╩п╣п╡п╟я▐ п╠я┐я─я▐" eng="dust storm"/>
         <misc pos="kFight" violent="Y" danger="5"/>
         <mana max="125" min="110" change="2"/>
         <targets val="kTarIgnore"/>
@@ -1605,7 +1605,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kEarthfall" element="kEarth" mode="kEnabled">
-        <name rus="камнепад" eng="earth fall"/>
+        <name rus="п╨п╟п╪п╫п╣п©п╟п╢" eng="earth fall"/>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="120" min="100" change="2"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -1625,7 +1625,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kSonicWave" element="kAir" mode="kStability">
-        <name rus="звуковая волна" eng="sonic wave"/>
+        <name rus="п╥п╡я┐п╨п╬п╡п╟я▐ п╡п╬п╩п╫п╟" eng="sonic wave"/>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="120" min="110" change="2"/>
         <targets val="kTarIgnore"/>
@@ -1645,7 +1645,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kHolystrike" element="kLight" mode="kEnabled">
-        <name rus="силы света" eng="holystrike"/>
+        <name rus="я│п╦п╩я▀ я│п╡п╣я┌п╟" eng="holystrike"/>
         <misc pos="kFight" violent="Y" danger="10"/>
         <mana max="150" min="130" change="5"/>
         <targets val="kTarIgnore"/>
@@ -1661,14 +1661,14 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kSumonAngel" element="kLight" mode="kEnabled">
-        <name rus="ангел-хранитель" eng="angel"/>
+        <name rus="п╟п╫пЁп╣п╩-я┘я─п╟п╫п╦я┌п╣п╩я▄" eng="angel"/>
         <misc pos="kStand" violent="N" danger="1"/>
         <mana max="150" min="130" change="5"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kMassFear" element="kDark" mode="kEnabled">
-        <name rus="массовый страх" eng="mass fear"/>
+        <name rus="п╪п╟я│я│п╬п╡я▀п╧ я│я┌я─п╟я┘" eng="mass fear"/>
         <misc pos="kFight" violent="Y" danger="4"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
@@ -1683,28 +1683,28 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kFascination" element="kMind" mode="kEnabled">
-        <name rus="обаяние" eng="fascination"/>
+        <name rus="п╬п╠п╟я▐п╫п╦п╣" eng="fascination"/>
         <misc pos="kFight" violent="N" danger="2"/>
         <mana max="480" min="440" change="20"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
     </spell>
     <spell id="kCrying" element="kMind" mode="kEnabled">
-        <name rus="плач" eng="crying"/>
+        <name rus="п©п╩п╟я┤" eng="crying"/>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="120" min="55" change="2"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
     </spell>
     <spell id="kOblivion" element="kDark" mode="kEnabled">
-        <name rus="забвение" eng="oblivion"/>
+        <name rus="п╥п╟п╠п╡п╣п╫п╦п╣" eng="oblivion"/>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
     </spell>
     <spell id="kBurdenOfTime" element="kDark" mode="kTesting">
-        <name rus="бремя времени" eng="burden time"/>
+        <name rus="п╠я─п╣п╪я▐ п╡я─п╣п╪п╣п╫п╦" eng="burden time"/>
         <misc pos="kFight" violent="Y" danger="4"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
@@ -1719,7 +1719,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kGroupRefresh" element="kLife" mode="kEnabled">
-        <name rus="групповое восстановление" eng="group refresh"/>
+        <name rus="пЁя─я┐п©п©п╬п╡п╬п╣ п╡п╬я│я│я┌п╟п╫п╬п╡п╩п╣п╫п╦п╣" eng="group refresh"/>
         <misc pos="kStand" violent="N" danger="30"/>
         <mana max="160" min="140" change="1"/>
         <targets val="kTarIgnore"/>
@@ -1734,63 +1734,63 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kPeaceful" element="kMind" mode="kEnabled">
-        <name rus="смирение" eng="peaceful"/>
+        <name rus="я│п╪п╦я─п╣п╫п╦п╣" eng="peaceful"/>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
     </spell>
     <spell id="kMagicBattle" element="kUndefined" mode="kService">
-        <name rus="!получил в бою!" eng="!set by programm!"/>
+        <name rus="!п©п╬п╩я┐я┤п╦п╩ п╡ п╠п╬я▌!" eng="!set by programm!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kBerserk" element="kUndefined" mode="kService">
-        <name rus="!предсмертная ярость!" eng="!set by programm!"/>
+        <name rus="!п©я─п╣п╢я│п╪п╣я─я┌п╫п╟я▐ я▐я─п╬я│я┌я▄!" eng="!set by programm!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kStoneBones" element="kEarth" mode="kEnabled">
-        <name rus="каменные кости" eng="stone bones"/>
+        <name rus="п╨п╟п╪п╣п╫п╫я▀п╣ п╨п╬я│я┌п╦" eng="stone bones"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="80" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
     </spell>
     <spell id="kRoomLight" element="kLight" mode="kEnabled">
-        <name rus="осветить комнату" eng="room light"/>
+        <name rus="п╬я│п╡п╣я┌п╦я┌я▄ п╨п╬п╪п╫п╟я┌я┐" eng="room light"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="10" min="10" change="1"/>
         <targets val="kTarRoomThis"/>
         <flags val="kMagRoom"/>
     </spell>
     <spell id="kPoosinedFog" element="kLife" mode="kEnabled">
-        <name rus="ядовитый туман" eng="poisoned fog"/>
+        <name rus="я▐п╢п╬п╡п╦я┌я▀п╧ я┌я┐п╪п╟п╫" eng="poisoned fog"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="10" min="10" change="1"/>
         <targets val="kTarRoomThis"/>
         <flags val="kMagRoom|kMagCasterInroom"/>
     </spell>
     <spell id="kThunderstorm" element="kAir" mode="kEnabled">
-        <name rus="буря отмщения" eng="storm of vengeance"/>
+        <name rus="п╠я┐я─я▐ п╬я┌п╪я┴п╣п╫п╦я▐" eng="storm of vengeance"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="10" min="10" change="1"/>
         <targets val="kTarRoomThis"/>
         <flags val="kMagNeedControl|kMagRoom|kMagCasterInroom"/>
     </spell>
     <spell id="kLightWalk" element="kUndefined" mode="kService">
-        <name rus="!легкая поступь!" eng="!set by programm!"/>
+        <name rus="!п╩п╣пЁп╨п╟я▐ п©п╬я│я┌я┐п©я▄!" eng="!set by programm!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kFailure" element="kDark" mode="kEnabled">
-        <name rus="недоля" eng="failure"/>
+        <name rus="п╫п╣п╢п╬п╩я▐" eng="failure"/>
         <misc pos="kFight" violent="Y" danger="5"/>
         <mana max="100" min="85" change="2"/>
         <targets val="kTarIgnore"/>
@@ -1805,14 +1805,14 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kClanPray" element="kUndefined" mode="kService">
-        <name rus="!клановые чары!" eng="!clan affect!"/>
+        <name rus="!п╨п╩п╟п╫п╬п╡я▀п╣ я┤п╟я─я▀!" eng="!clan affect!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kGlitterDust" element="kEarth" mode="kEnabled">
-        <name rus="блестящая пыль" eng="glitterdust"/>
+        <name rus="п╠п╩п╣я│я┌я▐я┴п╟я▐ п©я▀п╩я▄" eng="glitterdust"/>
         <misc pos="kFight" violent="Y" danger="5"/>
         <mana max="120" min="100" change="3"/>
         <targets val="kTarIgnore"/>
@@ -1827,7 +1827,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kScream" element="kAir" mode="kEnabled">
-        <name rus="вопль" eng="scream"/>
+        <name rus="п╡п╬п©п╩я▄" eng="scream"/>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="100" min="85" change="3"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -1847,35 +1847,35 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kCatGrace" element="kLife" mode="kEnabled">
-        <name rus="кошачья ловкость" eng="cats grace"/>
+        <name rus="п╨п╬я┬п╟я┤я▄я▐ п╩п╬п╡п╨п╬я│я┌я▄" eng="cats grace"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="50" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
     </spell>
     <spell id="kBullBody" element="kLife" mode="kEnabled">
-        <name rus="бычье тело" eng="bull body"/>
+        <name rus="п╠я▀я┤я▄п╣ я┌п╣п╩п╬" eng="bull body"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="50" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
     </spell>
     <spell id="kSnakeWisdom" element="kLife" mode="kEnabled">
-        <name rus="мудрость змеи" eng="snake wisdom"/>
+        <name rus="п╪я┐п╢я─п╬я│я┌я▄ п╥п╪п╣п╦" eng="snake wisdom"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="60" min="50" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
     </spell>
     <spell id="kGimmicry" element="kLife" mode="kEnabled">
-        <name rus="хитроумие" eng="gimmickry"/>
+        <name rus="я┘п╦я┌я─п╬я┐п╪п╦п╣" eng="gimmickry"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="60" min="50" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
     </spell>
     <spell id="kWarcryOfChallenge" element="kMind" mode="kTesting">
-        <name rus="клич вызова" eng="warcry of challenge"/>
+        <name rus="п╨п╩п╦я┤ п╡я▀п╥п╬п╡п╟" eng="warcry of challenge"/>
         <misc pos="kFight" violent="Y" danger="0"/>
         <mana max="60" min="50" change="1"/>
         <targets val="kTarFightVict"/>
@@ -1890,7 +1890,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kWarcryOfMenace" element="kMind" mode="kTesting">
-        <name rus="клич угрозы" eng="warcry of menace"/>
+        <name rus="п╨п╩п╦я┤ я┐пЁя─п╬п╥я▀" eng="warcry of menace"/>
         <misc pos="kFight" violent="Y" danger="0"/>
         <mana max="30" min="30" change="40"/>
         <targets val="kTarFightVict"/>
@@ -1905,7 +1905,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kWarcryOfRage" element="kMind" mode="kTesting">
-        <name rus="клич ярости" eng="warcry of rage"/>
+        <name rus="п╨п╩п╦я┤ я▐я─п╬я│я┌п╦" eng="warcry of rage"/>
         <misc pos="kFight" violent="Y" danger="0"/>
         <mana max="30" min="30" change="50"/>
         <targets val="kTarFightVict"/>
@@ -1925,7 +1925,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kWarcryOfMadness" element="kMind" mode="kTesting">
-        <name rus="клич безумия" eng="warcry of madness"/>
+        <name rus="п╨п╩п╦я┤ п╠п╣п╥я┐п╪п╦я▐" eng="warcry of madness"/>
         <misc pos="kFight" violent="Y" danger="0"/>
         <mana max="50" min="50" change="91"/>
         <targets val="kTarFightVict"/>
@@ -1940,7 +1940,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kWarcryOfThunder" element="kMind" mode="kTesting">
-        <name rus="клич грома" eng="warcry of thunder"/>
+        <name rus="п╨п╩п╦я┤ пЁя─п╬п╪п╟" eng="warcry of thunder"/>
         <misc pos="kFight" violent="Y" danger="0"/>
         <mana max="140" min="140" change="141"/>
         <targets val="kTarFightVict"/>
@@ -1960,7 +1960,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kWarcryOfDefence" element="kMind" mode="kEnabled">
-        <name rus="клич обороны" eng="warcry of defense"/>
+        <name rus="п╨п╩п╦я┤ п╬п╠п╬я─п╬п╫я▀" eng="warcry of defense"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="10" min="10" change="10"/>
         <targets val="kTarIgnore"/>
@@ -1975,7 +1975,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kWarcryOfBattle" element="kMind" mode="kEnabled">
-        <name rus="клич битвы" eng="warcry of battle"/>
+        <name rus="п╨п╩п╦я┤ п╠п╦я┌п╡я▀" eng="warcry of battle"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="20" min="20" change="50"/>
         <targets val="kTarIgnore"/>
@@ -1990,7 +1990,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kWarcryOfPower" element="kMind" mode="kEnabled">
-        <name rus="клич мощи" eng="warcry of power"/>
+        <name rus="п╨п╩п╦я┤ п╪п╬я┴п╦" eng="warcry of power"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="25" min="25" change="70"/>
         <targets val="kTarIgnore"/>
@@ -2005,7 +2005,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kWarcryOfBless" element="kMind" mode="kEnabled">
-        <name rus="клич доблести" eng="warcry of bless"/>
+        <name rus="п╨п╩п╦я┤ п╢п╬п╠п╩п╣я│я┌п╦" eng="warcry of bless"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="15" min="15" change="30"/>
         <targets val="kTarIgnore"/>
@@ -2020,7 +2020,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kWarcryOfCourage" element="kMind" mode="kEnabled">
-        <name rus="клич отваги" eng="warcry of courage"/>
+        <name rus="п╨п╩п╦я┤ п╬я┌п╡п╟пЁп╦" eng="warcry of courage"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="10" min="10" change="10"/>
         <targets val="kTarIgnore"/>
@@ -2035,119 +2035,119 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kRuneLabel" element="kLight" mode="kEnabled">
-        <name rus="рунная метка" eng="rune label"/>
+        <name rus="я─я┐п╫п╫п╟я▐ п╪п╣я┌п╨п╟" eng="rune label"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="50" min="35" change="1"/>
         <targets val="kTarRoomThis"/>
         <flags val="kMagRoom|kMagCasterInworldDelay"/>
     </spell>
     <spell id="kAconitumPoison" element="kLife" mode="kEnabled">
-        <name rus="яд аконита" eng="aconitum poison"/>
+        <name rus="я▐п╢ п╟п╨п╬п╫п╦я┌п╟" eng="aconitum poison"/>
         <misc pos="kFight" violent="Y" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagAffects"/>
     </spell>
     <spell id="kScopolaPoison" element="kLife" mode="kEnabled">
-        <name rus="яд скополии" eng="scopolia poison"/>
+        <name rus="я▐п╢ я│п╨п╬п©п╬п╩п╦п╦" eng="scopolia poison"/>
         <misc pos="kFight" violent="Y" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagAffects"/>
     </spell>
     <spell id="kBelenaPoison" element="kLife" mode="kEnabled">
-        <name rus="яд белены" eng="belena poison"/>
+        <name rus="я▐п╢ п╠п╣п╩п╣п╫я▀" eng="belena poison"/>
         <misc pos="kFight" violent="Y" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagAffects"/>
     </spell>
     <spell id="kDaturaPoison" element="kLife" mode="kEnabled">
-        <name rus="яд дурмана" eng="datura poison"/>
+        <name rus="я▐п╢ п╢я┐я─п╪п╟п╫п╟" eng="datura poison"/>
         <misc pos="kFight" violent="Y" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagAffects"/>
     </spell>
     <spell id="kTimerRestore" element="kLight" mode="kEnabled">
-        <name rus="обновление таймера" eng=" timer repair"/>
+        <name rus="п╬п╠п╫п╬п╡п╩п╣п╫п╦п╣ я┌п╟п╧п╪п╣я─п╟" eng=" timer repair"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarObjInv|kTarObjEquip"/>
         <flags val="kMagAlterObjs"/>
     </spell>
     <spell id="kCombatLuck" element="kMind" mode="kEnabled">
-        <name rus="боевое везение" eng="lacky"/>
+        <name rus="п╠п╬п╣п╡п╬п╣ п╡п╣п╥п╣п╫п╦п╣" eng="lacky"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="100" min="90" change="1"/>
         <targets val="kTarCharRoom|kTarSelfOnly"/>
         <flags val="kMagAffects"/>
     </spell>
     <spell id="kBandage" element="kUndefined" mode="kEnabled">
-        <name rus="перевязка" eng="!set by programm!"/>
+        <name rus="п©п╣я─п╣п╡я▐п╥п╨п╟" eng="!set by programm!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kNoBandage" element="kUndefined" mode="kService">
-        <name rus="!нельзя перевязываться!" eng="!set by programm!"/>
+        <name rus="!п╫п╣п╩я▄п╥я▐ п©п╣я─п╣п╡я▐п╥я▀п╡п╟я┌я▄я│я▐!" eng="!set by programm!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kCapable" element="kUndefined" mode="kService">
-        <name rus="!зачарован!" eng="!set by programm!"/>
+        <name rus="!п╥п╟я┤п╟я─п╬п╡п╟п╫!" eng="!set by programm!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kStrangle" element="kUndefined" mode="kService">
-        <name rus="!удушье!" eng="!set by programm!"/>
+        <name rus="!я┐п╢я┐я┬я▄п╣!" eng="!set by programm!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kRecallSpells" element="kUndefined" mode="kService">
-        <name rus="!вспоминает заклинания!" eng="!set by programm!"/>
+        <name rus="!п╡я│п©п╬п╪п╦п╫п╟п╣я┌ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐!" eng="!set by programm!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kHypnoticPattern" element="kMind" mode="kEnabled">
-        <name rus="чарующий узор" eng="hypnotic pattern"/>
+        <name rus="я┤п╟я─я┐я▌я┴п╦п╧ я┐п╥п╬я─" eng="hypnotic pattern"/>
         <misc pos="kStand" violent="Y" danger="0"/>
         <mana max="120" min="100" change="2"/>
         <targets val="kTarRoomThis"/>
         <flags val="kMagRoom|kMagCasterInroom"/>
     </spell>
     <spell id="kSolobonus" element="kUndefined" mode="kEnabled">
-        <name rus="награда" eng="bonus"/>
+        <name rus="п╫п╟пЁя─п╟п╢п╟" eng="bonus"/>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarNotSelf"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kVampirism" element="kDark" mode="kEnabled">
-        <name rus="вампиризм" eng="vampire"/>
+        <name rus="п╡п╟п╪п©п╦я─п╦п╥п╪" eng="vampire"/>
         <misc pos="kStand" violent="N" danger="3"/>
         <mana max="150" min="130" change="5"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kRestoration" element="kLight" mode="kEnabled">
-        <name rus="реконструкция" eng="reconstruction"/>
+        <name rus="я─п╣п╨п╬п╫я│я┌я─я┐п╨я├п╦я▐" eng="reconstruction"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarObjInv|kTarObjEquip"/>
         <flags val="kMagAlterObjs"/>
     </spell>
     <spell id="kDeathAura" element="kDark" mode="kEnabled">
-        <name rus="аура смерти" eng="aura death"/>
+        <name rus="п╟я┐я─п╟ я│п╪п╣я─я┌п╦" eng="aura death"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
@@ -2162,14 +2162,14 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kRecovery" element="kDark" mode="kEnabled">
-        <name rus="темное прикосновение" eng="recovery"/>
+        <name rus="я┌п╣п╪п╫п╬п╣ п©я─п╦п╨п╬я│п╫п╬п╡п╣п╫п╦п╣" eng="recovery"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
     </spell>
     <spell id="kMassRecovery" element="kDark" mode="kEnabled">
-        <name rus="прикосновение смерти" eng="mass recovery"/>
+        <name rus="п©я─п╦п╨п╬я│п╫п╬п╡п╣п╫п╦п╣ я│п╪п╣я─я┌п╦" eng="mass recovery"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
@@ -2184,28 +2184,28 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kAuraOfEvil" element="kDark" mode="kEnabled">
-        <name rus="аура зла" eng="aura evil"/>
+        <name rus="п╟я┐я─п╟ п╥п╩п╟" eng="aura evil"/>
         <misc pos="kStand" violent="N" danger="3"/>
         <mana max="150" min="130" change="5"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kMentalShadow" element="kMind" mode="kEnabled">
-        <name rus="ментальная тень" eng="mental shadow"/>
+        <name rus="п╪п╣п╫я┌п╟п╩я▄п╫п╟я▐ я┌п╣п╫я▄" eng="mental shadow"/>
         <misc pos="kStand" violent="N" danger="1"/>
         <mana max="150" min="130" change="5"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kBlackTentacles" element="kDark" mode="kEnabled">
-        <name rus="навьи руки" eng="evards black tentacles"/>
+        <name rus="п╫п╟п╡я▄п╦ я─я┐п╨п╦" eng="evards black tentacles"/>
         <misc pos="kFight" violent="Y" danger="0"/>
         <mana max="120" min="110" change="2"/>
         <targets val="kTarRoomThis"/>
         <flags val="kMagNeedControl|kMagRoom|kMagCasterInroom"/>
     </spell>
     <spell id="kWhirlwind" element="kAir" mode="kEnabled">
-        <name rus="вихрь" eng="whirlwind"/>
+        <name rus="п╡п╦я┘я─я▄" eng="whirlwind"/>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="70" min="50" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -2221,7 +2221,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kIndriksTeeth" element="kEarth" mode="kEnabled">
-        <name rus="зубы индрика" eng="indriks teeth"/>
+        <name rus="п╥я┐п╠я▀ п╦п╫п╢я─п╦п╨п╟" eng="indriks teeth"/>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="60" min="45" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -2237,7 +2237,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kAcidArrow" element="kWater" mode="kEnabled">
-        <name rus="кислотная стрела" eng="acid arrow"/>
+        <name rus="п╨п╦я│п╩п╬я┌п╫п╟я▐ я│я┌я─п╣п╩п╟" eng="acid arrow"/>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -2253,7 +2253,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kThunderStone" element="kEarth" mode="kEnabled">
-        <name rus="громовой камень" eng="thunderstone"/>
+        <name rus="пЁя─п╬п╪п╬п╡п╬п╧ п╨п╟п╪п╣п╫я▄" eng="thunderstone"/>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="110" min="100" change="2"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -2273,7 +2273,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kClod" element="kEarth" mode="kEnabled">
-        <name rus="глыба" eng="clod"/>
+        <name rus="пЁп╩я▀п╠п╟" eng="clod"/>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -2289,14 +2289,14 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kExpedient" element="kUndefined" mode="kService">
-        <name rus="!боевой прием!" eng="!set by programm!"/>
+        <name rus="!п╠п╬п╣п╡п╬п╧ п©я─п╦п╣п╪!" eng="!set by programm!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kSightOfDarkness" element="kLight" mode="kEnabled">
-        <name rus="зрение тьмы" eng="sight darkness"/>
+        <name rus="п╥я─п╣п╫п╦п╣ я┌я▄п╪я▀" eng="sight darkness"/>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
@@ -2311,7 +2311,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kGroupSincerity" element="kMind" mode="kEnabled">
-        <name rus="общая искренность" eng="general sincerity"/>
+        <name rus="п╬п╠я┴п╟я▐ п╦я│п╨я─п╣п╫п╫п╬я│я┌я▄" eng="general sincerity"/>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
@@ -2326,7 +2326,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kMagicalGaze" element="kMind" mode="kEnabled">
-        <name rus="магический взор" eng="magical gaze"/>
+        <name rus="п╪п╟пЁп╦я┤п╣я│п╨п╦п╧ п╡п╥п╬я─" eng="magical gaze"/>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
@@ -2341,7 +2341,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kAllSeeingEye" element="kMind" mode="kEnabled">
-        <name rus="всевидящее око" eng="allseeing eye"/>
+        <name rus="п╡я│п╣п╡п╦п╢я▐я┴п╣п╣ п╬п╨п╬" eng="allseeing eye"/>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
@@ -2356,7 +2356,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kEyeOfGods" element="kLife" mode="kEnabled">
-        <name rus="око богов" eng="eye gods"/>
+        <name rus="п╬п╨п╬ п╠п╬пЁп╬п╡" eng="eye gods"/>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
@@ -2371,7 +2371,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kBreathingAtDepth" element="kWater" mode="kEnabled">
-        <name rus="дыхание глубин" eng="breathing at depth"/>
+        <name rus="п╢я▀я┘п╟п╫п╦п╣ пЁп╩я┐п╠п╦п╫" eng="breathing at depth"/>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
@@ -2386,7 +2386,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kGeneralRecovery" element="kLife" mode="kEnabled">
-        <name rus="общее восстановление" eng="general recovery"/>
+        <name rus="п╬п╠я┴п╣п╣ п╡п╬я│я│я┌п╟п╫п╬п╡п╩п╣п╫п╦п╣" eng="general recovery"/>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
@@ -2401,7 +2401,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kCommonMeal" element="kLife" mode="kEnabled">
-        <name rus="общая трапеза" eng="common meal"/>
+        <name rus="п╬п╠я┴п╟я▐ я┌я─п╟п©п╣п╥п╟" eng="common meal"/>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
@@ -2416,7 +2416,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kStoneWall" element="kEarth" mode="kEnabled">
-        <name rus="каменная стена" eng="stone wall"/>
+        <name rus="п╨п╟п╪п╣п╫п╫п╟я▐ я│я┌п╣п╫п╟" eng="stone wall"/>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
@@ -2431,7 +2431,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kSnakeEyes" element="kMind" mode="kEnabled">
-        <name rus="глаза змея" eng="snake eyes"/>
+        <name rus="пЁп╩п╟п╥п╟ п╥п╪п╣я▐" eng="snake eyes"/>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
@@ -2446,7 +2446,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kEarthAura" element="kEarth" mode="kEnabled">
-        <name rus="земной поклон" eng="earth aura"/>
+        <name rus="п╥п╣п╪п╫п╬п╧ п©п╬п╨п╩п╬п╫" eng="earth aura"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
@@ -2461,7 +2461,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kGroupProtectFromEvil" element="kLight" mode="kEnabled">
-        <name rus="групповая защита от тьмы" eng="group protect evil"/>
+        <name rus="пЁя─я┐п©п©п╬п╡п╟я▐ п╥п╟я┴п╦я┌п╟ п╬я┌ я┌я▄п╪я▀" eng="group protect evil"/>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
@@ -2476,7 +2476,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kArrowsFire" element="kFire" mode="kEnabled">
-        <name rus="стрелы огня" eng="arrows of fire"/>
+        <name rus="я│я┌я─п╣п╩я▀ п╬пЁп╫я▐" eng="arrows of fire"/>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -2492,7 +2492,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kArrowsWater" element="kWater" mode="kEnabled">
-        <name rus="стрелы воды" eng="arrows of water"/>
+        <name rus="я│я┌я─п╣п╩я▀ п╡п╬п╢я▀" eng="arrows of water"/>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -2508,7 +2508,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kArrowsEarth" element="kEarth" mode="kEnabled">
-        <name rus="стрелы земли" eng="arrows of earth"/>
+        <name rus="я│я┌я─п╣п╩я▀ п╥п╣п╪п╩п╦" eng="arrows of earth"/>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -2524,7 +2524,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kArrowsAir" element="kAir" mode="kEnabled">
-        <name rus="стрелы воздуха" eng="arrows of air"/>
+        <name rus="я│я┌я─п╣п╩я▀ п╡п╬п╥п╢я┐я┘п╟" eng="arrows of air"/>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -2540,7 +2540,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kArrowsDeath" element="kDark" mode="kEnabled">
-        <name rus="стрелы смерти" eng="arrows of death"/>
+        <name rus="я│я┌я─п╣п╩я▀ я│п╪п╣я─я┌п╦" eng="arrows of death"/>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -2556,7 +2556,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kPaladineInspiration" element="kUndefined" mode="kEnabled">
-        <name rus="воодушевление" eng="inspiration"/>
+        <name rus="п╡п╬п╬п╢я┐я┬п╣п╡п╩п╣п╫п╦п╣" eng="inspiration"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
@@ -2571,14 +2571,14 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kDexterity" element="kLife" mode="kEnabled">
-        <name rus="ловкость" eng="dexterity"/>
+        <name rus="п╩п╬п╡п╨п╬я│я┌я▄" eng="dexterity"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="40" min="30" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
     </spell>
     <spell id="kGroupBlink" element="kLife" mode="kEnabled">
-        <name rus="групповое мигание" eng="group blink"/>
+        <name rus="пЁя─я┐п©п©п╬п╡п╬п╣ п╪п╦пЁп╟п╫п╦п╣" eng="group blink"/>
         <misc pos="kFight" violent="N" danger="30"/>
         <mana max="110" min="100" change="2"/>
         <targets val="kTarIgnore"/>
@@ -2593,7 +2593,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kGroupCloudly" element="kWater" mode="kEnabled">
-        <name rus="групповое затуманивание" eng="group cloudly"/>
+        <name rus="пЁя─я┐п©п©п╬п╡п╬п╣ п╥п╟я┌я┐п╪п╟п╫п╦п╡п╟п╫п╦п╣" eng="group cloudly"/>
         <misc pos="kFight" violent="N" danger="30"/>
         <mana max="110" min="100" change="2"/>
         <targets val="kTarIgnore"/>
@@ -2608,7 +2608,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kGroupAwareness" element="kMind" mode="kEnabled">
-        <name rus="групповая внимательность" eng="group awarness"/>
+        <name rus="пЁя─я┐п©п©п╬п╡п╟я▐ п╡п╫п╦п╪п╟я┌п╣п╩я▄п╫п╬я│я┌я▄" eng="group awarness"/>
         <misc pos="kFight" violent="N" danger="30"/>
         <mana max="110" min="100" change="2"/>
         <targets val="kTarIgnore"/>
@@ -2623,7 +2623,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kWarcryOfExperience" element="kMind" mode="kEnabled">
-        <name rus="клич обучения" eng="warcry of training"/>
+        <name rus="п╨п╩п╦я┤ п╬п╠я┐я┤п╣п╫п╦я▐" eng="warcry of training"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="10" min="10" change="10"/>
         <targets val="kTarIgnore"/>
@@ -2638,7 +2638,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kWarcryOfLuck" element="kMind" mode="kEnabled">
-        <name rus="клич везения" eng="warcry of luck"/>
+        <name rus="п╨п╩п╦я┤ п╡п╣п╥п╣п╫п╦я▐" eng="warcry of luck"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="10" min="10" change="10"/>
         <targets val="kTarIgnore"/>
@@ -2653,7 +2653,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kWarcryOfPhysdamage" element="kMind" mode="kEnabled">
-        <name rus="клич точности" eng="warcry of accuracy"/>
+        <name rus="п╨п╩п╦я┤ я┌п╬я┤п╫п╬я│я┌п╦" eng="warcry of accuracy"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="10" min="10" change="10"/>
         <targets val="kTarIgnore"/>
@@ -2668,7 +2668,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kMassFailure" element="kDark" mode="kEnabled">
-        <name rus="взор Велеса" eng="gaze of Veles"/>
+        <name rus="п╡п╥п╬я─ п▓п╣п╩п╣я│п╟" eng="gaze of Veles"/>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
@@ -2683,7 +2683,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kSnare" element="kMind" mode="kEnabled">
-        <name rus="западня" eng="snare"/>
+        <name rus="п╥п╟п©п╟п╢п╫я▐" eng="snare"/>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
@@ -2698,7 +2698,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kFireBreath" element="kFire" mode="kService">
-        <name rus="огненное дыхание" eng="fire breath"/>
+        <name rus="п╬пЁп╫п╣п╫п╫п╬п╣ п╢я▀я┘п╟п╫п╦п╣" eng="fire breath"/>
         <misc pos="kStand" violent="Y" danger="3"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarIgnore"/>
@@ -2714,7 +2714,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kGasBreath" element="kEarth" mode="kService">
-        <name rus="зловонное дыхание" eng="gas breath"/>
+        <name rus="п╥п╩п╬п╡п╬п╫п╫п╬п╣ п╢я▀я┘п╟п╫п╦п╣" eng="gas breath"/>
         <misc pos="kStand" violent="Y" danger="3"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarIgnore"/>
@@ -2730,7 +2730,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kFrostBreath" element="kAir" mode="kService">
-        <name rus="ледяное дыхание" eng="frost breath"/>
+        <name rus="п╩п╣п╢я▐п╫п╬п╣ п╢я▀я┘п╟п╫п╦п╣" eng="frost breath"/>
         <misc pos="kStand" violent="Y" danger="3"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarIgnore"/>
@@ -2746,7 +2746,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kAcidBreath" element="kWater" mode="kService">
-        <name rus="кислотное дыхание" eng="acid breath"/>
+        <name rus="п╨п╦я│п╩п╬я┌п╫п╬п╣ п╢я▀я┘п╟п╫п╦п╣" eng="acid breath"/>
         <misc pos="kStand" violent="Y" danger="3"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarIgnore"/>
@@ -2762,7 +2762,7 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kLightingBreath" element="kDark" mode="kService">
-        <name rus="ослепляющее дыхание" eng="lightning breath"/>
+        <name rus="п╬я│п╩п╣п©п╩я▐я▌я┴п╣п╣ п╢я▀я┘п╟п╫п╦п╣" eng="lightning breath"/>
         <misc pos="kStand" violent="Y" danger="3"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarIgnore"/>
@@ -2778,28 +2778,28 @@ base_stat id - (например "kWis") какой берем параметр,  threshold - сколько вычи
         </talent_actions>
     </spell>
     <spell id="kExpedientFail" element="kUndefined" mode="kService">
-        <name rus="!неудачный прием!" eng="!expediend fail!"/>
+        <name rus="!п╫п╣я┐п╢п╟я┤п╫я▀п╧ п©я─п╦п╣п╪!" eng="!expediend fail!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kIdentify" element="kMind" mode="kEnabled">
-        <name rus="идентификация" eng="identify"/>
+        <name rus="п╦п╢п╣п╫я┌п╦я└п╦п╨п╟я├п╦я▐" eng="identify"/>
         <misc pos="kSit" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarCharRoom|kTarObjInv|kTarObjRoom|kTarObjEquip"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kFullIdentify" element="kMind" mode="kEnabled">
-        <name rus="полная идентификация" eng="identify"/>
+        <name rus="п©п╬п╩п╫п╟я▐ п╦п╢п╣п╫я┌п╦я└п╦п╨п╟я├п╦я▐" eng="identify"/>
         <misc pos="kSit" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarCharRoom|kTarObjInv|kTarObjRoom|kTarObjEquip"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kQUest" element="kUndefined" mode="kService">
-        <name rus="!чары!" eng="!quest spell!"/>
+        <name rus="!я┤п╟я─я▀!" eng="!quest spell!"/>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarNotSelf"/>
