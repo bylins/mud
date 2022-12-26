@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <class id="kMagus">
-    <name abbr="Вх">
-        <singular nom="волхв" gen="волхва" dat="волхву" acc="волхва" ins="волхвом" pre="волхве"/>
-        <plural nom="волхвы" gen="волхвов" dat="волхвам" acc="волхвов" ins="волхвами" pre="волхвах"/>
+    <name abbr="п▓я┘">
+        <singular nom="п╡п╬п╩я┘п╡" gen="п╡п╬п╩я┘п╡п╟" dat="п╡п╬п╩я┘п╡я┐" acc="п╡п╬п╩я┘п╡п╟" ins="п╡п╬п╩я┘п╡п╬п╪" pre="п╡п╬п╩я┘п╡п╣"/>
+        <plural nom="п╡п╬п╩я┘п╡я▀" gen="п╡п╬п╩я┘п╡п╬п╡" dat="п╡п╬п╩я┘п╡п╟п╪" acc="п╡п╬п╩я┘п╡п╬п╡" ins="п╡п╬п╩я┘п╡п╟п╪п╦" pre="п╡п╬п╩я┘п╡п╟я┘"/>
     </name>
     <stats>
         <base_stats>

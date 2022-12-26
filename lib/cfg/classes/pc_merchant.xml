@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <class id="kMerchant">
-    <name abbr="Кп">
-        <singular nom="купец" gen="купца" dat="купцу" acc="купца" ins="купцом" pre="купце"/>
-        <plural nom="купцы" gen="купцов" dat="купцам" acc="купцов" ins="купцами" pre="купцах"/>
+    <name abbr="п п©">
+        <singular nom="п╨я┐п©п╣я├" gen="п╨я┐п©я├п╟" dat="п╨я┐п©я├я┐" acc="п╨я┐п©я├п╟" ins="п╨я┐п©я├п╬п╪" pre="п╨я┐п©я├п╣"/>
+        <plural nom="п╨я┐п©я├я▀" gen="п╨я┐п©я├п╬п╡" dat="п╨я┐п©я├п╟п╪" acc="п╨я┐п©я├п╬п╡" ins="п╨я┐п©я├п╟п╪п╦" pre="п╨я┐п©я├п╟я┘"/>
     </name>
     <stats>
         <base_stats>

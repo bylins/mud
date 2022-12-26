@@ -2,36 +2,36 @@
 <!--
         <class val="kSorcerer|kConjurer|kThief|kWarrior|kAssasine|kGuard|kCharmer|kWizard|kNecromancer|kPaladine|kRanger|kVigilant|kMerchant|kMagus"/>
 
-Описание формата:
+п·п©п╦я│п╟п╫п╦п╣ я└п╬я─п╪п╟я┌п╟:
 
-    <guild text_id="kOldMan" vnum="6" name="старец">                            - Иды, должны быть уникальными. Текстовый и имя не обязательны, но желательно указывать.
-        <trainers vnums="4008|5008"/>                                           - vnums мобов-тренеров, можно указать несуществующий, последствий не будет кроме спама в еррлог.
-        <talents>                                                               - Список талантов, которым обучает тренер.
-            <skill id="kWarcry" fail="0">                                       - Умение, id - по списку id'ов умений. fail - шанс (0-100) фейла при изучении.
-                <class val="kWarrior|kGuard"/>                                  - Кого учит по классу. Не обязательна, проверка по конфигу классов все равно есть.
-                <price currency="kKuna" start="2" remort_percent="400"/>        - Цена обучения. id валюты, стартовая цена, сколько процентов добавляется за реморт.
-                <upgrade practices="10" min="0" max="10"/>                      - practices - на сколько процентов повышается умение за одно обучение.
-										 min - начиная с какой величины умения учит, max - до какой.
+    <guild text_id="kOldMan" vnum="6" name="я│я┌п╟я─п╣я├">                            - п≤п╢я▀, п╢п╬п╩п╤п╫я▀ п╠я▀я┌я▄ я┐п╫п╦п╨п╟п╩я▄п╫я▀п╪п╦. п╒п╣п╨я│я┌п╬п╡я▀п╧ п╦ п╦п╪я▐ п╫п╣ п╬п╠я▐п╥п╟я┌п╣п╩я▄п╫я▀, п╫п╬ п╤п╣п╩п╟я┌п╣п╩я▄п╫п╬ я┐п╨п╟п╥я▀п╡п╟я┌я▄.
+        <trainers vnums="4008|5008"/>                                           - vnums п╪п╬п╠п╬п╡-я┌я─п╣п╫п╣я─п╬п╡, п╪п╬п╤п╫п╬ я┐п╨п╟п╥п╟я┌я▄ п╫п╣я│я┐я┴п╣я│я┌п╡я┐я▌я┴п╦п╧, п©п╬я│п╩п╣п╢я│я┌п╡п╦п╧ п╫п╣ п╠я┐п╢п╣я┌ п╨я─п╬п╪п╣ я│п©п╟п╪п╟ п╡ п╣я─я─п╩п╬пЁ.
+        <talents>                                                               - п║п©п╦я│п╬п╨ я┌п╟п╩п╟п╫я┌п╬п╡, п╨п╬я┌п╬я─я▀п╪ п╬п╠я┐я┤п╟п╣я┌ я┌я─п╣п╫п╣я─.
+            <skill id="kWarcry" fail="0">                                       - пёп╪п╣п╫п╦п╣, id - п©п╬ я│п©п╦я│п╨я┐ id'п╬п╡ я┐п╪п╣п╫п╦п╧. fail - я┬п╟п╫я│ (0-100) я└п╣п╧п╩п╟ п©я─п╦ п╦п╥я┐я┤п╣п╫п╦п╦.
+                <class val="kWarrior|kGuard"/>                                  - п п╬пЁп╬ я┐я┤п╦я┌ п©п╬ п╨п╩п╟я│я│я┐. п²п╣ п╬п╠я▐п╥п╟я┌п╣п╩я▄п╫п╟, п©я─п╬п╡п╣я─п╨п╟ п©п╬ п╨п╬п╫я└п╦пЁя┐ п╨п╩п╟я│я│п╬п╡ п╡я│п╣ я─п╟п╡п╫п╬ п╣я│я┌я▄.
+                <price currency="kKuna" start="2" remort_percent="400"/>        - п╕п╣п╫п╟ п╬п╠я┐я┤п╣п╫п╦я▐. id п╡п╟п╩я▌я┌я▀, я│я┌п╟я─я┌п╬п╡п╟я▐ я├п╣п╫п╟, я│п╨п╬п╩я▄п╨п╬ п©я─п╬я├п╣п╫я┌п╬п╡ п╢п╬п╠п╟п╡п╩я▐п╣я┌я│я▐ п╥п╟ я─п╣п╪п╬я─я┌.
+                <upgrade practices="10" min="0" max="10"/>                      - practices - п╫п╟ я│п╨п╬п╩я▄п╨п╬ п©я─п╬я├п╣п╫я┌п╬п╡ п©п╬п╡я▀я┬п╟п╣я┌я│я▐ я┐п╪п╣п╫п╦п╣ п╥п╟ п╬п╢п╫п╬ п╬п╠я┐я┤п╣п╫п╦п╣.
+										 min - п╫п╟я┤п╦п╫п╟я▐ я│ п╨п╟п╨п╬п╧ п╡п╣п╩п╦я┤п╦п╫я▀ я┐п╪п╣п╫п╦я▐ я┐я┤п╦я┌, max - п╢п╬ п╨п╟п╨п╬п╧.
             </skill>                                                               
-            <spell id="kMassFailure" type="kTemp" time="1440" fail="0">         - Заклинание. id по списку id'ов заклинаний. 
-										    type - тип заклинания, может быть kKnow или kTemp, time - время в минутах для kTemp
+            <spell id="kMassFailure" type="kTemp" time="1440" fail="0">         - п≈п╟п╨п╩п╦п╫п╟п╫п╦п╣. id п©п╬ я│п©п╦я│п╨я┐ id'п╬п╡ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╧. 
+										    type - я┌п╦п© п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐, п╪п╬п╤п╣я┌ п╠я▀я┌я▄ kKnow п╦п╩п╦ kTemp, time - п╡я─п╣п╪я▐ п╡ п╪п╦п╫я┐я┌п╟я┘ п╢п╩я▐ kTemp
                 <class val="kSorcerer|kCharmer"/>
                 <price currency="kKuna" start="30" remort_percent="300"/>
             </spell>
-            <feat id="kGreatPowerAttack" fail="10">                             - Способность. id по списку id'ов способностей.
+            <feat id="kGreatPowerAttack" fail="10">                             - п║п©п╬я│п╬п╠п╫п╬я│я┌я▄. id п©п╬ я│п©п╦я│п╨я┐ id'п╬п╡ я│п©п╬я│п╬п╠п╫п╬я│я┌п╣п╧.
                 <price currency="kKuna" start="50" remort_percent="200"/>
             </feat>
     </guild>
 
-    Что еще следует знать:
-        - Если будет больше одной гильдии с одинаковыми vnum - вторая и далее не будут прочитаны из файла (остальные прочитаются).
-        - Можно не указывать текстовый ид и имя гильдии, но тогда ее будет невозможно найти по имени, что я планирую добавить.
-        - К одному мобу можно подключить только одну гильдию. Если внум одного моба указать в разных гильдиях, работать будет последняя.
-	- В одной гильдии можно указывать сколько угодно одних и тех же талантов с разной ценой, уровнем обучения и так далее. 
+    п╖я┌п╬ п╣я┴п╣ я│п╩п╣п╢я┐п╣я┌ п╥п╫п╟я┌я▄:
+        - п∙я│п╩п╦ п╠я┐п╢п╣я┌ п╠п╬п╩я▄я┬п╣ п╬п╢п╫п╬п╧ пЁп╦п╩я▄п╢п╦п╦ я│ п╬п╢п╦п╫п╟п╨п╬п╡я▀п╪п╦ vnum - п╡я┌п╬я─п╟я▐ п╦ п╢п╟п╩п╣п╣ п╫п╣ п╠я┐п╢я┐я┌ п©я─п╬я┤п╦я┌п╟п╫я▀ п╦п╥ я└п╟п╧п╩п╟ (п╬я│я┌п╟п╩я▄п╫я▀п╣ п©я─п╬я┤п╦я┌п╟я▌я┌я│я▐).
+        - п°п╬п╤п╫п╬ п╫п╣ я┐п╨п╟п╥я▀п╡п╟я┌я▄ я┌п╣п╨я│я┌п╬п╡я▀п╧ п╦п╢ п╦ п╦п╪я▐ пЁп╦п╩я▄п╢п╦п╦, п╫п╬ я┌п╬пЁп╢п╟ п╣п╣ п╠я┐п╢п╣я┌ п╫п╣п╡п╬п╥п╪п╬п╤п╫п╬ п╫п╟п╧я┌п╦ п©п╬ п╦п╪п╣п╫п╦, я┤я┌п╬ я▐ п©п╩п╟п╫п╦я─я┐я▌ п╢п╬п╠п╟п╡п╦я┌я▄.
+        - п  п╬п╢п╫п╬п╪я┐ п╪п╬п╠я┐ п╪п╬п╤п╫п╬ п©п╬п╢п╨п╩я▌я┤п╦я┌я▄ я┌п╬п╩я▄п╨п╬ п╬п╢п╫я┐ пЁп╦п╩я▄п╢п╦я▌. п∙я│п╩п╦ п╡п╫я┐п╪ п╬п╢п╫п╬пЁп╬ п╪п╬п╠п╟ я┐п╨п╟п╥п╟я┌я▄ п╡ я─п╟п╥п╫я▀я┘ пЁп╦п╩я▄п╢п╦я▐я┘, я─п╟п╠п╬я┌п╟я┌я▄ п╠я┐п╢п╣я┌ п©п╬я│п╩п╣п╢п╫я▐я▐.
+	- п▓ п╬п╢п╫п╬п╧ пЁп╦п╩я▄п╢п╦п╦ п╪п╬п╤п╫п╬ я┐п╨п╟п╥я▀п╡п╟я┌я▄ я│п╨п╬п╩я▄п╨п╬ я┐пЁп╬п╢п╫п╬ п╬п╢п╫п╦я┘ п╦ я┌п╣я┘ п╤п╣ я┌п╟п╩п╟п╫я┌п╬п╡ я│ я─п╟п╥п╫п╬п╧ я├п╣п╫п╬п╧, я┐я─п╬п╡п╫п╣п╪ п╬п╠я┐я┤п╣п╫п╦я▐ п╦ я┌п╟п╨ п╢п╟п╩п╣п╣. 
 
  -->
 <guilds>
-    <guild text_id="kElder" vnum="0" name="старейшина">
+    <guild text_id="kElder" vnum="0" name="я│я┌п╟я─п╣п╧я┬п╦п╫п╟">
         <trainers vnums="4000|5000|6012|7038|8011|9011|9105|13511|30212|49900|60018|63000|63602|66017|68018|69018|73007|75017|75928|98600"/>
         <talents>
             <skill id="kPunch" fail="0">
@@ -215,7 +215,7 @@
         </talents>
     </guild>
 
-    <guild text_id="kApprentice" vnum="1" name="подмастерье">
+    <guild text_id="kApprentice" vnum="1" name="п©п╬п╢п╪п╟я│я┌п╣я─я▄п╣">
         <trainers vnums="4004|5017|6007|7018|8002|9002"/>
         <talents>
             <skill id="kSharpening" fail="0">
@@ -229,7 +229,7 @@
         </talents>
     </guild>
 
-    <guild text_id="kBlacksmithAssistant" vnum="2" name="помощник кузнеца">
+    <guild text_id="kBlacksmithAssistant" vnum="2" name="п©п╬п╪п╬я┴п╫п╦п╨ п╨я┐п╥п╫п╣я├п╟">
         <trainers vnums="30202|49905|60019|63617|69007"/>
         <talents>
             <skill id="kSharpening" fail="0">
@@ -253,7 +253,7 @@
         </talents>
     </guild>
 
-    <guild text_id="kHerbalist" vnum="3" name="травник">
+    <guild text_id="kHerbalist" vnum="3" name="я┌я─п╟п╡п╫п╦п╨">
         <trainers vnums="4007|5024|6017|7037|8018|9018|60016|66008|68016|75941"/>
         <talents>
             <skill id="kFirstAid" fail="0">
@@ -295,7 +295,7 @@
         </talents>
     </guild>
 
-    <guild text_id="kHermit" vnum="4" name="отшельник">
+    <guild text_id="kHermit" vnum="4" name="п╬я┌я┬п╣п╩я▄п╫п╦п╨">
         <trainers vnums="4005|5005|6008|7016|8005|9106|9005|30207|60017|63005|66006|68017|69017|73020|75903"/>
         <talents>
             <skill id="kFirstAid" fail="0">
@@ -386,7 +386,7 @@
         </talents>
     </guild>
 
-    <guild text_id="kSorceress" vnum="5" name="ведунья">
+    <guild text_id="kSorceress" vnum="5" name="п╡п╣п╢я┐п╫я▄я▐">
         <trainers vnums="4006|5025|6011|7039|8017|9017|75942"/>
         <talents>
             <skill id="kFirstAid" fail="0">
@@ -433,7 +433,7 @@
         </talents>
     </guild>
 
-    <guild text_id="kOldMan" vnum="6" name="старец">
+    <guild text_id="kOldMan" vnum="6" name="я│я┌п╟я─п╣я├">
         <trainers vnums="4008|5008|6005|7026|8024|9047|75940"/>
         <talents>
             <spell id="kArmor" type="kKnow" time="0" fail="0">
@@ -463,7 +463,7 @@
         </talents>
     </guild>
 
-    <guild text_id="kHunter" vnum="7" name="охотник">
+    <guild text_id="kHunter" vnum="7" name="п╬я┘п╬я┌п╫п╦п╨">
         <trainers vnums="4012|5012|6014|7036|8013|9013|66031|75901"/>
         <talents>
             <skill id="kBows" fail="0">
@@ -528,7 +528,7 @@
         </talents>
     </guild>
 
-    <guild text_id="kThug" vnum="8" name="лиходей">
+    <guild text_id="kThug" vnum="8" name="п╩п╦я┘п╬п╢п╣п╧">
         <trainers vnums="4013|5013|6015|7023|8012|9012|30219|75902"/>
         <talents>
             <skill id="kKick" fail="0">
@@ -593,7 +593,7 @@
         </talents>
     </guild>
 
-    <guild text_id="kCaptiveNunter" vnum="9" name="пленный охотник">
+    <guild text_id="kCaptiveNunter" vnum="9" name="п©п╩п╣п╫п╫я▀п╧ п╬я┘п╬я┌п╫п╦п╨">
         <trainers vnums="27812"/>
         <talents>
             <skill id="kTrack" fail="0">
@@ -607,7 +607,7 @@
         </talents>
     </guild>
 
-    <guild text_id="kCaptiveBlacksmith" vnum="10" name="пленный кузнец">
+    <guild text_id="kCaptiveBlacksmith" vnum="10" name="п©п╩п╣п╫п╫я▀п╧ п╨я┐п╥п╫п╣я├">
         <trainers vnums="27813"/>
         <talents>
             <skill id="kDisarm" fail="0">
@@ -621,7 +621,7 @@
         </talents>
     </guild>
 
-    <guild text_id="kWitch" vnum="11" name="баба-яга">
+    <guild text_id="kWitch" vnum="11" name="п╠п╟п╠п╟-я▐пЁп╟">
         <trainers vnums="12902"/>
         <talents>
             <skill id="kJinx" fail="0">
@@ -630,7 +630,7 @@
             </skill>
         </talents>
     </guild>
-   <guild text_id="kOldMagusNewKyiv" vnum="12" name="Волхв в НК">
+   <guild text_id="kOldMagusNewKyiv" vnum="12" name="п▓п╬п╩я┘п╡ п╡ п²п ">
         <trainers vnums="49931"/>
         <talents>
             <feat id="kSecretRunes" fail="0">
@@ -640,7 +640,7 @@
    </guild>
  
 <!--
-    <guild text_id="kTestGuild" vnum="12" name="тестовая гильдия">
+    <guild text_id="kTestGuild" vnum="12" name="я┌п╣я│я┌п╬п╡п╟я▐ пЁп╦п╩я▄п╢п╦я▐">
         <trainers vnums="50051"/>
         <talents>
             <skill id="kPunch" fail="0">
