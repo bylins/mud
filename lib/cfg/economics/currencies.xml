@@ -1,77 +1,77 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <!--
-Формат:
-    <currency text_id="kKuna" name="куны" vnum="0" mode="kEnabled">
+п╓п╬я─п╪п╟я┌:
+    <currency text_id="kKuna" name="п╨я┐п╫я▀" vnum="0" mode="kEnabled">
         <name gender="kFemale">
-            <singular nom="куна" gen="куны" dat="куне" acc="куну" ins="куной" pre="куне"/>
-            <plural nom="куны" gen="кун" dat="кунам" acc="куны" ins="кунами" pre="кунах"/>
+            <singular nom="п╨я┐п╫п╟" gen="п╨я┐п╫я▀" dat="п╨я┐п╫п╣" acc="п╨я┐п╫я┐" ins="п╨я┐п╫п╬п╧" pre="п╨я┐п╫п╣"/>
+            <plural nom="п╨я┐п╫я▀" gen="п╨я┐п╫" dat="п╨я┐п╫п╟п╪" acc="п╨я┐п╫я▀" ins="п╨я┐п╫п╟п╪п╦" pre="п╨я┐п╫п╟я┘"/>
         </name>
         <permits give="1" obj="1" bank="1" transfer="1" transfer_other="1" transfer_tax="5" drop="100" clan_tax="25"/>
         <flags account_shared="N"  locked="Y"/>
     </currency>
 
-text_id="id для указаня в других конфигах" name="имя для поиска по имени" vnum="виртуальный номер" mode="режим"
-gender - Грамматиеский род, Имена в единственном и множественном числе для всех падежей.
-permits - флаги допустимых операций
-    give- можно передать
-    obj - может выпасть в качестве предмета и лежать на земле
-    bank - можно вложить в банк
-    transfer - можно переводить в пределах аккаунта (не имеет смысла для общей на аккаунт валюты)
-    transfer_others - можно переводить на другие аккаунты
-    transfer_tax - налог на перевод
-    drop - сколько процентов из находящейся на руках валюты будет потеряно при смерти (если obj разрешен - останется в трупе или на земле)
-    clan_tax - максимально допустимый клановый налог
-flags - флаги
-    account_shared - валюта общая для всех персонажей аккаунта
-    locked - запрещено изменять через OLC (снять или поставить можно только вручную в файле)
+text_id="id п╢п╩я▐ я┐п╨п╟п╥п╟п╫я▐ п╡ п╢я─я┐пЁп╦я┘ п╨п╬п╫я└п╦пЁп╟я┘" name="п╦п╪я▐ п╢п╩я▐ п©п╬п╦я│п╨п╟ п©п╬ п╦п╪п╣п╫п╦" vnum="п╡п╦я─я┌я┐п╟п╩я▄п╫я▀п╧ п╫п╬п╪п╣я─" mode="я─п╣п╤п╦п╪"
+gender - п⌠я─п╟п╪п╪п╟я┌п╦п╣я│п╨п╦п╧ я─п╬п╢, п≤п╪п╣п╫п╟ п╡ п╣п╢п╦п╫я│я┌п╡п╣п╫п╫п╬п╪ п╦ п╪п╫п╬п╤п╣я│я┌п╡п╣п╫п╫п╬п╪ я┤п╦я│п╩п╣ п╢п╩я▐ п╡я│п╣я┘ п©п╟п╢п╣п╤п╣п╧.
+permits - я└п╩п╟пЁп╦ п╢п╬п©я┐я│я┌п╦п╪я▀я┘ п╬п©п╣я─п╟я├п╦п╧
+    give- п╪п╬п╤п╫п╬ п©п╣я─п╣п╢п╟я┌я▄
+    obj - п╪п╬п╤п╣я┌ п╡я▀п©п╟я│я┌я▄ п╡ п╨п╟я┤п╣я│я┌п╡п╣ п©я─п╣п╢п╪п╣я┌п╟ п╦ п╩п╣п╤п╟я┌я▄ п╫п╟ п╥п╣п╪п╩п╣
+    bank - п╪п╬п╤п╫п╬ п╡п╩п╬п╤п╦я┌я▄ п╡ п╠п╟п╫п╨
+    transfer - п╪п╬п╤п╫п╬ п©п╣я─п╣п╡п╬п╢п╦я┌я▄ п╡ п©я─п╣п╢п╣п╩п╟я┘ п╟п╨п╨п╟я┐п╫я┌п╟ (п╫п╣ п╦п╪п╣п╣я┌ я│п╪я▀я│п╩п╟ п╢п╩я▐ п╬п╠я┴п╣п╧ п╫п╟ п╟п╨п╨п╟я┐п╫я┌ п╡п╟п╩я▌я┌я▀)
+    transfer_others - п╪п╬п╤п╫п╬ п©п╣я─п╣п╡п╬п╢п╦я┌я▄ п╫п╟ п╢я─я┐пЁп╦п╣ п╟п╨п╨п╟я┐п╫я┌я▀
+    transfer_tax - п╫п╟п╩п╬пЁ п╫п╟ п©п╣я─п╣п╡п╬п╢
+    drop - я│п╨п╬п╩я▄п╨п╬ п©я─п╬я├п╣п╫я┌п╬п╡ п╦п╥ п╫п╟я┘п╬п╢я▐я┴п╣п╧я│я▐ п╫п╟ я─я┐п╨п╟я┘ п╡п╟п╩я▌я┌я▀ п╠я┐п╢п╣я┌ п©п╬я┌п╣я─я▐п╫п╬ п©я─п╦ я│п╪п╣я─я┌п╦ (п╣я│п╩п╦ obj я─п╟п╥я─п╣я┬п╣п╫ - п╬я│я┌п╟п╫п╣я┌я│я▐ п╡ я┌я─я┐п©п╣ п╦п╩п╦ п╫п╟ п╥п╣п╪п╩п╣)
+    clan_tax - п╪п╟п╨я│п╦п╪п╟п╩я▄п╫п╬ п╢п╬п©я┐я│я┌п╦п╪я▀п╧ п╨п╩п╟п╫п╬п╡я▀п╧ п╫п╟п╩п╬пЁ
+flags - я└п╩п╟пЁп╦
+    account_shared - п╡п╟п╩я▌я┌п╟ п╬п╠я┴п╟я▐ п╢п╩я▐ п╡я│п╣я┘ п©п╣я─я│п╬п╫п╟п╤п╣п╧ п╟п╨п╨п╟я┐п╫я┌п╟
+    locked - п╥п╟п©я─п╣я┴п╣п╫п╬ п╦п╥п╪п╣п╫я▐я┌я▄ я┤п╣я─п╣п╥ OLC (я│п╫я▐я┌я▄ п╦п╩п╦ п©п╬я│я┌п╟п╡п╦я┌я▄ п╪п╬п╤п╫п╬ я┌п╬п╩я▄п╨п╬ п╡я─я┐я┤п╫я┐я▌ п╡ я└п╟п╧п╩п╣)
 
 -->
 <currencies>
-    <currency text_id="kKuna" name="куны" vnum="0" mode="kEnabled">
+    <currency text_id="kKuna" name="п╨я┐п╫я▀" vnum="0" mode="kEnabled">
         <name gender="kFemale">
-            <singular nom="куна" gen="куны" dat="куне" acc="куну" ins="куной" pre="куне"/>
-            <plural nom="куны" gen="кун" dat="кунам" acc="куны" ins="кунами" pre="кунах"/>
+            <singular nom="п╨я┐п╫п╟" gen="п╨я┐п╫я▀" dat="п╨я┐п╫п╣" acc="п╨я┐п╫я┐" ins="п╨я┐п╫п╬п╧" pre="п╨я┐п╫п╣"/>
+            <plural nom="п╨я┐п╫я▀" gen="п╨я┐п╫" dat="п╨я┐п╫п╟п╪" acc="п╨я┐п╫я▀" ins="п╨я┐п╫п╟п╪п╦" pre="п╨я┐п╫п╟я┘"/>
         </name>
         <permits give="1" obj="1" bank="1" transfer="1" transfer_other="1" transfer_tax="5" drop="100" clan_tax="25"/>
         <flags account_shared="N"  locked="Y"/>
     </currency>
-    <currency text_id="kGlory" name="слава" vnum="1" mode="kEnabled">
+    <currency text_id="kGlory" name="я│п╩п╟п╡п╟" vnum="1" mode="kEnabled">
         <name gender="kNeutral">
-            <singular nom="очко славы" gen="очка славы" dat="очку славы" acc="очко славы" ins="очком славы" pre="очке славы"/>
-            <plural nom="очки славы" gen="очков славы" dat="очкам славы" acc="очки славы" ins="очками славы" pre="очках славы"/>
+            <singular nom="п╬я┤п╨п╬ я│п╩п╟п╡я▀" gen="п╬я┤п╨п╟ я│п╩п╟п╡я▀" dat="п╬я┤п╨я┐ я│п╩п╟п╡я▀" acc="п╬я┤п╨п╬ я│п╩п╟п╡я▀" ins="п╬я┤п╨п╬п╪ я│п╩п╟п╡я▀" pre="п╬я┤п╨п╣ я│п╩п╟п╡я▀"/>
+            <plural nom="п╬я┤п╨п╦ я│п╩п╟п╡я▀" gen="п╬я┤п╨п╬п╡ я│п╩п╟п╡я▀" dat="п╬я┤п╨п╟п╪ я│п╩п╟п╡я▀" acc="п╬я┤п╨п╦ я│п╩п╟п╡я▀" ins="п╬я┤п╨п╟п╪п╦ я│п╩п╟п╡я▀" pre="п╬я┤п╨п╟я┘ я│п╩п╟п╡я▀"/>
         </name>
         <permits give="0" obj="0" bank="0" transfer="0" transfer_other="0" transfer_tax="5" drop="100" clan_tax="25"/>
         <flags account_shared="Y"  locked="Y"/>
     </currency>
-    <currency text_id="kGrivna" name="гривны" vnum="2" mode="kEnabled">
+    <currency text_id="kGrivna" name="пЁя─п╦п╡п╫я▀" vnum="2" mode="kEnabled">
         <name gender="kFemale">
-            <singular nom="гривна" gen="гривны" dat="гривне" acc="гривну" ins="гривно" pre="гривне"/>
-            <plural nom="гривны" gen="гривен" dat="гривнам" acc="гривны" ins="гривнами" pre="гривнах"/>
+            <singular nom="пЁя─п╦п╡п╫п╟" gen="пЁя─п╦п╡п╫я▀" dat="пЁя─п╦п╡п╫п╣" acc="пЁя─п╦п╡п╫я┐" ins="пЁя─п╦п╡п╫п╬" pre="пЁя─п╦п╡п╫п╣"/>
+            <plural nom="пЁя─п╦п╡п╫я▀" gen="пЁя─п╦п╡п╣п╫" dat="пЁя─п╦п╡п╫п╟п╪" acc="пЁя─п╦п╡п╫я▀" ins="пЁя─п╦п╡п╫п╟п╪п╦" pre="пЁя─п╦п╡п╫п╟я┘"/>
         </name>
         <permits give="0" obj="0" bank="0" transfer="0" transfer_other="0" transfer_tax="5" drop="100" clan_tax="25"/>
         <flags account_shared="N"  locked="N"/>
     </currency>
-    <currency text_id="kMagicIce" name="волшебный лед" vnum="3" mode="kEnabled">
+    <currency text_id="kMagicIce" name="п╡п╬п╩я┬п╣п╠п╫я▀п╧ п╩п╣п╢" vnum="3" mode="kEnabled">
         <name gender="kMale">
-            <singular nom="осколок волшебного льда" gen="осколка волшебного льда" dat="осколку волшебного льда" acc="осколок волшебного льда" ins="осколком волшебного льда" pre="осколком волшебного льда"/>
-            <plural nom="осколки волшебного льда" gen="осколков волшебного льда" dat="осколкам волшебного льда" acc="осколки волшебного льда" ins="осколками волшебного льда" pre="осколками волшебного льда"/>
+            <singular nom="п╬я│п╨п╬п╩п╬п╨ п╡п╬п╩я┬п╣п╠п╫п╬пЁп╬ п╩я▄п╢п╟" gen="п╬я│п╨п╬п╩п╨п╟ п╡п╬п╩я┬п╣п╠п╫п╬пЁп╬ п╩я▄п╢п╟" dat="п╬я│п╨п╬п╩п╨я┐ п╡п╬п╩я┬п╣п╠п╫п╬пЁп╬ п╩я▄п╢п╟" acc="п╬я│п╨п╬п╩п╬п╨ п╡п╬п╩я┬п╣п╠п╫п╬пЁп╬ п╩я▄п╢п╟" ins="п╬я│п╨п╬п╩п╨п╬п╪ п╡п╬п╩я┬п╣п╠п╫п╬пЁп╬ п╩я▄п╢п╟" pre="п╬я│п╨п╬п╩п╨п╬п╪ п╡п╬п╩я┬п╣п╠п╫п╬пЁп╬ п╩я▄п╢п╟"/>
+            <plural nom="п╬я│п╨п╬п╩п╨п╦ п╡п╬п╩я┬п╣п╠п╫п╬пЁп╬ п╩я▄п╢п╟" gen="п╬я│п╨п╬п╩п╨п╬п╡ п╡п╬п╩я┬п╣п╠п╫п╬пЁп╬ п╩я▄п╢п╟" dat="п╬я│п╨п╬п╩п╨п╟п╪ п╡п╬п╩я┬п╣п╠п╫п╬пЁп╬ п╩я▄п╢п╟" acc="п╬я│п╨п╬п╩п╨п╦ п╡п╬п╩я┬п╣п╠п╫п╬пЁп╬ п╩я▄п╢п╟" ins="п╬я│п╨п╬п╩п╨п╟п╪п╦ п╡п╬п╩я┬п╣п╠п╫п╬пЁп╬ п╩я▄п╢п╟" pre="п╬я│п╨п╬п╩п╨п╟п╪п╦ п╡п╬п╩я┬п╣п╠п╫п╬пЁп╬ п╩я▄п╢п╟"/>
         </name>
         <permits give="0" obj="0" bank="0" transfer="0" transfer_other="0" transfer_tax="5" drop="100" clan_tax="25"/>
         <flags account_shared="N"  locked="N"/>
     </currency>
-    <currency text_id="kNogata" name="ногата" vnum="4" mode="kEnabled">
+    <currency text_id="kNogata" name="п╫п╬пЁп╟я┌п╟" vnum="4" mode="kEnabled">
         <name gender="kFemale">
-            <singular nom="ногата" gen="ногаты" dat="ногате" acc="ногату" ins="ногатой" pre="ногате"/>
-            <plural nom="ногаты" gen="ногат" dat="ногатам" acc="ногаты" ins="ногатами" pre="ногатах"/>
+            <singular nom="п╫п╬пЁп╟я┌п╟" gen="п╫п╬пЁп╟я┌я▀" dat="п╫п╬пЁп╟я┌п╣" acc="п╫п╬пЁп╟я┌я┐" ins="п╫п╬пЁп╟я┌п╬п╧" pre="п╫п╬пЁп╟я┌п╣"/>
+            <plural nom="п╫п╬пЁп╟я┌я▀" gen="п╫п╬пЁп╟я┌" dat="п╫п╬пЁп╟я┌п╟п╪" acc="п╫п╬пЁп╟я┌я▀" ins="п╫п╬пЁп╟я┌п╟п╪п╦" pre="п╫п╬пЁп╟я┌п╟я┘"/>
         </name>
         <permits give="0" obj="0" bank="0" transfer="0" transfer_other="0" transfer_tax="5" drop="100" clan_tax="25"/>
         <flags account_shared="N"  locked="N"/>
     </currency>
     <!--
-    <currency text_id="kZlatnik" name="златник" vnum="5" account_shared="N" locked="0" mode="kEnabled">
+    <currency text_id="kZlatnik" name="п╥п╩п╟я┌п╫п╦п╨" vnum="5" account_shared="N" locked="0" mode="kEnabled">
         <name>
-            <singular nom="златник" gen="златника" dat="златнику" acc="златник" ins="златником" pre="златнике"/>
-            <plural nom="златники" gen="златников" dat="златникам" acc="златники" ins="златниками" pre="златниках"/>
+            <singular nom="п╥п╩п╟я┌п╫п╦п╨" gen="п╥п╩п╟я┌п╫п╦п╨п╟" dat="п╥п╩п╟я┌п╫п╦п╨я┐" acc="п╥п╩п╟я┌п╫п╦п╨" ins="п╥п╩п╟я┌п╫п╦п╨п╬п╪" pre="п╥п╩п╟я┌п╫п╦п╨п╣"/>
+            <plural nom="п╥п╩п╟я┌п╫п╦п╨п╦" gen="п╥п╩п╟я┌п╫п╦п╨п╬п╡" dat="п╥п╩п╟я┌п╫п╦п╨п╟п╪" acc="п╥п╩п╟я┌п╫п╦п╨п╦" ins="п╥п╩п╟я┌п╫п╦п╨п╟п╪п╦" pre="п╥п╩п╟я┌п╫п╦п╨п╟я┘"/>
         </name>
         <permits give="0" obj="0" bank="0" transfer="0" transfer_other="0" transfer_tax="5" drop="100" clan_tax="25"/>
     </currency>

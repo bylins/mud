@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <class id="kSorcerer">
-    <name abbr="Лк">
-        <singular nom="лекарь" gen="лекаря" dat="лекарю" acc="лекаря" ins="лекарем" pre="лекаре"/>
-        <plural nom="лекари" gen="лекарей" dat="лекарям" acc="лекарей" ins="лекарями" pre="лекарях"/>
+    <name abbr="п⌡п╨">
+        <singular nom="п╩п╣п╨п╟я─я▄" gen="п╩п╣п╨п╟я─я▐" dat="п╩п╣п╨п╟я─я▌" acc="п╩п╣п╨п╟я─я▐" ins="п╩п╣п╨п╟я─п╣п╪" pre="п╩п╣п╨п╟я─п╣"/>
+        <plural nom="п╩п╣п╨п╟я─п╦" gen="п╩п╣п╨п╟я─п╣п╧" dat="п╩п╣п╨п╟я─я▐п╪" acc="п╩п╣п╨п╟я─п╣п╧" ins="п╩п╣п╨п╟я─я▐п╪п╦" pre="п╩п╣п╨п╟я─я▐я┘"/>
     </name>
     <stats>
         <base_stats>

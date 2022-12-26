@@ -5308,7 +5308,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 			}
 		} else if (!strn_cmp("end", p, 3)) {
 			GET_TRIG_DEPTH(trig)--;
-		} else if (!strn_cmp("done", p, 4)) {
+		} else if (!strn_cmp("done", p, 4) || !strn_cmp("continue", p, 8)) {
 			if (cl->original) {
 				auto orig_cmd = cl->original->cmd.c_str();
 				while (*orig_cmd && isspace(*orig_cmd)) {

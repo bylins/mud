@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <class id="kPaladine">
-    <name abbr="Вт">
-        <singular nom="витязь" gen="витязя" dat="витязю" acc="витязя" ins="витязем" pre="витязе"/>
-        <plural nom="витязи" gen="витязей" dat="витязям" acc="витязей" ins="витязями" pre="витязях"/>
+    <name abbr="п▓я┌">
+        <singular nom="п╡п╦я┌я▐п╥я▄" gen="п╡п╦я┌я▐п╥я▐" dat="п╡п╦я┌я▐п╥я▌" acc="п╡п╦я┌я▐п╥я▐" ins="п╡п╦я┌я▐п╥п╣п╪" pre="п╡п╦я┌я▐п╥п╣"/>
+        <plural nom="п╡п╦я┌я▐п╥п╦" gen="п╡п╦я┌я▐п╥п╣п╧" dat="п╡п╦я┌я▐п╥я▐п╪" acc="п╡п╦я┌я▐п╥п╣п╧" ins="п╡п╦я┌я▐п╥я▐п╪п╦" pre="п╡п╦я┌я▐п╥я▐я┘"/>
     </name>
     <stats>
         <base_stats>
