@@ -800,7 +800,7 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 	}
 
 	// 1. Опыт делится поровну на всех
-	int exp = GET_EXP(victim) / MAX(members, 1);
+	long long exp = GET_EXP(victim) / MAX(members, 1);
 
 	if (victim->get_zone_group() > 1 && members < victim->get_zone_group()) {
 		// в случае груп-зоны своего рода планка на мин кол-во человек в группе
@@ -870,7 +870,7 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 		}
 
 		exp = MIN(max_exp_gain_pc(ch), exp);
-		SendMsgToChar(ch, "Ваш опыт повысился на %d %s.\r\n", exp, GetDeclensionInNumber(exp, EWhat::kPoint));
+		SendMsgToChar(ch, "Ваш опыт повысился на %lld %s.\r\n", exp, GetDeclensionInNumber(exp, EWhat::kPoint));
 	} else if (exp == 1) {
 		SendMsgToChar("Ваш опыт повысился всего лишь на маленькую единичку.\r\n", ch);
 	}
