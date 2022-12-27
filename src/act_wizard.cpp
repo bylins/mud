@@ -434,16 +434,15 @@ void do_arena_restore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long times) {
 	Punish *pundata = nullptr;
 	int result;
+
 	if (ch == vict) {
 		SendMsgToChar("Это слишком жестоко...\r\n", ch);
 		return 0;
 	}
-
 	if ((GetRealLevel(vict) >= kLvlImmortal && !IS_IMPL(ch)) || IS_IMPL(vict)) {
 		SendMsgToChar("Кем вы себя возомнили?\r\n", ch);
 		return 0;
 	}
-
 	// Проверяем а может ли чар вообще работать с этим наказанием.
 	switch (punish) {
 		case SCMD_MUTE: pundata = &(vict)->player_specials->pmute;
@@ -454,10 +453,8 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 			break;
 		case SCMD_NAME: pundata = &(vict)->player_specials->pname;
 			break;
-
 		case SCMD_FREEZE: pundata = &(vict)->player_specials->pfreeze;
 			break;
-
 		case SCMD_REGISTER:
 		case SCMD_UNREGISTER: pundata = &(vict)->player_specials->punreg;
 			break;
@@ -467,7 +464,6 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 		SendMsgToChar("Да кто ты такой!!? Чтобы оспаривать волю СТАРШИХ БОГОВ !!!\r\n", ch);
 		return 0;
 	}
-
 	// Проверяем наказание или освобождение.
 	if (times == 0) {
 		// Чара досрочно освобождают от наказания.
@@ -477,16 +473,12 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 		} else
 			skip_spaces(&reason);
 		//
-
 		pundata->duration = 0;
 		pundata->level = 0;
 		pundata->godid = 0;
-
 		if (pundata->reason)
 			free(pundata->reason);
-
 		pundata->reason = nullptr;
-
 		switch (punish) {
 			case SCMD_MUTE:
 				if (!PLR_FLAGGED(vict, EPlrFlag::kMuted)) {
@@ -494,17 +486,12 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 					return (0);
 				};
 				PLR_FLAGS(vict).unset(EPlrFlag::kMuted);
-
 				sprintf(buf, "Mute OFF for %s by %s.", GET_NAME(vict), GET_NAME(ch));
 				mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s", buf);
-
 				sprintf(buf, "Mute OFF by %s", GET_NAME(ch));
 				add_karma(vict, buf, reason);
-
-				sprintf(buf, "%s%s разрешил$G вам кричать.%s",
-						CCIGRN(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
-
+				sprintf(buf, "%s%s разрешил$G вам кричать.%s", CCIGRN(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
 				sprintf(buf2, "$n2 вернулся голос.");
 				break;
 			case SCMD_FREEZE:
@@ -514,22 +501,18 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				};
 				PLR_FLAGS(vict).unset(EPlrFlag::kFrozen);
 				Glory::remove_freeze(GET_UNIQUE(vict));
-
+				if (PLR_FLAGGED(vict, EPlrFlag::kHelled)) //заодно снимем ад
+					PLR_FLAGS(vict).unset(EPlrFlag::kHelled);
 				sprintf(buf, "Freeze OFF for %s by %s.", GET_NAME(vict), GET_NAME(ch));
 				mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s", buf);
 				sprintf(buf, "Freeze OFF by %s", GET_NAME(ch));
 				add_karma(vict, buf, reason);
-
 				if (IN_ROOM(vict) != kNowhere) {
-					act("$n выпущен$a из темницы!",
-						false, vict, nullptr, nullptr, kToRoom);
-
+					act("$n выпущен$a из темницы!", false, vict, nullptr, nullptr, kToRoom);
 					if ((result = GET_LOADROOM(vict)) == kNowhere)
 						result = calc_loadroom(vict);
-
 					result = real_room(result);
-
 					if (result == kNowhere) {
 						if (GetRealLevel(vict) >= kLvlImmortal)
 							result = r_immort_start_room;
@@ -540,18 +523,13 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 					PlaceCharToRoom(vict, result);
 					look_at_room(vict, result);
 				};
-
 				sprintf(buf, "%s%s выпустил$G вас из темницы.%s",
 						CCIGRN(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
-
 				sprintf(buf2, "$n выпущен$a из темницы!");
-
 				sprintf(buf, "%sЛедяные оковы растаяли под добрым взглядом $N1.%s",
 						CCIYEL(vict, C_NRM), CCNRM(vict, C_NRM));
-
 				sprintf(buf2, "$n освободил$u из ледяного плена.");
 				break;
-
 			case SCMD_DUMB:
 				if (!PLR_FLAGGED(vict, EPlrFlag::kDumbed)) {
 					SendMsgToChar("Ваша жертва и так может издавать звуки.\r\n", ch);
