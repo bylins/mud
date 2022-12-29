@@ -42,7 +42,7 @@ bool can_be_reset(ZoneRnum zone);
 RoomRnum real_room(RoomVnum vnum);
 long get_id_by_name(char *name);
 //long get_id_by_uid(long uid);
-int get_uid_by_id(int id);
+int GetObjUid_by_id(int id);
 long cmp_ptable_by_name(char *name, int len);
 const char *get_name_by_id(long id);
 const char *get_name_by_unique(int unique);
@@ -228,7 +228,7 @@ typedef std::map<int, MobRacePtr> MobRaceListType;
 //-Polud
 
 extern RoomRnum top_of_world;
-extern std::unordered_map<MobVnum, int> mob_online_by_vnum;
+extern std::unordered_map<MobVnum, std::vector<int>> mob_id_by_vnum;
 
 void add_trig_index_entry(int nr, Trigger *proto);
 extern IndexData **trig_index;

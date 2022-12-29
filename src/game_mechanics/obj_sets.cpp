@@ -117,10 +117,10 @@ size_t setidx_by_uid(int uid) {
 }
 
 /// проверка предмета на наличие в других сетах
-/// \param set_uid - чтобы не считать свой же сет за дубль
-bool is_duplicate(int set_uid, int vnum) {
+/// \param SetObjUid - чтобы не считать свой же сет за дубль
+bool is_duplicate(int SetObjUid, int vnum) {
 	for (auto & i : sets_list) {
-		if (i->uid != set_uid
+		if (i->uid != SetObjUid
 			&& i->obj_list.find(vnum)
 				!= i->obj_list.end()) {
 			return true;

@@ -109,7 +109,7 @@ int top_of_trigt = 0;        // top of trigger index table
 
 IndexData *mob_index;        // index table for mobile file
 MobRnum top_of_mobt = 0;    // top of mobile index table
-std::unordered_map<MobVnum, int> mob_online_by_vnum;
+std::unordered_map<MobVnum, std::vector<MobRnum>> mob_id_by_vnum;
 
 void Load_Criterion(pugi::xml_node XMLCriterion, int type);
 void load_speedwalk();
@@ -3530,7 +3530,7 @@ int get_test_hp(int lvl) {
 }
 
 // create a new mobile from a prototype
-CharData *read_mobile(MobVnum nr, int type) {                // and MobRnum
+CharData *read_mobile(int nr, int type) {                // and MobRnum
 	int is_corpse = 0;
 	MobRnum i;
 
@@ -3585,7 +3585,16 @@ CharData *read_mobile(MobVnum nr, int type) {                // and MobRnum
 	mob->id = max_id.allocate();
 
 	if (!is_corpse) {
-		mob_online_by_vnum[GET_MOB_VNUM(mob)]++;
+		std::vector<int> list_idnum;
+		if (mob_id_by_vnum.contains(GET_MOB_VNUM(mob)))
+			list_idnum = mob_id_by_vnum[GET_MOB_VNUM(mob)];
+		list_idnum.push_back(mob->id);
+		mob_id_by_vnum[GET_MOB_VNUM(mob)] = list_idnum;
+/*			for (auto it : list_rnum) {
+				sprintf(buf, "СПИСОК В МАПЕ Mob rnum = %d", it);
+				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			}
+*/
 		mob_index[i].total_online++;
 		assign_triggers(mob, MOB_TRIGGER);
 	} else {
@@ -4041,7 +4050,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum) {
 									}
 
 									load_otrigger(obj.get());
-									Celebrates::add_obj_to_load_list(obj->get_uid(), obj.get());
+									Celebrates::add_obj_to_load_list(obj->GetObjUid(), obj.get());
 								} else {
 									log("{Error] Processing celebrate %s while loading obj %d",
 										celebrate->name.c_str(),
@@ -4083,7 +4092,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum) {
 							}
 						}
 						load_otrigger(obj.get());
-						Celebrates::add_obj_to_load_list(obj->get_uid(), obj.get());
+						Celebrates::add_obj_to_load_list(obj->GetObjUid(), obj.get());
 
 						PlaceObjToRoom(obj.get(), real_room((*room)->vnum));
 
@@ -4106,7 +4115,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum) {
 									}
 
 									load_otrigger(obj_in.get());
-									Celebrates::add_obj_to_load_list(obj->get_uid(), obj.get());
+									Celebrates::add_obj_to_load_list(obj->GetObjUid(), obj.get());
 								} else {
 									log("{Error] Processing celebrate %s while loading obj %d",
 										celebrate->name.c_str(),
@@ -4163,7 +4172,7 @@ void process_attach_celebrate(Celebrates::CelebrateDataPtr celebrate, int zone_v
 					}
 				}
 
-				Celebrates::add_obj_to_attach_list(o->get_uid(), o.get());
+				Celebrates::add_obj_to_attach_list(o->GetObjUid(), o.get());
 			}
 		});
 	}
@@ -4908,7 +4917,7 @@ long get_id_by_uid(long uid) {
 	return -1;
 }
 
-int get_uid_by_id(int id) {
+int GetObjUid_by_id(int id) {
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
 	for (std::size_t i = 0; i < player_table.size(); i++) {
 		if (player_table[i].id() == id) {

@@ -475,9 +475,9 @@ class CharacterWrapper : public Wrapper<CharacterData> {
 		return ch->get_total_gold();
 	}
 
-	int get_uid() const {
+	int GetObjUid() const {
 		Ensurer ch(*this);
-		return ch->get_uid();
+		return ch->GetObjUid();
 	}
 
 	short get_remort() const {
@@ -1279,7 +1279,7 @@ BOOST_PYTHON_MODULE (mud) {
 					  "п·п©п╦я│п╟п╫п╦п╣ п╪п╬п╠п╟, п╡п╦п╢п╫п╬п╣ п©п╬ п╨п╬п╪п╟п╫п╢п╣ 'я│п╪ п╪п╬п╠'.")
 		.add_property("class", &CharacterWrapper::get_class, &CharacterWrapper::set_class)
 		.add_property("level", &CharacterWrapper::get_level, &CharacterWrapper::set_level)
-		.add_property("UID", &CharacterWrapper::get_uid)
+		.add_property("UID", &CharacterWrapper::GetObjUid)
 		.add_property("exp", &CharacterWrapper::get_exp, &CharacterWrapper::set_exp)
 		.add_property("remort", &CharacterWrapper::get_remort)
 		.add_property("gold", &CharacterWrapper::get_gold, &CharacterWrapper::set_gold)

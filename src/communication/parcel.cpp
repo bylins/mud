@@ -256,7 +256,7 @@ void send_object(CharData *ch, CharData *mailman, long vict_uid, ObjData *obj) {
 
 	ch->remove_both_gold(total_cost);
 	RemoveObjFromChar(obj);
-	ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PARCEL_SAVE);
+	ObjSaveSync::add(ch->GetCharUid(), ch->GetCharUid(), ObjSaveSync::PARCEL_SAVE);
 
 	check_auction(nullptr, obj);
 	world_objects.remove(obj);
@@ -535,7 +535,7 @@ void receive(CharData *ch, CharData *mailman) {
 			act("$N дал$G $n2 посылку.", false, ch, 0, mailman, kToRoom);
 			++was_sended;
 		}
-		ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PARCEL_SAVE);
+		ObjSaveSync::add(ch->GetCharUid(), ch->GetCharUid(), ObjSaveSync::PARCEL_SAVE);
 		parcel_list.erase(it);
 	}
 }
@@ -578,7 +578,7 @@ void return_parcel() {
 }
 
 // * Дикей предмета на почте и уведомление об этом отправителя и получателя через письма.
-void extract_parcel(int sender_uid, int target_uid, const std::list<Node>::iterator &it) {
+void extract_parcel(int sender_uid, int tarGetObjUid, const std::list<Node>::iterator &it) {
 	snprintf(buf, kMaxStringLength, "С прискорбием сообщаем вам: %s рассыпал%s в прах.\r\n",
 			 it->obj_->get_short_description().c_str(),
 			 GET_OBJ_SUF_2(it->obj_));
@@ -586,7 +586,7 @@ void extract_parcel(int sender_uid, int target_uid, const std::list<Node>::itera
 	char *tmp = str_dup(buf);
 	// -1 в качестве ид отправителя при получении подставит в имя почтовую службу
 	create_mail(sender_uid, -1, tmp);
-	create_mail(target_uid, -1, tmp);
+	create_mail(tarGetObjUid, -1, tmp);
 	free(tmp);
 
 	// возврат оставшихся зарезервированных кун отправителю (у развернутых уже ноль)
@@ -904,7 +904,7 @@ void bring_back(CharData *ch, CharData *mailman) {
 			false, mailman, 0, ch, kToVict);
 		std::string name = GET_NAME(ch);
 		return_money(name, money / 2, RETURN_WITH_MONEY);
-		ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PARCEL_SAVE);
+		ObjSaveSync::add(ch->GetCharUid(), ch->GetCharUid(), ObjSaveSync::PARCEL_SAVE);
 	} else if (empty) {
 		act("$n сказал$g вам : 'У нас нет ни одной вашей посылки!'", false, mailman, 0, ch, kToVict);
 	}

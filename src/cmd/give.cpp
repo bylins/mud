@@ -59,7 +59,7 @@ void perform_give(CharData *ch, CharData *vict, ObjData *obj) {
 	get_check_money(vict, obj, nullptr);
 
 	if (!ch->IsNpc() && !vict->IsNpc()) {
-		ObjSaveSync::add(ch->get_uid(), vict->get_uid(), ObjSaveSync::CHAR_SAVE);
+		ObjSaveSync::add(ch->GetCharUid(), vict->GetCharUid(), ObjSaveSync::CHAR_SAVE);
 	}
 }
 

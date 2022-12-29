@@ -75,7 +75,7 @@ void GoodsStorage::ObjectUIDChangeObserver::notify(ObjData &object, const int ol
 	}
 
 	m_parent.m_objects_by_uid.erase(i);
-	m_parent.m_objects_by_uid.emplace(object.get_uid(), &object);
+	m_parent.m_objects_by_uid.emplace(object.GetObjUid(), &object);
 }
 
 void GoodsStorage::add(ObjData *object) {
@@ -86,16 +86,16 @@ void GoodsStorage::add(ObjData *object) {
 		return;
 	}
 
-	const auto uid_i = m_objects_by_uid.find(object->get_uid());
+	const auto uid_i = m_objects_by_uid.find(object->GetObjUid());
 	if (uid_i != m_objects_by_uid.end()) {
 		log("LOGIC ERROR: Try to add object at ptr %p with UID %d but such UID already presented for the object at address %p. "
 			"Won't do anything. VNUM of the addee object: %d; VNUM of the presented object: %d.",
-			object, object->get_uid(), uid_i->second, object->get_vnum(), uid_i->second->get_vnum());
+			object, object->GetObjUid(), uid_i->second, object->get_vnum(), uid_i->second->get_vnum());
 		return;
 	}
 
 	m_activities.emplace(object, static_cast<int>(time(nullptr)));
-	m_objects_by_uid.emplace(object->get_uid(), object);
+	m_objects_by_uid.emplace(object->GetObjUid(), object);
 	object->subscribe_for_uid_change(m_object_uid_change_observer);
 }
 
@@ -104,7 +104,7 @@ void GoodsStorage::remove(ObjData *object) {
 
 	object->unsubscribe_from_uid_change(m_object_uid_change_observer);
 
-	const auto uid = object->get_uid();
+	const auto uid = object->GetObjUid();
 	const auto object_by_uid_i = m_objects_by_uid.find(uid);
 	if (object_by_uid_i != m_objects_by_uid.end()) {
 		m_objects_by_uid.erase(object_by_uid_i);
@@ -345,7 +345,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 		if (!item->empty()) {
 			obj = get_from_shelve(item_index);
 			if (obj != nullptr) {
-				item->remove_uid(obj->get_uid());
+				item->remove_uid(obj->GetObjUid());
 				if (item->empty()) {
 					m_items_list.remove(item_index);
 				}
@@ -1053,7 +1053,7 @@ void shop_node::put_item_to_shop(ObjData *obj) {
 
 				if (GET_OBJ_TYPE(obj) != EObjType::kMagicIngredient //а у них всех один рнум
 					|| obj->get_short_description() == tmp_obj->get_short_description()) {
-					item->add_uid(obj->get_uid());
+					item->add_uid(obj->GetObjUid());
 					put_to_storage(obj);
 
 					return;
@@ -1062,7 +1062,7 @@ void shop_node::put_item_to_shop(ObjData *obj) {
 		}
 	}
 
-	add_item(obj->get_vnum(), obj->get_cost(), obj->get_uid());
+	add_item(obj->get_vnum(), obj->get_cost(), obj->GetObjUid());
 
 	put_to_storage(obj);
 }

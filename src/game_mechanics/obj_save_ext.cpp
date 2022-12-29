@@ -42,7 +42,7 @@ void add(int init_uid, int targ_uid, int targ_type) {
 void write_file(int uid, int type) {
 	if (type == CHAR_SAVE) {
 		for (const auto &ch : character_list) {
-			if (ch->get_uid() == uid) {
+			if (ch->GetCharUid() == uid) {
 				Crash_crashsave(ch.get());
 				return;
 			}
