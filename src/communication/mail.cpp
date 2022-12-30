@@ -68,7 +68,7 @@ void add_undelivered(int from_uid, const char *name, int to_uid) {
 }
 
 void print_undelivered(CharData *ch) {
-	auto i = undelivered_list.find(ch->get_uid());
+	auto i = undelivered_list.find(ch->GetCharUid());
 	if (i != undelivered_list.end()) {
 		std::ostringstream out;
 		out << "Информация по недоставленным (на момент перезагрузки) письмам." << std::endl
@@ -125,7 +125,7 @@ int postmaster(CharData *ch, void *me, int cmd, char *argument) {
 
 void postmaster_check_mail(CharData *ch, CharData *mailman, int/* cmd*/, char * /*arg*/) {
 	bool empty = true;
-	if (mail::has_mail(ch->get_uid())) {
+	if (mail::has_mail(ch->GetCharUid())) {
 		empty = false;
 		act("$n сказал$g вам : 'Вас ожидает почта.'", false, mailman, 0, ch, kToVict);
 	}
@@ -143,7 +143,7 @@ void postmaster_check_mail(CharData *ch, CharData *mailman, int/* cmd*/, char * 
 }
 
 void postmaster_receive_mail(CharData *ch, CharData *mailman, int/* cmd*/, char * /*arg*/) {
-	if (!Parcel::has_parcel(ch) && !mail::has_mail(ch->get_uid())) {
+	if (!Parcel::has_parcel(ch) && !mail::has_mail(ch->GetCharUid())) {
 		act("$n удивленно сказал$g вам : 'Но для вас нет писем!?'",
 			false, mailman, 0, ch, kToVict);
 		return;
@@ -428,7 +428,7 @@ void sub_poster(int uid) {
 }
 
 bool check_poster_cnt(CharData *ch) {
-	auto i = poster_list.find(ch->get_uid());
+	auto i = poster_list.find(ch->GetCharUid());
 	if (i != poster_list.end()) {
 		if (GetRealRemort(ch) <= 0
 			&& GetRealLevel(ch) <= kNameLevel
@@ -494,7 +494,7 @@ std::string get_author_name(int uid) {
 }
 
 void receive(CharData *ch, CharData *mailman) {
-	auto rng = mail_list.equal_range(ch->get_uid());
+	auto rng = mail_list.equal_range(ch->GetCharUid());
 	for (auto i = rng.first; i != rng.second; ++i) {
 		const auto obj = world_objects.create_blank();
 		obj->set_aliases("mail paper letter письмо почта бумага");

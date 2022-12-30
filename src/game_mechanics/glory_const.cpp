@@ -119,7 +119,7 @@ void glory_hide(CharData *ch,
 	}
 	for (std::list<GloryNodePtr>::const_iterator t_it = playerGloryList.begin(); t_it != playerGloryList.end();
 		 ++t_it) {
-		if (ch->get_uid() == t_it->get()->uid) {
+		if (ch->GetCharUid() == t_it->get()->uid) {
 			if (mode == true) {
 				sprintf(buf, "Проставляю hide славы для %s", GET_NAME(ch));
 				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);

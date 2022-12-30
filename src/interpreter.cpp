@@ -2583,8 +2583,8 @@ void init_char(CharData *ch, PlayerIndexElement &element) {
 
 	ch->set_idnum(++top_idnum);
 	element.set_id(ch->get_idnum());
-	ch->set_uid(create_unique());
-	element.unique = ch->get_uid();
+	ch->SetCharUid(create_unique());
+	element.unique = ch->GetCharUid();
 	element.level = 0;
 	element.remorts = 0;
 	element.last_logon = -1;
@@ -4159,7 +4159,7 @@ bool login_change_invoice(CharData *ch) {
 	if (IS_IMMORTAL(ch))
 		hasMessages |= single_god_invoice(ch);
 
-	if (mail::has_mail(ch->get_uid())) {
+	if (mail::has_mail(ch->GetCharUid())) {
 		hasMessages = true;
 		SendMsgToChar("&RВас ожидает письмо. ЗАЙДИТЕ НА ПОЧТУ!&n\r\n", ch);
 	}

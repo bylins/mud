@@ -574,7 +574,7 @@ void write_obj_file(const std::string &name, int file_type, const ObjListType &c
 void CharNode::save_online_objs() {
 	if (need_save) {
 		log("Save obj: %s depot", ch->get_name().c_str());
-		ObjSaveSync::check(ch->get_uid(), ObjSaveSync::PERS_CHEST_SAVE);
+		ObjSaveSync::check(ch->GetCharUid(), ObjSaveSync::PERS_CHEST_SAVE);
 
 		write_obj_file(name, kPersDepotFile, pers_online);
 		need_save = false;
@@ -1031,7 +1031,7 @@ bool put_depot(CharData *ch, const ObjData::shared_ptr &obj) {
 	RemoveObjFromChar(obj.get());
 	check_auction(nullptr, obj.get());
 	world_objects.remove(obj);
-	ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PERS_CHEST_SAVE);
+	ObjSaveSync::add(ch->GetCharUid(), ch->GetCharUid(), ObjSaveSync::PERS_CHEST_SAVE);
 
 	return 1;
 }
@@ -1075,7 +1075,7 @@ void CharNode::remove_item(ObjListType::iterator &obj_it, ObjListType &cont, Cha
 	act("$n взял$g $o3 из персонального хранилища.", true, vict, obj_it->get(), 0, kToRoom);
 	cont.erase(obj_it++);
 	need_save = true;
-	ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PERS_CHEST_SAVE);
+	ObjSaveSync::add(ch->GetCharUid(), ch->GetCharUid(), ObjSaveSync::PERS_CHEST_SAVE);
 }
 
 // * Поиск шмотки в контейнере (со всякими точками), удаляем ее тут же.

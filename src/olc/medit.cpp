@@ -418,7 +418,6 @@ void medit_save_internally(DescriptorData *d) {
 #endif
 					new_index[rmob_num].vnum = OLC_NUM(d);
 					new_index[rmob_num].total_online = 0;
-					mob_online_by_vnum[OLC_NUM(d)] = 0;
 					new_index[rmob_num].func = nullptr;
 					new_mob_num = rmob_num;
 					OLC_MOB(d)->set_rnum(rmob_num);
@@ -451,7 +450,6 @@ void medit_save_internally(DescriptorData *d) {
 			fprintf(stderr, "Append.\n");
 #endif
 			new_index[rmob_num].vnum = OLC_NUM(d);
-			mob_online_by_vnum[OLC_NUM(d)] = 0;
 			new_index[rmob_num].total_online = 0;
 			new_index[rmob_num].func = nullptr;
 			new_mob_num = rmob_num;

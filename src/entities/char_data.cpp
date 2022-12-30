@@ -1053,11 +1053,11 @@ void CharData::set_idnum(long idnum) {
 	idnum_ = idnum;
 }
 
-int CharData::get_uid() const {
+int CharData::GetCharUid() const {
 	return uid_;
 }
 
-void CharData::set_uid(int uid) {
+void CharData::SetCharUid(int uid) {
 	uid_ = uid;
 }
 
@@ -1831,9 +1831,9 @@ void CharData::add_attacker(CharData *ch, unsigned type, int num) {
 		return;
 	}
 
-	int uid = ch->get_uid();
+	int uid = ch->GetCharUid();
 	if (IS_CHARMICE(ch) && ch->has_master()) {
-		uid = ch->get_master()->get_uid();
+		uid = ch->get_master()->GetCharUid();
 	}
 
 	auto i = attackers_.find(uid);
@@ -1862,7 +1862,7 @@ int CharData::get_attacker(CharData *ch, unsigned type) const {
 	if (!this->IsNpc() || ch->IsNpc() || !get_role(MOB_ROLE_BOSS)) {
 		return -1;
 	}
-	auto i = attackers_.find(ch->get_uid());
+	auto i = attackers_.find(ch->GetCharUid());
 	if (i != attackers_.end()) {
 		switch (type) {
 			case ATTACKER_DAMAGE: return i->second.damage;
@@ -1884,7 +1884,7 @@ std::pair<int /* uid */, int /* rounds */> CharData::get_max_damager_in_room() c
 	int max_dmg = 0;
 	for (const auto i : world[this->in_room]->people) {
 		if (!i->IsNpc() && i->desc) {
-			auto it = attackers_.find(i->get_uid());
+			auto it = attackers_.find(i->GetCharUid());
 			if (it != attackers_.end()) {
 				if (it->second.damage > max_dmg) {
 					max_dmg = it->second.damage;

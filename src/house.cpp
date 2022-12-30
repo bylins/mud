@@ -3001,7 +3001,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 		}
 		RemoveObjFromChar(obj);
 		PlaceObjIntoObj(obj, chest);
-		ObjSaveSync::add(ch->get_uid(), CLAN(ch)->GetRent(), ObjSaveSync::CLAN_SAVE);
+		ObjSaveSync::add(ch->GetCharUid(), CLAN(ch)->GetRent(), ObjSaveSync::CLAN_SAVE);
 
 		CLAN(ch)->chest_log.add(fmt::format("{} сдал{} {}{}\r\n",
 											ch->get_name(), GET_CH_SUF_1(ch), obj->get_PName(3),
@@ -3045,7 +3045,7 @@ bool Clan::TakeChest(CharData *ch, ObjData *obj, ObjData *chest) {
 
 	RemoveObjFromObj(obj);
 	PlaceObjToInventory(obj, ch);
-	ObjSaveSync::add(ch->get_uid(), CLAN(ch)->GetRent(), ObjSaveSync::CLAN_SAVE);
+	ObjSaveSync::add(ch->GetCharUid(), CLAN(ch)->GetRent(), ObjSaveSync::CLAN_SAVE);
 
 	if (obj->get_carried_by() == ch) {
 		std::string log_text = boost::str(boost::format("%s забрал%s %s%s\r\n")

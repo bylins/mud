@@ -358,7 +358,7 @@ void PrinForgeInfo(CharData *ch, std::ostringstream &out) {
 }
 
 void PrintPostInfo(CharData *ch, std::ostringstream &out) {
-	if (mail::has_mail(ch->get_uid())) {
+	if (mail::has_mail(ch->GetCharUid())) {
 		out << InfoStrPrefix(ch) << KIGRN << "Вас ожидает новое письмо, зайдите на почту." << KNRM << std::endl;
 	}
 	if (Parcel::has_parcel(ch)) {
@@ -874,7 +874,7 @@ void PrintScoreBase(CharData *ch) {
 		SendMsgToChar(buf, ch);
 	}
 
-	if (mail::has_mail(ch->get_uid())) {
+	if (mail::has_mail(ch->GetCharUid())) {
 		sprintf(buf, "%sВас ожидает новое письмо, зайдите на почту!%s\r\n", CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 		SendMsgToChar(buf, ch);
 	}

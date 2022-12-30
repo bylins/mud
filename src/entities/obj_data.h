@@ -700,7 +700,7 @@ class ObjData : public CObjectPrototype {
 	auto get_owner() const { return m_owner; }
 	auto get_parent() const { return m_parent; }
 	auto get_room_was_in() const { return m_room_was_in; }
-	auto get_uid() const { return m_uid; }
+	auto GetObjUid() const { return m_uid; }
 	auto get_worn_by() const { return m_worn_by; }
 	auto get_worn_on() const { return m_worn_on; }
 	auto get_vnum_zone_from() const { return m_zone_from; }
@@ -731,7 +731,7 @@ class ObjData : public CObjectPrototype {
 	void set_script(const std::shared_ptr<Script> &_) { m_script = _; }
 	void set_script(Script *_);
 	void cleanup_script();
-	void set_uid(const unsigned _);
+	void SetObjUid(const unsigned _);
 	void set_worn_by(CharData *_) { m_worn_by = _; }
 	void set_worn_on(const short _) { m_worn_on = _; }
 	void set_vnum_zone_from(const int _) { m_zone_from = _; }

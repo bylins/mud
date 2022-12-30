@@ -129,7 +129,7 @@ void ObjData::purge() {
 	//см. комментарий в структуре BloodyInfo из pk.cpp
 	bloody::remove_obj(this);
 	//weak_ptr тут бы был какраз в тему
-	Celebrates::remove_from_obj_lists(this->get_uid());
+	Celebrates::remove_from_obj_lists(this->GetObjUid());
 }
 
 int ObjData::get_serial_num() {
@@ -234,7 +234,7 @@ void ObjData::cleanup_script() {
 	m_script->cleanup();
 }
 
-void ObjData::set_uid(const unsigned _) {
+void ObjData::SetObjUid(const unsigned _) {
 	if (_ != m_uid) {
 		const auto old_uid = m_uid;
 
@@ -1043,7 +1043,7 @@ ObjData *create_purse(CharData *ch, int/* gold*/) {
 	// CLOSEABLE + CLOSED
 	obj->set_val(1, 5);
 	obj->set_val(2, -1);
-	obj->set_val(3, ch->get_uid());
+	obj->set_val(3, ch->GetCharUid());
 
 	obj->set_rent_off(0);
 	obj->set_rent_on(0);
