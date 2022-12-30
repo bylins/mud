@@ -578,7 +578,7 @@ void return_parcel() {
 }
 
 // * Дикей предмета на почте и уведомление об этом отправителя и получателя через письма.
-void extract_parcel(int sender_uid, int tarGetObjUid, const std::list<Node>::iterator &it) {
+void extract_parcel(int sender_uid, int target_uid, const std::list<Node>::iterator &it) {
 	snprintf(buf, kMaxStringLength, "С прискорбием сообщаем вам: %s рассыпал%s в прах.\r\n",
 			 it->obj_->get_short_description().c_str(),
 			 GET_OBJ_SUF_2(it->obj_));
@@ -586,7 +586,7 @@ void extract_parcel(int sender_uid, int tarGetObjUid, const std::list<Node>::ite
 	char *tmp = str_dup(buf);
 	// -1 в качестве ид отправителя при получении подставит в имя почтовую службу
 	create_mail(sender_uid, -1, tmp);
-	create_mail(tarGetObjUid, -1, tmp);
+	create_mail(target_uid, -1, tmp);
 	free(tmp);
 
 	// возврат оставшихся зарезервированных кун отправителю (у развернутых уже ноль)

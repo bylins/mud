@@ -463,8 +463,8 @@ void add(int to_uid, int from_uid, const char *message) {
 }
 
 void add_by_id(int to_id, int from_id, char *message) {
-	const int to_uid = GetObjUid_by_id(to_id);
-	const int from_uid = from_id >= 0 ? GetObjUid_by_id(from_id) : from_id;
+	const int to_uid = get_uid_by_id(to_id);
+	const int from_uid = from_id >= 0 ? get_uid_by_id(from_id) : from_id;
 
 	add(to_uid, from_uid, message);
 }

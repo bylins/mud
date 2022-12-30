@@ -393,7 +393,7 @@ RoomData *find_room(long n) {
  * Возвращает id моба указанного внума.
  * \param num - если есть и больше 0 - возвращает id не первого моба, а указанного порядкового номера.
  */
-int find_char_vnum(int n, int num = 0) {
+int find_char_vnum(int vnum, int num = 0) {
 	int count = 0;
 
 	if (mob_id_by_vnum.contains(vnum)) {
@@ -4612,7 +4612,6 @@ void calcuid_var(void *go, Script * /*sc*/, Trigger *trig, int type, char *cmd) 
 		result = find_room_uid(result);
 	} else if (!str_cmp(what, "mob")) {
 		uid_type = UID_CHAR;
-		utils::CExecutionTimer timer;
 		result = find_char_vnum(result, count_num);
 	} else if (!str_cmp(what, "obj")) {
 		uid_type = UID_OBJ;

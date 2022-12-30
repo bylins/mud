@@ -42,7 +42,7 @@ bool can_be_reset(ZoneRnum zone);
 RoomRnum real_room(RoomVnum vnum);
 long get_id_by_name(char *name);
 //long get_id_by_uid(long uid);
-int GetObjUid_by_id(int id);
+int get_uid_by_id(int id);
 long cmp_ptable_by_name(char *name, int len);
 const char *get_name_by_id(long id);
 const char *get_name_by_unique(int unique);

@@ -160,7 +160,7 @@ std::string line_split_str(const std::string &str, const std::string &sep,
 void init_obj_index();
 bool verify_wear_flag(const CObjectPrototype::shared_ptr &);
 void VerifySet(SetNode &set);
-bool is_duplicate(int SetObjUid, int vnum);
+bool is_duplicate(int set_uid, int vnum);
 std::string print_total_activ(const SetNode &set);
 
 } // namespace obj_sets

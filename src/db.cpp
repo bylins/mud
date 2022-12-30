@@ -4917,7 +4917,7 @@ long get_id_by_uid(long uid) {
 	return -1;
 }
 
-int GetObjUid_by_id(int id) {
+int get_uid_by_id(int id) {
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
 	for (std::size_t i = 0; i < player_table.size(); i++) {
 		if (player_table[i].id() == id) {
