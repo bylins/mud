@@ -1933,17 +1933,10 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 			&& !MOB_FLAGGED(ch, EMobFlag::kSummoned))    // if mobile и не умертвие
 		{
 			mob_index[GET_MOB_RNUM(ch)].total_online--;
-			std::vector<int> list_idnum;
-			list_idnum = mob_id_by_vnum[GET_MOB_VNUM(ch)];
-			for (auto it = list_idnum.begin(); it != list_idnum.end();) {
-				if (*it == ch->id)
-					it = list_idnum.erase(it);
-				 else
-					++it;
-			}
-			mob_id_by_vnum[GET_MOB_VNUM(ch)] = list_idnum;
+			mob_online_by_vnum[GET_MOB_VNUM(ch)]--;
 		}
 	}
+
 	bool left_in_game = false;
 	if (!is_npc
 		&& ch->desc != nullptr) {
