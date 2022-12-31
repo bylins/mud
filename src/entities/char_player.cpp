@@ -1000,7 +1000,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 
 	set_level(1);
 	set_class(ECharClass::kFirst);
-	SetCharUid(0);
+	set_uid(0);
 	set_last_logon(time(0));
 	set_idnum(0);
 	set_exp(0);
@@ -1080,7 +1080,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 				break;
 			case 'U':
 				if (!strcmp(tag, "UIN ")) {
-					SetCharUid(num);
+					set_uid(num);
 				}
 				break;
 			default: sprintf(buf, "SYSERR: Unknown tag %s in pfile %s", tag, name);
@@ -1115,7 +1115,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 		accounts.emplace(GET_EMAIL(this), temp_account);
 		this->account = temp_account;
 	}
-	this->account->add_player(this->GetCharUid());
+	this->account->add_player(this->get_uid());
 
 	if (reboot) {
 		fbclose(fl);

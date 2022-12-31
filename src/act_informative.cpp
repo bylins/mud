@@ -3552,7 +3552,7 @@ bool print_object_location(int num, const ObjData *obj, CharData *ch) {
 		}
 	} else {
 		for (ExchangeItem *j = exchange_item_list; j; j = j->next) {
-			if (GET_EXCHANGE_ITEM(j)->GetObjUid() == obj->GetObjUid()) {
+			if (GET_EXCHANGE_ITEM(j)->get_uid() == obj->get_uid()) {
 				sprintf(buf + strlen(buf), "продается на базаре, лот #%d\r\n", GET_EXCHANGE_ITEM_LOT(j));
 				SendMsgToChar(buf, ch);
 				return true;
@@ -3565,7 +3565,7 @@ bool print_object_location(int num, const ObjData *obj, CharData *ch) {
 				if (item_list.node(i)->uid() == ShopExt::ItemNode::NO_UID) {
 					continue;
 				}
-				if (item_list.node(i)->uid() == obj->GetObjUid()) {
+				if (item_list.node(i)->uid() == obj->get_uid()) {
 					sprintf(buf + strlen(buf), "можно купить в магазине: %s\r\n", shop->GetDictionaryName().c_str());
 					SendMsgToChar(buf, ch);
 					return true;

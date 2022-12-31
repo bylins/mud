@@ -345,7 +345,7 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 				}
 			} else if (!strcmp(read_line, "Ouid")) {
 				*error = 48;
-				object->SetObjUid(atoi(buffer));
+				object->set_uid(atoi(buffer));
 			} else if (!strcmp(read_line, "TSpl")) {
 				*error = 49;
 				std::stringstream text(buffer);
@@ -1769,7 +1769,7 @@ int Crash_load(CharData *ch) {
 			obj->set_worn_on(0);
 
 			auto_equip(ch, obj, location);
-			log("%s load_char_obj %d %d %u", GET_NAME(ch), GET_OBJ_VNUM(obj), obj->GetObjUid(), obj->get_timer());
+			log("%s load_char_obj %d %d %u", GET_NAME(ch), GET_OBJ_VNUM(obj), obj->get_uid(), obj->get_timer());
 		} else {
 			if (obj2
 				&& obj2->get_worn_on() < obj->get_worn_on()
@@ -1799,7 +1799,7 @@ int Crash_load(CharData *ch) {
 			} else {
 				PlaceObjToInventory(obj, ch);
 			}
-			log("%s load_char_obj %d %d %u", GET_NAME(ch), GET_OBJ_VNUM(obj), obj->GetObjUid(), obj->get_timer());
+			log("%s load_char_obj %d %d %u", GET_NAME(ch), GET_OBJ_VNUM(obj), obj->get_uid(), obj->get_timer());
 		}
 	}
 
@@ -1981,7 +1981,7 @@ void Crash_save(std::stringstream &write_buffer, int iplayer, ObjData *obj, int 
 
 			if (savetype != RENT_CRASH) {
 				log("%s save_char_obj %d %d %u", player_table[iplayer].name(),
-					GET_OBJ_VNUM(obj), obj->GetObjUid(), obj->get_timer());
+					GET_OBJ_VNUM(obj), obj->get_uid(), obj->get_timer());
 			}
 		}
 	}
@@ -2034,7 +2034,7 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 	}
 
 	log("Save obj: %s -> %d (%d)", ch->get_name().c_str(), num, charmee_items);
-	ObjSaveSync::check(ch->GetCharUid(), ObjSaveSync::CHAR_SAVE);
+	ObjSaveSync::check(ch->get_uid(), ObjSaveSync::CHAR_SAVE);
 
 	if (!num) {
 		Crash_delete_files(iplayer);

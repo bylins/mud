@@ -439,8 +439,8 @@ class CharData : public ProtectedCharData {
 	long get_idnum() const;
 	void set_idnum(long idnum);
 
-	int GetCharUid() const;
-	void SetCharUid(int uid);
+	int get_uid() const;
+	void set_uid(int uid);
 
 	long get_exp() const;
 	void set_exp(long exp);

@@ -787,7 +787,7 @@ void string_add(DescriptorData *d, char *str) {
 			d->connected = CON_PLAYING;
 		} else if (!d->connected && (PLR_FLAGGED(d->character, EPlrFlag::kMailing))) {
 			if ((terminator == 1) && d->writer->get_string()) {
-				mail::add(d->mail_to, d->character->GetCharUid(), d->writer->get_string());
+				mail::add(d->mail_to, d->character->get_uid(), d->writer->get_string());
 				SEND_TO_Q("Ближайшей оказией я отправлю ваше письмо адресату!\r\n", d);
 				if (DescByUID(d->mail_to)) {
 					mail::add_notice(d->mail_to);

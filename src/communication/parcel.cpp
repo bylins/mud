@@ -256,7 +256,7 @@ void send_object(CharData *ch, CharData *mailman, long vict_uid, ObjData *obj) {
 
 	ch->remove_both_gold(total_cost);
 	RemoveObjFromChar(obj);
-	ObjSaveSync::add(ch->GetCharUid(), ch->GetCharUid(), ObjSaveSync::PARCEL_SAVE);
+	ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PARCEL_SAVE);
 
 	check_auction(nullptr, obj);
 	world_objects.remove(obj);
@@ -535,7 +535,7 @@ void receive(CharData *ch, CharData *mailman) {
 			act("$N дал$G $n2 посылку.", false, ch, 0, mailman, kToRoom);
 			++was_sended;
 		}
-		ObjSaveSync::add(ch->GetCharUid(), ch->GetCharUid(), ObjSaveSync::PARCEL_SAVE);
+		ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PARCEL_SAVE);
 		parcel_list.erase(it);
 	}
 }
@@ -904,7 +904,7 @@ void bring_back(CharData *ch, CharData *mailman) {
 			false, mailman, 0, ch, kToVict);
 		std::string name = GET_NAME(ch);
 		return_money(name, money / 2, RETURN_WITH_MONEY);
-		ObjSaveSync::add(ch->GetCharUid(), ch->GetCharUid(), ObjSaveSync::PARCEL_SAVE);
+		ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PARCEL_SAVE);
 	} else if (empty) {
 		act("$n сказал$g вам : 'У нас нет ни одной вашей посылки!'", false, mailman, 0, ch, kToVict);
 	}
