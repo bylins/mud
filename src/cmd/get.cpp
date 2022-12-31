@@ -38,7 +38,7 @@ void split_or_clan_tax(CharData *ch, long amount) {
 
 void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 
-	if (system_obj::is_purse(obj) && GET_OBJ_VAL(obj, 3) == ch->GetCharUid()) {
+	if (system_obj::is_purse(obj) && GET_OBJ_VAL(obj, 3) == ch->get_uid()) {
 		system_obj::process_open_purse(ch, obj);
 		return;
 	}

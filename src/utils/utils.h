@@ -484,7 +484,7 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 #define GET_GOD_FLAG(ch, flag)  (IS_SET((ch)->player_specials->saved.GodsLike, flag))
 #define SET_GOD_FLAG(ch, flag)  (SET_BIT((ch)->player_specials->saved.GodsLike, flag))
 #define CLR_GOD_FLAG(ch, flag)  (REMOVE_BIT((ch)->player_specials->saved.GodsLike, flag))
-#define GET_UNIQUE(ch)         ((ch)->GetCharUid())
+#define GET_UNIQUE(ch)         ((ch)->get_uid())
 #define LAST_LOGON(ch)         ((ch)->get_last_logon())
 #define LAST_EXCHANGE(ch)         ((ch)->get_last_exchange())
 //структуры для подсчета количества рипов на морте (с) Василиса
@@ -846,7 +846,7 @@ const int kNameLevel = 5;
 
 
 // object utils *********************************************************
-#define GET_OBJ_UID(obj)    ((obj)->GetObjUid())
+#define GET_OBJ_UID(obj)    ((obj)->get_uid())
 
 #define GET_OBJ_ALIAS(obj)      ((obj)->get_aliases())
 #define GET_OBJ_PNAME(obj, pad)  ((obj)->get_PName(pad))

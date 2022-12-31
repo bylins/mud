@@ -16,7 +16,7 @@ void TopPlayer::Remove(CharData *short_ch) {
 	auto &tmp_list = TopPlayer::chart_[short_ch->GetClass()];
 
 	auto it = std::find_if(tmp_list.begin(), tmp_list.end(), [&short_ch](const TopPlayer &p) {
-		return p.unique_ == short_ch->GetCharUid();
+		return p.unique_ == short_ch->get_uid();
 	});
 	if (it != tmp_list.end())
 		tmp_list.erase(it);
@@ -98,7 +98,7 @@ void TopPlayer::PrintClassChart(CharData *ch, ECharClass id) {
 	// если игрок участвует в данном топе - покажем ему, какой он неудачник
 	int count = 1;
 	for (const auto &it: TopPlayer::chart_[id]) {
-		if (it.unique_ == ch->GetCharUid()) {
+		if (it.unique_ == ch->get_uid()) {
 			out.clear();
 			out << std::endl << "  Ваш текущий рейтинг: " << count << std::endl;
 			break;

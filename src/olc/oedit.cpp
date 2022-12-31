@@ -175,7 +175,7 @@ void olc_update_object(int robj_num, ObjData *obj, ObjData *olc_obj) {
 	}
 	// меняем на значения из шмоток в текущем мире
 	obj->clear_proto_script();
-	obj->SetObjUid(tmp.GetObjUid());
+	obj->set_uid(tmp.get_uid());
 	obj->set_id(tmp.get_id()); // аук работает не по рнум а по id объекта, поэтому вернем и его
 	obj->set_in_room(tmp.get_in_room());
 	obj->set_rnum(robj_num);
