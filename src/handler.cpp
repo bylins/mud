@@ -1944,6 +1944,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 			mob_id_by_vnum[GET_MOB_VNUM(ch)] = list_idnum;
 		}
 	}
+
 	bool left_in_game = false;
 	if (!is_npc
 		&& ch->desc != nullptr) {
