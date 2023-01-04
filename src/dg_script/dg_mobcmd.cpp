@@ -849,16 +849,6 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 
 		// put the mob in the same room as ch so extract will work
 		PlaceCharToRoom(m, ch->in_room);
-// впихнем в таблицу загруженных мобов для калкуид ид прошлого моба до трансформа
-		if (mob_id_by_vnum.contains(GET_MOB_VNUM(m))) {
-			std::vector<long> list_idnum;
-			list_idnum = mob_id_by_vnum[GET_MOB_VNUM(m)];
-			for (auto &it : list_idnum) {
-				if (it == m->id)
-					it = ch->id;
-			}
-			mob_id_by_vnum[GET_MOB_VNUM(m)] = list_idnum;
-		}
 
 // Обмен содержимым
 		CharData tmpmob(*m);
