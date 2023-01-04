@@ -397,11 +397,20 @@ int find_char_vnum(int vnum, int num = 0) {
 	int count = 0;
 
 	if (mob_id_by_vnum.contains(vnum)) {
-		std::vector<int> list_idnum;
+//		sprintf(buf, "vnum = %d", vnum);
+//		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+		std::vector<long> list_idnum;
 		list_idnum = mob_id_by_vnum[vnum];
-		for (auto &it : list_idnum) {
-			if (count++ == num)
+		for (auto it : list_idnum) {
+//		sprintf(buf, "id = %ld", it);
+//		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+
+			if (count++ == num) {
+//		sprintf(buf, "count id = %ld", it);
+//		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+
 				return it;
+			}
 		}
 	}
 	return -1;
@@ -4559,7 +4568,7 @@ void calcuid_var(void *go, Script * /*sc*/, Trigger *trig, int type, char *cmd) 
 	char *t, vnum[kMaxInputLength], what[kMaxInputLength];
 	char uid[kMaxInputLength], count[kMaxInputLength];
 	char uid_type;
-	int result = -1;
+	long result = -1;
 
 	t = two_arguments(cmd, arg, varname);
 	three_arguments(t, vnum, what, count);
@@ -4617,7 +4626,7 @@ void calcuid_var(void *go, Script * /*sc*/, Trigger *trig, int type, char *cmd) 
 		return;
 	}
 
-	sprintf(uid, "%c%d", uid_type, result);
+	sprintf(uid, "%c%ld", uid_type, result);
 	add_var_cntx(&GET_TRIG_VARS(trig), varname, uid, 0);
 }
 
