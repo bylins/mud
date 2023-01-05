@@ -393,15 +393,23 @@ RoomData *find_room(long n) {
  * Возвращает id моба указанного внума.
  * \param num - если есть и больше 0 - возвращает id не первого моба, а указанного порядкового номера.
  */
-int find_char_vnum(long n, int num = 0) {
+int find_char_vnum(int vnum, int num = 0) {
 	int count = 0;
-	for (const auto &ch : character_list) {
-		if (n == GET_MOB_VNUM(ch) && ch->in_room != kNowhere) {
-			if (num != count) {
-				++count;
-				continue;
-			} else {
-				return (GET_ID(ch));
+
+	if (mob_id_by_vnum.contains(vnum)) {
+//		sprintf(buf, "vnum = %d", vnum);
+//		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+		std::vector<long> list_idnum;
+		list_idnum = mob_id_by_vnum[vnum];
+		for (auto it : list_idnum) {
+//		sprintf(buf, "id = %ld", it);
+//		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+
+			if (count++ == num) {
+//		sprintf(buf, "count id = %ld", it);
+//		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+
+				return it;
 			}
 		}
 	}
@@ -1674,13 +1682,9 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(var, "exist")) {
 			if (!str_cmp(field, "mob") && (num = atoi(subfield)) > 0) {
-				if (auto it = mob_online_by_vnum.find(num); it != mob_online_by_vnum.end()) {
-					if (it->second > 0) {
-						sprintf(str, "1");
-						return;
-					}
-				}
-				sprintf(str, "0");
+				num = count_char_vnum(num);
+				if (num >= 0)
+					sprintf(str, "%c", num > 0 ? '1' : '0');
 			} else if (!str_cmp(field, "obj") && (num = atoi(subfield)) > 0) {
 				num = gcount_obj_vnum(num);
 				if (num >= 0)
@@ -1756,15 +1760,7 @@ void find_replacement(void *go,
 					}
 				}
 			} else if ((!str_cmp(field, "curmob") || !str_cmp(field, "curmobs")) && num > 0) {
-				if (auto it = mob_online_by_vnum.find(num); it != mob_online_by_vnum.end()) {
-					if (it->second > 0) {
-						sprintf(str, "%d", it->second);
-						return;
-					}
-				}
-				sprintf(str, "0");
-			} else if ((!str_cmp(field, "gamemob") || !str_cmp(field, "gamemobs")) && num > 0) {
-				num = gcount_char_vnum(num);
+				num = count_char_vnum(num);
 				if (num >= 0)
 					sprintf(str, "%d", num);
 			} else if (!str_cmp(field, "zreset") && num > 0) {
@@ -4572,7 +4568,7 @@ void calcuid_var(void *go, Script * /*sc*/, Trigger *trig, int type, char *cmd) 
 	char *t, vnum[kMaxInputLength], what[kMaxInputLength];
 	char uid[kMaxInputLength], count[kMaxInputLength];
 	char uid_type;
-	int result = -1;
+	long result = -1;
 
 	t = two_arguments(cmd, arg, varname);
 	three_arguments(t, vnum, what, count);
@@ -4630,7 +4626,7 @@ void calcuid_var(void *go, Script * /*sc*/, Trigger *trig, int type, char *cmd) 
 		return;
 	}
 
-	sprintf(uid, "%c%d", uid_type, result);
+	sprintf(uid, "%c%ld", uid_type, result);
 	add_var_cntx(&GET_TRIG_VARS(trig), varname, uid, 0);
 }
 

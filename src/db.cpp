@@ -109,7 +109,7 @@ int top_of_trigt = 0;        // top of trigger index table
 
 IndexData *mob_index;        // index table for mobile file
 MobRnum top_of_mobt = 0;    // top of mobile index table
-std::unordered_map<MobVnum, int> mob_online_by_vnum;
+std::unordered_map<MobVnum, std::vector<long>> mob_id_by_vnum;
 
 void Load_Criterion(pugi::xml_node XMLCriterion, int type);
 void load_speedwalk();
@@ -3585,7 +3585,11 @@ CharData *read_mobile(MobVnum nr, int type) {                // and MobRnum
 	mob->id = max_id.allocate();
 
 	if (!is_corpse) {
-		mob_online_by_vnum[GET_MOB_VNUM(mob)]++;
+		std::vector<long> list_idnum;
+		if (mob_id_by_vnum.contains(GET_MOB_VNUM(mob)))
+			list_idnum = mob_id_by_vnum[GET_MOB_VNUM(mob)];
+		list_idnum.push_back(mob->id);
+		mob_id_by_vnum[GET_MOB_VNUM(mob)] = list_idnum;
 		mob_index[i].total_online++;
 		assign_triggers(mob, MOB_TRIGGER);
 	} else {
