@@ -1150,7 +1150,7 @@ void do_help(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	user_search.level = GET_GOD_FLAG(ch, EGf::kDemigod) ? kLvlImmortal : GetRealLevel(ch);
 	utils::ConvertToLow(argument);
 	// Получаем topic_num для индексации топика
-	sscanf(arg, "%d.%s", &user_search.topic_num, argument);
+	sscanf(argument, "%d.%s", &user_search.topic_num, argument);
 	// если последний символ аргумента '!' -- включаем строгий поиск
 	if (strlen(argument) > 1 && *(argument + strlen(argument) - 1) == '!') {
 		user_search.strong = true;

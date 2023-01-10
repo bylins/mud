@@ -397,18 +397,10 @@ int find_char_vnum(int vnum, int num = 0) {
 	int count = 0;
 
 	if (mob_id_by_vnum.contains(vnum)) {
-//		sprintf(buf, "vnum = %d", vnum);
-//		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		std::vector<long> list_idnum;
 		list_idnum = mob_id_by_vnum[vnum];
 		for (auto it : list_idnum) {
-//		sprintf(buf, "id = %ld", it);
-//		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-
 			if (count++ == num) {
-//		sprintf(buf, "count id = %ld", it);
-//		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-
 				return it;
 			}
 		}

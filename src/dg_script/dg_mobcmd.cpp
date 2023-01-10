@@ -846,8 +846,6 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 			else
 				obj[pos] = nullptr;
 		}
-
-		// put the mob in the same room as ch so extract will work
 		PlaceCharToRoom(m, ch->in_room);
 // впихнем в таблицу загруженных мобов для калкуид ид прошлого моба до трансформа
 		if (mob_id_by_vnum.contains(GET_MOB_VNUM(m))) {
@@ -873,7 +871,7 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 
 // Копирование игровой информации (для m сохраняются оригинальные значения)
 		ch->id = m->id;
-		m->id = tmpmob.id;
+//		m->id = tmpmob.id; //пусть пуржится со старым ид для правильной чистке контейнера mob_id_by_vnum
 		ch->affected = m->affected;
 		m->affected = tmpmob.affected;
 		ch->carrying = m->carrying;

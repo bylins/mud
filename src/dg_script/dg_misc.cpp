@@ -124,7 +124,7 @@ void do_dg_cast(void *go, Trigger *trig, int type, char *cmd) {
 	char *s, *t;
 	int target = 0;
 	bool dummy_mob = false;
-	char *argument = cmd;
+	std::string argument = cmd;
 
 	// need to get the caster or the room of the temporary caster
 	switch (type) {
@@ -162,7 +162,7 @@ void do_dg_cast(void *go, Trigger *trig, int type, char *cmd) {
 
 	auto spell_id = FixNameAndFindSpellId(s);
 	if (spell_id == ESpell::kUndefined) {
-		sprintf(buf2, "dg_cast: invalid spell name, аргумент: (%s)", argument);
+		sprintf(buf2, "dg_cast: invalid spell name, аргумент: (%s)", argument.c_str());
 		trig_log(trig, buf2);
 		return;
 	}
@@ -218,7 +218,7 @@ void do_dg_cast(void *go, Trigger *trig, int type, char *cmd) {
 	if (*arg == UID_CHAR) {
 		tch = get_char(arg);
 		if (tch == nullptr) {
-			snprintf(buf2, kMaxStringLength, "dg_cast: victim (%s) not found, аргумент: %s", arg + 1, argument);
+			snprintf(buf2, kMaxStringLength, "dg_cast: victim (%s) not found, аргумент: %s", arg + 1, argument.c_str());
 			trig_log(trig, buf2);
 		} else if (kNowhere == caster->in_room) {
 			sprintf(buf2, "dg_cast: caster (%s) in kNowhere", GET_NAME(caster));
@@ -239,7 +239,7 @@ void do_dg_cast(void *go, Trigger *trig, int type, char *cmd) {
 	if (target) {
 		CallMagic(caster, tch, tobj, troom, spell_id, GetRealLevel(caster));
 	} else if (spell_id != ESpell::kResurrection && spell_id != ESpell::kAnimateDead) {
-		sprintf(buf2, "dg_cast: target not found, аргумент: %s", argument);
+		sprintf(buf2, "dg_cast: target not found, аргумент: %s", argument.c_str());
 		trig_log(trig, buf2);
 	}
 	if (dummy_mob)
