@@ -289,7 +289,7 @@ void UnsetRaceFeats(CharData *ch) {
 
 void SetInbornFeats(CharData *ch) {
 	for (const auto &feat : MUD::Class(ch->GetClass()).feats) {
-		if (feat.IsInborn() && !ch->HaveFeat(feat.GetId()) && CanGetFeat(ch, feat.GetId())) {
+		if (feat.IsInborn() && !ch->HaveFeat(feat.GetId())) {
 			ch->SetFeat(feat.GetId());
 		}
 	}
