@@ -2086,9 +2086,17 @@ void inspecting() {
 	if (inspect_list.empty()) {
 		return;
 	}
-
+/*	std::stringstream ss;
+	ss << "Inspect list: ";
+	for (auto it: inspect_list) {
+		ss << player_table[it.first].name() << " ";
+	}
+	ss << "\r\n";
+	log("%s", ss.str().c_str());
+*/
 	auto it = inspect_list.begin();
 
+	log("inspecting start by %s", player_table[it->first].name());
 	CharData *ch = nullptr;
 	DescriptorData *d_vict = nullptr;
 
@@ -2136,8 +2144,10 @@ void inspecting() {
 		buf1[0] = '\0';
 		buf2[0] = '\0';
 		is_online = 0;
+		Player p_vict;
+		CharData *vict = &p_vict;
 
-		CharData::shared_ptr vict;
+//		CharData::shared_ptr vict;
 		d_vict = DescByUID(player_table[it->second->pos].unique);
 		if (d_vict) {
 			is_online = 1;
@@ -2145,10 +2155,10 @@ void inspecting() {
 
 		if (it->second->sfor != IMAIL && it->second->fullsearch) {
 			if (d_vict) {
-				vict = d_vict->character;
+				vict = d_vict->character.get();
 			} else {
-				vict.reset(new Player);
-				if (load_char(player_table[it->second->pos].name(), vict.get()) < 0) {
+//				vict.reset(new Player);
+				if (load_char(player_table[it->second->pos].name(), vict) < 0) {
 					SendMsgToChar(ch,
 								  "Некорректное имя персонажа (%s) inspecting %s: %s.\r\n",
 								  player_table[it->second->pos].name(),
@@ -2262,7 +2272,7 @@ void inspecting() {
 
 	page_string(ch->desc, it->second->out);
 	free(it->second->req);
-	inspect_list.erase(it->first);
+	inspect_list.erase(it);
 }
 
 //added by WorM Команда для поиска чаров с одинаковым(похожим) mail и/или ip
@@ -2273,10 +2283,11 @@ void do_inspect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->get_pfilepos() < 0)
 		return;
 
-	auto it = inspect_list.find(GET_UNIQUE(ch));
-	auto it_setall = setall_inspect_list.find(GET_UNIQUE(ch));
+	auto it = inspect_list.find(ch->get_pfilepos());
+	auto it_setall = setall_inspect_list.find(ch->get_pfilepos());
+
 	// Навсякий случай разрешаем только одну команду такого типа, либо сетол, либо инспект
-	if (it != inspect_list.end() && it_setall != setall_inspect_list.end()) {
+	if (it != inspect_list.end() || it_setall != setall_inspect_list.end()) {
 		SendMsgToChar(ch, "Обрабатывается другой запрос, подождите...\r\n");
 		return;
 	}
