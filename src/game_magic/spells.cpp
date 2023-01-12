@@ -1166,7 +1166,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 			int rnd = number(1, 8);
 			switch (rnd)
 			{ // готовим наборы скиллов / способностей
-			case 1:
+case 1:
 				act("Лапы $N1 увеличились в размерах и обрели огромную, дикую мощь.\nТуловище $N1 стало огромным.",
 					false, ch, nullptr, victim, kToChar); // тут потом заменим на валидные фразы
 				act("Лапы $N1 увеличились в размерах и обрели огромную, дикую мощь.\nТуловище $N1 стало огромным.",
@@ -1174,7 +1174,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 				victim->set_skill(ESkill::kHammer, k_skills);
 				victim->set_skill(ESkill::kRescue, k_skills*0.8);
 				victim->set_skill(ESkill::kPunch, k_skills*0.9);
-				victim->set_skill(ESkill::kNoParryHit, k_skills*0.4);
+//				victim->set_skill(ESkill::kNoParryHit, k_skills*0.4);
 				victim->set_skill(ESkill::kIntercept, k_skills*0.75);
 				victim->SetFeat(EFeat::kPunchMaster);
 					if (floorf(r_cha*0.9 + perc/5.0) > number(1, 150)) {
@@ -1188,14 +1188,14 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 				skill_id = ESkill::kPunch;
 				break;
 			case 2:
-				act("Лапы $N1 удлинились и на них выросли гиганские острые когти.\nТуловище $N1 стало более мускулистым.",
+				act("Лапы $N1 удлинились, и на них выросли гигантские острые когти.\nТуловище $N1 стало более мускулистым.",
 					false, ch, nullptr, victim, kToChar);
-				act("Лапы $N1 удлинились и на них выросли гиганские острые когти.\nТуловище $N1 стало более мускулистым.",
+				act("Лапы $N1 удлинились и на них выросли гигантские острые когти.\nТуловище $N1 стало более мускулистым.",
 					false, ch, nullptr, victim, kToRoom | kToArenaListen);
 				victim->set_skill(ESkill::kOverwhelm, k_skills);
 				victim->set_skill(ESkill::kRescue, k_skills*0.8);
 				victim->set_skill(ESkill::kTwohands, k_skills*0.95);
-				victim->set_skill(ESkill::kNoParryHit, k_skills*0.4);
+//				victim->set_skill(ESkill::kNoParryHit, k_skills*0.4);
 				victim->SetFeat(EFeat::kTwohandsMaster);
 				victim->SetFeat(EFeat::kTwohandsFocus);
 				if (floorf(r_cha + perc/5.0) > number(1, 150)) {
@@ -1208,43 +1208,42 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 				skill_id = ESkill::kTwohands;
 				break;
 			case 3:
-				act("Когти на лапах $N1 удлинились в размерах и приобрели зеленоватый оттенок.\nДвижения $N1 стали более размытими.",
+				act("Когти на лапах $N1 удлинились и приобрели зеленоватый оттенок.\nДвижения $N1 стали более размытыми.",
 					false, ch, nullptr, victim, kToChar);
-				act("Когти на лапах $N1 удлинились в размерах и приобрели зеленоватый оттенок.\nДвижения $N1 стали более размытими.",
+				act("Когти на лапах $N1 удлинились и приобрели зеленоватый оттенок.\nДвижения $N1 стали более размытыми.",
 					false, ch, nullptr, victim, kToRoom | kToArenaListen);
 				victim->set_skill(ESkill::kBackstab, k_skills);
 				victim->set_skill(ESkill::kRescue, k_skills*0.6);
 				victim->set_skill(ESkill::kPicks, k_skills*0.75);
-				victim->set_skill(ESkill::kPoisoning, k_skills*0.7);
-				victim->set_skill(ESkill::kNoParryHit, k_skills*0.75);
+//				victim->set_skill(ESkill::kPoisoning, k_skills*0.7);
+//				victim->set_skill(ESkill::kNoParryHit, k_skills*0.75);
 				victim->SetFeat(EFeat::kPicksMaster);
-				victim->SetFeat(EFeat::kThieveStrike);
+//				victim->SetFeat(EFeat::kThieveStrike);
 				if (floorf(r_cha*0.8 + perc/5.0) > number(1, 150)) {
-					victim->SetFeat(EFeat::kShadowStrike);
+//					victim->SetFeat(EFeat::kShadowStrike);
 					act("&c$N0 затаил$U в вашей тени...&n\n", false, ch, nullptr, victim, kToChar);
-					
 				}
 				victim->set_dex(floorf(GetRealDex(victim)*1.3));
 				skill_id = ESkill::kPicks;
 				break;
 			case 4:
-				act("Рефлексы $N1 обострились и туловище раздалось в ширь.\nНа огромных лапах засияли мелкие острые коготки.",
+				act("Рефлексы $N1 обострились, и туловище раздалось в ширь.\nНа огромных лапах засияли мелкие острые коготки.",
 					false, ch, nullptr, victim, kToChar);
-				act("Рефлексы $N1 обострились и туловище раздалось в ширь.\nНа огромных лапах засияли мелкие острые коготки.",
+				act("Рефлексы $N1 обострились, и туловище раздалось в ширь.\nНа огромных лапах засияли мелкие острые коготки.",
 					false, ch, nullptr, victim, kToRoom | kToArenaListen);
 				victim->set_skill(ESkill::kAwake, k_skills);
 				victim->set_skill(ESkill::kRescue, k_skills*0.85);
 				victim->set_skill(ESkill::kShieldBlock, k_skills*0.75);
 				victim->set_skill(ESkill::kAxes, k_skills*0.85);
-				victim->set_skill(ESkill::kNoParryHit, k_skills*0.65);
+//				victim->set_skill(ESkill::kNoParryHit, k_skills*0.65);
 				if (floorf(r_cha*0.9 + perc/5.0) > number(1, 140)) {
 					victim->set_skill(ESkill::kProtect, k_skills*0.75);
-					act("&WЧуткий взгяд $N1 остановился на вас и вы ощутили себя под защитой.&n\n",
+					act("&WЧуткий взгляд $N1 остановился на вас, и вы ощутили себя под защитой.&n\n",
 						false, ch, nullptr, victim, kToChar);
 					victim->set_protecting(ch);
 				}
 				victim->SetFeat(EFeat::kAxesMaster);
-				victim->SetFeat(EFeat::kThieveStrike);
+//				victim->SetFeat(EFeat::kThieveStrike);
 				victim->SetFeat(EFeat::kDefender);
 				victim->SetFeat(EFeat::kLiveShield);
 				victim->set_con(floorf(GetRealCon(victim)*1.3));
@@ -1252,17 +1251,17 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 				skill_id = ESkill::kAxes;
 				break;
 			case 5:
-				act("Движения $N1 сильно ускорились, из туловища выросло несколько новых лап.\nКоторые покрылись длинными когтями.",
+				act("Движения $N1 сильно ускорились.\nИз туловища выросло несколько новых лап, которые покрылись длинными когтями.",
 					false, ch, nullptr, victim, kToChar);
-				act("Движения $N1 сильно ускорились, из туловища выросло несколько новых лап.\nКоторые покрылись длинными когтями.",
+				act("Движения $N1 сильно ускорились.\nИз туловища выросло несколько новых лап, которые покрылись длинными когтями.",
 					false, ch, nullptr, victim, kToRoom | kToArenaListen);
 				victim->set_skill(ESkill::kChopoff, k_skills);
 				victim->set_skill(ESkill::kDodge, k_skills*0.7);
 				victim->set_skill(ESkill::kAddshot, k_skills*0.7);
 				victim->set_skill(ESkill::kBows, k_skills*0.85);
 				victim->set_skill(ESkill::kRescue, k_skills*0.65);
-				victim->set_skill(ESkill::kNoParryHit, k_skills*0.5);
-				victim->SetFeat(EFeat::kThieveStrike);
+//				victim->set_skill(ESkill::kNoParryHit, k_skills*0.5);
+//				victim->SetFeat(EFeat::kThieveStrike);
 				victim->SetFeat(EFeat::kBowsMaster);
 				if (floorf(r_cha*0.8 + perc/5.0) > number(1, 150)) {
 					af.bitvector = to_underlying(EAffect::kCloudOfArrows);
@@ -1284,7 +1283,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 				victim->set_skill(ESkill::kThrow, k_skills*0.85);
 				victim->set_skill(ESkill::kDodge, k_skills*0.7);
 				victim->set_skill(ESkill::kRescue, k_skills*0.6);
-				victim->set_skill(ESkill::kNoParryHit, k_skills*0.6);
+//				victim->set_skill(ESkill::kNoParryHit, k_skills*0.6);
 				victim->SetFeat(EFeat::kClubsMaster);
 				victim->SetFeat(EFeat::kDoubleThrower);
 				victim->SetFeat(EFeat::kTripleThrower);
@@ -1299,7 +1298,6 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 					victim->mob_specials.extra_attack = floorf((r_cha*1.2 + perc) / 100.0);
 				}
 				victim->set_str(floorf(GetRealStr(victim)*1.25));
-				
 				skill_id = ESkill::kClubs;
 			break;
 			case 7:
@@ -1309,10 +1307,9 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 					false, ch, nullptr, victim, kToRoom | kToArenaListen);
 				victim->set_skill(ESkill::kLongBlades, k_skills);
 				victim->set_skill(ESkill::kKick, k_skills*0.95);
-				victim->set_skill(ESkill::kNoParryHit, k_skills*0.7);
+//				victim->set_skill(ESkill::kNoParryHit, k_skills*0.7);
 				victim->set_skill(ESkill::kRescue, k_skills*0.4);
 				victim->SetFeat(EFeat::kLongsMaster);
-			
 				if (floorf(r_cha*0.8 + perc/5.0) > number(1, 150)) {
 					victim->set_skill(ESkill::kIronwind, k_skills*0.8);
 					victim->SetFeat(EFeat::kBerserker);
@@ -1321,7 +1318,6 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 				}
 				victim->set_dex(floorf(GetRealDex(victim)*1.1));
 				victim->set_str(floorf(GetRealStr(victim)*1.35));
-				
 				skill_id = ESkill::kLongBlades;
 			break;		
 			default:
@@ -1333,10 +1329,9 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 				victim->set_skill(ESkill::kRescue, k_skills*0.75);
 				victim->set_skill(ESkill::kThrow, k_skills*0.95);
 				victim->set_skill(ESkill::kSpades, k_skills*0.9);
-				victim->set_skill(ESkill::kNoParryHit, k_skills*0.6);
+//				victim->set_skill(ESkill::kNoParryHit, k_skills*0.6);
 				victim->SetFeat(EFeat::kLiveShield);
 				victim->SetFeat(EFeat::kSpadesMaster);
-								
 				if (floorf(r_cha*0.9 + perc/4.0) > number(1, 140)) {
 					victim->SetFeat(EFeat::kShadowThrower);
 					victim->SetFeat(EFeat::kShadowSpear);
@@ -1344,7 +1339,6 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 					act("&KКогти $N1 преобрели темный оттенок, будто сама тьма коснулась их.&n\n",
 						false, ch, nullptr, victim, kToChar);
 				}
-				
 				victim->SetFeat(EFeat::kDoubleThrower);
 				victim->SetFeat(EFeat::kTripleThrower);
 				victim->SetFeat(EFeat::kPowerThrow);
