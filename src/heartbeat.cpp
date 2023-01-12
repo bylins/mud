@@ -35,6 +35,7 @@
 #include "scripting.hpp"
 #endif
 
+extern int TotalMemUse();
 
 constexpr bool FRAC_SAVE = true;
 
@@ -632,11 +633,12 @@ void Heartbeat::advance_pulse_numbers() {
 
 void Heartbeat::pulse(const int missed_pulses, pulse_label_t &label) {
 	label.clear();
-
+	static int last_mem_used = 0;
 	advance_pulse_numbers();
 
 	for (std::size_t i = 0; i != m_steps.size(); ++i) {
 		auto &step = m_steps[i];
+		int mem_used = TotalMemUse();
 
 		if (step.off()) {
 			continue;
@@ -648,6 +650,15 @@ void Heartbeat::pulse(const int missed_pulses, pulse_label_t &label) {
 			step.action()->perform(pulse_number(), missed_pulses);
 			const auto execution_time = timer.delta().count();
 
+			if (step.modulo() >= kSecsPerMudHour * kPassesPerSec) {
+				log("Heartbeat step: %s", step.name().c_str());
+			}
+			if (mem_used != last_mem_used) {
+				char buf [128];
+				last_mem_used = mem_used;
+				sprintf(buf, "HeartBeat memory resize, step:(%s), used %d kB", step.name().c_str(), mem_used);
+				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			}
 			label.emplace(i, execution_time);
 			m_executed_steps.insert(i);
 			step.add_measurement(i, pulse_number(), execution_time);

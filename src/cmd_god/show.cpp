@@ -359,6 +359,26 @@ struct show_struct show_fields[] = {
 	{"\n", 0}
 };
 
+int TotalMemUse(){
+	FILE *fl;
+	char name[256], line[256];
+	int mem = 0;
+	pid_t pid = getpid();
+
+	sprintf(name, "/proc/%d/status", pid);
+	if (!(fl = fopen(name,"r"))) {
+		log("Cann't open process files...");
+		return 0;
+	}
+	while (get_line(fl, buf2)) {
+		sscanf(buf2, "%s %d", line, &mem);
+		if (!str_cmp(line, "VmRSS:"))
+			break;
+	}
+	fclose(fl);
+	return mem;
+}
+
 void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int i, j, l, con;    // i, j, k to specifics?
 
@@ -551,9 +571,8 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			sprintf(buf + strlen(buf), "  Комнат - %5d, зон - %5zd\r\n", top_of_world + 1, zone_table.size());
 			sprintf(buf + strlen(buf), "  Больших буферов - %5d\r\n", buf_largecount);
 			sprintf(buf + strlen(buf),
-					"  Переключенных буферов - %5d, переполненных - %5d\r\n",
-					buf_switches,
-					buf_overflows);
+					"  Переключенных буферов - %5d, переполненных - %5d\r\n", buf_switches, 	buf_overflows);
+			sprintf(buf + strlen(buf), "  Использовано физической оперативной памяти: %d kB\r\n", TotalMemUse());
 			sprintf(buf + strlen(buf), "  Послано байт - %lu\r\n", number_of_bytes_written);
 			sprintf(buf + strlen(buf), "  Получено байт - %lu\r\n", number_of_bytes_read);
 			sprintf(buf + strlen(buf), "  Максимальный Id - %ld\r\n", max_id.current());
