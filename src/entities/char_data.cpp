@@ -80,7 +80,14 @@ CharData::CharData() :
 CharData::~CharData() {
 	this->purge();
 }
+void CharData::set_type_charmice(int type) {
+	this->type_charmice_ = type;
+}
 
+int CharData::get_type_charmice() {
+	return this->type_charmice_;
+
+}
 void CharData::set_souls(int souls) {
 	this->souls = souls;
 }
@@ -328,6 +335,7 @@ void CharData::zero_init() {
 	cha_ = 0;
 	cha_add_ = 0;
 	skill_bonus_ = 0;
+	type_charmice_ = 0;
 	role_.reset();
 	attackers_.clear();
 	restore_timer_ = 0;

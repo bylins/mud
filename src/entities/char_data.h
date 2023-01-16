@@ -602,7 +602,8 @@ class CharData : public ProtectedCharData {
 	void inc_souls();
 	void dec_souls();
 	int get_souls();
-
+	void set_type_charmice(int type);
+	int get_type_charmice();
 	unsigned get_wait() const { return m_wait; }
 	void set_wait(const unsigned _) { m_wait = _; }
 	void wait_dec() { m_wait -= 0 < m_wait ? 1 : 0; }
@@ -654,7 +655,6 @@ class CharData : public ProtectedCharData {
 	bool IsNpc() const { return char_specials.saved.act.get(EMobFlag::kNpc); }
 	bool IsPlayer() const { return !IsNpc(); }
 	bool have_mind() const;
-
  private:
 	const auto &get_player_specials() const { return player_specials; }
 	auto &get_player_specials() { return player_specials; }
@@ -751,6 +751,8 @@ class CharData : public ProtectedCharData {
 	int count_score;								// для режимов - количество набранных очков
 	int souls;										// души, онли чернок
 	int skill_bonus_;								// бонус ко всем умениям
+	int type_charmice_;
+
 	std::unordered_map<ESkill, int> skills_add_; 	// Бонусы к отдельным умениям
 
  public:

@@ -1163,10 +1163,32 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 			RemoveAllSkills(victim);
 			victim->real_abils.Feats.reset();
 			// выбираем тип бойца - рандомно из 8 вариантов
-			int rnd = number(1, 8);
-			switch (rnd)
+			int type_mob;
+			if (victim->get_type_charmice() > 0) {
+					type_mob = victim->get_type_charmice();
+//				SendMsgToChar(ch, "Чармис знаком, ставим тип %d\r\n", type_mob);
+			}
+			else {
+				std::vector<int> rndcharmice = {1, 2, 3, 4, 5, 6, 7, 8};
+				struct FollowerType *k, *k_next;
+				for (k = ch->followers; k; k = k_next) {
+					k_next = k->next;
+					if (IS_CHARMICE(k->follower) && k->follower->get_type_charmice() > 0) {
+						rndcharmice.erase(rndcharmice.begin() + k->follower->get_type_charmice() - 1);
+//						SendMsgToChar(ch, "Найден в последователях Чармис тип %d\r\n", k->follower->get_type_charmice());
+					}
+				}
+//				for (auto i : rndcharmice) {
+//					SendMsgToChar(ch, "%d ", i);
+//				}
+				int rnd = number(0, rndcharmice.size() - 1);
+				type_mob = rndcharmice.at(rnd);
+//				SendMsgToChar(ch, "\r\nЧармис новый, ставим случайный тип %d size %ld\r\n", type_mob, rndcharmice.size());
+			}
+			victim->set_type_charmice(type_mob);
+			switch (type_mob)
 			{ // готовим наборы скиллов / способностей
-case 1:
+			case 1:
 				act("Лапы $N1 увеличились в размерах и обрели огромную, дикую мощь.\nТуловище $N1 стало огромным.",
 					false, ch, nullptr, victim, kToChar); // тут потом заменим на валидные фразы
 				act("Лапы $N1 увеличились в размерах и обрели огромную, дикую мощь.\nТуловище $N1 стало огромным.",
@@ -1174,7 +1196,7 @@ case 1:
 				victim->set_skill(ESkill::kHammer, k_skills);
 				victim->set_skill(ESkill::kRescue, k_skills*0.8);
 				victim->set_skill(ESkill::kPunch, k_skills*0.9);
-//				victim->set_skill(ESkill::kNoParryHit, k_skills*0.4);
+				victim->set_skill(ESkill::kNoParryHit, k_skills*0.4);
 				victim->set_skill(ESkill::kIntercept, k_skills*0.75);
 				victim->SetFeat(EFeat::kPunchMaster);
 					if (floorf(r_cha*0.9 + perc/5.0) > number(1, 150)) {
@@ -1215,12 +1237,12 @@ case 1:
 				victim->set_skill(ESkill::kBackstab, k_skills);
 				victim->set_skill(ESkill::kRescue, k_skills*0.6);
 				victim->set_skill(ESkill::kPicks, k_skills*0.75);
-//				victim->set_skill(ESkill::kPoisoning, k_skills*0.7);
-//				victim->set_skill(ESkill::kNoParryHit, k_skills*0.75);
+				victim->set_skill(ESkill::kPoisoning, k_skills*0.7);
+				victim->set_skill(ESkill::kNoParryHit, k_skills*0.75);
 				victim->SetFeat(EFeat::kPicksMaster);
-//				victim->SetFeat(EFeat::kThieveStrike);
+				victim->SetFeat(EFeat::kThieveStrike);
 				if (floorf(r_cha*0.8 + perc/5.0) > number(1, 150)) {
-//					victim->SetFeat(EFeat::kShadowStrike);
+					victim->SetFeat(EFeat::kShadowStrike);
 					act("&c$N0 затаил$U в вашей тени...&n\n", false, ch, nullptr, victim, kToChar);
 				}
 				victim->set_dex(floorf(GetRealDex(victim)*1.3));
@@ -1235,7 +1257,7 @@ case 1:
 				victim->set_skill(ESkill::kRescue, k_skills*0.85);
 				victim->set_skill(ESkill::kShieldBlock, k_skills*0.75);
 				victim->set_skill(ESkill::kAxes, k_skills*0.85);
-//				victim->set_skill(ESkill::kNoParryHit, k_skills*0.65);
+				victim->set_skill(ESkill::kNoParryHit, k_skills*0.65);
 				if (floorf(r_cha*0.9 + perc/5.0) > number(1, 140)) {
 					victim->set_skill(ESkill::kProtect, k_skills*0.75);
 					act("&WЧуткий взгляд $N1 остановился на вас, и вы ощутили себя под защитой.&n\n",
@@ -1243,7 +1265,7 @@ case 1:
 					victim->set_protecting(ch);
 				}
 				victim->SetFeat(EFeat::kAxesMaster);
-//				victim->SetFeat(EFeat::kThieveStrike);
+				victim->SetFeat(EFeat::kThieveStrike);
 				victim->SetFeat(EFeat::kDefender);
 				victim->SetFeat(EFeat::kLiveShield);
 				victim->set_con(floorf(GetRealCon(victim)*1.3));
@@ -1260,8 +1282,8 @@ case 1:
 				victim->set_skill(ESkill::kAddshot, k_skills*0.7);
 				victim->set_skill(ESkill::kBows, k_skills*0.85);
 				victim->set_skill(ESkill::kRescue, k_skills*0.65);
-//				victim->set_skill(ESkill::kNoParryHit, k_skills*0.5);
-//				victim->SetFeat(EFeat::kThieveStrike);
+				victim->set_skill(ESkill::kNoParryHit, k_skills*0.5);
+				victim->SetFeat(EFeat::kThieveStrike);
 				victim->SetFeat(EFeat::kBowsMaster);
 				if (floorf(r_cha*0.8 + perc/5.0) > number(1, 150)) {
 					af.bitvector = to_underlying(EAffect::kCloudOfArrows);
@@ -1283,7 +1305,7 @@ case 1:
 				victim->set_skill(ESkill::kThrow, k_skills*0.85);
 				victim->set_skill(ESkill::kDodge, k_skills*0.7);
 				victim->set_skill(ESkill::kRescue, k_skills*0.6);
-//				victim->set_skill(ESkill::kNoParryHit, k_skills*0.6);
+				victim->set_skill(ESkill::kNoParryHit, k_skills*0.6);
 				victim->SetFeat(EFeat::kClubsMaster);
 				victim->SetFeat(EFeat::kDoubleThrower);
 				victim->SetFeat(EFeat::kTripleThrower);
@@ -1307,7 +1329,7 @@ case 1:
 					false, ch, nullptr, victim, kToRoom | kToArenaListen);
 				victim->set_skill(ESkill::kLongBlades, k_skills);
 				victim->set_skill(ESkill::kKick, k_skills*0.95);
-//				victim->set_skill(ESkill::kNoParryHit, k_skills*0.7);
+				victim->set_skill(ESkill::kNoParryHit, k_skills*0.7);
 				victim->set_skill(ESkill::kRescue, k_skills*0.4);
 				victim->SetFeat(EFeat::kLongsMaster);
 				if (floorf(r_cha*0.8 + perc/5.0) > number(1, 150)) {
@@ -1329,7 +1351,7 @@ case 1:
 				victim->set_skill(ESkill::kRescue, k_skills*0.75);
 				victim->set_skill(ESkill::kThrow, k_skills*0.95);
 				victim->set_skill(ESkill::kSpades, k_skills*0.9);
-//				victim->set_skill(ESkill::kNoParryHit, k_skills*0.6);
+				victim->set_skill(ESkill::kNoParryHit, k_skills*0.6);
 				victim->SetFeat(EFeat::kLiveShield);
 				victim->SetFeat(EFeat::kSpadesMaster);
 				if (floorf(r_cha*0.9 + perc/4.0) > number(1, 140)) {
