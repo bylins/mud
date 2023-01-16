@@ -2086,14 +2086,14 @@ void inspecting() {
 	if (inspect_list.empty()) {
 		return;
 	}
-/*	std::stringstream ss;
-	ss << "Inspect list: ";
+	std::stringstream ss;
+	ss << "inspect list: ";
 	for (auto it: inspect_list) {
-		ss << player_table[it.first].name() << " ";
+		ss << player_table[it.first].name() << " id " << it.first;
 	}
 	ss << "\r\n";
 	log("%s", ss.str().c_str());
-*/
+
 	auto it = inspect_list.begin();
 
 	log("inspecting start by %s", player_table[it->first].name());
@@ -2147,7 +2147,6 @@ void inspecting() {
 		Player p_vict;
 		CharData *vict = &p_vict;
 
-//		CharData::shared_ptr vict;
 		d_vict = DescByUID(player_table[it->second->pos].unique);
 		if (d_vict) {
 			is_online = 1;
@@ -2157,7 +2156,6 @@ void inspecting() {
 			if (d_vict) {
 				vict = d_vict->character.get();
 			} else {
-//				vict.reset(new Player);
 				if (load_char(player_table[it->second->pos].name(), vict) < 0) {
 					SendMsgToChar(ch,
 								  "Некорректное имя персонажа (%s) inspecting %s: %s.\r\n",
@@ -2272,7 +2270,7 @@ void inspecting() {
 
 	page_string(ch->desc, it->second->out);
 	free(it->second->req);
-	inspect_list.erase(it);
+	inspect_list.erase(it->first);
 }
 
 //added by WorM Команда для поиска чаров с одинаковым(похожим) mail и/или ip
@@ -2321,7 +2319,7 @@ void do_inspect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (argument) {
 		if (isname(argument, "все all"))
-			if (IS_GRGOD(ch) || PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
+			if (IS_IMPL(ch) || PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
 				need_warn = false;
 				req->fullsearch = 1;
 			}

@@ -649,12 +649,12 @@ void Heartbeat::pulse(const int missed_pulses, pulse_label_t &label) {
 		if (0 == (m_pulse_number + step.offset()) % step.modulo()) {
 			utils::CExecutionTimer timer;
 
-			step.action()->perform(pulse_number(), missed_pulses);
-			const auto execution_time = timer.delta().count();
-
 			if (step.modulo() >= kSecsPerMudHour * kPassesPerSec) {
 				log("Heartbeat step: %s", step.name().c_str());
 			}
+			step.action()->perform(pulse_number(), missed_pulses);
+			const auto execution_time = timer.delta().count();
+
 			if (pmem_used != last_pmem_used) {
 				char buf [128];
 				last_pmem_used = pmem_used;
