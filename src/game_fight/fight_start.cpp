@@ -7,6 +7,8 @@
 #include "mobact.h"
 #include "common.h"
 
+extern int attack_best(CharData *ch, CharData *victim);
+
 int set_hit(CharData *ch, CharData *victim) {
 	if (IsUnableToAct(ch)) {
 		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
@@ -80,8 +82,10 @@ int set_hit(CharData *ch, CharData *victim) {
 		}
 		return (false);
 	}
-	hit(ch, victim, ESkill::kUndefined,
-		AFF_FLAGGED(ch, EAffect::kStopRight) ? fight::kOffHand : fight::kMainHand);
+	if (!IS_CHARMICE(ch) || (IS_CHARMICE(ch) && !attack_best(ch, victim))) {
+		hit(ch, victim, ESkill::kUndefined,
+			AFF_FLAGGED(ch, EAffect::kStopRight) ? fight::kOffHand : fight::kMainHand);
+	}
 	SetWait(ch, 2, true);
 	//ch->setSkillCooldown(kGlobalCooldown, 2);
 	return (true);

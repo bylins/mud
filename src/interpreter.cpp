@@ -2322,7 +2322,8 @@ void do_entergame(DescriptorData *d) {
 	GET_ID(d->character) = GET_IDNUM(d->character);
 	GET_ACTIVITY(d->character) = number(0, PLAYER_SAVE_ACTIVITY - 1);
 	d->character->set_last_logon(time(nullptr));
-	player_table[get_ptable_by_unique(GET_UNIQUE(d->character))].last_logon = LAST_LOGON(d->character);
+//	player_table[get_ptable_by_unique(GET_UNIQUE(d->character))].last_logon = LAST_LOGON(d->character);
+	player_table[ch->get_pfilepos()].last_logon = LAST_LOGON(d->character);
 	add_logon_record(d);
 	// чтобы восстановление маны спам-контроля "кто" не шло, когда чар заходит после
 	// того, как повисел на менюшке; важно, чтобы этот вызов шел раньше save_char()

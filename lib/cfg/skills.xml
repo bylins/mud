@@ -24,7 +24,7 @@ mode - режим умения.
     <skill id="kBackstab"		name="заколоть"			abbr="Зк"	saving="kReflex"	difficulty="200"	cap="1000"/>
     <skill id="kBash"			name="сбить"			abbr="Сб"	saving="kStability"	difficulty="200"	cap="200"/>
     <skill id="kHide"			name="спрятаться"		abbr="Сп"	saving="kWill"		difficulty="100"	cap="200"/>
-    <skill id="kKick"			name="пнуть"			abbr="Пн"	saving="kStability"	difficulty="200"	cap="200"/>
+    <skill id="kKick"			name="пнуть"			abbr="Пн"	saving="kStability"	difficulty="200"	cap="1000"/>
     <skill id="kPickLock"		name="взломать"			abbr="Вз"	saving="kReflex"	difficulty="120"	cap="200"/>
     <skill id="kPunch"			name="кулачный бой"		abbr="Кб"	saving="kStability"	difficulty="100"	cap="1000"/>
     <skill id="kRescue"			name="спасти"			abbr="Спс"	saving="kReflex"	difficulty="200"	cap="1000"/>

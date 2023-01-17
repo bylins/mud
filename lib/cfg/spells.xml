@@ -733,8 +733,8 @@ base_stat id - (например "kWis") какой берем параметр,
             <action>
                 <damage saving="kWill">
                     <dices ndice="25" sdice="30" adice="180"/>
-                    <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="2"/>
-                    <base_stat id="kWis" threshold="22" weight="2.5"/>
+                    <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="4"/>
+                    <base_stat id="kWis" threshold="22" weight="3.5"/>
                 </damage>
             </action>
         </talent_actions>
@@ -795,7 +795,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <name rus="увеличение" eng="enlarge"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="55" min="40" change="1"/>
-        <targets val="kTarCharRoom|kTarSelfOnly"/>
+        <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
     </spell>
     <spell id="kFear" element="kDark" mode="kEnabled">
@@ -1332,7 +1332,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
-        <flags val="kMagAffects"/>
+        <flags val="kMagAffects|kNpcAffectNpc"/>
     </spell>
     <spell id="kShineFlash" element="kFire" mode="kEnabled">
         <name rus="яркий блик" eng="shine flash"/>
@@ -2281,7 +2281,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <dices ndice="30" sdice="25" adice="180"/>
+                    <dices ndice="22" sdice="25" adice="180"/>
                     <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="2"/>
                     <base_stat id="kWis" threshold="22" weight="2.5"/>
                 </damage>
