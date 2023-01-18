@@ -1785,7 +1785,7 @@ void show_room_affects(CharData *ch, const char *name_affects[], const char *nam
 	}
 }
 
-void look_at_room(CharData *ch, int ignore_brief) {
+void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 	if (!ch->desc)
 		return;
 
@@ -1799,7 +1799,9 @@ void look_at_room(CharData *ch, int ignore_brief) {
 	} else if (GET_POS(ch) < EPosition::kSleep) {
 		return;
 	}
-
+	if (msdp_mode) {
+		ch->desc->msdp_report("ROOM");
+	}
 	if (PRF_FLAGGED(ch, EPrf::kDrawMap) && !PRF_FLAGGED(ch, EPrf::kBlindMode)) {
 		MapSystem::print_map(ch);
 	} else if (ch->desc->snoop_by

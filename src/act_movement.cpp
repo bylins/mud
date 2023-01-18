@@ -773,7 +773,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 	}
 
 	if (ch->desc != nullptr)
-		look_at_room(ch, 0);
+		look_at_room(ch, 0, !is_flee);
 
 	if (!ch->IsNpc())
 		ProcessRoomAffectsOnEntry(ch, ch->in_room);
