@@ -222,7 +222,7 @@ ZoneVnum GetZoneVnumByCharPlace(CharData *ch);
 #define AtoL(c) ((ubyte)(c) < 128 ? (c) : AltToLat[(ubyte)(c)-128])
 
 // in act.informative.cpp //
-void look_at_room(CharData *ch, int mode);
+void look_at_room(CharData *ch, int mode, bool msdp_mode = true);
 
 // in act.movmement.cpp //
 int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is_flee);

@@ -333,13 +333,6 @@ void PlaceCharToRoom(CharData *ch, RoomRnum room) {
 		//как сделать красивей я не придумал, т.к. look_at_room вызывается в act.movement а не тут
 		ProcessRoomAffectsOnEntry(ch, ch->in_room);
 	}
-
-	// report room changing
-	if (ch->desc) {
-		if (!(is_dark(ch->in_room) && !PRF_FLAGGED(ch, EPrf::kHolylight)))
-			ch->desc->msdp_report("ROOM");
-	}
-
 	for (unsigned int i = 0; i < cities.size(); i++) {
 		if (GET_ROOM_VNUM(room) == cities[i].rent_vnum) {
 			ch->mark_city(i);
