@@ -7,7 +7,7 @@
 #include "mobact.h"
 #include "common.h"
 
-extern int attack_best(CharData *ch, CharData *victim);
+extern int attack_best(CharData *ch, CharData *victim, bool do_mode);
 
 int set_hit(CharData *ch, CharData *victim) {
 	if (IsUnableToAct(ch)) {
@@ -82,7 +82,7 @@ int set_hit(CharData *ch, CharData *victim) {
 		}
 		return (false);
 	}
-	if (!IS_CHARMICE(ch) || (IS_CHARMICE(ch) && !attack_best(ch, victim))) {
+	if (!IS_CHARMICE(ch) || (IS_CHARMICE(ch) && !attack_best(ch, victim, true))) {
 		hit(ch, victim, ESkill::kUndefined,
 			AFF_FLAGGED(ch, EAffect::kStopRight) ? fight::kOffHand : fight::kMainHand);
 	}

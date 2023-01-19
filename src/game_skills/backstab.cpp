@@ -85,7 +85,8 @@ void go_backstab(CharData *ch, CharData *vict) {
 		act("Вы заметили, что $N попытал$u вас заколоть!", false, vict, nullptr, ch, kToChar);
 		act("$n заметил$g вашу попытку заколоть $s!", false, vict, nullptr, ch, kToVict);
 		act("$n заметил$g попытку $N1 заколоть $s!", false, vict, nullptr, ch, kToNotVict | kToArenaListen);
-		set_hit(vict, ch);
+		hit(ch, vict, ESkill::kUndefined,
+			AFF_FLAGGED(ch, EAffect::kStopRight) ? fight::kOffHand : fight::kMainHand);
 		return;
 	}
 

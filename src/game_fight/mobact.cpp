@@ -23,6 +23,7 @@
 #include "game_skills/mighthit.h"
 #include "game_skills/protect.h"
 #include "game_skills/track.h"
+#include "game_skills/kick.h"
 
 #include "game_abilities/abilities_rollsystem.h"
 #include "action_targeting.h"
@@ -128,40 +129,72 @@ int extra_aggressive(CharData *ch, CharData *victim) {
 		return (false);
 }
 
-int attack_best(CharData *ch, CharData *victim) {
+int attack_best(CharData *ch, CharData *victim, bool do_mode = false) {
 	ObjData *wielded = GET_EQ(ch, EEquipPos::kWield);
 	if (victim) {
 		if (ch->GetSkill(ESkill::kStrangle) && !IsTimedBySkill(ch, ESkill::kStrangle)) {
-			go_strangle(ch, victim);
+			if (do_mode)
+				do_strangle(ch, str_dup(GET_NAME(victim)), 0, 0);
+			else
+				go_strangle(ch, victim);
 			return (true);
 		}
 		if (ch->GetSkill(ESkill::kBackstab) && !victim->GetEnemy()) {
-			go_backstab(ch, victim);
+			if (do_mode)
+				do_backstab(ch, str_dup(GET_NAME(victim)), 0, 0);
+			else
+				go_backstab(ch, victim);
 			return (true);
 		}
 		if (ch->GetSkill(ESkill::kHammer)) {
-			go_mighthit(ch, victim);
+			if (do_mode)
+				do_mighthit(ch, str_dup(GET_NAME(victim)), 0, 0);
+			else
+				go_mighthit(ch, victim);
 			return (true);
 		}
 		if (ch->GetSkill(ESkill::kOverwhelm)) {
-			go_stupor(ch, victim);
+			if (do_mode)
+				do_stupor(ch, str_dup(GET_NAME(victim)), 0, 0);
+			else
+				go_stupor(ch, victim);
 			return (true);
 		}
 		if (ch->GetSkill(ESkill::kBash)) {
-			go_bash(ch, victim);
+			if (do_mode) {
+				do_bash(ch, str_dup(GET_NAME(victim)), 0, 0);
+			}
+			else
+				go_bash(ch, victim);
+			return (true);
+		}
+		if (ch->GetSkill(ESkill::kKick)) {
+			if (do_mode)
+				do_kick(ch, str_dup(GET_NAME(victim)), 0, 0);
+			else
+				go_kick(ch, victim);
 			return (true);
 		}
 		if (ch->GetSkill(ESkill::kThrow)
 			&& wielded
 			&& GET_OBJ_TYPE(wielded) == EObjType::kWeapon
 			&& wielded->has_flag(EObjFlag::kThrowing)) {
-			go_throw(ch, victim);
+			if (do_mode)
+				do_throw(ch, str_dup(GET_NAME(victim)), 0, 0);
+			else
+				go_throw(ch, victim);
 		}
 		if (ch->GetSkill(ESkill::kDisarm)) {
-			go_disarm(ch, victim);
+			if (do_mode)
+				do_disarm(ch, str_dup(GET_NAME(victim)), 0, 0);
+			else
+				go_disarm(ch, victim);
 		}
 		if (ch->GetSkill(ESkill::kChopoff)) {
-			go_chopoff(ch, victim);
+			if (do_mode)
+				do_chopoff(ch, str_dup(GET_NAME(victim)), 0, 0);
+			else
+				go_chopoff(ch, victim);
 		}
 		if (!ch->GetEnemy()) {
 			victim = TryToFindProtector(victim, ch);

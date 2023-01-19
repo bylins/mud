@@ -104,14 +104,12 @@ void go_chopoff(CharData *ch, CharData *vict) {
 		}
 		prob = 1;
 	}
-
 	appear(ch);
-	if (vict->IsNpc() && CAN_SEE(vict, ch) && vict->have_mind() && vict->get_wait() <= 0) {
-		set_hit(vict, ch);
-	}
-
 	if (!success) {
 		SetWait(ch, prob, false);
+		if (vict->IsNpc() && CAN_SEE(vict, ch) && vict->have_mind()) {
+			hit(vict, ch, ESkill::kUndefined, AFF_FLAGGED(vict, EAffect::kStopRight) ? fight::kOffHand : fight::kMainHand);
+		}
 	} else {
 		SetSkillCooldownInFight(ch, ESkill::kChopoff, prob);
 		SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);

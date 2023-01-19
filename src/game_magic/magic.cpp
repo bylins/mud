@@ -31,7 +31,7 @@
 
 extern int what_sky;
 extern int interpolate(int min_value, int pulse);
-extern int attack_best(CharData *ch, CharData *victim);
+extern int attack_best(CharData *ch, CharData *victim, bool do_mode);
 
 byte GetSavingThrows(ECharClass class_id, ESaving type, int level);    // class.cpp
 byte GetExtendSavingThrows(ECharClass class_id, ESaving save, int level);
@@ -3587,7 +3587,7 @@ void ReactToCast(CharData *victim, CharData *caster, ESpell spell_id) {
 
 	if (CAN_SEE(victim, caster) && MAY_ATTACK(victim) && IN_ROOM(victim) == IN_ROOM(caster)) {
 		if (victim->IsNpc())
-			attack_best(victim, caster);
+			attack_best(victim, caster, false);
 		else
 			hit(victim, caster, ESkill::kUndefined, fight::kMainHand);
 	} else if (CAN_SEE(victim, caster) && !caster->IsNpc() && victim->IsNpc()

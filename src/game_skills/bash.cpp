@@ -132,7 +132,7 @@ void go_bash(CharData *ch, CharData *vict) {
 }
 
 void do_bash(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if ((ch->IsNpc() && (!AFF_FLAGGED(ch, EAffect::kHelper))) || !ch->GetSkill(ESkill::kBash)) {
+	if (!ch->GetSkill(ESkill::kBash)) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
