@@ -62,7 +62,6 @@ void go_disarm(CharData *ch, CharData *vict) {
 		UnequipChar(vict, pos, CharEquipFlags());
 		SetSkillCooldown(ch, ESkill::kGlobalCooldown, vict->IsNpc() ? 1 : 2);
 		prob = 2;
-
 		if (ROOM_FLAGGED(IN_ROOM(vict), ERoomFlag::kArena) || (!IS_MOB(vict)) || vict->has_master()) {
 			PlaceObjToInventory(wielded, vict);
 		} else {
@@ -72,8 +71,9 @@ void go_disarm(CharData *ch, CharData *vict) {
 	}
 
 	appear(ch);
-	if (vict->IsNpc() && CAN_SEE(vict, ch) && vict->have_mind() && ch->get_wait() <= 0) {
-		set_hit(vict, ch);
+	if (vict->IsNpc() && CAN_SEE(vict, ch) && vict->have_mind()) {
+		hit(vict, ch, ESkill::kUndefined,
+				AFF_FLAGGED(vict, EAffect::kStopRight) ? fight::kOffHand : fight::kMainHand);
 	}
 	SetSkillCooldown(ch, ESkill::kDisarm, prob);
 	SetSkillCooldown(ch, ESkill::kGlobalCooldown, 1);
