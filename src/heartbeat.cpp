@@ -5,8 +5,8 @@
 #include "game_economics/auction.h"
 #include "game_mechanics/deathtrap.h"
 #include "communication/parcel.h"
-#include "game_fight/pk.h"
-#include "game_mechanics/celebrates.h"
+//#include "game_fight/pk.h"
+//#include "game_mechanics/celebrates.h"
 #include "game_fight/fight.h"
 #include "help.h"
 #include "game_mechanics/bonus.h"
@@ -27,8 +27,8 @@
 #include "game_fight/mobact.h"
 #include "dg_script/dg_event.h"
 #include "corpse.h"
-#include "cmd_god/shutdown_parameters.h"
-#include "utils/utils_time.h"
+//#include "cmd_god/shutdown_parameters.h"
+//#include "utils/utils_time.h"
 #include "structs/global_objects.h"
 
 #if defined WITH_SCRIPTING
@@ -38,7 +38,7 @@
 
 constexpr bool FRAC_SAVE = true;
 
-void check_idle_passwords(void) {
+void check_idle_passwords() {
 	DescriptorData *d, *next_d;
 
 	for (d = descriptor_list; d; d = next_d) {
@@ -55,7 +55,7 @@ void check_idle_passwords(void) {
 	}
 }
 
-void record_usage(void) {
+void record_usage() {
 	int sockets_connected = 0, sockets_playing = 0;
 	DescriptorData *d;
 
@@ -99,7 +99,7 @@ void process_speedwalks() {
 						dir = SCMD_UP;
 					if (boost::starts_with(direction, "вниз"))
 						dir = SCMD_DOWN;
-					perform_move(ch, dir - 1, 0, true, 0);
+					perform_move(ch, dir - 1, 0, true, nullptr);
 				}
 			}
 			sw.wait = 0;
@@ -134,9 +134,8 @@ class InspectCall : public AbstractPulseAction {
 };
 
 void InspectCall::perform(int, int missed_pulses) {
-	if (0 == missed_pulses
-		&& 0 < inspect_list.size()) {
-		inspecting();
+	if (0 == missed_pulses && !MUD::inspect_list().empty()) {
+		Inspecting();
 	}
 }
 
@@ -323,7 +322,7 @@ Heartbeat::steps_t &pulse_steps() {
 							 std::make_shared<SimpleCall>(check_idle_passwords)),
 		Heartbeat::PulseStep("Mobile activity", 10, 0, std::make_shared<MobActCall>()),
 		Heartbeat::PulseStep("Inspecting", 1, 0, std::make_shared<InspectCall>()),
-		Heartbeat::PulseStep("Set all inspecting", 1, 0, std::make_shared<SetAllInspectCall>()),
+		Heartbeat::PulseStep("Set all Inspecting", 1, 0, std::make_shared<SetAllInspectCall>()),
 		Heartbeat::PulseStep("Death trap activity",
 							 2 * kPassesPerSec,
 							 0,

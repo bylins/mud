@@ -264,6 +264,7 @@ set(SOURCES
 		src/cmd/put.cpp
 		src/cmd/remove.cpp
 		src/cmd/eat.cpp
+		src/cmd_god/inspect.cpp
 		src/cmd_god/mark.cpp
 		src/game_crafts/fry.cpp
 		src/cmd/refill.cpp
@@ -523,6 +524,7 @@ set(HEADERS
 		src/cmd/put.h
 		src/cmd/remove.h
 		src/cmd/eat.h
+		src/cmd_god/inspect.h
 		src/cmd_god/mark.h
 		src/game_crafts/fry.h
 		src/cmd/refill.h
