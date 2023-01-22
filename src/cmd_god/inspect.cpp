@@ -1,13 +1,9 @@
 #include "inspect.h"
 
-#include "../house.h"
-//#include "entities/char_data.h"
+#include "house.h"
 #include "entities/char_player.h"
-//#include "structs/descriptor_data.h"
 #include "structs/global_objects.h"
-//#include "utils/utils.h"
 #include "color.h"
-//#include "comm.h"
 #include "modify.h"
 
 enum class EInspect {
@@ -19,7 +15,7 @@ enum class EInspect {
 struct InspectRequest {
 	EInspect search_for{EInspect::kIp};	// тип запроса
 	int unique{0};						// UID
-	int fullsearch{0};					// полный поиск или нет
+	bool fullsearch{false};				// полный поиск или нет
 	int found{0};						// сколько всего найдено
 	char *req{nullptr};					// собственно сам запрос
 	char *mail{nullptr};				// мыло
@@ -69,48 +65,48 @@ void DoInspect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar(ch, "Некорректное имя персонажа (%s) Inspecting char.\r\n", buf2);
 		return;
 	}
-	InspReqPtr req(new InspectRequest);
-	req->mail = nullptr;
-	req->fullsearch = 0;
-	req->req = str_dup(buf2);
-	req->sendmail = false;
+	InspReqPtr request(new InspectRequest);
+	request->mail = nullptr;
+	request->fullsearch = false;
+	request->req = str_dup(buf2);
+	request->sendmail = false;
 	buf2[0] = '\0';
 
 	if (argument) {
 		if (isname(argument, "все all"))
 			if (IS_GRGOD(ch) || PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
 				need_warn = false;
-				req->fullsearch = 1;
+				request->fullsearch = true;
 			}
 		if (isname(argument, "sendmail"))
-			req->sendmail = true;
+			request->sendmail = true;
 	}
 
 	int player_index;
 	if (utils::IsAbbr(buf, "mail")) {
-		req->search_for = EInspect::kMail;
+		request->search_for = EInspect::kMail;
 	} else if (utils::IsAbbr(buf, "ip")) {
-		req->search_for = EInspect::kIp;
-		if (req->fullsearch) {
-			const Logon logon = {str_dup(req->req), 0, 0, false};
-			req->ip_log.push_back(logon);
+		request->search_for = EInspect::kIp;
+		if (request->fullsearch) {
+			const Logon logon = {str_dup(request->req), 0, 0, false};
+			request->ip_log.push_back(logon);
 		}
 	} else if (utils::IsAbbr(buf, "char")) {
-		req->search_for = EInspect::kChar;
-		req->unique = static_cast<int>(GetUniqueByName(req->req));
-		player_index = static_cast<int>(get_ptable_by_unique(req->unique));
-		if ((req->unique <= 0)//Перс не существует
+		request->search_for = EInspect::kChar;
+		request->unique = static_cast<int>(GetUniqueByName(request->req));
+		player_index = static_cast<int>(get_ptable_by_unique(request->unique));
+		if ((request->unique <= 0)//Перс не существует
 			|| (player_table[player_index].level >= kLvlImmortal && !IS_GRGOD(ch))//Иммов могут чекать только 33+
 			|| (player_table[player_index].level > GetRealLevel(ch) && !IS_IMPL(ch)
 				&& !PRF_FLAGGED(ch, EPrf::kCoderinfo)))//если левел больше то облом
 		{
-			SendMsgToChar(ch, "Некорректное имя персонажа (%s) Inspecting char.\r\n", req->req);
-			req.reset();
+			SendMsgToChar(ch, "Некорректное имя персонажа (%s) Inspecting char.\r\n", request->req);
+			request.reset();
 			return;
 		}
 
-		DescriptorData *d_vict = DescByUID(req->unique);
-		req->mail = str_dup(player_table[player_index].mail);
+		DescriptorData *d_vict = DescByUID(request->unique);
+		request->mail = str_dup(player_table[player_index].mail);
 		time_t tmp_time = player_table[player_index].last_logon;
 
 		sprintf(buf,
@@ -119,7 +115,7 @@ void DoInspect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				player_table[player_index].name(),
 				CCNRM(ch, C_SPR),
 				CCWHT(ch, C_SPR),
-				req->mail,
+				request->mail,
 				CCNRM(ch, C_SPR),
 				CCWHT(ch, C_SPR),
 				rustime(localtime(&tmp_time)),
@@ -144,14 +140,14 @@ void DoInspect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				player_table[player_index].level, player_table[player_index].remorts, smallBuf, clanstatus);
 		strcat(buf, buf1);
 
-		if (req->fullsearch) {
+		if (request->fullsearch) {
 			CharData::shared_ptr target;
 			if (d_vict) {
 				target = d_vict->character;
 			} else {
 				target.reset(new Player);
-				if (load_char(req->req, target.get()) < 0) {
-					SendMsgToChar(ch, "Некорректное имя персонажа (%s) Inspecting char.\r\n", req->req);
+				if (load_char(request->req, target.get()) < 0) {
+					SendMsgToChar(ch, "Некорректное имя персонажа (%s) Inspecting char.\r\n", request->req);
 					return;
 				}
 			}
@@ -162,26 +158,26 @@ void DoInspect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 #endif
 				for (const auto &cur_log : LOGON_LIST(target)) {
 					const Logon logon = {str_dup(cur_log.ip), cur_log.count, cur_log.lasttime, false};
-					req->ip_log.push_back(logon);
+					request->ip_log.push_back(logon);
 				}
 			}
 		} else {
 			const Logon logon = {str_dup(player_table[player_index].last_ip), 0, player_table[player_index].last_logon, false};
-			req->ip_log.push_back(logon);
+			request->ip_log.push_back(logon);
 		}
 	}
 
-	if (req->search_for < EInspect::kChar) {
-		sprintf(buf, "%s: %s&S%s&s%s\r\n", (req->search_for == EInspect::kIp ? "IP" : "e-mail"),
-				CCWHT(ch, C_SPR), req->req, CCNRM(ch, C_SPR));
+	if (request->search_for < EInspect::kChar) {
+		sprintf(buf, "%s: %s&S%s&s%s\r\n", (request->search_for == EInspect::kIp ? "IP" : "e-mail"),
+				CCWHT(ch, C_SPR), request->req, CCNRM(ch, C_SPR));
 	}
-	req->pos = 0;
-	req->found = 0;
-	req->out += buf;
-	req->out += buf2;
+	request->pos = 0;
+	request->found = 0;
+	request->out += buf;
+	request->out += buf2;
 
-	gettimeofday(&req->start, nullptr);
-	MUD::inspect_list()[ch->get_pfilepos()] = req;
+	gettimeofday(&request->start, nullptr);
+	MUD::inspect_list()[ch->get_pfilepos()] = request;
 }
 
 void Inspecting() {
@@ -291,8 +287,7 @@ void Inspecting() {
 				for (const auto &cur_log : LOGON_LIST(vict)) {
 					for (const auto &ch_log : it->second->ip_log) {
 						if (!ch_log.ip) {
-							SendMsgToChar(ch,
-										  "Ошибка: пустой ip\r\n");//поиск прерываеться если криво заполнено поле ip для поиска
+							SendMsgToChar(ch, "Ошибка: пустой ip\r\n");
 							break;
 						}
 						if (str_cmp(cur_log.ip, "135.181.219.76")) { // игнорим bylins.online
