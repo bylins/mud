@@ -2957,6 +2957,7 @@ void nanny(DescriptorData *d, char *arg) {
 						d->character->player_data.PNames[0] = std::string(CAP(tmp_name));
 						d->character->set_pfilepos(player_i);
 						sprintf(buf, "Вы действительно выбрали имя %s [ Y(Д) / N(Н) ]? ", tmp_name);
+						log("New player %s ip %s", d->character->player_data.PNames[0].c_str(), d->host);
 						SEND_TO_Q(buf, d);
 						STATE(d) = CON_NAME_CNFRM;
 					} else    // undo it just in case they are set
@@ -3003,6 +3004,7 @@ void nanny(DescriptorData *d, char *arg) {
 					d->character->player_data.PNames[0] = std::string(CAP(tmp_name));
 					SEND_TO_Q(name_rules, d);
 					sprintf(buf, "Вы действительно выбрали имя  %s [ Y(Д) / N(Н) ]? ", tmp_name);
+					log("New player %s ip %s", d->character->player_data.PNames[0].c_str(), d->host);
 					SEND_TO_Q(buf, d);
 					STATE(d) = CON_NAME_CNFRM;
 				}
