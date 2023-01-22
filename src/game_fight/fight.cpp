@@ -1697,6 +1697,9 @@ void update_round_affs() {
 		CLR_AF_BATTLE(ch, kEafUsedright);
 		CLR_AF_BATTLE(ch, kEafMultyparry);
 		CLR_AF_BATTLE(ch, kEafDodge);
+		CLR_AF_BATTLE(ch, kEafTouch);
+		if (ch->get_touching())
+			ch->set_touching(0);
 
 		if (GET_AF_BATTLE(ch, kEafSleep))
 			RemoveAffectFromChar(ch, ESpell::kSleep);

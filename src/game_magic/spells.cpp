@@ -1540,19 +1540,17 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 		case EObjType::kScroll:
 		case EObjType::kPotion: {
 			std::ostringstream out;
-			out << "Содержит заклинание: ";
+			out << "Содержит заклинание:";
 			for (auto val = 1; val < 4; ++val) {
 				auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(obj, val));
 				if (MUD::Spell(spell_id).IsValid()) {
-					out << MUD::Spell(spell_id).GetName();
-					if (val < 3) {
-						out << ", ";
-					} else {
-						out << ".";
-					}
+					out << " Ур. [" << GET_OBJ_VAL(obj, 0) << "] " << MUD::Spell(spell_id).GetName() << ",";
 				}
 			}
-			out << std::endl;
+			if (out.str().back() == ',') {
+				out.seekp(-1, out.end);
+			}
+			out << "\r\n";
 			SendMsgToChar(out.str(), ch);
 			break;
 		}
