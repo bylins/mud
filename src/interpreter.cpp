@@ -273,7 +273,7 @@ void do_group(CharData *ch, char *argument, int cmd, int subcmd);
 void do_gsay(CharData *ch, char *argument, int cmd, int subcmd);
 void do_hide(CharData *ch, char *argument, int cmd, int subcmd);
 void do_info(CharData *ch, char *argument, int cmd, int subcmd);
-void do_inspect(CharData *ch, char *argument, int cmd, int subcmd);
+void DoInspect(CharData *ch, char *argument, int, int);
 //void do_insult(CharData *ch, char *argument, int cmd, int subcmd);
 void do_inventory(CharData *ch, char *argument, int cmd, int subcmd);
 void do_invis(CharData *ch, char *argument, int cmd, int subcmd);
@@ -891,7 +891,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"index", EPosition::kRest, do_help, 1, 0, 500},
 		{"info", EPosition::kSleep, do_gen_ps, 0, SCMD_INFO, 0},
 		{"insert", EPosition::kStand, do_insertgem, 0, 0, -1},
-		{"inspect", EPosition::kDead, do_inspect, kLvlBuilder, 0, 0},
+		{"inspect", EPosition::kDead, DoInspect, kLvlBuilder, 0, 0},
 		{"insult", EPosition::kRest, do_insult, 0, 0, -1},
 		{"inventory", EPosition::kSleep, do_inventory, 0, 0, 0},
 		{"invis", EPosition::kDead, do_invis, kLvlGod, 0, -1},
