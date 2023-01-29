@@ -953,10 +953,39 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 
 		if (MOB_FLAGGED(victim, EMobFlag::kNoGroup))
 			MOB_FLAGS(victim).unset(EMobFlag::kNoGroup);
+		RemoveAffectFromChar(victim, ESpell::kCharm);
+		if (GetRealInt(victim) > GetRealInt(ch)) {
+			af.duration = CalcDuration(victim, GetRealCha(ch), 0, 0, 0, 0);
+		} else {
+			af.duration = CalcDuration(victim, GetRealCha(ch) + number(1, 10) + GetRealRemort(ch) * 2, 0, 0, 0, 0);
+		}
+		af.modifier = 0;
+		af.location = EApply::kNone;
+		af.battleflag = 0;
+		af.type = ESpell::kCharm;
 
 		// резервируем место под фит ()
-		if (CanUseFeat(ch, EFeat::kAnimalMaster) &&
-		GET_RACE(victim) == 104) {
+		if (CanUseFeat(ch, EFeat::kAnimalMaster) && GET_RACE(victim) == 104) {
+			int type_mob;
+			std::vector<int> rndcharmice = {1, 2, 3, 4, 5, 6, 7, 8};
+			struct FollowerType *k, *k_next;
+			for (k = ch->followers; k; k = k_next) {
+				k_next = k->next;
+				if (IS_CHARMICE(k->follower) && k->follower->get_type_charmice() > 0) {
+					rndcharmice.erase(rndcharmice.begin() + k->follower->get_type_charmice() - 1);
+//					SendMsgToChar(ch, "Найден в последователях Чармис тип %d\r\n", k->follower->get_type_charmice());
+				}
+			}
+			int rnd = number(0, rndcharmice.size() - 1);
+			if (std::find(rndcharmice.begin(), rndcharmice.end(), victim->get_type_charmice()) !=  rndcharmice.end()) {
+				type_mob = victim->get_type_charmice();
+//				SendMsgToChar(ch, "\r\n1Чармис старыйй, ставим случайный тип %d size %ld\r\n", type_mob, rndcharmice.size());
+			}
+			else {
+				type_mob = rndcharmice.at(rnd);
+				victim->set_type_charmice(type_mob);
+//				SendMsgToChar(ch, "\r\n2Чармис новый, ставим случайный тип %d size %ld\r\n", type_mob, rndcharmice.size());
+			}
 			act("$N0 обрел$G часть вашей магической силы, и стал$G намного опаснее...",
 				false, ch, nullptr, victim, kToChar);
 			act("$N0 обрел$G часть магической силы $n1.",
@@ -973,8 +1002,6 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 			ch->send_to_TC(false, true, false, "Владение скилом: %d.\r\n", k_skills);
 			// === Формируем новые статы ===
 			// Устанавливаем на виктим флаг маг-сумон (маг-зверь)
-			af.bitvector = to_underlying(EAffect::kHelper);
-			affect_to_char(victim, af);
 			MOB_FLAGS(victim).set(EMobFlag::kSummoned);
 			// Модифицируем имя в зависимости от хари
 			static char descr[kMaxStringLength];
@@ -1148,26 +1175,8 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 			RemoveAllSkills(victim);
 			victim->real_abils.Feats.reset();
 			// выбираем тип бойца - рандомно из 8 вариантов
-			int type_mob;
-			std::vector<int> rndcharmice = {1, 2, 3, 4, 5, 6, 7, 8};
-			struct FollowerType *k, *k_next;
-			for (k = ch->followers; k; k = k_next) {
-				k_next = k->next;
-				if (IS_CHARMICE(k->follower) && k->follower->get_type_charmice() > 0) {
-					rndcharmice.erase(rndcharmice.begin() + k->follower->get_type_charmice() - 1);
-//					SendMsgToChar(ch, "Найден в последователях Чармис тип %d\r\n", k->follower->get_type_charmice());
-				}
-			}
-			int rnd = number(0, rndcharmice.size() - 1);
-			if (std::find(rndcharmice.begin(), rndcharmice.end(), victim->get_type_charmice()) !=  rndcharmice.end()) {
-				type_mob = victim->get_type_charmice();
-//				SendMsgToChar(ch, "\r\n1Чармис старыйй, ставим случайный тип %d size %ld\r\n", type_mob, rndcharmice.size());
-			}
-			else {
-				type_mob = rndcharmice.at(rnd);
-				victim->set_type_charmice(type_mob);
-//				SendMsgToChar(ch, "\r\n2Чармис новый, ставим случайный тип %d size %ld\r\n", type_mob, rndcharmice.size());
-			}
+			af.bitvector = to_underlying(EAffect::kHelper);
+			affect_to_char(victim, af);
 			switch (type_mob)
 			{ // готовим наборы скиллов / способностей
 			case 1:
@@ -1386,20 +1395,14 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 			Crash_crashsave(ch);
 			ch->save_char();
 		}
+		af.modifier = 0;
+		af.location = EApply::kNone;
+		af.battleflag = 0;
+		af.type = ESpell::kCharm;
+		af.bitvector = to_underlying(EAffect::kCharmed);
+		affect_to_char(victim, af);
+		ch->add_follower(victim);
 	}
-	RemoveAffectFromChar(victim, ESpell::kCharm);
-	ch->add_follower(victim);
-	af.type = ESpell::kCharm;
-	if (GetRealInt(victim) > GetRealInt(ch)) {
-		af.duration = CalcDuration(victim, GetRealCha(ch), 0, 0, 0, 0);
-	} else {
-		af.duration = CalcDuration(victim, GetRealCha(ch) + number(1, 10) + GetRealRemort(ch) * 2, 0, 0, 0, 0);
-	}
-	af.modifier = 0;
-	af.location = EApply::kNone;
-	af.bitvector = to_underlying(EAffect::kCharmed);
-	af.battleflag = 0;
-	affect_to_char(victim, af);
 	// тут обрабатываем, если виктим маг-зверь => передаем в фунцию создание маг шмоток (цель, базовый скил, процент владения)
 	if (MOB_FLAGGED(victim, EMobFlag::kSummoned)) {
 		create_charmice_stuff(victim, skill_id, k_skills);
