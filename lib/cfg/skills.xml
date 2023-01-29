@@ -22,7 +22,7 @@ mode - режим умения.
     <skill id="kUndefined"		name="!UNDEF!"			abbr="!Icr"	saving="kWill"		difficulty="1"		cap="1"		mode="kService"/>
     <skill id="kGlobalCooldown"		name="!cooldown"		abbr="ОЗ"	saving="kWill"		difficulty="1"		cap="1"		mode="kService"/>
     <skill id="kBackstab"		name="заколоть"			abbr="Зк"	saving="kReflex"	difficulty="200"	cap="1000"/>
-    <skill id="kBash"			name="сбить"			abbr="Сб"	saving="kStability"	difficulty="200"	cap="200"/>
+    <skill id="kBash"			name="сбить"			abbr="Сб"	saving="kStability"	difficulty="200"	cap="1000"/>
     <skill id="kHide"			name="спрятаться"		abbr="Сп"	saving="kWill"		difficulty="100"	cap="200"/>
     <skill id="kKick"			name="пнуть"			abbr="Пн"	saving="kStability"	difficulty="200"	cap="1000"/>
     <skill id="kPickLock"		name="взломать"			abbr="Вз"	saving="kReflex"	difficulty="120"	cap="200"/>
@@ -52,7 +52,7 @@ mode - режим умения.
     <skill id="kAddshot"		name="дополнительный выстрел"	abbr="Доп"	saving="kReflex"	difficulty="200"	cap="200"/>
     <skill id="kDisguise"		name="маскировка"		abbr="Мск"	saving="kWill"		difficulty="100"	cap="200"/>
     <skill id="kDodge"			name="уклониться"		abbr="Укл"	saving="kReflex"	difficulty="100"	cap="200"/>
-    <skill id="kChopoff"		name="подножка"			abbr="Пд"	saving="kReflex"	difficulty="200"	cap="200"/>
+    <skill id="kChopoff"		name="подножка"			abbr="Пд"	saving="kReflex"	difficulty="200"	cap="1000"/>
     <skill id="kRepair"			name="ремонт"			abbr="Рм"	saving="kReflex"	difficulty="180"	cap="200"/>
     <skill id="kCourage"		name="ярость"			abbr="Яр"	saving="kReflex"	difficulty="100"	cap="1000"/>
     <skill id="kIdentify"		name="опознание"		abbr="Оп"	saving="kReflex"	difficulty="100"	cap="1000"/>
@@ -63,8 +63,8 @@ mode - режим умения.
     <skill id="kFirstAid"		name="лечить"			abbr="Лч"	saving="kReflex"	difficulty="100"	cap="200"/>
     <skill id="kCampfire"		name="разжечь костер"		abbr="Рк"	saving="kReflex"	difficulty="160"	cap="1000"/>
     <skill id="kLeftHit"		name="удар левой рукой"		abbr="Улр"	saving="kReflex"	difficulty="100"	cap="200"/>
-    <skill id="kHammer"			name="богатырский молот"	abbr="Бм"	saving="kStability"	difficulty="200"	cap="200"/>
-    <skill id="kOverwhelm"		name="оглушить"			abbr="Ог"	saving="kStability"	difficulty="200"	cap="200"/>
+    <skill id="kHammer"			name="богатырский молот"	abbr="Бм"	saving="kStability"	difficulty="200"	cap="1000"/>
+    <skill id="kOverwhelm"		name="оглушить"			abbr="Ог"	saving="kStability"	difficulty="200"	cap="1000"/>
     <skill id="kPoisoning"		name="отравить"			abbr="Отр"	saving="kStability"	difficulty="200"	cap="200"/>
     <skill id="kLeadership"		name="лидерство"		abbr="Лд"	saving="kReflex"	difficulty="100"	cap="1000"/>
     <skill id="kPunctual"		name="точный стиль"		abbr="Тс"	saving="kCritical"	difficulty="110"	cap="200"/>
