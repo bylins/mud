@@ -1774,7 +1774,13 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool n
 	}
 
 	auto percent = base_percent + bonus + victim_sav + victim_modi/2;
-	total_percent = std::clamp(percent, 0, MUD::Skill(skill_id).cap);
+	if (skill_id == ESkill::kHammer 
+		|| skill_id == ESkill::kBash
+		|| skill_id == ESkill::kOverwhelm)
+		total_percent = std::clamp(percent, 0, 200);
+	else
+		total_percent = std::clamp(percent, 0, MUD::Skill(skill_id).cap);
+//	total_percent = std::clamp(percent, 0, MUD::Skill(skill_id).cap);
 
 	std::string LuckTempStr = "Удача игнор";
 	if (!ignore_luck) {

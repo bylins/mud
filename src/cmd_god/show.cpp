@@ -359,6 +359,33 @@ struct show_struct show_fields[] = {
 	{"\n", 0}
 };
 
+std::pair<int, int> TotalMemUse(){
+	FILE *fl;
+	char name[256], line[1024];
+	int mem = 0, vmem = 0, pmem = 0;
+	pid_t pid = getpid();
+
+// если не linux будет -1, кому надо под виндой переделайте
+	sprintf(name, "/proc/%d/status", pid);
+	if (!(fl = fopen(name,"r"))) {
+		log("Cann't open process files...");
+		return std::make_pair(-1, -1);
+	}
+	while (get_line(fl, buf2)) {
+		sscanf(buf2, "%s %d", line, &mem);
+		if (!str_cmp(line, "VmRSS:")) {
+			pmem = mem;
+		}
+		if (!str_cmp(line, "VmSize:")) {
+			vmem = mem;
+		}
+		if (vmem > 0 && pmem > 0)
+			break;
+	}
+	fclose(fl);
+	return std::make_pair(vmem, pmem);
+}
+
 void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int i, j, l, con;    // i, j, k to specifics?
 
@@ -554,6 +581,8 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					"  Переключенных буферов - %5d, переполненных - %5d\r\n",
 					buf_switches,
 					buf_overflows);
+			auto getmem = TotalMemUse();
+			sprintf(buf + strlen(buf), "  PID процесса: %d, использовано памяти: виртуальной - %d kB, физической: - %d kB\r\n", getpid(), getmem.first, getmem.second);
 			sprintf(buf + strlen(buf), "  Послано байт - %lu\r\n", number_of_bytes_written);
 			sprintf(buf + strlen(buf), "  Получено байт - %lu\r\n", number_of_bytes_read);
 			sprintf(buf + strlen(buf), "  Максимальный Id - %ld\r\n", max_id.current());

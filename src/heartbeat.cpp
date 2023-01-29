@@ -5,8 +5,8 @@
 #include "game_economics/auction.h"
 #include "game_mechanics/deathtrap.h"
 #include "communication/parcel.h"
-#include "game_fight/pk.h"
-#include "game_mechanics/celebrates.h"
+//#include "game_fight/pk.h"
+//#include "game_mechanics/celebrates.h"
 #include "game_fight/fight.h"
 #include "help.h"
 #include "game_mechanics/bonus.h"
@@ -27,18 +27,19 @@
 #include "game_fight/mobact.h"
 #include "dg_script/dg_event.h"
 #include "corpse.h"
-#include "cmd_god/shutdown_parameters.h"
-#include "utils/utils_time.h"
+//#include "cmd_god/shutdown_parameters.h"
+//#include "utils/utils_time.h"
 #include "structs/global_objects.h"
 
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"
 #endif
 
+extern std::pair<int, int> TotalMemUse();
 
 constexpr bool FRAC_SAVE = true;
 
-void check_idle_passwords(void) {
+void check_idle_passwords() {
 	DescriptorData *d, *next_d;
 
 	for (d = descriptor_list; d; d = next_d) {
@@ -55,7 +56,7 @@ void check_idle_passwords(void) {
 	}
 }
 
-void record_usage(void) {
+void record_usage() {
 	int sockets_connected = 0, sockets_playing = 0;
 	DescriptorData *d;
 
@@ -99,7 +100,7 @@ void process_speedwalks() {
 						dir = SCMD_UP;
 					if (boost::starts_with(direction, "вниз"))
 						dir = SCMD_DOWN;
-					perform_move(ch, dir - 1, 0, true, 0);
+					perform_move(ch, dir - 1, 0, true, nullptr);
 				}
 			}
 			sw.wait = 0;
@@ -134,9 +135,8 @@ class InspectCall : public AbstractPulseAction {
 };
 
 void InspectCall::perform(int, int missed_pulses) {
-	if (0 == missed_pulses
-		&& 0 < inspect_list.size()) {
-		inspecting();
+	if (0 == missed_pulses && !MUD::inspect_list().empty()) {
+		Inspecting();
 	}
 }
 
@@ -323,7 +323,7 @@ Heartbeat::steps_t &pulse_steps() {
 							 std::make_shared<SimpleCall>(check_idle_passwords)),
 		Heartbeat::PulseStep("Mobile activity", 10, 0, std::make_shared<MobActCall>()),
 		Heartbeat::PulseStep("Inspecting", 1, 0, std::make_shared<InspectCall>()),
-		Heartbeat::PulseStep("Set all inspecting", 1, 0, std::make_shared<SetAllInspectCall>()),
+		Heartbeat::PulseStep("Set all Inspecting", 1, 0, std::make_shared<SetAllInspectCall>()),
 		Heartbeat::PulseStep("Death trap activity",
 							 2 * kPassesPerSec,
 							 0,
@@ -631,13 +631,15 @@ void Heartbeat::advance_pulse_numbers() {
 }
 
 void Heartbeat::pulse(const int missed_pulses, pulse_label_t &label) {
+	static int last_pmem_used = 0;
 	label.clear();
-
 	advance_pulse_numbers();
 
 	for (std::size_t i = 0; i != m_steps.size(); ++i) {
 		auto &step = m_steps[i];
-
+		auto get_mem = TotalMemUse();
+		int vmem_used = get_mem.first;
+		int pmem_used = get_mem.second;
 		if (step.off()) {
 			continue;
 		}
@@ -647,7 +649,15 @@ void Heartbeat::pulse(const int missed_pulses, pulse_label_t &label) {
 
 			step.action()->perform(pulse_number(), missed_pulses);
 			const auto execution_time = timer.delta().count();
-
+			if (step.modulo() >= kSecsPerMudHour * kPassesPerSec) {
+				log("Heartbeat step: %s", step.name().c_str());
+			}
+			if (pmem_used != last_pmem_used) {
+//				char buf [128];
+				last_pmem_used = pmem_used;
+				log("HeartBeat memory resize, step:(%s), memory used: virt (%d kB) phys (%d kB)", step.name().c_str(), vmem_used, pmem_used);
+//				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			}
 			label.emplace(i, execution_time);
 			m_executed_steps.insert(i);
 			step.add_measurement(i, pulse_number(), execution_time);
