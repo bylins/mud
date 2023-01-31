@@ -24,9 +24,10 @@ using pulse_t = int;
 class BasePulseMeasurements {
  public:
 	using value_t = double;
-	using measurement_t = std::pair<pulse_t, value_t>;
-
-	static constexpr measurement_t NO_VALUE = measurement_t(-1, -1);
+	using date_value_t = std::pair<value_t, time_t>;
+	using measurement_t = std::pair<pulse_t, date_value_t>;
+//	static constexpr date_value_t NO = date_value_t(-1,-1);
+	static constexpr measurement_t NO_VALUE = measurement_t(-1, date_value_t(-1,-1));
 
 	BasePulseMeasurements();
 	virtual ~BasePulseMeasurements() {}
@@ -90,7 +91,9 @@ class LabelledMeasurements : public BasePulseMeasurements {
 		m_global_max(Label(), NO_VALUE) {
 	}
 
-	void add(const Label &label, const pulse_t pulse, const value_t value) { add(label, measurement_t(pulse, value)); }
+	void add(const Label &label, const pulse_t pulse, const value_t value) { 
+		add(label, measurement_t(pulse, date_value_t(value, time(0)))); 
+	}
 	void add(const Label &label, const measurement_t measurement);
 
 	const auto &global_min() const { return m_global_min; }

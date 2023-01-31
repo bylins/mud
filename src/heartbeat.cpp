@@ -706,8 +706,8 @@ void BasePulseMeasurements::clear() {
 
 void BasePulseMeasurements::add_measurement(const measurement_t &measurement) {
 	m_measurements.push_front(measurement);
-	m_sum += measurement.second;
-	m_global_sum += measurement.second;
+	m_sum += measurement.second.first;
+	m_global_sum += measurement.second.first;
 	++m_global_count;
 
 	m_min.insert(measurement);
@@ -726,7 +726,7 @@ void BasePulseMeasurements::squeeze() {
 		const auto max_i = m_max.find(last_value);
 		m_max.erase(max_i);
 
-		m_sum -= last_value.second;
+		m_sum -= last_value.second.first;
 
 		m_measurements.pop_back();
 	}
