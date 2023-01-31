@@ -82,12 +82,12 @@ class ShowStepStats : public commands::utils::CommonCommand {
 
 		if (stats.global_max().second != BasePulseMeasurements::NO_VALUE) {
 			os << "\tLongest execution time was on pulse &Y" << stats.global_max().second.first << "&n: "
-			   << "&Y" << stats.global_max().second.second << "&n seconds." << std::endl;
+			   << "&Y" << stats.global_max().second.second.first << "&n seconds." << std::endl;
 		}
 
 		if (stats.global_min().second != BasePulseMeasurements::NO_VALUE) {
 			os << "\tFastest execution time was on pulse &Y" << stats.global_min().second.first << "&n: "
-			   << "&Y" << stats.global_min().second.second << "&n seconds." << std::endl;
+			   << "&Y" << stats.global_min().second.second.first << "&n seconds." << std::endl;
 		}
 
 		return os;
@@ -209,9 +209,10 @@ void ShowHeartbeatStats::execute(const CommandContext::shared_ptr &context,
 		ss << "\tLongest pulse: ";
 		if (longest_pulse.second != BasePulseMeasurements::NO_VALUE) {
 			ss << "&Y" << longest_pulse.second.first
-			   << "&n; duration: &Y" << longest_pulse.second.second
-			   << "&n seconds; steps:" << std::endl;
-
+			   << "&n; duration: &Y" << longest_pulse.second.second.first
+			   << "&n seconds, time &Y" << asctime(localtime(&longest_pulse.second.second.second));
+			ss.seekp(-1, std::ios_base::end);
+			ss << "&n; steps:" << std::endl;
 			print_steps(ss, heartbeat, longest_pulse.first);
 		} else {
 			ss << "&W<no value>&n" << std::endl;
@@ -223,9 +224,10 @@ void ShowHeartbeatStats::execute(const CommandContext::shared_ptr &context,
 		ss << "\tShortest pulse: ";
 		if (shortest_pulse.second != BasePulseMeasurements::NO_VALUE) {
 			ss << "&Y" << shortest_pulse.second.first
-			   << "&n; duration: &Y" << shortest_pulse.second.second
-			   << "&n seconds; steps:" << std::endl;
-
+			   << "&n; duration: &Y" << shortest_pulse.second.second.first
+			   << "&n seconds, time &Y" << asctime(localtime(&shortest_pulse.second.second.second));
+			ss.seekp(-1, std::ios_base::end);
+			ss << "&n; steps:" << std::endl;
 			print_steps(ss, heartbeat, shortest_pulse.first);
 		} else {
 			ss << "&W<no value>&n" << std::endl;
