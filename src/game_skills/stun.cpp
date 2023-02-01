@@ -92,7 +92,9 @@ void go_stun(CharData *ch, CharData *vict) {
 		GET_POS(vict) = EPosition::kIncap;
 		SetWaitState(vict, (2 + GetRealRemort(ch) / 5) * kBattleRound * GET_SKILL(ch, ESkill::kStun) / MUD::Skill(ESkill::kStun).cap);
 		ch->setSkillCooldown(ESkill::kStun, 3 * kBattleRound);
-		set_hit(ch, vict);
+		Damage dmg(SkillDmg(ESkill::kStun), dam, fight::kPhysDmg, nullptr);
+		dmg.flags.set(fight::kNoFleeDmg);
+		dmg.Process(ch, vict);
 	}
 }
 

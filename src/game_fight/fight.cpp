@@ -2022,10 +2022,11 @@ bool stuff_before_round(CharData *ch) {
 // * Обработка текущих боев, дергается каждые 2 секунды.
 void perform_violence() {
 	int max_init = -100, min_init = 100;
-	utils::CSteppedProfiler round_profiler("Perform violence", 0.05);
+	utils::CSteppedProfiler round_profiler("Perform violence", 0.1);
 
 	//* суммон хелперов
-	round_profiler.next_step("Check mob helpers");
+	sprintf(buf, "Check mob helpers");
+	round_profiler.next_step(buf);
 	check_mob_helpers();
 
 	// храним список писей, которым надо показать состояние группы по msdp
