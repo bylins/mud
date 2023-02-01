@@ -25,7 +25,12 @@ void CSteppedProfiler::report() const {
 	FILE *flog;
 	std::stringstream ss;
 	if (m_time_probe == 0 || m_timer.delta().count() > m_time_probe) {
-		ss << "Stepped profiler report for scope '" << m_scope_name << "'";
+		const time_t ct = time(0);
+		const char *time_s = asctime(localtime(&ct));
+
+		ss << time_s;
+		ss.seekp(-1, std::ios_base::end);
+		ss << " Stepped profiler report for scope '" << m_scope_name << "'";
 		if (0 == m_steps.size()) {
 			ss << ": it took ";
 		} else {
@@ -45,9 +50,9 @@ void CSteppedProfiler::report() const {
 
 			ss << "Whole scope took ";
 		}
-		ss << std::fixed << std::setprecision(6) << "time probe: " << m_time_probe << " total time: "<< m_timer.delta().count() << " second(s)\r\n";
-
-		log("INFO: %s\n", ss.str().c_str());
+		ss << std::fixed << std::setprecision(6) << "time probe: " << m_time_probe << " total time: "<< m_timer.delta().count() << " second(s)\n";
+// спам сислога, кому надо уберите
+//		log("INFO: %s\n", ss.str().c_str());
 
 		flog = fopen(LOAD_LOG_FOLDER LOAD_LOG_FILE, "a");
 		if (!flog) {

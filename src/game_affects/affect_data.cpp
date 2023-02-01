@@ -347,8 +347,8 @@ void battle_affect_update(CharData *ch) {
 // раз в минуту
 void mobile_affect_update() {
 	utils::CExecutionTimer timer;
-	int count = 0, count2 = 0;
-	character_list.foreach_on_copy([&count, &count2](const CharData::shared_ptr &i) {
+	int count = 0, count2 = 0, count3 = 0;
+	character_list.foreach_on_copy([&count, &count2, &count3](const CharData::shared_ptr &i) {
 		int was_charmed = false, charmed_msg = false;
 		bool was_purged = false;
 
@@ -359,6 +359,8 @@ void mobile_affect_update() {
 			}
 			count2++;
 			auto next_affect_i = i->affected.begin();
+			if (i->affected.size() > 0)
+				count3++;
 			for (auto affect_i = next_affect_i; affect_i != i->affected.end(); affect_i = next_affect_i) {
 				++next_affect_i;
 				const auto &affect = *affect_i;
@@ -431,7 +433,7 @@ void mobile_affect_update() {
 			}
 		}
 	});
-	log("mobile affect update: timer %f, num mobs %d, count update %d", timer.delta().count(), count, count2);
+	log("mobile affect update: timer %f, num mobs %d, count update %d, affected mobs: %d", timer.delta().count(), count, count2, count3);
 }
 
 // Call affect_remove with every spell of spelltype "skill"
