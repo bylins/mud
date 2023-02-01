@@ -2191,7 +2191,7 @@ void zone_traffic_load() {
 
 // body of the booting system
 void boot_db(void) {
-	utils::CSteppedProfiler boot_profiler("MUD booting");
+	utils::CSteppedProfiler boot_profiler("MUD booting", 20);
 
 	log("Boot db -- BEGIN.");
 
@@ -3633,15 +3633,21 @@ CObjectPrototype::shared_ptr get_object_prototype(ObjVnum nr, int type) {
 	return obj_proto[i];
 }
 
-// пробегаем по всем клеткам зоны и находим там чаров/чармисов, если они есть, ставит used на true
-void after_reset_zone(int nr_zone) {
-	// пробегаем по дескрипторам, ибо это быстрее и проще, т.к. в зоне может быть и 200 и 300 мобов
+void after_reset_zone(ZoneRnum nr_zone) {
 	for (auto d = descriptor_list; d; d = d->next) {
 		// Чар должен быть в игре
 		if (STATE(d) == CON_PLAYING) {
 			if (world[d->character->in_room]->zone_rn == nr_zone) {
 				zone_table[nr_zone].used = true;
 				return;
+			}
+			struct FollowerType *k, *k_next;
+			for (k = d->character->followers; k; k = k_next) {
+				k_next = k->next;
+				if (IS_CHARMICE(k->follower) && world[k->follower->in_room]->zone_rn == nr_zone) {
+					zone_table[nr_zone].used = true;
+					return;
+				}
 			}
 		}
 	}

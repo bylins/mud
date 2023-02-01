@@ -51,7 +51,7 @@ class CSteppedProfiler {
 
 	using step_t = std::shared_ptr<CExecutionStepProfiler>;
 
-	CSteppedProfiler(const std::string &scope_name) : m_scope_name(scope_name) {}
+	CSteppedProfiler(const std::string &scope_name, const double time_probe = 0) : m_scope_name(scope_name), m_time_probe(time_probe) {}
 	~CSteppedProfiler();
 	void next_step(const std::string &step_name);
 
@@ -61,6 +61,7 @@ class CSteppedProfiler {
 	void report() const;
 
 	const std::string m_scope_name;
+	const double m_time_probe;
 	std::list<step_t> m_steps;
 	CExecutionTimer m_timer;
 };
