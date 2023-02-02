@@ -1159,10 +1159,17 @@ void mob_casting(CharData *ch) {
 							AFF_FLAGGED(ch, EAffect::kHold) || (ch)->get_wait()))
 
 void summon_mob_helpers(CharData *ch) {
-	for (struct Helper *helpee = ch->helpers;
-		 helpee; helpee = helpee->next) {
+	Helper *j;
+	utils::CSteppedProfiler round_profiler("Summon mob helpers", 0.1);
+	if (ch->helpers) {
+		sprintf(buf, "Mob %s (%d) have helpers", GET_NAME(ch), GET_MOB_VNUM(ch));
+		round_profiler.next_step(buf);
+	}
+	for (struct Helper *helpee = ch->helpers; helpee; helpee = helpee->next) {
 		// Start_fight_mtrigger using inside this loop
 		// So we have to iterate on copy list
+		sprintf(buf, "Find helper vnum %d", helpee->mob_vnum);
+		round_profiler.next_step(buf);
 		character_list.foreach_on_copy([&](const CharData::shared_ptr &vict) {
 			if (!vict->IsNpc()
 				|| GET_MOB_VNUM(vict) != helpee->mob_vnum
@@ -1176,24 +1183,29 @@ void summon_mob_helpers(CharData *ch) {
 				|| vict->GetEnemy()) {
 				return;
 			}
+			MOB_FLAGS(vict).set(EMobFlag::kHelper);
 			if (GET_RACE(ch) == ENpcRace::kHuman) {
 				act("$n воззвал$g : \"На помощь, мои верные соратники!\"",
 					false, ch, 0, 0, kToRoom | kToArenaListen);
 			}
 			if (IN_ROOM(vict) != ch->in_room) {
+				act("$n был$g призван$g $N4.", false, vict.get(), 0, ch, kToRoom | kToArenaListen);
 				char_from_room(vict);
 				char_to_room(vict, ch->in_room);
-				act("$n прибыл$g на зов и вступил$g в битву на стороне $N1.",
-					false, vict.get(), 0, ch, kToRoom | kToArenaListen);
+				act("$n прибыл$g на зов и вступил$g в битву на стороне $N1.", false, vict.get(), 0, ch, kToRoom | kToArenaListen);
 			} else {
-				act("$n вступил$g в битву на стороне $N1.",
-					false, vict.get(), 0, ch, kToRoom | kToArenaListen);
+				act("$n вступил$g в битву на стороне $N1.", false, vict.get(), 0, ch, kToRoom | kToArenaListen);
 			}
 			if (MAY_ATTACK(vict)) {
 				set_fighting(vict, ch->GetEnemy());
 			}
 		});
+//		j = helpee;
+//		helpee = helpee->next;
+//		free(j);
 	}
+	round_profiler.next_step("Stop helpers");
+//	ch->helpers = nullptr;
 }
 
 void check_mob_helpers() {
