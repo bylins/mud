@@ -157,8 +157,6 @@ void medit_mobile_copy(CharData *dst, CharData *src, bool partial_copy)
    partial_copy не тронем падежи и некоторые поля
 --*/
 {
-	struct Helper **pdhd, *shd;
-
 	// сохраняем старые значения
 	CharData tmp(*dst);
 
@@ -188,16 +186,13 @@ void medit_mobile_copy(CharData *dst, CharData *src, bool partial_copy)
 	dst->mob_specials.Questor = (src->mob_specials.Questor
 									 && *src->mob_specials.Questor ? str_dup(src->mob_specials.Questor)
 																   : nullptr);
-	if (partial_copy && tmp.helpers) //если неполное копирование но хелперов нет, копирнем
-		shd = tmp.helpers;
-	else
-		shd = src->helpers;
-	pdhd = &dst->helpers;
-	while (shd) {
-		CREATE(pdhd[0], 1);
-		pdhd[0]->mob_vnum = shd->mob_vnum;
-		pdhd = &(pdhd[0]->next);
-		shd = shd->next;
+	if (partial_copy && !tmp.mob_specials.helpers.empty()) { //если неполное копирование но хелперов нет, копирнем
+		dst->mob_specials.helpers.clear();
+		std::copy(tmp.mob_specials.helpers.begin(), tmp.mob_specials.helpers.end(), std::back_inserter(dst->mob_specials.helpers));
+	}
+	else {
+		dst->mob_specials.helpers.clear();
+		std::copy(src->mob_specials.helpers.begin(), src->mob_specials.helpers.end(), std::back_inserter(dst->mob_specials.helpers));
 	}
 	// Копирую скрипт и прототипы
 	SCRIPT(dst)->cleanup();
@@ -249,13 +244,8 @@ void medit_mobile_free(CharData *mob)
 			mob->mob_specials.Questor = nullptr;
 		}
 	}
-
-	while (mob->helpers) {
-		REMOVE_FROM_LIST(mob->helpers, mob->helpers, [](auto list) -> auto & { return list->next; });
-	}
-
+	mob->mob_specials.helpers.clear();
 	// Скрипт уже NULL
-
 	if (mob->dl_list) {
 		delete (mob->dl_list);
 		mob->dl_list = nullptr;
@@ -290,7 +280,7 @@ void medit_setup(DescriptorData *d, int real_num)
 		mob->player_data.PNames[4] = "неоконченным мобом";
 		mob->player_data.PNames[5] = "неоконченном мобе";
 		mob->mob_specials.Questor = nullptr;
-		mob->helpers = nullptr;
+		mob->mob_specials.helpers.clear();
 #if defined(OASIS_MPROG)
 		OLC_MPROGL(d) = nullptr;
 		OLC_MPROG(d) = nullptr;
@@ -393,7 +383,8 @@ void medit_save_internally(DescriptorData *d) {
 				for (j = ECase::kFirstCase; j <= ECase::kLastCase; j++) {
 					live_mob->player_data.PNames[j] = mob_proto[rmob_num].player_data.PNames[j];
 				}
-				live_mob->helpers = (mob_proto + rmob_num)->helpers;
+				live_mob->mob_specials.helpers.clear();
+				std::copy((mob_proto + rmob_num)->mob_specials.helpers.begin(), (mob_proto + rmob_num)->mob_specials.helpers.end(), std::back_inserter(live_mob->mob_specials.helpers));
 				live_mob->mob_specials.Questor = (mob_proto + rmob_num)->mob_specials.Questor;
 				// Скрипты и прототипы остаются от старого моба
 			}
@@ -549,7 +540,6 @@ void medit_save_internally(DescriptorData *d) {
  * extended fields.  Thanks to Sammy for ideas on this bit of code.
  */
 void medit_save_to_disk(ZoneRnum zone_num) {
-	struct Helper *helper;
 	int i, j, c, rmob_num, zone, top, sum;
 	FILE *mob_file;
 	char fname[64];
@@ -700,14 +690,8 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 					fprintf(mob_file, "Spell: %d\n", to_underlying(spell_id));
 				}
 			}
-			std::stack<decltype(helper)> stack;
-			for (helper = mob->helpers; helper; helper = helper->next) {
-				stack.push(helper);
-			}
-			while (!stack.empty()) {
-				const auto h = stack.top();
-				fprintf(mob_file, "Helper: %d\n", h->mob_vnum);
-				stack.pop();
+			for (auto helper : mob->mob_specials.helpers) {
+				fprintf(mob_file, "Helper: %d\n", helper);
 			}
 			if (mob->get_role_bits().any()) {
 				std::string tmp;
@@ -1053,15 +1037,14 @@ void medit_disp_attack_types(DescriptorData *d) {
 //-------------------------------------------------------------------
 void medit_disp_helpers(DescriptorData *d) {
 	int columns = 0;
-	struct Helper *helper;
 
 	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
 	SendMsgToChar("Установлены мобы-помощники :\r\n", d->character.get());
-	for (helper = OLC_MOB(d)->helpers; helper; helper = helper->next) {
-		sprintf(buf, "%s%6d%s %s", grn, helper->mob_vnum, nrm, !(++columns % 6) ? "\r\n" : "");
+	for (auto helper : OLC_MOB(d)->mob_specials.helpers) {
+		sprintf(buf, "%s%6d%s %s", grn, helper, nrm, !(++columns % 6) ? "\r\n" : "");
 		SendMsgToChar(buf, d->character.get());
 	}
 	if (!columns) {
@@ -1253,7 +1236,7 @@ void medit_disp_menu(DescriptorData *d) {
 									 "%sQ%s) Выход:\r\n" "Ваш выбор: ",
 			 grn, nrm, cyn, buf1,
 			 grn, nrm, cyn, buf2,
-			 grn, nrm, cyn, mob->helpers ? "Yes" : "No",
+			 grn, nrm, cyn, mob->mob_specials.helpers.empty() ? "No" : "Yes",
 			 grn, nrm,
 			 grn, nrm,
 			 grn, nrm, cyn, mob->get_str(), nrm,
@@ -1367,7 +1350,6 @@ void medit_disp_clone_menu(DescriptorData *d) {
 // ************************************************************************
 
 void medit_parse(DescriptorData *d, char *arg) {
-	struct Helper *helper;
 	int i, number = 0, plane, bit;
 
 	if (OLC_MODE(d) > MEDIT_NUMERICAL_RESPONSE) {
@@ -2158,23 +2140,14 @@ void medit_parse(DescriptorData *d, char *arg) {
 				break;
 			}
 			if ((plane = real_mobile(number)) < 0) {
-				SendMsgToChar("Нет такого моба.", d->character.get());
+				SendMsgToChar("Нет такого моба.\r\n", d->character.get());
 			} else {
-				for (helper = OLC_MOB(d)->helpers; helper; helper = helper->next) {
-					if (helper->mob_vnum == number) {
-						break;
-					}
+				auto it = std::find(OLC_MOB(d)->mob_specials.helpers.begin(), OLC_MOB(d)->mob_specials.helpers.end(), number);
+				if (it != OLC_MOB(d)->mob_specials.helpers.end()) {
+					OLC_MOB(d)->mob_specials.helpers.erase(it);
 				}
-
-				if (helper) {
-					REMOVE_FROM_LIST(helper,
-									 OLC_MOB(d)->helpers,
-									 [](auto list) -> auto & { return list->next; });
-				} else {
-					CREATE(helper, 1);
-					helper->mob_vnum = number;
-					helper->next = OLC_MOB(d)->helpers;
-					OLC_MOB(d)->helpers = helper;
+				else {
+					OLC_MOB(d)->mob_specials.helpers.push_back(number);
 				}
 			}
 			medit_disp_helpers(d);

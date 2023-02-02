@@ -1361,15 +1361,8 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 				skill_id = ESkill::kSpades;
 				break;
 			}
-
 		}
-
-		if (victim->helpers) {
-			victim->helpers = nullptr;
-		}
-// зачем мобу то писать?
-//		act("$n покорил$g ваше сердце настолько, что вы готовы на все ради н$s.",
-//			false, ch, nullptr, victim, kToVict);
+		victim->mob_specials.helpers.clear();
 		if (victim->IsNpc()) {
 			if (!MOB_FLAGGED(victim, EMobFlag::kSummoned)) { // только если не маг зверьки ()
 				for (int i = 0; i < EEquipPos::kNumEquipPos; i++) {

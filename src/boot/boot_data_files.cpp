@@ -1249,7 +1249,6 @@ std::vector<std::string> split_string(const char *str, std::string separator = "
  * function!  No other changes need to be made anywhere in the code.
  */
 void MobileFile::interpret_espec(const char *keyword, const char *value, int i, int nr) {
-	struct Helper *helper;
 	int num_arg, matched = 0, t[4];
 
 	num_arg = atoi(value);
@@ -1441,10 +1440,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 	}
 
 	CASE("Helper") {
-		CREATE(helper, 1);
-		helper->mob_vnum = num_arg;
-		helper->next = (mob_proto + i)->helpers;
-		(mob_proto + i)->helpers = helper;
+		mob_proto[i].mob_specials.helpers.push_back(num_arg);
 	}
 
 	CASE("Role") {

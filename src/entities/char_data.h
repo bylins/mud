@@ -164,6 +164,7 @@ struct mob_special_data {
 	int speed;
 	int hire_price;
 	ESpell capable_spell;
+	std::vector<MobVnum> helpers;
 };
 
 // Structure used for extra_attack - bash, kick, diasrm, chopoff, etc
@@ -801,7 +802,7 @@ class CharData : public ProtectedCharData {
 	int caster_level;
 	int damage_level;
 	struct PK_Memory_type *pk_list;
-	struct Helper *helpers;
+
 	int track_dirs;
 	bool check_aggressive;
 	int extract_timer;

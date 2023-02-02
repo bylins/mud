@@ -8,7 +8,7 @@
 #include <string>
 
 #define LOAD_LOG_FOLDER "../log/"
-#define LOAD_LOG_FILE "boot_load.log"
+#define LOAD_LOG_FILE "profiler.log"
 
 namespace utils {
 class CExecutionTimer {

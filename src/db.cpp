@@ -5162,11 +5162,6 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		stop_fighting(ch, true);
 
 	die_follower(ch);
-
-	while (ch->helpers) {
-		REMOVE_FROM_LIST(ch->helpers, ch->helpers, [](auto list) -> auto & { return list->next; });
-	}
-
 	while (!ch->affected.empty()) {
 		ch->affect_remove(ch->affected.begin());
 	}

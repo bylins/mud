@@ -283,14 +283,6 @@ struct FollowerType {
 	int dirs = 0;
 };*/
 
-// Structure used for helpers //
-// Это следует перенести в spec_proc после ее распиливания (сейчас вряд ли есть смысл огромный хедер везде тащить)
-struct Helper {
-	MobVnum mob_vnum = 0;
-	struct Helper *next = nullptr;
-};
-
-
 // ===============================================================
 // Structure used for on_dead object loading //
 // Эту механику следует вырезать.
