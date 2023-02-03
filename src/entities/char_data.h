@@ -165,6 +165,7 @@ struct mob_special_data {
 	int hire_price;
 	ESpell capable_spell;
 	std::vector<MobVnum> helpers;
+	bool have_spell;
 };
 
 // Structure used for extra_attack - bash, kick, diasrm, chopoff, etc

@@ -2175,6 +2175,16 @@ void medit_parse(DescriptorData *d, char *arg) {
 		case MEDIT_SPELLS: {
 			number = atoi(arg);
 			if (number == 0) {
+				OLC_MOB(d)->mob_specials.have_spell = false;
+				for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
+					if (MUD::Spell(spell_id).IsUnavailable()) {
+						continue;
+					}
+					if (GET_SPELL_MEM(OLC_MOB(d), spell_id)) {
+						OLC_MOB(d)->mob_specials.have_spell = true;
+						break;
+					}
+				}
 				break;
 			}
 			auto spell_id = static_cast<ESpell>(number);

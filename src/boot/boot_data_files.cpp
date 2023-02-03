@@ -1437,6 +1437,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 		}
 		GET_SPELL_MEM(mob_proto + i, spell_id) += 1;
 		(mob_proto + i)->caster_level += (MUD::Spell(spell_id).IsFlagged(NPC_CALCULATE) ? 1 : 0);
+		mob_proto[i].mob_specials.have_spell = true;
 	}
 
 	CASE("Helper") {

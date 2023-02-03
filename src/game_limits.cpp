@@ -1559,7 +1559,6 @@ void obj_point_update() {
 }
 
 void point_update() {
-	MemoryRecord *mem, *nmem, *pmem;
 	std::vector<ESpell> real_spell(to_underlying(ESpell::kLast) + 1);
 	auto count{0};
 	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
@@ -1568,13 +1567,13 @@ void point_update() {
 	}
 	std::shuffle(real_spell.begin(), real_spell.end(), std::mt19937(std::random_device()()));
 
-	for (const auto &character : character_list) {
+	character_list.foreach_on_copy([&real_spell](const auto &character) {
+	MemoryRecord *mem, *nmem, *pmem;
 		const auto i = character.get();
 
 		if (i->IsNpc()) {
 			i->inc_restore_timer(kSecsPerMudHour);
 		}
-
 		/* Если чар или моб попытался проснуться а на нем аффект сон,
 		то он снова должен валиться в сон */
 		if (AFF_FLAGGED(i, EAffect::kSleep)
@@ -1584,10 +1583,8 @@ void point_update() {
 			act("$n попытал$u очнуться, но снова заснул$a и упал$a наземь.",
 				true, i, nullptr, nullptr, kToRoom);
 		}
-
 		if (!i->IsNpc()) {
 			gain_condition(i, DRUNK, -1);
-
 			if (average_day_temp() < -20) {
 				gain_condition(i, FULL, +2);
 			} else if (average_day_temp() < -5) {
@@ -1595,7 +1592,6 @@ void point_update() {
 			} else {
 				gain_condition(i, FULL, +1);
 			}
-
 			if (average_day_temp() > 25) {
 				gain_condition(i, THIRST, +2);
 			} else if (average_day_temp() > 20) {
@@ -1604,10 +1600,6 @@ void point_update() {
 				gain_condition(i, THIRST, +1);
 			}
 		}
-//	}
-//	character_list.foreach_on_copy([&real_spell](const auto &character) {
-//		const auto i = character.get();
-
 		if (GET_POS(i) >= EPosition::kStun)    // Restore hit points
 		{
 			if (i->IsNpc()
@@ -1617,14 +1609,12 @@ void point_update() {
 					GET_HIT(i) = MIN(GET_HIT(i) + count, GET_REAL_MAX_HIT(i));
 				}
 			}
-
 			// Restore mobs
 			if (i->IsNpc()
 				&& !i->GetEnemy())    // Restore horse
 			{
 				if (IS_HORSE(i)) {
 					int mana = 0;
-
 					switch (real_sector(IN_ROOM(i))) {
 						case ESector::kOnlyFlying:
 						case ESector::kUnderwater:
@@ -1657,14 +1647,11 @@ void point_update() {
 							break;
 						default: mana = 10;
 					}
-
 					if (i->get_master()->IsOnHorse()) {
 						mana /= 2;
 					}
-
 					GET_HORSESTATE(i) = std::min(800, GET_HORSESTATE(i) + mana);
 				}
-
 				// Forget PC's
 				for (mem = MEMORY(i), pmem = nullptr; mem; mem = nmem) {
 					nmem = mem->next;
@@ -1673,7 +1660,6 @@ void point_update() {
 						pmem = mem;
 						continue;
 					}
-
 					if (mem->time < time(nullptr)
 						|| mem->time <= 0) {
 						if (pmem) {
@@ -1686,26 +1672,25 @@ void point_update() {
 						pmem = mem;
 					}
 				}
-
 				// Remember some spells
-				const auto mob_num = GET_MOB_RNUM(i);
-				if (mob_num >= 0) {
-					auto mana{0};
-					auto count{0};
-					const auto max_mana = GetRealInt(i) * 10;
-					while (count <= to_underlying(ESpell::kLast) && mana < max_mana) {
-						const auto spell_id = real_spell[count];
-						if (GET_SPELL_MEM(mob_proto + mob_num, spell_id) > GET_SPELL_MEM(i, spell_id)) {
-							GET_SPELL_MEM(i, spell_id)++;
-							mana += ((MUD::Spell(spell_id).GetMaxMana() + MUD::Spell(spell_id).GetMinMana()) / 2);
-							i->caster_level += (MUD::Spell(spell_id).IsFlagged(NPC_CALCULATE) ? 1 : 0);
+				if (i->mob_specials.have_spell) {
+					const auto mob_num = GET_MOB_RNUM(i);
+					if (mob_num >= 0) {
+						auto mana{0};
+						auto count{0};
+						const auto max_mana = GetRealInt(i) * 10;
+						while (count <= to_underlying(ESpell::kLast) && mana < max_mana) {
+							const auto spell_id = real_spell[count];
+							if (GET_SPELL_MEM(mob_proto + mob_num, spell_id) > GET_SPELL_MEM(i, spell_id)) {
+								GET_SPELL_MEM(i, spell_id)++;
+								mana += ((MUD::Spell(spell_id).GetMaxMana() + MUD::Spell(spell_id).GetMinMana()) / 2);
+								i->caster_level += (MUD::Spell(spell_id).IsFlagged(NPC_CALCULATE) ? 1 : 0);
+							}
+							++count;
 						}
-
-						++count;
 					}
 				}
 			}
-
 			// Restore moves
 			if (i->IsNpc()
 				|| !UPDATE_PC_ON_BEAT) {
@@ -1727,8 +1712,8 @@ void point_update() {
 			&& !PRF_FLAGGED(i, EPrf::kCoderinfo)) {
 			check_idling(i);
 		}
-//	});
-	}
+	});
+//	}
 }
 void ExtractObjRepopDecay(const ObjData::shared_ptr obj) {
 	if (obj->get_worn_by()) {
