@@ -1560,7 +1560,6 @@ void obj_point_update() {
 
 void point_update() {
 	MemoryRecord *mem, *nmem, *pmem;
-
 	std::vector<ESpell> real_spell(to_underlying(ESpell::kLast) + 1);
 	auto count{0};
 	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
@@ -1605,10 +1604,9 @@ void point_update() {
 				gain_condition(i, THIRST, +1);
 			}
 		}
-	}
-
-	character_list.foreach_on_copy([&](const auto &character) {
-		const auto i = character.get();
+//	}
+//	character_list.foreach_on_copy([&real_spell](const auto &character) {
+//		const auto i = character.get();
 
 		if (GET_POS(i) >= EPosition::kStun)    // Restore hit points
 		{
@@ -1729,7 +1727,8 @@ void point_update() {
 			&& !PRF_FLAGGED(i, EPrf::kCoderinfo)) {
 			check_idling(i);
 		}
-	});
+//	});
+	}
 }
 void ExtractObjRepopDecay(const ObjData::shared_ptr obj) {
 	if (obj->get_worn_by()) {

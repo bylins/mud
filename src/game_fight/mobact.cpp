@@ -959,10 +959,13 @@ void extract_charmice(CharData *ch) {
 }
 
 void mobile_activity(int activity_level, int missed_pulses) {
+//	int door, max, was_in = -1, activity_lev, i, ch_activity;
+//	int std_lev = activity_level % kPulseMobile;
+	
+//	for (auto &ch : character_list) {
+	character_list.foreach_on_copy([missed_pulses, &activity_level](const CharData::shared_ptr &ch) {
 	int door, max, was_in = -1, activity_lev, i, ch_activity;
 	int std_lev = activity_level % kPulseMobile;
-
-	character_list.foreach_on_copy([&](const CharData::shared_ptr &ch) {
 		if (!IS_MOB(ch)
 			|| !ch->in_used_zone()) {
 			return;
@@ -1267,9 +1270,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 				return;
 			}
 		}
-
 		npc_light(ch.get());
-
 		// *****************  Mob Memory
 		if (MOB_FLAGGED(ch, EMobFlag::kMemory)
 			&& MEMORY(ch)
@@ -1284,24 +1285,21 @@ void mobile_activity(int activity_level, int missed_pulses) {
 						&& CAN_SEE(ch, vict) && !PRF_FLAGGED(vict, EPrf::kNohassle)) {
 						if (GET_SPELL_MEM(ch, ESpell::kSummon) > 0) {
 							CastSpell(ch.get(), vict.get(), 0, 0, ESpell::kSummon, ESpell::kSummon);
-
 							break;
 						} else if (GET_SPELL_MEM(ch, ESpell::kRelocate) > 0) {
 							CastSpell(ch.get(), vict.get(), 0, 0, ESpell::kRelocate, ESpell::kRelocate);
-
 							break;
 						}
 					}
 				}
 			}
 		}
-
 		// Add new mobile actions here
-
 		if (was_in != ch->in_room) {
 			do_aggressive_room(ch.get(), false);
 		}
 	});            // end for()
+//	}
 }
 
 // Mob Memory Routines

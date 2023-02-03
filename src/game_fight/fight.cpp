@@ -1159,7 +1159,7 @@ void mob_casting(CharData *ch) {
 							AFF_FLAGGED(ch, EAffect::kHold) || (ch)->get_wait()))
 
 void summon_mob_helpers(CharData *ch) {
-	utils::CSteppedProfiler round_profiler("Summon mob helpers", 0.2);
+	utils::CSteppedProfiler round_profiler("Summon mob helpers", 0.1);
 	if (!ch->mob_specials.helpers.empty()) {
 		sprintf(buf, "Mob %s (%d) have helpers", GET_NAME(ch), GET_MOB_VNUM(ch));
 		round_profiler.next_step(buf);
@@ -1203,8 +1203,8 @@ void summon_mob_helpers(CharData *ch) {
 //		});
 		}
 	}
-	round_profiler.next_step("Stop helpers");
 	ch->mob_specials.helpers.clear();
+	round_profiler.next_step("Stop helpers");
 }
 
 void check_mob_helpers() {
@@ -1857,6 +1857,7 @@ void process_npc_attack(CharData *ch) {
 }
 
 void process_player_attack(CharData *ch, int min_init) {
+	utils::CSteppedProfiler round_profiler("process player attack", 0.01);
 	if (GET_POS(ch) > EPosition::kStun
 		&& GET_POS(ch) < EPosition::kFight
 		&& GET_AF_BATTLE(ch, kEafStand)) {
@@ -1869,6 +1870,7 @@ void process_player_attack(CharData *ch, int min_init) {
 	Bitvector trigger_code = fight_otrigger(ch);
 
 	//* каст заклинания
+	round_profiler.next_step("Cast spell");
 	if (ch->GetCastSpell() != ESpell::kUndefined && ch->get_wait() <= 0 && !IS_SET(trigger_code, kNoCastMagic)) {
 		if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
 			SendMsgToChar("Вы не смогли вымолвить и слова.\r\n", ch);
@@ -1888,7 +1890,7 @@ void process_player_attack(CharData *ch, int min_init) {
 
 	if (GET_AF_BATTLE(ch, kEafMultyparry))
 		return;
-
+	round_profiler.next_step("Use extra attack");
 	//* применение экстра скилл-атак (пнуть, оглушить и прочая)
 	if (!IS_SET(trigger_code, kNoExtraAttack) && ch->GetExtraVictim()
 		&& ch->get_wait() <= 0 && using_extra_attack(ch)) {
@@ -1903,7 +1905,7 @@ void process_player_attack(CharData *ch, int min_init) {
 		|| ch->in_room != IN_ROOM(ch->GetEnemy())) {
 		return;
 	}
-
+	round_profiler.next_step("hit mainhand");
 	//**** удар основным оружием или рукой
 	if (GET_AF_BATTLE(ch, kEafFirst)) {
 		if (!IS_SET(trigger_code, kNoRightHandAttack) && !AFF_FLAGGED(ch, EAffect::kStopRight)
@@ -1921,6 +1923,7 @@ void process_player_attack(CharData *ch, int min_init) {
 			else tmpSkilltype = ESkill::kUndefined;
 			exthit(ch, tmpSkilltype, fight::AttackType::kMainHand);
 		}
+		round_profiler.next_step("hit add boths weapon");
 // допатака двуручем
 		if (!IS_SET(trigger_code, kNoExtraAttack) && GET_EQ(ch, EEquipPos::kBoths) 
 			&& CanUseFeat(ch, EFeat::kTwohandsFocus)
@@ -1936,7 +1939,7 @@ void process_player_attack(CharData *ch, int min_init) {
 			return;
 		}
 	}
-
+	round_profiler.next_step("hit offhand");
 	//**** удар вторым оружием если оно есть и умение позволяет
 	if (!IS_SET(trigger_code, kNoLeftHandAttack) && GET_EQ(ch, EEquipPos::kHold)
 		&& GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kHold)) == EObjType::kWeapon
@@ -1962,7 +1965,7 @@ void process_player_attack(CharData *ch, int min_init) {
 		}
 		CLR_AF_BATTLE(ch, kEafSecond);
 	}
-
+	round_profiler.next_step("try angel");
 	// немного коряво, т.к. зависит от инициативы кастера
 	// check if angel is in fight, and go_rescue if it is not
 	try_angel_rescue(ch);

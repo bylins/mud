@@ -1311,7 +1311,7 @@ void convert_obj_values() {
 }
 
 void GameLoader::boot_world() {
-	utils::CSteppedProfiler boot_profiler("World booting");
+	utils::CSteppedProfiler boot_profiler("World booting", 1.1);
 
 	boot_profiler.next_step("Loading zone table");
 	log("Loading zone table.");
@@ -2191,7 +2191,7 @@ void zone_traffic_load() {
 
 // body of the booting system
 void boot_db(void) {
-	utils::CSteppedProfiler boot_profiler("MUD booting", 20);
+	utils::CSteppedProfiler boot_profiler("MUD booting", 1.1);
 
 	log("Boot db -- BEGIN.");
 
