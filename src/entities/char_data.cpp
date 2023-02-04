@@ -436,7 +436,7 @@ void CharData::purge() {
 		if (this->IsNpc() && this->mob_specials.Questor)
 			free(this->mob_specials.Questor);
 		pk_free_list(this);
-		this->mob_specials.helpers.clear();
+		this->summon_helpers.clear();
 	} else if ((i = GET_MOB_RNUM(this))
 		>= 0) {    // otherwise, free strings only if the string is not pointing at proto
 

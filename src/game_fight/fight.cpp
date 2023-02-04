@@ -1160,11 +1160,11 @@ void mob_casting(CharData *ch) {
 
 void summon_mob_helpers(CharData *ch) {
 	utils::CSteppedProfiler round_profiler("Summon mob helpers", 0.1);
-	if (!ch->mob_specials.helpers.empty()) {
+	if (!ch->summon_helpers.empty()) {
 		sprintf(buf, "Mob %s (%d) have helpers", GET_NAME(ch), GET_MOB_VNUM(ch));
 		round_profiler.next_step(buf);
 	}
-	for (auto helpee :ch->mob_specials.helpers) {
+	for (auto helpee :ch->summon_helpers) {
 		// Start_fight_mtrigger using inside this loop
 		// So we have to iterate on copy list
 		sprintf(buf, "Find helper vnum %d", helpee);
@@ -1203,7 +1203,7 @@ void summon_mob_helpers(CharData *ch) {
 //		});
 		}
 	}
-	ch->mob_specials.helpers.clear();
+	ch->summon_helpers.clear();
 	round_profiler.next_step("Stop helpers");
 }
 

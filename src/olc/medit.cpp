@@ -183,16 +183,14 @@ void medit_mobile_copy(CharData *dst, CharData *src, bool partial_copy)
 	}
 	// Теперь дублирую память
 
-	dst->mob_specials.Questor = (src->mob_specials.Questor
-									 && *src->mob_specials.Questor ? str_dup(src->mob_specials.Questor)
-																   : nullptr);
-	if (partial_copy && !tmp.mob_specials.helpers.empty()) { //если неполное копирование но хелперов нет, копирнем
-		dst->mob_specials.helpers.clear();
-		std::copy(tmp.mob_specials.helpers.begin(), tmp.mob_specials.helpers.end(), std::back_inserter(dst->mob_specials.helpers));
+	dst->mob_specials.Questor = (src->mob_specials.Questor && *src->mob_specials.Questor ? str_dup(src->mob_specials.Questor) : nullptr);
+	if (partial_copy && !tmp.summon_helpers.empty()) { //если неполное копирование но хелперов нет, копирнем
+		dst->summon_helpers.clear();
+		std::copy(tmp.summon_helpers.begin(), tmp.summon_helpers.end(), std::back_inserter(dst->summon_helpers));
 	}
 	else {
-		dst->mob_specials.helpers.clear();
-		std::copy(src->mob_specials.helpers.begin(), src->mob_specials.helpers.end(), std::back_inserter(dst->mob_specials.helpers));
+		dst->summon_helpers.clear();
+		std::copy(src->summon_helpers.begin(), src->summon_helpers.end(), std::back_inserter(dst->summon_helpers));
 	}
 	// Копирую скрипт и прототипы
 	SCRIPT(dst)->cleanup();
@@ -244,7 +242,7 @@ void medit_mobile_free(CharData *mob)
 			mob->mob_specials.Questor = nullptr;
 		}
 	}
-	mob->mob_specials.helpers.clear();
+	mob->summon_helpers.clear();
 	// Скрипт уже NULL
 	if (mob->dl_list) {
 		delete (mob->dl_list);
@@ -280,7 +278,7 @@ void medit_setup(DescriptorData *d, int real_num)
 		mob->player_data.PNames[4] = "неоконченным мобом";
 		mob->player_data.PNames[5] = "неоконченном мобе";
 		mob->mob_specials.Questor = nullptr;
-		mob->mob_specials.helpers.clear();
+		mob->summon_helpers.clear();
 #if defined(OASIS_MPROG)
 		OLC_MPROGL(d) = nullptr;
 		OLC_MPROG(d) = nullptr;
@@ -383,8 +381,8 @@ void medit_save_internally(DescriptorData *d) {
 				for (j = ECase::kFirstCase; j <= ECase::kLastCase; j++) {
 					live_mob->player_data.PNames[j] = mob_proto[rmob_num].player_data.PNames[j];
 				}
-				live_mob->mob_specials.helpers.clear();
-				std::copy((mob_proto + rmob_num)->mob_specials.helpers.begin(), (mob_proto + rmob_num)->mob_specials.helpers.end(), std::back_inserter(live_mob->mob_specials.helpers));
+				live_mob->summon_helpers.clear();
+				std::copy((mob_proto + rmob_num)->summon_helpers.begin(), (mob_proto + rmob_num)->summon_helpers.end(), std::back_inserter(live_mob->summon_helpers));
 				live_mob->mob_specials.Questor = (mob_proto + rmob_num)->mob_specials.Questor;
 				// Скрипты и прототипы остаются от старого моба
 			}
@@ -690,7 +688,7 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 					fprintf(mob_file, "Spell: %d\n", to_underlying(spell_id));
 				}
 			}
-			for (auto helper : mob->mob_specials.helpers) {
+			for (auto helper : mob->summon_helpers) {
 				fprintf(mob_file, "Helper: %d\n", helper);
 			}
 			if (mob->get_role_bits().any()) {
@@ -1043,7 +1041,7 @@ void medit_disp_helpers(DescriptorData *d) {
 	SendMsgToChar("[H[J", d->character);
 #endif
 	SendMsgToChar("Установлены мобы-помощники :\r\n", d->character.get());
-	for (auto helper : OLC_MOB(d)->mob_specials.helpers) {
+	for (auto helper : OLC_MOB(d)->summon_helpers) {
 		sprintf(buf, "%s%6d%s %s", grn, helper, nrm, !(++columns % 6) ? "\r\n" : "");
 		SendMsgToChar(buf, d->character.get());
 	}
@@ -1236,7 +1234,7 @@ void medit_disp_menu(DescriptorData *d) {
 									 "%sQ%s) Выход:\r\n" "Ваш выбор: ",
 			 grn, nrm, cyn, buf1,
 			 grn, nrm, cyn, buf2,
-			 grn, nrm, cyn, mob->mob_specials.helpers.empty() ? "No" : "Yes",
+			 grn, nrm, cyn, mob->summon_helpers.empty() ? "No" : "Yes",
 			 grn, nrm,
 			 grn, nrm,
 			 grn, nrm, cyn, mob->get_str(), nrm,
@@ -2142,12 +2140,12 @@ void medit_parse(DescriptorData *d, char *arg) {
 			if ((plane = real_mobile(number)) < 0) {
 				SendMsgToChar("Нет такого моба.\r\n", d->character.get());
 			} else {
-				auto it = std::find(OLC_MOB(d)->mob_specials.helpers.begin(), OLC_MOB(d)->mob_specials.helpers.end(), number);
-				if (it != OLC_MOB(d)->mob_specials.helpers.end()) {
-					OLC_MOB(d)->mob_specials.helpers.erase(it);
+				auto it = std::find(OLC_MOB(d)->summon_helpers.begin(), OLC_MOB(d)->summon_helpers.end(), number);
+				if (it != OLC_MOB(d)->summon_helpers.end()) {
+					OLC_MOB(d)->summon_helpers.erase(it);
 				}
 				else {
-					OLC_MOB(d)->mob_specials.helpers.push_back(number);
+					OLC_MOB(d)->summon_helpers.push_back(number);
 				}
 			}
 			medit_disp_helpers(d);

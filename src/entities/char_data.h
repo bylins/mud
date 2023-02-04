@@ -164,7 +164,6 @@ struct mob_special_data {
 	int speed;
 	int hire_price;
 	ESpell capable_spell;
-	std::vector<MobVnum> helpers;
 	bool have_spell;
 };
 
@@ -822,7 +821,7 @@ class CharData : public ProtectedCharData {
 	bool agrobd;        // показывает, агробд или нет
 
 	std::map<ESpell, TemporarySpell> temp_spells;
-
+	std::list<MobVnum> summon_helpers;
 	std::vector<int> kill_list; //used only for MTRIG_KILL
  public:
 	// FOLLOWERS

@@ -1599,6 +1599,7 @@ void point_update() {
 			} else {
 				gain_condition(i, THIRST, +1);
 			}
+			UpdateCharObjects(i);
 		}
 		if (GET_POS(i) >= EPosition::kStun)    // Restore hit points
 		{
@@ -1706,7 +1707,6 @@ void point_update() {
 			i->points.hit += 2;
 		}
 		update_pos(i);
-		UpdateCharObjects(i);
 		if (!i->IsNpc()
 			&& GetRealLevel(i) < idle_max_level
 			&& !PRF_FLAGGED(i, EPrf::kCoderinfo)) {

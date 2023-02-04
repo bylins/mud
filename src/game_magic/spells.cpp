@@ -1362,7 +1362,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 				break;
 			}
 		}
-		victim->mob_specials.helpers.clear();
+		victim->summon_helpers.clear();
 		if (victim->IsNpc()) {
 			if (!MOB_FLAGGED(victim, EMobFlag::kSummoned)) { // только если не маг зверьки ()
 				for (int i = 0; i < EEquipPos::kNumEquipPos; i++) {

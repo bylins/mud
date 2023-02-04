@@ -1441,7 +1441,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 	}
 
 	CASE("Helper") {
-		mob_proto[i].mob_specials.helpers.push_back(num_arg);
+		mob_proto[i].summon_helpers.push_back(num_arg);
 	}
 
 	CASE("Role") {
