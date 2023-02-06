@@ -86,7 +86,7 @@ int set_hit(CharData *ch, CharData *victim) {
 		hit(ch, victim, ESkill::kUndefined,
 			AFF_FLAGGED(ch, EAffect::kStopRight) ? fight::kOffHand : fight::kMainHand);
 	}
-	SetWait(ch, 2, true);
+	SetWait(ch, 1, true);
 	//ch->setSkillCooldown(kGlobalCooldown, 2);
 	return (true);
 };

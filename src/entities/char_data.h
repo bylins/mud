@@ -164,6 +164,7 @@ struct mob_special_data {
 	int speed;
 	int hire_price;
 	ESpell capable_spell;
+	bool have_spell;
 };
 
 // Structure used for extra_attack - bash, kick, diasrm, chopoff, etc
@@ -801,7 +802,7 @@ class CharData : public ProtectedCharData {
 	int caster_level;
 	int damage_level;
 	struct PK_Memory_type *pk_list;
-	struct Helper *helpers;
+
 	int track_dirs;
 	bool check_aggressive;
 	int extract_timer;
@@ -820,7 +821,7 @@ class CharData : public ProtectedCharData {
 	bool agrobd;        // показывает, агробд или нет
 
 	std::map<ESpell, TemporarySpell> temp_spells;
-
+	std::list<MobVnum> summon_helpers;
 	std::vector<int> kill_list; //used only for MTRIG_KILL
  public:
 	// FOLLOWERS

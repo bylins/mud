@@ -357,7 +357,6 @@ void CharData::zero_init() {
 	caster_level = 0;
 	damage_level = 0;
 	pk_list = nullptr;
-	helpers = nullptr;
 	track_dirs = 0;
 	check_aggressive = false;
 	extract_timer = 0;
@@ -436,12 +435,8 @@ void CharData::purge() {
 	if (!this->IsNpc() || (this->IsNpc() && GET_MOB_RNUM(this) == -1)) {
 		if (this->IsNpc() && this->mob_specials.Questor)
 			free(this->mob_specials.Questor);
-
 		pk_free_list(this);
-
-		while (this->helpers) {
-			REMOVE_FROM_LIST(this->helpers, this->helpers, [](auto list) -> auto & { return list->next; });
-		}
+		this->summon_helpers.clear();
 	} else if ((i = GET_MOB_RNUM(this))
 		>= 0) {    // otherwise, free strings only if the string is not pointing at proto
 

@@ -355,6 +355,7 @@ void do_opurge(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigge
 
 	if (!(ch = get_char_by_obj(obj, arg))) {
 		if ((o = get_obj_by_obj(obj, arg))) {
+			log("Purge obj #%d by %s (opurge)", GET_OBJ_VNUM(o), arg);
 			ExtractObjFromWorld(o, false);
 		} else
 			obj_log(obj, "opurge: bad argument");

@@ -394,13 +394,17 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 			}
 		}
 		SendMsgToChar(ch, "\r\n");
-		SendMsgToChar(ch, "&GЗаклинания:&c");
-		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
-			if (MUD::Spell(spell_id).IsUnavailable()) {
-				continue;
-			}
-			if (GET_SPELL_MEM(k, spell_id)) {
-				SendMsgToChar(ch, " %s:[%d]", MUD::Spell(spell_id).GetCName(), GET_SPELL_MEM(k, spell_id));
+		if (!k->mob_specials.have_spell) {
+			SendMsgToChar(ch, "&GЗаклинания: &Rнет&n");
+		} else {
+			SendMsgToChar(ch, "&GЗаклинания:&c");
+			for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
+				if (MUD::Spell(spell_id).IsUnavailable()) {
+					continue;
+				}
+				if (GET_SPELL_MEM(k, spell_id)) {
+					SendMsgToChar(ch, " %s:[%d]", MUD::Spell(spell_id).GetCName(), GET_SPELL_MEM(k, spell_id));
+				}
 			}
 		}
 		SendMsgToChar(ch, "\r\n");

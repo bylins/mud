@@ -1159,13 +1159,20 @@ void mob_casting(CharData *ch) {
 							AFF_FLAGGED(ch, EAffect::kHold) || (ch)->get_wait()))
 
 void summon_mob_helpers(CharData *ch) {
-	for (struct Helper *helpee = ch->helpers;
-		 helpee; helpee = helpee->next) {
+	utils::CSteppedProfiler round_profiler("Summon mob helpers", 0.1);
+	if (!ch->summon_helpers.empty()) {
+		sprintf(buf, "Mob %s (%d) have helpers", GET_NAME(ch), GET_MOB_VNUM(ch));
+		round_profiler.next_step(buf);
+	}
+	for (auto helpee :ch->summon_helpers) {
 		// Start_fight_mtrigger using inside this loop
 		// So we have to iterate on copy list
-		character_list.foreach_on_copy([&](const CharData::shared_ptr &vict) {
+		sprintf(buf, "Find helper vnum %d", helpee);
+		round_profiler.next_step(buf);
+//		character_list.foreach_on_copy([&](const CharData::shared_ptr &vict) {
+		for (const auto &vict: character_list) {
 			if (!vict->IsNpc()
-				|| GET_MOB_VNUM(vict) != helpee->mob_vnum
+				|| GET_MOB_VNUM(vict) != helpee
 				|| AFF_FLAGGED(ch, EAffect::kCharmed)
 				|| AFF_FLAGGED(vict, EAffect::kHold)
 				|| AFF_FLAGGED(vict, EAffect::kCharmed)
@@ -1174,26 +1181,30 @@ void summon_mob_helpers(CharData *ch) {
 				|| GET_POS(vict) < EPosition::kStand
 				|| IN_ROOM(vict) == kNowhere
 				|| vict->GetEnemy()) {
-				return;
+				continue;
+//				return;
 			}
+			MOB_FLAGS(vict).set(EMobFlag::kHelper);
 			if (GET_RACE(ch) == ENpcRace::kHuman) {
 				act("$n воззвал$g : \"На помощь, мои верные соратники!\"",
 					false, ch, 0, 0, kToRoom | kToArenaListen);
 			}
 			if (IN_ROOM(vict) != ch->in_room) {
+				act("$n был$g призван$g $N4.", false, vict.get(), 0, ch, kToRoom | kToArenaListen);
 				char_from_room(vict);
 				char_to_room(vict, ch->in_room);
-				act("$n прибыл$g на зов и вступил$g в битву на стороне $N1.",
-					false, vict.get(), 0, ch, kToRoom | kToArenaListen);
+				act("$n прибыл$g на зов и вступил$g в битву на стороне $N1.", false, vict.get(), 0, ch, kToRoom | kToArenaListen);
 			} else {
-				act("$n вступил$g в битву на стороне $N1.",
-					false, vict.get(), 0, ch, kToRoom | kToArenaListen);
+				act("$n вступил$g в битву на стороне $N1.", false, vict.get(), 0, ch, kToRoom | kToArenaListen);
 			}
 			if (MAY_ATTACK(vict)) {
 				set_fighting(vict, ch->GetEnemy());
 			}
-		});
+//		});
+		}
 	}
+	ch->summon_helpers.clear();
+	round_profiler.next_step("Stop helpers");
 }
 
 void check_mob_helpers() {
@@ -1846,6 +1857,7 @@ void process_npc_attack(CharData *ch) {
 }
 
 void process_player_attack(CharData *ch, int min_init) {
+	utils::CSteppedProfiler round_profiler("process player attack", 0.01);
 	if (GET_POS(ch) > EPosition::kStun
 		&& GET_POS(ch) < EPosition::kFight
 		&& GET_AF_BATTLE(ch, kEafStand)) {
@@ -1858,6 +1870,7 @@ void process_player_attack(CharData *ch, int min_init) {
 	Bitvector trigger_code = fight_otrigger(ch);
 
 	//* каст заклинания
+	round_profiler.next_step("Cast spell");
 	if (ch->GetCastSpell() != ESpell::kUndefined && ch->get_wait() <= 0 && !IS_SET(trigger_code, kNoCastMagic)) {
 		if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
 			SendMsgToChar("Вы не смогли вымолвить и слова.\r\n", ch);
@@ -1877,7 +1890,7 @@ void process_player_attack(CharData *ch, int min_init) {
 
 	if (GET_AF_BATTLE(ch, kEafMultyparry))
 		return;
-
+	round_profiler.next_step("Use extra attack");
 	//* применение экстра скилл-атак (пнуть, оглушить и прочая)
 	if (!IS_SET(trigger_code, kNoExtraAttack) && ch->GetExtraVictim()
 		&& ch->get_wait() <= 0 && using_extra_attack(ch)) {
@@ -1892,7 +1905,7 @@ void process_player_attack(CharData *ch, int min_init) {
 		|| ch->in_room != IN_ROOM(ch->GetEnemy())) {
 		return;
 	}
-
+	round_profiler.next_step("hit mainhand");
 	//**** удар основным оружием или рукой
 	if (GET_AF_BATTLE(ch, kEafFirst)) {
 		if (!IS_SET(trigger_code, kNoRightHandAttack) && !AFF_FLAGGED(ch, EAffect::kStopRight)
@@ -1910,6 +1923,7 @@ void process_player_attack(CharData *ch, int min_init) {
 			else tmpSkilltype = ESkill::kUndefined;
 			exthit(ch, tmpSkilltype, fight::AttackType::kMainHand);
 		}
+		round_profiler.next_step("hit add boths weapon");
 // допатака двуручем
 		if (!IS_SET(trigger_code, kNoExtraAttack) && GET_EQ(ch, EEquipPos::kBoths) 
 			&& CanUseFeat(ch, EFeat::kTwohandsFocus)
@@ -1925,7 +1939,7 @@ void process_player_attack(CharData *ch, int min_init) {
 			return;
 		}
 	}
-
+	round_profiler.next_step("hit offhand");
 	//**** удар вторым оружием если оно есть и умение позволяет
 	if (!IS_SET(trigger_code, kNoLeftHandAttack) && GET_EQ(ch, EEquipPos::kHold)
 		&& GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kHold)) == EObjType::kWeapon
@@ -1951,7 +1965,7 @@ void process_player_attack(CharData *ch, int min_init) {
 		}
 		CLR_AF_BATTLE(ch, kEafSecond);
 	}
-
+	round_profiler.next_step("try angel");
 	// немного коряво, т.к. зависит от инициативы кастера
 	// check if angel is in fight, and go_rescue if it is not
 	try_angel_rescue(ch);
@@ -2022,16 +2036,18 @@ bool stuff_before_round(CharData *ch) {
 // * Обработка текущих боев, дергается каждые 2 секунды.
 void perform_violence() {
 	int max_init = -100, min_init = 100;
-	utils::CExecutionTimer violence_timer;
-	static int violence_round = 0;
+	utils::CSteppedProfiler round_profiler("Perform violence", 0.1);
 
 	//* суммон хелперов
+	sprintf(buf, "Check mob helpers");
+	round_profiler.next_step(buf);
 	check_mob_helpers();
 
 	// храним список писей, которым надо показать состояние группы по msdp
 	std::unordered_set<CharData *> msdp_report_chars;
 
 	//* действия до раунда и расчет инициативы
+	round_profiler.next_step("Calc initiative");
 	for (CharData *ch = combat_list; ch; ch = next_combat_list) {
 		next_combat_list = ch->next_fighting;
 
@@ -2070,15 +2086,13 @@ void perform_violence() {
 		min_init = MIN(min_init, initiative);
 	}
 	int size = 0;
-	std::stringstream ss;
 	//* обработка раунда по очередности инициативы
+	round_profiler.next_step("Round check");
 	for (int initiative = max_init; initiative >= min_init; initiative--) {
 		size = 0;
-		ss.str("");
 		for (CharData *ch = combat_list; ch; ch = next_combat_list) {
 			next_combat_list = ch->next_fighting;
 			size++;
-			ss << GET_NAME(ch) << " (" << GET_MOB_VNUM(ch) << ") ";
 			if (ch->initiative != initiative || ch->in_room == kNowhere) {
 				continue;
 			}
@@ -2098,21 +2112,23 @@ void perform_violence() {
 			if (initiative == 0) {
 				continue;
 			}
+			utils::CExecutionTimer violence_timer;
 			//* выполнение атак в раунде
 			if (ch->IsNpc()) {
 				process_npc_attack(ch);
 			} else {
 				process_player_attack(ch, min_init);
 			}
+			if (violence_timer.delta().count() > 0.01) {
+				log("Process player attack, name %s, time %f", GET_NAME(ch), violence_timer.delta().count());
+			}
 		}
 	}
-	if (violence_timer.delta().count() > 0.01) {
-		sprintf(buf, "initiative: (%d) min: %d, max:%d, time: %f, combat_list: %d", violence_round++, min_init, max_init, violence_timer.delta().count(), size);
-		log("combat list: %s\r\n%s", ss.str().c_str(), buf);
-	}
 	//* обновление аффектов и лагов после раунда
+	round_profiler.next_step("Update round affs");
 	update_round_affs();
 
+	round_profiler.next_step("MSDP reports");
 	for (auto d = descriptor_list; d; d = d->next) {
 		if (STATE(d) == CON_PLAYING && d->character) {
 			for (const auto &ch : msdp_report_chars) {

@@ -1249,7 +1249,6 @@ std::vector<std::string> split_string(const char *str, std::string separator = "
  * function!  No other changes need to be made anywhere in the code.
  */
 void MobileFile::interpret_espec(const char *keyword, const char *value, int i, int nr) {
-	struct Helper *helper;
 	int num_arg, matched = 0, t[4];
 
 	num_arg = atoi(value);
@@ -1438,13 +1437,11 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 		}
 		GET_SPELL_MEM(mob_proto + i, spell_id) += 1;
 		(mob_proto + i)->caster_level += (MUD::Spell(spell_id).IsFlagged(NPC_CALCULATE) ? 1 : 0);
+		mob_proto[i].mob_specials.have_spell = true;
 	}
 
 	CASE("Helper") {
-		CREATE(helper, 1);
-		helper->mob_vnum = num_arg;
-		helper->next = (mob_proto + i)->helpers;
-		(mob_proto + i)->helpers = helper;
+		mob_proto[i].summon_helpers.push_back(num_arg);
 	}
 
 	CASE("Role") {

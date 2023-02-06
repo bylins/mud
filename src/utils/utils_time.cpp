@@ -24,38 +24,45 @@ void CSteppedProfiler::next_step(const std::string &step_name) {
 void CSteppedProfiler::report() const {
 	FILE *flog;
 	std::stringstream ss;
-	ss << "Stepped profiler report for scope '" << m_scope_name << "'";
-	if (0 == m_steps.size()) {
-		ss << ": it took ";
-	} else {
-		ss << ": " << std::endl;
+	if (m_time_probe == 0 || m_timer.delta().count() > m_time_probe) {
+		const time_t ct = time(0);
+		const char *time_s = asctime(localtime(&ct));
 
-		size_t number = 0;
-		auto steps = m_steps;
-		steps.sort(step_t__less);
-		for (const auto &step : steps) {
-			++number;
-			ss << "  " << number << ". Step '" << step->name() << "' took "
-			   << std::fixed << std::setprecision(6) << step->duration().count() << " second(s) ("
-			   << std::fixed << std::setprecision(6) << (100 * step->duration().count() / m_timer.delta().count())
-			   << "%)"
-			   << ";" << std::endl;
+		ss << time_s;
+		ss.seekp(-1, std::ios_base::end);
+		ss << " Stepped profiler report for scope '" << m_scope_name << "'";
+		if (0 == m_steps.size()) {
+			ss << ": it took ";
+		} else {
+			ss << ":" << std::endl;
+
+			size_t number = 0;
+			auto steps = m_steps;
+			steps.sort(step_t__less);
+			for (const auto &step : steps) {
+				++number;
+				ss << "  " << number << ". Step '" << step->name() << "' took "
+				   << std::fixed << std::setprecision(6) << step->duration().count() << " second(s) ("
+				   << std::fixed << std::setprecision(6) << (100 * step->duration().count() / m_timer.delta().count())
+				   << "%)"
+				   << ";" << std::endl;
+			}
+
+			ss << "Whole scope took ";
+		}
+		ss << std::fixed << std::setprecision(6) << "time probe: " << m_time_probe << " total time: "<< m_timer.delta().count() << " second(s)\n";
+// спам сислога, кому надо уберите
+//		log("INFO: %s\n", ss.str().c_str());
+
+		flog = fopen(LOAD_LOG_FOLDER LOAD_LOG_FILE, "a");
+		if (!flog) {
+				log("ERROR: Can't open file %s", LOAD_LOG_FOLDER LOAD_LOG_FILE);
+			return;
 		}
 
-		ss << "Whole scope took ";
+		fprintf(flog, "%s", ss.str().c_str());
+		fclose(flog);
 	}
-	ss << std::fixed << std::setprecision(6) << m_timer.delta().count() << " second(s)";
-
-	log("INFO: %s\n", ss.str().c_str());
-
-	flog = fopen(LOAD_LOG_FOLDER LOAD_LOG_FILE, "w");
-	if (!flog) {
-		log("ERROR: Can't open file %s", LOAD_LOG_FOLDER LOAD_LOG_FILE);
-		return;
-	}
-
-	fprintf(flog, "%s", ss.str().c_str());
-	fclose(flog);
 }
 
 void CSteppedProfiler::CExecutionStepProfiler::stop() {
