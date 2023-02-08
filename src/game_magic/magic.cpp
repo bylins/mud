@@ -2016,8 +2016,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			}
 */
 			if (spell_id==ESpell::kEarthfall){
-				auto skill = ch->GetSkill(GetMagicSkillId(spell_id));
-				modi += skill/5;
+				modi += ch->GetSkill(GetMagicSkillId(spell_id))/5;
 			}
 			if (IS_IMMORTAL(victim) || (!IS_IMMORTAL(ch) && CalcGeneralSaving(ch, victim, savetype, modi))) {
 				SendMsgToChar(NOEFFECT, ch);
