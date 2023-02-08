@@ -1461,7 +1461,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kMassSlow:
 		case ESpell::kSlowdown: savetype = ESaving::kStability;
 			if (AFF_FLAGGED(victim, EAffect::kBrokenChains)
-				|| (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi * number(1, koef_modifier / 2)))) {
+				|| (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi))) {
 				SendMsgToChar(NOEFFECT, ch);
 				success = false;
 				break;
@@ -2015,7 +2015,12 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				default: break;
 			}
 */
+			if (spell_id==ESpell::kEarthfall){
+				auto skill = ch->GetSkill(GetMagicSkillId(spell_id));
+				modi += skill/5;
+			}
 			if (IS_IMMORTAL(victim) || (!IS_IMMORTAL(ch) && CalcGeneralSaving(ch, victim, savetype, modi))) {
+				SendMsgToChar(NOEFFECT, ch);
 				success = false;
 				break;
 			}
