@@ -28,6 +28,7 @@
 #include <unordered_map>
 #include <array>
 #include <memory>
+#include <algorithm>
 
 //#include "utils/wrapper.h"
 

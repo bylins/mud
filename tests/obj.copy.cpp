@@ -3,23 +3,23 @@
 #include <entities/obj_data.h>
 #include <dg_script/dg_scripts.h>
 
-constexpr obj_vnum OBJECT_VNUM = 100500;
-constexpr obj_vnum PROTOTYPE_VNUM = 100501;
+constexpr ObjVnum OBJECT_VNUM = 100500;
+constexpr ObjVnum PROTOTYPE_VNUM = 100501;
 
-constexpr obj_rnum OBJECT_RNUM = 100510;
-constexpr obj_rnum PROTOTYPE_RNUM = 100511;
+constexpr ObjRnum OBJECT_RNUM = 100510;
+constexpr ObjRnum PROTOTYPE_RNUM = 100511;
 
 const std::string ACTION_DESCRIPTION = "action description";
 const std::string CASE_PREFIX = "case ";
 const CObjectPrototype::triggers_list_t TRIGGERS_LIST = { 1, 2, 3 };
 
-auto create_empty_object(const obj_vnum vnum)
+auto create_empty_object(const ObjVnum vnum)
 {
-	auto result = std::make_shared<ObjectData>(vnum);
+	auto result = std::make_shared<ObjData>(vnum);
 	return result;
 }
 
-auto create_object(const obj_vnum vnum)
+auto create_object(const ObjVnum vnum)
 {
 	auto result = create_empty_object(vnum);
 	result->set_rnum(OBJECT_RNUM);
@@ -171,8 +171,8 @@ TEST(Object_Copy, Assignment_Operator)
 */
 TEST(Object_Copy, Swap)
 {
-	constexpr obj_vnum VNUM1 = 1;
-	constexpr obj_vnum VNUM2 = 2;
+	constexpr ObjVnum VNUM1 = 1;
+	constexpr ObjVnum VNUM2 = 2;
 	auto object1 = create_object(VNUM1);
 	object1->set_proto_script({1, 2, 3});
 	auto object2 = create_object(VNUM2);

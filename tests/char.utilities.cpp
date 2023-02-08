@@ -1,7 +1,7 @@
 #include "char.utilities.hpp"
 
 #include <utils/utils.h>
-#include <chars/char.h>
+#include <entities/char_data.h>
 #include <handler.h>
 #include <act_other.h>
 
