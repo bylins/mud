@@ -1159,21 +1159,22 @@ void mob_casting(CharData *ch) {
 							AFF_FLAGGED(ch, EAffect::kHold) || (ch)->get_wait()))
 
 void summon_mob_helpers(CharData *ch) {
-	utils::CSteppedProfiler round_profiler("Summon mob helpers", 0.1);
-	if (!ch->summon_helpers.empty()) {
-		sprintf(buf, "Mob %s (%d) have helpers", GET_NAME(ch), GET_MOB_VNUM(ch));
-		round_profiler.next_step(buf);
+	if (ch->summon_helpers.empty()) {
+		return;
 	}
+	utils::CSteppedProfiler round_profiler("Summon mob helpers", 0,001);
+
+	sprintf(buf, "Mob %s (%d) have helpers", GET_NAME(ch), GET_MOB_VNUM(ch));
+	round_profiler.next_step(buf);
 	for (auto helpee :ch->summon_helpers) {
 		// Start_fight_mtrigger using inside this loop
 		// So we have to iterate on copy list
 		sprintf(buf, "Find helper vnum %d", helpee);
 		round_profiler.next_step(buf);
-//		character_list.foreach_on_copy([&](const CharData::shared_ptr &vict) {
-		for (const auto &vict: character_list) {
-			if (!vict->IsNpc()
-				|| GET_MOB_VNUM(vict) != helpee
-				|| AFF_FLAGGED(ch, EAffect::kCharmed)
+		Characters::list_t mobs;
+		character_list.get_mobs_by_rnum(real_mobile(helpee), mobs);
+		for (const auto &vict : mobs) {
+			if (AFF_FLAGGED(ch, EAffect::kCharmed)
 				|| AFF_FLAGGED(vict, EAffect::kHold)
 				|| AFF_FLAGGED(vict, EAffect::kCharmed)
 				|| AFF_FLAGGED(vict, EAffect::kBlind)
@@ -1182,7 +1183,6 @@ void summon_mob_helpers(CharData *ch) {
 				|| IN_ROOM(vict) == kNowhere
 				|| vict->GetEnemy()) {
 				continue;
-//				return;
 			}
 			MOB_FLAGS(vict).set(EMobFlag::kHelper);
 			if (GET_RACE(ch) == ENpcRace::kHuman) {
@@ -1200,7 +1200,6 @@ void summon_mob_helpers(CharData *ch) {
 			if (MAY_ATTACK(vict)) {
 				set_fighting(vict, ch->GetEnemy());
 			}
-//		});
 		}
 	}
 	ch->summon_helpers.clear();
