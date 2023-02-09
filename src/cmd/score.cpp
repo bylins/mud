@@ -799,8 +799,7 @@ void PrintScoreBase(CharData *ch) {
 
 	int glory = Glory::get_glory(GET_UNIQUE(ch));
 	if (glory) {
-		sprintf(buf + strlen(buf), "Вы заслужили %d %s славы.\r\n",
-				glory, GetDeclensionInNumber(glory, EWhat::kPoint));
+	//	sprintf(buf + strlen(buf), "Вы заслужили %d %s славы.\r\n", glory, GetDeclensionInNumber(glory, EWhat::kPoint));
 	}
 	glory = GloryConst::get_glory(GET_UNIQUE(ch));
 	if (glory) {
