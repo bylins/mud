@@ -517,6 +517,7 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 
 	if (ch_room == kNowhere || vic_room == kNowhere) {
 		SendMsgToChar(SUMMON_FAIL, ch);
+		ch->send_to_TC(true, true, true, "Цель в Nowhere\r\n");
 		return;
 	}
 
@@ -533,9 +534,8 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 	}
 
 	if (!ch->IsNpc() && victim->IsNpc()) {
-		if (victim->get_master() != ch  //поправим это, тут и так понято что чармис ()
-			|| victim->GetEnemy()
-			|| GET_POS(victim) < EPosition::kRest) {
+		if (victim->get_master() != ch) {
+			ch->send_to_TC(true, true, true, "Чармис не ваш\r\n");
 			SendMsgToChar(SUMMON_FAIL, ch);
 			return;
 		}
@@ -544,10 +544,12 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 	if (!IS_IMMORTAL(ch)) {
 		if (!ch->IsNpc() || IS_CHARMICE(ch)) {
 			if (AFF_FLAGGED(ch, EAffect::kGodsShield)) {
+				ch->send_to_TC(true, true, true, "Чармис под зб\r\n");
 				SendMsgToChar(SUMMON_FAIL3, ch);
 				return;
 			}
 			if (!PRF_FLAGGED(victim, EPrf::KSummonable) && !same_group(ch, victim)) {
+				ch->send_to_TC(true, true, true, "Чармис не в вашей группе\r\n");
 				SendMsgToChar(SUMMON_FAIL2, ch);
 				return;
 			}
@@ -555,12 +557,15 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 				SendMsgToChar(SUMMON_FAIL, ch);
 				return;
 			}
-			if (victim->GetEnemy()) {
+			if (victim->GetEnemy()
+				|| GET_POS(victim) < EPosition::kRest) {
+				ch->send_to_TC(true, true, true, "Чармис сражается или дрыхнет\r\n");
 				SendMsgToChar(SUMMON_FAIL4, ch);
 				return;
 			}
 		}
 		if (victim->get_wait() > 0) {
+			ch->send_to_TC(true, true, true, "Чармис в лаге\r\n");
 			SendMsgToChar(SUMMON_FAIL, ch);
 			return;
 		}
@@ -578,11 +583,13 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 			|| SECT(ch->in_room) == ESector::kSecret
 			|| (!same_group(ch, victim)
 				&& (ROOM_FLAGGED(ch_room, ERoomFlag::kPeaceful) || ROOM_FLAGGED(ch_room, ERoomFlag::kArena)))) {
+			ch->send_to_TC(true, true, true, "Чармис в носуммоне\r\n");
 			SendMsgToChar(SUMMON_FAIL, ch);
 			return;
 		}
 		// отдельно проверку на клан комнаты, своих чармисов призвать можем ()
 		if (!Clan::MayEnter(victim, ch_room, kHousePortal) && !(victim->has_master()) && (victim->get_master() != ch)) {
+			ch->send_to_TC(true, true, true, "Чармис доступ в замок запрещен\r\n");
 			SendMsgToChar(SUMMON_FAIL, ch);
 			return;
 		}
@@ -594,6 +601,7 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 				|| AFF_FLAGGED(victim, EAffect::kNoTeleport)
 				|| (!same_group(ch, victim)
 					&& (ROOM_FLAGGED(vic_room, ERoomFlag::kTunnel) || ROOM_FLAGGED(vic_room, ERoomFlag::kArena)))) {
+				ch->send_to_TC(true, true, true, "Чармис в носуммоне\r\n");
 				SendMsgToChar(SUMMON_FAIL, ch);
 				return;
 			}
@@ -608,8 +616,10 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 			return;
 		}
 	}
-	if (!enter_wtrigger(world[ch_room], ch, -1))
+	if (!enter_wtrigger(world[ch_room], ch, -1)) {
+		ch->send_to_TC(true, true, true, "Чармис призыв запрещен триггером\r\n");
 		return;
+	}
 	act("$n растворил$u на ваших глазах.", true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 	RemoveCharFromRoom(victim);
 	PlaceCharToRoom(victim, ch_room);
