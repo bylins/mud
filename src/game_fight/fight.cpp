@@ -1162,15 +1162,9 @@ void summon_mob_helpers(CharData *ch) {
 	if (ch->summon_helpers.empty()) {
 		return;
 	}
-	utils::CSteppedProfiler round_profiler("Summon mob helpers", 0,001);
-
-	sprintf(buf, "Mob %s (%d) have helpers", GET_NAME(ch), GET_MOB_VNUM(ch));
-	round_profiler.next_step(buf);
 	for (auto helpee :ch->summon_helpers) {
 		// Start_fight_mtrigger using inside this loop
 		// So we have to iterate on copy list
-		sprintf(buf, "Find helper vnum %d", helpee);
-		round_profiler.next_step(buf);
 		Characters::list_t mobs;
 		character_list.get_mobs_by_rnum(real_mobile(helpee), mobs);
 		for (const auto &vict : mobs) {
@@ -1203,7 +1197,6 @@ void summon_mob_helpers(CharData *ch) {
 		}
 	}
 	ch->summon_helpers.clear();
-	round_profiler.next_step("Stop helpers");
 }
 
 void check_mob_helpers() {
