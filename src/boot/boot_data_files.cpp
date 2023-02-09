@@ -1400,12 +1400,12 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 
 	CASE("Feat") {
 		if (sscanf(value, "%d", t) != 1) {
-			log("SYSERROR : Excepted format <#> for FEAT in MOB #%d", i);
+			log("SYSERROR : Excepted format <#> for FEAT in MOB #%d", nr);
 			return;
 		}
 		auto feat_id = static_cast<EFeat>(t[0]);
 		if (MUD::Feats().IsUnknown(feat_id)) {
-			log("SYSERROR : Unknown feat No %d for MOB #%d", t[0], i);
+			log("SYSERROR : Unknown feat No %d for MOB #%d", t[0], nr);
 			return;
 		}
 		(mob_proto + i)->SetFeat(feat_id);
@@ -1413,7 +1413,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 
 	CASE("Skill") {
 		if (sscanf(value, "%d %d", t, t + 1) != 2) {
-			log("SYSERROR : Excepted format <# #> for SKILL in MOB #%d", i);
+			log("SYSERROR : Excepted format <# #> for SKILL in MOB #%d", nr);
 			return;
 		}
 		auto skill_id = static_cast<ESkill>(t[0]);
@@ -1427,12 +1427,12 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 
 	CASE("Spell") {
 		if (sscanf(value, "%d", t + 0) != 1) {
-			log("SYSERROR : Excepted format <#> for SPELL in MOB #%d", i);
+			log("SYSERROR : Excepted format <#> for SPELL in MOB #%d", nr);
 			return;
 		}
 		auto spell_id = static_cast<ESpell>(t[0]);
 		if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast) {
-			log("SYSERROR : Unknown spell No %d for MOB #%d", t[0], i);
+			log("SYSERROR : Unknown spell No %d for MOB #%d", t[0], nr);
 			return;
 		}
 		GET_SPELL_MEM(mob_proto + i, spell_id) += 1;
@@ -1441,6 +1441,11 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 	}
 
 	CASE("Helper") {
+		auto it = find(mob_proto[i].summon_helpers.begin(), mob_proto[i].summon_helpers.end(), num_arg);
+		if (it != mob_proto[i].summon_helpers.end()) {
+			log("SYSERROR : Dublicate helpers #%d for MOB #%d", num_arg, nr);
+			return;
+		}
 		mob_proto[i].summon_helpers.push_back(num_arg);
 	}
 
