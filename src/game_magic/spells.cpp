@@ -982,7 +982,10 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 			for (k = ch->followers; k; k = k_next) {
 				k_next = k->next;
 				if (IS_CHARMICE(k->follower) && k->follower->get_type_charmice() > 0) {
-					rndcharmice.erase(rndcharmice.begin() + k->follower->get_type_charmice() - 1);
+					auto it = std::find(rndcharmice.begin(), rndcharmice.end(),  k->follower->get_type_charmice());
+					if (it != rndcharmice.end()) {
+						rndcharmice.erase(it);
+					}
 //					SendMsgToChar(ch, "Найден в последователях Чармис тип %d\r\n", k->follower->get_type_charmice());
 				}
 			}

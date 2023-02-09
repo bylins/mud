@@ -1393,17 +1393,6 @@ CharData *SearchCharInRoomByName(char *name, RoomRnum room) {
 	return nullptr;
 }
 
-// search all over the world for a char num, and return a pointer if found //
-CharData *SearchCharByRnum(MobRnum rnum) {
-	for (const auto &i : character_list) {
-		if (i->get_rnum() == rnum) {
-			return i.get();
-		}
-	}
-
-	return nullptr;
-}
-
 const int kMoneyDestroyTimer = 60;
 const int kDeathDestroyTimer = 5;
 const int kRoomDestroyTimer = 10;

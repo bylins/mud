@@ -86,7 +86,6 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog = true);
 // ******* characters ********* //
 
 CharData *SearchCharInRoomByName(char *name, RoomRnum room);
-CharData *SearchCharByRnum(MobRnum rnum);
 CharData *get_char(char *name, bool pc = false);
 
 void RemoveCharFromRoom(CharData *ch);
