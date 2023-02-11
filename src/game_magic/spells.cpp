@@ -522,6 +522,7 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 	}
 
 	if (ch->IsNpc() && victim->IsNpc()) {
+		ch->send_to_TC(true, true, true, "Да ты МОБ!!!!!\r\n");
 		SendMsgToChar(SUMMON_FAIL, ch);
 		return;
 	}
@@ -607,7 +608,7 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 			}
 		} else {
 			if (ROOM_FLAGGED(vic_room, ERoomFlag::kNoSummonOut) || AFF_FLAGGED(victim, EAffect::kNoTeleport)) {
-				SendMsgToChar(SUMMON_FAIL, ch);
+				SendMsgToChar("Неведомая сила блокирует ваш призыв.\r\n", ch);
 				return;
 			}
 		}

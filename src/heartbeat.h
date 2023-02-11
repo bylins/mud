@@ -65,7 +65,7 @@ class BasePulseMeasurements {
 	using min_t = std::multiset<measurement_t, Min>;
 	using max_t = std::multiset<measurement_t, Max>;
 
-	static constexpr std::size_t WINDOW_SIZE = 100;
+	static constexpr std::size_t WINDOW_SIZE = 1000;
 
 	void add_measurement(const measurement_t &measurement);
 	void squeeze();
