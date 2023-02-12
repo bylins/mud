@@ -529,6 +529,7 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 
 	if (IS_IMMORTAL(victim)) {
 		if (ch->IsNpc() || (!ch->IsNpc() && GetRealLevel(ch) < GetRealLevel(victim))) {
+			ch->send_to_TC(true, true, true, "Неположено сие деяние!\r\n");
 			SendMsgToChar(SUMMON_FAIL, ch);
 			return;
 		}
@@ -555,6 +556,7 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 				return;
 			}
 			if (NORENTABLE(victim)) {
+				ch->send_to_TC(true, true, true, "Ваш чармис совсем не рентабелен!\r\n");
 				SendMsgToChar(SUMMON_FAIL, ch);
 				return;
 			}
@@ -571,6 +573,7 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 			return;
 		}
 		if (!ch->IsNpc() && !victim->IsNpc() && GetRealLevel(victim) <= 10) {
+			ch->send_to_TC(true, true, true, "У чармиса резко понизился уровень!\r\n");
 			SendMsgToChar(SUMMON_FAIL, ch);
 			return;
 		}
