@@ -301,14 +301,14 @@ float CalcModCoef(ESpell spell_id, int percent) {
 			return 1;
 			break;
 		case ESpell::kWhirlwind:
-			if (percent > 60) {
-				return (percent) / 60; // 120 -2 вихря, 180 вихря и т.д.
+			if (percent > 80) {
+				return (percent) / 80; // 160 -2 вихря, 240 - 3 вихря и т.д.
 			}
 			return 1;
 			break;
 		case ESpell::kLightingBolt:
 			if (percent > 100) {
-				return (percent - 80) / 20; // 
+				return (percent - 70) / 30; // 130 - 2 молнии, 160 -3, 190 -4
 			}
 			return 1;
 			break;
@@ -507,12 +507,12 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kLightingBolt: {
 				count = CalcModCoef(spell_id, ch->GetSkill(GetMagicSkillId(spell_id)));
 				count += number(1, 5)==1?1:0;
-				count = std::max(count, 4);
+				count = std::min(count, 4);
 			break;
 		}
 		case ESpell::kWhirlwind: {
 				count = CalcModCoef(spell_id, ch->GetSkill(GetMagicSkillId(spell_id)));
-				count += number(1, 5)==1?1:0;
+				count += number(1, 7)==1?1:0;
 			break;
 		}
 		case ESpell::kAcid: {

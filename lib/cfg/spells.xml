@@ -733,7 +733,7 @@ base_stat id - (например "kWis") какой берем параметр,
             <action>
                 <damage saving="kWill">
                     <dices ndice="25" sdice="30" adice="180"/>
-                    <base_skill id="kFireMagic" low_skill_bonus="2.75" hi_skill_bonus="3"/>
+                    <base_skill id="kFireMagic" low_skill_bonus="2.5" hi_skill_bonus="2.75"/>
                     <base_stat id="kWis" threshold="22" weight="3.5"/>
                 </damage>
             </action>
@@ -2207,14 +2207,14 @@ base_stat id - (например "kWis") какой берем параметр,
     <spell id="kWhirlwind" element="kAir" mode="kEnabled">
         <name rus="вихрь" eng="whirlwind"/>
         <misc pos="kFight" violent="Y" danger="2"/>
-        <mana max="100" min="70" change="1"/>
+        <mana max="100" min="80" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagDamage|kNpcDamagePc|kNpcDamagePcMinhp"/>
         <talent_actions>
             <action>
                 <damage saving="kStability">
-                    <dices ndice="18" sdice="20" adice="65"/>
-                    <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+                    <dices ndice="18" sdice="18" adice="50"/>
+                    <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="1.75"/>
                     <base_stat id="kWis" threshold="32" weight="3.5"/>
                 </damage>
             </action>
@@ -2239,14 +2239,14 @@ base_stat id - (например "kWis") какой берем параметр,
     <spell id="kAcidArrow" element="kWater" mode="kEnabled">
         <name rus="кислотная стрела" eng="acid arrow"/>
         <misc pos="kFight" violent="Y" danger="2"/>
-        <mana max="120" min="100" change="1"/>
+        <mana max="130" min="100" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagDamage|kMagAffects|kNpcDamagePc|kNpcDamagePcMinhp"/>
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <dices ndice="20" sdice="25" adice="90"/>
-                    <base_skill id="kWaterMagic" low_skill_bonus="2" hi_skill_bonus="1.5"/>
+                    <dices ndice="20" sdice="25" adice="75"/>
+                    <base_skill id="kWaterMagic" low_skill_bonus="2" hi_skill_bonus="1.75"/>
                     <base_stat id="kWis" threshold="22" weight="1.5"/>
                 </damage>
             </action>
@@ -2281,7 +2281,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <dices ndice="22" sdice="20" adice="90"/>
+                    <dices ndice="22" sdice="20" adice="60"/>
                     <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="2"/>
                     <base_stat id="kWis" threshold="22" weight="2.5"/>
                 </damage>
