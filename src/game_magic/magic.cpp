@@ -2564,51 +2564,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			//Додати обработчик
 			break;
 		}
-		// case ESpell::kAcidArrow: {
-		// 	int rnd = number(1, 5);
-		// 	switch (rnd) {
-		// 		case 1:
-		// 		CastAffect(level, ch, victim, ESpell::kSilence); // обожгло глотку - молча
-		// 		to_room = "Кислота плеснула на горло $n1";
-		// 		to_vict = "Жуткая кислота опалила ваше горло!";
-		// 			break;
-		// 		case 2:
-		// 		CastAffect(level, ch, victim, ESpell::kFever); // телесный ожог - лихорадка
-		// 		to_room = "$n покрылся язвами по всему телу.";
-		// 		to_vict = "Кислота причинила вам жуткие ожоги кожи!";
-		// 			break;
-		// 		case 3:
-		// 		CastAffect(level, ch, victim, ESpell::kPoison); // ядовитые испарения - яд
-		// 		to_room = "$n позеленел от действия кислотной стрелы.";
-		// 		to_vict = "Кислота обожгла вам все тело!";
-		// 			break;
-		// 		case 4:
-		// 		CastAffect(level, ch, victim, ESpell::kBlindness); // обожгло глаза - слепота
-		// 		to_room = "Часть кислоты попала в глаза $n3";
-		// 		to_vict = "Кислотные испарения выедают вам глаза!";
-		// 			break;
-		// 		case 5:
-		// 		CastAffect(level, ch, victim, ESpell::kAcid); // обожглот экип - кислотой
-		// 		to_room = "Кислота покрыла доспехи $n3.";
-		// 		to_vict = "Кислота покрыла ваши доспехи.";
-		// 			break;
-		// 		default:break;
-		// 	}	
-		// 	break;
-		// }
-		// case ESpell::kClod: {
-		// 		if (GET_POS(victim) > EPosition::kSit && !IS_IMMORTAL(victim) && (number(1, 100) > GET_AR(victim)) &&
-		// 			(AFF_FLAGGED(victim, EAffect::kHold) || !CalcGeneralSaving(ch, victim, ESaving::kReflex, modi))) {
-		// 		if (IS_HORSE(victim))
-		// 			victim->drop_from_horse();
-		// 		act("$n3 придавило глыбой камня.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-		// 		act("Огромная глыба камня свалила вас на землю.", false, victim, nullptr, nullptr, kToChar);
-		// 		GET_POS(victim) = EPosition::kSit;
-		// 		update_pos(victim);
-		// 		SetWaitState(victim, 2 * kBattleRound);
-		// 	}
-		// 	break;
-		// }
+		
 		case ESpell::kPaladineInspiration:
 			/*
          * групповой спелл, развешивающий рандомные аффекты, к сожалению
