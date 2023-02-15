@@ -300,6 +300,18 @@ float CalcModCoef(ESpell spell_id, int percent) {
 			}
 			return 1;
 			break;
+		case ESpell::kWhirlwind:
+			if (percent > 80) {
+				return (percent) / 80; // 160 -2 вихря, 240 - 3 вихря и т.д.
+			}
+			return 1;
+			break;
+		case ESpell::kLightingBolt:
+			if (percent > 100) {
+				return (percent - 70) / 30; // 130 - 2 молнии, 160 -3, 190 -4
+			}
+			return 1;
+			break;
 		default: return 1;
 	}
 	return 0;
@@ -492,6 +504,17 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				count = (level + 9) / 10;
 			break;
 		}
+		case ESpell::kLightingBolt: {
+				count = CalcModCoef(spell_id, ch->GetSkill(GetMagicSkillId(spell_id)));
+				count += number(1, 5)==1?1:0;
+				count = std::min(count, 4);
+			break;
+		}
+		case ESpell::kWhirlwind: {
+				count = CalcModCoef(spell_id, ch->GetSkill(GetMagicSkillId(spell_id)));
+				count += number(1, 7)==1?1:0;
+			break;
+		}
 		case ESpell::kAcid: {
 			obj = nullptr;
 			if (victim->IsNpc()) {
@@ -510,6 +533,51 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				act("Кислота покрыла $o3.", false, victim, obj, nullptr, kToChar);
 				alterate_object(obj, number(level * 2, level * 4), 100);
 			}
+			break;
+		}
+		case ESpell::kClod: {
+				if (GET_POS(victim) > EPosition::kSit && !IS_IMMORTAL(victim) && (number(1, 100) > GET_AR(victim)) &&
+					(AFF_FLAGGED(victim, EAffect::kHold) || !CalcGeneralSaving(ch, victim, ESaving::kReflex, modi))) {
+				if (IS_HORSE(victim))
+					victim->drop_from_horse();
+				act("$n3 придавило глыбой камня.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
+				act("Огромная глыба камня свалила вас на землю!", false, victim, nullptr, nullptr, kToChar);
+				GET_POS(victim) = EPosition::kSit;
+				update_pos(victim);
+				SetWaitState(victim, 2 * kBattleRound);
+			}
+			break;
+		}
+		case ESpell::kAcidArrow: {
+			int rnd = number(1, 5);
+			switch (rnd) {
+				case 1: // обожгло глотку - молча
+				act("Кислота плеснула на горло $n1", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
+				act("Жуткая кислота опалила ваше горло!", false, victim, nullptr, nullptr, kToChar);
+				CastAffect(level, ch, victim, ESpell::kSilence); 
+					break;
+				case 2: // телесный ожог - лихорадка
+				act("$n покрылся язвами по всему телу.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
+				act("Кислота причинила вам жуткие ожоги кожи!", false, victim, nullptr, nullptr, kToChar);
+				CastAffect(level, ch, victim, ESpell::kFever); 
+					break;
+				case 3: // ядовитые испарения - яд
+				act("$n позеленел от действия кислотной стрелы.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
+				act("Кислота обожгла вам все тело!", false, victim, nullptr, nullptr, kToChar);
+				CastAffect(level, ch, victim, ESpell::kPoison); 
+					break;
+				case 4: // обожгло глаза - слепота
+				act("Часть кислоты попала в глаза $n3.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
+				act("Кислотные испарения выедают вам глаза!", false, victim, nullptr, nullptr, kToChar);
+				CastAffect(level, ch, victim, ESpell::kBlindness); 
+					break;
+				case 5: // обожгот экип - кислотой
+				act("Кислота покрыла доспехи $n3.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
+				act("Кислота покрыла ваши доспехи.", false, victim, nullptr, nullptr, kToChar);
+				CastDamage(level, ch, victim, ESpell::kAcid); 
+					break;
+				default:break;
+			}	
 			break;
 		}
 		case ESpell::kEarthquake: {
@@ -1600,7 +1668,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 		case ESpell::kPoison: savetype = ESaving::kCritical;
 			if (ch != victim && (AFF_FLAGGED(victim, EAffect::kGodsShield) ||
-				CalcGeneralSaving(ch, victim, savetype, modi - GetRealCon(victim) / 2))) {
+				CalcGeneralSaving(ch, victim, savetype, modi))) {
 				if (ch->in_room
 					== IN_ROOM(victim)) // Добавлено чтобы яд нанесенный SPELL_POISONED_FOG не спамил чару постоянно
 					SendMsgToChar(NOEFFECT, ch);
@@ -2496,6 +2564,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			//Додати обработчик
 			break;
 		}
+		
 		case ESpell::kPaladineInspiration:
 			/*
          * групповой спелл, развешивающий рандомные аффекты, к сожалению

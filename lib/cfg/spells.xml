@@ -364,7 +364,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <dices ndice="4" sdice="18" adice="0"/>
+                    <dices ndice="4" sdice="18" adice="5"/>
                     <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
                     <base_stat id="kWis" threshold="22" weight="0.5"/>
                 </damage>
@@ -726,14 +726,14 @@ base_stat id - (например "kWis") какой берем параметр,
     <spell id="kGodsWrath" element="kFire" mode="kEnabled">
         <name rus="гнев богов" eng="gods wrath"/>
         <misc pos="kFight" violent="Y" danger="15"/>
-        <mana max="110" min="100" change="1"/>
+        <mana max="140" min="120" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagDamage|kNpcDamagePc|kNpcDamagePcMinhp"/>
         <talent_actions>
             <action>
                 <damage saving="kWill">
                     <dices ndice="25" sdice="30" adice="180"/>
-                    <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="4"/>
+                    <base_skill id="kFireMagic" low_skill_bonus="2.5" hi_skill_bonus="2.75"/>
                     <base_stat id="kWis" threshold="22" weight="3.5"/>
                 </damage>
             </action>
@@ -1108,11 +1108,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="Y" danger="15"/>
         <mana max="100" min="90" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
-        <flags val="kMagAffects|kMagDamage|kNpcDamagePc|kNpcDamagePcMinhp"/>
+        <flags val="kMagAreas|kMagDamage|kMagAffects|kNpcDamagePc|kNpcDamagePcMinhp"/>
         <talent_actions>
             <action>
                 <damage saving="kStability">
-                    <dices ndice="11" sdice="5" adice="55"/>
+                    <dices ndice="11" sdice="7" adice="55"/>
                     <base_skill id="kAirMagic" low_skill_bonus="2.25" hi_skill_bonus="1.5"/>
                     <base_stat id="kWis" threshold="22" weight="0.5"/>
                 </damage>
@@ -1310,7 +1310,7 @@ base_stat id - (например "kWis") какой берем параметр,
     <spell id="kIceStorm" element="kWater" mode="kEnabled">
         <name rus="ледяной шторм" eng="ice storm"/>
         <misc pos="kFight" violent="Y" danger="5"/>
-        <mana max="125" min="90" change="3"/>
+        <mana max="135" min="100" change="3"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagMasses|kMagDamage|kMagAffects|kNpcDamagePc"/>
         <talent_actions>
@@ -1318,7 +1318,7 @@ base_stat id - (например "kWis") какой берем параметр,
                 <damage saving="kStability">
                     <dices ndice="20" sdice="5" adice="50"/>
                     <base_skill id="kWaterMagic" low_skill_bonus="0.75" hi_skill_bonus="1.25"/>
-                    <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    <base_stat id="kWis" threshold="22" weight="1"/>
                 </damage>
                 <area>
                     <decay cast="0.05" level="4" free_targets="3"/>
@@ -1613,7 +1613,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kStability">
-                    <dices ndice="10" sdice="12" adice="90"/>
+                    <dices ndice="12" sdice="12" adice="90"/>
                     <base_skill id="kEarthMagic" low_skill_bonus="0.75" hi_skill_bonus="1.5"/>
                     <base_stat id="kWis" threshold="50" weight="7"/>
                 </damage>
@@ -1770,14 +1770,14 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kPoosinedFog" element="kLife" mode="kEnabled">
         <name rus="ядовитый туман" eng="poisoned fog"/>
-        <misc pos="kStand" violent="N" danger="0"/>
+        <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="10" min="10" change="1"/>
         <targets val="kTarRoomThis"/>
         <flags val="kMagRoom|kMagCasterInroom"/>
     </spell>
     <spell id="kThunderstorm" element="kAir" mode="kEnabled">
         <name rus="буря отмщения" eng="storm of vengeance"/>
-        <misc pos="kStand" violent="N" danger="0"/>
+        <misc pos="kFight" violent="Y" danger="7"/>
         <mana max="10" min="10" change="1"/>
         <targets val="kTarRoomThis"/>
         <flags val="kMagNeedControl|kMagRoom|kMagCasterInroom"/>
@@ -2207,15 +2207,15 @@ base_stat id - (например "kWis") какой берем параметр,
     <spell id="kWhirlwind" element="kAir" mode="kEnabled">
         <name rus="вихрь" eng="whirlwind"/>
         <misc pos="kFight" violent="Y" danger="2"/>
-        <mana max="70" min="50" change="1"/>
+        <mana max="100" min="80" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagDamage|kNpcDamagePc|kNpcDamagePcMinhp"/>
         <talent_actions>
             <action>
                 <damage saving="kStability">
-                    <dices ndice="18" sdice="25" adice="75"/>
-                    <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="0.25"/>
-                    <base_stat id="kWis" threshold="32" weight="5"/>
+                    <dices ndice="18" sdice="18" adice="50"/>
+                    <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="1.75"/>
+                    <base_stat id="kWis" threshold="32" weight="3.5"/>
                 </damage>
             </action>
         </talent_actions>
@@ -2239,15 +2239,15 @@ base_stat id - (например "kWis") какой берем параметр,
     <spell id="kAcidArrow" element="kWater" mode="kEnabled">
         <name rus="кислотная стрела" eng="acid arrow"/>
         <misc pos="kFight" violent="Y" danger="2"/>
-        <mana max="110" min="100" change="1"/>
+        <mana max="130" min="100" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
-        <flags val="kMagDamage|kNpcDamagePc|kNpcDamagePcMinhp"/>
+        <flags val="kMagDamage|kMagAffects|kNpcDamagePc|kNpcDamagePcMinhp"/>
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <dices ndice="20" sdice="25" adice="90"/>
-                    <base_skill id="kWaterMagic" low_skill_bonus="2" hi_skill_bonus="1.5"/>
-                    <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    <dices ndice="20" sdice="25" adice="75"/>
+                    <base_skill id="kWaterMagic" low_skill_bonus="2" hi_skill_bonus="1.75"/>
+                    <base_stat id="kWis" threshold="22" weight="1.5"/>
                 </damage>
             </action>
         </talent_actions>
@@ -2275,13 +2275,13 @@ base_stat id - (например "kWis") какой берем параметр,
     <spell id="kClod" element="kEarth" mode="kEnabled">
         <name rus="глыба" eng="clod"/>
         <misc pos="kFight" violent="Y" danger="2"/>
-        <mana max="110" min="100" change="1"/>
+        <mana max="130" min="110" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
-        <flags val="kMagDamage|kNpcDamagePc|kNpcDamagePcMinhp"/>
+        <flags val="kMagDamage|kNpcAffectPc|kMagAffects|kNpcDamagePc|kNpcDamagePcMinhp"/>
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <dices ndice="22" sdice="25" adice="180"/>
+                    <dices ndice="22" sdice="20" adice="60"/>
                     <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="2"/>
                     <base_stat id="kWis" threshold="22" weight="2.5"/>
                 </damage>
