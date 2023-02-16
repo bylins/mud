@@ -205,7 +205,7 @@ void pk_update_revenge(CharData *agressor, CharData *victim, int attime, int ren
 	}
 	pk->battle_exp = time(nullptr) + attime * 60;
 	if (!same_group(agressor, victim)) {
-		NORENTABLE(agressor) = MAX(NORENTABLE(agressor), time(nullptr) + renttime * 60);
+		agressor->player_specials->may_rent = MAX(NORENTABLE(agressor), time(nullptr) + renttime * 60);
 	}
 	return;
 }
@@ -491,7 +491,7 @@ void pk_thiefs_action(CharData *thief, CharData *victim) {
 			else
 				act("$N продлил$G право на ваш отстрел!", false, thief, 0, victim, kToChar);
 			pk->thief_exp = time(nullptr) + THIEF_UNRENTABLE * 60;
-			NORENTABLE(thief) = MAX(NORENTABLE(thief), time(nullptr) + THIEF_UNRENTABLE * 60);
+			thief->player_specials->may_rent = MAX(NORENTABLE(thief), time(nullptr) + THIEF_UNRENTABLE * 60);
 			break;
 	}
 	return;
@@ -1035,7 +1035,7 @@ bool has_clan_members_in_group(CharData *ch) {
 //Polud
 void pkPortal(CharData *ch) {
 	AGRO(ch) = MAX(AGRO(ch), time(nullptr) + PENTAGRAM_TIME * 60);
-	NORENTABLE(ch) = MAX(NORENTABLE(ch), time(nullptr) + PENTAGRAM_TIME * 60);
+	ch->player_specials->may_rent = MAX(NORENTABLE(ch), time(nullptr) + PENTAGRAM_TIME * 60);
 }
 
 BloodyInfoMap &bloody_map = GlobalObjects::bloody_map();
@@ -1115,7 +1115,7 @@ bool bloody::handle_transfer(CharData *ch, CharData *victim, ObjData *obj, ObjDa
 				return false;
 			}
 			AGRO(victim) = MAX(AGRO(victim), KILLER_UNRENTABLE * 60 + it->second.kill_at);
-			NORENTABLE(victim) = MAX(NORENTABLE(victim), KILLER_UNRENTABLE * 60 + it->second.kill_at);
+			victim->player_specials->may_rent = MAX(NORENTABLE(victim), KILLER_UNRENTABLE * 60 + it->second.kill_at);
 			result = true;
 		} else if (ch
 			&& container

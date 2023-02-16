@@ -611,7 +611,7 @@ const int kNameLevel = 5;
 #define GET_BAD_PWS(ch)        ((ch)->player_specials->saved.bad_pws)
 #define POOFIN(ch)            ((ch)->player_specials->poofin)
 #define POOFOUT(ch)            ((ch)->player_specials->poofout)
-#define NORENTABLE(ch)        ((ch)->player_specials->may_rent)
+#define NORENTABLE(ch)        ((ch)->IsNpc() ? 0 : (ch)->player_specials->may_rent)
 #define AGRESSOR(ch)        ((ch)->player_specials->agressor)
 #define AGRO(ch)            ((ch)->player_specials->agro_time)
 
