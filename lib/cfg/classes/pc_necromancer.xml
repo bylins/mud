@@ -69,12 +69,14 @@
         <spell id="kSightOfDarkness"		level="25"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
         <spell id="kSnakeEyes"			level="25"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
         <spell id="kGroupHaste"			level="26"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
+        <spell id="kAcidArrow"			level="24"	remort="0"	circle="7"	mem="-55"		cast="0.0"/>
         <spell id="kResurrection"		level="24"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
         <spell id="kEarthquake"			level="26"	remort="0"	circle="8"	mem="0"		cast="0.0"/>
         <spell id="kEnergyDrain"		level="26"	remort="0"	circle="8"	mem="0"		cast="0.0"/>
         <spell id="kMindless"			level="29"	remort="0"	circle="8"	mem="0"		cast="0.0"/>
         <spell id="kStunning"			level="29"	remort="6"	circle="9"	mem="0"		cast="0.0"/>
         <spell id="kEviless"			level="29"	remort="0"	circle="9"	mem="0"		cast="0.0"/>
+       <spell id="kPoosinedFog"			level="27"	remort="2"	circle="9"	mem="0"		cast="0.0"/>
         <spell id="kMassFear"			level="26"	remort="0"	circle="8"	mem="0"		cast="0.0"/>
     </spells>
     <feats remorts_for_slot="6">

@@ -120,6 +120,10 @@ base_stat id - (например "kWis") какой берем параметр,
                     <base_skill id="kAirMagic" low_skill_bonus="3.5" hi_skill_bonus="1.5"/>
                     <base_stat id="kWis" threshold="32" weight="5"/>
                 </damage>
+                <area>
+                    <decay cast="0.05" level="7" free_targets="3"/>
+                    <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
+                </area>
             </action>
         </talent_actions>
     </spell>
@@ -162,13 +166,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kStability">
-                    <dices ndice="12" sdice="4" adice="55"/>
-                    <base_skill id="kWaterMagic" low_skill_bonus="2" hi_skill_bonus="2.25"/>
+                    <dices ndice="12" sdice="30" adice="55"/>
+                    <base_skill id="kWaterMagic" low_skill_bonus="2" hi_skill_bonus="2.5"/>
                     <base_stat id="kWis" threshold="22" weight="5"/>
                 </damage>
                 <area>
-                    <decay cast="0.05" level="7" free_targets="3"/>
-                    <victims skill_divisor="30" dice_size="2" min_targets="1" max_targets="5"/>
+                    <decay cast="0.05" level="7" free_targets="2"/>
+                    <victims skill_divisor="30" dice_size="2" min_targets="1" max_targets="4"/>
                 </area>
             </action>
         </talent_actions>
@@ -368,6 +372,10 @@ base_stat id - (например "kWis") какой берем параметр,
                     <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
                     <base_stat id="kWis" threshold="22" weight="0.5"/>
                 </damage>
+                <area>
+                    <decay cast="0.05" level="7" free_targets="3"/>
+                    <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
+                </area>
             </action>
         </talent_actions>
     </spell>
@@ -400,6 +408,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarObjInv|kTarFightVict"/>
         <flags val="kMagAffects|kMagAlterObjs|kNpcAffectPc"/>
+        <talent_actions>
+            <action>
+                <area>
+                    <decay cast="0.05" level="7" free_targets="3"/>
+                    <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
+                </area>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kProtectFromEvil" element="kLight" mode="kEnabled">
         <name rus="защита от тьмы" eng="protect evil"/>
@@ -781,6 +797,10 @@ base_stat id - (например "kWis") какой берем параметр,
                     <base_skill id="kWaterMagic" low_skill_bonus="2" hi_skill_bonus="0.5"/>
                     <base_stat id="kWis" threshold="32" weight="5"/>
                 </damage>
+                <area>
+                    <decay cast="0.05" level="2" free_targets="3"/>
+                    <victims skill_divisor="10" dice_size="3" min_targets="5" max_targets="20"/>
+                </area>
             </action>
         </talent_actions>
     </spell>
@@ -2213,10 +2233,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kStability">
-                    <dices ndice="18" sdice="18" adice="50"/>
+                    <dices ndice="18" sdice="18" adice="25"/>
                     <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="1.75"/>
                     <base_stat id="kWis" threshold="32" weight="3.5"/>
                 </damage>
+                <area>
+                    <decay cast="0.05" level="2" free_targets="3"/>
+                    <victims skill_divisor="10" dice_size="3" min_targets="5" max_targets="20"/>
+                </area>
             </action>
         </talent_actions>
     </spell>
