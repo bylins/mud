@@ -3010,9 +3010,9 @@ void HitData::calc_base_hr(CharData *ch) {
 
 	// Использование ловкости вместо силы для попадания
 	if (CanUseFeat(ch, EFeat::kWeaponFinesse)) {
-		calc_thaco -= str_bonus(GetRealStr(ch), STR_TO_HIT) * p_hitroll;
-	} else {
 		calc_thaco -= str_bonus(GetRealDex(ch), STR_TO_HIT) * p_hitroll;
+	} else {
+		calc_thaco -= str_bonus(GetRealStr(ch), STR_TO_HIT) * p_hitroll;
 	}
 	if ((skill_num == ESkill::kThrow
 		|| skill_num == ESkill::kBackstab)

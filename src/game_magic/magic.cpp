@@ -549,7 +549,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			break;
 		}
 		case ESpell::kAcidArrow: {
-			// шанс доп аффекта 25% при 100% магии, 45 - 200, 85 -400..
+	      // шанс доп аффекта 25% при 100% магии, 45 - 200, 85 -400..
 			if (number(1, 100)>(5 + (ch->GetSkill(GetMagicSkillId(spell_id))/5))) { 
 			 	break;
 			 }
