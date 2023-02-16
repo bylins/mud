@@ -141,7 +141,7 @@ void pk_translate_pair(CharData **pkiller, CharData **pvictim) {
 			}
 		}
 
-		if (!HERE(pvictim[0])) {
+		if (pvictim[0]->IsNpc() || !HERE(pvictim[0])) {
 			pvictim[0] = nullptr;
 		}
 	}
