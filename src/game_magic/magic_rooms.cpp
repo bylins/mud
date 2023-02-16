@@ -169,16 +169,19 @@ void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::sh
 		case ESpell::kRoomLight: break;
 
 		case ESpell::kPoosinedFog:
-			if (ch) {
-				const auto people_copy = room->people;
-				for (const auto tch : people_copy) {
-					if (!CallMagic(ch, tch, nullptr, nullptr, ESpell::kPoison, GetRealLevel(ch))) {
-						aff->duration = 0;
-						break;
-					}
-				}
-			}
-
+			// if (ch) {
+			// 	const auto people_copy = room->people;
+			// 	for (const auto tch : people_copy) {
+			// 		if (!CallMagic(ch, tch, nullptr, nullptr, ESpell::kPoison, GetRealLevel(ch))) {
+			// 			aff->duration = 0;
+			// 			break;
+			// 		}
+			// 	}
+			// }
+			SendMsgToChar("Ядовитые испарения заполнили все пространство вокруг вас!\r\n", ch);
+			act("Ядовитые испарения заполнили все пространство вокруг $n3!\r\n",
+				false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+			CallMagicToArea(ch, nullptr, world[ch->in_room], ESpell::kPoison, GetRealLevel(ch));
 			break;
 
 		case ESpell::kMeteorStorm: SendMsgToChar("Раскаленные громовые камни рушатся с небес!\r\n", ch);
@@ -189,7 +192,7 @@ void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::sh
 
 		case ESpell::kThunderstorm:
 			switch (aff->duration) {
-				case 8:
+				case 7:
 					if (!CallMagic(ch, nullptr, nullptr, nullptr, ESpell::kControlWeather, GetRealLevel(ch))) {
 						aff->duration = 0;
 						break;
@@ -199,41 +202,43 @@ void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::sh
 					act("Стремительно налетевшие черные тучи сгустились над вами.\r\n",
 						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 					break;
-				case 7: SendMsgToChar("Раздался чудовищный раскат грома!\r\n", ch);
+				case 6: SendMsgToChar("Раздался чудовищный раскат грома!\r\n", ch);
 					act("Раздался чудовищный удар грома!\r\n",
 						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 					CallMagicToArea(ch, nullptr, world[ch->in_room], ESpell::kDeafness, GetRealLevel(ch));
 					break;
-				case 6: SendMsgToChar("Порывы мокрого ледяного ветра обрушились из туч!\r\n", ch);
+				case 5: SendMsgToChar("Порывы мокрого ледяного ветра обрушились из туч!\r\n", ch);
 					act("Порывы мокрого ледяного ветра обрушились на вас!\r\n",
 						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 					CallMagicToArea(ch, nullptr, world[ch->in_room], ESpell::kColdWind, GetRealLevel(ch));
 					break;
-				case 5: SendMsgToChar("Из туч хлынул дождь кислоты!\r\n", ch);
+				case 4: SendMsgToChar("Из туч хлынул дождь кислоты!\r\n", ch);
 					act("Из туч хлынул дождь кислоты!\r\n",
 						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 					CallMagicToArea(ch, nullptr, world[ch->in_room], ESpell::kAcid, GetRealLevel(ch));
 					break;
-				case 4: SendMsgToChar("Из туч ударили разряды молний!\r\n", ch);
+				case 3: SendMsgToChar("Из туч ударили разряды молний!\r\n", ch);
 					act("Из туч ударили разряды молний!\r\n",
 						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 					CallMagicToArea(ch, nullptr, world[ch->in_room], ESpell::kLightingBolt, GetRealLevel(ch));
 					break;
-				case 3: SendMsgToChar("Из тучи посыпались шаровые молнии!\r\n", ch);
+				case 2: SendMsgToChar("Из тучи посыпались шаровые молнии!\r\n", ch);
 					act("Из тучи посыпались шаровые молнии!\r\n",
 						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 					CallMagicToArea(ch, nullptr, world[ch->in_room], ESpell::kCallLighting, GetRealLevel(ch));
 					break;
-				case 2: SendMsgToChar("Буря завыла, закручиваясь в вихри!\r\n", ch);
+				case 1: SendMsgToChar("Буря завыла, закручиваясь в вихри!\r\n", ch);
 					act("Буря завыла, закручиваясь в вихри!\r\n",
 						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 					CallMagicToArea(ch, nullptr, world[ch->in_room], ESpell::kWhirlwind, GetRealLevel(ch));
 					break;
-				case 1: what_sky = kSkyCloudless;
+				case 0: 
+				default: 
+					what_sky = kSkyCloudless;
+					SendMsgToChar("Буря начала утихать.\r\n", ch);
+					act("Буря начала утихать.\r\n",
+						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 					break;
-				default: SendMsgToChar("Из туч ударили разряды молний!\r\n", ch);
-					act("Из туч ударили разряды молний!\r\n", false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					CallMagicToArea(ch, nullptr, world[ch->in_room], ESpell::kLightingBolt, GetRealLevel(ch));
 			}
 			break;
 
@@ -400,11 +405,12 @@ int CallMagicToRoom(int/* level*/, CharData *ch, RoomData *room, ESpell spell_id
 		case ESpell::kPoosinedFog: af[0].type = spell_id;
 			af[0].location = kPoison;
 			af[0].modifier = 50;
-			af[0].duration = CalcDuration(ch, 0, GetRealLevel(ch) + 5, 6, 0, 0);
+			af[0].duration = 4;
 			af[0].bitvector = ERoomAffect::kPoisonFog;
 			af[0].caster_id = GET_ID(ch);
 			af[0].must_handled = true;
 			update_spell = false;
+			to_char = "Ядовитый туман застилает все пространство.";
 			to_room = "$n испортил$g воздух и плюнул$g в суп.";
 			break;
 
@@ -422,7 +428,7 @@ int CallMagicToRoom(int/* level*/, CharData *ch, RoomData *room, ESpell spell_id
 			break;
 
 		case ESpell::kThunderstorm: af[0].type = spell_id;
-			af[0].duration = 8;
+			af[0].duration = 7;
 			af[0].must_handled = true;
 			af[0].caster_id = GET_ID(ch);
 			af[0].bitvector = ERoomAffect::kThunderstorm;

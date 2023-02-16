@@ -75,6 +75,7 @@
         <spell id="kAllSeeingEye"			level="26"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
         <spell id="kBreathingAtDepth"		level="22"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
         <spell id="kStoneWall"				level="24"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
+        <spell id="kAcidArrow"			level="24"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
         <spell id="kSnakeEyes"				level="25"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
         <spell id="kSightOfDarkness"		level="25"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
         <spell id="kMagicalGaze"			level="26"	remort="0"	circle="7"	mem="0"		cast="0.0"/>
