@@ -630,7 +630,7 @@ void beat_points_update(int pulse) {
 		}
 
 		if (NORENTABLE(d->character.get()) <= time(nullptr)) {
-			NORENTABLE(d->character.get()) = 0;
+			d->character.get()->player_specials->may_rent = 0;
 			AGRESSOR(d->character.get()) = 0;
 			AGRO(d->character.get()) = 0;
 			d->character.get()->agrobd = false;

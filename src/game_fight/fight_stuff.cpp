@@ -607,7 +607,7 @@ void real_kill(CharData *ch, CharData *killer) {
 		forget_all_spells(ch);
 		clear_mobs_memory(ch);
 		// Если убит в бою - то может выйти из игры
-		NORENTABLE(ch) = 0;
+		ch->player_specials->may_rent = 0;
 		AGRESSOR(ch) = 0;
 		AGRO(ch) = 0;
 		ch->agrobd = false;
