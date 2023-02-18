@@ -171,51 +171,51 @@ void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::sh
 		case ESpell::kDeadlyFog:
 			switch (aff->duration) {
 				case 7:
-					SendMsgToChar("Повинуясь вашему желанию отравить всех, туман начал расти и расширяться...\r\n", ch);
-					act("Облако тумана созданное $n4 начало расти и расширяться, наполняя комнату ядовитым, сернистым запахом...\r\n",
+					SendMsgToChar("Повинуясь вашему желанию отравить всех, туман начал густеть...\r\n", ch);
+					act("Облако тумана созданное $n4 начало густеть, отравляя комнату...\r\n",
 						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 					CallMagicToArea(ch, nullptr, world[ch->in_room], ESpell::kPoison, GetRealLevel(ch));
 					break;
 				case 6:
-					SendMsgToChar("Вы осознали что хотите вызвать ужасные мучения у врагов...\r\nТуман тут же исполнил вашу прихоть...\r\n", ch);
-					act("$n захрипел$g, завыл$g и враги вдыхающее и выдыхающее туман корчяться от силы самой черной магии!\r\n",
+					SendMsgToChar("Вы осознали, что хотите вызвать ужасные мучения у врагов...\r\nТуман тут же исполнил вашу прихоть...\r\n", ch);
+					act("$n захрипел$g, завыл$g, и враги, вдыхающее и выдыхающее туман, стали корчиться от силы черной магии!\r\n",
 						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 					CallMagicToArea(ch, nullptr, world[ch->in_room], ESpell::kFever, GetRealLevel(ch));
 					break;
 				case 5:
-					SendMsgToChar("Что может быть лутше чем слабый враг?!\r\nТолько мертвый!\r\n", ch);
-					act("$n проревел$g страшным голосом и враги опутаные туманом пали ниц!\r\n",
+					SendMsgToChar("Что может быть лутше, чем слабый враг?!\r\nТолько мертвый!\r\n", ch);
+					act("$n что-то проревел$g страшным голосом, и враги, окутанные туманом, стали быстро слабеть!\r\n",
 						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 					CallMagicToArea(ch, nullptr, world[ch->in_room], ESpell::kWeaknes, GetRealLevel(ch));
 					break;
 				case 4:
-					SendMsgToChar("Вам захотелось лишить всех глаз!\r\nСредь тумана возникла яркая вспышка!\r\n", ch);
-					act("Туман вызваный $n4 начал слепить врагов!\r\n",
+					SendMsgToChar("Вам захотелось лишить всех глаз!\r\n", ch);
+					act("Туман, вызванный $n4, начал слепить врагов, сгустившись еще сильнее!\r\n",
 						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 					CallMagicToArea(ch, nullptr, world[ch->in_room], ESpell::kPowerBlindness, GetRealLevel(ch));
 					break;
 				case 3:
-					SendMsgToChar("Сильно повредить врагам?!\r\nХорошая идея!\r\n", ch);
-					act("$n пожелал$g и туман вызвал страдание врагов!\r\n",
+					SendMsgToChar("Сильно навредить врагам?!\r\nХорошая идея!\r\n", ch);
+					act("$n пожелал$g, и туман уплотнился, чтобы навредить врагам!\r\n",
 						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 					CallMagicToArea(ch, nullptr, world[ch->in_room], ESpell::kDamageCritic, GetRealLevel(ch));
 					break;
 				case 2:
 					SendMsgToChar("Вам невтерпеж испить жизненной силы врагов!\r\nЧто и было исполнено.\r\n", ch);
-					act("Туман отдал часть вражеских сил $n2!\r\n",
+					act("Туман высосал часть вражеских сил и отдал их $n2!\r\n",
 						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 					CallMagicToArea(ch, nullptr, world[ch->in_room], ESpell::kSacrifice, GetRealLevel(ch));
 					break;
 				case 1: 
 					SendMsgToChar("Вы осознали что кислоты мало не бывает!\r\nТуман повиновался.\r\n", ch);
-					act("$n приказал$g и из тумана вылетел сноп кислотных стрел!\r\n",
+					act("По воле $n1 из тумана вылетел сноп кислотных стрел!\r\n",
 						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 					CallMagicToArea(ch, nullptr, world[ch->in_room], ESpell::kAcidArrow, GetRealLevel(ch));
 					break;
 				case 0: 
 				default: 
 					SendMsgToChar("Вы решили проклясть всех на последок!\r\n", ch);
-					act("$n что-то прошептал$g напоследок и туман навлек смертельное прокляье всех !\r\n",
+					act("$n что-то прошептал$g напоследок, и туман навлек проклятие на врагов!\r\n",
 						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 						CallMagicToArea(ch, nullptr, world[ch->in_room], ESpell::kMassCurse, GetRealLevel(ch));
 					break;
@@ -449,8 +449,8 @@ int CallMagicToRoom(int/* level*/, CharData *ch, RoomData *room, ESpell spell_id
 			af[0].caster_id = GET_ID(ch);
 			af[0].must_handled = true;
 			update_spell = true;
-			to_char = "Туман смерти ответил на ваш зов, слившись в густое зеленоватое облако...";
-			to_room = "Пробормотав злобные проклятия, $n вызвал$g смертельный туман, покрывший все вокруг тёмным саваном.";
+			to_char = "Пробормотав злобные проклятия, вы вызвали смертельный ядовитый туман, покрывший все вокруг тёмным саваном.";
+			to_room = "Пробормотав злобные проклятия, $n вызвал$g смертельный ядовитый туман, покрывший все вокруг тёмным саваном.";
 			break;
 
 		case ESpell::kMeteorStorm: af[0].type = spell_id;
