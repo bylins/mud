@@ -177,7 +177,7 @@ std::string GetAffExpiredText(ESpell spell_id) {
 		{ESpell::kBerserk, "Неистовство оставило вас."},
 		{ESpell::kStoneBones, "!stone bones!"},
 		{ESpell::kRoomLight, "Колдовской свет угас."},
-		{ESpell::kPoosinedFog, "Порыв ветра развеял ядовитый туман."},
+		{ESpell::kDeadlyFog, "Порыв ветра развеял туман смерти."},
 		{ESpell::kThunderstorm, "Ветер прогнал грозовые тучи."},
 		{ESpell::kLightWalk, "Ваши следы вновь стали заметны."},
 		{ESpell::kFailure, "Удача вновь вернулась к вам."},
@@ -445,7 +445,7 @@ std::optional<CastPhraseList> GetCastPhrase(ESpell spell_id) {
 		{ESpell::kStoneBones, {"Обращу кости их в твердый камень.",
 							"...и тот, кто упадет на камень сей, разобьется."}},
 		{ESpell::kRoomLight, {"Да буде СВЕТ !!!", "...ибо сказал МОНТЕР !!!"}},
-		{ESpell::kPoosinedFog, {"Порчу воздух !!!", "...и зловонное дыхание его."}},
+		{ESpell::kDeadlyFog, {"Порча великая туманом обернись!", "...и смерть явись в тумане его."}},
 		{ESpell::kThunderstorm, {"Абие велий вихрь деяти!",
 							  "...творит молнии при дожде, изводит ветер из хранилищ Своих."}},
 		{ESpell::kLightWalk, {"", ""}},
@@ -734,7 +734,7 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kBerserk] = "kBerserk";
 	ESpell_name_by_value[ESpell::kStoneBones] = "kStoneBones";
 	ESpell_name_by_value[ESpell::kRoomLight] = "kRoomLight";
-	ESpell_name_by_value[ESpell::kPoosinedFog] = "kPoosinedFog";
+	ESpell_name_by_value[ESpell::kDeadlyFog] = "kDeadlyFog";
 	ESpell_name_by_value[ESpell::kThunderstorm] = "kThunderstorm";
 	ESpell_name_by_value[ESpell::kLightWalk] = "kLightWalk";
 	ESpell_name_by_value[ESpell::kFailure] = "kFailure";

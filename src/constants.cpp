@@ -457,7 +457,7 @@ const char *preference_bits[] = {"краткий",
 const char *room_aff_visib_bits[] =
 	{
 		"&W... земля освещена колдовством ...&n",    // 0
-		"&G... все окутано туманом ...&n",        // AFF_FOG
+		"&B... все окутано туманом &Kсмерти&B ...&n",        // AFF_DEADLY_FOG
 		"",    // AFF_RUNE_LABEL
 		"", // AFF_FORBIDDEN
 		"&Y... чарующий огненный узор плывет в воздухе ...&n", // AFF_HYPNOTIC_PATTERN
@@ -468,12 +468,12 @@ const char *room_aff_visib_bits[] =
 		"\n",
 		"\n"
 	};
-
+int xdfa = 11;
 // Список описаний аффектов на комнатах готорые видны - с DETECT_MAGIC
 const char *room_aff_invis_bits[] =
 	{
 		"&W... земля освещена колдовством ...&n",    // 0
-		"&G... колдовской туман плывет над вами &n ...", // AFF_FOG
+		"&B... туман &Kсмерти&B плывет над вами  ...&n", // AFF_DEADLY_FOG
 		"&G... светящиеся руны на земле складываются в чьё-то имя ...&n",    // AFF_RUNE_LABEL
 		"&c... магическая печать закрывает все входы ...&n", // AFF_FORBIDDEN
 		"&Y... чарующий огненный узор плывет в воздухе ...&n", // AFF_HYPNOTIC_PATTERN
@@ -488,7 +488,7 @@ const char *room_aff_invis_bits[] =
 const char *room_self_aff_invis_bits[] =
 	{
 		"&W... земля освещена колдовством ...&n",    // 0
-		"&G... колдовской туман плывет над вами &n ...", // AFF_FOG
+		"&B... туман &Kсмерти&B плывет над вами  ...&n", // AFF_DEADLY_FOG
 		"&G... светящиеся руны на земле складываются в Ваше имя ...&n",    // AFF_RUNE_LABEL
 		"&c... магическая печать закрывает все входы ...&n", // AFF_FORBIDDEN
 		"&Y... чарующий огненный узор плывет в воздухе ...&n", // AFF_HYPNOTIC_PATTERN

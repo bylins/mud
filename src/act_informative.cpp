@@ -1707,14 +1707,14 @@ void show_room_affects(CharData *ch, const char *name_affects[], const char *nam
 					SET_BIT(bitvector, room_spells::ERoomAffect::kLight);
 				}
 				break;
-			case room_spells::ERoomAffect::kPoisonFog:
-				if (!IS_SET(bitvector, room_spells::ERoomAffect::kPoisonFog)) {
+			case room_spells::ERoomAffect::kDeadlyFog:
+				if (!IS_SET(bitvector, room_spells::ERoomAffect::kDeadlyFog)) {
 					if (af->caster_id == ch->id && *name_self_affects[1] != '\0') {
 						buffer << name_self_affects[1] << "\r\n";
 					} else if (*name_affects[1] != '\0') {
 						buffer << name_affects[1] << "\r\n";
 					}
-					SET_BIT(bitvector, room_spells::ERoomAffect::kPoisonFog);
+					SET_BIT(bitvector, room_spells::ERoomAffect::kDeadlyFog);
 				}
 				break;
 			case room_spells::ERoomAffect::kRuneLabel:                // 1 << 2

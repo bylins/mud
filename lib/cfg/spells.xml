@@ -761,6 +761,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
+        <talent_actions>
+            <action>
+                <area>
+                    <decay cast="0.05" level="7" free_targets="3"/>
+                    <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
+                </area>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kGroupInvisible" element="kMind" mode="kEnabled">
         <name rus="групповая невидимость" eng="group invisible"/>
@@ -838,6 +846,10 @@ base_stat id - (например "kWis") какой берем параметр,
                     <base_skill id="kDarkMagic" low_skill_bonus="2" hi_skill_bonus="2.5"/>
                     <base_stat id="kWis" threshold="32" weight="4.5"/>
                 </damage>
+                <area>
+                    <decay cast="0.05" level="5" free_targets="20"/>
+                    <victims skill_divisor="15" dice_size="2" min_targets="5" max_targets="20"/>
+                </area>
             </action>
         </talent_actions>
     </spell>
@@ -875,6 +887,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
+        <talent_actions>
+            <action>
+                <area>
+                    <decay cast="0.05" level="7" free_targets="3"/>
+                    <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
+                </area>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kMassBlindness" element="kDark" mode="kEnabled">
         <name rus="массовая слепота" eng="mass blind"/>
@@ -997,6 +1017,10 @@ base_stat id - (например "kWis") какой берем параметр,
                     <base_skill id="kDarkMagic" low_skill_bonus="2.25" hi_skill_bonus="1"/>
                     <base_stat id="kWis" threshold="22" weight="0.5"/>
                 </damage>
+                <area>
+                    <decay cast="0.05" level="5" free_targets="20"/>
+                    <victims skill_divisor="15" dice_size="2" min_targets="5" max_targets="20"/>
+                </area>
             </action>
         </talent_actions>
     </spell>
@@ -1228,6 +1252,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
+        <talent_actions>
+            <action>
+                <area>
+                    <decay cast="0.05" level="7" free_targets="3"/>
+                    <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
+                </area>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kCureFever" element="kLife" mode="kEnabled">
         <name rus="вылечить лихорадку" eng="cure plaque"/>
@@ -1788,17 +1820,17 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarRoomThis"/>
         <flags val="kMagRoom"/>
     </spell>
-    <spell id="kPoosinedFog" element="kLife" mode="kEnabled">
-        <name rus="ядовитый туман" eng="poisoned fog"/>
+    <spell id="kDeadlyFog" element="kLife" mode="kEnabled">
+        <name rus="туман смерти" eng="deadly fog"/>
         <misc pos="kFight" violent="Y" danger="2"/>
-        <mana max="10" min="10" change="1"/>
+        <mana max="140" min="110" change="1"/>
         <targets val="kTarRoomThis"/>
-        <flags val="kMagRoom|kMagCasterInroom"/>
+        <flags val="kMagNeedControl|kMagRoom|kMagCasterInroom"/>
     </spell>
     <spell id="kThunderstorm" element="kAir" mode="kEnabled">
         <name rus="буря отмщения" eng="storm of vengeance"/>
         <misc pos="kFight" violent="Y" danger="7"/>
-        <mana max="10" min="10" change="1"/>
+        <mana max="140" min="110" change="1"/>
         <targets val="kTarRoomThis"/>
         <flags val="kMagNeedControl|kMagRoom|kMagCasterInroom"/>
     </spell>
@@ -2273,6 +2305,10 @@ base_stat id - (например "kWis") какой берем параметр,
                     <base_skill id="kWaterMagic" low_skill_bonus="2" hi_skill_bonus="1.75"/>
                     <base_stat id="kWis" threshold="22" weight="1.5"/>
                 </damage>
+                <area>
+                    <decay cast="0.05" level="2" free_targets="3"/>
+                    <victims skill_divisor="10" dice_size="3" min_targets="5" max_targets="20"/>
+                </area>
             </action>
         </talent_actions>
     </spell>
