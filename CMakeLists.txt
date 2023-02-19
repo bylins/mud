@@ -748,7 +748,7 @@ add_subdirectory(src/third_party_libs/libfort)
 target_link_libraries(circle.library fort)
 
 #fmt inegration
-add_subdirectory(src/third_party_libs/fmt)
+add_subdirectory(src/third_party_libs/fmt EXCLUDE_FROM_ALL)
 target_link_libraries(circle.library fmt::fmt)
 
 # Boost

@@ -31,7 +31,8 @@
 
 #include "comm.h"
 
-#include <third_party_libs/fmt/format.h>
+//#include <third_party_libs/fmt/format.h>
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 #include "structs/global_objects.h"
 #include "game_magic/magic.h"

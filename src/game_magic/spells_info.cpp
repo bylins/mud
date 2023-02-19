@@ -1,4 +1,4 @@
-#include "spells_info.h"
+//#include "spells_info.h"
 
 #include "color.h"
 //#include "spells.h"

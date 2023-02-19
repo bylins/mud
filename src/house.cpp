@@ -15,7 +15,7 @@
 #include <limits>
 
 #include <boost/format.hpp>
-#include <third_party_libs/fmt/format.h>
+#include <third_party_libs/fmt/include/fmt/core.h>
 
 #include "entities/world_objects.h"
 #include "entities/world_characters.h"

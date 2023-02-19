@@ -1,7 +1,7 @@
 //#include "feats.h"
 //#include "feats_constants.h"
 
-#include <third_party_libs/fmt/format.h>
+#include <third_party_libs/fmt/include/fmt/core.h>
 
 #include "entities/player_races.h"
 #include "color.h"
