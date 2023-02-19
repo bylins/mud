@@ -1,4 +1,5 @@
-// $RCSfile$     $Date$     $Revision$
+// $RCSfile$     $Date$     $Re
+// vision$
 // Copyright (c) 2010 Krodo
 // Part of Bylins http://www.mud.ru
 
@@ -10,8 +11,6 @@
 #include <iomanip>
 #include <vector>
 
-#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string.hpp>
 #include <third_party_libs/fmt/include/fmt/format.h>
 
 #include "utils/logger.h"
@@ -320,7 +319,12 @@ std::string olc_print_stat(CharData *ch, int stat) {
 		return "";
 	}
 
-	return fmt::format("  {:<16} :  {}(+{:<5}){}  ({}{}{}) %4d ({}{}{})  {}(-{:<5})  | {}{}\r\n",
+	std::string stat_add;
+	if (ch->desc->glory_const->stat_add[stat] > 0) {
+		stat_add = fmt::format("+{}", ch->desc->glory_const->stat_add[stat]);
+	}
+
+	return fmt::format("  {:<16} :  {}(+{:<5}){}  ({}{}{}) %4d ({}{}{})  {}(-{:<5})  | {:+}{}\r\n",
 						  olc_stat_name[stat],
 						  CCINRM(ch, C_NRM), remove_stat_cost(stat, ch->desc->glory_const), CCNRM(ch, C_NRM),
 						  CCIGRN(ch, C_NRM), olc_del_name[stat], CCNRM(ch, C_NRM),
@@ -328,9 +332,7 @@ std::string olc_print_stat(CharData *ch, int stat) {
 							  * stat_multi(stat)),
 						  CCIGRN(ch, C_NRM), olc_add_name[stat], CCNRM(ch, C_NRM),
 						  CCINRM(ch, C_NRM), add_stat_cost(stat, ch->desc->glory_const),
-						  (ch->desc->glory_const->stat_add[stat] > 0 ? std::string("+")
-							  + boost::lexical_cast<std::string>(ch->desc->glory_const->stat_add[stat]) : ""),
-						  CCNRM(ch, C_NRM));
+						  stat_add, CCNRM(ch, C_NRM));
 }
 
 // * Распечатка олц меню.

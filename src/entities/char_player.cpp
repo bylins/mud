@@ -4,10 +4,11 @@
 
 #include "char_player.h"
 
+#include <sys/stat.h>
+
 #include "utils/file_crc.h"
 #include "communication/ignores_loader.h"
 #include "olc/olc.h"
-//#include "game_fight/pk.h"
 #include "utils/diskio.h"
 #include "genchar.h"
 #include "handler.h"
@@ -18,9 +19,6 @@
 #include "game_magic/magic_temp_spells.h"
 #include "administration/accounts.h"
 #include "liquid.h"
-#include <sys/stat.h>
-
-#include <boost/lexical_cast.hpp>
 
 #ifdef _WIN32
 #else
@@ -1024,12 +1022,11 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 		line1[i] = '\0';
 		num = atoi(line1);
 		lnum = atol(line1);
-		try {
-			llnum = boost::lexical_cast<unsigned long long>(line1);
-		}
-		catch (boost::bad_lexical_cast &) {
+		errno = 0;
+		char *end;
+		llnum = std::strtoll(line1, &end, 10);
+		if (errno != 0)
 			llnum = 0;
-		}
 
 		switch (*tag) {
 			case 'A':

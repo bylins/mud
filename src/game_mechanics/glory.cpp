@@ -18,7 +18,6 @@
 #include "modify.h"
 #include "glory_misc.h"
 
-#include <boost/lexical_cast.hpp>
 #include <third_party_libs/fmt/include/fmt/format.h>
 
 #include <sstream>
@@ -237,7 +236,7 @@ void load_glory() {
 		} else if (buffer == "<End>") {
 			// сверочка мд5
 			file >> buffer;
-			int result = Password::compare_password(buffer, boost::lexical_cast<std::string>(all_sum));
+			int result = Password::compare_password(buffer, fmt::format("{}", all_sum));
 			checksum = true;
 			if (!result) {
 				// FIXME тут надо другое оповещение, но потом
@@ -271,7 +270,7 @@ void save_glory() {
 	}
 	out << "<End>\n";
 	// TODO: в file_crc систему это надо
-	out << Password::generate_md5_hash(boost::lexical_cast<std::string>(all_sum)) << "\n";
+	out << Password::generate_md5_hash(fmt::format("{}", all_sum)) << "\n";
 
 	const char *glory_file = LIB_PLRSTUFF"glory.lst";
 	std::ofstream file(glory_file);

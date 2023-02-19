@@ -149,7 +149,6 @@
 #include "administration/accounts.h"
 #include "game_fight/pk.h"
 
-#include <boost/lexical_cast.hpp>
 #include <third_party_libs/fmt/include/fmt/format.h>
 
 #include <stdexcept>
@@ -4116,13 +4115,13 @@ std::string ExpFormat(long long exp) {
 		prefix = "-";
 	}
 	if (exp < 1000000)
-		return (prefix + boost::lexical_cast<std::string>(exp));
+		return (prefix + fmt::format("{}", exp));
 	else if (exp < 1000000000)
-		return (prefix + boost::lexical_cast<std::string>(exp / 1000) + " тыс");
+		return (prefix + fmt::format("{}", exp / 1000) + " тыс");
 	else if (exp < 1000000000000LL)
-		return (prefix + boost::lexical_cast<std::string>(exp / 1000000) + " млн");
+		return (prefix + fmt::format("{}", exp / 1000000) + " млн");
 	else
-		return (prefix + boost::lexical_cast<std::string>(exp / 1000000000LL) + " млрд");
+		return (prefix + fmt::format("{}", exp / 1000000000LL) + " млрд");
 }
 
 // * Конвертация имени в нижний регистр + первый сивмол в верхний (для единообразного поиска в контейнерах)
