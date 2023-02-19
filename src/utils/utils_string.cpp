@@ -1,4 +1,4 @@
-#include "utils_string.h"
+//#include "utils_string.h"
 
 #include "utils.h"
 
@@ -130,7 +130,7 @@ bool IsAbbr(const char *arg1, const char *arg2) {
 	}
 }
 
-void Split(std::vector<std::string> &tokens, const std::string& s, char delimiter) {
+void Split(std::vector<std::string> &tokens, const std::string &s, char delimiter) {
 	std::string token;
 	std::istringstream tokens_stream(s);
 	while (std::getline(tokens_stream, token, delimiter)) {
@@ -139,22 +139,21 @@ void Split(std::vector<std::string> &tokens, const std::string& s, char delimite
 	}
 }
 
-
 std::string SubstToLow(std::string s) {
-	for (char & it : s) {
+	for (char &it: s) {
 		it = LOWER(it);
 	}
 	return s;
 }
 
 void ConvertKtoW(std::string &text) {
-	for (char & it : text) {
+	for (char &it: text) {
 		it = KtoW(it);
 	}
 }
 
 void ConvertWtoK(std::string &text) {
-	for (char & it : text) {
+	for (char &it: text) {
 		it = WtoK(it);
 	}
 }
@@ -170,7 +169,7 @@ std::string SubstWtoK(std::string s) {
 }
 
 void ConvertToLow(std::string &text) {
-	for (char & it : text) {
+	for (char &it: text) {
 		it = LOWER(it);
 	}
 }
@@ -183,14 +182,14 @@ void ConvertToLow(char *text) {
 }
 
 std::string SubstStrToLow(std::string s) {
-	for (char & it : s) {
+	for (char &it: s) {
 		it = UPPER(it);
 	}
 	return s;
 }
 
 std::string SubstStrToUpper(std::string s) {
-	for (char & it : s) {
+	for (char &it: s) {
 		it = UPPER(it);
 	}
 	return s;
@@ -228,6 +227,25 @@ std::string TrimCopy(std::string s) {
 	return s;
 }
 
+void TrimLeftIf(std::string &s, const std::string &whitespaces) {
+	auto lambda = [&whitespaces] (char c) {
+		return (whitespaces.find(c) == std::string::npos);
+	};
+	s.erase(s.begin(), std::find_if(s.begin(), s.end(), lambda));
+}
+
+void TrimRightIf(std::string &s, const std::string &whitespaces) {
+	auto lambda = [&whitespaces] (char c) {
+		return (whitespaces.find(c) == std::string::npos);
+	};
+	s.erase(std::find_if(s.rbegin(), s.rend(), lambda).base(), s.end());
+}
+
+void TrimIf(std::string &s, const std::string &whitespaces) {
+	TrimLeftIf(s, whitespaces);
+	TrimRightIf(s, whitespaces);
+}
+
 std::string FixDot(std::string s) {
 	for (char &it : s) {
 		if (('.' == it) || ('_' == it)) {
@@ -255,6 +273,23 @@ void SortKoiStringReverse(std::vector<std::string> &str) {
 	std::sort(str.begin(), str.end(), std::greater<std::string>());
 	for (auto &it : str) {
 		ConvertWtoK(it);
+	}
+}
+
+void ReplaceAll(std::string &s, const std::string &toSearch, const std::string &replacer) {
+	size_t pos = s.find(toSearch);
+	while (pos != std::string::npos) {
+		s.replace(pos, toSearch.size(), replacer);
+		pos = s.find(toSearch, pos + replacer.size());
+	}
+}
+
+void EraseAll(std::string &s, const std::string &toSearch) {
+	size_t pos = s.find(toSearch);
+	size_t len = toSearch.length();
+	while (pos != std::string::npos) {
+		s.erase(pos, len);
+		pos = s.find(toSearch);
 	}
 }
 

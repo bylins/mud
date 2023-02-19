@@ -8,7 +8,7 @@
 #include "color.h"
 #include "third_party_libs/pugixml/pugixml.h"
 
-#include <boost/format.hpp>
+#include <third_party_libs/fmt/include/fmt/format.h>
 #include <boost/algorithm/string.hpp>
 
 using namespace ExtMoney;
@@ -128,7 +128,7 @@ namespace ExtMoney {
 
 // распечатка меню обмена гривен ('менять' у глашатая)
 void torc_exch_menu(CharData *ch) {
-	boost::format menu("   %s%d) %s%-17s%s -> %s%-17s%s [%d -> %d]\r\n");
+	std::string_view menu{"   {}{}) {}{:<17}{} -> {}{:<17}{} [{} -> {}]\r\n"};
 	std::stringstream out;
 
 	out << "\r\n"
@@ -141,27 +141,27 @@ void torc_exch_menu(CharData *ch) {
 		<< CCWHT(ch, C_NRM) << ch->desc->ext_money[kTorcSilver] << "с "
 		<< CCYEL(ch, C_NRM) << ch->desc->ext_money[kTorcBronze] << "б\r\n\r\n";
 
-	out << menu
-		% CCGRN(ch, C_NRM) % 1
-		% CCYEL(ch, C_NRM) % "Бронзовые гривны" % CCNRM(ch, C_NRM)
-		% CCWHT(ch, C_NRM) % "Серебряные гривны" % CCNRM(ch, C_NRM)
-		% TORC_EXCH_RATE % 1;
-	out << menu
-		% CCGRN(ch, C_NRM) % 2
-		% CCWHT(ch, C_NRM) % "Серебряные гривны" % CCNRM(ch, C_NRM)
-		% CCIYEL(ch, C_NRM) % "Золотые гривны" % CCNRM(ch, C_NRM)
-		% TORC_EXCH_RATE % 1;
+	out << fmt::format(fmt::runtime(menu),
+		CCGRN(ch, C_NRM), 1,
+		CCYEL(ch, C_NRM), "Бронзовые гривны", CCNRM(ch, C_NRM),
+		CCWHT(ch, C_NRM), "Серебряные гривны", CCNRM(ch, C_NRM),
+		TORC_EXCH_RATE, 1);
+	out << fmt::format(fmt::runtime(menu),
+		CCGRN(ch, C_NRM), 2,
+		CCWHT(ch, C_NRM), "Серебряные гривны", CCNRM(ch, C_NRM),
+		CCIYEL(ch, C_NRM), "Золотые гривны", CCNRM(ch, C_NRM),
+		TORC_EXCH_RATE, 1);
 	out << "\r\n"
-		<< menu
-			% CCGRN(ch, C_NRM) % 3
-			% CCIYEL(ch, C_NRM) % "Золотые гривны" % CCNRM(ch, C_NRM)
-			% CCWHT(ch, C_NRM) % "Серебряные гривны" % CCNRM(ch, C_NRM)
-			% 1 % TORC_EXCH_RATE;
-	out << menu
-		% CCGRN(ch, C_NRM) % 4
-		% CCWHT(ch, C_NRM) % "Серебряные гривны" % CCNRM(ch, C_NRM)
-		% CCYEL(ch, C_NRM) % "Бронзовые гривны" % CCNRM(ch, C_NRM)
-		% 1 % TORC_EXCH_RATE;
+		<< fmt::format(fmt::runtime(menu),
+			CCGRN(ch, C_NRM), 3,
+			CCIYEL(ch, C_NRM), "Золотые гривны", CCNRM(ch, C_NRM),
+			CCWHT(ch, C_NRM), "Серебряные гривны", CCNRM(ch, C_NRM),
+			1, TORC_EXCH_RATE);
+	out << fmt::format(fmt::runtime(menu),
+		CCGRN(ch, C_NRM), 4,
+		CCWHT(ch, C_NRM), "Серебряные гривны", CCNRM(ch, C_NRM),
+		CCYEL(ch, C_NRM), "Бронзовые гривны", CCNRM(ch, C_NRM),
+		1, TORC_EXCH_RATE);
 
 	out << "\r\n"
 		   "   <номер действия> - один минимальный обмен указанного вида\r\n"
@@ -485,7 +485,7 @@ std::string draw_daily_limit(CharData *ch, bool imm_stat) {
 			}
 		}
 	} else {
-		out += boost::str(boost::format("%d/%d") % today_torc % daily_torc_limit);
+		out += fmt::format("{}/{}", today_torc, daily_torc_limit);
 	}
 	out += "]";
 
@@ -558,7 +558,7 @@ void drop_torc(CharData *mob) {
 	log("[Extract char] Checking %s for ExtMoney.", mob->get_name().c_str());
 
 	std::pair<int /* uid */, int /* rounds */> damager = mob->get_max_damager_in_room();
-	DescriptorData *d = 0;
+	DescriptorData *d = nullptr;
 	if (damager.first > 0) {
 		d = DescByUID(damager.first);
 	}

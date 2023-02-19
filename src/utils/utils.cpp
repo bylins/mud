@@ -15,7 +15,7 @@
 #include "utils.h"
 
 #include <algorithm>
-#include <third_party_libs/fmt/format.h>
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 #include "entities/world_characters.h"
 #include "obj_prototypes.h"

@@ -1,4 +1,5 @@
-// $RCSfile$     $Date$     $Revision$
+// $RCSfile$     $Date$     $Re
+// vision$
 // Copyright (c) 2010 Krodo
 // Part of Bylins http://www.mud.ru
 
@@ -10,9 +11,7 @@
 #include <iomanip>
 #include <vector>
 
-#include <boost/lexical_cast.hpp>
-#include <boost/format.hpp>
-#include <boost/algorithm/string.hpp>
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 #include "utils/logger.h"
 #include "utils/utils.h"
@@ -320,20 +319,20 @@ std::string olc_print_stat(CharData *ch, int stat) {
 		return "";
 	}
 
-	return boost::str(boost::format("  %-16s :  %s(+%5d)%s  (%s%s%s) %4d (%s%s%s)  %s(-%5d)  | %d%s\r\n")
-						  % olc_stat_name[stat]
-						  % CCINRM(ch, C_NRM)
-						  % remove_stat_cost(stat, ch->desc->glory_const)
-						  % CCNRM(ch, C_NRM)
-						  % CCIGRN(ch, C_NRM) % olc_del_name[stat] % CCNRM(ch, C_NRM)
-						  % ((ch->desc->glory_const->stat_cur[stat] + ch->desc->glory_const->stat_add[stat])
-							  * stat_multi(stat))
-						  % CCIGRN(ch, C_NRM) % olc_add_name[stat] % CCNRM(ch, C_NRM)
-						  % CCINRM(ch, C_NRM)
-						  % add_stat_cost(stat, ch->desc->glory_const)
-						  % (ch->desc->glory_const->stat_add[stat] > 0 ? std::string("+")
-							  + boost::lexical_cast<std::string>(ch->desc->glory_const->stat_add[stat]) : "")
-						  % CCNRM(ch, C_NRM));
+	std::string stat_add;
+	if (ch->desc->glory_const->stat_add[stat] > 0) {
+		stat_add = fmt::format("+{}", ch->desc->glory_const->stat_add[stat]);
+	}
+
+	return fmt::format("  {:<16} :  {}(+{:<5}){}  ({}{}{}) %4d ({}{}{})  {}(-{:<5})  | {:+}{}\r\n",
+						  olc_stat_name[stat],
+						  CCINRM(ch, C_NRM), remove_stat_cost(stat, ch->desc->glory_const), CCNRM(ch, C_NRM),
+						  CCIGRN(ch, C_NRM), olc_del_name[stat], CCNRM(ch, C_NRM),
+						  ((ch->desc->glory_const->stat_cur[stat] + ch->desc->glory_const->stat_add[stat])
+							  * stat_multi(stat)),
+						  CCIGRN(ch, C_NRM), olc_add_name[stat], CCNRM(ch, C_NRM),
+						  CCINRM(ch, C_NRM), add_stat_cost(stat, ch->desc->glory_const),
+						  stat_add, CCNRM(ch, C_NRM));
 }
 
 // * Распечатка олц меню.
@@ -1094,13 +1093,12 @@ void apply_modifiers(CharData *ch) {
 
 void PrintGloryChart(CharData *ch) {
 	std::stringstream out;
-	boost::format class_format("\t%-25s %-2d\r\n");
 	std::map<int, GloryNodePtr> temp_list;
 	std::stringstream hide;
 
-	bool print_hide = 0;
+	bool print_hide = false;
 	if (IS_IMMORTAL(ch)) {
-		print_hide = 1;
+		print_hide = true;
 		hide << "\r\nПерсонажи, исключенные из списка: ";
 	}
 	for (GloryListType::const_iterator it = glory_list.begin(); it != glory_list.end(); ++it) {
@@ -1136,7 +1134,7 @@ void PrintGloryChart(CharData *ch) {
 		}
 
 		if (!t_it->get()->hide  /*&& IsActiveUser( t_it->get()->uid ) */) {
-			out << class_format % name % (t_it->get()->free_glory + t_it->get()->tmp_spent_glory);
+			out << fmt::format("\t{:<25} {:<2}\r\n", name, (t_it->get()->free_glory + t_it->get()->tmp_spent_glory));
 		} else {
 			if (print_hide) {
 				hide << "\r\n" << "\t" << name << " (доступно:" << t_it->get()->free_glory << ", вложено:"

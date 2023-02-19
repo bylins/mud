@@ -1,13 +1,13 @@
-#include "game_skills/morph.hpp"
+//#include "game_skills/morph.hpp"
 
-#include "entities/obj_data.h"
+//#include "entities/obj_data.h"
 #include "color.h"
 #include "handler.h"
 #include "game_magic/magic_utils.h"
 #include "third_party_libs/pugixml/pugixml.h"
 
 #include <boost/algorithm/string.hpp>
-#include <boost/format.hpp>
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 MorphListType IdToMorphMap;
 
@@ -206,8 +206,8 @@ void do_morph(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	MorphPtr newMorph = MorphPtr(new AnimalMorph(*IdToMorphMap[morphId]));
 
-	SendMsgToChar(str(boost::format(newMorph->GetMessageToChar()) % newMorph->PadName()) + "\r\n", ch);
-	act(str(boost::format(newMorph->GetMessageToRoom()) % newMorph->PadName()).c_str(), true, ch, 0, 0, kToRoom);
+	SendMsgToChar(fmt::format(fmt::runtime(newMorph->GetMessageToChar()), newMorph->PadName()) + "\r\n", ch);
+	act(fmt::format(fmt::runtime(newMorph->GetMessageToRoom()), newMorph->PadName()).c_str(), true, ch, 0, 0, kToRoom);
 
 	ch->set_morph(newMorph);
 	if (ch->equipment[EEquipPos::kBoths]) {

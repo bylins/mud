@@ -5,7 +5,7 @@ sudo apt update && sudo apt upgrade
 
 sudo apt install build-essential make libssl-dev libghc-zlib-dev libcurl4-gnutls-dev libexpat1-dev gettext unzip libboost-all-dev cmake
 
-git clone https://github.com/bylins/mud
+git clone --recurse-submodules https://github.com/bylins/mud
 
 cd mud
 

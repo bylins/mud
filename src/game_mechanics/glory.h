@@ -31,8 +31,6 @@ bool remove_stats(CharData *ch, CharData *god, int amount);
 void transfer_stats(CharData *ch, CharData *god, const std::string& name, char *reason);
 void show_glory(CharData *ch, CharData *god);
 void show_stats(CharData *ch);
-
-void print_glory_top(CharData *ch);
 void hide_char(CharData *vict, CharData *god, char const *const mode);
 
 void set_freeze(long uid);

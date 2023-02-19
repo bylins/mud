@@ -1,10 +1,6 @@
 // Copyright (c) 2014 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string.hpp>
-
-#include "entities/world_characters.h"
 #include "obj_prototypes.h"
 #include "obj_sets_stuff.h"
 #include "third_party_libs/pugixml/pugixml.h"
@@ -13,6 +9,9 @@
 #include "help.h"
 #include "game_mechanics/sets_drop.h"
 #include "structs/global_objects.h"
+
+#include <third_party_libs/fmt/include/fmt/format.h>
+#include <boost/algorithm/string.hpp>
 
 namespace obj_sets {
 
@@ -785,8 +784,8 @@ void do_slist(CharData *ch) {
 				 (i->comment.empty() ? "" : comment),
 				 (i->enabled ? "" : status));
 		out += buf_;
-		for (auto & o : i->obj_list) {
-			out += boost::lexical_cast<std::string>(o.first) + " ";
+		for (auto &o : i->obj_list) {
+			out += fmt::format("{} ", o.first);
 		}
 		out += "\r\n";
 	}
@@ -805,7 +804,7 @@ std::string print_activ_affects(const FlagData &aff) {
 		utils::TrimRight(aff_str);
 		char filler[64];
 		snprintf(filler, sizeof(filler), "\n%s +    %s", KNRM, KCYN);
-		boost::replace_all(aff_str, "\n", filler);
+		utils::ReplaceAll(aff_str, "\n", filler);
 		aff_str += KNRM;
 		aff_str += "\r\n";
 

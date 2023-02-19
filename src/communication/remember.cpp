@@ -2,14 +2,14 @@
 // Copyright (c) 2009 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "remember.h"
+//#include "remember.h"
 
-#include "utils/logger.h"
+//#include "utils/logger.h"
 #include "entities/char_data.h"
 #include "color.h"
 #include "house.h"
 
-#include <boost/format.hpp>
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 namespace Remember {
 
@@ -24,7 +24,7 @@ RememberWiznetListType wiznet_;
 
 std::string time_format() {
 	char time_buf[9];
-	time_t tmp_time = time(0);
+	time_t tmp_time = time(nullptr);
 	strftime(time_buf, sizeof(time_buf), "[%H:%M] ", localtime(&tmp_time));
 	return time_buf;
 }
@@ -48,13 +48,13 @@ std::string format_gossip_name(CharData *ch, CharData *vict) {
 * систему в do_gen_comm чет облом пока, а возвращать сформированную строку из act() не хочется.
 */
 std::string format_gossip(CharData *ch, CharData *vict, int cmd, const char *argument) {
-	return str(boost::format("%1%%2% %3%%4% : '%5%'%6%\r\n")
-				   % (cmd == SCMD_GOSSIP ? CCYEL(vict, C_NRM) : CCIYEL(vict, C_NRM))
-				   % format_gossip_name(ch, vict).c_str()
-				   % (cmd == SCMD_GOSSIP ? "заметил" : "заорал")
-				   % GET_CH_VIS_SUF_1(ch, vict)
-				   % argument
-				   % CCNRM(vict, C_NRM));
+	return fmt::format("{}{} {}{} : '{}'{}\r\n",
+				   (cmd == SCMD_GOSSIP ? CCYEL(vict, C_NRM) : CCIYEL(vict, C_NRM)),
+				   format_gossip_name(ch, vict).c_str(),
+				   (cmd == SCMD_GOSSIP ? "заметил" : "заорал"),
+				   GET_CH_VIS_SUF_1(ch, vict),
+				   argument,
+				   CCNRM(vict, C_NRM));
 }
 
 // * Анти-копипаст для CharRemember::add_str.
@@ -68,11 +68,11 @@ void add_to_cont(RememberListType &cont, const std::string &text) {
 // * Анти-копипаст для CharRemember::get_text.
 std::string get_from_cont(const RememberListType &cont, unsigned int num_str) {
 	std::string text;
-	RememberListType::const_iterator it = cont.begin();
+	auto it = cont.cbegin();
 	if (cont.size() > num_str) {
 		std::advance(it, cont.size() - num_str);
 	}
-	for (; it != cont.end(); ++it) {
+	for (; it != cont.cend(); ++it) {
 		text += *it;
 	}
 	return text;

@@ -1,5 +1,4 @@
 #include <config.h>
-#include <magic/spells_info.h>
 
 #include <gtest/gtest.h>
 
@@ -11,7 +10,6 @@ public:
 
 void BylinsEnvironment::SetUp()
 {
-	initSpells();
 	runtime_config.disable_logging();
 }
 

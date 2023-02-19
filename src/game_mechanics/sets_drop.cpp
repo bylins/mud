@@ -3,18 +3,16 @@
 
 #include "sets_drop.h"
 
-#include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include "obj_prototypes.h"
-#include "entities/char_data.h"
 #include "third_party_libs/pugixml/pugixml.h"
+#include <third_party_libs/fmt/include/fmt/format.h>
+
+#include "obj_prototypes.h"
 #include "house.h"
 #include "color.h"
 #include "help.h"
-#include "utils/parse.h"
 #include "statistics/mob_stat.h"
-#include "entities/zone.h"
 
 namespace SetsDrop {
 // список сетин на дроп
@@ -990,7 +988,7 @@ void save_drop_table() {
 
 	pugi::xml_node time_node = node_list.append_child();
 	time_node.set_name("time");
-	time_node.append_attribute("reset") = boost::lexical_cast<std::string>(next_reset_time).c_str();
+	time_node.append_attribute("reset") = fmt::format("{}", next_reset_time).c_str();
 
 	for (std::map<int, DropNode>::iterator i = drop_list.begin(),
 			 iend = drop_list.end(); i != iend; ++i) {

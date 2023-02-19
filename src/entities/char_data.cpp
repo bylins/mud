@@ -2,13 +2,13 @@
 // Copyright (c) 2008 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "world_characters.h"
-#include "game_fight/pk.h"
+//#include "world_characters.h"
+//#include "game_fight/pk.h"
 #include "handler.h"
 #include "administration/privilege.h"
 #include "char_player.h"
 #include "player_races.h"
-#include "game_mechanics/celebrates.h"
+//#include "game_mechanics/celebrates.h"
 #include "cache.h"
 #include "game_fight/fight.h"
 #include "house.h"
@@ -16,7 +16,8 @@
 #include "backtrace.h"
 #include "structs/global_objects.h"
 #include "liquid.h"
-#include <boost/format.hpp>
+
+#include <third_party_libs/fmt/include/fmt/format.h>
 #include <random>
 
 std::string PlayerI::empty_const_str;
@@ -1707,8 +1708,10 @@ void CharData::set_morph(MorphPtr morph) {
 
 void CharData::reset_morph() {
 	int value = this->GetMorphSkill(ESkill::kMorph);
-	SendMsgToChar(str(boost::format(current_morph_->GetMessageToChar()) % "человеком") + "\r\n", this);
-	act(str(boost::format(current_morph_->GetMessageToRoom()) % "человеком").c_str(), true, this, 0, 0, kToRoom);
+	auto msg_to_char = fmt::format(fmt::runtime(current_morph_->GetMessageToRoom()), "человеком") + "\r\n";
+	SendMsgToChar(msg_to_char, this);
+	auto msg_to_room = fmt::format(fmt::runtime(current_morph_->GetMessageToRoom()), "человеком");
+	act(msg_to_room, true, this, 0, 0, kToRoom);
 	this->current_morph_ = GetNormalMorphNew(this);
 	this->set_morphed_skill(ESkill::kMorph, (std::min(kZeroRemortSkillCap + GetRealRemort(this) * 5, value)));
 //	REMOVE_BIT(AFF_FLAGS(this, AFF_MORPH), AFF_MORPH);

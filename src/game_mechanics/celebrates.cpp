@@ -1,11 +1,11 @@
-#include "celebrates.h"
+//#include "celebrates.h"
+
+#include <third_party_libs/fmt/include/fmt/format.h>
+#include "third_party_libs/pugixml/pugixml.h"
 
 #include "structs/global_objects.h"
 #include "handler.h"
-#include "third_party_libs/pugixml/pugixml.h"
 #include "backtrace.h"
-
-#include <boost/lexical_cast.hpp>
 
 extern void extract_trigger(Trigger *trig);
 
@@ -80,8 +80,8 @@ std::string add_rest(CelebrateList::iterator it, CelebrateDataPtr celebrate) {
 		--days_count;
 		hours = 24 + hours;
 	}
-	return ". До окончания - дней: " + boost::lexical_cast<std::string>(days_count) +
-		", часов: " + boost::lexical_cast<std::string>(hours);
+
+	return fmt::format(". До окончания - дней: {}, часов: {}.", days_count, hours);
 }
 
 std::string get_name_real(int day) {

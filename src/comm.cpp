@@ -31,8 +31,6 @@
 
 #include "comm.h"
 
-#include <third_party_libs/fmt/format.h>
-
 #include "structs/global_objects.h"
 #include "game_magic/magic.h"
 #include "entities/world_objects.h"
@@ -69,6 +67,8 @@
 #include "db.h"
 #include "utils/utils.h"
 #include "structs/global_objects.h"
+
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"
@@ -120,10 +120,10 @@
 #endif
 
 #ifndef SOCKET_ERROR
-#define SOCKET_ERROR -1
+#define SOCKET_ERROR (-1)
 #endif
 
-#include <boost/format.hpp>
+#include <third_party_libs/fmt/include/fmt/format.h>
 #include <boost/algorithm/string.hpp>
 #include <sys/stat.h>
 
@@ -799,8 +799,8 @@ void stop_game(ush_int port) {
 	log("Polling using epoll.");
 	epoll = epoll_create1(0);
 	if (epoll == -1) {
-		perror(boost::str(boost::format("EPOLL: epoll_create1() failed in %s() at %s:%d")
-							  % __func__ % __FILE__ % __LINE__).c_str());
+		perror(fmt::format("EPOLL: epoll_create1() failed in {}() at {}:{}",
+							  __func__, __FILE__, __LINE__).c_str());
 		return;
 	}
 	// необходимо, т.к. в event.data мы можем хранить либо ptr, либо fd.
@@ -812,8 +812,8 @@ void stop_game(ush_int port) {
 	event.data.ptr = mother_d;
 	event.events = EPOLLIN;
 	if (epoll_ctl(epoll, EPOLL_CTL_ADD, mother_desc, &event) == -1) {
-		perror(boost::str(boost::format("EPOLL: epoll_ctl() failed on EPOLL_CTL_ADD mother_desc in %s() at %s:%d")
-							  % __func__ % __FILE__ % __LINE__).c_str());
+		perror(fmt::format("EPOLL: epoll_ctl() failed on EPOLL_CTL_ADD mother_desc in {}() at {}:{}",
+							  __func__, __FILE__, __LINE__).c_str());
 		return;
 	}
 
@@ -1153,8 +1153,10 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 	// неблокирующе получаем новые события
 	n = epoll_wait(epoll, events, MAXEVENTS, 0);
 	if (n == -1) {
-		std::string err = boost::str(boost::format("EPOLL: epoll_wait() failed in %s() at %s:%d")
-										 % __func__ % __FILE__ % __LINE__);
+		perror(fmt::format("EPOLL: epoll_ctl() failed on EPOLL_CTL_ADD mother_desc in {}() at {}:{}",
+						   __func__, __FILE__, __LINE__).c_str());
+		std::string err = fmt::format("EPOLL: epoll_wait() failed in {}() at {}:{}",
+										 __func__, __FILE__, __LINE__);
 		log("%s", err.c_str());
 		perror(err.c_str());
 		return;
@@ -1178,7 +1180,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		{
 			// надо будет помониторить сислог на предмет этих сообщений
 			char tmp[kMaxInputLength];
-			snprintf(tmp, sizeof(tmp), "EPOLL: Got event %u in %s() at %s:%d",
+			snprintf(tmp, sizeof(tmp), "EPOLL: Got event %u in {}() at %s:%d",
 					 static_cast<unsigned>(events[i].events),
 					 __func__, __FILE__, __LINE__);
 			log("%s", tmp);
@@ -1393,8 +1395,8 @@ void game_loop(socket_t mother_desc)
 					log("Waking up to process signal.");
 				else
 #ifdef HAS_EPOLL
-					perror(boost::str(boost::format("EPOLL: blocking epoll_wait() failed in %s() at %s:%d")
-										  % __func__ % __FILE__ % __LINE__).c_str());
+					perror(fmt::format("EPOLL: blocking epoll_wait() failed in {}() at {}:{}",
+										  __func__, __FILE__, __LINE__).c_str());
 #else
 				perror("SYSERR: Select coma");
 #endif
@@ -2097,8 +2099,8 @@ int new_descriptor(socket_t s)
 	//
 	event.events = EPOLLIN | EPOLLOUT | EPOLLRDHUP;
 	if (epoll_ctl(epoll, EPOLL_CTL_ADD, desc, &event) == -1) {
-		log("%s", boost::str(boost::format("EPOLL: epoll_ctl() failed on EPOLL_CTL_ADD in %s() at %s:%d")
-								 % __func__ % __FILE__ % __LINE__).c_str());
+		log("%s", fmt::format("EPOLL: epoll_ctl() failed on EPOLL_CTL_ADD in {}() at {}:{}",
+								 __func__, __FILE__, __LINE__).c_str());
 		CLOSE_SOCKET(desc);
 		delete newd;
 		return -2;
@@ -2210,8 +2212,8 @@ int process_output(DescriptorData *t) {
 
 	// с переходом на ивенты это необходимо для предотвращения некоторых маловероятных крешей
 	if (t == nullptr) {
-		log("%s", boost::str(boost::format("SYSERR: NULL descriptor in %s() at %s:%d")
-								 % __func__ % __FILE__ % __LINE__).c_str());
+		log("%s", fmt::format("SYSERR: NULL descriptor in {}() at {}:{}",
+								 __func__, __FILE__, __LINE__).c_str());
 		return -1;
 	}
 
@@ -2569,8 +2571,8 @@ int process_input(DescriptorData *t) {
 
 	// с переходом на ивенты это необходимо для предотвращения некоторых маловероятных крешей
 	if (t == nullptr) {
-		log("%s", boost::str(boost::format("SYSERR: NULL descriptor in %s() at %s:%d")
-								 % __func__ % __FILE__ % __LINE__).c_str());
+		log("%s", fmt::format("SYSERR: NULL descriptor in {}() at {}:{}",
+								 __func__, __FILE__, __LINE__).c_str());
 		return -1;
 	}
 
@@ -2979,8 +2981,8 @@ void close_socket(DescriptorData * d, int direct)
 #endif
 {
 	if (d == nullptr) {
-		log("%s", boost::str(boost::format("SYSERR: NULL descriptor in %s() at %s:%d")
-								 % __func__ % __FILE__ % __LINE__).c_str());
+		log("%s", fmt::format("SYSERR: NULL descriptor in {}() at {}:{}",
+								 __func__, __FILE__, __LINE__).c_str());
 		return;
 	}
 
